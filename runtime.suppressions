@@ -1,0 +1,28 @@
+# Hash might have been resized when a new key has been added
+{
+   g_hash_table_resize
+   Memcheck:Leak
+   ...
+   fun:g_hash_table_resize
+   fun:g_hash_table_maybe_resize
+   ...
+}
+
+# Type registration on first use
+{
+   g_type_class_ref
+   Memcheck:Leak
+   ...
+   fun:type_class_init_Wm
+   fun:g_type_class_ref
+   ...
+}
+
+# Leaky by design
+{
+   g_intern_static_string
+   Memcheck:Leak
+   ...
+   fun:g_intern_static_string
+   ...
+}
