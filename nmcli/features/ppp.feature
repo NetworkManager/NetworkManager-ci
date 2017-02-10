@@ -78,7 +78,7 @@ Feature: nmcli - ppp
      And "inet 192.168.111.254 peer 192.168.111.2/32 .*scope global ppp" is visible with command "ip a s"
      And "192.168.111.2 dev ppp.*  proto kernel  scope link  src 192.168.111.254" is visible with command "ip r"
      And "default via 192.168.111.254 dev ppp.*  proto static  metric" is visible with command "ip r"
-    * Execute "ip link set dev test11 down; ip link set dev test11 up"
+    * Execute "ip link set dev test12 down && sleep 2 && ip link set dev test12 up"
     Then "external" is visible with command "firewall-cmd --get-zone-of-interface=ppp0" in "10" seconds
      And "external" is visible with command "firewall-cmd --get-zone-of-interface=test11" in "10" seconds
      And "nameserver 8.8.8.8" is visible with command "cat /etc/resolv.conf"
