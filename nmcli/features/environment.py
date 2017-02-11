@@ -274,9 +274,13 @@ def teardown_hostapd():
 
 def before_scenario(context, scenario):
     try:
-        if call("nmcli -t -f STATE general  |grep ^connected", shell=True) != 0:
+        if call("nmcli device |grep testeth0 |grep ' connected'", shell=True) != 0:
             call("sudo nmcli connection modify testeth0 ipv4.may-fail no", shell=True)
             call("sudo nmcli connection up id testeth0", shell=True)
+            for attempt in xrange(0, 10):
+                if call("nmcli device |grep testeth0 |grep ' connected'", shell=True) == 0:
+                    break
+                sleep(1)
 
         os.environ['TERM'] = 'dumb'
 
