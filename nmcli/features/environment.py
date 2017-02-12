@@ -1165,7 +1165,8 @@ def after_scenario(context, scenario):
             call('sudo nmcli g hostname %s' % context.original_hostname, shell=True)
 
         if 'ipv6_describe' in scenario.tags or 'ipv4_describe' in scenario.tags:
-            call('run/rh-beaker/./sanitize_beah.sh', shell=True)
+            if call("systemctl is-enabled beah-srv.service  |grep ^enabled", shell=True) == 0:
+                call('run/rh-beaker/./sanitize_beah.sh', shell=True)
 
         if 'nmcli_general_correct_profile_activated_after_restart' in scenario.tags:
             print ("---------------------------")
