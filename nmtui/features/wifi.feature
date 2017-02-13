@@ -26,7 +26,7 @@ Feature: WIFI TUI tests
     * Choose to "Activate a connection" from main screen
     * Select connection "qe-open" in the list
     * Choose to "<Activate>" a connection
-    Then "ESSID=\"qe-open\"" is visible with command "cat /etc/sysconfig/network-scripts/ifcfg-qe-open"
+    Then "ESSID=(\"qe-open\"|qe-open)" is visible with command "cat /etc/sysconfig/network-scripts/ifcfg-qe-open"
     Then "TYPE=Wireless" is visible with command "cat /etc/sysconfig/network-scripts/ifcfg-qe-open"
     Then "inet 10." is visible with command "ip a s wlan0" in "30" seconds
 
@@ -42,7 +42,7 @@ Feature: WIFI TUI tests
     * ".*Authentication required.*" is visible on screen
     * Set current field to "over the river and through the woods"
     * Press "ENTER" key
-    Then "ESSID=\"qe-wpa1-psk\"" is visible with command "cat /etc/sysconfig/network-scripts/ifcfg-qe-wpa1-psk"
+    Then "ESSID=(\"qe-wpa1-psk\"|qe-wpa1-psk)" is visible with command "cat /etc/sysconfig/network-scripts/ifcfg-qe-wpa1-psk"
     Then "TYPE=Wireless" is visible with command "cat /etc/sysconfig/network-scripts/ifcfg-qe-wpa1-psk"
     Then "inet 10." is visible with command "ip a s wlan0" in "30" seconds
 
@@ -58,7 +58,7 @@ Feature: WIFI TUI tests
     * ".*Authentication required.*" is visible on screen
     * Set current field to "over the river and through the woods"
     * Press "ENTER" key
-    Then "ESSID=\"qe-wpa2-psk\"" is visible with command "cat /etc/sysconfig/network-scripts/ifcfg-qe-wpa2-psk"
+    Then "ESSID=(\"qe-wpa2-psk\"|qe-wpa2-psk)" is visible with command "cat /etc/sysconfig/network-scripts/ifcfg-qe-wpa2-psk"
     Then "TYPE=Wireless" is visible with command "cat /etc/sysconfig/network-scripts/ifcfg-qe-wpa2-psk"
     Then "inet 10." is visible with command "ip a s wlan0" in "30" seconds
 
@@ -74,7 +74,7 @@ Feature: WIFI TUI tests
     * ".*Authentication required.*" is visible on screen
     * Set current field to "74657374696E67313233343536"
     * Press "ENTER" key
-    Then "ESSID=\"qe-wep\"" is visible with command "cat /etc/sysconfig/network-scripts/ifcfg-qe-wep"
+    Then "ESSID=(\"qe-wep\"|qe-wep)" is visible with command "cat /etc/sysconfig/network-scripts/ifcfg-qe-wep"
     Then "TYPE=Wireless" is visible with command "cat /etc/sysconfig/network-scripts/ifcfg-qe-wep"
     Then "inet 10." is visible with command "ip a s wlan0" in "30" seconds
 
@@ -90,7 +90,7 @@ Feature: WIFI TUI tests
     * ".*Authentication required.*" is visible on screen
     * Set current field to "testing123456"
     * Press "ENTER" key
-    Then "ESSID=\"qe-wep\"" is visible with command "cat /etc/sysconfig/network-scripts/ifcfg-qe-wep"
+    Then "ESSID=(\"qe-wep\"|qe-wep)" is visible with command "cat /etc/sysconfig/network-scripts/ifcfg-qe-wep"
     Then "TYPE=Wireless" is visible with command "cat /etc/sysconfig/network-scripts/ifcfg-qe-wep"
     Then "inet 10." is visible with command "ip a s wlan0" in "30" seconds
 
@@ -106,7 +106,7 @@ Feature: WIFI TUI tests
     * ".*Authentication required.*" is visible on screen
     * Set current field to "testing123456"
     * Press "ENTER" key
-    Then "ESSID=\"qe-wep\"" is visible with command "cat /etc/sysconfig/network-scripts/ifcfg-qe-wep"
+    Then "ESSID=(\"qe-wep\"|qe-wep)" is visible with command "cat /etc/sysconfig/network-scripts/ifcfg-qe-wep"
     Then "TYPE=Wireless" is visible with command "cat /etc/sysconfig/network-scripts/ifcfg-qe-wep"
     Then "inet 10." is visible with command "ip a s wlan0" in "30" seconds
 
@@ -117,7 +117,7 @@ Feature: WIFI TUI tests
     * Prepare new connection of type "Wi-Fi" named "wifi"
     * Set "SSID" field to "qe-open"
     * Confirm the connection settings
-    Then "ESSID=\"qe-open\"" is visible with command "cat /etc/sysconfig/network-scripts/ifcfg-wifi"
+    Then "ESSID=(\"qe-open\"|qe-open)" is visible with command "cat /etc/sysconfig/network-scripts/ifcfg-wifi"
     Then "DEVICE" is not visible with command "cat /etc/sysconfig/network-scripts/ifcfg-wifi"
     Then "TYPE=Wireless" is visible with command "cat /etc/sysconfig/network-scripts/ifcfg-wifi"
     Then "inet 10." is visible with command "ip a s wlan0" in "30" seconds
@@ -130,7 +130,7 @@ Feature: WIFI TUI tests
     * Set "Device" field to "wlan0"
     * Set "SSID" field to "qe-open"
     * Confirm the connection settings
-    Then "ESSID=\"qe-open\"" is visible with command "cat /etc/sysconfig/network-scripts/ifcfg-wifi"
+    Then "ESSID=(\"qe-open\"|qe-open)" is visible with command "cat /etc/sysconfig/network-scripts/ifcfg-wifi"
     Then "DEVICE=wlan0" is visible with command "cat /etc/sysconfig/network-scripts/ifcfg-wifi"
     Then "inet 10." is visible with command "ip a s wlan0" in "30" seconds
 
@@ -142,7 +142,7 @@ Feature: WIFI TUI tests
     * Set "Device" field to "nonexistent"
     * Set "SSID" field to "qe-open"
     * Confirm the connection settings
-    Then "ESSID=\"qe-open\"" is visible with command "cat /etc/sysconfig/network-scripts/ifcfg-wifi"
+    Then "ESSID=(\"qe-open\"|qe-open)" is visible with command "cat /etc/sysconfig/network-scripts/ifcfg-wifi"
     Then "DEVICE=nonexistent" is visible with command "cat /etc/sysconfig/network-scripts/ifcfg-wifi"
     Then "wlan0\s+wifi\s+disconnected" is visible with command "nmcli device"
 
@@ -154,7 +154,7 @@ Feature: WIFI TUI tests
     * Set "SSID" field to "qe-open"
     * Ensure "Automatically connect" is not checked
     * Confirm the connection settings
-    Then "ESSID=\"qe-open\"" is visible with command "cat /etc/sysconfig/network-scripts/ifcfg-wifi"
+    Then "ESSID=(\"qe-open\"|qe-open)" is visible with command "cat /etc/sysconfig/network-scripts/ifcfg-wifi"
     Then "DEVICE=wlan0" is visible with command "cat /etc/sysconfig/network-scripts/ifcfg-wifi"
     Then "wlan0\s+wifi\s+disconnected" is visible with command "nmcli device"
 
@@ -481,6 +481,6 @@ Feature: WIFI TUI tests
     * Choose to "<Activate>" a connection
     * Set current field to "over the river and through the woods"
     * Press "ENTER" key
-    Then "ESSID=\"qe-wpa2-psk\"" is visible with command "cat /etc/sysconfig/network-scripts/ifcfg-qe-wpa2-psk"
+    Then "ESSID=(\"qe-wpa2-psk\"|qe-wpa2-psk)" is visible with command "cat /etc/sysconfig/network-scripts/ifcfg-qe-wpa2-psk"
     Then "TYPE=Wireless" is visible with command "cat /etc/sysconfig/network-scripts/ifcfg-qe-wpa2-psk"
     Then "inet 10." is visible with command "ip a s wlan0" in "30" seconds
