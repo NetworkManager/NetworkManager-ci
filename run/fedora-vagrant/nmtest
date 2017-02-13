@@ -65,11 +65,14 @@ def generate_vagrantfile(provider, image, tests, branch, force_yes):
         print("Vagrant.configure('2') do |config|", file=vf)
         print("  config.vm.box = '%s'" %image, file=vf)
         print("  config.vm.network 'forwarded_port', guest: 80, host: 8080", file=vf)
+        if provider == "libvirt":
+            print("  config.vm.network 'public_network', ip: '10.2.0.15'", file=vf)
         print("  config.vm.provider '%s' do |vb|" %provider, file=vf)
         print("    vb.memory = 2048", file=vf)
         print("    vb.cpus = 2", file=vf)
-        print("    vb.auto_nat_dns_proxy = false", file=vf)
-        print('    vb.customize ["modifyvm", :id, "--natdnshostresolver1", "on"]', file=vf)
+        if provider == "virtualbox":
+            print("    vb.auto_nat_dns_proxy = false", file=vf)
+            print('    vb.customize ["modifyvm", :id, "--natdnshostresolver1", "on"]', file=vf)
         print("  end", file=vf)
         print("  config.vm.provision 'shell', path: 'scripts/./setup.sh'", file=vf)
         if branch:
