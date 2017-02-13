@@ -50,7 +50,8 @@ $SUDO yum install \
     polkit-devel \
     teamd-devel \
     jansson-devel \
-    -y --best
+    make \
+    -y
 
 mkdir -p "$BUILD_DIR"
 cd "$BUILD_DIR"
