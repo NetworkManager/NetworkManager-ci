@@ -1259,6 +1259,7 @@ Feature: nmcli - wifi
     * Expect "There are . optional .*Wi-Fi"
     * Submit "no"
     * Dismiss IP configuration in editor
+    * Dismiss Proxy configuration in editor
     Then "\*\s+qe-open" is visible with command "nmcli -f IN-USE,SSID device wifi list" in "30" seconds
     Then "qe-open" is visible with command "iw dev wlan0 link" in "30" seconds
 
@@ -1283,6 +1284,7 @@ Feature: nmcli - wifi
     * Expect "Cloned MAC"
     * Submit "noted-value"
     * Dismiss IP configuration in editor
+    * Dismiss Proxy configuration in editor
     Then "\*\s+qe-open" is visible with command "nmcli -f IN-USE,SSID device wifi list" in "30" seconds
     Then "qe-open" is visible with command "iw dev wlan0 link" in "30" seconds
 
@@ -1315,6 +1317,7 @@ Feature: nmcli - wifi
     * Submit "<enter>"
     * Expect "IPv6 gateway"
     * Submit "::1"
+    * Dismiss Proxy configuration in editor
     * Expect "Connection.*successfully added"
     Then "\*\s+qe-open" is visible with command "nmcli -f IN-USE,SSID device wifi list" in "30" seconds
     Then "qe-open" is visible with command "iw dev wlan0 link" in "30" seconds
