@@ -20,6 +20,7 @@ sudo yum -y install \
         wireshark-cli \
         dbus-python \
         python-gobject \
+        wireshark \
         dnsmasq
 
 # some minor compatibility items
