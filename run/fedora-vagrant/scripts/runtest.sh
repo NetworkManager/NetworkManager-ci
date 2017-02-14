@@ -37,6 +37,7 @@ for test in $@; do
 
 done
 
+rc=1
 # Write out tests failures
 if [ ${#failures[@]} -ne 0 ]; then
     echo "** FAILED TESTS"
@@ -45,6 +46,7 @@ if [ ${#failures[@]} -ne 0 ]; then
         echo "$fail"
     done
 else
+    rc=0
     echo "** ALL $counter TESTS PASSED!"
 fi
 
@@ -55,4 +57,5 @@ tar -czf Archives-$(NetworkManager --version).tar.gz  *
 echo "** RESULTS ARE AVAILABLE at http://localhost:8080/results/"
 echo "** Archive available at http://localhost:8080/results/Archives-$(NetworkManager --version).tar.gz"
 echo "** Run 'vagrant destroy' when you're done with results exploration."
-exit 0
+
+exit $rc
