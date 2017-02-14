@@ -955,19 +955,16 @@
     @slaves @bond
     @bond_device_rename
     Scenario: NM - bond - device rename
-     * Add connection type "bond" named "bond0" for device "bondy"
-     * Add slave connection for master "nm-bond" on device "eth1" named "bond0.0"
-     * Add slave connection for master "nm-bond" on device "eth2" named "bond0.1"
-     * Bring "down" connection "bond0"
-     * Open editor for connection "bond0"
-     * Set a property named "connection.interface-name" to "nm-bond" in editor
-     * Save in editor
-     Then Value saved message showed in editor
-     * Quit editor
-     * Bring "up" connection "bond0"
-     * Bring "up" connection "bond0.0"
-     * Bring "up" connection "bond0.1"
-     Then Check bond "nm-bond" link state is "up"
+    * Add connection type "bond" named "bond0" for device "bondy"
+    * Add slave connection for master "nm-bond" on device "eth1" named "bond0.0"
+    * Bring "down" connection "bond0"
+    * Open editor for connection "bond0"
+    * Set a property named "connection.interface-name" to "nm-bond" in editor
+    * Save in editor
+    Then Value saved message showed in editor
+    * Quit editor
+    * Bring "up" connection "bond0.0"
+    Then Check bond "nm-bond" link state is "up"
 
 
     @rhbz1243371
