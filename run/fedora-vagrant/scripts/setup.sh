@@ -30,6 +30,9 @@ sudo yum -y install python-lxml
 
 sudo systemctl restart NetworkManager.service && sleep 5
 
+# FIXME: avoid debuginfo installation in low space semaphore
+touch /tmp/nm_no_debug
+
 # We need test user for some tests and sudo for vagrant user
 sudo useradd test
 echo "networkmanager" | sudo passwd test --stdin

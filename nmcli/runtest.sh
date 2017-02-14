@@ -18,9 +18,11 @@ if [ ! -e /tmp/nm_eth_configured ]; then
     service ntpd restart
 
     #pull in debugging symbols
-    cat /proc/$(pidof NetworkManager)/maps | awk '/ ..x. / {print $NF}' |
-        grep '^/' | xargs rpm -qf | grep -v 'not owned' | sort | uniq |
-        xargs debuginfo-install -y
+    if [ ! -e /tmp/nm_no_debug ]; then
+        cat /proc/$(pidof NetworkManager)/maps | awk '/ ..x. / {print $NF}' |
+            grep '^/' | xargs rpm -qf | grep -v 'not owned' | sort | uniq |
+            xargs debuginfo-install -y
+    fi
 
     #restart with valgrind
     if [ -e /etc/systemd/system/NetworkManager-valgrind.service ]; then
