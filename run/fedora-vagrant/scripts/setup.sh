@@ -26,6 +26,7 @@ sudo yum -y install \
 sudo dnf -y update firewalld dnsmasq --best
 sudo yum -y install python2-pexpect
 sudo yum -y install pexpect
+sudo yum -y install python-lxml
 
 sudo systemctl restart NetworkManager.service && sleep 5
 
