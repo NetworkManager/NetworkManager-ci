@@ -13,7 +13,6 @@ sudo yum -y install \
         pptpd \
         httpd \
         polkit \
-        python2-pexpect \
         python2-behave \
         ethtool \
         git \
@@ -23,7 +22,10 @@ sudo yum -y install \
         python-gobject \
         dnsmasq
 
+# some minor compatibility items
 sudo dnf -y update firewalld dnsmasq --best
+sudo yum install python2-pexpect
+sudo yum install pexpect
 
 sudo systemctl restart NetworkManager.service && sleep 5
 
