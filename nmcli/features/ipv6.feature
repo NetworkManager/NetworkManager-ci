@@ -902,7 +902,7 @@ Feature: nmcli: ipv6
 
 
     @rhbz1268866
-    @eth @internal_DHCP @teardown_testveth
+    @eth @internal_DHCP @teardown_testveth @long
     @ipv6_NM_stable_with_internal_DHCPv6
     Scenario: NM - ipv6 - stable with internal DHCPv6
     * Prepare simulated test "testX" device

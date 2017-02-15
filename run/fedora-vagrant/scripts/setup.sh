@@ -44,3 +44,6 @@ mkdir -p /var/www/html/results/
 echo "IndexOptions NameWidth=*" >> /etc/httpd/conf.d/autoindex.conf
 # Start HTTPD
 systemctl restart httpd.service
+
+# Skip long tests
+touch tmp/nm_skip_long

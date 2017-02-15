@@ -288,6 +288,13 @@ def before_scenario(context, scenario):
         context.log = file('/tmp/log_%s.html' % scenario.name,'w')
         dump_status(context, 'before %s' % scenario.name)
 
+        if 'long' in scenario.tags:
+            print ("---------------------------")
+            print ("skipping long test case if /tmp/nm_skip_long exists")
+            if os.path.isfile('/tmp/nm_skip_long'):
+            sys.exit(0)
+
+
         if '1000' in scenario.tags:
             print ("---------------------------")
             print ("installing pip and pyroute2")

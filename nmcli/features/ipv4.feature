@@ -853,7 +853,7 @@ Feature: nmcli: ipv4
     Then "mtu 1800" is visible with command "ip a s test2"
 
 
-    @eth @teardown_testveth
+    @eth @teardown_testveth @long
     @renewal_gw_after_dhcp_outage
     Scenario: NM - ipv4 - renewal gw after DHCP outage
     * Prepare simulated test "testX" device
@@ -884,7 +884,7 @@ Feature: nmcli: ipv4
 
 
     @rhbz1246496
-    @eth @teardown_testveth
+    @eth @teardown_testveth @long
     @renewal_gw_after_dhcp_outage_for_assumed_var0
     Scenario: NM - ipv4 - assumed address renewal after DHCP outage for on-disk assumed
     * Prepare simulated test "testX" device
@@ -904,7 +904,7 @@ Feature: nmcli: ipv4
 
 
     @rhbz1265239
-    @teardown_testveth
+    @teardown_testveth @long
     @renewal_gw_after_dhcp_outage_for_assumed_var1
     Scenario: NM - ipv4 - assumed address renewal after DHCP outage for in-memory assumed
     * Prepare simulated test "testX" device

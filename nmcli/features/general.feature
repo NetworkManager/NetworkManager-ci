@@ -590,17 +590,16 @@ Feature: nmcli - general
     Then vxlan device "BBB" check
 
 
-    @two_bridged_veths
     @rhbz1109426
+    @two_bridged_veths
     @veth_goes_to_unmanaged_state
     Scenario: NM - general - veth in unmanaged state
     * Execute "ip link add test1 type veth peer name test1p"
     Then "test1\s+ethernet\s+unmanaged.*test1p\s+ethernet\s+unmanaged" is visible with command "nmcli device"
 
 
-    @two_bridged_veths
     @rhbz1067299
-    @peers_ns
+    @two_bridged_veths @peers_ns
     @nat_from_shared_network
     Scenario: NM - general - NAT_dhcp from shared networks
     * Execute "ip link add test1 type veth peer name test1p"
@@ -619,11 +618,8 @@ Feature: nmcli - general
     Then Unable to ping "172.16.0.111" from "eth0" device
 
 
-    @rhbz1083683
-    @rhbz1256772
-    @rhbz1260243
-    @runonce
-    @teardown_testveth
+    @rhbz1083683 @rhbz1256772 @rhbz1260243
+    @runonce @teardown_testveth
     @run_once_new_connection
     Scenario: NM - general - run once and quit start new ipv4 and ipv6 connection
     * Prepare simulated test "testY" device
@@ -648,9 +644,8 @@ Feature: nmcli - general
     Then "inactive" is visible with command "systemctl is-active NetworkManager"
 
 
-    @rhbz1083683
-    @rhbz1256772
-    @runonce
+    @rhbz1083683 @rhbz1256772
+    @runonce @long
     @run_once_ip4_renewal
     Scenario: NM - general - run once and quit ipv4 renewal
     * Add a new connection of type "ethernet" and options "ifname eth1 con-name ethie"
