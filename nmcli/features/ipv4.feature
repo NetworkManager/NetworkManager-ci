@@ -141,7 +141,7 @@ Feature: nmcli: ipv4
     Then "192.168.122.253/24" is visible with command "ip a s eth1"
     Then "default via 192.168.122.96 dev eth1  proto static  metric" is visible with command "ip route"
     Then "192.168.122.0/24 dev eth1  proto kernel  scope link  src 192.168.122.253" is visible with command "ip route"
-    Then "default via 10." is visible with command "ip route"
+    Then "2" is visible with command "ip r |grep 'default via 1' |wc -l"
 
 
     @ipv4 @eth0
@@ -160,7 +160,7 @@ Feature: nmcli: ipv4
     Then "192.168.122.253/16" is visible with command "ip a s eth1"
     Then "192.168.222.253/8" is visible with command "ip a s eth1"
     Then "default via 192.168.22.96 dev eth1  proto static  metric" is visible with command "ip route"
-    Then "default via 10." is not visible with command "ip route"
+    Then "1" is visible with command "ip r |grep 'default via 1' |wc -l"
 
 
     @ipv4

@@ -148,7 +148,7 @@ def start_vagrant(force_yes):
     if not start or start == 'yes':
         #call("vagrant destroy" , shell=True)
         print ("Results will be available shortly at http://localhost:8080/results/")
-        call("vagrant up" , shell=True)
+        return call("vagrant up" , shell=True)
 
 def signal_handler(signal, frame):
     print("")
@@ -213,8 +213,7 @@ def main():
         force_yes=True
 
     generate_vagrantfile(provider, image, tests, branch, force_yes)
-    start_vagrant(force_yes)
-    exit(0)
+    exit(start_vagrant(force_yes))
 
 if __name__ == "__main__":
     main()
