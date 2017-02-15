@@ -478,7 +478,7 @@ def before_scenario(context, scenario):
             if arch == "s390x" or arch == 'aarch64':
                 sys.exit(0)
             call("[ -f /etc/yum.repos.d/epel.repo ] || sudo rpm -i http://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm", shell=True)
-            call("rpm -q NetworkManager-vpnc || sudo yum -y install NetworkManager-vpnc", shell=True)
+            call("rpm -q NetworkManager-vpnc || ( sudo yum -y install NetworkManager-vpnc && service NetworkManager restart )", shell=True)
             setup_racoon (mode="aggressive", dh_group=2)
 
         if 'lldp' in scenario.tags:
@@ -498,7 +498,7 @@ def before_scenario(context, scenario):
                 sys.exit(0)
             call("[ -f /etc/yum.repos.d/epel.repo ] || sudo rpm -i http://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm", shell=True)
             call("[ -x /usr/sbin/openvpn ] || sudo yum -y install openvpn NetworkManager-openvpn", shell=True)
-            call("rpm -q NetworkManager-openvpn || sudo yum -y install NetworkManager-openvpn-1.0.8-1.el7.$(uname -p).rpm", shell=True)
+            call("rpm -q NetworkManager-openvpn || ( sudo yum -y install NetworkManager-openvpn-1.0.8-1.el7.$(uname -p).rpm && service NetworkManager restart )", shell=True)
 
             # This is an internal RH workaround for secondary architecures that are not present in EPEL
 
@@ -535,7 +535,7 @@ def before_scenario(context, scenario):
 
         if 'libreswan' in scenario.tags:
             print ("---------------------------")
-            call("rpm -q NetworkManager-libreswan || sudo yum -y install NetworkManager-libreswan", shell=True)
+            call("rpm -q NetworkManager-libreswan || ( sudo yum -y install NetworkManager-libreswan && service NetworkManager restart )", shell=True)
             call("/usr/sbin/ipsec --checknss", shell=True)
             setup_racoon (mode="aggressive", dh_group=5)
             if 'libreswan_add_profile' in scenario.tags:
