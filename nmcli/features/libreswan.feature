@@ -23,7 +23,7 @@
 
 
     @rhbz1250723
-    @libreswan
+    @libreswan @long
     @libreswan_connection_renewal
     Scenario: NM - libreswan - main connection lifetime renewal
     * Add a connection named "libreswan" for device "\*" to "libreswan" VPN
