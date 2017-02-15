@@ -6,6 +6,11 @@ cd NetworkManager-ci
 # Add failures and test counter variables
 counter=0
 failures=()
+
+# Overal result is PASS
+# This can be used as a test result indicator
+echo "PASS" > /var/www/html/results/RESULT
+
 # For all tests
 for test in $@; do
     # Start watchdog. Default is 10m
@@ -23,9 +28,12 @@ for test in $@; do
     kill -9 $(ps aux|grep -v grep |grep sleep |awk '{print $2}')
 
     if [ $rc -ne 0 ]; then
-        # Move reports to /var/www/html/results/ and add FAIL
+        # Overal result is FAIL
+        echo "FAIL" > /var/www/html/results/RESULT
+        # Move reports to /var/www/html/results/ and add FAIL prefix
         mv /tmp/report_NetworkManager_Test$counter"_"$test.html /var/www/html/results/FAIL-Test$counter"_"$test.html
         failures+=($test)
+
     else
         # Move reports to /var/www/html/results/
         mv /tmp/report_NetworkManager_Test$counter"_"$test.html /var/www/html/results/Test$counter"_"$test.html
