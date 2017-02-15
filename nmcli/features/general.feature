@@ -403,7 +403,7 @@ Feature: nmcli - general
     * Bring "up" connection "testeth0"
     * Execute "systemctl unmask sendmail"
     Then "nameserver 1.2.3.4" is visible with command "cat /etc/resolv.conf"
-    Then "nameserver 10" is not visible with command "cat /etc/resolv.conf"
+    Then "nameserver 1[0-9]" is not visible with command "cat /etc/resolv.conf"
 
 
     @general
@@ -414,7 +414,7 @@ Feature: nmcli - general
     * Restart NM
     * Bring "up" connection "testeth0"
     Then "nameserver 1.2.3.4" is not visible with command "cat /etc/resolv.conf"
-    Then "nameserver 10" is visible with command "cat /etc/resolv.conf"
+    Then "nameserver 1[0-9]" is visible with command "cat /etc/resolv.conf"
 
 
     @rhbz1136836
