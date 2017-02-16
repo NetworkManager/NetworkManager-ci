@@ -11,7 +11,7 @@ This repo contains a set of integration tests for NetworkManager and vagrant bas
 * Running tests
  * clone repo ( git clone https://github.com/NetworkManager/NetworkManager-ci.git )
  * go into NetworkManager-ci/run/fedora-vagrant directory
- * execute ./nmtest ( ./nmtest -p libvirt -i centos/7 -f all -b master )
+ * execute ./nmtest ( ```./nmtest -p libvirt -i centos/7 -f all -b master``` )
 
 ```
 Usage: nmtest [options]
@@ -37,8 +37,8 @@ Options:
                         overwrite things!
 ```
 
-* Execution itself and results check
- * you will see execution as it goes
+* Results check
+ * you will see execution progress as it goes ( tests do have 10m timeout to prevent lockup ) 
  * there is a summary at the end
  * detailed summary available at: http://localhost:8080/results/
  * vagrant ssh to log into environment to debug
