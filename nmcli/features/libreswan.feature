@@ -72,7 +72,7 @@
 
 
     @rhbz1349740
-    @libreswan
+    @libreswan @long
     @libreswan_activate_asking_for_password_with_delay
     Scenario: nmcli - vpn - activate asking for password with delay
     * Add a connection named "libreswan" for device "\*" to "libreswan" VPN

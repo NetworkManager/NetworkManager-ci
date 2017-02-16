@@ -402,8 +402,7 @@ Feature: nmcli - bridge
 
 
     @rhbz1269199
-    @dummy
-    @restart
+    @dummy @restart @long
     @bridge_external_unmanaged
     Scenario: bridge_external_unmanaged: add external bridge, ensure is unmanaged
     * Execute "sudo sh -c 'nmcli general logging level DEBUG'"

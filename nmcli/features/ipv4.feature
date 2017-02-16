@@ -870,7 +870,7 @@ Feature: nmcli: ipv4
 
     @rhbz1262922
     @ver+=1.2.0
-    @eth @teardown_testveth
+    @eth @teardown_testveth @long
     @dhcp-timeout
     Scenario: NM - ipv4 - add dhcp-timeout
     * Prepare simulated test "testX" device
@@ -925,7 +925,7 @@ Feature: nmcli: ipv4
 
 
     @rhbz1205405
-    @eth @teardown_testveth
+    @eth @teardown_testveth @long
     @manual_routes_preserved_when_never-default_yes
     Scenario: NM - ipv4 - don't touch manual route with never-default
     * Prepare simulated test "testX" device
@@ -940,7 +940,7 @@ Feature: nmcli: ipv4
 
 
     @rhbz1205405
-    @teardown_testveth @eth
+    @teardown_testveth @eth @long
     @manual_routes_removed_when_never-default_no
     Scenario: NM - ipv4 - rewrite manual route with dhcp renewal
     * Prepare simulated test "testX" device
@@ -992,7 +992,7 @@ Feature: nmcli: ipv4
 
 
     @rhbz1172780
-    @ipv4 @netaddr
+    @ipv4 @netaddr @long
     @ipv4_do_not_remove_second_ip_route
     Scenario: nmcli - ipv4 - do not remove secondary ip subnet route
     * Add a new connection of type "ethernet" and options "con-name ethie ifname eth1 autoconnect no"

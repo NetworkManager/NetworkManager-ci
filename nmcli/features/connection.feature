@@ -454,7 +454,7 @@ Feature: nmcli: connection
      Then Metered status is "3"
 
 
-     @con @bond @team @wifi @eth
+     @con @bond @team @wifi @eth @long
      @display_allowed_values
      Scenario: nmcli - connection - showing allowed values
      * Add connection type "ethernet" named "connie" for device "testX"
