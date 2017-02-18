@@ -434,7 +434,7 @@ Feature: nmcli - general
     @restore_hostname
     @nmcli_general_dhcp_hostname_over_localhost
     Scenario: NM - general - dont take localhost as configured hostname
-    * Execute "hostnamectl set-hostname foobar.test"
+    * Execute "hostnamectl set-hostname walderon"
     * Note the output of "cat /etc/hostname" as value "orig_file"
     * Execute "systemctl mask dbus-org.freedesktop.hostname1.service"
     * Execute "systemctl mask systemd-hostnamed.service"
