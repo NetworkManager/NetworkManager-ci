@@ -398,7 +398,7 @@
     Then Check slave "eth2" in team "nm-team" is "up"
 
 
-    @team_slaves @team @clean
+    @team_slaves @team @clean @long
     @config_invalid
     Scenario: nmcli - team - config - set invalid mode
      * Add connection type "team" named "team0" for device "nm-team"
@@ -414,7 +414,7 @@
 
     @rhbz1270814
     @ver+=1.3.0
-    @team_slaves @team @clean
+    @team_slaves @team @clean @long
     @config_invalid2
     Scenario: nmcli - team - config - set invalid mode
      * Add connection type "team" named "team0" for device "nm-team"
@@ -431,7 +431,7 @@
 
      @rhbz1312726
      @ver+=1.4.0
-     @team_slaves @team @clean
+     @team_slaves @team @clean @long
      @config_invalid3
      Scenario: nmcli - team - config - set invalid mode
       * Add connection type "team" named "team0" for device "nm-team"
