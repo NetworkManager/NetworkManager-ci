@@ -77,10 +77,16 @@ popd
 # ensure that the expected NM is installed.
 COMMIT_ID="$(git rev-parse --verify HEAD | sed 's/^\(.\{10\}\).*/\1/')"
 $SUDO yum list installed NetworkManager | grep -q -e "\.$COMMIT_ID\."
+RC=$?
 
-cp $BUILD_DIR/NetworkManager/examples/dispatcher/10-ifcfg-rh-routes.sh /etc/NetworkManager/dispatcher.d/
-cp $BUILD_DIR/NetworkManager/examples/dispatcher/10-ifcfg-rh-routes.sh /etc/NetworkManager/dispatcher.d/pre-up.d/
-
-$SUDO systemctl restart NetworkManager
-
-echo "BUILDING $BUILD_ID COMPLETED SUCCESSFULLY"
+if [ $RC -eq 0 ]; then
+    cp $BUILD_DIR/NetworkManager/examples/dispatcher/10-ifcfg-rh-routes.sh /etc/NetworkManager/dispatcher.d/
+    cp $BUILD_DIR/NetworkManager/examples/dispatcher/10-ifcfg-rh-routes.sh /etc/NetworkManager/dispatcher.d/pre-up.d/
+    $SUDO systemctl restart NetworkManager
+    echo "BUILDING $BUILD_ID COMPLETED SUCCESSFULLY"
+    exit 0
+else
+    echo "BUILDING $BUILD_ID FAILED"
+    touch /tmp/nm_compilation_failed
+    exit 1
+fi

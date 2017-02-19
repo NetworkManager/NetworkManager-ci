@@ -1,3 +1,9 @@
+# Exit immediately if compilation failed
+if [ -e /tmp/nm_compilation_failed ]; then
+    exit 1
+fi
+
+
 cd NetworkManager-ci
 
 # Add failures and test counter variables
