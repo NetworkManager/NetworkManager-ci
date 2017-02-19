@@ -2,7 +2,7 @@
 
 BUILD_DIR="${BUILD_DIR:-/root/nm-build}"
 BUILD_ID="$1"
-BUILD_REPO="${BUILD_REPO-git://anongit.freedesktop.org/NetworkManager/NetworkManager}"
+BUILD_REPO="${BUILD_REPO-https://github.com/NetworkManager/NetworkManager.git}"
 ARCH="${ARCH:-`arch`}"
 WITH_DEBUG="${WITH_DEBUG:no}"
 

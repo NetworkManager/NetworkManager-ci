@@ -8,13 +8,16 @@ from subprocess import call, check_output
 from optparse import OptionParser
 
 allowed_providers = ["virtualbox", "libvirt", "vmware_fusion", "vmware_workstation", "docker", "hyperv"]
-def get_testmapper():
+testrepo="https://github.com/NetworkManager/NetworkManager-ci.git"
+coderepo="https://github.com/NetworkManager/NetworkManager.git"
+
+def get_testmapper(testbranch):
     if not os.path.isfile('testmapper.txt'):
-        testmapper_url = 'https://raw.githubusercontent.com/NetworkManager/NetworkManager-ci/master/testmapper.txt'
+        testmapper_url = 'https://raw.githubusercontent.com/NetworkManager/NetworkManager-ci/\%s/testmapper.txt' % (testbranch)
         os.system("wget -q  %s -O testmapper.txt" % testmapper_url)
 
-def get_test_cases_for_features(features):
-    get_testmapper()
+def get_test_cases_for_features(features, testbranch):
+    get_testmapper(testbranch)
     testnames = []
     with open('testmapper.txt', 'r') as f:
         content = f.readlines()
@@ -47,7 +50,7 @@ def get_all_features_in_testmapper():
                 features.append(m.group(1))
     return features
 
-def generate_vagrantfile(provider, image, tests, branch, force_yes):
+def generate_vagrantfile(provider, image, tests, codebranch, testbranch, force_yes):
     if os.path.isfile('Vagrantfile'):
         overwrite = "unsure"
         if force_yes:
@@ -75,14 +78,16 @@ def generate_vagrantfile(provider, image, tests, branch, force_yes):
             print('    vb.customize ["modifyvm", :id, "--natdnshostresolver1", "on"]', file=vf)
         print("  end", file=vf)
         print("  config.vm.provision 'shell', path: 'scripts/./setup.sh'", file=vf)
-        if branch:
-            print("  config.vm.provision 'shell', path: 'scripts/./build.sh', args: '%s'" %branch, file=vf)
+        if codebranch:
+            print("  config.vm.provision 'shell', path: 'scripts/./build.sh', args: '%s'" %codebranch, file=vf)
+        if testbranch:
+            print("  config.vm.provision 'shell', path: 'scripts/./get_tests.sh', args: '%s'" %testbranch, file=vf)
         print("  config.vm.provision 'shell', path: 'scripts/./runtest.sh', args: '%s'" %tests, file=vf)
         print("end", file=vf)
     vf.close()
     print ("Vagrantfile generated")
 
-def precess_raw_features(features):
+def precess_raw_features(features, testbranch):
     tests = ""
     if not features or features.lower() == 'all':
         raw_features = 'adsl,alias,bond,bridge,connection,dispatcher,ethernet,general,ipv4,ipv6,libreswan,openvpn,ppp,pptp,team,tuntap,vlan,vpnc'
@@ -91,18 +96,18 @@ def precess_raw_features(features):
     features = []
     for f in raw_features.split(','):
         features.append(f.strip())
-    for test in get_test_cases_for_features(features):
+    for test in get_test_cases_for_features(features, testbranch):
         tests=tests+test+" "
     return tests.strip()
 
-def is_branch_valid(branch):
-    if check_output("git ls-remote git://anongit.freedesktop.org/NetworkManager/NetworkManager |awk '{print $2}'", shell=True).find('refs/tags/%s\n' %branch) == -1 and \
-       check_output("git ls-remote git://anongit.freedesktop.org/NetworkManager/NetworkManager |awk '{print $2}'", shell=True).find('refs/heads/%s\n' %branch) == -1:
+def is_branch_valid(repo, branch):
+    if check_output("git ls-remote %s |awk '{print $2}'" %(repo), shell=True).find('refs/tags/%s\n' %(branch)) == -1 and \
+       check_output("git ls-remote %s |awk '{print $2}'" %(repo), shell=True).find('refs/heads/%s\n' %(branch)) == -1:
         return False
     else:
         return True
 
-def wizard_collect_values(branch=None):
+def wizard_collect_values(codebranch=None, testbranch=None):
     # BOX
     print ("Specify VM provider to be used:")
     print ("Defaults to virtualbox [" + ', '.join (allowed_providers) + "]"),
@@ -120,23 +125,36 @@ def wizard_collect_values(branch=None):
     if not image:
         image = 'vbenes/fedora-25-server'
 
+
+    # TEST BRANCH
+    print ("Do you want to run non master test branch? [yes|no] no")
+    compile = raw_input()
+    if not compile or compile == "yes":
+        print ("Specify test branch:")
+        while not testbranch or not is_branch_valid(testrepo, testbranch):
+            if testbranch:
+                print ("Branch %s doesn't exist in NM-ci repo." %testbranch)
+            testbranch = raw_input()
+    else:
+        testbranch = 'master'
+
     # TESTS
     print ("Specify area of tests:")
     print ("Defaults to all but can be a list from adsl,alias,bond,bridge,connection,dispatcher,ethernet,general,ipv4,ipv6,libreswan,openvpn,ppp,pptp,team,tuntap,vlan,vpnc,nmtui"),
     features = raw_input()
-    tests = precess_raw_features(features)
+    tests = precess_raw_features(features, testbranch)
 
     # COMPILATION
     print ("Do you want to compile NM? [yes|no] yes")
     compile = raw_input()
     if not compile or compile == "yes":
         print ("Specify NM branch:")
-        while not branch or not is_branch_valid(branch):
-            if branch:
-                print ("Branch %s doesn't exist in NM repo." %branch)
-            branch = raw_input()
+        while not codebranch or not is_branch_valid(coderepo, codebranch):
+            if codebranch:
+                print ("Branch %s doesn't exist in NM repo." %codebranch)
+            codebranch = raw_input()
 
-    return provider, image, tests, branch
+    return provider, image, tests, codebranch, testbranch
 
 def start_vagrant(force_yes):
     if force_yes:
@@ -169,8 +187,10 @@ def main():
                         help="VM provider box name. (e.g. vbenes/fedora-25-server)")
     parser.add_option("-f", "--features",
                         help="Comma separated list of test areas. All or anything from adsl,alias,bond,bridge,connection,dispatcher,ethernet,general,ipv4,ipv6,libreswan,openvpn,ppp,pptp,team,tuntap,vlan,vpnc,nmtui")
-    parser.add_option("-b", "--branch",
-                        help="NM branch to be used for compilation.")
+    parser.add_option("-c", "--codebranch",
+                        help="NM code branch to be used for compilation.")
+    parser.add_option("-t", "--testbranch",
+                        help="NM test branch to be used for execution.")
     parser.add_option("-Y", "--YES", action="store_true",
                         help="Answer yes to all question. Can be dangerous and overwrite things!", dest="force_yes")
     (options, args) = parser.parse_args()
@@ -180,16 +200,18 @@ def main():
         parser.print_help()
         exit(1)
     if options.wizard == True:
-        provider, image, tests, branch = wizard_collect_values()
+        provider, image, tests, codebranch, testbranch = wizard_collect_values()
     elif options.wizard == False:
         provider = "virtualbox"
         image = "vbenes/fedora-25-server"
-        tests = precess_raw_features('all')
-        branch = "master"
+        testbranch = "master"
+        tests = precess_raw_features('all', testbranch)
+        codebranch = "master"
     else:
         if  not options.image or \
             not options.features or \
-            not options.branch or \
+            not options.codebranch or \
+            not options.testbranch or \
             not options.provider:
             print ('Error: Incorrect number of arguments.\n\n')
             parser.print_help()
@@ -200,19 +222,25 @@ def main():
                 print ('Error: invalid provider.\n\n')
                 exit(1)
             image = options.image
-            tests = precess_raw_features(options.features)
+            testbranch = options.testbranch
+            if not is_branch_valid(testrepo, testbranch):
+                print ('Error: invalid test branch.\n\n')
+                exit(1)
+            tests = precess_raw_features(options.features, testbranch)
             if tests == '':
                 print ('Error: No tests to be executed.\n\n')
                 exit(1)
-            branch = options.branch
-            if not is_branch_valid(branch):
-                print ('Error: invalid branch.\n\n')
+            codebranch = options.codebranch
+            # FIXME add codebranch
+            if not is_branch_valid(coderepo, codebranch):
+                print ('Error: invalid code branch.\n\n')
                 exit(1)
+            # FIXME add testbranch
 
     if options.force_yes:
         force_yes=True
 
-    generate_vagrantfile(provider, image, tests, branch, force_yes)
+    generate_vagrantfile(provider, image, tests, codebranch, testbranch, force_yes)
     exit(start_vagrant(force_yes))
 
 if __name__ == "__main__":

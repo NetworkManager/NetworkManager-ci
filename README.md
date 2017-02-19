@@ -11,7 +11,7 @@ This repo contains a set of integration tests for NetworkManager and vagrant bas
 * Running tests
  * clone repo ( git clone https://github.com/NetworkManager/NetworkManager-ci.git )
  * go into NetworkManager-ci/run/fedora-vagrant directory
- * execute ./nmtest ( ```./nmtest -p libvirt -i centos/7 -f all -b master``` )
+ * execute ./nmtest ( ```./nmtest -p libvirt -i centos/7 -f all -c master -t testbranch``` )
 
 ```
 Usage: nmtest [options]
@@ -31,8 +31,10 @@ Options:
                         from adsl,alias,bond,bridge,connection,dispatcher,ethe
                         rnet,general,ipv4,ipv6,libreswan,openvpn,ppp,pptp,team
                         ,tuntap,vlan,vpnc,nmtui
-  -b BRANCH, --branch=BRANCH
-                        NM branch to be used for compilation.
+  -c CODEBRANCH, --codebranch=CODEBRANCH
+                        NM code branch to be used for compilation.
+  -t TESTBRANCH, --testbranch=TESTBRANCH
+                        NM test branch to be used for execution.
   -Y, --YES             Answer yes to all question. Can be dangerous and
                         overwrite things!
 ```

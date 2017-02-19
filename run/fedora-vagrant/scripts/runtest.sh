@@ -1,6 +1,3 @@
-
-# Clone NM tests from git and swicth to vagrant branch
-git clone https://github.com/NetworkManager/NetworkManager-ci.git
 cd NetworkManager-ci
 
 # Add failures and test counter variables
