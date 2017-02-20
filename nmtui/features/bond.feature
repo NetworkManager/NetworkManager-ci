@@ -154,6 +154,24 @@ Feature: Bond TUI tests
     Then Check bond "bond0" link state is "down"
 
 
+    @rhbz1369008
+    @ver+=1.4.0
+    @bond
+    @nmtui_bond_add_one_slave
+    Scenario: nmtui - bond - add one slave
+    * Prepare new connection of type "Bond" named "bond0"
+    * Set "Device" field to "bond0"
+    * Choose to "<Add>" a slave
+    * Choose the connection type "Ethernet"
+    * Set "Profile name" field to "bond-slave-eth1"
+    * Set "Device" field to "eth1"
+    * Confirm the slave settings
+    * Confirm the connection settings
+    Then Check bond "bond0" link state is "up"
+     And "Slave Interface: eth1" is visible with command "cat /proc/net/bonding/bond0"
+     And "MASTER=bond0" is visible with command "cat /etc/sysconfig/network-scripts/ifcfg-bond-slave-eth1"
+
+
     @bond
     @nmtui_bond_add_many_slaves
     Scenario: nmtui - bond - add many slaves

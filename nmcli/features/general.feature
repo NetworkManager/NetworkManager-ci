@@ -525,6 +525,16 @@ Feature: nmcli - general
     Then "testeth1" is not visible with command "nmcli device"
 
 
+    @rhbz1393997
+    @general @eth @restart
+    @nmcli_general_DHCP_HOSTNAME_profile_pickup
+    Scenario: nmcli - general - connect correct profile with DHCP_HOSTNAME
+    * Add connection type "ethernet" named "ethie" for device "eth1"
+    * Execute "echo -e 'DHCP_HOSTNAME=walderon' >> /etc/sysconfig/network-scripts/ifcfg-ethie"
+    * Restart NM
+    Then "testeth1" is visible with command "nmcli  -t -f CONNECTION device"
+
+
     @rhbz1103777
     @firewall
     @no_error_when_firewald_restarted
