@@ -415,7 +415,7 @@ def check_slave_in_bond_in_proc(context, slave, bond):
         assert child.expect(["Slave Interface: %s\s+MII Status: up" % slave, pexpect.EOF]) == 0, "Slave %s is not in %s" % (slave, bond)
     else:
         return True
-        
+
 @step(u'Check slave "{slave}" in team "{team}" is "{state}"')
 def check_slave_in_team_is_up(context, slave, team, state):
     #sleep(2)
@@ -1348,7 +1348,7 @@ def prompt_is_not_running(context):
 @step(u'Quit editor')
 def quit_editor(context):
     context.prompt.sendline('quit')
-    #sleep(0.3)
+    sleep(0.25)
 
 
 @step(u'Reboot')
