@@ -151,6 +151,16 @@
     Then Check slave "eth1" in bond "nm-bond" in proc
 
 
+    @rhbz1369008
+    @ver+=1.4.0
+    @slaves @bond
+    @bond_ifcfg_master_as_device
+    Scenario: ifcfg - bond - slave has master as device
+    * Add connection type "bond" named "bond0" for device "nm-bond"
+    * Add slave connection for master "nm-bond" on device "eth1" named "bond0.0"
+    Then "MASTER=nm-bond" is visible with command "cat /etc/sysconfig/network-scripts/ifcfg-bond0.0"
+
+
     @slaves @bond
     @bond_remove_all_slaves
     Scenario: nmcli - bond - remove all slaves
