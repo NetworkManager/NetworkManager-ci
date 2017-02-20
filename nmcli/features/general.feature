@@ -530,9 +530,11 @@ Feature: nmcli - general
     @nmcli_general_DHCP_HOSTNAME_profile_pickup
     Scenario: nmcli - general - connect correct profile with DHCP_HOSTNAME
     * Add connection type "ethernet" named "ethie" for device "eth1"
+    * Execute "nmcli connection modify ethie ipv4.dns 8.8.4.4"
     * Execute "echo -e 'DHCP_HOSTNAME=walderon' >> /etc/sysconfig/network-scripts/ifcfg-ethie"
+    * Bring "up" connection "ethie"
     * Restart NM
-    Then "testeth1" is visible with command "nmcli  -t -f CONNECTION device"
+    Then "ethie" is visible with command "nmcli  -t -f CONNECTION device"
 
 
     @rhbz1103777
