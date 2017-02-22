@@ -512,7 +512,9 @@ def before_scenario(context, scenario):
             call("[ -x /usr/sbin/openvpn ] || sudo yum -y install https://vbenes.fedorapeople.org/NM/openvpn-2.3.8-1.el7.$(uname -p).rpm\
                                                                   https://vbenes.fedorapeople.org/NM/pkcs11-helper-1.11-3.el7.$(uname -p).rpm", shell=True)
             call("rpm -q NetworkManager-openvpn || sudo yum -y install https://vbenes.fedorapeople.org/NM/NetworkManager-openvpn-1.0.8-1.el7.$(uname -p).rpm", shell=True)
-
+            call("service NetworkManager restart", shell=True)
+            sleep(2)
+            
             samples = glob('/usr/share/doc/openvpn*/sample')[0]
             cfg = Popen("sudo sh -c 'cat >/etc/openvpn/trest-server.conf'", stdin=PIPE, shell=True).stdin
             cfg.write('# OpenVPN configuration for client testing')
