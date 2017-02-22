@@ -161,6 +161,9 @@ Feature: Bond TUI tests
     Scenario: nmtui - bond - add one slave
     * Prepare new connection of type "Bond" named "bond0"
     * Set "Device" field to "bond0"
+    * Confirm the connection settings
+    * Select connection "bond0" in the list
+    * Choose to "<Edit...>" a connection
     * Choose to "<Add>" a slave
     * Choose the connection type "Ethernet"
     * Set "Profile name" field to "bond-slave-eth1"
