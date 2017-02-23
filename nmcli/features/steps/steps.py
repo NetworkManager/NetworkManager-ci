@@ -1363,10 +1363,10 @@ def reboot(context):
         command_code(context, "sudo ip addr flush dev eth%d" %int(x))
     command_code(context, "nmcli device disconnect nm-bond")
     command_code(context, "nmcli device disconnect nm-team")
-    sleep(4)
+    sleep(2)
     context.nm_restarted = True
     assert command_code(context, "sudo service NetworkManager restart") == 0
-    sleep(4)
+    sleep(1)
 
 
 @step(u'Start NM')
@@ -1377,10 +1377,9 @@ def start_NM(context):
 
 @step(u'Restart NM')
 def restart_NM(context):
-    sleep(1)
     context.nm_restarted = True
     command_code(context, "service NetworkManager restart") == 0
-    sleep(4)
+    sleep(1)
 
 
 @step(u'Stop NM')
