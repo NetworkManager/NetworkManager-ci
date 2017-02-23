@@ -878,6 +878,20 @@ Feature: nmcli: ipv6
     Then "Sharing IPv6 connections is not supported yet" is visible with command "nmcli connection up id ethie"
 
 
+    @rhbz1256822
+    @ver+=1.6
+    @ipv6 @two_bridged_veths
+    @ipv6_shared_connection
+    Scenario: nmcli - ipv6 - shared connection
+    * Prepare veth pairs "test1,test2" bridged over "vethbr"
+    * Add a new connection of type "ethernet" and options "con-name tc2 ifname test2 ipv6.method shared ipv6.addresses 1::1/64"
+    * Add a new connection of type "ethernet" and options "con-name tc1 ifname test1"
+    Then "inet6 1::1/64" is visible with command "ip a s test2"
+     And "inet6 fe80::" is visible with command "ip a s test2"
+     And "inet6 1::" is visible with command "ip a s test1" in "10" seconds
+     And "inet6 fe80::" is visible with command "ip a s test1"
+
+
     @rhbz1247156
     @ipv6_tunnel_module_removal
     Scenario: NM - ipv6 - ip6_tunnel module removal

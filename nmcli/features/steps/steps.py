@@ -1233,6 +1233,11 @@ def prepare_pppoe_server(context, user, passwd, ip, auth):
 
 @step(u'Prepare veth pairs "{pairs_array}" bridged over "{bridge}"')
 def prepare_veths(context, pairs_array, bridge):
+    os.system('''echo 'ENV{ID_NET_DRIVER}=="veth", ENV{INTERFACE}=="test*", ENV{NM_UNMANAGED}="0"' >/etc/udev/rules.d/88-lr.rules''')
+    command_code(context, "udevadm control --reload-rules")
+    command_code(context, "udevadm settle")
+    command_code(context, "sleep 1")
+
     pairs = []
     for pair in pairs_array.split(','):
         pairs.append(pair.strip())

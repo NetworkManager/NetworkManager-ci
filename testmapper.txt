@@ -220,6 +220,7 @@ ipv6_no_assumed_connection_for_ipv6ll_only, ., nmcli/./runtest.sh ipv6_no_assume
 ipv6_set_ra_announced_mtu, ., nmcli/./runtest.sh ipv6_set_ra_announced_mtu ,
 nm-online_wait_for_ipv6_to_finish, ., nmcli/./runtest.sh nm-online_wait_for_ipv6_to_finish ,
 ipv6_shared_connection_error, ., nmcli/./runtest.sh ipv6_shared_connection_error ,
+ipv6_shared_connection, ., nmcli/./runtest.sh ipv6_shared_connection ,
 ipv6_tunnel_module_removal, ., nmcli/./runtest.sh ipv6_tunnel_module_removal ,
 ipv6_no_activation_schedule_error_in_logs, ., nmcli/./runtest.sh ipv6_no_activation_schedule_error_in_logs ,
 ipv6_NM_stable_with_internal_DHCPv6, ., nmcli/./runtest.sh ipv6_NM_stable_with_internal_DHCPv6 ,

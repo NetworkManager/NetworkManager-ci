@@ -899,6 +899,10 @@ def after_scenario(context, scenario):
             call("ip link del test2", shell=True)
             call("ip link del vethbr", shell=True)
             call("nmcli con del tc1 tc2 vethbr", shell=True)
+            call('rm -f /etc/udev/rules.d/88-lr.rules', shell=True)
+            call('udevadm control --reload-rules', shell=True)
+            call('udevadm settle', shell=True)
+            sleep(1)
 
         if 'internal_DHCP' in scenario.tags:
             print ("---------------------------")
