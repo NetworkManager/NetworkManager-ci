@@ -21,14 +21,10 @@ for test in $@; do
     if [ "$timer" == "" ]; then
         timer="10m"
     fi
-    sleep $timer && kill -9 $(ps aux|grep -v grep |grep behave |awk '{print $2}') && systemctl restart NetworkManager && nmcli con up id testeth0 &
 
-    # Start test itself.
+    # Start test itself with timeout
     export TEST="NetworkManager_Test$counter"_"$test"
-    $(grep $test testmapper.txt |awk '{print $3,$4}'); rc=$?
-
-    # Kill watchdog if we have result
-    kill -9 $(ps aux|grep -v grep |grep sleep |awk '{print $2}')
+    timeout $timer $(grep $test testmapper.txt |awk '{print $3,$4}'); rc=$?
 
     if [ $rc -ne 0 ]; then
         # Overal result is FAIL
@@ -36,7 +32,8 @@ for test in $@; do
         # Move reports to /var/www/html/results/ and add FAIL prefix
         mv /tmp/report_NetworkManager_Test$counter"_"$test.html /var/www/html/results/FAIL-Test$counter"_"$test.html
         failures+=($test)
-
+        systemctl restart NetworkManager
+        nmcli con up id testeth0
     else
         # Move reports to /var/www/html/results/
         mv /tmp/report_NetworkManager_Test$counter"_"$test.html /var/www/html/results/Test$counter"_"$test.html
