@@ -401,6 +401,20 @@ Feature: nmcli: ipv4
     Then "nameserver 192.168.100.1" is not visible with command "cat /etc/resolv.conf"
 
 
+    @rhbz1405431
+    @ver+=1.4.0
+    @ipv4 @restart @delete_testeth0
+    @ipv4_ignore_resolveconf_with_ignore_auto_dns
+    Scenario: nmcli - ipv4 - preserve resolveconf if ignore_auto_dns
+    * Add a new connection of type "ethernet" and options "con-name ethie ifname eth1 ipv4.ignore-auto-dns yes ipv6.ignore-auto-dns yes"
+    * Bring "down" connection "ethie"
+    * Execute "echo 'search boston.com' > /etc/resolv.conf"
+    * Execute "echo 'nameserver 1.2.3.4' >> /etc/resolv.conf"
+    * Restart NM
+    Then "boston.com" is visible with command "cat /etc/resolv.conf"
+     And "nameserver 1.2.3.4" is visible with command "cat /etc/resolv.conf"
+
+
     @ipv4 @eth0
     @ipv4_dns_add_another_one
     Scenario: nmcli - ipv4 - dns - add dns when one already set
