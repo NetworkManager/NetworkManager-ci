@@ -349,3 +349,21 @@ Feature: nmcli - vlan
       * Execute "ip link set dev vlan down"
       Then "vlan:unmanaged" is visible with command "nmcli -t -f DEVICE,STATE,CONNECTION device" in "10" seconds
        And "inet 30.0.0.1\/24" is visible with command "ip a s vlan"
+
+
+       @rhbz1414186
+       @ver+=1.6
+       @eth @restart @vlan
+       @vlan_mtu_from_parent
+       Scenario: nmcli - vlan - MTU from parent
+       * Add a new connection of type "ethernet" and options "con-name ethie ifname eth1 802-3-ethernet.mtu 9000 ipv4.method disabled ipv6.method ignore"
+       * Bring "down" connection "ethie"
+       * Bring "up" connection "ethie"
+       * Add a new connection of type "vlan" and options "con-name vlan ifname vlan dev eth1 id 80 ip4 1.2.3.4/32"
+       When "mtu 9000" is visible with command "ip a s vlan" in "10" seconds
+       * Stop NM
+       * Execute "ip link set dev eth1 down"
+       * Execute "ip link del vlan"
+       Then "mtu 9000" is not visible with command "ip a s vlan"
+       * Start NM
+       Then "mtu 9000" is visible with command "ip a s vlan"
