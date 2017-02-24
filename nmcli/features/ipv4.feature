@@ -408,8 +408,15 @@ Feature: nmcli: ipv4
     Scenario: nmcli - ipv4 - preserve resolveconf if ignore_auto_dns
     * Add a new connection of type "ethernet" and options "con-name ethie ifname eth1 ipv4.ignore-auto-dns yes ipv6.ignore-auto-dns yes"
     * Bring "down" connection "ethie"
+    * Stop NM
     * Execute "echo 'search boston.com' > /etc/resolv.conf"
     * Execute "echo 'nameserver 1.2.3.4' >> /etc/resolv.conf"
+    * Start NM
+    When "boston.com" is visible with command "cat /etc/resolv.conf"
+     And "nameserver 1.2.3.4" is visible with command "cat /etc/resolv.conf"
+    * Restart NM
+    When "boston.com" is visible with command "cat /etc/resolv.conf"
+     And "nameserver 1.2.3.4" is visible with command "cat /etc/resolv.conf"
     * Restart NM
     Then "boston.com" is visible with command "cat /etc/resolv.conf"
      And "nameserver 1.2.3.4" is visible with command "cat /etc/resolv.conf"
