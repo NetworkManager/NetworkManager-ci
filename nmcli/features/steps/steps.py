@@ -92,7 +92,6 @@ def add_connection_for_iface(context, typ, name, ifname):
     r = cli.expect(['Error', pexpect.EOF])
     if r == 0:
         raise Exception('Got an Error while adding %s connection %s for device %s' % (typ, name, ifname))
-    sleep(1)
 
 
 @step(u'Add a new connection of type "{typ}" ifname "{ifname}" and options "{options}"')
@@ -105,7 +104,6 @@ def add_new_default_connection_without_ifname(context, typ, options):
     cli = pexpect.spawn('nmcli connection add type %s %s' % (typ, options), logfile=context.log)
     if cli.expect(['Error', pexpect.TIMEOUT, pexpect.EOF]) == 0:
         raise Exception('Got an Error while creating connection of type %s with options %s' % (typ,options))
-    sleep(1)
 
 @step(u'Add infiniband port named "{name}" for device "{ifname}" with parent "{parent}" and p-key "{pkey}"')
 def add_port(context, name, ifname, parent, pkey):
