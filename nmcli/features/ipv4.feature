@@ -402,7 +402,7 @@ Feature: nmcli: ipv4
 
 
     @rhbz1405431
-    @ver+=1.4.0
+    @ver+=1.6.0
     @ipv4 @restart @delete_testeth0
     @ipv4_ignore_resolveconf_with_ignore_auto_dns
     Scenario: nmcli - ipv4 - preserve resolveconf if ignore_auto_dns
