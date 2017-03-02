@@ -886,7 +886,7 @@ Feature: nmcli: ipv6
     * Prepare veth pairs "test1,test2" bridged over "vethbr"
     * Add a new connection of type "ethernet" and options "con-name tc2 ifname test2 ipv6.method shared ipv6.addresses 1::1/64"
     * Add a new connection of type "ethernet" and options "con-name tc1 ifname test1"
-    Then "inet6 1::1/64" is visible with command "ip a s test2"
+    Then "inet6 1::1/64" is visible with command "ip a s test2" in "5" seconds
      And "inet6 fe80::" is visible with command "ip a s test2"
      And "inet6 1::" is visible with command "ip a s test1" in "10" seconds
      And "inet6 fe80::" is visible with command "ip a s test1"

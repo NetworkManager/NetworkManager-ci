@@ -1227,9 +1227,10 @@ def after_scenario(context, scenario):
             context.nm_restarted = True
             call('sudo nmcli connection delete ethernet0 ethernet1', shell=True)
             call('sudo systemctl stop network.service', shell=True)
+            call('sudo systemctl stop NetworkManager.service', shell=True)
             call('sysctl net.ipv6.conf.all.accept_ra=1', shell=True)
             call('sysctl net.ipv6.conf.default.accept_ra=1', shell=True)
-            call('sudo systemctl restart NetworkManager.service', shell=True)
+            call('sudo systemctl start NetworkManager.service', shell=True)
             call('sudo nmcli connection down testeth1 testeth2', shell=True)
             call('sudo nmcli connection up testeth0', shell=True)
 
