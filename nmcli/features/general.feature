@@ -371,9 +371,10 @@ Feature: nmcli - general
     #* Set s390x options for "aaa" if possible
     #* Set s390x options for "bbb" if possible
     * Bring up connection "aaa"
+    * Execute "sleep 2"
     * Restart NM
-    Then "bbb" is not visible with command "nmcli device"
-    Then "aaa" is visible with command "nmcli device"
+    Then "aaa" is visible with command "nmcli device" in "5" seconds
+     And "bbb" is not visible with command "nmcli device"
 
 
     @rhbz1007365

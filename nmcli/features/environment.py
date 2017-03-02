@@ -1184,7 +1184,7 @@ def after_scenario(context, scenario):
         if 'nmcli_general_correct_profile_activated_after_restart' in scenario.tags:
             print ("---------------------------")
             print ("deleting profiles")
-            call('sudo nmcli connection delete aaa bbb', shell=True)
+            call('sudo nmcli connection delete aaa bbb eth10', shell=True)
 
         if 'device_connect_no_profile' in scenario.tags or 'device_connect' in scenario.tags:
             print ("---------------------------")
