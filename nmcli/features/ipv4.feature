@@ -353,7 +353,7 @@ Feature: nmcli: ipv4
     * Save in editor
     * Quit editor
     * Bring up connection "ethie" ignoring error
-    Then "\(disconnected\)" is visible with command "nmcli device show eth1"
+    Then "\(disconnected\)" is visible with command "nmcli device show eth1" in "5" seconds
 
 
     @ipv4 @eth0
