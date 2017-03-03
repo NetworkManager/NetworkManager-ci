@@ -446,9 +446,7 @@ def before_scenario(context, scenario):
             print ("---------------------------")
             print ("install dispatcher scripts")
             call("yum -y install NetworkManager-config-routing-rules", shell=True)
-            call("service NetworkManager-dispatcher start", shell=True)
-            call("service NetworkManager restart", shell=True)
-
+            sleep(2)
 
         if 'firewall' in scenario.tags:
             print ("---------------------------")
@@ -1301,8 +1299,6 @@ def after_scenario(context, scenario):
             call("yum -y remove NetworkManager-config-routing-rules ", shell=True)
             call("rm -rf /etc/sysconfig/network-scripts/rule-ethie", shell=True)
             call('rm -rf /etc/sysconfig/network-scripts/route-ethie', shell=True)
-            call("service NetworkManager-dispatcher stop", shell=True)
-            call("service NetworkManager restart", shell=True)
 
         if 'pppoe' in scenario.tags:
             print ("---------------------------")
