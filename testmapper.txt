@@ -166,6 +166,8 @@ firewall_zones_restart_persistence, ., nmcli/./runtest.sh firewall_zones_restart
 lldp, ., nmcli/./runtest.sh lldp ,
 #@connection_end
 
+team_leave_L2_only_up_when_going_down, ., nmcli/./runtest.sh team_leave_L2_only_up_when_going_down ,
+
 #@ipv6_start
 ipv6_block_just_routing_RA, ., nmcli/./runtest.sh ipv6_block_just_routing_RA ,
 ipv6_limited_router_solicitation, ., nmcli/./runtest.sh ipv6_limited_router_solicitation ,
@@ -228,6 +230,8 @@ persistent_default_ipv6_gw, ., nmcli/./runtest.sh persistent_default_ipv6_gw ,
 persistent_ipv6_route, ., nmcli/./runtest.sh persistent_ipv6_routes ,
 ipv6_describe, ., nmcli/./runtest.sh ipv6_describe ,
 #@ipv6_end
+
+bond_leave_L2_only_up_when_going_down, ., nmcli/./runtest.sh bond_leave_L2_only_up_when_going_down ,
 
 #@ipv4_start
 ipv4_take_manually_created_ifcfg_with_ip, ., nmcli/./runtest.sh ipv4_take_manually_created_ifcfg_with_ip ,
@@ -329,7 +333,6 @@ team_in_bridge_mtu, ., nmcli/./runtest.sh team_in_bridge_mtu ,
 team_config_null, ., nmcli/./runtest.sh team_config_null ,
 ifcfg_with_missing_devicetype, ., nmcli/./runtest.sh ifcfg_with_missing_devicetype ,
 ipv6_for_teams_vlan, ., nmcli/./runtest.sh ipv6_for_teams_vlan ,
-team_leave_L2_only_up_when_going_down, ., nmcli/./runtest.sh team_leave_L2_only_up_when_going_down ,
 #@team_end
 
 #@vlan_start
@@ -483,7 +486,6 @@ bond_in_bridge_mtu, ., nmcli/./runtest.sh bond_in_bridge_mtu ,
 bond_8023ad_no_error, ., nmcli/./runtest.sh bond_8023ad_no_error ,
 reapply_unchanged_slave, ., nmcli/./runtest.sh reapply_unchanged_slave ,
 vlan_over_no_L3_bond_restart_persistence, ., nmcli/./runtest.sh vlan_over_no_L3_bond_restart_persistence ,
-bond_leave_L2_only_up_when_going_down, ., nmcli/./runtest.sh bond_leave_L2_only_up_when_going_down ,
 #@bond_end
 
 #@tuntap_start
