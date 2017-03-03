@@ -527,7 +527,7 @@ Feature: nmcli - general
 
 
     @rhbz1393997
-    @general @eth @restart
+    @general @eth @restart @restore_hostname
     @nmcli_general_DHCP_HOSTNAME_profile_pickup
     Scenario: nmcli - general - connect correct profile with DHCP_HOSTNAME
     * Add connection type "ethernet" named "ethie" for device "eth1"
@@ -705,9 +705,7 @@ Feature: nmcli - general
 
 
     @rhbz1201497
-    @runonce
-    @restore_hostname
-    @eth0
+    @runonce @restore_hostname @eth0
     @run_once_helper_for_localhost_localdomain
     Scenario: NM - general - helper running for localhost on localdo
     * Bring "up" connection "testeth0"
