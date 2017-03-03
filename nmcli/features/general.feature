@@ -727,11 +727,8 @@ Feature: nmcli - general
 
 
     @rhbz1086906
-    @veth
-    @newveth
+    @veth @delete_testeth0 @newveth @eth @restart
     @wait-online-for-both-ips
-    @eth
-    @delete_testeth0
     Scenario: NM - general - wait-online - for both ipv4 and ipv6
     * Add a new connection of type "ethernet" and options "ifname eth10 con-name ethie"
     * Execute "nmcli con modify ethie ipv4.may-fail no ipv6.may-fail no"
