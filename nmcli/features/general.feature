@@ -59,7 +59,7 @@ Feature: nmcli - general
 
 
     @ver+=1.4.0
-    @general @eth @teardown_testveth
+    @general @eth @teardown_testveth @eth0
     @restore_hostname
     @pull_hostname_from_dhcp
     Scenario: nmcli - general - pull hostname from DHCP
