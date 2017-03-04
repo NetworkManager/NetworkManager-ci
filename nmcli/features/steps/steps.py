@@ -513,7 +513,7 @@ def create_policy_based_routing_files(context, profile, dev, table):
     command_code(context, "echo 'iif %s table %s' > /etc/sysconfig/network-scripts/rule-%s" % (dev, table, profile))
     command_code(context, "echo 'from %s table %s' >> /etc/sysconfig/network-scripts/rule-%s" % (ip, table, profile))
     sleep(1)
-    
+
 @step(u'Configure dhcp server for subnet "{subnet}" with lease time "{lease}"')
 def config_dhcp(context, subnet, lease):
     config = []
@@ -1275,12 +1275,12 @@ def prepare_simdev(context, device, ipv4=None, ipv6=None, option=None):
     command_code(context, "ip netns exec {device}_ns ip link set {device}_bridge up".format(device=device))
     command_code(context, "echo '127.0.0.1   localhost localhost.localdomain localhost4 localhost4.localdomain4' > /etc/hosts")
     command_code(context, "echo '::1         localhost localhost.localdomain localhost6 localhost6.localdomain6' >> /etc/hosts")
-    command_code(context, "echo '192.168.99.10 ip-192-168-99-10' >> /etc/hostst")
-    command_code(context, "echo '192.168.99.11 ip-192-168-99-11' >> /etc/hostst")
-    command_code(context, "echo '192.168.99.12 ip-192-168-99-12' >> /etc/hostst")
-    command_code(context, "echo '192.168.99.13 ip-192-168-99-13' >> /etc/hostst")
-    command_code(context, "echo '192.168.99.14 ip-192-168-99-14' >> /etc/hostst")
-    command_code(context, "echo '192.168.99.15 ip-192-168-99-15' >> /etc/hostst")
+    command_code(context, "echo '192.168.99.10 ip-192-168-99-10' >> /etc/hosts")
+    command_code(context, "echo '192.168.99.11 ip-192-168-99-11' >> /etc/hosts")
+    command_code(context, "echo '192.168.99.12 ip-192-168-99-12' >> /etc/hosts")
+    command_code(context, "echo '192.168.99.13 ip-192-168-99-13' >> /etc/hosts")
+    command_code(context, "echo '192.168.99.14 ip-192-168-99-14' >> /etc/hosts")
+    command_code(context, "echo '192.168.99.15 ip-192-168-99-15' >> /etc/hosts")
     sleep(3)
     if option is None:
         command_code(context, "ip netns exec {device}_ns dnsmasq \
