@@ -67,7 +67,9 @@ Feature: nmcli - general
     * Execute "sudo nmcli general hostname localhost"
     * Execute "hostnamectl set-hostname --transient localhost.localdomain"
     * Add a new connection of type "ethernet" and options "ifname testX con-name ethie autoconnect no"
+    When "localhost" is visible with command "hostnamectl --transient" in "60" seconds
     * Bring up connection "ethie"
+    When "ransient" is visible with command "hostnamectl" in "60" seconds
     Then "localhost" is not visible with command "hostnamectl --transient" in "60" seconds
 
 
