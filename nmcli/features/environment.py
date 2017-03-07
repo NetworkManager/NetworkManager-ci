@@ -363,8 +363,8 @@ def before_scenario(context, scenario):
         if 'alias' in scenario.tags:
             print ("---------------------------")
             print ("deleting eth7 connections")
-            call("nmcli connection up testeth7", shell=True)
-            call("nmcli connection delete eth7", shell=True)
+            call("nmcli connection up testeth8", shell=True)
+            call("nmcli connection delete eth8", shell=True)
 
         if 'scapy' in scenario.tags:
             print ("---------------------------")
@@ -791,10 +791,10 @@ def after_scenario(context, scenario):
         if 'alias' in scenario.tags:
             print ("---------------------------")
             print ("deleting alias connections")
-            call("nmcli connection delete eth7", shell=True)
-            call("sudo rm -f /etc/sysconfig/network-scripts/ifcfg-eth7:0", shell=True)
-            call("sudo rm -f /etc/sysconfig/network-scripts/ifcfg-eth7:1", shell=True)
-            call("sudo rm -f /etc/sysconfig/network-scripts/ifcfg-eth7:2", shell=True)
+            call("nmcli connection delete eth8", shell=True)
+            call("sudo rm -f /etc/sysconfig/network-scripts/ifcfg-eth8:0", shell=True)
+            call("sudo rm -f /etc/sysconfig/network-scripts/ifcfg-eth8:1", shell=True)
+            call("sudo rm -f /etc/sysconfig/network-scripts/ifcfg-eth8:2", shell=True)
             call("sudo nmcli connection reload", shell=True)
             #call('sudo nmcli con add type ethernet ifname eth7 con-name testeth7 autoconnect no', shell=True)
             #sleep(TIMER)
