@@ -1,0 +1,205 @@
+- job-template:
+    name: 'cico-NetworkManager-{branch}'
+    project-type: freestyle
+    display-name: 'NetworkManager: {branch}'
+    concurrent: true
+    node: component
+    # auth-token: token123
+    # parameters:
+    #   - choice:
+    #       name: ARCH
+    #       choices:
+    #           - x86_64
+    #           - ppc64
+    #           - ppc64le
+    #           - s390x
+    #           - aarch64
+    #       description: "Test on specific architecture"
+    #   - string:
+    #       name: COMPOSE
+    #       description: |
+    #         Run on specific compose. Leave blank to run on latest compose of given RHEL release
+    #   - string:
+    #       name: RPM_URLS
+    #       description: >
+    #         Space-separated list of RPMs to download and install.
+    #          You can also use brew://<buildId>, brewtask://<taskId> or builder://<buildId>
+    #          Currently, builder:// stands for custom builds done in
+    #          http://testuslav.usersys.redhat.com:8080/job/NetworkManager/ jenkins
+    #   - string:
+    #       name: RUN_TESTS
+    #       description: >
+    #           Leave empty to fetch tests from TCMS based on tags and given HW test area.
+    #           Give a coma separated list of test names (extra spaces supported) to run a specific
+    #           subset of tests (must be compatible with given test area job HW)
+    #   - string:
+    #       name: MACHINE
+    #       description: |
+    #         Run on specific system. Leave blank to honor default settings for given hardware test area
+    #   - string:
+    #       name: GROUP
+    #       description: |
+    #         Run in the specific beaker group. Leave blank to honor default settings for given hardware test area
+    #   - string:
+    #       name: VERSION
+    #       description: |
+    #         Package version. Doesn't affect anything except job name. Used from the Brew trigger
+    #   - string:
+    #       name: RESERVE
+    #       description: |
+    #         Enter time to reserve system after job completes. Leave empty for no reservation. Examples: 3600, 2h, 1d
+    #   - bool:
+    #       name: DEBUG_LOG
+    #       default: true
+    #       description: |
+    #         Uncheck to disable debug logging from NetworkManager daemon
+    #   - bool:
+    #       name: SELINUX
+    #       default: true
+    #       description: |
+    #         Uncheck to disable selinux in the test job
+    #   - bool:
+    #       name: IGNORE_RHBZ_STATUSES
+    #       default: false
+    #       description: |
+    #         Check if known issue status reading from rhbz should be skipped
+    #
+    # triggers:
+    #   - gerrit:
+    #       trigger-on:
+    #         - patchset-created-event
+    #       projects:
+    #         - project-compare-type: 'PLAIN'
+    #           project-pattern: 'desktopqe/NetworkManager'
+    #           branches:
+    #             - branch-compare-type: 'PLAIN'
+    #               branch-pattern: '{git_branch}'
+    #           file-paths:
+    #             - compare-type: 'REG_EXP'
+    #               pattern: '{gerrit_watch}'
+    #       silent: false
+    #       escape-quotes: false
+    #       failure-message: "Build failed on CI"
+    #       successful-message: "All tests passed on CI"
+    #       unstable-message: "Some tests are still failing on CI"
+    #       skip-vote:
+    #         notbuilt: true
+
+    scm:
+      - cico-tests
+
+    wrappers:
+      - workspace-cleanup:
+          include:
+            - '*'
+      - ansicolor:
+          colormap: 'vga'
+    #   - build-name:
+    #       name: '${{ENV,var="COMPOSE"}} ${{ENV,var="VERSION"}} ${{ENV,var="ARCH"}} #${{BUILD_NUMBER}}'
+
+    builders:
+      - shell: |
+        #   export OS='{os}'
+          export CODE_BRANCH='{git_branch}'
+          export TEST_BRANCH='master'
+          export TEST_NAMES='ipv6_never-default_remove'
+        #   export TEST_AREA='{testarea}'
+        #   python -u beaker/nm_job_builder.py
+          python -u build_python_script.py
+    publishers:
+      - postbuildscript:
+          script-only-if-succeeded: false
+          script-only-if-failed: true
+          builders:
+              # FIXME CLEAN UP
+            - shell: 'echo "CLEANUP"'
+      - postbuildscript:
+          builders:
+            - shell: 'echo "QUIT"'
+    #        - shell: 'python -u beaker/get_beaker_results.py'
+    #   - groovy-postbuild:
+    #       script: |
+    #           manager.build.setDescription("")
+    #           def matcher = manager.getLogMatcher(".*Started https://beaker.engineering.redhat.com/jobs/(.*)\$")
+    #           if(matcher?.matches()) {{
+    #             def job = matcher.group(1)
+    #             manager.addBadge('/plugin/beaker-builder/icons/beaker24.png', 'Beaker Job', "https://beaker.engineering.redhat.com/jobs/${{job}}")
+    #           }}
+    #   - archive:
+    #       artifacts: 'beaker/J_*/*'
+    #       allow-empty: 'true'
+    #   - xunit:
+    #       thresholdmode: 'percent'
+    #       thresholds:
+    #         - failed:
+    #             unstable: '1'
+    #             unstablenew: '1'
+    #             failure: '99'
+    #             failurenew: '99'
+    #       types:
+    #         - junit:
+    #             pattern: "junit.xml"
+    #             requireupdate: false
+    #             skip-if-no-test-files: true
+    #             stoponerror: false
+    #   - groovy-postbuild:
+    #       script: |
+    #           try {{
+    #             def tr = manager.build.testResultAction;
+    #             def previous_result = tr.getPreviousResult();
+    #             def diff = tr.getFailCount() - previous_result.getFailCount();
+    #             def color = "green"
+    #             if (diff > 0) {{ color = "yellow" }}
+    #             manager.addShortText(diff.toString(), color, "white", "0px", "white");
+    #             if (manager.envVars["RUN_TESTS"] != "") {{ manager.addShortText("T", "white", "blue", "0px", "white") }}
+    #             if (manager.envVars["SELINUX"] == "false") {{ manager.addShortText("S", "white", "red", "0px", "white") }}
+    #             if (manager.envVars["DEBUG_LOG"] == "false") {{ manager.addShortText("D", "black", "yellow", "0px", "white") }}
+    #             if (manager.envVars["RESERVE"] != "") {{ manager.addShortText("R", "white", "green", "0px", "white") }}
+    #             if (manager.envVars["IGNORE_RHBZ_STATUSES"] == "true") {{ manager.addShortText("BZ", "white", "black", "0px", "white") }}
+    #           }} catch (e) {{ }}
+    #   - email-ext:
+    #       recipients: desktop-qe-ci@redhat.com
+    #       replyto: vhumpa@redhat.com
+    #       content-type: html
+    #       still-failing: true
+    #       improvement: true
+    #       regression: true
+    #       subject: 'NetworkManager {os} {testarea}: ${{ENV,var="ARCH"}} ${{BUILD_NUMBER}} ${{BUILD_STATUS}}'
+    #       body: '${{SCRIPT, template="html_beaker.template"}}'
+
+- scm:
+    name: cico-tests
+    scm:
+      - git:
+          url: https://gitlab.cee.redhat.com/desktopqe/desktop-ci.git
+          branches:
+            - origin/master
+
+- project:
+    name: nm-cico
+    # version:
+    #   - RHEL-7.4:
+    #       git_branch: 'master'
+    #       os: 'RHEL7.4'
+    #   - RHEL-7.3:
+    #       git_branch: 'master'
+    #       os: 'RHEL7.3'
+    jobs:
+      - 'cico-NetworkManager-{branch}':
+          branch: 'nm-1-6'
+
+    #   - 'beaker-NetworkManager-{testarea}-{version}':
+    #       testarea: 'default'
+    #       gerrit_watch: 'trigger_disabled'
+    #   - 'beaker-NetworkManager-{testarea}-{version}':
+    #       testarea: 'veth'
+    #       gerrit_watch: 'trigger_in_special_job'
+    #   - 'beaker-NetworkManager-{testarea}-{version}':
+    #       testarea: 'wifi'
+    #       gerrit_watch: 'nmcli/features/wifi.feature$'
+    #   - 'beaker-NetworkManager-{testarea}-{version}':
+    #       testarea: 'dcb'
+    #       gerrit_watch: 'nmcli/features/dcb.feature$'
+    #   - 'beaker-NetworkManager-{testarea}-{version}':
+    #       testarea: 'infiniband'
+    #       gerrit_watch: 'nmcli/features/infiniband.feature$'
