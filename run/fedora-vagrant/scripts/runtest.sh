@@ -48,7 +48,9 @@ done
 rc=1
 # Write out tests failures
 if [ ${#failures[@]} -ne 0 ]; then
-    echo "** FAILED TESTS"
+    echo "** $counter TESTS PASSED"
+    echo "--------------------------------------------"
+    echo "** ${#failures[@]} TESTS FAILED"
     echo "--------------------------------------------"
     for fail in "${failures[@]}"; do
         echo "$fail"
