@@ -649,6 +649,7 @@ def before_scenario(context, scenario):
             print("Making sure NetworkManager-config-connectivity-fedora is not installed")
             call('yum -y remove NetworkManager-config-connectivity-fedora', shell=True)
             call('sudo systemctl restart NetworkManager.service', shell=True)
+            sleep(5)
 
         if 'need_config_server' in scenario.tags:
             print("---------------------------")
