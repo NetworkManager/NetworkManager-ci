@@ -644,6 +644,12 @@ def before_scenario(context, scenario):
             print("backup of /etc/sysconfig/network")
             call('sudo cp -f /etc/sysconfig/network /tmp/sysnetwork.backup', shell=True)
 
+        if 'remove_fedora_connection_checker' in scenario.tags:
+            print("---------------------------")
+            print("Making sure NetworkManager-config-connectivity-fedora is not installed")
+            if call('yum -y remove NetworkManager-config-connectivity-fedora', shell=True) == 0:
+            call('sudo systemctl restart NetworkManager.service', shell=True)
+
         if 'need_config_server' in scenario.tags:
             print("---------------------------")
             print("Making sure NetworkManager-config-server is installed")
@@ -747,12 +753,12 @@ def after_scenario(context, scenario):
         if 'restart' in scenario.tags:
             print ("---------------------------")
             print ("restarting NM service")
+            call('sudo service NetworkManager restart', shell=True)
+            sleep(2)
             call("nmcli connection modify testeth0 ipv4.method auto", shell=True)
             call("nmcli connection modify testeth0 ipv6.method auto", shell=True)
             call("nmcli connection up id testeth0", shell=True)
-            call('sudo service NetworkManager restart', shell=True)
-            sleep(5)
-
+            sleep(3)
         dump_status(context, 'after %s' % scenario.name)
 
         if '1000' in scenario.tags:

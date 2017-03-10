@@ -43,7 +43,7 @@ Feature: nmcli - general
     Then Check noted values "1" and "2" are the same
 
 
-    @general
+    @general @remove_fedora_connection_checker
     @general_state_connected
     Scenario: nmcli - general - state connected
     * Note the output of "nmcli -t -f STATE general" as value "1"
