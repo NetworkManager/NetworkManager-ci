@@ -385,6 +385,7 @@ nmcli_general_activate_static_connection_carrier_ignored, ., nmcli/./runtest.sh 
 nmcli_general_activate_static_connection_carrier_not_ignored, ., nmcli/./runtest.sh nmcli_general_activate_static_connection_carrier_not_ignored ,
 nmcli_monitor, ., nmcli/./runtest.sh nmcli_monitor ,
 device_dbus_signal, ., nmcli/./runtest.sh device_dbus_signal ,
+dns_over_dbus, ., nmcli/./runtest.sh dns_over_dbus ,
 NM_syslog_in_anaconda, ., nmcli/./runtest.sh NM_syslog_in_anaconda ,
 snapshot_rollback, ., nmcli/./runtest.sh snapshot_rollback ,
 #@general_end

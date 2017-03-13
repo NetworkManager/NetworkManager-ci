@@ -939,6 +939,17 @@ Feature: nmcli - general
       And "DBus.Properties; member=PropertiesChanged" is visible with command "grep PropertiesChanged /tmp/dbus.txt"
 
 
+     @rhbz1404594
+     @ver+=1.7.1
+     @ipv4 @kill_dbus-monitor
+     @dns_over_dbus
+     Scenario: NM - general - publish dns over dbus
+     * Add connection type "ethernet" named "ethie" for device "eth1"
+     * Run child "dbus-monitor --system --monitor 'sender=org.freedesktop.NetworkManager' > /tmp/dbus.txt"
+     * Bring "up" connection "ethie"
+     Then "string \"nameservers\"\s+variant\s+array\s+\[\s+string" is visible with command "grep -A 10 Dns /tmp/dbus.txt"
+
+
       @rhbz1358335
       @ver+=1.4.0
       @NM_syslog_in_anaconda
