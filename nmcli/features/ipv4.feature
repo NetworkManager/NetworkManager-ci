@@ -1013,6 +1013,36 @@ Feature: nmcli: ipv4
     Then "ipv4.addresses:\s+192.168.100.1/24" is visible with command "nmcli con show ethie"
 
 
+    @ver+=1.4
+    @two_bridged_veths
+    @ipv4_method_shared
+    Scenario: nmcli - ipv4 - method shared
+    * Note the output of "pidof NetworkManager" as value "1"
+    * Prepare veth pairs "test1,test2" bridged over "vethbr"
+    * Add a new connection of type "ethernet" and options "con-name tc1 autoconnect no ifname test1 ipv4.method shared ipv6.method ignore"
+    * Add a new connection of type "ethernet" and options "con-name tc2 autoconnect no ifname test2"
+    Then Bring "up" connection "tc1"
+     And Bring "up" connection "tc2"
+     And Note the output of "pidof NetworkManager" as value "2"
+     And Check noted values "1" and "2" are the same
+
+
+    @rhbz1404148
+    @ver+=1.7
+    @two_bridged_veths
+    @ipv4_method_shared_with_already_running_dnsmasq
+    Scenario: nmcli - ipv4 - method shared when dnsmasq does run
+    * Note the output of "pidof NetworkManager" as value "1"
+    * Prepare veth pairs "test1,test2" bridged over "vethbr"
+    * Execute "dnsmasq --interface test1"
+    * Add a new connection of type "ethernet" and options "con-name tc1 autoconnect no ifname test1 ipv4.method shared ipv6.method ignore"
+    * Add a new connection of type "ethernet" and options "con-name tc2 autoconnect no ifname test2 ipv4.may-fail yes ipv6.method manual ipv6.addresses 1::1/128"
+    Then Bring "up" connection "tc1"
+     And Bring "up" connection "tc2"
+     And Note the output of "pidof NetworkManager" as value "2"
+     And Check noted values "1" and "2" are the same
+
+
     @rhbz1172780
     @ipv4 @netaddr @long
     @ipv4_do_not_remove_second_ip_route

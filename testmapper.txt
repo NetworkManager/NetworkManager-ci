@@ -225,6 +225,8 @@ manual_routes_preserved_when_never-default_yes, ., nmcli/./runtest.sh manual_rou
 manual_routes_removed_when_never-default_no, ., nmcli/./runtest.sh manual_routes_removed_when_never-default_no ,
 ipv4_dad, ., nmcli/./runtest.sh ipv4_dad ,
 custom_shared_range_preserves_restart, ., nmcli/./runtest.sh custom_shared_range_preserves_restart, dhcp
+ipv4_method_shared, ., nmcli/./runtest.sh ipv4_method_shared,
+ipv4_method_shared_with_already_running_dnsmasq, ., nmcli/./runtest.sh ipv4_method_shared_with_already_running_dnsmasq,
 ipv4_do_not_remove_second_ip_route, ., nmcli/./runtest.sh ipv4_do_not_remove_second_ip_route, dhcp
 ipv4_never_default_restart_persistence, ., nmcli/./runtest.sh ipv4_never_default_restart_persistence ,
 ipv4_honor_ip_order_1, ., nmcli/./runtest.sh ipv4_honor_ip_order_1 ,
