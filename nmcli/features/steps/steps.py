@@ -1352,7 +1352,7 @@ def prompt_is_not_running(context):
 @step(u'Quit editor')
 def quit_editor(context):
     context.prompt.sendline('quit')
-    sleep(0.25)
+    #sleep(0.3)
 
 
 @step(u'Reboot')

@@ -469,6 +469,14 @@ def before_scenario(context, scenario):
         if 'logging' in scenario.tags:
             context.loggin_level = check_output('nmcli -t -f LEVEL general logging', shell=True).strip()
 
+        if 'nmcli_general_profile_pickup_doesnt_break_network' in scenario.tags:
+            print("---------------------------")
+            print("turning on network.service")
+            context.nm_restarted = True
+            call('sudo systemctl restart network.service', shell=True)
+            call('sudo systemctl restart NetworkManager.service', shell=True)
+            call("nmcli connection up testeth0", shell=True)
+
         if 'vlan' in scenario.tags or 'bridge' in scenario.tags:
             print ("---------------------------")
             print ("connecting eth1")
