@@ -363,19 +363,14 @@ Feature: nmcli - general
 
 
     @rhbz1067712
-    #@general
-    #@ethernet
-    #@eth0
     @nmcli_general_correct_profile_activated_after_restart
     Scenario: nmcli - general - correct profile activated after restart
-    * Add a new connection of type "ethernet" and options "ifname eth10 con-name aaa"
-    * Add a new connection of type "ethernet" and options "ifname eth10 con-name bbb"
-    #* Set s390x options for "aaa" if possible
-    #* Set s390x options for "bbb" if possible
+    * Add a new connection of type "ethernet" and options "ifname eth10 con-name aaa ipv4.may-fail no ipv6.may-fail no"
+    * Add a new connection of type "ethernet" and options "ifname eth10 con-name bbb ipv4.may-fail no ipv6.may-fail no"
     * Bring up connection "aaa"
-    * Execute "sleep 2"
+    When "100" is visible with command "nmcli  -t -f GENERAL.STATE device show eth10"
     * Restart NM
-    Then "aaa" is visible with command "nmcli device" in "5" seconds
+    Then "aaa" is visible with command "nmcli device" in "10" seconds
      And "bbb" is not visible with command "nmcli device"
 
 

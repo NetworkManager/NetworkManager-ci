@@ -638,20 +638,27 @@
       And Check slave "eth2" in team "nm-team" is "up"
 
 
-    @rhbz1286105
+    @rhbz1286105 @rhbz1312359
     @ver+=1.4.0
     @team @team_slaves
-    @ipv6_for_teams_vlan
-    Scenario: nmcli - team - preserve manual ipv6 setup for vlan over team
-     * Add connection type "team" named "team0" for device "nm-team"
+    @team_in_vlan
+    Scenario: nmcli - team - team in vlan
+     * Add a new connection of type "team" and options "con-name team0 ifname nm-team autoconnect no ipv4.method manual ipv4.addresses 192.168.168.17/24 ipv4.gateway 192.168.103.1 ipv6.method manual ipv6.addresses 2168::17/64"
      * Execute "ip link set nm-team mtu 1500"
-     * Execute "nmcli con add type vlan con-name team0.1 dev nm-team id 1 mtu 1500 ip4 192.168.168.16/24 ip6 2168::16/64"
+     * Add a new connection of type "vlan" and options "con-name team0.1 dev nm-team id 1 mtu 1500 autoconnect no ipv4.method manual ipv4.addresses 192.168.168.16/24 ipv4.gateway 192.168.103.1 ipv6.method manual ipv6.addresses 2168::16/64"
      * Bring "up" connection "team0"
      * Bring "up" connection "team0.1"
-     * "2168::16" is visible with command "ip a s nm-team.1"
+     When "2168::16" is visible with command "ip a s nm-team.1" in "5" seconds
+      And "2168::17" is visible with command "ip a s nm-team"
+      And "192.168.168.16" is visible with command "ip a s nm-team.1"
+      And "192.168.168.17" is visible with command "ip a s nm-team"
      * Add a new connection of type "team-slave" and options "con-name team0.0 ifname eth10 master nm-team"
      * Bring "up" connection "team0.0"
-    Then "2168::16" is visible with command "ip a s nm-team.1" for full "10" seconds
+     * Wait for at least "10" seconds
+    Then "2168::16" is visible with command "ip a s nm-team.1"
+     And "2168::17" is visible with command "ip a s nm-team"
+     And "192.168.168.16" is visible with command "ip a s nm-team.1"
+     And "192.168.168.17" is visible with command "ip a s nm-team"
 
 
     @rhbz1371126
