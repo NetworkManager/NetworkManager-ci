@@ -155,6 +155,21 @@ Feature: nmcli - ethernet
     Then "ether f0:de:aa:fb:bb:cc" is visible with command "ifconfig eth1"
 
 
+    @rhbz1353612
+    @ver+=1.7.1
+    @ethernet
+    @ethernet_duplex_speed_auto_negotiation
+    Scenario: nmcli - ethernet - duplex speed and auto-negotiation
+    * Add a new connection of type "ethernet" and options "ifname eth1 con-name ethernet"
+    * Execute "nmcli connection modify ethernet 802-3-ethernet.duplex full 802-3-ethernet.speed 10"
+    When "ETHTOOL_OPTS="autoneg off speed 10 duplex full"" is visible with command "cat /etc/sysconfig/network-scripts/ifcfg-ethernet"
+    * Execute "nmcli connection modify ethernet 802-3-ethernet.auto-negotiate yes"
+    When "ETHTOOL_OPTS="autoneg on"" is visible with command "cat /etc/sysconfig/network-scripts/ifcfg-ethernet"
+    * Execute "nmcli connection modify ethernet 802-3-ethernet.auto-negotiate no"
+    Then "ETHTOOL_OPTS" is not visible with command "cat /etc/sysconfig/network-scripts/ifcfg-ethernet"
+
+
+
     @ethernet
     @ethernet_set_mtu
     Scenario: nmcli - ethernet - set mtu
