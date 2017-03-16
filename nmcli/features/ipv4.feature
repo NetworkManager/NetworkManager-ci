@@ -1029,7 +1029,7 @@ Feature: nmcli: ipv4
 
     @rhbz1404148
     @ver+=1.7
-    @two_bridged_veths
+    @two_bridged_veths @kill_dnsmasq
     @ipv4_method_shared_with_already_running_dnsmasq
     Scenario: nmcli - ipv4 - method shared when dnsmasq does run
     * Note the output of "pidof NetworkManager" as value "1"

@@ -237,6 +237,7 @@ ipv4_honor_ip_order_2, ., nmcli/./runtest.sh ipv4_honor_ip_order_2 ,
 #@vlan_start
 vlan_add_default_device, ., nmcli/./runtest.sh vlan_add_default_device ,
 nmcli_vlan_restart_persistence, ., nmcli/./runtest.sh nmcli_vlan_restart_persistence ,
+vlan_ipv4_ipv6_restart_persistence, ., nmcli/./runtest.sh vlan_ipv4_ipv6_restart_persistence ,
 vlan_device_tagging, ., nmcli/./runtest.sh vlan_device_tagging ,
 vlan_connection_up, ., nmcli/./runtest.sh vlan_connection_up ,
 vlan_reup_connection, ., nmcli/./runtest.sh vlan_reup_connection ,

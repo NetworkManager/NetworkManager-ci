@@ -41,6 +41,25 @@ Feature: nmcli - vlan
     Then "eth0.99\s+vlan\s+connected" is visible with command "nmcli device" in "10" seconds
 
 
+    @rhbz1378418
+    @ver+=1.4.0
+    @restart @two_bridged_veths @kill_dnsmasq @eth
+    @vlan_ipv4_ipv6_restart_persistence
+    Scenario: NM - vlan - ipv4 and ipv6 restart persistence
+    * Prepare veth pairs "test1" bridged over "vethbr"
+    * Add a new connection of type "ethernet" and options "ifname test1 con-name ethie ipv4.method disabled ipv6.method ignore"
+    * Add a new connection of type "vlan" and options "dev vethbr id 100 con-name tc1 ipv4.method manual ipv4.addresses 10.0.0.1/24 ipv6.method manual ipv6.addresses 1::1/64"
+    * Wait for at least "3" seconds
+    * Run child "dnsmasq --dhcp-range=10.0.0.10,10.0.0.15,2m --dhcp-range=1::100,1::fff,slaac,64,2m --enable-ra --interface=vethbr.100 --bind-interfaces"
+    * Add a new connection of type "vlan" and options "dev test1 id 100 con-name tc2"
+    * Execute "ip add add 1::666/128 dev test1"
+    * Wait for at least "5" seconds
+    * Stop NM
+    Then "inet 10.0.0.1" is visible with command "ip a s test1.100" for full "5" seconds
+     And "inet6 1::" is visible with command "ip a s test1.100"
+     And "inet6 fe80" is visible with command "ip a s test1.100"
+
+
     @vlan
     @vlan_remove_connection
     Scenario: nmcli - vlan - remove connection

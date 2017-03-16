@@ -953,9 +953,9 @@ def after_scenario(context, scenario):
             call("nmcli connection delete id inf", shell=True)
             call("nmcli connection delete id inf2", shell=True)
 
-        if 'ipv4_method_shared_with_already_running_dnsmasq' in scenario.tags:
+        if 'kill_dnsmasq' in scenario.tags:
             print ("---------------------------")
-            print ("kill dnsmasq --interface eth1")
+            print ("kill dnsmasq")
             call("kill -9 $(ps aux|grep dns |grep -v grep |grep interface |awk '{print $2}')", shell=True)
 
         if 'profie' in scenario.tags:
