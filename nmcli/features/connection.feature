@@ -220,7 +220,7 @@ Feature: nmcli: connection
      * Quit editor
 
 
-    @veth @con
+    @con
     @connection_autoconnect_no
     Scenario: nmcli - connection - set autoconnect off
      * Add connection type "ethernet" named "connie" for device "eth2"
@@ -230,6 +230,19 @@ Feature: nmcli: connection
      * Quit editor
      * Bring "up" connection "connie"
      * Reboot
+     Then Check if "connie" is not active connection
+
+
+    @ver+=1.7.1
+    @con
+    @ifcfg_parse_options_with_comment
+    Scenario: ifcfg - connection - parse options with comments
+     * Execute "echo 'DEVICE=eth1' >> /etc/sysconfig/network-scripts/ifcfg-connie"
+     * Execute "echo 'NAME=connie' >> /etc/sysconfig/network-scripts/ifcfg-connie"
+     * Execute "echo 'BOOTPROTO=dhcp' >> /etc/sysconfig/network-scripts/ifcfg-connie"
+     * Execute "echo 'ONBOOT=no  # foo' >> /etc/sysconfig/network-scripts/ifcfg-connie"
+     * Execute "nmcli con reload"
+     * Restart NM
      Then Check if "connie" is not active connection
 
 
