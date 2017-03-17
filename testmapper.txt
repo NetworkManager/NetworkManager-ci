@@ -90,6 +90,7 @@ team_start_on_boot_with_team_and_one_slave_auto, ., nmcli/./runtest.sh team_star
 config_loadbalance, ., nmcli/./runtest.sh config_loadbalance ,
 config_broadcast, ., nmcli/./runtest.sh config_broadcast ,
 config_invalid, ., nmcli/./runtest.sh config_invalid ,
+config_invalid1, ., nmcli/./runtest.sh config_invalid1 ,
 config_invalid2, ., nmcli/./runtest.sh config_invalid2 ,
 config_invalid3, ., nmcli/./runtest.sh config_invalid3 ,
 remove_config, ., nmcli/./runtest.sh remove_config ,

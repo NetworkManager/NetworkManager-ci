@@ -398,6 +398,7 @@
     Then Check slave "eth2" in team "nm-team" is "up"
 
 
+    @ver-=1.7.0
     @team_slaves @team @clean @long
     @config_invalid
     Scenario: nmcli - team - config - set invalid mode
@@ -410,6 +411,25 @@
      * Quit editor
      * Bring up connection "team0" ignoring error
     Then Team "nm-team" is down
+
+
+    @rhbz1360386
+    @ver+=1.7.1
+    @team_slaves @team @clean
+    @config_invalid1
+    Scenario: nmcli - team - config - set invalid mode
+     * Add connection type "team" named "team0" for device "nm-team"
+     * Add slave connection for master "nm-team" on device "eth1" named "team0.0"
+     * Add slave connection for master "nm-team" on device "eth2" named "team0.1"
+     * Open editor for connection "team0"
+     * Submit "set team.config {\"blah\":1,\"blah\":2,\"blah\":3}" in editor
+     * Save in editor
+     * Quit editor
+     * Bring up connection "team0" ignoring error
+    When Team "nm-team" is down
+     * Bring up connection "team0.0" ignoring error
+    Then "team0.0 " is not visible with command "nmcli d"
+     And "team0 " is not visible with command "nmcli d"
 
 
     @rhbz1270814
