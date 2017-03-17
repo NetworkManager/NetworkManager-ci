@@ -56,6 +56,7 @@ bond_set_packets_per_slave_option, ., nmcli/./runtest.sh bond_set_packets_per_sl
 bond_set_balance_tlb_options, ., nmcli/./runtest.sh bond_set_balance_tlb_options ,
 bond_device_rename, ., nmcli/./runtest.sh bond_device_rename ,
 bond_enslave_to_bridge, ., nmcli/./runtest.sh bond_enslave_to_bridge ,
+bridge_team_bond_autoconnect_nested_slaves, ., nmcli/./runtest.sh bridge_team_bond_autoconnect_nested_slaves ,
 bond_in_bridge_mtu, ., nmcli/./runtest.sh bond_in_bridge_mtu ,
 bond_8023ad_no_error, ., nmcli/./runtest.sh bond_8023ad_no_error ,
 reapply_unchanged_slave, ., nmcli/./runtest.sh reapply_unchanged_slave ,
