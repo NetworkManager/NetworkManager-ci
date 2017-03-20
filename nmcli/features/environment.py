@@ -570,6 +570,11 @@ def before_scenario(context, scenario):
             call("/usr/sbin/ipsec --checknss", shell=True)
             setup_racoon (mode="main", dh_group=5)
 
+        if 'preserve_8021x_certs' in scenario.tags:
+            print ("---------------------------")
+            call("curl -s https://raw.githubusercontent.com/NetworkManager/NetworkManager/master/libnm-core/tests/certs/test-key-and-cert.pem -o /tmp/test_key_and_cert.pem", shell=True)
+            call("curl -s https://raw.githubusercontent.com/NetworkManager/NetworkManager/master/libnm-core/tests/certs/test2_ca_cert.pem -o /tmp/test2_ca_cert.pem", shell=True)
+
         if 'pptp' in scenario.tags:
             print ("---------------------------")
             print ("setting up pptpd")

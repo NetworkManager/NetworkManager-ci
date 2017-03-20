@@ -355,6 +355,16 @@ Feature: nmcli - ethernet
     Then "testX:connected:ethie" is visible with command "nmcli -t -f DEVICE,STATE,CONNECTION device" in "20" seconds
 
 
+    @rhbz1391477
+    @ver+=1.7.1
+    @eth
+    @preserve_8021x_certs
+    Scenario: nmcli - ethernet - preserve 8021x certs
+    * Add a new connection of type "ethernet" and options "ifname \* con-name ethie 802-1x.eap 'tls' 802-1x.client-cert /tmp/test2_ca_cert.pem 802-1x.private-key-password x 802-1x.private-key /tmp/test_key_and_cert.pem  802-1x.password pass1"
+    * Execute "nmcli con reload"
+    Then "ethie" is visible with command "nmcli con"
+
+
     @openvswitch
     @openvswitch_interface_recognized
     Scenario: nmcli - ethernet - openvswitch interface recognized
