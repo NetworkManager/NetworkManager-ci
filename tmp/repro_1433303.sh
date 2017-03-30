@@ -9,3 +9,4 @@ for i in $(seq 1 1000); do
         ip l del veth$i
 done
 
+sleep 2
