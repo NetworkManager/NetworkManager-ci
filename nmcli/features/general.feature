@@ -990,3 +990,16 @@ Feature: nmcli - general
        And "1.2.3.4/24" is not visible with command "ip a s eth1"
        And "1.2.3.1" is not visible with command "ip r"
        And "192.168.100.1" is visible with command "ip r"
+
+
+      @rhbz1433303
+      @ver+=1.4.0
+      @long
+      @stable_mem_consumption
+      Scenario: NM - general - stable mem consumption
+      * Execute "sh tmp/repro_1433303.sh"
+      * Note the output of "pmap -x $(pidof NetworkManager) |grep total | awk '{print $4}'" as value "1"
+      * Execute "sh tmp/repro_1433303.sh"
+      * Execute "sh tmp/repro_1433303.sh"
+      * Note the output of "pmap -x $(pidof NetworkManager) |grep total | awk '{print $4}'" as value "2"
+      Then Check noted values "1" and "2" are the same
