@@ -28,9 +28,9 @@ function setup_veth_env ()
     systemctl restart NetworkManager; sleep 1
 
     # making sure the active ethernet device is eth0 and profile name testeth0
-    if [ ! "eth0" == $(nmcli -f TYPE,DEVICE -t c sh -a  | grep ethernet | awk '{split($0,a,":"); print a[2]}') ]; then
-        DEV=$(nmcli -f TYPE,DEVICE -t c sh -a  | grep ethernet | awk '{split($0,a,":"); print a[2]}')
-        UUID=$(nmcli -t -f UUID c show -a)
+    if [ ! "eth0" == $(nmcli -f TYPE,DEVICE -t c sh --active  | grep ethernet | awk '{split($0,a,":"); print a[2]}') ]; then
+        DEV=$(nmcli -f TYPE,DEVICE -t c sh --active  | grep ethernet | awk '{split($0,a,":"); print a[2]}')
+        UUID=$(nmcli -t -f UUID c show --active)
         ip link set $DEV down
         ip link set $DEV name eth0
         nmcli con mod $UUID connection.interface-name eth0
@@ -39,7 +39,7 @@ function setup_veth_env ()
         nmcli connection modify testeth0 ipv6.method auto
         nmcli c u testeth0
     else # make active device eth0 if not
-        UUID=$(nmcli -t -f UUID c show -a)
+        UUID=$(nmcli -t -f UUID c show --active)
         nmcli con mod $UUID connection.id testeth0
         nmcli connection modify testeth0 ipv6.method auto
         nmcli c u testeth0
