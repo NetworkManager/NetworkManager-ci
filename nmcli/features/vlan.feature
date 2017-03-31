@@ -341,48 +341,61 @@ Feature: nmcli - vlan
      And "inet 1.2.3.55\/24" is visible with command "ip a s very_long_.1024"
 
 
-     @rhbz1312281 @rhbz1250225
-     @ver+=1.4.0
-     @vlan
-     @reorder_hdr
-     Scenario: nmcli - vlan - reorder HDR
-     * Add a new connection of type "vlan" and options "con-name vlan ifname vlan dev eth1 id 80 ip4 1.2.3.4/32"
-     When "REORDER_HDR" is visible with command "ip -d l show vlan"
-      And "REORDER_HDR=yes" is visible with command "grep HDR /etc/sysconfig/network-scripts/ifcfg-vlan"
-     * Modify connection "vlan" changing options "vlan.flags 0"
-     * Bring "up" connection "vlan"
-     Then "REORDER_HDR=no\s+VLAN_FLAGS=NO_REORDER_HDR" is visible with command "grep HDR /etc/sysconfig/network-scripts/ifcfg-vlan"
-      And "REORDER_HDR" is not visible with command "ip -d l show vlan"
+    @rhbz1312281 @rhbz1250225
+    @ver+=1.4.0
+    @vlan
+    @reorder_hdr
+    Scenario: nmcli - vlan - reorder HDR
+    * Add a new connection of type "vlan" and options "con-name vlan ifname vlan dev eth1 id 80 ip4 1.2.3.4/32"
+    When "REORDER_HDR" is visible with command "ip -d l show vlan"
+     And "REORDER_HDR=yes" is visible with command "grep HDR /etc/sysconfig/network-scripts/ifcfg-vlan"
+    * Modify connection "vlan" changing options "vlan.flags 0"
+    * Bring "up" connection "vlan"
+    Then "REORDER_HDR=no\s+VLAN_FLAGS=NO_REORDER_HDR" is visible with command "grep HDR /etc/sysconfig/network-scripts/ifcfg-vlan"
+     And "REORDER_HDR" is not visible with command "ip -d l show vlan"
 
 
-      @rhbz1363995
-      @ver+=1.4
-      @dummy
-      @vlan_preserve_assumed_connection_ips
-      Scenario: nmcli - bridge - preserve assumed connection's addresses
-      * Execute "ip link add link eth1 name vlan type vlan id 80"
-      * Execute "ip link set dev vlan up"
-      * Execute "ip add add 30.0.0.1/24 dev vlan"
-      When "vlan:connected:vlan" is visible with command "nmcli -t -f DEVICE,STATE,CONNECTION device" in "10" seconds
-       And "inet 30.0.0.1\/24" is visible with command "ip a s vlan"
-      * Execute "ip link set dev vlan down"
-      Then "vlan:unmanaged" is visible with command "nmcli -t -f DEVICE,STATE,CONNECTION device" in "10" seconds
-       And "inet 30.0.0.1\/24" is visible with command "ip a s vlan"
+    @rhbz1363995
+    @ver+=1.4
+    @dummy
+    @vlan_preserve_assumed_connection_ips
+    Scenario: nmcli - bridge - preserve assumed connection's addresses
+    * Execute "ip link add link eth1 name vlan type vlan id 80"
+    * Execute "ip link set dev vlan up"
+    * Execute "ip add add 30.0.0.1/24 dev vlan"
+    When "vlan:connected:vlan" is visible with command "nmcli -t -f DEVICE,STATE,CONNECTION device" in "10" seconds
+     And "inet 30.0.0.1\/24" is visible with command "ip a s vlan"
+    * Execute "ip link set dev vlan down"
+    Then "vlan:unmanaged" is visible with command "nmcli -t -f DEVICE,STATE,CONNECTION device" in "10" seconds
+     And "inet 30.0.0.1\/24" is visible with command "ip a s vlan"
 
 
-       @rhbz1414186
-       @ver+=1.6
-       @eth @restart @vlan
-       @vlan_mtu_from_parent
-       Scenario: nmcli - vlan - MTU from parent
-       * Add a new connection of type "ethernet" and options "con-name ethie ifname eth1 802-3-ethernet.mtu 9000 ipv4.method disabled ipv6.method ignore"
-       * Bring "down" connection "ethie"
-       * Bring "up" connection "ethie"
-       * Add a new connection of type "vlan" and options "con-name vlan ifname vlan dev eth1 id 80 ip4 1.2.3.4/32"
-       When "mtu 9000" is visible with command "ip a s vlan" in "10" seconds
-       * Stop NM
-       * Execute "ip link set dev eth1 down"
-       * Execute "ip link del vlan"
-       Then "mtu 9000" is not visible with command "ip a s vlan"
-       * Start NM
-       Then "mtu 9000" is visible with command "ip a s vlan"
+    @rhbz1414186
+    @ver+=1.6
+    @eth @restart @vlan
+    @vlan_mtu_from_parent
+    Scenario: nmcli - vlan - MTU from parent
+    * Add a new connection of type "ethernet" and options "con-name ethie ifname eth1 802-3-ethernet.mtu 9000 ipv4.method disabled ipv6.method ignore"
+    * Bring "down" connection "ethie"
+    * Bring "up" connection "ethie"
+    * Add a new connection of type "vlan" and options "con-name vlan ifname vlan dev eth1 id 80 ip4 1.2.3.4/32"
+    When "mtu 9000" is visible with command "ip a s vlan" in "10" seconds
+    * Stop NM
+    * Execute "ip link set dev eth1 down"
+    * Execute "ip link del vlan"
+    Then "mtu 9000" is not visible with command "ip a s vlan"
+    * Start NM
+    Then "mtu 9000" is visible with command "ip a s vlan"
+
+
+    @rhgb1437066
+    @ver+=1.4.0
+    @team @team_slaves
+    @default_route_for_vlan_over_team
+    Scenario: NM - vlan - default route for vlan over team
+    * Add a new connection of type "team" and options "con-name team0 ifname nm-team"
+    * Add a new connection of type "team-slave" and options "con-name team0.0 ifname eth10 master nm-team"
+    * Add a new connection of type "vlan" and options "con-name team0.1 dev nm-team id 1 mtu 1500 ipv4.method manual ipv4.addresses 192.168.168.16/24 ipv4.gateway 192.168.103.1 ipv6.method manual ipv6.addresses 2168::16/64 ipv4.dns 8.8.8.8"
+    When "1" is visible with command "ip r |grep nm-team.1 |grep default |wc -l" in "2" seconds
+    * Execute "for i in `seq 1 23`; do ip link set nm-team addr 00:00:11:22:33:$i; done"
+    Then "1" is visible with command "ip r |grep nm-team.1 |grep default |wc -l" in "2" seconds

@@ -260,6 +260,7 @@ bring_up_very_long_device_name, ., nmcli/./runtest.sh bring_up_very_long_device_
 reorder_hdr, ., nmcli/./runtest.sh reorder_hdr ,
 vlan_preserve_assumed_connection_ips, ., nmcli/./runtest.sh vlan_preserve_assumed_connection_ips ,
 vlan_mtu_from_parent, ., nmcli/./runtest.sh vlan_mtu_from_parent ,
+default_route_for_vlan_over_team, ., nmcli/./runtest.sh default_route_for_vlan_over_team ,
 #@vlan_end
 
 #@bridge_start
@@ -396,7 +397,7 @@ device_dbus_signal, ., nmcli/./runtest.sh device_dbus_signal ,
 dns_over_dbus, ., nmcli/./runtest.sh dns_over_dbus ,
 NM_syslog_in_anaconda, ., nmcli/./runtest.sh NM_syslog_in_anaconda ,
 snapshot_rollback, ., nmcli/./runtest.sh snapshot_rollback ,
-stable_mem_consumption, ., nmcli/./runtest.sh stable_mem_consumption , 
+stable_mem_consumption, ., nmcli/./runtest.sh stable_mem_consumption ,
 #@general_end
 
 #@wol_start
