@@ -3,7 +3,7 @@
     project-type: freestyle
     display-name: 'NetworkManager: {branch}'
     concurrent: true
-    node: component
+    node: networkmanager
     triggers:
         - timed: "H 18 * * *"
     scm:
