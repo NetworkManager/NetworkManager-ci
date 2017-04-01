@@ -194,7 +194,13 @@ def after_scenario(context, scenario):
         if ('ethernet' in scenario.tags) or ('ipv4' in scenario.tags) or ('ipv6' in scenario.tags):
             os.system("sudo nmcli connection delete id ethernet ethernet1 ethernet2")
         if ("nmtui_general_display_proper_hostname" in scenario.tags) or ("nmtui_general_set_new_hostname" in scenario.tags):
-            context.execute_steps(u"* Restore hostname from the noted value")
+#            context.execute_steps(u"* Restore hostname from the noted value")
+            import call
+            call('sudo echo "localhost.localdomain" > /etc/hostname', shell=True)
+            call('hostnamectl set-hostname localhost.localdomain', shell=True)
+            call('systemctl restart NetworkManager', shell=True)
+            call("nmcli con up testeth0", shell=True)
+
         if 'nmtui_ethernet_set_mtu' in scenario.tags:
             os.system("sudo ip link set eth1 mtu 1500")
         if 'nmtui_bridge_add_many_slaves' in scenario.tags:

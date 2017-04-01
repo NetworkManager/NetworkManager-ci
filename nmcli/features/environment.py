@@ -473,9 +473,11 @@ def before_scenario(context, scenario):
             print("---------------------------")
             print("turning on network.service")
             context.nm_restarted = True
-            call('sudo systemctl restart network.service', shell=True)
+            call('sudo pkill -9 pkill /sbin/dhclient', shell=True)
             call('sudo systemctl restart NetworkManager.service', shell=True)
+            call('sudo systemctl restart network.service', shell=True)
             call("nmcli connection up testeth0", shell=True)
+            sleep(1)
 
         if 'vlan' in scenario.tags or 'bridge' in scenario.tags:
             print ("---------------------------")

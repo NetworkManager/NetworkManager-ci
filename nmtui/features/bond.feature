@@ -218,6 +218,7 @@ Feature: Bond TUI tests
     * Set "Device" field to "eth9"
     * Confirm the slave settings
     * Confirm the connection settings
+    Then "bond0\s+bond\s+connected" is visible with command "nmcli device" in "45" seconds
     Then Check bond "bond0" link state is "up"
     Then "Slave Interface: eth1" is visible with command "cat /proc/net/bonding/bond0"
     Then "Slave Interface: eth2" is visible with command "cat /proc/net/bonding/bond0"
@@ -249,8 +250,8 @@ Feature: Bond TUI tests
     * Come in "IPv4 CONFIGURATION" category
     * Ensure "Require IPv4 addressing for this connection" is checked
     * Confirm the connection settings
-    Then Check bond "bond0" link state is "up"
     Then "bond0\s+bond\s+connected" is visible with command "nmcli device" in "45" seconds
+    Then Check bond "bond0" link state is "up"
     Then "eth1\s+ethernet\s+connected\s+bond-slave-eth1" is visible with command "nmcli device"
     Then "eth2\s+ethernet\s+connected\s+bond-slave-eth2" is visible with command "nmcli device"
     Then "192.168" is visible with command "ip a s bond0"
@@ -271,7 +272,6 @@ Feature: Bond TUI tests
     * Set "Device" field to "infi2"
     * Confirm the slave settings
     * Confirm the connection settings
-    Then Check bond "bond0" state is "up"
     Then "bond0\s+bond" is visible with command "nmcli device" in "60" seconds
     Then "TYPE=InfiniBand" is visible with command "cat /etc/sysconfig/network-scripts/ifcfg-bond-slave-eth1"
     Then "TYPE=InfiniBand" is visible with command "cat /etc/sysconfig/network-scripts/ifcfg-bond-slave-eth2"

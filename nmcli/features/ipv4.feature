@@ -479,7 +479,7 @@ Feature: nmcli: ipv4
     * Execute "sudo kill -SIGUSR1 $(pidof NetworkManager)"
     Then "nameserver 8.8.8.8" is visible with command "cat /etc/resolv.conf" in "10" seconds
     Then "nameserver 8.8.4.4" is visible with command "cat /etc/resolv.conf"
-    * Execute "sleep 1"
+    * Execute "sleep 3"
     Then Ping "boston.com"
 
 
