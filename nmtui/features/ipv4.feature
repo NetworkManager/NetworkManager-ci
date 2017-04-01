@@ -301,6 +301,7 @@ Feature: IPv4 TUI tests
     Scenario: nmtui - ipv4 - routes - set unreachable route
     * Prepare new connection of type "Ethernet" named "ethernet"
     * Set "Device" field to "eth1"
+    * Ensure "Automatically connect" is not checked
     * Set "IPv4 CONFIGURATION" category to "Manual"
     * Come in "IPv4 CONFIGURATION" category
     * In "Addresses" property add "192.168.122.2/24"
@@ -312,6 +313,7 @@ Feature: IPv4 TUI tests
     * Choose to "Activate a connection" from main screen
     * Select connection "ethernet" in the list
     * Choose to "<Activate>" a connection
+    When "eth1\s+ethernet\s+disconnected" is visible with command "nmcli device" in "5" seconds
     Then ".*Could not activate connection.*" is visible on screen
 
 
