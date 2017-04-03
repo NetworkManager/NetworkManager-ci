@@ -301,13 +301,13 @@ Feature: IPv4 TUI tests
     Scenario: nmtui - ipv4 - routes - set unreachable route
     * Prepare new connection of type "Ethernet" named "ethernet"
     * Set "Device" field to "eth1"
-    * Ensure "Automatically connect" is not checked
     * Set "IPv4 CONFIGURATION" category to "Manual"
     * Come in "IPv4 CONFIGURATION" category
     * In "Addresses" property add "192.168.122.2/24"
     * Set "Gateway" field to "192.168.122.1"
     * Add ip route "192.168.1.0/24 192.168.3.11 1"
     * Set "IPv6 CONFIGURATION" category to "Ignore"
+    * Ensure "Automatically connect" is not checked
     * Confirm the connection settings
     * Come back to main screen
     * Choose to "Activate a connection" from main screen
