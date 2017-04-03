@@ -963,7 +963,7 @@ def after_scenario(context, scenario):
         if 'kill_dnsmasq' in scenario.tags:
             print ("---------------------------")
             print ("kill dnsmasq")
-            call("kill -9 $(ps aux|grep dns |grep -v grep |grep interface |awk '{print $2}')", shell=True)
+            call("kill -9 $(ps aux |grep dns |grep -v grep |grep -v inbr |grep -v simbr |grep interface |awk '{print $2}')", shell=True)
 
         if 'profie' in scenario.tags:
             print ("---------------------------")
