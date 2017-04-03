@@ -346,7 +346,7 @@ Feature: nmcli - ethernet
     @eth @8021x
     @8021x_without_password
     Scenario: nmcli - ethernet - connect to 8021x - md5 - ask for password
-    * Add a new connection of type "ethernet" and options "ifname testX con-name ethie 802-1x.eap md5 802-1x.identity user"
+    * Add a new connection of type "ethernet" and options "ifname testX con-name ethie 802-1x.eap md5 802-1x.identity user autoconnect no"
     * Spawn "nmcli -a con up ethie" command
     * Expect "identity.*user"
     * Enter in editor
