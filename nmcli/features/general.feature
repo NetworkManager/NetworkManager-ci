@@ -1004,5 +1004,5 @@ Feature: nmcli - general
       * Execute "sh tmp/repro_1433303.sh"
       * Note the output of "pmap -x $(pidof NetworkManager) |grep total | awk '{print $4}'" as value "2"
       * Note the output of "pmap -x $(pidof NetworkManager) |grep total | awk '{print $3}'" as value "4"
-      Then Check noted values "1" and "2" are the same
-       And Check noted values "3" and "4" are the same
+      Then Check noted value "2" difference from "1" is lower than "500"
+      Then Check noted value "4" difference from "3" is lower than "500"
