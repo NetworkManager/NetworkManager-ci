@@ -25,12 +25,14 @@ function setup_veth_env ()
     #fi
     yum -y install NetworkManager-config-server
     cp /usr/lib/NetworkManager/conf.d/00-server.conf /etc/NetworkManager/conf.d/00-server.conf
-    systemctl restart NetworkManager; sleep 1
+    systemctl restart NetworkManager; sleep 3
 
     # making sure the active ethernet device is eth0 and profile name testeth0
     if [ ! "eth0" == $(nmcli -f TYPE,DEVICE -t c sh --active  | grep ethernet | awk '{split($0,a,":"); print a[2]}') ]; then
         DEV=$(nmcli -f TYPE,DEVICE -t c sh --active  | grep ethernet | awk '{split($0,a,":"); print a[2]}')
         UUID=$(nmcli -t -f UUID c show --active)
+        nmcli device disconnect $DEV
+        sleep 0.5
         ip link set $DEV down
         ip link set $DEV name eth0
         nmcli con mod $UUID connection.interface-name eth0
@@ -132,7 +134,7 @@ function setup_veth_env ()
 
     # on s390x sometimes this extra default profile gets created in addition to custom static original one
     # let's get rid of that
-    nmcli con del eth0
+    for i in $(nmcli -f NAME -t con |grep -v testeth[0-9]); do nmcli con del $i; done
 
     # log state of net after the setup
     ip a
