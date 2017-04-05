@@ -333,8 +333,8 @@ def check_describe_output_in_editor(context, options, obj):
 
 @step(u'Check noted value "{i2}" difference from "{i1}" is lower than "{dif}"')
 def check_dif_in_values(context, i2, i1, dif):
-    assert (int(context.noted[i1].strip()) + int(dif)) < int(context.noted[i2].strip()), \
-     "Noted values: %s + %s !< %s !" % (context.noted[i2].strip(), dif, context.noted[i1].strip())
+    assert (int(context.noted[i1].strip()) + int(dif)) > int(context.noted[i2].strip()), \
+     "Noted values: %s + %s !> %s !" % (context.noted[i1].strip(), dif, context.noted[i2].strip())
 
 
 @step(u'Check noted values "{i1}" and "{i2}" are the same')
