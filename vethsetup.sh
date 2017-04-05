@@ -31,7 +31,6 @@ function setup_veth_env ()
     if [ ! "eth0" == $(nmcli -f TYPE,DEVICE -t c sh --active  | grep ethernet | awk '{split($0,a,":"); print a[2]}') ]; then
         DEV=$(nmcli -f TYPE,DEVICE -t c sh --active  | grep ethernet | awk '{split($0,a,":"); print a[2]}')
         UUID=$(nmcli -t -f UUID c show --active)
-        nmcli device disconnect $DEV
         sleep 0.5
         ip link set $DEV down
         ip link set $DEV name eth0
