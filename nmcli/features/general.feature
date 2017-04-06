@@ -381,8 +381,8 @@ Feature: nmcli - general
     @rhbz1067712
     @nmcli_general_correct_profile_activated_after_restart
     Scenario: nmcli - general - correct profile activated after restart
-    * Add a new connection of type "ethernet" and options "ifname eth10 con-name aaa ipv4.may-fail no ipv6.may-fail no"
-    * Add a new connection of type "ethernet" and options "ifname eth10 con-name bbb ipv4.may-fail no ipv6.may-fail no"
+    * Add a new connection of type "ethernet" and options "ifname eth10 con-name aaa -- ipv4.method auto ipv6.method auto ipv4.may-fail no ipv6.may-fail no"
+    * Add a new connection of type "ethernet" and options "ifname eth10 con-name bbb -- ipv4.method auto ipv6.method auto ipv4.may-fail no ipv6.may-fail no"
     * Bring up connection "aaa"
     When "100" is visible with command "nmcli  -t -f GENERAL.STATE device show eth10"
     * Restart NM
@@ -807,6 +807,7 @@ Feature: nmcli - general
 
 
     @rhbz1182085
+    @ver+=1.4
     @long
     @nmcli_general_profile_pickup_doesnt_break_network
     Scenario: nmcli - general - profile pickup does not break network service
