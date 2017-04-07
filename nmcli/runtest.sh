@@ -64,6 +64,7 @@ if [ ! -e /tmp/nm_eth_configured ]; then
         ip link set $DEV down
         ip link set $DEV name wlan$NUM
         ip link set wlan$NUM up
+        nmcli device set wlan$NUM managed yes
         NUM=$(($NUM+1))
     done
 
