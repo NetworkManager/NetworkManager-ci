@@ -23,7 +23,7 @@ function setup_veth_env ()
     #    sleep 1
     #    systemctl restart NetworkManager; sleep 1
     #fi
-    yum -y install NetworkManager-config-server
+    yum -y install dnsmasq NetworkManager-config-server
     cp /usr/lib/NetworkManager/conf.d/00-server.conf /etc/NetworkManager/conf.d/00-server.conf
     systemctl restart NetworkManager; sleep 3
 
