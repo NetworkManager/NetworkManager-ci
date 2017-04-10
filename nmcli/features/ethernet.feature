@@ -327,6 +327,8 @@ Feature: nmcli - ethernet
     * Submit "set 802-3-ethernet.wake-on-lan default" in editor
     * Save in editor
     * Quit editor
+    * Bring "down" connection "ethernet"
+    * Execute "modprobe -r bnx2 && modprobe bnx2 && sleep 5"
     * Bring up connection "ethernet"
     Then "ETHTOOL_OPTS" is not visible with command "cat /etc/sysconfig/network-scripts/ifcfg-ethernet"
     * Note the output of "ethtool em1 |grep Wake-on |grep -v Supports | awk '{print $2}'" as value "wol_new"
