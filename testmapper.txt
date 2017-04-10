@@ -325,6 +325,7 @@ preserve_8021x_certs, ., nmcli/./runtest.sh preserve_8021x_certs ,
 
 
 #@general_start
+nmcli_general_profile_pickup_doesnt_break_network, ., nmcli/./runtest.sh nmcli_general_profile_pickup_doesnt_break_network ,
 logging, ., nmcli/./runtest.sh logging ,
 reduce_logging, ., nmcli/./runtest.sh reduce_logging ,
 hostname_change, ., nmcli/./runtest.sh hostname_change ,
@@ -371,7 +372,6 @@ nmcli_general_dbus_set_gateway, ., nmcli/./runtest.sh nmcli_general_dbus_set_gat
 preserve_failed_assumed_connections, ., nmcli/./runtest.sh preserve_failed_assumed_connections ,
 connection_objects_autocompletion, ., nmcli/./runtest.sh connection_objects_autocompletion ,
 802_1x_objects_autocompletion, ., nmcli/./runtest.sh 802_1x_objects_autocompletion ,
-nmcli_general_profile_pickup_doesnt_break_network, ., nmcli/./runtest.sh nmcli_general_profile_pickup_doesnt_break_network ,
 insufficient_logging_perms, ., nmcli/./runtest.sh insufficient_logging_perms ,
 
 #### vv KEEP THESE TWO TESTS ALWAYS TOGETHER!

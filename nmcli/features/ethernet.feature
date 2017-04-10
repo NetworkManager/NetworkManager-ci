@@ -263,20 +263,20 @@ Feature: nmcli - ethernet
     @nmcli_ethernet_wol_default
     Scenario: nmcli - ethernet - wake-on-lan default
     * Execute "systemctl stop NetworkManager"
-    * Execute "modprobe -r e1000e && modprobe e1000e && sleep 5"
-    * Note the output of "ethtool p2p1 |grep Wake-on |grep Supports | awk '{print $3}'" as value "wol_supports"
-    * Note the output of "ethtool p2p1 |grep Wake-on |grep -v Supports | awk '{print $2}'" as value "wol_orig"
+    * Execute "modprobe -r bnx2 && modprobe bnx2 && sleep 5"
+    * Note the output of "ethtool em1 |grep Wake-on |grep Supports | awk '{print $3}'" as value "wol_supports"
+    * Note the output of "ethtool em1 |grep Wake-on |grep -v Supports | awk '{print $2}'" as value "wol_orig"
     * Restart NM
-    * Add connection type "ethernet" named "ethernet" for device "p2p1"
-    * Execute "nmcli c modify ethernet 802-3-ethernet.wake-on-lan phy,unicast,multicast,broadcast,magic"
+    * Add connection type "ethernet" named "ethernet" for device "em1"
+    * Execute "nmcli c modify ethernet 802-3-ethernet.wake-on-lan magic"
     * Bring up connection "ethernet"
-    * Note the output of "ethtool p2p1 |grep Wake-on |grep -v Supports | awk '{print $2}'" as value "wol_now"
+    * Note the output of "ethtool em1 |grep Wake-on |grep -v Supports | awk '{print $2}'" as value "wol_now"
     When Check noted values "wol_now" and "wol_supports" are the same
     * Execute "nmcli c modify ethernet 802-3-ethernet.wake-on-lan default"
-    * Execute "modprobe -r e1000e && modprobe e1000e && sleep 5"
+    * Execute "modprobe -r bnx2 && modprobe bnx2 && sleep 5"
     * Restart NM
     * Bring up connection "ethernet"
-    * Note the output of "ethtool p2p1 |grep Wake-on |grep -v Supports | awk '{print $2}'" as value "wol_now"
+    * Note the output of "ethtool em1 |grep Wake-on |grep -v Supports | awk '{print $2}'" as value "wol_now"
     Then Check noted values "wol_now" and "wol_orig" are the same
 
 
@@ -284,31 +284,31 @@ Feature: nmcli - ethernet
     @ethernet
     @nmcli_ethernet_wol_enable_magic
     Scenario: nmcli - ethernet - wake-on-lan magic
-    * Add connection type "ethernet" named "ethernet" for device "p2p1"
+    * Add connection type "ethernet" named "ethernet" for device "em1"
     * Execute "nmcli c modify ethernet 802-3-ethernet.wake-on-lan magic"
     * Bring up connection "ethernet"
-    Then "Wake-on: g" is visible with command "ethtool p2p1"
+    Then "Wake-on: g" is visible with command "ethtool em1"
 
 
     @rhbz1141417
     @ethernet
     @nmcli_ethernet_wol_disable
     Scenario: nmcli - ethernet - wake-on-lan disable
-    * Add connection type "ethernet" named "ethernet" for device "p2p1"
+    * Add connection type "ethernet" named "ethernet" for device "em1"
     * Execute "nmcli c modify ethernet 802-3-ethernet.wake-on-lan none"
     * Bring up connection "ethernet"
-    Then "Wake-on: d" is visible with command "ethtool p2p1"
+    Then "Wake-on: d" is visible with command "ethtool em1"
 
 
     @rhbz1141417
     @ethernet
     @nmcli_ethernet_wol_from_file
     Scenario: nmcli - ethernet - wake-on-lan from file
-    * Add connection type "ethernet" named "ethernet" for device "p2p1"
+    * Add connection type "ethernet" named "ethernet" for device "em1"
     * Append "ETHTOOL_OPTS=\"wol g\"" to ifcfg file "ethernet"
     * Execute "nmcli con reload"
     * Bring up connection "ethernet"
-    Then "Wake-on: g" is visible with command "ethtool p2p1"
+    Then "Wake-on: g" is visible with command "ethtool em1"
     Then "magic" is visible with command "nmcli con show ethernet |grep wake-on-lan"
 
 
@@ -316,12 +316,12 @@ Feature: nmcli - ethernet
     @ethernet
     @nmcli_ethernet_wol_from_file_to_default
     Scenario: nmcli - ethernet - wake-on-lan from file and back
-    * Add connection type "ethernet" named "ethernet" for device "p2p1"
-    * Note the output of "ethtool p2p1 |grep Wake-on |grep -v Supports | awk '{print $2}'" as value "wol_orig"
+    * Add connection type "ethernet" named "ethernet" for device "em1"
+    * Note the output of "ethtool em1 |grep Wake-on |grep -v Supports | awk '{print $2}'" as value "wol_orig"
     * Append "ETHTOOL_OPTS=\"wol g\"" to ifcfg file "ethernet"
     * Execute "nmcli con reload"
     * Bring up connection "ethernet"
-    Then "Wake-on: g" is visible with command "ethtool p2p1"
+    Then "Wake-on: g" is visible with command "ethtool em1"
     Then "magic" is visible with command "nmcli con show ethernet |grep wake-on-lan"
     * Open editor for connection "ethernet"
     * Submit "set 802-3-ethernet.wake-on-lan default" in editor
@@ -329,7 +329,7 @@ Feature: nmcli - ethernet
     * Quit editor
     * Bring up connection "ethernet"
     Then "ETHTOOL_OPTS" is not visible with command "cat /etc/sysconfig/network-scripts/ifcfg-ethernet"
-    * Note the output of "ethtool p2p1 |grep Wake-on |grep -v Supports | awk '{print $2}'" as value "wol_new"
+    * Note the output of "ethtool em1 |grep Wake-on |grep -v Supports | awk '{print $2}'" as value "wol_new"
     Then Check noted values "wol_new" and "wol_orig" are the same
 
 
