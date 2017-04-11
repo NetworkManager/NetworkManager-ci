@@ -995,7 +995,7 @@ def network_dropped_two(context, state, device):
 
 @step(u'No error appeared in editor')
 def no_error_appeared_in_editor(context):
-    r = context.prompt.expect([pexpect.TIMEOUT, pexpect.EOF, 'Error', 'CRITICAL'], timeout=5)
+    r = context.prompt.expect([pexpect.TIMEOUT, pexpect.EOF, 'Error', 'CRITICAL'], timeout=1)
     if r == 2:
         raise Exception('Got an Error in editor')
     if r == 3:
@@ -1491,7 +1491,7 @@ def set_property_in_editor(context, name, value):
         context.prompt.sendline('set %s %s' % (name,context.noted))
     else:
         context.prompt.sendline('set %s %s' % (name,value))
-
+    sleep(0.25)
 
 @step(u'Set logging for "{domain}" to "{level}"')
 def set_logging(context, domain, level):

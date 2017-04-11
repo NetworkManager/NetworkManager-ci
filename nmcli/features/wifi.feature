@@ -1290,6 +1290,7 @@ Feature: nmcli - wifi
 
 
     @wifi
+    @ver+=1.6.0
     @nmcli_wifi_add_connection_in_novice_nmcli_a_mode_specifying_ip_setup
     Scenario: nmcli - wifi - add connection in novice (nmcli -a) mode specifying IP setup
     * Open interactive connection addition mode
