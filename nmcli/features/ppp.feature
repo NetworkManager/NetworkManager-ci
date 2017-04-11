@@ -21,13 +21,13 @@ Feature: nmcli - ppp
     Then "nameserver 8.8.4.4" is visible with command "cat /etc/resolv.conf"
     Then "inet 192.168.111.2 peer 192.168.111.254/32 .*scope global ppp" is visible with command "ip a s"
     Then "inet 192.168.111.254 peer 192.168.111.2/32 .*scope global ppp" is visible with command "ip a s"
-    Then "192.168.111.2 dev ppp.*  proto kernel  scope link  src 192.168.111.254" is visible with command "ip r"
-    Then "default via 192.168.111.254 dev ppp.*  proto static  metric" is visible with command "ip r"
+    Then "192.168.111.2 dev ppp.*\s+proto kernel\s+scope link\s+src 192.168.111.254" is visible with command "ip r"
+    Then "default via 192.168.111.254 dev ppp.*\s+proto static\s+metric" is visible with command "ip r"
 
 
     @not_on_s390x @pppoe @del_test1112_veths
     @connect_to_pppoe_via_chap
-    Scenario: NM - ppp - connect with chap auth
+  \s+scenario: NM - ppp - connect with chap auth
     * Execute "ip link add test11 type veth peer name test12"
     * Prepare pppoe server for user "test" with "networkmanager" password and IP "192.168.111.2" authenticated via "chap"
     * Start pppoe server with "isp" and IP "192.168.111.254" on device "test12"
@@ -38,8 +38,8 @@ Feature: nmcli - ppp
     Then "nameserver 8.8.4.4" is visible with command "cat /etc/resolv.conf"
     Then "inet 192.168.111.2 peer 192.168.111.254/32 .*scope global ppp" is visible with command "ip a s"
     Then "inet 192.168.111.254 peer 192.168.111.2/32 .*scope global ppp" is visible with command "ip a s"
-    Then "192.168.111.2 dev ppp.*  proto kernel  scope link  src 192.168.111.254" is visible with command "ip r"
-    Then "default via 192.168.111.254 dev ppp.*  proto static  metric" is visible with command "ip r"
+    Then "192.168.111.2 dev ppp.*\s+proto kernel\s+scope link\s+src 192.168.111.254" is visible with command "ip r"
+    Then "default via 192.168.111.254 dev ppp.*\s+proto static\s+metric" is visible with command "ip r"
 
 
     @not_on_s390x @pppoe @del_test1112_veths
@@ -55,7 +55,7 @@ Feature: nmcli - ppp
     Then "nameserver 8.8.8.8" is not visible with command "cat /etc/resolv.conf"
     Then "nameserver 8.8.4.4" is not visible with command "cat /etc/resolv.conf"
     Then "inet 192.168.111.2 peer 192.168.111.254/32 scope global ppp" is not visible with command "ip a s"
-    Then "default via 192.168.111.254 dev ppp.*  proto static  metric" is not visible with command "ip r"
+    Then "default via 192.168.111.254 dev ppp.*\s+proto static\s+metric" is not visible with command "ip r"
 
 
     @rhbz1110465
@@ -76,8 +76,8 @@ Feature: nmcli - ppp
      And "nameserver 8.8.4.4" is visible with command "cat /etc/resolv.conf"
      And "inet 192.168.111.2 peer 192.168.111.254/32 .*scope global ppp" is visible with command "ip a s"
      And "inet 192.168.111.254 peer 192.168.111.2/32 .*scope global ppp" is visible with command "ip a s"
-     And "192.168.111.2 dev ppp.*  proto kernel  scope link  src 192.168.111.254" is visible with command "ip r"
-     And "default via 192.168.111.254 dev ppp.*  proto static  metric" is visible with command "ip r"
+     And "192.168.111.2 dev ppp.*\s+proto kernel\s+scope link\s+src 192.168.111.254" is visible with command "ip r"
+     And "default via 192.168.111.254 dev ppp.*\s+proto static\s+metric" is visible with command "ip r"
     * Execute "ip link set dev test12 down && sleep 2 && ip link set dev test12 up"
     Then "external" is visible with command "firewall-cmd --get-zone-of-interface=ppp0" in "10" seconds
      And "external" is visible with command "firewall-cmd --get-zone-of-interface=test11" in "10" seconds
@@ -85,5 +85,5 @@ Feature: nmcli - ppp
      And "nameserver 8.8.4.4" is visible with command "cat /etc/resolv.conf"
      And "inet 192.168.111.2 peer 192.168.111.254/32 .*scope global ppp" is visible with command "ip a s"
      And "inet 192.168.111.254 peer 192.168.111.2/32 .*scope global ppp" is visible with command "ip a s"
-     And "192.168.111.2 dev ppp.*  proto kernel  scope link  src 192.168.111.254" is visible with command "ip r"
-     And "default via 192.168.111.254 dev ppp.*  proto static  metric" is visible with command "ip r"
+     And "192.168.111.2 dev ppp.*\s+proto kernel\s+scope link\s+src 192.168.111.254" is visible with command "ip r"
+     And "default via 192.168.111.254 dev ppp.*\s+proto static\s+metric" is visible with command "ip r"

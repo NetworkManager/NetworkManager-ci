@@ -139,8 +139,8 @@ Feature: nmcli: ipv4
     * Quit editor
     * Bring "up" connection "ethie"
     Then "192.168.122.253/24" is visible with command "ip a s eth1"
-    Then "default via 192.168.122.96 dev eth1  proto static  metric" is visible with command "ip route"
-    Then "192.168.122.0/24 dev eth1  proto kernel  scope link  src 192.168.122.253" is visible with command "ip route"
+    Then "default via 192.168.122.96 dev eth1\s+proto static\s+metric" is visible with command "ip route"
+    Then "192.168.122.0/24 dev eth1\s+proto kernel\s+scope link\s+src 192.168.122.253" is visible with command "ip route"
     Then "2" is visible with command "ip r |grep 'default via 1' |wc -l"
 
 
@@ -159,7 +159,7 @@ Feature: nmcli: ipv4
     Then "192.168.22.253/24" is visible with command "ip a s eth1"
     Then "192.168.122.253/16" is visible with command "ip a s eth1"
     Then "192.168.222.253/8" is visible with command "ip a s eth1"
-    Then "default via 192.168.22.96 dev eth1  proto static  metric" is visible with command "ip route"
+    Then "default via 192.168.22.96 dev eth1\s+proto static\s+metric" is visible with command "ip route"
     Then "1" is visible with command "ip r |grep 'default via 1' |wc -l"
 
 
@@ -212,12 +212,12 @@ Feature: nmcli: ipv4
     * Save in editor
     * Quit editor
     * Bring "up" connection "ethie2"
-    Then "192.168.1.0/24 dev eth2  proto kernel  scope link  src 192.168.1.10" is visible with command "ip route"
-    Then "192.168.2.0/24 via 192.168.1.11 dev eth2  proto static  metric" is visible with command "ip route"
-    Then "192.168.3.0/24 dev eth1  proto kernel  scope link  src 192.168.3.10" is visible with command "ip route"
-    Then "192.168.4.1 dev eth1  proto static  scope link  metric 21" is visible with command "ip route"
-    Then "192.168.4.1 dev eth2  proto static  scope link  metric 22" is visible with command "ip route"
-    Then "192.168.5.0/24 via 192.168.3.11 dev eth1  proto static  metric" is visible with command "ip route"
+    Then "192.168.1.0/24 dev eth2\s+proto kernel\s+scope link\s+src 192.168.1.10" is visible with command "ip route"
+    Then "192.168.2.0/24 via 192.168.1.11 dev eth2\s+proto static\s+metric" is visible with command "ip route"
+    Then "192.168.3.0/24 dev eth1\s+proto kernel\s+scope link\s+src 192.168.3.10" is visible with command "ip route"
+    Then "192.168.4.1 dev eth1\s+proto static\s+scope link\s+metric 21" is visible with command "ip route"
+    Then "192.168.4.1 dev eth2\s+proto static\s+scope link\s+metric 22" is visible with command "ip route"
+    Then "192.168.5.0/24 via 192.168.3.11 dev eth1\s+proto static\s+metric" is visible with command "ip route"
 
 
     @rhbz1302532
@@ -270,14 +270,14 @@ Feature: nmcli: ipv4
     * Save in editor
     * Quit editor
     * Bring "up" connection "ethie2"
-    Then "default via 192.168.4.1 dev eth1  proto static  metric 10[0-2]" is visible with command "ip route" in "5" seconds
-    Then "default via 192.168.4.1 dev eth2  proto static  metric 10[0-2]" is visible with command "ip route" in "5" seconds
-    Then "192.168.1.0/24 dev eth2  proto kernel  scope link  src 192.168.1.10" is visible with command "ip route"
-    Then "192.168.2.0/24 via 192.168.1.11 dev eth2  proto static  metric 2" is not visible with command "ip route"
-    Then "192.168.3.0/24 dev eth1  proto kernel  scope link  src 192.168.3.10" is visible with command "ip route"
-    Then "192.168.4.1 dev eth1  proto static  scope link  metric 10[0-1]" is visible with command "ip route"
-    Then "192.168.4.1 dev eth2  proto static  scope link  metric 10[0-1]" is visible with command "ip route"
-    Then "192.168.5.0/24 via 192.168.3.11 dev eth1  proto static  metric 1" is not visible with command "ip route"
+    Then "default via 192.168.4.1 dev eth1\s+proto static\s+metric 10[0-2]" is visible with command "ip route" in "5" seconds
+    Then "default via 192.168.4.1 dev eth2\s+proto static\s+metric 10[0-2]" is visible with command "ip route" in "5" seconds
+    Then "192.168.1.0/24 dev eth2\s+proto kernel\s+scope link\s+src 192.168.1.10" is visible with command "ip route"
+    Then "192.168.2.0/24 via 192.168.1.11 dev eth2\s+proto static\s+metric 2" is not visible with command "ip route"
+    Then "192.168.3.0/24 dev eth1\s+proto kernel\s+scope link\s+src 192.168.3.10" is visible with command "ip route"
+    Then "192.168.4.1 dev eth1\s+proto static\s+scope link\s+metric 10[0-1]" is visible with command "ip route"
+    Then "192.168.4.1 dev eth2\s+proto static\s+scope link\s+metric 10[0-1]" is visible with command "ip route"
+    Then "192.168.5.0/24 via 192.168.3.11 dev eth1\s+proto static\s+metric 1" is not visible with command "ip route"
 
 
     @ipv4 @eth0
@@ -292,10 +292,10 @@ Feature: nmcli: ipv4
     * Save in editor
     * Quit editor
     * Bring "up" connection "ethie"
-    Then "default via 192.168.122.1 dev eth10  proto static  metric" is visible with command "ip route"
-    Then "192.168.1.0/24 dev eth10  proto static  scope link  metric" is visible with command "ip route"
-    Then "192.168.2.0/24 via 192.168.122.5 dev eth10  proto static  metric" is visible with command "ip route"
-    Then "192.168.122.0/24 dev eth10  proto kernel  scope link  src 192.168.122.2" is visible with command "ip route"
+    Then "default via 192.168.122.1 dev eth10\s+proto static\s+metric" is visible with command "ip route"
+    Then "192.168.1.0/24 dev eth10\s+proto static\s+scope link\s+metric" is visible with command "ip route"
+    Then "192.168.2.0/24 via 192.168.122.5 dev eth10\s+proto static\s+metric" is visible with command "ip route"
+    Then "192.168.122.0/24 dev eth10\s+proto kernel\s+scope link\s+src 192.168.122.2" is visible with command "ip route"
 
 
     @dummy
@@ -334,9 +334,9 @@ Feature: nmcli: ipv4
     * Save in editor
     * Quit editor
     * Bring "up" connection "ethie"
-    Then "default via 192.168.122.1 dev eth1  proto static  metric" is visible with command "ip route"
-    Then "192.168.1.0/24 dev eth1  proto static  scope link  metric" is visible with command "ip route"
-    Then "192.168.122.0/24 dev eth1  proto kernel  scope link  src 192.168.122.2" is visible with command "ip route"
+    Then "default via 192.168.122.1 dev eth1\s+proto static\s+metric" is visible with command "ip route"
+    Then "192.168.1.0/24 dev eth1\s+proto static\s+scope link\s+metric" is visible with command "ip route"
+    Then "192.168.122.0/24 dev eth1\s+proto kernel\s+scope link\s+src 192.168.122.2" is visible with command "ip route"
 
 
     @ver+=1.4.0
@@ -958,7 +958,7 @@ Feature: nmcli: ipv4
     When "default" is not visible with command "ip r |grep testX"
     * Execute "ip route add default via 192.168.99.1 dev testX metric 666"
     * Execute "sleep 70"
-    Then "default via 192.168.99.1 dev testX  metric 666" is visible with command "ip r"
+    Then "default via 192.168.99.1 dev testX\s+metric 666" is visible with command "ip r"
 
 
     @rhbz1205405
@@ -971,7 +971,7 @@ Feature: nmcli: ipv4
     * Execute "nmcli connection modify ethie ipv4.never-default no"
     * Bring "up" connection "ethie"
     * Execute "ip route add default via 192.168.99.1 dev testX metric 666"
-    Then "default via 192.168.99.1 dev testX  metric 666" is not visible with command "ip r" in "70" seconds
+    Then "default via 192.168.99.1 dev testX\s+metric 666" is not visible with command "ip r" in "70" seconds
 
 
     @rhbz1284261
@@ -1050,9 +1050,9 @@ Feature: nmcli: ipv4
     * Add a new connection of type "ethernet" and options "con-name ethie ifname eth1 autoconnect no"
     * Bring up connection "ethie"
     * "192.168" is visible with command "ip a s eth1" in "10" seconds
-    * "dev eth1  proto kernel  scope link" is visible with command "ip route"
+    * "dev eth1\s+proto kernel\s+scope link" is visible with command "ip route"
     * Add a secondary address to device "eth1" within the same subnet
-    Then "dev eth1  proto kernel  scope link" is visible with command "ip route" for full "80" seconds
+    Then "dev eth1\s+proto kernel\s+scope link" is visible with command "ip route" for full "80" seconds
 
 
     @ipv4
