@@ -79,7 +79,8 @@ def add_secondary_addr_same_subnet(context, device):
 
 @given(u'Use certificate "{cert}" with key "{key}" and authority "{ca}" for gateway "{gateway}" on OpenVPN connection "{name}"')
 def set_openvpn_connection(context, cert, key, ca, gateway, name):
-    samples = glob('/usr/share/doc/openvpn*/sample/')[0]
+    samples = glob(os.path.abspath('tmp/openvpn/'))[0]+'/'
+    print (samples+key)
     cli = pexpect.spawn('nmcli c modify %s vpn.data "tunnel-mtu = 1400, key = %s, connection-type = tls, ca = %s, cert = %s, remote = %s, cert-pass-flags = 0"' % (name, samples + key, samples + ca, samples + cert, gateway))
     r = cli.expect(['Error', pexpect.EOF])
     if r == 0:

@@ -53,6 +53,9 @@ if [ ! -e /tmp/nm_eth_configured ]; then
     #setting ulimit to unlimited for test user
     echo "ulimit -c unlimited" >> /home/test/.bashrc
 
+    # Give proper context to openvpn profiles
+    chcon -R system_u:object_r:usr_t:s0 tmp/openvpn/sample-keys/
+
     #making sure all wifi devices are named wlanX
     NUM=0
     wlan=0

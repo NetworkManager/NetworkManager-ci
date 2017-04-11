@@ -527,7 +527,8 @@ def before_scenario(context, scenario):
             call("service NetworkManager restart", shell=True)
             sleep(2)
 
-            samples = glob('/usr/share/doc/openvpn*/sample')[0]
+            samples = glob(os.path.abspath('tmp/openvpn'))[0]
+            print (samples)
             cfg = Popen("sudo sh -c 'cat >/etc/openvpn/trest-server.conf'", stdin=PIPE, shell=True).stdin
             cfg.write('# OpenVPN configuration for client testing')
             cfg.write("\n" + 'mode server')
