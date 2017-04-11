@@ -27,7 +27,7 @@ Feature: nmcli - ppp
 
     @not_on_s390x @pppoe @del_test1112_veths
     @connect_to_pppoe_via_chap
-  \s+scenario: NM - ppp - connect with chap auth
+   Scenario: NM - ppp - connect with chap auth
     * Execute "ip link add test11 type veth peer name test12"
     * Prepare pppoe server for user "test" with "networkmanager" password and IP "192.168.111.2" authenticated via "chap"
     * Start pppoe server with "isp" and IP "192.168.111.254" on device "test12"

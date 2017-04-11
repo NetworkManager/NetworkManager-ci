@@ -152,10 +152,10 @@ Feature: IPv4 TUI tests
     * Set "Gateway" field to "192.168.4.1"
     * Add ip route "192.168.2.0/24 192.168.1.11 2"
     * Confirm the connection settings
-    Then "192.168.1.0/24 dev eth2  proto kernel  scope link  src 192.168.1.10" is visible with command "ip route"
-    Then "192.168.2.0/24 via 192.168.1.11 dev eth2  proto static  metric 2" is visible with command "ip route"
-    Then "192.168.3.0/24 dev eth1  proto kernel  scope link  src 192.168.3.10" is visible with command "ip route"
-    Then "192.168.5.0/24 via 192.168.3.11 dev eth1  proto static  metric 1" is visible with command "ip route"
+    Then "192.168.1.0/24 dev eth2\s+proto kernel\s+scope link\s+src 192.168.1.10" is visible with command "ip route"
+    Then "192.168.2.0/24 via 192.168.1.11 dev eth2\s+proto static\s+metric 2" is visible with command "ip route"
+    Then "192.168.3.0/24 dev eth1\s+proto kernel\s+scope link\s+src 192.168.3.10" is visible with command "ip route"
+    Then "192.168.5.0/24 via 192.168.3.11 dev eth1\s+proto static\s+metric 1" is visible with command "ip route"
     Then "default via [0-9]+\.[0-9]+\.[0-9]+\.[0-9]+ dev eth0" is visible with command "ip route"
 
 
@@ -194,10 +194,10 @@ Feature: IPv4 TUI tests
     * Confirm the connection settings
     * Bring up connection "ethernet1"
     * Bring up connection "ethernet2"
-    Then "192.168.1.0/24 dev eth2  proto kernel  scope link  src 192.168.1.10" is visible with command "ip route"
-    Then "192.168.2.0/24 via 192.168.1.11 dev eth2  proto static  metric 2" is not visible with command "ip route"
-    Then "192.168.3.0/24 dev eth1  proto kernel  scope link  src 192.168.3.10" is visible with command "ip route"
-    Then "192.168.5.0/24 via 192.168.3.11 dev eth1  proto static  metric 1" is not visible with command "ip route"
+    Then "192.168.1.0/24 dev eth2\s+proto kernel\s+scope link\s+src 192.168.1.10" is visible with command "ip route"
+    Then "192.168.2.0/24 via 192.168.1.11 dev eth2\s+proto static\s+metric 2" is not visible with command "ip route"
+    Then "192.168.3.0/24 dev eth1\s+proto kernel\s+scope link\s+src 192.168.3.10" is visible with command "ip route"
+    Then "192.168.5.0/24 via 192.168.3.11 dev eth1\s+proto static\s+metric 1" is not visible with command "ip route"
     Then "default via [0-9]+\.[0-9]+\.[0-9]+\.[0-9]+ dev eth0" is visible with command "ip route"
 
     @ipv4
@@ -212,10 +212,10 @@ Feature: IPv4 TUI tests
     * Add ip route "192.168.1.0/24 0.0.0.0"
     * Add ip route "192.168.2.0/24 192.168.122.5"
     * Confirm the connection settings
-    Then "default via 192.168.122.1 dev eth1  proto static" is visible with command "ip route"
-    Then "192.168.1.0/24 dev eth1  proto static  scope link" is visible with command "ip route"
-    Then "192.168.2.0/24 via 192.168.122.5 dev eth1  proto static" is visible with command "ip route"
-    Then "192.168.122.0/24 dev eth1  proto kernel  scope link  src 192.168.122.2" is visible with command "ip route"
+    Then "default via 192.168.122.1 dev eth1\s+proto static" is visible with command "ip route"
+    Then "192.168.1.0/24 dev eth1\s+proto static\s+scope link" is visible with command "ip route"
+    Then "192.168.2.0/24 via 192.168.122.5 dev eth1\s+proto static" is visible with command "ip route"
+    Then "192.168.122.0/24 dev eth1\s+proto kernel\s+scope link\s+src 192.168.122.2" is visible with command "ip route"
 
 
     @ipv4
@@ -239,10 +239,10 @@ Feature: IPv4 TUI tests
     * Confirm the connection settings
     Then "192.168.5.2/24" is visible with command "ip a s eth1" in "10" seconds
     Then "192.168.10.2/24" is visible with command "ip a s eth2" in "10" seconds
-    Then "default via 192.168.5.1 dev eth1  proto static  metric 101" is visible with command "ip -4 route"
-    Then "default via 192.168.10.1 dev eth2  proto static  metric 102" is visible with command "ip -4 route"
-    Then "192.168.5.0/24 dev eth1  proto kernel  scope link  src 192.168.5.2" is visible with command "ip -4 route"
-    Then "192.168.10.0/24 dev eth2  proto kernel  scope link  src 192.168.10.2" is visible with command "ip -4 route"
+    Then "default via 192.168.5.1 dev eth1\s+proto static\s+metric 101" is visible with command "ip -4 route"
+    Then "default via 192.168.10.1 dev eth2\s+proto static\s+metric 102" is visible with command "ip -4 route"
+    Then "192.168.5.0/24 dev eth1\s+proto kernel\s+scope link\s+src 192.168.5.2" is visible with command "ip -4 route"
+    Then "192.168.10.0/24 dev eth2\s+proto kernel\s+scope link\s+src 192.168.10.2" is visible with command "ip -4 route"
 
 
     @ipv4

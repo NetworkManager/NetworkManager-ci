@@ -166,10 +166,10 @@ Feature: IPv6 TUI tests
     * In "Addresses" property add "2001::1/126"
     * Add ip route "3030::1/128 2001::2 1"
     * Confirm the connection settings
-    Then "1010::1 via 2000::1 dev eth1  proto static  metric 1" is visible with command "ip -6 route"
-    Then "2000::/126 dev eth1  proto kernel  metric 256" is visible with command "ip -6 route"
-    Then "2001::/126 dev eth2  proto kernel  metric 256" is visible with command "ip -6 route"
-    Then "3030::1 via 2001::2 dev eth2  proto static  metric 1" is visible with command "ip -6 route"
+    Then "1010::1 via 2000::1 dev eth1\s+proto static\s+metric 1" is visible with command "ip -6 route"
+    Then "2000::/126 dev eth1\s+proto kernel\s+metric 256" is visible with command "ip -6 route"
+    Then "2001::/126 dev eth2\s+proto kernel\s+metric 256" is visible with command "ip -6 route"
+    Then "3030::1 via 2001::2 dev eth2\s+proto static\s+metric 1" is visible with command "ip -6 route"
 
 
     @ipv6
@@ -207,10 +207,10 @@ Feature: IPv6 TUI tests
     * Bring up connection "ethernet2"
     Then "2000::2/126" is visible with command "ip a s eth1"
     Then "2001::1/126" is visible with command "ip a s eth2"
-    Then "1010::1 via 2000::1 dev eth1  proto static  metric 1" is not visible with command "ip -6 route"
-    Then "2000::/126 dev eth1  proto kernel  metric 256" is visible with command "ip -6 route"
-    Then "2001::/126 dev eth2  proto kernel  metric 256" is visible with command "ip -6 route"
-    Then "3030::1 via 2001::2 dev eth2  proto static  metric 1" is not visible with command "ip -6 route"
+    Then "1010::1 via 2000::1 dev eth1\s+proto static\s+metric 1" is not visible with command "ip -6 route"
+    Then "2000::/126 dev eth1\s+proto kernel\s+metric 256" is visible with command "ip -6 route"
+    Then "2001::/126 dev eth2\s+proto kernel\s+metric 256" is visible with command "ip -6 route"
+    Then "3030::1 via 2001::2 dev eth2\s+proto static\s+metric 1" is not visible with command "ip -6 route"
 
 
     @ipv6
@@ -225,9 +225,9 @@ Feature: IPv6 TUI tests
     * Add ip route "1010::1/128 :: 3"
     * Add ip route "3030::1/128 2001::2 2"
     * Confirm the connection settings
-    Then "3030::1 via 2001::2 dev eth1  proto static  metric 2" is visible with command "ip -6 route"
-    Then "2001::/126 dev eth1  proto kernel  metric 256" is visible with command "ip -6 route"
-    Then "1010::1 dev eth1  proto static  metric 3" is visible with command "ip -6 route"
+    Then "3030::1 via 2001::2 dev eth1\s+proto static\s+metric 2" is visible with command "ip -6 route"
+    Then "2001::/126 dev eth1\s+proto kernel\s+metric 256" is visible with command "ip -6 route"
+    Then "1010::1 dev eth1\s+proto static\s+metric 3" is visible with command "ip -6 route"
 
 
     @ipv6
@@ -252,10 +252,10 @@ Feature: IPv6 TUI tests
     * Confirm the connection settings
     Then "inet6 fc01::1:5/68" is visible with command "ip a s eth1" in "10" seconds
     Then "inet6 fc05::1:5/68" is visible with command "ip a s eth2" in "10" seconds
-    Then "default via fc01::1:1 dev eth1  proto static  metric 100" is visible with command "ip -6 route" in "10" seconds
-    Then "default via fc05::1:1 dev eth2  proto static  metric 101" is visible with command "ip -6 route" in "10" seconds
-    Then "fc01::/68 dev eth1  proto kernel" is visible with command "ip -6 route" in "10" seconds
-    Then "fc05::/68 dev eth2  proto kernel" is visible with command "ip -6 route" in "10" seconds
+    Then "default via fc01::1:1 dev eth1\s+proto static\s+metric 100" is visible with command "ip -6 route" in "10" seconds
+    Then "default via fc05::1:1 dev eth2\s+proto static\s+metric 101" is visible with command "ip -6 route" in "10" seconds
+    Then "fc01::/68 dev eth1\s+proto kernel" is visible with command "ip -6 route" in "10" seconds
+    Then "fc05::/68 dev eth2\s+proto kernel" is visible with command "ip -6 route" in "10" seconds
 
 
     @ipv6
