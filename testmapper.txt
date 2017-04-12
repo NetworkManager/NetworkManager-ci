@@ -171,6 +171,8 @@ ipv6_describe, ., nmcli/./runtest.sh ipv6_describe ,
 #@ipv6_end
 
 #@ipv4_start
+nmcli_general_correct_profile_activated_after_restart, ., nmcli/./runtest.sh nmcli_general_correct_profile_activated_after_restart ,
+nmcli_general_profile_pickup_doesnt_break_network, ., nmcli/./runtest.sh nmcli_general_profile_pickup_doesnt_break_network ,
 ipv4_take_manually_created_ifcfg_with_ip, ., nmcli/./runtest.sh ipv4_take_manually_created_ifcfg_with_ip ,
 ipv4_method_static_no_IP, ., nmcli/./runtest.sh ipv4_method_static_no_IP ,
 ipv4_method_manual_with_IP, ., nmcli/./runtest.sh ipv4_method_manual_with_IP ,
@@ -325,7 +327,6 @@ preserve_8021x_certs, ., nmcli/./runtest.sh preserve_8021x_certs ,
 
 
 #@general_start
-nmcli_general_profile_pickup_doesnt_break_network, ., nmcli/./runtest.sh nmcli_general_profile_pickup_doesnt_break_network ,
 logging, ., nmcli/./runtest.sh logging ,
 reduce_logging, ., nmcli/./runtest.sh reduce_logging ,
 hostname_change, ., nmcli/./runtest.sh hostname_change ,
@@ -384,7 +385,6 @@ device_reapply_all, ., nmcli/./runtest.sh device_reapply_all ,
 device_connect_no_profile, ., nmcli/./runtest.sh device_connect_no_profile ,
 nmcli_device_delete, ., nmcli/./runtest.sh nmcli_device_delete ,
 nmcli_device_attempt_hw_delete, ., nmcli/./runtest.sh nmcli_device_attempt_hw_delete ,
-nmcli_general_correct_profile_activated_after_restart, ., nmcli/./runtest.sh nmcli_general_correct_profile_activated_after_restart ,
 nmcli_novice_mode_readline, ., nmcli/./runtest.sh nmcli_novice_mode_readline ,
 nmcli_device_wifi_with_two_devices, ., nmcli/./runtest.sh nmcli_device_wifi_with_two_devices ,
 vxlan_interface_recognition, ., nmcli/./runtest.sh vxlan_interface_recognition ,
