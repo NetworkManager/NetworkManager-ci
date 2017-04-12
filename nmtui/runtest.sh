@@ -113,10 +113,11 @@ if [ ! -e /tmp/nm_eth_configured ]; then
                 ip link set eth0 up
                 nmcli connection modify testeth0 ipv6.method auto
                 nmcli c u testeth0
-            fi
-            
+            fi    
             # we need to do this to have the device rescan networks after the renaming
             service NetworkManager restart
+            nmcli c u testeth0
+            sleep 5
             # obtain valid certificates
             mkdir /tmp/certs
             wget http://wlan-lab.eng.bos.redhat.com/certs/eaptest_ca_cert.pem -O /tmp/certs/eaptest_ca_cert.pem
