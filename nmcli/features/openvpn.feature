@@ -62,8 +62,8 @@
     * Execute "nmcli c modify openvpn vpn.persistent true"
     * Bring "up" connection "openvpn"
     When "VPN.VPN-STATE:.*VPN connected" is visible with command "nmcli c show openvpn"
-    * Execute "kill -TERM $(ps aux|grep "openvpn --remote" | awk '{print $2'})"
-    * Execute "kill -TERM $(ps aux|grep "openvpn --remote" | awk '{print $2'})"
+    * Execute "kill -9 $(ps aux|grep "openvpn --remote" | awk '{print $2'})"
+    * Execute "kill -9 $(ps aux|grep "openvpn --remote" | awk '{print $2'})"
     Then "VPN.VPN-STATE:.*VPN connected" is not visible with command "nmcli c show openvpn" in "5" seconds
 
 
