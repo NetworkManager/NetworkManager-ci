@@ -508,14 +508,23 @@ preserve_master_and_ip_settings, ., nmcli/./runtest.sh preserve_master_and_ip_se
 #@tuntap_end
 
 #@wifi_start
+nmcli_wifisec_configure_and_connect_wpa1peap_profile, ., nmcli/./runtest.sh nmcli_wifisec_configure_and_connect_wpa1peap_profile , iw;pexpect
 nmcli_wifi_connect_to_wpa2_psk_network_without_profile, ., nmcli/./runtest.sh nmcli_wifi_connect_to_wpa2_psk_network_without_profile , iw;pexpect
+nmcli_wifisec_configure_and_connect_wpa1tls_profile, ., nmcli/./runtest.sh nmcli_wifisec_configure_and_connect_wpa1tls_profile , iw;pexpect
 nmcli_wifi_connect_to_wpa1_psk_network_without_profile, ., nmcli/./runtest.sh nmcli_wifi_connect_to_wpa1_psk_network_without_profile , iw;pexpect
+nmcli_wifisec_configure_and_connect_wpa1ttls_profile, ., nmcli/./runtest.sh nmcli_wifisec_configure_and_connect_wpa1ttls_profile , iw;pexpect
 nmcli_wifi_connect_to_open_network_without_profile, ., nmcli/./runtest.sh nmcli_wifi_connect_to_open_network_without_profile , iw;pexpect
+nmcli_wifisec_configure_and_connect_wpa2peap_profile, ., nmcli/./runtest.sh nmcli_wifisec_configure_and_connect_wpa2peap_profile , iw;pexpect
 nmcli_wifi_connect_to_wep_hexkey_network_without_profile, ., nmcli/./runtest.sh nmcli_wifi_connect_to_wep_hexkey_network_without_profile , iw;pexpect
+nmcli_wifisec_configure_and_connect_wpa2tls_profile, ., nmcli/./runtest.sh nmcli_wifisec_configure_and_connect_wpa2tls_profile , iw;pexpect
 nmcli_wifi_connect_to_wep_asciikey_network_without_profile, ., nmcli/./runtest.sh nmcli_wifi_connect_to_wep_asciikey_network_without_profile , iw;pexpect
+nmcli_wifisec_configure_and_connect_wpa2ttls_profile, ., nmcli/./runtest.sh nmcli_wifisec_configure_and_connect_wpa2ttls_profile , iw;pexpect
 nmcli_wifi_connect_to_wep_phrase_network_without_profile, ., nmcli/./runtest.sh nmcli_wifi_connect_to_wep_phrase_network_without_profile , iw;pexpect
+nmcli_wifisec_configure_and_connect_wep_leap_profile, ., nmcli/./runtest.sh nmcli_wifisec_configure_and_connect_wep_leap_profile , iw;pexpect
 nmcli_wifi_create_a_new_connection_for_an_open_network, ., nmcli/./runtest.sh nmcli_wifi_create_a_new_connection_for_an_open_network , iw;pexpect
+nmcli_wifisec_configure_and_connect_weptls_profile, ., nmcli/./runtest.sh nmcli_wifisec_configure_and_connect_weptls_profile , iw;pexpect
 nmcli_wifi_connection_up_for_an_open_network, ., nmcli/./runtest.sh nmcli_wifi_connection_up_for_an_open_network , iw;pexpect
+nmcli_wifisec_configure_and_connect_wepttls_profile, ., nmcli/./runtest.sh nmcli_wifisec_configure_and_connect_wepttls_profile , iw;pexpect
 nmcli_wifi_connection_down_for_an_open_network, ., nmcli/./runtest.sh nmcli_wifi_connection_down_for_an_open_network , iw;pexpect
 nmcli_wifi_infrastructure_mode_setting, ., nmcli/./runtest.sh nmcli_wifi_infrastructure_mode_setting , iw;pexpect
 nmcli_wifi_adhoc_open_network, ., nmcli/./runtest.sh nmcli_wifi_adhoc_open_network , iw;pexpect
@@ -557,15 +566,6 @@ nmcli_wifisec_configure_and_connect_wpa1psk_profile, ., nmcli/./runtest.sh nmcli
 nmcli_wifisec_configure_and_connect_wep_hex_key_profile, ., nmcli/./runtest.sh nmcli_wifisec_configure_and_connect_wep_hex_key_profile , iw;pexpect
 nmcli_wifisec_configure_and_connect_wep_ascii_key_profile, ., nmcli/./runtest.sh nmcli_wifisec_configure_and_connect_wep_ascii_key_profile , iw;pexpect
 nmcli_wifisec_configure_and_connect_wep_phrase_profile, ., nmcli/./runtest.sh nmcli_wifisec_configure_and_connect_wep_phrase_profile , iw;pexpect
-nmcli_wifisec_configure_and_connect_wpa1peap_profile, ., nmcli/./runtest.sh nmcli_wifisec_configure_and_connect_wpa1peap_profile , iw;pexpect
-nmcli_wifisec_configure_and_connect_wpa1tls_profile, ., nmcli/./runtest.sh nmcli_wifisec_configure_and_connect_wpa1tls_profile , iw;pexpect
-nmcli_wifisec_configure_and_connect_wpa1ttls_profile, ., nmcli/./runtest.sh nmcli_wifisec_configure_and_connect_wpa1ttls_profile , iw;pexpect
-nmcli_wifisec_configure_and_connect_wpa2peap_profile, ., nmcli/./runtest.sh nmcli_wifisec_configure_and_connect_wpa2peap_profile , iw;pexpect
-nmcli_wifisec_configure_and_connect_wpa2tls_profile, ., nmcli/./runtest.sh nmcli_wifisec_configure_and_connect_wpa2tls_profile , iw;pexpect
-nmcli_wifisec_configure_and_connect_wpa2ttls_profile, ., nmcli/./runtest.sh nmcli_wifisec_configure_and_connect_wpa2ttls_profile , iw;pexpect
-nmcli_wifisec_configure_and_connect_wep_leap_profile, ., nmcli/./runtest.sh nmcli_wifisec_configure_and_connect_wep_leap_profile , iw;pexpect
-nmcli_wifisec_configure_and_connect_weptls_profile, ., nmcli/./runtest.sh nmcli_wifisec_configure_and_connect_weptls_profile , iw;pexpect
-nmcli_wifisec_configure_and_connect_wepttls_profile, ., nmcli/./runtest.sh nmcli_wifisec_configure_and_connect_wepttls_profile , iw;pexpect
 nmcli_wifi_remove_connection_while_up, ., nmcli/./runtest.sh nmcli_wifi_remove_connection_while_up , iw;pexpect
 nmcli_wifi_remove_connection_while_down, ., nmcli/./runtest.sh nmcli_wifi_remove_connection_while_down , iw;pexpect
 nmcli_wifisec_keymgmt_wrong_values, ., nmcli/./runtest.sh nmcli_wifisec_keymgmt_wrong_values , iw;pexpect

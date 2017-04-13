@@ -275,13 +275,14 @@ def teardown_hostapd():
 
 def before_scenario(context, scenario):
     try:
-        if call("nmcli device |grep testeth0 |grep ' connected'", shell=True) != 0:
-            call("sudo nmcli connection modify testeth0 ipv4.may-fail no", shell=True)
-            call("sudo nmcli connection up id testeth0", shell=True)
-            for attempt in xrange(0, 10):
-                if call("nmcli device |grep testeth0 |grep ' connected'", shell=True) == 0:
-                    break
-                sleep(1)
+        if not os.path.isfile('/tmp/nm_wifi_configured') and not os.path.isfile('/tmp/dcb_configured'):
+            if call("nmcli device |grep testeth0 |grep ' connected'", shell=True) != 0:
+                call("sudo nmcli connection modify testeth0 ipv4.may-fail no", shell=True)
+                call("sudo nmcli connection up id testeth0", shell=True)
+                for attempt in xrange(0, 10):
+                    if call("nmcli device |grep testeth0 |grep ' connected'", shell=True) == 0:
+                        break
+                    sleep(1)
 
         os.environ['TERM'] = 'dumb'
 
@@ -633,6 +634,15 @@ def before_scenario(context, scenario):
             print ("---------------------------")
             print ("deleting eth1 and eth2 for openswitch tests")
             call('sudo nmcli con del eth1 eth2', shell=True) # delete these profile, we'll work with other ones
+
+        if 'wireless_certs' in scenario.tags:
+            print ("---------------------------")
+            print ("download certs if needed")
+            call('mkdir /tmp/certs', shell=True)
+            if not os.path.isfile('/tmp/certs/eaptest_ca_cert.pem'):
+                call('wget http://wlan-lab.eng.bos.redhat.com/certs/eaptest_ca_cert.pem -O /tmp/certs/eaptest_ca_cert.pem', shell=True)
+            if not os.path.isfile('/tmp/certs/client.pem'):
+                call('wget http://wlan-lab.eng.bos.redhat.com/certs/client.pem -O /tmp/certs/client.pem', shell=True)
 
         if 'selinux_allow_ifup' in scenario.tags:
             print ("---------------------------")

@@ -226,7 +226,7 @@ Feature: nmcli - wifi
     * Check ifcfg-name file created for connection "qe-open"
     * Open editor for connection "qe-open"
     * Set a property named "802-11-wireless.band" to "bg" in editor
-    * Set a property named "802-11-wireless.channel" to "11" in editor
+    * Set a property named "802-11-wireless.channel" to "6" in editor
     * Save in editor
     * Check value saved message showed in editor
     * Quit editor
@@ -684,7 +684,7 @@ Feature: nmcli - wifi
     Then "\*\s+qe-wep-psk" is visible with command "nmcli -f IN-USE,SSID device wifi list"
 
 
-    @wifi
+    @wifi @wireless_certs
     @nmcli_wifisec_configure_and_connect_wpa1peap_profile
     Scenario: nmcli - wifi-sec - configure and connect WPA1-PEAP profile
     * Add a new connection of type "wifi" and options "ifname wlan0 con-name qe-wpa1-enterprise autoconnect off ssid qe-wpa1-enterprise"
@@ -705,7 +705,7 @@ Feature: nmcli - wifi
     Then "\*\s+qe-wpa1-enterprise" is visible with command "nmcli -f IN-USE,SSID device wifi list"
 
 
-    @wifi
+    @wifi @wireless_certs
     @nmcli_wifisec_configure_and_connect_wpa1tls_profile
     Scenario: nmcli - wifi-sec - configure and connect WPA1-TLS profile
     * Add a new connection of type "wifi" and options "ifname wlan0 con-name qe-wpa1-enterprise autoconnect off ssid qe-wpa1-enterprise"
@@ -748,7 +748,7 @@ Feature: nmcli - wifi
     Then "\*\s+qe-wpa1-enterprise" is visible with command "nmcli -f IN-USE,SSID device wifi list"
 
 
-    @wifi
+    @wifi @wireless_certs
     @nmcli_wifisec_configure_and_connect_wpa2peap_profile
     Scenario: nmcli - wifi-sec - configure and connect WPA2-PEAP profile
     * Add a new connection of type "wifi" and options "ifname wlan0 con-name qe-wpa2-enterprise autoconnect off ssid qe-wpa2-enterprise"
@@ -770,7 +770,7 @@ Feature: nmcli - wifi
     Then "inet 10." is visible with command "ip a s wlan0"
 
 
-    @wifi
+    @wifi @wireless_certs
     @nmcli_wifisec_configure_and_connect_wpa2tls_profile
     Scenario: nmcli - wifi-sec - configure and connect WPA2-TLS profile
     * Add a new connection of type "wifi" and options "ifname wlan0 con-name qe-wpa2-enterprise autoconnect off ssid qe-wpa2-enterprise"
@@ -812,7 +812,7 @@ Feature: nmcli - wifi
     Then "qe-wpa2-enterprise" is visible with command "iw dev wlan0 link"
     Then "\*\s+qe-wpa2-enterprise" is visible with command "nmcli -f IN-USE,SSID device wifi list"
 
-    @wifi
+    @wifi @wireless_certs
     @nmcli_wifisec_configure_and_connect_wep_leap_profile
     Scenario: nmcli - wifi-sec - configure and connect WEP LEAP profile
     * Add a new connection of type "wifi" and options "ifname wlan0 con-name qe-wep-enterprise-cisco autoconnect off ssid qe-wep-enterprise-cisco"
@@ -853,7 +853,7 @@ Feature: nmcli - wifi
     Then "\*\s+qe-wep-enterprise" is visible with command "nmcli -f IN-USE,SSID device wifi list"
 
 
-    @wifi
+    @wifi @wireless_certs
     @nmcli_wifisec_configure_and_connect_wepttls_profile
     Scenario: nmcli - wifi-sec - configure and connect WEP-TTLS profile
     * Add a new connection of type "wifi" and options "ifname wlan0 con-name qe-wep-enterprise autoconnect off ssid qe-wep-enterprise"

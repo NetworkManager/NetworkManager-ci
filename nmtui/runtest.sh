@@ -102,24 +102,11 @@ if [ ! -e /tmp/nm_eth_configured ]; then
             fi
         fi
         if [ $wlan -eq 1 ]; then
-            if [ ! "eth0" == $(nmcli -f TYPE,DEVICE -t c sh --active  | grep ethernet | awk '{split($0,a,":"); print a[2]}') ]; then
-                DEV=$(nmcli -f TYPE,DEVICE -t c sh --active  | grep ethernet | awk '{split($0,a,":"); print a[2]}')
-                UUID=$(nmcli -t -f UUID c show --active)
-                sleep 0.5
-                ip link set $DEV down
-                ip link set $DEV name eth0
-                nmcli con mod $UUID connection.interface-name eth0
-                nmcli con mod $UUID connection.id testeth0
-                ip link set eth0 up
-                nmcli connection modify testeth0 ipv6.method auto
-                kill -SIGHUP $(pidof NetworkManager)
-                sleep 5
-                nmcli c u testeth0
-            fi
             # obtain valid certificates
             mkdir /tmp/certs
             wget http://wlan-lab.eng.bos.redhat.com/certs/eaptest_ca_cert.pem -O /tmp/certs/eaptest_ca_cert.pem
             wget http://wlan-lab.eng.bos.redhat.com/certs/client.pem -O /tmp/certs/client.pem
+            touch /tmp/nm_wifi_configured
         fi
     fi
 
