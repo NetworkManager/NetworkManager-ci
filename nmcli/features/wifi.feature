@@ -226,7 +226,7 @@ Feature: nmcli - wifi
     * Check ifcfg-name file created for connection "qe-open"
     * Open editor for connection "qe-open"
     * Set a property named "802-11-wireless.band" to "bg" in editor
-    * Set a property named "802-11-wireless.channel" to "6" in editor
+    * Set a property named "802-11-wireless.channel" to "11" in editor
     * Save in editor
     * Check value saved message showed in editor
     * Quit editor
