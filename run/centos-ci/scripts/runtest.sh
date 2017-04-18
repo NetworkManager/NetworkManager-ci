@@ -12,10 +12,15 @@ failures=()
 
 # Overal result is PASS
 # This can be used as a test result indicator
+mkdir -p /var/www/html/results/
 echo "PASS" > /var/www/html/results/RESULT
+
+echo "WILL RUN:"
+echo $@
 
 # For all tests
 for test in $@; do
+    echo "RUNING $test"
     # Start watchdog. Default is 10m
     timer=$(grep -w $test testmapper.txt | awk 'BEGIN { FS = "," } ; {print $5}')
     if [ "$timer" == "" ]; then
