@@ -51,6 +51,7 @@ $SUDO yum install \
     teamd-devel \
     jansson-devel \
     make \
+    libcurl-devel \
     -y
 
 mkdir -p "$BUILD_DIR"
