@@ -854,7 +854,7 @@ Feature: nmcli: ipv4
     Then "eth1:connected:ethie" is visible with command "nmcli -t -f DEVICE,STATE,CONNECTION device" in "20" seconds
 
 
-    @mtu
+    @mtu @kill_dnsmasq
     @set_mtu_from_DHCP
     Scenario: NM - ipv4 - set dhcp received MTU
     * Finish "ip link add test1 type veth peer name test1p"
@@ -870,7 +870,7 @@ Feature: nmcli: ipv4
     * Finish "nmcli connection add type ethernet con-name tc2 ifname test2"
     * Bring "up" connection "tc1"
     When "test1:connected:tc1" is visible with command "nmcli -t -f DEVICE,STATE,CONNECTION device" in "10" seconds
-    * Execute "/usr/sbin/dnsmasq --conf-file --no-hosts --keep-in-foreground --bind-interfaces --except-interface=lo --clear-on-reload --strict-order --listen-address=192.168.99.1 --dhcp-range=192.168.99.10,192.168.99.254,60m --dhcp-option=option:router,192.168.99.1 --dhcp-lease-max=50 --dhcp-option-force=26,1800 &"
+    * Execute "/usr/sbin/dnsmasq --pid-file=/tmp/dnsmasq.pid --conf-file --no-hosts --keep-in-foreground --bind-interfaces --except-interface=lo --clear-on-reload --strict-order --listen-address=192.168.99.1 --dhcp-range=192.168.99.10,192.168.99.254,60m --dhcp-option=option:router,192.168.99.1 --dhcp-lease-max=50 --dhcp-option-force=26,1800 &"
     * Bring "up" connection "tc2"
     Then "mtu 1800" is visible with command "ip a s test2"
 

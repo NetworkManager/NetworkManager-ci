@@ -11,6 +11,17 @@ function setup_veth_env ()
     nmcli dev
     nmcli gen
 
+    need_veth=0
+    for X in $(seq 0 10); do
+        if ! nmcli -t -f DEVICE device | grep ^eth$X$; then
+            need_veth=1
+            break
+        fi
+    done
+
+    if [ $need_veth -eq 0 ]; then
+        exit 0
+    fi
     # enable udev rule to enable ignoring 'veth' devices eth*, keeping their pairs unmanagad
     echo 'ENV{ID_NET_DRIVER}=="veth", ENV{INTERFACE}=="eth[0-9]|eth[0-9]*[0-9]", ENV{NM_UNMANAGED}="0"' >/etc/udev/rules.d/99-lr.rules
     udevadm control --reload-rules
@@ -25,7 +36,19 @@ function setup_veth_env ()
     #fi
     yum -y install NetworkManager-config-server
     cp /usr/lib/NetworkManager/conf.d/00-server.conf /etc/NetworkManager/conf.d/00-server.conf
-    systemctl restart NetworkManager; sleep 3
+
+    for i in $(nmcli -t -f DEVICE connection); do
+        nmcli device disconnect $i
+    done
+    sleep 1
+
+    systemctl restart NetworkManager; sleep 5
+
+    # log state of net after service restart
+    ip a
+    nmcli con
+    nmcli dev
+    nmcli gen
 
     # making sure the active ethernet device is eth0 and profile name testeth0
     if [ ! "eth0" == $(nmcli -f TYPE,DEVICE -t c sh --active  | grep ethernet | awk '{split($0,a,":"); print a[2]}') ]; then
@@ -34,17 +57,29 @@ function setup_veth_env ()
         sleep 0.5
         ip link set $DEV down
         ip link set $DEV name eth0
-        nmcli con mod $UUID connection.interface-name eth0
-        nmcli con mod $UUID connection.id testeth0
-        ip link set eth0 up
-        nmcli connection modify testeth0 ipv6.method auto
-        nmcli c u testeth0
     else # make active device eth0 if not
         UUID=$(nmcli -t -f UUID c show --active)
-        nmcli con mod $UUID connection.id testeth0
-        nmcli connection modify testeth0 ipv6.method auto
-        nmcli c u testeth0
+        DEV="eth0"
     fi
+
+    # Backup original ifcfg
+    if [ ! -e /tmp/ifcfg-$DEV ]; then
+        mv /etc/sysconfig/network-scripts/ifcfg-$DEV /tmp/
+    fi
+
+    yes | cp -rf /tmp/ifcfg-$DEV /etc/sysconfig/network-scripts/ifcfg-testeth0
+    nmcli con reload
+    sleep 1
+
+    ip link set $DEV up
+    nmcli device disconnect $DEV
+    nmcli con mod $UUID connection.id testeth0
+    nmcli con mod $UUID connection.interface-name eth0
+    nmcli connection modify $UUID ipv6.method auto
+    sleep 1
+
+    yes | cp -rf /etc/sysconfig/network-scripts/ifcfg-testeth0 /tmp/testeth0
+    nmcli c u testeth0
 
     for DEV in $(nmcli -f TYPE,DEVICE -t d | grep -v eth0 | grep ethernet | awk '{split($0,a,":"); print a[2]}'); do
         ip link set $DEV down
@@ -133,7 +168,7 @@ function setup_veth_env ()
 
     # on s390x sometimes this extra default profile gets created in addition to custom static original one
     # let's get rid of that
-    for i in $(nmcli -f NAME -t con |grep -v testeth[0-9]); do nmcli con del $i; done
+    for i in $(nmcli -t -f NAME,UUID connection |grep -v testeth |awk -F ':' ' {print $2}'); do nmcli con del $i; done
 
     # log state of net after the setup
     ip a
@@ -185,7 +220,18 @@ function teardown_veth_env ()
         nmcli con del testeth${X}
     done
 
-    nmcli con mod testeth0 connection.id eth0
+    cp /tmp/ifcfg-* /etc/sysconfig/network-scripts/
+    nmcli device disconnect eth0
+
+    ORIGDEV=$(grep DEVICE /tmp/ifcfg-* | awk -F '=' '{print $2}' | tr -d '"')
+    if [ "$ORIGDEV" != "eth0" ]; then
+        ip link set eth0 down
+        ip link set name eth0 name $ORIGDEV
+        ip link set dev $ORIGDEV up
+    fi
+
+    nmcli con reload
+    sleep 1
 
     for DEV in $(nmcli -f TYPE,DEVICE -t d | grep orig | awk '{split($0,a,":"); split(a[2],b,"-"); print b[2]}'); do
         ip link set orig-$DEV down
@@ -203,6 +249,7 @@ function teardown_veth_env ()
     done
 
     systemctl restart NetworkManager; sleep 1
+    nmcli device connect $ORIGDEV
 
     # log state of net after the teardown
     ip a

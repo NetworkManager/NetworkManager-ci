@@ -273,6 +273,14 @@ def teardown_hostapd():
     call("ip link del testX_bridge", shell=True)
     call("nmcli con del DHCP_testY", shell=True)
 
+def restore_testeth0():
+    call("nmcli con delete testeth0 2>1 /dev/null", shell=True)
+    call("yes | cp -rf /tmp/testeth0 /etc/sysconfig/network-scripts/ifcfg-testeth0", shell=True)
+    call("nmcli con reload", shell=True)
+    sleep(1)
+    call("nmcli con up testeth0", shell=True)
+    sleep(2)
+
 def before_scenario(context, scenario):
     try:
         if not os.path.isfile('/tmp/nm_wifi_configured') and not os.path.isfile('/tmp/dcb_configured'):
@@ -437,6 +445,7 @@ def before_scenario(context, scenario):
         if 'delete_testeth0' in scenario.tags:
             print ("---------------------------")
             print ("delete testeth0")
+            call("nmcli device disconnect eth0")
             call("nmcli connection delete id testeth0", shell=True)
 
         if 'eth1_disconnect' in scenario.tags:
@@ -474,7 +483,7 @@ def before_scenario(context, scenario):
             print("---------------------------")
             print("turning on network.service")
             context.nm_restarted = True
-            call('sudo pkill -9 pkill /sbin/dhclient', shell=True)
+            call('sudo pkill -9 /sbin/dhclient', shell=True)
             call('sudo systemctl restart NetworkManager.service', shell=True)
             call('sudo systemctl restart network.service', shell=True)
             call("nmcli connection up testeth0", shell=True)
@@ -781,10 +790,7 @@ def after_scenario(context, scenario):
             print ("restarting NM service")
             call('sudo service NetworkManager restart', shell=True)
             sleep(2)
-            call("nmcli connection modify testeth0 ipv4.method auto", shell=True)
-            call("nmcli connection modify testeth0 ipv6.method auto", shell=True)
-            call("nmcli connection up id testeth0", shell=True)
-            sleep(3)
+            restore_testeth0()
         dump_status(context, 'after %s' % scenario.name)
 
         if '1000' in scenario.tags:
@@ -891,10 +897,7 @@ def after_scenario(context, scenario):
         if 'eth0' in scenario.tags:
             print ("---------------------------")
             print ("upping eth0")
-            call("nmcli connection modify testeth0 ipv4.method auto", shell=True)
-            call("nmcli connection modify testeth0 ipv6.method auto", shell=True)
-            call("nmcli connection up id testeth0", shell=True)
-            sleep(2)
+            restore_testeth0()
 
         if 'time' in scenario.tags:
             print ("---------------------------")
@@ -973,7 +976,7 @@ def after_scenario(context, scenario):
         if 'kill_dnsmasq' in scenario.tags:
             print ("---------------------------")
             print ("kill dnsmasq")
-            call("kill -9 $(ps aux |grep dns |grep -v grep |grep -v inbr |grep -v simbr |grep interface |awk '{print $2}')", shell=True)
+            call("kill $(cat /tmp/dnsmasq.pid)", shell=True)
 
         if 'profie' in scenario.tags:
             print ("---------------------------")
@@ -1162,6 +1165,9 @@ def after_scenario(context, scenario):
                 print ("restoring NetworkManager-config-server")
                 call('sudo yum -y install NetworkManager-config-server', shell=True)
                 call('sudo cp /usr/lib/NetworkManager/conf.d/00-server.conf /etc/NetworkManager/conf.d/00-server.conf', shell=True)
+                call('systemctl restart NetworkManager', shell=True)
+                call("for i in $(nmcli -t -f NAME,UUID connection |grep -v testeth |awk -F ':' ' {print $2}'); do nmcli con del $i; done", shell=True)
+                restore_testeth0()
 
         if 'openvswitch_ignore_ovs_network_setup' in scenario.tags:
             print ("---------------------------")
@@ -1326,8 +1332,7 @@ def after_scenario(context, scenario):
             print ("---------------------------")
             print ("restoring testeth0 profile")
             call('sudo nmcli connection delete eth0', shell=True)
-            call('sudo nmcli connection delete testeth0', shell=True)
-            call("nmcli connection add type ethernet con-name testeth0 ifname eth0", shell=True)
+            restore_testeth0()
 
         if 'kill_dbus-monitor' in scenario.tags:
             print ("---------------------------")
@@ -1380,7 +1385,7 @@ def after_scenario(context, scenario):
                 call('sh vethsetup.sh teardown', shell=True)
                 call('sh vethsetup.sh setup', shell=True)
             else:
-                for link in range(1,11):
+                for link in range(1,10):
                     call('ip link set eth%d up' % link, shell=True)
 
         if nm_pid_after is not None and context.nm_pid == nm_pid_after:
