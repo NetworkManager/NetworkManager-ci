@@ -67,7 +67,7 @@ function setup_veth_env ()
         mv /etc/sysconfig/network-scripts/ifcfg-$DEV /tmp/
     fi
 
-    yes | cp -rf /tmp/ifcfg-$DEV /etc/sysconfig/network-scripts/ifcfg-testeth0
+    yes 2>/dev/null | cp -rf /tmp/ifcfg-$DEV /etc/sysconfig/network-scripts/ifcfg-testeth0
     nmcli con reload
     sleep 1
 
@@ -78,7 +78,7 @@ function setup_veth_env ()
     nmcli connection modify $UUID ipv6.method auto
     sleep 1
 
-    yes | cp -rf /etc/sysconfig/network-scripts/ifcfg-testeth0 /tmp/testeth0
+    yes 2>/dev/null | cp -rf /etc/sysconfig/network-scripts/ifcfg-testeth0 /tmp/testeth0
     nmcli c u testeth0
 
     for DEV in $(nmcli -f TYPE,DEVICE -t d | grep -v eth0 | grep ethernet | awk '{split($0,a,":"); print a[2]}'); do

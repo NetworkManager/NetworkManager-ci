@@ -275,7 +275,7 @@ def teardown_hostapd():
 
 def restore_testeth0():
     call("nmcli con delete testeth0 2>1 /dev/null", shell=True)
-    call("yes | cp -rf /tmp/testeth0 /etc/sysconfig/network-scripts/ifcfg-testeth0", shell=True)
+    call("yes 2>/dev/null | cp -rf /tmp/testeth0 /etc/sysconfig/network-scripts/ifcfg-testeth0", shell=True)
     call("nmcli con reload", shell=True)
     sleep(1)
     call("nmcli con up testeth0", shell=True)
@@ -445,7 +445,7 @@ def before_scenario(context, scenario):
         if 'delete_testeth0' in scenario.tags:
             print ("---------------------------")
             print ("delete testeth0")
-            call("nmcli device disconnect eth0")
+            call("nmcli device disconnect eth0", shell=True)
             call("nmcli connection delete id testeth0", shell=True)
 
         if 'eth1_disconnect' in scenario.tags:
