@@ -138,8 +138,12 @@ if [ ! -e /tmp/nm_eth_configured ]; then
     # if [ "$?" == "1" ]; then
     #     sed -i 's/\[main\]/\[main\]\ndebug=fatal-warnings/' /etc/NetworkManager/NetworkManager.conf
     # fi
+
     systemctl stop firewalld
     systemctl mask firewalld
+
+    # Copy final connection to /tmp/testeth0 for later in test usage
+    yes 2>/dev/null | cp -rf /etc/sysconfig/network-scripts/ifcfg-testeth0 /tmp/testeth0
     service NetworkManager restart
     touch /tmp/nm_eth_configured
 fi
