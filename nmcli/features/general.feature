@@ -383,6 +383,7 @@ Feature: nmcli - general
     Scenario: nmcli - general - correct profile activated after restart
     * Add a new connection of type "ethernet" and options "ifname eth10 con-name aaa -- ipv4.method auto ipv6.method auto ipv4.may-fail no ipv6.may-fail no"
     * Add a new connection of type "ethernet" and options "ifname eth10 con-name bbb -- ipv4.method auto ipv6.method auto ipv4.may-fail no ipv6.may-fail no"
+    * Wait for at least "2" seconds
     * Bring up connection "aaa"
     When "100" is visible with command "nmcli  -t -f GENERAL.STATE device show eth10"
     * Restart NM
