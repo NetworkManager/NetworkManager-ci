@@ -1,5 +1,5 @@
 #!/bin/bash
-# set -x
+set -x
 
 # Note: This entire setup is available from NetworkManager 1.0.4 up
 
@@ -45,7 +45,7 @@ function setup_veth_env ()
         nmcli device disconnect $i
     done
     sleep 0.5
-    systemctl restart NetworkManager; sleep 1.5
+    systemctl restart NetworkManager; sleep 2
 
     # # log state of net after service restart
     # ip a
@@ -72,17 +72,17 @@ function setup_veth_env ()
     fi
 
     # Copy backup to /etc/sysconfig/network-scripts/ and reload
+    nmcli device disconnect $DEV 2>&1 > /dev/null
     yes 2>/dev/null | cp -rf /tmp/ifcfg-$DEV /etc/sysconfig/network-scripts/ifcfg-testeth0
+    sleep 0.5
     nmcli con reload
-    sleep 1
 
     # Bring up the device and prepare final profile testeth0
-    ip link set $DEV up
-    nmcli device disconnect $DEV
+    ip link set eth0 up
     nmcli con mod $UUID connection.id testeth0
     nmcli con mod $UUID connection.interface-name eth0
     nmcli connection modify $UUID ipv6.method auto
-    sleep 2
+    sleep 0.5
 
     # Copy final connection to /tmp/testeth0 for later in test usage
     yes 2>/dev/null | cp -rf /etc/sysconfig/network-scripts/ifcfg-testeth0 /tmp/testeth0
@@ -93,7 +93,7 @@ function setup_veth_env ()
         ip link set $DEV down
         ip link set $DEV name orig-$DEV
         # Rename their profiles
-        if nmcli c show $DEV 2>1 /dev/null; then
+        if nmcli c show $DEV 2>&1 > /dev/null; then
             nmcli c show $DEV | grep connection.interface | grep $DEV ; rc=$?
             if [ $rc -eq 0 ]; then
                 nmcli con mod $DEV connection.id orig-$DEV
@@ -236,31 +236,30 @@ function teardown_veth_env ()
 
     # Get ORIGDEV name to bring device back to and copy the profile back
     ORIGDEV=$(grep DEVICE /tmp/ifcfg-* | awk -F '=' '{print $2}' | tr -d '"')
-    mv /tmp/ifcfg-* /etc/sysconfig/network-scripts/
 
     # Disconnect eth0
     nmcli device disconnect eth0
 
-    # Rename the device back to ORIGNAME
-    if [ "$ORIGDEV" != "eth0" ]; then
-        ip link set eth0 down
-        ip link set name eth0 name $ORIGDEV
-        ip link set dev $ORIGDEV up
-    fi
-
-    # Clean all profiles and reload
-    nmcli con reload
+    # Move all profiles and reload
     rm /etc/sysconfig/network-scripts/ifcfg-testeth0
+    mv -f /tmp/ifcfg-$ORIGDEV /etc/sysconfig/network-scripts/ifcfg-$ORIGDEV
+    sleep 0.5
+    nmcli con reload
     rm /tmp/testeth0
 
-    sleep 1
+    # Rename the device back to ORIGNAME
+    if [ "$ORIGDEV" != "eth0" ]; then
+        ip link set dev eth0 down
+        ip link set dev eth0 name $ORIGDEV
+        ip link set dev $ORIGDEV up
+    fi
 
     # Rename original devices back
     for DEV in $(nmcli -f TYPE,DEVICE -t d | grep orig | awk '{split($0,a,":"); split(a[2],b,"-"); print b[2]}'); do
         ip link set orig-$DEV down
         ip link set orig-$DEV name $DEV
         # Rename their profiles if these exist
-        if nmcli c show orig-$DEV 2>1 /dev/null; then
+        if nmcli c show orig-$DEV 2>&1 > /dev/null; then
             nmcli c show orig-$DEV | grep connection.interface | grep orig-$DEV ; rc=$?
             if [ $rc -eq 0 ]; then
                 nmcli con mod orig-$DEV connection.id $DEV
@@ -274,9 +273,10 @@ function teardown_veth_env ()
 
     done
 
+    nmcli con reload
+    sleep 0.5
     # Restart and bring back ORIGDEV up
     systemctl restart NetworkManager; sleep 2
-    nmcli device connect $ORIGDEV
 
     # Log state of net after the teardown
     ip a

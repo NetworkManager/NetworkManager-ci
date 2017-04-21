@@ -274,7 +274,7 @@ def teardown_hostapd():
     call("nmcli con del DHCP_testY", shell=True)
 
 def restore_testeth0():
-    call("nmcli con delete testeth0 2>1 /dev/null", shell=True)
+    call("nmcli con delete testeth0 2>&1 > /dev/null", shell=True)
     call("yes 2>/dev/null | cp -rf /tmp/testeth0 /etc/sysconfig/network-scripts/ifcfg-testeth0", shell=True)
     call("nmcli con reload", shell=True)
     sleep(1)
