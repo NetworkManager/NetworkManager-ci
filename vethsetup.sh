@@ -44,8 +44,8 @@ function setup_veth_env ()
     for i in $(nmcli -t -f DEVICE connection); do
         nmcli device disconnect $i
     done
-    sleep 0.5
-    systemctl restart NetworkManager; sleep 2
+    sleep 1
+    systemctl restart NetworkManager; sleep 3
 
     # # log state of net after service restart
     # ip a
