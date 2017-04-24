@@ -190,6 +190,66 @@ function setup_veth_env ()
 }
 
 
+function check_veth_env ()
+{
+    # Log state of net before the teardown
+    ip a
+    nmcli con
+    nmcli dev
+    nmcli gen
+    ip netns exec vethsetup brctl show
+    ip netns exec vethsetup ip a s
+    ip netns exec vethsetup ip r
+
+    # Check devices
+    need_veth=0
+    for X in $(seq 0 10); do
+        if ! nmcli -t -f DEVICE device | grep -q ^eth$X$; then
+            need_veth=1
+            break
+        fi
+    done
+
+    # Check running dnsmasqs
+    inbr_pid=$(cat /tmp/dhcp_inbr.pid)
+    simbr_pid=$(cat /tmp/dhcp_simbr.pid)
+    if ! pidof dnsmasq |grep $inbr_pid |grep $simbr_pid; then
+        need_veth=1
+    fi
+
+    # Check inbr slaves
+    for X in $(seq 1 9); do
+        if ! ip netns exec vethsetup brctl show inbr |grep eth$Xp; then
+            need_veth=1
+            break
+        fi
+    done
+
+    # Check inbr masq slave
+    if ! ip netns exec vethsetup brctl show inbr |grep masq; then
+        need_veth=1
+    fi
+
+    # Check simbr
+    if ! ip netns exec vethsetup brctl show simbr |grep eth10p; then
+        need_veth=1
+    fi
+    if ! ip netns exec vethsetup ip a s simbr |grep 10.16.1.1/24 && ip netns exec vethsetup ip a s simbr |grep 2620:52:0:1086::1/64; then
+        need_veth=1
+    fi
+
+    if ! ip netns exec vethsetup ip a s  masq |grep 192.168.100.1/24; then
+        need_veth=1
+    fi
+
+    if [ $need_veth -eq 0 ]; then
+        exit 0
+    else
+        teardown_veth_env
+        setup_veth_env
+    fi
+
+}
 function teardown_veth_env ()
 {
     # Log state of net before the teardown
@@ -289,4 +349,6 @@ if [ "$1" == "setup" ]; then
     setup_veth_env
 elif [ "$1" == "teardown" ]; then
     teardown_veth_env
+elif [ "$1" == "check" ]; then
+    check_veth_env
 fi

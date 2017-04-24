@@ -996,7 +996,7 @@
 
 
     @rhbz1243371
-    @bond @regenerate_veth
+    @bond @restart
     @delete_addrgenmode_bond
     Scenario: NM - bond - addrgenmode bond delete
     * Execute "systemctl stop NetworkManager"

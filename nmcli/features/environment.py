@@ -1383,8 +1383,7 @@ def after_scenario(context, scenario):
             print ("---------------------------")
             print ("regenerate veth setup")
             if os.path.isfile('/tmp/nm_newveth_configured'):
-                call('sh vethsetup.sh teardown', shell=True)
-                call('sh vethsetup.sh setup', shell=True)
+                call('sh vethsetup.sh check', shell=True)
             else:
                 for link in range(1,10):
                     call('ip link set eth%d up' % link, shell=True)
