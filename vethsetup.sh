@@ -241,7 +241,7 @@ function teardown_veth_env ()
     nmcli device disconnect eth0
 
     # Move all profiles and reload
-    rm /etc/sysconfig/network-scripts/ifcfg-testeth0
+    rm /etc/sysconfig/network-scripts/ifcfg-testeth0*
     mv -f /tmp/ifcfg-$ORIGDEV /etc/sysconfig/network-scripts/ifcfg-$ORIGDEV
     sleep 0.5
     nmcli con reload
