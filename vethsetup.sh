@@ -1,5 +1,5 @@
 #!/bin/bash
-set -x
+#set -x
 
 # Note: This entire setup is available from NetworkManager 1.0.4 up
 
@@ -44,8 +44,8 @@ function setup_veth_env ()
     for i in $(nmcli -t -f DEVICE connection); do
         nmcli device disconnect $i
     done
-    sleep 1
-    systemctl restart NetworkManager; sleep 3
+    sleep 2
+    systemctl restart NetworkManager; sleep 4
 
     # # log state of net after service restart
     # ip a
@@ -192,59 +192,78 @@ function setup_veth_env ()
 
 function check_veth_env ()
 {
-    # Log state of net before the teardown
-    ip a
-    nmcli con
-    nmcli dev
-    nmcli gen
-    ip netns exec vethsetup brctl show
-    ip netns exec vethsetup ip a s
-    ip netns exec vethsetup ip r
-
     # Check devices
     need_veth=0
+    echo "Checking devices"
     for X in $(seq 0 10); do
         if ! nmcli -t -f DEVICE device | grep -q ^eth$X$; then
+            echo "Not OK!!"
             need_veth=1
             break
         fi
     done
 
+    echo "Checking profiles"
+    if ! nmcli connection show testeth0 testeth1 testeth2 testeth3 testeth4 testeth5 testeth6 testeth7 testeth8 testeth9 testeth10 > /dev/null; then
+        echo "Not OK!!"
+        need_veth=1
+    fi
+
+    echo "checking up testeth0 and non activated testethX"
+    if ! (nmcli connection show --active |grep testeth0 > /dev/null && ! nmcli connection show --active |grep testeth |grep -v testeth0); then
+        echo "Not OK!!"
+        need_veth=1
+    fi
+
     # Check running dnsmasqs
+    echo "Checking dnsmasqs"
     inbr_pid=$(cat /tmp/dhcp_inbr.pid)
     simbr_pid=$(cat /tmp/dhcp_simbr.pid)
-    if ! pidof dnsmasq |grep $inbr_pid |grep $simbr_pid; then
+    if ! pidof dnsmasq |grep -q $inbr_pid && pidof dnsmasq | grep -q $simbr_pid; then
+        echo "Not OK!!"
         need_veth=1
     fi
 
     # Check inbr slaves
+    echo "Checking inbr slaves"
     for X in $(seq 1 9); do
-        if ! ip netns exec vethsetup brctl show inbr |grep eth$Xp; then
+        if ! ip netns exec vethsetup brctl show inbr |grep -q eth$Xp; then
+            echo "Not OK!!"
             need_veth=1
             break
         fi
     done
 
-    # Check inbr masq slave
-    if ! ip netns exec vethsetup brctl show inbr |grep masq; then
-        need_veth=1
-    fi
-
     # Check simbr
-    if ! ip netns exec vethsetup brctl show simbr |grep eth10p; then
-        need_veth=1
-    fi
-    if ! ip netns exec vethsetup ip a s simbr |grep 10.16.1.1/24 && ip netns exec vethsetup ip a s simbr |grep 2620:52:0:1086::1/64; then
+    echo "Checking simbr slave"
+    if ! ip netns exec vethsetup brctl show simbr |grep -q eth10p; then
+        echo "Not OK!!"
         need_veth=1
     fi
 
-    if ! ip netns exec vethsetup ip a s  masq |grep 192.168.100.1/24; then
+    echo "Checking simbr addresses"
+    if ! ip netns exec vethsetup ip a s simbr |grep -q 10.16.1.1/24 && ip netns exec vethsetup ip a s simbr |grep -q 2620:52:0:1086::1/64; then
+        echo "Not OK!!"
+        need_veth=1
+    fi
+
+    # Check inbr masq slave
+    echo "Checking masq slave"
+    if ! ip netns exec vethsetup brctl show inbr |grep -q masq; then
+        echo "Not OK!!"
+        need_veth=1
+    fi
+
+    echo "Checking masq addresses"
+    if ! ip netns exec vethsetup ip a s  masq |grep -q 192.168.100.1/24; then
+        echo "Not OK!!"
         need_veth=1
     fi
 
     if [ $need_veth -eq 0 ]; then
         exit 0
     else
+        echo "Need to regenerate vethsetup!!"
         teardown_veth_env
         setup_veth_env
     fi
