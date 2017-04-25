@@ -47,14 +47,7 @@ Feature: nmcli - bridge
 	@bridge
     @bridge_connection_down
     Scenario: nmcli - bridge - down
-    * Add a new connection of type "bridge" and options "con-name br11 ifname br11 autoconnect no"
-    * Check ifcfg-name file created for connection "br11"
-    * Open editor for connection "br11"
-    * Set a property named "ipv4.method" to "manual" in editor
-    * Set a property named "ipv4.addresses" to "192.168.1.15/24" in editor
-    * Save in editor
-    * Check value saved message showed in editor
-    * Quit editor
+    * Add a new connection of type "bridge" and options "con-name br11 ifname br11 autoconnect no ip4 192.168.1.15/24"
     * Bring up connection "br11" ignoring error
     * "br11" is visible with command "brctl show"
     * "inet 192.168.1.15" is visible with command "ifconfig"
@@ -65,14 +58,7 @@ Feature: nmcli - bridge
 	@bridge
     @bridge_disconnect_device
     Scenario: nmcli - bridge - disconnect device
-    * Add a new connection of type "bridge" and options "con-name br11 ifname br11 autoconnect no"
-    * Check ifcfg-name file created for connection "br11"
-    * Open editor for connection "br11"
-    * Set a property named "ipv4.method" to "manual" in editor
-    * Set a property named "ipv4.addresses" to "192.168.1.10/24" in editor
-    * Save in editor
-    * Check value saved message showed in editor
-    * Quit editor
+    * Add a new connection of type "bridge" and options "con-name br11 ifname br11 autoconnect no ip4 192.168.1.10/24"
     * Bring up connection "br11" ignoring error
     * "br11" is visible with command "brctl show"
     * "inet 192.168.1.10" is visible with command "ifconfig"
@@ -113,14 +99,7 @@ Feature: nmcli - bridge
 	@bridge
     @bridge_delete_connection_while_up
     Scenario: nmcli - bridge - delete connection while up
-    * Add a new connection of type "bridge" and options "con-name br12 ifname br12 autoconnect no"
-    * Check ifcfg-name file created for connection "br12"
-    * Open editor for connection "br12"
-    * Set a property named "ipv4.method" to "manual" in editor
-    * Set a property named "ipv4.addresses" to "192.168.1.19/24" in editor
-    * Save in editor
-    * Check value saved message showed in editor
-    * Quit editor
+    * Add a new connection of type "bridge" and options "con-name br12 ifname br12 autoconnect no ip4 192.168.1.19/24"
     * Bring up connection "br12" ignoring error
     * "inet 192.168.1.19" is visible with command "ifconfig"
     * Delete connection "br12"
@@ -170,15 +149,7 @@ Feature: nmcli - bridge
 	@bridge
     @bridge_up_with_slaves
     Scenario: nmcli - bridge - up with slaves
-    #* Execute "nmcli dev con eth1"
-    * Add a new connection of type "bridge" and options "con-name br15 ifname br15"
-    * Check ifcfg-name file created for connection "br15"
-    * Open editor for connection "br15"
-    * Set a property named "ipv4.method" to "manual" in editor
-    * Set a property named "ipv4.addresses" to "192.168.1.19/24" in editor
-    * Save in editor
-    * Check value saved message showed in editor
-    * Quit editor
+    * Add a new connection of type "bridge" and options "con-name br15 ifname br15 ip4 192.168.1.19/24"
     * Add a new connection of type "vlan" and options "con-name eth1.80 dev eth1 id 80"
     * Check ifcfg-name file created for connection "eth1.80"
     * Add a new connection of type "vlan" and options "con-name eth1.90 dev eth1 id 90"
@@ -194,16 +165,7 @@ Feature: nmcli - bridge
 	@bridge
     @bridge_up_slave
     Scenario: nmcli - bridge - up slave
-    #* Execute "nmcli dev con eth1"
-    * Add a new connection of type "bridge" and options "con-name br10 ifname br10"
-    * Check ifcfg-name file created for connection "br10"
-    * Open editor for connection "br10"
-    * Set a property named "ipv4.method" to "manual" in editor
-    * Set a property named "ipv4.addresses" to "192.168.1.19/24" in editor
-    * Save in editor
-    * Check value saved message showed in editor
-    * Quit editor
-    * Bring up connection "br10"
+    * Add a new connection of type "bridge" and options "con-name br10 ifname br10 ip4 192.168.1.19/24"
     * Add a new connection of type "bridge-slave" and options "con-name br10-slave autoconnect no ifname eth1 master br10"
     * Check ifcfg-name file created for connection "br10-slave"
     * Bring up connection "br10-slave"
@@ -266,13 +228,7 @@ Feature: nmcli - bridge
     @eth1_disconnect
     @bridge_static_config_with_multiple_ethernet_ports
     Scenario: nmcli - bridge - dhcp config with multiple ethernet ports
-    * Add a new connection of type "bridge" and options "ifname bridge0 con-name bridge0 autoconnect no"
-    * Open editor for connection "bridge0"
-    * Set a property named "ipv4.method" to "manual" in editor
-    * Set a property named "ipv4.addresses" to "192.168.1.19/24" in editor
-    * Save in editor
-    * Check value saved message showed in editor
-    * Quit editor
+    * Add a new connection of type "bridge" and options "ifname bridge0 con-name bridge0 autoconnect no ip4 192.168.1.19/24"
     * Add a new connection of type "bridge-slave" and options "ifname eth1 con-name bridge-slave-eth1 master bridge0"
     * Bring up connection "bridge-slave-eth1"
     * Add a new connection of type "bridge-slave" and options "ifname eth2 con-name bridge-slave-eth2 master bridge0"

@@ -64,6 +64,36 @@ vlan_over_no_L3_bond_restart_persistence, ., nmcli/./runtest.sh vlan_over_no_L3_
 bond_leave_L2_only_up_when_going_down, ., nmcli/./runtest.sh bond_leave_L2_only_up_when_going_down ,
 #@bond_end
 
+#@bridge_start
+bridge_add_default, ., nmcli/./runtest.sh bridge_add_default, bridge-utils
+bridge_add_custom_one, ., nmcli/./runtest.sh bridge_add_custom_one, bridge-utils
+bridge_connection_up, ., nmcli/./runtest.sh bridge_connection_up, bridge-utils
+bridge_connection_down, ., nmcli/./runtest.sh bridge_connection_down, bridge-utils
+bridge_disconnect_device, ., nmcli/./runtest.sh bridge_disconnect_device, bridge-utils
+bridge_describe_all, ., nmcli/./runtest.sh bridge_describe_all, bridge-utils
+bridge_describe_separately, ., nmcli/./runtest.sh bridge_describe_separately, bridge-utils
+bridge_delete_connection, ., nmcli/./runtest.sh bridge_delete_connection, bridge-utils
+bridge_delete_connection_while_up, ., nmcli/./runtest.sh bridge_delete_connection_while_up, bridge-utils
+bridge_add_slave, ., nmcli/./runtest.sh bridge_add_slave, bridge-utils
+bridge_remove_slave, ., nmcli/./runtest.sh bridge_remove_slave, bridge-utils
+bridge_up_with_slaves, ., nmcli/./runtest.sh bridge_up_with_slaves, bridge-utils
+bridge_up_slave, ., nmcli/./runtest.sh bridge_up_slave, bridge-utils
+bridge_slaves_start_via_master, ., nmcli/./runtest.sh  bridge_slaves_start_via_master ,
+bridge_dhcp_config_with_ethernet_port, ., nmcli/./runtest.sh bridge_dhcp_config_with_ethernet_port, bridge-utils
+bridge_dhcp_config_with_multiple_ethernet_ports, ., nmcli/./runtest.sh bridge_dhcp_config_with_multiple_ethernet_ports, bridge-utils
+bridge_static_config_with_multiple_ethernet_ports, ., nmcli/./runtest.sh bridge_static_config_with_multiple_ethernet_ports, bridge-utils
+bridge_server_ingore_carrier_with_dhcp, ., nmcli/./runtest.sh bridge_server_ingore_carrier_with_dhcp, bridge-utils
+bridge_reflect_changes_from_outside_of_NM, ., nmcli/./runtest.sh bridge_reflect_changes_from_outside_of_NM, bridge-utils
+bridge_assumed_connection_race, ., nmcli/./runtest.sh  bridge_assumed_connection_race, bridge-utils
+bridge_assumed_connection_no_firewalld_zone, ., nmcli/./runtest.sh bridge_assumed_connection_no_firewalld_zone, bridge-utils
+bridge_manipulation_with_1000_slaves, ., nmcli/./runtest.sh bridge_manipulation_with_1000_slaves, bridge-utils
+bridge_assumed_connection_ip_methods, ., nmcli/./runtest.sh bridge_assumed_connection_ip_methods, bridge-utils
+outer_bridge_restart_persistence, ., nmcli/./runtest.sh outer_bridge_restart_persistence, bridge-utils
+bridge_set_mac, ., nmcli/./runtest.sh bridge_set_mac, bridge-utils
+bridge_external_unmanaged, ., nmcli/./runtest.sh bridge_external_unmanaged, bridge-utils
+bridge_preserve_assumed_connection_ips, ., nmcli/./runtest.sh bridge_preserve_assumed_connection_ips ,
+bridge_slave_to_ethernet_conversion, ., nmcli/./runtest.sh bridge_slave_to_ethernet_conversion ,
+#@bridge_end
 
 #@team_start
 add_default_team, ., nmcli/./runtest.sh add_default_team ,
@@ -264,37 +294,6 @@ vlan_preserve_assumed_connection_ips, ., nmcli/./runtest.sh vlan_preserve_assume
 vlan_mtu_from_parent, ., nmcli/./runtest.sh vlan_mtu_from_parent ,
 default_route_for_vlan_over_team, ., nmcli/./runtest.sh default_route_for_vlan_over_team ,
 #@vlan_end
-
-#@bridge_start
-bridge_add_default, ., nmcli/./runtest.sh bridge_add_default, bridge-utils
-bridge_add_custom_one, ., nmcli/./runtest.sh bridge_add_custom_one, bridge-utils
-bridge_connection_up, ., nmcli/./runtest.sh bridge_connection_up, bridge-utils
-bridge_connection_down, ., nmcli/./runtest.sh bridge_connection_down, bridge-utils
-bridge_disconnect_device, ., nmcli/./runtest.sh bridge_disconnect_device, bridge-utils
-bridge_describe_all, ., nmcli/./runtest.sh bridge_describe_all, bridge-utils
-bridge_describe_separately, ., nmcli/./runtest.sh bridge_describe_separately, bridge-utils
-bridge_delete_connection, ., nmcli/./runtest.sh bridge_delete_connection, bridge-utils
-bridge_delete_connection_while_up, ., nmcli/./runtest.sh bridge_delete_connection_while_up, bridge-utils
-bridge_add_slave, ., nmcli/./runtest.sh bridge_add_slave, bridge-utils
-bridge_remove_slave, ., nmcli/./runtest.sh bridge_remove_slave, bridge-utils
-bridge_up_with_slaves, ., nmcli/./runtest.sh bridge_up_with_slaves, bridge-utils
-bridge_up_slave, ., nmcli/./runtest.sh bridge_up_slave, bridge-utils
-bridge_slaves_start_via_master, ., nmcli/./runtest.sh  bridge_slaves_start_via_master ,
-bridge_dhcp_config_with_ethernet_port, ., nmcli/./runtest.sh bridge_dhcp_config_with_ethernet_port, bridge-utils
-bridge_dhcp_config_with_multiple_ethernet_ports, ., nmcli/./runtest.sh bridge_dhcp_config_with_multiple_ethernet_ports, bridge-utils
-bridge_static_config_with_multiple_ethernet_ports, ., nmcli/./runtest.sh bridge_static_config_with_multiple_ethernet_ports, bridge-utils
-bridge_server_ingore_carrier_with_dhcp, ., nmcli/./runtest.sh bridge_server_ingore_carrier_with_dhcp, bridge-utils
-bridge_reflect_changes_from_outside_of_NM, ., nmcli/./runtest.sh bridge_reflect_changes_from_outside_of_NM, bridge-utils
-bridge_assumed_connection_race, ., nmcli/./runtest.sh  bridge_assumed_connection_race, bridge-utils
-bridge_assumed_connection_no_firewalld_zone, ., nmcli/./runtest.sh bridge_assumed_connection_no_firewalld_zone, bridge-utils
-bridge_manipulation_with_1000_slaves, ., nmcli/./runtest.sh bridge_manipulation_with_1000_slaves, bridge-utils
-bridge_assumed_connection_ip_methods, ., nmcli/./runtest.sh bridge_assumed_connection_ip_methods, bridge-utils
-outer_bridge_restart_persistence, ., nmcli/./runtest.sh outer_bridge_restart_persistence, bridge-utils
-bridge_set_mac, ., nmcli/./runtest.sh bridge_set_mac, bridge-utils
-bridge_external_unmanaged, ., nmcli/./runtest.sh bridge_external_unmanaged, bridge-utils
-bridge_preserve_assumed_connection_ips, ., nmcli/./runtest.sh bridge_preserve_assumed_connection_ips ,
-bridge_slave_to_ethernet_conversion, ., nmcli/./runtest.sh bridge_slave_to_ethernet_conversion ,
-#@bridge_end
 
 #@ethernet_start
 ethernet_create_with_editor, ., nmcli/./runtest.sh ethernet_create_with_editor ,
