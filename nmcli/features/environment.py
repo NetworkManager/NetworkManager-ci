@@ -68,6 +68,7 @@ def dump_status(context, when):
 def setup_racoon(mode, dh_group):
     print ("setting up racoon")
     arch = check_output("uname -p", shell=True).strip()
+    wait_for_testeth0()
     if arch == "s390x" or arch == 'aarch64':
         call("[ -x /usr/sbin/racoon ] || yum -y install https://vbenes.fedorapeople.org/NM/ipsec-tools-0.8.2-1.el7.$(uname -p).rpm", shell=True)
     else:
@@ -234,7 +235,7 @@ def setup_hostapd():
     call("nmcli connection up id DHCP_testY", shell=True)
     call("echo 8 > /sys/class/net/testX_bridge/bridge/group_fwd_mask", shell=True)
 
-
+    wait_for_testeth0()
     call("[ -f /etc/yum.repos.d/epel.repo ] || sudo rpm -i http://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm", shell=True)
     call("[ -x /usr/sbin/hostapd ] || (yum -y install hostapd; sleep 10)", shell=True)
 
@@ -281,6 +282,15 @@ def restore_testeth0():
     call("nmcli con up testeth0", shell=True)
     sleep(2)
 
+def wait_for_testeth0():
+    counter=20
+    while call("nmcli connection show testeth0 |grep IP4.ADDRESS > /dev/null", shell=True) != 0:
+        sleep(1)
+        counter-=1
+        if counter == 0:
+            print ("Testeth0 cannot be upped..this is wrong")
+            sys.exit(1)
+
 def before_scenario(context, scenario):
     try:
         if not os.path.isfile('/tmp/nm_wifi_configured') and not os.path.isfile('/tmp/dcb_configured'):
@@ -308,9 +318,11 @@ def before_scenario(context, scenario):
         if '1000' in scenario.tags:
             print ("---------------------------")
             print ("installing pip and pyroute2")
+            wait_for_testeth0()
             if not os.path.isfile('/usr/bin/pip'):
                 call('sudo easy_install pip', shell=True)
-            call('pip install pyroute2', shell=True)
+            if call('pip install pyroute2', shell=True) != 0:
+                call ('yum -y install http://dl.fedoraproject.org/pub/epel/7/x86_64/p/python2-pyroute2-0.4.13-1.el7.noarch.rpm', shell=True)
 
         if 'not_on_s390x' in scenario.tags:
             arch = check_output("uname -p", shell=True).strip()
@@ -378,6 +390,7 @@ def before_scenario(context, scenario):
         if 'scapy' in scenario.tags:
             print ("---------------------------")
             print ("installing scapy and tcpdump")
+            wait_for_testeth0()
             if not os.path.isfile('/usr/bin/pip'):
                 call('sudo easy_install pip', shell=True)
             if not os.path.isfile('/usr/bin/scapy'):
@@ -397,6 +410,7 @@ def before_scenario(context, scenario):
         if 'IPy' in scenario.tags:
             print ("---------------------------")
             print ("installing dbus-x11, pip, and IPy")
+            wait_for_testeth0()
             if call('rpm -q --quiet dbus-x11', shell=True) != 0:
                 call('yum -y install dbus-x11', shell=True)
             if not os.path.isfile('/usr/bin/pip'):
@@ -407,6 +421,7 @@ def before_scenario(context, scenario):
         if 'netaddr' in scenario.tags:
             print ("---------------------------")
             print ("install netaddr")
+            wait_for_testeth0()
             if not os.path.isfile('/usr/bin/pip'):
                 call('sudo easy_install pip', shell=True)
             if call('pip list |grep netaddr', shell=True) != 0:
@@ -433,6 +448,7 @@ def before_scenario(context, scenario):
         if 'dhcpd' in scenario.tags:
             print ("---------------------------")
             print ("installing dhcp")
+            wait_for_testeth0()
             if call('rpm -q --quiet dhcp', shell=True) != 0:
                 call('yum -y install dhcp', shell=True)
 
@@ -456,12 +472,14 @@ def before_scenario(context, scenario):
         if 'policy_based_routing' in scenario.tags:
             print ("---------------------------")
             print ("install dispatcher scripts")
+            wait_for_testeth0()
             call("yum -y install NetworkManager-config-routing-rules", shell=True)
             sleep(2)
 
         if 'firewall' in scenario.tags:
             print ("---------------------------")
             print ("starting firewall")
+            wait_for_testeth0()
             call("sudo yum -y install firewalld", shell=True)
             call("sudo systemctl unmask firewalld", shell=True)
             call("sudo systemctl start firewalld", shell=True)
@@ -516,6 +534,7 @@ def before_scenario(context, scenario):
             arch = check_output("uname -p", shell=True).strip()
             if arch == "s390x" or arch == 'aarch64':
                 sys.exit(0)
+            wait_for_testeth0()
             call("[ -f /etc/yum.repos.d/epel.repo ] || sudo rpm -i http://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm", shell=True)
             call("[ -x /usr/bin/tcpreplay ] || yum -y install tcpreplay", shell=True)
 
@@ -525,6 +544,7 @@ def before_scenario(context, scenario):
             arch = check_output("uname -p", shell=True).strip()
             if arch == "s390x" or arch == 'aarch64':
                 sys.exit(0)
+            wait_for_testeth0()
             call("[ -f /etc/yum.repos.d/epel.repo ] || sudo rpm -i http://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm", shell=True)
             call("[ -x /usr/sbin/openvpn ] || sudo yum -y install openvpn NetworkManager-openvpn", shell=True)
             call("rpm -q NetworkManager-openvpn || ( sudo yum -y install NetworkManager-openvpn-1.0.8-1.el7.$(uname -p).rpm && service NetworkManager restart )", shell=True)
@@ -566,6 +586,7 @@ def before_scenario(context, scenario):
 
         if 'libreswan' in scenario.tags:
             print ("---------------------------")
+            wait_for_testeth0()
             call("rpm -q NetworkManager-libreswan || ( sudo yum -y install NetworkManager-libreswan && service NetworkManager restart )", shell=True)
             call("/usr/sbin/ipsec --checknss", shell=True)
             setup_racoon (mode="aggressive", dh_group=5)
@@ -578,6 +599,7 @@ def before_scenario(context, scenario):
 
         if 'libreswan_main' in scenario.tags:
             print ("---------------------------")
+            wait_for_testeth0()
             call("rpm -q NetworkManager-libreswan || sudo yum -y install NetworkManager-libreswan", shell=True)
             call("/usr/sbin/ipsec --checknss", shell=True)
             setup_racoon (mode="main", dh_group=5)
@@ -593,6 +615,7 @@ def before_scenario(context, scenario):
             arch = check_output("uname -p", shell=True).strip()
             if arch == "s390x" or arch == 'aarch64':
                 sys.exit(0)
+            wait_for_testeth0()
             call("[ -f /etc/yum.repos.d/epel.repo ] || sudo rpm -i http://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm", shell=True)
             call("[ -x /usr/sbin/pptpd ] || sudo yum -y install /usr/sbin/pptpd", shell=True)
             call("rpm -q NetworkManager-pptp || sudo yum -y install NetworkManager-pptp", shell=True)
@@ -681,6 +704,7 @@ def before_scenario(context, scenario):
         if 'remove_fedora_connection_checker' in scenario.tags:
             print("---------------------------")
             print("Making sure NetworkManager-config-connectivity-fedora is not installed")
+            wait_for_testeth0()
             call('yum -y remove NetworkManager-config-connectivity-fedora', shell=True)
             call('sudo systemctl restart NetworkManager.service', shell=True)
             sleep(5)
@@ -702,6 +726,7 @@ def before_scenario(context, scenario):
             if call('rpm -q NetworkManager-config-server', shell=True) == 1:
                 context.restore_config_server = False
             else:
+                wait_for_testeth0()
                 call('sudo yum -y remove NetworkManager-config-server', shell=True)
                 call('sudo rm -f /etc/NetworkManager/conf.d/00-server.conf', shell=True)
                 call('sudo systemctl restart NetworkManager.service', shell=True)
@@ -1165,6 +1190,7 @@ def after_scenario(context, scenario):
             if context.restore_config_server:
                 print ("---------------------------")
                 print ("restoring NetworkManager-config-server")
+                wait_for_testeth0()
                 call('sudo yum -y install NetworkManager-config-server', shell=True)
                 call('sudo cp /usr/lib/NetworkManager/conf.d/00-server.conf /etc/NetworkManager/conf.d/00-server.conf', shell=True)
                 call('systemctl restart NetworkManager', shell=True)
@@ -1344,6 +1370,7 @@ def after_scenario(context, scenario):
         if 'policy_based_routing' in scenario.tags:
             print ("---------------------------")
             print ("remove dispatcher scripts")
+            wait_for_testeth0()
             call("yum -y remove NetworkManager-config-routing-rules ", shell=True)
             call("rm -rf /etc/sysconfig/network-scripts/rule-ethie", shell=True)
             call('rm -rf /etc/sysconfig/network-scripts/route-ethie', shell=True)
