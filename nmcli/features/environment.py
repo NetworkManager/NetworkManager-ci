@@ -811,6 +811,7 @@ def after_scenario(context, scenario):
                 call('sudo service NetworkManager restart', shell=True)
             call("nmcli con del 'Wired connection 1'", shell=True)
             call("nmcli con del 'Wired connection 2'", shell=True)
+            call("for i in $(nmcli -t -f DEVICE c s -a |grep -v ^eth0$); do nmcli device disconnect $i; done", shell=True)
 
         if 'ipv4' in scenario.tags:
             print ("---------------------------")
