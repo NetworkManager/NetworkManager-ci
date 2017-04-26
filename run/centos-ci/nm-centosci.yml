@@ -41,6 +41,8 @@
     name: nm-cico
     jobs:
       - 'NetworkManager-{branch}':
+          branch: 'nm-1-8'
+      - 'NetworkManager-{branch}':
           branch: 'nm-1-6'
       - 'NetworkManager-{branch}':
           branch: 'nm-1-4'
