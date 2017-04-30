@@ -1008,3 +1008,13 @@ Feature: nmcli - general
       * Note the output of "pmap -x $(pidof NetworkManager) |grep total | awk '{print $3}'" as value "4"
       Then Check noted value "2" difference from "1" is lower than "500"
       Then Check noted value "4" difference from "3" is lower than "500"
+
+      @rhbz1398932
+      @ver+=1.7.2
+      @BBB
+      @dummy_connection
+      Scenario: NM - general - create dummy connection
+      * Add a new connection of type "dummy" and options "ifname BBB con-name BBB ip4 1.2.3.4/24 autoconnect no"
+      * Bring up connection "BBB"
+      Then "dummy" is visible with command "ip -d l show BBB | grep dummy"
+      Then "1.2.3.4/24" is visible with command "ip a s BBB | grep inet"
