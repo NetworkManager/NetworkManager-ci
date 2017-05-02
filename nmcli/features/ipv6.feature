@@ -536,7 +536,7 @@ Feature: nmcli: ipv6
     Scenario: nmcli - ipv6 - dhcp-hostname - set dhcp-hostname
     * Add a new connection of type "ethernet" and options "ifname eth10 con-name profie autoconnect no"
     * Run child "sudo tshark -i eth10 -f 'port 546' -V -x > /tmp/ipv6-hostname.log"
-    * Finish "sleep 10"
+    * Finish "sleep 5"
     * Open editor for connection "profie"
     * Submit "set ipv6.may-fail true" in editor
     * Submit "set ipv6.method dhcp" in editor
@@ -544,7 +544,7 @@ Feature: nmcli: ipv6
     * Save in editor
     * Quit editor
     * Bring "up" connection "profie"
-    * Finish "sleep 10"
+    * Finish "sleep 20"
     * Execute "sudo pkill tshark"
     Then "r.cx" is visible with command "grep r.cx /tmp/ipv6-hostname.log" in "5" seconds
 
@@ -577,13 +577,13 @@ Feature: nmcli: ipv6
     * Add a new connection of type "ethernet" and options "ifname eth10 con-name profie autoconnect no"
     * Execute "hostnamectl set-hostname dacan.local"
     * Run child "sudo tshark -i eth10 -f 'port 546' -V -x > /tmp/ipv6-hostname.log"
-    * Finish "sleep 10"
+    * Finish "sleep 5"
     * Open editor for connection "profie"
     * Submit "set ipv6.method dhcp" in editor
     * Save in editor
     * Quit editor
     * Bring "up" connection "profie"
-    * Finish "sleep 10"
+    * Finish "sleep 20"
     * Execute "sudo pkill tshark"
     Then "dacan.local" is visible with command "cat /tmp/ipv6-hostname.log" in "5" seconds
     Then "0. = O bit" is visible with command "cat /tmp/ipv6-hostname.log" in "5" seconds

@@ -539,15 +539,15 @@ Feature: nmcli: ipv4
     Scenario: nmcli - ipv4 - dhcp-hostname - set dhcp-hostname
     * Add connection type "ethernet" named "ethie" for device "eth10"
     * Bring "up" connection "ethie"
-    * Run child "sudo tshark -l -O bootp -i eth10 > /tmp/tshark.log"
-    When "Proto" is visible with command "cat /tmp/tshark.log" in "30" seconds
+    * Bring "down" connection "ethie"
     * Open editor for connection "ethie"
     * Submit "set ipv4.dhcp-hostname RHA" in editor
     #* Submit "set ipv4.send-hostname yes" in editor
     * Save in editor
     * Quit editor
+    * Run child "sudo tshark -l -O bootp -i eth10 > /tmp/tshark.log"
     * Bring "up" connection "ethie"
-    * Finish "sleep 10; sudo pkill tshark"
+    * Finish "sleep 15; sudo pkill tshark"
     Then "RHA" is visible with command "cat /tmp/tshark.log"
 
 
@@ -560,15 +560,15 @@ Feature: nmcli: ipv4
     * Save in editor
     * Quit editor
     * Bring "up" connection "ethie"
-    * Run child "sudo tshark -l -O bootp -i eth10 > /tmp/tshark.log"
-    When "Proto" is visible with command "cat /tmp/tshark.log" in "30" seconds
+    * Bring "down" connection "ethie"
     * Open editor for connection "ethie"
     * Submit "set ipv4.dhcp-hostname" in editor
     * Enter in editor
     * Save in editor
     * Quit editor
+    * Run child "sudo tshark -l -O bootp -i eth10 > /tmp/tshark.log"
     * Bring "up" connection "ethie"
-    * Finish "sleep 10; sudo pkill tshark"
+    * Finish "sleep 15; sudo pkill tshark"
    Then "RHB" is not visible with command "cat /tmp/tshark.log"
 
 
@@ -578,18 +578,19 @@ Feature: nmcli: ipv4
     Scenario: nmcli - ipv4 - dhcp-fqdn - set dhcp-fqdn
     * Add connection type "ethernet" named "ethie" for device "eth10"
     * Bring "up" connection "ethie"
-    * Run child "sudo tshark -l -O bootp -i eth10 > /tmp/tshark.log"
-    When "Proto" is visible with command "cat /tmp/tshark.log" in "30" seconds
+    * Bring "down" connection "ethie"
     * Open editor for connection "ethie"
     * Submit "set ipv4.dhcp-fqdn foo.bar.com" in editor
     * Save in editor
     * Quit editor
+    * Run child "sudo tshark -l -O bootp -i eth10 > /tmp/tshark.log"
     * Bring "up" connection "ethie"
-    * Finish "sleep 10; sudo pkill tshark"
+    * Finish "sleep 15; sudo pkill tshark"
     Then "foo.bar.com" is visible with command "grep fqdn /var/lib/NetworkManager/dhclient-eth10.conf"
      And "foo.bar.com" is visible with command "cat /tmp/tshark.log"
      And "Encoding: Binary encoding" is visible with command "cat /tmp/tshark.log"
      And "Server: Server" is visible with command "cat /tmp/tshark.log"
+
 
     @rhbz1255507
     @ver+=1.3.0
@@ -600,14 +601,13 @@ Feature: nmcli: ipv4
     * Bring "up" connection "ethie"
     * Execute "echo 'send fqdn.encoded off;' > /etc/dhcp/dhclient-eth10.conf"
     * Execute "echo 'send fqdn.server-update off;' >> /etc/dhcp/dhclient-eth10.conf"
-    * Run child "sudo tshark -l -O bootp -i eth10 > /tmp/tshark.log"
-    When "Proto" is visible with command "cat /tmp/tshark.log" in "30" seconds
     * Open editor for connection "ethie"
     * Submit "set ipv4.dhcp-fqdn foo.bar.com" in editor
     * Save in editor
     * Quit editor
+    * Run child "sudo tshark -l -O bootp -i eth10 > /tmp/tshark.log"
     * Bring "up" connection "ethie"
-    * Finish "sleep 10; sudo pkill tshark"
+    * Finish "sleep 15; sudo pkill tshark"
     Then "foo.bar.com" is visible with command "grep fqdn /var/lib/NetworkManager/dhclient-eth10.conf"
      And "foo.bar.com" is visible with command "cat /tmp/tshark.log"
      And "Encoding: ASCII encoding" is visible with command "cat /tmp/tshark.log"
@@ -623,15 +623,15 @@ Feature: nmcli: ipv4
     * Save in editor
     * Quit editor
     * Bring "up" connection "ethie"
-    * Run child "sudo tshark -l -O bootp -i eth10 > /tmp/tshark.log"
-    When "Proto" is visible with command "cat /tmp/tshark.log" in "30" seconds
+    * Bring "down" connection "ethie"
     * Open editor for connection "ethie"
     * Submit "set ipv4.dhcp-fqdn" in editor
     * Enter in editor
     * Save in editor
     * Quit editor
+    * Run child "sudo tshark -l -O bootp -i eth10 > /tmp/tshark.log"
     * Bring "up" connection "ethie"
-    * Finish "sleep 10; sudo pkill tshark"
+    * Finish "sleep 15; sudo pkill tshark"
      Then "foo.bar.com" is not visible with command "grep fqdn /var/lib/NetworkManager/dhclient-eth10.conf"
       And "foo.bar.com" is not visible with command "cat /tmp/tshark.log"
 
@@ -642,15 +642,15 @@ Feature: nmcli: ipv4
     * Add connection type "ethernet" named "ethie" for device "eth10"
     * Execute "nmcli con modify ethie ipv4.may-fail no"
     * Bring "up" connection "ethie"
-    * Run child "sudo tshark -l -O bootp -i eth10 > /tmp/hostname.log"
-    When "Proto" is visible with command "cat /tmp/hostname.log" in "30" seconds
+    * Bring "down" connection "ethie"
     * Open editor for connection "ethie"
     * Submit "set ipv4.dhcp-hostname RHC" in editor
     * Submit "set ipv4.dhcp-send-hostname no" in editor
     * Save in editor
     * Quit editor
+    * Run child "sudo tshark -l -O bootp -i eth10 > /tmp/hostname.log"
     * Bring "up" connection "ethie"
-    * Finish "sleep 10; sudo pkill tshark"
+    * Finish "sleep 15; sudo pkill tshark"
     Then "RHC" is not visible with command "cat /tmp/hostname.log"
 
 
@@ -661,13 +661,13 @@ Feature: nmcli: ipv4
     * Add connection type "ethernet" named "ethie" for device "eth10"
     * Execute "nmcli con modify ethie ipv4.may-fail no"
     * Bring "up" connection "ethie"
-    * Run child "sudo tshark -l -O bootp -i eth10 > /tmp/tshark.log"
-    When "Proto" is visible with command "cat /tmp/tshark.log" in "30" seconds
+    * Bring "down" connection "ethie"
     * Open editor for connection "ethie"
     * Save in editor
     * Quit editor
+    * Run child "sudo tshark -l -O bootp -i eth10 > /tmp/tshark.log"
     * Bring "up" connection "ethie"
-    * Finish "sleep 10; sudo pkill tshark"
+    * Finish "sleep 15; sudo pkill tshark"
     Then Hostname is visible in log "/tmp/tshark.log"
 
 
@@ -677,14 +677,14 @@ Feature: nmcli: ipv4
     * Add connection type "ethernet" named "ethie" for device "eth10"
     * Execute "nmcli con modify ethie ipv4.may-fail no"
     * Bring "up" connection "ethie"
-    * Run child "sudo tshark -l -O bootp -i eth10 > /tmp/real.log"
-    Then "Proto" is visible with command "cat /tmp/real.log" in "30" seconds
+    * Bring "down" connection "ethie"
     * Open editor for connection "ethie"
     * Submit "set ipv4.dhcp-send-hostname no" in editor
     * Save in editor
     * Quit editor
+    * Run child "sudo tshark -l -O bootp -i eth10 > /tmp/real.log"
     * Bring "up" connection "ethie"
-    * Finish "sleep 10; sudo pkill tshark"
+    * Finish "sleep 15; sudo pkill tshark"
     Then Hostname is not visible in log "/tmp/real.log"
 
 
@@ -743,14 +743,14 @@ Feature: nmcli: ipv4
     Scenario: nmcli - ipv4 - dhcp-client-id - set client id
     * Add connection type "ethernet" named "ethie" for device "eth10"
     * Bring "up" connection "ethie"
-    * Run child "sudo tshark -l -O bootp -i eth10 -x > /tmp/tshark.log"
-    Then "Proto" is visible with command "cat /tmp/tshark.log" in "30" seconds
+    * Bring "down" connection "ethie"
     * Open editor for connection "ethie"
     * Submit "set ipv4.dhcp-client-id RHC" in editor
     * Save in editor
     * Quit editor
+    * Run child "sudo tshark -l -O bootp -i eth10 -x > /tmp/tshark.log"
     * Bring "up" connection "ethie"
-    * Finish "sleep 10; sudo pkill tshark"
+    * Finish "sleep 15; sudo pkill tshark"
     Then "RHC" is visible with command "cat /tmp/tshark.log"
     #Then "walderon" is visible with command "cat /var/lib/NetworkManager/dhclient-eth10.conf"
     #VVV verify bug 999503
@@ -766,16 +766,15 @@ Feature: nmcli: ipv4
     * Save in editor
     * Quit editor
     * Bring "up" connection "ethie"
+    * Bring "down" connection "ethie"
     * Open editor for connection "ethie"
     * Submit "set ipv4.dhcp-client-id" in editor
     * Enter in editor
     * Save in editor
     * Quit editor
-    * Bring "up" connection "ethie"
     * Run child "sudo tshark -l -O bootp -i eth10 -x > /tmp/tshark.log"
-    When "Proto" is visible with command "cat /tmp/tshark.log" in "30" seconds
     * Bring "up" connection "ethie"
-    * Execute "sleep 10; sudo pkill tshark"
+    * Execute "sleep 15; sudo pkill tshark"
     Then "RHD" is not visible with command "cat /tmp/tshark.log"
 
 
