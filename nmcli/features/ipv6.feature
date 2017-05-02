@@ -544,7 +544,7 @@ Feature: nmcli: ipv6
     * Save in editor
     * Quit editor
     * Bring "up" connection "profie"
-    * Finish "sleep 20"
+    * Finish "sleep 5"
     * Execute "sudo pkill tshark"
     Then "r.cx" is visible with command "grep r.cx /tmp/ipv6-hostname.log" in "5" seconds
 
@@ -560,6 +560,7 @@ Feature: nmcli: ipv6
     * Quit editor
     * Bring "up" connection "ethie"
     * Run child "sudo tshark -i eth10 -f 'port 546' -V -x > /tmp/tshark.log"
+    * Wait for at least "5" seconds
     * Open editor for connection "ethie"
     * Submit "set ipv6.dhcp-hostname" in editor
     * Enter in editor
@@ -583,7 +584,7 @@ Feature: nmcli: ipv6
     * Save in editor
     * Quit editor
     * Bring "up" connection "profie"
-    * Finish "sleep 20"
+    * Finish "sleep 5"
     * Execute "sudo pkill tshark"
     Then "dacan.local" is visible with command "cat /tmp/ipv6-hostname.log" in "5" seconds
     Then "0. = O bit" is visible with command "cat /tmp/ipv6-hostname.log" in "5" seconds
