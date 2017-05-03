@@ -217,8 +217,9 @@ def teardown_racoon():
     call("sudo modprobe -r ip_vti", shell=True)
 
 def reset_hwaddr(ifname):
-    hwaddr = check_output("ethtool -P %s" % ifname, shell=True).split()[2]
-    call("ip link set %s address %s" % (ifname, hwaddr), shell=True)
+    if not os.path.isfile('/tmp/nm_newveth_configured'):
+        hwaddr = check_output("ethtool -P %s" % ifname, shell=True).split()[2]
+        call("ip link set %s address %s" % (ifname, hwaddr), shell=True)
 
 def setup_hostapd():
     print ("setting up hostapd")
@@ -359,10 +360,6 @@ def before_scenario(context, scenario):
 
         if 'not_under_internal_DHCP' in scenario.tags:
             if call("grep dhcp=internal /etc/NetworkManager/NetworkManager.conf", shell=True) == 0:
-                sys.exit(0)
-
-        if 'veth' in scenario.tags:
-            if os.path.isfile('/tmp/nm_veth_configured'):
                 sys.exit(0)
 
         if 'newveth' in scenario.tags:
@@ -866,8 +863,11 @@ def after_scenario(context, scenario):
         if 'slaves' in scenario.tags:
             print ("---------------------------")
             print ("deleting slave profiles")
-            call('nmcli connection delete id bond0.0 bond0.1 bond-slave-eth1', shell=True)
+            call('nmcli connection delete id bond0.0 bond0.1 bond0.2 bond-slave-eth1', shell=True)
             reset_hwaddr('eth1')
+            reset_hwaddr('eth2')
+            reset_hwaddr('eth3')
+            reset_hwaddr('eth10')
             #sleep(TIMER)
 
         if 'bond' in scenario.tags:
