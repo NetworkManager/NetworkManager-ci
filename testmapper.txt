@@ -229,6 +229,7 @@ ipv4_dns_manual_when_method_auto, ., nmcli/./runtest.sh ipv4_dns_manual_when_met
 ipv4_dns_manual_when_ignore_auto_dns, ., nmcli/./runtest.sh ipv4_dns_manual_when_ignore_auto_dns ,
 ipv4_ignore_resolveconf_with_ignore_auto_dns, ., nmcli/./runtest.sh ipv4_ignore_resolveconf_with_ignore_auto_dns ,
 ipv4_ignore_resolveconf_with_ignore_auto_dns_var1, ., nmcli/./runtest.sh ipv4_ignore_resolveconf_with_ignore_auto_dns_var1 ,
+ipv4_ignore_resolveconf_with_ignore_auto_dns_var2, ., nmcli/./runtest.sh ipv4_ignore_resolveconf_with_ignore_auto_dns_var2 ,
 ipv4_dns_add_another_one, ., nmcli/./runtest.sh ipv4_dns_add_another_one ,
 ipv4_dns_delete_all, ., nmcli/./runtest.sh ipv4_dns_delete_all ,
 reload_dns, ., nmcli/./runtest.sh reload_dns ,
