@@ -99,6 +99,7 @@ bridge_slave_to_ethernet_conversion, ., nmcli/./runtest.sh bridge_slave_to_ether
 
 #@team_start
 add_default_team, ., nmcli/./runtest.sh add_default_team ,
+add_default_team_after_journal_restart, ., nmcli/./runtest.sh add_default_team_after_journal_restart ,
 ifcfg_team_slave_device_type, ., nmcli/./runtest.sh ifcfg_team_slave_device_type ,
 nmcli_novice_mode_create_team, ., nmcli/./runtest.sh nmcli_novice_mode_create_team ,
 nmcli_novice_mode_create_team-slave_with_default_options, ., nmcli/./runtest.sh nmcli_novice_mode_create_team-slave_with_default_options ,

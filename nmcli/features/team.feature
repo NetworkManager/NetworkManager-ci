@@ -18,7 +18,17 @@
      * Enter in editor
      * Quit editor
     #Then Prompt is not running
-    Then "nm-team" is visible with command "sudo teamdctl nm-team state dump"
+     Then "ifname": "nm-team" is visible with command "sudo teamdctl nm-team state dump"
+
+
+    @rhbz1393853
+    @ver+=1.8
+    @team @restart
+    @add_default_team_after_journal_restart
+    Scenario: nmcli - team - add default team after journal restart
+     * Execute "systemctl restart systemd-journald"
+     * Add connection type "team" named "team0" for device "nm-team"
+     Then "ifname": "nm-team" is visible with command "sudo teamdctl nm-team state dump"
 
 
     @team
@@ -38,7 +48,7 @@
      * Expect "There .* optional"
      * Submit "no" in editor
      * Dismiss IP configuration in editor
-    Then "nm-team" is visible with command "sudo teamdctl nm-team state dump"
+     Then "ifname": "nm-team" is visible with command "sudo teamdctl nm-team state dump"
 
 
     @team_slaves @team
@@ -189,7 +199,7 @@
      * Bring "down" connection "team0.1"
     Then Team "nm-team" is down
      * Bring up connection "team0" ignoring error
-    Then "nm-team" is visible with command "sudo teamdctl nm-team state dump"
+     Then "ifname": "nm-team" is visible with command "sudo teamdctl nm-team state dump"
 
 
     @rhbz1158529
