@@ -455,7 +455,7 @@ Feature: nmcli: ipv4
     * Execute "hostnamectl set-hostname braunberg"
     When "boston.com" is visible with command "cat /etc/resolv.conf"
      And "nameserver 1.2.3.4" is visible with command "cat /etc/resolv.conf"
-    * Execute "hostnamectl set-hostname --transient Braun Berg"
+    * Execute "hostnamectl set-hostname --transient BraunBerg"
     Then "boston.com" is visible with command "cat /etc/resolv.conf"
      And "nameserver 1.2.3.4" is visible with command "cat /etc/resolv.conf"
 
