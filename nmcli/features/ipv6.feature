@@ -819,8 +819,8 @@ Feature: nmcli: ipv6
     Then "0" is visible with command "cat /proc/sys/net/ipv6/conf/eth1/disable_ipv6"
     Then "inet6 2001::dead:beef:1/64 scope global" is visible with command "ip a s eth1"
     Then "inet6 fe80" is visible with command "ip a s eth1" in "5" seconds
-    # the assumed connection is created
-    Then "eth1\s+ethernet\s+connected\s+eth1" is visible with command "nmcli device"
+    # the assumed connection is created, give just some time for DAD to complete
+    Then "eth1\s+ethernet\s+connected\s+eth1" is visible with command "nmcli device" in "5" seconds
 
 
     @rhbz1138426
