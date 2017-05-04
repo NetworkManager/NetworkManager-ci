@@ -368,6 +368,8 @@ nmcli_general_wait_for_carrier_on_new_device_request, ., nmcli/./runtest.sh nmcl
 connection_up_after_journald_restart, ., nmcli/./runtest.sh connection_up_after_journald_restart ,
 nmcli_general_dhcp_hostname_over_localhost, ., nmcli/./runtest.sh nmcli_general_dhcp_hostname_over_localhost ,
 nmcli_general_ignore_specified_unamanaged_devices, ., nmcli/./runtest.sh nmcli_general_ignore_specified_unamanaged_devices ,
+nmcli_general_set_device_unmanaged, ., nmcli/./runtest.sh nmcli_general_set_device_unmanaged ,
+nmcli_general_set_device_back_to_managed, ., nmcli/./runtest.sh nmcli_general_set_device_back_to_managed ,
 nmcli_general_ifcfg_tailing_whitespace, ., nmcli/./runtest.sh nmcli_general_ifcfg_tailing_whitespace ,
 nmcli_general_keep_slave_device_unmanaged, ., nmcli/./runtest.sh nmcli_general_keep_slave_device_unmanaged ,
 no_error_when_firewald_restarted, ., nmcli/./runtest.sh no_error_when_firewald_restarted ,

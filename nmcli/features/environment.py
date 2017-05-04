@@ -1344,6 +1344,11 @@ def after_scenario(context, scenario):
             print ("disconnecting eth1 device")
             call('sudo nmcli device disconnect eth1', shell=True)
 
+        if 'manage_eth1' in scenario.tags:
+            print ("---------------------------")
+            print ("manage eth1 device")
+            call('sudo nmcli device set eth1 managed true', shell=True)
+
         if 'shutdown' in scenario.tags:
             print ("---------------------------")
             print ("sanitizing env")
