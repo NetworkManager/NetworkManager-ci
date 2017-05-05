@@ -48,7 +48,8 @@
      * Expect "There .* optional"
      * Submit "no" in editor
      * Dismiss IP configuration in editor
-     Then "ifname": "nm-team" is visible with command "sudo teamdctl nm-team state dump"
+     * Dismiss Proxy configuration in editor
+     Then "ifname": "nm-team" is visible with command "sudo teamdctl nm-team state dump" in "5" seconds
 
 
     @team_slaves @team
