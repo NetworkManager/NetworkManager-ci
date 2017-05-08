@@ -194,29 +194,29 @@ function check_veth_env ()
 {
     # Check devices
     need_veth=0
-    echo "Checking devices"
+    echo "* Checking devices"
     for X in $(seq 0 10); do
-        if ! nmcli -t -f DEVICE device | grep -q ^eth$X$; then
+        if ! (nmcli -t -f DEVICE device | grep -q ^eth$X$ && ip a s eth$X |grep -q 'state UP'); then
             echo "Not OK!!"
             need_veth=1
             break
         fi
     done
 
-    echo "Checking profiles"
+    echo "* Checking profiles"
     if ! nmcli connection show testeth0 testeth1 testeth2 testeth3 testeth4 testeth5 testeth6 testeth7 testeth8 testeth9 testeth10 > /dev/null; then
         echo "Not OK!!"
         need_veth=1
     fi
 
-    echo "checking up testeth0 and non activated testethX"
+    echo "* Checking up testeth0 and non activated testethX"
     if ! (nmcli connection show --active |grep testeth0 > /dev/null && ! nmcli connection show --active |grep testeth |grep -v testeth0); then
         echo "Not OK!!"
         need_veth=1
     fi
 
     # Check running dnsmasqs
-    echo "Checking dnsmasqs"
+    echo "* Checking dnsmasqs"
     inbr_pid=$(cat /tmp/dhcp_inbr.pid)
     simbr_pid=$(cat /tmp/dhcp_simbr.pid)
     if ! pidof dnsmasq |grep -q $inbr_pid && pidof dnsmasq | grep -q $simbr_pid; then
@@ -225,7 +225,7 @@ function check_veth_env ()
     fi
 
     # Check inbr slaves
-    echo "Checking inbr slaves"
+    echo "* Checking inbr slaves"
     for X in $(seq 1 9); do
         if ! ip netns exec vethsetup brctl show inbr |grep -q eth$Xp; then
             echo "Not OK!!"
@@ -235,26 +235,26 @@ function check_veth_env ()
     done
 
     # Check simbr
-    echo "Checking simbr slave"
+    echo "* Checking simbr slave"
     if ! ip netns exec vethsetup brctl show simbr |grep -q eth10p; then
         echo "Not OK!!"
         need_veth=1
     fi
 
-    echo "Checking simbr addresses"
+    echo "* Checking simbr addresses"
     if ! ip netns exec vethsetup ip a s simbr |grep -q 10.16.1.1/24 && ip netns exec vethsetup ip a s simbr |grep -q 2620:52:0:1086::1/64; then
         echo "Not OK!!"
         need_veth=1
     fi
 
     # Check inbr masq slave
-    echo "Checking masq slave"
+    echo "* Checking masq slave"
     if ! ip netns exec vethsetup brctl show inbr |grep -q masq; then
         echo "Not OK!!"
         need_veth=1
     fi
 
-    echo "Checking masq addresses"
+    echo "* Checking masq addresses"
     if ! ip netns exec vethsetup ip a s  masq |grep -q 192.168.100.1/24; then
         echo "Not OK!!"
         need_veth=1
