@@ -514,7 +514,8 @@ Feature: nmcli - general
     @eth @manage_eth1 @restart
     @nmcli_general_set_device_unmanaged
     Scenario: NM - general - set device to unmanaged state
-    * Add a new connection of type "ethernet" and options "ifname eth1 con-name ethie"
+    * Add a new connection of type "ethernet" and options "ifname eth1 con-name ethie autoconnect no"
+    * Bring up connection "ethie"
     When "/sbin/dhclient" is visible with command "ps aux|grep dhc |grep eth1"
     * Execute "nmcli device set eth1 managed off"
     When "/sbin/dhclient" is not visible with command "ps aux|grep dhc |grep eth1"
@@ -537,7 +538,8 @@ Feature: nmcli - general
     @eth @manage_eth1 @restart
     @nmcli_general_set_device_back_to_managed
     Scenario: NM - general - set device back from unmanaged state
-    * Add a new connection of type "ethernet" and options "ifname eth1 con-name ethie"
+    * Add a new connection of type "ethernet" and options "ifname eth1 con-name ethie autoconnect no"
+    * Bring "up" connection "ethie"
     When "/sbin/dhclient" is visible with command "ps aux|grep dhc |grep eth1"
     * Execute "nmcli device set eth1 managed off"
     When "/sbin/dhclient" is not visible with command "ps aux|grep dhc |grep eth1"
