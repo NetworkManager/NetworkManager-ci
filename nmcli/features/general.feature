@@ -611,12 +611,15 @@ Feature: nmcli - general
     * Add a new connection of type "ethernet" and options "ifname eth1 con-name ethie autoconnect no"
     * Bring "up" connection "ethie"
     When "/sbin/dhclient" is visible with command "ps aux|grep dhc |grep eth1"
+     And "fe80" is visible with command "ip a s eth1" in "5" seconds
+     And "192" is visible with command "ip a s eth1" in "5" seconds
+     And "192" is visible with command "ip r |grep eth1"
     * Execute "nmcli device set eth1 managed off"
     When "/sbin/dhclient" is not visible with command "ps aux|grep dhc |grep eth1"
      And "state UP" is visible with command "ip a s eth1"
      And "unmanaged" is visible with command "nmcli device show eth1"
      And "fe80" is visible with command "ip a s eth1"
-     And "192" is visible with command "ip a s eth1" in "10" seconds
+     And "192" is visible with command "ip a s eth1"
      And "192" is visible with command "ip r |grep eth1"
     * Bring "up" connection "ethie"
     Then "/sbin/dhclient" is visible with command "ps aux|grep dhc |grep eth1"
