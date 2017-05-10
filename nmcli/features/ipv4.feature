@@ -460,6 +460,30 @@ Feature: nmcli: ipv4
      And "nameserver 1.2.3.4" is visible with command "cat /etc/resolv.conf"
 
 
+    @rhbz1422610
+    @ver+=1.8.0
+    @ipv4 @delete_testeth0 @restore_hostname
+    @ipv4_ignore_resolveconf_with_ignore_auto_dns_var3
+    Scenario: NM - ipv4 - preserve resolveconf when hostnamectl is called and ignore_auto_dns set
+    * Add a new connection of type "ethernet" and options "con-name ethie ifname eth1 ipv4.ignore-auto-dns yes ipv6.ignore-auto-dns yes"
+    * Bring "down" connection "ethie"
+    * Execute "echo 'search boston.com' > /etc/resolv.conf"
+    * Execute "echo 'nameserver 1.2.3.4' >> /etc/resolv.conf"
+    When "boston.com" is visible with command "cat /etc/resolv.conf"
+     And "nameserver 1.2.3.4" is visible with command "cat /etc/resolv.conf"
+    * Execute "hostnamectl set-hostname braunberg"
+    When "boston.com" is visible with command "cat /etc/resolv.conf"
+     And "nameserver 1.2.3.4" is visible with command "cat /etc/resolv.conf"
+    * Execute "hostnamectl set-hostname --transient BraunBerg"
+    When "boston.com" is visible with command "cat /etc/resolv.conf"
+     And "nameserver 1.2.3.4" is visible with command "cat /etc/resolv.conf"
+    * Execute "ip add add 1.2.3.1/24 dev eth1"
+    Then "BraunBerg" is visible with command "hostnamectl --transient" for full "5" seconds
+     And "braunberg" is visible with command "hostnamectl --static" for full "5" seconds
+     And "boston.com" is visible with command "cat /etc/resolv.conf"
+     And "nameserver 1.2.3.4" is visible with command "cat /etc/resolv.conf"
+
+
     @ipv4 @eth0
     @ipv4_dns_add_another_one
     Scenario: nmcli - ipv4 - dns - add dns when one already set
