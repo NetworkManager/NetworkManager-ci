@@ -1250,6 +1250,8 @@ def after_scenario(context, scenario):
             #call('sudo nmcli g hostname %s' % context.original_hostname, shell=True)
             call('sudo echo "localhost.localdomain" > /etc/hostname', shell=True)
             call('hostnamectl set-hostname localhost.localdomain', shell=True)
+            call('rm -rf /etc/NetworkManager/conf.d/90-hostname.conf', shell=True)
+            call('rm -rf /etc/dnsmasq.d/dnsmasq_custom.conf', shell=True)
             call('systemctl restart NetworkManager', shell=True)
             call("nmcli con up testeth0", shell=True)
 

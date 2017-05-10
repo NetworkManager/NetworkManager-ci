@@ -59,8 +59,7 @@ Feature: nmcli - general
 
 
     @ver+=1.4.0
-    @general @eth @teardown_testveth @eth0
-    @restore_hostname
+    @general @eth @teardown_testveth @eth0 @restore_hostname
     @pull_hostname_from_dhcp
     Scenario: nmcli - general - pull hostname from DHCP
     * Prepare simulated test "testX" device
@@ -71,6 +70,77 @@ Feature: nmcli - general
     * Bring up connection "ethie"
     When "ransient" is visible with command "hostnamectl" in "60" seconds
     Then "localhost" is not visible with command "hostnamectl --transient" in "60" seconds
+
+
+    @rhbz1405275
+    @ver+=1.8.0
+    @general @eth @teardown_testveth @restart @delete_testeth0 @restore_hostname
+    @hostname_mode_full
+    Scenario: NM - general - hostname mode full
+    * Execute "echo -e '[main]\nhostname-mode=full' > /etc/NetworkManager/conf.d/90-hostname.conf"
+    * Restart NM
+    * Prepare simulated test "testX" device
+    * Execute "sudo nmcli general hostname localhost"
+    * Execute "hostnamectl set-hostname --transient localhost.localdomain"
+    * Add a new connection of type "ethernet" and options "ifname testX con-name ethie autoconnect no"
+    When "localhost" is visible with command "hostnamectl --transient" in "60" seconds
+    * Bring up connection "ethie"
+    When "ransient" is visible with command "hostnamectl" in "60" seconds
+    Then "localhost" is not visible with command "hostnamectl --transient" in "60" seconds
+
+
+    @rhbz1405275
+    @ver+=1.8.0
+    @general @eth @teardown_testveth @restart @delete_testeth0 @restore_hostname
+    @hostname_mode_dhcp
+    Scenario: NM - general - hostname mode dhcp
+    * Execute "echo -e '[main]\nhostname-mode=dhcp' > /etc/NetworkManager/conf.d/90-hostname.conf"
+    * Restart NM
+    * Prepare simulated test "testX" device
+    * Execute "sudo nmcli general hostname localhost"
+    * Execute "hostnamectl set-hostname --transient localhost.localdomain"
+    * Add a new connection of type "ethernet" and options "ifname testX con-name ethie autoconnect no"
+    When "localhost" is visible with command "hostnamectl --transient" in "60" seconds
+    * Bring up connection "ethie"
+    When "ransient" is visible with command "hostnamectl" in "60" seconds
+    Then "localhost" is not visible with command "hostnamectl --transient" in "60" seconds
+
+
+    @rhbz1405275
+    @ver+=1.8.0
+    @general @eth @teardown_testveth @restart @delete_testeth0 @restore_hostname
+    @hostname_mode_full_without_dhcp_hosts
+    Scenario: NM - general - hostname mode dhcp without dhcp hosts
+    * Execute "echo -e '[main]\nhostname-mode=dhcp' > /etc/NetworkManager/conf.d/90-hostname.conf"
+    * Execute "echo no-hosts > /etc/dnsmasq.d/dnsmasq_custom.conf"
+    * Restart NM
+    * Prepare simulated test "testX" device
+    * Execute "sudo nmcli general hostname localhost"
+    * Execute "hostnamectl set-hostname --transient localhost.localdomain"
+    * Add a new connection of type "ethernet" and options "ifname testX con-name ethie autoconnect no"
+    When "localhost" is visible with command "hostnamectl --transient" in "60" seconds
+    * Bring up connection "ethie"
+    When "ransient" is visible with command "hostnamectl" in "60" seconds
+    Then "localhost" is visible with command "hostnamectl --transient" in "60" seconds
+     And "localhost" is visible with command "hostnamectl --transient" for full "20" seconds
+
+
+    @rhbz1405275
+    @ver+=1.8.0
+    @general @eth @teardown_testveth @restart @delete_testeth0 @restore_hostname
+    @hostname_mode_none
+    Scenario: NM - general - hostname mode none
+    * Execute "echo -e '[main]\nhostname-mode=none' > /etc/NetworkManager/conf.d/90-hostname.conf"
+    * Restart NM
+    * Prepare simulated test "testX" device
+    * Execute "sudo nmcli general hostname localhost"
+    * Execute "hostnamectl set-hostname --transient localhost.localdomain"
+    * Add a new connection of type "ethernet" and options "ifname testX con-name ethie autoconnect no"
+    When "localhost" is visible with command "hostnamectl --transient" in "60" seconds
+    * Bring up connection "ethie"
+    When "ransient" is visible with command "hostnamectl" in "60" seconds
+    Then "localhost" is visible with command "hostnamectl --transient" in "60" seconds
+     And "localhost" is visible with command "hostnamectl --transient" for full "20" seconds
 
 
     @general @restart @veth
