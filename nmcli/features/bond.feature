@@ -183,6 +183,28 @@
      And "MASTER=nm-bond" is visible with command "cat /etc/sysconfig/network-scripts/ifcfg-bond0.0"
 
 
+    @rhbz1434555
+    @ver+=1.8.0
+    @slaves @bond
+    @bond_ifcfg_master_called_ethernet
+    Scenario: ifcfg - bond - master with Ethernet type
+    * Append "DEVICE=nm-bond" to ifcfg file "bond0"
+    * Append "NAME=bond0" to ifcfg file "bond0"
+    * Append "TYPE=Ethernet" to ifcfg file "bond0"
+    * Append "BONDING_OPTS='miimon=100 mode=4 lacp_rate=1'" to ifcfg file "bond0"
+    * Append "BONDING_MASTER=yes" to ifcfg file "bond0"
+    * Append "NM_CONTROLLED=yes" to ifcfg file "bond0"
+    * Append "BOOTPROTO=none" to ifcfg file "bond0"
+    * Append "USERCTL=no" to ifcfg file "bond0"
+    * Add slave connection for master "nm-bond" on device "eth1" named "bond0.0"
+    * Restart NM
+    Then Check bond "nm-bond" link state is "up"
+     And Check slave "eth1" in bond "nm-bond" in proc
+     And "nm-bond:connected:bond0" is visible with command "nmcli -t -f DEVICE,STATE,CONNECTION device" in "50" seconds
+     And "eth1:connected:bond0.0" is visible with command "nmcli -t -f DEVICE,STATE,CONNECTION device" in "10" seconds
+
+
+
     @rhbz1369008
     @ver+=1.4.0
     @slaves @bond
@@ -1153,6 +1175,18 @@
       * Execute "nmcli connection add type bond ifname bond0 con-name bond0 mode 4 miimon 100"
       * Execute "pkill journalctl"
       Then "mode dependency failed, not supported in mode 802.3ad" is not visible with command "grep arp_validate /tmp/journal.txt"
+
+
+     @rhbz1349266
+     @ver+=1.4.0
+     @bond
+     @bond_balance-alb_no_error
+     Scenario: nmcli - bond - no error in balance-alb setup
+      * Run child "journalctl -f > /tmp/journal.txt"
+      * Execute "nmcli connection add type bond ifname nm-bond con-name bond0 mode 6"
+      * Reboot
+      * Execute "pkill journalctl"
+      Then "mode dependency failed, not supported in mode balance-alb" is not visible with command "grep arp_validate /tmp/journal.txt"
 
 
      @rhbz1364275
