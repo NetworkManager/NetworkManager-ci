@@ -47,7 +47,7 @@ Feature: Bond TUI tests
      Then "Up Delay \(ms\): 0" is visible with command "cat /proc/net/bonding/bond0"
      Then "Down Delay \(ms\): 0" is visible with command "cat /proc/net/bonding/bond0"
      Then "ARP Polling Interval \(ms\): 100" is visible with command "cat /proc/net/bonding/bond0"
-     Then "ARP IP target/s \(n.n.n.n form\): 192.168.100.1" is visible with command "cat /proc/net/bonding/bond0"
+     Then "ARP IP target/s \(n.n.n.n form\):.*192.168.100.1" is visible with command "cat /proc/net/bonding/bond0"
 
 
 

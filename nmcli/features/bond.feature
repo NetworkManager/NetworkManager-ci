@@ -130,7 +130,7 @@
      Then "Up Delay \(ms\): 0" is visible with command "cat /proc/net/bonding/nm-bond"
      Then "Down Delay \(ms\): 0" is visible with command "cat /proc/net/bonding/nm-bond"
      Then "ARP Polling Interval \(ms\): 100" is visible with command "cat /proc/net/bonding/nm-bond"
-     Then "ARP IP target/s \(n.n.n.n form\): 192.168.100.1" is visible with command "cat /proc/net/bonding/nm-bond"
+     Then "ARP IP target/s \(n.n.n.n form\):.*192.168.100.1" is visible with command "cat /proc/net/bonding/nm-bond"
 
 
     @slaves @bond
@@ -591,7 +591,7 @@
      Then "Up Delay \(ms\): 0" is visible with command "cat /proc/net/bonding/nm-bond"
      Then "Down Delay \(ms\): 0" is visible with command "cat /proc/net/bonding/nm-bond"
      Then "ARP Polling Interval \(ms\): 100" is visible with command "cat /proc/net/bonding/nm-bond"
-     Then "ARP IP target/s \(n.n.n.n form\): 10.16.135.254" is visible with command "cat /proc/net/bonding/nm-bond"
+     Then "ARP IP target/s \(n.n.n.n form\):.*10.16.135.254" is visible with command "cat /proc/net/bonding/nm-bond"
      Then Check "nm-bond" has "eth1" in proc
      Then Check "nm-bond" has "eth2" in proc
 
@@ -1110,6 +1110,8 @@
      * Add slave connection for master "nm-bond" on device "eth1" named "bond0.0"
      * Add slave connection for master "nm-bond" on device "eth2" named "bond0.1"
      * Bring "down" connection "bond0"
+     # VVV Workaround for rhbz1450219
+     * Wait for at least "2" seconds
      * Open editor for connection "bond0"
      * Set a property named "connection.interface-name" to "nm-bond" in editor
      * Save in editor

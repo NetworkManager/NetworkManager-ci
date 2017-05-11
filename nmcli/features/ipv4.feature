@@ -477,6 +477,8 @@ Feature: nmcli: ipv4
     * Execute "hostnamectl set-hostname --transient BraunBerg"
     When "boston.com" is visible with command "cat /etc/resolv.conf"
      And "nameserver 1.2.3.4" is visible with command "cat /etc/resolv.conf"
+     And "BraunBerg" is visible with command "hostnamectl --transient" in "5" seconds
+
     * Execute "ip add add 1.2.3.1/24 dev eth1"
     Then "BraunBerg" is visible with command "hostnamectl --transient" for full "5" seconds
      And "braunberg" is visible with command "hostnamectl --static" for full "5" seconds
