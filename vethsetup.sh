@@ -57,7 +57,7 @@ function setup_veth_env ()
     if [ ! "eth0" == $(nmcli -f TYPE,DEVICE -t c sh --active  | grep ethernet | awk '{split($0,a,":"); print a[2]}') ]; then
         DEV=$(nmcli -f TYPE,DEVICE -t c sh --active  | grep ethernet | awk '{split($0,a,":"); print a[2]}')
         UUID=$(nmcli -t -f UUID c show --active)
-        sleep 0.5
+        sleep 1
         ip link set $DEV down
         ip link set $DEV name eth0
     # Make active device eth0 if not
@@ -74,15 +74,16 @@ function setup_veth_env ()
     # Copy backup to /etc/sysconfig/network-scripts/ and reload
     nmcli device disconnect $DEV 2>&1 > /dev/null
     yes 2>/dev/null | cp -rf /tmp/ifcfg-$DEV /etc/sysconfig/network-scripts/ifcfg-testeth0
-    sleep 0.5
+    sleep 1
     nmcli con reload
+    sleep 1
 
     # Bring up the device and prepare final profile testeth0
     ip link set eth0 up
     nmcli con mod $UUID connection.id testeth0
     nmcli con mod $UUID connection.interface-name eth0
     nmcli connection modify $UUID ipv6.method auto
-    sleep 0.5
+    sleep 1
 
     # Copy final connection to /tmp/testeth0 for later in test usage
     yes 2>/dev/null | cp -rf /etc/sysconfig/network-scripts/ifcfg-testeth0 /tmp/testeth0
@@ -315,15 +316,18 @@ function teardown_veth_env ()
 
     # Get ORIGDEV name to bring device back to and copy the profile back
     ORIGDEV=$(grep DEVICE /tmp/ifcfg-* | awk -F '=' '{print $2}' | tr -d '"')
-
+    if [ "x$ORIGDEV" == "x" ]; then
+        ORIGDEV=$(ls /tmp/ifcfg-* | awk -F '-' '{print $2}' |tr -d '"')
+    fi
     # Disconnect eth0
     nmcli device disconnect eth0
 
     # Move all profiles and reload
     rm /etc/sysconfig/network-scripts/ifcfg-testeth0*
     mv -f /tmp/ifcfg-$ORIGDEV /etc/sysconfig/network-scripts/ifcfg-$ORIGDEV
-    sleep 0.5
+    sleep 1
     nmcli con reload
+    sleep 1
     rm /tmp/testeth0
 
     # Rename the device back to ORIGNAME
@@ -353,7 +357,7 @@ function teardown_veth_env ()
     done
 
     nmcli con reload
-    sleep 0.5
+    sleep 1
     # Restart and bring back ORIGDEV up
     systemctl restart NetworkManager; sleep 2
 
