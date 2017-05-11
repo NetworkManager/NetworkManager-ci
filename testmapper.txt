@@ -2,6 +2,7 @@
 
 #@bond_start
 bond_add_default_bond, ., nmcli/./runtest.sh bond_add_default_bond ,
+nmcli_editor_for_new_connection_set_con_id, ., nmclic/./runtest.sh nmcli_editor_for_new_connection_set_con_id ,
 bond_disconnect, ., nmcli/./runtest.sh bond_disconnect ,
 bond_remove_active_bond_profile, ., nmcli/./runtest.sh bond_remove_active_bond_profile ,
 bond_add_slaves, ., nmcli/./runtest.sh bond_add_slaves ,

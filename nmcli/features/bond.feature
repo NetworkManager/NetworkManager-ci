@@ -22,6 +22,25 @@
      Then Check bond "nm-bond" in proc
 
 
+    @rhbz1440957
+    @ver+=1.8.0
+    @slaves
+    @nmcli_editor_for_new_connection_set_con_id
+    Scenario: nmcli - bond - add bond-slave via new connection editor
+     * Open editor for a new connection
+     * Expect "connection type"
+     * Submit "bond-slave"
+     * Expect "nmcli"
+     * Submit "set con.id bond0.0"
+     * Save in editor
+     * Expect "Saving the connection with"
+     * Submit "yes" in editor
+     When Value saved message showed in editor
+     * Quit editor
+     When Prompt is not running
+     Then "bond0.0" is visible with command "nmcli con"
+
+
     @slaves @bond
     @nmcli_novice_mode_create_bond_with_default_options
     Scenario: nmcli - bond - novice - create bond with default options

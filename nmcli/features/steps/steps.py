@@ -1069,6 +1069,10 @@ def open_editor_for_connection_type(context, con_name, type):
     if r != 0:
         raise Exception('Got an Error while opening  %s profile %s' % (type, con_name))
 
+@step(u'Open editor for a new connection')
+def open_editor_for_new_connection(context):
+    prompt = pexpect.spawn('nmcli connection edit', logfile=context.log)
+    context.prompt = prompt
 
 @step(u'Open editor for a type "{typ}"')
 def open_editor_for_a_type(context, typ):
