@@ -413,6 +413,7 @@ NM_syslog_in_anaconda, ., nmcli/./runtest.sh NM_syslog_in_anaconda ,
 snapshot_rollback, ., nmcli/./runtest.sh snapshot_rollback ,
 stable_mem_consumption, ., nmcli/./runtest.sh stable_mem_consumption ,,20m
 dummy_connection, ., nmcli/./runtest.sh dummy_connection ,
+macsec_psk, ., nmcli/./runtest.sh macsec_psk ,
 #@general_end
 
 #@wol_start

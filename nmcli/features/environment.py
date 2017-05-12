@@ -954,6 +954,16 @@ def after_scenario(context, scenario):
             call("nmcli connection up id qe-open", shell=True)
             call("nmcli connection del id qe-open", shell=True)
 
+        if 'macsec' in scenario.tags:
+            print("---------------------------")
+            call('sudo nmcli connection delete test-macsec test-macsec-base', shell=True)
+            call('sudo ip netns delete macsec_ns', shell=True)
+            call('sudo ip link delete macsec_veth', shell=True)
+            print ("kill wpa_supplicant")
+            call("kill $(cat /tmp/wpa_supplicant_ms.pid)", shell=True)
+            print ("kill dnsmasq")
+            call("kill $(cat /tmp/dnsmasq_ms.pid)", shell=True)
+
         if 'two_bridged_veths' in scenario.tags:
             print ("---------------------------")
             print ("deleting veth devices")
@@ -1412,7 +1422,6 @@ def after_scenario(context, scenario):
             print("removing ctc device")
             call("""znetconf -r $(znetconf -c |grep CTC |awk 'BEGIN { FS = "," } ; { print $1 }') -n""", shell=True)
             sleep(1)
-
 
         if 'regenerate_veth' in scenario.tags or 'restart' in scenario.tags:
             print ("---------------------------")

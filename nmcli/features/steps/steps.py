@@ -1728,3 +1728,38 @@ def write_dispatcher_file(context, path, params=None):
 @step(u'Wrong bond options message shown in editor')
 def wrong_bond_options_in_editor(context):
     context.prompt.expect("Error: failed to set 'options' property:")
+
+
+@step(u'Prepare MACsec PSK environment with CAK "{cak}" and CKN "{ckn}"')
+def setup_macsec_psk(context, cak, ckn):
+    command_code(context, "modprobe macsec")
+    command_code(context, "ip netns add macsec_ns")
+    command_code(context, "ip link add macsec_veth type veth peer name macsec_vethp")
+    command_code(context, "ip link set macsec_vethp netns macsec_ns")
+    command_code(context, "ip link set macsec_veth up")
+    command_code(context, "ip netns exec macsec_ns ip link set macsec_vethp up")
+    command_code(context, "echo 'eapol_version=3' > /tmp/wpa_supplicant.conf")
+    command_code(context, "echo 'ap_scan=0' >> /tmp/wpa_supplicant.conf")
+    command_code(context, "echo 'network={' >> /tmp/wpa_supplicant.conf")
+    command_code(context, "echo '  key_mgmt=NONE' >> /tmp/wpa_supplicant.conf")
+    command_code(context, "echo '  eapol_flags=0' >> /tmp/wpa_supplicant.conf")
+    command_code(context, "echo '  macsec_policy=1' >> /tmp/wpa_supplicant.conf")
+    command_code(context, "echo '  mka_cak={cak}' >> /tmp/wpa_supplicant.conf".format(cak=cak))
+    command_code(context, "echo '  mka_ckn={ckn}' >> /tmp/wpa_supplicant.conf".format(ckn=ckn))
+    command_code(context, "echo '}' >> /tmp/wpa_supplicant.conf")
+
+    command_code(context, "ip netns exec macsec_ns wpa_supplicant \
+                                         -c /tmp/wpa_supplicant.conf \
+                                         -i macsec_vethp \
+                                         -B \
+                                         -D macsec_linux \
+                                         -P /tmp/wpa_supplicant_ms.pid")
+    sleep(6)
+    assert command_code(context, "ip netns exec macsec_ns ip link show macsec0") == 0, "wpa_supplicant didn't create a MACsec interface"
+    command_code(context, "ip netns exec macsec_ns ip link set macsec0 up")
+    command_code(context, "ip netns exec macsec_ns ip addr add 172.16.10.1/24 dev macsec0")
+    command_code(context, "ip netns exec macsec_ns dnsmasq \
+                                         --pid-file=/tmp/dnsmasq_ms.pid \
+                                         --dhcp-range=172.16.10.10,172.16.10.255,60m  \
+                                         --interface=macsec0 \
+                                         --bind-interfaces")

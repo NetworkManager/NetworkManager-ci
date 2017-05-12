@@ -1130,6 +1130,7 @@ Feature: nmcli - general
       Then Check noted value "2" difference from "1" is lower than "500"
       Then Check noted value "4" difference from "3" is lower than "500"
 
+
       @rhbz1398932
       @ver+=1.7.2
       @BBB
@@ -1139,3 +1140,16 @@ Feature: nmcli - general
       * Bring up connection "BBB"
       Then "dummy" is visible with command "ip -d l show BBB | grep dummy"
       Then "1.2.3.4/24" is visible with command "ip a s BBB | grep inet"
+
+
+      @rhbz1337997
+      @ver+=1.6.0
+      @macsec
+      @macsec_psk
+      Scenario: NM - general - MACsec PSK
+      * Prepare MACsec PSK environment with CAK "00112233445566778899001122334455" and CKN "5544332211009988776655443322110055443322110099887766554433221100"
+      * Add a new connection of type "ethernet" and options "con-name test-macsec-base ifname macsec_veth ipv4.method disabled ipv6.method ignore"
+      * Add a new connection of type "macsec" and options "con-name test-macsec ifname macsec0 autoconnect no macsec.parent macsec_veth macsec.mode psk macsec.mka-cak 00112233445566778899001122334455 macsec.mka-ckn 5544332211009988776655443322110055443322110099887766554433221100"
+      * Bring up connection "test-macsec-base"
+      * Bring up connection "test-macsec"
+      Then Ping "172.16.10.1"
