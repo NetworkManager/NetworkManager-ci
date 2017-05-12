@@ -549,7 +549,7 @@ Feature: nmcli: ipv4
 
     @rhbz1228707
     @ver+=1.2.0
-    @ipv4_2
+    @ipv4_2 @eth0
     @dns_priority
     Scenario: nmcli - ipv4 - dns - priority
     * Add a new connection of type "ethernet" and options "con-name ethie ifname eth2 autoconnect no -- ipv4.method manual ipv4.addresses 192.168.1.2/24 ipv4.dns 8.8.4.4 ipv4.dns-priority 300"
