@@ -64,6 +64,15 @@ Feature: nmcli: connection
     Then "802-1x.eap:\s+leap\s+802-1x.identity:\s+jdoe" is visible with command "nmcli con show connie"
 
 
+    @rhbz1391170
+    @ver+=1.8.0
+    @connection_get_value
+    Scenario: nmcli - connection - get value
+    Then "testeth0\s+eth0" is visible with command "nmcli -g connection.id,connection.interface-name connection show testeth0"
+     And "--" is visble with command "nmcli connection show testeth0 |grep connection.master"
+     And "--" is not visble with command "nmcli -t connection show testeth0 |grep connection.master"
+
+
     @rhbz842975
     @connection_no_error
     Scenario: nmcli - connection - no error shown

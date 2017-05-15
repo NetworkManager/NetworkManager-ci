@@ -484,6 +484,7 @@ connection_restricted_to_single_device, ., nmcli/./runtest.sh connection_restric
 connection_help, ., nmcli/./runtest.sh connection_help ,
 device_autocompletion, ., nmcli/./runtest.sh device_autocompletion ,
 connection_names_autocompletion, ., nmcli/./runtest.sh connection_names_autocompletion ,
+connection_get_value, ., nmcli/./runtest.sh connection_get_value ,
 connection_no_error, ., nmcli/./runtest.sh connection_no_error ,
 connection_secondaries_restricted_to_vpn, ., nmcli/./runtest.sh connection_secondaries_restricted_to_vpn ,
 connection_double_delete, ., nmcli/./runtest.sh connection_double_delete ,
