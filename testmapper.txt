@@ -275,6 +275,9 @@ ipv4_do_not_remove_second_ip_route, ., nmcli/./runtest.sh ipv4_do_not_remove_sec
 ipv4_never_default_restart_persistence, ., nmcli/./runtest.sh ipv4_never_default_restart_persistence ,
 ipv4_honor_ip_order_1, ., nmcli/./runtest.sh ipv4_honor_ip_order_1 ,
 ipv4_honor_ip_order_2, ., nmcli/./runtest.sh ipv4_honor_ip_order_2 ,
+ipv4_rp_filter_set_loose, ., nmcli/./runtest.sh ipv4_rp_filter_set_loose ,
+ipv4_rp_filter_do_not_touch, ., nmcli/./runtest.sh ipv4_rp_filter_do_not_touch ,
+ipv4_rp_filter_reset, ., nmcli/./runtest.sh ipv4_rp_filter_reset ,
 #@ipv4_end
 
 #@vlan_start

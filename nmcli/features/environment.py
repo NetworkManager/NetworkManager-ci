@@ -1417,6 +1417,12 @@ def after_scenario(context, scenario):
             call('udevadm settle', shell=True)
             sleep(1)
 
+        if '@restore_rp_filters' in scenario.tags:
+            print ("---------------------------")
+            print ("restore rp filters for eth2 and eth3")
+            call('echo 1 > /proc/sys/net/ipv4/conf/eth2/rp_filter', shell=True)
+            call('echo 1 > /proc/sys/net/ipv4/conf/eth3/rp_filter', shell=True)
+
         if 'remove_ctcdevice' in scenario.tags:
             print("---------------------------")
             print("removing ctc device")
