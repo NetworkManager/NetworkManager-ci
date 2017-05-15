@@ -385,6 +385,7 @@ nmcli_general_ifcfg_tailing_whitespace, ., nmcli/./runtest.sh nmcli_general_ifcf
 nmcli_general_keep_slave_device_unmanaged, ., nmcli/./runtest.sh nmcli_general_keep_slave_device_unmanaged ,
 no_error_when_firewald_restarted, ., nmcli/./runtest.sh no_error_when_firewald_restarted ,
 nmcli_general_DHCP_HOSTNAME_profile_pickup, ., nmcli/./runtest.sh nmcli_general_DHCP_HOSTNAME_profile_pickup ,
+match_connections_when_no_var_run_exists, ., nmcli/./runtest.sh match_connections_when_no_var_run_exists ,
 wpa_supplicant_not_started, ., nmcli/./runtest.sh wpa_supplicant_not_started ,
 nmcli_general_dbus_set_gateway, ., nmcli/./runtest.sh nmcli_general_dbus_set_gateway ,
 preserve_failed_assumed_connections, ., nmcli/./runtest.sh preserve_failed_assumed_connections ,
