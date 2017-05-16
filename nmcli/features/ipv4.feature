@@ -1228,6 +1228,8 @@ Feature: nmcli: ipv4
     @ipv4_2 @restore_rp_filters
     @ipv4_rp_filter_reset
     Scenario: NM - ipv4 - reset RP filter back
+    * Execute "echo 1 > /proc/sys/net/ipv4/conf/eth2/rp_filter"
+    * Execute "echo 1 > /proc/sys/net/ipv4/conf/eth3/rp_filter"
     * Add a new connection of type "ethernet" and options "con-name ethie ifname eth2 ip4 192.168.11.1/24"
     * Add a new connection of type "ethernet" and options "con-name ethie2 ifname eth3 ip4 192.168.11.2/24"
     When "192.168.11.0/24 dev eth2.*src 192.168.11.1\s+metric 100" is visible with command "ip r" in "5" seconds
