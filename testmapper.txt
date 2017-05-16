@@ -204,6 +204,7 @@ ipv6_NM_stable_with_internal_DHCPv6, ., nmcli/./runtest.sh ipv6_NM_stable_with_i
 persistent_default_ipv6_gw, ., nmcli/./runtest.sh persistent_default_ipv6_gw ,
 persistent_ipv6_route, ., nmcli/./runtest.sh persistent_ipv6_routes ,
 ipv6_describe, ., nmcli/./runtest.sh ipv6_describe ,
+ipv6_keep_external_addresses, ., nmcli/./runtest.sh ipv6_keep_external_addresses ,
 #@ipv6_end
 
 #@ipv4_start
@@ -278,6 +279,7 @@ ipv4_honor_ip_order_2, ., nmcli/./runtest.sh ipv4_honor_ip_order_2 ,
 ipv4_rp_filter_set_loose, ., nmcli/./runtest.sh ipv4_rp_filter_set_loose ,
 ipv4_rp_filter_do_not_touch, ., nmcli/./runtest.sh ipv4_rp_filter_do_not_touch ,
 ipv4_rp_filter_reset, ., nmcli/./runtest.sh ipv4_rp_filter_reset ,
+ipv4_keep_external_addresses, ., nmcli/./runtest.sh ipv4_keep_external_addresses ,
 #@ipv4_end
 
 #@vlan_start

@@ -1240,3 +1240,15 @@ Feature: nmcli: ipv4
     * Delete connection "ethie2"
     Then "1" is visible with command "cat /proc/sys/net/ipv4/conf/eth2/rp_filter" in "5" seconds
      And "1" is visible with command "cat /proc/sys/net/ipv4/conf/eth3/rp_filter" in "5" seconds
+
+      @rhbz1449873
+      @ver+=1.8.0
+      @BBB
+      @ipv4_keep_external_addresses
+      Scenario: NM - ipv4 - keep external addresses
+      * Execute "ip link add BBB type dummy"
+      * Execute "ip link set dev BBB up"
+      * Execute "for i in $(seq 20); do for j in $(seq 200); do ip addr add 10.3.$i.$j/16 dev BBB; done; done"
+      Then "4000" is visible with command "ip addr show dev BBB | grep 'inet 10.3.' -c"
+      * Execute "sleep 6"
+      Then "4000" is visible with command "ip addr show dev BBB | grep 'inet 10.3.' -c"

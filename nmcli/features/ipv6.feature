@@ -1016,3 +1016,15 @@ Feature: nmcli: ipv6
     Then Check "=== \[never-default\] ===\s+\[NM property description\]\s+If TRUE, this connection will never be the default connection for this IP type, meaning it will never be assigned the default route by NetworkManager." are present in describe output for object "never-default"
 
     Then Check "=== \[may-fail\] ===\s+\[NM property description\]\s+If TRUE, allow overall network configuration to proceed even if the configuration specified by this property times out.  Note that at least one IP configuration must succeed or overall network configuration will still fail.  For example, in IPv6-only networks, setting this property to TRUE on the NMSettingIP4Config allows the overall network configuration to succeed if IPv4 configuration fails but IPv6 configuration completes successfully." are present in describe output for object "may-fail"
+
+      @rhbz1449873
+      @ver+=1.8.0
+      @BBB
+      @ipv6_keep_external_addresses
+      Scenario: NM - ipv6 - keep external addresses
+      * Execute "ip link add BBB type dummy"
+      * Execute "ip link set dev BBB up"
+      * Execute "for i in $(seq 3000); do ip addr add 2017::$i/64 dev BBB; done"
+      Then "3000" is visible with command "ip addr show dev BBB | grep 'inet6 2017::' -c"
+      * Execute "sleep 6"
+      Then "3000" is visible with command "ip addr show dev BBB | grep 'inet6 2017::' -c"
