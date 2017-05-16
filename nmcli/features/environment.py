@@ -601,6 +601,16 @@ def before_scenario(context, scenario):
             call("/usr/sbin/ipsec --checknss", shell=True)
             setup_racoon (mode="main", dh_group=5)
 
+        if 'macsec' in scenario.tags:
+            print("---------------------------")
+            print("installing macsec stuff")
+            install = "yum install -y https://vbenes.fedorapeople.org/NM/dnsmasq-debuginfo-2.76-2.el7.$(uname -p).rpm \
+                                  https://vbenes.fedorapeople.org/NM/dnsmasq-2.76-2.el7.$(uname -p).rpm \
+                                  https://vbenes.fedorapeople.org/NM/wpa_supplicant-2.6-4.el7.$(uname -p).rpm \
+                                  https://vbenes.fedorapeople.org/NM/wpa_supplicant-debuginfo-2.6-4.el7.$(uname -p).rpm"
+            call(install, shell=True)
+            call("systemctl restart wpa_supplicant", shell=True)
+
         if 'preserve_8021x_certs' in scenario.tags:
             print ("---------------------------")
             call("curl -s https://raw.githubusercontent.com/NetworkManager/NetworkManager/master/libnm-core/tests/certs/test-key-and-cert.pem -o /tmp/test_key_and_cert.pem", shell=True)
