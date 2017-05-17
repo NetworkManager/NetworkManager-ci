@@ -1314,6 +1314,51 @@ def prepare_simdev(context, device, ipv4=None, ipv6=None, option=None):
     context.testvethns.append("%s_ns" % device)
 
 
+@step(u'Prepare simulated test "{device}" device with DHCPv4 server on different network')
+def prepare_simdev(context, device):
+    if not hasattr(context, 'testvethns'):
+        os.system('''echo 'ENV{ID_NET_DRIVER}=="veth", ENV{INTERFACE}=="test*", ENV{NM_UNMANAGED}="0"' >/etc/udev/rules.d/88-lr.rules''')
+        command_code(context, "udevadm control --reload-rules")
+        command_code(context, "udevadm settle")
+        command_code(context, "sleep 1")
+    #         +-------testX_ns--------+ +--testX2_ns--+
+    # testX <-|-> testXp     testX2 <-|-|-> testX2p   |
+    # (DHCP   | 172.16.0.1  10.0.0.2  | |  10.0.0.1   |
+    # client) |(dhcrelay + forwarding)| | (DHCP serv) |
+    #         +-----------------------+ +-------------+
+    command_code(context, "ip netns add {device}_ns".format(device=device))
+    command_code(context, "ip netns add {device}2_ns".format(device=device))
+    command_code(context, "ip link add {device} type veth peer name {device}p".format(device=device))
+    command_code(context, "ip link add {device}2 type veth peer name {device}2p".format(device=device))
+    command_code(context, "ip link set {device}p netns {device}_ns".format(device=device))
+    command_code(context, "ip link set {device}2 netns {device}_ns".format(device=device))
+    command_code(context, "ip link set {device}2p netns {device}2_ns".format(device=device))
+    # Bring up devices
+    command_code(context, "ip link set {device} up".format(device=device))
+    command_code(context, "ip netns exec {device}_ns ip link set {device}p up".format(device=device))
+    command_code(context, "ip netns exec {device}_ns ip link set {device}2 up".format(device=device))
+    command_code(context, "ip netns exec {device}2_ns ip link set {device}2p up".format(device=device))
+    # Set addresses
+    command_code(context, "ip netns exec {device}_ns ip addr add dev {device}p 172.16.0.1/24".format(device=device))
+    command_code(context, "ip netns exec {device}_ns ip addr add dev {device}2 10.0.0.2/24".format(device=device))
+    command_code(context, "ip netns exec {device}2_ns ip addr add dev {device}2p 10.0.0.1/24".format(device=device))
+    # Enable forwarding and DHCP relay in first namespace
+    command_code(context, "ip netns exec {device}_ns sh -c 'echo 1 > /proc/sys/net/ipv4/ip_forward'".format(device=device))
+    command_code(context, "ip netns exec {device}_ns dhcrelay -4 10.0.0.1 -pf /tmp/dhcrelay.pid".format(device=device))
+    # Start DHCP server in second namespace
+    # Push a default route and a route to reach the DHCP server
+    command_code(context, "ip netns exec {device}2_ns dnsmasq \
+                                         --pid-file=/tmp/{device}_ns.pid \
+                                         --bind-interfaces -i {device}2p \
+                                         --dhcp-range=172.16.0.100,172.16.0.200,255.255.255.0,1m \
+                                         --dhcp-option=3,172.16.0.50 \
+                                         --dhcp-option=121,10.0.0.0/24,172.16.0.1".format(device=device))
+    if not hasattr(context, 'testvethns'):
+        context.testvethns = []
+    context.testvethns.append("%s_ns" % device)
+    context.testvethns.append("%s2_ns" % device)
+
+
 @step(u'Prepare simulated veth device "{device}" wihout carrier')
 def prepare_simdev_no_carrier(context, device):
     ipv4 = "192.168.99"

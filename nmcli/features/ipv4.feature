@@ -1241,7 +1241,21 @@ Feature: nmcli: ipv4
     Then "1" is visible with command "cat /proc/sys/net/ipv4/conf/eth2/rp_filter" in "5" seconds
      And "1" is visible with command "cat /proc/sys/net/ipv4/conf/eth3/rp_filter" in "5" seconds
 
-      @rhbz1449873
+
+    @rhbz1448987
+    @ver+=1.8.0
+    @ipv4 @teardown_testveth @kill_dhcrelay
+    @ipv4_dhcp_do_not_add_route_to_server
+    Scenario: NM - ipv4 - don't add route to server
+    * Prepare simulated test "testX" device with DHCPv4 server on different network
+    * Add a new connection of type "ethernet" and options "con-name ethie ifname testX autoconnect no"
+    * Bring "up" connection "ethie"
+    Then "10.0.0.0/24 via 172.16.0.1 dev testX" is visible with command "ip route"
+    Then "10.0.0.1 via.*dev testX" is not visible with command "ip route"
+    Then "10.0.0.1 dev testX" is not visible with command "ip route"
+
+
+     @rhbz1449873
       @ver+=1.8.0
       @BBB
       @ipv4_keep_external_addresses

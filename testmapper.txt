@@ -280,6 +280,7 @@ ipv4_honor_ip_order_2, ., nmcli/./runtest.sh ipv4_honor_ip_order_2 ,
 ipv4_rp_filter_set_loose, ., nmcli/./runtest.sh ipv4_rp_filter_set_loose ,
 ipv4_rp_filter_do_not_touch, ., nmcli/./runtest.sh ipv4_rp_filter_do_not_touch ,
 ipv4_rp_filter_reset, ., nmcli/./runtest.sh ipv4_rp_filter_reset ,
+ipv4_dhcp_do_not_add_route_to_server, ., nmcli/./runtest.sh ipv4_dhcp_do_not_add_route_to_server ,
 ipv4_keep_external_addresses, ., nmcli/./runtest.sh ipv4_keep_external_addresses ,
 #@ipv4_end
 

@@ -1024,6 +1024,11 @@ def after_scenario(context, scenario):
             print ("kill dnsmasq")
             call("kill $(cat /tmp/dnsmasq.pid)", shell=True)
 
+        if 'kill_dhcrelay' in scenario.tags:
+            print ("---------------------------")
+            print ("kill dhcrelay")
+            call("kill $(cat /tmp/dhcrelay.pid)", shell=True)
+
         if 'profie' in scenario.tags:
             print ("---------------------------")
             print ("deleting profile profile")
@@ -1418,8 +1423,8 @@ def after_scenario(context, scenario):
             print("removing testveth device setup for all test devices")
             for ns in context.testvethns:
                 print("Removing the setup in %s namespace" % ns)
-                call('ip netns exec %s kill -SIGCONT $(cat /tmp/%s.pid)' % (ns, ns), shell=True)
-                call('kill $(cat /tmp/%s.pid)' % ns, shell=True)
+                call('[ -f /tmp/%s.pid ] && ip netns exec %s kill -SIGCONT $(cat /tmp/%s.pid)' % (ns, ns, ns), shell=True)
+                call('[ -f /tmp/%s.pid ] && kill $(cat /tmp/%s.pid)' % (ns, ns) , shell=True)
                 call('ip netns del %s' % ns, shell=True)
                 call('ip link del %s' % ns.split('_')[0], shell=True)
             call('rm -f /etc/udev/rules.d/88-lr.rules', shell=True)
