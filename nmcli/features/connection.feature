@@ -544,6 +544,16 @@ Feature: nmcli: connection
       And "NEIGHBOR\[0\].SYSTEM-CAPABILITIES:\s+20 \(mac-bridge,router\)" is visible with command "nmcli device lldp"
 
 
+    @rhbz1417292
+    @eth1_disconnect
+    @introspection_active_connection
+    Scenario: introspection - check active connections
+     * Execute "python tmp/network_test.py testeth1 > /tmp/network_test.py"
+     When "testeth1" is visible with command "nmcli con s -a"
+     Then "Active connections before: 1" is visible with command "cat /tmp/test"
+      And "Active connections after: 2.*Active connections after: 2" is visible with command "cat /tmp/test"
+
+
     @con
     @connection_describe
     Scenario: nmcli - connection - describe

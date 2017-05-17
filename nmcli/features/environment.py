@@ -1370,6 +1370,9 @@ def after_scenario(context, scenario):
             print ("---------------------------")
             print ("disconnecting eth1 device")
             call('sudo nmcli device disconnect eth1', shell=True)
+            # VVV Up/Down to preserve autoconnect feature
+            call('sudo nmcli connection testeth1 up', shell=True)
+            call('sudo nmcli connection testeth1 down', shell=True)
 
         if 'manage_eth1' in scenario.tags:
             print ("---------------------------")

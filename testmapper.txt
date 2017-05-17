@@ -516,6 +516,7 @@ connection_metered_manual_no, ., nmcli/./runtest.sh connection_metered_manual_no
 connection_metered_manual_yes, ., nmcli/./runtest.sh connection_metered_manual_yes ,
 connection_metered_guess_no, ., nmcli/./runtest.sh connection_metered_guess_no ,
 connection_metered_guess_yes, ., nmcli/./runtest.sh connection_metered_guess_yes ,
+introspection_active_connection, ., nmcli/./runtest.sh introspection_active_connection ,
 connection_describe, ., nmcli/./runtest.sh connection_describe ,
 route_priorities, ., nmcli/./runtest.sh route_priorities ,
 profile_priorities, ., nmcli/./runtest.sh profile_priorities ,
