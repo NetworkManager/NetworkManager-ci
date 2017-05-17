@@ -554,6 +554,14 @@ Feature: nmcli: connection
       And "Active connections after: 2.*Active connections after: 2" is visible with command "cat /tmp/test"
 
 
+    @rhbz1448165
+    @eth1_disconnect
+    @connection_track_external_changes
+    Scenario: NM - connection - track external changes
+     * Execute "ip add add 192.168.1.2/24 dev eth1"
+    Then "192.168.1.2/24" is visible with command "nmcli con sh eth1 |grep IP4" in "2" seconds
+
+
     @con
     @connection_describe
     Scenario: nmcli - connection - describe
