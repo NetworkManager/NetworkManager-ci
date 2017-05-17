@@ -993,6 +993,20 @@ Feature: nmcli: ipv6
     And "dev testX\s+proto kernel\s+metric 256\s+expires 11" is visible with command "ip -6 r|grep 2620:dead:beaf" in "60" seconds
 
 
+    @rhbz1394500
+    @ver+=1.8.0
+    @ipv6
+    @ipv6_honor_ip_order
+    Scenario: NM - ipv6 - honor IP order from configuration upon reapply
+    * Add a new connection of type "ethernet" and options "con-name ethie ifname eth2 autoconnect no"
+    * Execute "nmcli con modify ethie ipv6.method manual ipv6.addresses 2001:db8:e:10::4/64,2001:db8:e:10::57/64,2001:db8:e:10::30/64"
+    * Bring "up" connection "ethie"
+    When "2001:db8:e:10::30/64 scope global.*2001:db8:e:10::57/64 scope global.*2001:db8:e:10::4/64" is visible with command "ip a show eth2" in "5" seconds
+    * Execute "nmcli con modify ethie ipv6.addresses 2001:db8:e:10::30/64,2001:db8:e:10::57/64,2001:db8:e:10::4/64"
+    * Execute "nmcli dev reapply eth2"
+    Then "2001:db8:e:10::4/64 scope global.*2001:db8:e:10::57/64 scope global.*2001:db8:e:10::30/64" is visible with command "ip a show eth2"
+
+
     @ipv6
     @ipv6_describe
     Scenario: nmcli - ipv6 - describe
