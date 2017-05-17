@@ -357,6 +357,19 @@ Feature: nmcli - ethernet
     Then "testX:connected:ethie" is visible with command "nmcli -t -f DEVICE,STATE,CONNECTION device" in "20" seconds
 
 
+    @ver+=1.8.0
+    @eth @8021x
+    @8021x_without_password_with_ask_at_the_end
+    Scenario: nmcli - ethernet - connect to 8021x - md5 - ask for password at the end
+    * Add a new connection of type "ethernet" and options "ifname testX con-name ethie 802-1x.eap md5 802-1x.identity user autoconnect no"
+    * Spawn "nmcli con up ethie -a" command
+    * Expect "identity.*user"
+    * Enter in editor
+    * Send "password" in editor
+    * Enter in editor
+    Then "testX:connected:ethie" is visible with command "nmcli -t -f DEVICE,STATE,CONNECTION device" in "20" seconds
+
+
     @rhbz1391477
     @ver+=1.7.1
     @eth
