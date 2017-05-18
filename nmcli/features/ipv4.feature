@@ -599,6 +599,7 @@ Feature: nmcli: ipv4
 
 
     @tshark @ipv4
+    @ver-=1.7.9
     @ipv4_dhcp-hostname_set
     Scenario: nmcli - ipv4 - dhcp-hostname - set dhcp-hostname
     * Add connection type "ethernet" named "ethie" for device "eth10"
@@ -614,6 +615,27 @@ Feature: nmcli: ipv4
     * Bring "up" connection "ethie"
     * Finish "sleep 5; sudo pkill tshark"
     Then "RHA" is visible with command "cat /tmp/tshark.log"
+
+
+    @rhbz1443437
+    @ver+=1.8.0
+    @tshark @ipv4
+    @ipv4_dhcp-hostname_set
+    Scenario: nmcli - ipv4 - dhcp-hostname - set dhcp-hostname
+    * Add connection type "ethernet" named "ethie" for device "eth10"
+    * Bring "up" connection "ethie"
+    * Bring "down" connection "ethie"
+    * Open editor for connection "ethie"
+    * Submit "set ipv4.dhcp-hostname R.C" in editor
+    #* Submit "set ipv4.send-hostname yes" in editor
+    * Save in editor
+    * Quit editor
+    * Run child "sudo tshark -l -O bootp -i eth10 > /tmp/tshark.log"
+    * Wait for at least "5" seconds
+    * Bring "up" connection "ethie"
+    * Finish "sleep 5; sudo pkill tshark"
+    Then "R.C" is visible with command "cat /tmp/tshark.log"
+    Then "Option: \(12\) Host Name\s+Length: 3\s+Host Name: R.C" is visible with command "cat /tmp/tshark.log" in "5" seconds
 
 
     @tshark @ipv4
