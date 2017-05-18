@@ -548,7 +548,7 @@ Feature: nmcli: connection
     @eth1_disconnect
     @introspection_active_connection
     Scenario: introspection - check active connections
-     * Execute "python tmp/network_test.py testeth1 > /tmp/network_test.py"
+     * Execute "python tmp/network_test.py testeth1 > /tmp/test"
      When "testeth1" is visible with command "nmcli con s -a"
      Then "Active connections before: 1" is visible with command "cat /tmp/test"
       And "Active connections after: 2.*Active connections after: 2" is visible with command "cat /tmp/test"
