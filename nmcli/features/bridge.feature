@@ -121,6 +121,32 @@ Feature: nmcli - bridge
     Then "ether f0:de:aa:fb:bb:cc" is visible with command "ip a s br12"
 
 
+    @rhbz1386872
+    @ver+=1.8.0
+    @bridge
+    @bridge_set_mac_var1
+    Scenario: nmcli - bridge - set mac address via two properties
+    * Add a new connection of type "bridge" and options "con-name br12 ifname br12 autoconnect no ethernet.cloned-mac-address 02:02:02:02:02:02"
+    * Check ifcfg-name file created for connection "br12"
+    * Open editor for connection "br12"
+    * Set a property named "bridge.mac-address" to "f0:de:aa:fb:bb:cc" in editor
+    * Save in editor
+    * Check value saved message showed in editor
+    * Quit editor
+    * Bring up connection "br12" ignoring error
+    Then "ether 02:02:02:02:02:02" is visible with command "ip a s br12"
+
+
+    @rhbz1386872
+    @ver+=1.8.0
+    @bridge
+    @bridge_set_mac_var2
+    Scenario: nmcli - bridge - set mac address via ethernet only
+    * Add a new connection of type "bridge" and options "con-name br12 ifname br12 autoconnect no ethernet.cloned-mac-address 02:02:02:02:02:02"
+    * Bring up connection "br12" ignoring error
+    Then "ether 02:02:02:02:02:02" is visible with command "ip a s br12"
+
+
 	@bridge
     @bridge_add_slave
     Scenario: nmcli - bridge - add slave

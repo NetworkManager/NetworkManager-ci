@@ -256,6 +256,19 @@
     Then Check slave "eth2" in team "nm-team" is "down"
 
 
+    @rhbz1386872
+    @ver+=1.8.0
+    @team_slaves @team
+    @team_mac_spoof
+    Scenario: nmcli - team - mac spoof
+     * Add a new connection of type "team" and options "con-name team0 ethernet.cloned-mac-address 02:02:02:02:02:02"
+     * Add a new connection of type "ethernet" and options "con-name team0.0 ifname eth1 master nm-team autoconnect no"
+     * Bring "up" connection "team0.0"
+     Then "02:02:02:02:02:02" is visible with command "ip a s eth1"
+      And "02:02:02:02:02:02" is visible with command "ip a s nm-team"
+      And Check slave "eth1" in team "nm-team" is "up"
+
+
     @veth @team_slaves @team
     @start_team_by_hand_one_auto
     Scenario: nmcli - team - start team by hand with one auto

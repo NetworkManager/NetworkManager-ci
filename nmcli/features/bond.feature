@@ -335,6 +335,20 @@
      Then Check slave "eth2" not in bond "nm-bond" in proc
 
 
+    @rhbz1386872
+    @ver+=1.8.0
+    @slaves @bond
+    @bond_mac_spoof
+    Scenario: nmcli - bond - mac spoof
+    * Add a new connection of type "bond" and options "con-name bond0 ethernet.cloned-mac-address 02:02:02:02:02:02"
+    * Add a new connection of type "ethernet" and options "con-name bond0.0 ifname eth1 master nm-bond autoconnect no"
+    * Bring "up" connection "bond0.0"
+    Then "02:02:02:02:02:02" is visible with command "ip a s eth1"
+     And "02:02:02:02:02:02" is visible with command "ip a s nm-bond"
+     And Check bond "nm-bond" link state is "up"
+     And Check slave "eth1" in bond "nm-bond" in proc
+
+
     @veth @slaves @bond
     @bond_start_by_hand_with_one_auto_only
     Scenario: nmcli - bond - start bond by hand with on auto only

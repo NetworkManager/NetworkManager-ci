@@ -35,6 +35,7 @@ bond_mode_balance_xor, ., nmcli/./runtest.sh bond_mode_balance_xor ,
 bond_mode_broadcast, ., nmcli/./runtest.sh bond_mode_broadcast ,
 bond_slaves_start_via_master, ., nmcli/./runtest.sh  bond_slaves_start_via_master ,
 bond_start_on_boot_with_nothing_auto, ., nmcli/./runtest.sh bond_start_on_boot_with_nothing_auto ,
+bond_mac_spoof, ., nmcli/./runtest.sh bond_mac_spoof ,
 bond_start_by_hand_with_one_auto_only, ., nmcli/./runtest.sh bond_start_by_hand_with_one_auto_only ,
 bond_start_on_boot_with_one_auto_only, ., nmcli/./runtest.sh bond_start_on_boot_with_one_auto_only ,
 bond_start_on_boot_with_bond_and_one_slave_auto, ., nmcli/./runtest.sh bond_start_on_boot_with_bond_and_one_slave_auto ,
@@ -95,6 +96,8 @@ bridge_manipulation_with_1000_slaves, ., nmcli/./runtest.sh bridge_manipulation_
 bridge_assumed_connection_ip_methods, ., nmcli/./runtest.sh bridge_assumed_connection_ip_methods, bridge-utils
 outer_bridge_restart_persistence, ., nmcli/./runtest.sh outer_bridge_restart_persistence, bridge-utils
 bridge_set_mac, ., nmcli/./runtest.sh bridge_set_mac, bridge-utils
+bridge_set_mac_var1, ., nmcli/./runtest.sh bridge_set_mac_var1, bridge-utils
+bridge_set_mac_var2, ., nmcli/./runtest.sh bridge_set_mac_var2, bridge-utils
 bridge_external_unmanaged, ., nmcli/./runtest.sh bridge_external_unmanaged, bridge-utils
 bridge_preserve_assumed_connection_ips, ., nmcli/./runtest.sh bridge_preserve_assumed_connection_ips ,
 bridge_slave_to_ethernet_conversion, ., nmcli/./runtest.sh bridge_slave_to_ethernet_conversion ,
@@ -118,6 +121,7 @@ disconnect_active_team, ., nmcli/./runtest.sh disconnect_active_team ,
 team_start_by_hand_no_slaves, ., nmcli/./runtest.sh team_start_by_hand_no_slaves ,
 team_activate, ., nmcli/./runtest.sh team_activate ,
 team_slaves_start_via_master, ., nmcli/./runtest.sh  team_slaves_start_via_master ,
+team_mac_spoof, ., nmcli/./runtest.sh team_mac_spoof ,
 start_team_by_hand_all_auto, ., nmcli/./runtest.sh start_team_by_hand_all_auto ,
 start_team_by_hand_one_auto, ., nmcli/./runtest.sh start_team_by_hand_one_auto ,
 start_team_on_boot, ., nmcli/./runtest.sh start_team_on_boot ,
