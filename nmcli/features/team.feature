@@ -269,6 +269,24 @@
       And Check slave "eth1" in team "nm-team" is "up"
 
 
+    @rhbz1424641
+    @ver+=1.8.0
+    @team_slaves @team
+    @team_mac_spoof_var1
+    Scenario: nmcli - team - config - mac spoof with mac in json
+     * Add a new connection of type "team" and options "con-name team0 ethernet.cloned-mac-address 02:02:02:02:02:02"
+     * Add a new connection of type "ethernet" and options "con-name team0.0 ifname eth1 master nm-team autoconnect no"
+     * Open editor for connection "team0"
+     * Submit "set team.config {\\"device\\":\"nm-team\",\"hwaddr\": \"02:03:03:03:03:03\",\"runner\":{\"name\":\"loadbalance\"},\"ports\":{\"eth1\":{},\"eth2\": {}}}" in editor
+     * Save in editor
+     * Quit editor
+     * Bring "up" connection "team0"
+     * Bring "up" connection "team0.0"
+    Then Check slave "eth1" in team "nm-team" is "up"
+     And "02:03:03:03:03:03" is visible with command "ip a s eth1"
+     And "02:03:03:03:03:03" is visible with command "ip a s nm-team"
+
+
     @veth @team_slaves @team
     @start_team_by_hand_one_auto
     Scenario: nmcli - team - start team by hand with one auto

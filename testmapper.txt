@@ -122,6 +122,7 @@ team_start_by_hand_no_slaves, ., nmcli/./runtest.sh team_start_by_hand_no_slaves
 team_activate, ., nmcli/./runtest.sh team_activate ,
 team_slaves_start_via_master, ., nmcli/./runtest.sh  team_slaves_start_via_master ,
 team_mac_spoof, ., nmcli/./runtest.sh team_mac_spoof ,
+team_mac_spoof_var1, ., nmcli/./runtest.sh team_mac_spoof_var1 ,
 start_team_by_hand_all_auto, ., nmcli/./runtest.sh start_team_by_hand_all_auto ,
 start_team_by_hand_one_auto, ., nmcli/./runtest.sh start_team_by_hand_one_auto ,
 start_team_on_boot, ., nmcli/./runtest.sh start_team_on_boot ,
