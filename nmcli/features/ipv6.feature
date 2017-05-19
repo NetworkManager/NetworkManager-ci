@@ -185,6 +185,19 @@ Feature: nmcli: ipv6
     Then "3030::1 via 2001::2 dev eth2\s+proto static\s+metric 1" is visible with command "ip -6 route"
 
 
+    @rhbz1373698
+    @ver+=1.8.0
+    @ipv6
+    @ipv6_route_set_route_with_options
+    Scenario: nmcli - ipv6 - routes - set route with options
+    * Add a new connection of type "ethernet" and options "ifname eth1 con-name ethie autoconnect no ipv6.method manual ipv6.addresses 2000::2/126 ipv6.route-metric 256"
+    * Execute "nmcli con modify ethie ipv6.routes '1010::1/128 2000::1 1024 cwnd=15 lock-mtu=true mtu=1600'"
+    * Bring "up" connection "ethie"
+    Then "1010::1 via 2000::1 dev eth1\s+proto static\s+metric 1024\s+mtu lock 1600 cwnd 15" is visible with command "ip -6 route" in "5" seconds
+    Then "2000::/126 dev eth1\s+proto kernel\s+metric 256" is visible with command "ip -6 route"
+     And "default" is visible with command "ip r |grep eth0"
+
+
     @ipv6_2 @eth0
     @ipv6_routes_remove_basic_route
     Scenario: nmcli - ipv6 - routes - remove basic route
