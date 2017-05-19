@@ -1144,7 +1144,7 @@ Feature: nmcli: ipv4
     Scenario: nmcli - ipv4 - do not remove secondary ip subnet route
     * Add a new connection of type "ethernet" and options "con-name ethie ifname eth1 autoconnect no"
     * Bring up connection "ethie"
-    * "192.168" is visible with command "ip a s eth1" in "10" seconds
+    * "192.168" is visible with command "ip a s eth1" in "20" seconds
     * "dev eth1\s+proto kernel\s+scope link" is visible with command "ip route"
     * Add a secondary address to device "eth1" within the same subnet
     Then "dev eth1\s+proto kernel\s+scope link" is visible with command "ip route" for full "80" seconds
