@@ -699,6 +699,18 @@ Feature: nmcli - general
     Then "nm_connection_get_setting_connection: assertion" is not visible with command "journalctl --since '10 seconds ago' --no-pager |grep nm_connection"
 
 
+    @rhbz1103777
+    @firewall @eth @restart
+    @show_zones_after_firewalld_install
+    Scenario: NM - general - show zones after firewall restart
+    * Execute "yum -y remove firewalld"
+    * Restart NM
+    * Add a new connection of type "ethernet" and options "ifname eth1 con-name ethie connection.zone work"
+    * Execute "yum -y install firewalld"
+    * Execute "systemctl start firewalld"
+    Then "work" is visible with command "firewall-cmd  --get-zone-of-interface=eth1"
+
+
     @rhbz1286576
     @restart
     @wpa_supplicant_not_started
