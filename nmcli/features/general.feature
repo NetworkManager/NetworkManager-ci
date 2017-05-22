@@ -1059,115 +1059,115 @@ Feature: nmcli - general
      And "eth0: connected" is visible with command "cat /tmp/monitor.txt"
 
 
-     @rhbz998000
-     @ver+=1.4.0
-     @ipv4 @disp
-     @device_reapply
-     Scenario: nmcli - device -reapply
-     * Add connection type "ethernet" named "ethie" for device "eth1"
-     * Bring "up" connection "ethie"
-     * Write dispatcher "99-disp" file
-     * Execute "ip addr a 1.2.3.4/24 dev eth1"
-     * Execute "nmcli c modify ethie +ipv4.address 1.2.3.4/24"
-     * Execute "nmcli device reapply eth1"
-     When "up" is not visible with command "cat /tmp/dispatcher.txt"
-     * Execute "ip addr a 1.2.3.4/24 dev eth1"
-     * Execute "nmcli c modify ethie -ipv4.address 1.2.3.4/24"
-     * Execute "nmcli device reapply eth1"
-     Then "up" is not visible with command "cat /tmp/dispatcher.txt"
+    @rhbz998000
+    @ver+=1.4.0
+    @ipv4 @disp
+    @device_reapply
+    Scenario: nmcli - device -reapply
+    * Add connection type "ethernet" named "ethie" for device "eth1"
+    * Bring "up" connection "ethie"
+    * Write dispatcher "99-disp" file
+    * Execute "ip addr a 1.2.3.4/24 dev eth1"
+    * Execute "nmcli c modify ethie +ipv4.address 1.2.3.4/24"
+    * Execute "nmcli device reapply eth1"
+    When "up" is not visible with command "cat /tmp/dispatcher.txt"
+    * Execute "ip addr a 1.2.3.4/24 dev eth1"
+    * Execute "nmcli c modify ethie -ipv4.address 1.2.3.4/24"
+    * Execute "nmcli device reapply eth1"
+    Then "up" is not visible with command "cat /tmp/dispatcher.txt"
 
 
-     @rhbz1371920
-     @ver+=1.4.0
-     @eth @teardown_testveth @kill_dbus-monitor
-     @device_dbus_signal
-     Scenario: NM - general - device dbus signal
-     * Prepare simulated test "testX" device
-     * Add connection type "ethernet" named "ethie" for device "testX"
-     * Run child "dbus-monitor --system --monitor 'sender=org.freedesktop.NetworkManager' > /tmp/dbus.txt"
-     * Bring "up" connection "ethie"
-     Then "NetworkManager.Device.Wired; member=PropertiesChanged" is visible with command "grep PropertiesChanged /tmp/dbus.txt"
-      And "NetworkManager.Device.Veth; member=PropertiesChanged" is visible with command "grep PropertiesChanged /tmp/dbus.txt"
-      And "DBus.Properties; member=PropertiesChanged" is visible with command "grep PropertiesChanged /tmp/dbus.txt"
+    @rhbz1371920
+    @ver+=1.4.0
+    @eth @teardown_testveth @kill_dbus-monitor
+    @device_dbus_signal
+    Scenario: NM - general - device dbus signal
+    * Prepare simulated test "testX" device
+    * Add connection type "ethernet" named "ethie" for device "testX"
+    * Run child "dbus-monitor --system --monitor 'sender=org.freedesktop.NetworkManager' > /tmp/dbus.txt"
+    * Bring "up" connection "ethie"
+    Then "NetworkManager.Device.Wired; member=PropertiesChanged" is visible with command "grep PropertiesChanged /tmp/dbus.txt"
+     And "NetworkManager.Device.Veth; member=PropertiesChanged" is visible with command "grep PropertiesChanged /tmp/dbus.txt"
+     And "DBus.Properties; member=PropertiesChanged" is visible with command "grep PropertiesChanged /tmp/dbus.txt"
 
 
-     @rhbz1404594
-     @ver+=1.7.1
-     @ipv4 @kill_dbus-monitor
-     @dns_over_dbus
-     Scenario: NM - general - publish dns over dbus
-     * Add connection type "ethernet" named "ethie" for device "eth1"
-     * Run child "dbus-monitor --system --monitor 'sender=org.freedesktop.NetworkManager' > /tmp/dbus.txt"
-     * Bring "up" connection "ethie"
-     Then "string \"nameservers\"\s+variant\s+array\s+\[\s+string" is visible with command "grep -A 10 Dns /tmp/dbus.txt"
+    @rhbz1404594
+    @ver+=1.7.1
+    @ipv4 @kill_dbus-monitor
+    @dns_over_dbus
+    Scenario: NM - general - publish dns over dbus
+    * Add connection type "ethernet" named "ethie" for device "eth1"
+    * Run child "dbus-monitor --system --monitor 'sender=org.freedesktop.NetworkManager' > /tmp/dbus.txt"
+    * Bring "up" connection "ethie"
+    Then "string \"nameservers\"\s+variant\s+array\s+\[\s+string" is visible with command "grep -A 10 Dns /tmp/dbus.txt"
 
 
-      @rhbz1358335
-      @ver+=1.4.0
-      @NM_syslog_in_anaconda
-      Scenario: NM - general - syslog in Anaconda
-      Then "NetworkManager" is visible with command "grep NetworkManager /var/log/anaconda/syslog"
+    @rhbz1358335
+    @ver+=1.4.0
+    @NM_syslog_in_anaconda
+    Scenario: NM - general - syslog in Anaconda
+    Then "NetworkManager" is visible with command "grep NetworkManager /var/log/anaconda/syslog"
 
 
-      @rhbz1217288
-      @ver+=1.4.0
-      @eth
-      @snapshot_rollback
-      Scenario: NM - general - snapshot and rollback
-      * Add connection type "ethernet" named "ethie" for device "eth1"
-      * Bring "up" connection "ethie"
-      * Snapshot "create" for "eth1"
-      * Open editor for connection "ethie"
-      * Submit "set ipv4.method manual" in editor
-      * Submit "set ipv4.addresses 1.2.3.4/24" in editor
-      * Submit "set ipv4.gateway 1.2.3.1" in editor
-      * Save in editor
-      * Quit editor
-      * Bring "up" connection "ethie"
-      When "1.2.3.4/24" is visible with command "ip a s eth1" in "5" seconds
-       And "1.2.3.1" is visible with command "ip r"
-      * Snapshot "revert" for "eth1"
-      Then "192.168.100" is visible with command "ip a s eth1" in "5" seconds
-       And "1.2.3.4/24" is not visible with command "ip a s eth1"
-       And "1.2.3.1" is not visible with command "ip r"
-       And "192.168.100.1" is visible with command "ip r"
+    @rhbz1217288
+    @ver+=1.4.0
+    @eth
+    @snapshot_rollback
+    Scenario: NM - general - snapshot and rollback
+    * Add connection type "ethernet" named "ethie" for device "eth1"
+    * Bring "up" connection "ethie"
+    * Snapshot "create" for "eth1"
+    * Open editor for connection "ethie"
+    * Submit "set ipv4.method manual" in editor
+    * Submit "set ipv4.addresses 1.2.3.4/24" in editor
+    * Submit "set ipv4.gateway 1.2.3.1" in editor
+    * Save in editor
+    * Quit editor
+    * Bring "up" connection "ethie"
+    When "1.2.3.4/24" is visible with command "ip a s eth1" in "5" seconds
+     And "1.2.3.1" is visible with command "ip r"
+    * Snapshot "revert" for "eth1"
+    Then "192.168.100" is visible with command "ip a s eth1" in "5" seconds
+     And "1.2.3.4/24" is not visible with command "ip a s eth1"
+     And "1.2.3.1" is not visible with command "ip r"
+     And "192.168.100.1" is visible with command "ip r"
 
 
-      @rhbz1433303
-      @ver+=1.4.0
-      @long
-      @stable_mem_consumption
-      Scenario: NM - general - stable mem consumption
-      * Execute "sh tmp/repro_1433303.sh"
-      * Execute "sh tmp/repro_1433303.sh"
-      * Note the output of "pmap -x $(pidof NetworkManager) |grep total | awk '{print $4}'" as value "1"
-      * Note the output of "pmap -x $(pidof NetworkManager) |grep total | awk '{print $3}'" as value "3"
-      * Execute "sh tmp/repro_1433303.sh"
-      * Note the output of "pmap -x $(pidof NetworkManager) |grep total | awk '{print $4}'" as value "2"
-      * Note the output of "pmap -x $(pidof NetworkManager) |grep total | awk '{print $3}'" as value "4"
-      Then Check noted value "2" difference from "1" is lower than "500"
-      Then Check noted value "4" difference from "3" is lower than "500"
+    @rhbz1433303
+    @ver+=1.4.0
+    @long
+    @stable_mem_consumption
+    Scenario: NM - general - stable mem consumption
+    * Execute "sh tmp/repro_1433303.sh"
+    * Execute "sh tmp/repro_1433303.sh"
+    * Note the output of "pmap -x $(pidof NetworkManager) |grep total | awk '{print $4}'" as value "1"
+    * Note the output of "pmap -x $(pidof NetworkManager) |grep total | awk '{print $3}'" as value "3"
+    * Execute "sh tmp/repro_1433303.sh"
+    * Note the output of "pmap -x $(pidof NetworkManager) |grep total | awk '{print $4}'" as value "2"
+    * Note the output of "pmap -x $(pidof NetworkManager) |grep total | awk '{print $3}'" as value "4"
+    Then Check noted value "2" difference from "1" is lower than "500"
+    Then Check noted value "4" difference from "3" is lower than "500"
 
 
-      @rhbz1398932
-      @ver+=1.7.2
-      @BBB
-      @dummy_connection
-      Scenario: NM - general - create dummy connection
-      * Add a new connection of type "dummy" and options "ifname BBB con-name BBB ip4 1.2.3.4/24 autoconnect no"
-      * Bring up connection "BBB"
-      Then "dummy" is visible with command "ip -d l show BBB | grep dummy"
-      Then "1.2.3.4/24" is visible with command "ip a s BBB | grep inet"
+    @rhbz1398932
+    @ver+=1.7.2
+    @BBB
+    @dummy_connection
+    Scenario: NM - general - create dummy connection
+    * Add a new connection of type "dummy" and options "ifname BBB con-name BBB ip4 1.2.3.4/24 autoconnect no"
+    * Bring up connection "BBB"
+    Then "dummy" is visible with command "ip -d l show BBB | grep dummy"
+    Then "1.2.3.4/24" is visible with command "ip a s BBB | grep inet"
 
 
-      @rhbz1337997
-      @ver+=1.6.0
-      @macsec
-      @macsec_psk
-      Scenario: NM - general - MACsec PSK
-      * Prepare MACsec PSK environment with CAK "00112233445566778899001122334455" and CKN "5544332211009988776655443322110055443322110099887766554433221100"
-      * Add a new connection of type "ethernet" and options "con-name test-macsec-base ifname macsec_veth ipv4.method disabled ipv6.method ignore"
-      * Add a new connection of type "macsec" and options "con-name test-macsec ifname macsec0 autoconnect no macsec.parent macsec_veth macsec.mode psk macsec.mka-cak 00112233445566778899001122334455 macsec.mka-ckn 5544332211009988776655443322110055443322110099887766554433221100"
-      * Bring up connection "test-macsec-base"
-      * Bring up connection "test-macsec"
-      Then Ping "172.16.10.1"
+    @rhbz1337997
+    @ver+=1.6.0
+    @macsec
+    @macsec_psk
+    Scenario: NM - general - MACsec PSK
+    * Prepare MACsec PSK environment with CAK "00112233445566778899001122334455" and CKN "5544332211009988776655443322110055443322110099887766554433221100"
+    * Add a new connection of type "ethernet" and options "con-name test-macsec-base ifname macsec_veth ipv4.method disabled ipv6.method ignore"
+    * Add a new connection of type "macsec" and options "con-name test-macsec ifname macsec0 autoconnect no macsec.parent macsec_veth macsec.mode psk macsec.mka-cak 00112233445566778899001122334455 macsec.mka-ckn 5544332211009988776655443322110055443322110099887766554433221100"
+    * Bring up connection "test-macsec-base"
+    * Bring up connection "test-macsec"
+    Then Ping "172.16.10.1"
