@@ -1379,6 +1379,12 @@ def after_scenario(context, scenario):
             print ("manage eth1 device")
             call('sudo nmcli device set eth1 managed true', shell=True)
 
+        if 'non_utf_device' in scenario.tags:
+            print ("---------------------------")
+            print ("remove non utf-8 device")
+            call("ip link del $'d\xccf\\c'", shell=True)
+            call('systemctl restart NetworkManager', shell=True)
+
         if 'shutdown' in scenario.tags:
             print ("---------------------------")
             print ("sanitizing env")

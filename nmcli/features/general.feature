@@ -1171,3 +1171,13 @@ Feature: nmcli - general
     * Bring up connection "test-macsec-base"
     * Bring up connection "test-macsec"
     Then Ping "172.16.10.1"
+
+
+    @rhbz1443114
+    @ver+=1.8.0
+    @non_utf_device
+    Scenario: NM - general - non UTF-8 device
+    * Execute "ip link add name $'d\xccf\\c' type dummy"
+    When "/sys/devices/virtual/net/d\\314f\\\\c" is visible with command "nmcli -f GENERAL.UDI device show"
+    * Restart NM
+    Then "dummy" is visible with command "nmcli device show 'd\314f\\c'"
