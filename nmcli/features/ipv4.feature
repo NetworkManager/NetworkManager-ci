@@ -411,6 +411,16 @@ Feature: nmcli: ipv4
     Then "192.168.122.0/24 dev eth10\s+proto kernel\s+scope link\s+src 192.168.122.2" is visible with command "ip route"
 
 
+    @rhbz1439376
+    @ver+=1.8.0
+    @ipv4
+    @ipv4_host_destination_route
+    Scenario: nmcli - ipv4 - routes - host destination
+    * Add a new connection of type "ethernet" and options "ifname eth1 con-name ethie autoconnect no ip4 192.168.122.123/24 ipv4.routes '10.20.30.10/24 192.168.122.2'"
+    * Bring "up" connection "ethie"
+    Then "^connected" is visible with command "nmcli -t -f STATE,DEVICE device |grep eth1" in "5" seconds
+
+
     @dummy
     @preserve_route_to_generic_device
     Scenario: nmcli - ipv4 - routes - preserve generic device route

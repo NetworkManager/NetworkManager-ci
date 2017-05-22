@@ -240,6 +240,7 @@ ipv4_route_set_route_with_src_new_syntax_restart_persistence, ., nmcli/./runtest
 no_metric_route_connection_restart_persistence, ., nmcli/./runtest.sh no_metric_route_connection_restart_persistence ,
 ipv4_route_remove_basic_route, ., nmcli/./runtest.sh ipv4_route_remove_basic_route ,
 ipv4_route_set_device_route, ., nmcli/./runtest.sh ipv4_route_set_device_route ,
+ipv4_host_destination_route, ., nmcli/./runtest.sh ipv4_host_destination_route ,
 preserve_route_to_generic_device, ., nmcli/./runtest.sh preserve_route_to_generic_device ,
 ipv4_route_set_invalid_non_IP_route, ., nmcli/./runtest.sh ipv4_route_set_invalid_non_IP_route ,
 ipv4_route_set_invalid_missing_gw_route, ., nmcli/./runtest.sh ipv4_route_set_invalid_missing_gw_route ,
