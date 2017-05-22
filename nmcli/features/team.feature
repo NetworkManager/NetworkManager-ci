@@ -748,3 +748,14 @@
       And "inet6 fe80" is visible with command "ip -6 a s nm-team"
       And "inet6 2620" is visible with command "ip -6 a s nm-team" in "5" seconds
       And "tentative" is not visible with command "ip -6 a s nm-team" in "5" seconds
+
+
+    @rhbz1445242
+    @ver+=1.8.0
+    @team @firewall @restart
+    @team_add_into_firewall_zone
+    Scenario: nmcli - team - modify zones
+    * Add connection type "team" named "team0" for device "nm-team"
+    When "public\s+interfaces: eth0 nm-team" is visible with command "firewall-cmd --get-active-zones"
+    * Execute "nmcli connection modify team0 connection.zone work"
+    When "work\s+interfaces: nm-team" is visible with command "firewall-cmd --get-active-zones"
