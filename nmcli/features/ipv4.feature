@@ -271,6 +271,26 @@ Feature: nmcli: ipv4
      And "192.168.122.3/32 src=192.168.3.10" is visible with command "nmcli -g ipv4.routes connection show ethie"
 
 
+    @rhbz1452648
+    @ver+=1.8.0
+    @ipv4
+    @ipv4_route_modify_route_with_src_old_syntax_no_metric
+    Scenario: nmcli - ipv4 - routes - modify route with src and no metric in old syntax
+    * Add a new connection of type "ethernet" and options "ifname eth1 con-name ethie autoconnect no ipv4.method manual ipv4.addresses 192.168.3.10/24 ipv4.gateway 192.168.4.1 ipv4.route-metric 256"
+    * Execute "echo '1.2.3.4 src 2.3.4.5 dev eth1' > /etc/sysconfig/network-scripts/route-ethie"
+    * Execute "nmcli connection reload"
+    * Execute "nmcli con modify ethie ipv4.routes '192.168.122.3 src=192.168.3.10'"
+    * Bring "up" connection "ethie"
+    Then "null" is not visible with command "cat /etc/sysconfig/network-scripts/route-ethie"
+     And "default via 192.168.4.1 dev eth1 proto static metric 256" is visible with command "ip route"
+     And "192.168.3.0/24 dev eth1 proto kernel scope link src 192.168.3.10 metric 256" is visible with command "ip route"
+     And "192.168.4.1 dev eth1 proto static scope link metric 256" is visible with command "ip route"
+     And "192.168.122.3 dev eth1 proto static scope link src 192.168.3.10 metric 256" is visible with command "ip route"
+     And "default" is visible with command "ip r |grep eth0"
+     And "2" is visible with command "ip r |grep eth0 |wc -l"
+     And "192.168.122.3/32 src=192.168.3.10" is visible with command "nmcli -g ipv4.routes connection show ethie"
+
+
     @rhbz1373698
     @ver+=1.8.0
     @ipv4 @restart
