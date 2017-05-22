@@ -723,6 +723,24 @@
      And "192.168.168.17" is visible with command "ip a s nm-team"
 
 
+    @rhbz1427482
+    @ver+=1.8.0
+    @team @team_slaves @restart
+    @vlan_in_team
+    Scenario: nmcli - team - vlans in team
+     * Add a new connection of type "team" and options "con-name team0 ifname nm-team ip4 192.168.168.17/24 ipv6.method ignore"
+     * Add a new connection of type "vlan" and options "slave-type team con-name team0.0 ifname eth1.80 dev eth1 id 80 master team0"
+     When "activated" is visible with command "nmcli -g GENERAL.STATE con show team0"
+      And "activated" is visible with command "nmcli -g GENERAL.STATE con show team0.0"
+     * Stop NM
+     * Execute "rm -rf /var/run/NetworkManager"
+     * Execute "ip link del eth1.80"
+     * Execute "ip link del nm-team"
+     * Start NM
+    Then "activated" is visible with command "nmcli -g GENERAL.STATE con show team0" in "20" seconds
+     And "activated" is visible with command "nmcli -g GENERAL.STATE con show team0.0"
+
+
     @rhbz1371126
     @ver+=1.4.0
     @team_slaves @team @teardown_testveth @restart
