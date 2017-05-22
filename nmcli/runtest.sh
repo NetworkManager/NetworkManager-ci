@@ -71,7 +71,8 @@ if [ ! -e /tmp/nm_eth_configured ]; then
     done
 
     #installing behave and pexpect
-    yum -y install install/*.rpm
+    yum -y install https://kojipkgs.fedoraproject.org//packages/python-behave/1.2.5/18.el7/noarch/python2-behave-1.2.5-18.el7.noarch.rpm
+    yum -y install pexpect
 
     echo $1
     dcb_inf_wol=0
