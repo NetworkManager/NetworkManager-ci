@@ -228,10 +228,10 @@ Feature: nmcli: ipv4
     * Add a new connection of type "ethernet" and options "ifname eth1 con-name ethie autoconnect no ipv4.method manual ipv4.addresses 192.168.3.10/24 ipv4.gateway 192.168.4.1 ipv4.route-metric 256"
     * Execute "nmcli con modify ethie ipv4.routes '192.168.5.0/24 192.168.3.11 1024 cwnd=14 lock-mtu=true mtu=1600'"
     * Bring "up" connection "ethie"
-    Then "default via 192.168.4.1 dev eth1 proto static metric 256" is visible with command "ip route"
-    Then "192.168.3.0/24 dev eth1 proto kernel scope link src 192.168.3.10 metric 256" is visible with command "ip route"
-    Then "192.168.4.1 dev eth1 proto static scope link metric 256" is visible with command "ip route"
-    Then "192.168.5.0/24 via 192.168.3.11 dev eth1 proto static metric 1024\s+mtu lock 1600 cwnd 14" is visible with command "ip route"
+    Then "default via 192.168.4.1 dev eth1\s+proto static\s+metric 256" is visible with command "ip route" in "20" seconds
+    Then "192.168.3.0/24 dev eth1\s+proto kernel\s+scope link\s+src 192.168.3.10\s+metric 256" is visible with command "ip route"
+    Then "192.168.4.1 dev eth1\s+proto static\s+scope link\s+metric 256" is visible with command "ip route"
+    Then "192.168.5.0/24 via 192.168.3.11 dev eth1\s+proto static\s+metric 1024\s+mtu lock 1600 cwnd 14" is visible with command "ip route"
      And "default" is visible with command "ip r |grep eth0"
      And "2" is visible with command "ip r |grep eth0 |wc -l"
 
@@ -244,13 +244,13 @@ Feature: nmcli: ipv4
     * Add a new connection of type "ethernet" and options "ifname eth1 con-name ethie autoconnect no ipv4.method manual ipv4.addresses 192.168.3.10/24 ipv4.gateway 192.168.4.1 ipv4.route-metric 256"
     * Execute "nmcli con modify ethie ipv4.routes '192.168.122.3 src=192.168.3.10'"
     * Bring "up" connection "ethie"
-    Then "default via 192.168.4.1 dev eth1 proto static metric 256" is visible with command "ip route" in "5" seconds
-     And "192.168.3.0/24 dev eth1 proto kernel scope link src 192.168.3.10 metric 256" is visible with command "ip route"
-     And "192.168.4.1 dev eth1 proto static scope link metric 256" is visible with command "ip route"
-     And "192.168.122.3 dev eth1 proto static scope link src 192.168.3.10 metric 256" is visible with command "ip route"
+    Then "default via 192.168.4.1 dev eth1\s+proto static\s+metric 256" is visible with command "ip route" in "20" seconds
+     And "192.168.3.0/24 dev eth1\s+proto kernel\s+scope link\s+src 192.168.3.10\s+metric 256" is visible with command "ip route"
+     And "192.168.4.1 dev eth1\s+proto static\s+scope link\s+metric 256" is visible with command "ip route"
+     And "192.168.122.3 dev eth1\s+proto static\s+scope link\s+src 192.168.3.10\s+metric 256" is visible with command "ip route"
      And "default" is visible with command "ip r |grep eth0"
      And "2" is visible with command "ip r |grep eth0 |wc -l"
-     And "192.168.122.3/32 src=192.168.3.10" is visible with command "nmcli -g ipv4.routes connection show ethie"
+     And "192.168.122.3/32\s+src=192.168.3.10" is visible with command "nmcli -g ipv4.routes connection show ethie"
 
 
     @rhbz1373698
@@ -262,10 +262,10 @@ Feature: nmcli: ipv4
     * Execute "echo '192.168.122.3 src 192.168.3.10 dev eth1' > /etc/sysconfig/network-scripts/route-ethie"
     * Execute "nmcli connection reload"
     * Bring "up" connection "ethie"
-    Then "default via 192.168.4.1 dev eth1 proto static metric 256" is visible with command "ip route"
-     And "192.168.3.0/24 dev eth1 proto kernel scope link src 192.168.3.10 metric 256" is visible with command "ip route"
-     And "192.168.4.1 dev eth1 proto static scope link metric 256" is visible with command "ip route"
-     And "192.168.122.3 dev eth1 proto static scope link src 192.168.3.10 metric 256" is visible with command "ip route"
+    Then "default via 192.168.4.1 dev eth1\s+proto static\s+metric 256" is visible with command "ip route" in "20" seconds
+     And "192.168.3.0/24 dev eth1\s+proto kernel\s+scope link\s+src 192.168.3.10\s+metric 256" is visible with command "ip route"
+     And "192.168.4.1 dev eth1\s+proto static\s+scope link\s+metric 256" is visible with command "ip route"
+     And "192.168.122.3 dev eth1\s+proto static\s+scope link\s+src 192.168.3.10\s+metric 256" is visible with command "ip route"
      And "default" is visible with command "ip r |grep eth0"
      And "2" is visible with command "ip r |grep eth0 |wc -l"
      And "192.168.122.3/32 src=192.168.3.10" is visible with command "nmcli -g ipv4.routes connection show ethie"
@@ -275,17 +275,17 @@ Feature: nmcli: ipv4
     @ver+=1.8.0
     @ipv4
     @ipv4_route_modify_route_with_src_old_syntax_no_metric
-    Scenario: nmcli - ipv4 - routes - modify route with src and no metric in old syntax
+    Scenario: nmcli - ipv4 - routes - modify route with src and no\s+metric in old syntax
     * Add a new connection of type "ethernet" and options "ifname eth1 con-name ethie autoconnect no ipv4.method manual ipv4.addresses 192.168.3.10/24 ipv4.gateway 192.168.4.1 ipv4.route-metric 256"
     * Execute "echo '1.2.3.4 src 2.3.4.5 dev eth1' > /etc/sysconfig/network-scripts/route-ethie"
     * Execute "nmcli connection reload"
     * Execute "nmcli con modify ethie ipv4.routes '192.168.122.3 src=192.168.3.10'"
     * Bring "up" connection "ethie"
     Then "null" is not visible with command "cat /etc/sysconfig/network-scripts/route-ethie"
-     And "default via 192.168.4.1 dev eth1 proto static metric 256" is visible with command "ip route"
-     And "192.168.3.0/24 dev eth1 proto kernel scope link src 192.168.3.10 metric 256" is visible with command "ip route"
-     And "192.168.4.1 dev eth1 proto static scope link metric 256" is visible with command "ip route"
-     And "192.168.122.3 dev eth1 proto static scope link src 192.168.3.10 metric 256" is visible with command "ip route"
+     And "default via 192.168.4.1 dev eth1\s+proto static\s+metric 256" is visible with command "ip route" in "20" seconds
+     And "192.168.3.0/24 dev eth1\s+proto kernel\s+scope link\s+src 192.168.3.10\s+metric 256" is visible with command "ip route"
+     And "192.168.4.1 dev eth1\s+proto static\s+scope link\s+metric 256" is visible with command "ip route"
+     And "192.168.122.3 dev eth1\s+proto static\s+scope link\s+src 192.168.3.10\s+metric 256" is visible with command "ip route"
      And "default" is visible with command "ip r |grep eth0"
      And "2" is visible with command "ip r |grep eth0 |wc -l"
      And "192.168.122.3/32 src=192.168.3.10" is visible with command "nmcli -g ipv4.routes connection show ethie"
@@ -304,10 +304,10 @@ Feature: nmcli: ipv4
     * Execute "ip addr flush dev eth1"
     * Execute "rm -rf /var/run/NetworkManager"
     * Start NM
-    Then "default via 192.168.4.1 dev eth1 proto static metric 256" is visible with command "ip route" in "5" seconds
-     And "192.168.3.0/24 dev eth1 proto kernel scope link src 192.168.3.10 metric 256" is visible with command "ip route"
-     And "192.168.4.1 dev eth1 proto static scope link metric 256" is visible with command "ip route"
-     And "192.168.122.3 dev eth1 proto static scope link src 192.168.3.10 metric 256" is visible with command "ip route"
+    Then "default via 192.168.4.1 dev eth1\s+proto static\s+metric 256" is visible with command "ip route" in "20" seconds
+     And "192.168.3.0/24 dev eth1\s+proto kernel\s+scope link\s+src 192.168.3.10\s+metric 256" is visible with command "ip route"
+     And "192.168.4.1 dev eth1\s+proto static\s+scope link\s+metric 256" is visible with command "ip route"
+     And "192.168.122.3 dev eth1\s+proto static\s+scope link\s+src 192.168.3.10\s+metric 256" is visible with command "ip route"
      And "default" is visible with command "ip r |grep eth0"
      And "2" is visible with command "ip r |grep eth0 |wc -l"
      And "192.168.122.3/32 src=192.168.3.10" is visible with command "nmcli -g ipv4.routes connection show ethie"
@@ -324,10 +324,10 @@ Feature: nmcli: ipv4
     * Execute "ip addr flush dev eth1"
     * Execute "rm -rf /var/run/NetworkManager"
     * Start NM
-    Then "default via 192.168.4.1 dev eth1 proto static metric 256" is visible with command "ip route" in "5" seconds
-     And "192.168.3.0/24 dev eth1 proto kernel scope link src 192.168.3.10 metric 256" is visible with command "ip route"
-     And "192.168.4.1 dev eth1 proto static scope link metric 256" is visible with command "ip route"
-     And "192.168.122.3 dev eth1 proto static scope link src 192.168.3.10 metric 256" is visible with command "ip route"
+    Then "default via 192.168.4.1 dev eth1\s+proto static\s+metric 256" is visible with command "ip route" in "20" seconds
+     And "192.168.3.0/24 dev eth1\s+proto kernel\s+scope link\s+src 192.168.3.10\s+metric 256" is visible with command "ip route"
+     And "192.168.4.1 dev eth1\s+proto static\s+scope link\s+metric 256" is visible with command "ip route"
+     And "192.168.122.3 dev eth1\s+proto static\s+scope link\s+src 192.168.3.10\s+metric 256" is visible with command "ip route"
      And "default" is visible with command "ip r |grep eth0"
      And "2" is visible with command "ip r |grep eth0 |wc -l"
      And "192.168.122.3/32 src=192.168.3.10" is visible with command "nmcli -g ipv4.routes connection show ethie"
@@ -336,7 +336,7 @@ Feature: nmcli: ipv4
     @rhbz1302532
     @ipv4 @restart
     @no_metric_route_connection_restart_persistence
-    Scenario: nmcli - ipv4 - routes - no metric route connection restart persistence
+    Scenario: nmcli - ipv4 - routes - no\s+metric route connection restart persistence
     * Add connection type "ethernet" named "ethie" for device "eth1"
     * Open editor for connection "ethie"
     * Submit "set ipv4.method static" in editor
@@ -1174,7 +1174,7 @@ Feature: nmcli: ipv4
     * Execute "nmcli connection modify ethie ipv4.never-default yes"
     * Bring "up" connection "ethie"
     When "default" is not visible with command "ip r |grep testX"
-    * Execute "ip route add default via 192.168.99.1 dev testX metric 666"
+    * Execute "ip route add default via 192.168.99.1 dev testX\s+metric 666"
     * Execute "sleep 70"
     Then "default via 192.168.99.1 dev testX\s+metric 666" is visible with command "ip r"
 
@@ -1188,7 +1188,7 @@ Feature: nmcli: ipv4
     * Execute "nmcli connection modify ethie ipv4.may-fail no"
     * Execute "nmcli connection modify ethie ipv4.never-default no"
     * Bring "up" connection "ethie"
-    * Execute "ip route add default via 192.168.99.1 dev testX metric 666"
+    * Execute "ip route add default via 192.168.99.1 dev testX\s+metric 666"
     Then "default via 192.168.99.1 dev testX\s+metric 666" is not visible with command "ip r" in "70" seconds
 
 
