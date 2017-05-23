@@ -1403,6 +1403,11 @@ def after_scenario(context, scenario):
             call("nmcli connection up id testeth0", shell=True)
             sleep(2)
 
+        if 'vlan_create_many_vlans' in scenario.tags:
+            print ("---------------------------")
+            print ("delete all vlans")
+            call("for i in {1..255}; do ip link del vlan.$i;done", shell=True)
+
         if 'delete_testeth0' in scenario.tags:
             print ("---------------------------")
             print ("restoring testeth0 profile")

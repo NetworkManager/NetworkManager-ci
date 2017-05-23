@@ -323,6 +323,7 @@ vlan_update_mac_from_bond, ., nmcli/./runtest.sh  vlan_update_mac_from_bond ,
 bring_up_very_long_device_name, ., nmcli/./runtest.sh bring_up_very_long_device_name ,
 reorder_hdr, ., nmcli/./runtest.sh reorder_hdr ,
 vlan_preserve_assumed_connection_ips, ., nmcli/./runtest.sh vlan_preserve_assumed_connection_ips ,
+vlan_create_many_vlans, ., nmcli/./runtest.sh vlan_create_many_vlans ,
 vlan_mtu_from_parent, ., nmcli/./runtest.sh vlan_mtu_from_parent ,
 default_route_for_vlan_over_team, ., nmcli/./runtest.sh default_route_for_vlan_over_team ,
 #@vlan_end

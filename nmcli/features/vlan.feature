@@ -370,6 +370,14 @@ Feature: nmcli - vlan
      And "inet 30.0.0.1\/24" is visible with command "ip a s vlan"
 
 
+    @rhbz1231526
+    @ver+=1.8.0
+    @vlan_create_many_vlans
+    Scenario: NM - vlan - create 255 vlans
+    * Execute "for i in {1..255}; do ip link add link eth1 name vlan.$i type vlan id $i; ip link set dev vlan.$i up; ip add add 30.0.0.$i/24 dev vlan.$i;done" without waiting for process to finish
+    Then "30.0.0.255/24" is visible with command "ip a s vlan.255" in "5" seconds
+
+
     @rhbz1414186
     @ver+=1.6
     @eth @restart @vlan
