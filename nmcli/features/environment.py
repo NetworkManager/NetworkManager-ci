@@ -794,15 +794,21 @@ def after_scenario(context, scenario):
     try:
         # Attach journalctl logs
         os.system("sudo journalctl -u NetworkManager --no-pager -o cat %s > /tmp/journal-nm.log" % context.log_cursor)
-        data = open("/tmp/journal-nm.log", 'r').read()
-        if data:
-            context.embed('text/plain', data)
+        if os.stat("/tmp/journal-nm.log").st_size < 20000000:
+            data = open("/tmp/journal-nm.log", 'r').read()
+            if data:
+                context.embed('text/plain', data)
+        else:
+            print("WARNING: 20M size exceeded in /tmp/journal-nm.log, skipping")
 
         #attach network traffic log
         call("sudo kill -SIGHUP $(pidof tcpdump)", shell=True)
-        traffic = open("/tmp/network-traffic.log", 'r').read()
-        if traffic:
-            context.embed('text/plain', traffic)
+        if os.stat("/tmp/network-traffic.log").st_size < 20000000:
+            traffic = open("/tmp/network-traffic.log", 'r').read()
+            if traffic:
+                context.embed('text/plain', traffic)
+        else:
+            print("WARNING: 20M size exceeded in /tmp/network-traffic.log, skipping")
 
         if 'runonce' in scenario.tags:
             print ("---------------------------")
