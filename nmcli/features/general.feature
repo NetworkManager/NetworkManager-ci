@@ -700,6 +700,7 @@ Feature: nmcli - general
 
 
     @rhbz1103777
+    @ver+=1.8.0
     @firewall @eth @restart
     @show_zones_after_firewalld_install
     Scenario: NM - general - show zones after firewall restart

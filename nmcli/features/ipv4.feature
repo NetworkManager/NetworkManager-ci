@@ -1174,7 +1174,7 @@ Feature: nmcli: ipv4
     * Execute "nmcli connection modify ethie ipv4.never-default yes"
     * Bring "up" connection "ethie"
     When "default" is not visible with command "ip r |grep testX"
-    * Execute "ip route add default via 192.168.99.1 dev testX\s+metric 666"
+    * Execute "ip route add default via 192.168.99.1 dev testX metric 666"
     * Execute "sleep 70"
     Then "default via 192.168.99.1 dev testX\s+metric 666" is visible with command "ip r"
 
