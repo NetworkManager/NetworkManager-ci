@@ -1204,6 +1204,12 @@ def after_scenario(context, scenario):
             call('sudo service NetworkManager restart', shell=True)
             sleep(5)
 
+        if 'restore_resolvconf' in scenario.tags:
+            print ("---------------------------")
+            print ("restore /etc/resolv.conf")
+            call('rm -rf /etc/resolv.conf', shell=True)
+            call("nmcli con up testeth0", shell=True)
+
         if 'need_config_server' in scenario.tags:
             if context.remove_config_server:
                 print ("---------------------------")
