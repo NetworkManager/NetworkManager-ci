@@ -1767,7 +1767,7 @@ def write_dispatcher_file(context, path, params=None):
     f.close()
     command_code(context, 'chmod +x %s' % disp_file)
     command_code(context, 'kill -SIGHUP $(pidof NetworkManager)')
-    sleep(2)
+    sleep(4)
 
 
 @step(u'Wrong bond options message shown in editor')
