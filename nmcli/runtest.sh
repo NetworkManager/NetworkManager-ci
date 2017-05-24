@@ -28,6 +28,10 @@ if [ ! -e /tmp/nm_eth_configured ]; then
     if [ -e /etc/systemd/system/NetworkManager-valgrind.service ]; then
         ln -s NetworkManager-valgrind.service /etc/systemd/system/NetworkManager.service
         systemctl daemon-reload
+    elif [[      -e /etc/systemd/system/NetworkManager.service.d/override.conf-strace
+            && ! -e /etc/systemd/system/NetworkManager.service.d/override.conf ]]; then
+        ln -s override.conf-strace /etc/systemd/system/NetworkManager.service.d/override.conf
+        systemctl daemon-reload
     fi
 
     #removing rate limit for systemd journaling
