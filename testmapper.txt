@@ -253,6 +253,8 @@ ipv4_ignore_resolveconf_with_ignore_auto_dns_var1, ., nmcli/./runtest.sh ipv4_ig
 ipv4_ignore_resolveconf_with_ignore_auto_dns_var2, ., nmcli/./runtest.sh ipv4_ignore_resolveconf_with_ignore_auto_dns_var2 ,
 ipv4_ignore_resolveconf_with_ignore_auto_dns_var3, ., nmcli/./runtest.sh ipv4_ignore_resolveconf_with_ignore_auto_dns_var3 ,
 ipv4_dns_resolvconf_symlinked, ., nmcli/./runtest.sh ipv4_dns_resolvconf_symlinked ,
+ipv4_dns_resolvconf_rhel7_default, ., nmcli/./runtest.sh ipv4_dns_resolvconf_rhel7_default ,
+ipv4_dns_resolvconf_file, ., nmcli/./runtest.sh ipv4_dns_resolvconf_file ,
 ipv4_dns_add_another_one, ., nmcli/./runtest.sh ipv4_dns_add_another_one ,
 ipv4_dns_delete_all, ., nmcli/./runtest.sh ipv4_dns_delete_all ,
 reload_dns, ., nmcli/./runtest.sh reload_dns ,

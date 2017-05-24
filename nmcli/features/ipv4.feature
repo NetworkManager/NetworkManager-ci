@@ -610,18 +610,60 @@ Feature: nmcli: ipv4
 
     @rhbz+=1423490
     @ver+=1.8.0
-    @ipv4 @restore_resolvconf
-    @ipv4_dns_resolvconf_symlinked
-    Scenario: nmcli - ipv4 - dns - symlink
+    @rhel7_only
+    @ipv4 @restore_resolvconf @restart
+    @ipv4_dns_resolvconf_rhel7_default
+    Scenario: nmcli - ipv4 - dns - rhel7 default
+    When "activated" is visible with command "nmcli -g GENERAL.STATE con show testeth0" in "20" seconds
     * Execute "cp /etc/resolv.conf /tmp/resolv_orig.conf"
-    * Execute "mv /etc/resolv.conf /tmp/resolv.conf"
+    * Execute "mv -f /etc/resolv.conf /tmp/resolv.conf"
     * Execute "ln -s /tmp/resolv.conf /etc/resolv.conf"
     * Add a new connection of type "ethernet" and options "con-name ethie ifname eth1 ipv4.dns 8.8.8.8"
     * Bring "up" connection "ethie"
-    Then "nameserver 8.8.8.8" is visible with command "cat /var/run/NetworkManager/resolv.conf" in "20" seconds
+    Then "nameserver 8.8.8.8" is visible with command "cat /etc/resolv.conf" in "20" seconds
+     And "nameserver 8.8.8.8" is visible with command "cat /var/run/NetworkManager/resolv.conf"
+     And "are identical" is not visible with command "diff -s /tmp/resolv.conf /tmp/resolv_orig.conf"
+     And "/etc/resolv.conf: symbolic link to `/tmp/resolv.conf" is visible with command "file /etc/resolv.conf"
+
+
+    @rhbz+=1423490
+    @ver+=1.8.0
+    @ipv4 @restore_resolvconf @restart
+    @ipv4_dns_resolvconf_symlinked
+    Scenario: nmcli - ipv4 - dns - symlink
+    * Bring "down" connection "testeth0"
+    * Execute "echo -e '[main]\nrc-manager=symlink' > /etc/NetworkManager/conf.d/99-resolv.conf"
+    * Execute "systemctl restart NetworkManager"
+    When "activated" is visible with command "nmcli -g GENERAL.STATE con show testeth0" in "20" seconds
+    * Execute "cp /etc/resolv.conf /tmp/resolv_orig.conf"
+    * Execute "mv -f /etc/resolv.conf /tmp/resolv.conf"
+    * Execute "ln -s /tmp/resolv.conf /etc/resolv.conf"
+    * Add a new connection of type "ethernet" and options "con-name ethie ifname eth1 ipv4.dns 8.8.8.8"
+    * Bring "up" connection "ethie"
+    When "activated" is visible with command "nmcli -g GENERAL.STATE con show ethie" in "20" seconds
+    Then "nameserver 8.8.8.8" is visible with command "cat /var/run/NetworkManager/resolv.conf"
      And "nameserver 8.8.8.8" is not visible with command "cat /etc/resolv.conf"
-     And "nameserver 8.8.4.4" is not visible with command "cat /etc/resolv.conf"
      And "are identical" is visible with command "diff -s /tmp/resolv.conf /tmp/resolv_orig.conf"
+     And "/etc/resolv.conf: symbolic link to `/tmp/resolv.conf" is visible with command "file /etc/resolv.conf"
+
+
+    @rhbz+=1423490
+    @ver+=1.8.0
+    @ipv4 @restore_resolvconf @restart
+    @ipv4_dns_resolvconf_file
+    Scenario: nmcli - ipv4 - dns - file
+    * Bring "down" connection "testeth0"
+    * Execute "echo -e '[main]\nrc-manager=file' > /etc/NetworkManager/conf.d/99-resolv.conf"
+    * Execute "systemctl restart NetworkManager"
+    When "activated" is visible with command "nmcli -g GENERAL.STATE con show testeth0" in "20" seconds
+    * Execute "cp /etc/resolv.conf /tmp/resolv_orig.conf"
+    * Execute "mv -f /etc/resolv.conf /tmp/resolv.conf"
+    * Execute "ln -s /tmp/resolv.conf /etc/resolv.conf"
+    * Add a new connection of type "ethernet" and options "con-name ethie ifname eth1 ipv4.dns 8.8.8.8"
+    * Bring "up" connection "ethie"
+    Then "nameserver 8.8.8.8" is visible with command "cat /etc/resolv.conf" in "20" seconds
+     And "nameserver 8.8.8.8" is visible with command "cat /var/run/NetworkManager/resolv.conf"
+     And "are identical" is not visible with command "diff -s /tmp/resolv.conf /tmp/resolv_orig.conf"
      And "/etc/resolv.conf: symbolic link to `/tmp/resolv.conf" is visible with command "file /etc/resolv.conf"
 
 

@@ -325,6 +325,10 @@ def before_scenario(context, scenario):
             if call('pip install pyroute2', shell=True) != 0:
                 call ('yum -y install http://dl.fedoraproject.org/pub/epel/7/x86_64/p/python2-pyroute2-0.4.13-1.el7.noarch.rpm', shell=True)
 
+        if 'rhel7_only' in scenario.tags:
+            if call('rpm -qi NetworkManager |grep -q build.eng.bos.redhat.com', shell=True) != 0:
+                sys.exit(0)
+
         if 'not_on_s390x' in scenario.tags:
             arch = check_output("uname -p", shell=True).strip()
             if arch == "s390x":
@@ -1214,6 +1218,10 @@ def after_scenario(context, scenario):
             print ("---------------------------")
             print ("restore /etc/resolv.conf")
             call('rm -rf /etc/resolv.conf', shell=True)
+            call('rm -rf /tmp/resolv_orig.conf', shell=True)
+            call('rm -rf /tmp/resolv.conf', shell=True)
+            call("rm -rf /etc/NetworkManager/conf.d/99-resolv.conf", shell=True)
+            call("systemctl restart NetworkManager", shell=True)
             call("nmcli con up testeth0", shell=True)
 
         if 'need_config_server' in scenario.tags:
