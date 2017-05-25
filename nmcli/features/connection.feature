@@ -554,6 +554,21 @@ Feature: nmcli: connection
       And "Active connections after: 2.*Active connections after: 2" is visible with command "cat /tmp/test"
 
 
+    @rhbz1421429
+    @ver+=1.8.0
+    @con
+    @connection_user_settings_data
+    Scenario: NM - connection - user settings data
+    * Add connection type "ethernet" named "connie" for device "eth1"
+    When "\"my.own.data\" = \"good_morning_starshine\"" is visible with command "python tmp/setting-user-data.py set id connie my.own.data good_morning_starshine"
+     And "\"my.own.data.two\" = \"the_moon_says_hello\"" is visible with command "python tmp/setting-user-data.py set id connie my.own.data.two the_moon_says_hello"
+     And "\"my.own.data\" = \"good_morning_starshine\"|\"my.own.data2\" = \"the_moon_says_hello\"" is visible with command "python tmp/setting-user-data.py id connie"
+    * Execute "python tmp/setting-user-data.py set id connie -d my.own.data"
+    * Execute "python tmp/setting-user-data.py set id connie -d my.own.data.two"
+    Then "[0]" is visible with command "python tmp/setting-user-data.py id connie"
+     And "\"my.own.data\" = \"good_morning_starshine\"|\"my.own.data2\" = \"the_moon_says_hello\"" is not visible with command "python tmp/setting-user-data.py id connie"
+
+
     @rhbz1448165
     @eth1_disconnect
     @connection_track_external_changes
