@@ -6,7 +6,7 @@ import os
 import exceptions
 import re
 import subprocess
-from subprocess import Popen, check_output
+from subprocess import Popen, check_output, call
 from glob import glob
 
 # Helpers for the steps that leave the execution trace
@@ -1418,6 +1418,11 @@ def reboot(context):
         command_code(context, "sudo ip addr flush dev eth%d" %int(x))
     command_code(context, "nmcli device disconnect nm-bond")
     command_code(context, "nmcli device disconnect nm-team")
+    command_code(context, "ip link del nm-bond")
+    command_code(context, "ip link del nm-team")
+
+    call("rm -rf /var/run/NetworkManager", shell=True)
+
     sleep(2)
     context.nm_restarted = True
     assert command_code(context, "sudo service NetworkManager restart") == 0

@@ -361,7 +361,6 @@ def before_scenario(context, scenario):
             else:
                 context.revert_unmanaged = False
 
-
         if 'not_under_internal_DHCP' in scenario.tags:
             if call("grep dhcp=internal /etc/NetworkManager/NetworkManager.conf", shell=True) == 0:
                 sys.exit(0)
@@ -854,6 +853,12 @@ def after_scenario(context, scenario):
             call("nmcli con del 'Wired connection 1'", shell=True)
             call("nmcli con del 'Wired connection 2'", shell=True)
             call("for i in $(nmcli -t -f DEVICE c s -a |grep -v ^eth0$); do nmcli device disconnect $i; done", shell=True)
+
+        if 'bond_order' in scenario.tags:
+            print ("---------------------------")
+            print ("reset bond order")
+            call("rm -rf /etc/NetworkManager/conf.d/99-bond.conf", shell=True)
+            call("systemctl restart NetworkManager", shell=True)
 
         if 'ipv4' in scenario.tags:
             print ("---------------------------")
