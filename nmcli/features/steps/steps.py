@@ -1195,6 +1195,8 @@ def check_ifaces_in_state(context, exclude_ifaces, iface_state):
         ex_ifaces.append(ex_iface.strip())
 
     cmd = 'ip a s'
+    if iface_state == "DOWN":
+        cmd = cmd + "| grep -v NO-CARRIER"
     for ex_iface in ex_ifaces:
         cmd = cmd + " | grep -v " + str(ex_iface)
 
