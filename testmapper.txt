@@ -423,6 +423,8 @@ preserve_failed_assumed_connections, ., nmcli/./runtest.sh preserve_failed_assum
 connection_objects_autocompletion, ., nmcli/./runtest.sh connection_objects_autocompletion ,
 802_1x_objects_autocompletion, ., nmcli/./runtest.sh 802_1x_objects_autocompletion ,
 insufficient_logging_perms, ., nmcli/./runtest.sh insufficient_logging_perms ,
+insufficient_perms_connection_down, ., nmcli/./runtest.sh insufficient_perms_connection_down ,
+insufficient_perms_connection_up, ., nmcli/./runtest.sh insufficient_perms_connection_up ,
 
 #### vv KEEP THESE TWO TESTS ALWAYS TOGETHER!
 dns_none, ., nmcli/./runtest.sh dns_none ,

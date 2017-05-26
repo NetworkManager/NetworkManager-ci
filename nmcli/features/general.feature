@@ -35,6 +35,22 @@ Feature: nmcli - general
     Then "Error: failed to set logging: access denied" is visible with command "sudo -u test nmcli general logging level TRACE domains all"
 
 
+    @rhbz1422786
+    @ver+=1.8.0
+    @eth1_disconnect
+    @insufficient_perms_connection_down
+    Scenario: nmcli - general - not enough perms for connection down
+    * Bring "up" connection "testeth1"
+    Then "Not authorized to deactivate connections" is visible with command "sudo -u test nmcli connection down testeth1"
+
+
+    @rhbz1422786
+    @ver+=1.8.0
+    @eth1_disconnect
+    @insufficient_perms_connection_up
+    Scenario: nmcli - general - not enough perms for connection up
+    Then "Not authorized to control networking" is visible with command "sudo -u test nmcli connection up testeth1"
+
     @general
     @general_check_version
     Scenario: nmcli - general - check version
