@@ -860,6 +860,13 @@ def after_scenario(context, scenario):
             call("rm -rf /etc/NetworkManager/conf.d/99-bond.conf", shell=True)
             call("systemctl restart NetworkManager", shell=True)
 
+        if 'mac' in scenario.tags:
+            print ("---------------------------")
+            print ("delete mac config")
+            call("rm -rf /etc/NetworkManager/conf.d/99-mac.conf", shell=True)
+            call("systemctl restart NetworkManager", shell=True)
+            reset_hwaddr('eth1')
+
         if 'ipv4' in scenario.tags:
             print ("---------------------------")
             print ("deleting connection ethie")

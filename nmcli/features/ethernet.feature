@@ -155,6 +155,48 @@ Feature: nmcli - ethernet
     Then "ether f0:de:aa:fb:bb:cc" is visible with command "ifconfig eth1"
 
 
+    @rhbz1413312
+    @ver+=1.8.0
+    @ethernet
+    @ethernet_mac_address_preserve
+    Scenario: NM - ethernet - mac address preserve
+    * Execute "echo -e '[connection]\nethernet.cloned-mac-address=preserve' > /etc/NetworkManager/conf.d/99-mac.conf"
+    * Reboot
+    * Execute "ip link set dev eth1 address f0:11:22:33:44:55"
+    * Add a new connection of type "ethernet" and options "ifname eth1 con-name ethernet autoconnect no"
+    * Bring "up" connection "ethernet"
+    * Note the output of "nmcli -t --mode tabular --fields GENERAL.HWADDR device show eth1" as value "new_eth1"
+    Then "ether f0:11:22:33:44:55" is visible with command "ip a s eth1"
+
+
+    @rhbz1413312
+    @ver+=1.8.0
+    @ethernet @mac
+    @ethernet_mac_address_permanent
+    Scenario: NM - ethernet - mac address permanent
+    * Note the output of "nmcli -t --mode tabular --fields GENERAL.HWADDR device show eth1" as value "orig_eth1"
+    * Execute "echo -e '[connection]\nethernet.cloned-mac-address=permanent' > /etc/NetworkManager/conf.d/99-mac.conf"
+    * Reboot
+    * Execute "ip link set dev eth1 address f0:11:22:33:44:55"
+    * Add a new connection of type "ethernet" and options "ifname eth1 con-name ethernet autoconnect no"
+    * Bring "up" connection "ethernet"
+    * Note the output of "nmcli -t --mode tabular --fields GENERAL.HWADDR device show eth1" as value "new_eth1"
+    Then Check noted values "orig_eth1" and "new_eth1" are the same
+
+
+    @rhbz1413312
+    @ver+=1.8.0
+    @ethernet
+    @ethernet_mac_address_rhel7_default
+    Scenario: NM - ethernet - mac address rhel7 dafault
+    * Note the output of "nmcli -t --mode tabular --fields GENERAL.HWADDR device show eth1" as value "orig_eth1"
+    * Execute "ip link set dev eth1 address f0:11:22:33:44:55"
+    * Add a new connection of type "ethernet" and options "ifname eth1 con-name ethernet autoconnect no"
+    * Bring "up" connection "ethernet"
+    * Note the output of "nmcli -t --mode tabular --fields GENERAL.HWADDR device show eth1" as value "new_eth1"
+    Then Check noted values "orig_eth1" and "new_eth1" are the same
+
+
     @rhbz1353612
     @ver+=1.7.1
     @ethernet
