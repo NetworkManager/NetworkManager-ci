@@ -597,7 +597,7 @@ Feature: nmcli - general
 
     @rhbz1371433
     @ver+=1.7.9
-    @eth @manage_eth1 @restart
+    @eth @manage_eth1 @eth1_disconnect @restart
     @nmcli_general_set_device_unmanaged
     Scenario: NM - general - set device to unmanaged state
     * Add a new connection of type "ethernet" and options "ifname eth1 con-name ethie autoconnect no"
@@ -621,7 +621,7 @@ Feature: nmcli - general
 
     @rhbz1371433
     @ver+=1.7.9
-    @eth @manage_eth1 @restart
+    @eth @manage_eth1 @restart @eth1_disconnect
     @nmcli_general_set_device_back_to_managed
     Scenario: NM - general - set device back from unmanaged state
     * Add a new connection of type "ethernet" and options "ifname eth1 con-name ethie autoconnect no"
@@ -630,19 +630,20 @@ Feature: nmcli - general
      And "fe80" is visible with command "ip a s eth1" in "15" seconds
      And "192" is visible with command "ip a s eth1" in "15" seconds
      And "192" is visible with command "ip r |grep eth1"
+    * Wait for at least "2" seconds
     * Execute "nmcli device set eth1 managed off"
     When "/sbin/dhclient" is not visible with command "ps aux|grep dhc |grep eth1"
      And "state UP" is visible with command "ip a s eth1"
      And "unmanaged" is visible with command "nmcli device show eth1"
-     And "fe80" is visible with command "ip a s eth1" in "15" seconds
      And "192" is visible with command "ip a s eth1" in "15" seconds
+     And "fe80" is visible with command "ip a s eth1" in "15" seconds
      And "192" is visible with command "ip r |grep eth1"
     * Bring "up" connection "ethie"
     Then "/sbin/dhclient" is visible with command "ps aux|grep dhc |grep eth1"
      And "state UP" is visible with command "ip a s eth1"
      And "unmanaged" is not visible with command "nmcli device show eth1"
-     And "fe80" is visible with command "ip a s eth1" in "15" seconds
      And "192" is visible with command "ip a s eth1" in "15" seconds
+     And "fe80" is visible with command "ip a s eth1" in "15" seconds
      And "192" is visible with command "ip r |grep eth1"
 
 
