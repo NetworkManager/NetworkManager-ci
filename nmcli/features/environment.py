@@ -329,6 +329,10 @@ def before_scenario(context, scenario):
             if call('rpm -qi NetworkManager |grep -q build.eng.bos.redhat.com', shell=True) != 0:
                 sys.exit(0)
 
+        if 'not_in_rhel' in scenario.tags:
+            if call('rpm -qi NetworkManager |grep -q build.eng.bos.redhat.com', shell=True) == 0:
+                sys.exit(0)
+
         if 'not_on_s390x' in scenario.tags:
             arch = check_output("uname -p", shell=True).strip()
             if arch == "s390x":

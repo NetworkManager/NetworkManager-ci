@@ -457,7 +457,7 @@
 
     @rhbz1360386
     @ver+=1.7.1
-    @team_slaves @team @clean
+    @team_slaves @team @clean @not_in_rhel
     @config_invalid1
     Scenario: nmcli - team - config - set invalid mode
      * Add connection type "team" named "team0" for device "nm-team"
@@ -476,7 +476,7 @@
 
     @rhbz1270814
     @ver+=1.3.0
-    @team_slaves @team @clean @long
+    @team_slaves @team @clean @long @not_in_rhel
     @config_invalid2
     Scenario: nmcli - team - config - set invalid mode
      * Add connection type "team" named "team0" for device "nm-team"
