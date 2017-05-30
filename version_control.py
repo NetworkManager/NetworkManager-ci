@@ -2,7 +2,8 @@ import sys
 from subprocess import call, check_output
 
 current_nm_version = "".join(check_output("""NetworkManager -V |awk 'BEGIN { FS = "." }; {printf "%03d%03d%03d", $1, $2, $3}'""", shell=True).split('-')[0])
-
+minimal_nm_version = 000000000
+maximal_nm_version = 999999999
 test_name = "".join('_'.join(sys.argv[2].split('_')[2:]))
 
 raw_tags = check_output ("behave %s/features/  -k -t %s --dry-run |grep %s" %(sys.argv[1], test_name, test_name), shell=True)
@@ -35,17 +36,22 @@ for tags in tests_tags:
                 break
 
             if '+=' in tag:
+                #print ("%s a %s" %(int(current_nm_version),int(need_nm_version)))
+                minimal_nm_version = need_nm_version
                 if int(current_nm_version) >= int(need_nm_version):
-
-                    # set only higher version if we already have one
-                    if tag > tag_to_return:
-                        tag_to_return = tag
-                    break
+                    if int(current_nm_version) <= int(maximal_nm_version):
+                        # set only higher version if we already have one
+                        if tag > tag_to_return:
+                            tag_to_return = tag
+                        break
 
             if '-=' in tag:
+                #print ("%s a %s" %(int(current_nm_version),int(need_nm_version)))
+                maximal_nm_version = need_nm_version
                 if int(current_nm_version) <= int(need_nm_version):
-                    tag_to_return = tag
-                    break
+                    if int(current_nm_version) >= int(minimal_nm_version):
+                        tag_to_return = tag
+                        break
 
 # skip the test
 if tag_to_return == "skip":
@@ -57,4 +63,3 @@ if tag_to_return != "":
     sys.stdout.flush()
 
 sys.exit(0)
-
