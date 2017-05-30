@@ -1191,7 +1191,7 @@ Feature: nmcli - general
 
     @rhbz1337997
     @ver+=1.6.0
-    @macsec
+    @macsec @not_on_aarch64_but_pegas
     @macsec_psk
     Scenario: NM - general - MACsec PSK
     * Prepare MACsec PSK environment with CAK "00112233445566778899001122334455" and CKN "5544332211009988776655443322110055443322110099887766554433221100"

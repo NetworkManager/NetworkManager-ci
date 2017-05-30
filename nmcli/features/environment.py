@@ -339,6 +339,13 @@ def before_scenario(context, scenario):
             if arch == "aarch64":
                 sys.exit(0)
 
+        if 'not_on_aarch64_but_pegas' in scenario.tags:
+            arch = check_output("uname -p", shell=True).strip()
+            ver = check_output("uname -r", shell=True).strip()
+            if arch == "aarch64":
+                if "4.5" in ver:
+                    sys.exit(0)
+
         if 'shutdown_service_any' in scenario.tags or 'bridge_manipulation_with_1000_slaves' in scenario.tags:
             call("modprobe -r qmi_wwan", shell=True)
             call("modprobe -r cdc-mbim", shell=True)

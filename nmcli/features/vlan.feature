@@ -357,7 +357,7 @@ Feature: nmcli - vlan
 
     @rhbz1363995
     @ver+=1.4
-    @dummy
+    @dummy @vlan
     @vlan_preserve_assumed_connection_ips
     Scenario: nmcli - bridge - preserve assumed connection's addresses
     * Execute "ip link add link eth1 name vlan type vlan id 80"
@@ -375,12 +375,13 @@ Feature: nmcli - vlan
     @vlan_create_many_vlans
     Scenario: NM - vlan - create 255 vlans
     * Execute "for i in {1..255}; do ip link add link eth1 name vlan.$i type vlan id $i; ip link set dev vlan.$i up; ip add add 30.0.0.$i/24 dev vlan.$i;done" without waiting for process to finish
-    Then "30.0.0.255/24" is visible with command "ip a s vlan.255" in "5" seconds
+    When "30.0.0.255/24" is visible with command "ip a s vlan.255" in "30" seconds
+    Then "^[1][0-9][0-9][0-9]" is visible with command "G_DBUS_DEBUG=message nmcli c 2>&1 |grep 'GDBus-debug:Message:' |wc -l" in "30" seconds
 
 
     @rhbz1414186
     @ver+=1.6
-    @eth @restart @vlan
+    @eth @vlan @restart
     @vlan_mtu_from_parent
     Scenario: nmcli - vlan - MTU from parent
     * Add a new connection of type "ethernet" and options "con-name ethie ifname eth1 802-3-ethernet.mtu 9000 ipv4.method disabled ipv6.method ignore"
