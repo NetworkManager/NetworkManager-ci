@@ -692,7 +692,7 @@ Feature: nmcli - general
 
     @rhbz1171751
     @ver+=1.8.0
-    @restart
+    @restart @not_on_s390x
     @match_connections_when_no_var_run_exists
     Scenario: NM - general - connection matching for anaconda
      * Stop NM

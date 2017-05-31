@@ -792,7 +792,7 @@ Feature: nmcli: ipv4
     * Save in editor
     * Quit editor
     * Run child "sudo tshark -l -O bootp -i eth10 > /tmp/tshark.log"
-    * Wait for at least "5" seconds
+    * Wait for at least "10" seconds
     * Bring "up" connection "ethie"
     * Finish "sleep 5; sudo pkill tshark"
     Then "RHA" is visible with command "cat /tmp/tshark.log"
@@ -812,7 +812,7 @@ Feature: nmcli: ipv4
     * Save in editor
     * Quit editor
     * Run child "sudo tshark -l -O bootp -i eth10 > /tmp/tshark.log"
-    * Wait for at least "5" seconds
+    * Wait for at least "10" seconds
     * Bring "up" connection "ethie"
     * Finish "sleep 5; sudo pkill tshark"
     Then "R.C" is visible with command "cat /tmp/tshark.log"
@@ -835,7 +835,7 @@ Feature: nmcli: ipv4
     * Save in editor
     * Quit editor
     * Run child "sudo tshark -l -O bootp -i eth10 > /tmp/tshark.log"
-    * Wait for at least "5" seconds
+    * Wait for at least "10" seconds
     * Bring "up" connection "ethie"
     * Finish "sleep 5; sudo pkill tshark"
    Then "RHB" is not visible with command "cat /tmp/tshark.log"
@@ -853,7 +853,7 @@ Feature: nmcli: ipv4
     * Save in editor
     * Quit editor
     * Run child "sudo tshark -l -O bootp -i eth10 > /tmp/tshark.log"
-    * Wait for at least "5" seconds
+    * Wait for at least "10" seconds
     * Bring "up" connection "ethie"
     * Finish "sleep 5; sudo pkill tshark"
     Then "foo.bar.com" is visible with command "grep fqdn /var/lib/NetworkManager/dhclient-eth10.conf"
@@ -876,7 +876,7 @@ Feature: nmcli: ipv4
     * Save in editor
     * Quit editor
     * Run child "sudo tshark -l -O bootp -i eth10 > /tmp/tshark.log"
-    * Wait for at least "5" seconds
+    * Wait for at least "10" seconds
     * Bring "up" connection "ethie"
     * Finish "sleep 5; sudo pkill tshark"
     Then "foo.bar.com" is visible with command "grep fqdn /var/lib/NetworkManager/dhclient-eth10.conf"
@@ -901,7 +901,7 @@ Feature: nmcli: ipv4
     * Save in editor
     * Quit editor
     * Run child "sudo tshark -l -O bootp -i eth10 > /tmp/tshark.log"
-    * Wait for at least "5" seconds
+    * Wait for at least "10" seconds
     * Bring "up" connection "ethie"
     * Finish "sleep 5; sudo pkill tshark"
      Then "foo.bar.com" is not visible with command "grep fqdn /var/lib/NetworkManager/dhclient-eth10.conf"
@@ -921,7 +921,7 @@ Feature: nmcli: ipv4
     * Save in editor
     * Quit editor
     * Run child "sudo tshark -l -O bootp -i eth10 > /tmp/hostname.log"
-    * Wait for at least "5" seconds
+    * Wait for at least "10" seconds
     * Bring "up" connection "ethie"
     * Finish "sleep 5; sudo pkill tshark"
     Then "RHC" is not visible with command "cat /tmp/hostname.log"
@@ -939,7 +939,7 @@ Feature: nmcli: ipv4
     * Save in editor
     * Quit editor
     * Run child "sudo tshark -l -O bootp -i eth10 > /tmp/tshark.log"
-    * Wait for at least "5" seconds
+    * Wait for at least "10" seconds
     * Bring "up" connection "ethie"
     * Finish "sleep 5; sudo pkill tshark"
     Then Hostname is visible in log "/tmp/tshark.log"
@@ -957,7 +957,7 @@ Feature: nmcli: ipv4
     * Save in editor
     * Quit editor
     * Run child "sudo tshark -l -O bootp -i eth10 > /tmp/real.log"
-    * Wait for at least "5" seconds
+    * Wait for at least "10" seconds
     * Bring "up" connection "ethie"
     * Finish "sleep 5; sudo pkill tshark"
     Then Hostname is not visible in log "/tmp/real.log"
@@ -1024,7 +1024,7 @@ Feature: nmcli: ipv4
     * Save in editor
     * Quit editor
     * Run child "sudo tshark -l -O bootp -i eth10 -x > /tmp/tshark.log"
-    * Wait for at least "5" seconds
+    * Wait for at least "10" seconds
     * Bring "up" connection "ethie"
     * Finish "sleep 5; sudo pkill tshark"
     Then "RHC" is visible with command "cat /tmp/tshark.log"
@@ -1049,7 +1049,7 @@ Feature: nmcli: ipv4
     * Save in editor
     * Quit editor
     * Run child "sudo tshark -l -O bootp -i eth10 -x > /tmp/tshark.log"
-    * Wait for at least "5" seconds
+    * Wait for at least "10" seconds
     * Bring "up" connection "ethie"
     * Execute "sleep 5; sudo pkill tshark"
     Then "RHD" is not visible with command "cat /tmp/tshark.log"

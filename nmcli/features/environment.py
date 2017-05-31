@@ -330,7 +330,7 @@ def before_scenario(context, scenario):
                 sys.exit(0)
 
         if 'not_in_rhel' in scenario.tags:
-            if call('rpm -qi NetworkManager |grep -q build.eng.bos.redhat.com', shell=True) == 0:
+            if call('rpm -qi NetworkManager |grep -q build.*bos.redhat.com', shell=True) == 0:
                 sys.exit(0)
 
         if 'not_on_s390x' in scenario.tags:
@@ -1163,6 +1163,7 @@ def after_scenario(context, scenario):
             call('ip link del eth0.99', shell=True)
             call('ip link del eth1.80', shell=True)
             call('ip link del eth1.90', shell=True)
+            call('ip link del vlan', shell=True)
             reset_hwaddr('eth1')
             reset_hwaddr('eth2')
             reset_hwaddr('eth3')

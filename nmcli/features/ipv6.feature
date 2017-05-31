@@ -573,7 +573,7 @@ Feature: nmcli: ipv6
     * Quit editor
     * Bring "up" connection "ethie"
     * Run child "sudo tshark -i eth10 -f 'port 546' -V -x > /tmp/tshark.log"
-    * Wait for at least "5" seconds
+    * Wait for at least "10" seconds
     * Open editor for connection "ethie"
     * Submit "set ipv6.dhcp-hostname" in editor
     * Enter in editor
