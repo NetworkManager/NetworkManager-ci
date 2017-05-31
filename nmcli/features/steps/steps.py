@@ -471,10 +471,19 @@ def check_bond_state(context, bond, state):
 
 @step(u'Check bond "{bond}" link state is "{state}"')
 def check_bond_link_state(context, bond, state):
+    ret = False
     if os.system('ls /proc/net/bonding/%s' %bond) != 0 and state == "down":
         return
-    child = pexpect.spawn('cat /proc/net/bonding/%s' % (bond))
+    i = 4
+    while i > 0:
+        child = pexpect.spawn('cat /proc/net/bonding/%s' % (bond))
+        if child.expect(["MII Status: %s" %  state, pexpect.EOF]) == 0:
+            return
+        else:
+            sleep(1)
+            i-=1
     assert child.expect(["MII Status: %s" %  state, pexpect.EOF]) == 0, "%s is not in %s link state" % (bond, state)
+
 
 @step(u'Check solicitation for "{dev}" in "{file}"')
 def check_solicitation(context, dev, file):
@@ -1439,7 +1448,8 @@ def start_NM(context):
 def restart_NM(context):
     context.nm_restarted = True
     command_code(context, "service NetworkManager restart") == 0
-    sleep(1)
+    # For stability reasons 1 is not enough, please do not lower this
+    sleep(2)
 
 
 @step(u'Stop NM')

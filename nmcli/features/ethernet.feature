@@ -41,7 +41,7 @@ Feature: nmcli - ethernet
     * Add a new connection of type "ethernet" and options "ifname * con-name ethos autoconnect no"
     * Check ifcfg-name file created for connection "ethos"
     * Bring up connection "ethos"
-    Then "eth\S+\s+ethernet\s+connected\s+ethos" is visible with command "nmcli device"
+    Then "ethernet\s+connected\s+ethos" is visible with command "nmcli device"
 
 
     @ethernet
