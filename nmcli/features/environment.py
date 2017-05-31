@@ -326,12 +326,14 @@ def before_scenario(context, scenario):
                 call ('yum -y install http://dl.fedoraproject.org/pub/epel/7/x86_64/p/python2-pyroute2-0.4.13-1.el7.noarch.rpm', shell=True)
 
         if 'rhel7_only' in scenario.tags:
-            if call('rpm -qi NetworkManager |grep -q build.eng.bos.redhat.com', shell=True) != 0:
-                sys.exit(0)
+            if call('rpm -qi NetworkManager |grep -q build.*bos.redhat.co', shell=True) != 0 or \
+                check_output("rpm --queryformat %{RELEASE} -q NetworkManager |awk -F .  '{ print ($1 < 200) }'", shell=True).strip() == '0':
+                    sys.exit(0)
 
         if 'not_in_rhel' in scenario.tags:
-            if call('rpm -qi NetworkManager |grep -q build.*bos.redhat.com', shell=True) == 0:
-                sys.exit(0)
+            if call('rpm -qi NetworkManager |grep -q build.*bos.redhat.com', shell=True) == 0 or \
+                check_output("rpm --queryformat %{RELEASE} -q NetworkManager |awk -F .  '{ print ($1 < 200) }'", shell=True).strip() == '1':
+                    sys.exit(0)
 
         if 'not_on_s390x' in scenario.tags:
             arch = check_output("uname -p", shell=True).strip()
