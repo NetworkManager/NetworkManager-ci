@@ -60,7 +60,8 @@ Feature: General TUI tests
     Then ".*Hostname testhostname.*" is visible on screen
 
 
-    @general
+    @ver-=1.2.9
+    @general @restore_hostname
     @nmtui_general_set_new_hostname
     Scenario: nmtui - general - set hostname
     * Note the output of "hostname"
@@ -77,7 +78,7 @@ Feature: General TUI tests
 
 
     @ver+=1.3.0
-    @general
+    @general @restore_hostname
     @nmtui_general_set_new_hostname
     Scenario: nmtui - general - set hostname
     * Note the output of "hostname"

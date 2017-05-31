@@ -191,6 +191,14 @@ def after_scenario(context, scenario):
         if 'wifi' in scenario.tags:
             os.system("sudo nmcli connection delete id wifi wifi1 qe-open qe-wpa1-psk qe-wpa2-psk qe-wep")
             #os.system("sudo service NetworkManager restart") # debug restart to overcome the nmcli d w l flickering
+        if 'restore_hostname' in scenario.tags:
+            print ("---------------------------")
+            print ("restoring original hostname")
+            os.system('systemctl unmask systemd-hostnamed.service')
+            os.system('systemctl unmask dbus-org.freedesktop.hostname1.service')
+            call('sudo echo "localhost.localdomain" > /etc/hostname', shell=True)
+            call('hostnamectl set-hostname localhost.localdomain', shell=True)
+            call('systemctl restart NetworkManager', shell=True)
         if ('ethernet' in scenario.tags) or ('ipv4' in scenario.tags) or ('ipv6' in scenario.tags):
             os.system("sudo nmcli connection delete id ethernet ethernet1 ethernet2")
         if ("nmtui_general_display_proper_hostname" in scenario.tags) or ("nmtui_general_set_new_hostname" in scenario.tags):
