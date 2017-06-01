@@ -399,10 +399,10 @@
     * Add slave connection for master "nm-bond" on device "eth10" named "bond0.0"
     * Add slave connection for master "nm-bond" on device "eth2" named "bond0.1"
     * Add slave connection for master "nm-bond" on device "eth3" named "bond0.2"
-    * Bring "down" connection "bond0"
-    * Bring "down" connection "bond0.0"
-    * Bring "down" connection "bond0.1"
-    * Bring "down" connection "bond0.2"
+    * Bring down connection "bond0" ignoring error
+    * Bring down connection "bond0.0" ignoring error
+    * Bring down connection "bond0.1" ignoring error
+    * Bring down connection "bond0.2" ignoring error
     * Reboot
     When Check bond "nm-bond" link state is "up"
      And Check slave "eth10" in bond "nm-bond" in proc
@@ -444,10 +444,10 @@
     * Add slave connection for master "nm-bond" on device "eth10" named "bond0.0"
     * Add slave connection for master "nm-bond" on device "eth2" named "bond0.1"
     * Add slave connection for master "nm-bond" on device "eth3" named "bond0.2"
-    * Bring "down" connection "bond0"
-    * Bring "down" connection "bond0.0"
-    * Bring "down" connection "bond0.1"
-    * Bring "down" connection "bond0.2"
+    * Bring down connection "bond0" ignoring error
+    * Bring down connection "bond0.0" ignoring error
+    * Bring down connection "bond0.1" ignoring error
+    * Bring down connection "bond0.2" ignoring error
     * Execute "echo -e '[main]\nslaves-order=index' > /etc/NetworkManager/conf.d/99-bond.conf"
     * Reboot
     When Check bond "nm-bond" link state is "up"
@@ -533,10 +533,10 @@
     * Add slave connection for master "nm-bond" on device "eth10" named "bond0.0"
     * Add slave connection for master "nm-bond" on device "eth2" named "bond0.1"
     * Add slave connection for master "nm-bond" on device "eth3" named "bond0.2"
-    * Bring "down" connection "bond0"
-    * Bring "down" connection "bond0.0"
-    * Bring "down" connection "bond0.1"
-    * Bring "down" connection "bond0.2"
+    * Bring down connection "bond0" ignoring error
+    * Bring down connection "bond0.0" ignoring error
+    * Bring down connection "bond0.1" ignoring error
+    * Bring down connection "bond0.2" ignoring error
     * Execute "echo -e '[main]\nslaves-order=name' > /etc/NetworkManager/conf.d/99-bond.conf"
     * Reboot
     When Check bond "nm-bond" link state is "up"
