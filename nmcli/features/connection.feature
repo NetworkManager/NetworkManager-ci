@@ -255,6 +255,35 @@ Feature: nmcli: connection
      Then Check if "connie" is not active connection
 
 
+    @ver+=1.8.0
+    @eth @con @restart
+    @ifcfg_compliant_with_kickstart
+    Scenario: ifcfg - connection - pykickstart compliance
+    * Append "UUID='8b4753fb-c562-4784-bfa7-f44dc6581e73'" to ifcfg file "ethie"
+    * Append "DNS1='192.0.2.1'" to ifcfg file "ethie"
+    * Append "IPADDR='192.0.2.2'" to ifcfg file "ethie"
+    * Append "GATEWAY='192.0.2.1'" to ifcfg file "ethie"
+    * Append "NETMASK='255.255.255.0'" to ifcfg file "ethie"
+    * Append "BOOTPROTO='static'" to ifcfg file "ethie"
+    * Append "DEVICE='eth1'" to ifcfg file "ethie"
+    * Append "ONBOOT='yes'" to ifcfg file "ethie"
+    * Append "IPV6INIT='yes'" to ifcfg file "ethie"
+    * Execute "nmcli con reload"
+    * Execute "nmcli con modify uuid 8b4753fb-c562-4784-bfa7-f44dc6581e73 connection.id connie"
+    * Restart NM
+    When "activated" is visible with command "nmcli -g GENERAL.STATE con show connie" in "20" seconds
+    Then "192.0.2.2" is visible with command "ip a s eth1"
+     And "UUID=8b4753fb-c562-4784-bfa7-f44dc6581e73" is visible with command "cat /etc/sysconfig/network-scripts/ifcfg-ethie"
+     And "DNS1=192.0.2.1" is visible with command "cat /etc/sysconfig/network-scripts/ifcfg-ethie"
+     And "IPADDR=192.0.2.2" is visible with command "cat /etc/sysconfig/network-scripts/ifcfg-ethie"
+     And "GATEWAY=192.0.2.1" is visible with command "cat /etc/sysconfig/network-scripts/ifcfg-ethie"
+     And "NETMASK=255.255.255.0" is visible with command "cat /etc/sysconfig/network-scripts/ifcfg-ethie"
+     And "BOOTPROTO='static'" is visible with command "cat /etc/sysconfig/network-scripts/ifcfg-ethie"
+     And "DEVICE=eth1" is visible with command "cat /etc/sysconfig/network-scripts/ifcfg-ethie"
+     And "ONBOOT=yes" is visible with command "cat /etc/sysconfig/network-scripts/ifcfg-ethie"
+     And "IPV6INIT=yes" is visible with command "cat /etc/sysconfig/network-scripts/ifcfg-ethie"
+
+
      @rhbz1367737
      @ver+=1.4.0
      @con

@@ -952,6 +952,7 @@ def after_scenario(context, scenario):
             print ("---------------------------")
             print ("deleting ethie")
             call("nmcli connection delete id ethie", shell=True)
+            call("rm -rf /etc/sysconfig/network-scripts/ifcfg-ethie*", shell=True)
             #sleep(TIMER)
 
         if 'firewall' in scenario.tags:
