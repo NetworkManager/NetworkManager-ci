@@ -22,6 +22,15 @@ Feature: nmcli - vlan
      Then Check ifcfg-name file created for connection "eth1.99"
 
 
+    @rhbz1456911
+    @ver+=1.8.0
+    @vlan
+    @vlan_add_beyond_range
+    Scenario: nmcli - vlan - add vlan beyond range
+     Then "0-4094 but is 4095" is visible with command "nmcli con add type vlan con-name vlan autoconnect no id 4095 dev eth1"
+      And "vlan" is not visible with command "nmcli con show"
+
+
     @rhbz1273879
     @restart @vlan
     @nmcli_vlan_restart_persistence
