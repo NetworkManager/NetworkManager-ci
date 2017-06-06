@@ -385,6 +385,15 @@ Feature: nmcli - ethernet
     Then Bring "up" connection "ethie"
 
 
+    @rhbz1456362
+    @ver+=1.8.0
+    @eth @8021x
+    @8021x_with_raw_credentials
+    Scenario: nmcli - ethernet - connect to 8021x - md5 - raw
+    * Add a new connection of type "ethernet" and options "ifname testX con-name ethie autoconnect no 802-1x.eap md5 802-1x.identity user 802-1x.password-raw '70 61 73 73 77 6f 72 64'"
+    Then Bring "up" connection "ethie"
+
+
     @rhbz1113941
     @ver+=1.4.0
     @eth @8021x
