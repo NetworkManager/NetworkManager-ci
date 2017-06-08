@@ -217,6 +217,7 @@ persistent_ipv6_route, ., nmcli/./runtest.sh persistent_ipv6_routes ,
 ipv6_honor_ip_order, ., nmcli/./runtest.sh ipv6_honor_ip_order ,
 ipv6_describe, ., nmcli/./runtest.sh ipv6_describe ,
 ipv6_keep_external_addresses, ., nmcli/./runtest.sh ipv6_keep_external_addresses ,
+ipv6_keep_external_routes, ., nmcli/./runtest.sh ipv6_keep_external_routes ,
 #@ipv6_end
 
 #@ipv4_start

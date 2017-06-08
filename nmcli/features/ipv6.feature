@@ -1046,14 +1046,26 @@ Feature: nmcli: ipv6
 
     Then Check "=== \[may-fail\] ===\s+\[NM property description\]\s+If TRUE, allow overall network configuration to proceed even if the configuration specified by this property times out.  Note that at least one IP configuration must succeed or overall network configuration will still fail.  For example, in IPv6-only networks, setting this property to TRUE on the NMSettingIP4Config allows the overall network configuration to succeed if IPv4 configuration fails but IPv6 configuration completes successfully." are present in describe output for object "may-fail"
 
-      @rhbz1449873
-      @ver+=1.8.0
-      @BBB
-      @ipv6_keep_external_addresses
-      Scenario: NM - ipv6 - keep external addresses
-      * Execute "ip link add BBB type dummy"
-      * Execute "ip link set dev BBB up"
-      * Execute "for i in $(seq 3000); do ip addr add 2017::$i/64 dev BBB; done"
-      Then "3000" is visible with command "ip addr show dev BBB | grep 'inet6 2017::' -c"
-      * Execute "sleep 6"
-      Then "3000" is visible with command "ip addr show dev BBB | grep 'inet6 2017::' -c"
+
+    @rhbz1449873
+    @ver+=1.8.0
+    @BBB
+    @ipv6_keep_external_addresses
+    Scenario: NM - ipv6 - keep external addresses
+    * Execute "ip link add BBB type dummy"
+    * Execute "ip link set dev BBB up"
+    * Wait for at least "1" seconds
+    * Execute "for i in $(seq 3000); do ip addr add 2017::$i/64 dev BBB; done"
+    When "3000" is visible with command "ip addr show dev BBB | grep 'inet6 2017::' -c" in "2" seconds
+    Then "3000" is visible with command "ip addr show dev BBB | grep 'inet6 2017::' -c" for full "6" seconds
+
+
+    @rhbz1457242
+    @ver+=1.8.0
+    @eth1_disconnect
+    @ipv6_keep_external_routes
+    Scenario: NM - ipv6 - keep external routes
+    * Execute "ip link set eth1 down; ip addr flush eth1; ethtool -A eth1 rx off tx off; ip link set eth1 up"
+    * Execute "ip addr add fc00:a::10/64 dev eth1; ip -6 route add fc00:b::10/128 via fc00:a::1"
+    When "fc00:b" is visible with command "ip -6 r" in "2" seconds
+    Then "fc00:b" is visible with command "ip -6 r" for full "5" seconds
