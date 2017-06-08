@@ -1822,6 +1822,6 @@ def setup_macsec_psk(context, cak, ckn):
     command_code(context, "ip netns exec macsec_ns ip addr add 172.16.10.1/24 dev macsec0")
     command_code(context, "ip netns exec macsec_ns dnsmasq \
                                          --pid-file=/tmp/dnsmasq_ms.pid \
-                                         --dhcp-range=172.16.10.10,172.16.10.255,60m  \
+                                         --dhcp-range=172.16.10.10,172.16.10.254,60m  \
                                          --interface=macsec0 \
                                          --bind-interfaces")
