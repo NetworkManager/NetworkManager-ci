@@ -14,7 +14,7 @@ if [ ! -e /tmp/nm_eth_configured ]; then
     echo "networkmanager" | passwd test --stdin
 
     #adding ntp and syncing time
-    yum -y install dnsmasq ntp tcpdump NetworkManager-libreswan wireshark NetworkManager-ppp
+    yum -y install dnsmasq ntp tcpdump NetworkManager-libreswan wireshark NetworkManager-ppp NetworkManager-wwan ModemManager usb_modeswitch usbutils
     service ntpd restart
 
     #pull in debugging symbols
@@ -149,6 +149,10 @@ if [ ! -e /tmp/nm_eth_configured ]; then
     # Copy final connection to /tmp/testeth0 for later in test usage
     yes 2>/dev/null | cp -rf /etc/sysconfig/network-scripts/ifcfg-testeth0 /tmp/testeth0
     service NetworkManager restart
+
+    mkdir /mnt/scratch
+    mount -t nfs nest.test.redhat.com:/mnt/qa/desktop/broadband_lock /mnt/scratch
+
     touch /tmp/nm_eth_configured
 fi
 

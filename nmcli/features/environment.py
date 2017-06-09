@@ -4,6 +4,8 @@ import os
 import pexpect
 import sys
 import traceback
+import string
+import fcntl
 from subprocess import call, Popen, PIPE, check_output, CalledProcessError
 from time import sleep, localtime, strftime
 from glob import glob
@@ -64,6 +66,30 @@ def dump_status(context, when):
                 context.log.flush()
                 call(cmd, shell=True, stdout=context.log)
     context.log.write("==================================================================================\n\n\n")
+
+def reset_usb_devices():
+    USBDEVFS_RESET= 21780
+    def getfile(dirname, filename):
+        f = open("%s/%s" % (dirname, filename), "r")
+        contents = f.read()
+        f.close()
+        return contents
+
+    USB_DEV_DIR = "/sys/bus/usb/devices"
+    dirs = os.listdir(USB_DEV_DIR)
+    for d in dirs:
+        # Skip interfaces, we only care about devices
+        if string.find(d, ":") >= 0:
+            continue
+
+        busnum = int(getfile("%s/%s" % (USB_DEV_DIR, d), "busnum"))
+        devnum = int(getfile("%s/%s" % (USB_DEV_DIR, d), "devnum"))
+        f = open("/dev/bus/usb/%03d/%03d"%(busnum, devnum), 'w', os.O_WRONLY)
+        try:
+            fcntl.ioctl(f, USBDEVFS_RESET, 0)
+        except Exception, msg:
+            print ("failed to reset device:", msg)
+        f.close()
 
 def setup_racoon(mode, dh_group):
     print ("setting up racoon")
@@ -275,6 +301,17 @@ def teardown_hostapd():
     call("ip link del testX_bridge", shell=True)
     call("nmcli con del DHCP_testY", shell=True)
 
+def get_lock(dir):
+    locks = os.listdir(dir)
+    if locks == []:
+        return None
+    else:
+        return int(locks[0])
+
+def delete_old_lock(dir, lock):
+    print ("* deleting old gsm lock %s" %lock)
+    os.rmdir("%s%s" %(dir, lock))
+
 def restore_testeth0():
     call("nmcli con delete testeth0 2>&1 > /dev/null", shell=True)
     call("yes 2>/dev/null | cp -rf /tmp/testeth0 /etc/sysconfig/network-scripts/ifcfg-testeth0", shell=True)
@@ -351,6 +388,81 @@ def before_scenario(context, scenario):
             if arch == "aarch64":
                 if "4.5" in ver:
                     sys.exit(0)
+
+        if 'gsm' in scenario.tags:
+            import time
+            dir = "/mnt/scratch/"
+            timeout = 3600
+            initialized = False
+            freq = 30
+            call("mmcli -G debug", shell=True)
+            call("nmcli general logging level DEBUG domains ALL", shell=True)
+
+            def reinitialize_devices():
+                if call('systemctl is-active ModemManager  > /dev/null', shell=True) != 0:
+                    call('systemctl restart ModemManager', shell=True)
+                    timer = 40
+                    while call("nmcli device |grep gsm > /dev/null", shell=True) != 0:
+                        sleep(1)
+                        timer -= 1
+                        if timer == 0:
+                            break
+                if call('nmcli d |grep gsm > /dev/null', shell=True) != 0:
+                    print ("---------------------------")
+                    print ("reinitialize devices")
+                    reset_usb_devices()
+                    call('for i in $(ls /sys/bus/usb/devices/usb*/authorized); do echo 0 > $i; done', shell=True)
+                    call('for i in $(ls /sys/bus/usb/devices/usb*/authorized); do echo 1 > $i; done', shell=True)
+                    call('systemctl restart ModemManager', shell=True)
+                    timer = 80
+                    while call("nmcli device |grep gsm > /dev/null", shell=True) != 0:
+                        sleep(1)
+                        timer -= 1
+                        if timer == 0:
+                            print ("Cannot initialize modem")
+                            sys.exit(1)
+                initialized = True
+            def create_lock(dir):
+                if os.listdir(dir) == []:
+                    lock = int(time.time())
+                    print ("* creating new gsm lock %s" %lock)
+                    os.mkdir("%s%s" %(dir, lock))
+                    return True
+                else:
+                    return False
+            def is_lock_old(lock):
+                lock += 3600
+                if lock < int(time.time()):
+                    print ("* lock %s is older than an hour" % lock)
+                    return True
+                else:
+                    return False
+
+            print ("---------------------------")
+            while(True):
+                print ("* looking for gsm lock in nfs nest.test.redhat.com:/mnt/qa/desktop/broadband_lock")
+                lock = get_lock(dir)
+                if not lock:
+                    if initialized == False:
+                        reinitialize_devices()
+                    if create_lock(dir):
+                        break
+                    else:
+                        continue
+                if lock:
+                    if is_lock_old(lock):
+                        delete_old_lock(dir, lock)
+                        continue
+                    else:
+                        timeout -= freq
+                        print ("** still locked.. wating %s seconds before next try" %freq)
+                        if initialized == False:
+                            reinitialize_devices()
+                        sleep(freq)
+                        if timeout == 0:
+                            raise Exception("Timeout reached!")
+                        continue
+
 
         if 'shutdown_service_any' in scenario.tags or 'bridge_manipulation_with_1000_slaves' in scenario.tags:
             call("modprobe -r qmi_wwan", shell=True)
@@ -1400,6 +1512,19 @@ def after_scenario(context, scenario):
                 call('sudo ip link del bond0', shell=True)
             if not call('ip a s vlan10 > /dev/null', shell=True):
                 call('sudo ip link del vlan10', shell=True)
+
+        if 'gsm' in scenario.tags:
+            print ("---------------------------")
+            print ("remove gsm profile and delete lock and dump logs")
+            call('nmcli connection delete gsm', shell=True)
+            call('rm -rf /etc/NetworkManager/system-connections/gsm', shell=True)
+            delete_old_lock("/mnt/scratch/", get_lock("/mnt/scratch"))
+            # Attach journalctl logs
+            os.system("sudo journalctl -u ModemManager --no-pager -o cat %s > /tmp/journal-mm.log" % context.log_cursor)
+            data = open("/tmp/journal-mm.log", 'r').read()
+            if data:
+                context.embed('text/plain', data)
+
 
         if 'add_testeth10' in scenario.tags:
             print ("---------------------------")

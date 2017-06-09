@@ -569,6 +569,15 @@ remove_default_tuntap, ., nmcli/./runtest.sh remove_default_tuntap ,
 preserve_master_and_ip_settings, ., nmcli/./runtest.sh preserve_master_and_ip_settings ,
 #@tuntap_end
 
+#@gsm_start
+gsm_disconnect, ., nmcli/./runtest.sh gsm_disconnect ,,60m
+gsm_up_down_up, ., nmcli/./runtest.sh gsm_up_down_up ,,60m
+gsm_up_up, ., nmcli/./runtest.sh gsm_up_up ,,60m
+gsm_load_from_file, ., nmcli/./runtest.sh gsm_load_from_file ,,60m
+gsm_create_default_connection, ., nmcli/./runtest.sh gsm_create_default_connection ,,60m
+gsm_create_assisted_connection, ., nmcli/./runtest.sh gsm_create_assisted_connection ,,60m
+#@gsm_end
+
 #@wifi_start
 nmcli_wifisec_configure_and_connect_wpa1peap_profile, ., nmcli/./runtest.sh nmcli_wifisec_configure_and_connect_wpa1peap_profile , iw;pexpect
 nmcli_wifi_connect_to_wpa2_psk_network_without_profile, ., nmcli/./runtest.sh nmcli_wifi_connect_to_wpa2_psk_network_without_profile , iw;pexpect

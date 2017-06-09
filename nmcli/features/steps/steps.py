@@ -45,6 +45,12 @@ def activate_connection(context):
     context.prompt = prompt
 
 
+@step('Append "{line}" to file "{name}"')
+def append_to_file(context, line, name):
+    cmd = 'sudo echo "%s" >> %s' % (line, name)
+    command_code(context, cmd)
+
+
 @step('Append "{line}" to ifcfg file "{name}"')
 def append_to_ifcfg(context, line, name):
     cmd = 'sudo echo "%s" >> /etc/sysconfig/network-scripts/ifcfg-%s' % (line, name)
@@ -1213,8 +1219,9 @@ def check_ifaces_in_state(context, exclude_ifaces, iface_state):
 
 
 @step(u'Ping "{domain}"')
-def ping_domain(context, domain):
-    ping = pexpect.spawn('ping -c 2 %s' %domain, logfile=context.log)
+@step(u'Ping "{domain}" "{number}" times')
+def ping_domain(context, domain, number=2):
+    ping = pexpect.spawn('ping -c %s %s' %(number, domain), logfile=context.log)
     ping.expect([pexpect.EOF])
     ping.close()
     assert ping.exitstatus == 0
