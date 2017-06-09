@@ -53,42 +53,42 @@ Feature: nmcli: gsm
     When "GENERAL.STATE:.*activated" is visible with command "nmcli con show gsm" in "20" seconds
     Then "mtu 1600" is visible with command "ip a s |grep $(nmcli |grep gsm |tail -1 |awk '{print $NF}')"
 
-
-    @ver+=1.2.0
-    @eth0 @gsm
-    @gsm_up_down_up
-    Scenario: nmcli - gsm - reconnect with down
-     * Add a new connection of type "gsm" and options "ifname \* con-name gsm autoconnect no apn internet"
-     * Bring "up" connection "gsm"
-    Then "GENERAL.STATE:.*activated" is visible with command "nmcli con show gsm" in "20" seconds
-     * Bring "down" connection "gsm"
-     And Unable to ping "8.8.8.8"
-    Then "GENERAL.STATE:.*activated" is not visible with command "nmcli con show gsm" in "20" seconds
-     * Bring "up" connection "gsm"
-    Then "GENERAL.STATE:.*activated" is visible with command "nmcli con show gsm" in "20" seconds
-     * Ping "8.8.8.8" "7" times
-
-
-    @ver+=1.2.0
-    @eth0 @gsm
-    @gsm_up_up
-    Scenario: nmcli - gsm - reconnect without down
-     * Add a new connection of type "gsm" and options "ifname \* con-name gsm autoconnect no apn internet"
-     * Bring "up" connection "gsm"
-    Then "GENERAL.STATE:.*activated" is visible with command "nmcli con show gsm" in "20" seconds
-     * Bring "up" connection "gsm"
-    Then "GENERAL.STATE:.*activated" is visible with command "nmcli con show gsm" in "20" seconds
-     * Bring "up" connection "gsm"
-    Then "GENERAL.STATE:.*activated" is visible with command "nmcli con show gsm" in "20" seconds
-     * Bring "up" connection "gsm"
-    Then "GENERAL.STATE:.*activated" is visible with command "nmcli con show gsm" in "20" seconds
-     * Bring "up" connection "gsm"
-    Then "GENERAL.STATE:.*activated" is visible with command "nmcli con show gsm" in "20" seconds
-     * Bring "up" connection "gsm"
-    Then "GENERAL.STATE:.*activated" is visible with command "nmcli con show gsm" in "20" seconds
-     * Bring "up" connection "gsm"
-    Then "GENERAL.STATE:.*activated" is visible with command "nmcli con show gsm" in "20" seconds
-     * Ping "8.8.8.8" "7" times
+    # Modems are not stable enough to test such things VVV
+    # @ver+=1.2.0
+    # @eth0 @gsm
+    # @gsm_up_down_up
+    # Scenario: nmcli - gsm - reconnect with down
+    #  * Add a new connection of type "gsm" and options "ifname \* con-name gsm autoconnect no apn internet"
+    #  * Bring "up" connection "gsm"
+    # Then "GENERAL.STATE:.*activated" is visible with command "nmcli con show gsm" in "20" seconds
+    #  * Bring "down" connection "gsm"
+    #  And Unable to ping "8.8.8.8"
+    # Then "GENERAL.STATE:.*activated" is not visible with command "nmcli con show gsm" in "20" seconds
+    #  * Bring "up" connection "gsm"
+    # Then "GENERAL.STATE:.*activated" is visible with command "nmcli con show gsm" in "20" seconds
+    #  * Ping "8.8.8.8" "7" times
+    #
+    #
+    # @ver+=1.2.0
+    # @eth0 @gsm
+    # @gsm_up_up
+    # Scenario: nmcli - gsm - reconnect without down
+    #  * Add a new connection of type "gsm" and options "ifname \* con-name gsm autoconnect no apn internet"
+    #  * Bring "up" connection "gsm"
+    # Then "GENERAL.STATE:.*activated" is visible with command "nmcli con show gsm" in "20" seconds
+    #  * Bring "up" connection "gsm"
+    # Then "GENERAL.STATE:.*activated" is visible with command "nmcli con show gsm" in "20" seconds
+    #  * Bring "up" connection "gsm"
+    # Then "GENERAL.STATE:.*activated" is visible with command "nmcli con show gsm" in "20" seconds
+    #  * Bring "up" connection "gsm"
+    # Then "GENERAL.STATE:.*activated" is visible with command "nmcli con show gsm" in "20" seconds
+    #  * Bring "up" connection "gsm"
+    # Then "GENERAL.STATE:.*activated" is visible with command "nmcli con show gsm" in "20" seconds
+    #  * Bring "up" connection "gsm"
+    # Then "GENERAL.STATE:.*activated" is visible with command "nmcli con show gsm" in "20" seconds
+    #  * Bring "up" connection "gsm"
+    # Then "GENERAL.STATE:.*activated" is visible with command "nmcli con show gsm" in "20" seconds
+    #  * Ping "8.8.8.8" "7" times
 
 
     @ver+=1.2.0
