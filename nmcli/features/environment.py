@@ -979,12 +979,6 @@ def after_scenario(context, scenario):
             call("nmcli con del 'Wired connection 2'", shell=True)
             call("for i in $(nmcli -t -f DEVICE c s -a |grep -v ^eth0$); do nmcli device disconnect $i; done", shell=True)
 
-        if 'bond_order' in scenario.tags:
-            print ("---------------------------")
-            print ("reset bond order")
-            call("rm -rf /etc/NetworkManager/conf.d/99-bond.conf", shell=True)
-            call("systemctl restart NetworkManager", shell=True)
-
         if 'mac' in scenario.tags:
             print ("---------------------------")
             print ("delete mac config")
@@ -1035,6 +1029,13 @@ def after_scenario(context, scenario):
             call('ip link del bond0', shell=True)
             #sleep(TIMER)
             print (os.system('ls /proc/net/bonding'))
+
+        if 'bond_order' in scenario.tags:
+            print ("---------------------------")
+            print ("reset bond order")
+            call("rm -rf /etc/NetworkManager/conf.d/99-bond.conf", shell=True)
+            call("systemctl restart NetworkManager", shell=True)
+            sleep(2)
 
         if 'con' in scenario.tags:
             print ("---------------------------")

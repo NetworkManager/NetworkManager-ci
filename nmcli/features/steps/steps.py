@@ -1047,8 +1047,7 @@ def note_print_property_b(context, pattern):
 def note_the_output_as(context, command, index):
     if not hasattr(context, 'noted'):
         context.noted = {}
-    context.noted[index] = command_output(context, command)
-
+    context.noted[index] = command_output(context, command+" 2>/dev/null")
 
 @step(u'Note the output of "{command}"')
 def note_the_output_of(context, command):
