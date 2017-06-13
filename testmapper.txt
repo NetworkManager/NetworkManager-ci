@@ -669,6 +669,7 @@ nmcli_wifi_wep_ask_passwd, ., nmcli/./runtest.sh nmcli_wifi_wep_ask_passwd, iw;p
 nmcli_wifi_add_certificate_as_blob, ., nmcli/./runtest.sh nmcli_wifi_add_certificate_as_blob, iw;pexpect
 nmcli_wifi_dbus_invalid_cert_input, ., nmcli/./runtest.sh nmcli_wifi_dbus_invalid_cert_input, iw;pexpect
 nmcli_wifi_indicate_wifi_band_caps, ., nmcli/./runtest.sh nmcli_wifi_indicate_wifi_band_caps, iw;pexpect
+nmcli_wifi_do_not_show_device_in_list, ., nmcli/./runtest.sh nmcli_wifi_do_not_show_device_in_list ,
 #@wifi_end
 
 #@alias_start

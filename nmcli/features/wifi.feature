@@ -1451,3 +1451,10 @@ Feature: nmcli - wifi
     Given Flag "NM_802_11_DEVICE_CAP_FREQ_VALID" is set in WirelessCapabilites
     Then Check "NM_802_11_DEVICE_CAP_FREQ_2GHZ" band cap flag set if device supported
     Then Check "NM_802_11_DEVICE_CAP_FREQ_5GHZ" band cap flag set if device supported
+
+
+    @rhbz1460527
+    @ver+=1.8.0
+    @nmcli_wifi_do_not_show_device_in_list
+    Scenario: nmcli - wifi - do not show device
+    Then "wlan0" is not visible with command "nmcli device wifi list ifname wlan0"
