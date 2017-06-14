@@ -692,20 +692,20 @@ Feature: nmcli - general
 
     @rhbz1171751
     @ver+=1.8.0
-    @restart @not_on_s390x
+    @add_testeth10 @restart @not_on_s390x
     @match_connections_when_no_var_run_exists
     Scenario: NM - general - connection matching for anaconda
      * Stop NM
-     * Execute "rm -rf /etc/sysconfig/network-scripts/ifcfg-testeth0"
+     * Execute "rm -rf /etc/sysconfig/network-scripts/ifcfg-testeth10"
      * Execute "rm -rf /var/run/NetworkManager/*"
-     * Execute "echo 'DEVICE=eth0' >> /etc/sysconfig/network-scripts/ifcfg-testeth0"
-     * Execute "echo 'NAME=kokos' >> /etc/sysconfig/network-scripts/ifcfg-testeth0"
-     * Execute "echo 'BOOTPROTO=dhcp' >> /etc/sysconfig/network-scripts/ifcfg-testeth0"
-     * Execute "echo 'IPV6INIT=yes' >> /etc/sysconfig/network-scripts/ifcfg-testeth0"
-     * Execute "echo 'TYPE=Ethernet' >> /etc/sysconfig/network-scripts/ifcfg-testeth0"
-     Then "kokos" is not visible with command "nmcli con sh -a"
+     * Execute "echo 'DEVICE=eth10' >> /etc/sysconfig/network-scripts/ifcfg-testeth10"
+     * Execute "echo 'NAME=testeth10' >> /etc/sysconfig/network-scripts/ifcfg-testeth10"
+     * Execute "echo 'BOOTPROTO=dhcp' >> /etc/sysconfig/network-scripts/ifcfg-testeth10"
+     * Execute "echo 'IPV6INIT=yes' >> /etc/sysconfig/network-scripts/ifcfg-testeth10"
+     * Execute "echo 'TYPE=Ethernet' >> /etc/sysconfig/network-scripts/ifcfg-testeth10"
+     Then "testeth10" is not visible with command "nmcli con sh -a"
      * Start NM
-     Then "kokos" is visible with command "nmcli con sh -a" in "5" seconds
+     Then "testeth10" is visible with command "nmcli con sh -a" in "5" seconds
 
 
     @rhbz1103777

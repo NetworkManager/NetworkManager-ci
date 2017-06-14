@@ -14,7 +14,7 @@ if [ ! -e /tmp/nm_eth_configured ]; then
     echo "networkmanager" | passwd test --stdin
 
     #adding ntp and syncing time
-    yum -y install dnsmasq ntp tcpdump NetworkManager-libreswan wireshark NetworkManager-ppp
+    yum -y install dnsmasq ntp tcpdump NetworkManager-libreswan wireshark NetworkManager-ppp bridge-utils
 
     service ntpd restart
 
