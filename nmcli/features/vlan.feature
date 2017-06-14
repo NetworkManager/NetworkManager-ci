@@ -296,6 +296,21 @@ Feature: nmcli - vlan
     Then "eth1.80:connected:vlan" is visible with command "nmcli -t -f DEVICE,STATE,CONNECTION device" in "20" seconds
 
 
+    @rhbz1376199
+    @ver+=1.8.0
+    @vlan @restart
+    @vlan_not_stalled_after_connection_delete
+    Scenario: nmcli - vlan - delete vlan device after restart
+    * Add a new connection of type "vlan" and options "con-name vlan dev eth1 id 80"
+    * Modify connection "vlan" changing options "eth.mtu 1450 ipv4.method manual ipv4.addresses 1.2.3.4/24"
+    * Bring "up" connection "testeth1"
+    * Bring "up" connection "vlan"
+    * Restart NM
+    When "eth1.80:connected:vlan" is visible with command "nmcli -t -f DEVICE,STATE,CONNECTION device" in "20" seconds
+    * Delete connection "vlan"
+    Then "eth1.80" is not visible with command "nmcli device" in "5" seconds
+
+
     @rhbz1264322
     @restart
     @vlan_update_mac_from_bond
@@ -385,7 +400,7 @@ Feature: nmcli - vlan
     Scenario: NM - vlan - create 255 vlans
     * Execute "for i in {1..255}; do ip link add link eth1 name vlan.$i type vlan id $i; ip link set dev vlan.$i up; ip add add 30.0.0.$i/24 dev vlan.$i;done" without waiting for process to finish
     When "30.0.0.255/24" is visible with command "ip a s vlan.255" in "30" seconds
-    Then "^[1][0-9][0-9][0-9]" is visible with command "G_DBUS_DEBUG=message nmcli c 2>&1 |grep 'GDBus-debug:Message:' |wc -l" in "30" seconds
+    Then "^[1]?[0-9][0-9][0-9]\s+" is visible with command "G_DBUS_DEBUG=message nmcli c 2>&1 |grep 'GDBus-debug:Message:' |wc -l" in "30" seconds
 
 
     @rhbz1414186
