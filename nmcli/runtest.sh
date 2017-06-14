@@ -14,7 +14,8 @@ if [ ! -e /tmp/nm_eth_configured ]; then
     echo "networkmanager" | passwd test --stdin
 
     #adding ntp and syncing time
-    yum -y install dnsmasq ntp tcpdump NetworkManager-libreswan wireshark NetworkManager-ppp NetworkManager-wwan ModemManager usb_modeswitch usbutils
+    yum -y install dnsmasq ntp tcpdump NetworkManager-libreswan wireshark NetworkManager-ppp
+
     service ntpd restart
 
     #pull in debugging symbols
@@ -88,6 +89,10 @@ if [ ! -e /tmp/nm_eth_configured ]; then
     fi
     if [[ $1 == *wol_* ]]; then
         dcb_inf_wol=1
+    fi
+
+    if [[ $1 == *gsm* ]]; then
+        yum -y install NetworkManager-wwan ModemManager usb_modeswitch usbutils
     fi
 
     veth=0
