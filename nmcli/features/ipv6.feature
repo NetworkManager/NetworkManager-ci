@@ -849,24 +849,25 @@ Feature: nmcli: ipv6
 
 
     @rhbz1194007
-    @mtu
+    @mtu @kill_dnsmasq
     @ipv6_set_ra_announced_mtu
     Scenario: NM - ipv6 - set RA received MTU
     * Finish "ip link add test1 type veth peer name test1p"
     * Finish "ip link add test2 type veth peer name test2p"
     * Finish "brctl addbr vethbr"
+    * Finish "brctl setfd vethbr 2"
+    * Finish "brctl stp vethbr on"
     * Finish "ip link set dev vethbr up"
-    * Finish "brctl addif vethbr test1p test2p"
     * Finish "ip link set dev test1 up"
     * Finish "ip link set dev test1p up"
     * Finish "ip link set dev test2 up"
     * Finish "ip link set dev test2p up"
-    * Finish "nmcli connection add type ethernet con-name tc1 ifname test1 mtu 1300 ip4 192.168.99.1/24 ip6 2620:52:0:beef::1/64"
-    * Finish "nmcli connection add type ethernet con-name tc2 ifname test2"
+    * Finish "brctl addif vethbr test1p test2p"
+    * Finish "nmcli connection add type ethernet con-name tc1 ifname test1 mtu 1300 ip4 192.168.99.1/24 ip6 2620:52:0:beef::1/64 autoconnect no"
+    * Finish "nmcli connection add type ethernet con-name tc2 ifname test2 autoconnect no"
     * Bring "up" connection "tc1"
-    * Wait for at least "2" seconds
-    * Execute "/usr/sbin/dnsmasq --conf-file --no-hosts --keep-in-foreground --bind-interfaces --except-interface=lo --clear-on-reload --strict-order --listen-address=192.168.99.1 --dhcp-range=192.168.99.10,192.168.99.254,60m --dhcp-option=option:router,192.168.99.1 --dhcp-lease-max=50 --dhcp-range=2620:52:0:beef::100,2620:52:0:beef::1ff,slaac,64 --enable-ra --interface=test1 &"
-    * Wait for at least "2" seconds
+    When "test1:connected:tc1" is visible with command "nmcli -t -f DEVICE,STATE,CONNECTION device" in "10" seconds
+    * Execute "/usr/sbin/dnsmasq --pid-file=/tmp/dnsmasq.pid --conf-file --no-hosts --keep-in-foreground --bind-interfaces --except-interface=lo --clear-on-reload --strict-order --listen-address=192.168.99.1 --dhcp-range=192.168.99.10,192.168.99.254,2m --dhcp-option=option:router,192.168.99.1 --dhcp-range=2620:52:0:beef::100,2620:52:0:beef::fff,slaac,64 --enable-ra --interface=test1 &"
     * Bring "up" connection "tc2"
     Then "1300" is visible with command "sysctl net.ipv6.conf.test2.mtu" in "30" seconds
 
