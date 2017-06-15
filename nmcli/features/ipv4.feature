@@ -1310,7 +1310,7 @@ Feature: nmcli: ipv4
     Scenario: nmcli - ipv4 - method shared when dnsmasq does run
     * Note the output of "pidof NetworkManager" as value "1"
     * Prepare veth pairs "test1,test2" bridged over "vethbr"
-    * Execute "dnsmasq --interface test1"
+    * Execute "dnsmasq --interface test1 --pid-file=/tmp/dnsmasq.pid &"
     * Add a new connection of type "ethernet" and options "con-name tc1 autoconnect no ifname test1 ipv4.method shared ipv6.method ignore"
     * Add a new connection of type "ethernet" and options "con-name tc2 autoconnect no ifname test2 ipv4.may-fail yes ipv6.method manual ipv6.addresses 1::1/128"
     Then Bring "up" connection "tc1"
