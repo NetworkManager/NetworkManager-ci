@@ -863,7 +863,7 @@ Feature: nmcli: ipv6
     * Finish "ip link set dev test2 up"
     * Finish "ip link set dev test2p up"
     * Finish "brctl addif vethbr test1p test2p"
-    * Finish "nmcli connection add type ethernet con-name tc1 ifname test1 mtu 1300 ip4 192.168.99.1/24 ip6 2620:52:0:beef::1/64 autoconnect no"
+    * Finish "nmcli connection add type ethernet con-name tc1 ifname test1 autoconnect no mtu 1300 ip4 192.168.99.1/24 ip6 2620:52:0:beef::1/64"
     * Finish "nmcli connection add type ethernet con-name tc2 ifname test2 autoconnect no"
     * Bring "up" connection "tc1"
     When "test1:connected:tc1" is visible with command "nmcli -t -f DEVICE,STATE,CONNECTION device" in "10" seconds
