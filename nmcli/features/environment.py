@@ -1124,7 +1124,8 @@ def after_scenario(context, scenario):
             call("nmcli connection up id testeth1", shell=True)
             call("nmcli connection modify testeth1 802-3-ethernet.mtu 0", shell=True)
             call("nmcli connection down id testeth1", shell=True)
-
+            call("ip link set dev eth1 mtu 1500", shell=True)
+            
         if 'mtu_wlan0' in scenario.tags:
             print ("---------------------------")
             print ("setting mtu back to 1500")

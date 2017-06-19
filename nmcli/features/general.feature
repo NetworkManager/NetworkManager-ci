@@ -708,6 +708,22 @@ Feature: nmcli - general
      Then "testeth10" is visible with command "nmcli con sh -a" in "5" seconds
 
 
+    @rhbz1460760
+    @ver+=1.8.0
+    @mtu @eth
+    @ifcfg_respect_externally_set_mtu
+    Scenario: NM - general - respect externally set mtu
+    * Execute "ip link set dev eth1 mtu 1400"
+    * Execute "echo 'DEVICE=eth1' >> /etc/sysconfig/network-scripts/ifcfg-ethie"
+    * Execute "echo 'NAME=ethie' >> /etc/sysconfig/network-scripts/ifcfg-ethie"
+    * Execute "echo 'BOOTPROTO=dhcp' >> /etc/sysconfig/network-scripts/ifcfg-ethie"
+    * Execute "echo 'IPV6INIT=yes' >> /etc/sysconfig/network-scripts/ifcfg-ethie"
+    * Execute "echo 'TYPE=Ethernet' >> /etc/sysconfig/network-scripts/ifcfg-ethie"
+    * Execute "nmcli con reload"
+    * Bring "up" connection "ethie"
+    Then "1400" is visible with command "ip a s eth1" in "5" seconds
+
+
     @rhbz1103777
     @firewall
     @no_error_when_firewald_restarted
