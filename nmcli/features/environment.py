@@ -618,7 +618,7 @@ def before_scenario(context, scenario):
             call("echo '[connectivity]' > /etc/NetworkManager/conf.d/99-connectivity.conf", shell=True)
             call("echo 'uri=https://fedoraproject.org/static/hotspot.txt' >> /etc/NetworkManager/conf.d/99-connectivity.conf", shell=True)
             call("echo 'response=OK' >> /etc/NetworkManager/conf.d/99-connectivity.conf", shell=True)
-            call("echo 'interval=10' >> /etc/NetworkManager/conf.d/99-connectivity.conf", shell=True)
+            call("echo 'interval=5' >> /etc/NetworkManager/conf.d/99-connectivity.conf", shell=True)
             call("systemctl restart NetworkManager", shell=True)
             sleep(2)
             call("systemctl restart NetworkManager", shell=True)
@@ -1091,6 +1091,7 @@ def after_scenario(context, scenario):
         if 'firewall' in scenario.tags:
             print ("---------------------------")
             print ("stoppping firewall")
+            call("sudo firewall-cmd --panic-off", shell=True)
             call("sudo service firewalld stop", shell=True)
             #sleep(TIMER)
 
@@ -1125,7 +1126,7 @@ def after_scenario(context, scenario):
             call("nmcli connection modify testeth1 802-3-ethernet.mtu 0", shell=True)
             call("nmcli connection down id testeth1", shell=True)
             call("ip link set dev eth1 mtu 1500", shell=True)
-            
+
         if 'mtu_wlan0' in scenario.tags:
             print ("---------------------------")
             print ("setting mtu back to 1500")

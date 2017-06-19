@@ -1230,7 +1230,7 @@ Feature: nmcli - general
 
 
     @rhbz1458399
-    @ver+1..8.0
+    @ver+1.8.0
     @firewall @connectivity @eth @eth0
     @connectivity_check
     Scenario: NM - general - connectivity check
@@ -1239,6 +1239,38 @@ Feature: nmcli - general
     When "activated" is visible with command "nmcli -g GENERAL.STATE con show ethie" in "20" seconds
      And "full" is visible with command "nmcli  -g CONNECTIVITY g"
     * Execute "firewall-cmd --panic-on"
-    When "limited" is visible with command "nmcli  -g CONNECTIVITY g" in "120" seconds
+    When "limited" is visible with command "nmcli  -g CONNECTIVITY g" in "70" seconds
     * Execute "firewall-cmd --panic-off"
-    Then "full" is visible with command "nmcli  -g CONNECTIVITY g" in "80" seconds
+    Then "full" is visible with command "nmcli  -g CONNECTIVITY g" in "70" seconds
+
+
+    @rhbz1458399
+    @ver+1.8.0
+    @firewall @connectivity @eth @delete_testeth0 @restart
+    @disable_connectivity_check
+    Scenario: NM - general - disable connectivity check
+    * Execute "sed -i 's/interval=5/interval=0/' /etc/NetworkManager/conf.d/99-connectivity.conf"
+    * Restart NM
+    * Add a new connection of type "ethernet" and options "ifname eth0 con-name ethie autoconnect no"
+    * Bring up connection "ethie"
+    When "activated" is visible with command "nmcli -g GENERAL.STATE con show ethie" in "20" seconds
+     And "full" is visible with command "nmcli  -g CONNECTIVITY g"
+    * Execute "firewall-cmd --panic-on"
+    Then "full" is visible with command "nmcli  -g CONNECTIVITY g" for full "70" seconds
+
+
+    @rhbz1394345
+    @ver+1.8.0
+    @connectivity @eth0 @eth @con
+    @per_device_connectivity_check
+    Scenario: NM - general - per device connectivity check
+    # Device with connectivity but low priority
+    * Add a new connection of type "ethernet" and options "ifname eth0 con-name ethie ipv4.route-metric 1024"
+    # Device w/o connectivity but with high priority
+    * Add a new connection of type "ethernet" and options "ifname eth1 con-name connie autoconnect no ipv4.method manual ipv4.addresses 1.2.3.4/24 ipv4.gateway 1.2.3.1 ipv4.route-metric 100"
+    * Bring up connection "ethie"
+    When "activated" is visible with command "nmcli -g GENERAL.STATE con show ethie" in "20" seconds
+    * Bring up connection "connie"
+    # Connection should stay at the lower priority device
+    Then "full" is visible with command "nmcli  -g CONNECTIVITY g" in "70" seconds
+     And Ping "boston.com"

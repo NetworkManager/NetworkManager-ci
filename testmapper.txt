@@ -458,6 +458,8 @@ dummy_connection, ., nmcli/./runtest.sh dummy_connection ,
 macsec_psk, ., nmcli/./runtest.sh macsec_psk ,
 non_utf_device, ., nmcli/./runtest.sh non_utf_device ,
 connectivity_check, ., nmcli/./runtest.sh connectivity_check ,
+disable_connectivity_check, ., nmcli/./runtest.sh disable_connectivity_check ,
+per_device_connectivity_check, ., nmcli/./runtest.sh per_device_connectivity_check ,
 #@general_end
 
 #@wol_start
