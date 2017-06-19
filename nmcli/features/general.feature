@@ -1211,3 +1211,18 @@ Feature: nmcli - general
     When "/sys/devices/virtual/net/d\\314f\\\\c" is visible with command "nmcli -f GENERAL.UDI device show"
     * Restart NM
     Then "dummy" is visible with command "nmcli device show 'd\314f\\c'"
+
+
+    @rhbz1458399
+    @ver+1..8.0
+    @firewall @connectivity @eth @eth0
+    @connectivity_check
+    Scenario: NM - general - connectivity check
+    * Add a new connection of type "ethernet" and options "ifname eth0 con-name ethie autoconnect no"
+    * Bring up connection "ethie"
+    When "activated" is visible with command "nmcli -g GENERAL.STATE con show ethie" in "20" seconds
+     And "full" is visible with command "nmcli  -g CONNECTIVITY g"
+    * Execute "firewall-cmd --panic-on"
+    When "limited" is visible with command "nmcli  -g CONNECTIVITY g" in "120" seconds
+    * Execute "firewall-cmd --panic-off"
+    Then "full" is visible with command "nmcli  -g CONNECTIVITY g" in "80" seconds

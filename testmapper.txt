@@ -456,6 +456,7 @@ stable_mem_consumption, ., nmcli/./runtest.sh stable_mem_consumption ,,20m
 dummy_connection, ., nmcli/./runtest.sh dummy_connection ,
 macsec_psk, ., nmcli/./runtest.sh macsec_psk ,
 non_utf_device, ., nmcli/./runtest.sh non_utf_device ,
+connectivity_check, ., nmcli/./runtest.sh connectivity_check ,
 #@general_end
 
 #@wol_start

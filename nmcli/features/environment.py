@@ -604,12 +604,25 @@ def before_scenario(context, scenario):
         if 'firewall' in scenario.tags:
             print ("---------------------------")
             print ("starting firewall")
-            wait_for_testeth0()
-            call("sudo yum -y install firewalld", shell=True)
+            if call("rpm -q firewalld", shell=True) != 0:
+                wait_for_testeth0()
+                call("sudo yum -y install firewalld", shell=True)
             call("sudo systemctl unmask firewalld", shell=True)
             call("sudo systemctl start firewalld", shell=True)
             call("sudo nmcli con modify testeth0 connection.zone public", shell=True)
             #call("sleep 4", shell=True)
+
+        if 'connectivity' in scenario.tags:
+            print ("---------------------------")
+            print ("add connectivity checker")
+            call("echo '[connectivity]' > /etc/NetworkManager/conf.d/99-connectivity.conf", shell=True)
+            call("echo 'uri=https://fedoraproject.org/static/hotspot.txt' >> /etc/NetworkManager/conf.d/99-connectivity.conf", shell=True)
+            call("echo 'response=OK' >> /etc/NetworkManager/conf.d/99-connectivity.conf", shell=True)
+            call("echo 'interval=10' >> /etc/NetworkManager/conf.d/99-connectivity.conf", shell=True)
+            call("systemctl restart NetworkManager", shell=True)
+            sleep(2)
+            call("systemctl restart NetworkManager", shell=True)
+            sleep(2)
 
         if ('ethernet' in scenario.tags) or ('bridge' in scenario.tags) or ('vlan' in scenario.tags):
             print ("---------------------------")
@@ -1034,6 +1047,13 @@ def after_scenario(context, scenario):
             print ("---------------------------")
             print ("reset bond order")
             call("rm -rf /etc/NetworkManager/conf.d/99-bond.conf", shell=True)
+            call("systemctl restart NetworkManager", shell=True)
+            sleep(2)
+
+        if 'connectivity' in scenario.tags:
+            print ("---------------------------")
+            print ("remove connectivity checker")
+            call("rm -rf /etc/NetworkManager/conf.d/99-connectivity.conf", shell=True)
             call("systemctl restart NetworkManager", shell=True)
             sleep(2)
 
