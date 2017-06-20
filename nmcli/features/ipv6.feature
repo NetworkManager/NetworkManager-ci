@@ -1070,3 +1070,19 @@ Feature: nmcli: ipv6
     * Execute "ip addr add fc00:a::10/64 dev eth1; ip -6 route add fc00:b::10/128 via fc00:a::1"
     When "fc00:b" is visible with command "ip -6 r" in "2" seconds
     Then "fc00:b" is visible with command "ip -6 r" for full "5" seconds
+
+
+    @rhbz1446367
+    @ver+=1.8.0
+    @ethernet @teardown_testveth
+    @nmcli_general_finish_dad_without_carrier
+    Scenario: nmcli - general - finish dad with no carrier
+    * Add a new connection of type "ethernet" and options "ifname testX con-name ethernet0 autoconnect no"
+    * Prepare simulated veth device "testX" wihout carrier
+    * Execute "nmcli con modify ethernet0 ipv4.may-fail no ipv4.method manual ipv4.addresses 1.2.3.4/24"
+    * Execute "nmcli con modify ethernet0 ipv4.may-fail yes ipv6.method manual ipv6.addresses 2001::2/128"
+    * Bring "up" connection "ethernet0"
+    Then "activated" is visible with command "nmcli -g GENERAL.STATE connection show ethernet0" in "5" seconds
+     And "1.2.3.4" is visible with command "ip a s testX"
+     And "2001::2" is visible with command "ip a s testX"
+     And "tentative" is visible with command "ip a s testX" for full "10" seconds
