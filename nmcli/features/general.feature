@@ -1230,7 +1230,7 @@ Feature: nmcli - general
 
 
     @rhbz1458399
-    @ver+1.8.0
+    @ver+=1.8.0
     @firewall @connectivity @eth @eth0
     @connectivity_check
     Scenario: NM - general - connectivity check
@@ -1245,7 +1245,7 @@ Feature: nmcli - general
 
 
     @rhbz1458399
-    @ver+1.8.0
+    @ver+=1.8.0
     @firewall @connectivity @eth @delete_testeth0 @restart
     @disable_connectivity_check
     Scenario: NM - general - disable connectivity check
@@ -1260,7 +1260,7 @@ Feature: nmcli - general
 
 
     @rhbz1394345
-    @ver+1.8.0
+    @ver+=1.8.0
     @connectivity @eth0 @eth @con
     @per_device_connectivity_check
     Scenario: NM - general - per device connectivity check
