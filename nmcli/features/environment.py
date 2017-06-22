@@ -421,6 +421,7 @@ def before_scenario(context, scenario):
                         if timer == 0:
                             print ("Cannot initialize modem")
                             sys.exit(1)
+                sleep(60)
                 initialized = True
             def create_lock(dir):
                 if os.listdir(dir) == []:

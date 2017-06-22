@@ -91,10 +91,6 @@ if [ ! -e /tmp/nm_eth_configured ]; then
         dcb_inf_wol=1
     fi
 
-    if [[ $1 == *gsm* ]]; then
-        yum -y install NetworkManager-wwan ModemManager usb_modeswitch usbutils
-    fi
-
     veth=0
     if [ $wlan -eq 0 ]; then
         if [ $dcb_inf_wol -eq 0 ]; then
@@ -153,11 +149,13 @@ if [ ! -e /tmp/nm_eth_configured ]; then
 
     # Copy final connection to /tmp/testeth0 for later in test usage
     yes 2>/dev/null | cp -rf /etc/sysconfig/network-scripts/ifcfg-testeth0 /tmp/testeth0
-    service NetworkManager restart
-
-    mkdir /mnt/scratch
-    mount -t nfs nest.test.redhat.com:/mnt/qa/desktop/broadband_lock /mnt/scratch
-
+    systemctl restart NetworkManager
+    sleep 10
+    nmcli con up testeth0; rc=$?
+    if [ $rc -ne 0 ]; then
+        sleep 20
+        nmcli con up testeth0
+    fi
     touch /tmp/nm_eth_configured
 fi
 
@@ -196,6 +194,21 @@ if [[ $1 == *inf_* ]]; then
         nmcli con del $DEV_MASTER
 
         touch /tmp/inf_configured
+    fi
+fi
+
+if [[ $1 == *gsm* ]]; then
+    if [ ! -e /tmp/gsm_configured ]; then
+        mkdir /mnt/scratch
+        mount -t nfs nest.test.redhat.com:/mnt/qa/desktop/broadband_lock /mnt/scratch
+
+        yum -y install NetworkManager-wwan ModemManager usb_modeswitch usbutils
+        systemctl restart ModemManager
+        sleep 60
+        systemctl restart NetworkManager
+        sleep 60
+
+        touch /tmp/gsm_configured
     fi
 fi
 
