@@ -364,13 +364,13 @@ def before_scenario(context, scenario):
 
         if 'rhel7_only' in scenario.tags:
             if call('rpm -qi NetworkManager |grep -q build.*bos.redhat.co', shell=True) != 0 or \
-                check_output("rpm --queryformat %{RELEASE} -q NetworkManager |awk -F .  '{ print ($1 < 200) }'", shell=True).strip() == '0':
-                    sys.exit(0)
+            check_output("rpm --queryformat %{RELEASE} -q NetworkManager |awk -F .  '{ print ($1 < 200) }'", shell=True).strip() == '0':
+                sys.exit(0)
 
         if 'not_in_rhel' in scenario.tags:
             if call('rpm -qi NetworkManager |grep -q build.*bos.redhat.com', shell=True) == 0 or \
-                check_output("rpm --queryformat %{RELEASE} -q NetworkManager |awk -F .  '{ print ($1 < 200) }'", shell=True).strip() == '1':
-                    sys.exit(0)
+            check_output("rpm --queryformat %{RELEASE} -q NetworkManager |awk -F .  '{ print ($1 < 200) }'", shell=True).strip() == '1':
+                sys.exit(0)
 
         if 'not_on_s390x' in scenario.tags:
             arch = check_output("uname -p", shell=True).strip()
@@ -421,16 +421,19 @@ def before_scenario(context, scenario):
                         if timer == 0:
                             print ("Cannot initialize modem")
                             sys.exit(1)
-                sleep(60)
+                    sleep(60)
+                global initialized
                 initialized = True
+
             def create_lock(dir):
                 if os.listdir(dir) == []:
                     lock = int(time.time())
-                    print ("* creating new gsm lock %s" %lock)
-                    os.mkdir("%s%s" %(dir, lock))
+                    print ("* creating new gsm lock %s" % lock)
+                    os.mkdir("%s%s" % (dir, lock))
                     return True
                 else:
                     return False
+
             def is_lock_old(lock):
                 lock += 3600
                 if lock < int(time.time()):
@@ -444,7 +447,7 @@ def before_scenario(context, scenario):
                 print ("* looking for gsm lock in nfs nest.test.redhat.com:/mnt/qa/desktop/broadband_lock")
                 lock = get_lock(dir)
                 if not lock:
-                    if initialized == False:
+                    if not initialized:
                         reinitialize_devices()
                     if create_lock(dir):
                         break
@@ -456,14 +459,25 @@ def before_scenario(context, scenario):
                         continue
                     else:
                         timeout -= freq
-                        print ("** still locked.. wating %s seconds before next try" %freq)
-                        if initialized == False:
+                        print ("** still locked.. wating %s seconds before next try" % freq)
+                        if not initialized:
                             reinitialize_devices()
                         sleep(freq)
                         if timeout == 0:
                             raise Exception("Timeout reached!")
                         continue
 
+        if 'connectivity' in scenario.tags:
+            print ("---------------------------")
+            print ("add connectivity checker")
+            call("echo '[connectivity]' > /etc/NetworkManager/conf.d/99-connectivity.conf", shell=True)
+            call("echo 'uri=https://fedoraproject.org/static/hotspot.txt' >> /etc/NetworkManager/conf.d/99-connectivity.conf", shell=True)
+            call("echo 'response=OK' >> /etc/NetworkManager/conf.d/99-connectivity.conf", shell=True)
+            call("echo 'interval=5' >> /etc/NetworkManager/conf.d/99-connectivity.conf", shell=True)
+            call("systemctl restart NetworkManager", shell=True)
+            sleep(2)
+            call("systemctl restart NetworkManager", shell=True)
+            sleep(2)
 
         if 'shutdown_service_any' in scenario.tags or 'bridge_manipulation_with_1000_slaves' in scenario.tags:
             call("modprobe -r qmi_wwan", shell=True)
@@ -612,18 +626,6 @@ def before_scenario(context, scenario):
             call("sudo systemctl start firewalld", shell=True)
             call("sudo nmcli con modify testeth0 connection.zone public", shell=True)
             #call("sleep 4", shell=True)
-
-        if 'connectivity' in scenario.tags:
-            print ("---------------------------")
-            print ("add connectivity checker")
-            call("echo '[connectivity]' > /etc/NetworkManager/conf.d/99-connectivity.conf", shell=True)
-            call("echo 'uri=https://fedoraproject.org/static/hotspot.txt' >> /etc/NetworkManager/conf.d/99-connectivity.conf", shell=True)
-            call("echo 'response=OK' >> /etc/NetworkManager/conf.d/99-connectivity.conf", shell=True)
-            call("echo 'interval=5' >> /etc/NetworkManager/conf.d/99-connectivity.conf", shell=True)
-            call("systemctl restart NetworkManager", shell=True)
-            sleep(2)
-            call("systemctl restart NetworkManager", shell=True)
-            sleep(2)
 
         if ('ethernet' in scenario.tags) or ('bridge' in scenario.tags) or ('vlan' in scenario.tags):
             print ("---------------------------")
@@ -1542,6 +1544,9 @@ def after_scenario(context, scenario):
             print ("remove gsm profile and delete lock and dump logs")
             call('nmcli connection delete gsm', shell=True)
             call('rm -rf /etc/NetworkManager/system-connections/gsm', shell=True)
+            call('nmcli con up testeth0', shell=True)
+            wait_for_testeth0()
+            call('mount -o remount -t nfs nest.test.redhat.com:/mnt/qa/desktop/broadband_lock /mnt/scratch', shell=True)
             delete_old_lock("/mnt/scratch/", get_lock("/mnt/scratch"))
             # Attach journalctl logs
             os.system("sudo journalctl -u ModemManager --no-pager -o cat %s > /tmp/journal-mm.log" % context.log_cursor)

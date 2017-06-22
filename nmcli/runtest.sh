@@ -206,7 +206,7 @@ if [[ $1 == *gsm* ]]; then
         systemctl restart ModemManager
         sleep 60
         systemctl restart NetworkManager
-        sleep 60
+        sleep 120
 
         touch /tmp/gsm_configured
     fi

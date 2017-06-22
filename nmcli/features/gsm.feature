@@ -99,6 +99,7 @@ Feature: nmcli: gsm
      * Append "id=gsm" to file "/etc/NetworkManager/system-connections/gsm"
      * Append "uuid=12345678-abcd-eeee-ffff-098106543210" to file "/etc/NetworkManager/system-connections/gsm"
      * Append "type=gsm" to file "/etc/NetworkManager/system-connections/gsm"
+     * Append "autoconnect=false" to file "/etc/NetworkManager/system-connections/gsm"
      * Append "[gsm]" to file "/etc/NetworkManager/system-connections/gsm"
      * Append "apn=internet" to file "/etc/NetworkManager/system-connections/gsm"
      * Append "number=*99#" to file "/etc/NetworkManager/system-connections/gsm"
@@ -109,5 +110,19 @@ Feature: nmcli: gsm
      * Append "addr-gen-mode=stable-privacy" to file "/etc/NetworkManager/system-connections/gsm"
      * Execute "chmod 600 /etc/NetworkManager/system-connections/gsm"
      * Execute "nmcli con reload"
+     * Bring "up" connection "gsm"
     Then "GENERAL.STATE:.*activated" is visible with command "nmcli con show gsm" in "60" seconds
      * Ping "8.8.8.8" "7" times
+
+    @ver+=1.8.0
+    @gsm @connectivity @eth0
+    @gsm_connectivity_check
+    Scenario: nmcli - gsm - connectivity check
+    * Add a new connection of type "gsm" and options "ifname \* con-name gsm autoconnect no apn internet"
+    * Bring "up" connection "gsm"
+    When "GENERAL.STATE:.*activated" is visible with command "nmcli con show gsm" in "60" seconds
+     And "limited" is visible with command "nmcli g" in "60" seconds
+    * Execute "nmcli con modify gsm ipv4.dns 10.38.5.26"
+    * Bring "up" connection "gsm"
+    Then "full" is visible with command "nmcli g" in "60" seconds
+     And Ping "nix.cz" "7" times
