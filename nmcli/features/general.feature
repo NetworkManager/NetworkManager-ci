@@ -1304,12 +1304,12 @@ Feature: nmcli - general
     Scenario: NM - general - stable mem consumption
     * Execute "sh tmp/repro_1433303.sh"
     * Execute "sh tmp/repro_1433303.sh"
-    * Note the output of "pmap -x $(pidof NetworkManager) |grep total | awk '{print $4}'" as value "1"
+    * Note the output of "pmap -x $(pidof NetworkManager) |grep 'rw---'" as value "1"
     * Note the output of "pmap -x $(pidof NetworkManager) |grep total | awk '{print $3}'" as value "3"
     * Execute "sh tmp/repro_1433303.sh"
-    * Note the output of "pmap -x $(pidof NetworkManager) |grep total | awk '{print $4}'" as value "2"
+    * Note the output of "pmap -x $(pidof NetworkManager) |grep 'rw---'" as value "2"
     * Note the output of "pmap -x $(pidof NetworkManager) |grep total | awk '{print $3}'" as value "4"
-    Then Check noted value "2" difference from "1" is lower than "500"
+    Then Check RSS writable memory in noted value "2" differs from "1" less than "500"
     Then Check noted value "4" difference from "3" is lower than "500"
 
 

@@ -337,6 +337,22 @@ def check_describe_output_in_editor(context, options, obj):
     for opt in options:
         assert context.prompt.expect(["%s" % opt, pexpect.TIMEOUT], timeout=5) == 0 , "Option %s was not described!" % opt
 
+@step(u'Check RSS writable memory in noted value "{i2}" differs from "{i1}" less than "{dif}"')
+def check_rss_rw_dif(context, i2, i1, dif):
+    def sum_rss_writable_memory(context, pmap_raw):
+        total = 0
+        for line in pmap_raw.split("\n"):
+            vals = line.split()
+            if (len(vals) > 2):
+                total += int(vals[2])
+        return total
+
+    sum2 = int(sum_rss_writable_memory(context, context.noted[i2]))
+    sum1 = int(sum_rss_writable_memory(context, context.noted[i1]))
+    assert (sum2 + int(dif) > sum1), \
+     "rw RSS mem: %d + %s !> %d !" % (sum2, dif, sum1)
+
+
 @step(u'Check noted value "{i2}" difference from "{i1}" is lower than "{dif}"')
 def check_dif_in_values(context, i2, i1, dif):
     assert (int(context.noted[i1].strip()) + int(dif)) > int(context.noted[i2].strip()), \
