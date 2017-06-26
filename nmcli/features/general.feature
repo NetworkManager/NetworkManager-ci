@@ -1157,12 +1157,14 @@ Feature: nmcli - general
 
     @rhbz1217288
     @ver+=1.4.0
-    @eth
+    @eth @con
     @snapshot_rollback
     Scenario: NM - general - snapshot and rollback
     * Add connection type "ethernet" named "ethie" for device "eth1"
     * Bring "up" connection "ethie"
-    * Snapshot "create" for "eth1"
+    * Add connection type "ethernet" named "connie" for device "eth2"
+    * Bring "up" connection "connie"
+    * Snapshot "create" for "eth1,eth2"
     * Open editor for connection "ethie"
     * Submit "set ipv4.method manual" in editor
     * Submit "set ipv4.addresses 1.2.3.4/24" in editor
@@ -1170,13 +1172,129 @@ Feature: nmcli - general
     * Save in editor
     * Quit editor
     * Bring "up" connection "ethie"
+    * Open editor for connection "connie"
+    * Submit "set ipv4.method manual" in editor
+    * Submit "set ipv4.addresses 1.2.3.5/24" in editor
+    * Submit "set ipv4.gateway 1.2.3.1" in editor
+    * Save in editor
+    * Quit editor
+    * Bring "up" connection "connie"
     When "1.2.3.4/24" is visible with command "ip a s eth1" in "5" seconds
+    When "1.2.3.5/24" is visible with command "ip a s eth2" in "5" seconds
      And "1.2.3.1" is visible with command "ip r"
-    * Snapshot "revert" for "eth1"
+    * Snapshot "revert" for "eth1,eth2"
     Then "192.168.100" is visible with command "ip a s eth1" in "5" seconds
+     And "192.168.100" is visible with command "ip a s eth2" in "5" seconds
      And "1.2.3.4/24" is not visible with command "ip a s eth1"
+     And "1.2.3.5/24" is not visible with command "ip a s eth1"
      And "1.2.3.1" is not visible with command "ip r"
      And "192.168.100.1" is visible with command "ip r"
+
+
+    @rhbz1369716
+    @ver+=1.8.0
+    @eth @con
+    @snapshot_rollback_all_devices
+    Scenario: NM - general - snapshot and rollback all devices
+    * Add connection type "ethernet" named "ethie" for device "eth1"
+    * Bring "up" connection "ethie"
+    * Add connection type "ethernet" named "connie" for device "eth2"
+    * Bring "up" connection "connie"
+    * Snapshot "create" for "all"
+    * Open editor for connection "ethie"
+    * Submit "set ipv4.method manual" in editor
+    * Submit "set ipv4.addresses 1.2.3.4/24" in editor
+    * Submit "set ipv4.gateway 1.2.3.1" in editor
+    * Save in editor
+    * Quit editor
+    * Bring "up" connection "ethie"
+    * Open editor for connection "connie"
+    * Submit "set ipv4.method manual" in editor
+    * Submit "set ipv4.addresses 1.2.3.5/24" in editor
+    * Submit "set ipv4.gateway 1.2.3.1" in editor
+    * Save in editor
+    * Quit editor
+    * Bring "up" connection "connie"
+    When "1.2.3.4/24" is visible with command "ip a s eth1" in "5" seconds
+    When "1.2.3.5/24" is visible with command "ip a s eth2" in "5" seconds
+     And "1.2.3.1" is visible with command "ip r"
+    * Snapshot "revert" for "all"
+    Then "192.168.100" is visible with command "ip a s eth1" in "5" seconds
+     And "192.168.100" is visible with command "ip a s eth2" in "5" seconds
+     And "1.2.3.4/24" is not visible with command "ip a s eth1"
+     And "1.2.3.5/24" is not visible with command "ip a s eth1"
+     And "1.2.3.1" is not visible with command "ip r"
+     And "192.168.100.1" is visible with command "ip r"
+
+
+    @rhbz1369716
+    @ver+=1.8.0
+    @eth @con
+    @snapshot_rollback_all_devices_with_timeout
+    Scenario: NM - general - snapshot and rollback all devices with timeout
+    * Add connection type "ethernet" named "ethie" for device "eth1"
+    * Bring "up" connection "ethie"
+    * Add connection type "ethernet" named "connie" for device "eth2"
+    * Bring "up" connection "connie"
+    * Snapshot "create" for "all" with timeout "10"
+    * Open editor for connection "ethie"
+    * Submit "set ipv4.method manual" in editor
+    * Submit "set ipv4.addresses 1.2.3.4/24" in editor
+    * Submit "set ipv4.gateway 1.2.3.1" in editor
+    * Save in editor
+    * Quit editor
+    * Bring "up" connection "ethie"
+    * Open editor for connection "connie"
+    * Submit "set ipv4.method manual" in editor
+    * Submit "set ipv4.addresses 1.2.3.5/24" in editor
+    * Submit "set ipv4.gateway 1.2.3.1" in editor
+    * Save in editor
+    * Quit editor
+    * Bring "up" connection "connie"
+    When "1.2.3.4/24" is visible with command "ip a s eth1" in "5" seconds
+    When "1.2.3.5/24" is visible with command "ip a s eth2" in "5" seconds
+     And "1.2.3.1" is visible with command "ip r"
+    * Wait for at least "10" seconds
+    Then "192.168.100" is visible with command "ip a s eth1" in "5" seconds
+     And "192.168.100" is visible with command "ip a s eth2" in "5" seconds
+     And "1.2.3.4/24" is not visible with command "ip a s eth1"
+     And "1.2.3.5/24" is not visible with command "ip a s eth1"
+     And "1.2.3.1" is not visible with command "ip r"
+     And "192.168.100.1" is visible with command "ip r"
+
+
+    @rhbz1369716
+    @ver+=1.8.0
+    @manage_eth1
+    @snapshot_rollback_unmanaged
+    Scenario: NM - general - snapshot and rollback unmanaged
+    * Execute "nmcli device set eth1 managed off"
+    * Snapshot "create" for "eth1" with timeout "10"
+    * Execute "nmcli device set eth1 managed on"
+    When "unmanaged" is not visible with command "nmcli device show eth1" in "5" seconds
+    * Wait for at least "15" seconds
+    Then "unmanaged" is visible with command "nmcli device show eth1" in "5" seconds
+
+
+    @rhbz1369716
+    @ver+=1.8.0
+    @bond @slaves
+    @snapshot_rollback_soft_device
+    Scenario: NM - general - snapshot and rollback deleted soft device
+    * Add connection type "bond" named "bond0" for device "nm-bond"
+    * Add slave connection for master "nm-bond" on device "eth1" named "bond0.0"
+    * Add slave connection for master "nm-bond" on device "eth2" named "bond0.1"
+    * Bring "up" connection "bond0.0"
+    * Bring "up" connection "bond0.1"
+    When Check slave "eth1" in bond "nm-bond" in proc
+    When Check slave "eth2" in bond "nm-bond" in proc
+    * Snapshot "create" for "all" with timeout "10"
+    * Delete connection "bond0.0"
+    * Delete connection "bond0.1"
+    * Delete connection "bond0"
+    * Wait for at least "15" seconds
+    Then Check slave "eth1" in bond "nm-bond" in proc
+    Then Check slave "eth2" in bond "nm-bond" in proc
 
 
     @rhbz1433303

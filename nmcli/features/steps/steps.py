@@ -1487,10 +1487,11 @@ def save_in_editor(context):
 def check_error_while_saving_in_editor_2(context):
     context.prompt.expect("Error")
 
-@step(u'Snapshot "{action}" for "{device}"')
-def snapshot_action(context, action, device):
+@step(u'Snapshot "{action}" for "{devices}"')
+@step(u'Snapshot "{action}" for "{devices}" with timeout "{timeout}"')
+def snapshot_action(context, action, devices, timeout=0):
     def initialize_manager_for_device(device):
-        import dbus, sys
+        import dbus
         bus = dbus.SystemBus()
         # Get a proxy for the base NetworkManager object
         proxy = bus.get_object("org.freedesktop.NetworkManager", "/org/freedesktop/NetworkManager")
@@ -1511,22 +1512,32 @@ def snapshot_action(context, action, device):
     if not hasattr(context, 'checkpoints'):
         context.checkpoints = {}
 
-    manager, dpath = initialize_manager_for_device(device)
+    dpaths = []
+    if devices == 'all':
+        import dbus
+        bus = dbus.SystemBus()
+        # Get a proxy for the base NetworkManager object
+        proxy = bus.get_object("org.freedesktop.NetworkManager", "/org/freedesktop/NetworkManager")
+        manager = dbus.Interface(proxy, "org.freedesktop.NetworkManager")
+    else:
+        for device in devices.split(','):
+            manager, dpath = initialize_manager_for_device(device)
+            dpaths.append(dpath)
 
     if action == "create":
-        print ("Create checkpoint for device %s" %device)
-        context.checkpoints[device] = manager.CheckpointCreate([ dpath ],
-                                      0,  # no rollback
-                                      1); # DESTROY_ALL
+        print ("Create checkpoint for device(s) %s" % devices)
+        context.checkpoints[devices] = manager.CheckpointCreate(dpaths,
+                                      int(timeout),   # no rollback
+                                      1)  # DESTROY_ALL
     if action == "revert":
-        print ("Rollback checkpoint for device %s" %device)
-        results = manager.CheckpointRollback(context.checkpoints[device])
+        print ("Rollback checkpoint for device(s) %s" % devices)
+        results = manager.CheckpointRollback(context.checkpoints[devices])
         for d in results:
             print ("  - device %s: result %u" % (d, results[d]))
 
     if action == "delete":
-        print ("Destroy checkpoint for device %s" %device)
-        manager.CheckpointDestroy(context.checkpoints[device])
+        print ("Destroy checkpoint for device(s) %s" % devices)
+        manager.CheckpointDestroy(context.checkpoints[devices])
 
 @step(u'Send lifetime scapy packet with "{hlim}"')
 @step(u'Send lifetime scapy packet from "{srcaddr}"')
