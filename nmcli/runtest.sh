@@ -168,7 +168,7 @@ if [[ $1 == *dcb_* ]]; then
         systemctl enable lldpad
         systemctl start lldpad
 
-        dcbtool sc enp4s0f0 dcb on
+        dcbtool sc enp5s0f0 dcb on
 
         touch /tmp/dcb_configured
     fi
