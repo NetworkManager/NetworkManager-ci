@@ -6,7 +6,7 @@ import os
 import exceptions
 import re
 import subprocess
-from subprocess import Popen, check_output, call
+from subprocess import Popen, check_output
 from glob import glob
 
 # Helpers for the steps that leave the execution trace
@@ -1248,6 +1248,13 @@ def prepare_connection(context):
         * Execute "nmcli con modify dcb ipv4.method manual ipv4.addresses 1.2.3.4/24 ipv6.method ignore"
     """)
 
+@step(u'Prepare "{conf}" config for "{device}" device with "{vfs}" VFs')
+def prepare_sriov_config(context, conf, device, vfs):
+    conf_path = "/etc/NetworkManager/conf.d/"+conf
+    command_code(context, "echo '[device-%s]' > %s" % (device, conf_path))
+    command_code(context, "echo 'match-device=interface-name:%s' >> %s" % (device, conf_path))
+    command_code(context, "echo 'sriov-num-vfs=%d' >> %s" % (int(vfs), conf_path))
+    command_code(context, 'systemctl restart NetworkManager')
 
 @step(u'Prepare pppoe server for user "{user}" with "{passwd}" password and IP "{ip}" authenticated via "{auth}"')
 def prepare_pppoe_server(context, user, passwd, ip, auth):
@@ -1436,7 +1443,7 @@ def reboot(context):
     command_code(context, "ip link del nm-bond")
     command_code(context, "ip link del nm-team")
 
-    call("rm -rf /var/run/NetworkManager", shell=True)
+    command_code(context, "rm -rf /var/run/NetworkManager")
 
     sleep(2)
     context.nm_restarted = True

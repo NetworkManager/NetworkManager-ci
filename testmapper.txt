@@ -713,6 +713,16 @@ dcb_enable_after_reboot, ., nmcli/./runtest.sh dcb_enable_after_reboot ,
 dcb_error_shown, ., nmcli/./runtest.sh dcb_error_shown ,
 #@dcb_end
 
+#@sriov_start
+sriov_enable, ., nmcli/./runtest.sh sriov_enable ,
+sriov_disable, ., nmcli/./runtest.sh sriov_disable ,
+sriov_connect, ., nmcli/./runtest.sh sriov_connect ,
+sriov_autoconnect, ., nmcli/./runtest.sh sriov_autoconnect ,
+sriov_connect_externally, ., nmcli/./runtest.sh sriov_connect_externally ,
+sriov_reboot_persistence, ., nmcli/./runtest.sh sriov_reboot_persistence ,
+#@sriov_end
+
+
 #@ppp_start
 pptp_add_profile, ., nmcli/./runtest.sh pptp_add_profile ,
 pptp_terminate, ., nmcli/./runtest.sh pptp_terminate ,

@@ -1224,6 +1224,24 @@ def after_scenario(context, scenario):
             call("service NetworkManager restart", shell=True)
             #sleep(TIMER)
 
+        if 'sriov' in scenario.tags:
+            print ("---------------------------")
+            print ("remove sriov configs")
+            # call("sed -i 's/sriov-num-vfs=[0-9]\+/sriov-num-vfs=0/' /etc/NetworkManager/conf.d/99-sriov.conf", shell=True)
+            # call("sed -i 's/sriov-num-vfs=[0-9]\+/sriov-num-vfs=0/' /etc/NetworkManager/conf.d/98-sriov.conf", shell=True)
+            # call("systemctl restart NetworkManager", shell=True)
+            # sleep(5)
+            # call("rm -rf /etc/NetworkManager/conf.d/99-sriov.conf", shell=True)
+            # call("rm -rf /etc/NetworkManager/conf.d/98-sriov.conf", shell=True)
+            # call("systemctl restart NetworkManager", shell=True)
+            # sleep(5)
+            call("echo 0 > /sys/class/net/enp5s0f0/device/sriov_numvfs", shell=True)
+            call("echo 0 > /sys/class/net/enp5s0f1/device/sriov_numvfs", shell=True)
+            call("rm -rf /etc/NetworkManager/conf.d/99-sriov.conf", shell=True)
+            call("rm -rf /etc/NetworkManager/conf.d/98-sriov.conf", shell=True)
+            call("systemctl restart NetworkManager", shell=True)
+            sleep(1)
+
         if 'ipv6' in scenario.tags or 'ipv6_2' in scenario.tags:
             print ("---------------------------")
             print ("deleting connections")

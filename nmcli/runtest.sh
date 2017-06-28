@@ -81,19 +81,21 @@ if [ ! -e /tmp/nm_eth_configured ]; then
 
     echo $1
     dcb_inf_wol=0
+    if [[ $1 == *sriov_* ]]; then
+        dcb_inf_wol_sriov=1
     if [[ $1 == *dcb_* ]]; then
-        dcb_inf_wol=1
+        dcb_inf_wol_sriov=1
     fi
     if [[ $1 == *inf_* ]]; then
-        dcb_inf_wol=1
+        dcb_inf_wol_sriov=1
     fi
     if [[ $1 == *wol_* ]]; then
-        dcb_inf_wol=1
+        dcb_inf_wol_sriov=1
     fi
 
     veth=0
     if [ $wlan -eq 0 ]; then
-        if [ $dcb_inf_wol -eq 0 ]; then
+        if [ $dcb_inf_wol_sriov=1 -eq 0 ]; then
             for X in $(seq 0 10); do
                 if ! nmcli -f DEVICE -t device |grep eth${X}; then
                     veth=1
