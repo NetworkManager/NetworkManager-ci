@@ -1355,7 +1355,7 @@ Feature: nmcli - general
     * Add a new connection of type "ethernet" and options "ifname eth0 con-name ethie autoconnect no"
     * Bring up connection "ethie"
     When "activated" is visible with command "nmcli -g GENERAL.STATE con show ethie" in "20" seconds
-     And "full" is visible with command "nmcli  -g CONNECTIVITY g"
+     And "full" is visible with command "nmcli  -g CONNECTIVITY g" in "20" seconds
     * Execute "firewall-cmd --panic-on"
     When "limited" is visible with command "nmcli  -g CONNECTIVITY g" in "70" seconds
     * Execute "firewall-cmd --panic-off"
