@@ -80,7 +80,7 @@ if [ ! -e /tmp/nm_eth_configured ]; then
     yum -y install pexpect
 
     echo $1
-    dcb_inf_wol=0
+    dcb_inf_wol_sriov=0
     if [[ $1 == *sriov_* ]]; then
         dcb_inf_wol_sriov=1
     fi
@@ -115,7 +115,7 @@ if [ ! -e /tmp/nm_eth_configured ]; then
     else
         #profiles tuning
         if [ $wlan -eq 0 ]; then
-            if [ $dcb_inf_wol -eq 0 ]; then
+            if [ $dcb_inf_wol_sriov -eq 0 ]; then
                 nmcli connection add type ethernet ifname eth0 con-name testeth0
                 nmcli connection delete eth0
                 #nmcli connection modify testeth0 ipv6.method ignore
