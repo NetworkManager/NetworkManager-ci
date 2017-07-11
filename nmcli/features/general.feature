@@ -1352,10 +1352,10 @@ Feature: nmcli - general
     @firewall @connectivity @eth @eth0
     @connectivity_check
     Scenario: NM - general - connectivity check
-    * Add a new connection of type "ethernet" and options "ifname eth0 con-name ethie autoconnect no"
+    * Add a new connection of type "ethernet" and options "ifname eth0 con-name ethie autoconnect no ipv6.method ignore"
     * Bring up connection "ethie"
     When "activated" is visible with command "nmcli -g GENERAL.STATE con show ethie" in "20" seconds
-     And "full" is visible with command "nmcli  -g CONNECTIVITY g" in "20" seconds
+     And "full" is visible with command "nmcli  -g CONNECTIVITY g" in "70" seconds
     * Execute "firewall-cmd --panic-on"
     When "limited" is visible with command "nmcli  -g CONNECTIVITY g" in "70" seconds
     * Execute "firewall-cmd --panic-off"
@@ -1369,7 +1369,7 @@ Feature: nmcli - general
     Scenario: NM - general - disable connectivity check
     * Execute "sed -i 's/interval=5/interval=0/' /etc/NetworkManager/conf.d/99-connectivity.conf"
     * Restart NM
-    * Add a new connection of type "ethernet" and options "ifname eth0 con-name ethie autoconnect no"
+    * Add a new connection of type "ethernet" and options "ifname eth0 con-name ethie autoconnect no ipv6.method ignore"
     * Bring up connection "ethie"
     When "activated" is visible with command "nmcli -g GENERAL.STATE con show ethie" in "20" seconds
      And "full" is visible with command "nmcli  -g CONNECTIVITY g"
@@ -1383,11 +1383,12 @@ Feature: nmcli - general
     @per_device_connectivity_check
     Scenario: NM - general - per device connectivity check
     # Device with connectivity but low priority
-    * Add a new connection of type "ethernet" and options "ifname eth0 con-name ethie ipv4.route-metric 1024"
-    # Device w/o connectivity but with high priority
-    * Add a new connection of type "ethernet" and options "ifname eth1 con-name connie autoconnect no ipv4.method manual ipv4.addresses 1.2.3.4/24 ipv4.gateway 1.2.3.1 ipv4.route-metric 100"
+    * Add a new connection of type "ethernet" and options "ifname eth0 con-name ethie ipv4.route-metric 1024 ipv6.method ignore"
     * Bring up connection "ethie"
     When "activated" is visible with command "nmcli -g GENERAL.STATE con show ethie" in "20" seconds
+    When "full" is visible with command "nmcli  -g CONNECTIVITY g" in "70" seconds
+    # Device w/o connectivity but with high priority
+    * Add a new connection of type "ethernet" and options "ifname eth1 con-name connie autoconnect no ipv4.method manual ipv4.addresses 1.2.3.4/24 ipv4.gateway 1.2.3.1 ipv4.route-metric 100 ipv6.method ignore"
     * Bring up connection "connie"
     # Connection should stay at the lower priority device
     Then "full" is visible with command "nmcli  -g CONNECTIVITY g" in "70" seconds
