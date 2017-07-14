@@ -512,7 +512,7 @@ def before_scenario(context, scenario):
         if 'disp' in scenario.tags:
             print ("---------------------------")
             print ("initialize dispatcher.txt")
-            call("echo > /tmp/dispatcher.txt", shell=True)
+            call("> /tmp/dispatcher.txt", shell=True)
 
         if 'eth0' in scenario.tags:
             print ("---------------------------")
@@ -946,7 +946,7 @@ def after_scenario(context, scenario):
             print("WARNING: 20M size exceeded in /tmp/journal-nm.log, skipping")
 
         #attach network traffic log
-        call("sudo kill -SIGHUP $(pidof tcpdump)", shell=True)
+        call("sudo kill -1 $(pidof tcpdump)", shell=True)
         if os.stat("/tmp/network-traffic.log").st_size < 20000000:
             traffic = open("/tmp/network-traffic.log", 'r').read()
             if traffic:
@@ -1082,9 +1082,10 @@ def after_scenario(context, scenario):
             call("rm -rf /etc/NetworkManager/dispatcher.d/*-disp", shell=True)
             call("rm -rf /etc/NetworkManager/dispatcher.d/pre-up.d/98-disp", shell=True)
             call("rm -rf /etc/NetworkManager/dispatcher.d/pre-down.d/97-disp", shell=True)
-            call("rm -rf /tmp/dispatcher.txt", shell=True)
+            #call("rm -rf /tmp/dispatcher.txt", shell=True)
             call('nmcli con down testeth1', shell=True)
             call('nmcli con down testeth2', shell=True)
+            call('kill -1 $(pidof NetworkManager)', shell=True)
 
         if 'eth' in scenario.tags:
             print ("---------------------------")
