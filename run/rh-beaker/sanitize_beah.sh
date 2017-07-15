@@ -9,10 +9,10 @@ nmcli connection modify testeth0 ipv6.may-fail no
 nmcli con up id testeth0
 ip a s eth0
 ip -6 r
-sleep 30
+sleep 60
 
 systemctl condreload beah-beaker-backend.service
 
-sleep 30
+sleep 60
 
 exit 0
