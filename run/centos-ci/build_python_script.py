@@ -92,7 +92,8 @@ def run_tests(features, code_branch, test_branch):
                                                    && sh run/centos-ci/scripts/./build.sh %s \
                                                    && sh run/centos-ci/scripts/./get_tests.sh %s \
                                                    && sh run/centos-ci/scripts/./runtest.sh %s' \
-                                                   "% (h, code_branch, test_branch, tests)
+                                                   && sh run/centos-ci/scripts/./archive.sh %s' \
+                                                   "% (h, code_branch, test_branch, tests, api[:13])
         print cmd0
         rtn_code=subprocess.call(cmd0, shell=True)
 
