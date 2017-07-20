@@ -99,7 +99,7 @@ def run_tests(features, code_branch, test_branch):
 
         # Upload results to transfer.sh
         subprocess.call("ssh -t -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no root@%s \
-                                curl --upload-file /var/www/html/results/Archives-* https://transfer.sh" % (h), shell=True)
+                                curl --upload-file /var/www/html/results/Test_results-* https://transfer.sh && echo \n" % (h), shell=True)
 
         #cmd1="scp /home/networkmanager/duffy.key root@%s:/tmp" % (h)
         #print cmd1

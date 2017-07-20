@@ -67,6 +67,6 @@ fi
 
 # Create archive with results
 cd /var/www/html/results
-tar -czf Archives-$(NetworkManager --version).tar.gz  *
+tar -czf Test_results-$(NetworkManager --version).tar.gz  *
 
 exit $rc
