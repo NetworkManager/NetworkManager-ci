@@ -91,7 +91,7 @@ def run_tests(features, code_branch, test_branch):
                                                    && sh run/centos-ci/scripts/./setup.sh \
                                                    && sh run/centos-ci/scripts/./build.sh %s \
                                                    && sh run/centos-ci/scripts/./get_tests.sh %s \
-                                                   && sh run/centos-ci/scripts/./runtest.sh %s' \
+                                                   && sh run/centos-ci/scripts/./runtest.sh %s \
                                                    && sh run/centos-ci/scripts/./archive.sh %s' \
                                                    "% (h, code_branch, test_branch, tests, api[:13])
         print cmd0
