@@ -84,38 +84,26 @@ def run_tests(features, code_branch, test_branch):
     print (tests)
 
     for h in b['hosts']:
-        print h
+        # Do the work
         cmd0="ssh -t -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no root@%s 'yum install -y git \
                                                    && git clone https://github.com/NetworkManager/NetworkManager-ci \
                                                    && cd NetworkManager-ci \
                                                    && sh run/centos-ci/scripts/./setup.sh \
                                                    && sh run/centos-ci/scripts/./build.sh %s \
                                                    && sh run/centos-ci/scripts/./get_tests.sh %s \
-                                                   && sh run/centos-ci/scripts/./runtest.sh %s \
-                                                   && sh run/centos-ci/scripts/./archive.sh %s' \
+                                                   && sh run/centos-ci/scripts/./runtest.sh %s ; \
+                                                   sh run/centos-ci/scripts/./archive.sh %s' \
                                                    "% (h, code_branch, test_branch, tests, api[:13])
-        print cmd0
+        # Save return code
         rtn_code=subprocess.call(cmd0, shell=True)
+
+        # Archive results and rpms
+        cmd1="ssh -t -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no root@%s 'sh run/centos-ci/scripts/./archive.sh %s'"% (h, api[:13])
+        subprocess.call(cmd1, shell=True)
 
         # Upload results to transfer.sh
         subprocess.call("ssh -t -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no root@%s \
                                 curl --upload-file /var/www/html/results/Test_results-* https://transfer.sh && echo \n" % (h), shell=True)
-
-        #cmd1="scp /home/networkmanager/duffy.key root@%s:/tmp" % (h)
-        #print cmd1
-        #subprocess.call(cmd1, shell=True)
-
-        #cmd2="ssh -t -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no root@%s RSYNC_PASSWORD='$cat /tmp/duffy.key)' rsync -av /var/www/html/results/ networkmanager@artifacts.ci.centos.org::networkmanager/"
-
-        # cmd2="ssh -t -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no root@%s 'run/fedora-vagrant/scripts/./build.sh nm-1-6'" % (h)
-        # print cmd2
-        # rtn_code=subprocess.call(cmd2, shell=True)
-        # cmd3="ssh -t -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no root@%s 'run/fedora-vagrant/scripts/./get_tests.sh master'" % (h)
-        # print cmd3
-        # rtn_code=subprocess.call(cmd3, shell=True)
-        # cmd4="ssh -t -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no root@%s 'run/fedora-vagrant/scripts/./runtest.sh ipv6_never-default_remove'" % (h)
-        # print cmd4
-        # rtn_code=subprocess.call(cmd4, shell=True)
 
 
     done_nodes_url="%s/Node/done?key=%s&ssid=%s" % (url_base, api, b['ssid'])

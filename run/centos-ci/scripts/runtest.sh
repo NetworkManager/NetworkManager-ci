@@ -3,6 +3,8 @@ if [ -e /tmp/nm_compilation_failed ]; then
     exit 1
 fi
 
+systemctl restart NetworkManager
+sleep 5
 
 cd NetworkManager-ci
 

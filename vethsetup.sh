@@ -6,10 +6,11 @@
 function setup_veth_env ()
 {
     # Log state of net before the setup
-    ip a
-    nmcli con
-    nmcli dev
-    nmcli gen
+    #ip a
+    #nmcli con
+    #nmcli dev
+    #nmcli gen
+    sleep 1
 
     need_veth=0
     for X in $(seq 0 10); do
@@ -175,7 +176,7 @@ function setup_veth_env ()
     # Creating testeth profile for the simulater external device
     nmcli c add type ethernet con-name testeth10 ifname eth10 autoconnect no
 
-    systemctl restart NetworkManager; sleep 1
+    systemctl restart NetworkManager; sleep 4
 
     nmcli con up testeth0
 
@@ -184,10 +185,10 @@ function setup_veth_env ()
     for i in $(nmcli -t -f NAME,UUID connection |grep -v testeth |awk -F ':' ' {print $2}'); do nmcli con del $i; done
 
     # Log state of net after the setup
-    ip a
-    nmcli con
-    nmcli dev
-    nmcli gen
+    # ip a
+    # nmcli con
+    # nmcli dev
+    # nmcli gen
 }
 
 
