@@ -724,15 +724,15 @@ sriov_reboot_persistence, ., nmcli/./runtest.sh sriov_reboot_persistence ,
 
 
 #@ppp_start
-pptp_add_profile, ., nmcli/./runtest.sh pptp_add_profile ,
-pptp_terminate, ., nmcli/./runtest.sh pptp_terminate ,
-#@ppp_end
-
-#@pptp_start
 connect_to_pppoe_via_pap, ., nmcli/./runtest.sh connect_to_pppoe_via_pap ,
 connect_to_pppoe_via_chap, ., nmcli/./runtest.sh connect_to_pppoe_via_chap ,
 disconnect_from_pppoe, ., nmcli/./runtest.sh disconnect_from_pppoe ,
 update_firewall_zone_upon_reconnect, ., nmcli/./runtest.sh update_firewall_zone_upon_reconnect ,
+#@ppp_end
+
+#@pptp_start
+pptp_add_profile, ., nmcli/./runtest.sh pptp_add_profile ,
+pptp_terminate, ., nmcli/./runtest.sh pptp_terminate ,
 #@pptp_end
 
 #@nmtui_start

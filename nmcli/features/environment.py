@@ -888,7 +888,7 @@ def before_scenario(context, scenario):
         except CalledProcessError, e:
             context.nm_pid = None
 
-        print("NetworkManager process id before: %s", context.nm_pid)
+        print("NetworkManager process id before: %s" % context.nm_pid)
 
         if context.nm_pid is not None:
             context.log.write("NetworkManager memory consumption before: %d KiB\n" % nm_size_kb())
@@ -930,7 +930,7 @@ def after_scenario(context, scenario):
     nm_pid_after = None
     try:
         nm_pid_after = nm_pid()
-        print("NetworkManager process id after: %s (was %s)", nm_pid_after, context.nm_pid)
+        print("NetworkManager process id after: %s (was %s)" % (nm_pid_after, context.nm_pid))
     except Exception as e:
         print("nm_pid wasn't set. Probably crash in before_scenario: %s" % e.message)
         pass
