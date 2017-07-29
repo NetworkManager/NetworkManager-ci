@@ -91,14 +91,14 @@ def run_tests(features, code_branch, test_branch):
                                                    && sh run/centos-ci/scripts/./setup.sh \
                                                    && sh run/centos-ci/scripts/./build.sh %s \
                                                    && sh run/centos-ci/scripts/./get_tests.sh %s \
-                                                   && sh run/centos-ci/scripts/./runtest.sh %s ; \
-                                                   sh run/centos-ci/scripts/./archive.sh %s' \
-                                                   "% (h, code_branch, test_branch, tests, api[:13])
+                                                   && sh run/centos-ci/scripts/./runtest.sh %s' \
+                                                   "% (h, code_branch, test_branch, tests)
         # Save return code
         rtn_code=subprocess.call(cmd0, shell=True)
 
         # Archive results and rpms
-        cmd1="ssh -t -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no root@%s 'sh run/centos-ci/scripts/./archive.sh %s'"% (h, api[:13])
+        cmd1="ssh -t -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no root@%s \
+                                                    'sh NetworkManager-ci/run/centos-ci/scripts/./archive.sh %s'"% (h, api[:13])
         subprocess.call(cmd1, shell=True)
 
         # Upload results to transfer.sh
