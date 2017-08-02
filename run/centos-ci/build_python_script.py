@@ -106,6 +106,11 @@ def run_tests(features, code_branch, test_branch):
                                 curl --upload-file /var/www/html/results/Test_results-* https://transfer.sh && echo \n" % (h), shell=True)
 
 
+        # Download results for in jenkins storage
+        subprocess.call("mkdir results", shell=True)
+        subprocess.call("scp -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no root@%s:/var/www/html/results/Test_results-* ./results" % (h), shell=True)
+        subprocess.call("cd results && tar -xzf Test_results* && rm -rf Test_results* && cd ..", shell=True)
+
     done_nodes_url="%s/Node/done?key=%s&ssid=%s" % (url_base, api, b['ssid'])
     das=urllib.urlopen(done_nodes_url).read()
 

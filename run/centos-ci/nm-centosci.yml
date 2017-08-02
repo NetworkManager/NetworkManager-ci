@@ -19,6 +19,9 @@
           export CODE_BRANCH='{branch}'
           python -u run/centos-ci/build_python_script.py
     publishers:
+      - archive:
+          artifacts: 'results/*'
+          allow-empty: 'true'
       - postbuildscript:
           script-only-if-succeeded: false
           script-only-if-failed: true
