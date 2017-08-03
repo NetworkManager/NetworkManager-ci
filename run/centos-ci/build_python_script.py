@@ -67,6 +67,36 @@ def read_env_options():
     if 'FEATURES' in os.environ:
         settings['features'] = os.environ['FEATURES']
 
+def generate_junit():
+    failed = []
+    passed = []
+    for f in listdir('results'):
+        f = f.split('.html')[0]
+        if 'FAIL' in f:
+            f = f.split('FAIL-')[1]
+            failed.append(f)
+            continue
+        else:
+            passes.append(f)
+
+    import xml.etree.ElementTree as ET
+    root = ET.ElementTree()
+    testsuite = ET.Element('testsuite', tests=str(len(passed) + len(failed)))
+    for passed_test in passed:
+        testcase = ET.Element('testcase', classname="tests", name=passed_test)
+        testsuite.append(testcase)
+    for failed_test in failed:
+        testcase = ET.Element('testcase', classname="tests", name=failed_test)
+        failure = ET.Element('failure')
+        failure.text = "Error"
+        testcase.append(failure)
+        testsuite.append(testcase)
+    root._setroot(testsuite)
+    junit_path = "junit.xml"
+    root.write(junit_path)
+    return 0
+
+
 def run_tests(features, code_branch, test_branch):
     url_base="http://admin.ci.centos.org:8080"
     # This file was generated on your slave.  See https://wiki.centos.org/QaWiki/CI/GettingStarted
@@ -110,6 +140,9 @@ def run_tests(features, code_branch, test_branch):
         subprocess.call("mkdir results", shell=True)
         subprocess.call("scp -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no root@%s:/var/www/html/results/Test_results-* ./results" % (h), shell=True)
         subprocess.call("cd results && tar -xzf Test_results* && rm -rf Test_results* && cd ..", shell=True)
+
+        # Generate junit.xml for graph from results dir
+        generate_junit()
 
     done_nodes_url="%s/Node/done?key=%s&ssid=%s" % (url_base, api, b['ssid'])
     das=urllib.urlopen(done_nodes_url).read()
