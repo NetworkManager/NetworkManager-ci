@@ -79,7 +79,7 @@ def generate_junit():
         if 'RESULT' in f:
             continue
         else:
-            passes.append(f)
+            passed.append(f)
 
     import xml.etree.ElementTree as ET
     root = ET.ElementTree()
