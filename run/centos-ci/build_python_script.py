@@ -76,6 +76,8 @@ def generate_junit():
             f = f.split('FAIL-')[1]
             failed.append(f)
             continue
+        if 'RESULT' in f:
+            continue
         else:
             passes.append(f)
 
