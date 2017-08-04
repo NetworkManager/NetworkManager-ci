@@ -70,7 +70,7 @@ def read_env_options():
 def generate_junit():
     failed = []
     passed = []
-    for f in listdir('results'):
+    for f in os.listdir('results'):
         f = f.split('.html')[0]
         if 'FAIL' in f:
             f = f.split('FAIL-')[1]
