@@ -8,6 +8,7 @@ Feature: nmcli: tuntap
      # Scenario:
 
     @tuntap
+    @ver=+1.4.0
     @add_default_tap_device
     Scenario: nmcli - tuntap - create default tap device
     * Add a new connection of type "tun" and options "ifname tap0 con-name tap0 tun.mode 2 ipv4.addresses 1.2.3.4/24 ipv4.method manual"
@@ -18,6 +19,7 @@ Feature: nmcli: tuntap
 
 
     @tuntap
+    @ver=+1.4.0
     @add_default_tun_device
     Scenario: nmcli - tuntap - create default tun device
     * Add a new connection of type "tun" and options "ifname tap0 con-name tap0 tun.mode 1 ipv4.addresses 1.2.3.4/24 ipv4.method manual"
@@ -28,6 +30,7 @@ Feature: nmcli: tuntap
 
 
     @tuntap
+    @ver=+1.4.0
     @remove_default_tuntap
     Scenario: nmcli - tuntap - remove default tuntap device
     * Add a new connection of type "tun" and options "ifname tap0 con-name tap0 tun.mode 1 ipv4.addresses 1.2.3.4/24 ipv4.method manual"
