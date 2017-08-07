@@ -2,10 +2,10 @@
 This repo contains a set of integration tests for NetworkManager and vagrant based executor
 
 ### Nightly status (CentOS CI)
- * [![Build Status](https://ci.centos.org/buildStatus/icon?job=NetworkManager-master)](https://ci.centos.org/view/NetworkManager/job/NetworkManager-master/)
- * [![Build Status](https://ci.centos.org/view/NetworkManager/job/NetworkManager-nm-1-8/badge/icon)](https://ci.centos.org/view/NetworkManager/job/NetworkManager-nm-1-8/)
- * [![Build Status](https://ci.centos.org/buildStatus/icon?job=NetworkManager-nm-1-6)](https://ci.centos.org/view/NetworkManager/job/NetworkManager-nm-1-6/)
- * [![Build Status](https://ci.centos.org/buildStatus/icon?job=NetworkManager-nm-1-4)](https://ci.centos.org/view/NetworkManager/job/NetworkManager-nm-1-4/)
+ * master -  [![Build Status](https://ci.centos.org/buildStatus/icon?job=NetworkManager-master)](https://ci.centos.org/view/NetworkManager/job/NetworkManager-master/)
+ * 1.8 - [![Build Status](https://ci.centos.org/view/NetworkManager/job/NetworkManager-nm-1-8/badge/icon)](https://ci.centos.org/view/NetworkManager/job/NetworkManager-nm-1-8/)
+ * 1.6 - [![Build Status](https://ci.centos.org/buildStatus/icon?job=NetworkManager-nm-1-6)](https://ci.centos.org/view/NetworkManager/job/NetworkManager-nm-1-6/)
+ * 1.4 - [![Build Status](https://ci.centos.org/buildStatus/icon?job=NetworkManager-nm-1-4)](https://ci.centos.org/view/NetworkManager/job/NetworkManager-nm-1-4/)
 ### Howto execute basic test suite (90minutes)
 
 * Prerequisites
