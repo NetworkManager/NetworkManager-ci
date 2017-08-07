@@ -4,6 +4,7 @@ This repo contains a set of integration tests for NetworkManager and vagrant bas
 ### Nightly status (CentOS CI)
 
 | Code Branch | Build Status |
+| ------------| ------------ |
 | master | [![Build Status](https://ci.centos.org/buildStatus/icon?job=NetworkManager-master)](https://ci.centos.org/view/NetworkManager/job/NetworkManager-master/) |
 | 1.8.x | [![Build Status](https://ci.centos.org/view/NetworkManager/job/NetworkManager-nm-1-8/badge/icon)](https://ci.centos.org/view/NetworkManager/job/NetworkManager-nm-1-8/) |
 | 1.6.x | [![Build Status](https://ci.centos.org/buildStatus/icon?job=NetworkManager-nm-1-6)](https://ci.centos.org/view/NetworkManager/job/NetworkManager-nm-1-6/) |
