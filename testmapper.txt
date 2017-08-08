@@ -728,6 +728,7 @@ connect_to_pppoe_via_pap, ., nmcli/./runtest.sh connect_to_pppoe_via_pap ,
 connect_to_pppoe_via_chap, ., nmcli/./runtest.sh connect_to_pppoe_via_chap ,
 disconnect_from_pppoe, ., nmcli/./runtest.sh disconnect_from_pppoe ,
 update_firewall_zone_upon_reconnect, ., nmcli/./runtest.sh update_firewall_zone_upon_reconnect ,
+pppoe_over_vlan, ., nmcli/./runtest.sh pppoe_over_vlan ,
 #@ppp_end
 
 #@pptp_start
