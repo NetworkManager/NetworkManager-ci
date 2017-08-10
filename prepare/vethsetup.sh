@@ -69,7 +69,7 @@ function setup_veth_env ()
     fi
 
     # Copy backup to /etc/sysconfig/network-scripts/ and reload
-    nmcli device disconnect $DEV 2>&1 > /dev/null
+    nmcli device disconnect eth0 2>&1 > /dev/null
     yes 2>/dev/null | cp -rf /tmp/ifcfg-$DEV /etc/sysconfig/network-scripts/ifcfg-testeth0
     sleep 1
     nmcli con reload
