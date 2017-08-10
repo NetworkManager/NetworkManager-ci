@@ -61,7 +61,11 @@ function setup_veth_env ()
         ip link set $DEV down
         ip link set $DEV name eth0
     fi
-    UUID=$(nmcli -t -f UUID c show --active | head -n 1)
+    UUID_NAME=$(nmcli -t -f UUID,NAME c show --active | head -n 1)
+    NAME=${UUID_NAME#*:}
+    UUID=${UUID_NAME%:*}
+    # Overwrite the name in order to be sure to have all the NM keys (including UUID) in the ifcfg file
+    nmcli con mod $UUID connection.id "$NAME"
 
     # Backup original ifcfg
     if [ ! -e /tmp/ifcfg-$DEV ]; then
