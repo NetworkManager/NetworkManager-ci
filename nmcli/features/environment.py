@@ -954,6 +954,13 @@ def after_scenario(context, scenario):
         else:
             print("WARNING: 20M size exceeded in /tmp/network-traffic.log, skipping")
 
+        if 'netservice' in scenario.tags:
+            # Attach network.service journalctl logs
+            os.system("sudo journalctl -u network --no-pager -o cat %s > /tmp/journal-netsrv.log" % context.log_cursor)
+            data = open("/tmp/journal-netsrv.log", 'r').read()
+            if data:
+                context.embed('text/plain', data)
+
         if 'runonce' in scenario.tags:
             print ("---------------------------")
             print ("delete profiles and start NM")
