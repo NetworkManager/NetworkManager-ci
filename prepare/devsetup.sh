@@ -107,7 +107,7 @@ local_setup_configure_nm_eth () {
 
 
     if [ $veth -eq 1 ]; then
-        sh vethsetup.sh setup
+        sh prepare/vethsetup.sh setup
 
         touch /tmp/nm_newveth_configured
 
