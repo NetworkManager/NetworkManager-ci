@@ -55,17 +55,13 @@ function setup_veth_env ()
     # nmcli gen
 
     # Make sure the active ethernet device is eth0
-    if [ ! "eth0" == $(nmcli -f TYPE,DEVICE -t c sh --active  | grep ethernet | awk '{split($0,a,":"); print a[2]}') ]; then
-        DEV=$(nmcli -f TYPE,DEVICE -t c sh --active  | grep ethernet | awk '{split($0,a,":"); print a[2]}')
-        UUID=$(nmcli -t -f UUID c show --active)
+    DEV=$(nmcli -f TYPE,DEVICE -t c sh --active  | grep ethernet | awk '{split($0,a,":"); print a[2]}' | head -n 1)
+    if [ "eth0" != "$DEV" ]; then
         sleep 1
         ip link set $DEV down
         ip link set $DEV name eth0
-    # Make active device eth0 if not
-    else
-        UUID=$(nmcli -t -f UUID c show --active)
-        DEV="eth0"
     fi
+    UUID=$(nmcli -t -f UUID c show --active | head -n 1)
 
     # Backup original ifcfg
     if [ ! -e /tmp/ifcfg-$DEV ]; then
