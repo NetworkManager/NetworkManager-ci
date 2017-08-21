@@ -55,17 +55,17 @@ function setup_veth_env ()
     # nmcli gen
 
     # Make sure the active ethernet device is eth0
-    if [ ! "eth0" == $(nmcli -f TYPE,DEVICE -t c sh --active  | grep ethernet | awk '{split($0,a,":"); print a[2]}') ]; then
-        DEV=$(nmcli -f TYPE,DEVICE -t c sh --active  | grep ethernet | awk '{split($0,a,":"); print a[2]}')
-        UUID=$(nmcli -t -f UUID c show --active)
+    DEV=$(nmcli -f TYPE,DEVICE -t c sh --active  | grep ethernet | awk '{split($0,a,":"); print a[2]}' | head -n 1)
+    if [ "eth0" != "$DEV" ]; then
         sleep 1
         ip link set $DEV down
         ip link set $DEV name eth0
-    # Make active device eth0 if not
-    else
-        UUID=$(nmcli -t -f UUID c show --active)
-        DEV="eth0"
     fi
+    UUID_NAME=$(nmcli -t -f UUID,NAME c show --active | head -n 1)
+    NAME=${UUID_NAME#*:}
+    UUID=${UUID_NAME%:*}
+    # Overwrite the name in order to be sure to have all the NM keys (including UUID) in the ifcfg file
+    nmcli con mod $UUID connection.id "$NAME"
 
     # Backup original ifcfg
     if [ ! -e /tmp/ifcfg-$DEV ]; then
@@ -73,7 +73,7 @@ function setup_veth_env ()
     fi
 
     # Copy backup to /etc/sysconfig/network-scripts/ and reload
-    nmcli device disconnect $DEV 2>&1 > /dev/null
+    nmcli device disconnect eth0 2>&1 > /dev/null
     yes 2>/dev/null | cp -rf /tmp/ifcfg-$DEV /etc/sysconfig/network-scripts/ifcfg-testeth0
     sleep 1
     nmcli con reload
