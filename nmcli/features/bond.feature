@@ -349,6 +349,27 @@
      And Check slave "eth1" in bond "nm-bond" in proc
 
 
+    @rhbz1472965
+    @ver+=1.8.1
+    @slaves @bond
+    @bond_mac_reconnect_preserve
+    Scenario: nmcli - bond - mac reconnect preserve
+    * Note the output of "nmcli -g GENERAL.HWADDR device show eth1" as value "old_eth1"
+    * Add a new connection of type "bond-slave" and options "con-name bond0.0 ifname eth1 master nm-bond"
+    * Add a new connection of type "bond" and options "con-name bond0"
+    * Bring "up" connection "bond0.0"
+    When "nm-bond:connected:bond0" is visible with command "nmcli -t -f DEVICE,STATE,CONNECTION device" in "20" seconds
+    * Note the output of "nmcli -g GENERAL.HWADDR device show eth1" as value "new_eth1"
+    * Note the output of "nmcli -g GENERAL.HWADDR device show nm-bond" as value "old_nm-bond"
+    * Bring "up" connection "bond0"
+    When "nm-bond:connected:bond0" is visible with command "nmcli -t -f DEVICE,STATE,CONNECTION device" in "20" seconds
+    * Note the output of "nmcli -g GENERAL.HWADDR device show eth1" as value "newest_eth1"
+    * Note the output of "nmcli -g GENERAL.HWADDR device show nm-bond" as value "new_nm-bond"
+    Then Check noted values "old_eth1" and "new_eth1" are the same
+     And Check noted values "newest_eth1" and "new_eth1" are the same
+     And Check noted values "old_nm-bond" and "old_nm-bond" are the same
+
+
     @veth @slaves @bond
     @bond_start_by_hand_with_one_auto_only
     Scenario: nmcli - bond - start bond by hand with on auto only
