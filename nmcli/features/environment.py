@@ -91,7 +91,7 @@ def reset_usb_devices():
             print ("failed to reset device:", msg)
         f.close()
 
-def setup_racoon(mode, dh_group):
+def setup_racoon(mode, dh_group, phase1_al="aes", phase2_al=None):
     print ("setting up racoon")
     arch = check_output("uname -p", shell=True).strip()
     wait_for_testeth0()
@@ -101,146 +101,13 @@ def setup_racoon(mode, dh_group):
         call("[ -f /etc/yum.repos.d/epel.repo ] || sudo rpm -i http://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm", shell=True)
         call("[ -x /usr/sbin/racoon ] || yum -y install ipsec-tools", shell=True)
 
-    cfg = Popen("sudo sh -c 'cat >/etc/racoon/racoon.conf'", stdin=PIPE, shell=True).stdin
-    cfg.write('# Racoon configuration for Libreswan client testing')
-    cfg.write("\n" + 'path include "/etc/racoon";')
-    cfg.write("\n" + 'path pre_shared_key "/etc/racoon/psk.txt";')
-    cfg.write("\n" + 'path certificate "/etc/racoon/certs";')
-    cfg.write("\n" + 'path script "/etc/racoon/scripts";')
-    cfg.write("\n" + '')
-    cfg.write("\n" + 'sainfo anonymous {')
-    cfg.write("\n" + '        encryption_algorithm aes;')
-    cfg.write("\n" + '        authentication_algorithm hmac_sha1;')
-    cfg.write("\n" + '        compression_algorithm deflate;')
-    cfg.write("\n" + '}')
-    cfg.write("\n" + '')
-    cfg.write("\n" + 'remote anonymous {')
-    cfg.write("\n" + '        exchange_mode %s;' % mode)
-    cfg.write("\n" + '        proposal_check obey;')
-    cfg.write("\n" + '        mode_cfg on;')
-    cfg.write("\n" + '')
-    cfg.write("\n" + '        generate_policy on;')
-    cfg.write("\n" + '        dpd_delay 20;')
-    cfg.write("\n" + '        nat_traversal force;')
-    cfg.write("\n" + '        proposal {')
-    cfg.write("\n" + '                encryption_algorithm aes;')
-    cfg.write("\n" + '                hash_algorithm sha1;')
-    cfg.write("\n" + '                authentication_method xauth_psk_server;')
-    cfg.write("\n" + '                dh_group %d;' % dh_group)
-    cfg.write("\n" + '        }')
-    cfg.write("\n" + '}')
-    cfg.write("\n" + '')
-    cfg.write("\n" + 'mode_cfg {')
-    cfg.write("\n" + '        network4 172.31.60.2;')
-    cfg.write("\n" + '        split_network include 172.31.80.0/24;')
-    cfg.write("\n" + '        default_domain "trolofon";')
-    cfg.write("\n" + '        dns4 8.8.8.8;')
-    cfg.write("\n" + '        pool_size 40;')
-    cfg.write("\n" + '        banner "/etc/os-release";')
-    cfg.write("\n" + '        auth_source pam;')
-    cfg.write("\n" + '}')
-    cfg.write("\n")
-    cfg.close()
-
-    psk = Popen("sudo sh -c 'cat >/etc/racoon/psk.txt'", stdin=PIPE, shell=True).stdin
-    psk.write("172.31.70.2 ipsecret\n")
-    psk.write("172.31.70.3 ipsecret\n")
-    psk.write("172.31.70.4 ipsecret\n")
-    psk.write("172.31.70.5 ipsecret\n")
-    psk.write("172.31.70.6 ipsecret\n")
-    psk.write("172.31.70.7 ipsecret\n")
-    psk.write("172.31.70.8 ipsecret\n")
-    psk.write("172.31.70.9 ipsecret\n")
-    psk.write("172.31.70.10 ipsecret\n")
-    psk.write("172.31.70.11 ipsecret\n")
-    psk.write("172.31.70.12 ipsecret\n")
-    psk.write("172.31.70.13 ipsecret\n")
-    psk.write("172.31.70.14 ipsecret\n")
-    psk.write("172.31.70.15 ipsecret\n")
-    psk.write("172.31.70.16 ipsecret\n")
-    psk.write("172.31.70.17 ipsecret\n")
-    psk.write("172.31.70.18 ipsecret\n")
-    psk.write("172.31.70.19 ipsecret\n")
-    psk.write("172.31.70.20 ipsecret\n")
-    psk.write("172.31.70.21 ipsecret\n")
-    psk.write("172.31.70.22 ipsecret\n")
-    psk.write("172.31.70.23 ipsecret\n")
-    psk.write("172.31.70.24 ipsecret\n")
-    psk.write("172.31.70.25 ipsecret\n")
-    psk.write("172.31.70.26 ipsecret\n")
-    psk.write("172.31.70.27 ipsecret\n")
-    psk.write("172.31.70.28 ipsecret\n")
-    psk.write("172.31.70.29 ipsecret\n")
-    psk.write("172.31.70.30 ipsecret\n")
-    psk.write("172.31.70.31 ipsecret\n")
-    psk.write("172.31.70.32 ipsecret\n")
-    psk.write("172.31.70.33 ipsecret\n")
-    psk.write("172.31.70.34 ipsecret\n")
-    psk.write("172.31.70.35 ipsecret\n")
-    psk.write("172.31.70.36 ipsecret\n")
-    psk.write("172.31.70.37 ipsecret\n")
-    psk.write("172.31.70.38 ipsecret\n")
-    psk.write("172.31.70.39 ipsecret\n")
-    psk.write("172.31.70.40 ipsecret\n")
-    psk.close()
-
-    call("sudo userdel -r budulinek", shell=True)
-    call("sudo useradd -s /sbin/nologin -p yO9FLHPGuPUfg budulinek", shell=True)
-
-
-    call("sudo ip netns add racoon", shell=True)
-    call("sudo echo 1 > /proc/sys/net/ipv6/conf/default/disable_ipv6", shell=True)
-    call("sudo ip netns exec racoon echo 1 > /proc/sys/net/ipv6/conf/default/disable_ipv6", shell=True)
-    call("sudo ip link add racoon0 type veth peer name racoon1", shell=True)
-    # IPv6 on a veth confuses pluto. Sigh.
-    # ERROR: bind() for 80/80 fe80::94bf:8cff:fe1b:7620:500 in process_raw_ifaces(). Errno 22: Invalid argument
-
-    #call("sudo ip addr add dev racoon1 172.31.70.2/24", shell=True)
-    call("sudo ip link set racoon0 netns racoon", shell=True)
-    call("sudo ip netns exec racoon ip link set lo up", shell=True)
-    call("sudo ip netns exec racoon ip addr add dev racoon0 172.31.70.1/24", shell=True)
-    call("sudo ip netns exec racoon ip link set racoon0 up", shell=True)
-    call("sudo ip link set dev racoon1 up", shell=True)
-
-    call("sudo ip netns exec racoon dnsmasq --dhcp-range=172.31.70.2,172.31.70.40,2m --interface=racoon0 --bind-interfaces", shell=True)
-
-    call("sudo nmcli con add type ethernet con-name rac1 ifname racoon1 autoconnect no", shell=True)
-    sleep(1)
-    call("sudo nmcli con modify rac1 ipv6.method ignore ipv4.route-metric 90", shell=True)
-    sleep(1)
-    call("sudo nmcli connection up id rac1", shell=True)
-
-    # Sometime there is larger time needed to set everything up, sometimes not. Let's make the delay
-    # to fit all situations.
-    # Clean properly if racoon1 wasn't set correctly. Fail test immediately.
-    wait = 20
-    while wait > 0:
-        if call("ip a s racoon1 |grep 172.31.70", shell=True) != 0:
-            sleep(1)
-            wait -= 1
-            if wait == 0:
-                print ("Unable to set racoon1 address, exiting!")
-                teardown_racoon()
-                sys.exit(1)
-        else:
-            break
-
-    # For some reason the peer needs to initiate the arp otherwise it won't respond
-    # and we'll end up in a stale entry in a neighbor cache
-    call("sudo ip netns exec racoon ping -c1 %s" % (check_output("ip -o -4 addr show primary dev racoon1", shell=True).split()[3].split('/')[0]), shell=True)
-    call("sudo ping -c1 172.31.70.1", shell=True)
-
-    call("sudo systemd-run --unit nm-racoon nsenter --net=/var/run/netns/racoon racoon -F", shell=True)
+    RC = call("sh prepare/racoon.sh %s %s %s" %(mode, dh_group, phase1_al), shell=True)
+    if RC != 0:
+        teardown_racoon()
+        sys.exit(1)
 
 def teardown_racoon():
-    call("sudo echo 0 > /proc/sys/net/ipv6/conf/default/disable_ipv6", shell=True)
-    call("sudo kill -INT $(ps aux|grep dns|grep racoon|grep -v grep |awk {'print $2'})", shell=True)
-    call("sudo systemctl stop nm-racoon", shell=True)
-    call("sudo systemctl reset-failed nm-racoon", shell=True)
-    call("sudo ip netns del racoon", shell=True)
-    call("sudo ip link del racoon1", shell=True)
-    call("sudo nmcli con del rac1", shell=True)
-    call("sudo modprobe -r ip_vti", shell=True)
+    call("sh prepare/racoon.sh teardown", shell=True)
 
 def reset_hwaddr(ifname):
     if not os.path.isfile('/tmp/nm_newveth_configured'):
