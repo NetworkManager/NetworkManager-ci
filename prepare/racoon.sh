@@ -7,55 +7,51 @@ function racoon_setup ()
     MODE=$1
     DH_GROUP=$2
     PHASE1_AL=$3
-
+    RACOON_DIR="/etc/racoon"
+    RACOON_CFG="/etc/racoon/racoon.conf"
     echo "Configuring VPN server Racoon..."
-    [ -d /etc/racoon ] || sudo mkdir /etc/racoon
-    [ -f /etc/racoon/racoon.conf ] || sudo touch /etc/racoon/racoon.conf
-    echo '# Racoon configuration for Libreswan client testing' > /etc/racoon/racoon.conf
-    echo 'path include "/etc/racoon";' >> /etc/racoon/racoon.conf
-    echo 'path pre_shared_key "/etc/racoon/psk.txt";' >> /etc/racoon/racoon.conf
-    echo 'path certificate "/etc/racoon/certs";' >> /etc/racoon/racoon.conf
-    echo 'path script "/etc/racoon/scripts";' >> /etc/racoon/racoon.conf
-    echo '' >> /etc/racoon/racoon.conf
-    echo 'sainfo anonymous {' >> /etc/racoon/racoon.conf
-    # Select cryptographic algorithm of IPsec phase 1
-    # which is part of the IPsec Key Exchange (IKE >> /etc/racoon/racoon.conf operations.
-    echo '        encryption_algorithm aes;' >> /etc/racoon/racoon.conf
-    echo '        authentication_algorithm hmac_sha1;' >> /etc/racoon/racoon.conf
-    echo '        compression_algorithm deflate;' >> /etc/racoon/racoon.conf
-    echo '}' >> /etc/racoon/racoon.conf
-    echo '' >> /etc/racoon/racoon.conf
-    echo 'remote anonymous {' >> /etc/racoon/racoon.conf
-    echo "        exchange_mode $MODE;" >> /etc/racoon/racoon.conf
-    echo '        proposal_check obey;' >> /etc/racoon/racoon.conf
-    echo '        mode_cfg on;' >> /etc/racoon/racoon.conf
-    echo '' >> /etc/racoon/racoon.conf
-    echo '        generate_policy on;' >> /etc/racoon/racoon.conf
-    echo '        dpd_delay 20;' >> /etc/racoon/racoon.conf
-    echo '        nat_traversal force;' >> /etc/racoon/racoon.conf
-    echo '        proposal {' >> /etc/racoon/racoon.conf
-    echo "                encryption_algorithm $PHASE1_AL;" >> /etc/racoon/racoon.conf
-    echo '                hash_algorithm sha1;' >> /etc/racoon/racoon.conf
-    echo '                authentication_method xauth_psk_server;' >> /etc/racoon/racoon.conf
-    echo "                dh_group $DH_GROUP;" >> /etc/racoon/racoon.conf
-    # dh_group - Defines the group used for the Diffie-Hellman exponentiations.
-    # 1 = modp768       2 = modp1024        5 = modp1536
-    # 14 = modp2048     15 = modp3072       16 = modp4096
-    # 17 = modp6144     18 = modp8192
-    # For other settings, see: man racoon.conf
-    echo '        }' >> /etc/racoon/racoon.conf
-    echo '}' >> /etc/racoon/racoon.conf
-    echo '' >> /etc/racoon/racoon.conf
-    echo 'mode_cfg {' >> /etc/racoon/racoon.conf
-    echo '        auth_source system;' >> /etc/racoon/racoon.conf
-    echo '        network4 172.31.60.2;' >> /etc/racoon/racoon.conf
-    echo '        netmask4 255.255.255.0;' >> /etc/racoon/racoon.conf
-    echo '        pool_size 40;' >> /etc/racoon/racoon.conf
-    echo '        dns4 8.8.8.8;' >> /etc/racoon/racoon.conf
-    echo '        default_domain "trolofon";' >> /etc/racoon/racoon.conf
-    echo '        split_network include 172.31.80.0/24;' >> /etc/racoon/racoon.conf
-    echo '        banner "/etc/os-release";' >> /etc/racoon/racoon.conf
-    echo '}' >> /etc/racoon/racoon.conf
+    [ -d $RACOON_DIR ] || sudo mkdir $RACOON_DIR
+    [ -f $RACOON_CFG ] || sudo touch $RACOON_CFG
+
+    echo "# Racoon configuration for Libreswan client testing
+    path include \"/etc/racoon\";
+    path pre_shared_key \"/etc/racoon/psk.txt\";
+    path certificate \"/etc/racoon/certs\";
+    path script \"/etc/racoon/scripts\";
+
+    sainfo anonymous {
+            encryption_algorithm aes;
+            authentication_algorithm hmac_sha1;
+            compression_algorithm deflate;
+    }
+
+    remote anonymous {
+            exchange_mode $MODE;
+            proposal_check obey;
+            mode_cfg on;
+
+            generate_policy on;
+            dpd_delay 20;
+            nat_traversal force;
+            proposal {
+                    encryption_algorithm $PHASE1_AL;
+                    hash_algorithm sha1;
+                    authentication_method xauth_psk_server;
+                    dh_group $DH_GROUP;
+
+            }
+    }
+
+    mode_cfg {
+            auth_source system;
+            network4 172.31.60.2;
+            netmask4 255.255.255.0;
+            pool_size 40;
+            dns4 8.8.8.8;
+            default_domain \"trolofon\";
+            split_network include 172.31.80.0/24;
+            banner \"/etc/os-release\";
+    }" > $RACOON_CFG
 
     echo 'Modify the file with preshared keys.'
     # Pre-Shared Keys (PSK) is the simplest authentication method. PSK's should consist of
