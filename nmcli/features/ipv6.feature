@@ -1086,3 +1086,16 @@ Feature: nmcli: ipv6
      And "1.2.3.4" is visible with command "ip a s testX"
      And "2001::2" is visible with command "ip a s testX"
      And "tentative" is visible with command "ip a s testX" for full "10" seconds
+
+    @rhbz1470930
+    @ver+=1.8.0
+    @ethernet @teardown_testveth @netcat
+    @ipv6_preserve_cached_routes
+    Scenario: NM - ipv6 - preserve cached routes
+    * Prepare simulated test "testX" device for IPv6 PMTU discovery
+    * Add a new connection of type "ethernet" and options "ifname testX con-name ethernet0 autoconnect no"
+    * Execute "nmcli con modify ethernet0 ipv4.method disabled ipv6.method auto"
+    * Execute "ip l set testX up"
+    * Bring "up" connection "ethernet0"
+    * Execute "dd if=/dev/zero bs=1M count=10 | nc fd02::2 8080"
+    Then "mtu 1400" is visible with command "ip route get fd02::2" for full "40" seconds

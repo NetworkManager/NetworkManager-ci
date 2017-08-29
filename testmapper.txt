@@ -220,6 +220,7 @@ ipv6_describe, ., nmcli/./runtest.sh ipv6_describe ,
 ipv6_keep_external_addresses, ., nmcli/./runtest.sh ipv6_keep_external_addresses ,
 ipv6_keep_external_routes, ., nmcli/./runtest.sh ipv6_keep_external_routes ,
 nmcli_general_finish_dad_without_carrier, ., nmcli/./runtest.sh nmcli_general_finish_dad_without_carrier ,
+ipv6_preserve_cached_routes, ., nmcli/./runtest.sh ipv6_preserve_cached_routes ,
 #@ipv6_end
 
 #@ipv4_start
