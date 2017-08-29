@@ -1088,7 +1088,7 @@ Feature: nmcli: ipv6
      And "tentative" is visible with command "ip a s testX" for full "10" seconds
 
     @rhbz1470930
-    @ver+=1.8.0
+    @ver+=1.8.3
     @ethernet @teardown_testveth @netcat
     @ipv6_preserve_cached_routes
     Scenario: NM - ipv6 - preserve cached routes
