@@ -394,6 +394,13 @@ def before_scenario(context, scenario):
             call("nmcli connection up testeth8", shell=True)
             call("nmcli connection delete eth8", shell=True)
 
+        if 'netcat' in scenario.tags:
+            print ("---------------------------")
+            print ("installing netcat")
+            wait_for_testeth0()
+            if not os.path.isfile('/usr/bin/nc'):
+                call('sudo yum -y install nmap-ncat', shell=True)
+
         if 'scapy' in scenario.tags:
             print ("---------------------------")
             print ("installing scapy and tcpdump")

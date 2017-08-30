@@ -1399,6 +1399,57 @@ def prepare_simdev(context, device):
     context.testvethns.append("%s2_ns" % device)
 
 
+@step(u'Prepare simulated test "{device}" device for IPv6 PMTU discovery')
+def prepare_simdev(context, device):
+    if not hasattr(context, 'testvethns'):
+        os.system('''echo 'ENV{ID_NET_DRIVER}=="veth", ENV{INTERFACE}=="test*", ENV{NM_UNMANAGED}="0"' >/etc/udev/rules.d/88-lr.rules''')
+        command_code(context, "udevadm control --reload-rules")
+        command_code(context, "udevadm settle")
+        command_code(context, "sleep 1")
+    #         +-------testX_ns--------+ +--testX2_ns--+
+    # testX <-|-> testXp     testX2 <-|-|-> testX2p   |
+    #         |  fd01::1     fd02::1  | |   fd02::2   |
+    # mtu 1500|   1500        1400    | |    1500     |
+    #         +-----------------------+ +-------------+
+    command_code(context, "ip netns add {device}_ns".format(device=device))
+    command_code(context, "ip netns add {device}2_ns".format(device=device))
+    command_code(context, "ip link add {device} type veth peer name {device}p".format(device=device))
+    command_code(context, "ip link add {device}2 type veth peer name {device}2p".format(device=device))
+    command_code(context, "ip link set {device}p netns {device}_ns".format(device=device))
+    command_code(context, "ip link set {device}2 netns {device}_ns".format(device=device))
+    command_code(context, "ip link set {device}2p netns {device}2_ns".format(device=device))
+    # Bring up devices
+    command_code(context, "ip link set {device} up".format(device=device))
+    command_code(context, "ip netns exec {device}_ns ip link set {device}p up".format(device=device))
+    command_code(context, "ip netns exec {device}_ns ip link set {device}2 up".format(device=device))
+    command_code(context, "ip netns exec {device}2_ns ip link set {device}2p up".format(device=device))
+    # Set addresses
+    command_code(context, "ip netns exec {device}_ns ip addr add dev {device}p fd01::1/64".format(device=device))
+    command_code(context, "ip netns exec {device}_ns ip addr add dev {device}2 fd02::1/64".format(device=device))
+    command_code(context, "ip netns exec {device}2_ns ip addr add dev {device}2p fd02::2/64".format(device=device))
+    # Set MTU
+    command_code(context, "ip netns exec {device}_ns ip link set {device}p mtu 1500".format(device=device))
+    command_code(context, "ip netns exec {device}_ns ip link set {device}2 mtu 1400".format(device=device))
+    command_code(context, "ip netns exec {device}2_ns ip link set {device}2p mtu 1500".format(device=device))
+    # Set up router (testX_ns)
+    command_code(context, "ip netns exec {device}_ns sh -c 'echo 1 > /proc/sys/net/ipv6/conf/all/forwarding'".format(device=device))
+    command_code(context, "ip netns exec {device}_ns dnsmasq \
+                                         --no-resolv \
+                                         --pid-file=/tmp/{device}_ns.pid \
+                                         --bind-interfaces -i {device}p \
+                                         --enable-ra \
+                                         --dhcp-range=::1,::400,constructor:{device}p,ra-only,64,15s".format(device=device))
+    # Add route
+    command_code(context, "ip netns exec {device}2_ns ip route add fd01::/64 via fd02::1 dev {device}2p".format(device=device))
+    # Run netcat server to receive some data
+    Popen("ip netns exec {device}2_ns nc -6 -l -p 8080 > /dev/null".format(device=device) , shell=True)
+
+    if not hasattr(context, 'testvethns'):
+        context.testvethns = []
+    context.testvethns.append("%s_ns" % device)
+    context.testvethns.append("%s2_ns" % device)
+
+
 @step(u'Prepare simulated veth device "{device}" wihout carrier')
 def prepare_simdev_no_carrier(context, device):
     ipv4 = "192.168.99"
