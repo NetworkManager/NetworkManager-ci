@@ -115,6 +115,7 @@ function racoon_setup ()
         fi
     done
 
+    set +e
     # For some reason the peer needs to initiate the arp otherwise it won't respond
     # and we'll end up in a stale entry in a neighbor cache
     IP=$(ip -o -4 addr show primary dev racoon1 |awk '{print $4}' |awk -F '/' '{print $1}')
@@ -125,7 +126,6 @@ function racoon_setup ()
     systemd-run --unit nm-racoon nsenter --net=/var/run/netns/racoon racoon -F
 
     # Initialize NSS database for ipsec. See solution in bug description 1308325, 1365454.
-    set +e
     ipsec initnss
     sleep 5
 }
