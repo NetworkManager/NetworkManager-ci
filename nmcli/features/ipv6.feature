@@ -1095,6 +1095,7 @@ Feature: nmcli: ipv6
     * Prepare simulated test "testX" device for IPv6 PMTU discovery
     * Add a new connection of type "ethernet" and options "ifname testX con-name ethernet0 autoconnect no"
     * Execute "nmcli con modify ethernet0 ipv4.method disabled ipv6.method auto"
+    * Execute "nmcli con modify ethernet0 ipv6.routes 'fd02::/64 fd01::1'"
     * Execute "ip l set testX up"
     * Bring "up" connection "ethernet0"
     * Execute "dd if=/dev/zero bs=1M count=10 | nc fd02::2 8080"
