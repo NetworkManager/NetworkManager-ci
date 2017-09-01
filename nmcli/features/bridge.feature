@@ -35,7 +35,7 @@ Feature: nmcli - bridge
 
 
 	@bridge
-    @bridge_connection_up
+    @bridge_connection_upy
     Scenario: nmcli - bridge - up
     * Add a new connection of type "bridge" and options "con-name br11 ifname br11 autoconnect no"
     * Check ifcfg-name file created for connection "br11"

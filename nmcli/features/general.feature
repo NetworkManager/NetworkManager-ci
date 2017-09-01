@@ -38,7 +38,7 @@ Feature: nmcli - general
     @rhbz1422786
     @ver+=1.8.0
     @eth1_disconnect
-    @insufficient_perms_connection_down
+    @insufficient_perms_connection_downy
     Scenario: nmcli - general - not enough perms for connection down
     * Bring "up" connection "testeth1"
     Then "Not authorized to deactivate connections" is visible with command "sudo -u test nmcli connection down testeth1"
