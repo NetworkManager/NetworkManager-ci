@@ -126,3 +126,32 @@ if [ "$1" != "teardown" ]; then
 else
     hostapd_teardown
 fi
+
+# Test network authentication via IEEE 802.1x by using hostapd and dnsmasq.
+# Various authentication methods are tested, such as:
+# MD5, TLS, Tunneled TLS, PEAP
+# For one part of the tests username and password is enough.
+# For another part, CA certificate, server certificate, and client certificate are required.
+# Two pairs of Veth interfaces are created. Both are linked to a network bridge between the pairs.
+# This is used to test network authentication on a single host.
+# The authentication works on layer 2 of the OSI networking model.
+# EAP messages are exchanged, and therefore the bridge is made to forward them.
+# The network authenticator is hostapd. It implements IEEE 802.11 access point management,
+# IEEE 802.1X/WPA/WPA2/EAP authenticators and RADIUS authentication server.
+# For more info, see:
+#   yum info hostapd
+#   https://wiki.gentoo.org/wiki/Hostapd
+#   https://wiki.gentoo.org/wiki/Hostapd#Capabilities_of_Hostapd
+#
+# See details on configuration:
+#   http://w1.fi/hostapd/
+#   http://w1.fi/cgit/hostap/plain/hostapd/hostapd.conf
+#   Check the section: "IEEE 802.1X-2004 related configuration"
+#
+# For PEAP and TTLS configuration, see:
+#   http://w1.fi/cgit/hostap/tree/hostapd/hostapd.eap_user
+#
+# To have communication, IP addresses must be available.
+# In our case this is achieved by using dnsmasq.
+# dnsmasq provides services as a DNS cacher and a DHCP server.
+# For more info, see: https://wiki.archlinux.org/index.php/dnsmasq
