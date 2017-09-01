@@ -116,57 +116,16 @@ def reset_hwaddr(ifname):
 
 def setup_hostapd():
     print ("setting up hostapd")
-    call("ip link add testY type veth peer name testYp", shell=True)
-    call("ip link add testX type veth peer name testXp", shell=True)
-    call("brctl addbr testX_bridge", shell=True)
-    call("ip link set dev testX_bridge up", shell=True)
-    call("brctl addif testX_bridge testXp testYp", shell=True)
-    call("ip link set dev testX up", shell=True)
-    call("ip link set dev testXp up", shell=True)
-    call("ip link set dev testY up", shell=True)
-    call("ip link set dev testYp up", shell=True)
-    call("nmcli connection add type ethernet con-name DHCP_testY ifname testY ip4 10.0.0.1/24", shell=True)
-    call("nmcli connection up id DHCP_testY", shell=True)
-    call("echo 8 > /sys/class/net/testX_bridge/bridge/group_fwd_mask", shell=True)
-
     wait_for_testeth0()
     call("[ -f /etc/yum.repos.d/epel.repo ] || sudo rpm -i http://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm", shell=True)
     call("[ -x /usr/sbin/hostapd ] || (yum -y install hostapd; sleep 10)", shell=True)
 
-    cfg = Popen("sudo sh -c 'cat > /etc/hostapd/wired.conf'", stdin=PIPE, shell=True).stdin
-    cfg.write('# Hostapd configuration for 802.1x client testing')
-    cfg.write("\n" + 'interface=testY')
-    cfg.write("\n" + 'driver=wired')
-    cfg.write("\n" + 'logger_stdout=-1')
-    cfg.write("\n" + 'logger_stdout_level=1')
-    cfg.write("\n" + 'debug=2')
-    cfg.write("\n" + 'dump_file=/tmp/hostapd.dump')
-    cfg.write("\n" + 'ieee8021x=1')
-    cfg.write("\n" + 'eap_reauth_period=3600')
-    cfg.write("\n" + 'eap_server=1')
-    cfg.write("\n" + 'use_pae_group_addr=1')
-    cfg.write("\n" + 'eap_user_file=/etc/hostapd/hostapd.eap_user')
-    cfg.write("\n")
-    cfg.close()
-
-    psk = Popen("sudo sh -c 'cat >/etc/hostapd/hostapd.eap_user'", stdin=PIPE, shell=True).stdin
-    psk.write(""""user"          MD5     "password"\n""")
-    psk.write("\n")
-    psk.close()
-
-    call("pkill -9 hostapd", shell=True)
-    sleep(2)
-    Popen("/usr/sbin/dnsmasq --conf-file --no-hosts --keep-in-foreground --bind-interfaces --except-interface=lo --clear-on-reload --strict-order --listen-address=10.0.0.1 --dhcp-range=10.0.0.10,10.0.0.100,60m --dhcp-option=option:router,10.0.0.1 --dhcp-lease-max=50", shell=True)
-    Popen("hostapd /etc/hostapd/wired.conf > /dev/null", shell=True)
-    sleep(5)
+    if call("sh prepare/hostapd_wired.sh tmp/8021x/certs", shell=True) != 0:
+        call("sh prepare/hostapd_wired.sh teardown", shell=True)
+        sys.exit(1)
 
 def teardown_hostapd():
-    call("sudo kill -INT $(ps aux|grep hostapd|grep -v grep |awk {'print $2'})", shell=True)
-    call("sudo kill -INT $(ps aux|grep 10.0.0.1|grep dnsmasq|grep -v grep |awk {'print $2'})", shell=True)
-    call("ip link del testYp", shell=True)
-    call("ip link del testXp", shell=True)
-    call("ip link del testX_bridge", shell=True)
-    call("nmcli con del DHCP_testY", shell=True)
+    call("sh prepare/hostapd_wired.sh teardown", shell=True)
 
 def get_lock(dir):
     locks = os.listdir(dir)

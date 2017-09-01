@@ -386,6 +386,94 @@ Feature: nmcli - ethernet
     Then Bring "up" connection "ethie"
 
 
+    @ver+=1.4.0
+    @eth @8021x
+    @8021x_tls
+    Scenario: nmcli - ethernet - connect to 8021x - tls
+    * Add a new connection of type "ethernet" and options "ifname testX con-name ethie autoconnect no 802-1x.eap tls 802-1x.identity test 802-1x.ca-cert /tmp/certs/test_user.ca.pem 802-1x.client-cert /tmp/certs/test_user.cert.pem 802-1x.private-key /tmp/certs/test_user.key.pem 802-1x.private-key-password redhat"
+    Then Bring "up" connection "ethie"
+
+
+    @ver+=1.4.0
+    @eth @8021x
+    @8021x_peap_md5
+    Scenario: nmcli - ethernet - connect to 8021x - peap - md5
+    * Add a new connection of type "ethernet" and options "ifname testX con-name ethie autoconnect no 802-1x.eap peap 802-1x.identity test_md5 802-1x.anonymous-identity test 802-1x.ca-cert /tmp/certs/test_user.ca.pem 802-1x.phase2-auth md5 802-1x.password password"
+    Then Bring "up" connection "ethie"
+
+
+    @ver+=1.4.0
+    @eth @8021x
+    @8021x_peap_mschapv2
+    Scenario: nmcli - ethernet - connect to 8021x - peap - mschapv2
+    * Add a new connection of type "ethernet" and options "ifname testX con-name ethie autoconnect no 802-1x.eap peap 802-1x.identity TESTERS\\test_mschapv2 802-1x.anonymous-identity test 802-1x.ca-cert /tmp/certs/test_user.ca.pem 802-1x.phase2-auth mschapv2 802-1x.password password"
+    Then Bring "up" connection "ethie"
+
+
+    @ver+=1.4.0
+    @eth @8021x
+    @8021x_peap_gtc
+    Scenario: nmcli - ethernet - connect to 8021x - peap - gtc
+    * Add a new connection of type "ethernet" and options "ifname testX con-name ethie autoconnect no 802-1x.eap peap 802-1x.identity test_gtc 802-1x.anonymous-identity test 802-1x.ca-cert /tmp/certs/test_user.ca.pem 802-1x.phase2-auth gtc 802-1x.password password"
+    Then Bring "up" connection "ethie"
+
+
+    @ver+=1.4.0
+    @eth @8021x
+    @8021x_ttls_pap
+    Scenario: nmcli - ethernet - connect to 8021x -ttls - pap
+    * Add a new connection of type "ethernet" and options "ifname testX con-name ethie autoconnect no 802-1x.eap ttls 802-1x.identity test_ttls 802-1x.anonymous-identity test 802-1x.ca-cert /tmp/certs/test_user.ca.pem 802-1x.phase2-auth pap 802-1x.password password"
+    Then Bring "up" connection "ethie"
+
+
+    @ver+=1.4.0
+    @eth @8021x
+    @8021x_ttls_chap
+    Scenario: nmcli - ethernet - connect to 8021x -ttls - chap
+    * Add a new connection of type "ethernet" and options "ifname testX con-name ethie autoconnect no 802-1x.eap ttls 802-1x.identity test_ttls 802-1x.anonymous-identity test 802-1x.ca-cert /tmp/certs/test_user.ca.pem 802-1x.phase2-auth chap 802-1x.password password"
+    Then Bring "up" connection "ethie"
+
+
+    @ver+=1.4.0
+    @eth @8021x
+    @8021x_ttls_mschap
+    Scenario: nmcli - ethernet - connect to 8021x -ttls - mschap
+    * Add a new connection of type "ethernet" and options "ifname testX con-name ethie autoconnect no 802-1x.eap ttls 802-1x.identity test_ttls 802-1x.anonymous-identity test 802-1x.ca-cert /tmp/certs/test_user.ca.pem 802-1x.phase2-auth mschap 802-1x.password password"
+    Then Bring "up" connection "ethie"
+
+
+    @ver+=1.4.0
+    @eth @8021x
+    @8021x_ttls_mschapv2
+    Scenario: nmcli - ethernet - connect to 8021x -ttls - mschapv2
+    * Add a new connection of type "ethernet" and options "ifname testX con-name ethie autoconnect no 802-1x.eap ttls 802-1x.identity test_ttls 802-1x.anonymous-identity test 802-1x.ca-cert /tmp/certs/test_user.ca.pem 802-1x.phase2-auth mschapv2 802-1x.password password"
+    Then Bring "up" connection "ethie"
+
+
+    @ver+=1.4.0
+    @eth @8021x
+    @8021x_ttls_mschapv2_eap
+    Scenario: nmcli - ethernet - connect to 8021x -ttls - mschap - eap
+    * Add a new connection of type "ethernet" and options "ifname testX con-name ethie autoconnect no 802-1x.eap ttls 802-1x.identity TESTERS\\test_mschapv2 802-1x.anonymous-identity test 802-1x.ca-cert /tmp/certs/test_user.ca.pem 802-1x.phase2-autheap mschapv2 802-1x.password password"
+    Then Bring "up" connection "ethie"
+
+
+    @ver+=1.4.0
+    @eth @8021x
+    @8021x_ttls_md5
+    Scenario: nmcli - ethernet - connect to 8021x -ttls - md5
+    * Add a new connection of type "ethernet" and options "ifname testX con-name ethie autoconnect no 802-1x.eap ttls 802-1x.identity test_md5 802-1x.anonymous-identity test 802-1x.ca-cert /tmp/certs/test_user.ca.pem 802-1x.phase2-auth md5 802-1x.password password"
+    Then Bring "up" connection "ethie"
+
+
+    @ver+=1.4.0
+    @eth @8021x
+    @8021x_ttls_gtc
+    Scenario: nmcli - ethernet - connect to 8021x -ttls - gtc
+    * Add a new connection of type "ethernet" and options "ifname testX con-name ethie autoconnect no 802-1x.eap ttls 802-1x.identity test_gtc 802-1x.anonymous-identity test 802-1x.ca-cert /tmp/certs/test_user.ca.pem 802-1x.phase2-auth gtc 802-1x.password password"
+    Then Bring "up" connection "ethie"
+
+
     @rhbz1456362
     @ver+=1.8.0
     @eth @8021x

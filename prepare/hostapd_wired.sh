@@ -1,0 +1,128 @@
+#!/bin/bash
+
+function hostapd_setup ()
+{
+    # Quit immediately on any script error
+    set -e
+
+    HOSTAPD_KEYS_PATH="/etc/hostapd/ssl"
+    CLIENT_KEYS_PATH="/tmp/certs"
+    HOSTAPD_CFG="/etc/hostapd/wired.conf"
+    EAP_USERS_FILE="/etc/hostapd/hostapd.eap_user"
+    CERTS_PATH=$1
+
+    echo "Configuring hostapd 8021x server..."
+
+    # Create 2 Veth interface pairs and a bridge between their peers.
+    ip link add testY type veth peer name testYp
+    ip link add testX type veth peer name testXp
+    brctl addbr testX_bridge
+    ip link set dev testX_bridge up
+    brctl addif testX_bridge testXp testYp
+    # Up everything
+    ip link set dev testX up
+    ip link set dev testXp up
+    ip link set dev testY up
+    ip link set dev testYp up
+
+    # Create a connection which (in cooperation with dnsmasq) provides DHCP functionlity
+    nmcli connection add type ethernet con-name DHCP_testY ifname testY ip4 10.0.0.1/24
+    nmcli connection up id DHCP_testY
+
+
+    # Note: Adding an interface to a bridge will cause the interface to lose its existing IP address.
+    # If you're connected remotely via the interface you intend to add to the bridge,
+    # you will lose your connection. That's why eth0 is never used in a bridge.
+    # Allow 802.1x packets to be forwarded through the bridge
+
+    # Enable forwarding of EAP 802.1x messages through software bridge "testX_bridge".
+    # Note: without this capability the testing scenario fails.
+    echo 8 > /sys/class/net/testX_bridge/bridge/group_fwd_mask
+
+    # Create configuration for hostapd to be used with Ethernet adapters.
+    echo "# Hostapd configuration for 802.1x client testing
+interface=testY
+driver=wired
+logger_stdout=-1
+logger_stdout_level=1
+debug=2
+ieee8021x=1
+eap_reauth_period=3600
+eap_server=1
+use_pae_group_addr=1
+eap_user_file=$EAP_USERS_FILE
+ca_cert=$HOSTAPD_KEYS_PATH/hostapd.ca.pem
+dh_file=$HOSTAPD_KEYS_PATH/hostapd.dh.pem
+server_cert=$HOSTAPD_KEYS_PATH/hostapd.cert.pem
+private_key=$HOSTAPD_KEYS_PATH/hostapd.key.pem
+private_key_passwd=redhat " > $HOSTAPD_CFG
+
+# Include these lines when the environment is prepared for EAP-FAST authentication.
+# Configuration for EAP-FAST authentication
+# pac_opaque_encr_key=e350ddd67135c2029ad25ce0d2886c4e
+# eap_fast_a_id=c035cfc65e00352b84a64ea738bfa9af
+# eap_fast_a_id_info=testsvr
+# eap_fast_prov=3
+# pac_key_lifetime=604800
+# pac_key_refresh_time=86400
+
+    # Copy certificates to correct places
+    [ -d $HOSTAPD_KEYS_PATH ] || mkdir -p $HOSTAPD_KEYS_PATH
+    /bin/cp -rf $CERTS_PATH/server/hostapd* $HOSTAPD_KEYS_PATH
+
+    [ -d $CLIENT_KEYS_PATH ] || mkdir -p $CLIENT_KEYS_PATH
+    /bin/cp -rf $CERTS_PATH/client/test_user.*.pem $CLIENT_KEYS_PATH
+
+    /bin/cp -rf $CERTS_PATH/client/test_user.ca.pem /etc/pki/ca-trust/source/anchors
+    chown -R test:test $CLIENT_KEYS_PATH
+    update-ca-trust extract
+
+
+    # Create a list of users for network authentication, authentication types, and corresponding credentials.
+    echo "# Create hostapd peap user file
+# Phase 1 authentication
+\"user\"   MD5     \"password\"
+\"test\"   TLS,TTLS,PEAP
+# Phase 2 authentication (tunnelled within EAP-PEAP or EAP-TTLS)
+\"TESTERS\\test_mschapv2\"   MSCHAPV2    \"password\"  [2]
+\"test_md5\"       MD5         \"password\"  [2]
+\"test_gtc\"       GTC         \"password\"  [2]
+# Tunneled TLS and non-EAP authentication inside the tunnel.
+\"test_ttls\"      TTLS-PAP,TTLS-CHAP,TTLS-MSCHAP,TTLS-MSCHAPV2    \"password\"  [2]" > $EAP_USERS_FILE
+
+    sleep 2
+
+    echo "Start DHCP server (dnsmasq)"
+    /usr/sbin/dnsmasq\
+    --pid-file=/tmp/dnsmasq.pid\
+    --conf-file\
+    --no-hosts\
+    --bind-interfaces\
+    --except-interface=lo\
+    --clear-on-reload\
+    --strict-order\
+    --listen-address=10.0.0.1\
+    --dhcp-range=10.0.0.10,10.0.0.100,60m\
+    --dhcp-option=option:router,10.0.0.1\
+    --dhcp-lease-max=50
+
+    # Start 802.1x authentication and built-in RADIUS server.
+    # Start hostapd on the background using configuration for Ethernet adapters.
+    hostapd -P /tmp/hostapd.pid -B /etc/hostapd/wired.conf &
+    sleep 5
+}
+function hostapd_teardown ()
+{
+    kill $(cat /tmp/dnsmasq.pid)
+    kill $(cat /tmp/hostapd.pid)
+    ip link del testYp
+    ip link del testXp
+    ip link del testX_bridge
+    nmcli con del DHCP_testY
+}
+
+if [ "$1" != "teardown" ]; then
+    hostapd_setup $1
+else
+    hostapd_teardown
+fi
