@@ -9,7 +9,7 @@
 
     @rhbz1257195
     @team
-    @add_default_team
+    @add_default_teamy
     Scenario: nmcli - team - add default team
      * Open editor for a type "team"
      * Submit "set team.interface-name nm-team" in editor
