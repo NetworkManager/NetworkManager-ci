@@ -1397,7 +1397,7 @@ Feature: nmcli: ipv4
 
 
     @rhbz1394344
-    @ver+=1.8.0
+    @ver+=1.8.0 @ver-=1.9.0
     @ipv4_2 @restore_rp_filters
     @ipv4_rp_filter_set_loose
     Scenario: NM - ipv4 - set loose RP filter
@@ -1410,9 +1410,23 @@ Feature: nmcli: ipv4
     Then "1" is visible with command "cat /proc/sys/net/ipv4/conf/eth2/rp_filter"
      And "2" is visible with command "cat /proc/sys/net/ipv4/conf/eth3/rp_filter"
 
+    @rhbz1394344
+    @ver+=1.9.1
+    @ipv4_2 @restore_rp_filters
+    @ipv4_rp_filter_set_loose
+    Scenario: NM - ipv4 - set loose RP filter
+    * Execute "echo 1 > /proc/sys/net/ipv4/conf/eth2/rp_filter"
+    * Execute "echo 1 > /proc/sys/net/ipv4/conf/eth3/rp_filter"
+    * Add a new connection of type "ethernet" and options "con-name ethie ifname eth2 ip4 192.168.11.1/24"
+    * Add a new connection of type "ethernet" and options "con-name ethie2 ifname eth3 ip4 192.168.11.2/24"
+    When "192.168.11.0/24 dev eth2.*src 192.168.11.1\s+metric 100" is visible with command "ip r" in "5" seconds
+     And "192.168.11.0/24 dev eth3.*src 192.168.11.2\s+metric 100" is visible with command "ip r" in "5" seconds
+    Then "1" is visible with command "cat /proc/sys/net/ipv4/conf/eth2/rp_filter"
+     And "2" is visible with command "cat /proc/sys/net/ipv4/conf/eth3/rp_filter"
+
 
     @rhbz1394344
-    @ver+=1.8.0
+    @ver+=1.8.0 @ver-=1.9.0
     @ipv4_2 @restore_rp_filters
     @ipv4_rp_filter_do_not_touch
     Scenario: NM - ipv4 - don't touch disabled RP filter
@@ -1425,9 +1439,23 @@ Feature: nmcli: ipv4
     Then "1" is visible with command "cat /proc/sys/net/ipv4/conf/eth2/rp_filter"
      And "0" is visible with command "cat /proc/sys/net/ipv4/conf/eth3/rp_filter"
 
+    @rhbz1394344
+    @ver+=1.9.1
+    @ipv4_2 @restore_rp_filters
+    @ipv4_rp_filter_do_not_touch
+    Scenario: NM - ipv4 - don't touch disabled RP filter
+    * Execute "echo 1 > /proc/sys/net/ipv4/conf/eth2/rp_filter"
+    * Execute "echo 0 > /proc/sys/net/ipv4/conf/eth3/rp_filter"
+    * Add a new connection of type "ethernet" and options "con-name ethie ifname eth2 ip4 192.168.11.1/24"
+    * Add a new connection of type "ethernet" and options "con-name ethie2 ifname eth3 ip4 192.168.11.2/24"
+    When "192.168.11.0/24 dev eth2.*src 192.168.11.1\s+metric 100" is visible with command "ip r" in "5" seconds
+     And "192.168.11.0/24 dev eth3.*src 192.168.11.2\s+metric 100" is visible with command "ip r" in "5" seconds
+    Then "1" is visible with command "cat /proc/sys/net/ipv4/conf/eth2/rp_filter"
+     And "0" is visible with command "cat /proc/sys/net/ipv4/conf/eth3/rp_filter"
+
 
     @rhbz1394344
-    @ver+=1.8.0
+    @ver+=1.8.0 @ver-=1.9.0
     @ipv4_2 @restore_rp_filters
     @ipv4_rp_filter_reset
     Scenario: NM - ipv4 - reset RP filter back
@@ -1437,6 +1465,24 @@ Feature: nmcli: ipv4
     * Add a new connection of type "ethernet" and options "con-name ethie2 ifname eth3 ip4 192.168.11.2/24"
     When "192.168.11.0/24 dev eth2.*src 192.168.11.1\s+metric 100" is visible with command "ip r" in "5" seconds
      And "192.168.11.0/24 dev eth3.*src 192.168.11.2\s+metric 101" is visible with command "ip r" in "5" seconds
+     And "1" is visible with command "cat /proc/sys/net/ipv4/conf/eth2/rp_filter"
+     And "2" is visible with command "cat /proc/sys/net/ipv4/conf/eth3/rp_filter"
+    * Delete connection "ethie"
+    * Delete connection "ethie2"
+    Then "1" is visible with command "cat /proc/sys/net/ipv4/conf/eth2/rp_filter" in "5" seconds
+     And "1" is visible with command "cat /proc/sys/net/ipv4/conf/eth3/rp_filter" in "5" seconds
+
+    @rhbz1394344
+    @ver+=1.9.1
+    @ipv4_2 @restore_rp_filters
+    @ipv4_rp_filter_reset
+    Scenario: NM - ipv4 - reset RP filter back
+    * Execute "echo 1 > /proc/sys/net/ipv4/conf/eth2/rp_filter"
+    * Execute "echo 1 > /proc/sys/net/ipv4/conf/eth3/rp_filter"
+    * Add a new connection of type "ethernet" and options "con-name ethie ifname eth2 ip4 192.168.11.1/24"
+    * Add a new connection of type "ethernet" and options "con-name ethie2 ifname eth3 ip4 192.168.11.2/24"
+    When "192.168.11.0/24 dev eth2.*src 192.168.11.1\s+metric 100" is visible with command "ip r" in "5" seconds
+     And "192.168.11.0/24 dev eth3.*src 192.168.11.2\s+metric 100" is visible with command "ip r" in "5" seconds
      And "1" is visible with command "cat /proc/sys/net/ipv4/conf/eth2/rp_filter"
      And "2" is visible with command "cat /proc/sys/net/ipv4/conf/eth3/rp_filter"
     * Delete connection "ethie"
