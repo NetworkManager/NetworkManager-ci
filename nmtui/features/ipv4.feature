@@ -98,7 +98,7 @@ Feature: IPv4 TUI tests
     * Set "Gateway" field to "192.168.253.96"
     * Confirm the connection settings
     Then "GATEWAY=192.168.253.96" is visible with command "cat /etc/sysconfig/network-scripts/ifcfg-ethernet"
-    Then "inet 192.168[^ ]* brd 192.168[^ ]* scope global dynamic eth1" is visible with command "ip a s eth1" in "10" seconds
+    Then "inet 192.168[^ ]* brd 192.168[^ ]* scope global( noprefixroute)? dynamic eth1" is visible with command "ip a s eth1" in "10" seconds
     Then "192.168.253.101/24" is visible with command "ip a s eth1"
     Then "192.168.253.102/24" is visible with command "ip a s eth1"
     Then "192.168.253.103/24" is visible with command "ip a s eth1"

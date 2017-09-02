@@ -1373,7 +1373,7 @@ Feature: nmcli: ipv4
     * Add a new connection of type "ethernet" and options "con-name ethie ifname eth2 autoconnect no"
     * Execute "nmcli con modify ethie ipv4.method manual ipv4.addresses 192.168.1.5/24,192.168.1.4/24,192.168.1.3/24"
     * Bring "up" connection "ethie"
-    Then "inet 192.168.1.5/24 brd 192.168.1.255 scope global eth2" is visible with command "ip a show eth2"
+    Then "inet 192.168.1.5/24 brd 192.168.1.255 scope global( noprefixroute)? eth2" is visible with command "ip a show eth2"
     Then "inet 192.168.1.4/24 brd 192.168.1.255 scope global secondary" is visible with command "ip a show eth2"
     Then "inet 192.168.1.3/24 brd 192.168.1.255 scope global secondary" is visible with command "ip a show eth2"
 
@@ -1386,12 +1386,12 @@ Feature: nmcli: ipv4
     * Add a new connection of type "ethernet" and options "con-name ethie ifname eth2 autoconnect no"
     * Execute "nmcli con modify ethie ipv4.method manual ipv4.addresses 192.168.1.3/24,192.168.1.4/24,192.168.1.5/24"
     * Bring "up" connection "ethie"
-    When "inet 192.168.1.3/24 brd 192.168.1.255 scope global eth2" is visible with command "ip a show eth2" in "5" seconds
+    When "inet 192.168.1.3/24 brd 192.168.1.255 scope global( noprefixroute)? eth2" is visible with command "ip a show eth2" in "5" seconds
     When "inet 192.168.1.4/24 brd 192.168.1.255 scope global secondary" is visible with command "ip a show eth2" in "5" seconds
     When "inet 192.168.1.5/24 brd 192.168.1.255 scope global secondary" is visible with command "ip a show eth2" in "5" seconds
     * Execute "nmcli con modify ethie ipv4.addresses 192.168.1.5/24,192.168.1.4/24,192.168.1.3/24"
     * Execute "nmcli dev reapply eth2"
-    Then "inet 192.168.1.5/24 brd 192.168.1.255 scope global eth2" is visible with command "ip a show eth2"
+    Then "inet 192.168.1.5/24 brd 192.168.1.255 scope global( noprefixroute)? eth2" is visible with command "ip a show eth2"
     Then "inet 192.168.1.4/24 brd 192.168.1.255 scope global secondary" is visible with command "ip a show eth2"
     Then "inet 192.168.1.3/24 brd 192.168.1.255 scope global secondary" is visible with command "ip a show eth2"
 
