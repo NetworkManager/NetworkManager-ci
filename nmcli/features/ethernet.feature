@@ -386,7 +386,7 @@ Feature: nmcli - ethernet
     Then Bring "up" connection "ethie"
 
 
-    @ver+=1.4.0
+    @ver+=1.6.0
     @eth @8021x
     @8021x_tls
     Scenario: nmcli - ethernet - connect to 8021x - tls
