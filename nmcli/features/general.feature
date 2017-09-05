@@ -1393,3 +1393,20 @@ Feature: nmcli - general
     # Connection should stay at the lower priority device
     Then "full" is visible with command "nmcli  -g CONNECTIVITY g" in "70" seconds
      And Ping "boston.com"
+
+    @rhbz1442361
+    @ver+=1.8.3
+    @tuntap @con
+    @keep_external_device_enslaved_on_down
+    Scenario: NM - general - keep external device enslaved on down
+    # Check that an externally configure device is not released from
+    # its master when brought down externally
+    * Add a new connection of type "bridge" and options "ifname br0 con-name connie autoconnect no"
+    * Execute "nmcli connection modify connie ipv4.method disabled ipv6.method ignore"
+    * Bring "up" connection "connie"
+    * Execute "ip tuntap add mode tap tap0"
+    * Execute "ip link set tap0 master br0"
+    * Execute "ip link set tap0 up"
+    * Execute "sleep 2"
+    * Execute "ip link set tap0 down"
+    Then "master br0" is visible with command "ip link show tap0" for full "5" seconds
