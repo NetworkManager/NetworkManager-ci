@@ -158,6 +158,8 @@ function racoon_teardown ()
     kill -INT $(ps aux|grep dns|grep racoon|grep -v grep |awk {'print $2'})
     if systemctl --quiet is-active nm-racoon; then
         systemctl stop nm-racoon
+    fi
+    if systemctl --quiet is-failed nm-racoon; then
         systemctl reset-failed nm-racoon
     fi
     ip netns del racoon
