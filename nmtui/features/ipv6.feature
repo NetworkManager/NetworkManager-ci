@@ -16,6 +16,7 @@ Feature: IPv6 TUI tests
 
 
     @ipv6
+    @ver-=1.9.1
     @nmtui_ipv6_addresses_static_no_mask
     Scenario: nmtui - ipv6 - addresses - static IPv6 configuration without netmask
     * Prepare new connection of type "Ethernet" named "ethernet"
@@ -27,6 +28,20 @@ Feature: IPv6 TUI tests
     * Confirm the connection settings
     Then "eth1\s+ethernet\s+connected\s+ethernet" is visible with command "nmcli device" in "10" seconds
     Then "inet6 2607:f0d0:1002:51::4/128" is visible with command "ip -6 a s eth1"
+
+    @ipv6
+    @ver+=1.9.2
+    @nmtui_ipv6_addresses_static_no_mask
+    Scenario: nmtui - ipv6 - addresses - static IPv6 configuration without netmask
+    * Prepare new connection of type "Ethernet" named "ethernet"
+    * Set "Device" field to "eth1"
+    * Set "IPv4 CONFIGURATION" category to "Disabled"
+    * Set "IPv6 CONFIGURATION" category to "Manual"
+    * Come in "IPv6 CONFIGURATION" category
+    * In "Addresses" property add "2607:f0d0:1002:51::4"
+    * Confirm the connection settings
+    Then "eth1\s+ethernet\s+connected\s+ethernet" is visible with command "nmcli device" in "10" seconds
+    Then "inet6 2607:f0d0:1002:51::4/64" is visible with command "ip -6 a s eth1"
 
 
     @ipv6
