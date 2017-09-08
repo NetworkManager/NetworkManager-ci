@@ -462,7 +462,7 @@ Feature: nmcli - ethernet
     @eth @8021x
     @8021x_ttls_md5
     Scenario: nmcli - ethernet - connect to 8021x -ttls - md5
-    * Add a new connection of type "ethernet" and options "ifname testX con-name ethie autoconnect no 802-1x.eap ttls 802-1x.identity test_md5 802-1x.anonymous-identity test 802-1x.ca-cert /tmp/certs/test_user.ca.pem 802-1x.phase2-auth md5 802-1x.password password"
+    * Add a new connection of type "ethernet" and options "ifname testX con-name ethie autoconnect no 802-1x.eap ttls 802-1x.identity test_md5 802-1x.anonymous-identity test 802-1x.ca-cert /tmp/certs/test_user.ca.pem 802-1x.phase2-autheap md5 802-1x.password password"
     Then Bring "up" connection "ethie"
 
 
@@ -470,7 +470,7 @@ Feature: nmcli - ethernet
     @eth @8021x
     @8021x_ttls_gtc
     Scenario: nmcli - ethernet - connect to 8021x -ttls - gtc
-    * Add a new connection of type "ethernet" and options "ifname testX con-name ethie autoconnect no 802-1x.eap ttls 802-1x.identity test_gtc 802-1x.anonymous-identity test 802-1x.ca-cert /tmp/certs/test_user.ca.pem 802-1x.phase2-auth gtc 802-1x.password password"
+    * Add a new connection of type "ethernet" and options "ifname testX con-name ethie autoconnect no 802-1x.eap ttls 802-1x.identity test_gtc 802-1x.anonymous-identity test 802-1x.ca-cert /tmp/certs/test_user.ca.pem 802-1x.phase2-autheap gtc 802-1x.password password"
     Then Bring "up" connection "ethie"
 
 
