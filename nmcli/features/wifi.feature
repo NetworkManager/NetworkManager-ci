@@ -9,11 +9,6 @@ Feature: nmcli - wifi
     # Scenario:
 
 
-    @cleanwifi
-    Scenario: Clean wifi
-    * Execute "echo nada"
-
-
     @wifi
     @nmcli_wifi_connect_to_wpa2_psk_network_without_profile
     Scenario: nmcli - wifi - connect to WPA2 PSK network without profile
@@ -1453,7 +1448,7 @@ Feature: nmcli - wifi
     Then Check "NM_802_11_DEVICE_CAP_FREQ_5GHZ" band cap flag set if device supported
 
 
-    @rhbz1460527
+    @rhbz1490527
     @ver+=1.8.0
     @wifi
     @nmcli_wifi_do_not_show_device_in_list

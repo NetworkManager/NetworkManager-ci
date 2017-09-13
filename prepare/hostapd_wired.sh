@@ -108,7 +108,7 @@ private_key_passwd=redhat " > $HOSTAPD_CFG
 
     # Start 802.1x authentication and built-in RADIUS server.
     # Start hostapd on the background using configuration for Ethernet adapters.
-    hostapd -P /tmp/hostapd.pid -B /etc/hostapd/wired.conf &
+    hostapd -P /tmp/hostapd.pid -B $HOSTAPD_CFG &
     sleep 5
 }
 function hostapd_teardown ()
