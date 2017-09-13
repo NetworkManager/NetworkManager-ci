@@ -678,6 +678,8 @@ def before_scenario(context, scenario):
         if 'pppoe' in scenario.tags:
             print ("---------------------------")
             print ("installing pppoe dependencies")
+            # This -x is to avoid upgrade of NetworkManager in older version testing
+            call("yum -y install NetworkManager-ppp -x NetworkManager", shell=True)
             call('yum -y install rp-pppoe', shell=True)
 
         if 'nmcli_general_dhcp_profiles_general_gateway' in scenario.tags:
