@@ -8,7 +8,7 @@
     # Scenario:
 
     @slaves @bond
-    @bond_add_default_bond
+    @bond_add_default_bondy
     Scenario: nmcli - bond - add default bond
      * Open editor for a type "bond"
      * Save in editor
