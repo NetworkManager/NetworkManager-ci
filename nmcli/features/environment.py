@@ -124,6 +124,19 @@ def setup_hostapd():
         call("sh prepare/hostapd_wired.sh teardown", shell=True)
         sys.exit(1)
 
+def setup_hostapd_wireless(auth):
+    print ("setting up hostapd wireless")
+    wait_for_testeth0()
+    call("[ -f /etc/yum.repos.d/epel.repo ] || sudo rpm -i http://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm", shell=True)
+    call("[ -x /usr/sbin/hostapd ] || (yum -y install hostapd; sleep 10)", shell=True)
+
+    if call("sh prepare/hostapd_wireless.sh tmp/8021x/certs {}".format(auth), shell=True) != 0:
+        call("sh prepare/hostapd_wireless.sh teardown", shell=True)
+        sys.exit(1)
+
+def teardown_hostapd_wireless():
+    call("sh prepare/hostapd_wireless.sh teardown", shell=True)
+
 def teardown_hostapd():
     call("sh prepare/hostapd_wired.sh teardown", shell=True)
 
@@ -493,6 +506,10 @@ def before_scenario(context, scenario):
                 sys.exit(0)
             setup_hostapd()
 
+        if 'simwifi_wpa2' in scenario.tags:
+            print ("---------------------------")
+            setup_hostapd_wireless('wpa2')
+
         if 'vpnc' in scenario.tags:
             print ("---------------------------")
             arch = check_output("uname -p", shell=True).strip()
@@ -732,7 +749,8 @@ def before_scenario(context, scenario):
 
         context.log_cursor = check_output("journalctl --lines=0 --show-cursor |awk '/^-- cursor:/ {print \"\\\"--after-cursor=\"$NF\"\\\"\"; exit}'", shell=True).strip()
 
-        Popen("sudo tcpdump -nne -i any > /tmp/network-traffic.log", shell=True)
+        os.system("echo '~~~~~~~~~~~~~~~~~~~~~~~~~~ TRAFFIC LOG ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~' > /tmp/network-traffic.log")
+        Popen("sudo tcpdump -nne -i any >> /tmp/network-traffic.log", shell=True)
 
     except Exception as e:
         print("Error in before_scenario: %s" % e.message)
@@ -772,7 +790,8 @@ def after_scenario(context, scenario):
 
     try:
         # Attach journalctl logs
-        os.system("sudo journalctl -u NetworkManager --no-pager -o cat %s > /tmp/journal-nm.log" % context.log_cursor)
+        os.system("echo '~~~~~~~~~~~~~~~~~~~~~~~~~~ NM LOG ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~' > /tmp/journal-nm.log")
+        os.system("sudo journalctl -u NetworkManager --no-pager -o cat %s >> /tmp/journal-nm.log" % context.log_cursor)
         if os.stat("/tmp/journal-nm.log").st_size < 20000000:
             data = open("/tmp/journal-nm.log", 'r').read()
             if data:
@@ -791,7 +810,8 @@ def after_scenario(context, scenario):
 
         if 'netservice' in scenario.tags:
             # Attach network.service journalctl logs
-            os.system("sudo journalctl -u network --no-pager -o cat %s > /tmp/journal-netsrv.log" % context.log_cursor)
+            os.system("echo '~~~~~~~~~~~~~~~~~~~~~~~~~~ NETWORK SRV LOG ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~' > /tmp/journal-netsrv.log")
+            os.system("sudo journalctl -u network --no-pager -o cat %s >> /tmp/journal-netsrv.log" % context.log_cursor)
             data = open("/tmp/journal-netsrv.log", 'r').read()
             if data:
                 context.embed('text/plain', data)
@@ -1131,6 +1151,31 @@ def after_scenario(context, scenario):
             print ("deleting 8021x setup")
             teardown_hostapd()
 
+        if 'simwifi_wpa2' in scenario.tags:
+            print ("---------------------------")
+            print ("deleting wifi connections")
+            #teardown_hostapd_wireless()
+            call("nmcli con del wpa2-psk wifi", shell=True)
+
+        if 'simwifi_wpa2_teardown' in scenario.tags:
+            print ("---------------------------")
+            print ("bringing down hostapd setup")
+            teardown_hostapd_wireless()
+
+        if "attach_hostapd_log" in scenario.tags:
+            os.system("echo '~~~~~~~~~~~~~~~~~~~~~~~~~~ HOSTAPD LOG ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~' > /tmp/journal-hostapd.log")
+            os.system("sudo journalctl -u nm-hostapd --no-pager -o cat %s >> /tmp/journal-hostapd.log" % context.log_cursor)
+            data = open("/tmp/journal-hostapd.log", 'r').read()
+            if data:
+                context.embed('text/plain', data)
+
+        if "attach_wpa_supplicant_log" in scenario.tags:
+            os.system("echo '~~~~~~~~~~~~~~~~~~~~~~~~~~ WPA_SUPPLICANT LOG ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~' > /tmp/journal-wpa_supplicant.log")
+            os.system("journalctl -u wpa_supplicant --no-pager -o cat %s >> /tmp/journal-wpa_supplicant.log" % context.log_cursor)
+            data = open("/tmp/journal-wpa_supplicant.log", 'r').read()
+            if data:
+                context.embed('text/plain', data)
+
         if 'libreswan' in scenario.tags:
             print ("---------------------------")
             print ("deleting libreswan profile")
@@ -1412,7 +1457,8 @@ def after_scenario(context, scenario):
             call('mount -o remount -t nfs nest.test.redhat.com:/mnt/qa/desktop/broadband_lock /mnt/scratch', shell=True)
             delete_old_lock("/mnt/scratch/", get_lock("/mnt/scratch"))
             # Attach journalctl logs
-            os.system("sudo journalctl -u ModemManager --no-pager -o cat %s > /tmp/journal-mm.log" % context.log_cursor)
+            os.system("echo '~~~~~~~~~~~~~~~~~~~~~~~~~~ MM LOG ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~' > /tmp/journal-mm.log")
+            os.system("sudo journalctl -u ModemManager --no-pager -o cat %s >> /tmp/journal-mm.log" % context.log_cursor)
             data = open("/tmp/journal-mm.log", 'r').read()
             if data:
                 context.embed('text/plain', data)

@@ -604,6 +604,22 @@ gsm_create_assisted_connection, ., nmcli/./runtest.sh gsm_create_assisted_connec
 #gsm_up_up, ., nmcli/./runtest.sh gsm_up_up ,,60m
 #@gsm_end
 
+#@wifi_hwsim_start
+simwifi_wpa2psk_profile, ., nmcli/./runtest.sh simwifi_wpa2psk_profile ,
+simwifi_wpa2psk_no_profile, ., nmcli/./runtest.sh simwifi_wpa2psk_no_profile ,
+simwifi_tls, ., nmcli/./runtest.sh simwifi_tls ,
+simwifi_peap_gtc, ., nmcli/./runtest.sh simwifi_peap_gtc ,
+simwifi_peap_md5, ., nmcli/./runtest.sh simwifi_peap_md5 ,
+simwifi_peap_mschapv2, ., nmcli/./runtest.sh simwifi_peap_mschapv2 ,
+simwifi_ttls_pap, ., nmcli/./runtest.sh simwifi_ttls_pap ,
+simwifi_ttls_chap, ., nmcli/./runtest.sh simwifi_ttls_chap ,
+simwifi_ttls_mschap, ., nmcli/./runtest.sh simwifi_ttls_mschap ,
+simwifi_ttls_mschapv2, ., nmcli/./runtest.sh simwifi_ttls_mschapv2 ,
+simwifi_ttls_mschapv2_eap, ., nmcli/./runtest.sh simwifi_ttls_mschapv2_eap ,
+simwifi_ttls_md5, ., nmcli/./runtest.sh simwifi_ttls_md5 ,
+simwifi_ttls_gtc, ., nmcli/./runtest.sh simwifi_ttls_gtc ,
+#@wifi_hwsim_end
+
 #@wifi_start
 nmcli_wifisec_configure_and_connect_wpa1peap_profile, ., nmcli/./runtest.sh nmcli_wifisec_configure_and_connect_wpa1peap_profile , iw;pexpect
 nmcli_wifi_connect_to_wpa2_psk_network_without_profile, ., nmcli/./runtest.sh nmcli_wifi_connect_to_wpa2_psk_network_without_profile , iw;pexpect
