@@ -40,7 +40,7 @@ Feature: nmcli - wifi
     Given "wpa2-eap" is visible with command "nmcli -f SSID device wifi list" in "60" seconds
     * Add a new connection of type "wifi" and options "ifname wlan0 con-name wifi autoconnect no ssid wpa2-eap"
     * Execute "nmcli con modify wifi 802-11-wireless-security.key-mgmt wpa-eap 802-1x.eap tls 802-1x.identity test 802-1x.ca-cert /tmp/certs/test_user.ca.pem 802-1x.client-cert /tmp/certs/test_user.cert.pem 802-1x.private-key /tmp/certs/test_user.key.pem 802-1x.private-key-password redhat"
-    * Execute "sleep 1"
+    * Execute "sleep 3"
     Then Bring "up" connection "wifi"
 
 
