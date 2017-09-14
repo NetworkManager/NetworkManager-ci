@@ -1158,7 +1158,7 @@ def after_scenario(context, scenario):
             print ("---------------------------")
             print ("deleting wifi connections")
             #teardown_hostapd_wireless()
-            call("nmcli con del wpa2-psk wifi", shell=True)
+            call("nmcli con del wpa2-eap wifi", shell=True)
 
         if 'simwifi_wpa2_teardown' in scenario.tags:
             print ("---------------------------")
