@@ -96,7 +96,7 @@ function copy_certificates ()
 function start_nm_hostapd ()
 {
     systemd-run --unit nm-hostapd hostapd -ddd $HOSTAPD_CFG
-    sleep 5
+    sleep 10
     if systemctl --quiet is-failed nm-hostapd; then
         exit 1
     fi
@@ -121,6 +121,7 @@ function wireless_hostapd_setup ()
             systemctl restart NetworkManager
 
             modprobe mac80211_hwsim
+            sleep 5
             tune_wpa_supplicant
             sleep 10
             nmcli device set wlan1 managed off
