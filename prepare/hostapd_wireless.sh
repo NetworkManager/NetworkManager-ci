@@ -112,6 +112,10 @@ function wireless_hostapd_setup ()
             echo "Not needed, continuing"
             return
         else
+            # Install haveged to increase entropy
+            yum -y install haveged
+            systemctl restart haveged
+
             # Disable mac randomization to avoid rhbz1490885
             echo -e "[device]\nwifi.scan-rand-mac-address=no" > /etc/NetworkManager/conf.d/99-wifi.conf
             systemctl restart NetworkManager
