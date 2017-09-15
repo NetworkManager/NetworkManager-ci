@@ -350,7 +350,7 @@
 
 
     @rhbz1472965
-    @ver+=1.8.1
+    @ver+=1.8.0
     @slaves @bond
     @bond_mac_reconnect_preserve
     Scenario: nmcli - bond - mac reconnect preserve
