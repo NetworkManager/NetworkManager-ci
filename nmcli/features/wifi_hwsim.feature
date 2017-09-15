@@ -9,7 +9,7 @@ Feature: nmcli - wifi
     # Scenario:
 
 
-    @ver+=1.8.0
+    @ver+=1.9.1
     @simwifi_wpa2
     @simwifi_wpa2psk_no_profile
     Scenario: nmcli - simwifi - connect to WPA2 PSK network without profile
