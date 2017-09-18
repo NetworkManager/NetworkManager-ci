@@ -121,7 +121,7 @@ Feature: nmcli: gsm
     * Add a new connection of type "gsm" and options "ifname \* con-name gsm autoconnect no apn internet"
     * Bring "up" connection "gsm"
     When "GENERAL.STATE:.*activated" is visible with command "nmcli con show gsm" in "60" seconds
-     And "limited" is visible with command "nmcli g" in "60" seconds
+     And "none|limited" is visible with command "nmcli g" in "60" seconds
     * Execute "nmcli con modify gsm ipv4.dns 10.38.5.26"
     * Bring "up" connection "gsm"
     Then "full" is visible with command "nmcli g" in "60" seconds
