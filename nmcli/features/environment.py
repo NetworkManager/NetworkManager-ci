@@ -508,6 +508,9 @@ def before_scenario(context, scenario):
 
         if 'simwifi_wpa2' in scenario.tags:
             print ("---------------------------")
+            arch = check_output("uname -p", shell=True).strip()
+            if arch == "s390x" or arch == 'aarch64':
+                sys.exit(0)
             setup_hostapd_wireless('wpa2')
 
         if 'vpnc' in scenario.tags:
@@ -1155,7 +1158,7 @@ def after_scenario(context, scenario):
             print ("---------------------------")
             print ("deleting wifi connections")
             #teardown_hostapd_wireless()
-            call("nmcli con del wpa2-psk wifi", shell=True)
+            call("nmcli con del wpa2-eap wifi", shell=True)
 
         if 'simwifi_wpa2_teardown' in scenario.tags:
             print ("---------------------------")
