@@ -163,6 +163,7 @@ Feature: IPv6 TUI tests
 
 
     @ipv6
+    @ver-=1.9.1
     @nmtui_ipv6_routes_set_basic_route
     Scenario: nmtui - ipv6 - routes - set basic route
     * Prepare new connection of type "Ethernet" named "ethernet1"
@@ -186,8 +187,34 @@ Feature: IPv6 TUI tests
     Then "2001::/126 dev eth2\s+proto kernel\s+metric 256" is visible with command "ip -6 route"
     Then "3030::1 via 2001::2 dev eth2\s+proto static\s+metric 1" is visible with command "ip -6 route"
 
+    @ipv6
+    @ver+=1.9.2
+    @nmtui_ipv6_routes_set_basic_route
+    Scenario: nmtui - ipv6 - routes - set basic route
+    * Prepare new connection of type "Ethernet" named "ethernet1"
+    * Set "Device" field to "eth1"
+    * Set "IPv6 CONFIGURATION" category to "Manual"
+    * Come in "IPv6 CONFIGURATION" category
+    * In "Addresses" property add "2000::2/126"
+    * Add ip route "1010::1/128 2000::1 1"
+    * Confirm the connection settings
+    * Choose to "<Add>" a connection
+    * Choose the connection type "Ethernet"
+    * Set "Profile name" field to "ethernet2"
+    * Set "Device" field to "eth2"
+    * Set "IPv6 CONFIGURATION" category to "Manual"
+    * Come in "IPv6 CONFIGURATION" category
+    * In "Addresses" property add "2001::1/126"
+    * Add ip route "3030::1/128 2001::2 1"
+    * Confirm the connection settings
+    Then "1010::1 via 2000::1 dev eth1\s+proto static\s+metric 1" is visible with command "ip -6 route"
+    Then "2000::/126 dev eth1\s+proto kernel\s+metric 100" is visible with command "ip -6 route"
+    Then "2001::/126 dev eth2\s+proto kernel\s+metric 100" is visible with command "ip -6 route"
+    Then "3030::1 via 2001::2 dev eth2\s+proto static\s+metric 1" is visible with command "ip -6 route"
+
 
     @ipv6
+    @ver-=1.9.1
     @nmtui_ipv6_routes_remove_basic_route
     Scenario: nmtui - ipv6 - routes - remove basic route
     * Prepare new connection of type "Ethernet" named "ethernet1"
@@ -227,8 +254,50 @@ Feature: IPv6 TUI tests
     Then "2001::/126 dev eth2\s+proto kernel\s+metric 256" is visible with command "ip -6 route"
     Then "3030::1 via 2001::2 dev eth2\s+proto static\s+metric 1" is not visible with command "ip -6 route"
 
+    @ipv6
+    @ver+=1.9.2
+    @nmtui_ipv6_routes_remove_basic_route
+    Scenario: nmtui - ipv6 - routes - remove basic route
+    * Prepare new connection of type "Ethernet" named "ethernet1"
+    * Set "Device" field to "eth1"
+    * Set "IPv6 CONFIGURATION" category to "Manual"
+    * Come in "IPv6 CONFIGURATION" category
+    * In "Addresses" property add "2000::2/126"
+    * Add ip route "1010::1/128 2000::1 1"
+    * Confirm the connection settings
+    * Choose to "<Add>" a connection
+    * Choose the connection type "Ethernet"
+    * Set "Profile name" field to "ethernet2"
+    * Set "Device" field to "eth2"
+    * Set "IPv6 CONFIGURATION" category to "Manual"
+    * Come in "IPv6 CONFIGURATION" category
+    * In "Addresses" property add "2001::1/126"
+    * Add ip route "3030::1/128 2001::2 1"
+    * Confirm the connection settings
+    * Select connection "ethernet1" in the list
+    * Choose to "<Edit...>" a connection
+    * Come in "IPv6 CONFIGURATION" category
+    * Remove all routes
+    * Confirm the connection settings
+    * Come back to main screen
+    * Choose to "Edit a connection" from main screen
+    * Select connection "ethernet2" in the list
+    * Choose to "<Edit...>" a connection
+    * Come in "IPv6 CONFIGURATION" category
+    * Remove all routes
+    * Confirm the connection settings
+    * Bring up connection "ethernet1"
+    * Bring up connection "ethernet2"
+    Then "2000::2/126" is visible with command "ip a s eth1"
+    Then "2001::1/126" is visible with command "ip a s eth2"
+    Then "1010::1 via 2000::1 dev eth1\s+proto static\s+metric 1" is not visible with command "ip -6 route"
+    Then "2000::/126 dev eth1\s+proto kernel\s+metric 100" is visible with command "ip -6 route"
+    Then "2001::/126 dev eth2\s+proto kernel\s+metric 100" is visible with command "ip -6 route"
+    Then "3030::1 via 2001::2 dev eth2\s+proto static\s+metric 1" is not visible with command "ip -6 route"
+
 
     @ipv6
+    @ver-=1.9.1
     @nmtui_ipv6_routes_set_device_route
     Scenario: nmtui - ipv6 - routes - set device route
     * Prepare new connection of type "Ethernet" named "ethernet1"
@@ -242,6 +311,23 @@ Feature: IPv6 TUI tests
     * Confirm the connection settings
     Then "3030::1 via 2001::2 dev eth1\s+proto static\s+metric 2" is visible with command "ip -6 route"
     Then "2001::/126 dev eth1\s+proto kernel\s+metric 256" is visible with command "ip -6 route"
+    Then "1010::1 dev eth1\s+proto static\s+metric 3" is visible with command "ip -6 route"
+
+    @ipv6
+    @ver+=1.9.2
+    @nmtui_ipv6_routes_set_device_route
+    Scenario: nmtui - ipv6 - routes - set device route
+    * Prepare new connection of type "Ethernet" named "ethernet1"
+    * Set "Device" field to "eth1"
+    * Set "IPv6 CONFIGURATION" category to "Manual"
+    * Come in "IPv6 CONFIGURATION" category
+    * In "Addresses" property add "2001::1/126"
+    * Set "Gateway" field to "4000::1"
+    * Add ip route "1010::1/128 :: 3"
+    * Add ip route "3030::1/128 2001::2 2"
+    * Confirm the connection settings
+    Then "3030::1 via 2001::2 dev eth1\s+proto static\s+metric 2" is visible with command "ip -6 route"
+    Then "2001::/126 dev eth1\s+proto kernel\s+metric 100" is visible with command "ip -6 route"
     Then "1010::1 dev eth1\s+proto static\s+metric 3" is visible with command "ip -6 route"
 
 

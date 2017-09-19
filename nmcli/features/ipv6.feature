@@ -161,6 +161,7 @@ Feature: nmcli: ipv6
 
 
     @ipv6_2 @eth0
+    @ver-=1.9.1
     @ipv6_routes_set_basic_route
     Scenario: nmcli - ipv6 - routes - set basic route
      * Add a new connection of type "ethernet" and options "ifname eth1 con-name ethie autoconnect no"
@@ -184,21 +185,60 @@ Feature: nmcli: ipv6
     Then "2001::/126 dev eth2\s+proto kernel\s+metric 256" is visible with command "ip -6 route"
     Then "3030::1 via 2001::2 dev eth2\s+proto static\s+metric 1" is visible with command "ip -6 route"
 
+    @ipv6_2 @eth0
+    @ver+=1.9.2
+    @ipv6_routes_set_basic_route
+    Scenario: nmcli - ipv6 - routes - set basic route
+     * Add a new connection of type "ethernet" and options "ifname eth1 con-name ethie autoconnect no"
+     * Open editor for connection "ethie"
+     * Submit "set ipv6.method static" in editor
+     * Submit "set ipv6.addresses 2000::2/126" in editor
+     * Submit "set ipv6.routes 1010::1/128 2000::1 1" in editor
+     * Save in editor
+     * Quit editor
+     * Add a new connection of type "ethernet" and options "ifname eth2 con-name ethie2 autoconnect no"
+     * Open editor for connection "ethie2"
+     * Submit "set ipv6.method static" in editor
+     * Submit "set ipv6.addresses 2001::1/126" in editor
+     * Submit "set ipv6.routes 3030::1/128 2001::2 1" in editor
+     * Save in editor
+     * Quit editor
+     * Bring "up" connection "ethie"
+     * Bring "up" connection "ethie2"
+    Then "1010::1 via 2000::1 dev eth1\s+proto static\s+metric 1" is visible with command "ip -6 route" in "5" seconds
+    Then "2000::/126 dev eth1\s+proto kernel\s+metric 100" is visible with command "ip -6 route"
+    Then "2001::/126 dev eth2\s+proto kernel\s+metric 100" is visible with command "ip -6 route"
+    Then "3030::1 via 2001::2 dev eth2\s+proto static\s+metric 1" is visible with command "ip -6 route"
+
 
     @rhbz1373698
     @ver+=1.8.0
+    @ver-=1.9.1
     @ipv6
     @ipv6_route_set_route_with_options
     Scenario: nmcli - ipv6 - routes - set route with options
-    * Add a new connection of type "ethernet" and options "ifname eth1 con-name ethie autoconnect no ipv6.method manual ipv6.addresses 2000::2/126 ipv6.route-metric 256"
+    * Add a new connection of type "ethernet" and options "ifname eth1 con-name ethie autoconnect no ipv6.method manual ipv6.addresses 2000::2/126 ipv6.route-metric 258"
     * Execute "nmcli con modify ethie ipv6.routes '1010::1/128 2000::1 1024 cwnd=15 lock-mtu=true mtu=1600'"
     * Bring "up" connection "ethie"
     Then "1010::1 via 2000::1 dev eth1\s+proto static\s+metric 1024\s+mtu lock 1600 cwnd 15" is visible with command "ip -6 route" in "5" seconds
     Then "2000::/126 dev eth1\s+proto kernel\s+metric 256" is visible with command "ip -6 route"
      And "default" is visible with command "ip r |grep eth0"
 
+    @rhbz1373698
+    @ver+=1.9.2
+    @ipv6
+    @ipv6_route_set_route_with_options
+    Scenario: nmcli - ipv6 - routes - set route with options
+    * Add a new connection of type "ethernet" and options "ifname eth1 con-name ethie autoconnect no ipv6.method manual ipv6.addresses 2000::2/126 ipv6.route-metric 258"
+    * Execute "nmcli con modify ethie ipv6.routes '1010::1/128 2000::1 1024 cwnd=15 lock-mtu=true mtu=1600'"
+    * Bring "up" connection "ethie"
+    Then "1010::1 via 2000::1 dev eth1\s+proto static\s+metric 1024\s+mtu lock 1600 cwnd 15" is visible with command "ip -6 route" in "5" seconds
+    Then "2000::/126 dev eth1\s+proto kernel\s+metric 258" is visible with command "ip -6 route"
+     And "default" is visible with command "ip r |grep eth0"
+
 
     @ipv6_2 @eth0
+    @ver-=1.9.1
     @ipv6_routes_remove_basic_route
     Scenario: nmcli - ipv6 - routes - remove basic route
      * Add a new connection of type "ethernet" and options "ifname eth1 con-name ethie autoconnect no"
@@ -236,8 +276,48 @@ Feature: nmcli: ipv6
     Then "2001::/126 dev eth2\s+proto kernel\s+metric 256" is visible with command "ip -6 route"
     Then "3030::1 via 2001::2 dev eth2\s+proto static\s+metric 1" is not visible with command "ip -6 route"
 
+    @ipv6_2 @eth0
+    @ver+=1.9.2
+    @ipv6_routes_remove_basic_route
+    Scenario: nmcli - ipv6 - routes - remove basic route
+     * Add a new connection of type "ethernet" and options "ifname eth1 con-name ethie autoconnect no"
+     * Open editor for connection "ethie"
+     * Submit "set ipv6.method static" in editor
+     * Submit "set ipv6.addresses 2000::2/126" in editor
+     * Submit "set ipv6.routes 1010::1/128 2000::1 1" in editor
+     * Save in editor
+     * Quit editor
+     * Add a new connection of type "ethernet" and options "ifname eth2 con-name ethie2 autoconnect no"
+     * Open editor for connection "ethie2"
+     * Submit "set ipv6.method static" in editor
+     * Submit "set ipv6.addresses 2001::1/126" in editor
+     * Submit "set ipv6.routes 3030::1/128 2001::2 1" in editor
+     * Save in editor
+     * Quit editor
+     * Bring "up" connection "ethie"
+     * Bring "up" connection "ethie2"
+     * Open editor for connection "ethie"
+     * Submit "set ipv6.routes" in editor
+     * Enter in editor
+     * Save in editor
+     * Quit editor
+     * Open editor for connection "ethie2"
+     * Submit "set ipv6.routes" in editor
+     * Enter in editor
+     * Save in editor
+     * Quit editor
+     * Bring "up" connection "ethie"
+     * Bring "up" connection "ethie2"
+    Then "2000::2/126" is visible with command "ip a s eth1"
+    Then "2001::1/126" is visible with command "ip a s eth2"
+    Then "1010::1 via 2000::1 dev eth1\s+proto static\s+metric 1" is not visible with command "ip -6 route"
+    Then "2000::/126 dev eth1\s+proto kernel\s+metric 100" is visible with command "ip -6 route" in "5" seconds
+    Then "2001::/126 dev eth2\s+proto kernel\s+metric 100" is visible with command "ip -6 route"
+    Then "3030::1 via 2001::2 dev eth2\s+proto static\s+metric 1" is not visible with command "ip -6 route"
+
 
     @ipv6 @eth0
+    @ver-=1.9.1
     @ipv6_routes_device_route
     Scenario: nmcli - ipv6 - routes - set device route
      * Add a new connection of type "ethernet" and options "ifname eth1 con-name ethie autoconnect no"
@@ -252,6 +332,24 @@ Feature: nmcli: ipv6
     Then "default via 4000::1 dev eth1\s+proto static\s+metric" is visible with command "ip -6 route" in "5" seconds
     Then "3030::1 via 2001::2 dev eth1\s+proto static\s+metric 2" is visible with command "ip -6 route"
     Then "2001::/126 dev eth1\s+proto kernel\s+metric 256" is visible with command "ip -6 route"
+    Then "1010::1 dev eth1\s+proto static\s+metric 3" is visible with command "ip -6 route"
+
+    @ipv6 @eth0
+    @ver+=1.9.2
+    @ipv6_routes_device_route
+    Scenario: nmcli - ipv6 - routes - set device route
+     * Add a new connection of type "ethernet" and options "ifname eth1 con-name ethie autoconnect no"
+     * Open editor for connection "ethie"
+     * Submit "set ipv6.method static" in editor
+     * Submit "set ipv6.addresses 2001::1/126" in editor
+     * Submit "set ipv6.gateway 4000::1" in editor
+     * Submit "set ipv6.routes 1010::1/128 :: 3, 3030::1/128 2001::2 2 " in editor
+     * Save in editor
+     * Quit editor
+     * Bring "up" connection "ethie"
+    Then "default via 4000::1 dev eth1\s+proto static\s+metric" is visible with command "ip -6 route" in "5" seconds
+    Then "3030::1 via 2001::2 dev eth1\s+proto static\s+metric 2" is visible with command "ip -6 route"
+    Then "2001::/126 dev eth1\s+proto kernel\s+metric 100" is visible with command "ip -6 route"
     Then "1010::1 dev eth1\s+proto static\s+metric 3" is visible with command "ip -6 route"
 
 
@@ -299,6 +397,7 @@ Feature: nmcli: ipv6
 
 
     @ipv6 @eth0
+    @ver-=1.9.1
     @ipv6_routes_without_gw
     Scenario: nmcli - ipv6 - routes - set invalid route - missing gw
      * Add a new connection of type "ethernet" and options "ifname eth1 con-name ethie autoconnect no"
@@ -312,6 +411,23 @@ Feature: nmcli: ipv6
      * Bring "up" connection "ethie"
     Then "default via 4000::1 dev eth1\s+proto static\s+metric" is visible with command "ip -6 route" in "5" seconds
     Then "2001::/126 dev eth1\s+proto kernel\s+metric 256" is visible with command "ip -6 route"
+    Then "1010::1 dev eth1\s+proto static\s+metric" is visible with command "ip -6 route"
+
+    @ipv6 @eth0
+    @ver+=1.9.2
+    @ipv6_routes_without_gw
+    Scenario: nmcli - ipv6 - routes - set invalid route - missing gw
+     * Add a new connection of type "ethernet" and options "ifname eth1 con-name ethie autoconnect no"
+     * Open editor for connection "ethie"
+     * Submit "set ipv6.method static" in editor
+     * Submit "set ipv6.addresses 2001::1/126" in editor
+     * Submit "set ipv6.gateway 4000::1" in editor
+     * Submit "set ipv6.routes 1010::1/128" in editor
+     * Save in editor
+     * Quit editor
+     * Bring "up" connection "ethie"
+    Then "default via 4000::1 dev eth1\s+proto static\s+metric" is visible with command "ip -6 route" in "5" seconds
+    Then "2001::/126 dev eth1\s+proto kernel\s+metric 100" is visible with command "ip -6 route"
     Then "1010::1 dev eth1\s+proto static\s+metric" is visible with command "ip -6 route"
 
 
@@ -987,6 +1103,7 @@ Feature: nmcli: ipv6
 
     @rhbz1274894
     @eth @restart @selinux_allow_ifup @teardown_testveth
+    @ver-=1.9.1
     @persistent_ipv6_routes
     Scenario: NM - ipv6 - persistent ipv6 routes
     * Add a new connection of type "ethernet" and options "ifname testX con-name ethie"
@@ -1007,6 +1124,30 @@ Feature: nmcli: ipv6
     And "default via fe" is not visible with command "ip -6 r |grep testX |grep expire" in "5" seconds
     And "2620:dead:beaf::\/64 dev testX\s+proto ra\s+metric 10" is visible with command "ip -6 r"
     And "dev testX\s+proto kernel\s+metric 256\s+expires 11" is visible with command "ip -6 r|grep 2620:dead:beaf" in "60" seconds
+
+    @rhbz1274894
+    @eth @restart @selinux_allow_ifup @teardown_testveth
+    @ver+=1.9.2
+    @persistent_ipv6_routes
+    Scenario: NM - ipv6 - persistent ipv6 routes
+    * Add a new connection of type "ethernet" and options "ifname testX con-name ethie"
+    * Wait for at least "3" seconds
+    * Execute "systemctl stop NetworkManager"
+    * Prepare simulated test "testX" device
+    * Execute "sysctl net.ipv6.conf.testX.accept_ra_defrtr=1"
+    * Execute "sysctl net.ipv6.conf.testX.accept_ra_pinfo=1"
+    * Execute "ifup testX"
+    * Wait for at least "10" seconds
+    * Execute "ip r del 169.254.0.0/16"
+    When "default" is visible with command "ip -6 r |grep testX" in "20" seconds
+    And "default" is visible with command "ip -6 r |grep testX |grep expire" in "5" seconds
+    And "2620:dead:beaf::\/64" is visible with command "ip -6 r"
+    * Restart NM
+    * Execute "sleep 20"
+    Then "default via fe" is visible with command "ip -6 r |grep testX |grep 'metric 10[0-1]'" in "50" seconds
+    And "default via fe" is not visible with command "ip -6 r |grep testX |grep expire" in "5" seconds
+    And "2620:dead:beaf::\/64 dev testX\s+proto ra\s+metric 10" is visible with command "ip -6 r"
+    And "dev testX\s+proto kernel\s+metric 100\s+expires 11" is visible with command "ip -6 r|grep 2620:dead:beaf" in "60" seconds
 
 
     @rhbz1394500
