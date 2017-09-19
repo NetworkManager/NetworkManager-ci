@@ -509,7 +509,7 @@ def before_scenario(context, scenario):
         if 'simwifi_wpa2' in scenario.tags:
             print ("---------------------------")
             arch = check_output("uname -p", shell=True).strip()
-            if arch == "s390x" or arch == 'aarch64':
+            if arch != "x86_64":
                 sys.exit(0)
             setup_hostapd_wireless('wpa2')
 
