@@ -1109,7 +1109,7 @@
 
 
     @rhbz1304641
-    @ver+=1.3
+    @ver+=1.8
     @slaves @bond @restart
     @bond_addreses_restart_persistence
     Scenario: nmcli - bond - addresses restart persistence
@@ -1406,7 +1406,7 @@
 
 
     @rhbz1333983
-    @ver+=1.4.0
+    @ver+=1.8.0
     @slaves @bond @vlan @restart
     @vlan_over_no_L3_bond_restart_persistence
     Scenario: nmcli - bond - restart persistence of no L3 bond in vlan
@@ -1437,7 +1437,7 @@
 
 
      @rhbz1371126
-     @ver+=1.4.0
+     @ver+=1.8.0
      @slaves @bond @teardown_testveth @restart
      @bond_leave_L2_only_up_when_going_down
      Scenario: nmcli - bond - leave UP with L2 only config
