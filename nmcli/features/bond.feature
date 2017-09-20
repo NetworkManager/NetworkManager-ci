@@ -760,7 +760,6 @@
      * Bring "up" connection "bond0.0"
      * Bring "up" connection "bond0.1"
      Then "Bonding Mode: load balancing \(round-robin\)" is visible with command "cat /proc/net/bonding/nm-bond"
-     Then Check bond "nm-bond" link state is "up"
      Then "MII Polling Interval \(ms\): 0" is visible with command "cat /proc/net/bonding/nm-bond"
      Then "Up Delay \(ms\): 0" is visible with command "cat /proc/net/bonding/nm-bond"
      Then "Down Delay \(ms\): 0" is visible with command "cat /proc/net/bonding/nm-bond"
@@ -785,7 +784,6 @@
      * Bring "up" connection "bond0.0"
      * Bring "up" connection "bond0.1"
      Then "Bonding Mode: load balancing \(round-robin\)" is visible with command "cat /proc/net/bonding/nm-bond"
-     Then Check bond "nm-bond" link state is "up"
      Then "MII Polling Interval \(ms\): 0" is visible with command "cat /proc/net/bonding/nm-bond"
      Then "ARP Polling Interval \(ms\): 1000" is visible with command "cat /proc/net/bonding/nm-bond"
      Then Check "nm-bond" has "eth1" in proc
@@ -1247,6 +1245,8 @@
      * Add a new connection of type "ethernet" and options "con-name bond0.1 ifname eth2 master nm-bond autoconnect no"
      * Add a new connection of type "ethernet" and options "con-name bond0.0 ifname eth1 master nm-bond autoconnect no"
      * Bring "up" connection "bond0"
+     * Bring "up" connection "bond0.0"
+     * Bring "up" connection "bond0.1"
      When "nm-bond:connected:bond0" is visible with command "nmcli -t -f DEVICE,STATE,CONNECTION device" in "20" seconds
      Then "1" is visible with command "cat /sys/class/net/nm-bond/bonding/arp_all_targets"
 
