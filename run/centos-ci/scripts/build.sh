@@ -15,6 +15,7 @@ $SUDO yum install \
     rpm-build \
     intltool \
     valgrind \
+    strace \
     dbus-devel \
     dbus-glib-devel \
     wireless-tools-devel \
