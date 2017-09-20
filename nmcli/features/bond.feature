@@ -752,7 +752,7 @@
      * Add slave connection for master "nm-bond" on device "eth1" named "bond0.0"
      * Add slave connection for master "nm-bond" on device "eth2" named "bond0.1"
      * Open editor for connection "bond0"
-     * Set a property named "bond.options" to "mode=0, arp_interval=10000, arp_ip_target=10.16.135.254" in editor
+     * Set a property named "bond.options" to "mode=0, arp_interval=1000, arp_ip_target=10.16.135.254" in editor
      * Save in editor
      Then Value saved message showed in editor
      * Quit editor
@@ -777,7 +777,7 @@
      * Add slave connection for master "nm-bond" on device "eth1" named "bond0.0"
      * Add slave connection for master "nm-bond" on device "eth2" named "bond0.1"
      * Open editor for connection "bond0"
-     * Set a property named "bond.options" to "mode=0,miimon=100,arp_interval=10000,arp_ip_target=10.16.135.254" in editor
+     * Set a property named "bond.options" to "mode=0,miimon=100,arp_interval=1000,arp_ip_target=10.16.135.254" in editor
      * Save in editor
      Then Value saved message showed in editor
      * Quit editor
@@ -787,7 +787,7 @@
      Then "Bonding Mode: load balancing \(round-robin\)" is visible with command "cat /proc/net/bonding/nm-bond"
      Then Check bond "nm-bond" link state is "up"
      Then "MII Polling Interval \(ms\): 0" is visible with command "cat /proc/net/bonding/nm-bond"
-     Then "ARP Polling Interval \(ms\): 10000" is visible with command "cat /proc/net/bonding/nm-bond"
+     Then "ARP Polling Interval \(ms\): 1000" is visible with command "cat /proc/net/bonding/nm-bond"
      Then Check "nm-bond" has "eth1" in proc
      Then Check "nm-bond" has "eth2" in proc
 
@@ -1243,7 +1243,7 @@
     @slaves @bond
     @bond_set_arp_all_targets
     Scenario: nmcli - bond - set arp_all_targets
-     * Add a new connection of type "bond" and options "con-name bond0 ifname nm-bond autoconnect no -- connection.autoconnect-slaves 1 bond.options mode=active-backup,arp_interval=10000,arp_ip_target=10.16.135.254,arp_all_targets=1"
+     * Add a new connection of type "bond" and options "con-name bond0 ifname nm-bond autoconnect no -- connection.autoconnect-slaves 1 bond.options mode=active-backup,arp_interval=1000,arp_ip_target=10.16.135.254,arp_all_targets=1"
      * Add a new connection of type "ethernet" and options "con-name bond0.1 ifname eth2 master nm-bond autoconnect no"
      * Add a new connection of type "ethernet" and options "con-name bond0.0 ifname eth1 master nm-bond autoconnect no"
      * Bring "up" connection "bond0"
