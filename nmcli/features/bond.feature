@@ -1241,12 +1241,10 @@
     @slaves @bond
     @bond_set_arp_all_targets
     Scenario: nmcli - bond - set arp_all_targets
-     * Add a new connection of type "bond" and options "con-name bond0 ifname nm-bond autoconnect no -- connection.autoconnect-slaves 1 bond.options mode=active-backup,arp_interval=1000,arp_ip_target=10.16.135.254,arp_all_targets=1"
+     * Add a new connection of type "bond" and options "con-name bond0 ifname nm-bond autoconnect no ip4 10.16.135.1/24 -- connection.autoconnect-slaves 1 bond.options mode=active-backup,arp_interval=1000,arp_ip_target=10.16.135.254,arp_all_targets=1"
      * Add a new connection of type "ethernet" and options "con-name bond0.1 ifname eth2 master nm-bond autoconnect no"
      * Add a new connection of type "ethernet" and options "con-name bond0.0 ifname eth1 master nm-bond autoconnect no"
      * Bring "up" connection "bond0"
-     * Bring "up" connection "bond0.0"
-     * Bring "up" connection "bond0.1"
      When "nm-bond:connected:bond0" is visible with command "nmcli -t -f DEVICE,STATE,CONNECTION device" in "20" seconds
      Then "1" is visible with command "cat /sys/class/net/nm-bond/bonding/arp_all_targets"
 
