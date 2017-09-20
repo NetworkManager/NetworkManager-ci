@@ -16,6 +16,7 @@
     Then "VPN.VPN-STATE:.*VPN connected" is visible with command "nmcli c show pptp"
     Then "IP4.ADDRESS.*172.31.66.*/32" is visible with command "nmcli c show pptp"
 
+
     @pptp
     @pptp_terminate
     Scenario: nmcli - pptp - terminate connection

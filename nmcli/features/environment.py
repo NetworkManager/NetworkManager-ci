@@ -644,11 +644,11 @@ def before_scenario(context, scenario):
 
                 call("sudo systemctl unmask pptpd", shell=True)
                 call("sudo systemctl restart pptpd", shell=True)
-                context.execute_steps(u'* Add a connection named "pptp" for device "\*" to "pptp" VPN')
-                context.execute_steps(u'* Use user "budulinek" with password "passwd" and MPPE set to "yes" for gateway "127.0.0.1" on PPTP connection "pptp"')
+                #context.execute_steps(u'* Add a connection named "pptp" for device "\*" to "pptp" VPN')
+                #context.execute_steps(u'* Use user "budulinek" with password "passwd" and MPPE set to "yes" for gateway "127.0.0.1" on PPTP connection "pptp"')
                 call("/sbin/pppd pty '/sbin/pptp 127.0.0.1' nodetach", shell=True)
-                call("nmcli con up id pptp", shell=True)
-                call("nmcli con del pptp", shell=True)
+                #call("nmcli con up id pptp", shell=True)
+                #call("nmcli con del pptp", shell=True)
                 call("touch /tmp/nm_pptp_configured", shell=True)
                 sleep(1)
 
