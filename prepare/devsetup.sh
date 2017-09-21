@@ -93,7 +93,7 @@ local_setup_configure_nm_eth () {
         dcb_inf_wol_sriov=1
     fi
 
-    if [ $dcb_inf_wol_sriov -eq 0 ]; then
+    if [ $dcb_inf_wol_sriov -eq 1 ]; then
         touch /tmp/nm_dcb_inf_wol_sriov_configured
     fi
 
@@ -175,7 +175,9 @@ local_setup_configure_nm_dcb () {
     systemctl enable lldpad
     systemctl start lldpad
 
-    dcbtool sc enp5s0f0 dcb on
+    modprobe -r ixgbe; modprobe ixgbe
+    sleep 2
+    dcbtool sc p6p2 dcb on
 
     touch /tmp/dcb_configured
 }
