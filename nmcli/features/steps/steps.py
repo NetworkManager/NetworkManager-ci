@@ -171,7 +171,7 @@ def set_vpnc_connection(context, user, password, mppe, gateway, name):
     r = cli.expect(['Error', pexpect.EOF])
     if r == 0:
         raise Exception('Got an Error while editing %s connection data' % (name))
-    sleep(1)
+    sleep(2)
     cli = pexpect.spawn('nmcli c modify %s vpn.secrets "password = %s"' % (name, password))
     r = cli.expect(['Error', pexpect.EOF])
     if r == 0:

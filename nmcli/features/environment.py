@@ -170,7 +170,7 @@ def wait_for_testeth0():
 
 def before_scenario(context, scenario):
     try:
-        if not os.path.isfile('/tmp/nm_wifi_configured') and not os.path.isfile('/tmp/dcb_configured'):
+        if not os.path.isfile('/tmp/nm_wifi_configured') and not os.path.isfile('/tmp/nm_dcb_inf_wol_sriov_configured'):
             if call("nmcli device |grep testeth0 |grep ' connected'", shell=True) != 0:
                 call("sudo nmcli connection modify testeth0 ipv4.may-fail no", shell=True)
                 call("sudo nmcli connection up id testeth0", shell=True)
@@ -1103,8 +1103,8 @@ def after_scenario(context, scenario):
             # call("rm -rf /etc/NetworkManager/conf.d/98-sriov.conf", shell=True)
             # call("systemctl restart NetworkManager", shell=True)
             # sleep(5)
-            call("echo 0 > /sys/class/net/enp5s0f0/device/sriov_numvfs", shell=True)
-            call("echo 0 > /sys/class/net/enp5s0f1/device/sriov_numvfs", shell=True)
+            call("echo 0 > /sys/class/net/p6p1/device/sriov_numvfs", shell=True)
+            call("echo 0 > /sys/class/net/p6p2/device/sriov_numvfs", shell=True)
             call("rm -rf /etc/NetworkManager/conf.d/99-sriov.conf", shell=True)
             call("rm -rf /etc/NetworkManager/conf.d/98-sriov.conf", shell=True)
             call("systemctl restart NetworkManager", shell=True)

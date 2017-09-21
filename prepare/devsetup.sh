@@ -93,6 +93,10 @@ local_setup_configure_nm_eth () {
         dcb_inf_wol_sriov=1
     fi
 
+    if [ $dcb_inf_wol_sriov -eq 0 ]; then
+        touch /tmp/nm_dcb_inf_wol_sriov_configured
+    fi
+
     veth=0
     if [ $wlan -eq 0 ]; then
         if [ $dcb_inf_wol_sriov -eq 0 ]; then
