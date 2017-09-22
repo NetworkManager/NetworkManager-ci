@@ -394,7 +394,7 @@ Feature: nmcli - general
     * Save in editor
     * Execute "nmcli device reapply testX"
     Then "1010::1 via 2000::1 dev testX\s+proto static\s+metric 1" is visible with command "ip -6 route" in "5" seconds
-     And "2000::/126 dev testX\s+proto kernel\s+metric 256" is visible with command "ip -6 route"
+     And "2000::/126 dev testX\s+proto kernel\s+metric (100|256)" is visible with command "ip -6 route"
      And "192.168.5.0/24 via 192.168.99.111 dev testX\s+proto static\s+metric" is visible with command "ip route"
      And "routers = 192.168.99.1" is visible with command "nmcli con show ethie"
      And "default via 192.168.99.1 dev testX" is visible with command "ip r"
@@ -421,7 +421,7 @@ Feature: nmcli - general
     * Execute "ip netns exec testX_ns kill -SIGSTOP $(cat /tmp/testX_ns.pid)"
     * Execute "nmcli device reapply testX"
     Then "1010::1 via 2000::1 dev testX\s+proto static\s+metric 1" is visible with command "ip -6 route" in "5" seconds
-     And "2000::/126 dev testX\s+proto kernel\s+metric 256" is visible with command "ip -6 route"
+     And "2000::/126 dev testX\s+proto kernel\s+metric (100|256)" is visible with command "ip -6 route"
      And "192.168.3.0/24 dev testX\s+proto kernel\s+scope link\s+src 192.168.3.10" is visible with command "ip route"
      And "192.168.4.1 dev testX\s+proto static\s+scope link\s+metric 21" is visible with command "ip route"
      And "192.168.5.0/24 via 192.168.3.11 dev testX\s+proto static\s+metric" is visible with command "ip route"
