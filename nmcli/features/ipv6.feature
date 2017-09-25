@@ -359,8 +359,8 @@ Feature: nmcli: ipv6
      * Add a new connection of type "ethernet" and options "ifname eth10 con-name ethie autoconnect no"
      * Execute "nmcli connection modify ethie ipv6.may-fail no"
      * Bring "up" connection "ethie"
-    Then "2620:52:0:1086::/64 dev eth10\s+proto ra" is visible with command "ip -6 r" in "20" seconds
-    Then "2620:52:0:1086" is visible with command "ip -6 a s eth10 |grep 'global noprefix'" in "20" seconds
+    Then "2620:52:0:.*::/64 dev eth10\s+proto ra" is visible with command "ip -6 r" in "20" seconds
+    Then "2620:52:0:" is visible with command "ip -6 a s eth10 |grep 'global noprefix'" in "20" seconds
 
 
     @ipv6 @eth0 @long
