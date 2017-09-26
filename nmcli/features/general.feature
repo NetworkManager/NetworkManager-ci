@@ -859,25 +859,27 @@ Feature: nmcli - general
 
 
     @rhbz1083683 @rhbz1256772
-    @runonce @long
+    @teardown_testveth
+    @runonce
     @run_once_ip4_renewal
     Scenario: NM - general - run once and quit ipv4 renewal
-    * Add a new connection of type "ethernet" and options "ifname eth1 con-name ethie"
+    * Prepare simulated test "testX" device
+    * Add a new connection of type "ethernet" and options "ifname testX con-name ethie"
     * Bring "up" connection "ethie"
-    * Disconnect device "eth1"
-    * Stop NM and clean "eth1"
-    When "state DOWN" is visible with command "ip a s eth1" in "5" seconds
+    * Disconnect device "testX"
+    * Stop NM and clean "testX"
+    When "state DOWN" is visible with command "ip a s testX" in "5" seconds
     * Execute "echo '[main]' > /etc/NetworkManager/conf.d/01-run-once.conf"
     * Execute "echo 'configure-and-quit=yes' >> /etc/NetworkManager/conf.d/01-run-once.conf"
     * Execute "echo 'dhcp=internal' >> /etc/NetworkManager/conf.d/01-run-once.conf"
     * Execute "sleep 1"
     * Start NM
-    * "192" is visible with command " ip a s eth1 |grep 'inet '|grep dynamic" in "60" seconds
-    * Execute "sleep 120"
+    * "192" is visible with command " ip a s testX |grep 'inet '|grep dynamic" in "60" seconds
+    * Execute "sleep 10"
     # VVV this means that lifetime was refreshed
-    When "IPv4" lifetimes are slightly smaller than "245" and "245" for device "eth1"
-    Then "192.168.100" is visible with command " ip a s eth1 |grep 'inet '|grep dynamic"
-    Then "192.168.100.0/24" is visible with command "ip r |grep eth1"
+    When "preferred_lft 119sec" is visible with command " ip a s testX" in "60" seconds
+    Then "192.168.99" is visible with command " ip a s testX |grep 'inet '|grep dynamic"
+    Then "192.168.99.0/24" is visible with command "ip r |grep testX"
 
 
     @rhbz1083683
