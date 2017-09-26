@@ -15,9 +15,9 @@
     When "1" is visible with command "nmcli dev |grep p6p1  |wc -l"
     When "1" is visible with command "nmcli dev |grep p6p2  |wc -l"
     * Prepare "99-sriov.conf" config for "p6p1" device with "63" VFs
-    When "64" is visible with command "nmcli dev |grep p6p1  |wc -l"
+    When "64" is visible with command "nmcli dev |grep p6p1  |wc -l" in "20" seconds
     * Prepare "98-sriov.conf" config for "p6p2" device with "63" VFs
-    When "64" is visible with command "nmcli dev |grep p6p2  |wc -l"
+    When "64" is visible with command "nmcli dev |grep p6p2  |wc -l" in "20" seconds
 
 
     @rhbz1398934
