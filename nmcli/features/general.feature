@@ -877,7 +877,7 @@ Feature: nmcli - general
     * "192" is visible with command " ip a s testX |grep 'inet '|grep dynamic" in "60" seconds
     * Execute "sleep 10"
     # VVV this means that lifetime was refreshed
-    When "preferred_lft 119sec" is visible with command " ip a s testX" in "60" seconds
+    When "preferred_lft 117sec" is visible with command " ip a s testX" in "80" seconds
     Then "192.168.99" is visible with command " ip a s testX |grep 'inet '|grep dynamic"
     Then "192.168.99.0/24" is visible with command "ip r |grep testX"
 
