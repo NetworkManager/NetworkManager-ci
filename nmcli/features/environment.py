@@ -471,7 +471,9 @@ def before_scenario(context, scenario):
             call("sudo systemctl unmask firewalld", shell=True)
             call("sudo systemctl start firewalld", shell=True)
             call("sudo nmcli con modify testeth0 connection.zone public", shell=True)
-            #call("sleep 4", shell=True)
+            # Add a sleep here to prevent firewalld to hang
+            # (see https://bugzilla.redhat.com/show_bug.cgi?id=1495893)
+            call("sleep 1", shell=True)
 
         if ('ethernet' in scenario.tags) or ('bridge' in scenario.tags) or ('vlan' in scenario.tags):
             print ("---------------------------")
