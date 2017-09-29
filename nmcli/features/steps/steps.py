@@ -1502,19 +1502,19 @@ def quit_editor(context):
 
 @step(u'Reboot')
 def reboot(context):
+    assert command_code(context, "sudo service NetworkManager stop") == 0
     for x in xrange(1,10):
         command_code(context, "sudo ip link set dev eth%d down" %int(x))
         command_code(context, "sudo ip addr flush dev eth%d" %int(x))
-    command_code(context, "nmcli device disconnect nm-bond")
-    command_code(context, "nmcli device disconnect nm-team")
+
     command_code(context, "ip link del nm-bond")
     command_code(context, "ip link del nm-team")
 
     command_code(context, "rm -rf /var/run/NetworkManager")
 
-    sleep(2)
+    sleep(3)
     context.nm_restarted = True
-    assert command_code(context, "sudo service NetworkManager restart") == 0
+    assert command_code(context, "sudo service NetworkManager start") == 0
     sleep(5)
 
 
