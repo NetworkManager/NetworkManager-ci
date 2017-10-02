@@ -710,9 +710,9 @@ Feature: nmcli: ipv4
 
 
     @ipv4
-    @reload_dns
+    @reload_dns @eth0
     Scenario: nmcli - ipv4 - dns - reload
-    * Add connection type "ethernet" named "ethie" for device "eth1"
+    * Add connection type "ethernet" named "ethie" for device "eth0"
     * Open editor for connection "ethie"
     * Submit "set ipv4.dns 8.8.8.8, 8.8.4.4" in editor
     * Save in editor
