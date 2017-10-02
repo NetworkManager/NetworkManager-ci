@@ -626,6 +626,11 @@ def before_scenario(context, scenario):
             call("[ -x /usr/sbin/pptpd ] || sudo yum -y install /usr/sbin/pptpd", shell=True)
             call("rpm -q NetworkManager-pptp || sudo yum -y install NetworkManager-pptp", shell=True)
 
+            call("sudo rm -f /etc/ppp/ppp-secrets", shell=True)
+            psk = Popen("sudo sh -c 'cat >/etc/ppp/chap-secrets'", stdin=PIPE, shell=True).stdin
+            psk.write("budulinek pptpd passwd *\n")
+            psk.close()
+
             if not os.path.isfile('/tmp/nm_pptp_configured'):
                 call("sudo systemctl restart NetworkManager", shell=True)
                 cfg = Popen("sudo sh -c 'cat >/etc/pptpd.conf'", stdin=PIPE, shell=True).stdin
@@ -638,11 +643,6 @@ def before_scenario(context, scenario):
                 cfg.write("\n" + 'ms-dns 8.8.4.4')
                 cfg.write("\n")
                 cfg.close()
-
-                call("sudo rm -f /etc/ppp/ppp-secrets", shell=True)
-                psk = Popen("sudo sh -c 'cat >/etc/ppp/chap-secrets'", stdin=PIPE, shell=True).stdin
-                psk.write("budulinek pptpd passwd *\n")
-                psk.close()
 
                 call("sudo systemctl unmask pptpd", shell=True)
                 call("sudo systemctl restart pptpd", shell=True)
