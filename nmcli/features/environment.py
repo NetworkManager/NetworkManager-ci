@@ -1181,6 +1181,12 @@ def after_scenario(context, scenario):
             if data:
                 context.embed('text/plain', data)
 
+        if 'openvpn' in scenario.tags:
+            print ("---------------------------")
+            print ("deleting openvpn profile")
+            call('nmcli connection delete openvpn', shell=True)
+            call("sudo systemctl stop openvpn@trest-server", shell=True)
+
         if 'libreswan' in scenario.tags:
             print ("---------------------------")
             print ("deleting libreswan profile")
@@ -1188,12 +1194,6 @@ def after_scenario(context, scenario):
             call('nmcli connection down libreswan', shell=True)
             call('nmcli connection delete libreswan', shell=True)
             teardown_racoon ()
-
-        if 'openvpn' in scenario.tags:
-            print ("---------------------------")
-            print ("deleting openvpn profile")
-            call('nmcli connection delete openvpn', shell=True)
-            call("sudo systemctl stop openvpn@trest-server", shell=True)
 
         if 'pptp' in scenario.tags:
             print ("---------------------------")
