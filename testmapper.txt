@@ -503,6 +503,11 @@ add_adsl_connection_novice_mode, ., nmcli/./runtest.sh add_adsl_connection_novic
 add_adsl_connection, ., nmcli/./runtest.sh add_adsl_connection ,
 #@adsl_end
 
+#@pptp_start
+pptp_add_profile, ., nmcli/./runtest.sh pptp_add_profile ,
+pptp_terminate, ., nmcli/./runtest.sh pptp_terminate ,
+#@pptp_end
+
 #@libreswan_start
 libreswan_add_profile, ., nmcli/./runtest.sh libreswan_add_profile ,
 libreswan_terminate, ., nmcli/./runtest.sh libreswan_terminate ,
@@ -752,7 +757,6 @@ sriov_connect_externally, ., nmcli/./runtest.sh sriov_connect_externally ,
 sriov_reboot_persistence, ., nmcli/./runtest.sh sriov_reboot_persistence ,
 #@sriov_end
 
-
 #@ppp_start
 connect_to_pppoe_via_pap, ., nmcli/./runtest.sh connect_to_pppoe_via_pap ,
 connect_to_pppoe_via_chap, ., nmcli/./runtest.sh connect_to_pppoe_via_chap ,
@@ -760,11 +764,6 @@ disconnect_from_pppoe, ., nmcli/./runtest.sh disconnect_from_pppoe ,
 update_firewall_zone_upon_reconnect, ., nmcli/./runtest.sh update_firewall_zone_upon_reconnect ,
 pppoe_over_vlan, ., nmcli/./runtest.sh pppoe_over_vlan ,
 #@ppp_end
-
-#@pptp_start
-pptp_add_profile, ., nmcli/./runtest.sh pptp_add_profile ,
-pptp_terminate, ., nmcli/./runtest.sh pptp_terminate ,
-#@pptp_end
 
 #@nmtui_start
 nmtui_general_start_nmtui, ., nmtui/./runtest.sh nmtui_general_start_nmtui ,
