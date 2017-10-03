@@ -745,10 +745,10 @@ Feature: nmcli: ipv4
     Then "nameserver 8.8.4.4\s+nameserver 8.8.8.8" is visible with command "cat /etc/resolv.conf"
 
 
-    @newveth @ipv4 @eth0
+    @ipv4 @eth0
     @ipv4_dns-search_add
     Scenario: nmcli - ipv4 - dns-search - add dns-search
-    * Add connection type "ethernet" named "ethie" for device "eth10"
+    * Add connection type "ethernet" named "ethie" for device "eth0"
     * Open editor for connection "ethie"
     * Submit "set ipv4.dns-search google.com" in editor
     * Submit "set ipv4.may-fail no" in editor
@@ -760,10 +760,10 @@ Feature: nmcli: ipv4
     Then Ping "maps.google.com"
 
 
-    @newveth @ipv4 @eth0
+    @ipv4 @eth0
     @ipv4_dns-search_remove
     Scenario: nmcli - ipv4 - dns-search - remove dns-search
-    * Add connection type "ethernet" named "ethie" for device "eth10"
+    * Add connection type "ethernet" named "ethie" for device "eth0"
     * Open editor for connection "ethie"
     * Submit "set ipv4.dns-search google.com" in editor
     * Submit "set ipv4.may-fail no" in editor
