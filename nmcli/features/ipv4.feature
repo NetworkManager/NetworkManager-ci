@@ -751,6 +751,7 @@ Feature: nmcli: ipv4
     * Add connection type "ethernet" named "ethie" for device "eth10"
     * Open editor for connection "ethie"
     * Submit "set ipv4.dns-search google.com" in editor
+    * Submit "set ipv4.may-fail no" in editor
     * Save in editor
     * Quit editor
     * Bring "up" connection "ethie"
@@ -765,6 +766,7 @@ Feature: nmcli: ipv4
     * Add connection type "ethernet" named "ethie" for device "eth10"
     * Open editor for connection "ethie"
     * Submit "set ipv4.dns-search google.com" in editor
+    * Submit "set ipv4.may-fail no" in editor
     * Save in editor
     * Quit editor
     * Bring "up" connection "ethie"
@@ -968,7 +970,7 @@ Feature: nmcli: ipv4
     @ipv4_add_dns_options
     Scenario: nmcli - ipv4 - dns-options - add
     * Add a new connection of type "ethernet" and options "ifname eth10 con-name ethie autoconnect no"
-    * Execute "nmcli con modify ethie ipv4.dns-options debug"
+    * Execute "nmcli con modify ethie ipv4.dns-options debug ipv4.may-fail no"
     * Bring "up" connection "ethie"
     Then "options debug" is visible with command "cat /etc/resolv.conf" in "5" seconds
 
@@ -977,7 +979,7 @@ Feature: nmcli: ipv4
     @ipv4_remove_dns_options
     Scenario: nmcli - ipv4 - dns-options - remove
     * Add a new connection of type "ethernet" and options "ifname eth10 con-name ethie autoconnect no"
-    * Execute "nmcli con modify ethie ipv4.dns-options debug"
+    * Execute "nmcli con modify ethie ipv4.dns-options debug ipv4.may-fail no"
     * Bring "up" connection "ethie"
     * Execute "nmcli con modify ethie ipv4.dns-options ' '"
     * Bring "up" connection "ethie"
@@ -1087,7 +1089,8 @@ Feature: nmcli: ipv4
     Scenario: nmcli - ipv4 - never-default - set
     * Add connection type "ethernet" named "ethie" for device "eth10"
     * Open editor for connection "ethie"
-    * Submit "set ipv4.never-default yes " in editor
+    * Submit "set ipv4.never-default yes" in editor
+    * Submit "set ipv4.may-fail no" in editor
     * Save in editor
     * Quit editor
     * Bring "up" connection "ethie"
@@ -1100,6 +1103,7 @@ Feature: nmcli: ipv4
     * Add connection type "ethernet" named "ethie" for device "eth10"
     * Open editor for connection "ethie"
     * Submit "set ipv4.never-default yes" in editor
+    * Submit "set ipv4.may-fail no" in editor
     * Save in editor
     * Quit editor
     * Bring "up" connection "ethie"
