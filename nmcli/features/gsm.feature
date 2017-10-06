@@ -126,3 +126,30 @@ Feature: nmcli: gsm
     * Bring "up" connection "gsm"
     Then "full" is visible with command "nmcli g" in "60" seconds
      And Ping "nix.cz" "7" times
+
+
+    @eth0 @gsm
+    @gsm_measure_signal_quality
+    Scenario: nmcli - gsm - measure signal quality
+        * Add a new connection of type "gsm" and options "ifname \* con-name gsm autoconnect no apn internet"
+        * Bring "up" connection "gsm"
+        Then "GENERAL.STATE:.*activated" is visible with command "nmcli con show gsm" in "60" seconds
+        Then signal quality can be measured
+
+
+    @eth0 @gsm
+    @gsm_check_ipv4_support
+    Scenario: nmcli - gsm - check if ipv4 addressing is supported
+        * Add a new connection of type "gsm" and options "ifname \* con-name gsm autoconnect no apn internet"
+        * Bring "up" connection "gsm"
+        Then "GENERAL.STATE:.*activated" is visible with command "nmcli con show gsm" in "60" seconds
+        Then "IPv4" addressing is supported
+
+
+    @eth0 @gsm
+    @gsm_check_ipv6_support
+    Scenario: nmcli - gsm - check if ipv6 addressing is supported
+        * Add a new connection of type "gsm" and options "ifname \* con-name gsm autoconnect no apn internet"
+        * Bring "up" connection "gsm"
+        Then "GENERAL.STATE:.*activated" is visible with command "nmcli con show gsm" in "60" seconds
+        Then "IPv6" addressing is supported
