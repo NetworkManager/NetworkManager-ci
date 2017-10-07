@@ -942,6 +942,17 @@ Feature: nmcli - general
     Then "inet6 .* global" is visible with command "ip a s eth10"
 
 
+    @rhbz1498807
+    @ver+=1.8.0
+    @bridge @restart
+    @wait_online_with_autoconnect_no_connection
+    Scenario: NM - general - wait-online - skip non autoconnect soft device connections
+    * Add a new connection of type "bridge" and options "con-name br11 autoconnect no"
+    * Stop NM
+    * Start NM
+    Then "PASS" is visible with command "/usr/bin/nm-online -s -q --timeout=30 && echo PASS"
+
+
     @rhbz1160013
     @eth
     @policy_based_routing
