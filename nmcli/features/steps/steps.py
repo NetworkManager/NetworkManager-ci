@@ -1917,3 +1917,40 @@ def setup_macsec_psk(context, cak, ckn):
                                          --dhcp-range=172.16.10.10,172.16.10.254,60m  \
                                          --interface=macsec0 \
                                          --bind-interfaces")
+
+
+@then(u'signal quality can be measured')
+def measure_signal_quality(context):
+    # Measure signal quality of a GSM modem which is already connected to a mobile network
+    # by reading a value from ModemManager.
+    cmd = "mmcli -m 0 | grep 'signal quality' | awk -F':' '{print $2}' | cut -d\\' -f2- | cut -d\\' -f1"
+    result = check_output(cmd, shell=True)
+    # A value between 0 and 100 percent is expected.
+    try:
+        result = int(result)
+    except:
+        raise Exception('Invalid value "{}" for signal quality.'.format(result))
+
+
+@then(u'"{ip_type}" addressing is supported')
+def supported_ip(context, ip_type):
+    # Check if a GSM modem supports IPv4 addressing
+    # by reading a value from ModemManager.
+    # The expected result is a string containing comma-separated values.
+    # For example:
+    # -------------------------
+    # IP       |      supported: 'ipv4, ipv6'
+    # -------------------------
+    assert ip_type.lower() in ['ipv4', 'ipv6', 'ipv4ipv6'], \
+      'Invalid IP addressing type: "{}". Should be IPv4, IPv6, or IPv4IPv6.'.format(ip_type)
+
+    cmd = "mmcli -m 0 | grep -w IP | grep supported | cut -d\: -f2- | cut -d\\' -f2- | cut -d\\' -f1"
+    result = check_output(cmd, shell=True)
+    assert result.find(ip_type.lower()) > 0, \
+        'IP addressing "{}" is not supported by the modem.'.format()
+
+    # debug_log = '/tmp/mmcli_debug.log'
+    # os.system('[ -f {} ] && sudo rm -f {}'. format(debug_log, debug_log))
+    # df = open(debug_log, "a")
+    # df.write(u"The result is: {}\n".format(result))
+    # df.close()  # End of debugging

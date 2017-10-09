@@ -606,6 +606,13 @@ gsm_mtu, ., nmcli/./runtest.sh gsm_mtu ,,60m
 gsm_connectivity_check, ., nmcli/./runtest.sh gsm_connectivity_check ,,60m
 gsm_load_from_file, ., nmcli/./runtest.sh gsm_load_from_file ,,60m
 gsm_create_assisted_connection, ., nmcli/./runtest.sh gsm_create_assisted_connection ,,60m
+gsm_measure_signal_quality, ., nmcli/./runtest.sh gsm_measure_signal_quality ,,60m
+gsm_check_ipv6_support, ., nmcli/./runtest.sh gsm_check_ipv6_support ,,60m
+gsm_check_connection_stability, ., nmcli/./runtest.sh gsm_check_connection_stability ,,60m
+gsm_check_autoconnect, ., nmcli/./runtest.sh gsm_check_autoconnect ,,60m
+gsm_check_autoconnect, ., nmcli/./runtest.sh gsm_check_autoconnect ,,60m
+gsm_check_apn, ., nmcli/./runtest.sh gsm_check_apn ,,60m
+gsm_check_ipv4_settings, ., nmcli/./runtest.sh gsm_check_ipv4_settings ,,60m
 #gsm_up_down_up, ., nmcli/./runtest.sh gsm_up_down_up ,,60m
 #gsm_up_up, ., nmcli/./runtest.sh gsm_up_up ,,60m
 #@gsm_end

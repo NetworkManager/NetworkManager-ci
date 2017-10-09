@@ -126,3 +126,61 @@ Feature: nmcli: gsm
     * Bring "up" connection "gsm"
     Then "full" is visible with command "nmcli g" in "60" seconds
      And Ping "nix.cz" "7" times
+
+
+    @eth0 @gsm
+    @gsm_measure_signal_quality
+    Scenario: nmcli - gsm - measure signal quality
+        * Add a new connection of type "gsm" and options "ifname \* con-name gsm autoconnect no apn internet"
+        * Bring "up" connection "gsm"
+        Then "GENERAL.STATE:.*activated" is visible with command "nmcli con show gsm" in "60" seconds
+        Then signal quality can be measured
+
+
+    @eth0 @gsm
+    @gsm_check_ipv6_support
+    Scenario: nmcli - gsm - check if ipv6 addressing is supported
+        * Add a new connection of type "gsm" and options "ifname \* con-name gsm autoconnect no apn internet"
+        * Bring "up" connection "gsm"
+        Then "GENERAL.STATE:.*activated" is visible with command "nmcli con show gsm" in "60" seconds
+        Then "IPv6" addressing is supported
+
+
+    @eth0 @gsm
+    @gsm_check_connection_stability
+    Scenario: nmcli - gsm - check if a GSM connection is stable for at least 60 sec
+        * Add a new connection of type "gsm" and options "ifname \* con-name gsm autoconnect no apn internet"
+        * Bring "up" connection "gsm"
+        Then "GENERAL.STATE:.*activated" is visible with command "nmcli con show gsm" in "60" seconds
+        * Execute "sleep 60"
+        Then "GENERAL.STATE:.*activated" is visible with command "nmcli con show gsm"
+
+
+    @eth0 @gsm
+    @gsm_check_autoconnect
+    Scenario: nmcli - gsm - check property autoconnect of a connection
+        * Add a new connection of type "gsm" and options "ifname \* con-name gsm autoconnect yes apn internet"
+        Then "GENERAL.STATE:.*activated" is visible with command "nmcli con show gsm" in "60" seconds
+        Then "yes" is visible with command "nmcli -f connection.autoconnect con show gsm | awk -F: '{print $2}'"
+
+
+    @eth0 @gsm
+    @gsm_check_apn
+    Scenario: nmcli - gsm - check apn string of a connection
+        * Add a new connection of type "gsm" and options "ifname \* con-name gsm autoconnect no apn internet"
+        * Bring "up" connection "gsm"
+        Then "GENERAL.STATE:.*activated" is visible with command "nmcli con show gsm" in "60" seconds
+        Then "internet" is visible with command "nmcli -f gsm.apn con show gsm | awk -F: '{print $2}'"
+
+
+    @eth0 @gsm
+    @gsm_check_ipv4_settings
+    Scenario: nmcli - gsm - check ipv4 settings of a connection
+        * Add a new connection of type "gsm" and options "ifname \* con-name gsm autoconnect no apn internet"
+        * Bring "up" connection "gsm"
+        Then "GENERAL.STATE:.*activated" is visible with command "nmcli con show gsm" in "60" seconds
+        Then "auto" is visible with command "nmcli -f ipv4.method con show gsm | awk -F: '{print $2}'"
+        Then "192.168.99.[0-9]*/24" is visible with command "nmcli -f IP4.ADDRESS con show gsm | awk -F: '{print $2}'"
+        Then "192.168.99.[0-9]*" is visible with command "nmcli -f IP4.GATEWAY con show gsm | awk -F: '{print $2}'"
+        Then "192.168.99.0/24" is visible with command "nmcli -f IP4.ROUTE con show gsm | awk -F: '{print $2}'"
+        Then "8.8.8.8" is visible with command "nmcli -f IP4.DNS con show gsm | awk -F: '{print $2}'"
