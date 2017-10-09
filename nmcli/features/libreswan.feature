@@ -178,9 +178,9 @@
     Scenario: nmcli - libreswan - start as secondary
     * Add a connection named "libreswan" for device "\*" to "libreswan" VPN
     * Use user "budulinek" with password "passwd" and group "yolo" with secret "ipsecret" for gateway "172.31.70.1" on Libreswan connection "libreswan"
-    * Execute "sleep 2; nmcli con modify rac1 connection.secondaries libreswan; sleep 1"
-    #* Bring "down" connection "rac1"
-    #* Execute "ip link set dev racoon1 up"
+    * Execute "sleep 2; nmcli con modify rac1 connection.secondaries libreswan; sleep 3"
+    * Bring "down" connection "rac1"
+    * Execute "ip link set dev racoon1 up"
     * Bring "up" connection "rac1"
     Then "libreswan" is visible with command "nmcli con show -a" in "60" seconds
     Then "rac1" is visible with command "nmcli con show -a" in "60" seconds
