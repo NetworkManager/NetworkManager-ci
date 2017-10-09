@@ -164,6 +164,8 @@ def wait_for_testeth0():
     while call("nmcli connection show testeth0 |grep IP4.ADDRESS > /dev/null", shell=True) != 0:
         sleep(1)
         counter-=1
+        if counter == 10:
+            restore_testeth0()
         if counter == 0:
             print ("Testeth0 cannot be upped..this is wrong")
             sys.exit(1)
