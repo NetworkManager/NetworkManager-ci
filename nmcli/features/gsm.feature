@@ -153,3 +153,13 @@ Feature: nmcli: gsm
         * Bring "up" connection "gsm"
         Then "GENERAL.STATE:.*activated" is visible with command "nmcli con show gsm" in "60" seconds
         Then "IPv6" addressing is supported
+
+
+    @eth0 @gsm
+    @gsm_check_connection_stability
+    Scenario: nmcli - gsm - check if a GSM connection is stable for at least 60 sec
+        * Add a new connection of type "gsm" and options "ifname \* con-name gsm autoconnect no apn internet"
+        * Bring "up" connection "gsm"
+        Then "GENERAL.STATE:.*activated" is visible with command "nmcli con show gsm" in "60" seconds
+        * Execute "sleep 60"
+        Then "GENERAL.STATE:.*activated" is visible with command "nmcli con show gsm"
