@@ -1022,14 +1022,14 @@ Feature: nmcli: ipv4
     * Bring "up" connection "ethie"
     * Bring "down" connection "ethie"
     * Open editor for connection "ethie"
-    * Submit "set ipv4.dhcp-client-id RHC" in editor
+    * Submit "set ipv4.dhcp-client-id AB" in editor
     * Save in editor
     * Quit editor
     * Run child "sudo tshark -l -O bootp -i eth9 -x > /tmp/tshark.log"
     * Wait for at least "10" seconds
     * Bring "up" connection "ethie"
     * Finish "sleep 5; sudo pkill tshark"
-    Then "RHC" is visible with command "cat /tmp/tshark.log"
+    Then "AB" is visible with command "cat /tmp/tshark.log"
     #Then "walderon" is visible with command "cat /var/lib/NetworkManager/dhclient-eth9.conf"
     #VVV verify bug 999503
     Then "exceeds max \(255\) for precision" is not visible with command "grep exceeds max /var/log/messages"
@@ -1040,7 +1040,7 @@ Feature: nmcli: ipv4
     Scenario: nmcli - ipv4 - dhcp-client-id - remove client id
     * Add connection type "ethernet" named "ethie" for device "eth9"
     * Open editor for connection "ethie"
-    * Submit "set ipv4.dhcp-client-id RHD" in editor
+    * Submit "set ipv4.dhcp-client-id BC" in editor
     * Save in editor
     * Quit editor
     * Bring "up" connection "ethie"
@@ -1054,7 +1054,7 @@ Feature: nmcli: ipv4
     * Wait for at least "10" seconds
     * Bring "up" connection "ethie"
     * Execute "sleep 5; sudo pkill tshark"
-    Then "RHD" is not visible with command "cat /tmp/tshark.log"
+    Then "BC" is not visible with command "cat /tmp/tshark.log"
 
 
     @ipv4
