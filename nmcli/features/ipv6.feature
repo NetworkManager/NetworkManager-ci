@@ -683,7 +683,8 @@ Feature: nmcli: ipv6
     Scenario: nmcli - ipv6 - dhcp-hostname - remove dhcp-hostname
     * Add connection type "ethernet" named "ethie" for device "eth9"
     * Open editor for connection "ethie"
-    * Submit "set ipv4.method disabled" in editor
+    * Submit "set ipv6.may-fail true" in editor
+    * Submit "set ipv6.method dhcp" in editor
     * Submit "set ipv6.dhcp-hostname r.cx" in editor
     * Save in editor
     * Quit editor
