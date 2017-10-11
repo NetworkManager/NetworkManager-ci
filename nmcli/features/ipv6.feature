@@ -689,6 +689,8 @@ Feature: nmcli: ipv6
     * Save in editor
     * Quit editor
     * Bring "up" connection "ethie"
+    * Bring "down" connection "ethie"
+    * Finish "sleep 2"
     * Run child "sudo tshark -i eth9 -f 'port 546' -V -x > /tmp/tshark.log"
     * Wait for at least "10" seconds
     * Open editor for connection "ethie"
