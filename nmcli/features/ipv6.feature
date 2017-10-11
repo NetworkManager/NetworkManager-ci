@@ -366,10 +366,10 @@ Feature: nmcli: ipv6
     @ipv6 @eth0 @long
     @ipv6_limited_router_solicitation
     Scenario: NM - ipv6 - limited router solicitation
-     * Add connection type "ethernet" named "ethie" for device "eth10"
+     * Add connection type "ethernet" named "ethie" for device "eth9"
      * Bring "up" connection "ethie"
-     * Finish "sudo tshark -i eth10 -Y frame.len==62 -V -x -a duration:120 > /tmp/solicitation.txt"
-    Then Check solicitation for "eth10" in "/tmp/solicitation.txt"
+     * Finish "sudo tshark -i eth9 -Y frame.len==62 -V -x -a duration:120 > /tmp/solicitation.txt"
+    Then Check solicitation for "eth9" in "/tmp/solicitation.txt"
 
 
     @rhbz1068673
@@ -663,8 +663,8 @@ Feature: nmcli: ipv6
     @not_under_internal_DHCP @profie
     @ipv6_dhcp-hostname_set
     Scenario: nmcli - ipv6 - dhcp-hostname - set dhcp-hostname
-    * Add a new connection of type "ethernet" and options "ifname eth10 con-name profie autoconnect no"
-    * Run child "sudo tshark -i eth10 -f 'port 546' -V -x > /tmp/ipv6-hostname.log"
+    * Add a new connection of type "ethernet" and options "ifname eth9 con-name profie autoconnect no"
+    * Run child "sudo tshark -i eth9 -f 'port 546' -V -x > /tmp/ipv6-hostname.log"
     * Finish "sleep 5"
     * Open editor for connection "profie"
     * Submit "set ipv6.may-fail true" in editor
@@ -681,14 +681,17 @@ Feature: nmcli: ipv6
     @not_under_internal_DHCP @ipv4
     @ipv6_dhcp-hostname_remove
     Scenario: nmcli - ipv6 - dhcp-hostname - remove dhcp-hostname
-    * Add connection type "ethernet" named "ethie" for device "eth10"
+    * Add connection type "ethernet" named "ethie" for device "eth9"
     * Open editor for connection "ethie"
-    * Submit "set ipv4.method disabled" in editor
+    * Submit "set ipv6.may-fail true" in editor
+    * Submit "set ipv6.method dhcp" in editor
     * Submit "set ipv6.dhcp-hostname r.cx" in editor
     * Save in editor
     * Quit editor
     * Bring "up" connection "ethie"
-    * Run child "sudo tshark -i eth10 -f 'port 546' -V -x > /tmp/tshark.log"
+    * Bring "down" connection "ethie"
+    * Finish "sleep 2"
+    * Run child "sudo tshark -i eth9 -f 'port 546' -V -x > /tmp/tshark.log"
     * Wait for at least "10" seconds
     * Open editor for connection "ethie"
     * Submit "set ipv6.dhcp-hostname" in editor
@@ -704,9 +707,9 @@ Feature: nmcli: ipv6
     @restore_hostname @profie
     @ipv6_send_fqdn.fqdn_to_dhcpv6
     Scenario: NM - ipv6 - - send fqdn.fqdn to dhcpv6
-    * Add a new connection of type "ethernet" and options "ifname eth10 con-name profie autoconnect no"
+    * Add a new connection of type "ethernet" and options "ifname eth9 con-name profie autoconnect no"
     * Execute "hostnamectl set-hostname dacan.local"
-    * Run child "sudo tshark -i eth10 -f 'port 546' -V -x > /tmp/ipv6-hostname.log"
+    * Run child "sudo tshark -i eth9 -f 'port 546' -V -x > /tmp/ipv6-hostname.log"
     * Finish "sleep 5"
     * Open editor for connection "profie"
     * Submit "set ipv6.method dhcp" in editor

@@ -785,7 +785,7 @@ Feature: nmcli: ipv4
     @ver-=1.7.9
     @ipv4_dhcp-hostname_set
     Scenario: nmcli - ipv4 - dhcp-hostname - set dhcp-hostname
-    * Add connection type "ethernet" named "ethie" for device "eth10"
+    * Add connection type "ethernet" named "ethie" for device "eth9"
     * Bring "up" connection "ethie"
     * Bring "down" connection "ethie"
     * Open editor for connection "ethie"
@@ -793,7 +793,7 @@ Feature: nmcli: ipv4
     #* Submit "set ipv4.send-hostname yes" in editor
     * Save in editor
     * Quit editor
-    * Run child "sudo tshark -l -O bootp -i eth10 > /tmp/tshark.log"
+    * Run child "sudo tshark -l -O bootp -i eth9 > /tmp/tshark.log"
     * Wait for at least "10" seconds
     * Bring "up" connection "ethie"
     * Finish "sleep 5; sudo pkill tshark"
@@ -805,7 +805,7 @@ Feature: nmcli: ipv4
     @tshark @ipv4
     @ipv4_dhcp-hostname_set
     Scenario: nmcli - ipv4 - dhcp-hostname - set dhcp-hostname
-    * Add connection type "ethernet" named "ethie" for device "eth10"
+    * Add connection type "ethernet" named "ethie" for device "eth9"
     * Bring "up" connection "ethie"
     * Bring "down" connection "ethie"
     * Open editor for connection "ethie"
@@ -813,7 +813,7 @@ Feature: nmcli: ipv4
     #* Submit "set ipv4.send-hostname yes" in editor
     * Save in editor
     * Quit editor
-    * Run child "sudo tshark -l -O bootp -i eth10 > /tmp/tshark.log"
+    * Run child "sudo tshark -l -O bootp -i eth9 > /tmp/tshark.log"
     * Wait for at least "10" seconds
     * Bring "up" connection "ethie"
     * Finish "sleep 5; sudo pkill tshark"
@@ -824,7 +824,7 @@ Feature: nmcli: ipv4
     @tshark @ipv4
     @ipv4_dhcp-hostname_remove
     Scenario: nmcli - ipv4 - dhcp-hostname - remove dhcp-hostname
-    * Add connection type "ethernet" named "ethie" for device "eth10"
+    * Add connection type "ethernet" named "ethie" for device "eth9"
     * Open editor for connection "ethie"
     * Submit "set ipv4.dhcp-hostname RHB" in editor
     * Save in editor
@@ -836,7 +836,7 @@ Feature: nmcli: ipv4
     * Enter in editor
     * Save in editor
     * Quit editor
-    * Run child "sudo tshark -l -O bootp -i eth10 > /tmp/tshark.log"
+    * Run child "sudo tshark -l -O bootp -i eth9 > /tmp/tshark.log"
     * Wait for at least "10" seconds
     * Bring "up" connection "ethie"
     * Finish "sleep 5; sudo pkill tshark"
@@ -847,18 +847,18 @@ Feature: nmcli: ipv4
     @tshark @ipv4
     @nmcli_ipv4_set_fqdn
     Scenario: nmcli - ipv4 - dhcp-fqdn - set dhcp-fqdn
-    * Add connection type "ethernet" named "ethie" for device "eth10"
+    * Add connection type "ethernet" named "ethie" for device "eth9"
     * Bring "up" connection "ethie"
     * Bring "down" connection "ethie"
     * Open editor for connection "ethie"
     * Submit "set ipv4.dhcp-fqdn foo.bar.com" in editor
     * Save in editor
     * Quit editor
-    * Run child "sudo tshark -l -O bootp -i eth10 > /tmp/tshark.log"
+    * Run child "sudo tshark -l -O bootp -i eth9 > /tmp/tshark.log"
     * Wait for at least "10" seconds
     * Bring "up" connection "ethie"
     * Finish "sleep 5; sudo pkill tshark"
-    Then "foo.bar.com" is visible with command "grep fqdn /var/lib/NetworkManager/dhclient-eth10.conf"
+    Then "foo.bar.com" is visible with command "grep fqdn /var/lib/NetworkManager/dhclient-eth9.conf"
      And "foo.bar.com" is visible with command "cat /tmp/tshark.log"
      And "Encoding: Binary encoding" is visible with command "cat /tmp/tshark.log"
      And "Server: Server" is visible with command "cat /tmp/tshark.log"
@@ -869,19 +869,19 @@ Feature: nmcli: ipv4
     @tshark @ipv4
     @nmcli_ipv4_override_fqdn
     Scenario: nmcli - ipv4 - dhcp-fqdn - override dhcp-fqdn
-    * Add connection type "ethernet" named "ethie" for device "eth10"
+    * Add connection type "ethernet" named "ethie" for device "eth9"
     * Bring "up" connection "ethie"
-    * Execute "echo 'send fqdn.encoded off;' > /etc/dhcp/dhclient-eth10.conf"
-    * Execute "echo 'send fqdn.server-update off;' >> /etc/dhcp/dhclient-eth10.conf"
+    * Execute "echo 'send fqdn.encoded off;' > /etc/dhcp/dhclient-eth9.conf"
+    * Execute "echo 'send fqdn.server-update off;' >> /etc/dhcp/dhclient-eth9.conf"
     * Open editor for connection "ethie"
     * Submit "set ipv4.dhcp-fqdn foo.bar.com" in editor
     * Save in editor
     * Quit editor
-    * Run child "sudo tshark -l -O bootp -i eth10 > /tmp/tshark.log"
+    * Run child "sudo tshark -l -O bootp -i eth9 > /tmp/tshark.log"
     * Wait for at least "10" seconds
     * Bring "up" connection "ethie"
     * Finish "sleep 5; sudo pkill tshark"
-    Then "foo.bar.com" is visible with command "grep fqdn /var/lib/NetworkManager/dhclient-eth10.conf"
+    Then "foo.bar.com" is visible with command "grep fqdn /var/lib/NetworkManager/dhclient-eth9.conf"
      And "foo.bar.com" is visible with command "cat /tmp/tshark.log"
      And "Encoding: ASCII encoding" is visible with command "cat /tmp/tshark.log"
      And "Server: Client" is visible with command "cat /tmp/tshark.log"
@@ -890,7 +890,7 @@ Feature: nmcli: ipv4
     @tshark @ipv4
     @nmcli_ipv4_remove_fqdn
     Scenario: nmcli - ipv4 - dhcp-fqdn - remove dhcp-fqdn
-    * Add connection type "ethernet" named "ethie" for device "eth10"
+    * Add connection type "ethernet" named "ethie" for device "eth9"
     * Open editor for connection "ethie"
     * Submit "set ipv4.dhcp-fqdn foo.bar.com" in editor
     * Save in editor
@@ -902,18 +902,18 @@ Feature: nmcli: ipv4
     * Enter in editor
     * Save in editor
     * Quit editor
-    * Run child "sudo tshark -l -O bootp -i eth10 > /tmp/tshark.log"
+    * Run child "sudo tshark -l -O bootp -i eth9 > /tmp/tshark.log"
     * Wait for at least "10" seconds
     * Bring "up" connection "ethie"
     * Finish "sleep 5; sudo pkill tshark"
-     Then "foo.bar.com" is not visible with command "grep fqdn /var/lib/NetworkManager/dhclient-eth10.conf"
+     Then "foo.bar.com" is not visible with command "grep fqdn /var/lib/NetworkManager/dhclient-eth9.conf"
       And "foo.bar.com" is not visible with command "cat /tmp/tshark.log"
 
 
     @tshark @ipv4
     @ipv4_do_not_send_hostname
     Scenario: nmcli - ipv4 - dhcp-send-hostname - don't send
-    * Add connection type "ethernet" named "ethie" for device "eth10"
+    * Add connection type "ethernet" named "ethie" for device "eth9"
     * Execute "nmcli con modify ethie ipv4.may-fail no"
     * Bring "up" connection "ethie"
     * Bring "down" connection "ethie"
@@ -922,7 +922,7 @@ Feature: nmcli: ipv4
     * Submit "set ipv4.dhcp-send-hostname no" in editor
     * Save in editor
     * Quit editor
-    * Run child "sudo tshark -l -O bootp -i eth10 > /tmp/hostname.log"
+    * Run child "sudo tshark -l -O bootp -i eth9 > /tmp/hostname.log"
     * Wait for at least "10" seconds
     * Bring "up" connection "ethie"
     * Finish "sleep 5; sudo pkill tshark"
@@ -933,14 +933,14 @@ Feature: nmcli: ipv4
     @ipv4_send_real_hostname
     Scenario: nmcli - ipv4 - dhcp-send-hostname - send real hostname
     * Execute "hostnamectl set-hostname foobar.test"
-    * Add connection type "ethernet" named "ethie" for device "eth10"
+    * Add connection type "ethernet" named "ethie" for device "eth9"
     * Execute "nmcli con modify ethie ipv4.may-fail no"
     * Bring "up" connection "ethie"
     * Bring "down" connection "ethie"
     * Open editor for connection "ethie"
     * Save in editor
     * Quit editor
-    * Run child "sudo tshark -l -O bootp -i eth10 > /tmp/tshark.log"
+    * Run child "sudo tshark -l -O bootp -i eth9 > /tmp/tshark.log"
     * Wait for at least "10" seconds
     * Bring "up" connection "ethie"
     * Finish "sleep 5; sudo pkill tshark"
@@ -950,7 +950,7 @@ Feature: nmcli: ipv4
     @tshark @ipv4
     @ipv4_ignore_sending_real_hostname
     Scenario: nmcli - ipv4 - dhcp-send-hostname - ignore sending real hostname
-    * Add connection type "ethernet" named "ethie" for device "eth10"
+    * Add connection type "ethernet" named "ethie" for device "eth9"
     * Execute "nmcli con modify ethie ipv4.may-fail no"
     * Bring "up" connection "ethie"
     * Bring "down" connection "ethie"
@@ -958,7 +958,7 @@ Feature: nmcli: ipv4
     * Submit "set ipv4.dhcp-send-hostname no" in editor
     * Save in editor
     * Quit editor
-    * Run child "sudo tshark -l -O bootp -i eth10 > /tmp/real.log"
+    * Run child "sudo tshark -l -O bootp -i eth9 > /tmp/real.log"
     * Wait for at least "10" seconds
     * Bring "up" connection "ethie"
     * Finish "sleep 5; sudo pkill tshark"
@@ -1015,22 +1015,22 @@ Feature: nmcli: ipv4
     Then "169.254" is visible with command "ip a s eth1" in "10" seconds
 
 
-    @tshark @ipv4
+    @eth9 @ipv4
     @ipv4_dhcp_client_id_set
     Scenario: nmcli - ipv4 - dhcp-client-id - set client id
-    * Add connection type "ethernet" named "ethie" for device "eth10"
+    * Add connection type "ethernet" named "ethie" for device "eth9"
     * Bring "up" connection "ethie"
     * Bring "down" connection "ethie"
     * Open editor for connection "ethie"
-    * Submit "set ipv4.dhcp-client-id RHC" in editor
+    * Submit "set ipv4.dhcp-client-id AB" in editor
     * Save in editor
     * Quit editor
-    * Run child "sudo tshark -l -O bootp -i eth10 -x > /tmp/tshark.log"
+    * Run child "sudo tshark -l -O bootp -i eth9 -x > /tmp/tshark.log"
     * Wait for at least "10" seconds
     * Bring "up" connection "ethie"
     * Finish "sleep 5; sudo pkill tshark"
-    Then "RHC" is visible with command "cat /tmp/tshark.log"
-    #Then "walderon" is visible with command "cat /var/lib/NetworkManager/dhclient-eth10.conf"
+    Then "AB" is visible with command "cat /tmp/tshark.log"
+    #Then "walderon" is visible with command "cat /var/lib/NetworkManager/dhclient-eth9.conf"
     #VVV verify bug 999503
     Then "exceeds max \(255\) for precision" is not visible with command "grep exceeds max /var/log/messages"
 
@@ -1038,9 +1038,9 @@ Feature: nmcli: ipv4
     @ipv4 @tshark
     @ipv4_dhcp_client_id_remove
     Scenario: nmcli - ipv4 - dhcp-client-id - remove client id
-    * Add connection type "ethernet" named "ethie" for device "eth10"
+    * Add connection type "ethernet" named "ethie" for device "eth9"
     * Open editor for connection "ethie"
-    * Submit "set ipv4.dhcp-client-id RHD" in editor
+    * Submit "set ipv4.dhcp-client-id BC" in editor
     * Save in editor
     * Quit editor
     * Bring "up" connection "ethie"
@@ -1050,11 +1050,11 @@ Feature: nmcli: ipv4
     * Enter in editor
     * Save in editor
     * Quit editor
-    * Run child "sudo tshark -l -O bootp -i eth10 -x > /tmp/tshark.log"
+    * Run child "sudo tshark -l -O bootp -i eth9 -x > /tmp/tshark.log"
     * Wait for at least "10" seconds
     * Bring "up" connection "ethie"
     * Execute "sleep 5; sudo pkill tshark"
-    Then "RHD" is not visible with command "cat /tmp/tshark.log"
+    Then "BC" is not visible with command "cat /tmp/tshark.log"
 
 
     @ipv4
