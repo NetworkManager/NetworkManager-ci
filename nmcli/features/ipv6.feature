@@ -436,6 +436,7 @@ Feature: nmcli: ipv6
     Scenario: nmcli - ipv6 - dns - method static + IP + dns
      * Add a new connection of type "ethernet" and options "ifname eth10 con-name ethie autoconnect no"
      * Open editor for connection "ethie"
+     * Submit "set ipv4.may-fail no" in editor
      * Submit "set ipv6.method static" in editor
      * Submit "set ipv6.addresses 2001::1/126" in editor
      * Submit "set ipv6.gateway 4000::1" in editor
@@ -454,6 +455,7 @@ Feature: nmcli: ipv6
     Scenario: nmcli - ipv6 - dns - method auto + dns
      * Add connection type "ethernet" named "ethie" for device "eth1"
      * Open editor for connection "ethie"
+     * Submit "set ipv4.may-fail no" in editor
      * Submit "set ipv6.dns 4000::1, 5000::1" in editor
      * Save in editor
      * Quit editor
