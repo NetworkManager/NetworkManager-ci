@@ -424,6 +424,7 @@
     * Bring down connection "bond0.0" ignoring error
     * Bring down connection "bond0.1" ignoring error
     * Bring down connection "bond0.2" ignoring error
+    * Execute "nmcli con modify bond0 ipv4.method manual ipv4.addresses 1.2.3.4/24"
     * Reboot
     When Check bond "nm-bond" link state is "up"
      And Check slave "eth10" in bond "nm-bond" in proc
@@ -469,6 +470,7 @@
     * Bring down connection "bond0.0" ignoring error
     * Bring down connection "bond0.1" ignoring error
     * Bring down connection "bond0.2" ignoring error
+    * Execute "nmcli con modify bond0 ipv4.method manual ipv4.addresses 1.2.3.4/24"
     * Execute "echo -e '[main]\nslaves-order=index' > /etc/NetworkManager/conf.d/99-bond.conf"
     * Reboot
     When Check bond "nm-bond" link state is "up"
@@ -512,6 +514,7 @@
     * Add slave connection for master "nm-bond" on device "eth2" named "bond0.1"
     * Add slave connection for master "nm-bond" on device "eth3" named "bond0.2"
     * Execute "nmcli con modify bond0 con.autoconnect-sl 1"
+    * Execute "nmcli con modify bond0 ipv4.method manual ipv4.addresses 1.2.3.4/24"
     * Execute "echo -e '[main]\nslaves-order=index' > /etc/NetworkManager/conf.d/99-bond.conf"
     * Reboot
     When Check bond "nm-bond" link state is "up"
@@ -558,6 +561,7 @@
     * Bring down connection "bond0.0" ignoring error
     * Bring down connection "bond0.1" ignoring error
     * Bring down connection "bond0.2" ignoring error
+    * Execute "nmcli con modify bond0 ipv4.method manual ipv4.addresses 1.2.3.4/24"
     * Execute "echo -e '[main]\nslaves-order=name' > /etc/NetworkManager/conf.d/99-bond.conf"
     * Reboot
     When Check bond "nm-bond" link state is "up"
@@ -601,7 +605,9 @@
     * Add slave connection for master "nm-bond" on device "eth2" named "bond0.1"
     * Add slave connection for master "nm-bond" on device "eth3" named "bond0.2"
     * Execute "nmcli con modify bond0 con.autoconnect-sl 1"
+    * Execute "nmcli con modify bond0 ipv4.method manual ipv4.addresses 1.2.3.4/24"
     * Execute "echo -e '[main]\nslaves-order=name' > /etc/NetworkManager/conf.d/99-bond.conf"
+     When "nm-bond:connected:bond0" is visible with command "nmcli -t -f DEVICE,STATE,CONNECTION device" in "20" seconds
     * Reboot
     When Check bond "nm-bond" link state is "up"
      And Check slave "eth10" in bond "nm-bond" in proc
@@ -619,6 +625,7 @@
     * Delete connection "bond0.0"
     * Bring "down" connection "bond0.1"
     * Bring "down" connection "bond0.2"
+    * Execute "sleep 1"
     * Reboot
     When Check bond "nm-bond" link state is "up"
      And Check slave "eth2" in bond "nm-bond" in proc
