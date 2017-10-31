@@ -416,7 +416,7 @@
     * Note the output of "nmcli -t --mode tabular --fields GENERAL.HWADDR device show eth10" as value "orig_eth10"
     * Note the output of "nmcli -t --mode tabular --fields GENERAL.HWADDR device show eth2" as value "orig_eth2"
     * Note the output of "nmcli -t --mode tabular --fields GENERAL.HWADDR device show eth3" as value "orig_eth3"
-    * Add connection type "bond" named "bond0" for device "nm-bond"
+    * Add a new connection of type "bond" and options "con-name bond0 ifname nm-bond ip4 1.2.3.4/24"
     * Add slave connection for master "nm-bond" on device "eth10" named "bond0.0"
     * Add slave connection for master "nm-bond" on device "eth2" named "bond0.1"
     * Add slave connection for master "nm-bond" on device "eth3" named "bond0.2"
@@ -424,7 +424,6 @@
     * Bring down connection "bond0.0" ignoring error
     * Bring down connection "bond0.1" ignoring error
     * Bring down connection "bond0.2" ignoring error
-    * Execute "nmcli con modify bond0 ipv4.method manual ipv4.addresses 1.2.3.4/24"
     * Reboot
     When Check bond "nm-bond" link state is "up"
      And Check slave "eth10" in bond "nm-bond" in proc
@@ -462,7 +461,7 @@
     * Note the output of "nmcli -t --mode tabular --fields GENERAL.HWADDR device show eth10" as value "orig_eth10"
     * Note the output of "nmcli -t --mode tabular --fields GENERAL.HWADDR device show eth2" as value "orig_eth2"
     * Note the output of "nmcli -t --mode tabular --fields GENERAL.HWADDR device show eth3" as value "orig_eth3"
-    * Add connection type "bond" named "bond0" for device "nm-bond"
+    * Add a new connection of type "bond" and options "con-name bond0 ifname nm-bond ip4 1.2.3.4/24"
     * Add slave connection for master "nm-bond" on device "eth10" named "bond0.0"
     * Add slave connection for master "nm-bond" on device "eth2" named "bond0.1"
     * Add slave connection for master "nm-bond" on device "eth3" named "bond0.2"
@@ -470,7 +469,6 @@
     * Bring down connection "bond0.0" ignoring error
     * Bring down connection "bond0.1" ignoring error
     * Bring down connection "bond0.2" ignoring error
-    * Execute "nmcli con modify bond0 ipv4.method manual ipv4.addresses 1.2.3.4/24"
     * Execute "echo -e '[main]\nslaves-order=index' > /etc/NetworkManager/conf.d/99-bond.conf"
     * Reboot
     When Check bond "nm-bond" link state is "up"
@@ -509,12 +507,11 @@
     * Note the output of "nmcli -t --mode tabular --fields GENERAL.HWADDR device show eth10" as value "orig_eth10"
     * Note the output of "nmcli -t --mode tabular --fields GENERAL.HWADDR device show eth2" as value "orig_eth2"
     * Note the output of "nmcli -t --mode tabular --fields GENERAL.HWADDR device show eth3" as value "orig_eth3"
-    * Add connection type "bond" named "bond0" for device "nm-bond"
+    * Add a new connection of type "bond" and options "con-name bond0 ifname nm-bond ip4 1.2.3.4/24"
     * Add slave connection for master "nm-bond" on device "eth10" named "bond0.0"
     * Add slave connection for master "nm-bond" on device "eth2" named "bond0.1"
     * Add slave connection for master "nm-bond" on device "eth3" named "bond0.2"
     * Execute "nmcli con modify bond0 con.autoconnect-sl 1"
-    * Execute "nmcli con modify bond0 ipv4.method manual ipv4.addresses 1.2.3.4/24"
     * Execute "echo -e '[main]\nslaves-order=index' > /etc/NetworkManager/conf.d/99-bond.conf"
     * Reboot
     When Check bond "nm-bond" link state is "up"
@@ -553,7 +550,7 @@
     * Note the output of "nmcli -t --mode tabular --fields GENERAL.HWADDR device show eth10" as value "orig_eth10"
     * Note the output of "nmcli -t --mode tabular --fields GENERAL.HWADDR device show eth2" as value "orig_eth2"
     * Note the output of "nmcli -t --mode tabular --fields GENERAL.HWADDR device show eth3" as value "orig_eth3"
-    * Add connection type "bond" named "bond0" for device "nm-bond"
+    * Add a new connection of type "bond" and options "con-name bond0 ifname nm-bond ip4 1.2.3.4/24"
     * Add slave connection for master "nm-bond" on device "eth10" named "bond0.0"
     * Add slave connection for master "nm-bond" on device "eth2" named "bond0.1"
     * Add slave connection for master "nm-bond" on device "eth3" named "bond0.2"
@@ -561,7 +558,6 @@
     * Bring down connection "bond0.0" ignoring error
     * Bring down connection "bond0.1" ignoring error
     * Bring down connection "bond0.2" ignoring error
-    * Execute "nmcli con modify bond0 ipv4.method manual ipv4.addresses 1.2.3.4/24"
     * Execute "echo -e '[main]\nslaves-order=name' > /etc/NetworkManager/conf.d/99-bond.conf"
     * Reboot
     When Check bond "nm-bond" link state is "up"
@@ -600,12 +596,11 @@
     * Note the output of "nmcli -t --mode tabular --fields GENERAL.HWADDR device show eth10" as value "orig_eth10"
     * Note the output of "nmcli -t --mode tabular --fields GENERAL.HWADDR device show eth2" as value "orig_eth2"
     * Note the output of "nmcli -t --mode tabular --fields GENERAL.HWADDR device show eth3" as value "orig_eth3"
-    * Add connection type "bond" named "bond0" for device "nm-bond"
+    * Add a new connection of type "bond" and options "con-name bond0 ifname nm-bond ip4 1.2.3.4/24"
     * Add slave connection for master "nm-bond" on device "eth10" named "bond0.0"
     * Add slave connection for master "nm-bond" on device "eth2" named "bond0.1"
     * Add slave connection for master "nm-bond" on device "eth3" named "bond0.2"
     * Execute "nmcli con modify bond0 con.autoconnect-sl 1"
-    * Execute "nmcli con modify bond0 ipv4.method manual ipv4.addresses 1.2.3.4/24"
     * Execute "echo -e '[main]\nslaves-order=name' > /etc/NetworkManager/conf.d/99-bond.conf"
      When "nm-bond:connected:bond0" is visible with command "nmcli -t -f DEVICE,STATE,CONNECTION device" in "20" seconds
     * Reboot
