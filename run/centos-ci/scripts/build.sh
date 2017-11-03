@@ -53,6 +53,7 @@ $SUDO yum install \
     jansson-devel \
     make \
     libcurl-devel \
+    http://cbs.centos.org/kojifiles/packages/openvswitch/2.8.1/2.1fc28.el7/x86_64/openvswitch-2.8.1-2.1fc28.el7.x86_64.rpm \
     -y
 
 mkdir -p "$BUILD_DIR"
