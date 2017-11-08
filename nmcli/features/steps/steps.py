@@ -1196,6 +1196,7 @@ def check_pattern_not_visible_with_command(context, pattern, command):
 
 @step(u'"{pattern}" is visible with tab after "{command}"')
 def check_pattern_visible_with_tab_after_command(context, pattern, command):
+    os.system('echo "set page-completions off" > ~/.inputrc')
     exp = pexpect.spawn('/bin/bash', logfile=context.log)
     exp.send(command)
     exp.sendcontrol('i')
@@ -1208,6 +1209,7 @@ def check_pattern_visible_with_tab_after_command(context, pattern, command):
 
 @step(u'"{pattern}" is not visible with tab after "{command}"')
 def check_pattern_not_visible_with_tab_after_command(context, pattern, command):
+    os.system('echo "set page-completions off" > ~/.inputrc')
     exp = pexpect.spawn('/bin/bash', logfile=context.log)
     exp.send(command)
     exp.sendcontrol('i')
