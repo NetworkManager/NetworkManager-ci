@@ -195,9 +195,9 @@
      * Add connection type "team" named "team0" for device "nm-team"
      * Add slave connection for master "nm-team" on device "eth1" named "team0.0"
      * Add slave connection for master "nm-team" on device "eth2" named "team0.1"
-     * Disconnect device "nm-team"
      * Bring "down" connection "team0.0"
      * Bring "down" connection "team0.1"
+     * Disconnect device "nm-team"
     Then Team "nm-team" is down
      * Bring up connection "team0" ignoring error
      Then "ifname": "nm-team" is visible with command "sudo teamdctl nm-team state dump"
@@ -226,9 +226,9 @@
      * Add connection type "team" named "team0" for device "nm-team"
      * Add slave connection for master "nm-team" on device "eth1" named "team0.0"
      * Add slave connection for master "nm-team" on device "eth2" named "team0.1"
-     * Disconnect device "nm-team"
      * Bring "down" connection "team0.0"
      * Bring "down" connection "team0.1"
+     * Disconnect device "nm-team"
     Then Team "nm-team" is down
      * Bring "up" connection "team0.0"
      * Bring "up" connection "team0.1"
@@ -242,9 +242,9 @@
      * Add connection type "team" named "team0" for device "nm-team"
      * Add slave connection for master "nm-team" on device "eth1" named "team0.0"
      * Add slave connection for master "nm-team" on device "eth2" named "team0.1"
-     * Disconnect device "nm-team"
      * Bring "down" connection "team0.0"
      * Bring "down" connection "team0.1"
+     * Disconnect device "nm-team"
     Then Team "nm-team" is down
      * Open editor for connection "team0.0"
      * Submit "activate" in editor
