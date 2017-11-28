@@ -217,17 +217,19 @@ Feature: nmcli - wifi
     @wifi
     @nmcli_wifi_set_channel
     Scenario: nmcli - wifi - set channel
-    * Add a new connection of type "wifi" and options "ifname wlan0 con-name qe-open autoconnect off ssid qe-open"
-    * Check ifcfg-name file created for connection "qe-open"
-    * Open editor for connection "qe-open"
+    * Add a new connection of type "wifi" and options "ifname wlan0 con-name qe-wpa1-psk autoconnect off ssid qe-wpa1-psk"
+    * Check ifcfg-name file created for connection "qe-wpa1-psk"
+    * Open editor for connection "qe-wpa1-psk"
+    * Set a property named "802-11-wireless-security.key-mgmt" to "wpa-psk" in editor
+    * Set a property named "802-11-wireless-security.psk" to "over the river and through the woods" in editor
     * Set a property named "802-11-wireless.band" to "bg" in editor
-    * Set a property named "802-11-wireless.channel" to "6" in editor
+    * Set a property named "802-11-wireless.channel" to "11" in editor
     * Save in editor
     * Check value saved message showed in editor
     * Quit editor
-    * Bring up connection "qe-open"
-    Then "qe-open" is visible with command "iw dev wlan0 link"
-    Then "\*\s+qe-open" is visible with command "nmcli -f IN-USE,SSID device wifi list"
+    * Bring up connection "qe-wpa1-psk"
+    Then "qe-wpa1-psk" is visible with command "iw dev wlan0 link"
+    Then "\*\s+qe-wpa1-psk" is visible with command "nmcli -f IN-USE,SSID device wifi list"
 
 
     @wifi
@@ -524,8 +526,6 @@ Feature: nmcli - wifi
     @nmcli_wifi_set_bogus_hidden_property_values
     Scenario: nmcli - wifi - set bogus hidden property values
     * Open editor for a type "wifi"
-    * Set a property named "802-11-wireless.hidden" to "0" in editor
-    * Error appeared in editor
     * Set a property named "802-11-wireless.hidden" to "-1" in editor
     * Error appeared in editor
     * Set a property named "802-11-wireless.hidden" to "valderon" in editor
@@ -1259,6 +1259,7 @@ Feature: nmcli - wifi
     Then "qe-open" is visible with command "iw dev wlan0 link" in "30" seconds
 
 
+    @ver-=1.8
     @wifi
     @nmcli_wifi_add_connection_in_novice_nmcli_a_mode_specifying_options
     Scenario: nmcli - wifi - add connection in novice (nmcli -a) mode specifying options
@@ -1278,6 +1279,32 @@ Feature: nmcli - wifi
     * Submit "noted-value"
     * Expect "Cloned MAC"
     * Submit "noted-value"
+    * Dismiss IP configuration in editor
+    * Dismiss Proxy configuration in editor
+    Then "\*\s+qe-open" is visible with command "nmcli -f IN-USE,SSID device wifi list" in "30" seconds
+    Then "qe-open" is visible with command "iw dev wlan0 link" in "30" seconds
+
+
+    @ver+=1.8
+    @wifi
+    @nmcli_wifi_add_connection_in_novice_nmcli_a_mode_specifying_options
+    Scenario: nmcli - wifi - add connection in novice (nmcli -a) mode specifying options
+    * Open interactive connection addition mode for a type "wifi"
+    * Note MAC address output for device "wlan0" via ethtool
+    * Expect "Interface name"
+    * Submit "wlan0"
+    * Expect "SSID"
+    * Submit "qe-open"
+    * Expect "There are . optional .*Wi-Fi"
+    * Submit "yes"
+    * Expect "Wi-Fi mode"
+    * Submit "infrastructure"
+    * Expect "MAC"
+    * Submit "noted-value"
+    * Expect "Cloned MAC"
+    * Submit "noted-value"
+    * Expect "MTU"
+    * Submit "1280"
     * Dismiss IP configuration in editor
     * Dismiss Proxy configuration in editor
     Then "\*\s+qe-open" is visible with command "nmcli -f IN-USE,SSID device wifi list" in "30" seconds
