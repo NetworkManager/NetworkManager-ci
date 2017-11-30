@@ -126,3 +126,21 @@ Feature: nmcli: gsm
     * Bring "up" connection "gsm"
     Then "full" is visible with command "nmcli g" in "60" seconds
      And Ping "nix.cz" "7" times
+
+
+    @gsm @mmcli @eth0
+    @gsm_mmcli_list_modems
+    Scenario: mmcli - gsm - list connected modems
+      # The modem is connected to the test system in advance.
+      Then "Found 1 modem" is visible with command "mmcli -L" in "30" seconds
+      Then "/org/freedesktop/ModemManager" is visible with command "mmcli -L"
+
+
+    @gsm @mmcli @eth0
+    @gsm_mmcli_log_level
+    Scenario: mmcli - gsm increase log level to DEBUG
+      # An important function of ModemManager when troubleshooting modems and connectivity issues.
+      * Execute "mmcli -G INFO"
+      * Execute "mmcli -G DEBUG"
+      Then "logging: level 'DEBUG'" is visible with command "journalctl | tail | grep ModemManager" in "10" seconds
+      * Execute "mmcli -G INFO"
