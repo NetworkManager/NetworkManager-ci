@@ -672,8 +672,14 @@ def before_scenario(context, scenario):
 
         if 'openvswitch' in scenario.tags:
             print ("---------------------------")
-            print ("deleting eth1 and eth2 for openswitch tests")
-            call('sudo nmcli con del eth1 eth2', shell=True) # delete these profile, we'll work with other ones
+            print ("starting openvswitch if not active")
+            if call('rpm -q NetworkManager-ovs', shell=True) != 0:
+                call('yum -y install NetworkManager-ovs', shell=True)
+                call('systemctl restart daemon-reload', shell=True)
+                call('systemctl restart NetworkManager', shell=True)
+            if call('systemctl is-active openvswitch', shell=True) != 0:
+                call('yum -y install openvswitch', shell=True)
+                call('systemctl restart openvswitch', shell=True)
 
         if 'wireless_certs' in scenario.tags:
             print ("---------------------------")
@@ -1359,12 +1365,8 @@ def after_scenario(context, scenario):
         if 'openvswitch' in scenario.tags:
             print ("---------------------------")
             print ("regenerating eth1 and eth2 profiles after openvswitch manipulation")
-            call('service openvswitch stop', shell=True)
-            sleep(2)
-            call('modprobe -r openvswitch', shell=True)
-            # restore these default profiles
-            call('sudo nmcli con add type ethernet ifname eth1 con-name eth1 autoconnect no', shell=True)
-            call('sudo nmcli con add type ethernet ifname eth2 con-name eth2 autoconnect no', shell=True)
+            call('ovs-vsctl del-br ovsbr0', shell=True)
+            #FIXME: UDELAJ CELEJ REST DB
 
         if 'restore_hostname' in scenario.tags:
             print ("---------------------------")
