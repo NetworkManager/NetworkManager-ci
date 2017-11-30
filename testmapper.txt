@@ -608,6 +608,8 @@ gsm_load_from_file, ., nmcli/./runtest.sh gsm_load_from_file ,,60m
 gsm_create_assisted_connection, ., nmcli/./runtest.sh gsm_create_assisted_connection ,,60m
 #gsm_up_down_up, ., nmcli/./runtest.sh gsm_up_down_up ,,60m
 #gsm_up_up, ., nmcli/./runtest.sh gsm_up_up ,,60m
+gsm_mmcli_list_modems, ., nmcli/./runtest.sh gsm_mmcli_list_modems ,,60m
+gsm_mmcli_log_level, ., nmcli/./runtest.sh gsm_mmcli_log_level ,,60m
 #@gsm_end
 
 #@wifi_hwsim_start
