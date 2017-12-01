@@ -1336,7 +1336,7 @@
 
 
     @ver+=1.8.1
-    @rhbz979425
+    @rhbz979425 @rhbz1450219
     @slaves @bond
     @bond_device_rename
     Scenario: NM - bond - device rename
