@@ -1206,6 +1206,7 @@ Feature: nmcli: ipv4
 
 
     @rhbz1265239
+    @ver-=1.10.0
     @teardown_testveth @long
     @renewal_gw_after_dhcp_outage_for_assumed_var1
     Scenario: NM - ipv4 - assumed address renewal after DHCP outage for in-memory assumed
@@ -1224,6 +1225,27 @@ Feature: nmcli: ipv4
     Then "routers = 192.168.99.1" is visible with command "nmcli con show testX" in "400" seconds
     Then "default" is visible with command "ip r| grep testX" in "150" seconds
     When "inet 192.168.99" is visible with command "ip a s testX" in "10" seconds
+
+
+    @rhbz1265239
+    @ver+=1.10.1
+    @teardown_testveth @long
+    @renewal_gw_after_dhcp_outage_for_assumed_var1
+    Scenario: NM - ipv4 - assumed address renewal after DHCP outage for in-memory assumed
+    * Prepare simulated test "testX" device
+    * Add connection type "ethernet" named "ethie" for device "testX"
+    * Bring "up" connection "ethie"
+    When "default" is visible with command "ip r |grep testX" in "30" seconds
+    When "inet 192" is visible with command "ip a s |grep testX" in "30" seconds
+    * Execute "ip netns exec testX_ns kill -SIGSTOP $(cat /tmp/testX_ns.pid)"
+    * Execute "systemctl stop NetworkManager"
+    * Execute "sudo rm -rf /etc/sysconfig/network-scripts/ifcfg-ethie"
+    * Execute "systemctl start NetworkManager"
+    When "default" is not visible with command "ip r |grep testX" in "130" seconds
+    When "inet 192.168.99" is not visible with command "ip a s testX" in "10" seconds
+    * Execute "ip netns exec testX_ns kill -SIGCONT $(cat /tmp/testX_ns.pid)"
+    Then "default" is not visible with command "ip r| grep testX" in "150" seconds
+    Then "inet 192.168.99" is not visible with command "ip a s testX" in "10" seconds
 
 
     @rhbz1205405
