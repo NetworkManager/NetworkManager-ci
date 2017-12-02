@@ -1244,7 +1244,7 @@ Feature: nmcli: ipv4
     When "default" is not visible with command "ip r |grep testX" in "130" seconds
     When "inet 192.168.99" is not visible with command "ip a s testX" in "10" seconds
     * Execute "ip netns exec testX_ns kill -SIGCONT $(cat /tmp/testX_ns.pid)"
-    Then "default" is not visible with command "ip r| grep testX" for full "150" seconds
+    Then "default" is not visible with command "ip r| grep testX" in "150" seconds
     Then "inet 192.168.99" is not visible with command "ip a s testX" in "10" seconds
 
 
