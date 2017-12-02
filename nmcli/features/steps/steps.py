@@ -1168,6 +1168,21 @@ def check_pattern_visible_with_command_fortime(context, pattern, command, second
         sleep(1)
 
 
+@step(u'"{pattern}" is not visible with command "{command}" for full "{seconds}" seconds')
+def check_pattern_visible_with_command_fortime(context, pattern, command, seconds):
+    cmd = '/bin/bash -c "%s"' %command
+    seconds = int(seconds)
+    orig_seconds = seconds
+    while seconds > 0:
+        ifconfig = pexpect.spawn(cmd, timeout = 180, logfile=context.log)
+        if ifconfig.expect([pattern, pexpect.EOF]) != 0:
+            pass
+        else:
+            raise Exception('Pattern %s appeared in %d seconds' % (pattern, orig_seconds-seconds))
+        seconds = seconds - 1
+        sleep(1)
+
+
 @step(u'"{pattern}" is not visible with command "{command}" in "{seconds}" seconds')
 def check_pattern_not_visible_with_command_in_time(context, pattern, command, seconds):
     cmd = '/bin/bash -c "%s"' %command
