@@ -1017,7 +1017,7 @@ Feature: nmcli - general
     * "connected:ethernet0" is visible with command "nmcli -t -f STATE,CONNECTION device" in "50" seconds
     * "connected:ethernet1" is visible with command "nmcli -t -f STATE,CONNECTION device" in "50" seconds
     # Finish asserts the command exited with 0, thus the network service completed properly
-    Then Finish "systemctl restart NetworkManager.service && systemctl restart network.service"
+    Then Finish "systemctl restart NetworkManager.service && sleep 3 && systemctl restart network.service"
 
 
     @rhbz1079353
