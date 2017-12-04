@@ -102,9 +102,9 @@ private_key_passwd=redhat " > $HOSTAPD_CFG
     --clear-on-reload\
     --strict-order\
     --listen-address=10.0.0.1\
-    --dhcp-range=10.0.0.10,10.0.0.100,60m\
+    --dhcp-range=10.0.0.10,10.0.0.200,10m\
     --dhcp-option=option:router,10.0.0.1\
-    --dhcp-lease-max=50
+    --dhcp-lease-max=190
 
     # Start 802.1x authentication and built-in RADIUS server.
     # Start hostapd on the background using configuration for Ethernet adapters.
