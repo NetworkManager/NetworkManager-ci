@@ -421,6 +421,28 @@ Feature: nmcli - vlan
     Then "mtu 9000" is visible with command "ip a s vlan"
 
 
+    @rhbz1414901
+    @ver+=1.10.0
+    @eth @vlan @restart @teardown_testveth
+    @vlan_mtu_from_parent_with_slow_dhcp
+    Scenario: nmcli - vlan - MTU from parent
+    * Prepare simulated test "testX" device
+    * Add a new connection of type "ethernet" and options "con-name ethie ifname testX 802-3-ethernet.mtu 9000 ipv4.method auto ipv6.method auto"
+    * Bring "down" connection "ethie"
+    * Bring "up" connection "ethie"
+    * Add a new connection of type "vlan" and options "con-name vlan ifname vlan 802-3-ethernet.mtu 9000 dev testX id 80 ip4 1.2.3.4/32"
+    When "mtu 9000" is visible with command "ip a s vlan" in "10" seconds
+    * Stop NM
+    * Execute "ip link set dev testX mtu 1500"
+    * Execute "ip link del vlan"
+    Then "mtu 9000" is not visible with command "ip a s vlan"
+    * Execute "ip netns exec testX_ns kill -SIGSTOP $(cat /tmp/testX_ns.pid)"
+    * Start NM
+    * Execute "sleep 5 && ip netns exec testX_ns kill -SIGCONT $(cat /tmp/testX_ns.pid)"
+    Then "mtu 9000" is visible with command "ip a s testX" in "10" seconds
+    Then "mtu 9000" is visible with command "ip a s vlan" in "10" seconds
+
+
     @rhgb1437066
     @ver+=1.4.0
     @team @team_slaves

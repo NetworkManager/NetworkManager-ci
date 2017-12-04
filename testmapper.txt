@@ -336,6 +336,7 @@ reorder_hdr, ., nmcli/./runtest.sh reorder_hdr ,
 vlan_preserve_assumed_connection_ips, ., nmcli/./runtest.sh vlan_preserve_assumed_connection_ips ,
 vlan_create_many_vlans, ., nmcli/./runtest.sh vlan_create_many_vlans ,
 vlan_mtu_from_parent, ., nmcli/./runtest.sh vlan_mtu_from_parent ,
+vlan_mtu_from_parent_with_slow_dhcp, ., nmcli/./runtest.sh vlan_mtu_from_parent_with_slow_dhcp ,
 default_route_for_vlan_over_team, ., nmcli/./runtest.sh default_route_for_vlan_over_team ,
 #@vlan_end
 
