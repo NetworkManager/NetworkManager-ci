@@ -472,6 +472,7 @@ snapshot_rollback, ., nmcli/./runtest.sh snapshot_rollback ,
 snapshot_rollback_all_devices, ., nmcli/./runtest.sh snapshot_rollback_all_devices ,
 snapshot_rollback_all_devices_with_timeout, ., nmcli/./runtest.sh snapshot_rollback_all_devices_with_timeout ,
 snapshot_rollback_unmanaged, ., nmcli/./runtest.sh snapshot_rollback_unmanaged ,
+snapshot_rollback_managed, ., nmcli/./runtest.sh snapshot_rollback_managed ,
 snapshot_rollback_soft_device, ., nmcli/./runtest.sh snapshot_rollback_soft_device ,
 stable_mem_consumption, ., nmcli/./runtest.sh stable_mem_consumption ,,20m
 dummy_connection, ., nmcli/./runtest.sh dummy_connection ,

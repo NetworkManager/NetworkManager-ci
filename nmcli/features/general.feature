@@ -1291,6 +1291,19 @@ Feature: nmcli - general
     Then "unmanaged" is visible with command "nmcli device show eth1" in "5" seconds
 
 
+    @rhbz1464904
+    @ver+=1.10.0
+    @manage_eth1
+    @snapshot_rollback_managed
+    Scenario: NM - general - snapshot and rollback managed
+    * Execute "nmcli device set eth1 managed on"
+    * Snapshot "create" for "eth1" with timeout "10"
+    * Execute "nmcli device set eth1 managed off"
+    When "unmanaged" is visible with command "nmcli device show eth1" in "5" seconds
+    * Wait for at least "15" seconds
+    Then "unmanaged" is not visible with command "nmcli device show eth1" in "5" seconds
+
+
     @rhbz1369716
     @ver+=1.8.0
     @bond @slaves
