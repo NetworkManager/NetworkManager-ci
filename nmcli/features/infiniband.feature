@@ -50,6 +50,7 @@ Feature: nmcli: inf
     Then "inet 172" is visible with command "ip a s inf_ib0.8002"
 
 
+    @ver-=1.9.9
     @inf
     @inf_create_port_novice_mode
     Scenario: nmcli - inf - novice - create infiniband port with default options
@@ -72,6 +73,36 @@ Feature: nmcli: inf
      * Submit "inf_ib0" in editor
      * Expect "P_KEY"
      * Submit "0x8002" in editor
+     * Dismiss IP configuration in editor
+     * Dismiss Proxy configuration in editor
+     * Bring "up" connection "inf"
+     * Bring "up" connection "infiniband-inf_ib0.8002"
+    Then "inet 172" is visible with command "ip a s inf_ib0.8002"
+
+
+    @ver+=1.10.0
+    @inf
+    @inf_create_port_novice_mode
+    Scenario: nmcli - inf - novice - create infiniband port with default options
+     * Add connection type "infiniband" named "inf" for device "inf_ib0"
+     * Bring "up" connection "inf"
+     * Open wizard for adding new connection
+     * Expect "Connection type"
+     * Submit "infiniband" in editor
+     * Expect "Interface name"
+     * Submit "inf_ib0.8002" in editor
+     * Expect "Do you want to provide them\? \(yes\/no\) \[yes\]"
+     * Submit "yes" in editor
+     * Expect "MAC"
+     * Enter in editor
+     * Expect "MTU"
+     * Enter in editor
+     * Expect "Transport mode"
+     * Enter in editor
+     * Expect "P_KEY"
+     * Submit "0x8002" in editor
+     * Expect "Parent interface"
+     * Submit "inf_ib0" in editor
      * Dismiss IP configuration in editor
      * Dismiss Proxy configuration in editor
      * Bring "up" connection "inf"
