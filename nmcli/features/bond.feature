@@ -1291,28 +1291,6 @@
       And "666" is visible with command "cat /sys/class/net/nm-bond/bonding/lp_interval"
 
 
-    @ver-=1.8.0
-    @rhbz979425
-    @slaves @bond
-    @bond_device_rename
-    Scenario: NM - bond - device rename
-     * Add connection type "bond" named "bond0" for device "bondy"
-     * Add slave connection for master "nm-bond" on device "eth1" named "bond0.0"
-     * Add slave connection for master "nm-bond" on device "eth2" named "bond0.1"
-     * Bring "down" connection "bond0"
-     # VVV Workaround for rhbz1450219
-     * Wait for at least "2" seconds
-     * Open editor for connection "bond0"
-     * Set a property named "connection.interface-name" to "nm-bond" in editor
-     * Save in editor
-     Then Value saved message showed in editor
-     * Quit editor
-     * Bring "up" connection "bond0"
-     * Bring "up" connection "bond0.0"
-     * Bring "up" connection "bond0.1"
-     Then Check bond "nm-bond" link state is "up"
-
-
     @ver-=1.8.1
     @rhbz979425
     @slaves @bond
@@ -1519,3 +1497,42 @@
        And "inet6 fe80" is visible with command "ip -6 a s nm-bond"
        And "inet6 2620" is visible with command "ip -6 a s nm-bond" in "5" seconds
        And "tentative" is not visible with command "ip -6 a s nm-bond" in "5" seconds
+
+
+    @rhbz1463077
+    @ver+=1.8.1
+    @bond
+    @bond_assume_options_1
+    Scenario: nmcli - bond - assume options 1
+     * Execute "systemctl stop NetworkManager"
+     * Execute "ip l add bond0 type bond"
+     * Execute "echo 1   > /sys/class/net/bond0/bonding/mode"
+     * Execute "echo 100 > /sys/class/net/bond0/bonding/miimon"
+     * Execute "echo 100 > /sys/class/net/bond0/bonding/updelay"
+     * Execute "ip l set bond0 up"
+     * Execute "ip a a 172.16.1.1/24 dev bond0"
+     * Execute "systemctl restart NetworkManager"
+     Then "bond0\s+bond\s+connected" is visible with command "nmcli d" in "10" seconds
+     Then "inet 172.16.1.1/24" is visible with command "ip a show dev bond0"
+
+
+    @rhbz1463077
+    @ver+=1.8.1
+    @bond
+    @bond_assume_options_2
+    Scenario: nmcli - bond - assume options 2
+     * Add a new connection of type "bond" and options "ifname nm-bond con-name bond bond.options mode=1,miimon=100,updelay=200 ip4 172.16.1.1/24"
+     * Bring "up" connection "bond"
+     * Execute "systemctl restart NetworkManager"
+     Then "nm-bond\s+bond\s+connected\s+bond" is visible with command "nmcli d" in "10" seconds
+
+
+    @rhbz1463077
+    @ver+=1.8.1
+    @bond
+    @bond_assume_options_3
+    Scenario: nmcli - bond - assume options 3
+     * Add a new connection of type "bond" and options "ifname nm-bond con-name bond bond.options mode=1,arp_interval=100,arp_ip_target=172.16.1.100 ip4 172.16.1.1/24"
+     * Bring "up" connection "bond"
+     * Execute "systemctl restart NetworkManager"
+     Then "nm-bond\s+bond\s+connected\s+bond" is visible with command "nmcli d" in "10" seconds

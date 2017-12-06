@@ -72,6 +72,9 @@ bond_balance-alb_no_error, ., nmcli/./runtest.sh bond_balance-alb_no_error ,
 reapply_unchanged_slave, ., nmcli/./runtest.sh reapply_unchanged_slave ,
 vlan_over_no_L3_bond_restart_persistence, ., nmcli/./runtest.sh vlan_over_no_L3_bond_restart_persistence ,
 bond_leave_L2_only_up_when_going_down, ., nmcli/./runtest.sh bond_leave_L2_only_up_when_going_down ,
+bond_assume_options_1, ., nmcli/./runtest.sh bond_assume_options_1 ,
+bond_assume_options_2, ., nmcli/./runtest.sh bond_assume_options_2 ,
+bond_assume_options_3, ., nmcli/./runtest.sh bond_assume_options_3 ,
 #@bond_end
 
 #@bridge_start
