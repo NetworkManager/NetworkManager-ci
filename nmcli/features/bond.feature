@@ -1517,7 +1517,7 @@
 
 
     @rhbz1463077
-    @ver+=1.8.1
+    @ver+=1.10.0
     @bond
     @bond_assume_options_2
     Scenario: nmcli - bond - assume options 2
@@ -1528,7 +1528,7 @@
 
 
     @rhbz1463077
-    @ver+=1.8.1
+    @ver+=1.10.0
     @bond
     @bond_assume_options_3
     Scenario: nmcli - bond - assume options 3
