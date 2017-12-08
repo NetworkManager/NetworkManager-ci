@@ -723,6 +723,21 @@
      And "192.168.168.17" is visible with command "ip a s nm-team"
 
 
+    @rhbz1286105 @rhbz1312359 @rhbz1490157
+    @ver+=1.8.1
+    @team @team_slaves
+    @team_in_vlan_restart_persistence
+    Scenario: nmcli - team - team in vlan restart persistence
+     * Add a new connection of type "team" and options "con-name team0 ifname nm-team ipv4.method disabled ipv6.method ignore"
+     * Add a new connection of type "vlan" and options "con-name team0.1 dev nm-team id 1 mtu 1500 ipv4.method manual ipv4.addresses 192.168.168.16/24 ipv4.gateway 192.168.103.1 ipv6.method manual ipv6.addresses 2168::16/64"
+     * Add a new connection of type "team-slave" and options "con-name team0.0 ifname eth10 master nm-team"
+     * Delete device "nm-team.1"
+     * Reboot
+    Then "2168::16" is visible with command "ip a s nm-team.1" in "10" seconds
+     And "192.168.168.16" is visible with command "ip a s nm-team.1"
+     And "nm-team.1" is not visible with command "journalctl --since '10 seconds ago' --no-pager |grep warn"
+
+
     @rhbz1427482
     @ver+=1.8.0
     @team @team_slaves @restart

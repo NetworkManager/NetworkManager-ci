@@ -1541,6 +1541,17 @@ def start_NM(context):
     assert command_code(context, "sudo systemctl start NetworkManager.service") == 0
 
 
+@step(u'Delete device "{device}"')
+def delete_device(context, device):
+    cli = pexpect.spawn('nmcli device delete %s' % device, logfile=context.log,  timeout=180)
+
+    r = cli.expect(['Error', pexpect.TIMEOUT, pexpect.EOF])
+    if r == 0:
+        raise Exception('Got an Error while deleting device %s' % device)
+    elif r == 1:
+        raise Exception('nmcli device delete %s timed out (180s)' % device)
+
+
 @step(u'Restart NM')
 def restart_NM(context):
     context.nm_restarted = True
