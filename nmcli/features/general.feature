@@ -908,6 +908,7 @@ Feature: nmcli - general
 
 
     @rhbz1201497
+    @ver-=1.9.9
     @runonce @restore_hostname @eth0
     @run_once_helper_for_localhost_localdomain
     Scenario: NM - general - helper running for localhost on localdo
@@ -920,11 +921,35 @@ Feature: nmcli - general
     * Execute "echo '[main]' > /etc/NetworkManager/conf.d/01-run-once.conf"
     * Execute "echo 'configure-and-quit=yes' >> /etc/NetworkManager/conf.d/01-run-once.conf"
     * Execute "echo 'dhcp=internal' >> /etc/NetworkManager/conf.d/01-run-once.conf"
+    * Execute "ip link set dev eth0 up"
     * Execute "sleep 1"
     * Start NM
     Then "eth0" is visible with command "ps aux|grep helper" in "40" seconds
     Then "eth0" is visible with command "ps aux|grep helper" for full "20" seconds
 
+
+    @rhbz1201497
+    @ver+=1.10
+    @runonce @restore_hostname @eth0
+    @run_once_helper_for_localhost_localdomain
+    Scenario: NM - general - helper running for localhost on localdo
+    * Bring "up" connection "testeth0"
+    * Disconnect device "eth0"
+    * Execute "sleep 2"
+    * Stop NM and clean "eth0"
+    When "state DOWN" is visible with command "ip a s eth0" in "5" seconds
+    * Execute "hostnamectl set-hostname localhost.localdomain"
+    * Execute "echo '[main]' > /etc/NetworkManager/conf.d/01-run-once.conf"
+    * Execute "echo 'configure-and-quit=yes' >> /etc/NetworkManager/conf.d/01-run-once.conf"
+    * Execute "echo 'dhcp=internal' >> /etc/NetworkManager/conf.d/01-run-once.conf"
+    ## VVV Just to make sure slow devices will catch carrier
+    * Execute "echo '[device]' >> /etc/NetworkManager/conf.d/01-run-once.conf"
+    * Execute "echo 'match-device=interface-name:eth0' >> /etc/NetworkManager/conf.d/01-run-once.conf"
+    * Execute "echo 'carrier-wait-timeout=10000' >> /etc/NetworkManager/conf.d/01-run-once.conf"
+    * Execute "sleep 1"
+    * Start NM
+    Then "eth0" is visible with command "ps aux|grep helper" in "40" seconds
+    Then "eth0" is visible with command "ps aux|grep helper" for full "20" seconds
 
 
     @rhbz1086906
