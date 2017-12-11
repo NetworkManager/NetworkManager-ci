@@ -430,7 +430,7 @@ def before_scenario(context, scenario):
         if 'internal_DHCP' in scenario.tags:
             print ("---------------------------")
             print ("set internal DHCP")
-            call("printf '# configured by beaker-test\n[main]\ndhcp=internal\n' > /etc/NetworkManager/conf.d/90-test-dhcp-internal.conf", shell=True)
+            call("printf '# configured by beaker-test\n[main]\ndhcp=internal\n' > /etc/NetworkManager/conf.d/99-xtest-dhcp-internal.conf", shell=True)
             call('systemctl restart NetworkManager.service', shell=True)
 
         if 'dhcpd' in scenario.tags:
@@ -1036,7 +1036,7 @@ def after_scenario(context, scenario):
         if 'internal_DHCP' in scenario.tags:
             print ("---------------------------")
             print ("revert internal DHCP")
-            call("rm -f /etc/NetworkManager/conf.d/90-test-dhcp-internal.conf", shell=True)
+            call("rm -f /etc/NetworkManager/conf.d/99-xtest-dhcp-internal.conf", shell=True)
             call('systemctl restart NetworkManager.service', shell=True)
 
         if 'dhcpd' in scenario.tags:

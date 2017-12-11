@@ -134,6 +134,22 @@ Feature: nmcli: inf
     Then "inet 172" is visible with command "ip a s inf_ib0.8002"
 
 
+    @rhbz1477678
+    @ver+=1.10.0
+    @inf @internal_DHCP
+    @inf_internal_dhcp
+    Scenario: nmcli - inf - enable after reboot
+    * Add connection type "infiniband" named "inf" for device "inf_ib0"
+    * Add infiniband port named "inf.8002" for device "inf_ib0.8002" with parent "inf_ib0" and p-key "0x8002"
+    * Bring "up" connection "inf"
+    * Bring "up" connection "inf.8002"
+    When "inet 172" is visible with command "ip a s inf_ib0" in "10" seconds
+     And "inet 172" is visible with command "ip a s inf_ib0.8002"
+    * Reboot
+    Then "inet 172" is visible with command "ip a s inf_ib0" in "10" seconds
+     And "inet 172" is visible with command "ip a s inf_ib0.8002"
+
+
     @rhbz1339008
     @ver+=1.4.0
     @inf @bond
