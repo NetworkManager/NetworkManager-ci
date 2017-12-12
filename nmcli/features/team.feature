@@ -493,6 +493,7 @@
 
      @rhbz1312726
      @ver+=1.4.0
+     @ver-=1.10.0
      @team_slaves @team @clean @long
      @config_invalid3
      Scenario: nmcli - team - config - set invalid mode
