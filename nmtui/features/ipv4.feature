@@ -27,6 +27,7 @@ Feature: IPv4 TUI tests
     Then "inet 192.168.1.10/32" is visible with command "ip a s eth1" in "10" seconds
     Then "eth1\s+ethernet\s+connected\s+ethernet" is visible with command "nmcli device"
 
+
     @ipv4
     @ver+=1.9.2
     @nmtui_ipv4_addresses_static_no_mask
@@ -36,9 +37,79 @@ Feature: IPv4 TUI tests
     * Set "IPv4 CONFIGURATION" category to "Manual"
     * Come in "IPv4 CONFIGURATION" category
     * In "Addresses" property add "192.168.1.10"
+    * Add ip route "192.168.2.0 192.168.1.11 256"
     * Confirm the connection settings
     Then "inet 192.168.1.10/24" is visible with command "ip a s eth1" in "10" seconds
-    Then "eth1\s+ethernet\s+connected\s+ethernet" is visible with command "nmcli device"
+     And "192.168.2.0/24 via 192.168.1.11 dev eth1\s+proto static\s+metric 256" is visible with command "ip route"
+     And "eth1\s+ethernet\s+connected\s+ethernet" is visible with command "nmcli device"
+
+
+    @ipv4
+    @ver+=1.9.2
+    @nmtui_ipv4_addresses_static_no_mask_var2
+    Scenario: nmtui - ipv4 - addresses - static IPv4 without netmask var2
+    * Prepare new connection of type "Ethernet" named "ethernet"
+    * Set "Device" field to "eth1"
+    * Set "IPv4 CONFIGURATION" category to "Manual"
+    * Come in "IPv4 CONFIGURATION" category
+    * In "Addresses" property add "10.0.0.1"
+    * Add ip route "10.0.0.3 10.0.0.2 256"
+    * Confirm the connection settings
+    Then "inet 10.0.0.1/8" is visible with command "ip a s eth1" in "10" seconds
+     And "10.0.0.0/8 dev eth1" is visible with command "ip route"
+     And "10.0.0.3/32 10.0.0.2 256" is visible with command "nmcli -g ipv4.routes con show ethernet"
+     And "eth1\s+ethernet\s+connected\s+ethernet" is visible with command "nmcli device"
+
+
+    @ipv4
+    @ver+=1.9.2
+    @nmtui_ipv4_addresses_static_no_mask_var3
+    Scenario: nmtui - ipv4 - addresses - static IPv4 without netmask var3
+    * Prepare new connection of type "Ethernet" named "ethernet"
+    * Set "Device" field to "eth1"
+    * Set "IPv4 CONFIGURATION" category to "Manual"
+    * Come in "IPv4 CONFIGURATION" category
+    * In "Addresses" property add "192.168.0.1"
+    * Add ip route "192.168.0.3 192.168.0.2 256"
+    * Confirm the connection settings
+    Then "inet 192.168.0.1/24" is visible with command "ip a s eth1" in "10" seconds
+     And "192.168.0.0/24 dev eth1" is visible with command "ip route"
+     And "192.168.0.3/32 192.168.0.2 256" is visible with command "nmcli -g ipv4.routes con show ethernet"
+     And "eth1\s+ethernet\s+connected\s+ethernet" is visible with command "nmcli device"
+
+
+    @ipv4
+    @ver+=1.9.2
+    @nmtui_ipv4_addresses_static_no_mask_var4
+    Scenario: nmtui - ipv4 - addresses - static IPv4 without netmask var4
+    * Prepare new connection of type "Ethernet" named "ethernet"
+    * Set "Device" field to "eth1"
+    * Set "IPv4 CONFIGURATION" category to "Manual"
+    * Come in "IPv4 CONFIGURATION" category
+    * In "Addresses" property add "10.0.0.1"
+    * Add ip route "10.0.0.0 10.0.0.1 256"
+    * Confirm the connection settings
+    Then "inet 10.0.0.1/8" is visible with command "ip a s eth1" in "10" seconds
+     And "10.0.0.0/8 dev eth1" is visible with command "ip route"
+     And "10.0.0.0/8 10.0.0.1 256" is visible with command "nmcli -g ipv4.routes con show ethernet"
+     And "eth1\s+ethernet\s+connected\s+ethernet" is visible with command "nmcli device"
+
+
+    @ipv4
+    @ver+=1.9.2
+    @nmtui_ipv4_addresses_static_no_mask_var5
+    Scenario: nmtui - ipv4 - addresses - static IPv4 without netmask var5
+    * Prepare new connection of type "Ethernet" named "ethernet"
+    * Set "Device" field to "eth1"
+    * Set "IPv4 CONFIGURATION" category to "Manual"
+    * Come in "IPv4 CONFIGURATION" category
+    * In "Addresses" property add "172.16.0.0"
+    * Add ip route "172.16.0.0 172.16.0.1 256"
+    * Confirm the connection settings
+    Then "inet 172.16.0.0/16" is visible with command "ip a s eth1" in "10" seconds
+     And "172.16.0.0/16 dev eth1" is visible with command "ip route"
+     And "172.16.0.0/16 172.16.0.1 256" is visible with command "nmcli -g ipv4.routes con show ethernet"
+     And "eth1\s+ethernet\s+connected\s+ethernet" is visible with command "nmcli device"
 
 
     @ipv4
