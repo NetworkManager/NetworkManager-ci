@@ -617,7 +617,7 @@ Feature: nmcli: connection
      And "\"my.own.data\" = \"good_morning_starshine\"|\"my.own.data2\" = \"the_moon_says_hello\"" is visible with command "python tmp/setting-user-data.py id connie"
     * Execute "python tmp/setting-user-data.py set id connie -d my.own.data"
     * Execute "python tmp/setting-user-data.py set id connie -d my.own.data.two"
-    Then "[0]" is visible with command "python tmp/setting-user-data.py id connie"
+    Then "[none]|[0]" is visible with command "python tmp/setting-user-data.py id connie"
      And "\"my.own.data\" = \"good_morning_starshine\"|\"my.own.data2\" = \"the_moon_says_hello\"" is not visible with command "python tmp/setting-user-data.py id connie"
 
 
