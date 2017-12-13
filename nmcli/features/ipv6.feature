@@ -1236,6 +1236,19 @@ Feature: nmcli: ipv6
      And "2001::2" is visible with command "ip a s testX"
      And "tentative" is visible with command "ip a s testX" for full "10" seconds
 
+
+    @rhbz1508001
+    @ver+=1.10.0
+    @eth @teardown_testveth
+    @ipv4_dad_not_preventing_ipv6
+    Scenario: NM - ipv6 - add address after ipv4 DAD fail
+    * Prepare simulated test "testX" device
+    * Add a new connection of type "ethernet" and options "ifname testX con-name ethie ipv4.may-fail yes ipv4.method manual ipv4.addresses 192.168.99.1/24 ipv4.dad-timeout 2001 ipv6.may-fail yes"
+    * Reboot
+    Then "activated" is visible with command "nmcli -g GENERAL.STATE connection show ethie" in "15" seconds
+     And "2620:dead:beaf" is visible with command "ip a s testX"
+
+
     @rhbz1470930
     @ver+=1.8.3
     @ethernet @teardown_testveth @netcat
