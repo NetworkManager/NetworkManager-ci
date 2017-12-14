@@ -34,6 +34,31 @@ Feature: nmcli - bridge
     Then "DELAY=3.*BRIDGING_OPTS=\"priority=5 hello_time=3 max_age=15 ageing_time=500000\".*NAME=br88.*ONBOOT=no" is visible with command "cat /etc/sysconfig/network-scripts/ifcfg-br88"
 
 
+    @rhbz1358615
+    @ver+=1.10.2
+    @bridge
+    @bridge_add_forward_delay
+    Scenario: nmcli - bridge - add forward delay
+    * Add a new connection of type "bridge" and options "con-name br88 autoconnect no ifname br88 priority 5 group-forward-mask 8 ip4 1.2.3.4/24"
+    * Bring "up" connection "br88"
+    * "br88:" is visible with command "ifconfig"
+    Then "br88" is visible with command "brctl show"
+    And "BRIDGING_OPTS=\"priority=5 group_fwd_mask=8\"" is visible with command "cat /etc/sysconfig/network-scripts/ifcfg-br88"
+    And "0x8" is visible with command "cat /sys/class/net/br88/bridge/group_fwd_mask"
+
+
+    @rhbz1358615
+    @ver+=1.10.2
+    @bridge
+    @bridge_modify_forward_delay
+    Scenario: nmcli - bridge - modify forward delay
+    * Add a new connection of type "bridge" and options "con-name br88 autoconnect no ifname br88 priority 5 group-forward-mask 8 ip4 1.2.3.4/24"
+    * Execute "nmcli con modify br88 bridge.group-forward-mask 0"
+    * Bring "up" connection "br88"
+    And "group_fwd_mask=8" is not visible with command "cat /etc/sysconfig/network-scripts/ifcfg-br88"
+    And "0x0" is visible with command "cat /sys/class/net/br88/bridge/group_fwd_mask"
+
+
 	@bridge
     @bridge_connection_up
     Scenario: nmcli - bridge - up
