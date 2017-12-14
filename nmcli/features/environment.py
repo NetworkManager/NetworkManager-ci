@@ -1562,6 +1562,8 @@ def after_scenario(context, scenario):
             call('udevadm control --reload-rules', shell=True)
             call('udevadm settle', shell=True)
             sleep(1)
+            call('systemctl restart NetworkManager', shell=True)
+
 
         if '@restore_rp_filters' in scenario.tags:
             print ("---------------------------")
