@@ -21,8 +21,9 @@ sleep 30
 ip a s eth0
 ip -6 r
 
-systemctl restart beah*
-sleep 120
+systemctl restart beah-beaker-backend.service
+
+sleep 180
 
 rhts-report-result $TEST "PASS" "/dev/null"
 
