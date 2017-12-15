@@ -80,6 +80,8 @@ bond_assume_options_3, ., nmcli/./runtest.sh bond_assume_options_3 ,
 #@bridge_start
 bridge_add_default, ., nmcli/./runtest.sh bridge_add_default, bridge-utils
 bridge_add_custom_one, ., nmcli/./runtest.sh bridge_add_custom_one, bridge-utils
+bridge_add_forward_delay, ., nmcli/./runtest.sh bridge_add_forward_delay ,
+bridge_modify_forward_delay, ., nmcli/./runtest.sh bridge_modify_forward_delay ,
 bridge_connection_up, ., nmcli/./runtest.sh bridge_connection_up, bridge-utils
 bridge_connection_down, ., nmcli/./runtest.sh bridge_connection_down, bridge-utils
 bridge_disconnect_device, ., nmcli/./runtest.sh bridge_disconnect_device, bridge-utils
