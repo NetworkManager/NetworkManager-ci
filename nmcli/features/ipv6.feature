@@ -1262,3 +1262,24 @@ Feature: nmcli: ipv6
     * Bring "up" connection "ethernet0"
     * Execute "dd if=/dev/zero bs=1M count=10 | nc fd02::2 8080"
     Then "mtu 1400" is visible with command "ip route get fd02::2" for full "40" seconds
+
+
+    @rhbz1368018
+    @ver+=1.8
+    @eth @restart @kill_dhclient @teardown_testveth
+    @persistent_ipv6_after_device_rename
+    Scenario: NM - ipv6 - persistent ipv6 after device rename
+    * Prepare simulated test "testY" device
+    * Add a new connection of type "ethernet" and options "ifname testY con-name ethie"
+    * Bring "down" connection "ethie"
+    * Bring "up" connection "ethie"
+    * Execute "echo -e 'NM_CONTROLLED=no' >> /etc/sysconfig/network-scripts/ifcfg-ethie"
+    * Restart NM
+    When "0" is visible with command "cat /proc/sys/net/ipv6/conf/testY/disable_ipv6"
+    * Rename device "testY" to "festY"
+    * Execute "dhclient -1 festY" without waiting for process to finish
+    * Wait for at least "5" seconds
+    * Execute "kill -9 $(pidof dhclient)"
+    When "0" is visible with command "cat /proc/sys/net/ipv6/conf/festY/disable_ipv6"
+    * Rename device "festY" to "testY"
+    Then "0" is visible with command "cat /proc/sys/net/ipv6/conf/testY/disable_ipv6"

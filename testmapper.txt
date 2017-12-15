@@ -228,6 +228,7 @@ ipv6_keep_external_routes, ., nmcli/./runtest.sh ipv6_keep_external_routes ,
 nmcli_general_finish_dad_without_carrier, ., nmcli/./runtest.sh nmcli_general_finish_dad_without_carrier ,
 ipv4_dad_not_preventing_ipv6, ., nmcli/./runtest.sh ipv4_dad_not_preventing_ipv6 ,
 ipv6_preserve_cached_routes, ., nmcli/./runtest.sh ipv6_preserve_cached_routes ,
+persistent_ipv6_after_device_rename, ., nmcli/./runtest.sh persistent_ipv6_after_device_rename ,
 #@ipv6_end
 
 #@ipv4_start

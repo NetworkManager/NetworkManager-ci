@@ -1551,6 +1551,11 @@ def delete_device(context, device):
     elif r == 1:
         raise Exception('nmcli device delete %s timed out (180s)' % device)
 
+@step(u'Rename device "{old_device}" to "{new_device}"')
+def delete_device(context, old_device, new_device):
+    command_code(context, "ip link set dev %s down" % old_device)
+    command_code(context, "ip link set %s name %s" % (old_device, new_device))
+    command_code(context, "ip link set dev %s ip" % old_device)
 
 @step(u'Restart NM')
 def restart_NM(context):
