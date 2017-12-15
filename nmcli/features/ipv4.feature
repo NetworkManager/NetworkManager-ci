@@ -1172,7 +1172,7 @@ Feature: nmcli: ipv4
 
     @rhbz1262922
     @ver+=1.2.0
-    @eth @teardown_testveth @long
+    @eth @teardown_testveth
     @dhcp-timeout
     Scenario: NM - ipv4 - add dhcp-timeout
     * Prepare simulated test "testX" device
@@ -1183,6 +1183,39 @@ Feature: nmcli: ipv4
     * Bring "up" connection "ethie"
     Then "routers = 192.168.99.1" is visible with command "nmcli con show ethie" in "10" seconds
     Then "default via 192.168.99.1 dev testX" is visible with command "ip r"
+
+
+    @rhbz1350830
+    @ver+=1.10.0
+    @eth @teardown_testveth
+    @dhcp-timeout_infinity
+    Scenario: NM - ipv4 - add dhcp-timeout infinity
+    * Prepare simulated test "testX" device
+    * Add connection type "ethernet" named "ethie" for device "testX"
+    * Execute "nmcli connection modify ethie ipv4.dhcp-timeout infinity"
+    * Execute "ip netns exec testX_ns kill -SIGSTOP $(cat /tmp/testX_ns.pid)"
+    * Execute "sleep 70; ip netns exec testX_ns kill -SIGCONT $(cat /tmp/testX_ns.pid)" without waiting for process to finish
+    * Bring "up" connection "ethie"
+    Then "routers = 192.168.99.1" is visible with command "nmcli con show ethie" in "10" seconds
+     And "default via 192.168.99.1 dev testX" is visible with command "ip r"
+     And "IPV4_DHCP_TIMEOUT=2147483647" is visible with command "cat /etc/sysconfig/network-scripts/ifcfg-ethie"
+
+
+    @rhbz1350830
+    @ver+=1.10.0
+    @eth @remove_custom_cfg
+    @dhcp-timeout_default_in_cfg
+    Scenario: nmcli - ipv4 - dhcp_timout infinity in cfg file
+    * Execute "echo -e '[connection-eth-dhcp-timeout]\nmatch-device=type:ethernet\nipv4.dhcp-timeout=2147483647' > /etc/NetworkManager/conf.d/99-xxcustom.conf"
+    * Execute "systemctl restart NetworkManager"
+    * Prepare simulated test "testX" device
+    * Add connection type "ethernet" named "ethie" for device "testX"
+    * Execute "ip netns exec testX_ns kill -SIGSTOP $(cat /tmp/testX_ns.pid)"
+    * Execute "sleep 50; ip netns exec testX_ns kill -SIGCONT $(cat /tmp/testX_ns.pid)" without waiting for process to finish
+    * Restart NM
+    Then "routers = 192.168.99.1" is visible with command "nmcli con show ethie" in "60" seconds
+     And "default via 192.168.99.1 dev testX" is visible with command "ip r"
+     And "IPV4_DHCP_TIMEOUT=2147483647" is not visible with command "cat /etc/sysconfig/network-scripts/ifcfg-ethie"
 
 
     @rhbz1246496
