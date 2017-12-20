@@ -352,6 +352,7 @@ Feature: nmcli: ipv4
 
 
     @rhbz1164441
+    @ver-=1.10.0
     @ipv4_2
     @ipv4_route_remove_basic_route
     Scenario: nmcli - ipv4 - routes - remove basic route
@@ -390,6 +391,49 @@ Feature: nmcli: ipv4
     Then "192.168.3.0/24 dev eth1\s+proto kernel\s+scope link\s+src 192.168.3.10" is visible with command "ip route"
     Then "192.168.4.1 dev eth1\s+proto static\s+scope link\s+metric 10[0-1]" is visible with command "ip route"
     Then "192.168.4.1 dev eth2\s+proto static\s+scope link\s+metric 10[0-1]" is visible with command "ip route"
+    Then "192.168.5.0/24 via 192.168.3.11 dev eth1\s+proto static\s+metric 1" is not visible with command "ip route"
+
+
+    @rhbz1164441
+    @ver+=1.10.2
+    @ipv4_2
+    @ipv4_route_remove_basic_route
+    Scenario: nmcli - ipv4 - routes - remove basic route
+    * Add connection type "ethernet" named "ethie" for device "eth1"
+    * Open editor for connection "ethie"
+    * Submit "set ipv4.method static" in editor
+    * Submit "set ipv4.addresses 192.168.3.10/24" in editor
+    * Submit "set ipv4.gateway 192.168.4.1" in editor
+    * Submit "set ipv4.routes 192.168.5.0/24 192.168.3.11 1" in editor
+    * Save in editor
+    * Quit editor
+    * Add connection type "ethernet" named "ethie2" for device "eth2"
+    * Open editor for connection "ethie2"
+    * Submit "set ipv4.method static" in editor
+    * Submit "set ipv4.addresses 192.168.1.10/24" in editor
+    * Submit "set ipv4.gateway 192.168.4.1" in editor
+    * Submit "set ipv4.routes 192.168.2.0/24 192.168.1.11 2" in editor
+    * Save in editor
+    * Quit editor
+    * Open editor for connection "ethie"
+    * Submit "set ipv4.routes" in editor
+    * Enter in editor
+    * Save in editor
+    * Quit editor
+    * Bring "up" connection "ethie"
+    * Open editor for connection "ethie2"
+    * Submit "set ipv4.routes" in editor
+    * Enter in editor
+    * Save in editor
+    * Quit editor
+    * Bring "up" connection "ethie2"
+    Then "default via 192.168.4.1 dev eth1\s+proto static\s+metric 103" is visible with command "ip route" in "5" seconds
+    Then "default via 192.168.4.1 dev eth2\s+proto static\s+metric 104" is visible with command "ip route" in "5" seconds
+    Then "192.168.1.0/24 dev eth2\s+proto kernel\s+scope link\s+src 192.168.1.10" is visible with command "ip route"
+    Then "192.168.2.0/24 via 192.168.1.11 dev eth2\s+proto static\s+metric 2" is not visible with command "ip route"
+    Then "192.168.3.0/24 dev eth1\s+proto kernel\s+scope link\s+src 192.168.3.10" is visible with command "ip route"
+    Then "192.168.4.1 dev eth1\s+proto static\s+scope link\s+metric 103" is visible with command "ip route"
+    Then "192.168.4.1 dev eth2\s+proto static\s+scope link\s+metric 104" is visible with command "ip route"
     Then "192.168.5.0/24 via 192.168.3.11 dev eth1\s+proto static\s+metric 1" is not visible with command "ip route"
 
 
@@ -1469,7 +1513,8 @@ Feature: nmcli: ipv4
     Then "1" is visible with command "cat /proc/sys/net/ipv4/conf/eth2/rp_filter"
      And "2" is visible with command "cat /proc/sys/net/ipv4/conf/eth3/rp_filter"
 
-    @rhbz1394344
+
+    @rhbz1394344 @rhbz1505893
     @ver+=1.9.1
     @ipv4_2 @restore_rp_filters
     @ipv4_rp_filter_set_loose
@@ -1478,8 +1523,8 @@ Feature: nmcli: ipv4
     * Execute "echo 1 > /proc/sys/net/ipv4/conf/eth3/rp_filter"
     * Add a new connection of type "ethernet" and options "con-name ethie ifname eth2 ip4 192.168.11.1/24"
     * Add a new connection of type "ethernet" and options "con-name ethie2 ifname eth3 ip4 192.168.11.2/24"
-    When "192.168.11.0/24 dev eth2.*src 192.168.11.1\s+metric 100" is visible with command "ip r" in "5" seconds
-     And "192.168.11.0/24 dev eth3.*src 192.168.11.2\s+metric 100" is visible with command "ip r" in "5" seconds
+    When "192.168.11.0/24 dev eth2.*src 192.168.11.1\s+metric 101" is visible with command "ip r" in "5" seconds
+     And "192.168.11.0/24 dev eth3.*src 192.168.11.2\s+metric 102" is visible with command "ip r" in "5" seconds
     Then "1" is visible with command "cat /proc/sys/net/ipv4/conf/eth2/rp_filter"
      And "2" is visible with command "cat /proc/sys/net/ipv4/conf/eth3/rp_filter"
 
@@ -1498,7 +1543,8 @@ Feature: nmcli: ipv4
     Then "1" is visible with command "cat /proc/sys/net/ipv4/conf/eth2/rp_filter"
      And "0" is visible with command "cat /proc/sys/net/ipv4/conf/eth3/rp_filter"
 
-    @rhbz1394344
+
+    @rhbz1394344 @rhbz1505893
     @ver+=1.9.1
     @ipv4_2 @restore_rp_filters
     @ipv4_rp_filter_do_not_touch
@@ -1507,8 +1553,8 @@ Feature: nmcli: ipv4
     * Execute "echo 0 > /proc/sys/net/ipv4/conf/eth3/rp_filter"
     * Add a new connection of type "ethernet" and options "con-name ethie ifname eth2 ip4 192.168.11.1/24"
     * Add a new connection of type "ethernet" and options "con-name ethie2 ifname eth3 ip4 192.168.11.2/24"
-    When "192.168.11.0/24 dev eth2.*src 192.168.11.1\s+metric 100" is visible with command "ip r" in "5" seconds
-     And "192.168.11.0/24 dev eth3.*src 192.168.11.2\s+metric 100" is visible with command "ip r" in "5" seconds
+    When "192.168.11.0/24 dev eth2.*src 192.168.11.1\s+metric 101" is visible with command "ip r" in "5" seconds
+     And "192.168.11.0/24 dev eth3.*src 192.168.11.2\s+metric 102" is visible with command "ip r" in "5" seconds
     Then "1" is visible with command "cat /proc/sys/net/ipv4/conf/eth2/rp_filter"
      And "0" is visible with command "cat /proc/sys/net/ipv4/conf/eth3/rp_filter"
 
@@ -1531,7 +1577,8 @@ Feature: nmcli: ipv4
     Then "1" is visible with command "cat /proc/sys/net/ipv4/conf/eth2/rp_filter" in "5" seconds
      And "1" is visible with command "cat /proc/sys/net/ipv4/conf/eth3/rp_filter" in "5" seconds
 
-    @rhbz1394344
+
+    @rhbz1394344 @rhbz1505893
     @ver+=1.9.1
     @ipv4_2 @restore_rp_filters
     @ipv4_rp_filter_reset
@@ -1540,8 +1587,8 @@ Feature: nmcli: ipv4
     * Execute "echo 1 > /proc/sys/net/ipv4/conf/eth3/rp_filter"
     * Add a new connection of type "ethernet" and options "con-name ethie ifname eth2 ip4 192.168.11.1/24"
     * Add a new connection of type "ethernet" and options "con-name ethie2 ifname eth3 ip4 192.168.11.2/24"
-    When "192.168.11.0/24 dev eth2.*src 192.168.11.1\s+metric 100" is visible with command "ip r" in "5" seconds
-     And "192.168.11.0/24 dev eth3.*src 192.168.11.2\s+metric 100" is visible with command "ip r" in "5" seconds
+    When "192.168.11.0/24 dev eth2.*src 192.168.11.1\s+metric 101" is visible with command "ip r" in "5" seconds
+     And "192.168.11.0/24 dev eth3.*src 192.168.11.2\s+metric 102" is visible with command "ip r" in "5" seconds
      And "1" is visible with command "cat /proc/sys/net/ipv4/conf/eth2/rp_filter"
      And "2" is visible with command "cat /proc/sys/net/ipv4/conf/eth3/rp_filter"
     * Delete connection "ethie"
