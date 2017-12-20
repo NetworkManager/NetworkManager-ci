@@ -185,6 +185,8 @@ Feature: nmcli: ipv6
     Then "2001::/126 dev eth2\s+proto kernel\s+metric 256" is visible with command "ip -6 route"
     Then "3030::1 via 2001::2 dev eth2\s+proto static\s+metric 1" is visible with command "ip -6 route"
 
+
+    @rhbz1505893
     @ipv6_2 @eth0
     @ver+=1.9.2
     @ipv6_routes_set_basic_route
@@ -207,7 +209,7 @@ Feature: nmcli: ipv6
      * Bring "up" connection "ethie2"
     Then "1010::1 via 2000::1 dev eth1\s+proto static\s+metric 1" is visible with command "ip -6 route" in "5" seconds
     Then "2000::/126 dev eth1\s+proto kernel\s+metric 100" is visible with command "ip -6 route"
-    Then "2001::/126 dev eth2\s+proto kernel\s+metric 100" is visible with command "ip -6 route"
+    Then "2001::/126 dev eth2\s+proto kernel\s+metric 101" is visible with command "ip -6 route"
     Then "3030::1 via 2001::2 dev eth2\s+proto static\s+metric 1" is visible with command "ip -6 route"
 
 
@@ -276,6 +278,8 @@ Feature: nmcli: ipv6
     Then "2001::/126 dev eth2\s+proto kernel\s+metric 256" is visible with command "ip -6 route"
     Then "3030::1 via 2001::2 dev eth2\s+proto static\s+metric 1" is not visible with command "ip -6 route"
 
+
+    @rhbz1505893
     @ipv6_2 @eth0
     @ver+=1.9.2
     @ipv6_routes_remove_basic_route
@@ -311,8 +315,8 @@ Feature: nmcli: ipv6
     Then "2000::2/126" is visible with command "ip a s eth1"
     Then "2001::1/126" is visible with command "ip a s eth2"
     Then "1010::1 via 2000::1 dev eth1\s+proto static\s+metric 1" is not visible with command "ip -6 route"
-    Then "2000::/126 dev eth1\s+proto kernel\s+metric 100" is visible with command "ip -6 route" in "5" seconds
-    Then "2001::/126 dev eth2\s+proto kernel\s+metric 100" is visible with command "ip -6 route"
+    Then "2000::/126 dev eth1\s+proto kernel\s+metric 102" is visible with command "ip -6 route" in "5" seconds
+    Then "2001::/126 dev eth2\s+proto kernel\s+metric 103" is visible with command "ip -6 route"
     Then "3030::1 via 2001::2 dev eth2\s+proto static\s+metric 1" is not visible with command "ip -6 route"
 
 
@@ -333,6 +337,7 @@ Feature: nmcli: ipv6
     Then "3030::1 via 2001::2 dev eth1\s+proto static\s+metric 2" is visible with command "ip -6 route"
     Then "2001::/126 dev eth1\s+proto kernel\s+metric 256" is visible with command "ip -6 route"
     Then "1010::1 dev eth1\s+proto static\s+metric 3" is visible with command "ip -6 route"
+
 
     @ipv6 @eth0
     @ver+=1.9.2
@@ -448,7 +453,6 @@ Feature: nmcli: ipv6
     Then "nameserver 5000::1" is visible with command "cat /etc/resolv.conf"
     Then "nameserver 10." is visible with command "cat /etc/resolv.conf"
 
-#FIXME: this need some tuning as there may be some auto obtained ipv6 dns VVVV
 
     @ipv6 @eth0
     @ipv6_dns_auto_with_more_manually_set

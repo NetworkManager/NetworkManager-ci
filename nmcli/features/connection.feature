@@ -428,6 +428,7 @@ Feature: nmcli: connection
      When "metric 100" is visible with command "ip r |grep default |grep eth0"
      When "metric 101" is visible with command "ip r |grep default |grep eth10"
 
+
     @rhbz663730
     @ver+=1.9.2
     @con @eth @connect_testeth0
@@ -440,7 +441,7 @@ Feature: nmcli: connection
      * Bring "up" connection "ethie"
      * Bring "up" connection "connie"
      When "metric 100" is visible with command "ip r |grep default |grep eth0"
-     When "metric 100" is visible with command "ip r |grep default |grep eth10"
+     When "metric 101" is visible with command "ip r |grep default |grep eth10"
      * Execute "nmcli con modify connie ipv4.route-metric 10"
      * Bring "up" connection "connie"
      When "metric 100" is visible with command "ip r |grep default |grep eth0"
@@ -448,7 +449,7 @@ Feature: nmcli: connection
      * Execute "nmcli con modify connie ipv4.route-metric -1"
      * Bring "up" connection "connie"
      When "metric 100" is visible with command "ip r |grep default |grep eth0"
-     When "metric 100" is visible with command "ip r |grep default |grep eth10"
+     When "metric 101" is visible with command "ip r |grep default |grep eth10"
 
 
     @rhbz663730
