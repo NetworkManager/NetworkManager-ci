@@ -406,7 +406,7 @@ Feature: nmcli - general
     @device_reapply_routes
     Scenario: NM - device - reapply just routes
     * Prepare simulated test "testX" device
-    * Add connection type "ethernet" named "ethie" for device "testX"
+    * Add a new connection of type "ethernet" and options "ifname testX con-name ethie autoconnect no ipv4.may-fail no ipv6.method ignore"
     * Bring "up" connection "ethie"
     * Open editor for connection "ethie"
     * Submit "set ipv4.routes 192.168.5.0/24 192.168.99.111 1" in editor
