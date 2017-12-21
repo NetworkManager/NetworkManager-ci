@@ -1075,7 +1075,7 @@ Feature: nmcli - general
 
 
     @rhbz1254089
-    @teardown_testveth
+    @teardown_testveth @allow_veth_connections
     @allow_wired_connections
     Scenario: NM - general - create Wired connection for veth devices
     * Prepare simulated test "testX" device
@@ -1411,6 +1411,21 @@ Feature: nmcli - general
     * Note the output of "pmap -x $(pidof NetworkManager) |grep 'rw---'" as value "1"
     * Note the output of "pmap -x $(pidof NetworkManager) |grep total | awk '{print $3}'" as value "3"
     * Execute "sh tmp/repro_1433303.sh"
+    * Note the output of "pmap -x $(pidof NetworkManager) |grep 'rw---'" as value "2"
+    * Note the output of "pmap -x $(pidof NetworkManager) |grep total | awk '{print $3}'" as value "4"
+    Then Check RSS writable memory in noted value "2" differs from "1" less than "500"
+    Then Check noted value "4" difference from "3" is lower than "500"
+
+
+    @rhbz1461643
+    @ver+=1.10.0
+    @allow_veth_connections @no_config_server @restart @long
+    @stable_mem_consumption2
+    Scenario: NM - general - stable mem consumption - var 2
+    * Execute "sh tmp/repro_1461643.sh"
+    * Note the output of "pmap -x $(pidof NetworkManager) |grep 'rw---'" as value "1"
+    * Note the output of "pmap -x $(pidof NetworkManager) |grep total | awk '{print $3}'" as value "3"
+    * Execute "sh tmp/repro_1461643.sh"
     * Note the output of "pmap -x $(pidof NetworkManager) |grep 'rw---'" as value "2"
     * Note the output of "pmap -x $(pidof NetworkManager) |grep total | awk '{print $3}'" as value "4"
     Then Check RSS writable memory in noted value "2" differs from "1" less than "500"
