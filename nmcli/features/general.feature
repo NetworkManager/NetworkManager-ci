@@ -1084,8 +1084,8 @@ Feature: nmcli - general
 
 
     @rhbz1182085
-    @ver+=1.4
-    @long @netservice
+    @ver+=1.9
+    @netservice
     @nmcli_general_profile_pickup_doesnt_break_network
     Scenario: nmcli - general - profile pickup does not break network service
     * Add a new connection of type "ethernet" and options "ifname * con-name ethernet0"
