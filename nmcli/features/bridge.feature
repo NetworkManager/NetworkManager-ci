@@ -183,6 +183,7 @@ Feature: nmcli - bridge
     * Add a new connection of type "bridge-slave" and options "autoconnect no ifname eth1.80 master br15"
     Then "BRIDGE=br15" is visible with command "cat /etc/sysconfig/network-scripts/ifcfg-bridge-slave-eth1.80"
 
+
 	@bridge
     @bridge_remove_slave
     Scenario: nmcli - bridge - remove slave
@@ -240,6 +241,29 @@ Feature: nmcli - bridge
     * Bring up connection "br10"
     Then  "br10.*eth1" is visible with command "brctl show"
     Then Disconnect device "br10"
+
+
+    @rhbz1437598
+    @ver+=1.10.0
+    @bridge
+    @bridge_autoconnect_slaves_when_master_reconnected
+    Scenario: nmcli - bridge - start slave upon master reconnection
+    * Add a new connection of type "bridge" and options "con-name br10 ifname br10"
+    * Add a new connection of type "bridge-slave" and options "con-name br10-slave ifname eth2 master br10"
+    * Open editor for connection "br10"
+    * Set a property named "ipv4.method" to "manual" in editor
+    * Set a property named "ipv4.addresses" to "192.168.1.19/24" in editor
+    * Save in editor
+    * Quit editor
+    * Bring "up" connection "br10"
+    When "(connected)" is visible with command "nmcli device show br10" in "10" seconds
+    * Disconnect device "br10"
+    When "disconnected" is visible with command "nmcli device show eth2" in "5" seconds
+     And "(connected)" is not visible with command "nmcli device show br10" in "5" seconds
+    * Bring up connection "br10"
+    Then  "br10.*eth2" is visible with command "brctl show" in "10" seconds
+     And "(connected)" is visible with command "nmcli device show eth2" in "5" seconds
+     And "(connected)" is visible with command "nmcli device show br10" in "5" seconds
 
 
     @bridge
