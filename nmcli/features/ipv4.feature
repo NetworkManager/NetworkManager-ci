@@ -1610,14 +1610,31 @@ Feature: nmcli: ipv4
     Then "10.0.0.1 dev testX" is not visible with command "ip route"
 
 
-     @rhbz1449873
-      @ver+=1.8.0
-      @BBB
-      @ipv4_keep_external_addresses
-      Scenario: NM - ipv4 - keep external addresses
-      * Execute "ip link add BBB type dummy"
-      * Execute "ip link set dev BBB up"
-      * Execute "for i in $(seq 20); do for j in $(seq 200); do ip addr add 10.3.$i.$j/16 dev BBB; done; done"
-      Then "4000" is visible with command "ip addr show dev BBB | grep 'inet 10.3.' -c"
-      * Execute "sleep 6"
-      Then "4000" is visible with command "ip addr show dev BBB | grep 'inet 10.3.' -c"
+    @rhbz1449873
+    @ver+=1.8.0
+    @BBB
+    @ipv4_keep_external_addresses
+    Scenario: NM - ipv4 - keep external addresses
+    * Execute "ip link add BBB type dummy"
+    * Execute "ip link set dev BBB up"
+    * Execute "for i in $(seq 20); do for j in $(seq 200); do ip addr add 10.3.$i.$j/16 dev BBB; done; done"
+    Then "4000" is visible with command "ip addr show dev BBB | grep 'inet 10.3.' -c"
+    * Execute "sleep 6"
+    Then "4000" is visible with command "ip addr show dev BBB | grep 'inet 10.3.' -c"
+
+
+    @rhbz1428334
+    @ver+=1.10.0
+    @ipv4
+    @ipv4_route_onsite
+    Scenario: nmcli - ipv4 - routes - add device route if onsite specified
+    * Add a new connection of type "ethernet" and options "ifname eth1 con-name ethie ipv4.method manual ipv4.addresses 192.168.3.10/24 ipv4.gateway 192.168.3.254"
+    * Execute "echo '10.200.200.2/31 via 172.16.0.254' > /etc/sysconfig/network-scripts/route-ethie"
+    * Execute "nmcli connection reload"
+    * Bring up connection "ethie" ignoring error
+    When "(connected)" is not visible with command "nmcli device show eth1" in "15" seconds
+    * Execute "nmcli connection modify ethie ipv4.routes '10.200.200.2/31 172.16.0.254 111 onlink=true'"
+    * Bring "up" connection "ethie"
+    Then "default via 192.168.3.254 dev eth1 proto static metric 101" is visible with command "ip r"
+     And "10.200.200.2/31 via 172.16.0.254 dev eth1 proto static metric 111 onlink" is visible with command "ip r"
+     And "192.168.3.0/24 dev eth1 proto kernel scope link src 192.168.3.10 metric 101" is visible with command "ip r"
