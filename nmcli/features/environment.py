@@ -329,7 +329,7 @@ def before_scenario(context, scenario):
             if arch != "s390x":
                 sys.exit(0)
 
-        if 'allow_wired_connections' in scenario.tags:
+        if 'allow_veth_connections' in scenario.tags:
             if call("grep '^ENV{ID_NET_DRIVER}==\"veth\", ENV{NM_UNMANAGED}=\"1\"' /usr/lib/udev/rules.d/85-nm-unmanaged.rules", shell=True) == 0:
                 call("sed -i 's/^ENV{ID_NET_DRIVER}==\"veth\", ENV{NM_UNMANAGED}=\"1\"/#ENV{ID_NET_DRIVER}==\"veth\", ENV{NM_UNMANAGED}=\"1\"/' /usr/lib/udev/rules.d/85-nm-unmanaged.rules", shell=True)
                 cfg = Popen("sudo sh -c 'cat > /etc/NetworkManager/conf.d/99-unmanaged.conf'", stdin=PIPE, shell=True).stdin
@@ -861,7 +861,7 @@ def after_scenario(context, scenario):
             print ("deleting connection adsl")
             call("nmcli connection delete id adsl-test11", shell=True)
 
-        if 'allow_wired_connections' in scenario.tags:
+        if 'allow_veth_connections' in scenario.tags:
             if context.revert_unmanaged == True:
                 call("sed -i 's/^#ENV{ID_NET_DRIVER}==\"veth\", ENV{NM_UNMANAGED}=\"1\"/ENV{ID_NET_DRIVER}==\"veth\", ENV{NM_UNMANAGED}=\"1\"/' /usr/lib/udev/rules.d/85-nm-unmanaged.rules", shell=True)
                 call('sudo rm -rf /etc/NetworkManager/conf.d/99-unmanaged.conf', shell=True)
