@@ -93,7 +93,8 @@ bridge_add_slave, ., nmcli/./runtest.sh bridge_add_slave, bridge-utils
 bridge_remove_slave, ., nmcli/./runtest.sh bridge_remove_slave, bridge-utils
 bridge_up_with_slaves, ., nmcli/./runtest.sh bridge_up_with_slaves, bridge-utils
 bridge_up_slave, ., nmcli/./runtest.sh bridge_up_slave, bridge-utils
-bridge_slaves_start_via_master, ., nmcli/./runtest.sh  bridge_slaves_start_via_master ,
+bridge_slaves_start_via_master, ., nmcli/./runtest.sh bridge_slaves_start_via_master ,
+bridge_autoconnect_slaves_when_master_reconnected, ., nmcli/./runtest.sh bridge_autoconnect_slaves_when_master_reconnected ,
 bridge_dhcp_config_with_ethernet_port, ., nmcli/./runtest.sh bridge_dhcp_config_with_ethernet_port, bridge-utils
 bridge_dhcp_config_with_multiple_ethernet_ports, ., nmcli/./runtest.sh bridge_dhcp_config_with_multiple_ethernet_ports, bridge-utils
 bridge_static_config_with_multiple_ethernet_ports, ., nmcli/./runtest.sh bridge_static_config_with_multiple_ethernet_ports, bridge-utils
