@@ -493,6 +493,8 @@ def before_scenario(context, scenario):
             print("turning on network.service")
             context.nm_restarted = True
             call('sudo pkill -9 /sbin/dhclient', shell=True)
+            # Make orig- devices unmanaged as they may be unfunctional
+            call('for dev in $(nmcli  -g DEVICE d |grep orig); do nmcli device set $dev managed off; done', shell=True)
             call('sudo systemctl restart NetworkManager.service', shell=True)
             call('sudo systemctl restart network.service', shell=True)
             call("nmcli connection up testeth0", shell=True)
