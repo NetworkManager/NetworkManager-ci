@@ -1093,7 +1093,7 @@ Feature: nmcli: ipv6
     And "default via fe" is not visible with command "ip -6 r |grep testX |grep expire" in "5" seconds
 
 
-    @ver+=1.7
+    @ver+=1.7 @ver-=1.10.1
     @eth @restart @selinux_allow_ifup @teardown_testveth
     @persistent_default_ipv6_gw
     Scenario: NM - ipv6 - persistent default ipv6 gw
@@ -1111,6 +1111,26 @@ Feature: nmcli: ipv6
     * Restart NM
     Then "default via fe" is visible with command "ip -6 r |grep testX |grep 'metric 1024'" in "50" seconds
     And "default via fe" is not visible with command "ip -6 r |grep testX |grep expire" in "5" seconds
+
+
+    @ver+=1.10.1
+    @eth @restart @selinux_allow_ifup @teardown_testveth
+    @persistent_default_ipv6_gw
+    Scenario: NM - ipv6 - persistent default ipv6 gw
+    * Add a new connection of type "ethernet" and options "ifname testX con-name ethie"
+    * Wait for at least "3" seconds
+    * Execute "systemctl stop NetworkManager"
+    * Prepare simulated test "testX" device
+    * Execute "sysctl net.ipv6.conf.testX.accept_ra_defrtr=1"
+    * Execute "sysctl net.ipv6.conf.testX.accept_ra_pinfo=1"
+    * Execute "ifup testX"
+    * Wait for at least "10" seconds
+    * Execute "ip r del 169.254.0.0/16"
+    When "default" is visible with command "ip -6 r |grep testX" in "20" seconds
+    And "default" is visible with command "ip -6 r |grep testX |grep expire" in "5" seconds
+    * Restart NM
+    Then "default via fe" is visible with command "ip -6 r |grep testX |grep 'metric 1024'" in "50" seconds
+    And "default via fe" is visible with command "ip -6 r |grep testX |grep expire" in "5" seconds
 
 
     @rhbz1274894
