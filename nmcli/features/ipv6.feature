@@ -1307,3 +1307,12 @@ Feature: nmcli: ipv6
     When "0" is visible with command "cat /proc/sys/net/ipv6/conf/festY/disable_ipv6"
     * Rename device "festY" to "testY"
     Then "0" is visible with command "cat /proc/sys/net/ipv6/conf/testY/disable_ipv6"
+
+    @rhbz1462260
+    @ver+=1.10.1
+    @eth1_disconnect
+    @add_ipv6_over_ipv4_configured_ext_device
+    Scenario: NM - ipv6 - add ipv6 to external ipv4 configured device
+    * Execute "ethtool -A eth1 rx on tx on; ip addr flush eth1; ethtool -A eth1 rx off tx off; ip link set eth1 up"
+    * Execute "ip addr add 192.168.100.2/24 dev eth1; ip addr add fe01::1/64 dev eth1"
+    Then "fe01::1" is visible with command "ip a show dev eth1" in "5" seconds
