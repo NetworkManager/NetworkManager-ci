@@ -230,6 +230,7 @@ nmcli_general_finish_dad_without_carrier, ., nmcli/./runtest.sh nmcli_general_fi
 ipv4_dad_not_preventing_ipv6, ., nmcli/./runtest.sh ipv4_dad_not_preventing_ipv6 ,
 ipv6_preserve_cached_routes, ., nmcli/./runtest.sh ipv6_preserve_cached_routes ,
 persistent_ipv6_after_device_rename, ., nmcli/./runtest.sh persistent_ipv6_after_device_rename ,
+add_ipv6_over_ipv4_configured_ext_device, ., nmcli/./runtest.sh add_ipv6_over_ipv4_configured_ext_device ,
 #@ipv6_end
 
 #@ipv4_start
