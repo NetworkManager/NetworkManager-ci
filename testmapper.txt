@@ -159,6 +159,7 @@ team_in_vlan_restart_persistence, ., nmcli/./runtest.sh team_in_vlan_restart_per
 vlan_in_team, ., nmcli/./runtest.sh vlan_in_team ,
 team_leave_L2_only_up_when_going_down, ., nmcli/./runtest.sh team_leave_L2_only_up_when_going_down ,
 team_add_into_firewall_zone, ., nmcli/./runtest.sh team_add_into_firewall_zone ,
+reconnect_back_to_ethernet_after_master_delete, ., nmcli/./runtest.sh reconnect_back_to_ethernet_after_master_delete ,
 #@team_end
 
 #@ipv6_start

@@ -796,3 +796,17 @@
     When "public\s+interfaces: eth0 nm-team" is visible with command "firewall-cmd --get-active-zones"
     * Execute "nmcli connection modify team0 connection.zone work"
     When "work\s+interfaces: nm-team" is visible with command "firewall-cmd --get-active-zones"
+
+
+    @rhbz1310676
+    @ver+=1.10
+    @team_slaves @team @ethernet
+    @reconnect_back_to_ethernet_after_master_delete
+    Scenario: nmcli - team - reconnect ethernet when master deleted
+     * Add a new connection of type "ethernet" and options "ifname eth1 con-name ethernet"
+     * Add connection type "team" named "team0" for device "nm-team"
+     * Add slave connection for master "nm-team" on device "eth1" named "team0.0"
+     * Bring "up" connection "team0.0"
+    When Check slave "eth1" in team "nm-team" is "up"
+    * Delete connection "team0"
+    Then "eth1:connected:ethernet" is visible with command "nmcli -t -f DEVICE,STATE,CONNECTION device" in "20" seconds
