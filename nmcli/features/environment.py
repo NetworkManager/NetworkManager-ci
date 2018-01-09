@@ -154,17 +154,18 @@ def delete_old_lock(dir, lock):
 def restore_testeth0():
     call("nmcli con delete testeth0 2>&1 > /dev/null", shell=True)
     call("yes 2>/dev/null | cp -rf /tmp/testeth0 /etc/sysconfig/network-scripts/ifcfg-testeth0", shell=True)
+    sleep(1)
     call("nmcli con reload", shell=True)
     sleep(1)
     call("nmcli con up testeth0", shell=True)
     sleep(2)
 
 def wait_for_testeth0():
-    counter=20
+    counter=40
     while call("nmcli connection show testeth0 |grep IP4.ADDRESS > /dev/null", shell=True) != 0:
         sleep(1)
         counter-=1
-        if counter == 10:
+        if counter == 20:
             restore_testeth0()
         if counter == 0:
             print ("Testeth0 cannot be upped..this is wrong")
