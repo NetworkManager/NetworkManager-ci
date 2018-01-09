@@ -535,6 +535,16 @@ Feature: nmcli - ethernet
     Then "ethie" is visible with command "nmcli con"
 
 
+    @rhbz1374660
+    @ver+=1.10
+    @eth
+    @preserve_8021x_leap_con
+    Scenario: nmcli - ethernet - preserve 8021x leap connection
+    * Add a new connection of type "ethernet" and options "ifname eth1 con-name ethie 802-1x.identity jdoe 802-1x.eap leap"
+    * Execute "nmcli con reload"
+    Then "ethie" is visible with command "nmcli con"
+
+
     @openvswitch
     @openvswitch_interface_recognized
     Scenario: nmcli - ethernet - openvswitch interface recognized
