@@ -1486,7 +1486,7 @@ def prepare_simdev_no_carrier(context, device):
     command_code(context, "ip netns exec {device}_ns ip -6 addr add {ip}::1/64 dev {device}_bridge".format(device=device, ip=ipv6))
     command_code(context, "ip netns exec {device}_ns ip link set {device}_bridge up".format(device=device))
     command_code(context, "ip netns exec {device}_ns ip link set {device}p down".format(device=device))
-    sleep(2)
+    sleep(3)
     command_code(context, "ip netns exec {device}_ns dnsmasq \
                                             --pid-file=/tmp/{device}_ns.pid \
                                             --dhcp-leasefile=/tmp/{device}_ns.lease \
@@ -1498,7 +1498,7 @@ def prepare_simdev_no_carrier(context, device):
     if not hasattr(context, 'testvethns'):
         context.testvethns = []
     context.testvethns.append("%s_ns" % device)
-    sleep(1)
+    sleep(2)
 
 
 @step(u'Print in editor')
