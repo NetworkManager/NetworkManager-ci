@@ -1030,7 +1030,7 @@ Feature: nmcli - general
 
 
     @rhbz1160013
-    @eth
+    @eth_down_and_delete @need_dispatcher_scripts
     @policy_based_routing
     Scenario: NM - general - policy based routing
     * Add a new connection of type "ethernet" and options "ifname eth1 con-name ethie"
@@ -1044,6 +1044,22 @@ Feature: nmcli - general
     * Bring "down" connection "ethie"
     Then "32764:\s+from 192.168.100..* lookup 1.*32765:\s+from all iif eth1 lookup 1" is not visible with command "ip rule"
     Then "default via 192.168.100.1 dev eth1" is not visible with command "ip r s table 1"
+
+
+    @rhbz1384799
+    @ver+=1.10
+    @eth_down_and_delete @need_dispatcher_scripts @allow_wired_connections
+    @modify_policy_based_routing_connection
+    Scenario: NM - general - modify policy based routing connection
+    * Prepare simulated test "testX" device
+    * Add a new connection of type "ethernet" and options "ifname testX con-name ethie autoconnect no"
+    * Bring "up" connection "ethie"
+    * Create PBR files for profile "ethie" and "testX" device in table "1"
+    * Modify connection "ethie" changing options "connection.autoconnect yes ipv6.method ignore"
+    * Reboot
+    Then "32764:\s+from 192.168.99.* lookup 1.*32765:\s+from all iif testX lookup 1" is visible with command "ip rule" in "20" seconds
+     And "default via 192.168.99.1 dev testX" is visible with command "ip r s table 1" in "20" seconds
+     And "2620" is not visible with command "ip a s testX" in "10" seconds
 
 
     @rhbz1262972

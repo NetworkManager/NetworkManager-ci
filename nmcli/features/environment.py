@@ -458,7 +458,7 @@ def before_scenario(context, scenario):
             print ("disconnecting eth1 device")
             call('sudo nmcli device disconnect eth1', shell=True)
 
-        if 'policy_based_routing' in scenario.tags:
+        if 'need_dispatcher_scripts' in scenario.tags:
             print ("---------------------------")
             print ("install dispatcher scripts")
             wait_for_testeth0()
@@ -970,7 +970,12 @@ def after_scenario(context, scenario):
             print ("deleting ethie")
             call("nmcli connection delete id ethie", shell=True)
             call("rm -rf /etc/sysconfig/network-scripts/ifcfg-ethie*", shell=True)
-            #sleep(TIMER)
+
+        if 'eth_down_and_delete' in scenario.tags:
+            print ("---------------------------")
+            print ("deleting ethie")
+            call("nmcli connection down id ethie", shell=True)
+            call("nmcli connection delete id ethie", shell=True)
 
         if 'firewall' in scenario.tags:
             print ("---------------------------")
@@ -1539,13 +1544,14 @@ def after_scenario(context, scenario):
             print ("killing dbus-monitor")
             call('pkill -9 dbus-monitor', shell=True)
 
-        if 'policy_based_routing' in scenario.tags:
+        if 'need_dispatcher_scripts' in scenario.tags:
             print ("---------------------------")
             print ("remove dispatcher scripts")
             wait_for_testeth0()
             call("yum -y remove NetworkManager-config-routing-rules ", shell=True)
             call("rm -rf /etc/sysconfig/network-scripts/rule-ethie", shell=True)
             call('rm -rf /etc/sysconfig/network-scripts/route-ethie', shell=True)
+            call('ip rule del table 1; ip rule del table 1', shell=True)
 
         if 'pppoe' in scenario.tags:
             print ("---------------------------")
