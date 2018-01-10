@@ -443,6 +443,23 @@
     Then Check slave "eth2" in team "nm-team" is "up"
 
 
+    @rhbz149733
+    @ver+=1.10
+    @team_slaves @team @not_on_veth
+    @config_lacp
+    Scenario: nmcli - team - config - set lacp mode
+     * Add a new connection of type "team" and options "con-name team0 ifname nm-team config '{"runner":{"name": "lacp"}}' ipv4.method manual ipv4.address 10.0.0.1/24"
+     * Add slave connection for master "nm-team" on device "eth1" named "team-slave-eth1"
+     * Add slave connection for master "nm-team" on device "eth2" named "team-slave-eth2"
+     * Restart NM
+    Then "\"kernel_team_mode_name\": \"loadbalance\"" is visible with command "sudo teamdctl nm-team state dump"
+     And "\"runner_name\": \"lacp\"" is visible with command "sudo teamdctl nm-team state dump"
+     And Check slave "eth1" in team "nm-team" is "up"
+     And Check slave "eth2" in team "nm-team" is "up"
+     And "1" is visible with command "nmcli device |grep team0 |wc -l"
+
+
+
     @ver-=1.7.0
     @team_slaves @team @clean @long
     @config_invalid
