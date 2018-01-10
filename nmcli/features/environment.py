@@ -347,7 +347,7 @@ def before_scenario(context, scenario):
             if call("grep dhcp=internal /etc/NetworkManager/NetworkManager.conf", shell=True) == 0:
                 sys.exit(0)
 
-        if 'newveth' in scenario.tags:
+        if 'newveth' in scenario.tags or 'not_on_veth' in scenario.tags:
             if os.path.isfile('/tmp/nm_newveth_configured'):
                 sys.exit(0)
 
