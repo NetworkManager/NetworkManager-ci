@@ -1443,6 +1443,20 @@ Feature: nmcli - general
     Then "1.2.3.4/24" is visible with command "ip a s BBB | grep inet"
 
 
+    @rhbz1527197
+    @ver+=1.10.1
+    @BBB
+    @dummy_with_qdisc
+    Scenario: NM - general - create dummy with qdisc
+    * Add a new connection of type "dummy" and options "ifname BBB con-name BBB ipv4.method link-local ipv6.method link-local"
+    * Bring up connection "BBB"
+    * Bring up connection "BBB"
+    * Bring up connection "BBB"
+    * Execute "tc qdisc add dev BBB root handle 1234 fq_codel"
+    * Bring up connection "BBB"
+    Then "dummy" is visible with command "ip -d l show BBB | grep dummy"
+
+
     @rhbz1337997
     @ver+=1.6.0
     @macsec @not_on_aarch64_but_pegas
