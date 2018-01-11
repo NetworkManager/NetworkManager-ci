@@ -1048,7 +1048,7 @@ Feature: nmcli - general
 
     @rhbz1384799
     @ver+=1.10
-    @eth_down_and_delete @need_dispatcher_scripts @allow_wired_connections
+    @eth_down_and_delete @need_dispatcher_scripts
     @modify_policy_based_routing_connection
     Scenario: NM - general - modify policy based routing connection
     * Prepare simulated test "testX" device
