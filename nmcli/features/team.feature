@@ -841,19 +841,24 @@
      And Check slave "eth1" in team "nm-team" is "up"
     * Execute "nmcli connection modify team0 team.runner broadcast"
     * Bring "up" connection "team0"
-    Then "\"kernel_team_mode_name\": \"broadcast\"" is visible with command "sudo teamdctl nm-team state dump"
+    Then "{\"runner\": {\"name\": \"broadcast\"}}" is visible with command "nmcli connection show team0 |grep 'team.config'"
+     And "\"kernel_team_mode_name\": \"broadcast\"" is visible with command "sudo teamdctl nm-team state dump"
      And Check slave "eth1" in team "nm-team" is "up"
     * Execute "nmcli connection modify team0 team.runner activebackup"
     * Bring "up" connection "team0"
     Then "\"kernel_team_mode_name\": \"activebackup\"" is visible with command "sudo teamdctl nm-team state dump"
+     And "{\"runner\": {\"name\": \"activebackup\"}}" is visible with command "nmcli connection show team0 |grep 'team.config'"
      And Check slave "eth1" in team "nm-team" is "up"
     * Execute "nmcli connection modify team0 team.runner loadbalance"
     * Bring "up" connection "team0"
     Then "\"kernel_team_mode_name\": \"loadbalance\"" is visible with command "sudo teamdctl nm-team state dump"
+    # And "{\"runner\": {\"name\": \"loadbalance\", \"tx_hash\": [\"eth\", \"ipv4\", \"ipv6\"]}}"
+     And "{\"runner\": {\"name\": \"loadbalance\", \"tx_hash\": \[\"eth\", \"ipv4\", \"ipv6\"\]}}" is visible with command "nmcli connection show team0 |grep 'team.config'"
      And Check slave "eth1" in team "nm-team" is "up"
     * Execute "nmcli connection modify team0 team.runner lacp"
     * Bring "up" connection "team0"
     Then "\"kernel_team_mode_name\": \"loadbalance\"" is visible with command "sudo teamdctl nm-team state dump"
+     And "{\"runner\": {\"name\": \"lacp\", \"tx_hash\": \[\"eth\", \"ipv4\", \"ipv6\"\]}}" is visible with command "nmcli connection show team0 |grep 'team.config'"
 
 
     @rhbz1398925
@@ -876,6 +881,7 @@
     Then Check noted values "team" and "team1" are the same
      And Check noted values "team" and "eth1" are the same
      And Check noted values "team" and "team2" are not the same
+     And "by_active" is visible with command "nmcli connection show team0 |grep 'team.runner-hwaddr-policy'"
     * Bring "down" connection "team0"
     * Execute "nmcli connection modify team0 team.runner activebackup team.runner-hwaddr-policy only_active"
     * Bring "up" connection "team0"
@@ -888,6 +894,7 @@
     * Bring "down" connection "team0.0"
     * Note the output of "ip a s eth2|grep ether |awk '{print $2}'" as value "team2"
     Then Check noted values "team" and "team2" are the same
+     And "only_active" is visible with command "nmcli connection show team0 |grep 'team.runner-hwaddr-policy'"
     * Bring "down" connection "team0"
     * Execute "nmcli connection modify team0 team.runner activebackup team.runner-hwaddr-policy same_all"
     * Bring "up" connection "team0"
@@ -913,9 +920,11 @@
     * Add slave connection for master "nm-team" on device "eth1" named "team0.0"
     * Bring "up" connection "team0"
     When "\"tx_hash\": \[\s+\"eth\",\s+\"ipv4\",\s+\"ipv6\"\s+\]" is visible with command "teamdctl nm-team conf dump"
+     And "{\"runner\": {\"name\": \"lacp\", \"tx_hash\": \[\"eth\", \"ipv4\", \"ipv6\"\]}}" is visible with command "nmcli connection show team0 |grep 'team.config'"
     * Execute "nmcli connection modify team0 team.runner-tx-hash l3"
     * Bring "up" connection "team0"
     Then "\"tx_hash\": \[\s+\"l3\"\s+\]" is visible with command "teamdctl nm-team conf dump"
+     And "{\"runner\": {\"name\": \"lacp\", \"tx_hash\": \[\"l3\"\]}}" is visible with command "nmcli connection show team0 |grep 'team.config'"
 
 
     @rhbz1398925
@@ -930,6 +939,7 @@
     * Execute "nmcli connection modify team0 team.runner-tx-balancer basic"
     * Bring "up" connection "team0"
     Then "\"name\": \"basic\"" is visible with command "teamdctl nm-team conf dump"
+     And "\"tx_balancer\": {\"name\": \"basic\"}" is visible with command "nmcli connection show team0 |grep 'team.config'"
 
 
     @rhbz1398925
@@ -944,6 +954,7 @@
     * Execute "nmcli connection modify team0 team.runner-tx-balancer-interval 100"
     * Bring "up" connection "team0"
     Then "\"balancing_interval\": 100" is visible with command "teamdctl nm-team conf dump"
+     And "\"tx_balancer\": {\"balancing_interval\": 100}" is visible with command "nmcli connection show team0 |grep 'team.config'"
 
 
     @rhbz1398925
@@ -958,6 +969,7 @@
     * Execute "nmcli connection modify team0 team.runner-active no"
     * Bring "up" connection "team0"
     Then "\"active\": false" is visible with command "sudo teamdctl nm-team state dump"
+     And "\"active\": false" is visible with command "nmcli connection show team0 |grep 'team.config'"
 
 
     @rhbz1398925
@@ -969,6 +981,8 @@
     * Add slave connection for master "nm-team" on device "eth1" named "team0.0"
     * Bring "up" connection "team0"
     When "\"fast_rate\": true" is visible with command "sudo teamdctl nm-team state dump"
+     And "\"fast_rate\": true" is visible with command "nmcli connection show team0 |grep 'team.config'"
     * Execute "nmcli connection modify team0 team.runner-fast-rate no"
     * Bring "up" connection "team0"
     Then "\"fast_rate\": false" is visible with command "sudo teamdctl nm-team state dump"
+     And "\"fast_rate\": true" is not visible with command "nmcli connection show team0 |grep 'team.config'"
