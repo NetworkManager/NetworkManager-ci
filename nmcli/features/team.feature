@@ -827,3 +827,148 @@
     When Check slave "eth1" in team "nm-team" is "up"
     * Delete connection "team0"
     Then "eth1:connected:ethernet" is visible with command "nmcli -t -f DEVICE,STATE,CONNECTION device" in "20" seconds
+
+
+    @rhbz1398925
+    @ver+=1.10
+    @team_slaves @team
+    @team_abs_set_runners
+    Scenario: nmcli - team_abs - set runners
+    * Add a new connection of type "team" and options "con-name team0 ifname nm-team autoconnect no connection.autoconnect-slaves yes"
+    * Add slave connection for master "nm-team" on device "eth1" named "team0.0"
+    * Bring "up" connection "team0"
+    Then "\"kernel_team_mode_name\": \"roundrobin\"" is visible with command "sudo teamdctl nm-team state dump"
+     And Check slave "eth1" in team "nm-team" is "up"
+    * Execute "nmcli connection modify team0 team.runner broadcast"
+    * Bring "up" connection "team0"
+    Then "\"kernel_team_mode_name\": \"broadcast\"" is visible with command "sudo teamdctl nm-team state dump"
+     And Check slave "eth1" in team "nm-team" is "up"
+    * Execute "nmcli connection modify team0 team.runner activebackup"
+    * Bring "up" connection "team0"
+    Then "\"kernel_team_mode_name\": \"activebackup\"" is visible with command "sudo teamdctl nm-team state dump"
+     And Check slave "eth1" in team "nm-team" is "up"
+    * Execute "nmcli connection modify team0 team.runner loadbalance"
+    * Bring "up" connection "team0"
+    Then "\"kernel_team_mode_name\": \"loadbalance\"" is visible with command "sudo teamdctl nm-team state dump"
+     And Check slave "eth1" in team "nm-team" is "up"
+    * Execute "nmcli connection modify team0 team.runner lacp"
+    * Bring "up" connection "team0"
+    Then "\"kernel_team_mode_name\": \"loadbalance\"" is visible with command "sudo teamdctl nm-team state dump"
+
+
+    @rhbz1398925
+    @ver+=1.10
+    @team_slaves @team
+    @team_abs_set_runner_hwaddr_policy
+    Scenario: nmcli - team_abs - set runners hwadd policy
+    * Note the output of "ip a s eth1|grep ether |awk '{print $2}'" as value "eth1"
+    * Note the output of "ip a s eth2|grep ether |awk '{print $2}'" as value "eth2"
+    * Add a new connection of type "team" and options "con-name team0 ifname nm-team autoconnect no connection.autoconnect-slaves yes"
+    * Add a new connection of type "team-slave" and options "con-name team0.0 ifname eth1 master nm-team autoconnect no"
+    * Add a new connection of type "team-slave" and options "con-name team0.1 ifname eth2 master nm-team autoconnect no"
+    * Execute "nmcli connection modify team0 team.runner activebackup team.runner-hwaddr-policy by_active"
+    * Bring "up" connection "team0"
+    * Bring "up" connection "team0.0"
+    * Bring "up" connection "team0.1"
+    * Note the output of "ip a s nm-team|grep ether |awk '{print $2}'" as value "team"
+    * Note the output of "ip a s eth1|grep ether |awk '{print $2}'" as value "team1"
+    * Note the output of "ip a s eth2|grep ether |awk '{print $2}'" as value "team2"
+    Then Check noted values "team" and "team1" are the same
+     And Check noted values "team" and "eth1" are the same
+     And Check noted values "team" and "team2" are not the same
+    * Bring "down" connection "team0"
+    * Execute "nmcli connection modify team0 team.runner activebackup team.runner-hwaddr-policy only_active"
+    * Bring "up" connection "team0"
+    * Bring "up" connection "team0.0"
+    * Bring "up" connection "team0.1"
+    * Note the output of "ip a s nm-team|grep ether |awk '{print $2}'" as value "team"
+    * Note the output of "ip a s eth1|grep ether |awk '{print $2}'" as value "team1"
+    * Note the output of "ip a s eth2|grep ether |awk '{print $2}'" as value "team2"
+    When Check noted values "team" and "team2" are not the same
+    * Bring "down" connection "team0.0"
+    * Note the output of "ip a s eth2|grep ether |awk '{print $2}'" as value "team2"
+    Then Check noted values "team" and "team2" are the same
+    * Bring "down" connection "team0"
+    * Execute "nmcli connection modify team0 team.runner activebackup team.runner-hwaddr-policy same_all"
+    * Bring "up" connection "team0"
+    * Bring "up" connection "team0.0"
+    * Bring "up" connection "team0.1"
+    * Note the output of "ip a s nm-team|grep ether |awk '{print $2}'" as value "team"
+    * Note the output of "ip a s eth1|grep ether |awk '{print $2}'" as value "team1"
+    * Note the output of "ip a s eth2|grep ether |awk '{print $2}'" as value "team2"
+    Then Check noted values "team" and "team1" are the same
+     And Check noted values "team1" and "team2" are the same
+     And Check noted values "eth1" and "team" are the same
+    * Bring "down" connection "team0.0"
+    * Note the output of "ip a s eth2|grep ether |awk '{print $2}'" as value "team2"
+    Then Check noted values "team" and "team2" are the same
+
+
+    @rhbz1398925
+    @ver+=1.10
+    @team_slaves @team
+    @team_abs_set_runner_tx_hash
+    Scenario: nmcli - team_abs - set runner tx-hash
+    * Add a new connection of type "team" and options "con-name team0 ifname nm-team autoconnect no team.runner lacp connection.autoconnect-slaves yes"
+    * Add slave connection for master "nm-team" on device "eth1" named "team0.0"
+    * Bring "up" connection "team0"
+    When "\"tx_hash\": \[\s+\"eth\",\s+\"ipv4\",\s+\"ipv6\"\s+\]" is visible with command "teamdctl nm-team conf dump"
+    * Execute "nmcli connection modify team0 team.runner-tx-hash l3"
+    * Bring "up" connection "team0"
+    Then "\"tx_hash\": \[\s+\"l3\"\s+\]" is visible with command "teamdctl nm-team conf dump"
+
+
+    @rhbz1398925
+    @ver+=1.10
+    @team_slaves @team
+    @team_abs_set_runner_tx_balancer
+    Scenario: nmcli - team_abs - set runner tx-balancer
+    * Add a new connection of type "team" and options "con-name team0 ifname nm-team autoconnect no team.runner lacp connection.autoconnect-slaves yes"
+    * Add slave connection for master "nm-team" on device "eth1" named "team0.0"
+    * Bring "up" connection "team0"
+    When "\"name\": \"basic\"" is not visible with command "teamdctl nm-team conf dump"
+    * Execute "nmcli connection modify team0 team.runner-tx-balancer basic"
+    * Bring "up" connection "team0"
+    Then "\"name\": \"basic\"" is visible with command "teamdctl nm-team conf dump"
+
+
+    @rhbz1398925
+    @ver+=1.10
+    @team_slaves @team
+    @team_abs_set_runner_tx_balancer_interval
+    Scenario: nmcli - team_abs - set runner tx-balancer-interval
+    * Add a new connection of type "team" and options "con-name team0 ifname nm-team autoconnect no team.runner lacp connection.autoconnect-slaves yes"
+    * Add slave connection for master "nm-team" on device "eth1" named "team0.0"
+    * Bring "up" connection "team0"
+    When "\"balancing-interval\"" is not visible with command "teamdctl nm-team conf dump"
+    * Execute "nmcli connection modify team0 team.runner-tx-balancer-interval 100"
+    * Bring "up" connection "team0"
+    Then "\"balancing_interval\": 100" is visible with command "teamdctl nm-team conf dump"
+
+
+    @rhbz1398925
+    @ver+=1.10
+    @team_slaves @team
+    @team_abs_set_runner_active
+    Scenario: nmcli - team_abs - set runner active
+    * Add a new connection of type "team" and options "con-name team0 ifname nm-team autoconnect no team.runner lacp connection.autoconnect-slaves yes"
+    * Add slave connection for master "nm-team" on device "eth1" named "team0.0"
+    * Bring "up" connection "team0"
+    When "\"active\": true" is visible with command "sudo teamdctl nm-team state dump"
+    * Execute "nmcli connection modify team0 team.runner-active no"
+    * Bring "up" connection "team0"
+    Then "\"active\": false" is visible with command "sudo teamdctl nm-team state dump"
+
+
+    @rhbz1398925
+    @ver+=1.10
+    @team_slaves @team
+    @team_abs_set_runner_fast_rate
+    Scenario: nmcli - team_abs - set runner fast-rate
+    * Add a new connection of type "team" and options "con-name team0 ifname nm-team autoconnect no team.runner lacp team.runner-fast-rate yes connection.autoconnect-slaves yes"
+    * Add slave connection for master "nm-team" on device "eth1" named "team0.0"
+    * Bring "up" connection "team0"
+    When "\"fast_rate\": true" is visible with command "sudo teamdctl nm-team state dump"
+    * Execute "nmcli connection modify team0 team.runner-fast-rate no"
+    * Bring "up" connection "team0"
+    Then "\"fast_rate\": false" is visible with command "sudo teamdctl nm-team state dump"

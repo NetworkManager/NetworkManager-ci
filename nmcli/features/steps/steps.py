@@ -365,6 +365,12 @@ def check_same_noted_values(context, i1, i2):
      "Noted values: %s != %s !" % (context.noted[i1].strip(), context.noted[i2].strip())
 
 
+@step(u'Check noted values "{i1}" and "{i2}" are not the same')
+def check_same_noted_values(context, i1, i2):
+    assert context.noted[i1].strip() != context.noted[i2].strip(), \
+     "Noted values: %s == %s !" % (context.noted[i1].strip(), context.noted[i2].strip())
+
+
 @step(u'Check noted output contains "{pattern}"')
 def check_noted_output_contains(context, pattern):
     assert re.search(pattern, context.noted_value) is not None, "Noted output does not contain the pattern %s" % pattern
