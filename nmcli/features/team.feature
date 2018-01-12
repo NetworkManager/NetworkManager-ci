@@ -896,7 +896,8 @@
     Then Check noted values "team" and "team2" are the same
      And "only_active" is visible with command "nmcli connection show team0 |grep 'team.runner-hwaddr-policy'"
     * Bring "down" connection "team0"
-    * Execute "nmcli connection modify team0 team.runner activebackup team.runner-hwaddr-policy same_all"
+    # Resetting back to default
+    * Execute "nmcli connection modify team0 team.runner activebackup"
     * Bring "up" connection "team0"
     * Bring "up" connection "team0.0"
     * Bring "up" connection "team0.1"
@@ -986,3 +987,121 @@
     * Bring "up" connection "team0"
     Then "\"fast_rate\": false" is visible with command "sudo teamdctl nm-team state dump"
      And "\"fast_rate\": true" is not visible with command "nmcli connection show team0 |grep 'team.config'"
+
+
+    @rhbz1398925
+    @ver+=1.10
+    @team_slaves @team
+    @team_abs_set_runner_sys_prio
+    Scenario: nmcli - team_abs - set runner sys_prio
+    * Add a new connection of type "team" and options "con-name team0 ifname nm-team autoconnect no team.runner lacp yes connection.autoconnect-slaves yes"
+    * Add slave connection for master "nm-team" on device "eth1" named "team0.0"
+    * Bring "up" connection "team0"
+    When "\"sys_prio\": 65535" is visible with command "sudo teamdctl nm-team state dump"
+     #And "65535 (default)" is visible with command "nmcli connection show team0 |grep 'team.runner-sys-prio'"
+    * Execute "nmcli connection modify team0 team.runner-sys-prio 200"
+    * Bring "up" connection "team0"
+    When "\"sys_prio\": 200" is visible with command "sudo teamdctl nm-team state dump"
+     And "200" is visible with command "nmcli connection show team0 |grep 'team.runner-sys-prio'"
+    # This need to be fixed in 1533810
+    #* Execute "nmcli connection modify team0 team.runner-sys-prio"
+    #* Bring "up" connection "team0"
+    #When "\"sys_prio\": 200" is visible with command "sudo teamdctl nm-team state dump"
+     #And "65535 (default)" is visible with command "nmcli connection show team0 |grep 'team.runner-sys-prio'"
+
+
+    @rhbz1398925
+    @ver+=1.10
+    @team_slaves @team
+    @team_abs_set_runner_min_ports
+    Scenario: nmcli - team_abs - set runner min_ports
+    * Add a new connection of type "team" and options "con-name team0 ifname nm-team autoconnect no ip4 1.2.3.4/24 team.runner lacp team.runner-min-ports 2"
+    * Add slave connection for master "nm-team" on device "eth1" named "team0.0"
+    * Bring "up" connection "team0"
+    * Bring "up" connection "team0.0"
+    When "\"min_ports\": 2" is visible with command "teamdctl nm-team conf dump"
+    * Execute "nmcli connection modify team0 team.runner-min-ports ''"
+    * Bring "up" connection "team0"
+    Then "min_ports" is not visible with command "teamdctl nm-team conf dump"
+
+
+    @rhbz1398925
+    @ver+=1.10
+    @team_slaves @team
+    @team_abs_set_runner_agg_select_policy
+    Scenario: nmcli - team_abs - set runner agg-select-policy
+    * Add a new connection of type "team" and options "con-name team0 ifname nm-team autoconnect no team.runner lacp connection.autoconnect-slaves yes"
+    * Add slave connection for master "nm-team" on device "eth1" named "team0.0"
+    * Bring "up" connection "team0"
+    When "\"select_policy\": \"lacp_prio\"" is visible with command "sudo teamdctl nm-team state dump"
+     And "agg_select_policy" is not visible with command "nmcli connection show team0 |grep 'team.config'"
+    * Execute "nmcli connection modify team0 team.runner-agg-select-policy lacp_prio_stable"
+    * Bring "up" connection "team0"
+    When "\"select_policy\": \"lacp_prio_stable\"" is visible with command "sudo teamdctl nm-team state dump"
+     And "\"agg_select_policy\": \"lacp_prio_stable\"" is visible with command "nmcli connection show team0 |grep 'team.config'"
+    * Execute "nmcli connection modify team0 team.runner-agg-select-policy bandwidth"
+    * Bring "up" connection "team0"
+    When "\"select_policy\": \"bandwidth\"" is visible with command "sudo teamdctl nm-team state dump"
+     And "\"agg_select_policy\": \"bandwidth\"" is visible with command "nmcli connection show team0 |grep 'team.config'"
+    * Execute "nmcli connection modify team0 team.runner-agg-select-policy count"
+    * Bring "up" connection "team0"
+    When "\"select_policy\": \"count\"" is visible with command "sudo teamdctl nm-team state dump"
+     And "\"agg_select_policy\": \"count\"" is visible with command "nmcli connection show team0 |grep 'team.config'"
+    * Execute "nmcli connection modify team0 team.runner-agg-select-policy port_config"
+    * Bring "up" connection "team0"
+    Then "\"select_policy\": \"port_config\"" is visible with command "sudo teamdctl nm-team state dump"
+     And "\"agg_select_policy\": \"port_config\"" is visible with command "nmcli connection show team0 |grep 'team.config'"
+
+
+    @rhbz1398925
+    @ver+=1.10
+    @team_slaves @team
+    @team_abs_set_notify_peers
+    Scenario: nmcli - team_abs - set notify_peers
+    * Add a new connection of type "team" and options "con-name team0 ifname nm-team autoconnect no ip4 1.2.3.4/24 team.runner lacp"
+    * Add slave connection for master "nm-team" on device "eth1" named "team0.0"
+    * Bring "up" connection "team0"
+    * Bring "up" connection "team0.0"
+    When "notify_peers" is not visible with command "teamdctl nm-team conf dump"
+     And "notify_peers" is not visible with command "nmcli connection show team0 |grep 'team.config'"
+     And "0 \(disabled\)" is visible with command "nmcli connection show team0 |grep 'team.notify-peers-count'"
+     And "0 \(default\)" is visible with command "nmcli connection show team0 |grep 'team.notify-peers-interval'"
+    * Execute "nmcli connection modify team0 team.runner activebackup"
+    * Bring "up" connection "team0"
+    When "\"notify_peers\": {\s+\"count\": 1" is visible with command "teamdctl nm-team conf dump"
+     And "notify_peers" is not visible with command "nmcli connection show team0 |grep 'team.config'"
+     And "1" is visible with command "nmcli connection show team0 |grep 'team.notify-peers-count'"
+     And "0 \(default\)" is visible with command "nmcli connection show team0 |grep 'team.notify-peers-interval'"
+    * Execute "nmcli connection modify team0 team.notify-peers-count 2 team.notify-peers-interval 20"
+    * Bring "up" connection "team0"
+    Then "\"notify_peers\": {\s+\"count\": 2,\s+\"interval\": 20" is visible with command "teamdctl nm-team conf dump"
+     And "notify_peers" is visible with command "nmcli connection show team0 |grep 'team.config'"
+     And "2" is visible with command "nmcli connection show team0 |grep 'team.notify-peers-count'"
+     And "20" is visible with command "nmcli connection show team0 |grep 'team.notify-peers-interval'"
+
+
+    @rhbz1398925
+    @ver+=1.10
+    @team_slaves @team
+    @team_abs_set_mcast_rejoin
+    Scenario: nmcli - team_abs - set mcast_rejoin
+    * Add a new connection of type "team" and options "con-name team0 ifname nm-team autoconnect no ip4 1.2.3.4/24 team.runner lacp"
+    * Add slave connection for master "nm-team" on device "eth1" named "team0.0"
+    * Bring "up" connection "team0"
+    * Bring "up" connection "team0.0"
+    When "mcast_rejoin" is not visible with command "teamdctl nm-team conf dump"
+     And "mcast_rejoin" is not visible with command "nmcli connection show team0 |grep 'team.config'"
+     And "0 \(disabled\)" is visible with command "nmcli connection show team0 |grep 'team.mcast-rejoin-count'"
+     And "0 \(default\)" is visible with command "nmcli connection show team0 |grep 'team.mcast-rejoin-interval'"
+    * Execute "nmcli connection modify team0 team.runner activebackup"
+    * Bring "up" connection "team0"
+    When "\"mcast_rejoin\": {\s+\"count\": 1" is visible with command "teamdctl nm-team conf dump"
+     And "mcast_rejoin" is not visible with command "nmcli connection show team0 |grep 'team.config'"
+     And "1" is visible with command "nmcli connection show team0 |grep 'team.mcast-rejoin-count'"
+     And "0 \(default\)" is visible with command "nmcli connection show team0 |grep 'team.mcast-rejoin-interval'"
+    * Execute "nmcli connection modify team0 team.mcast-rejoin-count 2 team.mcast-rejoin-interval 20"
+    * Bring "up" connection "team0"
+    Then "\"mcast_rejoin\": {\s+\"count\": 2,\s+\"interval\": 20" is visible with command "teamdctl nm-team conf dump"
+     And "mcast_rejoin" is visible with command "nmcli connection show team0 |grep 'team.config'"
+     And "2" is visible with command "nmcli connection show team0 |grep 'team.mcast-rejoin-count'"
+     And "20" is visible with command "nmcli connection show team0 |grep 'team.mcast-rejoin-interval'"

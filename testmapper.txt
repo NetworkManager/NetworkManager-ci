@@ -168,6 +168,11 @@ team_abs_set_runner_tx_balancer, ., nmcli/./runtest.sh team_abs_set_runner_tx_ba
 team_abs_set_runner_tx_balancer_interval, ., nmcli/./runtest.sh team_abs_set_runner_tx_balancer_interval ,
 team_abs_set_runner_active, ., nmcli/./runtest.sh team_abs_set_runner_active ,
 team_abs_set_runner_fast_rate, ., nmcli/./runtest.sh team_abs_set_runner_fast_rate ,
+team_abs_set_runner_sys_prio, ., nmcli/./runtest.sh team_abs_set_runner_sys_prio ,
+team_abs_set_runner_min_ports, ., nmcli/./runtest.sh team_abs_set_runner_min_ports ,
+team_abs_set_runner_agg_select_policy, ., nmcli/./runtest.sh team_abs_set_runner_agg_select_policy ,
+team_abs_set_notify_peers, ., nmcli/./runtest.sh team_abs_set_notify_peers ,
+team_abs_set_mcast_rejoin, ., nmcli/./runtest.sh team_abs_set_mcast_rejoin ,
 #@team_end
 
 #@ipv6_start
