@@ -897,6 +897,7 @@
      And "only_active" is visible with command "nmcli connection show team0 |grep 'team.runner-hwaddr-policy'"
     * Bring "down" connection "team0"
     # Resetting back to default
+    * Execute "nmcli connection modify team0 team.runner lacp"
     * Execute "nmcli connection modify team0 team.runner activebackup"
     * Bring "up" connection "team0"
     * Bring "up" connection "team0.0"
@@ -994,7 +995,7 @@
     @team_slaves @team
     @team_abs_set_runner_sys_prio
     Scenario: nmcli - team_abs - set runner sys_prio
-    * Add a new connection of type "team" and options "con-name team0 ifname nm-team autoconnect no team.runner lacp yes connection.autoconnect-slaves yes"
+    * Add a new connection of type "team" and options "con-name team0 ifname nm-team autoconnect no team.runner lacp connection.autoconnect-slaves yes"
     * Add slave connection for master "nm-team" on device "eth1" named "team0.0"
     * Bring "up" connection "team0"
     When "\"sys_prio\": 65535" is visible with command "sudo teamdctl nm-team state dump"
@@ -1105,3 +1106,48 @@
      And "mcast_rejoin" is visible with command "nmcli connection show team0 |grep 'team.config'"
      And "2" is visible with command "nmcli connection show team0 |grep 'team.mcast-rejoin-count'"
      And "20" is visible with command "nmcli connection show team0 |grep 'team.mcast-rejoin-interval'"
+
+
+    @rhbz1398925
+    @ver+=1.10
+    @team_slaves @team
+    @team_abs_set_link_watchers_ethtool
+    Scenario: nmcli - team_abs - set link_watchers ethtool
+    * Add a new connection of type "team" and options "con-name team0 ifname nm-team autoconnect no ip4 1.2.3.4/24 connection.autoconnect-slaves yes"
+    * Add slave connection for master "nm-team" on device "eth1" named "team0.0"
+    * Bring "up" connection "team0"
+    When "link_watch | ethtool" is not visible with command "nmcli connection show team0 |grep 'team.config'"
+    * Execute "nmcli con modify team0 team.link-watchers 'name=ethtool delay-up=100 delay-down=200'"
+    * Bring "up" connection "team0"
+    Then "{\"link_watch\": {\"name\": \"ethtool\", \"delay_up\": 100, \"delay_down\": 200}}" is visible with command "nmcli connection show team0 |grep 'team.config'"
+     And "\"link_watch\": {\s+\"delay_down\": 200,\s+\"delay_up\": 100,\s+\"name\": \"ethtool\"" is visible with command "teamdctl nm-team conf dump"
+
+
+    @rhbz1398925
+    @ver+=1.10
+    @team_slaves @team
+    @team_abs_set_link_watchers_nsna_ping
+    Scenario: nmcli - team_abs - set link_watchers nsna_ping
+    * Add a new connection of type "team" and options "con-name team0 ifname nm-team autoconnect no ip4 1.2.3.4/24 connection.autoconnect-slaves yes"
+    * Add slave connection for master "nm-team" on device "eth1" named "team0.0"
+    * Bring "up" connection "team0"
+    When "link_watch | nsna_ping" is not visible with command "nmcli connection show team0 |grep 'team.config'"
+    * Execute "nmcli con modify team0 team.link-watchers 'name=nsna_ping init-wait=1000 interval=100 missed-max=999 target-host=1.2.3.1'"
+    * Bring "up" connection "team0"
+    Then "{\"link_watch\": {\"name\": \"nsna_ping\", \"interval\": 100, \"missed_max\": 999, \"target_host\": \"1.2.3.1\"}}" is visible with command "nmcli connection show team0 |grep 'team.config'"
+     And "\"link_watch\": {\s+\"interval\": 100,\s+\"missed_max\": 999,\s+\"name\": \"nsna_ping\",\s+\"target_host\": \"1.2.3.1\"" is visible with command "teamdctl nm-team conf dump"
+
+
+    @rhbz1398925
+    @ver+=1.10
+    @team_slaves @team
+    @team_abs_set_link_watchers_arp_ping
+    Scenario: nmcli - team_abs - set link_watchers arp_ping
+    * Add a new connection of type "team" and options "con-name team0 ifname nm-team autoconnect no ip4 1.2.3.4/24 connection.autoconnect-slaves yes"
+    * Add slave connection for master "nm-team" on device "eth1" named "team0.0"
+    * Bring "up" connection "team0"
+    When "link_watch | arp_ping" is not visible with command "nmcli connection show team0 |grep 'team.config'"
+    * Execute "nmcli con modify team0 team.link-watchers 'name=arp_ping init-wait=1000 interval=100 missed-max=999 target-host=1.2.3.1 source-host=1.2.3.4'"
+    * Bring "up" connection "team0"
+    Then "{\"link_watch\": {\"name\": \"arp_ping\", \"interval\": 100, \"missed_max\": 999, \"target_host\": \"1.2.3.1\", \"source_host\": \"1.2.3.4\"}}" is visible with command "nmcli connection show team0 |grep 'team.config'"
+    And "\"link_watch\": {\s+\"interval\": 100,\s+\"missed_max\": 999,\s+\"name\": \"arp_ping\",\s+\"source_host\": \"1.2.3.4\",\s+\"target_host\": \"1.2.3.1\"" is visible with command "teamdctl nm-team conf dump"

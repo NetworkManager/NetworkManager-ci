@@ -173,6 +173,9 @@ team_abs_set_runner_min_ports, ., nmcli/./runtest.sh team_abs_set_runner_min_por
 team_abs_set_runner_agg_select_policy, ., nmcli/./runtest.sh team_abs_set_runner_agg_select_policy ,
 team_abs_set_notify_peers, ., nmcli/./runtest.sh team_abs_set_notify_peers ,
 team_abs_set_mcast_rejoin, ., nmcli/./runtest.sh team_abs_set_mcast_rejoin ,
+team_abs_set_link_watchers_ethtool, ., nmcli/./runtest.sh team_abs_set_link_watchers_ethtool ,
+team_abs_set_link_watchers_nsna_ping, ., nmcli/./runtest.sh team_abs_set_link_watchers_nsna_ping ,
+team_abs_set_link_watchers_arp_ping, ., nmcli/./runtest.sh team_abs_set_link_watchers_arp_ping ,
 #@team_end
 
 #@ipv6_start
