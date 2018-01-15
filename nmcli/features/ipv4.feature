@@ -1304,7 +1304,7 @@ Feature: nmcli: ipv4
     When "inet 192.168.99" is visible with command "ip a s testX" in "10" seconds
 
 
-    @rhbz1265239
+    @rhbz1518091
     @ver+=1.10.1
     @teardown_testveth @long
     @renewal_gw_after_dhcp_outage_for_assumed_var1

@@ -146,7 +146,7 @@ Feature: nmcli - bridge
     Then "ether f0:de:aa:fb:bb:cc" is visible with command "ip a s br12"
 
 
-    @rhbz1386872
+    @rhbz1386872 @rhbz1516659
     @ver+=1.8.0
     @bridge
     @bridge_set_mac_var1
