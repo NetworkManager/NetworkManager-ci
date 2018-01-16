@@ -219,6 +219,17 @@ Feature: nmcli: connection
      Then Check if "connie" is active connection
 
 
+    @rhbz1401515
+    @ver+=1.10
+    @eth
+    @connection_autoconnect_yes_without_immediate_effects
+    Scenario: nmcli - connection - set autoconnect on without autoconnecting
+     * Add a new connection of type "ethernet" and options "con-name ethie ifname eth1 autoconnect no"
+     * Execute "python tmp/repro_1401515.py"
+     Then Check if "ethie" is not active connection
+      And "yes" is visible with command "nmcli connection show ethie |grep autoconnect:"
+
+
     @con
     @connection_autoconnect_warning
     Scenario: nmcli - connection - autoconnect warning while saving new
