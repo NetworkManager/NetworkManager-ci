@@ -1473,6 +1473,21 @@ Feature: nmcli - general
     Then "dummy" is visible with command "ip -d l show BBB | grep dummy"
 
 
+    @rhbz1512316
+    @ver+=1.10.1
+    @BBB
+    @do_not_touch_external_dummy
+    Scenario: NM - general - do not touch external dummy device
+    Then Finish "sh tmp/repro_1512316.sh"
+     And Finish "sh tmp/repro_1512316.sh"
+     And Finish "sh tmp/repro_1512316.sh"
+     And Finish "sh tmp/repro_1512316.sh"
+     And Finish "sh tmp/repro_1512316.sh"
+     And Finish "sh tmp/repro_1512316.sh"
+     And Finish "sh tmp/repro_1512316.sh"
+     And Finish "sh tmp/repro_1512316.sh"
+
+
     @rhbz1337997
     @ver+=1.6.0
     @macsec @not_on_aarch64_but_pegas
