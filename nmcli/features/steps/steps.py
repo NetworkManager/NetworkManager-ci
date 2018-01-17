@@ -1,5 +1,5 @@
 # -*- coding: UTF-8 -*-
-from behave import step
+from behave import step, given
 from time import sleep, time
 import pexpect
 import os
@@ -8,6 +8,10 @@ import re
 import subprocess
 from subprocess import Popen, check_output
 from glob import glob
+import types
+from modem.gsm import *
+from modem.ykush_xs import *
+
 
 # Helpers for the steps that leave the execution trace
 
@@ -1957,3 +1961,51 @@ def setup_macsec_psk(context, cak, ckn):
                                          --dhcp-range=172.16.10.10,172.16.10.254,60m  \
                                          --interface=macsec0 \
                                          --bind-interfaces")
+
+
+@step(u'Set PIN code "{PIN_code}" for connection "{con_name}"')
+def set_pin_for_connection(context, PIN_code, con_name):
+    """
+    Set a new PIN into the SIM card of the 1st GSM modem from the list of ModemManager
+    when no other PIN code is specified before
+    when the SIM card is not in locked state
+    by using ModemManager's CLI
+    by adding that PIN to the an existing connection via NetworkManager.
+    Works for a single modem only.
+    """
+    # PIN code can have leading zero(s) which can cause improper conversion from string to integer.
+    # Once string "0055" is converted to 55, it cannot be set as PIN on a SIM card.
+    # PIN should be passed as string.
+    # All parsed values comming steps written in Behave language are of type "unicode".
+    # Thus, convert unicode -> string
+    # Enable debugging
+    debug_file = '/tmp/gsm_debug.log'
+    df = open(debug_file, "a")
+    df.write('The PIN code is: "{0}"\nData type: {1}\n'.format(PIN_code, type(PIN_code)))  # debug
+    df.write('The connection name is "{0}"\nData type: {1}\n'.format(con_name, type(con_name)))  # debug
+    df.close()  # End of debugging
+    try:
+        pin = str(PIN_code)
+    except:
+        raise Exception('Cannot convert the PIN "{}" to string.'.format(PIN_code))
+    # Set the PIN into the SIM card for the 1st GSM modem.
+    mi = get_1st_modem_index()  # integer
+    si = get_sim_index(mi)  # integer
+    enable_pin(si, pin)
+    reset_modem(mi, 15)
+    # Wait for the modem to be initialized the ready to accept commands.
+    # Various modems has different delays, but not bigger than 30 sec. (11 Jan 2017)
+    sleep(30)
+    # We assume that PIN code is expected.
+    send_pin(si, pin)
+    result = is_modem_connected(mi)
+    if result is True:
+        print('The modem is connected to the mobile broadband network.OK.')
+    else:
+        disable_pin(si, pin)
+        raise Exception('The modem is not connected to the mobile broadband network.FAIL.')
+
+    # Add the PIN to an existing connection.
+    cmd = 'nmcli connection modify "{0}" gsm.pin {0}'.format(con_name, pin)
+    RC = os.system(cmd)
+    assert RC == 0, 'Failed to set new PIN code "{}" to connection "{}".'.format(con_name, pin)
