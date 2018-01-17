@@ -673,6 +673,18 @@ def before_scenario(context, scenario):
             call("pkill -9 nm-iface-helper", shell=True)
             call("sudo systemctl stop firewalld", shell=True)
 
+        if 'slow_team' in scenario.tags:
+            print ("---------------------------")
+            print ("run just on x86_64")
+            arch = check_output("uname -p", shell=True).strip()
+            if arch != "x86_64":
+                sys.exit(0)
+            print ("---------------------------")
+            print ("remove all team packages except NM one and reinstall them with delayed version")
+            call("for i in $(rpm -qa |grep team|grep -v Netw); do rpm -e $i --nodeps; done", shell=True)
+            call("yum -y install https://vbenes.fedorapeople.org/NM/slow_libteam-1.25-5.el7_4.1.1.x86_64.rpm https://vbenes.fedorapeople.org/NM/slow_teamd-1.25-5.el7_4.1.1.x86_64.rpm", shell=True)
+            call("systemctl restart NetworkManager.service", shell=True)
+
         if 'openvswitch' in scenario.tags:
             print ("---------------------------")
             print ("deleting eth1 and eth2 for openswitch tests")
@@ -1154,6 +1166,13 @@ def after_scenario(context, scenario):
         if 'teamd' in scenario.tags:
             call("systemctl stop teamd", shell=True)
             call("systemctl reset-failed teamd", shell=True)
+
+        if 'slow_team' in scenario.tags:
+            print ("---------------------------")
+            print ("restore original team pakages")
+            call("for i in $(rpm -qa |grep team|grep -v Netw); do rpm -e $i --nodeps; done", shell=True)
+            call("yum -y install teamd libteam", shell=True)
+            call('systemctl restart NetworkManager.service', shell=True)
 
         if 'tshark' in scenario.tags:
             print ("---------------------------")

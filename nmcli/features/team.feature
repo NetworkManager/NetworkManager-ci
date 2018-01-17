@@ -1151,3 +1151,15 @@
     * Bring "up" connection "team0"
     Then "{\"link_watch\": {\"name\": \"arp_ping\", \"interval\": 100, \"missed_max\": 999, \"target_host\": \"1.2.3.1\", \"source_host\": \"1.2.3.4\"}}" is visible with command "nmcli connection show team0 |grep 'team.config'"
     And "\"link_watch\": {\s+\"interval\": 100,\s+\"missed_max\": 999,\s+\"name\": \"arp_ping\",\s+\"source_host\": \"1.2.3.4\",\s+\"target_host\": \"1.2.3.1\"" is visible with command "teamdctl nm-team conf dump"
+
+
+    @rhbz1415641
+    @ver+=1.10
+    @slow_team @team
+    @wait_for_slow_teamd
+    Scenario: nmcli - team - wait for slow team
+    * Add connection type "team" named "team0" for device "nm-team"
+    Then Bring "up" connection "team0"
+     And Bring "up" connection "team0"
+     And Bring "up" connection "team0"
+     And Bring "up" connection "team0"
