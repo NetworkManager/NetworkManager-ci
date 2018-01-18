@@ -1,4 +1,4 @@
-Feature: nmcli: ipv6
+    Feature: nmcli: ipv6
 
     # Please do use tags as follows:
     # @bugzilla_link (rhbz123456)
@@ -356,6 +356,87 @@ Feature: nmcli: ipv6
     Then "3030::1 via 2001::2 dev eth1\s+proto static\s+metric 2" is visible with command "ip -6 route"
     Then "2001::/126 dev eth1\s+proto kernel\s+metric 100" is visible with command "ip -6 route"
     Then "1010::1 dev eth1\s+proto static\s+metric 3" is visible with command "ip -6 route"
+
+
+    @rhbz1436531
+    @ver+=1.10
+    @eth @flush_300
+    @ipv6_route_set_route_with_tables
+    Scenario: nmcli - ipv6 - routes - set route with tables
+    * Add a new connection of type "ethernet" and options "ifname eth10 con-name ethie ipv6.route-table 300 ipv6.may-fail no"
+    When "connected" is visible with command "nmcli -g state,device device |grep eth10$" in "20" seconds
+     And "2620:52:0:1086::.* dev eth10 proto kernel metric 10[0-2]" is visible with command "ip -6 r show table 300"
+     And "2620:52:0:1086::\/64 dev eth10 proto ra metric 10[0-2]" is visible with command "ip -6 r show table 300"
+     And "fe80::\/64 dev eth10 proto kernel metric 10[0-2]" is visible with command "ip -6 r show table 300"
+     And "default via fe80::.* dev eth10 proto ra metric 10[0-2]" is visible with command "ip -6 r show table 300"
+     And "eth10" is not visible with command "ip -6 r |grep -v fe80"
+    * Execute "ip -6 route add table 300 2004::3/128 dev eth10"
+    When "2004::3 dev eth10 metric 1024" is visible with command "ip -6 r show table 300"
+     And "2620:52:0:1086::.* dev eth10 proto kernel metric 10[0-2]" is visible with command "ip -6 r show table 300"
+     And "2620:52:0:1086::\/64 dev eth10 proto ra metric 10[0-2]" is visible with command "ip -6 r show table 300"
+     And "fe80::\/64 dev eth10 proto kernel metric 10[0-2]" is visible with command "ip -6 r show table 300"
+     And "default via fe80::.* dev eth10 proto ra metric 10[0-2]" is visible with command "ip -6 r show table 300"
+    * Bring "up" connection "ethie"
+    When "connected" is visible with command "nmcli -g state,device device |grep eth10$" in "20" seconds
+    Then "2004::3 dev eth10 metric 1024" is not visible with command "ip -6 r show table 300"
+     And "2620:52:0:1086::.* dev eth10 proto kernel metric 10[0-2]" is visible with command "ip -6 r show table 300"
+     And "2620:52:0:1086::\/64 dev eth10 proto ra metric 10[0-2]" is visible with command "ip -6 r show table 300"
+     And "fe80::\/64 dev eth10 proto kernel metric 10[0-2]" is visible with command "ip -6 r show table 300"
+     And "default via fe80::.* dev eth10 proto ra metric 10[0-2]" is visible with command "ip -6 r show table 300"
+     And "eth10" is not visible with command "ip -6 r |grep -v fe80"
+
+
+    @rhbz1436531
+    @ver+=1.10
+    @ver-1.11
+    @eth @flush_300
+    @ipv6_route_set_route_with_tables_reapply
+    Scenario: nmcli - ipv6 - routes - set route with tables reapply
+    * Add a new connection of type "ethernet" and options "ifname eth10 con-name ethie ipv6.may-fail no"
+    When "connected" is visible with command "nmcli -g state,device device |grep eth10$" in "20" seconds
+     And "2620:52:0:1086::.* dev eth10 proto kernel metric 10[0-2]" is visible with command "ip -6 r show"
+     And "2620:52:0:1086::\/64 dev eth10 proto ra metric 10[0-2]" is visible with command "ip -6 r show"
+     And "fe80::\/64 dev eth10 proto kernel metric 10[0-2]" is visible with command "ip -6 r show"
+     And "default via fe80::.* dev eth10 proto ra metric 10[0-2]" is visible with command "ip -6 r show"
+    * Execute "ip -6 route add table 300 2004::3/128 dev eth10"
+    When "2004::3 dev eth10 metric 1024" is visible with command "ip -6 r show table 300"
+     And "2620:52:0:1086::.* dev eth10 proto kernel metric 10[0-2]" is visible with command "ip -6 r show"
+     And "2620:52:0:1086::\/64 dev eth10 proto ra metric 10[0-2]" is visible with command "ip -6 r show"
+     And "fe80::\/64 dev eth10 proto kernel metric 10[0-2]" is visible with command "ip -6 r show"
+     And "default via fe80::.* dev eth10 proto ra metric 10[0-2]" is visible with command "ip -6 r show"
+    * Execute "nmcli device reapply eth10"
+    When "connected" is visible with command "nmcli -g state,device device |grep eth10$" in "20" seconds
+    Then "2620:52:0:1086::.* dev eth10 proto kernel metric 10[0-2]" is visible with command "ip -6 r show" in "20" seconds
+     And "2004::3 dev eth10 metric 1024" is not visible with command "ip -6 r show table 300"
+     And "2620:52:0:1086::\/64 dev eth10 proto ra metric 10[0-2]" is visible with command "ip -6 r show"
+     And "fe80::\/64 dev eth10 proto kernel metric 10[0-2]" is visible with command "ip -6 r show"
+     And "default via fe80::.* dev eth10 proto ra metric 10[0-2]" is visible with command "ip -6 r show"
+
+
+    @rhbz1436531
+    @ver+=1.11
+    @eth @flush_300
+    @ipv6_route_set_route_with_tables_reapply
+    Scenario: nmcli - ipv4 - routes - set route with tables reapply
+    * Add a new connection of type "ethernet" and options "ifname eth10 con-name ethie ipv6.may-fail no"
+    When "connected" is visible with command "nmcli -g state,device device |grep eth10$" in "20" seconds
+     And "2620:52:0:1086::.* dev eth10 proto kernel metric 10[0-2]" is visible with command "ip -6 r show"
+     And "2620:52:0:1086::\/64 dev eth10 proto ra metric 10[0-2]" is visible with command "ip -6 r show"
+     And "fe80::\/64 dev eth10 proto kernel metric 10[0-2]" is visible with command "ip -6 r show"
+     And "default via fe80::.* dev eth10 proto ra metric 10[0-2]" is visible with command "ip -6 r show"
+    * Execute "ip -6 route add table 300 2004::3/128 dev eth10"
+    When "2004::3 dev eth10 metric 1024" is visible with command "ip -6 r show table 300"
+     And "2620:52:0:1086::.* dev eth10 proto kernel metric 10[0-2]" is visible with command "ip -6 r show"
+     And "2620:52:0:1086::\/64 dev eth10 proto ra metric 10[0-2]" is visible with command "ip -6 r show"
+     And "fe80::\/64 dev eth10 proto kernel metric 10[0-2]" is visible with command "ip -6 r show"
+     And "default via fe80::.* dev eth10 proto ra metric 10[0-2]" is visible with command "ip -6 r show"
+    * Execute "nmcli device reapply eth10"
+    When "connected" is visible with command "nmcli -g state,device device |grep eth10$" in "20" seconds
+    Then "2620:52:0:1086::.* dev eth10 proto kernel metric 10[0-2]" is visible with command "ip -6 r show" in "20" seconds
+     And "2004::3 dev eth10 metric 1024" is visible with command "ip -6 r show table 300"
+     And "2620:52:0:1086::\/64 dev eth10 proto ra metric 10[0-2]" is visible with command "ip -6 r show"
+     And "fe80::\/64 dev eth10 proto kernel metric 10[0-2]" is visible with command "ip -6 r show"
+     And "default via fe80::.* dev eth10 proto ra metric 10[0-2]" is visible with command "ip -6 r show"
 
 
     @ipv6
