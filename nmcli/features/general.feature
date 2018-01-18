@@ -1445,7 +1445,7 @@ Feature: nmcli - general
     * Note the output of "pmap -x $(pidof NetworkManager) |grep 'rw---'" as value "2"
     * Note the output of "pmap -x $(pidof NetworkManager) |grep total | awk '{print $3}'" as value "4"
     Then Check RSS writable memory in noted value "2" differs from "1" less than "500"
-    Then Check noted value "4" difference from "3" is lower than "500"
+    Then Check noted value "4" difference from "3" is lower than "750"
 
 
     @rhbz1398932
