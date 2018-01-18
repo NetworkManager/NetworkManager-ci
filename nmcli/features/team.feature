@@ -324,7 +324,7 @@
      * Quit editor
      * Bring "up" connection "team0"
      * Reboot
-    Then "nm-team:team:connected:team0" is visible with command "nmcli -t -f DEVICE,TYPE,STATE,CONNECTION device" in "20" seconds
+    Then "nm-team:team:connected:team0" is visible with command "nmcli -t -f DEVICE,TYPE,STATE,CONNECTION device" in "40" seconds
      And Check slave "eth1" in team "nm-team" is "up"
      And Check slave "eth2" in team "nm-team" is "up"
 
@@ -377,7 +377,7 @@
      * Bring "up" connection "team0"
      * Bring "down" connection "team0"
      * Reboot
-    Then "nm-team:team:connected:team0" is visible with command "nmcli -t -f DEVICE,TYPE,STATE,CONNECTION device" in "20" seconds
+    Then "nm-team:team:connected:team0" is visible with command "nmcli -t -f DEVICE,TYPE,STATE,CONNECTION device" in "40" seconds
      And Check slave "eth2" in team "nm-team" is "up"
      And Check slave "eth1" in team "nm-team" is "down"
 
@@ -402,7 +402,7 @@
      * Quit editor
      * Bring "up" connection "team0"
      * Reboot
-    Then "nm-team:team:connected:team0" is visible with command "nmcli -t -f DEVICE,TYPE,STATE,CONNECTION device" in "20" seconds
+    Then "nm-team:team:connected:team0" is visible with command "nmcli -t -f DEVICE,TYPE,STATE,CONNECTION device" in "40" seconds
      And Check slave "eth2" in team "nm-team" is "up"
      And Check slave "eth1" in team "nm-team" is "down"
 
