@@ -1322,6 +1322,14 @@ def prepare_veths(context, pairs_array, bridge):
         command_code(context, "ip link set dev %sp up" % pair)
 
 
+
+@step(u'Start radvd server with config from "{location}"')
+def start_radvd(context, location):
+    command_code(context, "rm -rf /etc/radvd.conf")
+    command_code(context, "cp %s /etc/radvd.conf" % location)
+    command_code(context, "systemctl restart radvd")
+    sleep(2)
+
 @step(u'Prepare simulated test "{device}" device with "{ipv4}" ipv4 and "{ipv6}" ipv6 dhcp address prefix and dhcp option "{option}"')
 @step(u'Prepare simulated test "{device}" device with "{ipv4}" ipv4 and "{ipv6}" ipv6 dhcp address prefix')
 @step(u'Prepare simulated test "{device}" device')

@@ -1316,3 +1316,17 @@ Feature: nmcli: ipv6
     * Execute "ethtool -A eth1 rx on tx on; ip addr flush eth1; ethtool -A eth1 rx off tx off; ip link set eth1 up"
     * Execute "ip addr add 192.168.100.2/24 dev eth1; ip addr add fe01::1/64 dev eth1"
     Then "fe01::1" is visible with command "ip a show dev eth1" in "5" seconds
+
+
+    @rhbz1445417
+    @ver+=1.10
+    @eth @stop_radvd @two_bridged_veths
+    @ipv6_multiple_default_routes
+    Scenario: NM - ipv6 - multiple default ipv6 routes
+    * Prepare veth pairs "test1" bridged over "vethbr"
+    * Execute "ip -6 addr add dead:beef::1/64 dev vethbr"
+    * Execute "ip -6 addr add beef:dead::1/64 dev test1p"
+    * Execute "ip -6 addr add fe80::dead:dead:dead:dead/64 dev test1p"
+    * Start radvd server with config from "tmp/radvd.conf"
+    * Add a new connection of type "ethernet" and options "con-name ethie ifname test1 ipv6.may-fail no"
+    Then "2" is visible with command "ip -6 r |grep test1 | grep default |wc -l" in "40" seconds

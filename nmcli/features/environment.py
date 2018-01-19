@@ -1070,6 +1070,11 @@ def after_scenario(context, scenario):
             print ("deleting veth devices")
             call("sudo service dhcpd stop", shell=True)
 
+        if 'stop_radvd' in scenario.tags:
+            print ("---------------------------")
+            print ("deleting veth devices")
+            call("sudo systemctl stop radvd", shell=True)
+            call('rm -rf /etc/radvd.conf', shell=True)
         if 'mtu' in scenario.tags:
             print ("---------------------------")
             print ("deleting veth devices from mtu test")
