@@ -835,11 +835,11 @@ Feature: nmcli - general
     * Execute "ip tuntap add BBB mode tap"
     * Execute "ip link set dev BBB up"
     * Execute "ip addr add 10.2.5.6/24 valid_lft 1024 preferred_lft 1024 dev BBB"
-    When "connecting" is visible with command "nmcli device show BBB" in "45" seconds
+    Then "10.2.5.6/24" is visible with command "ip addr show BBB" for full "50" seconds
     * Bring "down" connection "BBB"
     * Execute "ip link set dev BBB up"
     * Execute "ip addr add 10.2.5.6/24 dev BBB"
-    Then "connected" is visible with command "nmcli device show BBB" in "45" seconds
+    Then "10.2.5.6/24" is visible with command "ip addr show BBB" for full "10" seconds
 
 
     @rhbz1066705
