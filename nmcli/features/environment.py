@@ -994,7 +994,11 @@ def after_scenario(context, scenario):
             print ("stoppping firewall")
             call("sudo firewall-cmd --panic-off", shell=True)
             call("sudo service firewalld stop", shell=True)
-            #sleep(TIMER)
+
+        if 'flush_300' in scenario.tags:
+            print ("---------------------------")
+            print ("flush route table 300")
+            call("ip route flush table 300", shell=True)
 
         if 'logging' in scenario.tags:
             print ("---------------------------")
