@@ -358,6 +358,18 @@
     Then "1010::1 dev eth1\s+proto static\s+metric 3" is visible with command "ip -6 route"
 
 
+    @rhbz1452684
+    @ipv6
+    @ver+=1.10
+    @ipv6_routes_with_src
+    Scenario: nmcli - ipv6 - routes - set route with src
+     * Add a new connection of type "ethernet" and options "ifname eth1 con-name ethie autoconnect no ipv6.method manual ipv6.addresses 2000::2/126 ipv6.route-metric 256"
+     * Execute "nmcli con modify ethie ipv6.routes '1010::1/128 src=2000::2'"
+     * Bring "up" connection "ethie"
+    Then "1010::1 dev eth1\s+proto static\s+metric 256" is visible with command "ip -6 route"
+     And "2000::\/126 dev eth1\s+proto kernel\s+metric 256" is visible with command "ip -6 route"
+
+
     @rhbz1436531
     @ver+=1.10
     @eth @flush_300

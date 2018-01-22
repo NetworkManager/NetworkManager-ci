@@ -182,6 +182,7 @@ wait_for_slow_teamd, ., nmcli/./runtest.sh wait_for_slow_teamd ,
 #@ipv6_start
 ipv6_block_just_routing_RA, ., nmcli/./runtest.sh ipv6_block_just_routing_RA ,
 ipv6_limited_router_solicitation, ., nmcli/./runtest.sh ipv6_limited_router_solicitation ,
+ipv6_routes_with_src, ., nmcli/./runtest.sh ipv6_routes_with_src ,
 ipv6_route_set_route_with_tables, ., nmcli/./runtest.sh ipv6_route_set_route_with_tables ,
 ipv6_route_set_route_with_tables_reapply, ., nmcli/./runtest.sh ipv6_route_set_route_with_tables_reapply ,
 ipv6_correct_slaac_setting, ., nmcli/./runtest.sh ipv6_correct_slaac_setting ,
