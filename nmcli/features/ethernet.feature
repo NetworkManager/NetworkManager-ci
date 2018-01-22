@@ -615,3 +615,24 @@ Feature: nmcli - ethernet
     Then "bond0" is visible with command "ip a"
     Then "ovsbridge0\s+openvswitch\s+unmanaged" is visible with command "nmcli device"
     Then "bond0\s+openvswitch\s+unmanaged" is visible with command "nmcli device"
+
+
+    @rhbz1454883
+    @ver+=1.10
+    @eth @teardown_testveth
+    @nmclient_ethernet_get_state_flags
+    Scenario: nmclient - ethernet - get state flags
+    * Add a new connection of type "ethernet" and options "ifname testX con-name ethie"
+    * Prepare simulated veth device "testX" wihout carrier
+    * Execute "nmcli con modify ethie ipv4.may-fail no"
+    * Execute "nmcli con up ethie" without waiting for process to finish
+    * "LAYER2" is not visible with command "python tmp/nmclient_get_state_flags.py ethie"
+    * Execute "ip netns exec testX_ns kill -SIGSTOP $(cat /tmp/testX_ns.pid)"
+    * Execute "ip netns exec testX_ns ip link set testXp up"
+    When "LAYER2" is visible with command "python tmp/nmclient_get_state_flags.py ethie" in "10" seconds
+    When "IP4" is not visible with command "python tmp/nmclient_get_state_flags.py ethie"
+    When "IP6" is not visible with command "python tmp/nmclient_get_state_flags.py ethie"
+    * Execute "ip netns exec testX_ns kill -SIGCONT $(cat /tmp/testX_ns.pid)" without waiting for process to finish
+    Then "LAYER2" is visible with command "python tmp/nmclient_get_state_flags.py ethie" in "5" seconds
+     And "IP4" is visible with command "python tmp/nmclient_get_state_flags.py ethie" in "20" seconds
+     And "IP6" is visible with command "python tmp/nmclient_get_state_flags.py ethie" in "20" seconds
