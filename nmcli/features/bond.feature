@@ -1536,3 +1536,33 @@
      * Bring "up" connection "bond"
      * Execute "systemctl restart NetworkManager"
      Then "nm-bond\s+bond\s+connected\s+bond" is visible with command "nmcli d" in "10" seconds
+
+
+    @rhbz1454883
+    @ver+=1.10
+    @bond @slaves @teardown_testveth
+    @nmclient_bond_get_state_flags
+    Scenario: nmclient - bond - get state flags
+    * Add connection type "bond" named "bond0" for device "nm-bond"
+    When "LAYER2" is visible with command "python tmp/nmclient_get_state_flags.py bond0" in "5" seconds
+    When "IS_MASTER" is visible with command "python tmp/nmclient_get_state_flags.py bond0" in "5" seconds
+     And "MASTER_HAS_SLAVES" is not visible with command "python tmp/nmclient_get_state_flags.py bond0"
+     And "IP6" is not visible with command "python tmp/nmclient_get_state_flags.py bond0"
+     And "IP4" is not visible with command "python tmp/nmclient_get_state_flags.py bond0"
+    * Add slave connection for master "nm-bond" on device "testX" named "bond0.0"
+    When "LAYER2" is not visible with command "python tmp/nmclient_get_state_flags.py bond0.0" in "5" seconds
+    When "IP4" is not visible with command "python tmp/nmclient_get_state_flags.py bond0.0"
+    When "IP6" is not visible with command "python tmp/nmclient_get_state_flags.py bond0.0"
+    * Prepare simulated veth device "testX" wihout carrier
+    * Execute "nmcli con modify bond0.0 ipv4.may-fail no"
+    * Execute "nmcli con up bond0.0" without waiting for process to finish
+    When "IP4" is not visible with command "python tmp/nmclient_get_state_flags.py bond0"
+     And "IP6" is not visible with command "python tmp/nmclient_get_state_flags.py bond0"
+     And "MASTER_HAS_SLAVES" is visible with command "python tmp/nmclient_get_state_flags.py bond0" in "5" seconds
+     And "IS_SLAVE" is visible with command "python tmp/nmclient_get_state_flags.py bond0.0" in "5" seconds
+    * Execute "ip netns exec testX_ns kill -SIGSTOP $(cat /tmp/testX_ns.pid)"
+    * Execute "ip netns exec testX_ns ip link set testXp up"
+    * Execute "ip netns exec testX_ns kill -SIGCONT $(cat /tmp/testX_ns.pid)" without waiting for process to finish
+    Then "MASTER_HAS_SLAVES" is visible with command "python tmp/nmclient_get_state_flags.py bond0" in "20" seconds
+    Then "IP4" is visible with command "python tmp/nmclient_get_state_flags.py bond0" in "20" seconds
+    Then "IP6" is visible with command "python tmp/nmclient_get_state_flags.py bond0" in "20" seconds

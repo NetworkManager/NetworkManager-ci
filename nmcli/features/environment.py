@@ -1595,12 +1595,13 @@ def after_scenario(context, scenario):
         if 'teardown_testveth' in scenario.tags:
             print("---------------------------")
             print("removing testveth device setup for all test devices")
-            for ns in context.testvethns:
-                print("Removing the setup in %s namespace" % ns)
-                call('[ -f /tmp/%s.pid ] && ip netns exec %s kill -SIGCONT $(cat /tmp/%s.pid)' % (ns, ns, ns), shell=True)
-                call('[ -f /tmp/%s.pid ] && kill $(cat /tmp/%s.pid)' % (ns, ns) , shell=True)
-                call('ip netns del %s' % ns, shell=True)
-                call('ip link del %s' % ns.split('_')[0], shell=True)
+            if hasattr(context, 'testvethns'):
+                for ns in context.testvethns:
+                    print("Removing the setup in %s namespace" % ns)
+                    call('[ -f /tmp/%s.pid ] && ip netns exec %s kill -SIGCONT $(cat /tmp/%s.pid)' % (ns, ns, ns), shell=True)
+                    call('[ -f /tmp/%s.pid ] && kill $(cat /tmp/%s.pid)' % (ns, ns) , shell=True)
+                    call('ip netns del %s' % ns, shell=True)
+                    call('ip link del %s' % ns.split('_')[0], shell=True)
             call('rm -f /etc/udev/rules.d/88-lr.rules', shell=True)
             call('udevadm control --reload-rules', shell=True)
             call('udevadm settle', shell=True)

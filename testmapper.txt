@@ -75,6 +75,7 @@ bond_leave_L2_only_up_when_going_down, ., nmcli/./runtest.sh bond_leave_L2_only_
 bond_assume_options_1, ., nmcli/./runtest.sh bond_assume_options_1 ,
 bond_assume_options_2, ., nmcli/./runtest.sh bond_assume_options_2 ,
 bond_assume_options_3, ., nmcli/./runtest.sh bond_assume_options_3 ,
+nmclient_bond_get_state_flags, ., nmcli/./runtest.sh nmclient_bond_get_state_flags ,
 #@bond_end
 
 #@bridge_start
@@ -420,6 +421,7 @@ preserve_8021x_leap_con, ., nmcli/./runtest.sh preserve_8021x_leap_con ,
 #openvswitch_ignore_ovs_network_setup, ., nmcli/./runtest.sh openvswitch_ignore_ovs_network_setup ,
 #openvswitch_ignore_ovs_vlan_network_setup, ., nmcli/./runtest.sh openvswitch_ignore_ovs_vlan_network_setup ,
 #openvswitch_ignore_ovs_bond_network_setup, ., nmcli/./runtest.sh openvswitch_ignore_ovs_bond_network_setup ,
+nmclient_ethernet_get_state_flags, ., nmcli/./runtest.sh nmclient_ethernet_get_state_flags ,
 #@ethernet_end
 
 
