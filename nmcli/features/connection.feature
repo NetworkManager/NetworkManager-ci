@@ -126,6 +126,15 @@ Feature: nmcli: connection
     Then "1" is visible with command "nmcli connection |grep ^eth1 |wc -l"
 
 
+    @rhbz1498943
+    @ver+=1.10
+    @eth
+    @double_connection_warning
+    Scenario: nmcli - connection - warn about the same name
+    * Add connection type "ethernet" named "ethie" for device "eth1"
+    Then "Warning: There is another connection with the name 'ethie'. Reference the connection by its uuid" is visible with command "nmcli con add type ethernet ifname eth con-name ethie"
+
+
     @rhbz997998
     @con
     @connection_restricted_to_single_device
