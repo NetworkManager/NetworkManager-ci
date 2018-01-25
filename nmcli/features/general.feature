@@ -999,6 +999,13 @@ Feature: nmcli - general
     Then "eth0" is visible with command "ps aux|grep helper" for full "20" seconds
 
 
+    @rhbz1498943
+    @ver+=1.10
+    @network_online_target_not_depend_on_wait_online
+    Scenario: NM - general - network-online target - no wait-online dep
+    Then "No such file or directory" is visible with command "cat /usr/lib/systemd/system/network-online.target.wants/NetworkManager-wait-online.service"
+
+
     @rhbz1086906
     @veth @delete_testeth0 @newveth @eth @restart
     @wait-online-for-both-ips
