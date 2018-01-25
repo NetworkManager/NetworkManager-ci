@@ -12,6 +12,7 @@ sudo yum -y install \
         rp-pppoe \
         pptpd \
         httpd \
+        radvd \
         polkit \
         python2-behave \
         ethtool \
