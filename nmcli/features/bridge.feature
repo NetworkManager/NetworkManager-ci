@@ -487,3 +487,22 @@ Feature: nmcli - bridge
       And "connection.slave-type:\s+bridge" is not visible with command "nmcli c s ethie | grep 'slave-type:'"
       And "BRIDGE" is not visible with command "grep BRIDGE /etc/sysconfig/network-scripts/ifcfg-ethie"
       And Bring "up" connection "ethie"
+
+
+    @ver+=1.10
+    @bridge
+    @bridge_delete_connection_with_device
+    Scenario: nmcli - bridge - delete with device
+    * Add a new connection of type "bridge" and options "con-name bridge0 ifname bridge0 autoconnect yes ip4 192.168.1.19/24"
+    * Delete connection "bridge0"
+    Then "bridge0" is not visible with command "nmcli dev"
+
+
+    @ver+=1.10
+    @bridge @restart
+    @bridge_delete_connection_without_device
+    Scenario: nmcli - bridge - delete without device
+    * Add a new connection of type "bridge" and options "con-name bridge0 ifname bridge0 autoconnect yes ip4 192.168.1.19/24"
+    * Reboot
+    * Delete connection "bridge0"
+    Then "bridge0" is visible with command "nmcli dev"

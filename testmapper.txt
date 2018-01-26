@@ -112,6 +112,8 @@ bridge_set_mac_var2, ., nmcli/./runtest.sh bridge_set_mac_var2, bridge-utils
 bridge_external_unmanaged, ., nmcli/./runtest.sh bridge_external_unmanaged, bridge-utils
 bridge_preserve_assumed_connection_ips, ., nmcli/./runtest.sh bridge_preserve_assumed_connection_ips ,
 bridge_slave_to_ethernet_conversion, ., nmcli/./runtest.sh bridge_slave_to_ethernet_conversion ,
+bridge_delete_connection_with_device, ., nmcli/./runtest.sh bridge_delete_connection_with_device ,
+bridge_delete_connection_without_device, ., nmcli/./runtest.sh bridge_delete_connection_without_device ,
 #@bridge_end
 
 #@team_start
@@ -526,6 +528,7 @@ connectivity_check, ., nmcli/./runtest.sh connectivity_check ,
 disable_connectivity_check, ., nmcli/./runtest.sh disable_connectivity_check ,
 per_device_connectivity_check, ., nmcli/./runtest.sh per_device_connectivity_check ,
 keep_external_device_enslaved_on_down, ., nmcli/./runtest.sh keep_external_device_enslaved_on_down ,
+overtake_external_device, ., nmcli/./runtest.sh overtake_external_device ,
 #@general_end
 
 #@wol_start
