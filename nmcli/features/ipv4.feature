@@ -1679,3 +1679,14 @@ Feature: nmcli: ipv4
     Then "default via 192.168.3.254 dev eth1 proto static metric 101" is visible with command "ip r"
      And "10.200.200.2/31 via 172.16.0.254 dev eth1 proto static metric 111 onlink" is visible with command "ip r"
      And "192.168.3.0/24 dev eth1 proto kernel scope link src 192.168.3.10 metric 101" is visible with command "ip r"
+
+
+    @rhbz1482772
+    @ver+=1.10
+    @ipv4
+    @ipv4_multiple_ip4
+    Scenario: nmcli - ipv4 - method - static using multiple "ip4" options
+    * Add a new connection of type "ethernet" and options "ifname eth1 con-name ethie ip4 192.168.124.1/24 ip4 192.168.125.1/24"
+    * Bring "up" connection "ethie"
+    Then "192.168.124.1/24" is visible with command "ip a s eth1"
+    Then "192.168.125.1/24" is visible with command "ip a s eth1"
