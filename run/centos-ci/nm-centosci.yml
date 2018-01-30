@@ -122,9 +122,3 @@
           branch: 'nm-1-8'
       - 'NetworkManager-{branch}':
           branch: 'nm-1-6'
-    #  - 'NetworkManager-pr'
-    #  - 'NetworkManager-{branch}':
-    #      branch: 'nm-1-4'
-    #   - 'NetworkManager-{branch}':
-    #       branch: 'nm-1-2'
-    #
