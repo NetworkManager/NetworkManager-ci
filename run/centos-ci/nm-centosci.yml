@@ -7,7 +7,7 @@
               cron: '* * * * *'
               github-hooks: true
               permit-all: false
-              trigger-phrase: '.*dotestme.*'
+              trigger-phrase: '.*\[test\].*'
               allow-whitelist-orgs-as-admins: true
               status-context: 'ci.centos.org PR build'
               cancel-builds-on-update: true
