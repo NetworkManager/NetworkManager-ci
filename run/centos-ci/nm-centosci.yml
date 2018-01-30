@@ -1,3 +1,60 @@
+- trigger:
+    name: githubprb
+    triggers:
+        - github-pull-request:
+              admin-list:
+                  - vbenes
+              cron: '* * * * *'
+              github-hooks: true
+              permit-all: false
+              trigger-phrase: '.*dotestme.*'
+              allow-whitelist-orgs-as-admins: true
+              status-context: 'ci.centos.org PR build'
+              cancel-builds-on-update: true
+- scm:
+    name: git-scm
+    scm:
+      - git:
+          url: https://github.com/NetworkManager/NetworkManager-ci
+          skip-tag: 'True'
+          git-tool: ci-git
+          refspec: '+refs/pull/*:refs/remotes/origin/pr/*'
+          branches:
+            - '${{ghprbActualCommit}}'
+
+- job-template:
+    name: 'NetworkManager-pr'
+    project-type: freestyle
+    display-name: 'NetworkManager: pr'
+    concurrent: true
+    node: networkmanager
+    triggers:
+        - githubprb
+    scm:
+      - git-scm
+    builders:
+      - shell: |
+          export CODE_BRANCH='master'
+          python -u run/centos-ci/build_python_script.py
+    publishers:
+      - archive:
+          artifacts: 'results/*'
+          allow-empty: 'true'
+      - xunit:
+          thresholdmode: 'number'
+          thresholds:
+            - failed:
+                unstable: '0'
+                unstablenew: '0'
+                failure: '20'
+                failurenew: '20'
+          types:
+            - junit:
+                pattern: "junit.xml"
+                requireupdate: false
+                skip-if-no-test-files: true
+                stoponerror: false
+
 - job-template:
     name: 'NetworkManager-{branch}'
     project-type: freestyle
@@ -36,16 +93,16 @@
                 requireupdate: false
                 skip-if-no-test-files: true
                 stoponerror: false
-      - postbuildscript:
-          script-only-if-succeeded: false
-          script-only-if-failed: true
-          builders:
-            # FIXME CLEAN UP AND UPLOAD results
-            - shell: 'echo "CLEANUP"'
-      - postbuildscript:
-          builders:
-            # FIXME NEEDED?
-            - shell: 'echo "QUIT"'
+      # - postbuildscript:
+      #     script-only-if-succeeded: false
+      #     script-only-if-failed: true
+      #     builders:
+      #       # FIXME CLEAN UP AND UPLOAD results
+      #       - shell: 'echo "CLEANUP"'
+      # - postbuildscript:
+      #     builders:
+      #       # FIXME NEEDED?
+      #       - shell: 'echo "QUIT"'
 - scm:
     name: cico-tests
     scm:
@@ -58,15 +115,16 @@
     name: nm-cico
     jobs:
       - 'NetworkManager-{branch}':
+          branch: 'master'
+      - 'NetworkManager-{branch}':
           branch: 'nm-1-10'
       - 'NetworkManager-{branch}':
           branch: 'nm-1-8'
       - 'NetworkManager-{branch}':
           branch: 'nm-1-6'
-      - 'NetworkManager-{branch}':
-          branch: 'nm-1-4'
-      - 'NetworkManager-{branch}':
-          branch: 'master'
+      - 'NetworkManager-pr'
+    #  - 'NetworkManager-{branch}':
+    #      branch: 'nm-1-4'
     #   - 'NetworkManager-{branch}':
     #       branch: 'nm-1-2'
     #
