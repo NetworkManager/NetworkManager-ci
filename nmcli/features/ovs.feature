@@ -14,12 +14,14 @@ Feature: nmcli - ovs
     Scenario: NM - openvswitch - openvswitch interface recognized
     * Execute "ovs-vsctl add-br ovsbr0"
     * "ovsbr0" is visible with command "ip a"
-    Then "ovsbr0\s+ovs-bridge\s+unmanaged" is visible with command "nmcli device"
-    Then "ovsbr0\s+ovs-port\s+unmanaged" is visible with command "nmcli device"
+    When "ovsbr0\s+ovs-bridge\s+unmanaged" is visible with command "nmcli device"
+     And "ovsbr0\s+ovs-port\s+unmanaged" is visible with command "nmcli device"
+     And "ovsbr0\s+ovs-interface\s+disconnected" is visible with command "nmcli device"
+    * Execute "ovs-vsctl del-br ovsbr0"
+    Then "ovsbr0" is not visible with command "nmcli device"
 
 
     @ver+=1.10
-    @ethernet
     @openvswitch
     @openvswitch_ignore_ovs_network_setup
     Scenario: NM - openvswitch - ignore ovs network setup
@@ -39,7 +41,6 @@ Feature: nmcli - ovs
 
 
     @ver+=1.10
-    @ethernet
     @openvswitch
     @openvswitch_ignore_ovs_vlan_network_setup
     Scenario: NM - openvswitch - ignore ovs network setup
@@ -55,7 +56,6 @@ Feature: nmcli - ovs
 
 
     @ver+=1.10
-    @ethernet
     @openvswitch
     @openvswitch_ignore_ovs_bond_network_setup
     Scenario: NM - openvswitch - ignore ovs network setup
@@ -74,9 +74,8 @@ Feature: nmcli - ovs
 
 
     @ver+=1.10
-    @ethernet
     @openvswitch
-    @nmclic_add_basic_openvswitch_configuration
+    @nmcli_add_basic_openvswitch_configuration
     Scenario: nmcli - openvswitch - add basic setup
     * Add a new connection of type "ovs-bridge" and options "conn.interface bridge0 con-name ovs-bridge0"
     * Add a new connection of type "ovs-port" and options "conn.interface port0 conn.master bridge0 con-name ovs-port0"
