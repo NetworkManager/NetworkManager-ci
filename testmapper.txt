@@ -1035,5 +1035,6 @@ nmtui_wifi_show_password, ., nmtui/./runtest.sh nmtui_wifi_show_password ,
 nmtui_wifi_connect_to_network_after_dismissal, ., nmtui/./runtest.sh nmtui_wifi_connect_to_network_after_dismissal ,
 #@nmtui-wifi_end
 
+
 #sanitize_beah
 sanitize_beah, .,run/rh-beaker/./sanitize_beah.sh,
