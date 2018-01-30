@@ -1336,7 +1336,7 @@ def after_scenario(context, scenario):
             call('sudo rm -rf /etc/sysconfig/network-scripts/ifcfg-eth1', shell=True)
             call('sudo rm -rf /etc/sysconfig/network-scripts/ifcfg-ovsbridge0', shell=True)
             call('sudo nmcli con reload', shell=True)
-            call('sudo nmcli con del eth1', shell=True) # to be sure
+            call('sudo nmcli con del eth1 ovs-bridge0 ovs-port0 ovs-port1 ovs-eth2 ovs-iface0', shell=True) # to be sure
 
         if 'openvswitch_ignore_ovs_vlan_network_setup' in scenario.tags:
             print ("---------------------------")
