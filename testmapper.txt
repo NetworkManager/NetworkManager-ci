@@ -590,7 +590,9 @@ vpn_list_args, ., nmcli/./runtest.sh vpn_list_args ,
 
 #@openvpn_start
 openvpn_ipv4, ., nmcli/./runtest.sh openvpn_ipv4 ,
+openvpn_ipv4_neverdefault, ., nmcli/./runtest.sh openvpn_ipv4_neverdefault ,
 openvpn_ipv6, ., nmcli/./runtest.sh openvpn_ipv6 ,
+openvpn_ipv6_neverdefault, ., nmcli/./runtest.sh openvpn_ipv6_neverdefault ,
 openvpn_set_mtu, ., nmcli/./runtest.sh openvpn_set_mtu ,
 openvpn_set_firewall_zone, ., nmcli/./runtest.sh openvpn_set_firewall_zone ,
 openvpn_terminate, ., nmcli/./runtest.sh openvpn_terminate ,
