@@ -672,8 +672,15 @@ def before_scenario(context, scenario):
 
         if 'openvswitch' in scenario.tags:
             print ("---------------------------")
-            print ("deleting eth1 and eth2 for openswitch tests")
-            call('sudo nmcli con del eth1 eth2', shell=True) # delete these profile, we'll work with other ones
+            print ("starting openvswitch if not active")
+            if call('rpm -q NetworkManager-ovs', shell=True) != 0:
+                call('yum -y install NetworkManager-ovs', shell=True)
+                call('systemctl restart daemon-reload', shell=True)
+                call('systemctl restart NetworkManager', shell=True)
+            if call('systemctl is-active openvswitch', shell=True) != 0:
+                call('yum -y install openvswitch', shell=True)
+                call('systemctl restart openvswitch', shell=True)
+                call('systemctl restart NetworkManager', shell=True)
 
         if 'wireless_certs' in scenario.tags:
             print ("---------------------------")
@@ -1322,49 +1329,20 @@ def after_scenario(context, scenario):
                 call("for i in $(nmcli -t -f NAME,UUID connection |grep -v testeth |awk -F ':' ' {print $2}'); do nmcli con del $i; done", shell=True)
                 restore_testeth0()
 
-        if 'openvswitch_ignore_ovs_network_setup' in scenario.tags:
-            print ("---------------------------")
-            print ("removing all openvswitch bridge and ethernet connections")
-            call('sudo ifdown eth1', shell=True)
-            call('sudo ifdown ovsbridge0', shell=True)
-            call('sudo rm -rf /etc/sysconfig/network-scripts/ifcfg-eth1', shell=True)
-            call('sudo rm -rf /etc/sysconfig/network-scripts/ifcfg-ovsbridge0', shell=True)
-            call('sudo nmcli con reload', shell=True)
-            call('sudo nmcli con del eth1', shell=True) # to be sure
-
-        if 'openvswitch_ignore_ovs_vlan_network_setup' in scenario.tags:
-            print ("---------------------------")
-            print ("removing openvswitch bridge and inner bridge connections")
-            call('sudo ifdown intbr0', shell=True)
-            call('sudo ifdown ovsbridge0', shell=True)
-            call('sudo rm -rf /etc/sysconfig/network-scripts/ifcfg-intbr0', shell=True)
-            call('sudo rm -rf /etc/sysconfig/network-scripts/ifcfg-ovsbridge0', shell=True)
-
-        if 'openvswitch_ignore_ovs_bond_network_setup' in scenario.tags:
-            print ("---------------------------")
-            print ("removing openvswitch bridge and inner bond and slaves connection")
-            call('sudo ifdown bond0', shell=True)
-            call('sudo ifdown ovsbridge0', shell=True)
-            call('sudo ifdown eth1', shell=True)
-            call('sudo ifdown eth2', shell=True)
-            call('sudo rm -rf /etc/sysconfig/network-scripts/ifcfg-bond0', shell=True)
-            call('sudo rm -rf /etc/sysconfig/network-scripts/ifcfg-ovsbridge0', shell=True)
-            call('sudo nmcli con del eth1 eth2', shell=True)
-            # well we might not have to do this, but since these profiles have been openswitch'ed
-            # this is to make sure
-            call('sudo rm -rf /etc/sysconfig/network-scripts/ifcfg-eth1', shell=True)
-            call('sudo rm -rf /etc/sysconfig/network-scripts/ifcfg-eth2', shell=True)
-            call('sudo nmcli con reload', shell=True)
-
         if 'openvswitch' in scenario.tags:
             print ("---------------------------")
-            print ("regenerating eth1 and eth2 profiles after openvswitch manipulation")
-            call('service openvswitch stop', shell=True)
-            sleep(2)
-            call('modprobe -r openvswitch', shell=True)
-            # restore these default profiles
-            call('sudo nmcli con add type ethernet ifname eth1 con-name eth1 autoconnect no', shell=True)
-            call('sudo nmcli con add type ethernet ifname eth2 con-name eth2 autoconnect no', shell=True)
+            print ("remove openvswitch residuals")
+            call('sudo ifdown bond0', shell=True)
+            call('sudo ifdown eth1', shell=True)
+            call('sudo ifdown eth2', shell=True)
+            call('sudo ifdown ovsbridge0', shell=True)
+            call('ovs-vsctl del-br ovsbr0', shell=True)
+            call('sudo rm -rf /etc/sysconfig/network-scripts/ifcfg-eth1', shell=True)
+            call('sudo rm -rf /etc/sysconfig/network-scripts/ifcfg-bond0', shell=True)
+            call('sudo rm -rf /etc/sysconfig/network-scripts/ifcfg-ovsbridge0', shell=True)
+            call('sudo rm -rf /etc/sysconfig/network-scripts/ifcfg-intbr0', shell=True)
+            call('sudo nmcli con del eth1 ovs-bridge0 ovs-port0 ovs-port1 ovs-bond0 ovs-eth2 ovs-eth3 ovs-iface0', shell=True) # to be sure
+            call('sudo nmcli con reload', shell=True)
 
         if 'restore_hostname' in scenario.tags:
             print ("---------------------------")
