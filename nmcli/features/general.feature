@@ -1006,6 +1006,22 @@ Feature: nmcli - general
     Then "No such file or directory" is visible with command "cat /usr/lib/systemd/system/network-online.target.wants/NetworkManager-wait-online.service"
 
 
+    @rhbz1520865
+    @ver+=1.10
+    @rhel7_only
+    @nm_wait_online_requisite_NM
+    Scenario: NM - general - NM wait online - requisite NM
+    Then "Requisite=NetworkManager.service" is visible with command "cat /usr/lib/systemd/system/NetworkManager-wait-online.service"
+
+
+    @rhbz1520865
+    @ver+=1.10
+    @not_on_rhel
+    @nm_wait_online_requires_NM
+    Scenario: NM - general - NM wait online - requires NM
+    Then "Requires=NetworkManager.service" is visible with command "cat /usr/lib/systemd/system/NetworkManager-wait-online.service"
+
+
     @rhbz1086906
     @veth @delete_testeth0 @newveth @eth @restart
     @wait-online-for-both-ips
