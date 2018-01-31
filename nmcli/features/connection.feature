@@ -126,6 +126,15 @@ Feature: nmcli: connection
     Then "1" is visible with command "nmcli connection |grep ^eth1 |wc -l"
 
 
+    @rhbz1498943
+    @ver+=1.10
+    @eth
+    @double_connection_warning
+    Scenario: nmcli - connection - warn about the same name
+    * Add connection type "ethernet" named "ethie" for device "eth1"
+    Then "Warning: There is another connection with the name 'ethie'. Reference the connection by its uuid" is visible with command "nmcli con add type ethernet ifname eth con-name ethie"
+
+
     @rhbz997998
     @con
     @connection_restricted_to_single_device
@@ -217,6 +226,17 @@ Feature: nmcli: connection
      * Disconnect device "eth2"
      * Reboot
      Then Check if "connie" is active connection
+
+
+    @rhbz1401515
+    @ver+=1.10
+    @eth
+    @connection_autoconnect_yes_without_immediate_effects
+    Scenario: nmcli - connection - set autoconnect on without autoconnecting
+     * Add a new connection of type "ethernet" and options "con-name ethie ifname eth1 autoconnect no"
+     * Execute "python tmp/repro_1401515.py"
+     Then Check if "ethie" is not active connection
+      And "yes" is visible with command "nmcli connection show ethie |grep autoconnect:"
 
 
     @con
@@ -428,6 +448,7 @@ Feature: nmcli: connection
      When "metric 100" is visible with command "ip r |grep default |grep eth0"
      When "metric 101" is visible with command "ip r |grep default |grep eth10"
 
+
     @rhbz663730
     @ver+=1.9.2
     @con @eth @connect_testeth0
@@ -440,7 +461,7 @@ Feature: nmcli: connection
      * Bring "up" connection "ethie"
      * Bring "up" connection "connie"
      When "metric 100" is visible with command "ip r |grep default |grep eth0"
-     When "metric 100" is visible with command "ip r |grep default |grep eth10"
+     When "metric 101" is visible with command "ip r |grep default |grep eth10"
      * Execute "nmcli con modify connie ipv4.route-metric 10"
      * Bring "up" connection "connie"
      When "metric 100" is visible with command "ip r |grep default |grep eth0"
@@ -448,7 +469,7 @@ Feature: nmcli: connection
      * Execute "nmcli con modify connie ipv4.route-metric -1"
      * Bring "up" connection "connie"
      When "metric 100" is visible with command "ip r |grep default |grep eth0"
-     When "metric 100" is visible with command "ip r |grep default |grep eth10"
+     When "metric 101" is visible with command "ip r |grep default |grep eth10"
 
 
     @rhbz663730
@@ -617,7 +638,7 @@ Feature: nmcli: connection
      And "\"my.own.data\" = \"good_morning_starshine\"|\"my.own.data2\" = \"the_moon_says_hello\"" is visible with command "python tmp/setting-user-data.py id connie"
     * Execute "python tmp/setting-user-data.py set id connie -d my.own.data"
     * Execute "python tmp/setting-user-data.py set id connie -d my.own.data.two"
-    Then "[0]" is visible with command "python tmp/setting-user-data.py id connie"
+    Then "[none]|[0]" is visible with command "python tmp/setting-user-data.py id connie"
      And "\"my.own.data\" = \"good_morning_starshine\"|\"my.own.data2\" = \"the_moon_says_hello\"" is not visible with command "python tmp/setting-user-data.py id connie"
 
 

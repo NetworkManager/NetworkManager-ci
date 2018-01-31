@@ -1,4 +1,4 @@
-Feature: nmcli: ipv6
+    Feature: nmcli: ipv6
 
     # Please do use tags as follows:
     # @bugzilla_link (rhbz123456)
@@ -185,6 +185,8 @@ Feature: nmcli: ipv6
     Then "2001::/126 dev eth2\s+proto kernel\s+metric 256" is visible with command "ip -6 route"
     Then "3030::1 via 2001::2 dev eth2\s+proto static\s+metric 1" is visible with command "ip -6 route"
 
+
+    @rhbz1505893
     @ipv6_2 @eth0
     @ver+=1.9.2
     @ipv6_routes_set_basic_route
@@ -207,7 +209,7 @@ Feature: nmcli: ipv6
      * Bring "up" connection "ethie2"
     Then "1010::1 via 2000::1 dev eth1\s+proto static\s+metric 1" is visible with command "ip -6 route" in "5" seconds
     Then "2000::/126 dev eth1\s+proto kernel\s+metric 100" is visible with command "ip -6 route"
-    Then "2001::/126 dev eth2\s+proto kernel\s+metric 100" is visible with command "ip -6 route"
+    Then "2001::/126 dev eth2\s+proto kernel\s+metric 101" is visible with command "ip -6 route"
     Then "3030::1 via 2001::2 dev eth2\s+proto static\s+metric 1" is visible with command "ip -6 route"
 
 
@@ -276,6 +278,8 @@ Feature: nmcli: ipv6
     Then "2001::/126 dev eth2\s+proto kernel\s+metric 256" is visible with command "ip -6 route"
     Then "3030::1 via 2001::2 dev eth2\s+proto static\s+metric 1" is not visible with command "ip -6 route"
 
+
+    @rhbz1505893
     @ipv6_2 @eth0
     @ver+=1.9.2
     @ipv6_routes_remove_basic_route
@@ -311,8 +315,8 @@ Feature: nmcli: ipv6
     Then "2000::2/126" is visible with command "ip a s eth1"
     Then "2001::1/126" is visible with command "ip a s eth2"
     Then "1010::1 via 2000::1 dev eth1\s+proto static\s+metric 1" is not visible with command "ip -6 route"
-    Then "2000::/126 dev eth1\s+proto kernel\s+metric 100" is visible with command "ip -6 route" in "5" seconds
-    Then "2001::/126 dev eth2\s+proto kernel\s+metric 100" is visible with command "ip -6 route"
+    Then "2000::/126 dev eth1\s+proto kernel\s+metric 102" is visible with command "ip -6 route" in "5" seconds
+    Then "2001::/126 dev eth2\s+proto kernel\s+metric 103" is visible with command "ip -6 route"
     Then "3030::1 via 2001::2 dev eth2\s+proto static\s+metric 1" is not visible with command "ip -6 route"
 
 
@@ -334,6 +338,7 @@ Feature: nmcli: ipv6
     Then "2001::/126 dev eth1\s+proto kernel\s+metric 256" is visible with command "ip -6 route"
     Then "1010::1 dev eth1\s+proto static\s+metric 3" is visible with command "ip -6 route"
 
+
     @ipv6 @eth0
     @ver+=1.9.2
     @ipv6_routes_device_route
@@ -351,6 +356,99 @@ Feature: nmcli: ipv6
     Then "3030::1 via 2001::2 dev eth1\s+proto static\s+metric 2" is visible with command "ip -6 route"
     Then "2001::/126 dev eth1\s+proto kernel\s+metric 100" is visible with command "ip -6 route"
     Then "1010::1 dev eth1\s+proto static\s+metric 3" is visible with command "ip -6 route"
+
+
+    @rhbz1452684
+    @ipv6
+    @ver+=1.10
+    @ipv6_routes_with_src
+    Scenario: nmcli - ipv6 - routes - set route with src
+     * Add a new connection of type "ethernet" and options "ifname eth1 con-name ethie autoconnect no ipv6.method manual ipv6.addresses 2000::2/126 ipv6.route-metric 256"
+     * Execute "nmcli con modify ethie ipv6.routes '1010::1/128 src=2000::2'"
+     * Bring "up" connection "ethie"
+    Then "1010::1 dev eth1\s+proto static\s+metric 256" is visible with command "ip -6 route"
+     And "2000::\/126 dev eth1\s+proto kernel\s+metric 256" is visible with command "ip -6 route"
+
+
+    @rhbz1436531
+    @ver+=1.10
+    @eth @flush_300
+    @ipv6_route_set_route_with_tables
+    Scenario: nmcli - ipv6 - routes - set route with tables
+    * Add a new connection of type "ethernet" and options "ifname eth10 con-name ethie ipv6.route-table 300 ipv6.may-fail no"
+    When "connected" is visible with command "nmcli -g state,device device |grep eth10$" in "20" seconds
+     And "2620.* dev eth10 proto kernel metric 10[0-2]" is visible with command "ip -6 r show table 300"
+     And "2620.*\/64 dev eth10 proto ra metric 10[0-2]" is visible with command "ip -6 r show table 300"
+     And "fe80::\/64 dev eth10 proto kernel metric 10[0-2]" is visible with command "ip -6 r show table 300"
+     And "default via fe80.* dev eth10 proto ra metric 10[0-2]" is visible with command "ip -6 r show table 300"
+     And "eth10" is not visible with command "ip -6 r |grep -v fe80"
+    * Execute "ip -6 route add table 300 2004::3/128 dev eth10"
+    When "2004::3 dev eth10 metric 1024" is visible with command "ip -6 r show table 300"
+     And "2620.* dev eth10 proto kernel metric 10[0-2]" is visible with command "ip -6 r show table 300"
+     And "2620.*\/64 dev eth10 proto ra metric 10[0-2]" is visible with command "ip -6 r show table 300"
+     And "fe80::\/64 dev eth10 proto kernel metric 10[0-2]" is visible with command "ip -6 r show table 300"
+     And "default via fe80.* dev eth10 proto ra metric 10[0-2]" is visible with command "ip -6 r show table 300"
+    * Bring "up" connection "ethie"
+    When "connected" is visible with command "nmcli -g state,device device |grep eth10$" in "20" seconds
+    Then "2004::3 dev eth10 metric 1024" is not visible with command "ip -6 r show table 300"
+     And "2620.* dev eth10 proto kernel metric 10[0-2]" is visible with command "ip -6 r show table 300"
+     And "2620.*\/64 dev eth10 proto ra metric 10[0-2]" is visible with command "ip -6 r show table 300"
+     And "fe80::\/64 dev eth10 proto kernel metric 10[0-2]" is visible with command "ip -6 r show table 300"
+     And "default via fe80.* dev eth10 proto ra metric 10[0-2]" is visible with command "ip -6 r show table 300"
+     And "eth10" is not visible with command "ip -6 r |grep -v fe80"
+
+
+    @rhbz1436531
+    @ver+=1.10
+    @ver-1.11
+    @eth @flush_300
+    @ipv6_route_set_route_with_tables_reapply
+    Scenario: nmcli - ipv6 - routes - set route with tables reapply
+    * Add a new connection of type "ethernet" and options "ifname eth10 con-name ethie ipv6.may-fail no"
+    When "connected" is visible with command "nmcli -g state,device device |grep eth10$" in "20" seconds
+     And "2620.* dev eth10 proto kernel metric 10[0-2]" is visible with command "ip -6 r show"
+     And "2620.*::\/64 dev eth10 proto ra metric 10[0-2]" is visible with command "ip -6 r show"
+     And "fe80::\/64 dev eth10 proto kernel metric 10[0-2]" is visible with command "ip -6 r show"
+     And "default via fe80.* dev eth10 proto ra metric 10[0-2]" is visible with command "ip -6 r show"
+    * Execute "ip -6 route add table 300 2004::3/128 dev eth10"
+    When "2004::3 dev eth10 metric 1024" is visible with command "ip -6 r show table 300"
+     And "2620.* dev eth10 proto kernel metric 10[0-2]" is visible with command "ip -6 r show"
+     And "2620.*\/64 dev eth10 proto ra metric 10[0-2]" is visible with command "ip -6 r show"
+     And "fe80::\/64 dev eth10 proto kernel metric 10[0-2]" is visible with command "ip -6 r show"
+     And "default via fe80.* dev eth10 proto ra metric 10[0-2]" is visible with command "ip -6 r show"
+    * Execute "nmcli device reapply eth10"
+    When "connected" is visible with command "nmcli -g state,device device |grep eth10$" in "20" seconds
+    Then "2620.* dev eth10 proto kernel metric 10[0-2]" is visible with command "ip -6 r show" in "20" seconds
+     And "2004::3 dev eth10 metric 1024" is not visible with command "ip -6 r show table 300"
+     And "2620.*\/64 dev eth10 proto ra metric 10[0-2]" is visible with command "ip -6 r show"
+     And "fe80::\/64 dev eth10 proto kernel metric 10[0-2]" is visible with command "ip -6 r show"
+     And "default via fe80.* dev eth10 proto ra metric 10[0-2]" is visible with command "ip -6 r show"
+
+
+    @rhbz1436531
+    @ver+=1.11
+    @eth @flush_300
+    @ipv6_route_set_route_with_tables_reapply
+    Scenario: nmcli - ipv4 - routes - set route with tables reapply
+    * Add a new connection of type "ethernet" and options "ifname eth10 con-name ethie ipv6.may-fail no"
+    When "connected" is visible with command "nmcli -g state,device device |grep eth10$" in "20" seconds
+     And "2620.* dev eth10 proto kernel metric 10[0-2]" is visible with command "ip -6 r show"
+     And "2620.*\/64 dev eth10 proto ra metric 10[0-2]" is visible with command "ip -6 r show"
+     And "fe80::\/64 dev eth10 proto kernel metric 10[0-2]" is visible with command "ip -6 r show"
+     And "default via fe80.* dev eth10 proto ra metric 10[0-2]" is visible with command "ip -6 r show"
+    * Execute "ip -6 route add table 300 2004::3/128 dev eth10"
+    When "2004::3 dev eth10 metric 1024" is visible with command "ip -6 r show table 300"
+     And "2620.* dev eth10 proto kernel metric 10[0-2]" is visible with command "ip -6 r show"
+     And "2620.*\/64 dev eth10 proto ra metric 10[0-2]" is visible with command "ip -6 r show"
+     And "fe80::\/64 dev eth10 proto kernel metric 10[0-2]" is visible with command "ip -6 r show"
+     And "default via fe80.* dev eth10 proto ra metric 10[0-2]" is visible with command "ip -6 r show"
+    * Execute "nmcli device reapply eth10"
+    When "connected" is visible with command "nmcli -g state,device device |grep eth10$" in "20" seconds
+    Then "2620.* dev eth10 proto kernel metric 10[0-2]" is visible with command "ip -6 r show" in "20" seconds
+     And "2004::3 dev eth10 metric 1024" is visible with command "ip -6 r show table 300"
+     And "2620.*\/64 dev eth10 proto ra metric 10[0-2]" is visible with command "ip -6 r show"
+     And "fe80::\/64 dev eth10 proto kernel metric 10[0-2]" is visible with command "ip -6 r show"
+     And "default via fe80.* dev eth10 proto ra metric 10[0-2]" is visible with command "ip -6 r show"
 
 
     @ipv6
@@ -448,7 +546,6 @@ Feature: nmcli: ipv6
     Then "nameserver 5000::1" is visible with command "cat /etc/resolv.conf"
     Then "nameserver 10." is visible with command "cat /etc/resolv.conf"
 
-#FIXME: this need some tuning as there may be some auto obtained ipv6 dns VVVV
 
     @ipv6 @eth0
     @ipv6_dns_auto_with_more_manually_set
@@ -1069,7 +1166,7 @@ Feature: nmcli: ipv6
     * Quit editor
     * Execute "nmcli con up id ethie" for "100" times
 
-    @ver-=1.7
+    @ver-=1.6
     @eth @restart @selinux_allow_ifup @teardown_testveth
     @persistent_default_ipv6_gw
     Scenario: NM - ipv6 - persistent default ipv6 gw
@@ -1089,7 +1186,7 @@ Feature: nmcli: ipv6
     And "default via fe" is not visible with command "ip -6 r |grep testX |grep expire" in "5" seconds
 
 
-    @ver+=1.7
+    @ver+=1.7 @ver-=1.10.0
     @eth @restart @selinux_allow_ifup @teardown_testveth
     @persistent_default_ipv6_gw
     Scenario: NM - ipv6 - persistent default ipv6 gw
@@ -1105,8 +1202,28 @@ Feature: nmcli: ipv6
     When "default" is visible with command "ip -6 r |grep testX" in "20" seconds
     And "default" is visible with command "ip -6 r |grep testX |grep expire" in "5" seconds
     * Restart NM
+    * Wait for at least "10" seconds
     Then "default via fe" is visible with command "ip -6 r |grep testX |grep 'metric 1024'" in "50" seconds
     And "default via fe" is not visible with command "ip -6 r |grep testX |grep expire" in "5" seconds
+
+
+    @ver+=1.10.1
+    @eth @restart @selinux_allow_ifup @teardown_testveth
+    @persistent_default_ipv6_gw
+    Scenario: NM - ipv6 - persistent default ipv6 gw
+    * Add a new connection of type "ethernet" and options "ifname testX con-name ethie"
+    * Wait for at least "3" seconds
+    * Execute "systemctl stop NetworkManager"
+    * Prepare simulated test "testX" device
+    * Execute "sysctl net.ipv6.conf.testX.accept_ra_defrtr=1"
+    * Execute "sysctl net.ipv6.conf.testX.accept_ra_pinfo=1"
+    * Execute "ifup testX"
+    * Wait for at least "20" seconds
+    When "default" is visible with command "ip -6 r |grep testX" in "20" seconds
+    And "default" is visible with command "ip -6 r |grep testX |grep expire" in "5" seconds
+    * Restart NM
+    Then "default via fe" is visible with command "ip -6 r |grep testX |grep expire" for full "20" seconds
+     And "default via fe" is visible with command "ip -6 r |grep testX |grep 'metric 1024'" in "50" seconds
 
 
     @rhbz1274894
@@ -1236,6 +1353,19 @@ Feature: nmcli: ipv6
      And "2001::2" is visible with command "ip a s testX"
      And "tentative" is visible with command "ip a s testX" for full "10" seconds
 
+
+    @rhbz1508001
+    @ver+=1.10.0
+    @eth @teardown_testveth
+    @ipv4_dad_not_preventing_ipv6
+    Scenario: NM - ipv6 - add address after ipv4 DAD fail
+    * Prepare simulated test "testX" device
+    * Add a new connection of type "ethernet" and options "ifname testX con-name ethie ipv4.may-fail yes ipv4.method manual ipv4.addresses 192.168.99.1/24 ipv4.dad-timeout 2001 ipv6.may-fail yes"
+    * Reboot
+    Then "activated" is visible with command "nmcli -g GENERAL.STATE connection show ethie" in "15" seconds
+     And "2620:dead:beaf" is visible with command "ip a s testX"
+
+
     @rhbz1470930
     @ver+=1.8.3
     @ethernet @teardown_testveth @netcat
@@ -1249,3 +1379,47 @@ Feature: nmcli: ipv6
     * Bring "up" connection "ethernet0"
     * Execute "dd if=/dev/zero bs=1M count=10 | nc fd02::2 8080"
     Then "mtu 1400" is visible with command "ip route get fd02::2" for full "40" seconds
+
+
+    @rhbz1368018
+    @ver+=1.8
+    @eth @restart @kill_dhclient @teardown_testveth
+    @persistent_ipv6_after_device_rename
+    Scenario: NM - ipv6 - persistent ipv6 after device rename
+    * Prepare simulated test "testY" device
+    * Add a new connection of type "ethernet" and options "ifname testY con-name ethie"
+    * Bring "down" connection "ethie"
+    * Bring "up" connection "ethie"
+    * Execute "echo -e 'NM_CONTROLLED=no' >> /etc/sysconfig/network-scripts/ifcfg-ethie"
+    * Restart NM
+    When "0" is visible with command "cat /proc/sys/net/ipv6/conf/testY/disable_ipv6"
+    * Rename device "testY" to "festY"
+    * Execute "dhclient -1 festY" without waiting for process to finish
+    * Wait for at least "5" seconds
+    * Execute "kill -9 $(pidof dhclient)"
+    When "0" is visible with command "cat /proc/sys/net/ipv6/conf/festY/disable_ipv6"
+    * Rename device "festY" to "testY"
+    Then "0" is visible with command "cat /proc/sys/net/ipv6/conf/testY/disable_ipv6"
+
+    @rhbz1462260
+    @ver+=1.10.1
+    @eth1_disconnect
+    @add_ipv6_over_ipv4_configured_ext_device
+    Scenario: NM - ipv6 - add ipv6 to external ipv4 configured device
+    * Execute "ethtool -A eth1 rx on tx on; ip addr flush eth1; ethtool -A eth1 rx off tx off; ip link set eth1 up"
+    * Execute "ip addr add 192.168.100.2/24 dev eth1; ip addr add fe01::1/64 dev eth1"
+    Then "fe01::1" is visible with command "ip a show dev eth1" in "5" seconds
+
+
+    @rhbz1445417
+    @ver+=1.10
+    @eth @stop_radvd @two_bridged_veths
+    @ipv6_multiple_default_routes
+    Scenario: NM - ipv6 - multiple default ipv6 routes
+    * Prepare veth pairs "test1" bridged over "vethbr"
+    * Execute "ip -6 addr add dead:beef::1/64 dev vethbr"
+    * Execute "ip -6 addr add beef:dead::1/64 dev test1p"
+    * Execute "ip -6 addr add fe80::dead:dead:dead:dead/64 dev test1p"
+    * Start radvd server with config from "tmp/radvd.conf"
+    * Add a new connection of type "ethernet" and options "con-name ethie ifname test1 ipv6.may-fail no"
+    Then "2" is visible with command "ip -6 r |grep test1 | grep default |wc -l" in "40" seconds

@@ -485,10 +485,25 @@ Feature: nmcli - ethernet
 
     @rhbz1113941
     @ver+=1.4.0
+    @ver-=1.10.0
     @eth @8021x
     @8021x_without_password
     Scenario: nmcli - ethernet - connect to 8021x - md5 - ask for password
     * Add a new connection of type "ethernet" and options "ifname testX con-name ethie 802-1x.eap md5 802-1x.identity user autoconnect no"
+    * Spawn "nmcli -a con up ethie" command
+    * Expect "identity.*user"
+    * Enter in editor
+    * Send "password" in editor
+    * Enter in editor
+    Then "testX:connected:ethie" is visible with command "nmcli -t -f DEVICE,STATE,CONNECTION device" in "20" seconds
+
+
+    @rhbz1113941 @rhbz1438476
+    @ver+=1.10.0
+    @eth @8021x
+    @8021x_without_password
+    Scenario: nmcli - ethernet - connect to 8021x - md5 - ask for password
+    * Add a new connection of type "ethernet" and options "ifname testX con-name ethie 802-1x.eap md5 802-1x.identity user"
     * Spawn "nmcli -a con up ethie" command
     * Expect "identity.*user"
     * Enter in editor
@@ -516,5 +531,15 @@ Feature: nmcli - ethernet
     @preserve_8021x_certs
     Scenario: nmcli - ethernet - preserve 8021x certs
     * Add a new connection of type "ethernet" and options "ifname \* con-name ethie 802-1x.eap 'tls' 802-1x.client-cert /tmp/test2_ca_cert.pem 802-1x.private-key-password x 802-1x.private-key /tmp/test_key_and_cert.pem  802-1x.password pass1"
+    * Execute "nmcli con reload"
+    Then "ethie" is visible with command "nmcli con"
+
+
+    @rhbz1374660
+    @ver+=1.10
+    @eth
+    @preserve_8021x_leap_con
+    Scenario: nmcli - ethernet - preserve 8021x leap connection
+    * Add a new connection of type "ethernet" and options "ifname eth1 con-name ethie 802-1x.identity jdoe 802-1x.eap leap"
     * Execute "nmcli con reload"
     Then "ethie" is visible with command "nmcli con"

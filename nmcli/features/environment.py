@@ -154,17 +154,18 @@ def delete_old_lock(dir, lock):
 def restore_testeth0():
     call("nmcli con delete testeth0 2>&1 > /dev/null", shell=True)
     call("yes 2>/dev/null | cp -rf /tmp/testeth0 /etc/sysconfig/network-scripts/ifcfg-testeth0", shell=True)
+    sleep(1)
     call("nmcli con reload", shell=True)
     sleep(1)
     call("nmcli con up testeth0", shell=True)
     sleep(2)
 
 def wait_for_testeth0():
-    counter=20
+    counter=40
     while call("nmcli connection show testeth0 |grep IP4.ADDRESS > /dev/null", shell=True) != 0:
         sleep(1)
         counter-=1
-        if counter == 10:
+        if counter == 20:
             restore_testeth0()
         if counter == 0:
             print ("Testeth0 cannot be upped..this is wrong")
@@ -329,7 +330,7 @@ def before_scenario(context, scenario):
             if arch != "s390x":
                 sys.exit(0)
 
-        if 'allow_wired_connections' in scenario.tags:
+        if 'allow_veth_connections' in scenario.tags:
             if call("grep '^ENV{ID_NET_DRIVER}==\"veth\", ENV{NM_UNMANAGED}=\"1\"' /usr/lib/udev/rules.d/85-nm-unmanaged.rules", shell=True) == 0:
                 call("sed -i 's/^ENV{ID_NET_DRIVER}==\"veth\", ENV{NM_UNMANAGED}=\"1\"/#ENV{ID_NET_DRIVER}==\"veth\", ENV{NM_UNMANAGED}=\"1\"/' /usr/lib/udev/rules.d/85-nm-unmanaged.rules", shell=True)
                 cfg = Popen("sudo sh -c 'cat > /etc/NetworkManager/conf.d/99-unmanaged.conf'", stdin=PIPE, shell=True).stdin
@@ -346,7 +347,7 @@ def before_scenario(context, scenario):
             if call("grep dhcp=internal /etc/NetworkManager/NetworkManager.conf", shell=True) == 0:
                 sys.exit(0)
 
-        if 'newveth' in scenario.tags:
+        if 'newveth' in scenario.tags or 'not_on_veth' in scenario.tags:
             if os.path.isfile('/tmp/nm_newveth_configured'):
                 sys.exit(0)
 
@@ -430,7 +431,7 @@ def before_scenario(context, scenario):
         if 'internal_DHCP' in scenario.tags:
             print ("---------------------------")
             print ("set internal DHCP")
-            call("printf '# configured by beaker-test\n[main]\ndhcp=internal\n' > /etc/NetworkManager/conf.d/90-test-dhcp-internal.conf", shell=True)
+            call("printf '# configured by beaker-test\n[main]\ndhcp=internal\n' > /etc/NetworkManager/conf.d/99-xtest-dhcp-internal.conf", shell=True)
             call('systemctl restart NetworkManager.service', shell=True)
 
         if 'dhcpd' in scenario.tags:
@@ -457,7 +458,7 @@ def before_scenario(context, scenario):
             print ("disconnecting eth1 device")
             call('sudo nmcli device disconnect eth1', shell=True)
 
-        if 'policy_based_routing' in scenario.tags:
+        if 'need_dispatcher_scripts' in scenario.tags:
             print ("---------------------------")
             print ("install dispatcher scripts")
             wait_for_testeth0()
@@ -493,6 +494,8 @@ def before_scenario(context, scenario):
             print("turning on network.service")
             context.nm_restarted = True
             call('sudo pkill -9 /sbin/dhclient', shell=True)
+            # Make orig- devices unmanaged as they may be unfunctional
+            call('for dev in $(nmcli  -g DEVICE d |grep orig); do nmcli device set $dev managed off; done', shell=True)
             call('sudo systemctl restart NetworkManager.service', shell=True)
             call('sudo systemctl restart network.service', shell=True)
             call("nmcli connection up testeth0", shell=True)
@@ -670,6 +673,18 @@ def before_scenario(context, scenario):
             call("pkill -9 nm-iface-helper", shell=True)
             call("sudo systemctl stop firewalld", shell=True)
 
+        if 'slow_team' in scenario.tags:
+            print ("---------------------------")
+            print ("run just on x86_64")
+            arch = check_output("uname -p", shell=True).strip()
+            if arch != "x86_64":
+                sys.exit(0)
+            print ("---------------------------")
+            print ("remove all team packages except NM one and reinstall them with delayed version")
+            call("for i in $(rpm -qa |grep team|grep -v Netw); do rpm -e $i --nodeps; done", shell=True)
+            call("yum -y install https://vbenes.fedorapeople.org/NM/slow_libteam-1.25-5.el7_4.1.1.x86_64.rpm https://vbenes.fedorapeople.org/NM/slow_teamd-1.25-5.el7_4.1.1.x86_64.rpm", shell=True)
+            call("systemctl restart NetworkManager.service", shell=True)
+
         if 'openvswitch' in scenario.tags:
             print ("---------------------------")
             print ("starting openvswitch if not active")
@@ -725,6 +740,12 @@ def before_scenario(context, scenario):
             call('yum -y remove NetworkManager-config-connectivity-fedora', shell=True)
             call('sudo systemctl restart NetworkManager.service', shell=True)
             sleep(5)
+
+        if 'remove_custom_cfg' in scenario.tags:
+            print("---------------------------")
+            print("Removing custom cfg file in conf.d")
+            call('sudo rm -f /etc/NetworkManager/conf.d/99-xxcustom.conf', shell=True)
+            call('sudo systemctl restart NetworkManager.service', shell=True)
 
         if 'need_config_server' in scenario.tags:
             print("---------------------------")
@@ -862,7 +883,7 @@ def after_scenario(context, scenario):
             print ("deleting connection adsl")
             call("nmcli connection delete id adsl-test11", shell=True)
 
-        if 'allow_wired_connections' in scenario.tags:
+        if 'allow_veth_connections' in scenario.tags:
             if context.revert_unmanaged == True:
                 call("sed -i 's/^#ENV{ID_NET_DRIVER}==\"veth\", ENV{NM_UNMANAGED}=\"1\"/ENV{ID_NET_DRIVER}==\"veth\", ENV{NM_UNMANAGED}=\"1\"/' /usr/lib/udev/rules.d/85-nm-unmanaged.rules", shell=True)
                 call('sudo rm -rf /etc/NetworkManager/conf.d/99-unmanaged.conf', shell=True)
@@ -968,14 +989,23 @@ def after_scenario(context, scenario):
             print ("deleting ethie")
             call("nmcli connection delete id ethie", shell=True)
             call("rm -rf /etc/sysconfig/network-scripts/ifcfg-ethie*", shell=True)
-            #sleep(TIMER)
+
+        if 'eth_down_and_delete' in scenario.tags:
+            print ("---------------------------")
+            print ("deleting ethie")
+            call("nmcli connection down id ethie", shell=True)
+            call("nmcli connection delete id ethie", shell=True)
 
         if 'firewall' in scenario.tags:
             print ("---------------------------")
             print ("stoppping firewall")
             call("sudo firewall-cmd --panic-off", shell=True)
             call("sudo service firewalld stop", shell=True)
-            #sleep(TIMER)
+
+        if 'flush_300' in scenario.tags:
+            print ("---------------------------")
+            print ("flush route table 300")
+            call("ip route flush table 300", shell=True)
 
         if 'logging' in scenario.tags:
             print ("---------------------------")
@@ -1043,7 +1073,7 @@ def after_scenario(context, scenario):
         if 'internal_DHCP' in scenario.tags:
             print ("---------------------------")
             print ("revert internal DHCP")
-            call("rm -f /etc/NetworkManager/conf.d/90-test-dhcp-internal.conf", shell=True)
+            call("rm -f /etc/NetworkManager/conf.d/99-xtest-dhcp-internal.conf", shell=True)
             call('systemctl restart NetworkManager.service', shell=True)
 
         if 'dhcpd' in scenario.tags:
@@ -1051,6 +1081,11 @@ def after_scenario(context, scenario):
             print ("deleting veth devices")
             call("sudo service dhcpd stop", shell=True)
 
+        if 'stop_radvd' in scenario.tags:
+            print ("---------------------------")
+            print ("deleting veth devices")
+            call("sudo systemctl stop radvd", shell=True)
+            call('rm -rf /etc/radvd.conf', shell=True)
         if 'mtu' in scenario.tags:
             print ("---------------------------")
             print ("deleting veth devices from mtu test")
@@ -1147,6 +1182,13 @@ def after_scenario(context, scenario):
         if 'teamd' in scenario.tags:
             call("systemctl stop teamd", shell=True)
             call("systemctl reset-failed teamd", shell=True)
+
+        if 'slow_team' in scenario.tags:
+            print ("---------------------------")
+            print ("restore original team pakages")
+            call("for i in $(rpm -qa |grep team|grep -v Netw); do rpm -e $i --nodeps; done", shell=True)
+            call("yum -y install teamd libteam", shell=True)
+            call('systemctl restart NetworkManager.service', shell=True)
 
         if 'tshark' in scenario.tags:
             print ("---------------------------")
@@ -1508,13 +1550,14 @@ def after_scenario(context, scenario):
             print ("killing dbus-monitor")
             call('pkill -9 dbus-monitor', shell=True)
 
-        if 'policy_based_routing' in scenario.tags:
+        if 'need_dispatcher_scripts' in scenario.tags:
             print ("---------------------------")
             print ("remove dispatcher scripts")
             wait_for_testeth0()
             call("yum -y remove NetworkManager-config-routing-rules ", shell=True)
             call("rm -rf /etc/sysconfig/network-scripts/rule-ethie", shell=True)
             call('rm -rf /etc/sysconfig/network-scripts/route-ethie', shell=True)
+            call('ip rule del table 1; ip rule del table 1', shell=True)
 
         if 'pppoe' in scenario.tags:
             print ("---------------------------")
@@ -1530,16 +1573,19 @@ def after_scenario(context, scenario):
         if 'teardown_testveth' in scenario.tags:
             print("---------------------------")
             print("removing testveth device setup for all test devices")
-            for ns in context.testvethns:
-                print("Removing the setup in %s namespace" % ns)
-                call('[ -f /tmp/%s.pid ] && ip netns exec %s kill -SIGCONT $(cat /tmp/%s.pid)' % (ns, ns, ns), shell=True)
-                call('[ -f /tmp/%s.pid ] && kill $(cat /tmp/%s.pid)' % (ns, ns) , shell=True)
-                call('ip netns del %s' % ns, shell=True)
-                call('ip link del %s' % ns.split('_')[0], shell=True)
+            if hasattr(context, 'testvethns'):
+                for ns in context.testvethns:
+                    print("Removing the setup in %s namespace" % ns)
+                    call('[ -f /tmp/%s.pid ] && ip netns exec %s kill -SIGCONT $(cat /tmp/%s.pid)' % (ns, ns, ns), shell=True)
+                    call('[ -f /tmp/%s.pid ] && kill $(cat /tmp/%s.pid)' % (ns, ns) , shell=True)
+                    call('ip netns del %s' % ns, shell=True)
+                    call('ip link del %s' % ns.split('_')[0], shell=True)
             call('rm -f /etc/udev/rules.d/88-lr.rules', shell=True)
             call('udevadm control --reload-rules', shell=True)
             call('udevadm settle', shell=True)
             sleep(1)
+            call('systemctl restart NetworkManager', shell=True)
+
 
         if '@restore_rp_filters' in scenario.tags:
             print ("---------------------------")

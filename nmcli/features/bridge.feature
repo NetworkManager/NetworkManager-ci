@@ -34,6 +34,31 @@ Feature: nmcli - bridge
     Then "DELAY=3.*BRIDGING_OPTS=\"priority=5 hello_time=3 max_age=15 ageing_time=500000\".*NAME=br88.*ONBOOT=no" is visible with command "cat /etc/sysconfig/network-scripts/ifcfg-br88"
 
 
+    @rhbz1358615
+    @ver+=1.10.2
+    @bridge
+    @bridge_add_forward_delay
+    Scenario: nmcli - bridge - add forward delay
+    * Add a new connection of type "bridge" and options "con-name br88 autoconnect no ifname br88 priority 5 group-forward-mask 8 ip4 1.2.3.4/24"
+    * Bring "up" connection "br88"
+    * "br88:" is visible with command "ifconfig"
+    Then "br88" is visible with command "brctl show"
+    And "BRIDGING_OPTS=\"priority=5 group_fwd_mask=8\"" is visible with command "cat /etc/sysconfig/network-scripts/ifcfg-br88"
+    And "0x8" is visible with command "cat /sys/class/net/br88/bridge/group_fwd_mask"
+
+
+    @rhbz1358615
+    @ver+=1.10.2
+    @bridge
+    @bridge_modify_forward_delay
+    Scenario: nmcli - bridge - modify forward delay
+    * Add a new connection of type "bridge" and options "con-name br88 autoconnect no ifname br88 priority 5 group-forward-mask 8 ip4 1.2.3.4/24"
+    * Execute "nmcli con modify br88 bridge.group-forward-mask 0"
+    * Bring "up" connection "br88"
+    And "group_fwd_mask=8" is not visible with command "cat /etc/sysconfig/network-scripts/ifcfg-br88"
+    And "0x0" is visible with command "cat /sys/class/net/br88/bridge/group_fwd_mask"
+
+
 	@bridge
     @bridge_connection_up
     Scenario: nmcli - bridge - up
@@ -121,7 +146,7 @@ Feature: nmcli - bridge
     Then "ether f0:de:aa:fb:bb:cc" is visible with command "ip a s br12"
 
 
-    @rhbz1386872
+    @rhbz1386872 @rhbz1516659
     @ver+=1.8.0
     @bridge
     @bridge_set_mac_var1
@@ -157,6 +182,7 @@ Feature: nmcli - bridge
     * Check ifcfg-name file created for connection "eth1.80"
     * Add a new connection of type "bridge-slave" and options "autoconnect no ifname eth1.80 master br15"
     Then "BRIDGE=br15" is visible with command "cat /etc/sysconfig/network-scripts/ifcfg-bridge-slave-eth1.80"
+
 
 	@bridge
     @bridge_remove_slave
@@ -215,6 +241,29 @@ Feature: nmcli - bridge
     * Bring up connection "br10"
     Then  "br10.*eth1" is visible with command "brctl show"
     Then Disconnect device "br10"
+
+
+    @rhbz1437598
+    @ver+=1.10.0
+    @bridge
+    @bridge_autoconnect_slaves_when_master_reconnected
+    Scenario: nmcli - bridge - start slave upon master reconnection
+    * Add a new connection of type "bridge" and options "con-name br10 ifname br10"
+    * Add a new connection of type "bridge-slave" and options "con-name br10-slave ifname eth2 master br10"
+    * Open editor for connection "br10"
+    * Set a property named "ipv4.method" to "manual" in editor
+    * Set a property named "ipv4.addresses" to "192.168.1.19/24" in editor
+    * Save in editor
+    * Quit editor
+    * Bring "up" connection "br10"
+    When "(connected)" is visible with command "nmcli device show br10" in "10" seconds
+    * Disconnect device "br10"
+    When "disconnected" is visible with command "nmcli device show eth2" in "5" seconds
+     And "(connected)" is not visible with command "nmcli device show br10" in "5" seconds
+    * Bring up connection "br10"
+    Then  "br10.*eth2" is visible with command "brctl show" in "10" seconds
+     And "(connected)" is visible with command "nmcli device show eth2" in "5" seconds
+     And "(connected)" is visible with command "nmcli device show br10" in "5" seconds
 
 
     @bridge

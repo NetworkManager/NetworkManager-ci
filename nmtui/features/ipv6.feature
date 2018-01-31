@@ -187,6 +187,7 @@ Feature: IPv6 TUI tests
     Then "2001::/126 dev eth2\s+proto kernel\s+metric 256" is visible with command "ip -6 route"
     Then "3030::1 via 2001::2 dev eth2\s+proto static\s+metric 1" is visible with command "ip -6 route"
 
+
     @ipv6
     @ver+=1.9.2
     @nmtui_ipv6_routes_set_basic_route
@@ -208,8 +209,8 @@ Feature: IPv6 TUI tests
     * Add ip route "3030::1/128 2001::2 1"
     * Confirm the connection settings
     Then "1010::1 via 2000::1 dev eth1\s+proto static\s+metric 1" is visible with command "ip -6 route"
-    Then "2000::/126 dev eth1\s+proto kernel\s+metric 100" is visible with command "ip -6 route"
-    Then "2001::/126 dev eth2\s+proto kernel\s+metric 100" is visible with command "ip -6 route"
+    Then "2000::/126 dev eth1\s+proto kernel\s+metric 101" is visible with command "ip -6 route"
+    Then "2001::/126 dev eth2\s+proto kernel\s+metric 102" is visible with command "ip -6 route"
     Then "3030::1 via 2001::2 dev eth2\s+proto static\s+metric 1" is visible with command "ip -6 route"
 
 
@@ -291,8 +292,8 @@ Feature: IPv6 TUI tests
     Then "2000::2/126" is visible with command "ip a s eth1"
     Then "2001::1/126" is visible with command "ip a s eth2"
     Then "1010::1 via 2000::1 dev eth1\s+proto static\s+metric 1" is not visible with command "ip -6 route"
-    Then "2000::/126 dev eth1\s+proto kernel\s+metric 100" is visible with command "ip -6 route"
-    Then "2001::/126 dev eth2\s+proto kernel\s+metric 100" is visible with command "ip -6 route"
+    Then "2000::/126 dev eth1\s+proto kernel\s+metric 103" is visible with command "ip -6 route"
+    Then "2001::/126 dev eth2\s+proto kernel\s+metric 104" is visible with command "ip -6 route"
     Then "3030::1 via 2001::2 dev eth2\s+proto static\s+metric 1" is not visible with command "ip -6 route"
 
 
@@ -313,6 +314,7 @@ Feature: IPv6 TUI tests
     Then "2001::/126 dev eth1\s+proto kernel\s+metric 256" is visible with command "ip -6 route"
     Then "1010::1 dev eth1\s+proto static\s+metric 3" is visible with command "ip -6 route"
 
+
     @ipv6
     @ver+=1.9.2
     @nmtui_ipv6_routes_set_device_route
@@ -327,13 +329,12 @@ Feature: IPv6 TUI tests
     * Add ip route "3030::1/128 2001::2 2"
     * Confirm the connection settings
     Then "3030::1 via 2001::2 dev eth1\s+proto static\s+metric 2" is visible with command "ip -6 route"
-    Then "2001::/126 dev eth1\s+proto kernel\s+metric 100" is visible with command "ip -6 route"
+    Then "2001::/126 dev eth1\s+proto kernel\s+metric 101" is visible with command "ip -6 route"
     Then "1010::1 dev eth1\s+proto static\s+metric 3" is visible with command "ip -6 route"
 
 
-    @ipv6
-    @eth0
-    @ver-=1.9.1
+    @rhbz1505893
+    @ipv6 @eth0
     @nmtui_ipv6_routes_several_default_routes_metrics
     Scenario: nmtui - ipv6 - addresses - several default gateways and metrics
     * Prepare new connection of type "Ethernet" named "ethernet1"
@@ -360,33 +361,33 @@ Feature: IPv6 TUI tests
     Then "fc05::/68 dev eth2\s+proto kernel" is visible with command "ip -6 route" in "10" seconds
 
 
-    @ipv6
-    @eth0
-    @ver+=1.9.2
-    @nmtui_ipv6_routes_several_default_routes_metrics
-    Scenario: nmtui - ipv6 - addresses - several default gateways and metrics
-    * Prepare new connection of type "Ethernet" named "ethernet1"
-    * Set "Device" field to "eth1"
-    * Set "IPv6 CONFIGURATION" category to "Manual"
-    * Come in "IPv6 CONFIGURATION" category
-    * In "Addresses" property add "fc01::1:5/68"
-    * Set "Gateway" field to "fc01::1:1"
-    * Confirm the connection settings
-    * Choose to "<Add>" a connection
-    * Choose the connection type "Ethernet"
-    * Set "Profile name" field to "ethernet2"
-    * Set "Device" field to "eth2"
-    * Set "IPv6 CONFIGURATION" category to "Manual"
-    * Come in "IPv6 CONFIGURATION" category
-    * In "Addresses" property add "fc05::1:5/68"
-    * Set "Gateway" field to "fc05::1:1"
-    * Confirm the connection settings
-    Then "inet6 fc01::1:5/68" is visible with command "ip a s eth1" in "10" seconds
-    Then "inet6 fc05::1:5/68" is visible with command "ip a s eth2" in "10" seconds
-    Then "default via fc01::1:1 dev eth1\s+proto static\s+metric 100" is visible with command "ip -6 route" in "10" seconds
-    Then "default via fc05::1:1 dev eth2\s+proto static\s+metric 100" is visible with command "ip -6 route" in "10" seconds
-    Then "fc01::/68 dev eth1\s+proto kernel" is visible with command "ip -6 route" in "10" seconds
-    Then "fc05::/68 dev eth2\s+proto kernel" is visible with command "ip -6 route" in "10" seconds
+    # @ipv6
+    # @eth0
+    # @ver+=1.9.2
+    # @nmtui_ipv6_routes_several_default_routes_metrics
+    # Scenario: nmtui - ipv6 - addresses - several default gateways and metrics
+    # * Prepare new connection of type "Ethernet" named "ethernet1"
+    # * Set "Device" field to "eth1"
+    # * Set "IPv6 CONFIGURATION" category to "Manual"
+    # * Come in "IPv6 CONFIGURATION" category
+    # * In "Addresses" property add "fc01::1:5/68"
+    # * Set "Gateway" field to "fc01::1:1"
+    # * Confirm the connection settings
+    # * Choose to "<Add>" a connection
+    # * Choose the connection type "Ethernet"
+    # * Set "Profile name" field to "ethernet2"
+    # * Set "Device" field to "eth2"
+    # * Set "IPv6 CONFIGURATION" category to "Manual"
+    # * Come in "IPv6 CONFIGURATION" category
+    # * In "Addresses" property add "fc05::1:5/68"
+    # * Set "Gateway" field to "fc05::1:1"
+    # * Confirm the connection settings
+    # Then "inet6 fc01::1:5/68" is visible with command "ip a s eth1" in "10" seconds
+    # Then "inet6 fc05::1:5/68" is visible with command "ip a s eth2" in "10" seconds
+    # Then "default via fc01::1:1 dev eth1\s+proto static\s+metric 100" is visible with command "ip -6 route" in "10" seconds
+    # Then "default via fc05::1:1 dev eth2\s+proto static\s+metric 100" is visible with command "ip -6 route" in "10" seconds
+    # Then "fc01::/68 dev eth1\s+proto kernel" is visible with command "ip -6 route" in "10" seconds
+    # Then "fc05::/68 dev eth2\s+proto kernel" is visible with command "ip -6 route" in "10" seconds
 
 
     @ipv6

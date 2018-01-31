@@ -351,7 +351,49 @@ Feature: nmcli: ipv4
     Then "eth1:connected:ethie" is visible with command "nmcli -t -f DEVICE,STATE,CONNECTION device" in "10" seconds
 
 
+
+    @rhbz1436531
+    @ver+=1.10
+    @eth @flush_300
+    @ipv4_route_set_route_with_tables
+    Scenario: nmcli - ipv4 - routes - set route with tables
+    * Add a new connection of type "ethernet" and options "ifname eth1 con-name ethie ipv4.route-table 300"
+    When "connected" is visible with command "nmcli -g state,device device |grep eth1$" in "20" seconds
+    # This is cripppled in kernel VVV 1535977
+    # Then "default" is visible with command "ip r show table 300"
+     And "192.168.100.0\/24 dev eth1 proto kernel scope link src 192.168.100.* metric 10[0-2]" is visible with command "ip r show table 300"
+     And "eth1" is not visible with command "ip r"
+    * Execute "ip route add table 300 10.20.30.0/24 via $(nmcli -g IP4.ADDRESS con show ethie |awk -F '/' '{print $1}') dev eth1"
+    When "10.20.30.0\/24 via 192.168.100.* dev eth1" is visible with command "ip r show table 300"
+     And "192.168.100.0\/24 dev eth1 proto kernel scope link src 192.168.100.* metric 10[0-2]" is visible with command "ip r show table 300"
+    * Bring "up" connection "ethie"
+    When "connected" is visible with command "nmcli -g state,device device |grep eth1$" in "20" seconds
+    Then "10.20.30.0\/24 via 192.168.100.* dev eth1" is not visible with command "ip r show table 300"
+     And "192.168.100.0\/24 dev eth1 proto kernel scope link src 192.168.100.* metric 10[0-2]" is visible with command "ip r show table 300"
+     And "eth1" is not visible with command "ip r"
+
+
+    @rhbz1436531
+    @ver+=1.10
+    @eth @flush_300
+    @ipv4_route_set_route_with_tables_reapply
+    Scenario: nmcli - ipv4 - routes - set route with tables reapply
+    * Add a new connection of type "ethernet" and options "ifname eth1 con-name ethie"
+    When "connected" is visible with command "nmcli -g state,device device |grep eth1$" in "20" seconds
+    # This is cripppled in kernel VVV 1535977
+    # Then "default" is visible with command "ip r show table 300"
+     And "192.168.100.0\/24 dev eth1 proto kernel scope link src 192.168.100.* metric 10[0-2]" is visible with command "ip r show"
+    * Execute "ip route add table 300 10.20.30.0/24 via $(nmcli -g IP4.ADDRESS con show ethie |awk -F '/' '{print $1}') dev eth1"
+    When "10.20.30.0\/24 via 192.168.100.* dev eth1" is visible with command "ip r show table 300"
+     And "192.168.100.0\/24 dev eth1 proto kernel scope link src 192.168.100.* metric 10[0-2]" is visible with command "ip r show"
+    * Execute "nmcli device reapply eth1"
+    When "connected" is visible with command "nmcli -g state,device device |grep eth1$" in "20" seconds
+    Then "10.20.30.0\/24 via 192.168.100.* dev eth1" is visible with command "ip r show table 300"
+     And "192.168.100.0\/24 dev eth1 proto kernel scope link src 192.168.100.* metric 10[0-2]" is visible with command "ip r show"
+
+
     @rhbz1164441
+    @ver-=1.10.0
     @ipv4_2
     @ipv4_route_remove_basic_route
     Scenario: nmcli - ipv4 - routes - remove basic route
@@ -390,6 +432,49 @@ Feature: nmcli: ipv4
     Then "192.168.3.0/24 dev eth1\s+proto kernel\s+scope link\s+src 192.168.3.10" is visible with command "ip route"
     Then "192.168.4.1 dev eth1\s+proto static\s+scope link\s+metric 10[0-1]" is visible with command "ip route"
     Then "192.168.4.1 dev eth2\s+proto static\s+scope link\s+metric 10[0-1]" is visible with command "ip route"
+    Then "192.168.5.0/24 via 192.168.3.11 dev eth1\s+proto static\s+metric 1" is not visible with command "ip route"
+
+
+    @rhbz1164441
+    @ver+=1.10.2
+    @ipv4_2
+    @ipv4_route_remove_basic_route
+    Scenario: nmcli - ipv4 - routes - remove basic route
+    * Add connection type "ethernet" named "ethie" for device "eth1"
+    * Open editor for connection "ethie"
+    * Submit "set ipv4.method static" in editor
+    * Submit "set ipv4.addresses 192.168.3.10/24" in editor
+    * Submit "set ipv4.gateway 192.168.4.1" in editor
+    * Submit "set ipv4.routes 192.168.5.0/24 192.168.3.11 1" in editor
+    * Save in editor
+    * Quit editor
+    * Add connection type "ethernet" named "ethie2" for device "eth2"
+    * Open editor for connection "ethie2"
+    * Submit "set ipv4.method static" in editor
+    * Submit "set ipv4.addresses 192.168.1.10/24" in editor
+    * Submit "set ipv4.gateway 192.168.4.1" in editor
+    * Submit "set ipv4.routes 192.168.2.0/24 192.168.1.11 2" in editor
+    * Save in editor
+    * Quit editor
+    * Open editor for connection "ethie"
+    * Submit "set ipv4.routes" in editor
+    * Enter in editor
+    * Save in editor
+    * Quit editor
+    * Bring "up" connection "ethie"
+    * Open editor for connection "ethie2"
+    * Submit "set ipv4.routes" in editor
+    * Enter in editor
+    * Save in editor
+    * Quit editor
+    * Bring "up" connection "ethie2"
+    Then "default via 192.168.4.1 dev eth1\s+proto static\s+metric 103" is visible with command "ip route" in "5" seconds
+    Then "default via 192.168.4.1 dev eth2\s+proto static\s+metric 104" is visible with command "ip route" in "5" seconds
+    Then "192.168.1.0/24 dev eth2\s+proto kernel\s+scope link\s+src 192.168.1.10" is visible with command "ip route"
+    Then "192.168.2.0/24 via 192.168.1.11 dev eth2\s+proto static\s+metric 2" is not visible with command "ip route"
+    Then "192.168.3.0/24 dev eth1\s+proto kernel\s+scope link\s+src 192.168.3.10" is visible with command "ip route"
+    Then "192.168.4.1 dev eth1\s+proto static\s+scope link\s+metric 103" is visible with command "ip route"
+    Then "192.168.4.1 dev eth2\s+proto static\s+scope link\s+metric 104" is visible with command "ip route"
     Then "192.168.5.0/24 via 192.168.3.11 dev eth1\s+proto static\s+metric 1" is not visible with command "ip route"
 
 
@@ -1172,7 +1257,7 @@ Feature: nmcli: ipv4
 
     @rhbz1262922
     @ver+=1.2.0
-    @eth @teardown_testveth @long
+    @eth @teardown_testveth
     @dhcp-timeout
     Scenario: NM - ipv4 - add dhcp-timeout
     * Prepare simulated test "testX" device
@@ -1183,6 +1268,39 @@ Feature: nmcli: ipv4
     * Bring "up" connection "ethie"
     Then "routers = 192.168.99.1" is visible with command "nmcli con show ethie" in "10" seconds
     Then "default via 192.168.99.1 dev testX" is visible with command "ip r"
+
+
+    @rhbz1350830
+    @ver+=1.10.0
+    @eth @teardown_testveth
+    @dhcp-timeout_infinity
+    Scenario: NM - ipv4 - add dhcp-timeout infinity
+    * Prepare simulated test "testX" device
+    * Add connection type "ethernet" named "ethie" for device "testX"
+    * Execute "nmcli connection modify ethie ipv4.dhcp-timeout infinity"
+    * Execute "ip netns exec testX_ns kill -SIGSTOP $(cat /tmp/testX_ns.pid)"
+    * Execute "sleep 70; ip netns exec testX_ns kill -SIGCONT $(cat /tmp/testX_ns.pid)" without waiting for process to finish
+    * Bring "up" connection "ethie"
+    Then "routers = 192.168.99.1" is visible with command "nmcli con show ethie" in "10" seconds
+     And "default via 192.168.99.1 dev testX" is visible with command "ip r"
+     And "IPV4_DHCP_TIMEOUT=2147483647" is visible with command "cat /etc/sysconfig/network-scripts/ifcfg-ethie"
+
+
+    @rhbz1350830
+    @ver+=1.10.0
+    @eth @remove_custom_cfg
+    @dhcp-timeout_default_in_cfg
+    Scenario: nmcli - ipv4 - dhcp_timout infinity in cfg file
+    * Execute "echo -e '[connection-eth-dhcp-timeout]\nmatch-device=type:ethernet\nipv4.dhcp-timeout=2147483647' > /etc/NetworkManager/conf.d/99-xxcustom.conf"
+    * Execute "systemctl restart NetworkManager"
+    * Prepare simulated test "testX" device
+    * Add connection type "ethernet" named "ethie" for device "testX"
+    * Execute "ip netns exec testX_ns kill -SIGSTOP $(cat /tmp/testX_ns.pid)"
+    * Execute "sleep 50; ip netns exec testX_ns kill -SIGCONT $(cat /tmp/testX_ns.pid)" without waiting for process to finish
+    * Restart NM
+    Then "routers = 192.168.99.1" is visible with command "nmcli con show ethie" in "60" seconds
+     And "default via 192.168.99.1 dev testX" is visible with command "ip r"
+     And "IPV4_DHCP_TIMEOUT=2147483647" is not visible with command "cat /etc/sysconfig/network-scripts/ifcfg-ethie"
 
 
     @rhbz1246496
@@ -1206,6 +1324,7 @@ Feature: nmcli: ipv4
 
 
     @rhbz1265239
+    @ver-=1.10.0
     @teardown_testveth @long
     @renewal_gw_after_dhcp_outage_for_assumed_var1
     Scenario: NM - ipv4 - assumed address renewal after DHCP outage for in-memory assumed
@@ -1224,6 +1343,27 @@ Feature: nmcli: ipv4
     Then "routers = 192.168.99.1" is visible with command "nmcli con show testX" in "400" seconds
     Then "default" is visible with command "ip r| grep testX" in "150" seconds
     When "inet 192.168.99" is visible with command "ip a s testX" in "10" seconds
+
+
+    @rhbz1518091
+    @ver+=1.10.1
+    @teardown_testveth @long
+    @renewal_gw_after_dhcp_outage_for_assumed_var1
+    Scenario: NM - ipv4 - assumed address renewal after DHCP outage for in-memory assumed
+    * Prepare simulated test "testX" device
+    * Add connection type "ethernet" named "ethie" for device "testX"
+    * Bring "up" connection "ethie"
+    When "default" is visible with command "ip r |grep testX" in "30" seconds
+    When "inet 192" is visible with command "ip a s |grep testX" in "30" seconds
+    * Execute "ip netns exec testX_ns kill -SIGSTOP $(cat /tmp/testX_ns.pid)"
+    * Execute "systemctl stop NetworkManager"
+    * Execute "sudo rm -rf /etc/sysconfig/network-scripts/ifcfg-ethie"
+    * Execute "systemctl start NetworkManager"
+    When "default" is not visible with command "ip r |grep testX" in "130" seconds
+    When "inet 192.168.99" is not visible with command "ip a s testX" in "10" seconds
+    * Execute "ip netns exec testX_ns kill -SIGCONT $(cat /tmp/testX_ns.pid)"
+    Then "default" is not visible with command "ip r| grep testX" for full "150" seconds
+    Then "inet 192.168.99" is not visible with command "ip a s testX" in "10" seconds
 
 
     @rhbz1205405
@@ -1414,7 +1554,8 @@ Feature: nmcli: ipv4
     Then "1" is visible with command "cat /proc/sys/net/ipv4/conf/eth2/rp_filter"
      And "2" is visible with command "cat /proc/sys/net/ipv4/conf/eth3/rp_filter"
 
-    @rhbz1394344
+
+    @rhbz1394344 @rhbz1505893
     @ver+=1.9.1
     @ipv4_2 @restore_rp_filters
     @ipv4_rp_filter_set_loose
@@ -1423,8 +1564,8 @@ Feature: nmcli: ipv4
     * Execute "echo 1 > /proc/sys/net/ipv4/conf/eth3/rp_filter"
     * Add a new connection of type "ethernet" and options "con-name ethie ifname eth2 ip4 192.168.11.1/24"
     * Add a new connection of type "ethernet" and options "con-name ethie2 ifname eth3 ip4 192.168.11.2/24"
-    When "192.168.11.0/24 dev eth2.*src 192.168.11.1\s+metric 100" is visible with command "ip r" in "5" seconds
-     And "192.168.11.0/24 dev eth3.*src 192.168.11.2\s+metric 100" is visible with command "ip r" in "5" seconds
+    When "192.168.11.0/24 dev eth2.*src 192.168.11.1\s+metric 101" is visible with command "ip r" in "5" seconds
+     And "192.168.11.0/24 dev eth3.*src 192.168.11.2\s+metric 102" is visible with command "ip r" in "5" seconds
     Then "1" is visible with command "cat /proc/sys/net/ipv4/conf/eth2/rp_filter"
      And "2" is visible with command "cat /proc/sys/net/ipv4/conf/eth3/rp_filter"
 
@@ -1443,7 +1584,8 @@ Feature: nmcli: ipv4
     Then "1" is visible with command "cat /proc/sys/net/ipv4/conf/eth2/rp_filter"
      And "0" is visible with command "cat /proc/sys/net/ipv4/conf/eth3/rp_filter"
 
-    @rhbz1394344
+
+    @rhbz1394344 @rhbz1505893
     @ver+=1.9.1
     @ipv4_2 @restore_rp_filters
     @ipv4_rp_filter_do_not_touch
@@ -1452,8 +1594,8 @@ Feature: nmcli: ipv4
     * Execute "echo 0 > /proc/sys/net/ipv4/conf/eth3/rp_filter"
     * Add a new connection of type "ethernet" and options "con-name ethie ifname eth2 ip4 192.168.11.1/24"
     * Add a new connection of type "ethernet" and options "con-name ethie2 ifname eth3 ip4 192.168.11.2/24"
-    When "192.168.11.0/24 dev eth2.*src 192.168.11.1\s+metric 100" is visible with command "ip r" in "5" seconds
-     And "192.168.11.0/24 dev eth3.*src 192.168.11.2\s+metric 100" is visible with command "ip r" in "5" seconds
+    When "192.168.11.0/24 dev eth2.*src 192.168.11.1\s+metric 101" is visible with command "ip r" in "5" seconds
+     And "192.168.11.0/24 dev eth3.*src 192.168.11.2\s+metric 102" is visible with command "ip r" in "5" seconds
     Then "1" is visible with command "cat /proc/sys/net/ipv4/conf/eth2/rp_filter"
      And "0" is visible with command "cat /proc/sys/net/ipv4/conf/eth3/rp_filter"
 
@@ -1476,7 +1618,8 @@ Feature: nmcli: ipv4
     Then "1" is visible with command "cat /proc/sys/net/ipv4/conf/eth2/rp_filter" in "5" seconds
      And "1" is visible with command "cat /proc/sys/net/ipv4/conf/eth3/rp_filter" in "5" seconds
 
-    @rhbz1394344
+
+    @rhbz1394344 @rhbz1505893
     @ver+=1.9.1
     @ipv4_2 @restore_rp_filters
     @ipv4_rp_filter_reset
@@ -1485,8 +1628,8 @@ Feature: nmcli: ipv4
     * Execute "echo 1 > /proc/sys/net/ipv4/conf/eth3/rp_filter"
     * Add a new connection of type "ethernet" and options "con-name ethie ifname eth2 ip4 192.168.11.1/24"
     * Add a new connection of type "ethernet" and options "con-name ethie2 ifname eth3 ip4 192.168.11.2/24"
-    When "192.168.11.0/24 dev eth2.*src 192.168.11.1\s+metric 100" is visible with command "ip r" in "5" seconds
-     And "192.168.11.0/24 dev eth3.*src 192.168.11.2\s+metric 100" is visible with command "ip r" in "5" seconds
+    When "192.168.11.0/24 dev eth2.*src 192.168.11.1\s+metric 101" is visible with command "ip r" in "5" seconds
+     And "192.168.11.0/24 dev eth3.*src 192.168.11.2\s+metric 102" is visible with command "ip r" in "5" seconds
      And "1" is visible with command "cat /proc/sys/net/ipv4/conf/eth2/rp_filter"
      And "2" is visible with command "cat /proc/sys/net/ipv4/conf/eth3/rp_filter"
     * Delete connection "ethie"
@@ -1508,14 +1651,42 @@ Feature: nmcli: ipv4
     Then "10.0.0.1 dev testX" is not visible with command "ip route"
 
 
-     @rhbz1449873
-      @ver+=1.8.0
-      @BBB
-      @ipv4_keep_external_addresses
-      Scenario: NM - ipv4 - keep external addresses
-      * Execute "ip link add BBB type dummy"
-      * Execute "ip link set dev BBB up"
-      * Execute "for i in $(seq 20); do for j in $(seq 200); do ip addr add 10.3.$i.$j/16 dev BBB; done; done"
-      Then "4000" is visible with command "ip addr show dev BBB | grep 'inet 10.3.' -c"
-      * Execute "sleep 6"
-      Then "4000" is visible with command "ip addr show dev BBB | grep 'inet 10.3.' -c"
+    @rhbz1449873
+    @ver+=1.8.0
+    @BBB
+    @ipv4_keep_external_addresses
+    Scenario: NM - ipv4 - keep external addresses
+    * Execute "ip link add BBB type dummy"
+    * Execute "ip link set dev BBB up"
+    * Execute "for i in $(seq 20); do for j in $(seq 200); do ip addr add 10.3.$i.$j/16 dev BBB; done; done"
+    Then "4000" is visible with command "ip addr show dev BBB | grep 'inet 10.3.' -c"
+    * Execute "sleep 6"
+    Then "4000" is visible with command "ip addr show dev BBB | grep 'inet 10.3.' -c"
+
+
+    @rhbz1428334
+    @ver+=1.10.0
+    @ipv4
+    @ipv4_route_onsite
+    Scenario: nmcli - ipv4 - routes - add device route if onsite specified
+    * Add a new connection of type "ethernet" and options "ifname eth1 con-name ethie ipv4.method manual ipv4.addresses 192.168.3.10/24 ipv4.gateway 192.168.3.254"
+    * Execute "echo '10.200.200.2/31 via 172.16.0.254' > /etc/sysconfig/network-scripts/route-ethie"
+    * Execute "nmcli connection reload"
+    * Bring up connection "ethie" ignoring error
+    When "(connected)" is not visible with command "nmcli device show eth1" in "15" seconds
+    * Execute "nmcli connection modify ethie ipv4.routes '10.200.200.2/31 172.16.0.254 111 onlink=true'"
+    * Bring "up" connection "ethie"
+    Then "default via 192.168.3.254 dev eth1 proto static metric 101" is visible with command "ip r"
+     And "10.200.200.2/31 via 172.16.0.254 dev eth1 proto static metric 111 onlink" is visible with command "ip r"
+     And "192.168.3.0/24 dev eth1 proto kernel scope link src 192.168.3.10 metric 101" is visible with command "ip r"
+
+
+    @rhbz1482772
+    @ver+=1.10
+    @ipv4
+    @ipv4_multiple_ip4
+    Scenario: nmcli - ipv4 - method - static using multiple "ip4" options
+    * Add a new connection of type "ethernet" and options "ifname eth1 con-name ethie ip4 192.168.124.1/24 ip4 192.168.125.1/24"
+    * Bring "up" connection "ethie"
+    Then "192.168.124.1/24" is visible with command "ip a s eth1"
+    Then "192.168.125.1/24" is visible with command "ip a s eth1"

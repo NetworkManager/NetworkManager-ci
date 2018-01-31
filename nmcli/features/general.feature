@@ -378,7 +378,7 @@ Feature: nmcli - general
      And "default via 192.168.99.1 dev testX" is visible with command "ip r"
 
 
-    @ver+=1.7.1
+    @ver+=1.7.1 @ver-=1.10.1
     @eth @teardown_testveth @two_bridged_veths @dhcpd
     @device_reapply_routes
     Scenario: NM - device - reapply just routes
@@ -401,8 +401,30 @@ Feature: nmcli - general
      And "default via 192.168.99.1 dev testX" is visible with command "ip r"
 
 
+    @ver+=1.10.2
+    @eth @teardown_testveth @two_bridged_veths @dhcpd
+    @device_reapply_routes
+    Scenario: NM - device - reapply just routes
+    * Prepare simulated test "testX" device
+    * Add a new connection of type "ethernet" and options "ifname testX con-name ethie autoconnect no ipv4.may-fail no ipv6.method ignore"
+    * Bring "up" connection "ethie"
+    * Open editor for connection "ethie"
+    * Submit "set ipv4.routes 192.168.5.0/24 192.168.99.111 1" in editor
+    * Submit "set ipv4.route-metric 21" in editor
+    * Submit "set ipv6.method static" in editor
+    * Submit "set ipv6.addresses 2000::2/126" in editor
+    * Submit "set ipv6.routes 1010::1/128 2000::1 1" in editor
+    * Save in editor
+    * Execute "nmcli device reapply testX"
+    Then "1010::1 via 2000::1 dev testX\s+proto static\s+metric 1" is visible with command "ip -6 route" in "5" seconds
+     And "2000::/126 dev testX\s+proto kernel\s+metric 101" is visible with command "ip -6 route"
+     And "192.168.5.0/24 via 192.168.99.111 dev testX\s+proto static\s+metric" is visible with command "ip route"
+     And "routers = 192.168.99.1" is visible with command "nmcli con show ethie"
+     And "default via 192.168.99.1 dev testX proto dhcp metric 21" is visible with command "ip r"
+
+
     @rhbz1032717
-    @ver+=1.2.0
+    @ver+=1.2.0 @ver-=1.10.0
     @eth @teardown_testveth @two_bridged_veths @dhcpd
     @device_reapply_all
     Scenario: NM - device - reapply even address and gate
@@ -427,6 +449,35 @@ Feature: nmcli - general
      And "192.168.3.0/24 dev testX\s+proto kernel\s+scope link\s+src 192.168.3.10" is visible with command "ip route"
      And "192.168.4.1 dev testX\s+proto static\s+scope link\s+metric 21" is visible with command "ip route"
      And "192.168.5.0/24 via 192.168.3.11 dev testX\s+proto static\s+metric" is visible with command "ip route"
+     And "routers = 192.168.99.1" is not visible with command "nmcli con show ethie"
+     And "default via 192.168.99.1 dev testX" is not visible with command "ip r"
+
+
+    @rhbz1032717 @rhbz1505893
+    @ver+=1.10.2
+    @eth @teardown_testveth @two_bridged_veths @dhcpd
+    @device_reapply_all
+    Scenario: NM - device - reapply even address and gate
+    * Prepare simulated test "testX" device
+    * Add connection type "ethernet" named "ethie" for device "testX"
+    * Bring "up" connection "ethie"
+    * Open editor for connection "ethie"
+    * Submit "set ipv4.method static" in editor
+    * Submit "set ipv4.addresses 192.168.3.10/24" in editor
+    * Submit "set ipv4.gateway 192.168.4.1" in editor
+    * Submit "set ipv4.routes 192.168.5.0/24 192.168.3.11 1" in editor
+    * Submit "set ipv4.route-metric 21" in editor
+    * Submit "set ipv6.method static" in editor
+    * Submit "set ipv6.addresses 2000::2/126" in editor
+    * Submit "set ipv6.routes 1010::1/128 2000::1 1" in editor
+    * Save in editor
+    * Execute "ip netns exec testX_ns kill -SIGSTOP $(cat /tmp/testX_ns.pid)"
+    * Execute "nmcli device reapply testX"
+    Then "1010::1 via 2000::1 dev testX\s+proto static\s+metric 1" is visible with command "ip -6 route" in "5" seconds
+     And "2000::/126 dev testX\s+proto kernel\s+metric 101" is visible with command "ip -6 route"
+     And "192.168.3.0/24 dev testX\s+proto kernel\s+scope link\s+src 192.168.3.10 metric 21" is visible with command "ip route"
+     And "192.168.4.1 dev testX\s+proto static\s+scope link\s+metric 21" is visible with command "ip route"
+     And "192.168.5.0/24 via 192.168.3.11 dev testX\s+proto static\s+metric 1" is visible with command "ip route"
      And "routers = 192.168.99.1" is not visible with command "nmcli con show ethie"
      And "default via 192.168.99.1 dev testX" is not visible with command "ip r"
 
@@ -784,11 +835,11 @@ Feature: nmcli - general
     * Execute "ip tuntap add BBB mode tap"
     * Execute "ip link set dev BBB up"
     * Execute "ip addr add 10.2.5.6/24 valid_lft 1024 preferred_lft 1024 dev BBB"
-    When "connecting" is visible with command "nmcli device show BBB" in "45" seconds
+    Then "10.2.5.6/24" is visible with command "ip addr show BBB" for full "50" seconds
     * Bring "down" connection "BBB"
     * Execute "ip link set dev BBB up"
     * Execute "ip addr add 10.2.5.6/24 dev BBB"
-    Then "connected" is visible with command "nmcli device show BBB" in "45" seconds
+    Then "10.2.5.6/24" is visible with command "ip addr show BBB" for full "10" seconds
 
 
     @rhbz1066705
@@ -908,6 +959,28 @@ Feature: nmcli - general
 
 
     @rhbz1201497
+    @ver-=1.9.9
+    @runonce @restore_hostname @eth0
+    @run_once_helper_for_localhost_localdomain
+    Scenario: NM - general - helper running for localhost on localdo
+    * Bring "up" connection "testeth0"
+    * Disconnect device "eth0"
+    * Execute "sleep 2"
+    * Stop NM and clean "eth0"
+    When "state DOWN" is visible with command "ip a s eth0" in "5" seconds
+    * Execute "hostnamectl set-hostname localhost.localdomain"
+    * Execute "echo '[main]' > /etc/NetworkManager/conf.d/01-run-once.conf"
+    * Execute "echo 'configure-and-quit=yes' >> /etc/NetworkManager/conf.d/01-run-once.conf"
+    * Execute "echo 'dhcp=internal' >> /etc/NetworkManager/conf.d/01-run-once.conf"
+    * Execute "ip link set dev eth0 up"
+    * Execute "sleep 1"
+    * Start NM
+    Then "eth0" is visible with command "ps aux|grep helper" in "40" seconds
+    Then "eth0" is visible with command "ps aux|grep helper" for full "20" seconds
+
+
+    @rhbz1201497
+    @ver+=1.10
     @runonce @restore_hostname @eth0
     @run_once_helper_for_localhost_localdomain
     Scenario: NM - general - helper running for localhost on localdo
@@ -925,6 +998,12 @@ Feature: nmcli - general
     Then "eth0" is visible with command "ps aux|grep helper" in "40" seconds
     Then "eth0" is visible with command "ps aux|grep helper" for full "20" seconds
 
+
+    @rhbz1498943
+    @ver+=1.10
+    @network_online_target_not_depend_on_wait_online
+    Scenario: NM - general - network-online target - no wait-online dep
+    Then "No such file or directory" is visible with command "cat /usr/lib/systemd/system/network-online.target.wants/NetworkManager-wait-online.service"
 
 
     @rhbz1086906
@@ -954,7 +1033,7 @@ Feature: nmcli - general
 
 
     @rhbz1160013
-    @eth
+    @eth_down_and_delete @need_dispatcher_scripts
     @policy_based_routing
     Scenario: NM - general - policy based routing
     * Add a new connection of type "ethernet" and options "ifname eth1 con-name ethie"
@@ -968,6 +1047,22 @@ Feature: nmcli - general
     * Bring "down" connection "ethie"
     Then "32764:\s+from 192.168.100..* lookup 1.*32765:\s+from all iif eth1 lookup 1" is not visible with command "ip rule"
     Then "default via 192.168.100.1 dev eth1" is not visible with command "ip r s table 1"
+
+
+    @rhbz1384799
+    @ver+=1.10
+    @eth_down_and_delete @need_dispatcher_scripts
+    @modify_policy_based_routing_connection
+    Scenario: NM - general - modify policy based routing connection
+    * Prepare simulated test "testX" device
+    * Add a new connection of type "ethernet" and options "ifname testX con-name ethie autoconnect no"
+    * Bring "up" connection "ethie"
+    * Create PBR files for profile "ethie" and "testX" device in table "1"
+    * Modify connection "ethie" changing options "connection.autoconnect yes ipv6.method ignore"
+    * Reboot
+    Then "32764:\s+from 192.168.99.* lookup 1.*32765:\s+from all iif testX lookup 1" is visible with command "ip rule" in "20" seconds
+     And "default via 192.168.99.1 dev testX" is visible with command "ip r s table 1" in "20" seconds
+     And "2620" is not visible with command "ip a s testX" in "10" seconds
 
 
     @rhbz1262972
@@ -999,7 +1094,7 @@ Feature: nmcli - general
 
 
     @rhbz1254089
-    @teardown_testveth
+    @teardown_testveth @allow_veth_connections
     @allow_wired_connections
     Scenario: NM - general - create Wired connection for veth devices
     * Prepare simulated test "testX" device
@@ -1008,8 +1103,8 @@ Feature: nmcli - general
 
 
     @rhbz1182085
-    @ver+=1.4
-    @long @netservice
+    @ver+=1.9
+    @netservice
     @nmcli_general_profile_pickup_doesnt_break_network
     Scenario: nmcli - general - profile pickup does not break network service
     * Add a new connection of type "ethernet" and options "ifname * con-name ethernet0"
@@ -1017,7 +1112,7 @@ Feature: nmcli - general
     * "connected:ethernet0" is visible with command "nmcli -t -f STATE,CONNECTION device" in "50" seconds
     * "connected:ethernet1" is visible with command "nmcli -t -f STATE,CONNECTION device" in "50" seconds
     # Finish asserts the command exited with 0, thus the network service completed properly
-    Then Finish "systemctl restart NetworkManager.service && systemctl restart network.service"
+    Then Finish "systemctl restart NetworkManager.service && sleep 3 && systemctl restart network.service"
 
 
     @rhbz1079353
@@ -1291,6 +1386,19 @@ Feature: nmcli - general
     Then "unmanaged" is visible with command "nmcli device show eth1" in "5" seconds
 
 
+    @rhbz1464904
+    @ver+=1.10.0
+    @manage_eth1
+    @snapshot_rollback_managed
+    Scenario: NM - general - snapshot and rollback managed
+    * Execute "nmcli device set eth1 managed on"
+    * Snapshot "create" for "eth1" with timeout "10"
+    * Execute "nmcli device set eth1 managed off"
+    When "unmanaged" is visible with command "nmcli device show eth1" in "5" seconds
+    * Wait for at least "15" seconds
+    Then "unmanaged" is not visible with command "nmcli device show eth1" in "5" seconds
+
+
     @rhbz1369716
     @ver+=1.8.0
     @bond @slaves
@@ -1328,6 +1436,21 @@ Feature: nmcli - general
     Then Check noted value "4" difference from "3" is lower than "500"
 
 
+    @rhbz1461643
+    @ver+=1.10.0
+    @allow_veth_connections @no_config_server @restart @long
+    @stable_mem_consumption2
+    Scenario: NM - general - stable mem consumption - var 2
+    * Execute "sh tmp/repro_1461643.sh"
+    * Note the output of "pmap -x $(pidof NetworkManager) |grep 'rw---'" as value "1"
+    * Note the output of "pmap -x $(pidof NetworkManager) |grep total | awk '{print $3}'" as value "3"
+    * Execute "sh tmp/repro_1461643.sh"
+    * Note the output of "pmap -x $(pidof NetworkManager) |grep 'rw---'" as value "2"
+    * Note the output of "pmap -x $(pidof NetworkManager) |grep total | awk '{print $3}'" as value "4"
+    Then Check RSS writable memory in noted value "2" differs from "1" less than "500"
+    Then Check noted value "4" difference from "3" is lower than "750"
+
+
     @rhbz1398932
     @ver+=1.7.2
     @BBB
@@ -1337,6 +1460,35 @@ Feature: nmcli - general
     * Bring up connection "BBB"
     Then "dummy" is visible with command "ip -d l show BBB | grep dummy"
     Then "1.2.3.4/24" is visible with command "ip a s BBB | grep inet"
+
+
+    @rhbz1527197
+    @ver+=1.10.1
+    @BBB
+    @dummy_with_qdisc
+    Scenario: NM - general - create dummy with qdisc
+    * Add a new connection of type "dummy" and options "ifname BBB con-name BBB ipv4.method link-local ipv6.method link-local"
+    * Bring up connection "BBB"
+    * Bring up connection "BBB"
+    * Bring up connection "BBB"
+    * Execute "tc qdisc add dev BBB root handle 1234 fq_codel"
+    * Bring up connection "BBB"
+    Then "dummy" is visible with command "ip -d l show BBB | grep dummy"
+
+
+    @rhbz1512316
+    @ver+=1.10.1
+    @BBB
+    @do_not_touch_external_dummy
+    Scenario: NM - general - do not touch external dummy device
+    Then Finish "sh tmp/repro_1512316.sh"
+     And Finish "sh tmp/repro_1512316.sh"
+     And Finish "sh tmp/repro_1512316.sh"
+     And Finish "sh tmp/repro_1512316.sh"
+     And Finish "sh tmp/repro_1512316.sh"
+     And Finish "sh tmp/repro_1512316.sh"
+     And Finish "sh tmp/repro_1512316.sh"
+     And Finish "sh tmp/repro_1512316.sh"
 
 
     @rhbz1337997

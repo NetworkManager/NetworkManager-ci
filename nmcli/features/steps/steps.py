@@ -365,6 +365,12 @@ def check_same_noted_values(context, i1, i2):
      "Noted values: %s != %s !" % (context.noted[i1].strip(), context.noted[i2].strip())
 
 
+@step(u'Check noted values "{i1}" and "{i2}" are not the same')
+def check_same_noted_values(context, i1, i2):
+    assert context.noted[i1].strip() != context.noted[i2].strip(), \
+     "Noted values: %s == %s !" % (context.noted[i1].strip(), context.noted[i2].strip())
+
+
 @step(u'Check noted output contains "{pattern}"')
 def check_noted_output_contains(context, pattern):
     assert re.search(pattern, context.noted_value) is not None, "Noted output does not contain the pattern %s" % pattern
@@ -1168,6 +1174,21 @@ def check_pattern_visible_with_command_fortime(context, pattern, command, second
         sleep(1)
 
 
+@step(u'"{pattern}" is not visible with command "{command}" for full "{seconds}" seconds')
+def check_pattern_visible_with_command_fortime(context, pattern, command, seconds):
+    cmd = '/bin/bash -c "%s"' %command
+    seconds = int(seconds)
+    orig_seconds = seconds
+    while seconds > 0:
+        ifconfig = pexpect.spawn(cmd, timeout = 180, logfile=context.log)
+        if ifconfig.expect([pattern, pexpect.EOF]) != 0:
+            pass
+        else:
+            raise Exception('Pattern %s appeared in %d seconds' % (pattern, orig_seconds-seconds))
+        seconds = seconds - 1
+        sleep(1)
+
+
 @step(u'"{pattern}" is not visible with command "{command}" in "{seconds}" seconds')
 def check_pattern_not_visible_with_command_in_time(context, pattern, command, seconds):
     cmd = '/bin/bash -c "%s"' %command
@@ -1300,6 +1321,14 @@ def prepare_veths(context, pairs_array, bridge):
         command_code(context, "ip link set dev %s up" % pair)
         command_code(context, "ip link set dev %sp up" % pair)
 
+
+
+@step(u'Start radvd server with config from "{location}"')
+def start_radvd(context, location):
+    command_code(context, "rm -rf /etc/radvd.conf")
+    command_code(context, "cp %s /etc/radvd.conf" % location)
+    command_code(context, "systemctl restart radvd")
+    sleep(2)
 
 @step(u'Prepare simulated test "{device}" device with "{ipv4}" ipv4 and "{ipv6}" ipv6 dhcp address prefix and dhcp option "{option}"')
 @step(u'Prepare simulated test "{device}" device with "{ipv4}" ipv4 and "{ipv6}" ipv6 dhcp address prefix')
@@ -1483,6 +1512,7 @@ def prepare_simdev_no_carrier(context, device):
     if not hasattr(context, 'testvethns'):
         context.testvethns = []
     context.testvethns.append("%s_ns" % device)
+    sleep(2)
 
 
 @step(u'Print in editor')
@@ -1525,6 +1555,22 @@ def start_NM(context):
     context.nm_restarted = True
     assert command_code(context, "sudo systemctl start NetworkManager.service") == 0
 
+
+@step(u'Delete device "{device}"')
+def delete_device(context, device):
+    cli = pexpect.spawn('nmcli device delete %s' % device, logfile=context.log,  timeout=180)
+
+    r = cli.expect(['Error', pexpect.TIMEOUT, pexpect.EOF])
+    if r == 0:
+        raise Exception('Got an Error while deleting device %s' % device)
+    elif r == 1:
+        raise Exception('nmcli device delete %s timed out (180s)' % device)
+
+@step(u'Rename device "{old_device}" to "{new_device}"')
+def delete_device(context, old_device, new_device):
+    command_code(context, "ip link set dev %s down" % old_device)
+    command_code(context, "ip link set %s name %s" % (old_device, new_device))
+    command_code(context, "ip link set dev %s ip" % old_device)
 
 @step(u'Restart NM')
 def restart_NM(context):

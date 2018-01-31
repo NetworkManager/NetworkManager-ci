@@ -16,7 +16,7 @@ Feature: Bridge TUI tests
     Then "bridge0" is visible with command "brctl show"
     Then "bridge0\s+bridge" is visible with command "nmcli device"
 
-
+    @ver-=1.10.1
     @bridge
     @nmtui_bridge_add_custom_bridge
     Scenario: nmtui - bridge - add custom bridge
@@ -32,6 +32,22 @@ Feature: Bridge TUI tests
     Then "br88" is visible with command "brctl show"
     Then "DELAY=3.*BRIDGING_OPTS=\"priority=5 hello_time=3 max_age=15 ageing_time=500000\".*NAME=bridge.*ONBOOT=yes" is visible with command "cat /etc/sysconfig/network-scripts/ifcfg-bridge0"
 
+    @ver+=1.10.2
+    @bridge
+    @nmtui_bridge_add_custom_bridge
+    Scenario: nmtui - bridge - add custom bridge
+    * Prepare new connection of type "Bridge" named "bridge0"
+    * Set "Device" field to "br88"
+    * Set "Aging time" field to "500000"
+    * Set "Priority" field to "5"
+    * Set "Forward delay" field to "3"
+    * Set "Hello time" field to "3"
+    * Set "Max age" field to "15"
+    * Set "Group forward mask" field to "8"
+    * Confirm the connection settings
+    Then "br88:" is visible with command "ip a" in "10" seconds
+    Then "br88" is visible with command "brctl show"
+    Then "DELAY=3.*BRIDGING_OPTS=\"priority=5 hello_time=3 max_age=15 ageing_time=500000 group_fwd_mask=8\".*NAME=bridge.*ONBOOT=yes" is visible with command "cat /etc/sysconfig/network-scripts/ifcfg-bridge0"
 
     @bridge
     @nmtui_bridge_add_connection_wo_autoconnect
