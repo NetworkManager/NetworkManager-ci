@@ -7,6 +7,7 @@
     # @test_name (compiled from scenario name)
     # Scenario:
 
+
     @slaves @bond
     @bond_add_default_bond
     Scenario: nmcli - bond - add default bond
