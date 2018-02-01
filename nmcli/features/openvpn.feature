@@ -16,6 +16,22 @@
     Then "VPN.VPN-STATE:.*VPN connected" is visible with command "nmcli c show openvpn"
     Then "IP4.ADDRESS.*172.31.70.*/32" is visible with command "nmcli c show openvpn"
     Then "IP6.ADDRESS" is not visible with command "nmcli c show openvpn"
+     And "default" is visible with command "ip r |grep -v eth0"
+
+
+    @rhbz1505886
+    @ver+=1.0.8
+    @openvpn @openvpn4
+    @openvpn_ipv4_neverdefault
+    Scenario: nmcli - openvpn - add neverdefault IPv4 connection
+    * Add a connection named "openvpn" for device "\*" to "openvpn" VPN
+    * Use certificate "sample-keys/client.crt" with key "sample-keys/client.key" and authority "sample-keys/ca.crt" for gateway "127.0.0.1" on OpenVPN connection "openvpn"
+    * Execute "nmcli con modify openvpn ipv4.never-default yes"
+    * Bring "up" connection "openvpn"
+    Then "VPN.VPN-STATE:.*VPN connected" is visible with command "nmcli c show openvpn"
+     And "IP4.ADDRESS.*172.31.70.*/32" is visible with command "nmcli c show openvpn"
+     And "IP6.ADDRESS" is not visible with command "nmcli c show openvpn"
+     And "default" is not visible with command "ip r |grep -v eth0"
 
 
     @ver+=1.0.8
@@ -28,6 +44,22 @@
     Then "VPN.VPN-STATE:.*VPN connected" is visible with command "nmcli c show openvpn"
     Then "IP6.ADDRESS.*2001:db8:666:dead::2/64" is visible with command "nmcli c show openvpn"
     Then "IP4.ADDRESS" is not visible with command "nmcli c show openvpn"
+     And "default" is visible with command "ip -6 r |grep -v eth0"
+
+
+    @rhbz1505886
+    @ver+=1.0.8
+    @openvpn @openvpn6
+    @openvpn_ipv6_neverdefault
+    Scenario: nmcli - openvpn - add neverdefault IPv6 connection
+    * Add a connection named "openvpn" for device "\*" to "openvpn" VPN
+    * Use certificate "sample-keys/client.crt" with key "sample-keys/client.key" and authority "sample-keys/ca.crt" for gateway "127.0.0.1" on OpenVPN connection "openvpn"
+    * Execute "nmcli con modify openvpn ipv6.never-default yes"
+    * Bring "up" connection "openvpn"
+    Then "VPN.VPN-STATE:.*VPN connected" is visible with command "nmcli c show openvpn"
+    Then "IP6.ADDRESS.*2001:db8:666:dead::2/64" is visible with command "nmcli c show openvpn"
+    Then "IP4.ADDRESS" is not visible with command "nmcli c show openvpn"
+     And "default" is not visible with command "ip -6 r |grep -v eth0"
 
 
     @rhbz1267004
