@@ -1,6 +1,7 @@
 @testplan
 Feature: nmcli - vlan
 
+
     # Please do use tags as follows:
     # @bugzilla_link (rhbz123456)
     # @version_control (ver+/-=1.4.1)
