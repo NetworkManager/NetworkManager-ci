@@ -2,6 +2,7 @@
 # NetworkManager-ci
 This repo contains a set of integration tests for NetworkManager and vagrant based executor
 
+
 ### Nightly status (CentOS CI)
 
 | Code Branch | Build Status |
