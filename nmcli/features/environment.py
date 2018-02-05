@@ -432,7 +432,7 @@ def before_scenario(context, scenario):
             print ("---------------------------")
             print ("set internal DHCP")
             call("printf '# configured by beaker-test\n[main]\ndhcp=internal\n' > /etc/NetworkManager/conf.d/99-xtest-dhcp-internal.conf", shell=True)
-            call('systemctl restart NetworkManager.service', shell=True)
+            call('systemctl reload NetworkManager.service', shell=True)
 
         if 'dhcpd' in scenario.tags:
             print ("---------------------------")
@@ -866,10 +866,15 @@ def after_scenario(context, scenario):
 
         if 'restart' in scenario.tags:
             print ("---------------------------")
-            print ("restarting NM service")
-            call('sudo service NetworkManager restart', shell=True)
-            sleep(2)
-            restore_testeth0()
+            print ("restart/reload NM service")
+            if call('systemctl is-active NetworkManager', shell=True) == 0:
+                print ("* just reload")
+                call('sudo systemctl reload NetworkManager', shell=True)
+            else:
+                print ("* need to restart")
+                call('sudo systemctl restart NetworkManager', shell=True)
+                sleep(2)
+            wait_for_testeth0()
         dump_status(context, 'after %s' % scenario.name)
 
         if '1000' in scenario.tags:
@@ -1074,7 +1079,7 @@ def after_scenario(context, scenario):
             print ("---------------------------")
             print ("revert internal DHCP")
             call("rm -f /etc/NetworkManager/conf.d/99-xtest-dhcp-internal.conf", shell=True)
-            call('systemctl restart NetworkManager.service', shell=True)
+            call('systemctl reload NetworkManager.service', shell=True)
 
         if 'dhcpd' in scenario.tags:
             print ("---------------------------")
