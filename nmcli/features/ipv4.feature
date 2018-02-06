@@ -1142,17 +1142,6 @@ Feature: nmcli: ipv4
     Then "BC" is not visible with command "cat /tmp/tshark.log"
 
 
-    @rhbz1531173
-    @ver+=1.10
-    @eth9 @ipv4 @internal_DHCP @restart
-    @ipv4_set_very_long_dhcp_client_id
-    Scenario: nmcli - ipv4 - dhcp-client-id - set long client id
-    * Add connection type "ethernet" named "ethie" for device "eth9"
-    * Bring "down" connection "ethie"
-    * Execute "nmcli connection modify ethie ipv4.dhcp-client-id $(printf '=%.0s' {1..999})"
-    Then Bring "up" connection "ethie"
-
-
     @ipv4
     @ipv4_may-fail_yes
     Scenario: nmcli - ipv4 - may-fail - set true

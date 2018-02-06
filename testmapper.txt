@@ -317,7 +317,6 @@ ipv4_dns-search_ignore_auto_routes, ., nmcli/./runtest.sh ipv4_dns-search_ignore
 ipv4_method_link-local, ., nmcli/./runtest.sh ipv4_method_link-local ,
 ipv4_dhcp_client_id_set, ., nmcli/./runtest.sh ipv4_dhcp_client_id_set ,
 ipv4_dhcp_client_id_remove, ., nmcli/./runtest.sh ipv4_dhcp_client_id_remove ,
-ipv4_set_very_long_dhcp_client_id, ., nmcli/./runtest.sh ipv4_set_very_long_dhcp_client_id ,
 ipv4_may-fail_yes, ., nmcli/./runtest.sh ipv4_may-fail_yes ,
 ipv4_method_disabled, ., nmcli/./runtest.sh ipv4_method_disabled ,
 ipv4_never-default_set, ., nmcli/./runtest.sh ipv4_never-default_set ,
