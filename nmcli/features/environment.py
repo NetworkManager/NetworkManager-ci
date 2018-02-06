@@ -152,6 +152,7 @@ def delete_old_lock(dir, lock):
     os.rmdir("%s%s" %(dir, lock))
 
 def restore_testeth0():
+    print ("* restoring testeth0")
     call("nmcli con delete testeth0 2>&1 > /dev/null", shell=True)
     call("yes 2>/dev/null | cp -rf /tmp/testeth0 /etc/sysconfig/network-scripts/ifcfg-testeth0", shell=True)
     sleep(1)
@@ -161,6 +162,10 @@ def restore_testeth0():
     sleep(2)
 
 def wait_for_testeth0():
+    print ("* waiting for testeth0 to connect")
+    if call("nmcli connection show testeth0 > /dev/null", shell=True)!= 0:
+        restore_testeth0()
+
     counter=40
     while call("nmcli connection show testeth0 |grep IP4.ADDRESS > /dev/null", shell=True) != 0:
         sleep(1)
@@ -313,7 +318,7 @@ def before_scenario(context, scenario):
             print ("---------------------------")
             print ("add connectivity checker")
             call("echo '[connectivity]' > /etc/NetworkManager/conf.d/99-connectivity.conf", shell=True)
-            call("echo 'uri=https://fedoraproject.org/static/hotspot.txt' >> /etc/NetworkManager/conf.d/99-connectivity.conf", shell=True)
+            call("echo 'uri=http://fedoraproject.org/static/hotspot.txt' >> /etc/NetworkManager/conf.d/99-connectivity.conf", shell=True)
             call("echo 'response=OK' >> /etc/NetworkManager/conf.d/99-connectivity.conf", shell=True)
             call("echo 'interval=5' >> /etc/NetworkManager/conf.d/99-connectivity.conf", shell=True)
             call("systemctl restart NetworkManager", shell=True)
@@ -869,7 +874,7 @@ def after_scenario(context, scenario):
             print ("restarting NM service")
             call('sudo service NetworkManager restart', shell=True)
             sleep(2)
-            restore_testeth0()
+            wait_for_testeth0()
         dump_status(context, 'after %s' % scenario.name)
 
         if '1000' in scenario.tags:
@@ -954,6 +959,7 @@ def after_scenario(context, scenario):
             print ("---------------------------")
             print ("remove connectivity checker")
             call("rm -rf /etc/NetworkManager/conf.d/99-connectivity.conf", shell=True)
+            call("rm -rf /var/lib/NetworkManager/NetworkManager-intern.conf", shell=True)
             call("systemctl restart NetworkManager", shell=True)
             sleep(3)
             call("systemctl restart NetworkManager", shell=True)
