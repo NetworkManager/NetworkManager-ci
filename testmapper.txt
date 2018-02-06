@@ -688,6 +688,7 @@ simwifi_ttls_mschapv2, ., nmcli/./runtest.sh simwifi_ttls_mschapv2 ,
 simwifi_ttls_mschapv2_eap, ., nmcli/./runtest.sh simwifi_ttls_mschapv2_eap ,
 simwifi_ttls_md5, ., nmcli/./runtest.sh simwifi_ttls_md5 ,
 simwifi_ttls_gtc, ., nmcli/./runtest.sh simwifi_ttls_gtc ,
+nmclient_get_wireless_hw_property, ., nmcli/./runtest.sh nmclient_get_wireless_hw_property ,
 #@wifi_hwsim_end
 
 #@wifi_start

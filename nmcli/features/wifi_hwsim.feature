@@ -142,3 +142,11 @@ Feature: nmcli - wifi
     * Add a new connection of type "wifi" and options "ifname wlan0 con-name wifi autoconnect no ssid wpa2-eap 802-11-wireless-security.key-mgmt wpa-eap 802-1x.eap ttls 802-1x.identity test_gtc 802-1x.anonymous-identity test 802-1x.ca-cert /tmp/certs/test_user.ca.pem 802-1x.phase2-autheap gtc 802-1x.password password"
     * Execute "sleep 1"
     Then Bring "up" connection "wifi"
+
+
+    @rhbz1520398
+    @ver+=1.10
+    @simwifi_wpa2
+    @nmclient_get_wireless_hw_property
+    Scenario: nmclient - property - get wireless hardware property
+    Then "True|False" is visible with command "python tmp/nmclient_get_property.py wireless-hardware-enabled"
