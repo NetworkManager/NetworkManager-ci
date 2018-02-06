@@ -280,6 +280,7 @@ ipv4_route_set_route_with_src_new_syntax_restart_persistence, ., nmcli/./runtest
 no_metric_route_connection_restart_persistence, ., nmcli/./runtest.sh no_metric_route_connection_restart_persistence ,
 ipv4_route_set_route_with_tables, ., nmcli/./runtest.sh ipv4_route_set_route_with_tables ,
 ipv4_route_set_route_with_tables_reapply, ., nmcli/./runtest.sh ipv4_route_set_route_with_tables_reapply ,
+ipv4_restore_default_route_externally, ., nmcli/./runtest.sh ipv4_restore_default_route_externally
 ipv4_route_remove_basic_route, ., nmcli/./runtest.sh ipv4_route_remove_basic_route ,
 ipv4_route_set_device_route, ., nmcli/./runtest.sh ipv4_route_set_device_route ,
 ipv4_host_destination_route, ., nmcli/./runtest.sh ipv4_host_destination_route ,
@@ -317,6 +318,7 @@ ipv4_dns-search_ignore_auto_routes, ., nmcli/./runtest.sh ipv4_dns-search_ignore
 ipv4_method_link-local, ., nmcli/./runtest.sh ipv4_method_link-local ,
 ipv4_dhcp_client_id_set, ., nmcli/./runtest.sh ipv4_dhcp_client_id_set ,
 ipv4_dhcp_client_id_remove, ., nmcli/./runtest.sh ipv4_dhcp_client_id_remove ,
+ipv4_set_very_long_dhcp_client_id, ., nmcli/./runtest.sh ipv4_set_very_long_dhcp_client_id ,
 ipv4_may-fail_yes, ., nmcli/./runtest.sh ipv4_may-fail_yes ,
 ipv4_method_disabled, ., nmcli/./runtest.sh ipv4_method_disabled ,
 ipv4_never-default_set, ., nmcli/./runtest.sh ipv4_never-default_set ,
