@@ -524,6 +524,7 @@ macsec_psk, ., nmcli/./runtest.sh macsec_psk ,
 non_utf_device, ., nmcli/./runtest.sh non_utf_device ,
 connectivity_check, ., nmcli/./runtest.sh connectivity_check ,
 disable_connectivity_check, ., nmcli/./runtest.sh disable_connectivity_check ,
+manipulate_connectivity_check_via_dbus, ., nmcli/./runtest.sh manipulate_connectivity_check_via_dbus ,
 per_device_connectivity_check, ., nmcli/./runtest.sh per_device_connectivity_check ,
 keep_external_device_enslaved_on_down, ., nmcli/./runtest.sh keep_external_device_enslaved_on_down ,
 #@general_end
