@@ -392,6 +392,20 @@ Feature: nmcli: ipv4
      And "192.168.100.0\/24 dev eth1 proto kernel scope link src 192.168.100.* metric 10[0-2]" is visible with command "ip r show"
 
 
+    @rhbz1503769
+    @ver+=1.10
+    @ethie
+    @ipv4_restore_default_route_externally
+    Scenario: nmcli - ipv4 - routes - restore externally
+    * Add a new connection of type "ethernet" and options "ifname eth1 con-name ethie"
+    When "connected" is visible with command "nmcli -g state,device device |grep eth1$" in "20" seconds
+     And "default" is visible with command "ip r |grep eth1"
+    * Execute "ip route delete default dev eth1"
+    When "default" is not visible with command "ip r |grep eth1"
+    * Execute "ip route add default via 192.168.100.1 metric 103"
+    Then "default" is visible with command "ip r |grep eth1"
+
+
     @rhbz1164441
     @ver-=1.10.0
     @ipv4_2
@@ -1140,6 +1154,17 @@ Feature: nmcli: ipv4
     * Bring "up" connection "ethie"
     * Execute "sleep 5; sudo pkill tshark"
     Then "BC" is not visible with command "cat /tmp/tshark.log"
+
+
+    @rhbz1531173
+    @ver+=1.10
+    @eth9 @ipv4 @internal_DHCP @restart
+    @ipv4_set_very_long_dhcp_client_id
+    Scenario: nmcli - ipv4 - dhcp-client-id - set long client id
+    * Add connection type "ethernet" named "ethie" for device "eth9"
+    * Bring "down" connection "ethie"
+    * Execute "nmcli connection modify ethie ipv4.dhcp-client-id $(printf '=%.0s' {1..999})"
+    Then Bring "up" connection "ethie"
 
 
     @ipv4
