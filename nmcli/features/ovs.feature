@@ -80,7 +80,7 @@ Feature: nmcli - ovs
     Scenario: nmcli - openvswitch - add basic setup
     * Add a new connection of type "ovs-bridge" and options "conn.interface bridge0 con-name ovs-bridge0"
     * Add a new connection of type "ovs-port" and options "conn.interface port0 conn.master bridge0 con-name ovs-port0"
-    * Add a new connection of type "ovs-port" and options "conn.interface port1 conn.master bridge0 con-name ovs-port0"
+    * Add a new connection of type "ovs-port" and options "conn.interface port1 conn.master bridge0 con-name ovs-port1"
     * Add a new connection of type "ethernet" and options "conn.interface eth2 conn.master port1 slave-type ovs-port con-name ovs-eth2"
     * Add a new connection of type "ovs-interface" and options "conn.interface iface0 conn.master port0 con-name ovs-iface0"
     When "activated" is visible with command "nmcli -g GENERAL.STATE con show ovs-iface0" in "20" seconds
