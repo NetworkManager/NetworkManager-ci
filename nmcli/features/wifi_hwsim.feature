@@ -21,7 +21,7 @@ Feature: nmcli - wifi
     Then "\*\s+wpa2-eap" is visible with command "nmcli -f IN-USE,SSID device wifi list"
 
 
-    @ver+=1.8.0
+    @ver+=1.10
     @simwifi_wpa2 @attach_hostapd_log @attach_wpa_supplicant_log
     @simwifi_wpa2psk_profile
     Scenario: nmcli - wifi-sec - configure and connect WPA2-PSK profile
@@ -33,7 +33,7 @@ Feature: nmcli - wifi
     Then "\*\s+wpa2-eap" is visible with command "nmcli -f IN-USE,SSID device wifi list"
 
 
-    @ver+=1.8.0
+    @ver+=1.10
     @simwifi_wpa2 @attach_hostapd_log @attach_wpa_supplicant_log
     @simwifi_tls
     Scenario: nmcli - simwifi - connect to TLS
@@ -44,7 +44,7 @@ Feature: nmcli - wifi
     Then Bring "up" connection "wifi"
 
 
-    @ver+=1.8.0
+    @ver+=1.10
     @simwifi_wpa2 @attach_hostapd_log @attach_wpa_supplicant_log
     @simwifi_peap_gtc
     Scenario: nmcli - simwifi - connect to PEAP GTC
@@ -54,7 +54,7 @@ Feature: nmcli - wifi
     Then Bring "up" connection "wifi"
 
 
-    @ver+=1.8.0
+    @ver+=1.10
     @simwifi_wpa2 @attach_hostapd_log @attach_wpa_supplicant_log
     @simwifi_peap_md5
     Scenario: nmcli - simwifi - connect to PEAP MD5
@@ -64,7 +64,7 @@ Feature: nmcli - wifi
     Then Bring "up" connection "wifi"
 
 
-    @ver+=1.8.0
+    @ver+=1.10
     @simwifi_wpa2 @attach_hostapd_log @attach_wpa_supplicant_log
     @simwifi_peap_mschapv2
     Scenario: nmcli - simwifi - connect to PEAP MSCHAPv2
@@ -74,7 +74,7 @@ Feature: nmcli - wifi
     Then Bring "up" connection "wifi"
 
 
-    @ver+=1.8.0
+    @ver+=1.10
     @simwifi_wpa2 @attach_hostapd_log @attach_wpa_supplicant_log
     @simwifi_ttls_pap
     Scenario: nmcli - simwifi - connect to TTLS PAP
@@ -84,7 +84,7 @@ Feature: nmcli - wifi
     Then Bring "up" connection "wifi"
 
 
-    @ver+=1.8.0
+    @ver+=1.10
     @simwifi_wpa2 @attach_hostapd_log @attach_wpa_supplicant_log
     @simwifi_ttls_chap
     Scenario: nmcli - simwifi - connect to TTLS CHAP
@@ -94,7 +94,7 @@ Feature: nmcli - wifi
     Then Bring "up" connection "wifi"
 
 
-    @ver+=1.8.0
+    @ver+=1.10
     @simwifi_wpa2 @attach_hostapd_log @attach_wpa_supplicant_log
     @simwifi_ttls_mschap
     Scenario: nmcli - simwifi - connect to TTLS MSCHAP
@@ -104,7 +104,7 @@ Feature: nmcli - wifi
     Then Bring "up" connection "wifi"
 
 
-    @ver+=1.8.0
+    @ver+=1.10
     @simwifi_wpa2 @attach_hostapd_log @attach_wpa_supplicant_log
     @simwifi_ttls_mschapv2
     Scenario: nmcli - simwifi - connect to TTLS MSCHAPv2
@@ -114,7 +114,7 @@ Feature: nmcli - wifi
     Then Bring "up" connection "wifi"
 
 
-    @ver+=1.8.0
+    @ver+=1.10
     @simwifi_wpa2 @attach_hostapd_log @attach_wpa_supplicant_log
     @simwifi_ttls_mschapv2_eap
     Scenario: nmcli - simwifi - connect to TTLS MSCHAPv2 + EAP
@@ -124,7 +124,7 @@ Feature: nmcli - wifi
     Then Bring "up" connection "wifi"
 
 
-    @ver+=1.8.0
+    @ver+=1.10
     @simwifi_wpa2 @attach_hostapd_log @attach_wpa_supplicant_log
     @simwifi_ttls_md5
     Scenario: nmcli - simwifi - connect to TTLS MD5
@@ -134,7 +134,7 @@ Feature: nmcli - wifi
     Then Bring "up" connection "wifi"
 
 
-    @ver+=1.8.0
+    @ver+=1.10
     @simwifi_wpa2 @attach_hostapd_log @attach_wpa_supplicant_log @simwifi_wpa2_teardown
     @simwifi_ttls_gtc
     Scenario: nmcli - simwifi - connect to TTLS GTC

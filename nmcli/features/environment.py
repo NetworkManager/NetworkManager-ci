@@ -695,6 +695,7 @@ def before_scenario(context, scenario):
             print ("starting openvswitch if not active")
             if call('rpm -q NetworkManager-ovs', shell=True) != 0:
                 call('yum -y install NetworkManager-ovs', shell=True)
+                call('systemctl daemon-reload', shell=True)
                 call('systemctl restart NetworkManager', shell=True)
             if call('systemctl is-active openvswitch', shell=True) != 0:
                 call('yum -y install openvswitch', shell=True)
