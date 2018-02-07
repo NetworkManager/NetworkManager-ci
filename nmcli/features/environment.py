@@ -873,8 +873,8 @@ def after_scenario(context, scenario):
             print ("---------------------------")
             print ("restarting NM service")
             call('sudo service NetworkManager restart', shell=True)
-            sleep(2)
-            wait_for_testeth0()
+            if not os.path.isfile('/tmp/nm_dcb_inf_wol_sriov_configured'):
+                wait_for_testeth0()
         dump_status(context, 'after %s' % scenario.name)
 
         if '1000' in scenario.tags:

@@ -98,4 +98,4 @@
     * Prepare connection
     * Set default DCB options
     * Submit "set dcb.app-fcoe-priority 8" in editor
-    Then Error type "failed to set 'app-fcoe-priority' property: '8' is not valid; use <-1-7>" shown in editor
+    Then Error type "failed to set 'app-fcoe-priority' property: '8' is out of range \[-1, 7\]" shown in editor
