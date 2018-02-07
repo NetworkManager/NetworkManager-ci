@@ -1616,3 +1616,18 @@ Feature: nmcli - general
     * Execute "sleep 2"
     * Execute "ip link set tap0 down"
     Then "master br0" is visible with command "ip link show tap0" for full "5" seconds
+
+
+    @ver+=1.10
+    @add_testeth1 @eth1_disconnect
+    @overtake_external_device
+    Scenario: nmcli - general - overtake external device
+    * Execute "ip add add 1.2.3.4/24 dev eth1"
+    When "No such file" is visible with command "cat /etc/sysconfig/network-scripts/ifcfg-eth1"
+     And "eth1" is visible with command "nmcli -g NAME connection" in "5" seconds
+     And "dhclient" is not visible with command "ps aux|grep dhcl |grep eth1"
+    * Execute "nmcli con modify eth1 ipv4.method auto"
+    When "activated" is visible with command "nmcli -g GENERAL.STATE con show eth1" in "20" seconds
+     And "BOOTPROTO=dhcp" is visible with command "cat /etc/sysconfig/network-scripts/ifcfg-eth1"
+     And "dhclient" is visible with command "ps aux|grep dhcl |grep eth1"
+     And "192.168" is visible with command "ip a s eth1" in "20" seconds
