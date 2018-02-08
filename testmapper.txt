@@ -179,6 +179,7 @@ team_abs_set_mcast_rejoin, ., nmcli/./runtest.sh team_abs_set_mcast_rejoin ,
 team_abs_set_link_watchers_ethtool, ., nmcli/./runtest.sh team_abs_set_link_watchers_ethtool ,
 team_abs_set_link_watchers_nsna_ping, ., nmcli/./runtest.sh team_abs_set_link_watchers_nsna_ping ,
 team_abs_set_link_watchers_arp_ping, ., nmcli/./runtest.sh team_abs_set_link_watchers_arp_ping ,
+team_abs_overwrite_watchers, ., nmcli/./runtest.sh team_abs_overwrite_watchers ,
 wait_for_slow_teamd, ., nmcli/./runtest.sh wait_for_slow_teamd ,
 #@team_end
 
