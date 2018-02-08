@@ -53,6 +53,8 @@ $SUDO yum install \
     jansson-devel \
     libpsl-devel \
     libcurl-devel \
+    libasan \
+    libubsan \
     make \
     -y
 
