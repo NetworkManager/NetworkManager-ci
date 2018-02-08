@@ -839,22 +839,31 @@
     * Bring "up" connection "team0"
     Then "\"kernel_team_mode_name\": \"roundrobin\"" is visible with command "sudo teamdctl nm-team state dump"
      And Check slave "eth1" in team "nm-team" is "up"
+    # VVV Set random runner
+    * Execute "nmcli connection modify team0 team.runner random"
+    * Bring "up" connection "team0"
+    Then "{\"runner\": {\"name\": \"random\"}}" is visible with command "nmcli connection show team0 |grep 'team.config'"
+     And "\"kernel_team_mode_name\": \"random\"" is visible with command "sudo teamdctl nm-team state dump"
+     And Check slave "eth1" in team "nm-team" is "up"
+    # VVV Set broadcast runner
     * Execute "nmcli connection modify team0 team.runner broadcast"
     * Bring "up" connection "team0"
     Then "{\"runner\": {\"name\": \"broadcast\"}}" is visible with command "nmcli connection show team0 |grep 'team.config'"
      And "\"kernel_team_mode_name\": \"broadcast\"" is visible with command "sudo teamdctl nm-team state dump"
      And Check slave "eth1" in team "nm-team" is "up"
+    # VVV Set activebackup runner
     * Execute "nmcli connection modify team0 team.runner activebackup"
     * Bring "up" connection "team0"
     Then "\"kernel_team_mode_name\": \"activebackup\"" is visible with command "sudo teamdctl nm-team state dump"
      And "{\"runner\": {\"name\": \"activebackup\"}}" is visible with command "nmcli connection show team0 |grep 'team.config'"
      And Check slave "eth1" in team "nm-team" is "up"
+    # VVV Set loadbalance runner
     * Execute "nmcli connection modify team0 team.runner loadbalance"
     * Bring "up" connection "team0"
     Then "\"kernel_team_mode_name\": \"loadbalance\"" is visible with command "sudo teamdctl nm-team state dump"
-    # And "{\"runner\": {\"name\": \"loadbalance\", \"tx_hash\": [\"eth\", \"ipv4\", \"ipv6\"]}}"
      And "{\"runner\": {\"name\": \"loadbalance\", \"tx_hash\": \[\"eth\", \"ipv4\", \"ipv6\"\]}}" is visible with command "nmcli connection show team0 |grep 'team.config'"
      And Check slave "eth1" in team "nm-team" is "up"
+    # VVV Set lacp runner
     * Execute "nmcli connection modify team0 team.runner lacp"
     * Bring "up" connection "team0"
     Then "\"kernel_team_mode_name\": \"loadbalance\"" is visible with command "sudo teamdctl nm-team state dump"
