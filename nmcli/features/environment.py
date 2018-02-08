@@ -1393,6 +1393,10 @@ def after_scenario(context, scenario):
             call('sudo ip link set dev eth1 up', shell=True)
             call('sudo ip link set dev eth2 up', shell=True)
             call('sudo nmcli con reload', shell=True)
+            call('nmcli con up testeth1', shell=True)
+            call('nmcli con down testeth1', shell=True)
+            call('nmcli con up testeth2', shell=True)
+            call('nmcli con down testeth2', shell=True)
 
         if 'restore_hostname' in scenario.tags:
             print ("---------------------------")
