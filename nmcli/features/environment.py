@@ -1389,7 +1389,9 @@ def after_scenario(context, scenario):
             call('sudo rm -rf /etc/sysconfig/network-scripts/ifcfg-bond0', shell=True)
             call('sudo rm -rf /etc/sysconfig/network-scripts/ifcfg-ovsbridge0', shell=True)
             call('sudo rm -rf /etc/sysconfig/network-scripts/ifcfg-intbr0', shell=True)
-            call('sudo nmcli con del eth1 ovs-bridge0 ovs-port0 ovs-port1 ovs-bond0 ovs-eth2 ovs-eth3 ovs-iface0', shell=True) # to be sure
+            call('sudo nmcli con del eth1 eth2 ovs-bridge0 ovs-port0 ovs-port1 ovs-bond0 ovs-eth2 ovs-eth3 ovs-iface0 eth2', shell=True) # to be sure
+            call('sudo ip link set dev eth1 up', shell=True)
+            call('sudo ip link set dev eth2 up', shell=True)
             call('sudo nmcli con reload', shell=True)
 
         if 'restore_hostname' in scenario.tags:
