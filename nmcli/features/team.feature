@@ -1153,6 +1153,24 @@
     And "\"link_watch\": {\s+\"interval\": 100,\s+\"missed_max\": 999,\s+\"name\": \"arp_ping\",\s+\"source_host\": \"1.2.3.4\",\s+\"target_host\": \"1.2.3.1\"" is visible with command "teamdctl nm-team conf dump"
 
 
+    @rhbz1533926
+    @ver+=1.10
+    @team_slaves @team
+    @team_abs_overwrite_watchers
+    Scenario: nmcli - team_abs - overwrite watchers
+    * Add a new connection of type "team" and options "con-name team0 ifname nm-team autoconnect no ip4 1.2.3.4/24 connection.autoconnect-slaves yes"
+    * Add slave connection for master "nm-team" on device "eth1" named "team0.0"
+    * Bring "up" connection "team0"
+    * Open editor for connection "team0"
+    * Submit "set team.link-watchers name=ethtool delay-up=100 delay-down=200" in editor
+    * Submit "set team.link-watchers name=arp_ping init-wait=1000 interval=100 missed-max=999 target-host=1.2.3.1 source-host=1.2.3.4" in editor
+    * Save in editor
+    * Quit editor
+    * Bring "up" connection "team0"
+    Then "{\"link_watch\": {\"name\": \"arp_ping\", \"interval\": 100, \"missed_max\": 999, \"target_host\": \"1.2.3.1\", \"source_host\": \"1.2.3.4\"}}" is visible with command "nmcli connection show team0 |grep 'team.config'"
+    And "\"link_watch\": {\s+\"interval\": 100,\s+\"missed_max\": 999,\s+\"name\": \"arp_ping\",\s+\"source_host\": \"1.2.3.4\",\s+\"target_host\": \"1.2.3.1\"" is visible with command "teamdctl nm-team conf dump"
+
+
     @rhbz1415641
     @ver+=1.10
     @slow_team @team
