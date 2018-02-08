@@ -552,7 +552,8 @@ nmcli_add_openvswitch_vlan_configuration, ., nmcli/./runtest.sh nmcli_add_openvs
 nmcli_remove_one_openvswitch_bond_configuration, ., nmcli/./runtest.sh nmcli_remove_one_openvswitch_bond_configuration ,
 nmcli_remove_openvswitch_ports_and_master_bridge_configuration, ., nmcli/./runtest.sh nmcli_remove_openvswitch_ports_and_master_bridge_configuration ,
 #nmcli_remove_openvswitch_master_bridge_configuration_only, ., nmcli/./runtest.sh nmcli_remove_openvswitch_master_bridge_configuration_only ,
-#nmcli_reconnect_openvswitch_vlan_configuration, ., nmcli/./runtest.sh nmcli_reconnect_openvswitch_vlan_configuration ,
+nmcli_reconnect_openvswitch_vlan_configuration, ., nmcli/./runtest.sh nmcli_reconnect_openvswitch_vlan_configuration ,
+NM_reboot_openvswitch_vlan_configuration, ., nmcli/./runtest.sh NM_reboot_openvswitch_vlan_configuration ,
 #@ovs_end
 
 #@dispatcher_start
