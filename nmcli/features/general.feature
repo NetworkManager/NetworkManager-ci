@@ -993,6 +993,10 @@ Feature: nmcli - general
     * Execute "echo '[main]' > /etc/NetworkManager/conf.d/01-run-once.conf"
     * Execute "echo 'configure-and-quit=yes' >> /etc/NetworkManager/conf.d/01-run-once.conf"
     * Execute "echo 'dhcp=internal' >> /etc/NetworkManager/conf.d/01-run-once.conf"
+    ## VVV Just to make sure slow devices will catch carrier
+    * Execute "echo '[device]' >> /etc/NetworkManager/conf.d/01-run-once.conf"
+    * Execute "echo 'match-device=interface-name:eth0' >> /etc/NetworkManager/conf.d/01-run-once.conf"
+    * Execute "echo 'carrier-wait-timeout=10000' >> /etc/NetworkManager/conf.d/01-run-once.conf"
     * Execute "sleep 1"
     * Start NM
     Then "eth0" is visible with command "ps aux|grep helper" in "40" seconds
