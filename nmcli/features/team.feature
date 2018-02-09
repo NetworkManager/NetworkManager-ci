@@ -999,7 +999,7 @@
      And "\"fast_rate\": true" is not visible with command "nmcli connection show team0 |grep 'team.config'"
 
 
-    @rhbz1398925
+    @rhbz1398925 @rhbz1533810
     @ver+=1.10
     @team_slaves @team
     @team_abs_set_runner_sys_prio
@@ -1008,19 +1008,19 @@
     * Add slave connection for master "nm-team" on device "eth1" named "team0.0"
     * Bring "up" connection "team0"
     When "\"sys_prio\": 65535" is visible with command "sudo teamdctl nm-team state dump"
-     #And "65535 (default)" is visible with command "nmcli connection show team0 |grep 'team.runner-sys-prio'"
-    * Execute "nmcli connection modify team0 team.runner-sys-prio 200"
+     And "65535 \(default\)" is visible with command "nmcli connection show team0 |grep 'team.runner-sys-prio'"
+    * Execute "nmcli connection modify team0 team.runner-sys-prio 255"
     * Bring "up" connection "team0"
-    When "\"sys_prio\": 200" is visible with command "sudo teamdctl nm-team state dump"
-     And "200" is visible with command "nmcli connection show team0 |grep 'team.runner-sys-prio'"
+    When "\"sys_prio\": 255" is visible with command "sudo teamdctl nm-team state dump"
+     And "255" is visible with command "nmcli connection show team0 |grep 'team.runner-sys-prio'"
     # This need to be fixed in 1533810
-    #* Execute "nmcli connection modify team0 team.runner-sys-prio"
-    #* Bring "up" connection "team0"
-    #When "\"sys_prio\": 200" is visible with command "sudo teamdctl nm-team state dump"
-     #And "65535 (default)" is visible with command "nmcli connection show team0 |grep 'team.runner-sys-prio'"
+    * Execute "nmcli connection modify team0 team.runner-sys-prio default"
+    * Bring "up" connection "team0"
+    Then "\"sys_prio\": 65535" is visible with command "sudo teamdctl nm-team state dump"
+     And "65535 \(default\)" is visible with command "nmcli connection show team0 |grep 'team.runner-sys-prio'"
 
 
-    @rhbz1398925
+    @rhbz1398925 @1533830
     @ver+=1.10
     @team_slaves @team
     @team_abs_set_runner_min_ports
@@ -1030,12 +1030,23 @@
     * Bring "up" connection "team0"
     * Bring "up" connection "team0.0"
     When "\"min_ports\": 2" is visible with command "teamdctl nm-team conf dump"
+     And "2" is visible with command "nmcli connection show team0 |grep min-port"
     * Execute "nmcli connection modify team0 team.runner-min-ports ''"
     * Bring "up" connection "team0"
+    When "min_ports" is not visible with command "teamdctl nm-team conf dump"
+     And "0 \(default\)" is visible with command "nmcli connection show team0 |grep min-port"
+    * Execute "nmcli connection modify team0 team.runner-min-ports 2"
+    * Bring "up" connection "team0"
+    * Bring "up" connection "team0.0"
+    When "\"min_ports\": 2" is visible with command "teamdctl nm-team conf dump"
+     And "2" is visible with command "nmcli connection show team0 |grep min-port"
+    * Execute "nmcli connection modify team0 team.runner-min-ports default"
+    * Bring "up" connection "team0"
     Then "min_ports" is not visible with command "teamdctl nm-team conf dump"
+     And "0 \(default\)" is visible with command "nmcli connection show team0 |grep min-port"
 
 
-    @rhbz1398925
+    @rhbz1398925 @rhbz1533830
     @ver+=1.10
     @team_slaves @team
     @team_abs_set_runner_agg_select_policy
@@ -1058,6 +1069,11 @@
     When "\"select_policy\": \"count\"" is visible with command "sudo teamdctl nm-team state dump"
      And "\"agg_select_policy\": \"count\"" is visible with command "nmcli connection show team0 |grep 'team.config'"
     * Execute "nmcli connection modify team0 team.runner-agg-select-policy port_config"
+    * Bring "up" connection "team0"
+    When "\"select_policy\": \"port_config\"" is visible with command "sudo teamdctl nm-team state dump"
+     And "\"agg_select_policy\": \"port_config\"" is visible with command "nmcli connection show team0 |grep 'team.config'"
+    # VVV Verify bug 1533830
+    * Execute "nmcli connection modify team0 team.runner-agg-select-policy ''"
     * Bring "up" connection "team0"
     Then "\"select_policy\": \"port_config\"" is visible with command "sudo teamdctl nm-team state dump"
      And "\"agg_select_policy\": \"port_config\"" is visible with command "nmcli connection show team0 |grep 'team.config'"
