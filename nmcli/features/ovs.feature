@@ -278,3 +278,29 @@ Feature: nmcli - ovs
      And "192.168.100.*\/24" is visible with command "ip a s iface0"
      And "fe80::" is visible with command "ip a s iface0"
      And "default via 192.168.100.1 dev iface0 proto dhcp metric 800" is visible with command "ip r"
+
+
+    @rhbz1540218
+    @ver+=1.10
+    @openvswitch @restart
+    @NM_reboot_openvswitch_vlan_configuration
+    Scenario: NM - openvswitch - reboot
+    * Add a new connection of type "ovs-bridge" and options "conn.interface bridge0 con-name ovs-bridge0"
+    * Add a new connection of type "ovs-port" and options "conn.interface port0 conn.master bridge0 con-name ovs-port0 ovs-port.tag 120"
+    * Add a new connection of type "ovs-port" and options "conn.interface bond0 conn.master bridge0 con-name ovs-bond0 ovs-port.tag 120"
+    * Add a new connection of type "ethernet" and options "conn.interface eth2 conn.master bond0 slave-type ovs-port con-name ovs-eth2"
+    * Add a new connection of type "ethernet" and options "conn.interface eth3 conn.master bond0 slave-type ovs-port con-name ovs-eth3"
+    * Add a new connection of type "ovs-interface" and options "conn.interface iface0 conn.master port0 con-name ovs-iface0"
+    When "activated" is visible with command "nmcli -g GENERAL.STATE con show ovs-iface0" in "20" seconds
+    * Stop NM
+    * Execute "ovs-vsctl del-br bridge0"
+    * Reboot
+    Then "activated" is visible with command "nmcli -g GENERAL.STATE con show ovs-iface0" in "20" seconds
+     And "Bridge \"bridge0\"" is visible with command "ovs-vsctl show"
+     And "Port \"bond0\"\s+tag: 120\s+Interface \"eth[2-3]\"\s+type: system\s+Interface \"eth[2-3]\"\s+type: system" is visible with command "ovs-vsctl show"
+     And "Port \"port0\"\s+tag: 120\s+Interface \"iface0\"\s+type: internal" is visible with command "ovs-vsctl show"
+     And "master ovs-system" is visible with command "ip a s eth2"
+     And "master ovs-system" is visible with command "ip a s eth3"
+     And "192.168.100.*\/24" is visible with command "ip a s iface0"
+     And "fe80::" is visible with command "ip a s iface0"
+     And "default via 192.168.100.1 dev iface0 proto dhcp metric 800" is visible with command "ip r"
