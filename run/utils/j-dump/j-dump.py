@@ -147,7 +147,18 @@ class Project:
             if not (url_split[-1].isdigit()):
                 continue
 
-            job = Job(url)
+            date_str = ""
+            link = link.next
+            for i in range(0,3):
+                if link.name == "published":
+                    # TODO: check that is a date
+                    date_str = link.string.split("T")[0]
+                    break
+                if link.name == "link":
+                    break
+                link = link.next
+
+            job = Job(url, date_str, url.split("/").pop(-2))
             self.append_job(job)
 
         ### TODO: check if we got at least one job
@@ -174,6 +185,7 @@ class Project:
             "           <table>\n"
             "               <tr>\n"
             "                   <th>Job</th>\n"
+            "                   <th>Date</th>\n"
             "                   <th>Build</th>\n"
             "                   <th>Failures</th>\n"
             "                   <th>Timeouts</th>\n"
@@ -194,8 +206,8 @@ class Project:
                 l_failures = '<td>%d</td>' % n_failures
 
             fd.write(
-            '               <tr><td><a href="%s">%s</a></td>%s%s<td>%d</td></tr>\n' %
-                            (job.url, job.name, l_build, l_failures, job.undefined_timeouts))
+            '               <tr><td><a href="%s">%s</a><td>%s</td></td>%s%s<td>%d</td></tr>\n' %
+                            (job.url, job.name, job.date, l_build, l_failures, job.undefined_timeouts))
         fd.write(
             "           </table>\n")
 
@@ -221,7 +233,7 @@ class Job:
         - build_failed: true if no results are available for the job
         - undefined_timeouts: number of the tests that failed due to timeout"""
 
-    def __init__(self, url, name=None, failure=None):
+    def __init__(self, url, date=None, name=None, failure=None):
         self.url = url
         if (name):
             self.name = name
@@ -231,6 +243,11 @@ class Job:
         self.failures = []
         self.build_failed = False
         self.undefined_timeouts = 0
+
+        if date:
+            self.date = date
+        else:
+            self.date = "NA"
 
         if failure:
             self.append_failure(failure)
