@@ -26,7 +26,8 @@ Feature: nmcli: gsm
      * Add a new connection of type "gsm" and options "ifname \* con-name gsm autoconnect no apn internet"
      * Bring "up" connection "gsm"
     Then "GENERAL.STATE:.*activated" is visible with command "nmcli con show gsm" in "60" seconds
-     * Ping "8.8.8.8" "7" times
+     And "default" is visible with command "ip r |grep 700"
+     And Ping "8.8.8.8" "7" times
 
 
     @eth0 @gsm
@@ -37,10 +38,11 @@ Feature: nmcli: gsm
     Then "GENERAL.STATE:.*activated" is visible with command "nmcli con show gsm" in "20" seconds
      * Bring "down" connection "gsm"
     Then "GENERAL.STATE:.*activated" is not visible with command "nmcli con show gsm" in "20" seconds
-     * Unable to ping "8.8.8.8"
+     And "default" is not visible with command "ip r |grep 700"
+     And Unable to ping "8.8.8.8"
 
 
-    @rhbz1388613
+    @rhbz1388613 @rhbz1460217
     @ver+=1.8.0
     @eth0 @gsm
     @gsm_mtu
@@ -48,10 +50,13 @@ Feature: nmcli: gsm
     * Add a new connection of type "gsm" and options "ifname \* con-name gsm autoconnect no apn internet"
     * Bring "up" connection "gsm"
     When "mtu 1500" is visible with command "ip a s |grep $(nmcli |grep gsm |tail -1 |awk '{print $NF}')"
+     And "mtu 1500" is visible with command "nmcli |grep gsm"
     * Execute "nmcli con modify gsm gsm.mtu 1600"
     * Bring "up" connection "gsm"
     When "GENERAL.STATE:.*activated" is visible with command "nmcli con show gsm" in "20" seconds
     Then "mtu 1600" is visible with command "ip a s |grep $(nmcli |grep gsm |tail -1 |awk '{print $NF}')"
+     And "mtu 1600" is visible with command "nmcli |grep gsm"
+
 
     # Modems are not stable enough to test such things VVV
     # @ver+=1.2.0
