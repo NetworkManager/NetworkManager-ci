@@ -462,6 +462,7 @@ def before_scenario(context, scenario):
             print ("---------------------------")
             print ("disconnecting eth1 device")
             call('sudo nmcli device disconnect eth1', shell=True)
+            call('sudo kill -9 $(cat /var/run/dhclient-eth1.pid)', shell=True)
 
         if 'need_dispatcher_scripts' in scenario.tags:
             print ("---------------------------")
