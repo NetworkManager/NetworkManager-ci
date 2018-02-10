@@ -437,16 +437,16 @@ Feature: nmcli: connection
      * Execute "nmcli con modify connie ipv4.may-fail no"
      * Bring "up" connection "ethie"
      * Bring "up" connection "connie"
-     When "metric 100" is visible with command "ip r |grep default |grep eth0"
-     When "metric 101" is visible with command "ip r |grep default |grep eth10"
+     When "metric 100" is visible with command "ip r |grep default |grep eth0" in "10" seconds
+     When "metric 101" is visible with command "ip r |grep default |grep eth10" in "10" seconds
      * Execute "nmcli con modify connie ipv4.route-metric 10"
      * Bring "up" connection "connie"
-     When "metric 100" is visible with command "ip r |grep default |grep eth0"
-     When "metric 10" is visible with command "ip r |grep default |grep eth10"
+     When "metric 100" is visible with command "ip r |grep default |grep eth0" in "10" seconds
+     When "metric 10" is visible with command "ip r |grep default |grep eth10" in "10" seconds
      * Execute "nmcli con modify connie ipv4.route-metric -1"
      * Bring "up" connection "connie"
-     When "metric 100" is visible with command "ip r |grep default |grep eth0"
-     When "metric 101" is visible with command "ip r |grep default |grep eth10"
+     When "metric 100" is visible with command "ip r |grep default |grep eth0" in "10" seconds
+     When "metric 101" is visible with command "ip r |grep default |grep eth10" in "10" seconds
 
 
     @rhbz663730
