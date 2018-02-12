@@ -531,6 +531,7 @@ manipulate_connectivity_check_via_dbus, ., nmcli/./runtest.sh manipulate_connect
 per_device_connectivity_check, ., nmcli/./runtest.sh per_device_connectivity_check ,
 keep_external_device_enslaved_on_down, ., nmcli/./runtest.sh keep_external_device_enslaved_on_down ,
 overtake_external_device, ., nmcli/./runtest.sh overtake_external_device ,
+wait_10s_for_flappy_carrier, ., nmcli/./runtest.sh wait_10s_for_flappy_carrier ,
 #@general_end
 
 #@wol_start

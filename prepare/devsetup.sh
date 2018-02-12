@@ -132,7 +132,7 @@ local_setup_configure_nm_eth () {
             fi
 
             yum -y install NetworkManager-config-server
-            cp /usr/lib/NetworkManager/conf.d/00-server.conf /etc/NetworkManager/conf.d/00-server.conf
+            #cp /usr/lib/NetworkManager/conf.d/00-server.conf /etc/NetworkManager/conf.d/00-server.conf
         fi
 
         if [ $wlan -eq 1 ]; then
