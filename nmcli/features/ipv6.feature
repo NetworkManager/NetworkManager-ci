@@ -1070,6 +1070,7 @@
 
 
     @rhbz1194007
+    @ver+=1.8
     @mtu @kill_dnsmasq
     @ipv6_set_ra_announced_mtu
     Scenario: NM - ipv6 - set RA received MTU

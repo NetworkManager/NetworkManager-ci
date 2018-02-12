@@ -427,6 +427,7 @@ Feature: nmcli: connection
 
 
     @rhbz663730
+    @ver+=1.6.0
     @ver-=1.9.1
     @con @eth @connect_testeth0
     @route_priorities
