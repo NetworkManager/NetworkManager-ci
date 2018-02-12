@@ -1656,3 +1656,17 @@ Feature: nmcli - general
      And "BOOTPROTO=dhcp" is visible with command "cat /etc/sysconfig/network-scripts/ifcfg-eth1"
      And "dhclient" is visible with command "ps aux|grep dhcl |grep eth1"
      And "192.168" is visible with command "ip a s eth1" in "20" seconds
+
+
+    @rhbz1487702
+    @ver+=1.10
+    @eth @no_config_server @teardown_testveth @restart
+    @wait_10s_for_flappy_carrier
+    Scenario: NM - general - wait for flappy carrier up to 10s
+    * Add a new connection of type "ethernet" and options "ifname testX con-name ethie autoconnect no 802-3-ethernet.mtu 9000"
+    * Prepare simulated test "testX" device
+    * Run child "nmcli con up ethie"
+    * Execute "ip link set testX down"
+    * Execute "sleep 8"
+    * Execute "ip link set testX up"
+    When "activated" is visible with command "nmcli -g GENERAL.STATE con show ethie" in "10" seconds
