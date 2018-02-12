@@ -1052,6 +1052,27 @@ Feature: nmcli - general
     Then "PASS" is visible with command "/usr/bin/nm-online -s -q --timeout=30 && echo PASS"
 
 
+    @rhbz1515027
+    @ver+=1.10
+    @eth @delete_testeth0 @remove_custom_cfg @teardown_testveth @restart
+    @nm_online_wait_for_delayed_device
+    Scenario: NM - general - wait for delayed device
+    * Add a new connection of type "ethernet" and options "ifname testX con-name ethie"
+    * Stop NM
+    * Prepare simulated veth device "testX" wihout carrier
+    * Execute "echo '[device]' >> /etc/NetworkManager/conf.d/99-xxcustom.conf"
+    * Execute "echo 'match-device=interface-name:testX' >> /etc/NetworkManager/conf.d/99-xxcustom.conf"
+    * Execute "echo 'carrier-wait-timeout=15000' >> /etc/NetworkManager/conf.d/99-xxcustom.conf"
+    * Execute "sleep 1"
+    * Start NM
+    * Run child "echo FAIL > /tmp/nm-online.txt && /usr/bin/nm-online -s -q --timeout=30 && echo PASS > /tmp/nm-online.txt"
+    When "FAIL" is visible with command "cat /tmp/nm-online.txt"
+    * Execute "sleep 10"
+    When "FAIL" is visible with command "cat /tmp/nm-online.txt"
+     And Execute "ip netns exec testX_ns ip link set testXp up"
+    Then "PASS" is visible with command "cat /tmp/nm-online.txt" in "5" seconds
+
+
     @rhbz1160013
     @eth_down_and_delete @need_dispatcher_scripts
     @policy_based_routing
