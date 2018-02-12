@@ -1084,13 +1084,13 @@
     * Finish "ip link set dev test2 up"
     * Finish "ip link set dev test2p up"
     * Finish "brctl addif vethbr test1p test2p"
-    * Finish "nmcli connection add type ethernet con-name tc1 ifname test1 autoconnect no mtu 1300 ip4 192.168.99.1/24 ip6 2620:52:0:beef::1/64"
-    * Finish "nmcli connection add type ethernet con-name tc2 ifname test2 autoconnect no"
-    * Bring "up" connection "tc1"
-    When "test1:connected:tc1" is visible with command "nmcli -t -f DEVICE,STATE,CONNECTION device" in "10" seconds
-    * Execute "/usr/sbin/dnsmasq --pid-file=/tmp/dnsmasq.pid --conf-file --no-hosts --keep-in-foreground --bind-interfaces --except-interface=lo --clear-on-reload --strict-order --listen-address=192.168.99.1 --dhcp-range=192.168.99.10,192.168.99.254,2m --dhcp-option=option:router,192.168.99.1 --dhcp-range=2620:52:0:beef::100,2620:52:0:beef::fff,slaac,64 --enable-ra --interface=test1 &"
+    * Finish "nmcli connection add type ethernet con-name tc1 ifname test1 autoconnect no"
+    * Finish "nmcli connection add type ethernet con-name tc2 ifname test2 autoconnect no mtu 1100 ip6 fd01::1/64"
     * Bring "up" connection "tc2"
-    Then "1300" is visible with command "sysctl net.ipv6.conf.test2.mtu" in "30" seconds
+    When "test2:connected:tc2" is visible with command "nmcli -t -f DEVICE,STATE,CONNECTION device" in "10" seconds
+    * Execute "/usr/sbin/dnsmasq --pid-file=/tmp/dnsmasq.pid --no-resolv --bind-interfaces -i test2 --enable-ra --dhcp-range=::1,::400,constructor:test2,ra-only,64,15s"
+    * Bring "up" connection "tc1"
+    Then "1280" is visible with command "sysctl net.ipv6.conf.test1.mtu" in "5" seconds
 
 
     @rhbz1243958
