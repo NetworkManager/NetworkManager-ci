@@ -464,6 +464,7 @@ network_online_target_not_depend_on_wait_online, ., nmcli/./runtest.sh network_o
 nm_wait_online_requisite_NM, ., nmcli/./runtest.sh nm_wait_online_requisite_NM ,
 nm_wait_online_requires_NM, ., nmcli/./runtest.sh nm_wait_online_requires_NM ,
 wait_online_with_autoconnect_no_connection, ., nmcli/./runtest.sh wait_online_with_autoconnect_no_connection ,
+nm_online_wait_for_delayed_device, ., nmcli/./runtest.sh nm_online_wait_for_delayed_device ,
 policy_based_routing, ., nmcli/./runtest.sh policy_based_routing ,
 modify_policy_based_routing_connection, ., nmcli/./runtest.sh modify_policy_based_routing_connection ,
 nmcli_general_dhcp_profiles_general_gateway, ., nmcli/./runtest.sh nmcli_general_dhcp_profiles_general_gateway ,
