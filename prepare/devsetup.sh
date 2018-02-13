@@ -13,7 +13,7 @@ local_setup_configure_nm_eth () {
     echo "networkmanager" | passwd test --stdin
 
     #adding ntp and syncing time
-    yum -y install dnsmasq ntp tcpdump NetworkManager-libreswan wireshark bridge-utils NetworkManager-ppp
+    yum -y install dnsmasq ntp tcpdump NetworkManager-libreswan wireshark bridge-utils
 
     service ntpd restart
 
@@ -211,7 +211,7 @@ local_setup_configure_nm_gsm () {
     mkdir /mnt/scratch
     mount -t nfs nest.test.redhat.com:/mnt/qa/desktop/broadband_lock /mnt/scratch
 
-    yum -y install NetworkManager-wwan ModemManager usb_modeswitch usbutils
+    yum -y install NetworkManager-wwan ModemManager usb_modeswitch usbutils NetworkManager-ppp
     systemctl restart ModemManager
     sleep 60
     systemctl restart NetworkManager
