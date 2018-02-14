@@ -1020,7 +1020,7 @@ Feature: nmcli - general
 
     @rhbz1520865
     @ver+=1.10
-    @not_on_rhel
+    @not_in_rhel
     @nm_wait_online_requires_NM
     Scenario: NM - general - NM wait online - requires NM
     Then "Requires=NetworkManager.service" is visible with command "cat /usr/lib/systemd/system/NetworkManager-wait-online.service"
