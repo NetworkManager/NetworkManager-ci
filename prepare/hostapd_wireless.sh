@@ -32,8 +32,6 @@ function tune_wpa_supplicant ()
     cp -rf /usr/lib/systemd/system/wpa_supplicant.service /etc/systemd/system/wpa_supplicant.service
     sed -i 's!ExecStart=/usr/sbin/wpa_supplicant -u -f /var/log/wpa_supplicant.log -c /etc/wpa_supplicant/wpa_supplicant.conf!ExecStart=/usr/sbin/wpa_supplicant -u -c /etc/wpa_supplicant/wpa_supplicant.conf!' /etc/systemd/system/wpa_supplicant.service
     sed -i 's!OTHER_ARGS="-P /var/run/wpa_supplicant.pid"!OTHER_ARGS="-P /var/run/wpa_supplicant.pid -ddddK"!' /etc/sysconfig/wpa_supplicant
-    systemctl daemon-reload
-    systemctl restart wpa_supplicant
 
 }
 
@@ -93,6 +91,13 @@ function copy_certificates ()
     update-ca-trust extract
 }
 
+function restart_services ()
+{
+    systemctl daemon-reload
+    systemctl restart wpa_supplicant
+    systemctl restart NetworkManager
+}
+
 function start_nm_hostapd ()
 {
     systemd-run --unit nm-hostapd hostapd -ddd $HOSTAPD_CFG
@@ -118,11 +123,11 @@ function wireless_hostapd_setup ()
 
             # Disable mac randomization to avoid rhbz1490885
             echo -e "[device]\nwifi.scan-rand-mac-address=no" > /etc/NetworkManager/conf.d/99-wifi.conf
-            systemctl restart NetworkManager
 
             modprobe mac80211_hwsim
             sleep 5
             tune_wpa_supplicant
+            restart_services
             sleep 10
             nmcli device set wlan1 managed off
             ip add add 10.0.0.1/24 dev wlan1
