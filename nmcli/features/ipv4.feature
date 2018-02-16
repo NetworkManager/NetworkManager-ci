@@ -817,7 +817,7 @@ Feature: nmcli: ipv4
     * Save in editor
     * Quit editor
     * Bring "up" connection "ethie"
-    When "nameserver 8.8.8.8" is visible with command "cat /etc/resolv.conf"
+    When "nameserver 8.8.8.8" is visible with command "cat /etc/resolv.conf" in "10" seconds
     When "nameserver 8.8.4.4" is visible with command "cat /etc/resolv.conf"
     * Execute "echo 'INVALID_DNS' > /etc/resolv.conf"
     * Execute "sudo kill -SIGUSR1 $(pidof NetworkManager)"
@@ -836,12 +836,12 @@ Feature: nmcli: ipv4
     * Add a new connection of type "ethernet" and options "con-name ethie2 ifname eth1 autoconnect no -- ipv4.method manual ipv4.addresses 192.168.2.2/24 ipv4.dns 8.8.8.8 ipv4.dns-priority 200"
     * Bring "up" connection "ethie"
     * Bring "up" connection "ethie2"
-    When "nameserver 8.8.8.8\s+nameserver 8.8.4.4" is visible with command "cat /etc/resolv.conf"
+    When "nameserver 8.8.8.8\s+nameserver 8.8.4.4" is visible with command "cat /etc/resolv.conf" in "10" seconds
     * Execute "nmcli con modify ethie ipv4.dns-priority 100"
     * Execute "nmcli con modify ethie ipv6.dns-priority 300"
     * Bring "up" connection "ethie"
     * Bring "up" connection "ethie2"
-    Then "nameserver 8.8.4.4\s+nameserver 8.8.8.8" is visible with command "cat /etc/resolv.conf"
+    Then "nameserver 8.8.4.4\s+nameserver 8.8.8.8" is visible with command "cat /etc/resolv.conf" in "10" seconds
 
 
     @ipv4 @eth0
