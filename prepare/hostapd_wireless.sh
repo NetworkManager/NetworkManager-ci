@@ -122,9 +122,9 @@ function wireless_hostapd_setup ()
             systemctl restart haveged
 
             # Disable mac randomization to avoid rhbz1490885
-            echo -e "[device]\nwifi.scan-rand-mac-address=no" > /etc/NetworkManager/conf.d/99-wifi.conf
-            echo -e "[connection]\nwifi.cloned-mac-address=preserve" >> /etc/NetworkManager/conf.d/99-wifi.conf
-            
+            echo -e "[device-wifi]\nwifi.scan-rand-mac-address=no" > /etc/NetworkManager/conf.d/99-wifi.conf
+            echo -e "[connection-wifi]\nwifi.cloned-mac-address=preserve" >> /etc/NetworkManager/conf.d/99-wifi.conf
+
             modprobe mac80211_hwsim
             sleep 5
             tune_wpa_supplicant
