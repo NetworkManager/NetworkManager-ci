@@ -1060,7 +1060,7 @@ Feature: nmcli - general
     * Add a new connection of type "ethernet" and options "ifname testX con-name ethie"
     * Stop NM
     * Prepare simulated veth device "testX" wihout carrier
-    * Execute "echo '[device-testX]' >> /etc/NetworkManager/conf.d/99-xxcustom.conf"
+    * Execute "echo '[device-testX]' > /etc/NetworkManager/conf.d/99-xxcustom.conf"
     * Execute "echo 'match-device=interface-name:testX' >> /etc/NetworkManager/conf.d/99-xxcustom.conf"
     * Execute "echo 'carrier-wait-timeout=15000' >> /etc/NetworkManager/conf.d/99-xxcustom.conf"
     * Execute "sleep 1"

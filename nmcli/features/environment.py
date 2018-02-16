@@ -748,12 +748,6 @@ def before_scenario(context, scenario):
             call('sudo systemctl restart NetworkManager.service', shell=True)
             sleep(5)
 
-        if 'remove_custom_cfg' in scenario.tags:
-            print("---------------------------")
-            print("Removing custom cfg file in conf.d")
-            call('sudo rm -f /etc/NetworkManager/conf.d/99-xxcustom.conf', shell=True)
-            call('sudo systemctl restart NetworkManager.service', shell=True)
-
         if 'need_config_server' in scenario.tags:
             print("---------------------------")
             print("Making sure NetworkManager-config-server is installed")
@@ -1413,6 +1407,12 @@ def after_scenario(context, scenario):
             call('rm -rf /etc/dnsmasq.d/dnsmasq_custom.conf', shell=True)
             call('systemctl restart NetworkManager', shell=True)
             call("nmcli con up testeth0", shell=True)
+
+        if 'remove_custom_cfg' in scenario.tags:
+            print("---------------------------")
+            print("Removing custom cfg file in conf.d")
+            call('sudo rm -f /etc/NetworkManager/conf.d/99-xxcustom.conf', shell=True)
+            call('sudo systemctl restart NetworkManager.service', shell=True)
 
         if 'ipv6_describe' in scenario.tags or 'ipv4_describe' in scenario.tags:
             if call("systemctl is-enabled beah-srv.service  |grep ^enabled", shell=True) == 0:
