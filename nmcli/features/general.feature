@@ -420,7 +420,7 @@ Feature: nmcli - general
      And "2000::/126 dev testX\s+proto kernel\s+metric 101" is visible with command "ip -6 route"
      And "192.168.5.0/24 via 192.168.99.111 dev testX\s+proto static\s+metric" is visible with command "ip route"
      And "routers = 192.168.99.1" is visible with command "nmcli con show ethie"
-     And "default via 192.168.99.1 dev testX proto dhcp metric 21" is visible with command "ip r"
+     And "default via 192.168.99.1 dev testX\s+proto dhcp\s+metric 21" is visible with command "ip r"
 
 
     @rhbz1032717
