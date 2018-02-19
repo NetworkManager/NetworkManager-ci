@@ -77,7 +77,7 @@ def connect_to(url, timeout=10):
                     connect_to.password = input ("Password:")
 
                 if (connect_to.username and connect_to.password):
-                    if (ca_cert):
+                    if (hasattr(connect_to, "ca_cert")):
                         req = requests.get (url, timeout=timeout, verify=ca_cert,
                                             auth=(connect_to.username, connect_to.password))
                     else:
@@ -479,7 +479,7 @@ def main():
     parser.add_argument('--name', help="Project nickname to use in results");
     parser.add_argument('--user', help="username to access Jenkins url")
     parser.add_argument('--password', help="password to access Jenkins url")
-    parser.add_argument('--ca_cert', help="file path of private CA to be used for https validation")
+    parser.add_argument('--ca_cert', help="file path of private CA to be used for https validation or 'disabled'")
     args = parser.parse_args()
 
     if (args.user):
@@ -488,7 +488,10 @@ def main():
     if (args.password):
         connect_to.password = args.password
     if (args.ca_cert):
-        connect_to.ca_cert = args.ca_cert
+        if args.ca_cert == "disabled":
+            connect_to.ca_cert = False
+        else:
+            connect_to.ca_cert = args.ca_cert
     url = args.url
 
     if (args.name):
