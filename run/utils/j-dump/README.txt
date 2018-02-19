@@ -48,7 +48,8 @@ Available options are:
   If authentication is required but no user/password have been provided, j-dump
   will prompt for them.
 
---ca-cert CA_CERT: may be required to add custom trusted CA for kerberos auth.
-  Kerberos authentication not working at present (TODO).
+--ca-cert CA_CERT: it will allow to check against a private trusted CA for https connections.
+  If an invalid certificate is found, https would otherwise fail.
+  Passing 'disabled' as --ca-cert argument will skip https check.
  
 
