@@ -1614,7 +1614,7 @@ Feature: nmcli - general
      And "full" is visible with command "nmcli -g CONNECTIVITY g" in "70" seconds
     # VVV Turn off connectivity check
     * Execute "busctl set-property org.freedesktop.NetworkManager /org/freedesktop/NetworkManager org.freedesktop.NetworkManager ConnectivityCheckEnabled 'b' 0"
-    * Execute "firewall-cmd --panic-on"
+    * Execute "sleep 1 && firewall-cmd --panic-on"
     When "false" is visible with command "busctl get-property org.freedesktop.NetworkManager /org/freedesktop/NetworkManager org.freedesktop.NetworkManager ConnectivityCheckEnabled"
      And "full" is visible with command "nmcli  -g CONNECTIVITY g" for full "70" seconds
     # VVV Turn on connectivity check
@@ -1650,11 +1650,11 @@ Feature: nmcli - general
     * Execute "ip add add 1.2.3.4/24 dev eth1"
     When "No such file" is visible with command "cat /etc/sysconfig/network-scripts/ifcfg-eth1"
      And "eth1" is visible with command "nmcli -g NAME connection" in "5" seconds
-     And "dhclient" is not visible with command "ps aux|grep dhcl |grep eth1"
+     And "dhclient" is not visible with command "ps aux| grep client-eth1"
     * Execute "nmcli con modify eth1 ipv4.method auto"
     When "activated" is visible with command "nmcli -g GENERAL.STATE con show eth1" in "20" seconds
      And "BOOTPROTO=dhcp" is visible with command "cat /etc/sysconfig/network-scripts/ifcfg-eth1"
-     And "dhclient" is visible with command "ps aux|grep dhcl |grep eth1"
+     And "dhclient" is visible with command "ps aux| grep dhclient-eth1"
      And "192.168" is visible with command "ip a s eth1" in "20" seconds
 
 
@@ -1666,7 +1666,7 @@ Feature: nmcli - general
     * Add a new connection of type "ethernet" and options "ifname testX con-name ethie autoconnect no 802-3-ethernet.mtu 9000"
     * Prepare simulated test "testX" device
     * Run child "nmcli con up ethie"
-    * Execute "ip link set testX down"
+    * Execute "sleep 0.5 && ip link set testX down"
     * Execute "sleep 8"
     * Execute "ip link set testX up"
     When "activated" is visible with command "nmcli -g GENERAL.STATE con show ethie" in "10" seconds
