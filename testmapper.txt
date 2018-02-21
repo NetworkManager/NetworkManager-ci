@@ -673,6 +673,11 @@ remove_default_tuntap, ., nmcli/./runtest.sh remove_default_tuntap ,
 preserve_master_and_ip_settings, ., nmcli/./runtest.sh preserve_master_and_ip_settings ,
 #@tuntap_end
 
+#@tc_start
+set_fq_codel_queue, ., nmcli/./runtest.sh set_fq_codel_queue ,
+set_pfifo_fast_queue, ., nmcli/./runtest.sh set_pfifo_fast_queue ,
+#@tc_end
+
 #@gsm_start
 gsm_create_default_connection, ., nmcli/./runtest.sh gsm_create_default_connection ,,60m
 gsm_disconnect, ., nmcli/./runtest.sh gsm_disconnect ,,60m

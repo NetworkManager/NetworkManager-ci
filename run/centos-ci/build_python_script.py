@@ -43,7 +43,7 @@ def get_test_cases_for_features(features, testbranch):
 def process_raw_features(features, testbranch):
     tests = ""
     if not features or features.lower() == 'all':
-        raw_features = 'adsl,alias,bond,bridge,team,vlan,connection,dispatcher,ethernet,general,ipv4,ipv6,libreswan,openvpn,ppp,pptp,tuntap,vpnc'
+        raw_features = 'adsl,alias,bond,bridge,team,vlan,connection,dispatcher,ethernet,general,ipv4,ipv6,libreswan,openvpn,ppp,pptp,tuntap,vpnc,tc'
     else:
         raw_features = features
     features = []
