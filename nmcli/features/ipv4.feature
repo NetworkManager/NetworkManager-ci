@@ -1281,6 +1281,7 @@ Feature: nmcli: ipv4
 
 
     @rhbz1503587
+    @ver+=1.10
     @eth @teardown_testveth @long
     @renewal_gw_after_long_dhcp_outage
     Scenario: NM - ipv4 - renewal gw after DHCP outage
