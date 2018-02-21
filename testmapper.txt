@@ -329,6 +329,7 @@ ipv4_never-default_remove, ., nmcli/./runtest.sh ipv4_never-default_remove ,
 ipv4_describe, ., nmcli/./runtest.sh ipv4_describe ,
 set_mtu_from_DHCP, ., nmcli/./runtest.sh set_mtu_from_DHCP ,
 renewal_gw_after_dhcp_outage, ., nmcli/./runtest.sh renewal_gw_after_dhcp_outage ,,20m
+renewal_gw_after_long_dhcp_outage, ., nmcli/./runtest.sh renewal_gw_after_long_dhcp_outage ,,20m
 dhcp-timeout, ., nmcli/./runtest.sh dhcp-timeout ,
 dhcp-timeout_infinity, ., nmcli/./runtest.sh dhcp-timeout_infinity ,
 timeout_default_in_cfg, ., nmcli/./runtest.sh timeout_default_in_cfg ,

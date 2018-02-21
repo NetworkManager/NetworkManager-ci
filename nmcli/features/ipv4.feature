@@ -1280,6 +1280,21 @@ Feature: nmcli: ipv4
     Then "default via 192.168.99.1 dev testX" is visible with command "ip r"
 
 
+    @rhbz1503587
+    @eth @teardown_testveth @long
+    @renewal_gw_after_long_dhcp_outage
+    Scenario: NM - ipv4 - renewal gw after DHCP outage
+    * Prepare simulated test "testX" device
+    * Add connection type "ethernet" named "ethie" for device "testX"
+    * Bring "up" connection "ethie"
+    * Execute "ip netns exec testX_ns kill -SIGSTOP $(cat /tmp/testX_ns.pid)"
+    When "default" is not visible with command "ip r |grep testX" in "130" seconds
+    * Execute "sleep 500"
+    * Execute "ip netns exec testX_ns kill -SIGCONT $(cat /tmp/testX_ns.pid)"
+    Then "routers = 192.168.99.1" is visible with command "nmcli con show ethie" in "130" seconds
+    Then "default via 192.168.99.1 dev testX" is visible with command "ip r"
+
+
     @rhbz1262922
     @ver+=1.2.0
     @eth @teardown_testveth
