@@ -1498,10 +1498,12 @@ Feature: nmcli: ipv4
     * Execute "dnsmasq --interface test1 --pid-file=/tmp/dnsmasq.pid &"
     * Add a new connection of type "ethernet" and options "con-name tc1 autoconnect no ifname test1 ipv4.method shared ipv6.method ignore"
     * Add a new connection of type "ethernet" and options "con-name tc2 autoconnect no ifname test2 ipv4.may-fail yes ipv6.method manual ipv6.addresses 1::1/128"
-    Then Bring "up" connection "tc1"
+    * Bring up connection "tc1" ignoring error
      And Bring "up" connection "tc2"
      And Note the output of "pidof NetworkManager" as value "2"
      And Check noted values "1" and "2" are the same
+     And "disconnected" is visible with command "nmcli  device show test1" in "10" seconds
+
 
 
     @rhbz1172780
