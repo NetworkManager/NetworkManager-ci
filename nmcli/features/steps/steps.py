@@ -1927,10 +1927,9 @@ def write_dispatcher_file(context, path, params=None):
     f.write('\necho $2 >> /tmp/dispatcher.txt\n')
     f.close()
     command_code(context, 'chmod +x %s' % disp_file)
-    command_code(context, 'kill -1 $(pidof NetworkManager)')
-    sleep(2)
+    command_code(context, 'systemctl reload NetworkManager')
     command_code(context, "> /tmp/dispatcher.txt")
-
+    sleep(4)
 
 @step(u'Wrong bond options message shown in editor')
 def wrong_bond_options_in_editor(context):
