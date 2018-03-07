@@ -1266,6 +1266,7 @@ Feature: nmcli: ipv4
 
 
     @eth @teardown_testveth @long
+    @ver-=1.10.99
     @renewal_gw_after_dhcp_outage
     Scenario: NM - ipv4 - renewal gw after DHCP outage
     * Prepare simulated test "testX" device
@@ -1281,7 +1282,7 @@ Feature: nmcli: ipv4
 
 
     @rhbz1503587
-    @ver+=1.10
+    @ver+=1.10 @ver-=1.10.99
     @eth @teardown_testveth @long
     @renewal_gw_after_long_dhcp_outage
     Scenario: NM - ipv4 - renewal gw after DHCP outage
@@ -1345,6 +1346,7 @@ Feature: nmcli: ipv4
 
 
     @rhbz1246496
+    @ver-=1.10.99
     @eth @teardown_testveth @long
     @renewal_gw_after_dhcp_outage_for_assumed_var0
     Scenario: NM - ipv4 - assumed address renewal after DHCP outage for on-disk assumed
@@ -1387,7 +1389,7 @@ Feature: nmcli: ipv4
 
 
     @rhbz1518091
-    @ver+=1.10.1
+    @ver+=1.10.1 @ver-=1.10.99
     @teardown_testveth @long
     @renewal_gw_after_dhcp_outage_for_assumed_var1
     Scenario: NM - ipv4 - assumed address renewal after DHCP outage for in-memory assumed
@@ -1405,6 +1407,90 @@ Feature: nmcli: ipv4
     * Execute "ip netns exec testX_ns kill -SIGCONT $(cat /tmp/testX_ns.pid)"
     Then "default" is not visible with command "ip r| grep testX" for full "150" seconds
     Then "inet 192.168.99" is not visible with command "ip a s testX" in "10" seconds
+
+
+    @rhbz1503587 @rhbz1518091 @rhbz1246496 @rhbz1503587
+    @ver+=1.11
+    @con @profie @ipv4_2 @teardown_testveth @long
+    @dhcp4_outages_in_various_situation
+    Scenario: NM - ipv4 - all types of dhcp outages
+    ################# PREPARE testX AND testY ################################
+    ## testX ethie for renewal_gw_after_dhcp_outage_for_assumed_var1
+    * Prepare simulated test "testX" device with "192.168.199" ipv4 and "dead:beaf:1" ipv6 dhcp address prefix
+    * Add connection type "ethernet" named "ethie" for device "testX"
+    ## testY connie for renewal_gw_after_dhcp_outage_for_assumed_var0
+    * Prepare simulated test "testY" device with "192.168.200" ipv4 and "dead:beaf:2" ipv6 dhcp address prefix
+    * Add connection type "ethernet" named "connie" for device "testY"
+    * Bring "up" connection "connie"
+    * Bring "up" connection "ethie"
+    When "default" is visible with command "ip r |grep testX" in "30" seconds
+    When "default" is visible with command "ip r |grep testY" in "30" seconds
+    When "inet 192" is visible with command "ip a s |grep testX" in "30" seconds
+    When "inet 192" is visible with command "ip a s |grep testY" in "30" seconds
+    ##########################################################################
+
+    ## STOP DHCP SERVERS for testY and testX
+    * Execute "ip netns exec testX_ns kill -SIGSTOP $(cat /tmp/testX_ns.pid)"
+    * Execute "ip netns exec testY_ns kill -SIGSTOP $(cat /tmp/testY_ns.pid)"
+    ## STOP NM
+    * Execute "systemctl stop NetworkManager"
+    # REMOVE ethie ifcfg file
+    * Execute "sudo rm -rf /etc/sysconfig/network-scripts/ifcfg-ethie"
+    ## RESTART NM AGAIN
+    * Execute "systemctl start NetworkManager"
+
+    ################# PREPARE testZ AND testA ################################
+    ## testA and ethie2 for renewal_gw_after_long_dhcp_outage
+    * Prepare simulated test "testA" device with "192.168.202" ipv4 and "dead:beaf:4" ipv6 dhcp address prefix
+    * Add connection type "ethernet" named "ethie2" for device "testA"
+    ## testZ and profie for renewal_gw_after_dhcp_outage
+    * Prepare simulated test "testZ" device with "192.168.201" ipv4 and "dead:beaf:3" ipv6 dhcp address prefix
+    * Add connection type "ethernet" named "profie" for device "testZ"
+    * Execute "nmcli connection modify profie ipv4.may-fail no"
+    * Bring "up" connection "ethie2"
+    * Bring "up" connection "profie"
+    When "default" is visible with command "ip r |grep testA" in "30" seconds
+    When "default" is visible with command "ip r |grep testZ" in "30" seconds
+    When "inet 192" is visible with command "ip a s |grep testA" in "30" seconds
+    When "inet 192" is visible with command "ip a s |grep testZ" in "30" seconds
+    ##########################################################################
+
+    ## STOP DHCP SERVERS for testA and testZ
+    * Execute "ip netns exec testA_ns kill -SIGSTOP $(cat /tmp/testA_ns.pid)"
+    * Execute "ip netns exec testZ_ns kill -SIGSTOP $(cat /tmp/testZ_ns.pid)"
+
+    ## WAIT FOR all devices are w/o routes
+    When "default" is not visible with command "ip r |grep testX" in "130" seconds
+    When "default" is not visible with command "ip r |grep testY" in "130" seconds
+    When "default" is not visible with command "ip r |grep testZ" in "130" seconds
+    When "default" is not visible with command "ip r |grep testA" in "130" seconds
+    When "inet 192.168." is not visible with command "ip a s testX" in "10" seconds
+    When "inet 192.168." is not visible with command "ip a s testY" in "10" seconds
+    When "inet 192.168." is not visible with command "ip a s testZ" in "10" seconds
+    When "inet 192.168." is not visible with command "ip a s testA" in "10" seconds
+
+    ### RESTART DHCP servers for testX and testY devices
+    * Execute "ip netns exec testY_ns kill -SIGCONT $(cat /tmp/testY_ns.pid)"
+    * Execute "ip netns exec testX_ns kill -SIGCONT $(cat /tmp/testX_ns.pid)"
+    # Default route for testX should not be back in 150s as the device is now external
+    When "default" is not visible with command "ip r| grep testX" for full "150" seconds
+    # Default route for testY should be back in the same timeframe
+    Then "default" is visible with command "ip r| grep testY"
+    Then "inet 192.168." is not visible with command "ip a s testX"
+    Then "inet 192.168." is visible with command "ip a s testY"
+    Then "routers = 192.168" is visible with command "nmcli con show connie"
+
+    ## RESTART DHCP server for testA after 500s (we already waited for 130 + 150)
+    * Execute "sleep 220 && ip netns exec testA_ns kill -SIGCONT $(cat /tmp/testA_ns.pid)"
+    Then "routers = 192.168" is visible with command "nmcli con show ethie2" in "130" seconds
+    Then "default via 192.168.* dev testA" is visible with command "ip r"
+
+    ## WAIT FOR profie to be down for 900 (we already waited 500)
+    When "profie" is not visible with command "nmcli connection s -a" in "500" seconds
+    ## RESTART DHCP server for testZ and wait for reconnect
+    * Execute "ip netns exec testZ_ns kill -SIGCONT $(cat /tmp/testZ_ns.pid)"
+    Then "routers = 192.168" is visible with command "nmcli con show profie" in "400" seconds
+    Then "default via 192.168.* dev testZ" is visible with command "ip r"
 
 
     @rhbz1205405

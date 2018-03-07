@@ -400,7 +400,7 @@
 
     @rhbz1436531
     @ver+=1.10
-    @ver-1.11
+    @ver-=1.10.99
     @eth @flush_300
     @ipv6_route_set_route_with_tables_reapply
     Scenario: nmcli - ipv6 - routes - set route with tables reapply
