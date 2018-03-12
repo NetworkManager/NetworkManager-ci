@@ -3,27 +3,31 @@ set -x
 
 logger -t $0 "Running test $1"
 
-. prepare/devsetup.sh
+export PATH=$PATH:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/root/bin
+DIR=$(pwd)
+
+. $DIR/prepare/devsetup.sh
 setup_configure_environment "$1"
 
 # set TEST variable for version_control script
 if [ -z "$TEST" ]; then
+    logger "setting test name to NetworkManager_Test0_$1"
     TEST="NetworkManager_Test0_$1"
 fi
 
 #check if NM version is correct for test
-TAG=$(python version_control.py nmcli $TEST); vc=$?
+TAG="$(python $DIR/version_control.py $DIR/nmcli $TEST)"; vc=$?
 if [ $vc -eq 1 ]; then
-    echo "Skipping due to incorrect NM version for this test"
+    logger "Skipping due to incorrect NM version for this test"
     # exit 0 doesn't affect overal result
     exit 0
 
 elif [ $vc -eq 0 ]; then
     if [ x$TAG != x"" ]; then
-        echo "Running $TAG version of $TEST"
-        behave nmcli/features -t $1 -t $TAG -k -f html -o /tmp/report_$TEST.html -f plain; rc=$?
+        logger "Running $TAG version of $TEST"
+        behave $DIR/nmcli/features -t $1 -t $TAG -k -f html -o /tmp/report_$TEST.html -f plain; rc=$?
     else
-        behave nmcli/features -t $1 -k -f html -o /tmp/report_$TEST.html -f plain; rc=$?
+        behave $DIR/nmcli/features -t $1 -k -f html -o /tmp/report_$TEST.html -f plain; rc=$?
     fi
 fi
 
