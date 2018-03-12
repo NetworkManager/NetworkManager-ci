@@ -78,10 +78,10 @@ Feature: nmcli - general
     @general @eth @teardown_testveth @eth0 @restore_hostname
     @pull_hostname_from_dhcp
     Scenario: nmcli - general - pull hostname from DHCP
-    * Prepare simulated test "testX" device
+    * Prepare simulated test "testG" device
     * Execute "sudo nmcli general hostname localhost"
     * Execute "hostnamectl set-hostname --transient localhost.localdomain"
-    * Add a new connection of type "ethernet" and options "ifname testX con-name ethie autoconnect no"
+    * Add a new connection of type "ethernet" and options "ifname testG con-name ethie autoconnect no"
     When "localhost" is visible with command "hostnamectl --transient" in "60" seconds
     * Bring up connection "ethie"
     When "ransient" is visible with command "hostnamectl" in "60" seconds
@@ -95,10 +95,10 @@ Feature: nmcli - general
     Scenario: NM - general - hostname mode full
     * Execute "echo -e '[main]\nhostname-mode=full' > /etc/NetworkManager/conf.d/90-hostname.conf"
     * Restart NM
-    * Prepare simulated test "testX" device
+    * Prepare simulated test "testG" device
     * Execute "sudo nmcli general hostname localhost"
     * Execute "hostnamectl set-hostname --transient localhost.localdomain"
-    * Add a new connection of type "ethernet" and options "ifname testX con-name ethie autoconnect no"
+    * Add a new connection of type "ethernet" and options "ifname testG con-name ethie autoconnect no"
     When "localhost" is visible with command "hostnamectl --transient" in "60" seconds
     * Bring up connection "ethie"
     When "ransient" is visible with command "hostnamectl" in "60" seconds
@@ -112,10 +112,10 @@ Feature: nmcli - general
     Scenario: NM - general - hostname mode dhcp
     * Execute "echo -e '[main]\nhostname-mode=dhcp' > /etc/NetworkManager/conf.d/90-hostname.conf"
     * Restart NM
-    * Prepare simulated test "testX" device
+    * Prepare simulated test "testG" device
     * Execute "sudo nmcli general hostname localhost"
     * Execute "hostnamectl set-hostname --transient localhost.localdomain"
-    * Add a new connection of type "ethernet" and options "ifname testX con-name ethie autoconnect no"
+    * Add a new connection of type "ethernet" and options "ifname testG con-name ethie autoconnect no"
     When "localhost" is visible with command "hostnamectl --transient" in "60" seconds
     * Bring up connection "ethie"
     When "ransient" is visible with command "hostnamectl" in "60" seconds
@@ -130,10 +130,10 @@ Feature: nmcli - general
     * Execute "echo -e '[main]\nhostname-mode=dhcp' > /etc/NetworkManager/conf.d/90-hostname.conf"
     * Execute "echo no-hosts > /etc/dnsmasq.d/dnsmasq_custom.conf"
     * Restart NM
-    * Prepare simulated test "testX" device
+    * Prepare simulated test "testG" device
     * Execute "sudo nmcli general hostname localhost"
     * Execute "hostnamectl set-hostname --transient localhost.localdomain"
-    * Add a new connection of type "ethernet" and options "ifname testX con-name ethie autoconnect no"
+    * Add a new connection of type "ethernet" and options "ifname testG con-name ethie autoconnect no"
     When "localhost" is visible with command "hostnamectl --transient" in "60" seconds
     * Bring up connection "ethie"
     When "ransient" is visible with command "hostnamectl" in "60" seconds
@@ -148,10 +148,10 @@ Feature: nmcli - general
     Scenario: NM - general - hostname mode none
     * Execute "echo -e '[main]\nhostname-mode=none' > /etc/NetworkManager/conf.d/90-hostname.conf"
     * Restart NM
-    * Prepare simulated test "testX" device
+    * Prepare simulated test "testG" device
     * Execute "sudo nmcli general hostname localhost"
     * Execute "hostnamectl set-hostname --transient localhost.localdomain"
-    * Add a new connection of type "ethernet" and options "ifname testX con-name ethie autoconnect no"
+    * Add a new connection of type "ethernet" and options "ifname testG con-name ethie autoconnect no"
     When "localhost" is visible with command "hostnamectl --transient" in "60" seconds
     * Bring up connection "ethie"
     When "ransient" is visible with command "hostnamectl" in "60" seconds
@@ -359,8 +359,8 @@ Feature: nmcli - general
     @eth @teardown_testveth @two_bridged_veths @dhcpd
     @device_reapply_routes
     Scenario: NM - device - reapply just routes
-    * Prepare simulated test "testX" device
-    * Add connection type "ethernet" named "ethie" for device "testX"
+    * Prepare simulated test "testG" device
+    * Add connection type "ethernet" named "ethie" for device "testG"
     * Bring "up" connection "ethie"
     * Open editor for connection "ethie"
     * Submit "set ipv4.routes 192.168.5.0/24 192.168.99.111 1" in editor
@@ -369,21 +369,21 @@ Feature: nmcli - general
     * Submit "set ipv6.addresses 2000::2/126" in editor
     * Submit "set ipv6.routes 1010::1/128 2000::1 1" in editor
     * Save in editor
-    * Execute "ip netns exec testX_ns kill -SIGSTOP $(cat /tmp/testX_ns.pid)"
-    * Execute "nmcli device reapply testX"
-    Then "1010::1 via 2000::1 dev testX\s+proto static\s+metric 1" is visible with command "ip -6 route" in "5" seconds
-     And "2000::/126 dev testX\s+proto kernel\s+metric 256" is visible with command "ip -6 route"
-     And "192.168.5.0/24 via 192.168.99.111 dev testX\s+proto static\s+metric" is visible with command "ip route"
+    * Execute "ip netns exec testG_ns kill -SIGSTOP $(cat /tmp/testG_ns.pid)"
+    * Execute "nmcli device reapply testG"
+    Then "1010::1 via 2000::1 dev testG\s+proto static\s+metric 1" is visible with command "ip -6 route" in "5" seconds
+     And "2000::/126 dev testG\s+proto kernel\s+metric 256" is visible with command "ip -6 route"
+     And "192.168.5.0/24 via 192.168.99.111 dev testG\s+proto static\s+metric" is visible with command "ip route"
      And "routers = 192.168.99.1" is visible with command "nmcli con show ethie"
-     And "default via 192.168.99.1 dev testX" is visible with command "ip r"
+     And "default via 192.168.99.1 dev testG" is visible with command "ip r"
 
 
     @ver+=1.7.1 @ver-=1.10.1
     @eth @teardown_testveth @two_bridged_veths @dhcpd
     @device_reapply_routes
     Scenario: NM - device - reapply just routes
-    * Prepare simulated test "testX" device
-    * Add connection type "ethernet" named "ethie" for device "testX"
+    * Prepare simulated test "testG" device
+    * Add connection type "ethernet" named "ethie" for device "testG"
     * Bring "up" connection "ethie"
     * Open editor for connection "ethie"
     * Submit "set ipv4.routes 192.168.5.0/24 192.168.99.111 1" in editor
@@ -392,21 +392,21 @@ Feature: nmcli - general
     * Submit "set ipv6.addresses 2000::2/126" in editor
     * Submit "set ipv6.routes 1010::1/128 2000::1 1" in editor
     * Save in editor
-    * Execute "nmcli device reapply testX"
-    Then "1010::1 via 2000::1 dev testX\s+proto static\s+metric 1" is visible with command "ip -6 route" in "5" seconds
+    * Execute "nmcli device reapply testG"
+    Then "1010::1 via 2000::1 dev testG\s+proto static\s+metric 1" is visible with command "ip -6 route" in "5" seconds
      # metric 256 is valid for @ver-=1.9.1 only, please delete of too old
-     And "2000::/126 dev testX\s+proto kernel\s+metric (100|256)" is visible with command "ip -6 route"
-     And "192.168.5.0/24 via 192.168.99.111 dev testX\s+proto static\s+metric" is visible with command "ip route"
+     And "2000::/126 dev testG\s+proto kernel\s+metric (100|256)" is visible with command "ip -6 route"
+     And "192.168.5.0/24 via 192.168.99.111 dev testG\s+proto static\s+metric" is visible with command "ip route"
      And "routers = 192.168.99.1" is visible with command "nmcli con show ethie"
-     And "default via 192.168.99.1 dev testX" is visible with command "ip r"
+     And "default via 192.168.99.1 dev testG" is visible with command "ip r"
 
 
     @ver+=1.10.2  @ver-1.11
     @eth @teardown_testveth @two_bridged_veths @dhcpd
     @device_reapply_routes
     Scenario: NM - device - reapply just routes
-    * Prepare simulated test "testX" device
-    * Add a new connection of type "ethernet" and options "ifname testX con-name ethie autoconnect no ipv4.may-fail no ipv6.method ignore"
+    * Prepare simulated test "testG" device
+    * Add a new connection of type "ethernet" and options "ifname testG con-name ethie autoconnect no ipv4.may-fail no ipv6.method ignore"
     * Bring "up" connection "ethie"
     * Open editor for connection "ethie"
     * Submit "set ipv4.routes 192.168.5.0/24 192.168.99.111 1" in editor
@@ -415,20 +415,20 @@ Feature: nmcli - general
     * Submit "set ipv6.addresses 2000::2/126" in editor
     * Submit "set ipv6.routes 1010::1/128 2000::1 1" in editor
     * Save in editor
-    * Execute "nmcli device reapply testX"
-    Then "1010::1 via 2000::1 dev testX\s+proto static\s+metric 1" is visible with command "ip -6 route" in "5" seconds
-     And "2000::/126 dev testX\s+proto kernel\s+metric 101" is visible with command "ip -6 route"
-     And "192.168.5.0/24 via 192.168.99.111 dev testX\s+proto static\s+metric" is visible with command "ip route"
+    * Execute "nmcli device reapply testG"
+    Then "1010::1 via 2000::1 dev testG\s+proto static\s+metric 1" is visible with command "ip -6 route" in "5" seconds
+     And "2000::/126 dev testG\s+proto kernel\s+metric 101" is visible with command "ip -6 route"
+     And "192.168.5.0/24 via 192.168.99.111 dev testG\s+proto static\s+metric" is visible with command "ip route"
      And "routers = 192.168.99.1" is visible with command "nmcli con show ethie"
-     And "default via 192.168.99.1 dev testX\s+proto dhcp\s+metric 21" is visible with command "ip r"
+     And "default via 192.168.99.1 dev testG\s+proto dhcp\s+metric 21" is visible with command "ip r"
 
 
     @ver+=1.11
     @eth @teardown_testveth @two_bridged_veths @dhcpd
     @device_reapply_routes
     Scenario: NM - device - reapply just routes
-    * Prepare simulated test "testX" device
-    * Add a new connection of type "ethernet" and options "ifname testX con-name ethie autoconnect no"
+    * Prepare simulated test "testG" device
+    * Add a new connection of type "ethernet" and options "ifname testG con-name ethie autoconnect no"
     * Bring "up" connection "ethie"
     * Open editor for connection "ethie"
     * Submit "set ipv4.routes 192.168.5.0/24 192.168.99.111 1" in editor
@@ -437,14 +437,14 @@ Feature: nmcli - general
     * Submit "set ipv6.addresses 2000::2/126" in editor
     * Submit "set ipv6.routes 1010::1/128 2000::1 1" in editor
     * Save in editor
-    * Execute "nmcli device reapply testX"
-    Then "1010::1 via 2000::1 dev testX\s+proto static\s+metric 1" is visible with command "ip -6 route" in "5" seconds
-     And "2000::/126 dev testX\s+proto kernel\s+metric 101" is visible with command "ip -6 route"
-     And "192.168.5.0/24 via 192.168.99.111 dev testX\s+proto static\s+metric" is visible with command "ip route"
+    * Execute "nmcli device reapply testG"
+    Then "1010::1 via 2000::1 dev testG\s+proto static\s+metric 1" is visible with command "ip -6 route" in "5" seconds
+     And "2000::/126 dev testG\s+proto kernel\s+metric 101" is visible with command "ip -6 route"
+     And "192.168.5.0/24 via 192.168.99.111 dev testG\s+proto static\s+metric" is visible with command "ip route"
      And "routers = 192.168.99.1" is visible with command "nmcli con show ethie"
      # Metric still cannot be changed when dhcp is used. Bug #1528071
-     # And "default via 192.168.99.1 dev testX\s+proto dhcp\s+metric 21" is visible with command "ip r"
-     And "default via 192.168.99.1 dev testX\s+proto dhcp\s+metric" is visible with command "ip r"
+     # And "default via 192.168.99.1 dev testG\s+proto dhcp\s+metric 21" is visible with command "ip r"
+     And "default via 192.168.99.1 dev testG\s+proto dhcp\s+metric" is visible with command "ip r"
 
 
     @rhbz1032717
@@ -452,8 +452,8 @@ Feature: nmcli - general
     @eth @teardown_testveth @two_bridged_veths @dhcpd
     @device_reapply_all
     Scenario: NM - device - reapply even address and gate
-    * Prepare simulated test "testX" device
-    * Add connection type "ethernet" named "ethie" for device "testX"
+    * Prepare simulated test "testG" device
+    * Add connection type "ethernet" named "ethie" for device "testG"
     * Bring "up" connection "ethie"
     * Open editor for connection "ethie"
     * Submit "set ipv4.method static" in editor
@@ -465,16 +465,16 @@ Feature: nmcli - general
     * Submit "set ipv6.addresses 2000::2/126" in editor
     * Submit "set ipv6.routes 1010::1/128 2000::1 1" in editor
     * Save in editor
-    * Execute "ip netns exec testX_ns kill -SIGSTOP $(cat /tmp/testX_ns.pid)"
-    * Execute "nmcli device reapply testX"
-    Then "1010::1 via 2000::1 dev testX\s+proto static\s+metric 1" is visible with command "ip -6 route" in "5" seconds
+    * Execute "ip netns exec testG_ns kill -SIGSTOP $(cat /tmp/testG_ns.pid)"
+    * Execute "nmcli device reapply testG"
+    Then "1010::1 via 2000::1 dev testG\s+proto static\s+metric 1" is visible with command "ip -6 route" in "5" seconds
      # metric 256 is valid for @ver-=1.9.1 only, please delete of too old
-     And "2000::/126 dev testX\s+proto kernel\s+metric (100|256)" is visible with command "ip -6 route"
-     And "192.168.3.0/24 dev testX\s+proto kernel\s+scope link\s+src 192.168.3.10" is visible with command "ip route"
-     And "192.168.4.1 dev testX\s+proto static\s+scope link\s+metric 21" is visible with command "ip route"
-     And "192.168.5.0/24 via 192.168.3.11 dev testX\s+proto static\s+metric" is visible with command "ip route"
+     And "2000::/126 dev testG\s+proto kernel\s+metric (100|256)" is visible with command "ip -6 route"
+     And "192.168.3.0/24 dev testG\s+proto kernel\s+scope link\s+src 192.168.3.10" is visible with command "ip route"
+     And "192.168.4.1 dev testG\s+proto static\s+scope link\s+metric 21" is visible with command "ip route"
+     And "192.168.5.0/24 via 192.168.3.11 dev testG\s+proto static\s+metric" is visible with command "ip route"
      And "routers = 192.168.99.1" is not visible with command "nmcli con show ethie"
-     And "default via 192.168.99.1 dev testX" is not visible with command "ip r"
+     And "default via 192.168.99.1 dev testG" is not visible with command "ip r"
 
 
     @rhbz1032717 @rhbz1505893
@@ -482,8 +482,8 @@ Feature: nmcli - general
     @eth @teardown_testveth @two_bridged_veths @dhcpd
     @device_reapply_all
     Scenario: NM - device - reapply even address and gate
-    * Prepare simulated test "testX" device
-    * Add connection type "ethernet" named "ethie" for device "testX"
+    * Prepare simulated test "testG" device
+    * Add connection type "ethernet" named "ethie" for device "testG"
     * Bring "up" connection "ethie"
     * Open editor for connection "ethie"
     * Submit "set ipv4.method static" in editor
@@ -495,15 +495,15 @@ Feature: nmcli - general
     * Submit "set ipv6.addresses 2000::2/126" in editor
     * Submit "set ipv6.routes 1010::1/128 2000::1 1" in editor
     * Save in editor
-    * Execute "ip netns exec testX_ns kill -SIGSTOP $(cat /tmp/testX_ns.pid)"
-    * Execute "nmcli device reapply testX"
-    Then "1010::1 via 2000::1 dev testX\s+proto static\s+metric 1" is visible with command "ip -6 route" in "5" seconds
-     And "2000::/126 dev testX\s+proto kernel\s+metric 101" is visible with command "ip -6 route"
-     And "192.168.3.0/24 dev testX\s+proto kernel\s+scope link\s+src 192.168.3.10 metric 21" is visible with command "ip route"
-     And "192.168.4.1 dev testX\s+proto static\s+scope link\s+metric 21" is visible with command "ip route"
-     And "192.168.5.0/24 via 192.168.3.11 dev testX\s+proto static\s+metric 1" is visible with command "ip route"
+    * Execute "ip netns exec testG_ns kill -SIGSTOP $(cat /tmp/testG_ns.pid)"
+    * Execute "nmcli device reapply testG"
+    Then "1010::1 via 2000::1 dev testG\s+proto static\s+metric 1" is visible with command "ip -6 route" in "5" seconds
+     And "2000::/126 dev testG\s+proto kernel\s+metric 101" is visible with command "ip -6 route"
+     And "192.168.3.0/24 dev testG\s+proto kernel\s+scope link\s+src 192.168.3.10 metric 21" is visible with command "ip route"
+     And "192.168.4.1 dev testG\s+proto static\s+scope link\s+metric 21" is visible with command "ip route"
+     And "192.168.5.0/24 via 192.168.3.11 dev testG\s+proto static\s+metric 1" is visible with command "ip route"
      And "routers = 192.168.99.1" is not visible with command "nmcli con show ethie"
-     And "default via 192.168.99.1 dev testX" is not visible with command "ip r"
+     And "default via 192.168.99.1 dev testG" is not visible with command "ip r"
 
 
     @rhbz1113941
@@ -911,25 +911,25 @@ Feature: nmcli - general
     @runonce @teardown_testveth
     @run_once_new_connection
     Scenario: NM - general - run once and quit start new ipv4 and ipv6 connection
-    * Prepare simulated test "testY" device
-    * Add a new connection of type "ethernet" and options "ifname testY con-name ethie"
+    * Prepare simulated test "testG" device
+    * Add a new connection of type "ethernet" and options "ifname testG con-name ethie"
     * Execute "nmcli connection modify ethie ipv4.addresses 1.2.3.4/24 ipv4.may-fail no ipv6.addresses 1::128/128 ipv6.may-fail no connection.autoconnect yes"
     * Bring "up" connection "ethie"
-    * Disconnect device "testY"
-    * Stop NM and clean "testY"
-    When "state DOWN" is visible with command "ip a s testY" in "15" seconds
+    * Disconnect device "testG"
+    * Stop NM and clean "testG"
+    When "state DOWN" is visible with command "ip a s testG" in "15" seconds
     * Execute "echo '[main]' > /etc/NetworkManager/conf.d/01-run-once.conf"
     * Execute "echo 'configure-and-quit=yes' >> /etc/NetworkManager/conf.d/01-run-once.conf"
     * Execute "echo 'dhcp=internal' >> /etc/NetworkManager/conf.d/01-run-once.conf"
     * Start NM
-    Then "192." is visible with command " ip a s testY |grep 'inet '|grep dynamic" in "60" seconds
-    Then "1.2.3.4\/24" is visible with command "ip a s testY |grep 'inet '|grep -v dynamic" in "60" seconds
-    Then "2620:" is visible with command "ip a s testY |grep 'inet6'|grep  dynamic" in "60" seconds
-    Then "1::128\/128" is visible with command "ip a s testY |grep 'inet6'" in "60" seconds
-    Then "default via 192" is visible with command "ip r |grep testY" in "60" seconds
-    Then "1.2.3.0\/24" is visible with command "ip r |grep testY" in "60" seconds
-    Then "1::128" is visible with command "ip -6 r |grep testY" in "60" seconds
-    Then "nm-iface-helper --ifname testY" is visible with command "ps aux|grep helper" in "60" seconds
+    Then "192." is visible with command " ip a s testG |grep 'inet '|grep dynamic" in "60" seconds
+    Then "1.2.3.4\/24" is visible with command "ip a s testG |grep 'inet '|grep -v dynamic" in "60" seconds
+    Then "2620:" is visible with command "ip a s testG |grep 'inet6'|grep  dynamic" in "60" seconds
+    Then "1::128\/128" is visible with command "ip a s testG |grep 'inet6'" in "60" seconds
+    Then "default via 192" is visible with command "ip r |grep testG" in "60" seconds
+    Then "1.2.3.0\/24" is visible with command "ip r |grep testG" in "60" seconds
+    Then "1::128" is visible with command "ip -6 r |grep testG" in "60" seconds
+    Then "nm-iface-helper --ifname testG" is visible with command "ps aux|grep helper" in "60" seconds
     Then "inactive" is visible with command "systemctl is-active NetworkManager"
 
 
@@ -938,48 +938,47 @@ Feature: nmcli - general
     @runonce
     @run_once_ip4_renewal
     Scenario: NM - general - run once and quit ipv4 renewal
-    * Prepare simulated test "testX" device
-    * Add a new connection of type "ethernet" and options "ifname testX con-name ethie"
+    * Prepare simulated test "testG" device
+    * Add a new connection of type "ethernet" and options "ifname testG con-name ethie"
     * Bring "up" connection "ethie"
-    * Disconnect device "testX"
-    * Stop NM and clean "testX"
-    When "state DOWN" is visible with command "ip a s testX" in "5" seconds
+    * Disconnect device "testG"
+    * Stop NM and clean "testG"
+    When "state DOWN" is visible with command "ip a s testG" in "5" seconds
     * Execute "echo '[main]' > /etc/NetworkManager/conf.d/01-run-once.conf"
     * Execute "echo 'configure-and-quit=yes' >> /etc/NetworkManager/conf.d/01-run-once.conf"
     * Execute "echo 'dhcp=internal' >> /etc/NetworkManager/conf.d/01-run-once.conf"
     * Execute "sleep 1"
     * Start NM
-    * "192" is visible with command " ip a s testX |grep 'inet '|grep dynamic" in "60" seconds
+    * "192" is visible with command " ip a s testG |grep 'inet '|grep dynamic" in "60" seconds
     * Execute "sleep 20"
     # VVV this means that lifetime was refreshed
-    When "preferred_lft (119|118|117)sec" is visible with command " ip a s testX" in "100" seconds
-    Then "192.168.99" is visible with command " ip a s testX |grep 'inet '|grep dynamic"
-    Then "192.168.99.0/24" is visible with command "ip r |grep testX"
+    When "preferred_lft (119|118|117)sec" is visible with command " ip a s testG" in "100" seconds
+    Then "192.168.99" is visible with command " ip a s testG |grep 'inet '|grep dynamic"
+    Then "192.168.99.0/24" is visible with command "ip r |grep testG"
 
 
-    @rhbz1083683
-    @rhbz1256772
+    @rhbz1083683 @rhbz1256772
     @teardown_testveth
     @runonce
     @run_once_ip6_renewal
     Scenario: NM - general - run once and quit ipv6 renewal
-    * Prepare simulated test "testX" device
-    * Add a new connection of type "ethernet" and options "ifname testX con-name ethie"
+    * Prepare simulated test "testG" device
+    * Add a new connection of type "ethernet" and options "ifname testG con-name ethie"
     #* Execute "nmcli con modify ethie ipv4.may-fail no ipv6.may-fail no"
     * Bring "up" connection "ethie"
-    Then "2620" is visible with command "ip a s testX" in "60" seconds
-    Then "192" is visible with command "ip a s testX" in "60" seconds
-    * Disconnect device "testX"
-    * Stop NM and clean "testX"
-    When "state DOWN" is visible with command "ip a s testX" in "5" seconds
+    Then "2620" is visible with command "ip a s testG" in "60" seconds
+    Then "192" is visible with command "ip a s testG" in "60" seconds
+    * Disconnect device "testG"
+    * Stop NM and clean "testG"
+    When "state DOWN" is visible with command "ip a s testG" in "5" seconds
     * Execute "echo '[main]' > /etc/NetworkManager/conf.d/01-run-once.conf"
     * Execute "echo 'configure-and-quit=yes' >> /etc/NetworkManager/conf.d/01-run-once.conf"
     * Execute "echo 'dhcp=internal' >> /etc/NetworkManager/conf.d/01-run-once.conf"
     * Execute "sleep 1"
     * Start NM
-    * Force renew IPv6 for "testX"
-    When "2620:" is not visible with command "ip a s testX"
-    Then "2620:" is visible with command "ip a s testX" in "120" seconds
+    * Force renew IPv6 for "testG"
+    When "2620:" is not visible with command "ip a s testG"
+    Then "2620:" is visible with command "ip a s testG" in "120" seconds
 
 
     @rhbz1201497
@@ -1081,11 +1080,11 @@ Feature: nmcli - general
     @eth @delete_testeth0 @remove_custom_cfg @teardown_testveth @restart
     @nm_online_wait_for_delayed_device
     Scenario: NM - general - wait for delayed device
-    * Add a new connection of type "ethernet" and options "ifname testX con-name ethie"
+    * Add a new connection of type "ethernet" and options "ifname testG con-name ethie"
     * Stop NM
-    * Prepare simulated veth device "testX" wihout carrier
-    * Execute "echo '[device-testX]' > /etc/NetworkManager/conf.d/99-xxcustom.conf"
-    * Execute "echo 'match-device=interface-name:testX' >> /etc/NetworkManager/conf.d/99-xxcustom.conf"
+    * Prepare simulated veth device "testG" wihout carrier
+    * Execute "echo '[device-testG]' > /etc/NetworkManager/conf.d/99-xxcustom.conf"
+    * Execute "echo 'match-device=interface-name:testG' >> /etc/NetworkManager/conf.d/99-xxcustom.conf"
     * Execute "echo 'carrier-wait-timeout=15000' >> /etc/NetworkManager/conf.d/99-xxcustom.conf"
     * Execute "sleep 1"
     * Start NM
@@ -1093,7 +1092,7 @@ Feature: nmcli - general
     When "FAIL" is visible with command "cat /tmp/nm-online.txt"
     * Execute "sleep 10"
     When "FAIL" is visible with command "cat /tmp/nm-online.txt"
-     And Execute "ip netns exec testX_ns ip link set testXp up"
+     And Execute "ip netns exec testG_ns ip link set testGp up"
     Then "PASS" is visible with command "cat /tmp/nm-online.txt" in "5" seconds
 
 
@@ -1119,15 +1118,15 @@ Feature: nmcli - general
     @eth_down_and_delete @need_dispatcher_scripts
     @modify_policy_based_routing_connection
     Scenario: NM - general - modify policy based routing connection
-    * Prepare simulated test "testX" device
-    * Add a new connection of type "ethernet" and options "ifname testX con-name ethie autoconnect no"
+    * Prepare simulated test "testG" device
+    * Add a new connection of type "ethernet" and options "ifname testG con-name ethie autoconnect no"
     * Bring "up" connection "ethie"
-    * Create PBR files for profile "ethie" and "testX" device in table "1"
+    * Create PBR files for profile "ethie" and "testG" device in table "1"
     * Modify connection "ethie" changing options "connection.autoconnect yes ipv6.method ignore"
     * Reboot
-    Then "32764:\s+from 192.168.99.* lookup 1.*32765:\s+from all iif testX lookup 1" is visible with command "ip rule" in "20" seconds
-     And "default via 192.168.99.1 dev testX" is visible with command "ip r s table 1" in "20" seconds
-     And "2620" is not visible with command "ip a s testX" in "10" seconds
+    Then "32764:\s+from 192.168.99.* lookup 1.*32765:\s+from all iif testG lookup 1" is visible with command "ip rule" in "20" seconds
+     And "default via 192.168.99.1 dev testG" is visible with command "ip r s table 1" in "20" seconds
+     And "2620" is not visible with command "ip a s testG" in "10" seconds
 
 
     @rhbz1262972
@@ -1162,7 +1161,7 @@ Feature: nmcli - general
     @teardown_testveth @allow_veth_connections
     @allow_wired_connections
     Scenario: NM - general - create Wired connection for veth devices
-    * Prepare simulated test "testX" device
+    * Prepare simulated test "testG" device
     * Restart NM
     Then "Wired connection 1" is visible with command "nmcli con"
 
@@ -1184,15 +1183,15 @@ Feature: nmcli - general
     @ethernet @teardown_testveth
     @nmcli_general_wait_for_carrier_on_new_device_request
     Scenario: nmcli - general - wait for carrier on new device activation request
-    * Add a new connection of type "ethernet" and options "ifname testX con-name ethernet0 autoconnect no"
-    * Prepare simulated veth device "testX" wihout carrier
+    * Add a new connection of type "ethernet" and options "ifname testG con-name ethernet0 autoconnect no"
+    * Prepare simulated veth device "testG" wihout carrier
     * Execute "nmcli con modify ethernet0 ipv4.may-fail no"
     * Execute "nmcli con up ethernet0" without waiting for process to finish
     * Wait for at least "1" seconds
-    * Execute "ip netns exec testX_ns ip link set testXp up"
+    * Execute "ip netns exec testG_ns ip link set testGp up"
     * "connected:ethernet0" is visible with command "nmcli -t -f STATE,CONNECTION device" in "60" seconds
-    Then "192" is visible with command "ip a s testX" in "60" seconds
-    Then "2620" is visible with command "ip a s testX" in "60" seconds
+    Then "192" is visible with command "ip a s testG" in "60" seconds
+    Then "2620" is visible with command "ip a s testG" in "60" seconds
 
 
     # Tied to the bz, though these are not direct verifiers
@@ -1202,12 +1201,12 @@ Feature: nmcli - general
     @teardown_testveth
     @nmcli_general_activate_static_connection_carrier_ignored
     Scenario: nmcli - general - activate static connection with no carrier - ignored
-    * Add a new connection of type "ethernet" and options "ifname testX con-name ethernet0 autoconnect no"
+    * Add a new connection of type "ethernet" and options "ifname testG con-name ethernet0 autoconnect no"
     * Modify connection "ethernet0" changing options "ipv4.method manual ipv4.address '192.168.5.11/24' ipv4.gateway '192.168.5.1' ipv6.method ignore"
-    * Prepare simulated veth device "testX" wihout carrier
+    * Prepare simulated veth device "testG" wihout carrier
     * Execute "nmcli con up ethernet0"
     Then "connected:ethernet0" is visible with command "nmcli -t -f STATE,CONNECTION device" in "60" seconds
-    Then "192.168.5.11" is visible with command "ip a s testX" in "60" seconds
+    Then "192.168.5.11" is visible with command "ip a s testG" in "60" seconds
 
 
     @rhbz1079353
@@ -1216,12 +1215,12 @@ Feature: nmcli - general
     @teardown_testveth
     @nmcli_general_activate_static_connection_carrier_not_ignored
     Scenario: nmcli - general - activate static connection with no carrier - not ignored
-    * Add a new connection of type "ethernet" and options "ifname testX con-name ethernet0 autoconnect no"
+    * Add a new connection of type "ethernet" and options "ifname testG con-name ethernet0 autoconnect no"
     * Modify connection "ethernet0" changing options "ipv4.method manual ipv4.address '192.168.5.11/24' ipv4.gateway '192.168.5.1' ipv6.method ignore"
-    * Prepare simulated veth device "testX" wihout carrier
+    * Prepare simulated veth device "testG" wihout carrier
     * Execute "nmcli con up ethernet0"
     Then "connected:ethernet0" is visible with command "nmcli -t -f STATE,CONNECTION device" in "60" seconds
-    Then "192.168.5.11" is visible with command "ip a s testX" in "60" seconds
+    Then "192.168.5.11" is visible with command "ip a s testG" in "60" seconds
 
 
     @rhbz1272974
@@ -1303,8 +1302,8 @@ Feature: nmcli - general
     @eth @teardown_testveth @kill_dbus-monitor
     @device_dbus_signal
     Scenario: NM - general - device dbus signal
-    * Prepare simulated test "testX" device
-    * Add connection type "ethernet" named "ethie" for device "testX"
+    * Prepare simulated test "testG" device
+    * Add connection type "ethernet" named "ethie" for device "testG"
     * Run child "dbus-monitor --system --monitor 'sender=org.freedesktop.NetworkManager' > /tmp/dbus.txt"
     * Bring "up" connection "ethie"
     Then "NetworkManager.Device.Wired; member=PropertiesChanged" is visible with command "grep PropertiesChanged /tmp/dbus.txt"
@@ -1688,10 +1687,10 @@ Feature: nmcli - general
     @eth @no_config_server @teardown_testveth @restart
     @wait_10s_for_flappy_carrier
     Scenario: NM - general - wait for flappy carrier up to 10s
-    * Add a new connection of type "ethernet" and options "ifname testX con-name ethie autoconnect no 802-3-ethernet.mtu 9000"
-    * Prepare simulated test "testX" device
+    * Add a new connection of type "ethernet" and options "ifname testG con-name ethie autoconnect no 802-3-ethernet.mtu 9000"
+    * Prepare simulated test "testG" device
     * Run child "nmcli con up ethie"
-    * Execute "sleep 0.5 && ip link set testX down"
+    * Execute "sleep 0.5 && ip link set testG down"
     * Execute "sleep 8"
-    * Execute "ip link set testX up"
+    * Execute "ip link set testG up"
     When "activated" is visible with command "nmcli -g GENERAL.STATE con show ethie" in "10" seconds

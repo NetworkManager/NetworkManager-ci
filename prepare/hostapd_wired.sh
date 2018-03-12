@@ -14,20 +14,20 @@ function hostapd_setup ()
     echo "Configuring hostapd 8021x server..."
 
     # Create 2 Veth interface pairs and a bridge between their peers.
-    ip link add testY type veth peer name testYp
-    ip link add testX type veth peer name testXp
-    brctl addbr testX_bridge
-    ip link set dev testX_bridge up
-    brctl addif testX_bridge testXp testYp
+    ip link add test8Y type veth peer name test8Yp
+    ip link add test8X type veth peer name test8Xp
+    brctl addbr test8X_bridge
+    ip link set dev test8X_bridge up
+    brctl addif test8X_bridge test8Xp test8Yp
     # Up everything
-    ip link set dev testX up
-    ip link set dev testXp up
-    ip link set dev testY up
-    ip link set dev testYp up
+    ip link set dev test8X up
+    ip link set dev test8Xp up
+    ip link set dev test8Y up
+    ip link set dev test8Yp up
 
     # Create a connection which (in cooperation with dnsmasq) provides DHCP functionlity
-    nmcli connection add type ethernet con-name DHCP_testY ifname testY ip4 10.0.0.1/24
-    nmcli connection up id DHCP_testY
+    nmcli connection add type ethernet con-name DHCP_test8Y ifname test8Y ip4 10.0.0.1/24
+    nmcli connection up id DHCP_test8Y
 
 
     # Note: Adding an interface to a bridge will cause the interface to lose its existing IP address.
@@ -35,13 +35,13 @@ function hostapd_setup ()
     # you will lose your connection. That's why eth0 is never used in a bridge.
     # Allow 802.1x packets to be forwarded through the bridge
 
-    # Enable forwarding of EAP 802.1x messages through software bridge "testX_bridge".
+    # Enable forwarding of EAP 802.1x messages through software bridge "test8X_bridge".
     # Note: without this capability the testing scenario fails.
-    echo 8 > /sys/class/net/testX_bridge/bridge/group_fwd_mask
+    echo 8 > /sys/class/net/test8X_bridge/bridge/group_fwd_mask
 
     # Create configuration for hostapd to be used with Ethernet adapters.
     echo "# Hostapd configuration for 802.1x client testing
-interface=testY
+interface=test8Y
 driver=wired
 logger_stdout=-1
 logger_stdout_level=1
@@ -115,10 +115,10 @@ function hostapd_teardown ()
 {
     kill $(cat /tmp/dnsmasq.pid)
     kill $(cat /tmp/hostapd.pid)
-    ip link del testYp
-    ip link del testXp
-    ip link del testX_bridge
-    nmcli con del DHCP_testY
+    ip link del test8Yp
+    ip link del test8Xp
+    ip link del test8X_bridge
+    nmcli con del DHCP_test8Y
 }
 
 if [ "$1" != "teardown" ]; then
