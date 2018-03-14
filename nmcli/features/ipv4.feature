@@ -684,7 +684,7 @@ Feature: nmcli: ipv4
 
     @rhbz1422610
     @ver+=1.8.0
-    @con_ipv4_remove @delete_testeth0 @restore_hostname
+    @con_ipv4_remove @delete_testeth0 @restore_hostname @eth3_disconnect
     @ipv4_ignore_resolveconf_with_ignore_auto_dns_var3
     Scenario: NM - ipv4 - preserve resolveconf when hostnamectl is called and ignore_auto_dns set
     * Add a new connection of type "ethernet" and options "con-name con_ipv4 ifname eth3 ipv4.ignore-auto-dns yes ipv6.ignore-auto-dns yes"
@@ -1551,7 +1551,7 @@ Feature: nmcli: ipv4
      Then "testX4:connected:con_ipv4" is visible with command "nmcli -t -f DEVICE,STATE,CONNECTION device" in "10" seconds
 
 
-    @eth
+    @con_ipv4_remove
     @custom_shared_range_preserves_restart
     Scenario: nmcli - ipv4 - shared custom range preserves restart
     * Add a new connection of type "ethernet" and options "con-name con_ipv4 ifname eth3 autoconnect no"

@@ -1339,7 +1339,7 @@ def prepare_simdev(context, device, ipv4=None, ipv6=None, option=None):
     if ipv6 is None:
         ipv6 = "2620:dead:beaf"
     if not hasattr(context, 'testvethns'):
-        os.system('''echo 'ENV{ID_NET_DRIVER}=="veth", ENV{INTERFACE}=="test*", ENV{NM_UNMANAGED}="0"' >/etc/udev/rules.d/88-lr.rules''')
+        os.system('''echo 'ENV{ID_NET_DRIVER}=="veth", ENV{INTERFACE}=="%s", ENV{NM_UNMANAGED}="0"' >/etc/udev/rules.d/88-lr.rules''' % device)
         command_code(context, "udevadm control --reload-rules")
         command_code(context, "udevadm settle")
         command_code(context, "sleep 1")
