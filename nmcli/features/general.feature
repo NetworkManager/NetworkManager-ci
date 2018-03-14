@@ -9,7 +9,6 @@ Feature: nmcli - general
     # Scenario:
 
 
-    @general
     @logging
     Scenario: NM - general - setting log level and autocompletion
     Then "DEBUG\s+ERR\s+INFO\s+.*TRACE\s+WARN" is visible with tab after "sudo nmcli general logging level "
@@ -20,7 +19,8 @@ Feature: nmcli - general
 
 
     @rhbz1212196
-    @bond @reduce_logging
+    @bond
+    @reduce_logging
     Scenario: NM - general - reduce logging
      * Add connection type "bond" named "bond0" for device "nm-bond"
     Then "preparing" is not visible with command "journalctl _COMM=NetworkManager --since '2 min ago'   |grep '<info> .*nm-bond' |grep 'preparing device'"
@@ -37,21 +37,21 @@ Feature: nmcli - general
 
     @rhbz1422786
     @ver+=1.8.0
-    @eth1_disconnect
+    @eth8_disconnect
     @insufficient_perms_connection_down
     Scenario: nmcli - general - not enough perms for connection down
-    * Bring "up" connection "testeth1"
-    Then "Not authorized to deactivate connections" is visible with command "sudo -u test nmcli connection down testeth1"
+    * Bring "up" connection "testeth8"
+    Then "Not authorized to deactivate connections" is visible with command "sudo -u test nmcli connection down testeth8"
 
 
     @rhbz1422786
     @ver+=1.8.0
-    @eth1_disconnect
+    @eth8_disconnect
     @insufficient_perms_connection_up
     Scenario: nmcli - general - not enough perms for connection up
-    Then "Not authorized to control networking" is visible with command "sudo -u test nmcli connection up testeth1"
+    Then "Not authorized to control networking" is visible with command "sudo -u test nmcli connection up testeth8"
 
-    @general
+
     @general_check_version
     Scenario: nmcli - general - check version
     * Note the output of "rpm -q --queryformat '%{VERSION}' NetworkManager" as value "1"
@@ -59,7 +59,7 @@ Feature: nmcli - general
     Then Check noted values "1" and "2" are the same
 
 
-    @general @remove_fedora_connection_checker
+    @remove_fedora_connection_checker
     @general_state_connected
     Scenario: nmcli - general - state connected
     * Note the output of "nmcli -t -f STATE general" as value "1"
@@ -67,7 +67,7 @@ Feature: nmcli - general
     Then Check noted values "1" and "2" are the same
 
 
-    @general @restore_hostname
+    @restore_hostname
     @hostname_change
     Scenario: nmcli - general - set hostname
     * Execute "sudo nmcli general hostname walderon"
@@ -75,22 +75,22 @@ Feature: nmcli - general
 
 
     @ver+=1.4.0
-    @general @eth @teardown_testveth @eth0 @restore_hostname
+    @con_general_remove @teardown_testveth @eth0 @restore_hostname
     @pull_hostname_from_dhcp
     Scenario: nmcli - general - pull hostname from DHCP
     * Prepare simulated test "testG" device
     * Execute "sudo nmcli general hostname localhost"
     * Execute "hostnamectl set-hostname --transient localhost.localdomain"
-    * Add a new connection of type "ethernet" and options "ifname testG con-name ethie autoconnect no"
+    * Add a new connection of type "ethernet" and options "ifname testG con-name con_general autoconnect no"
     When "localhost" is visible with command "hostnamectl --transient" in "60" seconds
-    * Bring up connection "ethie"
+    * Bring up connection "con_general"
     When "ransient" is visible with command "hostnamectl" in "60" seconds
     Then "localhost" is not visible with command "hostnamectl --transient" in "60" seconds
 
 
     @rhbz1405275
     @ver+=1.8.0
-    @general @eth @teardown_testveth @restart @delete_testeth0 @restore_hostname
+    @con_general_remove @teardown_testveth @restart @delete_testeth0 @restore_hostname
     @hostname_mode_full
     Scenario: NM - general - hostname mode full
     * Execute "echo -e '[main]\nhostname-mode=full' > /etc/NetworkManager/conf.d/90-hostname.conf"
@@ -98,16 +98,16 @@ Feature: nmcli - general
     * Prepare simulated test "testG" device
     * Execute "sudo nmcli general hostname localhost"
     * Execute "hostnamectl set-hostname --transient localhost.localdomain"
-    * Add a new connection of type "ethernet" and options "ifname testG con-name ethie autoconnect no"
+    * Add a new connection of type "ethernet" and options "ifname testG con-name con_general autoconnect no"
     When "localhost" is visible with command "hostnamectl --transient" in "60" seconds
-    * Bring up connection "ethie"
+    * Bring up connection "con_general"
     When "ransient" is visible with command "hostnamectl" in "60" seconds
     Then "localhost" is not visible with command "hostnamectl --transient" in "60" seconds
 
 
     @rhbz1405275
     @ver+=1.8.0
-    @general @eth @teardown_testveth @restart @delete_testeth0 @restore_hostname
+    @con_general_remove @teardown_testveth @restart @delete_testeth0 @restore_hostname
     @hostname_mode_dhcp
     Scenario: NM - general - hostname mode dhcp
     * Execute "echo -e '[main]\nhostname-mode=dhcp' > /etc/NetworkManager/conf.d/90-hostname.conf"
@@ -115,16 +115,16 @@ Feature: nmcli - general
     * Prepare simulated test "testG" device
     * Execute "sudo nmcli general hostname localhost"
     * Execute "hostnamectl set-hostname --transient localhost.localdomain"
-    * Add a new connection of type "ethernet" and options "ifname testG con-name ethie autoconnect no"
+    * Add a new connection of type "ethernet" and options "ifname testG con-name con_general autoconnect no"
     When "localhost" is visible with command "hostnamectl --transient" in "60" seconds
-    * Bring up connection "ethie"
+    * Bring up connection "con_general"
     When "ransient" is visible with command "hostnamectl" in "60" seconds
     Then "localhost" is not visible with command "hostnamectl --transient" in "60" seconds
 
 
     @rhbz1405275
     @ver+=1.8.0
-    @general @eth @teardown_testveth @restart @delete_testeth0 @restore_hostname
+    @con_general_remove @teardown_testveth @restart @delete_testeth0 @restore_hostname
     @hostname_mode_full_without_dhcp_hosts
     Scenario: NM - general - hostname mode dhcp without dhcp hosts
     * Execute "echo -e '[main]\nhostname-mode=dhcp' > /etc/NetworkManager/conf.d/90-hostname.conf"
@@ -133,9 +133,9 @@ Feature: nmcli - general
     * Prepare simulated test "testG" device
     * Execute "sudo nmcli general hostname localhost"
     * Execute "hostnamectl set-hostname --transient localhost.localdomain"
-    * Add a new connection of type "ethernet" and options "ifname testG con-name ethie autoconnect no"
+    * Add a new connection of type "ethernet" and options "ifname testG con-name con_general autoconnect no"
     When "localhost" is visible with command "hostnamectl --transient" in "60" seconds
-    * Bring up connection "ethie"
+    * Bring up connection "con_general"
     When "ransient" is visible with command "hostnamectl" in "60" seconds
     Then "localhost" is visible with command "hostnamectl --transient" in "60" seconds
      And "localhost" is visible with command "hostnamectl --transient" for full "20" seconds
@@ -143,7 +143,7 @@ Feature: nmcli - general
 
     @rhbz1405275
     @ver+=1.8.0
-    @general @eth @teardown_testveth @restart @delete_testeth0 @restore_hostname
+    @con_general_remove @teardown_testveth @restart @delete_testeth0 @restore_hostname
     @hostname_mode_none
     Scenario: NM - general - hostname mode none
     * Execute "echo -e '[main]\nhostname-mode=none' > /etc/NetworkManager/conf.d/90-hostname.conf"
@@ -151,15 +151,15 @@ Feature: nmcli - general
     * Prepare simulated test "testG" device
     * Execute "sudo nmcli general hostname localhost"
     * Execute "hostnamectl set-hostname --transient localhost.localdomain"
-    * Add a new connection of type "ethernet" and options "ifname testG con-name ethie autoconnect no"
+    * Add a new connection of type "ethernet" and options "ifname testG con-name con_general autoconnect no"
     When "localhost" is visible with command "hostnamectl --transient" in "60" seconds
-    * Bring up connection "ethie"
+    * Bring up connection "con_general"
     When "ransient" is visible with command "hostnamectl" in "60" seconds
     Then "localhost" is visible with command "hostnamectl --transient" in "60" seconds
      And "localhost" is visible with command "hostnamectl --transient" for full "20" seconds
 
 
-    @general @restart @veth
+    @restart @veth
     @general_state_disconnected
     Scenario: nmcli - general - state disconnected
     * "disconnect" all " connected" devices
@@ -169,7 +169,7 @@ Feature: nmcli - general
     * Bring up connection "testeth0"
 
 
-    @general @veth
+    @veth
     @general_state_asleep
     Scenario: nmcli - general - state asleep
     * Execute "nmcli networking off"
@@ -179,7 +179,6 @@ Feature: nmcli - general
     Then Execute "nmcli networking on"
 
 
-    @general
     @general_state_running
     Scenario: nmcli - general - running
     * Note the output of "nmcli -t -f RUNNING general" as value "1"
@@ -187,7 +186,7 @@ Feature: nmcli - general
     Then Check noted values "1" and "2" are the same
 
 
-    @general @veth @restart
+    @veth @restart
     @general_state_not_running
     Scenario: nmcli - general - not running
     * Stop NM
@@ -196,34 +195,34 @@ Feature: nmcli - general
 
 
     @rhbz1311988
-    @restart @add_testeth1 @shutdown @eth1_disconnect
+    @restart @add_testeth8 @shutdown @eth8_disconnect
     @shutdown_service_assumed
     Scenario: NM - general - shutdown service - assumed
-    * Delete connection "testeth1"
+    * Delete connection "testeth8"
     * Stop NM
-    * Execute "ip addr add 192.168.50.5/24 dev eth1"
-    * Execute "route add default gw 192.168.50.1 metric 200 dev eth1"
-    * "default via 192.168.50.1 dev eth1\s+metric 200" is visible with command "ip r"
-    * "inet 192.168.50.5" is visible with command "ip a s eth1" in "5" seconds
+    * Execute "ip addr add 192.168.50.5/24 dev eth8"
+    * Execute "route add default gw 192.168.50.1 metric 200 dev eth8"
+    * "default via 192.168.50.1 dev eth8\s+metric 200" is visible with command "ip r"
+    * "inet 192.168.50.5" is visible with command "ip a s eth8" in "5" seconds
     * Start NM
-    * "default via 192.168.50.1 dev eth1\s+metric 200" is visible with command "ip r"
-    * "inet 192.168.50.5" is visible with command "ip a s eth1" in "5" seconds
+    * "default via 192.168.50.1 dev eth8\s+metric 200" is visible with command "ip r"
+    * "inet 192.168.50.5" is visible with command "ip a s eth8" in "5" seconds
     * Stop NM
-    Then "default via 192.168.50.1 dev eth1\s+metric 200" is visible with command "ip r" for full "5" seconds
-     And "inet 192.168.50.5" is visible with command "ip a s eth1"
+    Then "default via 192.168.50.1 dev eth8\s+metric 200" is visible with command "ip r" for full "5" seconds
+     And "inet 192.168.50.5" is visible with command "ip a s eth8"
 
 
      @rhbz1311988
-     @restart @shutdown @eth
+     @con_general_remove @restart @shutdown
      @shutdown_service_connected
      Scenario: NM - general - shutdown service - connected
-     * Add a new connection of type "ethernet" and options "ifname eth1 con-name ethie autoconnect no"
-     * Bring "up" connection "ethie"
-     * "default via 192.168.100.1 dev eth1" is visible with command "ip r"
-     * "inet 192.168.100" is visible with command "ip a s eth1" in "5" seconds
+     * Add a new connection of type "ethernet" and options "ifname eth8 con-name con_general autoconnect no"
+     * Bring "up" connection "con_general"
+     * "default via 192.168.100.1 dev eth8" is visible with command "ip r"
+     * "inet 192.168.100" is visible with command "ip a s eth8" in "5" seconds
      * Stop NM
-     Then "default via 192.168.100.1 dev eth1" is visible with command "ip r" for full "5" seconds
-      And "inet 192.168.100" is visible with command "ip a s eth1"
+     Then "default via 192.168.100.1 dev eth8" is visible with command "ip r" for full "5" seconds
+      And "inet 192.168.100" is visible with command "ip a s eth8"
 
 
       @rhbz1311988
@@ -242,7 +241,6 @@ Feature: nmcli - general
       Then "CAP_SYS_ADMIN" is visible with command "grep CapabilityBoundingSet /usr/lib/systemd/system/NetworkManager.service"
 
 
-    @general
     @general_networking_on_off
     Scenario: nmcli - general - networking
     * Note the output of "nmcli -t -f NETWORKING general" as value "1"
@@ -255,7 +253,6 @@ Feature: nmcli - general
     Then Execute "nmcli networking on"
 
 
-    @general
     @general_networking_enabled
     Scenario: nmcli - networking - status - enabled
     * Note the output of "nmcli networking" as value "1"
@@ -263,7 +260,6 @@ Feature: nmcli - general
     Then Check noted values "1" and "2" are the same
 
 
-    @general
     @general_networking_disabled
     Scenario: nmcli - networking - status - disabled
     * Note the output of "nmcli networking" as value "1"
@@ -276,7 +272,7 @@ Feature: nmcli - general
     Then Execute "nmcli networking on"
 
 
-    @general @veth
+    @veth
     @general_networking_off
     Scenario: nmcli - networking - turn off
     * "eth0:" is visible with command "ifconfig"
@@ -285,7 +281,7 @@ Feature: nmcli - general
     Then Execute "nmcli networking on"
 
 
-    @general @veth
+    @veth
     @general_networking_on
     Scenario: nmcli - networking - turn on
     * Execute "nmcli networking off"
@@ -294,33 +290,30 @@ Feature: nmcli - general
     Then "eth0:" is visible with command "ifconfig"
 
 
-    @general
     @nmcli_radio_status
     Scenario: nmcli - radio - status
     Then "WIFI-HW\s+WIFI\s+WWAN-HW\s+WWAN\s+enabled|disabled\s+enabled|disabled\s+enabled|disabled\s+enabled|disabled" is visible with command "nmcli radio"
 
 
-    @general
     @nmcli_device_status
     Scenario: nmcli - device - status
     Then "DEVICE\s+TYPE\s+STATE.+eth0\s+ethernet" is visible with command "nmcli device"
 
 
-    @general @ethernet
+    @con_general_remove
     @nmcli_device_show_ip
     Scenario: nmcli - device - show - check ip
-    * Add a new connection of type "ethernet" and options "ifname eth1 con-name ethernet autoconnect no"
-    * Open editor for connection "ethernet"
+    * Add a new connection of type "ethernet" and options "ifname eth8 con-name con_general autoconnect no"
+    * Open editor for connection "con_general"
     * Set a property named "ipv4.method" to "manual" in editor
     * Set a property named "ipv4.addresses" to "192.168.1.10/24" in editor
     * Save in editor
     * Check value saved message showed in editor
     * Quit editor
-    * Bring up connection "ethernet"
-    Then "IP4.ADDRESS.*192.168.1.10/24" is visible with command "nmcli device show eth1"
+    * Bring up connection "con_general"
+    Then "IP4.ADDRESS.*192.168.1.10/24" is visible with command "nmcli device show eth8"
 
 
-    @general
     @nmcli_device_show_general_params
     Scenario: nmcli - device - show - check general params
     * Note the output of "nmcli device show eth0"
@@ -332,37 +325,35 @@ Feature: nmcli - general
     Then Check noted output contains "GENERAL.CONNECTION:\s+\S+\s"
 
 
-    @general
     @nmcli_device_disconnect
     Scenario: nmcli - device - disconnect
-    * Bring "up" connection "testeth1"
-    * "eth1\s+ethernet\s+connected" is visible with command "nmcli device"
-    * Disconnect device "eth1"
-    Then "eth1\s+ethernet\s+connected" is not visible with command "nmcli device"
+    * Bring "up" connection "testeth8"
+    * "eth8\s+ethernet\s+connected" is visible with command "nmcli device"
+    * Disconnect device "eth8"
+    Then "eth8\s+ethernet\s+connected" is not visible with command "nmcli device"
 
 
 ## Basically various bug related reproducer tests follow here
 
-    @general
-    @ethernet
+    @con_general_remove
     @device_connect
     Scenario: nmcli - device - connect
-    * Bring "up" connection "testeth2"
-    * Disconnect device "eth2"
-    When "eth2\s+ethernet\s+ connected\s+eth2" is not visible with command "nmcli device"
-    * Connect device "eth2"
-    Then "eth2\s+ethernet\s+connected" is visible with command "nmcli device"
+    * Bring "up" connection "testeth9"
+    * Disconnect device "eth9"
+    When "eth9\s+ethernet\s+ connected\s+eth9" is not visible with command "nmcli device"
+    * Connect device "eth9"
+    Then "eth9\s+ethernet\s+connected" is visible with command "nmcli device"
 
 
     @rhbz1032717
     @ver+=1.2.0 @ver-=1.7.1
-    @eth @teardown_testveth @two_bridged_veths @dhcpd
+    @con_general_remove @teardown_testveth @two_bridged_veths @dhcpd
     @device_reapply_routes
     Scenario: NM - device - reapply just routes
     * Prepare simulated test "testG" device
-    * Add connection type "ethernet" named "ethie" for device "testG"
-    * Bring "up" connection "ethie"
-    * Open editor for connection "ethie"
+    * Add connection type "ethernet" named "con_general" for device "testG"
+    * Bring "up" connection "con_general"
+    * Open editor for connection "con_general"
     * Submit "set ipv4.routes 192.168.5.0/24 192.168.99.111 1" in editor
     * Submit "set ipv4.route-metric 21" in editor
     * Submit "set ipv6.method static" in editor
@@ -374,18 +365,18 @@ Feature: nmcli - general
     Then "1010::1 via 2000::1 dev testG\s+proto static\s+metric 1" is visible with command "ip -6 route" in "5" seconds
      And "2000::/126 dev testG\s+proto kernel\s+metric 256" is visible with command "ip -6 route"
      And "192.168.5.0/24 via 192.168.99.111 dev testG\s+proto static\s+metric" is visible with command "ip route"
-     And "routers = 192.168.99.1" is visible with command "nmcli con show ethie"
+     And "routers = 192.168.99.1" is visible with command "nmcli con show con_general"
      And "default via 192.168.99.1 dev testG" is visible with command "ip r"
 
 
     @ver+=1.7.1 @ver-=1.10.1
-    @eth @teardown_testveth @two_bridged_veths @dhcpd
+    @con_general_remove @teardown_testveth @two_bridged_veths @dhcpd
     @device_reapply_routes
     Scenario: NM - device - reapply just routes
     * Prepare simulated test "testG" device
-    * Add connection type "ethernet" named "ethie" for device "testG"
-    * Bring "up" connection "ethie"
-    * Open editor for connection "ethie"
+    * Add connection type "ethernet" named "con_general" for device "testG"
+    * Bring "up" connection "con_general"
+    * Open editor for connection "con_general"
     * Submit "set ipv4.routes 192.168.5.0/24 192.168.99.111 1" in editor
     * Submit "set ipv4.route-metric 21" in editor
     * Submit "set ipv6.method static" in editor
@@ -397,18 +388,18 @@ Feature: nmcli - general
      # metric 256 is valid for @ver-=1.9.1 only, please delete of too old
      And "2000::/126 dev testG\s+proto kernel\s+metric (100|256)" is visible with command "ip -6 route"
      And "192.168.5.0/24 via 192.168.99.111 dev testG\s+proto static\s+metric" is visible with command "ip route"
-     And "routers = 192.168.99.1" is visible with command "nmcli con show ethie"
+     And "routers = 192.168.99.1" is visible with command "nmcli con show con_general"
      And "default via 192.168.99.1 dev testG" is visible with command "ip r"
 
 
     @ver+=1.10.2  @ver-1.11
-    @eth @teardown_testveth @two_bridged_veths @dhcpd
+    @con_general_remove @teardown_testveth @two_bridged_veths @dhcpd
     @device_reapply_routes
     Scenario: NM - device - reapply just routes
     * Prepare simulated test "testG" device
-    * Add a new connection of type "ethernet" and options "ifname testG con-name ethie autoconnect no ipv4.may-fail no ipv6.method ignore"
-    * Bring "up" connection "ethie"
-    * Open editor for connection "ethie"
+    * Add a new connection of type "ethernet" and options "ifname testG con-name con_general autoconnect no ipv4.may-fail no ipv6.method ignore"
+    * Bring "up" connection "con_general"
+    * Open editor for connection "con_general"
     * Submit "set ipv4.routes 192.168.5.0/24 192.168.99.111 1" in editor
     * Submit "set ipv4.route-metric 21" in editor
     * Submit "set ipv6.method static" in editor
@@ -419,18 +410,18 @@ Feature: nmcli - general
     Then "1010::1 via 2000::1 dev testG\s+proto static\s+metric 1" is visible with command "ip -6 route" in "5" seconds
      And "2000::/126 dev testG\s+proto kernel\s+metric 101" is visible with command "ip -6 route"
      And "192.168.5.0/24 via 192.168.99.111 dev testG\s+proto static\s+metric" is visible with command "ip route"
-     And "routers = 192.168.99.1" is visible with command "nmcli con show ethie"
+     And "routers = 192.168.99.1" is visible with command "nmcli con show con_general"
      And "default via 192.168.99.1 dev testG\s+proto dhcp\s+metric 21" is visible with command "ip r"
 
 
     @ver+=1.11
-    @eth @teardown_testveth @two_bridged_veths @dhcpd
+    @con_general_remove @teardown_testveth @two_bridged_veths @dhcpd
     @device_reapply_routes
     Scenario: NM - device - reapply just routes
     * Prepare simulated test "testG" device
-    * Add a new connection of type "ethernet" and options "ifname testG con-name ethie autoconnect no"
-    * Bring "up" connection "ethie"
-    * Open editor for connection "ethie"
+    * Add a new connection of type "ethernet" and options "ifname testG con-name con_general autoconnect no"
+    * Bring "up" connection "con_general"
+    * Open editor for connection "con_general"
     * Submit "set ipv4.routes 192.168.5.0/24 192.168.99.111 1" in editor
     * Submit "set ipv4.route-metric 21" in editor
     * Submit "set ipv6.method static" in editor
@@ -441,7 +432,7 @@ Feature: nmcli - general
     Then "1010::1 via 2000::1 dev testG\s+proto static\s+metric 1" is visible with command "ip -6 route" in "5" seconds
      And "2000::/126 dev testG\s+proto kernel\s+metric 101" is visible with command "ip -6 route"
      And "192.168.5.0/24 via 192.168.99.111 dev testG\s+proto static\s+metric" is visible with command "ip route"
-     And "routers = 192.168.99.1" is visible with command "nmcli con show ethie"
+     And "routers = 192.168.99.1" is visible with command "nmcli con show con_general"
      # Metric still cannot be changed when dhcp is used. Bug #1528071
      # And "default via 192.168.99.1 dev testG\s+proto dhcp\s+metric 21" is visible with command "ip r"
      And "default via 192.168.99.1 dev testG\s+proto dhcp\s+metric" is visible with command "ip r"
@@ -449,13 +440,13 @@ Feature: nmcli - general
 
     @rhbz1032717
     @ver+=1.2.0 @ver-=1.10.0
-    @eth @teardown_testveth @two_bridged_veths @dhcpd
+    @con_general_remove @teardown_testveth @two_bridged_veths @dhcpd
     @device_reapply_all
     Scenario: NM - device - reapply even address and gate
     * Prepare simulated test "testG" device
-    * Add connection type "ethernet" named "ethie" for device "testG"
-    * Bring "up" connection "ethie"
-    * Open editor for connection "ethie"
+    * Add connection type "ethernet" named "con_general" for device "testG"
+    * Bring "up" connection "con_general"
+    * Open editor for connection "con_general"
     * Submit "set ipv4.method static" in editor
     * Submit "set ipv4.addresses 192.168.3.10/24" in editor
     * Submit "set ipv4.gateway 192.168.4.1" in editor
@@ -473,19 +464,19 @@ Feature: nmcli - general
      And "192.168.3.0/24 dev testG\s+proto kernel\s+scope link\s+src 192.168.3.10" is visible with command "ip route"
      And "192.168.4.1 dev testG\s+proto static\s+scope link\s+metric 21" is visible with command "ip route"
      And "192.168.5.0/24 via 192.168.3.11 dev testG\s+proto static\s+metric" is visible with command "ip route"
-     And "routers = 192.168.99.1" is not visible with command "nmcli con show ethie"
+     And "routers = 192.168.99.1" is not visible with command "nmcli con show con_general"
      And "default via 192.168.99.1 dev testG" is not visible with command "ip r"
 
 
     @rhbz1032717 @rhbz1505893
     @ver+=1.10.2
-    @eth @teardown_testveth @two_bridged_veths @dhcpd
+    @con_general_remove @teardown_testveth @two_bridged_veths @dhcpd
     @device_reapply_all
     Scenario: NM - device - reapply even address and gate
     * Prepare simulated test "testG" device
-    * Add connection type "ethernet" named "ethie" for device "testG"
-    * Bring "up" connection "ethie"
-    * Open editor for connection "ethie"
+    * Add connection type "ethernet" named "con_general" for device "testG"
+    * Bring "up" connection "con_general"
+    * Open editor for connection "con_general"
     * Submit "set ipv4.method static" in editor
     * Submit "set ipv4.addresses 192.168.3.10/24" in editor
     * Submit "set ipv4.gateway 192.168.4.1" in editor
@@ -502,24 +493,22 @@ Feature: nmcli - general
      And "192.168.3.0/24 dev testG\s+proto kernel\s+scope link\s+src 192.168.3.10 metric 21" is visible with command "ip route"
      And "192.168.4.1 dev testG\s+proto static\s+scope link\s+metric 21" is visible with command "ip route"
      And "192.168.5.0/24 via 192.168.3.11 dev testG\s+proto static\s+metric 1" is visible with command "ip route"
-     And "routers = 192.168.99.1" is not visible with command "nmcli con show ethie"
+     And "routers = 192.168.99.1" is not visible with command "nmcli con show con_general"
      And "default via 192.168.99.1 dev testG" is not visible with command "ip r"
 
 
     @rhbz1113941
     @veth
-    @general
     @device_connect_no_profile
     Scenario: nmcli - device - connect - no profile
-    * Finish "nmcli connection delete id testeth2"
-    * Connect device "eth2"
-    * Bring "down" connection "eth2"
-    Then "eth2" is not visible with command "nmcli connection show -a"
-    Then "connection.interface-name: \s+eth2" is visible with command "nmcli connection show eth2"
+    * Finish "nmcli connection delete id testeth9"
+    * Connect device "eth9"
+    * Bring "down" connection "eth9"
+    Then "eth9" is not visible with command "nmcli connection show -a"
+    Then "connection.interface-name: \s+eth9" is visible with command "nmcli connection show eth9"
 
 
     @rhbz1034150
-    @general
     @bridge
     @nmcli_device_delete
     Scenario: nmcli - device - delete
@@ -531,9 +520,7 @@ Feature: nmcli - general
 
 
     @rhbz1034150
-    @general
-    @veth
-    @newveth
+    @veth @newveth
     @nmcli_device_attempt_hw_delete
     Scenario: nmcli - device - attempt to delete hw interface
     * "eth9\s+ethernet" is visible with command "nmcli device"
@@ -542,20 +529,21 @@ Feature: nmcli - general
 
 
     @rhbz1067712
+    @con_general_remove @teardown_testveth
     @nmcli_general_correct_profile_activated_after_restart
     Scenario: nmcli - general - correct profile activated after restart
-    * Add a new connection of type "ethernet" and options "ifname eth10 con-name aaa -- ipv4.method auto ipv6.method auto ipv4.may-fail no ipv6.may-fail no"
-    * Add a new connection of type "ethernet" and options "ifname eth10 con-name bbb -- ipv4.method auto ipv6.method auto ipv4.may-fail no ipv6.may-fail no"
+    * Prepare simulated test "testG" device
+    * Add a new connection of type "ethernet" and options "ifname testG con-name con_general -- ipv4.method auto ipv6.method auto ipv4.may-fail no ipv6.may-fail no"
+    * Add a new connection of type "ethernet" and options "ifname testG con-name con_general2 -- ipv4.method auto ipv6.method auto ipv4.may-fail no ipv6.may-fail no"
     * Wait for at least "2" seconds
-    * Bring up connection "aaa"
-    When "100" is visible with command "nmcli  -t -f GENERAL.STATE device show eth10"
+    * Bring up connection "con_general"
+    When "100" is visible with command "nmcli  -t -f GENERAL.STATE device show testG"
     * Restart NM
-    Then "aaa" is visible with command "nmcli device" in "10" seconds
-     And "bbb" is not visible with command "nmcli device"
+    Then "con_general" is visible with command "nmcli device" in "10" seconds
+     And "con_general2" is not visible with command "nmcli device"
 
 
     @rhbz1007365
-    @general
     @bridge
     @nmcli_novice_mode_readline
     Scenario: nmcli - general - using readline library in novice mode
@@ -571,7 +559,7 @@ Feature: nmcli - general
     Then "nm-bridge" is visible with command "nmcli connection show bridge"
 
 
-    @general
+    @restart
     @dns_none
     Scenario: NM - dns none setting
     * Execute "printf '[main]\ndns=none\n' | sudo tee /etc/NetworkManager/conf.d/90-test-dns-none.conf"
@@ -584,7 +572,7 @@ Feature: nmcli - general
     Then "nameserver 1[0-9]" is not visible with command "cat /etc/resolv.conf"
 
 
-    @general
+    @restart
     @remove_dns_none
     Scenario: NM - dns  none removal
     When "nameserver 1.2.3.4" is visible with command "cat /etc/resolv.conf"
@@ -595,21 +583,18 @@ Feature: nmcli - general
     Then "nameserver 1[0-9]" is visible with command "cat /etc/resolv.conf"
 
 
-    @rhbz1136836
-    @rhbz1173632
-    @general
+    @rhbz1136836 @rhbz1173632
     @restart
     @connection_up_after_journald_restart
     Scenario: NM - general - bring up connection after journald restart
-    #* Add connection type "ethernet" named "ethie" for device "eth1"
+    #* Add connection type "ethernet" named "con_general" for device "eth8"
     #* Bring "up" connection "testeth0"
     * Finish "sudo systemctl restart systemd-journald.service"
     Then Bring "up" connection "testeth0"
 
 
     @rhbz1110436
-    @general
-    @restore_hostname
+    @restore_hostname @restart
     @nmcli_general_dhcp_hostname_over_localhost
     Scenario: NM - general - dont take localhost as configured hostname
     * Execute "hostnamectl set-hostname walderon"
@@ -637,7 +622,6 @@ Feature: nmcli - general
 
     @ver-=1.1
     @rhbz1136843
-    @general
     @nmcli_general_ignore_specified_unamanaged_devices
     Scenario: NM - general - ignore specified unmanaged devices
     * Execute "ip link add name dnt type bond"
@@ -653,9 +637,8 @@ Feature: nmcli - general
     Then "dnt\s+bond\s+unmanaged" is visible with command "nmcli device"
 
 
-    @ver+=1.1.1
     @rhbz1136843
-    @general
+    @ver+=1.1.1
     @nmcli_general_ignore_specified_unamanaged_devices
     Scenario: NM - general - ignore specified unmanaged devices
     * Execute "ip link add name dnt type bond"
@@ -674,65 +657,64 @@ Feature: nmcli - general
 
     @rhbz1371433
     @ver+=1.7.9
-    @eth @manage_eth1 @eth1_disconnect @restart
+    @con_general_remove @manage_eth8 @eth8_disconnect @restart
     @nmcli_general_set_device_unmanaged
     Scenario: NM - general - set device to unmanaged state
-    * Add a new connection of type "ethernet" and options "ifname eth1 con-name ethie autoconnect no"
-    * Bring up connection "ethie"
-    When "/sbin/dhclient" is visible with command "ps aux|grep dhc |grep eth1 |grep -v orig"
-    * Execute "nmcli device set eth1 managed off"
-    When "/sbin/dhclient" is not visible with command "ps aux|grep dhc |grep eth1 |grep -v orig"
-     And "state UP" is visible with command "ip a s eth1"
-     And "unmanaged" is visible with command "nmcli device show eth1"
-     And "fe80" is visible with command "ip a s eth1"
-     And "192" is visible with command "ip a s eth1" in "10" seconds
-     And "192" is visible with command "ip r |grep eth1"
+    * Add a new connection of type "ethernet" and options "ifname eth8 con-name con_general autoconnect no"
+    * Bring up connection "con_general"
+    When "/sbin/dhclient" is visible with command "ps aux|grep dhc |grep eth8 |grep -v orig"
+    * Execute "nmcli device set eth8 managed off"
+    When "/sbin/dhclient" is not visible with command "ps aux|grep dhc |grep eth8 |grep -v orig"
+     And "state UP" is visible with command "ip a s eth8"
+     And "unmanaged" is visible with command "nmcli device show eth8"
+     And "fe80" is visible with command "ip a s eth8"
+     And "192" is visible with command "ip a s eth8" in "10" seconds
+     And "192" is visible with command "ip r |grep eth8"
     * Restart NM
-    Then "/sbin/dhclient" is not visible with command "ps aux|grep dhc |grep eth1 |grep -v orig"
-     And "state UP" is visible with command "ip a s eth1"
-     And "unmanaged" is visible with command "nmcli device show eth1"
-     And "fe80" is visible with command "ip a s eth1"
-     And "192" is visible with command "ip a s eth1"
-     And "192" is visible with command "ip r |grep eth1"
+    Then "/sbin/dhclient" is not visible with command "ps aux|grep dhc |grep eth8 |grep -v orig"
+     And "state UP" is visible with command "ip a s eth8"
+     And "unmanaged" is visible with command "nmcli device show eth8"
+     And "fe80" is visible with command "ip a s eth8"
+     And "192" is visible with command "ip a s eth8"
+     And "192" is visible with command "ip r |grep eth8"
 
 
     @rhbz1371433
     @ver+=1.7.9
-    @eth @manage_eth1 @restart @eth1_disconnect
+    @con_general_remove @manage_eth8 @eth8_disconnect
     @nmcli_general_set_device_back_to_managed
     Scenario: NM - general - set device back from unmanaged state
-    * Add a new connection of type "ethernet" and options "ifname eth1 con-name ethie autoconnect no"
-    * Bring "up" connection "ethie"
-    When "/sbin/dhclient" is visible with command "ps aux|grep dhc |grep eth1 |grep -v orig"
-     And "fe80" is visible with command "ip a s eth1" in "15" seconds
-     And "192" is visible with command "ip a s eth1" in "15" seconds
-     And "192" is visible with command "ip r |grep eth1"
+    * Add a new connection of type "ethernet" and options "ifname eth8 con-name con_general autoconnect no"
+    * Bring "up" connection "con_general"
+    When "/sbin/dhclient" is visible with command "ps aux|grep dhc |grep eth8 |grep -v orig"
+     And "fe80" is visible with command "ip a s eth8" in "15" seconds
+     And "192" is visible with command "ip a s eth8" in "15" seconds
+     And "192" is visible with command "ip r |grep eth8"
     * Wait for at least "2" seconds
-    * Execute "nmcli device set eth1 managed off"
-    When "/sbin/dhclient" is not visible with command "ps aux|grep dhc |grep eth1 |grep -v orig"
-     And "state UP" is visible with command "ip a s eth1"
-     And "unmanaged" is visible with command "nmcli device show eth1"
-     And "192" is visible with command "ip a s eth1" in "15" seconds
-     And "fe80" is visible with command "ip a s eth1" in "15" seconds
-     And "192" is visible with command "ip r |grep eth1"
-    * Bring "up" connection "ethie"
-    Then "/sbin/dhclient" is visible with command "ps aux|grep dhc |grep eth1 |grep -v orig"
-     And "state UP" is visible with command "ip a s eth1"
-     And "unmanaged" is not visible with command "nmcli device show eth1"
-     And "192" is visible with command "ip a s eth1" in "15" seconds
-     And "fe80" is visible with command "ip a s eth1" in "15" seconds
-     And "192" is visible with command "ip r |grep eth1"
+    * Execute "nmcli device set eth8 managed off"
+    When "/sbin/dhclient" is not visible with command "ps aux|grep dhc |grep eth8 |grep -v orig"
+     And "state UP" is visible with command "ip a s eth8"
+     And "unmanaged" is visible with command "nmcli device show eth8"
+     And "192" is visible with command "ip a s eth8" in "15" seconds
+     And "fe80" is visible with command "ip a s eth8" in "15" seconds
+     And "192" is visible with command "ip r |grep eth8"
+    * Bring "up" connection "con_general"
+    Then "/sbin/dhclient" is visible with command "ps aux|grep dhc |grep eth8 |grep -v orig"
+     And "state UP" is visible with command "ip a s eth8"
+     And "unmanaged" is not visible with command "nmcli device show eth8"
+     And "192" is visible with command "ip a s eth8" in "15" seconds
+     And "fe80" is visible with command "ip a s eth8" in "15" seconds
+     And "192" is visible with command "ip r |grep eth8"
 
 
-    @vlan
-    @general
+    @general_vlan
     @nmcli_general_ifcfg_tailing_whitespace
     Scenario: nmcli - general - ifcfg tailing whitespace ignored
-    * Add a new connection of type "vlan" and options "con-name eth1.99 autoconnect no dev eth1 id 99"
-    * Check ifcfg-name file created for connection "eth1.99"
-    * Execute "sed -i 's/PHYSDEV=eth1/PHYSDEV=eth2    /' /etc/sysconfig/network-scripts/ifcfg-eth1.99"
+    * Add a new connection of type "vlan" and options "con-name eth8.100 autoconnect no dev eth8 id 100"
+    * Check ifcfg-name file created for connection "eth8.100"
+    * Execute "sed -i 's/PHYSDEV=eth8/PHYSDEV=eth9    /' /etc/sysconfig/network-scripts/ifcfg-eth8.100"
     * Execute "nmcli connection reload"
-    Then "eth2" is visible with command "nmcli con show eth1.99"
+    Then "eth9" is visible with command "nmcli con show eth8.100"
 
 
     @ver-=1.5
@@ -743,62 +725,62 @@ Feature: nmcli - general
 
 
     @rhbz1114681
-    @general
+    @general_vlan
     @nmcli_general_keep_slave_device_unmanaged
     Scenario: nmcli - general - keep slave device unmanaged
-    Given Check ifcfg-name file created for connection "testeth1"
-    * Execute "echo -e NM_CONTROLLED=no >> /etc/sysconfig/network-scripts/ifcfg-testeth1"
+    Given Check ifcfg-name file created for connection "testeth8"
+    * Execute "echo -e NM_CONTROLLED=no >> /etc/sysconfig/network-scripts/ifcfg-testeth8"
     * Execute "nmcli connection reload"
-    * Execute "ip link add link eth1 name eth1.100 type vlan id 100"
-    Then "eth1\s+ethernet\s+unmanaged" is visible with command "nmcli device" in "5" seconds
-    Then "eth1.100\s+vlan\s+unmanaged" is visible with command "nmcli device"
-    Then "testeth1" is not visible with command "nmcli device"
+    * Execute "ip link add link eth8 name eth8.100 type vlan id 100"
+    Then "eth8\s+ethernet\s+unmanaged" is visible with command "nmcli device" in "5" seconds
+    Then "eth8.100\s+vlan\s+unmanaged" is visible with command "nmcli device"
+    Then "testeth8" is not visible with command "nmcli device"
 
 
     @rhbz1393997
-    @general @eth @restart @restore_hostname
+    @con_general_remove @restart @restore_hostname
     @nmcli_general_DHCP_HOSTNAME_profile_pickup
     Scenario: nmcli - general - connect correct profile with DHCP_HOSTNAME
-    * Add connection type "ethernet" named "ethie" for device "eth1"
-    * Execute "nmcli connection modify ethie ipv4.dns 8.8.4.4"
-    * Execute "echo -e 'DHCP_HOSTNAME=walderon' >> /etc/sysconfig/network-scripts/ifcfg-ethie"
-    * Bring "up" connection "ethie"
+    * Add connection type "ethernet" named "con_general" for device "eth8"
+    * Execute "nmcli connection modify con_general ipv4.dns 8.8.4.4"
+    * Execute "echo -e 'DHCP_HOSTNAME=walderon' >> /etc/sysconfig/network-scripts/ifcfg-con_general"
+    * Bring "up" connection "con_general"
     * Restart NM
-    Then "ethie" is visible with command "nmcli  -t -f CONNECTION device"
+    Then "con_general" is visible with command "nmcli  -t -f CONNECTION device"
 
 
     @rhbz1171751
     @ver+=1.8.0
-    @add_testeth10 @restart @not_on_s390x
+    @add_testeth8 @restart @not_on_s390x
     @match_connections_when_no_var_run_exists
     Scenario: NM - general - connection matching for anaconda
      * Stop NM
-     * Execute "rm -rf /etc/sysconfig/network-scripts/ifcfg-testeth10"
+     * Execute "rm -rf /etc/sysconfig/network-scripts/ifcfg-testeth8"
      * Execute "rm -rf /var/run/NetworkManager/*"
-     * Execute "echo 'DEVICE=eth10' >> /etc/sysconfig/network-scripts/ifcfg-testeth10"
-     * Execute "echo 'NAME=testeth10' >> /etc/sysconfig/network-scripts/ifcfg-testeth10"
-     * Execute "echo 'BOOTPROTO=dhcp' >> /etc/sysconfig/network-scripts/ifcfg-testeth10"
-     * Execute "echo 'IPV6INIT=yes' >> /etc/sysconfig/network-scripts/ifcfg-testeth10"
-     * Execute "echo 'TYPE=Ethernet' >> /etc/sysconfig/network-scripts/ifcfg-testeth10"
-     Then "testeth10" is not visible with command "nmcli con sh -a"
+     * Execute "echo 'DEVICE=eth8' >> /etc/sysconfig/network-scripts/ifcfg-testeth8"
+     * Execute "echo 'NAME=testeth8' >> /etc/sysconfig/network-scripts/ifcfg-testeth8"
+     * Execute "echo 'BOOTPROTO=dhcp' >> /etc/sysconfig/network-scripts/ifcfg-testeth8"
+     * Execute "echo 'IPV6INIT=yes' >> /etc/sysconfig/network-scripts/ifcfg-testeth8"
+     * Execute "echo 'TYPE=Ethernet' >> /etc/sysconfig/network-scripts/ifcfg-testeth8"
+     Then "testeth8" is not visible with command "nmcli con sh -a"
      * Start NM
-     Then "testeth10" is visible with command "nmcli con sh -a" in "5" seconds
+     Then "testeth8" is visible with command "nmcli con sh -a" in "5" seconds
 
 
     @rhbz1460760
     @ver+=1.8.0
-    @mtu @eth
+    @con_general_remove @mtu
     @ifcfg_respect_externally_set_mtu
     Scenario: NM - general - respect externally set mtu
-    * Execute "ip link set dev eth1 mtu 1400"
-    * Execute "echo 'DEVICE=eth1' >> /etc/sysconfig/network-scripts/ifcfg-ethie"
-    * Execute "echo 'NAME=ethie' >> /etc/sysconfig/network-scripts/ifcfg-ethie"
-    * Execute "echo 'BOOTPROTO=dhcp' >> /etc/sysconfig/network-scripts/ifcfg-ethie"
-    * Execute "echo 'IPV6INIT=yes' >> /etc/sysconfig/network-scripts/ifcfg-ethie"
-    * Execute "echo 'TYPE=Ethernet' >> /etc/sysconfig/network-scripts/ifcfg-ethie"
+    * Execute "ip link set dev eth8 mtu 1400"
+    * Execute "echo 'DEVICE=eth8' >> /etc/sysconfig/network-scripts/ifcfg-con_general"
+    * Execute "echo 'NAME=con_general' >> /etc/sysconfig/network-scripts/ifcfg-con_general"
+    * Execute "echo 'BOOTPROTO=dhcp' >> /etc/sysconfig/network-scripts/ifcfg-con_general"
+    * Execute "echo 'IPV6INIT=yes' >> /etc/sysconfig/network-scripts/ifcfg-con_general"
+    * Execute "echo 'TYPE=Ethernet' >> /etc/sysconfig/network-scripts/ifcfg-con_general"
     * Execute "nmcli con reload"
-    * Bring "up" connection "ethie"
-    Then "1400" is visible with command "ip a s eth1" in "5" seconds
+    * Bring "up" connection "con_general"
+    Then "1400" is visible with command "ip a s eth8" in "5" seconds
 
 
     @rhbz1103777
@@ -811,15 +793,15 @@ Feature: nmcli - general
 
     @rhbz1103777
     @ver+=1.8.0
-    @firewall @eth @restart
+    @firewall @con_general_remove @restart
     @show_zones_after_firewalld_install
     Scenario: NM - general - show zones after firewall restart
     * Execute "yum -y remove firewalld"
     * Restart NM
-    * Add a new connection of type "ethernet" and options "ifname eth1 con-name ethie connection.zone work"
+    * Add a new connection of type "ethernet" and options "ifname eth8 con-name con_general connection.zone work"
     * Execute "yum -y install firewalld"
     * Execute "systemctl start firewalld"
-    Then "work" is visible with command "firewall-cmd  --get-zone-of-interface=eth1"
+    Then "work" is visible with command "firewall-cmd  --get-zone-of-interface=eth8"
 
 
     @rhbz1286576
@@ -832,7 +814,6 @@ Feature: nmcli - general
 
 
     @rhbz1041901
-    @general
     @nmcli_general_multiword_autocompletion
     Scenario: nmcli - general - multiword autocompletion
     * Add a new connection of type "bond" and options "con-name 'Bondy connection 1'"
@@ -842,17 +823,14 @@ Feature: nmcli - general
 
 
     @rhbz1170199
-    @general
-    @ethernet
-    @IPy
+    @con_general_remove @IPy
     @nmcli_general_dbus_set_gateway
     Scenario: nmcli - general - dbus api gateway setting
     * Execute "python tmp/dbus-set-gw.py"
-    Then "ipv4.gateway:\s+192.168.1.100" is visible with command "nmcli connection show ethos"
+    Then "ipv4.gateway:\s+192.168.1.100" is visible with command "nmcli connection show con_general"
 
 
     @rhbz1141264
-    @general
     @BBB
     @preserve_failed_assumed_connections
     Scenario: NM - general - presume failed assumed connections
@@ -867,16 +845,15 @@ Feature: nmcli - general
 
 
     @rhbz1066705
-    @general
     @BBB
     @vxlan_interface_recognition
     Scenario: NM - general - vxlan interface support
-    * Execute "/sbin/ip link add BBB type vxlan id 42 group 239.1.1.1 dev eth1"
+    * Execute "/sbin/ip link add BBB type vxlan id 42 group 239.1.1.1 dev eth8"
     When "unmanaged" is visible with command "nmcli device show BBB" in "5" seconds
     * Execute "ip link set dev BBB up"
     * Execute "ip addr add fd00::666/8 dev BBB"
     Then "connected" is visible with command "nmcli device show BBB" in "10" seconds
-    Then vxlan device "BBB" check
+    Then vxlan device "BBB" check for parent "eth8"
 
 
     @rhbz1109426
@@ -912,9 +889,9 @@ Feature: nmcli - general
     @run_once_new_connection
     Scenario: NM - general - run once and quit start new ipv4 and ipv6 connection
     * Prepare simulated test "testG" device
-    * Add a new connection of type "ethernet" and options "ifname testG con-name ethie"
-    * Execute "nmcli connection modify ethie ipv4.addresses 1.2.3.4/24 ipv4.may-fail no ipv6.addresses 1::128/128 ipv6.may-fail no connection.autoconnect yes"
-    * Bring "up" connection "ethie"
+    * Add a new connection of type "ethernet" and options "ifname testG con-name con_general"
+    * Execute "nmcli connection modify con_general ipv4.addresses 1.2.3.4/24 ipv4.may-fail no ipv6.addresses 1::128/128 ipv6.may-fail no connection.autoconnect yes"
+    * Bring "up" connection "con_general"
     * Disconnect device "testG"
     * Stop NM and clean "testG"
     When "state DOWN" is visible with command "ip a s testG" in "15" seconds
@@ -939,8 +916,8 @@ Feature: nmcli - general
     @run_once_ip4_renewal
     Scenario: NM - general - run once and quit ipv4 renewal
     * Prepare simulated test "testG" device
-    * Add a new connection of type "ethernet" and options "ifname testG con-name ethie"
-    * Bring "up" connection "ethie"
+    * Add a new connection of type "ethernet" and options "ifname testG con-name con_general"
+    * Bring "up" connection "con_general"
     * Disconnect device "testG"
     * Stop NM and clean "testG"
     When "state DOWN" is visible with command "ip a s testG" in "5" seconds
@@ -963,9 +940,9 @@ Feature: nmcli - general
     @run_once_ip6_renewal
     Scenario: NM - general - run once and quit ipv6 renewal
     * Prepare simulated test "testG" device
-    * Add a new connection of type "ethernet" and options "ifname testG con-name ethie"
-    #* Execute "nmcli con modify ethie ipv4.may-fail no ipv6.may-fail no"
-    * Bring "up" connection "ethie"
+    * Add a new connection of type "ethernet" and options "ifname testG con-name con_general"
+    #* Execute "nmcli con modify con_general ipv4.may-fail no ipv6.may-fail no"
+    * Bring "up" connection "con_general"
     Then "2620" is visible with command "ip a s testG" in "60" seconds
     Then "192" is visible with command "ip a s testG" in "60" seconds
     * Disconnect device "testG"
@@ -1050,18 +1027,19 @@ Feature: nmcli - general
 
 
     @rhbz1086906
-    @veth @delete_testeth0 @newveth @eth @restart
+    @veth @delete_testeth0 @newveth @con_general_remove @restart
     @wait-online-for-both-ips
     Scenario: NM - general - wait-online - for both ipv4 and ipv6
-    * Add a new connection of type "ethernet" and options "ifname eth10 con-name ethie"
-    * Execute "nmcli con modify ethie ipv4.may-fail no ipv6.may-fail no"
-    * Bring "up" connection "ethie"
-    * Disconnect device "eth10"
+    * Prepare simulated test "testG" device
+    * Add a new connection of type "ethernet" and options "ifname testG con-name con_general"
+    * Execute "nmcli con modify con_general ipv4.may-fail no ipv6.may-fail no"
+    * Bring "up" connection "con_general"
+    * Disconnect device "testG"
     * Restart NM
-    #When "2620:" is not visible with command "ip a s eth10"
+    #When "2620:" is not visible with command "ip a s testG"
     * Execute "/usr/bin/nm-online -s -q --timeout=30"
-    When "inet .* global" is visible with command "ip a s eth10"
-    Then "inet6 .* global" is visible with command "ip a s eth10"
+    When "inet .* global" is visible with command "ip a s testG"
+    Then "inet6 .* global" is visible with command "ip a s testG"
 
 
     @rhbz1498807
@@ -1077,16 +1055,16 @@ Feature: nmcli - general
 
     @rhbz1515027
     @ver+=1.10
-    @eth @delete_testeth0 @remove_custom_cfg @teardown_testveth @restart
+    @con_general_remove @delete_testeth0 @remove_custom_cfg @teardown_testveth @restart
     @nm_online_wait_for_delayed_device
     Scenario: NM - general - wait for delayed device
-    * Add a new connection of type "ethernet" and options "ifname testG con-name ethie"
+    * Add a new connection of type "ethernet" and options "ifname testG con-name con_general"
     * Stop NM
     * Prepare simulated veth device "testG" wihout carrier
     * Execute "echo '[device-testG]' > /etc/NetworkManager/conf.d/99-xxcustom.conf"
     * Execute "echo 'match-device=interface-name:testG' >> /etc/NetworkManager/conf.d/99-xxcustom.conf"
     * Execute "echo 'carrier-wait-timeout=15000' >> /etc/NetworkManager/conf.d/99-xxcustom.conf"
-    * Execute "sleep 1"
+    * Execute "sleep 2"
     * Start NM
     * Run child "echo FAIL > /tmp/nm-online.txt && /usr/bin/nm-online -s -q --timeout=30 && echo PASS > /tmp/nm-online.txt"
     When "FAIL" is visible with command "cat /tmp/nm-online.txt"
@@ -1097,32 +1075,32 @@ Feature: nmcli - general
 
 
     @rhbz1160013
-    @eth_down_and_delete @need_dispatcher_scripts
+    @eth_down_and_delete @need_dispatcher_scripts @con_general_remove
     @policy_based_routing
     Scenario: NM - general - policy based routing
-    * Add a new connection of type "ethernet" and options "ifname eth1 con-name ethie"
-    * Bring "up" connection "ethie"
-    * Bring "up" connection "ethie"
-    * Create PBR files for profile "ethie" and "eth1" device in table "1"
-    * Bring "down" connection "ethie"
-    * Bring "up" connection "ethie"
-    Then "32764:\s+from 192.168.100.* lookup 1.*32765:\s+from all iif eth1 lookup 1" is visible with command "ip rule"
-    Then "default via 192.168.100.1 dev eth1" is visible with command "ip r s table 1"
-    * Bring "down" connection "ethie"
-    Then "32764:\s+from 192.168.100..* lookup 1.*32765:\s+from all iif eth1 lookup 1" is not visible with command "ip rule"
-    Then "default via 192.168.100.1 dev eth1" is not visible with command "ip r s table 1"
+    * Add a new connection of type "ethernet" and options "ifname eth8 con-name con_general"
+    * Bring "up" connection "con_general"
+    * Bring "up" connection "con_general"
+    * Create PBR files for profile "con_general" and "eth8" device in table "1"
+    * Bring "down" connection "con_general"
+    * Bring "up" connection "con_general"
+    Then "32764:\s+from 192.168.100.* lookup 1.*32765:\s+from all iif eth8 lookup 1" is visible with command "ip rule"
+    Then "default via 192.168.100.1 dev eth8" is visible with command "ip r s table 1"
+    * Bring "down" connection "con_general"
+    Then "32764:\s+from 192.168.100..* lookup 1.*32765:\s+from all iif eth8 lookup 1" is not visible with command "ip rule"
+    Then "default via 192.168.100.1 dev eth8" is not visible with command "ip r s table 1"
 
 
     @rhbz1384799
     @ver+=1.10
-    @eth_down_and_delete @need_dispatcher_scripts
+    @con_general_remove @eth_down_and_delete @need_dispatcher_scripts @teardown_testveth
     @modify_policy_based_routing_connection
     Scenario: NM - general - modify policy based routing connection
     * Prepare simulated test "testG" device
-    * Add a new connection of type "ethernet" and options "ifname testG con-name ethie autoconnect no"
-    * Bring "up" connection "ethie"
-    * Create PBR files for profile "ethie" and "testG" device in table "1"
-    * Modify connection "ethie" changing options "connection.autoconnect yes ipv6.method ignore"
+    * Add a new connection of type "ethernet" and options "ifname testG con-name con_general autoconnect no"
+    * Bring "up" connection "con_general"
+    * Create PBR files for profile "con_general" and "testG" device in table "1"
+    * Modify connection "con_general" changing options "connection.autoconnect yes ipv6.method ignore"
     * Reboot
     Then "32764:\s+from 192.168.99.* lookup 1.*32765:\s+from all iif testG lookup 1" is visible with command "ip rule" in "20" seconds
      And "default via 192.168.99.1 dev testG" is visible with command "ip r s table 1" in "20" seconds
@@ -1130,96 +1108,91 @@ Feature: nmcli - general
 
 
     @rhbz1262972
-    @ethernet
+    @con_general_remove
     @nmcli_general_dhcp_profiles_general_gateway
     Scenario: NM - general - auto connections ignore the generic-set gateway
-    # Up two generic dhcp connections
-    * Bring "up" connection "testeth1"
-    * Bring "up" connection "testeth2"
+    # Up dhcp connection
+    * Bring "up" connection "testeth9"
     # Create a static connection without gateway
-    * Add a new connection of type "ethernet" and options "ifname eth4 con-name ethernet0 autoconnect no"
-    * Execute "nmcli connection modify ethernet0 ipv4.method manual ipv4.addresses 1.2.3.4/24 ipv4.may-fail no"
+    * Add a new connection of type "ethernet" and options "ifname eth8 con-name con_general autoconnect no"
+    * Execute "nmcli connection modify con_general ipv4.method manual ipv4.addresses 1.2.3.4/24 ipv4.may-fail no"
     # Set a "general" gateway (normally discouraged)
     * Execute "echo 'GATEWAY=1.2.3.1' >> /etc/sysconfig/network"
     * Execute "nmcli connection reload"
     # See that we can still 'see' an upped dhcp connection
-    Then "testeth1" is visible with command "nmcli connection"
+    Then "testeth9" is visible with command "nmcli connection"
     # And it still has the DHCP originated gateway, ignoring the static general setting
-    Then "default via 192.168.100.1 dev eth1" is visible with command "ip route"
+    Then "default via 192.168.100.1 dev eth9" is visible with command "ip route"
     # Check the other one also for the address
-    Then "192.168." is visible with command "ip a s eth2"
-    # See we have didn't inactive auto connection
-    Then "testeth3" is visible with command "nmcli connection"
-    * Bring "up" connection "ethernet0"
+    Then "192.168." is visible with command "ip a s eth9"
+    * Bring "up" connection "con_general"
+    # See we didn't inactive auto connection
+    Then "testeth9" is visible with command "nmcli connection"
     # Static connection up and running with given address
-    Then "1.2.3.4" is visible with command "ip a s eth4"
+    Then "1.2.3.4" is visible with command "ip a s eth8"
     # And it does use the general set gateway
-    Then "default via 1.2.3.1 dev eth4" is visible with command "ip route"
+    Then "default via 1.2.3.1 dev eth8" is visible with command "ip route"
 
 
     @rhbz1254089
-    @teardown_testveth @allow_veth_connections
+    @teardown_testveth @allow_veth_connections @restart
     @allow_wired_connections
     Scenario: NM - general - create Wired connection for veth devices
     * Prepare simulated test "testG" device
     * Restart NM
-    Then "Wired connection 1" is visible with command "nmcli con"
+    Then "Wired connection" is visible with command "nmcli con"
 
 
     @rhbz1182085
     @ver+=1.9
-    @netservice
+    @netservice @restart
     @nmcli_general_profile_pickup_doesnt_break_network
     Scenario: nmcli - general - profile pickup does not break network service
-    * Add a new connection of type "ethernet" and options "ifname * con-name ethernet0"
-    * Add a new connection of type "ethernet" and options "ifname * con-name ethernet1"
-    * "connected:ethernet0" is visible with command "nmcli -t -f STATE,CONNECTION device" in "50" seconds
-    * "connected:ethernet1" is visible with command "nmcli -t -f STATE,CONNECTION device" in "50" seconds
+    * Add a new connection of type "ethernet" and options "ifname * con-name con_general"
+    * Add a new connection of type "ethernet" and options "ifname * con-name con_general2"
+    * "connected:con_general" is visible with command "nmcli -t -f STATE,CONNECTION device" in "50" seconds
+    * "connected:con_general2" is visible with command "nmcli -t -f STATE,CONNECTION device" in "50" seconds
     # Finish asserts the command exited with 0, thus the network service completed properly
     Then Finish "systemctl restart NetworkManager.service && sleep 3 && systemctl restart network.service"
 
 
     @rhbz1079353
-    @ethernet @teardown_testveth
+    @con_general_remove @teardown_testveth
     @nmcli_general_wait_for_carrier_on_new_device_request
     Scenario: nmcli - general - wait for carrier on new device activation request
-    * Add a new connection of type "ethernet" and options "ifname testG con-name ethernet0 autoconnect no"
+    * Add a new connection of type "ethernet" and options "ifname testG con-name con_general autoconnect no"
     * Prepare simulated veth device "testG" wihout carrier
-    * Execute "nmcli con modify ethernet0 ipv4.may-fail no"
-    * Execute "nmcli con up ethernet0" without waiting for process to finish
+    * Execute "nmcli con modify con_general ipv4.may-fail no"
+    * Execute "nmcli con up con_general" without waiting for process to finish
     * Wait for at least "1" seconds
     * Execute "ip netns exec testG_ns ip link set testGp up"
-    * "connected:ethernet0" is visible with command "nmcli -t -f STATE,CONNECTION device" in "60" seconds
+    * "connected:con_general" is visible with command "nmcli -t -f STATE,CONNECTION device" in "60" seconds
     Then "192" is visible with command "ip a s testG" in "60" seconds
     Then "2620" is visible with command "ip a s testG" in "60" seconds
 
 
     # Tied to the bz, though these are not direct verifiers
     @rhbz1079353
-    @ethernet
-    @need_config_server
-    @teardown_testveth
+    @con_general_remove @need_config_server @teardown_testveth
     @nmcli_general_activate_static_connection_carrier_ignored
     Scenario: nmcli - general - activate static connection with no carrier - ignored
-    * Add a new connection of type "ethernet" and options "ifname testG con-name ethernet0 autoconnect no"
-    * Modify connection "ethernet0" changing options "ipv4.method manual ipv4.address '192.168.5.11/24' ipv4.gateway '192.168.5.1' ipv6.method ignore"
+    * Add a new connection of type "ethernet" and options "ifname testG con-name con_general autoconnect no"
+    * Modify connection "con_general" changing options "ipv4.method manual ipv4.address '192.168.5.11/24' ipv4.gateway '192.168.5.1' ipv6.method ignore"
     * Prepare simulated veth device "testG" wihout carrier
-    * Execute "nmcli con up ethernet0"
-    Then "connected:ethernet0" is visible with command "nmcli -t -f STATE,CONNECTION device" in "60" seconds
+    * Execute "nmcli con up con_general"
+    Then "connected:con_general" is visible with command "nmcli -t -f STATE,CONNECTION device" in "60" seconds
     Then "192.168.5.11" is visible with command "ip a s testG" in "60" seconds
 
 
     @rhbz1079353
-    @ethernet
-    @no_config_server
-    @teardown_testveth
+    @con_general_remove @no_config_server @teardown_testveth
     @nmcli_general_activate_static_connection_carrier_not_ignored
     Scenario: nmcli - general - activate static connection with no carrier - not ignored
-    * Add a new connection of type "ethernet" and options "ifname testG con-name ethernet0 autoconnect no"
-    * Modify connection "ethernet0" changing options "ipv4.method manual ipv4.address '192.168.5.11/24' ipv4.gateway '192.168.5.1' ipv6.method ignore"
+    * Add a new connection of type "ethernet" and options "ifname testG con-name con_general autoconnect no"
+    * Modify connection "con_general" changing options "ipv4.method manual ipv4.address '192.168.5.11/24' ipv4.gateway '192.168.5.1' ipv6.method ignore"
     * Prepare simulated veth device "testG" wihout carrier
-    * Execute "nmcli con up ethernet0"
-    Then "connected:ethernet0" is visible with command "nmcli -t -f STATE,CONNECTION device" in "60" seconds
+    * Execute "nmcli con up con_general"
+    Then "connected:con_general" is visible with command "nmcli -t -f STATE,CONNECTION device" in "60" seconds
     Then "192.168.5.11" is visible with command "ip a s testG" in "60" seconds
 
 
@@ -1233,30 +1206,27 @@ Feature: nmcli - general
 
 
     @rhbz1128581
-    @eth0
-    @eth
-    @teardown_testveth
+    @con_general_remove @eth0 @teardown_testveth
     @connect_to_slow_router
     Scenario: NM - general - connection up to 60 seconds
     * Prepare simulated test "testM" device
-    * Add a new connection of type "ethernet" and options "ifname testM con-name ethie autoconnect no"
-    * Modify connection "ethie" changing options "ipv4.method manual ipv4.address '192.168.99.99/24' ipv4.gateway '192.168.99.1' ipv6.method ignore"
-    * Append "GATEWAY_PING_TIMEOUT=60" to ifcfg file "ethie"
+    * Add a new connection of type "ethernet" and options "ifname testM con-name con_general autoconnect no"
+    * Modify connection "con_general" changing options "ipv4.method manual ipv4.address '192.168.99.99/24' ipv4.gateway '192.168.99.1' ipv6.method ignore"
+    * Append "GATEWAY_PING_TIMEOUT=60" to ifcfg file "con_general"
     * Execute "sudo nmcli connection reload"
     # VVV Remove gateway's ip address so it is unpingable
     * Execute "ip netns exec testM_ns ip a del 192.168.99.1/24 dev testM_bridge"
-    * Run child "nmcli con up ethie"
+    * Run child "nmcli con up con_general"
     When "gateway ping failed with error code 1" is visible with command "journalctl -o cat --since '50 seconds ago' |grep testM" in "20" seconds
     # VVV Add gateway's ip address so it is pingable again
     * Run child "sleep 40 && ip netns exec testM_ns ip a add 192.168.99.1/24 dev testM_bridge"
-    Then "connected:ethie" is visible with command "nmcli -t -f STATE,CONNECTION device" in "55" seconds
+    Then "connected:con_general" is visible with command "nmcli -t -f STATE,CONNECTION device" in "55" seconds
     And "connected:full" is visible with command "nmcli -t -f STATE,CONNECTIVITY general status"
 
 
     @rhbz1034158
-    @connect_testeth0
+    @connect_testeth0 @disp
     @nmcli_monitor
-    @disp
     Scenario: nmcli - monitor
     * Run child "nmcli m 2>&1> /tmp/monitor.txt"
     * Write dispatcher "pre-up.d/98-disp" file with params "sleep 1;"
@@ -1284,28 +1254,28 @@ Feature: nmcli - general
     @ipv4 @disp
     @device_reapply
     Scenario: nmcli - device -reapply
-    * Add connection type "ethernet" named "ethie" for device "eth1"
-    * Bring "up" connection "ethie"
+    * Add connection type "ethernet" named "con_general" for device "eth8"
+    * Bring "up" connection "con_general"
     * Write dispatcher "99-disp" file
-    * Execute "ip addr a 1.2.3.4/24 dev eth1"
-    * Execute "nmcli c modify ethie +ipv4.address 1.2.3.4/24"
-    * Execute "nmcli device reapply eth1"
+    * Execute "ip addr a 1.2.3.4/24 dev eth8"
+    * Execute "nmcli c modify con_general +ipv4.address 1.2.3.4/24"
+    * Execute "nmcli device reapply eth8"
     When "up" is not visible with command "cat /tmp/dispatcher.txt"
-    * Execute "ip addr a 1.2.3.4/24 dev eth1"
-    * Execute "nmcli c modify ethie -ipv4.address 1.2.3.4/24"
-    * Execute "nmcli device reapply eth1"
+    * Execute "ip addr a 1.2.3.4/24 dev eth8"
+    * Execute "nmcli c modify con_general -ipv4.address 1.2.3.4/24"
+    * Execute "nmcli device reapply eth8"
     Then "up" is not visible with command "cat /tmp/dispatcher.txt"
 
 
     @rhbz1371920
     @ver+=1.4.0
-    @eth @teardown_testveth @kill_dbus-monitor
+    @con_general_remove @teardown_testveth @kill_dbus-monitor
     @device_dbus_signal
     Scenario: NM - general - device dbus signal
     * Prepare simulated test "testG" device
-    * Add connection type "ethernet" named "ethie" for device "testG"
+    * Add connection type "ethernet" named "con_general" for device "testG"
     * Run child "dbus-monitor --system --monitor 'sender=org.freedesktop.NetworkManager' > /tmp/dbus.txt"
-    * Bring "up" connection "ethie"
+    * Bring "up" connection "con_general"
     Then "NetworkManager.Device.Wired; member=PropertiesChanged" is visible with command "grep PropertiesChanged /tmp/dbus.txt"
      And "NetworkManager.Device.Veth; member=PropertiesChanged" is visible with command "grep PropertiesChanged /tmp/dbus.txt"
      And "DBus.Properties; member=PropertiesChanged" is visible with command "grep PropertiesChanged /tmp/dbus.txt"
@@ -1316,9 +1286,9 @@ Feature: nmcli - general
     @ipv4 @kill_dbus-monitor
     @dns_over_dbus
     Scenario: NM - general - publish dns over dbus
-    * Add connection type "ethernet" named "ethie" for device "eth1"
+    * Add connection type "ethernet" named "con_general" for device "eth8"
     * Run child "dbus-monitor --system --monitor 'sender=org.freedesktop.NetworkManager' > /tmp/dbus.txt"
-    * Bring "up" connection "ethie"
+    * Bring "up" connection "con_general"
     Then "string \"nameservers\"\s+variant\s+array\s+\[\s+string" is visible with command "grep -A 10 Dns /tmp/dbus.txt"
 
 
@@ -1331,136 +1301,136 @@ Feature: nmcli - general
 
     @rhbz1217288
     @ver+=1.4.0
-    @eth @con
+    @con_general_remove
     @snapshot_rollback
     Scenario: NM - general - snapshot and rollback
-    * Add connection type "ethernet" named "ethie" for device "eth1"
-    * Bring "up" connection "ethie"
-    * Add connection type "ethernet" named "connie" for device "eth2"
-    * Bring "up" connection "connie"
-    * Snapshot "create" for "eth1,eth2"
-    * Open editor for connection "ethie"
+    * Add connection type "ethernet" named "con_general" for device "eth8"
+    * Bring "up" connection "con_general"
+    * Add connection type "ethernet" named "con_general2" for device "eth9"
+    * Bring "up" connection "con_general2"
+    * Snapshot "create" for "eth8,eth9"
+    * Open editor for connection "con_general"
     * Submit "set ipv4.method manual" in editor
     * Submit "set ipv4.addresses 1.2.3.4/24" in editor
     * Submit "set ipv4.gateway 1.2.3.1" in editor
     * Save in editor
     * Quit editor
-    * Bring "up" connection "ethie"
-    * Open editor for connection "connie"
+    * Bring "up" connection "con_general"
+    * Open editor for connection "con_general2"
     * Submit "set ipv4.method manual" in editor
     * Submit "set ipv4.addresses 1.2.3.5/24" in editor
     * Submit "set ipv4.gateway 1.2.3.1" in editor
     * Save in editor
     * Quit editor
-    * Bring "up" connection "connie"
-    When "1.2.3.4/24" is visible with command "ip a s eth1" in "5" seconds
-    When "1.2.3.5/24" is visible with command "ip a s eth2" in "5" seconds
+    * Bring "up" connection "con_general2"
+    When "1.2.3.4/24" is visible with command "ip a s eth8" in "5" seconds
+    When "1.2.3.5/24" is visible with command "ip a s eth9" in "5" seconds
      And "1.2.3.1" is visible with command "ip r"
-    * Snapshot "revert" for "eth1,eth2"
-    Then "192.168.100" is visible with command "ip a s eth1" in "5" seconds
-     And "192.168.100" is visible with command "ip a s eth2" in "5" seconds
-     And "1.2.3.4/24" is not visible with command "ip a s eth1"
-     And "1.2.3.5/24" is not visible with command "ip a s eth1"
+    * Snapshot "revert" for "eth8,eth9"
+    Then "192.168.100" is visible with command "ip a s eth8" in "5" seconds
+     And "192.168.100" is visible with command "ip a s eth9" in "5" seconds
+     And "1.2.3.4/24" is not visible with command "ip a s eth8"
+     And "1.2.3.5/24" is not visible with command "ip a s eth8"
      And "1.2.3.1" is not visible with command "ip r"
      And "192.168.100.1" is visible with command "ip r"
 
 
     @rhbz1369716
     @ver+=1.8.0
-    @eth @con
+    @con_general_remove
     @snapshot_rollback_all_devices
     Scenario: NM - general - snapshot and rollback all devices
-    * Add connection type "ethernet" named "ethie" for device "eth1"
-    * Bring "up" connection "ethie"
-    * Add connection type "ethernet" named "connie" for device "eth2"
-    * Bring "up" connection "connie"
+    * Add connection type "ethernet" named "con_general" for device "eth8"
+    * Bring "up" connection "con_general"
+    * Add connection type "ethernet" named "con_general2" for device "eth9"
+    * Bring "up" connection "con_general2"
     * Snapshot "create" for "all"
-    * Open editor for connection "ethie"
+    * Open editor for connection "con_general"
     * Submit "set ipv4.method manual" in editor
     * Submit "set ipv4.addresses 1.2.3.4/24" in editor
     * Submit "set ipv4.gateway 1.2.3.1" in editor
     * Save in editor
     * Quit editor
-    * Bring "up" connection "ethie"
-    * Open editor for connection "connie"
+    * Bring "up" connection "con_general"
+    * Open editor for connection "con_general2"
     * Submit "set ipv4.method manual" in editor
     * Submit "set ipv4.addresses 1.2.3.5/24" in editor
     * Submit "set ipv4.gateway 1.2.3.1" in editor
     * Save in editor
     * Quit editor
-    * Bring "up" connection "connie"
-    When "1.2.3.4/24" is visible with command "ip a s eth1" in "5" seconds
-    When "1.2.3.5/24" is visible with command "ip a s eth2" in "5" seconds
+    * Bring "up" connection "con_general2"
+    When "1.2.3.4/24" is visible with command "ip a s eth8" in "5" seconds
+    When "1.2.3.5/24" is visible with command "ip a s eth9" in "5" seconds
      And "1.2.3.1" is visible with command "ip r"
     * Snapshot "revert" for "all"
-    Then "192.168.100" is visible with command "ip a s eth1" in "5" seconds
-     And "192.168.100" is visible with command "ip a s eth2" in "5" seconds
-     And "1.2.3.4/24" is not visible with command "ip a s eth1"
-     And "1.2.3.5/24" is not visible with command "ip a s eth1"
+    Then "192.168.100" is visible with command "ip a s eth8" in "5" seconds
+     And "192.168.100" is visible with command "ip a s eth9" in "5" seconds
+     And "1.2.3.4/24" is not visible with command "ip a s eth8"
+     And "1.2.3.5/24" is not visible with command "ip a s eth8"
      And "1.2.3.1" is not visible with command "ip r"
      And "192.168.100.1" is visible with command "ip r"
 
 
     @rhbz1369716
     @ver+=1.8.0
-    @eth @con
+    @con_general_remove
     @snapshot_rollback_all_devices_with_timeout
     Scenario: NM - general - snapshot and rollback all devices with timeout
-    * Add connection type "ethernet" named "ethie" for device "eth1"
-    * Bring "up" connection "ethie"
-    * Add connection type "ethernet" named "connie" for device "eth2"
-    * Bring "up" connection "connie"
+    * Add connection type "ethernet" named "con_general" for device "eth8"
+    * Bring "up" connection "con_general"
+    * Add connection type "ethernet" named "con_general2" for device "eth9"
+    * Bring "up" connection "con_general2"
     * Snapshot "create" for "all" with timeout "10"
-    * Open editor for connection "ethie"
+    * Open editor for connection "con_general"
     * Submit "set ipv4.method manual" in editor
     * Submit "set ipv4.addresses 1.2.3.4/24" in editor
     * Submit "set ipv4.gateway 1.2.3.1" in editor
     * Save in editor
     * Quit editor
-    * Bring "up" connection "ethie"
-    * Open editor for connection "connie"
+    * Bring "up" connection "con_general"
+    * Open editor for connection "con_general2"
     * Submit "set ipv4.method manual" in editor
     * Submit "set ipv4.addresses 1.2.3.5/24" in editor
     * Submit "set ipv4.gateway 1.2.3.1" in editor
     * Save in editor
     * Quit editor
-    * Bring "up" connection "connie"
-    When "1.2.3.4/24" is visible with command "ip a s eth1" in "5" seconds
-    When "1.2.3.5/24" is visible with command "ip a s eth2" in "5" seconds
+    * Bring "up" connection "con_general2"
+    When "1.2.3.4/24" is visible with command "ip a s eth8" in "5" seconds
+    When "1.2.3.5/24" is visible with command "ip a s eth9" in "5" seconds
      And "1.2.3.1" is visible with command "ip r"
     * Wait for at least "10" seconds
-    Then "192.168.100" is visible with command "ip a s eth1" in "5" seconds
-     And "192.168.100" is visible with command "ip a s eth2" in "5" seconds
-     And "1.2.3.4/24" is not visible with command "ip a s eth1"
-     And "1.2.3.5/24" is not visible with command "ip a s eth1"
+    Then "192.168.100" is visible with command "ip a s eth8" in "5" seconds
+     And "192.168.100" is visible with command "ip a s eth9" in "5" seconds
+     And "1.2.3.4/24" is not visible with command "ip a s eth8"
+     And "1.2.3.5/24" is not visible with command "ip a s eth8"
      And "1.2.3.1" is not visible with command "ip r"
      And "192.168.100.1" is visible with command "ip r"
 
 
     @rhbz1369716
     @ver+=1.8.0
-    @manage_eth1
+    @manage_eth8
     @snapshot_rollback_unmanaged
     Scenario: NM - general - snapshot and rollback unmanaged
-    * Execute "nmcli device set eth1 managed off"
-    * Snapshot "create" for "eth1" with timeout "10"
-    * Execute "nmcli device set eth1 managed on"
-    When "unmanaged" is not visible with command "nmcli device show eth1" in "5" seconds
+    * Execute "nmcli device set eth8 managed off"
+    * Snapshot "create" for "eth8" with timeout "10"
+    * Execute "nmcli device set eth8 managed on"
+    When "unmanaged" is not visible with command "nmcli device show eth8" in "5" seconds
     * Wait for at least "15" seconds
-    Then "unmanaged" is visible with command "nmcli device show eth1" in "5" seconds
+    Then "unmanaged" is visible with command "nmcli device show eth8" in "5" seconds
 
 
     @rhbz1464904
     @ver+=1.10.0
-    @manage_eth1
+    @manage_eth8
     @snapshot_rollback_managed
     Scenario: NM - general - snapshot and rollback managed
-    * Execute "nmcli device set eth1 managed on"
-    * Snapshot "create" for "eth1" with timeout "10"
-    * Execute "nmcli device set eth1 managed off"
-    When "unmanaged" is visible with command "nmcli device show eth1" in "5" seconds
+    * Execute "nmcli device set eth8 managed on"
+    * Snapshot "create" for "eth8" with timeout "10"
+    * Execute "nmcli device set eth8 managed off"
+    When "unmanaged" is visible with command "nmcli device show eth8" in "5" seconds
     * Wait for at least "15" seconds
-    Then "unmanaged" is not visible with command "nmcli device show eth1" in "5" seconds
+    Then "unmanaged" is not visible with command "nmcli device show eth8" in "5" seconds
 
 
     @rhbz1369716
@@ -1469,19 +1439,19 @@ Feature: nmcli - general
     @snapshot_rollback_soft_device
     Scenario: NM - general - snapshot and rollback deleted soft device
     * Add connection type "bond" named "bond0" for device "nm-bond"
-    * Add slave connection for master "nm-bond" on device "eth1" named "bond0.0"
-    * Add slave connection for master "nm-bond" on device "eth2" named "bond0.1"
+    * Add slave connection for master "nm-bond" on device "eth8" named "bond0.0"
+    * Add slave connection for master "nm-bond" on device "eth9" named "bond0.1"
     * Bring "up" connection "bond0.0"
     * Bring "up" connection "bond0.1"
-    When Check slave "eth1" in bond "nm-bond" in proc
-    When Check slave "eth2" in bond "nm-bond" in proc
+    When Check slave "eth8" in bond "nm-bond" in proc
+    When Check slave "eth9" in bond "nm-bond" in proc
     * Snapshot "create" for "all" with timeout "10"
     * Delete connection "bond0.0"
     * Delete connection "bond0.1"
     * Delete connection "bond0"
     * Wait for at least "15" seconds
-    Then Check slave "eth1" in bond "nm-bond" in proc
-    Then Check slave "eth2" in bond "nm-bond" in proc
+    Then Check slave "eth8" in bond "nm-bond" in proc
+    Then Check slave "eth9" in bond "nm-bond" in proc
 
 
     @rhbz1433303
@@ -1502,7 +1472,7 @@ Feature: nmcli - general
 
     @rhbz1461643
     @ver+=1.10.0
-    @allow_veth_connections @no_config_server @restart @long
+    @allow_veth_connections @no_config_server @long
     @stable_mem_consumption2
     Scenario: NM - general - stable mem consumption - var 2
     * Execute "sh tmp/repro_1461643.sh"
@@ -1571,6 +1541,7 @@ Feature: nmcli - general
 
     @rhbz1443114
     @ver+=1.8.0
+    @restart
     @non_utf_device
     Scenario: NM - general - non UTF-8 device
     * Execute "ip link add name $'d\xccf\\c' type dummy"
@@ -1581,12 +1552,12 @@ Feature: nmcli - general
 
     @rhbz1458399
     @ver+=1.8.0
-    @firewall @connectivity @eth @eth0
+    @firewall @connectivity @con_general_remove @eth0
     @connectivity_check
     Scenario: NM - general - connectivity check
-    * Add a new connection of type "ethernet" and options "ifname eth0 con-name ethie autoconnect no ipv6.method ignore"
-    * Bring up connection "ethie"
-    When "activated" is visible with command "nmcli -g GENERAL.STATE con show ethie" in "20" seconds
+    * Add a new connection of type "ethernet" and options "ifname eth0 con-name con_general autoconnect no ipv6.method ignore"
+    * Bring up connection "con_general"
+    When "activated" is visible with command "nmcli -g GENERAL.STATE con show con_general" in "20" seconds
      And "full" is visible with command "nmcli  -g CONNECTIVITY g" in "70" seconds
     * Execute "firewall-cmd --panic-on"
     When "limited" is visible with command "nmcli  -g CONNECTIVITY g" in "70" seconds
@@ -1596,14 +1567,14 @@ Feature: nmcli - general
 
     @rhbz1458399
     @ver+=1.8.0
-    @firewall @connectivity @eth @delete_testeth0 @restart
+    @firewall @connectivity @con_general_remove @delete_testeth0 @restart
     @disable_connectivity_check
     Scenario: NM - general - disable connectivity check
     * Execute "sed -i 's/interval=5/interval=0/' /etc/NetworkManager/conf.d/99-connectivity.conf"
     * Restart NM
-    * Add a new connection of type "ethernet" and options "ifname eth0 con-name ethie autoconnect no ipv6.method ignore"
-    * Bring up connection "ethie"
-    When "activated" is visible with command "nmcli -g GENERAL.STATE con show ethie" in "20" seconds
+    * Add a new connection of type "ethernet" and options "ifname eth0 con-name con_general autoconnect no ipv6.method ignore"
+    * Bring up connection "con_general"
+    When "activated" is visible with command "nmcli -g GENERAL.STATE con show con_general" in "20" seconds
      And "full" is visible with command "nmcli  -g CONNECTIVITY g"
     * Execute "firewall-cmd --panic-on"
     Then "full" is visible with command "nmcli  -g CONNECTIVITY g" for full "70" seconds
@@ -1611,17 +1582,17 @@ Feature: nmcli - general
 
     @rhbz1394345
     @ver+=1.8.0
-    @connectivity @eth0 @eth @con
+    @con_general_remove @connectivity @eth0
     @per_device_connectivity_check
     Scenario: NM - general - per device connectivity check
     # Device with connectivity but low priority
-    * Add a new connection of type "ethernet" and options "ifname eth0 con-name ethie ipv4.route-metric 1024 ipv6.method ignore"
-    * Bring up connection "ethie"
-    When "activated" is visible with command "nmcli -g GENERAL.STATE con show ethie" in "20" seconds
+    * Add a new connection of type "ethernet" and options "ifname eth0 con-name con_general ipv4.route-metric 1024 ipv6.method ignore"
+    * Bring up connection "con_general"
+    When "activated" is visible with command "nmcli -g GENERAL.STATE con show con_general" in "20" seconds
     When "full" is visible with command "nmcli  -g CONNECTIVITY g" in "70" seconds
     # Device w/o connectivity but with high priority
-    * Add a new connection of type "ethernet" and options "ifname eth1 con-name connie autoconnect no ipv4.method manual ipv4.addresses 1.2.3.4/24 ipv4.gateway 1.2.3.1 ipv4.route-metric 100 ipv6.method ignore"
-    * Bring up connection "connie"
+    * Add a new connection of type "ethernet" and options "ifname eth8 con-name con_general2 autoconnect no ipv4.method manual ipv4.addresses 1.2.3.4/24 ipv4.gateway 1.2.3.1 ipv4.route-metric 100 ipv6.method ignore"
+    * Bring up connection "con_general2"
     # Connection should stay at the lower priority device
     Then "full" is visible with command "nmcli  -g CONNECTIVITY g" in "70" seconds
      And Ping "boston.com"
@@ -1629,12 +1600,12 @@ Feature: nmcli - general
 
     @rhbz1534477
     @ver+=1.10
-    @firewall @connectivity @eth @delete_testeth0 @restart @long
+    @firewall @connectivity @con_general_remove @delete_testeth0 @restart @long
     @manipulate_connectivity_check_via_dbus
     Scenario: dbus - general - connectivity check manipulation
-    * Add a new connection of type "ethernet" and options "ifname eth0 con-name ethie autoconnect no ipv6.method ignore"
-    * Bring up connection "ethie"
-    When "activated" is visible with command "nmcli -g GENERAL.STATE con show ethie" in "20" seconds
+    * Add a new connection of type "ethernet" and options "ifname eth0 con-name con_general autoconnect no ipv6.method ignore"
+    * Bring up connection "con_general"
+    When "activated" is visible with command "nmcli -g GENERAL.STATE con show con_general" in "20" seconds
      And "full" is visible with command "nmcli -g CONNECTIVITY g" in "70" seconds
     # VVV Turn off connectivity check
     * Execute "busctl set-property org.freedesktop.NetworkManager /org/freedesktop/NetworkManager org.freedesktop.NetworkManager ConnectivityCheckEnabled 'b' 0"
@@ -1651,14 +1622,14 @@ Feature: nmcli - general
 
     @rhbz1442361
     @ver+=1.8.3
-    @tuntap @con
+    @con_general_remove @tuntap
     @keep_external_device_enslaved_on_down
     Scenario: NM - general - keep external device enslaved on down
     # Check that an externally configure device is not released from
     # its master when brought down externally
-    * Add a new connection of type "bridge" and options "ifname br0 con-name connie autoconnect no"
-    * Execute "nmcli connection modify connie ipv4.method disabled ipv6.method ignore"
-    * Bring "up" connection "connie"
+    * Add a new connection of type "bridge" and options "ifname br0 con-name con_general2 autoconnect no"
+    * Execute "nmcli connection modify con_general2 ipv4.method disabled ipv6.method ignore"
+    * Bring "up" connection "con_general2"
     * Execute "ip tuntap add mode tap tap0"
     * Execute "ip link set tap0 master br0"
     * Execute "ip link set tap0 up"
@@ -1668,29 +1639,29 @@ Feature: nmcli - general
 
 
     @ver+=1.10
-    @add_testeth1 @eth1_disconnect
+    @add_testeth8 @eth8_disconnect
     @overtake_external_device
     Scenario: nmcli - general - overtake external device
-    * Execute "ip add add 1.2.3.4/24 dev eth1"
-    When "No such file" is visible with command "cat /etc/sysconfig/network-scripts/ifcfg-eth1"
-     And "eth1" is visible with command "nmcli -g NAME connection" in "5" seconds
-     And "dhclient" is not visible with command "ps aux| grep client-eth1"
-    * Execute "nmcli con modify eth1 ipv4.method auto"
-    When "activated" is visible with command "nmcli -g GENERAL.STATE con show eth1" in "20" seconds
-     And "BOOTPROTO=dhcp" is visible with command "cat /etc/sysconfig/network-scripts/ifcfg-eth1"
-     And "dhclient" is visible with command "ps aux| grep dhclient-eth1"
-     And "192.168" is visible with command "ip a s eth1" in "20" seconds
+    * Execute "ip add add 1.2.3.4/24 dev eth8"
+    When "No such file" is visible with command "cat /etc/sysconfig/network-scripts/ifcfg-eth8"
+     And "eth8" is visible with command "nmcli -g NAME connection" in "5" seconds
+     And "dhclient" is not visible with command "ps aux| grep client-eth8"
+    * Execute "nmcli con modify eth8 ipv4.method auto"
+    When "activated" is visible with command "nmcli -g GENERAL.STATE con show eth8" in "20" seconds
+     And "BOOTPROTO=dhcp" is visible with command "cat /etc/sysconfig/network-scripts/ifcfg-eth8"
+     And "dhclient" is visible with command "ps aux| grep dhclient-eth8"
+     And "192.168" is visible with command "ip a s eth8" in "20" seconds
 
 
     @rhbz1487702
     @ver+=1.10
-    @eth @no_config_server @teardown_testveth @restart
+    @con_general_remove @no_config_server @teardown_testveth
     @wait_10s_for_flappy_carrier
     Scenario: NM - general - wait for flappy carrier up to 10s
-    * Add a new connection of type "ethernet" and options "ifname testG con-name ethie autoconnect no 802-3-ethernet.mtu 9000"
+    * Add a new connection of type "ethernet" and options "ifname testG con-name con_general autoconnect no 802-3-ethernet.mtu 9000"
     * Prepare simulated test "testG" device
-    * Run child "nmcli con up ethie"
+    * Run child "nmcli con up con_general"
     * Execute "sleep 0.5 && ip link set testG down"
     * Execute "sleep 8"
     * Execute "ip link set testG up"
-    When "activated" is visible with command "nmcli -g GENERAL.STATE con show ethie" in "10" seconds
+    When "activated" is visible with command "nmcli -g GENERAL.STATE con show con_general" in "10" seconds
