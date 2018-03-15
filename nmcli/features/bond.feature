@@ -185,7 +185,7 @@
 
     @rhbz1434555
     @ver+=1.8.0
-    @slaves @bond
+    @slaves @bond @restart
     @bond_ifcfg_master_called_ethernet
     Scenario: ifcfg - bond - master with Ethernet type
     * Append "DEVICE=nm-bond" to ifcfg file "bond0"
@@ -386,7 +386,7 @@
      Then Check slave "eth4" in bond "nm-bond" in proc
 
 
-    @veth @slaves @bond
+    @veth @slaves @bond @restart
     @bond_start_on_boot
     Scenario: nmcli - bond - start bond on boot
      * Add connection type "bond" named "bond0" for device "nm-bond"
@@ -410,7 +410,7 @@
     @rhbz1420708 @rhbz1420708
     @ver+=1.7.9
     @rhel7_only
-    @slaves @bond @bond_order @teardown_testveth
+    @slaves @bond @bond_order @teardown_testveth @restart
     @bond_default_rhel7_slaves_ordering
     Scenario: NM - bond - default rhel7 slaves ordering (ifindex)
     * Prepare simulated test "eth11" device
@@ -456,7 +456,7 @@
 
     @rhbz1420708 @rhbz1420708
     @ver+=1.7.9
-    @slaves @bond @bond_order @teardown_testveth
+    @slaves @bond @bond_order @teardown_testveth @restart
     @bond_slaves_ordering_by_ifindex
     Scenario: NM - bond - ifindex slaves ordering
     * Prepare simulated test "eth11" device
@@ -503,7 +503,7 @@
 
     @rhbz1420708 @rhbz1420708
     @ver+=1.7.9
-    @slaves @bond @bond_order @teardown_testveth
+    @slaves @bond @bond_order @teardown_testveth @restart
     @bond_slaves_ordering_by_ifindex_with_autoconnect_slaves
     Scenario: NM - bond - autoconnect slaves - ifindex slaves ordering
     * Prepare simulated test "eth11" device
@@ -547,7 +547,7 @@
 
     @rhbz1420708 @rhbz1420708
     @ver+=1.7.9
-    @slaves @bond @bond_order @teardown_testveth
+    @slaves @bond @bond_order @teardown_testveth @restart
     @bond_slaves_ordering_by_name
     Scenario: NM - bond - alphabet slaves ordering
     * Prepare simulated test "eth11" device
@@ -594,7 +594,7 @@
 
     @rhbz1420708 @rhbz1420708
     @ver+=1.7.9
-    @slaves @bond @bond_order @teardown_testveth
+    @slaves @bond @bond_order @teardown_testveth @restart
     @bond_slaves_ordering_by_name_with_autoconnect_slaves
     Scenario: NM - bond - autoconnect slaves - alphabet slaves ordering
     * Prepare simulated test "eth11" device
@@ -656,7 +656,7 @@
      Then Check slave "eth4" in bond "nm-bond" in proc
 
 
-    @veth @slaves @bond
+    @veth @slaves @bond @restart
     @bond_start_on_boot_with_nothing_auto
     Scenario: nmcli - bond - start bond on boot - nothing auto
      * Add connection type "bond" named "bond0" for device "nm-bond"
@@ -681,7 +681,7 @@
      Then Check slave "eth4" not in bond "nm-bond" in proc
 
 
-    @veth @slaves @bond
+    @veth @slaves @bond @restart
     @bond_start_on_boot_with_one_auto_only
     Scenario: nmcli - bond - start bond on boot - one slave auto only
      * Add connection type "bond" named "bond0" for device "nm-bond"
@@ -706,7 +706,7 @@
      Then Check slave "eth4" in bond "nm-bond" in proc
 
 
-    @veth @slaves @bond
+    @veth @slaves @bond @restart
     @bond_start_on_boot_with_bond_and_one_slave_auto
     Scenario: nmcli - bond - start bond on boot - bond and one slave auto
      * Add connection type "bond" named "bond0" for device "nm-bond"
@@ -1131,13 +1131,13 @@
      * Bring "up" connection "bond0"
      * Bring "up" connection "bond0.1"
      * Bring "up" connection "bond0.0"
-     * restart NM
+     * Restart NM
      When "activated" is visible with command "nmcli  connection show bond0 |grep STATE" in "10" seconds
       And "nm-bond" is not visible with command "nmcli -f NAME connection"
-     * restart NM
+     * Restart NM
      When "activated" is visible with command "nmcli  connection show bond0 |grep STATE" in "10" seconds
       And "nm-bond" is not visible with command "nmcli -f NAME connection"
-     * restart NM
+     * Restart NM
      Then "activated" is visible with command "nmcli  connection show bond0 |grep STATE" in "10" seconds
       And "nm-bond" is not visible with command "nmcli -f NAME connection"
       And Check bond "nm-bond" link state is "up"
@@ -1396,7 +1396,7 @@
 
      @rhbz1349266
      @ver+=1.4.0
-     @bond
+     @bond @restart
      @bond_balance-alb_no_error
      Scenario: nmcli - bond - no error in balance-alb setup
       * Run child "journalctl -f > /tmp/journal.txt"
@@ -1492,7 +1492,7 @@
        And "inet6 2620" is visible with command "ip -6 a s nm-bond" in "5" seconds
        And "tentative" is not visible with command "ip -6 a s nm-bond" in "5" seconds
       * Execute "killall NetworkManager && sleep 5"
-      * Execute "systemctl restart NetworkManager"
+      * Restart NM
       When "state UP" is visible with command "ip -6 a s nm-bond"
        And "inet6 fe80" is visible with command "ip -6 a s nm-bond" for full "10" seconds
        And "inet6 2620" is visible with command "ip -6 a s nm-bond"
@@ -1506,7 +1506,7 @@
 
     @rhbz1463077
     @ver+=1.8.1
-    @bond
+    @bond @restart
     @bond_assume_options_1
     Scenario: nmcli - bond - assume options 1
      * Execute "systemctl stop NetworkManager"
@@ -1516,30 +1516,30 @@
      * Execute "echo 100 > /sys/class/net/bond0/bonding/updelay"
      * Execute "ip l set bond0 up"
      * Execute "ip a a 172.16.1.1/24 dev bond0"
-     * Execute "systemctl restart NetworkManager"
+     * Restart NM
      Then "bond0\s+bond\s+connected" is visible with command "nmcli d" in "10" seconds
      Then "inet 172.16.1.1/24" is visible with command "ip a show dev bond0"
 
 
     @rhbz1463077
     @ver+=1.10.0
-    @bond
+    @bond @restart
     @bond_assume_options_2
     Scenario: nmcli - bond - assume options 2
      * Add a new connection of type "bond" and options "ifname nm-bond con-name bond bond.options mode=1,miimon=100,updelay=200 ip4 172.16.1.1/24"
      * Bring "up" connection "bond"
-     * Execute "systemctl restart NetworkManager"
+     * Restart NM
      Then "nm-bond\s+bond\s+connected\s+bond" is visible with command "nmcli d" in "10" seconds
 
 
     @rhbz1463077
     @ver+=1.10.0
-    @bond
+    @bond @restart
     @bond_assume_options_3
     Scenario: nmcli - bond - assume options 3
      * Add a new connection of type "bond" and options "ifname nm-bond con-name bond bond.options mode=1,arp_interval=100,arp_ip_target=172.16.1.100 ip4 172.16.1.1/24"
      * Bring "up" connection "bond"
-     * Execute "systemctl restart NetworkManager"
+     * Restart NM
      Then "nm-bond\s+bond\s+connected\s+bond" is visible with command "nmcli d" in "10" seconds
 
 

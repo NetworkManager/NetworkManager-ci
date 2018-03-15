@@ -200,6 +200,11 @@ def before_scenario(context, scenario):
             if os.path.isfile('/tmp/nm_skip_long'):
                 sys.exit(0)
 
+        if 'eth0' in scenario.tags or 'delete_testeth0' in scenario.tags or 'connect_testeth0' in scenario.tags or 'restart' in scenario.tags:
+            print ("---------------------------")
+            print ("skipping service restart tests if /tmp/nm_skip_restarts exists")
+            if os.path.isfile('/tmp/nm_skip_restarts'):
+                sys.exit(0)
 
         if '1000' in scenario.tags:
             print ("---------------------------")
@@ -931,6 +936,11 @@ def after_scenario(context, scenario):
             #call("nmcli connection delete id con_ipv6 con_ipv62", shell=True)
             call("rm -rf /etc/sysconfig/network-scripts/ifcfg-con_ipv6", shell=True)
 
+        if 'con_con_remove' in scenario.tags:
+            print ("---------------------------")
+            print ("deleting connection con_con and con_con2")
+            call("nmcli connection delete id con_con con_con2", shell=True)
+
         if 'con_ethernet_remove' in scenario.tags:
             print ("---------------------------")
             print ("deleting connection con_ethernet")
@@ -1210,7 +1220,7 @@ def after_scenario(context, scenario):
             print ("---------------------------")
             print ("kill tshark and delet dhclinet-eth10")
             call("pkill -9 tshark", shell=True)
-            call("rm -rf /etc/dhcp/dhclient-eth10.conf", shell=True)
+            call("rm -rf /etc/dhcp/dhclient-eth*.conf", shell=True)
 
         if 'vpnc' in scenario.tags:
             print ("---------------------------")
@@ -1448,7 +1458,8 @@ def after_scenario(context, scenario):
 
         if 'ipv6_describe' in scenario.tags or 'ipv4_describe' in scenario.tags:
             if call("systemctl is-enabled beah-srv.service  |grep ^enabled", shell=True) == 0:
-                call('run/rh-beaker/./sanitize_beah.sh', shell=True)
+                if not os.path.isfile('/tmp/nm_skip_restarts'):
+                    call('run/rh-beaker/./sanitize_beah.sh', shell=True)
 
         if 'device_connect_no_profile' in scenario.tags or 'device_connect' in scenario.tags:
             print ("---------------------------")
@@ -1526,6 +1537,12 @@ def after_scenario(context, scenario):
             call('sudo nmcli connection delete eth1 eth1 eth1 testeth1', shell=True)
             call('sudo nmcli connection add type ethernet con-name testeth1 ifname eth1 autoconnect no', shell=True)
 
+        if 'add_testeth5' in scenario.tags:
+            print ("---------------------------")
+            print ("restoring testeth1 profile")
+            call('sudo nmcli connection delete eth5 eth5 eth5 testeth5', shell=True)
+            call('sudo nmcli connection add type ethernet con-name testeth5 ifname eth5 autoconnect no', shell=True)
+
         if 'eth1_disconnect' in scenario.tags:
             print ("---------------------------")
             print ("disconnecting eth1 device")
@@ -1541,6 +1558,14 @@ def after_scenario(context, scenario):
             # VVV Up/Down to preserve autoconnect feature
             call('sudo nmcli connection up testeth3', shell=True)
             call('sudo nmcli connection down testeth3', shell=True)
+
+        if 'eth5_disconnect' in scenario.tags:
+            print ("---------------------------")
+            print ("disconnecting eth5 device")
+            call('sudo nmcli device disconnect eth5', shell=True)
+            # VVV Up/Down to preserve autoconnect feature
+            call('sudo nmcli connection up testeth5', shell=True)
+            call('sudo nmcli connection down testeth5', shell=True)
 
         if 'eth8_disconnect' in scenario.tags:
             print ("---------------------------")

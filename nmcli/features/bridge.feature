@@ -431,7 +431,7 @@ Feature: nmcli - bridge
 
 
     @rhbz1169936
-    @two_bridged_veths
+    @two_bridged_veths @restart
     @outer_bridge_restart_persistence
     Scenario: NM - bridge - bridge restart persistence
     * Prepare veth pairs "test1" bridged over "vethbr"

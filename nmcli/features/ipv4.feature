@@ -109,7 +109,7 @@ Feature: nmcli: ipv4
 
 
     @rhbz1073824
-    @veth @con_ipv4_remove @delete_testeth0
+    @veth @con_ipv4_remove @delete_testeth0 @restart
     @ipv4_take_manually_created_ifcfg_with_ip
     Scenario: nmcli - ipv4 - use manually created ipv4 profile
     * Append "DEVICE='eth3'" to ifcfg file "con_ipv4"
@@ -161,6 +161,53 @@ Feature: nmcli: ipv4
     Then "192.168.222.253/8" is visible with command "ip a s eth3"
     Then "default via 192.168.22.96 dev eth3\s+proto static\s+metric" is visible with command "ip route"
     Then "1" is visible with command "ip r |grep 'default via 1' |wc -l"
+
+
+    @rhbz663730
+    @ver+=1.6.0
+    @ver-=1.9.1
+    @con_ipv4_remove
+    @route_priorities
+    Scenario: nmcli - ipv4 - route priorities
+     * Add a new connection of type "ethernet" and options "ifname eth2 con-name con_ipv4 autoconnect no"
+     * Add a new connection of type "ethernet" and options "ifname eth3 con-name con_ipv42 autoconnect no"
+     * Execute "nmcli con modify con_ipv4 ipv4.may-fail no"
+     * Execute "nmcli con modify con_ipv42 ipv4.may-fail no"
+     * Bring "up" connection "con_ipv4"
+     * Bring "up" connection "con_ipv42"
+     When "metric 101" is visible with command "ip r |grep default |grep eth2" in "10" seconds
+     When "metric 102" is visible with command "ip r |grep default |grep eth3" in "10" seconds
+     * Execute "nmcli con modify con_ipv42 ipv4.route-metric 200"
+     * Bring "up" connection "con_ipv42"
+     When "metric 101" is visible with command "ip r |grep default |grep eth2" in "10" seconds
+     When "metric 200" is visible with command "ip r |grep default |grep eth3" in "10" seconds
+     * Execute "nmcli con modify con_ipv42 ipv4.route-metric -1"
+     * Bring "up" connection "con_ipv42"
+     When "metric 101" is visible with command "ip r |grep default |grep eth2" in "10" seconds
+     When "metric 102" is visible with command "ip r |grep default |grep eth3" in "10" seconds
+
+
+    @rhbz663730
+    @ver+=1.9.2
+    @con_ipv4_remove
+    @route_priorities
+    Scenario: nmcli - ipv4 - route priorities
+     * Add a new connection of type "ethernet" and options "ifname eth2 con-name con_ipv4 autoconnect no"
+     * Add a new connection of type "ethernet" and options "ifname eth3 con-name con_ipv42 autoconnect no"
+     * Execute "nmcli con modify con_ipv4 ipv4.may-fail no"
+     * Execute "nmcli con modify con_ipv42 ipv4.may-fail no"
+     * Bring "up" connection "con_ipv4"
+     * Bring "up" connection "con_ipv42"
+     When "metric 101" is visible with command "ip r |grep default |grep eth2"
+     When "metric 102" is visible with command "ip r |grep default |grep eth3"
+     * Execute "nmcli con modify con_ipv42 ipv4.route-metric 200"
+     * Bring "up" connection "con_ipv42"
+     When "metric 101" is visible with command "ip r |grep default |grep eth2"
+     When "metric 200" is visible with command "ip r |grep default |grep eth3"
+     * Execute "nmcli con modify con_ipv42 ipv4.route-metric -1"
+     * Bring "up" connection "con_ipv42"
+     When "metric 101" is visible with command "ip r |grep default |grep eth2"
+     When "metric 102" is visible with command "ip r |grep default |grep eth3"
 
 
     @con_ipv4_remove
@@ -1265,8 +1312,8 @@ Feature: nmcli: ipv4
     Then "mtu 1800" is visible with command "ip a s test2"
 
 
-    @con_ipv4_remove @teardown_testveth @long
     @ver-=1.10.99
+    @con_ipv4_remove @teardown_testveth @long
     @renewal_gw_after_dhcp_outage
     Scenario: NM - ipv4 - renewal gw after DHCP outage
     * Prepare simulated test "testX4" device
@@ -1330,7 +1377,7 @@ Feature: nmcli: ipv4
 
     @rhbz1350830
     @ver+=1.10.0
-    @con_ipv4_remove @remove_custom_cfg
+    @con_ipv4_remove @remove_custom_cfg @restart
     @dhcp-timeout_default_in_cfg
     Scenario: nmcli - ipv4 - dhcp_timout infinity in cfg file
     * Execute "echo -e '[connection-eth-dhcp-timeout]\nmatch-device=type:ethernet\nipv4.dhcp-timeout=2147483647' > /etc/NetworkManager/conf.d/99-xxcustom.conf"
@@ -1347,7 +1394,7 @@ Feature: nmcli: ipv4
 
     @rhbz1246496
     @ver-=1.10.99
-    @con_ipv4_remove @teardown_testveth @long
+    @con_ipv4_remove @teardown_testveth @long @restart
     @renewal_gw_after_dhcp_outage_for_assumed_var0
     Scenario: NM - ipv4 - assumed address renewal after DHCP outage for on-disk assumed
     * Prepare simulated test "testX4" device
@@ -1368,7 +1415,7 @@ Feature: nmcli: ipv4
 
     @rhbz1265239
     @ver-=1.10.0
-    @teardown_testveth @long
+    @teardown_testveth @long @restart
     @renewal_gw_after_dhcp_outage_for_assumed_var1
     Scenario: NM - ipv4 - assumed address renewal after DHCP outage for in-memory assumed
     * Prepare simulated test "testX4" device
@@ -1390,7 +1437,7 @@ Feature: nmcli: ipv4
 
     @rhbz1518091
     @ver+=1.10.1 @ver-=1.10.99
-    @teardown_testveth @long
+    @teardown_testveth @long @restart
     @renewal_gw_after_dhcp_outage_for_assumed_var1
     Scenario: NM - ipv4 - assumed address renewal after DHCP outage for in-memory assumed
     * Prepare simulated test "testX4" device
@@ -1411,7 +1458,7 @@ Feature: nmcli: ipv4
 
     @rhbz1503587 @rhbz1518091 @rhbz1246496 @rhbz1503587
     @ver+=1.11
-    @con @profie @con_ipv4_remove @teardown_testveth @long
+    @con @profie @con_ipv4_remove @teardown_testveth @long @restart
     @dhcp4_outages_in_various_situation
     Scenario: NM - ipv4 - all types of dhcp outages
     ################# PREPARE testX4 AND testY4 ################################
@@ -1551,7 +1598,7 @@ Feature: nmcli: ipv4
      Then "testX4:connected:con_ipv4" is visible with command "nmcli -t -f DEVICE,STATE,CONNECTION device" in "10" seconds
 
 
-    @con_ipv4_remove
+    @con_ipv4_remove @restart
     @custom_shared_range_preserves_restart
     Scenario: nmcli - ipv4 - shared custom range preserves restart
     * Add a new connection of type "ethernet" and options "con-name con_ipv4 ifname eth3 autoconnect no"

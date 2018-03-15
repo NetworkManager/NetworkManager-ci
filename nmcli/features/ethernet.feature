@@ -102,7 +102,7 @@ Feature: nmcli - ethernet
 
 
     @ethernet
-    @teardown_testveth
+    @teardown_testveth @restart
     @no_assumed_connection_for_veth
     Scenario: NM - ethernet - no assumed connection for veth
     * Prepare simulated test "testE" device
@@ -153,7 +153,7 @@ Feature: nmcli - ethernet
 
     @rhbz1413312
     @ver+=1.6.0
-    @ethernet @mac
+    @ethernet @mac @restart
     @ethernet_mac_address_preserve
     Scenario: NM - ethernet - mac address preserve
     * Execute "echo -e '[connection]\nethernet.cloned-mac-address=preserve' > /etc/NetworkManager/conf.d/99-mac.conf"
@@ -167,7 +167,7 @@ Feature: nmcli - ethernet
 
     @rhbz1413312
     @ver+=1.6.0
-    @ethernet @mac
+    @ethernet @mac @restart
     @ethernet_mac_address_permanent
     Scenario: NM - ethernet - mac address permanent
     * Note the output of "nmcli -t --mode tabular --fields GENERAL.HWADDR device show eth1" as value "orig_eth1"

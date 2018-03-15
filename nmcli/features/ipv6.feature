@@ -885,7 +885,7 @@
 
 
     @rhbz1187525
-    @con_ipv6_remove @privacy
+    @con_ipv6_remove @privacy @restart
     @ipv6_ip6-default_privacy
     Scenario: nmcli - ipv6 - ip6_privacy - default value
     * Execute "echo 1 > /proc/sys/net/ipv6/conf/default/use_tempaddr"
@@ -913,7 +913,7 @@
 
 
     @rhbz1073824
-    @veth @con_ipv6_remove
+    @veth @con_ipv6_remove @restart
     @ipv6_take_manually_created_ifcfg
     Scenario: ifcfg - ipv6 - use manually created link-local profile
     * Append "DEVICE='eth10'" to ifcfg file "con_ipv6"
@@ -1032,7 +1032,7 @@
 
 
     @rhbz1170530
-    @add_testeth10 @con_ipv6_remove
+    @add_testeth10 @con_ipv6_remove @restart
     @ipv6_keep_connectivity_on_assuming_connection_profile
     Scenario: NM - ipv6 - keep connectivity on assuming connection profile
     * Add a new connection of type "ethernet" and options "con-name con_ipv6 ifname eth10 autoconnect no"
@@ -1357,7 +1357,7 @@
 
     @rhbz1508001
     @ver+=1.10.0
-    @con_ipv6_remove @teardown_testveth
+    @con_ipv6_remove @teardown_testveth @restart
     @ipv4_dad_not_preventing_ipv6
     Scenario: NM - ipv6 - add address after ipv4 DAD fail
     * Prepare simulated test "testX6" device

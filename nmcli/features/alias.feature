@@ -184,7 +184,7 @@
     Then "inet 192.168.0.103" is not visible with command "ip a s eth7"
 
 
-    @veth @alias
+    @veth @alias @restart
     @alias_ifcfg_reboot
     Scenario: ifcfg - alias - reboot
     * Add connection type "ethernet" named "eth7" for device "eth7"

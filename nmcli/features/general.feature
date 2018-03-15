@@ -529,7 +529,7 @@ Feature: nmcli - general
 
 
     @rhbz1067712
-    @con_general_remove @teardown_testveth
+    @con_general_remove @teardown_testveth @restart
     @nmcli_general_correct_profile_activated_after_restart
     Scenario: nmcli - general - correct profile activated after restart
     * Prepare simulated test "testG" device
@@ -885,7 +885,7 @@ Feature: nmcli - general
 
 
     @rhbz1083683 @rhbz1256772 @rhbz1260243
-    @runonce @teardown_testveth
+    @runonce @teardown_testveth @restart
     @run_once_new_connection
     Scenario: NM - general - run once and quit start new ipv4 and ipv6 connection
     * Prepare simulated test "testG" device
@@ -912,7 +912,7 @@ Feature: nmcli - general
 
     @rhbz1083683 @rhbz1256772
     @teardown_testveth
-    @runonce
+    @runonce @restart
     @run_once_ip4_renewal
     Scenario: NM - general - run once and quit ipv4 renewal
     * Prepare simulated test "testG" device
@@ -936,7 +936,7 @@ Feature: nmcli - general
 
     @rhbz1083683 @rhbz1256772
     @teardown_testveth
-    @runonce
+    @runonce @restart
     @run_once_ip6_renewal
     Scenario: NM - general - run once and quit ipv6 renewal
     * Prepare simulated test "testG" device
@@ -960,7 +960,7 @@ Feature: nmcli - general
 
     @rhbz1201497
     @ver-=1.9.9
-    @runonce @restore_hostname @eth0
+    @runonce @restore_hostname @eth0 @restart
     @run_once_helper_for_localhost_localdomain
     Scenario: NM - general - helper running for localhost on localdo
     * Bring "up" connection "testeth0"
@@ -981,7 +981,7 @@ Feature: nmcli - general
 
     @rhbz1201497
     @ver+=1.10
-    @runonce @restore_hostname @eth0
+    @runonce @restore_hostname @eth0 @restart
     @run_once_helper_for_localhost_localdomain
     Scenario: NM - general - helper running for localhost on localdo
     * Bring "up" connection "testeth0"
@@ -1093,7 +1093,7 @@ Feature: nmcli - general
 
     @rhbz1384799
     @ver+=1.10
-    @con_general_remove @eth_down_and_delete @need_dispatcher_scripts @teardown_testveth
+    @con_general_remove @eth_down_and_delete @need_dispatcher_scripts @teardown_testveth @restart
     @modify_policy_based_routing_connection
     Scenario: NM - general - modify policy based routing connection
     * Prepare simulated test "testG" device
@@ -1251,7 +1251,7 @@ Feature: nmcli - general
 
     @rhbz998000
     @ver+=1.4.0
-    @ipv4 @disp
+    @con_general_remove @disp
     @device_reapply
     Scenario: nmcli - device -reapply
     * Add connection type "ethernet" named "con_general" for device "eth8"
@@ -1283,7 +1283,7 @@ Feature: nmcli - general
 
     @rhbz1404594
     @ver+=1.7.1
-    @ipv4 @kill_dbus-monitor
+    @con_general_remove @kill_dbus-monitor
     @dns_over_dbus
     Scenario: NM - general - publish dns over dbus
     * Add connection type "ethernet" named "con_general" for device "eth8"
