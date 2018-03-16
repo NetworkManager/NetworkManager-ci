@@ -1198,6 +1198,11 @@ def after_scenario(context, scenario):
             call("pkill -9 tshark", shell=True)
             call("rm -rf /etc/dhcp/dhclient-eth10.conf", shell=True)
 
+        if 'tcpdump' in scenario.tags:
+            print ("---------------------------")
+            print ("kill tcpdump")
+            call("pkill -9 tcpdump", shell=True)
+
         if 'vpnc' in scenario.tags:
             print ("---------------------------")
             print ("deleting vpnc profile")
