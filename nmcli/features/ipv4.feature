@@ -1480,12 +1480,12 @@ Feature: nmcli: ipv4
     Then "inet 192.168." is visible with command "ip a s testY"
     Then "routers = 192.168" is visible with command "nmcli con show connie"
 
-    ## RESTART DHCP server for testA after 500s (we already waited for 130 + 150)
-    * Execute "sleep 220 && ip netns exec testA_ns kill -SIGCONT $(cat /tmp/testA_ns.pid)"
-    Then "routers = 192.168" is visible with command "nmcli con show ethie2" in "130" seconds
+    ## RESTART DHCP server for testA after 400s (we already waited for 130 + 150)
+    * Execute "sleep 120 && ip netns exec testA_ns kill -SIGCONT $(cat /tmp/testA_ns.pid)"
+    Then "routers = 192.168" is visible with command "nmcli con show ethie2" in "300" seconds
     Then "default via 192.168.* dev testA" is visible with command "ip r"
 
-    ## WAIT FOR profie to be down for 900 (we already waited 500)
+    ## WAIT FOR profie to be down for 900 (we already waited 400)
     When "profie" is not visible with command "nmcli connection s -a" in "500" seconds
     ## RESTART DHCP server for testZ and wait for reconnect
     * Execute "ip netns exec testZ_ns kill -SIGCONT $(cat /tmp/testZ_ns.pid)"
