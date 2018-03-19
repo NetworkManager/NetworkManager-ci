@@ -16,11 +16,12 @@ component:
     - NetworkManager-dcb:
         arches:
           - x86_64
+  test-run: nmcli/./runtest.sh $testname
 
 dependencies:
   beaker-tasks:
     - /distribution/command:
-        CMDS_TO_RUN: yum -y install git python-netaddr python-setuptools pexpect iw net-tools wireshark teamd bash-completion radvd psmisc bridge-utils firewalld
+        CMDS_TO_RUN: yum -y install git python-netaddr python-setuptools pexpect iw net-tools wireshark teamd bash-completion radvd psmisc bridge-utils firewalld dhcp
     - /distribution/command:
         CMDS_TO_RUN: yum -y install http://download.eng.bos.redhat.com/brewroot/packages/openvswitch/2.0.0/7.el7/$(uname -p)/openvswitch-2.0.0-7.el7.$(uname -p).rpm http://download.eng.bos.redhat.com/brewroot/packages/glib2/2.54.2/2.el7/$(uname -p)/glib2-2.54.2-2.el7.$(uname -p).rpm http://download.eng.bos.redhat.com/brewroot/packages/glib2/2.54.2/2.el7/$(uname -p)/glib2-devel-2.54.2-2.el7.$(uname -p).rpm
 
@@ -45,1966 +46,1277 @@ beaker-hardware:
 setup:
 
 cleanup: |
-  run/rh-beaker/./sanitize_beah.sh
 
 testmapper:
   default:
     - bond_add_default_bond:
-        run: nmcli/./runtest.sh bond_add_default_bond
         feature: bond
     - nmcli_editor_for_new_connection_set_con_id:
-        run: nmcli/./runtest.sh nmcli_editor_for_new_connection_set_con_id
         feature: bond
     - bond_disconnect:
-        run: nmcli/./runtest.sh bond_disconnect
         feature: bond
     - bond_remove_active_bond_profile:
-        run: nmcli/./runtest.sh bond_remove_active_bond_profile
         feature: bond
     - bond_add_slaves:
-        run: nmcli/./runtest.sh bond_add_slaves
         feature: bond
     - add_bond_master_via_uuid:
-        run: nmcli/./runtest.sh add_bond_master_via_uuid
         feature: bond
     - bond_ifcfg_master_as_device:
-        run: nmcli/./runtest.sh bond_ifcfg_master_as_device
         feature: bond
     - bond_ifcfg_master_called_ethernet:
-        run: nmcli/./runtest.sh bond_ifcfg_master_called_ethernet
         feature: bond
     - bond_ifcfg_master_as_device_via_con_name:
-        run: nmcli/./runtest.sh bond_ifcfg_master_as_device_via_con_name
         feature: bond
     - nmcli_bond_manual_ipv4:
-        run: nmcli/./runtest.sh nmcli_bond_manual_ipv4
         feature: bond
     - bond_remove_slave:
-        run: nmcli/./runtest.sh bond_remove_slave
         feature: bond
     - bond_remove_all_slaves:
-        run: nmcli/./runtest.sh bond_remove_all_slaves
         feature: bond
     - bond_start_by_hand:
-        run: nmcli/./runtest.sh bond_start_by_hand
         feature: bond
     - bond_start_by_hand_no_slaves:
-        run: nmcli/./runtest.sh bond_start_by_hand_no_slaves
         feature: bond
     - bond_activate:
-        run: nmcli/./runtest.sh bond_activate
         feature: bond
     - bond_start_on_boot:
-        run: nmcli/./runtest.sh bond_start_on_boot
         feature: bond
     - bond_default_rhel7_slaves_ordering:
-        run: nmcli/./runtest.sh bond_default_rhel7_slaves_ordering
         feature: bond
     - bond_slaves_ordering_by_ifindex:
-        run: nmcli/./runtest.sh bond_slaves_ordering_by_ifindex
         feature: bond
     - bond_slaves_ordering_by_ifindex_with_autoconnect_slaves:
-        run: nmcli/./runtest.sh bond_slaves_ordering_by_ifindex_with_autoconnect_slaves
         feature: bond
     - bond_slaves_ordering_by_name:
-        run: nmcli/./runtest.sh bond_slaves_ordering_by_name
         feature: bond
     - bond_slaves_ordering_by_name_with_autoconnect_slaves:
-        run: nmcli/./runtest.sh bond_slaves_ordering_by_name_with_autoconnect_slaves
         feature: bond
     - bond_set_miimon_values:
-        run: nmcli/./runtest.sh bond_set_miimon_values
         feature: bond
     - bond_options_new_arp_values:
-        run: nmcli/./runtest.sh bond_options_new_arp_values
         feature: bond
     - bond_options_arp_vs_miimon_conflict:
-        run: nmcli/./runtest.sh bond_options_arp_vs_miimon_conflict
         feature: bond
     - bond_option_mode_missing:
-        run: nmcli/./runtest.sh bond_option_mode_missing
         feature: bond
     - bond_add_option:
-        run: nmcli/./runtest.sh bond_add_option
         feature: bond
     - bond_mode_incorrect_value:
-        run: nmcli/./runtest.sh bond_mode_incorrect_value
         feature: bond
     - bond_change_options:
-        run: nmcli/./runtest.sh bond_change_options
         feature: bond
     - bond_remove_option:
-        run: nmcli/./runtest.sh bond_remove_option
         feature: bond
     - bond_overwrite_options:
-        run: nmcli/./runtest.sh bond_overwrite_options
         feature: bond
     - bond_mode_balance_rr:
-        run: nmcli/./runtest.sh bond_mode_balance_rr
         feature: bond
     - bond_mode_active_backup:
-        run: nmcli/./runtest.sh bond_mode_active_backup
         feature: bond
     - bond_active-backup_primary_set:
-        run: nmcli/./runtest.sh bond_active-backup_primary_set
         feature: bond
     - bond_mode_balance_xor:
-        run: nmcli/./runtest.sh bond_mode_balance_xor
         feature: bond
     - bond_mode_broadcast:
-        run: nmcli/./runtest.sh bond_mode_broadcast
         feature: bond
     - bond_slaves_start_via_master:
-        run: nmcli/./runtest.sh  bond_slaves_start_via_master
         feature: bond
     - bond_start_on_boot_with_nothing_auto:
-        run: nmcli/./runtest.sh bond_start_on_boot_with_nothing_auto
         feature: bond
     - bond_mac_spoof:
-        run: nmcli/./runtest.sh bond_mac_spoof
         feature: bond
     - bond_mac_reconnect_preserve:
-        run: nmcli/./runtest.sh bond_mac_reconnect_preserve
         feature: bond
     - bond_start_by_hand_with_one_auto_only:
-        run: nmcli/./runtest.sh bond_start_by_hand_with_one_auto_only
         feature: bond
     - bond_start_on_boot_with_one_auto_only:
-        run: nmcli/./runtest.sh bond_start_on_boot_with_one_auto_only
         feature: bond
     - bond_start_on_boot_with_bond_and_one_slave_auto:
-        run: nmcli/./runtest.sh bond_start_on_boot_with_bond_and_one_slave_auto
         feature: bond
     - bond_mode_8023ad:
-        run: nmcli/./runtest.sh bond_mode_8023ad
         feature: bond
     - bond_8023ad_with_lacp_rate_fast:
-        run: nmcli/./runtest.sh bond_8023ad_with_lacp_rate_fast
         feature: bond
     - bond_mode_balance_tlb:
-        run: nmcli/./runtest.sh bond_mode_balance_tlb
         feature: bond
     - bond_mode_balance_alb:
-        run: nmcli/./runtest.sh bond_mode_balance_alb
         feature: bond
     - bond_set_mtu:
-        run: nmcli/./runtest.sh bond_set_mtu
         feature: bond
     - bond_addreses_restart_persistence:
-        run: nmcli/./runtest.sh bond_addreses_restart_persistence
         feature: bond
     - bond_describe:
-        run: nmcli/./runtest.sh bond_describe
         feature: bond
     - delete_addrgenmode_bond:
-        run: nmcli/./runtest.sh delete_addrgenmode_bond
         feature: bond
     - nmcli_novice_mode_create_bond_with_mii_monitor_values:
-        run: nmcli/./runtest.sh nmcli_novice_mode_create_bond_with_mii_monitor_values
         feature: bond
     - nmcli_novice_mode_create_bond_with_default_options:
-        run: nmcli/./runtest.sh nmcli_novice_mode_create_bond_with_default_options
         feature: bond
     - nmcli_novice_mode_create_bond_with_arp_monitor_values:
-        run: nmcli/./runtest.sh nmcli_novice_mode_create_bond_with_arp_monitor_values
         feature: bond
     - nmcli_novice_mode_create_bond-slave_with_default_options:
-        run: nmcli/./runtest.sh nmcli_novice_mode_create_bond-slave_with_default_options
         feature: bond
     - bond_reflect_changes_from_outside_of_NM:
-        run: nmcli/./runtest.sh bond_reflect_changes_from_outside_of_NM
         feature: bond
     - bond_dbus_creation:
-        run: nmcli/./runtest.sh bond_dbus_creation
         feature: bond
     - bond_mode_by_number_in_ifcfg:
-        run: nmcli/./runtest.sh bond_mode_by_number_in_ifcfg
         feature: bond
     - bond_set_active_backup_options:
-        run: nmcli/./runtest.sh bond_set_active_backup_options
         feature: bond
     - bond_set_ad_options:
-        run: nmcli/./runtest.sh bond_set_ad_options
         feature: bond
     - bond_set_arp_all_targets:
-        run: nmcli/./runtest.sh bond_set_arp_all_targets
         feature: bond
     - bond_set_packets_per_slave_option:
-        run: nmcli/./runtest.sh bond_set_packets_per_slave_option
         feature: bond
     - bond_set_balance_tlb_options:
-        run: nmcli/./runtest.sh bond_set_balance_tlb_options
         feature: bond
     - bond_device_rename:
-        run: nmcli/./runtest.sh bond_device_rename
         feature: bond
     - bond_enslave_to_bridge:
-        run: nmcli/./runtest.sh bond_enslave_to_bridge
         feature: bond
     - bridge_team_bond_autoconnect_nested_slaves:
-        run: nmcli/./runtest.sh bridge_team_bond_autoconnect_nested_slaves
         feature: bond
     - bond_in_bridge_mtu:
-        run: nmcli/./runtest.sh bond_in_bridge_mtu
         feature: bond
     - bond_8023ad_no_error:
-        run: nmcli/./runtest.sh bond_8023ad_no_error
         feature: bond
     - bond_balance-alb_no_error:
-        run: nmcli/./runtest.sh bond_balance-alb_no_error
         feature: bond
     - reapply_unchanged_slave:
-        run: nmcli/./runtest.sh reapply_unchanged_slave
         feature: bond
     - vlan_over_no_L3_bond_restart_persistence:
-        run: nmcli/./runtest.sh vlan_over_no_L3_bond_restart_persistence
         feature: bond
     - bond_leave_L2_only_up_when_going_down:
-        run: nmcli/./runtest.sh bond_leave_L2_only_up_when_going_down
         feature: bond
     - bond_assume_options_1:
-        run: nmcli/./runtest.sh bond_assume_options_1
         feature: bond
     - bond_assume_options_2:
-        run: nmcli/./runtest.sh bond_assume_options_2
         feature: bond
     - bond_assume_options_3:
-        run: nmcli/./runtest.sh bond_assume_options_3
         feature: bond
     - nmclient_bond_get_state_flags:
-        run: nmcli/./runtest.sh nmclient_bond_get_state_flags
+        feature: bond
     - bridge_add_default:
-        package-deps:
-        - bridge-utils
-        run: nmcli/./runtest.sh bridge_add_default
         feature: bridge
     - bridge_add_custom_one:
-        package-deps:
-        - bridge-utils
-        run: nmcli/./runtest.sh bridge_add_custom_one
         feature: bridge
     - bridge_add_forward_delay:
-        run: nmcli/./runtest.sh bridge_add_forward_delay
         feature: bridge
     - bridge_modify_forward_delay:
-        run: nmcli/./runtest.sh bridge_modify_forward_delay
         feature: bridge
     - bridge_connection_up:
-        package-deps:
-        - bridge-utils
-        run: nmcli/./runtest.sh bridge_connection_up
         feature: bridge
     - bridge_connection_down:
-        package-deps:
-        - bridge-utils
-        run: nmcli/./runtest.sh bridge_connection_down
         feature: bridge
     - bridge_disconnect_device:
-        package-deps:
-        - bridge-utils
-        run: nmcli/./runtest.sh bridge_disconnect_device
         feature: bridge
     - bridge_describe_all:
-        package-deps:
-        - bridge-utils
-        run: nmcli/./runtest.sh bridge_describe_all
         feature: bridge
     - bridge_describe_separately:
-        package-deps:
-        - bridge-utils
-        run: nmcli/./runtest.sh bridge_describe_separately
         feature: bridge
     - bridge_delete_connection:
-        package-deps:
-        - bridge-utils
-        run: nmcli/./runtest.sh bridge_delete_connection
         feature: bridge
     - bridge_delete_connection_while_up:
-        package-deps:
-        - bridge-utils
-        run: nmcli/./runtest.sh bridge_delete_connection_while_up
         feature: bridge
     - bridge_add_slave:
-        package-deps:
-        - bridge-utils
-        run: nmcli/./runtest.sh bridge_add_slave
         feature: bridge
     - bridge_remove_slave:
-        package-deps:
-        - bridge-utils
-        run: nmcli/./runtest.sh bridge_remove_slave
         feature: bridge
     - bridge_up_with_slaves:
-        package-deps:
-        - bridge-utils
-        run: nmcli/./runtest.sh bridge_up_with_slaves
         feature: bridge
     - bridge_up_slave:
-        package-deps:
-        - bridge-utils
-        run: nmcli/./runtest.sh bridge_up_slave
         feature: bridge
     - bridge_slaves_start_via_master:
-        run: nmcli/./runtest.sh bridge_slaves_start_via_master
         feature: bridge
     - bridge_autoconnect_slaves_when_master_reconnected:
-        run: nmcli/./runtest.sh bridge_autoconnect_slaves_when_master_reconnected
         feature: bridge
     - bridge_dhcp_config_with_ethernet_port:
-        package-deps:
-        - bridge-utils
-        run: nmcli/./runtest.sh bridge_dhcp_config_with_ethernet_port
         feature: bridge
     - bridge_dhcp_config_with_multiple_ethernet_ports:
-        package-deps:
-        - bridge-utils
-        run: nmcli/./runtest.sh bridge_dhcp_config_with_multiple_ethernet_ports
         feature: bridge
     - bridge_static_config_with_multiple_ethernet_ports:
-        package-deps:
-        - bridge-utils
-        run: nmcli/./runtest.sh bridge_static_config_with_multiple_ethernet_ports
         feature: bridge
     - bridge_server_ingore_carrier_with_dhcp:
-        package-deps:
-        - bridge-utils
-        run: nmcli/./runtest.sh bridge_server_ingore_carrier_with_dhcp
         feature: bridge
     - bridge_reflect_changes_from_outside_of_NM:
-        package-deps:
-        - bridge-utils
-        run: nmcli/./runtest.sh bridge_reflect_changes_from_outside_of_NM
         feature: bridge
     - bridge_assumed_connection_race:
-        package-deps:
-        - bridge-utils
-        run: nmcli/./runtest.sh  bridge_assumed_connection_race
         feature: bridge
     - bridge_assumed_connection_no_firewalld_zone:
-        package-deps:
-        - bridge-utils
-        run: nmcli/./runtest.sh bridge_assumed_connection_no_firewalld_zone
         feature: bridge
     - bridge_manipulation_with_1000_slaves:
-        package-deps:
-        - bridge-utils
-        run: nmcli/./runtest.sh bridge_manipulation_with_1000_slaves
         feature: bridge
     - bridge_assumed_connection_ip_methods:
-        package-deps:
-        - bridge-utils
-        run: nmcli/./runtest.sh bridge_assumed_connection_ip_methods
         feature: bridge
     - outer_bridge_restart_persistence:
-        package-deps:
-        - bridge-utils
-        run: nmcli/./runtest.sh outer_bridge_restart_persistence
         feature: bridge
     - bridge_set_mac:
-        package-deps:
-        - bridge-utils
-        run: nmcli/./runtest.sh bridge_set_mac
         feature: bridge
     - bridge_set_mac_var1:
-        package-deps:
-        - bridge-utils
-        run: nmcli/./runtest.sh bridge_set_mac_var1
         feature: bridge
     - bridge_set_mac_var2:
-        package-deps:
-        - bridge-utils
-        run: nmcli/./runtest.sh bridge_set_mac_var2
         feature: bridge
     - bridge_external_unmanaged:
-        package-deps:
-        - bridge-utils
-        run: nmcli/./runtest.sh bridge_external_unmanaged
         feature: bridge
     - bridge_preserve_assumed_connection_ips:
-        run: nmcli/./runtest.sh bridge_preserve_assumed_connection_ips
         feature: bridge
     - bridge_slave_to_ethernet_conversion:
-        run: nmcli/./runtest.sh bridge_slave_to_ethernet_conversion
         feature: bridge
     - bridge_delete_connection_with_device:
-        run: nmcli/./runtest.sh bridge_delete_connection_with_device
         feature: bridge
     - bridge_delete_connection_without_device:
-        run: nmcli/./runtest.sh bridge_delete_connection_without_device
         feature: bridge
     - add_default_team:
-        run: nmcli/./runtest.sh add_default_team
         feature: team
     - add_default_team_after_journal_restart:
-        run: nmcli/./runtest.sh add_default_team_after_journal_restart
         feature: team
     - ifcfg_team_slave_device_type:
-        run: nmcli/./runtest.sh ifcfg_team_slave_device_type
         feature: team
     - nmcli_novice_mode_create_team:
-        run: nmcli/./runtest.sh nmcli_novice_mode_create_team
         feature: team
     - nmcli_novice_mode_create_team-slave_with_default_options:
-        run: nmcli/./runtest.sh nmcli_novice_mode_create_team-slave_with_default_options
         feature: team
     - add_two_slaves_to_team:
-        run: nmcli/./runtest.sh add_two_slaves_to_team
         feature: team
     - default_config_watch:
-        run: nmcli/./runtest.sh default_config_watch
         feature: team
     - add_team_master_via_uuid:
-        run: nmcli/./runtest.sh add_team_master_via_uuid
         feature: team
     - remove_all_slaves:
-        run: nmcli/./runtest.sh remove_all_slaves
         feature: team
     - remove_one_slave:
-        run: nmcli/./runtest.sh remove_one_slave
         feature: team
     - remove_active_team_profile:
-        run: nmcli/./runtest.sh remove_active_team_profile
         feature: team
     - disconnect_active_team:
-        run: nmcli/./runtest.sh disconnect_active_team
         feature: team
     - team_start_by_hand_no_slaves:
-        run: nmcli/./runtest.sh team_start_by_hand_no_slaves
         feature: team
     - team_activate:
-        run: nmcli/./runtest.sh team_activate
         feature: team
     - team_slaves_start_via_master:
-        run: nmcli/./runtest.sh  team_slaves_start_via_master
         feature: team
     - team_mac_spoof:
-        run: nmcli/./runtest.sh team_mac_spoof
         feature: team
     - team_mac_spoof_var1:
-        run: nmcli/./runtest.sh team_mac_spoof_var1
         feature: team
     - start_team_by_hand_all_auto:
-        run: nmcli/./runtest.sh start_team_by_hand_all_auto
         feature: team
     - start_team_by_hand_one_auto:
-        run: nmcli/./runtest.sh start_team_by_hand_one_auto
         feature: team
     - start_team_on_boot:
-        run: nmcli/./runtest.sh start_team_on_boot
         feature: team
     - team_start_on_boot_with_nothing_auto:
-        run: nmcli/./runtest.sh team_start_on_boot_with_nothing_auto
         feature: team
     - team_start_on_boot_with_one_auto_only:
-        run: nmcli/./runtest.sh team_start_on_boot_with_one_auto_only
         feature: team
     - team_start_on_boot_with_team_and_one_slave_auto:
-        run: nmcli/./runtest.sh team_start_on_boot_with_team_and_one_slave_auto
         feature: team
     - config_loadbalance:
-        run: nmcli/./runtest.sh config_loadbalance
         feature: team
     - config_broadcast:
-        run: nmcli/./runtest.sh config_broadcast
         feature: team
     - config_lacp:
-        run: nmcli/./runtest.sh config_lacp
         feature: team
     - config_invalid3:
-        run: nmcli/./runtest.sh config_invalid3
         feature: team
     - remove_config:
-        run: nmcli/./runtest.sh remove_config
         feature: team
     - team_set_mtu:
-        run: nmcli/./runtest.sh team_set_mtu
         feature: team
     - team_reflect_changes_from_outside_of_NM:
-        run: nmcli/./runtest.sh team_reflect_changes_from_outside_of_NM
         feature: team
     - kill_teamd:
-        run: nmcli/./runtest.sh  kill_teamd
         feature: team
     - team_enslave_to_bridge:
-        package-deps:
-        - bridge-utils
-        run: nmcli/./runtest.sh team_enslave_to_bridge
         feature: team
     - describe:
-        run: nmcli/./runtest.sh describe
         feature: team
     - team_in_bridge_mtu:
-        run: nmcli/./runtest.sh team_in_bridge_mtu
         feature: team
     - team_config_null:
-        run: nmcli/./runtest.sh team_config_null
         feature: team
     - ifcfg_with_missing_devicetype:
-        run: nmcli/./runtest.sh ifcfg_with_missing_devicetype
         feature: team
     - team_in_vlan:
-        run: nmcli/./runtest.sh team_in_vlan
         feature: team
     - team_in_vlan_restart_persistence:
-        run: nmcli/./runtest.sh team_in_vlan_restart_persistence
         feature: team
     - vlan_in_team:
-        run: nmcli/./runtest.sh vlan_in_team
         feature: team
     - team_leave_L2_only_up_when_going_down:
-        run: nmcli/./runtest.sh team_leave_L2_only_up_when_going_down
         feature: team
     - team_add_into_firewall_zone:
-        run: nmcli/./runtest.sh team_add_into_firewall_zone
         feature: team
     - reconnect_back_to_ethernet_after_master_delete:
-        run: nmcli/./runtest.sh reconnect_back_to_ethernet_after_master_delete
         feature: team
     - team_abs_set_runners:
-        run: nmcli/./runtest.sh team_abs_set_runners
         feature: team
     - team_abs_set_runner_hwaddr_policy:
-        run: nmcli/./runtest.sh team_abs_set_runner_hwaddr_policy
         feature: team
     - team_abs_set_runner_tx_hash:
-        run: nmcli/./runtest.sh team_abs_set_runner_tx_hash
         feature: team
     - team_abs_set_runner_tx_balancer:
-        run: nmcli/./runtest.sh team_abs_set_runner_tx_balancer
         feature: team
     - team_abs_set_runner_tx_balancer_interval:
-        run: nmcli/./runtest.sh team_abs_set_runner_tx_balancer_interval
         feature: team
     - team_abs_set_runner_active:
-        run: nmcli/./runtest.sh team_abs_set_runner_active
         feature: team
     - team_abs_set_runner_fast_rate:
-        run: nmcli/./runtest.sh team_abs_set_runner_fast_rate
         feature: team
     - team_abs_set_runner_sys_prio:
-        run: nmcli/./runtest.sh team_abs_set_runner_sys_prio
         feature: team
     - team_abs_set_runner_min_ports:
-        run: nmcli/./runtest.sh team_abs_set_runner_min_ports
         feature: team
     - team_abs_set_runner_agg_select_policy:
-        run: nmcli/./runtest.sh team_abs_set_runner_agg_select_policy
         feature: team
     - team_abs_set_notify_peers:
-        run: nmcli/./runtest.sh team_abs_set_notify_peers
         feature: team
     - team_abs_set_mcast_rejoin:
-        run: nmcli/./runtest.sh team_abs_set_mcast_rejoin
         feature: team
     - team_abs_set_link_watchers_ethtool:
-        run: nmcli/./runtest.sh team_abs_set_link_watchers_ethtool
         feature: team
     - team_abs_set_link_watchers_nsna_ping:
-        run: nmcli/./runtest.sh team_abs_set_link_watchers_nsna_ping
         feature: team
     - team_abs_set_link_watchers_arp_ping:
-        run: nmcli/./runtest.sh team_abs_set_link_watchers_arp_ping
         feature: team
     - team_abs_overwrite_watchers:
-        run: nmcli/./runtest.sh team_abs_overwrite_watchers
         feature: team
     - wait_for_slow_teamd:
-        run: nmcli/./runtest.sh wait_for_slow_teamd
         feature: team
     - ipv6_block_just_routing_RA:
-        run: nmcli/./runtest.sh ipv6_block_just_routing_RA
         feature: ipv6
     - ipv6_limited_router_solicitation:
-        run: nmcli/./runtest.sh ipv6_limited_router_solicitation
         feature: ipv6
     - ipv6_routes_with_src:
-        run: nmcli/./runtest.sh ipv6_routes_with_src
         feature: ipv6
     - ipv6_route_set_route_with_tables:
-        run: nmcli/./runtest.sh ipv6_route_set_route_with_tables
         feature: ipv6
     - ipv6_route_set_route_with_tables_reapply:
-        run: nmcli/./runtest.sh ipv6_route_set_route_with_tables_reapply
         feature: ipv6
     - ipv6_correct_slaac_setting:
-        run: nmcli/./runtest.sh ipv6_correct_slaac_setting
         feature: ipv6
     - ipv6_take_manually_created_ifcfg:
-        run: nmcli/./runtest.sh ipv6_take_manually_created_ifcfg
         feature: ipv6
     - ipv6_method_static_without_IP:
-        run: nmcli/./runtest.sh ipv6_method_static_without_IP
         feature: ipv6
     - ipv6_method_manual_with_IP:
-        run: nmcli/./runtest.sh ipv6_method_manual_with_IP
         feature: ipv6
     - ipv6_method_static_with_IP:
-        run: nmcli/./runtest.sh ipv6_method_static_with_IP
         feature: ipv6
     - ipv6_addresses_IP_with_netmask:
-        run: nmcli/./runtest.sh ipv6_addresses_IP_with_netmask
         feature: ipv6
     - ipv6_addresses_yes_when_static_switch_asked:
-        run: nmcli/./runtest.sh ipv6_addresses_yes_when_static_switch_asked
         feature: ipv6
     - ipv6_addresses_no_when_static_switch_asked:
-        run: nmcli/./runtest.sh ipv6_addresses_no_when_static_switch_asked
         feature: ipv6
     - ipv6_addresses_invalid_netmask:
-        run: nmcli/./runtest.sh ipv6_addresses_invalid_netmask
         feature: ipv6
     - ipv6_addresses_IP_with_mask_and_gw:
-        run: nmcli/./runtest.sh ipv6_addresses_IP_with_mask_and_gw
         feature: ipv6
     - ipv6_addresses_set_several_IPv6s_with_masks_and_gws:
-        run: nmcli/./runtest.sh ipv6_addresses_set_several_IPv6s_with_masks_and_gws
         feature: ipv6
     - ipv6_addresses_delete_IP_moving_method_back_to_auto:
-        run: nmcli/./runtest.sh ipv6_addresses_delete_IP_moving_method_back_to_auto
         feature: ipv6
     - ipv6_routes_set_basic_route:
-        run: nmcli/./runtest.sh ipv6_routes_set_basic_route
         feature: ipv6
     - ipv6_route_set_route_with_options:
-        run: nmcli/./runtest.sh ipv6_route_set_route_with_options
         feature: ipv6
     - ipv6_routes_remove_basic_route:
-        run: nmcli/./runtest.sh ipv6_routes_remove_basic_route
         feature: ipv6
     - ipv6_routes_device_route:
-        run: nmcli/./runtest.sh ipv6_routes_device_route
         feature: ipv6
     - ipv6_routes_invalid_IP:
-        run: nmcli/./runtest.sh ipv6_routes_invalid_IP
         feature: ipv6
     - ipv6_routes_without_gw:
-        run: nmcli/./runtest.sh ipv6_routes_without_gw
         feature: ipv6
     - ipv6_dns_manual_IP_with_manual_dns:
-        run: nmcli/./runtest.sh ipv6_dns_manual_IP_with_manual_dns
         feature: ipv6
     - ipv6_dns_auto_with_more_manually_set:
-        run: nmcli/./runtest.sh ipv6_dns_auto_with_more_manually_set
         feature: ipv6
     - ipv6_dns_ignore-auto-dns_with_manually_set_dns:
-        run: nmcli/./runtest.sh ipv6_dns_ignore-auto-dns_with_manually_set_dns
         feature: ipv6
     - ipv6_dns_add_more_when_already_have_some:
-        run: nmcli/./runtest.sh ipv6_dns_add_more_when_already_have_some
         feature: ipv6
     - ipv6_dns_remove_manually_set:
-        run: nmcli/./runtest.sh ipv6_dns_remove_manually_set
         feature: ipv6
     - ipv6_dns-search_set:
-        run: nmcli/./runtest.sh ipv6_dns-search_set
         feature: ipv6
     - ipv6_dns-search_remove:
-        run: nmcli/./runtest.sh ipv6_dns-search_remove
         feature: ipv6
     - ipv6_ignore-auto-dns_set:
-        run: nmcli/./runtest.sh ipv6_ignore-auto-dns_set
         feature: ipv6
     - ipv6_ignore-auto-dns_set-generic:
-        run: nmcli/./runtest.sh ipv6_ignore-auto-dns_set-generic
         feature: ipv6
     - ipv6_method_link-local:
-        run: nmcli/./runtest.sh ipv6_method_link-local
         feature: ipv6
     - ipv6_method_ignored:
-        run: nmcli/./runtest.sh ipv6_method_ignored
         feature: ipv6
     - ipv6_may_fail_set_true:
-        run: nmcli/./runtest.sh ipv6_may_fail_set_true
         feature: ipv6
     - ipv6_never-default_set_true:
-        run: nmcli/./runtest.sh ipv6_never-default_set_true
         feature: ipv6
     - ipv6_never-default_remove:
-        run: nmcli/./runtest.sh ipv6_never-default_remove
         feature: ipv6
     - ipv6_dhcp-hostname_set:
-        run: nmcli/./runtest.sh ipv6_dhcp-hostname_set
         feature: ipv6
     - ipv6_dhcp-hostname_remove:
-        run: nmcli/./runtest.sh ipv6_dhcp-hostname_remove
         feature: ipv6
     - ipv6_send_fqdn.fqdn_to_dhcpv6:
-        run: nmcli/./runtest.sh ipv6_send_fqdn.fqdn_to_dhcpv6
         feature: ipv6
     - ipv6_secondary_address:
-        run: nmcli/./runtest.sh ipv6_secondary_address
         feature: ipv6
     - ipv6_ip6-privacy_0:
-        run: nmcli/./runtest.sh ipv6_ip6-privacy_0
         feature: ipv6
     - ipv6_ip6-privacy_1:
-        run: nmcli/./runtest.sh ipv6_ip6-privacy_1
         feature: ipv6
     - ipv6_ip6-privacy_2:
-        run: nmcli/./runtest.sh ipv6_ip6-privacy_2
         feature: ipv6
     - ipv6_ip6-default_privacy:
-        run: nmcli/./runtest.sh ipv6_ip6-default_privacy
         feature: ipv6
     - ipv6_ip6-privacy_incorrect_value:
-        run: nmcli/./runtest.sh ipv6_ip6-privacy_incorrect_value
         feature: ipv6
     - ipv6_lifetime_set_from_network:
-        run: nmcli/./runtest.sh ipv6_lifetime_set_from_network
         feature: ipv6
     - ipv6_lifetime_no_padding:
-        run: nmcli/./runtest.sh ipv6_lifetime_no_padding
         feature: ipv6
     - ipv6_drop_ra_with_255_hlimit:
-        run: nmcli/./runtest.sh ipv6_drop_ra_with_255_hlimit
         feature: ipv6
     - ipv6_drop_ra_with_low_hlimit:
-        run: nmcli/./runtest.sh ipv6_drop_ra_with_low_hlimit
         feature: ipv6
     - ipv6_drop_ra_from_non_ll_address:
-        run: nmcli/./runtest.sh ipv6_drop_ra_from_non_ll_address
         feature: ipv6
     - ipv6_keep_connectivity_on_assuming_connection_profile:
-        run: nmcli/./runtest.sh ipv6_keep_connectivity_on_assuming_connection_profile
         feature: ipv6
     - ipv6_add_static_address_manually_not_active:
-        run: nmcli/./runtest.sh ipv6_add_static_address_manually_not_active
         feature: ipv6
     - ipv6_no_assumed_connection_for_ipv6ll_only:
-        run: nmcli/./runtest.sh ipv6_no_assumed_connection_for_ipv6ll_only
         feature: ipv6
     - ipv6_set_ra_announced_mtu:
-        run: nmcli/./runtest.sh ipv6_set_ra_announced_mtu
         feature: ipv6
     - nm-online_wait_for_ipv6_to_finish:
-        run: nmcli/./runtest.sh nm-online_wait_for_ipv6_to_finish
         feature: ipv6
     - ipv6_shared_connection_error:
-        run: nmcli/./runtest.sh ipv6_shared_connection_error
         feature: ipv6
     - ipv6_shared_connection:
-        run: nmcli/./runtest.sh ipv6_shared_connection
         feature: ipv6
     - ipv6_tunnel_module_removal:
-        run: nmcli/./runtest.sh ipv6_tunnel_module_removal
         feature: ipv6
     - ipv6_no_activation_schedule_error_in_logs:
-        run: nmcli/./runtest.sh ipv6_no_activation_schedule_error_in_logs
         feature: ipv6
     - ipv6_NM_stable_with_internal_DHCPv6:
-        run: nmcli/./runtest.sh ipv6_NM_stable_with_internal_DHCPv6
         feature: ipv6
     - persistent_default_ipv6_gw:
-        run: nmcli/./runtest.sh persistent_default_ipv6_gw
         feature: ipv6
     - persistent_ipv6_route:
-        run: nmcli/./runtest.sh persistent_ipv6_routes
         feature: ipv6
     - ipv6_honor_ip_order:
-        run: nmcli/./runtest.sh ipv6_honor_ip_order
         feature: ipv6
     - ipv6_describe:
-        run: nmcli/./runtest.sh ipv6_describe
         feature: ipv6
     - ipv6_keep_external_addresses:
-        run: nmcli/./runtest.sh ipv6_keep_external_addresses
         feature: ipv6
     - ipv6_keep_external_routes:
-        run: nmcli/./runtest.sh ipv6_keep_external_routes
         feature: ipv6
     - nmcli_general_finish_dad_without_carrier:
-        run: nmcli/./runtest.sh nmcli_general_finish_dad_without_carrier
         feature: ipv6
     - ipv4_dad_not_preventing_ipv6:
-        run: nmcli/./runtest.sh ipv4_dad_not_preventing_ipv6
         feature: ipv6
     - ipv6_preserve_cached_routes:
-        run: nmcli/./runtest.sh ipv6_preserve_cached_routes
         feature: ipv6
     - persistent_ipv6_after_device_rename:
-        run: nmcli/./runtest.sh persistent_ipv6_after_device_rename
         feature: ipv6
     - add_ipv6_over_ipv4_configured_ext_device:
-        run: nmcli/./runtest.sh add_ipv6_over_ipv4_configured_ext_device
         feature: ipv6
     - ipv6_multiple_default_routes:
-        run: nmcli/./runtest.sh ipv6_multiple_default_routes
         feature: ipv6
     - nmcli_general_correct_profile_activated_after_restart:
-        run: nmcli/./runtest.sh nmcli_general_correct_profile_activated_after_restart
         feature: ipv4
     - nmcli_general_profile_pickup_doesnt_break_network:
-        run: nmcli/./runtest.sh nmcli_general_profile_pickup_doesnt_break_network
         feature: ipv4
     - ipv4_take_manually_created_ifcfg_with_ip:
-        run: nmcli/./runtest.sh ipv4_take_manually_created_ifcfg_with_ip
         feature: ipv4
     - ipv4_method_static_no_IP:
-        run: nmcli/./runtest.sh ipv4_method_static_no_IP
         feature: ipv4
     - ipv4_method_manual_with_IP:
-        run: nmcli/./runtest.sh ipv4_method_manual_with_IP
         feature: ipv4
     - ipv4_method_static_with_IP:
-        run: nmcli/./runtest.sh ipv4_method_static_with_IP
         feature: ipv4
     - ipv4_addresses_manual_when_asked:
-        run: nmcli/./runtest.sh ipv4_addresses_manual_when_asked
         feature: ipv4
     - ipv4_addresses_IP_slash_mask:
-        run: nmcli/./runtest.sh ipv4_addresses_IP_slash_mask
         feature: ipv4
     - ipv4_change_in_address:
-        run: nmcli/./runtest.sh ipv4_change_in_address
         feature: ipv4
     - ipv4_addresses_IP_slash_invalid_mask:
-        run: nmcli/./runtest.sh ipv4_addresses_IP_slash_invalid_mask
         feature: ipv4
     - ipv4_addresses_IP_slash_mask_and_route:
-        run: nmcli/./runtest.sh ipv4_addresses_IP_slash_mask_and_route
         feature: ipv4
     - ipv4_addresses_more_IPs_slash_mask_and_route:
-        run: nmcli/./runtest.sh ipv4_addresses_more_IPs_slash_mask_and_route
         feature: ipv4
     - ipv4_method_back_to_auto:
-        run: nmcli/./runtest.sh ipv4_method_back_to_auto
         feature: ipv4
     - ipv4_route_set_basic_route:
-        run: nmcli/./runtest.sh ipv4_route_set_basic_route
         feature: ipv4
     - ipv4_route_set_route_with_options:
-        run: nmcli/./runtest.sh ipv4_route_set_route_with_options
         feature: ipv4
     - ipv4_route_set_route_with_src_new_syntax:
-        run: nmcli/./runtest.sh ipv4_route_set_route_with_src_new_syntax
         feature: ipv4
     - ipv4_route_set_route_with_src_old_syntax:
-        run: nmcli/./runtest.sh ipv4_route_set_route_with_src_old_syntax
         feature: ipv4
     - ipv4_route_modify_route_with_src_old_syntax_no_metric:
-        run: nmcli/./runtest.sh ipv4_route_modify_route_with_src_old_syntax_no_metric
         feature: ipv4
     - ipv4_route_set_route_with_src_old_syntax_restart_persistence:
-        run: nmcli/./runtest.sh ipv4_route_set_route_with_src_old_syntax_restart_persistence
         feature: ipv4
     - ipv4_route_set_route_with_src_new_syntax_restart_persistence:
-        run: nmcli/./runtest.sh ipv4_route_set_route_with_src_new_syntax_restart_persistence
         feature: ipv4
     - no_metric_route_connection_restart_persistence:
-        run: nmcli/./runtest.sh no_metric_route_connection_restart_persistence
         feature: ipv4
     - ipv4_route_set_route_with_tables:
-        run: nmcli/./runtest.sh ipv4_route_set_route_with_tables
         feature: ipv4
     - ipv4_route_set_route_with_tables_reapply:
-        run: nmcli/./runtest.sh ipv4_route_set_route_with_tables_reapply
         feature: ipv4
     - ipv4_restore_default_route_externally:
-        run: nmcli/./runtest.sh ipv4_restore_default_route_externally
         feature: ipv4
     - ipv4_route_remove_basic_route:
-        run: nmcli/./runtest.sh ipv4_route_remove_basic_route
         feature: ipv4
     - ipv4_route_set_device_route:
-        run: nmcli/./runtest.sh ipv4_route_set_device_route
         feature: ipv4
     - ipv4_host_destination_route:
-        run: nmcli/./runtest.sh ipv4_host_destination_route
         feature: ipv4
     - preserve_route_to_generic_device:
-        run: nmcli/./runtest.sh preserve_route_to_generic_device
         feature: ipv4
     - ipv4_route_set_invalid_non_IP_route:
-        run: nmcli/./runtest.sh ipv4_route_set_invalid_non_IP_route
         feature: ipv4
     - ipv4_route_set_invalid_missing_gw_route:
-        run: nmcli/./runtest.sh ipv4_route_set_invalid_missing_gw_route
         feature: ipv4
     - ipv4_routes_not_reachable:
-        run: nmcli/./runtest.sh ipv4_routes_not_reachable
         feature: ipv4
     - ipv4_dns_manual:
-        run: nmcli/./runtest.sh ipv4_dns_manual
         feature: ipv4
     - ipv4_dns_manual_when_method_auto:
-        run: nmcli/./runtest.sh ipv4_dns_manual_when_method_auto
         feature: ipv4
     - ipv4_dns_manual_when_ignore_auto_dns:
-        run: nmcli/./runtest.sh ipv4_dns_manual_when_ignore_auto_dns
         feature: ipv4
     - ipv4_ignore_resolveconf_with_ignore_auto_dns:
-        run: nmcli/./runtest.sh ipv4_ignore_resolveconf_with_ignore_auto_dns
         feature: ipv4
     - ipv4_ignore_resolveconf_with_ignore_auto_dns_var1:
-        run: nmcli/./runtest.sh ipv4_ignore_resolveconf_with_ignore_auto_dns_var1
         feature: ipv4
     - ipv4_ignore_resolveconf_with_ignore_auto_dns_var2:
-        run: nmcli/./runtest.sh ipv4_ignore_resolveconf_with_ignore_auto_dns_var2
         feature: ipv4
     - ipv4_ignore_resolveconf_with_ignore_auto_dns_var3:
-        run: nmcli/./runtest.sh ipv4_ignore_resolveconf_with_ignore_auto_dns_var3
         feature: ipv4
     - ipv4_dns_resolvconf_symlinked:
-        run: nmcli/./runtest.sh ipv4_dns_resolvconf_symlinked
         feature: ipv4
     - ipv4_dns_resolvconf_rhel7_default:
-        run: nmcli/./runtest.sh ipv4_dns_resolvconf_rhel7_default
         feature: ipv4
     - ipv4_dns_resolvconf_file:
-        run: nmcli/./runtest.sh ipv4_dns_resolvconf_file
         feature: ipv4
     - ipv4_dns_add_another_one:
-        run: nmcli/./runtest.sh ipv4_dns_add_another_one
         feature: ipv4
     - ipv4_dns_delete_all:
-        run: nmcli/./runtest.sh ipv4_dns_delete_all
         feature: ipv4
     - reload_dns:
-        run: nmcli/./runtest.sh reload_dns
         feature: ipv4
     - dns_priority:
-        run: nmcli/./runtest.sh dns_priority
         feature: ipv4
     - ipv4_dns-search_add:
-        run: nmcli/./runtest.sh ipv4_dns-search_add
         feature: ipv4
     - ipv4_dns-search_remove:
-        run: nmcli/./runtest.sh ipv4_dns-search_remove
         feature: ipv4
     - ipv4_dhcp-hostname_set:
-        run: nmcli/./runtest.sh ipv4_dhcp-hostname_set
         feature: ipv4
     - nmcli_ipv4_set_fqdn:
-        run: nmcli/./runtest.sh nmcli_ipv4_set_fqdn
         feature: ipv4
     - nmcli_ipv4_override_fqdn:
-        run: nmcli/./runtest.sh nmcli_ipv4_override_fqdn
         feature: ipv4
     - nmcli_ipv4_remove_fqdn:
-        run: nmcli/./runtest.sh nmcli_ipv4_remove_fqdn
         feature: ipv4
     - ipv4_dhcp-hostname_remove:
-        run: nmcli/./runtest.sh ipv4_dhcp-hostname_remove
         feature: ipv4
     - ipv4_do_not_send_hostname:
-        run: nmcli/./runtest.sh ipv4_do_not_send_hostname
         feature: ipv4
     - ipv4_send_real_hostname:
-        run: nmcli/./runtest.sh ipv4_send_real_hostname
         feature: ipv4
     - ipv4_ignore_sending_real_hostname:
-        run: nmcli/./runtest.sh ipv4_ignore_sending_real_hostname
         feature: ipv4
     - ipv4_add_dns_options:
-        run: nmcli/./runtest.sh ipv4_add_dns_options
         feature: ipv4
     - ipv4_remove_dns_options:
-        run: nmcli/./runtest.sh ipv4_remove_dns_options
         feature: ipv4
     - ipv4_dns-search_ignore_auto_routes:
-        run: nmcli/./runtest.sh ipv4_dns-search_ignore_auto_routes
         feature: ipv4
     - ipv4_method_link-local:
-        run: nmcli/./runtest.sh ipv4_method_link-local
         feature: ipv4
     - ipv4_dhcp_client_id_set:
-        run: nmcli/./runtest.sh ipv4_dhcp_client_id_set
         feature: ipv4
     - ipv4_dhcp_client_id_remove:
-        run: nmcli/./runtest.sh ipv4_dhcp_client_id_remove
         feature: ipv4
     - ipv4_set_very_long_dhcp_client_id:
-        run: nmcli/./runtest.sh ipv4_set_very_long_dhcp_client_id
         feature: ipv4
     - ipv4_may-fail_yes:
-        run: nmcli/./runtest.sh ipv4_may-fail_yes
         feature: ipv4
     - ipv4_method_disabled:
-        run: nmcli/./runtest.sh ipv4_method_disabled
         feature: ipv4
     - ipv4_never-default_set:
-        run: nmcli/./runtest.sh ipv4_never-default_set
         feature: ipv4
     - ipv4_never-default_remove:
-        run: nmcli/./runtest.sh ipv4_never-default_remove
         feature: ipv4
     - ipv4_describe:
-        run: nmcli/./runtest.sh ipv4_describe
         feature: ipv4
     - set_mtu_from_DHCP:
-        run: nmcli/./runtest.sh set_mtu_from_DHCP
         feature: ipv4
     - renewal_gw_after_dhcp_outage:
-        run: nmcli/./runtest.sh renewal_gw_after_dhcp_outage
         feature: ipv4
         timeout: 20m
     - renewal_gw_after_long_dhcp_outage:
-        run: nmcli/./runtest.sh renewal_gw_after_long_dhcp_outage
         feature: ipv4
         timeout: 20m
     - dhcp-timeout:
-        run: nmcli/./runtest.sh dhcp-timeout
         feature: ipv4
     - dhcp-timeout_infinity:
-        run: nmcli/./runtest.sh dhcp-timeout_infinity
         feature: ipv4
     - timeout_default_in_cfg:
-        run: nmcli/./runtest.sh timeout_default_in_cfg
         feature: ipv4
     - renewal_gw_after_dhcp_outage_for_assumed_var0:
-        run: nmcli/./runtest.sh renewal_gw_after_dhcp_outage_for_assumed_var0
         feature: ipv4
     - renewal_gw_after_dhcp_outage_for_assumed_var1:
-        run: nmcli/./runtest.sh renewal_gw_after_dhcp_outage_for_assumed_var1
         feature: ipv4
     - manual_routes_preserved_when_never-default_yes:
-        run: nmcli/./runtest.sh manual_routes_preserved_when_never-default_yes
         feature: ipv4
     - dhcp4_outages_in_various_situation:
-        run: nmcli/./runtest.sh dhcp4_outages_in_various_situation
         feature: ipv4
         timeout: 20m
     - manual_routes_removed_when_never-default_no:
-        run: nmcli/./runtest.sh manual_routes_removed_when_never-default_no
         feature: ipv4
     - ipv4_dad:
-        run: nmcli/./runtest.sh ipv4_dad
         feature: ipv4
     - custom_shared_range_preserves_restart:
-        package-deps:
-        - dhcp
-        run: nmcli/./runtest.sh custom_shared_range_preserves_restart
         feature: ipv4
     - ipv4_method_shared:
-        run: nmcli/./runtest.sh ipv4_method_shared
         feature: ipv4
     - ipv4_method_shared_with_already_running_dnsmasq:
-        run: nmcli/./runtest.sh ipv4_method_shared_with_already_running_dnsmasq
         feature: ipv4
     - ipv4_do_not_remove_second_ip_route:
-        package-deps:
-        - dhcp
-        run: nmcli/./runtest.sh ipv4_do_not_remove_second_ip_route
         feature: ipv4
     - ipv4_never_default_restart_persistence:
-        run: nmcli/./runtest.sh ipv4_never_default_restart_persistence
         feature: ipv4
     - ipv4_honor_ip_order_1:
-        run: nmcli/./runtest.sh ipv4_honor_ip_order_1
         feature: ipv4
     - ipv4_honor_ip_order_2:
-        run: nmcli/./runtest.sh ipv4_honor_ip_order_2
         feature: ipv4
     - ipv4_rp_filter_set_loose:
-        run: nmcli/./runtest.sh ipv4_rp_filter_set_loose
         feature: ipv4
     - ipv4_rp_filter_set_loose_rhel:
-        run: nmcli/./runtest.sh ipv4_rp_filter_set_loose_rhel
         feature: ipv4
     - ipv4_rp_filter_do_not_touch:
-        run: nmcli/./runtest.sh ipv4_rp_filter_do_not_touch
         feature: ipv4
     - ipv4_rp_filter_reset:
-        run: nmcli/./runtest.sh ipv4_rp_filter_reset
         feature: ipv4
     - ipv4_rp_filter_reset_rhel:
-        run: nmcli/./runtest.sh ipv4_rp_filter_reset_rhel
         feature: ipv4
     - ipv4_dhcp_do_not_add_route_to_server:
-        run: nmcli/./runtest.sh ipv4_dhcp_do_not_add_route_to_server
         feature: ipv4
     - ipv4_keep_external_addresses:
-        run: nmcli/./runtest.sh ipv4_keep_external_addresses
         feature: ipv4
     - ipv4_route_onsite:
-        run: nmcli/./runtest.sh ipv4_route_onsite
         feature: ipv4
     - ipv4_multiple_ip4:
-        run: nmcli/./runtest.sh ipv4_multiple_ip4
         feature: ipv4
     - vlan_add_default_device:
-        run: nmcli/./runtest.sh vlan_add_default_device
         feature: vlan
     - vlan_add_beyond_range:
-        run: nmcli/./runtest.sh vlan_add_beyond_range
         feature: vlan
     - nmcli_vlan_restart_persistence:
-        run: nmcli/./runtest.sh nmcli_vlan_restart_persistence
         feature: vlan
     - vlan_ipv4_ipv6_restart_persistence:
-        run: nmcli/./runtest.sh vlan_ipv4_ipv6_restart_persistence
         feature: vlan
     - vlan_device_tagging:
-        run: nmcli/./runtest.sh vlan_device_tagging
         feature: vlan
     - vlan_connection_up:
-        run: nmcli/./runtest.sh vlan_connection_up
         feature: vlan
     - vlan_reup_connection:
-        run: nmcli/./runtest.sh vlan_reup_connection
         feature: vlan
     - vlan_connection_down:
-        run: nmcli/./runtest.sh vlan_connection_down
         feature: vlan
     - vlan_connection_down_with_autoconnect:
-        run: nmcli/./runtest.sh vlan_connection_down_with_autoconnect
         feature: vlan
     - vlan_remove_connection:
-        run: nmcli/./runtest.sh vlan_remove_connection
         feature: vlan
     - vlan_disconnect_device:
-        run: nmcli/./runtest.sh vlan_disconnect_device
         feature: vlan
     - vlan_disconnect_device_with_autoconnect:
-        run: nmcli/./runtest.sh vlan_disconnect_device_with_autoconnect
         feature: vlan
     - vlan_change_id:
-        run: nmcli/./runtest.sh vlan_change_id
         feature: vlan
     - vlan_change_id_with_no_interface_set:
-        run: nmcli/./runtest.sh vlan_change_id_with_no_interface_set
         feature: vlan
     - vlan_describe_separately:
-        run: nmcli/./runtest.sh vlan_describe_separately
         feature: vlan
     - vlan_describe_all:
-        run: nmcli/./runtest.sh vlan_describe_all
         feature: vlan
     - vlan_on_bridge:
-        run: nmcli/./runtest.sh vlan_on_bridge
         feature: vlan
     - assertion_failure:
-        run: nmcli/./runtest.sh  assertion_failure
         feature: vlan
     - vlan_not_duplicated:
-        run: nmcli/./runtest.sh vlan_not_duplicated
         feature: vlan
     - vlan_not_stalled_after_connection_delete:
-        run: nmcli/./runtest.sh vlan_not_stalled_after_connection_delete
         feature: vlan
     - vlan_update_mac_from_bond:
-        run: nmcli/./runtest.sh  vlan_update_mac_from_bond
         feature: vlan
     - bring_up_very_long_device_name:
-        run: nmcli/./runtest.sh bring_up_very_long_device_name
         feature: vlan
     - reorder_hdr:
-        run: nmcli/./runtest.sh reorder_hdr
         feature: vlan
     - vlan_preserve_assumed_connection_ips:
-        run: nmcli/./runtest.sh vlan_preserve_assumed_connection_ips
         feature: vlan
     - vlan_create_many_vlans:
-        run: nmcli/./runtest.sh vlan_create_many_vlans
         feature: vlan
     - vlan_mtu_from_parent:
-        run: nmcli/./runtest.sh vlan_mtu_from_parent
         feature: vlan
     - vlan_mtu_from_parent_with_slow_dhcp:
-        run: nmcli/./runtest.sh vlan_mtu_from_parent_with_slow_dhcp
         feature: vlan
     - default_route_for_vlan_over_team:
-        run: nmcli/./runtest.sh default_route_for_vlan_over_team
         feature: vlan
     - ethernet_create_with_editor:
-        run: nmcli/./runtest.sh ethernet_create_with_editor
         feature: ethernet
     - ethernet_create_default_connection:
-        run: nmcli/./runtest.sh ethernet_create_default_connection
         feature: ethernet
     - ethernet_connection_up:
-        run: nmcli/./runtest.sh ethernet_connection_up
         feature: ethernet
     - ethernet_disconnect_device:
-        run: nmcli/./runtest.sh ethernet_disconnect_device
         feature: ethernet
     - ethernet_describe_all:
-        run: nmcli/./runtest.sh ethernet_describe_all
         feature: ethernet
     - ethernet_describe_separately:
-        run: nmcli/./runtest.sh ethernet_describe_separately
         feature: ethernet
     - ethernet_set_matching_mac:
-        run: nmcli/./runtest.sh ethernet_set_matching_mac
         feature: ethernet
     - ethernet_set_invalid_mac:
-        run: nmcli/./runtest.sh ethernet_set_invalid_mac
         feature: ethernet
     - ethernet_set_blacklisted_mac:
-        run: nmcli/./runtest.sh ethernet_set_blacklisted_mac
         feature: ethernet
     - ethernet_mac_spoofing:
-        run: nmcli/./runtest.sh ethernet_mac_spoofing
         feature: ethernet
     - ethernet_mac_address_preserve:
-        run: nmcli/./runtest.sh ethernet_mac_address_preserve
         feature: ethernet
     - ethernet_mac_address_permanent:
-        run: nmcli/./runtest.sh ethernet_mac_address_permanent
         feature: ethernet
     - ethernet_mac_address_rhel7_default:
-        run: nmcli/./runtest.sh ethernet_mac_address_rhel7_default
         feature: ethernet
     - ethernet_duplex_speed_auto_negotiation:
-        run: nmcli/./runtest.sh ethernet_duplex_speed_auto_negotiation
         feature: ethernet
     - ethernet_set_mtu:
-        run: nmcli/./runtest.sh ethernet_set_mtu
         feature: ethernet
     - nmcli_set_mtu_lower_limit:
-        run: nmcli/./runtest.sh  nmcli_set_mtu_lower_limit
         feature: ethernet
     - ethernet_set_static_configuration:
-        run: nmcli/./runtest.sh ethernet_set_static_configuration
         feature: ethernet
     - ethernet_set_static_ipv6_configuration:
-        run: nmcli/./runtest.sh ethernet_set_static_ipv6_configuration
         feature: ethernet
     - ethernet_set_both_ipv4_6_configuration:
-        run: nmcli/./runtest.sh ethernet_set_both_ipv4_6_configuration
         feature: ethernet
     - ethernet_create_ifname_generic_connection:
-        run: nmcli/./runtest.sh ethernet_create_ifname_generic_connection
         feature: ethernet
     - nmcli_ethernet_no_ip:
-        run: nmcli/./runtest.sh nmcli_ethernet_no_ip
         feature: ethernet
     - no_assumed_connection_for_veth:
-        run: nmcli/./runtest.sh no_assumed_connection_for_veth
         feature: ethernet
     - 8021x_with_credentials:
-        run: nmcli/./runtest.sh 8021x_with_credentials
         feature: ethernet
     - 8021x_tls:
-        run: nmcli/./runtest.sh 8021x_tls
         feature: ethernet
     - 8021x_peap_md5:
-        run: nmcli/./runtest.sh 8021x_peap_md5
         feature: ethernet
     - 8021x_peap_mschapv2:
-        run: nmcli/./runtest.sh 8021x_peap_mschapv2
         feature: ethernet
     - 8021x_peap_gtc:
-        run: nmcli/./runtest.sh 8021x_peap_gtc
         feature: ethernet
     - 8021x_ttls_pap:
-        run: nmcli/./runtest.sh 8021x_ttls_pap
         feature: ethernet
     - 8021x_ttls_chap:
-        run: nmcli/./runtest.sh 8021x_ttls_chap
         feature: ethernet
     - 8021x_ttls_mschap:
-        run: nmcli/./runtest.sh 8021x_ttls_mschap
         feature: ethernet
     - 8021x_ttls_mschapv2:
-        run: nmcli/./runtest.sh 8021x_ttls_mschapv2
         feature: ethernet
     - 8021x_ttls_mschapv2_eap:
-        run: nmcli/./runtest.sh 8021x_ttls_mschapv2_eap
         feature: ethernet
     - 8021x_ttls_md5:
-        run: nmcli/./runtest.sh 8021x_ttls_md5
         feature: ethernet
     - 8021x_ttls_gtc:
-        run: nmcli/./runtest.sh 8021x_ttls_gtc
         feature: ethernet
     - 8021x_with_raw_credentials:
-        run: nmcli/./runtest.sh 8021x_with_raw_credentials
         feature: ethernet
     - 8021x_without_password:
-        run: nmcli/./runtest.sh 8021x_without_password
         feature: ethernet
     - 8021x_without_password_with_ask_at_the_end:
-        run: nmcli/./runtest.sh 8021x_without_password_with_ask_at_the_end
         feature: ethernet
     - preserve_8021x_certs:
-        run: nmcli/./runtest.sh preserve_8021x_certs
         feature: ethernet
     - preserve_8021x_leap_con:
-        run: nmcli/./runtest.sh preserve_8021x_leap_con
         feature: ethernet
     - logging:
-        run: nmcli/./runtest.sh logging
         feature: general
     - reduce_logging:
-        run: nmcli/./runtest.sh reduce_logging
         feature: general
     - hostname_change:
-        run: nmcli/./runtest.sh hostname_change
         feature: general
     - pull_hostname_from_dhcp:
-        run: nmcli/./runtest.sh pull_hostname_from_dhcp
         feature: general
     - hostname_mode_full:
-        run: nmcli/./runtest.sh hostname_mode_full
         feature: general
     - hostname_mode_dhcp:
-        run: nmcli/./runtest.sh hostname_mode_dhcp
         feature: general
     - hostname_mode_full_without_dhcp_hosts:
-        run: nmcli/./runtest.sh hostname_mode_full_without_dhcp_hosts
         feature: general
     - hostname_mode_none:
-        run: nmcli/./runtest.sh hostname_mode_none
         feature: general
     - general_check_version:
-        run: nmcli/./runtest.sh general_check_version
         feature: general
     - general_state_connected:
-        run: nmcli/./runtest.sh general_state_connected
         feature: general
     - general_state_disconnected:
-        run: nmcli/./runtest.sh general_state_disconnected
         feature: general
     - general_state_asleep:
-        run: nmcli/./runtest.sh general_state_asleep
         feature: general
     - general_state_running:
-        run: nmcli/./runtest.sh general_state_running
         feature: general
     - general_state_not_running:
-        run: nmcli/./runtest.sh general_state_not_running
         feature: general
     - shutdown_service_assumed:
-        run: nmcli/./runtest.sh shutdown_service_assumed
         feature: general
     - shutdown_service_connected:
-        run: nmcli/./runtest.sh shutdown_service_connected
         feature: general
     - shutdown_service_any:
-        run: nmcli/./runtest.sh shutdown_service_any
         feature: general
     - CAP_SYS_ADMIN_for_ibft:
-        run: nmcli/./runtest.sh CAP_SYS_ADMIN_for_ibft
         feature: general
     - general_networking_on_off:
-        run: nmcli/./runtest.sh general_networking_on_off
         feature: general
     - general_networking_enabled:
-        run: nmcli/./runtest.sh general_networking_enabled
         feature: general
     - general_networking_disabled:
-        run: nmcli/./runtest.sh general_networking_disabled
         feature: general
     - general_networking_off:
-        run: nmcli/./runtest.sh general_networking_off
         feature: general
     - general_networking_on:
-        run: nmcli/./runtest.sh general_networking_on
         feature: general
     - nmcli_radio_status:
-        run: nmcli/./runtest.sh nmcli_radio_status
         feature: general
     - nmcli_device_status:
-        run: nmcli/./runtest.sh nmcli_device_status
         feature: general
     - nmcli_device_show_ip:
-        run: nmcli/./runtest.sh nmcli_device_show_ip
         feature: general
     - nmcli_device_show_general_params:
-        run: nmcli/./runtest.sh nmcli_device_show_general_params
         feature: general
     - nmcli_device_disconnect:
-        run: nmcli/./runtest.sh nmcli_device_disconnect
         feature: general
     - run_once_new_connection:
-        run: nmcli/./runtest.sh run_once_new_connection
         feature: general
     - run_once_ip4_renewal:
-        run: nmcli/./runtest.sh run_once_ip4_renewal
         feature: general
     - run_once_ip6_renewal:
-        run: nmcli/./runtest.sh run_once_ip6_renewal
         feature: general
     - run_once_helper_for_localhost_localdomain:
-        run: nmcli/./runtest.sh  run_once_helper_for_localhost_localdomain
         feature: general
     - wait-online-for-both-ips:
-        run: nmcli/./runtest.sh wait-online-for-both-ips
         feature: general
     - network_online_target_not_depend_on_wait_online:
-        run: nmcli/./runtest.sh network_online_target_not_depend_on_wait_online
         feature: general
     - nm_wait_online_requisite_NM:
-        run: nmcli/./runtest.sh nm_wait_online_requisite_NM
         feature: general
     - nm_wait_online_requires_NM:
-        run: nmcli/./runtest.sh nm_wait_online_requires_NM
         feature: general
     - wait_online_with_autoconnect_no_connection:
-        run: nmcli/./runtest.sh wait_online_with_autoconnect_no_connection
         feature: general
     - nm_online_wait_for_delayed_device:
-        run: nmcli/./runtest.sh nm_online_wait_for_delayed_device
         feature: general
     - policy_based_routing:
-        run: nmcli/./runtest.sh policy_based_routing
         feature: general
     - modify_policy_based_routing_connection:
-        run: nmcli/./runtest.sh modify_policy_based_routing_connection
         feature: general
     - nmcli_general_dhcp_profiles_general_gateway:
-        run: nmcli/./runtest.sh nmcli_general_dhcp_profiles_general_gateway
         feature: general
     - allow_wired_connections:
-        run: nmcli/./runtest.sh allow_wired_connections
         feature: general
     - ctc_device_recognition:
-        run: nmcli/./runtest.sh ctc_device_recognition
         feature: general
     - nmcli_general_wait_for_carrier_on_new_device_request:
-        run: nmcli/./runtest.sh nmcli_general_wait_for_carrier_on_new_device_request
         feature: general
     - connection_up_after_journald_restart:
-        run: nmcli/./runtest.sh connection_up_after_journald_restart
         feature: general
     - nmcli_general_dhcp_hostname_over_localhost:
-        run: nmcli/./runtest.sh nmcli_general_dhcp_hostname_over_localhost
         feature: general
     - nmcli_general_ignore_specified_unamanaged_devices:
-        run: nmcli/./runtest.sh nmcli_general_ignore_specified_unamanaged_devices
         feature: general
     - nmcli_general_set_device_unmanaged:
-        run: nmcli/./runtest.sh nmcli_general_set_device_unmanaged
         feature: general
     - nmcli_general_set_device_back_to_managed:
-        run: nmcli/./runtest.sh nmcli_general_set_device_back_to_managed
         feature: general
     - nmcli_general_ifcfg_tailing_whitespace:
-        run: nmcli/./runtest.sh nmcli_general_ifcfg_tailing_whitespace
         feature: general
     - nmcli_general_keep_slave_device_unmanaged:
-        run: nmcli/./runtest.sh nmcli_general_keep_slave_device_unmanaged
         feature: general
     - no_error_when_firewald_restarted:
-        run: nmcli/./runtest.sh no_error_when_firewald_restarted
         feature: general
     - show_zones_after_firewalld_install:
-        run: nmcli/./runtest.sh show_zones_after_firewalld_install
         feature: general
     - nmcli_general_DHCP_HOSTNAME_profile_pickup:
-        run: nmcli/./runtest.sh nmcli_general_DHCP_HOSTNAME_profile_pickup
         feature: general
     - match_connections_when_no_var_run_exists:
-        run: nmcli/./runtest.sh match_connections_when_no_var_run_exists
         feature: general
     - ifcfg_respect_externally_set_mtu:
-        run: nmcli/./runtest.sh ifcfg_respect_externally_set_mtu
         feature: general
     - wpa_supplicant_not_started:
-        run: nmcli/./runtest.sh wpa_supplicant_not_started
         feature: general
     - nmcli_general_dbus_set_gateway:
-        run: nmcli/./runtest.sh nmcli_general_dbus_set_gateway
         feature: general
     - preserve_failed_assumed_connections:
-        run: nmcli/./runtest.sh preserve_failed_assumed_connections
         feature: general
     - connection_objects_autocompletion:
-        run: nmcli/./runtest.sh connection_objects_autocompletion
         feature: general
     - 802_1x_objects_autocompletion:
-        run: nmcli/./runtest.sh 802_1x_objects_autocompletion
         feature: general
     - insufficient_logging_perms:
-        run: nmcli/./runtest.sh insufficient_logging_perms
         feature: general
     - insufficient_perms_connection_down:
-        run: nmcli/./runtest.sh insufficient_perms_connection_down
         feature: general
     - insufficient_perms_connection_up:
-        run: nmcli/./runtest.sh insufficient_perms_connection_up
         feature: general
     - dns_none:
-        run: nmcli/./runtest.sh dns_none
         feature: general
     - remove_dns_none:
-        run: nmcli/./runtest.sh remove_dns_none
         feature: general
     - device_connect:
-        run: nmcli/./runtest.sh device_connect
         feature: general
     - device_reapply_routes:
-        run: nmcli/./runtest.sh device_reapply_routes
         feature: general
     - device_reapply_all:
-        run: nmcli/./runtest.sh device_reapply_all
         feature: general
     - device_connect_no_profile:
-        run: nmcli/./runtest.sh device_connect_no_profile
         feature: general
     - nmcli_device_delete:
-        run: nmcli/./runtest.sh nmcli_device_delete
         feature: general
     - nmcli_device_attempt_hw_delete:
-        run: nmcli/./runtest.sh nmcli_device_attempt_hw_delete
         feature: general
     - nmcli_novice_mode_readline:
-        run: nmcli/./runtest.sh nmcli_novice_mode_readline
         feature: general
     - nmcli_device_wifi_with_two_devices:
-        run: nmcli/./runtest.sh nmcli_device_wifi_with_two_devices
         feature: general
     - vxlan_interface_recognition:
-        run: nmcli/./runtest.sh vxlan_interface_recognition
         feature: general
     - veth_goes_to_unmanaged_state:
-        run: nmcli/./runtest.sh veth_goes_to_unmanaged_state
         feature: general
     - nat_from_shared_network:
-        run: nmcli/./runtest.sh nat_from_shared_network
         feature: general
     - nmcli_general_activate_static_connection_carrier_ignored:
-        run: nmcli/./runtest.sh nmcli_general_activate_static_connection_carrier_ignored
         feature: general
     - nmcli_general_activate_static_connection_carrier_not_ignored:
-        run: nmcli/./runtest.sh nmcli_general_activate_static_connection_carrier_not_ignored
         feature: general
     - nmcli_monitor:
-        run: nmcli/./runtest.sh nmcli_monitor
         feature: general
     - device_dbus_signal:
-        run: nmcli/./runtest.sh device_dbus_signal
         feature: general
     - dns_over_dbus:
-        run: nmcli/./runtest.sh dns_over_dbus
         feature: general
     - NM_syslog_in_anaconda:
-        run: nmcli/./runtest.sh NM_syslog_in_anaconda
         feature: general
     - snapshot_rollback:
-        run: nmcli/./runtest.sh snapshot_rollback
         feature: general
     - snapshot_rollback_all_devices:
-        run: nmcli/./runtest.sh snapshot_rollback_all_devices
         feature: general
     - snapshot_rollback_all_devices_with_timeout:
-        run: nmcli/./runtest.sh snapshot_rollback_all_devices_with_timeout
         feature: general
     - snapshot_rollback_unmanaged:
-        run: nmcli/./runtest.sh snapshot_rollback_unmanaged
         feature: general
     - snapshot_rollback_managed:
-        run: nmcli/./runtest.sh snapshot_rollback_managed
         feature: general
     - snapshot_rollback_soft_device:
-        run: nmcli/./runtest.sh snapshot_rollback_soft_device
         feature: general
     - stable_mem_consumption:
-        run: nmcli/./runtest.sh stable_mem_consumption
         feature: general
         timeout: 20m
     - stable_mem_consumption2:
-        run: nmcli/./runtest.sh stable_mem_consumption2
         feature: general
         timeout: 20m
     - dummy_connection:
-        run: nmcli/./runtest.sh dummy_connection
         feature: general
     - dummy_with_qdisc:
-        run: nmcli/./runtest.sh dummy_with_qdisc
         feature: general
     - do_not_touch_external_dummy:
-        run: nmcli/./runtest.sh do_not_touch_external_dummy
         feature: general
     - macsec_psk:
-        run: nmcli/./runtest.sh macsec_psk
         feature: general
     - non_utf_device:
-        run: nmcli/./runtest.sh non_utf_device
         feature: general
     - connectivity_check:
-        run: nmcli/./runtest.sh connectivity_check
         feature: general
     - disable_connectivity_check:
-        run: nmcli/./runtest.sh disable_connectivity_check
         feature: general
     - manipulate_connectivity_check_via_dbus:
-        run: nmcli/./runtest.sh manipulate_connectivity_check_via_dbus
         feature: general
     - per_device_connectivity_check:
-        run: nmcli/./runtest.sh per_device_connectivity_check
         feature: general
     - keep_external_device_enslaved_on_down:
-        run: nmcli/./runtest.sh keep_external_device_enslaved_on_down
         feature: general
     - overtake_external_device:
-        run: nmcli/./runtest.sh overtake_external_device
         feature: general
     - wait_10s_for_flappy_carrier:
-        run: nmcli/./runtest.sh wait_10s_for_flappy_carrier
+        feature: general
+    - praseci_prdel:
         feature: general
     - openvswitch_interface_recognized:
-        run: nmcli/./runtest.sh openvswitch_interface_recognized
         feature: ovs
     - openvswitch_ignore_ovs_network_setup:
-        run: nmcli/./runtest.sh openvswitch_ignore_ovs_network_setup
         feature: ovs
     - openvswitch_ignore_ovs_vlan_network_setup:
-        run: nmcli/./runtest.sh openvswitch_ignore_ovs_vlan_network_setup
         feature: ovs
     - openvswitch_ignore_ovs_bond_network_setup:
-        run: nmcli/./runtest.sh openvswitch_ignore_ovs_bond_network_setup
         feature: ovs
     - nmcli_add_basic_openvswitch_configuration:
-        run: nmcli/./runtest.sh nmcli_add_basic_openvswitch_configuration
         feature: ovs
     - nmcli_add_openvswitch_bond_configuration:
-        run: nmcli/./runtest.sh nmcli_add_openvswitch_bond_configuration
         feature: ovs
     - nmcli_add_openvswitch_vlan_configuration:
-        run: nmcli/./runtest.sh nmcli_add_openvswitch_vlan_configuration
         feature: ovs
     - nmcli_remove_one_openvswitch_bond_configuration:
-        run: nmcli/./runtest.sh nmcli_remove_one_openvswitch_bond_configuration
         feature: ovs
     - nmcli_remove_openvswitch_ports_and_master_bridge_configuration:
-        run: nmcli/./runtest.sh nmcli_remove_openvswitch_ports_and_master_bridge_configuration
         feature: ovs
     - nmcli_reconnect_openvswitch_vlan_configuration:
-        run: nmcli/./runtest.sh nmcli_reconnect_openvswitch_vlan_configuration
         feature: ovs
     - NM_reboot_openvswitch_vlan_configuration:
-        run: nmcli/./runtest.sh NM_reboot_openvswitch_vlan_configuration
         feature: ovs
     - dispatcher_preup_and_up:
-        run: nmcli/./runtest.sh dispatcher_preup_and_up
         feature: dispatcher
     - dispatcher_predown_and_down:
-        run: nmcli/./runtest.sh dispatcher_predown_and_down
         feature: dispatcher
     - dispatcher_hostname:
-        run: nmcli/./runtest.sh dispatcher_hostname
         feature: dispatcher
     - dispatcher_synchronicity:
-        run: nmcli/./runtest.sh dispatcher_synchronicity
         feature: dispatcher
     - dispatcher_synchronicity_with_predown:
-        run: nmcli/./runtest.sh dispatcher_synchronicity_with_predown
         feature: dispatcher
     - dispatcher_serialization:
-        run: nmcli/./runtest.sh dispatcher_serialization
         feature: dispatcher
     - add_adsl_connection_novice_mode:
-        run: nmcli/./runtest.sh add_adsl_connection_novice_mode
         feature: adsl
     - add_adsl_connection:
-        run: nmcli/./runtest.sh add_adsl_connection
         feature: adsl
     - pptp_add_profile:
-        run: nmcli/./runtest.sh pptp_add_profile
         feature: pptp
     - pptp_terminate:
-        run: nmcli/./runtest.sh pptp_terminate
         feature: pptp
     - libreswan_add_profile:
-        run: nmcli/./runtest.sh libreswan_add_profile
         feature: libreswan
     - libreswan_terminate:
-        run: nmcli/./runtest.sh libreswan_terminate
         feature: libreswan
     - libreswan_delete_active_profile:
-        run: nmcli/./runtest.sh libreswan_delete_active_profile
         feature: libreswan
     - libreswan_dns:
-        run: nmcli/./runtest.sh libreswan_dns
         feature: libreswan
     - libreswan_start_as_secondary:
-        run: nmcli/./runtest.sh libreswan_start_as_secondary
         feature: libreswan
     - libreswan_connection_renewal:
-        run: nmcli/./runtest.sh libreswan_connection_renewal
         feature: libreswan
     - libreswan_provides_and_obsoletes:
-        run: nmcli/./runtest.sh libreswan_provides_and_obsoletes
         feature: libreswan
     - libreswan_import:
-        run: nmcli/./runtest.sh libreswan_import
         feature: libreswan
     - libreswan_export:
-        run: nmcli/./runtest.sh libreswan_export
         feature: libreswan
     - libreswan_autocompletion:
-        run: nmcli/./runtest.sh libreswan_autocompletion
         feature: libreswan
     - libreswan_activate_asking_for_password:
-        run: nmcli/./runtest.sh libreswan_activate_asking_for_password
         feature: libreswan
     - libreswan_activate_asking_for_password_with_delay:
-        run: nmcli/./runtest.sh libreswan_activate_asking_for_password_with_delay
         feature: libreswan
     - libreswan_activate_asking_for_password_and_secret:
-        run: nmcli/./runtest.sh libreswan_activate_asking_for_password_and_secret
         feature: libreswan
     - vpn_describe:
-        run: nmcli/./runtest.sh vpn_describe
         feature: vpn
     - multiple_vpn_connections:
-        run: nmcli/./runtest.sh multiple_vpn_connections
         feature: vpn
     - vpn_keep_username_from_data:
-        run: nmcli/./runtest.sh vpn_keep_username_from_data
         feature: vpn
     - vpn_list_args:
-        run: nmcli/./runtest.sh vpn_list_args
         feature: vpn
     - openvpn_ipv4:
-        run: nmcli/./runtest.sh openvpn_ipv4
         feature: openvpn
     - openvpn_ipv4_neverdefault:
-        run: nmcli/./runtest.sh openvpn_ipv4_neverdefault
         feature: openvpn
     - openvpn_ipv6:
-        run: nmcli/./runtest.sh openvpn_ipv6
         feature: openvpn
     - openvpn_ipv6_neverdefault:
-        run: nmcli/./runtest.sh openvpn_ipv6_neverdefault
         feature: openvpn
     - openvpn_set_mtu:
-        run: nmcli/./runtest.sh openvpn_set_mtu
         feature: openvpn
     - openvpn_set_firewall_zone:
-        run: nmcli/./runtest.sh openvpn_set_firewall_zone
         feature: openvpn
     - openvpn_terminate:
-        run: nmcli/./runtest.sh openvpn_terminate
         feature: openvpn
     - openvpn_delete_active_connection:
-        run: nmcli/./runtest.sh openvpn_delete_active_connection
         feature: openvpn
     - openvpn_persist:
-        run: nmcli/./runtest.sh openvpn_persist
         feature: openvpn
     - vpnc_add_profile:
-        run: nmcli/./runtest.sh vpnc_add_profile
         feature: vpnc
     - vpnc_terminate:
-        run: nmcli/./runtest.sh vpnc_terminate
         feature: vpnc
     - connection_restricted_to_single_device:
-        run: nmcli/./runtest.sh connection_restricted_to_single_device
         feature: connection
     - connection_help:
-        run: nmcli/./runtest.sh connection_help
         feature: connection
     - device_autocompletion:
-        run: nmcli/./runtest.sh device_autocompletion
         feature: connection
     - connection_names_autocompletion:
-        run: nmcli/./runtest.sh connection_names_autocompletion
         feature: connection
     - connection_get_value:
-        run: nmcli/./runtest.sh connection_get_value
         feature: connection
     - connection_no_error:
-        run: nmcli/./runtest.sh connection_no_error
         feature: connection
     - connection_secondaries_restricted_to_vpn:
-        run: nmcli/./runtest.sh connection_secondaries_restricted_to_vpn
         feature: connection
     - connection_double_delete:
-        run: nmcli/./runtest.sh connection_double_delete
         feature: connection
     - connection_profile_duplication:
-        run: nmcli/./runtest.sh connection_profile_duplication
         feature: connection
     - double_connection_warning:
-        run: nmcli/./runtest.sh double_connection_warning
         feature: connection
     - connection_veth_profile_duplication:
-        run: nmcli/./runtest.sh connection_veth_profile_duplication
         feature: connection
     - connection_delete_while_editing:
-        run: nmcli/./runtest.sh connection_delete_while_editing
         feature: connection
     - connection_removal_of_disapperared_device:
-        run: nmcli/./runtest.sh connection_removal_of_disapperared_device
         feature: connection
     - connection_down:
-        run: nmcli/./runtest.sh connection_down
         feature: connection
     - connection_set_id:
-        run: nmcli/./runtest.sh connection_set_id
         feature: connection
     - connection_set_uuid_error:
-        run: nmcli/./runtest.sh connection_set_uuid_error
         feature: connection
     - connection_set_interface-name:
-        run: nmcli/./runtest.sh connection_set_interface-name
         feature: connection
     - connection_autoconnect_yes:
-        run: nmcli/./runtest.sh connection_autoconnect_yes
         feature: connection
     - connection_autoconnect_no:
-        run: nmcli/./runtest.sh connection_autoconnect_no
         feature: connection
     - connection_autoconnect_yes_without_immediate_effects:
-        run: nmcli/./runtest.sh connection_autoconnect_yes_without_immediate_effects
         feature: connection
     - ifcfg_parse_options_with_comment:
-        run: nmcli/./runtest.sh ifcfg_parse_options_with_comment
         feature: connection
     - ifcfg_compliant_with_kickstart:
-        run: nmcli/./runtest.sh ifcfg_compliant_with_kickstart
         feature: connection
     - manual_connection_with_both_ips:
-        run: nmcli/./runtest.sh manual_connection_with_both_ips
         feature: connection
     - connection_timestamp:
-        run: nmcli/./runtest.sh connection_timestamp
         feature: connection
     - connection_readonly_timestamp:
-        run: nmcli/./runtest.sh connection_readonly_timestamp
         feature: connection
     - connection_readonly_yes:
-        run: nmcli/./runtest.sh connection_readonly_yes
         feature: connection
     - connection_readonly_type:
-        run: nmcli/./runtest.sh connection_readonly_type
         feature: connection
     - connection_permission_to_user:
-        run: nmcli/./runtest.sh connection_permission_to_user
         feature: connection
     - connection_zone_drop_to_public:
-        run: nmcli/./runtest.sh connection_zone_drop_to_public
         feature: connection
     - connection_metered_manual_no:
-        run: nmcli/./runtest.sh connection_metered_manual_no
         feature: connection
     - connection_metered_manual_yes:
-        run: nmcli/./runtest.sh connection_metered_manual_yes
         feature: connection
     - connection_metered_guess_no:
-        run: nmcli/./runtest.sh connection_metered_guess_no
         feature: connection
     - connection_metered_guess_yes:
-        run: nmcli/./runtest.sh connection_metered_guess_yes
         feature: connection
     - introspection_active_connection:
-        run: nmcli/./runtest.sh introspection_active_connection
         feature: connection
     - connection_user_settings_data:
-        run: nmcli/./runtest.sh connection_user_settings_data
         feature: connection
     - connection_track_external_changes:
-        run: nmcli/./runtest.sh connection_track_external_changes
         feature: connection
     - connection_describe:
-        run: nmcli/./runtest.sh connection_describe
         feature: connection
     - route_priorities:
-        run: nmcli/./runtest.sh route_priorities
         feature: connection
     - profile_priorities:
-        run: nmcli/./runtest.sh profile_priorities
         feature: connection
     - nmcli_general_multiword_autocompletion:
-        run: nmcli/./runtest.sh nmcli_general_multiword_autocompletion
         feature: connection
     - display_allowed_values:
-        run: nmcli/./runtest.sh display_allowed_values
         feature: connection
     - device_reapply:
-        run: nmcli/./runtest.sh device_reapply
         feature: connection
     - firewall_zones_restart_persistence:
-        run: nmcli/./runtest.sh firewall_zones_restart_persistence
         feature: connection
     - lldp:
-        run: nmcli/./runtest.sh lldp
         feature: connection
     - add_default_tap_device:
-        run: nmcli/./runtest.sh add_default_tap_device
         feature: tuntap
     - add_default_tun_device:
-        run: nmcli/./runtest.sh add_default_tun_device
         feature: tuntap
     - remove_default_tuntap:
-        run: nmcli/./runtest.sh remove_default_tuntap
         feature: tuntap
     - preserve_master_and_ip_settings:
-        run: nmcli/./runtest.sh preserve_master_and_ip_settings
         feature: tuntap
     - set_fq_codel_queue:
-        run: nmcli/./runtest.sh set_fq_codel_queue
         feature: tc
     - set_pfifo_fast_queue:
-        run: nmcli/./runtest.sh set_pfifo_fast_queue
         feature: tc
     - simwifi_wpa2psk_profile:
-        run: nmcli/./runtest.sh simwifi_wpa2psk_profile
         feature: wifi_hwsim
     - simwifi_wpa2psk_no_profile:
-        run: nmcli/./runtest.sh simwifi_wpa2psk_no_profile
         feature: wifi_hwsim
     - simwifi_tls:
-        run: nmcli/./runtest.sh simwifi_tls
         feature: wifi_hwsim
     - simwifi_peap_gtc:
-        run: nmcli/./runtest.sh simwifi_peap_gtc
         feature: wifi_hwsim
     - simwifi_peap_md5:
-        run: nmcli/./runtest.sh simwifi_peap_md5
         feature: wifi_hwsim
     - simwifi_peap_mschapv2:
-        run: nmcli/./runtest.sh simwifi_peap_mschapv2
         feature: wifi_hwsim
     - simwifi_ttls_pap:
-        run: nmcli/./runtest.sh simwifi_ttls_pap
         feature: wifi_hwsim
     - simwifi_ttls_chap:
-        run: nmcli/./runtest.sh simwifi_ttls_chap
         feature: wifi_hwsim
     - simwifi_ttls_mschap:
-        run: nmcli/./runtest.sh simwifi_ttls_mschap
         feature: wifi_hwsim
     - simwifi_ttls_mschapv2:
-        run: nmcli/./runtest.sh simwifi_ttls_mschapv2
         feature: wifi_hwsim
     - simwifi_ttls_mschapv2_eap:
-        run: nmcli/./runtest.sh simwifi_ttls_mschapv2_eap
         feature: wifi_hwsim
     - simwifi_ttls_md5:
-        run: nmcli/./runtest.sh simwifi_ttls_md5
         feature: wifi_hwsim
     - simwifi_ttls_gtc:
-        run: nmcli/./runtest.sh simwifi_ttls_gtc
         feature: wifi_hwsim
     - nmclient_get_wireless_hw_property:
-        run: nmcli/./runtest.sh nmclient_get_wireless_hw_property
         feature: wifi_hwsim
     - alias_ifcfg_add_single_alias:
-        run: nmcli/./runtest.sh alias_ifcfg_add_single_alias
         feature: alias
     - alias_ifcfg_add_multiple_aliases:
-        run: nmcli/./runtest.sh alias_ifcfg_add_multiple_aliases
         feature: alias
     - alias_ifcfg_remove_single_alias:
-        run: nmcli/./runtest.sh alias_ifcfg_remove_single_alias
         feature: alias
     - alias_ifcfg_connection_restart:
-        run: nmcli/./runtest.sh alias_ifcfg_connection_restart
         feature: alias
     - alias_ifcfg_remove_all_aliases:
-        run: nmcli/./runtest.sh alias_ifcfg_remove_all_aliases
         feature: alias
     - alias_ifcfg_reboot:
-        run: nmcli/./runtest.sh alias_ifcfg_reboot
         feature: alias
     - connect_to_pppoe_via_pap:
-        run: nmcli/./runtest.sh connect_to_pppoe_via_pap
         feature: ppp
     - connect_to_pppoe_via_chap:
-        run: nmcli/./runtest.sh connect_to_pppoe_via_chap
         feature: ppp
     - disconnect_from_pppoe:
-        run: nmcli/./runtest.sh disconnect_from_pppoe
         feature: ppp
     - update_firewall_zone_upon_reconnect:
-        run: nmcli/./runtest.sh update_firewall_zone_upon_reconnect
         feature: ppp
     - pppoe_over_vlan:
-        run: nmcli/./runtest.sh pppoe_over_vlan
         feature: ppp
     - nmtui_general_start_nmtui:
         run: nmtui/./runtest.sh nmtui_general_start_nmtui
@@ -2523,484 +1835,207 @@ testmapper:
 
   NetworkManager-gsm:
     - gsm_create_default_connection:
-        run: nmcli/./runtest.sh gsm_create_default_connection
         timeout: 60m
         feature: gsm
     - gsm_disconnect:
-        run: nmcli/./runtest.sh gsm_disconnect
         timeout: 60m
         feature: gsm
     - gsm_mtu:
-        run: nmcli/./runtest.sh gsm_mtu
         timeout: 60m
         feature: gsm
     - gsm_connectivity_check:
-        run: nmcli/./runtest.sh gsm_connectivity_check
         timeout: 60m
         feature: gsm
     - gsm_load_from_file:
-        run: nmcli/./runtest.sh gsm_load_from_file
         timeout: 60m
         feature: gsm
     - gsm_create_assisted_connection:
-        run: nmcli/./runtest.sh gsm_create_assisted_connection
         timeout: 60m
         feature: gsm
 
 
   NetworkManager-wifi:
     - nmcli_wifisec_configure_and_connect_wpa1peap_profile:
-        package-deps:
-        - iw
-        run: nmcli/./runtest.sh nmcli_wifisec_configure_and_connect_wpa1peap_profile
         feature: wifi
     - nmcli_wifi_connect_to_wpa2_psk_network_without_profile:
-        package-deps:
-        - iw
-        run: nmcli/./runtest.sh nmcli_wifi_connect_to_wpa2_psk_network_without_profile
         feature: wifi
     - nmcli_wifisec_configure_and_connect_wpa1tls_profile:
-        package-deps:
-        - iw
-        run: nmcli/./runtest.sh nmcli_wifisec_configure_and_connect_wpa1tls_profile
         feature: wifi
     - nmcli_wifi_connect_to_wpa1_psk_network_without_profile:
-        package-deps:
-        - iw
-        run: nmcli/./runtest.sh nmcli_wifi_connect_to_wpa1_psk_network_without_profile
         feature: wifi
     - nmcli_wifisec_configure_and_connect_wpa1ttls_profile:
-        package-deps:
-        - iw
-        run: nmcli/./runtest.sh nmcli_wifisec_configure_and_connect_wpa1ttls_profile
         feature: wifi
     - nmcli_wifi_connect_to_open_network_without_profile:
-        package-deps:
-        - iw
-        run: nmcli/./runtest.sh nmcli_wifi_connect_to_open_network_without_profile
         feature: wifi
     - nmcli_wifisec_configure_and_connect_wpa2peap_profile:
-        package-deps:
-        - iw
-        run: nmcli/./runtest.sh nmcli_wifisec_configure_and_connect_wpa2peap_profile
         feature: wifi
     - nmcli_wifi_connect_to_wep_hexkey_network_without_profile:
-        package-deps:
-        - iw
-        run: nmcli/./runtest.sh nmcli_wifi_connect_to_wep_hexkey_network_without_profile
         feature: wifi
     - nmcli_wifisec_configure_and_connect_wpa2tls_profile:
-        package-deps:
-        - iw
-        run: nmcli/./runtest.sh nmcli_wifisec_configure_and_connect_wpa2tls_profile
         feature: wifi
     - nmcli_wifi_connect_to_wep_asciikey_network_without_profile:
-        package-deps:
-        - iw
-        run: nmcli/./runtest.sh nmcli_wifi_connect_to_wep_asciikey_network_without_profile
         feature: wifi
     - nmcli_wifisec_configure_and_connect_wpa2ttls_profile:
-        package-deps:
-        - iw
-        run: nmcli/./runtest.sh nmcli_wifisec_configure_and_connect_wpa2ttls_profile
         feature: wifi
     - nmcli_wifi_connect_to_wep_phrase_network_without_profile:
-        package-deps:
-        - iw
-        run: nmcli/./runtest.sh nmcli_wifi_connect_to_wep_phrase_network_without_profile
         feature: wifi
     - nmcli_wifisec_configure_and_connect_wep_leap_profile:
-        package-deps:
-        - iw
-        run: nmcli/./runtest.sh nmcli_wifisec_configure_and_connect_wep_leap_profile
         feature: wifi
     - nmcli_wifi_create_a_new_connection_for_an_open_network:
-        package-deps:
-        - iw
-        run: nmcli/./runtest.sh nmcli_wifi_create_a_new_connection_for_an_open_network
         feature: wifi
     - nmcli_wifisec_configure_and_connect_weptls_profile:
-        package-deps:
-        - iw
-        run: nmcli/./runtest.sh nmcli_wifisec_configure_and_connect_weptls_profile
         feature: wifi
     - nmcli_wifi_connection_up_for_an_open_network:
-        package-deps:
-        - iw
-        run: nmcli/./runtest.sh nmcli_wifi_connection_up_for_an_open_network
         feature: wifi
     - nmcli_wifisec_configure_and_connect_wepttls_profile:
-        package-deps:
-        - iw
-        run: nmcli/./runtest.sh nmcli_wifisec_configure_and_connect_wepttls_profile
         feature: wifi
     - nmcli_wifi_connection_down_for_an_open_network:
-        package-deps:
-        - iw
-        run: nmcli/./runtest.sh nmcli_wifi_connection_down_for_an_open_network
         feature: wifi
     - nmcli_wifi_infrastructure_mode_setting:
-        package-deps:
-        - iw
-        run: nmcli/./runtest.sh nmcli_wifi_infrastructure_mode_setting
         feature: wifi
     - nmcli_wifi_adhoc_open_network:
-        package-deps:
-        - iw
-        run: nmcli/./runtest.sh nmcli_wifi_adhoc_open_network
         feature: wifi
     - nmcli_wifi_ap:
-        package-deps:
-        - iw
-        run: nmcli/./runtest.sh nmcli_wifi_ap
         feature: wifi
     - nmcli_wifi_right_band:
-        package-deps:
-        - iw
-        run: nmcli/./runtest.sh nmcli_wifi_right_band
         feature: wifi
     - nmcli_wifi_right_band_80211a:
-        package-deps:
-        - iw
-        run: nmcli/./runtest.sh nmcli_wifi_right_band_80211a
         feature: wifi
     - nmcli_wifi_different_than_networks_band:
-        package-deps:
-        - iw
-        run: nmcli/./runtest.sh nmcli_wifi_different_than_networks_band
         feature: wifi
     - nmcli_wifi_setting_bogus_band:
-        package-deps:
-        - iw
-        run: nmcli/./runtest.sh nmcli_wifi_setting_bogus_band
         feature: wifi
     - nmcli_wifi_setting_wrong_ssid_over_32_bytes:
-        package-deps:
-        - iw
-        run: nmcli/./runtest.sh nmcli_wifi_setting_wrong_ssid_over_32_bytes
         feature: wifi
     - nmcli_wifi_set_channel:
-        package-deps:
-        - iw
-        run: nmcli/./runtest.sh nmcli_wifi_set_channel
         feature: wifi
     - nmcli_wifi_set_channel_under_7:
-        package-deps:
-        - iw
-        run: nmcli/./runtest.sh nmcli_wifi_set_channel_under_7
         feature: wifi
     - nmcli_wifi_set_channel_13_and_14_bz_999999:
-        package-deps:
-        - iw
-        run: nmcli/./runtest.sh nmcli_wifi_set_channel_13_and_14_bz_999999
         feature: wifi
     - nmcli_wifi_set_wrong_channel:
-        package-deps:
-        - iw
-        run: nmcli/./runtest.sh nmcli_wifi_set_wrong_channel
         feature: wifi
     - nmcli_wifi_set_bogus_channel:
-        package-deps:
-        - iw
-        run: nmcli/./runtest.sh nmcli_wifi_set_bogus_channel
         feature: wifi
     - nmcli_wifi_set_nonexistent_bssid:
-        package-deps:
-        - iw
-        run: nmcli/./runtest.sh nmcli_wifi_set_nonexistent_bssid
         feature: wifi
     - nmcli_wifi_set_bogus_bssid:
-        package-deps:
-        - iw
-        run: nmcli/./runtest.sh nmcli_wifi_set_bogus_bssid
         feature: wifi
     - nmcli_wifi_set_existing_bssid:
-        package-deps:
-        - iw
-        run: nmcli/./runtest.sh nmcli_wifi_set_existing_bssid
         feature: wifi
     - nmcli_wifi_check_rate_configuration:
-        package-deps:
-        - iw
-        run: nmcli/./runtest.sh nmcli_wifi_check_rate_configuration
         feature: wifi
     - nmcli_wifi_check_txpower_configuration:
-        package-deps:
-        - iw
-        run: nmcli/./runtest.sh nmcli_wifi_check_txpower_configuration
         feature: wifi
     - nmcli_wifi_set_bogus_txpower:
-        package-deps:
-        - iw
-        run: nmcli/./runtest.sh nmcli_wifi_set_bogus_txpower
         feature: wifi
     - nmcli_wifi_set_bogus_rate:
-        package-deps:
-        - iw
-        run: nmcli/./runtest.sh nmcli_wifi_set_bogus_rate
         feature: wifi
     - nmcli_wifi_set_matching_mac_adress:
-        package-deps:
-        - iw
-        run: nmcli/./runtest.sh nmcli_wifi_set_matching_mac_adress
         feature: wifi
     - nmcli_wifi_set_nonexistent_mac_adress:
-        package-deps:
-        - iw
-        run: nmcli/./runtest.sh nmcli_wifi_set_nonexistent_mac_adress
         feature: wifi
     - nmcli_wifi_set_bogus_mac_adress:
-        package-deps:
-        - iw
-        run: nmcli/./runtest.sh nmcli_wifi_set_bogus_mac_adress
         feature: wifi
     - nmcli_wifi_set_mac_adress_in_dashed_format_bz_1002553:
-        package-deps:
-        - iw
-        run: nmcli/./runtest.sh nmcli_wifi_set_mac_adress_in_dashed_format_bz_1002553
         feature: wifi
     - nmcli_wifi_mac_spoofing_if_hw_supported:
-        package-deps:
-        - iw
-        run: nmcli/./runtest.sh nmcli_wifi_mac_spoofing_if_hw_supported
         feature: wifi
     - nmcli_wifi_mac_adress_blacklist:
-        package-deps:
-        - iw
-        run: nmcli/./runtest.sh nmcli_wifi_mac_adress_blacklist
         feature: wifi
     - nmcli_wifi_set_mtu:
-        package-deps:
-        - iw
-        run: nmcli/./runtest.sh nmcli_wifi_set_mtu
         feature: wifi
     - nmcli_wifi_seen_bssids:
-        package-deps:
-        - iw
-        run: nmcli/./runtest.sh nmcli_wifi_seen_bssids
         feature: wifi
     - nmcli_wifi_set_and_connect_to_a_hidden_network:
-        package-deps:
-        - iw
-        run: nmcli/./runtest.sh nmcli_wifi_set_and_connect_to_a_hidden_network
         feature: wifi
     - nmcli_wifi_set_proper_hidden_property_values:
-        package-deps:
-        - iw
-        run: nmcli/./runtest.sh nmcli_wifi_set_proper_hidden_property_values
         feature: wifi
     - nmcli_wifi_set_bogus_hidden_property_values:
-        package-deps:
-        - iw
-        run: nmcli/./runtest.sh nmcli_wifi_set_bogus_hidden_property_values
         feature: wifi
     - nmcli_wifi_80211wireless_describe_all:
-        package-deps:
-        - iw
-        run: nmcli/./runtest.sh nmcli_wifi_80211wireless_describe_all
         feature: wifi
     - nmcli_wifi_describe_separately:
-        package-deps:
-        - iw
-        run: nmcli/./runtest.sh nmcli_wifi_describe_separately
         feature: wifi
     - nmcli_wifisec_80211wirelesssecurity_describe_all:
-        package-deps:
-        - iw
-        run: nmcli/./runtest.sh nmcli_wifisec_80211wirelesssecurity_describe_all
         feature: wifi
     - nmcli_wifisec_describe_separately:
-        package-deps:
-        - iw
-        run: nmcli/./runtest.sh nmcli_wifisec_describe_separately
         feature: wifi
     - nmcli_wifisec_configure_and_connect_wpa2psk_profile:
-        package-deps:
-        - iw
-        run: nmcli/./runtest.sh nmcli_wifisec_configure_and_connect_wpa2psk_profile
         feature: wifi
     - nmcli_wifisec_configure_and_connect_wpa1psk_profile:
-        package-deps:
-        - iw
-        run: nmcli/./runtest.sh nmcli_wifisec_configure_and_connect_wpa1psk_profile
         feature: wifi
     - nmcli_wifisec_configure_and_connect_wep_hex_key_profile:
-        package-deps:
-        - iw
-        run: nmcli/./runtest.sh nmcli_wifisec_configure_and_connect_wep_hex_key_profile
         feature: wifi
     - nmcli_wifisec_configure_and_connect_wep_ascii_key_profile:
-        package-deps:
-        - iw
-        run: nmcli/./runtest.sh nmcli_wifisec_configure_and_connect_wep_ascii_key_profile
         feature: wifi
     - nmcli_wifisec_configure_and_connect_wep_phrase_profile:
-        package-deps:
-        - iw
-        run: nmcli/./runtest.sh nmcli_wifisec_configure_and_connect_wep_phrase_profile
         feature: wifi
     - nmcli_wifi_remove_connection_while_up:
-        package-deps:
-        - iw
-        run: nmcli/./runtest.sh nmcli_wifi_remove_connection_while_up
         feature: wifi
     - nmcli_wifi_remove_connection_while_down:
-        package-deps:
-        - iw
-        run: nmcli/./runtest.sh nmcli_wifi_remove_connection_while_down
         feature: wifi
     - nmcli_wifisec_keymgmt_wrong_values:
-        package-deps:
-        - iw
-        run: nmcli/./runtest.sh nmcli_wifisec_keymgmt_wrong_values
         feature: wifi
     - nmcli_wifisec_weptxkeyidx_nondefault_wep_key:
-        package-deps:
-        - iw
-        run: nmcli/./runtest.sh nmcli_wifisec_weptxkeyidx_nondefault_wep_key
         feature: wifi
     - nmcli_wifisec_weptxkeyidx_bogus_key_id:
-        package-deps:
-        - iw
-        run: nmcli/./runtest.sh nmcli_wifisec_weptxkeyidx_bogus_key_id
         feature: wifi
     - nmcli_wifisec_authalg_wep_open_key:
-        package-deps:
-        - iw
-        run: nmcli/./runtest.sh nmcli_wifisec_authalg_wep_open_key
         feature: wifi
     - nmcli_wifisec_authalg_wep_shared_key:
-        package-deps:
-        - iw
-        run: nmcli/./runtest.sh nmcli_wifisec_authalg_wep_shared_key
         feature: wifi
     - nmcli_wifisec_authalg_bogus_values_and_leap_with_wrong_keymgmt:
-        package-deps:
-        - iw
-        run: nmcli/./runtest.sh nmcli_wifisec_authalg_bogus_values_and_leap_with_wrong_keymgmt
         feature: wifi
     - nmcli_wifisec_proto_rsn:
-        package-deps:
-        - iw
-        run: nmcli/./runtest.sh nmcli_wifisec_proto_rsn
         feature: wifi
     - nmcli_wifisec_proto_wpa:
-        package-deps:
-        - iw
-        run: nmcli/./runtest.sh nmcli_wifisec_proto_wpa
         feature: wifi
     - nmcli_wifisec_unmatching_proto:
-        package-deps:
-        - iw
-        run: nmcli/./runtest.sh nmcli_wifisec_unmatching_proto
         feature: wifi
     - nmcli_wifisec_pairwise_ccmp:
-        package-deps:
-        - iw
-        run: nmcli/./runtest.sh nmcli_wifisec_pairwise_ccmp
         feature: wifi
     - nmcli_wifisec_pairwise_tkip:
-        package-deps:
-        - iw
-        run: nmcli/./runtest.sh nmcli_wifisec_pairwise_tkip
         feature: wifi
     - nmcli_wifisec_unmatching_pairwise:
-        package-deps:
-        - iw
-        run: nmcli/./runtest.sh nmcli_wifisec_unmatching_pairwise
         feature: wifi
     - nmcli_wifisec_group_ccmp:
-        package-deps:
-        - iw
-        run: nmcli/./runtest.sh nmcli_wifisec_group_ccmp
         feature: wifi
     - nmcli_wifisec_group_tkip:
-        package-deps:
-        - iw
-        run: nmcli/./runtest.sh nmcli_wifisec_group_tkip
         feature: wifi
     - nmcli_wifisec_unmatching_group:
-        package-deps:
-        - iw
-        run: nmcli/./runtest.sh nmcli_wifisec_unmatching_group
         feature: wifi
     - nmcli_wifisec_set_all_wep_keys:
-        package-deps:
-        - iw
-        run: nmcli/./runtest.sh nmcli_wifisec_set_all_wep_keys
         feature: wifi
     - nmcli_wifisec_wepkeytype_autodetection_passphrase:
-        package-deps:
-        - iw
-        run: nmcli/./runtest.sh nmcli_wifisec_wepkeytype_autodetection_passphrase
         feature: wifi
     - nmcli_wifisec_psk_validity:
-        package-deps:
-        - iw
-        run: nmcli/./runtest.sh nmcli_wifisec_psk_validity
         feature: wifi
     - nmcli_wifi_add_default_connection_in_novice_nmcli_a_mode:
-        package-deps:
-        - iw
-        run: nmcli/./runtest.sh nmcli_wifi_add_default_connection_in_novice_nmcli_a_mode
         feature: wifi
     - nmcli_wifi_add_connection_in_novice_nmcli_a_mode_specifying_options:
-        package-deps:
-        - iw
-        run: nmcli/./runtest.sh nmcli_wifi_add_connection_in_novice_nmcli_a_mode_specifying_options
         feature: wifi
     - nmcli_wifi_add_connection_in_novice_nmcli_a_mode_specifying_ip_setup:
-        package-deps:
-        - iw
-        run: nmcli/./runtest.sh nmcli_wifi_add_connection_in_novice_nmcli_a_mode_specifying_ip_setup
         feature: wifi
     - nmcli_wifi_add_connection_in_novice_nmcli_a_mode_with_bogus_ip:
-        package-deps:
-        - iw
-        run: nmcli/./runtest.sh nmcli_wifi_add_connection_in_novice_nmcli_a_mode_with_bogus_ip
         feature: wifi
     - nmcli_wifi_disable_radio:
-        package-deps:
-        - iw
-        run: nmcli/./runtest.sh nmcli_wifi_disable_radio
         feature: wifi
     - nmcli_wifi_enable_radio:
-        package-deps:
-        - iw
-        run: nmcli/./runtest.sh nmcli_wifi_enable_radio
         feature: wifi
     - nmcli_wifi_keep_secrets_after_modification:
-        package-deps:
-        - iw
-        run: nmcli/./runtest.sh nmcli_wifi_keep_secrets_after_modification
         feature: wifi
     - nmcli_wifi_wpa_ask_passwd:
-        package-deps:
-        - iw
-        run: nmcli/./runtest.sh nmcli_wifi_wpa_ask_passwd
         feature: wifi
     - nmcli_wifi_wep_ask_passwd:
-        package-deps:
-        - iw
-        run: nmcli/./runtest.sh nmcli_wifi_wep_ask_passwd
         feature: wifi
     - nmcli_wifi_add_certificate_as_blob:
-        package-deps:
-        - iw
-        run: nmcli/./runtest.sh nmcli_wifi_add_certificate_as_blob
         feature: wifi
     - nmcli_wifi_dbus_invalid_cert_input:
-        package-deps:
-        - iw
-        run: nmcli/./runtest.sh nmcli_wifi_dbus_invalid_cert_input
         feature: wifi
     - nmcli_wifi_indicate_wifi_band_caps:
-        package-deps:
-        - iw
-        run: nmcli/./runtest.sh nmcli_wifi_indicate_wifi_band_caps
         feature: wifi
     - nmcli_wifi_do_not_show_device_in_list:
-        run: nmcli/./runtest.sh nmcli_wifi_do_not_show_device_in_list
         feature: nmtui-wifi
     - nmtui_wifi_see_all_networks:
         run: nmtui/./runtest.sh nmtui_wifi_see_all_networks
@@ -3105,83 +2140,57 @@ testmapper:
 
   NetworkManager-infiniband:
     - inf_create_connection:
-        run: nmcli/./runtest.sh inf_create_connection
         feature: infiniband
     - inf_create_connection_novice_mode:
-        run: nmcli/./runtest.sh inf_create_connection_novice_mode
         feature: infiniband
     - inf_disable_connection:
-        run: nmcli/./runtest.sh inf_disable_connection
         feature: infiniband
     - inf_create_port_connection:
-        run: nmcli/./runtest.sh inf_create_port_connection
         feature: infiniband
     - inf_create_port_novice_mode:
-        run: nmcli/./runtest.sh inf_create_port_novice_mode
         feature: infiniband
     - inf_disable_port:
-        run: nmcli/./runtest.sh inf_disable_port
         feature: infiniband
     - inf_enable_after_reboot:
-        run: nmcli/./runtest.sh inf_enable_after_reboot
         feature: infiniband
     - inf_internal_dhcp:
-        run: nmcli/./runtest.sh inf_internal_dhcp
         feature: infiniband
     - inf_master_in_bond:
-        run: nmcli/./runtest.sh inf_master_in_bond
         feature: infiniband
     - inf_master_in_bond_restart_persistence:
-        run: nmcli/./runtest.sh inf_master_in_bond_restart_persistence
         feature: infiniband
     - inf_down_before_mode_change:
-        run: nmcli/./runtest.sh inf_down_before_mode_change
         feature: infiniband
 
 
   NetworkManager-dcb:
     - nmcli_ethernet_wol_from_file_to_default:
-        run: nmcli/./runtest.sh nmcli_ethernet_wol_from_file_to_default
         feature: wol
     - nmcli_ethernet_wol_from_file:
-        run: nmcli/./runtest.sh nmcli_ethernet_wol_from_file
         feature: wol
     - nmcli_ethernet_wol_disable:
-        run: nmcli/./runtest.sh nmcli_ethernet_wol_disable
         feature: wol
     - nmcli_ethernet_wol_enable_magic:
-        run: nmcli/./runtest.sh nmcli_ethernet_wol_enable_magic
         feature: wol
     - nmcli_ethernet_wol_default:
-        run: nmcli/./runtest.sh nmcli_ethernet_wol_default
         feature: wol
     - dcb_enable_connection:
-        run: nmcli/./runtest.sh dcb_enable_connection
         feature: dcb
     - dcb_disable_connection:
-        run: nmcli/./runtest.sh dcb_disable_connection
         feature: dcb
     - dcb_enable_after_reboot:
-        run: nmcli/./runtest.sh dcb_enable_after_reboot
         feature: dcb
     - dcb_error_shown:
-        run: nmcli/./runtest.sh dcb_error_shown
         feature: dcb
     - sriov_enable:
-        run: nmcli/./runtest.sh sriov_enable
         feature: sriov
     - sriov_disable:
-        run: nmcli/./runtest.sh sriov_disable
         feature: sriov
     - sriov_connect:
-        run: nmcli/./runtest.sh sriov_connect
         feature: sriov
     - sriov_autoconnect:
-        run: nmcli/./runtest.sh sriov_autoconnect
         feature: sriov
     - sriov_connect_externally:
-        run: nmcli/./runtest.sh sriov_connect_externally
         feature: sriov
     - sriov_reboot_persistence:
-        run: nmcli/./runtest.sh sriov_reboot_persistence
         feature: sriov
