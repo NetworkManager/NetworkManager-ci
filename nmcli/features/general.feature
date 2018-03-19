@@ -347,7 +347,7 @@ Feature: nmcli - general
 
     @rhbz1032717
     @ver+=1.2.0 @ver-=1.7.1
-    @con_general_remove @teardown_testveth @two_bridged_veths @dhcpd
+    @con_general_remove @teardown_testveth @dhcpd
     @device_reapply_routes
     Scenario: NM - device - reapply just routes
     * Prepare simulated test "testG" device
@@ -370,7 +370,7 @@ Feature: nmcli - general
 
 
     @ver+=1.7.1 @ver-=1.10.1
-    @con_general_remove @teardown_testveth @two_bridged_veths @dhcpd
+    @con_general_remove @teardown_testveth @dhcpd
     @device_reapply_routes
     Scenario: NM - device - reapply just routes
     * Prepare simulated test "testG" device
@@ -393,7 +393,7 @@ Feature: nmcli - general
 
 
     @ver+=1.10.2  @ver-1.11
-    @con_general_remove @teardown_testveth @two_bridged_veths @dhcpd
+    @con_general_remove @teardown_testveth @dhcpd
     @device_reapply_routes
     Scenario: NM - device - reapply just routes
     * Prepare simulated test "testG" device
@@ -415,7 +415,7 @@ Feature: nmcli - general
 
 
     @ver+=1.11
-    @con_general_remove @teardown_testveth @two_bridged_veths @dhcpd
+    @con_general_remove @teardown_testveth @dhcpd
     @device_reapply_routes
     Scenario: NM - device - reapply just routes
     * Prepare simulated test "testG" device
@@ -440,7 +440,7 @@ Feature: nmcli - general
 
     @rhbz1032717
     @ver+=1.2.0 @ver-=1.10.0
-    @con_general_remove @teardown_testveth @two_bridged_veths @dhcpd
+    @con_general_remove @teardown_testveth @dhcpd
     @device_reapply_all
     Scenario: NM - device - reapply even address and gate
     * Prepare simulated test "testG" device
@@ -470,7 +470,7 @@ Feature: nmcli - general
 
     @rhbz1032717 @rhbz1505893
     @ver+=1.10.2
-    @con_general_remove @teardown_testveth @two_bridged_veths @dhcpd
+    @con_general_remove @teardown_testveth @dhcpd
     @device_reapply_all
     Scenario: NM - device - reapply even address and gate
     * Prepare simulated test "testG" device
@@ -857,30 +857,30 @@ Feature: nmcli - general
 
 
     @rhbz1109426
-    @two_bridged_veths
+    @two_bridged_veths_gen
     @veth_goes_to_unmanaged_state
     Scenario: NM - general - veth in unmanaged state
-    * Execute "ip link add test1 type veth peer name test1p"
-    Then "test1\s+ethernet\s+unmanaged.*test1p\s+ethernet\s+unmanaged" is visible with command "nmcli device"
+    * Execute "ip link add test1g type veth peer name test1gp"
+    Then "test1g\s+ethernet\s+unmanaged.*test1gp\s+ethernet\s+unmanaged" is visible with command "nmcli device"
 
 
     @rhbz1067299
-    @two_bridged_veths @peers_ns
+    @two_bridged_veths_gen @peers_ns
     @nat_from_shared_network
     Scenario: NM - general - NAT_dhcp from shared networks
-    * Execute "ip link add test1 type veth peer name test1p"
-    * Add a new connection of type "bridge" and options "ifname vethbr con-name vethbr autoconnect no"
-    * Execute "nmcli connection modify vethbr ipv4.method shared"
-    * Execute "nmcli connection modify vethbr ipv4.address 172.16.0.1/24"
-    * Bring "up" connection "vethbr"
-    * Execute "brctl addif vethbr test1p"
-    * Execute "ip link set dev test1p up"
+    * Execute "ip link add test1g type veth peer name test1gp"
+    * Add a new connection of type "bridge" and options "ifname vethbrg con-name vethbrg autoconnect no"
+    * Execute "nmcli connection modify vethbrg ipv4.method shared"
+    * Execute "nmcli connection modify vethbrg ipv4.address 172.16.0.1/24"
+    * Bring "up" connection "vethbrg"
+    * Execute "brctl addif vethbrg test1gp"
+    * Execute "ip link set dev test1gp up"
     * Execute "ip netns add peers"
-    * Execute "ip link set test1 netns peers"
-    * Execute "ip netns exec peers ip link set dev test1 up"
-    * Execute "ip netns exec peers ip addr add 172.16.0.111/24 dev test1"
+    * Execute "ip link set test1g netns peers"
+    * Execute "ip netns exec peers ip link set dev test1g up"
+    * Execute "ip netns exec peers ip addr add 172.16.0.111/24 dev test1g"
     * Execute "ip netns exec peers ip route add default via 172.16.0.1"
-    Then Execute "ip netns exec peers ping -c 2 -I test1 8.8.8.8"
+    Then Execute "ip netns exec peers ping -c 2 -I test1g 8.8.8.8"
     Then Unable to ping "172.16.0.111" from "eth0" device
 
 

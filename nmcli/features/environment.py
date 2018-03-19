@@ -1096,6 +1096,15 @@ def after_scenario(context, scenario):
             call('udevadm settle', shell=True)
             sleep(1)
 
+        if 'two_bridged_veths_gen' in scenario.tags:
+            print ("---------------------------")
+            print ("deleting veth devices")
+            call("ip link del test1g", shell=True)
+            call("ip link del test2g", shell=True)
+            call("ip link del vethbrg", shell=True)
+            call("nmcli con del test1g test2g tc1g tc2g vethbrg", shell=True)
+            sleep(1)
+
         if 'internal_DHCP' in scenario.tags:
             print ("---------------------------")
             print ("revert internal DHCP")

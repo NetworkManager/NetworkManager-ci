@@ -47,7 +47,7 @@ Feature: nmcli - vlan
 
     @rhbz1378418
     @ver+=1.4.0
-    @restart @two_bridged_veths @eth @kill_dnsmasq_vlan
+    @restart @two_bridged_veths @kill_dnsmasq_vlan
     @vlan_ipv4_ipv6_restart_persistence
     Scenario: NM - vlan - ipv4 and ipv6 restart persistence
     * Prepare veth pairs "test1" bridged over "vethbr"

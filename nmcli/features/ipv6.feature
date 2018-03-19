@@ -1071,7 +1071,7 @@
 
     @rhbz1194007
     @ver+=1.8
-    @mtu @kill_dnsmasq
+    @mtu @kill_dnsmasq_ip6
     @ipv6_set_ra_announced_mtu
     Scenario: NM - ipv6 - set RA received MTU
     * Finish "ip link add test1 type veth peer name test1p"

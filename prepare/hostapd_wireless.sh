@@ -13,8 +13,7 @@ function start_dnsmasq ()
     --pid-file=/tmp/dnsmasq_wireless.pid\
     --conf-file\
     --no-hosts\
-    --bind-interfaces\
-    --except-interface=lo\
+    --interface=wlan1\
     --clear-on-reload\
     --strict-order\
     --listen-address=10.0.254.1\
@@ -24,16 +23,16 @@ function start_dnsmasq ()
 
 }
 
-function tune_wpa_supplicant ()
-{
-    # Tune wpa_supplicat to log into journal and enable debugging
-    systemctl stop wpa_supplicant
-    sed -i.bak s/^INTERFACES.*/INTERFACES=\"-iwlan1\"/ /etc/sysconfig/wpa_supplicant
-    cp -rf /usr/lib/systemd/system/wpa_supplicant.service /etc/systemd/system/wpa_supplicant.service
-    sed -i 's!ExecStart=/usr/sbin/wpa_supplicant -u -f /var/log/wpa_supplicant.log -c /etc/wpa_supplicant/wpa_supplicant.conf!ExecStart=/usr/sbin/wpa_supplicant -u -c /etc/wpa_supplicant/wpa_supplicant.conf!' /etc/systemd/system/wpa_supplicant.service
-    sed -i 's!OTHER_ARGS="-P /var/run/wpa_supplicant.pid"!OTHER_ARGS="-P /var/run/wpa_supplicant.pid -ddddK"!' /etc/sysconfig/wpa_supplicant
-
-}
+# function tune_wpa_supplicant ()
+# {
+#     # Tune wpa_supplicat to log into journal and enable debugging
+#     systemctl stop wpa_supplicant
+#     sed -i.bak s/^INTERFACES.*/INTERFACES=\"-iwlan1\"/ /etc/sysconfig/wpa_supplicant
+#     cp -rf /usr/lib/systemd/system/wpa_supplicant.service /etc/systemd/system/wpa_supplicant.service
+#     sed -i 's!ExecStart=/usr/sbin/wpa_supplicant -u -f /var/log/wpa_supplicant.log -c /etc/wpa_supplicant/wpa_supplicant.conf!ExecStart=/usr/sbin/wpa_supplicant -u -c /etc/wpa_supplicant/wpa_supplicant.conf!' /etc/systemd/system/wpa_supplicant.service
+#     sed -i 's!OTHER_ARGS="-P /var/run/wpa_supplicant.pid"!OTHER_ARGS="-P /var/run/wpa_supplicant.pid -ddddK"!' /etc/sysconfig/wpa_supplicant
+#
+# }
 
 function write_hostapd_cfg ()
 {
@@ -106,20 +105,50 @@ function start_nm_hostapd ()
         exit 1
     fi
 }
+
+function wireless_hostapd_check ()
+{
+    need_setup=0
+
+    # Check running dnsmasq
+    echo "* Checking dnsmasqs"
+    pid=$(cat /tmp/dnsmasq_wireless.pid)
+    if ! pidof dnsmasq |grep -q $pid; then
+        echo "Not OK!!"
+        need_setup=1
+    fi
+    echo "* Checking nm-hostapd"
+    if ! systemctl is-active nm-hostapd -q; then
+        echo "Not OK!!"
+        need_setup=1
+    fi
+    echo "* Checking wlan0"
+    if ! nmcli device show wlan0 |grep -q connected; then
+        echo "Not OK!!"
+        need_setup=1
+    fi
+    if [ $need_setup -eq 1 ]; then
+        rm -rf /tmp/nm_wpa_supp_configured
+        # Teardown just in case something went wrong
+        wireless_hostapd_teardown
+        return 1
+    fi
+
+    return 0
+
+}
 function wireless_hostapd_setup ()
 {
+    set +x
     CERTS_PATH=$1
 
     echo "Configuring hostapd 8021x server..."
 
     if [ "$2" == "wpa2" ]; then
-        if [ -e /tmp/nm_wpa_supp_configured ]; then
+        if  wireless_hostapd_check; then
             echo "Not needed, continuing"
             return
         else
-            # Teardown just in case something went wrong
-            wireless_hostapd_teardown
-
             # Install haveged to increase entropy
             yum -y install haveged
             systemctl restart haveged
@@ -154,6 +183,7 @@ function wireless_hostapd_setup ()
 
 function wireless_hostapd_teardown ()
 {
+    set -x
     kill $(cat /tmp/dnsmasq_wireless.pid)
     if systemctl --quiet is-failed nm-hostapd; then
         systemctl reset-failed nm-hostapd
