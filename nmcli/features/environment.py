@@ -1112,6 +1112,7 @@ def after_scenario(context, scenario):
             print ("deleting veth devices")
             call("sudo systemctl stop radvd", shell=True)
             call('rm -rf /etc/radvd.conf', shell=True)
+
         if 'mtu' in scenario.tags:
             print ("---------------------------")
             print ("deleting veth devices from mtu test")
@@ -1133,10 +1134,20 @@ def after_scenario(context, scenario):
             call("nmcli connection delete id inf", shell=True)
             call("nmcli connection delete id inf2", shell=True)
 
-        if 'kill_dnsmasq' in scenario.tags:
+        if 'kill_dnsmasq_vlan' in scenario.tags:
             print ("---------------------------")
             print ("kill dnsmasq")
-            call("kill $(cat /tmp/dnsmasq.pid)", shell=True)
+            call("kill $(cat /tmp/dnsmasq_vlan.pid)", shell=True)
+
+        if 'kill_dnsmasq_ip4' in scenario.tags:
+            print ("---------------------------")
+            print ("kill dnsmasq")
+            call("kill $(cat /tmp/dnsmasq_ip4.pid)", shell=True)
+
+        if 'kill_dnsmasq_ip6' in scenario.tags:
+            print ("---------------------------")
+            print ("kill dnsmasq")
+            call("kill $(cat /tmp/dnsmasq_ip6.pid)", shell=True)
 
         if 'kill_dhcrelay' in scenario.tags:
             print ("---------------------------")
@@ -1542,6 +1553,12 @@ def after_scenario(context, scenario):
             print ("restoring testeth1 profile")
             call('sudo nmcli connection delete eth5 eth5 eth5 testeth5', shell=True)
             call('sudo nmcli connection add type ethernet con-name testeth5 ifname eth5 autoconnect no', shell=True)
+
+        if 'add_testeth8' in scenario.tags:
+            print ("---------------------------")
+            print ("restoring testeth1 profile")
+            call('sudo nmcli connection delete eth8 eth8 eth8 testeth8', shell=True)
+            call('sudo nmcli connection add type ethernet con-name testeth8 ifname eth8 autoconnect no', shell=True)
 
         if 'eth1_disconnect' in scenario.tags:
             print ("---------------------------")

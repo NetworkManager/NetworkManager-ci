@@ -47,14 +47,14 @@ Feature: nmcli - vlan
 
     @rhbz1378418
     @ver+=1.4.0
-    @restart @two_bridged_veths @eth @kill_dnsmasq
+    @restart @two_bridged_veths @eth @kill_dnsmasq_vlan
     @vlan_ipv4_ipv6_restart_persistence
     Scenario: NM - vlan - ipv4 and ipv6 restart persistence
     * Prepare veth pairs "test1" bridged over "vethbr"
     * Add a new connection of type "ethernet" and options "ifname test1 con-name vlan1 ipv4.method disabled ipv6.method ignore"
     * Add a new connection of type "vlan" and options "dev vethbr id 100 con-name tc1 ipv4.method manual ipv4.addresses 10.1.0.1/24 ipv6.method manual ipv6.addresses 1::1/64"
     * Wait for at least "3" seconds
-    * Run child "dnsmasq --dhcp-range=10.1.0.10,10.1.0.15,2m --pid-file=/tmp/dnsmasq.pid --dhcp-range=1::100,1::fff,slaac,64,2m --enable-ra --interface=vethbr.100 --bind-interfaces"
+    * Run child "dnsmasq --dhcp-range=10.1.0.10,10.1.0.15,2m --pid-file=/tmp/dnsmasq_vlan.pid --dhcp-range=1::100,1::fff,slaac,64,2m --enable-ra --interface=vethbr.100 --bind-interfaces"
     * Add a new connection of type "vlan" and options "dev test1 id 100 con-name tc2"
     * Execute "ip add add 1::666/128 dev test1"
     * Wait for at least "5" seconds
@@ -293,7 +293,7 @@ Feature: nmcli - vlan
 
     @rhbz1376199
     @ver+=1.8.0
-    @restart @vlan 
+    @restart @vlan
     @vlan_not_stalled_after_connection_delete
     Scenario: nmcli - vlan - delete vlan device after restart
     * Add a new connection of type "vlan" and options "con-name vlan dev eth7 id 80"

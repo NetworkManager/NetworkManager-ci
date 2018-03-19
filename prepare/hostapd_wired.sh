@@ -26,7 +26,7 @@ function hostapd_setup ()
     ip link set dev test8Yp up
 
     # Create a connection which (in cooperation with dnsmasq) provides DHCP functionlity
-    nmcli connection add type ethernet con-name DHCP_test8Y ifname test8Y ip4 10.0.0.1/24
+    nmcli connection add type ethernet con-name DHCP_test8Y ifname test8Y ip4 10.0.253.1/24
     nmcli connection up id DHCP_test8Y
 
 
@@ -94,16 +94,16 @@ private_key_passwd=redhat " > $HOSTAPD_CFG
 
     echo "Start DHCP server (dnsmasq)"
     /usr/sbin/dnsmasq\
-    --pid-file=/tmp/dnsmasq.pid\
+    --pid-file=/tmp/dnsmasq_wired.pid\
     --conf-file\
     --no-hosts\
     --bind-interfaces\
     --except-interface=lo\
     --clear-on-reload\
     --strict-order\
-    --listen-address=10.0.0.1\
-    --dhcp-range=10.0.0.10,10.0.0.200,10m\
-    --dhcp-option=option:router,10.0.0.1\
+    --listen-address=10.0.253.1\
+    --dhcp-range=10.0.253.10,10.0.253.200,10m\
+    --dhcp-option=option:router,10.0.253.1\
     --dhcp-lease-max=190
 
     # Start 802.1x authentication and built-in RADIUS server.
@@ -113,7 +113,7 @@ private_key_passwd=redhat " > $HOSTAPD_CFG
 }
 function hostapd_teardown ()
 {
-    kill $(cat /tmp/dnsmasq.pid)
+    kill $(cat /tmp/dnsmasq_wired.pid)
     kill $(cat /tmp/hostapd.pid)
     ip link del test8Yp
     ip link del test8Xp

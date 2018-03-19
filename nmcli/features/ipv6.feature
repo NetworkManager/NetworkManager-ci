@@ -1089,7 +1089,7 @@
     * Finish "nmcli connection add type ethernet con-name tc2 ifname test2 autoconnect no mtu 1100 ip6 fd01::1/64"
     * Bring "up" connection "tc2"
     When "test2:connected:tc2" is visible with command "nmcli -t -f DEVICE,STATE,CONNECTION device" in "10" seconds
-    * Execute "/usr/sbin/dnsmasq --pid-file=/tmp/dnsmasq.pid --no-resolv --bind-interfaces -i test2 --enable-ra --dhcp-range=::1,::400,constructor:test2,ra-only,64,15s"
+    * Execute "/usr/sbin/dnsmasq --pid-file=/tmp/dnsmasq_ip6.pid --no-resolv --bind-interfaces -i test2 --enable-ra --dhcp-range=::1,::400,constructor:test2,ra-only,64,15s"
     * Bring "up" connection "tc1"
     Then "1280" is visible with command "sysctl net.ipv6.conf.test1.mtu" in "5" seconds
 

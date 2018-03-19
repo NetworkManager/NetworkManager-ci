@@ -10,16 +10,16 @@ function start_dnsmasq ()
 {
     echo "Start DHCP server (dnsmasq)"
     /usr/sbin/dnsmasq\
-    --pid-file=/tmp/dnsmasq.pid\
+    --pid-file=/tmp/dnsmasq_wireless.pid\
     --conf-file\
     --no-hosts\
     --bind-interfaces\
     --except-interface=lo\
     --clear-on-reload\
     --strict-order\
-    --listen-address=10.0.0.1\
-    --dhcp-range=10.0.0.10,10.0.0.100,60m\
-    --dhcp-option=option:router,10.0.0.1\
+    --listen-address=10.0.254.1\
+    --dhcp-range=10.0.254.10,10.0.254.100,60m\
+    --dhcp-option=option:router,10.0.254.1\
     --dhcp-lease-max=50
 
 }
@@ -95,7 +95,7 @@ function restart_services ()
 {
     systemctl daemon-reload
     systemctl restart wpa_supplicant
-    systemctl restart NetworkManager
+    systemctl reload NetworkManager
 }
 
 function start_nm_hostapd ()
@@ -117,6 +117,9 @@ function wireless_hostapd_setup ()
             echo "Not needed, continuing"
             return
         else
+            # Teardown just in case something went wrong
+            wireless_hostapd_teardown
+
             # Install haveged to increase entropy
             yum -y install haveged
             systemctl restart haveged
@@ -131,7 +134,7 @@ function wireless_hostapd_setup ()
             restart_services
             sleep 10
             nmcli device set wlan1 managed off
-            ip add add 10.0.0.1/24 dev wlan1
+            ip add add 10.0.254.1/24 dev wlan1
             sleep 5
 
             write_hostapd_cfg $HOSTAPD_CFG $EAP_USERS_FILE
@@ -151,7 +154,7 @@ function wireless_hostapd_setup ()
 
 function wireless_hostapd_teardown ()
 {
-    kill $(cat /tmp/dnsmasq.pid)
+    kill $(cat /tmp/dnsmasq_wireless.pid)
     if systemctl --quiet is-failed nm-hostapd; then
         systemctl reset-failed nm-hostapd
     fi
@@ -162,7 +165,7 @@ function wireless_hostapd_teardown ()
     [ -f /run/hostapd/wlan1 ] && rm -rf /run/hostapd/wlan1
     rm -rf /tmp/nm_wpa_supp_configured
     rm -rf /etc/NetworkManager/conf.d/99-wifi.conf
-    systemctl restart NetworkManager
+    systemctl reload NetworkManager
 
 }
 
