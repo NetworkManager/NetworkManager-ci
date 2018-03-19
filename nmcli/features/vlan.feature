@@ -69,6 +69,7 @@ Feature: nmcli - vlan
      And "inet6 fe80" is visible with command "ip a s test1.100"
 
 
+
     @vlan
     @vlan_remove_connection
     Scenario: nmcli - vlan - remove connection
