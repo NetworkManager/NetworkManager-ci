@@ -408,7 +408,7 @@ Feature: nmcli - general
     * Save in editor
     * Execute "nmcli device reapply testG"
     Then "1010::1 via 2000::1 dev testG\s+proto static\s+metric 1" is visible with command "ip -6 route" in "5" seconds
-     And "2000::/126 dev testG\s+proto kernel\s+metric 101" is visible with command "ip -6 route"
+     And "2000::/126 dev testG\s+proto kernel\s+metric 1" is visible with command "ip -6 route"
      And "192.168.5.0/24 via 192.168.99.111 dev testG\s+proto static\s+metric" is visible with command "ip route"
      And "routers = 192.168.99.1" is visible with command "nmcli con show con_general"
      And "default via 192.168.99.1 dev testG\s+proto dhcp\s+metric 21" is visible with command "ip r"
@@ -430,7 +430,7 @@ Feature: nmcli - general
     * Save in editor
     * Execute "nmcli device reapply testG"
     Then "1010::1 via 2000::1 dev testG\s+proto static\s+metric 1" is visible with command "ip -6 route" in "5" seconds
-     And "2000::/126 dev testG\s+proto kernel\s+metric 101" is visible with command "ip -6 route"
+     And "2000::/126 dev testG\s+proto kernel\s+metric 1" is visible with command "ip -6 route"
      And "192.168.5.0/24 via 192.168.99.111 dev testG\s+proto static\s+metric" is visible with command "ip route"
      And "routers = 192.168.99.1" is visible with command "nmcli con show con_general"
      # Metric still cannot be changed when dhcp is used. Bug #1528071
@@ -489,7 +489,7 @@ Feature: nmcli - general
     * Execute "ip netns exec testG_ns kill -SIGSTOP $(cat /tmp/testG_ns.pid)"
     * Execute "nmcli device reapply testG"
     Then "1010::1 via 2000::1 dev testG\s+proto static\s+metric 1" is visible with command "ip -6 route" in "5" seconds
-     And "2000::/126 dev testG\s+proto kernel\s+metric 101" is visible with command "ip -6 route"
+     And "2000::/126 dev testG\s+proto kernel\s+metric 1" is visible with command "ip -6 route"
      And "192.168.3.0/24 dev testG\s+proto kernel\s+scope link\s+src 192.168.3.10 metric 21" is visible with command "ip route"
      And "192.168.4.1 dev testG\s+proto static\s+scope link\s+metric 21" is visible with command "ip route"
      And "192.168.5.0/24 via 192.168.3.11 dev testG\s+proto static\s+metric 1" is visible with command "ip route"

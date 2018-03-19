@@ -1317,7 +1317,7 @@ def prepare_veths(context, pairs_array, bridge):
     command_code(context, "sudo ip link set dev %s up"% bridge)
     for pair in pairs:
         command_code(context, "ip link add %s type veth peer name %sp" %(pair, pair))
-        command_code(context, "brctl addif vethbr %sp" %pair)
+        command_code(context, "brctl addif %s %sp" %(bridge, pair))
         command_code(context, "ip link set dev %s up" % pair)
         command_code(context, "ip link set dev %sp up" % pair)
 

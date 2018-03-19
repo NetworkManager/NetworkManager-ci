@@ -1096,6 +1096,18 @@ def after_scenario(context, scenario):
             call('udevadm settle', shell=True)
             sleep(1)
 
+        if 'two_bridged_veths6' in scenario.tags:
+            print ("---------------------------")
+            print ("deleting veth devices")
+            call("nmcli connection delete id tc16 tc26 test10 test11 vethbr6", shell=True)
+            call("ip link del test11", shell=True)
+            call("ip link del test10", shell=True)
+            call("ip link del vethbr6", shell=True)
+            call('rm -f /etc/udev/rules.d/88-lr.rules', shell=True)
+            call('udevadm control --reload-rules', shell=True)
+            call('udevadm settle', shell=True)
+            sleep(1)
+
         if 'two_bridged_veths_gen' in scenario.tags:
             print ("---------------------------")
             print ("deleting veth devices")
@@ -1125,13 +1137,13 @@ def after_scenario(context, scenario):
         if 'mtu' in scenario.tags:
             print ("---------------------------")
             print ("deleting veth devices from mtu test")
-            call("nmcli connection delete id tc1 tc2", shell=True)
+            call("nmcli connection delete id tc1 tc2 tc16 tc26", shell=True)
             call("ip link delete test1", shell=True)
             call("ip link delete test2", shell=True)
-            call("ip link delete test1", shell=True)
-            call("ip link delete test2", shell=True)
-            call("ip link set dev vethbr down", shell=True)
-            call("brctl delbr vethbr", shell=True)
+            call("ip link delete test10", shell=True)
+            call("ip link delete test11", shell=True)
+            call("ip link del vethbr", shell=True)
+            call("ip link del vethbr6", shell=True)
             call("kill -9 $(ps aux|grep '/usr/sbin/dns' |grep 192.168 |grep -v grep |awk '{print $2}')", shell=True)
             call("kill -9 $(ps aux|grep '/usr/sbin/dns' |grep 192.168 |grep -v grep |awk '{print $2}')", shell=True)
 
@@ -1257,7 +1269,7 @@ def after_scenario(context, scenario):
             print ("---------------------------")
             print ("deleting wifi connections")
             #teardown_hostapd_wireless()
-            call("nmcli con del wpa2-eap wifi", shell=True)
+            call("nmcli con del wpa2-eap wifi", shell=True)                
 
         if 'simwifi_wpa2_teardown' in scenario.tags:
             print ("---------------------------")

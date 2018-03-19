@@ -141,7 +141,8 @@ Feature: nmcli: ipv4
     Then "192.168.122.253/24" is visible with command "ip a s eth3"
     Then "default via 192.168.122.96 dev eth3\s+proto static\s+metric" is visible with command "ip route"
     Then "192.168.122.0/24 dev eth3\s+proto kernel\s+scope link\s+src 192.168.122.253" is visible with command "ip route"
-    Then "2" is visible with command "ip r |grep 'default via 1' |wc -l"
+    Then "eth0" is visible with command "ip r |grep 'default via 1'" in "5" seconds
+    Then "eth3" is visible with command "ip r |grep 'default via 1'" in "5" seconds
 
 
     @con_ipv4_remove @eth0
@@ -160,7 +161,8 @@ Feature: nmcli: ipv4
     Then "192.168.122.253/16" is visible with command "ip a s eth3"
     Then "192.168.222.253/8" is visible with command "ip a s eth3"
     Then "default via 192.168.22.96 dev eth3\s+proto static\s+metric" is visible with command "ip route"
-    Then "1" is visible with command "ip r |grep 'default via 1' |wc -l"
+    Then "eth0" is not visible with command "ip r |grep 'default via 1'" in "5" seconds
+    Then "eth3" is visible with command "ip r |grep 'default via 1'" in "5" seconds
 
 
     @rhbz663730
@@ -175,16 +177,16 @@ Feature: nmcli: ipv4
      * Execute "nmcli con modify con_ipv42 ipv4.may-fail no"
      * Bring "up" connection "con_ipv4"
      * Bring "up" connection "con_ipv42"
-     When "metric 101" is visible with command "ip r |grep default |grep eth2" in "10" seconds
-     When "metric 102" is visible with command "ip r |grep default |grep eth3" in "10" seconds
+     When "metric 1" is visible with command "ip r |grep default |grep eth2" in "10" seconds
+     When "metric 1" is visible with command "ip r |grep default |grep eth3" in "10" seconds
      * Execute "nmcli con modify con_ipv42 ipv4.route-metric 200"
      * Bring "up" connection "con_ipv42"
-     When "metric 101" is visible with command "ip r |grep default |grep eth2" in "10" seconds
+     When "metric 1" is visible with command "ip r |grep default |grep eth2" in "10" seconds
      When "metric 200" is visible with command "ip r |grep default |grep eth3" in "10" seconds
      * Execute "nmcli con modify con_ipv42 ipv4.route-metric -1"
      * Bring "up" connection "con_ipv42"
-     When "metric 101" is visible with command "ip r |grep default |grep eth2" in "10" seconds
-     When "metric 102" is visible with command "ip r |grep default |grep eth3" in "10" seconds
+     When "metric 1" is visible with command "ip r |grep default |grep eth2" in "10" seconds
+     When "metric 1" is visible with command "ip r |grep default |grep eth3" in "10" seconds
 
 
     @rhbz663730
@@ -198,16 +200,16 @@ Feature: nmcli: ipv4
      * Execute "nmcli con modify con_ipv42 ipv4.may-fail no"
      * Bring "up" connection "con_ipv4"
      * Bring "up" connection "con_ipv42"
-     When "metric 101" is visible with command "ip r |grep default |grep eth2"
-     When "metric 102" is visible with command "ip r |grep default |grep eth3"
+     When "metric 1" is visible with command "ip r |grep default |grep eth2"
+     When "metric 1" is visible with command "ip r |grep default |grep eth3"
      * Execute "nmcli con modify con_ipv42 ipv4.route-metric 200"
      * Bring "up" connection "con_ipv42"
-     When "metric 101" is visible with command "ip r |grep default |grep eth2"
+     When "metric 1" is visible with command "ip r |grep default |grep eth2"
      When "metric 200" is visible with command "ip r |grep default |grep eth3"
      * Execute "nmcli con modify con_ipv42 ipv4.route-metric -1"
      * Bring "up" connection "con_ipv42"
-     When "metric 101" is visible with command "ip r |grep default |grep eth2"
-     When "metric 102" is visible with command "ip r |grep default |grep eth3"
+     When "metric 1" is visible with command "ip r |grep default |grep eth2"
+     When "metric 1" is visible with command "ip r |grep default |grep eth3"
 
 
     @con_ipv4_remove
@@ -403,15 +405,15 @@ Feature: nmcli: ipv4
     When "connected" is visible with command "nmcli -g state,device device |grep eth3$" in "20" seconds
     # This is cripppled in kernel VVV 1535977
     # Then "default" is visible with command "ip r show table 300"
-     And "192.168.100.0\/24 dev eth3 proto kernel scope link src 192.168.100.* metric 10[0-2]" is visible with command "ip r show table 300"
+     And "192.168.100.0\/24 dev eth3 proto kernel scope link src 192.168.100.* metric 1" is visible with command "ip r show table 300"
      And "eth3" is not visible with command "ip r"
     * Execute "ip route add table 300 10.20.30.0/24 via $(nmcli -g IP4.ADDRESS con show con_ipv4 |awk -F '/' '{print $1}') dev eth3"
     When "10.20.30.0\/24 via 192.168.100.* dev eth3" is visible with command "ip r show table 300"
-     And "192.168.100.0\/24 dev eth3 proto kernel scope link src 192.168.100.* metric 10[0-2]" is visible with command "ip r show table 300"
+     And "192.168.100.0\/24 dev eth3 proto kernel scope link src 192.168.100.* metric 1" is visible with command "ip r show table 300"
     * Bring "up" connection "con_ipv4"
     When "connected" is visible with command "nmcli -g state,device device |grep eth3$" in "20" seconds
     Then "10.20.30.0\/24 via 192.168.100.* dev eth3" is not visible with command "ip r show table 300"
-     And "192.168.100.0\/24 dev eth3 proto kernel scope link src 192.168.100.* metric 10[0-2]" is visible with command "ip r show table 300"
+     And "192.168.100.0\/24 dev eth3 proto kernel scope link src 192.168.100.* metric 1" is visible with command "ip r show table 300"
      And "eth3" is not visible with command "ip r"
 
 
@@ -424,14 +426,14 @@ Feature: nmcli: ipv4
     When "connected" is visible with command "nmcli -g state,device device |grep eth3$" in "20" seconds
     # This is cripppled in kernel VVV 1535977
     # Then "default" is visible with command "ip r show table 300"
-     And "192.168.100.0\/24 dev eth3 proto kernel scope link src 192.168.100.* metric 10" is visible with command "ip r show"
+     And "192.168.100.0\/24 dev eth3 proto kernel scope link src 192.168.100.* metric 1" is visible with command "ip r show"
     * Execute "ip route add table 300 10.20.30.0/24 via $(nmcli -g IP4.ADDRESS con show con_ipv4 |awk -F '/' '{print $1}') dev eth3"
     When "10.20.30.0\/24 via 192.168.100.* dev eth3" is visible with command "ip r show table 300"
-     And "192.168.100.0\/24 dev eth3 proto kernel scope link src 192.168.100.* metric 10" is visible with command "ip r show"
+     And "192.168.100.0\/24 dev eth3 proto kernel scope link src 192.168.100.* metric 1" is visible with command "ip r show"
     * Execute "nmcli device reapply eth3"
     When "connected" is visible with command "nmcli -g state,device device |grep eth3$" in "20" seconds
     Then "10.20.30.0\/24 via 192.168.100.* dev eth3" is visible with command "ip r show table 300"
-     And "192.168.100.0\/24 dev eth3 proto kernel scope link src 192.168.100.* metric 10" is visible with command "ip r show"
+     And "192.168.100.0\/24 dev eth3 proto kernel scope link src 192.168.100.* metric 1" is visible with command "ip r show"
 
 
     @rhbz1503769
@@ -444,7 +446,7 @@ Feature: nmcli: ipv4
      And "default" is visible with command "ip r |grep eth3"
     * Execute "ip route delete default dev eth3"
     When "default" is not visible with command "ip r |grep eth3"
-    * Execute "ip route add default via 192.168.100.1 metric 103"
+    * Execute "ip route add default via 192.168.100.1 metric 1"
     Then "default" is visible with command "ip r |grep eth3"
 
 
@@ -458,7 +460,7 @@ Feature: nmcli: ipv4
     * Submit "set ipv4.method static" in editor
     * Submit "set ipv4.addresses 192.168.3.10/24" in editor
     * Submit "set ipv4.gateway 192.168.4.1" in editor
-    * Submit "set ipv4.routes 192.168.5.0/24 192.168.3.11 1" in editor
+    * Submit "set ipv4.routes 192.168.5.0/24 192.168.3.11 3" in editor
     * Save in editor
     * Quit editor
     * Add connection type "ethernet" named "con_ipv42" for device "eth2"
@@ -481,13 +483,13 @@ Feature: nmcli: ipv4
     * Save in editor
     * Quit editor
     * Bring "up" connection "con_ipv42"
-    Then "default via 192.168.4.1 dev eth3\s+proto static\s+metric 10[0-2]" is visible with command "ip route" in "5" seconds
-    Then "default via 192.168.4.1 dev eth2\s+proto static\s+metric 10[0-2]" is visible with command "ip route" in "5" seconds
+    Then "default via 192.168.4.1 dev eth3\s+proto static\s+metric 1" is visible with command "ip route" in "5" seconds
+    Then "default via 192.168.4.1 dev eth2\s+proto static\s+metric 1" is visible with command "ip route" in "5" seconds
     Then "192.168.1.0/24 dev eth2\s+proto kernel\s+scope link\s+src 192.168.1.10" is visible with command "ip route"
-    Then "192.168.2.0/24 via 192.168.1.11 dev eth2\s+proto static\s+metric 2" is not visible with command "ip route"
+    Then "192.168.2.0/24 via 192.168.1.11 dev eth2\s+proto static\s+metric 3" is not visible with command "ip route"
     Then "192.168.3.0/24 dev eth3\s+proto kernel\s+scope link\s+src 192.168.3.10" is visible with command "ip route"
-    Then "192.168.4.1 dev eth3\s+proto static\s+scope link\s+metric 10[0-1]" is visible with command "ip route"
-    Then "192.168.4.1 dev eth2\s+proto static\s+scope link\s+metric 10[0-1]" is visible with command "ip route"
+    Then "192.168.4.1 dev eth3\s+proto static\s+scope link\s+metric 1" is visible with command "ip route"
+    Then "192.168.4.1 dev eth2\s+proto static\s+scope link\s+metric 1" is visible with command "ip route"
     Then "192.168.5.0/24 via 192.168.3.11 dev eth3\s+proto static\s+metric 1" is not visible with command "ip route"
 
 
@@ -501,7 +503,7 @@ Feature: nmcli: ipv4
     * Submit "set ipv4.method static" in editor
     * Submit "set ipv4.addresses 192.168.3.10/24" in editor
     * Submit "set ipv4.gateway 192.168.4.1" in editor
-    * Submit "set ipv4.routes 192.168.5.0/24 192.168.3.11 1" in editor
+    * Submit "set ipv4.routes 192.168.5.0/24 192.168.3.11 200" in editor
     * Save in editor
     * Quit editor
     * Add connection type "ethernet" named "con_ipv42" for device "eth2"
@@ -509,7 +511,7 @@ Feature: nmcli: ipv4
     * Submit "set ipv4.method static" in editor
     * Submit "set ipv4.addresses 192.168.1.10/24" in editor
     * Submit "set ipv4.gateway 192.168.4.1" in editor
-    * Submit "set ipv4.routes 192.168.2.0/24 192.168.1.11 2" in editor
+    * Submit "set ipv4.routes 192.168.2.0/24 192.168.1.11 300" in editor
     * Save in editor
     * Quit editor
     * Open editor for connection "con_ipv4"
@@ -524,14 +526,14 @@ Feature: nmcli: ipv4
     * Save in editor
     * Quit editor
     * Bring "up" connection "con_ipv42"
-    Then "default via 192.168.4.1 dev eth3\s+proto static\s+metric 10[3-9]" is visible with command "ip route" in "5" seconds
-    Then "default via 192.168.4.1 dev eth2\s+proto static\s+metric 10[4-9]" is visible with command "ip route" in "5" seconds
+    Then "default via 192.168.4.1 dev eth3\s+proto static\s+metric 1" is visible with command "ip route" in "5" seconds
+    Then "default via 192.168.4.1 dev eth2\s+proto static\s+metric 1" is visible with command "ip route" in "5" seconds
     Then "192.168.1.0/24 dev eth2\s+proto kernel\s+scope link\s+src 192.168.1.10" is visible with command "ip route"
-    Then "192.168.2.0/24 via 192.168.1.11 dev eth2\s+proto static\s+metric 2" is not visible with command "ip route"
+    Then "192.168.2.0/24 via 192.168.1.11 dev eth2\s+proto static\s+metric 200" is not visible with command "ip route"
     Then "192.168.3.0/24 dev eth3\s+proto kernel\s+scope link\s+src 192.168.3.10" is visible with command "ip route"
-    Then "192.168.4.1 dev eth3\s+proto static\s+scope link\s+metric 10[3-9]" is visible with command "ip route"
-    Then "192.168.4.1 dev eth2\s+proto static\s+scope link\s+metric 10[4-9]" is visible with command "ip route"
-    Then "192.168.5.0/24 via 192.168.3.11 dev eth3\s+proto static\s+metric 1" is not visible with command "ip route"
+    Then "192.168.4.1 dev eth3\s+proto static\s+scope link\s+metric 1" is visible with command "ip route"
+    Then "192.168.4.1 dev eth2\s+proto static\s+scope link\s+metric 1" is visible with command "ip route"
+    Then "192.168.5.0/24 via 192.168.3.11 dev eth3\s+proto static\s+metric 300      " is not visible with command "ip route"
 
 
     @con_ipv4_remove @eth0
@@ -1720,8 +1722,8 @@ Feature: nmcli: ipv4
     * Execute "echo 1 > /proc/sys/net/ipv4/conf/eth3/rp_filter"
     * Add a new connection of type "ethernet" and options "con-name con_ipv4 ifname eth2 ip4 192.168.11.1/24"
     * Add a new connection of type "ethernet" and options "con-name con_ipv42 ifname eth3 ip4 192.168.11.2/24"
-    When "192.168.11.0/24 dev eth2.*src 192.168.11.1\s+metric 100" is visible with command "ip r" in "5" seconds
-     And "192.168.11.0/24 dev eth3.*src 192.168.11.2\s+metric 101" is visible with command "ip r" in "5" seconds
+    When "192.168.11.0/24 dev eth2.*src 192.168.11.1\s+metric 1" is visible with command "ip r" in "5" seconds
+     And "192.168.11.0/24 dev eth3.*src 192.168.11.2\s+metric 1" is visible with command "ip r" in "5" seconds
     Then "1" is visible with command "cat /proc/sys/net/ipv4/conf/eth2/rp_filter"
      And "2" is visible with command "cat /proc/sys/net/ipv4/conf/eth3/rp_filter"
 
@@ -1736,8 +1738,8 @@ Feature: nmcli: ipv4
     * Execute "echo 1 > /proc/sys/net/ipv4/conf/eth3/rp_filter"
     * Add a new connection of type "ethernet" and options "con-name con_ipv4 ifname eth2 ip4 192.168.11.1/24"
     * Add a new connection of type "ethernet" and options "con-name con_ipv42 ifname eth3 ip4 192.168.11.2/24"
-    When "192.168.11.0/24 dev eth2.*src 192.168.11.1\s+metric 101" is visible with command "ip r" in "5" seconds
-     And "192.168.11.0/24 dev eth3.*src 192.168.11.2\s+metric 102" is visible with command "ip r" in "5" seconds
+    When "192.168.11.0/24 dev eth2.*src 192.168.11.1\s+metric 1" is visible with command "ip r" in "5" seconds
+     And "192.168.11.0/24 dev eth3.*src 192.168.11.2\s+metric 1" is visible with command "ip r" in "5" seconds
     Then "1" is visible with command "cat /proc/sys/net/ipv4/conf/eth2/rp_filter"
      And "2" is visible with command "cat /proc/sys/net/ipv4/conf/eth3/rp_filter"
 
@@ -1767,8 +1769,8 @@ Feature: nmcli: ipv4
     * Execute "echo 0 > /proc/sys/net/ipv4/conf/eth3/rp_filter"
     * Add a new connection of type "ethernet" and options "con-name con_ipv4 ifname eth2 ip4 192.168.11.1/24"
     * Add a new connection of type "ethernet" and options "con-name con_ipv42 ifname eth3 ip4 192.168.11.2/24"
-    When "192.168.11.0/24 dev eth2.*src 192.168.11.1\s+metric 100" is visible with command "ip r" in "5" seconds
-     And "192.168.11.0/24 dev eth3.*src 192.168.11.2\s+metric 101" is visible with command "ip r" in "5" seconds
+    When "192.168.11.0/24 dev eth2.*src 192.168.11.1\s+metric 1" is visible with command "ip r" in "5" seconds
+     And "192.168.11.0/24 dev eth3.*src 192.168.11.2\s+metric 1" is visible with command "ip r" in "5" seconds
     Then "1" is visible with command "cat /proc/sys/net/ipv4/conf/eth2/rp_filter"
      And "0" is visible with command "cat /proc/sys/net/ipv4/conf/eth3/rp_filter"
 
@@ -1885,9 +1887,9 @@ Feature: nmcli: ipv4
     When "(connected)" is not visible with command "nmcli device show eth3" in "15" seconds
     * Execute "nmcli connection modify con_ipv4 ipv4.routes '10.200.200.2/31 172.16.0.254 111 onlink=true'"
     * Bring "up" connection "con_ipv4"
-    Then "default via 192.168.3.254 dev eth3 proto static metric 101" is visible with command "ip r"
+    Then "default via 192.168.3.254 dev eth3 proto static metric 1" is visible with command "ip r"
      And "10.200.200.2/31 via 172.16.0.254 dev eth3 proto static metric 111 onlink" is visible with command "ip r"
-     And "192.168.3.0/24 dev eth3 proto kernel scope link src 192.168.3.10 metric 101" is visible with command "ip r"
+     And "192.168.3.0/24 dev eth3 proto kernel scope link src 192.168.3.10 metric 1" is visible with command "ip r"
 
 
     @rhbz1482772
