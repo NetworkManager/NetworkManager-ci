@@ -135,7 +135,7 @@ Feature: nmcli - wifi
 
 
     @ver+=1.10
-    @simwifi_wpa2 @attach_hostapd_log @attach_wpa_supplicant_log @simwifi_wpa2_teardown
+    @simwifi_wpa2 @attach_hostapd_log @attach_wpa_supplicant_log
     @simwifi_ttls_gtc
     Scenario: nmcli - simwifi - connect to TTLS GTC
     Given "wpa2-eap" is visible with command "nmcli -f SSID device wifi list" in "60" seconds
@@ -146,7 +146,7 @@ Feature: nmcli - wifi
 
     @rhbz1520398
     @ver+=1.10
-    @simwifi_wpa2
+    @simwifi_wpa2 @simwifi_wpa2_teardown
     @nmclient_get_wireless_hw_property
     Scenario: nmclient - property - get wireless hardware property
     Then "True|False" is visible with command "python tmp/nmclient_get_property.py wireless-hardware-enabled"

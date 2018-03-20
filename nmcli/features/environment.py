@@ -200,6 +200,11 @@ def before_scenario(context, scenario):
             if os.path.isfile('/tmp/nm_skip_long'):
                 sys.exit(0)
 
+        if 'eth0' in scenario.tags or 'delete_testeth0' in scenario.tags or 'connect_testeth0' in scenario.tags or 'restart' in scenario.tags:
+            print ("---------------------------")
+            print ("skipping service restart tests if /tmp/nm_skip_restarts exists")
+            if os.path.isfile('/tmp/nm_skip_restarts'):
+                sys.exit(0)
 
         if '1000' in scenario.tags:
             print ("---------------------------")
@@ -322,9 +327,9 @@ def before_scenario(context, scenario):
             call("echo 'uri=http://fedoraproject.org/static/hotspot.txt' >> /etc/NetworkManager/conf.d/99-connectivity.conf", shell=True)
             call("echo 'response=OK' >> /etc/NetworkManager/conf.d/99-connectivity.conf", shell=True)
             call("echo 'interval=5' >> /etc/NetworkManager/conf.d/99-connectivity.conf", shell=True)
-            call("systemctl restart NetworkManager", shell=True)
+            call("systemctl reload NetworkManager", shell=True)
             sleep(3)
-            call("systemctl restart NetworkManager", shell=True)
+            call("systemctl reload NetworkManager", shell=True)
             sleep(3)
 
         if 'shutdown_service_any' in scenario.tags or 'bridge_manipulation_with_1000_slaves' in scenario.tags:
@@ -372,8 +377,8 @@ def before_scenario(context, scenario):
         if 'alias' in scenario.tags:
             print ("---------------------------")
             print ("deleting eth7 connections")
-            call("nmcli connection up testeth8", shell=True)
-            call("nmcli connection delete eth8", shell=True)
+            call("nmcli connection up testeth7", shell=True)
+            call("nmcli connection delete eth7", shell=True)
 
         if 'netcat' in scenario.tags:
             print ("---------------------------")
@@ -438,7 +443,7 @@ def before_scenario(context, scenario):
             print ("---------------------------")
             print ("set internal DHCP")
             call("printf '# configured by beaker-test\n[main]\ndhcp=internal\n' > /etc/NetworkManager/conf.d/99-xtest-dhcp-internal.conf", shell=True)
-            call('systemctl restart NetworkManager.service', shell=True)
+            call('systemctl reload NetworkManager.service', shell=True)
 
         if 'dhcpd' in scenario.tags:
             print ("---------------------------")
@@ -459,17 +464,18 @@ def before_scenario(context, scenario):
             call("nmcli device disconnect eth0", shell=True)
             call("nmcli connection delete id testeth0", shell=True)
 
-        if 'eth1_disconnect' in scenario.tags:
+        if 'eth3_disconnect' in scenario.tags:
             print ("---------------------------")
             print ("disconnecting eth1 device")
-            call('sudo nmcli device disconnect eth1', shell=True)
-            call('sudo kill -9 $(cat /var/run/dhclient-eth1.pid)', shell=True)
+            call('sudo nmcli device disconnect eth3', shell=True)
+            call('sudo kill -9 $(cat /var/run/dhclient-eth3.pid)', shell=True)
 
         if 'need_dispatcher_scripts' in scenario.tags:
             print ("---------------------------")
             print ("install dispatcher scripts")
             wait_for_testeth0()
             call("yum -y install NetworkManager-config-routing-rules", shell=True)
+            call("systemctl reload NetworkManager", shell=True)
             sleep(2)
 
         if 'firewall' in scenario.tags:
@@ -485,13 +491,21 @@ def before_scenario(context, scenario):
             # (see https://bugzilla.redhat.com/show_bug.cgi?id=1495893)
             call("sleep 1", shell=True)
 
-        if ('ethernet' in scenario.tags) or ('bridge' in scenario.tags) or ('vlan' in scenario.tags):
+        if 'ethernet' in scenario.tags:
             print ("---------------------------")
             print ("sanitizing eth1 and eth2")
             if call('nmcli con |grep testeth1', shell=True) == 0 or call('nmcli con |grep testeth2', shell=True) == 0:
                 call('sudo nmcli con del testeth1 testeth2', shell=True)
                 call('sudo nmcli con add type ethernet ifname eth1 con-name testeth1 autoconnect no', shell=True)
                 call('sudo nmcli con add type ethernet ifname eth2 con-name testeth2 autoconnect no', shell=True)
+
+        # if 'con_general_remove' in scenario.tags:
+        #     print ("---------------------------")
+        #     print ("sanitizing eth8 and eth9")
+        #     if call('nmcli con |grep testeth8', shell=True) == 0 or call('nmcli con |grep testeth9', shell=True) == 0:
+        #         call('sudo nmcli con del testeth8 testeth9', shell=True)
+        #         call('sudo nmcli con add type ethernet ifname eth8 con-name testeth8 autoconnect no', shell=True)
+        #         call('sudo nmcli con add type ethernet ifname eth9 con-name testeth9 autoconnect no', shell=True)
 
         if 'logging' in scenario.tags:
             context.loggin_level = check_output('nmcli -t -f LEVEL general logging', shell=True).strip()
@@ -508,10 +522,14 @@ def before_scenario(context, scenario):
             call("nmcli connection up testeth0", shell=True)
             sleep(1)
 
-        if 'vlan' in scenario.tags or 'bridge' in scenario.tags:
-            print ("---------------------------")
-            print ("connecting eth1")
-            call("nmcli connection up testeth1", shell=True)
+        # if 'vlan' in scenario.tags:
+        #     print ("connecting eth7")
+        #     call("nmcli connection up testeth7", shell=True)
+
+        # if 'bridge' in scenario.tags:
+        #     print ("---------------------------")
+        #     print ("connecting eth1")
+        #     call("nmcli connection up testeth1", shell=True)
 
         if '8021x' in scenario.tags:
             print ("---------------------------")
@@ -533,7 +551,7 @@ def before_scenario(context, scenario):
             if arch == "s390x" or arch == 'aarch64':
                 sys.exit(0)
             call("[ -f /etc/yum.repos.d/epel.repo ] || sudo rpm -i http://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm", shell=True)
-            call("rpm -q NetworkManager-vpnc || ( sudo yum -y install NetworkManager-vpnc && service NetworkManager restart )", shell=True)
+            call("rpm -q NetworkManager-vpnc || ( sudo yum -y install NetworkManager-vpnc && systemctl reload NetworkManager )", shell=True)
             setup_racoon (mode="aggressive", dh_group=2)
 
         if 'lldp' in scenario.tags:
@@ -555,14 +573,14 @@ def before_scenario(context, scenario):
             wait_for_testeth0()
             call("[ -f /etc/yum.repos.d/epel.repo ] || sudo rpm -i http://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm", shell=True)
             call("[ -x /usr/sbin/openvpn ] || sudo yum -y install openvpn NetworkManager-openvpn", shell=True)
-            call("rpm -q NetworkManager-openvpn || ( sudo yum -y install NetworkManager-openvpn-1.0.8-1.el7.$(uname -p).rpm && service NetworkManager restart )", shell=True)
+            call("rpm -q NetworkManager-openvpn || ( sudo yum -y install NetworkManager-openvpn-1.0.8-1.el7.$(uname -p).rpm && systemctl reload NetworkManager )", shell=True)
 
             # This is an internal RH workaround for secondary architecures that are not present in EPEL
 
             call("[ -x /usr/sbin/openvpn ] || sudo yum -y install https://vbenes.fedorapeople.org/NM/openvpn-2.3.8-1.el7.$(uname -p).rpm\
                                                                   https://vbenes.fedorapeople.org/NM/pkcs11-helper-1.11-3.el7.$(uname -p).rpm", shell=True)
             call("rpm -q NetworkManager-openvpn || sudo yum -y install https://vbenes.fedorapeople.org/NM/NetworkManager-openvpn-1.0.8-1.el7.$(uname -p).rpm", shell=True)
-            call("service NetworkManager restart", shell=True)
+            call("systemctl reload NetworkManager", shell=True)
             sleep(2)
 
             samples = glob(os.path.abspath('tmp/openvpn'))[0]
@@ -595,7 +613,7 @@ def before_scenario(context, scenario):
         if 'libreswan' in scenario.tags:
             print ("---------------------------")
             wait_for_testeth0()
-            call("rpm -q NetworkManager-libreswan || ( sudo yum -y install NetworkManager-libreswan && service NetworkManager restart )", shell=True)
+            call("rpm -q NetworkManager-libreswan || ( sudo yum -y install NetworkManager-libreswan && systemctl reload NetworkManager )", shell=True)
             call("/usr/sbin/ipsec --checknss", shell=True)
             setup_racoon (mode="aggressive", dh_group=5)
             if 'libreswan_add_profile' in scenario.tags:
@@ -690,7 +708,7 @@ def before_scenario(context, scenario):
             print ("remove all team packages except NM one and reinstall them with delayed version")
             call("for i in $(rpm -qa |grep team|grep -v Netw); do rpm -e $i --nodeps; done", shell=True)
             call("yum -y install https://vbenes.fedorapeople.org/NM/slow_libteam-1.25-5.el7_4.1.1.x86_64.rpm https://vbenes.fedorapeople.org/NM/slow_teamd-1.25-5.el7_4.1.1.x86_64.rpm", shell=True)
-            call("systemctl restart NetworkManager.service", shell=True)
+            call("systemctl reload NetworkManager", shell=True)
 
         if 'openvswitch' in scenario.tags:
             print ("---------------------------")
@@ -745,7 +763,7 @@ def before_scenario(context, scenario):
             print("Making sure NetworkManager-config-connectivity-fedora is not installed")
             wait_for_testeth0()
             call('yum -y remove NetworkManager-config-connectivity-fedora', shell=True)
-            call('sudo systemctl restart NetworkManager.service', shell=True)
+            call('sudo systemctl reload NetworkManager.service', shell=True)
             sleep(5)
 
         if 'need_config_server' in scenario.tags:
@@ -756,7 +774,7 @@ def before_scenario(context, scenario):
             else:
                 call('sudo yum -y install NetworkManager-config-server', shell=True)
                 call('sudo cp /usr/lib/NetworkManager/conf.d/00-server.conf /etc/NetworkManager/conf.d/00-server.conf', shell=True)
-                call('sudo systemctl restart NetworkManager.service', shell=True)
+                call('sudo systemctl reload NetworkManager.service', shell=True)
                 context.remove_config_server = True
 
         if 'no_config_server' in scenario.tags:
@@ -768,7 +786,7 @@ def before_scenario(context, scenario):
                 wait_for_testeth0()
                 call('sudo yum -y remove NetworkManager-config-server', shell=True)
                 call('sudo rm -f /etc/NetworkManager/conf.d/00-server.conf', shell=True)
-                call('sudo systemctl restart NetworkManager.service', shell=True)
+                call('sudo systemctl reload NetworkManager.service', shell=True)
                 context.restore_config_server = True
 
         try:
@@ -861,7 +879,7 @@ def after_scenario(context, scenario):
             call("systemctl restart  NetworkManager", shell=True)
             sleep (1)
             call("for i in $(pidof nm-iface-helper); do kill -9 $i; done", shell=True)
-            call("nmcli connection delete ethie", shell=True)
+            call("nmcli connection delete con_general", shell=True)
             call("nmcli device disconnect eth10", shell=True)
             call("nmcli connection up testeth0", shell=True)
 
@@ -888,7 +906,7 @@ def after_scenario(context, scenario):
             if context.revert_unmanaged == True:
                 call("sed -i 's/^#ENV{ID_NET_DRIVER}==\"veth\", ENV{NM_UNMANAGED}=\"1\"/ENV{ID_NET_DRIVER}==\"veth\", ENV{NM_UNMANAGED}=\"1\"/' /usr/lib/udev/rules.d/85-nm-unmanaged.rules", shell=True)
                 call('sudo rm -rf /etc/NetworkManager/conf.d/99-unmanaged.conf', shell=True)
-                call('sudo service NetworkManager restart', shell=True)
+                call('sudo systemctl reload NetworkManager', shell=True)
             call("nmcli con del 'Wired connection 1'", shell=True)
             call("nmcli con del 'Wired connection 2'", shell=True)
             call("for i in $(nmcli -t -f DEVICE c s -a |grep -v ^eth0$); do nmcli device disconnect $i; done", shell=True)
@@ -897,30 +915,44 @@ def after_scenario(context, scenario):
             print ("---------------------------")
             print ("delete mac config")
             call("rm -rf /etc/NetworkManager/conf.d/99-mac.conf", shell=True)
-            call("systemctl restart NetworkManager", shell=True)
+            call("systemctl reload NetworkManager", shell=True)
             reset_hwaddr('eth1')
 
-        if 'ipv4' in scenario.tags:
+        if 'con_ipv4_remove' in scenario.tags:
             print ("---------------------------")
-            print ("deleting connection ethie")
-            call("nmcli connection delete id ethie", shell=True)
-            #sleep(TIMER)
+            print ("deleting connection con_ipv4 and con_ipv42")
+            call("nmcli connection delete id con_ipv4 con_ipv42", shell=True)
+            #call("rm -rf /etc/sysconfig/network-scripts/ifcfg-con_ipv4*", shell=True)
 
-        if 'ipv4_2' in scenario.tags:
+        if 'con_ipv6_remove' in scenario.tags:
             print ("---------------------------")
-            print ("deleting connections ethie and ethie2")
+            print ("deleting connection con_ipv6 con_ipv62")
+            call("nmcli connection delete id con_ipv6 con_ipv62", shell=True)
+            #call("rm -rf /etc/sysconfig/network-scripts/ifcfg-con_ipv6*", shell=True)
 
-            call("nmcli connection delete id ethie2", shell=True)
-            call("nmcli connection delete id ethie", shell=True)
-            #sleep(TIMER)
+        if 'con_ipv6_ifcfg_remove' in scenario.tags:
+            print ("---------------------------")
+            print ("deleting connection con_ipv6_ifcfg")
+            #call("nmcli connection delete id con_ipv6 con_ipv62", shell=True)
+            call("rm -rf /etc/sysconfig/network-scripts/ifcfg-con_ipv6", shell=True)
+
+        if 'con_con_remove' in scenario.tags:
+            print ("---------------------------")
+            print ("deleting connection con_con and con_con2")
+            call("nmcli connection delete id con_con con_con2", shell=True)
+
+        if 'con_ethernet_remove' in scenario.tags:
+            print ("---------------------------")
+            print ("deleting connection con_ethernet")
+            call("nmcli connection delete id con_ethernet", shell=True)
 
         if 'alias' in scenario.tags:
             print ("---------------------------")
             print ("deleting alias connections")
-            call("nmcli connection delete eth8", shell=True)
-            call("sudo rm -f /etc/sysconfig/network-scripts/ifcfg-eth8:0", shell=True)
-            call("sudo rm -f /etc/sysconfig/network-scripts/ifcfg-eth8:1", shell=True)
-            call("sudo rm -f /etc/sysconfig/network-scripts/ifcfg-eth8:2", shell=True)
+            call("nmcli connection delete eth7", shell=True)
+            call("sudo rm -f /etc/sysconfig/network-scripts/ifcfg-eth7:0", shell=True)
+            call("sudo rm -f /etc/sysconfig/network-scripts/ifcfg-eth7:1", shell=True)
+            call("sudo rm -f /etc/sysconfig/network-scripts/ifcfg-eth7:2", shell=True)
             call("sudo nmcli connection reload", shell=True)
             #call('sudo nmcli con add type ethernet ifname eth7 con-name testeth7 autoconnect no', shell=True)
             #sleep(TIMER)
@@ -929,10 +961,8 @@ def after_scenario(context, scenario):
             print ("---------------------------")
             print ("deleting slave profiles")
             call('nmcli connection delete id bond0.0 bond0.1 bond0.2 bond-slave-eth1', shell=True)
-            reset_hwaddr('eth1')
             reset_hwaddr('eth2')
             reset_hwaddr('eth3')
-            reset_hwaddr('eth10')
             #sleep(TIMER)
 
         if 'bond' in scenario.tags:
@@ -948,7 +978,7 @@ def after_scenario(context, scenario):
             print ("---------------------------")
             print ("reset bond order")
             call("rm -rf /etc/NetworkManager/conf.d/99-bond.conf", shell=True)
-            call("systemctl restart NetworkManager", shell=True)
+            call("systemctl reload NetworkManager", shell=True)
             sleep(2)
 
         if 'connectivity' in scenario.tags:
@@ -956,9 +986,9 @@ def after_scenario(context, scenario):
             print ("remove connectivity checker")
             call("rm -rf /etc/NetworkManager/conf.d/99-connectivity.conf", shell=True)
             call("rm -rf /var/lib/NetworkManager/NetworkManager-intern.conf", shell=True)
-            call("systemctl restart NetworkManager", shell=True)
+            call("systemctl reload NetworkManager", shell=True)
             sleep(3)
-            call("systemctl restart NetworkManager", shell=True)
+            call("systemctl reload NetworkManager", shell=True)
             sleep(3)
 
         if 'con' in scenario.tags:
@@ -991,12 +1021,6 @@ def after_scenario(context, scenario):
             print ("deleting ethie")
             call("nmcli connection delete id ethie", shell=True)
             call("rm -rf /etc/sysconfig/network-scripts/ifcfg-ethie*", shell=True)
-
-        if 'eth_down_and_delete' in scenario.tags:
-            print ("---------------------------")
-            print ("deleting ethie")
-            call("nmcli connection down id ethie", shell=True)
-            call("nmcli connection delete id ethie", shell=True)
 
         if 'firewall' in scenario.tags:
             print ("---------------------------")
@@ -1072,11 +1096,32 @@ def after_scenario(context, scenario):
             call('udevadm settle', shell=True)
             sleep(1)
 
+        if 'two_bridged_veths6' in scenario.tags:
+            print ("---------------------------")
+            print ("deleting veth devices")
+            call("nmcli connection delete id tc16 tc26 test10 test11 vethbr6", shell=True)
+            call("ip link del test11", shell=True)
+            call("ip link del test10", shell=True)
+            call("ip link del vethbr6", shell=True)
+            call('rm -f /etc/udev/rules.d/88-lr.rules', shell=True)
+            call('udevadm control --reload-rules', shell=True)
+            call('udevadm settle', shell=True)
+            sleep(1)
+
+        if 'two_bridged_veths_gen' in scenario.tags:
+            print ("---------------------------")
+            print ("deleting veth devices")
+            call("ip link del test1g", shell=True)
+            call("ip link del test2g", shell=True)
+            call("ip link del vethbrg", shell=True)
+            call("nmcli con del test1g test2g tc1g tc2g vethbrg", shell=True)
+            sleep(1)
+
         if 'internal_DHCP' in scenario.tags:
             print ("---------------------------")
             print ("revert internal DHCP")
             call("rm -f /etc/NetworkManager/conf.d/99-xtest-dhcp-internal.conf", shell=True)
-            call('systemctl restart NetworkManager.service', shell=True)
+            call('systemctl reload NetworkManager.service', shell=True)
 
         if 'dhcpd' in scenario.tags:
             print ("---------------------------")
@@ -1088,16 +1133,17 @@ def after_scenario(context, scenario):
             print ("deleting veth devices")
             call("sudo systemctl stop radvd", shell=True)
             call('rm -rf /etc/radvd.conf', shell=True)
+
         if 'mtu' in scenario.tags:
             print ("---------------------------")
             print ("deleting veth devices from mtu test")
-            call("nmcli connection delete id tc1 tc2", shell=True)
+            call("nmcli connection delete id tc1 tc2 tc16 tc26", shell=True)
             call("ip link delete test1", shell=True)
             call("ip link delete test2", shell=True)
-            call("ip link delete test1", shell=True)
-            call("ip link delete test2", shell=True)
-            call("ip link set dev vethbr down", shell=True)
-            call("brctl delbr vethbr", shell=True)
+            call("ip link delete test10", shell=True)
+            call("ip link delete test11", shell=True)
+            call("ip link del vethbr", shell=True)
+            call("ip link del vethbr6", shell=True)
             call("kill -9 $(ps aux|grep '/usr/sbin/dns' |grep 192.168 |grep -v grep |awk '{print $2}')", shell=True)
             call("kill -9 $(ps aux|grep '/usr/sbin/dns' |grep 192.168 |grep -v grep |awk '{print $2}')", shell=True)
 
@@ -1109,10 +1155,20 @@ def after_scenario(context, scenario):
             call("nmcli connection delete id inf", shell=True)
             call("nmcli connection delete id inf2", shell=True)
 
-        if 'kill_dnsmasq' in scenario.tags:
+        if 'kill_dnsmasq_vlan' in scenario.tags:
             print ("---------------------------")
             print ("kill dnsmasq")
-            call("kill $(cat /tmp/dnsmasq.pid)", shell=True)
+            call("kill $(cat /tmp/dnsmasq_vlan.pid)", shell=True)
+
+        if 'kill_dnsmasq_ip4' in scenario.tags:
+            print ("---------------------------")
+            print ("kill dnsmasq")
+            call("kill $(cat /tmp/dnsmasq_ip4.pid)", shell=True)
+
+        if 'kill_dnsmasq_ip6' in scenario.tags:
+            print ("---------------------------")
+            print ("kill dnsmasq")
+            call("kill $(cat /tmp/dnsmasq_ip6.pid)", shell=True)
 
         if 'kill_dhcrelay' in scenario.tags:
             print ("---------------------------")
@@ -1137,7 +1193,7 @@ def after_scenario(context, scenario):
             call("nmcli connection delete id ethie", shell=True)
             call("rm -rf /etc/NetworkManager/conf.d/01-default-ip6-privacy.conf", shell=True)
             call("echo 0 > /proc/sys/net/ipv6/conf/default/use_tempaddr", shell=True)
-            call("service NetworkManager restart", shell=True)
+            call("systemctl reload NetworkManager", shell=True)
             #sleep(TIMER)
 
         if 'sriov' in scenario.tags:
@@ -1155,7 +1211,7 @@ def after_scenario(context, scenario):
             call("echo 0 > /sys/class/net/p6p2/device/sriov_numvfs", shell=True)
             call("rm -rf /etc/NetworkManager/conf.d/99-sriov.conf", shell=True)
             call("rm -rf /etc/NetworkManager/conf.d/98-sriov.conf", shell=True)
-            call("systemctl restart NetworkManager", shell=True)
+            call("systemctl reload NetworkManager", shell=True)
             sleep(1)
 
         if 'ipv6' in scenario.tags or 'ipv6_2' in scenario.tags:
@@ -1169,9 +1225,9 @@ def after_scenario(context, scenario):
         if 'team_slaves' in scenario.tags:
             print ("---------------------------")
             print ("deleting team slaves")
-            call('nmcli connection delete id team0.0 team0.1 team-slave-eth2 team-slave-eth1 eth1 eth2', shell=True)
-            reset_hwaddr('eth1')
-            reset_hwaddr('eth2')
+            call('nmcli connection delete id team0.0 team0.1 team-slave-eth5 team-slave-eth6 eth5 eth6', shell=True)
+            reset_hwaddr('eth5')
+            reset_hwaddr('eth6')
             #sleep(TIMER)
 
         if 'team' in scenario.tags:
@@ -1190,13 +1246,13 @@ def after_scenario(context, scenario):
             print ("restore original team pakages")
             call("for i in $(rpm -qa |grep team|grep -v Netw); do rpm -e $i --nodeps; done", shell=True)
             call("yum -y install teamd libteam", shell=True)
-            call('systemctl restart NetworkManager.service', shell=True)
+            call('systemctl reload NetworkManager.service', shell=True)
 
         if 'tshark' in scenario.tags:
             print ("---------------------------")
             print ("kill tshark and delet dhclinet-eth10")
             call("pkill -9 tshark", shell=True)
-            call("rm -rf /etc/dhcp/dhclient-eth10.conf", shell=True)
+            call("rm -rf /etc/dhcp/dhclient-eth*.conf", shell=True)
 
         if 'tcpdump' in scenario.tags:
             print ("---------------------------")
@@ -1218,7 +1274,7 @@ def after_scenario(context, scenario):
             print ("---------------------------")
             print ("deleting wifi connections")
             #teardown_hostapd_wireless()
-            call("nmcli con del wpa2-eap wifi", shell=True)
+            call("nmcli con del wpa2-eap wifi", shell=True)                
 
         if 'simwifi_wpa2_teardown' in scenario.tags:
             print ("---------------------------")
@@ -1264,22 +1320,40 @@ def after_scenario(context, scenario):
             call("sudo nmcli connection delete id ethernet ethernet0 ethos", shell=True)
             call('sudo rm -rf /etc/sysconfig/network-scripts/ifcfg-ethernet*', shell=True) #ideally should do nothing
 
-        if ('vlan' in scenario.tags) or ('bridge' in scenario.tags):
+        if 'con_general_remove' in scenario.tags:
+            print ("---------------------------")
+            print ("removing ethernet profiles")
+            call("sudo nmcli connection delete id con_general con_general2", shell=True)
+            #call('sudo rm -rf /etc/sysconfig/network-scripts/ifcfg-ethernet*', shell=True) #ideally should do nothing
+
+        if 'general_vlan' in scenario.tags:
+            print ("---------------------------")
+            print ("removing ethernet profiles")
+            call("sudo nmcli connection delete id eth8.100", shell=True)
+            call("sudo ip link del eth8.100", shell=True)
+            #call('sudo rm -rf /etc/sysconfig/network-scripts/ifcfg-ethernet*', shell=True) #ideally should do nothing
+
+        if 'vlan' in scenario.tags:
+            print ("---------------------------")
+            print ("deleting all possible vlan residues")
+            call('sudo nmcli con del vlan vlan1 vlan2 eth7.99 eth7.99 eth7.299 eth7.399 eth7.65 eth7.165 eth7.265 eth7.499 eth7.80 eth7.90', shell=True)
+            call('sudo nmcli con del vlan_bridge7.15 vlan_bridge7 vlan_vlan7 vlan_bond7 vlan_bond7.7 vlan_team7 vlan_team7.1 vlan_team7.0', shell=True)
+            call('ip link del bridge7', shell=True)
+            call('ip link del eth7.99', shell=True)
+            call('ip link del eth7.80', shell=True)
+            call('ip link del eth7.90', shell=True)
+            call('ip link del vlan7', shell=True)
+            call('nmcli con down testeth7', shell=True)
+            reset_hwaddr('eth7')
+
+        if 'bridge' in scenario.tags:
             print ("---------------------------")
             print ("deleting all possible bridge residues")
-            call('sudo nmcli con del vlan eth0.99 eth1.99 eth1.299 eth1.399 eth1.65 eth1.165 eth1.265 eth1.499 eth1.80 eth1.90 bridge-slave-eth1.80', shell=True)
-            call('sudo nmcli con del bridge-slave-eth1 bridge-slave-eth2 bridge-slave-eth3', shell=True)
+            call('sudo nmcli con del bridge4 bridge4.0 bridge4.1 nm-bridge eth4.80 eth4.90', shell=True)
+            call('sudo nmcli con del bridge-slave-eth4 bridge-slave-eth4.80', shell=True)
             call('sudo nmcli con del bridge0 bridge bridge.15 nm-bridge br88 br11 br12 br15 bridge-slave br15-slave br15-slave1 br15-slave2 br10 br10-slave', shell=True)
-            call("nmcli connection down testeth1", shell=True)
             call('ip link del bridge0', shell=True)
-            call('ip link del eth0.99', shell=True)
-            call('ip link del eth1.80', shell=True)
-            call('ip link del eth1.90', shell=True)
-            call('ip link del vlan', shell=True)
-            reset_hwaddr('eth1')
-            reset_hwaddr('eth2')
-            reset_hwaddr('eth3')
-
+            reset_hwaddr('eth4')
 
         if 'vpn' in scenario.tags:
             print ("---------------------------")
@@ -1325,8 +1399,8 @@ def after_scenario(context, scenario):
 
         if 'nmcli_wifi_ap' in scenario.tags:
             # workaround for bug 1267327, should be removed when fixed
-            call("sudo service NetworkManager restart", shell=True)
-            sleep(5)
+            # call("sudo service NetworkManager restart", shell=True)
+            # sleep(5)
             call("sudo nmcli device wifi rescan", shell=True)
             sleep(10)
 
@@ -1347,7 +1421,7 @@ def after_scenario(context, scenario):
         if 'remove_dns_none' in scenario.tags:
             if call('grep dns /etc/NetworkManager/NetworkManager.conf', shell=True) == 0:
                 call("sudo sed -i 's/dns=none//' /etc/NetworkManager/NetworkManager.conf", shell=True)
-            call('sudo service NetworkManager restart', shell=True)
+                call('sudo systemctl reload NetworkManager', shell=True)
             sleep(5)
 
         if 'restore_resolvconf' in scenario.tags:
@@ -1357,7 +1431,7 @@ def after_scenario(context, scenario):
             call('rm -rf /tmp/resolv_orig.conf', shell=True)
             call('rm -rf /tmp/resolv.conf', shell=True)
             call("rm -rf /etc/NetworkManager/conf.d/99-resolv.conf", shell=True)
-            call("systemctl restart NetworkManager", shell=True)
+            call("systemctl reload NetworkManager", shell=True)
             call("nmcli con up testeth0", shell=True)
 
         if 'need_config_server' in scenario.tags:
@@ -1374,7 +1448,7 @@ def after_scenario(context, scenario):
                 wait_for_testeth0()
                 call('sudo yum -y install NetworkManager-config-server', shell=True)
                 call('sudo cp /usr/lib/NetworkManager/conf.d/00-server.conf /etc/NetworkManager/conf.d/00-server.conf', shell=True)
-                call('systemctl restart NetworkManager', shell=True)
+                call('systemctl reload NetworkManager', shell=True)
                 call("for i in $(nmcli -t -f NAME,UUID connection |grep -v testeth |awk -F ':' ' {print $2}'); do nmcli con del $i; done", shell=True)
                 restore_testeth0()
 
@@ -1410,29 +1484,25 @@ def after_scenario(context, scenario):
             call('hostnamectl set-hostname localhost.localdomain', shell=True)
             call('rm -rf /etc/NetworkManager/conf.d/90-hostname.conf', shell=True)
             call('rm -rf /etc/dnsmasq.d/dnsmasq_custom.conf', shell=True)
-            call('systemctl restart NetworkManager', shell=True)
+            call('systemctl reload NetworkManager', shell=True)
             call("nmcli con up testeth0", shell=True)
 
         if 'remove_custom_cfg' in scenario.tags:
             print("---------------------------")
             print("Removing custom cfg file in conf.d")
             call('sudo rm -f /etc/NetworkManager/conf.d/99-xxcustom.conf', shell=True)
-            call('sudo systemctl restart NetworkManager.service', shell=True)
+            call('sudo systemctl reload NetworkManager.service', shell=True)
 
         if 'ipv6_describe' in scenario.tags or 'ipv4_describe' in scenario.tags:
             if call("systemctl is-enabled beah-srv.service  |grep ^enabled", shell=True) == 0:
-                call('run/rh-beaker/./sanitize_beah.sh', shell=True)
-
-        if 'nmcli_general_correct_profile_activated_after_restart' in scenario.tags:
-            print ("---------------------------")
-            print ("deleting profiles")
-            call('sudo nmcli connection delete aaa bbb eth10', shell=True)
+                if not os.path.isfile('/tmp/nm_skip_restarts'):
+                    call('run/rh-beaker/./sanitize_beah.sh', shell=True)
 
         if 'device_connect_no_profile' in scenario.tags or 'device_connect' in scenario.tags:
             print ("---------------------------")
             print ("env sanitization")
-            call('nmcli connection delete testeth2 eth2', shell=True)
-            call('nmcli connection add type ethernet ifname eth2 con-name testeth2 autoconnect no', shell=True)
+            call('nmcli connection delete testeth9 eth9', shell=True)
+            call('nmcli connection add type ethernet ifname eth9 con-name testeth9 autoconnect no', shell=True)
 
         if 'nmcli_general_ignore_specified_unamanaged_devices' in scenario.tags:
             print ("---------------------------")
@@ -1443,11 +1513,11 @@ def after_scenario(context, scenario):
 
         if 'nmcli_general_keep_slave_device_unmanaged' in scenario.tags:
             print ("---------------------------")
-            print ("restoring the testeth1 profile to managed state / removing slave")
-            call('sudo ip link del eth1.100', shell=True)
-            call('sudo rm -f /etc/sysconfig/network-scripts/ifcfg-testeth1', shell=True)
+            print ("restoring the testeth8 profile to managed state / removing slave")
+            call('sudo ip link del eth8.100', shell=True)
+            call('sudo rm -f /etc/sysconfig/network-scripts/ifcfg-testeth8', shell=True)
             call('sudo nmcli connection reload', shell=True)
-            call('nmcli connection add type ethernet ifname eth1 con-name testeth1 autoconnect no', shell=True)
+            call('nmcli connection add type ethernet ifname eth8 con-name testeth8 autoconnect no', shell=True)
 
         if 'nmcli_general_multiword_autocompletion' in scenario.tags:
             print ("---------------------------")
@@ -1459,39 +1529,21 @@ def after_scenario(context, scenario):
             print("restore /etc/sysconfig/network")
             call('sudo mv -f /tmp/sysnetwork.backup /etc/sysconfig/network', shell=True)
             call('sudo nmcli connection reload', shell=True)
-            call('sudo nmcli connection down testeth1', shell=True)
-            call('sudo nmcli connection down testeth2', shell=True)
-            call('sudo nmcli connection up testeth0', shell=True)
+            call('sudo nmcli connection down testeth9', shell=True)
+            #call('sudo nmcli connection up testeth0', shell=True)
 
         if 'nmcli_general_profile_pickup_doesnt_break_network' in scenario.tags:
             print("---------------------------")
             print("Restoring configuration, turning off network.service")
             context.nm_restarted = True
-            call('sudo nmcli connection delete ethernet0 ethernet1', shell=True)
+            call('sudo nmcli connection delete con_general con_general2', shell=True)
             call('sudo systemctl stop network.service', shell=True)
             call('sudo systemctl stop NetworkManager.service', shell=True)
             call('sysctl net.ipv6.conf.all.accept_ra=1', shell=True)
             call('sysctl net.ipv6.conf.default.accept_ra=1', shell=True)
             call('sudo systemctl start NetworkManager.service', shell=True)
-            call('sudo nmcli connection down testeth1 testeth2', shell=True)
+            call('sudo nmcli connection down testeth8 testeth9', shell=True)
             call('sudo nmcli connection up testeth0', shell=True)
-
-        if 'vlan_update_mac_from_bond' in scenario.tags:
-            print("---------------------------")
-            print("Restoring configuration, removing all artifacts")
-            # in case the test failed during when nm was down
-            call('sudo systemctl start NetworkManager.service', shell=True)
-            # remove all the setup profiles in correct order
-            call('sudo nmcli con del bridge-br0 vlan-vlan10 bond-bond0 bond-slave-eth1 bond-slave-eth2', shell=True)
-            reset_hwaddr('eth1')
-            reset_hwaddr('eth2')
-            sleep(1)
-            if not call('ip a s br0 > /dev/null', shell=True):
-                call('sudo ip link del br0', shell=True)
-            if not call('ip a s bond0 > /dev/null', shell=True):
-                call('sudo ip link del bond0', shell=True)
-            if not call('ip a s vlan10 > /dev/null', shell=True):
-                call('sudo ip link del vlan10', shell=True)
 
         if 'gsm' in scenario.tags:
             print ("---------------------------")
@@ -1522,6 +1574,18 @@ def after_scenario(context, scenario):
             call('sudo nmcli connection delete eth1 eth1 eth1 testeth1', shell=True)
             call('sudo nmcli connection add type ethernet con-name testeth1 ifname eth1 autoconnect no', shell=True)
 
+        if 'add_testeth5' in scenario.tags:
+            print ("---------------------------")
+            print ("restoring testeth1 profile")
+            call('sudo nmcli connection delete eth5 eth5 eth5 testeth5', shell=True)
+            call('sudo nmcli connection add type ethernet con-name testeth5 ifname eth5 autoconnect no', shell=True)
+
+        if 'add_testeth8' in scenario.tags:
+            print ("---------------------------")
+            print ("restoring testeth1 profile")
+            call('sudo nmcli connection delete eth8 eth8 eth8 testeth8', shell=True)
+            call('sudo nmcli connection add type ethernet con-name testeth8 ifname eth8 autoconnect no', shell=True)
+
         if 'eth1_disconnect' in scenario.tags:
             print ("---------------------------")
             print ("disconnecting eth1 device")
@@ -1530,10 +1594,34 @@ def after_scenario(context, scenario):
             call('sudo nmcli connection up testeth1', shell=True)
             call('sudo nmcli connection down testeth1', shell=True)
 
-        if 'manage_eth1' in scenario.tags:
+        if 'eth3_disconnect' in scenario.tags:
+            print ("---------------------------")
+            print ("disconnecting eth3 device")
+            call('sudo nmcli device disconnect eth3', shell=True)
+            # VVV Up/Down to preserve autoconnect feature
+            call('sudo nmcli connection up testeth3', shell=True)
+            call('sudo nmcli connection down testeth3', shell=True)
+
+        if 'eth5_disconnect' in scenario.tags:
+            print ("---------------------------")
+            print ("disconnecting eth5 device")
+            call('sudo nmcli device disconnect eth5', shell=True)
+            # VVV Up/Down to preserve autoconnect feature
+            call('sudo nmcli connection up testeth5', shell=True)
+            call('sudo nmcli connection down testeth5', shell=True)
+
+        if 'eth8_disconnect' in scenario.tags:
+            print ("---------------------------")
+            print ("disconnecting eth8 device")
+            call('sudo nmcli device disconnect eth8', shell=True)
+            # VVV Up/Down to preserve autoconnect feature
+            call('sudo nmcli connection up testeth8', shell=True)
+            call('sudo nmcli connection down testeth8', shell=True)
+
+        if 'manage_eth8' in scenario.tags:
             print ("---------------------------")
             print ("manage eth1 device")
-            call('sudo nmcli device set eth1 managed true', shell=True)
+            call('sudo nmcli device set eth8 managed true', shell=True)
 
         if 'non_utf_device' in scenario.tags:
             print ("---------------------------")
@@ -1544,8 +1632,8 @@ def after_scenario(context, scenario):
         if 'shutdown' in scenario.tags:
             print ("---------------------------")
             print ("sanitizing env")
-            call('ip addr  del 192.168.50.5/24 dev eth1', shell=True)
-            call('route del default gw 192.168.50.1 eth1', shell=True)
+            call('ip addr del 192.168.50.5/24 dev eth8', shell=True)
+            call('route del default gw 192.168.50.1 eth8', shell=True)
 
         if 'connect_testeth0' in scenario.tags:
             print ("---------------------------")
@@ -1574,9 +1662,10 @@ def after_scenario(context, scenario):
             print ("remove dispatcher scripts")
             wait_for_testeth0()
             call("yum -y remove NetworkManager-config-routing-rules ", shell=True)
-            call("rm -rf /etc/sysconfig/network-scripts/rule-ethie", shell=True)
-            call('rm -rf /etc/sysconfig/network-scripts/route-ethie', shell=True)
+            call("rm -rf /etc/sysconfig/network-scripts/rule-con_general", shell=True)
+            call('rm -rf /etc/sysconfig/network-scripts/route-con_general', shell=True)
             call('ip rule del table 1; ip rule del table 1', shell=True)
+            call("systemctl reload NetworkManager", shell=True)
 
         if 'pppoe' in scenario.tags:
             print ("---------------------------")
@@ -1603,7 +1692,7 @@ def after_scenario(context, scenario):
             call('udevadm control --reload-rules', shell=True)
             call('udevadm settle', shell=True)
             sleep(1)
-            call('systemctl restart NetworkManager', shell=True)
+            call('systemctl reload NetworkManager', shell=True)
 
 
         if '@restore_rp_filters' in scenario.tags:
