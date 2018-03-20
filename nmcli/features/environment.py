@@ -1350,7 +1350,7 @@ def after_scenario(context, scenario):
             print ("---------------------------")
             print ("deleting all possible bridge residues")
             call('sudo nmcli con del bridge4 bridge4.0 bridge4.1 nm-bridge eth4.80 eth4.90', shell=True)
-            call('sudo nmcli con del bridge-slave-eth4 bridge-slave-eth4.80', shell=True)
+            call('sudo nmcli con del bridge-slave-eth4 bridge-nonslave-eth4 bridge-slave-eth4.80', shell=True)
             call('sudo nmcli con del bridge0 bridge bridge.15 nm-bridge br88 br11 br12 br15 bridge-slave br15-slave br15-slave1 br15-slave2 br10 br10-slave', shell=True)
             call('ip link del bridge0', shell=True)
             reset_hwaddr('eth4')
