@@ -1063,27 +1063,27 @@
 
 
     @rhbz1083133 @rhbz1098319 @rhbz1127718
-    @veth @eth1_disconnect
+    @veth @eth3_disconnect
     @ver+=1.11.2
     @ipv6_add_static_address_manually_not_active
     Scenario: NM - ipv6 - add a static address manually to non-active interface
-    Given "testeth1" is visible with command "nmcli connection"
-    Given "eth1\s+ethernet\s+connected" is not visible with command "nmcli device"
-    Given "state UP" is visible with command "ip a s eth1"
-    * "0" is visible with command "cat /proc/sys/net/ipv6/conf/eth1/disable_ipv6"
-    * Execute "ip -6 addr add 2001::dead:beef:01/64 dev eth1"
-    Then "0" is visible with command "cat /proc/sys/net/ipv6/conf/eth1/disable_ipv6"
-    Then "inet6 2001::dead:beef:1/64 scope global" is visible with command "ip a s eth1"
+    Given "testeth3" is visible with command "nmcli connection"
+    Given "eth3\s+ethernet\s+connected" is not visible with command "nmcli device"
+    Given "state UP" is visible with command "ip a s eth3"
+    * "0" is visible with command "cat /proc/sys/net/ipv6/conf/eth3/disable_ipv6"
+    * Execute "ip -6 addr add 2001::dead:beef:01/64 dev eth3"
+    Then "0" is visible with command "cat /proc/sys/net/ipv6/conf/eth3/disable_ipv6"
+    Then "inet6 2001::dead:beef:1/64 scope global" is visible with command "ip a s eth3"
     #
     # the connection is assumed externally, meaning it has "addrgenmode none". NM is not
     # interferring with the device, hence there is no IPv6 LL address. Which is a problem,
     # but a problem of the user who takes over the device without setting the addrgenmode
     # to its liking.
-    Then "addrgenmode none " is visible with command "ip -d l show eth1"
-    Then "inet6 fe80" is not visible with command "ip a s eth1"
+    Then "addrgenmode none " is visible with command "ip -d l show eth3"
+    Then "inet6 fe80" is not visible with command "ip a s eth3"
     #
     # the assumed connection is created, give just some time for DAD to complete
-    Then "eth1\s+ethernet\s+connected\s+eth1" is visible with command "nmcli device" in "5" seconds
+    Then "eth3\s+ethernet\s+connected\s+eth3" is visible with command "nmcli device" in "5" seconds
 
 
     @rhbz1138426
