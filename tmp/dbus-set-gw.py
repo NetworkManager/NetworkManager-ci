@@ -22,7 +22,7 @@ bus = dbus.SystemBus()
 o = bus.get_object('org.freedesktop.NetworkManager', '/org/freedesktop/NetworkManager/Settings')
 s = dbus.Dictionary({
     'connection': {
-        'id': 'ethos',
+        'id': 'con_general',
         'uuid': str(uuid.uuid1()),
         'interface-name': 'nonexistant',
         'type': '802-3-ethernet',
@@ -52,4 +52,3 @@ print "Updating: add address with gateway"
 print_ipv4(setting)
 print
 o.Update(setting, dbus_interface='org.freedesktop.NetworkManager.Settings.Connection')
-

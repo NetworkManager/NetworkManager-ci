@@ -1,7 +1,7 @@
 import gi
 from gi.repository import NM
 
-connection_name = 'ethie'
+connection_name = 'con_con2'
 nm_client = NM.Client.new(None)
 
 con = None

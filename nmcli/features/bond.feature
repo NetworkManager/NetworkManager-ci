@@ -61,7 +61,7 @@
     @nmcli_bond_manual_ipv4
     Scenario: nmcli - bond - remove BOOTPROTO dhcp for enslaved ethernet
     * Add a new connection of type "ethernet" and options "ifname eth1 con-name bond0.0 autoconnect no"
-    * Add a new connection of type "ethernet" and options "ifname eth2 con-name bond0.1 autoconnect no"
+    * Add a new connection of type "ethernet" and options "ifname eth4 con-name bond0.1 autoconnect no"
     * Add a new connection of type "bond" and options "ifname nm-bond con-name bond0 autoconnect no mode active-backup"
     * Execute "nmcli con mod id bond0 ipv4.addresses 10.35.1.2/24 ipv4.gateway 10.35.1.254 ipv4.method manual"
     * Execute "nmcli connection modify id bond0.0 connection.slave-type bond connection.master nm-bond connection.autoconnect yes"
@@ -123,7 +123,7 @@
      * Dismiss IP configuration in editor
      * Dismiss Proxy configuration in editor
      * Add slave connection for master "nm-bond" on device "eth1" named "bond0.0"
-     * Add slave connection for master "nm-bond" on device "eth2" named "bond0.1"
+     * Add slave connection for master "nm-bond" on device "eth4" named "bond0.1"
      * Bring "up" connection "bond"
      Then "Bonding Mode: fault-tolerance \(active-backup\)" is visible with command "cat /proc/net/bonding/nm-bond"
      Then "MII Polling Interval \(ms\): 0" is visible with command "cat /proc/net/bonding/nm-bond"
@@ -154,11 +154,11 @@
     Scenario: nmcli - bond - add slaves
      * Add connection type "bond" named "bond0" for device "nm-bond"
      * Add slave connection for master "nm-bond" on device "eth1" named "bond0.0"
-     * Add slave connection for master "nm-bond" on device "eth2" named "bond0.1"
+     * Add slave connection for master "nm-bond" on device "eth4" named "bond0.1"
      * Bring "up" connection "bond0.0"
      * Bring "up" connection "bond0.1"
      Then Check slave "eth1" in bond "nm-bond" in proc
-     Then Check slave "eth2" in bond "nm-bond" in proc
+     Then Check slave "eth4" in bond "nm-bond" in proc
 
 
     @rhbz1057494
@@ -185,7 +185,7 @@
 
     @rhbz1434555
     @ver+=1.8.0
-    @slaves @bond
+    @slaves @bond @restart
     @bond_ifcfg_master_called_ethernet
     Scenario: ifcfg - bond - master with Ethernet type
     * Append "DEVICE=nm-bond" to ifcfg file "bond0"
@@ -232,7 +232,7 @@
     Scenario: nmcli - bond - remove slave
      * Add connection type "bond" named "bond0" for device "nm-bond"
      * Add slave connection for master "nm-bond" on device "eth1" named "bond0.0"
-     * Add slave connection for master "nm-bond" on device "eth2" named "bond0.1"
+     * Add slave connection for master "nm-bond" on device "eth4" named "bond0.1"
      * Bring "up" connection "bond0.0"
      * Bring "up" connection "bond0.1"
      * Delete connection "bond0.1"
@@ -275,7 +275,7 @@
     Scenario: nmcli - bond - disconnect active bond
      * Add connection type "bond" named "bond0" for device "nm-bond"
      * Add slave connection for master "nm-bond" on device "eth1" named "bond0.0"
-     * Add slave connection for master "nm-bond" on device "eth2" named "bond0.1"
+     * Add slave connection for master "nm-bond" on device "eth4" named "bond0.1"
      * Bring "up" connection "bond0.0"
      * Bring "up" connection "bond0.1"
      * Disconnect device "nm-bond"
@@ -287,7 +287,7 @@
     Scenario: nmcli - bond - start bond by hand
      * Add connection type "bond" named "bond0" for device "nm-bond"
      * Add slave connection for master "nm-bond" on device "eth1" named "bond0.0"
-     * Add slave connection for master "nm-bond" on device "eth2" named "bond0.1"
+     * Add slave connection for master "nm-bond" on device "eth4" named "bond0.1"
      * Bring "down" connection "bond0.0"
      * Bring "down" connection "bond0.1"
      * Disconnect device "nm-bond"
@@ -296,7 +296,7 @@
      * Bring "up" connection "bond0.1"
      Then Check bond "nm-bond" link state is "up"
      Then Check slave "eth1" in bond "nm-bond" in proc
-     Then Check slave "eth2" in bond "nm-bond" in proc
+     Then Check slave "eth4" in bond "nm-bond" in proc
 
 
     @slaves @bond
@@ -304,7 +304,7 @@
     Scenario: nmcli - bond - start bond by hand with no slaves
      * Add connection type "bond" named "bond0" for device "nm-bond"
      * Add slave connection for master "nm-bond" on device "eth1" named "bond0.0"
-     * Add slave connection for master "nm-bond" on device "eth2" named "bond0.1"
+     * Add slave connection for master "nm-bond" on device "eth4" named "bond0.1"
      * Bring "down" connection "bond0.0"
      * Bring "down" connection "bond0.1"
      * Disconnect device "nm-bond"
@@ -312,7 +312,7 @@
      * Bring up connection "bond0" ignoring error
      Then Check bond "nm-bond" state is "up"
      Then Check slave "eth1" not in bond "nm-bond" in proc
-     Then Check slave "eth2" not in bond "nm-bond" in proc
+     Then Check slave "eth4" not in bond "nm-bond" in proc
 
 
     @slaves @bond
@@ -320,7 +320,7 @@
     Scenario: nmcli - bond - activate
      * Add connection type "bond" named "bond0" for device "nm-bond"
      * Add slave connection for master "nm-bond" on device "eth1" named "bond0.0"
-     * Add slave connection for master "nm-bond" on device "eth2" named "bond0.1"
+     * Add slave connection for master "nm-bond" on device "eth4" named "bond0.1"
      * Bring "down" connection "bond0.0"
      * Bring "down" connection "bond0.1"
      * Disconnect device "nm-bond"
@@ -332,7 +332,7 @@
      * Execute "sleep 3"
      Then Check bond "nm-bond" link state is "up"
      Then Check slave "eth1" in bond "nm-bond" in proc
-     Then Check slave "eth2" not in bond "nm-bond" in proc
+     Then Check slave "eth4" not in bond "nm-bond" in proc
 
 
     @rhbz1386872
@@ -375,7 +375,7 @@
     Scenario: nmcli - bond - start bond by hand with on auto only
      * Add connection type "bond" named "bond0" for device "nm-bond"
      * Add slave connection for master "nm-bond" on device "eth1" named "bond0.0"
-     * Add slave connection for master "nm-bond" on device "eth2" named "bond0.1"
+     * Add slave connection for master "nm-bond" on device "eth4" named "bond0.1"
      * Open editor for connection "bond0.0"
      * Submit "set connection.autoconnect no" in editor
      * Save in editor
@@ -383,15 +383,15 @@
      * Bring "up" connection "bond0"
      Then Check bond "nm-bond" link state is "up"
      Then Check slave "eth1" not in bond "nm-bond" in proc
-     Then Check slave "eth2" in bond "nm-bond" in proc
+     Then Check slave "eth4" in bond "nm-bond" in proc
 
 
-    @veth @slaves @bond
+    @veth @slaves @bond @restart
     @bond_start_on_boot
     Scenario: nmcli - bond - start bond on boot
      * Add connection type "bond" named "bond0" for device "nm-bond"
      * Add slave connection for master "nm-bond" on device "eth1" named "bond0.0"
-     * Add slave connection for master "nm-bond" on device "eth2" named "bond0.1"
+     * Add slave connection for master "nm-bond" on device "eth4" named "bond0.1"
      * Open editor for connection "bond0.0"
      * Submit "set connection.autoconnect yes" in editor
      * Save in editor
@@ -404,67 +404,69 @@
      * Reboot
      Then Check bond "nm-bond" link state is "up"
      Then Check slave "eth1" in bond "nm-bond" in proc
-     Then Check slave "eth2" in bond "nm-bond" in proc
+     Then Check slave "eth4" in bond "nm-bond" in proc
 
 
     @rhbz1420708 @rhbz1420708
     @ver+=1.7.9
     @rhel7_only
-    @slaves @bond @bond_order
+    @slaves @bond @bond_order @teardown_testveth @restart
     @bond_default_rhel7_slaves_ordering
     Scenario: NM - bond - default rhel7 slaves ordering (ifindex)
-    * Note the output of "nmcli -t --mode tabular --fields GENERAL.HWADDR device show eth10" as value "orig_eth10"
-    * Note the output of "nmcli -t --mode tabular --fields GENERAL.HWADDR device show eth2" as value "orig_eth2"
-    * Note the output of "nmcli -t --mode tabular --fields GENERAL.HWADDR device show eth3" as value "orig_eth3"
+    * Prepare simulated test "eth11" device
+    * Note the output of "nmcli -t --mode tabular --fields GENERAL.HWADDR device show eth11" as value "orig_eth11"
+    * Note the output of "nmcli -t --mode tabular --fields GENERAL.HWADDR device show eth4" as value "orig_eth4"
+    * Note the output of "nmcli -t --mode tabular --fields GENERAL.HWADDR device show eth5" as value "orig_eth5"
     * Add a new connection of type "bond" and options "con-name bond0 ifname nm-bond ip4 1.2.3.4/24"
-    * Add slave connection for master "nm-bond" on device "eth10" named "bond0.0"
-    * Add slave connection for master "nm-bond" on device "eth2" named "bond0.1"
-    * Add slave connection for master "nm-bond" on device "eth3" named "bond0.2"
+    * Add slave connection for master "nm-bond" on device "eth11" named "bond0.0"
+    * Add slave connection for master "nm-bond" on device "eth4" named "bond0.1"
+    * Add slave connection for master "nm-bond" on device "eth5" named "bond0.2"
     * Bring down connection "bond0" ignoring error
     * Bring down connection "bond0.0" ignoring error
     * Bring down connection "bond0.1" ignoring error
     * Bring down connection "bond0.2" ignoring error
     * Reboot
     When Check bond "nm-bond" link state is "up"
-     And Check slave "eth10" in bond "nm-bond" in proc
-     And Check slave "eth2" in bond "nm-bond" in proc
-     And Check slave "eth3" in bond "nm-bond" in proc
+     And Check slave "eth11" in bond "nm-bond" in proc
+     And Check slave "eth4" in bond "nm-bond" in proc
+     And Check slave "eth5" in bond "nm-bond" in proc
     * Execute "ip a s"
-    * Note the output of "nmcli -t --mode tabular --fields GENERAL.HWADDR device show eth10" as value "new_eth10"
-    * Note the output of "nmcli -t --mode tabular --fields GENERAL.HWADDR device show eth2" as value "new_eth2"
-    * Note the output of "nmcli -t --mode tabular --fields GENERAL.HWADDR device show eth3" as value "new_eth3"
+    * Note the output of "nmcli -t --mode tabular --fields GENERAL.HWADDR device show eth11" as value "new_eth11"
+    * Note the output of "nmcli -t --mode tabular --fields GENERAL.HWADDR device show eth4" as value "new_eth4"
+    * Note the output of "nmcli -t --mode tabular --fields GENERAL.HWADDR device show eth5" as value "new_eth5"
     * Note the output of "nmcli -t --mode tabular --fields GENERAL.HWADDR device show nm-bond" as value "bond"
-    When Check noted values "orig_eth2" and "new_eth10" are the same
-     And Check noted values "new_eth2" and "new_eth2" are the same
-     And Check noted values "new_eth2" and "new_eth3" are the same
-     And Check noted values "new_eth2" and "bond" are the same
+    When Check noted values "orig_eth4" and "new_eth11" are the same
+     And Check noted values "new_eth4" and "new_eth4" are the same
+     And Check noted values "new_eth4" and "new_eth5" are the same
+     And Check noted values "new_eth4" and "bond" are the same
     * Delete connection "bond0.1"
     * Bring "down" connection "bond0.0"
     * Bring "down" connection "bond0.2"
     * Reboot
     When Check bond "nm-bond" link state is "up"
-     And Check slave "eth10" in bond "nm-bond" in proc
-     And Check slave "eth3" in bond "nm-bond" in proc
-    * Note the output of "nmcli -t --mode tabular --fields GENERAL.HWADDR device show eth10" as value "new_eth10"
-    * Note the output of "nmcli -t --mode tabular --fields GENERAL.HWADDR device show eth3" as value "new_eth3"
+     And Check slave "eth11" in bond "nm-bond" in proc
+     And Check slave "eth5" in bond "nm-bond" in proc
+    * Note the output of "nmcli -t --mode tabular --fields GENERAL.HWADDR device show eth11" as value "new_eth11"
+    * Note the output of "nmcli -t --mode tabular --fields GENERAL.HWADDR device show eth5" as value "new_eth5"
     * Note the output of "nmcli -t --mode tabular --fields GENERAL.HWADDR device show nm-bond" as value "bond"
-    Then Check noted values "orig_eth3" and "new_eth3" are the same
-     And Check noted values "new_eth3" and "new_eth10" are the same
-     And Check noted values "new_eth3" and "bond" are the same
+    Then Check noted values "orig_eth5" and "new_eth5" are the same
+     And Check noted values "new_eth5" and "new_eth11" are the same
+     And Check noted values "new_eth5" and "bond" are the same
 
 
     @rhbz1420708 @rhbz1420708
     @ver+=1.7.9
-    @slaves @bond @bond_order
+    @slaves @bond @bond_order @teardown_testveth @restart
     @bond_slaves_ordering_by_ifindex
     Scenario: NM - bond - ifindex slaves ordering
-    * Note the output of "nmcli -t --mode tabular --fields GENERAL.HWADDR device show eth10" as value "orig_eth10"
-    * Note the output of "nmcli -t --mode tabular --fields GENERAL.HWADDR device show eth2" as value "orig_eth2"
-    * Note the output of "nmcli -t --mode tabular --fields GENERAL.HWADDR device show eth3" as value "orig_eth3"
+    * Prepare simulated test "eth11" device
+    * Note the output of "nmcli -t --mode tabular --fields GENERAL.HWADDR device show eth11" as value "orig_eth11"
+    * Note the output of "nmcli -t --mode tabular --fields GENERAL.HWADDR device show eth4" as value "orig_eth4"
+    * Note the output of "nmcli -t --mode tabular --fields GENERAL.HWADDR device show eth5" as value "orig_eth5"
     * Add a new connection of type "bond" and options "con-name bond0 ifname nm-bond ip4 1.2.3.4/24"
-    * Add slave connection for master "nm-bond" on device "eth10" named "bond0.0"
-    * Add slave connection for master "nm-bond" on device "eth2" named "bond0.1"
-    * Add slave connection for master "nm-bond" on device "eth3" named "bond0.2"
+    * Add slave connection for master "nm-bond" on device "eth11" named "bond0.0"
+    * Add slave connection for master "nm-bond" on device "eth4" named "bond0.1"
+    * Add slave connection for master "nm-bond" on device "eth5" named "bond0.2"
     * Bring down connection "bond0" ignoring error
     * Bring down connection "bond0.0" ignoring error
     * Bring down connection "bond0.1" ignoring error
@@ -472,88 +474,90 @@
     * Execute "echo -e '[main]\nslaves-order=index' > /etc/NetworkManager/conf.d/99-bond.conf"
     * Reboot
     When Check bond "nm-bond" link state is "up"
-     And Check slave "eth10" in bond "nm-bond" in proc
-     And Check slave "eth2" in bond "nm-bond" in proc
-     And Check slave "eth3" in bond "nm-bond" in proc
+     And Check slave "eth11" in bond "nm-bond" in proc
+     And Check slave "eth4" in bond "nm-bond" in proc
+     And Check slave "eth5" in bond "nm-bond" in proc
     * Execute "ip a s"
-    * Note the output of "nmcli -t --mode tabular --fields GENERAL.HWADDR device show eth10" as value "new_eth10"
-    * Note the output of "nmcli -t --mode tabular --fields GENERAL.HWADDR device show eth2" as value "new_eth2"
-    * Note the output of "nmcli -t --mode tabular --fields GENERAL.HWADDR device show eth3" as value "new_eth3"
+    * Note the output of "nmcli -t --mode tabular --fields GENERAL.HWADDR device show eth11" as value "new_eth11"
+    * Note the output of "nmcli -t --mode tabular --fields GENERAL.HWADDR device show eth4" as value "new_eth4"
+    * Note the output of "nmcli -t --mode tabular --fields GENERAL.HWADDR device show eth5" as value "new_eth5"
     * Note the output of "nmcli -t --mode tabular --fields GENERAL.HWADDR device show nm-bond" as value "bond"
-    When Check noted values "orig_eth2" and "new_eth10" are the same
-     And Check noted values "new_eth2" and "new_eth2" are the same
-     And Check noted values "new_eth2" and "new_eth3" are the same
-     And Check noted values "new_eth2" and "bond" are the same
+    When Check noted values "orig_eth4" and "new_eth11" are the same
+     And Check noted values "new_eth4" and "new_eth4" are the same
+     And Check noted values "new_eth4" and "new_eth5" are the same
+     And Check noted values "new_eth4" and "bond" are the same
     * Delete connection "bond0.1"
     * Bring "down" connection "bond0.0"
     * Bring "down" connection "bond0.2"
     * Reboot
     When Check bond "nm-bond" link state is "up"
-     And Check slave "eth10" in bond "nm-bond" in proc
-     And Check slave "eth3" in bond "nm-bond" in proc
-    * Note the output of "nmcli -t --mode tabular --fields GENERAL.HWADDR device show eth10" as value "new_eth10"
-    * Note the output of "nmcli -t --mode tabular --fields GENERAL.HWADDR device show eth3" as value "new_eth3"
+     And Check slave "eth11" in bond "nm-bond" in proc
+     And Check slave "eth5" in bond "nm-bond" in proc
+    * Note the output of "nmcli -t --mode tabular --fields GENERAL.HWADDR device show eth11" as value "new_eth11"
+    * Note the output of "nmcli -t --mode tabular --fields GENERAL.HWADDR device show eth5" as value "new_eth5"
     * Note the output of "nmcli -t --mode tabular --fields GENERAL.HWADDR device show nm-bond" as value "bond"
-    Then Check noted values "orig_eth3" and "new_eth3" are the same
-     And Check noted values "new_eth3" and "new_eth10" are the same
-     And Check noted values "new_eth3" and "bond" are the same
+    Then Check noted values "orig_eth5" and "new_eth5" are the same
+     And Check noted values "new_eth5" and "new_eth11" are the same
+     And Check noted values "new_eth5" and "bond" are the same
 
 
     @rhbz1420708 @rhbz1420708
     @ver+=1.7.9
-    @slaves @bond @bond_order
+    @slaves @bond @bond_order @teardown_testveth @restart
     @bond_slaves_ordering_by_ifindex_with_autoconnect_slaves
     Scenario: NM - bond - autoconnect slaves - ifindex slaves ordering
-    * Note the output of "nmcli -t --mode tabular --fields GENERAL.HWADDR device show eth10" as value "orig_eth10"
-    * Note the output of "nmcli -t --mode tabular --fields GENERAL.HWADDR device show eth2" as value "orig_eth2"
-    * Note the output of "nmcli -t --mode tabular --fields GENERAL.HWADDR device show eth3" as value "orig_eth3"
+    * Prepare simulated test "eth11" device
+    * Note the output of "nmcli -t --mode tabular --fields GENERAL.HWADDR device show eth11" as value "orig_eth11"
+    * Note the output of "nmcli -t --mode tabular --fields GENERAL.HWADDR device show eth4" as value "orig_eth4"
+    * Note the output of "nmcli -t --mode tabular --fields GENERAL.HWADDR device show eth5" as value "orig_eth5"
     * Add a new connection of type "bond" and options "con-name bond0 ifname nm-bond ip4 1.2.3.4/24"
-    * Add slave connection for master "nm-bond" on device "eth10" named "bond0.0"
-    * Add slave connection for master "nm-bond" on device "eth2" named "bond0.1"
-    * Add slave connection for master "nm-bond" on device "eth3" named "bond0.2"
+    * Add slave connection for master "nm-bond" on device "eth11" named "bond0.0"
+    * Add slave connection for master "nm-bond" on device "eth4" named "bond0.1"
+    * Add slave connection for master "nm-bond" on device "eth5" named "bond0.2"
     * Execute "nmcli con modify bond0 con.autoconnect-sl 1"
     * Execute "echo -e '[main]\nslaves-order=index' > /etc/NetworkManager/conf.d/99-bond.conf"
     * Reboot
     When Check bond "nm-bond" link state is "up"
-     And Check slave "eth10" in bond "nm-bond" in proc
-     And Check slave "eth2" in bond "nm-bond" in proc
-     And Check slave "eth3" in bond "nm-bond" in proc
+     And Check slave "eth11" in bond "nm-bond" in proc
+     And Check slave "eth4" in bond "nm-bond" in proc
+     And Check slave "eth5" in bond "nm-bond" in proc
     * Execute "ip a s"
-    * Note the output of "nmcli -t --mode tabular --fields GENERAL.HWADDR device show eth10" as value "new_eth10"
-    * Note the output of "nmcli -t --mode tabular --fields GENERAL.HWADDR device show eth2" as value "new_eth2"
-    * Note the output of "nmcli -t --mode tabular --fields GENERAL.HWADDR device show eth3" as value "new_eth3"
+    * Note the output of "nmcli -t --mode tabular --fields GENERAL.HWADDR device show eth11" as value "new_eth11"
+    * Note the output of "nmcli -t --mode tabular --fields GENERAL.HWADDR device show eth4" as value "new_eth4"
+    * Note the output of "nmcli -t --mode tabular --fields GENERAL.HWADDR device show eth5" as value "new_eth5"
     * Note the output of "nmcli -t --mode tabular --fields GENERAL.HWADDR device show nm-bond" as value "bond"
-    When Check noted values "orig_eth2" and "new_eth10" are the same
-     And Check noted values "new_eth2" and "new_eth2" are the same
-     And Check noted values "new_eth2" and "new_eth3" are the same
-     And Check noted values "new_eth2" and "bond" are the same
+    When Check noted values "orig_eth4" and "new_eth11" are the same
+     And Check noted values "new_eth4" and "new_eth4" are the same
+     And Check noted values "new_eth4" and "new_eth5" are the same
+     And Check noted values "new_eth4" and "bond" are the same
     * Delete connection "bond0.1"
     * Bring "down" connection "bond0.0"
     * Bring "down" connection "bond0.2"
     * Reboot
     When Check bond "nm-bond" link state is "up"
-     And Check slave "eth10" in bond "nm-bond" in proc
-     And Check slave "eth3" in bond "nm-bond" in proc
-    * Note the output of "nmcli -t --mode tabular --fields GENERAL.HWADDR device show eth10" as value "new_eth10"
-    * Note the output of "nmcli -t --mode tabular --fields GENERAL.HWADDR device show eth3" as value "new_eth3"
+     And Check slave "eth11" in bond "nm-bond" in proc
+     And Check slave "eth5" in bond "nm-bond" in proc
+    * Note the output of "nmcli -t --mode tabular --fields GENERAL.HWADDR device show eth11" as value "new_eth11"
+    * Note the output of "nmcli -t --mode tabular --fields GENERAL.HWADDR device show eth5" as value "new_eth5"
     * Note the output of "nmcli -t --mode tabular --fields GENERAL.HWADDR device show nm-bond" as value "bond"
-    Then Check noted values "orig_eth3" and "new_eth3" are the same
-     And Check noted values "new_eth3" and "new_eth10" are the same
-     And Check noted values "new_eth3" and "bond" are the same
+    Then Check noted values "orig_eth5" and "new_eth5" are the same
+     And Check noted values "new_eth5" and "new_eth11" are the same
+     And Check noted values "new_eth5" and "bond" are the same
 
 
     @rhbz1420708 @rhbz1420708
     @ver+=1.7.9
-    @slaves @bond @bond_order
+    @slaves @bond @bond_order @teardown_testveth @restart
     @bond_slaves_ordering_by_name
     Scenario: NM - bond - alphabet slaves ordering
-    * Note the output of "nmcli -t --mode tabular --fields GENERAL.HWADDR device show eth10" as value "orig_eth10"
-    * Note the output of "nmcli -t --mode tabular --fields GENERAL.HWADDR device show eth2" as value "orig_eth2"
-    * Note the output of "nmcli -t --mode tabular --fields GENERAL.HWADDR device show eth3" as value "orig_eth3"
+    * Prepare simulated test "eth11" device
+    * Note the output of "nmcli -t --mode tabular --fields GENERAL.HWADDR device show eth11" as value "orig_eth11"
+    * Note the output of "nmcli -t --mode tabular --fields GENERAL.HWADDR device show eth4" as value "orig_eth4"
+    * Note the output of "nmcli -t --mode tabular --fields GENERAL.HWADDR device show eth5" as value "orig_eth5"
     * Add a new connection of type "bond" and options "con-name bond0 ifname nm-bond ip4 1.2.3.4/24"
-    * Add slave connection for master "nm-bond" on device "eth10" named "bond0.0"
-    * Add slave connection for master "nm-bond" on device "eth2" named "bond0.1"
-    * Add slave connection for master "nm-bond" on device "eth3" named "bond0.2"
+    * Add slave connection for master "nm-bond" on device "eth11" named "bond0.0"
+    * Add slave connection for master "nm-bond" on device "eth4" named "bond0.1"
+    * Add slave connection for master "nm-bond" on device "eth5" named "bond0.2"
     * Bring down connection "bond0" ignoring error
     * Bring down connection "bond0.0" ignoring error
     * Bring down connection "bond0.1" ignoring error
@@ -561,76 +565,77 @@
     * Execute "echo -e '[main]\nslaves-order=name' > /etc/NetworkManager/conf.d/99-bond.conf"
     * Reboot
     When Check bond "nm-bond" link state is "up"
-     And Check slave "eth10" in bond "nm-bond" in proc
-     And Check slave "eth2" in bond "nm-bond" in proc
-     And Check slave "eth3" in bond "nm-bond" in proc
+     And Check slave "eth11" in bond "nm-bond" in proc
+     And Check slave "eth4" in bond "nm-bond" in proc
+     And Check slave "eth5" in bond "nm-bond" in proc
     * Execute "ip a s"
-    * Note the output of "nmcli -t --mode tabular --fields GENERAL.HWADDR device show eth10" as value "new_eth10"
-    * Note the output of "nmcli -t --mode tabular --fields GENERAL.HWADDR device show eth2" as value "new_eth2"
-    * Note the output of "nmcli -t --mode tabular --fields GENERAL.HWADDR device show eth3" as value "new_eth3"
+    * Note the output of "nmcli -t --mode tabular --fields GENERAL.HWADDR device show eth11" as value "new_eth11"
+    * Note the output of "nmcli -t --mode tabular --fields GENERAL.HWADDR device show eth4" as value "new_eth4"
+    * Note the output of "nmcli -t --mode tabular --fields GENERAL.HWADDR device show eth5" as value "new_eth5"
     * Note the output of "nmcli -t --mode tabular --fields GENERAL.HWADDR device show nm-bond" as value "bond"
-    When Check noted values "orig_eth10" and "new_eth10" are the same
-     And Check noted values "new_eth10" and "new_eth2" are the same
-     And Check noted values "new_eth10" and "new_eth3" are the same
-     And Check noted values "new_eth10" and "bond" are the same
+    When Check noted values "orig_eth11" and "new_eth11" are the same
+     And Check noted values "new_eth11" and "new_eth4" are the same
+     And Check noted values "new_eth11" and "new_eth5" are the same
+     And Check noted values "new_eth11" and "bond" are the same
     * Delete connection "bond0.0"
     * Bring "down" connection "bond0.1"
     * Bring "down" connection "bond0.2"
     * Reboot
     When Check bond "nm-bond" link state is "up"
-     And Check slave "eth2" in bond "nm-bond" in proc
-     And Check slave "eth3" in bond "nm-bond" in proc
-    * Note the output of "nmcli -t --mode tabular --fields GENERAL.HWADDR device show eth2" as value "new_eth2"
-    * Note the output of "nmcli -t --mode tabular --fields GENERAL.HWADDR device show eth3" as value "new_eth3"
+     And Check slave "eth4" in bond "nm-bond" in proc
+     And Check slave "eth5" in bond "nm-bond" in proc
+    * Note the output of "nmcli -t --mode tabular --fields GENERAL.HWADDR device show eth4" as value "new_eth4"
+    * Note the output of "nmcli -t --mode tabular --fields GENERAL.HWADDR device show eth5" as value "new_eth5"
     * Note the output of "nmcli -t --mode tabular --fields GENERAL.HWADDR device show nm-bond" as value "bond"
-    Then Check noted values "orig_eth2" and "new_eth2" are the same
-     And Check noted values "new_eth2" and "new_eth3" are the same
-     And Check noted values "new_eth2" and "bond" are the same
+    Then Check noted values "orig_eth4" and "new_eth4" are the same
+     And Check noted values "new_eth4" and "new_eth5" are the same
+     And Check noted values "new_eth4" and "bond" are the same
 
 
     @rhbz1420708 @rhbz1420708
     @ver+=1.7.9
-    @slaves @bond @bond_order
+    @slaves @bond @bond_order @teardown_testveth @restart
     @bond_slaves_ordering_by_name_with_autoconnect_slaves
     Scenario: NM - bond - autoconnect slaves - alphabet slaves ordering
-    * Note the output of "nmcli -t --mode tabular --fields GENERAL.HWADDR device show eth10" as value "orig_eth10"
-    * Note the output of "nmcli -t --mode tabular --fields GENERAL.HWADDR device show eth2" as value "orig_eth2"
-    * Note the output of "nmcli -t --mode tabular --fields GENERAL.HWADDR device show eth3" as value "orig_eth3"
+    * Prepare simulated test "eth11" device
+    * Note the output of "nmcli -t --mode tabular --fields GENERAL.HWADDR device show eth11" as value "orig_eth11"
+    * Note the output of "nmcli -t --mode tabular --fields GENERAL.HWADDR device show eth4" as value "orig_eth4"
+    * Note the output of "nmcli -t --mode tabular --fields GENERAL.HWADDR device show eth5" as value "orig_eth5"
     * Add a new connection of type "bond" and options "con-name bond0 ifname nm-bond ip4 1.2.3.4/24"
-    * Add slave connection for master "nm-bond" on device "eth10" named "bond0.0"
-    * Add slave connection for master "nm-bond" on device "eth2" named "bond0.1"
-    * Add slave connection for master "nm-bond" on device "eth3" named "bond0.2"
+    * Add slave connection for master "nm-bond" on device "eth11" named "bond0.0"
+    * Add slave connection for master "nm-bond" on device "eth4" named "bond0.1"
+    * Add slave connection for master "nm-bond" on device "eth5" named "bond0.2"
     * Execute "nmcli con modify bond0 con.autoconnect-sl 1"
     * Execute "echo -e '[main]\nslaves-order=name' > /etc/NetworkManager/conf.d/99-bond.conf"
      When "nm-bond:connected:bond0" is visible with command "nmcli -t -f DEVICE,STATE,CONNECTION device" in "20" seconds
     * Reboot
     When Check bond "nm-bond" link state is "up"
-     And Check slave "eth10" in bond "nm-bond" in proc
-     And Check slave "eth2" in bond "nm-bond" in proc
-     And Check slave "eth3" in bond "nm-bond" in proc
+     And Check slave "eth11" in bond "nm-bond" in proc
+     And Check slave "eth4" in bond "nm-bond" in proc
+     And Check slave "eth5" in bond "nm-bond" in proc
     * Execute "ip a s"
-    * Note the output of "nmcli -t --mode tabular --fields GENERAL.HWADDR device show eth10" as value "new_eth10"
-    * Note the output of "nmcli -t --mode tabular --fields GENERAL.HWADDR device show eth2" as value "new_eth2"
-    * Note the output of "nmcli -t --mode tabular --fields GENERAL.HWADDR device show eth3" as value "new_eth3"
+    * Note the output of "nmcli -t --mode tabular --fields GENERAL.HWADDR device show eth11" as value "new_eth11"
+    * Note the output of "nmcli -t --mode tabular --fields GENERAL.HWADDR device show eth4" as value "new_eth4"
+    * Note the output of "nmcli -t --mode tabular --fields GENERAL.HWADDR device show eth5" as value "new_eth5"
     * Note the output of "nmcli -t --mode tabular --fields GENERAL.HWADDR device show nm-bond" as value "bond"
-    When Check noted values "orig_eth10" and "new_eth10" are the same
-     And Check noted values "new_eth10" and "new_eth2" are the same
-     And Check noted values "new_eth10" and "new_eth3" are the same
-     And Check noted values "new_eth10" and "bond" are the same
+    When Check noted values "orig_eth11" and "new_eth11" are the same
+     And Check noted values "new_eth11" and "new_eth4" are the same
+     And Check noted values "new_eth11" and "new_eth5" are the same
+     And Check noted values "new_eth11" and "bond" are the same
     * Delete connection "bond0.0"
     * Bring "down" connection "bond0.1"
     * Bring "down" connection "bond0.2"
     * Execute "sleep 1"
     * Reboot
     When Check bond "nm-bond" link state is "up"
-     And Check slave "eth2" in bond "nm-bond" in proc
-     And Check slave "eth3" in bond "nm-bond" in proc
-    * Note the output of "nmcli -t --mode tabular --fields GENERAL.HWADDR device show eth2" as value "new_eth2"
-    * Note the output of "nmcli -t --mode tabular --fields GENERAL.HWADDR device show eth3" as value "new_eth3"
+     And Check slave "eth4" in bond "nm-bond" in proc
+     And Check slave "eth5" in bond "nm-bond" in proc
+    * Note the output of "nmcli -t --mode tabular --fields GENERAL.HWADDR device show eth4" as value "new_eth4"
+    * Note the output of "nmcli -t --mode tabular --fields GENERAL.HWADDR device show eth5" as value "new_eth5"
     * Note the output of "nmcli -t --mode tabular --fields GENERAL.HWADDR device show nm-bond" as value "bond"
-    Then Check noted values "orig_eth2" and "new_eth2" are the same
-     And Check noted values "new_eth2" and "new_eth3" are the same
-     And Check noted values "new_eth2" and "bond" are the same
+    Then Check noted values "orig_eth4" and "new_eth4" are the same
+     And Check noted values "new_eth4" and "new_eth5" are the same
+     And Check noted values "new_eth4" and "bond" are the same
 
 
     @rhbz1158529
@@ -639,7 +644,7 @@
     Scenario: nmcli - bond - start slaves via master
      * Add connection type "bond" named "bond0" for device "nm-bond"
      * Add slave connection for master "nm-bond" on device "eth1" named "bond0.0"
-     * Add slave connection for master "nm-bond" on device "eth2" named "bond0.1"
+     * Add slave connection for master "nm-bond" on device "eth4" named "bond0.1"
      * Open editor for connection "bond0"
      * Submit "set connection.autoconnect-slaves 1" in editor
      * Save in editor
@@ -648,15 +653,15 @@
      * Bring "up" connection "bond0"
      Then Check bond "nm-bond" link state is "up"
      Then Check slave "eth1" in bond "nm-bond" in proc
-     Then Check slave "eth2" in bond "nm-bond" in proc
+     Then Check slave "eth4" in bond "nm-bond" in proc
 
 
-    @veth @slaves @bond
+    @veth @slaves @bond @restart
     @bond_start_on_boot_with_nothing_auto
     Scenario: nmcli - bond - start bond on boot - nothing auto
      * Add connection type "bond" named "bond0" for device "nm-bond"
      * Add slave connection for master "nm-bond" on device "eth1" named "bond0.0"
-     * Add slave connection for master "nm-bond" on device "eth2" named "bond0.1"
+     * Add slave connection for master "nm-bond" on device "eth4" named "bond0.1"
      * Open editor for connection "bond0.0"
      * Submit "set connection.autoconnect no" in editor
      * Save in editor
@@ -673,15 +678,15 @@
      * Reboot
      Then Check bond "nm-bond" link state is "down"
      Then Check slave "eth1" not in bond "nm-bond" in proc
-     Then Check slave "eth2" not in bond "nm-bond" in proc
+     Then Check slave "eth4" not in bond "nm-bond" in proc
 
 
-    @veth @slaves @bond
+    @veth @slaves @bond @restart
     @bond_start_on_boot_with_one_auto_only
     Scenario: nmcli - bond - start bond on boot - one slave auto only
      * Add connection type "bond" named "bond0" for device "nm-bond"
      * Add slave connection for master "nm-bond" on device "eth1" named "bond0.0"
-     * Add slave connection for master "nm-bond" on device "eth2" named "bond0.1"
+     * Add slave connection for master "nm-bond" on device "eth4" named "bond0.1"
      * Open editor for connection "bond0.0"
      * Submit "set connection.autoconnect no" in editor
      * Save in editor
@@ -698,15 +703,15 @@
      * Reboot
      Then Check bond "nm-bond" link state is "up"
      Then Check slave "eth1" not in bond "nm-bond" in proc
-     Then Check slave "eth2" in bond "nm-bond" in proc
+     Then Check slave "eth4" in bond "nm-bond" in proc
 
 
-    @veth @slaves @bond
+    @veth @slaves @bond @restart
     @bond_start_on_boot_with_bond_and_one_slave_auto
     Scenario: nmcli - bond - start bond on boot - bond and one slave auto
      * Add connection type "bond" named "bond0" for device "nm-bond"
      * Add slave connection for master "nm-bond" on device "eth1" named "bond0.0"
-     * Add slave connection for master "nm-bond" on device "eth2" named "bond0.1"
+     * Add slave connection for master "nm-bond" on device "eth4" named "bond0.1"
      * Open editor for connection "bond0.0"
      * Submit "set connection.autoconnect no" in editor
      * Save in editor
@@ -725,7 +730,7 @@
      * Reboot
      Then Check bond "nm-bond" link state is "up"
      Then Check slave "eth1" not in bond "nm-bond" in proc
-     Then Check slave "eth2" in bond "nm-bond" in proc
+     Then Check slave "eth4" in bond "nm-bond" in proc
 
 
     @slaves @bond
@@ -733,7 +738,7 @@
     Scenario: nmcli - bond - options - set new miimon values
      * Add connection type "bond" named "bond0" for device "nm-bond"
      * Add slave connection for master "nm-bond" on device "eth1" named "bond0.0"
-     * Add slave connection for master "nm-bond" on device "eth2" named "bond0.1"
+     * Add slave connection for master "nm-bond" on device "eth4" named "bond0.1"
      * Open editor for connection "bond0"
      * Set a property named "bond.options" to "mode=0, miimon=100, downdelay=100, updelay=100" in editor
      * Save in editor
@@ -752,7 +757,7 @@
     Scenario: nmcli - bond - options - set new arp values
      * Add connection type "bond" named "bond0" for device "nm-bond"
      * Add slave connection for master "nm-bond" on device "eth1" named "bond0.0"
-     * Add slave connection for master "nm-bond" on device "eth2" named "bond0.1"
+     * Add slave connection for master "nm-bond" on device "eth4" named "bond0.1"
      * Open editor for connection "bond0"
      * Set a property named "bond.options" to "mode=0, arp_interval=1000, arp_ip_target=10.16.135.254" in editor
      * Save in editor
@@ -768,7 +773,7 @@
      Then "ARP Polling Interval \(ms\): 100" is visible with command "cat /proc/net/bonding/nm-bond"
      Then "ARP IP target/s \(n.n.n.n form\):.*10.16.135.254" is visible with command "cat /proc/net/bonding/nm-bond"
      Then Check "nm-bond" has "eth1" in proc
-     Then Check "nm-bond" has "eth2" in proc
+     Then Check "nm-bond" has "eth4" in proc
 
 
     @slaves @bond
@@ -776,7 +781,7 @@
     Scenario: nmcli - bond - options - set conflicting values between miimon and arp
      * Add connection type "bond" named "bond0" for device "nm-bond"
      * Add slave connection for master "nm-bond" on device "eth1" named "bond0.0"
-     * Add slave connection for master "nm-bond" on device "eth2" named "bond0.1"
+     * Add slave connection for master "nm-bond" on device "eth4" named "bond0.1"
      * Open editor for connection "bond0"
      * Set a property named "bond.options" to "mode=0,miimon=100,arp_interval=1000,arp_ip_target=10.16.135.254" in editor
      * Save in editor
@@ -789,7 +794,7 @@
      Then "MII Polling Interval \(ms\): 0" is visible with command "cat /proc/net/bonding/nm-bond"
      Then "ARP Polling Interval \(ms\): 1000" is visible with command "cat /proc/net/bonding/nm-bond"
      Then Check "nm-bond" has "eth1" in proc
-     Then Check "nm-bond" has "eth2" in proc
+     Then Check "nm-bond" has "eth4" in proc
 
 
     @bond
@@ -811,7 +816,7 @@
     Scenario: nmcli - bond - options - add values
      * Add connection type "bond" named "bond0" for device "nm-bond"
      * Add slave connection for master "nm-bond" on device "eth1" named "bond0.0"
-     * Add slave connection for master "nm-bond" on device "eth2" named "bond0.1"
+     * Add slave connection for master "nm-bond" on device "eth4" named "bond0.1"
      * Open editor for connection "bond0"
      * Submit "goto bond" in editor
      * Submit "goto options" in editor
@@ -848,7 +853,7 @@
     Scenario: nmcli - bond - options - change values
      * Add connection type "bond" named "bond0" for device "nm-bond"
      * Add slave connection for master "nm-bond" on device "eth1" named "bond0.0"
-     * Add slave connection for master "nm-bond" on device "eth2" named "bond0.1"
+     * Add slave connection for master "nm-bond" on device "eth4" named "bond0.1"
      * Open editor for connection "bond0"
      * Submit "goto bond" in editor
      * Submit "goto options" in editor
@@ -870,7 +875,7 @@
     Scenario: nmcli - bond - options - remove a value
      * Add connection type "bond" named "bond0" for device "nm-bond"
      * Add slave connection for master "nm-bond" on device "eth1" named "bond0.0"
-     * Add slave connection for master "nm-bond" on device "eth2" named "bond0.1"
+     * Add slave connection for master "nm-bond" on device "eth4" named "bond0.1"
      * Open editor for connection "bond0"
      * Set a property named "bond.options" to "mode=0, miimon=100, downdelay=100, updelay=100" in editor
      * Save in editor
@@ -903,7 +908,7 @@
     Scenario: nmcli - bond - options - overwrite some value
      * Add connection type "bond" named "bond0" for device "nm-bond"
      * Add slave connection for master "nm-bond" on device "eth1" named "bond0.0"
-     * Add slave connection for master "nm-bond" on device "eth2" named "bond0.1"
+     * Add slave connection for master "nm-bond" on device "eth4" named "bond0.1"
      * Open editor for connection "bond0"
      * Set a property named "bond.options" to "mode=0, miimon=999" in editor
      * Save in editor
@@ -920,7 +925,7 @@
     Scenario: nmcli - bond - options - mode set to balance-rr
      * Add connection type "bond" named "bond0" for device "nm-bond"
      * Add slave connection for master "nm-bond" on device "eth1" named "bond0.0"
-     * Add slave connection for master "nm-bond" on device "eth2" named "bond0.1"
+     * Add slave connection for master "nm-bond" on device "eth4" named "bond0.1"
      * Open editor for connection "bond0"
      * Set a property named "bond.options" to "mode=2" in editor
      * Save in editor
@@ -944,7 +949,7 @@
     Scenario: nmcli - bond - options - mode set to active backup
      * Add connection type "bond" named "bond0" for device "nm-bond"
      * Add slave connection for master "nm-bond" on device "eth1" named "bond0.0"
-     * Add slave connection for master "nm-bond" on device "eth2" named "bond0.1"
+     * Add slave connection for master "nm-bond" on device "eth4" named "bond0.1"
      * Open editor for connection "bond0"
      * Set a property named "bond.options" to "mode=1" in editor
      * Save in editor
@@ -960,7 +965,7 @@
     Scenario: nmcli - bond - options - mode set to active backup with primary device
      * Add connection type "bond" named "bond0" for device "nm-bond"
      * Add slave connection for master "nm-bond" on device "eth1" named "bond0.0"
-     * Add slave connection for master "nm-bond" on device "eth2" named "bond0.1"
+     * Add slave connection for master "nm-bond" on device "eth4" named "bond0.1"
      * Open editor for connection "bond0"
      * Set a property named "bond.options" to "mode=active-backup,primary=eth1,miimon=100,fail_over_mac=2" in editor
      * Save in editor
@@ -978,7 +983,7 @@
     Scenario: nmcli - bond - options - mode set to balance xor
      * Add connection type "bond" named "bond0" for device "nm-bond"
      * Add slave connection for master "nm-bond" on device "eth1" named "bond0.0"
-     * Add slave connection for master "nm-bond" on device "eth2" named "bond0.1"
+     * Add slave connection for master "nm-bond" on device "eth4" named "bond0.1"
      * Open editor for connection "bond0"
      * Set a property named "bond.options" to "mode=2" in editor
      * Save in editor
@@ -994,7 +999,7 @@
     Scenario: nmcli - bond - options - mode set to broadcast
      * Add connection type "bond" named "bond0" for device "nm-bond"
      * Add slave connection for master "nm-bond" on device "eth1" named "bond0.0"
-     * Add slave connection for master "nm-bond" on device "eth2" named "bond0.1"
+     * Add slave connection for master "nm-bond" on device "eth4" named "bond0.1"
      * Open editor for connection "bond0"
      * Set a property named "bond.options" to "mode=3" in editor
      * Save in editor
@@ -1010,7 +1015,7 @@
     Scenario: nmcli - bond - options - mode set to 802.3ad
      * Add connection type "bond" named "bond0" for device "nm-bond"
      * Add slave connection for master "nm-bond" on device "eth1" named "bond0.0"
-     * Add slave connection for master "nm-bond" on device "eth2" named "bond0.1"
+     * Add slave connection for master "nm-bond" on device "eth4" named "bond0.1"
      * Open editor for connection "bond0"
      * Set a property named "bond.options" to "mode=4" in editor
      * Save in editor
@@ -1026,7 +1031,7 @@
     Scenario: nmcli - bond - options - mode set to 802.3ad with lacp_rate fast
      * Add connection type "bond" named "bond0" for device "nm-bond"
      * Add slave connection for master "nm-bond" on device "eth1" named "bond0.0"
-     * Add slave connection for master "nm-bond" on device "eth2" named "bond0.1"
+     * Add slave connection for master "nm-bond" on device "eth4" named "bond0.1"
      * Open editor for connection "bond0"
      * Set a property named "bond.options" to "mode=802.3ad,miimon=100,xmit_hash_policy=layer2+3,lacp_rate=fast" in editor
      * Save in editor
@@ -1044,7 +1049,7 @@
     Scenario: nmcli - bond - options - mode set to balance-tlb
      * Add connection type "bond" named "bond0" for device "nm-bond"
      * Add slave connection for master "nm-bond" on device "eth1" named "bond0.0"
-     * Add slave connection for master "nm-bond" on device "eth2" named "bond0.1"
+     * Add slave connection for master "nm-bond" on device "eth4" named "bond0.1"
      * Open editor for connection "bond0"
      * Set a property named "bond.options" to "miimon=100,mode=5" in editor
      * Save in editor
@@ -1062,7 +1067,7 @@
     Scenario: nmcli - bond - options - mode set to balance-alb
      * Add connection type "bond" named "bond0" for device "nm-bond"
      * Add slave connection for master "nm-bond" on device "eth1" named "bond0.0"
-     * Add slave connection for master "nm-bond" on device "eth2" named "bond0.1"
+     * Add slave connection for master "nm-bond" on device "eth4" named "bond0.1"
      * Open editor for connection "bond0"
      * Set a property named "bond.options" to "miimon=100,mode=6" in editor
      * Save in editor
@@ -1081,7 +1086,7 @@
     Scenario: nmcli - bond - set mtu
      * Add connection type "bond" named "bond0" for device "nm-bond"
      * Add slave connection for master "nm-bond" on device "eth1" named "bond0.0"
-     * Add slave connection for master "nm-bond" on device "eth2" named "bond0.1"
+     * Add slave connection for master "nm-bond" on device "eth4" named "bond0.1"
      * Open editor for connection "bond0.0"
      * Set a property named "802-3-ethernet.mtu" to "9000" in editor
      * Save in editor
@@ -1102,9 +1107,9 @@
      * Bring "up" connection "bond0.0"
     Then Check bond "nm-bond" link state is "up"
     Then Check "nm-bond" has "eth1" in proc
-    Then Check "nm-bond" has "eth2" in proc
+    Then Check "nm-bond" has "eth4" in proc
     Then "mtu 9000" is visible with command "ip a s eth1 |grep mtu" in "15" seconds
-    Then "mtu 9000" is visible with command "ip a s eth2 |grep mtu"
+    Then "mtu 9000" is visible with command "ip a s eth4 |grep mtu"
     Then "mtu 9000" is visible with command "ip a s nm-bond |grep mtu"
 
 
@@ -1115,7 +1120,7 @@
     Scenario: nmcli - bond - addresses restart persistence
      * Add connection type "bond" named "bond0" for device "nm-bond"
      * Add slave connection for master "nm-bond" on device "eth1" named "bond0.0"
-     * Add slave connection for master "nm-bond" on device "eth2" named "bond0.1"
+     * Add slave connection for master "nm-bond" on device "eth4" named "bond0.1"
      * Open editor for connection "bond0"
      * Set a property named "ipv4.method" to "manual" in editor
      * Set a property named "ipv4.addresses" to "1.1.1.2/24" in editor
@@ -1126,18 +1131,18 @@
      * Bring "up" connection "bond0"
      * Bring "up" connection "bond0.1"
      * Bring "up" connection "bond0.0"
-     * restart NM
+     * Restart NM
      When "activated" is visible with command "nmcli  connection show bond0 |grep STATE" in "10" seconds
       And "nm-bond" is not visible with command "nmcli -f NAME connection"
-     * restart NM
+     * Restart NM
      When "activated" is visible with command "nmcli  connection show bond0 |grep STATE" in "10" seconds
       And "nm-bond" is not visible with command "nmcli -f NAME connection"
-     * restart NM
+     * Restart NM
      Then "activated" is visible with command "nmcli  connection show bond0 |grep STATE" in "10" seconds
       And "nm-bond" is not visible with command "nmcli -f NAME connection"
       And Check bond "nm-bond" link state is "up"
       And Check "nm-bond" has "eth1" in proc
-      And Check "nm-bond" has "eth2" in proc
+      And Check "nm-bond" has "eth4" in proc
       And "1.1.1.2/24" is visible with command "nmcli connection show bond0 |grep ipv4.addresses"
       And "manual" is visible with command "nmcli connection show bond0 |grep ipv4.method"
       And "1.1.1.2/24" is visible with command "nmcli connection show bond0 |grep IP4.ADDRESS"
@@ -1197,8 +1202,8 @@
     @bond_mode_by_number_in_ifcfg
     Scenario: NM - bond - ifcfg - mode set by number
      * Add connection type "bond" named "bond0" for device "nm-bond"
-     * Add slave connection for master "nm-bond" on device "eth3" named "bond0.0"
-     * Add slave connection for master "nm-bond" on device "eth4" named "bond0.1"
+     * Add slave connection for master "nm-bond" on device "eth4" named "bond0.0"
+     * Add slave connection for master "nm-bond" on device "eth5" named "bond0.1"
      * Execute "sed -i 's/BONDING_OPTS=mode=balance-rr/BONDING_OPTS=mode=5/' /etc/sysconfig/network-scripts/ifcfg-bond0"
      * Execute "sudo nmcli connection reload"
      * Bring "up" connection "bond0"
@@ -1213,13 +1218,13 @@
     @slaves @bond
     @bond_set_active_backup_options
     Scenario: nmcli - bond - set active backup options
-     * Add a new connection of type "bond" and options "con-name bond0 ifname nm-bond autoconnect no -- connection.autoconnect-slaves 1 bond.options mode=active-backup,active_slave=eth2,num_grat_arp=3,num_unsol_na=3"
-     * Add a new connection of type "ethernet" and options "con-name bond0.1 ifname eth2 master nm-bond autoconnect no"
+     * Add a new connection of type "bond" and options "con-name bond0 ifname nm-bond autoconnect no -- connection.autoconnect-slaves 1 bond.options mode=active-backup,active_slave=eth4,num_grat_arp=3,num_unsol_na=3"
+     * Add a new connection of type "ethernet" and options "con-name bond0.1 ifname eth4 master nm-bond autoconnect no"
      * Add a new connection of type "ethernet" and options "con-name bond0.0 ifname eth1 master nm-bond autoconnect no"
      * Bring "up" connection "bond0"
      When "nm-bond:connected:bond0" is visible with command "nmcli -t -f DEVICE,STATE,CONNECTION device" in "20" seconds
-     Then "BONDING_OPTS=\"mode=active-backup num_grat_arp=3 num_unsol_na=3 active_slave=eth2\"" is visible with command "cat /etc/sysconfig/network-scripts/ifcfg-bond0"
-      #And "Currently Active Slave: eth2" is visible with command "cat /proc/net/bonding/nm-bond"
+     Then "BONDING_OPTS=\"mode=active-backup num_grat_arp=3 num_unsol_na=3 active_slave=eth4\"" is visible with command "cat /etc/sysconfig/network-scripts/ifcfg-bond0"
+      #And "Currently Active Slave: eth4" is visible with command "cat /proc/net/bonding/nm-bond"
       And "3" is visible with command "cat /sys/class/net/nm-bond/bonding/num_grat_arp"
       And "3" is visible with command "cat /sys/class/net/nm-bond/bonding/num_unsol_na"
 
@@ -1228,13 +1233,13 @@
     @slaves @bond
     @bond_set_active_backup_options
     Scenario: nmcli - bond - set active backup options
-     * Add a new connection of type "bond" and options "con-name bond0 ifname nm-bond autoconnect no -- connection.autoconnect-slaves 1 bond.options mode=active-backup,active_slave=eth2,num_grat_arp=3,num_unsol_na=3"
-     * Add a new connection of type "ethernet" and options "con-name bond0.1 ifname eth2 master nm-bond autoconnect no"
+     * Add a new connection of type "bond" and options "con-name bond0 ifname nm-bond autoconnect no -- connection.autoconnect-slaves 1 bond.options mode=active-backup,active_slave=eth4,num_grat_arp=3,num_unsol_na=3"
+     * Add a new connection of type "ethernet" and options "con-name bond0.1 ifname eth4 master nm-bond autoconnect no"
      * Add a new connection of type "ethernet" and options "con-name bond0.0 ifname eth1 master nm-bond autoconnect no"
      * Bring "up" connection "bond0"
      When "nm-bond:connected:bond0" is visible with command "nmcli -t -f DEVICE,STATE,CONNECTION device" in "20" seconds
-     Then "BONDING_OPTS=\"active_slave=eth2 mode=active-backup num_grat_arp=3 num_unsol_na=3\"" is visible with command "cat /etc/sysconfig/network-scripts/ifcfg-bond0"
-      #And "Currently Active Slave: eth2" is visible with command "cat /proc/net/bonding/nm-bond"
+     Then "BONDING_OPTS=\"active_slave=eth4 mode=active-backup num_grat_arp=3 num_unsol_na=3\"" is visible with command "cat /etc/sysconfig/network-scripts/ifcfg-bond0"
+      #And "Currently Active Slave: eth4" is visible with command "cat /proc/net/bonding/nm-bond"
       And "3" is visible with command "cat /sys/class/net/nm-bond/bonding/num_grat_arp"
       And "3" is visible with command "cat /sys/class/net/nm-bond/bonding/num_unsol_na"
 
@@ -1243,7 +1248,7 @@
     @bond_set_ad_options
     Scenario: nmcli - bond - set 802.3ad options
      * Add a new connection of type "bond" and options "con-name bond0 ifname nm-bond autoconnect no -- connection.autoconnect-slaves 1 bond.options mode=802.3ad,ad_actor_sys_prio=666,ad_actor_system=00:00:00:00:11:00,min_links=2,ad_user_port_key=2,all_slaves_active=1"
-     * Add a new connection of type "ethernet" and options "con-name bond0.1 ifname eth2 master nm-bond autoconnect no"
+     * Add a new connection of type "ethernet" and options "con-name bond0.1 ifname eth4 master nm-bond autoconnect no"
      * Add a new connection of type "ethernet" and options "con-name bond0.0 ifname eth1 master nm-bond autoconnect no"
      * Bring "up" connection "bond0"
      #When "nm-bond:connected:bond0" is visible with command "nmcli -t -f DEVICE,STATE,CONNECTION device" in "20" seconds
@@ -1259,7 +1264,7 @@
     @bond_set_arp_all_targets
     Scenario: nmcli - bond - set arp_all_targets
      * Add a new connection of type "bond" and options "con-name bond0 ifname nm-bond autoconnect no ip4 10.16.135.1/24 -- connection.autoconnect-slaves 1 bond.options mode=active-backup,arp_interval=1000,arp_ip_target=10.16.135.254,arp_all_targets=1"
-     * Add a new connection of type "ethernet" and options "con-name bond0.1 ifname eth2 master nm-bond autoconnect no"
+     * Add a new connection of type "ethernet" and options "con-name bond0.1 ifname eth4 master nm-bond autoconnect no"
      * Add a new connection of type "ethernet" and options "con-name bond0.0 ifname eth1 master nm-bond autoconnect no"
      * Bring "up" connection "bond0"
      When "nm-bond:connected:bond0" is visible with command "nmcli -t -f DEVICE,STATE,CONNECTION device" in "20" seconds
@@ -1271,7 +1276,7 @@
     @bond_set_packets_per_slave_option
     Scenario: nmcli - bond - set packets_per_slave option
      * Add a new connection of type "bond" and options "con-name bond0 ifname nm-bond autoconnect no -- connection.autoconnect-slaves 1 bond.options mode=balance-rr,packets_per_slave=1024"
-     * Add a new connection of type "ethernet" and options "con-name bond0.1 ifname eth2 master nm-bond autoconnect no"
+     * Add a new connection of type "ethernet" and options "con-name bond0.1 ifname eth4 master nm-bond autoconnect no"
      * Add a new connection of type "ethernet" and options "con-name bond0.0 ifname eth1 master nm-bond autoconnect no"
      * Bring "up" connection "bond0"
      When "nm-bond:connected:bond0" is visible with command "nmcli -t -f DEVICE,STATE,CONNECTION device" in "20" seconds
@@ -1283,7 +1288,7 @@
     @bond_set_balance_tlb_options
     Scenario: nmcli - bond - set balance-tlb options
      * Add a new connection of type "bond" and options "con-name bond0 ifname nm-bond autoconnect no -- connection.autoconnect-slaves 1 bond.options mode=balance-tlb,tlb_dynamic_lb=0,lp_interval=666"
-     * Add a new connection of type "ethernet" and options "con-name bond0.1 ifname eth2 master nm-bond autoconnect no"
+     * Add a new connection of type "ethernet" and options "con-name bond0.1 ifname eth4 master nm-bond autoconnect no"
      * Add a new connection of type "ethernet" and options "con-name bond0.0 ifname eth1 master nm-bond autoconnect no"
      * Bring "up" connection "bond0"
      #When "nm-bond:connected:bond0" is visible with command "nmcli -t -f DEVICE,STATE,CONNECTION device" in "20" seconds
@@ -1298,7 +1303,7 @@
     Scenario: NM - bond - device rename
      * Add connection type "bond" named "bond0" for device "bondy"
      * Add slave connection for master "nm-bond" on device "eth1" named "bond0.0"
-     * Add slave connection for master "nm-bond" on device "eth2" named "bond0.1"
+     * Add slave connection for master "nm-bond" on device "eth4" named "bond0.1"
      * Bring "down" connection "bond0"
      # VVV Workaround for rhbz1450219
      * Wait for at least "2" seconds
@@ -1320,7 +1325,7 @@
     Scenario: NM - bond - device rename
      * Add connection type "bond" named "bond0" for device "bondy"
      * Add slave connection for master "nm-bond" on device "eth1" named "bond0.0"
-     * Add slave connection for master "nm-bond" on device "eth2" named "bond0.1"
+     * Add slave connection for master "nm-bond" on device "eth4" named "bond0.1"
      * Bring "down" connection "bond0"
      * Open editor for connection "bond0"
      * Set a property named "connection.interface-name" to "nm-bond" in editor
@@ -1339,7 +1344,7 @@
     Scenario: NM - bond - addrgenmode bond delete
     * Execute "systemctl stop NetworkManager"
     * Execute "ip l add bond0 type bond"
-    * Execute "ip l set eth2 down; ip l set eth2 master bond0; ip l set eth2 addrgenmode none; ip l set eth2 up"
+    * Execute "ip l set eth4 down; ip l set eth4 master bond0; ip l set eth4 addrgenmode none; ip l set eth4 up"
     * Execute "ip l set eth1 down; ip l set eth1 master bond0; ip l set eth1 addrgenmode none; ip l set eth1 up"
     * Restart NM
     * Execute "sleep 5"
@@ -1391,7 +1396,7 @@
 
      @rhbz1349266
      @ver+=1.4.0
-     @bond
+     @bond @restart
      @bond_balance-alb_no_error
      Scenario: nmcli - bond - no error in balance-alb setup
       * Run child "journalctl -f > /tmp/journal.txt"
@@ -1448,7 +1453,7 @@
     Scenario: nmcli - bond - restart persistence of no L3 bond in vlan
     * Add a new connection of type "bond" and options "con-name bond0 autoconnect no ifname nm-bond ipv4.method disable ipv6.method ignore"
     * Add a new connection of type "ethernet" and options "con-name bond0.0 autoconnect no ifname eth1 master nm-bond"
-    * Add a new connection of type "ethernet" and options "con-name bond0.1 autoconnect no ifname eth2 master nm-bond"
+    * Add a new connection of type "ethernet" and options "con-name bond0.1 autoconnect no ifname eth4 master nm-bond"
     * Add a new connection of type "vlan" and options "con-name vlan dev nm-bond id 153 autoconnect no ip4 10.66.66.1/24 ipv6.method ignore"
     * Bring "up" connection "bond0"
     * Bring "up" connection "bond0.0"
@@ -1456,18 +1461,18 @@
     * Bring "up" connection "vlan"
     When "nm-bond:connected:bond0" is visible with command "nmcli -t -f DEVICE,STATE,CONNECTION device" in "20" seconds
      And "eth1:connected:bond0.0" is visible with command "nmcli -t -f DEVICE,STATE,CONNECTION device"
-     And "eth2:connected:bond0.1" is visible with command "nmcli -t -f DEVICE,STATE,CONNECTION device"
+     And "eth4:connected:bond0.1" is visible with command "nmcli -t -f DEVICE,STATE,CONNECTION device"
      And "nm-bond.153:connected:vlan" is visible with command "nmcli -t -f DEVICE,STATE,CONNECTION device"
     * Execute "systemctl stop NetworkManager"
     When "state UP" is visible with command "ip a s eth1"
-     And "state UP" is visible with command "ip a s eth2"
+     And "state UP" is visible with command "ip a s eth4"
      And "state UP" is visible with command "ip a s nm-bond"
      And "state UP" is visible with command "ip a s nm-bond.153"
      And "10.66.66.1/24" is visible with command "ip a s nm-bond.153"
     * Restart NM
     Then "nm-bond:connected:bond0" is visible with command "nmcli -t -f DEVICE,STATE,CONNECTION device" in "20" seconds
      And "eth1:connected:bond0.0" is visible with command "nmcli -t -f DEVICE,STATE,CONNECTION device"
-     And "eth2:connected:bond0.1" is visible with command "nmcli -t -f DEVICE,STATE,CONNECTION device"
+     And "eth4:connected:bond0.1" is visible with command "nmcli -t -f DEVICE,STATE,CONNECTION device"
      And "nm-bond.153:connected:vlan" is visible with command "nmcli -t -f DEVICE,STATE,CONNECTION device"
      And "10.66.66.1/24" is visible with command "ip a s nm-bond.153"
 
@@ -1477,9 +1482,9 @@
      @slaves @bond @teardown_testveth @restart
      @bond_leave_L2_only_up_when_going_down
      Scenario: nmcli - bond - leave UP with L2 only config
-      * Prepare simulated test "testX" device
+      * Prepare simulated test "testXB" device
       * Add a new connection of type "bond" and options "con-name bond0 ifname nm-bond autoconnect no ipv4.method disabled ipv6.method ignore"
-      * Add a new connection of type "ethernet" and options "con-name bond0.0 ifname testX autoconnect no connection.master nm-bond connection.slave-type bond"
+      * Add a new connection of type "ethernet" and options "con-name bond0.0 ifname testXB autoconnect no connection.master nm-bond connection.slave-type bond"
       * Bring "up" connection "bond0.0"
       When "nm-bond:bond:connected:bond0" is visible with command "nmcli -t -f DEVICE,TYPE,STATE,CONNECTION device" in "20" seconds
        And "state UP" is visible with command "ip -6 a s nm-bond"
@@ -1487,7 +1492,7 @@
        And "inet6 2620" is visible with command "ip -6 a s nm-bond" in "5" seconds
        And "tentative" is not visible with command "ip -6 a s nm-bond" in "5" seconds
       * Execute "killall NetworkManager && sleep 5"
-      * Execute "systemctl restart NetworkManager"
+      * Restart NM
       When "state UP" is visible with command "ip -6 a s nm-bond"
        And "inet6 fe80" is visible with command "ip -6 a s nm-bond" for full "10" seconds
        And "inet6 2620" is visible with command "ip -6 a s nm-bond"
@@ -1501,7 +1506,7 @@
 
     @rhbz1463077
     @ver+=1.8.1
-    @bond
+    @bond @restart
     @bond_assume_options_1
     Scenario: nmcli - bond - assume options 1
      * Execute "systemctl stop NetworkManager"
@@ -1511,30 +1516,30 @@
      * Execute "echo 100 > /sys/class/net/bond0/bonding/updelay"
      * Execute "ip l set bond0 up"
      * Execute "ip a a 172.16.1.1/24 dev bond0"
-     * Execute "systemctl restart NetworkManager"
+     * Restart NM
      Then "bond0\s+bond\s+connected" is visible with command "nmcli d" in "10" seconds
      Then "inet 172.16.1.1/24" is visible with command "ip a show dev bond0"
 
 
     @rhbz1463077
     @ver+=1.10.0
-    @bond
+    @bond @restart
     @bond_assume_options_2
     Scenario: nmcli - bond - assume options 2
      * Add a new connection of type "bond" and options "ifname nm-bond con-name bond bond.options mode=1,miimon=100,updelay=200 ip4 172.16.1.1/24"
      * Bring "up" connection "bond"
-     * Execute "systemctl restart NetworkManager"
+     * Restart NM
      Then "nm-bond\s+bond\s+connected\s+bond" is visible with command "nmcli d" in "10" seconds
 
 
     @rhbz1463077
     @ver+=1.10.0
-    @bond
+    @bond @restart
     @bond_assume_options_3
     Scenario: nmcli - bond - assume options 3
      * Add a new connection of type "bond" and options "ifname nm-bond con-name bond bond.options mode=1,arp_interval=100,arp_ip_target=172.16.1.100 ip4 172.16.1.1/24"
      * Bring "up" connection "bond"
-     * Execute "systemctl restart NetworkManager"
+     * Restart NM
      Then "nm-bond\s+bond\s+connected\s+bond" is visible with command "nmcli d" in "10" seconds
 
 
@@ -1549,20 +1554,20 @@
      And "MASTER_HAS_SLAVES" is not visible with command "python tmp/nmclient_get_state_flags.py bond0"
      And "IP6" is not visible with command "python tmp/nmclient_get_state_flags.py bond0"
      And "IP4" is not visible with command "python tmp/nmclient_get_state_flags.py bond0"
-    * Add slave connection for master "nm-bond" on device "testX" named "bond0.0"
+    * Add slave connection for master "nm-bond" on device "testXB" named "bond0.0"
     When "LAYER2" is not visible with command "python tmp/nmclient_get_state_flags.py bond0.0" in "5" seconds
     When "IP4" is not visible with command "python tmp/nmclient_get_state_flags.py bond0.0"
     When "IP6" is not visible with command "python tmp/nmclient_get_state_flags.py bond0.0"
-    * Prepare simulated veth device "testX" wihout carrier
+    * Prepare simulated veth device "testXB" wihout carrier
     * Execute "nmcli con modify bond0.0 ipv4.may-fail no"
     * Execute "nmcli con up bond0.0" without waiting for process to finish
     When "IP4" is not visible with command "python tmp/nmclient_get_state_flags.py bond0"
      And "IP6" is not visible with command "python tmp/nmclient_get_state_flags.py bond0"
      And "MASTER_HAS_SLAVES" is visible with command "python tmp/nmclient_get_state_flags.py bond0" in "5" seconds
      And "IS_SLAVE" is visible with command "python tmp/nmclient_get_state_flags.py bond0.0" in "5" seconds
-    * Execute "ip netns exec testX_ns kill -SIGSTOP $(cat /tmp/testX_ns.pid)"
-    * Execute "ip netns exec testX_ns ip link set testXp up"
-    * Execute "ip netns exec testX_ns kill -SIGCONT $(cat /tmp/testX_ns.pid)" without waiting for process to finish
+    * Execute "ip netns exec testXB_ns kill -SIGSTOP $(cat /tmp/testXB_ns.pid)"
+    * Execute "ip netns exec testXB_ns ip link set testXBp up"
+    * Execute "ip netns exec testXB_ns kill -SIGCONT $(cat /tmp/testXB_ns.pid)" without waiting for process to finish
     Then "MASTER_HAS_SLAVES" is visible with command "python tmp/nmclient_get_state_flags.py bond0" in "20" seconds
     Then "IP4" is visible with command "python tmp/nmclient_get_state_flags.py bond0" in "20" seconds
     Then "IP6" is visible with command "python tmp/nmclient_get_state_flags.py bond0" in "20" seconds

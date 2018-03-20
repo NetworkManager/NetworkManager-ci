@@ -1317,7 +1317,7 @@ def prepare_veths(context, pairs_array, bridge):
     command_code(context, "sudo ip link set dev %s up"% bridge)
     for pair in pairs:
         command_code(context, "ip link add %s type veth peer name %sp" %(pair, pair))
-        command_code(context, "brctl addif vethbr %sp" %pair)
+        command_code(context, "brctl addif %s %sp" %(bridge, pair))
         command_code(context, "ip link set dev %s up" % pair)
         command_code(context, "ip link set dev %sp up" % pair)
 
@@ -1355,7 +1355,7 @@ def prepare_simdev(context, device, ipv4=None, ipv6=None, option=None):
     if ipv6 is None:
         ipv6 = "2620:dead:beaf"
     if not hasattr(context, 'testvethns'):
-        os.system('''echo 'ENV{ID_NET_DRIVER}=="veth", ENV{INTERFACE}=="test*", ENV{NM_UNMANAGED}="0"' >/etc/udev/rules.d/88-lr.rules''')
+        os.system('''echo 'ENV{ID_NET_DRIVER}=="veth", ENV{INTERFACE}=="%s*", ENV{NM_UNMANAGED}="0"' >/etc/udev/rules.d/88-lr.rules''' % device)
         command_code(context, "udevadm control --reload-rules")
         command_code(context, "udevadm settle")
         command_code(context, "sleep 1")
@@ -1893,8 +1893,8 @@ def value_appeared_in_editor(context, value):
         raise Exception('Did not see "%s" in editor' % value)
 
 
-@step(u'vxlan device "{dev}" check')
-def vxlan_device_check(context, dev):
+@step(u'vxlan device "{dev}" check for parent "{parent}"')
+def vxlan_device_check(context, dev, parent):
     import dbus, sys
 
     bus = dbus.SystemBus()
@@ -1923,7 +1923,7 @@ def vxlan_device_check(context, dev):
         parent_prop_iface = dbus.Interface(parent_proxy, "org.freedesktop.DBus.Properties")
         parent_props = parent_prop_iface.GetAll("org.freedesktop.NetworkManager.Device")
 
-        assert parent_props['Interface'] == "eth1", "bad parent '%s'" % parent_props['Interface']
+        assert parent_props['Interface'] == parent, "bad parent '%s'" % parent_props['Interface']
 
 
 @step(u'Wait for at least "{secs}" seconds')
