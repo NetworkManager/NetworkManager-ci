@@ -50,7 +50,6 @@ Feature: Bond TUI tests
      Then "ARP IP target/s \(n.n.n.n form\):.*192.168.100.1" is visible with command "cat /proc/net/bonding/bond0"
 
 
-
     @bond
     @nmtui_bond_add_connection_wo_autoconnect
     Scenario: nmtui - bond - add connnection without autoconnect
