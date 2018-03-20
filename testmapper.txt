@@ -337,6 +337,7 @@ renewal_gw_after_dhcp_outage_for_assumed_var0, ., nmcli/./runtest.sh renewal_gw_
 renewal_gw_after_dhcp_outage_for_assumed_var1, ., nmcli/./runtest.sh renewal_gw_after_dhcp_outage_for_assumed_var1 ,
 manual_routes_preserved_when_never-default_yes, ., nmcli/./runtest.sh manual_routes_preserved_when_never-default_yes ,
 dhcp4_outages_in_various_situation, ., nmcli/./runtest.sh dhcp4_outages_in_various_situation ,,20m
+dhcp_change_pool, ., nmcli/./runtest.sh dhcp_change_pool ,
 manual_routes_removed_when_never-default_no, ., nmcli/./runtest.sh manual_routes_removed_when_never-default_no ,
 ipv4_dad, ., nmcli/./runtest.sh ipv4_dad ,
 custom_shared_range_preserves_restart, ., nmcli/./runtest.sh custom_shared_range_preserves_restart, dhcp

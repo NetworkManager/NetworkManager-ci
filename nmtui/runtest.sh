@@ -1,9 +1,11 @@
 #!/bin/bash
 set -x
-
 logger -t $0 "Running test $1"
 
-. prepare/devsetup.sh
+export PATH=$PATH:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/root/bin
+DIR=$(pwd)
+
+. $DIR/prepare/devsetup.sh
 setup_configure_environment "$1"
 
 # install the pyte VT102 emulator
@@ -20,22 +22,23 @@ export TERM=vt102
 
 # set TEST variable for version_control script
 if [ -z "$TEST" ]; then
+    logger "setting test name to NetworkManager_Test0_$1"
     TEST="NetworkManager_Test0_$1"
 fi
 
 #check if NM version is correct for test
-TAG=$(python version_control.py nmtui $TEST); vc=$?
+TAG="$(python $DIR/version_control.py $DIR/nmcli $TEST)"; vc=$?
 if [ $vc -eq 1 ]; then
-    echo "Skipping due to incorrect NM version for this test"
+    logger "Skipping due to incorrect NM version for this test"
     # exit 0 doesn't affect overal result
     exit 0
 
 elif [ $vc -eq 0 ]; then
     if [ x$TAG != x"" ]; then
-        echo "Running $TAG version of $TEST"
-        behave nmtui/features --no-capture --no-capture-stderr -k -t $1 -t $TAG -f plain -o /tmp/report_$TEST.log; rc=$?
+        logger "Running $TAG version of $TEST"
+        behave $DIR/nmtui/features --no-capture --no-capture-stderr -k -t $1 -t $TAG -f plain -o /tmp/report_$TEST.log; rc=$?
     else
-        behave nmtui/features --no-capture --no-capture-stderr -k -t $1 -f plain -o /tmp/report_$TEST.log; rc=$?
+        behave $DIR/nmtui/features --no-capture --no-capture-stderr -k -t $1 -f plain -o /tmp/report_$TEST.log; rc=$?
     fi
 fi
 

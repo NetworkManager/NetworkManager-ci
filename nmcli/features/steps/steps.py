@@ -1330,6 +1330,22 @@ def start_radvd(context, location):
     command_code(context, "systemctl restart radvd")
     sleep(2)
 
+
+@step(u'Restart dhcp server on {device} device with {ipv4} ipv4 and {ipv6} ipv6 dhcp address prefix')
+def restart_dhcp_server(context, device, ipv4, ipv6):
+    command_code(context, 'kill $(cat /tmp/{device}_ns.pid)'.format(device=device))
+    command_code(context, "ip netns exec {device}_ns ip addr flush dev {device}_bridge".format(device=device))
+    command_code(context, "ip netns exec {device}_ns ip addr add {ip}.1/24 dev {device}_bridge".format(device=device, ip=ipv4))
+    command_code(context, "ip netns exec {device}_ns ip -6 addr add {ip}::1/64 dev {device}_bridge".format(device=device, ip=ipv6))
+    command_code(context, "ip netns exec {device}_ns dnsmasq \
+                                        --pid-file=/tmp/{device}_ns.pid \
+                                        --dhcp-leasefile=/tmp/{device}_ns.lease \
+                                        --dhcp-range={ipv4}.10,{ipv4}.15,2m \
+                                        --dhcp-range={ipv6}::100,{ipv6}::fff,slaac,64,2m \
+                                        --enable-ra --interface={device}_bridge \
+                                        --bind-interfaces".format(device=device, ipv4=ipv4, ipv6=ipv6))
+
+
 @step(u'Prepare simulated test "{device}" device with "{ipv4}" ipv4 and "{ipv6}" ipv6 dhcp address prefix and dhcp option "{option}"')
 @step(u'Prepare simulated test "{device}" device with "{ipv4}" ipv4 and "{ipv6}" ipv6 dhcp address prefix')
 @step(u'Prepare simulated test "{device}" device')
