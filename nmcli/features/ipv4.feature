@@ -1160,6 +1160,7 @@ Feature: nmcli: ipv4
 
     @eth2 @con_ipv4_remove
     @ipv4_dhcp_client_id_set
+    @ver-=1.11.1
     Scenario: nmcli - ipv4 - dhcp-client-id - set client id
     * Add connection type "ethernet" named "con_ipv4" for device "eth2"
     * Bring "up" connection "con_ipv4"
@@ -1176,6 +1177,54 @@ Feature: nmcli: ipv4
     #Then "walderon" is visible with command "cat /var/lib/NetworkManager/dhclient-eth2.conf"
     #VVV verify bug 999503
     Then "exceeds max \(255\) for precision" is not visible with command "grep exceeds max /var/log/messages"
+
+
+    @ver+=1.11.2
+    @eth2 @con_ipv4_remove @tcpdump
+    @ipv4_dhcp_client_id_set
+    # https://bugzilla.gnome.org/show_bug.cgi?id=793957
+    Scenario: nmcli - ipv4 - dhcp-client-id - set client id
+    * Add connection type "ethernet" named "con_ipv4" for device "eth2"
+    * Open editor for connection "con_ipv4"
+    #### Try first with string client-id
+    * Submit "set ipv4.dhcp-client-id AB" in editor
+    * Save in editor
+    * Quit editor
+    * Run child "sudo tcpdump -i eth2 -v -n > /tmp/tcpdump.log"
+    * Wait for at least "5" seconds
+    * Bring "up" connection "con_ipv4"
+    * Execute "sleep 5"
+    Then "Client-ID Option 61, length 3: \"AB\"" is visible with command "cat /tmp/tcpdump.log"
+    #### Then try hexadecimal client-id
+    * Execute "nmcli connection modify con_ipv4 ipv4.dhcp-client-id c0:ff:ee:ee"
+    * Bring "up" connection "con_ipv4"
+    * Execute "sleep 5"
+    Then "Client-ID Option 61, length 4: hardware-type 192, ff:ee:ee" is visible with command "cat /tmp/tcpdump.log"
+
+
+    @ver+=1.11.2
+    @eth2 @ipv4 @tcpdump @internal_DHCP
+    @ipv4_dhcp_client_id_set_internal
+    # https://bugzilla.gnome.org/show_bug.cgi?id=793957
+    Scenario: nmcli - ipv4 - dhcp-client-id - set client id with internal client
+    * Add connection type "ethernet" named "con_ipv4" for device "eth2"
+    * Bring "up" connection "con_ipv4"
+    * Bring "down" connection "con_ipv4"
+    * Open editor for connection "con_ipv4"
+    #### Try first with string client-id
+    * Submit "set ipv4.dhcp-client-id abcd" in editor
+    * Save in editor
+    * Quit editor
+    * Run child "sudo tcpdump -i eth9 -v -n > /tmp/tcpdump.log"
+    * Wait for at least "5" seconds
+    * Bring "up" connection "con_ipv4"
+    * Execute "sleep 5"
+    Then "Client-ID Option 61, length 5: \"abcd\"" is visible with command "cat /tmp/tcpdump.log"
+    #### Then try hexadecimal client-id
+    * Execute "nmcli connection modify con_ipv4 ipv4.dhcp-client-id c0:ff:ee:11"
+    * Bring "up" connection "con_ipv4"
+    * Execute "sleep 5"
+    Then "Client-ID Option 61, length 4: hardware-type 192, ff:ee:11" is visible with command "cat /tmp/tcpdump.log"
 
 
     @con_ipv4_remove @tshark
