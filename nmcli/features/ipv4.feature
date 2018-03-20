@@ -1220,7 +1220,7 @@ Feature: nmcli: ipv4
     * Bring "up" connection "con_ipv4"
     * Execute "sleep 5"
     Then "Client-ID Option 61, length 5: \"abcd\"" is visible with command "cat /tmp/tcpdump.log"
-    #### Then try hexadecimal client-id
+    #### Then try hexadecimal client-id 
     * Execute "nmcli connection modify con_ipv4 ipv4.dhcp-client-id c0:ff:ee:11"
     * Bring "up" connection "con_ipv4"
     * Execute "sleep 5"

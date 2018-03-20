@@ -727,23 +727,25 @@
     Then "eth10 " is not visible with command "ip -6 route |grep -v fe80"
 
 
-    @con_ipv6_remove
+    @con_ipv6_remove @eth10_disconnect
     @ipv6_never-default_set_true
     Scenario: nmcli - ipv6 - never-default - set
-     * Add connection type "ethernet" named "con_ipv6" for device "eth2"
+     * Add connection type "ethernet" named "con_ipv6" for device "eth10"
      * Open editor for connection "con_ipv6"
      * Submit "set ipv6.never-default yes " in editor
      * Save in editor
      * Quit editor
      * Bring "up" connection "testeth10"
+    When "default via " is visible with command "ip -6 route |grep eth10" in "10" seconds
      * Bring "up" connection "con_ipv6"
-    Then "default via " is not visible with command "ip -6 route |grep eth2" in "5" seconds
+    When "default via " is not visible with command "ip -6 route |grep eth10" in "10" seconds
+    Then "default via " is not visible with command "ip -6 route |grep eth10" for full "5" seconds
 
 
-    @con_ipv6_remove
+    @con_ipv6_remove @eth10_disconnect
     @ipv6_never-default_remove
     Scenario: nmcli - ipv6 - never-default - remove
-     * Add connection type "ethernet" named "con_ipv6" for device "eth2"
+     * Add connection type "ethernet" named "con_ipv6" for device "eth10"
      * Open editor for connection "con_ipv6"
      * Submit "set ipv6.never-default yes" in editor
      * Save in editor
@@ -755,8 +757,10 @@
      * Save in editor
      * Quit editor
      * Bring "up" connection "testeth10"
+    When "default via " is visible with command "ip -6 route |grep eth10" in "10" seconds
      * Bring "up" connection "con_ipv6"
-    Then "default via " is not visible with command "ip -6 route |grep eth2" in "5" seconds
+    When "default via " is visible with command "ip -6 route |grep eth10" in "10" seconds
+    Then "default via " is visible with command "ip -6 route |grep eth10" for full "5" seconds
 
 
     @not_under_internal_DHCP @profie

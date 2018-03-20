@@ -1274,7 +1274,7 @@ def after_scenario(context, scenario):
             print ("---------------------------")
             print ("deleting wifi connections")
             #teardown_hostapd_wireless()
-            call("nmcli con del wpa2-eap wifi", shell=True)                
+            call("nmcli con del wpa2-eap wifi", shell=True)
 
         if 'simwifi_wpa2_teardown' in scenario.tags:
             print ("---------------------------")
@@ -1617,6 +1617,14 @@ def after_scenario(context, scenario):
             # VVV Up/Down to preserve autoconnect feature
             call('sudo nmcli connection up testeth8', shell=True)
             call('sudo nmcli connection down testeth8', shell=True)
+
+        if 'eth10_disconnect' in scenario.tags:
+            print ("---------------------------")
+            print ("disconnecting eth10 device")
+            call('sudo nmcli device disconnect eth10', shell=True)
+            # VVV Up/Down to preserve autoconnect feature
+            call('sudo nmcli connection up testeth10', shell=True)
+            call('sudo nmcli connection down testeth10', shell=True)
 
         if 'manage_eth8' in scenario.tags:
             print ("---------------------------")
