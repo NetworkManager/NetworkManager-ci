@@ -45,7 +45,7 @@ beaker-hardware:
 
 setup:
 
-cleanup: |
+cleanup: 
 
 testmapper:
   default:
@@ -1067,8 +1067,6 @@ testmapper:
     - overtake_external_device:
         feature: general
     - wait_10s_for_flappy_carrier:
-        feature: general
-    - praseci_prdel:
         feature: general
     - openvswitch_interface_recognized:
         feature: ovs
