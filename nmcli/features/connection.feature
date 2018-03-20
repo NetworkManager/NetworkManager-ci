@@ -29,26 +29,26 @@ Feature: nmcli: connection
     Then "Usage: nmcli connection add { OPTIONS | help }\s+OPTIONS \:= COMMON_OPTIONS TYPE_SPECIFIC_OPTIONS IP_OPTIONS\s+COMMON_OPTIONS:\s+type <type>\s+ifname <interface name> |\s+ethernet\:\s+wifi:\s+ssid <SSID>\s+gsm:\s+apn <APN>\s+cdma:\s+infiniband:\s+bluetooth:\s+vlan:\s+dev <parent device \(connection  UUID, ifname, or MAC\)>\s+bond:\s+bond-slave:\s+master <master \(ifname or connection UUID\)>\s+team:\s+team-slave:\s+master <master \(ifname or connection UUID\)>\s+bridge:\s+bridge-slave:\s+master <master \(ifname or connection UUID\)>\svpn:\s+vpn-type vpnc|openvpn|pptp|openconnect|openswan\s+olpc-mesh:\s+ssid" is visible with command "nmcli connection add help"
 
 
-    @con
+    @con_con_remove
     @connection_names_autocompletion
     Scenario: nmcli - connection - names autocompletion
     Then "testeth0" is visible with tab after "nmcli connection edit id "
     Then "testeth6" is visible with tab after "nmcli connection edit id "
-    Then "connie" is not visible with tab after "nmcli connection edit id "
-    * Add connection type "ethernet" named "connie" for device "eth1"
-    Then "connie" is visible with tab after "nmcli connection edit "
-    Then "connie" is visible with tab after "nmcli connection edit id "
+    Then "con_con" is not visible with tab after "nmcli connection edit id "
+    * Add connection type "ethernet" named "con_con" for device "eth5"
+    Then "con_con" is visible with tab after "nmcli connection edit "
+    Then "con_con" is visible with tab after "nmcli connection edit id "
 
 
     @rhbz1375933
-    @con
+    @con_con_remove
     @device_autocompletion
     Scenario: nmcli - connection - device autocompletion
     Then "eth0|eth1|eth10" is visible with tab after "nmcli connection add type ethernet ifname "
 
 
     @rhbz1367736
-    @con
+    @con_con_remove
     @connection_objects_autocompletion
     Scenario: nmcli - connection - objects autocompletion
     Then "ipv4.dad-timeout" is visible with tab after "nmcli  connection add type bond -- ipv4.method manual ipv4.addresses 1.1.1.1/24 ip"
@@ -56,12 +56,12 @@ Feature: nmcli: connection
 
     @rhbz1301226
     @ver+=1.4.0
-    @con
+    @con_con_remove
     @802_1x_objects_autocompletion
     Scenario: nmcli - connection - 802_1x objects autocompletion
-    * "802.1x" is visible with tab after "nmcli  connection add type ethernet ifname eth1 con-name ethie 802-"
-    * Add a new connection of type "ethernet" and options "ifname eth1 con-name connie 802-1x.identity jdoe 802-1x.eap leap"
-    Then "802-1x.eap:\s+leap\s+802-1x.identity:\s+jdoe" is visible with command "nmcli con show connie"
+    * "802.1x" is visible with tab after "nmcli  connection add type ethernet ifname eth5 con-name con_con2 802-"
+    * Add a new connection of type "ethernet" and options "ifname eth5 con-name con_con 802-1x.identity jdoe 802-1x.eap leap"
+    Then "802-1x.eap:\s+leap\s+802-1x.identity:\s+jdoe" is visible with command "nmcli con show con_con"
 
 
     @rhbz1391170
@@ -81,78 +81,78 @@ Feature: nmcli: connection
     Then "error" is not visible with command "nmcli -f DEVICE nm"
 
 
-    @con
+    @con_con_remove
     @connection_delete_while_editing
     Scenario: nmcli - connection - delete opened connection
-     * Add connection type "ethernet" named "connie" for device "eth1"
-     * Open editor for "connie" with timeout
-     * Delete connection "connie" and hit Enter
+     * Add connection type "ethernet" named "con_con" for device "eth5"
+     * Open editor for "con_con" with timeout
+     * Delete connection "con_con" and hit Enter
 
 
     @rhbz1168657
-    @con
+    @con_con_remove
     @connection_double_delete
     Scenario: nmcli - connection - double delete
-     * Add connection type "ethernet" named "connie" for device "*"
-     * Delete connection "connie connie"
+     * Add connection type "ethernet" named "con_con" for device "*"
+     * Delete connection "con_con con_con"
 
 
     @rhbz1171751
-    @teardown_testveth @con
+    @teardown_testveth @con_con_remove
     @connection_profile_duplication
     Scenario: nmcli - connection - profile duplication
      * Prepare simulated test "testX" device
-     * Add a new connection of type "ethernet" and options "ifname testX con-name connie autoconnect no"
-     * Execute "echo 'NM_CONTROLLED=no' >> /etc/sysconfig/network-scripts/ifcfg-connie"
+     * Add a new connection of type "ethernet" and options "ifname testX con-name con_con autoconnect no"
+     * Execute "echo 'NM_CONTROLLED=no' >> /etc/sysconfig/network-scripts/ifcfg-con_con"
      * Execute "nmcli con reload"
-     * Execute "rm -f /etc/sysconfig/network-scripts/ifcfg-connie"
-     * Add a new connection of type "ethernet" and options "ifname eth1 con-name connie autoconnect no"
+     * Execute "rm -f /etc/sysconfig/network-scripts/ifcfg-con_con"
+     * Add a new connection of type "ethernet" and options "ifname eth5 con-name con_con autoconnect no"
      * Execute "nmcli con reload"
-     Then "1" is visible with command "nmcli c |grep connie |wc -l"
-     * Bring "up" connection "connie"
+     Then "1" is visible with command "nmcli c |grep con_con |wc -l"
+     * Bring "up" connection "con_con"
 
 
     @rhbz1174164
-    @add_testeth1
+    @add_testeth5
     @connection_veth_profile_duplication
     Scenario: nmcli - connection - veth - profile duplication
-    * Connect device "eth1"
-    * Connect device "eth1"
-    * Connect device "eth1"
-    * Delete connection "testeth1"
-    * Connect device "eth1"
-    * Connect device "eth1"
-    * Connect device "eth1"
-    Then "1" is visible with command "nmcli connection |grep ^eth1 |wc -l"
+    * Connect device "eth5"
+    * Connect device "eth5"
+    * Connect device "eth5"
+    * Delete connection "testeth5"
+    * Connect device "eth5"
+    * Connect device "eth5"
+    * Connect device "eth5"
+    Then "1" is visible with command "nmcli connection |grep ^eth5 |wc -l"
 
 
     @rhbz1498943
     @ver+=1.10
-    @eth
+    @con_con_remove
     @double_connection_warning
     Scenario: nmcli - connection - warn about the same name
-    * Add connection type "ethernet" named "ethie" for device "eth1"
-    Then "Warning: There is another connection with the name 'ethie'. Reference the connection by its uuid" is visible with command "nmcli con add type ethernet ifname eth con-name ethie"
+    * Add connection type "ethernet" named "con_con2" for device "eth5"
+    Then "Warning: There is another connection with the name 'con_con2'. Reference the connection by its uuid" is visible with command "nmcli con add type ethernet ifname eth con-name con_con2"
 
 
     @rhbz997998
-    @con
+    @con_con_remove
     @connection_restricted_to_single_device
     Scenario: nmcli - connection - restriction to single device
-     * Add connection type "ethernet" named "connie" for device "*"
-     * Start generic connection "connie" for "eth1"
-     * Start generic connection "connie" for "eth2"
-    Then "eth2" is visible with command "nmcli -f GENERAL.DEVICES connection show connie"
-    Then "eth1" is not visible with command "nmcli -f GENERAL.DEVICES connection show connie"
+     * Add connection type "ethernet" named "con_con" for device "*"
+     * Start generic connection "con_con" for "eth5"
+     * Start generic connection "con_con" for "eth6"
+    Then "eth6" is visible with command "nmcli -f GENERAL.DEVICES connection show con_con"
+    Then "eth5" is not visible with command "nmcli -f GENERAL.DEVICES connection show con_con"
 
 
     @rhbz1094296
-    @con @time
+    @con_con_remove @time
     @connection_secondaries_restricted_to_vpn
     Scenario: nmcli - connection - restriction to single device
-     * Add connection type "ethernet" named "connie" for device "*"
+     * Add connection type "ethernet" named "con_con" for device "*"
      * Add connection type "ethernet" named "time" for device "time"
-     * Open editor for connection "connie"
+     * Open editor for connection "con_con"
      * Submit "set connection.secondaries time" in editor
     Then Error type "is not a VPN connection profile" shown in editor
 
@@ -169,20 +169,20 @@ Feature: nmcli: connection
      Then "BBB" is not visible with command "nmcli -f NAME connection show --active" in "5" seconds
 
 
-    @con
+    @con_con_remove
     @connection_down
     Scenario: nmcli - connection - down
-     * Add connection type "ethernet" named "connie" for device "eth1"
-     * Bring "up" connection "connie"
-     * Bring "down" connection "connie"
-     Then "connie" is not visible with command "nmcli -f NAME connection show --active"
+     * Add connection type "ethernet" named "con_con" for device "eth5"
+     * Bring "up" connection "con_con"
+     * Bring "down" connection "con_con"
+     Then "con_con" is not visible with command "nmcli -f NAME connection show --active"
 
 
-    @con
+    @con_con_remove
     @connection_set_id
     Scenario: nmcli - connection - set id
-     * Add connection type "ethernet" named "connie" for device "blah"
-     * Open editor for connection "connie"
+     * Add connection type "ethernet" named "con_con" for device "blah"
+     * Open editor for connection "con_con"
      * Submit "set connection.id after_rename" in editor
      * Save in editor
      * Quit editor
@@ -192,125 +192,125 @@ Feature: nmcli: connection
      * Delete connection "after_rename"
 
 
-    @con
+    @con_con_remove
     @connection_set_uuid_error
     Scenario: nmcli - connection - set uuid
-     * Add connection type "ethernet" named "connie" for device "blah"
-     * Open editor for connection "connie"
+     * Add connection type "ethernet" named "con_con" for device "blah"
+     * Open editor for connection "con_con"
      * Submit "set connection.uuid 00000000-0000-0000-0000-000000000000" in editor
      Then Error type "uuid" shown in editor
 
 
-    @con
+    @con_con_remove
     @connection_set_interface-name
     Scenario: nmcli - connection - set interface-name
-     * Add connection type "ethernet" named "connie" for device "blah"
-     * Open editor for connection "connie"
-     * Submit "set connection.interface-name eth2" in editor
+     * Add connection type "ethernet" named "con_con" for device "blah"
+     * Open editor for connection "con_con"
+     * Submit "set connection.interface-name eth6" in editor
      * Save in editor
      * Quit editor
      When Prompt is not running
-     * Bring "up" connection "connie"
-     Then Check if "connie" is active connection
+     * Bring "up" connection "con_con"
+     Then Check if "con_con" is active connection
 
 
-    @veth @con
+    @veth @con_con_remove @restart
     @connection_autoconnect_yes
     Scenario: nmcli - connection - set autoconnect on
-     * Add connection type "ethernet" named "connie" for device "eth2"
-     * Open editor for connection "connie"
+     * Add connection type "ethernet" named "con_con" for device "eth6"
+     * Open editor for connection "con_con"
      * Submit "set connection.autoconnect yes" in editor
      * Save in editor
      * Quit editor
-     * Bring "up" connection "connie"
-     * Disconnect device "eth2"
+     * Bring "up" connection "con_con"
+     * Disconnect device "eth6"
      * Reboot
-     Then Check if "connie" is active connection
+     Then Check if "con_con" is active connection
 
 
     @rhbz1401515
     @ver+=1.10
-    @eth
+    @con_con_remove
     @connection_autoconnect_yes_without_immediate_effects
     Scenario: nmcli - connection - set autoconnect on without autoconnecting
-     * Add a new connection of type "ethernet" and options "con-name ethie ifname eth1 autoconnect no"
+     * Add a new connection of type "ethernet" and options "con-name con_con2 ifname eth5 autoconnect no"
      * Execute "python tmp/repro_1401515.py"
-     Then Check if "ethie" is not active connection
-      And "yes" is visible with command "nmcli connection show ethie |grep autoconnect:"
+     Then Check if "con_con2" is not active connection
+      And "yes" is visible with command "nmcli connection show con_con2 |grep autoconnect:"
 
 
-    @con
+    @con_con_remove
     @connection_autoconnect_warning
     Scenario: nmcli - connection - autoconnect warning while saving new
-     * Open editor for new connection "connie" type "ethernet"
+     * Open editor for new connection "con_con" type "ethernet"
      * Save in editor
      Then autoconnect warning is shown
      * Enter in editor
      * Quit editor
 
 
-    @con
+    @con_con_remove @restart
     @connection_autoconnect_no
     Scenario: nmcli - connection - set autoconnect off
-     * Add connection type "ethernet" named "connie" for device "eth2"
-     * Open editor for connection "connie"
+     * Add connection type "ethernet" named "con_con" for device "eth6"
+     * Open editor for connection "con_con"
      * Submit "set connection.autoconnect no" in editor
      * Save in editor
      * Quit editor
-     * Bring "up" connection "connie"
+     * Bring "up" connection "con_con"
      * Reboot
-     Then Check if "connie" is not active connection
+     Then Check if "con_con" is not active connection
 
 
     @ver+=1.7.1
-    @con
+    @con_con_remove @restart
     @ifcfg_parse_options_with_comment
     Scenario: ifcfg - connection - parse options with comments
-     * Execute "echo 'DEVICE=eth1' >> /etc/sysconfig/network-scripts/ifcfg-connie"
-     * Execute "echo 'NAME=connie' >> /etc/sysconfig/network-scripts/ifcfg-connie"
-     * Execute "echo 'BOOTPROTO=dhcp' >> /etc/sysconfig/network-scripts/ifcfg-connie"
-     * Execute "echo 'ONBOOT=no  # foo' >> /etc/sysconfig/network-scripts/ifcfg-connie"
+     * Execute "echo 'DEVICE=eth5' >> /etc/sysconfig/network-scripts/ifcfg-con_con"
+     * Execute "echo 'NAME=con_con' >> /etc/sysconfig/network-scripts/ifcfg-con_con"
+     * Execute "echo 'BOOTPROTO=dhcp' >> /etc/sysconfig/network-scripts/ifcfg-con_con"
+     * Execute "echo 'ONBOOT=no  # foo' >> /etc/sysconfig/network-scripts/ifcfg-con_con"
      * Execute "nmcli con reload"
      * Restart NM
-     Then Check if "connie" is not active connection
+     Then Check if "con_con" is not active connection
 
 
     @ver+=1.8.0
-    @eth @con @restart
+    @con_con_remove @con_con_remove @restart
     @ifcfg_compliant_with_kickstart
     Scenario: ifcfg - connection - pykickstart compliance
-    * Append "UUID='8b4753fb-c562-4784-bfa7-f44dc6581e73'" to ifcfg file "ethie"
-    * Append "DNS1='192.0.2.1'" to ifcfg file "ethie"
-    * Append "IPADDR='192.0.2.2'" to ifcfg file "ethie"
-    * Append "GATEWAY='192.0.2.1'" to ifcfg file "ethie"
-    * Append "NETMASK='255.255.255.0'" to ifcfg file "ethie"
-    * Append "BOOTPROTO='static'" to ifcfg file "ethie"
-    * Append "DEVICE='eth1'" to ifcfg file "ethie"
-    * Append "ONBOOT='yes'" to ifcfg file "ethie"
-    * Append "IPV6INIT='yes'" to ifcfg file "ethie"
+    * Append "UUID='8b4753fb-c562-4784-bfa7-f44dc6581e73'" to ifcfg file "con_con2"
+    * Append "DNS1='192.0.2.1'" to ifcfg file "con_con2"
+    * Append "IPADDR='192.0.2.2'" to ifcfg file "con_con2"
+    * Append "GATEWAY='192.0.2.1'" to ifcfg file "con_con2"
+    * Append "NETMASK='255.255.255.0'" to ifcfg file "con_con2"
+    * Append "BOOTPROTO='static'" to ifcfg file "con_con2"
+    * Append "DEVICE='eth5'" to ifcfg file "con_con2"
+    * Append "ONBOOT='yes'" to ifcfg file "con_con2"
+    * Append "IPV6INIT='yes'" to ifcfg file "con_con2"
     * Execute "nmcli con reload"
-    * Execute "nmcli con modify uuid 8b4753fb-c562-4784-bfa7-f44dc6581e73 connection.id connie"
+    * Execute "nmcli con modify uuid 8b4753fb-c562-4784-bfa7-f44dc6581e73 connection.id con_con"
     * Restart NM
-    When "activated" is visible with command "nmcli -g GENERAL.STATE con show connie" in "20" seconds
-    Then "192.0.2.2" is visible with command "ip a s eth1"
-     And "UUID=8b4753fb-c562-4784-bfa7-f44dc6581e73" is visible with command "cat /etc/sysconfig/network-scripts/ifcfg-ethie"
-     And "DNS1=192.0.2.1" is visible with command "cat /etc/sysconfig/network-scripts/ifcfg-ethie"
-     And "IPADDR=192.0.2.2" is visible with command "cat /etc/sysconfig/network-scripts/ifcfg-ethie"
-     And "GATEWAY=192.0.2.1" is visible with command "cat /etc/sysconfig/network-scripts/ifcfg-ethie"
-     And "NETMASK=255.255.255.0" is visible with command "cat /etc/sysconfig/network-scripts/ifcfg-ethie"
-     And "BOOTPROTO='static'" is visible with command "cat /etc/sysconfig/network-scripts/ifcfg-ethie"
-     And "DEVICE=eth1" is visible with command "cat /etc/sysconfig/network-scripts/ifcfg-ethie"
-     And "ONBOOT=yes" is visible with command "cat /etc/sysconfig/network-scripts/ifcfg-ethie"
-     And "IPV6INIT=yes" is visible with command "cat /etc/sysconfig/network-scripts/ifcfg-ethie"
+    When "activated" is visible with command "nmcli -g GENERAL.STATE con show con_con" in "20" seconds
+    Then "192.0.2.2" is visible with command "ip a s eth5"
+     And "UUID=8b4753fb-c562-4784-bfa7-f44dc6581e73" is visible with command "cat /etc/sysconfig/network-scripts/ifcfg-con_con2"
+     And "DNS1=192.0.2.1" is visible with command "cat /etc/sysconfig/network-scripts/ifcfg-con_con2"
+     And "IPADDR=192.0.2.2" is visible with command "cat /etc/sysconfig/network-scripts/ifcfg-con_con2"
+     And "GATEWAY=192.0.2.1" is visible with command "cat /etc/sysconfig/network-scripts/ifcfg-con_con2"
+     And "NETMASK=255.255.255.0" is visible with command "cat /etc/sysconfig/network-scripts/ifcfg-con_con2"
+     And "BOOTPROTO='static'" is visible with command "cat /etc/sysconfig/network-scripts/ifcfg-con_con2"
+     And "DEVICE=eth5" is visible with command "cat /etc/sysconfig/network-scripts/ifcfg-con_con2"
+     And "ONBOOT=yes" is visible with command "cat /etc/sysconfig/network-scripts/ifcfg-con_con2"
+     And "IPV6INIT=yes" is visible with command "cat /etc/sysconfig/network-scripts/ifcfg-con_con2"
 
 
      @rhbz1367737
      @ver+=1.4.0
-     @con
+     @con_con_remove
      @manual_connection_with_both_ips
      Scenario: nmcli - connection - add ipv4 ipv6 manual connection
-     * Execute "nmcli connection add type ethernet con-name connie ifname eth1 ipv4.method manual ipv4.addresses 1.1.1.1/24 ipv6.method manual ipv6.addresses 1::2/128"
-     Then "connie" is visible with command "nmcli con"
+     * Execute "nmcli connection add type ethernet con-name con_con ifname eth5 ipv4.method manual ipv4.addresses 1.1.1.1/24 ipv6.method manual ipv6.addresses 1::2/128"
+     Then "con_con" is visible with command "nmcli con"
 
 
     @time
@@ -319,7 +319,7 @@ Feature: nmcli: connection
      * Add connection type "ethernet" named "time" for device "blah"
      * Open editor for connection "time"
      * Submit "set connection.autoconnect no" in editor
-     * Submit "set connection.interface-name eth2" in editor
+     * Submit "set connection.interface-name eth6" in editor
      * Save in editor
      * Quit editor
      * Open editor for connection "time"
@@ -333,159 +333,112 @@ Feature: nmcli: connection
      * Delete connection "time"
 
 
-    @con
+    @con_con_remove
     @connection_readonly_timestamp
     Scenario: nmcli - connection - readonly timestamp
-     * Add connection type "ethernet" named "connie" for device "eth2"
-     * Open editor for connection "connie"
+     * Add connection type "ethernet" named "con_con" for device "eth6"
+     * Open editor for connection "con_con"
      * Submit "set connection.timestamp 1372338021" in editor
      Then Error type "timestamp" shown in editor
      When Quit editor
 
 
-    @con
+    @con_con_remove
     @connection_readonly_yes
     Scenario: nmcli - connection - readonly read-only
-     * Add connection type "ethernet" named "connie" for device "eth2"
-     * Open editor for connection "connie"
+     * Add connection type "ethernet" named "con_con" for device "eth6"
+     * Open editor for connection "con_con"
      * Submit "set connection.read-only yes" in editor
      Then Error type "read-only" shown in editor
 
 
-    @con
+    @con_con_remove
     @connection_readonly_type
     Scenario: nmcli - connection - readonly type
-     * Add connection type "ethernet" named "connie" for device "eth2"
-     * Open editor for connection "connie"
+     * Add connection type "ethernet" named "con_con" for device "eth6"
+     * Open editor for connection "con_con"
      * Submit "set connection.type 802-3-ethernet" in editor
      Then Error type "type" shown in editor
 
 
-    @con
+    @con_con_remove
     @connection_permission_to_user
     Scenario: nmcli - connection - permissions to user
-     * Add connection type "ethernet" named "connie" for device "eth2"
-     * Open editor for connection "connie"
+     * Add connection type "ethernet" named "con_con" for device "eth6"
+     * Open editor for connection "con_con"
      * Submit "set connection.permissions test" in editor
      * Save in editor
      * Check if object item "connection.permissions:" has value "user:test" via print
      * Quit editor
      * Prompt is not running
-     * Bring "up" connection "connie"
-     * Open editor for connection "connie"
+     * Bring "up" connection "con_con"
+     * Open editor for connection "con_con"
     Then Check if object item "connection.permissions:" has value "user:test" via print
      * Quit editor
-    Then "test" is visible with command "grep test /etc/sysconfig/network-scripts/ifcfg-connie"
+    Then "test" is visible with command "grep test /etc/sysconfig/network-scripts/ifcfg-con_con"
 
 
-    @con @firewall
+    @con_con_remove @firewall
     @connection_zone_drop_to_public
     Scenario: nmcli - connection - zone to drop and public
-     * Add connection type "ethernet" named "connie" for device "eth6"
-     * Open editor for connection "connie"
+     * Add connection type "ethernet" named "con_con" for device "eth6"
+     * Open editor for connection "con_con"
      * Submit "set ipv4.method manual" in editor
      * Submit "set ipv4.addresses 192.168.122.253" in editor
      * Submit "set connection.zone drop" in editor
      * Save in editor
      * Quit editor
-     * Bring "up" connection "connie"
+     * Bring "up" connection "con_con"
      When "eth6" is visible with command "firewall-cmd --zone=drop --list-all"
-     * Open editor for connection "connie"
+     * Open editor for connection "con_con"
      * Submit "set connection.zone" in editor
      * Enter in editor
      * Save in editor
      * Quit editor
-     * Bring "up" connection "connie"
+     * Bring "up" connection "con_con"
      Then "eth6" is visible with command "firewall-cmd --zone=public --list-all"
 
 
      @rhbz1366288
      @ver+=1.4.0
-     @con @firewall @restart
+     @con_con_remove @firewall @restart
      @firewall_zones_restart_persistence
      Scenario: nmcli - connection - zone to drop and public
-      * Add connection type "ethernet" named "connie" for device "eth1"
-      When "public\s+interfaces: eth0 eth1" is visible with command "firewall-cmd --get-active-zones"
-      * Execute "nmcli c modify connie connection.zone internal"
-      When "internal\s+interfaces: eth1" is visible with command "firewall-cmd --get-active-zones"
+      * Add connection type "ethernet" named "con_con" for device "eth5"
+      When "public\s+interfaces: eth0 eth5" is visible with command "firewall-cmd --get-active-zones"
+      * Execute "nmcli c modify con_con connection.zone internal"
+      When "internal\s+interfaces: eth5" is visible with command "firewall-cmd --get-active-zones"
        And "public\s+interfaces: eth0" is visible with command "firewall-cmd --get-active-zones"
       * Execute "systemctl restart firewalld"
-      When "internal\s+interfaces: eth1" is visible with command "firewall-cmd --get-active-zones"
+      When "internal\s+interfaces: eth5" is visible with command "firewall-cmd --get-active-zones"
        And "public\s+interfaces: eth0" is visible with command "firewall-cmd --get-active-zones"
-      * restart NM
-      When "internal\s+interfaces: eth1" is visible with command "firewall-cmd --get-active-zones"
+      * Restart NM
+      When "internal\s+interfaces: eth5" is visible with command "firewall-cmd --get-active-zones"
        And "public\s+interfaces: eth0" is visible with command "firewall-cmd --get-active-zones"
-      * Execute "nmcli c modify connie connection.zone home"
-      When "home\s+interfaces: eth1" is visible with command "firewall-cmd --get-active-zones"
+      * Execute "nmcli c modify con_con connection.zone home"
+      When "home\s+interfaces: eth5" is visible with command "firewall-cmd --get-active-zones"
        And "public\s+interfaces: eth0" is visible with command "firewall-cmd --get-active-zones"
       * Execute "systemctl restart firewalld"
-      When "home\s+interfaces: eth1" is visible with command "firewall-cmd --get-active-zones"
+      When "home\s+interfaces: eth5" is visible with command "firewall-cmd --get-active-zones"
        And "public\s+interfaces: eth0" is visible with command "firewall-cmd --get-active-zones"
-      * Execute "nmcli c modify connie connection.zone work"
-      Then "work\s+interfaces: eth1" is visible with command "firewall-cmd --get-active-zones"
+      * Execute "nmcli c modify con_con connection.zone work"
+      Then "work\s+interfaces: eth5" is visible with command "firewall-cmd --get-active-zones"
        And "public\s+interfaces: eth0" is visible with command "firewall-cmd --get-active-zones"
 
 
     @rhbz663730
-    @ver+=1.6.0
-    @ver-=1.9.1
-    @con @eth @connect_testeth0
-    @route_priorities
-    Scenario: nmcli - connection - route priorities
-     * Add a new connection of type "ethernet" and options "ifname eth0 con-name ethie autoconnect no"
-     * Add a new connection of type "ethernet" and options "ifname eth10 con-name connie autoconnect no"
-     * Execute "nmcli con modify ethie ipv4.may-fail no"
-     * Execute "nmcli con modify connie ipv4.may-fail no"
-     * Bring "up" connection "ethie"
-     * Bring "up" connection "connie"
-     When "metric 100" is visible with command "ip r |grep default |grep eth0" in "10" seconds
-     When "metric 101" is visible with command "ip r |grep default |grep eth10" in "10" seconds
-     * Execute "nmcli con modify connie ipv4.route-metric 10"
-     * Bring "up" connection "connie"
-     When "metric 100" is visible with command "ip r |grep default |grep eth0" in "10" seconds
-     When "metric 10" is visible with command "ip r |grep default |grep eth10" in "10" seconds
-     * Execute "nmcli con modify connie ipv4.route-metric -1"
-     * Bring "up" connection "connie"
-     When "metric 100" is visible with command "ip r |grep default |grep eth0" in "10" seconds
-     When "metric 101" is visible with command "ip r |grep default |grep eth10" in "10" seconds
-
-
-    @rhbz663730
-    @ver+=1.9.2
-    @con @eth @connect_testeth0
-    @route_priorities
-    Scenario: nmcli - connection - route priorities
-     * Add a new connection of type "ethernet" and options "ifname eth0 con-name ethie autoconnect no"
-     * Add a new connection of type "ethernet" and options "ifname eth10 con-name connie autoconnect no"
-     * Execute "nmcli con modify ethie ipv4.may-fail no"
-     * Execute "nmcli con modify connie ipv4.may-fail no"
-     * Bring "up" connection "ethie"
-     * Bring "up" connection "connie"
-     When "metric 100" is visible with command "ip r |grep default |grep eth0"
-     When "metric 101" is visible with command "ip r |grep default |grep eth10"
-     * Execute "nmcli con modify connie ipv4.route-metric 10"
-     * Bring "up" connection "connie"
-     When "metric 100" is visible with command "ip r |grep default |grep eth0"
-     When "metric 10" is visible with command "ip r |grep default |grep eth10"
-     * Execute "nmcli con modify connie ipv4.route-metric -1"
-     * Bring "up" connection "connie"
-     When "metric 100" is visible with command "ip r |grep default |grep eth0"
-     When "metric 101" is visible with command "ip r |grep default |grep eth10"
-
-
-    @rhbz663730
-    @veth @con @eth
+    @veth @con_con_remove @con_con_remove @restart
     @profile_priorities
     Scenario: nmcli - connection - profile priorities
-     * Add connection type "ethernet" named "ethie" for device "eth10"
-     * Add connection type "ethernet" named "connie" for device "eth10"
-     * Execute "nmcli con modify ethie connection.autoconnect-priority 2"
-     * Execute "nmcli con modify connie connection.autoconnect-priority 1"
-     * Bring "up" connection "ethie"
-     * Bring "up" connection "connie"
-     * Disconnect device "eth10"
+     * Add connection type "ethernet" named "con_con2" for device "eth6"
+     * Add connection type "ethernet" named "con_con" for device "eth6"
+     * Execute "nmcli con modify con_con2 connection.autoconnect-priority 2"
+     * Execute "nmcli con modify con_con connection.autoconnect-priority 1"
+     * Bring "up" connection "con_con2"
+     * Bring "up" connection "con_con"
+     * Disconnect device "eth6"
      * Restart NM
-     Then "ethie" is visible with command "nmcli con show -a"
+     Then "con_con2" is visible with command "nmcli con show -a"
 
 
     # NM_METERED_UNKNOWN    = 0,
@@ -496,65 +449,65 @@ Feature: nmcli: connection
 
 
     @rhbz1200452
-    @con @eth0
+    @con_con_remove @eth0
     @connection_metered_manual_yes
     Scenario: nmcli - connection - metered manual yes
-     * Add connection type "ethernet" named "connie" for device "eth1"
-     * Open editor for connection "connie"
+     * Add connection type "ethernet" named "con_con" for device "eth5"
+     * Open editor for connection "con_con"
      * Submit "set connection.metered true" in editor
      * Save in editor
      * Quit editor
-     * Bring "up" connection "connie"
+     * Bring "up" connection "con_con"
      Then Metered status is "1"
 
 
     @rhbz1200452
-    @con @eth0
+    @con_con_remove @eth0
     @connection_metered_manual_no
     Scenario: nmcli - connection - metered manual no
-     * Add connection type "ethernet" named "connie" for device "eth1"
-     * Open editor for connection "connie"
+     * Add connection type "ethernet" named "con_con" for device "eth5"
+     * Open editor for connection "con_con"
      * Submit "set connection.metered false" in editor
      * Save in editor
      * Quit editor
-     * Bring "up" connection "connie"
+     * Bring "up" connection "con_con"
      Then Metered status is "2"
 
 
     @rhbz1200452
-    @con @eth0
+    @con_con_remove @eth0
     @connection_metered_guess_no
     Scenario: NM - connection - metered guess no
-     * Add connection type "ethernet" named "connie" for device "eth1"
-     * Open editor for connection "connie"
+     * Add connection type "ethernet" named "con_con" for device "eth5"
+     * Open editor for connection "con_con"
      * Submit "set connection.metered unknown" in editor
      * Save in editor
      * Quit editor
-     * Bring "up" connection "connie"
+     * Bring "up" connection "con_con"
      Then Metered status is "4"
 
 
     @rhbz1200452
-    @con @eth0
+    @con_con_remove @eth0
     @teardown_testveth
     @connection_metered_guess_yes
     Scenario: NM - connection - metered guess yes
      * Prepare simulated test "testX" device with "192.168.99" ipv4 and "2620:52:0:dead" ipv6 dhcp address prefix and dhcp option "43,ANDROID_METERED"
-     * Add a new connection of type "ethernet" and options "ifname testX con-name connie autoconnect off"
-     * Open editor for connection "connie"
+     * Add a new connection of type "ethernet" and options "ifname testX con-name con_con autoconnect off"
+     * Open editor for connection "con_con"
      * Submit "set ipv6.method ignore" in editor
      * Submit "set connection.metered unknown" in editor
      * Save in editor
      * Quit editor
-     * Bring "up" connection "connie"
+     * Bring "up" connection "con_con"
      Then Metered status is "3"
 
 
-     @con @bond @team @wifi @eth @long
+     @bond @team @wifi @con_con_remove @long
      @display_allowed_values
      Scenario: nmcli - connection - showing allowed values
-     * Add connection type "ethernet" named "connie" for device "testX"
-     * Open editor for connection "connie"
+     * Add connection type "ethernet" named "con_con" for device "testX"
+     * Open editor for connection "con_con"
      * Check "fast|leap|md5|peap|pwd|sim|tls|ttls" are shown for object "802-1x.eap"
      * Check "0|1" are shown for object "802-1x.phase1-peapver"
      * Check "0|1" are shown for object "802-1x.phase1-peaplabel"
@@ -593,20 +546,20 @@ Feature: nmcli: connection
      * Check "ccmp|tkip" are shown for object "wifi-sec.pairwise"
      * Check "ccmp|tkip|wep104|wep40" are shown for object "wifi-sec.group"
      * Quit editor
-     * Add connection type "infiniband" named "ethie" for device "mlx4_ib1"
-     * Open editor for connection "ethie"
+     * Add connection type "infiniband" named "con_con2" for device "mlx4_ib1"
+     * Open editor for connection "con_con2"
      * Check "connected|datagram" are shown for object "infiniband.transport-mode"
      * Quit editor
 
 
     @rhbz1142898
     @ver+=1.4.0
-    @con @teardown_testveth
+    @con_con_remove @teardown_testveth
     @lldp
     Scenario: nmcli - connection - lldp
      * Prepare simulated test "testX" device
-     * Add a new connection of type "ethernet" and options "ifname testX con-name connie ipv4.method manual ipv4.addresses 1.2.3.4/24 connection.lldp enable"
-     * Bring "up" connection "connie"
+     * Add a new connection of type "ethernet" and options "ifname testX con-name con_con ipv4.method manual ipv4.addresses 1.2.3.4/24 connection.lldp enable"
+     * Bring "up" connection "con_con"
      When "testX\s+ethernet\s+connected" is visible with command "nmcli device" in "5" seconds
      * Execute "ip netns exec testX_ns tcpreplay --intf1=testXp tmp/lldp.detailed.pcap"
      Then "NEIGHBOR\[0\].DEVICE:\s+testX" is visible with command "nmcli device lldp" in "5" seconds
@@ -619,43 +572,43 @@ Feature: nmcli: connection
 
 
     @rhbz1417292
-    @eth1_disconnect
+    @eth5_disconnect
     @introspection_active_connection
     Scenario: introspection - check active connections
-     * Execute "python tmp/network_test.py testeth1 > /tmp/test"
-     When "testeth1" is visible with command "nmcli con s -a"
+     * Execute "python tmp/network_test.py testeth5 > /tmp/test"
+     When "testeth5" is visible with command "nmcli con s -a"
      Then "Active connections before: 1" is visible with command "cat /tmp/test"
       And "Active connections after: 2.*Active connections after: 2" is visible with command "cat /tmp/test"
 
 
     @rhbz1421429
     @ver+=1.8.0
-    @con
+    @con_con_remove
     @connection_user_settings_data
     Scenario: NM - connection - user settings data
-    * Add connection type "ethernet" named "connie" for device "eth1"
-    When "\"my.own.data\" = \"good_morning_starshine\"" is visible with command "python tmp/setting-user-data.py set id connie my.own.data good_morning_starshine"
-     And "\"my.own.data.two\" = \"the_moon_says_hello\"" is visible with command "python tmp/setting-user-data.py set id connie my.own.data.two the_moon_says_hello"
-     And "\"my.own.data\" = \"good_morning_starshine\"|\"my.own.data2\" = \"the_moon_says_hello\"" is visible with command "python tmp/setting-user-data.py id connie"
-    * Execute "python tmp/setting-user-data.py set id connie -d my.own.data"
-    * Execute "python tmp/setting-user-data.py set id connie -d my.own.data.two"
-    Then "[none]|[0]" is visible with command "python tmp/setting-user-data.py id connie"
-     And "\"my.own.data\" = \"good_morning_starshine\"|\"my.own.data2\" = \"the_moon_says_hello\"" is not visible with command "python tmp/setting-user-data.py id connie"
+    * Add connection type "ethernet" named "con_con" for device "eth5"
+    When "\"my.own.data\" = \"good_morning_starshine\"" is visible with command "python tmp/setting-user-data.py set id con_con my.own.data good_morning_starshine"
+     And "\"my.own.data.two\" = \"the_moon_says_hello\"" is visible with command "python tmp/setting-user-data.py set id con_con my.own.data.two the_moon_says_hello"
+     And "\"my.own.data\" = \"good_morning_starshine\"|\"my.own.data2\" = \"the_moon_says_hello\"" is visible with command "python tmp/setting-user-data.py id con_con"
+    * Execute "python tmp/setting-user-data.py set id con_con -d my.own.data"
+    * Execute "python tmp/setting-user-data.py set id con_con -d my.own.data.two"
+    Then "[none]|[0]" is visible with command "python tmp/setting-user-data.py id con_con"
+     And "\"my.own.data\" = \"good_morning_starshine\"|\"my.own.data2\" = \"the_moon_says_hello\"" is not visible with command "python tmp/setting-user-data.py id con_con"
 
 
     @rhbz1448165
-    @eth1_disconnect
+    @eth5_disconnect
     @connection_track_external_changes
     Scenario: NM - connection - track external changes
-     * Execute "ip add add 192.168.1.2/24 dev eth1"
-    Then "192.168.1.2/24" is visible with command "nmcli con sh eth1 |grep IP4" in "2" seconds
+     * Execute "ip add add 192.168.1.2/24 dev eth5"
+    Then "192.168.1.2/24" is visible with command "nmcli con sh eth5 |grep IP4" in "2" seconds
 
 
-    @con
+    @con_con_remove
     @connection_describe
     Scenario: nmcli - connection - describe
-     * Add connection type "ethernet" named "connie" for device "eth2"
-     * Open editor for connection "connie"
+     * Add connection type "ethernet" named "con_con" for device "eth6"
+     * Open editor for connection "con_con"
      Then Check "\[id\]|\[uuid\]|\[interface-name\]|\[type\]|\[permissions\]|\[autoconnect\]|\[timestamp\]|\[read-only\]|\[zone\]|\[master\]|\[slave-type\]|\[secondaries\]|\[gateway-ping-timeout\]" are present in describe output for object "connection"
      * Submit "goto connection" in editor
 

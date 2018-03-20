@@ -144,17 +144,14 @@ local_setup_configure_nm_eth () {
         fi
     fi
 
-    # grep 'debug=fatal-warnings' /etc/NetworkManager/NetworkManager.conf
-
-    # if [ "$?" == "1" ]; then
-    #     sed -i 's/\[main\]/\[main\]\ndebug=fatal-warnings/' /etc/NetworkManager/NetworkManager.conf
-    # fi
-
     systemctl stop firewalld
     systemctl mask firewalld
 
     # Copy final connection to /tmp/testeth0 for later in test usage
     yes 2>/dev/null | cp -rf /etc/sysconfig/network-scripts/ifcfg-testeth0 /tmp/testeth0
+
+    nmcli c u testeth0
+
     systemctl restart NetworkManager
     sleep 10
     nmcli con up testeth0; rc=$?
