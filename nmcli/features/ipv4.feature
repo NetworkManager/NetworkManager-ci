@@ -1568,7 +1568,7 @@ Feature: nmcli: ipv4
     # Default route for testX4 should not be back in 150s as the device is now external
     When "default" is not visible with command "ip r| grep testX4" for full "150" seconds
     # Default route for testY4 should be back in the same timeframe
-    Then "default" is visible with command "ip r| grep testY4"
+    Then "default" is visible with command "ip r| grep testY4" in "150" seconds
     Then "inet 192.168." is not visible with command "ip a s testX4"
     Then "inet 192.168." is visible with command "ip a s testY4"
     Then "routers = 192.168" is visible with command "nmcli con show connie"
