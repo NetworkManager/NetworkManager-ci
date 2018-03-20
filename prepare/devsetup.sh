@@ -147,10 +147,12 @@ local_setup_configure_nm_eth () {
     systemctl stop firewalld
     systemctl mask firewalld
 
+    nmcli c modify testeth0 ipv4.route-metric 99 ipv6.route-metric 99
+    nmcli c u testeth0
+
     # Copy final connection to /tmp/testeth0 for later in test usage
     yes 2>/dev/null | cp -rf /etc/sysconfig/network-scripts/ifcfg-testeth0 /tmp/testeth0
 
-    nmcli c u testeth0
 
     systemctl restart NetworkManager
     sleep 10
