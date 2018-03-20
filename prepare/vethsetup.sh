@@ -84,11 +84,7 @@ function setup_veth_env ()
     nmcli con mod $UUID connection.id testeth0
     nmcli con mod $UUID connection.interface-name eth0
     nmcli connection modify $UUID ipv6.method auto
-    sleep 1
-
-    # Copy final connection to /tmp/testeth0 for later in test usage
-    yes 2>/dev/null | cp -rf /etc/sysconfig/network-scripts/ifcfg-testeth0 /tmp/testeth0
-    nmcli c u testeth0
+    sleep
 
     # Rename additional devices
     for DEV in $(nmcli -f TYPE,DEVICE -t d | grep -v eth0 | grep ethernet | awk '{split($0,a,":"); print a[2]}'); do

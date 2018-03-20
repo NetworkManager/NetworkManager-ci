@@ -9,10 +9,6 @@ Feature: nmcli - ethernet
     # Scenario:
 
 
-    @cleanethernet
-    Scenario: Clean ethernet
-    * "eth0" is visible with command "ifconfig"
-
     @ethernet
     @ethernet_create_with_editor
     Scenario: nmcli - ethernet - create with editor
@@ -106,14 +102,14 @@ Feature: nmcli - ethernet
 
 
     @ethernet
-    @teardown_testveth
+    @teardown_testveth @restart
     @no_assumed_connection_for_veth
     Scenario: NM - ethernet - no assumed connection for veth
-    * Prepare simulated test "testX" device
-    * Add a new connection of type "ethernet" and options "ifname testX con-name ethernet autoconnect no"
+    * Prepare simulated test "testE" device
+    * Add a new connection of type "ethernet" and options "ifname testE con-name ethernet autoconnect no"
     * Bring up connection "ethernet"
     * Restart NM
-    Then "testX" is not visible with command "nmcli -f NAME c" in "50" seconds
+    Then "testE" is not visible with command "nmcli -f NAME c" in "50" seconds
 
 
     @ethernet
@@ -157,7 +153,7 @@ Feature: nmcli - ethernet
 
     @rhbz1413312
     @ver+=1.6.0
-    @ethernet @mac
+    @ethernet @mac @restart
     @ethernet_mac_address_preserve
     Scenario: NM - ethernet - mac address preserve
     * Execute "echo -e '[connection]\nethernet.cloned-mac-address=preserve' > /etc/NetworkManager/conf.d/99-mac.conf"
@@ -171,7 +167,7 @@ Feature: nmcli - ethernet
 
     @rhbz1413312
     @ver+=1.6.0
-    @ethernet @mac
+    @ethernet @mac @restart
     @ethernet_mac_address_permanent
     Scenario: NM - ethernet - mac address permanent
     * Note the output of "nmcli -t --mode tabular --fields GENERAL.HWADDR device show eth1" as value "orig_eth1"
@@ -379,167 +375,167 @@ Feature: nmcli - ethernet
 
 
     @ver+=1.4.0
-    @eth @8021x
+    @con_ethernet_remove @8021x
     @8021x_with_credentials
     Scenario: nmcli - ethernet - connect to 8021x - md5
-    * Add a new connection of type "ethernet" and options "ifname testX con-name ethie autoconnect no 802-1x.eap md5 802-1x.identity user 802-1x.password password"
-    Then Bring "up" connection "ethie"
+    * Add a new connection of type "ethernet" and options "ifname test8X con-name con_ethernet autoconnect no 802-1x.eap md5 802-1x.identity user 802-1x.password password"
+    Then Bring "up" connection "con_ethernet"
 
 
     @ver+=1.6.0
-    @eth @8021x
+    @con_ethernet_remove @8021x
     @8021x_tls
     Scenario: nmcli - ethernet - connect to 8021x - tls
-    * Add a new connection of type "ethernet" and options "ifname testX con-name ethie autoconnect no 802-1x.eap tls 802-1x.identity test 802-1x.ca-cert /tmp/certs/test_user.ca.pem 802-1x.client-cert /tmp/certs/test_user.cert.pem 802-1x.private-key /tmp/certs/test_user.key.pem 802-1x.private-key-password redhat"
-    Then Bring "up" connection "ethie"
+    * Add a new connection of type "ethernet" and options "ifname test8X con-name con_ethernet autoconnect no 802-1x.eap tls 802-1x.identity test 802-1x.ca-cert /tmp/certs/test_user.ca.pem 802-1x.client-cert /tmp/certs/test_user.cert.pem 802-1x.private-key /tmp/certs/test_user.key.pem 802-1x.private-key-password redhat"
+    Then Bring "up" connection "con_ethernet"
 
 
     @ver+=1.4.0
-    @eth @8021x
+    @con_ethernet_remove @8021x
     @8021x_peap_md5
     Scenario: nmcli - ethernet - connect to 8021x - peap - md5
-    * Add a new connection of type "ethernet" and options "ifname testX con-name ethie autoconnect no 802-1x.eap peap 802-1x.identity test_md5 802-1x.anonymous-identity test 802-1x.ca-cert /tmp/certs/test_user.ca.pem 802-1x.phase2-auth md5 802-1x.password password"
-    Then Bring "up" connection "ethie"
+    * Add a new connection of type "ethernet" and options "ifname test8X con-name con_ethernet autoconnect no 802-1x.eap peap 802-1x.identity test_md5 802-1x.anonymous-identity test 802-1x.ca-cert /tmp/certs/test_user.ca.pem 802-1x.phase2-auth md5 802-1x.password password"
+    Then Bring "up" connection "con_ethernet"
 
 
     @ver+=1.4.0
-    @eth @8021x
+    @con_ethernet_remove @8021x
     @8021x_peap_mschapv2
     Scenario: nmcli - ethernet - connect to 8021x - peap - mschapv2
-    * Add a new connection of type "ethernet" and options "ifname testX con-name ethie autoconnect no 802-1x.eap peap 802-1x.identity TESTERS\\test_mschapv2 802-1x.anonymous-identity test 802-1x.ca-cert /tmp/certs/test_user.ca.pem 802-1x.phase2-auth mschapv2 802-1x.password password"
-    Then Bring "up" connection "ethie"
+    * Add a new connection of type "ethernet" and options "ifname test8X con-name con_ethernet autoconnect no 802-1x.eap peap 802-1x.identity TESTERS\\test_mschapv2 802-1x.anonymous-identity test 802-1x.ca-cert /tmp/certs/test_user.ca.pem 802-1x.phase2-auth mschapv2 802-1x.password password"
+    Then Bring "up" connection "con_ethernet"
 
 
     @ver+=1.4.0
-    @eth @8021x
+    @con_ethernet_remove @8021x
     @8021x_peap_gtc
     Scenario: nmcli - ethernet - connect to 8021x - peap - gtc
-    * Add a new connection of type "ethernet" and options "ifname testX con-name ethie autoconnect no 802-1x.eap peap 802-1x.identity test_gtc 802-1x.anonymous-identity test 802-1x.ca-cert /tmp/certs/test_user.ca.pem 802-1x.phase2-auth gtc 802-1x.password password"
-    Then Bring "up" connection "ethie"
+    * Add a new connection of type "ethernet" and options "ifname test8X con-name con_ethernet autoconnect no 802-1x.eap peap 802-1x.identity test_gtc 802-1x.anonymous-identity test 802-1x.ca-cert /tmp/certs/test_user.ca.pem 802-1x.phase2-auth gtc 802-1x.password password"
+    Then Bring "up" connection "con_ethernet"
 
 
     @ver+=1.4.0
-    @eth @8021x
+    @con_ethernet_remove @8021x
     @8021x_ttls_pap
     Scenario: nmcli - ethernet - connect to 8021x -ttls - pap
-    * Add a new connection of type "ethernet" and options "ifname testX con-name ethie autoconnect no 802-1x.eap ttls 802-1x.identity test_ttls 802-1x.anonymous-identity test 802-1x.ca-cert /tmp/certs/test_user.ca.pem 802-1x.phase2-auth pap 802-1x.password password"
-    Then Bring "up" connection "ethie"
+    * Add a new connection of type "ethernet" and options "ifname test8X con-name con_ethernet autoconnect no 802-1x.eap ttls 802-1x.identity test_ttls 802-1x.anonymous-identity test 802-1x.ca-cert /tmp/certs/test_user.ca.pem 802-1x.phase2-auth pap 802-1x.password password"
+    Then Bring "up" connection "con_ethernet"
 
 
     @ver+=1.4.0
-    @eth @8021x
+    @con_ethernet_remove @8021x
     @8021x_ttls_chap
     Scenario: nmcli - ethernet - connect to 8021x -ttls - chap
-    * Add a new connection of type "ethernet" and options "ifname testX con-name ethie autoconnect no 802-1x.eap ttls 802-1x.identity test_ttls 802-1x.anonymous-identity test 802-1x.ca-cert /tmp/certs/test_user.ca.pem 802-1x.phase2-auth chap 802-1x.password password"
-    Then Bring "up" connection "ethie"
+    * Add a new connection of type "ethernet" and options "ifname test8X con-name con_ethernet autoconnect no 802-1x.eap ttls 802-1x.identity test_ttls 802-1x.anonymous-identity test 802-1x.ca-cert /tmp/certs/test_user.ca.pem 802-1x.phase2-auth chap 802-1x.password password"
+    Then Bring "up" connection "con_ethernet"
 
 
     @ver+=1.4.0
-    @eth @8021x
+    @con_ethernet_remove @8021x
     @8021x_ttls_mschap
     Scenario: nmcli - ethernet - connect to 8021x -ttls - mschap
-    * Add a new connection of type "ethernet" and options "ifname testX con-name ethie autoconnect no 802-1x.eap ttls 802-1x.identity test_ttls 802-1x.anonymous-identity test 802-1x.ca-cert /tmp/certs/test_user.ca.pem 802-1x.phase2-auth mschap 802-1x.password password"
-    Then Bring "up" connection "ethie"
+    * Add a new connection of type "ethernet" and options "ifname test8X con-name con_ethernet autoconnect no 802-1x.eap ttls 802-1x.identity test_ttls 802-1x.anonymous-identity test 802-1x.ca-cert /tmp/certs/test_user.ca.pem 802-1x.phase2-auth mschap 802-1x.password password"
+    Then Bring "up" connection "con_ethernet"
 
 
     @ver+=1.4.0
-    @eth @8021x
+    @con_ethernet_remove @8021x
     @8021x_ttls_mschapv2
     Scenario: nmcli - ethernet - connect to 8021x -ttls - mschapv2
-    * Add a new connection of type "ethernet" and options "ifname testX con-name ethie autoconnect no 802-1x.eap ttls 802-1x.identity test_ttls 802-1x.anonymous-identity test 802-1x.ca-cert /tmp/certs/test_user.ca.pem 802-1x.phase2-auth mschapv2 802-1x.password password"
-    Then Bring "up" connection "ethie"
+    * Add a new connection of type "ethernet" and options "ifname test8X con-name con_ethernet autoconnect no 802-1x.eap ttls 802-1x.identity test_ttls 802-1x.anonymous-identity test 802-1x.ca-cert /tmp/certs/test_user.ca.pem 802-1x.phase2-auth mschapv2 802-1x.password password"
+    Then Bring "up" connection "con_ethernet"
 
 
     @ver+=1.4.0
-    @eth @8021x
+    @con_ethernet_remove @8021x
     @8021x_ttls_mschapv2_eap
     Scenario: nmcli - ethernet - connect to 8021x -ttls - mschap - eap
-    * Add a new connection of type "ethernet" and options "ifname testX con-name ethie autoconnect no 802-1x.eap ttls 802-1x.identity TESTERS\\test_mschapv2 802-1x.anonymous-identity test 802-1x.ca-cert /tmp/certs/test_user.ca.pem 802-1x.phase2-autheap mschapv2 802-1x.password password"
-    Then Bring "up" connection "ethie"
+    * Add a new connection of type "ethernet" and options "ifname test8X con-name con_ethernet autoconnect no 802-1x.eap ttls 802-1x.identity TESTERS\\test_mschapv2 802-1x.anonymous-identity test 802-1x.ca-cert /tmp/certs/test_user.ca.pem 802-1x.phase2-autheap mschapv2 802-1x.password password"
+    Then Bring "up" connection "con_ethernet"
 
 
     @ver+=1.4.0
-    @eth @8021x
+    @con_ethernet_remove @8021x
     @8021x_ttls_md5
     Scenario: nmcli - ethernet - connect to 8021x -ttls - md5
-    * Add a new connection of type "ethernet" and options "ifname testX con-name ethie autoconnect no 802-1x.eap ttls 802-1x.identity test_md5 802-1x.anonymous-identity test 802-1x.ca-cert /tmp/certs/test_user.ca.pem 802-1x.phase2-autheap md5 802-1x.password password"
-    Then Bring "up" connection "ethie"
+    * Add a new connection of type "ethernet" and options "ifname test8X con-name con_ethernet autoconnect no 802-1x.eap ttls 802-1x.identity test_md5 802-1x.anonymous-identity test 802-1x.ca-cert /tmp/certs/test_user.ca.pem 802-1x.phase2-autheap md5 802-1x.password password"
+    Then Bring "up" connection "con_ethernet"
 
 
     @ver+=1.4.0
-    @eth @8021x
+    @con_ethernet_remove @8021x
     @8021x_ttls_gtc
     Scenario: nmcli - ethernet - connect to 8021x -ttls - gtc
-    * Add a new connection of type "ethernet" and options "ifname testX con-name ethie autoconnect no 802-1x.eap ttls 802-1x.identity test_gtc 802-1x.anonymous-identity test 802-1x.ca-cert /tmp/certs/test_user.ca.pem 802-1x.phase2-autheap gtc 802-1x.password password"
-    Then Bring "up" connection "ethie"
+    * Add a new connection of type "ethernet" and options "ifname test8X con-name con_ethernet autoconnect no 802-1x.eap ttls 802-1x.identity test_gtc 802-1x.anonymous-identity test 802-1x.ca-cert /tmp/certs/test_user.ca.pem 802-1x.phase2-autheap gtc 802-1x.password password"
+    Then Bring "up" connection "con_ethernet"
 
 
     @rhbz1456362
     @ver+=1.8.0
-    @eth @8021x
+    @con_ethernet_remove @8021x
     @8021x_with_raw_credentials
     Scenario: nmcli - ethernet - connect to 8021x - md5 - raw
-    * Add a new connection of type "ethernet" and options "ifname testX con-name ethie autoconnect no 802-1x.eap md5 802-1x.identity user 802-1x.password-raw '70 61 73 73 77 6f 72 64'"
-    Then Bring "up" connection "ethie"
+    * Add a new connection of type "ethernet" and options "ifname test8X con-name con_ethernet autoconnect no 802-1x.eap md5 802-1x.identity user 802-1x.password-raw '70 61 73 73 77 6f 72 64'"
+    Then Bring "up" connection "con_ethernet"
 
 
     @rhbz1113941
     @ver+=1.4.0
     @ver-=1.10.0
-    @eth @8021x
+    @con_ethernet_remove @8021x
     @8021x_without_password
     Scenario: nmcli - ethernet - connect to 8021x - md5 - ask for password
-    * Add a new connection of type "ethernet" and options "ifname testX con-name ethie 802-1x.eap md5 802-1x.identity user autoconnect no"
-    * Spawn "nmcli -a con up ethie" command
+    * Add a new connection of type "ethernet" and options "ifname test8X con-name con_ethernet 802-1x.eap md5 802-1x.identity user autoconnect no"
+    * Spawn "nmcli -a con up con_ethernet" command
     * Expect "identity.*user"
     * Enter in editor
     * Send "password" in editor
     * Enter in editor
-    Then "testX:connected:ethie" is visible with command "nmcli -t -f DEVICE,STATE,CONNECTION device" in "20" seconds
+    Then "test8X:connected:con_ethernet" is visible with command "nmcli -t -f DEVICE,STATE,CONNECTION device" in "20" seconds
 
 
     @rhbz1113941 @rhbz1438476
     @ver+=1.10.0
-    @eth @8021x
+    @con_ethernet_remove @8021x
     @8021x_without_password
     Scenario: nmcli - ethernet - connect to 8021x - md5 - ask for password
-    * Add a new connection of type "ethernet" and options "ifname testX con-name ethie 802-1x.eap md5 802-1x.identity user"
-    * Spawn "nmcli -a con up ethie" command
+    * Add a new connection of type "ethernet" and options "ifname test8X con-name con_ethernet 802-1x.eap md5 802-1x.identity user"
+    * Spawn "nmcli -a con up con_ethernet" command
     * Expect "identity.*user"
     * Enter in editor
     * Send "password" in editor
     * Enter in editor
-    Then "testX:connected:ethie" is visible with command "nmcli -t -f DEVICE,STATE,CONNECTION device" in "20" seconds
+    Then "test8X:connected:con_ethernet" is visible with command "nmcli -t -f DEVICE,STATE,CONNECTION device" in "20" seconds
 
 
     @ver+=1.8.0
-    @eth @8021x
+    @con_ethernet_remove @8021x
     @8021x_without_password_with_ask_at_the_end
     Scenario: nmcli - ethernet - connect to 8021x - md5 - ask for password at the end
-    * Add a new connection of type "ethernet" and options "ifname testX con-name ethie 802-1x.eap md5 802-1x.identity user autoconnect no"
-    * Spawn "nmcli con up ethie -a" command
+    * Add a new connection of type "ethernet" and options "ifname test8X con-name con_ethernet 802-1x.eap md5 802-1x.identity user autoconnect no"
+    * Spawn "nmcli con up con_ethernet -a" command
     * Expect "identity.*user"
     * Enter in editor
     * Send "password" in editor
     * Enter in editor
-    Then "testX:connected:ethie" is visible with command "nmcli -t -f DEVICE,STATE,CONNECTION device" in "20" seconds
+    Then "test8X:connected:con_ethernet" is visible with command "nmcli -t -f DEVICE,STATE,CONNECTION device" in "20" seconds
 
 
     @rhbz1391477
     @ver+=1.7.1
-    @eth
+    @con_ethernet_remove
     @preserve_8021x_certs
     Scenario: nmcli - ethernet - preserve 8021x certs
-    * Add a new connection of type "ethernet" and options "ifname \* con-name ethie 802-1x.eap 'tls' 802-1x.client-cert /tmp/test2_ca_cert.pem 802-1x.private-key-password x 802-1x.private-key /tmp/test_key_and_cert.pem  802-1x.password pass1"
+    * Add a new connection of type "ethernet" and options "ifname \* con-name con_ethernet 802-1x.eap 'tls' 802-1x.client-cert /tmp/test2_ca_cert.pem 802-1x.private-key-password x 802-1x.private-key /tmp/test_key_and_cert.pem  802-1x.password pass1"
     * Execute "nmcli con reload"
-    Then "ethie" is visible with command "nmcli con"
+    Then "con_ethernet" is visible with command "nmcli con"
 
 
     @rhbz1374660
     @ver+=1.10
-    @eth
+    @con_ethernet_remove
     @preserve_8021x_leap_con
     Scenario: nmcli - ethernet - preserve 8021x leap connection
-    * Add a new connection of type "ethernet" and options "ifname eth1 con-name ethie 802-1x.identity jdoe 802-1x.eap leap"
+    * Add a new connection of type "ethernet" and options "ifname eth1 con-name con_ethernet 802-1x.identity jdoe 802-1x.eap leap"
     * Execute "nmcli con reload"
-    Then "ethie" is visible with command "nmcli con"
+    Then "con_ethernet" is visible with command "nmcli con"
