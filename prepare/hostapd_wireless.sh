@@ -159,7 +159,7 @@ function wireless_hostapd_setup ()
 
             modprobe mac80211_hwsim
             sleep 5
-            tune_wpa_supplicant
+            #tune_wpa_supplicant
             restart_services
             sleep 10
             nmcli device set wlan1 managed off

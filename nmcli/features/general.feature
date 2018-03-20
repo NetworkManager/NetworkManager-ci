@@ -1063,15 +1063,15 @@ Feature: nmcli - general
     * Prepare simulated veth device "testG" wihout carrier
     * Execute "echo '[device-testG]' > /etc/NetworkManager/conf.d/99-xxcustom.conf"
     * Execute "echo 'match-device=interface-name:testG' >> /etc/NetworkManager/conf.d/99-xxcustom.conf"
-    * Execute "echo 'carrier-wait-timeout=15000' >> /etc/NetworkManager/conf.d/99-xxcustom.conf"
+    * Execute "echo 'carrier-wait-timeout=20000' >> /etc/NetworkManager/conf.d/99-xxcustom.conf"
     * Execute "sleep 2"
     * Start NM
-    * Run child "echo FAIL > /tmp/nm-online.txt && /usr/bin/nm-online -s -q --timeout=30 && echo PASS > /tmp/nm-online.txt"
+    * Run child "echo FAIL > /tmp/nm-online.txt && /usr/bin/nm-online -s -q --timeout=35 && echo PASS > /tmp/nm-online.txt"
     When "FAIL" is visible with command "cat /tmp/nm-online.txt"
     * Execute "sleep 10"
     When "FAIL" is visible with command "cat /tmp/nm-online.txt"
      And Execute "ip netns exec testG_ns ip link set testGp up"
-    Then "PASS" is visible with command "cat /tmp/nm-online.txt" in "5" seconds
+    Then "PASS" is visible with command "cat /tmp/nm-online.txt" in "10" seconds
 
 
     @rhbz1160013
