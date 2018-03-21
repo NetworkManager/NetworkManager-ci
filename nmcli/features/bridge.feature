@@ -315,7 +315,7 @@ Feature: nmcli - bridge
     # if the master is autoconnect-slaves, then it will forcefully activate all slaves,
     # even if the device is currently busy with another (non-slave) profile.
     * Add a new connection of type "ethernet" and options "ifname eth4 con-name bridge-nonslave-eth4 autoconnect no"
-    * Add a new connection of type "bridge" and options "ifname bridge0 con-name bridge0 autoconnect no connection.autoconnect-slaves yes"
+    * Add a new connection of type "bridge" and options "ifname bridge0 con-name bridge0 autoconnect no connection.autoconnect-slaves yes bridge.stp no"
     * Add a new connection of type "bridge-slave" and options "ifname eth4 con-name bridge-slave-eth4 master bridge0 autoconnect no"
     * Bring up connection "bridge-nonslave-eth4"
     Then "eth4\s+ethernet\s+connected\s+bridge-nonslave-eth4" is visible with command "nmcli d"
@@ -335,14 +335,10 @@ Feature: nmcli - bridge
     # This case is slightly different, because the currently active profile
     # is the slave profile itself, but it was activated as a non-slave profile.
     * Add a new connection of type "ethernet" and options "ifname eth4 con-name bridge-nonslave-eth4 autoconnect no"
-    * Add a new connection of type "bridge" and options "ifname bridge0 con-name bridge0 autoconnect no connection.autoconnect-slaves yes"
-    * Add a new connection of type "bridge-slave" and options "ifname eth4 con-name bridge-slave-eth4 master bridge0 autoconnect no"
     * Bring up connection "bridge-nonslave-eth4"
     Then "eth4\s+ethernet\s+connected\s+bridge-nonslave-eth4" is visible with command "nmcli d"
-    Then "bridge0" is not visible with command "nmcli d"
-    Then "bridge0" is not visible with command "ip l"
     * Execute "nmcli con modify bridge-nonslave-eth4 master bridge0 slave-type bridge"
-    * Bring up connection "bridge0"
+    * Add a new connection of type "bridge" and options "ifname bridge0 con-name bridge0 autoconnect yes connection.autoconnect-slaves yes bridge.stp no"
     Then "bridge0\s+bridge\s+connected\s+bridge0" is visible with command "nmcli d" in "10" seconds
     Then "eth4\s+ethernet\s+connected\s+bridge-nonslave-eth4" is visible with command "nmcli d"
     Then "eth4.*master bridge0" is visible with command "ip a s eth4"
