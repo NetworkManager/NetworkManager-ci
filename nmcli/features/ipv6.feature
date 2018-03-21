@@ -763,7 +763,7 @@
     Then "default via " is visible with command "ip -6 route |grep eth10" for full "5" seconds
 
 
-    @not_under_internal_DHCP @con_ipv6
+    @not_under_internal_DHCP @con_ipv6_remove
     @ipv6_dhcp-hostname_set
     Scenario: nmcli - ipv6 - dhcp-hostname - set dhcp-hostname
     * Add a new connection of type "ethernet" and options "ifname eth2 con-name con_ipv6 autoconnect no"
@@ -781,7 +781,7 @@
     Then "r.cx" is visible with command "grep r.cx /tmp/ipv6-hostname.log" in "5" seconds
 
 
-    @not_under_internal_DHCP @con_ipv6
+    @not_under_internal_DHCP @con_ipv6_remove
     @ipv6_dhcp-hostname_remove
     Scenario: nmcli - ipv6 - dhcp-hostname - remove dhcp-hostname
     * Add connection type "ethernet" named "con_ipv6" for device "eth2"
@@ -807,7 +807,7 @@
     Then "r.cx" is not visible with command "cat /tmp/tshark.log" in "5" seconds
 
 
-    @restore_hostname @con_ipv6 @eth2_disconnect
+    @restore_hostname @con_ipv6_remove @eth2_disconnect
     @ipv6_send_fqdn.fqdn_to_dhcpv6
     Scenario: NM - ipv6 - - send fqdn.fqdn to dhcpv6
     * Add a new connection of type "ethernet" and options "ifname eth2 con-name con_ipv6 autoconnect no"
