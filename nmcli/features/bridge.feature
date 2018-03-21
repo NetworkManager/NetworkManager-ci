@@ -308,26 +308,28 @@ Feature: nmcli - bridge
     Then "br4:.*192.168.1.19" is visible with command "ip a" in "30" seconds
 
 
-    @bridge
     @rhbz1548265
+    @ver+=1.11.90
+    @bridge
     @bridge_autoconnect_slaves_all
     Scenario: nmcli - bridge - autoconnect-slaves connects also otherwise busy devices
     # if the master is autoconnect-slaves, then it will forcefully activate all slaves,
     # even if the device is currently busy with another (non-slave) profile.
     * Add a new connection of type "ethernet" and options "ifname eth4 con-name bridge-nonslave-eth4 autoconnect no"
-    * Add a new connection of type "bridge" and options "ifname bridge0 con-name bridge0 autoconnect no connection.autoconnect-slaves yes bridge.stp no"
-    * Add a new connection of type "bridge-slave" and options "ifname eth4 con-name bridge-slave-eth4 master bridge0 autoconnect no"
+    * Add a new connection of type "bridge" and options "ifname br15 con-name bridge4 autoconnect no connection.autoconnect-slaves yes bridge.stp no"
+    * Add a new connection of type "bridge-slave" and options "ifname eth4 con-name bridge-slave-eth4 master br15 autoconnect no"
     * Bring up connection "bridge-nonslave-eth4"
-    Then "eth4\s+ethernet\s+connected\s+bridge-nonslave-eth4" is visible with command "nmcli d"
-    Then "bridge0" is not visible with command "nmcli d"
-    Then "bridge0" is not visible with command "ip l"
-    * Bring up connection "bridge0"
-    Then "bridge0\s+bridge\s+connected\s+bridge0" is visible with command "nmcli d" in "10" seconds
-    Then "eth4\s+ethernet\s+connected\s+bridge-slave-eth4" is visible with command "nmcli d"
+    When "eth4\s+ethernet\s+connected\s+bridge-nonslave-eth4" is visible with command "nmcli d"
+     And "br15" is not visible with command "nmcli d"
+     And "br15" is not visible with command "ip l"
+    * Bring up connection "bridge4"
+    Then "br15\s+bridge\s+connected\s+bridge4" is visible with command "nmcli d" in "10" seconds
+     And "eth4\s+ethernet\s+connected\s+bridge-slave-eth4" is visible with command "nmcli d"
 
 
-    @bridge
     @rhbz1548265
+    @ver+=1.11.90
+    @bridge
     @bridge_autoconnect_slaves_all_modified
     Scenario: nmcli - bridge - autoconnect-slaves connects also otherwise busy devices
     # if the master is autoconnect-slaves, then it will forcefully activate all slaves,
@@ -336,12 +338,12 @@ Feature: nmcli - bridge
     # is the slave profile itself, but it was activated as a non-slave profile.
     * Add a new connection of type "ethernet" and options "ifname eth4 con-name bridge-nonslave-eth4 autoconnect no"
     * Bring up connection "bridge-nonslave-eth4"
-    Then "eth4\s+ethernet\s+connected\s+bridge-nonslave-eth4" is visible with command "nmcli d"
-    * Execute "nmcli con modify bridge-nonslave-eth4 master bridge0 slave-type bridge"
-    * Add a new connection of type "bridge" and options "ifname bridge0 con-name bridge0 autoconnect yes connection.autoconnect-slaves yes bridge.stp no"
-    Then "bridge0\s+bridge\s+connected\s+bridge0" is visible with command "nmcli d" in "10" seconds
-    Then "eth4\s+ethernet\s+connected\s+bridge-nonslave-eth4" is visible with command "nmcli d"
-    Then "eth4.*master bridge0" is visible with command "ip a s eth4"
+    When "eth4\s+ethernet\s+connected\s+bridge-nonslave-eth4" is visible with command "nmcli d"
+    * Execute "nmcli con modify bridge-nonslave-eth4 master br15 slave-type bridge"
+    * Add a new connection of type "bridge" and options "ifname br15 con-name bridge4 autoconnect yes connection.autoconnect-slaves yes bridge.stp no"
+    Then "br15\s+bridge\s+connected\s+bridge4" is visible with command "nmcli d" in "10" seconds
+     And "eth4\s+ethernet\s+connected\s+bridge-nonslave-eth4" is visible with command "nmcli d"
+     And "eth4.*master br15" is visible with command "ip a s eth4"
 
 
     @bridge
