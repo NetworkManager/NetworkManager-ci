@@ -45,7 +45,7 @@ beaker-hardware:
 
 setup:
 
-cleanup: 
+cleanup:
 
 testmapper:
   default:
@@ -652,6 +652,8 @@ testmapper:
     - ipv4_method_link-local:
         feature: ipv4
     - ipv4_dhcp_client_id_set:
+        feature: ipv4
+    - ipv4_dhcp_client_id_set_internal:
         feature: ipv4
     - ipv4_dhcp_client_id_remove:
         feature: ipv4
