@@ -178,7 +178,11 @@ def wait_for_testeth0():
             sys.exit(1)
 
 def reload_NM_service():
-    call("/usr/bin/dbus-send --print-reply --system --type=method_call --dest=org.freedesktop.NetworkManager /org/freedesktop/NetworkManager org.freedesktop.NetworkManager.Reload uint32:0", shell=True)
+    ver = check_output("NetworkManager --version", shell=True)
+    if int(ver.strip().split('-')[0].split('.')[1]) <= int(8):
+        call('systemctl restart NetworkManager', shell=True)
+    else:
+        call("/usr/bin/dbus-send --print-reply --system --type=method_call --dest=org.freedesktop.NetworkManager /org/freedesktop/NetworkManager org.freedesktop.NetworkManager.Reload uint32:0", shell=True)
     sleep(1)
 
 def before_scenario(context, scenario):
@@ -820,7 +824,7 @@ def after_step(context, step):
     # This is for RedHat's STR purposes sleep
     if os.path.isfile('/tmp/nm_skip_restarts'):
         sleep(0.4)
-        
+
     sleep(0.1)
     if step.name == ('Flag "NM_802_11_DEVICE_CAP_AP" is set in WirelessCapabilites' or \
        step.name == 'Flag "NM_802_11_DEVICE_CAP_ADHOC" is set in WirelessCapabilites') and \
