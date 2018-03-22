@@ -93,8 +93,8 @@ function copy_certificates ()
 function restart_services ()
 {
     systemctl daemon-reload
-    systemctl restart wpa_supplicant
     systemctl reload NetworkManager
+    systemctl restart wpa_supplicant
 }
 
 function start_nm_hostapd ()
@@ -193,9 +193,9 @@ function wireless_hostapd_teardown ()
     ip addr flush dev wlan1
     modprobe -r mac80211_hwsim
     [ -f /run/hostapd/wlan1 ] && rm -rf /run/hostapd/wlan1
-    rm -rf /tmp/nm_wpa_supp_configured
     rm -rf /etc/NetworkManager/conf.d/99-wifi.conf
     systemctl reload NetworkManager
+    rm -rf /tmp/nm_wpa_supp_configured
 
 }
 

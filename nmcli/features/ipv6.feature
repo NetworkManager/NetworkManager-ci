@@ -763,25 +763,25 @@
     Then "default via " is visible with command "ip -6 route |grep eth10" for full "5" seconds
 
 
-    @not_under_internal_DHCP @profie
+    @not_under_internal_DHCP @con_ipv6_remove
     @ipv6_dhcp-hostname_set
     Scenario: nmcli - ipv6 - dhcp-hostname - set dhcp-hostname
-    * Add a new connection of type "ethernet" and options "ifname eth2 con-name profie autoconnect no"
+    * Add a new connection of type "ethernet" and options "ifname eth2 con-name con_ipv6 autoconnect no"
     * Run child "sudo tshark -i eth2 -f 'port 546' -V -x > /tmp/ipv6-hostname.log"
     * Finish "sleep 5"
-    * Open editor for connection "profie"
+    * Open editor for connection "con_ipv6"
     * Submit "set ipv6.may-fail true" in editor
     * Submit "set ipv6.method dhcp" in editor
     * Submit "set ipv6.dhcp-hostname r.cx" in editor
     * Save in editor
     * Quit editor
-    * Bring "up" connection "profie"
+    * Bring "up" connection "con_ipv6"
     * Finish "sleep 5"
     * Execute "sudo pkill tshark"
     Then "r.cx" is visible with command "grep r.cx /tmp/ipv6-hostname.log" in "5" seconds
 
 
-    @not_under_internal_DHCP @ipv4
+    @not_under_internal_DHCP @con_ipv6_remove
     @ipv6_dhcp-hostname_remove
     Scenario: nmcli - ipv6 - dhcp-hostname - remove dhcp-hostname
     * Add connection type "ethernet" named "con_ipv6" for device "eth2"
@@ -807,18 +807,18 @@
     Then "r.cx" is not visible with command "cat /tmp/tshark.log" in "5" seconds
 
 
-    @restore_hostname @profie
+    @restore_hostname @con_ipv6_remove @eth2_disconnect
     @ipv6_send_fqdn.fqdn_to_dhcpv6
     Scenario: NM - ipv6 - - send fqdn.fqdn to dhcpv6
-    * Add a new connection of type "ethernet" and options "ifname eth2 con-name profie autoconnect no"
+    * Add a new connection of type "ethernet" and options "ifname eth2 con-name con_ipv6 autoconnect no"
     * Execute "hostnamectl set-hostname dacan.local"
     * Run child "sudo tshark -i eth2 -f 'port 546' -V -x > /tmp/ipv6-hostname.log"
     * Finish "sleep 5"
-    * Open editor for connection "profie"
+    * Open editor for connection "con_ipv6"
     * Submit "set ipv6.method dhcp" in editor
     * Save in editor
     * Quit editor
-    * Bring "up" connection "profie"
+    * Bring "up" connection "con_ipv6"
     * Finish "sleep 5"
     * Execute "sudo pkill tshark"
     Then "dacan.local" is visible with command "cat /tmp/ipv6-hostname.log" in "5" seconds
