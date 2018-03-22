@@ -436,7 +436,7 @@ Feature: nmcli - vlan
     Then "mtu 9000" is visible with command "ip a s vlan" in "10" seconds
 
 
-    @rhgb1437066
+    @rhbz1437066
     @ver+=1.4.0
     @vlan
     @default_route_for_vlan_over_team
@@ -447,3 +447,19 @@ Feature: nmcli - vlan
     When "1" is visible with command "ip r |grep team7.1 |grep default |wc -l" in "2" seconds
     * Execute "for i in `seq 1 23`; do ip link set team7 addr 00:00:11:22:33:$i; done"
     Then "1" is visible with command "ip r |grep team7.1 |grep default |wc -l" in "2" seconds
+
+
+    @rhbz1553595
+    @vlan @bond @slaves
+    @vlan_on_bond_autoconnect
+    Scenario: NM - vlan - autoconnect vlan on bond specified as UUID
+    * Add connection type "bond" named "bond0" for device "nm-bond"
+    * Note the output of "nmcli --mode tabular -t -f connection.uuid connection show bond0"
+    * Add slave connection for master "nm-bond" on device "eth1" named "bond0.0"
+    * Add slave connection for master "nm-bond" on device "eth4" named "bond0.1"
+    * Add a new connection of type "vlan" and options "con-name vlan_bond7 dev nm-bond id 7 ip4 192.168.168.16/24 autoconnect no"
+    * Modify connection "vlan_bond7" property "vlan.parent" to noted value
+    * Execute "nmcli connection modify vlan_bond7 connection.autoconnect yes"
+    * Reboot
+    Then "nm-bond:connected:bond0" is visible with command "nmcli -t -f DEVICE,STATE,CONNECTION device" in "10" seconds
+    Then "nm-bond.7:connected:vlan_bond7" is visible with command "nmcli -t -f DEVICE,STATE,CONNECTION device" in "10" seconds
