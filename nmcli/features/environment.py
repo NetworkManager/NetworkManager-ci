@@ -817,6 +817,10 @@ def before_scenario(context, scenario):
 def after_step(context, step):
     """
     """
+    # This is for RedHat's STR purposes sleep
+    if os.path.isfile('/tmp/nm_skip_restarts'):
+        sleep(0.4)
+        
     sleep(0.1)
     if step.name == ('Flag "NM_802_11_DEVICE_CAP_AP" is set in WirelessCapabilites' or \
        step.name == 'Flag "NM_802_11_DEVICE_CAP_ADHOC" is set in WirelessCapabilites') and \
@@ -1436,11 +1440,11 @@ def after_scenario(context, scenario):
                 if cfg.expect(['inet 10', pexpect.EOF]) == 0:
                     break
 
-        if 'remove_dns_none' in scenario.tags:
+        if 'remove_dns_clean' in scenario.tags:
             if call('grep dns /etc/NetworkManager/NetworkManager.conf', shell=True) == 0:
                 call("sudo sed -i 's/dns=none//' /etc/NetworkManager/NetworkManager.conf", shell=True)
-                reload_NM_service()
-            sleep(5)
+            call("sudo rm -rf /etc/NetworkManager/conf.d/90-test-dns-none.conf", shell=True)
+            reload_NM_service()
 
         if 'restore_resolvconf' in scenario.tags:
             print ("---------------------------")
