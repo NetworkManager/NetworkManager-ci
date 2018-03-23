@@ -197,7 +197,7 @@ Feature: IPv6 TUI tests
     * Set "IPv6 CONFIGURATION" category to "Manual"
     * Come in "IPv6 CONFIGURATION" category
     * In "Addresses" property add "2000::2/126"
-    * Add ip route "1010::1/128 2000::1 1"
+    * Add ip route "1010::1/128 2000::1 111"
     * Confirm the connection settings
     * Choose to "<Add>" a connection
     * Choose the connection type "Ethernet"
@@ -206,12 +206,12 @@ Feature: IPv6 TUI tests
     * Set "IPv6 CONFIGURATION" category to "Manual"
     * Come in "IPv6 CONFIGURATION" category
     * In "Addresses" property add "2001::1/126"
-    * Add ip route "3030::1/128 2001::2 1"
+    * Add ip route "3030::1/128 2001::2 112"
     * Confirm the connection settings
-    Then "1010::1 via 2000::1 dev eth1\s+proto static\s+metric 1" is visible with command "ip -6 route"
-    Then "2000::/126 dev eth1\s+proto kernel\s+metric 101" is visible with command "ip -6 route"
-    Then "2001::/126 dev eth2\s+proto kernel\s+metric 102" is visible with command "ip -6 route"
-    Then "3030::1 via 2001::2 dev eth2\s+proto static\s+metric 1" is visible with command "ip -6 route"
+    Then "1010::1 via 2000::1 dev eth1\s+proto static\s+metric 111" is visible with command "ip -6 route"
+    Then "2000::/126 dev eth1\s+proto kernel\s+metric 100" is visible with command "ip -6 route"
+    Then "2001::/126 dev eth2\s+proto kernel\s+metric 101" is visible with command "ip -6 route"
+    Then "3030::1 via 2001::2 dev eth2\s+proto static\s+metric 112" is visible with command "ip -6 route"
 
 
     @ipv6
@@ -264,7 +264,7 @@ Feature: IPv6 TUI tests
     * Set "IPv6 CONFIGURATION" category to "Manual"
     * Come in "IPv6 CONFIGURATION" category
     * In "Addresses" property add "2000::2/126"
-    * Add ip route "1010::1/128 2000::1 1"
+    * Add ip route "1010::1/128 2000::1 111"
     * Confirm the connection settings
     * Choose to "<Add>" a connection
     * Choose the connection type "Ethernet"
@@ -273,7 +273,7 @@ Feature: IPv6 TUI tests
     * Set "IPv6 CONFIGURATION" category to "Manual"
     * Come in "IPv6 CONFIGURATION" category
     * In "Addresses" property add "2001::1/126"
-    * Add ip route "3030::1/128 2001::2 1"
+    * Add ip route "3030::1/128 2001::2 112"
     * Confirm the connection settings
     * Select connection "ethernet1" in the list
     * Choose to "<Edit...>" a connection
@@ -292,8 +292,8 @@ Feature: IPv6 TUI tests
     Then "2000::2/126" is visible with command "ip a s eth1"
     Then "2001::1/126" is visible with command "ip a s eth2"
     Then "1010::1 via 2000::1 dev eth1\s+proto static\s+metric 1" is not visible with command "ip -6 route"
-    Then "2000::/126 dev eth1\s+proto kernel\s+metric 103" is visible with command "ip -6 route"
-    Then "2001::/126 dev eth2\s+proto kernel\s+metric 104" is visible with command "ip -6 route"
+    Then "2000::/126 dev eth1\s+proto kernel\s+metric 10[1-3]" is visible with command "ip -6 route"
+    Then "2001::/126 dev eth2\s+proto kernel\s+metric 10[2-4]" is visible with command "ip -6 route"
     Then "3030::1 via 2001::2 dev eth2\s+proto static\s+metric 1" is not visible with command "ip -6 route"
 
 
@@ -325,12 +325,12 @@ Feature: IPv6 TUI tests
     * Come in "IPv6 CONFIGURATION" category
     * In "Addresses" property add "2001::1/126"
     * Set "Gateway" field to "4000::1"
-    * Add ip route "1010::1/128 :: 3"
-    * Add ip route "3030::1/128 2001::2 2"
+    * Add ip route "1010::1/128 :: 110"
+    * Add ip route "3030::1/128 2001::2 111"
     * Confirm the connection settings
-    Then "3030::1 via 2001::2 dev eth1\s+proto static\s+metric 2" is visible with command "ip -6 route"
-    Then "2001::/126 dev eth1\s+proto kernel\s+metric 101" is visible with command "ip -6 route"
-    Then "1010::1 dev eth1\s+proto static\s+metric 3" is visible with command "ip -6 route"
+    Then "3030::1 via 2001::2 dev eth1\s+proto static\s+metric 111" is visible with command "ip -6 route"
+    Then "2001::/126 dev eth1\s+proto kernel\s+metric 100" is visible with command "ip -6 route"
+    Then "1010::1 dev eth1\s+proto static\s+metric 110" is visible with command "ip -6 route"
 
 
     @rhbz1505893
