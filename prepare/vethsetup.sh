@@ -174,7 +174,13 @@ function setup_veth_env ()
 
     systemctl restart NetworkManager; sleep 4
 
-    nmcli con up testeth0
+    nmcli c modify testeth0 ipv4.route-metric 99 ipv6.route-metric 99
+    nmcli c u testeth0
+
+    # THIS NEED TO BE DONE HERE FOR RECREATION REASONS
+    # Copy final connection to /tmp/testeth0 for later in test usage
+    yes 2>/dev/null | cp -rf /etc/sysconfig/network-scripts/ifcfg-testeth0 /tmp/testeth0
+
 
     # On s390x sometimes this extra default profile gets created in addition to custom static original one
     # Let's get rid of that

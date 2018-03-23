@@ -132,6 +132,12 @@ local_setup_configure_nm_eth () {
                 nmcli connection modify testeth10 ipv6.method auto
             fi
 
+            # THIS NEED TO BE DONE HERE AS DONE SEPARATELY IN VETHSETUP FOR RECREATION REASONS
+            nmcli c modify testeth0 ipv4.route-metric 99 ipv6.route-metric 99
+            sleep 1
+            # Copy final connection to /tmp/testeth0 for later in test usage
+            yes 2>/dev/null | cp -rf /etc/sysconfig/network-scripts/ifcfg-testeth0 /tmp/testeth0
+
             yum -y install NetworkManager-config-server
             #cp /usr/lib/NetworkManager/conf.d/00-server.conf /etc/NetworkManager/conf.d/00-server.conf
         fi
@@ -148,11 +154,7 @@ local_setup_configure_nm_eth () {
     systemctl stop firewalld
     systemctl mask firewalld
 
-    nmcli c modify testeth0 ipv4.route-metric 99 ipv6.route-metric 99
     nmcli c u testeth0
-
-    # Copy final connection to /tmp/testeth0 for later in test usage
-    yes 2>/dev/null | cp -rf /etc/sysconfig/network-scripts/ifcfg-testeth0 /tmp/testeth0
 
 
     systemctl restart NetworkManager
