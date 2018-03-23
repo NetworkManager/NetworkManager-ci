@@ -820,7 +820,7 @@ def after_step(context, step):
     # This is for RedHat's STR purposes sleep
     if os.path.isfile('/tmp/nm_skip_restarts'):
         sleep(0.4)
-        
+
     sleep(0.1)
     if step.name == ('Flag "NM_802_11_DEVICE_CAP_AP" is set in WirelessCapabilites' or \
        step.name == 'Flag "NM_802_11_DEVICE_CAP_ADHOC" is set in WirelessCapabilites') and \
@@ -979,14 +979,6 @@ def after_scenario(context, scenario):
             #call('sudo nmcli con add type ethernet ifname eth7 con-name testeth7 autoconnect no', shell=True)
             #sleep(TIMER)
 
-        if 'slaves' in scenario.tags:
-            print ("---------------------------")
-            print ("deleting slave profiles")
-            call('nmcli connection delete id bond0.0 bond0.1 bond0.2 bond-slave-eth1', shell=True)
-            reset_hwaddr('eth2')
-            reset_hwaddr('eth3')
-            #sleep(TIMER)
-
         if 'bond' in scenario.tags:
             print ("---------------------------")
             print ("deleting bond profile")
@@ -995,6 +987,15 @@ def after_scenario(context, scenario):
             call('ip link del bond0', shell=True)
             #sleep(TIMER)
             print (os.system('ls /proc/net/bonding'))
+
+        if 'slaves' in scenario.tags:
+            print ("---------------------------")
+            print ("deleting slave profiles")
+            call('nmcli connection delete id bond0.0 bond0.1 bond0.2 bond-slave-eth1', shell=True)
+            reset_hwaddr('eth1')
+            reset_hwaddr('eth2')
+            reset_hwaddr('eth3')
+            #sleep(TIMER)
 
         if 'bond_order' in scenario.tags:
             print ("---------------------------")
