@@ -1084,10 +1084,10 @@
     # but a problem of the user who takes over the device without setting the addrgenmode
     # to its liking.
     Then "addrgenmode none " is visible with command "ip -d l show eth3"
-    Then "inet6 fe80" is not visible with command "ip a s eth3"
+    Then "inet6 fe80" is not visible with command "ip a s eth3" for full "5" seconds
     #
     # the assumed connection is created, give just some time for DAD to complete
-    Then "eth3\s+ethernet\s+connected\s+eth3" is visible with command "nmcli device" in "5" seconds
+    Then "eth3\s+ethernet\s+connected\s+eth3" is visible with command "nmcli device"
 
 
     @rhbz1138426
