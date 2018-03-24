@@ -178,7 +178,12 @@ def wait_for_testeth0():
             sys.exit(1)
 
 def reload_NM_service():
-    call("/usr/bin/dbus-send --print-reply --system --type=method_call --dest=org.freedesktop.NetworkManager /org/freedesktop/NetworkManager org.freedesktop.NetworkManager.Reload uint32:0", shell=True)
+    ver = check_output("NetworkManager --version", shell=True)
+    #if version is 1.8 or older or we are in CentOS (7.4) we need to restart
+    if int(ver.strip().split('-')[0].split('.')[1]) <= int(8) or call("grep CentOS /etc/redhat-release -q", shell=True) == 0:
+        call('systemctl restart NetworkManager', shell=True)
+    else:
+        call("/usr/bin/dbus-send --print-reply --system --type=method_call --dest=org.freedesktop.NetworkManager /org/freedesktop/NetworkManager org.freedesktop.NetworkManager.Reload uint32:0", shell=True)
     sleep(1)
 
 def before_scenario(context, scenario):
@@ -555,7 +560,7 @@ def before_scenario(context, scenario):
             if arch == "s390x" or arch == 'aarch64':
                 sys.exit(0)
             call("[ -f /etc/yum.repos.d/epel.repo ] || sudo rpm -i http://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm", shell=True)
-            call("rpm -q NetworkManager-vpnc || ( sudo yum -y install NetworkManager-vpnc && systemctl reload NetworkManager )", shell=True)
+            call("rpm -q NetworkManager-vpnc || ( sudo yum -y install NetworkManager-vpnc && systemctl restart NetworkManager )", shell=True)
             setup_racoon (mode="aggressive", dh_group=2)
 
         if 'lldp' in scenario.tags:
@@ -577,7 +582,7 @@ def before_scenario(context, scenario):
             wait_for_testeth0()
             call("[ -f /etc/yum.repos.d/epel.repo ] || sudo rpm -i http://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm", shell=True)
             call("[ -x /usr/sbin/openvpn ] || sudo yum -y install openvpn NetworkManager-openvpn", shell=True)
-            call("rpm -q NetworkManager-openvpn || ( sudo yum -y install NetworkManager-openvpn-1.0.8-1.el7.$(uname -p).rpm && systemctl reload NetworkManager )", shell=True)
+            call("rpm -q NetworkManager-openvpn || ( sudo yum -y install NetworkManager-openvpn-1.0.8-1.el7.$(uname -p).rpm && systemctl restart NetworkManager )", shell=True)
 
             # This is an internal RH workaround for secondary architecures that are not present in EPEL
 
@@ -617,7 +622,7 @@ def before_scenario(context, scenario):
         if 'libreswan' in scenario.tags:
             print ("---------------------------")
             wait_for_testeth0()
-            call("rpm -q NetworkManager-libreswan || ( sudo yum -y install NetworkManager-libreswan && systemctl reload NetworkManager )", shell=True)
+            call("rpm -q NetworkManager-libreswan || ( sudo yum -y install NetworkManager-libreswan && systemctl restart NetworkManager )", shell=True)
             call("/usr/sbin/ipsec --checknss", shell=True)
             setup_racoon (mode="aggressive", dh_group=5)
             if 'libreswan_add_profile' in scenario.tags:
