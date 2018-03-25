@@ -117,7 +117,7 @@ def run_tests(features, code_branch, test_branch):
 
     for h in b['hosts']:
         # Do the work
-        call("echo '*running tests' >> log.txt", shell=True)
+        subprocess.call("echo '*running tests' >> log.txt", shell=True)
         cmd0="ssh -t -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no root@%s 'yum install -y git \
                                                    && git clone https://github.com/NetworkManager/NetworkManager-ci \
                                                    && cd NetworkManager-ci \
@@ -129,13 +129,13 @@ def run_tests(features, code_branch, test_branch):
         # Save return code
         rtn_code=subprocess.call(cmd0, shell=True)
 
-        call("echo '* DONE' >> log.txt", shell=True)
+        subprocess.call("echo '* DONE' >> log.txt", shell=True)
         # Archive results and rpms
-        call("echo 'archive results' >> log.txt", shell=True)
+        subprocess.call("echo 'archive results' >> log.txt", shell=True)
         cmd1="ssh -t -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no root@%s \
                                                     'sh NetworkManager-ci/run/centos-ci/scripts/./archive.sh %s'"% (h, api[:13])
         subprocess.call(cmd1, shell=True)
-        call("echo '* DONE' >> log.txt", shell=True)
+        subprocess.call("echo '* DONE' >> log.txt", shell=True)
 
         # Upload results to transfer.sh
         # subprocess.call("ssh -t -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no root@%s \
@@ -143,18 +143,18 @@ def run_tests(features, code_branch, test_branch):
 
 
         # Download results for in jenkins storage
-        call("echo 'download stuff' >> log.txt", shell=True)
+        subprocess.call("echo 'download stuff' >> log.txt", shell=True)
         subprocess.call("mkdir results", shell=True)
         subprocess.call("scp -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no root@%s:/var/www/html/results/Test_results-* ./results" % (h), shell=True)
         subprocess.call("cd results && tar -xzf Test_results* && rm -rf Test_results* && cd ..", shell=True)
-        call("echo '* DONE' >> log.txt", shell=True)
+        subprocess.call("echo '* DONE' >> log.txt", shell=True)
 
-        call("echo 'generate junit' >> log.txt", shell=True)
+        subprocess.call("echo 'generate junit' >> log.txt", shell=True)
         # Generate junit.xml for graph from results dir
         generate_junit()
-        call("echo '* DONE' >> log.txt", shell=True)
+        subprocess.call("echo '* DONE' >> log.txt", shell=True)
 
-        call("echo '* ALL DONE' >> log.txt", shell=True)
+        subprocess.call("echo '* ALL DONE' >> log.txt", shell=True)
 
     done_nodes_url="%s/Node/done?key=%s&ssid=%s" % (url_base, api, b['ssid'])
     das=urllib.urlopen(done_nodes_url).read()
