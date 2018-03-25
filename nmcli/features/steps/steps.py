@@ -1946,13 +1946,6 @@ def write_dispatcher_file(context, path, params=None):
     f.write('\necho $2 >> /tmp/dispatcher.txt\n')
     f.close()
     command_code(context, 'chmod +x %s' % disp_file)
-    ver = check_output("NetworkManager --version", shell=True)
-    #if version is 1.8 or older or we are in CentOS (7.4) we need to restart
-    if int(ver.strip().split('-')[0].split('.')[1]) <= int(8) or call("grep CentOS /etc/redhat-release -q", shell=True) == 0:
-        command_code(context, 'systemctl restart NetworkManager')
-    else:
-        command_code(context, "/usr/bin/dbus-send --print-reply --system --type=method_call --dest=org.freedesktop.NetworkManager /org/freedesktop/NetworkManager org.freedesktop.NetworkManager.Reload uint32:0")
-    sleep(1)
     command_code(context, "> /tmp/dispatcher.txt")
     sleep(4)
 
