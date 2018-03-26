@@ -984,6 +984,13 @@ def after_scenario(context, scenario):
             #call('sudo nmcli con add type ethernet ifname eth7 con-name testeth7 autoconnect no', shell=True)
             #sleep(TIMER)
 
+        if 'gen-bond_remove' in scenario.tags:
+            print ("---------------------------")
+            print ("deleting gen-bond profile")
+            call('nmcli connection delete id gen-bond0', shell=True)
+            call('ip link del gen-bond', shell=True)
+            call('ip link del gen-bond0', shell=True)
+
         if 'bond' in scenario.tags:
             print ("---------------------------")
             print ("deleting bond profile")
@@ -1383,6 +1390,18 @@ def after_scenario(context, scenario):
             call('ip link del bridge0', shell=True)
             reset_hwaddr('eth4')
 
+        if 'team_br_remove' in scenario.tags:
+            print ("---------------------------")
+            print ("deleting all possible bridge residues")
+            call('sudo nmcli con del team_br', shell=True)
+            call('ip link del brA', shell=True)
+
+        if 'gen_br_remove' in scenario.tags:
+            print ("---------------------------")
+            print ("deleting all possible bridge residues")
+            call('sudo nmcli con del gen_br', shell=True)
+            call('ip link del brX', shell=True)
+
         if 'vpn' in scenario.tags:
             print ("---------------------------")
             print ("removing vpn profiles")
@@ -1410,7 +1429,8 @@ def after_scenario(context, scenario):
             print ("removing tuntap devices")
             call("ip link del tap0", shell=True)
             call("nmcli con delete tap0", shell=True)
-            call("ip link del br0", shell=True)
+            call("ip link del brY", shell=True)
+            call("ip link del brX", shell=True)
 
 
         if 'wifi' in scenario.tags:
@@ -1702,6 +1722,11 @@ def after_scenario(context, scenario):
             print ("kill pppoe server and remove ppp connection")
             call('kill -9 $(pidof pppoe-server)', shell=True)
             call('nmcli con del ppp', shell=True)
+
+        if 'display_allowed_values' in scenario.tags:
+            print ("---------------------------")
+            print ("delete various connections")
+            call('nmcli con del con-team con-bond con-wifi', shell=True)
 
         if 'del_test1112_veths' in scenario.tags:
             print ("---------------------------")
