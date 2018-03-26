@@ -1662,7 +1662,7 @@ Feature: nmcli - general
 
     @rhbz1487702
     @ver+=1.10
-    @con_general_remove @no_config_server @teardown_testveth
+    @con_general_remove @no_config_server @teardown_testveth @restart
     @wait_10s_for_flappy_carrier
     Scenario: NM - general - wait for flappy carrier up to 10s
     * Add a new connection of type "ethernet" and options "ifname testG con-name con_general autoconnect no 802-3-ethernet.mtu 9000"
