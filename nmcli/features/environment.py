@@ -209,10 +209,13 @@ def before_scenario(context, scenario):
             if os.path.isfile('/tmp/nm_skip_long'):
                 sys.exit(0)
 
-        if 'eth0' in scenario.tags or 'delete_testeth0' in scenario.tags or 'connect_testeth0' in scenario.tags or 'restart' in scenario.tags:
+        if 'eth0' in scenario.tags or 'delete_testeth0' in scenario.tags \
+                                    or 'connect_testeth0' in scenario.tags \
+                                    or 'restart' in scenario.tags \
+                                    or 'skip_str' in scenario.tags:
             print ("---------------------------")
             print ("skipping service restart tests if /tmp/nm_skip_restarts exists")
-            if os.path.isfile('/tmp/nm_skip_restarts'):
+            if os.path.isfile('/tmp/nm_skip_restarts') or os.path.isfile('/tmp/nm_skip_STR'):
                 sys.exit(0)
 
         if '1000' in scenario.tags:
