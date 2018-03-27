@@ -1205,7 +1205,7 @@
      * Add slave connection for master "nm-bond" on device "eth4" named "bond0.0"
      * Add slave connection for master "nm-bond" on device "eth5" named "bond0.1"
      * Execute "sed -i 's/BONDING_OPTS=mode=balance-rr/BONDING_OPTS=mode=5/' /etc/sysconfig/network-scripts/ifcfg-bond0"
-     * Execute "sudo nmcli connection reload"
+     * Reload connections
      * Bring "up" connection "bond0"
      * Bring "up" connection "bond0.0"
      * Bring "up" connection "bond0.1"

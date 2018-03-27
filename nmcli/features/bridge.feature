@@ -472,7 +472,7 @@ Feature: nmcli - bridge
      * Delete connection "bridge0"
      * Bring "up" connection "ethie"
      * Disconnect device "eth4"
-     * Execute "nmcli con reload"
+     * Reload connections
      Then "connection.master:\s+bridge0" is not visible with command "nmcli c s ethie | grep 'master:'"
       And "connection.slave-type:\s+bridge" is not visible with command "nmcli c s ethie | grep 'slave-type:'"
       And "BRIDGE" is not visible with command "grep BRIDGE /etc/sysconfig/network-scripts/ifcfg-ethie"

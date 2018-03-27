@@ -22,7 +22,7 @@
     * Append "GATEWAY=192.168.0.1" to ifcfg file "eth7:0"
     * Append "IPADDR=192.168.0.101" to ifcfg file "eth7:0"
     * Append "NETMASK=255.255.255.0" to ifcfg file "eth7:0"
-    * Finish "sudo nmcli connection reload"
+    * Reload connections
     * Bring "up" connection "eth7"
 
     Then "inet 192.168.0.101" is visible with command "ip a s eth7"
@@ -54,7 +54,7 @@
     * Append "IPADDR=192.168.0.103" to ifcfg file "eth7:2"
     * Append "NETMASK=255.255.255.0" to ifcfg file "eth7:2"
 
-    * Finish "sudo nmcli connection reload"
+    * Reload connections
     * Bring "up" connection "eth7"
 
     Then "inet 192.168.0.100" is visible with command "ip a s eth7"
@@ -89,7 +89,7 @@
     * Append "IPADDR=192.168.0.103" to ifcfg file "eth7:2"
     * Append "NETMASK=255.255.255.0" to ifcfg file "eth7:2"
 
-    * Finish "sudo nmcli connection reload"
+    * Reload connections
     * Bring "up" connection "eth7"
     * Bring "down" connection "eth7"
     * Bring "up" connection "eth7"
@@ -126,10 +126,10 @@
     * Append "IPADDR=192.168.0.103" to ifcfg file "eth7:2"
     * Append "NETMASK=255.255.255.0" to ifcfg file "eth7:2"
 
-    * Finish "sudo nmcli connection reload"
+    * Reload connections
     * Bring "up" connection "eth7"
     * Execute "sudo rm -f /etc/sysconfig/network-scripts/ifcfg-eth7:0"
-    * Finish "sudo nmcli connection reload"
+    * Reload connections
     * Bring "up" connection "eth7"
 
     Then "inet 192.168.0.100" is visible with command "ip a s eth7"
@@ -164,7 +164,7 @@
     * Append "IPADDR=192.168.0.103" to ifcfg file "eth7:2"
     * Append "NETMASK=255.255.255.0" to ifcfg file "eth7:2"
 
-    * Finish "sudo nmcli connection reload"
+    * Reload connections
     * Bring "up" connection "eth7"
 
     * "inet 192.168.0.100" is visible with command "ip a s eth7"
@@ -175,7 +175,7 @@
     * Execute "sudo rm -f /etc/sysconfig/network-scripts/ifcfg-eth7:0"
     * Execute "sudo rm -f /etc/sysconfig/network-scripts/ifcfg-eth7:1"
     * Execute "sudo rm -f /etc/sysconfig/network-scripts/ifcfg-eth7:2"
-    * Finish "sudo nmcli connection reload"
+    * Reload connections
     * Bring "up" connection "eth7"
 
     Then "inet 192.168.0.100" is visible with command "ip a s eth7"
@@ -210,7 +210,7 @@
     * Append "IPADDR=192.168.0.103" to ifcfg file "eth7:2"
     * Append "NETMASK=255.255.255.0" to ifcfg file "eth7:2"
 
-    * Finish "sudo nmcli connection reload"
+    * Reload connections
     * Bring "up" connection "eth7"
     * Reboot
 
