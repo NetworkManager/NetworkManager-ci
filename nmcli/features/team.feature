@@ -564,7 +564,7 @@
      * Set a property named "ipv4.addresses" to "1.1.1.2/24" in editor
      * Save in editor
      * Quit editor
-     * Disconnect device "nm-team"
+     #* Disconnect device "nm-team"
      * Bring "up" connection "team0"
      * Bring "up" connection "team0.1"
      * Bring "up" connection "team0.0"

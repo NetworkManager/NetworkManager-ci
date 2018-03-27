@@ -234,6 +234,7 @@ Feature: nmcli: connection
     @connection_autoconnect_yes_without_immediate_effects
     Scenario: nmcli - connection - set autoconnect on without autoconnecting
      * Add a new connection of type "ethernet" and options "con-name con_con2 ifname eth5 autoconnect no"
+     When "con_con2" is visible with command "nmcli con"
      * Execute "python tmp/repro_1401515.py"
      Then Check if "con_con2" is not active connection
       And "yes" is visible with command "nmcli connection show con_con2 |grep autoconnect:"
