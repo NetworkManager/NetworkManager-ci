@@ -720,7 +720,7 @@ Feature: nmcli - general
     * Add a new connection of type "vlan" and options "con-name eth8.100 autoconnect no dev eth8 id 100"
     * Check ifcfg-name file created for connection "eth8.100"
     * Execute "sed -i 's/PHYSDEV=eth8/PHYSDEV=eth9    /' /etc/sysconfig/network-scripts/ifcfg-eth8.100"
-    * Execute "nmcli connection reload"
+    * Reload connections
     Then "eth9" is visible with command "nmcli con show eth8.100"
 
 
@@ -737,7 +737,7 @@ Feature: nmcli - general
     Scenario: nmcli - general - keep slave device unmanaged
     Given Check ifcfg-name file created for connection "testeth8"
     * Execute "echo -e NM_CONTROLLED=no >> /etc/sysconfig/network-scripts/ifcfg-testeth8"
-    * Execute "nmcli connection reload"
+    * Reload connections
     * Execute "ip link add link eth8 name eth8.100 type vlan id 100"
     Then "eth8\s+ethernet\s+unmanaged" is visible with command "nmcli device" in "5" seconds
     Then "eth8.100\s+vlan\s+unmanaged" is visible with command "nmcli device"
@@ -785,7 +785,7 @@ Feature: nmcli - general
     * Execute "echo 'BOOTPROTO=dhcp' >> /etc/sysconfig/network-scripts/ifcfg-con_general"
     * Execute "echo 'IPV6INIT=yes' >> /etc/sysconfig/network-scripts/ifcfg-con_general"
     * Execute "echo 'TYPE=Ethernet' >> /etc/sysconfig/network-scripts/ifcfg-con_general"
-    * Execute "nmcli con reload"
+    * Reload connections
     * Bring "up" connection "con_general"
     Then "1400" is visible with command "ip a s eth8" in "5" seconds
 
@@ -1126,7 +1126,7 @@ Feature: nmcli - general
     * Execute "nmcli connection modify con_general ipv4.method manual ipv4.addresses 1.2.3.4/24 ipv4.may-fail no"
     # Set a "general" gateway (normally discouraged)
     * Execute "echo 'GATEWAY=1.2.3.1' >> /etc/sysconfig/network"
-    * Execute "nmcli connection reload"
+    * Reload connections
     # See that we can still 'see' an upped dhcp connection
     Then "testeth9" is visible with command "nmcli connection"
     # And it still has the DHCP originated gateway, ignoring the static general setting
@@ -1221,7 +1221,7 @@ Feature: nmcli - general
     * Add a new connection of type "ethernet" and options "ifname testM con-name con_general autoconnect no"
     * Modify connection "con_general" changing options "ipv4.method manual ipv4.address '192.168.99.99/24' ipv4.gateway '192.168.99.1' ipv6.method ignore"
     * Append "GATEWAY_PING_TIMEOUT=60" to ifcfg file "con_general"
-    * Execute "sudo nmcli connection reload"
+    * Reload connections
     # VVV Remove gateway's ip address so it is unpingable
     * Execute "ip netns exec testM_ns ip a del 192.168.99.1/24 dev testM_bridge"
     * Run child "nmcli con up con_general"

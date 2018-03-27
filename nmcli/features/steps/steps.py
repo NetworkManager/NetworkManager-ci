@@ -1550,6 +1550,11 @@ def prompt_is_not_running(context):
     else:
         return True
 
+@step(u'Reload connections')
+def reload_connections(context):
+    command_code(context, "nmcli con reload")
+    sleep(0.5)
+
 @step(u'Quit editor')
 def quit_editor(context):
     context.prompt.sendline('quit')

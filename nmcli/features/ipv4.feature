@@ -308,7 +308,7 @@ Feature: nmcli: ipv4
     Scenario: nmcli - ipv4 - routes - set route with src in old syntax
     * Add a new connection of type "ethernet" and options "ifname eth3 con-name con_ipv4 autoconnect no ipv4.method manual ipv4.addresses 192.168.3.10/24 ipv4.gateway 192.168.4.1 ipv4.route-metric 256"
     * Execute "echo '192.168.122.3 src 192.168.3.10 dev eth3' > /etc/sysconfig/network-scripts/route-con_ipv4"
-    * Execute "nmcli connection reload"
+    * Reload connections
     * Bring "up" connection "con_ipv4"
     Then "default via 192.168.4.1 dev eth3\s+proto static\s+metric 256" is visible with command "ip route" in "20" seconds
      And "192.168.3.0/24 dev eth3\s+proto kernel\s+scope link\s+src 192.168.3.10\s+metric 256" is visible with command "ip route"
@@ -325,7 +325,7 @@ Feature: nmcli: ipv4
     Scenario: nmcli - ipv4 - routes - modify route with src and no metric in old syntax
     * Add a new connection of type "ethernet" and options "ifname eth3 con-name con_ipv4 autoconnect no ipv4.method manual ipv4.addresses 192.168.3.10/24 ipv4.gateway 192.168.4.1 ipv4.route-metric 256"
     * Execute "echo '1.2.3.4 src 2.3.4.5 dev eth3' > /etc/sysconfig/network-scripts/route-con_ipv4"
-    * Execute "nmcli connection reload"
+    * Reload connections
     * Execute "nmcli con modify con_ipv4 ipv4.routes '192.168.122.3 src=192.168.3.10'"
     * Bring "up" connection "con_ipv4"
     Then "null" is not visible with command "cat /etc/sysconfig/network-scripts/route-con_ipv4"
@@ -344,7 +344,7 @@ Feature: nmcli: ipv4
     Scenario: nmcli - ipv4 - routes - set route with src old syntaxt restart persistence
     * Add a new connection of type "ethernet" and options "ifname eth3 con-name con_ipv4 ipv4.method manual ipv4.addresses 192.168.3.10/24 ipv4.gateway 192.168.4.1 ipv4.route-metric 256"
     * Execute "echo '192.168.122.3 src 192.168.3.10 dev eth3' > /etc/sysconfig/network-scripts/route-con_ipv4"
-    * Execute "nmcli connection reload"
+    * Reload connections
     * Bring "up" connection "con_ipv4"
     * Stop NM
     * Execute "ip addr flush dev eth3"
@@ -1947,7 +1947,7 @@ Feature: nmcli: ipv4
     Scenario: nmcli - ipv4 - routes - add device route if onsite specified
     * Add a new connection of type "ethernet" and options "ifname eth3 con-name con_ipv4 ipv4.method manual ipv4.addresses 192.168.3.10/24 ipv4.gateway 192.168.3.254"
     * Execute "echo '10.200.200.2/31 via 172.16.0.254' > /etc/sysconfig/network-scripts/route-con_ipv4"
-    * Execute "nmcli connection reload"
+    * Reload connections
     * Bring up connection "con_ipv4" ignoring error
     When "(connected)" is not visible with command "nmcli device show eth3" in "15" seconds
     * Execute "nmcli connection modify con_ipv4 ipv4.routes '10.200.200.2/31 172.16.0.254 111 onlink=true'"

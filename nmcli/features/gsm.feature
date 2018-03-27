@@ -114,7 +114,7 @@ Feature: nmcli: gsm
      * Append "method=auto" to file "/etc/NetworkManager/system-connections/gsm"
      * Append "addr-gen-mode=stable-privacy" to file "/etc/NetworkManager/system-connections/gsm"
      * Execute "chmod 600 /etc/NetworkManager/system-connections/gsm"
-     * Execute "nmcli con reload"
+     * Reload connections
      * Bring "up" connection "gsm"
     Then "GENERAL.STATE:.*activated" is visible with command "nmcli con show gsm" in "60" seconds
      * Ping "8.8.8.8" "7" times

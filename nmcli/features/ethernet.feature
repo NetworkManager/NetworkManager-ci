@@ -345,7 +345,7 @@ Feature: nmcli - ethernet
     Scenario: nmcli - ethernet - wake-on-lan from file
     * Add connection type "ethernet" named "ethernet" for device "em2"
     * Append "ETHTOOL_OPTS=\"wol g\"" to ifcfg file "ethernet"
-    * Execute "nmcli con reload"
+    * Reload connections
     * Bring up connection "ethernet"
     Then "Wake-on: g" is visible with command "ethtool em2"
     Then "magic" is visible with command "nmcli con show ethernet |grep wake-on-lan"
@@ -358,7 +358,7 @@ Feature: nmcli - ethernet
     * Add connection type "ethernet" named "ethernet" for device "em2"
     * Note the output of "ethtool em2 |grep Wake-on |grep -v Supports | awk '{print $2}'" as value "wol_orig"
     * Append "ETHTOOL_OPTS=\"wol g\"" to ifcfg file "ethernet"
-    * Execute "nmcli con reload"
+    * Reload connections
     * Bring up connection "ethernet"
     Then "Wake-on: g" is visible with command "ethtool em2"
     Then "magic" is visible with command "nmcli con show ethernet |grep wake-on-lan"
@@ -527,7 +527,7 @@ Feature: nmcli - ethernet
     @preserve_8021x_certs
     Scenario: nmcli - ethernet - preserve 8021x certs
     * Add a new connection of type "ethernet" and options "ifname \* con-name con_ethernet 802-1x.eap 'tls' 802-1x.client-cert /tmp/test2_ca_cert.pem 802-1x.private-key-password x 802-1x.private-key /tmp/test_key_and_cert.pem  802-1x.password pass1"
-    * Execute "nmcli con reload"
+    * Reload connections
     Then "con_ethernet" is visible with command "nmcli con"
 
 
@@ -537,5 +537,5 @@ Feature: nmcli - ethernet
     @preserve_8021x_leap_con
     Scenario: nmcli - ethernet - preserve 8021x leap connection
     * Add a new connection of type "ethernet" and options "ifname eth1 con-name con_ethernet 802-1x.identity jdoe 802-1x.eap leap"
-    * Execute "nmcli con reload"
+    * Reload connections
     Then "con_ethernet" is visible with command "nmcli con"

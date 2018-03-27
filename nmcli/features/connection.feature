@@ -104,10 +104,10 @@ Feature: nmcli: connection
      * Prepare simulated test "testX" device
      * Add a new connection of type "ethernet" and options "ifname testX con-name con_con autoconnect no"
      * Execute "echo 'NM_CONTROLLED=no' >> /etc/sysconfig/network-scripts/ifcfg-con_con"
-     * Execute "nmcli con reload"
+     * Reload connections
      * Execute "rm -f /etc/sysconfig/network-scripts/ifcfg-con_con"
      * Add a new connection of type "ethernet" and options "ifname eth5 con-name con_con autoconnect no"
-     * Execute "nmcli con reload"
+     * Reload connections
      Then "1" is visible with command "nmcli c |grep con_con |wc -l"
      * Bring "up" connection "con_con"
 
@@ -271,7 +271,7 @@ Feature: nmcli: connection
      * Execute "echo 'NAME=con_con' >> /etc/sysconfig/network-scripts/ifcfg-con_con"
      * Execute "echo 'BOOTPROTO=dhcp' >> /etc/sysconfig/network-scripts/ifcfg-con_con"
      * Execute "echo 'ONBOOT=no  # foo' >> /etc/sysconfig/network-scripts/ifcfg-con_con"
-     * Execute "nmcli con reload"
+     * Reload connections
      * Restart NM
      Then Check if "con_con" is not active connection
 
@@ -289,7 +289,7 @@ Feature: nmcli: connection
     * Append "DEVICE='eth5'" to ifcfg file "con_con2"
     * Append "ONBOOT='yes'" to ifcfg file "con_con2"
     * Append "IPV6INIT='yes'" to ifcfg file "con_con2"
-    * Execute "nmcli con reload"
+    * Reload connections
     * Execute "nmcli con modify uuid 8b4753fb-c562-4784-bfa7-f44dc6581e73 connection.id con_con"
     * Restart NM
     When "activated" is visible with command "nmcli -g GENERAL.STATE con show con_con" in "20" seconds
