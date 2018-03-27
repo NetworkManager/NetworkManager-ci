@@ -665,30 +665,30 @@
 
 
     @rhbz1183444
-    @veth @team @bridge
+    @veth @team @team_br_remove
     @team_enslave_to_bridge
     Scenario: nmcli - team - enslave team device to bridge
      * Add a new connection of type "team" and options "con-name team0 autoconnect no ifname nm-team"
-     * Add a new connection of type "bridge" and options "con-name br10 autoconnect no ifname bridge0 ip4 192.168.177.100/24 gw4 192.168.177.1"
-     * Execute "nmcli connection modify id team0 connection.master bridge0 connection.slave-type bridge"
+     * Add a new connection of type "bridge" and options "con-name team_br autoconnect no ifname brA ip4 192.168.177.100/24 gw4 192.168.177.1"
+     * Execute "nmcli connection modify id team0 connection.master brA connection.slave-type bridge"
      * Bring "up" connection "team0"
-    Then "bridge0:bridge:connected:br10" is visible with command "nmcli -t -f DEVICE,TYPE,STATE,CONNECTION device" in "5" seconds
+    Then "brA:bridge:connected:team_br" is visible with command "nmcli -t -f DEVICE,TYPE,STATE,CONNECTION device" in "5" seconds
     Then "nm-team:team:connected:team0" is visible with command "nmcli -t -f DEVICE,TYPE,STATE,CONNECTION device" in "5" seconds
 
 
     @rhbz1303968
-    @team @bridge @team_slaves
+    @team @team_br_remove @team_slaves
     @team_in_bridge_mtu
     Scenario: nmcli - team - enslave team device to bridge and set mtu
-     * Add a new connection of type "bridge" and options "con-name bridge0 autoconnect no ifname bridge0 -- 802-3-ethernet.mtu 9000 ipv4.method manual ipv4.addresses 192.168.177.100/24 ipv4.gateway 192.168.177.1"
-     * Add a new connection of type "team" and options "con-name team0 autoconnect no ifname nm-team master bridge0 -- 802-3-ethernet.mtu 9000"
+     * Add a new connection of type "bridge" and options "con-name team_br autoconnect no ifname brA -- 802-3-ethernet.mtu 9000 ipv4.method manual ipv4.addresses 192.168.177.100/24 ipv4.gateway 192.168.177.1"
+     * Add a new connection of type "team" and options "con-name team0 autoconnect no ifname nm-team master brA -- 802-3-ethernet.mtu 9000"
      * Add a new connection of type "ethernet" and options "con-name team0.0 autoconnect no ifname eth5 master nm-team -- 802-3-ethernet.mtu 9000"
-     * Bring "up" connection "bridge0"
+     * Bring "up" connection "team_br"
      * Bring "up" connection "team0"
      * Bring "up" connection "team0.0"
      Then "mtu 9000" is visible with command "ip a s eth5"
      Then "mtu 9000" is visible with command "ip a s nm-team"
-     Then "mtu 9000" is visible with command "ip a s bridge0"
+     Then "mtu 9000" is visible with command "ip a s brA"
 
 
      @rhbz1367180

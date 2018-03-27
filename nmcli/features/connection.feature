@@ -503,7 +503,7 @@ Feature: nmcli: connection
      Then Metered status is "3"
 
 
-     @bond @team @wifi @con_con_remove @long
+     @con_con_remove @long
      @display_allowed_values
      Scenario: nmcli - connection - showing allowed values
      * Add connection type "ethernet" named "con_con" for device "testX"
@@ -527,17 +527,17 @@ Feature: nmcli: connection
      * Check "ctc|lcs|qeth" are shown for object "ethernet.s390-nettype"
      * Check "bond|bridge|team" are shown for object "connection.slave-type"
      * Quit editor
-     * Add connection type "bond" named "bond0" for device "nm-bond"
-     * Open editor for connection "bond0"
+     * Add connection type "bond" named "con-bond" for device "con-bond0"
+     * Open editor for connection "con-bond"
      * Check "ad_select|arp_ip_target|downdelay|lacp_rate|mode|primary_reselect|updelay|xmit_hash_policy|arp_interval|arp_validate|fail_over_mac|miimon|primary|resend_igmp|use_carrier|" are shown for object "bond.options"
      * Quit editor
-     * Add connection type "team" named "team0" for device "nm-team"
-     * Open editor for connection "team0"
+     * Add connection type "team" named "con-team" for device "con-team0"
+     * Open editor for connection "con-team"
      * Check "testmapper.txt|nmcli|nmtui|README|prepare" are shown for object "team.config"
      * Check "testmapper.txt|nmcli|nmtui|README|prepare" are shown for object "team-port.config"
      * Quit editor
-     * Add a new connection of type "wifi" and options "ifname wlan0 con-name qe-open autoconnect off ssid qe-open"
-     * Open editor for connection "qe-open"
+     * Add a new connection of type "wifi" and options "ifname wifi con-name con-wifi autoconnect off ssid con-wifi"
+     * Open editor for connection "con-wifi"
      * Check "adhoc|ap|infrastructure" are shown for object "wifi.mode"
      * Check "a|bg" are shown for object "wifi.band"
      * Check "ieee8021x|none|wpa-eap|wpa-none|wpa-psk\s+" are shown for object "wifi-sec.key-mgmt"

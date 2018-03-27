@@ -54,13 +54,13 @@ Feature: nmcli: tuntap
     @tuntap
     @preserve_master_and_ip_settings
     Scenario: NM - tuntap - preserve master and IP settings
-     * Execute "ip link add br0 type bridge"
-     * Execute "ip addr add 192.0.2.1/24 dev br0"
+     * Execute "ip link add brY type bridge"
+     * Execute "ip addr add 192.0.2.1/24 dev brY"
      * Execute "ip tuntap add tap0 mode tap"
      * Execute "ip addr add 192.0.2.2/24 dev tap0"
-     * Execute "ip link set tap0 master br0"
+     * Execute "ip link set tap0 master brY"
      * Execute "ip link set tap0 up"
-     * Execute "ip link set br0 up"
+     * Execute "ip link set brY up"
      When "master" is visible with command "ip link show tap0" in "2" seconds
       And "192.0.2.2\/24" is visible with command "ip a s tap0" in "2" seconds
       And "tap0:connected:tap0" is visible with command "nmcli -t -f DEVICE,STATE,CONNECTION device" in "10" seconds

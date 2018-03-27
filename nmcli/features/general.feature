@@ -19,13 +19,13 @@ Feature: nmcli - general
 
 
     @rhbz1212196
-    @bond
+    @gen-bond_remove
     @reduce_logging
     Scenario: NM - general - reduce logging
-     * Add connection type "bond" named "bond0" for device "nm-bond"
-    Then "preparing" is not visible with command "journalctl _COMM=NetworkManager --since '2 min ago'   |grep '<info> .*nm-bond' |grep 'preparing device'"
-    Then "exported as" is not visible with command "journalctl _COMM=NetworkManager --since '2 min ago' |grep '<info> .*nm-bond' |grep 'exported as'"
-    Then "Stage" is not visible with command "journalctl _COMM=NetworkManager --since '2 min ago'       |grep '<info> .*nm-bond' |grep 'Stage'"
+     * Add connection type "bond" named "gen-bond0" for device "gen-bond"
+    Then "preparing" is not visible with command "journalctl _COMM=NetworkManager --since '2 min ago'   |grep '<info> .*gen-bond' |grep 'preparing device'"
+    Then "exported as" is not visible with command "journalctl _COMM=NetworkManager --since '2 min ago' |grep '<info> .*gen-bond' |grep 'exported as'"
+    Then "Stage" is not visible with command "journalctl _COMM=NetworkManager --since '2 min ago'       |grep '<info> .*gen-bond' |grep 'Stage'"
 
 
     @rhbz1362542
@@ -509,14 +509,14 @@ Feature: nmcli - general
 
 
     @rhbz1034150
-    @bridge
+    @gen_br_remove
     @nmcli_device_delete
     Scenario: nmcli - device - delete
-    * Add a new connection of type "bridge" and options "ifname bridge0 con-name bridge0"
-    * "bridge0\s+bridge" is visible with command "nmcli device"
-    * Execute "nmcli device delete bridge0"
-    Then "bridge0\s+bridge" is not visible with command "nmcli device"
-    Then "bridge0" is visible with command "nmcli connection"
+    * Add a new connection of type "bridge" and options "ifname brX con-name gen_br"
+    * "brX\s+bridge" is visible with command "nmcli device"
+    * Execute "nmcli device delete brX"
+    Then "brX\s+bridge" is not visible with command "nmcli device"
+    Then "gen_br" is visible with command "nmcli connection"
 
 
     @rhbz1034150
@@ -821,9 +821,10 @@ Feature: nmcli - general
 
 
     @rhbz1041901
+    @gen-bond_remove
     @nmcli_general_multiword_autocompletion
     Scenario: nmcli - general - multiword autocompletion
-    * Add a new connection of type "bond" and options "con-name 'Bondy connection 1'"
+    * Add a new connection of type "bond" and options "ifname gen-bond con-name 'Bondy connection 1'"
     * "Bondy connection 1" is visible with command "nmcli connection"
     * Autocomplete "nmcli connection delete Bondy" in bash and execute
     Then "Bondy connection 1" is not visible with command "nmcli connection" in "3" seconds
@@ -1051,10 +1052,10 @@ Feature: nmcli - general
 
     @rhbz1498807
     @ver+=1.8.0
-    @bridge @restart
+    @gen_br_remove @restart
     @wait_online_with_autoconnect_no_connection
     Scenario: NM - general - wait-online - skip non autoconnect soft device connections
-    * Add a new connection of type "bridge" and options "con-name br11 autoconnect no"
+    * Add a new connection of type "bridge" and options "con-name gen_br ifname brX autoconnect no"
     * Stop NM
     * Start NM
     Then "PASS" is visible with command "/usr/bin/nm-online -s -q --timeout=30 && echo PASS"
@@ -1442,28 +1443,28 @@ Feature: nmcli - general
 
     @rhbz1369716
     @ver+=1.8.0
-    @bond @slaves
+    @gen-bond_remove
     @snapshot_rollback_soft_device
     Scenario: NM - general - snapshot and rollback deleted soft device
-    * Add connection type "bond" named "bond0" for device "nm-bond"
-    * Add slave connection for master "nm-bond" on device "eth8" named "bond0.0"
-    * Add slave connection for master "nm-bond" on device "eth9" named "bond0.1"
-    * Bring "up" connection "bond0.0"
-    * Bring "up" connection "bond0.1"
-    When Check slave "eth8" in bond "nm-bond" in proc
-    When Check slave "eth9" in bond "nm-bond" in proc
+    * Add connection type "bond" named "gen-bond0" for device "gen-bond"
+    * Add slave connection for master "gen-bond" on device "eth8" named "gen-bond0.0"
+    * Add slave connection for master "gen-bond" on device "eth9" named "gen-bond0.1"
+    * Bring "up" connection "gen-bond0.0"
+    * Bring "up" connection "gen-bond0.1"
+    When Check slave "eth8" in bond "gen-bond" in proc
+    When Check slave "eth9" in bond "gen-bond" in proc
     * Snapshot "create" for "all" with timeout "10"
-    * Delete connection "bond0.0"
-    * Delete connection "bond0.1"
-    * Delete connection "bond0"
+    * Delete connection "gen-bond0.0"
+    * Delete connection "gen-bond0.1"
+    * Delete connection "gen-bond0"
     * Wait for at least "15" seconds
-    Then Check slave "eth8" in bond "nm-bond" in proc
-    Then Check slave "eth9" in bond "nm-bond" in proc
+    Then Check slave "eth8" in bond "gen-bond" in proc
+    Then Check slave "eth9" in bond "gen-bond" in proc
 
 
     @rhbz1433303
     @ver+=1.4.0
-    @long
+    @long @gen_br_remove
     @stable_mem_consumption
     Scenario: NM - general - stable mem consumption
     * Execute "sh tmp/repro_1433303.sh"
@@ -1634,15 +1635,15 @@ Feature: nmcli - general
     Scenario: NM - general - keep external device enslaved on down
     # Check that an externally configure device is not released from
     # its master when brought down externally
-    * Add a new connection of type "bridge" and options "ifname br0 con-name con_general2 autoconnect no"
+    * Add a new connection of type "bridge" and options "ifname brX con-name con_general2 autoconnect no"
     * Execute "nmcli connection modify con_general2 ipv4.method disabled ipv6.method ignore"
     * Bring "up" connection "con_general2"
     * Execute "ip tuntap add mode tap tap0"
-    * Execute "ip link set tap0 master br0"
+    * Execute "ip link set tap0 master brX"
     * Execute "ip link set tap0 up"
     * Execute "sleep 2"
     * Execute "ip link set tap0 down"
-    Then "master br0" is visible with command "ip link show tap0" for full "5" seconds
+    Then "master brX" is visible with command "ip link show tap0" for full "5" seconds
 
 
     @ver+=1.10
