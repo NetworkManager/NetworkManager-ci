@@ -984,6 +984,7 @@ def after_scenario(context, scenario):
             call("sudo rm -f /etc/sysconfig/network-scripts/ifcfg-eth7:1", shell=True)
             call("sudo rm -f /etc/sysconfig/network-scripts/ifcfg-eth7:2", shell=True)
             call("sudo nmcli connection reload", shell=True)
+            call("nmcli connection down testeth7", shell=True)
             #call('sudo nmcli con add type ethernet ifname eth7 con-name testeth7 autoconnect no', shell=True)
             #sleep(TIMER)
 
@@ -1076,6 +1077,12 @@ def after_scenario(context, scenario):
             print ("setting log level back")
             call('sudo nmcli g log level %s domains ALL' % context.loggin_level, shell=True)
 
+        if 'stop_radvd' in scenario.tags:
+            print ("---------------------------")
+            print ("deleting veth devices")
+            call("sudo systemctl stop radvd", shell=True)
+            call('rm -rf /etc/radvd.conf', shell=True)
+
         if 'eth0' in scenario.tags:
             print ("---------------------------")
             print ("upping eth0")
@@ -1165,12 +1172,6 @@ def after_scenario(context, scenario):
             print ("---------------------------")
             print ("deleting veth devices")
             call("sudo service dhcpd stop", shell=True)
-
-        if 'stop_radvd' in scenario.tags:
-            print ("---------------------------")
-            print ("deleting veth devices")
-            call("sudo systemctl stop radvd", shell=True)
-            call('rm -rf /etc/radvd.conf', shell=True)
 
         if 'mtu' in scenario.tags:
             print ("---------------------------")

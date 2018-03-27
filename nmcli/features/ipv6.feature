@@ -1447,7 +1447,7 @@
 
     @rhbz1445417
     @ver+=1.10
-    @con_ipv6_remove @stop_radvd @two_bridged_veths6
+    @con_ipv6_remove @stop_radvd @two_bridged_veths6 @eth0
     @ipv6_multiple_default_routes
     Scenario: NM - ipv6 - multiple default ipv6 routes
     * Prepare veth pairs "test10" bridged over "vethbr6"
