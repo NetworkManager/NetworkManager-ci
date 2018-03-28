@@ -1037,11 +1037,25 @@ def after_scenario(context, scenario):
             call("rm -rf /etc/sysconfig/network-scripts/ifcfg-connie*", shell=True)
             #sleep(TIMER)
 
+        if 'AAA' in scenario.tags:
+            print ("---------------------------")
+            print ("deleting AAA")
+            call("ip link delete AAA", shell=True)
+            call("nmcli connection delete id AAA", shell=True)
+            #sleep(TIMER)
+
         if 'BBB' in scenario.tags:
             print ("---------------------------")
             print ("deleting BBB")
             call("ip link delete BBB", shell=True)
             call("nmcli connection delete id BBB", shell=True)
+            #sleep(TIMER)
+
+        if 'CCC' in scenario.tags:
+            print ("---------------------------")
+            print ("deleting CCC")
+            call("ip link delete CCC", shell=True)
+            call("nmcli connection delete id CCC", shell=True)
             #sleep(TIMER)
 
         if 'disp' in scenario.tags:

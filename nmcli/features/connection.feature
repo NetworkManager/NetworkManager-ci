@@ -158,15 +158,15 @@ Feature: nmcli: connection
 
 
     @rhbz1108167
-    @BBB
+    @CCC
     @connection_removal_of_disapperared_device
     Scenario: nmcli - connection - remove connection of nonexisting device
-     * Finish "sudo ip link add name BBB type bridge"
-     * Finish "ip link set dev BBB up"
-     * Finish "ip addr add 192.168.201.3/24 dev BBB"
-     When "BBB" is visible with command "nmcli -f NAME connection show --active" in "5" seconds
-     * Finish "sudo ip link del BBB"
-     Then "BBB" is not visible with command "nmcli -f NAME connection show --active" in "5" seconds
+     * Finish "sudo ip link add name CCC type bridge"
+     * Finish "ip link set dev CCC up"
+     * Finish "ip addr add 192.168.201.3/24 dev CCC"
+     When "CCC" is visible with command "nmcli -f NAME connection show --active" in "5" seconds
+     * Finish "sudo ip link del CCC"
+     Then "CCC" is not visible with command "nmcli -f NAME connection show --active" in "5" seconds
 
 
     @con_con_remove

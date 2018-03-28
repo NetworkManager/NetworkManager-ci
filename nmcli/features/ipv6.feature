@@ -1350,15 +1350,15 @@
 
     @rhbz1449873
     @ver+=1.8.0
-    @BBB
+    @AAA
     @ipv6_keep_external_addresses
     Scenario: NM - ipv6 - keep external addresses
-    * Execute "ip link add BBB type dummy"
-    * Execute "ip link set dev BBB up"
+    * Execute "ip link add AAA type dummy"
+    * Execute "ip link set dev AAA up"
     * Wait for at least "1" seconds
-    * Execute "for i in $(seq 3000); do ip addr add 2017::$i/64 dev BBB; done"
-    When "3000" is visible with command "ip addr show dev BBB | grep 'inet6 2017::' -c" in "2" seconds
-    Then "3000" is visible with command "ip addr show dev BBB | grep 'inet6 2017::' -c" for full "6" seconds
+    * Execute "for i in $(seq 3000); do ip addr add 2017::$i/64 dev AAA; done"
+    When "3000" is visible with command "ip addr show dev AAA | grep 'inet6 2017::' -c" in "2" seconds
+    Then "3000" is visible with command "ip addr show dev AAA | grep 'inet6 2017::' -c" for full "6" seconds
 
 
     @rhbz1457242
