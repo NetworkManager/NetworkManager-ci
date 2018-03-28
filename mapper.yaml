@@ -28,7 +28,7 @@ dependencies:
 beaker-hardware:
   - x86_64:
       group: desktopqe-nm
-      kernel_options: biosdevname=0 net.ifnames=0
+      kernel-options: biosdevname=0 net.ifnames=0
   - subcomponents:
       NetworkManager-wifi:
         - x86_64:
