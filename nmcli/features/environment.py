@@ -212,6 +212,7 @@ def before_scenario(context, scenario):
         if 'eth0' in scenario.tags or 'delete_testeth0' in scenario.tags \
                                     or 'connect_testeth0' in scenario.tags \
                                     or 'restart' in scenario.tags \
+                                    or 'dummy' in scenario.tags \
                                     or 'skip_str' in scenario.tags:
             print ("---------------------------")
             print ("skipping service restart tests if /tmp/nm_skip_restarts exists")
@@ -1290,6 +1291,13 @@ def after_scenario(context, scenario):
             call('ip link del nm-team', shell=True)
             #sleep(TIMER)
 
+        if 'bond-team_remove' in scenario.tags:
+            print ("---------------------------")
+            print ("deleting team masters")
+            call('nmcli connection delete id bond-team0 bond-team', shell=True)
+            call('ip link del bond-team', shell=True)
+
+
         if 'teamd' in scenario.tags:
             call("systemctl stop teamd", shell=True)
             call("systemctl reset-failed teamd", shell=True)
@@ -1407,6 +1415,11 @@ def after_scenario(context, scenario):
             call('sudo nmcli con del bridge0 bridge bridge.15 nm-bridge br88 br11 br12 br15 bridge-slave br15-slave br15-slave1 br15-slave2 br10 br10-slave', shell=True)
             call('ip link del bridge0', shell=True)
             reset_hwaddr('eth4')
+
+        if 'bond_bridge' in scenario.tags:
+            print ("---------------------------")
+            print ("deleting all possible bond bridge")
+            call('sudo nmcli con del bond_bridge0', shell=True)
 
         if 'team_br_remove' in scenario.tags:
             print ("---------------------------")
