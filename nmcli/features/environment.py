@@ -991,7 +991,7 @@ def after_scenario(context, scenario):
         if 'gen-bond_remove' in scenario.tags:
             print ("---------------------------")
             print ("deleting gen-bond profile")
-            call('nmcli connection delete id gen-bond0', shell=True)
+            call('nmcli connection delete id gen-bond0 gen-bond0.0 gen-bond0.1', shell=True)
             call('ip link del gen-bond', shell=True)
             call('ip link del gen-bond0', shell=True)
 
