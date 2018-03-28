@@ -17,7 +17,7 @@ if skip_restart:
     call ("touch /tmp/nm_skip_restarts", shell=True)
 
 
-call ("echo ********* STARTING TEST THREAD2 *********' >> /tmp/tests" % test, shell=True)
+call ("echo ********* STARTING TEST THREAD2 *********' >> /tmp/tests", shell=True)
 
 failures = []
 for test in tests:
@@ -27,7 +27,7 @@ for test in tests:
         call ("echo '2: FAIL:%s' >> /tmp/tests" % test, shell=True)
     else:
         call ("echo '2: PASS:%s' >> /tmp/tests" % test, shell=True)
-call ("echo '********* ENDING TEST THREAD1 *********' >> /tmp/tests" % test, shell=True)
+call ("echo '********* ENDING TEST THREAD1 *********' >> /tmp/tests", shell=True)
 
 if failures != []:
     print ("TESTS-FAILED:")
