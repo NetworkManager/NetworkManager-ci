@@ -1198,7 +1198,7 @@
 
     @rhbz1415641
     @ver+=1.10
-    @slow_team @team
+    @slow_team @team @skip_str
     @wait_for_slow_teamd
     Scenario: nmcli - team - wait for slow team
     * Add connection type "team" named "team0" for device "nm-team"

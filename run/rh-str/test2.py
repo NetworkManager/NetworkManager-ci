@@ -21,7 +21,7 @@ call ("echo ********* STARTING TEST THREAD2 *********' >> /tmp/tests", shell=Tru
 
 failures = []
 for test in tests:
-    if call ("cd /mnt/tests/NetworkMa   nager-ci/ && sh nmcli/./runtest.sh %s" %test, shell=True) != 0:
+    if call ("cd /mnt/tests/NetworkManager-ci/ && sh nmcli/./runtest.sh %s" %test, shell=True) != 0:
         failures.append(test)
         call ("echo %s >> /tmp/test2.failures" %test, shell=True)
         call ("echo '2: FAIL:%s' >> /tmp/tests" % test, shell=True)
