@@ -788,6 +788,8 @@ testmapper:
         feature: vlan
     - default_route_for_vlan_over_team:
         feature: vlan
+    - vlan_on_bond_autoconnect:
+        feature: vlan
     - ethernet_create_with_editor:
         feature: ethernet
     - ethernet_create_default_connection:

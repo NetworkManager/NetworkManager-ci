@@ -450,7 +450,7 @@ Feature: nmcli - vlan
 
 
     @rhbz1553595
-    @vlan @bond @slaves
+    @vlan @bond @slaves @restart
     @vlan_on_bond_autoconnect
     Scenario: NM - vlan - autoconnect vlan on bond specified as UUID
     * Add connection type "bond" named "bond0" for device "nm-bond"
