@@ -99,6 +99,8 @@ bridge_autoconnect_slaves_when_master_reconnected, ., nmcli/./runtest.sh bridge_
 bridge_dhcp_config_with_ethernet_port, ., nmcli/./runtest.sh bridge_dhcp_config_with_ethernet_port, bridge-utils
 bridge_dhcp_config_with_multiple_ethernet_ports, ., nmcli/./runtest.sh bridge_dhcp_config_with_multiple_ethernet_ports, bridge-utils
 bridge_static_config_with_multiple_ethernet_ports, ., nmcli/./runtest.sh bridge_static_config_with_multiple_ethernet_ports, bridge-utils
+bridge_autoconnect_slaves_all, ., nmcli/./runtest.sh bridge_autoconnect_slaves_all, bridge-utils
+bridge_autoconnect_slaves_all_modified, ., nmcli/./runtest.sh bridge_autoconnect_slaves_all_modified, bridge-utils
 bridge_server_ingore_carrier_with_dhcp, ., nmcli/./runtest.sh bridge_server_ingore_carrier_with_dhcp, bridge-utils
 bridge_reflect_changes_from_outside_of_NM, ., nmcli/./runtest.sh bridge_reflect_changes_from_outside_of_NM, bridge-utils
 bridge_assumed_connection_race, ., nmcli/./runtest.sh  bridge_assumed_connection_race, bridge-utils

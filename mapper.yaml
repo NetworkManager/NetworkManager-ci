@@ -239,6 +239,10 @@ testmapper:
         feature: bridge
     - bridge_static_config_with_multiple_ethernet_ports:
         feature: bridge
+    - bridge_autoconnect_slaves_all:
+        feature: bridge
+    - bridge_autoconnect_slaves_all_modified:
+        feature: bridge
     - bridge_server_ingore_carrier_with_dhcp:
         feature: bridge
     - bridge_reflect_changes_from_outside_of_NM:
