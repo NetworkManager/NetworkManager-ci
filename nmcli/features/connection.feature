@@ -237,7 +237,7 @@ Feature: nmcli: connection
      When "con_con2" is visible with command "nmcli con"
      * Execute "python tmp/repro_1401515.py"
      Then Check if "con_con2" is not active connection
-      And "yes" is visible with command "nmcli connection show con_con2 |grep autoconnect:"
+      And "yes" is visible with command "nmcli connection show con_con2 |grep autoconnect:" in "5" seconds
 
 
     @con_con_remove

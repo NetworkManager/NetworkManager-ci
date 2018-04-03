@@ -544,7 +544,7 @@
 
 
     @rhbz1255927
-    @team_slaves @team
+    @team @team_slaves
     @team_set_mtu
     Scenario: nmcli - team - set mtu
      * Add connection type "team" named "team0" for device "nm-team"
@@ -1198,7 +1198,7 @@
 
     @rhbz1415641
     @ver+=1.10
-    @slow_team @team
+    @slow_team @team @skip_str
     @wait_for_slow_teamd
     Scenario: nmcli - team - wait for slow team
     * Add connection type "team" named "team0" for device "nm-team"
