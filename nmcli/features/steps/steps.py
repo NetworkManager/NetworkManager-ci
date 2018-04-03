@@ -119,6 +119,12 @@ def add_port(context, name, ifname, parent, pkey):
         raise Exception('Got an Error while adding %s connection %s for device %s' % (typ, name, ifname))
     sleep(1)
 
+@step(u'Modify connection "{connection}" property "{prop}" to noted value')
+def modify_connection_with_noted(context, connection, prop):
+    cli = pexpect.spawn('nmcli connection modify %s %s %s' % (connection, prop, context.noted_value))
+    r = cli.expect(['Error', pexpect.EOF])
+    if r == 0:
+        raise Exception('Got an Error while changing %s property for connection %s to %s' % (prop, connection, context.noted_value))
 
 @step(u'Add slave connection for master "{master}" on device "{device}" named "{name}"')
 def open_slave_connection(context, master, device, name):

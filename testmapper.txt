@@ -390,6 +390,7 @@ vlan_create_many_vlans, ., nmcli/./runtest.sh vlan_create_many_vlans ,
 vlan_mtu_from_parent, ., nmcli/./runtest.sh vlan_mtu_from_parent ,
 vlan_mtu_from_parent_with_slow_dhcp, ., nmcli/./runtest.sh vlan_mtu_from_parent_with_slow_dhcp ,
 default_route_for_vlan_over_team, ., nmcli/./runtest.sh default_route_for_vlan_over_team ,
+vlan_on_bond_autoconnect, ., nmcli/./runtest.sh vlan_on_bond_autoconnect ,
 #@vlan_end
 
 #@ethernet_start
