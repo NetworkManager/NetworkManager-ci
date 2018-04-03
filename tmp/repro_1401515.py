@@ -1,13 +1,19 @@
 import gi
 from gi.repository import NM
+from time import sleep
 
 connection_name = 'con_con2'
 nm_client = NM.Client.new(None)
 
 con = None
-for c in nm_client.get_connections():
-    if c.get_id() == connection_name:
-        con = c
+for x in xrange(1,4):
+    for c in nm_client.get_connections():
+        if c.get_id() == connection_name:
+            con = c
+            break
+    if con == None:
+        sleep(2)
+    else:
         break
 
 con2 = NM.SimpleConnection.new_clone(con)

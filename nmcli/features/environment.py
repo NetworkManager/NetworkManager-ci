@@ -860,16 +860,6 @@ def after_scenario(context, scenario):
         pass
 
     try:
-        # Attach journalctl logs
-        os.system("echo '~~~~~~~~~~~~~~~~~~~~~~~~~~ NM LOG ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~' > /tmp/journal-nm.log")
-        os.system("sudo journalctl -u NetworkManager --no-pager -o cat %s >> /tmp/journal-nm.log" % context.log_cursor)
-        if os.stat("/tmp/journal-nm.log").st_size < 20000000:
-            data = open("/tmp/journal-nm.log", 'r').read()
-            if data:
-                context.embed('text/plain', data)
-        else:
-            print("WARNING: 20M size exceeded in /tmp/journal-nm.log, skipping")
-
         #attach network traffic log
         call("sudo kill -1 $(pidof tcpdump)", shell=True)
         if os.stat("/tmp/network-traffic.log").st_size < 20000000:
@@ -952,14 +942,18 @@ def after_scenario(context, scenario):
         if 'con_ipv4_remove' in scenario.tags:
             print ("---------------------------")
             print ("deleting connection con_ipv4 and con_ipv42")
+            call("nmcli connection down con_ipv4 ", shell=True)
+            call("nmcli connection down con_ipv42", shell=True)
             call("nmcli connection delete id con_ipv4 con_ipv42", shell=True)
-            #call("rm -rf /etc/sysconfig/network-scripts/ifcfg-con_ipv4*", shell=True)
+            call("if nmcli con |grep con_ipv4; then echo 'con_ipv4 present: %s' >> /tmp/residues; fi" %scenario.tags, shell=True)
 
         if 'con_ipv6_remove' in scenario.tags:
             print ("---------------------------")
             print ("deleting connection con_ipv6 con_ipv62")
+            call("nmcli connection down con_ipv6 ", shell=True)
+            call("nmcli connection down con_ipv62 ", shell=True)
             call("nmcli connection delete id con_ipv6 con_ipv62", shell=True)
-            #call("rm -rf /etc/sysconfig/network-scripts/ifcfg-con_ipv6*", shell=True)
+            call("if nmcli con |grep con_ipv6; then echo 'con_ipv6 present: %s' >> /tmp/residues; fi" %scenario.tags, shell=True)
 
         if 'con_ipv6_ifcfg_remove' in scenario.tags:
             print ("---------------------------")
@@ -1287,9 +1281,11 @@ def after_scenario(context, scenario):
         if 'team' in scenario.tags:
             print ("---------------------------")
             print ("deleting team masters")
+            call('nmcli connection down team0', shell=True)
             call('nmcli connection delete id team0 team', shell=True)
             call('ip link del nm-team', shell=True)
             #sleep(TIMER)
+            call("if nmcli con |grep 'team0 '; then echo 'team0 present: %s' >> /tmp/residues; fi" %scenario.tags, shell=True)
 
         if 'bond-team_remove' in scenario.tags:
             print ("---------------------------")
@@ -1801,6 +1797,20 @@ def after_scenario(context, scenario):
             else:
                 for link in range(1,10):
                     call('ip link set eth%d up' % link, shell=True)
+
+
+        dump_status(context, 'after cleanup %s' % scenario.name)
+
+        # Attach journalctl logs
+        os.system("echo '~~~~~~~~~~~~~~~~~~~~~~~~~~ NM LOG ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~' > /tmp/journal-nm.log")
+        os.system("sudo journalctl -u NetworkManager --no-pager -o cat %s >> /tmp/journal-nm.log" % context.log_cursor)
+        if os.stat("/tmp/journal-nm.log").st_size < 20000000:
+            data = open("/tmp/journal-nm.log", 'r').read()
+            if data:
+                context.embed('text/plain', data)
+        else:
+            print("WARNING: 20M size exceeded in /tmp/journal-nm.log, skipping")
+
 
         if nm_pid_after is not None and context.nm_pid == nm_pid_after:
             context.log.write("NetworkManager memory consumption after: %d KiB\n" % nm_size_kb())

@@ -544,7 +544,7 @@
 
 
     @rhbz1255927
-    @team_slaves @team
+    @team @team_slaves
     @team_set_mtu
     Scenario: nmcli - team - set mtu
      * Add connection type "team" named "team0" for device "nm-team"
