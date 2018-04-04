@@ -8,6 +8,7 @@ import operator
 import pickle
 import kerberos
 import logging
+import re
 
 # logging.basicConfig(level=logging.DEBUG)
 
@@ -126,7 +127,7 @@ class Project:
     def get_jobs(self):
         return self.jobs
 
-    def retrieve_jobs(self):
+    def retrieve_jobs(self, job_num):
         req = connect_to(self.url + "/rssAll")
         if (not req):
             eprint("Cannot retrieve the list of jobs from project %s." % self.name)
@@ -149,6 +150,13 @@ class Project:
 
             date_str = ""
             link = link.next
+
+            # for the base url, search "/<number>/" to strip
+            base_url_search = re.search ('/[0-9]+/', url)
+            base_url = url[:(base_url_search.start() + 1)]
+            if (url[(base_url_search.start() + 1):-1].isdigit):
+                last_job = int(url[(base_url_search.start() + 1):-1])
+
             for i in range(0,3):
                 if link.name == "published":
                     # TODO: check that is a date
@@ -159,6 +167,13 @@ class Project:
                 link = link.next
 
             job = Job(url, date_str, url.split("/").pop(-2))
+            self.append_job(job)
+
+        while (job_num and int(job_num) > len (self.jobs) and
+               last_job and last_job > 0):
+            last_job -= 1
+            url = base_url + str(last_job) + '/'
+            job = Job (url, None, url.split("/").pop(-2))
             self.append_job(job)
 
         ### TODO: check if we got at least one job
@@ -455,10 +470,10 @@ def save(pname, dname, data):
     pickle.dump(data, fd, protocol=0)
     fd.close()
 
-def process_project(name, url):
+def process_project(name, url, job_num):
     p = Project(name, url)
 
-    if not p.retrieve_jobs():
+    if not p.retrieve_jobs(job_num):
         return False
 
     for job in p.get_jobs():
@@ -480,6 +495,7 @@ def main():
     parser.add_argument('--user', help="username to access Jenkins url")
     parser.add_argument('--password', help="password to access Jenkins url")
     parser.add_argument('--ca_cert', help="file path of private CA to be used for https validation or 'disabled'")
+    parser.add_argument('--max_jobs', help="maximum number of jobs examined for each project")
     args = parser.parse_args()
 
     if (args.user):
@@ -499,7 +515,7 @@ def main():
     else:
         project_name = url.split("/")[-1]
 
-    process_project(project_name, url)
+    process_project(project_name, url, args.max_jobs)
 
 
 if __name__ == '__main__':
