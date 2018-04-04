@@ -374,7 +374,7 @@ Feature: nmcli - ethernet
     Then Check noted values "wol_new" and "wol_orig" are the same
 
 
-    @ver+=1.4.0
+    @ver+=1.6.0
     @con_ethernet_remove @8021x
     @8021x_with_credentials
     Scenario: nmcli - ethernet - connect to 8021x - md5
@@ -390,7 +390,7 @@ Feature: nmcli - ethernet
     Then Bring "up" connection "con_ethernet"
 
 
-    @ver+=1.4.0
+    @ver+=1.6.0
     @con_ethernet_remove @8021x
     @8021x_peap_md5
     Scenario: nmcli - ethernet - connect to 8021x - peap - md5
@@ -398,7 +398,7 @@ Feature: nmcli - ethernet
     Then Bring "up" connection "con_ethernet"
 
 
-    @ver+=1.4.0
+    @ver+=1.6.0
     @con_ethernet_remove @8021x
     @8021x_peap_mschapv2
     Scenario: nmcli - ethernet - connect to 8021x - peap - mschapv2
@@ -406,7 +406,7 @@ Feature: nmcli - ethernet
     Then Bring "up" connection "con_ethernet"
 
 
-    @ver+=1.4.0
+    @ver+=1.6.0
     @con_ethernet_remove @8021x
     @8021x_peap_gtc
     Scenario: nmcli - ethernet - connect to 8021x - peap - gtc
@@ -414,7 +414,7 @@ Feature: nmcli - ethernet
     Then Bring "up" connection "con_ethernet"
 
 
-    @ver+=1.4.0
+    @ver+=1.6.0
     @con_ethernet_remove @8021x
     @8021x_ttls_pap
     Scenario: nmcli - ethernet - connect to 8021x -ttls - pap
@@ -422,7 +422,7 @@ Feature: nmcli - ethernet
     Then Bring "up" connection "con_ethernet"
 
 
-    @ver+=1.4.0
+    @ver+=1.6.0
     @con_ethernet_remove @8021x
     @8021x_ttls_chap
     Scenario: nmcli - ethernet - connect to 8021x -ttls - chap
@@ -430,7 +430,7 @@ Feature: nmcli - ethernet
     Then Bring "up" connection "con_ethernet"
 
 
-    @ver+=1.4.0
+    @ver+=1.6.0
     @con_ethernet_remove @8021x
     @8021x_ttls_mschap
     Scenario: nmcli - ethernet - connect to 8021x -ttls - mschap
@@ -438,7 +438,7 @@ Feature: nmcli - ethernet
     Then Bring "up" connection "con_ethernet"
 
 
-    @ver+=1.4.0
+    @ver+=1.6.0
     @con_ethernet_remove @8021x
     @8021x_ttls_mschapv2
     Scenario: nmcli - ethernet - connect to 8021x -ttls - mschapv2
@@ -446,7 +446,7 @@ Feature: nmcli - ethernet
     Then Bring "up" connection "con_ethernet"
 
 
-    @ver+=1.4.0
+    @ver+=1.6.0
     @con_ethernet_remove @8021x
     @8021x_ttls_mschapv2_eap
     Scenario: nmcli - ethernet - connect to 8021x -ttls - mschap - eap
@@ -454,7 +454,7 @@ Feature: nmcli - ethernet
     Then Bring "up" connection "con_ethernet"
 
 
-    @ver+=1.4.0
+    @ver+=1.6.0
     @con_ethernet_remove @8021x
     @8021x_ttls_md5
     Scenario: nmcli - ethernet - connect to 8021x -ttls - md5
@@ -462,7 +462,7 @@ Feature: nmcli - ethernet
     Then Bring "up" connection "con_ethernet"
 
 
-    @ver+=1.4.0
+    @ver+=1.6.0
     @con_ethernet_remove @8021x
     @8021x_ttls_gtc
     Scenario: nmcli - ethernet - connect to 8021x -ttls - gtc
@@ -480,7 +480,7 @@ Feature: nmcli - ethernet
 
 
     @rhbz1113941
-    @ver+=1.4.0
+    @ver+=1.6.0
     @ver-=1.10.0
     @con_ethernet_remove @8021x
     @8021x_without_password
