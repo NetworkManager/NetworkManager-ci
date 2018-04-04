@@ -3,7 +3,10 @@ from subprocess import call, check_output
 
 current_nm_version = "".join(check_output("""NetworkManager -V |awk 'BEGIN { FS = "." }; {printf "%03d%03d%03d", $1, $2, $3}'""", shell=True).split('-')[0])
 
-test_name = "".join('_'.join(sys.argv[2].split('_')[2:]))
+if "NetworkManager_Test" in sys.argv[2]:
+    test_name = "".join('_'.join(sys.argv[2].split('_')[2:]))
+else:
+    test_name = sys.argv[2]
 
 raw_tags = check_output ("behave %s/features/  -k -t %s --dry-run |grep %s" %(sys.argv[1], test_name, test_name), shell=True)
 tests_tags = raw_tags.split('\n')
