@@ -12,7 +12,7 @@ setup_configure_environment "$1"
 # set TEST variable for version_control script
 if [ -z "$TEST" ]; then
     logger "setting test name to NetworkManager_Test0_$1"
-    TEST="NetworkManager_Test0_$1"
+    TEST="NetworkManager-ci_Test0_$1"
 fi
 
 #check if NM version is correct for test
