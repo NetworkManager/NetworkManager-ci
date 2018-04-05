@@ -391,7 +391,7 @@ testmapper:
         feature: team
     - wait_for_slow_teamd:
         feature: team
-    - team_without_addresses_restart_persistence
+    - team_without_addresses_restart_persistence:
         feature: team
     - ipv6_block_just_routing_RA:
         feature: ipv6
