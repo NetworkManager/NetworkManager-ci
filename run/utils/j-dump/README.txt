@@ -52,4 +52,7 @@ Available options are:
   If an invalid certificate is found, https would otherwise fail.
   Passing 'disabled' as --ca-cert argument will skip https check.
  
-
+--max_jobs <int>: by default only the job reported in the RSS feed of the project are parsed
+  (which defaults to 10 jobs). By specifying the "max_jobs" parameter, j-python will start
+  from the RSS feed as usual, but will try then to retrieve more jobs till the max_jobs value
+  is matched.
