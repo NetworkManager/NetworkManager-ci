@@ -79,8 +79,8 @@ local_setup_configure_nm_eth () {
     if ! rpm -q --quiet NetworkManager-team; then
         yum -y install NetworkManager-team
     fi
-    if ! rpm -q --quiet NetworkManager-nmtui; then
-        yum -y install NetworkManager-nmtui
+    if ! rpm -q --quiet NetworkManager-tui; then
+        yum -y install NetworkManager-tui
     fi
 
     #installing behave and pexpect
