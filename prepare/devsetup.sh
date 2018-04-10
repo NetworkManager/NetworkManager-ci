@@ -64,9 +64,6 @@ local_setup_configure_nm_eth () {
     #making sure all wifi devices are named wlanX
     NUM=0
     wlan=0
-    if ! rpm -q --quiet NetworkManager-wifi; then
-        yum -y install NetworkManager-wifi
-    fi
     for DEV in `nmcli device | grep wifi | awk {'print $1'}`; do
         wlan=1
         ip link set $DEV down
@@ -74,6 +71,17 @@ local_setup_configure_nm_eth () {
         ip link set wlan$NUM up
         NUM=$(($NUM+1))
     done
+
+    #installing deps if missing
+    if ! rpm -q --quiet NetworkManager-wifi; then
+        yum -y install NetworkManager-wifi
+    fi
+    if ! rpm -q --quiet NetworkManager-team; then
+        yum -y install NetworkManager-team
+    fi
+    if ! rpm -q --quiet NetworkManager-nmtui; then
+        yum -y install NetworkManager-nmtui
+    fi
 
     #installing behave and pexpect
     yum -y install https://kojipkgs.fedoraproject.org//packages/python-behave/1.2.5/18.el7/noarch/python2-behave-1.2.5-18.el7.noarch.rpm https://kojipkgs.fedoraproject.org//packages/python-parse/1.6.4/4.el7/noarch/python-parse-1.6.4-4.el7.noarch.rpm https://kojipkgs.fedoraproject.org//packages/python-parse_type/0.3.4/6.el7/noarch/python-parse_type-0.3.4-6.el7.noarch.rpm
