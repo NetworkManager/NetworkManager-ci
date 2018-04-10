@@ -590,11 +590,11 @@ Feature: nmcli: connection
     * Add connection type "ethernet" named "con_con" for device "eth5"
     When "\"my.own.data\" = \"good_morning_starshine\"" is visible with command "python tmp/setting-user-data.py set id con_con my.own.data good_morning_starshine"
      And "\"my.own.data.two\" = \"the_moon_says_hello\"" is visible with command "python tmp/setting-user-data.py set id con_con my.own.data.two the_moon_says_hello"
-     And "\"my.own.data\" = \"good_morning_starshine\"|\"my.own.data2\" = \"the_moon_says_hello\"" is visible with command "python tmp/setting-user-data.py id con_con"
+     And "\"my.own.data\" = \"good_morning_starshine\"|\"my.own.data.two\" = \"the_moon_says_hello\"" is visible with command "python tmp/setting-user-data.py id con_con"
     * Execute "python tmp/setting-user-data.py set id con_con -d my.own.data"
     * Execute "python tmp/setting-user-data.py set id con_con -d my.own.data.two"
     Then "[none]|[0]" is visible with command "python tmp/setting-user-data.py id con_con"
-     And "\"my.own.data\" = \"good_morning_starshine\"|\"my.own.data2\" = \"the_moon_says_hello\"" is not visible with command "python tmp/setting-user-data.py id con_con"
+     And "\"my.own.data\" = \"good_morning_starshine\"|\"my.own.data.two\" = \"the_moon_says_hello\"" is not visible with command "python tmp/setting-user-data.py id con_con"
 
 
     @rhbz1448165
