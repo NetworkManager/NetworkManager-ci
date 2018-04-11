@@ -458,7 +458,7 @@
      * Execute "nmcli connection modify con_ipv6 ipv6.may-fail no"
      * Bring "up" connection "con_ipv6"
     Then "2620:52:0:.*::/64 dev eth10\s+proto ra" is visible with command "ip -6 r" in "20" seconds
-    Then "2620:52:0:" is visible with command "ip -6 a s eth10 |grep 'global noprefix'" in "20" seconds
+    Then "2620:52:0:" is visible with command "ip -6 a s eth10 |grep global |grep noprefix" in "20" seconds
 
 
     @con_ipv6_remove @eth0 @long
