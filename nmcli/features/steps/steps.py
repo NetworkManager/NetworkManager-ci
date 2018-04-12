@@ -1265,7 +1265,7 @@ def check_ifaces_in_state(context, exclude_ifaces, iface_state):
 @step(u'Ping "{domain}"')
 @step(u'Ping "{domain}" "{number}" times')
 def ping_domain(context, domain, number=2):
-    ping = pexpect.spawn('ping -c %s %s' %(number, domain), logfile=context.log)
+    ping = pexpect.spawn('ping -4 -c %s %s' %(number, domain), logfile=context.log)
     ping.expect([pexpect.EOF])
     ping.close()
     assert ping.exitstatus == 0
@@ -1273,7 +1273,7 @@ def ping_domain(context, domain, number=2):
 
 @step(u'Ping "{domain}" from "{device}" device')
 def ping_domain_from_device(context, domain, device):
-    ping = pexpect.spawn('ping -c 2 -I %s %s' %(device, domain), logfile=context.log)
+    ping = pexpect.spawn('ping -4 -c 2 -I %s %s' %(device, domain), logfile=context.log)
     ping.expect([pexpect.EOF])
     ping.close()
     assert ping.exitstatus == 0
