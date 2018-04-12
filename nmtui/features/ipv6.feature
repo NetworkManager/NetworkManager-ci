@@ -307,12 +307,13 @@ Feature: IPv6 TUI tests
     * Come in "IPv6 CONFIGURATION" category
     * In "Addresses" property add "2001::1/126"
     * Set "Gateway" field to "4000::1"
-    * Add ip route "1010::1/128 :: 3"
-    * Add ip route "3030::1/128 2001::2 2"
+    * Add ip route "1010::1/128 :: 110"
+    * Add ip route "3030::1/128 2001::2 111"
     * Confirm the connection settings
-    Then "3030::1 via 2001::2 dev eth1\s+proto static\s+metric 2" is visible with command "ip -6 route"
+    * Bring up connection "ethernet1"
+    Then "3030::1 via 2001::2 dev eth1\s+proto static\s+metric 111" is visible with command "ip -6 route"
     Then "2001::/126 dev eth1\s+proto kernel\s+metric 256" is visible with command "ip -6 route"
-    Then "1010::1 dev eth1\s+proto static\s+metric 3" is visible with command "ip -6 route"
+    Then "1010::1 dev eth1\s+proto static\s+metric 110" is visible with command "ip -6 route"
 
 
     @ipv6
@@ -328,6 +329,7 @@ Feature: IPv6 TUI tests
     * Add ip route "1010::1/128 :: 110"
     * Add ip route "3030::1/128 2001::2 111"
     * Confirm the connection settings
+    * Bring up connection "ethernet1"
     Then "3030::1 via 2001::2 dev eth1\s+proto static\s+metric 111" is visible with command "ip -6 route"
     Then "2001::/126 dev eth1\s+proto kernel\s+metric 100" is visible with command "ip -6 route"
     Then "1010::1 dev eth1\s+proto static\s+metric 110" is visible with command "ip -6 route"

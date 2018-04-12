@@ -621,7 +621,8 @@ def before_scenario(context, scenario):
                 cfg.write("\n" + 'push "route-ipv6 2001:db8:666:dead::/64 2001:db8:666:dead::1"')
             cfg.write("\n")
             cfg.close()
-            call("sudo systemctl restart openvpn@trest-server", shell=True)
+            Popen("sudo openvpn /etc/openvpn/trest-server.conf", shell=True)
+            #call("sudo systemctl restart openvpn@trest-server", shell=True)
 
         if 'libreswan' in scenario.tags:
             print ("---------------------------")
@@ -1357,6 +1358,7 @@ def after_scenario(context, scenario):
             print ("deleting openvpn profile")
             call('nmcli connection delete openvpn', shell=True)
             call("sudo systemctl stop openvpn@trest-server", shell=True)
+            call("sudo kill -9 $(pidof openvpn)", shell=True)
 
         if 'libreswan' in scenario.tags:
             print ("---------------------------")
