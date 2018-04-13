@@ -1489,19 +1489,14 @@
       When "nm-bond:bond:connected:bond0" is visible with command "nmcli -t -f DEVICE,TYPE,STATE,CONNECTION device" in "20" seconds
        And "state UP" is visible with command "ip -6 a s nm-bond"
        And "inet6 fe80" is visible with command "ip -6 a s nm-bond"
-       And "inet6 2620" is visible with command "ip -6 a s nm-bond" in "5" seconds
-       And "tentative" is not visible with command "ip -6 a s nm-bond" in "5" seconds
       * Execute "killall NetworkManager && sleep 5"
       * Restart NM
       When "state UP" is visible with command "ip -6 a s nm-bond"
        And "inet6 fe80" is visible with command "ip -6 a s nm-bond" for full "10" seconds
-       And "inet6 2620" is visible with command "ip -6 a s nm-bond"
       * Bring "up" connection "bond0.0"
       Then "nm-bond:bond:connected:bond0" is visible with command "nmcli -t -f DEVICE,TYPE,STATE,CONNECTION device" in "20" seconds
        And "state UP" is visible with command "ip -6 a s nm-bond"
        And "inet6 fe80" is visible with command "ip -6 a s nm-bond"
-       And "inet6 2620" is visible with command "ip -6 a s nm-bond" in "5" seconds
-       And "tentative" is not visible with command "ip -6 a s nm-bond" in "5" seconds
 
 
     @rhbz1463077
