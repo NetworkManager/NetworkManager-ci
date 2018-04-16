@@ -622,6 +622,7 @@ def before_scenario(context, scenario):
             cfg.write("\n")
             cfg.close()
             Popen("sudo openvpn /etc/openvpn/trest-server.conf", shell=True)
+            sleep(3)
             #call("sudo systemctl restart openvpn@trest-server", shell=True)
 
         if 'libreswan' in scenario.tags:
@@ -677,6 +678,7 @@ def before_scenario(context, scenario):
 
             if not os.path.isfile('/tmp/nm_pptp_configured'):
                 call("sudo systemctl restart NetworkManager", shell=True)
+                call("mknod /dev/ppp c 108 0", shell=True)
                 cfg = Popen("sudo sh -c 'cat >/etc/pptpd.conf'", stdin=PIPE, shell=True).stdin
                 cfg.write('# pptpd configuration for client testing')
                 cfg.write("\n" + 'option /etc/ppp/options.pptpd')
@@ -766,6 +768,8 @@ def before_scenario(context, scenario):
             # This -x is to avoid upgrade of NetworkManager in older version testing
             call("yum -y install NetworkManager-ppp -x NetworkManager", shell=True)
             call('yum -y install rp-pppoe', shell=True)
+            call("mknod /dev/ppp c 108 0", shell=True)
+            reload_NM_service()
 
         if 'nmcli_general_dhcp_profiles_general_gateway' in scenario.tags:
             print("---------------------------")
