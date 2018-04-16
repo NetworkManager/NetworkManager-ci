@@ -1842,7 +1842,7 @@ Feature: nmcli: ipv4
 
     @rhbz1394344 @rhbz1505893
     @ver+=1.9.1
-    @con_ipv4_remove @restore_rp_filters
+    @con_ipv4_remove @restore_rp_filters @rhel7_only
     @ipv4_rp_filter_do_not_touch
     Scenario: NM - ipv4 - don't touch disabled RP filter
     * Execute "echo 1 > /proc/sys/net/ipv4/conf/eth2/rp_filter"
