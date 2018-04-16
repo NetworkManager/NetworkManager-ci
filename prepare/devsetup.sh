@@ -84,10 +84,13 @@ local_setup_configure_nm_eth () {
     fi
 
     #installing behave and pexpect
+    yum -y install python-setuptools
+    easy_install pip
+    pip install pexpect
     yum -y install https://kojipkgs.fedoraproject.org//packages/python-behave/1.2.5/18.el7/noarch/python2-behave-1.2.5-18.el7.noarch.rpm https://kojipkgs.fedoraproject.org//packages/python-parse/1.6.4/4.el7/noarch/python-parse-1.6.4-4.el7.noarch.rpm https://kojipkgs.fedoraproject.org//packages/python-parse_type/0.3.4/6.el7/noarch/python-parse_type-0.3.4-6.el7.noarch.rpm
-    yum -y install pexpect git python-netaddr python-setuptools pexpect iw net-tools wireshark teamd bash-completion radvd psmisc bridge-utils firewalld dhcp ethtool dbus-python pygobject3 pygobject2
+    yum -y install git python-netaddr iw net-tools wireshark teamd bash-completion radvd psmisc bridge-utils firewalld dhcp ethtool dbus-python pygobject3 pygobject2
     yum -y remove NetworkManager-config-connectivity-fedora
-    
+
     dcb_inf_wol_sriov=0
     if [[ $1 == *sriov_* ]]; then
         dcb_inf_wol_sriov=1
