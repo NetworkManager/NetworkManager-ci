@@ -84,7 +84,7 @@ function setup_veth_env ()
     nmcli con mod $UUID connection.id testeth0
     nmcli con mod $UUID connection.interface-name eth0
     nmcli connection modify $UUID ipv6.method auto
-    sleep
+    sleep 1
 
     # Rename additional devices
     for DEV in $(nmcli -f TYPE,DEVICE -t d | grep -v eth0 | grep ethernet | awk '{split($0,a,":"); print a[2]}'); do
