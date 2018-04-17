@@ -82,7 +82,15 @@ local_setup_configure_nm_eth () {
     if ! rpm -q --quiet NetworkManager-tui; then
         yum -y install NetworkManager-tui
     fi
-
+    if ! rpm -q --quiet NetworkManager-pptp; then
+        yum -y install NetworkManager-pptp
+    fi
+    if ! rpm -q --quiet NetworkManager-ppp; then
+        yum -y install NetworkManager-ppp
+    fi
+    if ! rpm -q --quiet NetworkManager-openvpn; then
+        yum -y install NetworkManager-openvpn
+    fi
 
     #installing pip, behave, and pexpect and other deps
     yum -y install python-setuptools python*-pip

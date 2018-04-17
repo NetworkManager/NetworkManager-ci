@@ -621,6 +621,7 @@ def before_scenario(context, scenario):
                 cfg.write("\n" + 'push "route-ipv6 2001:db8:666:dead::/64 2001:db8:666:dead::1"')
             cfg.write("\n")
             cfg.close()
+            sleep(1)
             Popen("sudo openvpn /etc/openvpn/trest-server.conf", shell=True)
             sleep(3)
             #call("sudo systemctl restart openvpn@trest-server", shell=True)
@@ -677,8 +678,6 @@ def before_scenario(context, scenario):
             psk.close()
 
             if not os.path.isfile('/tmp/nm_pptp_configured'):
-                call("sudo systemctl restart NetworkManager", shell=True)
-                call("mknod /dev/ppp c 108 0", shell=True)
                 cfg = Popen("sudo sh -c 'cat >/etc/pptpd.conf'", stdin=PIPE, shell=True).stdin
                 cfg.write('# pptpd configuration for client testing')
                 cfg.write("\n" + 'option /etc/ppp/options.pptpd')
@@ -1361,7 +1360,7 @@ def after_scenario(context, scenario):
             print ("---------------------------")
             print ("deleting openvpn profile")
             call('nmcli connection delete openvpn', shell=True)
-            call("sudo systemctl stop openvpn@trest-server", shell=True)
+            #call("sudo systemctl stop openvpn@trest-server", shell=True)
             call("sudo kill -9 $(pidof openvpn)", shell=True)
 
         if 'libreswan' in scenario.tags:
