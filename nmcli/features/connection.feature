@@ -587,14 +587,15 @@ Feature: nmcli: connection
     @con_con_remove
     @connection_user_settings_data
     Scenario: NM - connection - user settings data
-    * Add connection type "ethernet" named "con_con" for device "eth5"
-    When "\"my.own.data\" = \"good_morning_starshine\"" is visible with command "python tmp/setting-user-data.py set id con_con my.own.data good_morning_starshine"
-     And "\"my.own.data.two\" = \"the_moon_says_hello\"" is visible with command "python tmp/setting-user-data.py set id con_con my.own.data.two the_moon_says_hello"
-     And "\"my.own.data\" = \"good_morning_starshine\"|\"my.own.data.two\" = \"the_moon_says_hello\"" is visible with command "python tmp/setting-user-data.py id con_con"
+    * Add a new connection of type "ethernet" and options "ifname testX con-name con_con autoconnect no"
+    * Execute "python tmp/setting-user-data.py set id con_con my.own.data good_morning_starshine"
+    * Execute "python tmp/setting-user-data.py set id con_con my.own.data.two the_moon_says_hello"
+    When "good_morning_starshine" is visible with command "python tmp/setting-user-data.py get id con_con my.own.data"
+     And "the_moon_says_hello" is visible with command "python tmp/setting-user-data.py get id con_con my.own.data.two"
     * Execute "python tmp/setting-user-data.py set id con_con -d my.own.data"
     * Execute "python tmp/setting-user-data.py set id con_con -d my.own.data.two"
     Then "[none]|[0]" is visible with command "python tmp/setting-user-data.py id con_con"
-     And "\"my.own.data\" = \"good_morning_starshine\"|\"my.own.data.two\" = \"the_moon_says_hello\"" is not visible with command "python tmp/setting-user-data.py id con_con"
+     And "\"my.own.data\" = \"good_morning_starshine\"|\"my.own.data.two\" = \"the_moon_says_hello\"" is not visible with command "python tmp/setting-user-data.py id con_con" in "5" seconds
 
 
     @rhbz1448165

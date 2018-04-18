@@ -243,4 +243,3 @@ if __name__ == '__main__':
         do_set(connections[0], args['data'], args['set-gobject'])
     else:
         do_get(connections, args['data'])
-

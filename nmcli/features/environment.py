@@ -623,7 +623,7 @@ def before_scenario(context, scenario):
             cfg.close()
             sleep(1)
             Popen("sudo openvpn /etc/openvpn/trest-server.conf", shell=True)
-            sleep(3)
+            sleep(6)
             #call("sudo systemctl restart openvpn@trest-server", shell=True)
 
         if 'libreswan' in scenario.tags:
