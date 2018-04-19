@@ -72,6 +72,9 @@ local_setup_configure_nm_eth () {
         NUM=$(($NUM+1))
     done
 
+    #enable EPEL
+    [ -f /etc/yum.repos.d/epel.repo ] || sudo rpm -i http://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm
+    
     #installing deps if missing
     if ! rpm -q --quiet NetworkManager-wifi; then
         yum -y install NetworkManager-wifi
