@@ -1095,7 +1095,7 @@ Feature: nmcli - general
     Then "32764:\s+from 192.168.100.* lookup 1.*32765:\s+from all iif eth8 lookup 1" is visible with command "ip rule"
     Then "default via 192.168.100.1 dev eth8" is visible with command "ip r s table 1"
     * Bring "down" connection "con_general"
-    Then "32764:\s+from 192.168.100..* lookup 1.*32765:\s+from all iif eth8 lookup 1" is not visible with command "ip rule"
+    Then "32764:\s+from 192.168.100..* lookup 1.*32765:\s+from all iif eth8 lookup 1" is not visible with command "ip rule" in "5" seconds
     Then "default via 192.168.100.1 dev eth8" is not visible with command "ip r s table 1"
 
 

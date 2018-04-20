@@ -408,7 +408,7 @@ def before_scenario(context, scenario):
                 call('sudo easy_install pip', shell=True)
             if not os.path.isfile('/usr/bin/scapy'):
                 call('sudo yum -y install tcpdump', shell=True)
-                call("sudo pip install http://www.secdev.org/projects/scapy/files/scapy-latest.tar.gz", shell=True)
+                call("sudo pip install scapy", shell=True)
 
         if 'mock' in scenario.tags:
             print ("---------------------------")
