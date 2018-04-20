@@ -8,7 +8,6 @@ Feature: nmcli - vlan
     # @test_name (compiled from scenario name)
     # Scenario:
 
-
     @vlan
     @vlan_add_default_device
     Scenario: nmcli - vlan - add default device
