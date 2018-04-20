@@ -109,7 +109,7 @@ function racoon_setup ()
     ip netns exec racoon ip link set racoon0 up
     ip link set dev racoon1 up
 
-    ip netns exec racoon dnsmasq --dhcp-range=172.31.70.2,172.31.70.40,2m --interface=racoon0 --bind-interfaces
+    ip netns exec racoon dnsmasq --pid-file=/tmp/racoon_dnsmasq.pid --dhcp-range=172.31.70.2,172.31.70.40,2m --interface=racoon0 --bind-interfaces
     sleep 5
     echo 'PID of dnsmasq:'
     pidof dnsmasq
@@ -164,6 +164,7 @@ function racoon_teardown ()
     fi
     ip netns del racoon
     ip link del racoon1
+    kill $(cat /tmp/racoon_dnsmasq.pid)
     nmcli connection del rac1
     modprobe -r ip_vti
 }

@@ -1370,6 +1370,7 @@ def after_scenario(context, scenario):
             call('nmcli connection down libreswan', shell=True)
             call('nmcli connection delete libreswan', shell=True)
             teardown_racoon ()
+            wait_for_testeth0()
 
         if 'pptp' in scenario.tags:
             print ("---------------------------")
