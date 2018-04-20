@@ -515,7 +515,7 @@ testmapper:
         feature: ipv6
     - persistent_default_ipv6_gw:
         feature: ipv6
-    - persistent_ipv6_route:
+    - persistent_ipv6_routes:
         feature: ipv6
     - ipv6_honor_ip_order:
         feature: ipv6
