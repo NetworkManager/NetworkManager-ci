@@ -685,7 +685,7 @@ testmapper:
         feature: ipv4
     - dhcp-timeout_infinity:
         feature: ipv4
-    - timeout_default_in_cfg:
+    - dhcp-timeout_default_in_cfg:
         feature: ipv4
     - renewal_gw_after_dhcp_outage_for_assumed_var0:
         feature: ipv4
