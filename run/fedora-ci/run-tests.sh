@@ -31,9 +31,9 @@ for T in $TESTS; do
     # Start test itself with timeout
     #export TEST="NetworkManager_ci-Test$counter"_"$test"
     if [[ $T == *nmtui* ]]; then
-        NMTEST=Test$COUNTER"_"$T nmtui/./runtest.sh $T; rc=$?
+        NMTEST=NetworkManager-ci_Test$COUNTER"_"$T nmtui/./runtest.sh $T; rc=$?
     else
-        NMTEST=Test$COUNTER"_"$T nmcli/./runtest.sh $T; rc=$?
+        NMTEST=NetworkManager-ci_Test$COUNTER"_"$T nmcli/./runtest.sh $T; rc=$?
     fi
 
 
@@ -41,11 +41,11 @@ for T in $TESTS; do
         # Overal result is FAIL
         echo "FAIL" > $RESULTS
         # Move reports to /var/www/html/results/ and add FAIL prefix
-        mv /tmp/report_Test$COUNTER"_"$T.html $RESULTS_DIR/FAIL-Test$COUNTER"_"$T.html
+        mv /tmp/report_NetworkManager-ci_Test$COUNTER"_"$T.html $RESULTS_DIR/FAIL-NetworkManager-ci_Test$COUNTER"_"$T.html
         FAILURES+=($T)
     else
         # Move reports to /var/www/html/results/
-        mv /tmp/report_Test$COUNTER"_"$T.html $RESULTS_DIR/Test$COUNTER"_"$T.html
+        mv /tmp/report_NetworkManager-ci_Test$COUNTER"_"$T.html $RESULTS_DIR/NetworkManager-ci_Test$COUNTER"_"$T.html
     fi
 
     COUNTER=$((COUNTER+1))
