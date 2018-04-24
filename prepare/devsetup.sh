@@ -74,7 +74,7 @@ local_setup_configure_nm_eth () {
 
     #enable EPEL
     [ -f /etc/yum.repos.d/epel.repo ] || sudo rpm -i http://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm
-    
+
     #installing deps if missing
     if ! rpm -q --quiet NetworkManager-wifi; then
         yum -y install NetworkManager-wifi
@@ -88,7 +88,7 @@ local_setup_configure_nm_eth () {
     if ! rpm -q --quiet NetworkManager-pptp; then
         yum -y install NetworkManager-pptp
     fi
-    if ! rpm -q --quiet NetworkManager-ppp; then
+    if ! rpm -q --quiet NetworkManager-ppp && ! rpm -q NetworkManager |grep -q '1.4'; then
         yum -y install NetworkManager-ppp
     fi
     if ! rpm -q --quiet NetworkManager-openvpn; then
