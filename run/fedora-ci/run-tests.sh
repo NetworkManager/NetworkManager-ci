@@ -1,6 +1,7 @@
 RELEASE=$1
 
-TESTS=$(cat run/fedora-ci/$RELEASE.tests)
+MY_PATH="`dirname \"$0\"`"
+TESTS=$(cat $MY_PATH/$RELEASE.tests)
 
 # Add failures and test counter variables
 COUNTER=0
@@ -16,7 +17,7 @@ echo "PASS" > $RESULTS
 echo "WILL RUN:"
 echo $TESTS
 
-pwd
+cd NetworkManager-ci
 
 # For all tests
 for T in $TESTS; do
@@ -29,7 +30,12 @@ for T in $TESTS; do
 
     # Start test itself with timeout
     #export TEST="NetworkManager_ci-Test$counter"_"$test"
-    nmcli/./runtest.sh $T; rc=$?
+    if [[ $T == *nmtui* ]]; then
+        nmtui/./runtest.sh $T; rc=$?
+    else
+        nmcli/./runtest.sh $T; rc=$?
+    fi
+
 
     if [ $rc -ne 0 ]; then
         # Overal result is FAIL
