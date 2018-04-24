@@ -1206,3 +1206,21 @@
      And Bring "up" connection "team0"
      And Bring "up" connection "team0"
      And Bring "up" connection "team0"
+
+
+    @rhbz1551958
+    @ver+=1.0
+    @team @team_slaves
+    @team_without_addresses_restart_persistence
+    Scenario: nmcli - team - persistence of team interface without addresses
+    * Add a new connection of type "team" and options "con-name team0 ifname nm-team ipv4.method disabled ipv6.method ignore"
+    * Add slave connection for master "nm-team" on device "eth5" named "team0.0"
+    * Add slave connection for master "nm-team" on device "eth6" named "team0.1"
+    When "nm-team:connected:team0" is visible with command "nmcli -t -f DEVICE,STATE,CONNECTION device" in "20" seconds
+    Then "\"device\":\s+\"nm-team\"" is visible with command "teamdctl nm-team config dump"
+    * Restart NM
+    * Restart NM
+    Then "team0" is visible with command "nmcli con show -a"
+    And "team0.0" is visible with command "nmcli con show -a"
+    And "team0.1" is visible with command "nmcli con show -a"
+    And "\"device\":\s+\"nm-team\"" is visible with command "teamdctl nm-team config dump"
