@@ -905,6 +905,7 @@
 
 
     @con_ipv6_remove
+    @ver-=1.11.2
     @ipv6_ip6-privacy_incorrect_value
     Scenario: nmcli - ipv6 - ip6_privacy - incorrect value
     * Add connection type "ethernet" named "con_ipv6" for device "eth3"
@@ -914,6 +915,19 @@
     Then Error type "failed to set 'ip6-privacy' property: '3' is not valid\; use 0, 1, or 2" while saving in editor
     * Submit "set ipv6.ip6-privacy RHX" in editor
     Then Error type "failed to set 'ip6-privacy' property: 'RHX' is not a number" while saving in editor
+
+
+    @con_ipv6_remove
+    @ver+=1.11.3
+    @ipv6_ip6-privacy_incorrect_value
+    Scenario: nmcli - ipv6 - ip6_privacy - incorrect value
+    * Add connection type "ethernet" named "con_ipv6" for device "eth3"
+    * Open editor for connection "con_ipv6"
+    * Submit "set ipv4.method disabled" in editor
+    * Submit "set ipv6.ip6-privacy 3" in editor
+    Then Error type "failed to set 'ip6-privacy' property: invalid option '3', use one of \[unknown,disabled,prefer-public-addr,prefer-temp-addr\]" while saving in editor
+    * Submit "set ipv6.ip6-privacy RHX" in editor
+    Then Error type "failed to set 'ip6-privacy' property: invalid option 'RHX', use one of \[unknown,disabled,prefer-public-addr,prefer-temp-addr\]" while saving in editor
 
 
     @rhbz1073824
