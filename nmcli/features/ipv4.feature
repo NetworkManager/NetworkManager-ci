@@ -1423,11 +1423,11 @@ Feature: nmcli: ipv4
 
     @rhbz1350830
     @ver+=1.10.0
-    @con_ipv4_remove @remove_custom_cfg @restart
+    @con_ipv4_remove @remove_custom_cfg @teardown_testveth @restart
     @dhcp-timeout_default_in_cfg
     Scenario: nmcli - ipv4 - dhcp_timout infinity in cfg file
     * Execute "echo -e '[connection-eth-dhcp-timeout]\nmatch-device=type:ethernet\nipv4.dhcp-timeout=2147483647' > /etc/NetworkManager/conf.d/99-xxcustom.conf"
-    * Execute "systemctl restart NetworkManager"
+    * Execute "systemctl reload NetworkManager"
     * Prepare simulated test "testX4" device
     * Add connection type "ethernet" named "con_ipv4" for device "testX4"
     * Execute "ip netns exec testX4_ns kill -SIGSTOP $(cat /tmp/testX4_ns.pid)"
