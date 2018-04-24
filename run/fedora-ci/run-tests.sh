@@ -31,9 +31,9 @@ for T in $TESTS; do
     # Start test itself with timeout
     #export TEST="NetworkManager_ci-Test$counter"_"$test"
     if [[ $T == *nmtui* ]]; then
-        nmtui/./runtest.sh $T; rc=$?
+        NMTEST=Test$COUNTER"_"$T nmtui/./runtest.sh $T; rc=$?
     else
-        nmcli/./runtest.sh $T; rc=$?
+        NMTEST=Test$COUNTER"_"$T nmcli/./runtest.sh $T; rc=$?
     fi
 
 

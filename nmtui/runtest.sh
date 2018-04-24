@@ -21,13 +21,16 @@ fi
 export TERM=vt102
 
 # set TEST variable for version_control script
-if [ -z "$TEST" ]; then
+if ! [ $TEST == "sanity-tests" ]; then
+    NMTEST="$TEST"
+# set TEST variable for version_control script
+elif [ -z "$TEST" ]; then
     logger "setting test name to NetworkManager_Test0_$1"
-    TEST="NetworkManager_Test0_$1"
+    NMTEST="NetworkManager-ci_Test0_$1"
 fi
 
 #check if NM version is correct for test
-TAG="$(python $DIR/version_control.py $DIR/nmtui $TEST)"; vc=$?
+TAG="$(python $DIR/version_control.py $DIR/nmtui $NMTEST)"; vc=$?
 if [ $vc -eq 1 ]; then
     logger "Skipping due to incorrect NM version for this test"
     # exit 0 doesn't affect overal result
@@ -35,10 +38,10 @@ if [ $vc -eq 1 ]; then
 
 elif [ $vc -eq 0 ]; then
     if [ x$TAG != x"" ]; then
-        logger "Running $TAG version of $TEST"
-        behave $DIR/nmtui/features --no-capture --no-capture-stderr -k -t $1 -t $TAG -f plain -o /tmp/report_$TEST.log; rc=$?
+        logger "Running $TAG version of $NMTEST"
+        behave $DIR/nmtui/features --no-capture --no-capture-stderr -k -t $1 -t $TAG -f plain -o /tmp/report_$NMTEST.log; rc=$?
     else
-        behave $DIR/nmtui/features --no-capture --no-capture-stderr -k -t $1 -f plain -o /tmp/report_$TEST.log; rc=$?
+        behave $DIR/nmtui/features --no-capture --no-capture-stderr -k -t $1 -f plain -o /tmp/report_$NMTEST.log; rc=$?
     fi
 fi
 
@@ -49,13 +52,13 @@ fi
 
 # only way to have screen snapshots for each step present in the individual logs
 # the tui-screen log is created via environment.py
-cat /tmp/tui-screen.log >> /tmp/report_$TEST.log
+cat /tmp/tui-screen.log >> /tmp/report_$NMTEST.log
 
 # this is to see the semi-useful output in the TESTOUT for failed tests too
-echo "--------- /tmp/report_$TEST.log ---------"
-cat /tmp/report_$TEST.log
+echo "--------- /tmp/report_$NMTEST.log ---------"
+cat /tmp/report_$NMTEST.log
 
-rhts-report-result $TEST $RESULT "/tmp/report_$TEST.log"
+rhts-report-result $NMTEST $RESULT "/tmp/report_$NMTEST.log"
 
 logger -t $0 "Test $1 finished with result $RESULT: $rc"
 
