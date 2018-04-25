@@ -9,12 +9,17 @@ DIR=$(pwd)
 . $DIR/prepare/devsetup.sh
 setup_configure_environment "$1"
 
-if ! [ $TEST == "sanity-tests" ]; then
-    NMTEST="$TEST"
 # set TEST variable for version_control script
-elif [ -z "$TEST" ]; then
+if [ -z "$TEST" ]; then
     logger "setting test name to NetworkManager_Test0_$1"
     NMTEST="NetworkManager-ci_Test0_$1"
+elif ! [ $TEST == "sanity-tests" ]; then
+    NMTEST="$TEST"
+fi
+
+if [ -z "$NMTEST" ]; then
+    logger "cannot set NMTEST var"
+    exit 128
 fi
 
 #check if NM version is correct for test

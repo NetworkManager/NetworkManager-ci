@@ -1,5 +1,5 @@
 #!/bin/bash
-#set -x
+set -x
 
 # Note: This entire setup is available from NetworkManager 1.0.4 up
 
@@ -44,9 +44,10 @@ function setup_veth_env ()
     # If different than default connection is up after compilation bring it down and restart service
     for i in $(nmcli -t -f DEVICE connection); do
         nmcli device disconnect $i
+        rm -rf /var/run/NetworkManager*
     done
     sleep 2
-    systemctl restart NetworkManager; sleep 4
+    systemctl restart NetworkManager; sleep 5
 
     # # log state of net after service restart
     # ip a
@@ -54,9 +55,20 @@ function setup_veth_env ()
     # nmcli dev
     # nmcli gen
 
+    # Get active device
+    counter=0
+    DEV="NA"
+    while [ $DEV == "NA" ]; do
+        DEV=$(nmcli -f TYPE,DEVICE -t c sh --active  | grep ethernet | awk '{split($0,a,":"); print a[2]}' | head -n 1)
+        sleep 1
+        ((counter++))
+        if [ $counter -eq 20 ]; then
+            echo "Unable to get active device"
+            exit 1
+        fi
+    done
     # Make sure the active ethernet device is eth0
-    DEV=$(nmcli -f TYPE,DEVICE -t c sh --active  | grep ethernet | awk '{split($0,a,":"); print a[2]}' | head -n 1)
-    if [ "eth0" != "$DEV" ]; then
+    if ! [ "x$DEV" == "xeth0" ]; then
         sleep 1
         ip link set $DEV down
         ip link set $DEV name eth0
