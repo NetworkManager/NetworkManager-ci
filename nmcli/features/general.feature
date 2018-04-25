@@ -808,7 +808,7 @@ Feature: nmcli - general
     * Add a new connection of type "ethernet" and options "ifname eth8 con-name con_general connection.zone work"
     * Execute "yum -y install firewalld"
     * Execute "systemctl start firewalld"
-    Then "work" is visible with command "firewall-cmd  --get-zone-of-interface=eth8"
+    Then "work" is visible with command "firewall-cmd  --get-zone-of-interface=eth8" in "3" seconds
 
 
     @rhbz1286576
