@@ -57,8 +57,8 @@ function setup_veth_env ()
 
     # Get active device
     counter=0
-    DEV="NA"
-    while [ $DEV == "NA" ]; do
+    DEV=""
+    while [ -z $DEV ]; do
         DEV=$(nmcli -f TYPE,DEVICE -t c sh --active  | grep ethernet | awk '{split($0,a,":"); print a[2]}' | head -n 1)
         sleep 1
         ((counter++))
