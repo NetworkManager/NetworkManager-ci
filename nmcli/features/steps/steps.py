@@ -436,6 +436,39 @@ def band_cap_set_if_supported(context, flag, device='wlan0'):
         return
     assert flag_cap_set(context, flag=flag, device=device, giveexception=False), "Device supports the band, but the flag is unset!"
 
+@step(u'device "{device}" has DNS server "{dns}"')
+def check_dns_domain(context, device, dns):
+    try:
+        context.execute_steps(u'''* "DNS: %s\\r\\n" is visible with command "tmp/%s %s"''' % (re.escape(dns), context.dns_script, device))
+    except AssertionError:
+        out = command_output(context, "tmp/%s %s" % (context.dns_script, device)).strip()
+        raise AssertionError("Actual DNS configuration for %s is:\n%s\n" % (device, out))
+
+@step(u'device "{device}" does not have DNS server "{dns}"')
+def check_dns_domain(context, device, dns):
+    try:
+        context.execute_steps(u'''* "DNS: %s\\r\\n" is not visible with command "tmp/%s %s"''' % (re.escape(dns), context.dns_script, device))
+    except AssertionError:
+        out = command_output(context, "tmp/%s.py %s" % (context.dns_script, device)).strip()
+        raise AssertionError("Actual DNS configuration for %s is:\n%s\n" % (device, out))
+
+@step(u'device "{device}" has DNS domain "{domain}"')
+@step(u'device "{device}" has DNS domain "{domain}" for "{kind}"')
+def check_dns_domain(context, device, domain, kind="routing"):
+    try:
+        context.execute_steps(u'''* "Domain: \(%s\) %s\\r\\n" is visible with command "tmp/%s %s"''' % (kind, re.escape(domain), context.dns_script, device))
+    except AssertionError:
+        out = command_output(context, "tmp/%s %s" % (context.dns_script, device)).strip()
+        raise AssertionError("Actual DNS configuration for %s is:\n%s\n" % (device, out))
+        
+@step(u'device "{device}" does not have DNS domain "{domain}"')
+@step(u'device "{device}" does not have DNS domain "{domain}" for "{kind}"')
+def check_dns_domain(context, device, domain, kind="routing"):
+    try:
+        context.execute_steps(u'''* "Domain: \(%s\) %s\\r\\n" is not visible with command "tmp/%s %s"''' % (kind, re.escape(domain), context.dns_script, device))
+    except AssertionError:
+        out = command_output(context, "tmp/%s %s" % (context.dns_script, device)).strip()
+        raise AssertionError("Actual DNS configuration for %s is:\n%s\n" % (device, out))
 
 @step(u'Check bond "{bond}" in proc')
 def check_bond_in_proc(context, bond):
