@@ -409,6 +409,7 @@ Feature: nmcli - vlan
     * Stop NM
     * Execute "ip link set dev eth7 down"
     * Execute "ip link del vlan"
+    * Execute "rm -rf /var/run/NetworkManager"
     Then "mtu 9000" is not visible with command "ip a s vlan"
     * Start NM
     Then "mtu 9000" is visible with command "ip a s vlan"

@@ -1433,7 +1433,7 @@ Feature: nmcli: ipv4
     * Execute "ip netns exec testX4_ns kill -SIGSTOP $(cat /tmp/testX4_ns.pid)"
     * Execute "sleep 50; ip netns exec testX4_ns kill -SIGCONT $(cat /tmp/testX4_ns.pid)" without waiting for process to finish
     * Restart NM
-    Then "routers = 192.168.99.1" is visible with command "nmcli con show con_ipv4" in "60" seconds
+    Then "routers = 192.168.99.1" is visible with command "nmcli con show con_ipv4" in "180" seconds
      And "default via 192.168.99.1 dev testX4" is visible with command "ip r"
      And "IPV4_DHCP_TIMEOUT=2147483647" is not visible with command "cat /etc/sysconfig/network-scripts/ifcfg-con_ipv4"
 
