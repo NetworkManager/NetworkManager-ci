@@ -309,7 +309,7 @@ Feature: nmcli - bridge
 
 
     @rhbz1548265
-    @ver+=1.11.90
+    @ver+=1.10.2
     @bridge
     @bridge_autoconnect_slaves_all
     Scenario: nmcli - bridge - autoconnect-slaves connects also otherwise busy devices
@@ -328,7 +328,7 @@ Feature: nmcli - bridge
 
 
     @rhbz1548265
-    @ver+=1.11.90
+    @ver+=1.10.2
     @bridge
     @bridge_autoconnect_slaves_all_modified
     Scenario: nmcli - bridge - autoconnect-slaves connects also otherwise busy devices

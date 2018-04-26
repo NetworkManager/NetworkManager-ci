@@ -1,5 +1,5 @@
 #!/bin/bash
-set -x
+#set -x
 
 # Note: This entire setup is available from NetworkManager 1.0.4 up
 
