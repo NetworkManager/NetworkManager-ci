@@ -905,10 +905,8 @@ def after_scenario(context, scenario):
         if 'restore_hostname' in scenario.tags:
             print ("---------------------------")
             print ("restoring original hostname")
-            # os.system('systemctl unmask systemd-hostnamed.service')
-            # os.system('systemctl unmask dbus-org.freedesktop.hostname1.service')
-            #call('sudo echo %s > /etc/hostname' % context.original_hostname, shell=True)
-            #call('sudo nmcli g hostname %s' % context.original_hostname, shell=True)
+            os.system('systemctl unmask systemd-hostnamed.service')
+            os.system('systemctl unmask dbus-org.freedesktop.hostname1.service')
             call('hostnamectl set-hostname --transien ""', shell=True)
             call('hostnamectl set-hostname --static %s' % context.original_hostname, shell=True)
             call('rm -rf /etc/NetworkManager/conf.d/90-hostname.conf', shell=True)

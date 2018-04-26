@@ -450,6 +450,7 @@ Feature: nmcli - vlan
 
 
     @rhbz1553595
+    @ver+=1.10.2
     @vlan @bond @slaves @restart
     @vlan_on_bond_autoconnect
     Scenario: NM - vlan - autoconnect vlan on bond specified as UUID
@@ -461,5 +462,8 @@ Feature: nmcli - vlan
     * Modify connection "vlan_bond7" property "vlan.parent" to noted value
     * Execute "nmcli connection modify vlan_bond7 connection.autoconnect yes"
     * Reboot
+    Then "nm-bond:connected:bond0" is visible with command "nmcli -t -f DEVICE,STATE,CONNECTION device" in "10" seconds
+    Then "nm-bond.7:connected:vlan_bond7" is visible with command "nmcli -t -f DEVICE,STATE,CONNECTION device" in "10" seconds
+    * Restart NM
     Then "nm-bond:connected:bond0" is visible with command "nmcli -t -f DEVICE,STATE,CONNECTION device" in "10" seconds
     Then "nm-bond.7:connected:vlan_bond7" is visible with command "nmcli -t -f DEVICE,STATE,CONNECTION device" in "10" seconds
