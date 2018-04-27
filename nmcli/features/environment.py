@@ -1781,6 +1781,9 @@ def after_scenario(context, scenario):
                     call('[ -f /tmp/%s.pid ] && kill $(cat /tmp/%s.pid)' % (ns, ns) , shell=True)
                     call('ip netns del %s' % ns, shell=True)
                     call('ip link del %s' % ns.split('_')[0], shell=True)
+                    device=ns.split('_')[0]
+                    print (device)
+                    call('kill $(cat /var/run/dhclient-%s.pid)' % device, shell=True)
             call('rm -f /etc/udev/rules.d/88-lr.rules', shell=True)
             call('udevadm control --reload-rules', shell=True)
             call('udevadm settle', shell=True)
