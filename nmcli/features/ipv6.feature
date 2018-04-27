@@ -1276,23 +1276,32 @@
 
     @rhbz1274894
     @con_ipv6_remove @restart @selinux_allow_ifup @teardown_testveth
+    @ver+=1.9.2
     @persistent_ipv6_routes
     Scenario: NM - ipv6 - persistent ipv6 routes
     * Add a new connection of type "ethernet" and options "ifname testX6 con-name con_ipv6"
     * Wait for at least "3" seconds
     * Execute "systemctl stop NetworkManager"
+    * Execute "rm -rf /var/run/NetworkManager"
     * Prepare simulated test "testX6" device
     * Execute "sysctl net.ipv6.conf.testX6.accept_ra_defrtr=1"
     * Execute "sysctl net.ipv6.conf.testX6.accept_ra_pinfo=1"
     * Execute "ifup testX6"
     * Wait for at least "10" seconds
-    * Execute "ip r del 169.254.0.0/16"
-    When "default" is visible with command "ip -6 r |grep testX6" in "20" seconds
-    And "2620:dead:beaf::\/64" is visible with command "ip -6 r |grep testX6" in "10" seconds
+    When "fe80" is visible with command "ip -6 r |grep testX6" in "5" seconds
+    And "default" is visible with command "ip -6 r |grep testX6 |grep expire" in "20" seconds
+    And "2620:dead:beaf::\/64" is visible with command "ip -6 r"
     * Restart NM
-    * Execute "sleep 20"
-    Then "default via fe" is visible with command "ip -6 r |grep testX6" in "50" seconds
-    And "2620:dead:beaf::\/64" is visible with command "ip -6 r |grep testX6"
+    Then "testX6\s+ethernet\s+connected\s+con_ipv6" is visible with command "nmcli device" in "25" seconds
+    # VVV Original default route with expire should be gone
+    And "default via fe" is not visible with command "ip -6 r |grep testX6 |grep expire" in "20" seconds
+    # VVV But the new one present from NM with metric 1xx
+    Then "default via fe" is visible with command "ip -6 r |grep testX6 |grep 'metric 1'" in "20" seconds
+    # VVV Link-local address should be still present
+    And "fe80" is visible with command "ip -6 r |grep testX6" in "5" seconds
+    # VVV Route should be exchanged for NM one with metric 1xx
+    And "2620:dead:beaf::\/64 dev testX6\s+proto ra\s+metric 1" is visible with command "ip -6 r"
+    # We don't care about the rest
 
 
     @rhbz1394500
