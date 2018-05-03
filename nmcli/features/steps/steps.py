@@ -1958,7 +1958,7 @@ def write_dispatcher_file(context, path, params=None):
     f.close()
     command_code(context, 'chmod +x %s' % disp_file)
     command_code(context, "> /tmp/dispatcher.txt")
-    sleep(4)
+    sleep(8)
 
 @step(u'Wrong bond options message shown in editor')
 def wrong_bond_options_in_editor(context):
