@@ -235,9 +235,9 @@ Feature: nmcli: connection
     Scenario: nmcli - connection - set autoconnect on without autoconnecting
      * Add a new connection of type "ethernet" and options "con-name con_con2 ifname eth5 autoconnect no"
      When "con_con2" is visible with command "nmcli con"
-     * Execute "python tmp/repro_1401515.py"
-     Then Check if "con_con2" is not active connection
-      And "yes" is visible with command "nmcli connection show con_con2 |grep autoconnect:" in "5" seconds
+     * Execute "python tmp/repro_1401515.py" without waiting for process to finish
+     Then "yes" is visible with command "nmcli connection show con_con2 |grep autoconnect:" in "5" seconds
+      And Check if "con_con2" is not active connection
 
 
     @con_con_remove

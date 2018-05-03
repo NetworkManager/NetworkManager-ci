@@ -1,5 +1,6 @@
 import gi
 from gi.repository import NM
+gi.require_version('NM', '1.0')
 from time import sleep
 
 connection_name = 'con_con2'
@@ -26,3 +27,5 @@ con.update2(con2.to_dbus(NM.ConnectionSerializationFlags.ALL),
             None,
             None,
             None)
+
+sleep(5)
