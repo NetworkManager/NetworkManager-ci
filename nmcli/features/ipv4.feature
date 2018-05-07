@@ -606,6 +606,7 @@ Feature: nmcli: ipv4
 
 
     @ver+=1.4.0
+    @ver-=1.11.2
     @con_ipv4_remove @eth0
     @ipv4_routes_not_reachable
     Scenario: nmcli - ipv4 - routes - set unreachable route
@@ -620,6 +621,26 @@ Feature: nmcli: ipv4
     * Quit editor
     * Bring up connection "con_ipv4" ignoring error
     Then "\(disconnected\)" is visible with command "nmcli device show eth3" in "5" seconds
+
+
+    @ver+=1.11.3
+    @con_ipv4_remove @eth0
+    @ipv4_routes_not_reachable
+    Scenario: nmcli - ipv4 - routes - set unreachable route
+    # Since version 1.11.3 NM automatically adds a device route to the
+    # route gateway when it is not directly reachable
+    * Add connection type "ethernet" named "con_ipv4" for device "eth3"
+    * Open editor for connection "con_ipv4"
+    * Submit "set ipv4.method static" in editor
+    * Submit "set ipv4.addresses 192.168.122.2/24" in editor
+    * Submit "set ipv4.gateway 192.168.122.1" in editor
+    * Submit "set ipv4.routes 192.168.1.0/24 192.168.3.11 1" in editor
+    * Submit "set ipv6.method ignore" in editor
+    * Save in editor
+    * Quit editor
+    * Bring up connection "con_ipv4"
+    Then "\(connected\)" is visible with command "nmcli device show eth3"
+    Then "192.168.3.11\s+dev eth3\s+proto static" is visible with command "ip r"
 
 
     @con_ipv4_remove @eth0

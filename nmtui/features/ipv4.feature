@@ -403,6 +403,7 @@ Feature: IPv4 TUI tests
 
     @veth @ipv4
     @ver+=1.9.1
+    @ver-=1.11.2
     @nmtui_ipv4_routes_set_unreachable_route
     Scenario: nmtui - ipv4 - routes - set unreachable route
     * Prepare new connection of type "Ethernet" named "ethernet"
@@ -421,6 +422,30 @@ Feature: IPv4 TUI tests
     * Choose to "<Activate>" a connection
     When "eth1\s+ethernet\s+disconnected" is visible with command "nmcli device" in "5" seconds
     Then ".*Could not activate connection.*" is visible on screen
+
+
+    @veth @ipv4
+    @ver+=1.11.3
+    @nmtui_ipv4_routes_set_unreachable_route
+    Scenario: nmtui - ipv4 - routes - set unreachable route
+    # Since version 1.11.3 NM automatically adds a device route to the
+    # route gateway when it is not directly reachable
+    * Prepare new connection of type "Ethernet" named "ethernet"
+    * Set "Device" field to "eth1"
+    * Set "IPv4 CONFIGURATION" category to "Manual"
+    * Come in "IPv4 CONFIGURATION" category
+    * In "Addresses" property add "192.168.122.2/24"
+    * Set "Gateway" field to "192.168.122.1"
+    * Add ip route "192.168.1.0/24 192.168.3.11 1"
+    * Set "IPv6 CONFIGURATION" category to "Ignore"
+    * Ensure "Automatically connect" is not checked
+    * Confirm the connection settings
+    * Come back to main screen
+    * Choose to "Activate a connection" from main screen
+    * Select connection "ethernet" in the list
+    * Choose to "<Activate>" a connection
+    When "eth1\s+ethernet\s+connected" is visible with command "nmcli device" in "5" seconds
+    Then "192.168.3.11\s+dev eth1\s+proto static" is visible with command "ip r"
 
 
     @ipv4
