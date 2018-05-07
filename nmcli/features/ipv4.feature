@@ -1970,8 +1970,6 @@ Feature: nmcli: ipv4
     * Add a new connection of type "ethernet" and options "ifname eth3 con-name con_ipv4 ipv4.method manual ipv4.addresses 192.168.3.10/24 ipv4.gateway 192.168.3.254"
     * Execute "echo '10.200.200.2/31 via 172.16.0.254' > /etc/sysconfig/network-scripts/route-con_ipv4"
     * Reload connections
-    * Bring up connection "con_ipv4" ignoring error
-    When "(connected)" is not visible with command "nmcli device show eth3" in "15" seconds
     * Execute "nmcli connection modify con_ipv4 ipv4.routes '10.200.200.2/31 172.16.0.254 111 onlink=true'"
     * Bring "up" connection "con_ipv4"
     Then "default via 192.168.3.254 dev eth3 proto static metric 1" is visible with command "ip r"
