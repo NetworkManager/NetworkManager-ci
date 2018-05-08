@@ -606,6 +606,7 @@ Feature: nmcli: ipv4
 
 
     @ver+=1.4.0
+    @ver-=1.11.2
     @con_ipv4_remove @eth0
     @ipv4_routes_not_reachable
     Scenario: nmcli - ipv4 - routes - set unreachable route
@@ -620,6 +621,26 @@ Feature: nmcli: ipv4
     * Quit editor
     * Bring up connection "con_ipv4" ignoring error
     Then "\(disconnected\)" is visible with command "nmcli device show eth3" in "5" seconds
+
+
+    @ver+=1.11.3
+    @con_ipv4_remove @eth0
+    @ipv4_routes_not_reachable
+    Scenario: nmcli - ipv4 - routes - set unreachable route
+    # Since version 1.11.3 NM automatically adds a device route to the
+    # route gateway when it is not directly reachable
+    * Add connection type "ethernet" named "con_ipv4" for device "eth3"
+    * Open editor for connection "con_ipv4"
+    * Submit "set ipv4.method static" in editor
+    * Submit "set ipv4.addresses 192.168.122.2/24" in editor
+    * Submit "set ipv4.gateway 192.168.122.1" in editor
+    * Submit "set ipv4.routes 192.168.1.0/24 192.168.3.11 1" in editor
+    * Submit "set ipv6.method ignore" in editor
+    * Save in editor
+    * Quit editor
+    * Bring up connection "con_ipv4"
+    Then "\(connected\)" is visible with command "nmcli device show eth3"
+    Then "192.168.3.11\s+dev eth3\s+proto static" is visible with command "ip r"
 
 
     @con_ipv4_remove @eth0
@@ -1949,8 +1970,6 @@ Feature: nmcli: ipv4
     * Add a new connection of type "ethernet" and options "ifname eth3 con-name con_ipv4 ipv4.method manual ipv4.addresses 192.168.3.10/24 ipv4.gateway 192.168.3.254"
     * Execute "echo '10.200.200.2/31 via 172.16.0.254' > /etc/sysconfig/network-scripts/route-con_ipv4"
     * Reload connections
-    * Bring up connection "con_ipv4" ignoring error
-    When "(connected)" is not visible with command "nmcli device show eth3" in "15" seconds
     * Execute "nmcli connection modify con_ipv4 ipv4.routes '10.200.200.2/31 172.16.0.254 111 onlink=true'"
     * Bring "up" connection "con_ipv4"
     Then "default via 192.168.3.254 dev eth3 proto static metric 1" is visible with command "ip r"
