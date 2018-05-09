@@ -466,7 +466,7 @@ def before_scenario(context, scenario):
             call("printf '# configured by beaker-test\n[main]\ndns=systemd-resolved\n' > /etc/NetworkManager/conf.d/99-xtest-dns.conf", shell=True)
             call("pkill -HUP NetworkManager", shell=True)
             context.dns_script="sd-resolved.py"
-        
+
         if 'internal_DHCP' in scenario.tags:
             print ("---------------------------")
             print ("set internal DHCP")
@@ -526,14 +526,6 @@ def before_scenario(context, scenario):
                 call('sudo nmcli con del testeth1 testeth2', shell=True)
                 call('sudo nmcli con add type ethernet ifname eth1 con-name testeth1 autoconnect no', shell=True)
                 call('sudo nmcli con add type ethernet ifname eth2 con-name testeth2 autoconnect no', shell=True)
-
-        # if 'con_general_remove' in scenario.tags:
-        #     print ("---------------------------")
-        #     print ("sanitizing eth8 and eth9")
-        #     if call('nmcli con |grep testeth8', shell=True) == 0 or call('nmcli con |grep testeth9', shell=True) == 0:
-        #         call('sudo nmcli con del testeth8 testeth9', shell=True)
-        #         call('sudo nmcli con add type ethernet ifname eth8 con-name testeth8 autoconnect no', shell=True)
-        #         call('sudo nmcli con add type ethernet ifname eth9 con-name testeth9 autoconnect no', shell=True)
 
         if 'logging' in scenario.tags:
             context.loggin_level = check_output('nmcli -t -f LEVEL general logging', shell=True).strip()
@@ -989,6 +981,11 @@ def after_scenario(context, scenario):
             print ("---------------------------")
             print ("deleting connection con_ethernet")
             call("nmcli connection delete id con_ethernet", shell=True)
+
+        if 'con_dns_remove' in scenario.tags:
+            print ("---------------------------")
+            print ("deleting connection con_dns and con_dns2")
+            call("nmcli connection delete id con_dns con_dns2 ", shell=True)
 
         if 'alias' in scenario.tags:
             print ("---------------------------")
