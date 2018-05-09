@@ -1035,7 +1035,7 @@ Feature: nmcli - general
 
 
     @rhbz1086906
-    @veth @delete_testeth0 @newveth @con_general_remove @restart
+    @veth @delete_testeth0 @newveth @con_general_remove @teardown_testveth @restart
     @wait-online-for-both-ips
     Scenario: NM - general - wait-online - for both ipv4 and ipv6
     * Prepare simulated test "testG" device
@@ -1074,7 +1074,7 @@ Feature: nmcli - general
     * Execute "echo 'carrier-wait-timeout=20000' >> /etc/NetworkManager/conf.d/99-xxcustom.conf"
     * Execute "sleep 2"
     * Start NM
-    * Run child "echo FAIL > /tmp/nm-online.txt && /usr/bin/nm-online -s -q --timeout=35 && echo PASS > /tmp/nm-online.txt"
+    * Run child "echo FAIL > /tmp/nm-online.txt && /usr/bin/nm-online -s -q --timeout=30 && echo PASS > /tmp/nm-online.txt"
     When "FAIL" is visible with command "cat /tmp/nm-online.txt"
     * Execute "sleep 10"
     When "FAIL" is visible with command "cat /tmp/nm-online.txt"
