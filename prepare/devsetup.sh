@@ -98,7 +98,7 @@ local_setup_configure_nm_eth () {
     fi
 
     #installing pip, behave, and pexpect and other deps
-    yum -y install python-setuptools python*-pip
+    yum -y install python-setuptools python2-pip
     easy_install pip
     pip install --upgrade pip
     pip install pexpect
