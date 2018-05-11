@@ -17,6 +17,11 @@ echo $TESTS
 
 cd NetworkManager-ci
 
+if [ ! -f /usr/bin/python ] &&  [ -f /usr/bin/python2 ]; then
+    echo "create /usr/bin/python link to /usr/bin/python2"
+    ln -s /usr/bin/python2 /usr/bin/python
+fi
+
 # For all tests
 for T in $TESTS; do
     echo "RUNING $T"
