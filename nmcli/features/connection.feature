@@ -186,7 +186,7 @@ Feature: nmcli: connection
      * Submit "set connection.id after_rename" in editor
      * Save in editor
      * Quit editor
-     * Prompt is not running
+     #* Prompt is not running
      Then Open editor for connection "after_rename"
      * Quit editor
      * Delete connection "after_rename"
@@ -209,7 +209,7 @@ Feature: nmcli: connection
      * Submit "set connection.interface-name eth6" in editor
      * Save in editor
      * Quit editor
-     When Prompt is not running
+     #When Prompt is not running
      * Bring "up" connection "con_con"
      Then Check if "con_con" is active connection
 
@@ -371,7 +371,7 @@ Feature: nmcli: connection
      * Save in editor
      * Check if object item "connection.permissions:" has value "user:test" via print
      * Quit editor
-     * Prompt is not running
+     #* Prompt is not running
      * Bring "up" connection "con_con"
      * Open editor for connection "con_con"
     Then Check if object item "connection.permissions:" has value "user:test" via print

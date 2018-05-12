@@ -15,7 +15,7 @@
      * Enter in editor
      Then Value saved message showed in editor
      * Quit editor
-     When Prompt is not running
+     #When Prompt is not running
       And "nm-bond" is visible with command "ip a s nm-bond" in "10" seconds
      * Add slave connection for master "nm-bond" on device "eth1" named "bond0.0"
      * Bring "up" connection "bond0.0"
@@ -37,7 +37,7 @@
      * Submit "yes" in editor
      When Value saved message showed in editor
      * Quit editor
-     When Prompt is not running
+     #When Prompt is not running
      Then "bond0.0" is visible with command "nmcli con"
 
 
