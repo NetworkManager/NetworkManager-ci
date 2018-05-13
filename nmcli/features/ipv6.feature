@@ -1293,8 +1293,6 @@
     And "2620:dead:beaf::\/64" is visible with command "ip -6 r"
     * Restart NM
     Then "testX6\s+ethernet\s+connected\s+con_ipv6" is visible with command "nmcli device" in "25" seconds
-    # VVV Original default route with expire should be gone
-    And "default via fe" is not visible with command "ip -6 r |grep testX6 |grep expire" in "20" seconds
     # VVV But the new one present from NM with metric 1xx
     Then "default via fe" is visible with command "ip -6 r |grep testX6 |grep 'metric 1'" in "20" seconds
     # VVV Link-local address should be still present
