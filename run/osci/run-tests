@@ -24,6 +24,7 @@ function run_needed_workarounds ()
 
     # 2. Broken racoon in ipsec in F28
 
+    yum -y install ipsec-tools
     yum downgrade -y https://kojipkgs.fedoraproject.org//packages/ipsec-tools/0.8.2/10.fc28/x86_64/ipsec-tools-0.8.2-10.fc28.x86_64.rpm
 
     ###########################################
@@ -32,6 +33,10 @@ function run_needed_workarounds ()
 
 function run_tests ()
 {
+    if [ ! -d "$RESULTS_DIR" ]; then
+        mkdir -p /tmp/artifacts
+    fi
+    
     echo "PASS" > $RESULTS
 
     echo "WILL RUN:"
