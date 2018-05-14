@@ -36,7 +36,7 @@ function run_tests ()
     if [ ! -d "$RESULTS_DIR" ]; then
         mkdir -p /tmp/artifacts
     fi
-    
+
     echo "PASS" > $RESULTS
 
     echo "WILL RUN:"
@@ -77,7 +77,7 @@ function run_tests ()
 
 }
 
-function_report_results_and_exit ()
+function report_results_and_exit ()
 {
     rc=1
     # Write out tests failures
