@@ -230,7 +230,8 @@ def before_scenario(context, scenario):
 
         if 'rhel7_only' in scenario.tags:
             if call('rpm -qi NetworkManager |grep -q build.*bos.redhat.co', shell=True) != 0 or \
-            check_output("rpm --queryformat %{RELEASE} -q NetworkManager |awk -F .  '{ print ($1 < 200) }'", shell=True).strip() == '0':
+            check_output("rpm --queryformat %{RELEASE} -q NetworkManager |awk -F .  '{ print ($1 < 200) }'", shell=True).strip() == '0' or \
+            call("grep -q Maipo /etc/redhat-release", shell=True) != 0:
                 sys.exit(0)
 
         if 'not_in_rhel' in scenario.tags:
