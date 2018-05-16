@@ -787,7 +787,7 @@ Feature: nmcli: ipv4
     Then "nameserver 8.8.8.8" is visible with command "cat /etc/resolv.conf" in "20" seconds
      And "nameserver 8.8.8.8" is visible with command "cat /var/run/NetworkManager/resolv.conf"
      And "are identical" is not visible with command "diff -s /tmp/resolv.conf /tmp/resolv_orig.conf"
-     And "/etc/resolv.conf: symbolic link to `/tmp/resolv.conf" is visible with command "file /etc/resolv.conf"
+     And "/etc/resolv.conf -> /tmp/resolv.conf" is visible with command "ls -all /etc/resolv.conf"
 
 
     @rhbz+=1423490
@@ -808,7 +808,7 @@ Feature: nmcli: ipv4
     Then "nameserver 8.8.8.8" is visible with command "cat /var/run/NetworkManager/resolv.conf"
      And "nameserver 8.8.8.8" is not visible with command "cat /etc/resolv.conf"
      And "are identical" is visible with command "diff -s /tmp/resolv.conf /tmp/resolv_orig.conf"
-     And "/etc/resolv.conf: symbolic link to `/tmp/resolv.conf" is visible with command "file /etc/resolv.conf"
+     And "/etc/resolv.conf -> /tmp/resolv.conf" is visible with command "ls -all /etc/resolv.conf"
 
 
     @rhbz+=1423490
@@ -828,7 +828,7 @@ Feature: nmcli: ipv4
     Then "nameserver 8.8.8.8" is visible with command "cat /etc/resolv.conf" in "20" seconds
      And "nameserver 8.8.8.8" is visible with command "cat /var/run/NetworkManager/resolv.conf"
      And "are identical" is not visible with command "diff -s /tmp/resolv.conf /tmp/resolv_orig.conf"
-     And "/etc/resolv.conf: symbolic link to `/tmp/resolv.conf" is visible with command "file /etc/resolv.conf"
+     And "/etc/resolv.conf -> /tmp/resolv.conf" is visible with command "ls -all /etc/resolv.conf"
 
 
     @con_ipv4_remove @eth0
