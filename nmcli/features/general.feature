@@ -538,8 +538,9 @@ Feature: nmcli - general
     * Wait for at least "2" seconds
     * Bring up connection "con_general"
     When "100" is visible with command "nmcli  -t -f GENERAL.STATE device show testG"
+    When "connected:con_general:testG" is visible with command "nmcli -t -f STATE,CONNECTION,DEVICE device" in "10" seconds
     * Restart NM
-    Then "con_general" is visible with command "nmcli device" in "10" seconds
+    Then "connected:con_general:testG" is visible with command "nmcli -t -f STATE,CONNECTION,DEVICE device" in "10" seconds
      And "con_general2" is not visible with command "nmcli device"
 
 
