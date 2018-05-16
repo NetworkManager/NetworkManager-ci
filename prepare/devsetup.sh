@@ -98,14 +98,14 @@ local_setup_configure_nm_eth () {
     fi
 
     #installing pip, behave, and pexpect and other deps
-    yum -y install python-setuptools python2-pip
+    yum -y install python-setuptools python2-pip --skip-broken
     easy_install pip
     pip install --upgrade pip
     pip install pexpect
     pip install pyroute2
-    yum -y install https://kojipkgs.fedoraproject.org//packages/python-behave/1.2.5/18.el7/noarch/python2-behave-1.2.5-18.el7.noarch.rpm https://kojipkgs.fedoraproject.org//packages/python-parse/1.6.4/4.el7/noarch/python-parse-1.6.4-4.el7.noarch.rpm https://kojipkgs.fedoraproject.org//packages/python-parse_type/0.3.4/6.el7/noarch/python-parse_type-0.3.4-6.el7.noarch.rpm
-    yum -y install git python-netaddr iw net-tools wireshark teamd bash-completion radvd psmisc bridge-utils firewalld dhcp ethtool dbus-python pygobject3 pygobject2 dnsmasq
-    yum -y remove NetworkManager-config-connectivity-fedora
+    yum -y install https://kojipkgs.fedoraproject.org//packages/python-behave/1.2.5/18.el7/noarch/python2-behave-1.2.5-18.el7.noarch.rpm https://kojipkgs.fedoraproject.org//packages/python-parse/1.6.4/4.el7/noarch/python-parse-1.6.4-4.el7.noarch.rpm https://kojipkgs.fedoraproject.org//packages/python-parse_type/0.3.4/6.el7/noarch/python-parse_type-0.3.4-6.el7.noarch.rpm --skip-broken
+    yum -y install git python-netaddr iw net-tools wireshark teamd bash-completion radvd psmisc bridge-utils firewalld dhcp ethtool dbus-python pygobject3 pygobject2 dnsmasq --skip-broken
+    yum -y remove NetworkManager-config-connectivity-fedora --skip-broken
 
     dcb_inf_wol_sriov=0
     if [[ $1 == *sriov_* ]]; then
