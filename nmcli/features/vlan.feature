@@ -268,7 +268,7 @@ Feature: nmcli - vlan
     * Add a new connection of type "vlan" and options "con-name eth7.80 dev eth7 id 80"
     * "eth7.80:" is visible with command "ifconfig"
     * Spawn "ping -I eth7.80 8.8.8.8" command
-    Then "ID: 80" is visible with command "tshark -i eth7 -T fields -e vlan"
+    Then "ID: 80" is visible with command "tshark -i eth7 -T fields -e vlan" in "150" seconds
     Then Terminate spawned process "ping -I eth7.80 8.8.8.8"
 
 

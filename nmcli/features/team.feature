@@ -812,6 +812,7 @@
     * Add connection type "team" named "team0" for device "nm-team"
     When "public\s+interfaces: eth0 nm-team" is visible with command "firewall-cmd --get-active-zones"
     * Execute "nmcli connection modify team0 connection.zone work"
+    * Bring "up" connection "team0"
     When "work\s+interfaces: nm-team" is visible with command "firewall-cmd --get-active-zones"
 
 

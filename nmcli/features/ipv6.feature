@@ -466,7 +466,7 @@
     Scenario: NM - ipv6 - limited router solicitation
      * Add connection type "ethernet" named "con_ipv6" for device "eth2"
      * Bring "up" connection "con_ipv6"
-     * Finish "sudo tshark -i eth2 -Y frame.len==62 -V -x -a duration:120 > /tmp/solicitation.txt"
+     * Finish "sudo tshark -i eth2 -Y frame.len==62 -V -x -a duration:180 > /tmp/solicitation.txt"
     Then Check solicitation for "eth2" in "/tmp/solicitation.txt"
 
 
@@ -768,7 +768,7 @@
     Scenario: nmcli - ipv6 - dhcp-hostname - set dhcp-hostname
     * Add a new connection of type "ethernet" and options "ifname eth2 con-name con_ipv6 autoconnect no"
     * Run child "sudo tshark -i eth2 -f 'port 546' -V -x > /tmp/ipv6-hostname.log"
-    * Finish "sleep 5"
+    * Finish "sleep 150"
     * Open editor for connection "con_ipv6"
     * Submit "set ipv6.may-fail true" in editor
     * Submit "set ipv6.method dhcp" in editor
@@ -795,7 +795,7 @@
     * Bring "down" connection "con_ipv6"
     * Finish "sleep 2"
     * Run child "sudo tshark -i eth2 -f 'port 546' -V -x > /tmp/tshark.log"
-    * Wait for at least "10" seconds
+    * Wait for at least "150" seconds
     * Open editor for connection "con_ipv6"
     * Submit "set ipv6.dhcp-hostname" in editor
     * Enter in editor
@@ -813,7 +813,7 @@
     * Add a new connection of type "ethernet" and options "ifname eth2 con-name con_ipv6 autoconnect no"
     * Execute "hostnamectl set-hostname dacan.local"
     * Run child "sudo tshark -i eth2 -f 'port 546' -V -x > /tmp/ipv6-hostname.log"
-    * Finish "sleep 5"
+    * Finish "sleep 150"
     * Open editor for connection "con_ipv6"
     * Submit "set ipv6.method dhcp" in editor
     * Save in editor
@@ -1225,7 +1225,7 @@
     * Execute "sysctl net.ipv6.conf.testX6.accept_ra_defrtr=1"
     * Execute "sysctl net.ipv6.conf.testX6.accept_ra_pinfo=1"
     * Execute "ifup testX6"
-    * Wait for at least "10" seconds
+    * Wait for at least "150" seconds
     * Execute "ip r del 169.254.0.0/16"
     When "default" is visible with command "ip -6 r |grep testX6" in "20" seconds
     And "default" is visible with command "ip -6 r |grep testX6 |grep expire" in "5" seconds
@@ -1245,12 +1245,12 @@
     * Execute "sysctl net.ipv6.conf.testX6.accept_ra_defrtr=1"
     * Execute "sysctl net.ipv6.conf.testX6.accept_ra_pinfo=1"
     * Execute "ifup testX6"
-    * Wait for at least "10" seconds
+    * Wait for at least "150" seconds
     * Execute "ip r del 169.254.0.0/16"
     When "default" is visible with command "ip -6 r |grep testX6" in "20" seconds
     And "default" is visible with command "ip -6 r |grep testX6 |grep expire" in "5" seconds
     * Restart NM
-    * Wait for at least "10" seconds
+    * Wait for at least "150" seconds
     Then "default via fe" is visible with command "ip -6 r |grep testX6 |grep 'metric 1024'" in "50" seconds
     And "default via fe" is not visible with command "ip -6 r |grep testX6 |grep expire" in "5" seconds
 
@@ -1287,7 +1287,7 @@
     * Execute "sysctl net.ipv6.conf.testX6.accept_ra_defrtr=1"
     * Execute "sysctl net.ipv6.conf.testX6.accept_ra_pinfo=1"
     * Execute "ifup testX6"
-    * Wait for at least "10" seconds
+    * Wait for at least "150" seconds
     When "fe80" is visible with command "ip -6 r |grep testX6" in "5" seconds
     And "default" is visible with command "ip -6 r |grep testX6 |grep expire" in "20" seconds
     And "2620:dead:beaf::\/64" is visible with command "ip -6 r"
