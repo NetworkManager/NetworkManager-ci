@@ -198,6 +198,8 @@ function setup_veth_env ()
     # Let's get rid of that
     for i in $(nmcli -t -f NAME,UUID connection |grep -v testeth |awk -F ':' ' {print $2}'); do nmcli con del $i; done
 
+    touch /tmp/nm_newveth_configured
+
     # Log state of net after the setup
     # ip a
     # nmcli con
@@ -376,6 +378,7 @@ function teardown_veth_env ()
     # Restart and bring back ORIGDEV up
     systemctl restart NetworkManager; sleep 2
 
+    rm -rf /tmp/nm_newveth_configured
     # Log state of net after the teardown
     ip a
     nmcli con
