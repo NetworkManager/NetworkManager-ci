@@ -648,6 +648,8 @@ def before_scenario(context, scenario):
             setup_racoon (mode="main", dh_group=5)
 
         if 'macsec' in scenario.tags:
+            call("grep -q Oopta /etc/redhat-release", shell=True) != 0:
+                sys.exit(0)
             print("---------------------------")
             print("installing macsec stuff")
             install = "yum install -y https://vbenes.fedorapeople.org/NM/dnsmasq-debuginfo-2.76-2.el7.$(uname -p).rpm \
