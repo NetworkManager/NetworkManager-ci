@@ -768,6 +768,7 @@ def before_scenario(context, scenario):
             # This -x is to avoid upgrade of NetworkManager in older version testing
             call("yum -y install NetworkManager-ppp -x NetworkManager", shell=True)
             call('yum -y install rp-pppoe', shell=True)
+            call('[ -x //usr/sbin/pppoe-server ] || yum -y install https://kojipkgs.fedoraproject.org//packages/rp-pppoe/3.12/11.fc28/$(uname -p)/rp-pppoe-3.12-11.fc28.$(uname -p).rpm', shell=True)
             call("mknod /dev/ppp c 108 0", shell=True)
             reload_NM_service()
 
