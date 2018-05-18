@@ -18,6 +18,11 @@ component:
           - x86_64
   test-run: nmcli/./runtest.sh $testname
 
+dependencies:
+  beaker-tasks:
+    - /distribution/command:
+        CMDS_TO_RUN: echo "NA"
+        
 beaker-hardware:
   - x86_64:
       group: desktopqe-nm
