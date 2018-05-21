@@ -648,7 +648,7 @@ def before_scenario(context, scenario):
             setup_racoon (mode="main", dh_group=5)
 
         if 'macsec' in scenario.tags:
-            call("grep -q Oopta /etc/redhat-release", shell=True) != 0:
+            if call("grep -q Oopta /etc/redhat-release", shell=True) != 0:
                 sys.exit(0)
             print("---------------------------")
             print("installing macsec stuff")
