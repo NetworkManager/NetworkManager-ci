@@ -958,7 +958,7 @@ Feature: nmcli: ipv4
     * Save in editor
     * Quit editor
     * Run child "sudo tshark -l -O bootp -i eth2 > /tmp/tshark.log"
-    * Wait for at least "150" seconds
+    When "empty" is not visible with command "file /tmp/tshark.log" in "150" seconds
     * Bring "up" connection "con_ipv4"
     * Finish "sleep 5; sudo pkill tshark"
     Then "RHA" is visible with command "cat /tmp/tshark.log"
@@ -978,7 +978,7 @@ Feature: nmcli: ipv4
     * Save in editor
     * Quit editor
     * Run child "sudo tshark -l -O bootp -i eth2 > /tmp/tshark.log"
-    * Wait for at least "150" seconds
+    When "empty" is not visible with command "file /tmp/tshark.log" in "150" seconds
     * Bring "up" connection "con_ipv4"
     * Finish "sleep 5; sudo pkill tshark"
     Then "R.C" is visible with command "cat /tmp/tshark.log"
@@ -1001,7 +1001,7 @@ Feature: nmcli: ipv4
     * Save in editor
     * Quit editor
     * Run child "sudo tshark -l -O bootp -i eth2 > /tmp/tshark.log"
-    * Wait for at least "150" seconds
+    When "empty" is not visible with command "file /tmp/tshark.log" in "150" seconds
     * Bring "up" connection "con_ipv4"
     * Finish "sleep 5; sudo pkill tshark"
    Then "RHB" is not visible with command "cat /tmp/tshark.log"
@@ -1019,7 +1019,7 @@ Feature: nmcli: ipv4
     * Save in editor
     * Quit editor
     * Run child "sudo tshark -l -O bootp -i eth2 > /tmp/tshark.log"
-    * Wait for at least "150" seconds
+    When "empty" is not visible with command "file /tmp/tshark.log" in "150" seconds
     * Bring "up" connection "con_ipv4"
     * Finish "sleep 5; sudo pkill tshark"
     Then "foo.bar.com" is visible with command "grep fqdn /var/lib/NetworkManager/dhclient-eth2.conf"
@@ -1042,7 +1042,7 @@ Feature: nmcli: ipv4
     * Save in editor
     * Quit editor
     * Run child "sudo tshark -l -O bootp -i eth2 > /tmp/tshark.log"
-    * Wait for at least "150" seconds
+    When "empty" is not visible with command "file /tmp/tshark.log" in "150" seconds
     * Bring "up" connection "con_ipv4"
     * Finish "sleep 5; sudo pkill tshark"
     Then "foo.bar.com" is visible with command "grep fqdn /var/lib/NetworkManager/dhclient-eth2.conf"
@@ -1067,7 +1067,7 @@ Feature: nmcli: ipv4
     * Save in editor
     * Quit editor
     * Run child "sudo tshark -l -O bootp -i eth2 > /tmp/tshark.log"
-    * Wait for at least "150" seconds
+    When "empty" is not visible with command "file /tmp/tshark.log" in "150" seconds
     * Bring "up" connection "con_ipv4"
     * Finish "sleep 5; sudo pkill tshark"
      Then "foo.bar.com" is not visible with command "grep fqdn /var/lib/NetworkManager/dhclient-eth2.conf"
@@ -1087,7 +1087,7 @@ Feature: nmcli: ipv4
     * Save in editor
     * Quit editor
     * Run child "sudo tshark -l -O bootp -i eth2 > /tmp/hostname.log"
-    * Wait for at least "150" seconds
+    When "empty" is not visible with command "file /tmp/hostname.log" in "150" seconds
     * Bring "up" connection "con_ipv4"
     * Finish "sleep 5; sudo pkill tshark"
     Then "RHC" is not visible with command "cat /tmp/hostname.log"
@@ -1105,7 +1105,7 @@ Feature: nmcli: ipv4
     * Save in editor
     * Quit editor
     * Run child "sudo tshark -l -O bootp -i eth2 > /tmp/tshark.log"
-    * Wait for at least "150" seconds
+    When "empty" is not visible with command "file /tmp/tshark.log" in "150" seconds
     * Bring "up" connection "con_ipv4"
     * Finish "sleep 5; sudo pkill tshark"
     Then Hostname is visible in log "/tmp/tshark.log"
@@ -1123,7 +1123,7 @@ Feature: nmcli: ipv4
     * Save in editor
     * Quit editor
     * Run child "sudo tshark -l -O bootp -i eth2 > /tmp/real.log"
-    * Wait for at least "150" seconds
+    When "empty" is not visible with command "file /tmp/real.log" in "150" seconds
     * Bring "up" connection "con_ipv4"
     * Finish "sleep 5; sudo pkill tshark"
     Then Hostname is not visible in log "/tmp/real.log"
@@ -1191,7 +1191,7 @@ Feature: nmcli: ipv4
     * Save in editor
     * Quit editor
     * Run child "sudo tshark -l -O bootp -i eth2 -x > /tmp/tshark.log"
-    * Wait for at least "150" seconds
+    When "empty" is not visible with command "file /tmp/tshark.log" in "150" seconds
     * Bring "up" connection "con_ipv4"
     * Finish "sleep 5; sudo pkill tshark"
     Then "AB" is visible with command "cat /tmp/tshark.log"
@@ -1264,7 +1264,7 @@ Feature: nmcli: ipv4
     * Save in editor
     * Quit editor
     * Run child "sudo tshark -l -O bootp -i eth2 -x > /tmp/tshark.log"
-    * Wait for at least "150" seconds
+    When "empty" is not visible with command "file /tmp/tshark.log" in "150" seconds
     * Bring "up" connection "con_ipv4"
     * Execute "sleep 5; sudo pkill tshark"
     Then "BC" is not visible with command "cat /tmp/tshark.log"
