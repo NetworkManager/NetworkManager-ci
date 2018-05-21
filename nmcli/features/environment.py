@@ -1317,7 +1317,7 @@ def after_scenario(context, scenario):
         if 'tshark' in scenario.tags:
             print ("---------------------------")
             print ("kill tshark and delet dhclinet-eth10")
-            call("pkill -9 tshark", shell=True)
+            call("pkill tshark", shell=True)
             call("rm -rf /etc/dhcp/dhclient-eth*.conf", shell=True)
 
         if 'tcpdump' in scenario.tags:
