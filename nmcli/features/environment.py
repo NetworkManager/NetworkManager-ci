@@ -648,6 +648,8 @@ def before_scenario(context, scenario):
             setup_racoon (mode="main", dh_group=5)
 
         if 'macsec' in scenario.tags:
+            if call("grep -q Oopta /etc/redhat-release", shell=True) != 0:
+                sys.exit(0)
             print("---------------------------")
             print("installing macsec stuff")
             install = "yum install -y https://vbenes.fedorapeople.org/NM/dnsmasq-debuginfo-2.76-2.el7.$(uname -p).rpm \
@@ -768,6 +770,7 @@ def before_scenario(context, scenario):
             # This -x is to avoid upgrade of NetworkManager in older version testing
             call("yum -y install NetworkManager-ppp -x NetworkManager", shell=True)
             call('yum -y install rp-pppoe', shell=True)
+            call('[ -x //usr/sbin/pppoe-server ] || yum -y install https://kojipkgs.fedoraproject.org//packages/rp-pppoe/3.12/11.fc28/$(uname -p)/rp-pppoe-3.12-11.fc28.$(uname -p).rpm', shell=True)
             call("mknod /dev/ppp c 108 0", shell=True)
             reload_NM_service()
 
@@ -1314,7 +1317,7 @@ def after_scenario(context, scenario):
         if 'tshark' in scenario.tags:
             print ("---------------------------")
             print ("kill tshark and delet dhclinet-eth10")
-            call("pkill -9 tshark", shell=True)
+            call("pkill tshark", shell=True)
             call("rm -rf /etc/dhcp/dhclient-eth*.conf", shell=True)
 
         if 'tcpdump' in scenario.tags:
