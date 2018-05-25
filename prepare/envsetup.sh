@@ -103,7 +103,8 @@ local_setup_configure_nm_eth () {
         pip install --upgrade pip
         pip install pexpect
         pip install pyroute2
-        yum -y install git python-netaddr iw net-tools wireshark teamd bash-completion radvd psmisc bridge-utils firewalld dhcp ethtool dbus-python pygobject3 pygobject2 dnsmasq --skip-broken
+        yum -y install git python-netaddr iw net-tools wireshark teamd bash-completion radvd psmisc bridge-utils firewalld dhcp ethtool dbus-python pygobject3 pygobject2 dnsmasq tcpdump --skip-broken
+        yum -y remove python2-six python-six
         yum install -y https://kojipkgs.fedoraproject.org//packages/python-six/1.9.0/2.fc23/noarch/python-six-1.9.0-2.fc23.noarch.rpm https://kojipkgs.fedoraproject.org//packages/python-behave/1.2.5/18.el7/noarch/python2-behave-1.2.5-18.el7.noarch.rpm
         yum -y remove NetworkManager-config-connectivity-fedora --skip-broken
         yum -y install http://download.eng.bos.redhat.com/brewroot/packages/openvswitch/2.9.0/3.el8+7/$(uname -p)/openvswitch-2.9.0-3.el8+7.$(uname -p).rpm
@@ -115,7 +116,7 @@ local_setup_configure_nm_eth () {
         pip install pexpect
         pip install pyroute2
         yum -y install https://kojipkgs.fedoraproject.org//packages/python-behave/1.2.5/18.el7/noarch/python2-behave-1.2.5-18.el7.noarch.rpm https://kojipkgs.fedoraproject.org//packages/python-parse/1.6.4/4.el7/noarch/python-parse-1.6.4-4.el7.noarch.rpm https://kojipkgs.fedoraproject.org//packages/python-parse_type/0.3.4/6.el7/noarch/python-parse_type-0.3.4-6.el7.noarch.rpm --skip-broken
-        yum -y install git python-netaddr iw net-tools wireshark teamd bash-completion radvd psmisc bridge-utils firewalld dhcp ethtool dbus-python pygobject3 pygobject2 dnsmasq --skip-broken
+        yum -y install git python-netaddr iw net-tools wireshark teamd bash-completion radvd psmisc bridge-utils tcpdump firewalld dhcp ethtool dbus-python pygobject3 pygobject2 dnsmasq --skip-broken
         yum -y remove NetworkManager-config-connectivity-fedora --skip-broken
         yum -y install http://download.eng.bos.redhat.com/brewroot/packages/openvswitch/2.0.0/7.el7/$(uname -p)/openvswitch-2.0.0-7.el7.$(uname -p).rpm http://download.eng.bos.redhat.com/brewroot/packages/glib2/2.54.2/2.el7/$(uname -p)/glib2-2.54.2-2.el7.$(uname -p).rpm http://download.eng.bos.redhat.com/brewroot/packages/glib2/2.54.2/2.el7/$(uname -p)/glib2-devel-2.54.2-2.el7.$(uname -p).rpm  http://download.eng.bos.redhat.com/brewroot/packages/python-setuptools/22.0.5/1.el7.1/noarch/python-setuptools-22.0.5-1.el7.1.noarch.rpm
 
