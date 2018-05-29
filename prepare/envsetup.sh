@@ -109,6 +109,13 @@ local_setup_configure_nm_eth () {
         yum -y remove NetworkManager-config-connectivity-fedora --skip-broken
         yum -y install http://download.eng.bos.redhat.com/brewroot/packages/openvswitch/2.9.0/3.el8+7/$(uname -p)/openvswitch-2.9.0-3.el8+7.$(uname -p).rpm
         yum -y install http://download.eng.bos.redhat.com/brewroot/packages/$(rpm -q --queryformat '%{NAME}/%{VERSION}/%{RELEASE}' NetworkManager)/$(uname -p)/NetworkManager-ovs-$(rpm -q --queryformat '%{VERSION}-%{RELEASE}' NetworkManager).$(uname -p).rpm  http://download.eng.bos.redhat.com/brewroot/packages/openvswitch/2.9.0/3.el8+7/$(uname -p)/openvswitch-2.9.0-3.el8+7.$(uname -p).rpm
+        if ! rpm -q --quiet NetworkManager-pptp; then
+            yum -y install http://download.eng.bos.redhat.com/brewroot/packages/NetworkManager-pptp/1.2.4/4.el8+5/$(uname -p)/NetworkManager-pptp-1.2.4-4.el8+5.$(uname -p).rpm
+        fi
+        if ! rpm -q --quiet NetworkManager-pptp; then
+            yum -y install http://download.eng.bos.redhat.com/brewroot/packages/NetworkManager-vpnc/1.2.4/4.el8+5/$(uname -p)/NetworkManager-vpnc-1.2.4-4.el8+5.$(uname -p).rpm
+        fi
+
     else
         yum -y install python-setuptools python2-pip --skip-broken
         easy_install pip
