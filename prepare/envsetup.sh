@@ -13,7 +13,7 @@ local_setup_configure_nm_eth () {
     echo "networkmanager" | passwd test --stdin
 
     #adding ntp and syncing time
-    yum -y install dnsmasq ntp tcpdump NetworkManager-libreswan wireshark bridge-utils
+    yum -y install dnsmasq ntp tcpdump NetworkManager-libreswan wireshark bridge-utils --skip-broken
 
     service ntpd restart
 
