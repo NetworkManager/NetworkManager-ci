@@ -553,6 +553,10 @@ def before_scenario(context, scenario):
             setup_hostapd()
 
         if 'simwifi_wpa2' in scenario.tags:
+            if call("grep -q Ootpa /etc/redhat-release", shell=True) != 0:
+                print ("---------------------------")
+                print ("Skipping in Ootpa")
+                sys.exit(0)
             print ("---------------------------")
             arch = check_output("uname -p", shell=True).strip()
             if arch != "x86_64":
@@ -648,7 +652,7 @@ def before_scenario(context, scenario):
             setup_racoon (mode="main", dh_group=5)
 
         if 'macsec' in scenario.tags:
-            if call("grep -q Oopta /etc/redhat-release", shell=True) != 0:
+            if call("grep -q Ootpa /etc/redhat-release", shell=True) != 0:
                 sys.exit(0)
             print("---------------------------")
             print("installing macsec stuff")
