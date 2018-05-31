@@ -13,7 +13,7 @@ local_setup_configure_nm_eth () {
     echo "networkmanager" | passwd test --stdin
 
     #adding ntp and syncing time
-    yum -y install dnsmasq ntp tcpdump NetworkManager-libreswan wireshark bridge-utils
+    yum -y install dnsmasq ntp tcpdump NetworkManager-libreswan wireshark bridge-utils --skip-broken
 
     service ntpd restart
 
@@ -77,7 +77,38 @@ local_setup_configure_nm_eth () {
         [ -f /etc/yum.repos.d/epel.repo ] || sudo rpm -i http://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm
     fi
 
-    #installing deps if missing
+    #installing pip, behave, and pexpect and other deps
+    if grep -q Ootpa /etc/redhat-release; then
+        yum -y install python2-pip
+        pip install --upgrade pip
+        pip install pexpect
+        pip install pyroute2
+        yum -y install git python-netaddr iw net-tools wireshark teamd bash-completion radvd psmisc bridge-utils firewalld dhcp ethtool dbus-python pygobject3 pygobject2 dnsmasq tcpdump --skip-broken
+        yum -y remove python2-six python-six
+        yum install -y https://kojipkgs.fedoraproject.org//packages/python-six/1.9.0/2.fc23/noarch/python-six-1.9.0-2.fc23.noarch.rpm https://kojipkgs.fedoraproject.org//packages/python-behave/1.2.5/18.el7/noarch/python2-behave-1.2.5-18.el7.noarch.rpm
+        yum -y remove NetworkManager-config-connectivity-fedora --skip-broken
+        yum -y install http://download.eng.bos.redhat.com/brewroot/packages/openvswitch/2.9.0/3.el8+7/$(uname -p)/openvswitch-2.9.0-3.el8+7.$(uname -p).rpm
+        yum -y install http://download.eng.bos.redhat.com/brewroot/packages/$(rpm -q --queryformat '%{NAME}/%{VERSION}/%{RELEASE}' NetworkManager)/$(uname -p)/NetworkManager-ovs-$(rpm -q --queryformat '%{VERSION}-%{RELEASE}' NetworkManager).$(uname -p).rpm  http://download.eng.bos.redhat.com/brewroot/packages/openvswitch/2.9.0/3.el8+7/$(uname -p)/openvswitch-2.9.0-3.el8+7.$(uname -p).rpm
+        if ! rpm -q --quiet NetworkManager-pptp; then
+            yum -y install http://download.eng.bos.redhat.com/brewroot/packages/NetworkManager-pptp/1.2.4/4.el8+5/$(uname -p)/NetworkManager-pptp-1.2.4-4.el8+5.$(uname -p).rpm https://kojipkgs.fedoraproject.org//packages/pptpd/1.4.0/18.fc28/$(uname -p)/pptpd-1.4.0-18.fc28.$(uname -p).rpm http://download.eng.bos.redhat.com/brewroot/packages/pptp/1.10.0/3.el8+7/$(uname -p)/pptp-1.10.0-3.el8+7.$(uname -p).rpm
+        fi
+        if ! rpm -q --quiet NetworkManager-vpnc; then
+            yum -y install http://download.eng.bos.redhat.com/brewroot/packages/NetworkManager-vpnc/1.2.4/4.el8+5/$(uname -p)/NetworkManager-vpnc-1.2.4-4.el8+5.$(uname -p).rpm http://download.eng.bos.redhat.com/brewroot/packages/vpnc/0.5.3/30.svn550.el8+5/$(uname -p)/vpnc-0.5.3-30.svn550.el8+5.$(uname -p).rpm
+        fi
+
+    else
+        yum -y install python-setuptools python2-pip --skip-broken
+        easy_install pip
+        pip install --upgrade pip
+        pip install pexpect
+        pip install pyroute2
+        yum -y install https://kojipkgs.fedoraproject.org//packages/python-behave/1.2.5/18.el7/noarch/python2-behave-1.2.5-18.el7.noarch.rpm https://kojipkgs.fedoraproject.org//packages/python-parse/1.6.4/4.el7/noarch/python-parse-1.6.4-4.el7.noarch.rpm https://kojipkgs.fedoraproject.org//packages/python-parse_type/0.3.4/6.el7/noarch/python-parse_type-0.3.4-6.el7.noarch.rpm --skip-broken
+        yum -y install git python-netaddr iw net-tools wireshark teamd bash-completion radvd psmisc bridge-utils tcpdump firewalld dhcp ethtool dbus-python pygobject3 pygobject2 dnsmasq --skip-broken
+        yum -y remove NetworkManager-config-connectivity-fedora --skip-broken
+        yum -y install http://download.eng.bos.redhat.com/brewroot/packages/openvswitch/2.0.0/7.el7/$(uname -p)/openvswitch-2.0.0-7.el7.$(uname -p).rpm http://download.eng.bos.redhat.com/brewroot/packages/glib2/2.54.2/2.el7/$(uname -p)/glib2-2.54.2-2.el7.$(uname -p).rpm http://download.eng.bos.redhat.com/brewroot/packages/glib2/2.54.2/2.el7/$(uname -p)/glib2-devel-2.54.2-2.el7.$(uname -p).rpm  http://download.eng.bos.redhat.com/brewroot/packages/python-setuptools/22.0.5/1.el7.1/noarch/python-setuptools-22.0.5-1.el7.1.noarch.rpm
+    fi
+
+    #installing plugins if missing
     if ! rpm -q --quiet NetworkManager-wifi; then
         yum -y install NetworkManager-wifi
     fi
@@ -97,29 +128,6 @@ local_setup_configure_nm_eth () {
         yum -y install NetworkManager-openvpn
     fi
 
-    #installing pip, behave, and pexpect and other deps
-    if grep -q Ootpa /etc/redhat-release; then
-        yum -y install python2-pip
-        pip install --upgrade pip
-        pip install pexpect
-        pip install pyroute2
-        yum -y install git python-netaddr iw net-tools wireshark teamd bash-completion radvd psmisc bridge-utils firewalld dhcp ethtool dbus-python pygobject3 pygobject2 dnsmasq python2-behave --skip-broken
-        yum -y remove NetworkManager-config-connectivity-fedora --skip-broken
-        yum -y install http://download.eng.bos.redhat.com/brewroot/packages/openvswitch/2.9.0/3.el8+7/$(uname -p)/openvswitch-2.9.0-3.el8+7.$(uname -p).rpm
-        yum -y install http://download.eng.bos.redhat.com/brewroot/packages/$(rpm -q --queryformat '%{NAME}/%{VERSION}/%{RELEASE}' NetworkManager)/$(uname -p)/NetworkManager-ovs-$(rpm -q --queryformat '%{VERSION}-%{RELEASE}' NetworkManager).$(uname -p).rpm  http://download.eng.bos.redhat.com/brewroot/packages/openvswitch/2.9.0/3.el8+7/$(uname -p)/openvswitch-2.9.0-3.el8+7.$(uname -p).rpm
-        
-    else
-        yum -y install python-setuptools python2-pip --skip-broken
-        easy_install pip
-        pip install --upgrade pip
-        pip install pexpect
-        pip install pyroute2
-        yum -y install https://kojipkgs.fedoraproject.org//packages/python-behave/1.2.5/18.el7/noarch/python2-behave-1.2.5-18.el7.noarch.rpm https://kojipkgs.fedoraproject.org//packages/python-parse/1.6.4/4.el7/noarch/python-parse-1.6.4-4.el7.noarch.rpm https://kojipkgs.fedoraproject.org//packages/python-parse_type/0.3.4/6.el7/noarch/python-parse_type-0.3.4-6.el7.noarch.rpm --skip-broken
-        yum -y install git python-netaddr iw net-tools wireshark teamd bash-completion radvd psmisc bridge-utils firewalld dhcp ethtool dbus-python pygobject3 pygobject2 dnsmasq --skip-broken
-        yum -y remove NetworkManager-config-connectivity-fedora --skip-broken
-        yum -y install http://download.eng.bos.redhat.com/brewroot/packages/openvswitch/2.0.0/7.el7/$(uname -p)/openvswitch-2.0.0-7.el7.$(uname -p).rpm http://download.eng.bos.redhat.com/brewroot/packages/glib2/2.54.2/2.el7/$(uname -p)/glib2-2.54.2-2.el7.$(uname -p).rpm http://download.eng.bos.redhat.com/brewroot/packages/glib2/2.54.2/2.el7/$(uname -p)/glib2-devel-2.54.2-2.el7.$(uname -p).rpm  http://download.eng.bos.redhat.com/brewroot/packages/python-setuptools/22.0.5/1.el7.1/noarch/python-setuptools-22.0.5-1.el7.1.noarch.rpm
-
-    fi
 
     dcb_inf_wol_sriov=0
     if [[ $1 == *sriov_* ]]; then
