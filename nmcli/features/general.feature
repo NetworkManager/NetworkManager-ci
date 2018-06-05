@@ -1545,7 +1545,7 @@ Feature: nmcli - general
     * Add a new connection of type "macsec" and options "con-name test-macsec ifname macsec0 autoconnect no macsec.parent macsec_veth macsec.mode psk macsec.mka-cak 00112233445566778899001122334455 macsec.mka-ckn 5544332211009988776655443322110055443322110099887766554433221100"
     * Bring up connection "test-macsec-base"
     * Bring up connection "test-macsec"
-    Then Ping "172.16.10.1"
+    Then Ping "172.16.10.1" "10" times
 
 
     @rhbz1443114
