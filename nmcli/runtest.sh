@@ -27,7 +27,7 @@ TAG="$(python $DIR/version_control.py $DIR/nmcli $NMTEST)"; vc=$?
 if [ $vc -eq 1 ]; then
     logger "Skipping due to incorrect NM version for this test"
     rstrnt-report-result $NMTEST "SKIP"
-    exit 77
+    exit 0
 
 elif [ $vc -eq 0 ]; then
     if [ x$TAG != x"" ]; then
@@ -44,6 +44,7 @@ if [ $rc -eq 0 ]; then
 fi
 if [ $rc -eq 77 ]; then
     RESULT="SKIP"
+    rc=0
 fi
 
 rstrnt-report-result -o "/tmp/report_$NMTEST.html" $NMTEST $RESULT

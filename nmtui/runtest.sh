@@ -39,7 +39,7 @@ if [ $vc -eq 1 ]; then
     logger "Skipping due to incorrect NM version for this test"
     # exit 0 doesn't affect overal result
     rstrnt-report-result $NMTEST "SKIP"
-    exit 77
+    exit 0
 
 elif [ $vc -eq 0 ]; then
     if [ x$TAG != x"" ]; then
@@ -56,6 +56,7 @@ if [ $rc -eq 0 ]; then
 fi
 if [ $rc -eq 77 ]; then
     RESULT="SKIP"
+    rc=0
 fi
 
 # only way to have screen snapshots for each step present in the individual logs
