@@ -26,8 +26,8 @@ fi
 TAG="$(python $DIR/version_control.py $DIR/nmcli $NMTEST)"; vc=$?
 if [ $vc -eq 1 ]; then
     logger "Skipping due to incorrect NM version for this test"
-    # exit 0 doesn't affect overal result
-    exit 0
+    rstrnt-report-result $NMTEST "SKIP"
+    exit 77
 
 elif [ $vc -eq 0 ]; then
     if [ x$TAG != x"" ]; then
@@ -42,9 +42,11 @@ RESULT="FAIL"
 if [ $rc -eq 0 ]; then
     RESULT="PASS"
 fi
+if [ $rc -eq 77 ]; then
+    RESULT="SKIP"
+fi
 
-rhts-report-result $NMTEST $RESULT "/tmp/report_$NMTEST.html"
-#rhts-submit-log -T $TEST -l "/tmp/log_$TEST.html"
+rstrnt-report-result -o "/tmp/report_$NMTEST.html" $NMTEST $RESULT
 
 logger -t $0 "Test $1 finished with result $RESULT: $rc"
 

@@ -207,7 +207,7 @@ def before_scenario(context, scenario):
             print ("---------------------------")
             print ("skipping long test case if /tmp/nm_skip_long exists")
             if os.path.isfile('/tmp/nm_skip_long'):
-                sys.exit(0)
+                sys.exit(77)
 
         if 'eth0' in scenario.tags or 'delete_testeth0' in scenario.tags \
                                     or 'connect_testeth0' in scenario.tags \
@@ -217,7 +217,7 @@ def before_scenario(context, scenario):
             print ("---------------------------")
             print ("skipping service restart tests if /tmp/nm_skip_restarts exists")
             if os.path.isfile('/tmp/nm_skip_restarts') or os.path.isfile('/tmp/nm_skip_STR'):
-                sys.exit(0)
+                sys.exit(77)
 
         if '1000' in scenario.tags:
             print ("---------------------------")
@@ -232,29 +232,29 @@ def before_scenario(context, scenario):
             if call('rpm -qi NetworkManager |grep -q build.*bos.redhat.co', shell=True) != 0 or \
             check_output("rpm --queryformat %{RELEASE} -q NetworkManager |awk -F .  '{ print ($1 < 200) }'", shell=True).strip() == '0' or \
             call("grep -q Maipo /etc/redhat-release", shell=True) != 0:
-                sys.exit(0)
+                sys.exit(77)
 
         if 'not_in_rhel' in scenario.tags:
             if call('rpm -qi NetworkManager |grep -q build.*bos.redhat.com', shell=True) == 0 or \
             check_output("rpm --queryformat %{RELEASE} -q NetworkManager |awk -F .  '{ print ($1 < 200) }'", shell=True).strip() == '1':
-                sys.exit(0)
+                sys.exit(77)
 
         if 'not_on_s390x' in scenario.tags:
             arch = check_output("uname -p", shell=True).strip()
             if arch == "s390x":
-                sys.exit(0)
+                sys.exit(77)
 
         if 'not_on_aarch64' in scenario.tags:
             arch = check_output("uname -p", shell=True).strip()
             if arch == "aarch64":
-                sys.exit(0)
+                sys.exit(77)
 
         if 'not_on_aarch64_but_pegas' in scenario.tags:
             arch = check_output("uname -p", shell=True).strip()
             ver = check_output("uname -r", shell=True).strip()
             if arch == "aarch64":
                 if "4.5" in ver:
-                    sys.exit(0)
+                    sys.exit(77)
 
         if 'gsm' in scenario.tags:
             import time
@@ -353,7 +353,7 @@ def before_scenario(context, scenario):
         if 'need_s390x' in scenario.tags:
             arch = check_output("uname -p", shell=True).strip()
             if arch != "s390x":
-                sys.exit(0)
+                sys.exit(77)
 
         if 'allow_veth_connections' in scenario.tags:
             if call("grep '^ENV{ID_NET_DRIVER}==\"veth\", ENV{NM_UNMANAGED}=\"1\"' /usr/lib/udev/rules.d/85-nm-unmanaged.rules", shell=True) == 0:
@@ -370,11 +370,11 @@ def before_scenario(context, scenario):
 
         if 'not_under_internal_DHCP' in scenario.tags:
             if call("grep dhcp=internal /etc/NetworkManager/NetworkManager.conf", shell=True) == 0:
-                sys.exit(0)
+                sys.exit(77)
 
         if 'newveth' in scenario.tags or 'not_on_veth' in scenario.tags:
             if os.path.isfile('/tmp/nm_newveth_configured'):
-                sys.exit(0)
+                sys.exit(77)
 
         if 'disp' in scenario.tags:
             print ("---------------------------")
@@ -549,25 +549,25 @@ def before_scenario(context, scenario):
             print ("---------------------------")
             arch = check_output("uname -p", shell=True).strip()
             if arch == "s390x" or arch == 'aarch64':
-                sys.exit(0)
+                sys.exit(77)
             setup_hostapd()
 
         if 'simwifi_wpa2' in scenario.tags:
             if call("grep -q Ootpa /etc/redhat-release", shell=True) == 0:
                 print ("---------------------------")
                 print ("Skipping in Ootpa")
-                sys.exit(0)
+                sys.exit(77)
             print ("---------------------------")
             arch = check_output("uname -p", shell=True).strip()
             if arch != "x86_64":
-                sys.exit(0)
+                sys.exit(77)
             setup_hostapd_wireless('wpa2')
 
         if 'vpnc' in scenario.tags:
             print ("---------------------------")
             arch = check_output("uname -p", shell=True).strip()
             if arch == "s390x" or arch == 'aarch64':
-                sys.exit(0)
+                sys.exit(77)
             call("[ -f /etc/yum.repos.d/epel.repo ] || sudo rpm -i http://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm", shell=True)
             call("rpm -q NetworkManager-vpnc || ( sudo yum -y install NetworkManager-vpnc && systemctl restart NetworkManager )", shell=True)
             setup_racoon (mode="aggressive", dh_group=2)
@@ -577,7 +577,7 @@ def before_scenario(context, scenario):
             print ("install tcpreplay")
             arch = check_output("uname -p", shell=True).strip()
             if arch == "s390x" or arch == 'aarch64':
-                sys.exit(0)
+                sys.exit(77)
             wait_for_testeth0()
             call("[ -f /etc/yum.repos.d/epel.repo ] || sudo rpm -i http://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm", shell=True)
             call("[ -x /usr/bin/tcpreplay ] || yum -y install tcpreplay", shell=True)
@@ -587,7 +587,7 @@ def before_scenario(context, scenario):
             print ("setting up OpenVPN")
             arch = check_output("uname -p", shell=True).strip()
             if arch == "s390x" or arch == 'aarch64':
-                sys.exit(0)
+                sys.exit(77)
             wait_for_testeth0()
             call("[ -f /etc/yum.repos.d/epel.repo ] || sudo rpm -i http://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm", shell=True)
             call("[ -x /usr/sbin/openvpn ] || sudo yum -y install openvpn NetworkManager-openvpn", shell=True)
@@ -655,7 +655,7 @@ def before_scenario(context, scenario):
             if call("grep -q Ootpa /etc/redhat-release", shell=True) == 0:
                 print ("---------------------------")
                 print ("Skipping in Ootpa")
-                sys.exit(0)
+                sys.exit(77)
             print("---------------------------")
             print("installing macsec stuff")
             install = "yum install -y https://vbenes.fedorapeople.org/NM/dnsmasq-debuginfo-2.76-2.el7.$(uname -p).rpm \
@@ -675,7 +675,7 @@ def before_scenario(context, scenario):
             print ("setting up pptpd")
             arch = check_output("uname -p", shell=True).strip()
             if arch == "s390x" or arch == 'aarch64':
-                sys.exit(0)
+                sys.exit(77)
             wait_for_testeth0()
             call("[ -f /etc/yum.repos.d/epel.repo ] || sudo rpm -i http://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm", shell=True)
             call("[ -x /usr/sbin/pptpd ] || sudo yum -y install /usr/sbin/pptpd", shell=True)
@@ -727,7 +727,7 @@ def before_scenario(context, scenario):
             print ("run just on x86_64")
             arch = check_output("uname -p", shell=True).strip()
             if arch != "x86_64":
-                sys.exit(0)
+                sys.exit(77)
             print ("---------------------------")
             print ("remove all team packages except NM one and reinstall them with delayed version")
             call("for i in $(rpm -qa |grep team|grep -v Netw); do rpm -e $i --nodeps; done", shell=True)
@@ -849,17 +849,17 @@ def after_step(context, step):
        step.name == 'Flag "NM_802_11_DEVICE_CAP_ADHOC" is set in WirelessCapabilites') and \
        step.status == 'failed' and step.step_type == 'given':
         print("Omitting the test as device does not AP/ADHOC mode")
-        sys.exit(0)
+        sys.exit(77)
     # for nmcli_wifi_right_band_80211a - HW dependent 'passes'
     if step.name == 'Flag "NM_802_11_DEVICE_CAP_FREQ_5GHZ" is set in WirelessCapabilites' and \
        step.status == 'failed' and step.step_type == 'given':
         print("Omitting the test as device does not support 802.11a")
-        sys.exit(0)
+        sys.exit(77)
     # for testcase_306559
     if step.name == 'Flag "NM_802_11_DEVICE_CAP_FREQ_5GHZ" is not set in WirelessCapabilites' and \
        step.status == 'failed' and step.step_type == 'given':
         print("Omitting test as device supports 802.11a")
-        sys.exit(0)
+        sys.exit(77)
 
 
 def after_scenario(context, scenario):
