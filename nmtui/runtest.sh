@@ -38,7 +38,8 @@ TAG="$(python $DIR/version_control.py $DIR/nmtui $NMTEST)"; vc=$?
 if [ $vc -eq 1 ]; then
     logger "Skipping due to incorrect NM version for this test"
     # exit 0 doesn't affect overal result
-    exit 0
+    rstrnt-report-result $NMTEST "SKIP"
+    exit 77
 
 elif [ $vc -eq 0 ]; then
     if [ x$TAG != x"" ]; then
@@ -53,6 +54,9 @@ RESULT="FAIL"
 if [ $rc -eq 0 ]; then
     RESULT="PASS"
 fi
+if [ $rc -eq 77 ]; then
+    RESULT="SKIP"
+fi
 
 # only way to have screen snapshots for each step present in the individual logs
 # the tui-screen log is created via environment.py
@@ -62,7 +66,7 @@ cat /tmp/tui-screen.log >> /tmp/report_$NMTEST.log
 echo "--------- /tmp/report_$NMTEST.log ---------"
 cat /tmp/report_$NMTEST.log
 
-rhts-report-result $NMTEST $RESULT "/tmp/report_$NMTEST.log"
+rstrnt-report-result -o "/tmp/report_$NMTEST.log" $NMTEST $RESULT
 
 logger -t $0 "Test $1 finished with result $RESULT: $rc"
 
