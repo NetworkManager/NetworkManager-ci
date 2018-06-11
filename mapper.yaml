@@ -22,7 +22,7 @@ dependencies:
   beaker-tasks:
     - /distribution/command:
         CMDS_TO_RUN: echo "NA"
-        
+
 beaker-hardware:
   - x86_64:
       group: desktopqe-nm
@@ -270,6 +270,8 @@ testmapper:
     - bridge_delete_connection_with_device:
         feature: bridge
     - bridge_delete_connection_without_device:
+        feature: bridge
+    - bridge_ipv6:
         feature: bridge
     - add_default_team:
         feature: team
