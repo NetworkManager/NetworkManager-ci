@@ -13,6 +13,7 @@ bridge_add_custom_one
 bridge_dhcp_config_with_multiple_ethernet_ports
 bridge_remove_slave
 bridge_delete_connection_with_device
+bridge_ipv6
 connection_down
 connection_permission_to_user
 connection_zone_drop_to_public
