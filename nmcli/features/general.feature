@@ -406,6 +406,7 @@ Feature: nmcli - general
     * Submit "set ipv6.addresses 2000::2/126" in editor
     * Submit "set ipv6.routes 1010::1/128 2000::1 1" in editor
     * Save in editor
+    * Quit editor
     * Execute "nmcli device reapply testG"
     Then "1010::1 via 2000::1 dev testG\s+proto static\s+metric 1" is visible with command "ip -6 route" in "5" seconds
      And "2000::/126 dev testG\s+proto kernel\s+metric 1" is visible with command "ip -6 route"
@@ -428,6 +429,7 @@ Feature: nmcli - general
     * Submit "set ipv6.addresses 2000::2/126" in editor
     * Submit "set ipv6.routes 1010::1/128 2000::1 1" in editor
     * Save in editor
+    * Quit editor
     * Execute "nmcli device reapply testG"
     Then "1010::1 via 2000::1 dev testG\s+proto static\s+metric 1" is visible with command "ip -6 route" in "5" seconds
      And "2000::/126 dev testG\s+proto kernel\s+metric 1" is visible with command "ip -6 route"
@@ -1258,8 +1260,8 @@ Feature: nmcli - general
      And "eth0: connected" is visible with command "cat /tmp/monitor.txt"
 
 
-    @rhbz998000
-    @ver+=1.4.0
+    @rhbz998000 @rhbz1591631
+    @ver+=1.10.2
     @con_general_remove @disp
     @device_reapply
     Scenario: nmcli - device -reapply
@@ -1268,8 +1270,10 @@ Feature: nmcli - general
     * Write dispatcher "99-disp" file
     * Execute "ip addr a 1.2.3.4/24 dev eth8"
     * Execute "nmcli c modify con_general +ipv4.address 1.2.3.4/24"
+    * Execute "nmcli c modify con_general connection.autoconnect no"
     * Execute "nmcli device reapply eth8"
     When "up" is not visible with command "cat /tmp/dispatcher.txt"
+    And "con_general" is visible with command "nmcli con show -a"
     * Execute "ip addr a 1.2.3.4/24 dev eth8"
     * Execute "nmcli c modify con_general -ipv4.address 1.2.3.4/24"
     * Execute "nmcli device reapply eth8"
