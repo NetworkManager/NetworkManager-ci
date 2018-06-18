@@ -431,10 +431,10 @@ def restore_hostname(context):
 @step(u'"{pattern}" is visible with command "{command}"')
 def check_pattern_visible_with_command(context, pattern, command):
     cmd = '/bin/bash -c "%s"' %command
-    proc = pexpect.spawn(cmd, maxread=100000, logfile=context.log)
+    proc = pexpect.spawn(cmd, maxread=100000)
     if proc.expect([pattern, pexpect.EOF]) != 0:
         sleep(1)
-        proc = pexpect.spawn(cmd, maxread=100000, logfile=context.log)
+        proc = pexpect.spawn(cmd, maxread=100000)
         res = proc.expect([pattern, pexpect.EOF])
         if res != 0:
             dump_command_output(command)
