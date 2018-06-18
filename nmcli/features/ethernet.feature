@@ -195,6 +195,7 @@ Feature: nmcli - ethernet
 
     @rhbz1353612
     @ver+=1.7.1
+    @ver-=1.11.3
     @ethernet
     @ethernet_duplex_speed_auto_negotiation
     Scenario: nmcli - ethernet - duplex speed and auto-negotiation
@@ -206,7 +207,18 @@ Feature: nmcli - ethernet
     * Execute "nmcli connection modify ethernet 802-3-ethernet.auto-negotiate no"
     Then "ETHTOOL_OPTS" is not visible with command "cat /etc/sysconfig/network-scripts/ifcfg-ethernet"
 
-
+    @rhbz1487477
+    @ver+=1.11.4
+    @ethernet
+    @ethernet_duplex_speed_auto_negotiation
+    Scenario: nmcli - ethernet - duplex speed and auto-negotiation
+    * Add a new connection of type "ethernet" and options "ifname eth1 con-name ethernet"
+    * Execute "nmcli connection modify ethernet 802-3-ethernet.duplex full 802-3-ethernet.speed 10"
+    When "ETHTOOL_OPTS="autoneg off speed 10 duplex full"" is visible with command "cat /etc/sysconfig/network-scripts/ifcfg-ethernet"
+    * Execute "nmcli connection modify ethernet 802-3-ethernet.auto-negotiate yes"
+    When "ETHTOOL_OPTS="autoneg on speed 10 duplex full"" is visible with command "cat /etc/sysconfig/network-scripts/ifcfg-ethernet"
+    * Execute "nmcli connection modify ethernet 802-3-ethernet.auto-negotiate no 802-3-ethernet.speed 0"
+    Then "ETHTOOL_OPTS" is not visible with command "cat /etc/sysconfig/network-scripts/ifcfg-ethernet"
 
     @ethernet
     @ethernet_set_mtu
