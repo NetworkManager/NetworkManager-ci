@@ -824,6 +824,9 @@ def before_scenario(context, scenario):
         except CalledProcessError, e:
             context.nm_pid = None
 
+        context.nm_restarted = False
+        context.crashed_step = False
+
         print("NetworkManager process id before: %s" % context.nm_pid)
 
         if context.nm_pid is not None:
@@ -864,6 +867,11 @@ def after_step(context, step):
         print("Omitting test as device supports 802.11a")
         sys.exit(77)
 
+    if not context.nm_restarted and not context.crashed_step:
+        new_pid = nm_pid()
+        if new_pid != context.nm_pid:
+            print ('NM Crashed as new PID %s is not old PID %s' %(new_pid, context.nm_pid))
+            context.crashed_step = step.name
 
 def after_scenario(context, scenario):
     """
@@ -872,6 +880,11 @@ def after_scenario(context, scenario):
     try:
         nm_pid_after = nm_pid()
         print("NetworkManager process id after: %s (was %s)" % (nm_pid_after, context.nm_pid))
+        # if getattr(context, 'nm_restarted', False) or \
+        #     'restart' in scenario.tags or \
+        #     nm_pid_after != context.nm_pid:
+        #
+
     except Exception as e:
         print("nm_pid wasn't set. Probably crash in before_scenario: %s" % e.message)
         pass
@@ -1848,20 +1861,13 @@ def after_scenario(context, scenario):
         context.log.close ()
         context.embed('text/plain', open("/tmp/log_%s.html" % scenario.name, 'r').read())
 
-        if getattr(context, 'nm_restarted', True) or \
-               'restart' in scenario.tags:
-               pass
-        else:
-            if nm_pid_after is None or nm_pid_after != context.nm_pid:
-                sys.exit(1)
 
-        #
-        # assert nm_pid_after is not None or \
-        #        'restart' in scenario.tags
-        # assert context.nm_pid is not None
-        # assert getattr(context, 'nm_restarted', False) or \
-        #        'restart' in scenario.tags or \
-        #        nm_pid_after == context.nm_pid
+        if context.crashed_step:
+            print ("\n\n!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
+            print ("!! NM CRASHED. NEEDS INSPECTION. FAILING THE TEST                      !!")
+            print ("!! CRASHING STEP: %s" %(context.crashed_step))
+            print ("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n\n")
+            sys.exit(1)
 
     except Exception as e:
         print("Error in after_scenario: %s" % e.message)
