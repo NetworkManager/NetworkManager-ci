@@ -1143,11 +1143,11 @@ def add_novice_connection(context):
 @step(u'"{pattern}" is visible with command "{command}"')
 def check_pattern_visible_with_command(context, pattern, command):
     cmd = '/bin/bash -c "%s"' %command
-    ifconfig = pexpect.spawn(cmd, maxread=100000, logfile=context.log)
-    if ifconfig.expect([pattern, pexpect.EOF]) != 0:
+    proc = pexpect.spawn(cmd, maxread=100000, logfile=context.log)
+    if proc.expect([pattern, pexpect.EOF]) != 0:
         sleep(1)
-        ifconfig = pexpect.spawn(cmd, maxread=100000, logfile=context.log)
-        assert ifconfig.expect([pattern, pexpect.EOF]) == 0, 'pattern %s is not visible with %s' % (pattern, command)
+        proc = pexpect.spawn(cmd, maxread=100000, logfile=context.log)
+        assert proc.expect([pattern, pexpect.EOF]) == 0, 'pattern %s is not visible with %s' % (pattern, command)
     else:
         return True
 
@@ -1157,8 +1157,8 @@ def check_pattern_visible_with_command_in_time(context, pattern, command, second
     seconds = int(seconds)
     orig_seconds = seconds
     while seconds > 0:
-        ifconfig = pexpect.spawn(cmd, timeout = 180, logfile=context.log)
-        if ifconfig.expect([pattern, pexpect.EOF]) == 0:
+        proc = pexpect.spawn(cmd, timeout = 180, logfile=context.log)
+        if proc.expect([pattern, pexpect.EOF]) == 0:
             return True
         seconds = seconds - 1
         sleep(1)
@@ -1171,8 +1171,8 @@ def check_pattern_visible_with_command_fortime(context, pattern, command, second
     seconds = int(seconds)
     orig_seconds = seconds
     while seconds > 0:
-        ifconfig = pexpect.spawn(cmd, timeout = 180, logfile=context.log)
-        if ifconfig.expect([pattern, pexpect.EOF]) == 0:
+        proc = pexpect.spawn(cmd, timeout = 180, logfile=context.log)
+        if proc.expect([pattern, pexpect.EOF]) == 0:
             pass
         else:
             raise Exception('Pattern %s disappeared after %d seconds' % (pattern, orig_seconds-seconds))
@@ -1186,8 +1186,8 @@ def check_pattern_visible_with_command_fortime(context, pattern, command, second
     seconds = int(seconds)
     orig_seconds = seconds
     while seconds > 0:
-        ifconfig = pexpect.spawn(cmd, timeout = 180, logfile=context.log)
-        if ifconfig.expect([pattern, pexpect.EOF]) != 0:
+        proc = pexpect.spawn(cmd, timeout = 180, logfile=context.log)
+        if proc.expect([pattern, pexpect.EOF]) != 0:
             pass
         else:
             raise Exception('Pattern %s appeared in %d seconds' % (pattern, orig_seconds-seconds))
@@ -1201,8 +1201,8 @@ def check_pattern_not_visible_with_command_in_time(context, pattern, command, se
     seconds = int(seconds)
     orig_seconds = seconds
     while seconds > 0:
-        ifconfig = pexpect.spawn(cmd, timeout = 180, logfile=context.log)
-        if ifconfig.expect([pattern, pexpect.EOF]) != 0:
+        proc = pexpect.spawn(cmd, timeout = 180, logfile=context.log)
+        if proc.expect([pattern, pexpect.EOF]) != 0:
             return True
         seconds = seconds - 1
         sleep(1)
@@ -1212,11 +1212,11 @@ def check_pattern_not_visible_with_command_in_time(context, pattern, command, se
 @step(u'"{pattern}" is not visible with command "{command}"')
 def check_pattern_not_visible_with_command(context, pattern, command):
     cmd = '/bin/bash -c "%s"' %command
-    ifconfig = pexpect.spawn(cmd, maxread=100000, logfile=context.log)
-    if ifconfig.expect([pattern, pexpect.EOF]) == 0:
+    proc = pexpect.spawn(cmd, maxread=100000, logfile=context.log)
+    if proc.expect([pattern, pexpect.EOF]) == 0:
         sleep(1)
-        ifconfig = pexpect.spawn(cmd, maxread=100000, logfile=context.log)
-        assert ifconfig.expect([pattern, pexpect.EOF]) != 0, 'pattern %s is visible with %s' % (pattern, command)
+        proc = pexpect.spawn(cmd, maxread=100000, logfile=context.log)
+        assert proc.expect([pattern, pexpect.EOF]) != 0, 'pattern %s is visible with %s' % (pattern, command)
     else:
         return True
 

@@ -430,10 +430,17 @@ def restore_hostname(context):
 
 @step(u'"{pattern}" is visible with command "{command}"')
 def check_pattern_visible_with_command(context, pattern, command):
-    cmd = pexpect.spawn(command, timeout = 180)
-    if cmd.expect([pattern, pexpect.EOF]) != 0:
-        dump_command_output(command)
-        raise Exception('Did not see the pattern %s' % (pattern))
+    cmd = '/bin/bash -c "%s"' %command
+    proc = pexpect.spawn(cmd, maxread=100000)
+    if proc.expect([pattern, pexpect.EOF]) != 0:
+        sleep(1)
+        proc = pexpect.spawn(cmd, maxread=100000)
+        res = proc.expect([pattern, pexpect.EOF])
+        if res != 0:
+            dump_command_output(command)
+            raise Exception('Did not see the pattern %s' % (pattern))
+    else:
+        return True
 
 
 @step(u'"{pattern}" is visible with command "{command}" in "{seconds}" seconds')
@@ -451,10 +458,16 @@ def check_pattern_visible_with_command_in_time(context, pattern, command, second
 
 @step(u'"{pattern}" is not visible with command "{command}"')
 def check_pattern_not_visible_with_command(context, pattern, command):
-    cmd = pexpect.spawn(command, timeout = 180)
-    if cmd.expect([pattern, pexpect.EOF]) == 0:
-        dump_command_output(command)
-        raise Exception('pattern %s still visible with %s' % (pattern, command))
+    proc = pexpect.spawn(command, maxread=100000)
+    if proc.expect([pattern, pexpect.EOF]) == 0:
+        sleep(1)
+        proc = pexpect.spawn(command, maxread=100000)
+        res = proc.expect([pattern, pexpect.EOF])
+        if res == 0:
+            dump_command_output(command)
+            raise Exception('pattern %s still visible with %s' % (pattern, command))
+    else:
+        return True
 
 
 @step(u'Check ifcfg-name file created for connection "{con_name}"')
