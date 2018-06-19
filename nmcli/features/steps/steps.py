@@ -1618,6 +1618,10 @@ def restart_NM(context):
     # For stability reasons 1 is not enough, please do not lower this
     sleep(2)
 
+@step(u'Kill NM')
+def stop_NM(context):
+    context.nm_restarted = True
+    call("kill $(pidof NetworkManager) && sleep 5", shell=True)
 
 @step(u'Stop NM')
 def stop_NM(context):

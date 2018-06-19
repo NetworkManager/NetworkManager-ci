@@ -797,7 +797,7 @@ Feature: nmcli: ipv4
     Scenario: nmcli - ipv4 - dns - symlink
     * Bring "down" connection "testeth0"
     * Execute "echo -e '[main]\nrc-manager=symlink' > /etc/NetworkManager/conf.d/99-resolv.conf"
-    * Execute "systemctl restart NetworkManager"
+    * Restart NM
     When "activated" is visible with command "nmcli -g GENERAL.STATE con show testeth0" in "20" seconds
     * Execute "cp /etc/resolv.conf /tmp/resolv_orig.conf"
     * Execute "mv -f /etc/resolv.conf /tmp/resolv.conf"
@@ -818,7 +818,7 @@ Feature: nmcli: ipv4
     Scenario: nmcli - ipv4 - dns - file
     * Bring "down" connection "testeth0"
     * Execute "echo -e '[main]\nrc-manager=file' > /etc/NetworkManager/conf.d/99-resolv.conf"
-    * Execute "systemctl restart NetworkManager"
+    * Restart NM
     When "activated" is visible with command "nmcli -g GENERAL.STATE con show testeth0" in "20" seconds
     * Execute "cp /etc/resolv.conf /tmp/resolv_orig.conf"
     * Execute "mv -f /etc/resolv.conf /tmp/resolv.conf"
@@ -1548,11 +1548,11 @@ Feature: nmcli: ipv4
     * Execute "ip netns exec testX4_ns kill -SIGSTOP $(cat /tmp/testX4_ns.pid)"
     * Execute "ip netns exec testY4_ns kill -SIGSTOP $(cat /tmp/testY4_ns.pid)"
     ## STOP NM
-    * Execute "systemctl stop NetworkManager"
+    * Stop NM
     # REMOVE con_ipv4 ifcfg file
     * Execute "sudo rm -rf /etc/sysconfig/network-scripts/ifcfg-con_ipv4"
     ## RESTART NM AGAIN
-    * Execute "systemctl start NetworkManager"
+    * Start NM
 
     ################# PREPARE testZ4 AND testA4 ################################
     ## testA4 and con_ipv42 for renewal_gw_after_long_dhcp_outage

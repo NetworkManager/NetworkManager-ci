@@ -1860,7 +1860,7 @@ def after_scenario(context, scenario):
 
         context.log.close ()
         context.embed('text/plain', open("/tmp/log_%s.html" % scenario.name, 'r').read())
-
+        sleep(3)
 
         if context.crashed_step:
             print ("\n\n!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
@@ -1876,5 +1876,3 @@ def after_scenario(context, scenario):
 
 def after_all(context):
     pass
-    #call('sudo kill $(ps aux|grep -v grep| grep /usr/bin/beah-beaker-backend |awk \'{print $2}\')', shell=True)
-    #Popen('beah-beaker-backend -H $(hostname) &', shell=True)

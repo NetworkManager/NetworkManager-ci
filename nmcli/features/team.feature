@@ -791,8 +791,8 @@
       And "inet6 fe80" is visible with command "ip -6 a s nm-team"
       And "inet6 2620" is visible with command "ip -6 a s nm-team" in "25" seconds
       And "tentative" is not visible with command "ip -6 a s nm-team" in "5" seconds
-     * Execute "killall NetworkManager && sleep 5"
-     * Execute "systemctl restart NetworkManager"
+     * Kill NM
+     * Restart NM
      When "state UP" is visible with command "ip -6 a s nm-team"
       And "inet6 fe80" is visible with command "ip -6 a s nm-team" for full "10" seconds
       And "inet6 2620" is visible with command "ip -6 a s nm-team"

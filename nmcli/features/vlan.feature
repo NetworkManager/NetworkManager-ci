@@ -30,7 +30,7 @@ Feature: nmcli - vlan
     @restart @vlan
     @nmcli_vlan_restart_persistence
     Scenario: nmcli - vlan - restart persistence
-    * Execute "systemctl stop NetworkManager"
+    * Stop NM
     * Append "NAME=eth7.99" to ifcfg file "eth7.99"
     * Append "ONBOOT=yes" to ifcfg file "eth7.99"
     * Append "BOOTPROTO=none" to ifcfg file "eth7.99"
@@ -327,10 +327,10 @@ Feature: nmcli - vlan
     # Check all is up
     * "connected:vlan_bond7.7" is visible with command "nmcli -t -f STATE,CONNECTION device" in "5" seconds
     # Delete bridge and bond outside NM, leaving the vlan device (with its mac set)
-    * Finish "systemctl stop NetworkManager.service"
+    * Stop NM
     * Finish "ip link del bond7"
     * Finish "ip link del bridge7"
-    * Finish "systemctl start NetworkManager.service"
+    * Start NM
     # Check the configuration has been restored in full after by NM again
     Then "connected:vlan_bridge7" is visible with command "nmcli -t -f STATE,CONNECTION device" in "30" seconds
     Then "connected:vlan_vlan7" is visible with command "nmcli -t -f STATE,CONNECTION device"
