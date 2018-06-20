@@ -1164,7 +1164,8 @@ Feature: nmcli - general
     * "connected:con_general" is visible with command "nmcli -t -f STATE,CONNECTION device" in "50" seconds
     * "connected:con_general2" is visible with command "nmcli -t -f STATE,CONNECTION device" in "50" seconds
     # Finish asserts the command exited with 0, thus the network service completed properly
-    Then Finish "systemctl restart NetworkManager.service && sleep 3 && systemctl restart network.service"
+    * Restart NM
+    Then Finish "sleep 3 && systemctl restart network.service"
 
 
     @rhbz1079353

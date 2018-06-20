@@ -1115,7 +1115,7 @@
     @ipv6_no_assumed_connection_for_ipv6ll_only
     Scenario: NM - ipv6 - no assumed connection on IPv6LL only device
     * Delete connection "testeth10"
-    * Execute "systemctl stop NetworkManager.service"
+    * Stop NM
     * Execute "ip a flush dev eth10; ip l set eth10 down; ip l set eth10 up"
     When "fe80" is visible with command "ip a s eth10" in "5" seconds
     * Execute "systemctl start NetworkManager.service"
@@ -1226,7 +1226,7 @@
     Scenario: NM - ipv6 - persistent default ipv6 gw
     * Add a new connection of type "ethernet" and options "ifname testX6 con-name con_ipv6"
     * Wait for at least "3" seconds
-    * Execute "systemctl stop NetworkManager"
+    * Stop NM
     * Prepare simulated test "testX6" device
     * Execute "sysctl net.ipv6.conf.testX6.accept_ra_defrtr=1"
     * Execute "sysctl net.ipv6.conf.testX6.accept_ra_pinfo=1"
@@ -1246,7 +1246,7 @@
     Scenario: NM - ipv6 - persistent default ipv6 gw
     * Add a new connection of type "ethernet" and options "ifname testX6 con-name con_ipv6"
     * Wait for at least "3" seconds
-    * Execute "systemctl stop NetworkManager"
+    * Stop NM
     * Prepare simulated test "testX6" device
     * Execute "sysctl net.ipv6.conf.testX6.accept_ra_defrtr=1"
     * Execute "sysctl net.ipv6.conf.testX6.accept_ra_pinfo=1"
@@ -1267,7 +1267,7 @@
     Scenario: NM - ipv6 - persistent default ipv6 gw
     * Add a new connection of type "ethernet" and options "ifname testX6 con-name con_ipv6"
     * Wait for at least "3" seconds
-    * Execute "systemctl stop NetworkManager"
+    * Stop NM
     * Prepare simulated test "testX6" device
     * Execute "sysctl net.ipv6.conf.testX6.accept_ra_defrtr=1"
     * Execute "sysctl net.ipv6.conf.testX6.accept_ra_pinfo=1"
@@ -1287,7 +1287,7 @@
     Scenario: NM - ipv6 - persistent ipv6 routes
     * Add a new connection of type "ethernet" and options "ifname testX6 con-name con_ipv6"
     * Wait for at least "3" seconds
-    * Execute "systemctl stop NetworkManager"
+    * Stop NM
     * Execute "rm -rf /var/run/NetworkManager"
     * Prepare simulated test "testX6" device
     * Execute "sysctl net.ipv6.conf.testX6.accept_ra_defrtr=1"
