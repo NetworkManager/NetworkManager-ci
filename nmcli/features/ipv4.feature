@@ -1492,9 +1492,9 @@ Feature: nmcli: ipv4
     When "default" is visible with command "ip r |grep testX4" in "30" seconds
     When "inet 192" is visible with command "ip a s |grep testX4" in "30" seconds
     * Execute "ip netns exec testX4_ns kill -SIGSTOP $(cat /tmp/testX4_ns.pid)"
-    * Execute "systemctl stop NetworkManager"
+    * Stop NM
     * Execute "sudo rm -rf /etc/sysconfig/network-scripts/ifcfg-con_ipv4"
-    * Execute "systemctl start NetworkManager"
+    * Start NM
     When "default" is not visible with command "ip r |grep testX4" in "130" seconds
     When "inet 192.168.99" is not visible with command "ip a s testX4" in "10" seconds
     * Execute "ip netns exec testX4_ns kill -SIGCONT $(cat /tmp/testX4_ns.pid)"
@@ -1514,9 +1514,9 @@ Feature: nmcli: ipv4
     When "default" is visible with command "ip r |grep testX4" in "30" seconds
     When "inet 192" is visible with command "ip a s |grep testX4" in "30" seconds
     * Execute "ip netns exec testX4_ns kill -SIGSTOP $(cat /tmp/testX4_ns.pid)"
-    * Execute "systemctl stop NetworkManager"
+    * Stop NM
     * Execute "sudo rm -rf /etc/sysconfig/network-scripts/ifcfg-con_ipv4"
-    * Execute "systemctl start NetworkManager"
+    * Start NM
     When "default" is not visible with command "ip r |grep testX4" in "130" seconds
     When "inet 192.168.99" is not visible with command "ip a s testX4" in "10" seconds
     * Execute "ip netns exec testX4_ns kill -SIGCONT $(cat /tmp/testX4_ns.pid)"
