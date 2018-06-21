@@ -337,6 +337,10 @@ def before_scenario(context, scenario):
         if 'connectivity' in scenario.tags:
             print ("---------------------------")
             print ("add connectivity checker")
+            if call("grep -q Ootpa /etc/redhat-release", shell=True) == 0:
+                print ("---------------------------")
+                print ("Skipping in Ootpa")
+                sys.exit(77)
             call("echo '[connectivity]' > /etc/NetworkManager/conf.d/99-connectivity.conf", shell=True)
             call("echo 'uri=http://fedoraproject.org/static/hotspot.txt' >> /etc/NetworkManager/conf.d/99-connectivity.conf", shell=True)
             call("echo 'response=OK' >> /etc/NetworkManager/conf.d/99-connectivity.conf", shell=True)
