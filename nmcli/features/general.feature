@@ -392,7 +392,7 @@ Feature: nmcli - general
      And "default via 192.168.99.1 dev testG" is visible with command "ip r"
 
 
-    @ver+=1.10.2  @ver-1.11
+    @ver+=1.10.2  @ver-=1.10.99
     @con_general_remove @teardown_testveth @dhcpd
     @device_reapply_routes
     Scenario: NM - device - reapply just routes

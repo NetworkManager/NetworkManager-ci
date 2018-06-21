@@ -31,7 +31,7 @@ for test in $@; do
 
     # Start test itself with timeout
     export TEST="NetworkManager_Test$counter"_"$test"
-    timeout $timer $(grep $test testmapper.txt |awk '{print $3,$4}'); rc=$?
+    timeout $timer $(grep -w $test testmapper.txt |awk '{print $3,$4}'); rc=$?
 
     if [ $rc -ne 0 ]; then
         # Overal result is FAIL
