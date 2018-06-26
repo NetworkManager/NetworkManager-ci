@@ -979,8 +979,8 @@ def correct_lifetime(context, typ, valid_lft, pref_lft, device):
     if typ == 'IPv4':
         inet = "inet"
 
-    valid_cmd = "ip a s '%s' |grep -A 1 -w '%s'| grep -A 1 -w 'scope global noprefixroute dynamic' |grep valid_lft |awk '{print $2}'" % (device, inet)
-    pref_cmd  = "ip a s '%s' |grep -A 1 -w '%s'| grep -A 1 -w 'scope global noprefixroute dynamic' |grep valid_lft |awk '{print $4}'" % (device, inet)
+    valid_cmd = "ip a s '%s' |grep -A 1 -w '%s'| grep -A 1 -w 'scope global' |grep valid_lft |awk '{print $2}'" % (device, inet)
+    pref_cmd  = "ip a s '%s' |grep -A 1 -w '%s'| grep -A 1 -w 'scope global' |grep valid_lft |awk '{print $4}'" % (device, inet)
 
     valid = command_output(context, valid_cmd)
     pref = command_output(context, pref_cmd)
@@ -989,6 +989,7 @@ def correct_lifetime(context, typ, valid_lft, pref_lft, device):
     valid = valid.replace('sec', '')
     pref = pref.strip()
     pref = pref.replace('sec', '')
+
     assert int(valid) < int(valid_lft) and int(valid_lft) >= int(valid)-50
     assert int(pref) < int(pref_lft) and int(pref_lft) >= int(pref)-50
 

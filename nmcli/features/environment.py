@@ -415,6 +415,13 @@ def before_scenario(context, scenario):
                 call('sudo yum -y install tcpdump', shell=True)
                 call("sudo pip install scapy", shell=True)
 
+        if 'skip_in_ootpa' in scenario.tags:
+            print ("---------------------------")
+            print ("Skipping in Ootpa")
+            if call("grep -q Ootpa /etc/redhat-release", shell=True) == 0:
+                print ("---------------------------")
+                sys.exit(77)
+
         if 'mock' in scenario.tags:
             print ("---------------------------")
             print ("installing dbus-x11, pip, and python-dbusmock")
