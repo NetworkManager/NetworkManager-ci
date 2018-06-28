@@ -910,6 +910,7 @@ def after_scenario(context, scenario):
         else:
             print("WARNING: 20M size exceeded in /tmp/network-traffic.log, skipping")
 
+
         if 'netservice' in scenario.tags:
             # Attach network.service journalctl logs
             os.system("echo '~~~~~~~~~~~~~~~~~~~~~~~~~~ NETWORK SRV LOG ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~' > /tmp/journal-netsrv.log")
@@ -917,6 +918,8 @@ def after_scenario(context, scenario):
             data = open("/tmp/journal-netsrv.log", 'r').read()
             if data:
                 context.embed('text/plain', data)
+
+        dump_status(context, 'after %s' % scenario.name)
 
         if 'runonce' in scenario.tags:
             print ("---------------------------")
@@ -934,10 +937,10 @@ def after_scenario(context, scenario):
         if 'restart' in scenario.tags:
             print ("---------------------------")
             print ("restarting NM service")
-            call('sudo service NetworkManager restart', shell=True)
-            if not os.path.isfile('/tmp/nm_dcb_inf_wol_sriov_configured'):
-                wait_for_testeth0()
-        dump_status(context, 'after %s' % scenario.name)
+            if call("systemctl is-active NetworkManager", shell=True) != 0:
+                call('sudo systemctl restart NetworkManager restart', shell=True)
+                if not os.path.isfile('/tmp/nm_dcb_inf_wol_sriov_configured'):
+                    wait_for_testeth0()
 
         if 'restore_hostname' in scenario.tags:
             print ("---------------------------")
