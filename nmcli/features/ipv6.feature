@@ -1189,6 +1189,7 @@
     Scenario: NM - ipv6 - ip6_tunnel module removal
     * Execute "modprobe ip6_tunnel"
     When "ip6_tunnel" is visible with command "lsmod |grep ip"
+    * Execute "modprobe -r ip6_gre"
     * Execute "modprobe -r ip6_tunnel"
     Then "ip6_tunnel" is not visible with command "lsmod |grep ip" in "2" seconds
 
