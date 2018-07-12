@@ -830,6 +830,11 @@ def before_scenario(context, scenario):
                 reload_NM_service()
                 context.restore_config_server = True
 
+        if 'ipv4_method_shared' in scenario.tags:
+            print("---------------------------")
+            print("WORKAROUND for permissive selinux")
+            call('setenforce 0', shell=True)
+
         try:
             context.nm_pid = nm_pid()
         except CalledProcessError, e:
@@ -1842,6 +1847,11 @@ def after_scenario(context, scenario):
             print("removing ctc device")
             call("""znetconf -r $(znetconf -c |grep CTC |awk 'BEGIN { FS = "," } ; { print $1 }') -n""", shell=True)
             sleep(1)
+
+        if 'ipv4_method_shared' in scenario.tags:
+            print("---------------------------")
+            print("WORKAROUND for permissive selinux")
+            call('setenforce 0', shell=True)
 
         if 'regenerate_veth' in scenario.tags or 'restart' in scenario.tags:
             print ("---------------------------")
