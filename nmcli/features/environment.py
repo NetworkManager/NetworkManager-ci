@@ -831,9 +831,12 @@ def before_scenario(context, scenario):
                 context.restore_config_server = True
 
         if 'ipv4_method_shared' in scenario.tags:
-            print("---------------------------")
-            print("WORKAROUND for permissive selinux")
-            call('setenforce 0', shell=True)
+            context.enforcing == False
+            if check_output('getenforce', shell=True) == 'Enforcing':
+                print("---------------------------")
+                print("WORKAROUND for permissive selinux")
+                context.enforcing = True
+                call('setenforce 0', shell=True)
 
         try:
             context.nm_pid = nm_pid()
@@ -1849,9 +1852,10 @@ def after_scenario(context, scenario):
             sleep(1)
 
         if 'ipv4_method_shared' in scenario.tags:
-            print("---------------------------")
-            print("WORKAROUND for permissive selinux")
-            call('setenforce 0', shell=True)
+            if context.enforcing:
+                print("---------------------------")
+                print("WORKAROUND for permissive selinux")
+                call('setenforce 1', shell=True)
 
         if 'regenerate_veth' in scenario.tags or 'restart' in scenario.tags:
             print ("---------------------------")
