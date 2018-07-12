@@ -1679,3 +1679,14 @@ Feature: nmcli - general
     * Execute "sleep 8"
     * Execute "ip link set testG up"
     When "activated" is visible with command "nmcli -g GENERAL.STATE con show con_general" in "10" seconds
+    
+    @rhbz1541031
+    @ver+=1.10.4
+    @restart
+    @resolv_conf_overwrite_after_stop
+    Scenario: NM - general - overwrite resolv conf after stop
+    * Execute "echo 'nameserver 1.2.3.4' >> /etc/resolv.conf"
+    * Stop NM
+    When "nameserver 1.2.3.4" is visible with command "cat /etc/resolv.conf"
+    * Start NM
+    When "nameserver 1.2.3.4" is not visible with command "cat /etc/resolv.conf"

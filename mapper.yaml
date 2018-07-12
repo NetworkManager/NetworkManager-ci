@@ -1078,6 +1078,8 @@ testmapper:
         feature: general
     - wait_10s_for_flappy_carrier:
         feature: general
+    - resolv_conf_overwrite_after_stop:
+        feature: general
     - openvswitch_interface_recognized:
         feature: ovs
     - openvswitch_ignore_ovs_network_setup:
