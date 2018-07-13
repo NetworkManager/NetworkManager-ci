@@ -1986,3 +1986,20 @@ Feature: nmcli: ipv4
     * Bring "up" connection "con_ipv4"
     Then "192.168.124.1/24" is visible with command "ip a s eth3"
     Then "192.168.125.1/24" is visible with command "ip a s eth3"
+    
+
+    @rhbz1519299
+    @ver+=1.10.4
+    @con_ipv4_remove
+    @ipv4_dhcp-hostname_shared_persists
+    Scenario: nmcli - ipv4 - ipv4 dhcp-hostname persists after method shared set
+    * Add a new connection of type "ethernet" and options "ifname eth3 con-name con_ipv4"
+    * Execute "nmcli con mod con_ipv4 ipv4.dhcp-hostname test"
+    When "test" is visible with command "nmcli -f ipv4.dhcp-hostname con show con_ipv4"
+     And "DHCP_HOSTNAME=test" is visible with command "cat /etc/sysconfig/network-scripts/ifcfg-con_ipv4"
+    * Execute "nmcli con mod con_ipv4 ipv4.method shared"
+    When "test" is visible with command "nmcli -f ipv4.dhcp-hostname con show con_ipv4"
+     And "DHCP_HOSTNAME=test" is visible with command "cat /etc/sysconfig/network-scripts/ifcfg-con_ipv4"
+    * Execute "nmcli con mod con_ipv4 ipv4.method shared"
+    Then "test" is visible with command "nmcli -f ipv4.dhcp-hostname con show con_ipv4"
+     And "DHCP_HOSTNAME=test" is visible with command "cat /etc/sysconfig/network-scripts/ifcfg-con_ipv4"
