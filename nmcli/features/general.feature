@@ -1681,7 +1681,7 @@ Feature: nmcli - general
     When "activated" is visible with command "nmcli -g GENERAL.STATE con show con_general" in "10" seconds
     
     @rhbz1541031
-    @ver+=1.10.4
+    @ver+=1.12
     @restart
     @resolv_conf_overwrite_after_stop
     Scenario: NM - general - overwrite resolv conf after stop
@@ -1689,4 +1689,4 @@ Feature: nmcli - general
     * Stop NM
     When "nameserver 1.2.3.4" is visible with command "cat /etc/resolv.conf"
     * Start NM
-    When "nameserver 1.2.3.4" is not visible with command "cat /etc/resolv.conf"
+    Then "nameserver 1.2.3.4" is not visible with command "cat /etc/resolv.conf"
