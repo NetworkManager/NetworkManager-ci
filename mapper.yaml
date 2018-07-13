@@ -734,7 +734,7 @@ testmapper:
         feature: ipv4
     - ipv4_multiple_ip4:
         feature: ipv4
-    - ipv4 dhcp-hostname persists:
+    - ipv4_dhcp-hostname_shared_persists:
         feature: ipv4
     - vlan_add_default_device:
         feature: vlan
