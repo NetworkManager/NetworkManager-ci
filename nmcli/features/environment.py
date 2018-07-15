@@ -832,7 +832,7 @@ def before_scenario(context, scenario):
 
         if 'ipv4_method_shared' in scenario.tags:
             context.enforcing = False
-            if check_output('getenforce', shell=True) == 'Enforcing':
+            if check_output('getenforce', shell=True).strip() == 'Enforcing':
                 print("---------------------------")
                 print("WORKAROUND for permissive selinux")
                 context.enforcing = True
