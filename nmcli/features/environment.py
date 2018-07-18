@@ -942,6 +942,11 @@ def after_scenario(context, scenario):
             call("nmcli device disconnect eth10", shell=True)
             call("nmcli connection up testeth0", shell=True)
 
+        if 'remove_custom_cfg_before_restart' in scenario.tags:
+            print("---------------------------")
+            print("Removing custom cfg file in conf.d")
+            call('sudo rm -f /etc/NetworkManager/conf.d/99-xxcustom.conf', shell=True)
+
         if 'restart' in scenario.tags:
             print ("---------------------------")
             print ("restarting NM service")

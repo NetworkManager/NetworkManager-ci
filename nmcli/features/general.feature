@@ -1690,3 +1690,13 @@ Feature: nmcli - general
     When "nameserver 1.2.3.4" is visible with command "cat /etc/resolv.conf"
     * Start NM
     Then "nameserver 1.2.3.4" is not visible with command "cat /etc/resolv.conf"
+
+
+    @rhbz1593519
+    @ver+=1.10
+    @remove_custom_cfg_before_restart @restart
+    @NM_starts_with_incorrect_logging_config
+    Scenario: NM - general - nm starts even when logging is incorrectly configured
+    * Stop NM
+    * Execute "echo -e '[logging]\nlevel=DEFAULT:WARN,TEAM:TRACE' > /etc/NetworkManager/conf.d/99-xxcustom.conf;"
+    Then Start NM
