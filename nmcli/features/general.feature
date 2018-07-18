@@ -1693,7 +1693,7 @@ Feature: nmcli - general
 
 
     @rhbz1593519
-    @ver+=1.10
+    @ver+=1.12
     @remove_custom_cfg_before_restart @restart
     @NM_starts_with_incorrect_logging_config
     Scenario: NM - general - nm starts even when logging is incorrectly configured
