@@ -736,8 +736,8 @@ testmapper:
         feature: ipv4
     - ipv4_multiple_ip4:
         feature: ipv4
-    # - ipv4_dhcp-hostname_shared_persists:
-    #     feature: ipv4
+    - ipv4_dhcp-hostname_shared_persists:
+        feature: ipv4
     - vlan_add_default_device:
         feature: vlan
     - vlan_add_beyond_range:
@@ -1084,8 +1084,8 @@ testmapper:
         feature: general
     - NM_starts_with_incorrect_logging_config:
         feature: general
-    # - resolv_conf_overwrite_after_stop:
-    #     feature: general
+    - resolv_conf_overwrite_after_stop:
+        feature: general
     - macsec_send-sci_by_default:
         feature: general
     - openvswitch_interface_recognized:
