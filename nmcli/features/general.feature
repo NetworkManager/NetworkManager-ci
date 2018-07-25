@@ -1679,8 +1679,8 @@ Feature: nmcli - general
     * Execute "sleep 8"
     * Execute "ip link set testG up"
     When "activated" is visible with command "nmcli -g GENERAL.STATE con show con_general" in "10" seconds
-   
-   
+
+
     @rhbz1541031
     @ver+=1.12
     @restart @remove_custom_cfg
@@ -1739,3 +1739,11 @@ Feature: nmcli - general
     * Bring up connection "test-macsec-base"
     * Bring up connection "test-macsec"
     Then "send_sci on" is visible with command "ip macsec show macsec0"
+
+
+    @rhbz1555281
+    @ver+=1.10.7
+    @con_general_remove
+    @libnm_async_tasks_cancelable
+    Scenario: NM - general - cancelation of libnm async tasks (add_connection_async)
+    Then Finish "python tmp/repro_1555281.py con_general"
