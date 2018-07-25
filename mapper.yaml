@@ -197,6 +197,8 @@ testmapper:
         feature: bond
     - nmclient_bond_get_state_flags:
         feature: bond
+    - bond_set_num_grat_arp_unsol_na:
+        feature: bond
     - bridge_add_default:
         feature: bridge
     - bridge_add_custom_one:
