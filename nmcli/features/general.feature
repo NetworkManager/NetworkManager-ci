@@ -1690,3 +1690,25 @@ Feature: nmcli - general
     When "nameserver 1.2.3.4" is visible with command "cat /etc/resolv.conf"
     * Start NM
     Then "nameserver 1.2.3.4" is not visible with command "cat /etc/resolv.conf"
+
+
+    @rhbz1593661
+    @ver+=1.12
+    @restart @remove_custom_cfg
+    @resolv_conf_dangling_symlink
+    Scenario: NM - general - follow resolv.conf when dangling symlink
+    * Stop NM
+    * Append "[main]" to file "/etc/NetworkManager/conf.d/99-xxcustom.conf"
+    * Append "rc-manager=file" to file "/etc/NetworkManager/conf.d/99-xxcustom.conf"
+    * Remove file "/etc/resolv.conf" if exists
+    * Remove file "/tmp/no-resolv.conf" if exists
+    * Create symlink "/etc/resolv.conf" with destination "/tmp/no-resolv.conf"
+    * Start NM
+    * Wait for at least "2" seconds
+    Then "/etc/resolv.conf" is symlink with destination "/tmp/no-resolv.conf"
+    * Stop NM
+    * Remove symlink "/etc/resolv.conf" if exists
+    * Wait for at least "2" seconds
+    * Start NM
+    Then "/tmp/no-resolv.conf" is file
+    * Remove file "/tmp/no-resolv.conf" if exists
