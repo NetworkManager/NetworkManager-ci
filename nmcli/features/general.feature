@@ -1690,3 +1690,17 @@ Feature: nmcli - general
     When "nameserver 1.2.3.4" is visible with command "cat /etc/resolv.conf"
     * Start NM
     Then "nameserver 1.2.3.4" is not visible with command "cat /etc/resolv.conf"
+
+
+    @rhbz1588041
+    @ver+=1.12
+    @macsec @not_on_aarch64_but_pegas @long
+    @macsec_send-sci_by_default
+    Scenario: NM - general - MACsec send-sci option should be true by default
+    * Prepare MACsec PSK environment with CAK "00112233445566778899001122334455" and CKN "5544332211009988776655443322110055443322110099887766554433221100"
+    * Add a new connection of type "ethernet" and options "con-name test-macsec-base ifname macsec_veth ipv4.method disabled ipv6.method ignore"
+    * Add a new connection of type "macsec" and options "con-name test-macsec ifname macsec0 autoconnect no macsec.parent macsec_veth macsec.mode psk macsec.mka-cak 00112233445566778899001122334455 macsec.mka-ckn 5544332211009988776655443322110055443322110099887766554433221100"
+    Then "yes" is visible with command "nmcli -f macsec.send-sci con show test-macsec"
+    * Bring up connection "test-macsec-base"
+    * Bring up connection "test-macsec"
+    Then "send_sci on" is visible with command "ip macsec show macsec0"
