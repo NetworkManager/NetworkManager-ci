@@ -1679,7 +1679,8 @@ Feature: nmcli - general
     * Execute "sleep 8"
     * Execute "ip link set testG up"
     When "activated" is visible with command "nmcli -g GENERAL.STATE con show con_general" in "10" seconds
-    
+   
+   
     @rhbz1541031
     @ver+=1.12
     @restart
@@ -1700,3 +1701,39 @@ Feature: nmcli - general
     * Stop NM
     * Execute "echo -e '[logging]\nlevel=DEFAULT:WARN,TEAM:TRACE' > /etc/NetworkManager/conf.d/99-xxcustom.conf;"
     Then Start NM
+
+
+    @rhbz1593661
+    @ver+=1.12
+    @restart @remove_custom_cfg
+    @resolv_conf_dangling_symlink
+    Scenario: NM - general - follow resolv.conf when dangling symlink
+    * Stop NM
+    * Append "[main]" to file "/etc/NetworkManager/conf.d/99-xxcustom.conf"
+    * Append "rc-manager=file" to file "/etc/NetworkManager/conf.d/99-xxcustom.conf"
+    * Remove file "/etc/resolv.conf" if exists
+    * Remove file "/tmp/no-resolv.conf" if exists
+    * Create symlink "/etc/resolv.conf" with destination "/tmp/no-resolv.conf"
+    * Start NM
+    * Wait for at least "2" seconds
+    Then "/etc/resolv.conf" is symlink with destination "/tmp/no-resolv.conf"
+    * Stop NM
+    * Remove symlink "/etc/resolv.conf" if exists
+    * Wait for at least "2" seconds
+    * Start NM
+    Then "/tmp/no-resolv.conf" is file
+    * Remove file "/tmp/no-resolv.conf" if exists
+
+
+    @rhbz1588041
+    @ver+=1.12
+    @macsec @not_on_aarch64_but_pegas @long
+    @macsec_send-sci_by_default
+    Scenario: NM - general - MACsec send-sci option should be true by default
+    * Prepare MACsec PSK environment with CAK "00112233445566778899001122334455" and CKN "5544332211009988776655443322110055443322110099887766554433221100"
+    * Add a new connection of type "ethernet" and options "con-name test-macsec-base ifname macsec_veth ipv4.method disabled ipv6.method ignore"
+    * Add a new connection of type "macsec" and options "con-name test-macsec ifname macsec0 autoconnect no macsec.parent macsec_veth macsec.mode psk macsec.mka-cak 00112233445566778899001122334455 macsec.mka-ckn 5544332211009988776655443322110055443322110099887766554433221100"
+    Then "yes" is visible with command "nmcli -f macsec.send-sci con show test-macsec"
+    * Bring up connection "test-macsec-base"
+    * Bring up connection "test-macsec"
+    Then "send_sci on" is visible with command "ip macsec show macsec0"
