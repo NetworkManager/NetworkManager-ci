@@ -1082,6 +1082,8 @@ testmapper:
         feature: general
     # - resolv_conf_overwrite_after_stop:
     #     feature: general
+    - macsec_send-sci_by_default:
+        feature: general
     - openvswitch_interface_recognized:
         feature: ovs
     - openvswitch_ignore_ovs_network_setup:
