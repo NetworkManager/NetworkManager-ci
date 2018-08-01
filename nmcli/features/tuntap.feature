@@ -70,3 +70,26 @@ Feature: nmcli: tuntap
      When "master" is visible with command "ip link show tap0" in "2" seconds
       And "192.0.2.2\/24" is visible with command "ip a s tap0" in "2" seconds
       And "tap0:connected:tap0" is not visible with command "nmcli -t -f DEVICE,STATE,CONNECTION device" in "10" seconds
+    
+    @rhbz1547213
+    @tuntap
+    @ver+=1.12.0
+    @tuntap_device_kernel_properties
+    Scenario: nmcli - tuntap - test tuntap properties from kernel, dbus, nmcli
+    * Add a new connection of type "tun" and options "ifname tap0 con-name tap0 tun.mode 1 ipv4.addresses 1.2.3.4/24 ipv4.method manual"
+    When "tap0:connected:tap0" is visible with command "nmcli -t -f DEVICE,STATE,CONNECTION device" in "10" seconds
+    Then Finish "bash tmp/tuntap_device_kernel_properties.sh tap0 owner"
+     And Finish "bash tmp/tuntap_device_kernel_properties.sh tap0 group"
+     And Finish "bash tmp/tuntap_device_kernel_properties.sh tap0 mode tun"
+     And Finish "bash tmp/tuntap_device_kernel_properties.sh tap0 multi-queue"
+     And Finish "bash tmp/tuntap_device_kernel_properties.sh tap0 vnet-hdr"
+     And Finish "bash tmp/tuntap_device_kernel_properties.sh tap0 nopi"
+    * Modify connection "tap0" changing options "tun.mode 2 tun.pi yes tun.vnet-hdr yes tun.multi-queue no tun.owner 1000 tun.group 1002"
+    * Bring "down" connection "tap0"
+    * Bring "up" connection "tap0"
+    Then Finish "bash tmp/tuntap_device_kernel_properties.sh tap0 owner 1000"
+     And Finish "bash tmp/tuntap_device_kernel_properties.sh tap0 group 1002"
+     And Finish "bash tmp/tuntap_device_kernel_properties.sh tap0 mode tap"
+     And Finish "bash tmp/tuntap_device_kernel_properties.sh tap0 multi-queue false"
+     And Finish "bash tmp/tuntap_device_kernel_properties.sh tap0 vnet-hdr true"
+     And Finish "bash tmp/tuntap_device_kernel_properties.sh tap0 nopi false"
