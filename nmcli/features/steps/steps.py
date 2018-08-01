@@ -2007,3 +2007,40 @@ def setup_macsec_psk(context, cak, ckn):
                                          --dhcp-range=172.16.10.10,172.16.10.254,60m  \
                                          --interface=macsec0 \
                                          --bind-interfaces")
+
+
+@step('"{filename}" is file')
+def is_file(context, filename):
+    assert os.path.isfile(filename), '"%s" is not a file' % filename
+    return True
+
+
+@step('"{filename}" is symlink')
+@step('"{filename}" is symlink with destination "{destination}"')
+def is_file(context, filename, destination=None):
+    assert os.path.islink(filename), '"%s" is not a symlink' % filename
+    realpath = os.path.realpath(filename)
+    if destination is None:
+        return True
+    assert realpath == destination, 'symlink "%s" has destination "%s" instead of "%s"' % (filename, realpath, destination)
+    return True
+
+
+@step('Remove file "{filename}" if exists')
+def remove_file(context, filename):
+    if os.path.isfile(filename):
+        os.remove(filename)
+    return True
+
+
+@step('Remove symlink "{filename}" if exists')
+def remove_file(context, filename):
+    if os.path.islink(filename):
+        os.remove(filename)
+    return True
+
+
+@step('Create symlink {source} with destination {destination}')
+def create_symlink(context, source, destination):
+    cmd = 'sudo ln -s "%s" "%s"' % (destination, source)
+    command_code(context, cmd)
