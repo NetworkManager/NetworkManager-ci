@@ -1566,3 +1566,27 @@
     Then "MASTER_HAS_SLAVES" is visible with command "python tmp/nmclient_get_state_flags.py bond0" in "20" seconds
     Then "IP4" is visible with command "python tmp/nmclient_get_state_flags.py bond0" in "20" seconds
     Then "IP6" is visible with command "python tmp/nmclient_get_state_flags.py bond0" in "20" seconds
+
+
+    @rhbz1591734
+    @ver+=1.11.4
+    @slaves @bond
+    @bond_set_num_grat_arp_unsol_na
+    Scenario: nmcli - bond - set num_grat_arp and num_unsol_na options
+    * Add a new connection of type "bond" and options "con-name bond0 ifname nm-bond autoconnect no connection.autoconnect-slaves 1"
+    * Execute "nmcli connection mod bond0 bond.options mode=active-backup,num_grat_arp=7"
+    * Add a new connection of type "ethernet" and options "con-name bond0.1 ifname eth4 master nm-bond autoconnect no"
+    * Add a new connection of type "ethernet" and options "con-name bond0.0 ifname eth1 master nm-bond autoconnect no"
+    * Bring "up" connection "bond0"
+    Then "7" is visible with command "cat /sys/class/net/nm-bond/bonding/num_grat_arp"
+     And "7" is visible with command "cat /sys/class/net/nm-bond/bonding/num_unsol_na"
+    * Execute "nmcli connection mod bond0 -bond.options num_grat_arp"
+    * Execute "nmcli connection mod bond0 +bond.options num_unsol_na=8"
+    * Bring "up" connection "bond0"
+    Then "8" is visible with command "cat /sys/class/net/nm-bond/bonding/num_grat_arp"
+     And "8" is visible with command "cat /sys/class/net/nm-bond/bonding/num_unsol_na"
+    * Execute "nmcli connection mod bond0 -bond.options num_grat_arp"
+    * Execute "nmcli connection mod bond0 -bond.options num_unsol_na"
+    * Bring "up" connection "bond0"
+    Then "1" is visible with command "cat /sys/class/net/nm-bond/bonding/num_grat_arp"
+     And "1" is visible with command "cat /sys/class/net/nm-bond/bonding/num_unsol_na"
