@@ -1683,14 +1683,16 @@ Feature: nmcli - general
    
     @rhbz1541031
     @ver+=1.12
-    @restart
+    @restart @remove_custom_cfg
     @resolv_conf_overwrite_after_stop
     Scenario: NM - general - overwrite resolv conf after stop
-    * Execute "echo 'nameserver 1.2.3.4' >> /etc/resolv.conf"
+    * Append "[main]" to file "/etc/NetworkManager/conf.d/99-xxcustom.conf"
+    * Append "rc-manager=unmanaged" to file "/etc/NetworkManager/conf.d/99-xxcustom.conf"
+    * Append "nameserver 1.2.3.4" to file "/etc/resolv.conf"
     * Stop NM
-    When "nameserver 1.2.3.4" is visible with command "cat /etc/resolv.conf"
+    When "nameserver 1.2.3.4" is visible with command "cat /etc/resolv.conf" in "3" seconds
     * Start NM
-    Then "nameserver 1.2.3.4" is not visible with command "cat /etc/resolv.conf"
+    Then "nameserver 1.2.3.4" is visible with command "cat /etc/resolv.conf" in "3" seconds
 
 
     @rhbz1593519

@@ -1989,7 +1989,7 @@ Feature: nmcli: ipv4
     
 
     @rhbz1519299
-    @ver+=1.10.4
+    @ver+=1.12
     @con_ipv4_remove
     @ipv4_dhcp-hostname_shared_persists
     Scenario: nmcli - ipv4 - ipv4 dhcp-hostname persists after method shared set
