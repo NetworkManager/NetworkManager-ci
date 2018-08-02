@@ -1088,6 +1088,8 @@ testmapper:
         feature: general
     - macsec_send-sci_by_default:
         feature: general
+    - libnm_async_tasks_cancelable:
+        feature: general
     - openvswitch_interface_recognized:
         feature: ovs
     - openvswitch_ignore_ovs_network_setup:
