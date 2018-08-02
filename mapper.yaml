@@ -1086,6 +1086,8 @@ testmapper:
         feature: general
     - resolv_conf_overwrite_after_stop:
         feature: general
+    - resolv_conf_dangling_symlink:
+        feature: general
     - macsec_send-sci_by_default:
         feature: general
     - libnm_async_tasks_cancelable:
