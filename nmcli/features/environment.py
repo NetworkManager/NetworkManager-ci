@@ -337,10 +337,6 @@ def before_scenario(context, scenario):
         if 'connectivity' in scenario.tags:
             print ("---------------------------")
             print ("add connectivity checker")
-            if call("grep -q Ootpa /etc/redhat-release", shell=True) == 0:
-                print ("---------------------------")
-                print ("Skipping in Ootpa")
-                sys.exit(77)
             call("echo '[connectivity]' > /etc/NetworkManager/conf.d/99-connectivity.conf", shell=True)
             call("echo 'uri=http://fedoraproject.org/static/hotspot.txt' >> /etc/NetworkManager/conf.d/99-connectivity.conf", shell=True)
             call("echo 'response=OK' >> /etc/NetworkManager/conf.d/99-connectivity.conf", shell=True)
@@ -564,10 +560,6 @@ def before_scenario(context, scenario):
             setup_hostapd()
 
         if 'simwifi_wpa2' in scenario.tags:
-            if call("grep -q Ootpa /etc/redhat-release", shell=True) == 0:
-                print ("---------------------------")
-                print ("Skipping in Ootpa")
-                sys.exit(77)
             print ("---------------------------")
             arch = check_output("uname -p", shell=True).strip()
             if arch != "x86_64":
@@ -663,10 +655,6 @@ def before_scenario(context, scenario):
             setup_racoon (mode="main", dh_group=5)
 
         if 'macsec' in scenario.tags:
-            if call("grep -q Ootpa /etc/redhat-release", shell=True) == 0:
-                print ("---------------------------")
-                print ("Skipping in Ootpa")
-                sys.exit(77)
             print("---------------------------")
             print("installing macsec stuff")
             install = "yum install -y https://vbenes.fedorapeople.org/NM/dnsmasq-debuginfo-2.76-2.el7.$(uname -p).rpm \
