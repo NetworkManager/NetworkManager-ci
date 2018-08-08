@@ -11,7 +11,8 @@ setup_configure_environment "$1"
 # install the pyte VT102 emulator
 if [ ! -e /tmp/nmtui_pyte_installed ]; then
     easy_install pip
-    pip install pyte==0.7
+    pip install setuptools --upgrade
+    pip install pyte
 
     touch /tmp/nmtui_pyte_installed
 fi
