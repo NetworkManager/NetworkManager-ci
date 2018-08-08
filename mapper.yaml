@@ -1286,6 +1286,8 @@ testmapper:
         feature: tuntap
     - preserve_master_and_ip_settings:
         feature: tuntap
+    - tuntap_device_kernel_properties:
+        feature: tuntap
     - set_fq_codel_queue:
         feature: tc
     - set_pfifo_fast_queue:
