@@ -1,5 +1,5 @@
 # -*- coding: UTF-8 -*-
-
+from __future__ import absolute_import, division, print_function, unicode_literals
 import os
 import pexpect
 import sys
@@ -21,13 +21,13 @@ TIMER = 0.5
 
 def nm_pid():
     try:
-        pid = int(check_output(['systemctl', 'show', '-pMainPID', 'NetworkManager.service']).split('=')[-1])
-    except CalledProcessError, e:
+        pid = int(check_output(['systemctl', 'show', '-pMainPID', 'NetworkManager.service']).decode('utf-8').split('=')[-1])
+    except CalledProcessError as e:
         pid = None
     if not pid:
         try:
-            pid = int(check_output(['pgrep', 'NetworkManager']))
-        except CalledProcessError, e:
+            pid = int(check_output(['pgrep', 'NetworkManager']).decode('utf-8'))
+        except CalledProcessError as e:
             pid = None
     return pid
 
@@ -88,13 +88,13 @@ def reset_usb_devices():
         f = open("/dev/bus/usb/%03d/%03d"%(busnum, devnum), 'w', os.O_WRONLY)
         try:
             fcntl.ioctl(f, USBDEVFS_RESET, 0)
-        except Exception, msg:
-            print ("failed to reset device:", msg)
+        except Exception as msg:
+            print(("failed to reset device:", msg))
         f.close()
 
 def setup_racoon(mode, dh_group, phase1_al="aes", phase2_al=None):
     print ("setting up racoon")
-    arch = check_output("uname -p", shell=True).strip()
+    arch = check_output("uname -p", shell=True).decode('utf-8').strip()
     wait_for_testeth0()
     if arch == "s390x" or arch == 'aarch64':
         call("[ -x /usr/sbin/racoon ] || yum -y install https://vbenes.fedorapeople.org/NM/ipsec-tools-0.8.2-1.el7.$(uname -p).rpm", shell=True)
@@ -112,7 +112,7 @@ def teardown_racoon():
 
 def reset_hwaddr(ifname):
     if not os.path.isfile('/tmp/nm_newveth_configured'):
-        hwaddr = check_output("ethtool -P %s" % ifname, shell=True).split()[2]
+        hwaddr = check_output("ethtool -P %s" % ifname, shell=True).decode('utf-8').split()[2]
         call("ip link set %s address %s" % (ifname, hwaddr), shell=True)
 
 def setup_hostapd():
@@ -149,7 +149,7 @@ def get_lock(dir):
         return int(locks[0])
 
 def delete_old_lock(dir, lock):
-    print ("* deleting old gsm lock %s" %lock)
+    print(("* deleting old gsm lock %s" %lock))
     os.rmdir("%s%s" %(dir, lock))
 
 def restore_testeth0():
@@ -178,7 +178,7 @@ def wait_for_testeth0():
             sys.exit(1)
 
 def reload_NM_service():
-    ver = check_output("NetworkManager --version", shell=True)
+    ver = check_output("NetworkManager --version", shell=True).decode('utf-8')
     #if version is 1.8 or older or we are in CentOS (7.4) we need to restart
     if int(ver.strip().split('-')[0].split('.')[1]) <= int(8) or call("grep CentOS /etc/redhat-release -q", shell=True) == 0:
         call('systemctl restart NetworkManager', shell=True)
@@ -192,7 +192,7 @@ def before_scenario(context, scenario):
             if call("nmcli device |grep testeth0 |grep ' connected'", shell=True) != 0:
                 call("sudo nmcli connection modify testeth0 ipv4.may-fail no", shell=True)
                 call("sudo nmcli connection up id testeth0", shell=True)
-                for attempt in xrange(0, 10):
+                for attempt in range(0, 10):
                     if call("nmcli device |grep testeth0 |grep ' connected'", shell=True) == 0:
                         break
                     sleep(1)
@@ -200,7 +200,7 @@ def before_scenario(context, scenario):
         os.environ['TERM'] = 'dumb'
 
         # dump status before the test preparation starts
-        context.log = file('/tmp/log_%s.html' % scenario.name,'w')
+        context.log = open('/tmp/log_%s.html' % scenario.name,'w')
         dump_status(context, 'before %s' % scenario.name)
 
         if 'long' in scenario.tags:
@@ -230,28 +230,28 @@ def before_scenario(context, scenario):
 
         if 'rhel7_only' in scenario.tags:
             if call('rpm -qi NetworkManager |grep -q build.*bos.redhat.co', shell=True) != 0 or \
-            check_output("rpm --queryformat %{RELEASE} -q NetworkManager |awk -F .  '{ print ($1 < 200) }'", shell=True).strip() == '0' or \
+            check_output("rpm --queryformat %{RELEASE} -q NetworkManager |awk -F .  '{ print ($1 < 200) }'", shell=True).decode('utf-8').strip() == '0' or \
             call("grep -q Maipo /etc/redhat-release", shell=True) != 0:
                 sys.exit(77)
 
         if 'not_in_rhel' in scenario.tags:
             if call('rpm -qi NetworkManager |grep -q build.*bos.redhat.com', shell=True) == 0 or \
-            check_output("rpm --queryformat %{RELEASE} -q NetworkManager |awk -F .  '{ print ($1 < 200) }'", shell=True).strip() == '1':
+            check_output("rpm --queryformat %{RELEASE} -q NetworkManager |awk -F .  '{ print ($1 < 200) }'", shell=True).decode('utf-8').strip() == '1':
                 sys.exit(77)
 
         if 'not_on_s390x' in scenario.tags:
-            arch = check_output("uname -p", shell=True).strip()
+            arch = check_output("uname -p", shell=True).decode('utf-8').strip()
             if arch == "s390x":
                 sys.exit(77)
 
         if 'not_on_aarch64' in scenario.tags:
-            arch = check_output("uname -p", shell=True).strip()
+            arch = check_output("uname -p", shell=True).decode('utf-8').strip()
             if arch == "aarch64":
                 sys.exit(77)
 
         if 'not_on_aarch64_but_pegas' in scenario.tags:
-            arch = check_output("uname -p", shell=True).strip()
-            ver = check_output("uname -r", shell=True).strip()
+            arch = check_output("uname -p", shell=True).decode('utf-8').strip()
+            ver = check_output("uname -r", shell=True).decode('utf-8').strip()
             if arch == "aarch64":
                 if "4.5" in ver:
                     sys.exit(77)
@@ -295,7 +295,7 @@ def before_scenario(context, scenario):
             def create_lock(dir):
                 if os.listdir(dir) == []:
                     lock = int(time.time())
-                    print ("* creating new gsm lock %s" % lock)
+                    print(("* creating new gsm lock %s" % lock))
                     os.mkdir("%s%s" % (dir, lock))
                     return True
                 else:
@@ -304,7 +304,7 @@ def before_scenario(context, scenario):
             def is_lock_old(lock):
                 lock += 3600
                 if lock < int(time.time()):
-                    print ("* lock %s is older than an hour" % lock)
+                    print(("* lock %s is older than an hour" % lock))
                     return True
                 else:
                     return False
@@ -326,7 +326,7 @@ def before_scenario(context, scenario):
                         continue
                     else:
                         timeout -= freq
-                        print ("** still locked.. wating %s seconds before next try" % freq)
+                        print(("** still locked.. wating %s seconds before next try" % freq))
                         if not initialized:
                             reinitialize_devices()
                         sleep(freq)
@@ -337,10 +337,6 @@ def before_scenario(context, scenario):
         if 'connectivity' in scenario.tags:
             print ("---------------------------")
             print ("add connectivity checker")
-            if call("grep -q Ootpa /etc/redhat-release", shell=True) == 0:
-                print ("---------------------------")
-                print ("Skipping in Ootpa")
-                sys.exit(77)
             call("echo '[connectivity]' > /etc/NetworkManager/conf.d/99-connectivity.conf", shell=True)
             call("echo 'uri=http://fedoraproject.org/static/hotspot.txt' >> /etc/NetworkManager/conf.d/99-connectivity.conf", shell=True)
             call("echo 'response=OK' >> /etc/NetworkManager/conf.d/99-connectivity.conf", shell=True)
@@ -355,7 +351,7 @@ def before_scenario(context, scenario):
             call("modprobe -r cdc-mbim", shell=True)
 
         if 'need_s390x' in scenario.tags:
-            arch = check_output("uname -p", shell=True).strip()
+            arch = check_output("uname -p", shell=True).decode('utf-8').strip()
             if arch != "s390x":
                 sys.exit(77)
 
@@ -533,7 +529,7 @@ def before_scenario(context, scenario):
         #         call('sudo nmcli con add type ethernet ifname eth9 con-name testeth9 autoconnect no', shell=True)
 
         if 'logging' in scenario.tags:
-            context.loggin_level = check_output('nmcli -t -f LEVEL general logging', shell=True).strip()
+            context.loggin_level = check_output('nmcli -t -f LEVEL general logging', shell=True).decode('utf-8').strip()
 
         if 'nmcli_general_profile_pickup_doesnt_break_network' in scenario.tags:
             print("---------------------------")
@@ -558,25 +554,21 @@ def before_scenario(context, scenario):
 
         if '8021x' in scenario.tags:
             print ("---------------------------")
-            arch = check_output("uname -p", shell=True).strip()
+            arch = check_output("uname -p", shell=True).decode('utf-8').strip()
             if arch == "s390x" or arch == 'aarch64':
                 sys.exit(77)
             setup_hostapd()
 
         if 'simwifi_wpa2' in scenario.tags:
-            if call("grep -q Ootpa /etc/redhat-release", shell=True) == 0:
-                print ("---------------------------")
-                print ("Skipping in Ootpa")
-                sys.exit(77)
             print ("---------------------------")
-            arch = check_output("uname -p", shell=True).strip()
+            arch = check_output("uname -p", shell=True).decode('utf-8').strip()
             if arch != "x86_64":
                 sys.exit(77)
             setup_hostapd_wireless('wpa2')
 
         if 'vpnc' in scenario.tags:
             print ("---------------------------")
-            arch = check_output("uname -p", shell=True).strip()
+            arch = check_output("uname -p", shell=True).decode('utf-8').strip()
             if arch == "s390x" or arch == 'aarch64':
                 sys.exit(77)
             call("[ -f /etc/yum.repos.d/epel.repo ] || sudo rpm -i http://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm", shell=True)
@@ -586,7 +578,7 @@ def before_scenario(context, scenario):
         if 'lldp' in scenario.tags:
             print ("---------------------------")
             print ("install tcpreplay")
-            arch = check_output("uname -p", shell=True).strip()
+            arch = check_output("uname -p", shell=True).decode('utf-8').strip()
             if arch == "s390x" or arch == 'aarch64':
                 sys.exit(77)
             wait_for_testeth0()
@@ -596,7 +588,7 @@ def before_scenario(context, scenario):
         if 'openvpn' in scenario.tags:
             print ("---------------------------")
             print ("setting up OpenVPN")
-            arch = check_output("uname -p", shell=True).strip()
+            arch = check_output("uname -p", shell=True).decode('utf-8').strip()
             if arch == "s390x" or arch == 'aarch64':
                 sys.exit(77)
             wait_for_testeth0()
@@ -663,10 +655,6 @@ def before_scenario(context, scenario):
             setup_racoon (mode="main", dh_group=5)
 
         if 'macsec' in scenario.tags:
-            if call("grep -q Ootpa /etc/redhat-release", shell=True) == 0:
-                print ("---------------------------")
-                print ("Skipping in Ootpa")
-                sys.exit(77)
             print("---------------------------")
             print("installing macsec stuff")
             install = "yum install -y https://vbenes.fedorapeople.org/NM/dnsmasq-debuginfo-2.76-2.el7.$(uname -p).rpm \
@@ -684,7 +672,7 @@ def before_scenario(context, scenario):
         if 'pptp' in scenario.tags:
             print ("---------------------------")
             print ("setting up pptpd")
-            arch = check_output("uname -p", shell=True).strip()
+            arch = check_output("uname -p", shell=True).decode('utf-8').strip()
             if arch == "s390x" or arch == 'aarch64':
                 sys.exit(77)
             wait_for_testeth0()
@@ -722,7 +710,7 @@ def before_scenario(context, scenario):
         if 'restore_hostname' in scenario.tags:
            print ("---------------------------")
            print ("saving original hostname")
-           context.original_hostname = check_output('hostname', shell=True).strip()
+           context.original_hostname = check_output('hostname', shell=True).decode('utf-8').strip()
 
         if 'runonce' in scenario.tags:
             print ("---------------------------")
@@ -736,7 +724,7 @@ def before_scenario(context, scenario):
         if 'slow_team' in scenario.tags:
             print ("---------------------------")
             print ("run just on x86_64")
-            arch = check_output("uname -p", shell=True).strip()
+            arch = check_output("uname -p", shell=True).decode('utf-8').strip()
             if arch != "x86_64":
                 sys.exit(77)
             print ("---------------------------")
@@ -748,7 +736,7 @@ def before_scenario(context, scenario):
         if 'openvswitch' in scenario.tags:
             print ("---------------------------")
             print ("starting openvswitch if not active")
-            arch = check_output("uname -p", shell=True).strip()
+            arch = check_output("uname -p", shell=True).decode('utf-8').strip()
             if arch == "s390x":
                 sys.exit(77)
             if call('rpm -q NetworkManager-ovs', shell=True) != 0:
@@ -832,7 +820,7 @@ def before_scenario(context, scenario):
 
         if 'ipv4_method_shared' in scenario.tags:
             context.enforcing = False
-            if check_output('getenforce', shell=True).strip() == 'Enforcing':
+            if check_output('getenforce', shell=True).decode('utf-8').strip() == 'Enforcing':
                 print("---------------------------")
                 print("WORKAROUND for permissive selinux")
                 context.enforcing = True
@@ -840,26 +828,26 @@ def before_scenario(context, scenario):
 
         try:
             context.nm_pid = nm_pid()
-        except CalledProcessError, e:
+        except CalledProcessError as e:
             context.nm_pid = None
 
         context.nm_restarted = False
         context.crashed_step = False
 
-        print("NetworkManager process id before: %s" % context.nm_pid)
+        print(("NetworkManager process id before: %s" % context.nm_pid))
 
         if context.nm_pid is not None:
             context.log.write("NetworkManager memory consumption before: %d KiB\n" % nm_size_kb())
             if call("[ -f /etc/systemd/system/NetworkManager.service ] && grep -q valgrind /etc/systemd/system/NetworkManager.service", shell=True) == 0:
                 call("LOGNAME=root HOSTNAME=localhost gdb /usr/sbin/NetworkManager -ex 'target remote | vgdb' -ex 'monitor leak_check summary' -batch", shell=True, stdout=context.log, stderr=context.log)
 
-        context.log_cursor = check_output("journalctl --lines=0 --show-cursor |awk '/^-- cursor:/ {print \"\\\"--after-cursor=\"$NF\"\\\"\"; exit}'", shell=True).strip()
+        context.log_cursor = check_output("journalctl --lines=0 --show-cursor |awk '/^-- cursor:/ {print \"\\\"--after-cursor=\"$NF\"\\\"\"; exit}'", shell=True).decode('utf-8').strip()
 
         os.system("echo '~~~~~~~~~~~~~~~~~~~~~~~~~~ TRAFFIC LOG ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~' > /tmp/network-traffic.log")
         Popen("sudo tcpdump -nne -i any >> /tmp/network-traffic.log", shell=True)
 
     except Exception as e:
-        print("Error in before_scenario: %s" % e.message)
+        print(("Error in before_scenario"))
         traceback.print_exc(file=sys.stdout)
 
 def after_step(context, step):
@@ -889,7 +877,7 @@ def after_step(context, step):
     if not context.nm_restarted and not context.crashed_step:
         new_pid = nm_pid()
         if new_pid != context.nm_pid:
-            print ('NM Crashed as new PID %s is not old PID %s' %(new_pid, context.nm_pid))
+            print(('NM Crashed as new PID %s is not old PID %s' %(new_pid, context.nm_pid)))
             context.crashed_step = step.name
 
 def after_scenario(context, scenario):
@@ -898,14 +886,14 @@ def after_scenario(context, scenario):
     nm_pid_after = None
     try:
         nm_pid_after = nm_pid()
-        print("NetworkManager process id after: %s (was %s)" % (nm_pid_after, context.nm_pid))
+        print(("NetworkManager process id after: %s (was %s)" % (nm_pid_after, context.nm_pid)))
         # if getattr(context, 'nm_restarted', False) or \
         #     'restart' in scenario.tags or \
         #     nm_pid_after != context.nm_pid:
         #
 
     except Exception as e:
-        print("nm_pid wasn't set. Probably crash in before_scenario: %s" % e.message)
+        print(("nm_pid wasn't set. Probably crash in before_scenario"))
         pass
 
     try:
@@ -1052,7 +1040,7 @@ def after_scenario(context, scenario):
             call('ip link del nm-bond', shell=True)
             call('ip link del bond0', shell=True)
             #sleep(TIMER)
-            print (os.system('ls /proc/net/bonding'))
+            print((os.system('ls /proc/net/bonding')))
 
         if 'slaves' in scenario.tags:
             print ("---------------------------")
@@ -1829,7 +1817,7 @@ def after_scenario(context, scenario):
             print("removing testveth device setup for all test devices")
             if hasattr(context, 'testvethns'):
                 for ns in context.testvethns:
-                    print("Removing the setup in %s namespace" % ns)
+                    print(("Removing the setup in %s namespace" % ns))
                     call('[ -f /tmp/%s.pid ] && ip netns exec %s kill -SIGCONT $(cat /tmp/%s.pid)' % (ns, ns, ns), shell=True)
                     call('[ -f /tmp/%s.pid ] && kill $(cat /tmp/%s.pid)' % (ns, ns) , shell=True)
                     call('ip netns del %s' % ns, shell=True)
@@ -1898,12 +1886,12 @@ def after_scenario(context, scenario):
         if context.crashed_step:
             print ("\n\n!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
             print ("!! NM CRASHED. NEEDS INSPECTION. FAILING THE TEST                      !!")
-            print ("!! CRASHING STEP: %s" %(context.crashed_step))
+            print(("!! CRASHING STEP: %s" %(context.crashed_step)))
             print ("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n\n")
             sys.exit(1)
 
     except Exception as e:
-        print("Error in after_scenario: %s" % e.message)
+        print(("Error in after_scenario"))
         traceback.print_exc(file=sys.stdout)
 
 
