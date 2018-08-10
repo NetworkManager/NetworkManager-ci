@@ -13,7 +13,7 @@ from glob import glob
 
 def run(context, command, *a, **kw):
     try:
-        output = subprocess.check_output(command, shell=True, stderr=subprocess.STDOUT, *a, **kw)
+        output = subprocess.check_output(command, shell=True, stderr=subprocess.STDOUT, *a, **kw).decode('utf-8')
         returncode = 0
         exception = None
     except subprocess.CalledProcessError as e:
