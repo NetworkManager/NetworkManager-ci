@@ -81,8 +81,8 @@ local_setup_configure_nm_eth () {
     if grep -q Ootpa /etc/redhat-release; then
         yum -y install python3-pip
         pip install --upgrade pip
-        pip install python3-pexpect
         pip install pyroute2
+        yum -y install python3-pexpect
         yum -y install git python-netaddr iw net-tools wireshark teamd bash-completion radvd psmisc bridge-utils firewalld dhcp ethtool dbus-python pygobject3 pygobject2 dnsmasq tcpdump --skip-broken
         yum -y install http://dl.fedoraproject.org/pub/fedora/linux/releases/28/Everything/x86_64/os/Packages/p/python2-dbus-1.2.4-13.fc28.x86_64.rpm
         yum -y remove python2-six python-six
