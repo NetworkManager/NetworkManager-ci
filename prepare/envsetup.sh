@@ -89,6 +89,11 @@ local_setup_configure_nm_eth () {
         yum -y install https://kojipkgs.fedoraproject.org//packages/tcpreplay/4.2.5/4.fc28/$(uname -p)/tcpreplay-4.2.5-4.fc28.$(uname -p).rpm
         yum install -y http://download.eng.bos.redhat.com/brewroot/packages/python-behave/1.2.5/23.el8+7/noarch/python3-behave-1.2.5-23.el8+7.noarch.rpm http://download.eng.bos.redhat.com/brewroot/packages/python-parse/1.6.6/8.el8+7/noarch/python3-parse-1.6.6-8.el8+7.noarch.rpm http://download.eng.bos.redhat.com/brewroot/packages/python-parse_type/0.3.4/15.el8+7/noarch/python3-parse_type-0.3.4-15.el8+7.noarch.rpm
         ln -s /usr/bin/behave-3 /usr/bin/behave
+
+        # Make python3 default if it's not
+        rm -rf /usr/bin/python
+        ln -s /usr/bin/python3 /usr/bin/python
+
         #yum -y install https://kojipkgs.fedoraproject.org//packages/python-six/1.9.0/2.fc23/noarch/python-six-1.9.0-2.fc23.noarch.rpm https://kojipkgs.fedoraproject.org//packages/python-behave/1.2.5/18.el7/noarch/python2-behave-1.2.5-18.el7.noarch.rpm https://kojipkgs.fedoraproject.org//packages/python-enum34/1.1.6/4.fc28/noarch/python2-enum34-1.1.6-4.fc28.noarch.rpm
         yum -y remove NetworkManager-config-connectivity-fedora --skip-broken
         yum -y install http://download.eng.bos.redhat.com/brewroot/packages/openvswitch/2.9.0/3.el8+7/$(uname -p)/openvswitch-2.9.0-3.el8+7.$(uname -p).rpm
