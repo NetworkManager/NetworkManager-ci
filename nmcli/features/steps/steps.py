@@ -17,7 +17,7 @@ def run(context, command, *a, **kw):
         returncode = 0
         exception = None
     except subprocess.CalledProcessError as e:
-        output = e.output
+        output = str(e.output)
         returncode = e.returncode
         exception = e
     context.embed('text/plain', '$?=%d' % returncode, caption='%s result' % command)
@@ -1552,7 +1552,7 @@ def prompt_is_not_running(context):
     sleep(0.2)
     if context.prompt.pid:
         prompt = False
-        for x in xrange(1,4):
+        for x in range(1,4):
             prompt = context.prompt.isalive()
             if not prompt:
                 break
@@ -1576,7 +1576,7 @@ def quit_editor(context):
 def reboot(context):
     context.nm_restarted = True
     assert command_code(context, "sudo service NetworkManager stop") == 0
-    for x in xrange(1,10):
+    for x in range(1,10):
         command_code(context, "sudo ip link set dev eth%d down" %int(x))
         command_code(context, "sudo ip addr flush dev eth%d" %int(x))
 
