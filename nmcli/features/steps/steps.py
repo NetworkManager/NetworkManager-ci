@@ -1144,7 +1144,7 @@ def add_novice_connection(context):
 
 @step(u'"{pattern}" is visible with command "{command}"')
 def check_pattern_visible_with_command(context, pattern, command):
-    cmd = '/bin/bash -c "%s"' %command
+    cmd = "/bin/bash -c '%s'" %command
     proc = pexpect.spawn(cmd, maxread=100000, logfile=context.log, encoding='utf-8')
     if proc.expect([pattern, pexpect.EOF]) != 0:
         sleep(1)
@@ -1155,7 +1155,7 @@ def check_pattern_visible_with_command(context, pattern, command):
 
 @step(u'"{pattern}" is visible with command "{command}" in "{seconds}" seconds')
 def check_pattern_visible_with_command_in_time(context, pattern, command, seconds):
-    cmd = '/bin/bash -c "%s"' %command
+    cmd = "/bin/bash -c '%s'" %command
     seconds = int(seconds)
     orig_seconds = seconds
     while seconds > 0:
@@ -1169,7 +1169,7 @@ def check_pattern_visible_with_command_in_time(context, pattern, command, second
 
 @step(u'"{pattern}" is visible with command "{command}" for full "{seconds}" seconds')
 def check_pattern_visible_with_command_fortime(context, pattern, command, seconds):
-    cmd = '/bin/bash -c "%s"' %command
+    cmd = "/bin/bash -c '%s'" %command
     seconds = int(seconds)
     orig_seconds = seconds
     while seconds > 0:
@@ -1184,7 +1184,7 @@ def check_pattern_visible_with_command_fortime(context, pattern, command, second
 
 @step(u'"{pattern}" is not visible with command "{command}" for full "{seconds}" seconds')
 def check_pattern_visible_with_command_fortime(context, pattern, command, seconds):
-    cmd = '/bin/bash -c "%s"' %command
+    cmd = "/bin/bash -c '%s'" %command
     seconds = int(seconds)
     orig_seconds = seconds
     while seconds > 0:
@@ -1197,13 +1197,13 @@ def check_pattern_visible_with_command_fortime(context, pattern, command, second
         sleep(1)
 
 
-@step(u'"{pattern}" is not visible with command "{command}" in "{seconds}" seconds')
+@step('"{pattern}" is not visible with command "{command}" in "{seconds}" seconds')
 def check_pattern_not_visible_with_command_in_time(context, pattern, command, seconds):
-    cmd = '/bin/bash -c "%s"' %command
+    cmd = "/bin/bash -c '%s'" %command
     seconds = int(seconds)
     orig_seconds = seconds
     while seconds > 0:
-        proc = pexpect.spawn(cmd, timeout = 180, logfile=context.log, encoding='utf-8')
+        proc = pexpect.spawn(cmd.encode('utf-8'), timeout = 180, logfile=context.log, encoding='utf-8')
         if proc.expect([pattern, pexpect.EOF]) != 0:
             return True
         seconds = seconds - 1
@@ -1211,13 +1211,13 @@ def check_pattern_not_visible_with_command_in_time(context, pattern, command, se
     raise Exception('Did still see the pattern %s after %d seconds' % (pattern, orig_seconds))
 
 
-@step(u'"{pattern}" is not visible with command "{command}"')
+@step('"{pattern}" is not visible with command "{command}"')
 def check_pattern_not_visible_with_command(context, pattern, command):
-    cmd = '/bin/bash -c "%s"' %command
+    cmd = "/bin/bash -c '%s'" %command
     proc = pexpect.spawn(cmd, maxread=100000, logfile=context.log, encoding='utf-8')
     if proc.expect([pattern, pexpect.EOF]) == 0:
         sleep(1)
-        proc = pexpect.spawn(cmd, maxread=100000, logfile=context.log)
+        proc = pexpect.spawn(cmd, maxread=100000, logfile=context.log, encoding='utf-8')
         assert proc.expect([pattern, pexpect.EOF]) != 0, 'pattern %s is visible with %s' % (pattern, command)
     else:
         return True
@@ -1264,13 +1264,13 @@ def check_ifaces_in_state(context, exclude_ifaces, iface_state):
     check_pattern_not_visible_with_command(context, iface_state, cmd)
 
 
-@step(u'Ping "{domain}"')
-@step(u'Ping "{domain}" "{number}" times')
+@step('Ping "{domain}"')
+@step('Ping "{domain}" "{number}" times')
 def ping_domain(context, domain, number=2):
     if number != 2:
-        ping = pexpect.spawn('ping -4 -c %s %s' %(number, domain), logfile=context.log, encoding='utf-8')
+        ping = pexpect.spawn("ping -q -4 -c %s %s" %(number, domain), logfile=context.log, encoding='utf-8')
     else:
-        ping = pexpect.spawn('curl %s' %(domain), logfile=context.log, encoding='utf-8')
+        ping = pexpect.spawn("curl -s %s" %(domain), logfile=context.log, encoding='utf-8')
     ping.expect([pexpect.EOF])
     ping.close()
     assert ping.exitstatus == 0
@@ -1278,7 +1278,7 @@ def ping_domain(context, domain, number=2):
 
 @step(u'Ping "{domain}" from "{device}" device')
 def ping_domain_from_device(context, domain, device):
-    ping = pexpect.spawn('ping -4 -c 2 -I %s %s' %(device, domain), logfile=context.log, encoding='utf-8')
+    ping = pexpect.spawn("ping -4 -c 2 -I %s %s" %(device, domain), logfile=context.log, encoding='utf-8')
     ping.expect([pexpect.EOF])
     ping.close()
     assert ping.exitstatus == 0
@@ -1286,7 +1286,7 @@ def ping_domain_from_device(context, domain, device):
 
 @step(u'Ping6 "{domain}"')
 def ping6_domain(context, domain):
-    ping = pexpect.spawn('ping6 -c 2 %s' %domain, logfile=context.log, encoding='utf-8')
+    ping = pexpect.spawn("ping6 -c 2 %s" %domain, logfile=context.log, encoding='utf-8')
     ping.expect([pexpect.EOF])
     ping.close()
     assert ping.exitstatus == 0
