@@ -605,7 +605,7 @@ def before_scenario(context, scenario):
             sleep(2)
 
             samples = glob(os.path.abspath('tmp/openvpn'))[0]
-            cfg = open("/etc/openvpn/trest-server.conf'", "w")
+            cfg = open("/etc/openvpn/trest-server.conf", "w")
             cfg.write('# OpenVPN configuration for client testing')
             cfg.write("\n" + 'mode server')
             cfg.write("\n" + 'tls-server')

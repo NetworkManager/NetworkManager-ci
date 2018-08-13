@@ -691,7 +691,7 @@ def compare_devices(context):
 
         if a_type == 'dict':
             for a_key in a.keys():
-                if b.has_key(a_key):
+                if a_key in b:
                     if not deep_compare(a_desc + '.' + a_key, a[a_key],
                                 b_desc + '.' + a_key, b[a_key]):
                         ret = False
@@ -700,7 +700,7 @@ def compare_devices(context):
                     ret = False
 
             for b_key in b.keys():
-                if not a.has_key(b_key):
+                if b_key not in a:
                     print ('%s does not have %s' % (a_desc, b_key))
                     ret = False
         else:
@@ -1821,7 +1821,7 @@ def submit_team_command_in_editor(context, command):
 
 @step(u'Spawn "{command}" command')
 def spawn_command(context, command):
-    context.prompt = pexpect.spawn(command, logfile=context.log)
+    context.prompt = pexpect.spawn(command, logfile=context.log, encoding='utf-8')
     if not hasattr(context, 'spawned_processes'):
         context.spawned_processes = {}
     context.spawned_processes[command] = context.prompt
