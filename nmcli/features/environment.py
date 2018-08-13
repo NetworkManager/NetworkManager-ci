@@ -358,7 +358,7 @@ def before_scenario(context, scenario):
         if 'allow_veth_connections' in scenario.tags:
             if call("grep '^ENV{ID_NET_DRIVER}==\"veth\", ENV{NM_UNMANAGED}=\"1\"' /usr/lib/udev/rules.d/85-nm-unmanaged.rules", shell=True) == 0:
                 call("sed -i 's/^ENV{ID_NET_DRIVER}==\"veth\", ENV{NM_UNMANAGED}=\"1\"/#ENV{ID_NET_DRIVER}==\"veth\", ENV{NM_UNMANAGED}=\"1\"/' /usr/lib/udev/rules.d/85-nm-unmanaged.rules", shell=True)
-                cfg = Popen("sudo sh -c 'cat > /etc/NetworkManager/conf.d/99-unmanaged.conf'", stdin=PIPE, shell=True).stdin
+                cfg = open("/etc/NetworkManager/conf.d/99-unmanaged.conf", "w")
                 cfg.write('[main]')
                 cfg.write("\n" + 'no-auto-default=eth*')
                 cfg.write("\n")
@@ -605,7 +605,7 @@ def before_scenario(context, scenario):
             sleep(2)
 
             samples = glob(os.path.abspath('tmp/openvpn'))[0]
-            cfg = Popen("sudo sh -c 'cat >/etc/openvpn/trest-server.conf'", stdin=PIPE, shell=True).stdin
+            cfg = open("/etc/openvpn/trest-server.conf'", "w")
             cfg.write('# OpenVPN configuration for client testing')
             cfg.write("\n" + 'mode server')
             cfg.write("\n" + 'tls-server')
@@ -681,12 +681,12 @@ def before_scenario(context, scenario):
             call("rpm -q NetworkManager-pptp || sudo yum -y install NetworkManager-pptp", shell=True)
 
             call("sudo rm -f /etc/ppp/ppp-secrets", shell=True)
-            psk = Popen("sudo sh -c 'cat >/etc/ppp/chap-secrets'", stdin=PIPE, shell=True).stdin
+            psk = open("/etc/ppp/chap-secrets", "w")
             psk.write("budulinek pptpd passwd *\n")
             psk.close()
 
             if not os.path.isfile('/tmp/nm_pptp_configured'):
-                cfg = Popen("sudo sh -c 'cat >/etc/pptpd.conf'", stdin=PIPE, shell=True).stdin
+                cfg = open("/etc/pptpd.conf", "w")
                 cfg.write('# pptpd configuration for client testing')
                 cfg.write("\n" + 'option /etc/ppp/options.pptpd')
                 cfg.write("\n" + 'logwtmp')
