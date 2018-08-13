@@ -89,7 +89,7 @@ local_setup_configure_nm_eth () {
         python -m pip install pyroute2
         python -m pip install pexpect
         python -m pip install netaddr
-
+        python -m pip install pyte
         # Yum more deps
         yum -y install git python-netaddr iw net-tools wireshark teamd bash-completion radvd psmisc bridge-utils firewalld dhcp ethtool dbus-python pygobject3 pygobject2 dnsmasq tcpdump --skip-broken
 

@@ -5,7 +5,7 @@ logger -t $0 "Running test $1"
 export PATH=$PATH:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/root/bin
 DIR=$(pwd)
 
-. $DIR/prepare/devsetup.sh
+. $DIR/prepare/envsetup.sh
 setup_configure_environment "$1"
 
 # install the pyte VT102 emulator

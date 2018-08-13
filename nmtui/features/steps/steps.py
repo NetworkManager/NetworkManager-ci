@@ -1,5 +1,5 @@
-#!/usr/bin/python
-
+# -*- coding: UTF-8 -*-
+from __future__ import absolute_import, division, print_function, unicode_literals
 import os
 import pyte
 import pexpect
@@ -47,7 +47,7 @@ keys['F12'] = "\x1b\x5b\x32\x34\x7e"
 
 def print_screen_wo_cursor(screen):
     for i in range(len(screen.display)):
-        print(screen.display[i].encode('utf-8'))
+        print(screen.display[i])
 
 def get_cursored_screen(screen):
     myscreen_display = screen.display
@@ -63,15 +63,15 @@ def get_screen_string(screen):
 def print_screen(screen):
     cursored_screen = get_cursored_screen(screen)
     for i in range(len(cursored_screen)):
-        print(cursored_screen[i].encode('utf-8'))
+        print(cursored_screen[i])
 
 def feed_print_screen(context):
     if os.path.isfile('/tmp/nmtui.out'):
-        context.stream.feed(open('/tmp/nmtui.out', 'r').read())
+        context.stream.feed(open('/tmp/nmtui.out', 'r').read().encode('utf-8'))
     print_screen(context.screen)
 
 def feed_stream(stream):
-    stream.feed(open(OUTPUT, 'r').read())
+    stream.feed(open(OUTPUT, 'r').read().encode('utf-8'))
 
 def init_screen():
     stream = pyte.ByteStream()
@@ -81,7 +81,7 @@ def init_screen():
 
 def go_until_pattern_matches_line(context, key, pattern, limit=50):
     sleep(0.2)
-    context.stream.feed(open(OUTPUT, 'r').read())
+    context.stream.feed(open(OUTPUT, 'r').read().encode('utf-8'))
     for i in range(0,limit):
         match = re.match(pattern, context.screen.display[context.screen.cursor.y], re.UNICODE)
         if match is not None:
@@ -89,25 +89,25 @@ def go_until_pattern_matches_line(context, key, pattern, limit=50):
         else:
             context.tui.send(key)
             sleep(0.3)
-            context.stream.feed(open(OUTPUT, 'r').read())
+            context.stream.feed(open(OUTPUT, 'r').read().encode('utf-8'))
     return None
 
 
 def go_until_pattern_matches_aftercursor_text(context, key, pattern, limit=50, include_precursor_char=True):
     pre_c = 0
     sleep(0.2)
-    context.stream.feed(open(OUTPUT, 'r').read())
+    context.stream.feed(open(OUTPUT, 'r').read().encode('utf-8'))
     if include_precursor_char is True:
         pre_c = -1
     for i in range(0,limit):
         match = re.match(pattern, context.screen.display[context.screen.cursor.y][context.screen.cursor.x+pre_c:], re.UNICODE)
-        print(context.screen.display[context.screen.cursor.y].encode('utf-8'))
+        print(context.screen.display[context.screen.cursor.y])
         if match is not None:
             return match
         else:
             context.tui.send(key)
             sleep(0.3)
-            context.stream.feed(open(OUTPUT, 'r').read())
+            context.stream.feed(open(OUTPUT, 'r').read().encode('utf-8'))
     return None
 
 def dump_command_output(command):
@@ -128,7 +128,7 @@ def prepare_environment(context):
 
 @step(u'Start nmtui')
 def start_nmtui(context):
-    context.tui = pexpect.spawn('sh -c "TERM=%s nmtui > %s"' % (TERM_TYPE, OUTPUT))
+    context.tui = pexpect.spawn('sh -c "TERM=%s nmtui > %s"' % (TERM_TYPE, OUTPUT), encoding='utf-8')
     sleep(3)
 
 
@@ -214,7 +214,7 @@ def back_to_con_list(context):
 
 @step(u'Come back to main screen')
 def back_to_main(context):
-    current_nm_version = "".join(check_output("""NetworkManager -V |awk 'BEGIN { FS = "." }; {printf "%03d%03d%03d", $1, $2, $3}'""", shell=True).split('-')[0])
+    current_nm_version = "".join(check_output("""NetworkManager -V |awk 'BEGIN { FS = "." }; {printf "%03d%03d%03d", $1, $2, $3}'""", shell=True).decode('utf-8').split('-')[0])
     context.tui.send(keys['ESCAPE'])
     if current_nm_version < "001003000":
         context.execute_steps(u'* Start nmtui')
@@ -231,7 +231,7 @@ def choose_connection_action(context, action):
 
 @step(u'Bring up connection "{connection}"')
 def bring_up_connection(context, connection):
-    cli = pexpect.spawn('nmcli connection up %s' % connection, timeout = 180)
+    cli = pexpect.spawn('nmcli connection up %s' % connection, encoding='utf-8', timeout = 180)
     r = cli.expect(['Error', pexpect.TIMEOUT, pexpect.EOF])
     if r == 0:
         raise Exception('Got an Error while upping connection %s' % connection)
@@ -249,7 +249,7 @@ def bring_up_connection_ignore_everything(context, connection):
 def confirm_route_screen(context):
     context.tui.send(keys['DOWNARROW']*64)
     sleep(0.2)
-    context.stream.feed(open(OUTPUT, 'r').read())
+    context.stream.feed(open(OUTPUT, 'r').read().encode('utf-8'))
     match = re.match(r'^<OK>.*', context.screen.display[context.screen.cursor.y][context.screen.cursor.x-1:], re.UNICODE)
     assert match is not None, "Could not get to the <OK> route dialog button!"
     context.tui.send(keys['ENTER'])
@@ -259,7 +259,7 @@ def confirm_route_screen(context):
 def confirm_slave_screen(context):
     context.tui.send(keys['DOWNARROW']*64)
     sleep(0.2)
-    context.stream.feed(open(OUTPUT, 'r').read())
+    context.stream.feed(open(OUTPUT, 'r').read().encode('utf-8'))
     match = re.match(r'^<OK>.*', context.screen.display[context.screen.cursor.y][context.screen.cursor.x-1:], re.UNICODE)
     assert match is not None, "Could not get to the <OK> button! (In form? Segfault?)"
     context.tui.send(keys['ENTER'])
@@ -269,7 +269,7 @@ def confirm_slave_screen(context):
 def confirm_connection_screen(context):
     context.tui.send(keys['DOWNARROW']*64)
     sleep(0.2)
-    context.stream.feed(open(OUTPUT, 'r').read())
+    context.stream.feed(open(OUTPUT, 'r').read().encode('utf-8'))
     match = re.match(r'^<OK>.*', context.screen.display[context.screen.cursor.y][context.screen.cursor.x-1:], re.UNICODE)
     assert match is not None, "Could not get to the <OK> button! (In form? Segfault?)"
     context.tui.send(keys['ENTER'])
@@ -279,7 +279,7 @@ def confirm_connection_screen(context):
 def cannot_confirm_connection_screen(context):
     context.tui.send(keys['DOWNARROW']*64)
     sleep(0.2)
-    context.stream.feed(open(OUTPUT, 'r').read())
+    context.stream.feed(open(OUTPUT, 'r').read().encode('utf-8'))
     match = re.match(r'^<Cancel>.*', context.screen.display[context.screen.cursor.y][context.screen.cursor.x-1:], re.UNICODE)
     assert match is not None, "<OK> button is likely not greyed got: %s at the last line" % match.group(1)
 
@@ -419,7 +419,7 @@ def execute_command(context, command):
 
 @step(u'Note the output of "{command}"')
 def note_the_output_of(context, command):
-    context.noted_value = subprocess.check_output(command, shell=True).strip() # kill the \n
+    context.noted_value = subprocess.check_output(command, shell=True).decode('utf-8').strip() # kill the \n
 
 
 @step(u'Restore hostname from the noted value')
@@ -431,10 +431,10 @@ def restore_hostname(context):
 @step(u'"{pattern}" is visible with command "{command}"')
 def check_pattern_visible_with_command(context, pattern, command):
     cmd = '/bin/bash -c "%s"' %command
-    proc = pexpect.spawn(cmd, maxread=100000)
+    proc = pexpect.spawn(cmd, encoding='utf-8', maxread=100000)
     if proc.expect([pattern, pexpect.EOF]) != 0:
         sleep(1)
-        proc = pexpect.spawn(cmd, maxread=100000)
+        proc = pexpect.spawn(cmd, encoding='utf-8', maxread=100000)
         res = proc.expect([pattern, pexpect.EOF])
         if res != 0:
             dump_command_output(command)
@@ -661,7 +661,7 @@ def flag_cap_set(context, flag, n=None, device='wlan0', giveexception=True):
             org.freedesktop.DBus.Properties.Get \
             string:"org.freedesktop.NetworkManager.Device.Wireless" \
             string:"WirelessCapabilities" | grep variant | awk '{print $3}' ''' % path
-    ret = int(subprocess.check_output(cmd, shell=True).strip())
+    ret = int(subprocess.check_output(cmd, shell=True).decode('utf-8').strip())
 
     if n is None:
         if wcaps[flag] & ret == wcaps[flag]:
