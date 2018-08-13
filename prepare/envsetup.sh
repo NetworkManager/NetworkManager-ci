@@ -101,6 +101,9 @@ local_setup_configure_nm_eth () {
         # Install bridge-utils until these are obsoleted for ip
         yum install -y https://kojipkgs.fedoraproject.org//packages/bridge-utils/1.6/1.fc29/$(uname -p)/bridge-utils-1.6-1.fc29.$(uname -p).rpm
 
+        # Install openvpn dependencies
+        yum -y install https://kojipkgs.fedoraproject.org//packages/NetworkManager-openvpn/1.8.4/1.fc28/x86_64/NetworkManager-openvpn-1.8.4-1.fc28.x86_64.rpm https://kojipkgs.fedoraproject.org//packages/openvpn/2.4.6/1.fc28/x86_64/openvpn-2.4.6-1.fc28.x86_64.rpm
+
         # Install various NM dependencies
         yum -y remove NetworkManager-config-connectivity-fedora --skip-broken
         yum -y install http://download.eng.bos.redhat.com/brewroot/packages/openvswitch/2.9.0/3.el8+7/$(uname -p)/openvswitch-2.9.0-3.el8+7.$(uname -p).rpm
