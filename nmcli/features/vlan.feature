@@ -285,7 +285,7 @@ Feature: nmcli - vlan
     @vlan_not_duplicated
     Scenario: nmcli - vlan - do not duplicate mtu and ipv4 vlan
     * Add a new connection of type "vlan" and options "con-name vlan dev eth7 id 80"
-    * Modify connection "vlan" changing options "eth.mtu 1450 ipv4.method manual ipv4.addresses 1.2.3.4/24"
+    * Modify connection "vlan" changing options "ethe.mtu 1450 ipv4.method manual ipv4.addresses 1.2.3.4/24"
     * Bring "up" connection "testeth7"
     * Bring "up" connection "vlan"
     * Restart NM
@@ -298,7 +298,7 @@ Feature: nmcli - vlan
     @vlan_not_stalled_after_connection_delete
     Scenario: nmcli - vlan - delete vlan device after restart
     * Add a new connection of type "vlan" and options "con-name vlan dev eth7 id 80"
-    * Modify connection "vlan" changing options "eth.mtu 1450 ipv4.method manual ipv4.addresses 1.2.3.4/24"
+    * Modify connection "vlan" changing options "ethe.mtu 1450 ipv4.method manual ipv4.addresses 1.2.3.4/24"
     * Bring "up" connection "testeth7"
     * Bring "up" connection "vlan"
     * Restart NM
