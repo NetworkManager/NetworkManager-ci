@@ -3,9 +3,9 @@
 from __future__ import absolute_import, division, print_function, unicode_literals
 import os
 import sys
-
-reload(sys)
-sys.setdefaultencoding('utf8')
+if sys.version_info < (3, 0):
+    reload(sys)
+    sys.setdefaultencoding('utf8')
 
 import traceback
 from time import sleep, localtime, strftime
