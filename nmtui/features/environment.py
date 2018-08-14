@@ -1,7 +1,12 @@
 # -*- coding: UTF-8 -*-
 
+from __future__ import absolute_import, division, print_function, unicode_literals
 import os
 import sys
+
+reload(sys)
+sys.setdefaultencoding('utf8')
+
 import traceback
 from time import sleep, localtime, strftime
 from subprocess import call, check_output
@@ -78,7 +83,6 @@ def before_scenario(context, scenario):
                 f.write('INFO: VETH SETUP: this test has been disabled in VETH setup')
                 f.flush()
                 f.close()
-                import sys
                 sys.exit(0)
         if 'veth' in scenario.tags:
             if os.path.isfile('/tmp/nm_veth_configured'):
@@ -88,7 +92,6 @@ def before_scenario(context, scenario):
                 f.write('INFO: VETH mod: this test has been disabled in VETH setup')
                 f.flush()
                 f.close()
-                import sys
                 sys.exit(0)
         if 'eth0' in scenario.tags:
             print ("---------------------------")
@@ -133,7 +136,6 @@ def after_step(context, step):
             f.write('INFO: Skiped the test as device does not support AP/ADHOC mode')
             f.flush()
             f.close()
-            import sys
             sys.exit(0)
 
         if step.status == 'failed':

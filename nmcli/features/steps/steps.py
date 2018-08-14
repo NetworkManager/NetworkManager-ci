@@ -1148,7 +1148,7 @@ def check_pattern_visible_with_command(context, pattern, command):
     proc = pexpect.spawn(cmd, maxread=100000, logfile=context.log, encoding='utf-8')
     if proc.expect([pattern, pexpect.EOF]) != 0:
         sleep(1)
-        proc = pexpect.spawn(cmd, maxread=100000, logfile=context.log, encoding='utf-8')
+        proc = pexpect.spawn(cmd,  encoding='utf-8', maxread=100000, logfile=context.log)
         assert proc.expect([pattern, pexpect.EOF]) == 0, 'pattern %s is not visible with %s' % (pattern, command)
     else:
         return True
@@ -1203,7 +1203,7 @@ def check_pattern_not_visible_with_command_in_time(context, pattern, command, se
     seconds = int(seconds)
     orig_seconds = seconds
     while seconds > 0:
-        proc = pexpect.spawn(cmd.encode('utf-8'), timeout = 180, logfile=context.log, encoding='utf-8')
+        proc = pexpect.spawn(cmd, timeout = 180, logfile=context.log, encoding='utf-8')
         if proc.expect([pattern, pexpect.EOF]) != 0:
             return True
         seconds = seconds - 1

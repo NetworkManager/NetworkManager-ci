@@ -1,8 +1,12 @@
 # -*- coding: UTF-8 -*-
+
 from __future__ import absolute_import, division, print_function, unicode_literals
 import os
 import pexpect
 import sys
+reload(sys)
+sys.setdefaultencoding('utf8')
+
 import traceback
 import string
 import fcntl
@@ -1755,6 +1759,7 @@ def after_scenario(context, scenario):
         if 'non_utf_device' in scenario.tags:
             print ("---------------------------")
             print ("remove non utf-8 device")
+            call("nmcli device delete 'd\\314f\\\\c'", shell=True)
             call("ip link del $'d\xccf\\c'", shell=True)
             call('systemctl restart NetworkManager', shell=True)
 
@@ -1866,7 +1871,7 @@ def after_scenario(context, scenario):
         os.system("echo '~~~~~~~~~~~~~~~~~~~~~~~~~~ NM LOG ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~' > /tmp/journal-nm.log")
         os.system("sudo journalctl -u NetworkManager --no-pager -o cat %s >> /tmp/journal-nm.log" % context.log_cursor)
         if os.stat("/tmp/journal-nm.log").st_size < 20000000:
-            data = open("/tmp/journal-nm.log", 'r').read()
+            data = open("/tmp/journal-nm.log", 'r').read().encode('utf-8')
             if data:
                 context.embed('text/plain', data)
         else:
