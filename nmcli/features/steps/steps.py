@@ -832,12 +832,12 @@ def execute_command(context, command):
 
 @step(u'Execute "{command}" for "{number}" times')
 def execute_multiple_times(context, command, number):
-    orig_nm_pid = check_output('pidof NetworkManager', shell=True)
+    orig_nm_pid = check_output('pidof NetworkManager', shell=True).decode('utf-8')
 
     i = 0
     while i < int(number):
         command_code(context, command)
-        curr_nm_pid = check_output('pidof NetworkManager', shell=True)
+        curr_nm_pid = check_output('pidof NetworkManager', shell=True).decode('utf-8')
         assert curr_nm_pid == orig_nm_pid, 'NM crashed as original pid was %s but now is %s' %(orig_nm_pid, curr_nm_pid)
         i += 1
 
@@ -912,7 +912,7 @@ def flag_cap_set(context, flag, n=None, device='wlan0', giveexception=True):
             org.freedesktop.DBus.Properties.Get \
             string:"org.freedesktop.NetworkManager.Device.Wireless" \
             string:"WirelessCapabilities" | grep variant | awk '{print $3}' ''' % path
-    ret = int(check_output(cmd, shell=True).strip())
+    ret = int(check_output(cmd, shell=True).decode('utf-8').strip())
 
     if n is None:
         if wcaps[flag] & ret == wcaps[flag]:
@@ -1019,7 +1019,7 @@ def check_metered_status(context, value):
                                                 org.freedesktop.DBus.Properties.Get \
                                                 string:"org.freedesktop.NetworkManager" \
                                                 string:"Metered" |grep variant| awk \'{print $3}\''
-    ret = check_output(cmd, shell=True).strip()
+    ret = check_output(cmd, shell=True).decode('utf-8').strip()
     assert ret == value, "Metered value is %s but should be %s" %(ret, value)
 
 @step(u'Network trafic "{state}" dropped')
