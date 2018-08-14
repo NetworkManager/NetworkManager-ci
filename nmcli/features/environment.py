@@ -77,7 +77,7 @@ def reset_usb_devices():
     USBDEVFS_RESET= 21780
     def getfile(dirname, filename):
         f = open("%s/%s" % (dirname, filename), "r")
-        contents = f.read().encode('utf-8'))
+        contents = f.read().encode('utf-8')
         f.close()
         return contents
 
@@ -905,7 +905,7 @@ def after_scenario(context, scenario):
         #attach network traffic log
         call("sudo kill -1 $(pidof tcpdump)", shell=True)
         if os.stat("/tmp/network-traffic.log").st_size < 20000000:
-            traffic = open("/tmp/network-traffic.log", 'r').read().encode('utf-8'))
+            traffic = open("/tmp/network-traffic.log", 'r').read()
             if traffic:
                 context.embed('text/plain', traffic)
         else:
@@ -916,7 +916,7 @@ def after_scenario(context, scenario):
             # Attach network.service journalctl logs
             os.system("echo '~~~~~~~~~~~~~~~~~~~~~~~~~~ NETWORK SRV LOG ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~' > /tmp/journal-netsrv.log")
             os.system("sudo journalctl -u network --no-pager -o cat %s >> /tmp/journal-netsrv.log" % context.log_cursor)
-            data = open("/tmp/journal-netsrv.log", 'r').read().encode('utf-8'))
+            data = open("/tmp/journal-netsrv.log", 'r').read()
             if data:
                 context.embed('text/plain', data)
 
@@ -1392,14 +1392,14 @@ def after_scenario(context, scenario):
         if "attach_hostapd_log" in scenario.tags:
             os.system("echo '~~~~~~~~~~~~~~~~~~~~~~~~~~ HOSTAPD LOG ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~' > /tmp/journal-hostapd.log")
             os.system("sudo journalctl -u nm-hostapd --no-pager -o cat %s >> /tmp/journal-hostapd.log" % context.log_cursor)
-            data = open("/tmp/journal-hostapd.log", 'r').read().encode('utf-8'))
+            data = open("/tmp/journal-hostapd.log", 'r').read()
             if data:
                 context.embed('text/plain', data)
 
         if "attach_wpa_supplicant_log" in scenario.tags:
             os.system("echo '~~~~~~~~~~~~~~~~~~~~~~~~~~ WPA_SUPPLICANT LOG ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~' > /tmp/journal-wpa_supplicant.log")
             os.system("journalctl -u wpa_supplicant --no-pager -o cat %s >> /tmp/journal-wpa_supplicant.log" % context.log_cursor)
-            data = open("/tmp/journal-wpa_supplicant.log", 'r').read().encode('utf-8'))
+            data = open("/tmp/journal-wpa_supplicant.log", 'r').read()
             if data:
                 context.embed('text/plain', data)
 
@@ -1675,7 +1675,7 @@ def after_scenario(context, scenario):
             # Attach journalctl logs
             os.system("echo '~~~~~~~~~~~~~~~~~~~~~~~~~~ MM LOG ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~' > /tmp/journal-mm.log")
             os.system("sudo journalctl -u ModemManager --no-pager -o cat %s >> /tmp/journal-mm.log" % context.log_cursor)
-            data = open("/tmp/journal-mm.log", 'r').read().encode('utf-8'))
+            data = open("/tmp/journal-mm.log", 'r').read()
             if data:
                 context.embed('text/plain', data)
 
@@ -1872,7 +1872,7 @@ def after_scenario(context, scenario):
         os.system("echo '~~~~~~~~~~~~~~~~~~~~~~~~~~ NM LOG ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~' > /tmp/journal-nm.log")
         os.system("sudo journalctl -u NetworkManager --no-pager -o cat %s >> /tmp/journal-nm.log" % context.log_cursor)
         if os.stat("/tmp/journal-nm.log").st_size < 20000000:
-            data = open("/tmp/journal-nm.log", 'r').read().encode('utf-8')
+            data = open("/tmp/journal-nm.log", 'r').read()
             if data:
                 context.embed('text/plain', data)
         else:
@@ -1886,7 +1886,7 @@ def after_scenario(context, scenario):
                 call("LOGNAME=root HOSTNAME=localhost gdb /usr/sbin/NetworkManager -ex 'target remote | vgdb' -ex 'monitor leak_check full kinds all increased' -batch", shell=True, stdout=context.log, stderr=context.log)
 
         context.log.close ()
-        context.embed('text/plain', open("/tmp/log_%s.html" % scenario.name, 'r').read().encode('utf-8')))
+        context.embed('text/plain', open("/tmp/log_%s.html" % scenario.name, 'r').read())
         sleep(3)
 
         if context.crashed_step:
