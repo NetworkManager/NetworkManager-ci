@@ -1957,9 +1957,9 @@ Feature: nmcli: ipv4
     * Execute "ip link add AAA type dummy"
     * Execute "ip link set dev AAA up"
     * Execute "for i in $(seq 20); do for j in $(seq 200); do ip addr add 10.3.$i.$j/16 dev AAA; done; done"
-    Then "4000" is visible with command "ip addr show dev AAA | grep 'inet 10.3.' -c"
+    Then "4000" is visible with command "ip addr show dev AAA | grep "inet 10.3." -c"
     * Execute "sleep 6"
-    Then "4000" is visible with command "ip addr show dev AAA | grep 'inet 10.3.' -c"
+    Then "4000" is visible with command "ip addr show dev AAA | grep "inet 10.3." -c"
 
 
     @rhbz1428334
@@ -1986,7 +1986,7 @@ Feature: nmcli: ipv4
     * Bring "up" connection "con_ipv4"
     Then "192.168.124.1/24" is visible with command "ip a s eth3"
     Then "192.168.125.1/24" is visible with command "ip a s eth3"
-    
+
 
     @rhbz1519299
     @ver+=1.12

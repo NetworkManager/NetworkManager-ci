@@ -85,4 +85,4 @@
     @pptp
     @vpn_list_args
     Scenario: nmcli - vpn - list args
-    Then "libreswan|vpnc|openvpn|org.freedesktop.NetworkManager.libreswan" is visible with command "nmcli --complete-args connection add type vpn vpn-type ''"
+    Then "libreswan|vpnc|openvpn" is visible with command "nmcli --complete-args connection add type vpn vpn-type """

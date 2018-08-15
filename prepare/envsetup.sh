@@ -79,15 +79,34 @@ local_setup_configure_nm_eth () {
 
     #installing pip, behave, and pexpect and other deps
     if grep -q Ootpa /etc/redhat-release; then
-        yum -y install python2-pip
-        pip install --upgrade pip
-        pip install pexpect
-        pip install pyroute2
+        # Make python3 default if it's not
+        rm -rf /usr/bin/python
+        ln -s /usr/bin/python3 /usr/bin/python
+
+        # Pip down some deps
+        yum -y install python3-pip
+        python -m pip install --upgrade pip
+        python -m pip install pyroute2
+        python -m pip install pexpect
+        python -m pip install netaddr
+        python -m pip install pyte
+        python -m pip install IPy
+        
+        # Yum more deps
         yum -y install git python-netaddr iw net-tools wireshark teamd bash-completion radvd psmisc bridge-utils firewalld dhcp ethtool dbus-python pygobject3 pygobject2 dnsmasq tcpdump --skip-broken
-        yum -y install http://dl.fedoraproject.org/pub/fedora/linux/releases/28/Everything/x86_64/os/Packages/p/python2-dbus-1.2.4-13.fc28.x86_64.rpm
-        yum -y remove python2-six python-six
+
+        # Install behave with better reporting
         yum -y install https://kojipkgs.fedoraproject.org//packages/tcpreplay/4.2.5/4.fc28/$(uname -p)/tcpreplay-4.2.5-4.fc28.$(uname -p).rpm
-        yum -y install https://kojipkgs.fedoraproject.org//packages/python-six/1.9.0/2.fc23/noarch/python-six-1.9.0-2.fc23.noarch.rpm https://kojipkgs.fedoraproject.org//packages/python-behave/1.2.5/18.el7/noarch/python2-behave-1.2.5-18.el7.noarch.rpm https://kojipkgs.fedoraproject.org//packages/python-enum34/1.1.6/4.fc28/noarch/python2-enum34-1.1.6-4.fc28.noarch.rpm
+        yum install -y http://download.eng.bos.redhat.com/brewroot/packages/python-behave/1.2.5/23.el8+7/noarch/python3-behave-1.2.5-23.el8+7.noarch.rpm http://download.eng.bos.redhat.com/brewroot/packages/python-parse/1.6.6/8.el8+7/noarch/python3-parse-1.6.6-8.el8+7.noarch.rpm http://download.eng.bos.redhat.com/brewroot/packages/python-parse_type/0.3.4/15.el8+7/noarch/python3-parse_type-0.3.4-15.el8+7.noarch.rpm
+        ln -s /usr/bin/behave-3 /usr/bin/behave
+
+        # Install bridge-utils until these are obsoleted for ip
+        yum install -y https://kojipkgs.fedoraproject.org//packages/bridge-utils/1.6/1.fc29/$(uname -p)/bridge-utils-1.6-1.fc29.$(uname -p).rpm
+
+        # Install openvpn dependencies
+        yum -y install https://kojipkgs.fedoraproject.org//packages/NetworkManager-openvpn/1.8.4/1.fc28/x86_64/NetworkManager-openvpn-1.8.4-1.fc28.x86_64.rpm https://kojipkgs.fedoraproject.org//packages/openvpn/2.4.6/1.fc28/x86_64/openvpn-2.4.6-1.fc28.x86_64.rpm
+
+        # Install various NM dependencies
         yum -y remove NetworkManager-config-connectivity-fedora --skip-broken
         yum -y install http://download.eng.bos.redhat.com/brewroot/packages/openvswitch/2.9.0/3.el8+7/$(uname -p)/openvswitch-2.9.0-3.el8+7.$(uname -p).rpm
         yum -y install http://download.eng.bos.redhat.com/brewroot/packages/$(rpm -q --queryformat '%{NAME}/%{VERSION}/%{RELEASE}' NetworkManager)/$(uname -p)/NetworkManager-ovs-$(rpm -q --queryformat '%{VERSION}-%{RELEASE}' NetworkManager).$(uname -p).rpm  http://download.eng.bos.redhat.com/brewroot/packages/openvswitch/2.9.0/3.el8+7/$(uname -p)/openvswitch-2.9.0-3.el8+7.$(uname -p).rpm
