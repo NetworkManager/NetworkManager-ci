@@ -21,7 +21,7 @@ component:
 dependencies:
   beaker-tasks:
     - /distribution/command:
-        CMDS_TO_RUN: echo "NA"
+        CMDS_TO_RUN: 'if grep -q Ootpa /etc/redhat-release; then printf "[ovs]\nname=ovs\nbaseurl=http://download-ipv4.eng.brq.redhat.com/brewroot/repos/fast-datapath-rhel-8-build/latest/$(uname -p)/\nenable=1\ngpgcheck=0\n" /etc/yum.repos.d/ovs.repo; fi'
 
 beaker-hardware:
   - x86_64:
