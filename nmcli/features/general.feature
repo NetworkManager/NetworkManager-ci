@@ -1748,6 +1748,20 @@ Feature: nmcli - general
     @libnm_async_tasks_cancelable
     Scenario: NM - general - cancelation of libnm async tasks (add_connection_async)
     Then Finish "python tmp/repro_1555281.py con_general"
+
+
+    @rhbz1614691
+    @ver+=1.12
+    @con_general_remove
+    @nmcli_monitor_assertion_con_up_down
+    Scenario: NM - general - nmcli monitor asserts error when connection is activated or deactivated
+    * Add connection type "ethernet" named "con_general" for device "eth2"
+    * Execute "nmcli monitor &> /tmp/nmcli_monitor_out & pid=$!; sleep 10; kill $pid" without waiting for process to finish
+    * Bring "up" connection "con_general"
+    * Wait for at least "1" seconds
+    * Bring "down" connection "con_general"
+    * Wait for at least "10" seconds
+    Then "should not be reached" is not visible with command "cat /tmp/nmcli_monitor_out"
     
     
     @rhbz1496739

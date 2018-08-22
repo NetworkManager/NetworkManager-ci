@@ -1096,6 +1096,8 @@ testmapper:
         feature: general
     - libnm_async_tasks_cancelable:
         feature: general
+    - nmcli_monitor_assertion_con_up_down:
+        feature: general
     - libnm_snapshot_rollback:
         feature: general
     - libnm_snapshot_rollback_all_devices:
