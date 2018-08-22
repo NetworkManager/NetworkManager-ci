@@ -236,9 +236,10 @@ Feature: nmcli - general
 
     @rhbz1371201
     @ver+=1.4.0
+    @rhel7_only
     @CAP_SYS_ADMIN_for_ibft
     Scenario: NM - service - CAP_SYS_ADMIN for ibft plugin
-      Then "CAP_SYS_ADMIN" is visible with command "grep CapabilityBoundingSet /usr/lib/systemd/system/NetworkManager.service"
+      Then "CAP_SYS_ADMIN" is visible with command "grep ^CapabilityBoundingSet /usr/lib/systemd/system/NetworkManager.service"
 
 
     @general_networking_on_off
