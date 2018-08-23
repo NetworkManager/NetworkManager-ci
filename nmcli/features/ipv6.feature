@@ -1471,3 +1471,18 @@
     * Start radvd server with config from "tmp/radvd.conf"
     * Add a new connection of type "ethernet" and options "con-name con_ipv6 ifname test10 ipv6.may-fail no"
     Then "2" is visible with command "ip -6 r | grep default -A 3|grep "via fe80" |grep test10 |wc -l" in "60" seconds
+
+
+    @rhbz1414093
+    @ver+=1.12
+    @con_ipv6_remove
+    @ipv6_duid
+    Scenario: NM - ipv6 - test ipv6.dhcp-duid option
+    * Add a new connection of type "ethernet" and options "con-name con_ipv6 ifname test10"
+    Then Modify connection "con_ipv6" changing options "ipv6.dhcp-duid 01:23:45:67:ab"
+     And Modify connection "con_ipv6" changing options "ipv6.dhcp-duid lease"
+     And Modify connection "con_ipv6" changing options "ipv6.dhcp-duid ll"
+     And Modify connection "con_ipv6" changing options "ipv6.dhcp-duid llt"
+     And Modify connection "con_ipv6" changing options "ipv6.dhcp-duid stable-ll"
+     And Modify connection "con_ipv6" changing options "ipv6.dhcp-duid stable-llt"
+     And Modify connection "con_ipv6" changing options "ipv6.dhcp-duid stable-uuid"
