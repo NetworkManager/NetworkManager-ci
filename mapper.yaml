@@ -876,6 +876,8 @@ testmapper:
         feature: ethernet
     - preserve_8021x_leap_con:
         feature: ethernet
+    - ethernet_autoneg_set_speed_duplex:
+        feature: ethernet
     - logging:
         feature: general
     - reduce_logging:
