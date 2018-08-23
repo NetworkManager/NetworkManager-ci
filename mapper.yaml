@@ -1092,6 +1092,18 @@ testmapper:
         feature: general
     - libnm_async_tasks_cancelable:
         feature: general
+    - libnm_snapshot_rollback:
+        feature: general
+    - libnm_snapshot_rollback_all_devices:
+        feature: general
+    - libnm_snapshot_rollback_all_devices_with_timeout:
+        feature: general
+    - libnm_snapshot_rollback_unmanaged:
+        feature: general
+    - libnm_snapshot_rollback_managed:
+        feature: general
+    - libnm_snapshot_rollback_soft_device:
+        feature: general
     - autoconnect_no_secrets_prompt:
         feature: general
     - openvswitch_interface_recognized:

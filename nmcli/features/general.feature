@@ -1747,6 +1747,161 @@ Feature: nmcli - general
     @libnm_async_tasks_cancelable
     Scenario: NM - general - cancelation of libnm async tasks (add_connection_async)
     Then Finish "python tmp/repro_1555281.py con_general"
+    
+    
+    @rhbz1496739
+    @ver+=1.12
+    @con_general_remove
+    @libnm_snapshot_rollback
+    Scenario: NM - general - libnm snapshot and rollback
+    * Add connection type "ethernet" named "con_general" for device "eth8"
+    * Bring "up" connection "con_general"
+    * Add connection type "ethernet" named "con_general2" for device "eth9"
+    * Bring "up" connection "con_general2"
+    * Execute "tmp/libnm_snapshot_checkpoint.py create 0 eth8 eth9"
+    * Open editor for connection "con_general"
+    * Submit "set ipv4.method manual" in editor
+    * Submit "set ipv4.addresses 1.2.3.4/24" in editor
+    * Submit "set ipv4.gateway 1.2.3.1" in editor
+    * Save in editor
+    * Quit editor
+    * Bring "up" connection "con_general"
+    * Open editor for connection "con_general2"
+    * Submit "set ipv4.method manual" in editor
+    * Submit "set ipv4.addresses 1.2.3.5/24" in editor
+    * Submit "set ipv4.gateway 1.2.3.1" in editor
+    * Save in editor
+    * Quit editor
+    * Bring "up" connection "con_general2"
+    When "1.2.3.4/24" is visible with command "ip a s eth8" in "5" seconds
+    When "1.2.3.5/24" is visible with command "ip a s eth9" in "5" seconds
+     And "1.2.3.1" is visible with command "ip r"
+    * Execute "tmp/libnm_snapshot_checkpoint.py rollback"
+    Then "192.168.100" is visible with command "ip a s eth8" in "5" seconds
+     And "192.168.100" is visible with command "ip a s eth9" in "5" seconds
+     And "1.2.3.4/24" is not visible with command "ip a s eth8"
+     And "1.2.3.5/24" is not visible with command "ip a s eth8"
+     And "1.2.3.1" is not visible with command "ip r"
+     And "192.168.100.1" is visible with command "ip r"
+
+
+    @rhbz1496739
+    @ver+=1.12
+    @con_general_remove
+    @libnm_snapshot_rollback_all_devices
+    Scenario: NM - general - libnm snapshot and rollback all devices
+    * Add connection type "ethernet" named "con_general" for device "eth8"
+    * Bring "up" connection "con_general"
+    * Add connection type "ethernet" named "con_general2" for device "eth9"
+    * Bring "up" connection "con_general2"
+    * Execute "tmp/libnm_snapshot_checkpoint.py create 0"
+    * Open editor for connection "con_general"
+    * Submit "set ipv4.method manual" in editor
+    * Submit "set ipv4.addresses 1.2.3.4/24" in editor
+    * Submit "set ipv4.gateway 1.2.3.1" in editor
+    * Save in editor
+    * Quit editor
+    * Bring "up" connection "con_general"
+    * Open editor for connection "con_general2"
+    * Submit "set ipv4.method manual" in editor
+    * Submit "set ipv4.addresses 1.2.3.5/24" in editor
+    * Submit "set ipv4.gateway 1.2.3.1" in editor
+    * Save in editor
+    * Quit editor
+    * Bring "up" connection "con_general2"
+    When "1.2.3.4/24" is visible with command "ip a s eth8" in "5" seconds
+    When "1.2.3.5/24" is visible with command "ip a s eth9" in "5" seconds
+     And "1.2.3.1" is visible with command "ip r"
+    * Execute "tmp/libnm_snapshot_checkpoint.py rollback"
+    Then "192.168.100" is visible with command "ip a s eth8" in "5" seconds
+     And "192.168.100" is visible with command "ip a s eth9" in "5" seconds
+     And "1.2.3.4/24" is not visible with command "ip a s eth8"
+     And "1.2.3.5/24" is not visible with command "ip a s eth8"
+     And "1.2.3.1" is not visible with command "ip r"
+     And "192.168.100.1" is visible with command "ip r"
+
+
+    @rhbz1496739
+    @ver+=1.12
+    @con_general_remove
+    @libnm_snapshot_rollback_all_devices_with_timeout
+    Scenario: NM - general - libnm snapshot and rollback all devices with timeout
+    * Add connection type "ethernet" named "con_general" for device "eth8"
+    * Bring "up" connection "con_general"
+    * Add connection type "ethernet" named "con_general2" for device "eth9"
+    * Bring "up" connection "con_general2"
+    * Execute "tmp/libnm_snapshot_checkpoint.py create 10"
+    * Open editor for connection "con_general"
+    * Submit "set ipv4.method manual" in editor
+    * Submit "set ipv4.addresses 1.2.3.4/24" in editor
+    * Submit "set ipv4.gateway 1.2.3.1" in editor
+    * Save in editor
+    * Quit editor
+    * Bring "up" connection "con_general"
+    * Open editor for connection "con_general2"
+    * Submit "set ipv4.method manual" in editor
+    * Submit "set ipv4.addresses 1.2.3.5/24" in editor
+    * Submit "set ipv4.gateway 1.2.3.1" in editor
+    * Save in editor
+    * Quit editor
+    * Bring "up" connection "con_general2"
+    When "1.2.3.4/24" is visible with command "ip a s eth8" in "5" seconds
+    When "1.2.3.5/24" is visible with command "ip a s eth9" in "5" seconds
+     And "1.2.3.1" is visible with command "ip r"
+    * Wait for at least "10" seconds
+    Then "192.168.100" is visible with command "ip a s eth8" in "5" seconds
+     And "192.168.100" is visible with command "ip a s eth9" in "5" seconds
+     And "1.2.3.4/24" is not visible with command "ip a s eth8"
+     And "1.2.3.5/24" is not visible with command "ip a s eth8"
+     And "1.2.3.1" is not visible with command "ip r"
+     And "192.168.100.1" is visible with command "ip r"
+
+
+    @rhbz1496739
+    @ver+=1.12
+    @manage_eth8
+    @libnm_snapshot_rollback_unmanaged
+    Scenario: NM - general - libnm snapshot and rollback unmanaged
+    * Execute "nmcli device set eth8 managed off"
+    * Execute "tmp/libnm_snapshot_checkpoint.py create 10 eth8"
+    * Execute "nmcli device set eth8 managed on"
+    When "unmanaged" is not visible with command "nmcli device show eth8" in "5" seconds
+    * Wait for at least "15" seconds
+    Then "unmanaged" is visible with command "nmcli device show eth8" in "5" seconds
+
+
+    @rhbz1496739
+    @ver+=1.12
+    @manage_eth8
+    @libnm_snapshot_rollback_managed
+    Scenario: NM - general - libnm snapshot and rollback managed
+    * Execute "nmcli device set eth8 managed on"
+    * Execute "tmp/libnm_snapshot_checkpoint.py create 10 eth8"
+    * Execute "nmcli device set eth8 managed off"
+    When "unmanaged" is visible with command "nmcli device show eth8" in "5" seconds
+    * Wait for at least "15" seconds
+    Then "unmanaged" is not visible with command "nmcli device show eth8" in "5" seconds
+
+
+    @rhbz1496739
+    @ver+=1.12
+    @gen-bond_remove
+    @libnm_snapshot_rollback_soft_device
+    Scenario: NM - general - snapshot and rollback deleted soft device
+    * Add connection type "bond" named "gen-bond0" for device "gen-bond"
+    * Add slave connection for master "gen-bond" on device "eth8" named "gen-bond0.0"
+    * Add slave connection for master "gen-bond" on device "eth9" named "gen-bond0.1"
+    * Bring "up" connection "gen-bond0.0"
+    * Bring "up" connection "gen-bond0.1"
+    When Check slave "eth8" in bond "gen-bond" in proc
+    When Check slave "eth9" in bond "gen-bond" in proc
+    * Execute "tmp/libnm_snapshot_checkpoint.py create 10"
+    * Delete connection "gen-bond0.0"
+    * Delete connection "gen-bond0.1"
+    * Delete connection "gen-bond0"
+    * Wait for at least "15" seconds
+    Then Check slave "eth8" in bond "gen-bond" in proc
+    Then Check slave "eth9" in bond "gen-bond" in proc
 
 
     @rhbz1553113
