@@ -1092,6 +1092,8 @@ testmapper:
         feature: general
     - libnm_async_tasks_cancelable:
         feature: general
+    - autoconnect_no_secrets_prompt:
+        feature: general
     - openvswitch_interface_recognized:
         feature: ovs
     - openvswitch_ignore_ovs_network_setup:
