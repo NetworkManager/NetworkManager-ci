@@ -239,6 +239,12 @@ def before_scenario(context, scenario):
             call("grep -q Maipo /etc/redhat-release", shell=True) != 0:
                 sys.exit(77)
 
+        if 'not_in_rhel7' in scenario.tags:
+            if call('rpm -qi NetworkManager |grep -q build.*bos.redhat.co', shell=True) == 0 and \
+            check_output("rpm --queryformat %{RELEASE} -q NetworkManager |awk -F .  '{ print ($1 < 200) }'", shell=True).decode('utf-8').strip() == '1' and \
+            call("grep -q Maipo /etc/redhat-release", shell=True) == 0:
+                sys.exit(77)
+
         if 'not_in_rhel' in scenario.tags:
             if call('rpm -qi NetworkManager |grep -q build.*bos.redhat.com', shell=True) == 0 or \
             check_output("rpm --queryformat %{RELEASE} -q NetworkManager |awk -F .  '{ print ($1 < 200) }'", shell=True).decode('utf-8').strip() == '1':

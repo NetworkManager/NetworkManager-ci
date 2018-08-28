@@ -1179,9 +1179,9 @@ Feature: nmcli: ipv4
     Then "169.254" is visible with command "ip a s eth3" in "10" seconds
 
 
+    @ver-=1.11.1 @not_in_rhel7
     @eth2 @con_ipv4_remove
     @ipv4_dhcp_client_id_set
-    @ver-=1.11.1
     Scenario: nmcli - ipv4 - dhcp-client-id - set client id
     * Add connection type "ethernet" named "con_ipv4" for device "eth2"
     * Bring "up" connection "con_ipv4"
@@ -1200,7 +1200,7 @@ Feature: nmcli: ipv4
     Then "exceeds max \(255\) for precision" is not visible with command "grep exceeds max /var/log/messages"
 
 
-    @ver+=1.11.2
+    @ver+=1.11.2 @not_in_rhel7
     @eth2 @con_ipv4_remove @tcpdump
     @ipv4_dhcp_client_id_set
     # https://bugzilla.gnome.org/show_bug.cgi?id=793957
@@ -1221,6 +1221,27 @@ Feature: nmcli: ipv4
     * Bring "up" connection "con_ipv4"
     * Execute "sleep 5"
     Then "Client-ID Option 61, length 4: hardware-type 192, ff:ee:ee" is visible with command "cat /tmp/tcpdump.log"
+
+
+    @rhel7_only
+    @eth2 @con_ipv4_remove
+    @ipv4_dhcp_client_id_set
+    Scenario: nmcli - ipv4 - dhcp-client-id - set client id
+    * Add connection type "ethernet" named "con_ipv4" for device "eth2"
+    * Bring "up" connection "con_ipv4"
+    * Bring "down" connection "con_ipv4"
+    * Open editor for connection "con_ipv4"
+    * Submit "set ipv4.dhcp-client-id AB" in editor
+    * Save in editor
+    * Quit editor
+    * Run child "sudo tshark -l -O bootp -i eth2 -x > /tmp/tshark.log"
+    When "empty" is not visible with command "file /tmp/tshark.log" in "150" seconds
+    * Bring "up" connection "con_ipv4"
+    * Finish "sleep 5; sudo pkill tshark"
+    Then "AB" is visible with command "cat /tmp/tshark.log"
+    #Then "walderon" is visible with command "cat /var/lib/NetworkManager/dhclient-eth2.conf"
+    #VVV verify bug 999503
+    Then "exceeds max \(255\) for precision" is not visible with command "grep exceeds max /var/log/messages"
 
 
     @ver+=1.11.2
