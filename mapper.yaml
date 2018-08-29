@@ -36,7 +36,7 @@ beaker-hardware:
             hostname: rdma-qe-06.lab.bos.redhat.com
       NetworkManager-gsm:
         - x86_64:
-            hostname: gsm-r6s15-01.wlan.rhts.eng.bos.redhat.com
+            hostname: gsm-r5s2-01.wlan.rhts.eng.bos.redhat.com
       NetworkManager-dcb:
         - x86_64:
             hostname: dell-per720-02.klab.eng.bos.redhat.com
