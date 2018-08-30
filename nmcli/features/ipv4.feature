@@ -2024,3 +2024,21 @@ Feature: nmcli: ipv4
     * Execute "nmcli con mod con_ipv4 ipv4.method shared"
     Then "test" is visible with command "nmcli -f ipv4.dhcp-hostname con show con_ipv4"
      And "DHCP_HOSTNAME=test" is visible with command "cat /etc/sysconfig/network-scripts/ifcfg-con_ipv4"
+
+
+    @rhbz1573780
+    @ver+=1.12
+    @con_ipv4_remove @teardown_testveth @long
+    @nm_dhcp_lease_renewal_link_down
+    Scenario: NM - ipv4 - link down during dhcp renewal causes NM to never ask for new lease
+    * Prepare simulated test "testX4" device
+    * Add connection type "ethernet" named "con_ipv4" for device "testX4"
+    * Bring "up" connection "con_ipv4"
+    * Wait for at least "10" seconds
+    * Execute "ip netns exec ip link set testX4_bridge down"
+    * Execute "ip netns exec testX4_ns kill -SIGSTOP $(cat /tmp/testX4_ns.pid)"
+    * Wait for at least "120" seconds
+    * Execute "ip netns exec ip link set testX4_bridge up"
+    * Wait for at least "10" seconds
+    * Execute "ip netns exec testX4_ns kill -SIGCONT $(cat /tmp/testX4_ns.pid)"
+    Then "IP4.ADDRESS" is visible with command "nmcli -f ip4.address device show testX4" in "10" seconds
