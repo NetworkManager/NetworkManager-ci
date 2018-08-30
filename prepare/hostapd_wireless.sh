@@ -58,8 +58,8 @@ eap_user_file=$EAP_USERS_FILE
 ca_cert=$HOSTAPD_KEYS_PATH/hostapd.ca.pem
 dh_file=$HOSTAPD_KEYS_PATH/hostapd.dh.pem
 server_cert=$HOSTAPD_KEYS_PATH/hostapd.cert.pem
-private_key=$HOSTAPD_KEYS_PATH/hostapd.key.pem
-private_key_passwd=redhat " > $1
+private_key=$HOSTAPD_KEYS_PATH/hostapd.key.enc.pem
+private_key_passwd=redhat" > $1
 
     # Create a list of users for network authentication, authentication types, and corresponding credentials.
     echo "# Create hostapd peap user file

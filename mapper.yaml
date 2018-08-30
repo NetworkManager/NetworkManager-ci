@@ -846,6 +846,10 @@ testmapper:
         feature: ethernet
     - 8021x_tls:
         feature: ethernet
+    - 8021x_tls_bad_private_key_password:
+        feature: ethernet
+    - 8021x_tls_no_private_key_password:
+        feature: ethernet
     - 8021x_peap_md5:
         feature: ethernet
     - 8021x_peap_mschapv2:
@@ -1317,6 +1321,10 @@ testmapper:
     - simwifi_wpa2psk_no_profile:
         feature: wifi_hwsim
     - simwifi_tls:
+        feature: wifi_hwsim
+    - simwifi_tls_bad_private_key_password:
+        feature: wifi_hwsim
+    - simwifi_tls_no_private_key_password:
         feature: wifi_hwsim
     - simwifi_peap_gtc:
         feature: wifi_hwsim
