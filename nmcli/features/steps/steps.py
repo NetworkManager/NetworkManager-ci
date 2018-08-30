@@ -1304,7 +1304,7 @@ def prepare_sriov_config(context, conf, device, vfs):
     command_code(context, "echo '[device-%s]' > %s" % (device, conf_path))
     command_code(context, "echo 'match-device=interface-name:%s' >> %s" % (device, conf_path))
     command_code(context, "echo 'sriov-num-vfs=%d' >> %s" % (int(vfs), conf_path))
-    command_code(context, 'systemctl restart NetworkManager')
+    command_code(context, 'systemctl reload NetworkManager')
 
 @step(u'Prepare pppoe server for user "{user}" with "{passwd}" password and IP "{ip}" authenticated via "{auth}"')
 def prepare_pppoe_server(context, user, passwd, ip, auth):
