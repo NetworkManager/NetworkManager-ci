@@ -14,8 +14,6 @@
     #* Open editor for connection "dcb"
     * Prepare connection
     * Set default DCB options
-    #* Save in editor
-    #* Quit editor
     * Bring "up" connection "dcb"
     # dcb on
     Then "DCB State:\s+on" is visible with command "dcbtool gc em2 dcb"
@@ -66,9 +64,12 @@
     * Prepare connection
     * Set default DCB options
     * Bring "up" connection "dcb"
+    When "activated" is visible with command "nmcli -g GENERAL.STATE con show dcb" in "40" seconds
     * Reboot
+    When "activated" is visible with command "nmcli -g GENERAL.STATE con show dcb" in "40" seconds
+
     # dcb on
-    Then "DCB State:\s+on" is visible with command "dcbtool gc em2 dcb"
+    # Then "DCB State:\s+on" is visible with command "dcbtool gc em2 dcb"
 
     # priority groups
     Then "Enable:\s+true\s+Advertise:\s+true\s+Willing:\s+true" is visible with command "dcbtool gc em2 pg"

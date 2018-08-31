@@ -1156,9 +1156,7 @@ def after_scenario(context, scenario):
         if 'dcb' in scenario.tags:
             print ("---------------------------")
             print ("deleting connection dcb")
-            call("nmcli connection down id dcb", shell=True)
             call("nmcli connection delete id dcb", shell=True)
-            sleep(10*TIMER)
 
         if 'mtu' in scenario.tags:
             print ("---------------------------")
@@ -1435,7 +1433,7 @@ def after_scenario(context, scenario):
             call("rm -rf /etc/NetworkManager/conf.d/99-mac.conf", shell=True)
             reload_NM_service()
             reset_hwaddr('eth1')
-            
+
         if 'con_general_remove' in scenario.tags:
             print ("---------------------------")
             print ("removing ethernet profiles")

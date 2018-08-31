@@ -1580,6 +1580,9 @@ def reboot(context):
         command_code(context, "sudo ip link set dev eth%d down" %int(x))
         command_code(context, "sudo ip addr flush dev eth%d" %int(x))
 
+    command_code(context, "sudo ip link set dev em2 down")
+    command_code(context, "sudo ip addr flush dev em2")
+
     command_code(context, "ip link del nm-bond")
     command_code(context, "ip link del nm-team")
 
