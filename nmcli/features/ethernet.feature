@@ -398,7 +398,25 @@ Feature: nmcli - ethernet
     @con_ethernet_remove @8021x
     @8021x_tls
     Scenario: nmcli - ethernet - connect to 8021x - tls
-    * Add a new connection of type "ethernet" and options "ifname test8X con-name con_ethernet autoconnect no 802-1x.eap tls 802-1x.identity test 802-1x.ca-cert /tmp/certs/test_user.ca.pem 802-1x.client-cert /tmp/certs/test_user.cert.pem 802-1x.private-key /tmp/certs/test_user.key.pem"
+    * Add a new connection of type "ethernet" and options "ifname test8X con-name con_ethernet autoconnect no 802-1x.eap tls 802-1x.identity test 802-1x.ca-cert /tmp/certs/test_user.ca.pem 802-1x.client-cert /tmp/certs/test_user.cert.pem 802-1x.private-key /tmp/certs/test_user.key.enc.pem 802-1x.private-key-password redhat"
+    Then Bring "up" connection "con_ethernet"
+
+
+    @ver+=1.6.0
+    @con_ethernet_remove @8021x
+    @8021x_tls_bad_private_key_password
+    Scenario: nmcli - ethernet - connect to 8021x - tls - bad private key password
+    * Add a new connection of type "ethernet" and options "ifname test8X con-name con_ethernet autoconnect no 802-1x.eap tls 802-1x.identity test 802-1x.ca-cert /tmp/certs/test_user.ca.pem 802-1x.client-cert /tmp/certs/test_user.cert.pem 802-1x.private-key /tmp/certs/test_user.key.enc.pem 802-1x.private-key-password redhat12345"
+    Then Bring up connection "con_ethernet" ignoring error
+     And "GENERAL.STATE:activated" is not visible with command "nmcli -f GENERAL.STATE -t connection show"
+
+
+    @rhbz1433536
+    @ver+=1.6.0
+    @con_ethernet_remove @8021x
+    @8021x_tls_no_private_key_password
+    Scenario: nmcli - ethernet - connect to 8021x - tls - no private key pasword
+    * Add a new connection of type "ethernet" and options "ifname test8X con-name con_ethernet autoconnect no 802-1x.eap tls 802-1x.identity test 802-1x.ca-cert /tmp/certs/test_user.ca.pem 802-1x.client-cert /tmp/certs/test_user.cert.pem 802-1x.private-key /tmp/certs/test_user.key.pem 802-1x.private-key-password-flags 4"
     Then Bring "up" connection "con_ethernet"
 
 

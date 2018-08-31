@@ -740,6 +740,8 @@ testmapper:
         feature: ipv4
     - ipv4_dhcp-hostname_shared_persists:
         feature: ipv4
+    - nm_dhcp_lease_renewal_link_down:
+        feature: ipv4
     - vlan_add_default_device:
         feature: vlan
     - vlan_add_beyond_range:
@@ -845,6 +847,10 @@ testmapper:
     - 8021x_with_credentials:
         feature: ethernet
     - 8021x_tls:
+        feature: ethernet
+    - 8021x_tls_bad_private_key_password:
+        feature: ethernet
+    - 8021x_tls_no_private_key_password:
         feature: ethernet
     - 8021x_peap_md5:
         feature: ethernet
@@ -1317,6 +1323,10 @@ testmapper:
     - simwifi_wpa2psk_no_profile:
         feature: wifi_hwsim
     - simwifi_tls:
+        feature: wifi_hwsim
+    - simwifi_tls_bad_private_key_password:
+        feature: wifi_hwsim
+    - simwifi_tls_no_private_key_password:
         feature: wifi_hwsim
     - simwifi_peap_gtc:
         feature: wifi_hwsim
