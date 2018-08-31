@@ -50,8 +50,8 @@ Feature: nmcli: gsm
     Scenario: nmcli - gsm - mtu
     * Add a new connection of type "gsm" and options "ifname \* con-name gsm autoconnect no apn internet"
     * Bring "up" connection "gsm"
-    And "default" is visible with command "ip r |grep 700" in "20" seconds
-    When "mtu 1500" is visible with command "ip a s |grep mtu|tail -1"
+    When "default" is visible with command "ip r |grep 700" in "20" seconds
+     And "mtu 1500" is visible with command "ip a s |grep mtu|tail -1"
      And "mtu 1500" is visible with command "nmcli |grep gsm"
     * Execute "nmcli con modify gsm gsm.mtu 1600"
     * Bring "up" connection "gsm"

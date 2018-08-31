@@ -39,7 +39,30 @@ Feature: nmcli - wifi
     Scenario: nmcli - simwifi - connect to TLS
     Given "wpa2-eap" is visible with command "nmcli -f SSID device wifi list" in "60" seconds
     * Add a new connection of type "wifi" and options "ifname wlan0 con-name wifi autoconnect no ssid wpa2-eap"
-    * Execute "nmcli con modify wifi 802-11-wireless-security.key-mgmt wpa-eap 802-1x.eap tls 802-1x.identity test 802-1x.ca-cert /tmp/certs/test_user.ca.pem 802-1x.client-cert /tmp/certs/test_user.cert.pem 802-1x.private-key /tmp/certs/test_user.key.pem 802-1x.private-key-password redhat"
+    * Execute "nmcli con modify wifi 802-11-wireless-security.key-mgmt wpa-eap 802-1x.eap tls 802-1x.identity test 802-1x.ca-cert /tmp/certs/test_user.ca.pem 802-1x.client-cert /tmp/certs/test_user.cert.pem 802-1x.private-key /tmp/certs/test_user.key.enc.pem 802-1x.private-key-password redhat"
+    * Execute "sleep 3"
+    Then Bring "up" connection "wifi"
+
+
+    @ver+=1.10
+    @simwifi_wpa2 @attach_hostapd_log @attach_wpa_supplicant_log
+    @simwifi_tls_bad_private_key_password
+    Scenario: nmcli - simwifi - connect to TLS - bad private key password
+    Given "wpa2-eap" is visible with command "nmcli -f SSID device wifi list" in "60" seconds
+    * Add a new connection of type "wifi" and options "ifname wlan0 con-name wifi autoconnect no ssid wpa2-eap"
+    * Execute "nmcli con modify wifi 802-11-wireless-security.key-mgmt wpa-eap 802-1x.eap tls 802-1x.identity test 802-1x.ca-cert /tmp/certs/test_user.ca.pem 802-1x.client-cert /tmp/certs/test_user.cert.pem 802-1x.private-key /tmp/certs/test_user.key.enc.pem 802-1x.private-key-password redhat123456"
+    * Execute "sleep 3"
+    Then Bring up connection "wifi" ignoring error
+     And "GENERAL.STATE:activated" is not visible with command "nmcli -f GENERAL.STATE -t connection show id wifi"
+
+    @rhbz1433536
+    @ver+=1.10
+    @simwifi_wpa2 @attach_hostapd_log @attach_wpa_supplicant_log
+    @simwifi_tls_no_private_key_password
+    Scenario: nmcli - simwifi - connect to TLS - no private key password
+    Given "wpa2-eap" is visible with command "nmcli -f SSID device wifi list" in "60" seconds
+    * Add a new connection of type "wifi" and options "ifname wlan0 con-name wifi autoconnect no ssid wpa2-eap"
+    * Execute "nmcli con modify wifi 802-11-wireless-security.key-mgmt wpa-eap 802-1x.eap tls 802-1x.identity test 802-1x.ca-cert /tmp/certs/test_user.ca.pem 802-1x.client-cert /tmp/certs/test_user.cert.pem 802-1x.private-key /tmp/certs/test_user.key.pem 802-1x.private-key-password-flags 4"
     * Execute "sleep 3"
     Then Bring "up" connection "wifi"
 
