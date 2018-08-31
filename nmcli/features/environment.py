@@ -1156,9 +1156,7 @@ def after_scenario(context, scenario):
         if 'dcb' in scenario.tags:
             print ("---------------------------")
             print ("deleting connection dcb")
-            call("nmcli connection down id dcb", shell=True)
             call("nmcli connection delete id dcb", shell=True)
-            sleep(10*TIMER)
 
         if 'mtu' in scenario.tags:
             print ("---------------------------")
@@ -1305,8 +1303,8 @@ def after_scenario(context, scenario):
             # call("rm -rf /etc/NetworkManager/conf.d/98-sriov.conf", shell=True)
             # call("systemctl restart NetworkManager", shell=True)
             # sleep(5)
-            call("echo 0 > /sys/class/net/p6p1/device/sriov_numvfs", shell=True)
-            call("echo 0 > /sys/class/net/p6p2/device/sriov_numvfs", shell=True)
+            call("echo 0 > /sys/class/net/em1/device/sriov_numvfs", shell=True)
+            call("echo 0 > /sys/class/net/em2/device/sriov_numvfs", shell=True)
             call("rm -rf /etc/NetworkManager/conf.d/99-sriov.conf", shell=True)
             call("rm -rf /etc/NetworkManager/conf.d/98-sriov.conf", shell=True)
             reload_NM_service()
@@ -1435,7 +1433,7 @@ def after_scenario(context, scenario):
             call("rm -rf /etc/NetworkManager/conf.d/99-mac.conf", shell=True)
             reload_NM_service()
             reset_hwaddr('eth1')
-            
+
         if 'con_general_remove' in scenario.tags:
             print ("---------------------------")
             print ("removing ethernet profiles")

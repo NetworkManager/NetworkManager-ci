@@ -312,7 +312,7 @@ Feature: nmcli - ethernet
     @restart
     @nmcli_ethernet_wol_default
     Scenario: nmcli - ethernet - wake-on-lan default
-    * Execute "systemctl stop NetworkManager"
+    * Stop NM
     * Execute "modprobe -r ixgbe && modprobe ixgbe && sleep 5"
     * Note the output of "ethtool em2 |grep Wake-on |grep Supports | awk '{print $3}'" as value "wol_supports"
     * Note the output of "ethtool em2 |grep Wake-on |grep -v Supports | awk '{print $2}'" as value "wol_orig"
@@ -409,6 +409,7 @@ Feature: nmcli - ethernet
     * Add a new connection of type "ethernet" and options "ifname test8X con-name con_ethernet autoconnect no 802-1x.eap tls 802-1x.identity test 802-1x.ca-cert /tmp/certs/test_user.ca.pem 802-1x.client-cert /tmp/certs/test_user.cert.pem 802-1x.private-key /tmp/certs/test_user.key.enc.pem 802-1x.private-key-password redhat12345"
     Then Bring up connection "con_ethernet" ignoring error
      And "GENERAL.STATE:activated" is not visible with command "nmcli -f GENERAL.STATE -t connection show"
+
 
     @rhbz1433536
     @ver+=1.6.0
