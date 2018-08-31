@@ -39,7 +39,7 @@ beaker-hardware:
             hostname: gsm-r5s2-01.wlan.rhts.eng.bos.redhat.com
       NetworkManager-dcb:
         - x86_64:
-            hostname: dell-per720-02.klab.eng.bos.redhat.com
+            hostname: dell-per720-03.klab.eng.bos.redhat.com
 
 setup:
 
