@@ -569,14 +569,3 @@ Feature: nmcli - ethernet
     * Add a new connection of type "ethernet" and options "ifname eth1 con-name con_ethernet 802-1x.identity jdoe 802-1x.eap leap"
     * Reload connections
     Then "con_ethernet" is visible with command "nmcli con"
-
-
-    @rhbz1487477
-    @ver+=1.12
-    @con_ethernet_remove
-    @ethernet_autoneg_set_speed_duplex
-    Scenario: nmcli - ethernet - ability to set speed and duplex with autonegotiate on
-    * Add a new connection of type "ethernet" and options "ifname eth1 con-name con_ethernet 802-3-ethernet.speed 100 802-3-ethernet.duplex full 802-3-ethernet.auto-negotiate on"
-    Then "speed 100" is visible with command "grep ^ETHTOOL_OPTS /etc/sysconfig/network-scripts/ifcfg-con_ethernet"
-     And "duplex full" is visible with command "grep ^ETHTOOL_OPTS /etc/sysconfig/network-scripts/ifcfg-con_ethernet"
-     And "autoneg on" is visible with command "grep ^ETHTOOL_OPTS /etc/sysconfig/network-scripts/ifcfg-con_ethernet"
