@@ -400,6 +400,15 @@ Feature: nmcli - ethernet
     Scenario: nmcli - ethernet - connect to 8021x - tls
     * Add a new connection of type "ethernet" and options "ifname test8X con-name con_ethernet autoconnect no 802-1x.eap tls 802-1x.identity test 802-1x.ca-cert /tmp/certs/test_user.ca.pem 802-1x.client-cert /tmp/certs/test_user.cert.pem 802-1x.private-key /tmp/certs/test_user.key.enc.pem 802-1x.private-key-password redhat"
     Then Bring "up" connection "con_ethernet"
+    
+
+    @rhbz1623798
+    @ver+=1.12
+    @con_ethernet_remove @8021x
+    @8021x_tls_aes256_private_key
+    Scenario: nmcli - ethernet - connect to 8021x - tls - private key encrypted by aes256
+    * Add a new connection of type "ethernet" and options "ifname test8X con-name con_ethernet autoconnect no 802-1x.eap tls 802-1x.identity test 802-1x.ca-cert /tmp/certs/test_user.ca.pem 802-1x.client-cert /tmp/certs/test_user.cert.pem 802-1x.private-key /tmp/certs/test_user.key.enc.aes256.pem 802-1x.private-key-password redhat"
+    Then Bring "up" connection "con_ethernet"
 
 
     @ver+=1.6.0
@@ -408,7 +417,7 @@ Feature: nmcli - ethernet
     Scenario: nmcli - ethernet - connect to 8021x - tls - bad private key password
     * Add a new connection of type "ethernet" and options "ifname test8X con-name con_ethernet autoconnect no 802-1x.eap tls 802-1x.identity test 802-1x.ca-cert /tmp/certs/test_user.ca.pem 802-1x.client-cert /tmp/certs/test_user.cert.pem 802-1x.private-key /tmp/certs/test_user.key.enc.pem 802-1x.private-key-password redhat12345"
     Then Bring up connection "con_ethernet" ignoring error
-     And "GENERAL.STATE:activated" is not visible with command "nmcli -f GENERAL.STATE -t connection show"
+     And "GENERAL.STATE:activated" is not visible with command "nmcli -f GENERAL.STATE -t connection show id con_ethernet"
 
 
     @rhbz1433536
