@@ -55,6 +55,7 @@ Feature: nmcli - wifi
     Then Bring up connection "wifi" ignoring error
      And "GENERAL.STATE:activated" is not visible with command "nmcli -f GENERAL.STATE -t connection show id wifi"
 
+
     @rhbz1433536
     @ver+=1.10
     @simwifi_wpa2 @attach_hostapd_log @attach_wpa_supplicant_log
