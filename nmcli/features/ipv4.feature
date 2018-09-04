@@ -1245,7 +1245,7 @@ Feature: nmcli: ipv4
 
 
     @ver+=1.11.2
-    @eth2 @ipv4 @tcpdump @internal_DHCP
+    @eth2 @con_ipv4_remove @tcpdump @internal_DHCP @restart
     @ipv4_dhcp_client_id_set_internal
     # https://bugzilla.gnome.org/show_bug.cgi?id=793957
     Scenario: nmcli - ipv4 - dhcp-client-id - set client id with internal client
