@@ -260,6 +260,11 @@ def before_scenario(context, scenario):
             if arch == "aarch64":
                 sys.exit(77)
 
+        if 'not_on_ppc64' in scenario.tags:
+            arch = check_output("uname -p", shell=True).decode('utf-8').strip()
+            if arch == "ppc64":
+                sys.exit(77)
+
         if 'not_on_aarch64_but_pegas' in scenario.tags:
             arch = check_output("uname -p", shell=True).decode('utf-8').strip()
             ver = check_output("uname -r", shell=True).decode('utf-8').strip()

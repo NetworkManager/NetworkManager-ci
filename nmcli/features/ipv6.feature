@@ -461,7 +461,7 @@
     Then "2620:52:0:" is visible with command "ip -6 a s eth10 |grep global |grep noprefix" in "20" seconds
 
 
-    @con_ipv6_remove @eth0 @long @tshark
+    @con_ipv6_remove @eth0 @long @tshark @not_on_s390x
     @ipv6_limited_router_solicitation
     Scenario: NM - ipv6 - limited router solicitation
      * Add connection type "ethernet" named "con_ipv6" for device "eth2"

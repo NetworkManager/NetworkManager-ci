@@ -2014,7 +2014,9 @@ def setup_macsec_psk(context, cak, ckn):
 
 @step('"{filename}" is file')
 def is_file(context, filename):
-    assert os.path.isfile(filename), '"%s" is not a file' % filename
+    if not os.path.isfile(filename):
+        sleep(3)
+        assert os.path.isfile(filename), '"%s" is not a file' % filename
     return True
 
 

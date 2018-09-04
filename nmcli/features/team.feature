@@ -873,7 +873,7 @@
 
     @rhbz1398925
     @ver+=1.10
-    @team_slaves @team
+    @team_slaves @team @not_on_s390x @not_on_ppc64
     @team_abs_set_runner_hwaddr_policy
     Scenario: nmcli - team_abs - set runners hwadd policy
     * Note the output of "ip a s eth5|grep ether |awk '{print $2}'" as value "eth5"
