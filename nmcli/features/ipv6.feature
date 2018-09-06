@@ -1470,7 +1470,7 @@
     * Execute "ip -6 addr add fe80::dead:dead:dead:dead/64 dev test10p"
     * Start radvd server with config from "tmp/radvd.conf"
     * Add a new connection of type "ethernet" and options "con-name con_ipv6 ifname test10 ipv6.may-fail no"
-    Then "2" is visible with command "ip -6 r | grep default -A 3|grep "via fe80" |grep test10 |wc -l" in "60" seconds
+    Then "2" is visible with command "ip -6 r | grep default -A 3|grep 'via fe80' |grep test10 |wc -l" in "60" seconds
 
 
     @rhbz1414093
