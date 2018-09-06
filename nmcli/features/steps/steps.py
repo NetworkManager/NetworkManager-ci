@@ -1144,8 +1144,7 @@ def add_novice_connection(context):
 
 @step(u'"{pattern}" is visible with command "{command}"')
 def check_pattern_visible_with_command(context, pattern, command):
-    cmd = "/bin/bash -c '%s'" %command
-    proc = pexpect.spawn(cmd, maxread=100000, logfile=context.log, encoding='utf-8')
+    proc = pexpect.spawn('/bin/bash', ['-c', command], maxread=100000, logfile=context.log, encoding='utf-8')
     if proc.expect([pattern, pexpect.EOF]) != 0:
         sleep(1)
         proc = pexpect.spawn(cmd,  encoding='utf-8', maxread=100000, logfile=context.log)
@@ -1155,11 +1154,10 @@ def check_pattern_visible_with_command(context, pattern, command):
 
 @step(u'"{pattern}" is visible with command "{command}" in "{seconds}" seconds')
 def check_pattern_visible_with_command_in_time(context, pattern, command, seconds):
-    cmd = "/bin/bash -c '%s'" %command
     seconds = int(seconds)
     orig_seconds = seconds
     while seconds > 0:
-        proc = pexpect.spawn(cmd, timeout = 180, logfile=context.log, encoding='utf-8')
+        proc = pexpect.spawn('/bin/bash', ['-c', command], timeout = 180, logfile=context.log, encoding='utf-8')
         if proc.expect([pattern, pexpect.EOF]) == 0:
             return True
         seconds = seconds - 1
@@ -1169,11 +1167,10 @@ def check_pattern_visible_with_command_in_time(context, pattern, command, second
 
 @step(u'"{pattern}" is visible with command "{command}" for full "{seconds}" seconds')
 def check_pattern_visible_with_command_fortime(context, pattern, command, seconds):
-    cmd = "/bin/bash -c '%s'" %command
     seconds = int(seconds)
     orig_seconds = seconds
     while seconds > 0:
-        proc = pexpect.spawn(cmd, timeout = 180, logfile=context.log, encoding='utf-8')
+        proc = pexpect.spawn('/bin/bash', ['-c', command], timeout = 180, logfile=context.log, encoding='utf-8')
         if proc.expect([pattern, pexpect.EOF]) == 0:
             pass
         else:
@@ -1184,11 +1181,10 @@ def check_pattern_visible_with_command_fortime(context, pattern, command, second
 
 @step(u'"{pattern}" is not visible with command "{command}" for full "{seconds}" seconds')
 def check_pattern_visible_with_command_fortime(context, pattern, command, seconds):
-    cmd = "/bin/bash -c '%s'" %command
     seconds = int(seconds)
     orig_seconds = seconds
     while seconds > 0:
-        proc = pexpect.spawn(cmd, timeout = 180, logfile=context.log, encoding='utf-8')
+        proc = pexpect.spawn('/bin/bash', ['-c', command], timeout = 180, logfile=context.log, encoding='utf-8')
         if proc.expect([pattern, pexpect.EOF]) != 0:
             pass
         else:
@@ -1199,11 +1195,10 @@ def check_pattern_visible_with_command_fortime(context, pattern, command, second
 
 @step('"{pattern}" is not visible with command "{command}" in "{seconds}" seconds')
 def check_pattern_not_visible_with_command_in_time(context, pattern, command, seconds):
-    cmd = "/bin/bash -c '%s'" %command
     seconds = int(seconds)
     orig_seconds = seconds
     while seconds > 0:
-        proc = pexpect.spawn(cmd, timeout = 180, logfile=context.log, encoding='utf-8')
+        proc = pexpect.spawn('/bin/bash', ['-c', command], timeout = 180, logfile=context.log, encoding='utf-8')
         if proc.expect([pattern, pexpect.EOF]) != 0:
             return True
         seconds = seconds - 1
@@ -1213,8 +1208,8 @@ def check_pattern_not_visible_with_command_in_time(context, pattern, command, se
 
 @step('"{pattern}" is not visible with command "{command}"')
 def check_pattern_not_visible_with_command(context, pattern, command):
-    cmd = "/bin/bash -c '%s'" %command
-    proc = pexpect.spawn(cmd, maxread=100000, logfile=context.log, encoding='utf-8')
+    # In command you have to use '' quotes
+    proc = pexpect.spawn('/bin/bash', ['-c', command], maxread=100000, logfile=context.log, encoding='utf-8')
     if proc.expect([pattern, pexpect.EOF]) == 0:
         sleep(1)
         proc = pexpect.spawn(cmd, maxread=100000, logfile=context.log, encoding='utf-8')
