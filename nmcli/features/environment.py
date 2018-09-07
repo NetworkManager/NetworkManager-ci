@@ -97,6 +97,17 @@ def reset_usb_devices():
             print(("failed to reset device:", msg))
         f.close()
 
+def setup_libreswan(mode, dh_group, phase1_al="aes", phase2_al=None):
+    print ("setting up libreswan")
+
+    RC = call("sh prepare/libreswan.sh %s %s %s" %(mode, dh_group, phase1_al), shell=True)
+    if RC != 0:
+        teardown_libreswan()
+        sys.exit(1)
+
+def teradown_libreswan():
+    call("sh prepare/libreswan.sh teardown", shell=True)
+
 def setup_racoon(mode, dh_group, phase1_al="aes", phase2_al=None):
     print ("setting up racoon")
     arch = check_output("uname -p", shell=True).decode('utf-8').strip()
