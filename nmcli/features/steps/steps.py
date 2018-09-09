@@ -1147,7 +1147,7 @@ def check_pattern_visible_with_command(context, pattern, command):
     proc = pexpect.spawn('/bin/bash', ['-c', command], maxread=100000, logfile=context.log, encoding='utf-8')
     if proc.expect([pattern, pexpect.EOF]) != 0:
         sleep(1)
-        proc = pexpect.spawn(cmd,  encoding='utf-8', maxread=100000, logfile=context.log)
+        proc = pexpect.spawn('/bin/bash', ['-c', command],  encoding='utf-8', maxread=100000, logfile=context.log)
         assert proc.expect([pattern, pexpect.EOF]) == 0, 'pattern %s is not visible with %s' % (pattern, command)
     else:
         return True
@@ -1212,7 +1212,7 @@ def check_pattern_not_visible_with_command(context, pattern, command):
     proc = pexpect.spawn('/bin/bash', ['-c', command], maxread=100000, logfile=context.log, encoding='utf-8')
     if proc.expect([pattern, pexpect.EOF]) == 0:
         sleep(1)
-        proc = pexpect.spawn(cmd, maxread=100000, logfile=context.log, encoding='utf-8')
+        proc = pexpect.spawn('/bin/bash', ['-c', command], maxread=100000, logfile=context.log, encoding='utf-8')
         assert proc.expect([pattern, pexpect.EOF]) != 0, 'pattern %s is visible with %s' % (pattern, command)
     else:
         return True
