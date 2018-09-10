@@ -571,8 +571,8 @@ def before_scenario(context, scenario):
         if '8021x' in scenario.tags:
             print ("---------------------------")
             arch = check_output("uname -p", shell=True).decode('utf-8').strip()
-            if arch == "s390x" or arch == 'aarch64':
-                sys.exit(77)
+            if arch == "s390x":
+                call("[ -x /usr/sbin/hostapd ] || (yum -y install 'https://vbenes.fedorapeople.org/NM/hostapd-2.6-7.el7.s390x.rpm'; sleep 10)", shell=True)
             setup_hostapd()
 
         if 'simwifi_wpa2' in scenario.tags:
