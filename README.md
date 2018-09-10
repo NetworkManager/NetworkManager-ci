@@ -9,7 +9,7 @@ This repo contains a set of integration tests for NetworkManager and vagrant bas
 | 1.14.x | [![Build Status](https://ci.centos.org/view/NetworkManager/job/NetworkManager-nm-1-14/badge/icon)](https://ci.centos.org/view/NetworkManager/job/NetworkManager-nm-1-14/) |
 | 1.12.x | [![Build Status](https://ci.centos.org/view/NetworkManager/job/NetworkManager-nm-1-12/badge/icon)](https://ci.centos.org/view/NetworkManager/job/NetworkManager-nm-1-12/) |
 | 1.10.x | [![Build Status](https://ci.centos.org/view/NetworkManager/job/NetworkManager-nm-1-10/badge/icon)](https://ci.centos.org/view/NetworkManager/job/NetworkManager-nm-1-10/) |
-| 1.8.x | [![Build Status](https://ci.centos.org/view/NetworkManager/job/NetworkManager-nm-1-8/badge/icon](https://ci.centos.org/view/NetworkManager/job/NetworkManager-nm-1-8/) |
+| 1.8.x | [![Build Status](https://ci.centos.org/view/NetworkManager/job/NetworkManager-nm-1-8/badge/icon)](https://ci.centos.org/view/NetworkManager/job/NetworkManager-nm-1-8/) |
 
 ### Howto execute basic test suite manually on localhost (~90minutes)
 
