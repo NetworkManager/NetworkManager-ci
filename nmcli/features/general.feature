@@ -885,7 +885,7 @@ Feature: nmcli - general
     * Execute "nmcli connection modify vethbrg ipv4.method shared"
     * Execute "nmcli connection modify vethbrg ipv4.address 172.16.0.1/24"
     * Bring "up" connection "vethbrg"
-    * Execute "brctl addif vethbrg test1gp"
+    * Execute "ip link set test1gp master vethbrg"
     * Execute "ip link set dev test1gp up"
     * Execute "ip netns add peers"
     * Execute "ip link set test1g netns peers"
