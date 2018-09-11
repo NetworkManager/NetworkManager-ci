@@ -578,7 +578,7 @@ def check_saved_in_editor(context):
 def create_delete_bridges(context):
     i = 0
     while i < 300:
-        Popen('brctl addbr br0' , shell=True).wait()
+        Popen('ip link add name br0 type bridge' , shell=True).wait()
         Popen('ip addr add 1.1.1.1/24 dev br0' , shell=True).wait()
         Popen('ip link delete dev br0' , shell=True).wait()
         i += 1
@@ -879,7 +879,7 @@ def external_bridge_check(context, number):
     i = 0
     while i < int(number):
         context.execute_steps(u"""
-            * Execute "sudo sh -c 'brctl addbr br0 ; ip addr add 10.1.1.1/24 dev br0 ; ip link set br0 up'"
+            * Execute "sudo sh -c 'ip link add name br0 type bridge ; ip addr add 10.1.1.1/24 dev br0 ; ip link set br0 up'"
             * "10.1.1.1/24" is visible with command "ip addr show br0" in "4" seconds
             * "GENERAL.STATE:\s+100 \(connected\)" is visible with command "nmcli device show br0" in "4" seconds
             * "IP4.ADDRESS.+10.1.1.1/24" is visible with command "nmcli device show br0"
@@ -1352,11 +1352,11 @@ def prepare_veths(context, pairs_array, bridge):
     for pair in pairs_array.split(','):
         pairs.append(pair.strip())
 
-    command_code(context, "sudo brctl addbr %s"% bridge)
+    command_code(context, "sudo ip link add name %s type bridge"% bridge)
     command_code(context, "sudo ip link set dev %s up"% bridge)
     for pair in pairs:
         command_code(context, "ip link add %s type veth peer name %sp" %(pair, pair))
-        command_code(context, "brctl addif %s %sp" %(bridge, pair))
+        command_code(context, "ip link set %sp master %s" %(pair, bridge))
         command_code(context, "ip link set dev %s up" % pair)
         command_code(context, "ip link set dev %sp up" % pair)
 
@@ -1403,8 +1403,8 @@ def prepare_simdev(context, device, ipv4=None, ipv6=None, option=None):
     command_code(context, "ip link set {device}p netns {device}_ns".format(device=device))
     command_code(context, "ip netns exec {device}_ns ip link set {device}p up".format(device=device))
     command_code(context, "ip link set {device} up".format(device=device))
-    command_code(context, "ip netns exec {device}_ns brctl addbr {device}_bridge".format(device=device))
-    command_code(context, "ip netns exec {device}_ns brctl addif {device}_bridge {device}p".format(device=device))
+    command_code(context, "ip netns exec {device}_ns ip link add name {device}_bridge type bridge".format(device=device))
+    command_code(context, "ip netns exec {device}_ns ip link set {device}p master {device}_bridge".format(device=device))
     command_code(context, "ip netns exec {device}_ns ip addr add {ip}.1/24 dev {device}_bridge".format(device=device, ip=ipv4))
     command_code(context, "ip netns exec {device}_ns ip -6 addr add {ip}::1/64 dev {device}_bridge".format(device=device, ip=ipv6))
     command_code(context, "ip netns exec {device}_ns ip link set {device}_bridge up".format(device=device))
@@ -1549,8 +1549,8 @@ def prepare_simdev_no_carrier(context, device):
     command_code(context, "ip netns exec {device}_ns ip link add {device} type veth peer name {device}p".format(device=device))
     command_code(context, "ip netns exec {device}_ns ip link set {device}p up".format(device=device))
     command_code(context, "ip netns exec {device}_ns ip link set {device} up".format(device=device))
-    command_code(context, "ip netns exec {device}_ns brctl addbr {device}_bridge".format(device=device))
-    command_code(context, "ip netns exec {device}_ns brctl addif {device}_bridge {device}p".format(device=device))
+    command_code(context, "ip netns exec {device}_ns ip link add name {device}_bridge type bridge".format(device=device))
+    command_code(context, "ip netns exec {device}_ns ip link set {device}p master {device}_bridge".format(device=device))
     command_code(context, "ip netns exec {device}_ns ip addr add {ip}.1/24 dev {device}_bridge".format(device=device, ip=ipv4))
     command_code(context, "ip netns exec {device}_ns ip -6 addr add {ip}::1/64 dev {device}_bridge".format(device=device, ip=ipv6))
     command_code(context, "ip netns exec {device}_ns ip link set {device}_bridge up".format(device=device))
