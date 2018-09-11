@@ -223,7 +223,7 @@ Feature: nmcli - dns
 
     @rhbz1512966
     @ver+=1.11.3
-    @con_dns_remove @dns_dnsmasq @not_in_rhel7
+    @con_dns_remove @dns_dnsmasq
     @dns_dnsmasq_two_default
     Scenario: NM - dns - two connections with default route
 
@@ -254,7 +254,7 @@ Feature: nmcli - dns
 
     @rhbz1512966
     @ver+=1.11.3
-    @con_dns_remove @dns_dnsmasq @not_in_rhel7
+    @con_dns_remove @dns_dnsmasq
     @dns_dnsmasq_one_default
     Scenario: NM - dns - two connections, one with default route
 
@@ -283,7 +283,7 @@ Feature: nmcli - dns
 
     @rhbz1512966
     @ver+=1.11.3
-    @con_dns_remove @dns_dnsmasq @not_in_rhel7
+    @con_dns_remove @dns_dnsmasq
     @dns_dnsmasq_two_default_with_priority
     Scenario: NM - dns - two connections with default route, one has higher priority
 
@@ -313,7 +313,7 @@ Feature: nmcli - dns
 
     @rhbz1512966
     @ver+=1.11.3
-    @con_dns_remove @dns_dnsmasq @not_in_rhel7
+    @con_dns_remove @dns_dnsmasq
     @dns_dnsmasq_two_default_with_negative_priority
     Scenario: NM - dns - two connections with default route, one has negative priority
 
@@ -374,7 +374,7 @@ Feature: nmcli - dns
 
     @rhbz1512966
     @ver+=1.11.3
-    @con_dns_remove @openvpn @openvpn4 @dns_dnsmasq @not_in_rhel7
+    @con_dns_remove @openvpn @openvpn4 @dns_dnsmasq
     @dns_dnsmasq_full_tunnel_vpn
     Scenario: NM - dns - full-tunnel VPN
 
@@ -402,7 +402,7 @@ Feature: nmcli - dns
 
     @rhbz1512966
     @ver+=1.11.3
-    @con_dns_remove @openvpn @openvpn4 @dns_dnsmasq @not_in_rhel7
+    @con_dns_remove @openvpn @openvpn4 @dns_dnsmasq
     @dns_dnsmasq_split_tunnel_vpn
     Scenario: NM - dns - split-tunnel VPN
 
