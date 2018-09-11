@@ -6,7 +6,7 @@ logger -t $0 "Running test $1"
 export PATH=$PATH:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/root/bin
 DIR=$(pwd)
 
-. $DIR/prepare/devsetup.sh
+. $DIR/prepare/envsetup.sh
 setup_configure_environment "$1"
 
 # set TEST variable for version_control script
@@ -26,7 +26,7 @@ fi
 TAG="$(python $DIR/version_control.py $DIR/nmcli $NMTEST)"; vc=$?
 if [ $vc -eq 1 ]; then
     logger "Skipping due to incorrect NM version for this test"
-    # exit 0 doesn't affect overal result
+    rstrnt-report-result $NMTEST "SKIP"
     exit 0
 
 elif [ $vc -eq 0 ]; then
@@ -42,9 +42,12 @@ RESULT="FAIL"
 if [ $rc -eq 0 ]; then
     RESULT="PASS"
 fi
+if [ $rc -eq 77 ]; then
+    RESULT="SKIP"
+    rc=0
+fi
 
-rhts-report-result $NMTEST $RESULT "/tmp/report_$NMTEST.html"
-#rhts-submit-log -T $TEST -l "/tmp/log_$TEST.html"
+rstrnt-report-result -o "/tmp/report_$NMTEST.html" $NMTEST $RESULT
 
 logger -t $0 "Test $1 finished with result $RESULT: $rc"
 

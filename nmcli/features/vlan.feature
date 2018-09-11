@@ -30,7 +30,7 @@ Feature: nmcli - vlan
     @restart @vlan
     @nmcli_vlan_restart_persistence
     Scenario: nmcli - vlan - restart persistence
-    * Execute "systemctl stop NetworkManager"
+    * Stop NM
     * Append "NAME=eth7.99" to ifcfg file "eth7.99"
     * Append "ONBOOT=yes" to ifcfg file "eth7.99"
     * Append "BOOTPROTO=none" to ifcfg file "eth7.99"
@@ -268,7 +268,7 @@ Feature: nmcli - vlan
     * Add a new connection of type "vlan" and options "con-name eth7.80 dev eth7 id 80"
     * "eth7.80:" is visible with command "ifconfig"
     * Spawn "ping -I eth7.80 8.8.8.8" command
-    Then "ID: 80" is visible with command "tshark -i eth7 -T fields -e vlan"
+    Then "ID: 80" is visible with command "tshark -i eth7 -T fields -e vlan" in "150" seconds
     Then Terminate spawned process "ping -I eth7.80 8.8.8.8"
 
 
@@ -285,7 +285,7 @@ Feature: nmcli - vlan
     @vlan_not_duplicated
     Scenario: nmcli - vlan - do not duplicate mtu and ipv4 vlan
     * Add a new connection of type "vlan" and options "con-name vlan dev eth7 id 80"
-    * Modify connection "vlan" changing options "eth.mtu 1450 ipv4.method manual ipv4.addresses 1.2.3.4/24"
+    * Modify connection "vlan" changing options "ethe.mtu 1450 ipv4.method manual ipv4.addresses 1.2.3.4/24"
     * Bring "up" connection "testeth7"
     * Bring "up" connection "vlan"
     * Restart NM
@@ -298,7 +298,7 @@ Feature: nmcli - vlan
     @vlan_not_stalled_after_connection_delete
     Scenario: nmcli - vlan - delete vlan device after restart
     * Add a new connection of type "vlan" and options "con-name vlan dev eth7 id 80"
-    * Modify connection "vlan" changing options "eth.mtu 1450 ipv4.method manual ipv4.addresses 1.2.3.4/24"
+    * Modify connection "vlan" changing options "ethe.mtu 1450 ipv4.method manual ipv4.addresses 1.2.3.4/24"
     * Bring "up" connection "testeth7"
     * Bring "up" connection "vlan"
     * Restart NM
@@ -327,10 +327,10 @@ Feature: nmcli - vlan
     # Check all is up
     * "connected:vlan_bond7.7" is visible with command "nmcli -t -f STATE,CONNECTION device" in "5" seconds
     # Delete bridge and bond outside NM, leaving the vlan device (with its mac set)
-    * Finish "systemctl stop NetworkManager.service"
+    * Stop NM
     * Finish "ip link del bond7"
     * Finish "ip link del bridge7"
-    * Finish "systemctl start NetworkManager.service"
+    * Start NM
     # Check the configuration has been restored in full after by NM again
     Then "connected:vlan_bridge7" is visible with command "nmcli -t -f STATE,CONNECTION device" in "30" seconds
     Then "connected:vlan_vlan7" is visible with command "nmcli -t -f STATE,CONNECTION device"
@@ -463,8 +463,8 @@ Feature: nmcli - vlan
     * Modify connection "vlan_bond7" property "vlan.parent" to noted value
     * Execute "nmcli connection modify vlan_bond7 connection.autoconnect yes"
     * Reboot
-    Then "nm-bond:connected:bond0" is visible with command "nmcli -t -f DEVICE,STATE,CONNECTION device" in "10" seconds
-    Then "nm-bond.7:connected:vlan_bond7" is visible with command "nmcli -t -f DEVICE,STATE,CONNECTION device" in "10" seconds
+    Then "nm-bond:connected:bond0" is visible with command "nmcli -t -f DEVICE,STATE,CONNECTION device" in "20" seconds
+    Then "nm-bond.7:connected:vlan_bond7" is visible with command "nmcli -t -f DEVICE,STATE,CONNECTION device" in "20" seconds
     * Restart NM
-    Then "nm-bond:connected:bond0" is visible with command "nmcli -t -f DEVICE,STATE,CONNECTION device" in "10" seconds
-    Then "nm-bond.7:connected:vlan_bond7" is visible with command "nmcli -t -f DEVICE,STATE,CONNECTION device" in "10" seconds
+    Then "nm-bond:connected:bond0" is visible with command "nmcli -t -f DEVICE,STATE,CONNECTION device" in "20" seconds
+    Then "nm-bond.7:connected:vlan_bond7" is visible with command "nmcli -t -f DEVICE,STATE,CONNECTION device" in "20" seconds

@@ -236,9 +236,10 @@ Feature: nmcli - general
 
     @rhbz1371201
     @ver+=1.4.0
+    @rhel7_only
     @CAP_SYS_ADMIN_for_ibft
     Scenario: NM - service - CAP_SYS_ADMIN for ibft plugin
-      Then "CAP_SYS_ADMIN" is visible with command "grep CapabilityBoundingSet /usr/lib/systemd/system/NetworkManager.service"
+      Then "CAP_SYS_ADMIN" is visible with command "grep ^CapabilityBoundingSet /usr/lib/systemd/system/NetworkManager.service"
 
 
     @general_networking_on_off
@@ -392,7 +393,7 @@ Feature: nmcli - general
      And "default via 192.168.99.1 dev testG" is visible with command "ip r"
 
 
-    @ver+=1.10.2  @ver-1.11
+    @ver+=1.10.2  @ver-=1.10.99
     @con_general_remove @teardown_testveth @dhcpd
     @device_reapply_routes
     Scenario: NM - device - reapply just routes
@@ -406,6 +407,7 @@ Feature: nmcli - general
     * Submit "set ipv6.addresses 2000::2/126" in editor
     * Submit "set ipv6.routes 1010::1/128 2000::1 1" in editor
     * Save in editor
+    * Quit editor
     * Execute "nmcli device reapply testG"
     Then "1010::1 via 2000::1 dev testG\s+proto static\s+metric 1" is visible with command "ip -6 route" in "5" seconds
      And "2000::/126 dev testG\s+proto kernel\s+metric 1" is visible with command "ip -6 route"
@@ -428,6 +430,7 @@ Feature: nmcli - general
     * Submit "set ipv6.addresses 2000::2/126" in editor
     * Submit "set ipv6.routes 1010::1/128 2000::1 1" in editor
     * Save in editor
+    * Quit editor
     * Execute "nmcli device reapply testG"
     Then "1010::1 via 2000::1 dev testG\s+proto static\s+metric 1" is visible with command "ip -6 route" in "5" seconds
      And "2000::/126 dev testG\s+proto kernel\s+metric 1" is visible with command "ip -6 route"
@@ -538,8 +541,9 @@ Feature: nmcli - general
     * Wait for at least "2" seconds
     * Bring up connection "con_general"
     When "100" is visible with command "nmcli  -t -f GENERAL.STATE device show testG"
+    When "connected:con_general:testG" is visible with command "nmcli -t -f STATE,CONNECTION,DEVICE device" in "10" seconds
     * Restart NM
-    Then "con_general" is visible with command "nmcli device" in "10" seconds
+    Then "connected:con_general:testG" is visible with command "nmcli -t -f STATE,CONNECTION,DEVICE device" in "10" seconds
      And "con_general2" is not visible with command "nmcli device"
 
 
@@ -1035,7 +1039,7 @@ Feature: nmcli - general
 
 
     @rhbz1086906
-    @veth @delete_testeth0 @newveth @con_general_remove @restart
+    @veth @delete_testeth0 @newveth @con_general_remove @teardown_testveth @restart
     @wait-online-for-both-ips
     Scenario: NM - general - wait-online - for both ipv4 and ipv6
     * Prepare simulated test "testG" device
@@ -1074,7 +1078,7 @@ Feature: nmcli - general
     * Execute "echo 'carrier-wait-timeout=20000' >> /etc/NetworkManager/conf.d/99-xxcustom.conf"
     * Execute "sleep 2"
     * Start NM
-    * Run child "echo FAIL > /tmp/nm-online.txt && /usr/bin/nm-online -s -q --timeout=35 && echo PASS > /tmp/nm-online.txt"
+    * Run child "echo FAIL > /tmp/nm-online.txt && /usr/bin/nm-online -s -q --timeout=30 && echo PASS > /tmp/nm-online.txt"
     When "FAIL" is visible with command "cat /tmp/nm-online.txt"
     * Execute "sleep 10"
     When "FAIL" is visible with command "cat /tmp/nm-online.txt"
@@ -1153,7 +1157,7 @@ Feature: nmcli - general
 
     @rhbz1182085
     @ver+=1.9
-    @netservice @restart
+    @netservice @restart @skip_in_ootpa
     @nmcli_general_profile_pickup_doesnt_break_network
     Scenario: nmcli - general - profile pickup does not break network service
     * Add a new connection of type "ethernet" and options "ifname * con-name con_general"
@@ -1161,7 +1165,8 @@ Feature: nmcli - general
     * "connected:con_general" is visible with command "nmcli -t -f STATE,CONNECTION device" in "50" seconds
     * "connected:con_general2" is visible with command "nmcli -t -f STATE,CONNECTION device" in "50" seconds
     # Finish asserts the command exited with 0, thus the network service completed properly
-    Then Finish "systemctl restart NetworkManager.service && sleep 3 && systemctl restart network.service"
+    * Restart NM
+    Then Finish "sleep 3 && systemctl restart network.service"
 
 
     @rhbz1079353
@@ -1257,8 +1262,8 @@ Feature: nmcli - general
      And "eth0: connected" is visible with command "cat /tmp/monitor.txt"
 
 
-    @rhbz998000
-    @ver+=1.4.0
+    @rhbz998000 @rhbz1591631
+    @ver+=1.10.2
     @con_general_remove @disp
     @device_reapply
     Scenario: nmcli - device -reapply
@@ -1267,8 +1272,10 @@ Feature: nmcli - general
     * Write dispatcher "99-disp" file
     * Execute "ip addr a 1.2.3.4/24 dev eth8"
     * Execute "nmcli c modify con_general +ipv4.address 1.2.3.4/24"
+    * Execute "nmcli c modify con_general connection.autoconnect no"
     * Execute "nmcli device reapply eth8"
     When "up" is not visible with command "cat /tmp/dispatcher.txt"
+    And "con_general" is visible with command "nmcli con show -a"
     * Execute "ip addr a 1.2.3.4/24 dev eth8"
     * Execute "nmcli c modify con_general -ipv4.address 1.2.3.4/24"
     * Execute "nmcli device reapply eth8"
@@ -1536,7 +1543,7 @@ Feature: nmcli - general
 
     @rhbz1337997
     @ver+=1.6.0
-    @macsec @not_on_aarch64_but_pegas
+    @macsec @not_on_aarch64_but_pegas @long
     @macsec_psk
     Scenario: NM - general - MACsec PSK
     * Prepare MACsec PSK environment with CAK "00112233445566778899001122334455" and CKN "5544332211009988776655443322110055443322110099887766554433221100"
@@ -1544,7 +1551,7 @@ Feature: nmcli - general
     * Add a new connection of type "macsec" and options "con-name test-macsec ifname macsec0 autoconnect no macsec.parent macsec_veth macsec.mode psk macsec.mka-cak 00112233445566778899001122334455 macsec.mka-ckn 5544332211009988776655443322110055443322110099887766554433221100"
     * Bring up connection "test-macsec-base"
     * Bring up connection "test-macsec"
-    Then Ping "172.16.10.1"
+    Then Ping "172.16.10.1" "10" times
 
 
     @rhbz1443114
@@ -1555,7 +1562,7 @@ Feature: nmcli - general
     * Execute "ip link add name $'d\xccf\\c' type dummy"
     When "/sys/devices/virtual/net/d\\314f\\\\c" is visible with command "nmcli -f GENERAL.UDI device show"
     * Restart NM
-    Then "dummy" is visible with command "nmcli device show 'd\314f\\c'"
+    Then "dummy" is visible with command "nmcli device show d\\314f\\\\c"
 
 
     @rhbz1458399
@@ -1673,3 +1680,255 @@ Feature: nmcli - general
     * Execute "sleep 8"
     * Execute "ip link set testG up"
     When "activated" is visible with command "nmcli -g GENERAL.STATE con show con_general" in "10" seconds
+
+
+    @rhbz1541031
+    @ver+=1.12
+    @restart @remove_custom_cfg
+    @resolv_conf_overwrite_after_stop
+    Scenario: NM - general - overwrite resolv conf after stop
+    * Append "[main]" to file "/etc/NetworkManager/conf.d/99-xxcustom.conf"
+    * Append "rc-manager=unmanaged" to file "/etc/NetworkManager/conf.d/99-xxcustom.conf"
+    * Append "nameserver 1.2.3.4" to file "/etc/resolv.conf"
+    * Stop NM
+    When "nameserver 1.2.3.4" is visible with command "cat /etc/resolv.conf" in "3" seconds
+    * Start NM
+    Then "nameserver 1.2.3.4" is visible with command "cat /etc/resolv.conf" in "3" seconds
+
+
+    @rhbz1593519
+    @ver+=1.12
+    @remove_custom_cfg_before_restart @restart
+    @NM_starts_with_incorrect_logging_config
+    Scenario: NM - general - nm starts even when logging is incorrectly configured
+    * Stop NM
+    * Execute "echo -e '[logging]\nlevel=DEFAULT:WARN,TEAM:TRACE' > /etc/NetworkManager/conf.d/99-xxcustom.conf;"
+    Then Start NM
+
+
+    @rhbz1593661
+    @ver+=1.12
+    @restart @remove_custom_cfg
+    @resolv_conf_dangling_symlink
+    Scenario: NM - general - follow resolv.conf when dangling symlink
+    * Stop NM
+    * Append "[main]" to file "/etc/NetworkManager/conf.d/99-xxcustom.conf"
+    * Append "rc-manager=file" to file "/etc/NetworkManager/conf.d/99-xxcustom.conf"
+    * Remove file "/etc/resolv.conf" if exists
+    * Remove file "/tmp/no-resolv.conf" if exists
+    * Create symlink "/etc/resolv.conf" with destination "/tmp/no-resolv.conf"
+    * Start NM
+    * Wait for at least "2" seconds
+    Then "/etc/resolv.conf" is symlink with destination "/tmp/no-resolv.conf"
+    * Stop NM
+    When "/etc/resolv.conf" is symlink with destination "/tmp/no-resolv.conf"
+    * Remove symlink "/etc/resolv.conf" if exists
+    * Wait for at least "3" seconds
+    * Start NM
+    Then "/tmp/no-resolv.conf" is file
+    * Remove file "/tmp/no-resolv.conf" if exists
+
+
+    @rhbz1588041
+    @ver+=1.12
+    @macsec @not_on_aarch64_but_pegas @long
+    @macsec_send-sci_by_default
+    Scenario: NM - general - MACsec send-sci option should be true by default
+    * Prepare MACsec PSK environment with CAK "00112233445566778899001122334455" and CKN "5544332211009988776655443322110055443322110099887766554433221100"
+    * Add a new connection of type "ethernet" and options "con-name test-macsec-base ifname macsec_veth ipv4.method disabled ipv6.method ignore"
+    * Add a new connection of type "macsec" and options "con-name test-macsec ifname macsec0 autoconnect no macsec.parent macsec_veth macsec.mode psk macsec.mka-cak 00112233445566778899001122334455 macsec.mka-ckn 5544332211009988776655443322110055443322110099887766554433221100"
+    Then "yes" is visible with command "nmcli -f macsec.send-sci con show test-macsec"
+    * Bring up connection "test-macsec-base"
+    * Bring up connection "test-macsec"
+    Then "send_sci on" is visible with command "ip macsec show macsec0"
+
+
+    @rhbz1555281
+    @ver+=1.10.7
+    @con_general_remove
+    @libnm_async_tasks_cancelable
+    Scenario: NM - general - cancelation of libnm async tasks (add_connection_async)
+    Then Finish "python tmp/repro_1555281.py con_general"
+
+
+    @rhbz1614691
+    @ver+=1.12
+    @con_general_remove
+    @nmcli_monitor_assertion_con_up_down
+    Scenario: NM - general - nmcli monitor asserts error when connection is activated or deactivated
+    * Add connection type "ethernet" named "con_general" for device "eth2"
+    * Execute "nmcli monitor &> /tmp/nmcli_monitor_out & pid=$!; sleep 10; kill $pid" without waiting for process to finish
+    * Bring "up" connection "con_general"
+    * Wait for at least "1" seconds
+    * Bring "down" connection "con_general"
+    * Wait for at least "10" seconds
+    Then "should not be reached" is not visible with command "cat /tmp/nmcli_monitor_out"
+
+
+    @rhbz1496739
+    @ver+=1.12
+    @con_general_remove
+    @libnm_snapshot_rollback
+    Scenario: NM - general - libnm snapshot and rollback
+    * Add connection type "ethernet" named "con_general" for device "eth8"
+    * Bring "up" connection "con_general"
+    * Add connection type "ethernet" named "con_general2" for device "eth9"
+    * Bring "up" connection "con_general2"
+    * Execute "tmp/libnm_snapshot_checkpoint.py create 0 eth8 eth9"
+    * Open editor for connection "con_general"
+    * Submit "set ipv4.method manual" in editor
+    * Submit "set ipv4.addresses 1.2.3.4/24" in editor
+    * Submit "set ipv4.gateway 1.2.3.1" in editor
+    * Save in editor
+    * Quit editor
+    * Bring "up" connection "con_general"
+    * Open editor for connection "con_general2"
+    * Submit "set ipv4.method manual" in editor
+    * Submit "set ipv4.addresses 1.2.3.5/24" in editor
+    * Submit "set ipv4.gateway 1.2.3.1" in editor
+    * Save in editor
+    * Quit editor
+    * Bring "up" connection "con_general2"
+    When "1.2.3.4/24" is visible with command "ip a s eth8" in "5" seconds
+    When "1.2.3.5/24" is visible with command "ip a s eth9" in "5" seconds
+     And "1.2.3.1" is visible with command "ip r"
+    * Execute "tmp/libnm_snapshot_checkpoint.py rollback"
+    Then "192.168.100" is visible with command "ip a s eth8" in "5" seconds
+     And "192.168.100" is visible with command "ip a s eth9" in "5" seconds
+     And "1.2.3.4/24" is not visible with command "ip a s eth8"
+     And "1.2.3.5/24" is not visible with command "ip a s eth8"
+     And "1.2.3.1" is not visible with command "ip r"
+     And "192.168.100.1" is visible with command "ip r"
+
+
+    @rhbz1496739
+    @ver+=1.12
+    @con_general_remove
+    @libnm_snapshot_rollback_all_devices
+    Scenario: NM - general - libnm snapshot and rollback all devices
+    * Add connection type "ethernet" named "con_general" for device "eth8"
+    * Bring "up" connection "con_general"
+    * Add connection type "ethernet" named "con_general2" for device "eth9"
+    * Bring "up" connection "con_general2"
+    * Execute "tmp/libnm_snapshot_checkpoint.py create 0"
+    * Open editor for connection "con_general"
+    * Submit "set ipv4.method manual" in editor
+    * Submit "set ipv4.addresses 1.2.3.4/24" in editor
+    * Submit "set ipv4.gateway 1.2.3.1" in editor
+    * Save in editor
+    * Quit editor
+    * Bring "up" connection "con_general"
+    * Open editor for connection "con_general2"
+    * Submit "set ipv4.method manual" in editor
+    * Submit "set ipv4.addresses 1.2.3.5/24" in editor
+    * Submit "set ipv4.gateway 1.2.3.1" in editor
+    * Save in editor
+    * Quit editor
+    * Bring "up" connection "con_general2"
+    When "1.2.3.4/24" is visible with command "ip a s eth8" in "5" seconds
+    When "1.2.3.5/24" is visible with command "ip a s eth9" in "5" seconds
+     And "1.2.3.1" is visible with command "ip r"
+    * Execute "tmp/libnm_snapshot_checkpoint.py rollback"
+    Then "192.168.100" is visible with command "ip a s eth8" in "5" seconds
+     And "192.168.100" is visible with command "ip a s eth9" in "5" seconds
+     And "1.2.3.4/24" is not visible with command "ip a s eth8"
+     And "1.2.3.5/24" is not visible with command "ip a s eth8"
+     And "1.2.3.1" is not visible with command "ip r"
+     And "192.168.100.1" is visible with command "ip r"
+
+
+    @rhbz1496739
+    @ver+=1.12
+    @con_general_remove
+    @libnm_snapshot_rollback_all_devices_with_timeout
+    Scenario: NM - general - libnm snapshot and rollback all devices with timeout
+    * Add connection type "ethernet" named "con_general" for device "eth8"
+    * Bring "up" connection "con_general"
+    * Add connection type "ethernet" named "con_general2" for device "eth9"
+    * Bring "up" connection "con_general2"
+    * Execute "tmp/libnm_snapshot_checkpoint.py create 10"
+    * Open editor for connection "con_general"
+    * Submit "set ipv4.method manual" in editor
+    * Submit "set ipv4.addresses 1.2.3.4/24" in editor
+    * Submit "set ipv4.gateway 1.2.3.1" in editor
+    * Save in editor
+    * Quit editor
+    * Bring "up" connection "con_general"
+    * Open editor for connection "con_general2"
+    * Submit "set ipv4.method manual" in editor
+    * Submit "set ipv4.addresses 1.2.3.5/24" in editor
+    * Submit "set ipv4.gateway 1.2.3.1" in editor
+    * Save in editor
+    * Quit editor
+    * Bring "up" connection "con_general2"
+    When "1.2.3.4/24" is visible with command "ip a s eth8" in "5" seconds
+    When "1.2.3.5/24" is visible with command "ip a s eth9" in "5" seconds
+     And "1.2.3.1" is visible with command "ip r"
+    * Wait for at least "10" seconds
+    Then "192.168.100" is visible with command "ip a s eth8" in "5" seconds
+     And "192.168.100" is visible with command "ip a s eth9" in "5" seconds
+     And "1.2.3.4/24" is not visible with command "ip a s eth8"
+     And "1.2.3.5/24" is not visible with command "ip a s eth8"
+     And "1.2.3.1" is not visible with command "ip r"
+     And "192.168.100.1" is visible with command "ip r"
+
+
+    @rhbz1496739
+    @ver+=1.12
+    @manage_eth8
+    @libnm_snapshot_rollback_unmanaged
+    Scenario: NM - general - libnm snapshot and rollback unmanaged
+    * Execute "nmcli device set eth8 managed off"
+    * Execute "tmp/libnm_snapshot_checkpoint.py create 10 eth8"
+    * Execute "nmcli device set eth8 managed on"
+    When "unmanaged" is not visible with command "nmcli device show eth8" in "5" seconds
+    * Wait for at least "15" seconds
+    Then "unmanaged" is visible with command "nmcli device show eth8" in "5" seconds
+
+
+    @rhbz1496739
+    @ver+=1.12
+    @manage_eth8
+    @libnm_snapshot_rollback_managed
+    Scenario: NM - general - libnm snapshot and rollback managed
+    * Execute "nmcli device set eth8 managed on"
+    * Execute "tmp/libnm_snapshot_checkpoint.py create 10 eth8"
+    * Execute "nmcli device set eth8 managed off"
+    When "unmanaged" is visible with command "nmcli device show eth8" in "5" seconds
+    * Wait for at least "15" seconds
+    Then "unmanaged" is not visible with command "nmcli device show eth8" in "5" seconds
+
+
+    @rhbz1496739
+    @ver+=1.12
+    @gen-bond_remove
+    @libnm_snapshot_rollback_soft_device
+    Scenario: NM - general - snapshot and rollback deleted soft device
+    * Add connection type "bond" named "gen-bond0" for device "gen-bond"
+    * Add slave connection for master "gen-bond" on device "eth8" named "gen-bond0.0"
+    * Add slave connection for master "gen-bond" on device "eth9" named "gen-bond0.1"
+    * Bring "up" connection "gen-bond0.0"
+    * Bring "up" connection "gen-bond0.1"
+    When Check slave "eth8" in bond "gen-bond" in proc
+    When Check slave "eth9" in bond "gen-bond" in proc
+    * Execute "tmp/libnm_snapshot_checkpoint.py create 10"
+    * Delete connection "gen-bond0.0"
+    * Delete connection "gen-bond0.1"
+    * Delete connection "gen-bond0"
+    * Wait for at least "15" seconds
+    Then Check slave "eth8" in bond "gen-bond" in proc
+    Then Check slave "eth9" in bond "gen-bond" in proc
+
+
+    @rhbz1553113
+    @ver+=1.12
+    @con_con_remove
+    @autoconnect_no_secrets_prompt
+    Scenario: NM - general - count number of password prompts with autoconnect yes and no secrets provided
+    * Add a new connection of type "ethernet" and options "ifname eth5 con-name con_con 802-1x.identity test 802-1x.password-flags 2 802-1x.eap md5 connection.autoconnect no"
+    * Wait for at least "2" seconds
+    * Execute "tmp/nm_agent_prompt_counter.sh start" without waiting for process to finish
+    * Wait for at least "2" seconds
+    * Modify connection "con_con" changing options "connection.autoconnect yes"
+    * Wait for at least "2" seconds
+    Then "PASSWORD_PROMPT_COUNT='1'" is visible with command "tmp/nm_agent_prompt_counter.sh stop"

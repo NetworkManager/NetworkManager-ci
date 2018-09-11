@@ -84,6 +84,10 @@ function racoon_setup ()
     for i in {3..41}; do
         echo "172.31.70.$i ipsecret" >> $RACOON_DIR/psk.txt
     done
+    
+    # Set correct permissions for the file containing preshared keys.
+    # This is needed in RHEL 7.6 in order for work correctly.
+    chmod 600 $RACOON_DIR/psk.txt
 
     if getent passwd budulinek > /dev/null; then
         userdel -r budulinek

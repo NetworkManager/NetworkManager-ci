@@ -17,6 +17,7 @@ Feature: nmcli: gsm
     * Dismiss IP configuration in editor
     * Dismiss Proxy configuration in editor
     Then "GENERAL.STATE:.*activated" is visible with command "nmcli con show gsm" in "60" seconds
+    And "default" is visible with command "ip r |grep 700"
      * Ping "8.8.8.8" "7" times
 
 
@@ -49,12 +50,14 @@ Feature: nmcli: gsm
     Scenario: nmcli - gsm - mtu
     * Add a new connection of type "gsm" and options "ifname \* con-name gsm autoconnect no apn internet"
     * Bring "up" connection "gsm"
-    When "mtu 1500" is visible with command "ip a s |grep $(nmcli |grep gsm |tail -1 |awk '{print $NF}')"
+    When "default" is visible with command "ip r |grep 700" in "20" seconds
+     And "mtu 1500" is visible with command "ip a s |grep mtu|tail -1"
      And "mtu 1500" is visible with command "nmcli |grep gsm"
     * Execute "nmcli con modify gsm gsm.mtu 1600"
     * Bring "up" connection "gsm"
+    * Execute "sleep 5"
     When "GENERAL.STATE:.*activated" is visible with command "nmcli con show gsm" in "20" seconds
-    Then "mtu 1600" is visible with command "ip a s |grep $(nmcli |grep gsm |tail -1 |awk '{print $NF}')"
+    Then "mtu 1600" is visible with command "ip a s |grep mtu|tail -1"
      And "mtu 1600" is visible with command "nmcli |grep gsm"
 
 
@@ -126,8 +129,9 @@ Feature: nmcli: gsm
     * Add a new connection of type "gsm" and options "ifname \* con-name gsm autoconnect no apn internet"
     * Bring "up" connection "gsm"
     When "GENERAL.STATE:.*activated" is visible with command "nmcli con show gsm" in "60" seconds
+     And "default" is visible with command "ip r |grep 700"
      And "none|limited" is visible with command "nmcli g" in "60" seconds
     * Execute "nmcli con modify gsm ipv4.dns 10.38.5.26"
     * Bring "up" connection "gsm"
-    Then "full" is visible with command "nmcli g" in "60" seconds
+    Then "full" is visible with command "nmcli g" in "80" seconds
      And Ping "nix.cz" "7" times

@@ -1,9 +1,9 @@
 # -*- coding: UTF-8 -*-
+from __future__ import absolute_import, division, print_function, unicode_literals
 from behave import step
 from time import sleep, time
 import pexpect
 import os
-import exceptions
 import re
 import subprocess
 from subprocess import Popen, check_output, call
@@ -13,11 +13,11 @@ from glob import glob
 
 def run(context, command, *a, **kw):
     try:
-        output = subprocess.check_output(command, shell=True, stderr=subprocess.STDOUT, *a, **kw)
+        output = subprocess.check_output(command, shell=True, stderr=subprocess.STDOUT, *a, **kw).decode('utf-8')
         returncode = 0
         exception = None
     except subprocess.CalledProcessError as e:
-        output = e.output
+        output = str(e.output)
         returncode = e.returncode
         exception = e
     context.embed('text/plain', '$?=%d' % returncode, caption='%s result' % command)
@@ -41,7 +41,7 @@ def do_device_stuff(context, action, what):
 
 @step(u'Activate connection')
 def activate_connection(context):
-    prompt = pexpect.spawn('activate')
+    prompt = pexpect.spawn('activate', encoding='utf-8')
     context.prompt = prompt
 
 
@@ -59,7 +59,7 @@ def append_to_ifcfg(context, line, name):
 
 # @step(u'Add connection for a type "{typ}" named "{name}"')
 # def add_connection(context, typ, name):
-#     cli = pexpect.spawn('nmcli connection add type %s con-name %s' % (typ, name), logfile=context.log)
+#     cli = pexpect.spawn('nmcli connection add type %s con-name %s' % (typ, name), logfile=context.log, encoding='utf-8')
 #     r = cli.expect(['Error', pexpect.EOF])
 #     if r == 0:
 #         raise Exception('Got an Error while adding %s connection %s' % (typ, name))
@@ -67,7 +67,7 @@ def append_to_ifcfg(context, line, name):
 
 @step(u'Add a connection named "{name}" for device "{ifname}" to "{vpn}" VPN')
 def add_vpnc_connection_for_iface(context, name, ifname, vpn):
-    cli = pexpect.spawn('nmcli connection add con-name %s type vpn ifname %s vpn-type %s' % (name, ifname, vpn), logfile=context.log)
+    cli = pexpect.spawn('nmcli connection add con-name %s type vpn ifname %s vpn-type %s' % (name, ifname, vpn), logfile=context.log, encoding='utf-8')
     r = cli.expect(['Error', pexpect.EOF])
     sleep(1)
     if r == 0:
@@ -86,7 +86,7 @@ def add_secondary_addr_same_subnet(context, device):
 @given(u'Use certificate "{cert}" with key "{key}" and authority "{ca}" for gateway "{gateway}" on OpenVPN connection "{name}"')
 def set_openvpn_connection(context, cert, key, ca, gateway, name):
     samples = glob(os.path.abspath('tmp/openvpn/'))[0]+'/'
-    cli = pexpect.spawn('nmcli c modify %s vpn.data "tunnel-mtu = 1400, key = %s, connection-type = tls, ca = %s, cert = %s, remote = %s, cert-pass-flags = 0"' % (name, samples + key, samples + ca, samples + cert, gateway))
+    cli = pexpect.spawn('nmcli c modify %s vpn.data "tunnel-mtu = 1400, key = %s, connection-type = tls, ca = %s, cert = %s, remote = %s, cert-pass-flags = 0"' % (name, samples + key, samples + ca, samples + cert, gateway), encoding='utf-8')
     r = cli.expect(['Error', pexpect.EOF])
     if r == 0:
         raise Exception('Got an Error while editing %s connection data' % (name))
@@ -94,7 +94,7 @@ def set_openvpn_connection(context, cert, key, ca, gateway, name):
 
 @step(u'Add connection type "{typ}" named "{name}" for device "{ifname}"')
 def add_connection_for_iface(context, typ, name, ifname):
-    cli = pexpect.spawn('nmcli connection add type %s con-name %s ifname %s' % (typ, name, ifname), logfile=context.log)
+    cli = pexpect.spawn('nmcli connection add type %s con-name %s ifname %s' % (typ, name, ifname), logfile=context.log, encoding='utf-8')
     r = cli.expect(['Error', pexpect.EOF])
     if r == 0:
         raise Exception('Got an Error while adding %s connection %s for device %s' % (typ, name, ifname))
@@ -107,13 +107,13 @@ def add_new_default_connection(context, typ, ifname, options):
 
 @step(u'Add a new connection of type "{typ}" and options "{options}"')
 def add_new_default_connection_without_ifname(context, typ, options):
-    cli = pexpect.spawn('nmcli connection add type %s %s' % (typ, options), logfile=context.log)
+    cli = pexpect.spawn('nmcli connection add type %s %s' % (typ, options), logfile=context.log, encoding='utf-8')
     if cli.expect(['Error', pexpect.TIMEOUT, pexpect.EOF]) == 0:
         raise Exception('Got an Error while creating connection of type %s with options %s' % (typ,options))
 
 @step(u'Add infiniband port named "{name}" for device "{ifname}" with parent "{parent}" and p-key "{pkey}"')
 def add_port(context, name, ifname, parent, pkey):
-    cli = pexpect.spawn('nmcli connection add type infiniband con-name %s ifname %s parent %s p-key %s' % (name, ifname, parent, pkey), logfile=context.log)
+    cli = pexpect.spawn('nmcli connection add type infiniband con-name %s ifname %s parent %s p-key %s' % (name, ifname, parent, pkey), logfile=context.log, encoding='utf-8')
     r = cli.expect(['Error', pexpect.EOF])
     if r == 0:
         raise Exception('Got an Error while adding %s connection %s for device %s' % (typ, name, ifname))
@@ -121,7 +121,7 @@ def add_port(context, name, ifname, parent, pkey):
 
 @step(u'Modify connection "{connection}" property "{prop}" to noted value')
 def modify_connection_with_noted(context, connection, prop):
-    cli = pexpect.spawn('nmcli connection modify %s %s %s' % (connection, prop, context.noted_value))
+    cli = pexpect.spawn('nmcli connection modify %s %s %s' % (connection, prop, context.noted_value), encoding='utf-8')
     r = cli.expect(['Error', pexpect.EOF])
     if r == 0:
         raise Exception('Got an Error while changing %s property for connection %s to %s' % (prop, connection, context.noted_value))
@@ -129,10 +129,10 @@ def modify_connection_with_noted(context, connection, prop):
 @step(u'Add slave connection for master "{master}" on device "{device}" named "{name}"')
 def open_slave_connection(context, master, device, name):
     if master.find("team") != -1:
-        cli = pexpect.spawn('nmcli connection add type team-slave ifname %s con-name %s master %s' % (device, name, master), logfile=context.log)
+        cli = pexpect.spawn('nmcli connection add type team-slave ifname %s con-name %s master %s' % (device, name, master), logfile=context.log, encoding='utf-8')
         r = cli.expect(['Error', pexpect.EOF])
     if master.find("bond") != -1:
-        cli = pexpect.spawn('nmcli connection add type bond-slave ifname %s con-name %s master %s' % (device, name, master), logfile=context.log)
+        cli = pexpect.spawn('nmcli connection add type bond-slave ifname %s con-name %s master %s' % (device, name, master), logfile=context.log, encoding='utf-8')
         r = cli.expect(['Error', pexpect.EOF])
 
     if r == 0:
@@ -142,16 +142,16 @@ def open_slave_connection(context, master, device, name):
 @step(u'Use user "{user}" with password "{password}" and group "{group}" with secret "{secret}" for gateway "{gateway}" on Libreswan connection "{name}"')
 def set_libreswan_connection(context, user, password, group, secret, gateway, name):
     if password == "ask" and secret != "ask":
-        cli = pexpect.spawn('nmcli c modify %s vpn.data "leftxauthusername = %s, leftid = %s, pskinputmodes = save, right = %s, xauthpasswordinputmodes = ask, pskvalue-flags = 0, xauthpassword-flags = 2, vendor = Cisco" vpn.secrets "pskvalue = %s"' % (name, user, group, gateway, secret))
+        cli = pexpect.spawn('nmcli c modify %s vpn.data "leftxauthusername = %s, leftid = %s, pskinputmodes = save, right = %s, xauthpasswordinputmodes = ask, pskvalue-flags = 0, xauthpassword-flags = 2, vendor = Cisco" vpn.secrets "pskvalue = %s"' % (name, user, group, gateway, secret), encoding='utf-8')
     if password == "ask" and secret == "ask":
-        cli = pexpect.spawn('nmcli c modify %s vpn.data "leftxauthusername = %s, leftid = %s, pskinputmodes = ask, right = %s, xauthpasswordinputmodes = ask, pskvalue-flags = 2, xauthpassword-flags = 2, vendor = Cisco"' % (name, user, group, gateway))
+        cli = pexpect.spawn('nmcli c modify %s vpn.data "leftxauthusername = %s, leftid = %s, pskinputmodes = ask, right = %s, xauthpasswordinputmodes = ask, pskvalue-flags = 2, xauthpassword-flags = 2, vendor = Cisco"' % (name, user, group, gateway), encoding='utf-8')
     if password != "ask" and secret == "ask":
-        cli = pexpect.spawn('nmcli c modify %s vpn.data "leftxauthusername = %s, leftid = %s, pskinputmodes = ask, right = %s, xauthpasswordinputmodes = save, pskvalue-flags = 2, xauthpassword-flags = 0, vendor = Cisco" vpn.secrets "xauthpassword = %s"' % (name, user, group, gateway))
+        cli = pexpect.spawn('nmcli c modify %s vpn.data "leftxauthusername = %s, leftid = %s, pskinputmodes = ask, right = %s, xauthpasswordinputmodes = save, pskvalue-flags = 2, xauthpassword-flags = 0, vendor = Cisco" vpn.secrets "xauthpassword = %s"' % (name, user, group, gateway), encoding='utf-8')
     if password != "ask" and secret != "ask":
         if group == 'Main':
-            cli = pexpect.spawn('nmcli c modify %s vpn.data "leftxauthusername = %s, pskinputmodes = save, right = %s, xauthpasswordinputmodes = save, pskvalue-flags = 0, xauthpassword-flags = 0, vendor = Cisco" vpn.secrets "pskvalue = %s, xauthpassword = %s"' % (name, user, gateway, secret, password))
+            cli = pexpect.spawn('nmcli c modify %s vpn.data "leftxauthusername = %s, pskinputmodes = save, right = %s, xauthpasswordinputmodes = save, pskvalue-flags = 0, xauthpassword-flags = 0, vendor = Cisco" vpn.secrets "pskvalue = %s, xauthpassword = %s"' % (name, user, gateway, secret, password), encoding='utf-8')
         else:
-            cli = pexpect.spawn('nmcli c modify %s vpn.data "leftxauthusername = %s, leftid = %s, pskinputmodes = save, right = %s, xauthpasswordinputmodes = save, pskvalue-flags = 0, xauthpassword-flags = 0, vendor = Cisco" vpn.secrets "pskvalue = %s, xauthpassword = %s"' % (name, user, group, gateway, secret, password))
+            cli = pexpect.spawn('nmcli c modify %s vpn.data "leftxauthusername = %s, leftid = %s, pskinputmodes = save, right = %s, xauthpasswordinputmodes = save, pskvalue-flags = 0, xauthpassword-flags = 0, vendor = Cisco" vpn.secrets "pskvalue = %s, xauthpassword = %s"' % (name, user, group, gateway, secret, password), encoding='utf-8')
 
     r = cli.expect(['Error', pexpect.EOF])
     if r == 0:
@@ -160,12 +160,12 @@ def set_libreswan_connection(context, user, password, group, secret, gateway, na
 
 @step(u'Use user "{user}" with password "{password}" and group "{group}" with secret "{secret}" for gateway "{gateway}" on VPNC connection "{name}"')
 def set_vpnc_connection(context, user, password, group, secret, gateway, name):
-    cli = pexpect.spawn('nmcli c modify %s vpn.data "NAT Traversal Mode=natt, ipsec-secret-type=save, IPSec secret-flags=0, xauth-password-type=save, Vendor=cisco, Xauth username=%s, IPSec gateway=%s, Xauth password-flags=0, IPSec ID=%s, Perfect Forward Secrecy=server, IKE DH Group=dh2, Local Port=0"' % (name, user, gateway, group))
+    cli = pexpect.spawn('nmcli c modify %s vpn.data "NAT Traversal Mode=natt, ipsec-secret-type=save, IPSec secret-flags=0, xauth-password-type=save, Vendor=cisco, Xauth username=%s, IPSec gateway=%s, Xauth password-flags=0, IPSec ID=%s, Perfect Forward Secrecy=server, IKE DH Group=dh2, Local Port=0"' % (name, user, gateway, group), encoding='utf-8')
     r = cli.expect(['Error', pexpect.EOF])
     if r == 0:
         raise Exception('Got an Error while editing %s connection data' % (name))
     sleep(1)
-    cli = pexpect.spawn('nmcli c modify %s vpn.secrets "IPSec secret=%s, Xauth password=%s"' % (name, secret, password))
+    cli = pexpect.spawn('nmcli c modify %s vpn.secrets "IPSec secret=%s, Xauth password=%s"' % (name, secret, password), encoding='utf-8')
     r = cli.expect(['Error', pexpect.EOF])
     if r == 0:
         raise Exception('Got an Error while editing %s connection secrets' % (name))
@@ -173,12 +173,12 @@ def set_vpnc_connection(context, user, password, group, secret, gateway, name):
 
 @step(u'Use user "{user}" with password "{password}" and MPPE set to "{mppe}" for gateway "{gateway}" on PPTP connection "{name}"')
 def set_vpnc_connection(context, user, password, mppe, gateway, name):
-    cli = pexpect.spawn('nmcli c modify %s vpn.data "password-flags = 0, user = %s, require-mppe = %s, gateway = %s"' % (name, user, mppe, gateway))
+    cli = pexpect.spawn('nmcli c modify %s vpn.data "password-flags = 0, user = %s, require-mppe = %s, gateway = %s"' % (name, user, mppe, gateway), encoding='utf-8')
     r = cli.expect(['Error', pexpect.EOF])
     if r == 0:
         raise Exception('Got an Error while editing %s connection data' % (name))
     sleep(2)
-    cli = pexpect.spawn('nmcli c modify %s vpn.secrets "password = %s"' % (name, password))
+    cli = pexpect.spawn('nmcli c modify %s vpn.secrets "password = %s"' % (name, password), encoding='utf-8')
     r = cli.expect(['Error', pexpect.EOF])
     if r == 0:
         raise Exception('Got an Error while editing %s connection secrets' % (name))
@@ -186,7 +186,7 @@ def set_vpnc_connection(context, user, password, mppe, gateway, name):
 
 @step(u'Autocomplete "{cmd}" in bash and execute')
 def autocomplete_command(context, cmd):
-    bash = pexpect.spawn("bash")
+    bash = pexpect.spawn("bash", encoding='utf-8')
     bash.send(cmd)
     bash.send('\t')
     sleep(1)
@@ -224,7 +224,7 @@ def start_stop_connection(context, action, name):
             print ("Warning: Connection is down no need to down it again")
             return
 
-    cli = pexpect.spawn('nmcli connection %s id %s' % (action, name), logfile=context.log,  timeout=180)
+    cli = pexpect.spawn('nmcli connection %s id %s' % (action, name), logfile=context.log,  timeout=180, encoding='utf-8')
 
     r = cli.expect(['Error', 'Timeout', pexpect.TIMEOUT, pexpect.EOF])
     if r == 0:
@@ -237,7 +237,7 @@ def start_stop_connection(context, action, name):
 
 @step(u'Bring up connection "{name}" for "{device}" device')
 def start_connection_for_device(context, name, device):
-    cli = pexpect.spawn('nmcli connection up id %s ifname %s' % (name, device), logfile=context.log,  timeout=180)
+    cli = pexpect.spawn('nmcli connection up id %s ifname %s' % (name, device), logfile=context.log,  timeout=180, encoding='utf-8')
     r = cli.expect(['Error', 'Timeout', pexpect.TIMEOUT, pexpect.EOF])
     if r == 0:
         raise Exception('Got an Error while uping connection %s on %s' % (name, device))
@@ -250,7 +250,7 @@ def start_connection_for_device(context, name, device):
 
 @step(u'Bring up connection "{connection}"')
 def bring_up_connection(context, connection):
-    cli = pexpect.spawn('nmcli connection up %s' % connection, timeout = 180, logfile=context.log)
+    cli = pexpect.spawn('nmcli connection up %s' % connection, timeout = 180, logfile=context.log, encoding='utf-8')
     r = cli.expect(['Error', pexpect.TIMEOUT, pexpect.EOF])
     if r == 0:
         raise Exception('Got an Error while upping connection %s' % connection)
@@ -260,7 +260,7 @@ def bring_up_connection(context, connection):
 
 @step(u'Bring up connection "{connection}" ignoring error')
 def bring_up_connection_ignore_error(context, connection):
-    cli = pexpect.spawn('nmcli connection up %s' % connection, timeout = 180, logfile=context.log)
+    cli = pexpect.spawn('nmcli connection up %s' % connection, timeout = 180, logfile=context.log, encoding='utf-8')
     r = cli.expect([pexpect.EOF, pexpect.TIMEOUT])
     if r == 1:
         raise Exception('nmcli connection up %s timed out (180s)' % connection)
@@ -269,7 +269,7 @@ def bring_up_connection_ignore_error(context, connection):
 
 @step(u'Bring down connection "{connection}"')
 def bring_down_connection(context, connection):
-    cli = pexpect.spawn('nmcli connection down %s' % connection, timeout = 180, logfile=context.log)
+    cli = pexpect.spawn('nmcli connection down %s' % connection, timeout = 180, logfile=context.log, encoding='utf-8')
     r = cli.expect(['Error', pexpect.TIMEOUT, pexpect.EOF])
     if r == 0:
         raise Exception('Got an Error while downing a connection %s' % connection)
@@ -279,7 +279,7 @@ def bring_down_connection(context, connection):
 
 @step(u'Bring down connection "{connection}" ignoring error')
 def bring_down_connection_ignoring(context, connection):
-    cli = pexpect.spawn('nmcli connection down %s' % connection, timeout = 180, logfile=context.log)
+    cli = pexpect.spawn('nmcli connection down %s' % connection, timeout = 180, logfile=context.log, encoding='utf-8')
     r = cli.expect([pexpect.EOF, pexpect.TIMEOUT])
     if r == 1:
         raise Exception('nmcli connection down %s timed out (180s)' % connection)
@@ -287,10 +287,11 @@ def bring_down_connection_ignoring(context, connection):
 
 @step(u'Check ipv6 connectivity is stable on assuming connection profile "{profile}" for device "{device}"')
 def check_ipv6_connectivity_on_assumal(context, profile, device):
+    context.nm_restarted = True
     address = command_output(context, "ip -6 a s %s | grep dynamic | awk '{print $2; exit}' | cut -d '/' -f1" % device)
     assert command_code(context, 'systemctl stop NetworkManager.service') == 0
     assert command_code(context, "sed -i 's/UUID=/#UUID=/' /etc/sysconfig/network-scripts/ifcfg-%s" % profile)  == 0
-    ping = pexpect.spawn('ping6 %s -i 0.2 -c 50' % address, logfile=context.log)
+    ping = pexpect.spawn('ping6 %s -i 0.2 -c 50' % address, logfile=context.log, encoding='utf-8')
     sleep(1)
     assert command_code(context, 'systemctl start NetworkManager.service') == 0
     sleep(12)
@@ -398,7 +399,7 @@ def value_printed(context, item, value):
 
 @step(u'Check if "{name}" is active connection')
 def is_active_connection(context, name):
-    cli = pexpect.spawn('nmcli -t -f NAME connection show --active', logfile=context.log)
+    cli = pexpect.spawn('nmcli -t -f NAME connection show --active', logfile=context.log, encoding='utf-8')
     r = cli.expect([name,pexpect.EOF])
     if r == 1:
         raise Exception('Connection %s is not active' % name)
@@ -406,7 +407,7 @@ def is_active_connection(context, name):
 
 @step(u'Check if "{name}" is not active connection')
 def is_nonactive_connection(context, name):
-    cli = pexpect.spawn('nmcli -t -f NAME connection show --active', logfile=context.log)
+    cli = pexpect.spawn('nmcli -t -f NAME connection show --active', logfile=context.log, encoding='utf-8')
     r = cli.expect([name,pexpect.EOF])
     if r == 0:
         raise Exception('Connection %s is active' % name)
@@ -414,13 +415,13 @@ def is_nonactive_connection(context, name):
 
 @step(u'Check ifcfg-name file created with noted connection name')
 def check_ifcfg_exists(context):
-    cat = pexpect.spawn('cat /etc/sysconfig/network-scripts/ifcfg-%s' % context.noted, logfile=context.log)
+    cat = pexpect.spawn('cat /etc/sysconfig/network-scripts/ifcfg-%s' % context.noted, logfile=context.log, encoding='utf-8')
     cat.expect('NAME=%s' % context.noted)
 
 
 @step(u'Check ifcfg-name file created for connection "{con_name}"')
 def check_ifcfg_exists_given_device(context, con_name):
-    cat = pexpect.spawn('cat /etc/sysconfig/network-scripts/ifcfg-%s' % con_name, logfile=context.log)
+    cat = pexpect.spawn('cat /etc/sysconfig/network-scripts/ifcfg-%s' % con_name, logfile=context.log, encoding='utf-8')
     cat.expect('NAME=%s' % con_name)
 
 
@@ -472,16 +473,16 @@ def check_dns_domain(context, device, domain, kind="routing"):
 
 @step(u'Check bond "{bond}" in proc')
 def check_bond_in_proc(context, bond):
-    child = pexpect.spawn('cat /proc/net/bonding/%s ' % (bond) , logfile=context.log)
+    child = pexpect.spawn('cat /proc/net/bonding/%s ' % (bond) , logfile=context.log, encoding='utf-8')
     assert child.expect(['Ethernet Channel Bonding Driver', pexpect.EOF]) == 0; "%s is not in proc" % bond
 
 
 @step(u'Check slave "{slave}" in bond "{bond}" in proc')
 def check_slave_in_bond_in_proc(context, slave, bond):
-    child = pexpect.spawn('cat /proc/net/bonding/%s' % (bond), logfile=context.log )
+    child = pexpect.spawn('cat /proc/net/bonding/%s' % (bond), logfile=context.log, encoding='utf-8')
     if child.expect(["Slave Interface: %s\s+MII Status: up" % slave, pexpect.EOF]) != 0:
         sleep(1)
-        child = pexpect.spawn('cat /proc/net/bonding/%s' % (bond), logfile=context.log )
+        child = pexpect.spawn('cat /proc/net/bonding/%s' % (bond), logfile=context.log, encoding='utf-8')
         assert child.expect(["Slave Interface: %s\s+MII Status: up" % slave, pexpect.EOF]) == 0, "Slave %s is not in %s" % (slave, bond)
     else:
         return True
@@ -498,7 +499,7 @@ def check_slave_in_team_is_up(context, slave, team, state):
         if r == 0:
             raise Exception('Device %s was found in dump of team %s' % (slave, team))
 
-    # child = pexpect.spawn('sudo teamdctl %s state dump' % (team),  maxread=10000, logfile=context.log )
+    # child = pexpect.spawn('sudo teamdctl %s state dump' % (team),  maxread=10000, logfile=context.log, encoding='utf-8')
     # if state == "up":
     #     found = '"ifname"\:\s+"%s"' % slave
     #     r = child.expect([found, 'Timeout', pexpect.TIMEOUT, pexpect.EOF])
@@ -520,18 +521,18 @@ def check_slave_present_in_bond_in_proc(context, slave, bond):
     # DON'T USE THIS STEP UNLESS YOU HAVE A GOOD REASON!!
     # this is not looking for up state as arp connections are sometimes down.
     # it's always better to check whether slave is up
-    child = pexpect.spawn('cat /proc/net/bonding/%s' % (bond), logfile=context.log )
+    child = pexpect.spawn('cat /proc/net/bonding/%s' % (bond), logfile=context.log, encoding='utf-8')
     assert child.expect(["Slave Interface: %s\s+MII Status:" % slave, pexpect.EOF]) == 0, "Slave %s is not in %s" % (slave, bond)
 
 
 @step(u'Check slave "{slave}" not in bond "{bond}" in proc')
 def check_slave_not_in_bond_in_proc(context, slave, bond):
-    child = pexpect.spawn('cat /proc/net/bonding/%s' % (bond), logfile=context.log )
+    child = pexpect.spawn('cat /proc/net/bonding/%s' % (bond), logfile=context.log, encoding='utf-8')
     assert child.expect(["Slave Interface: %s\s+MII Status: up" % slave, pexpect.EOF]) != 0, "Slave %s is in %s" % (slave, bond)
 
 @step(u'Check bond "{bond}" state is "{state}"')
 def check_bond_state(context, bond, state):
-    child = pexpect.spawn('ip addr show dev %s up' % (bond))
+    child = pexpect.spawn('ip addr show dev %s up' % (bond), encoding='utf-8')
     exp = 0 if state == "up" else 1
     r = child.expect(["\\d+: %s:" %  bond, pexpect.EOF])
     assert r == exp, "%s not in %s state" % (bond, state)
@@ -543,7 +544,7 @@ def check_bond_link_state(context, bond, state):
         return
     i = 4
     while i > 0:
-        child = pexpect.spawn('cat /proc/net/bonding/%s' % (bond))
+        child = pexpect.spawn('cat /proc/net/bonding/%s' % (bond), encoding='utf-8')
         if child.expect(["MII Status: %s" %  state, pexpect.EOF]) == 0:
             return
         else:
@@ -723,7 +724,7 @@ def compare_devices(context):
 
         if a_type == 'dict':
             for a_key in a.keys():
-                if b.has_key(a_key):
+                if a_key in b:
                     if not deep_compare(a_desc + '.' + a_key, a[a_key],
                                 b_desc + '.' + a_key, b[a_key]):
                         ret = False
@@ -732,7 +733,7 @@ def compare_devices(context):
                     ret = False
 
             for b_key in b.keys():
-                if not a.has_key(b_key):
+                if b_key not in a:
                     print ('%s does not have %s' % (a_desc, b_key))
                     ret = False
         else:
@@ -749,7 +750,7 @@ def compare_devices(context):
 
 @step(u'Connect device "{device}"')
 def connect_device(context, device):
-    cli = pexpect.spawn('nmcli device con %s' % device, timeout = 180, logfile=context.log)
+    cli = pexpect.spawn('nmcli device con %s' % device, timeout = 180, logfile=context.log, encoding='utf-8')
     r = cli.expect(['Error', pexpect.TIMEOUT, pexpect.EOF])
     if r == 0:
         raise Exception('Got an Error while connecting a device %s' % device)
@@ -759,7 +760,7 @@ def connect_device(context, device):
 
 @step(u'Connect wifi device to "{network}" network')
 def connect_wifi_device(context, network):
-    cli = pexpect.spawn('nmcli device wifi connect "%s"' % network, timeout = 180, logfile=context.log)
+    cli = pexpect.spawn('nmcli device wifi connect "%s"' % network, timeout = 180, logfile=context.log, encoding='utf-8')
     r = cli.expect(['Error', pexpect.TIMEOUT, pexpect.EOF])
     if r == 0:
         raise Exception('Got an Error while connecting to network %s' % network)
@@ -769,7 +770,7 @@ def connect_wifi_device(context, network):
 
 @step(u'Connect wifi device to "{network}" network with options "{options}"')
 def connect_wifi_device_w_options(context, network, options):
-    cli = pexpect.spawn('nmcli device wifi connect "%s" %s' % (network, options), timeout = 180, logfile=context.log)
+    cli = pexpect.spawn('nmcli device wifi connect "%s" %s' % (network, options), timeout = 180, logfile=context.log, encoding='utf-8')
     r = cli.expect(['Error', pexpect.TIMEOUT, pexpect.EOF])
     if r == 0:
         raise Exception('Got an Error while connecting to network %s' % network)
@@ -780,7 +781,7 @@ def connect_wifi_device_w_options(context, network, options):
 @step(u'Connect to vpn "{vpn}" with password "{password}" with timeout "{time_out}"')
 @step(u'Connect to vpn "{vpn}" with password "{password}" and secret "{secret}"')
 def connect_to_vpn(context, vpn, password, secret=None, time_out=None):
-    cli = pexpect.spawn('nmcli -a connect up %s' % (vpn), timeout = 180, logfile=context.log)
+    cli = pexpect.spawn('nmcli -a connect up %s' % (vpn), timeout = 180, logfile=context.log, encoding='utf-8')
     if not time_out:
         sleep(1)
     else:
@@ -797,7 +798,7 @@ def connect_to_vpn(context, vpn, password, secret=None, time_out=None):
 
 @step(u'Delete connection "{connection}"')
 def delete_connection(context,connection):
-    cli = pexpect.spawn('nmcli connection delete %s' % connection, timeout = 95, logfile=context.log)
+    cli = pexpect.spawn('nmcli connection delete %s' % connection, timeout = 95, logfile=context.log, encoding='utf-8')
     res = cli.expect(['Error', pexpect.TIMEOUT, pexpect.EOF])
     if res == 0:
         raise Exception('Got an Error while deleting connection %s' % connection)
@@ -816,7 +817,7 @@ def delete_connection_with_enter(context, name):
 
 @step(u'Disconnect device "{name}"')
 def disconnect_connection(context, name):
-    cli = pexpect.spawn('nmcli device disconnect %s' % name, logfile=context.log,  timeout=180)
+    cli = pexpect.spawn('nmcli device disconnect %s' % name, logfile=context.log,  timeout=180, encoding='utf-8')
 
     r = cli.expect(['Error', pexpect.TIMEOUT, pexpect.EOF])
     if r == 0:
@@ -864,12 +865,12 @@ def execute_command(context, command):
 
 @step(u'Execute "{command}" for "{number}" times')
 def execute_multiple_times(context, command, number):
-    orig_nm_pid = check_output('pidof NetworkManager', shell=True)
+    orig_nm_pid = check_output('pidof NetworkManager', shell=True).decode('utf-8')
 
     i = 0
     while i < int(number):
         command_code(context, command)
-        curr_nm_pid = check_output('pidof NetworkManager', shell=True)
+        curr_nm_pid = check_output('pidof NetworkManager', shell=True).decode('utf-8')
         assert curr_nm_pid == orig_nm_pid, 'NM crashed as original pid was %s but now is %s' %(orig_nm_pid, curr_nm_pid)
         i += 1
 
@@ -889,7 +890,7 @@ def external_bridge_check(context, number):
 
 @step(u'Fail up connection "{name}" for "{device}"')
 def fail_up_connection_for_device(context, name, device):
-    cli = pexpect.spawn('nmcli connection up id %s ifname %s' % (name, device), logfile=context.log,  timeout=180)
+    cli = pexpect.spawn('nmcli connection up id %s ifname %s' % (name, device), logfile=context.log,  timeout=180, encoding='utf-8')
     r = cli.expect(['Error', 'Timeout', pexpect.TIMEOUT, pexpect.EOF])
     if r == 3:
         raise Exception('nmcli connection up %s for device %s was succesfull. this should not happen' % (name, device))
@@ -944,7 +945,7 @@ def flag_cap_set(context, flag, n=None, device='wlan0', giveexception=True):
             org.freedesktop.DBus.Properties.Get \
             string:"org.freedesktop.NetworkManager.Device.Wireless" \
             string:"WirelessCapabilities" | grep variant | awk '{print $3}' ''' % path
-    ret = int(check_output(cmd, shell=True).strip())
+    ret = int(check_output(cmd, shell=True).decode('utf-8').strip())
 
     if n is None:
         if wcaps[flag] & ret == wcaps[flag]:
@@ -1000,7 +1001,7 @@ def hostname_visible(context, log):
 
 @step(u'ifcfg-"{con_name}" file does not exist')
 def ifcfg_doesnt_exist(context, con_name):
-    cat = pexpect.spawn('cat /etc/sysconfig/network-scripts/ifcfg-%s' % con_name, logfile=context.log)
+    cat = pexpect.spawn('cat /etc/sysconfig/network-scripts/ifcfg-%s' % con_name, logfile=context.log, encoding='utf-8')
     assert cat.expect('No such file') == 0, 'Ifcfg-%s exists!' % con_name
 
 
@@ -1011,8 +1012,8 @@ def correct_lifetime(context, typ, valid_lft, pref_lft, device):
     if typ == 'IPv4':
         inet = "inet"
 
-    valid_cmd = "ip a s '%s' |grep -A 1 -w '%s'| grep -A 1 -w 'scope global noprefixroute dynamic' |grep valid_lft |awk '{print $2}'" % (device, inet)
-    pref_cmd  = "ip a s '%s' |grep -A 1 -w '%s'| grep -A 1 -w 'scope global noprefixroute dynamic' |grep valid_lft |awk '{print $4}'" % (device, inet)
+    valid_cmd = "ip a s '%s' |grep -A 1 -w '%s'| grep -A 1 -w 'scope global' |grep valid_lft |awk '{print $2}'" % (device, inet)
+    pref_cmd  = "ip a s '%s' |grep -A 1 -w '%s'| grep -A 1 -w 'scope global' |grep valid_lft |awk '{print $4}'" % (device, inet)
 
     valid = command_output(context, valid_cmd)
     pref = command_output(context, pref_cmd)
@@ -1021,6 +1022,7 @@ def correct_lifetime(context, typ, valid_lft, pref_lft, device):
     valid = valid.replace('sec', '')
     pref = pref.strip()
     pref = pref.replace('sec', '')
+
     assert int(valid) < int(valid_lft) and int(valid_lft) >= int(valid)-50
     assert int(pref) < int(pref_lft) and int(pref_lft) >= int(pref)-50
 
@@ -1038,7 +1040,7 @@ def mode_missing_in_editor(context):
 
 @step(u'Modify connection "{name}" changing options "{options}"')
 def modify_connection(context, name, options):
-    cli = pexpect.spawn('nmcli connection modify %s %s' % (name, options), logfile=context.log)
+    cli = pexpect.spawn('nmcli connection modify %s %s' % (name, options), logfile=context.log, encoding='utf-8')
     if cli.expect(['Error', pexpect.TIMEOUT, pexpect.EOF]) == 0:
         raise Exception('Got an Error while modifying %s options %s' % (name,options))
 
@@ -1050,7 +1052,7 @@ def check_metered_status(context, value):
                                                 org.freedesktop.DBus.Properties.Get \
                                                 string:"org.freedesktop.NetworkManager" \
                                                 string:"Metered" |grep variant| awk \'{print $3}\''
-    ret = check_output(cmd, shell=True).strip()
+    ret = check_output(cmd, shell=True).decode('utf-8').strip()
     assert ret == value, "Metered value is %s but should be %s" %(ret, value)
 
 @step(u'Network trafic "{state}" dropped')
@@ -1089,7 +1091,7 @@ def note_print_property(context, prop):
 
 @step(u'Note the "{prop}" property from ifconfig output for device "{device}"')
 def note_print_property(context, prop, device):
-    ifc = pexpect.spawn('ifconfig %s' % device, logfile=context.log)
+    ifc = pexpect.spawn('ifconfig %s' % device, logfile=context.log, encoding='utf-8')
     ifc.expect('%s\s(\S+)' % prop)
     context.noted = ifc.match.group(1)
     print (context.noted)
@@ -1118,7 +1120,7 @@ def note_the_output_of(context, command):
 @step(u'Open editor for connection "{con_name}"')
 def open_editor_for_connection(context, con_name):
     sleep(0.2)
-    prompt = pexpect.spawn('/bin/nmcli connection ed %s' % con_name, logfile=context.log)
+    prompt = pexpect.spawn('/bin/nmcli connection ed %s' % con_name, logfile=context.log, encoding='utf-8')
     context.prompt = prompt
     r = prompt.expect([con_name, 'Error'])
     if r == 1:
@@ -1127,7 +1129,7 @@ def open_editor_for_connection(context, con_name):
 
 @step(u'Open editor for "{con_name}" with timeout')
 def open_editor_for_connection_with_timeout(context, con_name):
-    prompt = pexpect.spawn('nmcli connection ed %s' % (con_name), logfile=context.log, maxread=6000, timeout=5)
+    prompt = pexpect.spawn('nmcli connection ed %s' % (con_name), logfile=context.log, maxread=6000, timeout=5, encoding='utf-8')
     sleep(2)
     context.prompt = prompt
     r = prompt.expect(['Error', con_name])
@@ -1137,7 +1139,7 @@ def open_editor_for_connection_with_timeout(context, con_name):
 
 @step(u'Open editor for new connection "{con_name}" type "{type}"')
 def open_editor_for_connection_type(context, con_name, type):
-    prompt = pexpect.spawn('nmcli connection ed type %s con-name %s' % (type, con_name), logfile=context.log, maxread=6000)
+    prompt = pexpect.spawn('nmcli connection ed type %s con-name %s' % (type, con_name), logfile=context.log, maxread=6000, encoding='utf-8')
     context.prompt = prompt
     sleep(1)
     r = prompt.expect(['nmcli interactive connection editor','Error'])
@@ -1146,52 +1148,50 @@ def open_editor_for_connection_type(context, con_name, type):
 
 @step(u'Open editor for a new connection')
 def open_editor_for_new_connection(context):
-    prompt = pexpect.spawn('nmcli connection edit', logfile=context.log)
+    prompt = pexpect.spawn('nmcli connection edit', logfile=context.log, encoding='utf-8')
     context.prompt = prompt
 
 @step(u'Open editor for a type "{typ}"')
 def open_editor_for_a_type(context, typ):
-    prompt = pexpect.spawn('nmcli connection edit type %s con-name %s0' % (typ, typ), logfile=context.log)
+    prompt = pexpect.spawn('nmcli connection edit type %s con-name %s0' % (typ, typ), logfile=context.log, encoding='utf-8')
     context.prompt = prompt
 
 
 @step(u'Open interactive connection addition mode for a type "{typ}"')
 def open_interactive_for_a_type(context, typ):
-    prompt = pexpect.spawn('nmcli -a connection add type %s' % typ, timeout = 5, logfile=context.log)
+    prompt = pexpect.spawn('nmcli -a connection add type %s' % typ, timeout = 5, logfile=context.log, encoding='utf-8')
     context.prompt = prompt
 
 
 @step(u'Open interactive connection addition mode')
 def open_interactive(context):
-    prompt = pexpect.spawn('nmcli -a connection add', timeout = 5, logfile=context.log)
+    prompt = pexpect.spawn('nmcli -a connection add', timeout = 5, logfile=context.log, encoding='utf-8')
     context.prompt = prompt
 
 
 @step(u'Open wizard for adding new connection')
 def add_novice_connection(context):
-    prompt = pexpect.spawn("nmcli -a connection add", logfile=context.log)
+    prompt = pexpect.spawn("nmcli -a connection add", logfile=context.log, encoding='utf-8')
     context.prompt = prompt
 
 
 @step(u'"{pattern}" is visible with command "{command}"')
 def check_pattern_visible_with_command(context, pattern, command):
-    cmd = '/bin/bash -c "%s"' %command
-    ifconfig = pexpect.spawn(cmd, maxread=100000, logfile=context.log)
-    if ifconfig.expect([pattern, pexpect.EOF]) != 0:
+    proc = pexpect.spawn('/bin/bash', ['-c', command], maxread=100000, logfile=context.log, encoding='utf-8')
+    if proc.expect([pattern, pexpect.EOF]) != 0:
         sleep(1)
-        ifconfig = pexpect.spawn(cmd, maxread=100000, logfile=context.log)
-        assert ifconfig.expect([pattern, pexpect.EOF]) == 0, 'pattern %s is not visible with %s' % (pattern, command)
+        proc = pexpect.spawn('/bin/bash', ['-c', command],  encoding='utf-8', maxread=100000, logfile=context.log)
+        assert proc.expect([pattern, pexpect.EOF]) == 0, 'pattern %s is not visible with %s' % (pattern, command)
     else:
         return True
 
 @step(u'"{pattern}" is visible with command "{command}" in "{seconds}" seconds')
 def check_pattern_visible_with_command_in_time(context, pattern, command, seconds):
-    cmd = '/bin/bash -c "%s"' %command
     seconds = int(seconds)
     orig_seconds = seconds
     while seconds > 0:
-        ifconfig = pexpect.spawn(cmd, timeout = 180, logfile=context.log)
-        if ifconfig.expect([pattern, pexpect.EOF]) == 0:
+        proc = pexpect.spawn('/bin/bash', ['-c', command], timeout = 180, logfile=context.log, encoding='utf-8')
+        if proc.expect([pattern, pexpect.EOF]) == 0:
             return True
         seconds = seconds - 1
         sleep(1)
@@ -1200,12 +1200,11 @@ def check_pattern_visible_with_command_in_time(context, pattern, command, second
 
 @step(u'"{pattern}" is visible with command "{command}" for full "{seconds}" seconds')
 def check_pattern_visible_with_command_fortime(context, pattern, command, seconds):
-    cmd = '/bin/bash -c "%s"' %command
     seconds = int(seconds)
     orig_seconds = seconds
     while seconds > 0:
-        ifconfig = pexpect.spawn(cmd, timeout = 180, logfile=context.log)
-        if ifconfig.expect([pattern, pexpect.EOF]) == 0:
+        proc = pexpect.spawn('/bin/bash', ['-c', command], timeout = 180, logfile=context.log, encoding='utf-8')
+        if proc.expect([pattern, pexpect.EOF]) == 0:
             pass
         else:
             raise Exception('Pattern %s disappeared after %d seconds' % (pattern, orig_seconds-seconds))
@@ -1215,12 +1214,11 @@ def check_pattern_visible_with_command_fortime(context, pattern, command, second
 
 @step(u'"{pattern}" is not visible with command "{command}" for full "{seconds}" seconds')
 def check_pattern_visible_with_command_fortime(context, pattern, command, seconds):
-    cmd = '/bin/bash -c "%s"' %command
     seconds = int(seconds)
     orig_seconds = seconds
     while seconds > 0:
-        ifconfig = pexpect.spawn(cmd, timeout = 180, logfile=context.log)
-        if ifconfig.expect([pattern, pexpect.EOF]) != 0:
+        proc = pexpect.spawn('/bin/bash', ['-c', command], timeout = 180, logfile=context.log, encoding='utf-8')
+        if proc.expect([pattern, pexpect.EOF]) != 0:
             pass
         else:
             raise Exception('Pattern %s appeared in %d seconds' % (pattern, orig_seconds-seconds))
@@ -1228,28 +1226,27 @@ def check_pattern_visible_with_command_fortime(context, pattern, command, second
         sleep(1)
 
 
-@step(u'"{pattern}" is not visible with command "{command}" in "{seconds}" seconds')
+@step('"{pattern}" is not visible with command "{command}" in "{seconds}" seconds')
 def check_pattern_not_visible_with_command_in_time(context, pattern, command, seconds):
-    cmd = '/bin/bash -c "%s"' %command
     seconds = int(seconds)
     orig_seconds = seconds
     while seconds > 0:
-        ifconfig = pexpect.spawn(cmd, timeout = 180, logfile=context.log)
-        if ifconfig.expect([pattern, pexpect.EOF]) != 0:
+        proc = pexpect.spawn('/bin/bash', ['-c', command], timeout = 180, logfile=context.log, encoding='utf-8')
+        if proc.expect([pattern, pexpect.EOF]) != 0:
             return True
         seconds = seconds - 1
         sleep(1)
     raise Exception('Did still see the pattern %s after %d seconds' % (pattern, orig_seconds))
 
 
-@step(u'"{pattern}" is not visible with command "{command}"')
+@step('"{pattern}" is not visible with command "{command}"')
 def check_pattern_not_visible_with_command(context, pattern, command):
-    cmd = '/bin/bash -c "%s"' %command
-    ifconfig = pexpect.spawn(cmd, maxread=100000, logfile=context.log)
-    if ifconfig.expect([pattern, pexpect.EOF]) == 0:
+    # In command you have to use '' quotes
+    proc = pexpect.spawn('/bin/bash', ['-c', command], maxread=100000, logfile=context.log, encoding='utf-8')
+    if proc.expect([pattern, pexpect.EOF]) == 0:
         sleep(1)
-        ifconfig = pexpect.spawn(cmd, maxread=100000, logfile=context.log)
-        assert ifconfig.expect([pattern, pexpect.EOF]) != 0, 'pattern %s is visible with %s' % (pattern, command)
+        proc = pexpect.spawn('/bin/bash', ['-c', command], maxread=100000, logfile=context.log, encoding='utf-8')
+        assert proc.expect([pattern, pexpect.EOF]) != 0, 'pattern %s is visible with %s' % (pattern, command)
     else:
         return True
 
@@ -1257,7 +1254,7 @@ def check_pattern_not_visible_with_command(context, pattern, command):
 @step(u'"{pattern}" is visible with tab after "{command}"')
 def check_pattern_visible_with_tab_after_command(context, pattern, command):
     os.system('echo "set page-completions off" > ~/.inputrc')
-    exp = pexpect.spawn('/bin/bash', logfile=context.log)
+    exp = pexpect.spawn('/bin/bash', logfile=context.log, encoding='utf-8')
     exp.send(command)
     exp.sendcontrol('i')
     exp.sendcontrol('i')
@@ -1270,7 +1267,7 @@ def check_pattern_visible_with_tab_after_command(context, pattern, command):
 @step(u'"{pattern}" is not visible with tab after "{command}"')
 def check_pattern_not_visible_with_tab_after_command(context, pattern, command):
     os.system('echo "set page-completions off" > ~/.inputrc')
-    exp = pexpect.spawn('/bin/bash', logfile=context.log)
+    exp = pexpect.spawn('/bin/bash', logfile=context.log, encoding='utf-8')
     exp.send(command)
     exp.sendcontrol('i')
     exp.sendcontrol('i')
@@ -1295,10 +1292,13 @@ def check_ifaces_in_state(context, exclude_ifaces, iface_state):
     check_pattern_not_visible_with_command(context, iface_state, cmd)
 
 
-@step(u'Ping "{domain}"')
-@step(u'Ping "{domain}" "{number}" times')
+@step('Ping "{domain}"')
+@step('Ping "{domain}" "{number}" times')
 def ping_domain(context, domain, number=2):
-    ping = pexpect.spawn('ping -4 -c %s %s' %(number, domain), logfile=context.log)
+    if number != 2:
+        ping = pexpect.spawn("ping -q -4 -c %s %s" %(number, domain), logfile=context.log, encoding='utf-8')
+    else:
+        ping = pexpect.spawn("curl -s %s" %(domain), logfile=context.log, encoding='utf-8')
     ping.expect([pexpect.EOF])
     ping.close()
     assert ping.exitstatus == 0
@@ -1306,7 +1306,7 @@ def ping_domain(context, domain, number=2):
 
 @step(u'Ping "{domain}" from "{device}" device')
 def ping_domain_from_device(context, domain, device):
-    ping = pexpect.spawn('ping -4 -c 2 -I %s %s' %(device, domain), logfile=context.log)
+    ping = pexpect.spawn("ping -4 -c 2 -I %s %s" %(device, domain), logfile=context.log, encoding='utf-8')
     ping.expect([pexpect.EOF])
     ping.close()
     assert ping.exitstatus == 0
@@ -1314,7 +1314,7 @@ def ping_domain_from_device(context, domain, device):
 
 @step(u'Ping6 "{domain}"')
 def ping6_domain(context, domain):
-    ping = pexpect.spawn('ping6 -c 2 %s' %domain, logfile=context.log)
+    ping = pexpect.spawn("ping6 -c 2 %s" %domain, logfile=context.log, encoding='utf-8')
     ping.expect([pexpect.EOF])
     ping.close()
     assert ping.exitstatus == 0
@@ -1332,7 +1332,7 @@ def prepare_sriov_config(context, conf, device, vfs):
     command_code(context, "echo '[device-%s]' > %s" % (device, conf_path))
     command_code(context, "echo 'match-device=interface-name:%s' >> %s" % (device, conf_path))
     command_code(context, "echo 'sriov-num-vfs=%d' >> %s" % (int(vfs), conf_path))
-    command_code(context, 'systemctl restart NetworkManager')
+    command_code(context, 'systemctl reload NetworkManager')
 
 @step(u'Prepare pppoe server for user "{user}" with "{passwd}" password and IP "{ip}" authenticated via "{auth}"')
 def prepare_pppoe_server(context, user, passwd, ip, auth):
@@ -1580,7 +1580,7 @@ def prompt_is_not_running(context):
     sleep(0.2)
     if context.prompt.pid:
         prompt = False
-        for x in xrange(1,4):
+        for x in range(1,4):
             prompt = context.prompt.isalive()
             if not prompt:
                 break
@@ -1602,10 +1602,14 @@ def quit_editor(context):
 
 @step(u'Reboot')
 def reboot(context):
+    context.nm_restarted = True
     assert command_code(context, "sudo service NetworkManager stop") == 0
-    for x in xrange(1,10):
+    for x in range(1,10):
         command_code(context, "sudo ip link set dev eth%d down" %int(x))
         command_code(context, "sudo ip addr flush dev eth%d" %int(x))
+
+    command_code(context, "sudo ip link set dev em2 down")
+    command_code(context, "sudo ip addr flush dev em2")
 
     command_code(context, "ip link del nm-bond")
     command_code(context, "ip link del nm-team")
@@ -1613,7 +1617,6 @@ def reboot(context):
     command_code(context, "rm -rf /var/run/NetworkManager")
 
     sleep(3)
-    context.nm_restarted = True
     assert command_code(context, "sudo service NetworkManager start") == 0
     sleep(5)
 
@@ -1626,7 +1629,7 @@ def start_NM(context):
 
 @step(u'Delete device "{device}"')
 def delete_device(context, device):
-    cli = pexpect.spawn('nmcli device delete %s' % device, logfile=context.log,  timeout=180)
+    cli = pexpect.spawn('nmcli device delete %s' % device, logfile=context.log,  timeout=180, encoding='utf-8')
 
     r = cli.expect(['Error', pexpect.TIMEOUT, pexpect.EOF])
     if r == 0:
@@ -1647,6 +1650,10 @@ def restart_NM(context):
     # For stability reasons 1 is not enough, please do not lower this
     sleep(2)
 
+@step(u'Kill NM')
+def stop_NM(context):
+    context.nm_restarted = True
+    call("kill $(pidof NetworkManager) && sleep 5", shell=True)
 
 @step(u'Stop NM')
 def stop_NM(context):
@@ -1769,9 +1776,9 @@ def set_property_in_editor(context, name, value):
 @step(u'Set logging for "{domain}" to "{level}"')
 def set_logging(context, domain, level):
     if level == " ":
-        cli = pexpect.spawn('nmcli g l domains %s' % (domain), timeout = 60, logfile=context.log)
+        cli = pexpect.spawn('nmcli g l domains %s' % (domain), timeout = 60, logfile=context.log, encoding='utf-8')
     else:
-        cli = pexpect.spawn('nmcli g l level %s domains %s' % (level, domain), timeout = 60, logfile=context.log)
+        cli = pexpect.spawn('nmcli g l level %s domains %s' % (level, domain), timeout = 60, logfile=context.log, encoding='utf-8')
 
     r = cli.expect(['Error', 'Timeout', pexpect.TIMEOUT, pexpect.EOF])
     if r != 3:
@@ -1845,7 +1852,7 @@ def submit_team_command_in_editor(context, command):
 
 @step(u'Spawn "{command}" command')
 def spawn_command(context, command):
-    context.prompt = pexpect.spawn(command, logfile=context.log)
+    context.prompt = pexpect.spawn(command, logfile=context.log, encoding='utf-8')
     if not hasattr(context, 'spawned_processes'):
         context.spawned_processes = {}
     context.spawned_processes[command] = context.prompt
@@ -1853,7 +1860,7 @@ def spawn_command(context, command):
 
 @step(u'Start generic connection "{connection}" for "{device}"')
 def start_generic_connection(context, connection, device):
-    cli = pexpect.spawn('nmcli connection up %s ifname %s' % (connection, device), timeout = 180, logfile=context.log)
+    cli = pexpect.spawn('nmcli connection up %s ifname %s' % (connection, device), timeout = 180, logfile=context.log, encoding='utf-8')
     r = cli.expect([pexpect.EOF, pexpect.TIMEOUT])
     if r != 0:
         raise Exception('nmcli connection up %s timed out (180s)' % connection)
@@ -1862,13 +1869,13 @@ def start_generic_connection(context, connection, device):
 
 @step(u'Start tailing file "{archivo}"')
 def start_tailing(context, archivo):
-    context.tail = pexpect.spawn('sudo tail -f %s' % archivo, timeout = 180, logfile=context.log)
+    context.tail = pexpect.spawn('sudo tail -f %s' % archivo, timeout = 180, logfile=context.log, encoding='utf-8')
     sleep(0.3)
 
 
 @step(u'Start following journal')
 def start_tailing_journal(context):
-    context.journal = pexpect.spawn('sudo journalctl --follow -o cat', timeout = 180, logfile=context.log)
+    context.journal = pexpect.spawn('sudo journalctl --follow -o cat', timeout = 180, logfile=context.log, encoding='utf-8')
     sleep(0.3)
 
 
@@ -1880,7 +1887,7 @@ def find_tailing_journal(context, content):
 
 @step(u'Team "{team}" is down')
 def team_is_down(context, team):
-    cmd = pexpect.spawn('teamdctl %s state dump' %team, logfile=context.log)
+    cmd = pexpect.spawn('teamdctl %s state dump' %team, logfile=context.log, encoding='utf-8')
     print (command_code(context, 'teamdctl %s state dump' %team))
     assert command_code(context, 'teamdctl %s state dump' %team) != 0, 'team "%s" exists' % (team)
 
@@ -1892,7 +1899,7 @@ def terminate_spawned_process(context, command):
 
 @step(u'Unable to ping "{domain}"')
 def cannot_ping_domain(context, domain):
-    ping = pexpect.spawn('ping -c 2 %s' %domain, logfile=context.log)
+    ping = pexpect.spawn('curl %s' %domain, logfile=context.log, encoding='utf-8')
     ping.expect([pexpect.EOF])
     ping.close()
     assert ping.exitstatus != 0
@@ -1900,7 +1907,7 @@ def cannot_ping_domain(context, domain):
 
 @step(u'Unable to ping "{domain}" from "{device}" device')
 def cannot_ping_domain_from_device(context, domain, device):
-    ping = pexpect.spawn('ping -c 2 -I %s %s ' %(device, domain), logfile=context.log)
+    ping = pexpect.spawn('ping -c 2 -I %s %s ' %(device, domain), logfile=context.log, encoding='utf-8')
     ping.expect([pexpect.EOF])
     ping.close()
     assert ping.exitstatus != 0
@@ -1908,7 +1915,7 @@ def cannot_ping_domain_from_device(context, domain, device):
 
 @step(u'Unable to ping6 "{domain}"')
 def cannot_ping6_domain(context, domain):
-    ping = pexpect.spawn('ping6 -c 2 %s' %domain, logfile=context.log)
+    ping = pexpect.spawn('ping6 -c 2 %s' %domain, logfile=context.log, encoding='utf-8')
     ping.expect([pexpect.EOF])
     ping.close()
     assert ping.exitstatus != 0
@@ -1916,14 +1923,14 @@ def cannot_ping6_domain(context, domain):
 
 @step(u'"{user}" is able to see connection "{name}"')
 def is_readable(context, user, name):
-    cli = pexpect.spawn('sudo -u %s nmcli connection show configured %s' %(user, name))
+    cli = pexpect.spawn('sudo -u %s nmcli connection show configured %s' %(user, name), encoding='utf-8')
     if cli.expect(['connection.id:\s+gsm', 'Error', pexpect.TIMEOUT, pexpect.EOF]) != 0:
         raise Exception('Error while getting connection %s' % name)
 
 
 @step(u'"{user}" is not able to see connection "{name}"')
 def is_not_readable(context, user, name):
-    cli = pexpect.spawn('sudo -u %s nmcli connection show configured %s' %(user, name))
+    cli = pexpect.spawn('sudo -u %s nmcli connection show configured %s' %(user, name), encoding='utf-8')
     if cli.expect(['connection.id:\s+gsm', 'Error', pexpect.TIMEOUT, pexpect.EOF]) == 0:
         raise Exception('Connection %s is readable even if it should not be %s' % name)
 
@@ -1991,7 +1998,7 @@ def write_dispatcher_file(context, path, params=None):
     f.close()
     command_code(context, 'chmod +x %s' % disp_file)
     command_code(context, "> /tmp/dispatcher.txt")
-    sleep(4)
+    sleep(8)
 
 @step(u'Wrong bond options message shown in editor')
 def wrong_bond_options_in_editor(context):
@@ -2031,3 +2038,42 @@ def setup_macsec_psk(context, cak, ckn):
                                          --dhcp-range=172.16.10.10,172.16.10.254,60m  \
                                          --interface=macsec0 \
                                          --bind-interfaces")
+
+
+@step('"{filename}" is file')
+def is_file(context, filename):
+    if not os.path.isfile(filename):
+        sleep(3)
+        assert os.path.isfile(filename), '"%s" is not a file' % filename
+    return True
+
+
+@step('"{filename}" is symlink')
+@step('"{filename}" is symlink with destination "{destination}"')
+def is_file(context, filename, destination=None):
+    assert os.path.islink(filename), '"%s" is not a symlink' % filename
+    realpath = os.path.realpath(filename)
+    if destination is None:
+        return True
+    assert realpath == destination, 'symlink "%s" has destination "%s" instead of "%s"' % (filename, realpath, destination)
+    return True
+
+
+@step('Remove file "{filename}" if exists')
+def remove_file(context, filename):
+    if os.path.isfile(filename):
+        os.remove(filename)
+    return True
+
+
+@step('Remove symlink "{filename}" if exists')
+def remove_file(context, filename):
+    if os.path.islink(filename):
+        os.remove(filename)
+    return True
+
+
+@step('Create symlink {source} with destination {destination}')
+def create_symlink(context, source, destination):
+    cmd = 'sudo ln -s "%s" "%s"' % (destination, source)
+    command_code(context, cmd)

@@ -412,17 +412,17 @@
      And "default via fe80.* dev eth10 proto ra metric 1" is visible with command "ip -6 r show"
     * Execute "ip -6 route add table 300 2004::3/128 dev eth10"
     When "2004::3 dev eth10 metric 1024" is visible with command "ip -6 r show table 300"
-     And "2620.* dev eth10 proto kernel metric 1" is visible with command "ip -6 r show"
-     And "2620.*\/64 dev eth10 proto ra metric 1" is visible with command "ip -6 r show"
+     And "2620.* dev eth10 proto kernel metric 1" is visible with command "ip -6 r show |grep -v eth0"
+     And "2620.*\/64 dev eth10 proto ra metric 1" is visible with command "ip -6 r show |grep -v eth0"
      And "fe80::\/64 dev eth10 proto kernel metric 1" is visible with command "ip -6 r show"
-     And "default via fe80.* dev eth10 proto ra metric 1" is visible with command "ip -6 r show"
+     And "default via fe80.* dev eth10 proto ra metric 1" is visible with command "ip -6 r show |grep -v eth0"
     * Execute "nmcli device reapply eth10"
     When "connected" is visible with command "nmcli -g state,device device |grep eth10$" in "20" seconds
-    Then "2620.* dev eth10 proto kernel metric 1" is visible with command "ip -6 r show" in "20" seconds
+    Then "2620.* dev eth10 proto kernel metric 1" is visible with command "ip -6 r show |grep -v eth0" in "20" seconds
      And "2004::3 dev eth10 metric 1024" is not visible with command "ip -6 r show table 300"
-     And "2620.*\/64 dev eth10 proto ra metric 1" is visible with command "ip -6 r show"
+     And "2620.*\/64 dev eth10 proto ra metric 1" is visible with command "ip -6 r show |grep -v eth0"
      And "fe80::\/64 dev eth10 proto kernel metric 1" is visible with command "ip -6 r show"
-     And "default via fe80.* dev eth10 proto ra metric 1" is visible with command "ip -6 r show"
+     And "default via fe80.* dev eth10 proto ra metric 1" is visible with command "ip -6 r show |grep -v eth0"
 
 
     @rhbz1436531
@@ -432,23 +432,23 @@
     Scenario: nmcli - ipv4 - routes - set route with tables reapply
     * Add a new connection of type "ethernet" and options "ifname eth10 con-name con_ipv6 ipv6.may-fail no"
     When "connected" is visible with command "nmcli -g state,device device |grep eth10$" in "20" seconds
-     And "2620.* dev eth10 proto kernel metric 1" is visible with command "ip -6 r show"
-     And "2620.*\/64 dev eth10 proto ra metric 1" is visible with command "ip -6 r show"
+     And "2620.* dev eth10 proto kernel metric 1" is visible with command "ip -6 r show |grep -v eth0"
+     And "2620.*\/64 dev eth10 proto ra metric 1" is visible with command "ip -6 r show |grep -v eth0"
      And "fe80::\/64 dev eth10 proto kernel metric 1" is visible with command "ip -6 r show"
-     And "default via fe80.* dev eth10 proto ra metric 1" is visible with command "ip -6 r show"
+     And "default via fe80.* dev eth10 proto ra metric 1" is visible with command "ip -6 r show |grep -v eth0"
     * Execute "ip -6 route add table 300 2004::3/128 dev eth10"
     When "2004::3 dev eth10 metric 1024" is visible with command "ip -6 r show table 300"
-     And "2620.* dev eth10 proto kernel metric 1" is visible with command "ip -6 r show"
-     And "2620.*\/64 dev eth10 proto ra metric 1" is visible with command "ip -6 r show"
+     And "2620.* dev eth10 proto kernel metric 1" is visible with command "ip -6 r show |grep -v eth0"
+     And "2620.*\/64 dev eth10 proto ra metric 1" is visible with command "ip -6 r show |grep -v eth0"
      And "fe80::\/64 dev eth10 proto kernel metric 1" is visible with command "ip -6 r show"
-     And "default via fe80.* dev eth10 proto ra metric 1" is visible with command "ip -6 r show"
+     And "default via fe80.* dev eth10 proto ra metric 1" is visible with command "ip -6 r show |grep -v eth0"
     * Execute "nmcli device reapply eth10"
     When "connected" is visible with command "nmcli -g state,device device |grep eth10$" in "20" seconds
-    Then "2620.* dev eth10 proto kernel metric 1" is visible with command "ip -6 r show" in "20" seconds
+    Then "2620.* dev eth10 proto kernel metric 1" is visible with command "ip -6 r show |grep -v eth0" in "20" seconds
      And "2004::3 dev eth10 metric 1024" is visible with command "ip -6 r show table 300"
-     And "2620.*\/64 dev eth10 proto ra metric 1" is visible with command "ip -6 r show"
+     And "2620.*\/64 dev eth10 proto ra metric 1" is visible with command "ip -6 r show |grep -v eth0"
      And "fe80::\/64 dev eth10 proto kernel metric 1" is visible with command "ip -6 r show"
-     And "default via fe80.* dev eth10 proto ra metric 1" is visible with command "ip -6 r show"
+     And "default via fe80.* dev eth10 proto ra metric 1" is visible with command "ip -6 r show |grep -v eth0"
 
 
     @con_ipv6_remove
@@ -457,17 +457,18 @@
      * Add a new connection of type "ethernet" and options "ifname eth10 con-name con_ipv6 autoconnect no"
      * Execute "nmcli connection modify con_ipv6 ipv6.may-fail no"
      * Bring "up" connection "con_ipv6"
-    Then "2620:52:0:.*::/64 dev eth10\s+proto ra" is visible with command "ip -6 r" in "20" seconds
+    Then "2620:52:0:.*::/64 dev eth10\s+proto ra" is visible with command "ip -6 r show |grep -v eth0" in "20" seconds
     Then "2620:52:0:" is visible with command "ip -6 a s eth10 |grep global |grep noprefix" in "20" seconds
 
 
-    @con_ipv6_remove @eth0 @long
+    @con_ipv6_remove @eth0 @long @tshark @not_on_s390x
     @ipv6_limited_router_solicitation
     Scenario: NM - ipv6 - limited router solicitation
      * Add connection type "ethernet" named "con_ipv6" for device "eth2"
      * Bring "up" connection "con_ipv6"
-     * Finish "sudo tshark -i eth2 -Y frame.len==62 -V -x -a duration:120 > /tmp/solicitation.txt"
-    Then Check solicitation for "eth2" in "/tmp/solicitation.txt"
+     * Finish "tshark -i eth2 -Y frame.len==62 -V -x -a duration:120 > /tmp/solicitation.txt"
+     When "empty" is not visible with command "file /tmp/solicitation.txt" in "150" seconds
+     Then Check solicitation for "eth2" in "/tmp/solicitation.txt"
 
 
     @rhbz1068673
@@ -763,12 +764,11 @@
     Then "default via " is visible with command "ip -6 route |grep eth10" for full "5" seconds
 
 
-    @not_under_internal_DHCP @con_ipv6_remove
+    @not_under_internal_DHCP @con_ipv6_remove @tshark
     @ipv6_dhcp-hostname_set
     Scenario: nmcli - ipv6 - dhcp-hostname - set dhcp-hostname
     * Add a new connection of type "ethernet" and options "ifname eth2 con-name con_ipv6 autoconnect no"
     * Run child "sudo tshark -i eth2 -f 'port 546' -V -x > /tmp/ipv6-hostname.log"
-    * Finish "sleep 5"
     * Open editor for connection "con_ipv6"
     * Submit "set ipv6.may-fail true" in editor
     * Submit "set ipv6.method dhcp" in editor
@@ -776,12 +776,14 @@
     * Save in editor
     * Quit editor
     * Bring "up" connection "con_ipv6"
-    * Finish "sleep 5"
+    When "empty" is not visible with command "file /tmp/ipv6-hostname.log" in "150" seconds
+    * Bring "up" connection "con_ipv6"
+    * Bring "up" connection "con_ipv6"
+    Then "r.cx" is visible with command "grep r.cx /tmp/ipv6-hostname.log" in "25" seconds
     * Execute "sudo pkill tshark"
-    Then "r.cx" is visible with command "grep r.cx /tmp/ipv6-hostname.log" in "5" seconds
 
 
-    @not_under_internal_DHCP @con_ipv6_remove
+    @not_under_internal_DHCP @con_ipv6_remove @tshark
     @ipv6_dhcp-hostname_remove
     Scenario: nmcli - ipv6 - dhcp-hostname - remove dhcp-hostname
     * Add connection type "ethernet" named "con_ipv6" for device "eth2"
@@ -795,29 +797,33 @@
     * Bring "down" connection "con_ipv6"
     * Finish "sleep 2"
     * Run child "sudo tshark -i eth2 -f 'port 546' -V -x > /tmp/tshark.log"
-    * Wait for at least "10" seconds
     * Open editor for connection "con_ipv6"
     * Submit "set ipv6.dhcp-hostname" in editor
     * Enter in editor
     * Save in editor
     * Quit editor
     * Bring "up" connection "con_ipv6"
+    When "empty" is not visible with command "file /tmp/tshark.log" in "150" seconds
+    * Bring "up" connection "con_ipv6"
+    * Bring "up" connection "con_ipv6"
     * Finish "sleep 5"
     * Execute "sudo pkill tshark"
     Then "r.cx" is not visible with command "cat /tmp/tshark.log" in "5" seconds
 
 
-    @restore_hostname @con_ipv6_remove @eth2_disconnect
+    @restore_hostname @con_ipv6_remove @eth2_disconnect @tshark
     @ipv6_send_fqdn.fqdn_to_dhcpv6
     Scenario: NM - ipv6 - - send fqdn.fqdn to dhcpv6
     * Add a new connection of type "ethernet" and options "ifname eth2 con-name con_ipv6 autoconnect no"
     * Execute "hostnamectl set-hostname dacan.local"
     * Run child "sudo tshark -i eth2 -f 'port 546' -V -x > /tmp/ipv6-hostname.log"
-    * Finish "sleep 5"
     * Open editor for connection "con_ipv6"
     * Submit "set ipv6.method dhcp" in editor
     * Save in editor
     * Quit editor
+    * Bring "up" connection "con_ipv6"
+    When "empty" is not visible with command "file /tmp/ipv6_hostname.log" in "150" seconds
+    * Bring "up" connection "con_ipv6"
     * Bring "up" connection "con_ipv6"
     * Finish "sleep 5"
     * Execute "sudo pkill tshark"
@@ -1061,7 +1067,7 @@
 
     @rhbz1083133 @rhbz1098319 @rhbz1127718
     @veth @eth3_disconnect
-    @ver-=1.11.1
+    #@ver-=1.11.1
     @ipv6_add_static_address_manually_not_active
     Scenario: NM - ipv6 - add a static address manually to non-active interface (legacy 1.10 behavior and older)
     Given "testeth3" is visible with command "nmcli connection"
@@ -1109,7 +1115,7 @@
     @ipv6_no_assumed_connection_for_ipv6ll_only
     Scenario: NM - ipv6 - no assumed connection on IPv6LL only device
     * Delete connection "testeth10"
-    * Execute "systemctl stop NetworkManager.service"
+    * Stop NM
     * Execute "ip a flush dev eth10; ip l set eth10 down; ip l set eth10 up"
     When "fe80" is visible with command "ip a s eth10" in "5" seconds
     * Execute "systemctl start NetworkManager.service"
@@ -1183,6 +1189,7 @@
     Scenario: NM - ipv6 - ip6_tunnel module removal
     * Execute "modprobe ip6_tunnel"
     When "ip6_tunnel" is visible with command "lsmod |grep ip"
+    * Execute "modprobe -r ip6_gre"
     * Execute "modprobe -r ip6_tunnel"
     Then "ip6_tunnel" is not visible with command "lsmod |grep ip" in "2" seconds
 
@@ -1220,7 +1227,7 @@
     Scenario: NM - ipv6 - persistent default ipv6 gw
     * Add a new connection of type "ethernet" and options "ifname testX6 con-name con_ipv6"
     * Wait for at least "3" seconds
-    * Execute "systemctl stop NetworkManager"
+    * Stop NM
     * Prepare simulated test "testX6" device
     * Execute "sysctl net.ipv6.conf.testX6.accept_ra_defrtr=1"
     * Execute "sysctl net.ipv6.conf.testX6.accept_ra_pinfo=1"
@@ -1240,7 +1247,7 @@
     Scenario: NM - ipv6 - persistent default ipv6 gw
     * Add a new connection of type "ethernet" and options "ifname testX6 con-name con_ipv6"
     * Wait for at least "3" seconds
-    * Execute "systemctl stop NetworkManager"
+    * Stop NM
     * Prepare simulated test "testX6" device
     * Execute "sysctl net.ipv6.conf.testX6.accept_ra_defrtr=1"
     * Execute "sysctl net.ipv6.conf.testX6.accept_ra_pinfo=1"
@@ -1261,7 +1268,7 @@
     Scenario: NM - ipv6 - persistent default ipv6 gw
     * Add a new connection of type "ethernet" and options "ifname testX6 con-name con_ipv6"
     * Wait for at least "3" seconds
-    * Execute "systemctl stop NetworkManager"
+    * Stop NM
     * Prepare simulated test "testX6" device
     * Execute "sysctl net.ipv6.conf.testX6.accept_ra_defrtr=1"
     * Execute "sysctl net.ipv6.conf.testX6.accept_ra_pinfo=1"
@@ -1276,23 +1283,30 @@
 
     @rhbz1274894
     @con_ipv6_remove @restart @selinux_allow_ifup @teardown_testveth
+    @ver+=1.9.2
     @persistent_ipv6_routes
     Scenario: NM - ipv6 - persistent ipv6 routes
     * Add a new connection of type "ethernet" and options "ifname testX6 con-name con_ipv6"
     * Wait for at least "3" seconds
-    * Execute "systemctl stop NetworkManager"
+    * Stop NM
+    * Execute "rm -rf /var/run/NetworkManager"
     * Prepare simulated test "testX6" device
     * Execute "sysctl net.ipv6.conf.testX6.accept_ra_defrtr=1"
     * Execute "sysctl net.ipv6.conf.testX6.accept_ra_pinfo=1"
     * Execute "ifup testX6"
     * Wait for at least "10" seconds
-    * Execute "ip r del 169.254.0.0/16"
-    When "default" is visible with command "ip -6 r |grep testX6" in "20" seconds
-    And "2620:dead:beaf::\/64" is visible with command "ip -6 r |grep testX6" in "10" seconds
+    When "fe80" is visible with command "ip -6 r |grep testX6" in "5" seconds
+    And "default" is visible with command "ip -6 r |grep testX6 |grep expire" in "20" seconds
+    And "2620:dead:beaf::\/64" is visible with command "ip -6 r"
     * Restart NM
-    * Execute "sleep 20"
-    Then "default via fe" is visible with command "ip -6 r |grep testX6" in "50" seconds
-    And "2620:dead:beaf::\/64" is visible with command "ip -6 r |grep testX6"
+    Then "testX6\s+ethernet\s+connected\s+con_ipv6" is visible with command "nmcli device" in "25" seconds
+    # VVV But the new one present from NM with metric 1xx
+    Then "default via fe" is visible with command "ip -6 r |grep testX6 |grep 'metric 1'" in "20" seconds
+    # VVV Link-local address should be still present
+    And "fe80" is visible with command "ip -6 r |grep testX6" in "5" seconds
+    # VVV Route should be exchanged for NM one with metric 1xx
+    And "2620:dead:beaf::\/64 dev testX6\s+proto ra\s+metric 1" is visible with command "ip -6 r"
+    # We don't care about the rest
 
 
     @rhbz1394500
@@ -1456,4 +1470,19 @@
     * Execute "ip -6 addr add fe80::dead:dead:dead:dead/64 dev test10p"
     * Start radvd server with config from "tmp/radvd.conf"
     * Add a new connection of type "ethernet" and options "con-name con_ipv6 ifname test10 ipv6.may-fail no"
-    Then "2" is visible with command "ip -6 r |grep test10 | grep default |wc -l" in "60" seconds
+    Then "2" is visible with command "ip -6 r | grep default -A 3|grep 'via fe80' |grep test10 |wc -l" in "60" seconds
+
+
+    @rhbz1414093
+    @ver+=1.12
+    @con_ipv6_remove
+    @ipv6_duid
+    Scenario: NM - ipv6 - test ipv6.dhcp-duid option
+    * Add a new connection of type "ethernet" and options "con-name con_ipv6 ifname test10"
+    Then Modify connection "con_ipv6" changing options "ipv6.dhcp-duid 01:23:45:67:ab"
+     And Modify connection "con_ipv6" changing options "ipv6.dhcp-duid lease"
+     And Modify connection "con_ipv6" changing options "ipv6.dhcp-duid ll"
+     And Modify connection "con_ipv6" changing options "ipv6.dhcp-duid llt"
+     And Modify connection "con_ipv6" changing options "ipv6.dhcp-duid stable-ll"
+     And Modify connection "con_ipv6" changing options "ipv6.dhcp-duid stable-llt"
+     And Modify connection "con_ipv6" changing options "ipv6.dhcp-duid stable-uuid"

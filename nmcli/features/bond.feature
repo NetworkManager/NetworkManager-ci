@@ -15,7 +15,7 @@
      * Enter in editor
      Then Value saved message showed in editor
      * Quit editor
-     When Prompt is not running
+     #When Prompt is not running
       And "nm-bond" is visible with command "ip a s nm-bond" in "10" seconds
      * Add slave connection for master "nm-bond" on device "eth1" named "bond0.0"
      * Bring "up" connection "bond0.0"
@@ -37,7 +37,7 @@
      * Submit "yes" in editor
      When Value saved message showed in editor
      * Quit editor
-     When Prompt is not running
+     #When Prompt is not running
      Then "bond0.0" is visible with command "nmcli con"
 
 
@@ -1342,7 +1342,7 @@
     @bond @restart
     @delete_addrgenmode_bond
     Scenario: NM - bond - addrgenmode bond delete
-    * Execute "systemctl stop NetworkManager"
+    * Stop NM
     * Execute "ip l add bond0 type bond"
     * Execute "ip l set eth4 down; ip l set eth4 master bond0; ip l set eth4 addrgenmode none; ip l set eth4 up"
     * Execute "ip l set eth1 down; ip l set eth1 master bond0; ip l set eth1 addrgenmode none; ip l set eth1 up"
@@ -1463,7 +1463,7 @@
      And "eth1:connected:bond0.0" is visible with command "nmcli -t -f DEVICE,STATE,CONNECTION device"
      And "eth4:connected:bond0.1" is visible with command "nmcli -t -f DEVICE,STATE,CONNECTION device"
      And "nm-bond.153:connected:vlan" is visible with command "nmcli -t -f DEVICE,STATE,CONNECTION device"
-    * Execute "systemctl stop NetworkManager"
+    * Stop NM
     When "state UP" is visible with command "ip a s eth1"
      And "state UP" is visible with command "ip a s eth4"
      And "state UP" is visible with command "ip a s nm-bond"
@@ -1489,7 +1489,7 @@
       When "nm-bond:bond:connected:bond0" is visible with command "nmcli -t -f DEVICE,TYPE,STATE,CONNECTION device" in "20" seconds
        And "state UP" is visible with command "ip -6 a s nm-bond"
        And "inet6 fe80" is visible with command "ip -6 a s nm-bond"
-      * Execute "killall NetworkManager && sleep 5"
+      * Kill NM
       * Restart NM
       When "state UP" is visible with command "ip -6 a s nm-bond"
        And "inet6 fe80" is visible with command "ip -6 a s nm-bond" for full "10" seconds
@@ -1504,7 +1504,7 @@
     @bond @restart
     @bond_assume_options_1
     Scenario: nmcli - bond - assume options 1
-     * Execute "systemctl stop NetworkManager"
+     * Stop NM
      * Execute "ip l add bond0 type bond"
      * Execute "echo 1   > /sys/class/net/bond0/bonding/mode"
      * Execute "echo 100 > /sys/class/net/bond0/bonding/miimon"
@@ -1566,3 +1566,27 @@
     Then "MASTER_HAS_SLAVES" is visible with command "python tmp/nmclient_get_state_flags.py bond0" in "20" seconds
     Then "IP4" is visible with command "python tmp/nmclient_get_state_flags.py bond0" in "20" seconds
     Then "IP6" is visible with command "python tmp/nmclient_get_state_flags.py bond0" in "20" seconds
+
+
+    @rhbz1591734
+    @ver+=1.11.4
+    @slaves @bond
+    @bond_set_num_grat_arp_unsol_na
+    Scenario: nmcli - bond - set num_grat_arp and num_unsol_na options
+    * Add a new connection of type "bond" and options "con-name bond0 ifname nm-bond autoconnect no connection.autoconnect-slaves 1"
+    * Execute "nmcli connection mod bond0 bond.options mode=active-backup,num_grat_arp=7"
+    * Add a new connection of type "ethernet" and options "con-name bond0.1 ifname eth4 master nm-bond autoconnect no"
+    * Add a new connection of type "ethernet" and options "con-name bond0.0 ifname eth1 master nm-bond autoconnect no"
+    * Bring "up" connection "bond0"
+    Then "7" is visible with command "cat /sys/class/net/nm-bond/bonding/num_grat_arp"
+     And "7" is visible with command "cat /sys/class/net/nm-bond/bonding/num_unsol_na"
+    * Execute "nmcli connection mod bond0 -bond.options num_grat_arp"
+    * Execute "nmcli connection mod bond0 +bond.options num_unsol_na=8"
+    * Bring "up" connection "bond0"
+    Then "8" is visible with command "cat /sys/class/net/nm-bond/bonding/num_grat_arp"
+     And "8" is visible with command "cat /sys/class/net/nm-bond/bonding/num_unsol_na"
+    * Execute "nmcli connection mod bond0 -bond.options num_grat_arp"
+    * Execute "nmcli connection mod bond0 -bond.options num_unsol_na"
+    * Bring "up" connection "bond0"
+    Then "1" is visible with command "cat /sys/class/net/nm-bond/bonding/num_grat_arp"
+     And "1" is visible with command "cat /sys/class/net/nm-bond/bonding/num_unsol_na"

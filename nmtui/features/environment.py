@@ -1,7 +1,12 @@
 # -*- coding: UTF-8 -*-
 
+from __future__ import absolute_import, division, print_function, unicode_literals
 import os
 import sys
+if sys.version_info < (3, 0):
+    reload(sys)
+    sys.setdefaultencoding('utf8')
+
 import traceback
 from time import sleep, localtime, strftime
 from subprocess import call, check_output
@@ -16,14 +21,14 @@ def get_cursored_screen(screen):
 def print_screen(screen):
     cursored_screen = get_cursored_screen(screen)
     for i in range(len(cursored_screen)):
-        print (cursored_screen[i].encode('utf-8'))
+        print (cursored_screen[i])
 
 def log_screen(stepname, screen, path):
     cursored_screen = get_cursored_screen(screen)
     f = open(path, 'a+')
     f.write(stepname + '\n')
     for i in range(len(cursored_screen)):
-        f.write(cursored_screen[i].encode('utf-8') + '\n')
+        f.write(cursored_screen[i] + '\n')
     f.flush()
     f.close()
 
@@ -49,13 +54,13 @@ def before_all(context):
         os.system("sudo pkill nmtui")
 
         # Store scenario start cursor for session logs
-        context.log_cursor = check_output("journalctl --lines=0 --show-cursor |awk '/^-- cursor:/ {print \"\\\"--after-cursor=\"$NF\"\\\"\"; exit}'", shell=True).strip()
+        context.log_cursor = check_output("journalctl --lines=0 --show-cursor |awk '/^-- cursor:/ {print \"\\\"--after-cursor=\"$NF\"\\\"\"; exit}'", shell=True).decode('utf-8').strip()
     except Exception:
         print("Error in before_all:")
         traceback.print_exc(file=sys.stdout)
 
 def reset_hwaddr(ifname):
-    hwaddr = check_output("ethtool -P %s" % ifname, shell=True).split()[2]
+    hwaddr = check_output("ethtool -P %s" % ifname, shell=True).decode('utf-8').split()[2]
     call("ip link set %s address %s" % (ifname, hwaddr), shell=True)
 
 def before_scenario(context, scenario):
@@ -78,7 +83,6 @@ def before_scenario(context, scenario):
                 f.write('INFO: VETH SETUP: this test has been disabled in VETH setup')
                 f.flush()
                 f.close()
-                import sys
                 sys.exit(0)
         if 'veth' in scenario.tags:
             if os.path.isfile('/tmp/nm_veth_configured'):
@@ -88,7 +92,6 @@ def before_scenario(context, scenario):
                 f.write('INFO: VETH mod: this test has been disabled in VETH setup')
                 f.flush()
                 f.close()
-                import sys
                 sys.exit(0)
         if 'eth0' in scenario.tags:
             print ("---------------------------")
@@ -119,7 +122,7 @@ def after_step(context, step):
     try:
         sleep(0.5)
         if os.path.isfile('/tmp/nmtui.out'):
-            context.stream.feed(open('/tmp/nmtui.out', 'r').read())
+            context.stream.feed(open('/tmp/nmtui.out', 'r').read().encode('utf-8'))
         print_screen(context.screen)
         log_screen(step.name, context.screen, '/tmp/tui-screen.log')
 
@@ -133,7 +136,6 @@ def after_step(context, step):
             f.write('INFO: Skiped the test as device does not support AP/ADHOC mode')
             f.flush()
             f.close()
-            import sys
             sys.exit(0)
 
         if step.status == 'failed':

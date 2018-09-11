@@ -1,68 +1,104 @@
+#!/bin/bash
 RELEASE=$1
-
 MY_PATH="`dirname \"$0\"`"
 TESTS=$(cat $MY_PATH/$RELEASE.tests)
-
 # Add failures and test counter variables
 COUNTER=0
 FAILURES=()
-
 RESULTS_DIR=/tmp/artifacts
 RESULTS=$RESULTS_DIR/RESULTS
 
-echo "PASS" > $RESULTS
+function run_needed_workarounds ()
+{
+    ### NEEDED WORKAROUNDS ##################
 
-echo "WILL RUN:"
-echo $TESTS
+    # 1. Missing /usr/bin/python binary for pip
 
-cd NetworkManager-ci
-
-# For all tests
-for T in $TESTS; do
-    echo "RUNING $T"
-    if [[ $T == *nmtui* ]]; then
-        NMTEST=NetworkManager-ci_Test$COUNTER"_"$T nmtui/./runtest.sh $T; rc=$?
+    if [ ! -f /usr/bin/python ]; then
+        echo "create /usr/bin/python link to /usr/bin/python2"
+        ln -s /usr/bin/python2 /usr/bin/python
     else
-        NMTEST=NetworkManager-ci_Test$COUNTER"_"$T nmcli/./runtest.sh $T; rc=$?
+        echo "no need to link /usr/bin/python"
     fi
 
 
-    if [ $rc -ne 0 ]; then
-        # Overal result is FAIL
-        echo "FAIL" > $RESULTS
-        # Move reports to /var/www/html/results/ and add FAIL prefix
-        if [[ $T == *nmtui* ]]; then
-            mv /tmp/report_NetworkManager-ci_Test$COUNTER"_"$T.log $RESULTS_DIR/FAIL-NetworkManager-ci_Test$COUNTER"_"$T.log
-        else
-            mv /tmp/report_NetworkManager-ci_Test$COUNTER"_"$T.html $RESULTS_DIR/FAIL-NetworkManager-ci_Test$COUNTER"_"$T.html
-        fi
-        FAILURES+=($T)
-    else
-        # Move reports to /tmp/artifacts
-        if [[ $T == *nmtui* ]]; then
-            mv /tmp/report_NetworkManager-ci_Test$COUNTER"_"$T.log $RESULTS_DIR/NetworkManager-ci_Test$COUNTER"_"$T.log
-        else
-            mv /tmp/report_NetworkManager-ci_Test$COUNTER"_"$T.html $RESULTS_DIR/NetworkManager-ci_Test$COUNTER"_"$T.html
-        fi
+    # 2. Broken racoon in ipsec in F28
+
+    yum -y install ipsec-tools
+    yum downgrade -y https://kojipkgs.fedoraproject.org//packages/ipsec-tools/0.8.2/10.fc28/x86_64/ipsec-tools-0.8.2-10.fc28.x86_64.rpm
+
+    ###########################################
+
+}
+
+function run_tests ()
+{
+    if [ ! -d "$RESULTS_DIR" ]; then
+        mkdir -p /tmp/artifacts
     fi
 
-    COUNTER=$((COUNTER+1))
+    echo "PASS" > $RESULTS
 
-done
+    echo "WILL RUN:"
+    echo $TESTS
 
-rc=1
-# Write out tests failures
-if [ ${#FAILURES[@]} -ne 0 ]; then
-    echo "** $COUNTER TESTS PASSED"
-    echo "--------------------------------------------"
-    echo "** ${#FAILURES[@]} TESTS FAILED"
-    echo "--------------------------------------------"
-    for FAIL in "${FAILURES[@]}"; do
-        echo "$FAIL"
+    # For all tests
+    for T in $TESTS; do
+        echo "RUNING $T"
+        if [[ $T == *nmtui* ]]; then
+            NMTEST=NetworkManager-ci_Test$COUNTER"_"$T nmtui/./runtest.sh $T; rc=$?
+        else
+            NMTEST=NetworkManager-ci_Test$COUNTER"_"$T nmcli/./runtest.sh $T; rc=$?
+        fi
+
+
+        if [ $rc -ne 0 ]; then
+            # Overal result is FAIL
+            echo "FAIL" > $RESULTS
+            # Move reports to /var/www/html/results/ and add FAIL prefix
+            if [[ $T == *nmtui* ]]; then
+                mv /tmp/report_NetworkManager-ci_Test$COUNTER"_"$T.log $RESULTS_DIR/FAIL-NetworkManager-ci_Test$COUNTER"_"$T.log
+            else
+                mv /tmp/report_NetworkManager-ci_Test$COUNTER"_"$T.html $RESULTS_DIR/FAIL-NetworkManager-ci_Test$COUNTER"_"$T.html
+            fi
+            FAILURES+=($T)
+        else
+            # Move reports to /tmp/artifacts
+            if [[ $T == *nmtui* ]]; then
+                mv /tmp/report_NetworkManager-ci_Test$COUNTER"_"$T.log $RESULTS_DIR/NetworkManager-ci_Test$COUNTER"_"$T.log
+            else
+                mv /tmp/report_NetworkManager-ci_Test$COUNTER"_"$T.html $RESULTS_DIR/NetworkManager-ci_Test$COUNTER"_"$T.html
+            fi
+        fi
+
+        COUNTER=$((COUNTER+1))
+
     done
-else
-    rc=0
-    echo "** ALL $COUNTER TESTS PASSED!"
-fi
 
-exit $rc
+}
+
+function report_results_and_exit ()
+{
+    rc=1
+    # Write out tests failures
+    if [ ${#FAILURES[@]} -ne 0 ]; then
+        echo "** $COUNTER TESTS PASSED"
+        echo "--------------------------------------------"
+        echo "** ${#FAILURES[@]} TESTS FAILED"
+        echo "--------------------------------------------"
+        for FAIL in "${FAILURES[@]}"; do
+            echo "$FAIL"
+        done
+    else
+        rc=0
+        echo "** ALL $COUNTER TESTS PASSED!"
+    fi
+
+    exit $rc
+
+
+}
+
+run_needed_workarounds
+run_tests
+report_results_and_exit

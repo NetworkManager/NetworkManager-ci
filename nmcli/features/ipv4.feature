@@ -606,6 +606,7 @@ Feature: nmcli: ipv4
 
 
     @ver+=1.4.0
+    @ver-=1.11.2
     @con_ipv4_remove @eth0
     @ipv4_routes_not_reachable
     Scenario: nmcli - ipv4 - routes - set unreachable route
@@ -620,6 +621,26 @@ Feature: nmcli: ipv4
     * Quit editor
     * Bring up connection "con_ipv4" ignoring error
     Then "\(disconnected\)" is visible with command "nmcli device show eth3" in "5" seconds
+
+
+    @ver+=1.11.3
+    @con_ipv4_remove @eth0
+    @ipv4_routes_not_reachable
+    Scenario: nmcli - ipv4 - routes - set unreachable route
+    # Since version 1.11.3 NM automatically adds a device route to the
+    # route gateway when it is not directly reachable
+    * Add connection type "ethernet" named "con_ipv4" for device "eth3"
+    * Open editor for connection "con_ipv4"
+    * Submit "set ipv4.method static" in editor
+    * Submit "set ipv4.addresses 192.168.122.2/24" in editor
+    * Submit "set ipv4.gateway 192.168.122.1" in editor
+    * Submit "set ipv4.routes 192.168.1.0/24 192.168.3.11 1" in editor
+    * Submit "set ipv6.method ignore" in editor
+    * Save in editor
+    * Quit editor
+    * Bring up connection "con_ipv4"
+    Then "\(connected\)" is visible with command "nmcli device show eth3"
+    Then "192.168.3.11\s+dev eth3\s+proto static" is visible with command "ip r"
 
 
     @con_ipv4_remove @eth0
@@ -766,7 +787,7 @@ Feature: nmcli: ipv4
     Then "nameserver 8.8.8.8" is visible with command "cat /etc/resolv.conf" in "20" seconds
      And "nameserver 8.8.8.8" is visible with command "cat /var/run/NetworkManager/resolv.conf"
      And "are identical" is not visible with command "diff -s /tmp/resolv.conf /tmp/resolv_orig.conf"
-     And "/etc/resolv.conf: symbolic link to `/tmp/resolv.conf" is visible with command "file /etc/resolv.conf"
+     And "/etc/resolv.conf -> /tmp/resolv.conf" is visible with command "ls -all /etc/resolv.conf"
 
 
     @rhbz+=1423490
@@ -776,7 +797,7 @@ Feature: nmcli: ipv4
     Scenario: nmcli - ipv4 - dns - symlink
     * Bring "down" connection "testeth0"
     * Execute "echo -e '[main]\nrc-manager=symlink' > /etc/NetworkManager/conf.d/99-resolv.conf"
-    * Execute "systemctl restart NetworkManager"
+    * Restart NM
     When "activated" is visible with command "nmcli -g GENERAL.STATE con show testeth0" in "20" seconds
     * Execute "cp /etc/resolv.conf /tmp/resolv_orig.conf"
     * Execute "mv -f /etc/resolv.conf /tmp/resolv.conf"
@@ -787,7 +808,7 @@ Feature: nmcli: ipv4
     Then "nameserver 8.8.8.8" is visible with command "cat /var/run/NetworkManager/resolv.conf"
      And "nameserver 8.8.8.8" is not visible with command "cat /etc/resolv.conf"
      And "are identical" is visible with command "diff -s /tmp/resolv.conf /tmp/resolv_orig.conf"
-     And "/etc/resolv.conf: symbolic link to `/tmp/resolv.conf" is visible with command "file /etc/resolv.conf"
+     And "/etc/resolv.conf -> /tmp/resolv.conf" is visible with command "ls -all /etc/resolv.conf"
 
 
     @rhbz+=1423490
@@ -797,7 +818,7 @@ Feature: nmcli: ipv4
     Scenario: nmcli - ipv4 - dns - file
     * Bring "down" connection "testeth0"
     * Execute "echo -e '[main]\nrc-manager=file' > /etc/NetworkManager/conf.d/99-resolv.conf"
-    * Execute "systemctl restart NetworkManager"
+    * Restart NM
     When "activated" is visible with command "nmcli -g GENERAL.STATE con show testeth0" in "20" seconds
     * Execute "cp /etc/resolv.conf /tmp/resolv_orig.conf"
     * Execute "mv -f /etc/resolv.conf /tmp/resolv.conf"
@@ -807,7 +828,7 @@ Feature: nmcli: ipv4
     Then "nameserver 8.8.8.8" is visible with command "cat /etc/resolv.conf" in "20" seconds
      And "nameserver 8.8.8.8" is visible with command "cat /var/run/NetworkManager/resolv.conf"
      And "are identical" is not visible with command "diff -s /tmp/resolv.conf /tmp/resolv_orig.conf"
-     And "/etc/resolv.conf: symbolic link to `/tmp/resolv.conf" is visible with command "file /etc/resolv.conf"
+     And "/etc/resolv.conf -> /tmp/resolv.conf" is visible with command "ls -all /etc/resolv.conf"
 
 
     @con_ipv4_remove @eth0
@@ -937,7 +958,7 @@ Feature: nmcli: ipv4
     * Save in editor
     * Quit editor
     * Run child "sudo tshark -l -O bootp -i eth2 > /tmp/tshark.log"
-    * Wait for at least "10" seconds
+    When "empty" is not visible with command "file /tmp/tshark.log" in "150" seconds
     * Bring "up" connection "con_ipv4"
     * Finish "sleep 5; sudo pkill tshark"
     Then "RHA" is visible with command "cat /tmp/tshark.log"
@@ -957,7 +978,7 @@ Feature: nmcli: ipv4
     * Save in editor
     * Quit editor
     * Run child "sudo tshark -l -O bootp -i eth2 > /tmp/tshark.log"
-    * Wait for at least "10" seconds
+    When "empty" is not visible with command "file /tmp/tshark.log" in "150" seconds
     * Bring "up" connection "con_ipv4"
     * Finish "sleep 5; sudo pkill tshark"
     Then "R.C" is visible with command "cat /tmp/tshark.log"
@@ -980,7 +1001,7 @@ Feature: nmcli: ipv4
     * Save in editor
     * Quit editor
     * Run child "sudo tshark -l -O bootp -i eth2 > /tmp/tshark.log"
-    * Wait for at least "10" seconds
+    When "empty" is not visible with command "file /tmp/tshark.log" in "150" seconds
     * Bring "up" connection "con_ipv4"
     * Finish "sleep 5; sudo pkill tshark"
    Then "RHB" is not visible with command "cat /tmp/tshark.log"
@@ -998,7 +1019,7 @@ Feature: nmcli: ipv4
     * Save in editor
     * Quit editor
     * Run child "sudo tshark -l -O bootp -i eth2 > /tmp/tshark.log"
-    * Wait for at least "10" seconds
+    When "empty" is not visible with command "file /tmp/tshark.log" in "150" seconds
     * Bring "up" connection "con_ipv4"
     * Finish "sleep 5; sudo pkill tshark"
     Then "foo.bar.com" is visible with command "grep fqdn /var/lib/NetworkManager/dhclient-eth2.conf"
@@ -1021,7 +1042,7 @@ Feature: nmcli: ipv4
     * Save in editor
     * Quit editor
     * Run child "sudo tshark -l -O bootp -i eth2 > /tmp/tshark.log"
-    * Wait for at least "10" seconds
+    When "empty" is not visible with command "file /tmp/tshark.log" in "150" seconds
     * Bring "up" connection "con_ipv4"
     * Finish "sleep 5; sudo pkill tshark"
     Then "foo.bar.com" is visible with command "grep fqdn /var/lib/NetworkManager/dhclient-eth2.conf"
@@ -1046,7 +1067,7 @@ Feature: nmcli: ipv4
     * Save in editor
     * Quit editor
     * Run child "sudo tshark -l -O bootp -i eth2 > /tmp/tshark.log"
-    * Wait for at least "10" seconds
+    When "empty" is not visible with command "file /tmp/tshark.log" in "150" seconds
     * Bring "up" connection "con_ipv4"
     * Finish "sleep 5; sudo pkill tshark"
      Then "foo.bar.com" is not visible with command "grep fqdn /var/lib/NetworkManager/dhclient-eth2.conf"
@@ -1066,7 +1087,7 @@ Feature: nmcli: ipv4
     * Save in editor
     * Quit editor
     * Run child "sudo tshark -l -O bootp -i eth2 > /tmp/hostname.log"
-    * Wait for at least "10" seconds
+    When "empty" is not visible with command "file /tmp/hostname.log" in "150" seconds
     * Bring "up" connection "con_ipv4"
     * Finish "sleep 5; sudo pkill tshark"
     Then "RHC" is not visible with command "cat /tmp/hostname.log"
@@ -1084,7 +1105,7 @@ Feature: nmcli: ipv4
     * Save in editor
     * Quit editor
     * Run child "sudo tshark -l -O bootp -i eth2 > /tmp/tshark.log"
-    * Wait for at least "10" seconds
+    When "empty" is not visible with command "file /tmp/tshark.log" in "150" seconds
     * Bring "up" connection "con_ipv4"
     * Finish "sleep 5; sudo pkill tshark"
     Then Hostname is visible in log "/tmp/tshark.log"
@@ -1102,7 +1123,7 @@ Feature: nmcli: ipv4
     * Save in editor
     * Quit editor
     * Run child "sudo tshark -l -O bootp -i eth2 > /tmp/real.log"
-    * Wait for at least "10" seconds
+    When "empty" is not visible with command "file /tmp/real.log" in "150" seconds
     * Bring "up" connection "con_ipv4"
     * Finish "sleep 5; sudo pkill tshark"
     Then Hostname is not visible in log "/tmp/real.log"
@@ -1158,9 +1179,9 @@ Feature: nmcli: ipv4
     Then "169.254" is visible with command "ip a s eth3" in "10" seconds
 
 
+    @ver-=1.11.1 @not_in_rhel7
     @eth2 @con_ipv4_remove
     @ipv4_dhcp_client_id_set
-    @ver-=1.11.1
     Scenario: nmcli - ipv4 - dhcp-client-id - set client id
     * Add connection type "ethernet" named "con_ipv4" for device "eth2"
     * Bring "up" connection "con_ipv4"
@@ -1170,7 +1191,7 @@ Feature: nmcli: ipv4
     * Save in editor
     * Quit editor
     * Run child "sudo tshark -l -O bootp -i eth2 -x > /tmp/tshark.log"
-    * Wait for at least "10" seconds
+    When "empty" is not visible with command "file /tmp/tshark.log" in "150" seconds
     * Bring "up" connection "con_ipv4"
     * Finish "sleep 5; sudo pkill tshark"
     Then "AB" is visible with command "cat /tmp/tshark.log"
@@ -1179,7 +1200,7 @@ Feature: nmcli: ipv4
     Then "exceeds max \(255\) for precision" is not visible with command "grep exceeds max /var/log/messages"
 
 
-    @ver+=1.11.2
+    @ver+=1.11.2 @not_in_rhel7
     @eth2 @con_ipv4_remove @tcpdump
     @ipv4_dhcp_client_id_set
     # https://bugzilla.gnome.org/show_bug.cgi?id=793957
@@ -1202,8 +1223,29 @@ Feature: nmcli: ipv4
     Then "Client-ID Option 61, length 4: hardware-type 192, ff:ee:ee" is visible with command "cat /tmp/tcpdump.log"
 
 
+    @rhel7_only
+    @eth2 @con_ipv4_remove
+    @ipv4_dhcp_client_id_set
+    Scenario: nmcli - ipv4 - dhcp-client-id - set client id
+    * Add connection type "ethernet" named "con_ipv4" for device "eth2"
+    * Bring "up" connection "con_ipv4"
+    * Bring "down" connection "con_ipv4"
+    * Open editor for connection "con_ipv4"
+    * Submit "set ipv4.dhcp-client-id AB" in editor
+    * Save in editor
+    * Quit editor
+    * Run child "sudo tshark -l -O bootp -i eth2 -x > /tmp/tshark.log"
+    When "empty" is not visible with command "file /tmp/tshark.log" in "150" seconds
+    * Bring "up" connection "con_ipv4"
+    * Finish "sleep 5; sudo pkill tshark"
+    Then "AB" is visible with command "cat /tmp/tshark.log"
+    #Then "walderon" is visible with command "cat /var/lib/NetworkManager/dhclient-eth2.conf"
+    #VVV verify bug 999503
+    Then "exceeds max \(255\) for precision" is not visible with command "grep exceeds max /var/log/messages"
+
+
     @ver+=1.11.2
-    @eth2 @ipv4 @tcpdump @internal_DHCP
+    @eth2 @con_ipv4_remove @tcpdump @internal_DHCP @restart
     @ipv4_dhcp_client_id_set_internal
     # https://bugzilla.gnome.org/show_bug.cgi?id=793957
     Scenario: nmcli - ipv4 - dhcp-client-id - set client id with internal client
@@ -1216,15 +1258,16 @@ Feature: nmcli: ipv4
     * Save in editor
     * Quit editor
     * Run child "sudo tcpdump -i eth9 -v -n > /tmp/tcpdump.log"
-    * Wait for at least "5" seconds
     * Bring "up" connection "con_ipv4"
-    * Execute "sleep 5"
-    Then "Client-ID Option 61, length 5: \"abcd\"" is visible with command "cat /tmp/tcpdump.log"
+    When "empty" is not visible with command "file /tmp/tcpdump.log" in "150" seconds
+    Then "Client-ID Option 61, length 5: \"abcd\"" is visible with command "grep 61 /tmp/tcpdump.log" in "10" seconds
     #### Then try hexadecimal client-id
     * Execute "nmcli connection modify con_ipv4 ipv4.dhcp-client-id c0:ff:ee:11"
+    * Execute "pkill tcpdump"
+    * Run child "sudo tcpdump -i eth9 -v -n > /tmp/tcpdump.log"
     * Bring "up" connection "con_ipv4"
-    * Execute "sleep 5"
-    Then "Client-ID Option 61, length 4: hardware-type 192, ff:ee:11" is visible with command "cat /tmp/tcpdump.log"
+    When "empty" is not visible with command "file /tmp/tcpdump.log" in "150" seconds
+    Then "Client-ID Option 61, length 4: hardware-type 192, ff:ee:11" is visible with command "grep 61 /tmp/tcpdump.log" in "10" seconds
 
 
     @con_ipv4_remove @tshark
@@ -1243,7 +1286,7 @@ Feature: nmcli: ipv4
     * Save in editor
     * Quit editor
     * Run child "sudo tshark -l -O bootp -i eth2 -x > /tmp/tshark.log"
-    * Wait for at least "10" seconds
+    When "empty" is not visible with command "file /tmp/tshark.log" in "150" seconds
     * Bring "up" connection "con_ipv4"
     * Execute "sleep 5; sudo pkill tshark"
     Then "BC" is not visible with command "cat /tmp/tshark.log"
@@ -1426,13 +1469,14 @@ Feature: nmcli: ipv4
     @con_ipv4_remove @remove_custom_cfg @teardown_testveth @restart
     @dhcp-timeout_default_in_cfg
     Scenario: nmcli - ipv4 - dhcp_timout infinity in cfg file
-    * Execute "echo -e '[connection-eth-dhcp-timeout]\nmatch-device=type:ethernet\nipv4.dhcp-timeout=2147483647' > /etc/NetworkManager/conf.d/99-xxcustom.conf"
+    * Execute "echo -e '[connection-eth-dhcp-timeout]\nmatch-device=type:ethernet;type:veth\nipv4.dhcp-timeout=2147483647' > /etc/NetworkManager/conf.d/99-xxcustom.conf"
     * Execute "systemctl reload NetworkManager"
     * Prepare simulated test "testX4" device
-    * Add connection type "ethernet" named "con_ipv4" for device "testX4"
+    * Add a new connection of type "ethernet" and options "ifname testX4 con-name con_ipv4 autoconnect no"
     * Execute "ip netns exec testX4_ns kill -SIGSTOP $(cat /tmp/testX4_ns.pid)"
     * Execute "sleep 50; ip netns exec testX4_ns kill -SIGCONT $(cat /tmp/testX4_ns.pid)" without waiting for process to finish
     * Restart NM
+    * Bring "up" connection "con_ipv4"
     Then "routers = 192.168.99.1" is visible with command "nmcli con show con_ipv4" in "180" seconds
      And "default via 192.168.99.1 dev testX4" is visible with command "ip r"
      And "IPV4_DHCP_TIMEOUT=2147483647" is not visible with command "cat /etc/sysconfig/network-scripts/ifcfg-con_ipv4"
@@ -1470,9 +1514,9 @@ Feature: nmcli: ipv4
     When "default" is visible with command "ip r |grep testX4" in "30" seconds
     When "inet 192" is visible with command "ip a s |grep testX4" in "30" seconds
     * Execute "ip netns exec testX4_ns kill -SIGSTOP $(cat /tmp/testX4_ns.pid)"
-    * Execute "systemctl stop NetworkManager"
+    * Stop NM
     * Execute "sudo rm -rf /etc/sysconfig/network-scripts/ifcfg-con_ipv4"
-    * Execute "systemctl start NetworkManager"
+    * Start NM
     When "default" is not visible with command "ip r |grep testX4" in "130" seconds
     When "inet 192.168.99" is not visible with command "ip a s testX4" in "10" seconds
     * Execute "ip netns exec testX4_ns kill -SIGCONT $(cat /tmp/testX4_ns.pid)"
@@ -1492,9 +1536,9 @@ Feature: nmcli: ipv4
     When "default" is visible with command "ip r |grep testX4" in "30" seconds
     When "inet 192" is visible with command "ip a s |grep testX4" in "30" seconds
     * Execute "ip netns exec testX4_ns kill -SIGSTOP $(cat /tmp/testX4_ns.pid)"
-    * Execute "systemctl stop NetworkManager"
+    * Stop NM
     * Execute "sudo rm -rf /etc/sysconfig/network-scripts/ifcfg-con_ipv4"
-    * Execute "systemctl start NetworkManager"
+    * Start NM
     When "default" is not visible with command "ip r |grep testX4" in "130" seconds
     When "inet 192.168.99" is not visible with command "ip a s testX4" in "10" seconds
     * Execute "ip netns exec testX4_ns kill -SIGCONT $(cat /tmp/testX4_ns.pid)"
@@ -1526,11 +1570,11 @@ Feature: nmcli: ipv4
     * Execute "ip netns exec testX4_ns kill -SIGSTOP $(cat /tmp/testX4_ns.pid)"
     * Execute "ip netns exec testY4_ns kill -SIGSTOP $(cat /tmp/testY4_ns.pid)"
     ## STOP NM
-    * Execute "systemctl stop NetworkManager"
+    * Stop NM
     # REMOVE con_ipv4 ifcfg file
     * Execute "sudo rm -rf /etc/sysconfig/network-scripts/ifcfg-con_ipv4"
     ## RESTART NM AGAIN
-    * Execute "systemctl start NetworkManager"
+    * Start NM
 
     ################# PREPARE testZ4 AND testA4 ################################
     ## testA4 and con_ipv42 for renewal_gw_after_long_dhcp_outage
@@ -1948,8 +1992,6 @@ Feature: nmcli: ipv4
     * Add a new connection of type "ethernet" and options "ifname eth3 con-name con_ipv4 ipv4.method manual ipv4.addresses 192.168.3.10/24 ipv4.gateway 192.168.3.254"
     * Execute "echo '10.200.200.2/31 via 172.16.0.254' > /etc/sysconfig/network-scripts/route-con_ipv4"
     * Reload connections
-    * Bring up connection "con_ipv4" ignoring error
-    When "(connected)" is not visible with command "nmcli device show eth3" in "15" seconds
     * Execute "nmcli connection modify con_ipv4 ipv4.routes '10.200.200.2/31 172.16.0.254 111 onlink=true'"
     * Bring "up" connection "con_ipv4"
     Then "default via 192.168.3.254 dev eth3 proto static metric 1" is visible with command "ip r"
@@ -1966,3 +2008,38 @@ Feature: nmcli: ipv4
     * Bring "up" connection "con_ipv4"
     Then "192.168.124.1/24" is visible with command "ip a s eth3"
     Then "192.168.125.1/24" is visible with command "ip a s eth3"
+
+
+    @rhbz1519299
+    @ver+=1.12
+    @con_ipv4_remove
+    @ipv4_dhcp-hostname_shared_persists
+    Scenario: nmcli - ipv4 - ipv4 dhcp-hostname persists after method shared set
+    * Add a new connection of type "ethernet" and options "ifname eth3 con-name con_ipv4"
+    * Execute "nmcli con mod con_ipv4 ipv4.dhcp-hostname test"
+    When "test" is visible with command "nmcli -f ipv4.dhcp-hostname con show con_ipv4"
+     And "DHCP_HOSTNAME=test" is visible with command "cat /etc/sysconfig/network-scripts/ifcfg-con_ipv4"
+    * Execute "nmcli con mod con_ipv4 ipv4.method shared"
+    When "test" is visible with command "nmcli -f ipv4.dhcp-hostname con show con_ipv4"
+     And "DHCP_HOSTNAME=test" is visible with command "cat /etc/sysconfig/network-scripts/ifcfg-con_ipv4"
+    * Execute "nmcli con mod con_ipv4 ipv4.method shared"
+    Then "test" is visible with command "nmcli -f ipv4.dhcp-hostname con show con_ipv4"
+     And "DHCP_HOSTNAME=test" is visible with command "cat /etc/sysconfig/network-scripts/ifcfg-con_ipv4"
+
+
+    @rhbz1573780
+    @ver+=1.12
+    @con_ipv4_remove @teardown_testveth @long
+    @nm_dhcp_lease_renewal_link_down
+    Scenario: NM - ipv4 - link down during dhcp renewal causes NM to never ask for new lease
+    * Prepare simulated test "testX4" device
+    * Add connection type "ethernet" named "con_ipv4" for device "testX4"
+    * Bring "up" connection "con_ipv4"
+    * Wait for at least "10" seconds
+    * Execute "ip netns exec ip link set testX4_bridge down"
+    * Execute "ip netns exec testX4_ns kill -SIGSTOP $(cat /tmp/testX4_ns.pid)"
+    * Wait for at least "120" seconds
+    * Execute "ip netns exec ip link set testX4_bridge up"
+    * Wait for at least "10" seconds
+    * Execute "ip netns exec testX4_ns kill -SIGCONT $(cat /tmp/testX4_ns.pid)"
+    Then "IP4.ADDRESS" is visible with command "nmcli -f ip4.address device show testX4" in "10" seconds

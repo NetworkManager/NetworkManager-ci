@@ -22,6 +22,7 @@ Feature: nmcli - ovs
 
 
     @ver+=1.10
+    @rhel7_only
     @openvswitch
     @openvswitch_ignore_ovs_network_setup
     Scenario: NM - openvswitch - ignore ovs network setup
@@ -41,6 +42,7 @@ Feature: nmcli - ovs
 
 
     @ver+=1.10
+    @rhel7_only
     @openvswitch
     @openvswitch_ignore_ovs_vlan_network_setup
     Scenario: NM - openvswitch - ignore ovs network setup
@@ -56,6 +58,7 @@ Feature: nmcli - ovs
 
 
     @ver+=1.10
+    @rhel7_only
     @openvswitch
     @openvswitch_ignore_ovs_bond_network_setup
     Scenario: NM - openvswitch - ignore ovs network setup

@@ -21,9 +21,7 @@ component:
 dependencies:
   beaker-tasks:
     - /distribution/command:
-        CMDS_TO_RUN: yum -y install git python-netaddr python-setuptools iw net-tools wireshark teamd bash-completion radvd psmisc bridge-utils firewalld dhcp ethtool dbus-python pygobject3 pygobject2
-    - /distribution/command:
-        CMDS_TO_RUN: yum -y install http://download.eng.bos.redhat.com/brewroot/packages/openvswitch/2.0.0/7.el7/$(uname -p)/openvswitch-2.0.0-7.el7.$(uname -p).rpm http://download.eng.bos.redhat.com/brewroot/packages/glib2/2.54.2/2.el7/$(uname -p)/glib2-2.54.2-2.el7.$(uname -p).rpm http://download.eng.bos.redhat.com/brewroot/packages/glib2/2.54.2/2.el7/$(uname -p)/glib2-devel-2.54.2-2.el7.$(uname -p).rpm  http://download.eng.bos.redhat.com/brewroot/packages/python-setuptools/22.0.5/1.el7.1/noarch/python-setuptools-22.0.5-1.el7.1.noarch.rpm
+        CMDS_TO_RUN: 'if grep -q Ootpa /etc/redhat-release; then printf "[ovs]\nname=ovs\nbaseurl=http://download-ipv4.eng.brq.redhat.com/brewroot/repos/fast-datapath-rhel-8-build/latest/$(uname -p)/\nenable=1\ngpgcheck=0\n" /etc/yum.repos.d/ovs.repo; fi'
 
 beaker-hardware:
   - x86_64:
@@ -38,10 +36,10 @@ beaker-hardware:
             hostname: rdma-qe-06.lab.bos.redhat.com
       NetworkManager-gsm:
         - x86_64:
-            hostname: gsm-r5s3-01.wlan.rhts.eng.bos.redhat.com
+            hostname: gsm-r5s4-01.wlan.rhts.eng.bos.redhat.com
       NetworkManager-dcb:
         - x86_64:
-            hostname: dell-per720-02.klab.eng.bos.redhat.com
+            hostname: dell-per720-03.klab.eng.bos.redhat.com
 
 setup:
 
@@ -199,6 +197,8 @@ testmapper:
         feature: bond
     - nmclient_bond_get_state_flags:
         feature: bond
+    - bond_set_num_grat_arp_unsol_na:
+        feature: bond
     - bridge_add_default:
         feature: bridge
     - bridge_add_custom_one:
@@ -272,6 +272,8 @@ testmapper:
     - bridge_delete_connection_with_device:
         feature: bridge
     - bridge_delete_connection_without_device:
+        feature: bridge
+    - bridge_ipv6:
         feature: bridge
     - add_default_team:
         feature: team
@@ -539,6 +541,8 @@ testmapper:
         feature: ipv6
     - ipv6_multiple_default_routes:
         feature: ipv6
+    - ipv6_duid:
+        feature: ipv6
     - nmcli_general_correct_profile_activated_after_restart:
         feature: ipv4
     - nmcli_general_profile_pickup_doesnt_break_network:
@@ -734,6 +738,10 @@ testmapper:
         feature: ipv4
     - ipv4_multiple_ip4:
         feature: ipv4
+    - ipv4_dhcp-hostname_shared_persists:
+        feature: ipv4
+    - nm_dhcp_lease_renewal_link_down:
+        feature: ipv4
     - vlan_add_default_device:
         feature: vlan
     - vlan_add_beyond_range:
@@ -839,6 +847,12 @@ testmapper:
     - 8021x_with_credentials:
         feature: ethernet
     - 8021x_tls:
+        feature: ethernet
+    - 8021x_tls_bad_private_key_password:
+        feature: ethernet
+    - 8021x_tls_aes256_private_key:
+        feature: ethernet
+    - 8021x_tls_no_private_key_password:
         feature: ethernet
     - 8021x_peap_md5:
         feature: ethernet
@@ -1078,6 +1092,32 @@ testmapper:
         feature: general
     - wait_10s_for_flappy_carrier:
         feature: general
+    - NM_starts_with_incorrect_logging_config:
+        feature: general
+    - resolv_conf_overwrite_after_stop:
+        feature: general
+    - resolv_conf_dangling_symlink:
+        feature: general
+    - macsec_send-sci_by_default:
+        feature: general
+    - libnm_async_tasks_cancelable:
+        feature: general
+    - nmcli_monitor_assertion_con_up_down:
+        feature: general
+    - libnm_snapshot_rollback:
+        feature: general
+    - libnm_snapshot_rollback_all_devices:
+        feature: general
+    - libnm_snapshot_rollback_all_devices_with_timeout:
+        feature: general
+    - libnm_snapshot_rollback_unmanaged:
+        feature: general
+    - libnm_snapshot_rollback_managed:
+        feature: general
+    - libnm_snapshot_rollback_soft_device:
+        feature: general
+    - autoconnect_no_secrets_prompt:
+        feature: general
     - openvswitch_interface_recognized:
         feature: ovs
     - openvswitch_ignore_ovs_network_setup:
@@ -1272,6 +1312,8 @@ testmapper:
         feature: tuntap
     - preserve_master_and_ip_settings:
         feature: tuntap
+    - tuntap_device_kernel_properties:
+        feature: tuntap
     - set_fq_codel_queue:
         feature: tc
     - set_pfifo_fast_queue:
@@ -1281,6 +1323,10 @@ testmapper:
     - simwifi_wpa2psk_no_profile:
         feature: wifi_hwsim
     - simwifi_tls:
+        feature: wifi_hwsim
+    - simwifi_tls_bad_private_key_password:
+        feature: wifi_hwsim
+    - simwifi_tls_no_private_key_password:
         feature: wifi_hwsim
     - simwifi_peap_gtc:
         feature: wifi_hwsim

@@ -195,6 +195,7 @@ Feature: nmcli - ethernet
 
     @rhbz1353612
     @ver+=1.7.1
+    @ver-=1.11.3
     @ethernet
     @ethernet_duplex_speed_auto_negotiation
     Scenario: nmcli - ethernet - duplex speed and auto-negotiation
@@ -206,7 +207,18 @@ Feature: nmcli - ethernet
     * Execute "nmcli connection modify ethernet 802-3-ethernet.auto-negotiate no"
     Then "ETHTOOL_OPTS" is not visible with command "cat /etc/sysconfig/network-scripts/ifcfg-ethernet"
 
-
+    @rhbz1487477
+    @ver+=1.11.4
+    @ethernet
+    @ethernet_duplex_speed_auto_negotiation
+    Scenario: nmcli - ethernet - duplex speed and auto-negotiation
+    * Add a new connection of type "ethernet" and options "ifname eth1 con-name ethernet"
+    * Execute "nmcli connection modify ethernet 802-3-ethernet.duplex full 802-3-ethernet.speed 10"
+    When "ETHTOOL_OPTS="autoneg off speed 10 duplex full"" is visible with command "cat /etc/sysconfig/network-scripts/ifcfg-ethernet"
+    * Execute "nmcli connection modify ethernet 802-3-ethernet.auto-negotiate yes"
+    When "ETHTOOL_OPTS="autoneg on speed 10 duplex full"" is visible with command "cat /etc/sysconfig/network-scripts/ifcfg-ethernet"
+    * Execute "nmcli connection modify ethernet 802-3-ethernet.auto-negotiate no 802-3-ethernet.speed 0"
+    Then "ETHTOOL_OPTS" is not visible with command "cat /etc/sysconfig/network-scripts/ifcfg-ethernet"
 
     @ethernet
     @ethernet_set_mtu
@@ -300,7 +312,7 @@ Feature: nmcli - ethernet
     @restart
     @nmcli_ethernet_wol_default
     Scenario: nmcli - ethernet - wake-on-lan default
-    * Execute "systemctl stop NetworkManager"
+    * Stop NM
     * Execute "modprobe -r ixgbe && modprobe ixgbe && sleep 5"
     * Note the output of "ethtool em2 |grep Wake-on |grep Supports | awk '{print $3}'" as value "wol_supports"
     * Note the output of "ethtool em2 |grep Wake-on |grep -v Supports | awk '{print $2}'" as value "wol_orig"
@@ -386,7 +398,34 @@ Feature: nmcli - ethernet
     @con_ethernet_remove @8021x
     @8021x_tls
     Scenario: nmcli - ethernet - connect to 8021x - tls
-    * Add a new connection of type "ethernet" and options "ifname test8X con-name con_ethernet autoconnect no 802-1x.eap tls 802-1x.identity test 802-1x.ca-cert /tmp/certs/test_user.ca.pem 802-1x.client-cert /tmp/certs/test_user.cert.pem 802-1x.private-key /tmp/certs/test_user.key.pem 802-1x.private-key-password redhat"
+    * Add a new connection of type "ethernet" and options "ifname test8X con-name con_ethernet autoconnect no 802-1x.eap tls 802-1x.identity test 802-1x.ca-cert /tmp/certs/test_user.ca.pem 802-1x.client-cert /tmp/certs/test_user.cert.pem 802-1x.private-key /tmp/certs/test_user.key.enc.pem 802-1x.private-key-password redhat"
+    Then Bring "up" connection "con_ethernet"
+    
+
+    @rhbz1623798
+    @ver+=1.12
+    @con_ethernet_remove @8021x
+    @8021x_tls_aes256_private_key
+    Scenario: nmcli - ethernet - connect to 8021x - tls - private key encrypted by aes256
+    * Add a new connection of type "ethernet" and options "ifname test8X con-name con_ethernet autoconnect no 802-1x.eap tls 802-1x.identity test 802-1x.ca-cert /tmp/certs/test_user.ca.pem 802-1x.client-cert /tmp/certs/test_user.cert.pem 802-1x.private-key /tmp/certs/test_user.key.enc.aes256.pem 802-1x.private-key-password redhat"
+    Then Bring "up" connection "con_ethernet"
+
+
+    @ver+=1.6.0
+    @con_ethernet_remove @8021x
+    @8021x_tls_bad_private_key_password
+    Scenario: nmcli - ethernet - connect to 8021x - tls - bad private key password
+    * Add a new connection of type "ethernet" and options "ifname test8X con-name con_ethernet autoconnect no 802-1x.eap tls 802-1x.identity test 802-1x.ca-cert /tmp/certs/test_user.ca.pem 802-1x.client-cert /tmp/certs/test_user.cert.pem 802-1x.private-key /tmp/certs/test_user.key.enc.pem 802-1x.private-key-password redhat12345"
+    Then Bring up connection "con_ethernet" ignoring error
+     And "GENERAL.STATE:activated" is not visible with command "nmcli -f GENERAL.STATE -t connection show id con_ethernet"
+
+
+    @rhbz1433536
+    @ver+=1.6.0
+    @con_ethernet_remove @8021x
+    @8021x_tls_no_private_key_password
+    Scenario: nmcli - ethernet - connect to 8021x - tls - no private key pasword
+    * Add a new connection of type "ethernet" and options "ifname test8X con-name con_ethernet autoconnect no 802-1x.eap tls 802-1x.identity test 802-1x.ca-cert /tmp/certs/test_user.ca.pem 802-1x.client-cert /tmp/certs/test_user.cert.pem 802-1x.private-key /tmp/certs/test_user.key.pem 802-1x.private-key-password-flags 4"
     Then Bring "up" connection "con_ethernet"
 
 

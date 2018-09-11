@@ -534,3 +534,15 @@ Feature: nmcli - bridge
     * Reboot
     * Delete connection "bridge0"
     Then "bridge0" is visible with command "nmcli dev"
+
+
+    @rhbz1576254
+    @ver+=1.10
+    @bridge
+    @bridge_ipv6
+    Scenario: nmcli - bridge - ipv6
+    * Add a new connection of type "bridge" and options "con-name bridge0 ifname bridge0 ip4 172.16.3.1/24 ipv6.method auto ipv6.address fd01:42::1/64 bridge.forward-delay 5 autoconnect no"
+    * Add a new connection of type "ethernet" and options "ifname eth4 con-name bridge-slave-eth4 master bridge0 autoconnect no"
+    * Bring "up" connection "bridge-slave-eth4"
+    Then "fe80" is visible with command "ip a show dev bridge0" in "20" seconds
+     And "fd01:42::1/64" is visible with command "ip a show dev bridge0" in "20" seconds

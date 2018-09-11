@@ -1,8 +1,13 @@
 # -*- coding: UTF-8 -*-
 
+from __future__ import absolute_import, division, print_function, unicode_literals
 import os
 import pexpect
 import sys
+if sys.version_info < (3, 0):
+    reload(sys)
+    sys.setdefaultencoding('utf8')
+
 import traceback
 import string
 import fcntl
@@ -21,13 +26,13 @@ TIMER = 0.5
 
 def nm_pid():
     try:
-        pid = int(check_output(['systemctl', 'show', '-pMainPID', 'NetworkManager.service']).split('=')[-1])
-    except CalledProcessError, e:
+        pid = int(check_output(['systemctl', 'show', '-pMainPID', 'NetworkManager.service']).decode('utf-8').split('=')[-1])
+    except CalledProcessError as e:
         pid = None
     if not pid:
         try:
-            pid = int(check_output(['pgrep', 'NetworkManager']))
-        except CalledProcessError, e:
+            pid = int(check_output(['pgrep', 'NetworkManager']).decode('utf-8'))
+        except CalledProcessError as e:
             pid = None
     return pid
 
@@ -53,7 +58,7 @@ def dump_status(context, when):
     else:
         for cmd in ['ip addr', 'ip -4 route', 'ip -6 route',
             'nmcli g', 'nmcli c', 'nmcli d', 'nmcli -f IN-USE,SSID,CHAN,SIGNAL,SECURITY d w',
-            'hostnamectl', 'NetworkManager --print-config']:
+            'hostnamectl', 'NetworkManager --print-config', 'ps aux | grep dhclient']:
             #'nmcli con show testeth0',\
             #'sysctl -a|grep ra |grep ipv6 |grep "all\|default\|eth\|test"']:
             context.log.write("--- %s ---\n" % cmd)
@@ -72,7 +77,7 @@ def reset_usb_devices():
     USBDEVFS_RESET= 21780
     def getfile(dirname, filename):
         f = open("%s/%s" % (dirname, filename), "r")
-        contents = f.read()
+        contents = f.read().encode('utf-8')
         f.close()
         return contents
 
@@ -88,13 +93,13 @@ def reset_usb_devices():
         f = open("/dev/bus/usb/%03d/%03d"%(busnum, devnum), 'w', os.O_WRONLY)
         try:
             fcntl.ioctl(f, USBDEVFS_RESET, 0)
-        except Exception, msg:
-            print ("failed to reset device:", msg)
+        except Exception as msg:
+            print(("failed to reset device:", msg))
         f.close()
 
 def setup_racoon(mode, dh_group, phase1_al="aes", phase2_al=None):
     print ("setting up racoon")
-    arch = check_output("uname -p", shell=True).strip()
+    arch = check_output("uname -p", shell=True).decode('utf-8').strip()
     wait_for_testeth0()
     if arch == "s390x" or arch == 'aarch64':
         call("[ -x /usr/sbin/racoon ] || yum -y install https://vbenes.fedorapeople.org/NM/ipsec-tools-0.8.2-1.el7.$(uname -p).rpm", shell=True)
@@ -112,7 +117,7 @@ def teardown_racoon():
 
 def reset_hwaddr(ifname):
     if not os.path.isfile('/tmp/nm_newveth_configured'):
-        hwaddr = check_output("ethtool -P %s" % ifname, shell=True).split()[2]
+        hwaddr = check_output("ethtool -P %s" % ifname, shell=True).decode('utf-8').split()[2]
         call("ip link set %s address %s" % (ifname, hwaddr), shell=True)
 
 def setup_hostapd():
@@ -149,7 +154,7 @@ def get_lock(dir):
         return int(locks[0])
 
 def delete_old_lock(dir, lock):
-    print ("* deleting old gsm lock %s" %lock)
+    print(("* deleting old gsm lock %s" %lock))
     os.rmdir("%s%s" %(dir, lock))
 
 def restore_testeth0():
@@ -178,7 +183,7 @@ def wait_for_testeth0():
             sys.exit(1)
 
 def reload_NM_service():
-    ver = check_output("NetworkManager --version", shell=True)
+    ver = check_output("NetworkManager --version", shell=True).decode('utf-8')
     #if version is 1.8 or older or we are in CentOS (7.4) we need to restart
     if int(ver.strip().split('-')[0].split('.')[1]) <= int(8) or call("grep CentOS /etc/redhat-release -q", shell=True) == 0:
         call('systemctl restart NetworkManager', shell=True)
@@ -192,7 +197,7 @@ def before_scenario(context, scenario):
             if call("nmcli device |grep testeth0 |grep ' connected'", shell=True) != 0:
                 call("sudo nmcli connection modify testeth0 ipv4.may-fail no", shell=True)
                 call("sudo nmcli connection up id testeth0", shell=True)
-                for attempt in xrange(0, 10):
+                for attempt in range(0, 10):
                     if call("nmcli device |grep testeth0 |grep ' connected'", shell=True) == 0:
                         break
                     sleep(1)
@@ -200,14 +205,14 @@ def before_scenario(context, scenario):
         os.environ['TERM'] = 'dumb'
 
         # dump status before the test preparation starts
-        context.log = file('/tmp/log_%s.html' % scenario.name,'w')
+        context.log = open('/tmp/log_%s.html' % scenario.name,'w')
         dump_status(context, 'before %s' % scenario.name)
 
         if 'long' in scenario.tags:
             print ("---------------------------")
             print ("skipping long test case if /tmp/nm_skip_long exists")
             if os.path.isfile('/tmp/nm_skip_long'):
-                sys.exit(0)
+                sys.exit(77)
 
         if 'eth0' in scenario.tags or 'delete_testeth0' in scenario.tags \
                                     or 'connect_testeth0' in scenario.tags \
@@ -217,7 +222,7 @@ def before_scenario(context, scenario):
             print ("---------------------------")
             print ("skipping service restart tests if /tmp/nm_skip_restarts exists")
             if os.path.isfile('/tmp/nm_skip_restarts') or os.path.isfile('/tmp/nm_skip_STR'):
-                sys.exit(0)
+                sys.exit(77)
 
         if '1000' in scenario.tags:
             print ("---------------------------")
@@ -230,31 +235,42 @@ def before_scenario(context, scenario):
 
         if 'rhel7_only' in scenario.tags:
             if call('rpm -qi NetworkManager |grep -q build.*bos.redhat.co', shell=True) != 0 or \
-            check_output("rpm --queryformat %{RELEASE} -q NetworkManager |awk -F .  '{ print ($1 < 200) }'", shell=True).strip() == '0':
-                sys.exit(0)
+            check_output("rpm --queryformat %{RELEASE} -q NetworkManager |awk -F .  '{ print ($1 < 200) }'", shell=True).decode('utf-8').strip() == '0' or \
+            call("grep -q Maipo /etc/redhat-release", shell=True) != 0:
+                sys.exit(77)
+
+        if 'not_in_rhel7' in scenario.tags:
+            if call('rpm -qi NetworkManager |grep -q build.*bos.redhat.co', shell=True) == 0 and \
+            check_output("rpm --queryformat %{RELEASE} -q NetworkManager |awk -F .  '{ print ($1 < 200) }'", shell=True).decode('utf-8').strip() == '1' and \
+            call("grep -q Maipo /etc/redhat-release", shell=True) == 0:
+                sys.exit(77)
 
         if 'not_in_rhel' in scenario.tags:
             if call('rpm -qi NetworkManager |grep -q build.*bos.redhat.com', shell=True) == 0 or \
-            check_output("rpm --queryformat %{RELEASE} -q NetworkManager |awk -F .  '{ print ($1 < 200) }'", shell=True).strip() == '1':
-                # sys.exit(0)
-                fixme=1
+            check_output("rpm --queryformat %{RELEASE} -q NetworkManager |awk -F .  '{ print ($1 < 200) }'", shell=True).decode('utf-8').strip() == '1':
+                sys.exit(77)
 
         if 'not_on_s390x' in scenario.tags:
-            arch = check_output("uname -p", shell=True).strip()
+            arch = check_output("uname -p", shell=True).decode('utf-8').strip()
             if arch == "s390x":
-                sys.exit(0)
+                sys.exit(77)
 
         if 'not_on_aarch64' in scenario.tags:
-            arch = check_output("uname -p", shell=True).strip()
+            arch = check_output("uname -p", shell=True).decode('utf-8').strip()
             if arch == "aarch64":
-                sys.exit(0)
+                sys.exit(77)
+
+        if 'not_on_ppc64' in scenario.tags:
+            arch = check_output("uname -p", shell=True).decode('utf-8').strip()
+            if arch == "ppc64":
+                sys.exit(77)
 
         if 'not_on_aarch64_but_pegas' in scenario.tags:
-            arch = check_output("uname -p", shell=True).strip()
-            ver = check_output("uname -r", shell=True).strip()
+            arch = check_output("uname -p", shell=True).decode('utf-8').strip()
+            ver = check_output("uname -r", shell=True).decode('utf-8').strip()
             if arch == "aarch64":
                 if "4.5" in ver:
-                    sys.exit(0)
+                    sys.exit(77)
 
         if 'gsm' in scenario.tags:
             import time
@@ -295,7 +311,7 @@ def before_scenario(context, scenario):
             def create_lock(dir):
                 if os.listdir(dir) == []:
                     lock = int(time.time())
-                    print ("* creating new gsm lock %s" % lock)
+                    print(("* creating new gsm lock %s" % lock))
                     os.mkdir("%s%s" % (dir, lock))
                     return True
                 else:
@@ -304,7 +320,7 @@ def before_scenario(context, scenario):
             def is_lock_old(lock):
                 lock += 3600
                 if lock < int(time.time()):
-                    print ("* lock %s is older than an hour" % lock)
+                    print(("* lock %s is older than an hour" % lock))
                     return True
                 else:
                     return False
@@ -326,7 +342,7 @@ def before_scenario(context, scenario):
                         continue
                     else:
                         timeout -= freq
-                        print ("** still locked.. wating %s seconds before next try" % freq)
+                        print(("** still locked.. wating %s seconds before next try" % freq))
                         if not initialized:
                             reinitialize_devices()
                         sleep(freq)
@@ -351,14 +367,14 @@ def before_scenario(context, scenario):
             call("modprobe -r cdc-mbim", shell=True)
 
         if 'need_s390x' in scenario.tags:
-            arch = check_output("uname -p", shell=True).strip()
+            arch = check_output("uname -p", shell=True).decode('utf-8').strip()
             if arch != "s390x":
-                sys.exit(0)
+                sys.exit(77)
 
         if 'allow_veth_connections' in scenario.tags:
             if call("grep '^ENV{ID_NET_DRIVER}==\"veth\", ENV{NM_UNMANAGED}=\"1\"' /usr/lib/udev/rules.d/85-nm-unmanaged.rules", shell=True) == 0:
                 call("sed -i 's/^ENV{ID_NET_DRIVER}==\"veth\", ENV{NM_UNMANAGED}=\"1\"/#ENV{ID_NET_DRIVER}==\"veth\", ENV{NM_UNMANAGED}=\"1\"/' /usr/lib/udev/rules.d/85-nm-unmanaged.rules", shell=True)
-                cfg = Popen("sudo sh -c 'cat > /etc/NetworkManager/conf.d/99-unmanaged.conf'", stdin=PIPE, shell=True).stdin
+                cfg = open("/etc/NetworkManager/conf.d/99-unmanaged.conf", "w")
                 cfg.write('[main]')
                 cfg.write("\n" + 'no-auto-default=eth*')
                 cfg.write("\n")
@@ -370,11 +386,11 @@ def before_scenario(context, scenario):
 
         if 'not_under_internal_DHCP' in scenario.tags:
             if call("grep dhcp=internal /etc/NetworkManager/NetworkManager.conf", shell=True) == 0:
-                sys.exit(0)
+                sys.exit(77)
 
         if 'newveth' in scenario.tags or 'not_on_veth' in scenario.tags:
             if os.path.isfile('/tmp/nm_newveth_configured'):
-                sys.exit(0)
+                sys.exit(77)
 
         if 'disp' in scenario.tags:
             print ("---------------------------")
@@ -410,6 +426,13 @@ def before_scenario(context, scenario):
             if not os.path.isfile('/usr/bin/scapy'):
                 call('sudo yum -y install tcpdump', shell=True)
                 call("sudo pip install scapy", shell=True)
+
+        if 'skip_in_ootpa' in scenario.tags:
+            print ("---------------------------")
+            print ("Skipping in Ootpa")
+            if call("grep -q Ootpa /etc/redhat-release", shell=True) == 0:
+                print ("---------------------------")
+                sys.exit(77)
 
         if 'mock' in scenario.tags:
             print ("---------------------------")
@@ -471,7 +494,7 @@ def before_scenario(context, scenario):
             print ("---------------------------")
             print ("set internal DHCP")
             call("printf '# configured by beaker-test\n[main]\ndhcp=internal\n' > /etc/NetworkManager/conf.d/99-xtest-dhcp-internal.conf", shell=True)
-            reload_NM_service()
+            call('sudo systemctl restart NetworkManager.service', shell=True)
 
         if 'dhcpd' in scenario.tags:
             print ("---------------------------")
@@ -528,7 +551,7 @@ def before_scenario(context, scenario):
                 call('sudo nmcli con add type ethernet ifname eth2 con-name testeth2 autoconnect no', shell=True)
 
         if 'logging' in scenario.tags:
-            context.loggin_level = check_output('nmcli -t -f LEVEL general logging', shell=True).strip()
+            context.loggin_level = check_output('nmcli -t -f LEVEL general logging', shell=True).decode('utf-8').strip()
 
         if 'nmcli_general_profile_pickup_doesnt_break_network' in scenario.tags:
             print("---------------------------")
@@ -553,23 +576,23 @@ def before_scenario(context, scenario):
 
         if '8021x' in scenario.tags:
             print ("---------------------------")
-            arch = check_output("uname -p", shell=True).strip()
+            arch = check_output("uname -p", shell=True).decode('utf-8').strip()
             if arch == "s390x" or arch == 'aarch64':
-                sys.exit(0)
+                sys.exit(77)
             setup_hostapd()
 
         if 'simwifi_wpa2' in scenario.tags:
             print ("---------------------------")
-            arch = check_output("uname -p", shell=True).strip()
+            arch = check_output("uname -p", shell=True).decode('utf-8').strip()
             if arch != "x86_64":
-                sys.exit(0)
+                sys.exit(77)
             setup_hostapd_wireless('wpa2')
 
         if 'vpnc' in scenario.tags:
             print ("---------------------------")
-            arch = check_output("uname -p", shell=True).strip()
+            arch = check_output("uname -p", shell=True).decode('utf-8').strip()
             if arch == "s390x" or arch == 'aarch64':
-                sys.exit(0)
+                sys.exit(77)
             call("[ -f /etc/yum.repos.d/epel.repo ] || sudo rpm -i http://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm", shell=True)
             call("rpm -q NetworkManager-vpnc || ( sudo yum -y install NetworkManager-vpnc && systemctl restart NetworkManager )", shell=True)
             setup_racoon (mode="aggressive", dh_group=2)
@@ -577,9 +600,9 @@ def before_scenario(context, scenario):
         if 'lldp' in scenario.tags:
             print ("---------------------------")
             print ("install tcpreplay")
-            arch = check_output("uname -p", shell=True).strip()
+            arch = check_output("uname -p", shell=True).decode('utf-8').strip()
             if arch == "s390x" or arch == 'aarch64':
-                sys.exit(0)
+                sys.exit(77)
             wait_for_testeth0()
             call("[ -f /etc/yum.repos.d/epel.repo ] || sudo rpm -i http://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm", shell=True)
             call("[ -x /usr/bin/tcpreplay ] || yum -y install tcpreplay", shell=True)
@@ -587,9 +610,9 @@ def before_scenario(context, scenario):
         if 'openvpn' in scenario.tags:
             print ("---------------------------")
             print ("setting up OpenVPN")
-            arch = check_output("uname -p", shell=True).strip()
+            arch = check_output("uname -p", shell=True).decode('utf-8').strip()
             if arch == "s390x" or arch == 'aarch64':
-                sys.exit(0)
+                sys.exit(77)
             wait_for_testeth0()
             call("[ -f /etc/yum.repos.d/epel.repo ] || sudo rpm -i http://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm", shell=True)
             call("[ -x /usr/sbin/openvpn ] || sudo yum -y install openvpn NetworkManager-openvpn", shell=True)
@@ -604,7 +627,7 @@ def before_scenario(context, scenario):
             sleep(2)
 
             samples = glob(os.path.abspath('tmp/openvpn'))[0]
-            cfg = Popen("sudo sh -c 'cat >/etc/openvpn/trest-server.conf'", stdin=PIPE, shell=True).stdin
+            cfg = open("/etc/openvpn/trest-server.conf", "w")
             cfg.write('# OpenVPN configuration for client testing')
             cfg.write("\n" + 'mode server')
             cfg.write("\n" + 'tls-server')
@@ -673,21 +696,21 @@ def before_scenario(context, scenario):
         if 'pptp' in scenario.tags:
             print ("---------------------------")
             print ("setting up pptpd")
-            arch = check_output("uname -p", shell=True).strip()
+            arch = check_output("uname -p", shell=True).decode('utf-8').strip()
             if arch == "s390x" or arch == 'aarch64':
-                sys.exit(0)
+                sys.exit(77)
             wait_for_testeth0()
             call("[ -f /etc/yum.repos.d/epel.repo ] || sudo rpm -i http://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm", shell=True)
             call("[ -x /usr/sbin/pptpd ] || sudo yum -y install /usr/sbin/pptpd", shell=True)
             call("rpm -q NetworkManager-pptp || sudo yum -y install NetworkManager-pptp", shell=True)
 
             call("sudo rm -f /etc/ppp/ppp-secrets", shell=True)
-            psk = Popen("sudo sh -c 'cat >/etc/ppp/chap-secrets'", stdin=PIPE, shell=True).stdin
+            psk = open("/etc/ppp/chap-secrets", "w")
             psk.write("budulinek pptpd passwd *\n")
             psk.close()
 
             if not os.path.isfile('/tmp/nm_pptp_configured'):
-                cfg = Popen("sudo sh -c 'cat >/etc/pptpd.conf'", stdin=PIPE, shell=True).stdin
+                cfg = open("/etc/pptpd.conf", "w")
                 cfg.write('# pptpd configuration for client testing')
                 cfg.write("\n" + 'option /etc/ppp/options.pptpd')
                 cfg.write("\n" + 'logwtmp')
@@ -711,7 +734,7 @@ def before_scenario(context, scenario):
         if 'restore_hostname' in scenario.tags:
            print ("---------------------------")
            print ("saving original hostname")
-           context.original_hostname = check_output('hostname', shell=True).strip()
+           context.original_hostname = check_output('hostname', shell=True).decode('utf-8').strip()
 
         if 'runonce' in scenario.tags:
             print ("---------------------------")
@@ -725,9 +748,9 @@ def before_scenario(context, scenario):
         if 'slow_team' in scenario.tags:
             print ("---------------------------")
             print ("run just on x86_64")
-            arch = check_output("uname -p", shell=True).strip()
+            arch = check_output("uname -p", shell=True).decode('utf-8').strip()
             if arch != "x86_64":
-                sys.exit(0)
+                sys.exit(77)
             print ("---------------------------")
             print ("remove all team packages except NM one and reinstall them with delayed version")
             call("for i in $(rpm -qa |grep team|grep -v Netw); do rpm -e $i --nodeps; done", shell=True)
@@ -737,6 +760,9 @@ def before_scenario(context, scenario):
         if 'openvswitch' in scenario.tags:
             print ("---------------------------")
             print ("starting openvswitch if not active")
+            arch = check_output("uname -p", shell=True).decode('utf-8').strip()
+            if arch == "s390x":
+                sys.exit(77)
             if call('rpm -q NetworkManager-ovs', shell=True) != 0:
                 call('yum -y install NetworkManager-ovs', shell=True)
                 call('systemctl daemon-reload', shell=True)
@@ -776,6 +802,7 @@ def before_scenario(context, scenario):
             # This -x is to avoid upgrade of NetworkManager in older version testing
             call("yum -y install NetworkManager-ppp -x NetworkManager", shell=True)
             call('yum -y install rp-pppoe', shell=True)
+            call('[ -x //usr/sbin/pppoe-server ] || yum -y install https://kojipkgs.fedoraproject.org//packages/rp-pppoe/3.12/11.fc28/$(uname -p)/rp-pppoe-3.12-11.fc28.$(uname -p).rpm', shell=True)
             call("mknod /dev/ppp c 108 0", shell=True)
             reload_NM_service()
 
@@ -815,25 +842,36 @@ def before_scenario(context, scenario):
                 reload_NM_service()
                 context.restore_config_server = True
 
+        if 'ipv4_method_shared' in scenario.tags:
+            context.enforcing = False
+            if check_output('getenforce', shell=True).decode('utf-8').strip() == 'Enforcing':
+                print("---------------------------")
+                print("WORKAROUND for permissive selinux")
+                context.enforcing = True
+                call('setenforce 0', shell=True)
+
         try:
             context.nm_pid = nm_pid()
-        except CalledProcessError, e:
+        except CalledProcessError as e:
             context.nm_pid = None
 
-        print("NetworkManager process id before: %s" % context.nm_pid)
+        context.nm_restarted = False
+        context.crashed_step = False
+
+        print(("NetworkManager process id before: %s" % context.nm_pid))
 
         if context.nm_pid is not None:
             context.log.write("NetworkManager memory consumption before: %d KiB\n" % nm_size_kb())
             if call("[ -f /etc/systemd/system/NetworkManager.service ] && grep -q valgrind /etc/systemd/system/NetworkManager.service", shell=True) == 0:
                 call("LOGNAME=root HOSTNAME=localhost gdb /usr/sbin/NetworkManager -ex 'target remote | vgdb' -ex 'monitor leak_check summary' -batch", shell=True, stdout=context.log, stderr=context.log)
 
-        context.log_cursor = check_output("journalctl --lines=0 --show-cursor |awk '/^-- cursor:/ {print \"\\\"--after-cursor=\"$NF\"\\\"\"; exit}'", shell=True).strip()
+        context.log_cursor = check_output("journalctl --lines=0 --show-cursor |awk '/^-- cursor:/ {print \"\\\"--after-cursor=\"$NF\"\\\"\"; exit}'", shell=True).decode('utf-8').strip()
 
         os.system("echo '~~~~~~~~~~~~~~~~~~~~~~~~~~ TRAFFIC LOG ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~' > /tmp/network-traffic.log")
         Popen("sudo tcpdump -nne -i any >> /tmp/network-traffic.log", shell=True)
 
     except Exception as e:
-        print("Error in before_scenario: %s" % e.message)
+        print(("Error in before_scenario"))
         traceback.print_exc(file=sys.stdout)
 
 def after_step(context, step):
@@ -848,18 +886,23 @@ def after_step(context, step):
        step.name == 'Flag "NM_802_11_DEVICE_CAP_ADHOC" is set in WirelessCapabilites') and \
        step.status == 'failed' and step.step_type == 'given':
         print("Omitting the test as device does not AP/ADHOC mode")
-        sys.exit(0)
+        sys.exit(77)
     # for nmcli_wifi_right_band_80211a - HW dependent 'passes'
     if step.name == 'Flag "NM_802_11_DEVICE_CAP_FREQ_5GHZ" is set in WirelessCapabilites' and \
        step.status == 'failed' and step.step_type == 'given':
         print("Omitting the test as device does not support 802.11a")
-        sys.exit(0)
+        sys.exit(77)
     # for testcase_306559
     if step.name == 'Flag "NM_802_11_DEVICE_CAP_FREQ_5GHZ" is not set in WirelessCapabilites' and \
        step.status == 'failed' and step.step_type == 'given':
         print("Omitting test as device supports 802.11a")
-        sys.exit(0)
+        sys.exit(77)
 
+    if not context.nm_restarted and not context.crashed_step:
+        new_pid = nm_pid()
+        if new_pid != context.nm_pid:
+            print(('NM Crashed as new PID %s is not old PID %s' %(new_pid, context.nm_pid)))
+            context.crashed_step = step.name
 
 def after_scenario(context, scenario):
     """
@@ -867,9 +910,14 @@ def after_scenario(context, scenario):
     nm_pid_after = None
     try:
         nm_pid_after = nm_pid()
-        print("NetworkManager process id after: %s (was %s)" % (nm_pid_after, context.nm_pid))
+        print(("NetworkManager process id after: %s (was %s)" % (nm_pid_after, context.nm_pid)))
+        # if getattr(context, 'nm_restarted', False) or \
+        #     'restart' in scenario.tags or \
+        #     nm_pid_after != context.nm_pid:
+        #
+
     except Exception as e:
-        print("nm_pid wasn't set. Probably crash in before_scenario: %s" % e.message)
+        print(("nm_pid wasn't set. Probably crash in before_scenario"))
         pass
 
     try:
@@ -882,6 +930,7 @@ def after_scenario(context, scenario):
         else:
             print("WARNING: 20M size exceeded in /tmp/network-traffic.log, skipping")
 
+
         if 'netservice' in scenario.tags:
             # Attach network.service journalctl logs
             os.system("echo '~~~~~~~~~~~~~~~~~~~~~~~~~~ NETWORK SRV LOG ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~' > /tmp/journal-netsrv.log")
@@ -889,6 +938,8 @@ def after_scenario(context, scenario):
             data = open("/tmp/journal-netsrv.log", 'r').read()
             if data:
                 context.embed('text/plain', data)
+
+        dump_status(context, 'after %s' % scenario.name)
 
         if 'runonce' in scenario.tags:
             print ("---------------------------")
@@ -903,13 +954,18 @@ def after_scenario(context, scenario):
             call("nmcli device disconnect eth10", shell=True)
             call("nmcli connection up testeth0", shell=True)
 
+        if 'remove_custom_cfg_before_restart' in scenario.tags:
+            print("---------------------------")
+            print("Removing custom cfg file in conf.d")
+            call('sudo rm -f /etc/NetworkManager/conf.d/99-xxcustom.conf', shell=True)
+
         if 'restart' in scenario.tags:
             print ("---------------------------")
             print ("restarting NM service")
-            call('sudo service NetworkManager restart', shell=True)
-            if not os.path.isfile('/tmp/nm_dcb_inf_wol_sriov_configured'):
-                wait_for_testeth0()
-        dump_status(context, 'after %s' % scenario.name)
+            if call("systemctl is-active NetworkManager", shell=True) != 0:
+                call('sudo systemctl restart NetworkManager restart', shell=True)
+                if not os.path.isfile('/tmp/nm_dcb_inf_wol_sriov_configured'):
+                    wait_for_testeth0()
 
         if 'restore_hostname' in scenario.tags:
             print ("---------------------------")
@@ -942,13 +998,6 @@ def after_scenario(context, scenario):
             call("nmcli con del 'Wired connection 1'", shell=True)
             call("nmcli con del 'Wired connection 2'", shell=True)
             call("for i in $(nmcli -t -f DEVICE c s -a |grep -v ^eth0$); do nmcli device disconnect $i; done", shell=True)
-
-        if 'mac' in scenario.tags:
-            print ("---------------------------")
-            print ("delete mac config")
-            call("rm -rf /etc/NetworkManager/conf.d/99-mac.conf", shell=True)
-            reload_NM_service()
-            reset_hwaddr('eth1')
 
         if 'con_ipv4_remove' in scenario.tags:
             print ("---------------------------")
@@ -1013,7 +1062,7 @@ def after_scenario(context, scenario):
             call('ip link del nm-bond', shell=True)
             call('ip link del bond0', shell=True)
             #sleep(TIMER)
-            print (os.system('ls /proc/net/bonding'))
+            print((os.system('ls /proc/net/bonding')))
 
         if 'slaves' in scenario.tags:
             print ("---------------------------")
@@ -1125,9 +1174,7 @@ def after_scenario(context, scenario):
         if 'dcb' in scenario.tags:
             print ("---------------------------")
             print ("deleting connection dcb")
-            call("nmcli connection down id dcb", shell=True)
             call("nmcli connection delete id dcb", shell=True)
-            sleep(10*TIMER)
 
         if 'mtu' in scenario.tags:
             print ("---------------------------")
@@ -1208,7 +1255,7 @@ def after_scenario(context, scenario):
             print ("---------------------------")
             print ("revert internal DHCP")
             call("rm -f /etc/NetworkManager/conf.d/99-xtest-dhcp-internal.conf", shell=True)
-            reload_NM_service()
+            call('sudo systemctl restart NetworkManager.service', shell=True)
 
         if 'dhcpd' in scenario.tags:
             print ("---------------------------")
@@ -1288,8 +1335,8 @@ def after_scenario(context, scenario):
             # call("rm -rf /etc/NetworkManager/conf.d/98-sriov.conf", shell=True)
             # call("systemctl restart NetworkManager", shell=True)
             # sleep(5)
-            call("echo 0 > /sys/class/net/p6p1/device/sriov_numvfs", shell=True)
-            call("echo 0 > /sys/class/net/p6p2/device/sriov_numvfs", shell=True)
+            call("echo 0 > /sys/class/net/em1/device/sriov_numvfs", shell=True)
+            call("echo 0 > /sys/class/net/em2/device/sriov_numvfs", shell=True)
             call("rm -rf /etc/NetworkManager/conf.d/99-sriov.conf", shell=True)
             call("rm -rf /etc/NetworkManager/conf.d/98-sriov.conf", shell=True)
             reload_NM_service()
@@ -1341,7 +1388,7 @@ def after_scenario(context, scenario):
         if 'tshark' in scenario.tags:
             print ("---------------------------")
             print ("kill tshark and delet dhclinet-eth10")
-            call("pkill -9 tshark", shell=True)
+            call("pkill tshark", shell=True)
             call("rm -rf /etc/dhcp/dhclient-eth*.conf", shell=True)
 
         if 'tcpdump' in scenario.tags:
@@ -1411,6 +1458,13 @@ def after_scenario(context, scenario):
             print ("removing ethernet profiles")
             call("sudo nmcli connection delete id ethernet ethernet0 ethos", shell=True)
             call('sudo rm -rf /etc/sysconfig/network-scripts/ifcfg-ethernet*', shell=True) #ideally should do nothing
+
+        if 'mac' in scenario.tags:
+            print ("---------------------------")
+            print ("delete mac config")
+            call("rm -rf /etc/NetworkManager/conf.d/99-mac.conf", shell=True)
+            reload_NM_service()
+            reset_hwaddr('eth1')
 
         if 'con_general_remove' in scenario.tags:
             print ("---------------------------")
@@ -1742,6 +1796,7 @@ def after_scenario(context, scenario):
         if 'non_utf_device' in scenario.tags:
             print ("---------------------------")
             print ("remove non utf-8 device")
+            call("nmcli device delete 'd\\314f\\\\c'", shell=True)
             call("ip link del $'d\xccf\\c'", shell=True)
             call('systemctl restart NetworkManager', shell=True)
 
@@ -1804,11 +1859,14 @@ def after_scenario(context, scenario):
             print("removing testveth device setup for all test devices")
             if hasattr(context, 'testvethns'):
                 for ns in context.testvethns:
-                    print("Removing the setup in %s namespace" % ns)
+                    print(("Removing the setup in %s namespace" % ns))
                     call('[ -f /tmp/%s.pid ] && ip netns exec %s kill -SIGCONT $(cat /tmp/%s.pid)' % (ns, ns, ns), shell=True)
                     call('[ -f /tmp/%s.pid ] && kill $(cat /tmp/%s.pid)' % (ns, ns) , shell=True)
                     call('ip netns del %s' % ns, shell=True)
                     call('ip link del %s' % ns.split('_')[0], shell=True)
+                    device=ns.split('_')[0]
+                    print (device)
+                    call('kill $(cat /var/run/dhclient-%s.pid)' % device, shell=True)
             call('rm -f /etc/udev/rules.d/88-lr.rules', shell=True)
             call('udevadm control --reload-rules', shell=True)
             call('udevadm settle', shell=True)
@@ -1827,6 +1885,12 @@ def after_scenario(context, scenario):
             print("removing ctc device")
             call("""znetconf -r $(znetconf -c |grep CTC |awk 'BEGIN { FS = "," } ; { print $1 }') -n""", shell=True)
             sleep(1)
+
+        if 'ipv4_method_shared' in scenario.tags:
+            if context.enforcing:
+                print("---------------------------")
+                print("WORKAROUND for permissive selinux")
+                call('setenforce 1', shell=True)
 
         if 'regenerate_veth' in scenario.tags or 'restart' in scenario.tags:
             print ("---------------------------")
@@ -1859,28 +1923,19 @@ def after_scenario(context, scenario):
 
         context.log.close ()
         context.embed('text/plain', open("/tmp/log_%s.html" % scenario.name, 'r').read())
+        sleep(3)
 
-        if getattr(context, 'nm_restarted', True) or \
-               'restart' in scenario.tags:
-               pass
-        else:
-            if nm_pid_after is None or nm_pid_after != context.nm_pid:
-                sys.exit(1)
-
-        #
-        # assert nm_pid_after is not None or \
-        #        'restart' in scenario.tags
-        # assert context.nm_pid is not None
-        # assert getattr(context, 'nm_restarted', False) or \
-        #        'restart' in scenario.tags or \
-        #        nm_pid_after == context.nm_pid
+        if context.crashed_step:
+            print ("\n\n!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
+            print ("!! NM CRASHED. NEEDS INSPECTION. FAILING THE TEST                      !!")
+            print(("!! CRASHING STEP: %s" %(context.crashed_step)))
+            print ("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n\n")
+            sys.exit(1)
 
     except Exception as e:
-        print("Error in after_scenario: %s" % e.message)
+        print(("Error in after_scenario"))
         traceback.print_exc(file=sys.stdout)
 
 
 def after_all(context):
     pass
-    #call('sudo kill $(ps aux|grep -v grep| grep /usr/bin/beah-beaker-backend |awk \'{print $2}\')', shell=True)
-    #Popen('beah-beaker-backend -H $(hostname) &', shell=True)

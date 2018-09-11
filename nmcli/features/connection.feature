@@ -186,7 +186,7 @@ Feature: nmcli: connection
      * Submit "set connection.id after_rename" in editor
      * Save in editor
      * Quit editor
-     * Prompt is not running
+     #* Prompt is not running
      Then Open editor for connection "after_rename"
      * Quit editor
      * Delete connection "after_rename"
@@ -209,7 +209,7 @@ Feature: nmcli: connection
      * Submit "set connection.interface-name eth6" in editor
      * Save in editor
      * Quit editor
-     When Prompt is not running
+     #When Prompt is not running
      * Bring "up" connection "con_con"
      Then Check if "con_con" is active connection
 
@@ -235,9 +235,9 @@ Feature: nmcli: connection
     Scenario: nmcli - connection - set autoconnect on without autoconnecting
      * Add a new connection of type "ethernet" and options "con-name con_con2 ifname eth5 autoconnect no"
      When "con_con2" is visible with command "nmcli con"
-     * Execute "python tmp/repro_1401515.py"
-     Then Check if "con_con2" is not active connection
-      And "yes" is visible with command "nmcli connection show con_con2 |grep autoconnect:" in "5" seconds
+     * Execute "python tmp/repro_1401515.py" without waiting for process to finish
+     Then "yes" is visible with command "nmcli connection show con_con2 |grep autoconnect:" in "5" seconds
+      And Check if "con_con2" is not active connection
 
 
     @con_con_remove
@@ -371,7 +371,7 @@ Feature: nmcli: connection
      * Save in editor
      * Check if object item "connection.permissions:" has value "user:test" via print
      * Quit editor
-     * Prompt is not running
+     #* Prompt is not running
      * Bring "up" connection "con_con"
      * Open editor for connection "con_con"
     Then Check if object item "connection.permissions:" has value "user:test" via print
@@ -611,14 +611,14 @@ Feature: nmcli: connection
     Scenario: nmcli - connection - describe
      * Add connection type "ethernet" named "con_con" for device "eth6"
      * Open editor for connection "con_con"
-     Then Check "\[id\]|\[uuid\]|\[interface-name\]|\[type\]|\[permissions\]|\[autoconnect\]|\[timestamp\]|\[read-only\]|\[zone\]|\[master\]|\[slave-type\]|\[secondaries\]|\[gateway-ping-timeout\]" are present in describe output for object "connection"
+     Then Check "\[id\]|\[uuid\]|\[interface-name\]|\[type\]" are present in describe output for object "connection"
      * Submit "goto connection" in editor
 
      Then Check "=== \[id\] ===\s+\[NM property description\]\s+A human readable unique identifier for the connection, like \"Work Wi-Fi\" or \"T-Mobile 3G\"." are present in describe output for object "id"
 
      Then Check "=== \[uuid\] ===\s+\[NM property description\]\s+A universally unique identifier for the connection, for example generated with libuuid.  It should be assigned when the connection is created, and never changed as long as the connection still applies to the same network.  For example, it should not be changed when the \"id\" property or NMSettingIP4Config changes, but might need to be re-created when the Wi-Fi SSID, mobile broadband network provider, or \"type\" property changes. The UUID must be in the format \"2815492f-7e56-435e-b2e9-246bd7cdc664\" \(ie, contains only hexadecimal characters and \"-\"\)." are present in describe output for object "uuid"
 
-    Then Check "=== \[interface-name\] ===\s+\[NM property description\]\s+The name of the network interface this connection is bound to. If not set, then the connection can be attached to any interface of the appropriate type \(subject to restrictions imposed by other settings\). For software devices this specifies the name of the created device. For connection types where interface names cannot easily be made persistent \(e.g. mobile broadband or USB Ethernet\), this property should not be used. Setting this property restricts the interfaces a connection can be used with, and if interface names change or are reordered the connection may be applied to the wrong interface." are present in describe output for object "interface-name"
+     Then Check "=== \[interface-name\] ===\s+\[NM property description\]\s+The name of the network interface this connection is bound to. If not set, then the connection can be attached to any interface of the appropriate type \(subject to restrictions imposed by other settings\). For software devices this specifies the name of the created device. For connection types where interface names cannot easily be made persistent \(e.g. mobile broadband or USB Ethernet\), this property should not be used. Setting this property restricts the interfaces a connection can be used with, and if interface names change or are reordered the connection may be applied to the wrong interface." are present in describe output for object "interface-name"
 
      Then Check "=== \[type\] ===\s+\[NM property description\]\s+Base type of the connection. For hardware-dependent connections, should contain the setting name of the hardware-type specific setting \(ie, \"802\-3\-ethernet\" or \"802\-11\-wireless\" or \"bluetooth\", etc\), and for non-hardware dependent connections like VPN or otherwise, should contain the setting name of that setting type \(ie, \"vpn\" or \"bridge\", etc\)." are present in describe output for object "type"
 

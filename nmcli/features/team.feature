@@ -791,8 +791,8 @@
       And "inet6 fe80" is visible with command "ip -6 a s nm-team"
       And "inet6 2620" is visible with command "ip -6 a s nm-team" in "25" seconds
       And "tentative" is not visible with command "ip -6 a s nm-team" in "5" seconds
-     * Execute "killall NetworkManager && sleep 5"
-     * Execute "systemctl restart NetworkManager"
+     * Kill NM
+     * Restart NM
      When "state UP" is visible with command "ip -6 a s nm-team"
       And "inet6 fe80" is visible with command "ip -6 a s nm-team" for full "10" seconds
       And "inet6 2620" is visible with command "ip -6 a s nm-team"
@@ -812,6 +812,7 @@
     * Add connection type "team" named "team0" for device "nm-team"
     When "public\s+interfaces: eth0 nm-team" is visible with command "firewall-cmd --get-active-zones"
     * Execute "nmcli connection modify team0 connection.zone work"
+    * Bring "up" connection "team0"
     When "work\s+interfaces: nm-team" is visible with command "firewall-cmd --get-active-zones"
 
 
@@ -872,7 +873,7 @@
 
     @rhbz1398925
     @ver+=1.10
-    @team_slaves @team
+    @team_slaves @team @not_on_s390x @not_on_ppc64
     @team_abs_set_runner_hwaddr_policy
     Scenario: nmcli - team_abs - set runners hwadd policy
     * Note the output of "ip a s eth5|grep ether |awk '{print $2}'" as value "eth5"
