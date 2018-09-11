@@ -1372,6 +1372,34 @@ testmapper:
         feature: ppp
     - pppoe_over_vlan:
         feature: ppp
+    - dns_resolved_two_default:
+        feature: dns
+    - dns_resolved_one_default:
+        feature: dns
+    - dns_resolved_two_default_with_priority:
+        feature: dns
+    - dns_resolved_two_default_with_negative_priority:
+        feature: dns
+    - dns_resolved_no_default:
+        feature: dns
+    - dns_resolved_full_tunnel_vpn:
+        feature: dns
+    - dns_resolved_split_tunnel_vpn:
+        feature: dns
+    - dns_dnsmasq_two_default:
+        feature: dns
+    - dns_dnsmasq_one_default:
+        feature: dns
+    - dns_dnsmasq_two_default_with_priority:
+        feature: dns
+    - dns_dnsmasq_two_default_with_negative_priority:
+        feature: dns
+    - dns_dnsmasq_no_default:
+        feature: dns
+    - dns_dnsmasq_full_tunnel_vpn:
+        feature: dns
+    - dns_dnsmasq_split_tunnel_vpn:
+        feature: dns
     - nmtui_general_start_nmtui:
         run: nmtui/./runtest.sh nmtui_general_start_nmtui
         feature: nmtui

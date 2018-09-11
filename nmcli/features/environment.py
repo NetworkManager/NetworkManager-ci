@@ -234,18 +234,26 @@ def before_scenario(context, scenario):
                 call ('yum -y install http://dl.fedoraproject.org/pub/epel/7/x86_64/p/python2-pyroute2-0.4.13-1.el7.noarch.rpm', shell=True)
 
         if 'rhel7_only' in scenario.tags:
+            # Run only with stock RHEL7 package
             if call('rpm -qi NetworkManager |grep -q build.*bos.redhat.co', shell=True) != 0 or \
             check_output("rpm --queryformat %{RELEASE} -q NetworkManager |awk -F .  '{ print ($1 < 200) }'", shell=True).decode('utf-8').strip() == '0' or \
-            call("grep -q Maipo /etc/redhat-release", shell=True) != 0:
+            call("grep -q 'release 7' /etc/redhat-release", shell=True) != 0:
+                sys.exit(77)
+
+        if 'not_with_rhel7_pkg' in scenario.tags:
+            # Do not run on stock RHEL7 package
+            if call('rpm -qi NetworkManager |grep -q build.*bos.redhat.co', shell=True) == 0 and \
+            check_output("rpm --queryformat %{RELEASE} -q NetworkManager |awk -F .  '{ print ($1 < 200) }'", shell=True).decode('utf-8').strip() == '1' and \
+            call("grep -q 'release 7' /etc/redhat-release", shell=True) == 0:
                 sys.exit(77)
 
         if 'not_in_rhel7' in scenario.tags:
-            if call('rpm -qi NetworkManager |grep -q build.*bos.redhat.co', shell=True) == 0 and \
-            check_output("rpm --queryformat %{RELEASE} -q NetworkManager |awk -F .  '{ print ($1 < 200) }'", shell=True).decode('utf-8').strip() == '1' and \
-            call("grep -q Maipo /etc/redhat-release", shell=True) == 0:
+            # Do not run on RHEL7 at all
+            if call("grep -q 'release 7' /etc/redhat-release", shell=True) == 0:
                 sys.exit(77)
 
         if 'not_in_rhel' in scenario.tags:
+            # Do not run on any stock RHEL package
             if call('rpm -qi NetworkManager |grep -q build.*bos.redhat.com', shell=True) == 0 or \
             check_output("rpm --queryformat %{RELEASE} -q NetworkManager |awk -F .  '{ print ($1 < 200) }'", shell=True).decode('utf-8').strip() == '1':
                 sys.exit(77)
@@ -476,6 +484,20 @@ def before_scenario(context, scenario):
             call("nmcli connection delete id inf.8002", shell=True)
             call("nmcli connection delete id infiniband-inf_ib0.8002", shell=True)
 
+        if 'dns_dnsmasq' in scenario.tags:
+            print ("---------------------------")
+            print ("set dns=dnsmasq")
+            call("printf '# configured by beaker-test\n[main]\ndns=dnsmasq\n' > /etc/NetworkManager/conf.d/99-xtest-dns.conf", shell=True)
+            call("pkill -HUP NetworkManager", shell=True)
+            context.dns_script="dnsmasq.sh"
+
+        if 'dns_systemd_resolved' in scenario.tags:
+            print ("---------------------------")
+            print ("set dns=systemd-resolved")
+            call("printf '# configured by beaker-test\n[main]\ndns=systemd-resolved\n' > /etc/NetworkManager/conf.d/99-xtest-dns.conf", shell=True)
+            call("pkill -HUP NetworkManager", shell=True)
+            context.dns_script="sd-resolved.py"
+
         if 'internal_DHCP' in scenario.tags:
             print ("---------------------------")
             print ("set internal DHCP")
@@ -535,14 +557,6 @@ def before_scenario(context, scenario):
                 call('sudo nmcli con del testeth1 testeth2', shell=True)
                 call('sudo nmcli con add type ethernet ifname eth1 con-name testeth1 autoconnect no', shell=True)
                 call('sudo nmcli con add type ethernet ifname eth2 con-name testeth2 autoconnect no', shell=True)
-
-        # if 'con_general_remove' in scenario.tags:
-        #     print ("---------------------------")
-        #     print ("sanitizing eth8 and eth9")
-        #     if call('nmcli con |grep testeth8', shell=True) == 0 or call('nmcli con |grep testeth9', shell=True) == 0:
-        #         call('sudo nmcli con del testeth8 testeth9', shell=True)
-        #         call('sudo nmcli con add type ethernet ifname eth8 con-name testeth8 autoconnect no', shell=True)
-        #         call('sudo nmcli con add type ethernet ifname eth9 con-name testeth9 autoconnect no', shell=True)
 
         if 'logging' in scenario.tags:
             context.loggin_level = check_output('nmcli -t -f LEVEL general logging', shell=True).decode('utf-8').strip()
@@ -636,6 +650,8 @@ def before_scenario(context, scenario):
             cfg.write("\n" + 'dh %s/sample-keys/dh2048.pem' % samples)
             if not 'openvpn6' in scenario.tags:
                 cfg.write("\n" + 'server 172.31.70.0 255.255.255.0')
+                cfg.write("\n" + 'push "dhcp-option DNS 172.31.70.53"')
+                cfg.write("\n" + 'push "dhcp-option DOMAIN vpn.domain"')
             if not 'openvpn4' in scenario.tags:
                 cfg.write("\n" + 'tun-ipv6')
                 cfg.write("\n" + 'push tun-ipv6')
@@ -1018,10 +1034,20 @@ def after_scenario(context, scenario):
             print ("deleting connection con_con and con_con2")
             call("nmcli connection delete id con_con con_con2", shell=True)
 
+        if 'con_dns_remove' in scenario.tags:
+            print ("---------------------------")
+            print ("deleting connection con_dns and con_dns2")
+            call("nmcli connection delete id con_dns con_dns2", shell=True)
+
         if 'con_ethernet_remove' in scenario.tags:
             print ("---------------------------")
             print ("deleting connection con_ethernet")
             call("nmcli connection delete id con_ethernet", shell=True)
+
+        if 'con_dns_remove' in scenario.tags:
+            print ("---------------------------")
+            print ("deleting connection con_dns and con_dns2")
+            call("nmcli connection delete id con_dns con_dns2 ", shell=True)
 
         if 'alias' in scenario.tags:
             print ("---------------------------")
@@ -1223,6 +1249,20 @@ def after_scenario(context, scenario):
             call("ip link del vethbrg", shell=True)
             call("nmcli con del test1g test2g tc1g tc2g vethbrg", shell=True)
             sleep(1)
+
+        if 'dns_systemd_resolved' in scenario.tags:
+            print ("---------------------------")
+            print ("revert dns=default")
+            call("rm -f /etc/NetworkManager/conf.d/99-xtest-dns.conf", shell=True)
+            call("pkill -HUP NetworkManager", shell=True)
+            context.dns_script=""
+
+        if 'dns_dnsmasq' in scenario.tags:
+            print ("---------------------------")
+            print ("revert dns=default")
+            call("rm -f /etc/NetworkManager/conf.d/99-xtest-dns.conf", shell=True)
+            call("pkill -HUP NetworkManager", shell=True)
+            context.dns_script=""
 
         if 'internal_DHCP' in scenario.tags:
             print ("---------------------------")
