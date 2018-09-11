@@ -234,18 +234,26 @@ def before_scenario(context, scenario):
                 call ('yum -y install http://dl.fedoraproject.org/pub/epel/7/x86_64/p/python2-pyroute2-0.4.13-1.el7.noarch.rpm', shell=True)
 
         if 'rhel7_only' in scenario.tags:
+            # Run only with stock RHEL7 package
             if call('rpm -qi NetworkManager |grep -q build.*bos.redhat.co', shell=True) != 0 or \
             check_output("rpm --queryformat %{RELEASE} -q NetworkManager |awk -F .  '{ print ($1 < 200) }'", shell=True).decode('utf-8').strip() == '0' or \
-            call("grep -q Maipo /etc/redhat-release", shell=True) != 0:
+            call("grep -q 'release 7' /etc/redhat-release", shell=True) != 0:
+                sys.exit(77)
+
+        if 'not_with_rhel7_pkg' in scenario.tags:
+            # Do not run on stock RHEL7 package
+            if call('rpm -qi NetworkManager |grep -q build.*bos.redhat.co', shell=True) == 0 and \
+            check_output("rpm --queryformat %{RELEASE} -q NetworkManager |awk -F .  '{ print ($1 < 200) }'", shell=True).decode('utf-8').strip() == '1' and \
+            call("grep -q 'release 7' /etc/redhat-release", shell=True) == 0:
                 sys.exit(77)
 
         if 'not_in_rhel7' in scenario.tags:
-            if call('rpm -qi NetworkManager |grep -q build.*bos.redhat.co', shell=True) == 0 and \
-            check_output("rpm --queryformat %{RELEASE} -q NetworkManager |awk -F .  '{ print ($1 < 200) }'", shell=True).decode('utf-8').strip() == '1' and \
-            call("grep -q Maipo /etc/redhat-release", shell=True) == 0:
+            # Do not run on RHEL7 at all
+            if call("grep -q 'release 7' /etc/redhat-release", shell=True) == 0:
                 sys.exit(77)
 
         if 'not_in_rhel' in scenario.tags:
+            # Do not run on any stock RHEL package
             if call('rpm -qi NetworkManager |grep -q build.*bos.redhat.com', shell=True) == 0 or \
             check_output("rpm --queryformat %{RELEASE} -q NetworkManager |awk -F .  '{ print ($1 < 200) }'", shell=True).decode('utf-8').strip() == '1':
                 sys.exit(77)

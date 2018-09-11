@@ -1179,7 +1179,7 @@ Feature: nmcli: ipv4
     Then "169.254" is visible with command "ip a s eth3" in "10" seconds
 
 
-    @ver-=1.11.1 @not_in_rhel7
+    @ver-=1.11.1 @not_with_rhel7_pkg
     @eth2 @con_ipv4_remove
     @ipv4_dhcp_client_id_set
     Scenario: nmcli - ipv4 - dhcp-client-id - set client id
@@ -1200,7 +1200,7 @@ Feature: nmcli: ipv4
     Then "exceeds max \(255\) for precision" is not visible with command "grep exceeds max /var/log/messages"
 
 
-    @ver+=1.11.2 @not_in_rhel7
+    @ver+=1.11.2 @not_with_rhel7_pkg
     @eth2 @con_ipv4_remove @tcpdump
     @ipv4_dhcp_client_id_set
     # https://bugzilla.gnome.org/show_bug.cgi?id=793957
