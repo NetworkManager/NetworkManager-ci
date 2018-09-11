@@ -17,7 +17,7 @@ Feature: nmcli - dns
     @rhbz1512966
     @ver+=1.11.3
     @con_dns_remove @dns_systemd_resolved @not_in_rhel7
-        @dns_resolved_two_default
+    @dns_resolved_two_default
     Scenario: NM - dns - two connections with default route
 
     # Create connection on eth2 with default route
@@ -68,7 +68,7 @@ Feature: nmcli - dns
 
     # eth3 doesn't have a default route and so doesn't get the "." domain
     Then device "eth3" has DNS server "172.17.1.53"
-    Then device "eth3" does not have DNS domain"." for "routing"
+    Then device "eth3" does not have DNS domain "." for "routing"
     Then device "eth3" has DNS domain "con_dns2.domain" for "search"
 
 
