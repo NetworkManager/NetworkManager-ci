@@ -12,7 +12,7 @@ Feature: nmcli: inf
     Scenario: nmcli - inf - create master connection
     * Add connection type "infiniband" named "inf" for device "inf_ib0"
     * Bring "up" connection "inf"
-    Then "inet 172" is visible with command "ip a s inf_ib0"
+    Then "inet 172" is visible with command "ip a s inf_ib0" in "10" seconds
 
 
     @inf
@@ -28,7 +28,7 @@ Feature: nmcli: inf
      * Dismiss IP configuration in editor
      * Dismiss Proxy configuration in editor
      * Bring "up" connection "infiniband-inf_ib0"
-    Then "inet 172" is visible with command "ip a s inf_ib0"
+    Then "inet 172" is visible with command "ip a s inf_ib0" in "10" seconds
 
 
     @inf
@@ -37,7 +37,7 @@ Feature: nmcli: inf
     * Add connection type "infiniband" named "inf" for device "inf_ib0"
     * Bring "up" connection "inf"
     * Bring "down" connection "inf"
-    Then "inet 172" is not visible with command "ip a s inf_ib0"
+    Then "inet 172" is not visible with command "ip a s inf_ib0" in "10" seconds
 
 
     @inf
@@ -47,7 +47,7 @@ Feature: nmcli: inf
     * Add infiniband port named "inf.8002" for device "inf_ib0.8002" with parent "inf_ib0" and p-key "0x8002"
     * Bring "up" connection "inf"
     * Bring "up" connection "inf.8002"
-    Then "inet 172" is visible with command "ip a s inf_ib0.8002"
+    Then "inet 172" is visible with command "ip a s inf_ib0.8002" in "10" seconds
 
 
     @ver-=1.9.9
@@ -77,7 +77,7 @@ Feature: nmcli: inf
      * Dismiss Proxy configuration in editor
      * Bring "up" connection "inf"
      * Bring "up" connection "infiniband-inf_ib0.8002"
-    Then "inet 172" is visible with command "ip a s inf_ib0.8002"
+    Then "inet 172" is visible with command "ip a s inf_ib0.8002" in "10" seconds
 
 
     @ver+=1.10.0
@@ -107,7 +107,7 @@ Feature: nmcli: inf
      * Dismiss Proxy configuration in editor
      * Bring "up" connection "inf"
      * Bring "up" connection "infiniband-inf_ib0.8002"
-    Then "inet 172" is visible with command "ip a s inf_ib0.8002"
+    Then "inet 172" is visible with command "ip a s inf_ib0.8002" in "10" seconds
 
 
     @inf
@@ -118,7 +118,7 @@ Feature: nmcli: inf
     * Bring "up" connection "inf"
     * Bring "up" connection "inf.8002"
     * Bring "down" connection "inf.8002"
-    Then "inet 172" is visible with command "ip a s inf_ib0"
+    Then "inet 172" is visible with command "ip a s inf_ib0" in "10" seconds
     Then "inet 172" is not visible with command "ip a s inf_ib0.8002"
 
 
@@ -130,7 +130,7 @@ Feature: nmcli: inf
     * Bring "up" connection "inf"
     * Bring "up" connection "inf.8002"
     * Reboot
-    Then "inet 172" is visible with command "ip a s inf_ib0"
+    Then "inet 172" is visible with command "ip a s inf_ib0" in "10" seconds
     Then "inet 172" is visible with command "ip a s inf_ib0.8002"
 
 
@@ -160,7 +160,7 @@ Feature: nmcli: inf
      * Execute "nmcli connection modify id inf connection.slave-type bond connection.master nm-bond"
      * Bring "up" connection "inf"
      * Bring "up" connection "bond0"
-     Then "inet 172" is visible with command "ip a s nm-bond"
+     Then "inet 172" is visible with command "ip a s nm-bond" in "10" seconds
       And "nm-bond:bond:connected:bond0" is visible with command "nmcli -t -f DEVICE,TYPE,STATE,CONNECTION device" in "5" seconds
       And "inf_ib0:infiniband:connected:inf" is visible with command "nmcli -t -f DEVICE,TYPE,STATE,CONNECTION device" in "5" seconds
       And Check bond "nm-bond" link state is "up"
@@ -177,7 +177,7 @@ Feature: nmcli: inf
      * Execute "nmcli connection modify id inf connection.slave-type bond connection.master nm-bond"
      * Bring "up" connection "inf"
      * Bring "up" connection "bond0"
-     When "inet 172" is visible with command "ip a s nm-bond"
+     Then "inet 172" is visible with command "ip a s nm-bond" in "10" seconds
       And "nm-bond:bond:connected:bond0" is visible with command "nmcli -t -f DEVICE,TYPE,STATE,CONNECTION device" in "5" seconds
       And "inf_ib0:infiniband:connected:inf" is visible with command "nmcli -t -f DEVICE,TYPE,STATE,CONNECTION device" in "5" seconds
       And Check bond "nm-bond" link state is "up"
