@@ -26,7 +26,7 @@ Feature: nmcli - bridge
     * Add a new connection of type "bridge" and options "con-name br88 autoconnect no ifname br88 priority 5 forward-delay 3 hello-time 3 max-age 15 ageing-time 500000"
     * Bring up connection "br88" ignoring error
     * "br88:" is visible with command "ifconfig"
-    Then "br88" is visible with command "brctl show"
+    Then "br88" is visible with command "ip link show type bridge"
     Then "DELAY=3.*BRIDGING_OPTS=\"priority=5 hello_time=3 max_age=15 ageing_time=500000\".*NAME=br88.*ONBOOT=no" is visible with command "cat /etc/sysconfig/network-scripts/ifcfg-br88"
 
 
@@ -38,7 +38,7 @@ Feature: nmcli - bridge
     * Add a new connection of type "bridge" and options "con-name br88 autoconnect no ifname br88 priority 5 group-forward-mask 8 ip4 1.2.3.4/24"
     * Bring "up" connection "br88"
     * "br88:" is visible with command "ifconfig"
-    Then "br88" is visible with command "brctl show"
+    Then "br88" is visible with command "ip link show type bridge"
     And "BRIDGING_OPTS=\"priority=5 group_fwd_mask=8\"" is visible with command "cat /etc/sysconfig/network-scripts/ifcfg-br88"
     And "0x8" is visible with command "cat /sys/class/net/br88/bridge/group_fwd_mask"
 
@@ -60,9 +60,9 @@ Feature: nmcli - bridge
     Scenario: nmcli - bridge - up
     * Add a new connection of type "bridge" and options "con-name br11 ifname br11 autoconnect no"
     * Check ifcfg-name file created for connection "br11"
-    * "br11" is not visible with command "brctl show"
+    * "br11" is not visible with command "ip link show type bridge"
     * Bring up connection "br11" ignoring error
-    Then "br11" is visible with command "brctl show"
+    Then "br11" is visible with command "ip link show type bridge"
 
 
 	@bridge
@@ -70,7 +70,7 @@ Feature: nmcli - bridge
     Scenario: nmcli - bridge - down
     * Add a new connection of type "bridge" and options "con-name br11 ifname br11 autoconnect no ip4 192.168.1.15/24"
     * Bring up connection "br11" ignoring error
-    * "br11" is visible with command "brctl show"
+    * "br11" is visible with command "ip link show type bridge"
     * "inet 192.168.1.15" is visible with command "ifconfig"
     * Bring down connection "br11"
     * "inet 192.168.1.15" is not visible with command "ifconfig"
@@ -81,7 +81,7 @@ Feature: nmcli - bridge
     Scenario: nmcli - bridge - disconnect device
     * Add a new connection of type "bridge" and options "con-name br11 ifname br11 autoconnect no ip4 192.168.1.10/24"
     * Bring up connection "br11" ignoring error
-    * "br11" is visible with command "brctl show"
+    * "br11" is visible with command "ip link show type bridge"
     * "inet 192.168.1.10" is visible with command "ifconfig"
     * Disconnect device "br11"
     * "inet 192.168.1.10" is not visible with command "ifconfig"
@@ -207,7 +207,7 @@ Feature: nmcli - bridge
     * Add a new connection of type "bridge-slave" and options "con-name br15-slave2 ifname eth4.90 master br15"
     * Check ifcfg-name file created for connection "br15-slave2"
     * Bring up connection "br15"
-    Then  "br15" is visible with command "brctl show"
+    Then  "br15" is visible with command "ip link show type bridge"
 
 
 	@bridge
@@ -217,7 +217,7 @@ Feature: nmcli - bridge
     * Add a new connection of type "bridge-slave" and options "con-name br10-slave autoconnect no ifname eth4 master br10"
     * Check ifcfg-name file created for connection "br10-slave"
     * Bring up connection "br10-slave"
-    Then  "br10.*eth4" is visible with command "brctl show"
+    Then  "br10.*eth4" is visible with command "ip link show type bridge"
     Then Disconnect device "br10"
 
 
@@ -235,7 +235,7 @@ Feature: nmcli - bridge
     * Quit editor
     Then Disconnect device "br10"
     * Bring up connection "br10"
-    Then  "br10.*eth4" is visible with command "brctl show"
+    Then  "eth4.*master br10" is visible with command "ip link show type bridge_slave"
     Then Disconnect device "br10"
 
 
@@ -257,7 +257,6 @@ Feature: nmcli - bridge
     When "disconnected" is visible with command "nmcli device show eth4" in "5" seconds
      And "(connected)" is not visible with command "nmcli device show br10" in "5" seconds
     * Bring up connection "br10"
-    Then  "br10.*eth4" is visible with command "brctl show" in "10" seconds
      And "(connected)" is visible with command "nmcli device show eth4" in "5" seconds
      And "(connected)" is visible with command "nmcli device show br10" in "5" seconds
 
@@ -270,8 +269,7 @@ Feature: nmcli - bridge
     * Check ifcfg-name file created for connection "bridge0"
     * Add a new connection of type "bridge-slave" and options "ifname eth4 con-name bridge-slave-eth4 master bridge0"
     * Bring up connection "bridge-slave-eth4"
-    Then "bridge0.*eth4" is visible with command "brctl show" in "10" seconds
-    Then "eth4.*master bridge0" is visible with command "ip a"
+    Then "eth4.*master bridge0" is visible with command "ip link show type bridge_slave" in "10" seconds
     Then "bridge0:.*192.168.*inet6" is visible with command "ip a" in "30" seconds
 
 
@@ -286,8 +284,7 @@ Feature: nmcli - bridge
     * Bring up connection "bridge4.0"
     * Add a new connection of type "bridge-slave" and options "ifname test44 con-name bridge4.1 master br4"
     * Bring up connection "bridge4.1"
-    Then "br4.*eth4.*test44" is visible with command "brctl show" in "10" seconds
-    Then "eth4.*master br4" is visible with command "ip a"
+    Then "eth4.*master br4" is visible with command "ip a" in "10" seconds
     Then "test44.*master br4" is visible with command "ip a"
     Then "br4:.*192.168.*inet6" is visible with command "ip a" in "60" seconds
 
@@ -302,8 +299,7 @@ Feature: nmcli - bridge
     * Bring up connection "bridge4.0"
     * Add a new connection of type "bridge-slave" and options "ifname test44 con-name bridge4.1 master br4"
     * Bring up connection "bridge4.1"
-    Then "br4.*eth4.*test44" is visible with command "brctl show" in "10" seconds
-    Then "eth4.*master br4" is visible with command "ip a"
+    Then "eth4.*master br4" is visible with command "ip a" in "10" seconds
     Then "test44.*master br4" is visible with command "ip a"
     Then "br4:.*192.168.1.19" is visible with command "ip a" in "30" seconds
 
@@ -354,8 +350,7 @@ Feature: nmcli - bridge
     * Check ifcfg-name file created for connection "bridge4"
     * Add a new connection of type "bridge-slave" and options "ifname eth4 con-name bridge-slave-eth4 master br4"
     * Bring up connection "bridge-slave-eth4"
-    Then "br4.*eth4" is visible with command "brctl show" in "10" seconds
-    Then "eth4.*master br4" is visible with command "ip a s eth4"
+    Then "eth4.*master br4" is visible with command "ip a s eth4" in "10" seconds
     Then "br4:.*192.168" is visible with command "ip a s br4" in "45" seconds
 
 
@@ -373,7 +368,7 @@ Feature: nmcli - bridge
     * Execute "ip link set dev dummy0 up"
     * Execute "ip addr add 1.1.1.1/24 dev br0"
     When "br0\s+bridge\s+connected\s+br0" is visible with command "nmcli d" in "5" seconds
-    * Execute "brctl addif br0 dummy0"
+    * Execute "ip link set dummy0 master br0"
     When "dummy0\s+dummy\s+connected\s+dummy" is visible with command "nmcli d" in "5" seconds
     Then "BRIDGE.SLAVES:\s+dummy0" is visible with command "nmcli -f bridge.slaves dev show br0"
 
@@ -392,7 +387,7 @@ Feature: nmcli - bridge
     * Execute "ip link set dev dummy0 up"
     * Execute "ip addr add 1.1.1.1/24 dev br0"
     When "br0\s+bridge\s+connected\s+br0" is visible with command "nmcli d" in "5" seconds
-    * Execute "brctl addif br0 dummy0"
+    * Execute "ip link set dummy0 master br0"
     When "dummy0\s+dummy\s+connected\s+dummy" is visible with command "nmcli d" in "5" seconds
     Then "BRIDGE.SLAVES:\s+dummy0" is visible with command "nmcli -f bridge.slaves dev show br0"
 
@@ -474,7 +469,7 @@ Feature: nmcli - bridge
     Scenario: NM - bridge - bridge restart persistence
     * Prepare veth pairs "test1" bridged over "vethbr"
     * Restart NM
-    Then "vethbr.*test1p" is visible with command "brctl show vethbr" in "5" seconds
+    Then "test1p.*master vethbr" is visible with command "ip link show type bridge_slave" in "5" seconds
 
 
     @rhbz1363995
