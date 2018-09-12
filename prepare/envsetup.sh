@@ -78,7 +78,7 @@ local_setup_configure_nm_eth () {
     fi
 
     #installing pip, behave, and pexpect and other deps
-    if grep -q Ootpa /etc/redhat-release; then
+        if grep -q Ootpa /etc/redhat-release; then
         # Make python3 default if it's not
         rm -rf /usr/bin/python
         ln -s /usr/bin/python3 /usr/bin/python
@@ -91,7 +91,7 @@ local_setup_configure_nm_eth () {
         python -m pip install netaddr
         python -m pip install pyte
         python -m pip install IPy
-        
+
         # Yum more deps
         yum -y install git python-netaddr iw net-tools wireshark teamd bash-completion radvd psmisc bridge-utils firewalld dhcp ethtool dbus-python pygobject3 pygobject2 dnsmasq tcpdump --skip-broken
 
@@ -202,14 +202,12 @@ local_setup_configure_nm_eth () {
                 nmcli connection modify testeth10 ipv6.method auto
             fi
 
-            # THIS NEED TO BE DONE HERE AS DONE SEPARATELY IN VETHSETUP FOR RECREATION REASONS
+            # THIS NEEDS TO BE DONE HERE AS DONE SEPARATELY IN VETHSETUP FOR RECREATION REASONS
             nmcli c modify testeth0 ipv4.route-metric 99 ipv6.route-metric 99
             sleep 1
             # Copy final connection to /tmp/testeth0 for later in test usage
             yes 2>/dev/null | cp -rf /etc/sysconfig/network-scripts/ifcfg-testeth0 /tmp/testeth0
 
-            yum -y install NetworkManager-config-server
-            #cp /usr/lib/NetworkManager/conf.d/00-server.conf /etc/NetworkManager/conf.d/00-server.conf
         fi
 
         if [ $wlan -eq 1 ]; then
@@ -234,6 +232,8 @@ local_setup_configure_nm_eth () {
         sleep 20
         nmcli con up testeth0
     fi
+
+    yum -y install NetworkManager-config-server
     touch /tmp/nm_eth_configured
 }
 
