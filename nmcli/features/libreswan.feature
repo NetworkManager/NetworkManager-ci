@@ -98,7 +98,7 @@
     * Execute "nmcli --show-secrets con show libreswan > /tmp/libreswan"
     Then "VPN.VPN-STATE:.*VPN connected" is visible with command "nmcli c show libreswan" in "120" seconds
     Then "172.31.70.0/24 .*dev libreswan1" is visible with command "ip route"
-    Then "VPN.BANNER:.*CONNECTED TO LIBRESWAN" is visible with command "nmcli c show libreswan"
+    Then "VPN.BANNER:.*BUG_REPORT_URL" is visible with command "nmcli c show libreswan"
     Then "IP4.ADDRESS.*172.29.100.2/32" is visible with command "nmcli c show libreswan"
     Then "IP4.ADDRESS.*172.29.100.2/32" is visible with command "nmcli d show libreswan1"
     Then "IP4.ADDRESS.*172.31.70.*/24" is visible with command "nmcli d show libreswan1"
@@ -124,7 +124,7 @@
     When "VPN.VPN-STATE:.*VPN connected" is visible with command "nmcli c show libreswan"
     * Delete connection "libreswan"
     Then "VPN.VPN-STATE:.*VPN connected" is not visible with command "nmcli c show libreswan" in "10" seconds
-    Then "172.31.70.0/24 .*dev libreswan1" is not visible with command "ip route" in "10" seconds
+    Then "172.29.100.0/24 .*dev libreswan1" is not visible with command "ip route" in "10" seconds
 
 
     @rhbz1348901

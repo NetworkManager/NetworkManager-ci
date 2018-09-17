@@ -33,6 +33,7 @@ libreswan_gen_connection ()
 	leftmodecfgserver=yes
 	rightmodecfgclient=yes
 	modecfgpull=yes
+    modecfgdns1=8.8.8.8
     modecfgbanner=BUG_REPORT_URL
 	xauthby=alwaysok
 	ike-frag=yes
