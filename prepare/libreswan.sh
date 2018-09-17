@@ -1,4 +1,5 @@
 #!/bin/bash
+set +x
 
 LIBRESWAN_DIR="/opt/ipsec"
 
@@ -24,7 +25,7 @@ libreswan_gen_connection ()
 	rekey=no
 	left=172.31.70.1
 	leftsubnet=0.0.0.0/0
-	rightaddresspool=172.29.100.2-10
+	rightaddresspool=172.29.100.2-172.29.100.10
 	right=%any
 	cisco-unity=yes
 	leftxauthserver=yes
@@ -32,13 +33,14 @@ libreswan_gen_connection ()
 	leftmodecfgserver=yes
 	rightmodecfgclient=yes
 	modecfgpull=yes
+    modecfgbanner=BUG_REPORT_URL
 	xauthby=alwaysok
 	ike-frag=yes
 	ikev2=never" > "$CONNECTION_CFG"
 	if [ "$MODE" = "aggressive" ]; then
 		echo \
 "	rightid=@yolo
-	aggressive=yes" > "$CONNECTION_CFG"
+	aggressive=yes" >> "$CONNECTION_CFG"
 	fi
 }
 
@@ -48,7 +50,7 @@ libreswan_gen_secrets ()
 
 	echo ": PSK \"ipsecret\"" > "$SECRETS_CFG"
 	chmod 600 "$SECRETS_CFG"
-} 
+}
 
 libreswan_gen_netconfig ()
 {
@@ -114,13 +116,15 @@ libreswan_setup ()
 
 	modprobe af_key
 	ipsec checknss --nssdir "$NSS_DIR"
-	ip netns exec libreswan ipsec pluto \
+
+    ip netns exec libreswan ipsec pluto \
 				--secretsfile "$SECRETS_CFG" \
-				--ipsecdir "$LIBRESWAN_DIR" \ 
+				--ipsecdir "$LIBRESWAN_DIR" \
 				--nssdir "$NSS_DIR" \
 				--rundir "$LIBRESWAN_DIR"
 	ipsec addconn --addall --config "$CONNECTION_CFG" --ctlsocket "$LIBRESWAN_DIR/pluto.ctl"
-	sleep 5
+
+    sleep 5
 }
 
 libreswan_teardown ()
