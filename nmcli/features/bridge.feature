@@ -217,7 +217,7 @@ Feature: nmcli - bridge
     * Add a new connection of type "bridge-slave" and options "con-name br10-slave autoconnect no ifname eth4 master br10"
     * Check ifcfg-name file created for connection "br10-slave"
     * Bring up connection "br10-slave"
-    Then  "br10.*eth4" is visible with command "ip link show type bridge"
+    Then  "eth4.*master br10" is visible with command "ip link show type bridge_slave"
     Then Disconnect device "br10"
 
 

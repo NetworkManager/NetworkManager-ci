@@ -1448,6 +1448,7 @@
     * Rename device "festY" to "testX6"
     Then "0" is visible with command "cat /proc/sys/net/ipv6/conf/testX6/disable_ipv6"
 
+
     @rhbz1462260
     @ver+=1.10.1
     @eth3_disconnect

@@ -168,7 +168,7 @@ function setup_veth_env ()
     ip netns exec vethsetup ip -6 addr add 2620:52:0:1086::1/64 dev simbr
 
     # Add eth10 peer into the simbr
-    ip netns exec vethsetup ip link set eth10p master
+    ip netns exec vethsetup ip link set eth10p master simbr
 
     # Run joint DHCP4/DHCP6 server with router advertisement enabled in veth namespace
     ip netns exec vethsetup dnsmasq --pid-file=/tmp/dhcp_simbr.pid --dhcp-leasefile=/tmp/dhcp_simbr.lease --dhcp-range=10.16.1.10,10.16.1.254,240 --dhcp-range=2620:52:0:1086::10,2620:52:0:1086::1ff,slaac,64,240 --enable-ra --interface=simbr --bind-interfaces

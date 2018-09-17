@@ -46,7 +46,7 @@ Feature: Bridge TUI tests
     * Set "Group forward mask" field to "8"
     * Confirm the connection settings
     Then "br88:" is visible with command "ip a" in "10" seconds
-    Then "br88" is visible with command "ip lonk show type bridge"
+    Then "br88" is visible with command "ip link show type bridge"
     Then "DELAY=3.*BRIDGING_OPTS=\"priority=5 hello_time=3 max_age=15 ageing_time=500000 group_fwd_mask=8\".*NAME=bridge.*ONBOOT=yes" is visible with command "cat /etc/sysconfig/network-scripts/ifcfg-bridge0"
 
     @bridge
