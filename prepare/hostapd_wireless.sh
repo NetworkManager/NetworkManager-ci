@@ -101,9 +101,6 @@ function start_nm_hostapd ()
 {
     systemd-run --unit nm-hostapd hostapd -ddd $HOSTAPD_CFG
     sleep 10
-    if systemctl --quiet is-failed nm-hostapd; then
-        exit 1
-    fi
 }
 
 function wireless_hostapd_check ()
@@ -135,49 +132,72 @@ function wireless_hostapd_check ()
     fi
 
     return 0
-
 }
+
 function wireless_hostapd_setup ()
 {
+    local CERTS_PATH=${1:?"Error. Path to certificates is not specified."}
+    local AUTH_TYPE=${2:?"Error. Authentication type is not specified."}
+    
     set +x
-    CERTS_PATH=$1
 
-    echo "Configuring hostapd 8021x server..."
+    echo "Configuring hostapd 802.1x server..."
+    if  wireless_hostapd_check; then
+        echo "OK. Configuration has already been done."
+        return 0
+    fi
 
-    if [ "$2" == "wpa2" ]; then
-        if  wireless_hostapd_check; then
-            echo "Not needed, continuing"
-            return
-        else
-            # Install haveged to increase entropy
-            yum -y install haveged
-            systemctl restart haveged
+    if [ "$AUTH_TYPE" == "wpa2" ]; then
+        # Install haveged to increase entropy
+        yum -y install haveged
+        systemctl restart haveged
 
-            # Disable mac randomization to avoid rhbz1490885
-            echo -e "[device-wifi]\nwifi.scan-rand-mac-address=no" > /etc/NetworkManager/conf.d/99-wifi.conf
-            echo -e "[connection-wifi]\nwifi.cloned-mac-address=preserve" >> /etc/NetworkManager/conf.d/99-wifi.conf
+        # Disable mac randomization to avoid rhbz1490885
+        echo -e "[device-wifi]\nwifi.scan-rand-mac-address=no" > /etc/NetworkManager/conf.d/99-wifi.conf
+        echo -e "[connection-wifi]\nwifi.cloned-mac-address=preserve" >> /etc/NetworkManager/conf.d/99-wifi.conf
 
-            modprobe mac80211_hwsim
-            sleep 5
-            #tune_wpa_supplicant
-            restart_services
-            sleep 10
-            nmcli device set wlan1 managed off
-            ip add add 10.0.254.1/24 dev wlan1
-            sleep 5
-
-            write_hostapd_cfg $HOSTAPD_CFG $EAP_USERS_FILE
-
-            copy_certificates $CERTS_PATH
-
-            set -e
-            start_dnsmasq
-            # Start 802.1x authentication and built-in RADIUS server.
-            # Start hostapd as a service via systemd-run using configuration wifi adapters
-            start_nm_hostapd
-
-            touch /tmp/nm_wpa_supp_configured
+        modprobe mac80211_hwsim
+        sleep 5
+        if ! lsmod | grep -q -w mac80211_hwsim; then
+            echo "Error. Cannot load module \"mac80211_hwsim\"." >&2
+            return 1
         fi
+        
+        restart_services
+        sleep 10
+        if ! systemctl -q is-active wpa_supplicant; then
+            echo "Error. Cannot start the service for WPA supplicant." >&2
+            return 1
+        fi
+        
+        nmcli device set wlan1 managed off
+        ip add add 10.0.254.1/24 dev wlan1
+        sleep 5
+
+        write_hostapd_cfg $HOSTAPD_CFG $EAP_USERS_FILE
+
+        copy_certificates $CERTS_PATH
+
+        set -e
+        start_dnsmasq
+        pid=$(cat /tmp/dnsmasq_wireless.pid)
+        if ! pidof dnsmasq | grep -q $pid; then
+            echo "Error. Cannot start dnsmasq as DHCP server." >&2
+            return 1
+        fi
+        
+        # Start 802.1x authentication and built-in RADIUS server.
+        # Start hostapd as a service via systemd-run using configuration wifi adapters
+        start_nm_hostapd
+        if ! systemctl -q is-active nm-hostapd; then
+            echo "Error. Cannot start the service for hostapd." >&2
+            return 1
+        fi
+
+        touch /tmp/nm_wpa_supp_configured
+    else
+        echo "Unsupported authentication type: $AUTH_TYPE." >&2
+        return 1
     fi
 }
 
@@ -200,7 +220,16 @@ function wireless_hostapd_teardown ()
 }
 
 if [ "$1" != "teardown" ]; then
-    wireless_hostapd_setup $1 $2
+    # If hostapd's config fails then restore initial state.
+    echo "Configure and start hostapd..."
+    wireless_hostapd_setup $1 $2; RC=$? 
+    if [ $RC -eq 0 ]; then
+        echo "hostapd started successfully."
+    else
+        echo "Error. Failed to start hostapd." >&2
+        exit 1
+    fi
 else
     wireless_hostapd_teardown
+    echo "System's state returned prior to hostapd's config."
 fi
