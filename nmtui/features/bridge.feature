@@ -13,7 +13,7 @@ Feature: Bridge TUI tests
     Then "TYPE=Bridge" is visible with command "cat /etc/sysconfig/network-scripts/ifcfg-bridge0"
     Then "STP=yes" is visible with command "cat /etc/sysconfig/network-scripts/ifcfg-bridge0"
     Then "bridge0:" is visible with command "ip a" in "10" seconds
-    Then "bridge0" is visible with command "brctl show"
+    Then "bridge0" is visible with command "ip link show type bridge"
     Then "bridge0\s+bridge" is visible with command "nmcli device"
 
     @ver-=1.10.1
@@ -29,7 +29,7 @@ Feature: Bridge TUI tests
     * Set "Max age" field to "15"
     * Confirm the connection settings
     Then "br88:" is visible with command "ip a" in "10" seconds
-    Then "br88" is visible with command "brctl show"
+    Then "br88" is visible with command "ip link show type bridge"
     Then "DELAY=3.*BRIDGING_OPTS=\"priority=5 hello_time=3 max_age=15 ageing_time=500000\".*NAME=bridge.*ONBOOT=yes" is visible with command "cat /etc/sysconfig/network-scripts/ifcfg-bridge0"
 
     @ver+=1.10.2
@@ -46,7 +46,7 @@ Feature: Bridge TUI tests
     * Set "Group forward mask" field to "8"
     * Confirm the connection settings
     Then "br88:" is visible with command "ip a" in "10" seconds
-    Then "br88" is visible with command "brctl show"
+    Then "br88" is visible with command "ip link show type bridge"
     Then "DELAY=3.*BRIDGING_OPTS=\"priority=5 hello_time=3 max_age=15 ageing_time=500000 group_fwd_mask=8\".*NAME=bridge.*ONBOOT=yes" is visible with command "cat /etc/sysconfig/network-scripts/ifcfg-bridge0"
 
     @bridge
@@ -76,7 +76,7 @@ Feature: Bridge TUI tests
     * Select connection "bridge0" in the list
     * Choose to "<Activate>" a connection
     Then "bridge0" is visible with command "nmcli device" in "10" seconds
-    Then "bridge0" is visible with command "brctl show"
+    Then "bridge0" is visible with command "ip link show type bridge"
 
 
     @bridge
@@ -94,7 +94,7 @@ Feature: Bridge TUI tests
     * Select connection "bridge0" in the list
     * Choose to "<Activate>" a connection
     Then "bridge0" is visible with command "nmcli device" in "10" seconds
-    Then "bridge0" is visible with command "brctl show"
+    Then "bridge0" is visible with command "ip link show type bridge"
 
 
     @bridge
@@ -111,7 +111,7 @@ Feature: Bridge TUI tests
     * Choose to "<Deactivate>" a connection
     * Wait for at least "3" seconds
     Then "bridge0" is not visible with command "nmcli device"
-    Then "bridge0" is not visible with command "brctl show"
+    Then "bridge0" is not visible with command "ip link show type bridge"
 
 
     @bridge
@@ -129,7 +129,7 @@ Feature: Bridge TUI tests
     Then ifcfg-"bridge0" file does not exist
     Then "bridge0" is not visible with command "nmcli connection"
     Then "bridge0" is not visible with command "nmcli device"
-    Then "bridge0" is not visible with command "brctl show"
+    Then "bridge0" is not visible with command "ip link show type bridge"
 
 
     @bridge
@@ -149,7 +149,7 @@ Feature: Bridge TUI tests
     Then ifcfg-"bridge0" file does not exist
     Then "bridge0" is not visible with command "nmcli connection"
     Then "bridge0" is not visible with command "nmcli device"
-    Then "bridge0" is not visible with command "brctl show"
+    Then "bridge0" is not visible with command "ip link show type bridge"
 
 
     @veth

@@ -16,9 +16,10 @@ function hostapd_setup ()
     # Create 2 Veth interface pairs and a bridge between their peers.
     ip link add test8Y type veth peer name test8Yp
     ip link add test8X type veth peer name test8Xp
-    brctl addbr test8X_bridge
+    ip link add name test8X_bridge type bridge
     ip link set dev test8X_bridge up
-    brctl addif test8X_bridge test8Xp test8Yp
+    ip link set test8Xp master test8X_bridge
+    ip link set test8Yp master test8X_bridge
     # Up everything
     ip link set dev test8X up
     ip link set dev test8Xp up

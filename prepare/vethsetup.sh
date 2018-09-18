@@ -126,19 +126,17 @@ function setup_veth_env ()
     done
 
     # Create bridge for the internal device peers inside the namespace
-    ip netns exec vethsetup brctl addbr inbr
-    ip netns exec vethsetup brctl setfd inbr 2
-    ip netns exec vethsetup brctl stp inbr on
+    ip netns exec vethsetup ip link add name inbr type bridge forward_delay 2 stp_state 1
 
     # Set best prirority to this bridge
-    ip netns exec vethsetup brctl setbridgeprio inbr 0
+    ip netns exec vethsetup ip link set inbr type bridge priority 0
     ip netns exec vethsetup ip link set inbr up
 
     # Add the internal devices peers into the internal bridge
     for X in $(seq 1 9); do
-        ip netns exec vethsetup brctl addif inbr eth${X}p
+        ip netns exec vethsetup ip link set eth${X}p master inbr
         # 'worse' priority to ports coming to simulated ethernet devices
-        ip netns exec vethsetup brctl setportprio inbr eth${X}p 5
+        ip netns exec vethsetup ip link set eth${X}p type bridge_slave priority 5
         ip netns exec vethsetup ip link set eth${X}p up
     done
 
@@ -146,8 +144,8 @@ function setup_veth_env ()
     # The top priority preventing looping when ethX devices bridged on the other side
     ip netns exec vethsetup ip link add masq type veth peer name masqp
 
-    ip netns exec vethsetup brctl addif inbr masqp
-    ip netns exec vethsetup brctl setportprio inbr masqp 0
+    ip netns exec vethsetup ip link set masqp master inbr
+    ip netns exec vethsetup ip link set masqp type bridge_slave priority 0
 
     ip netns exec vethsetup ip link set masqp up
     ip netns exec vethsetup ip link set masq up
@@ -164,14 +162,13 @@ function setup_veth_env ()
     ip netns exec vethsetup ip link set eth10p up
 
     # Create the 'simbr' - providing both 10.x ipv4 and 2620:52:0 ipv6 dhcp
-    ip netns exec vethsetup brctl addbr simbr
-    ip netns exec vethsetup brctl stp simbr on
+    ip netns exec vethsetup ip link add name simbr type bridge stp_state 1
     ip netns exec vethsetup ip link set simbr up
     ip netns exec vethsetup ip addr add 10.16.1.1/24 dev simbr
     ip netns exec vethsetup ip -6 addr add 2620:52:0:1086::1/64 dev simbr
 
     # Add eth10 peer into the simbr
-    ip netns exec vethsetup brctl addif simbr eth10p
+    ip netns exec vethsetup ip link set eth10p master simbr
 
     # Run joint DHCP4/DHCP6 server with router advertisement enabled in veth namespace
     ip netns exec vethsetup dnsmasq --pid-file=/tmp/dhcp_simbr.pid --dhcp-leasefile=/tmp/dhcp_simbr.lease --dhcp-range=10.16.1.10,10.16.1.254,240 --dhcp-range=2620:52:0:1086::10,2620:52:0:1086::1ff,slaac,64,240 --enable-ra --interface=simbr --bind-interfaces
@@ -245,7 +242,7 @@ function check_veth_env ()
     # Check inbr slaves
     echo "* Checking inbr slaves"
     for X in $(seq 1 9); do
-        if ! ip netns exec vethsetup brctl show inbr |grep -q eth$Xp; then
+        if ! ip netns exec vethsetup ip link show master inbr |grep -q eth$Xp; then
             echo "Not OK!!"
             need_veth=1
             break
@@ -254,7 +251,7 @@ function check_veth_env ()
 
     # Check simbr
     echo "* Checking simbr slave"
-    if ! ip netns exec vethsetup brctl show simbr |grep -q eth10p; then
+    if ! ip netns exec vethsetup ip link show master simbr |grep -q eth10p; then
         echo "Not OK!!"
         need_veth=1
     fi
@@ -267,7 +264,7 @@ function check_veth_env ()
 
     # Check inbr masq slave
     echo "* Checking masq slave"
-    if ! ip netns exec vethsetup brctl show inbr |grep -q masq; then
+    if ! ip netns exec vethsetup ip link show master inbr |grep -q masq; then
         echo "Not OK!!"
         need_veth=1
     fi
@@ -308,10 +305,10 @@ function teardown_veth_env ()
     ip netns exec vethsetup ip link del masqp
 
     ip netns exec vethsetup ip link set inbr down
-    ip netns exec vethsetup brctl delbr inbr
+    ip netns exec vethsetup ip link del inbr
 
     ip netns exec vethsetup ip link set simbr down
-    ip netns exec vethsetup brctl delbr simbr
+    ip netns exec vethsetup ip link del simbr
 
     ip netns del vethsetup
 

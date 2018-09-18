@@ -1385,9 +1385,10 @@ Feature: nmcli: ipv4
     Scenario: NM - ipv4 - set dhcp received MTU
     * Finish "ip link add test1 type veth peer name test1p"
     * Finish "ip link add test2 type veth peer name test2p"
-    * Finish "brctl addbr vethbr"
+    * Finish "ip link add name vethbr type bridge"
     * Finish "ip link set dev vethbr up"
-    * Finish "brctl addif vethbr test1p test2p"
+    * Finish "ip link set test1p master vethbr"
+    * Finish "ip link set test2p master vethbr"
     * Finish "ip link set dev test1 up"
     * Finish "ip link set dev test1p up"
     * Finish "ip link set dev test2 up"

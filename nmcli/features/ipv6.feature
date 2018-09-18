@@ -1129,15 +1129,14 @@
     Scenario: NM - ipv6 - set RA received MTU
     * Finish "ip link add test10 type veth peer name test10p"
     * Finish "ip link add test11 type veth peer name test11p"
-    * Finish "brctl addbr vethbr6"
-    * Finish "brctl setfd vethbr6 2"
-    * Finish "brctl stp vethbr6 on"
+    * Finish "ip link add name vethbr6 type bridge forward_delay 2 stp_state 1"
     * Finish "ip link set dev vethbr6 up"
     * Finish "ip link set dev test10 up"
     * Finish "ip link set dev test10p up"
     * Finish "ip link set dev test11 up"
     * Finish "ip link set dev test11p up"
-    * Finish "brctl addif vethbr6 test10p test11p"
+    * Finish "ip link set dev test10p master vethbr6"
+    * Finish "ip link set dev test11p master vethbr6"
     * Finish "nmcli connection add type ethernet con-name tc16 ifname test10 autoconnect no"
     * Finish "nmcli connection add type ethernet con-name tc26 ifname test11 autoconnect no mtu 1100 ip6 fd01::1/64"
     * Bring "up" connection "tc26"
@@ -1448,6 +1447,7 @@
     When "0" is visible with command "cat /proc/sys/net/ipv6/conf/festY/disable_ipv6"
     * Rename device "festY" to "testX6"
     Then "0" is visible with command "cat /proc/sys/net/ipv6/conf/testX6/disable_ipv6"
+
 
     @rhbz1462260
     @ver+=1.10.1
