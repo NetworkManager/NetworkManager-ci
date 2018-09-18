@@ -12,6 +12,12 @@ fi
 
 # Check for the correct # of arguments - TODO
 
+kill_dnsmasq() {
+    if test -f /tmp/libreswan_dnsmasq.pid; then
+        pkill -F /tmp/libreswan_dnsmasq.pid dnsmasq
+        rm -f /tmp/libreswan_dnsmasq.pid
+    fi
+}
 
 libreswan_gen_connection ()
 {
@@ -72,9 +78,8 @@ libreswan_gen_netconfig ()
 	ip netns exec libreswan dnsmasq --pid-file=/tmp/libreswan_dnsmasq.pid \
 	                                --dhcp-range=172.31.70.2,172.31.70.40,2m \
 	                                --interface=libreswan0 --bind-interfaces
-	sleep 5
 	echo "PID of dnsmasq:"
-	pidof dnsmasq
+	cat /tmp/libreswan_dnsmasq.pid
 }
 
 ####
@@ -99,19 +104,8 @@ libreswan_setup ()
 	### add default route connection that takes precedence over the system one
 	nmcli connection add type ethernet con-name lib1 ifname libreswan1 autoconnect no \
 		ipv6.method ignore ipv4.route-metric 90
-	sleep 1
 	# Warning: the next command interrupts any established SSH connection to the remote machine!
 	nmcli connection up id lib1
-	sleep 1
-
-	# Sometime there is larger time needed to set everything up, sometimes not. Let's make the delay
-	# to fit all situations.
-	SECS=20
-	while ! ip -4 add show libreswan1 | grep -q '172.31.70'; do
-		((SECS--))
-		[ $SECONDS -eq 0 ] && false
-		sleep 1
-	done
 
 	set +e
 
@@ -125,7 +119,6 @@ libreswan_setup ()
 				--rundir "$LIBRESWAN_DIR"
 	ipsec addconn --addall --config "$CONNECTION_CFG" --ctlsocket "$LIBRESWAN_DIR/pluto.ctl"
 
-    sleep 5
 }
 
 libreswan_teardown ()
@@ -134,7 +127,7 @@ libreswan_teardown ()
 	echo 0 > /proc/sys/net/ipv6/conf/default/disable_ipv6
 	ip netns del libreswan
 	ip link del libreswan1
-	kill $(cat /tmp/libreswan_dnsmasq.pid)
+	kill_dnsmasq
 	nmcli connection del lib1
 	modprobe -r ip_vti
 }
