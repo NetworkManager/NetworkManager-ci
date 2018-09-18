@@ -172,17 +172,21 @@ def set_vpnc_connection(context, user, password, group, secret, gateway, name):
     sleep(1)
 
 @step(u'Use user "{user}" with password "{password}" and MPPE set to "{mppe}" for gateway "{gateway}" on PPTP connection "{name}"')
-def set_vpnc_connection(context, user, password, mppe, gateway, name):
-    cli = pexpect.spawn('nmcli c modify %s vpn.data "password-flags = 0, user = %s, require-mppe = %s, gateway = %s"' % (name, user, mppe, gateway), encoding='utf-8')
+def set_pptp_connection(context, user, password, mppe, gateway, name):
+    flag = "0"
+    if password == "file":
+        flag = "2"
+    cli = pexpect.spawn('nmcli c modify %s vpn.data "password-flags = %s, user = %s, require-mppe = %s, gateway = %s"' % (name, flag, user, mppe, gateway), encoding='utf-8')
     r = cli.expect(['Error', pexpect.EOF])
     if r == 0:
         raise Exception('Got an Error while editing %s connection data' % (name))
     sleep(2)
-    cli = pexpect.spawn('nmcli c modify %s vpn.secrets "password = %s"' % (name, password), encoding='utf-8')
-    r = cli.expect(['Error', pexpect.EOF])
-    if r == 0:
-        raise Exception('Got an Error while editing %s connection secrets' % (name))
-    sleep(1)
+    if flag != "2":
+        cli = pexpect.spawn('nmcli c modify %s vpn.secrets "password = %s"' % (name, password), encoding='utf-8')
+        r = cli.expect(['Error', pexpect.EOF])
+        if r == 0:
+            raise Exception('Got an Error while editing %s connection secrets' % (name))
+        sleep(1)
 
 @step(u'Autocomplete "{cmd}" in bash and execute')
 def autocomplete_command(context, cmd):
