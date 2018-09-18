@@ -170,7 +170,15 @@ Feature: nmcli - wifi
 
     @rhbz1520398
     @ver+=1.10
-    @simwifi_wpa2 @simwifi_wpa2_teardown
+    @simwifi_wpa2
     @nmclient_get_wireless_hw_property
     Scenario: nmclient - property - get wireless hardware property
     Then "True|False" is visible with command "python tmp/nmclient_get_property.py wireless-hardware-enabled"
+
+
+    @rhbz1626391
+    @ver+=1.12
+    @simwifi_wpa2 @simwifi_wpa2_teardown
+    @wifi_dbus_bitrate_property_name
+    Scenario: dbus - property name for Device.Wireless.Bitrate
+    Then "Bitrate" is visible with command "for dev_id in $(busctl tree org.freedesktop.NetworkManager | grep Devices/ | grep -o '[0-9]*$'); do busctl introspect org.freedesktop.NetworkManager /org/freedesktop/NetworkManager/Devices/$dev_id | grep Bitrate; done"

@@ -1350,6 +1350,8 @@ testmapper:
         feature: wifi_hwsim
     - nmclient_get_wireless_hw_property:
         feature: wifi_hwsim
+    - wifi_dbus_bitrate_property_name:
+        feature: wifi_hwsim
     - alias_ifcfg_add_single_alias:
         feature: alias
     - alias_ifcfg_add_multiple_aliases:
