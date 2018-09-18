@@ -97,6 +97,17 @@ def reset_usb_devices():
             print(("failed to reset device:", msg))
         f.close()
 
+def setup_libreswan(mode, dh_group, phase1_al="aes", phase2_al=None):
+    print ("setting up libreswan")
+
+    RC = call("sh prepare/libreswan.sh %s %s %s" %(mode, dh_group, phase1_al), shell=True)
+    if RC != 0:
+        teardown_libreswan()
+        sys.exit(1)
+
+def teardown_libreswan():
+    call("sh prepare/libreswan.sh teardown", shell=True)
+
 def setup_racoon(mode, dh_group, phase1_al="aes", phase2_al=None):
     print ("setting up racoon")
     arch = check_output("uname -p", shell=True).decode('utf-8').strip()
@@ -671,20 +682,14 @@ def before_scenario(context, scenario):
             wait_for_testeth0()
             call("rpm -q NetworkManager-libreswan || ( sudo yum -y install NetworkManager-libreswan && systemctl restart NetworkManager )", shell=True)
             call("/usr/sbin/ipsec --checknss", shell=True)
-            setup_racoon (mode="aggressive", dh_group=5)
-            if 'libreswan_add_profile' in scenario.tags:
-                # Workaround for failures first in libreswan setup
-                teardown_racoon ()
-                setup_racoon (mode="aggressive", dh_group=5)
-
-            #call("ip route add default via 172.31.70.1", shell=True)
+            setup_libreswan (mode="aggressive", dh_group=5)
 
         if 'libreswan_main' in scenario.tags:
             print ("---------------------------")
             wait_for_testeth0()
             call("rpm -q NetworkManager-libreswan || sudo yum -y install NetworkManager-libreswan", shell=True)
             call("/usr/sbin/ipsec --checknss", shell=True)
-            setup_racoon (mode="main", dh_group=5)
+            setup_libreswan (mode="main", dh_group=5)
 
         if 'macsec' in scenario.tags:
             print("---------------------------")
@@ -1455,10 +1460,17 @@ def after_scenario(context, scenario):
         if 'libreswan' in scenario.tags:
             print ("---------------------------")
             print ("deleting libreswan profile")
-            #call("ip route del default via 172.31.70.1", shell=True)
             call('nmcli connection down libreswan', shell=True)
             call('nmcli connection delete libreswan', shell=True)
-            teardown_racoon ()
+            teardown_libreswan ()
+            wait_for_testeth0()
+
+        if 'libreswan_main' in scenario.tags:
+            print ("---------------------------")
+            print ("deleting libreswan profile")
+            call('nmcli connection down libreswan', shell=True)
+            call('nmcli connection delete libreswan', shell=True)
+            teardown_libreswan ()
             wait_for_testeth0()
 
         if 'pptp' in scenario.tags:
