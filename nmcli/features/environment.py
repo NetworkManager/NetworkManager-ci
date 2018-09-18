@@ -1049,11 +1049,6 @@ def after_scenario(context, scenario):
             print ("deleting connection con_ethernet")
             call("nmcli connection delete id con_ethernet", shell=True)
 
-        if 'con_dns_remove' in scenario.tags:
-            print ("---------------------------")
-            print ("deleting connection con_dns and con_dns2")
-            call("nmcli connection delete id con_dns con_dns2 ", shell=True)
-
         if 'alias' in scenario.tags:
             print ("---------------------------")
             print ("deleting alias connections")
