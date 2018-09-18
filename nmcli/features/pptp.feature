@@ -17,6 +17,23 @@
     Then "IP4.ADDRESS.*172.31.66.*/32" is visible with command "nmcli c show pptp"
 
 
+    @rhbz1628833
+    @pptp
+    @pptp_passwd_file
+    Scenario: nmcli - pptp - password from file
+    * Add a connection named "pptp" for device "\*" to "pptp" VPN
+    * Use user "budulinek" with password "file" and MPPE set to "yes" for gateway "127.0.0.1" on PPTP connection "pptp"
+    * Execute "echo 'vpn.secret.password:passwd' > /tmp/passwords"
+    * Execute "nmcli con up pptp passwd-file /tmp/passwords"
+    When "VPN.VPN-STATE:.*VPN connected" is visible with command "nmcli c show pptp"
+     And "IP4.ADDRESS.*172.31.66.*/32" is visible with command "nmcli c show pptp"
+    * Bring "down" connection "pptp"
+    * Execute "echo 'vpn.secrets.password:passwd' > /tmp/passwords"
+    * Execute "nmcli con up pptp passwd-file /tmp/passwords"
+    Then "VPN.VPN-STATE:.*VPN connected" is visible with command "nmcli c show pptp"
+     And "IP4.ADDRESS.*172.31.66.*/32" is visible with command "nmcli c show pptp"
+
+
     @pptp
     @pptp_terminate
     Scenario: nmcli - pptp - terminate connection

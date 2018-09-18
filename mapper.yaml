@@ -1158,6 +1158,8 @@ testmapper:
         feature: adsl
     - pptp_add_profile:
         feature: pptp
+    - pptp_passwd_file:
+        feature: pptp        
     - pptp_terminate:
         feature: pptp
     - libreswan_add_profile:
