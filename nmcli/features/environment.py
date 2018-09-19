@@ -967,7 +967,7 @@ def after_scenario(context, scenario):
             print ("---------------------------")
             print ("restarting NM service")
             if call("systemctl is-active NetworkManager", shell=True) != 0:
-                call('sudo systemctl restart NetworkManager restart', shell=True)
+                call('sudo systemctl restart NetworkManager', shell=True)
                 if not os.path.isfile('/tmp/nm_dcb_inf_wol_sriov_configured'):
                     wait_for_testeth0()
 
