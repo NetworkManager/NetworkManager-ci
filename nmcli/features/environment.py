@@ -194,12 +194,8 @@ def wait_for_testeth0():
             sys.exit(1)
 
 def reload_NM_service():
-    ver = check_output("NetworkManager --version", shell=True).decode('utf-8')
-    #if version is 1.8 or older or we are in CentOS (7.4) we need to restart
-    if int(ver.strip().split('-')[0].split('.')[1]) <= int(8) or call("grep CentOS /etc/redhat-release -q", shell=True) == 0:
-        call('systemctl restart NetworkManager', shell=True)
-    else:
-        call("/usr/bin/dbus-send --print-reply --system --type=method_call --dest=org.freedesktop.NetworkManager /org/freedesktop/NetworkManager org.freedesktop.NetworkManager.Reload uint32:0", shell=True)
+    sleep(0.5)
+    call("pkill -HUP NetworkManager", shell=True)
     sleep(1)
 
 def before_scenario(context, scenario):
@@ -377,9 +373,7 @@ def before_scenario(context, scenario):
             call("echo 'response=OK' >> /etc/NetworkManager/conf.d/99-connectivity.conf", shell=True)
             call("echo 'interval=5' >> /etc/NetworkManager/conf.d/99-connectivity.conf", shell=True)
             reload_NM_service()
-            sleep(3)
-            reload_NM_service()
-            sleep(3)
+
 
         if 'shutdown_service_any' in scenario.tags or 'bridge_manipulation_with_1000_slaves' in scenario.tags:
             call("modprobe -r qmi_wwan", shell=True)
@@ -398,7 +392,7 @@ def before_scenario(context, scenario):
                 cfg.write("\n" + 'no-auto-default=eth*')
                 cfg.write("\n")
                 cfg.close()
-                call("pkill -HUP NetworkManager", shell=True)
+                reload_NM_service ()
                 context.revert_unmanaged = True
             else:
                 context.revert_unmanaged = False
@@ -499,14 +493,14 @@ def before_scenario(context, scenario):
             print ("---------------------------")
             print ("set dns=dnsmasq")
             call("printf '# configured by beaker-test\n[main]\ndns=dnsmasq\n' > /etc/NetworkManager/conf.d/99-xtest-dns.conf", shell=True)
-            call("pkill -HUP NetworkManager", shell=True)
+            reload_NM_service ()
             context.dns_script="dnsmasq.sh"
 
         if 'dns_systemd_resolved' in scenario.tags:
             print ("---------------------------")
             print ("set dns=systemd-resolved")
             call("printf '# configured by beaker-test\n[main]\ndns=systemd-resolved\n' > /etc/NetworkManager/conf.d/99-xtest-dns.conf", shell=True)
-            call("pkill -HUP NetworkManager", shell=True)
+            reload_NM_service ()
             context.dns_script="sd-resolved.py"
 
         if 'internal_DHCP' in scenario.tags:
@@ -546,7 +540,6 @@ def before_scenario(context, scenario):
             wait_for_testeth0()
             call("yum -y install NetworkManager-config-routing-rules", shell=True)
             reload_NM_service()
-            sleep(2)
 
         if 'firewall' in scenario.tags:
             print ("---------------------------")
@@ -643,7 +636,6 @@ def before_scenario(context, scenario):
                                                                   https://vbenes.fedorapeople.org/NM/pkcs11-helper-1.11-3.el7.$(uname -p).rpm", shell=True)
             call("rpm -q NetworkManager-openvpn || sudo yum -y install https://vbenes.fedorapeople.org/NM/NetworkManager-openvpn-1.0.8-1.el7.$(uname -p).rpm", shell=True)
             reload_NM_service()
-            sleep(2)
 
             samples = glob(os.path.abspath('tmp/openvpn'))[0]
             cfg = open("/etc/openvpn/trest-server.conf", "w")
@@ -830,7 +822,6 @@ def before_scenario(context, scenario):
             wait_for_testeth0()
             call('yum -y remove NetworkManager-config-connectivity-fedora', shell=True)
             reload_NM_service()
-            sleep(5)
 
         if 'need_config_server' in scenario.tags:
             print("---------------------------")
@@ -1091,7 +1082,6 @@ def after_scenario(context, scenario):
             print ("reset bond order")
             call("rm -rf /etc/NetworkManager/conf.d/99-bond.conf", shell=True)
             reload_NM_service()
-            sleep(2)
 
         if 'connectivity' in scenario.tags:
             print ("---------------------------")
@@ -1099,9 +1089,6 @@ def after_scenario(context, scenario):
             call("rm -rf /etc/NetworkManager/conf.d/99-connectivity.conf", shell=True)
             call("rm -rf /var/lib/NetworkManager/NetworkManager-intern.conf", shell=True)
             reload_NM_service()
-            sleep(3)
-            reload_NM_service()
-            sleep(3)
 
         if 'con' in scenario.tags:
             print ("---------------------------")
@@ -1254,14 +1241,14 @@ def after_scenario(context, scenario):
             print ("---------------------------")
             print ("revert dns=default")
             call("rm -f /etc/NetworkManager/conf.d/99-xtest-dns.conf", shell=True)
-            call("pkill -HUP NetworkManager", shell=True)
+            reload_NM_service ()
             context.dns_script=""
 
         if 'dns_dnsmasq' in scenario.tags:
             print ("---------------------------")
             print ("revert dns=default")
             call("rm -f /etc/NetworkManager/conf.d/99-xtest-dns.conf", shell=True)
-            call("pkill -HUP NetworkManager", shell=True)
+            reload_NM_service ()
             context.dns_script=""
 
         if 'internal_DHCP' in scenario.tags:
@@ -1335,7 +1322,6 @@ def after_scenario(context, scenario):
             call("rm -rf /etc/NetworkManager/conf.d/01-default-ip6-privacy.conf", shell=True)
             call("echo 0 > /proc/sys/net/ipv6/conf/default/use_tempaddr", shell=True)
             reload_NM_service()
-            #sleep(TIMER)
 
         if 'sriov' in scenario.tags:
             print ("---------------------------")
@@ -1353,7 +1339,6 @@ def after_scenario(context, scenario):
             call("rm -rf /etc/NetworkManager/conf.d/99-sriov.conf", shell=True)
             call("rm -rf /etc/NetworkManager/conf.d/98-sriov.conf", shell=True)
             reload_NM_service()
-            sleep(1)
 
         if 'ipv6' in scenario.tags or 'ipv6_2' in scenario.tags:
             print ("---------------------------")
