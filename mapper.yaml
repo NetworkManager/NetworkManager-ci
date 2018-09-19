@@ -1159,7 +1159,7 @@ testmapper:
     - pptp_add_profile:
         feature: pptp
     - pptp_passwd_file:
-        feature: pptp        
+        feature: pptp
     - pptp_terminate:
         feature: pptp
     - libreswan_add_profile:
@@ -1403,6 +1403,8 @@ testmapper:
     - dns_dnsmasq_full_tunnel_vpn:
         feature: dns
     - dns_dnsmasq_split_tunnel_vpn:
+        feature: dns
+    - dns_dnsmasq_driver_removal:
         feature: dns
     - nmtui_general_start_nmtui:
         run: nmtui/./runtest.sh nmtui_general_start_nmtui

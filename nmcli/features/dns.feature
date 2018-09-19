@@ -281,6 +281,31 @@ Feature: nmcli - dns
     Then device "eth3" has DNS domain "con_dns2.domain"
 
 
+    @rhbz1628576
+    @ver+=1.12
+    @con_dns_remove @dns_dnsmasq @regenerate_veth @teardown_testveth @skip_str
+    @dns_dnsmasq_driver_removal
+    Scenario: NM - dns - remove driver
+    * Prepare simulated test "testX4" device
+
+    # Create connection on testX4 with default route
+    * Add a new connection of type "ethernet" and options "con-name con_dns ifname testX4 autoconnect no"
+    * Execute "nmcli connection modify con_dns ipv4.method manual ipv4.addresses 172.16.1.1/24 ipv4.gateway 172.16.1.2"
+    * Execute "nmcli connection modify con_dns ipv4.dns 172.16.1.53 ipv4.dns-search con_dns.domain"
+    * Bring "up" connection "con_dns"
+
+    # Check testX4 configuration
+    Then device "testX4" has DNS server "172.16.1.53"
+    Then device "testX4" has DNS domain "."
+    Then device "testX4" has DNS domain "con_dns.domain"
+
+    # Unload veth Driver
+    * Execute "modprobe -r veth"
+
+    # NM should still be working
+    * Bring "up" connection "testeth0"
+
+
     @rhbz1512966
     @ver+=1.11.3
     @con_dns_remove @dns_dnsmasq
