@@ -12,11 +12,6 @@ local_setup_configure_nm_eth () {
     useradd -m test
     echo "networkmanager" | passwd test --stdin
 
-    #enable EPEL but on s390x
-    if ! uname -a |grep -q s390x; then
-        [ -f /etc/yum.repos.d/epel.repo ] || sudo rpm -i http://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm
-    fi
-
     #installing pip, behave, and pexpect and other deps
     if grep -q Ootpa /etc/redhat-release; then
 
@@ -59,6 +54,11 @@ local_setup_configure_nm_eth () {
         fi
 
     else
+        #enable EPEL but on s390x
+        if ! uname -a |grep -q s390x; then
+            [ -f /etc/yum.repos.d/epel.repo ] || sudo rpm -i http://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm
+        fi
+
         yum -y install python-setuptools python2-pip
         easy_install pip
         pip install --upgrade pip
