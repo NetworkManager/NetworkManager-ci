@@ -861,6 +861,8 @@ testmapper:
         feature: ethernet
     - 8021x_tls_no_private_key_password:
         feature: ethernet
+    - 8021x_tls_bad_password_flag:
+        feature: ethernet
     - 8021x_peap_md5:
         feature: ethernet
     - 8021x_peap_mschapv2:
