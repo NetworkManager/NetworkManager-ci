@@ -249,6 +249,9 @@ def before_scenario(context, scenario):
 
         if 'not_with_rhel7_pkg' in scenario.tags:
             # Do not run on stock RHEL7 package
+            # This tag is used by control_version script too.
+            # You need to have the same test with slightly different version to be able to run both
+            # See ipv4_dhcp_client_id_set in ipv4.feature
             if call('rpm -qi NetworkManager |grep -q build.*bos.redhat.co', shell=True) == 0 and \
             check_output("rpm --queryformat %{RELEASE} -q NetworkManager |awk -F .  '{ print ($1 < 200) }'", shell=True).decode('utf-8').strip() == '1' and \
             call("grep -q 'release 7' /etc/redhat-release", shell=True) == 0:

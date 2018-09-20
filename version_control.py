@@ -2,7 +2,18 @@ from __future__ import absolute_import, division, print_function, unicode_litera
 import sys
 from subprocess import call, check_output
 
-
+def skip_non_default_packages(tags):
+    if 'not_with_rhel7_pkg' in tags:
+        # Do not run on stock RHEL7 package
+        if call('rpm -qi NetworkManager |grep -q build.*bos.redhat.co', shell=True) == 0 and \
+        check_output("rpm --queryformat %{RELEASE} -q NetworkManager |awk -F .  '{ print ($1 < 200) }'", shell=True).decode('utf-8').strip() == '1' and \
+        call("grep -q 'release 7' /etc/redhat-release", shell=True) == 0:
+            return True
+        else:
+            return False
+    else:
+        return False
+        
 current_nm_version = "".join(check_output("""NetworkManager -V |awk 'BEGIN { FS = "." }; {printf "%03d%03d%03d", $1, $2, $3}'""", shell=True).decode('utf-8').split('-')[0])
 
 if "NetworkManager" in sys.argv[2] and "Test" in sys.argv[2]:
@@ -78,6 +89,8 @@ for tags in tests_tags:
                     if int(current_nm_version) <= int(maximal_nm_version):
                         # set only higher version if we already have one
                         if tag > tag_to_return:
+                            if skip_non_default_packages(tags):
+                                break
                             tag_to_return = tag
                             break
 
@@ -87,6 +100,8 @@ for tags in tests_tags:
                 # print current_nm_version
                 if int(current_nm_version) <= int(need_nm_version):
                     if int(current_nm_version) >= int(minimal_nm_version):
+                        if skip_non_default_packages(tags):
+                            break
                         tag_to_return = tag
                         break
 

@@ -1200,7 +1200,7 @@ Feature: nmcli: ipv4
     Then "exceeds max \(255\) for precision" is not visible with command "grep exceeds max /var/log/messages"
 
 
-    @ver+=1.11.2 @not_with_rhel7_pkg
+    @ver+=1.11.3 @not_with_rhel7_pkg
     @eth2 @con_ipv4_remove @tcpdump
     @ipv4_dhcp_client_id_set
     # https://bugzilla.gnome.org/show_bug.cgi?id=793957
@@ -1223,7 +1223,7 @@ Feature: nmcli: ipv4
     Then "Client-ID Option 61, length 4: hardware-type 192, ff:ee:ee" is visible with command "cat /tmp/tcpdump.log"
 
 
-    @rhel7_only
+    @ver+=1.11.2 @rhel7_only
     @eth2 @con_ipv4_remove
     @ipv4_dhcp_client_id_set
     Scenario: nmcli - ipv4 - dhcp-client-id - set client id
