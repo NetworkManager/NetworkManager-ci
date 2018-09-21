@@ -29,7 +29,7 @@ dependencies:
       - teamd
       - bash-completion
       - radvd
-      
+
 beaker-hardware:
   - x86_64:
       group: desktopqe-nm
@@ -784,6 +784,8 @@ testmapper:
     - vlan_on_bridge:
         feature: vlan
     - assertion_failure:
+        feature: vlan
+    - vlan_over_bridge_over_team_over_nic:
         feature: vlan
     - vlan_not_duplicated:
         feature: vlan
