@@ -1617,6 +1617,8 @@ def reboot(context):
 
     command_code(context, "ip link del nm-bond")
     command_code(context, "ip link del nm-team")
+    command_code(context, "ip link del team7")
+    command_code(context, "ip link del bridge7")
 
     command_code(context, "rm -rf /var/run/NetworkManager")
 

@@ -280,6 +280,27 @@ Feature: nmcli - vlan
     Then "bridge7.15:" is visible with command "ifconfig"
 
 
+    @rhbz1586191
+    @ver+=1.12.0
+    @vlan
+    @vlan_over_bridge_over_team_over_nic
+    Scenario: nmcli - vlan - over brdge on team
+    * Add a new connection of type "team" and options "con-name vlan_team7 ifname team7 ipv4.method disabled ipv6.method ignore mtu 9000 config '{ "runner": {"name":"lacp", "fast_rate":true }}'"
+    * Add a new connection of type "team-slave" and options "con-name vlan_team7.0 ifname eth7 mtu 9000 master team7"
+    * Add a new connection of type "vlan" and options "con-name vlan_bridge7.15 dev team7 id 15 ipv4.method disabled ipv6.method ignore master bridge7 connection.slave-type bridge "
+    * Add a new connection of type "bridge" and options "con-name vlan_bridge7 ifname bridge7 ipv4.method manual ipv6.method ignore ipv4.addresses "11.0.0.1/24""
+    When "9000" is visible with command "ip a s eth7"
+     And "9000" is visible with command "ip a s bridge7"
+     And "9000" is visible with command "ip a s team7"
+     And "9000" is visible with command "ip a s team7.15"
+
+    * Reboot
+    Then "9000" is visible with command "ip a s eth7"
+     And "9000" is visible with command "ip a s bridge7"
+     And "9000" is visible with command "ip a s team7"
+     And "9000" is visible with command "ip a s team7.15"
+
+
     @rhbz1276343
     @vlan @restart
     @vlan_not_duplicated
