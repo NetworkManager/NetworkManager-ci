@@ -1939,7 +1939,13 @@ testmapper:
     - gsm_disconnect:
         timeout: 60m
         feature: gsm
+    - gsm_create_one_minute_ping:
+        timeout: 60m
+        feature: gsm
     - gsm_mtu:
+        timeout: 60m
+        feature: gsm
+    - gsm_route_metric:
         timeout: 60m
         feature: gsm
     - gsm_connectivity_check:

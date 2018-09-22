@@ -43,6 +43,17 @@ Feature: nmcli: gsm
      And Unable to ping "8.8.8.8"
 
 
+    @eth0 @gsm
+    @gsm_create_one_minute_ping
+    Scenario: nmcli - gsm - one minute ping
+    * Add a new connection of type "gsm" and options "ifname \* con-name gsm autoconnect no apn internet"
+    * Bring "up" connection "gsm"
+    Then "GENERAL.STATE:.*activated" is visible with command "nmcli con show gsm" in "60" seconds
+     And "GENERAL.STATE:.*activated" is visible with command "nmcli con show gsm" for full "60" seconds
+     And "default" is visible with command "ip r |grep 700"
+     And Ping "8.8.8.8" "7" times
+
+
     @rhbz1388613 @rhbz1460217
     @ver+=1.8.0
     @eth0 @gsm
@@ -59,6 +70,23 @@ Feature: nmcli: gsm
     When "GENERAL.STATE:.*activated" is visible with command "nmcli con show gsm" in "20" seconds
     Then "mtu 1600" is visible with command "ip a s |grep mtu|tail -1"
      And "mtu 1600" is visible with command "nmcli |grep gsm"
+
+
+    @rhbz1585611
+    @ver+=1.12
+    @eth0 @gsm
+    @gsm_route_metric
+    Scenario: nmcli - gsm - route metric
+    * Add a new connection of type "gsm" and options "ifname \* con-name gsm autoconnect no apn internet"
+    * Bring "up" connection "gsm"
+    When "default" is visible with command "ip r |grep 700" in "20" seconds
+    And "proto kernel scope" is visible with command "ip r |grep 700"
+    * Execute "nmcli con modify gsm ipv4.route-metric 120"
+    * Bring "up" connection "gsm"
+    * Execute "sleep 5"
+    When "GENERAL.STATE:.*activated" is visible with command "nmcli con show gsm" in "20" seconds
+    Then "default" is visible with command "ip r |grep 120" in "20" seconds
+    And "proto kernel scope" is visible with command "ip r |grep 120"
 
 
     # Modems are not stable enough to test such things VVV
