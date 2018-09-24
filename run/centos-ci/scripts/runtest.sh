@@ -24,14 +24,18 @@ echo $@
 for test in $@; do
     echo "RUNING $test"
     # Start watchdog. Default is 10m
-    timer=$(grep -w $test testmapper.txt | awk 'BEGIN { FS = "," } ; {print $5}')
+    timer=$(sed -n "/- $test:/,/ - /p" mapper.yaml | grep -e "timeout:" | awk -F: '{print $2}')
     if [ "$timer" == "" ]; then
         timer="10m"
     fi
 
     # Start test itself with timeout
     export TEST="NetworkManager_Test$counter"_"$test"
-    timeout $timer $(grep -w $test testmapper.txt |awk '{print $3,$4}'); rc=$?
+    cmd=$(sed -n "/- $test:/,/ - /p" mapper.yaml | grep -e "run:" | awk -F: '{print $2}')
+    if [ "$cmd" == "" ] ; then
+        cmd="nmcli/./runtest.sh $test"
+    fi
+    timeout $timer $cmd; rc=$?
 
     if [ $rc -ne 0 ]; then
         # Overal result is FAIL

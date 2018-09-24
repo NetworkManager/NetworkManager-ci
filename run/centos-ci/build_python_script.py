@@ -9,35 +9,27 @@
 # Please note, this is a basic script, there is no error handling and there are
 # no real tests for any exceptions. Patches welcome!
 
-import json, urllib, subprocess, sys, os
+import json, yaml, urllib, subprocess, sys, os
 
 settings = {}
 
 def get_testmapper(testbranch):
-    if not os.path.isfile('testmapper.txt'):
-        testmapper_url = 'https://raw.githubusercontent.com/NetworkManager/NetworkManager-ci/\%s/testmapper.txt' % (testbranch)
-        os.system("curl -s  %s -o testmapper.txt" % testmapper_url)
+    if not os.path.isfile('mapper.yaml'):
+        testmapper_url = 'https://raw.githubusercontent.com/NetworkManager/NetworkManager-ci/\%s/mapper.yaml' % (testbranch)
+        os.system("curl -s  %s -o mapper.yaml" % testmapper_url)
+
 def get_test_cases_for_features(features, testbranch):
     get_testmapper(testbranch)
     testnames = []
-    with open('testmapper.txt', 'r') as f:
-        content = f.readlines()
-        for feature_name in features:
-            processing = False
-            for line in content:
-                if line.strip().startswith('#@%s_start' % feature_name):
-                    processing = True
-                    continue
-                if line.strip().startswith('#@%s_end' % feature_name):
-                    break
-                if line.strip().startswith('#') :
-                    continue
-                line_csv = line.split(',')
-                if processing and len(line_csv) >= 3:
-                    test_name = line_csv[0].strip()
+    with open('mapper.yaml', 'r') as f:
+        content = f.read()
+        content_parsed = yaml.load(content)
+        for test in content_parsed['testmapper']['default']:
+            for test_name in test:  
+                if test[test_name]['feature'] in features or 'all' in features:
                     if test_name and test_name not in testnames:
                         testnames.append(test_name)
-    subprocess.call('rm -rf testmapper.txt', shell=True)
+    subprocess.call('rm -rf mapper.yaml', shell=True)
     return testnames
 
 def process_raw_features(features, testbranch):
