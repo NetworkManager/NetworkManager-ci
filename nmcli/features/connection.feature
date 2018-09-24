@@ -637,3 +637,82 @@ Feature: nmcli: connection
      Then Check "=== \[secondaries\] ===\s+\[NM property description\]\s+List of connection UUIDs that should be activated when the base connection itself is activated. Currently only VPN connections are supported." are present in describe output for object "secondaries"
 
      Then Check "=== \[gateway-ping-timeout\] ===\s+\[NM property description]\s+If greater than zero, delay success of IP addressing until either the timeout is reached, or an IP gateway replies to a ping." are present in describe output for object "gateway-ping-timeout"
+
+
+    @ver+=1.14
+    @con_con_remove
+    @connection_multiconnect_default_single
+    Scenario: nmcli - connection - multi-connect default or single
+    * Add a new connection of type "ethernet" and options "con-name con_con autoconnect no ifname '' connection.multi-connect default"
+    * Bring up connection "con_con" for "eth5" device
+    When "eth5" is visible with command "nmcli device | grep con_con" 
+    * Bring up connection "con_con" for "eth6" device
+    When "eth6" is visible with command "nmcli device | grep con_con" 
+     And "eth5" is not visible with command "nmcli device | grep con_con" 
+    * Bring "down" connection "con_con"
+    * Modify connection "con_con" changing options "connection.multi-connect single"
+    * Bring up connection "con_con" for "eth5" device
+    When "eth5" is visible with command "nmcli device | grep con_con" 
+    * Bring up connection "con_con" for "eth6" device
+    Then "eth6" is visible with command "nmcli device | grep con_con" 
+     And "eth5" is not visible with command "nmcli device | grep con_con" 
+
+
+    @ver+=1.14
+    @con_con_remove
+    @connection_multiconnect_manual
+    Scenario: nmcli - connection - multi-connect manual up down
+    * Add a new connection of type "ethernet" and options "con-name con_con autoconnect no ifname '' connection.multi-connect manual-multiple"
+    * Bring up connection "con_con" for "eth5" device
+    When "eth5" is visible with command "nmcli device | grep con_con" 
+     And "eth6" is not visible with command "nmcli device | grep con_con" 
+    * Bring up connection "con_con" for "eth6" device
+    When "eth6" is visible with command "nmcli device | grep con_con" 
+     And "eth5" is visible with command "nmcli device | grep con_con" 
+    * Bring "down" connection "con_con"
+    When "eth6" is not visible with command "nmcli device | grep con_con" 
+     And "eth5" is not visible with command "nmcli device | grep con_con"
+    * Modify connection "con_con" changing options "connection.multi-connect multiple"
+    * Bring up connection "con_con" for "eth5" device
+    When "eth5" is visible with command "nmcli device | grep con_con" 
+     And "eth6" is not visible with command "nmcli device | grep con_con" 
+    * Bring up connection "con_con" for "eth6" device
+    When "eth6" is visible with command "nmcli device | grep con_con" 
+     And "eth5" is visible with command "nmcli device | grep con_con" 
+    * Bring "down" connection "con_con"
+    Then "eth6" is not visible with command "nmcli device | grep con_con" 
+     And "eth5" is not visible with command "nmcli device | grep con_con" 
+    
+    
+    @ver+=1.14
+    @con_con_remove @restart
+    @connection_multiconnect_autoconnect
+    Scenario: nmcli - connection - multi-connect with autoconnect
+    * Add a new connection of type "ethernet" and options "con-name con_con connection.autoconnect yes connection.autoconnect-priority 0 ifname '' connection.multi-connect manual-multiple"
+    When "eth5" is not visible with command "nmcli device | grep con_con" 
+     And "eth6" is not visible with command "nmcli device | grep con_con" 
+    * Add a new connection of type "ethernet" and options "con-name con_con2 connection.autoconnect yes connection.autoconnect-priority 0 ifname '' connection.multi-connect multiple"
+    When "eth5" is visible with command "nmcli device | grep con_con2"
+     And "eth6" is visible with command "nmcli device | grep con_con2"
+    * Bring "down" connection "con_con2"
+    Then "eth6" is not visible with command "nmcli device | grep con_con2"
+     And "eth5" is not visible with command "nmcli device | grep con_con2"
+    
+    
+    @ver+=1.14
+    @con_con_remove @restart
+    @connection_multiconnect_reboot
+    Scenario: nmcli - connection - multi-connect reboot
+    * Add a new connection of type "ethernet" and options "con-name con_con connection.autoconnect yes connection.autoconnect-priority 0 ifname '' connection.multi-connect multiple"
+    * Reboot
+    Then "eth0" is not visible with command "nmcli device | grep ethernet | grep con_con"
+     And "eth1" is visible with command "nmcli device | grep ethernet | grep con_con" 
+     And "eth2" is visible with command "nmcli device | grep ethernet | grep con_con" 
+     And "eth3" is visible with command "nmcli device | grep ethernet | grep con_con" 
+     And "eth4" is visible with command "nmcli device | grep ethernet | grep con_con" 
+     And "eth5" is visible with command "nmcli device | grep ethernet | grep con_con" 
+     And "eth6" is visible with command "nmcli device | grep ethernet | grep con_con" 
+     And "eth7" is visible with command "nmcli device | grep ethernet | grep con_con" 
+     And "eth8" is visible with command "nmcli device | grep ethernet | grep con_con" 
+     And "eth9" is visible with command "nmcli device | grep ethernet | grep con_con" 
+     And "eth10" is visible with command "nmcli device | grep ethernet | grep con_con" 

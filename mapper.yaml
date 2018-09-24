@@ -1317,6 +1317,14 @@ testmapper:
         feature: connection
     - lldp:
         feature: connection
+    - connection_multiconnect_default_single:
+        feature: connection
+    - connection_multiconnect_manual:
+        feature: connection
+    - connection_multiconnect_autoconnect:
+        feature: connection
+    - connection_multiconnect_reboot:
+        feature: connection
     - add_default_tap_device:
         feature: tuntap
     - add_default_tun_device:
