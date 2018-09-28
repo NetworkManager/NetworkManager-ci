@@ -577,6 +577,17 @@ def check_solicitation(context, dev, file):
 def check_saved_in_editor(context):
     context.prompt.expect('successfully')
 
+@step(u'Check file "{file1}" is contained in file "{file2}"')
+def check_file_is_contained(context, file1, file2):
+    with open(file1) as f1_lines:
+        with open(file2) as f2_lines:
+            diff = set(f1_lines).difference(f2_lines)
+    assert not bool(diff)
+
+@step(u'Check file "{file1}" is identical to file "{file2}"')
+def check_file_is_identical(context, file1, file2):
+    import filecmp
+    assert filecmp.cmp(file1, file2)
 
 @step(u'Create 300 bridges and delete them')
 def create_delete_bridges(context):
