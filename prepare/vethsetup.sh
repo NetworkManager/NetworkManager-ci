@@ -23,7 +23,7 @@ function setup_veth_env ()
     if [ $need_veth -eq 0 ]; then
         exit 0
     fi
-    # Enable udev rule to enable ignoring 'veth' devices eth*, keeping their pairs unmanagad
+    # Enable udev rule to enable ignoring 'veth' devices eth*, keeping their pairs unmanaged
     echo 'ENV{ID_NET_DRIVER}=="veth", ENV{INTERFACE}=="eth[0-9]|eth[0-9]*[0-9]", ENV{NM_UNMANAGED}="0"' >/etc/udev/rules.d/99-lr.rules
     udevadm control --reload-rules
     udevadm settle
@@ -178,7 +178,7 @@ function setup_veth_env ()
         nmcli c add type ethernet con-name testeth${X} ifname eth${X} autoconnect no
     done
 
-    # Creating testeth profile for the simulater external device
+    # Creating testeth profile for the simulated external device
     nmcli c add type ethernet con-name testeth10 ifname eth10 autoconnect no
 
     systemctl restart NetworkManager; sleep 4

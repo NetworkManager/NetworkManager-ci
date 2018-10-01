@@ -232,14 +232,20 @@
      And "leftxauthusername = test_user" is visible with command "nmcli connection show vpn |grep vpn.data"
 
 
-    @rhbz1034105
+    @rhbz1034105 @rhbz1626485
     @ver+=1.3.0
     @vpn
     @libreswan_export
     Scenario: nmcli - libreswan - export
     * Execute "nmcli connection import file tmp/vpn.swan type libreswan"
     * Execute "nmcli connection export vpn > /tmp/vpn.swan"
-    Then "Files /tmp/vpn.swan and tmp/vpn.swan are identical" is visible with command "diff -s /tmp/vpn.swan tmp/vpn.swan"
+    * Execute "sed -i 's/phase2alg=/esp=/g' /tmp/vpn.swan"
+    Then Check file "tmp/vpn.swan" is contained in file "/tmp/vpn.swan"
+    * Execute "nmcli -g vpn.data conn show vpn > /tmp/vpn1.data"
+    * Delete connection "vpn"
+    * Execute "nmcli connection import file /tmp/vpn.swan type libreswan"
+    * Execute "nmcli -g vpn.data conn show vpn > /tmp/vpn2.data"
+    Then Check file "/tmp/vpn1.data" is identical to file "/tmp/vpn2.data"
 
 
     @rhbz1337300
