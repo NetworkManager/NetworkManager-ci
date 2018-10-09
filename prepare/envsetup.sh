@@ -74,7 +74,7 @@ local_setup_configure_nm_eth () {
     if grep -q Ootpa /etc/redhat-release; then
         # Make python3 default if it's not
         rm -rf /usr/bin/python
-        ln -s /usr/bin/python3 /usr/bin/python
+        ln -s /usr/libexec/platform-python /usr/bin/python
 
         # Pip down some deps
         dnf -y install python3-pip
