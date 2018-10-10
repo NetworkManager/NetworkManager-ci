@@ -932,7 +932,7 @@ def after_scenario(context, scenario):
         if os.stat("/tmp/network-traffic.log").st_size < 20000000:
             traffic = open("/tmp/network-traffic.log", 'r').read()
             if traffic:
-                context.embed('text/plain', traffic)
+                context.embed('text/plain', traffic, caption="TRAFFIC")
         else:
             print("WARNING: 20M size exceeded in /tmp/network-traffic.log, skipping")
 
@@ -943,7 +943,7 @@ def after_scenario(context, scenario):
             os.system("sudo journalctl -u network --no-pager -o cat %s >> /tmp/journal-netsrv.log" % context.log_cursor)
             data = open("/tmp/journal-netsrv.log", 'r').read()
             if data:
-                context.embed('text/plain', data)
+                context.embed('text/plain', data, caption="NETSRV")
 
         dump_status(context, 'after %s' % scenario.name)
 
@@ -1423,14 +1423,14 @@ def after_scenario(context, scenario):
             os.system("sudo journalctl -u nm-hostapd --no-pager -o cat %s >> /tmp/journal-hostapd.log" % context.log_cursor)
             data = open("/tmp/journal-hostapd.log", 'r').read()
             if data:
-                context.embed('text/plain', data)
+                context.embed('text/plain', data, caption="HOSTAPD")
 
         if "attach_wpa_supplicant_log" in scenario.tags:
             os.system("echo '~~~~~~~~~~~~~~~~~~~~~~~~~~ WPA_SUPPLICANT LOG ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~' > /tmp/journal-wpa_supplicant.log")
             os.system("journalctl -u wpa_supplicant --no-pager -o cat %s >> /tmp/journal-wpa_supplicant.log" % context.log_cursor)
             data = open("/tmp/journal-wpa_supplicant.log", 'r').read()
             if data:
-                context.embed('text/plain', data)
+                context.embed('text/plain', data, caption="WPA_SUP")
 
         if 'openvpn' in scenario.tags:
             print ("---------------------------")
@@ -1720,7 +1720,7 @@ def after_scenario(context, scenario):
             os.system("sudo journalctl -u ModemManager --no-pager -o cat %s >> /tmp/journal-mm.log" % context.log_cursor)
             data = open("/tmp/journal-mm.log", 'r').read()
             if data:
-                context.embed('text/plain', data)
+                context.embed('text/plain', data, caption="NM")
 
 
         if 'add_testeth10' in scenario.tags:
@@ -1917,7 +1917,7 @@ def after_scenario(context, scenario):
         if os.stat("/tmp/journal-nm.log").st_size < 20000000:
             data = open("/tmp/journal-nm.log", 'r').read()
             if data:
-                context.embed('text/plain', data)
+                context.embed('text/plain', data, caption="NM")
         else:
             print("WARNING: 20M size exceeded in /tmp/journal-nm.log, skipping")
 
@@ -1929,7 +1929,7 @@ def after_scenario(context, scenario):
                 call("LOGNAME=root HOSTNAME=localhost gdb /usr/sbin/NetworkManager -ex 'target remote | vgdb' -ex 'monitor leak_check full kinds all increased' -batch", shell=True, stdout=context.log, stderr=context.log)
 
         context.log.close ()
-        context.embed('text/plain', open("/tmp/log_%s.html" % scenario.name, 'r').read())
+        context.embed('text/plain', open("/tmp/log_%s.html" % scenario.name, 'r').read(), caption="MAIN")
         sleep(3)
 
         if context.crashed_step:
