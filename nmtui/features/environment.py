@@ -166,7 +166,7 @@ def after_scenario(context, scenario):
             os.system("sudo journalctl -u NetworkManager --no-pager -o cat %s > /tmp/journal-session.log" % context.log_cursor)
             data = open("/tmp/journal-session.log", 'r').read()
             if data:
-                context.embed('text/plain', data)
+                context.embed('text/plain', data, caption="NM")
         if 'bridge' in scenario.tags:
             os.system("sudo nmcli connection delete id bridge0 bridge-slave-eth1 bridge-slave-eth2")
             reset_hwaddr('eth1')
