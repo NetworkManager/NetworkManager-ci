@@ -18,6 +18,7 @@
 
 
     @rhbz1628833
+    @ver+=1.12
     @pptp
     @pptp_passwd_file
     Scenario: nmcli - pptp - password from file
