@@ -289,6 +289,9 @@ def before_scenario(context, scenario):
                 if "4.5" in ver:
                     sys.exit(77)
 
+        if 'gsm_sim' in scenario.tags:
+            call("sudo prepare/gsm_sim.sh modemu", shell=True)
+
         if 'gsm' in scenario.tags:
             import time
             dir = "/mnt/scratch/"
@@ -1722,6 +1725,8 @@ def after_scenario(context, scenario):
             if data:
                 context.embed('text/plain', data, caption="NM")
 
+        if 'gsm_sim' in scenario.tags:
+            call("sudo prepare/gsm_sim.sh teardown", shell=True)
 
         if 'add_testeth10' in scenario.tags:
             print ("---------------------------")

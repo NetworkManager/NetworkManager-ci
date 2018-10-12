@@ -84,6 +84,9 @@ local_setup_configure_nm_eth () {
         python -m pip install netaddr
         python -m pip install pyte
         python -m pip install IPy
+        
+        # Needed for gsm_sim
+        dnf -y install https://kojipkgs.fedoraproject.org//packages/perl-IO-Pty-Easy/0.10/5.fc28/noarch/perl-IO-Pty-Easy-0.10-5.fc28.noarch.rpm https://kojipkgs.fedoraproject.org//packages/perl-IO-Tty/1.12/11.fc28/x86_64/perl-IO-Tty-1.12-11.fc28.x86_64.rpm
 
         # Dnf more deps
         dnf -y install git python-netaddr iw net-tools wireshark psmisc firewalld dhcp ethtool dbus-python pygobject3 pygobject2 dnsmasq tcpdump wireshark-cli --skip-broken
@@ -113,7 +116,7 @@ local_setup_configure_nm_eth () {
             [ -f /etc/yum.repos.d/epel.repo ] || sudo rpm -i http://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm
         fi
 
-        yum -y install wireshark python-setuptools python2-pip --skip-broken
+        yum -y install perl-IO-Pty-Easy wireshark python-setuptools python2-pip --skip-broken
         easy_install pip
         pip install --upgrade pip
         pip install pexpect
@@ -283,6 +286,9 @@ local_setup_configure_nm_gsm () {
     sleep 60
     systemctl restart NetworkManager
     sleep 120
+    
+    # Selinux policy for gsm_sim (ModemManager needs access to /dev/pts/*)
+    semodule -i tmp/selinux-policy/ModemManager.pp
 
     touch /tmp/gsm_configured
 }

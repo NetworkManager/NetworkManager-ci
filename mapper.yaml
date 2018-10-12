@@ -1373,6 +1373,18 @@ testmapper:
         feature: wifi_hwsim
     - wifi_dbus_bitrate_property_name:
         feature: wifi_hwsim
+    - gsm_sim_create_assisted_connection:
+        feature: gsm_sim
+    - gsm_sim_create_default_connection:
+        feature: gsm_sim
+    - gsm_sim_disconnect:
+        feature: gsm_sim
+    - gsm_sim_mtu:
+        feature: gsm_sim
+    - gsm_sim_route_metric:
+        feature: gsm_sim
+    - gsm_sim_load_from_file:
+        feature: gsm_sim
     - alias_ifcfg_add_single_alias:
         feature: alias
     - alias_ifcfg_add_multiple_aliases:
