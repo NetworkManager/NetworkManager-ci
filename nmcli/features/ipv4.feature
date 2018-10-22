@@ -1212,15 +1212,13 @@ Feature: nmcli: ipv4
     * Save in editor
     * Quit editor
     * Run child "sudo tcpdump -i eth2 -v -n > /tmp/tcpdump.log"
-    * Wait for at least "5" seconds
+    When "empty" is not visible with command "file /tmp/tcpdump.log" in "150" seconds
     * Bring "up" connection "con_ipv4"
-    * Execute "sleep 5"
-    Then "Client-ID Option 61, length 3: \"AB\"" is visible with command "cat /tmp/tcpdump.log"
+    Then "Client-ID Option 61, length 3: \"AB\"" is visible with command "cat /tmp/tcpdump.log" in "10" seconds
     #### Then try hexadecimal client-id
     * Execute "nmcli connection modify con_ipv4 ipv4.dhcp-client-id c0:ff:ee:ee"
     * Bring "up" connection "con_ipv4"
-    * Execute "sleep 5"
-    Then "Client-ID Option 61, length 4: hardware-type 192, ff:ee:ee" is visible with command "cat /tmp/tcpdump.log"
+    Then "Client-ID Option 61, length 4: hardware-type 192, ff:ee:ee" is visible with command "cat /tmp/tcpdump.log" in "10" seconds
 
 
     @ver+=1.11.2 @rhel7_only
