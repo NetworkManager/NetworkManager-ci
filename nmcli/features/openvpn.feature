@@ -7,12 +7,28 @@
      # @test_name (compiled from scenario name)
      # Scenario:
 
+
+    @ver-=1.12
     @openvpn @openvpn4
     @openvpn_ipv4
     Scenario: nmcli - openvpn - add and connect IPv4 connection
     * Add a connection named "openvpn" for device "\*" to "openvpn" VPN
     * Use certificate "sample-keys/client.crt" with key "sample-keys/client.key" and authority "sample-keys/ca.crt" for gateway "127.0.0.1" on OpenVPN connection "openvpn"
     * Bring "up" connection "openvpn"
+    Then "VPN.VPN-STATE:.*VPN connected" is visible with command "nmcli c show openvpn"
+    Then "IP4.ADDRESS.*172.31.70.*/32" is visible with command "nmcli c show openvpn"
+    Then "IP6.ADDRESS" is not visible with command "nmcli c show openvpn"
+    And "default" is visible with command "ip r |grep -v eth0"
+
+
+    @rhbz1641742
+    @ver+=1.12
+    @openvpn @openvpn4
+    @openvpn_ipv4
+    Scenario: nmcli - openvpn - add and connect IPv4 connection
+    * Add a connection named "openvpn" for device "\*" to "openvpn" VPN
+    * Use certificate "sample-keys/client.crt" with key "sample-keys/client.key" and authority "sample-keys/ca.crt" for gateway "127.0.0.1" on OpenVPN connection "openvpn"
+    * Execute "nmcli con up openvpn ifname tun0"
     Then "VPN.VPN-STATE:.*VPN connected" is visible with command "nmcli c show openvpn"
     Then "IP4.ADDRESS.*172.31.70.*/32" is visible with command "nmcli c show openvpn"
     Then "IP6.ADDRESS" is not visible with command "nmcli c show openvpn"
