@@ -154,12 +154,12 @@ Feature: General TUI tests
     * Set "Service" field to "NINJA"
     * Ensure "Automatically connect" is not checked
     * Confirm the connection settings
-    Then "id=dsl0" is visible with command "cat /etc/NetworkManager/system-connections/dsl0"
-    Then "interface-name=eth5" is visible with command "cat /etc/NetworkManager/system-connections/dsl0"
-    Then "type=pppoe" is visible with command "cat /etc/NetworkManager/system-connections/dsl0"
-    Then "service=NINJA" is visible with command "cat /etc/NetworkManager/system-connections/dsl0"
-    Then "username=JohnSmith" is visible with command "cat /etc/NetworkManager/system-connections/dsl0"
-    Then "password=testingpassword" is visible with command "cat /etc/NetworkManager/system-connections/dsl0"
+    Then "id=dsl0" is visible with command "cat /etc/NetworkManager/system-connections/dsl0*"
+    Then "interface-name=eth5" is visible with command "cat /etc/NetworkManager/system-connections/dsl0*"
+    Then "type=pppoe" is visible with command "cat /etc/NetworkManager/system-connections/dsl0*"
+    Then "service=NINJA" is visible with command "cat /etc/NetworkManager/system-connections/dsl0*"
+    Then "username=JohnSmith" is visible with command "cat /etc/NetworkManager/system-connections/dsl0*"
+    Then "password=testingpassword" is visible with command "cat /etc/NetworkManager/system-connections/dsl0*"
     Then "dsl0\s+.*pppoe" is visible with command "nmcli connection"
 
 
