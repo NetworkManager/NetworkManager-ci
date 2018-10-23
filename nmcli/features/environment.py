@@ -111,7 +111,7 @@ def setup_racoon(mode, dh_group, phase1_al="aes", phase2_al=None):
     print ("setting up racoon")
     arch = check_output("uname -p", shell=True).decode('utf-8').strip()
     wait_for_testeth0()
-    if arch == "s390x" or arch == 'aarch64':
+    if arch == "s390x":
         call("[ -x /usr/sbin/racoon ] || yum -y install https://vbenes.fedorapeople.org/NM/ipsec-tools-0.8.2-1.el7.$(uname -p).rpm", shell=True)
     else:
         call("[ -f /etc/yum.repos.d/epel.repo ] || sudo rpm -i http://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm", shell=True)
@@ -133,9 +133,10 @@ def reset_hwaddr(ifname):
 def setup_hostapd():
     print ("setting up hostapd")
     wait_for_testeth0()
-    call("[ -f /etc/yum.repos.d/epel.repo ] || sudo rpm -i http://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm", shell=True)
-    call("[ -x /usr/sbin/hostapd ] || (yum -y install hostapd; sleep 10)", shell=True)
-
+    arch = check_output("uname -p", shell=True).decode('utf-8').strip()
+    if arch != "s390x":
+        call("[ -f /etc/yum.repos.d/epel.repo ] || sudo rpm -i http://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm", shell=True)
+        call("[ -x /usr/sbin/hostapd ] || (yum -y install hostapd; sleep 10)", shell=True)
     if call("sh prepare/hostapd_wired.sh tmp/8021x/certs", shell=True) != 0:
         call("sh prepare/hostapd_wired.sh teardown", shell=True)
         sys.exit(1)
@@ -143,9 +144,10 @@ def setup_hostapd():
 def setup_hostapd_wireless(auth):
     print ("setting up hostapd wireless")
     wait_for_testeth0()
-    call("[ -f /etc/yum.repos.d/epel.repo ] || sudo rpm -i http://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm", shell=True)
-    call("[ -x /usr/sbin/hostapd ] || (yum -y install hostapd; sleep 10)", shell=True)
-
+    arch = check_output("uname -p", shell=True).decode('utf-8').strip()
+    if arch != "s390x":
+        call("[ -f /etc/yum.repos.d/epel.repo ] || sudo rpm -i http://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm", shell=True)
+        call("[ -x /usr/sbin/hostapd ] || (yum -y install hostapd; sleep 10)", shell=True)
     if call("sh prepare/hostapd_wireless.sh tmp/8021x/certs {}".format(auth), shell=True) != 0:
         call("sh prepare/hostapd_wireless.sh teardown", shell=True)
         sys.exit(1)
@@ -608,7 +610,7 @@ def before_scenario(context, scenario):
         if 'vpnc' in scenario.tags:
             print ("---------------------------")
             arch = check_output("uname -p", shell=True).decode('utf-8').strip()
-            if arch == "s390x" or arch == 'aarch64':
+            if arch == "s390x":
                 sys.exit(77)
             call("[ -f /etc/yum.repos.d/epel.repo ] || sudo rpm -i http://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm", shell=True)
             call("rpm -q NetworkManager-vpnc || ( sudo yum -y install NetworkManager-vpnc && systemctl restart NetworkManager )", shell=True)
@@ -618,7 +620,7 @@ def before_scenario(context, scenario):
             print ("---------------------------")
             print ("install tcpreplay")
             arch = check_output("uname -p", shell=True).decode('utf-8').strip()
-            if arch == "s390x" or arch == 'aarch64':
+            if arch == "s390x":
                 sys.exit(77)
             wait_for_testeth0()
             call("[ -f /etc/yum.repos.d/epel.repo ] || sudo rpm -i http://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm", shell=True)
@@ -628,7 +630,7 @@ def before_scenario(context, scenario):
             print ("---------------------------")
             print ("setting up OpenVPN")
             arch = check_output("uname -p", shell=True).decode('utf-8').strip()
-            if arch == "s390x" or arch == 'aarch64':
+            if arch == "s390x":
                 sys.exit(77)
             wait_for_testeth0()
             call("[ -f /etc/yum.repos.d/epel.repo ] || sudo rpm -i http://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm", shell=True)
@@ -707,7 +709,7 @@ def before_scenario(context, scenario):
             print ("---------------------------")
             print ("setting up pptpd")
             arch = check_output("uname -p", shell=True).decode('utf-8').strip()
-            if arch == "s390x" or arch == 'aarch64':
+            if arch == "s390x":
                 sys.exit(77)
             wait_for_testeth0()
             call("[ -f /etc/yum.repos.d/epel.repo ] || sudo rpm -i http://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm", shell=True)
