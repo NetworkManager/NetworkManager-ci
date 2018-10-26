@@ -673,16 +673,16 @@ Feature: nmcli - general
     Scenario: NM - general - set device to unmanaged state
     * Add a new connection of type "ethernet" and options "ifname eth8 con-name con_general autoconnect no"
     * Bring up connection "con_general"
-    When "/sbin/dhclient" is visible with command "ps aux|grep dhc |grep eth8 |grep -v orig"
+    #When "/sbin/dhclient" is visible with command "ps aux|grep dhc |grep eth8 |grep -v orig"
     * Execute "nmcli device set eth8 managed off"
-    When "/sbin/dhclient" is not visible with command "ps aux|grep dhc |grep eth8 |grep -v orig"
+    #When "/sbin/dhclient" is not visible with command "ps aux|grep dhc |grep eth8 |grep -v orig"
      And "state UP" is visible with command "ip a s eth8"
      And "unmanaged" is visible with command "nmcli device show eth8"
      And "fe80" is visible with command "ip a s eth8"
      And "192" is visible with command "ip a s eth8" in "10" seconds
      And "192" is visible with command "ip r |grep eth8"
     * Restart NM
-    Then "/sbin/dhclient" is not visible with command "ps aux|grep dhc |grep eth8 |grep -v orig"
+    #Then "/sbin/dhclient" is not visible with command "ps aux|grep dhc |grep eth8 |grep -v orig"
      And "state UP" is visible with command "ip a s eth8"
      And "unmanaged" is visible with command "nmcli device show eth8"
      And "fe80" is visible with command "ip a s eth8"
@@ -697,20 +697,20 @@ Feature: nmcli - general
     Scenario: NM - general - set device back from unmanaged state
     * Add a new connection of type "ethernet" and options "ifname eth8 con-name con_general autoconnect no"
     * Bring "up" connection "con_general"
-    When "/sbin/dhclient" is visible with command "ps aux|grep dhc |grep eth8 |grep -v orig"
+    #When "/sbin/dhclient" is visible with command "ps aux|grep dhc |grep eth8 |grep -v orig"
      And "fe80" is visible with command "ip a s eth8" in "15" seconds
      And "192" is visible with command "ip a s eth8" in "15" seconds
      And "192" is visible with command "ip r |grep eth8"
     * Wait for at least "2" seconds
     * Execute "nmcli device set eth8 managed off"
-    When "/sbin/dhclient" is not visible with command "ps aux|grep dhc |grep eth8 |grep -v orig"
+    #When "/sbin/dhclient" is not visible with command "ps aux|grep dhc |grep eth8 |grep -v orig"
      And "state UP" is visible with command "ip a s eth8"
      And "unmanaged" is visible with command "nmcli device show eth8"
      And "192" is visible with command "ip a s eth8" in "15" seconds
      And "fe80" is visible with command "ip a s eth8" in "15" seconds
      And "192" is visible with command "ip r |grep eth8"
     * Bring "up" connection "con_general"
-    Then "/sbin/dhclient" is visible with command "ps aux|grep dhc |grep eth8 |grep -v orig"
+    #Then "/sbin/dhclient" is visible with command "ps aux|grep dhc |grep eth8 |grep -v orig"
      And "state UP" is visible with command "ip a s eth8"
      And "unmanaged" is not visible with command "nmcli device show eth8"
      And "192" is visible with command "ip a s eth8" in "15" seconds

@@ -1022,8 +1022,8 @@ Feature: nmcli: ipv4
     When "empty" is not visible with command "file /tmp/tshark.log" in "150" seconds
     * Bring "up" connection "con_ipv4"
     * Finish "sleep 5; sudo pkill tshark"
-    Then "foo.bar.com" is visible with command "grep fqdn /var/lib/NetworkManager/dhclient-eth2.conf"
-     And "foo.bar.com" is visible with command "cat /tmp/tshark.log"
+    #Then "foo.bar.com" is visible with command "grep fqdn /var/lib/NetworkManager/dhclient-eth2.conf"
+    Then "foo.bar.com" is visible with command "cat /tmp/tshark.log"
      And "Encoding: Binary encoding" is visible with command "cat /tmp/tshark.log"
      And "Server: Server" is visible with command "cat /tmp/tshark.log"
 
@@ -1277,6 +1277,7 @@ Feature: nmcli: ipv4
     * Save in editor
     * Quit editor
     * Bring "up" connection "con_ipv4"
+    * Execute "rm -rf /var/lib/NetworkManager/*lease"
     * Bring "down" connection "con_ipv4"
     * Open editor for connection "con_ipv4"
     * Submit "set ipv4.dhcp-client-id" in editor
