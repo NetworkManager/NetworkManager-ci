@@ -444,7 +444,7 @@ def band_cap_set_if_supported(context, flag, device='wlan0'):
 @step(u'device "{device}" has DNS server "{dns}"')
 def check_dns_domain(context, device, dns):
     try:
-        context.execute_steps(u'''* "DNS: %s\\r\\n" is visible with command "prepare/%s %s"''' % (re.escape(dns), context.dns_script, device))
+        context.execute_steps('* "DNS: %s\\r\\n" is visible with command "prepare/%s %s"' % (re.escape(dns), context.dns_script, device))
     except AssertionError:
         out = command_output(context, "prepare/%s %s" % (context.dns_script, device)).strip()
         raise AssertionError("Actual DNS configuration for %s is:\n%s\n" % (device, out))

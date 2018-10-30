@@ -263,6 +263,11 @@ def before_scenario(context, scenario):
             if call("grep -q 'release 7' /etc/redhat-release", shell=True) == 0:
                 sys.exit(77)
 
+        if 'not_in_rhel8' in scenario.tags:
+            # Do not run on RHEL7 at all
+            if call("grep -q 'release 8' /etc/redhat-release", shell=True) == 0:
+                sys.exit(77)
+
         if 'not_in_rhel' in scenario.tags:
             # Do not run on any stock RHEL package
             if call('rpm -qi NetworkManager |grep -q build.*bos.redhat.com', shell=True) == 0 or \
@@ -442,10 +447,10 @@ def before_scenario(context, scenario):
             print ("installing scapy and tcpdump")
             wait_for_testeth0()
             if not os.path.isfile('/usr/bin/pip'):
-                call('sudo easy_install pip', shell=True)
+                call('easy_install pip', shell=True)
             if not os.path.isfile('/usr/bin/scapy'):
-                call('sudo yum -y install tcpdump', shell=True)
-                call("sudo pip install scapy", shell=True)
+                call('yum -y install tcpdump', shell=True)
+                call("pip install scapy", shell=True)
 
         if 'skip_in_ootpa' in scenario.tags:
             print ("---------------------------")
