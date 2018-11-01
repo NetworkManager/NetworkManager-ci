@@ -100,7 +100,7 @@ local_setup_configure_nm_eth () {
         dnf -y install https://kojipkgs.fedoraproject.org//packages/NetworkManager-openvpn/1.8.4/1.fc28/x86_64/NetworkManager-openvpn-1.8.4-1.fc28.x86_64.rpm https://kojipkgs.fedoraproject.org//packages/openvpn/2.4.6/1.fc28/x86_64/openvpn-2.4.6-1.fc28.x86_64.rpm
 
         # Install various NM dependencies
-        dnf -y remove NetworkManager-config-connectivity-fedora
+        dnf -y remove NetworkManager-config-connectivity-fedora NetworkManager-config-connectivity-redhat
         dnf -y install http://download.eng.bos.redhat.com/brewroot/vol/rhel-8/packages/openvswitch/2.9.0/59.el8fdn/$(uname -p)/openvswitch-2.9.0-59.el8fdn.$(uname -p).rpm \
            http://download.eng.bos.redhat.com/brewroot/vol/rhel-8/packages/openvswitch-selinux-extra-policy/1.0/7.el8fdb/noarch/openvswitch-selinux-extra-policy-1.0-7.el8fdb.noarch.rpm
         dnf -y install http://download.eng.bos.redhat.com/brewroot/packages/$(rpm -q --queryformat '%{NAME}/%{VERSION}/%{RELEASE}' NetworkManager)/$(uname -p)/NetworkManager-ovs-$(rpm -q --queryformat '%{VERSION}-%{RELEASE}' NetworkManager).$(uname -p).rpm
