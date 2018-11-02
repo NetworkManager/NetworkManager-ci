@@ -266,7 +266,7 @@ Feature: nmcli - vlan
     Scenario: nmcli - vlan - device tagging
     * Execute "yum -y install wireshark"
     * Add a new connection of type "vlan" and options "con-name eth7.80 dev eth7 id 80"
-    * "eth7.80:" is visible with command "ifconfig"
+    * "eth7.80:" is visible with command "ifconfig" in "10" seconds
     * Spawn "ping -I eth7.80 8.8.8.8" command
     Then "ID: 80" is visible with command "tshark -i eth7 -T fields -e vlan" in "150" seconds
     Then Terminate spawned process "ping -I eth7.80 8.8.8.8"
@@ -433,7 +433,7 @@ Feature: nmcli - vlan
     * Execute "rm -rf /var/run/NetworkManager"
     Then "mtu 9000" is not visible with command "ip a s vlan"
     * Start NM
-    Then "mtu 9000" is visible with command "ip a s vlan"
+    When "mtu 9000" is visible with command "ip a s vlan" in "10" seconds
 
 
     @rhbz1414901
