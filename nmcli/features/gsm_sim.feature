@@ -19,8 +19,8 @@ Feature: nmcli: gsm
     * Dismiss Proxy configuration in editor
     Then "GENERAL.STATE:.*activated" is visible with command "nmcli con show gsm" in "60" seconds
     And "default" is visible with command "ip r |grep 700"
-    
-    
+
+
     @ver+=1.12.0
     @gsm_sim
     @gsm_sim_create_default_connection
@@ -54,7 +54,6 @@ Feature: nmcli: gsm
     * Add a new connection of type "gsm" and options "ifname \* con-name gsm autoconnect no apn internet"
     * Bring "up" connection "gsm"
     When "default" is visible with command "ip r |grep 700" in "60" seconds
-     And "mtu 1500" is visible with command "ip a s |grep mtu|tail -1"
      And "mtu 1500" is visible with command "nmcli |grep gsm"
     * Execute "nmcli con modify gsm gsm.mtu 1600"
     * Bring "down" connection "gsm"
@@ -62,7 +61,7 @@ Feature: nmcli: gsm
     * Bring "up" connection "gsm"
     * Wait for at least "5" seconds
     When "GENERAL.STATE:.*activated" is visible with command "nmcli con show gsm" in "60" seconds
-    Then "mtu 1600" is visible with command "ip a s |grep mtu|tail -1"
+    Then "mtu 1600" is visible with command "ip a s |grep mtu" in "10" seconds
      And "mtu 1600" is visible with command "nmcli |grep gsm"
 
 

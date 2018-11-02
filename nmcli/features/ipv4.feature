@@ -289,15 +289,18 @@ Feature: nmcli: ipv4
     @con_ipv4_remove @restart
     @ipv4_route_set_route_with_src_new_syntax
     Scenario: nmcli - ipv4 - routes - set route with src in new syntax
+    * Note the output of "ip r |grep eth0 |wc -l" as value "1"
     * Add a new connection of type "ethernet" and options "ifname eth3 con-name con_ipv4 autoconnect no ipv4.method manual ipv4.addresses 192.168.3.10/24 ipv4.gateway 192.168.4.1 ipv4.route-metric 256"
     * Execute "nmcli con modify con_ipv4 ipv4.routes '192.168.122.3 src=192.168.3.10'"
+
     * Bring "up" connection "con_ipv4"
-    Then "default via 192.168.4.1 dev eth3\s+proto static\s+metric 256" is visible with command "ip route" in "20" seconds
+    When "default via 192.168.4.1 dev eth3\s+proto static\s+metric 256" is visible with command "ip route" in "20" seconds
      And "192.168.3.0/24 dev eth3\s+proto kernel\s+scope link\s+src 192.168.3.10\s+metric 256" is visible with command "ip route"
      And "192.168.4.1 dev eth3\s+proto static\s+scope link\s+metric 256" is visible with command "ip route"
      And "192.168.122.3 dev eth3\s+proto static\s+scope link\s+src 192.168.3.10\s+metric 256" is visible with command "ip route"
      And "default" is visible with command "ip r |grep eth0"
-     And "2" is visible with command "ip r |grep eth0 |wc -l"
+     * Note the output of "ip r |grep eth0 |wc -l" as value "2"
+    Then Check noted values "1" and "2" are the same
      And "192.168.122.3/32\s+src=192.168.3.10" is visible with command "nmcli -g ipv4.routes connection show con_ipv4"
 
 
