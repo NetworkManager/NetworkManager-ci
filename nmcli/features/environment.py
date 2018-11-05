@@ -381,9 +381,9 @@ def before_scenario(context, scenario):
             print ("---------------------------")
             print ("add connectivity checker")
             call("echo '[connectivity]' > /etc/NetworkManager/conf.d/99-connectivity.conf", shell=True)
-            call("echo 'uri=http://fedoraproject.org/static/hotspot.txt' >> /etc/NetworkManager/conf.d/99-connectivity.conf", shell=True)
+            call("echo 'uri=http://static.redhat.com/test/rhel-networkmanager.txt' >> /etc/NetworkManager/conf.d/99-connectivity.conf", shell=True)
             call("echo 'response=OK' >> /etc/NetworkManager/conf.d/99-connectivity.conf", shell=True)
-            call("echo 'interval=5' >> /etc/NetworkManager/conf.d/99-connectivity.conf", shell=True)
+            call("echo 'interval=10' >> /etc/NetworkManager/conf.d/99-connectivity.conf", shell=True)
             reload_NM_service()
 
 
