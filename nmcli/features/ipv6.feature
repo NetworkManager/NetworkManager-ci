@@ -777,8 +777,6 @@
     * Quit editor
     * Bring "up" connection "con_ipv6"
     When "empty" is not visible with command "file /tmp/ipv6-hostname.log" in "150" seconds
-    * Bring "up" connection "con_ipv6"
-    * Bring "up" connection "con_ipv6"
     Then "r.cx" is visible with command "grep r.cx /tmp/ipv6-hostname.log" in "25" seconds
     * Execute "sudo pkill tshark"
 
@@ -804,8 +802,6 @@
     * Quit editor
     * Bring "up" connection "con_ipv6"
     When "empty" is not visible with command "file /tmp/tshark.log" in "150" seconds
-    * Bring "up" connection "con_ipv6"
-    * Bring "up" connection "con_ipv6"
     * Finish "sleep 5"
     * Execute "sudo pkill tshark"
     Then "r.cx" is not visible with command "cat /tmp/tshark.log" in "5" seconds
@@ -823,12 +819,9 @@
     * Quit editor
     * Bring "up" connection "con_ipv6"
     When "empty" is not visible with command "file /tmp/ipv6_hostname.log" in "150" seconds
-    * Bring "up" connection "con_ipv6"
-    * Bring "up" connection "con_ipv6"
-    * Finish "sleep 5"
+    Then "dacan.local" is visible with command "cat /tmp/ipv6-hostname.log" in "15" seconds
+     And "0. = O bit" is visible with command "cat /tmp/ipv6-hostname.log"
     * Execute "sudo pkill tshark"
-    Then "dacan.local" is visible with command "cat /tmp/ipv6-hostname.log" in "5" seconds
-    Then "0. = O bit" is visible with command "cat /tmp/ipv6-hostname.log" in "5" seconds
 
 
     @con_ipv6_remove @teardown_testveth

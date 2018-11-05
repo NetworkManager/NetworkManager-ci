@@ -1003,15 +1003,31 @@ def global_tem_address_check(context, dev):
 
 
 @step(u'Hostname is visible in log "{log}"')
-def hostname_visible(context, log):
-    cmd = "grep $(hostname -s) %s" %log
-    assert command_code(context, cmd) == 0, 'Hostname was not visible in log'
+@step(u'Hostname is visible in log "{log}" in "{seconds}" seconds')
+def hostname_visible(context, log, seconds=1):
+    seconds = int(seconds)
+    orig_seconds = seconds
+    cmd = "grep $(hostname -s) '%s'" %log
+    while seconds > 0:
+        if command_code(context, cmd) == 0:
+            return True
+        seconds = seconds - 1
+        sleep(1)
+    raise Exception('Hostname not visible in log in %d seconds' % (orig_seconds))
 
 
 @step(u'Hostname is not visible in log "{log}"')
-def hostname_visible(context, log):
-    cmd = "grep $(hostname -s) %s" %log
-    assert command_code(context, cmd) == 1, 'Hostname was visible in log'
+@step(u'Hostname is not visible in log "{log}" for full "{seconds}" seconds')
+def hostname_visible(context, log, seconds=1):
+    seconds = int(seconds)
+    orig_seconds = seconds
+    cmd = "grep $(hostname -s) '%s'" %log
+    while seconds > 0:
+        if command_code(context, cmd) != 0:
+            return True
+        seconds = seconds - 1
+        sleep(1)
+    raise Exception('Hostname visible in log after %d seconds' % (orig_seconds - seconds))
 
 
 @step(u'ifcfg-"{con_name}" file does not exist')
