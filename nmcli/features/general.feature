@@ -1585,7 +1585,7 @@ Feature: nmcli - general
     @firewall @connectivity @con_general_remove @delete_testeth0 @restart
     @disable_connectivity_check
     Scenario: NM - general - disable connectivity check
-    * Execute "sed -i 's/interval=5/interval=0/' /etc/NetworkManager/conf.d/99-connectivity.conf"
+    * Execute "rm -rf /etc/NetworkManager/conf.d/99-connectivity.conf"
     * Restart NM
     * Add a new connection of type "ethernet" and options "ifname eth0 con-name con_general autoconnect no ipv6.method ignore"
     * Bring up connection "con_general"
