@@ -963,8 +963,8 @@ Feature: nmcli: ipv4
     * Run child "sudo tshark -l -O bootp -i eth2 > /tmp/tshark.log"
     When "empty" is not visible with command "file /tmp/tshark.log" in "150" seconds
     * Bring "up" connection "con_ipv4"
-    * Finish "sleep 5; sudo pkill tshark"
-    Then "RHA" is visible with command "cat /tmp/tshark.log"
+    Then "RHA" is visible with command "cat /tmp/tshark.log" in "10" seconds
+    * Finish "sudo pkill tshark"
 
 
     @rhbz1443437
@@ -983,9 +983,9 @@ Feature: nmcli: ipv4
     * Run child "sudo tshark -l -O bootp -i eth2 > /tmp/tshark.log"
     When "empty" is not visible with command "file /tmp/tshark.log" in "150" seconds
     * Bring "up" connection "con_ipv4"
-    * Finish "sleep 5; sudo pkill tshark"
-    Then "R.C" is visible with command "cat /tmp/tshark.log"
-    Then "Option: \(12\) Host Name\s+Length: 3\s+Host Name: R.C" is visible with command "cat /tmp/tshark.log" in "5" seconds
+    Then "R.C" is visible with command "cat /tmp/tshark.log" in "10" seconds
+     And "Option: \(12\) Host Name\s+Length: 3\s+Host Name: R.C" is visible with command "cat /tmp/tshark.log"
+    * Finish "sudo pkill tshark"
 
 
     @tshark @con_ipv4_remove
@@ -1006,8 +1006,8 @@ Feature: nmcli: ipv4
     * Run child "sudo tshark -l -O bootp -i eth2 > /tmp/tshark.log"
     When "empty" is not visible with command "file /tmp/tshark.log" in "150" seconds
     * Bring "up" connection "con_ipv4"
-    * Finish "sleep 5; sudo pkill tshark"
-   Then "RHB" is not visible with command "cat /tmp/tshark.log"
+   Then "RHB" is not visible with command "cat /tmp/tshark.log" in "10" seconds
+    * Finish "sudo pkill tshark"
 
 
     @rhbz1255507
@@ -1024,11 +1024,11 @@ Feature: nmcli: ipv4
     * Run child "sudo tshark -l -O bootp -i eth2 > /tmp/tshark.log"
     When "empty" is not visible with command "file /tmp/tshark.log" in "150" seconds
     * Bring "up" connection "con_ipv4"
-    * Finish "sleep 5; sudo pkill tshark"
     #Then "foo.bar.com" is visible with command "grep fqdn /var/lib/NetworkManager/dhclient-eth2.conf"
-    Then "foo.bar.com" is visible with command "cat /tmp/tshark.log"
+    Then "foo.bar.com" is visible with command "cat /tmp/tshark.log" in "10" seconds
      And "Encoding: Binary encoding" is visible with command "cat /tmp/tshark.log"
      And "Server: Server" is visible with command "cat /tmp/tshark.log"
+    * Finish "sudo pkill tshark"
 
 
     @rhbz1255507
@@ -1047,11 +1047,11 @@ Feature: nmcli: ipv4
     * Run child "sudo tshark -l -O bootp -i eth2 > /tmp/tshark.log"
     When "empty" is not visible with command "file /tmp/tshark.log" in "150" seconds
     * Bring "up" connection "con_ipv4"
-    * Finish "sleep 5; sudo pkill tshark"
-    Then "foo.bar.com" is visible with command "grep fqdn /var/lib/NetworkManager/dhclient-eth2.conf"
+    Then "foo.bar.com" is visible with command "grep fqdn /var/lib/NetworkManager/dhclient-eth2.conf" in "10" seconds
      And "foo.bar.com" is visible with command "cat /tmp/tshark.log"
      And "Encoding: ASCII encoding" is visible with command "cat /tmp/tshark.log"
      And "Server: Client" is visible with command "cat /tmp/tshark.log"
+    * Finish "sudo pkill tshark"
 
 
     @tshark @con_ipv4_remove
@@ -1072,9 +1072,9 @@ Feature: nmcli: ipv4
     * Run child "sudo tshark -l -O bootp -i eth2 > /tmp/tshark.log"
     When "empty" is not visible with command "file /tmp/tshark.log" in "150" seconds
     * Bring "up" connection "con_ipv4"
-    * Finish "sleep 5; sudo pkill tshark"
-     Then "foo.bar.com" is not visible with command "grep fqdn /var/lib/NetworkManager/dhclient-eth2.conf"
+     Then "foo.bar.com" is not visible with command "grep fqdn /var/lib/NetworkManager/dhclient-eth2.conf" in "10" seconds
       And "foo.bar.com" is not visible with command "cat /tmp/tshark.log"
+    * Finish "sudo pkill tshark"
 
 
     @tshark @con_ipv4_remove
@@ -1092,8 +1092,8 @@ Feature: nmcli: ipv4
     * Run child "sudo tshark -l -O bootp -i eth2 > /tmp/hostname.log"
     When "empty" is not visible with command "file /tmp/hostname.log" in "150" seconds
     * Bring "up" connection "con_ipv4"
-    * Finish "sleep 5; sudo pkill tshark"
-    Then "RHC" is not visible with command "cat /tmp/hostname.log"
+    Then "RHC" is not visible with command "cat /tmp/hostname.log" in "10" seconds
+    * Finish "sudo pkill tshark"
 
 
     @tshark @con_ipv4_remove @restore_hostname
@@ -1110,8 +1110,8 @@ Feature: nmcli: ipv4
     * Run child "sudo tshark -l -O bootp -i eth2 > /tmp/tshark.log"
     When "empty" is not visible with command "file /tmp/tshark.log" in "150" seconds
     * Bring "up" connection "con_ipv4"
-    * Finish "sleep 5; sudo pkill tshark"
-    Then Hostname is visible in log "/tmp/tshark.log"
+    Then Hostname is visible in log "/tmp/tshark.log" in "10" seconds
+    * Finish "sudo pkill tshark"
 
 
     @tshark @con_ipv4_remove
@@ -1128,8 +1128,8 @@ Feature: nmcli: ipv4
     * Run child "sudo tshark -l -O bootp -i eth2 > /tmp/real.log"
     When "empty" is not visible with command "file /tmp/real.log" in "150" seconds
     * Bring "up" connection "con_ipv4"
-    * Finish "sleep 5; sudo pkill tshark"
-    Then Hostname is not visible in log "/tmp/real.log"
+    Then Hostname is not visible in log "/tmp/real.log" for full "10" seconds
+    * Finish "sudo pkill tshark"
 
 
     @rhbz1264410
@@ -1183,7 +1183,7 @@ Feature: nmcli: ipv4
 
 
     @ver-=1.11.1 @not_with_rhel7_pkg
-    @eth2 @con_ipv4_remove
+    @eth2 @con_ipv4_remove @tshark
     @ipv4_dhcp_client_id_set
     Scenario: nmcli - ipv4 - dhcp-client-id - set client id
     * Add connection type "ethernet" named "con_ipv4" for device "eth2"
@@ -1196,11 +1196,11 @@ Feature: nmcli: ipv4
     * Run child "sudo tshark -l -O bootp -i eth2 -x > /tmp/tshark.log"
     When "empty" is not visible with command "file /tmp/tshark.log" in "150" seconds
     * Bring "up" connection "con_ipv4"
-    * Finish "sleep 5; sudo pkill tshark"
-    Then "AB" is visible with command "cat /tmp/tshark.log"
+    Then "AB" is visible with command "cat /tmp/tshark.log" in "10" seconds
     #Then "walderon" is visible with command "cat /var/lib/NetworkManager/dhclient-eth2.conf"
     #VVV verify bug 999503
-    Then "exceeds max \(255\) for precision" is not visible with command "grep exceeds max /var/log/messages"
+     And "exceeds max \(255\) for precision" is not visible with command "grep exceeds max /var/log/messages"
+    * Finish "sudo pkill tshark"
 
 
     @ver+=1.11.3 @not_with_rhel7_pkg
@@ -1225,7 +1225,7 @@ Feature: nmcli: ipv4
 
 
     @ver+=1.11.2 @rhel7_only
-    @eth2 @con_ipv4_remove
+    @eth2 @con_ipv4_remove @tshark
     @ipv4_dhcp_client_id_set
     Scenario: nmcli - ipv4 - dhcp-client-id - set client id
     * Add connection type "ethernet" named "con_ipv4" for device "eth2"
@@ -1238,11 +1238,11 @@ Feature: nmcli: ipv4
     * Run child "sudo tshark -l -O bootp -i eth2 -x > /tmp/tshark.log"
     When "empty" is not visible with command "file /tmp/tshark.log" in "150" seconds
     * Bring "up" connection "con_ipv4"
-    * Finish "sleep 5; sudo pkill tshark"
-    Then "AB" is visible with command "cat /tmp/tshark.log"
+    Then "AB" is visible with command "cat /tmp/tshark.log" in "10" seconds
     #Then "walderon" is visible with command "cat /var/lib/NetworkManager/dhclient-eth2.conf"
     #VVV verify bug 999503
-    Then "exceeds max \(255\) for precision" is not visible with command "grep exceeds max /var/log/messages"
+     And "exceeds max \(255\) for precision" is not visible with command "grep exceeds max /var/log/messages"
+    * Finish "sudo pkill tshark"
 
 
     @ver+=1.11.2
@@ -1290,8 +1290,8 @@ Feature: nmcli: ipv4
     * Run child "sudo tshark -l -O bootp -i eth2 -x > /tmp/tshark.log"
     When "empty" is not visible with command "file /tmp/tshark.log" in "150" seconds
     * Bring "up" connection "con_ipv4"
-    * Execute "sleep 5; sudo pkill tshark"
-    Then "BC" is not visible with command "cat /tmp/tshark.log"
+    Then "BC" is not visible with command "cat /tmp/tshark.log" in "10" seconds
+    * Execute "sudo pkill tshark"
 
 
     @rhbz1531173
