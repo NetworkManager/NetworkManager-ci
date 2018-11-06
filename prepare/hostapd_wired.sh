@@ -28,8 +28,8 @@ function hostapd_setup ()
 
     # Create a connection which (in cooperation with dnsmasq) provides DHCP functionlity
     nmcli connection add type ethernet con-name DHCP_test8Y ifname test8Y ip4 10.0.253.1/24
+    sleep 1
     nmcli connection up id DHCP_test8Y
-
 
     # Note: Adding an interface to a bridge will cause the interface to lose its existing IP address.
     # If you're connected remotely via the interface you intend to add to the bridge,
