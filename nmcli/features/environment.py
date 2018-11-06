@@ -297,6 +297,11 @@ def before_scenario(context, scenario):
                     sys.exit(77)
 
         if 'gsm_sim' in scenario.tags:
+            arch = check_output("uname -p", shell=True).decode('utf-8').strip()
+            if arch != "x86_64":
+                print ("---------------------------")
+                print ("Skipping on not intel arch")
+                sys.exit(77)
             call("sudo prepare/gsm_sim.sh modemu", shell=True)
 
         if 'gsm' in scenario.tags:
@@ -814,6 +819,11 @@ def before_scenario(context, scenario):
             call('sudo nmcli connection delete testeth10', shell=True)
 
         if 'pppoe' in scenario.tags:
+            arch = check_output("uname -p", shell=True).decode('utf-8').strip()
+            if arch == "aarch64":
+                print ("---------------------------")
+                print ("Skipping on aarch64 due to https://bugzilla.redhat.com/show_bug.cgi?id=1643954")
+                sys.exit(77)
             print ("---------------------------")
             print ("installing pppoe dependencies")
             # This -x is to avoid upgrade of NetworkManager in older version testing
