@@ -1583,6 +1583,7 @@ Feature: nmcli: ipv4
     ## testA4 and con_ipv42 for renewal_gw_after_long_dhcp_outage
     * Prepare simulated test "testA4" device with "192.168.202" ipv4 and "dead:beaf:4" ipv6 dhcp address prefix
     * Add connection type "ethernet" named "con_ipv42" for device "testA4"
+    * Execute "nmcli connection modify con_ipv42 ipv4.may-fail no"
     ## testZ4 and profie for renewal_gw_after_dhcp_outage
     * Prepare simulated test "testZ4" device with "192.168.201" ipv4 and "dead:beaf:3" ipv6 dhcp address prefix
     * Add connection type "ethernet" named "profie" for device "testZ4"
