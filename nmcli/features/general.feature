@@ -965,6 +965,7 @@ Feature: nmcli - general
     * Execute "echo 'dhcp=internal' >> /etc/NetworkManager/conf.d/01-run-once.conf"
     * Execute "sleep 1"
     * Start NM
+    When "2620:" is visible with command "ip a s testG" in "60" seconds
     * Force renew IPv6 for "testG"
     When "2620:" is not visible with command "ip a s testG"
     Then "2620:" is visible with command "ip a s testG" in "120" seconds
