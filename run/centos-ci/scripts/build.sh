@@ -54,7 +54,9 @@ $SUDO yum install \
     make \
     libcurl-devel \
     libasan \
-    http://cbs.centos.org/kojifiles/packages/openvswitch/2.8.1/2.1fc28.el7/x86_64/openvswitch-2.8.1-2.1fc28.el7.x86_64.rpm \
+    gnutls-devel \
+    https://kojipkgs.fedoraproject.org//packages/openvswitch/2.8.1/2.fc28/x86_64/openvswitch-2.8.1-2.fc28.x86_64.rpm \
+    --enablerepo=* --skip-broken \
     -y
 
 mkdir -p "$BUILD_DIR"
