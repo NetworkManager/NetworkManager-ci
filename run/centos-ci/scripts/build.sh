@@ -10,6 +10,9 @@ if [ -z "$SUDO" ]; then
     unset SUDO
 fi
 
+# Workaround for not working repo
+rm -rf /etc/yum.repos.d/CentOS-Media.repo
+
 $SUDO yum install \
     git \
     rpm-build \
