@@ -9,13 +9,13 @@ function modem_setup ()
     done
     
     # get modemu script from NM repo
-    [ -f /tmp/gsm_sim.pl ] ||  wget -O /tmp/gsm_sim.pl https://raw.githubusercontent.com/NetworkManager/NetworkManager/master/contrib/test/modemu.pl
+    #[ -f /tmp/gsm_sim.pl ] ||  wget -O /tmp/gsm_sim.pl https://raw.githubusercontent.com/NetworkManager/NetworkManager/master/contrib/test/modemu.pl
 
     # create simulated gsm device using perl script
     (
         while true;
         do
-            perl /tmp/gsm_sim.pl $1 &
+            perl tmp/gsm_sim.pl $1 &
             # get pid of perl script
             echo $!> /tmp/gsm_sim_perl.pid
             wait
