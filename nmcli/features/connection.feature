@@ -704,7 +704,7 @@ Feature: nmcli: connection
     @connection_multiconnect_reboot
     Scenario: nmcli - connection - multi-connect reboot
     * Add a new connection of type "ethernet" and options "con-name con_con connection.autoconnect yes connection.autoconnect-priority 0 ifname '' connection.multi-connect multiple"
-    * Bring "up" connection "testeth0
+    * Bring "up" connection "testeth0"
     * Reboot
     Then "eth0" is not visible with command "nmcli device | grep ethernet | grep con_con"
      And "eth1" is visible with command "nmcli device | grep ethernet | grep con_con"
