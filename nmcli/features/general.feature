@@ -230,7 +230,7 @@ Feature: nmcli - general
       @shutdown_service_any
       Scenario: NM - general - shutdown service - all
       * Stop NM
-      Then All ifaces but "gre0, gretap0, dummy0, ip6tnl0, tunl0, sit0" are not in state "DOWN"
+      Then All ifaces but "gre0, gretap0, dummy0, ip6tnl0, tunl0, sit0, erspan0" are not in state "DOWN"
        And "After=network-pre.target dbus.service" is visible with command "grep After /usr/lib/systemd/system/NetworkManager.service"
 
 

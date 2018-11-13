@@ -976,15 +976,15 @@ Feature: nmcli: ipv4
     * Bring "up" connection "con_ipv4"
     * Bring "down" connection "con_ipv4"
     * Open editor for connection "con_ipv4"
-    * Submit "set ipv4.dhcp-hostname R.C" in editor
+    * Submit "set ipv4.dhcp-hostname RC" in editor
     #* Submit "set ipv4.send-hostname yes" in editor
     * Save in editor
     * Quit editor
     * Run child "sudo tshark -l -O bootp -i eth2 > /tmp/tshark.log"
     When "empty" is not visible with command "file /tmp/tshark.log" in "150" seconds
     * Bring "up" connection "con_ipv4"
-    Then "R.C" is visible with command "cat /tmp/tshark.log" in "10" seconds
-     And "Option: \(12\) Host Name\s+Length: 3\s+Host Name: R.C" is visible with command "cat /tmp/tshark.log"
+    Then "RC" is visible with command "cat /tmp/tshark.log" in "10" seconds
+     And "Option: \(12\) Host Name\s+Length: 2\s+Host Name: RC" is visible with command "cat /tmp/tshark.log"
     * Finish "sudo pkill tshark"
 
 
@@ -1033,7 +1033,7 @@ Feature: nmcli: ipv4
 
     @rhbz1255507
     @ver+=1.3.0
-    @tshark @con_ipv4_remove
+    @tshark @con_ipv4_remove @not_under_internal_DHCP
     @nmcli_ipv4_override_fqdn
     Scenario: nmcli - ipv4 - dhcp-fqdn - override dhcp-fqdn
     * Add connection type "ethernet" named "con_ipv4" for device "eth2"

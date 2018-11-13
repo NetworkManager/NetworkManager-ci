@@ -357,8 +357,10 @@
     * Note the output of "nmcli -g GENERAL.HWADDR device show eth1" as value "old_eth1"
     * Add a new connection of type "bond-slave" and options "con-name bond0.0 ifname eth1 master nm-bond"
     * Add a new connection of type "bond" and options "con-name bond0"
-    * Bring "up" connection "bond0.0"
+    # Workaround for bug 1649394, just remove the sleep 3
+    * Execute "sleep 5; nmcli con up bond0.0"
     When "nm-bond:connected:bond0" is visible with command "nmcli -t -f DEVICE,STATE,CONNECTION device" in "20" seconds
+    #* Bring "up" connection "bond0.0"
     * Note the output of "nmcli -g GENERAL.HWADDR device show eth1" as value "new_eth1"
     * Note the output of "nmcli -g GENERAL.HWADDR device show nm-bond" as value "old_nm-bond"
     * Bring "up" connection "bond0"
