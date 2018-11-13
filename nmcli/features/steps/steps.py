@@ -976,10 +976,9 @@ def flag_cap_set(context, flag, n=None, device='wlan0', giveexception=True):
 
 @step(u'Force renew IPv6 for "{device}"')
 def force_renew_ipv6(context, device):
-    mac = command_output(context, "ip a s %s |grep fe80 |awk '{print $2}'" % device)
-    command_code(context, "echo 1 >  /proc/sys/net/ipv6/conf/%s/disable_ipv6" % device)
-    command_code(context, "echo 0 >  /proc/sys/net/ipv6/conf/%s/disable_ipv6" % device)
-    command_code(context, "ip addr add %s dev %s" %(mac, device))
+    mac = command_output(context, "ip a s %s |grep fe80 |awk '{print $2}'" % device).strip()
+    command_code(context, "ip -6 addr flush dev %s" % (device))
+    command_code(context, "ip addr add %s dev %s" % (mac, device))
 
 
 @step(u'Global temporary ip is not based on mac of device "{dev}"')
