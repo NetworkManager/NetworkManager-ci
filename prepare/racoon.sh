@@ -17,13 +17,13 @@ elif [ $# -gt 3 ]; then
     echo "Error. Too many arguments (3 required).\n" >&2
     echo "$USAGE_INFO" >&2
     exit 1
-else
-    echo "Starting racoon.sh..."
 fi
 
 
 function racoon_setup ()
 {
+    echo "============================"
+    echo "Starting racoon.sh..."
     # Quit immediatelly on any script error
     set -e
     MODE=$1
@@ -84,13 +84,14 @@ function racoon_setup ()
     for i in {3..41}; do
         echo "172.31.70.$i ipsecret" >> $RACOON_DIR/psk.txt
     done
-    
+
     # Set correct permissions for the file containing preshared keys.
     # This is needed in RHEL 7.6 in order for work correctly.
     chmod 600 $RACOON_DIR/psk.txt
 
     if getent passwd budulinek > /dev/null; then
         userdel -r budulinek
+        sleep 1
     fi
 
     # Add user budulinek with encrypted password
@@ -158,6 +159,9 @@ function racoon_setup ()
 
 function racoon_teardown ()
 {
+    echo "============================"
+    echo "Cleaning racoon setup..."
+    userdel -r budulinek
     echo 0 > /proc/sys/net/ipv6/conf/default/disable_ipv6
     kill -INT $(ps aux|grep dns|grep racoon|grep -v grep |awk {'print $2'})
     if systemctl --quiet is-active nm-racoon; then
