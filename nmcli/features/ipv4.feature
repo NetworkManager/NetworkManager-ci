@@ -1072,7 +1072,8 @@ Feature: nmcli: ipv4
     * Run child "sudo tshark -l -O bootp -i eth2 > /tmp/tshark.log"
     When "empty" is not visible with command "file /tmp/tshark.log" in "150" seconds
     * Bring "up" connection "con_ipv4"
-    Then "foo.bar.com" is not visible with command "cat /tmp/tshark.log"
+     Then "foo.bar.com" is not visible with command "grep fqdn /var/lib/NetworkManager/dhclient-eth2.conf" in "10" seconds
+      And "foo.bar.com" is not visible with command "cat /tmp/tshark.log"
     * Finish "sudo pkill tshark"
 
 

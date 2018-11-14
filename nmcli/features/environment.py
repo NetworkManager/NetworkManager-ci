@@ -415,7 +415,10 @@ def before_scenario(context, scenario):
                 context.revert_unmanaged = False
 
         if 'not_under_internal_DHCP' in scenario.tags:
-            if call("grep dhcp=internal /etc/NetworkManager/NetworkManager.conf", shell=True) == 0:
+            if call("grep -q Ootpa /etc/redhat-release", shell=True) == 0 and \
+               call("NetworkManager --print-config|grep dhclient", shell=True) != 0:
+                sys.exit(77)
+            if call("NetworkManager --print-config|grep internal", shell=True) == 0:
                 sys.exit(77)
 
         if 'newveth' in scenario.tags or 'not_on_veth' in scenario.tags:
