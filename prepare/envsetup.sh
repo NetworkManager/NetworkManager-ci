@@ -9,7 +9,7 @@ local_setup_configure_nm_eth () {
 
     echo "Setting test's password to 'networkmanager'"
     userdel -r test
-    sleep(1)
+    sleep 1
     useradd -m test
     echo "networkmanager" | passwd test --stdin
 
