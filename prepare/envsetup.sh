@@ -126,7 +126,7 @@ local_setup_configure_nm_eth () {
         pip install pyroute2
         yum -y install https://kojipkgs.fedoraproject.org//packages/python-behave/1.2.5/18.el7/noarch/python2-behave-1.2.5-18.el7.noarch.rpm https://kojipkgs.fedoraproject.org//packages/python-parse/1.6.4/4.el7/noarch/python-parse-1.6.4-4.el7.noarch.rpm https://kojipkgs.fedoraproject.org//packages/python-parse_type/0.3.4/6.el7/noarch/python-parse_type-0.3.4-6.el7.noarch.rpm --skip-broken
         yum -y install git python-netaddr iw net-tools wireshark psmisc bridge-utils firewalld dhcp ethtool dbus-python pygobject3 pygobject2 dnsmasq --skip-broken
-        yum -y remove NetworkManager-config-connectivity-fedora --skip-broken
+        yum -y remove NetworkManager-config-connectivity-fedora NetworkManager-config-connectivity-redhat
         yum -y install  http://download.eng.bos.redhat.com/brewroot/packages/openvswitch/2.9.0/77.el7fdn/$(arch)/openvswitch-2.9.0-77.el7fdn.$(arch).rpm   http://download.eng.bos.redhat.com/brewroot/packages/openvswitch-selinux-extra-policy/1.0/7.el7fdp/noarch/openvswitch-selinux-extra-policy-1.0-7.el7fdp.noarch.rpm
     fi
 
