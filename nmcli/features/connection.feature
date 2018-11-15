@@ -703,10 +703,9 @@ Feature: nmcli: connection
     @con_con_remove @restart
     @connection_multiconnect_reboot
     Scenario: nmcli - connection - multi-connect reboot
-    * Add a new connection of type "ethernet" and options "con-name con_con connection.autoconnect yes connection.autoconnect-priority 0 ifname '' connection.multi-connect multiple"
+    * Add a new connection of type "ethernet" and options "con-name con_con connection.autoconnect yes connection.autoconnect-priority 0 ifname '' connection.multi-connect multiple match.interface-name '!eth0'"
     * Reboot
-    # Here is a bug 1650128
-    #Then "eth0" is not visible with command "nmcli device | grep ethernet | grep con_con"
+    Then "eth0" is not visible with command "nmcli device | grep ethernet | grep con_con"
      And "eth1" is visible with command "nmcli device | grep ethernet | grep con_con"
      And "eth2" is visible with command "nmcli device | grep ethernet | grep con_con"
      And "eth3" is visible with command "nmcli device | grep ethernet | grep con_con"

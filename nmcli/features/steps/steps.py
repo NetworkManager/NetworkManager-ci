@@ -1634,7 +1634,7 @@ def quit_editor(context):
 def reboot(context):
     context.nm_restarted = True
     assert command_code(context, "sudo service NetworkManager stop") == 0
-    for x in range(1,10):
+    for x in range(1,11):
         command_code(context, "sudo ip link set dev eth%d down" %int(x))
         command_code(context, "sudo ip addr flush dev eth%d" %int(x))
 
