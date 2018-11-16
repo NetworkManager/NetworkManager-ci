@@ -89,7 +89,7 @@
      * Expect "Bonding miimon \[100\]"
      * Submit "100" in editor
      * Expect "Bonding downdelay \[0\]"
-     * Submit "200" in editor
+     * Submit "400" in editor
      * Expect "Bonding updelay \[0\]"
      * Submit "400" in editor
      * Dismiss IP configuration in editor
@@ -359,12 +359,12 @@
     * Add a new connection of type "bond" and options "con-name bond0"
     # Workaround for bug 1649394, just remove the sleep 3
     * Execute "sleep 5; nmcli con up bond0.0"
-    When "nm-bond:connected:bond0" is visible with command "nmcli -t -f DEVICE,STATE,CONNECTION device" in "20" seconds
+    When "nm-bond:connected:bond0" is visible with command "nmcli -t -f DEVICE,STATE,CONNECTION device" in "40" seconds
     #* Bring "up" connection "bond0.0"
     * Note the output of "nmcli -g GENERAL.HWADDR device show eth1" as value "new_eth1"
     * Note the output of "nmcli -g GENERAL.HWADDR device show nm-bond" as value "old_nm-bond"
     * Bring "up" connection "bond0"
-    When "nm-bond:connected:bond0" is visible with command "nmcli -t -f DEVICE,STATE,CONNECTION device" in "20" seconds
+    When "nm-bond:connected:bond0" is visible with command "nmcli -t -f DEVICE,STATE,CONNECTION device" in "40" seconds
     * Note the output of "nmcli -g GENERAL.HWADDR device show eth1" as value "newest_eth1"
     * Note the output of "nmcli -g GENERAL.HWADDR device show nm-bond" as value "new_nm-bond"
     Then Check noted values "old_eth1" and "new_eth1" are the same
@@ -609,7 +609,7 @@
     * Add slave connection for master "nm-bond" on device "eth5" named "bond0.2"
     * Execute "nmcli con modify bond0 con.autoconnect-sl 1"
     * Execute "echo -e '[main]\nslaves-order=name' > /etc/NetworkManager/conf.d/99-bond.conf"
-     When "nm-bond:connected:bond0" is visible with command "nmcli -t -f DEVICE,STATE,CONNECTION device" in "20" seconds
+     When "nm-bond:connected:bond0" is visible with command "nmcli -t -f DEVICE,STATE,CONNECTION device" in "40" seconds
     * Reboot
     When Check bond "nm-bond" link state is "up"
      And Check slave "eth11" in bond "nm-bond" in proc
@@ -1224,7 +1224,7 @@
      * Add a new connection of type "ethernet" and options "con-name bond0.1 ifname eth4 master nm-bond autoconnect no"
      * Add a new connection of type "ethernet" and options "con-name bond0.0 ifname eth1 master nm-bond autoconnect no"
      * Bring "up" connection "bond0"
-     When "nm-bond:connected:bond0" is visible with command "nmcli -t -f DEVICE,STATE,CONNECTION device" in "20" seconds
+     When "nm-bond:connected:bond0" is visible with command "nmcli -t -f DEVICE,STATE,CONNECTION device" in "40" seconds
      Then "BONDING_OPTS=\"mode=active-backup num_grat_arp=3 num_unsol_na=3 active_slave=eth4\"" is visible with command "cat /etc/sysconfig/network-scripts/ifcfg-bond0"
       #And "Currently Active Slave: eth4" is visible with command "cat /proc/net/bonding/nm-bond"
       And "3" is visible with command "cat /sys/class/net/nm-bond/bonding/num_grat_arp"
@@ -1239,7 +1239,7 @@
      * Add a new connection of type "ethernet" and options "con-name bond0.1 ifname eth4 master nm-bond autoconnect no"
      * Add a new connection of type "ethernet" and options "con-name bond0.0 ifname eth1 master nm-bond autoconnect no"
      * Bring "up" connection "bond0"
-     When "nm-bond:connected:bond0" is visible with command "nmcli -t -f DEVICE,STATE,CONNECTION device" in "20" seconds
+     When "nm-bond:connected:bond0" is visible with command "nmcli -t -f DEVICE,STATE,CONNECTION device" in "40" seconds
      Then "BONDING_OPTS=\"active_slave=eth4 mode=active-backup num_grat_arp=3 num_unsol_na=3\"" is visible with command "cat /etc/sysconfig/network-scripts/ifcfg-bond0"
       #And "Currently Active Slave: eth4" is visible with command "cat /proc/net/bonding/nm-bond"
       And "3" is visible with command "cat /sys/class/net/nm-bond/bonding/num_grat_arp"
@@ -1253,7 +1253,7 @@
      * Add a new connection of type "ethernet" and options "con-name bond0.1 ifname eth4 master nm-bond autoconnect no"
      * Add a new connection of type "ethernet" and options "con-name bond0.0 ifname eth1 master nm-bond autoconnect no"
      * Bring "up" connection "bond0"
-     #When "nm-bond:connected:bond0" is visible with command "nmcli -t -f DEVICE,STATE,CONNECTION device" in "20" seconds
+     #When "nm-bond:connected:bond0" is visible with command "nmcli -t -f DEVICE,STATE,CONNECTION device" in "40" seconds
      Then "system priority: 666" is visible with command "cat /proc/net/bonding/nm-bond"
       And "2" is visible with command "cat /sys/class/net/nm-bond/bonding/ad_user_port_key"
       And "00:00:00:00:11:00" is visible with command "cat /sys/class/net/nm-bond/bonding/ad_actor_system"
@@ -1269,7 +1269,7 @@
      * Add a new connection of type "ethernet" and options "con-name bond0.1 ifname eth4 master nm-bond autoconnect no"
      * Add a new connection of type "ethernet" and options "con-name bond0.0 ifname eth1 master nm-bond autoconnect no"
      * Bring "up" connection "bond0"
-     When "nm-bond:connected:bond0" is visible with command "nmcli -t -f DEVICE,STATE,CONNECTION device" in "20" seconds
+     When "nm-bond:connected:bond0" is visible with command "nmcli -t -f DEVICE,STATE,CONNECTION device" in "40" seconds
      Then "1" is visible with command "cat /sys/class/net/nm-bond/bonding/arp_all_targets"
 
 
@@ -1281,7 +1281,7 @@
      * Add a new connection of type "ethernet" and options "con-name bond0.1 ifname eth4 master nm-bond autoconnect no"
      * Add a new connection of type "ethernet" and options "con-name bond0.0 ifname eth1 master nm-bond autoconnect no"
      * Bring "up" connection "bond0"
-     When "nm-bond:connected:bond0" is visible with command "nmcli -t -f DEVICE,STATE,CONNECTION device" in "20" seconds
+     When "nm-bond:connected:bond0" is visible with command "nmcli -t -f DEVICE,STATE,CONNECTION device" in "40" seconds
      Then "1024" is visible with command "cat /sys/class/net/nm-bond/bonding/packets_per_slave"
 
 
@@ -1293,7 +1293,7 @@
      * Add a new connection of type "ethernet" and options "con-name bond0.1 ifname eth4 master nm-bond autoconnect no"
      * Add a new connection of type "ethernet" and options "con-name bond0.0 ifname eth1 master nm-bond autoconnect no"
      * Bring "up" connection "bond0"
-     #When "nm-bond:connected:bond0" is visible with command "nmcli -t -f DEVICE,STATE,CONNECTION device" in "20" seconds
+     #When "nm-bond:connected:bond0" is visible with command "nmcli -t -f DEVICE,STATE,CONNECTION device" in "40" seconds
      Then "0" is visible with command "cat /sys/class/net/nm-bond/bonding/tlb_dynamic_lb"
       And "666" is visible with command "cat /sys/class/net/nm-bond/bonding/lp_interval"
 
@@ -1461,7 +1461,7 @@
     * Bring "up" connection "bond0.0"
     * Bring "up" connection "bond0.1"
     * Bring "up" connection "vlan"
-    When "nm-bond:connected:bond0" is visible with command "nmcli -t -f DEVICE,STATE,CONNECTION device" in "20" seconds
+    When "nm-bond:connected:bond0" is visible with command "nmcli -t -f DEVICE,STATE,CONNECTION device" in "40" seconds
      And "eth1:connected:bond0.0" is visible with command "nmcli -t -f DEVICE,STATE,CONNECTION device"
      And "eth4:connected:bond0.1" is visible with command "nmcli -t -f DEVICE,STATE,CONNECTION device"
      And "nm-bond.153:connected:vlan" is visible with command "nmcli -t -f DEVICE,STATE,CONNECTION device"
@@ -1472,7 +1472,7 @@
      And "state UP" is visible with command "ip a s nm-bond.153"
      And "10.66.66.1/24" is visible with command "ip a s nm-bond.153"
     * Restart NM
-    Then "nm-bond:connected:bond0" is visible with command "nmcli -t -f DEVICE,STATE,CONNECTION device" in "20" seconds
+    Then "nm-bond:connected:bond0" is visible with command "nmcli -t -f DEVICE,STATE,CONNECTION device" in "40" seconds
      And "eth1:connected:bond0.0" is visible with command "nmcli -t -f DEVICE,STATE,CONNECTION device"
      And "eth4:connected:bond0.1" is visible with command "nmcli -t -f DEVICE,STATE,CONNECTION device"
      And "nm-bond.153:connected:vlan" is visible with command "nmcli -t -f DEVICE,STATE,CONNECTION device"
@@ -1488,7 +1488,7 @@
       * Add a new connection of type "bond" and options "con-name bond0 ifname nm-bond autoconnect no ipv4.method disabled ipv6.method ignore"
       * Add a new connection of type "ethernet" and options "con-name bond0.0 ifname testXB autoconnect no connection.master nm-bond connection.slave-type bond"
       * Bring "up" connection "bond0.0"
-      When "nm-bond:bond:connected:bond0" is visible with command "nmcli -t -f DEVICE,TYPE,STATE,CONNECTION device" in "20" seconds
+      When "nm-bond:bond:connected:bond0" is visible with command "nmcli -t -f DEVICE,TYPE,STATE,CONNECTION device" in "40" seconds
        And "state UP" is visible with command "ip -6 a s nm-bond"
        And "inet6 fe80" is visible with command "ip -6 a s nm-bond"
       * Kill NM
@@ -1496,7 +1496,7 @@
       When "state UP" is visible with command "ip -6 a s nm-bond"
        And "inet6 fe80" is visible with command "ip -6 a s nm-bond" for full "10" seconds
       * Bring "up" connection "bond0.0"
-      Then "nm-bond:bond:connected:bond0" is visible with command "nmcli -t -f DEVICE,TYPE,STATE,CONNECTION device" in "20" seconds
+      Then "nm-bond:bond:connected:bond0" is visible with command "nmcli -t -f DEVICE,TYPE,STATE,CONNECTION device" in "40" seconds
        And "state UP" is visible with command "ip -6 a s nm-bond"
        And "inet6 fe80" is visible with command "ip -6 a s nm-bond"
 
@@ -1565,9 +1565,9 @@
     * Execute "ip netns exec testXB_ns kill -SIGSTOP $(cat /tmp/testXB_ns.pid)"
     * Execute "ip netns exec testXB_ns ip link set testXBp up"
     * Execute "ip netns exec testXB_ns kill -SIGCONT $(cat /tmp/testXB_ns.pid)" without waiting for process to finish
-    Then "MASTER_HAS_SLAVES" is visible with command "python tmp/nmclient_get_state_flags.py bond0" in "20" seconds
-    Then "IP4" is visible with command "python tmp/nmclient_get_state_flags.py bond0" in "20" seconds
-    Then "IP6" is visible with command "python tmp/nmclient_get_state_flags.py bond0" in "20" seconds
+    Then "MASTER_HAS_SLAVES" is visible with command "python tmp/nmclient_get_state_flags.py bond0" in "40" seconds
+    Then "IP4" is visible with command "python tmp/nmclient_get_state_flags.py bond0" in "40" seconds
+    Then "IP6" is visible with command "python tmp/nmclient_get_state_flags.py bond0" in "40" seconds
 
 
     @rhbz1591734
