@@ -99,7 +99,7 @@
     Then Check bond "nm-bond" link state is "up"
     Then "MII Polling Interval \(ms\): 100" is visible with command "cat /proc/net/bonding/nm-bond"
     Then "Up Delay \(ms\): 400" is visible with command "cat /proc/net/bonding/nm-bond"
-    Then "Down Delay \(ms\): 200" is visible with command "cat /proc/net/bonding/nm-bond"
+    Then "Down Delay \(ms\): 400" is visible with command "cat /proc/net/bonding/nm-bond"
 
 
     @slaves @bond
