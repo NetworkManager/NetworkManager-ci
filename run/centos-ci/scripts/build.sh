@@ -77,8 +77,8 @@ fi
 time ./contrib/fedora/rpm/build_clean.sh -c -g "${A[@]}"
 
 pushd "./contrib/fedora/rpm/latest/RPMS/$ARCH/"
-    for p in $(ls -1 ./{$ARCH,noarch}/*.rpm | sed -n 's#^\./[^/]\+/\(NetworkManager.*\)-1\.[0-9]\+\..*#\1#p'); do
-        $SUDO rpm -e --nodeps $p || true
+    for p in $(rpm -qa NetworkManager*); do
+        rpm -e --nodeps $p || true
     done
     $SUDO yum install -y ./{$ARCH,noarch}/*.rpm
 popd
