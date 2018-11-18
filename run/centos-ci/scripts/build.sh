@@ -1,6 +1,7 @@
 #!/bin/bash
 
 BUILD_DIR="${BUILD_DIR:-/root/nm-build}"
+RPM_DIR="NetworkManager/contrib/fedora/rpm/latest/RPMS/"
 BUILD_ID="$1"
 BUILD_REPO="${BUILD_REPO-https://github.com/NetworkManager/NetworkManager.git}"
 ARCH="${ARCH:-`arch`}"
@@ -77,11 +78,11 @@ fi
 time ./contrib/fedora/rpm/build_clean.sh -c -g "${A[@]}"
 
 pushd "./contrib/fedora/rpm/latest/RPMS/$ARCH/"
-    for p in $(rpm -qa NetworkManager*); do
-        rpm -e --nodeps $p || true
-    done
-    $SUDO yum install -y ./{$ARCH,noarch}/*.rpm
-popd
+for p in $(rpm -qa NetworkManager*); do
+    rpm -e --nodeps $p || true
+done
+$SUDO yum install -y $BUILD_DIR/$RPM_DIR/{$ARCH,noarch}/*.rpm
+
 
 # ensure that the expected NM is installed.
 COMMIT_ID="$(git rev-parse --verify HEAD | sed 's/^\(.\{10\}\).*/\1/')"
