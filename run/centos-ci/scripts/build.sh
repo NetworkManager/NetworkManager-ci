@@ -75,11 +75,16 @@ A=()
 if [[ "$WITH_DEBUG" == yes ]]; then
     A=("${A[@]}" --with debug)
 fi
+
 time ./contrib/fedora/rpm/build_clean.sh -c -g "${A[@]}"
 
-for p in $(rpm -qa NetworkManager*); do
+echo ">> Removing an old packages"
+for p in $(rpm -qa |grep NetworkManager); do
+    echo ">>> Removing $p"
     rpm -e --nodeps $p
 done
+
+echo ">> Installing the newly built packages"
 $SUDO yum install -y $BUILD_DIR/$RPM_DIR/{$ARCH,noarch}/*.rpm
 
 
