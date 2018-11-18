@@ -77,9 +77,8 @@ if [[ "$WITH_DEBUG" == yes ]]; then
 fi
 time ./contrib/fedora/rpm/build_clean.sh -c -g "${A[@]}"
 
-pushd "./contrib/fedora/rpm/latest/RPMS/$ARCH/"
 for p in $(rpm -qa NetworkManager*); do
-    rpm -e --nodeps $p || true
+    rpm -e --nodeps $p
 done
 $SUDO yum install -y $BUILD_DIR/$RPM_DIR/{$ARCH,noarch}/*.rpm
 
