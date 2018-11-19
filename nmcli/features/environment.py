@@ -84,7 +84,7 @@ def reset_usb_devices():
     dirs = os.listdir(USB_DEV_DIR)
     for d in dirs:
         # Skip interfaces, we only care about devices
-        if string.find(d, ":") >= 0:
+        if d.count(":") >= 0:
             continue
 
         busnum = int(getfile("%s/%s" % (USB_DEV_DIR, d), "busnum"))
