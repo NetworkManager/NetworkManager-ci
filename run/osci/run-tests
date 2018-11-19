@@ -1,12 +1,15 @@
 #!/bin/bash
+
 RELEASE=$1
 MY_PATH="`dirname \"$0\"`"
 TESTS=$(cat $MY_PATH/$RELEASE.tests)
+
 # Add failures and test counter variables
 COUNTER=0
 FAILURES=()
 RESULTS_DIR=/tmp/artifacts
 RESULTS=$RESULTS_DIR/RESULTS
+
 
 function run_needed_workarounds ()
 {
@@ -28,8 +31,17 @@ function run_needed_workarounds ()
     yum downgrade -y https://kojipkgs.fedoraproject.org//packages/ipsec-tools/0.8.2/10.fc28/x86_64/ipsec-tools-0.8.2-10.fc28.x86_64.rpm
 
     ###########################################
+}
+
+
+function enable_debug_log ()
+{
+    # Enable trace level logs for all domains
+    echo -e "[logging]\nlevel=TRACE\ndomains=ALL\n" > /etc/NetworkManager/conf.d/99-test.conf
+    systemctl reload NetworkManager
 
 }
+
 
 function run_tests ()
 {
@@ -51,7 +63,6 @@ function run_tests ()
             NMTEST=NetworkManager-ci_Test$COUNTER"_"$T nmcli/./runtest.sh $T; rc=$?
         fi
 
-
         if [ $rc -ne 0 ]; then
             # Overal result is FAIL
             echo "FAIL" > $RESULTS
@@ -72,10 +83,9 @@ function run_tests ()
         fi
 
         COUNTER=$((COUNTER+1))
-
     done
-
 }
+
 
 function report_results_and_exit ()
 {
@@ -95,10 +105,10 @@ function report_results_and_exit ()
     fi
 
     exit $rc
-
-
 }
 
+
 run_needed_workarounds
+enable_debug_log
 run_tests
 report_results_and_exit
