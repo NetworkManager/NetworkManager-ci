@@ -1860,7 +1860,7 @@ Feature: nmcli: ipv4
     @rhbz1394344 @rhbz1505893 @rhbz1492472
     @ver+=1.9.1
     @con_ipv4_remove @restore_rp_filters
-    @rhel7_only
+    @rhel_only
     @ipv4_rp_filter_set_loose_rhel
     Scenario: NM - ipv4 - set loose RP filter
     * Execute "echo 1 > /proc/sys/net/ipv4/conf/eth2/rp_filter"
@@ -1890,7 +1890,7 @@ Feature: nmcli: ipv4
 
     @rhbz1394344 @rhbz1505893
     @ver+=1.9.1
-    @con_ipv4_remove @restore_rp_filters @rhel7_only
+    @con_ipv4_remove @restore_rp_filters @rhel_only
     @ipv4_rp_filter_do_not_touch
     Scenario: NM - ipv4 - don't touch disabled RP filter
     * Execute "echo 1 > /proc/sys/net/ipv4/conf/eth2/rp_filter"
@@ -1944,7 +1944,7 @@ Feature: nmcli: ipv4
 
     @rhbz1394344 @rhbz1505893 @rhbz1492472
     @ver+=1.9.1
-    @rhel7_only
+    @rhel_only
     @con_ipv4_remove @restore_rp_filters
     @ipv4_rp_filter_reset_rhel
     Scenario: NM - ipv4 - reset RP filter back

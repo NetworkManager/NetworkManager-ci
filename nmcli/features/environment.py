@@ -241,6 +241,12 @@ def before_scenario(context, scenario):
             if call('pip install pyroute2', shell=True) != 0:
                 call ('yum -y install http://dl.fedoraproject.org/pub/epel/7/x86_64/p/python2-pyroute2-0.4.13-1.el7.noarch.rpm', shell=True)
 
+        if 'rhel_only' in scenario.tags:
+            # Run only with stock RHEL7 package
+            if call('rpm -qi NetworkManager |grep -q build.*bos.redhat.co', shell=True) != 0 or \
+            check_output("rpm --queryformat %{RELEASE} -q NetworkManager |awk -F .  '{ print ($1 < 200) }'", shell=True).decode('utf-8').strip() == '0':
+                sys.exit(77)
+
         if 'rhel7_only' in scenario.tags:
             # Run only with stock RHEL7 package
             if call('rpm -qi NetworkManager |grep -q build.*bos.redhat.co', shell=True) != 0 or \
