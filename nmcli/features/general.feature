@@ -1933,3 +1933,21 @@ Feature: nmcli - general
     * Modify connection "con_general" changing options "connection.autoconnect yes"
     * Wait for at least "2" seconds
     Then "PASSWORD_PROMPT_COUNT='1'" is visible with command "tmp/nm_agent_prompt_counter.sh stop"
+
+
+    @rhbz1578436
+    @ver+=1.14
+    @not_in_rhel7 @con_general_remove
+    @ifup_ifdown_scripts_rhel8
+    Scenario: NM - general - test ifup (ifdown) script behaviour
+    * Add connection type "ethernet" named "con_general" with options "ifname eth8 autoconnect no ipv4.address 1.2.3.4/24 ipv4.method manual"
+    * Execute "ifup con_general"
+    When "connected" is visible with command "nmcli -f GENERAL.STATE device show eth8" in "5" seconds
+     And "1.2.3.4/24" is visible with command "nmcli -f IP4.ADDRESS device show eth8" in "5" seconds
+     And "active" is visible with command "nmcli -f GENERAL.STATE connection show con_general"
+     And "1.2.3.4/24" is visible with command "ip a s eth8" in "5" seconds
+    * Execute "ifdown con_general"
+    Then "connected" is not visible with command "nmcli -f GENERAL.STATE device show eth8" in "5" seconds
+     And "1.2.3.4/24" is not visible with command "nmcli -f IP4.ADDRESS device show eth8" in "5" seconds
+     And "active" is not visible with command "nmcli -f GENERAL.STATE connection show con_general"
+     And "1.2.3.4/24" is not visible with command "ip a s eth8" in "5" seconds
