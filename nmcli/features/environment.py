@@ -96,10 +96,10 @@ def reset_usb_devices():
             print(("failed to reset device:", msg))
         f.close()
 
-def setup_libreswan(mode, dh_group, phase1_al="aes", phase2_al=None):
+def setup_libreswan(mode, dh_group, phase1_al="aes", phase2_al=None, ike="ikev1"):
     print ("setting up libreswan")
 
-    RC = call("sh prepare/libreswan.sh %s %s %s" %(mode, dh_group, phase1_al), shell=True)
+    RC = call("sh prepare/libreswan.sh %s %s %s %s" %(mode, dh_group, phase1_al, ike), shell=True)
     if RC != 0:
         teardown_libreswan()
         sys.exit(1)
@@ -707,14 +707,20 @@ def before_scenario(context, scenario):
             wait_for_testeth0()
             call("rpm -q NetworkManager-libreswan || ( sudo yum -y install NetworkManager-libreswan && systemctl restart NetworkManager )", shell=True)
             call("/usr/sbin/ipsec --checknss", shell=True)
-            setup_libreswan (mode="aggressive", dh_group=5)
+            ike="ikev1"
+            if 'ikev2' in scenario.tags:
+                ike="ikev2"
+            setup_libreswan (mode="aggressive", dh_group=5, ike=ike)
 
         if 'libreswan_main' in scenario.tags:
             print ("---------------------------")
             wait_for_testeth0()
             call("rpm -q NetworkManager-libreswan || sudo yum -y install NetworkManager-libreswan", shell=True)
             call("/usr/sbin/ipsec --checknss", shell=True)
-            setup_libreswan (mode="main", dh_group=5)
+            ike="ikev1"
+            if 'ikev2' in scenario.tags:
+                ike="ikev2"
+            setup_libreswan (mode="main", dh_group=5, ike=ike)
 
         if 'macsec' in scenario.tags:
             print("---------------------------")

@@ -253,8 +253,32 @@
     @vpn
     @libreswan_autocompletion
     Scenario: nmcli - libreswan - autocompletion
-     * "file.*type" is visible with tab after "nmcli con import "
-     Then "vpn.swan" is visible with tab after "nmcli con import file tmp/"
-      And "vpn.swan" is visible with tab after "nmcli con import type libreswan file tmp/"
-      And "type" is visible with tab after "nmcli con import file tmp/vpn.swan "
-      And "libreswan|openswan|openconnect|strongswan" is visible with tab after "nmcli con import file tmp/vpn.swan type "
+    * "file.*type" is visible with tab after "nmcli con import "
+    Then "vpn.swan" is visible with tab after "nmcli con import file tmp/"
+     And "vpn.swan" is visible with tab after "nmcli con import type libreswan file tmp/"
+     And "type" is visible with tab after "nmcli con import file tmp/vpn.swan "
+     And "libreswan|openswan|openconnect|strongswan" is visible with tab after "nmcli con import file tmp/vpn.swan type "
+
+
+    @rhbz1633174
+    @ver+=1.14.0
+    @libreswan @ikev2 @rhel8_only
+    @libreswan_reimport
+    Scenario: nmcli - libreswan - reimport exported connection
+    * Add a new connection of type "vpn" and options "ifname \* con-name libreswan autoconnect no vpn-type libreswan"
+    * Use user "budulinek" with password "ask" and group "yolo" with secret "ask" for gateway "172.31.70.1" on Libreswan connection "libreswan"
+    * Modify connection "libreswan" changing options "+vpn.data ikev2=insist"
+    * Connect to vpn "libreswan" with password "passwd" and secret "ipsecret"
+    When "VPN.VPN-STATE:.*VPN connected" is visible with command "nmcli c show libreswan"
+    # options in vpn.data may be in arbitrary order, sort them so it is comparable
+    * Note the output of "nmcli -t -f vpn.data connection show libreswan | sed -e 's/vpn.data:\s*//' | sed -e 's/\s*,\s*/\n/g' | sort" as value "vpn1"
+    * Execute "nmcli connection export libreswan > /tmp/vpn.swan"
+    * Bring "down" connection "libreswan"
+    * Delete connection "libreswan"
+    * Execute "nmcli con import file /tmp/vpn.swan type libreswan"
+    # add required options, which are not exported
+    * Modify connection "libreswan" changing options "+vpn.data pskinputmodes=ask,xauthpasswordinputmodes=ask,pskvalue-flags=2,xauthpassword-flags=2,leftxauthusername=budulinek"
+    * Note the output of "nmcli -t -f vpn.data connection show libreswan | sed -e 's/vpn.data:\s*//' | sed -e 's/\s*,\s*/\n/g' | sort" as value "vpn2"
+    When Check noted values "vpn1" and "vpn2" are the same
+    * Connect to vpn "libreswan" with password "passwd" and secret "ipsecret"
+    Then "VPN.VPN-STATE:.*VPN connected" is visible with command "nmcli c show libreswan"
