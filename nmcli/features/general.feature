@@ -1923,13 +1923,31 @@ Feature: nmcli - general
 
     @rhbz1553113
     @ver+=1.12
-    @con_con_remove
+    @con_general_remove
     @autoconnect_no_secrets_prompt
     Scenario: NM - general - count number of password prompts with autoconnect yes and no secrets provided
-    * Add a new connection of type "ethernet" and options "ifname eth5 con-name con_con 802-1x.identity test 802-1x.password-flags 2 802-1x.eap md5 connection.autoconnect no"
+    * Add a new connection of type "ethernet" and options "ifname eth5 con-name con_general 802-1x.identity test 802-1x.password-flags 2 802-1x.eap md5 connection.autoconnect no"
     * Wait for at least "2" seconds
     * Execute "tmp/nm_agent_prompt_counter.sh start" without waiting for process to finish
     * Wait for at least "2" seconds
-    * Modify connection "con_con" changing options "connection.autoconnect yes"
+    * Modify connection "con_general" changing options "connection.autoconnect yes"
     * Wait for at least "2" seconds
     Then "PASSWORD_PROMPT_COUNT='1'" is visible with command "tmp/nm_agent_prompt_counter.sh stop"
+
+
+    @rhbz1578436
+    @ver+=1.14
+    @not_in_rhel7 @con_general_remove
+    @ifup_ifdown_scripts_rhel8
+    Scenario: NM - general - test ifup (ifdown) script behaviour
+    * Add connection type "ethernet" named "con_general" with options "ifname eth8 autoconnect no ipv4.address 1.2.3.4/24 ipv4.method manual"
+    * Execute "ifup con_general"
+    When "connected" is visible with command "nmcli -f GENERAL.STATE device show eth8" in "5" seconds
+     And "1.2.3.4/24" is visible with command "nmcli -f IP4.ADDRESS device show eth8" in "5" seconds
+     And "active" is visible with command "nmcli -f GENERAL.STATE connection show con_general"
+     And "1.2.3.4/24" is visible with command "ip a s eth8" in "5" seconds
+    * Execute "ifdown con_general"
+    Then "connected" is not visible with command "nmcli -f GENERAL.STATE device show eth8" in "5" seconds
+     And "1.2.3.4/24" is not visible with command "nmcli -f IP4.ADDRESS device show eth8" in "5" seconds
+     And "active" is not visible with command "nmcli -f GENERAL.STATE connection show con_general"
+     And "1.2.3.4/24" is not visible with command "ip a s eth8" in "5" seconds

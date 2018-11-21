@@ -248,6 +248,13 @@ def before_scenario(context, scenario):
             call("grep -q 'release 7' /etc/redhat-release", shell=True) != 0:
                 sys.exit(77)
 
+        if 'rhel8_only' in scenario.tags:
+            # Run only with stock RHEL7 package
+            if call('rpm -qi NetworkManager |grep -q build.*bos.redhat.co', shell=True) != 0 or \
+            check_output("rpm --queryformat %{RELEASE} -q NetworkManager |awk -F .  '{ print ($1 < 200) }'", shell=True).decode('utf-8').strip() == '0' or \
+            call("grep -q 'release 8' /etc/redhat-release", shell=True) != 0:
+                sys.exit(77)
+
         if 'not_with_rhel7_pkg' in scenario.tags:
             # Do not run on stock RHEL7 package
             # This tag is used by control_version script too.
