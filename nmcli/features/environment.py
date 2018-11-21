@@ -1359,10 +1359,13 @@ def after_scenario(context, scenario):
             # call("rm -rf /etc/NetworkManager/conf.d/98-sriov.conf", shell=True)
             # call("systemctl restart NetworkManager", shell=True)
             # sleep(5)
+            call("nmcli con del sriov", shell=True)
+            call("nmcli con del sriov_2", shell=True)
             call("echo 0 > /sys/class/net/em1/device/sriov_numvfs", shell=True)
             call("echo 0 > /sys/class/net/em2/device/sriov_numvfs", shell=True)
             call("rm -rf /etc/NetworkManager/conf.d/99-sriov.conf", shell=True)
             call("rm -rf /etc/NetworkManager/conf.d/98-sriov.conf", shell=True)
+            call("modprobe -r ixgbevf", shell=True)
             reload_NM_service()
 
         if 'ipv6' in scenario.tags or 'ipv6_2' in scenario.tags:
