@@ -194,7 +194,7 @@
     * Run child "tcpdump -n -i em2 -xxvv -e > /tmp/tcpdump.log"
     When "empty" is not visible with command "file /tmp/tcpdump.log" in "20" seconds
     * Add a new connection of type "ethernet" and options "ifname em2 con-name sriov sriov.vfs '0 vlans=100.2.q' sriov.total-vfs 1 sriov.autoprobe-drivers false"
-    Then "802.1Q.*vlan 100, p 2" is visible with command "cat /tmp/tcpdump.log" in "45" seconds
+    Then "802.1Q.*vlan 100, p 2" is visible with command "grep /tmp/tcpdump.log" in "45" seconds
     * Execute "pkill tcpdump"
 
 
