@@ -2323,3 +2323,33 @@ testmapper:
         feature: sriov
     - sriov_reboot_persistence:
         feature: sriov
+    - sriov_con_drv_add_VF:
+        feature: sriov
+    - sriov_con_drv_add_VF_mac_and_trust:
+        feature: sriov
+    - sriov_con_drv_add_VF_mtu:
+        feature: sriov
+    - sriov_con_drv_add_VF_vlan:
+        feature: sriov
+    - sriov_con_drv_add_VF_trust_off:
+        feature: sriov
+    - sriov_con_drv_add_VF_spoof_off:
+        feature: sriov
+    - sriov_con_drv_add_VF_spoof:
+        feature: sriov
+    - sriov_con_drv_add_VF_firewalld:
+        feature: sriov
+    - sriov_con_drv_bond:
+        feature: sriov
+    - sriov_con_add_VF:
+        feature: sriov
+    - sriov_con_add_VF_mac_and_trust:
+        feature: sriov
+    - sriov_con_add_VF_vlan:
+        feature: sriov
+    - sriov_con_add_VF_trust_off:
+        feature: sriov
+    - sriov_con_add_VF_spoof_off:
+        feature: sriov
+    - sriov_con_add_VF_spoof:
+        feature: sriov
