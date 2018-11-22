@@ -1348,17 +1348,17 @@ def after_scenario(context, scenario):
             call("echo 0 > /proc/sys/net/ipv6/conf/default/use_tempaddr", shell=True)
             reload_NM_service()
 
+        if 'sriov_bond' in scenario.tags:
+            print ("---------------------------")
+            print ("remove sriov bond profiles")
+            call("nmcli con del sriov2", shell=True)
+            call("nmcli con del sriov_bond0", shell=True)
+            call("nmcli con del sriov_bond0.0", shell=True)
+            call("nmcli con del sriov_bond0.1", shell=True)
+
         if 'sriov' in scenario.tags:
             print ("---------------------------")
             print ("remove sriov configs")
-            # call("sed -i 's/sriov-num-vfs=[0-9]\+/sriov-num-vfs=0/' /etc/NetworkManager/conf.d/99-sriov.conf", shell=True)
-            # call("sed -i 's/sriov-num-vfs=[0-9]\+/sriov-num-vfs=0/' /etc/NetworkManager/conf.d/98-sriov.conf", shell=True)
-            # call("systemctl restart NetworkManager", shell=True)
-            # sleep(5)
-            # call("rm -rf /etc/NetworkManager/conf.d/99-sriov.conf", shell=True)
-            # call("rm -rf /etc/NetworkManager/conf.d/98-sriov.conf", shell=True)
-            # call("systemctl restart NetworkManager", shell=True)
-            # sleep(5)
             call("nmcli con del sriov", shell=True)
             call("nmcli con del sriov_2", shell=True)
             call("echo 0 > /sys/class/net/em2/device/sriov_numvfs", shell=True)
