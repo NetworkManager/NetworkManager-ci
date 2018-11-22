@@ -90,10 +90,10 @@
     @sriov
     @sriov_con_drv_add_VF_trust_off
     Scenario: nmcli - sriov - drv - add 1 VF with trust off
-    * Add a new connection of type "ethernet" and options "ifname em2 con-name sriov sriov.vfs '0 mac=00:11:22:33:44:99 trust=false' sriov.total-vfs 1"
+    * Add a new connection of type "ethernet" and options "ifname em2 con-name sriov sriov.vfs '0 mac=00:11:22:33:44:66 trust=false' sriov.total-vfs 1"
     * Add a new connection of type "ethernet" and options "ifname em2_0 con-name sriov_2 ipv4.method manual ipv4.address 1.2.3.4/24"
     And " connected" is visible with command "nmcli  device |grep em2_0"
-    And "00:11:22:33:44:99" is not visible with command "ip a s em2_0"
+    And "00:11:22:33:44:66" is not visible with command "ip a s em2_0"
     And "trust off" is visible with command " ip l show dev em2"
 
 
