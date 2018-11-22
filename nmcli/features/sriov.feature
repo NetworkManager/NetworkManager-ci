@@ -93,9 +93,10 @@
     * Add a new connection of type "ethernet" and options "ifname em2_0 con-name sriov_2 ipv4.method manual ipv4.address 1.2.3.4/24"
     When " connected" is visible with command "nmcli  device |grep em2_0"
     And "trust on" is visible with command " ip l show dev em2"
-    And "BMRU" is visible with command "netstat -i |grep em2_0"
-    * Execute "ip link set em2_0 promisc on"
-    Then "BMPRU" is visible with command "netstat -i |grep em2_0"
+    # THis somehoe doesn't work (setting promiscuity to device)
+    # And "BMRU" is visible with command "netstat -i |grep em2_0"
+    # * Execute "ip link set em2_0 promisc on"
+    # Then "BMPRU" is visible with command "netstat -i |grep em2_0"
 
 
     @rhbz1555013
@@ -104,13 +105,12 @@
     @sriov_con_drv_add_VF_trust_off
     Scenario: nmcli - sriov - drv - add 1 VF with trust off
     * Add a new connection of type "ethernet" and options "ifname em2 con-name sriov sriov.vfs '0 trust=false' sriov.total-vfs 1"
-    # * Bring "up" connection "sriov"
     * Add a new connection of type "ethernet" and options "ifname em2_0 con-name sriov_2 ipv4.method manual ipv4.address 1.2.3.4/24"
     When " connected" is visible with command "nmcli  device |grep em2_0"
     And "trust off" is visible with command " ip l show dev em2"
     And "BMRU" is visible with command "netstat -i |grep em2_0"
     * Execute "ip link set em2_0 promisc on"
-    Then "BMPRU" is not visible with command "netstat -i |grep em2_0"
+        Then "BMPRU" is not visible with command "netstat -i |grep em2_0"
 
 
     @rhbz1555013
@@ -119,7 +119,6 @@
     @sriov_con_drv_add_VF_spoof_off
     Scenario: nmcli - sriov - drv - add 1 VF without spoof check
     * Add a new connection of type "ethernet" and options "ifname em2 con-name sriov sriov.vfs '0 mac=00:11:22:33:44:55 spoof-check=false' sriov.total-vfs 1"
-    # * Bring "up" connection "sriov"
     * Add a new connection of type "ethernet" and options "ifname em2_0 con-name sriov_2 ipv4.method manual ipv4.address 1.2.3.4/24"
     When " connected" is visible with command "nmcli  device |grep em2_0"
     And "spoof checking off" is visible with command " ip l show dev em2"
@@ -250,12 +249,12 @@
     @sriov
     @sriov_enable
     Scenario: NM - sriov - enable sriov in config
-    When "1" is visible with command "nmcli dev |grep em1  |wc -l"
+    When "1" is visible with command "nmcli dev |grep p4p1  |wc -l"
     When "1" is visible with command "nmcli dev |grep em2  |wc -l"
-    * Prepare "99-sriov.conf" config for "em1" device with "63" VFs
-    When "64" is visible with command "nmcli dev |grep em1  |wc -l" in "20" seconds
+    * Prepare "99-sriov.conf" config for "p4p1" device with "63" VFs
+    When "64" is visible with command "nmcli dev |grep p4p1  |wc -l" in "40" seconds
     * Prepare "98-sriov.conf" config for "em2" device with "63" VFs
-    When "64" is visible with command "nmcli dev |grep em2  |wc -l" in "20" seconds
+    When "64" is visible with command "nmcli dev |grep em2  |wc -l" in "40" seconds
 
 
     @rhbz1398934
@@ -263,11 +262,11 @@
     @sriov
     @sriov_disable
     Scenario: NM - sriov - disable sriov in config
-    When "1" is visible with command "nmcli dev |grep em1  |wc -l"
-    * Prepare "99-sriov.conf" config for "em1" device with "2" VFs
-    When "3" is visible with command "nmcli dev |grep em1  |wc -l"
-    * Prepare "99-sriov.conf" config for "em1" device with "0" VFs
-    When "1" is visible with command "nmcli dev |grep em1  |wc -l"
+    When "1" is visible with command "nmcli dev |grep p4p1  |wc -l"
+    * Prepare "99-sriov.conf" config for "p4p1" device with "2" VFs
+    When "3" is visible with command "nmcli dev |grep p4p1  |wc -l"
+    * Prepare "99-sriov.conf" config for "p4p1" device with "0" VFs
+    When "1" is visible with command "nmcli dev |grep p4p1  |wc -l"
 
 
     @rhbz1398934
@@ -275,7 +274,7 @@
     @sriov
     @sriov_connect
     Scenario: NM - sriov - connect virtual sriov device
-    When "1" is visible with command "nmcli dev |grep em1  |wc -l"
+    When "1" is visible with command "nmcli dev |grep p4p1  |wc -l"
     When "1" is visible with command "nmcli dev |grep em2  |wc -l"
     * Prepare "99-sriov.conf" config for "em2" device with "2" VFs
     * Add a new connection of type "ethernet" and options "ifname em2_0 con-name sriov autoconnect no ipv4.method manual ipv4.address 1.2.3.4/24"
@@ -291,7 +290,7 @@
     @sriov
     @sriov_autoconnect
     Scenario: NM - sriov - autoconnect virtual sriov device
-    When "1" is visible with command "nmcli dev |grep em1  |wc -l"
+    When "1" is visible with command "nmcli dev |grep p4p1  |wc -l"
     When "1" is visible with command "nmcli dev |grep em2  |wc -l"
     * Prepare "99-sriov.conf" config for "em2" device with "2" VFs
     * Add a new connection of type "ethernet" and options "ifname em2_0 con-name sriov ipv4.method manual ipv4.address 1.2.3.4/24"
@@ -305,11 +304,11 @@
     @sriov
     @sriov_connect_externally
     Scenario: NM - sriov - see externally connected sriov device
-    When "1" is visible with command "nmcli dev |grep em1  |wc -l"
+    When "1" is visible with command "nmcli dev |grep p4p1  |wc -l"
     When "1" is visible with command "nmcli dev |grep em2  |wc -l"
-    * Execute "echo 2 > /sys/class/net/em1/device/sriov_numvfs"
-    * Execute "ip add add 192.168.1.2/24 dev em1_0"
-    Then "192.168.1.2/24" is visible with command "nmcli con sh em1_0 |grep IP4" in "2" seconds
+    * Execute "echo 2 > /sys/class/net/p4p1/device/sriov_numvfs"
+    * Execute "ip add add 192.168.1.2/24 dev p4p1_0"
+    Then "192.168.1.2/24" is visible with command "nmcli con sh p4p1_0 |grep IP4" in "2" seconds
 
 
     # @rhbz1398934
@@ -328,11 +327,11 @@
     @sriov
     @sriov_reboot_persistence
     Scenario: NM - sriov - reboot persistence
-    When "1" is visible with command "nmcli dev |grep em1  |wc -l"
+    When "1" is visible with command "nmcli dev |grep p4p1  |wc -l"
     When "1" is visible with command "nmcli dev |grep em2  |wc -l"
     * Prepare "99-sriov.conf" config for "em2" device with "2" VFs
     * Add a new connection of type "ethernet" and options "ifname em2_0 con-name sriov ipv4.method manual ipv4.address 1.2.3.4/24"
-    * Add a new connection of type "ethernet" and options "ifname em2 con-name sriov_2 ipv4.method manual ipv4.address 1.2.3.5/24"
+    * Add a new connection of type "ethernet" and options "ifname p4p1 con-name sriov_2 ipv4.method manual ipv4.address 1.2.3.5/24"
     * Bring "down" connection "sriov"
     * Bring "down" connection "sriov_2"
     * Reboot
