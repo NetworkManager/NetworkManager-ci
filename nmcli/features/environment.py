@@ -1365,6 +1365,8 @@ def after_scenario(context, scenario):
             call("echo 0 > /sys/class/net/p4p1/device/sriov_numvfs", shell=True)
             call("rm -rf /etc/NetworkManager/conf.d/99-sriov.conf", shell=True)
             call("rm -rf /etc/NetworkManager/conf.d/98-sriov.conf", shell=True)
+            call("echo 1 > /sys/class/net/p4p1/device/sriov_drivers_autoprobe", shell=True)
+            call("echo 1 > /sys/class/net/em2/device/sriov_drivers_autoprobe", shell=True)
             call("modprobe -r ixgbevf", shell=True)
             reload_NM_service()
 

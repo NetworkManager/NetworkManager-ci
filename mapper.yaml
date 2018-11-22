@@ -2311,6 +2311,18 @@ testmapper:
         feature: dcb
     - dcb_error_shown:
         feature: dcb
+    - sriov_enable:
+        feature: sriov
+    - sriov_disable:
+        feature: sriov
+    - sriov_connect:
+        feature: sriov
+    - sriov_autoconnect:
+        feature: sriov
+    - sriov_connect_externally:
+        feature: sriov
+    - sriov_reboot_persistence:
+        feature: sriov
     - sriov_con_drv_add_VF:
         feature: sriov
     - sriov_con_drv_add_VF_mac_and_trust:
@@ -2331,8 +2343,6 @@ testmapper:
         feature: sriov
     - sriov_con_add_VF:
         feature: sriov
-    - sriov_con_add_VF:
-        feature: sriov
     - sriov_con_add_VF_mac_and_trust:
         feature: sriov
     - sriov_con_add_VF_vlan:
@@ -2342,16 +2352,4 @@ testmapper:
     - sriov_con_add_VF_spoof_off:
         feature: sriov
     - sriov_con_add_VF_spoof:
-        feature: sriov
-    - sriov_enable:
-        feature: sriov
-    - sriov_disable:
-        feature: sriov
-    - sriov_connect:
-        feature: sriov
-    - sriov_autoconnect:
-        feature: sriov
-    - sriov_connect_externally:
-        feature: sriov
-    - sriov_reboot_persistence:
         feature: sriov
