@@ -147,7 +147,7 @@
     * Add a new connection of type "ethernet" and options "ifname em2_0 con-name sriov_2 ipv4.method manual ipv4.address 1.2.3.4/24 802-3-ethernet.mtu 9000"
     # Workaround for 1651974
     # * Bring "up" connection "sriov_2"
-    And " connected" is visible with command "nmcli  device |grep em2_0"
+    Then " connected" is visible with command "nmcli  device |grep em2_0"
     And "00:11:22:33:44:99" is visible with command "ip a s em2_0"
     And "9000" is visible with command "ip a s em2_0" in "10" seconds
 
@@ -192,8 +192,8 @@
     * Add a new connection of type "ethernet" and options "ifname em2_0 con-name sriov_2 ipv4.method manual ipv4.address 1.2.3.4/24"
     When " connected" is visible with command "nmcli  device |grep em2_0"
     * Execute "ip link set dev em2_0 address 00:11:22:33:44:55"
-    And "trust on" is visible with command " ip link show em2"
-    Then "00:11:22:33:44:55" is visible with command "ip a s em2_0"
+    Then "trust on" is visible with command " ip link show em2"
+    And "00:11:22:33:44:55" is visible with command "ip a s em2_0"
 
 
     @rhbz1555013
@@ -205,8 +205,8 @@
     * Add a new connection of type "ethernet" and options "ifname em2_0 con-name sriov_2 ipv4.method manual ipv4.address 1.2.3.4/24"
     When " connected" is visible with command "nmcli  device |grep em2_0"
     * Execute "ip link set dev em2_0 address 00:11:22:33:44:55"
-    And "trust off" is visible with command " ip link show em2"
-    Then "00:11:22:33:44:55" is not visible with command "ip a s em2_0"
+    Then "trust off" is visible with command " ip link show em2"
+    And "00:11:22:33:44:55" is not visible with command "ip a s em2_0"
 
 
     @rhbz1555013
@@ -217,19 +217,19 @@
     * Add a new connection of type "ethernet" and options "ifname em2 con-name sriov sriov.vfs '0 mac=00:11:22:33:44:55 spoof-check=false' sriov.total-vfs 1"
     * Add a new connection of type "ethernet" and options "ifname em2_0 con-name sriov_2 ipv4.method manual ipv4.address 1.2.3.4/24"
     When " connected" is visible with command "nmcli  device |grep em2_0"
-    And "spoof checking off" is visible with command " ip l show dev em2"
+    Then "spoof checking off" is visible with command " ip l show dev em2"
 
 
     @rhbz1555013
     @ver+=1.14.0
     @sriov
     @sriov_con_drv_add_VF_spoof
-    Scenario: nmcli - sriov - drv - add 1 VF without spoof check
+    Scenario: nmcli - sriov - drv - add 1 VF with spoof check
     * Add a new connection of type "ethernet" and options "ifname em2 con-name sriov sriov.vfs '0 mac=00:11:22:33:44:55 spoof-check=true' sriov.total-vfs 1"
     # * Bring "up" connection "sriov"
     * Add a new connection of type "ethernet" and options "ifname em2_0 con-name sriov_2 ipv4.method manual ipv4.address 1.2.3.4/24"
     When " connected" is visible with command "nmcli  device |grep em2_0"
-    And "spoof checking on" is visible with command " ip l show dev em2"
+    Then "spoof checking on" is visible with command " ip l show dev em2"
 
 
     @rhbz1555013
@@ -251,7 +251,7 @@
     @ver+=1.14.0
     @sriov @sriov_bond
     @sriov_con_drv_bond
-    Scenario: nmcli - sriov - drv - add 1 VF with firewall zone
+    Scenario: nmcli - sriov - drv - add 2VFs bond on 2PFs
     * Add a new connection of type "ethernet" and options "ifname em2 con-name sriov sriov.vfs '0 mac=00:11:22:33:44:55 trust=true' sriov.total-vfs 1"
     * Add a new connection of type "ethernet" and options "ifname p4p1 con-name sriov2 sriov.vfs '0 mac=55:44:33:22:11:00 trust=true' sriov.total-vfs 1"
     * Add a new connection of type "bond" and options "ifname sriov_bond con-name sriov_bond0 ipv4.method manual ipv4.address 1.2.3.4/24 bond.options 'mode=active-backup,primary=em2_0,miimon=100,fail_over_mac=2'"
@@ -321,6 +321,6 @@
     @ver+=1.14.0
     @sriov
     @sriov_con_add_VF_spoof
-    Scenario: nmcli - sriov - add 1 VF without spoof check
+    Scenario: nmcli - sriov - add 1 VF with spoof check
     * Add a new connection of type "ethernet" and options "ifname em2 con-name sriov sriov.vfs '0 mac=00:11:22:33:44:55 spoof-check=true' sriov.total-vfs 1 sriov.autoprobe-drivers false"
     Then "spoof checking on" is visible with command "ip link show dev em2 |grep 'vf 0'"
