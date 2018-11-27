@@ -1133,6 +1133,8 @@ testmapper:
         feature: general
     - autoconnect_no_secrets_prompt:
         feature: general
+    - ifup_ifdown_scripts_rhel8:
+        feature: general
     - openvswitch_interface_recognized:
         feature: ovs
     - openvswitch_ignore_ovs_network_setup:

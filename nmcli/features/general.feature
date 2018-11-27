@@ -1938,7 +1938,7 @@ Feature: nmcli - general
     @ver+=1.14
     @not_in_rhel7 @con_general_remove
     @ifup_ifdown_scripts_rhel8
-    Scenario: NM - general - test ifup (ifdown) script behaviour
+    Scenario: NM - general - test ifup (ifdown) script uses NM
     * Add connection type "ethernet" named "con_general" with options "ifname eth8 autoconnect no ipv4.address 1.2.3.4/24 ipv4.method manual"
     * Execute "ifup con_general"
     When "connected" is visible with command "nmcli -f GENERAL.STATE device show eth8" in "5" seconds
