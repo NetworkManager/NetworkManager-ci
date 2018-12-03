@@ -1331,6 +1331,10 @@ testmapper:
         feature: connection
     - connection_multiconnect_reboot:
         feature: connection
+    - connection_prefers_managed_devices:
+        feature: connection
+    - connection_no_managed_device:
+        feature: connection
     - add_default_tap_device:
         feature: tuntap
     - add_default_tun_device:

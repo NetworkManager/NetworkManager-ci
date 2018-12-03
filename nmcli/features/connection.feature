@@ -716,3 +716,24 @@ Feature: nmcli: connection
      And "eth8" is visible with command "nmcli device | grep ethernet | grep con_con"
      And "eth9" is visible with command "nmcli device | grep ethernet | grep con_con"
      And "eth10" is visible with command "nmcli device | grep ethernet | grep con_con"
+
+
+     @rhbz1639254
+     @ver+=1.14
+     @con_con_remove @unmanage_eth @skip_str
+     @connection_prefers_managed_devices
+     Scenario: nmcli - connection - connection activates preferably on managed devices
+      * Execute "nmcli device set eth10 managed yes"
+      * Add a new connection of type "ethernet" and options "ifname \* con-name con_con autoconnect no"
+      * Bring up connection "con_con"
+      Then "eth10" is visible with command "nmcli device | grep con_con"
+
+
+      @rhbz1639254
+      @ver+=1.14
+      @con_con_remove @unmanage_eth @skip_str
+      @connection_no_managed_device
+      Scenario: nmcli - connection - connection activates even on unmanaged device
+       * Add a new connection of type "ethernet" and options "ifname \* con-name con_con autoconnect no"
+       * Bring up connection "con_con"
+       Then "con_con" is visible with command "nmcli device"

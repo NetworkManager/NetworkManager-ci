@@ -395,6 +395,10 @@ def before_scenario(context, scenario):
                             raise Exception("Timeout reached!")
                         continue
 
+        if 'unmanage_eth' in scenario.tags:
+            for link in range(0,11):
+                call('nmcli dev set eth%d managed no' % link, shell=True)
+
         if 'connectivity' in scenario.tags:
             print ("---------------------------")
             print ("add connectivity checker")
@@ -403,7 +407,6 @@ def before_scenario(context, scenario):
             call("echo 'response=OK' >> /etc/NetworkManager/conf.d/99-connectivity.conf", shell=True)
             call("echo 'interval=10' >> /etc/NetworkManager/conf.d/99-connectivity.conf", shell=True)
             reload_NM_service()
-
 
         if 'shutdown_service_any' in scenario.tags or 'bridge_manipulation_with_1000_slaves' in scenario.tags:
             call("modprobe -r qmi_wwan", shell=True)
@@ -1942,14 +1945,19 @@ def after_scenario(context, scenario):
                 print("WORKAROUND for permissive selinux")
                 call('setenforce 1', shell=True)
 
+        if 'unmanage_eth' in scenario.tags:
+            for link in range(0,11):
+                call('nmcli dev set eth%d managed yes' % link, shell=True)
+
         if 'regenerate_veth' in scenario.tags or 'restart' in scenario.tags:
             print ("---------------------------")
             print ("regenerate veth setup")
             if os.path.isfile('/tmp/nm_newveth_configured'):
                 call('sh prepare/vethsetup.sh check', shell=True)
             else:
-                for link in range(1,10):
+                for link in range(1,11):
                     call('ip link set eth%d up' % link, shell=True)
+
 
 
         dump_status(context, 'after cleanup %s' % scenario.name)
