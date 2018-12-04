@@ -282,3 +282,17 @@
     When Check noted values "vpn1" and "vpn2" are the same
     * Connect to vpn "libreswan" with password "passwd" and secret "ipsecret"
     Then "VPN.VPN-STATE:.*VPN connected" is visible with command "nmcli c show libreswan"
+
+
+    @rhbz1557035
+    @ver+=1.14.0
+    @vpn @not_in_rhel7
+    @libreswan_configurable_options_reimport
+    Scenario: nmcli - libreswan - check libreswan options in vpn.data
+    * Add a new connection of type "vpn" and options "ifname \* con-name vpn autoconnect no vpn-type libreswan vpn.data 'right=1.2.3.4, rightid=server, rightrsasigkey=server-key, left=1.2.3.5, leftid=client, leftrsasigkey=client-key, leftcert=client-cert, ike=aes256-sha1;modp1536, esp=aes256-sha1, ikelifetime=10m, salifetime=1h, vendor=Cisco, rightsubnet=1.2.3.0/24, ikev2=yes, narrowing=yes, rekey=no, fragmentation=no'"
+    * Note the output of "nmcli -t -f vpn.data connection show vpn | sed -e 's/vpn.data:\s*//' | sed -e 's/\s*,\s*/\n/g' | sort" as value "vpn1"
+    * Execute "nmcli connection export vpn > /tmp/vpn.swan"
+    * Delete connection "vpn"
+    * Execute "nmcli con import file /tmp/vpn.swan type libreswan"
+    * Note the output of "nmcli -t -f vpn.data connection show vpn | sed -e 's/vpn.data:\s*//' | sed -e 's/\s*,\s*/\n/g' | sort" as value "vpn2"
+    Then Check noted values "vpn1" and "vpn2" are the same

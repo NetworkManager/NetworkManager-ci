@@ -1207,6 +1207,8 @@ testmapper:
         feature: libreswan
     - libreswan_reimport:
         feature: libreswan
+    - libreswan_configurable_options_reimport:
+        feature: libreswan
     - vpn_describe:
         feature: vpn
     - multiple_vpn_connections:
