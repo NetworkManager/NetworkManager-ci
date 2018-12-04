@@ -743,6 +743,8 @@ testmapper:
         feature: ipv4
     - ipv4_dhcp_do_not_add_route_to_server:
         feature: ipv4
+    - nm_dhcp_client_id_default_settings:
+        feature: ipv4
     - ipv4_keep_external_addresses:
         feature: ipv4
     - ipv4_route_onsite:
