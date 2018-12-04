@@ -1205,6 +1205,10 @@ testmapper:
         feature: libreswan
     - libreswan_activate_asking_for_password_and_secret:
         feature: libreswan
+    - libreswan_reimport:
+        feature: libreswan
+    - libreswan_configurable_options_reimport:
+        feature: libreswan
     - vpn_describe:
         feature: vpn
     - multiple_vpn_connections:
