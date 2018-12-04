@@ -1246,7 +1246,7 @@ Feature: nmcli: ipv4
 
 
     @ver+=1.11.2
-    @eth2 @con_ipv4_remove @tcpdump @internal_DHCP @restart
+    @con_ipv4_remove @tcpdump @internal_DHCP @restart
     @ipv4_dhcp_client_id_set_internal
     # https://bugzilla.gnome.org/show_bug.cgi?id=793957
     Scenario: nmcli - ipv4 - dhcp-client-id - set client id with internal client
@@ -1269,6 +1269,24 @@ Feature: nmcli: ipv4
     * Bring "up" connection "con_ipv4"
     When "empty" is not visible with command "file /tmp/tcpdump.log" in "150" seconds
     Then "Client-ID Option 61, length 4: hardware-type 192, ff:ee:11" is visible with command "grep 61 /tmp/tcpdump.log" in "10" seconds
+
+
+    @rhbz1642023
+    @ver+=1.14
+    @con_ipv4_remove @restart @rhel8_only
+    @ipv4_dhcp_client_id_change_lease_restart
+    Scenario: nmcli - ipv4 - dhcp-client-id - lease file change should not be considered even after NM restart
+    * Add connection type "ethernet" named "con_ipv4" for device "eth2"
+    * Bring "up" connection "con_ipv4"
+    * Execute "rm /tmp/ipv4_client_id.lease"
+    * Execute "sudo ln -s /var/lib/NetworkManager/internal-$(nmcli -f connection.uuid -t con show id con_ipv4 | sed 's/.*://')-eth2.lease /tmp/ipv4_client_id.lease"
+    When "CLIENTID=" is visible with command "cat /tmp/ipv4_client_id.lease" in "10" seconds
+    * Stop NM
+    * Execute "cp /tmp/ipv4_client_id.lease /tmp/ipv4_client_id.lease.copy"
+    * Execute "sudo sed 's/CLIENTID=.*/CLIENTID=00000000000000000000000000000000000000/' < /tmp/ipv4_client_id.lease.copy > /tmp/ipv4_client_id.lease"
+    When "CLIENTID=00000000000000000000000000000000000000" is visible with command "cat /tmp/ipv4_client_id.lease" in "5" seconds
+    * Start NM
+    Then "CLIENTID=00000000000000000000000000000000000000" is not visible with command "cat /tmp/ipv4_client_id.lease" in "10" seconds
 
 
     @con_ipv4_remove @tshark
