@@ -60,7 +60,7 @@ $SUDO yum install \
     libasan \
     gnutls-devel \
     https://kojipkgs.fedoraproject.org//packages/openvswitch/2.8.1/2.fc28/x86_64/openvswitch-2.8.1-2.fc28.x86_64.rpm \
-    --enablerepo=* --skip-broken \
+    --skip-broken \
     -y
 
 mkdir -p "$BUILD_DIR"
