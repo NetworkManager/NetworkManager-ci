@@ -1918,8 +1918,8 @@ Feature: nmcli: ipv4
      And "2" is visible with command "cat /proc/sys/net/ipv4/conf/eth3/rp_filter"
     * Delete connection "con_ipv4"
     * Delete connection "con_ipv42"
-    Then "1" is visible with command "cat /proc/sys/net/ipv4/conf/eth2/rp_filter" in "5" seconds
-     And "1" is visible with command "cat /proc/sys/net/ipv4/conf/eth3/rp_filter" in "5" seconds
+    Then "." is not visible with command "diff /proc/sys/net/ipv4/conf/eth2/rp_filter /proc/sys/net/ipv4/conf/default/rp_filter" in "5" seconds
+     And "." is not visible with command "diff /proc/sys/net/ipv4/conf/eth3/rp_filter /proc/sys/net/ipv4/conf/default/rp_filter" in "5" seconds
 
 
     @rhbz1394344 @rhbz1505893
@@ -1938,8 +1938,8 @@ Feature: nmcli: ipv4
      And "2" is visible with command "cat /proc/sys/net/ipv4/conf/eth3/rp_filter"
     * Delete connection "con_ipv4"
     * Delete connection "con_ipv42"
-    Then "1" is visible with command "cat /proc/sys/net/ipv4/conf/eth2/rp_filter" in "5" seconds
-     And "1" is visible with command "cat /proc/sys/net/ipv4/conf/eth3/rp_filter" in "5" seconds
+    Then "." is not visible with command "diff /proc/sys/net/ipv4/conf/eth2/rp_filter /proc/sys/net/ipv4/conf/default/rp_filter" in "5" seconds
+     And "." is not visible with command "diff /proc/sys/net/ipv4/conf/eth3/rp_filter /proc/sys/net/ipv4/conf/default/rp_filter" in "5" seconds
 
 
     @rhbz1394344 @rhbz1505893 @rhbz1492472
