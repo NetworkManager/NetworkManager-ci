@@ -755,6 +755,8 @@ testmapper:
         feature: ipv4
     - nm_dhcp_lease_renewal_link_down:
         feature: ipv4
+    - ipv4_dhcp_client_id_change_lease_restart:
+        feature: ipv4
     - vlan_add_default_device:
         feature: vlan
     - vlan_add_beyond_range:
