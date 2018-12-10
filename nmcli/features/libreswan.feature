@@ -262,7 +262,7 @@
 
     @rhbz1633174
     @ver+=1.14.0
-    @libreswan @ikev2 @rhel8_only
+    @libreswan @ikev2 @not_in_rhel7
     @libreswan_reimport
     Scenario: nmcli - libreswan - reimport exported connection
     * Add a new connection of type "vpn" and options "ifname \* con-name libreswan autoconnect no vpn-type libreswan"
