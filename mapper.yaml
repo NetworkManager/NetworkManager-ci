@@ -1139,6 +1139,8 @@ testmapper:
         feature: general
     - ifup_ifdown_scripts_rhel8:
         feature: general
+    - resolv_conf_search_limit:
+        feature: general
     - openvswitch_interface_recognized:
         feature: ovs
     - openvswitch_ignore_ovs_network_setup:
