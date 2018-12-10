@@ -18,17 +18,27 @@
 #
 
 import dbus
+import sys
 
 def path_to_value(path):
-    return dbus.ByteArray("file://" + path + "\0")
+    if sys.version_info[0] == 3:
+        array = bytearray("file://" + path + "\0", "utf-8")
+    else:
+        array = "file://" + path + "\0"
+    return dbus.ByteArray(array)
 
 s_con = dbus.Dictionary({
     'type': '802-11-wireless',
     'uuid': '7371bb78-c1f7-42a3-a9db-5b9566e8ca07',
     'id': 'wifi-wlan0'})
 
+if sys.version_info[0] == 3:
+    homewifi = bytearray("homewifi", "utf-8")
+else:
+    homewifi = "homewifi"
+
 s_wifi = dbus.Dictionary({
-    'ssid': dbus.ByteArray("homewifi"),
+    'ssid': dbus.ByteArray(homewifi),
     'security': '802-11-wireless-security'})
 
 s_wsec = dbus.Dictionary({'key-mgmt': 'wpa-eap'})
