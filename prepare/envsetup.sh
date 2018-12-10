@@ -112,6 +112,10 @@ local_setup_configure_nm_eth () {
             dnf -y install https://kojipkgs.fedoraproject.org//packages/vpnc/0.5.3/33.svn550.fc29/$(arch)/vpnc-0.5.3-33.svn550.fc29.$(arch).rpm https://kojipkgs.fedoraproject.org//packages/NetworkManager-vpnc/1.2.6/1.fc29/$(arch)/NetworkManager-vpnc-1.2.6-1.fc29.$(arch).rpm https://kojipkgs.fedoraproject.org//packages/vpnc-script/20171004/3.git6f87b0f.fc29/noarch/vpnc-script-20171004-3.git6f87b0f.fc29.noarch.rpm
         fi
 
+        # Make crypto policies a bit less strict
+        update-crypto-policies --set LEGACY
+        systemctl restart wpa_supplicant
+
     else
         #enable EPEL but on s390x
         if ! uname -a |grep -q s390x; then
