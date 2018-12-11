@@ -107,6 +107,10 @@ def setup_libreswan(mode, dh_group, phase1_al="aes", phase2_al=None, ike="ikev1"
 def teardown_libreswan():
     call("sh prepare/libreswan.sh teardown", shell=True)
 
+def get_ethernet_devices():
+    devs = check_output("nmcli dev | grep ' ethernet' | awk '{print $1}'", shell=True).decode('utf-8').strip()
+    return devs.split('\n')
+
 def setup_racoon(mode, dh_group, phase1_al="aes", phase2_al=None):
     print ("setting up racoon")
     arch = check_output("uname -p", shell=True).decode('utf-8').strip()
@@ -396,8 +400,9 @@ def before_scenario(context, scenario):
                         continue
 
         if 'unmanage_eth' in scenario.tags:
-            for link in range(0,11):
-                call('nmcli dev set eth%d managed no' % link, shell=True)
+            links = get_ethernet_devices()
+            for link in links:
+                call('nmcli dev set %s managed no' % link, shell=True)
 
         if 'connectivity' in scenario.tags:
             print ("---------------------------")
@@ -1952,8 +1957,9 @@ def after_scenario(context, scenario):
                 call('setenforce 1', shell=True)
 
         if 'unmanage_eth' in scenario.tags:
-            for link in range(0,11):
-                call('nmcli dev set eth%d managed yes' % link, shell=True)
+            links = get_ethernet_devices()
+            for link in links:
+                call('nmcli dev set %s managed yes' % link, shell=True)
 
         if 'regenerate_veth' in scenario.tags or 'restart' in scenario.tags:
             print ("---------------------------")
