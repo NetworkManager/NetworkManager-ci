@@ -2074,3 +2074,16 @@ Feature: nmcli: ipv4
     Scenario: NM - ipv4 - check default NM setting regarging DHCP client-id
     Then "match-device=except:dhcp-plugin:dhclient" is visible with command "NetworkManager --print-config"
      And "ipv4.dhcp-client-id=mac" is visible with command "NetworkManager --print-config"
+
+
+    @rhbz1636715
+    @ver+=1.14
+    @con_ipv4_remove
+    @ipv4_prefix_route_missing_after_ip_link_down_up
+    Scenario: NM - ipv4 - preffix route is missing after putting link down and up
+    * Add a new connection of type "ethernet" and options "ifname eth3 con-name con_ipv4 autoconnect no ipv4.method manual ipv4.addresses 192.168.3.10/24"
+    * Bring "up" connection "con_ipv4"
+    When "192.168.3.0/24 dev eth3" is visible with command "ip r" in "5" seconds
+    * Execute "ip link set eth3 down; ip link set eth3 up"
+    * Execute "ip link set eth3 down; ip link set eth3 up"
+    Then "192.168.3.0/24 dev eth3" is visible with command "ip r" in "5" seconds
