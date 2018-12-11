@@ -1456,9 +1456,21 @@ Feature: nmcli - wifi
     @wifi
     @nmcli_wifi_add_certificate_as_blob
     Scenario: nmcli - wifi - show or hide certificate blob
-    * Execute "python tmp/dbus-set-wifi-tls-blob.py"
+    * Execute "python tmp/dbus-set-wifi-tls-blob.py Unsaved"
     Then "802-1x.client-cert:\s+3330383230" is visible with command "nmcli --show-secrets connection show wifi-wlan0"
     And "3330383230" is not visible with command "nmcli connection show wifi-wlan0"
+
+
+    @rhbz1115564 @rhbz1184530
+    @ver+=1.14
+    @wifi
+    @nmcli_wifi_add_certificate_as_blob_saved
+    Scenario: nmcli - wifi - save certificate blob
+    * Execute "python tmp/dbus-set-wifi-tls-blob.py Saved"
+    Then "802-1x.client-cert:\s+/etc/sysconfig/network-scripts/wifi-wlan0-client-cert.der" is visible with command "nmcli connection show wifi-wlan0"
+    And "3082045e30820346" is visible with command "cat /etc/sysconfig/network-scripts/wifi-wlan0-client-cert.der"
+    And "802-1x.private-key:\s+/etc/sysconfig/network-scripts/wifi-wlan0-private-key.pem" is visible with command "nmcli connection show wifi-wlan0"
+    And "3082045e30820346" is visible with command "cat /etc/sysconfig/network-scripts/wifi-wlan0-private-key.pem"
 
 
     @rhbz1182567

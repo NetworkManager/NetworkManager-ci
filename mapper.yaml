@@ -2174,6 +2174,8 @@ testmapper:
         feature: wifi
     - nmcli_wifi_add_certificate_as_blob:
         feature: wifi
+    - nmcli_wifi_add_certificate_as_blob_saved:
+        feature: wifi
     - nmcli_wifi_dbus_invalid_cert_input:
         feature: wifi
     - nmcli_wifi_indicate_wifi_band_caps:

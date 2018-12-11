@@ -74,4 +74,7 @@ bus = dbus.SystemBus()
 proxy = bus.get_object("org.freedesktop.NetworkManager", "/org/freedesktop/NetworkManager/Settings")
 settings = dbus.Interface(proxy, "org.freedesktop.NetworkManager.Settings")
 
-settings.AddConnection(con)
+if sys.argv[1] == "Unsaved":
+    settings.AddConnectionUnsaved(con)
+if sys.argv[1] == "Saved":
+    settings.AddConnection(con)
