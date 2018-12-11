@@ -1950,3 +1950,14 @@ Feature: nmcli - general
      And "1.2.3.4/24" is not visible with command "nmcli -f IP4.ADDRESS device show eth8" in "5" seconds
      And "activated" is not visible with command "nmcli -f GENERAL.STATE connection show con_general"
      And "1.2.3.4/24" is not visible with command "ip a s eth8" in "5" seconds
+
+
+    @rhbz1649704
+    @ver+=1.14
+    @con_general_remove
+    @resolv_conf_search_limit
+    Scenario: NM - general - save more than 6 search domains in resolv.conf
+    * Execute "nmcli con add type ethernet con-name con_general ifname eth8 autoconnect no ipv4.dns-search $(echo {a..g}.noexist.redhat.com, | tr -d ' ')"
+    * Bring "up" connection "con_general"
+    Then "7" is visible with command "nmcli -f ipv4.dns-search con show con_general | grep -o '\.noexist\.redhat\.com' | wc -l"
+     And "7" is visible with command "cat /etc/resolv.conf | grep -o '\.noexist\.redhat\.com' | wc -l"
