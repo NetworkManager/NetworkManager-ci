@@ -218,12 +218,13 @@ Feature: nmcli - wifi
     @nmcli_wifi_set_channel
     Scenario: nmcli - wifi - set channel
     * Add a new connection of type "wifi" and options "ifname wlan0 con-name qe-wpa1-psk autoconnect off ssid qe-wpa1-psk"
+    * Note the output of "nmcli device wifi |grep qe-wpa1-psk |awk '{print $3}'" as value "noted-value"
     * Check ifcfg-name file created for connection "qe-wpa1-psk"
     * Open editor for connection "qe-wpa1-psk"
     * Set a property named "802-11-wireless-security.key-mgmt" to "wpa-psk" in editor
     * Set a property named "802-11-wireless-security.psk" to "over the river and through the woods" in editor
     * Set a property named "802-11-wireless.band" to "bg" in editor
-    * Set a property named "802-11-wireless.channel" to "11" in editor
+    * Set a property named "802-11-wireless.channel" to "noted-value" in editor
     * Save in editor
     * Check value saved message showed in editor
     * Quit editor
@@ -687,14 +688,15 @@ Feature: nmcli - wifi
     * Open editor for connection "qe-wpa1-enterprise"
     * Set a property named "802-11-wireless-security.key-mgmt" to "wpa-eap" in editor
     * Set a property named "802-1x.eap" to "peap" in editor
-    * Set a property named "802-1x.identity" to "Bill Smith" in editor
-    * Set a property named "802-1x.ca-cert" to "file:///tmp/certs/eaptest_ca_cert.pem" in editor
     * Set a property named "802-1x.phase2-auth" to "gtc" in editor
+    * Set a property named "802-1x.identity" to "Bill Smith" in editor
     * Set a property named "802-1x.password" to "testing123" in editor
+    * Set a property named "802-1x.ca-cert" to "file:///tmp/certs/eaptest_ca_cert.pem" in editor
     * Save in editor
     * No error appeared in editor
     * Check value saved message showed in editor
     * Quit editor
+    * Execute "sleep 2"
     * Bring up connection "qe-wpa1-enterprise"
     Then "qe-wpa1-enterprise" is visible with command "iw dev wlan0 link"
     Then "\*\s+qe-wpa1-enterprise" is visible with command "nmcli -f IN-USE,SSID device wifi list"
@@ -1454,9 +1456,21 @@ Feature: nmcli - wifi
     @wifi
     @nmcli_wifi_add_certificate_as_blob
     Scenario: nmcli - wifi - show or hide certificate blob
-    * Execute "python tmp/dbus-set-wifi-tls-blob.py"
+    * Execute "python tmp/dbus-set-wifi-tls-blob.py Unsaved"
     Then "802-1x.client-cert:\s+3330383230" is visible with command "nmcli --show-secrets connection show wifi-wlan0"
     And "3330383230" is not visible with command "nmcli connection show wifi-wlan0"
+
+
+    @rhbz1115564 @rhbz1184530
+    @ver+=1.14
+    @wifi
+    @nmcli_wifi_add_certificate_as_blob_saved
+    Scenario: nmcli - wifi - save certificate blob
+    * Execute "python tmp/dbus-set-wifi-tls-blob.py Saved"
+    Then "802-1x.client-cert:\s+/etc/sysconfig/network-scripts/wifi-wlan0-client-cert.der" is visible with command "nmcli connection show wifi-wlan0"
+    And "3082045e30820346" is visible with command "cat /etc/sysconfig/network-scripts/wifi-wlan0-client-cert.der"
+    And "802-1x.private-key:\s+/etc/sysconfig/network-scripts/wifi-wlan0-private-key.pem" is visible with command "nmcli connection show wifi-wlan0"
+    And "3082045e30820346" is visible with command "cat /etc/sysconfig/network-scripts/wifi-wlan0-private-key.pem"
 
 
     @rhbz1182567
