@@ -1751,12 +1751,20 @@ Feature: nmcli - general
     Then Finish "python tmp/repro_1555281.py con_general"
 
 
+    @rhbz1643085 @rhbz1642625
+    @ver+=1.14
+    @con_general_remove
+    @libnm_async_activation_cancelable_no_crash
+    Scenario: NM - general - cancelation of libnm async activation - should not crash
+    Then Finish "python tmp/repro_1643085.py con_general eth8"
+
+
     @rhbz1614691
     @ver+=1.12
     @con_general_remove
     @nmcli_monitor_assertion_con_up_down
     Scenario: NM - general - nmcli monitor asserts error when connection is activated or deactivated
-    * Add connection type "ethernet" named "con_general" for device "eth2"
+    * Add connection type "ethernet" named "con_general" for device "eth8"
     * Execute "nmcli monitor &> /tmp/nmcli_monitor_out & pid=$!; sleep 10; kill $pid" without waiting for process to finish
     * Bring "up" connection "con_general"
     * Wait for at least "1" seconds
