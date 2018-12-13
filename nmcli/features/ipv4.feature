@@ -1070,6 +1070,7 @@ Feature: nmcli: ipv4
     * Save in editor
     * Quit editor
     * Run child "sudo tshark -l -O bootp -i eth2 > /tmp/tshark.log"
+    * Bring "up" connection "con_ipv4"
     When "empty" is not visible with command "file /tmp/tshark.log" in "150" seconds
     * Bring "up" connection "con_ipv4"
      Then "foo.bar.com" is not visible with command "grep fqdn /var/lib/NetworkManager/dhclient-eth2.conf" in "10" seconds
@@ -1215,6 +1216,7 @@ Feature: nmcli: ipv4
     * Save in editor
     * Quit editor
     * Run child "sudo tcpdump -i eth2 -v -n > /tmp/tcpdump.log"
+    * Bring "up" connection "con_ipv4"
     When "empty" is not visible with command "file /tmp/tcpdump.log" in "150" seconds
     * Bring "up" connection "con_ipv4"
     Then "Client-ID Option 61, length 3: \"AB\"" is visible with command "cat /tmp/tcpdump.log" in "10" seconds
@@ -1236,6 +1238,7 @@ Feature: nmcli: ipv4
     * Save in editor
     * Quit editor
     * Run child "sudo tshark -l -O bootp -i eth2 -x > /tmp/tshark.log"
+    * Bring "up" connection "con_ipv4"
     When "empty" is not visible with command "file /tmp/tshark.log" in "150" seconds
     * Bring "up" connection "con_ipv4"
     Then "AB" is visible with command "cat /tmp/tshark.log" in "10" seconds
@@ -1258,16 +1261,18 @@ Feature: nmcli: ipv4
     * Submit "set ipv4.dhcp-client-id abcd" in editor
     * Save in editor
     * Quit editor
-    * Run child "sudo tcpdump -i eth9 -v -n > /tmp/tcpdump.log"
+    * Run child "sudo tcpdump -i eth2 -v -n > /tmp/tcpdump.log"
     * Bring "up" connection "con_ipv4"
     When "empty" is not visible with command "file /tmp/tcpdump.log" in "150" seconds
+    * Bring "up" connection "con_ipv4"
     Then "Client-ID Option 61, length 5: \"abcd\"" is visible with command "grep 61 /tmp/tcpdump.log" in "10" seconds
     #### Then try hexadecimal client-id
     * Execute "nmcli connection modify con_ipv4 ipv4.dhcp-client-id c0:ff:ee:11"
     * Execute "pkill tcpdump"
-    * Run child "sudo tcpdump -i eth9 -v -n > /tmp/tcpdump.log"
+    * Run child "sudo tcpdump -i eth2 -v -n > /tmp/tcpdump.log"
     * Bring "up" connection "con_ipv4"
     When "empty" is not visible with command "file /tmp/tcpdump.log" in "150" seconds
+    * Bring "up" connection "con_ipv4"
     Then "Client-ID Option 61, length 4: hardware-type 192, ff:ee:11" is visible with command "grep 61 /tmp/tcpdump.log" in "10" seconds
 
 
