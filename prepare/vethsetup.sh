@@ -126,7 +126,7 @@ function setup_veth_env ()
     done
 
     # Create bridge for the internal device peers inside the namespace
-    ip netns exec vethsetup ip link add name inbr type bridge forward_delay 2 stp_state 1
+    ip netns exec vethsetup ip link add name inbr type bridge forward_delay 0 stp_state 1
 
     # Set best prirority to this bridge
     ip netns exec vethsetup ip link set inbr type bridge priority 0
@@ -162,7 +162,7 @@ function setup_veth_env ()
     ip netns exec vethsetup ip link set eth10p up
 
     # Create the 'simbr' - providing both 10.x ipv4 and 2620:52:0 ipv6 dhcp
-    ip netns exec vethsetup ip link add name simbr type bridge stp_state 1
+    ip netns exec vethsetup ip link add name simbr type bridge forward_delay 0 stp_state 1
     ip netns exec vethsetup ip link set simbr up
     ip netns exec vethsetup ip addr add 10.16.1.1/24 dev simbr
     ip netns exec vethsetup ip -6 addr add 2620:52:0:1086::1/64 dev simbr
@@ -390,3 +390,4 @@ elif [ "$1" == "teardown" ]; then
 elif [ "$1" == "check" ]; then
     check_veth_env
 fi
+

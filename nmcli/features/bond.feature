@@ -1360,7 +1360,7 @@
     @bond @bond_bridge @slaves
     @bond_enslave_to_bridge
     Scenario: nmcli - bond - enslave bond device to bridge
-     * Add a new connection of type "bridge" and options "ifname bond-bridge con-name bond_bridge0"
+     * Add a new connection of type "bridge" and options "ifname bond-bridge con-name bond_bridge0 bridge.stp off"
      * Add a new connection of type "bond" and options "ifname nm-bond con-name bond0 master bond-bridge"
      * Add a new connection of type "ethernet" and options "ifname eth1 con-name bond-slave-eth1 master nm-bond"
      * Bring "up" connection "bond-slave-eth1"
@@ -1374,7 +1374,7 @@
     @bond @bond_bridge @slaves @bond-team_remove
     @bridge_team_bond_autoconnect_nested_slaves
     Scenario: nmcli - bond - autoconnect slaves of slaves
-     * Add a new connection of type "bridge" and options "ifname bond-bridge con-name bond_bridge0 autoconnect no connection.autoconnect-slaves 1"
+     * Add a new connection of type "bridge" and options "ifname bond-bridge con-name bond_bridge0 autoconnect no connection.autoconnect-slaves 1 bridge.stp off"
      * Add a new connection of type "team" and options "ifname bond-team con-name bond-team0 master bond-bridge autoconnect no connection.autoconnect-slaves 1"
      * Add a new connection of type "bond" and options "ifname nm-bond con-name bond0 master bond-team autoconnect no connection.autoconnect-slaves 1"
      * Add a new connection of type "ethernet" and options "ifname eth1 con-name bond-slave-eth1 master nm-bond autoconnect no"

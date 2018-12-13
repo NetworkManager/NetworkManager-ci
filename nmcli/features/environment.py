@@ -978,6 +978,7 @@ def after_scenario(context, scenario):
 
     try:
         #attach network traffic log
+        print("Attaching traffic log")
         call("sudo kill -1 $(pidof tcpdump)", shell=True)
         if os.stat("/tmp/network-traffic.log").st_size < 20000000:
             traffic = open("/tmp/network-traffic.log", 'r').read()
@@ -989,6 +990,7 @@ def after_scenario(context, scenario):
 
         if 'netservice' in scenario.tags:
             # Attach network.service journalctl logs
+            print("Attaching network.service log")
             os.system("echo '~~~~~~~~~~~~~~~~~~~~~~~~~~ NETWORK SRV LOG ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~' > /tmp/journal-netsrv.log")
             os.system("sudo journalctl -u network --no-pager -o cat %s >> /tmp/journal-netsrv.log" % context.log_cursor)
             data = open("/tmp/journal-netsrv.log", 'r').read()
@@ -1474,6 +1476,7 @@ def after_scenario(context, scenario):
             teardown_hostapd_wireless()
 
         if "attach_hostapd_log" in scenario.tags:
+            print("Attaching hostapd log")
             os.system("echo '~~~~~~~~~~~~~~~~~~~~~~~~~~ HOSTAPD LOG ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~' > /tmp/journal-hostapd.log")
             os.system("sudo journalctl -u nm-hostapd --no-pager -o cat %s >> /tmp/journal-hostapd.log" % context.log_cursor)
             data = open("/tmp/journal-hostapd.log", 'r').read()
@@ -1481,6 +1484,7 @@ def after_scenario(context, scenario):
                 context.embed('text/plain', data, caption="HOSTAPD")
 
         if "attach_wpa_supplicant_log" in scenario.tags:
+            print("Attaching wpa_supplicant log")
             os.system("echo '~~~~~~~~~~~~~~~~~~~~~~~~~~ WPA_SUPPLICANT LOG ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~' > /tmp/journal-wpa_supplicant.log")
             os.system("journalctl -u wpa_supplicant --no-pager -o cat %s >> /tmp/journal-wpa_supplicant.log" % context.log_cursor)
             data = open("/tmp/journal-wpa_supplicant.log", 'r').read()
@@ -1772,6 +1776,7 @@ def after_scenario(context, scenario):
             delete_old_lock("/mnt/scratch/", get_lock("/mnt/scratch"))
             # Attach journalctl logs
             os.system("echo '~~~~~~~~~~~~~~~~~~~~~~~~~~ MM LOG ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~' > /tmp/journal-mm.log")
+            print("Attaching MM log")
             os.system("sudo journalctl -u ModemManager --no-pager -o cat %s >> /tmp/journal-mm.log" % context.log_cursor)
             data = open("/tmp/journal-mm.log", 'r').read()
             if data:
@@ -1975,6 +1980,7 @@ def after_scenario(context, scenario):
         dump_status(context, 'after cleanup %s' % scenario.name)
 
         # Attach journalctl logs
+        print("Attaching NM log")
         os.system("echo '~~~~~~~~~~~~~~~~~~~~~~~~~~ NM LOG ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~' > /tmp/journal-nm.log")
         os.system("sudo journalctl -u NetworkManager --no-pager -o cat %s >> /tmp/journal-nm.log" % context.log_cursor)
         if os.stat("/tmp/journal-nm.log").st_size < 20000000:
@@ -1992,8 +1998,10 @@ def after_scenario(context, scenario):
                 call("LOGNAME=root HOSTNAME=localhost gdb /usr/sbin/NetworkManager -ex 'target remote | vgdb' -ex 'monitor leak_check full kinds all increased' -batch", shell=True, stdout=context.log, stderr=context.log)
 
         context.log.close ()
+        print("Attaching MAIN log")
         context.embed('text/plain', open("/tmp/log_%s.html" % scenario.name, 'r').read(), caption="MAIN")
-        sleep(3)
+        sleep(1)
+
 
         if context.crashed_step:
             print ("\n\n!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
@@ -2008,4 +2016,4 @@ def after_scenario(context, scenario):
 
 
 def after_all(context):
-    pass
+    print("ALL DONE")
