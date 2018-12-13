@@ -137,7 +137,6 @@ def open_slave_connection(context, master, device, name):
 
     if r == 0:
         raise Exception('Got an Error while adding slave connection %s on device %s for master %s' % (name, device, master))
-    sleep(1)
 
 @step(u'Use user "{user}" with password "{password}" and group "{group}" with secret "{secret}" for gateway "{gateway}" on Libreswan connection "{name}"')
 def set_libreswan_connection(context, user, password, group, secret, gateway, name):
@@ -156,7 +155,6 @@ def set_libreswan_connection(context, user, password, group, secret, gateway, na
     r = cli.expect(['Error', pexpect.EOF])
     if r == 0:
         raise Exception('Got an Error while editing %s connection' % (name))
-    sleep(1)
 
 @step(u'Use user "{user}" with password "{password}" and group "{group}" with secret "{secret}" for gateway "{gateway}" on VPNC connection "{name}"')
 def set_vpnc_connection(context, user, password, group, secret, gateway, name):
@@ -164,12 +162,10 @@ def set_vpnc_connection(context, user, password, group, secret, gateway, name):
     r = cli.expect(['Error', pexpect.EOF])
     if r == 0:
         raise Exception('Got an Error while editing %s connection data' % (name))
-    sleep(1)
     cli = pexpect.spawn('nmcli c modify %s vpn.secrets "IPSec secret=%s, Xauth password=%s"' % (name, secret, password), encoding='utf-8')
     r = cli.expect(['Error', pexpect.EOF])
     if r == 0:
         raise Exception('Got an Error while editing %s connection secrets' % (name))
-    sleep(1)
 
 @step(u'Use user "{user}" with password "{password}" and MPPE set to "{mppe}" for gateway "{gateway}" on PPTP connection "{name}"')
 def set_pptp_connection(context, user, password, mppe, gateway, name):
@@ -180,13 +176,12 @@ def set_pptp_connection(context, user, password, mppe, gateway, name):
     r = cli.expect(['Error', pexpect.EOF])
     if r == 0:
         raise Exception('Got an Error while editing %s connection data' % (name))
-    sleep(2)
+    sleep(1)
     if flag != "2":
         cli = pexpect.spawn('nmcli c modify %s vpn.secrets "password = %s"' % (name, password), encoding='utf-8')
         r = cli.expect(['Error', pexpect.EOF])
         if r == 0:
             raise Exception('Got an Error while editing %s connection secrets' % (name))
-        sleep(1)
 
 @step(u'Autocomplete "{cmd}" in bash and execute')
 def autocomplete_command(context, cmd):
@@ -249,7 +244,6 @@ def start_connection_for_device(context, name, device):
         raise Exception('nmcli connection up %s timed out (90s)' % (name))
     elif r == 2:
         raise Exception('nmcli connection up %s timed out (180s)' % (name))
-    sleep(2)
 
 
 @step(u'Bring up connection "{connection}"')
@@ -268,7 +262,6 @@ def bring_up_connection_ignore_error(context, connection):
     r = cli.expect([pexpect.EOF, pexpect.TIMEOUT])
     if r == 1:
         raise Exception('nmcli connection up %s timed out (180s)' % connection)
-    sleep(4)
 
 
 @step(u'Bring down connection "{connection}"')
@@ -839,7 +832,6 @@ def disconnect_connection(context, name):
         raise Exception('Got an Error while disconnecting device %s' % name)
     elif r == 1:
         raise Exception('nmcli disconnect %s timed out (180s)' % name)
-    sleep(1)
 
 
 @step(u'Enter in editor')
@@ -909,7 +901,6 @@ def fail_up_connection_for_device(context, name, device):
     r = cli.expect(['Error', 'Timeout', pexpect.TIMEOUT, pexpect.EOF])
     if r == 3:
         raise Exception('nmcli connection up %s for device %s was succesfull. this should not happen' % (name, device))
-    sleep(1)
 
 
 @step(u'Finish "{command}"')
@@ -1646,9 +1637,9 @@ def reboot(context):
 
     command_code(context, "rm -rf /var/run/NetworkManager")
 
-    sleep(3)
+    sleep(1)
     assert command_code(context, "sudo service NetworkManager start") == 0
-    sleep(5)
+    sleep(2)
 
 
 @step(u'Start NM')
