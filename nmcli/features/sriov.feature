@@ -121,6 +121,35 @@
     And " connected" is visible with command "nmcli  device |grep em2_0"
 
 
+    @rhbz1555013 @rhbz1651578
+    @ver+=1.14.0
+    @sriov
+    @sriov_con_drv_add_64VFs
+    Scenario: nmcli - sriov - drv - add 64 VFs
+    * Add a new connection of type "ethernet" and options "ifname em2 con-name sriov sriov.total-vfs 64"
+    #* Bring "up" connection "sriov"
+    When "63" is visible with command "cat /sys/class/net/em2/device/sriov_numvfs"
+    And "disconnected" is visible with command "nmcli  device |grep em2_62" in "120" seconds
+    And "disconnected" is visible with command "nmcli  device |grep em2_31"
+    And "disconnected" is visible with command "nmcli  device |grep em2_0"
+    * Add a new connection of type "ethernet" and options "ifname ''  match.interface-name em2_* connection.multi-connect multiple con-name sriov_2"
+    Then " connected" is visible with command "nmcli  device |grep em2_62" in "45" seconds
+    And " connected" is visible with command "nmcli  device |grep em2_31" in "45" seconds
+    And " connected" is visible with command "nmcli  device |grep em2_0" in "45" seconds
+
+
+    @rhbz1651576
+    @ver+=1.14.0
+    @sriov
+    @sriov_con_drv_set_VF_to_0
+    Scenario: nmcli - sriov - set VF number to 0
+    * Add a new connection of type "ethernet" and options "ifname em2 con-name sriov sriov.total-vfs 1"
+    * Execute "nmcli connection modify sriov sriov.total-vfs 0"
+    * Bring "up" connection "sriov"
+    Then "1" is not visible with command "cat /sys/class/net/em2/device/sriov_numvfs"
+    And "vf 0" is not visible with command "ip link show dev em2 |grep 'vf 0'"
+
+
     @rhbz1555013
     @ver+=1.14.0
     @sriov
@@ -237,7 +266,7 @@
     @sriov @firewall
     @sriov_con_drv_add_VF_firewalld
     Scenario: nmcli - sriov - drv - add 1 VF with firewall zone
-    * Add a new connection of type "ethernet" and options "ifname em2 con-name sriov sriov.vfs '0 vlan=100.2.q' sriov.total-vfs 1"
+    * Add a new connection of type "ethernet" and options "ifname em2 con-name sriov sriov.vfs '0 vlans=100.2.q' sriov.total-vfs 1"
     * Bring "up" connection "sriov"
     * Add a new connection of type "ethernet" and options "ifname em2_0 con-name sriov_2 ipv4.method manual ipv4.address 1.2.3.4/24 connection.zone work"
     * Bring "up" connection "sriov_2"
@@ -276,6 +305,18 @@
     * Add a new connection of type "ethernet" and options "ifname em2 con-name sriov sriov.total-vfs 1 sriov.autoprobe-drivers false"
     Then "1" is visible with command "cat /sys/class/net/em2/device/sriov_numvfs"
     And "vf 0" is visible with command "ip link show dev em2 |grep 'vf 0'"
+
+
+    @rhbz1651576
+    @ver+=1.14.0
+    @sriov
+    @sriov_con_set_VF_to_0
+    Scenario: nmcli - sriov - set VF number to 0
+    * Add a new connection of type "ethernet" and options "ifname em2 con-name sriov sriov.total-vfs 1 sriov.autoprobe-drivers false"
+    * Execute "nmcli connection modify sriov sriov.total-vfs 0"
+    * Bring "up" connection "sriov"
+    Then "1" is not visible with command "cat /sys/class/net/em2/device/sriov_numvfs"
+    And "vf 0" is not visible with command "ip link show dev em2 |grep 'vf 0'"
 
 
     @rhbz1555013
