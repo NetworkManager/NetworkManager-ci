@@ -1388,15 +1388,31 @@ def after_scenario(context, scenario):
         if 'sriov' in scenario.tags:
             print ("---------------------------")
             print ("remove sriov configs")
+
+            print ("remove sriov")
             call("nmcli con del sriov", shell=True)
+
+            print ("remove sriov_2")
             call("nmcli con del sriov_2", shell=True)
+
+            print ("set 0 to /sys/class/net/*/device/sriov_numvfs")
             call("echo 0 > /sys/class/net/em2/device/sriov_numvfs", shell=True)
             call("echo 0 > /sys/class/net/p4p1/device/sriov_numvfs", shell=True)
+
+            print ("remove /etc/NetworkManager/conf.d/9*-sriov.conf")
             call("rm -rf /etc/NetworkManager/conf.d/99-sriov.conf", shell=True)
             call("rm -rf /etc/NetworkManager/conf.d/98-sriov.conf", shell=True)
+
+            call("set 1 to /sys/class/net/p4p1/device/sriov_drivers_autoprobe", shell=True)
             call("echo 1 > /sys/class/net/p4p1/device/sriov_drivers_autoprobe", shell=True)
             call("echo 1 > /sys/class/net/em2/device/sriov_drivers_autoprobe", shell=True)
+
+            print ("remove ixgbevf driver")
             call("modprobe -r ixgbevf", shell=True)
+
+            print ("remove sriov_2")
+            call("nmcli con del sriov_2", shell=True)
+
             reload_NM_service()
 
         if 'ipv6' in scenario.tags or 'ipv6_2' in scenario.tags:
