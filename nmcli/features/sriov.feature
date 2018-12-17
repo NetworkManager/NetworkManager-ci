@@ -142,7 +142,7 @@
     @ver+=1.14.0
     @sriov
     @sriov_con_drv_set_VF_to_0
-    Scenario: nmcli - sriov - add 1 VF
+    Scenario: nmcli - sriov - set VF number to 0
     * Add a new connection of type "ethernet" and options "ifname em2 con-name sriov sriov.total-vfs 1"
     * Execute "nmcli connection modify sriov sriov.total-vfs 0"
     * Bring "up" connection "sriov"
@@ -311,7 +311,7 @@
     @ver+=1.14.0
     @sriov
     @sriov_con_set_VF_to_0
-    Scenario: nmcli - sriov - add 1 VF
+    Scenario: nmcli - sriov - set VF number to 0
     * Add a new connection of type "ethernet" and options "ifname em2 con-name sriov sriov.total-vfs 1 sriov.autoprobe-drivers false"
     * Execute "nmcli connection modify sriov sriov.total-vfs 0"
     * Bring "up" connection "sriov"
