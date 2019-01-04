@@ -203,8 +203,8 @@
     When Check "=== \[data\] ===\s+\[NM property description\]\s+Dictionary of key/value pairs of VPN plugin specific data.  Both keys and values must be strings.\s+" are present in describe output for object "vpn"
     When Check "=== \[secrets\] ===\s+\[NM property description\]\s+Dictionary of key\/value pairs of VPN plugin specific secrets like passwords or private keys.\s+Both keys and values must be strings." are present in describe output for object "vpn"
 
-
     @rhbz1060460
+    @ver-=1.14.0
     @vpn
     @vpn_keep_username_from_data
     Scenario: nmcli - vpn - keep username from vpn.data
@@ -218,6 +218,22 @@
     * Quit editor
     Then "leftxauthusername=desktopqe" is visible with command "cat /etc/NetworkManager/system-connections/vpn"
     Then "user-name=incorrectuser" is visible with command "cat /etc/NetworkManager/system-connections/vpn"
+
+    @rhbz1060460
+    @ver+=1.14.0
+    @vpn
+    @vpn_keep_username_from_data
+    Scenario: nmcli - vpn - keep username from vpn.data
+    * Add a new connection of type "vpn" and options "ifname \* con-name vpn autoconnect no vpn-type libreswan"
+    * Open editor for connection "vpn"
+    * Submit "set vpn.service-type org.freedesktop.NetworkManager.libreswan" in editor
+    * Submit "set vpn.data right = vpn-test.com, xauthpasswordinputmodes = save, xauthpassword-flags = 1, esp = aes-sha1;modp1024, leftxauthusername = desktopqe, pskinputmodes = save, ike = aes-sha1;modp1024, pskvalue-flags = 1, leftid = desktopqe" in editor
+    * Save in editor
+    * Submit "set vpn.user-name incorrectuser"
+    * Save in editor
+    * Quit editor
+    Then "leftxauthusername=desktopqe" is visible with command "cat /etc/NetworkManager/system-connections/vpn.nmconnection"
+    Then "user-name=incorrectuser" is visible with command "cat /etc/NetworkManager/system-connections/vpn.nmconnection"
 
 
     @rhbz1034105
