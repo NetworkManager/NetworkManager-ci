@@ -214,7 +214,7 @@
     * Bring "up" connection "eth7"
     * Reboot
 
-    Then "inet 192.168.0.100" is visible with command "ip a s eth7"
+    Then "inet 192.168.0.100" is visible with command "ip a s eth7" in "10" seconds
     Then "inet 192.168.0.101" is visible with command "ip a s eth7"
     Then "inet 192.168.0.102" is visible with command "ip a s eth7"
     Then "inet 192.168.0.103" is visible with command "ip a s eth7"
