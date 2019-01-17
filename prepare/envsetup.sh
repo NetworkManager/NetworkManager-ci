@@ -112,6 +112,9 @@ local_setup_configure_nm_eth () {
             dnf -y install https://kojipkgs.fedoraproject.org//packages/vpnc/0.5.3/33.svn550.fc29/$(arch)/vpnc-0.5.3-33.svn550.fc29.$(arch).rpm https://kojipkgs.fedoraproject.org//packages/NetworkManager-vpnc/1.2.6/1.fc29/$(arch)/NetworkManager-vpnc-1.2.6-1.fc29.$(arch).rpm https://kojipkgs.fedoraproject.org//packages/vpnc-script/20171004/3.git6f87b0f.fc29/noarch/vpnc-script-20171004-3.git6f87b0f.fc29.noarch.rpm
         fi
 
+        # Enable debug logs for wpa_supplicant
+        sed -i 's!OTHER_ARGS="-s"!OTHER_ARGS="-s -dddK"!' /etc/sysconfig/wpa_supplicant
+
         # Make crypto policies a bit less strict
         update-crypto-policies --set LEGACY
         systemctl restart wpa_supplicant
@@ -131,6 +134,15 @@ local_setup_configure_nm_eth () {
         yum -y install git python-netaddr iw net-tools wireshark psmisc bridge-utils firewalld dhcp ethtool dbus-python pygobject3 pygobject2 dnsmasq --skip-broken
         yum -y remove NetworkManager-config-connectivity-fedora NetworkManager-config-connectivity-redhat
         yum -y install  http://download.eng.bos.redhat.com/brewroot/packages/openvswitch/2.9.0/77.el7fdn/$(arch)/openvswitch-2.9.0-77.el7fdn.$(arch).rpm   http://download.eng.bos.redhat.com/brewroot/packages/openvswitch-selinux-extra-policy/1.0/7.el7fdp/noarch/openvswitch-selinux-extra-policy-1.0-7.el7fdp.noarch.rpm
+
+        # Tune wpa_supplicat to log into journal and enable debugging
+        systemctl stop wpa_supplicant
+        sed -i.bak s/^INTERFACES.*/INTERFACES=\"-iwlan1\"/ /etc/sysconfig/wpa_supplicant
+        cp -rf /usr/lib/systemd/system/wpa_supplicant.service /etc/systemd/system/wpa_supplicant.service
+        sed -i 's!ExecStart=/usr/sbin/wpa_supplicant -u -f /var/log/wpa_supplicant.log -c /etc/wpa_supplicant/wpa_supplicant.conf!ExecStart=/usr/sbin/wpa_supplicant -u -c /etc/wpa_supplicant/wpa_supplicant.conf!' /etc/systemd/system/wpa_supplicant.service
+        sed -i 's!OTHER_ARGS="-P /var/run/wpa_supplicant.pid"!OTHER_ARGS="-P /var/run/wpa_supplicant.pid -dddK"!' /etc/sysconfig/wpa_supplicant
+        systemctl restart wpa_supplicant
+
     fi
 
     #installing plugins if missing
