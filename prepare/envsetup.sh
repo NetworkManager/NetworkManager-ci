@@ -71,8 +71,54 @@ local_setup_configure_nm_eth () {
         NUM=$(($NUM+1))
     done
 
-    #installing pip, behave, and pexpect and other deps
-    if grep -q Ootpa /etc/redhat-release; then
+    if grep -q 'Fedora' /etc/redhat-release; then
+        # Make python3 default if it's not
+        rm -rf /usr/bin/python
+        ln -s /usr/bin/python3 /usr/bin/python
+
+        # Pip down some deps
+        dnf -y install python3-pip
+        python -m pip install --upgrade pip
+        python -m pip install pyroute2
+        python -m pip install pexpect
+        python -m pip install netaddr
+        python -m pip install pyte
+        python -m pip install IPy
+
+        # Needed for gsm_sim
+        dnf -y install perl-IO-Pty-Easy perl-IO-Tty
+
+        # Dnf more deps
+        dnf -y install git tcpreplay python3-netaddr dhcp-relay iw net-tools psmisc firewalld dhcp ethtool python3-dbus python3-gobject dnsmasq tcpdump wireshark-cli --skip-broken
+
+        # Install behave with better reporting
+        dnf install -y http://download.eng.bos.redhat.com/brewroot/packages/python-behave/1.2.5/23.el8+7/noarch/python3-behave-1.2.5-23.el8+7.noarch.rpm http://download.eng.bos.redhat.com/brewroot/packages/python-parse/1.6.6/8.el8+7/noarch/python3-parse-1.6.6-8.el8+7.noarch.rpm http://download.eng.bos.redhat.com/brewroot/packages/python-parse_type/0.3.4/15.el8+7/noarch/python3-parse_type-0.3.4-15.el8+7.noarch.rpm
+        ln -s /usr/bin/behave-3 /usr/bin/behave
+
+        # Install vpn dependencies
+        dnf -y install NetworkManager-openvpn openvpn ipsec-tools
+
+        # Install various NM dependencies
+        dnf -y remove NetworkManager-config-connectivity-fedora NetworkManager-config-connectivity-redhat
+        dnf -y install openvswitch
+        dnf -y install NetworkManager-ovs
+
+        if ! rpm -q --quiet NetworkManager-pptp; then
+            dnf -y install NetworkManager-pptp
+        fi
+
+        if ! rpm -q --quiet NetworkManager-vpnc || ! rpm -q --quiet vpnc; then
+            dnf -y install NetworkManager-vpnc
+        fi
+        
+        # Enable debug logs for wpa_supplicant
+        sed -i 's!OTHER_ARGS="-s"!OTHER_ARGS="-s -dddK"!' /etc/sysconfig/wpa_supplicant
+
+        # Make crypto policies a bit less strict
+        update-crypto-policies --set LEGACY
+        systemctl restart wpa_supplicant
+
+    elif grep -q 'Red Hat Enterprise Linux release 8' /etc/redhat-release; then
         # Make python3 default if it's not
         rm -rf /usr/bin/python
         ln -s /usr/libexec/platform-python /usr/bin/python
