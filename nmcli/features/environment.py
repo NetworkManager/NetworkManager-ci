@@ -488,6 +488,13 @@ def before_scenario(context, scenario):
                 print ("---------------------------")
                 sys.exit(77)
 
+        if 'skip_in_fedora' in scenario.tags:
+            print ("---------------------------")
+            print ("Skipping in Fedoras")
+            if call("grep -q Fedora /etc/redhat-release", shell=True) == 0:
+                print ("---------------------------")
+                sys.exit(77)
+
         if 'mock' in scenario.tags:
             print ("---------------------------")
             print ("installing dbus-x11, pip, and python-dbusmock")
