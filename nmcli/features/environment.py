@@ -737,15 +737,15 @@ def before_scenario(context, scenario):
                 ike="ikev2"
             setup_libreswan (mode="main", dh_group=5, ike=ike)
 
-        if 'macsec' in scenario.tags:
-            print("---------------------------")
-            print("installing macsec stuff")
-            install = "yum install -y https://vbenes.fedorapeople.org/NM/dnsmasq-debuginfo-2.76-2.el7.$(uname -p).rpm \
-                                  https://vbenes.fedorapeople.org/NM/dnsmasq-2.76-2.el7.$(uname -p).rpm \
-                                  https://vbenes.fedorapeople.org/NM/wpa_supplicant-2.6-4.el7.$(uname -p).rpm \
-                                  https://vbenes.fedorapeople.org/NM/wpa_supplicant-debuginfo-2.6-4.el7.$(uname -p).rpm"
-            call(install, shell=True)
-            call("systemctl restart wpa_supplicant", shell=True)
+        # if 'macsec' in scenario.tags:
+        #     print("---------------------------")
+        #     print("installing macsec stuff")
+        #     install = "yum install -y https://vbenes.fedorapeople.org/NM/dnsmasq-debuginfo-2.76-2.el7.$(uname -p).rpm \
+        #                           https://vbenes.fedorapeople.org/NM/dnsmasq-2.76-2.el7.$(uname -p).rpm \
+        #                           https://vbenes.fedorapeople.org/NM/wpa_supplicant-2.6-4.el7.$(uname -p).rpm \
+        #                           https://vbenes.fedorapeople.org/NM/wpa_supplicant-debuginfo-2.6-4.el7.$(uname -p).rpm"
+        #     call(install, shell=True)
+        #     call("systemctl restart wpa_supplicant", shell=True)
 
         if 'preserve_8021x_certs' in scenario.tags:
             print ("---------------------------")
