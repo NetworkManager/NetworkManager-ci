@@ -387,7 +387,7 @@ Feature: nmcli - ethernet
 
 
     @ver+=1.6.0
-    @con_ethernet_remove @8021x
+    @con_ethernet_remove @8021x @attach_hostapd_log @attach_wpa_supplicant_log
     @8021x_with_credentials
     Scenario: nmcli - ethernet - connect to 8021x - md5
     * Add a new connection of type "ethernet" and options "ifname test8X con-name con_ethernet autoconnect no 802-1x.eap md5 802-1x.identity user 802-1x.password password"
@@ -395,7 +395,7 @@ Feature: nmcli - ethernet
 
 
     @ver+=1.6.0
-    @con_ethernet_remove @8021x
+    @con_ethernet_remove @8021x @attach_hostapd_log @attach_wpa_supplicant_log
     @8021x_tls
     Scenario: nmcli - ethernet - connect to 8021x - tls
     * Add a new connection of type "ethernet" and options "ifname test8X con-name con_ethernet autoconnect no 802-1x.eap tls 802-1x.identity test 802-1x.ca-cert /tmp/certs/test_user.ca.pem 802-1x.client-cert /tmp/certs/test_user.cert.pem 802-1x.private-key /tmp/certs/test_user.key.enc.pem 802-1x.private-key-password redhat"
@@ -404,7 +404,7 @@ Feature: nmcli - ethernet
 
     @rhbz1623798
     @ver+=1.12
-    @con_ethernet_remove @8021x
+    @con_ethernet_remove @8021x @attach_hostapd_log @attach_wpa_supplicant_log
     @8021x_tls_aes256_private_key
     Scenario: nmcli - ethernet - connect to 8021x - tls - private key encrypted by aes256
     * Add a new connection of type "ethernet" and options "ifname test8X con-name con_ethernet autoconnect no 802-1x.eap tls 802-1x.identity test 802-1x.ca-cert /tmp/certs/test_user.ca.pem 802-1x.client-cert /tmp/certs/test_user.cert.pem 802-1x.private-key /tmp/certs/test_user.key.enc.aes256.pem 802-1x.private-key-password redhat"
@@ -412,7 +412,7 @@ Feature: nmcli - ethernet
 
 
     @ver+=1.6.0
-    @con_ethernet_remove @8021x
+    @con_ethernet_remove @8021x @attach_hostapd_log @attach_wpa_supplicant_log
     @8021x_tls_bad_private_key_password
     Scenario: nmcli - ethernet - connect to 8021x - tls - bad private key password
     * Add a new connection of type "ethernet" and options "ifname test8X con-name con_ethernet autoconnect no 802-1x.eap tls 802-1x.identity test 802-1x.ca-cert /tmp/certs/test_user.ca.pem 802-1x.client-cert /tmp/certs/test_user.cert.pem 802-1x.private-key /tmp/certs/test_user.key.enc.pem 802-1x.private-key-password redhat12345"
@@ -422,7 +422,7 @@ Feature: nmcli - ethernet
 
     @rhbz1433536
     @ver+=1.6.0
-    @con_ethernet_remove @8021x
+    @con_ethernet_remove @8021x @attach_hostapd_log @attach_wpa_supplicant_log
     @8021x_tls_no_private_key_password
     Scenario: nmcli - ethernet - connect to 8021x - tls - no private key pasword
     * Add a new connection of type "ethernet" and options "ifname test8X con-name con_ethernet autoconnect no 802-1x.eap tls 802-1x.identity test 802-1x.ca-cert /tmp/certs/test_user.ca.pem 802-1x.client-cert /tmp/certs/test_user.cert.pem 802-1x.private-key /tmp/certs/test_user.key.pem 802-1x.private-key-password-flags 4"
@@ -430,7 +430,7 @@ Feature: nmcli - ethernet
 
 
     @ver+=1.12
-    @con_ethernet_remove @8021x
+    @con_ethernet_remove @8021x @attach_hostapd_log @attach_wpa_supplicant_log
     @8021x_tls_bad_password_flag
     Scenario: nmcli - ethernet - connect to 8021x - tls - bad password flag
      * Add a new connection of type "ethernet" and options "ifname test8X con-name con_ethernet autoconnect no 802-1x.eap tls 802-1x.identity test 802-1x.ca-cert /tmp/certs/test_user.ca.pem 802-1x.client-cert /tmp/certs/test_user.cert.pem 802-1x.private-key /tmp/certs/test_user.key.enc.pem 802-1x.private-key-password-flags 4"
@@ -439,7 +439,7 @@ Feature: nmcli - ethernet
 
 
     @ver+=1.6.0
-    @con_ethernet_remove @8021x
+    @con_ethernet_remove @8021x @attach_hostapd_log @attach_wpa_supplicant_log
     @8021x_peap_md5
     Scenario: nmcli - ethernet - connect to 8021x - peap - md5
     * Add a new connection of type "ethernet" and options "ifname test8X con-name con_ethernet autoconnect no 802-1x.eap peap 802-1x.identity test_md5 802-1x.anonymous-identity test 802-1x.ca-cert /tmp/certs/test_user.ca.pem 802-1x.phase2-auth md5 802-1x.password password"
@@ -447,7 +447,7 @@ Feature: nmcli - ethernet
 
 
     @ver+=1.6.0
-    @con_ethernet_remove @8021x
+    @con_ethernet_remove @8021x @attach_hostapd_log @attach_wpa_supplicant_log
     @8021x_peap_mschapv2
     Scenario: nmcli - ethernet - connect to 8021x - peap - mschapv2
     * Add a new connection of type "ethernet" and options "ifname test8X con-name con_ethernet autoconnect no 802-1x.eap peap 802-1x.identity TESTERS\\test_mschapv2 802-1x.anonymous-identity test 802-1x.ca-cert /tmp/certs/test_user.ca.pem 802-1x.phase2-auth mschapv2 802-1x.password password"
@@ -455,7 +455,7 @@ Feature: nmcli - ethernet
 
 
     @ver+=1.6.0
-    @con_ethernet_remove @8021x
+    @con_ethernet_remove @8021x @attach_hostapd_log @attach_wpa_supplicant_log
     @8021x_peap_gtc
     Scenario: nmcli - ethernet - connect to 8021x - peap - gtc
     * Add a new connection of type "ethernet" and options "ifname test8X con-name con_ethernet autoconnect no 802-1x.eap peap 802-1x.identity test_gtc 802-1x.anonymous-identity test 802-1x.ca-cert /tmp/certs/test_user.ca.pem 802-1x.phase2-auth gtc 802-1x.password password"
@@ -463,7 +463,7 @@ Feature: nmcli - ethernet
 
 
     @ver+=1.6.0
-    @con_ethernet_remove @8021x
+    @con_ethernet_remove @8021x @attach_hostapd_log @attach_wpa_supplicant_log
     @8021x_ttls_pap
     Scenario: nmcli - ethernet - connect to 8021x -ttls - pap
     * Add a new connection of type "ethernet" and options "ifname test8X con-name con_ethernet autoconnect no 802-1x.eap ttls 802-1x.identity test_ttls 802-1x.anonymous-identity test 802-1x.ca-cert /tmp/certs/test_user.ca.pem 802-1x.phase2-auth pap 802-1x.password password"
@@ -471,7 +471,7 @@ Feature: nmcli - ethernet
 
 
     @ver+=1.6.0
-    @con_ethernet_remove @8021x
+    @con_ethernet_remove @8021x @attach_hostapd_log @attach_wpa_supplicant_log
     @8021x_ttls_chap
     Scenario: nmcli - ethernet - connect to 8021x -ttls - chap
     * Add a new connection of type "ethernet" and options "ifname test8X con-name con_ethernet autoconnect no 802-1x.eap ttls 802-1x.identity test_ttls 802-1x.anonymous-identity test 802-1x.ca-cert /tmp/certs/test_user.ca.pem 802-1x.phase2-auth chap 802-1x.password password"
@@ -479,7 +479,7 @@ Feature: nmcli - ethernet
 
 
     @ver+=1.6.0
-    @con_ethernet_remove @8021x
+    @con_ethernet_remove @8021x @attach_hostapd_log @attach_wpa_supplicant_log
     @8021x_ttls_mschap
     Scenario: nmcli - ethernet - connect to 8021x -ttls - mschap
     * Add a new connection of type "ethernet" and options "ifname test8X con-name con_ethernet autoconnect no 802-1x.eap ttls 802-1x.identity test_ttls 802-1x.anonymous-identity test 802-1x.ca-cert /tmp/certs/test_user.ca.pem 802-1x.phase2-auth mschap 802-1x.password password"
@@ -487,7 +487,7 @@ Feature: nmcli - ethernet
 
 
     @ver+=1.6.0
-    @con_ethernet_remove @8021x
+    @con_ethernet_remove @8021x @attach_hostapd_log @attach_wpa_supplicant_log
     @8021x_ttls_mschapv2
     Scenario: nmcli - ethernet - connect to 8021x -ttls - mschapv2
     * Add a new connection of type "ethernet" and options "ifname test8X con-name con_ethernet autoconnect no 802-1x.eap ttls 802-1x.identity test_ttls 802-1x.anonymous-identity test 802-1x.ca-cert /tmp/certs/test_user.ca.pem 802-1x.phase2-auth mschapv2 802-1x.password password"
@@ -495,7 +495,7 @@ Feature: nmcli - ethernet
 
 
     @ver+=1.6.0
-    @con_ethernet_remove @8021x
+    @con_ethernet_remove @8021x @attach_hostapd_log @attach_wpa_supplicant_log
     @8021x_ttls_mschapv2_eap
     Scenario: nmcli - ethernet - connect to 8021x -ttls - mschap - eap
     * Add a new connection of type "ethernet" and options "ifname test8X con-name con_ethernet autoconnect no 802-1x.eap ttls 802-1x.identity TESTERS\\test_mschapv2 802-1x.anonymous-identity test 802-1x.ca-cert /tmp/certs/test_user.ca.pem 802-1x.phase2-autheap mschapv2 802-1x.password password"
@@ -503,7 +503,7 @@ Feature: nmcli - ethernet
 
 
     @ver+=1.6.0
-    @con_ethernet_remove @8021x
+    @con_ethernet_remove @8021x @attach_hostapd_log @attach_wpa_supplicant_log
     @8021x_ttls_md5
     Scenario: nmcli - ethernet - connect to 8021x -ttls - md5
     * Add a new connection of type "ethernet" and options "ifname test8X con-name con_ethernet autoconnect no 802-1x.eap ttls 802-1x.identity test_md5 802-1x.anonymous-identity test 802-1x.ca-cert /tmp/certs/test_user.ca.pem 802-1x.phase2-autheap md5 802-1x.password password"
@@ -511,7 +511,7 @@ Feature: nmcli - ethernet
 
 
     @ver+=1.6.0
-    @con_ethernet_remove @8021x
+    @con_ethernet_remove @8021x @attach_hostapd_log @attach_wpa_supplicant_log
     @8021x_ttls_gtc
     Scenario: nmcli - ethernet - connect to 8021x -ttls - gtc
     * Add a new connection of type "ethernet" and options "ifname test8X con-name con_ethernet autoconnect no 802-1x.eap ttls 802-1x.identity test_gtc 802-1x.anonymous-identity test 802-1x.ca-cert /tmp/certs/test_user.ca.pem 802-1x.phase2-autheap gtc 802-1x.password password"
@@ -520,7 +520,7 @@ Feature: nmcli - ethernet
 
     @rhbz1456362
     @ver+=1.8.0
-    @con_ethernet_remove @8021x
+    @con_ethernet_remove @8021x @attach_hostapd_log @attach_wpa_supplicant_log
     @8021x_with_raw_credentials
     Scenario: nmcli - ethernet - connect to 8021x - md5 - raw
     * Add a new connection of type "ethernet" and options "ifname test8X con-name con_ethernet autoconnect no 802-1x.eap md5 802-1x.identity user 802-1x.password-raw '70 61 73 73 77 6f 72 64'"
@@ -530,7 +530,7 @@ Feature: nmcli - ethernet
     @rhbz1113941
     @ver+=1.6.0
     @ver-=1.10.0
-    @con_ethernet_remove @8021x
+    @con_ethernet_remove @8021x @attach_hostapd_log @attach_wpa_supplicant_log
     @8021x_without_password
     Scenario: nmcli - ethernet - connect to 8021x - md5 - ask for password
     * Add a new connection of type "ethernet" and options "ifname test8X con-name con_ethernet 802-1x.eap md5 802-1x.identity user autoconnect no"
@@ -544,7 +544,7 @@ Feature: nmcli - ethernet
 
     @rhbz1113941 @rhbz1438476
     @ver+=1.10.0
-    @con_ethernet_remove @8021x
+    @con_ethernet_remove @8021x @attach_hostapd_log @attach_wpa_supplicant_log
     @8021x_without_password
     Scenario: nmcli - ethernet - connect to 8021x - md5 - ask for password
     * Add a new connection of type "ethernet" and options "ifname test8X con-name con_ethernet 802-1x.eap md5 802-1x.identity user"
@@ -557,7 +557,7 @@ Feature: nmcli - ethernet
 
 
     @ver+=1.8.0
-    @con_ethernet_remove @8021x
+    @con_ethernet_remove @8021x @attach_hostapd_log @attach_wpa_supplicant_log
     @8021x_without_password_with_ask_at_the_end
     Scenario: nmcli - ethernet - connect to 8021x - md5 - ask for password at the end
     * Add a new connection of type "ethernet" and options "ifname test8X con-name con_ethernet 802-1x.eap md5 802-1x.identity user autoconnect no"
