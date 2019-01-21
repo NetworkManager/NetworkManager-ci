@@ -91,8 +91,13 @@ local_setup_configure_nm_eth () {
         # Dnf more deps
         dnf -y install git tcpreplay python3-netaddr dhcp-relay iw net-tools psmisc firewalld dhcp ethtool python3-dbus python3-gobject dnsmasq tcpdump wireshark-cli --skip-broken
 
+
         # Install behave with better reporting
-        dnf install -y http://download.eng.bos.redhat.com/brewroot/packages/python-behave/1.2.5/23.el8+7/noarch/python3-behave-1.2.5-23.el8+7.noarch.rpm http://download.eng.bos.redhat.com/brewroot/packages/python-parse/1.6.6/8.el8+7/noarch/python3-parse-1.6.6-8.el8+7.noarch.rpm http://download.eng.bos.redhat.com/brewroot/packages/python-parse_type/0.3.4/15.el8+7/noarch/python3-parse_type-0.3.4-15.el8+7.noarch.rpm
+        if python3 -V |grep -q "3.7"; then
+            dnf install -y https://vbenes.fedorapeople.org/NM/python3-behave-1.2.6-2.fc29.noarch.rpm
+        else
+            dnf install -y http://download.eng.bos.redhat.com/brewroot/packages/python-behave/1.2.5/23.el8+7/noarch/python3-behave-1.2.5-23.el8+7.noarch.rpm http://download.eng.bos.redhat.com/brewroot/packages/python-parse/1.6.6/8.el8+7/noarch/python3-parse-1.6.6-8.el8+7.noarch.rpm http://download.eng.bos.redhat.com/brewroot/packages/python-parse_type/0.3.4/15.el8+7/noarch/python3-parse_type-0.3.4-15.el8+7.noarch.rpm
+        fi
         ln -s /usr/bin/behave-3 /usr/bin/behave
 
         # Install vpn dependencies
@@ -110,7 +115,7 @@ local_setup_configure_nm_eth () {
         if ! rpm -q --quiet NetworkManager-vpnc || ! rpm -q --quiet vpnc; then
             dnf -y install NetworkManager-vpnc
         fi
-        
+
         # Enable debug logs for wpa_supplicant
         sed -i 's!OTHER_ARGS="-s"!OTHER_ARGS="-s -dddK"!' /etc/sysconfig/wpa_supplicant
 
