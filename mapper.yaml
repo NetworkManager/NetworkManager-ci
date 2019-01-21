@@ -680,6 +680,12 @@ testmapper:
         feature: ipv4
     - ipv4_set_very_long_dhcp_client_id:
         feature: ipv4
+    - ipv4_dhcp_client_id_default:
+        feature: ipv4
+    - ipv4_dhcp_client_id_default_rhel7:
+        feature: ipv4
+    - ipv4_dhcp_client_id_default_rhel8:
+        feature: ipv4
     - ipv4_may-fail_yes:
         feature: ipv4
     - ipv4_method_disabled:

@@ -1122,6 +1122,13 @@ def note_mac_address(context, device):
     context.noted = command_output(context, "ethtool -P %s |grep -o -E '([[:xdigit:]]{1,2}:){5}[[:xdigit:]]{1,2}'" % device).strip()
     print (context.noted)
 
+
+@step(u'Note MAC address output for device "{device}" via ip command')
+def note_mac_address_ip(context, device):
+    context.noted_value = command_output(context, "ip link show %s | grep 'link/ether' | awk '{print $2}'" % device).strip()
+    print (context.noted_value)
+
+
 @step(u'Noted value contains "{pattern}"')
 def note_print_property_b(context, pattern):
     assert re.search(pattern, context.noted) is not None, "Noted value does not match the pattern!"
@@ -1196,8 +1203,14 @@ def add_novice_connection(context):
     context.prompt = prompt
 
 
+@step(u'Noted value is visible with command "{command}"')
+@step(u'Noted value "{index}" is visible with command "{command}"')
 @step(u'"{pattern}" is visible with command "{command}"')
-def check_pattern_visible_with_command(context, pattern, command):
+def check_pattern_visible_with_command(context, command, pattern=None, index=None):
+    if pattern is None and index is None:
+        pattern = context.noted_value
+    if index is not None:
+        pattern = context.noted[index]
     proc = pexpect.spawn('/bin/bash', ['-c', command], maxread=100000, logfile=context.log, encoding='utf-8')
     if proc.expect([pattern, pexpect.EOF]) != 0:
         sleep(1)
@@ -1206,8 +1219,14 @@ def check_pattern_visible_with_command(context, pattern, command):
     else:
         return True
 
+@step(u'Noted value is visible with command "{command}" in "{seconds}" seconds')
+@step(u'Noted value "{index}" is visible with command "{command}" in "{seconds}" seconds')
 @step(u'"{pattern}" is visible with command "{command}" in "{seconds}" seconds')
-def check_pattern_visible_with_command_in_time(context, pattern, command, seconds):
+def check_pattern_visible_with_command_in_time(context, command, seconds, pattern=None, index=None):
+    if pattern is None and index is None:
+        pattern = context.noted_value
+    if index is not None:
+        pattern = context.noted[index]
     seconds = int(seconds)
     orig_seconds = seconds
     while seconds > 0:
