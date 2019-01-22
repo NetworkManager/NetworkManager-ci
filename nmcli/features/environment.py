@@ -313,6 +313,9 @@ def before_scenario(context, scenario):
                 if "4.5" in ver:
                     sys.exit(77)
 
+        if 'captive_portal' in scenario.tags:
+            call("sudo prepare/captive_portal.sh", shell=True)
+
         if 'gsm_sim' in scenario.tags:
             arch = check_output("uname -p", shell=True).decode('utf-8').strip()
             if arch != "x86_64":
@@ -1797,6 +1800,9 @@ def after_scenario(context, scenario):
             data = open("/tmp/journal-mm.log", 'r').read()
             if data:
                 context.embed('text/plain', data, caption="NM")
+
+        if 'captive_portal' in scenario.tags:
+            call("sudo prepare/captive_portal.sh teardown", shell=True)
 
         if 'gsm_sim' in scenario.tags:
             call("sudo prepare/gsm_sim.sh teardown", shell=True)

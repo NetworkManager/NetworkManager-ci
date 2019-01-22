@@ -1969,3 +1969,17 @@ Feature: nmcli - general
     * Bring "up" connection "con_general"
     Then "7" is visible with command "nmcli -f ipv4.dns-search con show con_general | grep -o '\.noexist\.redhat\.com' | wc -l"
      And "7" is visible with command "cat /etc/resolv.conf | grep -o '\.noexist\.redhat\.com' | wc -l"
+
+
+    @rhbz1658217
+    @ver+=1.14
+    @captive_portal @connectivity
+    @captive_portal_detection
+    Scenario: NM - general - portal is detected by NM
+    Given "full" is visible with command "nmcli -f CONNECTIVITY general" in "5" seconds
+    * Execute "echo NOK > /tmp/python_http/test/rhel-networkmanager.txt"
+    Then "portal" is visible with command "nmcli -f CONNECTIVITY general" in "15" seconds
+    * Execute "echo -n OK > /tmp/python_http/test/rhel-networkmanager.txt"
+    Then "full" is visible with command "nmcli -f CONNECTIVITY general" in "15" seconds
+    * Execute "rm -f /tmp/python_http/test/rhel-networkmanager.txt"
+    Then "portal" is visible with command "nmcli -f CONNECTIVITY general" in "15" seconds
