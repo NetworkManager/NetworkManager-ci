@@ -1343,7 +1343,7 @@ Feature: nmcli: ipv4
 
 
     @rhbz1661165
-    @ver+=1.12 @ver-=1.14 @not_in_rhel
+    @ver+=1.12 @ver-=1.15 @not_in_rhel
     @internal_DHCP @con_ipv4_remove @tcpdump
     @ipv4_dhcp_client_id_default
     Scenario: NM - ipv4 - ipv4 client id should default to duid with internal plugins
