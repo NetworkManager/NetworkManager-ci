@@ -452,3 +452,40 @@ Feature: nmcli - dns
     Then device "tun1" has DNS server "172.31.70.53"
     Then device "tun1" does not have DNS domain "."
     Then device "tun1" has DNS domain "vpn.domain"
+
+##########################################
+# DNSMASQ RESTART/KILL TESTS
+##########################################
+
+    @ver+=1.15.1
+    @con_dns_remove @dns_dnsmasq
+    @dns_dnsmasq_kill
+    Scenario: NM - dns - dnsmasq gets restarted when killed
+    * Add a new connection of type "ethernet" and options "con-name con_dns ifname eth2 autoconnect no"
+    * Execute "nmcli connection modify con_dns ipv4.dns 172.16.1.53 ipv4.method manual ipv4.addresses 172.16.1.1/24"
+    * Bring "up" connection "con_dns"
+    Then "1" is visible with command "grep nameserver -c /etc/resolv.conf"
+    Then "127.0.0.1" is visible with command "grep nameserver /etc/resolv.conf"
+    * Execute "pkill -f 'dnsmasq .* --conf-dir=/etc/NetworkManager/dnsmasq.d'"
+    # Check that NM restarts dnsmasq and also keeps resolv.conf pointing at it
+    Then "1" is visible with command "pgrep -c -P `pidof NetworkManager` dnsmasq" in "10" seconds
+    Then "1" is visible with command "grep nameserver -c /etc/resolv.conf"
+    Then "127.0.0.1" is visible with command "grep nameserver /etc/resolv.conf"
+
+    @ver+=1.15.1
+    @con_dns_remove @dns_dnsmasq
+    @dns_dnsmasq_kill_ratelimit
+    # When dnsmasq dies, NM restarts it. But if dnsmasq dies too many
+    # times in a short period, NM stops respawning it for 5 minutes
+    # and writes upstream servers to resolv.conf
+    Scenario: NM - dns - dnsmasq rate-limiting
+    * Add a new connection of type "ethernet" and options "con-name con_dns ifname eth2 autoconnect no"
+    * Execute "nmcli connection modify con_dns ipv4.dns 172.16.1.53 ipv4.method manual ipv4.addresses 172.16.1.1/24"
+    * Bring "up" connection "con_dns"
+    Then "1" is visible with command "grep nameserver -c /etc/resolv.conf"
+    Then "127.0.0.1" is visible with command "grep nameserver /etc/resolv.conf"
+    * Execute "for i in `seq 12`; do pkill -P `pidof NetworkManager` dnsmasq; sleep 1; done"
+    * Execute "sleep 10"
+    # Check dnsmasq is no longer running and resolv.conf points to upstream servers
+    Then "0" is visible with command "pgrep -c -P `pidof NetworkManager` dnsmasq"
+    Then "172.16.1.53" is visible with command "grep nameserver /etc/resolv.conf"

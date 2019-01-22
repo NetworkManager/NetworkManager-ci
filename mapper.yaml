@@ -1465,6 +1465,10 @@ testmapper:
         feature: dns
     - dns_dnsmasq_driver_removal:
         feature: dns
+    - dns_dnsmasq_kill:
+        feature: dns
+    - dns_dnsmasq_kill_ratelimit:
+        feature: dns
     - nmtui_general_start_nmtui:
         run: nmtui/./runtest.sh nmtui_general_start_nmtui
         feature: nmtui
