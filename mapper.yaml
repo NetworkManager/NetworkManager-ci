@@ -286,6 +286,8 @@ testmapper:
         feature: bridge
     - bridge_ipv6:
         feature: bridge
+    - bridge_detect_initrd_device:
+        feature: bridge
     - add_default_team:
         feature: team
     - add_default_team_after_journal_restart:
