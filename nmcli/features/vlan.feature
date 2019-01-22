@@ -489,3 +489,21 @@ Feature: nmcli - vlan
     * Restart NM
     Then "nm-bond:connected:bond0" is visible with command "nmcli -t -f DEVICE,STATE,CONNECTION device" in "20" seconds
     Then "nm-bond.7:connected:vlan_bond7" is visible with command "nmcli -t -f DEVICE,STATE,CONNECTION device" in "20" seconds
+
+
+    @rhbz1659063
+    @ver+=1.14
+    @vlan @bond @slaves @teardown_testveth
+    @static_route_persists_mac_change
+    Scenario: NM - vlan - static route is not deleted after NM changes MAC
+    * Prepare simulated test "test77" device
+    * Add connection type "bond" named "bond0" for device "nm-bond"
+    * Add a new connection of type "bond" ifname "nm-bond" and options "autocnnect no ethernet.cloned-mac-address preserve"
+    * Add a new connection of type "vlan" and options "autoconnect no ethernet.cloned-mac-address preserve con-name vlan_bond7 ipv4.method disabled ipv6.method ignore vlan.id 7 vlan.parent nm-bond"
+    * Add a new connection of type "ethernet" and options "autoconnect no con-name bond0.0 ethernet.cloned-mac-address preserve ifname test77 master nm-bond slave-type bond"
+    * Bring "up" connection "bond0"
+    * Bring "up" connection "vlan_bond7"
+    * Execute "ip addr add 192.168.168.16/24 dev nm-bond.7"
+    * Execute "ip route add 192.168.169.3/32 via 192.168.168.16 dev nm-bond.7"
+    * Bring "up" connection "bond0.0"
+    Then "192.168.169.3 via 192.168.168.16 dev nm-bond.7" is visible with command "ip r"

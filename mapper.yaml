@@ -819,6 +819,8 @@ testmapper:
         feature: vlan
     - vlan_on_bond_autoconnect:
         feature: vlan
+    - static_route_persists_mac_change:
+        feature: vlan
     - ethernet_create_with_editor:
         feature: ethernet
     - ethernet_create_default_connection:
