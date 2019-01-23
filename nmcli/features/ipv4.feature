@@ -1330,7 +1330,7 @@ Feature: nmcli: ipv4
 
     @rhbz1661165
     @ver+=1.15.1 @not_in_rhel
-    @internal_DHCP @con_ipv4_remove @tcpdump
+    @internal_DHCP @con_ipv4_remove @tcpdump @no_config_server
     @ipv4_dhcp_client_id_default
     Scenario: NM - ipv4 - ipv4 client id should default to mac with internal plugins
     * Add connection type "ethernet" named "con_ipv4" for device "eth2"
@@ -1344,7 +1344,7 @@ Feature: nmcli: ipv4
 
     @rhbz1661165
     @ver+=1.12 @ver-=1.15 @not_in_rhel
-    @internal_DHCP @con_ipv4_remove @tcpdump
+    @internal_DHCP @con_ipv4_remove @tcpdump @no_config_server
     @ipv4_dhcp_client_id_default
     Scenario: NM - ipv4 - ipv4 client id should default to duid with internal plugins
     * Add connection type "ethernet" named "con_ipv4" for device "eth2"
@@ -1357,7 +1357,7 @@ Feature: nmcli: ipv4
 
     @rhbz1661165
     @rhel8_only
-    @internal_DHCP @con_ipv4_remove @tcpdump
+    @internal_DHCP @con_ipv4_remove @tcpdump @no_config_server
     @ipv4_dhcp_client_id_default_rhel8
     Scenario: NM - ipv4 - ipv4 client id should default to mac with internal plugins
     * Add connection type "ethernet" named "con_ipv4" for device "eth2"
@@ -1371,7 +1371,7 @@ Feature: nmcli: ipv4
 
     @rhbz1661165
     @rhel7_only
-    @internal_DHCP @con_ipv4_remove @tcpdump
+    @internal_DHCP @con_ipv4_remove @tcpdump @no_config_server
     @ipv4_dhcp_client_id_default_rhel7
     Scenario: NM - ipv4 - ipv4 client id should default to duid with internal plugins
     * Add connection type "ethernet" named "con_ipv4" for device "eth2"
