@@ -1116,7 +1116,7 @@ Feature: nmcli - general
     * Reboot
     Then "32764:\s+from 192.168.99.* lookup 1.*32765:\s+from all iif testG lookup 1" is visible with command "ip rule" in "20" seconds
      And "default via 192.168.99.1 dev testG" is visible with command "ip r s table 1" in "20" seconds
-     And "2620" is not visible with command "ip a s testG" in "10" seconds
+     And "2620" is not visible with command "ip a s testG" in "20" seconds
 
 
     @rhbz1262972
