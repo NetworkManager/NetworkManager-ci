@@ -44,8 +44,9 @@ sudo echo "%vagrant ALL=(ALL)   NOPASSWD: ALL" >> /etc/sudoers
 mkdir -p /var/www/html/results/
 # Show wide lines
 echo "IndexOptions NameWidth=*" >> /etc/httpd/conf.d/autoindex.conf
+
 # Start HTTPD
-systemctl restart httpd.service
+# systemctl restart httpd.service
 
 # Skip long tests
 touch /tmp/nm_skip_long
