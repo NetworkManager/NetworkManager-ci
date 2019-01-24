@@ -2160,14 +2160,14 @@ testmapper:
         feature: wifi
     - nmcli_wifisec_pairwise_ccmp:
         feature: wifi
-    - nmcli_wifisec_pairwise_tkip:
-        feature: wifi
+    # - nmcli_wifisec_pairwise_tkip:
+    #     feature: wifi
     - nmcli_wifisec_unmatching_pairwise:
         feature: wifi
     - nmcli_wifisec_group_ccmp:
         feature: wifi
-    - nmcli_wifisec_group_tkip:
-        feature: wifi
+    # - nmcli_wifisec_group_tkip:
+    #     feature: wifi
     - nmcli_wifisec_unmatching_group:
         feature: wifi
     - nmcli_wifisec_set_all_wep_keys:
