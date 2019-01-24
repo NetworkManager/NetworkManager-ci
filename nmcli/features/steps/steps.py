@@ -1635,7 +1635,7 @@ def reload_connections(context):
 @step(u'Quit editor')
 def quit_editor(context):
     context.prompt.sendline('quit')
-    #sleep(0.3)
+    sleep(0.1)
 
 
 @step(u'Reboot')

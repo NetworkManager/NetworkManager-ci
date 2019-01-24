@@ -293,7 +293,7 @@ Feature: WIFI TUI tests
     * Set "BSSID" field to "F4:0F:1B:0E:E8:A1"
     * Confirm the connection settings
     Then "BSSID=F4:0F:1B:0E:E8:A1" is visible with command "cat /etc/sysconfig/network-scripts/ifcfg-wifi1"
-    Then "Connected to F4:0F:1B:0E:E8:A1" is visible with command "iw dev wlan0 link" in "30" seconds
+    Then "Connected to f4:0f:1b:0e:e8:a1" is visible with command "iw dev wlan0 link" in "30" seconds
 
 
     @wifi
