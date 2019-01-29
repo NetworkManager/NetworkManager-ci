@@ -295,7 +295,7 @@ Feature: nmcli - vlan
      And "9000" is visible with command "ip a s team7.15"
 
     * Reboot
-    Then "9000" is visible with command "ip a s eth7"
+    Then "9000" is visible with command "ip a s eth7" in "10" seconds
      And "9000" is visible with command "ip a s bridge7"
      And "9000" is visible with command "ip a s team7"
      And "9000" is visible with command "ip a s team7.15"
