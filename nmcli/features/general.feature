@@ -1476,6 +1476,7 @@ Feature: nmcli - general
     Scenario: NM - general - stable mem consumption
     * Execute "sh tmp/repro_1433303.sh"
     * Execute "sh tmp/repro_1433303.sh"
+    #* Execute "sh tmp/repro_1433303.sh"
     * Note the output of "pmap -x $(pidof NetworkManager) |grep 'rw---'" as value "1"
     * Execute "sh tmp/repro_1433303.sh"
     * Note the output of "pmap -x $(pidof NetworkManager) |grep 'rw---'" as value "2"

@@ -6,6 +6,7 @@ for i in $(seq 1 750); do
         ip l set veth$i up
         ip a a dev veth$i 9.9.9.9
         ip l set veth$i master brX
+        sleep 0.01
         ip l del veth$i
 done
 
