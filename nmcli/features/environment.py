@@ -1221,7 +1221,7 @@ def after_scenario(context, scenario):
             print ("---------------------------")
             print ("remove info only logging")
             log = "/etc/NetworkManager/conf.d/99-xlogging.conf"
-            call("rm, -rf  %s" %log,  shell=True)
+            call("rm -rf %s" %log,  shell=True)
             reload_NM_service()
 
         if 'stop_radvd' in scenario.tags:
