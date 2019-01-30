@@ -1,6 +1,6 @@
 #!/bin/bash
 ip l add brX type bridge
-for i in $(seq 1 1000); do
+for i in $(seq 1 750); do
         echo $i;
         ip l add veth$i type veth peer name vethp$i
         ip l set veth$i up
