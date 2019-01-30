@@ -1471,7 +1471,7 @@ Feature: nmcli - general
 
     @rhbz1433303
     @ver+=1.4.0
-    @long @gen_br_remove
+    @long @gen_br_remove @logging_info_only
     @stable_mem_consumption
     Scenario: NM - general - stable mem consumption
     * Execute "sh tmp/repro_1433303.sh"
@@ -1487,7 +1487,7 @@ Feature: nmcli - general
 
     @rhbz1461643
     @ver+=1.10.0
-    @allow_veth_connections @no_config_server @long
+    @allow_veth_connections @no_config_server @long @logging_info_only
     @stable_mem_consumption2
     Scenario: NM - general - stable mem consumption - var 2
     * Execute "sh tmp/repro_1461643.sh"

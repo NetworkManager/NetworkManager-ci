@@ -609,6 +609,15 @@ def before_scenario(context, scenario):
         if 'logging' in scenario.tags:
             context.loggin_level = check_output('nmcli -t -f LEVEL general logging', shell=True).decode('utf-8').strip()
 
+        if 'logging_info_only' in scenario.tags:
+            print ("---------------------------")
+            print ("add info only logging")
+            log = "/etc/NetworkManager/conf.d/99-xlogging.conf"
+            call("echo '[logging]' > %s" %log,  shell=True)
+            call("echo 'level=INFO' >> %s" %log, shell=True)
+            call("echo 'domains=ALL' >> %s" %log, shell=True)
+            reload_NM_service()
+
         if 'nmcli_general_profile_pickup_doesnt_break_network' in scenario.tags:
             print("---------------------------")
             print("turning on network.service")
@@ -1207,6 +1216,13 @@ def after_scenario(context, scenario):
             print ("---------------------------")
             print ("setting log level back")
             call('sudo nmcli g log level %s domains ALL' % context.loggin_level, shell=True)
+
+        if 'logging_info_only' in scenario.tags:
+            print ("---------------------------")
+            print ("remove info only logging")
+            log = "/etc/NetworkManager/conf.d/99-xlogging.conf"
+            call("rm, -rf  %s" %log,  shell=True)
+            reload_NM_service()
 
         if 'stop_radvd' in scenario.tags:
             print ("---------------------------")
