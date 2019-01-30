@@ -1494,7 +1494,7 @@ Feature: nmcli - general
     * Note the output of "pmap -x $(pidof NetworkManager) |grep 'rw---'" as value "1"
     * Execute "sh tmp/repro_1461643.sh"
     * Note the output of "pmap -x $(pidof NetworkManager) |grep 'rw---'" as value "2"
-    Then Check RSS writable memory in noted value "2" differs from "1" less than "500"
+    Then Check RSS writable memory in noted value "2" differs from "1" less than "300"
 
 
     @rhbz1398932
