@@ -904,7 +904,6 @@ def before_scenario(context, scenario):
             if call('rpm -q NetworkManager-config-server', shell=True) == 1:
                 context.restore_config_server = False
             else:
-                wait_for_testeth0()
                 call('sudo yum -y remove NetworkManager-config-server', shell=True)
                 call('sudo rm -f /etc/NetworkManager/conf.d/00-server.conf', shell=True)
                 reload_NM_service()
