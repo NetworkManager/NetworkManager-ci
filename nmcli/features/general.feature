@@ -1471,34 +1471,29 @@ Feature: nmcli - general
 
     @rhbz1433303
     @ver+=1.4.0
-    @long @gen_br_remove
+    @long @gen_br_remove @logging_info_only
     @stable_mem_consumption
     Scenario: NM - general - stable mem consumption
     * Execute "sh tmp/repro_1433303.sh"
     * Execute "sh tmp/repro_1433303.sh"
+    #* Execute "sh tmp/repro_1433303.sh"
     * Note the output of "pmap -x $(pidof NetworkManager) |grep 'rw---'" as value "1"
-    * Note the output of "pmap -x $(pidof NetworkManager) |grep total | awk '{print $3}'" as value "3"
     * Execute "sh tmp/repro_1433303.sh"
     * Note the output of "pmap -x $(pidof NetworkManager) |grep 'rw---'" as value "2"
-    * Note the output of "pmap -x $(pidof NetworkManager) |grep total | awk '{print $3}'" as value "4"
-    Then Check RSS writable memory in noted value "2" differs from "1" less than "500"
-    Then Check noted value "4" difference from "3" is lower than "500"
+    Then Check RSS writable memory in noted value "2" differs from "1" less than "300"
 
 
     @rhbz1461643
     @ver+=1.10.0
-    @allow_veth_connections @no_config_server @long
+    @allow_veth_connections @no_config_server @long @logging_info_only
     @stable_mem_consumption2
     Scenario: NM - general - stable mem consumption - var 2
     * Execute "sh tmp/repro_1461643.sh"
     * Execute "sh tmp/repro_1461643.sh"
     * Note the output of "pmap -x $(pidof NetworkManager) |grep 'rw---'" as value "1"
-    * Note the output of "pmap -x $(pidof NetworkManager) |grep total | awk '{print $3}'" as value "3"
     * Execute "sh tmp/repro_1461643.sh"
     * Note the output of "pmap -x $(pidof NetworkManager) |grep 'rw---'" as value "2"
-    * Note the output of "pmap -x $(pidof NetworkManager) |grep total | awk '{print $3}'" as value "4"
-    Then Check RSS writable memory in noted value "2" differs from "1" less than "500"
-    Then Check noted value "4" difference from "3" is lower than "750"
+    Then Check RSS writable memory in noted value "2" differs from "1" less than "300"
 
 
     @rhbz1398932

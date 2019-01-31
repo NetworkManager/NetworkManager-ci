@@ -353,8 +353,8 @@ def check_rss_rw_dif(context, i2, i1, dif):
 
     sum2 = int(sum_rss_writable_memory(context, context.noted[i2]))
     sum1 = int(sum_rss_writable_memory(context, context.noted[i1]))
-    assert (sum2 + int(dif) > sum1), \
-     "rw RSS mem: %d + %s !> %d !" % (sum2, dif, sum1)
+    assert (sum1 + int(dif) > sum2), \
+     "rw RSS mem: %d + %s !> %d !" % (sum1, dif, sum2)
 
 
 @step(u'Check noted value "{i2}" difference from "{i1}" is lower than "{dif}"')
