@@ -343,16 +343,18 @@ def check_describe_output_in_editor(context, options, obj):
 
 @step(u'Check RSS writable memory in noted value "{i2}" differs from "{i1}" less than "{dif}"')
 def check_rss_rw_dif(context, i2, i1, dif):
-    def sum_rss_writable_memory(context, pmap_raw):
-        total = 0
-        for line in pmap_raw.split("\n"):
-            vals = line.split()
-            if (len(vals) > 2):
-                total += int(vals[2])
-        return total
-
-    sum2 = int(sum_rss_writable_memory(context, context.noted[i2]))
-    sum1 = int(sum_rss_writable_memory(context, context.noted[i1]))
+    # def sum_rss_writable_memory(context, pmap_raw):
+    #     total = 0
+    #     for line in pmap_raw.split("\n"):
+    #         vals = line.split()
+    #         if (len(vals) > 2):
+    #             total += int(vals[2])
+    #     return total
+    #
+    # sum2 = int(sum_rss_writable_memory(context, context.noted[i2]))
+    # sum1 = int(sum_rss_writable_memory(context, context.noted[i1]))
+    sum2 = int(context.noted[i2])
+    sum1 = int(context.noted[i1])
     assert (sum1 + int(dif) > sum2), \
      "rw RSS mem: %d + %s !> %d !" % (sum1, dif, sum2)
 
