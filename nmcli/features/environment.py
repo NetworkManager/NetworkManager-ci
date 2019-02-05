@@ -742,6 +742,28 @@ def before_scenario(context, scenario):
                 ike="ikev2"
             setup_libreswan (mode="main", dh_group=5, ike=ike)
 
+        if 'iptunnel' in scenario.tags:
+            print("----------------------------")
+            print("iptunnel setup")
+            # prepare namespace and veth pair
+            call('ip netns add iptunnel', shell=True)
+            call('ip link add veth0 type veth peer name veth1', shell=True)
+            call('ip link set veth1 netns iptunnel', shell=True)
+            call('ip -n iptunnel link set veth1 up', shell=True)
+            call('ip -n iptunnel address add dev veth1 172.25.16.2/24', shell=True)
+            # prepare tunnels in namespace - ipip
+            call('ip -n iptunnel tunnel add ipip2 mode ipip remote 172.25.16.1 local 172.25.16.2 dev veth1', shell=True)
+            call('ip -n iptunnel link set ipip2 up', shell=True)
+            call('ip -n iptunnel address add dev ipip2 172.25.30.2/24', shell=True)
+            # prepare tunnels in namespace - gre
+            call('ip -n iptunnel tunnel add gre2 mode gre remote 172.25.16.1 local 172.25.16.2 dev veth1', shell=True)
+            call('ip -n iptunnel link set gre2 up', shell=True)
+            call('ip -n iptunnel address add dev gre2 172.25.31.2/24', shell=True)
+            call('ip -n iptunnel -6 address add dev gre2  fe80:dead::beef/64', shell=True)
+            # prepare nmcli
+            call('nmcli connection add type ethernet ifname veth0 con-name iptunnel-veth ip4 172.25.16.1/24', shell=True)
+            call('nmcli connection up iptunnel-veth', shell=True)
+
         # if 'macsec' in scenario.tags:
         #     print("---------------------------")
         #     print("installing macsec stuff")
@@ -1622,6 +1644,14 @@ def after_scenario(context, scenario):
             print ("---------------------------")
             print ("removing vpn profiles")
             call("nmcli connection delete vpn", shell=True)
+
+        if 'iptunnel' in scenario.tags:
+            print("----------------------------")
+            print("iptunnel teardown")
+            call('ip l del ipip1', shell=True)
+            call('ip l del veth0', shell=True)
+            call('ip netns del iptunnel', shell=True)
+            call('nmcli connection delete iptunnel-veth ipip1 gre1', shell=True)
 
         if 'scapy' in scenario.tags:
             print ("---------------------------")
