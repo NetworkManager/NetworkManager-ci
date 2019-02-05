@@ -11,7 +11,6 @@ sudo yum -y install \
         pptp \
         rp-pppoe \
         pptpd \
-        httpd \
         radvd \
         polkit \
         python2-behave \
@@ -41,12 +40,7 @@ sudo useradd test
 echo "networkmanager" | sudo passwd test --stdin
 sudo echo "%vagrant ALL=(ALL)   NOPASSWD: ALL" >> /etc/sudoers
 # Create directory for web based results
-mkdir -p /var/www/html/results/
-# Show wide lines
-echo "IndexOptions NameWidth=*" >> /etc/httpd/conf.d/autoindex.conf
-
-# Start HTTPD
-# systemctl restart httpd.service
+mkdir -p /tmp/results/
 
 # Skip long tests
 touch /tmp/nm_skip_long
