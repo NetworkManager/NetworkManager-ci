@@ -1471,7 +1471,7 @@ Feature: nmcli - general
 
     @rhbz1433303
     @ver+=1.4.0
-    @delete_testeth0
+    @delete_testeth0 @restart
     @long @gen_br_remove @logging_info_only
     @stable_mem_consumption
     Scenario: NM - general - stable mem consumption
@@ -1492,7 +1492,7 @@ Feature: nmcli - general
 
     @rhbz1461643
     @ver+=1.10.0
-    @delete_testeth0
+    @delete_testeth0 @restart
     @allow_veth_connections @no_config_server @long @logging_info_only
     @stable_mem_consumption2
     Scenario: NM - general - stable mem consumption - var 2
