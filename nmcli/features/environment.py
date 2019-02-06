@@ -55,7 +55,7 @@ def dump_status(context, when):
             context.log.flush()
             call(cmd, shell=True, stdout=context.log)
     else:
-        for cmd in ['ip addr', 'ip -4 route', 'ip -6 route',
+        for cmd in ['NetworkManager --version', 'ip addr', 'ip -4 route', 'ip -6 route',
             'nmcli g', 'nmcli c', 'nmcli d', 'nmcli -f IN-USE,SSID,CHAN,SIGNAL,SECURITY d w',
             'hostnamectl', 'NetworkManager --print-config', 'ps aux | grep dhclient']:
             #'nmcli con show testeth0',\
@@ -922,6 +922,11 @@ def before_scenario(context, scenario):
                 context.enforcing = True
                 call('setenforce 0', shell=True)
 
+
+        if 'tcpdump' in scenario.tags:
+            os.system("echo '~~~~~~~~~~~~~~~~~~~~~~~~~~ TRAFFIC LOG ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~' > /tmp/network-traffic.log")
+            Popen("sudo tcpdump -nne -i any >> /tmp/network-traffic.log", shell=True)
+
         try:
             context.nm_pid = nm_pid()
         except CalledProcessError as e:
@@ -938,9 +943,6 @@ def before_scenario(context, scenario):
                 call("LOGNAME=root HOSTNAME=localhost gdb /usr/sbin/NetworkManager -ex 'target remote | vgdb' -ex 'monitor leak_check summary' -batch", shell=True, stdout=context.log, stderr=context.log)
 
         context.log_cursor = check_output("journalctl --lines=0 --show-cursor |awk '/^-- cursor:/ {print \"\\\"--after-cursor=\"$NF\"\\\"\"; exit}'", shell=True).decode('utf-8').strip()
-
-        os.system("echo '~~~~~~~~~~~~~~~~~~~~~~~~~~ TRAFFIC LOG ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~' > /tmp/network-traffic.log")
-        Popen("sudo tcpdump -nne -i any >> /tmp/network-traffic.log", shell=True)
 
     except Exception as e:
         print(("Error in before_scenario"))
@@ -994,14 +996,15 @@ def after_scenario(context, scenario):
 
     try:
         #attach network traffic log
-        print("Attaching traffic log")
-        call("sudo kill -1 $(pidof tcpdump)", shell=True)
-        if os.stat("/tmp/network-traffic.log").st_size < 20000000:
-            traffic = open("/tmp/network-traffic.log", 'r').read()
-            if traffic:
-                context.embed('text/plain', traffic, caption="TRAFFIC")
-        else:
-            print("WARNING: 20M size exceeded in /tmp/network-traffic.log, skipping")
+        if 'tcpdump' in scenario.tags:
+            print("Attaching traffic log")
+            call("sudo kill -1 $(pidof tcpdump)", shell=True)
+            if os.stat("/tmp/network-traffic.log").st_size < 20000000:
+                traffic = open("/tmp/network-traffic.log", 'r').read()
+                if traffic:
+                    context.embed('text/plain', traffic, caption="TRAFFIC")
+            else:
+                print("WARNING: 20M size exceeded in /tmp/network-traffic.log, skipping")
 
 
         if 'netservice' in scenario.tags:
@@ -1013,7 +1016,8 @@ def after_scenario(context, scenario):
             if data:
                 context.embed('text/plain', data, caption="NETSRV")
 
-        dump_status(context, 'after %s' % scenario.name)
+        if scenario.status == 'failed':
+            dump_status(context, 'after %s' % scenario.name)
 
         if 'runonce' in scenario.tags:
             print ("---------------------------")
@@ -2023,19 +2027,19 @@ def after_scenario(context, scenario):
                     call('ip link set eth%d up' % link, shell=True)
 
 
+        if scenario.status == 'failed':
+            dump_status(context, 'after cleanup %s' % scenario.name)
 
-        dump_status(context, 'after cleanup %s' % scenario.name)
-
-        # Attach journalctl logs
-        print("Attaching NM log")
-        os.system("echo '~~~~~~~~~~~~~~~~~~~~~~~~~~ NM LOG ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~' > /tmp/journal-nm.log")
-        os.system("sudo journalctl -u NetworkManager --no-pager -o cat %s >> /tmp/journal-nm.log" % context.log_cursor)
-        if os.stat("/tmp/journal-nm.log").st_size < 20000000:
-            data = open("/tmp/journal-nm.log", 'r').read()
-            if data:
-                context.embed('text/plain', data, caption="NM")
-        else:
-            print("WARNING: 20M size exceeded in /tmp/journal-nm.log, skipping")
+            # Attach journalctl logs
+            print("Attaching NM log")
+            os.system("echo '~~~~~~~~~~~~~~~~~~~~~~~~~~ NM LOG ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~' > /tmp/journal-nm.log")
+            os.system("sudo journalctl -u NetworkManager --no-pager -o cat %s >> /tmp/journal-nm.log" % context.log_cursor)
+            if os.stat("/tmp/journal-nm.log").st_size < 20000000:
+                data = open("/tmp/journal-nm.log", 'r').read()
+                if data:
+                    context.embed('text/plain', data, caption="NM")
+            else:
+                print("WARNING: 20M size exceeded in /tmp/journal-nm.log, skipping")
 
 
         if nm_pid_after is not None and context.nm_pid == nm_pid_after:
