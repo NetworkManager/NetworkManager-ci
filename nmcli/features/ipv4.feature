@@ -2126,15 +2126,6 @@ Feature: nmcli: ipv4
     Then "IP4.ADDRESS" is visible with command "nmcli -f ip4.address device show testX4" in "10" seconds
 
 
-    @rhbz1640494
-    @ver+=1.14
-    @rhel8_only
-    @nm_dhcp_client_id_default_settings
-    Scenario: NM - ipv4 - check default NM setting regarging DHCP client-id
-    Then "match-device=\*,except:dhcp-plugin:dhclient" is visible with command "NetworkManager --print-config"
-     And "ipv4.dhcp-client-id=mac" is visible with command "NetworkManager --print-config"
-
-
     @rhbz1636715
     @ver+=1.14
     @con_ipv4_remove
