@@ -55,7 +55,7 @@ def dump_status(context, when):
             context.log.flush()
             call(cmd, shell=True, stdout=context.log)
     else:
-        for cmd in ['ip addr', 'ip -4 route', 'ip -6 route',
+        for cmd in ['NetworkManager --version', 'ip addr', 'ip -4 route', 'ip -6 route',
             'nmcli g', 'nmcli c', 'nmcli d', 'nmcli -f IN-USE,SSID,CHAN,SIGNAL,SECURITY d w',
             'hostnamectl', 'NetworkManager --print-config', 'ps aux | grep dhclient']:
             #'nmcli con show testeth0',\
@@ -66,7 +66,7 @@ def dump_status(context, when):
         if os.path.isfile('/tmp/nm_newveth_configured'):
             context.log.write("\nVeth setup network namespace and DHCP server state:\n")
             for cmd in ['ip netns exec vethsetup ip addr', 'ip netns exec vethsetup ip -4 route',
-                        'ip netns exec vethsetup ip -6 route', 'rpm -q NetworkManager']:
+                        'ip netns exec vethsetup ip -6 route', 'ps aux | grep dnsmasq']:
                 context.log.write("--- %s ---\n" % cmd)
                 context.log.flush()
                 call(cmd, shell=True, stdout=context.log)
