@@ -742,6 +742,11 @@ def before_scenario(context, scenario):
                 ike="ikev2"
             setup_libreswan (mode="main", dh_group=5, ike=ike)
 
+        if 'iptunnel' in scenario.tags:
+            print("----------------------------")
+            print("iptunnel setup")
+            call('sh prepare/iptunnel.sh', shell=True)
+
         # if 'macsec' in scenario.tags:
         #     print("---------------------------")
         #     print("installing macsec stuff")
@@ -1622,6 +1627,11 @@ def after_scenario(context, scenario):
             print ("---------------------------")
             print ("removing vpn profiles")
             call("nmcli connection delete vpn", shell=True)
+
+        if 'iptunnel' in scenario.tags:
+            print("----------------------------")
+            print("iptunnel teardown")
+            call('sh prepare/iptunnel.sh teardown', shell=True)
 
         if 'scapy' in scenario.tags:
             print ("---------------------------")

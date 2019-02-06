@@ -1237,6 +1237,10 @@ testmapper:
         feature: vpn
     - vpn_list_args:
         feature: vpn
+    - iptunnel_create_modify:
+        feature: vpn
+    - iptunnel_restart:
+        feature: vpn
     - openvpn_ipv4:
         feature: openvpn
     - openvpn_ipv4_neverdefault:
