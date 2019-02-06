@@ -4,7 +4,7 @@ DISTRO=""
 VERSION=""
 RPM_DIR="/root/nm-build/NetworkManager/contrib/fedora/rpm/latest/RPMS"
 ARCH_DIR=""
-RESULTS="/var/www/html/results/Test_results-*"
+RESULTS="/tmp/results/Test_results-*"
 KEY=$1
 
 if grep -q CentOS /etc/redhat-release ; then
