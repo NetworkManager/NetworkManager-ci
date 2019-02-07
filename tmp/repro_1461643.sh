@@ -21,4 +21,4 @@ while ((i<20)); do
     nmcli con del "Wired connection $i"
 done
 
-sleep 2
+sleep 5

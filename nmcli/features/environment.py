@@ -616,7 +616,9 @@ def before_scenario(context, scenario):
             call("echo '[logging]' > %s" %log,  shell=True)
             call("echo 'level=INFO' >> %s" %log, shell=True)
             call("echo 'domains=ALL' >> %s" %log, shell=True)
-            reload_NM_service()
+            call('sudo systemctl restart NetworkManager.service', shell=True)
+            context.nm_restarted = True
+            sleep(1)
 
         if 'nmcli_general_profile_pickup_doesnt_break_network' in scenario.tags:
             print("---------------------------")

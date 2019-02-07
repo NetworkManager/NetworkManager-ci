@@ -10,4 +10,4 @@ for i in $(seq 1 750); do
         ip l del veth$i
 done
 
-sleep 2
+sleep 5
