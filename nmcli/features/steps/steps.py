@@ -1124,11 +1124,17 @@ def note_mac_address(context, device):
     context.noted = command_output(context, "ethtool -P %s |grep -o -E '([[:xdigit:]]{1,2}:){5}[[:xdigit:]]{1,2}'" % device).strip()
     print (context.noted)
 
-
+@step(u'Note MAC address output for device "{device}" via ip command as "{index}"')
 @step(u'Note MAC address output for device "{device}" via ip command')
-def note_mac_address_ip(context, device):
-    context.noted_value = command_output(context, "ip link show %s | grep 'link/ether' | awk '{print $2}'" % device).strip()
-    print (context.noted_value)
+def note_mac_address_ip(context, device, index=None):
+    mac = command_output(context, "ip link show %s | grep 'link/ether' | awk '{print $2}'" % device).strip()
+    if index:
+        if not hasattr(context, 'noted'):
+            context.noted = {}
+        context.noted[index] = mac
+    else:
+        context.noted_value
+    print (mac)
 
 
 @step(u'Noted value contains "{pattern}"')
