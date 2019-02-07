@@ -112,6 +112,7 @@ def run_tests(features, code_branch, test_branch):
         # Do the work
         subprocess.call("echo '*running tests' >> log.txt", shell=True)
         cmd0="ssh -t -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no root@%s 'yum install -y git \
+                                                   && cd NetworkManager-ci \
                                                    && sh run/centos-ci/scripts/./get_tests.sh %s \
                                                    && sh run/centos-ci/scripts/./setup.sh \
                                                    && sh run/centos-ci/scripts/./build.sh %s \
