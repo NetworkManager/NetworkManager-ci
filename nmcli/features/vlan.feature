@@ -507,3 +507,15 @@ Feature: nmcli - vlan
     * Execute "ip route add 192.168.169.3/32 via 192.168.168.16 dev nm-bond.7"
     * Bring "up" connection "bond0.0"
     Then "192.168.169.3 via 192.168.168.16 dev nm-bond.7" is visible with command "ip r"
+
+
+    @ver+=1.12
+    @vlan @restart
+    @vlan_create_macvlan_on_vlan
+    Scenario: nmcli - vlan - create macvlan on vlan
+    * Add a new connection of type "vlan" and options "con-name eth7.99 dev eth7 id 99"
+    * Add a new connection of type "vlan" and options "con-name eth7.299 dev eth7 id 299"
+    * Add a new connection of type "macvlan" and options "con-name vlan1 mode bridge macvlan.parent eth7.99 ifname mvl1"
+    * Add a new connection of type "macvlan" and options "con-name vlan2 mode bridge macvlan.parent eth7.99 ifname mvl2"
+    * Add a new connection of type "macvlan" and options "con-name vlan mode bridge macvlan.parent eth7.299 ifname mvl"
+    * Restart NM

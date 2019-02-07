@@ -751,8 +751,6 @@ testmapper:
         feature: ipv4
     - ipv4_dhcp_do_not_add_route_to_server:
         feature: ipv4
-    - nm_dhcp_client_id_default_settings:
-        feature: ipv4
     - ipv4_keep_external_addresses:
         feature: ipv4
     - ipv4_route_onsite:
@@ -828,6 +826,8 @@ testmapper:
     - vlan_on_bond_autoconnect:
         feature: vlan
     - static_route_persists_mac_change:
+        feature: vlan
+    - vlan_create_macvlan_on_vlan:
         feature: vlan
     - ethernet_create_with_editor:
         feature: ethernet
@@ -1238,6 +1238,10 @@ testmapper:
     - vpn_keep_username_from_data:
         feature: vpn
     - vpn_list_args:
+        feature: vpn
+    - iptunnel_create_modify:
+        feature: vpn
+    - iptunnel_restart:
         feature: vpn
     - openvpn_ipv4:
         feature: openvpn

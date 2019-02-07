@@ -25,7 +25,7 @@ def get_test_cases_for_features(features, testbranch):
         content = f.read()
         content_parsed = yaml.load(content)
         for test in content_parsed['testmapper']['default']:
-            for test_name in test:  
+            for test_name in test:
                 if test[test_name]['feature'] in features or 'all' in features:
                     if test_name and test_name not in testnames:
                         testnames.append(test_name)
@@ -112,13 +112,12 @@ def run_tests(features, code_branch, test_branch):
         # Do the work
         subprocess.call("echo '*running tests' >> log.txt", shell=True)
         cmd0="ssh -t -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no root@%s 'yum install -y git \
-                                                   && git clone https://github.com/NetworkManager/NetworkManager-ci \
                                                    && cd NetworkManager-ci \
+                                                   && sh run/centos-ci/scripts/./get_tests.sh %s \
                                                    && sh run/centos-ci/scripts/./setup.sh \
                                                    && sh run/centos-ci/scripts/./build.sh %s \
-                                                   && sh run/centos-ci/scripts/./get_tests.sh %s \
                                                    && sh run/centos-ci/scripts/./runtest.sh %s' \
-                                                   "% (h, code_branch, test_branch, tests)
+                                                   "% (h, test_branch, code_branch, tests)
         # Save return code
         rtn_code=subprocess.call(cmd0, shell=True)
 
@@ -132,13 +131,13 @@ def run_tests(features, code_branch, test_branch):
 
         # Upload results to transfer.sh
         # subprocess.call("ssh -t -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no root@%s \
-        #                        curl --upload-file /var/www/html/results/Test_results-* https://transfer.sh && echo \n" % (h), shell=True)
+        #                        curl --upload-file /tmp/results/Test_results-* https://transfer.sh && echo \n" % (h), shell=True)
 
 
         # Download results for in jenkins storage
         subprocess.call("echo 'download stuff' >> log.txt", shell=True)
         subprocess.call("mkdir results", shell=True)
-        subprocess.call("scp -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no root@%s:/var/www/html/results/Test_results-* ./results" % (h), shell=True)
+        subprocess.call("scp -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no root@%s:/tmp/results/Test_results-* ./results" % (h), shell=True)
         subprocess.call("cd results && tar -xzf Test_results* && rm -rf Test_results* && cd ..", shell=True)
         subprocess.call("echo '* DONE' >> log.txt", shell=True)
 

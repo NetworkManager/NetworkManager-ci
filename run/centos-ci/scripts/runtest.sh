@@ -14,8 +14,8 @@ failures=()
 
 # Overal result is PASS
 # This can be used as a test result indicator
-mkdir -p /var/www/html/results/
-echo "PASS" > /var/www/html/results/RESULT
+mkdir -p /tmp/results/
+echo "PASS" > /tmp/results/RESULT
 
 echo "WILL RUN:"
 echo $@
@@ -39,19 +39,15 @@ for test in $@; do
 
     if [ $rc -ne 0 ]; then
         # Overal result is FAIL
-        echo "FAIL" > /var/www/html/results/RESULT
-        # Move reports to /var/www/html/results/ and add FAIL prefix
-        mv /tmp/report_NetworkManager_Test$counter"_"$test.html /var/www/html/results/FAIL-Test$counter"_"$test.html
+        echo "FAIL" > /tmp/results/RESULT
+        mv /tmp/report_NetworkManager_Test$counter"_"$test.html /tmp/results/FAIL-Test$counter"_"$test.html
         failures+=($test)
         systemctl restart NetworkManager
         nmcli con up id testeth0
     else
-        # Move reports to /var/www/html/results/
-        mv /tmp/report_NetworkManager_Test$counter"_"$test.html /var/www/html/results/Test$counter"_"$test.html
+        mv /tmp/report_NetworkManager_Test$counter"_"$test.html /tmp/results/Test$counter"_"$test.html
     fi
 
-    # Restore selinux context of files to allow browsing
-    restorecon /var/www/html/results/*
     counter=$((counter+1))
 
 done
@@ -72,7 +68,7 @@ else
 fi
 
 # Create archive with results
-cd /var/www/html/results
+cd /tmp/results
 tar -czf Test_results-$(NetworkManager --version).tar.gz  *
 
 exit $rc
