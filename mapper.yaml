@@ -51,6 +51,7 @@ beaker-hardware:
       NetworkManager-dcb:
         - x86_64:
             hostname: dell-per720-03.klab.eng.bos.redhat.com
+            kernel-options: biosdevname=1
 
 setup:
 
