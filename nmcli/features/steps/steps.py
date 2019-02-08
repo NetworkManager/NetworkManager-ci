@@ -1133,7 +1133,7 @@ def note_mac_address_ip(context, device, index=None):
             context.noted = {}
         context.noted[index] = mac
     else:
-        context.noted_value
+        context.noted_value = mac
     print (mac)
 
 
