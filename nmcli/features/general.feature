@@ -1477,7 +1477,7 @@ Feature: nmcli - general
     Scenario: NM - general - stable mem consumption
     * Execute "sh tmp/repro_1433303.sh"
     * Execute "sh tmp/repro_1433303.sh"
-    * Execute "sh tmp/repro_1433303.sh"
+    #* Execute "sh tmp/repro_1433303.sh"
     * Note the output of "pmap -x $(pidof NetworkManager) |grep 'total' | awk '{print $4}'" as value "1"
     * Execute "sh tmp/repro_1433303.sh"
     * Note the output of "pmap -x $(pidof NetworkManager) |grep 'total' | awk '{print $4}'" as value "2"
@@ -1485,7 +1485,7 @@ Feature: nmcli - general
     # * Note the output of "pmap -x $(pidof NetworkManager) |grep 'total' | awk '{print $4}'" as value "3"
     # * Execute "sh tmp/repro_1433303.sh"
     # * Note the output of "pmap -x $(pidof NetworkManager) |grep 'total' | awk '{print $4}'" as value "4"
-    Then Check RSS writable memory in noted value "2" differs from "1" less than "300"
+    Then Check RSS writable memory in noted value "2" differs from "1" less than "100"
     # Then Check RSS writable memory in noted value "3" differs from "2" less than "100"
     # Then Check RSS writable memory in noted value "4" differs from "3" less than "50"
 
@@ -1498,7 +1498,7 @@ Feature: nmcli - general
     Scenario: NM - general - stable mem consumption - var 2
     * Execute "sh tmp/repro_1461643.sh"
     * Execute "sh tmp/repro_1461643.sh"
-    * Execute "sh tmp/repro_1461643.sh"
+    #* Execute "sh tmp/repro_1461643.sh"
     * Note the output of "pmap -x $(pidof NetworkManager) |grep 'total' | awk '{print $4}'" as value "1"
     * Execute "sh tmp/repro_1461643.sh"
     * Note the output of "pmap -x $(pidof NetworkManager) |grep 'total' | awk '{print $4}'" as value "2"
@@ -1506,7 +1506,7 @@ Feature: nmcli - general
     # * Note the output of "pmap -x $(pidof NetworkManager) |grep 'total' | awk '{print $4}'" as value "3"
     # * Execute "sh tmp/repro_1461643.sh"
     # * Note the output of "pmap -x $(pidof NetworkManager) |grep 'total' | awk '{print $4}'" as value "4"
-    Then Check RSS writable memory in noted value "2" differs from "1" less than "300"
+    Then Check RSS writable memory in noted value "2" differs from "1" less than "100"
     # Then Check RSS writable memory in noted value "3" differs from "2" less than "100"
     # Then Check RSS writable memory in noted value "4" differs from "3" less than "50"
 
