@@ -913,7 +913,7 @@ def before_scenario(context, scenario):
             else:
                 #call('sudo yum -y remove NetworkManager-config-server', shell=True)
                 if os.path.isfile('/usr/lib/NetworkManager/conf.d/00-server.conf'):
-                    call('sudo rm -rf /usr/lib/NetworkManager/conf.d/00-server.conf /tmp/00-server.conf', shell=True)
+                    call('sudo mv -f /usr/lib/NetworkManager/conf.d/00-server.conf /tmp/00-server.conf', shell=True)
                 if os.path.isfile('/etc/NetworkManager/conf.d/00-server.conf'):
                     call('sudo mv -f /etc/NetworkManager/conf.d/00-server.conf /tmp/00-server.conf', shell=True)
                 reload_NM_service()
@@ -1723,6 +1723,7 @@ def after_scenario(context, scenario):
                 print ("removing NetworkManager-config-server")
                 call('sudo yum -y remove NetworkManager-config-server', shell=True)
                 call('sudo rm -f /etc/NetworkManager/conf.d/00-server.conf', shell=True)
+                reload_NM_service()
 
         if 'no_config_server' in scenario.tags:
             if context.restore_config_server:
