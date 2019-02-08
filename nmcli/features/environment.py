@@ -911,8 +911,11 @@ def before_scenario(context, scenario):
             if call('rpm -q NetworkManager-config-server', shell=True) == 1:
                 context.restore_config_server = False
             else:
-                call('sudo yum -y remove NetworkManager-config-server', shell=True)
-                call('sudo rm -f /etc/NetworkManager/conf.d/00-server.conf', shell=True)
+                #call('sudo yum -y remove NetworkManager-config-server', shell=True)
+                if os.path.isfile('/usr/lib/NetworkManager/conf.d/00-server.conf'):
+                    call('sudo rm -rf /usr/lib/NetworkManager/conf.d/00-server.conf /tmp/00-server.conf', shell=True)
+                if os.path.isfile('/etc/NetworkManager/conf.d/00-server.conf'):
+                    call('sudo mv -f /etc/NetworkManager/conf.d/00-server.conf /tmp/00-server.conf', shell=True)
                 reload_NM_service()
                 context.restore_config_server = True
 
@@ -1725,9 +1728,7 @@ def after_scenario(context, scenario):
             if context.restore_config_server:
                 print ("---------------------------")
                 print ("restoring NetworkManager-config-server")
-                wait_for_testeth0()
-                call('sudo yum -y install NetworkManager-config-server', shell=True)
-                call('sudo cp /usr/lib/NetworkManager/conf.d/00-server.conf /etc/NetworkManager/conf.d/00-server.conf', shell=True)
+                call('sudo mv -f /tmp/00-server.conf /etc/NetworkManager/conf.d/00-server.conf ', shell=True)
                 reload_NM_service()
                 call("for i in $(nmcli -t -f NAME,UUID connection |grep -v testeth |awk -F ':' ' {print $2}'); do nmcli con del $i; done", shell=True)
                 restore_testeth0()
