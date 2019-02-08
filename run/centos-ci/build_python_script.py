@@ -112,12 +112,14 @@ def run_tests(features, code_branch, test_branch):
         # Do the work
         subprocess.call("echo '*running tests' >> log.txt", shell=True)
         cmd0="ssh -t -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no root@%s 'yum install -y git \
+                                                   && git clone https://github.com/NetworkManager/NetworkManager-ci \
                                                    && cd NetworkManager-ci \
+                                                   && git checkout %s \
                                                    && sh run/centos-ci/scripts/./get_tests.sh %s \
                                                    && sh run/centos-ci/scripts/./setup.sh \
                                                    && sh run/centos-ci/scripts/./build.sh %s \
                                                    && sh run/centos-ci/scripts/./runtest.sh %s' \
-                                                   "% (h, test_branch, code_branch, tests)
+                                                   "% (h, test_branch, test_branch, code_branch, tests)
         # Save return code
         rtn_code=subprocess.call(cmd0, shell=True)
 
