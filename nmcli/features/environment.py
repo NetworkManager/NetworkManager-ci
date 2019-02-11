@@ -912,10 +912,12 @@ def before_scenario(context, scenario):
                 context.restore_config_server = False
             else:
                 #call('sudo yum -y remove NetworkManager-config-server', shell=True)
-                if os.path.isfile('/usr/lib/NetworkManager/conf.d/00-server.conf'):
-                    call('sudo mv -f /usr/lib/NetworkManager/conf.d/00-server.conf /tmp/00-server.conf', shell=True)
-                if os.path.isfile('/etc/NetworkManager/conf.d/00-server.conf'):
-                    call('sudo mv -f /etc/NetworkManager/conf.d/00-server.conf /tmp/00-server.conf', shell=True)
+                config_files = check_output('rpm -ql NetworkManager-config-server', shell=True).decode('utf-8').strip().split('\n')
+                for config_file in config_files:
+                    config_file = config_file.strip()
+                    if os.path.isfile(config_file):
+                        print("* disabling file: %s" % config_file)
+                        call('sudo mv -f %s %s.off' % (config_file, config_file), shell=True)
                 reload_NM_service()
                 context.restore_config_server = True
 
@@ -1729,7 +1731,12 @@ def after_scenario(context, scenario):
             if context.restore_config_server:
                 print ("---------------------------")
                 print ("restoring NetworkManager-config-server")
-                call('sudo mv -f /tmp/00-server.conf /etc/NetworkManager/conf.d/00-server.conf ', shell=True)
+                config_files = check_output('rpm -ql NetworkManager-config-server', shell=True).decode('utf-8').strip().split('\n')
+                for config_file in config_files:
+                    config_file = config_file.strip()
+                    if os.path.isfile(config_file + '.off'):
+                        print("* enabling file: %s" % config_file)
+                        call('sudo mv -f %s.off %s' % (config_file, config_file), shell=True)
                 reload_NM_service()
                 call("for i in $(nmcli -t -f NAME,UUID connection |grep -v testeth |awk -F ':' ' {print $2}'); do nmcli con del $i; done", shell=True)
                 restore_testeth0()
