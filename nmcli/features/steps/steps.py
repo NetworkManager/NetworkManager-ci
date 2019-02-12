@@ -382,6 +382,11 @@ def check_noted_output_contains(context, pattern):
     assert re.search(pattern, context.noted_value) is not None, "Noted output does not contain the pattern %s" % pattern
 
 
+@step(u'Check noted output does not contain "{pattern}"')
+def check_noted_output_contains(context, pattern):
+    assert re.search(pattern, context.noted_value) is None, "Noted output contains the pattern %s" % pattern
+
+
 @step(u'Check if object item "{item}" has value "{value}" via print')
 def value_printed(context, item, value):
     context.prompt.sendline('print')
@@ -813,7 +818,7 @@ def delete_connection(context,connection):
     if res == 0:
         raise Exception('Got an Error while deleting connection %s' % connection)
     elif res == 1:
-        raise Exception('Deleting connecion %s timed out (95s)' % connection)
+        raise Exception('Deleting connection %s timed out (95s)' % connection)
 
 
 @step(u'Delete connection "{name}" and hit enter')

@@ -718,22 +718,36 @@ Feature: nmcli: connection
      And "eth10" is visible with command "nmcli device | grep ethernet | grep con_con"
 
 
-     @rhbz1639254
-     @ver+=1.14
-     @con_con_remove @unmanage_eth @skip_str
-     @connection_prefers_managed_devices
-     Scenario: nmcli - connection - connection activates preferably on managed devices
-      * Execute "nmcli device set eth10 managed yes"
-      * Add a new connection of type "ethernet" and options "ifname \* con-name con_con autoconnect no"
-      * Bring up connection "con_con"
-      Then "eth10" is visible with command "nmcli device | grep con_con"
+    @rhbz1639254
+    @ver+=1.14
+    @con_con_remove @unmanage_eth @skip_str
+    @connection_prefers_managed_devices
+    Scenario: nmcli - connection - connection activates preferably on managed devices
+    * Execute "nmcli device set eth10 managed yes"
+    * Add a new connection of type "ethernet" and options "ifname \* con-name con_con autoconnect no"
+    * Bring up connection "con_con"
+    Then "eth10" is visible with command "nmcli device | grep con_con"
 
 
-      @rhbz1639254
-      @ver+=1.14
-      @con_con_remove @unmanage_eth @skip_str
-      @connection_no_managed_device
-      Scenario: nmcli - connection - connection activates even on unmanaged device
-       * Add a new connection of type "ethernet" and options "ifname \* con-name con_con autoconnect no"
-       * Bring up connection "con_con"
-       Then "con_con" is visible with command "nmcli device"
+    @rhbz1639254
+    @ver+=1.14
+    @con_con_remove @unmanage_eth @skip_str
+    @connection_no_managed_device
+    Scenario: nmcli - connection - connection activates even on unmanaged device
+    * Add a new connection of type "ethernet" and options "ifname \* con-name con_con autoconnect no"
+    * Bring up connection "con_con"
+    Then "con_con" is visible with command "nmcli device"
+
+
+    @rhbz1434527
+    @ver+=1.14
+    @con_con_remove
+    @connection_short_info
+    Scenario: nmcli - connection - connection short info
+    * Add a new connection of type "ethernet" and options "ifname \* con-name con_con autoconnect no"
+    * Note the output of "nmcli -o con show con_con"
+    Then Check noted output contains "connection.id"
+    Then Check noted output does not contain "connection.zone"
+    * Note the output of "nmcli con show con_con"
+    Then Check noted output contains "connection.id"
+    Then Check noted output contains "connection.zone"
