@@ -608,11 +608,11 @@ Feature: nmcli - ethernet
     @con_ethernet_remove
     @ethtool_features_fixed_connection
     Scenario: nmcli - ethernet - change ethtool fixed feature in connection
-    Given "fixed" is visible with command "ethtool -k eth1 | grep rx-gro-hw:"
-    * Add a new connection of type "ethernet" and options "ifname eth1 con-name con_ethernet autoconnect no ethtool.feature-rx-gro-hw on"
+    Given "fixed" is visible with command "ethtool -k eth1 | grep tx-checksum-ipv4:"
+    * Add a new connection of type "ethernet" and options "ifname eth1 con-name con_ethernet autoconnect no ethtool.feature-tx-checksum-ipv4 on"
     * Bring "up" connection "con_ethernet"
-    * Note the output of "ethtool -k eth1 | grep rx-gro-hw:" as value "out1"
-    * Modify connection "con_ethernet" changing options "ethtool.feature-rx-gro-hw off"
+    * Note the output of "ethtool -k eth1 | grep tx-checksum-ipv4:" as value "out1"
+    * Modify connection "con_ethernet" changing options "ethtool.feature-tx-checksum-ipv4 off"
     * Bring "up" connection "con_ethernet"
-    * Note the output of "ethtool -k eth1 | grep rx-gro-hw:" as value "out2"
+    * Note the output of "ethtool -k eth1 | grep tx-checksum-ipv4:" as value "out2"
     Then Check noted values "out1" and "out2" are the same
