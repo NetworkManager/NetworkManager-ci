@@ -466,6 +466,9 @@ Feature: nmcli - vlan
     * Add a new connection of type "team" and options "con-name vlan_team7 ifname team7"
     * Add a new connection of type "team-slave" and options "con-name vlan_team7.0 ifname eth7 master team7"
     * Add a new connection of type "vlan" and options "con-name vlan_team7.1 dev team7 id 1 mtu 1500 ipv4.method manual ipv4.addresses 192.168.168.16/24 ipv4.gateway 192.168.103.1 ipv6.method manual ipv6.addresses 2168::16/64 ipv4.dns 8.8.8.8"
+    * Bring "up" connection "vlan_team7"
+    * Bring "up" connection "vlan_team7.0"
+    * Bring "up" connection "vlan_team7.1"
     When "1" is visible with command "ip r |grep team7.1 |grep default |wc -l" in "2" seconds
     * Execute "for i in `seq 1 23`; do ip link set team7 addr 00:00:11:22:33:$i; done"
     Then "1" is visible with command "ip r |grep team7.1 |grep default |wc -l" in "2" seconds
