@@ -916,6 +916,10 @@ testmapper:
         feature: ethernet
     - preserve_8021x_leap_con:
         feature: ethernet
+    - ethtool_features_connection:
+        feature: ethernet
+    - ethtool_features_fixed_connection:
+        feature: ethernet
     - logging:
         feature: general
     - reduce_logging:
