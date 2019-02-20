@@ -2044,7 +2044,7 @@ def after_scenario(context, scenario):
             # Attach journalctl logs
             print("Attaching NM log")
             os.system("echo '~~~~~~~~~~~~~~~~~~~~~~~~~~ NM LOG ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~' > /tmp/journal-nm.log")
-            os.system("sudo journalctl -u NetworkManager --no-pager -o cat %s >> /tmp/journal-nm.log" % context.log_cursor)
+            os.system("sudo journalctl -all -u NetworkManager --no-pager -o cat %s >> /tmp/journal-nm.log" % context.log_cursor)
             if os.stat("/tmp/journal-nm.log").st_size < 20000000:
                 data = open("/tmp/journal-nm.log", 'r').read()
                 if data:
