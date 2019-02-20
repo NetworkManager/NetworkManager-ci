@@ -2127,7 +2127,7 @@ Feature: nmcli: ipv4
 
 
     @rhbz1636715
-    @ver+=1.14
+    @ver+=1.12
     @con_ipv4_remove
     @ipv4_prefix_route_missing_after_ip_link_down_up
     Scenario: NM - ipv4 - preffix route is missing after putting link down and up
