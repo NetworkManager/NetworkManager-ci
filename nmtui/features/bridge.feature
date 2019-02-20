@@ -219,6 +219,8 @@ Feature: Bridge TUI tests
     Scenario: nmtui - bridge - over ethernet devices
     * Prepare new connection of type "Bridge" named "bridge0"
     * Set "Device" field to "bridge0"
+    * Set "Priority" field to "5"
+    * Set "Forward delay" field to "2"
     * Choose to "<Add>" a slave
     * Choose the connection type "Ethernet"
     * Set "Profile name" field to "bridge-slave-eth1"
@@ -269,6 +271,8 @@ Feature: Bridge TUI tests
     Scenario: nmtui - bridge - over ethernet devices no stp
     * Prepare new connection of type "Bridge" named "bridge0"
     * Set "Device" field to "bridge0"
+    * Set "Priority" field to "5"
+    * Set "Forward delay" field to "2"
     * Choose to "<Add>" a slave
     * Choose the connection type "Ethernet"
     * Set "Profile name" field to "bridge-slave-eth1"
@@ -293,6 +297,8 @@ Feature: Bridge TUI tests
     Scenario: nmtui - bridge - over vlans
     * Prepare new connection of type "Bridge" named "bridge0"
     * Set "Device" field to "bridge0"
+    * Set "Priority" field to "5"
+    * Set "Forward delay" field to "2"
     * Choose to "<Add>" a slave
     * Choose the connection type "VLAN"
     * Set "Profile name" field to "bridge-slave-eth1"
@@ -319,6 +325,8 @@ Feature: Bridge TUI tests
     Scenario: nmtui - bridge - over vlans no stp
     * Prepare new connection of type "Bridge" named "bridge0"
     * Set "Device" field to "bridge0"
+    * Set "Priority" field to "5"
+    * Set "Forward delay" field to "2"
     * Choose to "<Add>" a slave
     * Choose the connection type "VLAN"
     * Set "Profile name" field to "bridge-slave-eth1"
@@ -345,6 +353,8 @@ Feature: Bridge TUI tests
     Scenario: nmtui - bridge - custom bridge port
     * Prepare new connection of type "Bridge" named "bridge0"
     * Set "Device" field to "bridge0"
+    * Set "Priority" field to "5"
+    * Set "Forward delay" field to "2"
     * Choose to "<Add>" a slave
     * Choose the connection type "Ethernet"
     * Set "Profile name" field to "bridge-slave-eth1"
@@ -362,6 +372,8 @@ Feature: Bridge TUI tests
     Scenario: nmtui - bridge - over ethernet and vlan
     * Prepare new connection of type "Bridge" named "bridge0"
     * Set "Device" field to "bridge0"
+    * Set "Priority" field to "5"
+    * Set "Forward delay" field to "2"
     * Choose to "<Add>" a slave
     * Choose the connection type "Ethernet"
     * Set "Profile name" field to "bridge-slave-eth1"
