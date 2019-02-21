@@ -1370,6 +1370,8 @@ testmapper:
         feature: connection
     - connection_no_managed_device:
         feature: connection
+    - connection_short_info:
+        feature: connection
     - add_default_tap_device:
         feature: tuntap
     - add_default_tun_device:
