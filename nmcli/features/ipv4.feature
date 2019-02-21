@@ -1328,6 +1328,60 @@ Feature: nmcli: ipv4
     Then Bring "up" connection "con_ipv4"
 
 
+    @rhbz1661165
+    @ver+=1.15.1 @not_in_rhel
+    @internal_DHCP @con_ipv4_remove @tcpdump @no_config_server
+    @ipv4_dhcp_client_id_default
+    Scenario: NM - ipv4 - ipv4 client id should default to mac with internal plugins
+    * Add connection type "ethernet" named "con_ipv4" for device "eth2"
+    * Note MAC address output for device "eth2" via ip command
+    * Run child "sudo tcpdump -i eth2 -v -n > /tmp/tcpdump.log"
+    * Bring "up" connection "con_ipv4"
+    When "empty" is not visible with command "file /tmp/tcpdump.log" in "150" seconds
+    * Bring "up" connection "con_ipv4"
+    Then Noted value is visible with command "grep 'Option 61' /tmp/tcpdump.log" in "10" seconds
+
+
+    @rhbz1661165
+    @ver+=1.12 @ver-=1.15 @not_in_rhel
+    @internal_DHCP @con_ipv4_remove @tcpdump @no_config_server
+    @ipv4_dhcp_client_id_default
+    Scenario: NM - ipv4 - ipv4 client id should default to duid with internal plugins
+    * Add connection type "ethernet" named "con_ipv4" for device "eth2"
+    * Run child "sudo tcpdump -i eth2 -v -n > /tmp/tcpdump.log"
+    * Bring "up" connection "con_ipv4"
+    When "empty" is not visible with command "file /tmp/tcpdump.log" in "150" seconds
+    * Bring "up" connection "con_ipv4"
+    Then "00:02:00:00:ab:11" is visible with command "grep 'Option 61' /tmp/tcpdump.log" in "10" seconds
+
+
+    @rhbz1661165
+    @rhel8_only
+    @internal_DHCP @con_ipv4_remove @tcpdump @no_config_server
+    @ipv4_dhcp_client_id_default_rhel8
+    Scenario: NM - ipv4 - ipv4 client id should default to mac with internal plugins
+    * Add connection type "ethernet" named "con_ipv4" for device "eth2"
+    * Note MAC address output for device "eth2" via ip command
+    * Run child "sudo tcpdump -i eth2 -v -n > /tmp/tcpdump.log"
+    * Bring "up" connection "con_ipv4"
+    When "empty" is not visible with command "file /tmp/tcpdump.log" in "150" seconds
+    * Bring "up" connection "con_ipv4"
+    Then Noted value is visible with command "grep 'Option 61' /tmp/tcpdump.log" in "10" seconds
+
+
+    @rhbz1661165
+    @rhel7_only
+    @internal_DHCP @con_ipv4_remove @tcpdump @no_config_server
+    @ipv4_dhcp_client_id_default_rhel7
+    Scenario: NM - ipv4 - ipv4 client id should default to duid with internal plugins
+    * Add connection type "ethernet" named "con_ipv4" for device "eth2"
+    * Run child "sudo tcpdump -i eth2 -v -n > /tmp/tcpdump.log"
+    * Bring "up" connection "con_ipv4"
+    When "empty" is not visible with command "file /tmp/tcpdump.log" in "150" seconds
+    * Bring "up" connection "con_ipv4"
+    Then "00:02:00:00:ab:11" is visible with command "grep 'Option 61' /tmp/tcpdump.log" in "10" seconds
+
+
     @con_ipv4_remove
     @ipv4_may-fail_yes
     Scenario: nmcli - ipv4 - may-fail - set true
@@ -2072,17 +2126,8 @@ Feature: nmcli: ipv4
     Then "IP4.ADDRESS" is visible with command "nmcli -f ip4.address device show testX4" in "10" seconds
 
 
-    @rhbz1640494
-    @ver+=1.14
-    @rhel8_only
-    @nm_dhcp_client_id_default_settings
-    Scenario: NM - ipv4 - check default NM setting regarging DHCP client-id
-    Then "match-device=\*,except:dhcp-plugin:dhclient" is visible with command "NetworkManager --print-config"
-     And "ipv4.dhcp-client-id=mac" is visible with command "NetworkManager --print-config"
-
-
     @rhbz1636715
-    @ver+=1.14
+    @ver+=1.12
     @con_ipv4_remove
     @ipv4_prefix_route_missing_after_ip_link_down_up
     Scenario: NM - ipv4 - preffix route is missing after putting link down and up

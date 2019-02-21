@@ -1116,7 +1116,7 @@ Feature: nmcli - general
     * Reboot
     Then "32764:\s+from 192.168.99.* lookup 1.*32765:\s+from all iif testG lookup 1" is visible with command "ip rule" in "20" seconds
      And "default via 192.168.99.1 dev testG" is visible with command "ip r s table 1" in "20" seconds
-     And "2620" is not visible with command "ip a s testG" in "10" seconds
+     And "2620" is not visible with command "ip a s testG" in "20" seconds
 
 
     @rhbz1262972
@@ -1471,34 +1471,45 @@ Feature: nmcli - general
 
     @rhbz1433303
     @ver+=1.4.0
-    @long @gen_br_remove
+    @delete_testeth0
+    @long @gen_br_remove @logging_info_only
     @stable_mem_consumption
     Scenario: NM - general - stable mem consumption
     * Execute "sh tmp/repro_1433303.sh"
     * Execute "sh tmp/repro_1433303.sh"
-    * Note the output of "pmap -x $(pidof NetworkManager) |grep 'rw---'" as value "1"
-    * Note the output of "pmap -x $(pidof NetworkManager) |grep total | awk '{print $3}'" as value "3"
     * Execute "sh tmp/repro_1433303.sh"
-    * Note the output of "pmap -x $(pidof NetworkManager) |grep 'rw---'" as value "2"
-    * Note the output of "pmap -x $(pidof NetworkManager) |grep total | awk '{print $3}'" as value "4"
-    Then Check RSS writable memory in noted value "2" differs from "1" less than "500"
-    Then Check noted value "4" difference from "3" is lower than "500"
+    * Note the output of "pmap -x $(pidof NetworkManager) |grep 'total' | awk '{print $4}'" as value "1"
+    * Execute "sh tmp/repro_1433303.sh"
+    * Note the output of "pmap -x $(pidof NetworkManager) |grep 'total' | awk '{print $4}'" as value "2"
+    # * Execute "sh tmp/repro_1433303.sh"
+    # * Note the output of "pmap -x $(pidof NetworkManager) |grep 'total' | awk '{print $4}'" as value "3"
+    # * Execute "sh tmp/repro_1433303.sh"
+    # * Note the output of "pmap -x $(pidof NetworkManager) |grep 'total' | awk '{print $4}'" as value "4"
+    Then Check RSS writable memory in noted value "2" differs from "1" less than "300"
+    # Then Check RSS writable memory in noted value "3" differs from "2" less than "100"
+    # Then Check RSS writable memory in noted value "4" differs from "3" less than "50"
 
 
     @rhbz1461643
     @ver+=1.10.0
-    @allow_veth_connections @no_config_server @long
+    @delete_testeth0
+    @allow_veth_connections @no_config_server @long @logging_info_only
     @stable_mem_consumption2
     Scenario: NM - general - stable mem consumption - var 2
     * Execute "sh tmp/repro_1461643.sh"
     * Execute "sh tmp/repro_1461643.sh"
-    * Note the output of "pmap -x $(pidof NetworkManager) |grep 'rw---'" as value "1"
-    * Note the output of "pmap -x $(pidof NetworkManager) |grep total | awk '{print $3}'" as value "3"
     * Execute "sh tmp/repro_1461643.sh"
-    * Note the output of "pmap -x $(pidof NetworkManager) |grep 'rw---'" as value "2"
-    * Note the output of "pmap -x $(pidof NetworkManager) |grep total | awk '{print $3}'" as value "4"
-    Then Check RSS writable memory in noted value "2" differs from "1" less than "500"
-    Then Check noted value "4" difference from "3" is lower than "750"
+    * Note the output of "pmap -x $(pidof NetworkManager) |grep 'total' | awk '{print $4}'" as value "1"
+    * Execute "sh tmp/repro_1461643.sh"
+    * Note the output of "pmap -x $(pidof NetworkManager) |grep 'total' | awk '{print $4}'" as value "2"
+    # * Execute "sh tmp/repro_1461643.sh"
+    # * Note the output of "pmap -x $(pidof NetworkManager) |grep 'total' | awk '{print $4}'" as value "3"
+    # * Execute "sh tmp/repro_1461643.sh"
+    # * Note the output of "pmap -x $(pidof NetworkManager) |grep 'total' | awk '{print $4}'" as value "4"
+    Then Check RSS writable memory in noted value "2" differs from "1" less than "300"
+    # Then Check RSS writable memory in noted value "3" differs from "2" less than "100"
+    # Then Check RSS writable memory in noted value "4" differs from "3" less than "50"
+
 
 
     @rhbz1398932
@@ -1969,3 +1980,17 @@ Feature: nmcli - general
     * Bring "up" connection "con_general"
     Then "7" is visible with command "nmcli -f ipv4.dns-search con show con_general | grep -o '\.noexist\.redhat\.com' | wc -l"
      And "7" is visible with command "cat /etc/resolv.conf | grep -o '\.noexist\.redhat\.com' | wc -l"
+
+
+    @rhbz1658217
+    @ver+=1.14
+    @captive_portal @connectivity
+    @captive_portal_detection
+    Scenario: NM - general - portal is detected by NM
+    Given "full" is visible with command "nmcli -f CONNECTIVITY general" in "5" seconds
+    * Execute "echo NOK > /tmp/python_http/test/rhel-networkmanager.txt"
+    Then "portal" is visible with command "nmcli -f CONNECTIVITY general" in "15" seconds
+    * Execute "echo -n OK > /tmp/python_http/test/rhel-networkmanager.txt"
+    Then "full" is visible with command "nmcli -f CONNECTIVITY general" in "15" seconds
+    * Execute "rm -f /tmp/python_http/test/rhel-networkmanager.txt"
+    Then "portal" is visible with command "nmcli -f CONNECTIVITY general" in "15" seconds

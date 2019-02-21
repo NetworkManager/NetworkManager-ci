@@ -277,7 +277,6 @@ local_setup_configure_nm_eth () {
         fi
     fi
 
-
     # Do we have special HW needs?
     dcb_inf_wol_sriov=0
     if [[ $1 == *sriov_* ]]; then

@@ -51,6 +51,7 @@ beaker-hardware:
       NetworkManager-dcb:
         - x86_64:
             hostname: dell-per720-03.klab.eng.bos.redhat.com
+            kernel-options: biosdevname=1
 
 setup:
 
@@ -285,6 +286,8 @@ testmapper:
     - bridge_delete_connection_without_device:
         feature: bridge
     - bridge_ipv6:
+        feature: bridge
+    - bridge_detect_initrd_device:
         feature: bridge
     - add_default_team:
         feature: team
@@ -680,6 +683,12 @@ testmapper:
         feature: ipv4
     - ipv4_set_very_long_dhcp_client_id:
         feature: ipv4
+    - ipv4_dhcp_client_id_default:
+        feature: ipv4
+    - ipv4_dhcp_client_id_default_rhel7:
+        feature: ipv4
+    - ipv4_dhcp_client_id_default_rhel8:
+        feature: ipv4
     - ipv4_may-fail_yes:
         feature: ipv4
     - ipv4_method_disabled:
@@ -742,8 +751,6 @@ testmapper:
     - ipv4_rp_filter_reset_rhel:
         feature: ipv4
     - ipv4_dhcp_do_not_add_route_to_server:
-        feature: ipv4
-    - nm_dhcp_client_id_default_settings:
         feature: ipv4
     - ipv4_keep_external_addresses:
         feature: ipv4
@@ -818,6 +825,10 @@ testmapper:
     - default_route_for_vlan_over_team:
         feature: vlan
     - vlan_on_bond_autoconnect:
+        feature: vlan
+    - static_route_persists_mac_change:
+        feature: vlan
+    - vlan_create_macvlan_on_vlan:
         feature: vlan
     - ethernet_create_with_editor:
         feature: ethernet
@@ -904,6 +915,10 @@ testmapper:
     - preserve_8021x_certs:
         feature: ethernet
     - preserve_8021x_leap_con:
+        feature: ethernet
+    - ethtool_features_connection:
+        feature: ethernet
+    - ethtool_features_fixed_connection:
         feature: ethernet
     - logging:
         feature: general
@@ -1145,6 +1160,8 @@ testmapper:
         feature: general
     - resolv_conf_search_limit:
         feature: general
+    - captive_portal_detection:
+        feature: general
     - openvswitch_interface_recognized:
         feature: ovs
     - openvswitch_ignore_ovs_network_setup:
@@ -1226,6 +1243,10 @@ testmapper:
     - vpn_keep_username_from_data:
         feature: vpn
     - vpn_list_args:
+        feature: vpn
+    - iptunnel_create_modify:
+        feature: vpn
+    - iptunnel_restart:
         feature: vpn
     - openvpn_ipv4:
         feature: openvpn
@@ -1349,6 +1370,8 @@ testmapper:
         feature: connection
     - connection_no_managed_device:
         feature: connection
+    - connection_short_info:
+        feature: connection
     - add_default_tap_device:
         feature: tuntap
     - add_default_tun_device:
@@ -1460,6 +1483,10 @@ testmapper:
     - dns_dnsmasq_split_tunnel_vpn:
         feature: dns
     - dns_dnsmasq_driver_removal:
+        feature: dns
+    - dns_dnsmasq_kill:
+        feature: dns
+    - dns_dnsmasq_kill_ratelimit:
         feature: dns
     - nmtui_general_start_nmtui:
         run: nmtui/./runtest.sh nmtui_general_start_nmtui
@@ -2144,14 +2171,14 @@ testmapper:
         feature: wifi
     - nmcli_wifisec_pairwise_ccmp:
         feature: wifi
-    - nmcli_wifisec_pairwise_tkip:
-        feature: wifi
+    # - nmcli_wifisec_pairwise_tkip:
+    #     feature: wifi
     - nmcli_wifisec_unmatching_pairwise:
         feature: wifi
     - nmcli_wifisec_group_ccmp:
         feature: wifi
-    - nmcli_wifisec_group_tkip:
-        feature: wifi
+    # - nmcli_wifisec_group_tkip:
+    #     feature: wifi
     - nmcli_wifisec_unmatching_group:
         feature: wifi
     - nmcli_wifisec_set_all_wep_keys:

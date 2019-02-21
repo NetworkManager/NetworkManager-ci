@@ -68,6 +68,12 @@ cat /tmp/tui-screen.log >> /tmp/report_$NMTEST.log
 echo "--------- /tmp/report_$NMTEST.log ---------"
 cat /tmp/report_$NMTEST.log
 
+if [ $RESULT == "FAIL" ]; then
+    echo "Attaching journal log as well"
+    cat /tmp/journal-session.log >> /tmp/report_$NMTEST.log
+    sleep 1
+fi
+
 rstrnt-report-result -o "/tmp/report_$NMTEST.log" $NMTEST $RESULT
 
 logger -t $0 "Test $1 finished with result $RESULT: $rc"

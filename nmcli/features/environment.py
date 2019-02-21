@@ -55,7 +55,7 @@ def dump_status(context, when):
             context.log.flush()
             call(cmd, shell=True, stdout=context.log)
     else:
-        for cmd in ['ip addr', 'ip -4 route', 'ip -6 route',
+        for cmd in ['NetworkManager --version', 'ip addr', 'ip -4 route', 'ip -6 route',
             'nmcli g', 'nmcli c', 'nmcli d', 'nmcli -f IN-USE,SSID,CHAN,SIGNAL,SECURITY d w',
             'hostnamectl', 'NetworkManager --print-config', 'ps aux | grep dhclient']:
             #'nmcli con show testeth0',\
@@ -312,6 +312,9 @@ def before_scenario(context, scenario):
             if arch == "aarch64":
                 if "4.5" in ver:
                     sys.exit(77)
+
+        if 'captive_portal' in scenario.tags:
+            call("sudo prepare/captive_portal.sh", shell=True)
 
         if 'gsm_sim' in scenario.tags:
             arch = check_output("uname -p", shell=True).decode('utf-8').strip()
@@ -613,6 +616,17 @@ def before_scenario(context, scenario):
         if 'logging' in scenario.tags:
             context.loggin_level = check_output('nmcli -t -f LEVEL general logging', shell=True).decode('utf-8').strip()
 
+        if 'logging_info_only' in scenario.tags:
+            print ("---------------------------")
+            print ("add info only logging")
+            log = "/etc/NetworkManager/conf.d/99-xlogging.conf"
+            call("echo '[logging]' > %s" %log,  shell=True)
+            call("echo 'level=INFO' >> %s" %log, shell=True)
+            call("echo 'domains=ALL' >> %s" %log, shell=True)
+            call('sudo systemctl restart NetworkManager.service', shell=True)
+            context.nm_restarted = True
+            sleep(1)
+
         if 'nmcli_general_profile_pickup_doesnt_break_network' in scenario.tags:
             print("---------------------------")
             print("turning on network.service")
@@ -736,6 +750,12 @@ def before_scenario(context, scenario):
             if 'ikev2' in scenario.tags:
                 ike="ikev2"
             setup_libreswan (mode="main", dh_group=5, ike=ike)
+
+        if 'iptunnel' in scenario.tags:
+            print("----------------------------")
+            print("iptunnel setup")
+            call('sh prepare/iptunnel.sh', shell=True)
+
 
         # if 'macsec' in scenario.tags:
         #     print("---------------------------")
@@ -899,9 +919,13 @@ def before_scenario(context, scenario):
             if call('rpm -q NetworkManager-config-server', shell=True) == 1:
                 context.restore_config_server = False
             else:
-                wait_for_testeth0()
-                call('sudo yum -y remove NetworkManager-config-server', shell=True)
-                call('sudo rm -f /etc/NetworkManager/conf.d/00-server.conf', shell=True)
+                #call('sudo yum -y remove NetworkManager-config-server', shell=True)
+                config_files = check_output('rpm -ql NetworkManager-config-server', shell=True).decode('utf-8').strip().split('\n')
+                for config_file in config_files:
+                    config_file = config_file.strip()
+                    if os.path.isfile(config_file):
+                        print("* disabling file: %s" % config_file)
+                        call('sudo mv -f %s %s.off' % (config_file, config_file), shell=True)
                 reload_NM_service()
                 context.restore_config_server = True
 
@@ -912,6 +936,11 @@ def before_scenario(context, scenario):
                 print("WORKAROUND for permissive selinux")
                 context.enforcing = True
                 call('setenforce 0', shell=True)
+
+
+        if 'tcpdump' in scenario.tags:
+            os.system("echo '~~~~~~~~~~~~~~~~~~~~~~~~~~ TRAFFIC LOG ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~' > /tmp/network-traffic.log")
+            Popen("sudo tcpdump -nne -i any >> /tmp/network-traffic.log", shell=True)
 
         try:
             context.nm_pid = nm_pid()
@@ -929,9 +958,6 @@ def before_scenario(context, scenario):
                 call("LOGNAME=root HOSTNAME=localhost gdb /usr/sbin/NetworkManager -ex 'target remote | vgdb' -ex 'monitor leak_check summary' -batch", shell=True, stdout=context.log, stderr=context.log)
 
         context.log_cursor = check_output("journalctl --lines=0 --show-cursor |awk '/^-- cursor:/ {print \"\\\"--after-cursor=\"$NF\"\\\"\"; exit}'", shell=True).decode('utf-8').strip()
-
-        os.system("echo '~~~~~~~~~~~~~~~~~~~~~~~~~~ TRAFFIC LOG ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~' > /tmp/network-traffic.log")
-        Popen("sudo tcpdump -nne -i any >> /tmp/network-traffic.log", shell=True)
 
     except Exception as e:
         print(("Error in before_scenario"))
@@ -985,14 +1011,15 @@ def after_scenario(context, scenario):
 
     try:
         #attach network traffic log
-        print("Attaching traffic log")
-        call("sudo kill -1 $(pidof tcpdump)", shell=True)
-        if os.stat("/tmp/network-traffic.log").st_size < 20000000:
-            traffic = open("/tmp/network-traffic.log", 'r').read()
-            if traffic:
-                context.embed('text/plain', traffic, caption="TRAFFIC")
-        else:
-            print("WARNING: 20M size exceeded in /tmp/network-traffic.log, skipping")
+        if 'tcpdump' in scenario.tags:
+            print("Attaching traffic log")
+            call("sudo kill -1 $(pidof tcpdump)", shell=True)
+            if os.stat("/tmp/network-traffic.log").st_size < 20000000:
+                traffic = open("/tmp/network-traffic.log", 'r').read()
+                if traffic:
+                    context.embed('text/plain', traffic, caption="TRAFFIC")
+            else:
+                print("WARNING: 20M size exceeded in /tmp/network-traffic.log, skipping")
 
 
         if 'netservice' in scenario.tags:
@@ -1004,7 +1031,8 @@ def after_scenario(context, scenario):
             if data:
                 context.embed('text/plain', data, caption="NETSRV")
 
-        dump_status(context, 'after %s' % scenario.name)
+        if scenario.status == 'failed':
+            dump_status(context, 'after %s' % scenario.name)
 
         if 'runonce' in scenario.tags:
             print ("---------------------------")
@@ -1211,6 +1239,14 @@ def after_scenario(context, scenario):
             print ("---------------------------")
             print ("setting log level back")
             call('sudo nmcli g log level %s domains ALL' % context.loggin_level, shell=True)
+
+        if 'logging_info_only' in scenario.tags:
+            print ("---------------------------")
+            print ("remove info only logging")
+            log = "/etc/NetworkManager/conf.d/99-xlogging.conf"
+            call("rm -rf %s" %log,  shell=True)
+            call('sudo systemctl restart NetworkManager.service', shell=True)
+            sleep(1)
 
         if 'stop_radvd' in scenario.tags:
             print ("---------------------------")
@@ -1612,6 +1648,11 @@ def after_scenario(context, scenario):
             print ("removing vpn profiles")
             call("nmcli connection delete vpn", shell=True)
 
+        if 'iptunnel' in scenario.tags:
+            print("----------------------------")
+            print("iptunnel teardown")
+            call('sh prepare/iptunnel.sh teardown', shell=True)
+
         if 'scapy' in scenario.tags:
             print ("---------------------------")
             print ("removing veth devices")
@@ -1693,14 +1734,18 @@ def after_scenario(context, scenario):
                 print ("removing NetworkManager-config-server")
                 call('sudo yum -y remove NetworkManager-config-server', shell=True)
                 call('sudo rm -f /etc/NetworkManager/conf.d/00-server.conf', shell=True)
+                reload_NM_service()
 
         if 'no_config_server' in scenario.tags:
             if context.restore_config_server:
                 print ("---------------------------")
                 print ("restoring NetworkManager-config-server")
-                wait_for_testeth0()
-                call('sudo yum -y install NetworkManager-config-server', shell=True)
-                call('sudo cp /usr/lib/NetworkManager/conf.d/00-server.conf /etc/NetworkManager/conf.d/00-server.conf', shell=True)
+                config_files = check_output('rpm -ql NetworkManager-config-server', shell=True).decode('utf-8').strip().split('\n')
+                for config_file in config_files:
+                    config_file = config_file.strip()
+                    if os.path.isfile(config_file + '.off'):
+                        print("* enabling file: %s" % config_file)
+                        call('sudo mv -f %s.off %s' % (config_file, config_file), shell=True)
                 reload_NM_service()
                 call("for i in $(nmcli -t -f NAME,UUID connection |grep -v testeth |awk -F ':' ' {print $2}'); do nmcli con del $i; done", shell=True)
                 restore_testeth0()
@@ -1804,6 +1849,9 @@ def after_scenario(context, scenario):
             data = open("/tmp/journal-mm.log", 'r').read()
             if data:
                 context.embed('text/plain', data, caption="NM")
+
+        if 'captive_portal' in scenario.tags:
+            call("sudo prepare/captive_portal.sh teardown", shell=True)
 
         if 'gsm_sim' in scenario.tags:
             call("sudo prepare/gsm_sim.sh teardown", shell=True)
@@ -1999,19 +2047,19 @@ def after_scenario(context, scenario):
                     call('ip link set eth%d up' % link, shell=True)
 
 
+        if scenario.status == 'failed':
+            dump_status(context, 'after cleanup %s' % scenario.name)
 
-        dump_status(context, 'after cleanup %s' % scenario.name)
-
-        # Attach journalctl logs
-        print("Attaching NM log")
-        os.system("echo '~~~~~~~~~~~~~~~~~~~~~~~~~~ NM LOG ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~' > /tmp/journal-nm.log")
-        os.system("sudo journalctl -u NetworkManager --no-pager -o cat %s >> /tmp/journal-nm.log" % context.log_cursor)
-        if os.stat("/tmp/journal-nm.log").st_size < 20000000:
-            data = open("/tmp/journal-nm.log", 'r').read()
-            if data:
-                context.embed('text/plain', data, caption="NM")
-        else:
-            print("WARNING: 20M size exceeded in /tmp/journal-nm.log, skipping")
+            # Attach journalctl logs
+            print("Attaching NM log")
+            os.system("echo '~~~~~~~~~~~~~~~~~~~~~~~~~~ NM LOG ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~' > /tmp/journal-nm.log")
+            os.system("sudo journalctl -all -u NetworkManager --no-pager -o cat %s >> /tmp/journal-nm.log" % context.log_cursor)
+            if os.stat("/tmp/journal-nm.log").st_size < 20000000:
+                data = open("/tmp/journal-nm.log", 'r').read()
+                if data:
+                    context.embed('text/plain', data, caption="NM")
+            else:
+                print("WARNING: 20M size exceeded in /tmp/journal-nm.log, skipping")
 
 
         if nm_pid_after is not None and context.nm_pid == nm_pid_after:

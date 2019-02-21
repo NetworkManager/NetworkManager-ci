@@ -343,18 +343,20 @@ def check_describe_output_in_editor(context, options, obj):
 
 @step(u'Check RSS writable memory in noted value "{i2}" differs from "{i1}" less than "{dif}"')
 def check_rss_rw_dif(context, i2, i1, dif):
-    def sum_rss_writable_memory(context, pmap_raw):
-        total = 0
-        for line in pmap_raw.split("\n"):
-            vals = line.split()
-            if (len(vals) > 2):
-                total += int(vals[2])
-        return total
-
-    sum2 = int(sum_rss_writable_memory(context, context.noted[i2]))
-    sum1 = int(sum_rss_writable_memory(context, context.noted[i1]))
-    assert (sum2 + int(dif) > sum1), \
-     "rw RSS mem: %d + %s !> %d !" % (sum2, dif, sum1)
+    # def sum_rss_writable_memory(context, pmap_raw):
+    #     total = 0
+    #     for line in pmap_raw.split("\n"):
+    #         vals = line.split()
+    #         if (len(vals) > 2):
+    #             total += int(vals[2])
+    #     return total
+    #
+    # sum2 = int(sum_rss_writable_memory(context, context.noted[i2]))
+    # sum1 = int(sum_rss_writable_memory(context, context.noted[i1]))
+    sum2 = int(context.noted[i2])
+    sum1 = int(context.noted[i1])
+    assert (sum1 + int(dif) > sum2), \
+     "rw RSS mem: %d + %s !> %d !" % (sum1, dif, sum2)
 
 
 @step(u'Check noted value "{i2}" difference from "{i1}" is lower than "{dif}"')
@@ -378,6 +380,11 @@ def check_same_noted_values(context, i1, i2):
 @step(u'Check noted output contains "{pattern}"')
 def check_noted_output_contains(context, pattern):
     assert re.search(pattern, context.noted_value) is not None, "Noted output does not contain the pattern %s" % pattern
+
+
+@step(u'Check noted output does not contain "{pattern}"')
+def check_noted_output_contains(context, pattern):
+    assert re.search(pattern, context.noted_value) is None, "Noted output contains the pattern %s" % pattern
 
 
 @step(u'Check if object item "{item}" has value "{value}" via print')
@@ -811,7 +818,7 @@ def delete_connection(context,connection):
     if res == 0:
         raise Exception('Got an Error while deleting connection %s' % connection)
     elif res == 1:
-        raise Exception('Deleting connecion %s timed out (95s)' % connection)
+        raise Exception('Deleting connection %s timed out (95s)' % connection)
 
 
 @step(u'Delete connection "{name}" and hit enter')
@@ -1122,6 +1129,19 @@ def note_mac_address(context, device):
     context.noted = command_output(context, "ethtool -P %s |grep -o -E '([[:xdigit:]]{1,2}:){5}[[:xdigit:]]{1,2}'" % device).strip()
     print (context.noted)
 
+@step(u'Note MAC address output for device "{device}" via ip command as "{index}"')
+@step(u'Note MAC address output for device "{device}" via ip command')
+def note_mac_address_ip(context, device, index=None):
+    mac = command_output(context, "ip link show %s | grep 'link/ether' | awk '{print $2}'" % device).strip()
+    if index:
+        if not hasattr(context, 'noted'):
+            context.noted = {}
+        context.noted[index] = mac
+    else:
+        context.noted_value = mac
+    print (mac)
+
+
 @step(u'Noted value contains "{pattern}"')
 def note_print_property_b(context, pattern):
     assert re.search(pattern, context.noted) is not None, "Noted value does not match the pattern!"
@@ -1196,8 +1216,14 @@ def add_novice_connection(context):
     context.prompt = prompt
 
 
+@step(u'Noted value is visible with command "{command}"')
+@step(u'Noted value "{index}" is visible with command "{command}"')
 @step(u'"{pattern}" is visible with command "{command}"')
-def check_pattern_visible_with_command(context, pattern, command):
+def check_pattern_visible_with_command(context, command, pattern=None, index=None):
+    if pattern is None and index is None:
+        pattern = context.noted_value
+    if index is not None:
+        pattern = context.noted[index]
     proc = pexpect.spawn('/bin/bash', ['-c', command], maxread=100000, logfile=context.log, encoding='utf-8')
     if proc.expect([pattern, pexpect.EOF]) != 0:
         sleep(1)
@@ -1206,8 +1232,14 @@ def check_pattern_visible_with_command(context, pattern, command):
     else:
         return True
 
+@step(u'Noted value is visible with command "{command}" in "{seconds}" seconds')
+@step(u'Noted value "{index}" is visible with command "{command}" in "{seconds}" seconds')
 @step(u'"{pattern}" is visible with command "{command}" in "{seconds}" seconds')
-def check_pattern_visible_with_command_in_time(context, pattern, command, seconds):
+def check_pattern_visible_with_command_in_time(context, command, seconds, pattern=None, index=None):
+    if pattern is None and index is None:
+        pattern = context.noted_value
+    if index is not None:
+        pattern = context.noted[index]
     seconds = int(seconds)
     orig_seconds = seconds
     while seconds > 0:
@@ -1616,7 +1648,7 @@ def reload_connections(context):
 @step(u'Quit editor')
 def quit_editor(context):
     context.prompt.sendline('quit')
-    #sleep(0.3)
+    sleep(0.1)
 
 
 @step(u'Reboot')

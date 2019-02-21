@@ -9,14 +9,16 @@ while ((i<20)); do
     ip l set veth$i up
     ip l set veth${i}p up
     ((i++))
-    sleep 1
+    sleep 0.2
 done
 
+sleep 5
 
 i=0
 while ((i<20)); do
     ip link del veth$i
     ((i++))
     nmcli con del "Wired connection $i"
-    sleep 1
 done
+
+sleep 5

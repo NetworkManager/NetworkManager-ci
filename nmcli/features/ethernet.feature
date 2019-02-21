@@ -587,3 +587,32 @@ Feature: nmcli - ethernet
     * Add a new connection of type "ethernet" and options "ifname eth1 con-name con_ethernet 802-1x.identity jdoe 802-1x.eap leap"
     * Reload connections
     Then "con_ethernet" is visible with command "nmcli con"
+
+
+    @rhbz1335409
+    @ver+=1.14
+    @con_ethernet_remove
+    @ethtool_features_connection
+    Scenario: nmcli - ethernet - change ethtool feature in connection
+    Given "fixed" is not visible with command "ethtool -k eth1 | grep tx-checksum-ip-generic:"
+    * Add a new connection of type "ethernet" and options "ifname eth1 con-name con_ethernet autoconnect no ethtool.feature-tx-checksum-ip-generic on"
+    * Bring "up" connection "con_ethernet"
+    When "on" is visible with command "ethtool -k eth1 | grep tx-checksum-ip-generic:"
+    * Modify connection "con_ethernet" changing options "ethtool.feature-tx-checksum-ip-generic off"
+    * Bring "up" connection "con_ethernet"
+    Then "off" is visible with command "ethtool -k eth1 | grep tx-checksum-ip-generic:"
+
+
+    @rhbz1335409
+    @ver+=1.14
+    @con_ethernet_remove
+    @ethtool_features_fixed_connection
+    Scenario: nmcli - ethernet - change ethtool fixed feature in connection
+    Given "fixed" is visible with command "ethtool -k eth1 | grep tx-checksum-ipv4:"
+    * Add a new connection of type "ethernet" and options "ifname eth1 con-name con_ethernet autoconnect no ethtool.feature-tx-checksum-ipv4 on"
+    * Bring "up" connection "con_ethernet"
+    * Note the output of "ethtool -k eth1 | grep tx-checksum-ipv4:" as value "out1"
+    * Modify connection "con_ethernet" changing options "ethtool.feature-tx-checksum-ipv4 off"
+    * Bring "up" connection "con_ethernet"
+    * Note the output of "ethtool -k eth1 | grep tx-checksum-ipv4:" as value "out2"
+    Then Check noted values "out1" and "out2" are the same

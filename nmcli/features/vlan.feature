@@ -295,10 +295,10 @@ Feature: nmcli - vlan
      And "9000" is visible with command "ip a s team7.15"
 
     * Reboot
-    Then "9000" is visible with command "ip a s eth7"
-     And "9000" is visible with command "ip a s bridge7"
-     And "9000" is visible with command "ip a s team7"
-     And "9000" is visible with command "ip a s team7.15"
+    Then "9000" is visible with command "ip a s eth7" in "10" seconds
+     And "9000" is visible with command "ip a s bridge7" in "10" seconds
+     And "9000" is visible with command "ip a s team7" in "10" seconds
+     And "9000" is visible with command "ip a s team7.15" in "10" seconds
 
 
     @rhbz1276343
@@ -466,6 +466,9 @@ Feature: nmcli - vlan
     * Add a new connection of type "team" and options "con-name vlan_team7 ifname team7"
     * Add a new connection of type "team-slave" and options "con-name vlan_team7.0 ifname eth7 master team7"
     * Add a new connection of type "vlan" and options "con-name vlan_team7.1 dev team7 id 1 mtu 1500 ipv4.method manual ipv4.addresses 192.168.168.16/24 ipv4.gateway 192.168.103.1 ipv6.method manual ipv6.addresses 2168::16/64 ipv4.dns 8.8.8.8"
+    * Bring "up" connection "vlan_team7"
+    * Bring "up" connection "vlan_team7.0"
+    * Bring "up" connection "vlan_team7.1"
     When "1" is visible with command "ip r |grep team7.1 |grep default |wc -l" in "2" seconds
     * Execute "for i in `seq 1 23`; do ip link set team7 addr 00:00:11:22:33:$i; done"
     Then "1" is visible with command "ip r |grep team7.1 |grep default |wc -l" in "2" seconds
@@ -489,3 +492,33 @@ Feature: nmcli - vlan
     * Restart NM
     Then "nm-bond:connected:bond0" is visible with command "nmcli -t -f DEVICE,STATE,CONNECTION device" in "20" seconds
     Then "nm-bond.7:connected:vlan_bond7" is visible with command "nmcli -t -f DEVICE,STATE,CONNECTION device" in "20" seconds
+
+
+    @rhbz1659063
+    @ver+=1.14
+    @vlan @bond @slaves @teardown_testveth
+    @static_route_persists_mac_change
+    Scenario: NM - vlan - static route is not deleted after NM changes MAC
+    * Prepare simulated test "test77" device
+    * Add connection type "bond" named "bond0" for device "nm-bond"
+    * Add a new connection of type "bond" ifname "nm-bond" and options "autocnnect no ethernet.cloned-mac-address preserve"
+    * Add a new connection of type "vlan" and options "autoconnect no ethernet.cloned-mac-address preserve con-name vlan_bond7 ipv4.method disabled ipv6.method ignore vlan.id 7 vlan.parent nm-bond"
+    * Add a new connection of type "ethernet" and options "autoconnect no con-name bond0.0 ethernet.cloned-mac-address preserve ifname test77 master nm-bond slave-type bond"
+    * Bring "up" connection "bond0"
+    * Bring "up" connection "vlan_bond7"
+    * Execute "ip addr add 192.168.168.16/24 dev nm-bond.7"
+    * Execute "ip route add 192.168.169.3/32 via 192.168.168.16 dev nm-bond.7"
+    * Bring "up" connection "bond0.0"
+    Then "192.168.169.3 via 192.168.168.16 dev nm-bond.7" is visible with command "ip r"
+
+
+    @ver+=1.12
+    @vlan @restart
+    @vlan_create_macvlan_on_vlan
+    Scenario: nmcli - vlan - create macvlan on vlan
+    * Add a new connection of type "vlan" and options "con-name eth7.99 dev eth7 id 99"
+    * Add a new connection of type "vlan" and options "con-name eth7.299 dev eth7 id 299"
+    * Add a new connection of type "macvlan" and options "con-name vlan1 mode bridge macvlan.parent eth7.99 ifname mvl1"
+    * Add a new connection of type "macvlan" and options "con-name vlan2 mode bridge macvlan.parent eth7.99 ifname mvl2"
+    * Add a new connection of type "macvlan" and options "con-name vlan mode bridge macvlan.parent eth7.299 ifname mvl"
+    * Restart NM

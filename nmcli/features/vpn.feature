@@ -86,3 +86,36 @@
     @vpn_list_args
     Scenario: nmcli - vpn - list args
     Then "libreswan|vpnc|openvpn" is visible with command "nmcli --complete-args connection add type vpn vpn-type ''"
+
+
+    @ver+=1.14
+    @iptunnel
+    @iptunnel_create_modify
+    Scenario: nmcli - vpn - create IPIP and GRE IP tunnel
+    * Add a new connection of type "ip-tunnel" and options "ifname ipip1 con-name ipip1 mode ipip ip-tunnel.parent veth0 remote 172.25.16.2 local 172.25.16.1 ip4 172.25.30.1/24"
+    * Bring "up" connection "ipip1"
+    Then Ping "172.25.30.2" "2" times
+    * Add a new connection of type "ip-tunnel" and options "ifname gre1 con-name gre1 mode gre ip-tunnel.parent veth0 remote 172.25.16.2 local 172.25.16.1 ip4 172.25.31.1/24"
+    * Bring "up" connection "gre1"
+    Then Ping "172.25.31.2" "2" times
+    * Bring "down" connection "ipip1"
+    * Modify connection "ipip1" changing options "ifname gre1 mode gre ip4 '' ip6 fe80:dead::b00f/64"
+    * Bring "up" connection "ipip1"
+    Then Ping6 "fe80:dead::beef%gre1"
+    * Bring "down" connection "ipip1"
+    * Modify connection "ipip1" changing options "ip-tunnel.input-key 12345678 ip-tunnel.output-key 87654321"
+    * Modify connection "ipip1" changing options "mode ipip6 ip-tunnel.input-key '' ip-tunnel.output-key '' local fe80:dead::beef remote fe80:dead::b00f ip-tunnel.flags 8 ip-tunnel.mtu 1000 ip-tunnel.path-mtu-discovery false"
+    Then "dead" is visible with command "nmcli con show ipip1"
+
+
+    @ver+=1.14
+    @iptunnel @restart
+    @iptunnel_restart
+    Scenario: nmcli - vpn - detect IP tunnel by NM
+    * Add a new connection of type "ip-tunnel" and options "ifname ipip1 con-name ipip1 mode ipip ip-tunnel.parent veth0 remote 172.25.16.2 local 172.25.16.1 ip4 172.25.30.1/24"
+    Then Bring "up" connection "ipip1"
+    * Add a new connection of type "ip-tunnel" and options "ifname gre1 con-name gre1 mode gre ip-tunnel.parent veth0 remote 172.25.16.2 local 172.25.16.1 ip4 172.25.31.1/24"
+    Then Bring "up" connection "gre1"
+    * Restart NM
+    Then Bring "down" connection "gre1"
+    Then Bring "down" connection "ipip1"
