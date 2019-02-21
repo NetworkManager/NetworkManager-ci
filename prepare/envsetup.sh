@@ -1,5 +1,188 @@
 #!/bin/bash
 
+install_plugins_yum () {
+    # Installing plugins if missing
+    if ! rpm -q --quiet NetworkManager-wifi; then
+        yum -y install NetworkManager-wifi
+    fi
+    if ! rpm -q --quiet NetworkManager-team; then
+        yum -y install NetworkManager-team
+    fi
+    if ! rpm -q --quiet NetworkManager-tui; then
+        yum -y install NetworkManager-tui
+    fi
+    if ! rpm -q --quiet NetworkManager-pptp; then
+        yum -y install NetworkManager-pptp
+    fi
+    if ! rpm -q --quiet NetworkManager-ppp && ! rpm -q NetworkManager |grep -q '1.4'; then
+        yum -y install NetworkManager-ppp
+    fi
+    if ! rpm -q --quiet NetworkManager-openvpn; then
+        yum -y install NetworkManager-openvpn
+    fi
+}
+
+
+install_plugins_dnf () {
+    # Installing plugins if missing
+    if ! rpm -q --quiet NetworkManager-wifi; then
+        dnf -4 -y install NetworkManager-wifi
+    fi
+    if ! rpm -q --quiet NetworkManager-team; then
+        dnf -4 -y install NetworkManager-team
+    fi
+    if ! rpm -q --quiet NetworkManager-tui; then
+        dnf -4 -y install NetworkManager-tui
+    fi
+    if ! rpm -q --quiet NetworkManager-pptp; then
+        dnf -4 -y install NetworkManager-pptp
+    fi
+    if ! rpm -q --quiet NetworkManager-ppp && ! rpm -q NetworkManager |grep -q '1.4'; then
+        dnf -4 -y install NetworkManager-ppp
+    fi
+    if ! rpm -q --quiet NetworkManager-openvpn; then
+        dnf -4 -y install NetworkManager-openvpn
+    fi
+}
+
+check_packages () {
+    rpm -q iw ethtool wireshark-cli NetworkManager-openvpn NetworkManager-ppp NetworkManager-pptp NetworkManager-tui NetworkManager-team NetworkManager-wifi NetworkManager-vpnc
+    return $?
+}
+
+
+install_fedora_packages () {
+    # Make python3 default if it's not
+    rm -rf /usr/bin/python
+    ln -s /usr/bin/python3 /usr/bin/python
+
+    # Pip down some deps
+    dnf -4 -y install python3-pip
+    python -m pip install --upgrade pip
+    python -m pip install pyroute2
+    python -m pip install pexpect
+    python -m pip install netaddr
+    python -m pip install pyte
+    python -m pip install IPy
+
+    # Needed for gsm_sim
+    dnf -4 -y install perl-IO-Pty-Easy perl-IO-Tty
+
+    # Dnf more deps
+    dnf -4 -y install git tcpreplay python3-netaddr dhcp-relay iw net-tools psmisc firewalld dhcp ethtool python3-dbus python3-gobject dnsmasq tcpdump wireshark-cli
+
+    # Install behave with better reporting
+    if python3 -V |grep -q "3.7"; then
+        dnf install -y https://vbenes.fedorapeople.org/NM/python3-behave-1.2.6-2.fc29.noarch.rpm
+    else
+        dnf install -y http://download.eng.bos.redhat.com/brewroot/packages/python-behave/1.2.5/23.el8+7/noarch/python3-behave-1.2.5-23.el8+7.noarch.rpm http://download.eng.bos.redhat.com/brewroot/packages/python-parse/1.6.6/8.el8+7/noarch/python3-parse-1.6.6-8.el8+7.noarch.rpm http://download.eng.bos.redhat.com/brewroot/packages/python-parse_type/0.3.4/15.el8+7/noarch/python3-parse_type-0.3.4-15.el8+7.noarch.rpm
+    fi
+    ln -s /usr/bin/behave-3 /usr/bin/behave
+
+    # Install vpn dependencies
+    dnf -4 -y install NetworkManager-openvpn openvpn ipsec-tools
+
+    # Install various NM dependencies
+    dnf -4 -y remove NetworkManager-config-connectivity-fedora NetworkManager-config-connectivity-redhat
+    dnf -4 -y install openvswitch
+    dnf -4 -y install NetworkManager-ovs
+
+    if ! rpm -q --quiet NetworkManager-pptp; then
+        dnf -4 -y install NetworkManager-pptp
+    fi
+
+    if ! rpm -q --quiet NetworkManager-vpnc || ! rpm -q --quiet vpnc; then
+        dnf -4 -y install NetworkManager-vpnc
+    fi
+
+    # Enable debug logs for wpa_supplicant
+    sed -i 's!OTHER_ARGS="-s"!OTHER_ARGS="-s -dddK"!' /etc/sysconfig/wpa_supplicant
+
+    # Make crypto policies a bit less strict
+    update-crypto-policies --set LEGACY
+    systemctl restart wpa_supplicant
+
+    install_plugins_dnf
+
+}
+
+install_el8_packages () {
+    # Make python3 default if it's not
+    rm -rf /usr/bin/python
+    ln -s /usr/libexec/platform-python /usr/bin/python
+
+    # Pip down some deps
+    dnf -4 -y install python3-pip
+    python -m pip install --upgrade pip
+    python -m pip install pyroute2
+    python -m pip install pexpect
+    python -m pip install netaddr
+    python -m pip install pyte
+    python -m pip install IPy
+
+    # Needed for gsm_sim
+    dnf -4 -y install https://kojipkgs.fedoraproject.org//packages/perl-IO-Pty-Easy/0.10/5.fc28/noarch/perl-IO-Pty-Easy-0.10-5.fc28.noarch.rpm https://kojipkgs.fedoraproject.org//packages/perl-IO-Tty/1.12/11.fc28/x86_64/perl-IO-Tty-1.12-11.fc28.x86_64.rpm
+
+    # Dnf more deps
+    dnf -4 -y install git python3-netaddr dhcp-relay iw net-tools psmisc firewalld dhcp ethtool python3-dbus python3-gobject dnsmasq tcpdump wireshark-cli --skip-broken
+
+    # Install behave with better reporting
+    dnf -4 -y install https://kojipkgs.fedoraproject.org//packages/tcpreplay/4.2.5/4.fc28/$(uname -p)/tcpreplay-4.2.5-4.fc28.$(uname -p).rpm
+    dnf -4 -y install http://download.eng.bos.redhat.com/brewroot/packages/python-behave/1.2.5/23.el8+7/noarch/python3-behave-1.2.5-23.el8+7.noarch.rpm http://download.eng.bos.redhat.com/brewroot/packages/python-parse/1.6.6/8.el8+7/noarch/python3-parse-1.6.6-8.el8+7.noarch.rpm http://download.eng.bos.redhat.com/brewroot/packages/python-parse_type/0.3.4/15.el8+7/noarch/python3-parse_type-0.3.4-15.el8+7.noarch.rpm
+    ln -s /usr/bin/behave-3 /usr/bin/behave
+
+    # Install vpn dependencies
+    dnf -4 -y install https://kojipkgs.fedoraproject.org//packages/NetworkManager-openvpn/1.8.4/1.fc28/x86_64/NetworkManager-openvpn-1.8.4-1.fc28.x86_64.rpm https://kojipkgs.fedoraproject.org//packages/openvpn/2.4.6/1.fc28/x86_64/openvpn-2.4.6-1.fc28.x86_64.rpm https://dl.fedoraproject.org/pub/epel/7/$(arch)/Packages/i/ipsec-tools-0.8.2-5.el7.$(arch).rpm
+    # Install various NM dependencies
+    dnf -4 -y remove NetworkManager-config-connectivity-fedora NetworkManager-config-connectivity-redhat
+    dnf -4 -y install http://download.eng.bos.redhat.com/brewroot/vol/rhel-8/packages/openvswitch/2.9.0/59.el8fdn/$(uname -p)/openvswitch-2.9.0-59.el8fdn.$(uname -p).rpm \
+       http://download.eng.bos.redhat.com/brewroot/vol/rhel-8/packages/openvswitch-selinux-extra-policy/1.0/7.el8fdb/noarch/openvswitch-selinux-extra-policy-1.0-7.el8fdb.noarch.rpm
+    dnf -4 -y install http://download.eng.bos.redhat.com/brewroot/packages/$(rpm -q --queryformat '%{NAME}/%{VERSION}/%{RELEASE}' NetworkManager)/$(uname -p)/NetworkManager-ovs-$(rpm -q --queryformat '%{VERSION}-%{RELEASE}' NetworkManager).$(uname -p).rpm
+    if ! rpm -q --quiet NetworkManager-pptp; then
+        dnf -4 -y install http://download.eng.bos.redhat.com/brewroot/packages/NetworkManager-pptp/1.2.4/4.el8+5/$(uname -p)/NetworkManager-pptp-1.2.4-4.el8+5.$(uname -p).rpm https://kojipkgs.fedoraproject.org//packages/pptpd/1.4.0/18.fc28/$(uname -p)/pptpd-1.4.0-18.fc28.$(uname -p).rpm http://download.eng.bos.redhat.com/brewroot/packages/pptp/1.10.0/3.el8+7/$(uname -p)/pptp-1.10.0-3.el8+7.$(uname -p).rpm
+    fi
+
+    if ! rpm -q --quiet NetworkManager-vpnc || ! rpm -q --quiet vpnc; then
+        dnf -4 -y install https://kojipkgs.fedoraproject.org//packages/vpnc/0.5.3/33.svn550.fc29/$(arch)/vpnc-0.5.3-33.svn550.fc29.$(arch).rpm https://kojipkgs.fedoraproject.org//packages/NetworkManager-vpnc/1.2.6/1.fc29/$(arch)/NetworkManager-vpnc-1.2.6-1.fc29.$(arch).rpm https://kojipkgs.fedoraproject.org//packages/vpnc-script/20171004/3.git6f87b0f.fc29/noarch/vpnc-script-20171004-3.git6f87b0f.fc29.noarch.rpm
+    fi
+
+    # Enable debug logs for wpa_supplicant
+    sed -i 's!OTHER_ARGS="-s"!OTHER_ARGS="-s -dddK"!' /etc/sysconfig/wpa_supplicant
+
+    # Make crypto policies a bit less strict
+    update-crypto-policies --set LEGACY
+    systemctl restart wpa_supplicant
+
+    install_plugins_dnf
+}
+
+install_el7_packages () {
+    # Enable EPEL but on s390x
+    if ! uname -a |grep -q s390x; then
+        [ -f /etc/yum.repos.d/epel.repo ] || sudo rpm -i http://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm
+    fi
+
+    # Download some deps
+    yum -y install perl-IO-Pty-Easy wireshark python-setuptools python2-pip
+    easy_install pip
+    pip install --upgrade pip
+    pip install pexpect
+    pip install pyroute2
+    yum -y install git python-netaddr iw net-tools wireshark psmisc bridge-utils firewalld dhcp ethtool dbus-python pygobject3 pygobject2 dnsmasq NetworkManager-vpnc
+    yum -y install https://kojipkgs.fedoraproject.org//packages/python-behave/1.2.5/18.el7/noarch/python2-behave-1.2.5-18.el7.noarch.rpm https://kojipkgs.fedoraproject.org//packages/python-parse/1.6.4/4.el7/noarch/python-parse-1.6.4-4.el7.noarch.rpm https://kojipkgs.fedoraproject.org//packages/python-parse_type/0.3.4/6.el7/noarch/python-parse_type-0.3.4-6.el7.noarch.rpm
+    yum -y remove NetworkManager-config-connectivity-fedora NetworkManager-config-connectivity-redhat
+    yum -y install  http://download.eng.bos.redhat.com/brewroot/packages/openvswitch/2.9.0/77.el7fdn/$(arch)/openvswitch-2.9.0-77.el7fdn.$(arch).rpm   http://download.eng.bos.redhat.com/brewroot/packages/openvswitch-selinux-extra-policy/1.0/7.el7fdp/noarch/openvswitch-selinux-extra-policy-1.0-7.el7fdp.noarch.rpm
+
+    # Tune wpa_supplicat to log into journal and enable debugging
+    systemctl stop wpa_supplicant
+    sed -i 's!ExecStart=/usr/sbin/wpa_supplicant -u -f /var/log/wpa_supplicant.log -c /etc/wpa_supplicant/wpa_supplicant.conf!ExecStart=/usr/sbin/wpa_supplicant -u -c /etc/wpa_supplicant/wpa_supplicant.conf!' /etc/systemd/system/wpa_supplicant.service
+    sed -i 's!OTHER_ARGS="-P /var/run/wpa_supplicant.pid"!OTHER_ARGS="-P /var/run/wpa_supplicant.pid -dddK"!' /etc/sysconfig/wpa_supplicant
+    systemctl restart wpa_supplicant
+
+    install_plugins_yum
+}
+
+
 local_setup_configure_nm_eth () {
     [ -e /tmp/nm_eth_configured ] && return
 
@@ -71,152 +254,31 @@ local_setup_configure_nm_eth () {
         NUM=$(($NUM+1))
     done
 
+    # Install packages for various distributions
     if grep -q 'Fedora' /etc/redhat-release; then
-        # Make python3 default if it's not
-        rm -rf /usr/bin/python
-        ln -s /usr/bin/python3 /usr/bin/python
-
-        # Pip down some deps
-        dnf -y install python3-pip
-        python -m pip install --upgrade pip
-        python -m pip install pyroute2
-        python -m pip install pexpect
-        python -m pip install netaddr
-        python -m pip install pyte
-        python -m pip install IPy
-
-        # Needed for gsm_sim
-        dnf -y install perl-IO-Pty-Easy perl-IO-Tty
-
-        # Dnf more deps
-        dnf -y install git tcpreplay python3-netaddr dhcp-relay iw net-tools psmisc firewalld dhcp ethtool python3-dbus python3-gobject dnsmasq tcpdump wireshark-cli --skip-broken
-
-
-        # Install behave with better reporting
-        if python3 -V |grep -q "3.7"; then
-            dnf install -y https://vbenes.fedorapeople.org/NM/python3-behave-1.2.6-2.fc29.noarch.rpm
-        else
-            dnf install -y http://download.eng.bos.redhat.com/brewroot/packages/python-behave/1.2.5/23.el8+7/noarch/python3-behave-1.2.5-23.el8+7.noarch.rpm http://download.eng.bos.redhat.com/brewroot/packages/python-parse/1.6.6/8.el8+7/noarch/python3-parse-1.6.6-8.el8+7.noarch.rpm http://download.eng.bos.redhat.com/brewroot/packages/python-parse_type/0.3.4/15.el8+7/noarch/python3-parse_type-0.3.4-15.el8+7.noarch.rpm
+        install_fedora_packages
+        if check_packages; then
+            sleep 20
+            install_fedora_packages
         fi
-        ln -s /usr/bin/behave-3 /usr/bin/behave
-
-        # Install vpn dependencies
-        dnf -y install NetworkManager-openvpn openvpn ipsec-tools
-
-        # Install various NM dependencies
-        dnf -y remove NetworkManager-config-connectivity-fedora NetworkManager-config-connectivity-redhat
-        dnf -y install openvswitch
-        dnf -y install NetworkManager-ovs
-
-        if ! rpm -q --quiet NetworkManager-pptp; then
-            dnf -y install NetworkManager-pptp
+    fi
+    if grep -q 'Enterprise Linux release 8' /etc/redhat-release; then
+        install_el8_packages
+        if check_packages; then
+            sleep 20
+            install_el8_packages
         fi
-
-        if ! rpm -q --quiet NetworkManager-vpnc || ! rpm -q --quiet vpnc; then
-            dnf -y install NetworkManager-vpnc
+    fi
+    if grep -q 'Enterprise Linux release 7' /etc/redhat-release; then
+        install_el7_packages
+        if check_packages; then
+            sleep 20
+            install_el7_packages
         fi
-
-        # Enable debug logs for wpa_supplicant
-        sed -i 's!OTHER_ARGS="-s"!OTHER_ARGS="-s -dddK"!' /etc/sysconfig/wpa_supplicant
-
-        # Make crypto policies a bit less strict
-        update-crypto-policies --set LEGACY
-        systemctl restart wpa_supplicant
-
-    elif grep -q 'Red Hat Enterprise Linux release 8' /etc/redhat-release; then
-        # Make python3 default if it's not
-        rm -rf /usr/bin/python
-        ln -s /usr/libexec/platform-python /usr/bin/python
-
-        # Pip down some deps
-        dnf -y install python3-pip
-        python -m pip install --upgrade pip
-        python -m pip install pyroute2
-        python -m pip install pexpect
-        python -m pip install netaddr
-        python -m pip install pyte
-        python -m pip install IPy
-
-        # Needed for gsm_sim
-        dnf -y install https://kojipkgs.fedoraproject.org//packages/perl-IO-Pty-Easy/0.10/5.fc28/noarch/perl-IO-Pty-Easy-0.10-5.fc28.noarch.rpm https://kojipkgs.fedoraproject.org//packages/perl-IO-Tty/1.12/11.fc28/x86_64/perl-IO-Tty-1.12-11.fc28.x86_64.rpm
-
-        # Dnf more deps
-        dnf -y install git python3-netaddr dhcp-relay iw net-tools psmisc firewalld dhcp ethtool python3-dbus python3-gobject dnsmasq tcpdump wireshark-cli --skip-broken
-
-        # Install behave with better reporting
-        dnf -y install https://kojipkgs.fedoraproject.org//packages/tcpreplay/4.2.5/4.fc28/$(uname -p)/tcpreplay-4.2.5-4.fc28.$(uname -p).rpm
-        dnf install -y http://download.eng.bos.redhat.com/brewroot/packages/python-behave/1.2.5/23.el8+7/noarch/python3-behave-1.2.5-23.el8+7.noarch.rpm http://download.eng.bos.redhat.com/brewroot/packages/python-parse/1.6.6/8.el8+7/noarch/python3-parse-1.6.6-8.el8+7.noarch.rpm http://download.eng.bos.redhat.com/brewroot/packages/python-parse_type/0.3.4/15.el8+7/noarch/python3-parse_type-0.3.4-15.el8+7.noarch.rpm
-        ln -s /usr/bin/behave-3 /usr/bin/behave
-
-        # Install vpn dependencies
-        dnf -y install https://kojipkgs.fedoraproject.org//packages/NetworkManager-openvpn/1.8.4/1.fc28/x86_64/NetworkManager-openvpn-1.8.4-1.fc28.x86_64.rpm https://kojipkgs.fedoraproject.org//packages/openvpn/2.4.6/1.fc28/x86_64/openvpn-2.4.6-1.fc28.x86_64.rpm https://dl.fedoraproject.org/pub/epel/7/$(arch)/Packages/i/ipsec-tools-0.8.2-5.el7.$(arch).rpm
-        # Install various NM dependencies
-        dnf -y remove NetworkManager-config-connectivity-fedora NetworkManager-config-connectivity-redhat
-        dnf -y install http://download.eng.bos.redhat.com/brewroot/vol/rhel-8/packages/openvswitch/2.9.0/59.el8fdn/$(uname -p)/openvswitch-2.9.0-59.el8fdn.$(uname -p).rpm \
-           http://download.eng.bos.redhat.com/brewroot/vol/rhel-8/packages/openvswitch-selinux-extra-policy/1.0/7.el8fdb/noarch/openvswitch-selinux-extra-policy-1.0-7.el8fdb.noarch.rpm
-        dnf -y install http://download.eng.bos.redhat.com/brewroot/packages/$(rpm -q --queryformat '%{NAME}/%{VERSION}/%{RELEASE}' NetworkManager)/$(uname -p)/NetworkManager-ovs-$(rpm -q --queryformat '%{VERSION}-%{RELEASE}' NetworkManager).$(uname -p).rpm
-        if ! rpm -q --quiet NetworkManager-pptp; then
-            dnf -y install http://download.eng.bos.redhat.com/brewroot/packages/NetworkManager-pptp/1.2.4/4.el8+5/$(uname -p)/NetworkManager-pptp-1.2.4-4.el8+5.$(uname -p).rpm https://kojipkgs.fedoraproject.org//packages/pptpd/1.4.0/18.fc28/$(uname -p)/pptpd-1.4.0-18.fc28.$(uname -p).rpm http://download.eng.bos.redhat.com/brewroot/packages/pptp/1.10.0/3.el8+7/$(uname -p)/pptp-1.10.0-3.el8+7.$(uname -p).rpm
-        fi
-
-        if ! rpm -q --quiet NetworkManager-vpnc || ! rpm -q --quiet vpnc; then
-            dnf -y install https://kojipkgs.fedoraproject.org//packages/vpnc/0.5.3/33.svn550.fc29/$(arch)/vpnc-0.5.3-33.svn550.fc29.$(arch).rpm https://kojipkgs.fedoraproject.org//packages/NetworkManager-vpnc/1.2.6/1.fc29/$(arch)/NetworkManager-vpnc-1.2.6-1.fc29.$(arch).rpm https://kojipkgs.fedoraproject.org//packages/vpnc-script/20171004/3.git6f87b0f.fc29/noarch/vpnc-script-20171004-3.git6f87b0f.fc29.noarch.rpm
-        fi
-
-        # Enable debug logs for wpa_supplicant
-        sed -i 's!OTHER_ARGS="-s"!OTHER_ARGS="-s -dddK"!' /etc/sysconfig/wpa_supplicant
-
-        # Make crypto policies a bit less strict
-        update-crypto-policies --set LEGACY
-        systemctl restart wpa_supplicant
-
-    else
-        #enable EPEL but on s390x
-        if ! uname -a |grep -q s390x; then
-            [ -f /etc/yum.repos.d/epel.repo ] || sudo rpm -i http://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm
-        fi
-
-        yum -y install perl-IO-Pty-Easy wireshark python-setuptools python2-pip --skip-broken
-        easy_install pip
-        pip install --upgrade pip
-        pip install pexpect
-        pip install pyroute2
-        yum -y install https://kojipkgs.fedoraproject.org//packages/python-behave/1.2.5/18.el7/noarch/python2-behave-1.2.5-18.el7.noarch.rpm https://kojipkgs.fedoraproject.org//packages/python-parse/1.6.4/4.el7/noarch/python-parse-1.6.4-4.el7.noarch.rpm https://kojipkgs.fedoraproject.org//packages/python-parse_type/0.3.4/6.el7/noarch/python-parse_type-0.3.4-6.el7.noarch.rpm --skip-broken
-        yum -y install git python-netaddr iw net-tools wireshark psmisc bridge-utils firewalld dhcp ethtool dbus-python pygobject3 pygobject2 dnsmasq --skip-broken
-        yum -y remove NetworkManager-config-connectivity-fedora NetworkManager-config-connectivity-redhat
-        yum -y install  http://download.eng.bos.redhat.com/brewroot/packages/openvswitch/2.9.0/77.el7fdn/$(arch)/openvswitch-2.9.0-77.el7fdn.$(arch).rpm   http://download.eng.bos.redhat.com/brewroot/packages/openvswitch-selinux-extra-policy/1.0/7.el7fdp/noarch/openvswitch-selinux-extra-policy-1.0-7.el7fdp.noarch.rpm
-
-        # Tune wpa_supplicat to log into journal and enable debugging
-        systemctl stop wpa_supplicant
-        #sed -i.bak s/^INTERFACES.*/INTERFACES=\"-iwlan1\"/ /etc/sysconfig/wpa_supplicant
-        #cp -rf /usr/lib/systemd/system/wpa_supplicant.service /etc/systemd/system/wpa_supplicant.service
-        sed -i 's!ExecStart=/usr/sbin/wpa_supplicant -u -f /var/log/wpa_supplicant.log -c /etc/wpa_supplicant/wpa_supplicant.conf!ExecStart=/usr/sbin/wpa_supplicant -u -c /etc/wpa_supplicant/wpa_supplicant.conf!' /etc/systemd/system/wpa_supplicant.service
-        sed -i 's!OTHER_ARGS="-P /var/run/wpa_supplicant.pid"!OTHER_ARGS="-P /var/run/wpa_supplicant.pid -dddK"!' /etc/sysconfig/wpa_supplicant
-        systemctl restart wpa_supplicant
-
-    fi
-
-    #installing plugins if missing
-    if ! rpm -q --quiet NetworkManager-wifi; then
-        yum -y install NetworkManager-wifi
-    fi
-    if ! rpm -q --quiet NetworkManager-team; then
-        yum -y install NetworkManager-team
-    fi
-    if ! rpm -q --quiet NetworkManager-tui; then
-        yum -y install NetworkManager-tui
-    fi
-    if ! rpm -q --quiet NetworkManager-pptp; then
-        yum -y install NetworkManager-pptp
-    fi
-    if ! rpm -q --quiet NetworkManager-ppp && ! rpm -q NetworkManager |grep -q '1.4'; then
-        yum -y install NetworkManager-ppp
-    fi
-    if ! rpm -q --quiet NetworkManager-openvpn; then
-        yum -y install NetworkManager-openvpn
     fi
 
 
+    # Do we have special HW needs?
     dcb_inf_wol_sriov=0
     if [[ $1 == *sriov_* ]]; then
         dcb_inf_wol_sriov=1
@@ -230,11 +292,12 @@ local_setup_configure_nm_eth () {
     if [[ $1 == *wol_* ]]; then
         dcb_inf_wol_sriov=1
     fi
-
+    # We need this if yes
     if [ $dcb_inf_wol_sriov -eq 1 ]; then
         touch /tmp/nm_dcb_inf_wol_sriov_configured
     fi
 
+    # Do we need virtual eth setup?
     veth=0
     if [ $wlan -eq 0 ]; then
         if [ $dcb_inf_wol_sriov -eq 0 ]; then
@@ -247,14 +310,14 @@ local_setup_configure_nm_eth () {
         fi
     fi
 
-
+    # Do veth setup if yes
     if [ $veth -eq 1 ]; then
         sh prepare/vethsetup.sh setup
 
         touch /tmp/nm_newveth_configured
 
     else
-        #profiles tuning
+        # Profiles tuning
         if [ $wlan -eq 0 ]; then
             if [ $dcb_inf_wol_sriov -eq 0 ]; then
                 nmcli connection add type ethernet ifname eth0 con-name testeth0
