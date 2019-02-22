@@ -1578,22 +1578,22 @@ Feature: nmcli - general
 
     @rhbz1458399
     @ver+=1.8.0
-    @firewall @connectivity @con_general_remove @eth0
+    @connectivity @con_general_remove @eth0
     @connectivity_check
     Scenario: NM - general - connectivity check
     * Add a new connection of type "ethernet" and options "ifname eth0 con-name con_general autoconnect no ipv6.method ignore"
     * Bring up connection "con_general"
     When "activated" is visible with command "nmcli -g GENERAL.STATE con show con_general" in "20" seconds
      And "full" is visible with command "nmcli  -g CONNECTIVITY g" in "70" seconds
-    * Execute "firewall-cmd --panic-on"
+     * Append "1.2.3.4 static.redhat.com" to file "/etc/hosts"
     When "limited" is visible with command "nmcli  -g CONNECTIVITY g" in "70" seconds
-    * Execute "firewall-cmd --panic-off"
+     * Reset /etc/hosts
     Then "full" is visible with command "nmcli  -g CONNECTIVITY g" in "70" seconds
 
 
     @rhbz1458399
     @ver+=1.8.0
-    @firewall @connectivity @con_general_remove @delete_testeth0 @restart
+    @connectivity @con_general_remove @delete_testeth0 @restart
     @disable_connectivity_check
     Scenario: NM - general - disable connectivity check
     * Execute "rm -rf /etc/NetworkManager/conf.d/99-connectivity.conf"
@@ -1602,7 +1602,7 @@ Feature: nmcli - general
     * Bring up connection "con_general"
     When "activated" is visible with command "nmcli -g GENERAL.STATE con show con_general" in "20" seconds
      And "full" is visible with command "nmcli  -g CONNECTIVITY g"
-    * Execute "firewall-cmd --panic-on"
+    * Append "1.2.3.4 static.redhat.com" to file "/etc/hosts"
     Then "full" is visible with command "nmcli  -g CONNECTIVITY g" for full "70" seconds
 
 
@@ -1626,7 +1626,7 @@ Feature: nmcli - general
 
     @rhbz1534477
     @ver+=1.10
-    @firewall @connectivity @con_general_remove @delete_testeth0 @restart @long
+    @connectivity @con_general_remove @delete_testeth0 @restart @long
     @manipulate_connectivity_check_via_dbus
     Scenario: dbus - general - connectivity check manipulation
     * Add a new connection of type "ethernet" and options "ifname eth0 con-name con_general autoconnect no ipv6.method ignore"
@@ -1635,14 +1635,15 @@ Feature: nmcli - general
      And "full" is visible with command "nmcli -g CONNECTIVITY g" in "70" seconds
     # VVV Turn off connectivity check
     * Execute "busctl set-property org.freedesktop.NetworkManager /org/freedesktop/NetworkManager org.freedesktop.NetworkManager ConnectivityCheckEnabled 'b' 0"
-    * Execute "sleep 1 && firewall-cmd --panic-on"
+    #* Execute "sleep 1 && firewall-cmd --panic-on"
+    * Append "1.2.3.4 static.redhat.com" to file "/etc/hosts"
     When "false" is visible with command "busctl get-property org.freedesktop.NetworkManager /org/freedesktop/NetworkManager org.freedesktop.NetworkManager ConnectivityCheckEnabled"
      And "full" is visible with command "nmcli  -g CONNECTIVITY g" for full "70" seconds
     # VVV Turn on connectivity check
     * Execute "busctl set-property org.freedesktop.NetworkManager /org/freedesktop/NetworkManager org.freedesktop.NetworkManager ConnectivityCheckEnabled 'b' 1"
     When "true" is visible with command "busctl get-property org.freedesktop.NetworkManager /org/freedesktop/NetworkManager org.freedesktop.NetworkManager ConnectivityCheckEnabled"
      And "limited" is visible with command "nmcli  -g CONNECTIVITY g" in "70" seconds
-    * Execute "firewall-cmd --panic-off"
+     * Reset /etc/hosts
     Then "full" is visible with command "nmcli  -g CONNECTIVITY g" in "70" seconds
 
 
