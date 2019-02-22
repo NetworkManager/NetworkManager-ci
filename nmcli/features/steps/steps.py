@@ -56,6 +56,12 @@ def append_to_ifcfg(context, line, name):
     cmd = 'sudo echo "%s" >> /etc/sysconfig/network-scripts/ifcfg-%s' % (line, name)
     command_code(context, cmd)
 
+@step('Reset /etc/hosts')
+def reset_hosts(context):
+    cmd = "echo '127.0.0.1   localhost localhost.localdomain localhost4 localhost4.localdomain4' > /etc/hosts"
+    command_code(context, cmd)
+    cmd = "echo '::1         localhost localhost.localdomain localhost6 localhost6.localdomain6' >> /etc/hosts"
+    command_code(context, cmd)
 
 # @step(u'Add connection for a type "{typ}" named "{name}"')
 # def add_connection(context, typ, name):

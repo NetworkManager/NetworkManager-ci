@@ -1177,6 +1177,8 @@ def after_scenario(context, scenario):
             print ("remove connectivity checker")
             call("rm -rf /etc/NetworkManager/conf.d/99-connectivity.conf", shell=True)
             call("rm -rf /var/lib/NetworkManager/NetworkManager-intern.conf", shell=True)
+            context.execute_steps(u'* Reset /etc/hosts')
+
             reload_NM_service()
 
         if 'con' in scenario.tags:
