@@ -262,14 +262,14 @@ local_setup_configure_nm_eth () {
             install_fedora_packages
         fi
     fi
-    if grep -q 'Enterprise Linux .* release 8' /etc/redhat-release; then
+    if grep -q 'Enterprise Linux .*release 8' /etc/redhat-release; then
         install_el8_packages
         if check_packages; then
             sleep 20
             install_el8_packages
         fi
     fi
-    if grep -q 'Enterprise Linux .* release 7' /etc/redhat-release; then
+    if grep -q 'Enterprise Linux .*release 7' /etc/redhat-release; then
         install_el7_packages
         if check_packages; then
             sleep 20
