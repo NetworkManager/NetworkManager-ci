@@ -117,6 +117,8 @@
       - 'NetworkManager-{branch}':
           branch: 'master'
       - 'NetworkManager-{branch}':
+          branch: 'nm-1-16'
+      - 'NetworkManager-{branch}':
           branch: 'nm-1-14'
       - 'NetworkManager-{branch}':
           branch: 'nm-1-12'
