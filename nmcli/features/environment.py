@@ -834,6 +834,11 @@ def before_scenario(context, scenario):
             print ("remove all team packages except NM one and reinstall them with delayed version")
             call("for i in $(rpm -qa |grep team|grep -v Netw); do rpm -e $i --nodeps; done", shell=True)
             call("yum -y install https://vbenes.fedorapeople.org/NM/slow_libteam-1.25-5.el7_4.1.1.x86_64.rpm https://vbenes.fedorapeople.org/NM/slow_teamd-1.25-5.el7_4.1.1.x86_64.rpm", shell=True)
+            if call("rpm --quiet -q teamd", shell=True) != 0:
+                # Restore teamd package if we don't have the slow ones
+                call("for i in $(rpm -qa |grep team|grep -v Netw); do rpm -e $i --nodeps; done", shell=True)
+                call("yum -y install teamd libteam", shell=True)
+                sys.exit(77)
             reload_NM_service()
 
         if 'openvswitch' in scenario.tags:
