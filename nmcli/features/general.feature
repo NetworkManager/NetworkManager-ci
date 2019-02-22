@@ -1586,7 +1586,7 @@ Feature: nmcli - general
     When "activated" is visible with command "nmcli -g GENERAL.STATE con show con_general" in "20" seconds
      And "full" is visible with command "nmcli  -g CONNECTIVITY g" in "70" seconds
      * Append "1.2.3.4 static.redhat.com" to file "/etc/hosts"
-    When "limited" is visible with command "nmcli  -g CONNECTIVITY g" in "70" seconds
+    When "limited" is visible with command "nmcli  -g CONNECTIVITY g" in "100" seconds
      * Reset /etc/hosts
     Then "full" is visible with command "nmcli  -g CONNECTIVITY g" in "70" seconds
 
@@ -1642,7 +1642,7 @@ Feature: nmcli - general
     # VVV Turn on connectivity check
     * Execute "busctl set-property org.freedesktop.NetworkManager /org/freedesktop/NetworkManager org.freedesktop.NetworkManager ConnectivityCheckEnabled 'b' 1"
     When "true" is visible with command "busctl get-property org.freedesktop.NetworkManager /org/freedesktop/NetworkManager org.freedesktop.NetworkManager ConnectivityCheckEnabled"
-     And "limited" is visible with command "nmcli  -g CONNECTIVITY g" in "70" seconds
+     And "limited" is visible with command "nmcli  -g CONNECTIVITY g" in "100" seconds
      * Reset /etc/hosts
     Then "full" is visible with command "nmcli  -g CONNECTIVITY g" in "70" seconds
 
