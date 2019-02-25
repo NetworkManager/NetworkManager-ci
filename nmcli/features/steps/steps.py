@@ -1862,6 +1862,10 @@ def submit(context, what):
         context.prompt.sendline(context.noted)
     elif what == '<enter>':
         context.prompt.send("\n")
+    elif what == '<tab>':
+        context.prompt.send("\t")
+    elif what == '<double_tab>':
+        context.prompt.send("\t\t")
     else:
         context.prompt.sendline(what)
 
