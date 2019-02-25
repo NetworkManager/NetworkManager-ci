@@ -19,6 +19,7 @@ gi.require_version('NM', '1.0')
 from gi.repository import GLib, NM
 
 import os
+import time
 
 ###############################################################################
 
@@ -27,7 +28,7 @@ def usage():
     print("")
     print(" COMMANDS:  [show]")
     print("            create TIMEOUT [--destroy-all|--delete-new-connections|--disconnect-new-devices|--allow-overlapping|DEV]...")
-    print("            destroy PATH|NUMBER")
+    print("            destroy PATH|NUMBER|last [TIMEOUT]")
     print("            rollback PATH|NUMBER")
     print("            adjust-rollback-timeout PATH|NUMBER TIMEOUT")
     print("")
@@ -108,7 +109,18 @@ def do_destroy(client):
     if len(sys.argv) < 3:
         sys.exit("Missing checkpoint path")
 
-    path = validate_path(sys.argv[2], client)
+    checkpoint = sys.argv[2]
+    if checkpoint == "last":
+        checkpoint = get_last_checkpoint(client)
+
+    timeout = 0
+    if len(sys.argv) >= 4:
+        try:
+            timeout = int(sys.argv[3])
+        except:
+            timeout = 0
+
+    path = validate_path(checkpoint, client)
 
     def destroy_cb(client, result, data):
         try:
@@ -116,7 +128,10 @@ def do_destroy(client):
                 print("Success")
         except Exception as e:
             sys.stderr.write("Failed: %s\n" % e.message)
+            sys.exit(1)
         main_loop.quit()
+
+    time.sleep(timeout)
 
     client.checkpoint_destroy(path, None, destroy_cb, None)
 

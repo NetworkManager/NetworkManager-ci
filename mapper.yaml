@@ -1154,6 +1154,8 @@ testmapper:
         feature: general
     - libnm_snapshot_rollback_soft_device:
         feature: general
+    - libnm_snapshot_destroy_after_rollback:
+        feature: general
     - autoconnect_no_secrets_prompt:
         feature: general
     - ifup_ifdown_scripts_rhel8:

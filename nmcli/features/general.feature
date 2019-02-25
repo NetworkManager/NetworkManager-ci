@@ -1940,6 +1940,17 @@ Feature: nmcli - general
     Then Check slave "eth9" in bond "gen-bond" in proc
 
 
+    @rhbz1574565
+    @ver+=1.12
+    @gen-bond_remove
+    @libnm_snapshot_destroy_after_rollback
+    Scenario: NM - general - snapshot and destroy checkpoint
+    * Execute "tmp/libnm_snapshot_checkpoint.py create 5"
+    Then Finish "tmp/libnm_snapshot_checkpoint.py destroy last 1"
+    * Execute "tmp/libnm_snapshot_checkpoint.py create 5"
+    Then Finish "! tmp/libnm_snapshot_checkpoint.py destroy last 7"
+
+
     @rhbz1553113
     @ver+=1.12
     @con_general_remove
