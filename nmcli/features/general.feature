@@ -1995,3 +1995,18 @@ Feature: nmcli - general
     Then "full" is visible with command "nmcli -f CONNECTIVITY general" in "15" seconds
     * Execute "rm -f /tmp/python_http/test/rhel-networkmanager.txt"
     Then "portal" is visible with command "nmcli -f CONNECTIVITY general" in "15" seconds
+
+
+    @rhbz1588995
+    @ver+=1.14
+    @editor_print_info
+    Scenario: nmcli - general - connection editor print info
+    * Open editor for a new connection
+    Then "Valid connection types:.*Enter connection type:" appeared in editor
+    * Submit "ethernet" in editor
+    Then "Type 'help' or '\?' for available commands\." appeared in editor
+    Then "Type 'print' to show all the connection properties\." appeared in editor
+    Then "Type 'describe \[<setting>\.<prop>\]' for detailed property description." appeared in editor
+    * Submit "print" in editor
+    Then "connection.id:" appeared in editor
+    * Quit editor

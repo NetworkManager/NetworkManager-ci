@@ -1162,6 +1162,8 @@ testmapper:
         feature: general
     - captive_portal_detection:
         feature: general
+    - editor_print_info:
+        feature: general
     - openvswitch_interface_recognized:
         feature: ovs
     - openvswitch_ignore_ovs_network_setup:
