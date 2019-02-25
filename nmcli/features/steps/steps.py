@@ -1708,11 +1708,13 @@ def restart_NM(context):
     command_code(context, "service NetworkManager restart") == 0
     # For stability reasons 1 is not enough, please do not lower this
     sleep(2)
-
+@step(u'Kill NM with signal "{signal}"')
 @step(u'Kill NM')
-def stop_NM(context):
+def stop_NM(context, signal=""):
     context.nm_restarted = True
-    call("kill $(pidof NetworkManager) && sleep 5", shell=True)
+    if signal:
+        signal = "-" + signal
+    call("kill %s $(pidof NetworkManager) && sleep 5" % (signal), shell=True)
 
 @step(u'Stop NM')
 def stop_NM(context):
