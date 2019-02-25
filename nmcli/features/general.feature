@@ -1577,7 +1577,7 @@ Feature: nmcli - general
 
 
     @rhbz1458399
-    @ver+=1.8.0
+    @ver+=1.12.0
     @connectivity @con_general_remove @eth0
     @connectivity_check
     Scenario: NM - general - connectivity check
@@ -1585,14 +1585,15 @@ Feature: nmcli - general
     * Bring up connection "con_general"
     When "activated" is visible with command "nmcli -g GENERAL.STATE con show con_general" in "20" seconds
      And "full" is visible with command "nmcli  -g CONNECTIVITY g" in "70" seconds
-     * Append "1.2.3.4 static.redhat.com" to file "/etc/hosts"
+    * Append "1.2.3.4 static.redhat.com" to file "/etc/hosts"
+    * Append "1::1 static.redhat.com" to file "/etc/hosts"
     When "limited" is visible with command "nmcli  -g CONNECTIVITY g" in "100" seconds
      * Reset /etc/hosts
-    Then "full" is visible with command "nmcli  -g CONNECTIVITY g" in "70" seconds
+    Then "full" is visible with command "nmcli  -g CONNECTIVITY g" in "100" seconds
 
 
     @rhbz1458399
-    @ver+=1.8.0
+    @ver+=1.12.0
     @connectivity @con_general_remove @delete_testeth0 @restart
     @disable_connectivity_check
     Scenario: NM - general - disable connectivity check
@@ -1603,11 +1604,12 @@ Feature: nmcli - general
     When "activated" is visible with command "nmcli -g GENERAL.STATE con show con_general" in "20" seconds
      And "full" is visible with command "nmcli  -g CONNECTIVITY g"
     * Append "1.2.3.4 static.redhat.com" to file "/etc/hosts"
-    Then "full" is visible with command "nmcli  -g CONNECTIVITY g" for full "70" seconds
+    * Append "1::1 static.redhat.com" to file "/etc/hosts"
+    Then "full" is visible with command "nmcli  -g CONNECTIVITY g" for full "100" seconds
 
 
     @rhbz1394345
-    @ver+=1.8.0
+    @ver+=1.12.0
     @con_general_remove @connectivity @eth0
     @per_device_connectivity_check
     Scenario: NM - general - per device connectivity check
@@ -1625,7 +1627,7 @@ Feature: nmcli - general
 
 
     @rhbz1534477
-    @ver+=1.10
+    @ver+=1.12
     @connectivity @con_general_remove @delete_testeth0 @restart @long
     @manipulate_connectivity_check_via_dbus
     Scenario: dbus - general - connectivity check manipulation
@@ -1637,6 +1639,7 @@ Feature: nmcli - general
     * Execute "busctl set-property org.freedesktop.NetworkManager /org/freedesktop/NetworkManager org.freedesktop.NetworkManager ConnectivityCheckEnabled 'b' 0"
     #* Execute "sleep 1 && firewall-cmd --panic-on"
     * Append "1.2.3.4 static.redhat.com" to file "/etc/hosts"
+    * Append "1::1 static.redhat.com" to file "/etc/hosts"
     When "false" is visible with command "busctl get-property org.freedesktop.NetworkManager /org/freedesktop/NetworkManager org.freedesktop.NetworkManager ConnectivityCheckEnabled"
      And "full" is visible with command "nmcli  -g CONNECTIVITY g" for full "70" seconds
     # VVV Turn on connectivity check
