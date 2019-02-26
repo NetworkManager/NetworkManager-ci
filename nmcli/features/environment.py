@@ -413,7 +413,8 @@ def before_scenario(context, scenario):
             call("echo '[connectivity]' > /etc/NetworkManager/conf.d/99-connectivity.conf", shell=True)
             call("echo 'uri=http://static.redhat.com/test/rhel-networkmanager.txt' >> /etc/NetworkManager/conf.d/99-connectivity.conf", shell=True)
             call("echo 'response=OK' >> /etc/NetworkManager/conf.d/99-connectivity.conf", shell=True)
-            call("echo 'interval=60' >> /etc/NetworkManager/conf.d/99-connectivity.conf", shell=True)
+            # Change in interval  would affect connectivity tests and captive portal tests too
+            call("echo 'interval=30' >> /etc/NetworkManager/conf.d/99-connectivity.conf", shell=True)
             reload_NM_service()
 
         if 'shutdown_service_any' in scenario.tags or 'bridge_manipulation_with_1000_slaves' in scenario.tags:

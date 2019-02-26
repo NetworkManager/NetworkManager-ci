@@ -1991,13 +1991,13 @@ Feature: nmcli - general
     @captive_portal @connectivity
     @captive_portal_detection
     Scenario: NM - general - portal is detected by NM
-    Given "full" is visible with command "nmcli -f CONNECTIVITY general" in "5" seconds
+    Given "full" is visible with command "nmcli -f CONNECTIVITY general" in "20" seconds
     * Execute "echo NOK > /tmp/python_http/test/rhel-networkmanager.txt"
-    Then "portal" is visible with command "nmcli -f CONNECTIVITY general" in "15" seconds
+    Then "portal" is visible with command "nmcli -f CONNECTIVITY general" in "30" seconds
     * Execute "echo -n OK > /tmp/python_http/test/rhel-networkmanager.txt"
-    Then "full" is visible with command "nmcli -f CONNECTIVITY general" in "15" seconds
+    Then "full" is visible with command "nmcli -f CONNECTIVITY general" in "30" seconds
     * Execute "rm -f /tmp/python_http/test/rhel-networkmanager.txt"
-    Then "portal" is visible with command "nmcli -f CONNECTIVITY general" in "15" seconds
+    Then "portal" is visible with command "nmcli -f CONNECTIVITY general" in "40" seconds
 
 
     @rhbz1588995
