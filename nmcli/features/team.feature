@@ -1211,17 +1211,15 @@
 
     @rhbz1551958
     @ver+=1.10
-    @team_slaves @team @restart
+    @team_slaves @team @restart @eth0
     @restart_L2_only_lacp
     Scenario: nmcli - team - reboot L2 lacp
     * Add a new connection of type "team" and options "con-name team0 ifname nm-team config '{"runner": {"name": "lacp"}, "link_watch": {"name": "ethtool"}}' ipv4.method disable ipv6.method ignore"
-    * Add slave connection for master "nm-team" on device "eth5" named "team-slave-eth5"
-    * Add slave connection for master "nm-team" on device "eth6" named "team-slave-eth6"
-    When Check slave "eth5" in team "nm-team" is "up"
-    And Check slave "eth6" in team "nm-team" is "up"
+    * Add slave connection for master "nm-team" on device "eth0" named "team-slave-eth5"
+    * Bring "up" connection "team-slave-eth5"
+    And Check slave "eth0" in team "nm-team" is "up"
     * Restart NM
     Then "\"kernel_team_mode_name\": \"loadbalance\"" is visible with command "sudo teamdctl nm-team state dump"
      And "\"runner_name\": \"lacp\"" is visible with command "sudo teamdctl nm-team state dump"
-     And Check slave "eth5" in team "nm-team" is "up"
-     And Check slave "eth6" in team "nm-team" is "up"
+     And Check slave "eth0" in team "nm-team" is "up"
      And "1" is visible with command "nmcli device |grep team0 |wc -l"
