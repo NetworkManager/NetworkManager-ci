@@ -1166,6 +1166,8 @@ testmapper:
         feature: general
     - nmcli_novice_print_types:
         feature: general
+    - nmcli_modify_altsubject-matches:
+        feature: general
     - openvswitch_interface_recognized:
         feature: ovs
     - openvswitch_ignore_ovs_network_setup:
