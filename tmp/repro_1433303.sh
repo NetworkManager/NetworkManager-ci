@@ -9,5 +9,3 @@ for i in $(seq 1 750); do
         sleep 0.01
         ip l del veth$i
 done
-
-sleep 5

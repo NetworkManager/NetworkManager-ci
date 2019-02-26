@@ -1476,10 +1476,9 @@ Feature: nmcli - general
     @stable_mem_consumption
     Scenario: NM - general - stable mem consumption
     * Execute "sh tmp/repro_1433303.sh"
-    * Execute "sh tmp/repro_1433303.sh"
-    * Execute "sh tmp/repro_1433303.sh"
+    * Execute "sh tmp/repro_1433303.sh && sleep 10"
     * Note the output of "pmap -x $(pidof NetworkManager) |grep 'total' | awk '{print $4}'" as value "1"
-    * Execute "sh tmp/repro_1433303.sh"
+    * Execute "sh tmp/repro_1433303.sh && sleep 10"
     * Note the output of "pmap -x $(pidof NetworkManager) |grep 'total' | awk '{print $4}'" as value "2"
     # * Execute "sh tmp/repro_1433303.sh"
     # * Note the output of "pmap -x $(pidof NetworkManager) |grep 'total' | awk '{print $4}'" as value "3"
@@ -1497,10 +1496,9 @@ Feature: nmcli - general
     @stable_mem_consumption2
     Scenario: NM - general - stable mem consumption - var 2
     * Execute "sh tmp/repro_1461643.sh"
-    * Execute "sh tmp/repro_1461643.sh"
-    * Execute "sh tmp/repro_1461643.sh"
+    * Execute "sh tmp/repro_1461643.sh && sleep 10"
     * Note the output of "pmap -x $(pidof NetworkManager) |grep 'total' | awk '{print $4}'" as value "1"
-    * Execute "sh tmp/repro_1461643.sh"
+    * Execute "sh tmp/repro_1461643.sh && sleep 10"
     * Note the output of "pmap -x $(pidof NetworkManager) |grep 'total' | awk '{print $4}'" as value "2"
     # * Execute "sh tmp/repro_1461643.sh"
     # * Note the output of "pmap -x $(pidof NetworkManager) |grep 'total' | awk '{print $4}'" as value "3"

@@ -624,6 +624,7 @@ def before_scenario(context, scenario):
             call("echo '[logging]' > %s" %log,  shell=True)
             call("echo 'level=INFO' >> %s" %log, shell=True)
             call("echo 'domains=ALL' >> %s" %log, shell=True)
+            sleep(0.5)
             call('sudo systemctl restart NetworkManager.service', shell=True)
             context.nm_restarted = True
             sleep(1)
