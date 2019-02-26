@@ -2023,3 +2023,19 @@ Feature: nmcli - general
     * Expect "Connection type"
     * Submit "<double_tab>"
     Then Expect "adsl.*bluetooth.*bond.*bridge"
+
+
+    @rhbz1671200
+    @ver+=1.14
+    @con_general_remove
+    @nmcli_modify_altsubject-matches
+    Scenario: nmcli - general - modification of 802-1x.altsubject-matches sometimes leads to nmcli SIGSEGV
+    * Add a new connection of type "ethernet" and options "ifname \* con-name con_general autoconnect no 802-1x.eap peap 802-1x.identity aaa 802-1x.phase2-auth mschap"
+    Then Finish "nmcli con mod con_general 802-1x.altsubject-matches '/something/very/long/should/be/there/at/least/fortyfour/characters' "
+     And Finish "nmcli con mod con_general 802-1x.altsubject-matches '/something/very/long/should/be/there/at/least/fortyfour/characters' "
+     And Finish "nmcli con mod con_general 802-1x.altsubject-matches '/something/very/long/should/be/there/at/least/fortyfour/characters' "
+     And Finish "nmcli con mod con_general 802-1x.altsubject-matches '/something/very/long/should/be/there/at/least/fortyfour/characters' "
+     And Finish "nmcli con mod con_general 802-1x.altsubject-matches '/something/very/long/should/be/there/at/least/fortyfour/characters' "
+     And Finish "nmcli con mod con_general 802-1x.altsubject-matches '/something/very/long/should/be/there/at/least/fortyfour/characters' "
+     And Finish "nmcli con mod con_general 802-1x.altsubject-matches '/something/very/long/should/be/there/at/least/fortyfour/characters' "
+     And Finish "nmcli con mod con_general 802-1x.altsubject-matches '/something/very/long/should/be/there/at/least/fortyfour/characters' "
