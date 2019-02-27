@@ -1579,6 +1579,7 @@ Feature: nmcli - general
 
     @rhbz1458399
     @ver+=1.12.0
+    @not_in_rhel8
     @connectivity @con_general_remove @eth0
     @connectivity_check
     Scenario: NM - general - connectivity check
@@ -1595,6 +1596,7 @@ Feature: nmcli - general
 
     @rhbz1458399
     @ver+=1.12.0
+    @not_in_rhel8
     @connectivity @con_general_remove @delete_testeth0 @restart
     @disable_connectivity_check
     Scenario: NM - general - disable connectivity check
@@ -1611,6 +1613,7 @@ Feature: nmcli - general
 
     @rhbz1394345
     @ver+=1.12.0
+    @not_in_rhel8
     @con_general_remove @connectivity @eth0
     @per_device_connectivity_check
     Scenario: NM - general - per device connectivity check
@@ -1618,17 +1621,18 @@ Feature: nmcli - general
     * Add a new connection of type "ethernet" and options "ifname eth0 con-name con_general ipv4.route-metric 1024 ipv6.method ignore"
     * Bring up connection "con_general"
     When "activated" is visible with command "nmcli -g GENERAL.STATE con show con_general" in "20" seconds
-    When "full" is visible with command "nmcli  -g CONNECTIVITY g" in "70" seconds
+    When "full" is visible with command "nmcli  -g CONNECTIVITY g" in "100" seconds
     # Device w/o connectivity but with high priority
-    * Add a new connection of type "ethernet" and options "ifname eth8 con-name con_general2 autoconnect no ipv4.method manual ipv4.addresses 1.2.3.4/24 ipv4.gateway 1.2.3.1 ipv4.route-metric 100 ipv6.method ignore"
+    * Add a new connection of type "ethernet" and options "ifname eth8 con-name con_general2 autoconnect no ipv4.method manual ipv4.addresses 192.168.244.4/24 ipv4.gateway 192.168.244.1 ipv4.route-metric 100 ipv6.method ignore"
     * Bring up connection "con_general2"
     # Connection should stay at the lower priority device
-    Then "full" is visible with command "nmcli  -g CONNECTIVITY g" in "70" seconds
+    Then "full" is visible with command "nmcli  -g CONNECTIVITY g" in "100" seconds
      And Ping "boston.com"
 
 
     @rhbz1534477
     @ver+=1.12
+    @not_in_rhel8
     @connectivity @con_general_remove @delete_testeth0 @restart @long
     @manipulate_connectivity_check_via_dbus
     Scenario: dbus - general - connectivity check manipulation
