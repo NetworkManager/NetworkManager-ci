@@ -737,7 +737,7 @@
      * Save in editor
      * Quit editor
      * Bring "up" connection "testeth10"
-    When "default via " is visible with command "ip -6 route |grep eth10" in "10" seconds
+    When "default via " is visible with command "ip -6 route |grep eth10" in "20" seconds
      * Bring "up" connection "con_ipv6"
     When "default via " is not visible with command "ip -6 route |grep eth10" in "10" seconds
     Then "default via " is not visible with command "ip -6 route |grep eth10" for full "5" seconds
