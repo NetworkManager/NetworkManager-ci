@@ -793,13 +793,14 @@
     * Quit editor
     * Bring "up" connection "con_ipv6"
     * Bring "down" connection "con_ipv6"
-    * Finish "sleep 2"
-    * Run child "sudo tshark -i eth2 -f 'port 546' -V -x > /tmp/tshark.log"
     * Open editor for connection "con_ipv6"
     * Submit "set ipv6.dhcp-hostname" in editor
     * Enter in editor
     * Save in editor
     * Quit editor
+    * Bring "up" connection "con_ipv6"
+    * Bring "down" connection "con_ipv6"
+    * Run child "sudo tshark -i eth2 -f 'port 546' -V -x > /tmp/tshark.log"
     * Bring "up" connection "con_ipv6"
     When "empty" is not visible with command "file /tmp/tshark.log" in "150" seconds
     * Finish "sleep 5"
