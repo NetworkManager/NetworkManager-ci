@@ -1480,7 +1480,7 @@
 
 
      @rhbz1371126
-     @ver+=1.8.0
+     @ver-=1.13
      @slaves @bond @teardown_testveth @restart
      @bond_leave_L2_only_up_when_going_down
      Scenario: nmcli - bond - leave UP with L2 only config
@@ -1499,6 +1499,28 @@
       Then "nm-bond:bond:connected:bond0" is visible with command "nmcli -t -f DEVICE,TYPE,STATE,CONNECTION device" in "40" seconds
        And "state UP" is visible with command "ip -6 a s nm-bond"
        And "inet6 fe80" is visible with command "ip -6 a s nm-bond"
+
+
+    @rhbz1593282
+    @ver+=1.14.0
+    @slaves @bond @teardown_testveth @restart
+    @bond_leave_L2_only_up_when_going_down
+    Scenario: nmcli - bond - leave UP with L2 only config
+    * Prepare simulated test "testXB" device
+    * Add a new connection of type "bond" and options "con-name bond0 ifname nm-bond autoconnect no ipv4.method disabled ipv6.method ignore"
+    * Add a new connection of type "ethernet" and options "con-name bond0.0 ifname testXB autoconnect no connection.master nm-bond connection.slave-type bond"
+    * Bring "up" connection "bond0.0"
+    When "nm-bond:bond:connected:bond0" is visible with command "nmcli -t -f DEVICE,TYPE,STATE,CONNECTION device" in "40" seconds
+     And "state UP" is visible with command "ip -6 a s nm-bond"
+     And "inet6 fe80" is visible with command "ip -6 a s nm-bond"
+    * Kill NM with signal "9"
+    * Restart NM
+    When "state UP" is visible with command "ip -6 a s nm-bond"
+     And "inet6 fe80" is visible with command "ip -6 a s nm-bond" for full "10" seconds
+    * Bring "up" connection "bond0.0"
+    Then "nm-bond:bond:connected:bond0" is visible with command "nmcli -t -f DEVICE,TYPE,STATE,CONNECTION device" in "40" seconds
+     And "state UP" is visible with command "ip -6 a s nm-bond"
+     And "inet6 fe80" is visible with command "ip -6 a s nm-bond"
 
 
     @rhbz1463077
