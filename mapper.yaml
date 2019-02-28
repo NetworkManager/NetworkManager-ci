@@ -1190,6 +1190,8 @@ testmapper:
         feature: ovs
     - NM_reboot_openvswitch_vlan_configuration:
         feature: ovs
+    - restart_NM_with_mixed_setup:
+        feature: ovs
     - dispatcher_preup_and_up:
         feature: dispatcher
     - dispatcher_predown_and_down:
