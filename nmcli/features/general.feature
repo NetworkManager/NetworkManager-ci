@@ -1700,7 +1700,7 @@ Feature: nmcli - general
     * Execute "sleep 0.5 && ip link set testG down"
     * Execute "sleep 8"
     * Execute "ip link set testG up"
-    When "activated" is visible with command "nmcli -g GENERAL.STATE con show con_general" in "10" seconds
+    When "activated" is visible with command "nmcli -g GENERAL.STATE con show con_general" in "30" seconds
 
 
     @rhbz1541031

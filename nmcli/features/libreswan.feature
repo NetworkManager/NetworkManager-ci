@@ -216,7 +216,7 @@
     * Submit "set vpn.user-name incorrectuser"
     * Save in editor
     * Quit editor
-    Then "leftxauthusername=desktopqe" is visible with command "cat /etc/NetworkManager/system-connections/vpn"
+    Then "leftxauthusername=desktopqe" is visible with command "cat /etc/NetworkManager/system-connections/vpn" in "5" seconds
     Then "user-name=incorrectuser" is visible with command "cat /etc/NetworkManager/system-connections/vpn"
 
     @rhbz1060460
@@ -232,7 +232,7 @@
     * Submit "set vpn.user-name incorrectuser"
     * Save in editor
     * Quit editor
-    Then "leftxauthusername=desktopqe" is visible with command "cat /etc/NetworkManager/system-connections/vpn.nmconnection"
+    Then "leftxauthusername=desktopqe" is visible with command "cat /etc/NetworkManager/system-connections/vpn.nmconnection" in "5" seconds
     Then "user-name=incorrectuser" is visible with command "cat /etc/NetworkManager/system-connections/vpn.nmconnection"
 
 

@@ -1069,8 +1069,9 @@ Feature: nmcli: ipv4
     * Enter in editor
     * Save in editor
     * Quit editor
-    * Run child "sudo tshark -l -O bootp -i eth2 > /tmp/tshark.log"
     * Bring "up" connection "con_ipv4"
+    * Bring "down" connection "con_ipv4"
+    * Run child "sudo tshark -l -O bootp -i eth2 > /tmp/tshark.log"
     When "empty" is not visible with command "file /tmp/tshark.log" in "150" seconds
     * Bring "up" connection "con_ipv4"
      Then "foo.bar.com" is not visible with command "grep fqdn /var/lib/NetworkManager/dhclient-eth2.conf" in "10" seconds
