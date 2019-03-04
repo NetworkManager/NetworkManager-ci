@@ -9,7 +9,7 @@ import subprocess
 from subprocess import Popen, check_output, call
 from glob import glob
 
-from steps import run, command_output, command_code
+from steps import command_output, command_code, additional_sleep
 
 
 
@@ -28,6 +28,10 @@ def reboot(context):
     command_code(context, "ip link del nm-team")
     command_code(context, "ip link del team7")
     command_code(context, "ip link del bridge7")
+    # for nmtui
+    command_code(context, "ip link del bond0")
+    command_code(context, "ip link del team0")
+
 
     command_code(context, "rm -rf /var/run/NetworkManager")
 

@@ -9,7 +9,7 @@ import subprocess
 from subprocess import Popen, check_output, call
 from glob import glob
 
-from steps import run, command_output, command_code
+from steps import command_output, command_code, additional_sleep
 
 
 
@@ -105,6 +105,12 @@ def wait_for_process(context, command):
     sleep(0.1)
 
 
+@step(u'Restore hostname from the noted value')
+def restore_hostname(context):
+    command_code('nmcli g hostname %s' % context.noted_value)
+    sleep(0.5)
+
+
 @step(u'Hostname is visible in log "{log}"')
 @step(u'Hostname is visible in log "{log}" in "{seconds}" seconds')
 def hostname_visible(context, log, seconds=1):
@@ -145,7 +151,7 @@ def note_the_output_as(context, command, index):
 
 @step(u'Note the output of "{command}"')
 def note_the_output_of(context, command):
-    context.noted_value = command_output(context, command)
+    context.noted_value = command_output(context, command).strip()
 
 
 @step(u'Noted value is visible with command "{command}"')

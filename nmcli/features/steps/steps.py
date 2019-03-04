@@ -33,3 +33,7 @@ def command_output(context, command, *a, **kw):
 def command_code(context, command, *a, **kw):
     _, code, _ = run(context, command, *a, **kw)
     return code
+
+# may be usefull in another project (nmtui)
+def additional_sleep(time):
+    pass

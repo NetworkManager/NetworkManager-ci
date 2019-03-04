@@ -9,7 +9,7 @@ import subprocess
 from subprocess import Popen, check_output, call
 from glob import glob
 
-from steps import run, command_output, command_code
+from steps import command_output, command_code, additional_sleep
 
 
 

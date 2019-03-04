@@ -9,7 +9,7 @@ import subprocess
 from subprocess import Popen, check_output, call
 from glob import glob
 
-from steps import run, command_output, command_code
+from steps import command_output, command_code, additional_sleep
 
 
 
@@ -93,6 +93,7 @@ def check_ifcfg_exists(context):
 
 @step(u'Check ifcfg-name file created for connection "{con_name}"')
 def check_ifcfg_exists_given_device(context, con_name):
+    additional_sleep(1)
     cat = pexpect.spawn('cat /etc/sysconfig/network-scripts/ifcfg-%s' % con_name, logfile=context.log, encoding='utf-8')
     cat.expect('NAME=%s' % con_name)
 
