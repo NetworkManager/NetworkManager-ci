@@ -1621,11 +1621,12 @@
      @slaves @bond @tshark
      @bond_send_correct_arp
      Scenario: nmcli - bond - send correct arp
-     * Add a new connection of type "bond" and options "con-name bond0 ifname nm-bond autoconnect no ipv4.method manual ipv4.addresses 1.2.3.4/24,1.2.3.5/24,1.3.5.9/24"
+     * Add a new connection of type "bond" and options "con-name bond0 ifname nm-bond autoconnect no ipv4.method manual ipv4.addresses 2.3.4.5/24,192.168.100.123/24,1.1.1.1/24,1.2.3.4/24,1.2.3.5/24,1.3.5.9/24"
      * Add a new connection of type "ethernet" and options "con-name bond0.0 ifname eth1 master nm-bond autoconnect no"
      * Bring "up" connection "bond0"
      * Note MAC address output for device "nm-bond" via ip command
      * Run child "sudo tshark -l -O arp -i nm-bond -x -c 10 > /tmp/tshark.log"
+     * Execute "sleep 2"
      * Bring "up" connection "bond0.0"
      When "activated" is visible with command "nmcli c show bond0.0" in "10" seconds
      When "tshark" is not visible with command "ps aux" in "15" seconds
