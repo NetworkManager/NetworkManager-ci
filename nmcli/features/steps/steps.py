@@ -1270,7 +1270,6 @@ def check_pattern_visible_with_command_fortime(context, pattern, command, second
         seconds = seconds - 1
         sleep(1)
 
-
 @step(u'"{pattern}" is not visible with command "{command}" for full "{seconds}" seconds')
 def check_pattern_visible_with_command_fortime(context, pattern, command, seconds):
     seconds = int(seconds)
@@ -1285,8 +1284,11 @@ def check_pattern_visible_with_command_fortime(context, pattern, command, second
         sleep(1)
 
 
+@step(u'Noted value is not visible with command "{command}" in "{seconds}" seconds')
 @step('"{pattern}" is not visible with command "{command}" in "{seconds}" seconds')
-def check_pattern_not_visible_with_command_in_time(context, pattern, command, seconds):
+def check_pattern_not_visible_with_command_in_time(context, command, seconds, pattern=None):
+    if pattern is None:
+        pattern = context.noted_value
     seconds = int(seconds)
     orig_seconds = seconds
     while seconds > 0:

@@ -1614,3 +1614,19 @@
     * Bring "up" connection "bond0"
     Then "1" is visible with command "cat /sys/class/net/nm-bond/bonding/num_grat_arp"
      And "1" is visible with command "cat /sys/class/net/nm-bond/bonding/num_unsol_na"
+
+
+     @rhbz1678796
+     @ver+=1.12
+     @slaves @bond @tshark
+     @bond_send_correct_arp
+     Scenario: nmcli - bond - send correct arp
+     * Add a new connection of type "bond" and options "con-name bond0 ifname nm-bond autoconnect no ipv4.method manual ipv4.addresses 1.2.3.4/24,1.2.3.5/24,1.3.5.9/24"
+     * Add a new connection of type "ethernet" and options "con-name bond0.0 ifname eth1 master nm-bond autoconnect no"
+     * Bring "up" connection "bond0"
+     * Note MAC address output for device "nm-bond" via ip command
+     * Run child "sudo tshark -l -O arp -i nm-bond -x -c 10 > /tmp/tshark.log"
+     * Bring "up" connection "bond0.0"
+     When "activated" is visible with command "nmcli c show bond0.0" in "10" seconds
+     When "tshark" is not visible with command "ps aux" in "15" seconds
+     Then Noted value is not visible with command "cat /tmp/tshark.log" in "2" seconds
