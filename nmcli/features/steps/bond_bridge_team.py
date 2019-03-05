@@ -87,13 +87,13 @@ def check_bond_link_state(context, bond, state):
     ret = False
     if os.system('ls /proc/net/bonding/%s' %bond) != 0 and state == "down":
         return
-    i = 4
+    i = 40
     while i > 0:
         child = pexpect.spawn('cat /proc/net/bonding/%s' % (bond), encoding='utf-8')
         if child.expect(["MII Status: %s" %  state, pexpect.EOF]) == 0:
             return
         else:
-            sleep(1)
+            sleep(0.2)
             i-=1
     assert child.expect(["MII Status: %s" %  state, pexpect.EOF]) == 0, "%s is not in %s link state" % (bond, state)
 
