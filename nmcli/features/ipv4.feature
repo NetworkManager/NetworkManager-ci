@@ -404,7 +404,7 @@ Feature: nmcli: ipv4
     @con_ipv4_remove @flush_300
     @ipv4_route_set_route_with_tables
     Scenario: nmcli - ipv4 - routes - set route with tables
-    * Add a new connection of type "ethernet" and options "ifname eth3 con-name con_ipv4 ipv4.route-table 300"
+    * Add a new connection of type "ethernet" and options "ifname eth3 con-name con_ipv4 ipv4.may-fail no ipv4.route-table 300"
     When "connected" is visible with command "nmcli -g state,device device |grep eth3$" in "20" seconds
     # This is cripppled in kernel VVV 1535977
     # Then "default" is visible with command "ip r show table 300"
@@ -425,7 +425,7 @@ Feature: nmcli: ipv4
     @con_ipv4_remove @flush_300
     @ipv4_route_set_route_with_tables_reapply
     Scenario: nmcli - ipv4 - routes - set route with tables reapply
-    * Add a new connection of type "ethernet" and options "ifname eth3 con-name con_ipv4"
+    * Add a new connection of type "ethernet" and options "ifname eth3 con-name con_ipv4 ipv4.may-fail no"
     When "connected" is visible with command "nmcli -g state,device device |grep eth3$" in "20" seconds
     # This is cripppled in kernel VVV 1535977
     # Then "default" is visible with command "ip r show table 300"
@@ -444,7 +444,7 @@ Feature: nmcli: ipv4
     @con_ipv4_remove
     @ipv4_restore_default_route_externally
     Scenario: nmcli - ipv4 - routes - restore externally
-    * Add a new connection of type "ethernet" and options "ifname eth3 con-name con_ipv4"
+    * Add a new connection of type "ethernet" and options "ifname eth3 con-name con_ipv4 ipv4.may-fail no"
     When "connected" is visible with command "nmcli -g state,device device |grep eth3$" in "20" seconds
      And "default" is visible with command "ip r |grep eth3"
     * Execute "ip route delete default dev eth3"

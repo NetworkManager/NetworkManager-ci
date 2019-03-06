@@ -216,7 +216,7 @@ Feature: nmcli - general
      @con_general_remove @restart @shutdown
      @shutdown_service_connected
      Scenario: NM - general - shutdown service - connected
-     * Add a new connection of type "ethernet" and options "ifname eth8 con-name con_general autoconnect no"
+     * Add a new connection of type "ethernet" and options "ifname eth8 con-name con_general autoconnect no ipv4.may-fail no "
      * Bring "up" connection "con_general"
      * "default via 192.168.100.1 dev eth8" is visible with command "ip r"
      * "inet 192.168.100" is visible with command "ip a s eth8" in "5" seconds
