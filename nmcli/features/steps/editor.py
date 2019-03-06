@@ -199,7 +199,8 @@ def prompt_is_not_running(context):
 @step(u'Quit editor')
 def quit_editor(context):
     context.prompt.sendline('quit')
-    sleep(0.1)
+    # VVV We shouldn't go lower here
+    sleep(0.3)
 
 
 @step(u'Save in editor')
