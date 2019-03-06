@@ -75,6 +75,7 @@ def before_scenario(context, scenario):
         fd.write('Screen recordings after each step:' + '\n----------------------------------\n')
         fd.flush()
         fd.close()
+        context.log = None
         if 'newveth' in scenario.tags:
             if os.path.isfile('/tmp/nm_newveth_configured'):
                 if os.path.isfile('/tmp/tui-screen.log'):
