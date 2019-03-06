@@ -1067,6 +1067,12 @@ def after_scenario(context, scenario):
                 if not os.path.isfile('/tmp/nm_dcb_inf_wol_sriov_configured'):
                     wait_for_testeth0()
 
+        if 'networking_on' in scenario.tags:
+            print ("---------------------------")
+            print ("enabling NM networking")
+            call("nmcli networking off", shell=True)
+            wait_for_testeth0()
+
         if 'restore_hostname' in scenario.tags:
             print ("---------------------------")
             print ("restoring original hostname")

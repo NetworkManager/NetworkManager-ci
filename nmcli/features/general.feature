@@ -242,6 +242,7 @@ Feature: nmcli - general
       Then "CAP_SYS_ADMIN" is visible with command "grep ^CapabilityBoundingSet /usr/lib/systemd/system/NetworkManager.service"
 
 
+    @networking_on
     @general_networking_on_off
     Scenario: nmcli - general - networking
     * Note the output of "nmcli -t -f NETWORKING general" as value "1"
@@ -254,6 +255,7 @@ Feature: nmcli - general
     Then Execute "nmcli networking on"
 
 
+    @networking_on
     @general_networking_enabled
     Scenario: nmcli - networking - status - enabled
     * Note the output of "nmcli networking" as value "1"
@@ -261,6 +263,7 @@ Feature: nmcli - general
     Then Check noted values "1" and "2" are the same
 
 
+    @networking_on
     @general_networking_disabled
     Scenario: nmcli - networking - status - disabled
     * Note the output of "nmcli networking" as value "1"
@@ -273,7 +276,7 @@ Feature: nmcli - general
     Then Execute "nmcli networking on"
 
 
-    @veth
+    @networking_on
     @general_networking_off
     Scenario: nmcli - networking - turn off
     * "eth0:" is visible with command "ifconfig"
@@ -282,7 +285,7 @@ Feature: nmcli - general
     Then Execute "nmcli networking on"
 
 
-    @veth
+    @networking_on
     @general_networking_on
     Scenario: nmcli - networking - turn on
     * Execute "nmcli networking off"
@@ -1134,7 +1137,7 @@ Feature: nmcli - general
     # See that we can still 'see' an upped dhcp connection
     Then "testeth9" is visible with command "nmcli connection"
     # And it still has the DHCP originated gateway, ignoring the static general setting
-    Then "default via 192.168.100.1 dev eth9" is visible with command "ip route"
+    Then "default via 192.168.100.1 dev eth9" is visible with command "ip route" in "10" seconds
     # Check the other one also for the address
     Then "192.168." is visible with command "ip a s eth9"
     * Bring "up" connection "con_general"
