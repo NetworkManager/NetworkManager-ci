@@ -16,7 +16,7 @@ from steps import command_output, command_code, additional_sleep
 @step(u'Reboot')
 def reboot(context):
     context.nm_restarted = True
-    assert command_code(context, "sudo service NetworkManager stop") == 0
+    assert command_code(context, "sudo systemctl stop NetworkManager") == 0
     for x in range(1,11):
         command_code(context, "sudo ip link set dev eth%d down" %int(x))
         command_code(context, "sudo ip addr flush dev eth%d" %int(x))
@@ -36,7 +36,7 @@ def reboot(context):
     command_code(context, "rm -rf /var/run/NetworkManager")
 
     sleep(1)
-    assert command_code(context, "sudo service NetworkManager start") == 0
+    assert command_code(context, "sudo systemctl restart NetworkManager") == 0
     sleep(2)
 
 
@@ -49,7 +49,7 @@ def start_NM(context):
 @step(u'Restart NM')
 def restart_NM(context):
     context.nm_restarted = True
-    command_code(context, "service NetworkManager restart") == 0
+    command_code(context, "systemctl restart NetworkManager") == 0
     # For stability reasons 1 is not enough, please do not lower this
     sleep(2)
 

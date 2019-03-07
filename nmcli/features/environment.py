@@ -1243,7 +1243,7 @@ def after_scenario(context, scenario):
             print ("---------------------------")
             print ("stoppping firewall")
             call("sudo firewall-cmd --panic-off", shell=True)
-            call("sudo service firewalld stop", shell=True)
+            call("sudo systemctl stop firewalld", shell=True)
 
         if 'flush_300' in scenario.tags:
             print ("---------------------------")
@@ -1372,7 +1372,7 @@ def after_scenario(context, scenario):
         if 'dhcpd' in scenario.tags:
             print ("---------------------------")
             print ("deleting veth devices")
-            call("sudo service dhcpd stop", shell=True)
+            call("sudo systemctl stop dhcpd", shell=True)
 
         if 'mtu' in scenario.tags:
             print ("---------------------------")
@@ -1707,9 +1707,6 @@ def after_scenario(context, scenario):
                 call('sudo nmcli con del wifi-wlan0', shell=True)
 
         if 'nmcli_wifi_ap' in scenario.tags:
-            # workaround for bug 1267327, should be removed when fixed
-            # call("sudo service NetworkManager restart", shell=True)
-            # sleep(5)
             call("sudo nmcli device wifi rescan", shell=True)
             sleep(10)
 
