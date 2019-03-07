@@ -1070,7 +1070,7 @@ def after_scenario(context, scenario):
         if 'networking_on' in scenario.tags:
             print ("---------------------------")
             print ("enabling NM networking")
-            call("nmcli networking off", shell=True)
+            call("nmcli networking on", shell=True)
             wait_for_testeth0()
 
         if 'restore_hostname' in scenario.tags:
