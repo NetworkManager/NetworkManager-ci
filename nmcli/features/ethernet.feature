@@ -43,7 +43,7 @@ Feature: nmcli - ethernet
     @ethernet
     @ethernet_connection_up
     Scenario: nmcli - ethernet - up
-    * Add a new connection of type "ethernet" and options "ifname eth1 con-name ethernet autoconnect no"
+    * Add a new connection of type "ethernet" and options "ifname eth1 con-name ethernet autoconnect no ipv4.may-fail no"
     * Check ifcfg-name file created for connection "ethernet"
     * "inet 192." is not visible with command "ifconfig eth1"
     * Bring up connection "ethernet"
@@ -53,7 +53,7 @@ Feature: nmcli - ethernet
     @ethernet
     @ethernet_disconnect_device
     Scenario: nmcli - ethernet - disconnect device
-    * Add a new connection of type "ethernet" and options "ifname eth1 con-name ethernet autoconnect yes"
+    * Add a new connection of type "ethernet" and options "ifname eth1 con-name ethernet autoconnect yes ipv4.may-fail no"
     * Check ifcfg-name file created for connection "ethernet"
     * Bring up connection "ethernet"
     * "inet 192." is visible with command "ifconfig eth1"
