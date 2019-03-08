@@ -206,3 +206,17 @@ Feature: nmcli: inf
     * Bring "up" connection "inf"
     * Execute "sleep 2;pkill journalctl"
     Then "taking down device.*inf_ib0/mode' to 'datagram'" is visible with command "egrep "taking|datagram" /tmp/journal.txt"
+
+
+    @rhbz1658057
+    @not_in_rhel7
+    @internal_DHCP @tcpdump @inf
+    @inf_send_correct_client_id
+    Scenario: NM - inf - internal - send client id
+    * Add connection type "infiniband" named "inf" for device "inf_ib0"
+    * Add infiniband port named "inf.8002" for device "inf_ib0.8002" with parent "inf_ib0" and p-key "0x8002"
+    * Bring "down" connection "inf.8002"
+    * Bring "up" connection "inf.8002"
+    * Run child "sudo tcpdump -i inf_ib0.8002 -v -n > /tmp/tcpdump.log"
+    * Note MAC address output for device "inf_ib0.8002" via ip command
+    Then Noted value is visible with command "grep 'Option 61' /tmp/tcpdump.log" in "10" seconds

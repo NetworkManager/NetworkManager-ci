@@ -212,7 +212,7 @@ testmapper:
     - bond_set_num_grat_arp_unsol_na:
         feature: bond
     - bond_send_correct_arp:
-        feature: bond    
+        feature: bond
     - bridge_add_default:
         feature: bridge
     - bridge_add_custom_one:
@@ -2351,7 +2351,8 @@ testmapper:
         feature: infiniband
     - inf_down_before_mode_change:
         feature: infiniband
-
+    - inf_send_correct_client_id:
+        feature: infiniband
 
   NetworkManager-dcb:
     - nmcli_ethernet_wol_from_file_to_default:

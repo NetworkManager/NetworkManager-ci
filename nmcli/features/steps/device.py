@@ -227,7 +227,21 @@ def note_mac_address(context, device):
 @step(u'Note MAC address output for device "{device}" via ip command as "{index}"')
 @step(u'Note MAC address output for device "{device}" via ip command')
 def note_mac_address_ip(context, device, index=None):
-    mac = command_output(context, "ip link show %s | grep 'link/ether' | awk '{print $2}'" % device).strip()
+    if call("ip a s %s |grep -q ether" %device, shell=True) == 0:
+        mac = command_output(context, "ip link show %s | grep 'link/ether' | awk '{print $2}'" % device).strip()
+    if call("ip a s %s |grep -q infiniband" %device, shell=True) == 0:
+        ip_out = command_output(context, "ip link show %s | grep 'link/inf' | awk '{print $2}'" % device).strip()
+        mac = ip_out.split()[-1]
+        client_id = ""
+        mac_split = mac.split(":")[-8:]
+        for i in mac_split:
+            if i == mac_split[-1]:
+                client_id+=i
+            else:
+                client_id+=i+":"
+
+        mac = client_id
+
     if index:
         if not hasattr(context, 'noted'):
             context.noted = {}
