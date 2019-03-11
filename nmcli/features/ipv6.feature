@@ -28,7 +28,7 @@
      * Save in editor
      * Quit editor
      * Bring "up" connection "con_ipv6"
-    Then "2607:f0d0:1002:51::4/64" is visible with command "ip a s eth3" in "5" seconds
+    Then "2607:f0d0:1002:51::4/64" is visible with command "ip a s eth3" in "45" seconds
     Then "1050::5:600:300c:326b/128" is visible with command "ip a s eth3"
 
 
@@ -42,7 +42,7 @@
      * Save in editor
      * Quit editor
      * Bring "up" connection "con_ipv6"
-    Then "2607:f0d0:1002:51::4/128" is visible with command "ip a s eth3" in "5" seconds
+    Then "2607:f0d0:1002:51::4/128" is visible with command "ip a s eth3" in "45" seconds
     Then "1050::5:600:300c:326b/128" is visible with command "ip a s eth3"
 
 
@@ -56,7 +56,7 @@
      * Save in editor
      * Quit editor
      * Bring "up" connection "con_ipv6"
-    Then "2607:f0d0:1002:51::4/63" is visible with command "ip a s eth3" in "5" seconds
+    Then "2607:f0d0:1002:51::4/63" is visible with command "ip a s eth3" in "45" seconds
     Then "1050::5:600:300c:326b/121" is visible with command "ip a s eth3"
     # reproducer for 997759
     Then "IPV6_DEFAULTGW" is not visible with command "cat /etc/sysconfig/network-scripts/ifcfg-con_ipv6"
@@ -72,8 +72,8 @@
      * Save in editor
      * Quit editor
      * Bring "up" connection "con_ipv6"
-     Then "inet6 dead:beaf" is visible with command "ip a s eth10" in "5" seconds
-     Then "inet6 2620" is not visible with command "ip a s eth10" in "5" seconds
+     Then "inet6 dead:beaf" is visible with command "ip a s eth10" in "45" seconds
+     Then "inet6 2620" is not visible with command "ip a s eth10" in "45" seconds
 
 
     @con_ipv6_remove
@@ -86,8 +86,8 @@
      * Save in editor
      * Quit editor
      * Bring "up" connection "con_ipv6"
-     Then "inet6 dead:beaf" is visible with command "ip a s eth10" in "5" seconds
-     Then "inet6 2620" is visible with command "ip a s eth10" in "5" seconds
+     Then "inet6 dead:beaf" is visible with command "ip a s eth10" in "45" seconds
+     Then "inet6 2620" is visible with command "ip a s eth10" in "45" seconds
 
 
     @con_ipv6_remove @eth0
@@ -112,7 +112,7 @@
      * Save in editor
      * Quit editor
      * Bring "up" connection "con_ipv6"
-    Then "2607:f0d0:1002:51::4/64" is visible with command "ip a s eth3" in "5" seconds
+    Then "2607:f0d0:1002:51::4/64" is visible with command "ip a s eth3" in "45" seconds
     Then "default via 2607:f0d0:1002:51::1 dev eth3\s+proto static\s+metric" is visible with command "ip -6 route"
 
 
@@ -128,7 +128,7 @@
      * Save in editor
      * Quit editor
      * Bring "up" connection "con_ipv6"
-    Then "fc02::1:21/96" is visible with command "ip a s eth3" in "5" seconds
+    Then "fc02::1:21/96" is visible with command "ip a s eth3" in "45" seconds
     Then "fc01::1:5/68" is visible with command "ip a s eth3"
     Then "fb01::1:6/112" is visible with command "ip a s eth3"
     Then "default via fc01::1:1 dev eth3" is visible with command "ip -6 route"
@@ -155,7 +155,7 @@
      * Save in editor
      * Quit editor
      * Bring "up" connection "con_ipv6"
-    Then "fc01::1:5/68" is not visible with command "ip a s eth10" in "5" seconds
+    Then "fc01::1:5/68" is not visible with command "ip a s eth10" in "45" seconds
     Then "default via fc01::1:1 dev eth3" is not visible with command "ip -6 route"
     Then "2620:52:0:" is visible with command "ip a s eth10"
 
@@ -180,7 +180,7 @@
      * Quit editor
      * Bring "up" connection "con_ipv6"
      * Bring "up" connection "con_ipv62"
-    Then "1010::1 via 2000::1 dev eth3\s+proto static\s+metric 1" is visible with command "ip -6 route" in "5" seconds
+    Then "1010::1 via 2000::1 dev eth3\s+proto static\s+metric 1" is visible with command "ip -6 route" in "45" seconds
     Then "2000::/126 dev eth3\s+proto kernel\s+metric 256" is visible with command "ip -6 route"
     Then "2001::/126 dev eth2\s+proto kernel\s+metric 256" is visible with command "ip -6 route"
     Then "3030::1 via 2001::2 dev eth2\s+proto static\s+metric 1" is visible with command "ip -6 route"
@@ -207,7 +207,7 @@
      * Quit editor
      * Bring "up" connection "con_ipv6"
      * Bring "up" connection "con_ipv62"
-    Then "1010::1 via 2000::1 dev eth3\s+proto static\s+metric 1" is visible with command "ip -6 route" in "5" seconds
+    Then "1010::1 via 2000::1 dev eth3\s+proto static\s+metric 1" is visible with command "ip -6 route" in "45" seconds
     Then "2000::/126 dev eth3\s+proto kernel\s+metric 100" is visible with command "ip -6 route"
     Then "2001::/126 dev eth2\s+proto kernel\s+metric 101" is visible with command "ip -6 route"
     Then "3030::1 via 2001::2 dev eth2\s+proto static\s+metric 1" is visible with command "ip -6 route"
@@ -222,7 +222,7 @@
     * Add a new connection of type "ethernet" and options "ifname eth3 con-name con_ipv6 autoconnect no ipv6.method manual ipv6.addresses 2000::2/126 ipv6.route-metric 258"
     * Execute "nmcli con modify con_ipv6 ipv6.routes '1010::1/128 2000::1 1024 cwnd=15 lock-mtu=true mtu=1600'"
     * Bring "up" connection "con_ipv6"
-    Then "1010::1 via 2000::1 dev eth3\s+proto static\s+metric 1024\s+mtu lock 1600 cwnd 15" is visible with command "ip -6 route" in "5" seconds
+    Then "1010::1 via 2000::1 dev eth3\s+proto static\s+metric 1024\s+mtu lock 1600 cwnd 15" is visible with command "ip -6 route" in "45" seconds
     Then "2000::/126 dev eth3\s+proto kernel\s+metric 256" is visible with command "ip -6 route"
      And "default" is visible with command "ip r |grep eth0"
 
@@ -234,7 +234,7 @@
     * Add a new connection of type "ethernet" and options "ifname eth3 con-name con_ipv6 autoconnect no ipv6.method manual ipv6.addresses 2000::2/126 ipv6.route-metric 258"
     * Execute "nmcli con modify con_ipv6 ipv6.routes '1010::1/128 2000::1 1024 cwnd=15 lock-mtu=true mtu=1600'"
     * Bring "up" connection "con_ipv6"
-    Then "1010::1 via 2000::1 dev eth3\s+proto static\s+metric 1024\s+mtu lock 1600 cwnd 15" is visible with command "ip -6 route" in "5" seconds
+    Then "1010::1 via 2000::1 dev eth3\s+proto static\s+metric 1024\s+mtu lock 1600 cwnd 15" is visible with command "ip -6 route" in "45" seconds
     Then "2000::/126 dev eth3\s+proto kernel\s+metric 258" is visible with command "ip -6 route"
      And "default" is visible with command "ip r |grep eth0"
 
@@ -274,7 +274,7 @@
     Then "2000::2/126" is visible with command "ip a s eth3"
     Then "2001::1/126" is visible with command "ip a s eth2"
     Then "1010::1 via 2000::1 dev eth3\s+proto static\s+metric 1" is not visible with command "ip -6 route"
-    Then "2000::/126 dev eth3\s+proto kernel\s+metric 256" is visible with command "ip -6 route" in "5" seconds
+    Then "2000::/126 dev eth3\s+proto kernel\s+metric 256" is visible with command "ip -6 route" in "45" seconds
     Then "2001::/126 dev eth2\s+proto kernel\s+metric 256" is visible with command "ip -6 route"
     Then "3030::1 via 2001::2 dev eth2\s+proto static\s+metric 1" is not visible with command "ip -6 route"
 
@@ -315,7 +315,7 @@
     Then "2000::2/126" is visible with command "ip a s eth3"
     Then "2001::1/126" is visible with command "ip a s eth2"
     Then "1010::1 via 2000::1 dev eth3\s+proto static\s+metric 1" is not visible with command "ip -6 route"
-    Then "2000::/126 dev eth3\s+proto kernel\s+metric 102" is visible with command "ip -6 route" in "5" seconds
+    Then "2000::/126 dev eth3\s+proto kernel\s+metric 102" is visible with command "ip -6 route" in "45" seconds
     Then "2001::/126 dev eth2\s+proto kernel\s+metric 103" is visible with command "ip -6 route"
     Then "3030::1 via 2001::2 dev eth2\s+proto static\s+metric 1" is not visible with command "ip -6 route"
 
@@ -333,7 +333,7 @@
      * Save in editor
      * Quit editor
      * Bring "up" connection "con_ipv6"
-    Then "default via 4000::1 dev eth3\s+proto static\s+metric" is visible with command "ip -6 route" in "5" seconds
+    Then "default via 4000::1 dev eth3\s+proto static\s+metric" is visible with command "ip -6 route" in "45" seconds
     Then "3030::1 via 2001::2 dev eth3\s+proto static\s+metric 2" is visible with command "ip -6 route"
     Then "2001::/126 dev eth3\s+proto kernel\s+metric 256" is visible with command "ip -6 route"
     Then "1010::1 dev eth3\s+proto static\s+metric 3" is visible with command "ip -6 route"
@@ -352,7 +352,7 @@
      * Save in editor
      * Quit editor
      * Bring "up" connection "con_ipv6"
-    Then "default via 4000::1 dev eth3\s+proto static\s+metric" is visible with command "ip -6 route" in "5" seconds
+    Then "default via 4000::1 dev eth3\s+proto static\s+metric" is visible with command "ip -6 route" in "45" seconds
     Then "3030::1 via 2001::2 dev eth3\s+proto static\s+metric 2" is visible with command "ip -6 route"
     Then "2001::/126 dev eth3\s+proto kernel\s+metric 1" is visible with command "ip -6 route"
     Then "1010::1 dev eth3\s+proto static\s+metric 3" is visible with command "ip -6 route"
@@ -477,7 +477,7 @@
     Scenario: NM - ipv6 - block just routing RA
      * Add connection type "ethernet" named "con_ipv6" for device "eth10"
      * Bring "up" connection "con_ipv6"
-    Then "1" is visible with command "cat /proc/sys/net/ipv6/conf/eth10/accept_ra" in "5" seconds
+    Then "1" is visible with command "cat /proc/sys/net/ipv6/conf/eth10/accept_ra" in "45" seconds
     Then "0" is visible with command "cat /proc/sys/net/ipv6/conf/eth10/accept_ra_defrtr"
     Then "0" is visible with command "cat /proc/sys/net/ipv6/conf/eth10/accept_ra_rtr_pref"
     Then "0" is visible with command "cat /proc/sys/net/ipv6/conf/eth10/accept_ra_pinfo"
@@ -508,7 +508,7 @@
      * Save in editor
      * Quit editor
      * Bring "up" connection "con_ipv6"
-    Then "default via 4000::1 dev eth3\s+proto static\s+metric" is visible with command "ip -6 route" in "5" seconds
+    Then "default via 4000::1 dev eth3\s+proto static\s+metric" is visible with command "ip -6 route" in "45" seconds
     Then "2001::/126 dev eth3\s+proto kernel\s+metric 256" is visible with command "ip -6 route"
     Then "1010::1 dev eth3\s+proto static\s+metric" is visible with command "ip -6 route"
 
@@ -525,7 +525,7 @@
      * Save in editor
      * Quit editor
      * Bring "up" connection "con_ipv6"
-    Then "default via 4000::1 dev eth3\s+proto static\s+metric" is visible with command "ip -6 route" in "5" seconds
+    Then "default via 4000::1 dev eth3\s+proto static\s+metric" is visible with command "ip -6 route" in "45" seconds
     Then "2001::/126 dev eth3\s+proto kernel\s+metric 100" is visible with command "ip -6 route"
     Then "1010::1 dev eth3\s+proto static\s+metric" is visible with command "ip -6 route"
 
@@ -543,7 +543,7 @@
      * Save in editor
      * Quit editor
      * Bring "up" connection "con_ipv6"
-    Then "nameserver 4000::1" is visible with command "cat /etc/resolv.conf" in "5" seconds
+    Then "nameserver 4000::1" is visible with command "cat /etc/resolv.conf" in "45" seconds
     Then "nameserver 5000::1" is visible with command "cat /etc/resolv.conf"
     Then "nameserver 10." is visible with command "cat /etc/resolv.conf"
 
@@ -558,7 +558,7 @@
      * Save in editor
      * Quit editor
      * Bring "up" connection "con_ipv6"
-    Then "nameserver 4000::1" is visible with command "cat /etc/resolv.conf" in "5" seconds
+    Then "nameserver 4000::1" is visible with command "cat /etc/resolv.conf" in "45" seconds
     Then "nameserver 5000::1" is visible with command "cat /etc/resolv.conf"
     Then "nameserver 192.168.100.1" is visible with command "cat /etc/resolv.conf"
 
@@ -573,7 +573,7 @@
      * Save in editor
      * Quit editor
      * Bring "up" connection "con_ipv6"
-    Then "nameserver 4000::1" is visible with command "cat /etc/resolv.conf" in "5" seconds
+    Then "nameserver 4000::1" is visible with command "cat /etc/resolv.conf" in "45" seconds
     Then "nameserver 5000::1" is visible with command "cat /etc/resolv.conf"
 
 
@@ -594,7 +594,7 @@
      * Save in editor
      * Quit editor
      * Bring "up" connection "con_ipv6"
-    Then "nameserver 4000::1" is visible with command "cat /etc/resolv.conf" in "5" seconds
+    Then "nameserver 4000::1" is visible with command "cat /etc/resolv.conf" in "45" seconds
     Then "nameserver 5000::1" is visible with command "cat /etc/resolv.conf"
     Then "nameserver 2000::1" is visible with command "cat /etc/resolv.conf"
 
@@ -629,7 +629,7 @@
      * Save in editor
      * Quit editor
      * Bring "up" connection "con_ipv6"
-    Then "google.com" is visible with command "cat /etc/resolv.conf" in "5" seconds
+    Then "google.com" is visible with command "cat /etc/resolv.conf" in "45" seconds
 
 
     @con_ipv6_remove @eth0
@@ -665,7 +665,7 @@
      * Bring "up" connection "con_ipv6"
     Then " google.com" is not visible with command "cat /etc/resolv.conf"
     Then "virtual" is not visible with command "cat /etc/resolv.conf"
-    Then "nameserver " is not visible with command "cat /etc/resolv.conf" in "5" seconds
+    Then "nameserver " is not visible with command "cat /etc/resolv.conf" in "45" seconds
 
 
     @NM @con_ipv6_remove @eth0
@@ -681,7 +681,7 @@
      * Bring "up" connection "con_ipv6"
     Then " google.com" is not visible with command "cat /etc/resolv.conf"
     Then "virtual" is not visible with command "cat /etc/resolv.conf"
-    Then "nameserver " is not visible with command "cat /etc/resolv.conf" in "5" seconds
+    Then "nameserver " is not visible with command "cat /etc/resolv.conf" in "45" seconds
 
 
     @con_ipv6_remove
@@ -722,7 +722,7 @@
     Then Bring "up" connection "con_ipv6"
     # VVV commented out because of fe80 is still on by kernel very likely
     # Then "scope link" is not visible with command "ip -6 a s eth10"
-    Then "scope global" is not visible with command "ip a -6 s eth10" in "5" seconds
+    Then "scope global" is not visible with command "ip a -6 s eth10" in "45" seconds
     # reproducer for 1004255
     Then Bring "down" connection "con_ipv6"
     Then "eth10 " is not visible with command "ip -6 route |grep -v fe80"
@@ -737,10 +737,10 @@
      * Save in editor
      * Quit editor
      * Bring "up" connection "testeth10"
-    When "default via " is visible with command "ip -6 route |grep eth10" in "20" seconds
+    When "default via " is visible with command "ip -6 route |grep eth10" in "45" seconds
      * Bring "up" connection "con_ipv6"
-    When "default via " is not visible with command "ip -6 route |grep eth10" in "10" seconds
-    Then "default via " is not visible with command "ip -6 route |grep eth10" for full "5" seconds
+    When "default via " is not visible with command "ip -6 route |grep eth10" in "45" seconds
+    Then "default via " is not visible with command "ip -6 route |grep eth10" for full "45" seconds
 
 
     @con_ipv6_remove @eth10_disconnect
@@ -758,10 +758,10 @@
      * Save in editor
      * Quit editor
      * Bring "up" connection "testeth10"
-    When "default via " is visible with command "ip -6 route |grep eth10" in "10" seconds
+    When "default via " is visible with command "ip -6 route |grep eth10" in "45" seconds
      * Bring "up" connection "con_ipv6"
-    When "default via " is visible with command "ip -6 route |grep eth10" in "10" seconds
-    Then "default via " is visible with command "ip -6 route |grep eth10" for full "5" seconds
+    When "default via " is visible with command "ip -6 route |grep eth10" in "45" seconds
+    Then "default via " is visible with command "ip -6 route |grep eth10" for full "45" seconds
 
 
     @not_under_internal_DHCP @con_ipv6_remove @tshark
@@ -777,7 +777,7 @@
     * Quit editor
     * Bring "up" connection "con_ipv6"
     When "empty" is not visible with command "file /tmp/ipv6-hostname.log" in "150" seconds
-    Then "r.cx" is visible with command "grep r.cx /tmp/ipv6-hostname.log" in "25" seconds
+    Then "r.cx" is visible with command "grep r.cx /tmp/ipv6-hostname.log" in "245" seconds
     * Execute "sudo pkill tshark"
 
 
@@ -805,7 +805,7 @@
     When "empty" is not visible with command "file /tmp/tshark.log" in "150" seconds
     * Finish "sleep 5"
     * Execute "sudo pkill tshark"
-    Then "r.cx" is not visible with command "cat /tmp/tshark.log" in "5" seconds
+    Then "r.cx" is not visible with command "cat /tmp/tshark.log" in "45" seconds
 
 
     @restore_hostname @con_ipv6_remove @eth2_disconnect @tshark
@@ -820,7 +820,7 @@
     * Quit editor
     * Bring "up" connection "con_ipv6"
     When "empty" is not visible with command "file /tmp/ipv6_hostname.log" in "150" seconds
-    Then "dacan.local" is visible with command "cat /tmp/ipv6-hostname.log" in "15" seconds
+    Then "dacan.local" is visible with command "cat /tmp/ipv6-hostname.log" in "145" seconds
      And "0. = O bit" is visible with command "cat /tmp/ipv6-hostname.log"
     * Execute "sudo pkill tshark"
 
@@ -831,7 +831,7 @@
     * Prepare simulated test "testX6" device
     * Add a new connection of type "ethernet" and options "ifname testX6 con-name con_ipv6"
     * Bring "up" connection "con_ipv6"
-    Then "2" is visible with command "ip a s testX6 |grep 'inet6 .* global' |wc -l" in "10" seconds
+    Then "2" is visible with command "ip a s testX6 |grep 'inet6 .* global' |wc -l" in "45" seconds
 
 
     @con_ipv6_remove
@@ -850,10 +850,10 @@
     * Save in editor
     * Quit editor
     * Bring "up" connection "con_ipv6"
-    When "2620" is visible with command "ip a s eth10" in "10" seconds
-     And "tentative dynamic" is not visible with command "ip a s eth10" in "10" seconds
+    When "2620" is visible with command "ip a s eth10" in "45" seconds
+     And "tentative dynamic" is not visible with command "ip a s eth10" in "45" seconds
     Then "0" is visible with command "cat /proc/sys/net/ipv6/conf/eth10/use_tempaddr"
-    Then "global temporary dynamic" is not visible with command "ip a s eth10" in "5" seconds
+    Then "global temporary dynamic" is not visible with command "ip a s eth10" in "45" seconds
 
 
     @con_ipv6_remove
@@ -866,8 +866,8 @@
     * Save in editor
     * Quit editor
     * Bring "up" connection "con_ipv6"
-    When "2620" is visible with command "ip a s eth10" in "10" seconds
-     And "tentative dynamic" is not visible with command "ip a s eth10" in "10" seconds
+    When "2620" is visible with command "ip a s eth10" in "45" seconds
+     And "tentative dynamic" is not visible with command "ip a s eth10" in "45" seconds
     Then "1" is visible with command "cat /proc/sys/net/ipv6/conf/eth10/use_tempaddr"
     Then Global temporary ip is not based on mac of device "eth10"
 
@@ -882,9 +882,9 @@
     * Save in editor
     * Quit editor
     * Bring "up" connection "con_ipv6"
-    When "2620" is visible with command "ip a s eth10" in "10" seconds
-     And "tentative dynamic" is not visible with command "ip a s eth10" in "10" seconds
-    Then "2" is visible with command "cat /proc/sys/net/ipv6/conf/eth10/use_tempaddr" in "5" seconds
+    When "2620" is visible with command "ip a s eth10" in "45" seconds
+     And "tentative dynamic" is not visible with command "ip a s eth10" in "45" seconds
+    Then "2" is visible with command "cat /proc/sys/net/ipv6/conf/eth10/use_tempaddr" in "45" seconds
     Then Global temporary ip is not based on mac of device "eth10"
 
 
@@ -1075,9 +1075,9 @@
     # This test is obsoleted by @ipv6_add_static_address_manually_not_active (1.12+), but this
     # behavior won't be backported to older versions.
     Then "addrgenmode none " is visible with command "ip -d l show eth3"
-    Then "inet6 fe80" is visible with command "ip a s eth3" in "5" seconds
+    Then "inet6 fe80" is visible with command "ip a s eth3" in "45" seconds
     # the assumed connection is created, give just some time for DAD to complete
-    Then "eth3\s+ethernet\s+connected\s+eth3" is visible with command "nmcli device" in "5" seconds
+    Then "eth3\s+ethernet\s+connected\s+eth3" is visible with command "nmcli device" in "45" seconds
 
 
     @rhbz1083133 @rhbz1098319 @rhbz1127718
@@ -1098,7 +1098,7 @@
     # but a problem of the user who takes over the device without setting the addrgenmode
     # to its liking.
     Then "addrgenmode none " is visible with command "ip -d l show eth3"
-    Then "inet6 fe80" is not visible with command "ip a s eth3" for full "5" seconds
+    Then "inet6 fe80" is not visible with command "ip a s eth3" for full "45" seconds
     #
     # the assumed connection is created, give just some time for DAD to complete
     Then "eth3\s+ethernet\s+connected\s+eth3" is visible with command "nmcli device"
@@ -1111,7 +1111,7 @@
     * Delete connection "testeth10"
     * Stop NM
     * Execute "ip a flush dev eth10; ip l set eth10 down; ip l set eth10 up"
-    When "fe80" is visible with command "ip a s eth10" in "5" seconds
+    When "fe80" is visible with command "ip a s eth10" in "45" seconds
     * Execute "systemctl start NetworkManager.service"
     Then "eth10.*eth10" is not visible with command "nmcli con"
 
@@ -1134,10 +1134,10 @@
     * Finish "nmcli connection add type ethernet con-name tc16 ifname test10 autoconnect no"
     * Finish "nmcli connection add type ethernet con-name tc26 ifname test11 autoconnect no mtu 1100 ip6 fd01::1/64"
     * Bring "up" connection "tc26"
-    When "test11:connected:tc26" is visible with command "nmcli -t -f DEVICE,STATE,CONNECTION device" in "10" seconds
+    When "test11:connected:tc26" is visible with command "nmcli -t -f DEVICE,STATE,CONNECTION device" in "45" seconds
     * Execute "/usr/sbin/dnsmasq --pid-file=/tmp/dnsmasq_ip6.pid --no-resolv --bind-interfaces -i test11 --enable-ra --dhcp-range=::1,::400,constructor:test11,ra-only,64,15s"
     * Bring "up" connection "tc16"
-    Then "1280" is visible with command "sysctl net.ipv6.conf.test10.mtu" in "5" seconds
+    Then "1280" is visible with command "sysctl net.ipv6.conf.test10.mtu" in "45" seconds
 
 
     @rhbz1243958
@@ -1171,9 +1171,9 @@
     * Prepare veth pairs "test10,test11" bridged over "vethbr6"
     * Add a new connection of type "ethernet" and options "con-name tc26 ifname test11 ipv6.method shared ipv6.addresses 1::1/64"
     * Add a new connection of type "ethernet" and options "con-name tc16 ifname test10"
-    Then "inet6 1::1/64" is visible with command "ip a s test11" in "5" seconds
+    Then "inet6 1::1/64" is visible with command "ip a s test11" in "45" seconds
      And "inet6 fe80::" is visible with command "ip a s test11"
-     And "inet6 1::" is visible with command "ip a s test10" in "10" seconds
+     And "inet6 1::" is visible with command "ip a s test10" in "45" seconds
      And "inet6 fe80::" is visible with command "ip a s test10"
 
 
@@ -1228,10 +1228,10 @@
     * Wait for at least "10" seconds
     * Execute "ip r del 169.254.0.0/16"
     When "default" is visible with command "ip -6 r |grep testX6" in "20" seconds
-    And "default" is visible with command "ip -6 r |grep testX6 |grep expire" in "5" seconds
+    And "default" is visible with command "ip -6 r |grep testX6 |grep expire" in "45" seconds
     * Restart NM
     Then "default via fe" is visible with command "ip -6 r |grep testX6 |grep 'metric 1'" in "50" seconds
-    And "default via fe" is not visible with command "ip -6 r |grep testX6 |grep expire" in "5" seconds
+    And "default via fe" is not visible with command "ip -6 r |grep testX6 |grep expire" in "45" seconds
 
 
     @ver+=1.7 @ver-=1.10.0
@@ -1248,11 +1248,11 @@
     * Wait for at least "10" seconds
     * Execute "ip r del 169.254.0.0/16"
     When "default" is visible with command "ip -6 r |grep testX6" in "20" seconds
-    And "default" is visible with command "ip -6 r |grep testX6 |grep expire" in "5" seconds
+    And "default" is visible with command "ip -6 r |grep testX6 |grep expire" in "45" seconds
     * Restart NM
     * Wait for at least "10" seconds
     Then "default via fe" is visible with command "ip -6 r |grep testX6 |grep 'metric 1024'" in "50" seconds
-    And "default via fe" is not visible with command "ip -6 r |grep testX6 |grep expire" in "5" seconds
+    And "default via fe" is not visible with command "ip -6 r |grep testX6 |grep expire" in "45" seconds
 
 
     @ver+=1.10.1
@@ -1269,7 +1269,7 @@
     * Execute "ifup testX6"
     * Wait for at least "20" seconds
     When "default" is visible with command "ip -6 r |grep testX6" in "20" seconds
-    And "default" is visible with command "ip -6 r |grep testX6 |grep expire" in "5" seconds
+    And "default" is visible with command "ip -6 r |grep testX6 |grep expire" in "45" seconds
     * Restart NM
     Then "default via fe" is visible with command "ip -6 r |grep testX6 |grep expire" for full "20" seconds
      And "default via fe" is visible with command "ip -6 r |grep testX6 |grep 'metric 1024'" in "50" seconds
@@ -1290,15 +1290,15 @@
     * Execute "sysctl net.ipv6.conf.testX6.accept_ra_pinfo=1"
     * Execute "ifup testX6"
     * Wait for at least "10" seconds
-    When "fe80" is visible with command "ip -6 r |grep testX6" in "5" seconds
+    When "fe80" is visible with command "ip -6 r |grep testX6" in "45" seconds
     And "default" is visible with command "ip -6 r |grep testX6 |grep expire" in "20" seconds
     And "2620:dead:beaf::\/64" is visible with command "ip -6 r"
     * Restart NM
-    Then "testX6\s+ethernet\s+connected\s+con_ipv6" is visible with command "nmcli device" in "25" seconds
+    Then "testX6\s+ethernet\s+connected\s+con_ipv6" is visible with command "nmcli device" in "245" seconds
     # VVV But the new one present from NM with metric 1xx
     Then "default via fe" is visible with command "ip -6 r |grep testX6 |grep 'metric 1'" in "20" seconds
     # VVV Link-local address should be still present
-    And "fe80" is visible with command "ip -6 r |grep testX6" in "5" seconds
+    And "fe80" is visible with command "ip -6 r |grep testX6" in "45" seconds
     # VVV Route should be exchanged for NM one with metric 1xx
     And "2620:dead:beaf::\/64 dev testX6\s+proto ra\s+metric 1" is visible with command "ip -6 r"
     # We don't care about the rest
@@ -1312,7 +1312,7 @@
     * Add a new connection of type "ethernet" and options "con-name con_ipv6 ifname eth2 autoconnect no"
     * Execute "nmcli con modify con_ipv6 ipv6.method manual ipv6.addresses 2001:db8:e:10::4/64,2001:db8:e:10::57/64,2001:db8:e:10::30/64"
     * Bring "up" connection "con_ipv6"
-    When "2001:db8:e:10::30/64 scope global.*2001:db8:e:10::57/64 scope global.*2001:db8:e:10::4/64" is visible with command "ip a show eth2" in "5" seconds
+    When "2001:db8:e:10::30/64 scope global.*2001:db8:e:10::57/64 scope global.*2001:db8:e:10::4/64" is visible with command "ip a show eth2" in "45" seconds
     * Execute "nmcli con modify con_ipv6 ipv6.addresses 2001:db8:e:10::30/64,2001:db8:e:10::57/64,2001:db8:e:10::4/64"
     * Execute "nmcli dev reapply eth2"
     Then "2001:db8:e:10::4/64 scope global.*2001:db8:e:10::57/64 scope global.*2001:db8:e:10::30/64" is visible with command "ip a show eth2"
@@ -1326,7 +1326,7 @@
     * Add a new connection of type "ethernet" and options "con-name con_ipv6 ifname eth2 autoconnect no"
     * Execute "nmcli con modify con_ipv6 ipv6.method manual ipv6.addresses 2001:db8:e:10::4/64,2001:db8:e:10::57/64,2001:db8:e:10::30/64"
     * Bring "up" connection "con_ipv6"
-    When "2001:db8:e:10::30/64 scope global.*2001:db8:e:10::57/64 scope global.*2001:db8:e:10::4/64" is visible with command "ip a show eth2" in "5" seconds
+    When "2001:db8:e:10::30/64 scope global.*2001:db8:e:10::57/64 scope global.*2001:db8:e:10::4/64" is visible with command "ip a show eth2" in "45" seconds
     * Execute "nmcli con modify con_ipv6 ipv6.addresses 2001:db8:e:10::30/64,2001:db8:e:10::57/64,2001:db8:e:10::4/64"
     * Execute "nmcli dev reapply eth2"
     Then "2001:db8:e:10::30/64 scope global.*2001:db8:e:10::57/64 scope global.*2001:db8:e:10::4/64" is visible with command "ip a show eth2"
@@ -1378,7 +1378,7 @@
     * Execute "ip link set eth3 down; ip addr flush eth3; ethtool -A eth3 rx off tx off; ip link set eth3 up"
     * Execute "ip addr add fc00:a::10/64 dev eth3; ip -6 route add fc00:b::10/128 via fc00:a::1"
     When "fc00:b" is visible with command "ip -6 r" in "2" seconds
-    Then "fc00:b" is visible with command "ip -6 r" for full "5" seconds
+    Then "fc00:b" is visible with command "ip -6 r" for full "45" seconds
 
 
     @rhbz1446367
@@ -1391,10 +1391,10 @@
     * Execute "nmcli con modify ethernet0 ipv4.may-fail no ipv4.method manual ipv4.addresses 1.2.3.4/24"
     * Execute "nmcli con modify ethernet0 ipv4.may-fail yes ipv6.method manual ipv6.addresses 2001::2/128"
     * Bring "up" connection "ethernet0"
-    Then "activated" is visible with command "nmcli -g GENERAL.STATE connection show ethernet0" in "5" seconds
+    Then "activated" is visible with command "nmcli -g GENERAL.STATE connection show ethernet0" in "45" seconds
      And "1.2.3.4" is visible with command "ip a s testX6"
      And "2001::2" is visible with command "ip a s testX6"
-     And "tentative" is visible with command "ip a s testX6" for full "10" seconds
+     And "tentative" is visible with command "ip a s testX6" for full "45" seconds
 
 
     @rhbz1508001
@@ -1405,7 +1405,7 @@
     * Prepare simulated test "testX6" device
     * Add a new connection of type "ethernet" and options "ifname testX6 con-name con_ipv6 ipv4.may-fail yes ipv4.method manual ipv4.addresses 192.168.99.1/24 ipv4.dad-timeout 2001 ipv6.may-fail yes"
     * Reboot
-    Then "activated" is visible with command "nmcli -g GENERAL.STATE connection show con_ipv6" in "15" seconds
+    Then "activated" is visible with command "nmcli -g GENERAL.STATE connection show con_ipv6" in "145" seconds
      And "2620:dead:beaf" is visible with command "ip a s testX6"
 
 
@@ -1438,7 +1438,7 @@
     When "0" is visible with command "cat /proc/sys/net/ipv6/conf/testX6/disable_ipv6"
     * Rename device "testX6" to "festY"
     * Execute "dhclient -1 festY" without waiting for process to finish
-    * Wait for at least "5" seconds
+    * Wait for at least "45" seconds
     * Execute "kill -9 $(pidof dhclient)"
     When "0" is visible with command "cat /proc/sys/net/ipv6/conf/festY/disable_ipv6"
     * Rename device "festY" to "testX6"
@@ -1452,7 +1452,7 @@
     Scenario: NM - ipv6 - add ipv6 to external ipv4 configured device
     * Execute "ethtool -A eth3 rx on tx on; ip addr flush eth3; ethtool -A eth3 rx off tx off; ip link set eth3 up"
     * Execute "ip addr add 192.168.100.2/24 dev eth3; ip addr add fe01::1/64 dev eth3"
-    Then "fe01::1" is visible with command "ip a show dev eth3" in "5" seconds
+    Then "fe01::1" is visible with command "ip a show dev eth3" in "45" seconds
 
 
     @rhbz1445417

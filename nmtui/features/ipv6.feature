@@ -26,7 +26,7 @@ Feature: IPv6 TUI tests
     * Come in "IPv6 CONFIGURATION" category
     * In "Addresses" property add "2607:f0d0:1002:51::4"
     * Confirm the connection settings
-    Then "eth1\s+ethernet\s+connected\s+ethernet" is visible with command "nmcli device" in "10" seconds
+    Then "eth1\s+ethernet\s+connected\s+ethernet" is visible with command "nmcli device" in "45" seconds
     Then "inet6 2607:f0d0:1002:51::4/128" is visible with command "ip -6 a s eth1"
 
     @ipv6
@@ -40,7 +40,7 @@ Feature: IPv6 TUI tests
     * Come in "IPv6 CONFIGURATION" category
     * In "Addresses" property add "2607:f0d0:1002:51::4"
     * Confirm the connection settings
-    Then "eth1\s+ethernet\s+connected\s+ethernet" is visible with command "nmcli device" in "10" seconds
+    Then "eth1\s+ethernet\s+connected\s+ethernet" is visible with command "nmcli device" in "45" seconds
     Then "inet6 2607:f0d0:1002:51::4/64" is visible with command "ip -6 a s eth1"
 
 
@@ -55,7 +55,7 @@ Feature: IPv6 TUI tests
     * In "Addresses" property add "2607:f0d0:1002:51::4/63"
     * In this property also add "1050:0:0:0:5:600:300c:326b/121"
     * Confirm the connection settings
-    Then "eth1\s+ethernet\s+connected\s+ethernet" is visible with command "nmcli device" in "10" seconds
+    Then "eth1\s+ethernet\s+connected\s+ethernet" is visible with command "nmcli device" in "45" seconds
     Then "2607:f0d0:1002:51::4/63" is visible with command "ip -6 a s eth1"
     Then "1050::5:600:300c:326b/121" is visible with command "ip -6 a s eth1"
     Then "dynamic" is not visible with command "ip -6 a s eth1"
@@ -159,7 +159,7 @@ Feature: IPv6 TUI tests
     * Confirm the connection settings
     * Bring up connection "ethernet"
     Then "fc01::1:5/68" is not visible with command "ip a s eth10"
-    Then "dynamic" is visible with command "ip -6 a s eth10" in "10" seconds
+    Then "dynamic" is visible with command "ip -6 a s eth10" in "45" seconds
 
 
     @ipv6
@@ -490,7 +490,7 @@ Feature: IPv6 TUI tests
     * In "DNS servers" property add "4000::1"
     * In this property also add "5000::1"
     * Confirm the connection settings
-    * "nameserver 4000::1.+nameserver 5000::1" is visible with command "cat /etc/resolv.conf" in "10" seconds
+    * "nameserver 4000::1.+nameserver 5000::1" is visible with command "cat /etc/resolv.conf" in "45" seconds
     * Select connection "ethernet1" in the list
     * Choose to "<Edit...>" a connection
     * Come in "IPv6 CONFIGURATION" category
@@ -520,7 +520,7 @@ Feature: IPv6 TUI tests
     * Come in "IPv6 CONFIGURATION" category
     * In "Search domains" property add "heaven.com"
     * Confirm the connection settings
-    * " heaven.com" is visible with command "cat /etc/resolv.conf" in "10" seconds
+    * " heaven.com" is visible with command "cat /etc/resolv.conf" in "45" seconds
     * Select connection "ethernet1" in the list
     * Choose to "<Edit...>" a connection
     * Come in "IPv6 CONFIGURATION" category
