@@ -879,7 +879,7 @@ Feature: nmcli: ipv4
     @con_ipv4_remove
     @reload_dns @eth0
     Scenario: nmcli - ipv4 - dns - reload
-    * Add connection type "ethernet" named "con_ipv4" for device "eth0"
+    * Add a new connection of type "ethernet" and options "ifname eth0 con-name con_ipv4 ipv4.may-fail no"
     * Open editor for connection "con_ipv4"
     * Submit "set ipv4.dns 8.8.8.8, 8.8.4.4" in editor
     * Save in editor
@@ -889,7 +889,7 @@ Feature: nmcli: ipv4
     When "nameserver 8.8.4.4" is visible with command "cat /etc/resolv.conf"
     * Execute "echo 'INVALID_DNS' > /etc/resolv.conf"
     * Execute "sudo kill -SIGUSR1 $(pidof NetworkManager)"
-    Then "nameserver 8.8.8.8" is visible with command "cat /etc/resolv.conf" in "10" seconds
+    Then "nameserver 8.8.8.8" is visible with command "cat /etc/resolv.conf" in "45" seconds
     Then "nameserver 8.8.4.4" is visible with command "cat /etc/resolv.conf"
     * Execute "sleep 3"
     Then Ping "boston.com"
