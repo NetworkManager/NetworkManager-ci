@@ -11,6 +11,7 @@ function start_dnsmasq ()
     echo "Start DHCP server (dnsmasq)"
     /usr/sbin/dnsmasq\
     --pid-file=/tmp/dnsmasq_wireless.pid\
+    --port=63\
     --conf-file\
     --no-hosts\
     --interface=wlan1\
@@ -138,7 +139,7 @@ function wireless_hostapd_setup ()
 {
     local CERTS_PATH=${1:?"Error. Path to certificates is not specified."}
     local AUTH_TYPE=${2:?"Error. Authentication type is not specified."}
-    
+
     set +x
 
     echo "Configuring hostapd 802.1x server..."
@@ -162,14 +163,14 @@ function wireless_hostapd_setup ()
             echo "Error. Cannot load module \"mac80211_hwsim\"." >&2
             return 1
         fi
-        
+
         restart_services
         sleep 10
         if ! systemctl -q is-active wpa_supplicant; then
             echo "Error. Cannot start the service for WPA supplicant." >&2
             return 1
         fi
-        
+
         nmcli device set wlan1 managed off
         ip add add 10.0.254.1/24 dev wlan1
         sleep 5
@@ -185,7 +186,7 @@ function wireless_hostapd_setup ()
             echo "Error. Cannot start dnsmasq as DHCP server." >&2
             return 1
         fi
-        
+
         # Start 802.1x authentication and built-in RADIUS server.
         # Start hostapd as a service via systemd-run using configuration wifi adapters
         start_nm_hostapd
@@ -222,7 +223,7 @@ function wireless_hostapd_teardown ()
 if [ "$1" != "teardown" ]; then
     # If hostapd's config fails then restore initial state.
     echo "Configure and start hostapd..."
-    wireless_hostapd_setup $1 $2; RC=$? 
+    wireless_hostapd_setup $1 $2; RC=$?
     if [ $RC -eq 0 ]; then
         echo "hostapd started successfully."
     else
