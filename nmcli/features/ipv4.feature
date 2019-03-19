@@ -1057,25 +1057,13 @@ Feature: nmcli: ipv4
     @tshark @con_ipv4_remove
     @nmcli_ipv4_remove_fqdn
     Scenario: nmcli - ipv4 - dhcp-fqdn - remove dhcp-fqdn
-    * Add connection type "ethernet" named "con_ipv4" for device "eth2"
-    * Open editor for connection "con_ipv4"
-    * Submit "set ipv4.dhcp-fqdn foo.bar.com" in editor
-    * Save in editor
-    * Quit editor
-    * Bring "up" connection "con_ipv4"
-    * Bring "down" connection "con_ipv4"
-    * Open editor for connection "con_ipv4"
-    * Submit "set ipv4.dhcp-fqdn" in editor
-    * Enter in editor
-    * Save in editor
-    * Quit editor
-    * Bring "up" connection "con_ipv4"
-    * Bring "down" connection "con_ipv4"
+    * Add a new connection of type "ethernet" and options "ifname eth2 con-name con_ipv4 ipv4.dhcp-fqdn foo.bar.com autoconnect no"
+    * Execute "nmcli con modify con_ipv4 ipv4.may-fail no ipv4.dhcp-fqdn ''"
     * Run child "sudo tshark -l -O bootp -i eth2 > /tmp/tshark.log"
     When "empty" is not visible with command "file /tmp/tshark.log" in "150" seconds
     * Bring "up" connection "con_ipv4"
      Then "foo.bar.com" is not visible with command "grep fqdn /var/lib/NetworkManager/dhclient-eth2.conf" in "10" seconds
-      And "foo.bar.com" is not visible with command "cat /tmp/tshark.log"
+      And "foo.bar.com" is not visible with command "cat /tmp/tshark.log" for full "5" seconds
     * Finish "sudo pkill tshark"
 
 

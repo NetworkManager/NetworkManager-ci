@@ -593,7 +593,7 @@ Feature: nmcli - general
     * Restart NM
     * Bring "up" connection "testeth0"
     Then "nameserver 1.2.3.4" is not visible with command "cat /etc/resolv.conf"
-    Then "nameserver 1[0-9]" is visible with command "cat /etc/resolv.conf"
+    Then "nameserver 1[0-9]" is visible with command "cat /etc/resolv.conf" in "45" seconds
 
 
     @rhbz1136836 @rhbz1173632
