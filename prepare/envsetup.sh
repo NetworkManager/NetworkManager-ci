@@ -406,6 +406,28 @@ local_setup_configure_nm_inf () {
     touch /tmp/inf_configured
 }
 
+install_usb_hub_driver () {
+    # Works under RHEL 8.0.
+    yum install -y libffi-devel python36-devel
+    pushd /tmp
+        wget https://acroname.com/system/files/software/brainstem_dev_kit_ubuntu_lts_18.04_no_qt_x86_64_1.tgz
+        tar xf brainstem_dev_kit_ubuntu_lts_18.04_no_qt_x86_64_1.tgz
+        cd development/python/
+        python3 -m pip install brainstem-2.7.0-py2.py3-none-any.whl; local rc=$?
+    popd
+    return $rc
+}
+
+install_usb_hub_utility () {
+    # Download utility for Acroname USB hub - CLI.
+    # git clone https://github.com/rcorreia/acroname-python-cli.git
+    # Using a local copy of that utility.
+    mkdir /tmp/acroname-python-cli
+    chmod +x prepare/acroname.py
+    cp prepare/acroname.py /tmp/acroname-python-cli; local rc=$?
+    return $rc
+}
+
 local_setup_configure_nm_gsm () {
     [ -e /tmp/gsm_configured ] && return
 
@@ -421,9 +443,12 @@ local_setup_configure_nm_gsm () {
     # Selinux policy for gsm_sim (ModemManager needs access to /dev/pts/*)
     semodule -i tmp/selinux-policy/ModemManager.pp
 
+    # Prepare conditions for using Acroname USB hub.
+    install_usb_hub_driver || echo "Error when installing USB hub driver.">&2
+    install_usb_hub_utility || echo "Error when installing USB hub utility.">&2
+
     touch /tmp/gsm_configured
 }
-
 
 setup_configure_environment () {
     local_setup_configure_nm_eth "$1"
@@ -439,3 +464,4 @@ setup_configure_environment () {
             ;;
     esac
 }
+
