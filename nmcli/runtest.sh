@@ -29,6 +29,19 @@ if [ $vc -eq 1 ]; then
     rstrnt-report-result $NMTEST "SKIP"
     exit 0
 
+if [ $NMTEST == 'gsm_hub' ];then
+    for i in {0..3}; do
+        for x in {{0..7}; do
+            ./acroname.py --port $x --disable
+        done
+        ./acroname.py --port $i --enable
+        behave $DIR/nmcli/features -t $1 -t gsm_create_default_connection -k -f html -o /tmp/report_1.html -f plain; rc=$?
+        cat /tmp/report_1.html >> /tmp/report_$NMTEST.html
+        behave $DIR/nmcli/features -t $1 -t gsm_disconnect -k -f html -o /tmp/report_2.html -f plain; rc=$?
+        cat /tmp/report_2.html >> /tmp/report_$NMTEST.html
+    done
+fi
+
 elif [ $vc -eq 0 ]; then
     if [ x$TAG != x"" ]; then
         logger "Running $TAG version of $NMTEST"

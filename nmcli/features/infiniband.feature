@@ -214,7 +214,7 @@ Feature: nmcli: inf
     @inf_send_correct_client_id
     Scenario: NM - inf - internal - send client id
     * Add connection type "infiniband" named "inf" for device "inf_ib0"
-    * Add infiniband port named "inf.8002" for device "inf_ib0.8002" with parent "inf_ib0" and p-key "0x8002"
+    * Add a new connection of type "infiniband" and options "ifname inf_ib0.8002 parent inf_ib0 p-key 0x8002 con-name inf.8002 ipv4.addresses 1.2.3.4/24,1.2.4.5/24,1.2.5.6/24,1.2.6.8/24,1.3.5.7/24,1.2.1.2/24"
     * Bring "down" connection "inf.8002"
     * Bring "up" connection "inf.8002"
     * Run child "sudo tcpdump -i inf_ib0.8002 -v -n > /tmp/tcpdump.log"
