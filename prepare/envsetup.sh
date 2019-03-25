@@ -409,8 +409,8 @@ local_setup_configure_nm_inf () {
 install_usb_hub_driver () {
     # Works under RHEL 8.0.
     yum install -y libffi-devel python36-devel
-    pushd /tmp
-        wget https://acroname.com/system/files/software/brainstem_dev_kit_ubuntu_lts_18.04_no_qt_x86_64_1.tgz
+    pushd tmp/usb_hub
+        # The module brainstem is already stored in project NetworkManager-ci.
         tar xf brainstem_dev_kit_ubuntu_lts_18.04_no_qt_x86_64_1.tgz
         cd development/python/
         python3 -m pip install brainstem-2.7.0-py2.py3-none-any.whl; local rc=$?
@@ -419,13 +419,18 @@ install_usb_hub_driver () {
 }
 
 install_usb_hub_utility () {
-    # Download utility for Acroname USB hub - CLI.
+    # Utility for Acroname USB hub has already been donwloaded.
     # git clone https://github.com/rcorreia/acroname-python-cli.git
     # Using a local copy of that utility.
-    mkdir /tmp/acroname-python-cli
-    chmod +x prepare/acroname.py
-    cp prepare/acroname.py /tmp/acroname-python-cli; local rc=$?
-    return $rc
+    # Augment the default search path for Python modules.
+    if [ -z "$PYTHONPATH" ]; then
+        export PYTHONPATH=$(pwd)/tmp/usb_hub/acroname.py
+    else
+        export PYTHONPATH=$PYTHONPATH:$(pwd)/tmp/usb_hub/acroname.py
+    fi
+    [ -z "$PYTHONPATH" ] && return 1 || return 0
+    # How to use PYTHONPATH?
+    # See :https://docs.python.org/3/using/cmdline.html#envvar-PYTHONPATH
 }
 
 local_setup_configure_nm_gsm () {
