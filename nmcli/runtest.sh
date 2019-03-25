@@ -3,9 +3,10 @@ set -x
 
 logger -t $0 "Running test $1"
 
-export PATH=$PATH:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/root/bin:/tmp/acroname-python-cli
+export PATH=$PATH:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/root/bin
 DIR=$(pwd)
 MODEM_COUNT=3
+PORT_COUNT=8
 # Number of modems that are plugged into Acroname USB hub.
 # The hub has 8 ports, counting from 0 to 7.
 
@@ -33,12 +34,12 @@ if [ $vc -eq 1 ]; then
     exit 0
 
 if [ $NMTEST == 'gsm_hub' ];then
-    for i in $(seq 0 1 $((MODEM_COUNT-1)) ); do
-        for x in {0..7}; do
-            acroname.py --port $x --disable
+    for m in $(seq 0 1 $((MODEM_COUNT-1)) ); do
+        for p in $(seq 0 1 $((PORT_COUNT-1)) ); do
+            acroname.py --port $p --disable
         done
         sleep 1
-        acroname.py --port $i --enable
+        acroname.py --port $p --enable
         behave $DIR/nmcli/features -t $1 -t gsm_create_default_connection -k -f html -o /tmp/report_1.html -f plain; rc=$?
         cat /tmp/report_1.html >> /tmp/report_$NMTEST.html
         behave $DIR/nmcli/features -t $1 -t gsm_disconnect -k -f html -o /tmp/report_2.html -f plain; rc=$?
