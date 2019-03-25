@@ -664,6 +664,21 @@ def before_scenario(context, scenario):
                 sys.exit(77)
             setup_hostapd_wireless('wpa2')
 
+        if 'simwifi_p2p' in scenario.tags:
+            print ("---------------------------")
+            print ("setting p2p test bed")
+            arch = check_output("uname -p", shell=True).decode('utf-8').strip()
+            if arch != "x86_64":
+                sys.exit(77)
+            call('modprobe mac80211_hwsim', shell=True)
+            sleep(1)
+            call('nmcli device set wlan1 managed off', shell=True)
+            sleep(1)
+            Popen('wpa_supplicant -i wlan1 -C /tmp/wpa_supplicant_peer_ctrl', shell=True)
+            sleep(1)
+            call('wpa_cli -i wlan1 -p /tmp/wpa_supplicant_peer_ctrl p2p_listen', shell=True)
+            sleep(3)
+
         if 'vpnc' in scenario.tags:
             print ("---------------------------")
             arch = check_output("uname -p", shell=True).decode('utf-8').strip()
@@ -1548,6 +1563,12 @@ def after_scenario(context, scenario):
             print ("---------------------------")
             print ("bringing down hostapd setup")
             teardown_hostapd_wireless()
+
+        if 'simwifi_p2p' in scenario.tags:
+            print ("---------------------------")
+            call('modprobe -r mac80211_hwsim', shell=True)
+            call('nmcli con del wifi-p2p', shell=True)
+            call("kill -9 $(ps aux|grep wpa_suppli |grep wlan1 |awk '{print $2}')", shell=True)
 
         if "attach_hostapd_log" in scenario.tags:
             print("Attaching hostapd log")
