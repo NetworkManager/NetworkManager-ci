@@ -1260,6 +1260,8 @@ testmapper:
         feature: vpn
     - iptunnel_restart:
         feature: vpn
+    - wireguard_activate_connection:
+        feature: vpn
     - openvpn_ipv4:
         feature: openvpn
     - openvpn_ipv4_neverdefault:
