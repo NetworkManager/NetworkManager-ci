@@ -2040,6 +2040,9 @@ testmapper:
     - gsm_create_assisted_connection:
         timeout: 60m
         feature: gsm
+    - gsm_hub:
+        timeout: 60m
+        feature: gsm
 
 
   NetworkManager-wifi:

@@ -3,12 +3,8 @@ set -x
 
 logger -t $0 "Running test $1"
 
-export PATH=$PATH:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/root/bin:/tmp/acroname-python-cli
+export PATH=$PATH:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/root/bin
 DIR=$(pwd)
-MODEM_COUNT=3
-PORT_COUNT=8
-# Number of modems that are plugged into Acroname USB hub.
-# The hub has 8 ports, counting from 0 to 7.
 
 . $DIR/prepare/envsetup.sh
 setup_configure_environment "$1"
@@ -33,26 +29,61 @@ if [ $vc -eq 1 ]; then
     rstrnt-report-result $NMTEST "SKIP"
     exit 0
 
-if [ $NMTEST == 'gsm_hub' ];then
-    for m in $(seq 0 1 $((MODEM_COUNT-1)) ); do
-        for p in $(seq 0 1 $((PORT_COUNT-1)) ); do
-            acroname.py --port $p --disable
-        done
-        sleep 1
-        acroname.py --port $p --enable
-        behave $DIR/nmcli/features -t $1 -t gsm_create_default_connection -k -f html -o /tmp/report_1.html -f plain; rc=$?
-        cat /tmp/report_1.html >> /tmp/report_$NMTEST.html
-        behave $DIR/nmcli/features -t $1 -t gsm_disconnect -k -f html -o /tmp/report_2.html -f plain; rc=$?
-        cat /tmp/report_2.html >> /tmp/report_$NMTEST.html
-    done
-fi
-
+# do we have tag to run tagged test?
 elif [ $vc -eq 0 ]; then
+    # if yes, run with -t $TAG
     if [ x$TAG != x"" ]; then
         logger "Running $TAG version of $NMTEST"
         behave $DIR/nmcli/features -t $1 -t $TAG -k -f html -o /tmp/report_$NMTEST.html -f plain; rc=$?
+
+    # if not 
     else
-        behave $DIR/nmcli/features -t $1 -k -f html -o /tmp/report_$NMTEST.html -f plain; rc=$?
+        # check if we have gsm_hub use this
+        if [ $1 == 'gsm_hub' ];then
+            MODEM_COUNT=3
+            PORT_COUNT=8
+            rc=0
+            touch /tmp/usb_hub
+            echo "USB_HUB" > /tmp/report_$NMTEST.html
+            # Number of modems that are plugged into Acroname USB hub.
+            for m in $(seq 0 1 $((MODEM_COUNT-1)) ); do
+                for p in $(seq 0 1 $((PORT_COUNT-1)) ); do
+                    $DIR/tmp/usb_hub/acroname.py --port $p --disable
+                done
+                sleep 1
+                
+                $DIR/tmp/usb_hub/acroname.py --port $m --enable
+
+                # wait for device to appear in NM
+                TIMER=60                
+                while [ $TIMER -gt 0 ]; do
+                    if nmcli d |grep -q gsm; then
+                        break
+                    else
+                        sleep 1
+                        ((TIMER--))
+                    fi
+                done
+                
+                behave $DIR/nmcli/features -t gsm_create_default_connection -k -f html -o /tmp/report_1.html -f plain
+                if [ $? -eq 1 ]; then
+                    rc=1
+                fi
+                
+                cat /tmp/report_1.html >> /tmp/report_$NMTEST.html
+
+                behave $DIR/nmcli/features -t gsm_disconnect -k -f html -o /tmp/report_2.html -f plain
+                if [ $? -eq 1 ]; then
+                    rc=1
+                fi
+                
+                cat /tmp/report_2.html >> /tmp/report_$NMTEST.html
+            done
+
+        # if we do not have tag or gsm_hub
+        else
+            behave $DIR/nmcli/features -t $1 -k -f html -o /tmp/report_$NMTEST.html -f plain; rc=$?
+        fi
     fi
 fi
 
@@ -71,3 +102,4 @@ logger -t $0 "Test $1 finished with result $RESULT: $rc"
 
 echo "------------ Test result: $RESULT ------------"
 exit $rc
+
