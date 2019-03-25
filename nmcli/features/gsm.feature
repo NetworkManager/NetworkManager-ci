@@ -1,5 +1,8 @@
 Feature: nmcli: gsm
-
+ 
+    @gsm_hub
+    Scenario: nmcli - gsm - hub
+    * Execute "echo 'PASS'"
 
     @ver+=1.2.0
     @eth0 @gsm
