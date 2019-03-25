@@ -670,6 +670,9 @@ def before_scenario(context, scenario):
             arch = check_output("uname -p", shell=True).decode('utf-8').strip()
             if arch != "x86_64":
                 sys.exit(77)
+            call("echo -e '[device-wifi]\nwifi.scan-rand-mac-address=no' > /etc/NetworkManager/conf.d/99-wifi.conf", shell=True)
+            call("echo -e '[connection-wifi]\nwifi.cloned-mac-address=preserve' >> /etc/NetworkManager/conf.d/99-wifi.conf", shell=True)
+            reload_NM_service()
             call('modprobe mac80211_hwsim', shell=True)
             sleep(1)
             call('nmcli device set wlan1 managed off', shell=True)
@@ -1569,6 +1572,8 @@ def after_scenario(context, scenario):
             call('modprobe -r mac80211_hwsim', shell=True)
             call('nmcli con del wifi-p2p', shell=True)
             call("kill -9 $(ps aux|grep wpa_suppli |grep wlan1 |awk '{print $2}')", shell=True)
+            call("rm -rf /etc/NetworkManager/conf.d/99-wifi.conf", shell=True)
+            reload_NM_service()
 
         if "attach_hostapd_log" in scenario.tags:
             print("Attaching hostapd log")
