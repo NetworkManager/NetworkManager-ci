@@ -325,82 +325,84 @@ def before_scenario(context, scenario):
             call("sudo prepare/gsm_sim.sh modemu", shell=True)
 
         if 'gsm' in scenario.tags:
-            import time
-            dir = "/mnt/scratch/"
-            timeout = 3600
-            initialized = False
-            freq = 30
             call("mmcli -G debug", shell=True)
             call("nmcli general logging level DEBUG domains ALL", shell=True)
 
-            def reinitialize_devices():
-                if call('systemctl is-active ModemManager  > /dev/null', shell=True) != 0:
-                    call('systemctl restart ModemManager', shell=True)
-                    timer = 40
-                    while call("nmcli device |grep gsm > /dev/null", shell=True) != 0:
-                        sleep(1)
-                        timer -= 1
-                        if timer == 0:
-                            break
-                if call('nmcli d |grep gsm > /dev/null', shell=True) != 0:
-                    print ("---------------------------")
-                    print ("reinitialize devices")
-                    reset_usb_devices()
-                    call('for i in $(ls /sys/bus/usb/devices/usb*/authorized); do echo 0 > $i; done', shell=True)
-                    call('for i in $(ls /sys/bus/usb/devices/usb*/authorized); do echo 1 > $i; done', shell=True)
-                    call('systemctl restart ModemManager', shell=True)
-                    timer = 80
-                    while call("nmcli device |grep gsm > /dev/null", shell=True) != 0:
-                        sleep(1)
-                        timer -= 1
-                        if timer == 0:
-                            print ("Cannot initialize modem")
-                            sys.exit(1)
-                    sleep(60)
-                global initialized
-                initialized = True
+            if not os.path.isfile('/tmp/usb_hub'):
+                import time
+                dir = "/mnt/scratch/"
+                timeout = 3600
+                initialized = False
+                freq = 30
 
-            def create_lock(dir):
-                if os.listdir(dir) == []:
-                    lock = int(time.time())
-                    print(("* creating new gsm lock %s" % lock))
-                    os.mkdir("%s%s" % (dir, lock))
-                    return True
-                else:
-                    return False
+                def reinitialize_devices():
+                    if call('systemctl is-active ModemManager  > /dev/null', shell=True) != 0:
+                        call('systemctl restart ModemManager', shell=True)
+                        timer = 40
+                        while call("nmcli device |grep gsm > /dev/null", shell=True) != 0:
+                            sleep(1)
+                            timer -= 1
+                            if timer == 0:
+                                break
+                    if call('nmcli d |grep gsm > /dev/null', shell=True) != 0:
+                        print ("---------------------------")
+                        print ("reinitialize devices")
+                        reset_usb_devices()
+                        call('for i in $(ls /sys/bus/usb/devices/usb*/authorized); do echo 0 > $i; done', shell=True)
+                        call('for i in $(ls /sys/bus/usb/devices/usb*/authorized); do echo 1 > $i; done', shell=True)
+                        call('systemctl restart ModemManager', shell=True)
+                        timer = 80
+                        while call("nmcli device |grep gsm > /dev/null", shell=True) != 0:
+                            sleep(1)
+                            timer -= 1
+                            if timer == 0:
+                                print ("Cannot initialize modem")
+                                sys.exit(1)
+                        sleep(60)
+                    global initialized
+                    initialized = True
 
-            def is_lock_old(lock):
-                lock += 3600
-                if lock < int(time.time()):
-                    print(("* lock %s is older than an hour" % lock))
-                    return True
-                else:
-                    return False
-
-            print ("---------------------------")
-            while(True):
-                print ("* looking for gsm lock in nfs nest.test.redhat.com:/mnt/qa/desktop/broadband_lock")
-                lock = get_lock(dir)
-                if not lock:
-                    if not initialized:
-                        reinitialize_devices()
-                    if create_lock(dir):
-                        break
+                def create_lock(dir):
+                    if os.listdir(dir) == []:
+                        lock = int(time.time())
+                        print(("* creating new gsm lock %s" % lock))
+                        os.mkdir("%s%s" % (dir, lock))
+                        return True
                     else:
-                        continue
-                if lock:
-                    if is_lock_old(lock):
-                        delete_old_lock(dir, lock)
-                        continue
+                        return False
+
+                def is_lock_old(lock):
+                    lock += 3600
+                    if lock < int(time.time()):
+                        print(("* lock %s is older than an hour" % lock))
+                        return True
                     else:
-                        timeout -= freq
-                        print(("** still locked.. wating %s seconds before next try" % freq))
+                        return False
+
+                print ("---------------------------")
+                while(True):
+                    print ("* looking for gsm lock in nfs nest.test.redhat.com:/mnt/qa/desktop/broadband_lock")
+                    lock = get_lock(dir)
+                    if not lock:
                         if not initialized:
                             reinitialize_devices()
-                        sleep(freq)
-                        if timeout == 0:
-                            raise Exception("Timeout reached!")
-                        continue
+                        if create_lock(dir):
+                            break
+                        else:
+                            continue
+                    if lock:
+                        if is_lock_old(lock):
+                            delete_old_lock(dir, lock)
+                            continue
+                        else:
+                            timeout -= freq
+                            print(("** still locked.. wating %s seconds before next try" % freq))
+                            if not initialized:
+                                reinitialize_devices()
+                            sleep(freq)
+                            if timeout == 0:
+                                raise Exception("Timeout reached!")
+                            continue
 
         if 'unmanage_eth' in scenario.tags:
             links = get_ethernet_devices()
@@ -1852,15 +1854,16 @@ def after_scenario(context, scenario):
             call('rm -rf /etc/NetworkManager/system-connections/gsm', shell=True)
             call('nmcli con up testeth0', shell=True)
             wait_for_testeth0()
-            call('mount -o remount -t nfs nest.test.redhat.com:/mnt/qa/desktop/broadband_lock /mnt/scratch', shell=True)
-            delete_old_lock("/mnt/scratch/", get_lock("/mnt/scratch"))
+            if not os.path.isfile('/tmp/usb_hub'):
+                call('mount -o remount -t nfs nest.test.redhat.com:/mnt/qa/desktop/broadband_lock /mnt/scratch', shell=True)
+                delete_old_lock("/mnt/scratch/", get_lock("/mnt/scratch"))
             # Attach journalctl logs
             os.system("echo '~~~~~~~~~~~~~~~~~~~~~~~~~~ MM LOG ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~' > /tmp/journal-mm.log")
             print("Attaching MM log")
             os.system("sudo journalctl -u ModemManager --no-pager -o cat %s >> /tmp/journal-mm.log" % context.log_cursor)
             data = open("/tmp/journal-mm.log", 'r').read()
             if data:
-                context.embed('text/plain', data, caption="NM")
+                context.embed('text/plain', data, caption="MM")
 
         if 'captive_portal' in scenario.tags:
             call("sudo prepare/captive_portal.sh teardown", shell=True)
@@ -2100,3 +2103,4 @@ def after_scenario(context, scenario):
 
 def after_all(context):
     print("ALL DONE")
+
