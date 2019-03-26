@@ -879,7 +879,7 @@ def before_scenario(context, scenario):
         if 'selinux_allow_ifup' in scenario.tags:
             print ("---------------------------")
             print ("allow ifup in selinux")
-            call("semodule -i tmp/ifup_policy.pp", shell=True)
+            call("semodule -i tmp/selinux-policy/ifup_policy.pp", shell=True)
 
         if 'nmcli_general_ignore_specified_unamanaged_devices' in scenario.tags:
             print ("---------------------------")
@@ -893,10 +893,11 @@ def before_scenario(context, scenario):
 
         if 'pppoe' in scenario.tags:
             arch = check_output("uname -p", shell=True).decode('utf-8').strip()
+            # selinux on aarch64: see https://bugzilla.redhat.com/show_bug.cgi?id=1643954
             if arch == "aarch64":
                 print ("---------------------------")
-                print ("Skipping on aarch64 due to https://bugzilla.redhat.com/show_bug.cgi?id=1643954")
-                sys.exit(77)
+                print ("enable pppd selinux policy")
+                call("semodule -i tmp/selinux-policy/pppd.pp", shell=True)
             print ("---------------------------")
             print ("installing pppoe dependencies")
             # This -x is to avoid upgrade of NetworkManager in older version testing
@@ -2115,4 +2116,3 @@ def after_scenario(context, scenario):
 
 def after_all(context):
     print("ALL DONE")
-
