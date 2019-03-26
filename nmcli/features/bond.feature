@@ -1341,7 +1341,7 @@
 
 
     @rhbz1243371
-    @bond @restart
+    @bond @slaves @restart
     @delete_addrgenmode_bond
     Scenario: NM - bond - addrgenmode bond delete
     * Stop NM

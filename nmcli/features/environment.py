@@ -133,6 +133,7 @@ def reset_hwaddr(ifname):
     if not os.path.isfile('/tmp/nm_newveth_configured'):
         hwaddr = check_output("ethtool -P %s" % ifname, shell=True).decode('utf-8').split()[2]
         call("ip link set %s address %s" % (ifname, hwaddr), shell=True)
+        call("ip link set %s up" % (ifname), shell=True)
 
 def setup_hostapd():
     print ("setting up hostapd")
@@ -1182,10 +1183,10 @@ def after_scenario(context, scenario):
         if 'slaves' in scenario.tags:
             print ("---------------------------")
             print ("deleting slave profiles")
-            call('nmcli connection delete id bond0.0 bond0.1 bond0.2 bond-slave-eth1', shell=True)
             reset_hwaddr('eth1')
-            reset_hwaddr('eth2')
-            reset_hwaddr('eth3')
+            reset_hwaddr('eth4')
+            call('nmcli connection delete id bond0.0 bond0.1 bond0.2 bond-slave-eth1', shell=True)
+
             #sleep(TIMER)
 
         if 'bond_order' in scenario.tags:
@@ -2115,4 +2116,3 @@ def after_scenario(context, scenario):
 
 def after_all(context):
     print("ALL DONE")
-
