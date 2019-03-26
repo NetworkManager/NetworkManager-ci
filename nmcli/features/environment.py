@@ -17,27 +17,57 @@ from glob import glob
 
 TIMER = 0.5
 
-modem_dict = {
-    '413c:8118': 'Dell Wireless 5510',
-    '413c:81b6': 'Dell Wireless EM7455',
-    '0bdb:190d': 'Ericsson F5521 gw',
-    '0bdb:1926': 'Ericsson H5321 gw',
-    '12d1:1001': 'Huawei E1550',
-    '12d1:1446': 'Huawei E173',
-    '12d1:1003': 'Huawei E220',
-    '12d1:1506': 'Huawei E3276',
-    '0421:0637': 'Nokia 21M-02',
-    '1410:b001': 'Novatel Ovation MC551',
-    '0b3c:f000': 'Olicard 200',
-    '0af0:d033': 'Option GlobeTrotter Icon322',
-    '04e8:6601': 'Samsung SGH-Z810',
-    '1199:9051': 'Sierra Wireless AirCard 340U',
-    '1199:9041': 'Sierra Wireless MC7355',
-    '03f0:371d': 'Sierra Wireless MC8355',
-    '1199:68a3': 'Sierra Wireless USB 306',
-    '1c9e:9603': 'Zoom 4595',
-    '19d2:2000': 'ZTE MF627'
-}
+from subprocess import *
+
+def find_modems():
+    """
+    Find modems connected to USB ports or USB hub on a testing machine.
+    :return: a list of detected modems specified in a dictionary.
+    """
+    modem_dict = {
+        '413c:8118': 'Dell Wireless 5510',
+        '413c:81b6': 'Dell Wireless EM7455',
+        '0bdb:190d': 'Ericsson F5521 gw',
+        '0bdb:1926': 'Ericsson H5321 gw',
+        '0bdb:193e': 'Ericsson N5321',
+        '05c6:6000': 'HSDPA USB Stick',
+        '12d1:1001': 'Huawei E1550',
+        '12d1:1446': 'Huawei E173',
+        '12d1:1003': 'Huawei E220',
+        '12d1:1506': 'Huawei E3276',
+        '12d1:1465': 'Huawei K3765',
+        '0421:0637': 'Nokia 21M-02',
+        '1410:b001': 'Novatel Ovation MC551',
+        '0b3c:f000': 'Olicard 200',
+        '0af0:d033': 'Option GlobeTrotter Icon322',
+        '04e8:6601': 'Samsung SGH-Z810',
+        '1199:9051': 'Sierra Wireless AirCard 340U',
+        '1199:68c0': 'Sierra Wireless MC7304',
+        '1199:a001': 'Sierra Wireless EM7345',
+        '1199:9041': 'Sierra Wireless EM7355',
+        '413c:81a4': 'Sierra Wireless EM8805',
+        '1199:9071': 'Sierra Wireless MC7455',
+        '1199:68a2': 'Sierra Wireless MC7710',
+        '03f0:371d': 'Sierra Wireless MC8355',
+        '1199:68a3': 'Sierra Wireless USB 306',
+        '1c9e:9603': 'Zoom 4595',
+        '19d2:0117': 'ZTE MF190',
+        '19d2:2000': 'ZTE MF627'
+    }
+
+    output = check_output('lsusb', shell=True)
+    output = output.splitlines()
+    modem_info = []
+
+    if output:
+        for line in output:
+            # Search the list of modems.
+            for key, value in modem_dict.items():
+                if line.find(str(key)) > 0:
+                    # print('USB ID {} {}'.format(key, value))
+                    modem_info.append('USB ID {} {}'.format(key, value))
+
+    return modem_info
 
 # the order of these steps is as follows
 # 1. before scenario
@@ -348,8 +378,8 @@ def before_scenario(context, scenario):
 
         if 'gsm' in scenario.tags:
             # Insert into the report modem's USB ID and model.
-            output = check_output('lsusb', shell=True)
-            context.embed('text/plain', output, caption='TESTED MODEMS')
+            modem_info = find_modems()
+            context.embed('text/plain', modem_info, caption='TESTED MODEMS')
             call("mmcli -G debug", shell=True)
             call("nmcli general logging level DEBUG domains ALL", shell=True)
 
