@@ -377,9 +377,6 @@ def before_scenario(context, scenario):
             call("sudo prepare/gsm_sim.sh modemu", shell=True)
 
         if 'gsm' in scenario.tags:
-            # Insert into the report modem's USB ID and model.
-            modem_info = find_modems()
-            context.embed('text/plain', modem_info, caption='TESTED MODEMS')
             call("mmcli -G debug", shell=True)
             call("nmcli general logging level DEBUG domains ALL", shell=True)
 
@@ -1919,6 +1916,10 @@ def after_scenario(context, scenario):
             data = open("/tmp/journal-mm.log", 'r').read()
             if data:
                 context.embed('text/plain', data, caption="MM")
+            # Insert into the report modem's USB ID and model.
+            modem_list = find_modems()
+            if modem_list:
+                context.embed('text/plain', str(modem_list), caption='TESTED MODEMS')
 
         if 'captive_portal' in scenario.tags:
             call("sudo prepare/captive_portal.sh teardown", shell=True)
@@ -2154,7 +2155,6 @@ def after_scenario(context, scenario):
     except Exception as e:
         print(("Error in after_scenario"))
         traceback.print_exc(file=sys.stdout)
-
 
 def after_all(context):
     print("ALL DONE")
