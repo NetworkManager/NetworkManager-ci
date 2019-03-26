@@ -36,28 +36,17 @@ def check_slave_in_team_is_up(context, slave, team, state):
     r = command_code(context, 'sudo teamdctl %s port present %s' %(team, slave))
     if state == "up":
         if r != 0:
-            raise Exception('Device %s was not found in dump of team %s' % (slave, team))
+            sleep(1)
+            r = command_code(context, 'sudo teamdctl %s port present %s' %(team, slave))
+            if r != 0:
+                raise Exception('Device %s was not found in dump of team %s' % (slave, team))
 
     if state == "down":
         if r == 0:
-            raise Exception('Device %s was found in dump of team %s' % (slave, team))
-
-    # child = pexpect.spawn('sudo teamdctl %s state dump' % (team),  maxread=10000, logfile=context.log, encoding='utf-8')
-    # if state == "up":
-    #     found = '"ifname"\:\s+"%s"' % slave
-    #     r = child.expect([found, 'Timeout', pexpect.TIMEOUT, pexpect.EOF])
-    #     if r != 0:
-    #         raise Exception('Device %s was not found in dump of team %s' % (slave, team))
-
-    #     r = child.expect(['"up"\: true', '"ifname"', 'Timeout', pexpect.TIMEOUT, pexpect.EOF])
-    #     if r != 0:
-    #         raise Exception('Got an Error while %sing connection %s' % (action, name))
-
-    # if state == "down":
-    #     r = child.expect([slave, 'Timeout', pexpect.TIMEOUT, pexpect.EOF])
-    #     if r == 0:
-    #         raise Exception('Device %s was found in dump of team %s' % (slave, team))
-
+            sleep(1)
+            r = command_code(context, 'sudo teamdctl %s port present %s' %(team, slave))
+            if r == 0:
+                raise Exception('Device %s was found in dump of team %s' % (slave, team))
 
 @step(u'Check "{bond}" has "{slave}" in proc')
 def check_slave_present_in_bond_in_proc(context, slave, bond):
