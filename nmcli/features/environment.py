@@ -17,6 +17,28 @@ from glob import glob
 
 TIMER = 0.5
 
+modem_dict = {
+    '413c:8118': 'Dell Wireless 5510',
+    '413c:81b6': 'Dell Wireless EM7455',
+    '0bdb:190d': 'Ericsson F5521 gw',
+    '0bdb:1926': 'Ericsson H5321 gw',
+    '12d1:1001': 'Huawei E1550',
+    '12d1:1446': 'Huawei E173',
+    '12d1:1003': 'Huawei E220',
+    '12d1:1506': 'Huawei E3276',
+    '0421:0637': 'Nokia 21M-02',
+    '1410:b001': 'Novatel Ovation MC551',
+    '0b3c:f000': 'Olicard 200',
+    '0af0:d033': 'Option GlobeTrotter Icon322',
+    '04e8:6601': 'Samsung SGH-Z810',
+    '1199:9051': 'Sierra Wireless AirCard 340U',
+    '1199:9041': 'Sierra Wireless MC7355',
+    '03f0:371d': 'Sierra Wireless MC8355',
+    '1199:68a3': 'Sierra Wireless USB 306',
+    '1c9e:9603': 'Zoom 4595',
+    '19d2:2000': 'ZTE MF627'
+}
+
 # the order of these steps is as follows
 # 1. before scenario
 # 2. before tag
@@ -325,6 +347,9 @@ def before_scenario(context, scenario):
             call("sudo prepare/gsm_sim.sh modemu", shell=True)
 
         if 'gsm' in scenario.tags:
+            # Insert into the report modem's USB ID and model.
+            output = check_output('lsusb', shell=True)
+            context.embed('text/plain', output, caption='TESTED MODEMS')
             call("mmcli -G debug", shell=True)
             call("nmcli general logging level DEBUG domains ALL", shell=True)
 
