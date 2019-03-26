@@ -760,6 +760,13 @@ def before_scenario(context, scenario):
             print("iptunnel setup")
             call('sh prepare/iptunnel.sh', shell=True)
 
+        if 'wireguard' in scenario.tags:
+            print("----------------------------")
+            print("wireguard setup")
+            rc = call('sh prepare/wireguard.sh', shell=True)
+            if rc != 0:
+                print("wireguard setup failed with exitcode: %d" % rc)
+                sys.exit(rc)
 
         # if 'macsec' in scenario.tags:
         #     print("---------------------------")
@@ -1669,6 +1676,11 @@ def after_scenario(context, scenario):
             print("----------------------------")
             print("iptunnel teardown")
             call('sh prepare/iptunnel.sh teardown', shell=True)
+
+        if 'wireguard' in scenario.tags:
+            print("----------------------------")
+            print("remove wireguard connection")
+            call('nmcli con del wireguard', shell=True)
 
         if 'scapy' in scenario.tags:
             print ("---------------------------")
