@@ -13,17 +13,20 @@ import fcntl
 from subprocess import call, Popen, PIPE, check_output, CalledProcessError
 from time import sleep, localtime, strftime
 from glob import glob
-
+import re
 
 TIMER = 0.5
 
-from subprocess import *
+def find_modem():
+    """
+    Find the 1st modem connected to a USB port or USB hub on a testing machine.
+    :return: None/a string of detected modem specified in a dictionary.
+    """
+    # When to extract information about a modem?
+    # - When the modem is initialized.
+    # - When it is available in the output of 'mmcli -L'.
+    # - When the device has type of 'gsm' in the output of 'nmcli dev'.
 
-def find_modems():
-    """
-    Find modems connected to USB ports or USB hub on a testing machine.
-    :return: a list of detected modems specified in a dictionary.
-    """
     modem_dict = {
         '413c:8118': 'Dell Wireless 5510',
         '413c:81b6': 'Dell Wireless EM7455',
@@ -55,19 +58,64 @@ def find_modems():
         '19d2:2000': 'ZTE MF627'
     }
 
-    output = check_output('lsusb', shell=True)
+    output = check_output('lsusb', shell=True).decode('utf-8')
     output = output.splitlines()
-    modem_info = []
 
     if output:
         for line in output:
-            # Search the list of modems.
             for key, value in modem_dict.items():
                 if line.find(str(key)) > 0:
-                    # print('USB ID {} {}'.format(key, value))
-                    modem_info.append('USB ID {} {}'.format(key, value))
+                    return 'USB ID {} {}'.format(key, value)
 
-    return modem_info
+    return None
+
+def get_modem_info():
+    """
+    Get a list of connected modem via command 'mmcli -L'.
+    Extract the index of the 1st modem.
+    Get info about the modem via command 'mmcli -m $i'
+    Find its SIM card. This optional for this function.
+    Get info about the SIM card via command 'mmcli --sim $i'.
+    :return: None/A string containing modem information.
+    """
+    output = modem_index = modem_info = sim_index = sim_info = None
+
+    # Get a list of modems from ModemManager.
+    try:
+        output = check_output('mmcli -L', shell=True).decode('utf-8')
+    except CalledProcessError:
+        print('Cannot get modem info from ModemManager.'.format(modem_index))
+        return None
+
+    regex = r'/org/freedesktop/ModemManager1/Modem/(\d+)'
+    mo = re.search(regex, output)
+    if mo:
+        modem_index = mo.groups()[0]
+        cmd = 'mmcli -m {}'.format(modem_index)
+        try:
+            modem_info = check_output(cmd, shell=True).decode('utf-8')
+        except CalledProcessError:
+            print('Cannot get modem info at index {}.'.format(modem_index))
+            return None
+    else:
+        return None
+
+    # Get SIM card info from modem_info.
+    regex = r'/org/freedesktop/ModemManager1/SIM/(\d+)'
+    mo = re.search(regex, modem_info)
+    if mo:
+        # Get SIM card info from ModemManager.
+        sim_index = mo.groups()[0]
+        cmd = 'mmcli --sim {}'.format(sim_index)
+        try:
+            sim_info = check_output(cmd, shell=True).decode('utf-8')
+        except:
+            print('Cannot get SIM card info at index {}.'.format(sim_index))
+
+    if sim_info is None:
+        return modem_info
+    else:
+        return 'MODEM INFO\n{}\nSIM CARD INFO\n{}'.format(modem_info, sim_info)
 
 # the order of these steps is as follows
 # 1. before scenario
@@ -379,6 +427,14 @@ def before_scenario(context, scenario):
         if 'gsm' in scenario.tags:
             call("mmcli -G debug", shell=True)
             call("nmcli general logging level DEBUG domains ALL", shell=True)
+            # Extract modem's identification and keep it in a global variable for further use.
+            # Only 1 modem is expected per test.
+            context.modem_str = find_modem()
+            if context.modem_str:
+                # Create a file containging modem identification. Use the file for HTML reports.
+                m_file = open('/tmp/modem_id', 'w')
+                m_file.write(context.modem_str)
+                m_file.close()
 
             if not os.path.isfile('/tmp/usb_hub'):
                 import time
@@ -1081,7 +1137,6 @@ def after_scenario(context, scenario):
                     context.embed('text/plain', traffic, caption="TRAFFIC")
             else:
                 print("WARNING: 20M size exceeded in /tmp/network-traffic.log, skipping")
-
 
         if 'netservice' in scenario.tags:
             # Attach network.service journalctl logs
@@ -1916,10 +1971,9 @@ def after_scenario(context, scenario):
             data = open("/tmp/journal-mm.log", 'r').read()
             if data:
                 context.embed('text/plain', data, caption="MM")
-            # Insert into the report modem's USB ID and model.
-            modem_list = find_modems()
-            if modem_list:
-                context.embed('text/plain', str(modem_list), caption='TESTED MODEMS')
+            modem_info = get_modem_info()
+            if modem_info:
+                context.embed('text/plain', modem_info, caption="MODEM INFO")
 
         if 'captive_portal' in scenario.tags:
             call("sudo prepare/captive_portal.sh teardown", shell=True)
