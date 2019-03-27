@@ -281,7 +281,7 @@ Feature: nmcli - general
     Scenario: nmcli - networking - turn off
     * "eth0:" is visible with command "ifconfig"
     * Execute "nmcli networking off"
-    Then "eth0:" is not visible with command "ifconfig"  in "5" seconds
+    Then "eth0:" is not visible with command "ifconfig" in "5" seconds
     Then Execute "nmcli networking on"
 
 
@@ -291,7 +291,7 @@ Feature: nmcli - general
     * Execute "nmcli networking off"
     * "eth0:" is not visible with command "ifconfig" in "5" seconds
     * Execute "nmcli networking on"
-    Then "eth0:" is visible with command "ifconfig"  in "5" seconds
+    Then "eth0:" is visible with command "ifconfig" in "5" seconds
 
 
     @nmcli_radio_status
