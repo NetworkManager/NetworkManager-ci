@@ -1955,6 +1955,10 @@ def after_scenario(context, scenario):
             call('sudo nmcli connection up testeth0', shell=True)
 
         if 'gsm' in scenario.tags:
+            # You can debug here only with console connection to the testing machine.
+            # SSH connection is interrupted.
+            # import ipdb
+
             print ("---------------------------")
             print ("remove gsm profile and delete lock and dump logs")
             call('nmcli connection delete gsm', shell=True)
@@ -1971,9 +1975,18 @@ def after_scenario(context, scenario):
             data = open("/tmp/journal-mm.log", 'r').read()
             if data:
                 context.embed('text/plain', data, caption="MM")
+            # Extract modem model.
+            # Example: 'USB ID 1c9e:9603 Zoom 4595' -> 'Zoom 4595'
+            regex = r'USB ID (\w{4}:\w{4}) (.*)'
+            mo = re.search(regex, context.modem_str)
+            if mo:
+                modem_model = mo.groups()[1]
+                cap = modem_model
+            else:
+                cap = 'MODEM INFO'
+
             modem_info = get_modem_info()
-            if modem_info:
-                context.embed('text/plain', modem_info, caption="MODEM INFO")
+            context.embed('text/plain', modem_info, caption=cap)
 
         if 'captive_portal' in scenario.tags:
             call("sudo prepare/captive_portal.sh teardown", shell=True)

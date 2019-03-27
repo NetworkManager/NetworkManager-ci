@@ -11,6 +11,7 @@ function test_modems_usb_hub() {
     # Number of modems that are plugged into Acroname USB hub.
     local PORT_COUNT=${2:?"Error: number of USB ports on hub is not specified."}
     local RC=0
+    local MODEM_INDEX=0  # Allow differentiation between modems.
 
     if [ -z "$NMTEST" ]; then
         echo "Error: variable \"NMTEST\" is not initialized." >&2
@@ -64,12 +65,18 @@ function test_modems_usb_hub() {
             MODEM_ID=$(cat /tmp/modem_id)
             sed -i -e "s/Behave Test Report/Behave Test Report - $MODEM_ID/g" /tmp/report_1.html
             sed -i -e "s/Behave Test Report/Behave Test Report - $MODEM_ID/g" /tmp/report_2.html
+            # Create unique IDs of embedded sections in the HTML report.
+            # Allow joining of two or more reports with collapsible sections.
+            sed -i -e "s/embed_/${MODEM_INDEX}_1_embed_/g" /tmp/report_1.html
+            sed -i -e "s/embed_/${MODEM_INDEX}_2_embed_/g" /tmp/report_2.html
             # Remove modem id for next test.
             rm -f /tmp/modem_id
         fi
 
         # Concatenate HTML reports from 2 tests into 1.
         cat /tmp/report_{1,2}.html >> /tmp/report_$NMTEST.html
+
+        MODEM_INDEX=$((MODEM_INDEX+1))
     done
 }  # test_modems_usb_hub
 
