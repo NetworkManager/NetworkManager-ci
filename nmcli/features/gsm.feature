@@ -1,5 +1,5 @@
 Feature: nmcli: gsm
- 
+
     @gsm_hub
     Scenario: nmcli - gsm - hub
     * Execute "echo 'PASS'"
@@ -62,17 +62,17 @@ Feature: nmcli: gsm
     @eth0 @gsm
     @gsm_mtu
     Scenario: nmcli - gsm - mtu
-    * Add a new connection of type "gsm" and options "ifname \* con-name gsm autoconnect no apn internet"
+    * Add a new connection of type "gsm" and options "ifname \* con-name gsm autoconnect no apn internet gsm.mtu 1430"
+    * Execute "nmcli con modify gsm gsm.mtu 1430"
     * Bring "up" connection "gsm"
-    When "default" is visible with command "ip r |grep 700" in "20" seconds
-     And "mtu 1500" is visible with command "ip a s |grep mtu|tail -1"
-     And "mtu 1500" is visible with command "nmcli |grep gsm"
-    * Execute "nmcli con modify gsm gsm.mtu 1600"
-    * Bring "up" connection "gsm"
-    * Execute "sleep 5"
     When "GENERAL.STATE:.*activated" is visible with command "nmcli con show gsm" in "20" seconds
-    Then "mtu 1600" is visible with command "ip a s |grep mtu|tail -1"
-     And "mtu 1600" is visible with command "nmcli |grep gsm"
+     And "mtu 1430" is visible with command "ip a s |grep mtu|tail -1" in "5" seconds
+     And "mtu 1430" is visible with command "nmcli |grep gsm"
+     * Execute "nmcli con modify gsm gsm.mtu 1500"
+     * Bring "up" connection "gsm"
+     When "GENERAL.STATE:.*activated" is visible with command "nmcli con show gsm" in "20" seconds
+     Then "mtu 1500" is visible with command "ip a s |grep mtu|tail -1" in "5" seconds
+      And "mtu 1500" is visible with command "nmcli |grep gsm"
 
 
     @rhbz1585611
@@ -93,41 +93,41 @@ Feature: nmcli: gsm
 
 
     # Modems are not stable enough to test such things VVV
-    # @ver+=1.2.0
-    # @eth0 @gsm
-    # @gsm_up_down_up
-    # Scenario: nmcli - gsm - reconnect with down
-    #  * Add a new connection of type "gsm" and options "ifname \* con-name gsm autoconnect no apn internet"
-    #  * Bring "up" connection "gsm"
-    # Then "GENERAL.STATE:.*activated" is visible with command "nmcli con show gsm" in "20" seconds
-    #  * Bring "down" connection "gsm"
-    #  And Unable to ping "8.8.8.8"
-    # Then "GENERAL.STATE:.*activated" is not visible with command "nmcli con show gsm" in "20" seconds
-    #  * Bring "up" connection "gsm"
-    # Then "GENERAL.STATE:.*activated" is visible with command "nmcli con show gsm" in "20" seconds
-    #  * Ping "8.8.8.8" "7" times
-    #
-    #
-    # @ver+=1.2.0
-    # @eth0 @gsm
-    # @gsm_up_up
-    # Scenario: nmcli - gsm - reconnect without down
-    #  * Add a new connection of type "gsm" and options "ifname \* con-name gsm autoconnect no apn internet"
-    #  * Bring "up" connection "gsm"
-    # Then "GENERAL.STATE:.*activated" is visible with command "nmcli con show gsm" in "20" seconds
-    #  * Bring "up" connection "gsm"
-    # Then "GENERAL.STATE:.*activated" is visible with command "nmcli con show gsm" in "20" seconds
-    #  * Bring "up" connection "gsm"
-    # Then "GENERAL.STATE:.*activated" is visible with command "nmcli con show gsm" in "20" seconds
-    #  * Bring "up" connection "gsm"
-    # Then "GENERAL.STATE:.*activated" is visible with command "nmcli con show gsm" in "20" seconds
-    #  * Bring "up" connection "gsm"
-    # Then "GENERAL.STATE:.*activated" is visible with command "nmcli con show gsm" in "20" seconds
-    #  * Bring "up" connection "gsm"
-    # Then "GENERAL.STATE:.*activated" is visible with command "nmcli con show gsm" in "20" seconds
-    #  * Bring "up" connection "gsm"
-    # Then "GENERAL.STATE:.*activated" is visible with command "nmcli con show gsm" in "20" seconds
-    #  * Ping "8.8.8.8" "7" times
+    @ver+=1.2.0
+    @eth0 @gsm
+    @gsm_up_down_up
+    Scenario: nmcli - gsm - reconnect with down
+     * Add a new connection of type "gsm" and options "ifname \* con-name gsm autoconnect no apn internet"
+     * Bring "up" connection "gsm"
+    Then "GENERAL.STATE:.*activated" is visible with command "nmcli con show gsm" in "20" seconds
+     * Bring "down" connection "gsm"
+     And Unable to ping "8.8.8.8"
+    Then "GENERAL.STATE:.*activated" is not visible with command "nmcli con show gsm" in "20" seconds
+     * Bring "up" connection "gsm"
+    Then "GENERAL.STATE:.*activated" is visible with command "nmcli con show gsm" in "20" seconds
+     * Ping "8.8.8.8" "7" times
+
+
+    @ver+=1.2.0
+    @eth0 @gsm
+    @gsm_up_up
+    Scenario: nmcli - gsm - reconnect without down
+     * Add a new connection of type "gsm" and options "ifname \* con-name gsm autoconnect no apn internet"
+     * Bring "up" connection "gsm"
+    Then "GENERAL.STATE:.*activated" is visible with command "nmcli con show gsm" in "20" seconds
+     * Bring "up" connection "gsm"
+    Then "GENERAL.STATE:.*activated" is visible with command "nmcli con show gsm" in "20" seconds
+     * Bring "up" connection "gsm"
+    Then "GENERAL.STATE:.*activated" is visible with command "nmcli con show gsm" in "20" seconds
+     * Bring "up" connection "gsm"
+    Then "GENERAL.STATE:.*activated" is visible with command "nmcli con show gsm" in "20" seconds
+     * Bring "up" connection "gsm"
+    Then "GENERAL.STATE:.*activated" is visible with command "nmcli con show gsm" in "20" seconds
+     * Bring "up" connection "gsm"
+    Then "GENERAL.STATE:.*activated" is visible with command "nmcli con show gsm" in "20" seconds
+     * Bring "up" connection "gsm"
+    Then "GENERAL.STATE:.*activated" is visible with command "nmcli con show gsm" in "20" seconds
+     * Ping "8.8.8.8" "7" times
 
 
     @ver+=1.2.0

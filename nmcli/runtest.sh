@@ -24,7 +24,7 @@ function runtest () {
         sed -i -e "s/Behave Test Report/Behave Test Report - $MODEM_ID/g" /tmp/report.html
         # Create unique IDs of embedded sections in the HTML report.
         # Allow joining of two or more reports with collapsible sections.
-        sed -i -e "s/embed_/${MODEM_INDEX}_embed_/g" /tmp/report.html
+        sed -i -e "s/embed_/${MODEM_INDEX}_${TEST_NAME}_embed_/g" /tmp/report.html
         # Remove modem id for next test.
         rm -f /tmp/modem_id
     fi
@@ -33,11 +33,12 @@ function runtest () {
 }
 
 function test_modems_usb_hub() {
-    local MODEM_COUNT=${1:?"Error: number of modems is not specified."}
     # Number of modems that are plugged into Acroname USB hub.
-    local PORT_COUNT=${2:?"Error: number of USB ports on hub is not specified."}
+    local MODEM_COUNT=4
+    # Number of ports Acroname USB hub has.
+    local PORT_COUNT=8
+    # Return code
     local RC=0
-    local MODEM_INDEX=0  # Allow differentiation between modems.
 
     if [ -z "$NMTEST" ]; then
         echo "Error: variable \"NMTEST\" is not initialized." >&2
@@ -51,13 +52,13 @@ function test_modems_usb_hub() {
 
     touch /tmp/usb_hub
     echo "USB_HUB" > /tmp/report_$NMTEST.html
-    for m in $(seq 0 1 $((MODEM_COUNT-1)) ); do
-        for p in $(seq 0 1 $((PORT_COUNT-1)) ); do
-            $DIR/tmp/usb_hub/acroname.py --port $p --disable
+    for M in $(seq 0 1 $((MODEM_COUNT-1)) ); do
+        for P in $(seq 0 1 $((PORT_COUNT-1)) ); do
+            $DIR/tmp/usb_hub/acroname.py --port $P --disable
         done
         sleep 1
 
-        $DIR/tmp/usb_hub/acroname.py --port $m --enable
+        $DIR/tmp/usb_hub/acroname.py --port $M --enable
 
         # wait for device to appear in NM
         TIMER=60
@@ -70,18 +71,34 @@ function test_modems_usb_hub() {
             fi
         done
 
-        # Test a single modem connected to the USB hub.
-        # Test 1 of 2.
-        runtest gsm_create_default_connection $MODEM_INDEX || RC=1
-        # Concatenate multiple HTML reports into 1.
-        cat /tmp/report.html >> /tmp/report_$NMTEST.html
+        if [ $M == 0 ]; then
+            GSM_TESTS_ALL='
+            gsm_create_assisted_connection
+            gsm_create_default_connection
+            gsm_disconnect
+            gsm_create_one_minute_ping
+            gsm_mtu
+            gsm_route_metric
+            gsm_load_from_file
+            gsm_up_up
+            gsm_up_down_up
+            gsm_connectivity_check
+            '
+        else
+            GSM_TESTS='
+            gsm_create_default_connection
+            gsm_disconnect
+            gsm_create_one_minute_ping
+            gsm_mtu
+            gsm_up_up
+            gsm_up_down_up
+            '
+        fi
+        for T in $GSM_TESTS; do
+            runtest $T $M || RC=1
+            cat /tmp/report.html >> /tmp/report_$NMTEST.html
 
-        # Test 2 of 2.
-        runtest gsm_disconnect $MODEM_INDEX || RC=1
-        # Concatenate multiple HTML reports into 1.
-        cat /tmp/report.html >> /tmp/report_$NMTEST.html
-
-        MODEM_INDEX=$((MODEM_INDEX+1))
+        done
     done
 
     return $RC
@@ -118,13 +135,13 @@ elif [ $vc -eq 0 ]; then
         logger "Running $TAG version of $NMTEST"
         behave $DIR/nmcli/features -t $1 -t $TAG -k -f html -o /tmp/report_$NMTEST.html -f plain; rc=$?
 
-    # if not 
+    # if not
     else
         # check if we have gsm_hub use this
         if [ $1 == 'gsm_hub' ];then
             # Test 3 modems on USB hub with 8 ports.
-            test_modems_usb_hub 3 8; rc=$?
-        
+            test_modems_usb_hub; rc=$?
+
         # if we do not have tag or gsm_hub
         else
             behave $DIR/nmcli/features -t $1 -k -f html -o /tmp/report_$NMTEST.html -f plain; rc=$?
@@ -148,4 +165,3 @@ logger -t $0 "Test $1 finished with result $RESULT: $rc"
 
 echo "------------ Test result: $RESULT ------------"
 exit $rc
-
