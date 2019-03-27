@@ -233,6 +233,7 @@ def reset_hwaddr(ifname):
     if not os.path.isfile('/tmp/nm_newveth_configured'):
         hwaddr = check_output("ethtool -P %s" % ifname, shell=True).decode('utf-8').split()[2]
         call("ip link set %s address %s" % (ifname, hwaddr), shell=True)
+        call("ip link set %s up" % (ifname), shell=True)
 
 def setup_hostapd():
     print ("setting up hostapd")
@@ -868,6 +869,13 @@ def before_scenario(context, scenario):
             print("iptunnel setup")
             call('sh prepare/iptunnel.sh', shell=True)
 
+        if 'wireguard' in scenario.tags:
+            print("----------------------------")
+            print("wireguard setup")
+            rc = call('sh prepare/wireguard.sh', shell=True)
+            if rc != 0:
+                print("wireguard setup failed with exitcode: %d" % rc)
+                sys.exit(rc)
 
         # if 'macsec' in scenario.tags:
         #     print("---------------------------")
@@ -980,7 +988,7 @@ def before_scenario(context, scenario):
         if 'selinux_allow_ifup' in scenario.tags:
             print ("---------------------------")
             print ("allow ifup in selinux")
-            call("semodule -i tmp/ifup_policy.pp", shell=True)
+            call("semodule -i tmp/selinux-policy/ifup_policy.pp", shell=True)
 
         if 'nmcli_general_ignore_specified_unamanaged_devices' in scenario.tags:
             print ("---------------------------")
@@ -994,10 +1002,11 @@ def before_scenario(context, scenario):
 
         if 'pppoe' in scenario.tags:
             arch = check_output("uname -p", shell=True).decode('utf-8').strip()
+            # selinux on aarch64: see https://bugzilla.redhat.com/show_bug.cgi?id=1643954
             if arch == "aarch64":
                 print ("---------------------------")
-                print ("Skipping on aarch64 due to https://bugzilla.redhat.com/show_bug.cgi?id=1643954")
-                sys.exit(77)
+                print ("enable pppd selinux policy")
+                call("semodule -i tmp/selinux-policy/pppd.pp", shell=True)
             print ("---------------------------")
             print ("installing pppoe dependencies")
             # This -x is to avoid upgrade of NetworkManager in older version testing
@@ -1282,10 +1291,10 @@ def after_scenario(context, scenario):
         if 'slaves' in scenario.tags:
             print ("---------------------------")
             print ("deleting slave profiles")
-            call('nmcli connection delete id bond0.0 bond0.1 bond0.2 bond-slave-eth1', shell=True)
             reset_hwaddr('eth1')
-            reset_hwaddr('eth2')
-            reset_hwaddr('eth3')
+            reset_hwaddr('eth4')
+            call('nmcli connection delete id bond0.0 bond0.1 bond0.2 bond-slave-eth1', shell=True)
+
             #sleep(TIMER)
 
         if 'bond_order' in scenario.tags:
@@ -1776,6 +1785,11 @@ def after_scenario(context, scenario):
             print("----------------------------")
             print("iptunnel teardown")
             call('sh prepare/iptunnel.sh teardown', shell=True)
+
+        if 'wireguard' in scenario.tags:
+            print("----------------------------")
+            print("remove wireguard connection")
+            call('nmcli con del wireguard', shell=True)
 
         if 'scapy' in scenario.tags:
             print ("---------------------------")

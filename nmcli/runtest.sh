@@ -124,7 +124,7 @@ elif [ $vc -eq 0 ]; then
         if [ $1 == 'gsm_hub' ];then
             # Test 3 modems on USB hub with 8 ports.
             test_modems_usb_hub 3 8; rc=$?
-
+        
         # if we do not have tag or gsm_hub
         else
             behave $DIR/nmcli/features -t $1 -k -f html -o /tmp/report_$NMTEST.html -f plain; rc=$?

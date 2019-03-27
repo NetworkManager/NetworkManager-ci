@@ -119,3 +119,20 @@
     * Restart NM
     Then Bring "down" connection "gre1"
     Then Bring "down" connection "ipip1"
+
+
+    @ver+=1.16
+    @wireguard @not_in_rhel7
+    @wireguard_activate_connection
+    Scenario: nmcli - vpn - create and activate wireguard connection
+    * Add a new connection of type "wireguard" and options "ifname nm-wireguard con-name wireguard wireguard.private-key qOdhat/redhat/redhat/redhat/redhat/redhatUE= wireguard.listen-port 23456 ipv4.method manual ipv4.addresses 172.25.17.1/24 "
+    * Bring "up" connection "wireguard"
+    Then "qOdhat/redhat/redhat/redhat/redhat/redhatUE=" is visible with command "sudo WG_HIDE_KEYS=never wg | grep 'private key:'" in "10" seconds
+     And "23456" is visible with command "sudo WG_HIDE_KEYS=never wg | grep 'port:'" in "10" seconds
+     And "172.25.17.1/24" is visible with command "ip address show dev nm-wireguard"
+    * Modify connection "wireguard" changing options "wireguard.private-key qOdhat/redhat/REDHAT/redhat/redhat/redhatUE= wireguard.listen-port 14456 ipv4.addresses 172.25.17.4/24 wireguard.mtu 1250"
+    * Bring "up" connection "wireguard"
+    Then "qOdhat/redhat/REDHAT/redhat/redhat/redhatUE=" is visible with command "sudo WG_HIDE_KEYS=never wg | grep 'private key:'" in "10" seconds
+     And "14456" is visible with command "sudo WG_HIDE_KEYS=never wg | grep 'port:'" in "10" seconds
+     And "172.25.17.4/24" is visible with command "ip address show dev nm-wireguard"
+     And "mtu 1250" is visible with command "ip address show dev nm-wireguard"
