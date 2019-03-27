@@ -6,6 +6,32 @@ logger -t $0 "Running test $1"
 export PATH=$PATH:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/root/bin
 DIR=$(pwd)
 
+function runtest () {
+    local TEST_NAME=${1:?"Error: test name is missing."}
+    local MODEM_INDEX=${2:?"Error: modem index is missing."}
+    local RC=0
+
+    if [ -z "$DIR" ]; then
+        echo "Error: variable \"DIR\" for working directory is not specified." >&2
+        return 1
+    fi
+
+    behave $DIR/nmcli/features -t $TEST_NAME -k -f html -o /tmp/report.html -f plain || RC=1
+
+    # Insert the modem's USB ID and model into the HTML report.
+    if [ -f /tmp/modem_id ]; then
+        MODEM_ID=$(cat /tmp/modem_id)
+        sed -i -e "s/Behave Test Report/Behave Test Report - $MODEM_ID/g" /tmp/report.html
+        # Create unique IDs of embedded sections in the HTML report.
+        # Allow joining of two or more reports with collapsible sections.
+        sed -i -e "s/embed_/${MODEM_INDEX}_embed_/g" /tmp/report.html
+        # Remove modem id for next test.
+        rm -f /tmp/modem_id
+    fi
+
+    return $RC
+}
+
 function test_modems_usb_hub() {
     local MODEM_COUNT=${1:?"Error: number of modems is not specified."}
     # Number of modems that are plugged into Acroname USB hub.
@@ -46,38 +72,19 @@ function test_modems_usb_hub() {
 
         # Test a single modem connected to the USB hub.
         # Test 1 of 2.
-        behave $DIR/nmcli/features -t gsm_create_default_connection -k -f html -o /tmp/report_1.html -f plain
-        if [ $? -eq 1 ]; then
-            RC=1
-        fi
+        runtest gsm_create_default_connection $MODEM_INDEX || RC=1
+        # Concatenate multiple HTML reports into 1.
+        cat /tmp/report.html >> /tmp/report_$NMTEST.html
 
         # Test 2 of 2.
-        behave $DIR/nmcli/features -t gsm_disconnect -k -f html -o /tmp/report_2.html -f plain
-        if [ $? -eq 1 ]; then
-            RC=1
-        fi
-
-        # Insert the modem's USB ID and model into the HTML report.
-        # Put the modem's identification in the title.
-        # Do not insert into file /tmp/report_$NMTEST.html !
-        # All modems will appear in every section of the report.
-        if [ -f /tmp/modem_id ]; then
-            MODEM_ID=$(cat /tmp/modem_id)
-            sed -i -e "s/Behave Test Report/Behave Test Report - $MODEM_ID/g" /tmp/report_1.html
-            sed -i -e "s/Behave Test Report/Behave Test Report - $MODEM_ID/g" /tmp/report_2.html
-            # Create unique IDs of embedded sections in the HTML report.
-            # Allow joining of two or more reports with collapsible sections.
-            sed -i -e "s/embed_/${MODEM_INDEX}_1_embed_/g" /tmp/report_1.html
-            sed -i -e "s/embed_/${MODEM_INDEX}_2_embed_/g" /tmp/report_2.html
-            # Remove modem id for next test.
-            rm -f /tmp/modem_id
-        fi
-
-        # Concatenate HTML reports from 2 tests into 1.
-        cat /tmp/report_{1,2}.html >> /tmp/report_$NMTEST.html
+        runtest gsm_disconnect $MODEM_INDEX || RC=1
+        # Concatenate multiple HTML reports into 1.
+        cat /tmp/report.html >> /tmp/report_$NMTEST.html
 
         MODEM_INDEX=$((MODEM_INDEX+1))
     done
+
+    return $RC
 }  # test_modems_usb_hub
 
 
