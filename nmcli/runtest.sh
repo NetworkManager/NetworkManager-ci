@@ -50,16 +50,26 @@ function test_modems_usb_hub() {
             RC=1
         fi
 
-        cat /tmp/report_1.html >> /tmp/report_$NMTEST.html
-
         # Test 2 of 2.
         behave $DIR/nmcli/features -t gsm_disconnect -k -f html -o /tmp/report_2.html -f plain
         if [ $? -eq 1 ]; then
             RC=1
         fi
 
-        # Concatenate HTML reports from 2 test into 1.
-        cat /tmp/report_2.html >> /tmp/report_$NMTEST.html
+        # Insert the modem's USB ID and model into the HTML report.
+        # Put the modem's identification in the title.
+        # Do not insert into file /tmp/report_$NMTEST.html !
+        # All modems will appear in every section of the report.
+        if [ -f /tmp/modem_id ]; then
+            MODEM_ID=$(cat /tmp/modem_id)
+            sed -i -e "s/Behave Test Report/Behave Test Report - $MODEM_ID/g" /tmp/report_1.html
+            sed -i -e "s/Behave Test Report/Behave Test Report - $MODEM_ID/g" /tmp/report_2.html
+            # Remove modem id for next test.
+            rm -f /tmp/modem_id
+        fi
+
+        # Concatenate HTML reports from 2 tests into 1.
+        cat /tmp/report_{1,2}.html >> /tmp/report_$NMTEST.html
     done
 }  # test_modems_usb_hub
 
