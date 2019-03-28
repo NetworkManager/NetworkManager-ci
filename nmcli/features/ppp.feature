@@ -83,10 +83,10 @@ Feature: nmcli - ppp
      And "external" is visible with command "firewall-cmd --get-zone-of-interface=test11" in "10" seconds
      And "nameserver 8.8.8.8" is visible with command "cat /etc/resolv.conf"
      And "nameserver 8.8.4.4" is visible with command "cat /etc/resolv.conf"
-     And "inet 192.168.111.2 peer 192.168.111.254/32 .*scope global ppp" is visible with command "ip a s"
-     And "inet 192.168.111.254 peer 192.168.111.2/32 .*scope global ppp" is visible with command "ip a s"
-     And "192.168.111.2 dev ppp.*\s+proto kernel\s+scope link\s+src 192.168.111.254" is visible with command "ip r"
-     And "default via 192.168.111.254 dev ppp.*\s+proto static\s+metric" is visible with command "ip r"
+     And "inet 192.168.111.2 peer 192.168.111.254/32 .*scope global ppp" is visible with command "ip a s" in "5" seconds
+     And "inet 192.168.111.254 peer 192.168.111.2/32 .*scope global ppp" is visible with command "ip a s" in "5" seconds
+     And "192.168.111.2 dev ppp.*\s+proto kernel\s+scope link\s+src 192.168.111.254" is visible with command "ip r" in "5" seconds
+     And "default via 192.168.111.254 dev ppp.*\s+proto static\s+metric" is visible with command "ip r" in "5" seconds
 
     @rhbz1478694
     @ver+=1.9.1
