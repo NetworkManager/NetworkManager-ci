@@ -42,6 +42,7 @@ def find_modem():
         '0421:0637': 'Nokia 21M-02',
         '1410:b001': 'Novatel Ovation MC551',
         '0b3c:f000': 'Olicard 200',
+        '0b3c:c005': 'Olivetti Techcenter',
         '0af0:d033': 'Option GlobeTrotter Icon322',
         '04e8:6601': 'Samsung SGH-Z810',
         '1199:9051': 'Sierra Wireless AirCard 340U',
@@ -67,7 +68,7 @@ def find_modem():
                 if line.find(str(key)) > 0:
                     return 'USB ID {} {}'.format(key, value)
 
-    return None
+    return 'USB ID 0000:0000 Modem Not in List'
 
 def get_modem_info():
     """
@@ -1393,7 +1394,7 @@ def after_scenario(context, scenario):
             if 'restore_hostname' in scenario.tags:
                 call('hostnamectl set-hostname --transien ""', shell=True)
                 call('hostnamectl set-hostname --static %s' % context.original_hostname, shell=True)
-            restore_testeth0()
+            wait_for_testeth0()
 
         if 'time' in scenario.tags:
             print ("---------------------------")
@@ -2239,4 +2240,3 @@ def after_scenario(context, scenario):
 
 def after_all(context):
     print("ALL DONE")
-
