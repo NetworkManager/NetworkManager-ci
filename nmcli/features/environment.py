@@ -301,6 +301,9 @@ def wait_for_testeth0():
     if call("nmcli connection show testeth0 > /dev/null", shell=True)!= 0:
         restore_testeth0()
 
+    if call("nmcli con show testeth0 |grep -q IP4.ADDRESS", shell=True) != 0:
+        call("nmcli con up testeth0", shell=True)
+
     counter=40
     while call("nmcli connection show testeth0 |grep IP4.ADDRESS > /dev/null", shell=True) != 0:
         sleep(1)
@@ -1766,7 +1769,7 @@ def after_scenario(context, scenario):
             print ("---------------------------")
             print ("removing con_tc profiles")
             call("sudo nmcli connection delete id con_tc", shell=True)
-            
+
         if 'general_vlan' in scenario.tags:
             print ("---------------------------")
             print ("removing ethernet profiles")
