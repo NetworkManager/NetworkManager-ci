@@ -1762,6 +1762,11 @@ def after_scenario(context, scenario):
             call("sudo nmcli connection delete id con_general con_general2", shell=True)
             #call('sudo rm -rf /etc/sysconfig/network-scripts/ifcfg-ethernet*', shell=True) #ideally should do nothing
 
+        if 'con_tc_remove' in scenario.tags:
+            print ("---------------------------")
+            print ("removing con_tc profiles")
+            call("sudo nmcli connection delete id con_tc", shell=True)
+            
         if 'general_vlan' in scenario.tags:
             print ("---------------------------")
             print ("removing ethernet profiles")
