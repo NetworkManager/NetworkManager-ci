@@ -210,7 +210,7 @@ function check_veth_env ()
     # Check devices
     need_veth=0
     echo "* Checking devices"
-    for X in $(seq 0 10); do
+    for X in $(seq 1 10); do
         if ! (nmcli -t -f DEVICE device | grep -q ^eth$X$ && ip a s eth$X |grep -q 'state UP'); then
             echo "Not OK!!"
             need_veth=1
@@ -390,4 +390,3 @@ elif [ "$1" == "teardown" ]; then
 elif [ "$1" == "check" ]; then
     check_veth_env
 fi
-
