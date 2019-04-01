@@ -139,14 +139,14 @@ def external_bridge_check(context, number):
 @step(u'Team "{team}" is down')
 def team_is_down(context, team):
     additional_sleep(2)
-    cmd = pexpect.spawn('teamdctl %s state dump' %team, logfile=context.log, encoding='utf-8')
-    print (command_code(context, 'teamdctl %s state dump' %team))
-    assert command_code(context, 'teamdctl %s state dump' %team) != 0, 'team "%s" exists' % (team)
+    if command_code(context, 'teamdctl %s state dump' %team) == 0:
+        sleep(1)
+        assert command_code(context, 'teamdctl %s state dump' %team) != 0, 'team "%s" exists' % (team)
 
 
 @step(u'Team "{team}" is up')
 def team_is_down(context, team):
     additional_sleep(2)
-    cmd = pexpect.spawn('teamdctl %s state dump' %team, logfile=context.log, encoding='utf-8')
-    print (command_code(context, 'teamdctl %s state dump' %team))
-    assert command_code(context, 'teamdctl %s state dump' %team) == 0, 'team "%s" does not exist' % (team)
+    if command_code(context, 'teamdctl %s state dump' %team) != 0:
+        sleep(1)
+        assert command_code(context, 'teamdctl %s state dump' %team) == 0, 'team "%s" does not exist' % (team)
