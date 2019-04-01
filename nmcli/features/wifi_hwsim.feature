@@ -182,3 +182,13 @@ Feature: nmcli - wifi
     @wifi_dbus_bitrate_property_name
     Scenario: dbus - property name for Device.Wireless.Bitrate
     Then "Bitrate" is visible with command "for dev_id in $(busctl tree org.freedesktop.NetworkManager | grep Devices/ | grep -o '[0-9]*$'); do busctl introspect org.freedesktop.NetworkManager /org/freedesktop/NetworkManager/Devices/$dev_id | grep Bitrate; done"
+
+
+    @ver+=1.16
+    @not_in_rhel7 @not_in_rhel8
+    @simwifi_p2p @attach_wpa_supplicant_log
+    @simwifi_p2p_connect
+    Scenario: nmcli - simwifi - p2p - connect
+    * Add a new connection of type "wifi-p2p" and options "ifname p2p-dev-wlan0 wifi-p2p.peer 02:00:00:00:01:00 con-name wifi-p2p"
+    * Run child "sleep 5; wpa_cli -i wlan1 -p /tmp/wpa_supplicant_peer_ctrl p2p_connect 02:00:00:00:00:00 pbc auth go_intent=0"
+    Then "activated" is visible with command "nmcli con show wifi-p2p" in "120" seconds
