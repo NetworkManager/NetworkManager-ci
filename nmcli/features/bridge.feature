@@ -489,27 +489,27 @@ Feature: nmcli - bridge
 
      @rhbz1355656
      @ver+=1.4
-     @bridge @restart @eth
+     @bridge @restart
      @bridge_slave_to_ethernet_conversion
      Scenario: nmcli - bridge - slave to ethernet conversion
      * Add a new connection of type "bridge" and options "ifname bridge0 con-name bridge0 bridge.stp off ipv4.method manual ipv4.address '192.168.99.99/24' ipv6.method ignore"
-     * Add connection type "ethernet" named "ethie" for device "eth4"
-     * Modify connection "ethie" changing options "connection.master bridge0 connection.slave-type bridge"
-     When "connection.master:\s+bridge0" is visible with command "nmcli c s ethie | grep 'master:'"
-      And "connection.slave-type:\s+bridge" is visible with command "nmcli c s ethie | grep 'slave-type:'"
-     * Execute "nmcli con modify ethie connection.master "" connection.slave-type """
-   #  * Modify connection "ethie" changing options "connection.master '' connection.slave-type ''"
-     When "connection.master:\s+bridge0" is not visible with command "nmcli c s ethie | grep 'master:'"
-      And "connection.slave-type:\s+bridge" is not visible with command "nmcli c s ethie | grep 'slave-type:'"
-      And "BRIDGE" is not visible with command "grep BRIDGE /etc/sysconfig/network-scripts/ifcfg-ethie"
+     * Add connection type "ethernet" named "bridge4.1" for device "eth4"
+     * Modify connection "bridge4.1" changing options "connection.master bridge0 connection.slave-type bridge"
+     When "connection.master:\s+bridge0" is visible with command "nmcli c s bridge4.1 | grep 'master:'"
+      And "connection.slave-type:\s+bridge" is visible with command "nmcli c s bridge4.1 | grep 'slave-type:'"
+     * Execute "nmcli con modify bridge4.1 connection.master "" connection.slave-type """
+   #  * Modify connection "bridge4.1" changing options "connection.master '' connection.slave-type ''"
+     When "connection.master:\s+bridge0" is not visible with command "nmcli c s bridge4.1 | grep 'master:'"
+      And "connection.slave-type:\s+bridge" is not visible with command "nmcli c s bridge4.1 | grep 'slave-type:'"
+      And "BRIDGE" is not visible with command "grep BRIDGE /etc/sysconfig/network-scripts/ifcfg-bridge4.1"
      * Delete connection "bridge0"
-     * Bring "up" connection "ethie"
+     * Bring "up" connection "bridge4.1"
      * Disconnect device "eth4"
      * Reload connections
-     Then "connection.master:\s+bridge0" is not visible with command "nmcli c s ethie | grep 'master:'"
-      And "connection.slave-type:\s+bridge" is not visible with command "nmcli c s ethie | grep 'slave-type:'"
-      And "BRIDGE" is not visible with command "grep BRIDGE /etc/sysconfig/network-scripts/ifcfg-ethie"
-      And Bring "up" connection "ethie"
+     Then "connection.master:\s+bridge0" is not visible with command "nmcli c s bridge4.1 | grep 'master:'"
+      And "connection.slave-type:\s+bridge" is not visible with command "nmcli c s bridge4.1 | grep 'slave-type:'"
+      And "BRIDGE" is not visible with command "grep BRIDGE /etc/sysconfig/network-scripts/ifcfg-bridge4.1"
+      And Bring "up" connection "bridge4.1"
 
 
     @ver+=1.10

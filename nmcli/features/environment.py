@@ -1352,12 +1352,6 @@ def after_scenario(context, scenario):
             call('nmcli con down testeth2', shell=True)
             call('kill -1 $(pidof NetworkManager)', shell=True)
 
-        if 'eth' in scenario.tags:
-            print ("---------------------------")
-            print ("deleting ethie")
-            call("nmcli connection delete id ethie", shell=True)
-            call("rm -rf /etc/sysconfig/network-scripts/ifcfg-ethie*", shell=True)
-
         if 'firewall' in scenario.tags:
             print ("---------------------------")
             print ("stoppping firewall")
@@ -1546,14 +1540,6 @@ def after_scenario(context, scenario):
             call("ip netns del peers", shell=True)
             #sleep(TIMER)
 
-        if 'privacy' in scenario.tags:
-            print ("---------------------------")
-            print ("setting privacy back to defaults ")
-            call("nmcli connection delete id ethie", shell=True)
-            call("rm -rf /etc/NetworkManager/conf.d/01-default-ip6-privacy.conf", shell=True)
-            call("echo 0 > /proc/sys/net/ipv6/conf/default/use_tempaddr", shell=True)
-            reload_NM_service()
-
         if 'sriov_bond' in scenario.tags:
             print ("---------------------------")
             print ("remove sriov bond profiles")
@@ -1591,14 +1577,6 @@ def after_scenario(context, scenario):
             call("nmcli con del sriov_2", shell=True)
 
             reload_NM_service()
-
-        if 'ipv6' in scenario.tags or 'ipv6_2' in scenario.tags:
-            print ("---------------------------")
-            print ("deleting connections")
-            if 'ipv6_2' in scenario.tags:
-                call("nmcli connection delete id ethie2", shell=True)
-            call("nmcli connection delete id ethie", shell=True)
-            #sleep(TIMER)
 
         if 'team_slaves' in scenario.tags:
             print ("---------------------------")
