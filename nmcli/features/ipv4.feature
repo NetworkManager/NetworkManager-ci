@@ -1700,17 +1700,17 @@ Feature: nmcli: ipv4
     Then "default via 192.168.* dev testZ4" is visible with command "ip r"
 
 
-    @eth @teardown_testveth @long
     @ver+=1.11
+    @con_ipv4_remove @teardown_testveth @long
     @dhcp_change_pool
     Scenario: NM - ipv4 - renewal after changed DHCP pool
     # Check that the address is renewed immediately after a NAK
     # from server due to changed configuration.
     # https://bugzilla.gnome.org/show_bug.cgi?id=783391
     * Prepare simulated test "testX" device with "192.168.99" ipv4 and "2620:cafe" ipv6 dhcp address prefix
-    * Add connection type "ethernet" named "ethie" for device "testX"
-    * Execute "nmcli connection modify ethie ipv4.may-fail no ipv6.method ignore"
-    * Bring "up" connection "ethie"
+    * Add connection type "ethernet" named "con_ipv4" for device "testX"
+    * Execute "nmcli connection modify con_ipv4 ipv4.may-fail no ipv6.method ignore"
+    * Bring "up" connection "con_ipv4"
     When "default via 192.168.99.1 dev testX" is visible with command "ip r"
     * Restart dhcp server on "testX" device with "192.168.98" ipv4 and "2620:cafe" ipv6 dhcp address prefix
     Then "default via 192.168.98.1 dev testX" is visible with command "ip r" in "130" seconds
