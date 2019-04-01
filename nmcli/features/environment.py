@@ -212,6 +212,17 @@ def get_ethernet_devices():
     devs = check_output("nmcli dev | grep ' ethernet' | awk '{print $1}'", shell=True).decode('utf-8').strip()
     return devs.split('\n')
 
+def setup_strongswan():
+    print ("setting up strongswan")
+
+    RC = call("sh prepare/strongswan.sh" , shell=True)
+    if RC != 0:
+        teardown_strongswan()
+        sys.exit(1)
+
+def teardown_strongswan():
+    call("sh prepare/strongswan.sh teardown", shell=True)
+
 def setup_racoon(mode, dh_group, phase1_al="aes", phase2_al=None):
     print ("setting up racoon")
     arch = check_output("uname -p", shell=True).decode('utf-8').strip()
@@ -864,6 +875,13 @@ def before_scenario(context, scenario):
             if 'ikev2' in scenario.tags:
                 ike="ikev2"
             setup_libreswan (mode="main", dh_group=5, ike=ike)
+
+        if 'strongswan' in scenario.tags:
+            print ("---------------------------")
+            wait_for_testeth0()
+            #call("/usr/sbin/ipsec --checknss", shell=True)
+            setup_strongswan()
+
 
         if 'iptunnel' in scenario.tags:
             print("----------------------------")
@@ -1705,6 +1723,15 @@ def after_scenario(context, scenario):
             call('nmcli connection down libreswan', shell=True)
             call('nmcli connection delete libreswan', shell=True)
             teardown_libreswan ()
+            wait_for_testeth0()
+
+        if 'strongswan' in scenario.tags:
+            print ("---------------------------")
+            print ("deleting strongswan profile")
+            #call("ip route del default via 172.31.70.1", shell=True)
+            call('nmcli connection down strongswan', shell=True)
+            call('nmcli connection delete strongswan', shell=True)
+            teardown_strongswan ()
             wait_for_testeth0()
 
         if 'pptp' in scenario.tags:
