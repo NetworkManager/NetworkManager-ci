@@ -34,7 +34,7 @@ function runtest () {
 
 function test_modems_usb_hub() {
     # Number of modems that are plugged into Acroname USB hub.
-    local MODEM_COUNT=4
+    local MODEM_COUNT=5
     # Number of ports Acroname USB hub has.
     local PORT_COUNT=8
     # Return code
