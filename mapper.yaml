@@ -1248,6 +1248,18 @@ testmapper:
         feature: libreswan
     - libreswan_configurable_options_reimport:
         feature: libreswan
+    - strongswan_add_profile:
+        feature: strongswan
+    - strongswan_connection_renewal:
+        feature: strongswan
+    - strongswan_terminate:
+        feature: strongswan
+    - strongswan_delete_active_profile:
+        feature: strongswan
+    - strongswan_dns:
+        feature: strongswan
+    - strongswan_start_as_secondary:
+        feature: strongswan
     - vpn_describe:
         feature: vpn
     - multiple_vpn_connections:

@@ -91,6 +91,14 @@ install_fedora_packages () {
         dnf -4 -y install NetworkManager-pptp
     fi
 
+    if ! rpm -q --quiet NetworkManager-strongswan; then
+        dnf -4 -y install NetworkManager-strongswan NetworkManager-strongswan-gnome
+    fi
+
+    if ! rpm -q --quiet strongswan; then
+        dnf -4 -y install strongswan strongswan-charon-nm
+    fi
+
     if ! rpm -q --quiet NetworkManager-vpnc || ! rpm -q --quiet vpnc; then
         dnf -4 -y install NetworkManager-vpnc
     fi
@@ -146,6 +154,16 @@ install_el8_packages () {
         dnf -4 -y install https://kojipkgs.fedoraproject.org//packages/vpnc/0.5.3/33.svn550.fc29/$(arch)/vpnc-0.5.3-33.svn550.fc29.$(arch).rpm https://kojipkgs.fedoraproject.org//packages/NetworkManager-vpnc/1.2.6/1.fc29/$(arch)/NetworkManager-vpnc-1.2.6-1.fc29.$(arch).rpm https://kojipkgs.fedoraproject.org//packages/vpnc-script/20171004/3.git6f87b0f.fc29/noarch/vpnc-script-20171004-3.git6f87b0f.fc29.noarch.rpm
     fi
 
+    # strongswan
+    if ! rpm -q --quiet NetworkManager-strongswan || ! rpm -q --quiet vpnc; then
+        dnf -4 -y install https://kojipkgs.fedoraproject.org//packages/NetworkManager-strongswan/1.4.4/1.fc29/$(uname -p)/NetworkManager-strongswan-gnome-1.4.4-1.fc29.$(uname -p).rpm \
+                          https://kojipkgs.fedoraproject.org//packages/NetworkManager-strongswan/1.4.4/1.fc29/$(uname -p)/NetworkManager-strongswan-1.4.4-1.fc29.$(uname -p).rpm
+    fi
+    if ! rpm -q --quiet strongswan || ! rpm -q --quiet vpnc; then
+        dnf -4 -y install https://kojipkgs.fedoraproject.org//packages/strongswan/5.7.2/1.fc29/$(uname -p)/strongswan-5.7.2-1.fc29.$(uname -p).rpm \
+                          https://kojipkgs.fedoraproject.org//packages/strongswan/5.7.2/1.fc29/$(uname -p)/strongswan-charon-nm-5.7.2-1.fc29.$(uname -p).rpm
+    fi
+
     # Enable debug logs for wpa_supplicant
     sed -i 's!OTHER_ARGS="-s"!OTHER_ARGS="-s -dddK"!' /etc/sysconfig/wpa_supplicant
 
@@ -178,6 +196,14 @@ install_el7_packages () {
     sed -i 's!ExecStart=/usr/sbin/wpa_supplicant -u -f /var/log/wpa_supplicant.log -c /etc/wpa_supplicant/wpa_supplicant.conf!ExecStart=/usr/sbin/wpa_supplicant -u -c /etc/wpa_supplicant/wpa_supplicant.conf!' /etc/systemd/system/wpa_supplicant.service
     sed -i 's!OTHER_ARGS="-P /var/run/wpa_supplicant.pid"!OTHER_ARGS="-P /var/run/wpa_supplicant.pid -dddK"!' /etc/sysconfig/wpa_supplicant
     systemctl restart wpa_supplicant
+
+    if ! rpm -q --quiet NetworkManager-strongswan; then
+        yum -y install NetworkManager-strongswan NetworkManager-strongswan-gnome
+    fi
+
+    if ! rpm -q --quiet strongswan; then
+        yum -y install strongswan strongswan-charon-nm
+    fi
 
     install_plugins_yum
 }
@@ -469,4 +495,3 @@ setup_configure_environment () {
             ;;
     esac
 }
-
