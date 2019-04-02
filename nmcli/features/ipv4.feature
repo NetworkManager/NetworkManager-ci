@@ -2126,3 +2126,19 @@ Feature: nmcli: ipv4
     * Execute "ip link set eth3 down; ip link set eth3 up"
     * Execute "ip link set eth3 down; ip link set eth3 up"
     Then "192.168.3.0/24 dev eth3" is visible with command "ip r" in "5" seconds
+
+
+    @rhbz1369905
+    @ver+=1.16
+    @con_ipv4_remove @teardown_testveth
+    @ipv4_manual_addr_before_dhcp
+    Scenario: nmcli - ipv4 - set manual values immediately
+    * Prepare simulated test "testX4" device
+    * Add a new connection of type "ethernet" and options "con-name con_ipv4 ifname testX4 autoconnect no ipv4.method auto ipv4.addresses 192.168.3.10/24 ipv4.routes '192.168.5.0/24 192.168.3.11 101'"
+    * Execute "ip netns exec testX4_ns kill -SIGSTOP $(cat /tmp/testX4_ns.pid)"
+    * Run child "sleep 10 && ip netns exec testX4_ns kill -SIGCONT $(cat /tmp/testX4_ns.pid)"
+    * Run child "nmcli con up con_ipv4"
+    Then "192.168.3.10/24" is visible with command "ip a s testX4"
+     And "192.168.5.0/24 via 192.168.3.11 dev testX4\s+proto static\s+metric 101" is visible with command "ip route"
+     # And "namespace 192.168.3.11" is visible with command "cat /etc/resolv.conf" in "10" seconds
+     And "activated" is visible with command "nmcli -g GENERAL.STATE con show con_ipv4" in "20" seconds

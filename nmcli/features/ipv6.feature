@@ -1482,3 +1482,21 @@
      And Modify connection "con_ipv6" changing options "ipv6.dhcp-duid stable-ll"
      And Modify connection "con_ipv6" changing options "ipv6.dhcp-duid stable-llt"
      And Modify connection "con_ipv6" changing options "ipv6.dhcp-duid stable-uuid"
+
+
+    @rhbz1369905
+    @ver+=1.16
+    @con_ipv6_remove @teardown_testveth
+    @ipv6_manual_addr_before_dhcp
+    Scenario: nmcli - ipv6 - set manual values immediately
+    * Prepare simulated test "testX6" device
+    * Add a new connection of type "ethernet" and options "con-name con_ipv6 ifname testX6 autoconnect no ipv4.may-fail no ipv6.method dhcp ipv6.addresses 2000::1/128 ipv6.routes '1010::1/128 2000::2 101'"
+    * Execute "ip netns exec testX6_ns kill -SIGSTOP $(cat /tmp/testX4_ns.pid)"
+    * Run child "sleep 10 && ip netns exec testX6_ns kill -SIGCONT $(cat /tmp/testX6_ns.pid)"
+    * Run child "nmcli con up con_ipv6"
+    Then "2000::1/128" is visible with command "ip a s testX6"
+     And "1010::1 via 2000::2 dev testX6\s+proto static\s+metric 101" is visible with command "ip -6 route"
+     And "2000::1 dev testX6 proto kernel metric 100 pref medium" is visible with command "ip -6 route"
+     And "2000::2 dev testX6 proto static metric 101 pref medium" is visible with command "ip -6 route"
+     # And "namespace 192.168.3.11" is visible with command "cat /etc/resolv.conf" in "10" seconds
+     And "activated" is visible with command "nmcli -g GENERAL.STATE con show con_ipv6" in "20" seconds
