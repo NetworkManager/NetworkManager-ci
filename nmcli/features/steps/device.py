@@ -487,8 +487,8 @@ def correct_lifetime(context, typ, valid_lft, pref_lft, device):
     valid_cmd = "ip a s '%s' |grep -A 1 -w '%s'| grep -A 1 -w 'scope global' |grep valid_lft |awk '{print $2}'" % (device, inet)
     pref_cmd  = "ip a s '%s' |grep -A 1 -w '%s'| grep -A 1 -w 'scope global' |grep valid_lft |awk '{print $4}'" % (device, inet)
 
-    valid = command_output(context, valid_cmd)
-    pref = command_output(context, pref_cmd)
+    valid = command_output(context, valid_cmd).split()[0]
+    pref = command_output(context, pref_cmd).split()[0]
 
     valid = valid.strip()
     valid = valid.replace('sec', '')
