@@ -1384,6 +1384,8 @@ testmapper:
         feature: connection
     - lldp:
         feature: connection
+    - lldp_vlan_name_overflow:
+        feature: connection
     - connection_multiconnect_default_single:
         feature: connection
     - connection_multiconnect_manual:
