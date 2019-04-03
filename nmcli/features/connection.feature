@@ -211,7 +211,7 @@ Feature: nmcli: connection
      * Quit editor
      #When Prompt is not running
      * Bring "up" connection "con_con"
-     Then Check if "con_con" is active connection
+     Then "con_con" is visible with command "nmcli -t -f NAME  connection show -a" in "3" seconds
 
 
     @veth @con_con_remove @restart
@@ -225,7 +225,7 @@ Feature: nmcli: connection
      * Bring "up" connection "con_con"
      * Disconnect device "eth6"
      * Reboot
-     Then Check if "con_con" is active connection
+     Then "con_con" is visible with command "nmcli -t -f NAME  connection show -a" in "3" seconds
 
 
     @rhbz1401515
@@ -237,7 +237,7 @@ Feature: nmcli: connection
      When "con_con2" is visible with command "nmcli con"
      * Execute "python tmp/repro_1401515.py" without waiting for process to finish
      Then "yes" is visible with command "nmcli connection show con_con2 |grep autoconnect:" in "5" seconds
-      And Check if "con_con2" is not active connection
+     Then "con_con" is not visible with command "nmcli -t -f NAME  connection show -a" in "3" seconds
 
 
     @con_con_remove
@@ -260,7 +260,7 @@ Feature: nmcli: connection
      * Quit editor
      * Bring "up" connection "con_con"
      * Reboot
-     Then Check if "con_con" is not active connection
+     Then "con_con" is not visible with command "nmcli -t -f NAME  connection show -a" in "3" seconds
 
 
     @ver+=1.7.1
@@ -273,7 +273,7 @@ Feature: nmcli: connection
      * Execute "echo 'ONBOOT=no  # foo' >> /etc/sysconfig/network-scripts/ifcfg-con_con"
      * Reload connections
      * Restart NM
-     Then Check if "con_con" is not active connection
+     Then "con_con" is not visible with command "nmcli -t -f NAME  connection show -a" in "3" seconds
 
 
     @ver+=1.8.0

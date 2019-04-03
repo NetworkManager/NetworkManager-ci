@@ -1494,7 +1494,7 @@
     * Execute "ip netns exec testX6_ns kill -SIGSTOP $(cat /tmp/testX4_ns.pid)"
     * Run child "sleep 10 && ip netns exec testX6_ns kill -SIGCONT $(cat /tmp/testX6_ns.pid)"
     * Run child "nmcli con up con_ipv6"
-    Then "2000::1/128" is visible with command "ip a s testX6"
+    Then "2000::1/128" is visible with command "ip a s testX6" in "2" seconds
      And "1010::1 via 2000::2 dev testX6\s+proto static\s+metric 10[0-1]" is visible with command "ip -6 route"
      And "2000::1 dev testX6 proto kernel metric 10[0-1] pref medium" is visible with command "ip -6 route"
      And "2000::2 dev testX6 proto static metric 10[0-1] pref medium" is visible with command "ip -6 route"
