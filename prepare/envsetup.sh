@@ -92,7 +92,7 @@ install_fedora_packages () {
     fi
 
     if ! rpm -q --quiet NetworkManager-strongswan; then
-        dnf -4 -y install NetworkManager-strongswan NetworkManager-strongswan-gnome
+        dnf -4 -y install NetworkManager-strongswan
     fi
 
     if ! rpm -q --quiet strongswan; then
@@ -156,7 +156,7 @@ install_el8_packages () {
 
     # strongswan
     if ! rpm -q --quiet NetworkManager-strongswan || ! rpm -q --quiet strongswan; then
-        dnf -4 -y install https://kojipkgs.fedoraproject.org//packages/NetworkManager-strongswan/1.4.4/1.fc29/$(uname -p)/NetworkManager-strongswan-gnome-1.4.4-1.fc29.$(uname -p).rpm https://kojipkgs.fedoraproject.org//packages/NetworkManager-strongswan/1.4.4/1.fc29/$(uname -p)/NetworkManager-strongswan-1.4.4-1.fc29.$(uname -p).rpm https://kojipkgs.fedoraproject.org//packages/strongswan/5.7.2/1.fc29/$(uname -p)/strongswan-5.7.2-1.fc29.$(uname -p).rpm https://kojipkgs.fedoraproject.org//packages/strongswan/5.7.2/1.fc29/$(uname -p)/strongswan-charon-nm-5.7.2-1.fc29.$(uname -p).rpm
+        dnf -4 -y install https://kojipkgs.fedoraproject.org//packages/NetworkManager-strongswan/1.4.4/1.fc29/$(uname -p)/NetworkManager-strongswan-1.4.4-1.fc29.$(uname -p).rpm https://kojipkgs.fedoraproject.org//packages/strongswan/5.7.2/1.fc29/$(uname -p)/strongswan-5.7.2-1.fc29.$(uname -p).rpm https://kojipkgs.fedoraproject.org//packages/strongswan/5.7.2/1.fc29/$(uname -p)/strongswan-charon-nm-5.7.2-1.fc29.$(uname -p).rpm
     fi
 
     # Enable debug logs for wpa_supplicant
@@ -193,7 +193,7 @@ install_el7_packages () {
     systemctl restart wpa_supplicant
 
     if ! rpm -q --quiet NetworkManager-strongswan; then
-        yum -y install NetworkManager-strongswan NetworkManager-strongswan-gnome
+        yum -y install NetworkManager-strongswan strongswan
     fi
 
     if ! rpm -q --quiet strongswan; then
