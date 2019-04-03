@@ -1281,7 +1281,7 @@
     @con_ipv6_remove @restart @selinux_allow_ifup @teardown_testveth
     @persistent_ipv6_routes
     Scenario: NM - ipv6 - persistent ipv6 routes
-    * Add a new connection of type "ethernet" and options "ifname testX6 con-name con_ipv6"
+    * Add a new connection of type "ethernet" and options "ifname testX6 con-name con_ipv6 ipv4.method disabled"
     * Wait for at least "3" seconds
     * Stop NM
     * Execute "rm -rf /var/run/NetworkManager"
@@ -1495,8 +1495,8 @@
     * Run child "sleep 10 && ip netns exec testX6_ns kill -SIGCONT $(cat /tmp/testX6_ns.pid)"
     * Run child "nmcli con up con_ipv6"
     Then "2000::1/128" is visible with command "ip a s testX6"
-     And "1010::1 via 2000::2 dev testX6\s+proto static\s+metric 101" is visible with command "ip -6 route"
-     And "2000::1 dev testX6 proto kernel metric 100 pref medium" is visible with command "ip -6 route"
-     And "2000::2 dev testX6 proto static metric 101 pref medium" is visible with command "ip -6 route"
+     And "1010::1 via 2000::2 dev testX6\s+proto static\s+metric 10[0-1]" is visible with command "ip -6 route"
+     And "2000::1 dev testX6 proto kernel metric 10[0-1] pref medium" is visible with command "ip -6 route"
+     And "2000::2 dev testX6 proto static metric 10[0-1] pref medium" is visible with command "ip -6 route"
      # And "namespace 192.168.3.11" is visible with command "cat /etc/resolv.conf" in "10" seconds
      And "activated" is visible with command "nmcli -g GENERAL.STATE con show con_ipv6" in "20" seconds
