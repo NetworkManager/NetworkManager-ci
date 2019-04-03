@@ -1776,7 +1776,7 @@ Feature: nmcli - general
 
 
     @rhbz1643085 @rhbz1642625
-    @ver+=1.14
+    @ver+=1.10
     @con_general_remove
     @libnm_async_activation_cancelable_no_crash
     Scenario: NM - general - cancelation of libnm async activation - should not crash
