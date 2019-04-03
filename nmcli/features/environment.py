@@ -817,7 +817,7 @@ def before_scenario(context, scenario):
             call("rpm -q NetworkManager-vpnc || ( sudo yum -y install NetworkManager-vpnc && systemctl restart NetworkManager )", shell=True)
             setup_racoon (mode="aggressive", dh_group=2)
 
-        if 'lldp' in scenario.tags:
+        if 'tcpreplay' in scenario.tags:
             print ("---------------------------")
             print ("install tcpreplay")
             arch = check_output("uname -p", shell=True).decode('utf-8').strip()

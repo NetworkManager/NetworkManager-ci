@@ -555,7 +555,7 @@ Feature: nmcli: connection
 
     @rhbz1142898
     @ver+=1.4.0
-    @con_con_remove @teardown_testveth
+    @con_con_remove @teardown_testveth @tcpreplay
     @lldp
     Scenario: nmcli - connection - lldp
      * Prepare simulated test "testX" device
@@ -570,6 +570,19 @@ Feature: nmcli: connection
       And "NEIGHBOR\[0\].SYSTEM-NAME:\s+Summit300-48" is visible with command "nmcli device lldp"
       And "NEIGHBOR\[0\].SYSTEM-DESCRIPTION:\s+Summit300-48 - Version 7.4e.1 \(Build 5\) by Release_Master 05\/27\/05 04:53:11" is visible with command "nmcli device lldp"
       And "NEIGHBOR\[0\].SYSTEM-CAPABILITIES:\s+20 \(mac-bridge,router\)" is visible with command "nmcli device lldp"
+
+
+    @rhbz1652210
+    @ver+=1.16.0
+    @con_con_remove @teardown_testveth @tcpreplay
+    @lldp_vlan_name_overflow
+    Scenario: nmcli - connection - lldp vlan name overflow
+    * Prepare simulated test "testX" device
+    * Add a new connection of type "ethernet" and options "ifname testX con-name con_con ipv4.method manual ipv4.addresses 1.2.3.4/24 connection.lldp enable"
+    * Bring "up" connection "con_con"
+    When "testX\s+ethernet\s+connected" is visible with command "nmcli device" in "5" seconds
+    * Execute "ip netns exec testX_ns tcpreplay --intf1=testXp tmp/lldp.vlan.pcap"
+    Then "NEIGHBOR\[0\].IEEE-802-1-VLAN-NAME:\s+default\s" is visible with command "nmcli --fields all device lldp" in "5" seconds
 
 
     @rhbz1417292
