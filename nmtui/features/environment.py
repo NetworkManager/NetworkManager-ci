@@ -84,7 +84,7 @@ def before_scenario(context, scenario):
                 f.write('INFO: VETH SETUP: this test has been disabled in VETH setup')
                 f.flush()
                 f.close()
-                sys.exit(0)
+                sys.exit(77)
         if 'veth' in scenario.tags:
             if os.path.isfile('/tmp/nm_veth_configured'):
                 if os.path.isfile('/tmp/tui-screen.log'):
@@ -93,7 +93,7 @@ def before_scenario(context, scenario):
                 f.write('INFO: VETH mod: this test has been disabled in VETH setup')
                 f.flush()
                 f.close()
-                sys.exit(0)
+                sys.exit(77)
         if 'eth0' in scenario.tags:
             print ("---------------------------")
             print ("eth0")# and eth10 disconnect"
@@ -137,7 +137,7 @@ def after_step(context, step):
             f.write('INFO: Skiped the test as device does not support AP/ADHOC mode')
             f.flush()
             f.close()
-            sys.exit(0)
+            sys.exit(77)
 
         if step.status == 'failed':
             # Test debugging - set DEBUG_ON_FAILURE to drop to ipdb on step failure
