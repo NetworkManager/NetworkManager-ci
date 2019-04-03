@@ -165,7 +165,7 @@ function wireless_hostapd_setup ()
         fi
 
         restart_services
-        sleep 10
+        sleep 5
         if ! systemctl -q is-active wpa_supplicant; then
             echo "Error. Cannot start the service for WPA supplicant." >&2
             return 1
@@ -196,6 +196,9 @@ function wireless_hostapd_setup ()
         fi
 
         touch /tmp/nm_wpa_supp_configured
+        # do not lower this as first test may fail then
+        sleep 5
+
     else
         echo "Unsupported authentication type: $AUTH_TYPE." >&2
         return 1
