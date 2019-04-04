@@ -1493,8 +1493,8 @@
     * Add a new connection of type "ethernet" and options "con-name con_ipv6 ifname testX6 autoconnect no ipv4.may-fail no ipv6.method dhcp ipv6.addresses 2000::1/128 ipv6.routes '1010::1/128 2000::2 101'"
     * Execute "ip netns exec testX6_ns kill -SIGSTOP $(cat /tmp/testX4_ns.pid)"
     * Run child "sleep 10 && ip netns exec testX6_ns kill -SIGCONT $(cat /tmp/testX6_ns.pid)"
-    * Run child "nmcli con up con_ipv6"
-    Then "2000::1/128" is visible with command "ip a s testX6" in "2" seconds
+    * Run child "sleep 2 && nmcli con up con_ipv6"
+    Then "2000::1/128" is visible with command "ip a s testX6" in "5" seconds
      And "1010::1 via 2000::2 dev testX6\s+proto static\s+metric 10[0-1]" is visible with command "ip -6 route"
      And "2000::1 dev testX6 proto kernel metric 10[0-1] pref medium" is visible with command "ip -6 route"
      And "2000::2 dev testX6 proto static metric 10[0-1] pref medium" is visible with command "ip -6 route"
