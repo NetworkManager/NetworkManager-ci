@@ -26,8 +26,8 @@ function setup_veth_env ()
     # Enable udev rule to enable ignoring 'veth' devices eth*, keeping their pairs unmanaged
     echo 'ENV{ID_NET_DRIVER}=="veth", ENV{INTERFACE}=="eth[0-9]|eth[0-9]*[0-9]", ENV{NM_UNMANAGED}="0"' >/etc/udev/rules.d/99-lr.rules
     udevadm control --reload-rules
-    udevadm settle
-
+    udevadm settle --timeout=5
+    sleep(1)
     #if ! grep no-auto-default /etc/NetworkManager/NetworkManager.conf; then
     #    echo "no-auto-default=*" >> /etc/NetworkManager/NetworkManager.conf
     #    echo "ignore-carrier=*" >> /etc/NetworkManager/NetworkManager.conf
@@ -315,7 +315,8 @@ function teardown_veth_env ()
     # Remove the udev ruling
     rm -rf /etc/udev/rules.d/99-lr.rules
     udevadm control --reload-rules
-    udevadm settle
+    udevadm settle --timeout=5
+    sleep(1)
 
     # Remove extra config-sever like setup
     if grep no-auto-default /etc/NetworkManager/NetworkManager.conf; then
