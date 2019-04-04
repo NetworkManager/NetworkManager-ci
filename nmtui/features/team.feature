@@ -260,7 +260,7 @@ Feature: Team TUI tests
     Then Team "team0" is up
 
 
-    @team
+    @team @restart
     @nmtui_team_slaves_non_auto
     Scenario: nmtui - team - slaves non auto
     * Prepare new connection of type "Team" named "team0"
@@ -286,7 +286,7 @@ Feature: Team TUI tests
     Then Check slave "eth2" in team "team0" is "down"
 
 
-    @team
+    @team @restart
     @nmtui_team_boot_with_team_and_one_slave_auto
     Scenario: nmtui - team - start with only one slave auto
     * Prepare new connection of type "Team" named "team0"

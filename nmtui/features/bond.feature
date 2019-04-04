@@ -296,7 +296,7 @@ Feature: Bond TUI tests
 
 
     @veth
-    @bond
+    @bond @restart
     @nmtui_bond_start_on_boot_with_one_slave_auto
     Scenario: nmtui - bond - start on boot with only one slave auto
     * Prepare new connection of type "Bond" named "bond0"

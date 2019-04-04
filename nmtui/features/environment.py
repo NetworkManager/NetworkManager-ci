@@ -63,6 +63,37 @@ def reset_hwaddr(ifname):
     hwaddr = check_output("ethtool -P %s" % ifname, shell=True).decode('utf-8').split()[2]
     call("ip link set %s address %s" % (ifname, hwaddr), shell=True)
 
+def restore_testeth0():
+    print ("* restoring testeth0")
+    call("nmcli con delete testeth0 2>&1 > /dev/null", shell=True)
+    call("yes 2>/dev/null | cp -rf /tmp/testeth0 /etc/sysconfig/network-scripts/ifcfg-testeth0", shell=True)
+    sleep(1)
+    call("nmcli con reload", shell=True)
+    sleep(1)
+    call("nmcli con up testeth0", shell=True)
+    sleep(2)
+    
+def wait_for_testeth0():
+    print ("* waiting for testeth0 to connect")
+    if call("nmcli connection show testeth0 > /dev/null", shell=True)!= 0:
+        restore_testeth0()
+    if call("nmcli con show testeth0 |grep -q IP4.ADDRESS", shell=True) != 0:
+        call("nmcli con up testeth0", shell=True)
+    counter=40
+    while call("nmcli connection show testeth0 |grep IP4.ADDRESS > /dev/null", shell=True) != 0:
+        sleep(1)
+        counter-=1
+        if counter == 20:
+            restore_testeth0()
+        if counter == 0:
+            print ("Testeth0 cannot be upped..this is wrong")
+            sys.exit(1)
+
+def reload_NM_service():
+    sleep(0.5)
+    call("pkill -HUP NetworkManager", shell=True)
+    sleep(1)
+
 def before_scenario(context, scenario):
     try:
         os.environ['TERM'] = 'dumb'
@@ -207,6 +238,13 @@ def after_scenario(context, scenario):
             call('rm -rf /etc/dnsmasq.d/dnsmasq_custom.conf', shell=True)
             call('systemctl restart NetworkManager', shell=True)
             call("nmcli con up testeth0", shell=True)
+        if 'restart' in scenario.tags:
+            print ("---------------------------")
+            print ("restarting NM service")
+            if call("systemctl is-active NetworkManager", shell=True) != 0:
+                call('sudo systemctl restart NetworkManager', shell=True)
+                if not os.path.isfile('/tmp/nm_dcb_inf_wol_sriov_configured'):
+                    wait_for_testeth0()
         if ('ethernet' in scenario.tags) or ('ipv4' in scenario.tags) or ('ipv6' in scenario.tags):
             os.system("sudo nmcli connection delete id ethernet ethernet1 ethernet2")
         if 'nmtui_ethernet_set_mtu' in scenario.tags:
