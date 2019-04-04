@@ -1284,6 +1284,7 @@ def after_scenario(context, scenario):
             print ("deleting connection con_ipv6_ifcfg")
             #call("nmcli connection delete id con_ipv6 con_ipv62", shell=True)
             call("rm -rf /etc/sysconfig/network-scripts/ifcfg-con_ipv6", shell=True)
+            call('nmcli con reload', shell=True)
 
         if 'con_con_remove' in scenario.tags:
             print ("---------------------------")

@@ -1426,7 +1426,7 @@
 
     @rhbz1368018
     @ver+=1.8
-    @con_ipv6_ifcfg_remove @restart @kill_dhclient @teardown_testveth
+    @con_ipv6_ifcfg_remove @con_ipv6_remove @restart @kill_dhclient @teardown_testveth
     @persistent_ipv6_after_device_rename
     Scenario: NM - ipv6 - persistent ipv6 after device rename
     * Prepare simulated test "testX6" device
@@ -1491,7 +1491,7 @@
     Scenario: nmcli - ipv6 - set manual values immediately
     * Prepare simulated test "testX6" device
     * Add a new connection of type "ethernet" and options "con-name con_ipv6 ifname testX6 autoconnect no ipv4.may-fail no ipv6.method dhcp ipv6.addresses 2000::1/128 ipv6.routes '1010::1/128 2000::2 101'"
-    * Execute "ip netns exec testX6_ns kill -SIGSTOP $(cat /tmp/testX4_ns.pid)"
+    * Execute "ip netns exec testX6_ns kill -SIGSTOP $(cat /tmp/testX6_ns.pid)"
     * Run child "sleep 10 && ip netns exec testX6_ns kill -SIGCONT $(cat /tmp/testX6_ns.pid)"
     * Run child "sleep 2 && nmcli con up con_ipv6"
     Then "2000::1/128" is visible with command "ip a s testX6" in "5" seconds
