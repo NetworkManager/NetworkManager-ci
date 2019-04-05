@@ -71,7 +71,7 @@ def prepare_pppoe_server(context, user, passwd, ip, auth):
 def prepare_veths(context, pairs_array, bridge):
     os.system('''echo 'ENV{ID_NET_DRIVER}=="veth", ENV{INTERFACE}=="test*", ENV{NM_UNMANAGED}="0"' >/etc/udev/rules.d/88-lr.rules''')
     command_code(context, "udevadm control --reload-rules")
-    command_code(context, "udevadm settle")
+    command_code(context, "udevadm settle --timeout=5")
     command_code(context, "sleep 1")
 
     pairs = []
@@ -121,7 +121,7 @@ def prepare_simdev(context, device, ipv4=None, ipv6=None, option=None):
     if not hasattr(context, 'testvethns'):
         os.system('''echo 'ENV{ID_NET_DRIVER}=="veth", ENV{INTERFACE}=="%s*", ENV{NM_UNMANAGED}="0"' >/etc/udev/rules.d/88-lr.rules''' % device)
         command_code(context, "udevadm control --reload-rules")
-        command_code(context, "udevadm settle")
+        command_code(context, "udevadm settle --timeout=5")
         command_code(context, "sleep 1")
     command_code(context, "ip netns add {device}_ns".format(device=device))
     command_code(context, "ip link add {device} type veth peer name {device}p".format(device=device))
@@ -141,7 +141,7 @@ def prepare_simdev(context, device, ipv4=None, ipv6=None, option=None):
     command_code(context, "echo '192.168.99.13 ip-192-168-99-13' >> /etc/hosts")
     command_code(context, "echo '192.168.99.14 ip-192-168-99-14' >> /etc/hosts")
     command_code(context, "echo '192.168.99.15 ip-192-168-99-15' >> /etc/hosts")
-
+    sleep(2)
     if option is None:
         command_code(context, "ip netns exec {device}_ns dnsmasq \
                                             --pid-file=/tmp/{device}_ns.pid \
@@ -170,7 +170,7 @@ def prepare_simdev(context, device):
     if not hasattr(context, 'testvethns'):
         os.system('''echo 'ENV{ID_NET_DRIVER}=="veth", ENV{INTERFACE}=="test*", ENV{NM_UNMANAGED}="0"' >/etc/udev/rules.d/88-lr.rules''')
         command_code(context, "udevadm control --reload-rules")
-        command_code(context, "udevadm settle")
+        command_code(context, "udevadm settle --timeout=5")
         command_code(context, "sleep 1")
     #         +-------testX_ns--------+ +--testX2_ns--+
     # testX <-|-> testXp     testX2 <-|-|-> testX2p   |
@@ -215,7 +215,7 @@ def prepare_simdev(context, device):
     if not hasattr(context, 'testvethns'):
         os.system('''echo 'ENV{ID_NET_DRIVER}=="veth", ENV{INTERFACE}=="test*", ENV{NM_UNMANAGED}="0"' >/etc/udev/rules.d/88-lr.rules''')
         command_code(context, "udevadm control --reload-rules")
-        command_code(context, "udevadm settle")
+        command_code(context, "udevadm settle --timeout=5")
         command_code(context, "sleep 1")
     #         +-------testX_ns--------+ +--testX2_ns--+
     # testX <-|-> testXp     testX2 <-|-|-> testX2p   |
@@ -268,7 +268,7 @@ def prepare_simdev_no_carrier(context, device):
     if not hasattr(context, 'testvethns'):
         os.system('''echo 'ENV{ID_NET_DRIVER}=="veth", ENV{INTERFACE}=="test*", ENV{NM_UNMANAGED}="0"' >/etc/udev/rules.d/88-lr.rules''')
         command_code(context, "udevadm control --reload-rules")
-        command_code(context, "udevadm settle")
+        command_code(context, "udevadm settle --timeout=5")
         command_code(context, "sleep 1")
     command_code(context, "ip netns add {device}_ns".format(device=device))
     command_code(context, "ip netns exec {device}_ns ip link add {device} type veth peer name {device}p".format(device=device))

@@ -1478,7 +1478,7 @@ def after_scenario(context, scenario):
             call("nmcli con del tc1 tc2 vethbr", shell=True)
             call('rm -f /etc/udev/rules.d/88-lr.rules', shell=True)
             call('udevadm control --reload-rules', shell=True)
-            call('udevadm settle', shell=True)
+            call('udevadm settle --timeout=5', shell=True)
             sleep(1)
 
         if 'two_bridged_veths6' in scenario.tags:
@@ -1490,7 +1490,7 @@ def after_scenario(context, scenario):
             call("ip link del vethbr6", shell=True)
             call('rm -f /etc/udev/rules.d/88-lr.rules', shell=True)
             call('udevadm control --reload-rules', shell=True)
-            call('udevadm settle', shell=True)
+            call('udevadm settle --timeout=5', shell=True)
             sleep(1)
 
         if 'two_bridged_veths_gen' in scenario.tags:
@@ -2202,7 +2202,7 @@ def after_scenario(context, scenario):
                     call('kill $(cat /var/run/dhclient-*%s.pid)' % device, shell=True)
             call('rm -f /etc/udev/rules.d/88-lr.rules', shell=True)
             call('udevadm control --reload-rules', shell=True)
-            call('udevadm settle', shell=True)
+            call('udevadm settle --timeout=5', shell=True)
             sleep(1)
             reload_NM_service()
 
