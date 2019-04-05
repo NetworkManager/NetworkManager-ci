@@ -72,7 +72,7 @@ def restore_testeth0():
     sleep(1)
     call("nmcli con up testeth0", shell=True)
     sleep(2)
-    
+
 def wait_for_testeth0():
     print ("* waiting for testeth0 to connect")
     if call("nmcli connection show testeth0 > /dev/null", shell=True)!= 0:
@@ -243,8 +243,8 @@ def after_scenario(context, scenario):
             print ("restarting NM service")
             if call("systemctl is-active NetworkManager", shell=True) != 0:
                 call('sudo systemctl restart NetworkManager', shell=True)
-                if not os.path.isfile('/tmp/nm_dcb_inf_wol_sriov_configured'):
-                    wait_for_testeth0()
+            if not os.path.isfile('/tmp/nm_dcb_inf_wol_sriov_configured'):
+                wait_for_testeth0()
         if ('ethernet' in scenario.tags) or ('ipv4' in scenario.tags) or ('ipv6' in scenario.tags):
             os.system("sudo nmcli connection delete id ethernet ethernet1 ethernet2")
         if 'nmtui_ethernet_set_mtu' in scenario.tags:
