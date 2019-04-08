@@ -281,13 +281,13 @@ Feature: Bridge TUI tests
     * Choose to "<Add>" a slave
     * Choose the connection type "Ethernet"
     * Set "Profile name" field to "bridge-slave-eth2"
-    * Set "Device" field to "eth10"
+    * Set "Device" field to "eth2"
     * Confirm the slave settings
     * Ensure "Enable STP" is not checked
     * Confirm the connection settings
     Then "bridge0\s+bridge\s+connected" is visible with command "nmcli device" in "60" seconds
     Then "eth1\s+ethernet\s+connected\s+bridge-slave-eth1" is visible with command "nmcli device"
-    Then "eth10\s+ethernet\s+connected\s+bridge-slave-eth2" is visible with command "nmcli device"
+    Then "eth2\s+ethernet\s+connected\s+bridge-slave-eth2" is visible with command "nmcli device"
     Then "inet 1" is visible with command "ip a s bridge0"
 
 
