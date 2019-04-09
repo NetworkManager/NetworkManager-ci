@@ -342,7 +342,7 @@ Feature: nmcli - ovs
     # VVV Reconnect master bridge connection
     * Bring "up" connection "ovs-bridge0"
     When "activated" is visible with command "nmcli -g GENERAL.STATE con show ovs-iface0" in "40" seconds
-     And "Bridge \"bridge0\"" is visible with command "ovs-vsctl show"
+     And "Bridge \"ovsbridge0\"" is visible with command "ovs-vsctl show"
      And "Port \"bond0\"\s+tag: 120\s+Interface \"eth[2-3]\"\s+type: system\s+Interface \"eth[2-3]\"\s+type: system" is visible with command "ovs-vsctl show"
      And "Port \"port0\"\s+tag: 120\s+Interface \"iface0\"\s+type: internal" is visible with command "ovs-vsctl show"
      And "master ovs-system" is visible with command "ip a s eth2"
@@ -353,7 +353,7 @@ Feature: nmcli - ovs
     # VVV Reconnect port connection
     * Bring "up" connection "ovs-port0"
     When "activated" is visible with command "nmcli -g GENERAL.STATE con show ovs-iface0" in "40" seconds
-     And "Bridge \"bridge0\"" is visible with command "ovs-vsctl show"
+     And "Bridge \"ovsbridge0\"" is visible with command "ovs-vsctl show"
      And "Port \"bond0\"\s+tag: 120\s+Interface \"eth[2-3]\"\s+type: system\s+Interface \"eth[2-3]\"\s+type: system" is visible with command "ovs-vsctl show"
      And "Port \"port0\"\s+tag: 120\s+Interface \"iface0\"\s+type: internal" is visible with command "ovs-vsctl show"
      And "master ovs-system" is visible with command "ip a s eth2"
