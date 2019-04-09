@@ -350,7 +350,8 @@ def vxlan_device_check(context, dev, parent):
 
 @step(u'Snapshot "{action}" for "{devices}"')
 @step(u'Snapshot "{action}" for "{devices}" with timeout "{timeout}"')
-def snapshot_action(context, action, devices, timeout=0):
+@step(u'Snapshot for "{devices}" "{action}" device "{device}"')
+def snapshot_action(context, action, devices, timeout=0, device=None):
     def initialize_manager_for_device(device):
         import dbus
         bus = dbus.SystemBus()
@@ -399,6 +400,21 @@ def snapshot_action(context, action, devices, timeout=0):
     if action == "delete":
         print ("Destroy checkpoint for device(s) %s" % devices)
         manager.CheckpointDestroy(context.checkpoints[devices])
+
+    if action == "does contain" or action == "does not contain":
+        print ("Checking that device %s is %s in checkpoint for device(s) %s" % (device, action, devices))
+        if device != "last":
+            manager, dpath = initialize_manager_for_device(device)
+            context.checkpoints_last_device = dpath
+        else:
+            dpath = context.checkpoints_last_device
+        checkpoint_proxy = bus.get_object("org.freedesktop.NetworkManager", context.checkpoints[devices])
+        prop = dbus.Interface(checkpoint_proxy, "org.freedesktop.DBus.Properties")
+        checkpoint_devices = prop.Get("org.freedesktop.NetworkManager.Checkpoint", "Devices")
+        if action == "does contain":
+            assert dpath in checkpoint_devices, "Device %s is not in checkpoint for device(s) %s" % (device, devices)
+        elif action == "does not contain":
+            assert dpath not in checkpoint_devices, "Device %s is in checkpoint for device(s) %s" % (device, devices)
 
 
 @step(u'Check "{flag}" band cap flag set if device supported')
