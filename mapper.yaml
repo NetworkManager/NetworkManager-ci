@@ -405,6 +405,8 @@ testmapper:
         feature: team
     - team_abs_set_link_watchers_arp_ping:
         feature: team
+    - team_abs_set_link_watchers_arp_ping_vlanid:
+        feature: team
     - team_abs_overwrite_watchers:
         feature: team
     - wait_for_slow_teamd:
