@@ -1319,7 +1319,7 @@ Feature: nmcli - general
 
     @rhbz1217288
     @ver+=1.4.0
-    @con_general_remove
+    @con_general_remove @checkpoint_remove
     @snapshot_rollback
     Scenario: NM - general - snapshot and rollback
     * Add connection type "ethernet" named "con_general" for device "eth8"
@@ -1355,7 +1355,7 @@ Feature: nmcli - general
 
     @rhbz1369716
     @ver+=1.8.0
-    @con_general_remove
+    @con_general_remove @checkpoint_remove
     @snapshot_rollback_all_devices
     Scenario: NM - general - snapshot and rollback all devices
     * Add connection type "ethernet" named "con_general" for device "eth8"
@@ -1391,7 +1391,7 @@ Feature: nmcli - general
 
     @rhbz1369716
     @ver+=1.8.0
-    @con_general_remove
+    @con_general_remove @checkpoint_remove
     @snapshot_rollback_all_devices_with_timeout
     Scenario: NM - general - snapshot and rollback all devices with timeout
     * Add connection type "ethernet" named "con_general" for device "eth8"
@@ -1427,7 +1427,7 @@ Feature: nmcli - general
 
     @rhbz1369716
     @ver+=1.8.0
-    @manage_eth8
+    @manage_eth8 @checkpoint_remove
     @snapshot_rollback_unmanaged
     Scenario: NM - general - snapshot and rollback unmanaged
     * Execute "nmcli device set eth8 managed off"
@@ -1440,7 +1440,7 @@ Feature: nmcli - general
 
     @rhbz1464904
     @ver+=1.10.0
-    @manage_eth8
+    @manage_eth8 @checkpoint_remove
     @snapshot_rollback_managed
     Scenario: NM - general - snapshot and rollback managed
     * Execute "nmcli device set eth8 managed on"
@@ -1453,7 +1453,7 @@ Feature: nmcli - general
 
     @rhbz1369716
     @ver+=1.8.0
-    @gen-bond_remove
+    @gen-bond_remove @checkpoint_remove
     @snapshot_rollback_soft_device
     Scenario: NM - general - snapshot and rollback deleted soft device
     * Add connection type "bond" named "gen-bond0" for device "gen-bond"
@@ -1470,6 +1470,30 @@ Feature: nmcli - general
     * Wait for at least "15" seconds
     Then Check slave "eth8" in bond "gen-bond" in proc
     Then Check slave "eth9" in bond "gen-bond" in proc
+
+
+    @rhbz1578335
+    @ver+=1.17.3
+    @gen-bond_remove @checkpoint_remove
+    @snapshot_deleted_soft_device_dbus_link
+    Scenario: NM - general - check that deleted device is also deleted from snapshot
+    * Add connection type "bond" named "gen-bond0" for device "gen-bond"
+    * Add slave connection for master "gen-bond" on device "eth8" named "gen-bond0.0"
+    * Add slave connection for master "gen-bond" on device "eth9" named "gen-bond0.1"
+    * Bring "up" connection "gen-bond0.0"
+    * Bring "up" connection "gen-bond0.1"
+    When Check slave "eth8" in bond "gen-bond" in proc
+    When Check slave "eth9" in bond "gen-bond" in proc
+    * Snapshot "create" for "all"
+    # next step also saves dbus path of "gen-bond" into "last"
+    * Snapshot for "all" "does contain" device "gen-bond"
+    * Delete connection "gen-bond0.0"
+    * Delete connection "gen-bond0.1"
+    * Delete connection "gen-bond0"
+    When "link/ether" is not visible with command "ip a show dev gen-bond" in "10" seconds
+    # next step uses previous dbus path of "gen-bond", because "gen-bond" does not exist anymore
+    Then Snapshot for "all" "does not contain" device "last"
+    * Snapshot "delete" for "all"
 
 
     @rhbz1433303
@@ -1799,7 +1823,7 @@ Feature: nmcli - general
 
     @rhbz1496739
     @ver+=1.12
-    @con_general_remove
+    @con_general_remove @checkpoint_remove
     @libnm_snapshot_rollback
     Scenario: NM - general - libnm snapshot and rollback
     * Add connection type "ethernet" named "con_general" for device "eth8"
@@ -1835,7 +1859,7 @@ Feature: nmcli - general
 
     @rhbz1496739
     @ver+=1.12
-    @con_general_remove
+    @con_general_remove @checkpoint_remove
     @libnm_snapshot_rollback_all_devices
     Scenario: NM - general - libnm snapshot and rollback all devices
     * Add connection type "ethernet" named "con_general" for device "eth8"
@@ -1871,7 +1895,7 @@ Feature: nmcli - general
 
     @rhbz1496739
     @ver+=1.12
-    @con_general_remove
+    @con_general_remove @checkpoint_remove
     @libnm_snapshot_rollback_all_devices_with_timeout
     Scenario: NM - general - libnm snapshot and rollback all devices with timeout
     * Add connection type "ethernet" named "con_general" for device "eth8"
@@ -1907,7 +1931,7 @@ Feature: nmcli - general
 
     @rhbz1496739
     @ver+=1.12
-    @manage_eth8
+    @manage_eth8  @checkpoint_remove
     @libnm_snapshot_rollback_unmanaged
     Scenario: NM - general - libnm snapshot and rollback unmanaged
     * Execute "nmcli device set eth8 managed off"
@@ -1920,7 +1944,7 @@ Feature: nmcli - general
 
     @rhbz1496739
     @ver+=1.12
-    @manage_eth8
+    @manage_eth8 @checkpoint_remove
     @libnm_snapshot_rollback_managed
     Scenario: NM - general - libnm snapshot and rollback managed
     * Execute "nmcli device set eth8 managed on"
@@ -1933,7 +1957,7 @@ Feature: nmcli - general
 
     @rhbz1496739
     @ver+=1.12
-    @gen-bond_remove
+    @gen-bond_remove @checkpoint_remove
     @libnm_snapshot_rollback_soft_device
     Scenario: NM - general - snapshot and rollback deleted soft device
     * Add connection type "bond" named "gen-bond0" for device "gen-bond"
@@ -1954,7 +1978,7 @@ Feature: nmcli - general
 
     @rhbz1574565
     @ver+=1.12
-    @gen-bond_remove
+    @gen-bond_remove @checkpoint_remove
     @libnm_snapshot_destroy_after_rollback
     Scenario: NM - general - snapshot and destroy checkpoint
     * Execute "tmp/libnm_snapshot_checkpoint.py create 5"

@@ -1199,6 +1199,23 @@ def after_scenario(context, scenario):
         if scenario.status == 'failed':
             dump_status(context, 'after %s' % scenario.name)
 
+        if 'checkpoint_remove' in scenario.tags:
+            print ("--------------------------")
+            print ("cleanup checkpoints")
+            import dbus
+            bus = dbus.SystemBus()
+            # Get a proxy for the base NetworkManager object
+            proxy = bus.get_object("org.freedesktop.NetworkManager", "/org/freedesktop/NetworkManager")
+            # get NM object, to be able to call CheckpointDestroy
+            manager = dbus.Interface(proxy, "org.freedesktop.NetworkManager")
+            # dbus property getter
+            prop_get = dbus.Interface(proxy, "org.freedesktop.DBus.Properties")
+            # get list of all checkpoints (property Checkpoints of org.freedesktop.NetworkManager)
+            checkpoints = prop_get.Get("org.freedesktop.NetworkManager", "Checkpoints")
+            for checkpoint in checkpoints:
+                print ("destroying checkpoint with path %s" % checkpoint)
+                manager.CheckpointDestroy(checkpoint)
+
         if 'runonce' in scenario.tags:
             print ("---------------------------")
             print ("delete profiles and start NM")
