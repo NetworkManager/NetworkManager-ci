@@ -898,6 +898,13 @@ def before_scenario(context, scenario):
             setup_libreswan (mode="main", dh_group=5, ike=ike)
 
         if 'strongswan' in scenario.tags:
+            # Do not run on RHEL7 on s390x
+            if call("grep -q 'release 7' /etc/redhat-release", shell=True) == 0:
+                arch = check_output("uname -p", shell=True).decode('utf-8').strip()
+                if arch == "s390x":
+                    print("Skipping on RHEL7 on s390x")
+                    sys.exit(77)
+
             print ("---------------------------")
             wait_for_testeth0()
             #call("/usr/sbin/ipsec --checknss", shell=True)
