@@ -1756,9 +1756,10 @@ Feature: nmcli - general
 
     @rhbz1593661
     @ver+=1.12
-    @restart @remove_custom_cfg
+    @restart @remove_custom_cfg @con_general_remove
     @resolv_conf_dangling_symlink
     Scenario: NM - general - follow resolv.conf when dangling symlink
+    * Add a new connection of type "ethernet" and options "ifname eth8 con-name con_general ipv4.method manual ipv4.addresses 192.168.244.4/24 ipv4.gateway 192.168.244.1 ipv4.dns 192.168.244.1 ipv6.method ignore"
     * Stop NM
     * Append "[main]" to file "/etc/NetworkManager/conf.d/99-xxcustom.conf"
     * Append "rc-manager=file" to file "/etc/NetworkManager/conf.d/99-xxcustom.conf"
