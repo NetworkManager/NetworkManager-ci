@@ -2059,3 +2059,10 @@ Feature: nmcli - general
      And Finish "nmcli con mod con_general 802-1x.altsubject-matches '/something/very/long/should/be/there/at/least/fortyfour/characters' "
      And Finish "nmcli con mod con_general 802-1x.altsubject-matches '/something/very/long/should/be/there/at/least/fortyfour/characters' "
      And Finish "nmcli con mod con_general 802-1x.altsubject-matches '/something/very/long/should/be/there/at/least/fortyfour/characters' "
+
+
+    @rhbz1689054
+    @ver+=1.16
+    @libnm_get_dns_crash
+    Scenario: nmcli - general - libnm crash when getting nmclient.props.dns_configuration
+    Then Finish "python tmp/repro_1689054.py"
