@@ -1219,7 +1219,7 @@ def after_scenario(context, scenario):
             # dbus property getter
             prop_get = dbus.Interface(proxy, "org.freedesktop.DBus.Properties")
             # Unsupported prior version 1.12
-            if int(prop_get.Get("org.freedesktop.NetworkManager", "Version").split('.')[1] > 10:
+            if int(prop_get.Get("org.freedesktop.NetworkManager", "Version").split('.')[1]) > 10:
                 # get list of all checkpoints (property Checkpoints of org.freedesktop.NetworkManager)
                 checkpoints = prop_get.Get("org.freedesktop.NetworkManager", "Checkpoints")
                 for checkpoint in checkpoints:
