@@ -1209,6 +1209,7 @@ def after_scenario(context, scenario):
         if 'checkpoint_remove' in scenario.tags:
             print ("--------------------------")
             print ("cleanup checkpoints")
+            # Not supported on 1-10
             import dbus
             bus = dbus.SystemBus()
             # Get a proxy for the base NetworkManager object
@@ -1217,11 +1218,13 @@ def after_scenario(context, scenario):
             manager = dbus.Interface(proxy, "org.freedesktop.NetworkManager")
             # dbus property getter
             prop_get = dbus.Interface(proxy, "org.freedesktop.DBus.Properties")
-            # get list of all checkpoints (property Checkpoints of org.freedesktop.NetworkManager)
-            checkpoints = prop_get.Get("org.freedesktop.NetworkManager", "Checkpoints")
-            for checkpoint in checkpoints:
-                print ("destroying checkpoint with path %s" % checkpoint)
-                manager.CheckpointDestroy(checkpoint)
+            # Unsupported prior version 1.12
+            if int(prop_get.Get("org.freedesktop.NetworkManager", "Version").split('.')[1] > 10:
+                # get list of all checkpoints (property Checkpoints of org.freedesktop.NetworkManager)
+                checkpoints = prop_get.Get("org.freedesktop.NetworkManager", "Checkpoints")
+                for checkpoint in checkpoints:
+                    print ("destroying checkpoint with path %s" % checkpoint)
+                    manager.CheckpointDestroy(checkpoint)
 
         if 'runonce' in scenario.tags:
             print ("---------------------------")
