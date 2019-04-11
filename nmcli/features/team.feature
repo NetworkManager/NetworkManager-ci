@@ -1179,6 +1179,18 @@
     And "\"link_watch\": {\s+\"interval\": 100,\s+\"missed_max\": 999,\s+\"name\": \"arp_ping\",\s+\"source_host\": \"1.2.3.4\",\s+\"target_host\": \"1.2.3.1\"" is visible with command "teamdctl nm-team conf dump"
 
 
+    @rhbz1652931
+    @ver+=1.16
+    @team_slaves @team
+    @team_abs_set_link_watchers_arp_ping_vlanid
+    Scenario: nmcli - team_abs - set link_watchers arp_ping vlanid property
+    * Add a new connection of type "team" and options "con-name team0 ifname nm-team autoconnect no ip4 1.2.3.4/24 connection.autoconnect-slaves yes team.link-watchers 'name=arp_ping init-wait=1000 interval=100 missed-max=999 target-host=1.2.3.1 source-host=1.2.3.4 vlanid=123'"
+    * Add slave connection for master "nm-team" on device "eth5" named "team0.0"
+    * Bring "up" connection "team0"
+    Then "{\"link_watch\": {\"name\": \"arp_ping\", \"interval\": 100, \"missed_max\": 999, \"target_host\": \"1.2.3.1\", \"vlanid\": 123, \"source_host\": \"1.2.3.4\"}}" is visible with command "nmcli connection show team0 |grep 'team.config'"
+     And "\"link_watch\": {\s+\"interval\": 100,\s+\"missed_max\": 999,\s+\"name\": \"arp_ping\",\s+\"source_host\": \"1.2.3.4\",\s+\"target_host\": \"1.2.3.1\",\s+\"vlanid\": 123" is visible with command "teamdctl nm-team conf dump"
+
+
     @rhbz1533926
     @ver+=1.10
     @team_slaves @team
