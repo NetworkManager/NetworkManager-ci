@@ -129,7 +129,7 @@ install_el8_packages () {
     python -m pip install IPy
 
     # Needed for gsm_sim
-    dnf -4 -y install https://kojipkgs.fedoraproject.org//packages/perl-IO-Pty-Easy/0.10/5.fc28/noarch/perl-IO-Pty-Easy-0.10-5.fc28.noarch.rpm https://kojipkgs.fedoraproject.org//packages/perl-IO-Tty/1.12/11.fc28/x86_64/perl-IO-Tty-1.12-11.fc28.x86_64.rpm
+    dnf -4 -y install https://kojipkgs.fedoraproject.org//packages/perl-IO-Pty-Easy/0.10/5.fc28/noarch/perl-IO-Pty-Easy-0.10-5.fc28.noarch.rpm https://kojipkgs.fedoraproject.org//packages/perl-IO-Tty/1.12/11.fc28/$(arch)/perl-IO-Tty-1.12-11.fc28.$(arch).rpm
 
     # Dnf more deps
     dnf -4 -y install git python3-netaddr dhcp-relay iw net-tools psmisc firewalld dhcp ethtool python3-dbus python3-gobject dnsmasq tcpdump wireshark-cli --skip-broken
@@ -140,7 +140,7 @@ install_el8_packages () {
     ln -s /usr/bin/behave-3 /usr/bin/behave
 
     # Install vpn dependencies
-    dnf -4 -y install https://kojipkgs.fedoraproject.org//packages/NetworkManager-openvpn/1.8.4/1.fc28/x86_64/NetworkManager-openvpn-1.8.4-1.fc28.x86_64.rpm https://kojipkgs.fedoraproject.org//packages/openvpn/2.4.6/1.fc28/x86_64/openvpn-2.4.6-1.fc28.x86_64.rpm https://dl.fedoraproject.org/pub/epel/7/$(arch)/Packages/i/ipsec-tools-0.8.2-5.el7.$(arch).rpm
+    dnf -4 -y install https://kojipkgs.fedoraproject.org//packages/NetworkManager-openvpn/1.8.4/1.fc28/$(arch)/NetworkManager-openvpn-1.8.4-1.fc28.$(arch).rpm https://kojipkgs.fedoraproject.org//packages/openvpn/2.4.6/1.fc28/$(arch)/openvpn-2.4.6-1.fc28.$(arch).rpm https://dl.fedoraproject.org/pub/epel/7/$(arch)/Packages/i/ipsec-tools-0.8.2-5.el7.$(arch).rpm
     # Install various NM dependencies
     dnf -4 -y remove NetworkManager-config-connectivity-fedora NetworkManager-config-connectivity-redhat
     dnf -4 -y install http://download.eng.bos.redhat.com/brewroot/vol/rhel-8/packages/openvswitch/2.9.0/59.el8fdn/$(uname -p)/openvswitch-2.9.0-59.el8fdn.$(uname -p).rpm \
@@ -185,6 +185,9 @@ install_el7_packages () {
     yum -y install https://kojipkgs.fedoraproject.org//packages/python-behave/1.2.5/18.el7/noarch/python2-behave-1.2.5-18.el7.noarch.rpm https://kojipkgs.fedoraproject.org//packages/python-parse/1.6.4/4.el7/noarch/python-parse-1.6.4-4.el7.noarch.rpm https://kojipkgs.fedoraproject.org//packages/python-parse_type/0.3.4/6.el7/noarch/python-parse_type-0.3.4-6.el7.noarch.rpm
     yum -y remove NetworkManager-config-connectivity-fedora NetworkManager-config-connectivity-redhat
     yum -y install  http://download.eng.bos.redhat.com/brewroot/packages/openvswitch/2.9.0/77.el7fdn/$(arch)/openvswitch-2.9.0-77.el7fdn.$(arch).rpm   http://download.eng.bos.redhat.com/brewroot/packages/openvswitch-selinux-extra-policy/1.0/7.el7fdp/noarch/openvswitch-selinux-extra-policy-1.0-7.el7fdp.noarch.rpm
+
+    # Install newer teamd
+    yum install http://download.eng.bos.redhat.com/brewroot/vol/rhel-7/packages/libteam/1.27/8.el7/$(arch)/libteam-1.27-8.el7.$(arch).rpm  http://download.eng.bos.redhat.com/brewroot/vol/rhel-7/packages/libteam/1.27/8.el7/$(arch)/teamd-1.27-8.el7.$(arch).rpm http://download.eng.bos.redhat.com/brewroot/vol/rhel-7/packages/libteam/1.27/8.el7/$(arch)/libteam-debuginfo-1.27-8.el7.$(arch).rpm http://download.eng.bos.redhat.com/brewroot/vol/rhel-7/packages/libteam/1.27/8.el7/$(arch)/teamd-devel-1.27-8.el7.$(arch).rpm
 
     # Tune wpa_supplicat to log into journal and enable debugging
     systemctl stop wpa_supplicant

@@ -413,6 +413,8 @@ testmapper:
         feature: team
     - restart_L2_only_lacp:
         feature: team
+    - teamd_logging:
+        feature: team
     - ipv6_block_just_routing_RA:
         feature: ipv6
     - ipv6_limited_router_solicitation:
