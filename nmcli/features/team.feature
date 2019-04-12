@@ -1235,3 +1235,14 @@
      And "\"runner_name\": \"lacp\"" is visible with command "sudo teamdctl nm-team state dump"
      And Check slave "eth0" in team "nm-team" is "up"
      And "1" is visible with command "nmcli device |grep team0 |wc -l"
+
+
+    @rhbz1647414
+    @ver+=1.18 @not_in_rhel8
+    @team @team_slaves
+    @teamd_logging
+    Scenario: nmcli - teamd - logging to syslog
+    * Add a new connection of type "team" and options "con-name team0 ifname nm-team autoconnect no ip4 1.2.3.4/24"
+    * Add slave connection for master "nm-team" on device "eth5" named "team0.0"
+    When "activated" is visible with command "nmcli -g GENERAL.STATE con show team0"
+    Then "teamd_nm-team" is visible with command "journalctl --since '40 seconds ago' -u NetworkManager |grep teamd_"
