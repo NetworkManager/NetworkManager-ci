@@ -409,11 +409,11 @@ testmapper:
         feature: team
     - team_abs_overwrite_watchers:
         feature: team
-    - wait_for_slow_teamd:
-        feature: team
     - restart_L2_only_lacp:
         feature: team
     - teamd_logging:
+        feature: team
+    - wait_for_slow_teamd:
         feature: team
     - ipv6_block_just_routing_RA:
         feature: ipv6
