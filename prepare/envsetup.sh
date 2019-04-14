@@ -187,7 +187,7 @@ install_el7_packages () {
     yum -y install  http://download.eng.bos.redhat.com/brewroot/packages/openvswitch/2.9.0/77.el7fdn/$(arch)/openvswitch-2.9.0-77.el7fdn.$(arch).rpm   http://download.eng.bos.redhat.com/brewroot/packages/openvswitch-selinux-extra-policy/1.0/7.el7fdp/noarch/openvswitch-selinux-extra-policy-1.0-7.el7fdp.noarch.rpm
 
     # Install newer teamd
-    yum install http://download.eng.bos.redhat.com/brewroot/vol/rhel-7/packages/libteam/1.27/8.el7/$(arch)/libteam-1.27-8.el7.$(arch).rpm  http://download.eng.bos.redhat.com/brewroot/vol/rhel-7/packages/libteam/1.27/8.el7/$(arch)/teamd-1.27-8.el7.$(arch).rpm http://download.eng.bos.redhat.com/brewroot/vol/rhel-7/packages/libteam/1.27/8.el7/$(arch)/libteam-debuginfo-1.27-8.el7.$(arch).rpm http://download.eng.bos.redhat.com/brewroot/vol/rhel-7/packages/libteam/1.27/8.el7/$(arch)/teamd-devel-1.27-8.el7.$(arch).rpm
+    yum -y install http://download.eng.bos.redhat.com/brewroot/vol/rhel-7/packages/libteam/1.27/8.el7/$(arch)/libteam-1.27-8.el7.$(arch).rpm  http://download.eng.bos.redhat.com/brewroot/vol/rhel-7/packages/libteam/1.27/8.el7/$(arch)/teamd-1.27-8.el7.$(arch).rpm http://download.eng.bos.redhat.com/brewroot/vol/rhel-7/packages/libteam/1.27/8.el7/$(arch)/libteam-debuginfo-1.27-8.el7.$(arch).rpm http://download.eng.bos.redhat.com/brewroot/vol/rhel-7/packages/libteam/1.27/8.el7/$(arch)/teamd-devel-1.27-8.el7.$(arch).rpm
 
     # Tune wpa_supplicat to log into journal and enable debugging
     systemctl stop wpa_supplicant
