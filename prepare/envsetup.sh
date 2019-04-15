@@ -430,14 +430,43 @@ local_setup_configure_nm_inf () {
     touch /tmp/inf_configured
 }
 
-install_usb_hub_driver () {
+install_usb_hub_driver_el8 () {
     # Works under RHEL 8.0.
     yum install -y libffi-devel python36-devel
     pushd tmp/usb_hub
         # The module brainstem is already stored in project NetworkManager-ci.
         tar xf brainstem_dev_kit_ubuntu_lts_18.04_no_qt_x86_64_1.tgz
         cd development/python/
-        python3 -m pip install brainstem-2.7.0-py2.py3-none-any.whl; local rc=$?
+        python -m pip install brainstem-2.7.0-py2.py3-none-any.whl; local rc=$?
+    popd
+    return $rc
+}
+
+install_usb_hub_driver_el7 () {
+    # Accomodate to RHEL7 and CentOS7.
+    yum install -y libffi-devel python-devel
+    pushd tmp/usb_hub
+        # The module brainstem is already stored in project NetworkManager-ci.
+        # Install BrainStem Development Kit (v2.7.1)
+        # for Ubuntu LTS 14.04 x86_64.
+        # This version of BrainStem works under RHEL 7.6 with Python 2.7.
+        tar xf brainstem_dev_kit_ubuntu_lts_14.04_x86_64.tgz
+        cd development/python/
+        python -m pip install brainstem-2.7.1-py2.py3-none-any.whl; local rc=$?
+    popd
+    return $rc
+}
+
+install_usb_hub_driver_fc29 () {
+    # Accomodate to Fedora 29.
+    yum install -y libffi-devel python3-devel python-unversioned-command
+    pushd tmp/usb_hub
+        # The module brainstem is already stored in project NetworkManager-ci.
+        tar xf brainstem_dev_kit_ubuntu_lts_18.04_no_qt_x86_64_1.tgz
+        cd development/python/
+        python -m pip install brainstem-2.7.0-py2.py3-none-any.whl; local rc=$?
+        # bash: python: command not found...
+        #Install package 'python-unversioned-command' to provide command 'python'? [N/y]
     popd
     return $rc
 }
@@ -458,6 +487,7 @@ install_usb_hub_utility () {
 }
 
 local_setup_configure_nm_gsm () {
+    local RC=1
     [ -e /tmp/gsm_configured ] && return
 
     mkdir /mnt/scratch
@@ -473,8 +503,27 @@ local_setup_configure_nm_gsm () {
     semodule -i tmp/selinux-policy/ModemManager.pp
 
     # Prepare conditions for using Acroname USB hub.
-    install_usb_hub_driver || echo "Error when installing USB hub driver.">&2
-    install_usb_hub_utility || echo "Error when installing USB hub utility.">&2
+    if grep -q -E 'Enterprise Linux .*release 7|CentOS Linux .*release 7' /etc/redhat-release; then
+        # python2-pip is not available in RHEL 7.7.
+        install_usb_hub_driver_el7; RC=$?
+    elif grep -q 'Enterprise Linux .*release 8' /etc/redhat-release; then
+        install_usb_hub_driver_el8; RC=$?
+    elif grep -q -E 'Fedora .*release (29|30)' /etc/redhat-release; then
+        install_usb_hub_driver_fc29; RC=$?
+    else
+        echo "Unsupported OS by Brainstem module." >&2
+        return 1
+    fi
+
+    if [ $RC -ne 0 ]; then
+        echo "Error when installing USB hub driver.">&2
+        return 1
+    fi
+
+    if ! install_usb_hub_utility; then
+        echo "Error when installing USB hub utility.">&2
+        return 1
+    fi
 
     touch /tmp/gsm_configured
 }
