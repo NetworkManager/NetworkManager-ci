@@ -4,6 +4,7 @@ Feature: nmcli: gsm
     Scenario: nmcli - gsm - hub
     * Execute "echo 'PASS'"
 
+
     @ver+=1.2.0
     @eth0 @gsm
     @gsm_create_assisted_connection
@@ -13,14 +14,17 @@ Feature: nmcli: gsm
     * Submit "gsm" in editor
     * Expect "Interface name"
     * Enter in editor
-    * Expect "APN"
-    * Submit "internet" in editor
+    # There are 3 optional settings for GSM mobile broadband connection.
     * Expect "Do you want to provide them\? \(yes\/no\) \[yes\]"
     * Submit "no" in editor
+    # There are 2 optional settings for IPv4 protocol.
     * Dismiss IP configuration in editor
+    # There are 2 optional settings for IPv6 protocol.
+    * Dismiss IP configuration in editor
+    # There are 4 optional settings for Proxy.
     * Dismiss Proxy configuration in editor
     Then "GENERAL.STATE:.*activated" is visible with command "nmcli con show gsm" in "60" seconds
-    And "default" is visible with command "ip r |grep 700"
+    And "default" is visible with command "ip route |grep 700"
      * Ping "8.8.8.8" "7" times
 
 
@@ -30,7 +34,7 @@ Feature: nmcli: gsm
      * Add a new connection of type "gsm" and options "ifname \* con-name gsm autoconnect no apn internet"
      * Bring "up" connection "gsm"
     Then "GENERAL.STATE:.*activated" is visible with command "nmcli con show gsm" in "60" seconds
-     And "default" is visible with command "ip r |grep 700"
+     And "default" is visible with command "ip route |grep 700"
      And Ping "8.8.8.8" "7" times
 
 
@@ -42,7 +46,7 @@ Feature: nmcli: gsm
     Then "GENERAL.STATE:.*activated" is visible with command "nmcli con show gsm" in "20" seconds
      * Bring "down" connection "gsm"
     Then "GENERAL.STATE:.*activated" is not visible with command "nmcli con show gsm" in "20" seconds
-     And "default" is not visible with command "ip r |grep 700"
+     And "default" is not visible with command "ip route |grep 700"
      And Unable to ping "8.8.8.8"
 
 
@@ -53,7 +57,7 @@ Feature: nmcli: gsm
     * Bring "up" connection "gsm"
     Then "GENERAL.STATE:.*activated" is visible with command "nmcli con show gsm" in "60" seconds
      And "GENERAL.STATE:.*activated" is visible with command "nmcli con show gsm" for full "60" seconds
-     And "default" is visible with command "ip r |grep 700"
+     And "default" is visible with command "ip route |grep 700"
      And Ping "8.8.8.8" "7" times
 
 
@@ -82,14 +86,14 @@ Feature: nmcli: gsm
     Scenario: nmcli - gsm - route metric
     * Add a new connection of type "gsm" and options "ifname \* con-name gsm autoconnect no apn internet"
     * Bring "up" connection "gsm"
-    When "default" is visible with command "ip r |grep 700" in "20" seconds
-    And "proto kernel scope" is visible with command "ip r |grep 700"
+    When "default" is visible with command "ip route |grep 700" in "20" seconds
+    And "proto static scope" is visible with command "ip route |grep 700"
     * Execute "nmcli con modify gsm ipv4.route-metric 120"
     * Bring "up" connection "gsm"
     * Execute "sleep 5"
     When "GENERAL.STATE:.*activated" is visible with command "nmcli con show gsm" in "20" seconds
-    Then "default" is visible with command "ip r |grep 120" in "20" seconds
-    And "proto kernel scope" is visible with command "ip r |grep 120"
+    Then "default" is visible with command "ip route |grep 120" in "20" seconds
+    And "proto static scope" is visible with command "ip route |grep 120"
 
 
     # Modems are not stable enough to test such things VVV
@@ -161,7 +165,7 @@ Feature: nmcli: gsm
     * Add a new connection of type "gsm" and options "ifname \* con-name gsm autoconnect no apn internet"
     * Bring "up" connection "gsm"
     When "GENERAL.STATE:.*activated" is visible with command "nmcli con show gsm" in "60" seconds
-     And "default" is visible with command "ip r |grep 700"
+     And "default" is visible with command "ip route |grep 700"
     * Execute "nmcli con modify gsm ipv4.dns 10.38.5.26"
     * Bring "up" connection "gsm"
     Then "full" is visible with command "nmcli g" in "80" seconds

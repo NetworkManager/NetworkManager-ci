@@ -34,7 +34,7 @@ function runtest () {
 
 function test_modems_usb_hub() {
     # Number of modems that are plugged into Acroname USB hub.
-    local MODEM_COUNT=5
+    local MODEM_COUNT=6
     # Number of ports Acroname USB hub has.
     local PORT_COUNT=8
     # Return code
@@ -71,6 +71,7 @@ function test_modems_usb_hub() {
             fi
         done
 
+        # Run the full set of tests on the 1st modem.
         if [ $M == 0 ]; then
             GSM_TESTS_ALL='
             gsm_create_assisted_connection
@@ -84,6 +85,7 @@ function test_modems_usb_hub() {
             gsm_up_down_up
             gsm_connectivity_check
             '
+            GSM_TESTS=$GSM_TESTS_ALL
         else
             GSM_TESTS='
             gsm_create_default_connection
@@ -94,10 +96,10 @@ function test_modems_usb_hub() {
             gsm_up_down_up
             '
         fi
+
         for T in $GSM_TESTS; do
             runtest $T $M || RC=1
             cat /tmp/report.html >> /tmp/report_$NMTEST.html
-
         done
     done
 

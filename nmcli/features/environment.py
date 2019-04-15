@@ -35,6 +35,7 @@ def find_modem():
         '0bdb:193e': 'Ericsson N5321',
         '05c6:6000': 'HSDPA USB Stick',
         '12d1:1001': 'Huawei E1550',
+        '12d1:1436': 'Huawei E173',
         '12d1:1446': 'Huawei E173',
         '12d1:1003': 'Huawei E220',
         '12d1:1506': 'Huawei E3276',
@@ -2068,7 +2069,8 @@ def after_scenario(context, scenario):
                 cap = 'MODEM INFO'
 
             modem_info = get_modem_info()
-            context.embed('text/plain', modem_info, caption=cap)
+            if modem_info:
+                context.embed('text/plain', modem_info, caption=cap)
 
         if 'captive_portal' in scenario.tags:
             call("sudo prepare/captive_portal.sh teardown", shell=True)
