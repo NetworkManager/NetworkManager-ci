@@ -945,10 +945,11 @@
     Then "aa17d688-a38d-481d-888d-6d69cca781b8" is visible with command "nmcli -f UUID connection show -a"
 
 
-    @rhbz1083283
+    @rhbz1640237
+    @ver+=1.16
     @scapy
-    @ipv6_lifetime_set_from_network
-    Scenario: NM - ipv6 - set lifetime from network
+    @ipv6_lifetime_too_low
+    Scenario: NM - ipv6 - valid lifetime too low should be ignored
     * Finish "ip link add test10 type veth peer name test11"
     * Finish "nmcli c add type ethernet ifname test10"
     * Finish "nmcli c add type ethernet ifname test11"
@@ -960,9 +961,19 @@
     * Execute "nmcli --wait 0 c up ethernet-test11"
     When "ethernet-test10" is visible with command "nmcli con sh -a"
     When "ethernet-test11" is visible with command "nmcli con sh -a"
-    * Execute "sleep 15"
-    * Send lifetime scapy packet
-    Then "IPv6" lifetimes are slightly smaller than "3605" and "1805" for device "test11"
+    * Execute "sleep 2"
+    * Send lifetime scapy packet with lifetimes "300" "140"
+    * Execute "sleep 2"
+    * Send lifetime scapy packet with lifetimes "20" "10"
+    * Execute "sleep 2"
+    Then "IPv6" lifetimes are slightly smaller than "300" and "10" for device "test11"
+    * Execute "sleep 2"
+    * Send lifetime scapy packet with lifetimes "7600" "7400"
+    * Execute "sleep 2"
+    * Send lifetime scapy packet with lifetimes "20" "10"
+    * Execute "sleep 2"
+    # there is 7200 here (2h), because of RFC 4862, section-5.5.3.e).3.
+    Then "IPv6" lifetimes are slightly smaller than "7200" and "10" for device "test11"
 
 
     @rhbz1318945
