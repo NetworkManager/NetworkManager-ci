@@ -392,10 +392,11 @@ def network_dropped_two(context, state, device):
         assert command_code(context, 'ping -c 2 -I %s -W 1 8.8.8.8' % device) == 0
 
 
+@step(u'Send lifetime scapy packet')
 @step(u'Send lifetime scapy packet with "{hlim}"')
 @step(u'Send lifetime scapy packet from "{srcaddr}"')
-@step(u'Send lifetime scapy packet')
-def send_packet(context, srcaddr=None, hlim=None):
+@step(u'Send lifetime scapy packet with lifetimes "{valid}" "{pref}"')
+def send_packet(context, srcaddr=None, hlim=None, valid=3600, pref=1800):
     from scapy.all import get_if_hwaddr
     from scapy.all import sendp, Ether, IPv6
     from scapy.all import ICMPv6ND_RA
@@ -413,8 +414,10 @@ def send_packet(context, srcaddr=None, hlim=None):
     else:
         p /= IPv6(dst="ff02::1")
 
+    valid, pref = int(valid), int(pref)
+
     p /= ICMPv6ND_RA()
-    p /= ICMPv6NDOptPrefixInfo(prefix="fd00:8086:1337::", prefixlen=64, validlifetime=3600, preferredlifetime=1800)
+    p /= ICMPv6NDOptPrefixInfo(prefix="fd00:8086:1337::", prefixlen=64, validlifetime=valid, preferredlifetime=pref)
     sendp(p, iface=in_if)
     sendp(p, iface=in_if)
 

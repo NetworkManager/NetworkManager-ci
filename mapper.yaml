@@ -507,9 +507,9 @@ testmapper:
         feature: ipv6
     - ipv6_ip6-privacy_incorrect_value:
         feature: ipv6
-    - ipv6_lifetime_set_from_network:
-        feature: ipv6
     - ipv6_lifetime_no_padding:
+        feature: ipv6
+    - ipv6_lifetime_too_low:
         feature: ipv6
     - ipv6_drop_ra_with_255_hlimit:
         feature: ipv6
