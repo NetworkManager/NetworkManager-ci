@@ -54,6 +54,14 @@ def is_file(context, filename):
     return True
 
 
+@step('Path "{path}" does not exist')
+def is_file(context, path):
+    if os.path.exists(path):
+        sleep(3)
+        assert not os.path.exists(path), '"%s" is valid path' % path
+    return True
+
+
 @step('"{filename}" is symlink')
 @step('"{filename}" is symlink with destination "{destination}"')
 def is_file(context, filename, destination=None):
