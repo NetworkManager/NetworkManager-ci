@@ -1540,6 +1540,8 @@ testmapper:
         feature: dns
     - dns_dnsmasq_kill_ratelimit:
         feature: dns
+    - dns_multiple_options:
+        feature: dns
     - nmtui_general_start_nmtui:
         run: nmtui/./runtest.sh nmtui_general_start_nmtui
         feature: nmtui
