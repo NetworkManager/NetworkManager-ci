@@ -1613,7 +1613,7 @@ Feature: nmcli - general
     Scenario: NM - general - connectivity check
     * Add a new connection of type "ethernet" and options "ifname eth0 con-name con_general autoconnect no ipv6.method ignore"
     * Bring up connection "con_general"
-    When "activated" is visible with command "nmcli -g GENERAL.STATE con show con_general" in "20" seconds
+    When "activated" is visible with command "nmcli -g GENERAL.STATE con show con_general" in "45" seconds
      And "full" is visible with command "nmcli  -g CONNECTIVITY g" in "70" seconds
     * Append "1.2.3.4 static.redhat.com" to file "/etc/hosts"
     * Append "1::1 static.redhat.com" to file "/etc/hosts"
@@ -1632,7 +1632,7 @@ Feature: nmcli - general
     * Restart NM
     * Add a new connection of type "ethernet" and options "ifname eth0 con-name con_general autoconnect no ipv6.method ignore"
     * Bring up connection "con_general"
-    When "activated" is visible with command "nmcli -g GENERAL.STATE con show con_general" in "20" seconds
+    When "activated" is visible with command "nmcli -g GENERAL.STATE con show con_general" in "45" seconds
      And "full" is visible with command "nmcli  -g CONNECTIVITY g"
     * Append "1.2.3.4 static.redhat.com" to file "/etc/hosts"
     * Append "1::1 static.redhat.com" to file "/etc/hosts"
@@ -1648,7 +1648,7 @@ Feature: nmcli - general
     # Device with connectivity but low priority
     * Add a new connection of type "ethernet" and options "ifname eth0 con-name con_general ipv4.route-metric 1024 ipv6.method ignore"
     * Bring up connection "con_general"
-    When "activated" is visible with command "nmcli -g GENERAL.STATE con show con_general" in "20" seconds
+    When "activated" is visible with command "nmcli -g GENERAL.STATE con show con_general" in "45" seconds
     When "full" is visible with command "nmcli  -g CONNECTIVITY g" in "100" seconds
     # Device w/o connectivity but with high priority
     * Add a new connection of type "ethernet" and options "ifname eth8 con-name con_general2 autoconnect no ipv4.method manual ipv4.addresses 192.168.244.4/24 ipv4.gateway 192.168.244.1 ipv4.route-metric 100 ipv6.method ignore"
@@ -1666,7 +1666,7 @@ Feature: nmcli - general
     Scenario: dbus - general - connectivity check manipulation
     * Add a new connection of type "ethernet" and options "ifname eth0 con-name con_general autoconnect no ipv6.method ignore"
     * Bring up connection "con_general"
-    When "activated" is visible with command "nmcli -g GENERAL.STATE con show con_general" in "20" seconds
+    When "activated" is visible with command "nmcli -g GENERAL.STATE con show con_general" in "45" seconds
      And "full" is visible with command "nmcli -g CONNECTIVITY g" in "70" seconds
     # VVV Turn off connectivity check
     * Execute "busctl set-property org.freedesktop.NetworkManager /org/freedesktop/NetworkManager org.freedesktop.NetworkManager ConnectivityCheckEnabled 'b' 0"
@@ -1710,7 +1710,7 @@ Feature: nmcli - general
      And "eth8" is visible with command "nmcli -g NAME connection" in "5" seconds
      And "dhclient" is not visible with command "ps aux| grep client-eth8"
     * Execute "nmcli con modify eth8 ipv4.method auto"
-    When "activated" is visible with command "nmcli -g GENERAL.STATE con show eth8" in "20" seconds
+    When "activated" is visible with command "nmcli -g GENERAL.STATE con show eth8" in "45" seconds
      And "BOOTPROTO=dhcp" is visible with command "cat /etc/sysconfig/network-scripts/ifcfg-eth8"
      And "dhclient" is visible with command "ps aux| grep dhclient-eth8"
      And "192.168" is visible with command "ip a s eth8" in "20" seconds
@@ -1727,7 +1727,7 @@ Feature: nmcli - general
     * Execute "sleep 0.5 && ip link set testG down"
     * Execute "sleep 8"
     * Execute "ip link set testG up"
-    When "activated" is visible with command "nmcli -g GENERAL.STATE con show con_general" in "30" seconds
+    When "activated" is visible with command "nmcli -g GENERAL.STATE con show con_general" in "45" seconds
 
 
     @rhbz1541031

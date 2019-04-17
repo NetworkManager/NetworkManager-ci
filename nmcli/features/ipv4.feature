@@ -781,7 +781,7 @@ Feature: nmcli: ipv4
     @con_ipv4_remove @restore_resolvconf @restart
     @ipv4_dns_resolvconf_rhel7_default
     Scenario: nmcli - ipv4 - dns - rhel7 default
-    When "activated" is visible with command "nmcli -g GENERAL.STATE con show testeth0" in "20" seconds
+    When "activated" is visible with command "nmcli -g GENERAL.STATE con show testeth0" in "45" seconds
     * Execute "cp /etc/resolv.conf /tmp/resolv_orig.conf"
     * Execute "mv -f /etc/resolv.conf /tmp/resolv.conf"
     * Execute "ln -s /tmp/resolv.conf /etc/resolv.conf"
@@ -801,13 +801,13 @@ Feature: nmcli: ipv4
     * Bring "down" connection "testeth0"
     * Execute "echo -e '[main]\nrc-manager=symlink' > /etc/NetworkManager/conf.d/99-resolv.conf"
     * Restart NM
-    When "activated" is visible with command "nmcli -g GENERAL.STATE con show testeth0" in "20" seconds
+    When "activated" is visible with command "nmcli -g GENERAL.STATE con show testeth0" in "45" seconds
     * Execute "cp /etc/resolv.conf /tmp/resolv_orig.conf"
     * Execute "mv -f /etc/resolv.conf /tmp/resolv.conf"
     * Execute "ln -s /tmp/resolv.conf /etc/resolv.conf"
     * Add a new connection of type "ethernet" and options "con-name con_ipv4 ifname eth3 ipv4.dns 8.8.8.8"
     * Bring "up" connection "con_ipv4"
-    When "activated" is visible with command "nmcli -g GENERAL.STATE con show con_ipv4" in "20" seconds
+    When "activated" is visible with command "nmcli -g GENERAL.STATE con show con_ipv4" in "45" seconds
     Then "nameserver 8.8.8.8" is visible with command "cat /var/run/NetworkManager/resolv.conf"
      And "nameserver 8.8.8.8" is not visible with command "cat /etc/resolv.conf"
      And "are identical" is visible with command "diff -s /tmp/resolv.conf /tmp/resolv_orig.conf"
@@ -822,7 +822,7 @@ Feature: nmcli: ipv4
     * Bring "down" connection "testeth0"
     * Execute "echo -e '[main]\nrc-manager=file' > /etc/NetworkManager/conf.d/99-resolv.conf"
     * Restart NM
-    When "activated" is visible with command "nmcli -g GENERAL.STATE con show testeth0" in "20" seconds
+    When "activated" is visible with command "nmcli -g GENERAL.STATE con show testeth0" in "45" seconds
     * Execute "cp /etc/resolv.conf /tmp/resolv_orig.conf"
     * Execute "mv -f /etc/resolv.conf /tmp/resolv.conf"
     * Execute "ln -s /tmp/resolv.conf /etc/resolv.conf"
@@ -2141,7 +2141,7 @@ Feature: nmcli: ipv4
     Then "192.168.3.10/24" is visible with command "ip a s testX4"
      And "192.168.5.0/24 via 192.168.3.11 dev testX4\s+proto static\s+metric 101" is visible with command "ip route"
      # And "namespace 192.168.3.11" is visible with command "cat /etc/resolv.conf" in "10" seconds
-     And "activated" is visible with command "nmcli -g GENERAL.STATE con show con_ipv4" in "20" seconds
+     And "activated" is visible with command "nmcli -g GENERAL.STATE con show con_ipv4" in "45" seconds
 
 
     @rhbz1652653
@@ -2153,9 +2153,9 @@ Feature: nmcli: ipv4
     * Bring "up" connection "con_ipv4"
     * Modify connection "con_ipv4" changing options "ipv4.routing-rules 'priority 5 table 6, priority 6 from 192.168.6.7/32 table 7'"
     * Bring "up" connection "con_ipv4"
-    When "activated" is visible with command "nmcli -g GENERAL.STATE con show con_ipv4" in "20" seconds
+    When "activated" is visible with command "nmcli -g GENERAL.STATE con show con_ipv4" in "45" seconds
     # * Reboot
-    # When "activated" is visible with command "nmcli -g GENERAL.STATE con show con_ipv4" in "20" seconds
+    # When "activated" is visible with command "nmcli -g GENERAL.STATE con show con_ipv4" in "45" seconds
     When "5:\s+from all lookup 6\s+6:\s+from 192.168.6.7 lookup 7" is visible with command "ip rule"
     * Bring "down" connection "con_ipv4"
     Then "5:\s+from all lookup 6\s+6:\s+from 192.168.6.7 lookup 7" is not visible with command "ip rule"

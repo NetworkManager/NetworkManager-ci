@@ -766,14 +766,14 @@
     Scenario: nmcli - team - vlans in team
      * Add a new connection of type "team" and options "con-name team0 ifname nm-team ip4 192.168.168.17/24 ipv6.method ignore"
      * Add a new connection of type "vlan" and options "slave-type team con-name team0.0 ifname eth5.80 dev eth5 id 80 master team0"
-     When "activated" is visible with command "nmcli -g GENERAL.STATE con show team0"
+     When "activated" is visible with command "nmcli -g GENERAL.STATE con show team0" in "45" seconds
       And "activated" is visible with command "nmcli -g GENERAL.STATE con show team0.0"
      * Stop NM
      * Execute "rm -rf /var/run/NetworkManager"
      * Execute "ip link del eth5.80"
      * Execute "ip link del nm-team"
      * Start NM
-    Then "activated" is visible with command "nmcli -g GENERAL.STATE con show team0" in "20" seconds
+    Then "activated" is visible with command "nmcli -g GENERAL.STATE con show team0" in "45" seconds
      And "activated" is visible with command "nmcli -g GENERAL.STATE con show team0.0"
 
 
@@ -1244,5 +1244,5 @@
     Scenario: nmcli - teamd - logging to syslog
     * Add a new connection of type "team" and options "con-name team0 ifname nm-team autoconnect no ip4 1.2.3.4/24"
     * Add slave connection for master "nm-team" on device "eth5" named "team0.0"
-    When "activated" is visible with command "nmcli -g GENERAL.STATE con show team0"
+    When "activated" is visible with command "nmcli -g GENERAL.STATE con show team0" in "45" seconds
     Then "teamd_nm-team" is visible with command "journalctl --since '40 seconds ago' -u NetworkManager |grep teamd_"
