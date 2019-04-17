@@ -489,3 +489,20 @@ Feature: nmcli - dns
     # Check dnsmasq is no longer running and resolv.conf points to upstream servers
     Then "0" is visible with command "pgrep -c -P `pidof NetworkManager` dnsmasq"
     Then "172.16.1.53" is visible with command "grep nameserver /etc/resolv.conf"
+
+
+    @rhbz1676635
+    @ver+=1.17.3
+    @con_dns_remove
+    @dns_multiple_options
+    Scenario: nmcli - dns - add more options to ipv4.dns-options
+    * Add a new connection of type "ethernet" and options "con-name con_dns ifname \* autoconnect no ipv4.dns-options ndots:2"
+    * Modify connection "con_dns" changing options "+ipv4.dns-options timeout:2"
+    Then "timeout\\:2" is visible with command "nmcli -g ipv4.dns-options con show id con_dns"
+     And "ndots\\:2" is visible with command "nmcli -g ipv4.dns-options con show id con_dns"
+    * Modify connection "con_dns" changing options "-ipv4.dns-options ndots:2"
+    Then "timeout\\:2" is visible with command "nmcli -g ipv4.dns-options con show id con_dns"
+     And "ndots\\:2" is not visible with command "nmcli -g ipv4.dns-options con show id con_dns"
+    * Modify connection "con_dns" changing options "-ipv4.dns-options timeout:2"
+    Then "timeout\\:2" is not visible with command "nmcli -g ipv4.dns-options con show id con_dns"
+     And "ndots\\:2" is not visible with command "nmcli -g ipv4.dns-options con show id con_dns"
