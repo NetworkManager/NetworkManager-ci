@@ -10,11 +10,11 @@ function setup () {
     # run python http server (sharing working directory "/tmp/python_http/")
     if which python3 &> /dev/null; then
         #python3
-        python3 -m http.server 80 &
+        python3 -m http.server 8001 &
         echo $! > /tmp/python_http.pid
     else
         #python2
-        python2 -m SimpleHTTPServer 80 &
+        python2 -m SimpleHTTPServer 8001 &
         echo $! > /tmp/python_http.pid
     fi
 }
