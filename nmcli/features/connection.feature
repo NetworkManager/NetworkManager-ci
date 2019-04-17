@@ -292,7 +292,7 @@ Feature: nmcli: connection
     * Reload connections
     * Execute "nmcli con modify uuid 8b4753fb-c562-4784-bfa7-f44dc6581e73 connection.id con_con"
     * Restart NM
-    When "activated" is visible with command "nmcli -g GENERAL.STATE con show con_con" in "20" seconds
+    When "activated" is visible with command "nmcli -g GENERAL.STATE con show con_con" in "45" seconds
     Then "192.0.2.2" is visible with command "ip a s eth5"
      And "UUID=8b4753fb-c562-4784-bfa7-f44dc6581e73" is visible with command "cat /etc/sysconfig/network-scripts/ifcfg-con_con2"
      And "DNS1=192.0.2.1" is visible with command "cat /etc/sysconfig/network-scripts/ifcfg-con_con2"

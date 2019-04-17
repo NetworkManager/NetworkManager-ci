@@ -1510,4 +1510,4 @@
      And "2000::1 dev testX6 proto kernel metric 10[0-1] pref medium" is visible with command "ip -6 route"
      And "2000::2 dev testX6 proto static metric 10[0-1] pref medium" is visible with command "ip -6 route"
      # And "namespace 192.168.3.11" is visible with command "cat /etc/resolv.conf" in "10" seconds
-     And "activated" is visible with command "nmcli -g GENERAL.STATE con show con_ipv6" in "20" seconds
+     And "activated" is visible with command "nmcli -g GENERAL.STATE con show con_ipv6" in "45" seconds

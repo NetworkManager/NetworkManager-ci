@@ -1156,13 +1156,13 @@
      * Bring "up" connection "bond0.1"
      * Bring "up" connection "bond0.0"
      * Restart NM
-     When "activated" is visible with command "nmcli  connection show bond0 |grep STATE" in "10" seconds
+     When "activated" is visible with command "nmcli  connection show bond0 |grep STATE" in "45" seconds
       And "nm-bond" is not visible with command "nmcli -f NAME connection"
      * Restart NM
-     When "activated" is visible with command "nmcli  connection show bond0 |grep STATE" in "10" seconds
+     When "activated" is visible with command "nmcli  connection show bond0 |grep STATE" in "45" seconds
       And "nm-bond" is not visible with command "nmcli -f NAME connection"
      * Restart NM
-     Then "activated" is visible with command "nmcli  connection show bond0 |grep STATE" in "10" seconds
+     Then "activated" is visible with command "nmcli  connection show bond0 |grep STATE" in "45" seconds
       And "nm-bond" is not visible with command "nmcli -f NAME connection"
       And Check bond "nm-bond" link state is "up"
       And Check "nm-bond" has "eth1" in proc
