@@ -220,3 +220,18 @@ Feature: nmcli: inf
     * Run child "sudo tcpdump -i inf_ib0.8002 -v -n > /tmp/tcpdump.log"
     * Note MAC address output for device "inf_ib0.8002" via ip command
     Then Noted value is visible with command "grep 'Option 61' /tmp/tcpdump.log" in "10" seconds
+
+
+    @rhbz1653494
+    @ver+=1.18.0
+    @inf
+    @inf_mtu
+    Scenario: nmcli - inf - mtu
+    * Add a new connection of type "infiniband" and options "con-name inf ifname inf_ib0 infiniband.transport-mode datagram infiniband.mtu 4080"
+    * Add a new connection of type "infiniband" and options "ifname inf_ib0.8002 parent inf_ib0 p-key 0x8002 con-name inf.8002 infiniband.mtu 2042"
+    When "4080" is visible with command "ip a s inf_ib0"
+    When "2042" is visible with command "ip a s inf_ib0.8002"
+    * Add a new connection of type "infiniband" and options "con-name inf2 ifname inf_ib0 infiniband.transport-mode datagram infiniband.mtu 2044"
+    * Bring "up" connection "inf2"
+    Then "2044" is visible with command "ip a s inf_ib0"
+    Then "2042" is visible with command "ip a s inf_ib0.8002"

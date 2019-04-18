@@ -2398,6 +2398,8 @@ testmapper:
         feature: infiniband
     - inf_send_correct_client_id:
         feature: infiniband
+    - inf_mtu:
+        feature: infiniband
 
   NetworkManager-dcb:
     - nmcli_ethernet_wol_from_file_to_default:
