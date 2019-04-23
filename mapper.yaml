@@ -291,6 +291,12 @@ testmapper:
         feature: bridge
     - bridge_detect_initrd_device:
         feature: bridge
+    - bridge_vlan_filtering_no_pvid:
+        feature: bridge
+    - bridge_vlan_filtering_default_pvid:
+        feature: bridge
+    - bridge_vlan_filtering_non_default_pvid:
+        feature: bridge
     - add_default_team:
         feature: team
     - add_default_team_after_journal_restart:
