@@ -1640,7 +1640,7 @@
 
      @rhbz1678796
      @ver+=1.12
-     @slaves @bond @tshark
+     @slaves @bond @tshark @not_on_aarch64
      @bond_send_correct_arp
      Scenario: nmcli - bond - send correct arp
      * Add a new connection of type "bond" and options "con-name bond0 ifname nm-bond autoconnect no ipv4.method manual ipv4.addresses 2.3.4.5/24,192.168.100.123/24,1.1.1.1/24,1.2.3.4/24,1.2.3.5/24,1.3.5.9/24"
