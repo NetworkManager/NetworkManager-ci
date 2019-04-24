@@ -49,7 +49,7 @@ def ifcfg_doesnt_exist(context, con_name):
 @step('"{filename}" is file')
 def is_file(context, filename):
     if not os.path.isfile(filename):
-        sleep(3)
+        sleep(5)
         assert os.path.isfile(filename), '"%s" is not a file' % filename
     return True
 
