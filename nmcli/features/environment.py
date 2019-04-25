@@ -1575,9 +1575,10 @@ def after_scenario(context, scenario):
             print ("---------------------------")
             print ("deleting infiniband connections")
             call("nmcli connection up id tg3_1", shell=True)
-            call("nmcli device connect inf_ib0.8002", shell=True)
             call("nmcli connection delete id inf", shell=True)
             call("nmcli connection delete id inf2", shell=True)
+            call("nmcli connection delete id inf.8002", shell=True)
+            call("nmcli device connect inf_ib0.8002", shell=True)
 
         if 'kill_dnsmasq_vlan' in scenario.tags:
             print ("---------------------------")
