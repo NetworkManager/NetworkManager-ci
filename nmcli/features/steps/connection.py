@@ -25,15 +25,14 @@ def add_vpnc_connection_for_iface(context, name, ifname, vpn):
     r = cli.expect(['Error', pexpect.EOF])
     sleep(1)
     if r == 0:
-        raise Exception('Got an Error while adding %s connection %s for device %s' % (vpn, name, ifname))
+        raise Exception('Got an Error while adding %s connection %s for device %s\n%s%s' % (vpn, name, ifname, cli.after, cli.buffer))
 
 @step(u'Add connection type "{typ}" named "{name}" for device "{ifname}"')
 def add_connection_for_iface(context, typ, name, ifname):
     cli = pexpect.spawn('nmcli connection add type %s con-name %s ifname %s' % (typ, name, ifname), logfile=context.log, encoding='utf-8')
     r = cli.expect(['Error', pexpect.EOF])
     if r == 0:
-        raise Exception('Got an Error while adding %s connection %s for device %s' % (typ, name, ifname))
-
+        raise Exception('Got an Error while adding %s connection %s for device %s\n%s%s' % (typ, name, ifname, cli.after, cli.buffer))
 
 @step(u'Add a new connection of type "{typ}" ifname "{ifname}" and options "{options}"')
 def add_new_default_connection(context, typ, ifname, options):
@@ -44,7 +43,7 @@ def add_new_default_connection(context, typ, ifname, options):
 def add_new_default_connection_without_ifname(context, typ, options):
     cli = pexpect.spawn('nmcli connection add type %s %s' % (typ, options), logfile=context.log, encoding='utf-8')
     if cli.expect(['Error', pexpect.TIMEOUT, pexpect.EOF]) == 0:
-        raise Exception('Got an Error while creating connection of type %s with options %s' % (typ,options))
+        raise Exception('Got an Error while creating connection of type %s with options %s\n%s%s' % (typ,options,cli.after,cli.buffer))
 
 
 @step(u'Add infiniband port named "{name}" for device "{ifname}" with parent "{parent}" and p-key "{pkey}"')
@@ -52,7 +51,7 @@ def add_port(context, name, ifname, parent, pkey):
     cli = pexpect.spawn('nmcli connection add type infiniband con-name %s ifname %s parent %s p-key %s' % (name, ifname, parent, pkey), logfile=context.log, encoding='utf-8')
     r = cli.expect(['Error', pexpect.EOF])
     if r == 0:
-        raise Exception('Got an Error while adding %s connection %s for device %s' % (typ, name, ifname))
+        raise Exception('Got an Error while adding %s connection %s for device %s\n%s%s' % (typ, name, ifname, cli.after, cli.buffer))
     sleep(1)
 
 
@@ -61,7 +60,7 @@ def modify_connection_with_noted(context, connection, prop):
     cli = pexpect.spawn('nmcli connection modify %s %s %s' % (connection, prop, context.noted_value), encoding='utf-8')
     r = cli.expect(['Error', pexpect.EOF])
     if r == 0:
-        raise Exception('Got an Error while changing %s property for connection %s to %s' % (prop, connection, context.noted_value))
+        raise Exception('Got an Error while changing %s property for connection %s to %s\n%s%s' % (prop, connection, context.noted_value, cli.after, cli.buffer))
 
 
 @step(u'Add slave connection for master "{master}" on device "{device}" named "{name}"')
@@ -74,7 +73,7 @@ def open_slave_connection(context, master, device, name):
         r = cli.expect(['Error', pexpect.EOF])
 
     if r == 0:
-        raise Exception('Got an Error while adding slave connection %s on device %s for master %s' % (name, device, master))
+        raise Exception('Got an Error while adding slave connection %s on device %s for master %s\n%s%s' % (name, device, master, cli.after, cli.buffer))
 
 
 
@@ -89,7 +88,7 @@ def start_stop_connection(context, action, name):
 
     r = cli.expect(['Error', 'Timeout', pexpect.TIMEOUT, pexpect.EOF])
     if r == 0:
-        raise Exception('Got an Error while %sing connection %s' % (action, name))
+        raise Exception('Got an Error while %sing connection %s\n%s%s' % (action, name, cli.after, cli.buffer))
     elif r == 1:
         raise Exception('nmcli connection %s %s timed out (90s)' % (action, name))
     elif r == 2:
@@ -102,7 +101,7 @@ def start_connection_for_device(context, name, device):
     r = cli.expect(['Error', 'Timeout', pexpect.TIMEOUT, pexpect.EOF])
     if r == 0:
 
-        raise Exception('Got an Error while uping connection %s on %s' % (name, device))
+        raise Exception('Got an Error while uping connection %s on %s\n%s%s' % (name, device, cli.after, cli.buffer))
     elif r == 1:
         raise Exception('nmcli connection up %s timed out (90s)' % (name))
     elif r == 2:
@@ -114,7 +113,7 @@ def bring_up_connection(context, connection):
     cli = pexpect.spawn('nmcli connection up %s' % connection, timeout = 180, logfile=context.log, encoding='utf-8')
     r = cli.expect(['Error', pexpect.TIMEOUT, pexpect.EOF])
     if r == 0:
-        raise Exception('Got an Error while upping connection %s' % connection)
+        raise Exception('Got an Error while upping connection %s\n%s%s' % (connection, cli.after, cli.buffer))
     elif r == 1:
         raise Exception('nmcli connection up %s timed out (180s)' % connection)
 
@@ -132,7 +131,7 @@ def bring_down_connection(context, connection):
     cli = pexpect.spawn('nmcli connection down %s' % connection, timeout = 180, logfile=context.log, encoding='utf-8')
     r = cli.expect(['Error', pexpect.TIMEOUT, pexpect.EOF])
     if r == 0:
-        raise Exception('Got an Error while downing a connection %s' % connection)
+        raise Exception('Got an Error while downing a connection %s\n%s%s' % (connection, cli.after, cli.buffer))
     elif r == 1:
         raise Exception('nmcli connection down %s timed out (180s)' % connection)
 
@@ -172,7 +171,7 @@ def delete_connection(context,connection):
     cli = pexpect.spawn('nmcli connection delete %s' % connection, timeout = 95, logfile=context.log, encoding='utf-8')
     res = cli.expect(['Error', pexpect.TIMEOUT, pexpect.EOF])
     if res == 0:
-        raise Exception('Got an Error while deleting connection %s' % connection)
+        raise Exception('Got an Error while deleting connection %s\n%s%s' % (connection, cli.after, cli.buffer))
     elif res == 1:
         raise Exception('Deleting connection %s timed out (95s)' % connection)
 
@@ -203,7 +202,7 @@ def is_not_readable(context, user, name):
 def modify_connection(context, name, options):
     cli = pexpect.spawn('nmcli connection modify %s %s' % (name, options), logfile=context.log, encoding='utf-8')
     if cli.expect(['Error', pexpect.TIMEOUT, pexpect.EOF]) == 0:
-        raise Exception('Got an Error while modifying %s options %s' % (name,options))
+        raise Exception('Got an Error while modifying %s options %s\n%s%s' % (name,options,cli.after,cli.buffer))
 
 
 @step(u'Reload connections')
