@@ -18,7 +18,7 @@
     Then "VPN.VPN-STATE:.*VPN connected" is visible with command "nmcli c show openvpn"
     Then "IP4.ADDRESS.*172.31.70.*/32" is visible with command "nmcli c show openvpn"
     Then "IP6.ADDRESS" is not visible with command "nmcli c show openvpn"
-    And "default" is visible with command "ip r |grep -v eth0"
+    And "default" is visible with command "ip r |grep ^default | grep -v eth0"
 
 
     @rhbz1641742
@@ -32,7 +32,7 @@
     Then "VPN.VPN-STATE:.*VPN connected" is visible with command "nmcli c show openvpn"
     Then "IP4.ADDRESS.*172.31.70.*/32" is visible with command "nmcli c show openvpn"
     Then "IP6.ADDRESS" is not visible with command "nmcli c show openvpn"
-     And "default" is visible with command "ip r |grep -v eth0"
+     And "default" is visible with command "ip r |grep ^default | grep -v eth0"
 
 
     @rhbz1505886
@@ -47,7 +47,7 @@
     Then "VPN.VPN-STATE:.*VPN connected" is visible with command "nmcli c show openvpn"
      And "IP4.ADDRESS.*172.31.70.*/32" is visible with command "nmcli c show openvpn"
      And "IP6.ADDRESS" is not visible with command "nmcli c show openvpn"
-     And "default" is not visible with command "ip r |grep -v eth0"
+     And "default" is not visible with command "ip r |grep ^default | grep -v eth0"
 
 
     @ver+=1.0.8
@@ -60,7 +60,7 @@
     Then "VPN.VPN-STATE:.*VPN connected" is visible with command "nmcli c show openvpn"
     Then "IP6.ADDRESS.*2001:db8:666:dead::2/64" is visible with command "nmcli c show openvpn"
     Then "IP4.ADDRESS" is not visible with command "nmcli c show openvpn"
-     And "default" is visible with command "ip -6 r |grep -v eth0"
+     And "default" is visible with command "ip -6 r |grep ^default | grep -v eth0"
 
 
     @rhbz1505886
@@ -75,7 +75,7 @@
     Then "VPN.VPN-STATE:.*VPN connected" is visible with command "nmcli c show openvpn"
     Then "IP6.ADDRESS.*2001:db8:666:dead::2/64" is visible with command "nmcli c show openvpn"
     Then "IP4.ADDRESS" is not visible with command "nmcli c show openvpn"
-     And "default" is not visible with command "ip -6 r |grep -v eth0"
+     And "default" is not visible with command "ip -6 r |grep ^default | grep -v eth0"
 
 
     @rhbz1267004
