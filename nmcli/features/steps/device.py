@@ -185,7 +185,7 @@ def connect_device(context, device):
     cli = pexpect.spawn('nmcli device con %s' % device, timeout = 180, logfile=context.log, encoding='utf-8')
     r = cli.expect(['Error', pexpect.TIMEOUT, pexpect.EOF])
     if r == 0:
-        raise Exception('Got an Error while connecting a device %s' % device)
+        raise Exception('Got an Error while connecting a device %s\n%s%s' % (device, cli.after, cli.buffer))
     elif r == 1:
         raise Exception('nmcli device connect %s timed out (180s)' % device)
 
@@ -195,7 +195,7 @@ def connect_wifi_device(context, network):
     cli = pexpect.spawn('nmcli device wifi connect "%s"' % network, timeout = 180, logfile=context.log, encoding='utf-8')
     r = cli.expect(['Error', pexpect.TIMEOUT, pexpect.EOF])
     if r == 0:
-        raise Exception('Got an Error while connecting to network %s' % network)
+        raise Exception('Got an Error while connecting to network %s\n%s%s' % (network, cli.after, cli.buffer))
     elif r == 1:
         raise Exception('nmcli device wifi connect ... timed out (180s)')
 
@@ -205,7 +205,7 @@ def connect_wifi_device_w_options(context, network, options):
     cli = pexpect.spawn('nmcli device wifi connect "%s" %s' % (network, options), timeout = 180, logfile=context.log, encoding='utf-8')
     r = cli.expect(['Error', pexpect.TIMEOUT, pexpect.EOF])
     if r == 0:
-        raise Exception('Got an Error while connecting to network %s' % network)
+        raise Exception('Got an Error while connecting to network %s\n%s%s' % (network, cli.after, cli.buffer))
     elif r == 1:
         raise Exception('nmcli device wifi connect ... timed out (180s)')
 
@@ -292,7 +292,7 @@ def disconnect_connection(context, name):
 
     r = cli.expect(['Error', pexpect.TIMEOUT, pexpect.EOF])
     if r == 0:
-        raise Exception('Got an Error while disconnecting device %s' % name)
+        raise Exception('Got an Error while disconnecting device %s\n%s%s' % (name, cli.after, cli.buffer))
     elif r == 1:
         raise Exception('nmcli disconnect %s timed out (180s)' % name)
 
@@ -303,7 +303,7 @@ def delete_device(context, device):
 
     r = cli.expect(['Error', pexpect.TIMEOUT, pexpect.EOF])
     if r == 0:
-        raise Exception('Got an Error while deleting device %s' % device)
+        raise Exception('Got an Error while deleting device %s\n%s%s' % (device, cli.after, cli.buffer))
     elif r == 1:
         raise Exception('nmcli device delete %s timed out (180s)' % device)
 

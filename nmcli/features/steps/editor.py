@@ -125,7 +125,7 @@ def open_editor_for_connection(context, con_name):
     context.prompt = prompt
     r = prompt.expect([con_name, 'Error'])
     if r == 1:
-        raise Exception('Got an Error while opening profile %s' % (con_name))
+        raise Exception('Got an Error while opening profile %s\n%s%s' % (con_name, prompt.after, prompt.buffer))
 
 
 @step(u'Open editor for "{con_name}" with timeout')
@@ -135,7 +135,7 @@ def open_editor_for_connection_with_timeout(context, con_name):
     context.prompt = prompt
     r = prompt.expect(['Error', con_name])
     if r == 0:
-        raise Exception('Got an Error while opening profile %s' % (con_name))
+        raise Exception('Got an Error while opening profile %s\n%s%s' % (con_name, prompt.after, prompt.buffer))
 
 
 @step(u'Open editor for new connection "{con_name}" type "{type}"')
@@ -145,7 +145,7 @@ def open_editor_for_connection_type(context, con_name, type):
     sleep(1)
     r = prompt.expect(['nmcli interactive connection editor','Error'])
     if r != 0:
-        raise Exception('Got an Error while opening  %s profile %s' % (type, con_name))
+        raise Exception('Got an Error while opening  %s profile %s\n%s%s' % (type, con_name, prompt.after, prompt.buffer))
 
 @step(u'Open editor for a new connection')
 def open_editor_for_new_connection(context):

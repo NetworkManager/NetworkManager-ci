@@ -19,7 +19,7 @@ def set_openvpn_connection(context, cert, key, ca, gateway, name):
     cli = pexpect.spawn('nmcli c modify %s vpn.data "tunnel-mtu = 1400, key = %s, connection-type = tls, ca = %s, cert = %s, remote = %s, cert-pass-flags = 0"' % (name, samples + key, samples + ca, samples + cert, gateway), encoding='utf-8')
     r = cli.expect(['Error', pexpect.EOF])
     if r == 0:
-        raise Exception('Got an Error while editing %s connection data' % (name))
+        raise Exception('Got an Error while editing %s connection data\n%s%s' % (name, cli.after, cli.buffer))
     sleep(1)
 
 
@@ -39,7 +39,7 @@ def set_libreswan_connection(context, user, password, group, secret, gateway, na
 
     r = cli.expect(['Error', pexpect.EOF])
     if r == 0:
-        raise Exception('Got an Error while editing %s connection' % (name))
+        raise Exception('Got an Error while editing %s connection\n%s%s' % (name, cli.after, cli.buffer))
 
 
 @step(u'Use user "{user}" with secret "{secret}" for gateway "{gateway}" on Strongswan connection "{name}"')
@@ -48,10 +48,7 @@ def set_libreswan_connection(context, user, secret, gateway, name):
     cli = pexpect.spawn('nmcli c modify %s vpn.data "user = %s, address = %s, method = psk, virtual = yes" vpn.secrets "password = %s"' % (name, user, gateway, secret), encoding='utf-8')
     r = cli.expect(['Error', pexpect.EOF])
     if r == 0:
-        out = ""
-        for line in cli:
-            out += line+"\n"
-        raise Exception('Got an Error while editing %s connection: %s' % (name, out))
+        raise Exception('Got an Error while editing %s connection\n%s%s' % (name, cli.after, cli.buffer))
 
 
 @step(u'Use user "{user}" with password "{password}" and group "{group}" with secret "{secret}" for gateway "{gateway}" on VPNC connection "{name}"')
@@ -59,11 +56,11 @@ def set_vpnc_connection(context, user, password, group, secret, gateway, name):
     cli = pexpect.spawn('nmcli c modify %s vpn.data "NAT Traversal Mode=natt, ipsec-secret-type=save, IPSec secret-flags=0, xauth-password-type=save, Vendor=cisco, Xauth username=%s, IPSec gateway=%s, Xauth password-flags=0, IPSec ID=%s, Perfect Forward Secrecy=server, IKE DH Group=dh2, Local Port=0"' % (name, user, gateway, group), encoding='utf-8')
     r = cli.expect(['Error', pexpect.EOF])
     if r == 0:
-        raise Exception('Got an Error while editing %s connection data' % (name))
+        raise Exception('Got an Error while editing %s connection data\n%s%s' % (name, cli.after, cli.buffer))
     cli = pexpect.spawn('nmcli c modify %s vpn.secrets "IPSec secret=%s, Xauth password=%s"' % (name, secret, password), encoding='utf-8')
     r = cli.expect(['Error', pexpect.EOF])
     if r == 0:
-        raise Exception('Got an Error while editing %s connection secrets' % (name))
+        raise Exception('Got an Error while editing %s connection secrets\n%s%s' % (name, cli.after, cli.buffer))
 
 
 @step(u'Use user "{user}" with password "{password}" and MPPE set to "{mppe}" for gateway "{gateway}" on PPTP connection "{name}"')
@@ -74,13 +71,13 @@ def set_pptp_connection(context, user, password, mppe, gateway, name):
     cli = pexpect.spawn('nmcli c modify %s vpn.data "password-flags = %s, user = %s, require-mppe = %s, gateway = %s"' % (name, flag, user, mppe, gateway), encoding='utf-8')
     r = cli.expect(['Error', pexpect.EOF])
     if r == 0:
-        raise Exception('Got an Error while editing %s connection data' % (name))
+        raise Exception('Got an Error while editing %s connection data\n%s%s' % (name, cli.after, cli.buffer))
     sleep(1)
     if flag != "2":
         cli = pexpect.spawn('nmcli c modify %s vpn.secrets "password = %s"' % (name, password), encoding='utf-8')
         r = cli.expect(['Error', pexpect.EOF])
         if r == 0:
-            raise Exception('Got an Error while editing %s connection secrets' % (name))
+            raise Exception('Got an Error while editing %s connection secrets\n%s%s' % (name, cli.after, cli.buffer))
 
 
 @step(u'Connect to vpn "{vpn}" with password "{password}"')
@@ -98,6 +95,6 @@ def connect_to_vpn(context, vpn, password, secret=None, time_out=None):
         cli.sendline(secret)
     r = cli.expect(['Error', pexpect.TIMEOUT, pexpect.EOF])
     if r == 0:
-        raise Exception('Got an Error while connecting to network %s' % vpn)
+        raise Exception('Got an Error while connecting to network %s\n%s%s' % (vpn, cli.after, cli.buffer))
     elif r == 1:
         raise Exception('nmcli vpn connect ... timed out (180s)')
