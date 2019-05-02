@@ -585,6 +585,22 @@ Feature: nmcli: connection
     Then "NEIGHBOR\[0\].IEEE-802-1-VLAN-NAME:\s+default\s" is visible with command "nmcli --fields all device lldp" in "5" seconds
 
 
+    @rhbz1652211
+    @ver+=1.18.0
+    @con_con_remove @teardown_testveth @tcpreplay
+    @lldp_vlan_tlv
+    Scenario: NM - connection - lldp check vlan tvl values via DBus
+    * Prepare simulated test "testX" device
+    * Add a new connection of type "ethernet" and options "ifname testX con-name con_con ipv4.method manual ipv4.addresses 1.2.3.4/24 connection.lldp enable"
+    * Bring "up" connection "con_con"
+    When "testX\s+ethernet\s+connected" is visible with command "nmcli device" in "5" seconds
+    * Execute "ip netns exec testX_ns tcpreplay --intf1=testXp tmp/lldp.vlan.pcap"
+    # check the deffinition of the step for more details about syntax
+    Then Check ":ieee-802-1-vid=0,:ieee-802-3-max-frame-size=1514,:ieee-802-1-vlan-name=default,:ieee-802-1-pvid=0" in LldpNeigbors via DBus for device "testX"
+     And Check ":ieee-802-1-vlans::name=default,:ieee-802-1-vlans::vid=0,:ieee-802-1-vlans::name=jbenc,:ieee-802-1-vlans::vid=99" in LldpNeigbors via DBus for device "testX"
+     And Check ":ieee-802-3-mac-phy-conf:pmd-autoneg-cap=32768,:ieee-802-3-mac-phy-conf:autoneg=0,:ieee-802-3-mac-phy-conf:operational-mau-type=0" in LldpNeigbors via DBus for device "testX"
+
+
     @rhbz1417292
     @eth5_disconnect
     @introspection_active_connection
