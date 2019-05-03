@@ -1492,6 +1492,8 @@ testmapper:
         feature: gsm_sim
     - gsm_sim_load_from_file:
         feature: gsm_sim
+    - gsm_sim_profile_with_serials:
+        feature: gsm_sim        
     - alias_ifcfg_add_single_alias:
         feature: alias
     - alias_ifcfg_add_multiple_aliases:

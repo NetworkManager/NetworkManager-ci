@@ -126,3 +126,16 @@ Feature: nmcli: gsm
      * Reload connections
      * Bring "up" connection "gsm"
     Then "GENERAL.STATE:.*activated" is visible with command "nmcli con show gsm" in "60" seconds
+
+
+    @ver+=1.18.0
+    @gsm_sim
+    @gsm_sim_profile_with_serials
+    Scenario: nmcli - gsm_sim - serial
+    Given "gsm" is visible with command "nmcli device status | grep -v unmanaged" in "60" seconds
+     * Add a new connection of type "gsm" and options "ifname \* con-name gsm autoconnect no apn internet serial.baud 5 serial.send-delay 100"
+     * Bring "up" connection "gsm"
+    Then "GENERAL.STATE:.*activated" is visible with command "nmcli con show gsm" in "60" seconds
+    Then "serial.baud:\s+5" is visible with command "nmcli con show gsm"
+    Then "serial.send-delay:\s+100" is visible with command "nmcli con show gsm"
+     And "default" is visible with command "ip r |grep 700"
