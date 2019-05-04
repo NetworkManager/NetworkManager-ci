@@ -1258,7 +1258,7 @@
 
     @rhbz1647414
     @ver+=1.18 @not_in_rhel8
-    @team @team_slaves
+    @team @team_slaves @long
     @teamd_logging
     Scenario: nmcli - teamd - logging to syslog
     * Add a new connection of type "team" and options "con-name team0 ifname nm-team autoconnect no ip4 1.2.3.4/24"
