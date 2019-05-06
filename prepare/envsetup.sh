@@ -143,8 +143,10 @@ install_el8_packages () {
     dnf -4 -y install https://kojipkgs.fedoraproject.org//packages/NetworkManager-openvpn/1.8.4/1.fc28/$(arch)/NetworkManager-openvpn-1.8.4-1.fc28.$(arch).rpm https://kojipkgs.fedoraproject.org//packages/openvpn/2.4.6/1.fc28/$(arch)/openvpn-2.4.6-1.fc28.$(arch).rpm https://dl.fedoraproject.org/pub/epel/7/$(arch)/Packages/i/ipsec-tools-0.8.2-5.el7.$(arch).rpm
     # Install various NM dependencies
     dnf -4 -y remove NetworkManager-config-connectivity-fedora NetworkManager-config-connectivity-redhat
-    dnf -4 -y install http://download.eng.bos.redhat.com/brewroot/vol/rhel-8/packages/openvswitch/2.9.0/59.el8fdn/$(uname -p)/openvswitch-2.9.0-59.el8fdn.$(uname -p).rpm \
-       http://download.eng.bos.redhat.com/brewroot/vol/rhel-8/packages/openvswitch-selinux-extra-policy/1.0/7.el8fdb/noarch/openvswitch-selinux-extra-policy-1.0-7.el8fdb.noarch.rpm
+
+    # Install OVS2 deps
+    dnf -4 install -y http://download.eng.bos.redhat.com/brewroot/vol/rhel-8/packages/openvswitch2.11/2.11.0/9.el8fdp/$(arch)/openvswitch2.11-2.11.0-9.el8fdp.$(arch).rpm http://download.eng.bos.redhat.com/brewroot/vol/rhel-8/packages/openvswitch-selinux-extra-policy/1.0/10.el8fdn/noarch/openvswitch-selinux-extra-policy-1.0-10.el8fdn.noarch.rpm
+
     dnf -4 -y install http://download.eng.bos.redhat.com/brewroot/packages/$(rpm -q --queryformat '%{NAME}/%{VERSION}/%{RELEASE}' NetworkManager)/$(uname -p)/NetworkManager-ovs-$(rpm -q --queryformat '%{VERSION}-%{RELEASE}' NetworkManager).$(uname -p).rpm
     if ! rpm -q --quiet NetworkManager-pptp; then
         dnf -4 -y install http://download.eng.bos.redhat.com/brewroot/packages/NetworkManager-pptp/1.2.4/4.el8+5/$(uname -p)/NetworkManager-pptp-1.2.4-4.el8+5.$(uname -p).rpm https://kojipkgs.fedoraproject.org//packages/pptpd/1.4.0/18.fc28/$(uname -p)/pptpd-1.4.0-18.fc28.$(uname -p).rpm http://download.eng.bos.redhat.com/brewroot/packages/pptp/1.10.0/3.el8+7/$(uname -p)/pptp-1.10.0-3.el8+7.$(uname -p).rpm
@@ -184,7 +186,10 @@ install_el7_packages () {
     yum -y install git python-netaddr iw net-tools wireshark psmisc bridge-utils firewalld dhcp ethtool dbus-python pygobject3 pygobject2 dnsmasq NetworkManager-vpnc
     yum -y install https://kojipkgs.fedoraproject.org//packages/python-behave/1.2.5/18.el7/noarch/python2-behave-1.2.5-18.el7.noarch.rpm https://kojipkgs.fedoraproject.org//packages/python-parse/1.6.4/4.el7/noarch/python-parse-1.6.4-4.el7.noarch.rpm https://kojipkgs.fedoraproject.org//packages/python-parse_type/0.3.4/6.el7/noarch/python-parse_type-0.3.4-6.el7.noarch.rpm
     yum -y remove NetworkManager-config-connectivity-fedora NetworkManager-config-connectivity-redhat
-    yum -y install  http://download.eng.bos.redhat.com/brewroot/packages/openvswitch/2.9.0/77.el7fdn/$(arch)/openvswitch-2.9.0-77.el7fdn.$(arch).rpm   http://download.eng.bos.redhat.com/brewroot/packages/openvswitch-selinux-extra-policy/1.0/7.el7fdp/noarch/openvswitch-selinux-extra-policy-1.0-7.el7fdp.noarch.rpm
+
+    # Add OVS repo and install OVS
+    mv -f  tmp/ovs-rhel7.repo /etc/yum.repos.d/ovs.repo
+    yum -y install openvswitch
 
     # Install newer teamd
     yum -y install http://download.eng.bos.redhat.com/brewroot/vol/rhel-7/packages/libteam/1.27/8.el7/$(arch)/libteam-1.27-8.el7.$(arch).rpm  http://download.eng.bos.redhat.com/brewroot/vol/rhel-7/packages/libteam/1.27/8.el7/$(arch)/teamd-1.27-8.el7.$(arch).rpm http://download.eng.bos.redhat.com/brewroot/vol/rhel-7/packages/libteam/1.27/8.el7/$(arch)/libteam-debuginfo-1.27-8.el7.$(arch).rpm http://download.eng.bos.redhat.com/brewroot/vol/rhel-7/packages/libteam/1.27/8.el7/$(arch)/teamd-devel-1.27-8.el7.$(arch).rpm
