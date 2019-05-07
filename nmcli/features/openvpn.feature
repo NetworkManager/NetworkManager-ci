@@ -65,7 +65,7 @@
 
     @rhbz1505886
     @ver+=1.0.8
-    @openvpn @openvpn6
+    @openvpn @openvpn6 @eth0
     @openvpn_ipv6_neverdefault
     Scenario: nmcli - openvpn - add neverdefault IPv6 connection
     * Add a connection named "openvpn" for device "\*" to "openvpn" VPN

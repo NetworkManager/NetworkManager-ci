@@ -28,7 +28,7 @@ fi
 TAG="$(python $DIR/version_control.py $DIR/nmcli $NMTEST)"; vc=$?
 if [ $vc -eq 1 ]; then
     logger "Skipping due to incorrect NM version for this test"
-    rstrnt-report-result $NMTEST "SKIP"
+    rstrnt-report-result -o "" $NMTEST "SKIP"
     exit 0
 
 # do we have tag to run tagged test?
