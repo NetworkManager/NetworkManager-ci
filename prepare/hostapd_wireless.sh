@@ -94,7 +94,7 @@ function copy_certificates ()
 function restart_services ()
 {
     systemctl daemon-reload
-    systemctl reload NetworkManager
+    systemctl restart NetworkManager
     systemctl restart wpa_supplicant
 }
 
