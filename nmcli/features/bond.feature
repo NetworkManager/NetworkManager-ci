@@ -1639,7 +1639,7 @@
 
 
      @rhbz1678796
-     @ver+=1.12
+     @ver+=1.16
      @slaves @bond @tshark @not_on_aarch64
      @bond_send_correct_arp
      Scenario: nmcli - bond - send correct arp
