@@ -109,13 +109,13 @@ Feature: nmcli: gsm
     * Add a new connection of type "gsm" and options "ifname \* con-name gsm autoconnect no apn internet"
     * Bring "up" connection "gsm"
     When "default" is visible with command "ip r |grep 700" in "20" seconds
-    And "proto kernel scope" is visible with command "ip r |grep 700"
+    And "proto .*  scope" is visible with command "ip r |grep 700"
     * Execute "nmcli con modify gsm ipv4.route-metric 120"
     * Bring "up" connection "gsm"
     * Execute "sleep 5"
     When "GENERAL.STATE:.*activated" is visible with command "nmcli con show gsm" in "20" seconds
     Then "default" is visible with command "ip r |grep 120" in "20" seconds
-    And "proto kernel scope" is visible with command "ip r |grep 120"
+    And "proto .* scope" is visible with command "ip r |grep 120"
 
 
     # Modems are not stable enough to test such things VVV
