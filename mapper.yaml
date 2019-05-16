@@ -17,6 +17,14 @@ component:
         arches:
           - x86_64
   test-run: nmcli/./runtest.sh $testname
+  covers:
+      - jimctl
+      - libmbim
+      - libqmi
+      - ModemManager
+      - usb_modeswitch-data
+      - usb_modeswitch
+      - mobile-broadband-provider-info
 
 dependencies:
   beaker-tasks:
@@ -1493,7 +1501,7 @@ testmapper:
     - gsm_sim_load_from_file:
         feature: gsm_sim
     - gsm_sim_profile_with_serials:
-        feature: gsm_sim        
+        feature: gsm_sim
     - alias_ifcfg_add_single_alias:
         feature: alias
     - alias_ifcfg_add_multiple_aliases:
@@ -2095,7 +2103,7 @@ testmapper:
     - gsm_hub:
         timeout: 60m
         feature: gsm
-
+        tags: jimctl libmbim libqmi ModemManager usb_modeswitch-data usb_modeswitch mobile-broadband-provider-info
 
   NetworkManager-wifi:
     - nmcli_wifisec_configure_and_connect_wpa1peap_profile:
