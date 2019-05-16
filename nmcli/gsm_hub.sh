@@ -85,10 +85,11 @@ function test_modems_usb_hub() {
             gsm_mtu
             gsm_route_metric
             gsm_load_from_file
-            gsm_up_up
-            gsm_up_down_up
             gsm_connectivity_check
             '
+            # gsm_up_up
+            # gsm_up_down_up
+
             GSM_TESTS=$GSM_TESTS_ALL
         else
             GSM_TESTS='
@@ -96,9 +97,10 @@ function test_modems_usb_hub() {
             gsm_disconnect
             gsm_create_one_minute_ping
             gsm_mtu
-            gsm_up_up
-            gsm_up_down_up
             '
+            # gsm_up_up
+            # gsm_up_down_up
+
         fi
 
         for T in $GSM_TESTS; do
