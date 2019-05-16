@@ -85,19 +85,19 @@ Feature: nmcli: gsm
 
     @rhbz1388613 @rhbz1460217
     @ver+=1.8.0
-    @eth0 @gsm
+    @gsm
     @gsm_mtu
     Scenario: nmcli - gsm - mtu
     * Add a new connection of type "gsm" and options "ifname \* con-name gsm autoconnect no apn internet gsm.mtu 1430"
     * Execute "nmcli con modify gsm gsm.mtu 1430"
     * Bring "up" connection "gsm"
     When "GENERAL.STATE:.*activated" is visible with command "nmcli con show gsm" in "20" seconds
-     And "mtu 1430" is visible with command "ip a s |grep mtu|tail -1" in "5" seconds
+     And "mtu 1430" is visible with command "ip a s |grep -v -e lo -e eth|grep mtu" in "5" seconds
      And "mtu 1430" is visible with command "nmcli |grep gsm"
      * Execute "nmcli con modify gsm gsm.mtu 1500"
      * Bring "up" connection "gsm"
      When "GENERAL.STATE:.*activated" is visible with command "nmcli con show gsm" in "20" seconds
-     Then "mtu 1500" is visible with command "ip a s |grep mtu|tail -1" in "5" seconds
+     Then "mtu 1500" is visible with command "ip a s |grep -v -e lo -e eth|grep mtu" in "5" seconds
       And "mtu 1500" is visible with command "nmcli |grep gsm"
 
 
@@ -109,7 +109,7 @@ Feature: nmcli: gsm
     * Add a new connection of type "gsm" and options "ifname \* con-name gsm autoconnect no apn internet"
     * Bring "up" connection "gsm"
     When "default" is visible with command "ip r |grep 700" in "20" seconds
-    And "proto .*  scope" is visible with command "ip r |grep 700"
+    And "proto .* scope" is visible with command "ip r |grep 700"
     * Execute "nmcli con modify gsm ipv4.route-metric 120"
     * Bring "up" connection "gsm"
     * Execute "sleep 5"
