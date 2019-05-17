@@ -475,7 +475,7 @@ Feature: nmcli - vlan
 
 
     @rhbz1553595
-    @ver+=1.10.2
+    @ver+=1.10.2 @ver-=1.17.90
     @vlan @bond @slaves @restart
     @vlan_on_bond_autoconnect
     Scenario: NM - vlan - autoconnect vlan on bond specified as UUID
@@ -490,6 +490,31 @@ Feature: nmcli - vlan
     Then "nm-bond:connected:bond0" is visible with command "nmcli -t -f DEVICE,STATE,CONNECTION device" in "20" seconds
     Then "nm-bond.7:connected:vlan_bond7" is visible with command "nmcli -t -f DEVICE,STATE,CONNECTION device" in "20" seconds
     * Restart NM
+    Then "nm-bond:connected:bond0" is visible with command "nmcli -t -f DEVICE,STATE,CONNECTION device" in "20" seconds
+    Then "nm-bond.7:connected:vlan_bond7" is visible with command "nmcli -t -f DEVICE,STATE,CONNECTION device" in "20" seconds
+
+
+    @rhbz1553595 @rhbz1701585
+    @ver+=1.18.0
+    @vlan @bond @slaves @restart
+    @vlan_on_bond_autoconnect
+    Scenario: NM - vlan - autoconnect vlan on bond specified as UUID
+    * Add connection type "bond" named "bond0" for device "nm-bond"
+    * Note the output of "nmcli --mode tabular -t -f connection.uuid connection show bond0"
+    * Add slave connection for master "nm-bond" on device "eth1" named "bond0.0"
+    * Add slave connection for master "nm-bond" on device "eth4" named "bond0.1"
+    * Add a new connection of type "vlan" and options "con-name vlan_bond7 dev nm-bond id 7 ip4 192.168.168.16/24 autoconnect no"
+    * Modify connection "vlan_bond7" property "vlan.parent" to noted value
+    * Execute "nmcli connection modify vlan_bond7 connection.autoconnect yes"
+    * Reboot
+    Then "nm-bond:connected:bond0" is visible with command "nmcli -t -f DEVICE,STATE,CONNECTION device" in "20" seconds
+    Then "nm-bond.7:connected:vlan_bond7" is visible with command "nmcli -t -f DEVICE,STATE,CONNECTION device" in "20" seconds
+    * Restart NM
+    Then "nm-bond:connected:bond0" is visible with command "nmcli -t -f DEVICE,STATE,CONNECTION device" in "20" seconds
+    Then "nm-bond.7:connected:vlan_bond7" is visible with command "nmcli -t -f DEVICE,STATE,CONNECTION device" in "20" seconds
+    * Execute "nmcli networking off"
+    * Restart NM
+    * Execute "nmcli networking on"
     Then "nm-bond:connected:bond0" is visible with command "nmcli -t -f DEVICE,STATE,CONNECTION device" in "20" seconds
     Then "nm-bond.7:connected:vlan_bond7" is visible with command "nmcli -t -f DEVICE,STATE,CONNECTION device" in "20" seconds
 
