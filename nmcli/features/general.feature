@@ -443,16 +443,17 @@ Feature: nmcli - general
      And "default via 192.168.99.1 dev testG\s+proto dhcp\s+metric" is visible with command "ip r"
 
 
-    @rhbz1032717
-    @ver+=1.2.0 @ver-=1.10.0
-    @con_general_remove @teardown_testveth @dhcpd
+    @rhbz1032717 @rhbz1505893 @1702657
+    @ver+=1.12
+    @con_general_remove @teardown_testveth @dhcpd @mtu
     @device_reapply_all
     Scenario: NM - device - reapply even address and gate
     * Prepare simulated test "testG" device
-    * Add connection type "ethernet" named "con_general" for device "testG"
+    * Add a new connection of type "ethernet" and options "ifname testG con-name con_general 802-3-ethernet.mtu 1460"
     * Bring "up" connection "con_general"
     * Open editor for connection "con_general"
     * Submit "set ipv4.method static" in editor
+    * Submit "set 802-3-ethernet.mtu 9000" in editor
     * Submit "set ipv4.addresses 192.168.3.10/24" in editor
     * Submit "set ipv4.gateway 192.168.4.1" in editor
     * Submit "set ipv4.routes 192.168.5.0/24 192.168.3.11 1" in editor
@@ -464,17 +465,17 @@ Feature: nmcli - general
     * Execute "ip netns exec testG_ns kill -SIGSTOP $(cat /tmp/testG_ns.pid)"
     * Execute "nmcli device reapply testG"
     Then "1010::1 via 2000::1 dev testG\s+proto static\s+metric 1" is visible with command "ip -6 route" in "5" seconds
-     # metric 256 is valid for @ver-=1.9.1 only, please delete of too old
-     And "2000::/126 dev testG\s+proto kernel\s+metric (100|256)" is visible with command "ip -6 route"
-     And "192.168.3.0/24 dev testG\s+proto kernel\s+scope link\s+src 192.168.3.10" is visible with command "ip route"
+     And "2000::/126 dev testG\s+proto kernel\s+metric 1" is visible with command "ip -6 route"
+     And "192.168.3.0/24 dev testG\s+proto kernel\s+scope link\s+src 192.168.3.10 metric 21" is visible with command "ip route"
      And "192.168.4.1 dev testG\s+proto static\s+scope link\s+metric 21" is visible with command "ip route"
-     And "192.168.5.0/24 via 192.168.3.11 dev testG\s+proto static\s+metric" is visible with command "ip route"
+     And "192.168.5.0/24 via 192.168.3.11 dev testG\s+proto static\s+metric 1" is visible with command "ip route"
      And "routers = 192.168.99.1" is not visible with command "nmcli con show con_general"
      And "default via 192.168.99.1 dev testG" is not visible with command "ip r"
+     And "9000" is visible with command "ip a s testG" in "5" seconds
 
 
     @rhbz1032717 @rhbz1505893
-    @ver+=1.10.2
+    @ver+=1.10.2 @ver-=1.17.90
     @con_general_remove @teardown_testveth @dhcpd
     @device_reapply_all
     Scenario: NM - device - reapply even address and gate
