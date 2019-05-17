@@ -192,6 +192,7 @@ Feature: nmcli: connection
      * Delete connection "after_rename"
 
 
+    @ver-=1.17.90
     @con_con_remove
     @connection_set_uuid_error
     Scenario: nmcli - connection - set uuid
@@ -199,6 +200,17 @@ Feature: nmcli: connection
      * Open editor for connection "con_con"
      * Submit "set connection.uuid 00000000-0000-0000-0000-000000000000" in editor
      Then Error type "uuid" shown in editor
+
+
+    @ver+=1.18.0
+    @con_con_remove
+    @connection_set_uuid_error
+    Scenario: nmcli - connection - set uuid
+    * Add connection type "ethernet" named "con_con" for device "blah"
+    * Open editor for connection "con_con"
+    * Submit "set connection.uuid 00000000-0000-0000-0000-000000000000" in editor
+    Then Error type "uuid" shown in editor
+    * Execute "python tmp/repro_1707261.py"
 
 
     @con_con_remove
