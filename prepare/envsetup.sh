@@ -144,7 +144,7 @@ install_el8_packages () {
     # Install various NM dependencies
     dnf -4 -y remove NetworkManager-config-connectivity-fedora NetworkManager-config-connectivity-redhat
     dnf -4 -y install http://download.eng.bos.redhat.com/brewroot/vol/rhel-8/packages/libmnl/1.0.4/6.el8/$(arch)/libmnl-devel-1.0.4-6.el8.$(arch).rpm
-    
+
     # Install OVS2 deps
     dnf -4 install -y http://download.eng.bos.redhat.com/brewroot/vol/rhel-8/packages/openvswitch2.11/2.11.0/9.el8fdp/$(arch)/openvswitch2.11-2.11.0-9.el8fdp.$(arch).rpm http://download.eng.bos.redhat.com/brewroot/vol/rhel-8/packages/openvswitch-selinux-extra-policy/1.0/10.el8fdn/noarch/openvswitch-selinux-extra-policy-1.0-10.el8fdn.noarch.rpm
 
@@ -342,6 +342,9 @@ local_setup_configure_nm_eth () {
     # Do veth setup if yes
     if [ $veth -eq 1 ]; then
         sh prepare/vethsetup.sh setup
+
+        # Copy this once more just to be sure it's there as it's really crucial
+        yes 2>/dev/null | cp -rf /etc/sysconfig/network-scripts/ifcfg-testeth0 /tmp/testeth0
 
         touch /tmp/nm_newveth_configured
 
