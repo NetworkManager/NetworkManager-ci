@@ -341,11 +341,12 @@ local_setup_configure_nm_eth () {
 
     # Do veth setup if yes
     if [ $veth -eq 1 ]; then
-        sh prepare/vethsetup.sh setup
+        . prepare/vethsetup.sh setup
 
         # Copy this once more just to be sure it's there as it's really crucial
         yes 2>/dev/null | cp -rf /etc/sysconfig/network-scripts/ifcfg-testeth0 /tmp/testeth0
-
+        cat /tmp/testeth0
+        
         touch /tmp/nm_newveth_configured
 
     else
