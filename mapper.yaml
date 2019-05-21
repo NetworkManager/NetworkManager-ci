@@ -1206,6 +1206,8 @@ testmapper:
         feature: general
     - keyfile_nmconnection_extension:
         feature: general
+    - busctl_LoadConnections_relative_path:
+        feature: general
     - openvswitch_interface_recognized:
         feature: ovs
     - openvswitch_ignore_ovs_network_setup:
