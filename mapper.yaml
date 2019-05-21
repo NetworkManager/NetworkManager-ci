@@ -1310,6 +1310,8 @@ testmapper:
         feature: vpn
     - iptunnel_restart:
         feature: vpn
+    - iptunnel_ip6gre_create_device:
+        feature: vpn
     - wireguard_activate_connection:
         feature: vpn
     - openvpn_ipv4:
