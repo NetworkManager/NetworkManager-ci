@@ -38,7 +38,7 @@ function runtest () {
 
 function test_modems_usb_hub() {
     # Number of modems that are plugged into Acroname USB hub.
-    local MODEM_COUNT=6
+    local MODEM_COUNT=5
     # Number of ports Acroname USB hub has.
     local PORT_COUNT=8
     # Return code
@@ -106,6 +106,9 @@ function test_modems_usb_hub() {
         for T in $GSM_TESTS; do
             runtest $T $M || RC=1
             cat /tmp/report.html >> /tmp/report_$NMTEST.html
+
+            # Adding sleep 10 just to make tests more stable
+            sleep 10
         done
     done
 
