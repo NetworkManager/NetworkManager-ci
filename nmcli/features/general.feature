@@ -2137,3 +2137,13 @@ Feature: nmcli - general
     * Execute "chmod 0600 /etc/NetworkManager/system-connections/con_general"
     Then "bas true 0" is visible with command "busctl call org.freedesktop.NetworkManager /org/freedesktop/NetworkManager/Settings org.freedesktop.NetworkManager.Settings LoadConnections as 1 /etc/NetworkManager/system-connections/con_general"
      And "con_general" is visible with command "nmcli connection show"
+
+
+    @rhbz1709849
+    @ver+=1.18
+    @secret_key_reset @restart @con_general_remove
+    @secret_key_file_permissions
+    Scenario: NM - general - check secret_key file permissions
+    * Restart NM
+    * Add a new connection of type "ethernet" and options "ifname eth8 ipv4.dhcp-client-id stable con-name con_general"
+    Then "-rw-------" is visible with command "ls -l /var/lib/NetworkManager/secret_key" in "5" seconds

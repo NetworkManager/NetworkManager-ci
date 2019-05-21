@@ -353,6 +353,9 @@ def before_scenario(context, scenario):
             if os.path.isfile('/tmp/nm_skip_restarts') or os.path.isfile('/tmp/nm_skip_STR'):
                 sys.exit(77)
 
+        if 'secret_key_reset' in scenario.tags:
+            call("mv /var/lib/NetworkManager/secret_key /var/lib/NetworkManager/secret_key_back", shell=True)
+
         if '1000' in scenario.tags:
             print ("---------------------------")
             print ("installing pip and pyroute2")
@@ -1247,6 +1250,9 @@ def after_scenario(context, scenario):
             print("---------------------------")
             print("Removing custom cfg file in conf.d")
             call('sudo rm -f /etc/NetworkManager/conf.d/99-xxcustom.conf', shell=True)
+
+        if 'secret_key_reset' in scenario.tags:
+            call("mv /var/lib/NetworkManager/secret_key_back /var/lib/NetworkManager/secret_key", shell=True)
 
         if 'restart' in scenario.tags:
             print ("---------------------------")
