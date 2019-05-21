@@ -545,7 +545,7 @@ Feature: nmcli - bridge
 
     @rhbz1593939
     @ver+=1.14
-    @restart @bridge
+    @eth0 @bridge @restart 
     @bridge_detect_initrd_device
     Scenario: NM - bridge - nm detects initrd bridge
     * Add a new connection of type "bridge" and options "con-name bridge0 ifname bridge0 bridge.stp no"
