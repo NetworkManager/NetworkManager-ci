@@ -2125,3 +2125,15 @@ Feature: nmcli - general
     * Add a new connection of type "ethernet" and options "ifname \* con-name con_general autoconnect no"
     Then "/etc/NetworkManager/system-connections/con_general.nmconnection" is file
      And Path "/etc/NetworkManager/system-connections/con_general" does not exist
+
+
+    @rhbz1708660
+    @ver+=1.18
+    @con_general_remove
+    @busctl_LoadConnections_relative_path
+    Scenario: NM - general - busctl LoadConnections does not accept relative paths
+    When "bas false 1 \"tmp/eth8-con.keyfile\"" is visible with command "busctl call org.freedesktop.NetworkManager /org/freedesktop/NetworkManager/Settings org.freedesktop.NetworkManager.Settings LoadConnections as 1 tmp/eth8-con.keyfile"
+    * Execute "cp tmp/eth8-con.keyfile /etc/NetworkManager/system-connections/con_general"
+    * Execute "chmod 0600 /etc/NetworkManager/system-connections/con_general"
+    Then "bas true 0" is visible with command "busctl call org.freedesktop.NetworkManager /org/freedesktop/NetworkManager/Settings org.freedesktop.NetworkManager.Settings LoadConnections as 1 /etc/NetworkManager/system-connections/con_general"
+     And "con_general" is visible with command "nmcli connection show"
