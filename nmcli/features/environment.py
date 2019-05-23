@@ -246,7 +246,7 @@ def reset_hwaddr(ifname):
     if not os.path.isfile('/tmp/nm_newveth_configured'):
         hwaddr = check_output("ethtool -P %s" % ifname, shell=True).decode('utf-8').split()[2]
         call("ip link set %s address %s" % (ifname, hwaddr), shell=True)
-        call("ip link set %s up" % (ifname), shell=True)
+    call("ip link set %s up" % (ifname), shell=True)
 
 def setup_hostapd():
     print ("setting up hostapd")
@@ -1832,12 +1832,15 @@ def after_scenario(context, scenario):
         if 'bridge' in scenario.tags:
             print ("---------------------------")
             print ("deleting all possible bridge residues")
-            call('sudo nmcli con del bridge4 bridge4.0 bridge4.1 nm-bridge eth4.80 eth4.90', shell=True)
-            call('sudo nmcli con del bridge-slave-eth4 bridge-nonslave-eth4 bridge-slave-eth4.80', shell=True)
-            call('sudo nmcli con del bridge0 bridge bridge.15 nm-bridge br88 br11 br12 br15 bridge-slave br15-slave br15-slave1 br15-slave2 br10 br10-slave', shell=True)
-            call('ip link del bridge0', shell=True)
-            reset_hwaddr('eth4')
 
+            if 'bridge_assumed' in scenario.tags:
+                call('ip link del bridge0', shell=True)
+                call('ip link del br0', shell=True)
+
+            call('sudo nmcli con del bridge4 bridge4.0 bridge4.1 nm-bridge eth4.80 eth4.90', shell=True)
+            call('sudo nmcli con del bridge-slave-eth4 bridge-nonslave-eth4 bridge-slave-eth4.80 eth4', shell=True)
+            call('sudo nmcli con del bridge0 bridge bridge.15 nm-bridge br88 br11 br12 br15 bridge-slave br15-slave br15-slave1 br15-slave2 br10 br10-slave', shell=True)
+            reset_hwaddr('eth4')
         if 'bond_bridge' in scenario.tags:
             print ("---------------------------")
             print ("deleting all possible bond bridge")

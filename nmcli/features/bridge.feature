@@ -411,7 +411,7 @@ Feature: nmcli - bridge
 
 
     @firewall
-    @dummy
+    @dummy @bridge_assumed
     @bridge_assumed_connection_no_firewalld_zone
     Scenario: NM - bridge - no firewalld zone for bridge assumed connection
     * Execute "sudo ip link add br0 type bridge"
@@ -422,7 +422,7 @@ Feature: nmcli - bridge
 
 
     @ver-=1.1
-    @dummy
+    @dummy @bridge_assumed
     @bridge_assumed_connection_ip_methods
     Scenario: NM - bridge - Layer2 changes for bridge assumed connection
     * Execute "sudo ip link add br0 type bridge"
@@ -440,7 +440,7 @@ Feature: nmcli - bridge
 
 
     @ver+=1.1.1
-    @dummy
+    @dummy @bridge_assumed
     @bridge_assumed_connection_ip_methods
     Scenario: NM - bridge - Layer2 changes for bridge assumed connection
     * Execute "sudo ip link add br0 type bridge"
@@ -474,7 +474,7 @@ Feature: nmcli - bridge
 
     @rhbz1363995
     @ver+=1.4
-    @dummy
+    @dummy @bridge_assumed
     @bridge_preserve_assumed_connection_ips
     Scenario: nmcli - bridge - preserve assumed connection's addresses
     * Execute "ip link add br0 type bridge"
@@ -545,7 +545,7 @@ Feature: nmcli - bridge
 
     @rhbz1593939
     @ver+=1.14
-    @eth0 @bridge @restart 
+    @bridge @restart @bridge_assumed
     @bridge_detect_initrd_device
     Scenario: NM - bridge - nm detects initrd bridge
     * Add a new connection of type "bridge" and options "con-name bridge0 ifname bridge0 bridge.stp no"
