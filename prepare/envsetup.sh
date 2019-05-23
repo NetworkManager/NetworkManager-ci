@@ -193,7 +193,7 @@ install_el7_packages () {
     yum -y install openvswitch
 
     # Install newer teamd
-    yum -y install http://download.eng.bos.redhat.com/brewroot/vol/rhel-7/packages/libteam/1.27/8.el7/$(arch)/libteam-1.27-8.el7.$(arch).rpm  http://download.eng.bos.redhat.com/brewroot/vol/rhel-7/packages/libteam/1.27/8.el7/$(arch)/teamd-1.27-8.el7.$(arch).rpm http://download.eng.bos.redhat.com/brewroot/vol/rhel-7/packages/libteam/1.27/8.el7/$(arch)/libteam-debuginfo-1.27-8.el7.$(arch).rpm http://download.eng.bos.redhat.com/brewroot/vol/rhel-7/packages/libteam/1.27/8.el7/$(arch)/teamd-devel-1.27-8.el7.$(arch).rpm
+    yum -y install http://download.eng.bos.redhat.com/brewroot/vol/rhel-7/packages/libteam/1.27/9.el7/$(arch)/libteam-1.27-9.el7.$(arch).rpm  http://download.eng.bos.redhat.com/brewroot/vol/rhel-7/packages/libteam/1.27/9.el7/$(arch)/teamd-1.27-9.el7.$(arch).rpm http://download.eng.bos.redhat.com/brewroot/vol/rhel-7/packages/libteam/1.27/9.el7/$(arch)/libteam-debuginfo-1.27-9.el7.$(arch).rpm http://download.eng.bos.redhat.com/brewroot/vol/rhel-7/packages/libteam/1.27/9.el7/$(arch)/teamd-devel-1.27-9.el7.$(arch).rpm
 
     # Tune wpa_supplicat to log into journal and enable debugging
     systemctl stop wpa_supplicant
@@ -346,7 +346,7 @@ local_setup_configure_nm_eth () {
         # Copy this once more just to be sure it's there as it's really crucial
         yes 2>/dev/null | cp -rf /etc/sysconfig/network-scripts/ifcfg-testeth0 /tmp/testeth0
         cat /tmp/testeth0
-        
+
         touch /tmp/nm_newveth_configured
 
     else
