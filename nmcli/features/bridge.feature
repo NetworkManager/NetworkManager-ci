@@ -522,7 +522,7 @@ Feature: nmcli - bridge
 
 
     @ver+=1.10
-    @bridge @restart
+    @bridge @restart @bridge_assumed
     @bridge_delete_connection_without_device
     Scenario: nmcli - bridge - delete without device
     * Add a new connection of type "bridge" and options "con-name bridge0 ifname bridge0 bridge.stp off autoconnect yes ip4 192.168.1.19/24"
