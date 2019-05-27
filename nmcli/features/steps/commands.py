@@ -321,7 +321,7 @@ def ping_domain(context, domain, number=2):
         ping = pexpect.spawn("curl -s %s" %(domain), logfile=context.log, encoding='utf-8')
     ping.expect([pexpect.EOF])
     ping.close()
-    assert ping.exitstatus == 0
+    assert ping.exitstatus == 0, "msg: %s" % ping.before
 
 
 @step(u'Ping "{domain}" from "{device}" device')
@@ -329,7 +329,7 @@ def ping_domain_from_device(context, domain, device):
     ping = pexpect.spawn("ping -4 -c 2 -I %s %s" %(device, domain), logfile=context.log, encoding='utf-8')
     ping.expect([pexpect.EOF])
     ping.close()
-    assert ping.exitstatus == 0
+    assert ping.exitstatus == 0, "msg: %s" % ping.before
 
 
 @step(u'Ping6 "{domain}"')
@@ -337,7 +337,7 @@ def ping6_domain(context, domain):
     ping = pexpect.spawn("ping6 -c 2 %s" %domain, logfile=context.log, encoding='utf-8')
     ping.expect([pexpect.EOF])
     ping.close()
-    assert ping.exitstatus == 0
+    assert ping.exitstatus == 0, "msg: %s" % ping.before
 
 
 @step(u'Unable to ping "{domain}"')
