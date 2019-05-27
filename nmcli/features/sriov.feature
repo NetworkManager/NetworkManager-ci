@@ -298,7 +298,7 @@
     ################# Test set WITHOUT VF driver (just inder PF device) ######################################
 
     @rhbz1555013
-    @ver+=1.14.0
+    @ver+=1.14.0 @not_in_rhel7
     @sriov
     @sriov_con_add_VF
     Scenario: nmcli - sriov - add 1 VF
@@ -308,7 +308,7 @@
 
 
     @rhbz1651576
-    @ver+=1.14.0
+    @ver+=1.14.0 @not_in_rhel7
     @sriov
     @sriov_con_set_VF_to_0
     Scenario: nmcli - sriov - set VF number to 0
@@ -320,7 +320,7 @@
 
 
     @rhbz1555013
-    @ver+=1.14.0
+    @ver+=1.14.0 @not_in_rhel7
     @sriov
     @sriov_con_add_VF_mac_and_trust
     Scenario: nmcli - sriov - add 1 VF with mac
@@ -330,7 +330,7 @@
 
 
     @rhbz1555013
-    @ver+=1.14.0
+    @ver+=1.14.0 @not_in_rhel7
     @sriov @tcpdump
     @sriov_con_add_VF_vlan
     Scenario: nmcli - sriov - add 1 VF with vlan Q
@@ -341,7 +341,7 @@
 
 
     @rhbz1555013
-    @ver+=1.14.0
+    @ver+=1.14.0 @not_in_rhel7
     @sriov
     @sriov_con_add_VF_trust_off
     Scenario: nmcli - sriov - add 1 VF with trust off
@@ -350,7 +350,7 @@
 
 
     @rhbz1555013
-    @ver+=1.14.0
+    @ver+=1.14.0 @not_in_rhel7
     @sriov
     @sriov_con_add_VF_spoof_off
     Scenario: nmcli - sriov - add 1 VF without spoof check
@@ -359,7 +359,7 @@
 
 
     @rhbz1555013
-    @ver+=1.14.0
+    @ver+=1.14.0 @not_in_rhel7
     @sriov
     @sriov_con_add_VF_spoof
     Scenario: nmcli - sriov - add 1 VF with spoof check
