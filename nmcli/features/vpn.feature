@@ -126,7 +126,7 @@
     @iptunnel
     @iptunnel_ip6gre_create_device
     Scenario: nmcli - vpn - create IP6GRE tunnel with device
-    * Add a new connection of type "ip-tunnel" and options "ifname ip6gre1 con-name gre1 mode ip6gre ip-tunnel.parent veth0 remote fe80:feed::beef local fe80:feed::b00f ip6 fe80:deaf::b00f/64 ip4 172.25.32.1/24 autoconnect no"
+    * Add a new connection of type "ip-tunnel" and options "ifname ip6gre1 con-name gre1 mode ip6gre ip-tunnel.parent veth0 remote fe80:feed::beef local fe80:feed::b00f ip6 fe80:deaf::b00f/64 ipv4.method disabled autoconnect no"
     * Bring "up" connection "gre1"
     * Wait for at least "2" seconds
     Then Ping6 "fe80:deaf::beef%ip6gre1"
