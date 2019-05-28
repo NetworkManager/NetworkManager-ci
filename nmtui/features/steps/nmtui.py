@@ -146,7 +146,8 @@ def can_see_welcome_screen(context):
 @step(u'Press "{key}" key')
 def press_key(context, key):
     context.tui.send(keys[key])
-
+    sleep(0.2)
+    
 @step(u'Come back to the top of editor')
 def come_back_to_top(context):
     context.tui.send(keys['UPARROW']*64)
@@ -212,7 +213,7 @@ def back_to_con_list(context):
 def back_to_main(context):
     current_nm_version = "".join(check_output("""NetworkManager -V |awk 'BEGIN { FS = "." }; {printf "%03d%03d%03d", $1, $2, $3}'""", shell=True).decode('utf-8').split('-')[0])
     context.tui.send(keys['ESCAPE'])
-    sleep(0.5)
+    sleep(0.2)
     if current_nm_version < "001003000":
         context.execute_steps(u'* Start nmtui')
 
@@ -281,6 +282,7 @@ def pattern_not_on_screen(context, pattern):
 def set_current_field_to(context, value):
     context.tui.send(keys['BACKSPACE']*100)
     context.tui.send(value)
+    sleep(0.2)
 
 
 @step(u'Set "{field}" field to "{value}"')
