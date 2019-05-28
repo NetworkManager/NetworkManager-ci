@@ -147,7 +147,7 @@ def can_see_welcome_screen(context):
 def press_key(context, key):
     context.tui.send(keys[key])
     sleep(0.2)
-    
+
 @step(u'Come back to the top of editor')
 def come_back_to_top(context):
     context.tui.send(keys['UPARROW']*64)
@@ -213,7 +213,7 @@ def back_to_con_list(context):
 def back_to_main(context):
     current_nm_version = "".join(check_output("""NetworkManager -V |awk 'BEGIN { FS = "." }; {printf "%03d%03d%03d", $1, $2, $3}'""", shell=True).decode('utf-8').split('-')[0])
     context.tui.send(keys['ESCAPE'])
-    sleep(0.2)
+    sleep(0.4)
     if current_nm_version < "001003000":
         context.execute_steps(u'* Start nmtui')
 
