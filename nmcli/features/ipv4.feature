@@ -2160,3 +2160,17 @@ Feature: nmcli: ipv4
     * Bring "down" connection "con_ipv4"
     Then "5:\s+from all lookup 6\s+6:\s+from 192.168.6.7 lookup 7" is not visible with command "ip rule"
     And "3" is visible with command "ip rule |wc -l"
+
+
+    @rhbz1634657
+    @ver+=1.16
+    @con_ipv4_remove @teardown_testveth @internal_DHCP
+    @dhcp_multiple_router_options
+    Scenario: NM - ipv4 - dhcp server sends multiple router options
+    * Prepare simulated test "testX" device with "192.168.99" ipv4 and "2620:dead:beaf" ipv6 dhcp address prefix and dhcp option "option:router,192.168.99.10,192.168.99.20,192.168.99.21"
+    * Add a new connection of type "ethernet" and options "ifname testX con-name con_ipv4"
+    * Bring "up" connection "con_ipv4"
+    When "192.168.99." is visible with command "ip a show dev testX" in "10" seconds
+    Then "default via 192.168.99.10 proto dhcp metric 101" is visible with command "ip -4 r show dev testX"
+     And "default via 192.168.99.20 proto dhcp metric 102" is visible with command "ip -4 r show dev testX"
+     And "default via 192.168.99.21 proto dhcp metric 103" is visible with command "ip -4 r show dev testX"
