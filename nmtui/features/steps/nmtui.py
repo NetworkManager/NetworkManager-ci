@@ -183,6 +183,8 @@ def select_con_type(context, typ):
 def press_dialog_button(context, button):
     assert go_until_pattern_matches_aftercursor_text(context,keys['TAB'],r'^ +%s.*$' % button) is not None, "Could not go to action '<Create>' on screen!"
     context.tui.send(keys['ENTER'])
+    if button == 'Delete':
+        sleep(0.5)
 
 
 @step(u'Press "{button}" button in the password dialog')
@@ -210,6 +212,7 @@ def back_to_con_list(context):
 def back_to_main(context):
     current_nm_version = "".join(check_output("""NetworkManager -V |awk 'BEGIN { FS = "." }; {printf "%03d%03d%03d", $1, $2, $3}'""", shell=True).decode('utf-8').split('-')[0])
     context.tui.send(keys['ESCAPE'])
+    sleep(0.2)
     if current_nm_version < "001003000":
         context.execute_steps(u'* Start nmtui')
 
@@ -265,7 +268,9 @@ def cannot_confirm_connection_screen(context):
 @step(u'"{pattern}" is visible on screen')
 def pattern_on_screen(context, pattern):
     match = re.match(pattern, get_screen_string(context.screen), re.UNICODE | re.DOTALL)
-    assert match is not None, "Could see pattern '%s' on screen!" % pattern
+    if match is None:
+        sleep(0.5)
+        assert match is not None, "Could see pattern '%s' on screen!" % pattern
 
 
 @step(u'"{pattern}" is not visible on screen')
