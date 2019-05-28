@@ -1511,3 +1511,26 @@
      And "2000::2 dev testX6 proto static metric 10[0-1] pref medium" is visible with command "ip -6 route"
      # And "namespace 192.168.3.11" is visible with command "cat /etc/resolv.conf" in "10" seconds
      And "activated" is visible with command "nmcli -g GENERAL.STATE con show con_ipv6" in "45" seconds
+
+
+     @rhbz1548237
+     @ver+=1.18.0
+     @con_ipv6_remove @teardown_testveth
+     @ipv6_survive_external_link_restart
+     Scenario: nmcli - ipv6 - survive external link restart
+     * Prepare simulated test "testX6" device
+     * Add a new connection of type "ethernet" and options "con-name con_ipv6 ifname testX6 ipv6.may-fail no"
+     * Add a new connection of type "ethernet" and options "con-name con_ipv62 ifname eth3"
+     When "activated" is visible with command "nmcli -g GENERAL.STATE con show con_ipv6" in "45" seconds
+     When "activated" is visible with command "nmcli -g GENERAL.STATE con show con_ipv62" in "45" seconds
+     * Execute "ip link set dev eth3 down && sleep 1 && ip link set dev eth3 up"
+     * Execute "ip link set dev testX6 down && sleep 1 && ip link set dev testX6 up"
+     When "activated" is visible with command "nmcli -g GENERAL.STATE con show con_ipv6" in "45" seconds
+     When "activated" is visible with command "nmcli -g GENERAL.STATE con show con_ipv62" in "45" seconds
+     # TestX6 device (everything)
+     And "2620:dead:beaf" is visible with command "ip a s testX6"
+     And "fe80" is visible with command "ip a s testX6"
+     And "default" is visible with command "ip -6 r |grep testX6"
+     # Eth3 device (just fe80)
+     And "fe80" is visible with command "ip a s eth3"
+     And "default" is visible with command "ip -6 r |grep eth3"

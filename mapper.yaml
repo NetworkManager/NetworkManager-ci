@@ -579,6 +579,8 @@ testmapper:
         feature: ipv6
     - ipv6_manual_addr_before_dhcp:
         feature: ipv6
+    - ipv6_survive_external_link_restart:
+        feature: ipv6
     - nmcli_general_correct_profile_activated_after_restart:
         feature: ipv4
     - nmcli_general_profile_pickup_doesnt_break_network:
