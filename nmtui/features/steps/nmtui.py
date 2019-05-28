@@ -153,6 +153,7 @@ def come_back_to_top(context):
 
 @step(u'Screen is empty')
 def screen_is_empty(context):
+    sleep(0.5)
     for line in context.screen.display:
         assert re.match('^\s*$', line) is not None, 'Screen not empty on this line:"%s"' % line
 
