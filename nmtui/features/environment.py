@@ -129,7 +129,7 @@ def before_scenario(context, scenario):
             print ("---------------------------")
             print ("eth0")# and eth10 disconnect"
             os.system("nmcli connection down id testeth0")
-            sleep(4)
+            sleep(1)
             if os.system("nmcli -f NAME c sh -a |grep eth0") == 0:
                 print ("shutting down eth0 once more as it is not down")
                 os.system("nmcli device disconnect eth0")
@@ -152,7 +152,6 @@ def after_step(context, step):
     Here we make screenshot and embed it (if one of formatters supports it)
     """
     try:
-        sleep(0.5)
         if os.path.isfile('/tmp/nmtui.out'):
             context.stream.feed(open('/tmp/nmtui.out', 'r').read().encode('utf-8'))
         print_screen(context.screen)
@@ -298,10 +297,7 @@ def after_scenario(context, scenario):
         if "eth0" in scenario.tags:
             print ("---------------------------")
             print ("upping testeth0")
-            os.system("nmcli connection up id testeth0")
-            sleep(5)
-        # Make some pause after scenario
-        sleep(1)
+            wait_for_testeth0()
 
     except Exception:
         # Stupid behave simply crashes in case exception has occurred

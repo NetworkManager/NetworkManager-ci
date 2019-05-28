@@ -37,7 +37,7 @@ Feature: Team TUI tests
     * Ensure "Automatically connect" is not checked
     * Confirm the connection settings
     * "team0" is visible with command "nmcli connection"
-    * "team0" is not visible with command "nmcli device"
+    When "team0" is not visible with command "nmcli device" in "5" seconds
     * Team "team0" is down
     * Come back to main screen
     * Choose to "Activate a connection" from main screen

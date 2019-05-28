@@ -146,6 +146,7 @@ def can_see_welcome_screen(context):
 @step(u'Press "{key}" key')
 def press_key(context, key):
     context.tui.send(keys[key])
+    sleep(0.2)
 
 @step(u'Come back to the top of editor')
 def come_back_to_top(context):
@@ -170,7 +171,7 @@ def prep_conn_abstract(context, typ, name):
 def choose_main_option(context, option):
     assert go_until_pattern_matches_line(context,keys['DOWNARROW'],r'.*%s.*' % option) is not None, "Could not go to option '%s' on screen!" % option
     context.tui.send(keys['ENTER'])
-
+    sleep(0.2)
 
 @step(u'Choose the connection type "{typ}"')
 def select_con_type(context, typ):
@@ -183,6 +184,8 @@ def select_con_type(context, typ):
 def press_dialog_button(context, button):
     assert go_until_pattern_matches_aftercursor_text(context,keys['TAB'],r'^ +%s.*$' % button) is not None, "Could not go to action '<Create>' on screen!"
     context.tui.send(keys['ENTER'])
+    if button == 'Delete':
+        sleep(0.5)
 
 
 @step(u'Press "{button}" button in the password dialog')
@@ -210,6 +213,7 @@ def back_to_con_list(context):
 def back_to_main(context):
     current_nm_version = "".join(check_output("""NetworkManager -V |awk 'BEGIN { FS = "." }; {printf "%03d%03d%03d", $1, $2, $3}'""", shell=True).decode('utf-8').split('-')[0])
     context.tui.send(keys['ESCAPE'])
+    sleep(0.4)
     if current_nm_version < "001003000":
         context.execute_steps(u'* Start nmtui')
 
@@ -251,7 +255,7 @@ def confirm_connection_screen(context):
     match = re.match(r'^<OK>.*', context.screen.display[context.screen.cursor.y][context.screen.cursor.x-1:], re.UNICODE)
     assert match is not None, "Could not get to the <OK> button! (In form? Segfault?)"
     context.tui.send(keys['ENTER'])
-
+    sleep(0.2)
 
 @step(u'Cannot confirm the connection settings')
 def cannot_confirm_connection_screen(context):
@@ -278,6 +282,7 @@ def pattern_not_on_screen(context, pattern):
 def set_current_field_to(context, value):
     context.tui.send(keys['BACKSPACE']*100)
     context.tui.send(value)
+    sleep(0.2)
 
 
 @step(u'Set "{field}" field to "{value}"')
