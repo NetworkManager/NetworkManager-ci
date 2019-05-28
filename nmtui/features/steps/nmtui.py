@@ -153,7 +153,6 @@ def come_back_to_top(context):
 
 @step(u'Screen is empty')
 def screen_is_empty(context):
-    sleep(0.5)
     for line in context.screen.display:
         assert re.match('^\s*$', line) is not None, 'Screen not empty on this line:"%s"' % line
 
@@ -171,7 +170,7 @@ def prep_conn_abstract(context, typ, name):
 def choose_main_option(context, option):
     assert go_until_pattern_matches_line(context,keys['DOWNARROW'],r'.*%s.*' % option) is not None, "Could not go to option '%s' on screen!" % option
     context.tui.send(keys['ENTER'])
-
+    sleep(0.2)
 
 @step(u'Choose the connection type "{typ}"')
 def select_con_type(context, typ):
@@ -213,7 +212,7 @@ def back_to_con_list(context):
 def back_to_main(context):
     current_nm_version = "".join(check_output("""NetworkManager -V |awk 'BEGIN { FS = "." }; {printf "%03d%03d%03d", $1, $2, $3}'""", shell=True).decode('utf-8').split('-')[0])
     context.tui.send(keys['ESCAPE'])
-    sleep(0.2)
+    sleep(0.5)
     if current_nm_version < "001003000":
         context.execute_steps(u'* Start nmtui')
 
@@ -255,7 +254,7 @@ def confirm_connection_screen(context):
     match = re.match(r'^<OK>.*', context.screen.display[context.screen.cursor.y][context.screen.cursor.x-1:], re.UNICODE)
     assert match is not None, "Could not get to the <OK> button! (In form? Segfault?)"
     context.tui.send(keys['ENTER'])
-
+    sleep(0.2)
 
 @step(u'Cannot confirm the connection settings')
 def cannot_confirm_connection_screen(context):
@@ -269,9 +268,7 @@ def cannot_confirm_connection_screen(context):
 @step(u'"{pattern}" is visible on screen')
 def pattern_on_screen(context, pattern):
     match = re.match(pattern, get_screen_string(context.screen), re.UNICODE | re.DOTALL)
-    if match is None:
-        sleep(0.5)
-        assert match is not None, "Could see pattern '%s' on screen!" % pattern
+    assert match is not None, "Could see pattern '%s' on screen!" % pattern
 
 
 @step(u'"{pattern}" is not visible on screen')
