@@ -2171,6 +2171,6 @@ Feature: nmcli: ipv4
     * Add a new connection of type "ethernet" and options "ifname testX con-name con_ipv4"
     * Bring "up" connection "con_ipv4"
     When "192.168.99." is visible with command "ip a show dev testX" in "10" seconds
-    Then "default via 192.168.99.10 proto dhcp metric 101" is visible with command "ip -4 r show dev testX"
-     And "default via 192.168.99.20 proto dhcp metric 102" is visible with command "ip -4 r show dev testX"
-     And "default via 192.168.99.21 proto dhcp metric 103" is visible with command "ip -4 r show dev testX"
+    Then "default via 192.168.99.10 proto dhcp metric " is visible with command "ip -4 r show dev testX | grep ^default | head -n1"
+     And "default via 192.168.99.20 proto dhcp metric " is visible with command "ip -4 r show dev testX | grep ^default | head -n2"
+     And "default via 192.168.99.21 proto dhcp metric " is visible with command "ip -4 r show dev testX | grep ^default | head -n3"
