@@ -141,7 +141,7 @@ def hostname_visible(context, log, seconds=1):
 
 @step(u'Noted value contains "{pattern}"')
 def note_print_property_b(context, pattern):
-    assert re.search(pattern, context.noted) is not None, "Noted value does not match the pattern!"
+    assert re.search(pattern, context.noted) is not None, "Noted value '%s' does not match the pattern '%s'!" % (context.noted, pattern)
 
 
 @step(u'Note the output of "{command}" as value "{index}"')
@@ -155,86 +155,90 @@ def note_the_output_of(context, command):
     context.noted_value = command_output(context, command).strip()
 
 
-@step(u'Noted value is not visible with command "{command_not}"')
-@step(u'Noted value "{index}" is not visible with command "{command_not}"')
-@step(u'"{pattern}" is not visible with command "{command_not}"')
-@step(u'String "{string}" is not visible with command "{command_not}"')
-@step(u'Noted value is not visible with command "{command_not}" in "{seconds}" seconds')
-@step(u'Noted value "{index}" is not visible with command "{command_not}" in "{seconds}" seconds')
-@step(u'"{pattern}" is not visible with command "{command_not}" in "{seconds}" seconds')
-@step(u'String "{string}" is not visible with command "{command_not}" in "{seconds}" seconds')
-@step(u'Noted value is visible with command "{command}"')
-@step(u'Noted value "{index}" is visible with command "{command}"')
-@step(u'"{pattern}" is visible with command "{command}"')
-@step(u'String "{string}" is visible with command "{command}"')
-@step(u'Noted value is visible with command "{command}" in "{seconds}" seconds')
-@step(u'Noted value "{index}" is visible with command "{command}" in "{seconds}" seconds')
-@step(u'"{pattern}" is visible with command "{command}" in "{seconds}" seconds')
-@step(u'String "{string}" is visible with command "{command}" in "{seconds}" seconds')
-def check_pattern_visible_with_command_in_time(context, command=None, command_not=None, seconds=2, pattern=None, index=None, string=None):
-    exact_check = False
-    not_check = False
-    if command is None:
-        command = command_not
-        not_check = True
-    if pattern is None and index is None:
-        pattern = context.noted_value
-        exact_check = True
-    if index is not None:
-        pattern = context.noted[index]
-        exact_check = True
-    if string is not None:
-        pattern = string
-        exact_check = True
+def check_pattern_command(context, command, pattern, seconds, check_type="default", exact_check=False, timeout=180, maxread=100000, interval=1):
     seconds = int(seconds)
     orig_seconds = seconds
     while seconds > 0:
-        proc = pexpect.spawn('/bin/bash', ['-c', command], timeout = 180, logfile=context.log, encoding='utf-8')
+        proc = pexpect.spawn('/bin/bash', ['-c', command], timeout = timeout, maxread=maxread, logfile=context.log, encoding='utf-8')
         if exact_check:
             ret = proc.expect_exact([pattern, pexpect.EOF])
         else:
             ret = proc.expect([pattern, pexpect.EOF])
-        if not_check:
-            if ret != 0:
-                return True
-        else:
+        if check_type == "default":
             if ret == 0:
                 return True
+        elif check_type == "not":
+            if ret != 0:
+                return True
+        elif check_type == "full":
+            assert ret == 0, 'Pattern %s disappeared after %d seconds' % (pattern, orig_seconds)
+        elif check_type == "not_full":
+            assert ret != 0, 'Pattern %s appeared after %d seconds' % (pattern, orig_seconds)
         seconds = seconds - 1
-        sleep(1)
-    if not_check:
-        raise Exception('Did still see the pattern %s in %d seconds' % (pattern, orig_seconds))
-    else:
+        sleep(interval)
+    if check_type == "default":
         raise Exception('Did not see the pattern %s in %d seconds' % (pattern, orig_seconds))
+    elif check_type == "not":
+        raise Exception('Did still see the pattern %s in %d seconds' % (pattern, orig_seconds))
+    return True
+
+
+@step(u'Noted value is visible with command "{command}"')
+@step(u'Noted value is visible with command "{command}" in "{seconds}" seconds')
+def noted_visible_command(context, command, seconds=2):
+    check_pattern_command(context, command, context.noted_value, seconds, exact_check=True)
+
+
+@step(u'Noted value is not visible with command "{command}"')
+@step(u'Noted value is not visible with command "{command}" in "{seconds}" seconds')
+def noted_not_visible_command(context, command, seconds=2):
+    return check_pattern_command(context, command, context.noted_value, seconds, check_type="not", exact_check=True)
+
+
+@step(u'Noted value "{index}" is visible with command "{command}"')
+@step(u'Noted value "{index}" is visible with command "{command}" in "{seconds}" seconds')
+def noted_visible_command(context, command, index, seconds=2):
+    return check_pattern_command(context, command, context.noted[index], seconds, exact_check=True)
+
+
+@step(u'Noted value "{index}" is not visible with command "{command}"')
+@step(u'Noted value "{index}" is not visible with command "{command}" in "{seconds}" seconds')
+def noted_not_visible_command(context, command, index, seconds=2):
+    return check_pattern_command(context, command, context.noted[index], seconds, check_type="not", exact_check=True)
+
+
+@step(u'"{pattern}" is visible with command "{command}"')
+@step(u'"{pattern}" is visible with command "{command}" in "{seconds}" seconds')
+def pattern_visible_command(context, command, pattern, seconds=2):
+    return check_pattern_command(context, command, pattern, seconds)
+
+
+@step(u'"{pattern}" is not visible with command "{command}"')
+@step(u'"{pattern}" is not visible with command "{command}" in "{seconds}" seconds')
+def pattern_not_visible_command(context, command, pattern, seconds=2):
+    return check_pattern_command(context, command, pattern, seconds, check_type="not")
+
+
+@step(u'String "{string}" is visible with command "{command}"')
+@step(u'String "{string}" is visible with command "{command}" in "{seconds}" seconds')
+def string_visible_command(context, command, string, seconds=2):
+    return check_pattern_command(context, command, string, seconds, exact_check=True)
+
+
+@step(u'String "{string}" is not visible with command "{command}"')
+@step(u'String "{string}" is not visible with command "{command}" in "{seconds}" seconds')
+def string_not_visible_command(context, command, string, seconds=2):
+    return check_pattern_command(context, command, string, seconds, check_type="not", exact_check=True)
 
 
 @step(u'"{pattern}" is visible with command "{command}" for full "{seconds}" seconds')
 def check_pattern_visible_with_command_fortime(context, pattern, command, seconds):
-    seconds = int(seconds)
-    orig_seconds = seconds
-    while seconds > 0:
-        proc = pexpect.spawn('/bin/bash', ['-c', command], timeout = 180, logfile=context.log, encoding='utf-8')
-        if proc.expect([pattern, pexpect.EOF]) == 0:
-            pass
-        else:
-            raise Exception('Pattern %s disappeared after %d seconds' % (pattern, orig_seconds-seconds))
-        seconds = seconds - 1
-        sleep(1)
+    return check_pattern_command(context, command, pattern, seconds, check_type="full")
 
 
 @step(u'"{pattern}" is not visible with command "{command}" for full "{seconds}" seconds')
 def check_pattern_visible_with_command_fortime(context, pattern, command, seconds):
-    seconds = int(seconds)
-    orig_seconds = seconds
-    while seconds > 0:
-        proc = pexpect.spawn('/bin/bash', ['-c', command], timeout = 180, logfile=context.log, encoding='utf-8')
-        if proc.expect([pattern, pexpect.EOF]) != 0:
-            pass
-        else:
-            raise Exception('Pattern %s appeared in %d seconds' % (pattern, orig_seconds-seconds))
-        seconds = seconds - 1
-        sleep(1)
-
+    return check_pattern_command(context, command, pattern, seconds, check_type="not_full")
 
 @step(u'"{pattern}" is visible with tab after "{command}"')
 def check_pattern_visible_with_tab_after_command(context, pattern, command):
