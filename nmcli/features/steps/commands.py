@@ -171,15 +171,15 @@ def check_pattern_command(context, command, pattern, seconds, check_type="defaul
             if ret != 0:
                 return True
         elif check_type == "full":
-            assert ret == 0, 'Pattern %s disappeared after %d seconds' % (pattern, orig_seconds)
+            assert ret == 0, 'Pattern "%s" disappeared after %d seconds, ouput was:\n%s' % (pattern, orig_seconds-seconds, proc.before)
         elif check_type == "not_full":
-            assert ret != 0, 'Pattern %s appeared after %d seconds' % (pattern, orig_seconds)
+            assert ret != 0, 'Pattern "%s" appeared after %d seconds, output was:\n%s%s' % (pattern, orig_seconds-seconds, proc.before, proc.after)
         seconds = seconds - 1
         sleep(interval)
     if check_type == "default":
-        raise Exception('Did not see the pattern %s in %d seconds' % (pattern, orig_seconds))
+        raise Exception('Did not see the pattern "%s" in %d seconds, output was:\n%s' % (pattern, orig_seconds, proc.before))
     elif check_type == "not":
-        raise Exception('Did still see the pattern %s in %d seconds' % (pattern, orig_seconds))
+        raise Exception('Did still see the pattern "%s" in %d seconds, output was:\n%s%s' % (pattern, orig_seconds, proc.before, proc.after))
     return True
 
 
