@@ -843,32 +843,32 @@
     # VVV Set random runner
     * Execute "nmcli connection modify team0 team.runner random"
     * Bring "up" connection "team0"
-    Then "{\"runner\": {\"name\": \"random\"}}" is visible with command "nmcli connection show team0 |grep 'team.config'"
+    Then "{\s*\"runner\": {\s*\"name\": \"random\"\s*}\s*}" is visible with command "nmcli connection show team0 |grep 'team.config'"
      And "\"kernel_team_mode_name\": \"random\"" is visible with command "sudo teamdctl nm-team state dump"
      And Check slave "eth5" in team "nm-team" is "up"
     # VVV Set broadcast runner
     * Execute "nmcli connection modify team0 team.runner broadcast"
     * Bring "up" connection "team0"
-    Then "{\"runner\": {\"name\": \"broadcast\"}}" is visible with command "nmcli connection show team0 |grep 'team.config'"
+    Then "{\s*\"runner\": {\s*\"name\": \"broadcast\"\s*}\s*}" is visible with command "nmcli connection show team0 |grep 'team.config'"
      And "\"kernel_team_mode_name\": \"broadcast\"" is visible with command "sudo teamdctl nm-team state dump"
      And Check slave "eth5" in team "nm-team" is "up"
     # VVV Set activebackup runner
     * Execute "nmcli connection modify team0 team.runner activebackup"
     * Bring "up" connection "team0"
     Then "\"kernel_team_mode_name\": \"activebackup\"" is visible with command "sudo teamdctl nm-team state dump"
-     And "{\"runner\": {\"name\": \"activebackup\"}}" is visible with command "nmcli connection show team0 |grep 'team.config'"
+     And "{\s*\"runner\": {\s*\"name\": \"activebackup\"\s*}\s*}" is visible with command "nmcli connection show team0 |grep 'team.config'"
      And Check slave "eth5" in team "nm-team" is "up"
     # VVV Set loadbalance runner
     * Execute "nmcli connection modify team0 team.runner loadbalance"
     * Bring "up" connection "team0"
     Then "\"kernel_team_mode_name\": \"loadbalance\"" is visible with command "sudo teamdctl nm-team state dump"
-     And "{\"runner\": {\"name\": \"loadbalance\", \"tx_hash\": \[\"eth\", \"ipv4\", \"ipv6\"\]}}" is visible with command "nmcli connection show team0 |grep 'team.config'"
+     And "{\s*\"runner\": {\s*\"name\": \"loadbalance\", \"tx_hash\": \[\s*\"eth\", \"ipv4\", \"ipv6\"\s*]\s*}\s*}" is visible with command "nmcli connection show team0 |grep 'team.config'"
      And Check slave "eth5" in team "nm-team" is "up"
     # VVV Set lacp runner
     * Execute "nmcli connection modify team0 team.runner lacp"
     * Bring "up" connection "team0"
     Then "\"kernel_team_mode_name\": \"loadbalance\"" is visible with command "sudo teamdctl nm-team state dump"
-     And "{\"runner\": {\"name\": \"lacp\", \"tx_hash\": \[\"eth\", \"ipv4\", \"ipv6\"\]}}" is visible with command "nmcli connection show team0 |grep 'team.config'"
+     And "{\s*\"runner\": {\s*\"name\": \"lacp\", \"tx_hash\": \[\s*\"eth\", \"ipv4\", \"ipv6\"\s*]\s*}\s*}" is visible with command "nmcli connection show team0 |grep 'team.config'"
 
 
     @rhbz1398925
@@ -932,11 +932,11 @@
     * Add slave connection for master "nm-team" on device "eth5" named "team0.0"
     * Bring "up" connection "team0"
     When "\"tx_hash\": \[\s+\"eth\",\s+\"ipv4\",\s+\"ipv6\"\s+\]" is visible with command "teamdctl nm-team conf dump"
-     And "{\"runner\": {\"name\": \"lacp\", \"tx_hash\": \[\"eth\", \"ipv4\", \"ipv6\"\]}}" is visible with command "nmcli connection show team0 |grep 'team.config'"
+     And "{\s*\"runner\": {\s*\"name\": \"lacp\", \"tx_hash\": \[\s*\"eth\", \"ipv4\", \"ipv6\"\s*]\s*}\s*}" is visible with command "nmcli connection show team0 |grep 'team.config'"
     * Execute "nmcli connection modify team0 team.runner-tx-hash l3"
     * Bring "up" connection "team0"
     Then "\"tx_hash\": \[\s+\"l3\"\s+\]" is visible with command "teamdctl nm-team conf dump"
-     And "{\"runner\": {\"name\": \"lacp\", \"tx_hash\": \[\"l3\"\]}}" is visible with command "nmcli connection show team0 |grep 'team.config'"
+     And "{\s*\"runner\": {\s*\"name\": \"lacp\", \"tx_hash\": \[\s*\"l3\"\s*]\s*}\s*}" is visible with command "nmcli connection show team0 |grep 'team.config'"
 
 
     @rhbz1398925
@@ -951,7 +951,7 @@
     * Execute "nmcli connection modify team0 team.runner-tx-balancer basic"
     * Bring "up" connection "team0"
     Then "\"name\": \"basic\"" is visible with command "teamdctl nm-team conf dump"
-     And "\"tx_balancer\": {\"name\": \"basic\"}" is visible with command "nmcli connection show team0 |grep 'team.config'"
+     And "\"tx_balancer\": {\s*\"name\": \"basic\"\s*}" is visible with command "nmcli connection show team0 |grep 'team.config'"
 
 
     @rhbz1398925
@@ -966,7 +966,7 @@
     * Execute "nmcli connection modify team0 team.runner-tx-balancer-interval 100"
     * Bring "up" connection "team0"
     Then "\"balancing_interval\": 100" is visible with command "teamdctl nm-team conf dump"
-     And "\"tx_balancer\": {\"balancing_interval\": 100}" is visible with command "nmcli connection show team0 |grep 'team.config'"
+     And "\"tx_balancer\": {\s*\"balancing_interval\": 100}" is visible with command "nmcli connection show team0 |grep 'team.config'"
 
 
     @rhbz1398925
@@ -1145,7 +1145,7 @@
     When "link_watch | ethtool" is not visible with command "nmcli connection show team0 |grep 'team.config'"
     * Execute "nmcli con modify team0 team.link-watchers 'name=ethtool delay-up=100 delay-down=200'"
     * Bring "up" connection "team0"
-    Then "{\"link_watch\": {\"name\": \"ethtool\", \"delay_up\": 100, \"delay_down\": 200}}" is visible with command "nmcli connection show team0 |grep 'team.config'"
+    Then "{\s*\"link_watch\": {\s*\"name\": \"ethtool\", \"delay_up\": 100, \"delay_down\": 200}\s*}" is visible with command "nmcli connection show team0 |grep 'team.config'"
      And "\"link_watch\": {\s+\"delay_down\": 200,\s+\"delay_up\": 100,\s+\"name\": \"ethtool\"" is visible with command "teamdctl nm-team conf dump"
 
 
@@ -1160,7 +1160,7 @@
     When "link_watch | nsna_ping" is not visible with command "nmcli connection show team0 |grep 'team.config'"
     * Execute "nmcli con modify team0 team.link-watchers 'name=nsna_ping init-wait=1000 interval=100 missed-max=999 target-host=1.2.3.1'"
     * Bring "up" connection "team0"
-    Then "{\"link_watch\": {\"name\": \"nsna_ping\", \"interval\": 100, \"missed_max\": 999, \"target_host\": \"1.2.3.1\"}}" is visible with command "nmcli connection show team0 |grep 'team.config'"
+    Then "{\s*\"link_watch\": {\s*\"name\": \"nsna_ping\", \"interval\": 100, \"missed_max\": 999, \"target_host\": \"1.2.3.1\"\s*}\s*}" is visible with command "nmcli connection show team0 |grep 'team.config'"
      And "\"link_watch\": {\s+\"interval\": 100,\s+\"missed_max\": 999,\s+\"name\": \"nsna_ping\",\s+\"target_host\": \"1.2.3.1\"" is visible with command "teamdctl nm-team conf dump"
 
 
@@ -1175,7 +1175,7 @@
     When "link_watch | arp_ping" is not visible with command "nmcli connection show team0 |grep 'team.config'"
     * Execute "nmcli con modify team0 team.link-watchers 'name=arp_ping init-wait=1000 interval=100 missed-max=999 target-host=1.2.3.1 source-host=1.2.3.4'"
     * Bring "up" connection "team0"
-    Then "{\"link_watch\": {\"name\": \"arp_ping\", \"interval\": 100, \"missed_max\": 999, \"target_host\": \"1.2.3.1\", \"source_host\": \"1.2.3.4\"}}" is visible with command "nmcli connection show team0 |grep 'team.config'"
+    Then "{\s*\"link_watch\": {\s*\"name\": \"arp_ping\", \"interval\": 100, \"missed_max\": 999, \"target_host\": \"1.2.3.1\", \"source_host\": \"1.2.3.4\"\s*}\s*}" is visible with command "nmcli connection show team0 |grep 'team.config'"
     And "\"link_watch\": {\s+\"interval\": 100,\s+\"missed_max\": 999,\s+\"name\": \"arp_ping\",\s+\"source_host\": \"1.2.3.4\",\s+\"target_host\": \"1.2.3.1\"" is visible with command "teamdctl nm-team conf dump"
 
 
@@ -1187,7 +1187,7 @@
     * Add a new connection of type "team" and options "con-name team0 ifname nm-team autoconnect no ip4 1.2.3.4/24 connection.autoconnect-slaves yes team.link-watchers 'name=arp_ping init-wait=1000 interval=100 missed-max=999 target-host=1.2.3.1 source-host=1.2.3.4 vlanid=123'"
     * Add slave connection for master "nm-team" on device "eth5" named "team0.0"
     * Bring "up" connection "team0"
-    Then "{\"link_watch\": {\"name\": \"arp_ping\", \"interval\": 100, \"missed_max\": 999, \"target_host\": \"1.2.3.1\", \"vlanid\": 123, \"source_host\": \"1.2.3.4\"}}" is visible with command "nmcli connection show team0 |grep 'team.config'"
+    Then "{\s*\"link_watch\": {\s*\"name\": \"arp_ping\", \"interval\": 100, \"missed_max\": 999, \"target_host\": \"1.2.3.1\", \"vlanid\": 123, \"source_host\": \"1.2.3.4\"\s*}\s*}" is visible with command "nmcli connection show team0 |grep 'team.config'"
      And "\"link_watch\": {\s+\"interval\": 100,\s+\"missed_max\": 999,\s+\"name\": \"arp_ping\",\s+\"source_host\": \"1.2.3.4\",\s+\"target_host\": \"1.2.3.1\",\s+\"vlanid\": 123" is visible with command "teamdctl nm-team conf dump"
 
 
@@ -1206,7 +1206,7 @@
     * Save in editor
     * Quit editor
     * Bring "up" connection "team0"
-    Then "{\"link_watch\": {\"name\": \"arp_ping\", \"interval\": 100, \"missed_max\": 999, \"target_host\": \"1.2.3.1\", \"source_host\": \"1.2.3.4\"}}" is visible with command "nmcli connection show team0 |grep 'team.config'"
+    Then "{\s*\"link_watch\": {\s*\"name\": \"arp_ping\", \"interval\": 100, \"missed_max\": 999, \"target_host\": \"1.2.3.1\", \"source_host\": \"1.2.3.4\"\s*}\s*}" is visible with command "nmcli connection show team0 |grep 'team.config'"
     And "\"link_watch\": {\s+\"interval\": 100,\s+\"missed_max\": 999,\s+\"name\": \"arp_ping\",\s+\"source_host\": \"1.2.3.4\",\s+\"target_host\": \"1.2.3.1\"" is visible with command "teamdctl nm-team conf dump"
 
 
@@ -1224,7 +1224,7 @@
     * Save in editor
     * Quit editor
     * Bring "up" connection "team0"
-    Then "{\"link_watch\": \[{\"name\": \"ethtool\", \"delay_up\": 100, \"delay_down\": 200}, {\"name\": \"arp_ping\", \"interval\": 100, \"missed_max\": 999, \"target_host\": \"1.2.3.1\", \"source_host\": \"1.2.3.4\"}\]}" is visible with command "nmcli connection show team0 |grep 'team.config'"
+    Then "{\s*\"link_watch\": \[{\s*\"name\": \"ethtool\", \"delay_up\": 100, \"delay_down\": 200}, {\s*\"name\": \"arp_ping\", \"interval\": 100, \"missed_max\": 999, \"target_host\": \"1.2.3.1\", \"source_host\": \"1.2.3.4\"\s*}\]\s*}" is visible with command "nmcli connection show team0 |grep 'team.config'"
     And "\"link_watch\": \[\s+{\s+\"delay_down\": 200,\s+\"delay_up\": 100,\s+\"name\": \"ethtool\"\s+},\s+{\s+\"interval\": 100,\s+\"missed_max\": 999,\s+\"name\": \"arp_ping\",\s+\"source_host\": \"1.2.3.4\",\s+\"target_host\": \"1.2.3.1\"" is visible with command "teamdctl nm-team conf dump"
 
 
