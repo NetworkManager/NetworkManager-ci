@@ -1528,9 +1528,8 @@
      When "activated" is visible with command "nmcli -g GENERAL.STATE con show con_ipv6" in "45" seconds
      When "activated" is visible with command "nmcli -g GENERAL.STATE con show con_ipv62" in "45" seconds
      # TestX6 device (everything)
-     And "2620:dead:beaf" is visible with command "ip a s testX6"
+     Then "2620:dead:beaf" is visible with command "ip a s testX6"
      And "fe80" is visible with command "ip a s testX6"
      And "default" is visible with command "ip -6 r |grep testX6"
      # Eth3 device (just fe80)
      And "fe80" is visible with command "ip a s eth3"
-     And "default" is visible with command "ip -6 r |grep eth3"
