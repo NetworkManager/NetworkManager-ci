@@ -1304,7 +1304,7 @@
     When "link_watch | ethtool" is not visible with command "nmcli connection show team0 |grep 'team.config'"
     * Execute "nmcli con modify team0 team.link-watchers 'name=ethtool delay-up=100 delay-down=200'"
     * Bring "up" connection "team0"
-    Then "{\s*\"link_watch\": {\s*\"name\": \"ethtool\", \"delay_up\": 100, \"delay_down\": 200\s+}\s*}" is visible with command "nmcli connection show team0 |grep 'team.config'"
+    Then "{\s*\"link_watch\": {\s*\"name\": \"ethtool\", \"delay_up\": 100, \"delay_down\": 200\s*}\s*}" is visible with command "nmcli connection show team0 |grep 'team.config'"
      And "\"link_watch\": {\s+\"delay_down\": 200,\s+\"delay_up\": 100,\s+\"name\": \"ethtool\"" is visible with command "teamdctl nm-team conf dump"
 
 
