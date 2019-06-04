@@ -948,7 +948,7 @@
      And "only_active" is visible with command "nmcli connection show team0 |grep 'team.runner-hwaddr-policy'"
     * Bring "down" connection "team0"
     # Resetting back to default
-    * Execute "nmcli connection modify team0 team.runner lacp"
+    * Execute "nmcli connection modify team0 team.runner lacp team.runner-hwaddr-policy ''"
     * Execute "nmcli connection modify team0 team.runner activebackup"
     * Bring "up" connection "team0"
     * Bring "up" connection "team0.0"
@@ -1153,7 +1153,7 @@
 
 
     @rhbz1398925 @rhbz1533830
-    @ver+=1.10
+    @ver+=1.10 @ver-=1.19.1
     @team_slaves @team
     @team_abs_set_runner_agg_select_policy
     Scenario: nmcli - team_abs - set runner agg-select-policy
@@ -1183,6 +1183,39 @@
     * Bring "up" connection "team0"
     Then "\"select_policy\": \"port_config\"" is visible with command "sudo teamdctl nm-team state dump"
      And "\"agg_select_policy\": \"port_config\"" is visible with command "nmcli connection show team0 |grep 'team.config'"
+
+
+    @rhbz1398925 @rhbz1533830
+    @ver+=1.19.2
+    @team_slaves @team
+    @team_abs_set_runner_agg_select_policy
+    Scenario: nmcli - team_abs - set runner agg-select-policy
+    * Add a new connection of type "team" and options "con-name team0 ifname nm-team autoconnect no team.runner lacp connection.autoconnect-slaves yes"
+    * Add slave connection for master "nm-team" on device "eth5" named "team0.0"
+    * Bring "up" connection "team0"
+    When "\"select_policy\": \"lacp_prio\"" is visible with command "sudo teamdctl nm-team state dump"
+    And "agg_select_policy" is not visible with command "nmcli connection show team0 |grep 'team.config'"
+    * Execute "nmcli connection modify team0 team.runner-agg-select-policy lacp_prio_stable"
+    * Bring "up" connection "team0"
+    When "\"select_policy\": \"lacp_prio_stable\"" is visible with command "sudo teamdctl nm-team state dump"
+    And "\"agg_select_policy\": \"lacp_prio_stable\"" is visible with command "nmcli connection show team0 |grep 'team.config'"
+    * Execute "nmcli connection modify team0 team.runner-agg-select-policy bandwidth"
+    * Bring "up" connection "team0"
+    When "\"select_policy\": \"bandwidth\"" is visible with command "sudo teamdctl nm-team state dump"
+    And "\"agg_select_policy\": \"bandwidth\"" is visible with command "nmcli connection show team0 |grep 'team.config'"
+    * Execute "nmcli connection modify team0 team.runner-agg-select-policy count"
+    * Bring "up" connection "team0"
+    When "\"select_policy\": \"count\"" is visible with command "sudo teamdctl nm-team state dump"
+    And "\"agg_select_policy\": \"count\"" is visible with command "nmcli connection show team0 |grep 'team.config'"
+    * Execute "nmcli connection modify team0 team.runner-agg-select-policy port_config"
+    * Bring "up" connection "team0"
+    When "\"select_policy\": \"port_config\"" is visible with command "sudo teamdctl nm-team state dump"
+    And "\"agg_select_policy\": \"port_config\"" is visible with command "nmcli connection show team0 |grep 'team.config'"
+    # VVV Verify bug 1533830
+    * Execute "nmcli connection modify team0 team.runner-agg-select-policy ''"
+    * Bring "up" connection "team0"
+    Then "\"select_policy\": \"lacp_prio\"" is visible with command "sudo teamdctl nm-team state dump"
+    And "agg_select_policy" is not visible with command "nmcli connection show team0 |grep 'team.config'"
 
 
     @rhbz1398925
