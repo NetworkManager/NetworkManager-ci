@@ -1145,10 +1145,10 @@
     * Bring "up" connection "team0.0"
     When "\"min_ports\": 2" is visible with command "teamdctl nm-team conf dump"
     And "2" is visible with command "nmcli connection show team0 |grep min-port"
-    * Execute "nmcli connection modify team0 team.runner-min-ports default"
-    * Bring "up" connection "team0"
-    Then "min_ports" is not visible with command "teamdctl nm-team conf dump"
-    And "0 \(default\)" is visible with command "nmcli connection show team0 |grep min-port"
+    # * Execute "nmcli connection modify team0 team.runner-min-ports default"
+    # * Bring "up" connection "team0"
+    # Then "min_ports" is not visible with command "teamdctl nm-team conf dump"
+    # And "0 \(default\)" is visible with command "nmcli connection show team0 |grep min-port"
 
 
 
