@@ -1109,7 +1109,7 @@ def before_scenario(context, scenario):
                 reload_NM_service()
                 context.restore_config_server = True
 
-        if 'ipv4_method_shared' in scenario.tags:
+        if 'permissive' in scenario.tags:
             context.enforcing = False
             if check_output('getenforce', shell=True).decode('utf-8').strip() == 'Enforcing':
                 print("---------------------------")
@@ -2261,7 +2261,7 @@ def after_scenario(context, scenario):
             call("""znetconf -r $(znetconf -c |grep CTC |awk 'BEGIN { FS = "," } ; { print $1 }') -n""", shell=True)
             sleep(1)
 
-        if 'ipv4_method_shared' in scenario.tags:
+        if 'permissive' in scenario.tags:
             if context.enforcing:
                 print("---------------------------")
                 print("WORKAROUND for permissive selinux")
