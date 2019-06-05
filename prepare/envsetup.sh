@@ -193,7 +193,7 @@ install_el7_packages () {
     yum -y install openvswitch
 
     # Install newer teamd
-    yum -y install http://download.eng.bos.redhat.com/brewroot/vol/rhel-7/packages/libteam/1.27/9.el7/$(arch)/libteam-1.27-9.el7.$(arch).rpm  http://download.eng.bos.redhat.com/brewroot/vol/rhel-7/packages/libteam/1.27/9.el7/$(arch)/teamd-1.27-9.el7.$(arch).rpm http://download.eng.bos.redhat.com/brewroot/vol/rhel-7/packages/libteam/1.27/9.el7/$(arch)/libteam-debuginfo-1.27-9.el7.$(arch).rpm http://download.eng.bos.redhat.com/brewroot/vol/rhel-7/packages/libteam/1.27/9.el7/$(arch)/teamd-devel-1.27-9.el7.$(arch).rpm
+    yum -y install https://vbenes.fedorapeople.org/NM/team_rh1680655/libteam-1.27-9.el7.rh1680655.1.x86_64.rpm https://vbenes.fedorapeople.org/NM/team_rh1680655/teamd-1.27-9.el7.rh1680655.1.x86_64.rpm https://vbenes.fedorapeople.org/NM/team_rh1680655/teamd-devel-1.27-9.el7.rh1680655.1.x86_64.rpm 
 
     # Tune wpa_supplicat to log into journal and enable debugging
     systemctl stop wpa_supplicant
