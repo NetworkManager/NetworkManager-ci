@@ -1669,7 +1669,8 @@ def after_scenario(context, scenario):
             print ("deleting team masters")
             call('nmcli connection down team0', shell=True)
             call('nmcli connection delete id team0 team', shell=True)
-            call('ip link del nm-team', shell=True)
+            if 'team_assumed' in scenario.tags:
+                call('ip link del nm-team' , shell=True)
             #sleep(TIMER)
             call("if nmcli con |grep 'team0 '; then echo 'team0 present: %s' >> /tmp/residues; fi" %scenario.tags, shell=True)
 
