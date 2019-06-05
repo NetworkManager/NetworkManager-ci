@@ -438,6 +438,18 @@ Feature: nmcli - ethernet
      And "GENERAL.STATE:activated" is not visible with command "nmcli -f GENERAL.STATE -t connection show id con_ethernet"
 
 
+     @rhbz1714610
+     @ver+=1.18.0
+     @con_ethernet_remove @8021x @attach_hostapd_log @attach_wpa_supplicant_log @restart
+     @8021x_tls_pkcs12_key_restart
+     Scenario: nmcli - ethernet - 8021x - tls - connection with pkcs12 key persists restart
+     * Add a new connection of type "ethernet" and options "ifname test8X con-name con_ethernet autoconnect no 802-1x.eap tls 802-1x.identity test 802-1x.ca-cert /tmp/certs/test_user.ca.pem 802-1x.private-key /tmp/certs/test_user.p12 802-1x.private-key-password redhat"
+     Then Bring "up" connection "con_ethernet"
+     * Restart NM
+     Then "con_ethernet" is visible with command "nmcli con"
+      And Bring "up" connection "con_ethernet"
+
+
     @ver+=1.6.0
     @con_ethernet_remove @8021x @attach_hostapd_log @attach_wpa_supplicant_log
     @8021x_peap_md5

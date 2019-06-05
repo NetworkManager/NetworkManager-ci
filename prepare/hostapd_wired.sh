@@ -72,7 +72,7 @@ private_key_passwd=redhat" > $HOSTAPD_CFG
     /bin/cp -rf $CERTS_PATH/server/hostapd* $HOSTAPD_KEYS_PATH
 
     [ -d $CLIENT_KEYS_PATH ] || mkdir -p $CLIENT_KEYS_PATH
-    /bin/cp -rf $CERTS_PATH/client/test_user.*.pem $CLIENT_KEYS_PATH
+    /bin/cp -rf $CERTS_PATH/client/test_user.* $CLIENT_KEYS_PATH
 
     /bin/cp -rf $CERTS_PATH/client/test_user.ca.pem /etc/pki/ca-trust/source/anchors
     chown -R test:test $CLIENT_KEYS_PATH
