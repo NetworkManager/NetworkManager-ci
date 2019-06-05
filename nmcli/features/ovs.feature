@@ -258,7 +258,7 @@ Feature: nmcli - ovs
 
 
     @rhbz1540218
-    @ver+=1.10 @ver-=1.16
+    @ver+=1.10 @ver-=1.17
     @openvswitch
     @nmcli_reconnect_openvswitch_vlan_configuration
     Scenario: nmcli - openvswitch - reconnect all connections
@@ -328,7 +328,7 @@ Feature: nmcli - ovs
 
 
     @rhbz1540218 @rhbz1543557
-    @ver+=1.16.2
+    @ver+=1.18.0
     @openvswitch
     @nmcli_reconnect_openvswitch_vlan_configuration
     Scenario: nmcli - openvswitch - reconnect all connections
