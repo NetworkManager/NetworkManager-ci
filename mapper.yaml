@@ -429,6 +429,8 @@ testmapper:
         feature: team
     - wait_for_slow_teamd:
         feature: team
+    - teamd_killed_by_NM:
+        feature: team
     - ipv6_block_just_routing_RA:
         feature: ipv6
     - ipv6_limited_router_solicitation:

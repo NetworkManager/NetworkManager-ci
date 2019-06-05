@@ -1784,7 +1784,7 @@ Feature: nmcli: ipv4
 
 
     @ver+=1.4
-    @two_bridged_veths
+    @two_bridged_veths @permissive
     @ipv4_method_shared
     Scenario: nmcli - ipv4 - method shared
     * Note the output of "pidof NetworkManager" as value "1"

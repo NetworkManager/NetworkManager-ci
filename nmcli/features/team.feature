@@ -1517,3 +1517,20 @@
     * Add slave connection for master "nm-team" on device "eth5" named "team0.0"
     When "activated" is visible with command "nmcli -g GENERAL.STATE con show team0" in "45" seconds
     Then "teamd_nm-team" is visible with command "journalctl --since '40 seconds ago' -u NetworkManager |grep teamd_"
+
+
+    @rhbz1711952
+    @ver+=1.18
+    @team @team_assumed @regenerate_veth @permissive @skip_str
+    @teamd_killed_by_NM
+    Scenario: NM - teamd - NM should not kill teamd
+    * Execute "ip link set dev eth5 down"
+    * Execute "teamd -d -c "{\"device\":\"nm-team\",\"runner\":{\"name\":\"lacp\"},\"link_watch\":{\"name\":\"ethtool\"},\"ports\":{\"eth5\":{}}}""
+    When "teamd -d -c " is visible with command "ps aux | grep -v grep | grep teamd"
+    * Execute "ip link set nm-team up"
+    * Execute "ip link set nm-team down"
+    * Wait for at least "2" seconds
+    * Execute "ip link set nm-team up"
+    * Execute "ip link set nm-team down"
+    * Wait for at least "2" seconds
+    Then "teamd -d -c " is visible with command "ps aux | grep -v grep | grep teamd"
