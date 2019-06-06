@@ -145,6 +145,12 @@ install_el8_packages () {
     dnf -4 -y remove NetworkManager-config-connectivity-fedora NetworkManager-config-connectivity-redhat
     dnf -4 -y install http://download.eng.bos.redhat.com/brewroot/vol/rhel-8/packages/libmnl/1.0.4/6.el8/$(arch)/libmnl-devel-1.0.4-6.el8.$(arch).rpm
 
+    # Install kernel-modules-internal for mac80211_hwsim
+    VER=$(rpm -q --queryformat '%{VERSION}' kernel)
+    REL=$(rpm -q --queryformat '%{RELEASE}' kernel)
+    dnf -4 -y install http://download.eng.bos.redhat.com/brewroot/vol/rhel-8/packages/kernel/$VER/$REL/$(arch)/kernel-modules-internal-$VER-$REL.$(arch).rpm
+
+
     # Install OVS2 deps
     dnf -4 install -y http://download.eng.bos.redhat.com/brewroot/vol/rhel-8/packages/openvswitch2.11/2.11.0/9.el8fdp/$(arch)/openvswitch2.11-2.11.0-9.el8fdp.$(arch).rpm http://download.eng.bos.redhat.com/brewroot/vol/rhel-8/packages/openvswitch-selinux-extra-policy/1.0/10.el8fdn/noarch/openvswitch-selinux-extra-policy-1.0-10.el8fdn.noarch.rpm
 
@@ -193,7 +199,7 @@ install_el7_packages () {
     yum -y install openvswitch
 
     # Install newer teamd
-    yum -y install https://vbenes.fedorapeople.org/NM/team_rh1680655/libteam-1.27-9.el7.rh1680655.1.x86_64.rpm https://vbenes.fedorapeople.org/NM/team_rh1680655/teamd-1.27-9.el7.rh1680655.1.x86_64.rpm https://vbenes.fedorapeople.org/NM/team_rh1680655/teamd-devel-1.27-9.el7.rh1680655.1.x86_64.rpm 
+    yum -y install https://vbenes.fedorapeople.org/NM/team_rh1680655/libteam-1.27-9.el7.rh1680655.1.x86_64.rpm https://vbenes.fedorapeople.org/NM/team_rh1680655/teamd-1.27-9.el7.rh1680655.1.x86_64.rpm https://vbenes.fedorapeople.org/NM/team_rh1680655/teamd-devel-1.27-9.el7.rh1680655.1.x86_64.rpm
 
     # Tune wpa_supplicat to log into journal and enable debugging
     systemctl stop wpa_supplicant
