@@ -93,6 +93,7 @@ testmapper:
         feature: bond
     - bond_remove_all_slaves:
         feature: bond
+        tags: gate
     - bond_start_by_hand:
         feature: bond
     - bond_start_by_hand_no_slaves:
@@ -113,8 +114,10 @@ testmapper:
         feature: bond
     - bond_set_miimon_values:
         feature: bond
+        tags: gate
     - bond_options_new_arp_values:
         feature: bond
+        tags: gate
     - bond_options_arp_vs_miimon_conflict:
         feature: bond
     - bond_option_mode_missing:
@@ -165,6 +168,7 @@ testmapper:
         feature: bond
     - bond_addreses_restart_persistence:
         feature: bond
+        tags: gate
     - bond_describe:
         feature: bond
     - delete_addrgenmode_bond:
@@ -199,8 +203,10 @@ testmapper:
         feature: bond
     - bridge_team_bond_autoconnect_nested_slaves:
         feature: bond
+        tags: gate
     - bond_in_bridge_mtu:
         feature: bond
+        tags: gate
     - bond_8023ad_no_error:
         feature: bond
     - bond_balance-alb_no_error:
@@ -209,8 +215,10 @@ testmapper:
         feature: bond
     - vlan_over_no_L3_bond_restart_persistence:
         feature: bond
+        tags: gate
     - bond_leave_L2_only_up_when_going_down:
         feature: bond
+        tags: gate
     - bond_assume_options_1:
         feature: bond
     - bond_assume_options_2:
@@ -227,6 +235,7 @@ testmapper:
         feature: bridge
     - bridge_add_custom_one:
         feature: bridge
+        tags: gate
     - bridge_add_forward_delay:
         feature: bridge
     - bridge_modify_forward_delay:
@@ -249,6 +258,7 @@ testmapper:
         feature: bridge
     - bridge_remove_slave:
         feature: bridge
+        tags: gate
     - bridge_up_with_slaves:
         feature: bridge
     - bridge_up_slave:
@@ -261,6 +271,7 @@ testmapper:
         feature: bridge
     - bridge_dhcp_config_with_multiple_ethernet_ports:
         feature: bridge
+        tags: gate
     - bridge_static_config_with_multiple_ethernet_ports:
         feature: bridge
     - bridge_autoconnect_slaves_all:
@@ -295,10 +306,12 @@ testmapper:
         feature: bridge
     - bridge_delete_connection_with_device:
         feature: bridge
+        tags: gate
     - bridge_delete_connection_without_device:
         feature: bridge
     - bridge_ipv6:
         feature: bridge
+        tags: gate
     - bridge_detect_initrd_device:
         feature: bridge
     - bridge_vlan_filtering_no_pvid:
@@ -353,12 +366,14 @@ testmapper:
         feature: team
     - team_start_on_boot_with_team_and_one_slave_auto:
         feature: team
+        tags: gate
     - config_loadbalance:
         feature: team
     - config_broadcast:
         feature: team
     - config_lacp:
         feature: team
+        tags: gate
     - config_invalid3:
         feature: team
     - remove_config:
@@ -375,6 +390,7 @@ testmapper:
         feature: team
     - team_in_bridge_mtu:
         feature: team
+        tags: gate
     - team_config_null:
         feature: team
     - ifcfg_with_missing_devicetype:
@@ -383,6 +399,7 @@ testmapper:
         feature: team
     - team_in_vlan_restart_persistence:
         feature: team
+        tags: gate
     - vlan_in_team:
         feature: team
     - team_leave_L2_only_up_when_going_down:
@@ -439,12 +456,15 @@ testmapper:
         feature: ipv6
     - ipv6_routes_with_src:
         feature: ipv6
+        tags: gate
     - ipv6_route_set_route_with_tables:
         feature: ipv6
+        tags: gate
     - ipv6_route_set_route_with_tables_reapply:
         feature: ipv6
     - ipv6_correct_slaac_setting:
         feature: ipv6
+        tags: gate
     - ipv6_take_manually_created_ifcfg:
         feature: ipv6
     - ipv6_method_static_without_IP:
@@ -465,16 +485,21 @@ testmapper:
         feature: ipv6
     - ipv6_addresses_set_several_IPv6s_with_masks_and_gws:
         feature: ipv6
+        tags: gate
     - ipv6_addresses_delete_IP_moving_method_back_to_auto:
         feature: ipv6
+        tags: gate
     - ipv6_routes_set_basic_route:
         feature: ipv6
     - ipv6_route_set_route_with_options:
         feature: ipv6
+        tags: gate
     - ipv6_routes_remove_basic_route:
         feature: ipv6
+        tags: gate
     - ipv6_routes_device_route:
         feature: ipv6
+        tags: gate
     - ipv6_routes_invalid_IP:
         feature: ipv6
     - ipv6_routes_without_gw:
@@ -485,6 +510,7 @@ testmapper:
         feature: ipv6
     - ipv6_dns_ignore-auto-dns_with_manually_set_dns:
         feature: ipv6
+        tags: gate
     - ipv6_dns_add_more_when_already_have_some:
         feature: ipv6
     - ipv6_dns_remove_manually_set:
@@ -499,18 +525,23 @@ testmapper:
         feature: ipv6
     - ipv6_method_link-local:
         feature: ipv6
+        tags: gate
     - ipv6_method_ignored:
         feature: ipv6
     - ipv6_may_fail_set_true:
         feature: ipv6
+        tags: gate
     - ipv6_never-default_set_true:
         feature: ipv6
+        tags: gate
     - ipv6_never-default_remove:
         feature: ipv6
+        tags: gate
     - ipv6_dhcp-hostname_set:
         feature: ipv6
     - ipv6_dhcp-hostname_remove:
         feature: ipv6
+        tags: gate
     - ipv6_send_fqdn.fqdn_to_dhcpv6:
         feature: ipv6
     - ipv6_secondary_address:
@@ -543,12 +574,15 @@ testmapper:
         feature: ipv6
     - ipv6_set_ra_announced_mtu:
         feature: ipv6
+        tags: gate
     - nm-online_wait_for_ipv6_to_finish:
         feature: ipv6
+        tags: gate
     - ipv6_shared_connection_error:
         feature: ipv6
     - ipv6_shared_connection:
         feature: ipv6
+        tags: gate
     - ipv6_tunnel_module_removal:
         feature: ipv6
     - ipv6_no_activation_schedule_error_in_logs:
@@ -557,10 +591,13 @@ testmapper:
         feature: ipv6
     - persistent_default_ipv6_gw:
         feature: ipv6
+        tags: gate
     - persistent_ipv6_routes:
         feature: ipv6
+        tags: gate
     - ipv6_honor_ip_order:
         feature: ipv6
+        tags: gate
     - ipv6_describe:
         feature: ipv6
     - ipv6_keep_external_addresses:
@@ -587,6 +624,7 @@ testmapper:
         feature: ipv6
     - nmcli_general_correct_profile_activated_after_restart:
         feature: ipv4
+        tags: gate
     - nmcli_general_profile_pickup_doesnt_break_network:
         feature: ipv4
     - ipv4_take_manually_created_ifcfg_with_ip:
@@ -609,12 +647,15 @@ testmapper:
         feature: ipv4
     - ipv4_addresses_more_IPs_slash_mask_and_route:
         feature: ipv4
+        tags: gate
     - ipv4_method_back_to_auto:
         feature: ipv4
+        tags: gate
     - ipv4_route_set_basic_route:
         feature: ipv4
     - ipv4_route_set_route_with_options:
         feature: ipv4
+        tags: gate
     - ipv4_route_set_route_with_src_new_syntax:
         feature: ipv4
     - ipv4_route_set_route_with_src_old_syntax:
@@ -625,20 +666,25 @@ testmapper:
         feature: ipv4
     - ipv4_route_set_route_with_src_new_syntax_restart_persistence:
         feature: ipv4
+        tags: gate
     - no_metric_route_connection_restart_persistence:
         feature: ipv4
     - ipv4_route_set_route_with_tables:
         feature: ipv4
+        tags: gate
     - ipv4_route_set_route_with_tables_reapply:
         feature: ipv4
     - ipv4_restore_default_route_externally:
         feature: ipv4
     - ipv4_route_remove_basic_route:
         feature: ipv4
+        tags: gate
     - ipv4_route_set_device_route:
         feature: ipv4
+        tags: gate
     - ipv4_host_destination_route:
         feature: ipv4
+        tags: gate
     - preserve_route_to_generic_device:
         feature: ipv4
     - ipv4_route_set_invalid_non_IP_route:
@@ -655,6 +701,7 @@ testmapper:
         feature: ipv4
     - ipv4_ignore_resolveconf_with_ignore_auto_dns:
         feature: ipv4
+        tags: gate
     - ipv4_ignore_resolveconf_with_ignore_auto_dns_var1:
         feature: ipv4
     - ipv4_ignore_resolveconf_with_ignore_auto_dns_var2:
@@ -669,20 +716,26 @@ testmapper:
         feature: ipv4
     - ipv4_dns_add_another_one:
         feature: ipv4
+        tags: gate
     - ipv4_dns_delete_all:
         feature: ipv4
+        tags: gate
     - reload_dns:
         feature: ipv4
     - dns_priority:
         feature: ipv4
+        tags: gate
     - ipv4_dns-search_add:
         feature: ipv4
+        tags: gate
     - ipv4_dns-search_remove:
         feature: ipv4
+        tags: gate
     - ipv4_dhcp-hostname_set:
         feature: ipv4
     - nmcli_ipv4_set_fqdn:
         feature: ipv4
+        tags: gate
     - nmcli_ipv4_override_fqdn:
         feature: ipv4
     - nmcli_ipv4_remove_fqdn:
@@ -705,10 +758,12 @@ testmapper:
         feature: ipv4
     - ipv4_dhcp_client_id_set:
         feature: ipv4
+        tags: gate
     - ipv4_dhcp_client_id_set_internal:
         feature: ipv4
     - ipv4_dhcp_client_id_remove:
         feature: ipv4
+        tags: gate
     - ipv4_set_very_long_dhcp_client_id:
         feature: ipv4
     - ipv4_dhcp_client_id_default:
@@ -719,16 +774,20 @@ testmapper:
         feature: ipv4
     - ipv4_may-fail_yes:
         feature: ipv4
+        tags: gate
     - ipv4_method_disabled:
         feature: ipv4
+        tags: gate
     - ipv4_never-default_set:
         feature: ipv4
     - ipv4_never-default_remove:
         feature: ipv4
+        tags: gate
     - ipv4_describe:
         feature: ipv4
     - set_mtu_from_DHCP:
         feature: ipv4
+        tags: gate
     - renewal_gw_after_dhcp_outage:
         feature: ipv4
         timeout: 20m
@@ -754,16 +813,19 @@ testmapper:
         feature: ipv4
     - ipv4_dad:
         feature: ipv4
+        tags: gate
     - custom_shared_range_preserves_restart:
         feature: ipv4
     - ipv4_method_shared:
         feature: ipv4
+        tags: gate
     - ipv4_method_shared_with_already_running_dnsmasq:
         feature: ipv4
     - ipv4_do_not_remove_second_ip_route:
         feature: ipv4
     - ipv4_never_default_restart_persistence:
         feature: ipv4
+        tags: gate
     - ipv4_honor_ip_order_1:
         feature: ipv4
     - ipv4_honor_ip_order_2:
@@ -810,6 +872,7 @@ testmapper:
         feature: vlan
     - vlan_device_tagging:
         feature: vlan
+        tags: gate
     - vlan_connection_up:
         feature: vlan
     - vlan_reup_connection:
@@ -818,14 +881,17 @@ testmapper:
         feature: vlan
     - vlan_connection_down_with_autoconnect:
         feature: vlan
+        tags: gate
     - vlan_remove_connection:
         feature: vlan
     - vlan_disconnect_device:
         feature: vlan
+        tags: gate
     - vlan_disconnect_device_with_autoconnect:
         feature: vlan
     - vlan_change_id:
         feature: vlan
+        tags: gate
     - vlan_change_id_with_no_interface_set:
         feature: vlan
     - vlan_describe_separately:
@@ -834,6 +900,7 @@ testmapper:
         feature: vlan
     - vlan_on_bridge:
         feature: vlan
+        tags: gate
     - assertion_failure:
         feature: vlan
     - vlan_over_bridge_over_team_over_nic:
@@ -848,18 +915,22 @@ testmapper:
         feature: vlan
     - reorder_hdr:
         feature: vlan
+        tags: gate
     - vlan_preserve_assumed_connection_ips:
         feature: vlan
     - vlan_create_many_vlans:
         feature: vlan
     - vlan_mtu_from_parent:
         feature: vlan
+        tags: gate
     - vlan_mtu_from_parent_with_slow_dhcp:
         feature: vlan
     - default_route_for_vlan_over_team:
         feature: vlan
+        tags: gate
     - vlan_on_bond_autoconnect:
         feature: vlan
+        tags: gate
     - static_route_persists_mac_change:
         feature: vlan
     - vlan_create_macvlan_on_vlan:
@@ -894,6 +965,7 @@ testmapper:
         feature: ethernet
     - ethernet_set_mtu:
         feature: ethernet
+        tags: gate
     - nmcli_set_mtu_lower_limit:
         feature: ethernet
     - ethernet_set_static_configuration:
@@ -938,6 +1010,7 @@ testmapper:
         feature: ethernet
     - 8021x_ttls_mschapv2_eap:
         feature: ethernet
+        tags: gate
     - 8021x_ttls_md5:
         feature: ethernet
     - 8021x_ttls_gtc:
@@ -948,6 +1021,7 @@ testmapper:
         feature: ethernet
     - 8021x_without_password_with_ask_at_the_end:
         feature: ethernet
+        tags: gate
     - preserve_8021x_certs:
         feature: ethernet
     - preserve_8021x_leap_con:
@@ -962,8 +1036,10 @@ testmapper:
         feature: general
     - hostname_change:
         feature: general
+        tags: gate
     - pull_hostname_from_dhcp:
         feature: general
+        tags: gate
     - hostname_mode_full:
         feature: general
     - hostname_mode_dhcp:
@@ -976,14 +1052,19 @@ testmapper:
         feature: general
     - general_state_connected:
         feature: general
+        tags: gate
     - general_state_disconnected:
         feature: general
+        tags: gate
     - general_state_asleep:
         feature: general
+        tags: gate
     - general_state_running:
         feature: general
+        tags: gate
     - general_state_not_running:
         feature: general
+        tags: gate
     - shutdown_service_assumed:
         feature: general
     - shutdown_service_connected:
@@ -994,6 +1075,7 @@ testmapper:
         feature: general
     - general_networking_on_off:
         feature: general
+        tags: gate
     - general_networking_enabled:
         feature: general
     - general_networking_disabled:
@@ -1012,12 +1094,15 @@ testmapper:
         feature: general
     - nmcli_device_disconnect:
         feature: general
+        tags: gate
     - run_once_new_connection:
         feature: general
     - run_once_ip4_renewal:
         feature: general
+        tags: gate
     - run_once_ip6_renewal:
         feature: general
+        tags: gate
     - run_once_helper_for_localhost_localdomain:
         feature: general
     - wait-online-for-both-ips:
@@ -1026,14 +1111,17 @@ testmapper:
         feature: general
     - nm_wait_online_requisite_NM:
         feature: general
+        tags: gate
     - nm_wait_online_requires_NM:
         feature: general
     - wait_online_with_autoconnect_no_connection:
         feature: general
     - nm_online_wait_for_delayed_device:
         feature: general
+        tags: gate
     - policy_based_routing:
         feature: general
+        tags: gate
     - modify_policy_based_routing_connection:
         feature: general
     - nmcli_general_dhcp_profiles_general_gateway:
@@ -1044,6 +1132,7 @@ testmapper:
         feature: general
     - nmcli_general_wait_for_carrier_on_new_device_request:
         feature: general
+        tags: gate
     - connection_up_after_journald_restart:
         feature: general
     - nmcli_general_dhcp_hostname_over_localhost:
@@ -1052,8 +1141,10 @@ testmapper:
         feature: general
     - nmcli_general_set_device_unmanaged:
         feature: general
+        tags: gate
     - nmcli_general_set_device_back_to_managed:
         feature: general
+        tags: gate
     - nmcli_general_ifcfg_tailing_whitespace:
         feature: general
     - nmcli_general_keep_slave_device_unmanaged:
@@ -1066,6 +1157,7 @@ testmapper:
         feature: general
     - match_connections_when_no_var_run_exists:
         feature: general
+        tags: gate
     - ifcfg_respect_externally_set_mtu:
         feature: general
     - wpa_supplicant_not_started:
@@ -1082,22 +1174,29 @@ testmapper:
         feature: general
     - insufficient_perms_connection_down:
         feature: general
+        tags: gate
     - insufficient_perms_connection_up:
         feature: general
+        tags: gate
     - dns_none:
         feature: general
     - remove_dns_none:
         feature: general
     - device_connect:
         feature: general
+        tags: gate
     - device_reapply_routes:
         feature: general
+        tags: gate
     - device_reapply_all:
         feature: general
+        tags: gate
     - device_connect_no_profile:
         feature: general
+        tags: gate
     - nmcli_device_delete:
         feature: general
+        tags: gate
     - nmcli_device_attempt_hw_delete:
         feature: general
     - nmcli_novice_mode_readline:
@@ -1128,12 +1227,14 @@ testmapper:
         feature: general
     - snapshot_rollback_all_devices_with_timeout:
         feature: general
+        tags: gate
     - snapshot_rollback_unmanaged:
         feature: general
     - snapshot_rollback_managed:
         feature: general
     - snapshot_rollback_soft_device:
         feature: general
+        tags: gate
     - snapshot_deleted_soft_device_dbus_link:
         feature: general
     - stable_mem_consumption:
@@ -1150,10 +1251,12 @@ testmapper:
         feature: general
     - macsec_psk:
         feature: general
+        tags: gate
     - non_utf_device:
         feature: general
     - connectivity_check:
         feature: general
+        tags: gate
     - disable_connectivity_check:
         feature: general
     - manipulate_connectivity_check_via_dbus:
@@ -1254,12 +1357,14 @@ testmapper:
         feature: dispatcher
     - dispatcher_synchronicity_with_predown:
         feature: dispatcher
+        tags: gate
     - dispatcher_serialization:
         feature: dispatcher
     - add_adsl_connection_novice_mode:
         feature: adsl
     - add_adsl_connection:
         feature: adsl
+        tags: gate
     - pptp_add_profile:
         feature: pptp
     - pptp_passwd_file:
@@ -1312,6 +1417,7 @@ testmapper:
         feature: vpn
     - multiple_vpn_connections:
         feature: vpn
+        tags: gate
     - vpn_keep_username_from_data:
         feature: vpn
     - vpn_list_args:
@@ -1344,6 +1450,7 @@ testmapper:
         feature: openvpn
     - vpnc_add_profile:
         feature: vpnc
+        tags: gate
     - vpnc_terminate:
         feature: vpnc
     - connection_restricted_to_single_device:
@@ -1374,6 +1481,7 @@ testmapper:
         feature: connection
     - connection_down:
         feature: connection
+        tags: gate
     - connection_set_id:
         feature: connection
     - connection_set_uuid_error:
@@ -1402,8 +1510,10 @@ testmapper:
         feature: connection
     - connection_permission_to_user:
         feature: connection
+        tags: gate
     - connection_zone_drop_to_public:
         feature: connection
+        tags: gate
     - connection_metered_manual_no:
         feature: connection
     - connection_metered_manual_yes:
@@ -1422,8 +1532,10 @@ testmapper:
         feature: connection
     - route_priorities:
         feature: connection
+        tags: gate
     - profile_priorities:
         feature: connection
+        tags: gate
     - nmcli_general_multiword_autocompletion:
         feature: connection
     - display_allowed_values:
@@ -1434,6 +1546,7 @@ testmapper:
         feature: connection
     - lldp:
         feature: connection
+        tags: gate
     - lldp_vlan_name_overflow:
         feature: connection
     - lldp_vlan_tlv:
@@ -1454,10 +1567,13 @@ testmapper:
         feature: connection
     - add_default_tap_device:
         feature: tuntap
+        tags: gate
     - add_default_tun_device:
         feature: tuntap
+        tags: gate
     - remove_default_tuntap:
         feature: tuntap
+        tags: gate
     - preserve_master_and_ip_settings:
         feature: tuntap
     - tuntap_device_kernel_properties:
@@ -1470,16 +1586,19 @@ testmapper:
         feature: tc
     - simwifi_wpa2psk_profile:
         feature: wifi_hwsim
+        tags: gate
     - simwifi_wpa2psk_no_profile:
         feature: wifi_hwsim
     - simwifi_tls:
         feature: wifi_hwsim
+        tags: gate
     - simwifi_tls_bad_private_key_password:
         feature: wifi_hwsim
     - simwifi_tls_no_private_key_password:
         feature: wifi_hwsim
     - simwifi_peap_gtc:
         feature: wifi_hwsim
+        tags: gate
     - simwifi_peap_md5:
         feature: wifi_hwsim
     - simwifi_peap_mschapv2:
@@ -1488,16 +1607,19 @@ testmapper:
         feature: wifi_hwsim
     - simwifi_ttls_chap:
         feature: wifi_hwsim
+        tags: gate
     - simwifi_ttls_mschap:
         feature: wifi_hwsim
     - simwifi_ttls_mschapv2:
         feature: wifi_hwsim
     - simwifi_ttls_mschapv2_eap:
         feature: wifi_hwsim
+        tags: gate
     - simwifi_ttls_md5:
         feature: wifi_hwsim
     - simwifi_ttls_gtc:
         feature: wifi_hwsim
+        tags: gate
     - nmclient_get_wireless_hw_property:
         feature: wifi_hwsim
     - wifi_dbus_bitrate_property_name:
@@ -1530,6 +1652,7 @@ testmapper:
         feature: alias
     - alias_ifcfg_reboot:
         feature: alias
+        tags: gate
     - connect_to_pppoe_via_pap:
         feature: ppp
     - connect_to_pppoe_via_chap:
@@ -1597,9 +1720,11 @@ testmapper:
     - nmtui_general_set_new_hostname:
         run: nmtui/./runtest.sh nmtui_general_set_new_hostname
         feature: nmtui
+        tags: gate
     - nmtui_general_active_connections_display:
         run: nmtui/./runtest.sh nmtui_general_active_connections_display
         feature: nmtui
+        tags: gate
     - nmtui_general_realtime_refresh_edit_screen:
         run: nmtui/./runtest.sh nmtui_general_realtime_refresh_edit_screen
         feature: nmtui
@@ -1633,21 +1758,26 @@ testmapper:
     - nmtui_ethernet_activate_connection_specific_device:
         run: nmtui/./runtest.sh nmtui_ethernet_activate_connection_specific_device
         feature: nmtui
+        tags: gate
     - nmtui_ethernet_deactivate_connection:
         run: nmtui/./runtest.sh nmtui_ethernet_deactivate_connection
         feature: nmtui
+        tags: gate
     - nmtui_ethernet_delete_connection_down:
         run: nmtui/./runtest.sh nmtui_ethernet_delete_connection_down
         feature: nmtui
     - nmtui_ethernet_delete_connection_up:
         run: nmtui/./runtest.sh nmtui_ethernet_delete_connection_up
         feature: nmtui
+        tags: gate
     - nmtui_ethernet_set_mtu:
         run: nmtui/./runtest.sh nmtui_ethernet_set_mtu
         feature: nmtui
+        tags: gate
     - nmtui_ethernet_mac_spoofing:
         run: nmtui/./runtest.sh nmtui_ethernet_mac_spoofing
         feature: nmtui
+        tags: gate
     - nmtui_ethernet_mac_removal:
         run: nmtui/./runtest.sh nmtui_ethernet_mac_removal
         feature: nmtui
@@ -1660,6 +1790,7 @@ testmapper:
     - nmtui_ethernet_static_combined:
         run: nmtui/./runtest.sh nmtui_ethernet_static_combined
         feature: nmtui
+        tags: gate
     - nmtui_ipv4_addresses_static_no_address:
         run: nmtui/./runtest.sh nmtui_ipv4_addresses_static_no_address
         feature: nmtui
@@ -1690,6 +1821,7 @@ testmapper:
     - nmtui_ipv4_addresses_several_IPs_slash_netmask_and_gateway_manual:
         run: nmtui/./runtest.sh nmtui_ipv4_addresses_several_IPs_slash_netmask_and_gateway_manual
         feature: nmtui
+        tags: gate
     - nmtui_ipv4_addresses_several_IPs_slash_netmask_and_gateway_auto:
         run: nmtui/./runtest.sh nmtui_ipv4_addresses_several_IPs_slash_netmask_and_gateway_auto
         feature: nmtui
@@ -1699,15 +1831,18 @@ testmapper:
     - nmtui_ipv4_routes_set_basic_route:
         run: nmtui/./runtest.sh nmtui_ipv4_routes_set_basic_route
         feature: nmtui
+        tags: gate
     - nmtui_ipv4_routes_remove_basic_route:
         run: nmtui/./runtest.sh nmtui_ipv4_routes_remove_basic_route
         feature: nmtui
     - nmtui_ipv4_routes_set_device_route:
         run: nmtui/./runtest.sh nmtui_ipv4_routes_set_device_route
         feature: nmtui
+        tags: gate
     - nmtui_ipv4_routes_several_default_routes_metrics:
         run: nmtui/./runtest.sh nmtui_ipv4_routes_several_default_routes_metrics
         feature: nmtui
+        tags: gate
     - nmtui_ipv4_routes_set_invalid_route_destination:
         run: nmtui/./runtest.sh nmtui_ipv4_routes_set_invalid_route_destination
         feature: nmtui
@@ -1729,12 +1864,14 @@ testmapper:
     - nmtui_ipv4_dns_method_auto_then_delete_all_dns:
         run: nmtui/./runtest.sh nmtui_ipv4_dns_method_auto_then_delete_all_dns
         feature: nmtui
+        tags: gate
     - nmtui_ipv4_dns_search_add_dns_search:
         run: nmtui/./runtest.sh nmtui_ipv4_dns_search_add_dns_search
         feature: nmtui
     - nmtui_ipv4_dns_search_remove_dns_search:
         run: nmtui/./runtest.sh nmtui_ipv4_dns_search_remove_dns_search
         feature: nmtui
+        tags: gate
     - nmtui_ipv4_method_link_local:
         run: nmtui/./runtest.sh nmtui_ipv4_method_link_local
         feature: nmtui
@@ -1753,6 +1890,7 @@ testmapper:
     - nmtui_ipv4_never_default_set:
         run: nmtui/./runtest.sh nmtui_ipv4_never_default_set
         feature: nmtui
+        tags: gate
     - nmtui_ipv4_invalid_address:
         run: nmtui/./runtest.sh nmtui_ipv4_invalid_address
         feature: nmtui
@@ -1792,21 +1930,25 @@ testmapper:
     - nmtui_ipv6_addresses_several_IPs_slash_netmask_and_gateway_manual:
         run: nmtui/./runtest.sh nmtui_ipv6_addresses_several_IPs_slash_netmask_and_gateway_manual
         feature: nmtui
+        tags: gate
     - nmtui_ipv6_addresses_several_IPs_slash_netmask_and_gateway_auto:
         run: nmtui/./runtest.sh nmtui_ipv6_addresses_several_IPs_slash_netmask_and_gateway_auto
         feature: nmtui
     - nmtui_ipv6_addresses_delete_ip_and_back_to_auto:
         run: nmtui/./runtest.sh nmtui_ipv6_addresses_delete_ip_and_back_to_auto
         feature: nmtui
+        tags: gate
     - nmtui_ipv6_routes_set_basic_route:
         run: nmtui/./runtest.sh nmtui_ipv6_routes_set_basic_route
         feature: nmtui
     - nmtui_ipv6_routes_remove_basic_route:
         run: nmtui/./runtest.sh nmtui_ipv6_routes_remove_basic_route
         feature: nmtui
+        tags: gate
     - nmtui_ipv6_routes_set_device_route:
         run: nmtui/./runtest.sh nmtui_ipv6_routes_set_device_route
         feature: nmtui
+        tags: gate
     - nmtui_ipv6_routes_several_default_routes_metrics:
         run: nmtui/./runtest.sh nmtui_ipv6_routes_several_default_routes_metrics
         feature: nmtui
@@ -1828,6 +1970,7 @@ testmapper:
     - nmtui_ipv6_dns_method_auto_then_delete_all_dns:
         run: nmtui/./runtest.sh nmtui_ipv6_dns_method_auto_then_delete_all_dns
         feature: nmtui
+        tags: gate
     - nmtui_ipv6_dns_search_add_dns_search:
         run: nmtui/./runtest.sh nmtui_ipv6_dns_search_add_dns_search
         feature: nmtui
@@ -1852,6 +1995,7 @@ testmapper:
     - nmtui_ipv6_never_default_set:
         run: nmtui/./runtest.sh nmtui_ipv6_never_default_set
         feature: nmtui
+        tags: gate
     - nmtui_ipv6_invalid_address:
         run: nmtui/./runtest.sh nmtui_ipv6_invalid_address
         feature: nmtui
@@ -1891,6 +2035,7 @@ testmapper:
     - nmtui_vlan_delete_connection_activating:
         run: nmtui/./runtest.sh nmtui_vlan_delete_connection_activating
         feature: nmtui
+        tags: gate
     - nmtui_vlan_delete_connection_up:
         run: nmtui/./runtest.sh nmtui_vlan_delete_connection_up
         feature: nmtui
@@ -1903,12 +2048,15 @@ testmapper:
     - nmtui_vlan_deactivate_connection_wo_autoconnect:
         run: nmtui/./runtest.sh nmtui_vlan_deactivate_connection_wo_autoconnect
         feature: nmtui
+        tags: gate
     - nmtui_vlan_deactivate_connection_with_autoconnect:
         run: nmtui/./runtest.sh nmtui_vlan_deactivate_connection_with_autoconnect
         feature: nmtui
+        tags: gate
     - nmtui_vlan_change_id:
         run: nmtui/./runtest.sh nmtui_vlan_change_id
         feature: nmtui
+        tags: gate
     - nmtui_bridge_add_default_bridge:
         run: nmtui/./runtest.sh nmtui_bridge_add_default_bridge
         feature: nmtui
@@ -1945,12 +2093,14 @@ testmapper:
     - nmtui_bridge_over_vlans:
         run: nmtui/./runtest.sh nmtui_bridge_over_vlans
         feature: nmtui
+        tags: gate
     - nmtui_bridge_over_vlans_no_stp:
         run: nmtui/./runtest.sh nmtui_bridge_over_vlans_no_stp
         feature: nmtui
     - nmtui_bridge_custom_bridge_port:
         run: nmtui/./runtest.sh nmtui_bridge_custom_bridge_port
         feature: nmtui
+        tags: gate
     - nmtui_bridge_over_ethernet_and_vlan:
         run: nmtui/./runtest.sh nmtui_bridge_over_ethernet_and_vlan
         feature: nmtui
@@ -1996,6 +2146,7 @@ testmapper:
     - nmtui_bond_start_on_boot_with_one_slave_auto:
         run: nmtui/./runtest.sh nmtui_bond_start_on_boot_with_one_slave_auto
         feature: nmtui
+        tags: gate
     - nmtui_bond_add_mode_active_backup:
         run: nmtui/./runtest.sh nmtui_bond_add_mode_active_backup
         feature: nmtui
@@ -2050,6 +2201,7 @@ testmapper:
     - nmtui_team_delete_slaves_after_deleting_profile:
         run: nmtui/./runtest.sh nmtui_team_delete_slaves_after_deleting_profile
         feature: nmtui
+        tags: gate
     - nmtui_team_infiniband_slaves:
         run: nmtui/./runtest.sh nmtui_team_infiniband_slaves
         feature: nmtui
@@ -2059,6 +2211,7 @@ testmapper:
     - nmtui_team_boot_with_team_and_one_slave_auto:
         run: nmtui/./runtest.sh nmtui_team_boot_with_team_and_one_slave_auto
         feature: nmtui
+        tags: gate
     - nmtui_team_json_set_loadbalance_mode:
         run: nmtui/./runtest.sh nmtui_team_json_set_loadbalance_mode
         feature: nmtui
