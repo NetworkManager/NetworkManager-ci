@@ -25,6 +25,7 @@ component:
       - usb_modeswitch-data
       - usb_modeswitch
       - mobile-broadband-provider-info
+  gate-in: beaker
 
 dependencies:
   beaker-tasks:
