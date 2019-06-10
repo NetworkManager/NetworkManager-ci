@@ -377,7 +377,7 @@
     Scenario: nmcli - ipv6 - routes - set route with tables
     * Add a new connection of type "ethernet" and options "ifname eth10 con-name con_ipv6 ipv6.route-table 300 ipv6.may-fail no"
     When "connected" is visible with command "nmcli -g state,device device |grep eth10$" in "20" seconds
-     And "2620.* dev eth10 proto kernel metric 1" is visible with command "ip -6 r show table 300"
+     And "2620.* dev eth10 proto kernel metric 1" is visible with command "ip -6 r show table 300" in "5" seconds
      And "2620.*\/64 dev eth10 proto ra metric 1" is visible with command "ip -6 r show table 300"
      And "fe80::\/64 dev eth10 proto kernel metric 1" is visible with command "ip -6 r show table 300"
      And "default via fe80.* dev eth10 proto ra metric 1" is visible with command "ip -6 r show table 300"
