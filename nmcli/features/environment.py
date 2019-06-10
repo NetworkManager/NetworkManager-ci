@@ -231,7 +231,9 @@ def setup_racoon(mode, dh_group, phase1_al="aes", phase2_al=None):
     if arch == "s390x":
         call("[ -x /usr/sbin/racoon ] || yum -y install https://vbenes.fedorapeople.org/NM/ipsec-tools-0.8.2-1.el7.$(uname -p).rpm", shell=True)
     else:
-        call("[ -f /etc/yum.repos.d/epel.repo ] || sudo rpm -i http://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm", shell=True)
+        # Install under RHEL7 only
+        if call("grep -q Maipo /etc/redhat-release", shell=True) == 0:
+            call("[ -f /etc/yum.repos.d/epel.repo ] || sudo rpm -i http://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm", shell=True)
         call("[ -x /usr/sbin/racoon ] || yum -y install ipsec-tools", shell=True)
 
     RC = call("sh prepare/racoon.sh %s %s %s" %(mode, dh_group, phase1_al), shell=True)
@@ -253,7 +255,9 @@ def setup_hostapd():
     wait_for_testeth0()
     arch = check_output("uname -p", shell=True).decode('utf-8').strip()
     if arch != "s390x":
-        call("[ -f /etc/yum.repos.d/epel.repo ] || sudo rpm -i http://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm", shell=True)
+        # Install under RHEL7 only
+        if call("grep -q Maipo /etc/redhat-release", shell=True) == 0:
+            call("[ -f /etc/yum.repos.d/epel.repo ] || sudo rpm -i http://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm", shell=True)
         call("[ -x /usr/sbin/hostapd ] || (yum -y install hostapd; sleep 10)", shell=True)
     if call("sh prepare/hostapd_wired.sh tmp/8021x/certs", shell=True) != 0:
         call("sh prepare/hostapd_wired.sh teardown", shell=True)
@@ -264,7 +268,9 @@ def setup_hostapd_wireless(auth):
     wait_for_testeth0()
     arch = check_output("uname -p", shell=True).decode('utf-8').strip()
     if arch != "s390x":
-        call("[ -f /etc/yum.repos.d/epel.repo ] || sudo rpm -i http://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm", shell=True)
+        # Install under RHEL7 only
+        if call("grep -q Maipo /etc/redhat-release", shell=True) == 0:
+            call("[ -f /etc/yum.repos.d/epel.repo ] || sudo rpm -i http://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm", shell=True)
         call("[ -x /usr/sbin/hostapd ] || (yum -y install hostapd; sleep 10)", shell=True)
     if call("sh prepare/hostapd_wireless.sh tmp/8021x/certs {}".format(auth), shell=True) != 0:
         call("sh prepare/hostapd_wireless.sh teardown", shell=True)
@@ -820,7 +826,9 @@ def before_scenario(context, scenario):
             arch = check_output("uname -p", shell=True).decode('utf-8').strip()
             if arch == "s390x":
                 sys.exit(77)
-            call("[ -f /etc/yum.repos.d/epel.repo ] || sudo rpm -i http://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm", shell=True)
+            # Install under RHEL7 only
+            if call("grep -q Maipo /etc/redhat-release", shell=True) == 0:
+                call("[ -f /etc/yum.repos.d/epel.repo ] || sudo rpm -i http://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm", shell=True)
             call("rpm -q NetworkManager-vpnc || ( sudo yum -y install NetworkManager-vpnc && systemctl restart NetworkManager )", shell=True)
             setup_racoon (mode="aggressive", dh_group=2)
 
@@ -831,7 +839,9 @@ def before_scenario(context, scenario):
             if arch == "s390x":
                 sys.exit(77)
             wait_for_testeth0()
-            call("[ -f /etc/yum.repos.d/epel.repo ] || sudo rpm -i http://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm", shell=True)
+            # Install under RHEL7 only
+            if call("grep -q Maipo /etc/redhat-release", shell=True) == 0:
+                call("[ -f /etc/yum.repos.d/epel.repo ] || sudo rpm -i http://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm", shell=True)
             call("[ -x /usr/bin/tcpreplay ] || yum -y install tcpreplay", shell=True)
 
         if 'openvpn' in scenario.tags:
@@ -841,7 +851,9 @@ def before_scenario(context, scenario):
             if arch == "s390x":
                 sys.exit(77)
             wait_for_testeth0()
-            call("[ -f /etc/yum.repos.d/epel.repo ] || sudo rpm -i http://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm", shell=True)
+            # Install under RHEL7 only
+            if call("grep -q Maipo /etc/redhat-release", shell=True) == 0:
+                call("[ -f /etc/yum.repos.d/epel.repo ] || sudo rpm -i http://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm", shell=True)
             call("[ -x /usr/sbin/openvpn ] || sudo yum -y install openvpn NetworkManager-openvpn", shell=True)
             call("rpm -q NetworkManager-openvpn || ( sudo yum -y install NetworkManager-openvpn-1.0.8-1.el7.$(uname -p).rpm && systemctl restart NetworkManager )", shell=True)
 
@@ -953,7 +965,9 @@ def before_scenario(context, scenario):
             if arch == "s390x":
                 sys.exit(77)
             wait_for_testeth0()
-            call("[ -f /etc/yum.repos.d/epel.repo ] || sudo rpm -i http://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm", shell=True)
+            # Install under RHEL7 only
+            if call("grep -q Maipo /etc/redhat-release", shell=True) == 0:
+                call("[ -f /etc/yum.repos.d/epel.repo ] || sudo rpm -i http://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm", shell=True)
             call("[ -x /usr/sbin/pptpd ] || sudo yum -y install /usr/sbin/pptpd", shell=True)
             call("rpm -q NetworkManager-pptp || sudo yum -y install NetworkManager-pptp", shell=True)
 
