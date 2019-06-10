@@ -22,17 +22,21 @@ fi
 
 function racoon_setup ()
 {
-    echo "------------------------------"
-    echo "  Starting Racoon VPN server  "
-    echo "------------------------------"
     # Quit immediately on any script error
     set -e
     MODE=$1
     DH_GROUP=$2
     PHASE1_AL=$3
-    printf "| %-25s | %-12s |\n" "MODE" "$MODE"
-    printf "| %-25s | %-12s |\n" "Diffie-Hellman Groups" "$DH_GROUP"
-    printf "| %-25s | %-12s |\n" "Phase 1 Algorithm" "$PHASE1_AL"
+
+    length=43
+    printf -v line '%*s' "$length"
+    echo ${line// /-}
+    printf "| %-39s |\n" "Starting Racoon VPN server"
+    echo ${line// /-}
+    printf "| %-24s | %-12s |\n" "Mode" "$MODE"
+    printf "| %-24s | %-12s |\n" "Diffie-Hellman Groups" "$DH_GROUP"
+    printf "| %-24s | %-12s |\n" "Phase 1 Algorithm" "$PHASE1_AL"
+    echo ${line// /-}
 
     RACOON_DIR="/etc/racoon"
     RACOON_CFG="$RACOON_DIR/racoon.conf"
@@ -164,9 +168,12 @@ function racoon_setup ()
 
 function racoon_teardown ()
 {
-    echo "--------------------------------"
-    echo "  Delete previous Racoon setup  "
-    echo "--------------------------------"
+    length=43
+    printf -v line '%*s' "$length"
+    echo ${line// /-}
+    printf "| %-39s |\n" "Delete previous Racoon setup"
+    echo ${line// /-}
+
     userdel -r budulinek
     echo 0 > /proc/sys/net/ipv6/conf/default/disable_ipv6
     kill -INT $(ps aux|grep dns|grep racoon|grep -v grep |awk {'print $2'})
