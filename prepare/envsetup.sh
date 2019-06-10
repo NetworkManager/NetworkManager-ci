@@ -140,7 +140,7 @@ install_el8_packages () {
     ln -s /usr/bin/behave-3 /usr/bin/behave
 
     # Install vpn dependencies
-    dnf -4 -y install https://kojipkgs.fedoraproject.org//packages/NetworkManager-openvpn/1.8.4/1.fc28/$(arch)/NetworkManager-openvpn-1.8.4-1.fc28.$(arch).rpm https://kojipkgs.fedoraproject.org//packages/openvpn/2.4.6/1.fc28/$(arch)/openvpn-2.4.6-1.fc28.$(arch).rpm https://kojipkgs.fedoraproject.org//packages/ipsec-tools/0.8.2/15.fc30/$(arch)/ipsec-tools-0.8.2-15.fc30.$(arch).rpm
+    dnf -4 -y install https://kojipkgs.fedoraproject.org//packages/NetworkManager-openvpn/1.8.4/1.fc28/$(arch)/NetworkManager-openvpn-1.8.4-1.fc28.$(arch).rpm https://kojipkgs.fedoraproject.org//packages/openvpn/2.4.6/1.fc28/$(arch)/openvpn-2.4.6-1.fc28.$(arch).rpm https://kojipkgs.fedoraproject.org//packages/ipsec-tools/0.8.2/12.fc28//$(arch)/ipsec-tools-0.8.2-12.fc28./$(arch).rpm https://kojipkgs.fedoraproject.org//packages/ipsec-tools/0.8.2/15.fc30/$(arch)/ipsec-tools-0.8.2-15.fc30.$(arch).rpm https://kojipkgs.fedoraproject.org//packages/pkcs11-helper/1.22/5.fc28/$(arch)/pkcs11-helper-1.22-5.fc28.$(arch).rpm
 
     # Install various NM dependencies
     dnf -4 -y remove NetworkManager-config-connectivity-fedora NetworkManager-config-connectivity-redhat
