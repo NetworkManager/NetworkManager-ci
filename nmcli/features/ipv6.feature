@@ -315,8 +315,8 @@
     Then "2000::2/126" is visible with command "ip a s eth3"
     Then "2001::1/126" is visible with command "ip a s eth2"
     Then "1010::1 via 2000::1 dev eth3\s+proto static\s+metric 1" is not visible with command "ip -6 route"
-    Then "2000::/126 dev eth3\s+proto kernel\s+metric 102" is visible with command "ip -6 route" in "45" seconds
-    Then "2001::/126 dev eth2\s+proto kernel\s+metric 103" is visible with command "ip -6 route"
+    Then "2000::/126 dev eth3\s+proto kernel\s+metric 1" is visible with command "ip -6 route" in "45" seconds
+    Then "2001::/126 dev eth2\s+proto kernel\s+metric 1" is visible with command "ip -6 route"
     Then "3030::1 via 2001::2 dev eth2\s+proto static\s+metric 1" is not visible with command "ip -6 route"
 
 
