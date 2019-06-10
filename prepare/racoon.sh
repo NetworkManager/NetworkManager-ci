@@ -22,13 +22,18 @@ fi
 
 function racoon_setup ()
 {
-    echo "============================"
-    echo "Starting racoon.sh..."
-    # Quit immediatelly on any script error
+    echo "------------------------------"
+    echo "  Starting Racoon VPN server  "
+    echo "------------------------------"
+    # Quit immediately on any script error
     set -e
     MODE=$1
     DH_GROUP=$2
     PHASE1_AL=$3
+    printf "| %-25s | %-12s |\n" "MODE" "$MODE"
+    printf "| %-25s | %-12s |\n" "Diffie-Hellman Groups" "$DH_GROUP"
+    printf "| %-25s | %-12s |\n" "Phase 1 Algorithm" "$PHASE1_AL"
+
     RACOON_DIR="/etc/racoon"
     RACOON_CFG="$RACOON_DIR/racoon.conf"
     echo "Configuring VPN server Racoon..."
@@ -159,8 +164,9 @@ function racoon_setup ()
 
 function racoon_teardown ()
 {
-    echo "============================"
-    echo "Cleaning racoon setup..."
+    echo "--------------------------------"
+    echo "  Delete previous Racoon setup  "
+    echo "--------------------------------"
     userdel -r budulinek
     echo 0 > /proc/sys/net/ipv6/conf/default/disable_ipv6
     kill -INT $(ps aux|grep dns|grep racoon|grep -v grep |awk {'print $2'})
