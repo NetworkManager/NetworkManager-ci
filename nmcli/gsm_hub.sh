@@ -75,34 +75,39 @@ function test_modems_usb_hub() {
             fi
         done
 
-        # Run the full set of tests on the 1st modem.
-        if [ $M == 0 ]; then
-            GSM_TESTS_ALL='
-            gsm_create_assisted_connection
-            gsm_create_default_connection
-            gsm_disconnect
-            gsm_create_one_minute_ping
-            gsm_mtu
-            gsm_route_metric
-            gsm_load_from_file
-            gsm_connectivity_check
-            '
-            # gsm_up_up
-            # gsm_up_down_up
-
-            GSM_TESTS=$GSM_TESTS_ALL
+        # Run just one test to be as quick as possible
+        if [ $NMTEST == "gsm_hub_simple" ]; then
+            GSM_TESTS='gsm_create_default_connection'
         else
-            GSM_TESTS='
-            gsm_create_default_connection
-            gsm_disconnect
-            gsm_create_one_minute_ping
-            gsm_mtu
-            '
-            # gsm_up_up
-            # gsm_up_down_up
+            # Run the full set of tests on the 1st modem.
+            if [ $M == 0 ]; then
+                GSM_TESTS_ALL='
+                gsm_create_assisted_connection
+                gsm_create_default_connection
+                gsm_disconnect
+                gsm_create_one_minute_ping
+                gsm_mtu
+                gsm_route_metric
+                gsm_load_from_file
+                gsm_connectivity_check
+                '
+                # gsm_up_up
+                # gsm_up_down_up
 
+                GSM_TESTS=$GSM_TESTS_ALL
+            else
+                GSM_TESTS='
+                gsm_create_default_connection
+                gsm_disconnect
+                gsm_create_one_minute_ping
+                gsm_mtu
+                '
+                # gsm_up_up
+                # gsm_up_down_up
+
+            fi
         fi
-
+        
         for T in $GSM_TESTS; do
             runtest $T $M || RC=1
             cat /tmp/report.html >> /tmp/report_$NMTEST.html

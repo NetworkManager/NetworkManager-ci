@@ -41,7 +41,7 @@ elif [ $vc -eq 0 ]; then
     # if not
     else
         # check if we have gsm_hub use this
-        if [ $1 == 'gsm_hub' ];then
+        if [[ $1 == gsm_hub* ]];then
             # Test 3 modems on USB hub with 8 ports.
             test_modems_usb_hub; rc=$?
 
