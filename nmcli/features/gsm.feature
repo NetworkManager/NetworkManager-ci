@@ -4,6 +4,10 @@ Feature: nmcli: gsm
     Scenario: nmcli - gsm - hub
     * Execute "echo 'PASS'"
 
+    @gsm_hub_simple
+    Scenario: nmcli - gsm - hub
+    * Execute "echo 'PASS'"
+
     @ver+=1.2.0 @ver-=1.17.2
     @eth0 @gsm
     @gsm_create_assisted_connection

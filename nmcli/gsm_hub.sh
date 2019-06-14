@@ -76,7 +76,7 @@ function test_modems_usb_hub() {
         done
 
         # Run just one test to be as quick as possible
-        if [ $NMTEST == "gsm_hub_simple" ]; then
+        if [[ $NMTEST ==  *gsm_hub_simple ]]; then
             GSM_TESTS='gsm_create_default_connection'
         else
             # Run the full set of tests on the 1st modem.
@@ -107,7 +107,7 @@ function test_modems_usb_hub() {
 
             fi
         fi
-        
+
         for T in $GSM_TESTS; do
             runtest $T $M || RC=1
             cat /tmp/report.html >> /tmp/report_$NMTEST.html
