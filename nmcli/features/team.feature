@@ -1534,3 +1534,14 @@
     * Execute "ip link set nm-team down"
     * Wait for at least "2" seconds
     Then "teamd -d -c " is visible with command "ps aux | grep -v grep | grep teamd"
+
+
+    @rhbz1720153
+    @ver+=1.18
+    @team
+    @teamd_boolean_values_problem
+    Scenario: nmcli - teamd - boolean values of validate_active and validate_inactive are ignored
+    * Add a new connection of type "team" and options "con-name team0 ifname nm-team config '{"device": "nm-team","link_watch": {"interval": 1000,"missed_max": 1,"name": "arp_ping","send_always": false,"source_host": "192.168.1.1","target_host": "192.168.1.2","validate_active": true,"validate_inactive": true},"ports": {"eth5": {"prio": 100,"sticky": true},"eth6": {"prio": 50}},"runner": {"name": "activebackup"}}' ip4 192.168.1.1/24"
+    * Bring "up" connection "team0"
+    Then "\"validate_active\": true" is visible with command "ps aux | grep -v grep | grep teamd"
+     And "\"validate_inactive\": true" is visible with command "ps aux | grep -v grep | grep teamd"
