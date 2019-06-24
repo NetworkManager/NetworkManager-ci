@@ -450,6 +450,8 @@ testmapper:
         feature: team
     - teamd_killed_by_NM:
         feature: team
+    - teamd_boolean_values_problem:
+        feature: team
     - ipv6_block_just_routing_RA:
         feature: ipv6
     - ipv6_limited_router_solicitation:
