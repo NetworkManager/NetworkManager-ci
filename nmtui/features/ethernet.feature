@@ -222,8 +222,8 @@ Feature: Ethernet TUI tests
     * Come in "IPv6 CONFIGURATION" category
     * In "Addresses" property add "2607:f0d0:1002:51::4/64"
     * Confirm the connection settings
+    Then "eth1\s+ethernet\s+connected\s+ethernet" is visible with command "nmcli device" in "20" seconds
     Then "inet6 2607:f0d0:1002:51::4/64" is visible with command "ip a s eth1" in "10" seconds
-    Then "eth1\s+ethernet\s+connected\s+ethernet" is visible with command "nmcli device"
 
 
     @ethernet
