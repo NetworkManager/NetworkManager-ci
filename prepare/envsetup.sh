@@ -58,7 +58,9 @@ install_fedora_packages () {
 
     # Pip down some deps
     dnf -4 -y install python3-pip
-    python -m pip install --upgrade pip
+
+    # Doesn't work on the newest aarch64 RHEL8
+    #python -m pip install --upgrade pip
     python -m pip install pyroute2
     python -m pip install pexpect
     python -m pip install netaddr
