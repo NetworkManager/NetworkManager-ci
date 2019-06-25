@@ -1274,6 +1274,20 @@ Feature: nmcli - wifi
     * Error appeared in editor
 
 
+    @rhbz1702203
+    @ver+=1.18
+    @wifi
+    @nmcli_wifisec_invalid_psk_save_no_delay
+    Scenario: nmcli - wifi-sec - invalid psk no 10s delay on save
+    * Add a new connection of type "wifi" and options "ifname wlan0 con-name qe-wpa2-psk autoconnect off ssid qe-wpa2-psk"
+    * Check ifcfg-name file created for connection "qe-wpa2-psk"
+    * Open editor for connection "qe-wpa2-psk"
+    * Set a property named "802-11-wireless-security.key-mgmt" to "wpa-psk" in editor
+    * Set a property named "802-11-wireless-security.psk" to "short12" in editor
+    * Save in editor
+    Then Error appeared in editor in "5" seconds
+
+
     @wifi
     @nmcli_wifi_add_default_connection_in_novice_nmcli_a_mode
     Scenario: nmcli - wifi - add default connection in novice (nmcli -a) mode
