@@ -2465,7 +2465,7 @@ testmapper:
     - nmcli_wifi_indicate_wifi_band_caps:
         feature: wifi
     - nmcli_wifi_do_not_show_device_in_list:
-        feature: nmtui-wifi
+        feature: wifi
     - nmtui_wifi_see_all_networks:
         run: nmtui/./runtest.sh nmtui_wifi_see_all_networks
         feature: nmtui-wifi
