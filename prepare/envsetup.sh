@@ -60,7 +60,7 @@ install_fedora_packages () {
     dnf -4 -y install python3-pip
 
     # Doesn't work on the newest aarch64 RHEL8
-    #python -m pip install --upgrade pip
+    python -m pip install --upgrade pip
     python -m pip install pyroute2
     python -m pip install pexpect
     python -m pip install netaddr
@@ -121,9 +121,11 @@ install_el8_packages () {
     rm -rf /usr/bin/python
     ln -s /usr/libexec/platform-python /usr/bin/python
 
-    # Pip down some deps
-    dnf -4 -y install python3-pip
-    python -m pip install --upgrade pip
+    # The newest PIP seems to be broken on aarch64 under rhel8.1
+    #dnf -4 -y install python3-pip
+    #python -m pip install --upgrade pip
+
+
     python -m pip install pyroute2
     python -m pip install pexpect
     python -m pip install netaddr
