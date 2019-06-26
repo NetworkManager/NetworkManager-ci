@@ -324,8 +324,8 @@ Feature: IPv4 TUI tests
     * Confirm the connection settings
     Then "192.168.5.2/24" is visible with command "ip a s eth1" in "10" seconds
     Then "192.168.10.2/24" is visible with command "ip a s eth2" in "10" seconds
-    Then "default via 192.168.5.1 dev eth1\s+proto static\s+metric 100" is visible with command "ip -4 route"
-    Then "default via 192.168.10.1 dev eth2\s+proto static\s+metric 101" is visible with command "ip -4 route"
+    Then "default via 192.168.5.1 dev eth1\s+proto static\s+metric 1" is visible with command "ip -4 route"
+    Then "default via 192.168.10.1 dev eth2\s+proto static\s+metric 1" is visible with command "ip -4 route"
     Then "192.168.5.0/24 dev eth1\s+proto kernel\s+scope link\s+src 192.168.5.2" is visible with command "ip -4 route"
     Then "192.168.10.0/24 dev eth2\s+proto kernel\s+scope link\s+src 192.168.10.2" is visible with command "ip -4 route"
 
