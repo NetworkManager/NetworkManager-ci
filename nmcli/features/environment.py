@@ -366,9 +366,7 @@ def before_scenario(context, scenario):
             print ("---------------------------")
             print ("installing pip and pyroute2")
             wait_for_testeth0()
-            if not os.path.isfile('/usr/bin/pip'):
-                call('sudo easy_install pip', shell=True)
-            if call('pip install pyroute2', shell=True) != 0:
+            if call('python -m pip install pyroute2', shell=True) != 0:
                 call ('yum -y install http://dl.fedoraproject.org/pub/epel/7/x86_64/p/python2-pyroute2-0.4.13-1.el7.noarch.rpm', shell=True)
 
         if 'rhel_only' in scenario.tags:
@@ -618,11 +616,9 @@ def before_scenario(context, scenario):
             print ("---------------------------")
             print ("installing scapy and tcpdump")
             wait_for_testeth0()
-            if not os.path.isfile('/usr/bin/pip'):
-                call('easy_install pip', shell=True)
             if not os.path.isfile('/usr/bin/scapy'):
                 call('yum -y install tcpdump', shell=True)
-                call("pip install scapy", shell=True)
+                call("python -m pip install scapy", shell=True)
 
         if 'skip_in_ootpa' in scenario.tags:
             print ("---------------------------")
@@ -643,10 +639,8 @@ def before_scenario(context, scenario):
             print ("installing dbus-x11, pip, and python-dbusmock")
             if call('rpm -q --quiet dbus-x11', shell=True) != 0:
                 call('yum -y install dbus-x11', shell=True)
-            if not os.path.isfile('/usr/bin/pip'):
-                call('sudo easy_install pip', shell=True)
-            if call('pip list |grep python-dbusmock', shell=True) != 0:
-                call("sudo pip install python-dbusmock", shell=True)
+            if call('python -m pip list |grep python-dbusmock', shell=True) != 0:
+                call("sudo python -m pip install python-dbusmock", shell=True)
 
         if 'IPy' in scenario.tags:
             print ("---------------------------")
@@ -654,19 +648,15 @@ def before_scenario(context, scenario):
             wait_for_testeth0()
             if call('rpm -q --quiet dbus-x11', shell=True) != 0:
                 call('yum -y install dbus-x11', shell=True)
-            if not os.path.isfile('/usr/bin/pip'):
-                call('sudo easy_install pip', shell=True)
-            if call('pip list |grep IPy', shell=True) != 0:
-                call("sudo pip install IPy", shell=True)
+            if call('python -m pip list |grep IPy', shell=True) != 0:
+                call("sudo python -m pip install IPy", shell=True)
 
         if 'netaddr' in scenario.tags:
             print ("---------------------------")
             print ("install netaddr")
             wait_for_testeth0()
-            if not os.path.isfile('/usr/bin/pip'):
-                call('sudo easy_install pip', shell=True)
-            if call('pip list |grep netaddr', shell=True) != 0:
-                call("sudo pip install netaddr", shell=True)
+            if call('python -m pip list |grep netaddr', shell=True) != 0:
+                call("sudo python -m pip install netaddr", shell=True)
 
         if 'inf' in scenario.tags:
             print ("---------------------------")
