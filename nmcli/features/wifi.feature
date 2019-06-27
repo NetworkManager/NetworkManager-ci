@@ -1225,6 +1225,7 @@ Feature: nmcli - wifi
 
 
     @wifi
+    @ver-=1.17.99
     @nmcli_wifisec_psk_validity
     Scenario: nmcli - wifi-sec - psk validity
     * Add a new connection of type "wifi" and options "ifname wlan0 con-name qe-wpa2-psk autoconnect off ssid qe-wpa2-psk"
@@ -1243,6 +1244,48 @@ Feature: nmcli - wifi
     * No error appeared in editor
     * Set a property named "802-11-wireless-security.psk" to "G234A678B01F1234A678B01F1234A678B01F1234A678B01F1234A678B01F123B" in editor
     * Error appeared in editor
+
+
+    @wifi
+    @ver+=1.18
+    @nmcli_wifisec_psk_validity
+    Scenario: nmcli - wifi-sec - psk validity
+    * Add a new connection of type "wifi" and options "ifname wlan0 con-name qe-wpa2-psk autoconnect off ssid qe-wpa2-psk"
+    * Check ifcfg-name file created for connection "qe-wpa2-psk"
+    * Open editor for connection "qe-wpa2-psk"
+    * Set a property named "802-11-wireless-security.key-mgmt" to "wpa-psk" in editor
+    * Set a property named "802-11-wireless-security.psk" to "valid size and input for ascii psk @#$%^&*()[]{}" in editor
+    * Save in editor
+    * No error appeared in editor
+    * Set a property named "802-11-wireless-security.psk" to "short12" in editor
+    * Save in editor
+    * Error appeared in editor
+    * Set a property named "802-11-wireless-security.psk" to "valid123" in editor
+    * Save in editor
+    * No error appeared in editor
+    * Set a property named "802-11-wireless-security.psk" to "maximumasciiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii" in editor
+    * Save in editor
+    * No error appeared in editor
+    * Set a property named "802-11-wireless-security.psk" to "1234A678B01F1234A678B01F1234A678B01F1234A678B01F1234A678B01F123B" in editor
+    * Save in editor
+    * No error appeared in editor
+    * Set a property named "802-11-wireless-security.psk" to "G234A678B01F1234A678B01F1234A678B01F1234A678B01F1234A678B01F123B" in editor
+    * Save in editor
+    * Error appeared in editor
+
+
+    @rhbz1702203
+    @ver+=1.18
+    @wifi
+    @nmcli_wifisec_invalid_psk_save_no_delay
+    Scenario: nmcli - wifi-sec - invalid psk no 10s delay on save
+    * Add a new connection of type "wifi" and options "ifname wlan0 con-name qe-wpa2-psk autoconnect off ssid qe-wpa2-psk"
+    * Check ifcfg-name file created for connection "qe-wpa2-psk"
+    * Open editor for connection "qe-wpa2-psk"
+    * Set a property named "802-11-wireless-security.key-mgmt" to "wpa-psk" in editor
+    * Set a property named "802-11-wireless-security.psk" to "short12" in editor
+    * Save in editor
+    Then Error appeared in editor in "5" seconds
 
 
     @wifi

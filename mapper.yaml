@@ -2436,6 +2436,8 @@ testmapper:
         feature: wifi
     - nmcli_wifisec_psk_validity:
         feature: wifi
+    - nmcli_wifisec_invalid_psk_save_no_delay:
+        feature: wifi
     - nmcli_wifi_add_default_connection_in_novice_nmcli_a_mode:
         feature: wifi
     - nmcli_wifi_add_connection_in_novice_nmcli_a_mode_specifying_options:
@@ -2463,7 +2465,7 @@ testmapper:
     - nmcli_wifi_indicate_wifi_band_caps:
         feature: wifi
     - nmcli_wifi_do_not_show_device_in_list:
-        feature: nmtui-wifi
+        feature: wifi
     - nmtui_wifi_see_all_networks:
         run: nmtui/./runtest.sh nmtui_wifi_see_all_networks
         feature: nmtui-wifi

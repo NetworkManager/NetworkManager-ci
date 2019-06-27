@@ -80,10 +80,20 @@ def expect(context, what):
 
 
 @step(u'Error appeared in editor')
-def error_appeared_in_editor(context):
-    r = context.prompt.expect(['Error', pexpect.TIMEOUT, pexpect.EOF])
+@step(u'Error appeared in editor in "{seconds}" seconds')
+def error_appeared_in_editor(context, seconds=0):
+    timeout = int(seconds)
+    if timeout > 0:
+        r = context.prompt.expect(['Error', pexpect.TIMEOUT, pexpect.EOF], timeout=timeout)
+    else:
+        r = context.prompt.expect(['Error', pexpect.TIMEOUT, pexpect.EOF])
+        timeout = context.prompt.timeout
     if r == 2 or r == 1:
-        raise Exception('Did not see an Error in editor')
+        if r == 1:
+            reason = "timeout %ds" % timeout
+        elif r == 2:
+            reason = "EOF"
+        raise Exception('Did not see an Error in editor - reason: %s' % reason)
 
 
 @step(u'Error type "{type}" shown in editor')
