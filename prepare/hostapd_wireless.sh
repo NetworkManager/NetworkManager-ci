@@ -108,11 +108,14 @@ function start_nm_hostapd ()
     sleep 10
 }
 
-function wireless_hostapd_check ()
+function wireless_hostapd_check_wpa ()
 {
     need_setup=0
-
-    # Check running dnsmasq
+    echo "* Checking hostapd type"
+    if [ ! -e /tmp/nm_wpa_supp_configured ]; then
+        echo "Not OK!!"
+        need_setup=1
+    fi
     echo "* Checking dnsmasqs"
     pid=$(cat /tmp/dnsmasq_wireless.pid)
     if ! pidof dnsmasq |grep -q $pid; then
@@ -130,14 +133,47 @@ function wireless_hostapd_check ()
         need_setup=1
     fi
     if [ $need_setup -eq 1 ]; then
-        rm -rf /tmp/nm_wpa_supp_configured
-        # Teardown just in case something went wrong
+        rm -rf /tmp/nm_*_supp_configured
         wireless_hostapd_teardown
         return 1
     fi
 
     return 0
 }
+
+function wireless_hostapd_check_open ()
+{
+    need_setup=0
+    echo "* Checking hostapd type"
+    if [ ! -e /tmp/nm_open_supp_configured ]; then
+        echo "Not OK!!"
+        need_setup=1
+    fi
+    echo "* Checking dnsmasqs"
+    pid=$(cat /tmp/dnsmasq_wireless.pid)
+    if ! pidof dnsmasq |grep -q $pid; then
+        echo "Not OK!!"
+        need_setup=1
+    fi
+    echo "* Checking nm-hostapd"
+    if ! systemctl is-active nm-hostapd -q; then
+        echo "Not OK!!"
+        need_setup=1
+    fi
+    echo "* Checking wlan0"
+    if ! nmcli device show wlan0 |grep -q connected; then
+        echo "Not OK!!"
+        need_setup=1
+    fi
+    if [ $need_setup -eq 1 ]; then
+        rm -rf /tmp/nm_*_supp_configured
+        wireless_hostapd_teardown
+        return 1
+    fi
+
+    return 0
+}
+
 function prepare_test_bed ()
 {
     # Install haveged to increase entropy
@@ -175,16 +211,13 @@ function wireless_hostapd_setup ()
 
     set +x
 
-    #VV FIXME: this has to be checking auth version too
     echo "Configuring hostapd 802.1x server..."
-    if  wireless_hostapd_check; then
-        echo "OK. Configuration has already been done."
-        return 0
-    fi
-    #^^ FIXME
-
 
     if [ "$AUTH_TYPE" == "open" ]; then
+        if  wireless_hostapd_check_open; then
+            echo "OK. Configuration has already been done."
+            return 0
+        fi
         echo "Auth type is Open"
         prepare_test_bed
         write_hostapd_cfg_open $HOSTAPD_CFG
@@ -209,7 +242,13 @@ function wireless_hostapd_setup ()
         sleep 5
 
     elif [ "$AUTH_TYPE" == "wpa2" ]; then
+        if  wireless_hostapd_check_wpa; then
+            echo "OK. Configuration has already been done."
+            return 0
+        fi
+
         echo "Auth type is WPA"
+
         prepare_test_bed
         write_hostapd_cfg_wpa2 $HOSTAPD_CFG $EAP_USERS_FILE
         copy_certificates $CERTS_PATH
