@@ -11,7 +11,7 @@ Feature: nmcli - wifi
 
     @ver+=1.9.1
     @simwifi_open
-    Scenario: nmcli - simwifi - connect to WPA2 PSK network without profile
+    Scenario: nmcli - simwifi - connect to open network
     Given "open" is visible with command "nmcli -f SSID device wifi list" in "90" seconds
     * Add a new connection of type "wifi" and options "ifname wlan0 con-name open autoconnect no ssid open"
     * Bring "up" connection "open"
