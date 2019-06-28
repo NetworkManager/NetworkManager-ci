@@ -1736,6 +1736,16 @@ def after_scenario(context, scenario):
             print ("bringing down hostapd setup")
             teardown_hostapd_wireless()
 
+        if 'simwifi_open' in scenario.tags:
+            print ("---------------------------")
+            print ("deleting wifi connections")
+            call("nmcli con del open", shell=True)
+
+        if 'simwifi_open_teardown' in scenario.tags:
+            print ("---------------------------")
+            print ("bringing down hostapd setup")
+            teardown_hostapd_wireless()
+
         if 'simwifi_p2p' in scenario.tags:
             print ("---------------------------")
             call('modprobe -r mac80211_hwsim', shell=True)

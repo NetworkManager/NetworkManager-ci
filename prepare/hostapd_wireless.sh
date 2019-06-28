@@ -69,11 +69,12 @@ function write_hostapd_cfg_open ()
     echo "# Hostapd configuration for 802.1x client testing
 interface=wlan1
 driver=nl80211
+ctrl_interface=/var/run/hostapd
+ctrl_interface_group=0
 ssid=open
 hw_mode=g
 channel=6
 auth_algs=1
-ignore_broadcast_ssid=0
 wpa=0
 country_code=EN" > $1
 }
@@ -184,8 +185,9 @@ function wireless_hostapd_setup ()
 
 
     if [ "$AUTH_TYPE" == "open" ]; then
+        echo "Auth type is Open"
         prepare_test_bed
-        write_hostapd_cfg_open
+        write_hostapd_cfg_open $HOSTAPD_CFG
         set -e
         start_dnsmasq
         pid=$(cat /tmp/dnsmasq_wireless.pid)
@@ -207,6 +209,7 @@ function wireless_hostapd_setup ()
         sleep 5
 
     elif [ "$AUTH_TYPE" == "wpa2" ]; then
+        echo "Auth type is WPA"
         prepare_test_bed
         write_hostapd_cfg_wpa2 $HOSTAPD_CFG $EAP_USERS_FILE
         copy_certificates $CERTS_PATH
@@ -251,7 +254,7 @@ function wireless_hostapd_teardown ()
     [ -f /run/hostapd/wlan1 ] && rm -rf /run/hostapd/wlan1
     rm -rf /etc/NetworkManager/conf.d/99-wifi.conf
     systemctl reload NetworkManager
-    rm -rf /tmp/nm_wpa_supp_configured
+    rm -rf /tmp/nm_*_supp_configured
 
 }
 
