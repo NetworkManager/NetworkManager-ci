@@ -2003,11 +2003,6 @@ def after_scenario(context, scenario):
             call('sudo rm -f /etc/NetworkManager/conf.d/99-xxcustom.conf', shell=True)
             reload_NM_service()
 
-        if 'ipv6_describe' in scenario.tags or 'ipv4_describe' in scenario.tags:
-            if call("systemctl is-enabled beah-srv.service  |grep ^enabled", shell=True) == 0:
-                if not os.path.isfile('/tmp/nm_skip_restarts'):
-                    call('run/rh-beaker/./sanitize_beah.sh', shell=True)
-
         if 'device_connect_no_profile' in scenario.tags or 'device_connect' in scenario.tags:
             print ("---------------------------")
             print ("env sanitization")

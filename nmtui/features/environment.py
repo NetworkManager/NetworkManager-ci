@@ -307,9 +307,6 @@ def after_scenario(context, scenario):
 
 def after_tag(context, tag):
     try:
-        if 'invalid_address' in tag:
-            call('sh sanitize_beah.sh', shell=True)
-
         if tag in ('vlan','bridge','bond','team', 'inf'):
             if hasattr(context, 'is_virtual'):
                 context.is_virtual = False
