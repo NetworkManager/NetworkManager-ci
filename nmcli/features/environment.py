@@ -793,6 +793,13 @@ def before_scenario(context, scenario):
                 sys.exit(77)
             setup_hostapd_wireless('wpa2')
 
+        if 'simwifi_open' in scenario.tags:
+            print ("---------------------------")
+            arch = check_output("uname -p", shell=True).decode('utf-8').strip()
+            if arch != "x86_64":
+                sys.exit(77)
+            setup_hostapd_wireless('open')
+
         if 'simwifi_p2p' in scenario.tags:
             print ("---------------------------")
             print ("setting p2p test bed")
