@@ -1586,6 +1586,8 @@ testmapper:
         feature: tc
     - remove_root_value:
         feature: tc
+    - simwifi_open:
+        feature: wifi_hwsim
     - simwifi_wpa2psk_profile:
         feature: wifi_hwsim
         tags: gate

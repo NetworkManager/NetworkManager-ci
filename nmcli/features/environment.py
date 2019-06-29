@@ -793,6 +793,13 @@ def before_scenario(context, scenario):
                 sys.exit(77)
             setup_hostapd_wireless('wpa2')
 
+        if 'simwifi_open' in scenario.tags:
+            print ("---------------------------")
+            arch = check_output("uname -p", shell=True).decode('utf-8').strip()
+            if arch != "x86_64":
+                sys.exit(77)
+            setup_hostapd_wireless('open')
+
         if 'simwifi_p2p' in scenario.tags:
             print ("---------------------------")
             print ("setting p2p test bed")
@@ -1725,6 +1732,16 @@ def after_scenario(context, scenario):
             call("nmcli con del wpa2-eap wifi", shell=True)
 
         if 'simwifi_wpa2_teardown' in scenario.tags:
+            print ("---------------------------")
+            print ("bringing down hostapd setup")
+            teardown_hostapd_wireless()
+
+        if 'simwifi_open' in scenario.tags:
+            print ("---------------------------")
+            print ("deleting wifi connections")
+            call("nmcli con del open", shell=True)
+
+        if 'simwifi_open_teardown' in scenario.tags:
             print ("---------------------------")
             print ("bringing down hostapd setup")
             teardown_hostapd_wireless()
