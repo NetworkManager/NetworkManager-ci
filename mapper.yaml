@@ -864,6 +864,10 @@ testmapper:
         feature: ipv4
     - dhcp_multiple_router_options:
         feature: ipv4
+    - dhcp_private_option_dhclient:
+        feature: ipv4
+    - dhcp_private_option_internal:
+        feature: ipv4
     - vlan_add_default_device:
         feature: vlan
     - vlan_add_beyond_range:
