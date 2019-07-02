@@ -1366,6 +1366,10 @@ testmapper:
         tags: gate
     - dispatcher_serialization:
         feature: dispatcher
+    - dispatcher_private_dhcp_option_dhclient:
+        feature: dispatcher
+    - dispatcher_private_dhcp_option_internal:
+        feature: dispatcher
     - add_adsl_connection_novice_mode:
         feature: adsl
     - add_adsl_connection:

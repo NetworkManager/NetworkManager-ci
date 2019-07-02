@@ -90,3 +90,25 @@ Feature: NM: dispatcher
     #Then "eth1.*\s+up" is not visible with command "cat /tmp/dispatcher.txt"
     #Then "eth2.*\s+up" is not visible with command "cat /tmp/dispatcher.txt"
     Then "eth1.*\s+up.*\s+quicketh1.*\s+up.*\s+eth2.*\s+up.*\s+quicketh2.*\s+up" is visible with command "cat /tmp/dispatcher.txt" in "50" seconds
+
+    @rhbz1663253
+    @ver+=1.20
+    @disp @con_ipv4_remove @teardown_testveth @dhclient_DHCP
+    @dispatcher_private_dhcp_option_dhclient
+    Scenario: NM - dispatcher - private option 245 dhclient plugin
+    * Prepare simulated test "testX" device with "192.168.99" ipv4 and "2620:dead:beaf" ipv6 dhcp address prefix and dhcp option "245,aa:bb:cc:dd"
+    * Write dispatcher "99-disp" file with params "[ "$2" != "up" ] && exit 0 || echo DHCP4_UNKNOWN_245=$DHCP4_UNKNOWN_245,DHCP4_PRIVATE_245=$DHCP4_PRIVATE_245 >> /tmp/dispatcher.txt"
+    * Add a new connection of type "ethernet" and options "ifname testX con-name con_ipv4"
+    * Bring "up" connection "con_ipv4"
+    Then "DHCP4_UNKNOWN_245=aa:bb:cc:dd,DHCP4_PRIVATE_245=aa:bb:cc:dd" is visible with command "cat /tmp/dispatcher.txt" in "5" seconds
+
+    @rhbz1663253
+    @ver+=1.20
+    @disp @con_ipv4_remove @teardown_testveth @internal_DHCP
+    @dispatcher_private_dhcp_option_internal
+    Scenario: NM - dispatcher - private dhcp option 245 internal plugin
+    * Prepare simulated test "testX" device with "192.168.99" ipv4 and "2620:dead:beaf" ipv6 dhcp address prefix and dhcp option "245,aa:bb:cc:dd"
+    * Write dispatcher "99-disp" file with params "[ "$2" != "up" ] && exit 0 || echo DHCP4_UNKNOWN_245=$DHCP4_UNKNOWN_245,DHCP4_PRIVATE_245=$DHCP4_PRIVATE_245 >> /tmp/dispatcher.txt"
+    * Add a new connection of type "ethernet" and options "ifname testX con-name con_ipv4"
+    * Bring "up" connection "con_ipv4"
+    Then "DHCP4_UNKNOWN_245=aa:bb:cc:dd,DHCP4_PRIVATE_245=aa:bb:cc:dd" is visible with command "cat /tmp/dispatcher.txt" in "5" seconds
