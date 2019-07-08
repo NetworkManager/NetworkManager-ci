@@ -2092,7 +2092,7 @@ Feature: nmcli - general
 
     @rhbz1697858
     @rhel7_only @con_general_remove @remove_custom_cfg_before_restart @restart
-    @keyfile_no_nmconnection_extension_rhel7
+    @keyfile_nmconnection_extension_rhel7
     Scenario: NM - general - keyfile does not have .nmconnection extension
     * Execute "echo '[main]' > /etc/NetworkManager/conf.d/99-xxcustom.conf"
     * Execute "echo 'plugins=keyfile,ifcfg-rh' >> /etc/NetworkManager/conf.d/99-xxcustom.conf"
@@ -2103,15 +2103,16 @@ Feature: nmcli - general
 
 
     @rhbz1697858
+    @ver+=1.19
     @rhel8_only @con_general_remove @remove_custom_cfg_before_restart @restart
-    @keyfile_no_nmconnection_extension_rhel8
-    Scenario: NM - general - keyfile does not have .nmconnection extension
+    @keyfile_nmconnection_extension_rhel8
+    Scenario: NM - general - keyfile does have .nmconnection extension
     * Execute "echo '[main]' > /etc/NetworkManager/conf.d/99-xxcustom.conf"
     * Execute "echo 'plugins=keyfile,ifcfg-rh' >> /etc/NetworkManager/conf.d/99-xxcustom.conf"
     * Restart NM
     * Add a new connection of type "ethernet" and options "ifname \* con-name con_general autoconnect no"
-    Then "/etc/NetworkManager/system-connections/con_general" is file
-     And Path "/etc/NetworkManager/system-connections/con_general.nmconnection" does not exist
+    Then "/etc/NetworkManager/system-connections/con_general.nmconnection" is file
+     And Path "/etc/NetworkManager/system-connections/con_general" does not exist
 
 
     @rhbz1697858

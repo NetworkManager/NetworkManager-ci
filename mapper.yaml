@@ -1321,9 +1321,9 @@ testmapper:
         feature: general
     - libnm_get_dns_crash:
         feature: general
-    - keyfile_no_nmconnection_extension_rhel7:
+    - keyfile_nmconnection_extension_rhel7:
         feature: general
-    - keyfile_no_nmconnection_extension_rhel8:
+    - keyfile_nmconnection_extension_rhel8:
         feature: general
     - keyfile_nmconnection_extension:
         feature: general
