@@ -530,6 +530,8 @@ testmapper:
         tags: gate
     - ipv6_method_ignored:
         feature: ipv6
+    - ipv6_method_disabled:
+        feature: ipv6
     - ipv6_may_fail_set_true:
         feature: ipv6
         tags: gate

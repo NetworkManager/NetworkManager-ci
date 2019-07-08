@@ -728,6 +728,22 @@
     Then "eth10 " is not visible with command "ip -6 route |grep -v fe80"
 
 
+    @rhbz1643841
+    @ver+=1.19
+    @con_ipv6_remove
+    @ipv6_method_disabled
+    Scenario: nmcli - ipv6 - method disabled
+    * Add a new connection of type "ethernet" and options "con-name con_ipv6 ifname eth3"
+    * Bring "up" connection "con_ipv6"
+    Then "inet6" is visible with command "ip a show dev eth3"
+    * Modify connection "con_ipv6" changing options "ipv6.method disabled"
+    * Bring "up" connection "con_ipv6"
+    Then "inet6" is not visible with command "ip a show dev eth3"
+    * Modify connection "con_ipv6" changing options "ipv6.method auto"
+    * Bring "up" connection "con_ipv6"
+    Then "inet6" is visible with command "ip a show dev eth3"
+
+
     @con_ipv6_remove @eth10_disconnect
     @ipv6_never-default_set_true
     Scenario: nmcli - ipv6 - never-default - set
