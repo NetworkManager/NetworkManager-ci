@@ -2147,3 +2147,14 @@ Feature: nmcli - general
     * Restart NM
     * Add a new connection of type "ethernet" and options "ifname eth8 ipv4.dhcp-client-id stable con-name con_general"
     Then "-rw-------" is visible with command "ls -l /var/lib/NetworkManager/secret_key" in "5" seconds
+
+
+    @rhbz1541013
+    @ver+=1.19
+    @remove_custom_cfg_before_restart @restart
+    @invalid_config_warning
+    Scenario: NM - general - warn about invalid config options
+    * Execute "echo -e '[main]\nsomething_nonexistent = some_value' > /etc/NetworkManager/conf.d/99-xxcustom.conf;"
+    * Restart NM
+    * Note NM log
+    Then Noted value contains "<warn>[^<]*config: unknown key 'something_nonexistent' in section \[main\] of file"

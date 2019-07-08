@@ -428,3 +428,8 @@ def set_logging(context, domain, level):
     r = cli.expect(['Error', 'Timeout', pexpect.TIMEOUT, pexpect.EOF])
     if r != 3:
         raise Exception('Something bad happened when changing log level')
+
+
+@step(u'Note NM log')
+def note_NM_log(context):
+    context.noted = check_output( "sudo journalctl -all -u NetworkManager --no-pager -o cat %s" % context.log_cursor, shell=True).decode('utf-8')
