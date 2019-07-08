@@ -1325,6 +1325,8 @@ testmapper:
         feature: general
     - secret_key_file_permissions:
         feature: general
+    - invalid_config_warning:
+        feature: general
     - openvswitch_interface_recognized:
         feature: ovs
     - openvswitch_ignore_ovs_network_setup:
