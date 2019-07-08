@@ -109,7 +109,13 @@ def check_ifcfg_exists_given_device(context, con_name):
 @step(u'Write dispatcher "{path}" file with params "{params}"')
 @step(u'Write dispatcher "{path}" file')
 def write_dispatcher_file(context, path, params=None):
-    disp_file  = '/etc/NetworkManager/dispatcher.d/%s' % path
+    if path.startswith("/"):
+        disp_file = path
+        dir = os.path.dirname(disp_file)
+        if not os.path.exists(dir):
+            os.makedirs(dir)
+    else:
+        disp_file  = '/etc/NetworkManager/dispatcher.d/%s' % path
     f = open(disp_file,'w')
     f.write('#!/bin/bash\n')
     if params:
