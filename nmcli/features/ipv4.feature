@@ -2211,3 +2211,28 @@ Feature: nmcli: ipv4
     Then "default via 192.168.99.10 proto dhcp metric " is visible with command "ip -4 r show dev testX | grep ^default | head -n1"
      And "default via 192.168.99.20 proto dhcp metric " is visible with command "ip -4 r show dev testX | grep ^default | head -n2"
      And "default via 192.168.99.21 proto dhcp metric " is visible with command "ip -4 r show dev testX | grep ^default | head -n3"
+
+
+    @rhbz1663253
+    @ver+=1.20
+    @con_ipv4_remove @teardown_testveth @dhclient_DHCP
+    @dhcp_private_option_dhclient
+    Scenario: NM - ipv4 - dhcp server sends private options dhclient
+    * Prepare simulated test "testX" device with "192.168.99" ipv4 and "2620:dead:beaf" ipv6 dhcp address prefix and dhcp option "245,aa:bb:cc:dd"
+    * Add a new connection of type "ethernet" and options "ifname testX con-name con_ipv4"
+    * Bring "up" connection "con_ipv4"
+    When "192.168.99." is visible with command "ip a show dev testX" in "10" seconds
+    Then "unknown_245 = aa:bb:cc:dd" is visible with command "A=$(nmcli -t -f DHCP4 c s con_ipv4 | grep unknown_245); echo ${A#*:}"
+    Then "private_245 = aa:bb:cc:dd" is visible with command "A=$(nmcli -t -f DHCP4 c s con_ipv4 | grep private_245); echo ${A#*:}"
+
+
+    @rhbz1663253
+    @ver+=1.20
+    @con_ipv4_remove @teardown_testveth @internal_DHCP
+    @dhcp_private_option_internal
+    Scenario: NM - ipv4 - dhcp server sends private options internal
+    * Prepare simulated test "testX" device with "192.168.99" ipv4 and "2620:dead:beaf" ipv6 dhcp address prefix and dhcp option "245,aa:bb:cc:dd"
+    * Add a new connection of type "ethernet" and options "ifname testX con-name con_ipv4"
+    * Bring "up" connection "con_ipv4"
+    When "192.168.99." is visible with command "ip a show dev testX" in "10" seconds
+    Then "private_245 = aa:bb:cc:dd" is visible with command "A=$(nmcli -t -f DHCP4 c s con_ipv4 | grep private_245); echo ${A#*:}"

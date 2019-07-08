@@ -690,6 +690,12 @@ def before_scenario(context, scenario):
             call("printf '# configured by beaker-test\n[main]\ndhcp=internal\n' > /etc/NetworkManager/conf.d/99-xtest-dhcp-internal.conf", shell=True)
             call('sudo systemctl restart NetworkManager.service', shell=True)
 
+        if 'dhclient_DHCP' in scenario.tags:
+            print ("---------------------------")
+            print ("set dhclient DHCP")
+            call("printf '# configured by beaker-test\n[main]\ndhcp=dhclient\n' > /etc/NetworkManager/conf.d/99-xtest-dhcp-dhclient.conf", shell=True)
+            call('sudo systemctl restart NetworkManager.service', shell=True)
+
         if 'dhcpd' in scenario.tags:
             print ("---------------------------")
             print ("installing dhcp")
@@ -1568,6 +1574,12 @@ def after_scenario(context, scenario):
             print ("---------------------------")
             print ("revert internal DHCP")
             call("rm -f /etc/NetworkManager/conf.d/99-xtest-dhcp-internal.conf", shell=True)
+            call('sudo systemctl restart NetworkManager.service', shell=True)
+
+        if 'dhclient_DHCP' in scenario.tags:
+            print ("---------------------------")
+            print ("revert dhclient DHCP")
+            call("rm -f /etc/NetworkManager/conf.d/99-xtest-dhcp-dhclient.conf", shell=True)
             call('sudo systemctl restart NetworkManager.service', shell=True)
 
         if 'dhcpd' in scenario.tags:
