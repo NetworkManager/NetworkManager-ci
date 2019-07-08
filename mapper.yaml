@@ -1374,6 +1374,8 @@ testmapper:
         feature: dispatcher
     - dispatcher_private_dhcp_option_internal:
         feature: dispatcher
+    - dispatcher_usr_lib_dir:
+        feature: dispatcher
     - add_adsl_connection_novice_mode:
         feature: adsl
     - add_adsl_connection:

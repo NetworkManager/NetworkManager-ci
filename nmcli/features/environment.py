@@ -1439,6 +1439,7 @@ def after_scenario(context, scenario):
             print ("---------------------------")
             print ("deleting dispatcher files")
             call("rm -rf /etc/NetworkManager/dispatcher.d/*-disp", shell=True)
+            call("rm -rf /usr/lib/NetworkManager/dispatcher.d/*-disp", shell=True)
             call("rm -rf /etc/NetworkManager/dispatcher.d/pre-up.d/98-disp", shell=True)
             call("rm -rf /etc/NetworkManager/dispatcher.d/pre-down.d/97-disp", shell=True)
             #call("rm -rf /tmp/dispatcher.txt", shell=True)

@@ -112,3 +112,13 @@ Feature: NM: dispatcher
     * Add a new connection of type "ethernet" and options "ifname testX con-name con_ipv4"
     * Bring "up" connection "con_ipv4"
     Then "DHCP4_UNKNOWN_245=aa:bb:cc:dd,DHCP4_PRIVATE_245=aa:bb:cc:dd" is visible with command "cat /tmp/dispatcher.txt" in "5" seconds
+
+
+    @rhbz1674550
+    @ver+=1.19
+    @disp
+    @dispatcher_usr_lib_dir
+    Scenario: NM - dispatcher - usr lib dir dispatcher scripts
+    * Write dispatcher "/usr/lib/NetworkManager/dispatcher.d/99-disp" file
+    * Bring "up" connection "testeth1"
+    Then "up" is visible with command "cat /tmp/dispatcher.txt" in "10" seconds
