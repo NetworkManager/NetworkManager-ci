@@ -506,3 +506,8 @@ Feature: nmcli - dns
     * Modify connection "con_dns" changing options "-ipv4.dns-options timeout:2"
     Then "timeout\\:2" is not visible with command "nmcli -g ipv4.dns-options con show id con_dns"
      And "ndots\\:2" is not visible with command "nmcli -g ipv4.dns-options con show id con_dns"
+    * Modify connection "con_dns" changing options "ifname eth2 +ipv4.dns-options 'attempts:2 timeout:5 ndots:1'"
+    * Bring "up" connection "con_dns"
+    Then "options[^\n]*attempts:2" is visible with command "cat /etc/resolv.conf" in "5" seconds
+     And "options[^\n]*timeout:5" is visible with command "cat /etc/resolv.conf" in "5" seconds
+     And "options[^\n]*ndots:1" is visible with command "cat /etc/resolv.conf" in "5" seconds
