@@ -1654,3 +1654,11 @@
      When "activated" is visible with command "nmcli c show bond0.0" in "10" seconds
      When "tshark" is not visible with command "ps aux" in "15" seconds
      Then Noted value is not visible with command "cat /tmp/tshark.log" in "2" seconds
+
+
+     @rhbz1667874
+     @ver+=1.19
+     @bond
+     @bond_autoconnect_activation_fails_with_libnm
+     Scenario: NM - bond - bond activation fails with autoconnect true using libnm
+     Then "Connection added\s+Connection activated" is visible with command "python tmp/bond_add_activate.py" in "1" seconds
