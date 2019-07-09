@@ -1592,6 +1592,10 @@ testmapper:
         feature: wifi_hwsim
     - simwifi_wep_tls:
         feature: wifi_hwsim
+    - simwifi_wep_ttls_mschapv2_eap:
+        feature: wifi_hwsim
+    - simwifi_wep_peap_gtc:
+        feature: wifi_hwsim
     - simwifi_wpa2psk_profile:
         feature: wifi_hwsim
         tags: gate

@@ -43,6 +43,26 @@ Feature: nmcli - wifi
     Then Bring "up" connection "wifi"
 
 
+    @ver+=1.10
+    @simwifi_dynwep @attach_hostapd_log @attach_wpa_supplicant_log
+    @simwifi_wep_ttls_mschapv2_eap
+    Scenario: nmcli - simwifi - connect to WEP TTLS MSCHAPv2 + EAP
+    Given "dynwep" is visible with command "nmcli -f SSID device wifi list" in "60" seconds
+    * Add a new connection of type "wifi" and options "ifname wlan0 con-name wifi autoconnect no ssid dynwep 802-11-wireless-security.key-mgmt ieee8021x 802-1x.eap ttls 802-1x.identity TESTERS\\test_mschapv2 802-1x.anonymous-identity test 802-1x.ca-cert /tmp/certs/test_user.ca.pem 802-1x.phase2-autheap mschapv2 802-1x.password password"
+    * Execute "sleep 1"
+    Then Bring "up" connection "wifi"
+
+
+    @ver+=1.10
+    @simwifi_dynwep @attach_hostapd_log @attach_wpa_supplicant_log
+    @simwifi_wep_peap_gtc
+    Scenario: nmcli - simwifi - connect to WEP PEAP GTC
+    Given "dynwep" is visible with command "nmcli -f SSID device wifi list" in "60" seconds
+    * Add a new connection of type "wifi" and options "ifname wlan0 con-name wifi autoconnect no ssid dynwep 802-11-wireless-security.key-mgmt ieee8021x 802-1x.eap peap 802-1x.identity test_gtc 802-1x.anonymous-identity test 802-1x.ca-cert /tmp/certs/test_user.ca.pem 802-1x.phase2-auth gtc 802-1x.password password"
+    * Execute "sleep 1"
+    Then Bring "up" connection "wifi"
+
+
     @ver+=1.9.1
     @simwifi_wpa2
     @simwifi_wpa2psk_no_profile
