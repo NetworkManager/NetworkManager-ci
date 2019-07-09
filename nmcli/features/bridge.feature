@@ -594,3 +594,17 @@ Feature: nmcli - bridge
     * Add a new connection of type "ethernet" and options "ifname eth4 con-name bridge-slave-eth4 master bridge0 slave-type bridge bridge-port.vlans '4000-4010'"
     Then "bridge0\s+1\s+2\s+3\s+4\s+5\s+6\s+7\s+8\s+9\s+10\s+80 untagged\s+100 PVID\s+200 untagged\s" is visible with command "bridge vlan | sed 's/Egress Untagged/untagged/g'" in "10" seconds
      And "eth4\s+80 PVID untagged\s+4000\s+4001\s+4002\s+4003\s+4004\s+4005\s+4006\s+4007\s+4008\s+4009\s+4010\s" is visible with command "bridge vlan | sed 's/Egress Untagged/untagged/g'"
+
+
+    @rhbz1679230
+    @ver+=1.19
+    @bridge @bridge_assumed @remove_custom_cfg_before_restart @restart
+    @bridge_device_created_unmanaged
+    Scenario: NM - bridge - virtual bridge created by NM should not be unmanaged
+    * Execute "echo -e '[device]\nmatch-device=*\nmanaged=0' > /etc/NetworkManager/conf.d/99-xxcustom.conf;"
+    * Restart NM
+    * Add a new connection of type "bridge" and options "ifname bridge0 con-name bridge0"
+    Then "unmanaged" is not visible with command "nmcli device | grep bridge0"
+    * Delete connection "bridge0"
+    Then "unmanaged" is not visible with command "nmcli device | grep bridge0"
+     And "bridge0:" is not visible with command "ip link"
