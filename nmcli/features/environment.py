@@ -806,6 +806,20 @@ def before_scenario(context, scenario):
                 sys.exit(77)
             setup_hostapd_wireless('open')
 
+        if 'simwifi_pskwep' in scenario.tags:
+            print ("---------------------------")
+            arch = check_output("uname -p", shell=True).decode('utf-8').strip()
+            if arch != "x86_64":
+                sys.exit(77)
+            setup_hostapd_wireless('pskwep')
+
+        if 'simwifi_dynwep' in scenario.tags:
+            print ("---------------------------")
+            arch = check_output("uname -p", shell=True).decode('utf-8').strip()
+            if arch != "x86_64":
+                sys.exit(77)
+            setup_hostapd_wireless('dynwep')
+
         if 'simwifi_p2p' in scenario.tags:
             print ("---------------------------")
             print ("setting p2p test bed")
@@ -1753,6 +1767,16 @@ def after_scenario(context, scenario):
             print ("---------------------------")
             print ("deleting wifi connections")
             call("nmcli con del open", shell=True)
+
+        if 'simwifi_pskwep' in scenario.tags:
+            print ("---------------------------")
+            print ("deleting wifi connections")
+            call("nmcli con del wep", shell=True)
+
+        if 'simwifi_dynwep' in scenario.tags:
+            print ("---------------------------")
+            print ("deleting wifi connections")
+            call("nmcli con del wifi", shell=True)
 
         if 'simwifi_open_teardown' in scenario.tags:
             print ("---------------------------")
