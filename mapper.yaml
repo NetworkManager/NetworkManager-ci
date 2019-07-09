@@ -1588,6 +1588,10 @@ testmapper:
         feature: tc
     - simwifi_open:
         feature: wifi_hwsim
+    - simwifi_wep_ask_passwd:
+        feature: wifi_hwsim
+    - simwifi_wep_tls:
+        feature: wifi_hwsim
     - simwifi_wpa2psk_profile:
         feature: wifi_hwsim
         tags: gate
@@ -2455,8 +2459,6 @@ testmapper:
     - nmcli_wifi_keep_secrets_after_modification:
         feature: wifi
     - nmcli_wifi_wpa_ask_passwd:
-        feature: wifi
-    - nmcli_wifi_wep_ask_passwd:
         feature: wifi
     - nmcli_wifi_add_certificate_as_blob:
         feature: wifi

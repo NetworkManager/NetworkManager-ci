@@ -21,6 +21,29 @@ Feature: nmcli - wifi
 
 
     @ver+=1.9.1
+    @simwifi_pskwep
+    @simwifi_wep_ask_passwd
+    Scenario: nmcli - wifi - connect WEP network asking for password
+    Given "wep" is visible with command "nmcli -f SSID device wifi list" in "60" seconds
+    * Spawn "nmcli -a device wifi connect wep" command
+    * Expect "Password:"
+    * Submit "abcde"
+    Then "\*\s+wep" is visible with command "nmcli -f IN-USE,SSID device wifi list" in "45" seconds
+    Then "wep" is visible with command "iw dev wlan0 link"
+
+
+    @ver+=1.10
+    @simwifi_dynwep @attach_hostapd_log @attach_wpa_supplicant_log
+    @simwifi_wep_tls
+    Scenario: nmcli - simwifi - connect to WEP TLS
+    Given "dynwep" is visible with command "nmcli -f SSID device wifi list" in "60" seconds
+    * Add a new connection of type "wifi" and options "ifname wlan0 con-name wifi autoconnect no ssid dynwep"
+    * Execute "nmcli con modify wifi 802-11-wireless-security.key-mgmt ieee8021x 802-1x.eap tls 802-1x.identity test 802-1x.ca-cert /tmp/certs/test_user.ca.pem 802-1x.client-cert /tmp/certs/test_user.cert.pem 802-1x.private-key /tmp/certs/test_user.key.enc.pem 802-1x.private-key-password redhat"
+    * Execute "sleep 1"
+    Then Bring "up" connection "wifi"
+
+
+    @ver+=1.9.1
     @simwifi_wpa2
     @simwifi_wpa2psk_no_profile
     Scenario: nmcli - simwifi - connect to WPA2 PSK network without profile
