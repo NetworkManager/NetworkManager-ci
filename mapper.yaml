@@ -322,6 +322,8 @@ testmapper:
         feature: bridge
     - bridge_vlan_filtering_non_default_pvid:
         feature: bridge
+    - bridge_device_created_unmanaged:
+        feature: bridge
     - add_default_team:
         feature: team
     - add_default_team_after_journal_restart:
