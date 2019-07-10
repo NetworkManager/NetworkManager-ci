@@ -32,7 +32,7 @@
     * Prepare "99-sriov.conf" config for "p4p1" device with "2" VFs
     When "3" is visible with command "nmcli dev |grep p4p1  |wc -l"
     * Prepare "99-sriov.conf" config for "p4p1" device with "0" VFs
-    When "1" is visible with command "nmcli dev |grep p4p1  |wc -l"
+    When "1" is visible with command "nmcli dev |grep p4p1  |wc -l" in "5" seconds
 
 
     @rhbz1398934
