@@ -113,9 +113,9 @@
     @sriov
     @sriov_con_drv_add_VF
     Scenario: nmcli - sriov - drv - add 1 VF
-    * Add a new connection of type "ethernet" and options "ifname em2 con-name sriov sriov.total-vfs 1"
+    * Add a new connection of type "ethernet" and options "ifname em2 con-name sriov sriov.total-vfs 1 autoconnect no"
     * Bring "up" connection "sriov"
-    * Add a new connection of type "ethernet" and options "ifname em2_0 con-name sriov_2 ipv4.method manual ipv4.address 1.2.3.4/24"
+    * Add a new connection of type "ethernet" and options "ifname em2_0 con-name sriov_2 ipv4.method manual ipv4.address 1.2.3.4/24 autoconnect no"
     * Bring "up" connection "sriov_2"
     Then "1" is visible with command "cat /sys/class/net/em2/device/sriov_numvfs"
     And " connected" is visible with command "nmcli  device |grep em2_0"
@@ -126,8 +126,8 @@
     @sriov
     @sriov_con_drv_add_64VFs
     Scenario: nmcli - sriov - drv - add 64 VFs
-    * Add a new connection of type "ethernet" and options "ifname em2 con-name sriov sriov.total-vfs 64"
-    #* Bring "up" connection "sriov"
+    * Add a new connection of type "ethernet" and options "ifname em2 con-name sriov sriov.total-vfs 64 autoconnect no"
+    * Bring "up" connection "sriov"
     When "63" is visible with command "cat /sys/class/net/em2/device/sriov_numvfs"
     And "disconnected" is visible with command "nmcli  device |grep em2_62" in "120" seconds
     And "disconnected" is visible with command "nmcli  device |grep em2_31"
@@ -143,7 +143,7 @@
     @sriov
     @sriov_con_drv_set_VF_to_0
     Scenario: nmcli - sriov - set VF number to 0
-    * Add a new connection of type "ethernet" and options "ifname em2 con-name sriov sriov.total-vfs 1"
+    * Add a new connection of type "ethernet" and options "ifname em2 con-name sriov sriov.total-vfs 1 autoconnect no"
     * Execute "nmcli connection modify sriov sriov.total-vfs 0"
     * Bring "up" connection "sriov"
     Then "1" is not visible with command "cat /sys/class/net/em2/device/sriov_numvfs"
@@ -155,9 +155,9 @@
     @sriov
     @sriov_con_drv_add_VF_mac
     Scenario: nmcli - sriov - drv - add 1 VF with mac and trust
-    * Add a new connection of type "ethernet" and options "ifname em2 con-name sriov sriov.vfs '0 mac=00:11:22:33:44:99 trust=true' sriov.total-vfs 1"
+    * Add a new connection of type "ethernet" and options "ifname em2 con-name sriov sriov.vfs '0 mac=00:11:22:33:44:99 trust=true' sriov.total-vfs 1 autoconnect no"
     * Bring "up" connection "sriov"
-    * Add a new connection of type "ethernet" and options "ifname em2_0 con-name sriov_2 ipv4.method manual ipv4.address 1.2.3.4/24"
+    * Add a new connection of type "ethernet" and options "ifname em2_0 con-name sriov_2 ipv4.method manual ipv4.address 1.2.3.4/24 autoconnect no"
     * Bring "up" connection "sriov_2"
     Then "1" is visible with command "cat /sys/class/net/em2/device/sriov_numvfs"
     And " connected" is visible with command "nmcli  device |grep em2_0"
@@ -170,12 +170,10 @@
     @sriov
     @sriov_con_drv_add_VF_mtu
     Scenario: nmcli - sriov - drv - add 1 VF with mtu
-    * Add a new connection of type "ethernet" and options "ifname em2 con-name sriov sriov.vfs '0 mac=00:11:22:33:44:99 trust=true' sriov.total-vfs 1 802-3-ethernet.mtu 9000"
-    # Workaround for 1651974
-    # * Bring "up" connection "sriov"
-    * Add a new connection of type "ethernet" and options "ifname em2_0 con-name sriov_2 ipv4.method manual ipv4.address 1.2.3.4/24 802-3-ethernet.mtu 9000"
-    # Workaround for 1651974
-    # * Bring "up" connection "sriov_2"
+    * Add a new connection of type "ethernet" and options "ifname em2 con-name sriov sriov.vfs '0 mac=00:11:22:33:44:99 trust=true' sriov.total-vfs 1 802-3-ethernet.mtu 9000 autoconnect no"
+    * Bring "up" connection "sriov"
+    * Add a new connection of type "ethernet" and options "ifname em2_0 con-name sriov_2 ipv4.method manual ipv4.address 1.2.3.4/24 802-3-ethernet.mtu 9000 autoconnect no"
+     * Bring "up" connection "sriov_2"
     Then " connected" is visible with command "nmcli  device |grep em2_0"
     And "00:11:22:33:44:99" is visible with command "ip a s em2_0"
     And "9000" is visible with command "ip a s em2_0" in "10" seconds
@@ -186,9 +184,9 @@
     @sriov @tcpdump
     @sriov_con_drv_add_VF_vlan
     Scenario: nmcli - sriov - drv - add 1 VF with vlan Q
-    * Add a new connection of type "ethernet" and options "ifname em2 con-name sriov sriov.vfs '0 vlans=100.2.q' sriov.total-vfs 1"
+    * Add a new connection of type "ethernet" and options "ifname em2 con-name sriov sriov.vfs '0 vlans=100.2.q' sriov.total-vfs 1 autoconnect no"
     * Bring "up" connection "sriov"
-    * Add a new connection of type "ethernet" and options "ifname em2_0 con-name sriov_2 ipv4.method manual ipv4.address 1.2.3.4/24"
+    * Add a new connection of type "ethernet" and options "ifname em2_0 con-name sriov_2 ipv4.method manual ipv4.address 1.2.3.4/24 autoconnect no"
     * Run child "tcpdump -n -i em2 -xxvv -e > /tmp/tcpdump.log"
     When "empty" is not visible with command "file /tmp/tcpdump.log" in "20" seconds
     * Bring "up" connection "sriov_2"
@@ -217,7 +215,7 @@
     @sriov
     @sriov_con_drv_add_VF_trust_on
     Scenario: nmcli - sriov - drv - add 1 VF with trust on
-    * Add a new connection of type "ethernet" and options "ifname em2 con-name sriov sriov.vfs '0 mac=00:11:22:33:44:99 trust=true' sriov.total-vfs 1"
+    * Add a new connection of type "ethernet" and options "ifname em2 con-name sriov sriov.vfs '0 mac=00:11:22:33:44:99 trust=true' sriov.total-vfs 1 "
     * Add a new connection of type "ethernet" and options "ifname em2_0 con-name sriov_2 ipv4.method manual ipv4.address 1.2.3.4/24"
     When " connected" is visible with command "nmcli  device |grep em2_0"
     * Execute "ip link set dev em2_0 address 00:11:22:33:44:55"
@@ -266,9 +264,9 @@
     @sriov @firewall
     @sriov_con_drv_add_VF_firewalld
     Scenario: nmcli - sriov - drv - add 1 VF with firewall zone
-    * Add a new connection of type "ethernet" and options "ifname em2 con-name sriov sriov.vfs '0 vlans=100.2.q' sriov.total-vfs 1"
+    * Add a new connection of type "ethernet" and options "ifname em2 con-name sriov sriov.vfs '0 vlans=100.2.q' sriov.total-vfs 1 autoconnect no"
     * Bring "up" connection "sriov"
-    * Add a new connection of type "ethernet" and options "ifname em2_0 con-name sriov_2 ipv4.method manual ipv4.address 1.2.3.4/24 connection.zone work"
+    * Add a new connection of type "ethernet" and options "ifname em2_0 con-name sriov_2 ipv4.method manual ipv4.address 1.2.3.4/24 connection.zone work autoconnect no"
     * Bring "up" connection "sriov_2"
     Then "1" is visible with command "cat /sys/class/net/em2/device/sriov_numvfs"
     And " connected" is visible with command "nmcli  device |grep em2_0"
