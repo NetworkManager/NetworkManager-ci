@@ -1743,7 +1743,7 @@ Feature: nmcli - general
 
     @rhbz1593519
     @ver+=1.12
-    @remove_custom_cfg_before_restart @restart
+    @remove_custom_cfg @restart
     @NM_starts_with_incorrect_logging_config
     Scenario: NM - general - nm starts even when logging is incorrectly configured
     * Stop NM
@@ -2091,7 +2091,7 @@ Feature: nmcli - general
 
 
     @rhbz1697858
-    @rhel7_only @con_general_remove @remove_custom_cfg_before_restart @restart
+    @rhel7_only @con_general_remove @remove_custom_cfg @restart
     @keyfile_nmconnection_extension_rhel7
     Scenario: NM - general - keyfile does not have .nmconnection extension
     * Execute "echo '[main]' > /etc/NetworkManager/conf.d/99-xxcustom.conf"
@@ -2104,7 +2104,7 @@ Feature: nmcli - general
 
     @rhbz1697858
     @ver+=1.19
-    @rhel8_only @con_general_remove @remove_custom_cfg_before_restart @restart
+    @rhel8_only @con_general_remove @remove_custom_cfg @restart
     @keyfile_nmconnection_extension_rhel8
     Scenario: NM - general - keyfile does have .nmconnection extension
     * Execute "echo '[main]' > /etc/NetworkManager/conf.d/99-xxcustom.conf"
@@ -2117,7 +2117,7 @@ Feature: nmcli - general
 
     @rhbz1697858
     @ver+=1.14
-    @not_in_rhel @con_general_remove @remove_custom_cfg_before_restart @restart
+    @not_in_rhel @con_general_remove @remove_custom_cfg @restart
     @keyfile_nmconnection_extension
     Scenario: NM - general - keyfile does have .nmconnection extension
     * Execute "echo '[main]' > /etc/NetworkManager/conf.d/99-xxcustom.conf"
@@ -2152,7 +2152,7 @@ Feature: nmcli - general
 
     @rhbz1541013
     @ver+=1.19
-    @remove_custom_cfg_before_restart @restart
+    @remove_custom_cfg @restart
     @invalid_config_warning
     Scenario: NM - general - warn about invalid config options
     * Execute "echo -e '[main]\nsomething_nonexistent = some_value' > /etc/NetworkManager/conf.d/99-xxcustom.conf;"

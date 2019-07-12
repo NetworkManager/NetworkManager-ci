@@ -1277,11 +1277,6 @@ def after_scenario(context, scenario):
             call("nmcli device disconnect eth10", shell=True)
             call("nmcli connection up testeth0", shell=True)
 
-        if 'remove_custom_cfg_before_restart' in scenario.tags:
-            print("---------------------------")
-            print("Removing custom cfg file in conf.d")
-            call('sudo rm -f /etc/NetworkManager/conf.d/99-xxcustom.conf', shell=True)
-
         if 'secret_key_reset' in scenario.tags:
             call("mv /var/lib/NetworkManager/secret_key_back /var/lib/NetworkManager/secret_key", shell=True)
 

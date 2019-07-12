@@ -23,7 +23,7 @@ import sys
 s_con = dbus.Dictionary({
     'type': '802-3-ethernet',
     'uuid': '10000000-0000-0000-0000-000000000001',
-    'id': 'eth-ens99',
+    'id': 'con_con2',
     'interface-name': 'ens99'
 })
 
@@ -43,4 +43,3 @@ settings = dbus.Interface(proxy, "org.freedesktop.NetworkManager.Settings")
 
 settings.AddConnection(con)
 settings.AddConnection(con)
-
