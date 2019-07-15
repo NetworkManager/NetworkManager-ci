@@ -80,16 +80,20 @@ function setup_veth_env ()
     nmcli con mod $UUID connection.id "$NAME"
 
     # Backup original ifcfg
+    nmcli device disconnect $DEV 2>&1 > /dev/null
+
     if [ ! -e /tmp/ifcfg-$DEV ]; then
         mv /etc/sysconfig/network-scripts/ifcfg-$DEV /tmp/
+        sleep 0.5
+        nmcli con reload
+        sleep 0.5
     fi
 
     # Copy backup to /etc/sysconfig/network-scripts/ and reload
-    nmcli device disconnect eth0 2>&1 > /dev/null
     yes 2>/dev/null | cp -rf /tmp/ifcfg-$DEV /etc/sysconfig/network-scripts/ifcfg-testeth0
-    sleep 1
+    sleep 0.5
     nmcli con reload
-    sleep 1
+    sleep 0.5
 
     # Bring up the device and prepare final profile testeth0
     ip link set eth0 up
