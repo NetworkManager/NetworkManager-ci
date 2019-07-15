@@ -138,16 +138,19 @@
     And " connected" is visible with command "nmcli  device |grep em2_0" in "45" seconds
 
 
-    @rhbz1651576
+    @rhbz1651576 @rhbz1659514
     @ver+=1.14.0
     @sriov
     @sriov_con_drv_set_VF_to_0
     Scenario: nmcli - sriov - set VF number to 0
-    * Add a new connection of type "ethernet" and options "ifname em2 con-name sriov sriov.total-vfs 1 autoconnect no"
+    * Add a new connection of type "ethernet" and options "ifname em2 con-name sriov sriov.total-vfs 1"
+    When "1" is visible with command "cat /sys/class/net/em2/device/sriov_numvfs"
+    And "em2_0" is visible with command "nmcli  device" in "10" seconds
     * Execute "nmcli connection modify sriov sriov.total-vfs 0"
     * Bring "up" connection "sriov"
     Then "1" is not visible with command "cat /sys/class/net/em2/device/sriov_numvfs"
     And "vf 0" is not visible with command "ip link show dev em2 |grep 'vf 0'"
+    And "em2_0" is not visible with command "nmcli  device" in "10" seconds
 
 
     @rhbz1555013
