@@ -157,7 +157,7 @@ install_el8_packages () {
 
 
     # Install OVS2 deps
-    dnf -4 install -y http://download.eng.bos.redhat.com/brewroot/vol/rhel-8/packages/openvswitch2.11/2.11.0/9.el8fdp/$(arch)/openvswitch2.11-2.11.0-9.el8fdp.$(arch).rpm http://download.eng.bos.redhat.com/brewroot/vol/rhel-8/packages/openvswitch-selinux-extra-policy/1.0/10.el8fdn/noarch/openvswitch-selinux-extra-policy-1.0-10.el8fdn.noarch.rpm
+    dnf -4 install -y http://download.eng.bos.redhat.com/brewroot/vol/rhel-8/packages/openvswitch2.11/2.11.0/9.el8fdp/$(arch)/openvswitch2.11-2.11.0-9.el8fdp.$(arch).rpm http://download.eng.bos.redhat.com/brewroot/vol/rhel-8/packages/openvswitch-selinux-extra-policy/1.0/16.el8fdp/noarch/openvswitch-selinux-extra-policy-1.0-16.el8fdp.noarch.rpm
 
     dnf -4 -y install http://download.eng.bos.redhat.com/brewroot/packages/$(rpm -q --queryformat '%{NAME}/%{VERSION}/%{RELEASE}' NetworkManager)/$(uname -p)/NetworkManager-ovs-$(rpm -q --queryformat '%{VERSION}-%{RELEASE}' NetworkManager).$(uname -p).rpm
     if ! rpm -q --quiet NetworkManager-pptp; then
