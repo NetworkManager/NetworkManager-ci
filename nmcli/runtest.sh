@@ -64,6 +64,10 @@ else
     RESULT="FAIL"
 fi
 
+if test "$RESULT" = SKIP -a -f "$NMTEST_REPORT" -a '!' -s "$NMTEST_REPORT" ; then
+    echo "TEST SKIPPED" >> "$NMTEST_REPORT"
+fi
+
 rstrnt-report-result -o "$NMTEST_REPORT" $NMTEST $RESULT
 
 logger -t $0 "Test $1 finished with result $RESULT: $rc"
