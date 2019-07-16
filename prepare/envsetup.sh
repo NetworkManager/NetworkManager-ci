@@ -525,7 +525,17 @@ local_setup_configure_nm_gsm () {
     mkdir /mnt/scratch
     mount -t nfs nest.test.redhat.com:/mnt/qa/desktop/broadband_lock /mnt/scratch
 
-    yum -y install NetworkManager-wwan ModemManager usb_modeswitch usbutils NetworkManager-ppp
+    VER=$(rpm -q --queryformat '%{VERSION}' NetworkManager)
+    REL=$(rpm -q --queryformat '%{RELEASE}' NetworkManager)
+
+    if [ -d /tmp/nm-build/NetworkManager/contrib/fedora/rpm/latest0/RPMS/ ]; then
+        pushd /tmp/nm-build/NetworkManager/contrib/fedora/rpm/latest0/RPMS/$(arch)
+            yum -y install NetworkManager-wwan-$VER-$REL.$(arch).rpm ModemManager usb_modeswitch usbutils NetworkManager-ppp-$VER-$REL.$(arch).rpm
+        popd
+    else
+        yum -y install NetworkManager-wwan-$VER-$REL ModemManager usb_modeswitch usbutils NetworkManager-ppp-$VER-$REL
+    fi
+
     systemctl restart ModemManager
     sleep 60
     systemctl restart NetworkManager
