@@ -445,3 +445,23 @@ Feature: nmcli - ovs
      And "10.200.0.0/16 dev nm-bond.101" is visible with command "ip r"
      And "10.201.0.0/24 dev nm-bond.201" is visible with command "ip r"
      And "default via" is visible with command "ip r |grep nm-bond"
+
+
+     @rhbz1676551 @rhbz1612503
+     @ver+=1.19.5
+     @openvswitch @dpdk
+     @add_dpdk_port
+     Scenario: NM -  openvswitch - add dpdk device
+     * Add a new connection of type "ovs-bridge" and options "conn.interface ovsbridge0 con-name ovs-bridge0"
+     * Add a new connection of type "ovs-port" and options "conn.interface port0 conn.master ovsbridge0 con-name ovs-port0"
+     * Add a new connection of type "ovs-port" and options "conn.interface port1 conn.master ovsbridge0 con-name ovs-port1"
+     * Add a new connection of type "ethernet" and options "conn.interface p4p1 conn.master port1 slave-type ovs-port con-name ovs-eth2"
+     * Add a new connection of type "ovs-interface" and options "conn.interface iface0 conn.master port0 con-name ovs-iface0 ovs-dpdk.devargs 0000:01:00.1"
+     Then "activated" is visible with command "nmcli -g GENERAL.STATE con show ovs-iface0" in "40" seconds
+      And "Bridge \"ovsbridge0\"" is visible with command "ovs-vsctl show"
+      And "Port \"bond0\"\s+tag: 120\s+Interface \"eth[2-3]\"\s+type: system\s+Interface \"eth[2-3]\"\s+type: system" is visible with command "ovs-vsctl show"
+      And "Port \"port0\"\s+tag: 120\s+Interface \"iface0\"\s+type: internal" is visible with command "ovs-vsctl show"
+      And "master ovs-system" is visible with command "ip a s p4p1"
+      And "192.168.100.*\/24" is visible with command "ip a s iface0"
+      And "fe80::" is visible with command "ip a s iface0"
+      And "default via 192.168.100.1 dev iface0 proto dhcp metric 800" is visible with command "ip r"

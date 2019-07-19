@@ -2670,3 +2670,5 @@ testmapper:
         feature: sriov
     - sriov_con_add_VF_spoof:
         feature: sriov
+    - add_dpdk_port:
+        feature: sriov

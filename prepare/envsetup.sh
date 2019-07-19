@@ -333,6 +333,9 @@ local_setup_configure_nm_eth () {
     if [[ $1 == *wol_* ]]; then
         dcb_inf_wol_sriov=1
     fi
+    if [[ $1 == *dpdk_* ]]; then
+        dcb_inf_wol_sriov=1
+    fi
     # We need this if yes
     if [ $dcb_inf_wol_sriov -eq 1 ]; then
         touch /tmp/nm_dcb_inf_wol_sriov_configured

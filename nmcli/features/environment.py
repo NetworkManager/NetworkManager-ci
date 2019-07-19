@@ -1058,8 +1058,16 @@ def before_scenario(context, scenario):
                 call('systemctl restart NetworkManager', shell=True)
             if call('systemctl is-active openvswitch', shell=True) != 0:
                 call('yum -y install openvswitch', shell=True)
+                call('sed -i.bak s/openvswitch:hugetlbfs/root:root/g /etc/sysconfig/openvswitch', shell=True)
                 call('systemctl restart openvswitch', shell=True)
                 call('systemctl restart NetworkManager', shell=True)
+
+        if 'dpdk' in scenario.tags:
+            print ("---------------------------")
+            print ("setting dpdk openvswitch")
+            call('ovs-vsctl --no-wait set Open_vSwitch . other_config:dpdk-init=true', shell=True)
+            call('systemctl restart openvswitch', shell=True)
+            call('systemctl restart NetworkManager', shell=True)
 
         if 'wireless_certs' in scenario.tags:
             print ("---------------------------")
