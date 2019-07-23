@@ -1065,6 +1065,7 @@ def before_scenario(context, scenario):
         if 'dpdk' in scenario.tags:
             print ("---------------------------")
             print ("setting dpdk openvswitch")
+            call('yum -y install dpdk dpdk-tools', shell=True)
             call('ovs-vsctl --no-wait set Open_vSwitch . other_config:dpdk-init=true', shell=True)
             call('systemctl restart openvswitch', shell=True)
             call('systemctl restart NetworkManager', shell=True)

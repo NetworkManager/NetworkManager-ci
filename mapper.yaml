@@ -60,7 +60,7 @@ beaker-hardware:
       NetworkManager-dcb:
         - x86_64:
             hostname: dell-per720-03.klab.eng.bos.redhat.com
-            kernel-options: biosdevname=1 default_hugepagesz=1G hugepagesz=1G hugepages=32 iommu=on "intel_iommu=pt /"
+            kernel-options: biosdevname=1 default_hugepagesz=1G hugepagesz=1G hugepages=32 iommu=on intel_iommu=pt
 
 setup:
 
