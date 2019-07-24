@@ -2672,3 +2672,5 @@ testmapper:
         feature: sriov
     - add_dpdk_port:
         feature: sriov
+    - add_dpdk_bond:
+        feature: sriov
