@@ -477,4 +477,4 @@ Feature: nmcli - ovs
     And "Bridge \"ovsbridge0\"" is visible with command "ovs-vsctl show"
     And "Port \"port0\"" is visible with command "ovs-vsctl show"
     And "Port \"port0\"\s+Interface\s+\"iface0\"\s+type: dpdk\s+options: {dpdk-devargs=\"0000:01:10.1\"}" is visible with command "ovs-vsctl show"
-    And "Port \"bond0\"\s+tag: 120|Interface\s+\"iface1\"\s+type: dpdk\s+options: {dpdk-devargs=\"0000:01:10.3\"}|Interface\s+\"p4p1\"\s+type: system" is visible with command "ovs-vsctl show"
+    And "Port \"bond0\"\s+tag: 120\s+Interface\s+\"iface1\"\s+type: dpdk\s+options: {dpdk-devargs=\"0000:01:10.3\"}\s+Interface\s+\"p4p1\"\s+type: system|Port \"bond0\"\s+tag: 120\s+Interface\s+\"p4p1\"\s+type: system\s+Interface\s+\"iface1\"\s+type: dpdk\s+options: {dpdk-devargs=\"0000:01:10.3\"}" is visible with command "ovs-vsctl show"
