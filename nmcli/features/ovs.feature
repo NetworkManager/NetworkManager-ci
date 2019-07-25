@@ -464,7 +464,7 @@ Feature: nmcli - ovs
     @rhbz1676551 @rhbz1612503
     @ver+=1.19.5
     @openvswitch @dpdk
-    @add_dpdk_bond
+    @add_dpdk_bond_sriov
     Scenario: NM -  openvswitch - add dpdk device
     * Add a new connection of type "ovs-bridge" and options "conn.interface ovsbridge0 con-name ovs-bridge0 ovs-bridge.datapath-type netdev"
     * Add a new connection of type "ovs-port" and options "conn.interface port0 conn.master ovsbridge0 con-name ovs-port0"
@@ -477,4 +477,4 @@ Feature: nmcli - ovs
     And "Bridge \"ovsbridge0\"" is visible with command "ovs-vsctl show"
     And "Port \"port0\"" is visible with command "ovs-vsctl show"
     And "Port \"port0\"\s+Interface\s+\"iface0\"\s+type: dpdk\s+options: {dpdk-devargs=\"0000:01:10.1\"}" is visible with command "ovs-vsctl show"
-    And "Port \"bond0\"\s+tag: 120\s+Interface\s+\"iface1\"\s+type: dpdk\s+options: {dpdk-devargs=\"0000:01:10.3\"}\s+Interface\s+\"p4p1\"\s+type: system" is visible with command "ovs-vsctl show"
+    And "Port \"bond0\"\s+tag: 120|Interface\s+\"iface1\"\s+type: dpdk\s+options: {dpdk-devargs=\"0000:01:10.3\"}|Interface\s+\"p4p1\"\s+type: system" is visible with command "ovs-vsctl show"

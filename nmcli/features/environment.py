@@ -2086,7 +2086,7 @@ def after_scenario(context, scenario):
         if 'dpdk' in scenario.tags:
             print ("---------------------------")
             print ("remove dpdk residuals")
-            call('nmcli con del dpdk-sriov', shell=True)
+            call('nmcli con del dpdk-sriov ovs-iface1', shell=True)
             call('systemctl stop openvswitch ', shell=True)
 
         if 'remove_custom_cfg' in scenario.tags:
