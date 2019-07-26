@@ -472,6 +472,7 @@ Feature: nmcli - ovs
     * Add a new connection of type "ovs-interface" and options "conn.interface iface0 conn.master port0 con-name ovs-iface0 ovs-dpdk.devargs 0000:01:10.1"
     * Add a new connection of type "ovs-interface" and options "conn.interface iface1 conn.master bond0 con-name ovs-iface1 ovs-dpdk.devargs 0000:01:10.3"
     * Add a new connection of type "ethernet" and options "conn.interface p4p1 conn.master bond0 slave-type ovs-port con-name ovs-eth3"
+    * Bring "up" connection "ovs-eth3"
     Then "activated" is visible with command "nmcli -g GENERAL.STATE con show ovs-iface0" in "40" seconds
     Then "activated" is visible with command "nmcli -g GENERAL.STATE con show ovs-iface1" in "40" seconds
     And "Bridge \"ovsbridge0\"" is visible with command "ovs-vsctl show"
