@@ -231,6 +231,8 @@ testmapper:
         feature: bond
     - bond_send_correct_arp:
         feature: bond
+    - bond_autoconnect_activation_fails_with_libnm:
+        feature: bond
     - bridge_add_default:
         feature: bridge
     - bridge_add_custom_one:
@@ -319,6 +321,8 @@ testmapper:
     - bridge_vlan_filtering_default_pvid:
         feature: bridge
     - bridge_vlan_filtering_non_default_pvid:
+        feature: bridge
+    - bridge_device_created_unmanaged:
         feature: bridge
     - add_default_team:
         feature: team
@@ -529,6 +533,8 @@ testmapper:
         feature: ipv6
         tags: gate
     - ipv6_method_ignored:
+        feature: ipv6
+    - ipv6_method_disabled:
         feature: ipv6
     - ipv6_may_fail_set_true:
         feature: ipv6
@@ -863,6 +869,10 @@ testmapper:
     - ipv4_routing_rules_manipulation:
         feature: ipv4
     - dhcp_multiple_router_options:
+        feature: ipv4
+    - dhcp_private_option_dhclient:
+        feature: ipv4
+    - dhcp_private_option_internal:
         feature: ipv4
     - vlan_add_default_device:
         feature: vlan
@@ -1315,15 +1325,17 @@ testmapper:
         feature: general
     - libnm_get_dns_crash:
         feature: general
-    - keyfile_no_nmconnection_extension_rhel7:
+    - keyfile_nmconnection_extension_rhel7:
         feature: general
-    - keyfile_no_nmconnection_extension_rhel8:
+    - keyfile_nmconnection_extension_rhel8:
         feature: general
     - keyfile_nmconnection_extension:
         feature: general
     - busctl_LoadConnections_relative_path:
         feature: general
     - secret_key_file_permissions:
+        feature: general
+    - invalid_config_warning:
         feature: general
     - openvswitch_interface_recognized:
         feature: ovs
@@ -1361,6 +1373,12 @@ testmapper:
         feature: dispatcher
         tags: gate
     - dispatcher_serialization:
+        feature: dispatcher
+    - dispatcher_private_dhcp_option_dhclient:
+        feature: dispatcher
+    - dispatcher_private_dhcp_option_internal:
+        feature: dispatcher
+    - dispatcher_usr_lib_dir:
         feature: dispatcher
     - add_adsl_connection_novice_mode:
         feature: adsl
