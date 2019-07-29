@@ -32,7 +32,7 @@
     * Prepare "99-sriov.conf" config for "p4p1" device with "2" VFs
     When "3" is visible with command "nmcli dev |grep p4p1  |wc -l"
     * Prepare "99-sriov.conf" config for "p4p1" device with "0" VFs
-    When "1" is visible with command "nmcli dev |grep p4p1  |wc -l"
+    When "1" is visible with command "nmcli dev |grep p4p1  |wc -l" in "5" seconds
 
 
     @rhbz1398934
@@ -138,7 +138,7 @@
     And " connected" is visible with command "nmcli  device |grep em2_0" in "45" seconds
 
 
-    @rhbz1651576
+    @rhbz1651576 @rhbz1659514
     @ver+=1.14.0
     @sriov
     @sriov_con_drv_set_VF_to_0
@@ -148,6 +148,7 @@
     * Bring "up" connection "sriov"
     Then "1" is not visible with command "cat /sys/class/net/em2/device/sriov_numvfs"
     And "vf 0" is not visible with command "ip link show dev em2 |grep 'vf 0'"
+    And "em2_0" is not visible with command "nmcli  device" in "10" seconds
 
 
     @rhbz1555013

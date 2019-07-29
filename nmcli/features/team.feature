@@ -12,8 +12,8 @@
     @add_default_team
     Scenario: nmcli - team - add default team
      * Open editor for a type "team"
-     * Submit "set team.interface-name nm-team" in editor
-     * Submit "set team.connection-name nm-team" in editor
+     * Submit "set connection.interface-name nm-team" in editor
+     * Submit "set connection.connection-name nm-team" in editor
      * Save in editor
      * Enter in editor
      * Quit editor

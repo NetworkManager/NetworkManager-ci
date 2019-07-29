@@ -598,7 +598,7 @@ Feature: nmcli - bridge
 
     @rhbz1679230
     @ver+=1.19
-    @bridge @bridge_assumed @remove_custom_cfg_before_restart @restart
+    @bridge @bridge_assumed @remove_custom_cfg @restart
     @bridge_device_created_unmanaged
     Scenario: NM - bridge - virtual bridge created by NM should not be unmanaged
     * Execute "echo -e '[device]\nmatch-device=*\nmanaged=0' > /etc/NetworkManager/conf.d/99-xxcustom.conf;"

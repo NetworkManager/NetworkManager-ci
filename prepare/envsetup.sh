@@ -157,7 +157,7 @@ install_el8_packages () {
 
 
     # Install OVS2 deps
-    dnf -4 install -y http://download.eng.bos.redhat.com/brewroot/vol/rhel-8/packages/openvswitch2.11/2.11.0/9.el8fdp/$(arch)/openvswitch2.11-2.11.0-9.el8fdp.$(arch).rpm http://download.eng.bos.redhat.com/brewroot/vol/rhel-8/packages/openvswitch-selinux-extra-policy/1.0/10.el8fdn/noarch/openvswitch-selinux-extra-policy-1.0-10.el8fdn.noarch.rpm
+    dnf -4 install -y http://download.eng.bos.redhat.com/brewroot/vol/rhel-8/packages/openvswitch2.11/2.11.0/9.el8fdp/$(arch)/openvswitch2.11-2.11.0-9.el8fdp.$(arch).rpm http://download.eng.bos.redhat.com/brewroot/vol/rhel-8/packages/openvswitch-selinux-extra-policy/1.0/16.el8fdp/noarch/openvswitch-selinux-extra-policy-1.0-16.el8fdp.noarch.rpm
 
     dnf -4 -y install http://download.eng.bos.redhat.com/brewroot/packages/$(rpm -q --queryformat '%{NAME}/%{VERSION}/%{RELEASE}' NetworkManager)/$(uname -p)/NetworkManager-ovs-$(rpm -q --queryformat '%{VERSION}-%{RELEASE}' NetworkManager).$(uname -p).rpm
     if ! rpm -q --quiet NetworkManager-pptp; then
@@ -224,11 +224,18 @@ install_el7_packages () {
     install_plugins_yum
 }
 
+deploy_ssh_keys () {
+
+    echo "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQCxWHTPdT+b/4EPoVgR/a88K9Wpdta8MdcqXPYOc4uNO/IDhLvGbU6HjlFjA1cI48U/KU6fM6qACJxgyeE/3h0EyMOt11UbzBK8d6Ts03HwdaKiE1Jvvs8Ga7FqZHBr37k7rESGT9B5zA11Bb7xIaBoZp2Q+D6VIGI5D9k0jcFUEEFW/+Rs0hVG8CczMLYAIeECsFSgksHKzrkY28lLn+N4iFWJBY6PpBlxZKiw9POi3L1gekbF+tEpzkeOmqWelZmD/t8ttKpqAeLp43K9nFLYdYaeoAPsaPANo6l5NSi30UGOjKtyWee0LGYDl92c7ahnyLmCybf2YgatD4GQphLh thaller@redhat.com" >> /root/.ssh/authorized_keys
+
+    echo "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQDSLEW8B8/uX4VpsKIwrtrqBc/dAq+EaL17iegWZGR1qFbhC4xt8X+BoGRH/A9DlZPKhdMENHz+ZZT2XHkhLGSoRq0ElDM/WB9ppGxaVDh6plhvJL9aV8W8QcvOUPatdggGR3/b0qqnbGMwWnbPLJgqu/XwVm+z92oBJHh0W65cRg5jw/jedVPzFHe0ZVwfpZT3eUL2p6H16NV3phZVoIAJbkMEf59vSfKgK2816nNtKWCjwtCIzSR/K9KzejAfpUKyJNlNfxjtkoFf2zorPrdTT+DXiPprkTcExS4YEQl3fPp2/jT6gpcXuR+q8OGMIZDO8NkFVLL9AXhjR7nY+6Vr vbenes@benjoband" >> /root/.ssh/authorized_keys
+
+}
 
 local_setup_configure_nm_eth () {
     [ -e /tmp/nm_eth_configured ] && return
 
-    #set the root password to 'networkmanager' (for overcoming polkit easily)
+    # Set the root password to 'networkmanager' (for overcoming polkit easily)
     echo "Setting root password to 'networkmanager'"
     echo "networkmanager" | passwd root --stdin
 
@@ -238,17 +245,17 @@ local_setup_configure_nm_eth () {
     useradd -m test
     echo "networkmanager" | passwd test --stdin
 
-    #adding chronyd and syncing
+    # Adding chronyd and syncing
     systemctl restart chronyd.service
 
-    #pull in debugging symbols
+    # Pull in debugging symbols
     if [ ! -e /tmp/nm_no_debug ]; then
         cat /proc/$(pidof NetworkManager)/maps | awk '/ ..x. / {print $NF}' |
             grep '^/' | xargs rpm -qf | grep -v 'not owned' | sort | uniq |
             xargs debuginfo-install -y
     fi
 
-    #restart with valgrind
+    # Restart with valgrind
     if [ -e /etc/systemd/system/NetworkManager-valgrind.service ]; then
         ln -s NetworkManager-valgrind.service /etc/systemd/system/NetworkManager.service
         systemctl daemon-reload
@@ -258,18 +265,18 @@ local_setup_configure_nm_eth () {
         systemctl daemon-reload
     fi
 
-    #removing rate limit for systemd journaling
+    # Removing rate limit for systemd journaling
     sed -i 's/^#\?\(RateLimitInterval *= *\).*/\10/' /etc/systemd/journald.conf
     sed -i 's/^#\?\(RateLimitBurst *= *\).*/\10/' /etc/systemd/journald.conf
     sed -i 's/^#\?\(SystemMaxUse *= *\).*/\115G/' /etc/systemd/journald.conf
     systemctl restart systemd-journald.service
 
-    #fake console
+    # Fake console
     echo "Faking a console session..."
     touch /run/console/test
     echo test > /run/console/console.lock
 
-    #passwordless sudo
+    # Passwordless sudo
     echo "enabling passwordless sudo"
     if [ -e /etc/sudoers.bak ]; then
     mv -f /etc/sudoers.bak /etc/sudoers
@@ -279,13 +286,16 @@ local_setup_configure_nm_eth () {
     echo 'Defaults:test !env_reset' >> /etc/sudoers
     echo 'test ALL=(ALL)   NOPASSWD: ALL' >> /etc/sudoers
 
-    #setting ulimit to unlimited for test user
+    # Setting ulimit to unlimited for test user
     echo "ulimit -c unlimited" >> /home/test/.bashrc
 
     # Give proper context to openvpn profiles
     chcon -R system_u:object_r:usr_t:s0 tmp/openvpn/sample-keys/
 
-    #making sure all wifi devices are named wlanX
+    # Deploy ssh-keys
+    deploy_ssh_keys
+
+    # Making sure all wifi devices are named wlanX
     NUM=0
     wlan=0
     for DEV in `nmcli device | grep wifi | awk {'print $1'}`; do
@@ -518,7 +528,17 @@ local_setup_configure_nm_gsm () {
     mkdir /mnt/scratch
     mount -t nfs nest.test.redhat.com:/mnt/qa/desktop/broadband_lock /mnt/scratch
 
-    yum -y install NetworkManager-wwan ModemManager usb_modeswitch usbutils NetworkManager-ppp
+    VER=$(rpm -q --queryformat '%{VERSION}' NetworkManager)
+    REL=$(rpm -q --queryformat '%{RELEASE}' NetworkManager)
+
+    if [ -d /tmp/nm-build/NetworkManager/contrib/fedora/rpm/latest0/RPMS/ ]; then
+        pushd /tmp/nm-build/NetworkManager/contrib/fedora/rpm/latest0/RPMS/$(arch)
+            yum -y install NetworkManager-wwan-$VER-$REL.$(arch).rpm ModemManager usb_modeswitch usbutils NetworkManager-ppp-$VER-$REL.$(arch).rpm
+        popd
+    else
+        yum -y install NetworkManager-wwan-$VER-$REL ModemManager usb_modeswitch usbutils NetworkManager-ppp-$VER-$REL
+    fi
+
     systemctl restart ModemManager
     sleep 60
     systemctl restart NetworkManager
