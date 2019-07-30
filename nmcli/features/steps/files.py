@@ -95,8 +95,8 @@ def create_symlink(context, source, destination):
 
 @step(u'Check ifcfg-name file created with noted connection name')
 def check_ifcfg_exists(context):
-    cat = pexpect.spawn('cat /etc/sysconfig/network-scripts/ifcfg-%s' % context.noted, logfile=context.log, encoding='utf-8')
-    cat.expect('NAME=%s' % context.noted)
+    cat = pexpect.spawn('cat /etc/sysconfig/network-scripts/ifcfg-%s' % context.noted_value, logfile=context.log, encoding='utf-8')
+    cat.expect('NAME=%s' % context.noted_value)
 
 
 @step(u'Check ifcfg-name file created for connection "{con_name}"')
