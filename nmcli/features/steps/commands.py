@@ -141,7 +141,7 @@ def hostname_visible(context, log, seconds=1):
 
 @step(u'Noted value contains "{pattern}"')
 def note_print_property_b(context, pattern):
-    assert re.search(pattern, context.noted) is not None, "Noted value '%s' does not match the pattern '%s'!" % (context.noted, pattern)
+    assert re.search(pattern, context.noted_value) is not None, "Noted value '%s' does not match the pattern '%s'!" % (context.noted_value, pattern)
 
 
 @step(u'Note the output of "{command}" as value "{index}"')
@@ -432,4 +432,4 @@ def set_logging(context, domain, level):
 
 @step(u'Note NM log')
 def note_NM_log(context):
-    context.noted = check_output( "sudo journalctl -all -u NetworkManager --no-pager -o cat %s" % context.log_cursor, shell=True).decode('utf-8')
+    context.noted_value = check_output( "sudo journalctl -all -u NetworkManager --no-pager -o cat %s" % context.log_cursor, shell=True).decode('utf-8')

@@ -125,8 +125,8 @@ def note_print_property(context, prop):
     category, item = prop.split('.')
     context.prompt.sendline('print %s' % category)
     context.prompt.expect('%s.%s:\s+(\S+)' % (category, item))
-    context.noted = context.prompt.match.group(1)
-    print (context.noted)
+    context.noted_value = context.prompt.match.group(1)
+    print (context.noted_value)
 
 @step(u'Open editor for connection "{con_name}"')
 def open_editor_for_connection(context, con_name):
@@ -227,7 +227,7 @@ def check_error_while_saving_in_editor_2(context):
 @step(u'Set a property named "{name}" to "{value}" in editor')
 def set_property_in_editor(context, name, value):
     if value == 'noted-value':
-        context.prompt.sendline('set %s %s' % (name,context.noted))
+        context.prompt.sendline('set %s %s' % (name,context.noted_value))
     else:
         context.prompt.sendline('set %s %s' % (name,value))
     sleep(0.25)
@@ -236,7 +236,7 @@ def set_property_in_editor(context, name, value):
 @step(u'Submit "{what}"')
 def submit(context, what):
     if what == 'noted-value':
-        context.prompt.sendline(context.noted)
+        context.prompt.sendline(context.noted_value)
     elif what == '<enter>':
         context.prompt.send("\n")
     elif what == '<tab>':
