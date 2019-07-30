@@ -31,14 +31,12 @@ if [ $vc -eq 1 ]; then
     rstrnt-report-result -o "" $NMTEST "SKIP"
     exit 0
 
-NMTEST_REPORT="/tmp/report_$NMTEST.html"
-
 # do we have tag to run tagged test?
 elif [ $vc -eq 0 ]; then
     # if yes, run with -t $TAG
     if [ x$TAG != x"" ]; then
         logger "Running $TAG version of $NMTEST"
-        behave $DIR/nmcli/features -t $1 -t $TAG -k -f html -o "$NMTEST_REPORT" -f plain; rc=$?
+        behave $DIR/nmcli/features -t $1 -t $TAG -k -f html -o /tmp/report_$NMTEST.html -f plain; rc=$?
 
     # if not
     else
@@ -49,7 +47,7 @@ elif [ $vc -eq 0 ]; then
 
         # if we do not have tag or gsm_hub
         else
-            behave $DIR/nmcli/features -t $1 -k -f html -o "$NMTEST_REPORT" -f plain; rc=$?
+            behave $DIR/nmcli/features -t $1 -k -f html -o /tmp/report_$NMTEST.html -f plain; rc=$?
         fi
     fi
 fi
@@ -64,11 +62,7 @@ else
     RESULT="FAIL"
 fi
 
-if test "$RESULT" = SKIP -a -f "$NMTEST_REPORT" -a '!' -s "$NMTEST_REPORT" ; then
-    echo "TEST SKIPPED" >> "$NMTEST_REPORT"
-fi
-
-rstrnt-report-result -o "$NMTEST_REPORT" $NMTEST $RESULT
+rstrnt-report-result -o "/tmp/report_$NMTEST.html" $NMTEST $RESULT
 
 logger -t $0 "Test $1 finished with result $RESULT: $rc"
 
