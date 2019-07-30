@@ -1061,6 +1061,38 @@ def before_scenario(context, scenario):
                 call('systemctl restart openvswitch', shell=True)
                 call('systemctl restart NetworkManager', shell=True)
 
+        if 'dpdk' in scenario.tags:
+            print ("---------------------------")
+            print ("Setting dpdk openvswitch")
+            print (" * enable hugepages")
+            call("sysctl -w vm.nr_hugepages=10", shell=True)
+
+            print (" * install dpdk")
+            call('yum -y install dpdk dpdk-tools', shell=True)
+
+            print (" add root:root to run hugetlbfs in /etc/openvswitch")
+            call('sed -i.bak s/openvswitch:hugetlbfs/root:root/g /etc/sysconfig/openvswitch', shell=True)
+
+            print (" * enable dpdk in openvswitch")
+            call('ovs-vsctl --no-wait set Open_vSwitch . other_config:dpdk-init=true', shell=True)
+
+            print (" * modprobe vfio-pci to be used as dpdk NIC driver")
+            call('modprobe vfio-pci', shell=True)
+
+            print (" * enable unsafe_noiommu_mode")
+            call('echo 1 > /sys/module/vfio/parameters/enable_unsafe_noiommu_mode', shell=True)
+
+            print (" * enable two VFs")
+            call('nmcli  connection add type ethernet ifname em2 con-name dpdk-sriov sriov.total-vfs 2', shell=True)
+            call('nmcli  connection up dpdk-sriov', shell=True)
+
+            print (" * add both VFs to DPDK")
+            call('dpdk-devbind -b vfio-pci 0000:01:10.3', shell=True)
+            call('dpdk-devbind -b vfio-pci 0000:01:10.1', shell=True)
+
+            call('systemctl restart openvswitch', shell=True)
+            call('systemctl restart NetworkManager', shell=True)
+
         if 'wireless_certs' in scenario.tags:
             print ("---------------------------")
             print ("download certs if needed")
@@ -2028,7 +2060,7 @@ def after_scenario(context, scenario):
             call('sudo ifdown eth1', shell=True)
             call('sudo ifdown eth2', shell=True)
             call('sudo ifdown ovsbridge0', shell=True)
-            call('sudo nmcli con del eth1 eth2 ovs-bond0 ovs-port0 ovs-bridge0 ovs-port1 ovs-eth2 ovs-eth3 ovs-iface0 eth2', shell=True) # to be sure
+            call('sudo nmcli con del eth1 eth2 ovs-bond0 ovs-port0 ovs-bridge0 ovs-port1 ovs-eth2 ovs-eth3 ovs-iface0 eth2 dpdk-sriov', shell=True) # to be sure
             sleep(1)
             call('ovs-vsctl del-br ovsbr0', shell=True)
             call('ovs-vsctl del-br ovsbridge0', shell=True)
@@ -2045,6 +2077,12 @@ def after_scenario(context, scenario):
             call('nmcli con down testeth1', shell=True)
             call('nmcli con up testeth2', shell=True)
             call('nmcli con down testeth2', shell=True)
+
+        if 'dpdk' in scenario.tags:
+            print ("---------------------------")
+            print ("remove dpdk residuals")
+            call('nmcli con del dpdk-sriov ovs-iface1', shell=True)
+            call('systemctl stop openvswitch ', shell=True)
 
         if 'remove_custom_cfg' in scenario.tags:
             print("---------------------------")

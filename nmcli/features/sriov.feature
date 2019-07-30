@@ -143,9 +143,7 @@
     @sriov
     @sriov_con_drv_set_VF_to_0
     Scenario: nmcli - sriov - set VF number to 0
-    * Add a new connection of type "ethernet" and options "ifname em2 con-name sriov sriov.total-vfs 1"
-    When "1" is visible with command "cat /sys/class/net/em2/device/sriov_numvfs"
-    And "em2_0" is visible with command "nmcli  device" in "10" seconds
+    * Add a new connection of type "ethernet" and options "ifname em2 con-name sriov sriov.total-vfs 1 autoconnect no"
     * Execute "nmcli connection modify sriov sriov.total-vfs 0"
     * Bring "up" connection "sriov"
     Then "1" is not visible with command "cat /sys/class/net/em2/device/sriov_numvfs"

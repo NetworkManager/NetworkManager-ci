@@ -60,7 +60,7 @@ beaker-hardware:
       NetworkManager-dcb:
         - x86_64:
             hostname: dell-per720-03.klab.eng.bos.redhat.com
-            kernel-options: biosdevname=1
+            kernel-options: biosdevname=1 default_hugepagesz=1G hugepagesz=1G hugepages=32 iommu=on intel_iommu=pt
 
 setup:
 
@@ -2687,4 +2687,8 @@ testmapper:
     - sriov_con_add_VF_spoof_off:
         feature: sriov
     - sriov_con_add_VF_spoof:
+        feature: sriov
+    - add_dpdk_port:
+        feature: sriov
+    - add_dpdk_bond_sriov:
         feature: sriov
