@@ -76,6 +76,7 @@ Feature: nmcli: gsm
      And "mtu 1500" is visible with command "nmcli |grep gsm"
     * Execute "nmcli con modify gsm gsm.mtu 1600"
     * Bring "down" connection "gsm"
+    * Execute "nmcli device delete modemu"
     * Execute "sh preapre/gsm_sim.sh modemu"
     When "gsm" is visible with command "nmcli device status | grep -v unmanaged" in "60" seconds
     * Bring "up" connection "gsm"
@@ -96,6 +97,7 @@ Feature: nmcli: gsm
     And "proto kernel scope" is visible with command "ip r |grep 700"
     * Execute "nmcli con modify gsm ipv4.route-metric 120"
     * Bring "down" connection "gsm"
+    * Execute "nmcli device delete modemu"
     * Execute "sh preapre/gsm_sim.sh modemu"
     When "gsm" is visible with command "nmcli device status | grep -v unmanaged" in "60" seconds
     * Bring "up" connection "gsm"
