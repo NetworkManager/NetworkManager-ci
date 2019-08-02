@@ -7,7 +7,7 @@ function modem_setup ()
     do
         echo 0 > $i
     done
-    
+
     # get modemu script from NM repo
     #[ -f /tmp/gsm_sim.pl ] ||  wget -O /tmp/gsm_sim.pl https://raw.githubusercontent.com/NetworkManager/NetworkManager/master/contrib/test/modemu.pl
 
@@ -27,8 +27,8 @@ function modem_setup ()
 
 function modem_teardown ()
 {
-    nmcli con down id gsm
-    nmcli con del id gsm
+    #nmcli con down id gsm
+    #nmcli con del id gsm
     # kill while loop, prevent spawning another perl
     kill $(cat /tmp/gsm_sim.pid)
     # now kill remaining perl (if not killed behave hangs)

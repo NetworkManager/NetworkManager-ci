@@ -2177,7 +2177,8 @@ def after_scenario(context, scenario):
 
         if 'gsm_sim' in scenario.tags:
             call("sudo prepare/gsm_sim.sh teardown", shell=True)
-
+            call("nmcli con del id gsm", shell=True)
+            
         if 'add_testeth10' in scenario.tags:
             print ("---------------------------")
             print ("restoring testeth10 profile")
