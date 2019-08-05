@@ -10,14 +10,7 @@
     @alias
     @alias_ifcfg_add_single_alias
     Scenario: ifcfg - alias - add single alias
-    * Add connection type "ethernet" named "eth7" for device "eth7"
-    * Open editor for connection "eth7"
-    * Submit "set ipv4.method manual" in editor
-    * Submit "set ipv4.addresses 192.168.0.100/24" in editor
-    * Submit "set ipv4.gateway 192.168.0.1" in editor
-    * Save in editor
-    * Quit editor
-
+    * Add a new connection of type "ethernet" and options "ifname eth7 con-name eth7 autoconnect yes ipv4.may-fail no ipv4.method manual ipv4.addresses 192.168.0.100/24 ipv4.gateway 192.168.0.1"
     * Append "DEVICE='eth7:0'" to ifcfg file "eth7:0"
     * Append "GATEWAY=192.168.0.1" to ifcfg file "eth7:0"
     * Append "IPADDR=192.168.0.101" to ifcfg file "eth7:0"
@@ -31,14 +24,7 @@
     @alias
     @alias_ifcfg_add_multiple_aliases
     Scenario: ifcfg - alias - add mutliple aliases
-    * Add connection type "ethernet" named "eth7" for device "eth7"
-    * Open editor for connection "eth7"
-    * Submit "set ipv4.method manual" in editor
-    * Submit "set ipv4.addresses 192.168.0.100/24" in editor
-    * Submit "set ipv4.gateway 192.168.0.1" in editor
-    * Save in editor
-    * Quit editor
-
+    * Add a new connection of type "ethernet" and options "ifname eth7 con-name eth7 autoconnect yes ipv4.may-fail no ipv4.method manual ipv4.addresses 192.168.0.100/24 ipv4.gateway 192.168.0.1"
     * Append "DEVICE='eth7:0'" to ifcfg file "eth7:0"
     * Append "GATEWAY=192.168.0.1" to ifcfg file "eth7:0"
     * Append "IPADDR=192.168.0.101" to ifcfg file "eth7:0"
@@ -66,14 +52,7 @@
     @alias
     @alias_ifcfg_connection_restart
     Scenario: ifcfg - alias - connection restart
-    * Add connection type "ethernet" named "eth7" for device "eth7"
-    * Open editor for connection "eth7"
-    * Submit "set ipv4.method manual" in editor
-    * Submit "set ipv4.addresses 192.168.0.100/24" in editor
-    * Submit "set ipv4.gateway 192.168.0.1" in editor
-    * Save in editor
-    * Quit editor
-
+    * Add a new connection of type "ethernet" and options "ifname eth7 con-name eth7 autoconnect yes ipv4.may-fail no ipv4.method manual ipv4.addresses 192.168.0.100/24 ipv4.gateway 192.168.0.1"
     * Append "DEVICE='eth7:0'" to ifcfg file "eth7:0"
     * Append "GATEWAY=192.168.0.1" to ifcfg file "eth7:0"
     * Append "IPADDR=192.168.0.101" to ifcfg file "eth7:0"
@@ -103,14 +82,7 @@
     @alias
     @alias_ifcfg_remove_single_alias
     Scenario: ifcfg - alias - remove single alias
-    * Add connection type "ethernet" named "eth7" for device "eth7"
-    * Open editor for connection "eth7"
-    * Submit "set ipv4.method manual" in editor
-    * Submit "set ipv4.addresses 192.168.0.100/24" in editor
-    * Submit "set ipv4.gateway 192.168.0.1" in editor
-    * Save in editor
-    * Quit editor
-
+    * Add a new connection of type "ethernet" and options "ifname eth7 con-name eth7 autoconnect yes ipv4.may-fail no ipv4.method manual ipv4.addresses 192.168.0.100/24 ipv4.gateway 192.168.0.1"
     * Append "DEVICE='eth7:0'" to ifcfg file "eth7:0"
     * Append "GATEWAY=192.168.0.1" to ifcfg file "eth7:0"
     * Append "IPADDR=192.168.0.101" to ifcfg file "eth7:0"
@@ -141,14 +113,7 @@
     @alias
     @alias_ifcfg_remove_all_aliases
     Scenario: ifcfg - alias - remove all aliases
-    * Add connection type "ethernet" named "eth7" for device "eth7"
-    * Open editor for connection "eth7"
-    * Submit "set ipv4.method manual" in editor
-    * Submit "set ipv4.addresses 192.168.0.100/24" in editor
-    * Submit "set ipv4.gateway 192.168.0.1" in editor
-    * Save in editor
-    * Quit editor
-
+    * Add a new connection of type "ethernet" and options "ifname eth7 con-name eth7 autoconnect yes ipv4.may-fail no ipv4.method manual ipv4.addresses 192.168.0.100/24 ipv4.gateway 192.168.0.1"
     * Append "DEVICE='eth7:0'" to ifcfg file "eth7:0"
     * Append "GATEWAY=192.168.0.1" to ifcfg file "eth7:0"
     * Append "IPADDR=192.168.0.101" to ifcfg file "eth7:0"
@@ -187,14 +152,7 @@
     @veth @alias @restart
     @alias_ifcfg_reboot
     Scenario: ifcfg - alias - reboot
-    * Add connection type "ethernet" named "eth7" for device "eth7"
-    * Open editor for connection "eth7"
-    * Submit "set ipv4.method manual" in editor
-    * Submit "set ipv4.addresses 192.168.0.100/24" in editor
-    * Submit "set ipv4.gateway 192.168.0.1" in editor
-    * Save in editor
-    * Quit editor
-
+    * Add a new connection of type "ethernet" and options "ifname eth7 con-name eth7 autoconnect yes ipv4.may-fail no ipv4.method manual ipv4.addresses 192.168.0.100/24 ipv4.gateway 192.168.0.1"
     * Append "DEVICE='eth7:0'" to ifcfg file "eth7:0"
     * Append "GATEWAY=192.168.0.1" to ifcfg file "eth7:0"
     * Append "IPADDR=192.168.0.101" to ifcfg file "eth7:0"
