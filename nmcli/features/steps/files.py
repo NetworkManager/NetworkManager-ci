@@ -65,6 +65,8 @@ def is_file(context, path):
 @step('"{filename}" is symlink')
 @step('"{filename}" is symlink with destination "{destination}"')
 def is_file(context, filename, destination=None):
+    if "<noted_value>" in filename:
+        filename = filename.replace("<noted_value>", context.noted_value)
     assert os.path.islink(filename), '"%s" is not a symlink' % filename
     realpath = os.path.realpath(filename)
     if destination is None:
