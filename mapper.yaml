@@ -50,9 +50,9 @@ beaker-hardware:
       NetworkManager-infiniband:
         - x86_64:
             # hostname: rdma-dev-01.lab.bos.redhat.com
-            hostname: rdma-qe-06.lab.bos.redhat.com
+            # hostname: rdma-qe-06.lab.bos.redhat.com
             # hostname: rdma-dev-00.lab.bos.redhat.com
-            # hostname: rdma-perf-00.lab.bos.redhat.com
+            hostname: rdma-perf-00.lab.bos.redhat.com
 
       NetworkManager-gsm:
         - x86_64:
