@@ -174,6 +174,29 @@ def dump_status(context, when):
                 call(cmd, shell=True, stdout=context.log)
     context.log.write("==================================================================================\n\n\n")
 
+def get_coredump(timestamp):
+    cdump = pexpect.spawn('coredumpctl --no-pager --since @%d debug NetworkManager' % timestamp)
+    # set window size, --no-pager does not seems to work for inner gdb
+    cdump.setwinsize(1000,1000)
+    if cdump.expect(['\(gdb\) ', pexpect.EOF]) == 1:
+        return "!!! coredumpctl detetcted no NM crash, but NM pid changed !!!"
+    out = cdump.before.decode('utf-8') + cdump.after.decode('utf-8')
+    cdump.sendline('backtrace')
+    cdump.sendeof()
+    cdump.expect(pexpect.EOF)
+    out += cdump.before.decode('utf-8')
+    return out
+
+def get_faf_link(timestamp):
+    call('yum -y install abrt-cli', shell=True)
+    p = Popen('abrt-cli list --since %d | grep Reported:' % (timestamp), shell=True, stdin=PIPE, stdout=PIPE, stderr=PIPE, bufsize=-1)
+    faf_link, _ = p.communicate()
+    if faf_link:
+        faf_link = faf_link.decode('utf-8')
+    else:
+        faf_link = "!!! abrt detected no NM crash, but NM pid changed !!!"
+    return faf_link
+
 def reset_usb_devices():
     USBDEVFS_RESET= 21780
     def getfile(dirname, filename):
@@ -342,6 +365,9 @@ def before_scenario(context, scenario):
         # dump status before the test preparation starts
         context.log = open('/tmp/log_%s.html' % scenario.name,'w')
         dump_status(context, 'before %s' % scenario.name)
+
+        import time
+        context.start_timestamp = int(time.time())
 
         if 'long' in scenario.tags:
             print ("---------------------------")
@@ -2370,7 +2396,7 @@ def after_scenario(context, scenario):
                     call('ip link set eth%d up' % link, shell=True)
 
 
-        if scenario.status == 'failed':
+        if scenario.status == 'failed' or context.crashed_step:
             dump_status(context, 'after cleanup %s' % scenario.name)
 
             # Attach journalctl logs
@@ -2402,7 +2428,12 @@ def after_scenario(context, scenario):
             print ("!! NM CRASHED. NEEDS INSPECTION. FAILING THE TEST                      !!")
             print(("!! CRASHING STEP: %s" %(context.crashed_step)))
             print ("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n\n")
-            sys.exit(1)
+            context.embed('text/plain', context.crashed_step, caption="CRASHED_STEP_NAME")
+            coredump = get_coredump(context.start_timestamp)
+            context.embed('text/plain', coredump, caption="COREDUMP")
+            faf_link = get_faf_link(context.start_timestamp)
+            context.embed('text/plain', faf_link, caption="FAF")
+
 
     except Exception as e:
         print(("Error in after_scenario"))

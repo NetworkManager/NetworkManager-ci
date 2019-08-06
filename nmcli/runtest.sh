@@ -24,6 +24,8 @@ if [ -z "$NMTEST" ]; then
     exit 128
 fi
 
+NMTEST_REPORT=/tmp/report_$NMTEST.html
+
 #check if NM version is correct for test
 TAG="$(python $DIR/version_control.py $DIR/nmcli $NMTEST)"; vc=$?
 if [ $vc -eq 1 ]; then
@@ -36,7 +38,7 @@ elif [ $vc -eq 0 ]; then
     # if yes, run with -t $TAG
     if [ x$TAG != x"" ]; then
         logger "Running $TAG version of $NMTEST"
-        behave $DIR/nmcli/features -t $1 -t $TAG -k -f html -o /tmp/report_$NMTEST.html -f plain; rc=$?
+        behave $DIR/nmcli/features -t $1 -t $TAG -k -f html -o "$NMTEST_REPORT" -f plain; rc=$?
 
     # if not
     else
@@ -47,7 +49,7 @@ elif [ $vc -eq 0 ]; then
 
         # if we do not have tag or gsm_hub
         else
-            behave $DIR/nmcli/features -t $1 -k -f html -o /tmp/report_$NMTEST.html -f plain; rc=$?
+            behave $DIR/nmcli/features -t $1 -k -f html -o "$NMTEST_REPORT" -f plain; rc=$?
         fi
     fi
 fi
@@ -62,7 +64,13 @@ else
     RESULT="FAIL"
 fi
 
-rstrnt-report-result -o "/tmp/report_$NMTEST.html" $NMTEST $RESULT
+# check for NM crash
+if grep -q CRASHED_STEP_NAME "$NMTEST_REPORT" ; then
+    RESULT="FAIL"
+    rc=1
+fi
+
+rstrnt-report-result -o "$NMTEST_REPORT" $NMTEST $RESULT
 
 logger -t $0 "Test $1 finished with result $RESULT: $rc"
 
