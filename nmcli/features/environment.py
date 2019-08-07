@@ -349,6 +349,9 @@ def reload_NM_service():
     call("pkill -HUP NetworkManager", shell=True)
     sleep(1)
 
+def restart_NM_service():
+    call("sudo systemctl restart NetworkManager.service", shell=True)
+
 def before_scenario(context, scenario):
     try:
         if not os.path.isfile('/tmp/nm_wifi_configured') and not os.path.isfile('/tmp/nm_dcb_inf_wol_sriov_configured'):
@@ -714,13 +717,13 @@ def before_scenario(context, scenario):
             print ("---------------------------")
             print ("set internal DHCP")
             call("printf '# configured by beaker-test\n[main]\ndhcp=internal\n' > /etc/NetworkManager/conf.d/99-xtest-dhcp-internal.conf", shell=True)
-            call('sudo systemctl restart NetworkManager.service', shell=True)
+            restart_NM_service()
 
         if 'dhclient_DHCP' in scenario.tags:
             print ("---------------------------")
             print ("set dhclient DHCP")
             call("printf '# configured by beaker-test\n[main]\ndhcp=dhclient\n' > /etc/NetworkManager/conf.d/99-xtest-dhcp-dhclient.conf", shell=True)
-            call('sudo systemctl restart NetworkManager.service', shell=True)
+            restart_NM_service()
 
         if 'dhcpd' in scenario.tags:
             print ("---------------------------")
@@ -786,7 +789,7 @@ def before_scenario(context, scenario):
             call("echo 'level=INFO' >> %s" %log, shell=True)
             call("echo 'domains=ALL' >> %s" %log, shell=True)
             sleep(0.5)
-            call('sudo systemctl restart NetworkManager.service', shell=True)
+            restart_NM_service()
             context.nm_restarted = True
             sleep(1)
 
@@ -797,7 +800,7 @@ def before_scenario(context, scenario):
             call('sudo pkill -9 /sbin/dhclient', shell=True)
             # Make orig- devices unmanaged as they may be unfunctional
             call('for dev in $(nmcli  -g DEVICE d |grep orig); do nmcli device set $dev managed off; done', shell=True)
-            call('sudo systemctl restart NetworkManager.service', shell=True)
+            restart_NM_service()
             call('sudo systemctl restart network.service', shell=True)
             call("nmcli connection up testeth0", shell=True)
             sleep(1)
@@ -872,7 +875,9 @@ def before_scenario(context, scenario):
             # Install under RHEL7 only
             if call("grep -q Maipo /etc/redhat-release", shell=True) == 0:
                 call("[ -f /etc/yum.repos.d/epel.repo ] || sudo rpm -i http://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm", shell=True)
-            call("rpm -q NetworkManager-vpnc || ( sudo yum -y install NetworkManager-vpnc && systemctl restart NetworkManager )", shell=True)
+            if call("rpm -q NetworkManager-vpnc", shell=True) != 0:
+                call("sudo yum -y install NetworkManager-vpnc", shell=True)
+                restart_NM_service()
             setup_racoon (mode="aggressive", dh_group=2)
 
         if 'tcpreplay' in scenario.tags:
@@ -898,7 +903,9 @@ def before_scenario(context, scenario):
             if call("grep -q Maipo /etc/redhat-release", shell=True) == 0:
                 call("[ -f /etc/yum.repos.d/epel.repo ] || sudo rpm -i http://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm", shell=True)
             call("[ -x /usr/sbin/openvpn ] || sudo yum -y install openvpn NetworkManager-openvpn", shell=True)
-            call("rpm -q NetworkManager-openvpn || ( sudo yum -y install NetworkManager-openvpn-1.0.8-1.el7.$(uname -p).rpm && systemctl restart NetworkManager )", shell=True)
+            if call("rpm -q NetworkManager-openvpn", shell=True) != 0:
+                call("sudo yum -y install NetworkManager-openvpn-1.0.8-1.el7.$(uname -p).rpm", shell=True)
+                restart_NM_service()
 
             # This is an internal RH workaround for secondary architecures that are not present in EPEL
 
@@ -942,7 +949,9 @@ def before_scenario(context, scenario):
         if 'libreswan' in scenario.tags:
             print ("---------------------------")
             wait_for_testeth0()
-            call("rpm -q NetworkManager-libreswan || ( sudo yum -y install NetworkManager-libreswan && systemctl restart NetworkManager )", shell=True)
+            if call("rpm -q NetworkManager-libreswan", shell=True) != 0:
+                call("sudo yum -y install NetworkManager-libreswan", shell=True)
+                restart_NM_service()
             call("/usr/sbin/ipsec --checknss", shell=True)
             ike="ikev1"
             if 'ikev2' in scenario.tags:
@@ -1081,11 +1090,11 @@ def before_scenario(context, scenario):
             if call('rpm -q NetworkManager-ovs', shell=True) != 0:
                 call('yum -y install NetworkManager-ovs', shell=True)
                 call('systemctl daemon-reload', shell=True)
-                call('systemctl restart NetworkManager', shell=True)
+                restart_NM_service()
             if call('systemctl is-active openvswitch', shell=True) != 0:
                 call('yum -y install openvswitch', shell=True)
                 call('systemctl restart openvswitch', shell=True)
-                call('systemctl restart NetworkManager', shell=True)
+                restart_NM_service()
 
         if 'dpdk' in scenario.tags:
             print ("---------------------------")
@@ -1117,7 +1126,7 @@ def before_scenario(context, scenario):
             call('dpdk-devbind -b vfio-pci 0000:01:10.1', shell=True)
 
             call('systemctl restart openvswitch', shell=True)
-            call('systemctl restart NetworkManager', shell=True)
+            restart_NM_service()
 
         if 'wireless_certs' in scenario.tags:
             print ("---------------------------")
@@ -1316,7 +1325,7 @@ def after_scenario(context, scenario):
             call("for i in $(pidof nm-iface-helper); do kill -9 $i; done", shell=True)
             call("rm -rf /etc/NetworkManager/conf.d/01-run-once.conf", shell=True)
             sleep (1)
-            call("systemctl restart  NetworkManager", shell=True)
+            restart_NM_service()
             sleep (1)
             call("for i in $(pidof nm-iface-helper); do kill -9 $i; done", shell=True)
             call("nmcli connection delete con_general", shell=True)
@@ -1330,7 +1339,7 @@ def after_scenario(context, scenario):
             print ("---------------------------")
             print ("restarting NM service")
             if call("systemctl is-active NetworkManager", shell=True) != 0:
-                call('sudo systemctl restart NetworkManager', shell=True)
+                restart_NM_service()
             if not os.path.isfile('/tmp/nm_dcb_inf_wol_sriov_configured'):
                 wait_for_testeth0()
 
@@ -1523,7 +1532,7 @@ def after_scenario(context, scenario):
             print ("remove info only logging")
             log = "/etc/NetworkManager/conf.d/99-xlogging.conf"
             call("rm -rf %s" %log,  shell=True)
-            call('sudo systemctl restart NetworkManager.service', shell=True)
+            restart_NM_service()
             sleep(1)
 
         if 'stop_radvd' in scenario.tags:
@@ -1630,13 +1639,13 @@ def after_scenario(context, scenario):
             print ("---------------------------")
             print ("revert internal DHCP")
             call("rm -f /etc/NetworkManager/conf.d/99-xtest-dhcp-internal.conf", shell=True)
-            call('sudo systemctl restart NetworkManager.service', shell=True)
+            restart_NM_service()
 
         if 'dhclient_DHCP' in scenario.tags:
             print ("---------------------------")
             print ("revert dhclient DHCP")
             call("rm -f /etc/NetworkManager/conf.d/99-xtest-dhcp-dhclient.conf", shell=True)
-            call('sudo systemctl restart NetworkManager.service', shell=True)
+            restart_NM_service()
 
         if 'dhcpd' in scenario.tags:
             print ("---------------------------")
@@ -2275,7 +2284,7 @@ def after_scenario(context, scenario):
             print ("remove non utf-8 device")
             call("nmcli device delete 'd\\314f\\\\c'", shell=True)
             call("ip link del $'d\xccf\\c'", shell=True)
-            call('systemctl restart NetworkManager', shell=True)
+            restart_NM_service()
 
         if 'shutdown' in scenario.tags:
             print ("---------------------------")
