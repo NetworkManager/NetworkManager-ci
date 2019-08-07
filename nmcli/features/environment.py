@@ -1211,10 +1211,7 @@ def before_scenario(context, scenario):
             os.system("echo '~~~~~~~~~~~~~~~~~~~~~~~~~~ TRAFFIC LOG ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~' > /tmp/network-traffic.log")
             Popen("sudo tcpdump -nne -i any >> /tmp/network-traffic.log", shell=True)
 
-        try:
-            context.nm_pid = nm_pid()
-        except CalledProcessError as e:
-            context.nm_pid = None
+        context.nm_pid = nm_pid()
 
         context.nm_restarted = False
         context.crashed_step = False
@@ -1265,18 +1262,9 @@ def after_step(context, step):
 def after_scenario(context, scenario):
     """
     """
-    nm_pid_after = None
-    try:
-        nm_pid_after = nm_pid()
-        print(("NetworkManager process id after: %s (was %s)" % (nm_pid_after, context.nm_pid)))
-        # if getattr(context, 'nm_restarted', False) or \
-        #     'restart' in scenario.tags or \
-        #     nm_pid_after != context.nm_pid:
-        #
+    nm_pid_after = nm_pid()
+    print(("NetworkManager process id after: %s (was %s)" % (nm_pid_after, context.nm_pid)))
 
-    except Exception as e:
-        print(("nm_pid wasn't set. Probably crash in before_scenario"))
-        pass
 
     try:
         #attach network traffic log
@@ -2204,7 +2192,7 @@ def after_scenario(context, scenario):
         if 'gsm_sim' in scenario.tags:
             call("sudo prepare/gsm_sim.sh teardown", shell=True)
             call("nmcli con del id gsm", shell=True)
-            
+
         if 'add_testeth10' in scenario.tags:
             print ("---------------------------")
             print ("restoring testeth10 profile")
