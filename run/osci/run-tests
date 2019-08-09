@@ -58,9 +58,9 @@ function run_tests ()
     for T in $TESTS; do
         echo "RUNING $T"
         if [[ $T == *nmtui* ]]; then
-            NMTEST=NetworkManager-ci_Test$COUNTER"_"$T nmtui/./runtest.sh $T; rc=$?
+            TEST=NetworkManager-ci_Test$COUNTER"_"$T nmtui/./runtest.sh $T; rc=$?
         else
-            NMTEST=NetworkManager-ci_Test$COUNTER"_"$T nmcli/./runtest.sh $T; rc=$?
+            TEST=NetworkManager-ci_Test$COUNTER"_"$T nmcli/./runtest.sh $T; rc=$?
         fi
 
         if [ $rc -ne 0 ]; then
