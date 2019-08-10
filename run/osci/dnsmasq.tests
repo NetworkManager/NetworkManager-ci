@@ -5,3 +5,5 @@ set_mtu_from_DHCP
 pull_hostname_from_dhcp
 ipv6_set_ra_announced_mtu
 nmcli_device_disconnect
+ipv6_no_activation_schedule_error_in_logs
+ipv6_DHCPv6
