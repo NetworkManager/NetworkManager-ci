@@ -1225,7 +1225,16 @@
     * Bring "up" connection "con_ipv6"
     * Bring "up" connection "con_ipv6"
     * Bring "up" connection "con_ipv6"
-    Then "activation_source_schedule" is not visible with command "journalctl --since -4m|grep error"
+    Then "activation_source_schedule" is not visible with command "journalctl --since -1m|grep error"
+
+
+    @con_ipv6_remove @internal_DHCP @teardown_testveth @long
+    @ipv6_DHCPv6
+    Scenario: NM - ipv6 - internal DHCPv6
+    * Prepare simulated test "testX6" device
+    * Add a new connection of type "ethernet" and options "ifname testX6 con-name con_ipv6 autoconnect no ipv4.method disabled ipv6.method dhcp"
+    * Bring "up" connection "con_ipv6"
+    Then "testX6\s+ethernet\s+connected" is visible with command "nmcli device" in "20" seconds
 
 
     @rhbz1268866
@@ -1239,7 +1248,8 @@
     * Submit "set ipv6.method dhcp" in editor
     * Save in editor
     * Quit editor
-    * Execute "nmcli con up id con_ipv6" for "100" times
+    * Execute "nmcli con up id con_ipv6" for "50" times
+
 
     @ver-=1.6
     @con_ipv6_remove @restart @selinux_allow_ifup @teardown_testveth

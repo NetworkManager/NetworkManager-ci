@@ -1179,6 +1179,7 @@ Feature: nmcli - general
     Scenario: nmcli - general - wait for carrier on new device activation request
     * Add a new connection of type "ethernet" and options "ifname testG con-name con_general autoconnect no"
     * Prepare simulated veth device "testG" wihout carrier
+    * Wait for at least "1" seconds
     * Execute "nmcli con modify con_general ipv4.may-fail no"
     * Execute "nmcli con up con_general" without waiting for process to finish
     * Wait for at least "1" seconds

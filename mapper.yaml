@@ -552,6 +552,8 @@ testmapper:
         tags: gate
     - ipv6_send_fqdn.fqdn_to_dhcpv6:
         feature: ipv6
+    - ipv6_DHCPv6:
+        feature: ipv6
     - ipv6_secondary_address:
         feature: ipv6
     - ipv6_ip6-privacy_0:
