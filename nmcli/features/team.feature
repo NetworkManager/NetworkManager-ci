@@ -54,6 +54,7 @@
 
     @team_slaves @team
     @nmcli_novice_mode_create_team-slave_with_default_options
+    @ver-=1.20
     Scenario: nmcli - team - novice - create team-slave with default options
      * Add connection type "team" named "team0" for device "nm-team"
      * Open wizard for adding new connection
@@ -63,6 +64,26 @@
      * Submit "eth5" in editor
      * Expect "aster"
      * Submit "nm-team" in editor
+     * Expect "There .* optional"
+     * Submit "no" in editor
+     * Bring "up" connection "team-slave-eth5"
+    Then Check slave "eth5" in team "nm-team" is "up"
+
+
+    @team_slaves @team
+    @nmcli_novice_mode_create_team-slave_with_default_options
+    @ver+=1.21.1
+    Scenario: nmcli - team - novice - create team-slave with default options
+     * Add connection type "team" named "team0" for device "nm-team"
+     * Open wizard for adding new connection
+     * Expect "Connection type"
+     * Submit "team-slave" in editor
+     * Expect "aster"
+     * Submit "nm-team" in editor
+     * Expect "There .* optional.*for General"
+     * Submit "yes" in editor
+     * Expect "Interface name"
+     * Submit "eth5" in editor
      * Expect "There .* optional"
      * Submit "no" in editor
      * Bring "up" connection "team-slave-eth5"
