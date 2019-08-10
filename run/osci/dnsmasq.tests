@@ -1,9 +1,8 @@
-nmcli_general_wait_for_carrier_on_new_device_request
-ipv6_preserve_cached_routes
 bond_add_default_bond
+nmcli_device_disconnect
 set_mtu_from_DHCP
 pull_hostname_from_dhcp
 ipv6_set_ra_announced_mtu
-nmcli_device_disconnect
+ipv6_preserve_cached_routes
 ipv6_no_activation_schedule_error_in_logs
 ipv6_DHCPv6
