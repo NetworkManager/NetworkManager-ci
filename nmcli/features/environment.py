@@ -174,28 +174,78 @@ def dump_status(context, when):
                 call(cmd, shell=True, stdout=context.log)
     context.log.write("==================================================================================\n\n\n")
 
-def get_coredump(timestamp):
-    cdump = pexpect.spawn('coredumpctl --no-pager --since @%d debug NetworkManager' % timestamp)
-    # set window size, --no-pager does not seems to work for inner gdb
-    cdump.setwinsize(1000,1000)
-    if cdump.expect(['\(gdb\) ', pexpect.EOF]) == 1:
-        return "!!! coredumpctl detetcted no NM crash, but NM pid changed !!!"
-    out = cdump.before.decode('utf-8') + cdump.after.decode('utf-8')
-    cdump.sendline('backtrace')
-    cdump.sendeof()
-    cdump.expect(pexpect.EOF)
-    out += cdump.before.decode('utf-8')
-    return out
+def check_dump_package(pkg_name):
+    if pkg_name in ["NetworkManager","ModemManager"]:
+        return True
+    return False
 
-def get_faf_link(timestamp):
-    call('yum -y install abrt-cli', shell=True)
-    p = Popen('abrt-cli list --since %d | grep Reported:' % (timestamp), shell=True, stdin=PIPE, stdout=PIPE, stderr=PIPE, bufsize=-1)
-    faf_link, _ = p.communicate()
-    if faf_link:
-        faf_link = faf_link.decode('utf-8')
-    else:
-        faf_link = "!!! abrt detected no NM crash, but NM pid changed !!!"
-    return faf_link
+def is_dump_reported(dump_dir):
+    return call('grep -q "%s" /tmp/reported_crashes' % (dump_dir), shell=True) == 0
+
+def embed_dump(context, dump_dir, dump_output, caption):
+    print("Attaching %s, %s" % (caption, dump_dir))
+    context.embed('text/plain', dump_output, caption=caption)
+    context.crash_embeded = True
+    with open("/tmp/reported_crashes", "a") as f:
+        f.write(dump_dir+"\n")
+        f.close()
+    if not context.crashed_step:
+        if context.nm_restarted:
+            context.crashed_step = "crash during scenario (NM restarted, not sure where was the crash)"
+        else:
+            context.crashed_step = "crash outside steps (envsetup, before / after scenario...)"
+
+def list_dumps(dumps_search):
+    p = Popen("ls -d %s" % (dumps_search), shell=True, stdin=PIPE, stdout=PIPE, stderr=PIPE, bufsize=-1)
+    list_of_dumps, _ = p.communicate()
+    return list_of_dumps.decode('utf-8').strip('\n').split('\n')
+
+def check_coredump(context):
+    coredump_search = "/var/lib/systemd/coredump/*"
+    list_of_dumps =list_dumps(coredump_search)
+
+    for dump_dir in list_of_dumps:
+        if not dump_dir:
+            continue
+        print("Examing crash: " + dump_dir)
+        dump_dir_split = dump_dir.split('.')
+        if len(dump_dir_split) < 6:
+            print("Some garbage in %s" % (dump_dir))
+            continue
+        if not check_dump_package(dump_dir_split[1]):
+            continue
+        try:
+            pid, dump_timestamp = int(dump_dir_split[4]), int(dump_dir_split[5])
+        except Exception as e:
+            print("Some garbage in %s: %s" % (dump_dir, str(e)))
+            continue
+        if not is_dump_reported(dump_dir):
+            p = Popen('echo backtrace | coredumpctl debug %d' % (pid), shell=True, stdin=PIPE, stdout=PIPE, stderr=PIPE, bufsize=-1)
+            dump_output, _ = p.communicate()
+            embed_dump(context, dump_dir, dump_output.decode('utf-8'), caption="COREDUMP")
+
+def check_faf(context):
+    abrt_search = "/var/spool/abrt/ccpp*"
+    list_of_dumps =list_dumps(abrt_search)
+    for dump_dir in list_of_dumps:
+        if not dump_dir:
+            continue
+        print("Examing crash: " + dump_dir)
+        with open("%s/pkg_name" % (dump_dir), "r") as f:
+            pkg = f.read()
+        if not check_dump_package(pkg):
+            continue
+        with open("%s/last_occurrence" % (dump_dir), "r") as f:
+            last_timestamp = f.read()
+        # append last_timestamp, to check if last occurrence is reported
+        if not is_dump_reported("%s-%s" % (dump_dir, last_timestamp)):
+            with open("%s/reported_to" % (dump_dir), "r") as f:
+                reports = f.read().strip("\n").split("\n")
+            url = ""
+            for report in reports:
+                if "URL=" in report:
+                    url = report.replace("URL=","")
+            embed_dump(context, "%s-%s" % (dump_dir ,last_timestamp), url, caption="FAF")
 
 def reset_usb_devices():
     USBDEVFS_RESET= 21780
@@ -2393,6 +2443,17 @@ def after_scenario(context, scenario):
                     call('ip link set eth%d up' % link, shell=True)
 
 
+        # check for crash reports and embed them
+        # sets crash_embeded and crashed_step, if crash found
+        context.crash_embeded = False
+        try:
+            check_coredump(context)
+            check_faf(context)
+        except Exception as e:
+            print("Exception during crash search!")
+            traceback.print_exc(file=sys.stdout)
+
+
         if scenario.status == 'failed' or context.crashed_step:
             dump_status(context, 'after cleanup %s' % scenario.name)
 
@@ -2417,8 +2478,6 @@ def after_scenario(context, scenario):
         context.log.close ()
         print("Attaching MAIN log")
         context.embed('text/plain', open("/tmp/log_%s.html" % scenario.name, 'r').read(), caption="MAIN")
-        sleep(1)
-
 
         if context.crashed_step:
             print ("\n\n!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
@@ -2426,10 +2485,9 @@ def after_scenario(context, scenario):
             print(("!! CRASHING STEP: %s" %(context.crashed_step)))
             print ("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n\n")
             context.embed('text/plain', context.crashed_step, caption="CRASHED_STEP_NAME")
-            coredump = get_coredump(context.start_timestamp)
-            context.embed('text/plain', coredump, caption="COREDUMP")
-            faf_link = get_faf_link(context.start_timestamp)
-            context.embed('text/plain', faf_link, caption="FAF")
+            if not context.crash_embeded:
+                context.embed('text/plain', "!!! no crash report detected, but NM PID changed !!!", caption="NO_COREDUMP/NO_FAF")
+
 
 
     except Exception as e:
