@@ -174,28 +174,78 @@ def dump_status(context, when):
                 call(cmd, shell=True, stdout=context.log)
     context.log.write("==================================================================================\n\n\n")
 
-def get_coredump(timestamp):
-    cdump = pexpect.spawn('coredumpctl --no-pager --since @%d debug NetworkManager' % timestamp)
-    # set window size, --no-pager does not seems to work for inner gdb
-    cdump.setwinsize(1000,1000)
-    if cdump.expect(['\(gdb\) ', pexpect.EOF]) == 1:
-        return "!!! coredumpctl detetcted no NM crash, but NM pid changed !!!"
-    out = cdump.before.decode('utf-8') + cdump.after.decode('utf-8')
-    cdump.sendline('backtrace')
-    cdump.sendeof()
-    cdump.expect(pexpect.EOF)
-    out += cdump.before.decode('utf-8')
-    return out
+def check_dump_package(pkg_name):
+    if pkg_name in ["NetworkManager","ModemManager"]:
+        return True
+    return False
 
-def get_faf_link(timestamp):
-    call('yum -y install abrt-cli', shell=True)
-    p = Popen('abrt-cli list --since %d | grep Reported:' % (timestamp), shell=True, stdin=PIPE, stdout=PIPE, stderr=PIPE, bufsize=-1)
-    faf_link, _ = p.communicate()
-    if faf_link:
-        faf_link = faf_link.decode('utf-8')
-    else:
-        faf_link = "!!! abrt detected no NM crash, but NM pid changed !!!"
-    return faf_link
+def is_dump_reported(dump_dir):
+    return call('grep -q "%s" /tmp/reported_crashes' % (dump_dir), shell=True) == 0
+
+def embed_dump(context, dump_dir, dump_output, caption):
+    print("Attaching %s, %s" % (caption, dump_dir))
+    context.embed('text/plain', dump_output, caption=caption)
+    context.crash_embeded = True
+    with open("/tmp/reported_crashes", "a") as f:
+        f.write(dump_dir+"\n")
+        f.close()
+    if not context.crashed_step:
+        if context.nm_restarted:
+            context.crashed_step = "crash during scenario (NM restarted, not sure where was the crash)"
+        else:
+            context.crashed_step = "crash outside steps (envsetup, before / after scenario...)"
+
+def list_dumps(dumps_search):
+    p = Popen("ls -d %s" % (dumps_search), shell=True, stdin=PIPE, stdout=PIPE, stderr=PIPE, bufsize=-1)
+    list_of_dumps, _ = p.communicate()
+    return list_of_dumps.decode('utf-8').strip('\n').split('\n')
+
+def check_coredump(context):
+    coredump_search = "/var/lib/systemd/coredump/*"
+    list_of_dumps =list_dumps(coredump_search)
+
+    for dump_dir in list_of_dumps:
+        if not dump_dir:
+            continue
+        print("Examing crash: " + dump_dir)
+        dump_dir_split = dump_dir.split('.')
+        if len(dump_dir_split) < 6:
+            print("Some garbage in %s" % (dump_dir))
+            continue
+        if not check_dump_package(dump_dir_split[1]):
+            continue
+        try:
+            pid, dump_timestamp = int(dump_dir_split[4]), int(dump_dir_split[5])
+        except Exception as e:
+            print("Some garbage in %s: %s" % (dump_dir, str(e)))
+            continue
+        if not is_dump_reported(dump_dir):
+            p = Popen('echo backtrace | coredumpctl debug %d' % (pid), shell=True, stdin=PIPE, stdout=PIPE, stderr=PIPE, bufsize=-1)
+            dump_output, _ = p.communicate()
+            embed_dump(context, dump_dir, dump_output.decode('utf-8'), caption="COREDUMP")
+
+def check_faf(context):
+    abrt_search = "/var/spool/abrt/ccpp*"
+    list_of_dumps =list_dumps(abrt_search)
+    for dump_dir in list_of_dumps:
+        if not dump_dir:
+            continue
+        print("Examing crash: " + dump_dir)
+        with open("%s/pkg_name" % (dump_dir), "r") as f:
+            pkg = f.read()
+        if not check_dump_package(pkg):
+            continue
+        with open("%s/last_occurrence" % (dump_dir), "r") as f:
+            last_timestamp = f.read()
+        # append last_timestamp, to check if last occurrence is reported
+        if not is_dump_reported("%s-%s" % (dump_dir, last_timestamp)):
+            with open("%s/reported_to" % (dump_dir), "r") as f:
+                reports = f.read().strip("\n").split("\n")
+            url = ""
+            for report in reports:
+                if "URL=" in report:
+                    url = report.replace("URL=","")
+            embed_dump(context, "%s-%s" % (dump_dir ,last_timestamp), url, caption="FAF")
 
 def reset_usb_devices():
     USBDEVFS_RESET= 21780
@@ -348,6 +398,9 @@ def reload_NM_service():
     sleep(0.5)
     call("pkill -HUP NetworkManager", shell=True)
     sleep(1)
+
+def restart_NM_service():
+    call("sudo systemctl restart NetworkManager.service", shell=True)
 
 def before_scenario(context, scenario):
     try:
@@ -714,13 +767,13 @@ def before_scenario(context, scenario):
             print ("---------------------------")
             print ("set internal DHCP")
             call("printf '# configured by beaker-test\n[main]\ndhcp=internal\n' > /etc/NetworkManager/conf.d/99-xtest-dhcp-internal.conf", shell=True)
-            call('sudo systemctl restart NetworkManager.service', shell=True)
+            restart_NM_service()
 
         if 'dhclient_DHCP' in scenario.tags:
             print ("---------------------------")
             print ("set dhclient DHCP")
             call("printf '# configured by beaker-test\n[main]\ndhcp=dhclient\n' > /etc/NetworkManager/conf.d/99-xtest-dhcp-dhclient.conf", shell=True)
-            call('sudo systemctl restart NetworkManager.service', shell=True)
+            restart_NM_service()
 
         if 'dhcpd' in scenario.tags:
             print ("---------------------------")
@@ -786,7 +839,7 @@ def before_scenario(context, scenario):
             call("echo 'level=INFO' >> %s" %log, shell=True)
             call("echo 'domains=ALL' >> %s" %log, shell=True)
             sleep(0.5)
-            call('sudo systemctl restart NetworkManager.service', shell=True)
+            restart_NM_service()
             context.nm_restarted = True
             sleep(1)
 
@@ -797,7 +850,7 @@ def before_scenario(context, scenario):
             call('sudo pkill -9 /sbin/dhclient', shell=True)
             # Make orig- devices unmanaged as they may be unfunctional
             call('for dev in $(nmcli  -g DEVICE d |grep orig); do nmcli device set $dev managed off; done', shell=True)
-            call('sudo systemctl restart NetworkManager.service', shell=True)
+            restart_NM_service()
             call('sudo systemctl restart network.service', shell=True)
             call("nmcli connection up testeth0", shell=True)
             sleep(1)
@@ -872,7 +925,9 @@ def before_scenario(context, scenario):
             # Install under RHEL7 only
             if call("grep -q Maipo /etc/redhat-release", shell=True) == 0:
                 call("[ -f /etc/yum.repos.d/epel.repo ] || sudo rpm -i http://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm", shell=True)
-            call("rpm -q NetworkManager-vpnc || ( sudo yum -y install NetworkManager-vpnc && systemctl restart NetworkManager )", shell=True)
+            if call("rpm -q NetworkManager-vpnc", shell=True) != 0:
+                call("sudo yum -y install NetworkManager-vpnc", shell=True)
+                restart_NM_service()
             setup_racoon (mode="aggressive", dh_group=2)
 
         if 'tcpreplay' in scenario.tags:
@@ -898,7 +953,9 @@ def before_scenario(context, scenario):
             if call("grep -q Maipo /etc/redhat-release", shell=True) == 0:
                 call("[ -f /etc/yum.repos.d/epel.repo ] || sudo rpm -i http://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm", shell=True)
             call("[ -x /usr/sbin/openvpn ] || sudo yum -y install openvpn NetworkManager-openvpn", shell=True)
-            call("rpm -q NetworkManager-openvpn || ( sudo yum -y install NetworkManager-openvpn-1.0.8-1.el7.$(uname -p).rpm && systemctl restart NetworkManager )", shell=True)
+            if call("rpm -q NetworkManager-openvpn", shell=True) != 0:
+                call("sudo yum -y install NetworkManager-openvpn-1.0.8-1.el7.$(uname -p).rpm", shell=True)
+                restart_NM_service()
 
             # This is an internal RH workaround for secondary architecures that are not present in EPEL
 
@@ -942,7 +999,9 @@ def before_scenario(context, scenario):
         if 'libreswan' in scenario.tags:
             print ("---------------------------")
             wait_for_testeth0()
-            call("rpm -q NetworkManager-libreswan || ( sudo yum -y install NetworkManager-libreswan && systemctl restart NetworkManager )", shell=True)
+            if call("rpm -q NetworkManager-libreswan", shell=True) != 0:
+                call("sudo yum -y install NetworkManager-libreswan", shell=True)
+                restart_NM_service()
             call("/usr/sbin/ipsec --checknss", shell=True)
             ike="ikev1"
             if 'ikev2' in scenario.tags:
@@ -1081,11 +1140,11 @@ def before_scenario(context, scenario):
             if call('rpm -q NetworkManager-ovs', shell=True) != 0:
                 call('yum -y install NetworkManager-ovs', shell=True)
                 call('systemctl daemon-reload', shell=True)
-                call('systemctl restart NetworkManager', shell=True)
+                restart_NM_service()
             if call('systemctl is-active openvswitch', shell=True) != 0:
                 call('yum -y install openvswitch', shell=True)
                 call('systemctl restart openvswitch', shell=True)
-                call('systemctl restart NetworkManager', shell=True)
+                restart_NM_service()
 
         if 'dpdk' in scenario.tags:
             print ("---------------------------")
@@ -1117,7 +1176,7 @@ def before_scenario(context, scenario):
             call('dpdk-devbind -b vfio-pci 0000:01:10.1', shell=True)
 
             call('systemctl restart openvswitch', shell=True)
-            call('systemctl restart NetworkManager', shell=True)
+            restart_NM_service()
 
         if 'wireless_certs' in scenario.tags:
             print ("---------------------------")
@@ -1211,10 +1270,7 @@ def before_scenario(context, scenario):
             os.system("echo '~~~~~~~~~~~~~~~~~~~~~~~~~~ TRAFFIC LOG ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~' > /tmp/network-traffic.log")
             Popen("sudo tcpdump -nne -i any >> /tmp/network-traffic.log", shell=True)
 
-        try:
-            context.nm_pid = nm_pid()
-        except CalledProcessError as e:
-            context.nm_pid = None
+        context.nm_pid = nm_pid()
 
         context.nm_restarted = False
         context.crashed_step = False
@@ -1265,18 +1321,9 @@ def after_step(context, step):
 def after_scenario(context, scenario):
     """
     """
-    nm_pid_after = None
-    try:
-        nm_pid_after = nm_pid()
-        print(("NetworkManager process id after: %s (was %s)" % (nm_pid_after, context.nm_pid)))
-        # if getattr(context, 'nm_restarted', False) or \
-        #     'restart' in scenario.tags or \
-        #     nm_pid_after != context.nm_pid:
-        #
+    nm_pid_after = nm_pid()
+    print(("NetworkManager process id after: %s (was %s)" % (nm_pid_after, context.nm_pid)))
 
-    except Exception as e:
-        print(("nm_pid wasn't set. Probably crash in before_scenario"))
-        pass
 
     try:
         #attach network traffic log
@@ -1328,7 +1375,7 @@ def after_scenario(context, scenario):
             call("for i in $(pidof nm-iface-helper); do kill -9 $i; done", shell=True)
             call("rm -rf /etc/NetworkManager/conf.d/01-run-once.conf", shell=True)
             sleep (1)
-            call("systemctl restart  NetworkManager", shell=True)
+            restart_NM_service()
             sleep (1)
             call("for i in $(pidof nm-iface-helper); do kill -9 $i; done", shell=True)
             call("nmcli connection delete con_general", shell=True)
@@ -1342,7 +1389,7 @@ def after_scenario(context, scenario):
             print ("---------------------------")
             print ("restarting NM service")
             if call("systemctl is-active NetworkManager", shell=True) != 0:
-                call('sudo systemctl restart NetworkManager', shell=True)
+                restart_NM_service()
             if not os.path.isfile('/tmp/nm_dcb_inf_wol_sriov_configured'):
                 wait_for_testeth0()
 
@@ -1535,7 +1582,7 @@ def after_scenario(context, scenario):
             print ("remove info only logging")
             log = "/etc/NetworkManager/conf.d/99-xlogging.conf"
             call("rm -rf %s" %log,  shell=True)
-            call('sudo systemctl restart NetworkManager.service', shell=True)
+            restart_NM_service()
             sleep(1)
 
         if 'stop_radvd' in scenario.tags:
@@ -1642,13 +1689,13 @@ def after_scenario(context, scenario):
             print ("---------------------------")
             print ("revert internal DHCP")
             call("rm -f /etc/NetworkManager/conf.d/99-xtest-dhcp-internal.conf", shell=True)
-            call('sudo systemctl restart NetworkManager.service', shell=True)
+            restart_NM_service()
 
         if 'dhclient_DHCP' in scenario.tags:
             print ("---------------------------")
             print ("revert dhclient DHCP")
             call("rm -f /etc/NetworkManager/conf.d/99-xtest-dhcp-dhclient.conf", shell=True)
-            call('sudo systemctl restart NetworkManager.service', shell=True)
+            restart_NM_service()
 
         if 'dhcpd' in scenario.tags:
             print ("---------------------------")
@@ -2204,7 +2251,7 @@ def after_scenario(context, scenario):
         if 'gsm_sim' in scenario.tags:
             call("sudo prepare/gsm_sim.sh teardown", shell=True)
             call("nmcli con del id gsm", shell=True)
-            
+
         if 'add_testeth10' in scenario.tags:
             print ("---------------------------")
             print ("restoring testeth10 profile")
@@ -2287,7 +2334,7 @@ def after_scenario(context, scenario):
             print ("remove non utf-8 device")
             call("nmcli device delete 'd\\314f\\\\c'", shell=True)
             call("ip link del $'d\xccf\\c'", shell=True)
-            call('systemctl restart NetworkManager', shell=True)
+            restart_NM_service()
 
         if 'shutdown' in scenario.tags:
             print ("---------------------------")
@@ -2396,6 +2443,17 @@ def after_scenario(context, scenario):
                     call('ip link set eth%d up' % link, shell=True)
 
 
+        # check for crash reports and embed them
+        # sets crash_embeded and crashed_step, if crash found
+        context.crash_embeded = False
+        try:
+            check_coredump(context)
+            check_faf(context)
+        except Exception as e:
+            print("Exception during crash search!")
+            traceback.print_exc(file=sys.stdout)
+
+
         if scenario.status == 'failed' or context.crashed_step:
             dump_status(context, 'after cleanup %s' % scenario.name)
 
@@ -2420,8 +2478,6 @@ def after_scenario(context, scenario):
         context.log.close ()
         print("Attaching MAIN log")
         context.embed('text/plain', open("/tmp/log_%s.html" % scenario.name, 'r').read(), caption="MAIN")
-        sleep(1)
-
 
         if context.crashed_step:
             print ("\n\n!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
@@ -2429,10 +2485,9 @@ def after_scenario(context, scenario):
             print(("!! CRASHING STEP: %s" %(context.crashed_step)))
             print ("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n\n")
             context.embed('text/plain', context.crashed_step, caption="CRASHED_STEP_NAME")
-            coredump = get_coredump(context.start_timestamp)
-            context.embed('text/plain', coredump, caption="COREDUMP")
-            faf_link = get_faf_link(context.start_timestamp)
-            context.embed('text/plain', faf_link, caption="FAF")
+            if not context.crash_embeded:
+                context.embed('text/plain', "!!! no crash report detected, but NM PID changed !!!", caption="NO_COREDUMP/NO_FAF")
+
 
 
     except Exception as e:
