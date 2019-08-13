@@ -70,7 +70,14 @@ if grep -q CRASHED_STEP_NAME "$NMTEST_REPORT" ; then
     rc=1
 fi
 
-rstrnt-report-result -o "$NMTEST_REPORT" $NMTEST $RESULT
+# check for empty file: -s means nonempty
+if [ -s "$NMTEST_REPORT" ]; then
+    rstrnt-report-result -o "$NMTEST_REPORT" $NMTEST $RESULT
+else
+    echo "removing empty report file"
+    rm -f "$NMTEST_REPORT"
+    rstrnt-report-result -o "" $NMTEST $RESULT
+fi
 
 logger -t $0 "Test $1 finished with result $RESULT: $rc"
 
