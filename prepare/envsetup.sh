@@ -232,6 +232,16 @@ deploy_ssh_keys () {
 
 }
 
+enable_abrt_el8 () {
+    if which abrt-auto-reporting > /dev/null; then
+        abrt-auto-reporting enabled
+        systemctl restart abrt-journal-core.service
+        systemctl restart abrt-ccpp.service
+    else
+        echo "ABRT probably not installed !!!"
+    fi
+}
+
 local_setup_configure_nm_eth () {
     [ -e /tmp/nm_eth_configured ] && return
 
@@ -315,6 +325,7 @@ local_setup_configure_nm_eth () {
         fi
     fi
     if grep -q -e 'Enterprise Linux .*release 8' -e 'CentOS Linux release 8' /etc/redhat-release; then
+        enable_abrt_el8
         install_el8_packages
         if ! check_packages; then
             sleep 20
