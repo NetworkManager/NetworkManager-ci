@@ -23,6 +23,7 @@ Feature: nmcli: gsm
 
 
     @ver+=1.17.2
+    @ver-=1.20
     @gsm_sim
     @gsm_sim_create_assisted_connection
     Scenario: nmcli - gsm_sim - create an assisted connection
@@ -32,6 +33,24 @@ Feature: nmcli: gsm
     * Submit "gsm" in editor
     * Expect "Interface name"
     * Enter in editor
+    * Expect "Do you want to provide them\? \(yes\/no\) \[yes\]"
+    * Submit "no" in editor
+    * Dismiss IP configuration in editor
+    * Dismiss Proxy configuration in editor
+    Then "GENERAL.STATE:.*activated" is visible with command "nmcli con show gsm" in "60" seconds
+    And "default" is visible with command "ip r |grep 700"
+
+
+    @ver+=1.21.1
+    @gsm_sim
+    @gsm_sim_create_assisted_connection
+    Scenario: nmcli - gsm_sim - create an assisted connection
+    Given "gsm" is visible with command "nmcli device status | grep -v unmanaged" in "60" seconds
+    * Open wizard for adding new connection
+    * Expect "Connection type"
+    * Submit "gsm" in editor
+    * Expect "There are .* optional.*for General setting"
+    * Submit "no" in editor
     * Expect "Do you want to provide them\? \(yes\/no\) \[yes\]"
     * Submit "no" in editor
     * Dismiss IP configuration in editor

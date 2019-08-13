@@ -136,6 +136,7 @@
 
     @slaves @bond
     @nmcli_novice_mode_create_bond-slave_with_default_options
+    @ver-=1.20
     Scenario: nmcli - bond - novice - create bond-slave with default options
      * Add connection type "bond" named "bond0" for device "nm-bond"
      * Open wizard for adding new connection
@@ -145,6 +146,25 @@
      * Submit "eth1" in editor
      * Expect "aster"
      * Submit "nm-bond" in editor
+    Then "activated" is visible with command "nmcli c show bond-slave-eth1" in "45" seconds
+    Then Check bond "nm-bond" link state is "up"
+    Then Check slave "eth1" in bond "nm-bond" in proc
+
+
+    @slaves @bond
+    @nmcli_novice_mode_create_bond-slave_with_default_options
+    @ver+=1.21.1
+    Scenario: nmcli - bond - novice - create bond-slave with default options
+     * Add connection type "bond" named "bond0" for device "nm-bond"
+     * Open wizard for adding new connection
+     * Expect "Connection type"
+     * Submit "bond-slave" in editor
+     * Expect "aster"
+     * Submit "nm-bond" in editor
+     * Expect "Do you want to provide them\? \(yes\/no\) \[yes\]"
+     * Submit "yes" in editor
+     * Expect "Interface name"
+     * Submit "eth1" in editor
     Then "activated" is visible with command "nmcli c show bond-slave-eth1" in "45" seconds
     Then Check bond "nm-bond" link state is "up"
     Then Check slave "eth1" in bond "nm-bond" in proc
