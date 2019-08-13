@@ -34,6 +34,8 @@ if [ -z "$NMTEST" ]; then
     exit 128
 fi
 
+NMTEST_REPORT="/tmp/report_$NMTEST.log"
+
 #check if NM version is correct for test
 TAG="$(python $DIR/version_control.py $DIR/nmtui $NMTEST)"; vc=$?
 if [ $vc -eq 1 ]; then
@@ -45,9 +47,9 @@ if [ $vc -eq 1 ]; then
 elif [ $vc -eq 0 ]; then
     if [ x$TAG != x"" ]; then
         logger "Running $TAG version of $NMTEST"
-        behave $DIR/nmtui/features --no-capture --no-capture-stderr -k -t $1 -t $TAG -f plain -o /tmp/report_$NMTEST.log; rc=$?
+        behave $DIR/nmtui/features --no-capture --no-capture-stderr -k -t $1 -t $TAG -f plain -o $NMTEST_REPORT; rc=$?
     else
-        behave $DIR/nmtui/features --no-capture --no-capture-stderr -k -t $1 -f plain -o /tmp/report_$NMTEST.log; rc=$?
+        behave $DIR/nmtui/features --no-capture --no-capture-stderr -k -t $1 -f plain -o $NMTEST_REPORT; rc=$?
     fi
 fi
 
@@ -62,19 +64,19 @@ fi
 
 # only way to have screen snapshots for each step present in the individual logs
 # the tui-screen log is created via environment.py
-cat /tmp/tui-screen.log >> /tmp/report_$NMTEST.log
+cat /tmp/tui-screen.log >> $NMTEST_REPORT
 
 # this is to see the semi-useful output in the TESTOUT for failed tests too
-echo "--------- /tmp/report_$NMTEST.log ---------"
-cat /tmp/report_$NMTEST.log
+echo "--------- $NMTEST_REPORT ---------"
+cat $NMTEST_REPORT
 
 if [ $RESULT == "FAIL" ]; then
     echo "Attaching journal log as well"
-    cat /tmp/journal-session.log >> /tmp/report_$NMTEST.log
+    cat /tmp/journal-session.log >> $NMTEST_REPORT
     sleep 1
 fi
 
-rstrnt-report-result -o "/tmp/report_$NMTEST.log" $NMTEST $RESULT
+rstrnt-report-result -o "$NMTEST_REPORT" $NMTEST $RESULT
 
 logger -t $0 "Test $1 finished with result $RESULT: $rc"
 
