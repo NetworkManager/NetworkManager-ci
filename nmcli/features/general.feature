@@ -2149,11 +2149,11 @@ Feature: nmcli - general
      * Delete connection "con_general"
      Then "con_general" is not visible with command "nmcli connection"
       And "con_general" is visible with command "ls /usr/lib/NetworkManager/system-connections/"
-      And "/etc/NetworkManager/system-connections/<noted_value>.nmmeta" is symlink with destination "/dev/null"
-     * Execute "nmcli con reload"
-     Then "con_general" is not visible with command "nmcli connection"
-     And "con_general" is visible with command "ls /usr/lib/NetworkManager/system-connections/"
-     And "/etc/NetworkManager/system-connections/<noted_value>.nmmeta" is symlink with destination "/dev/null"
+     # And "/etc/NetworkManager/system-connections/<noted_value>.nmmeta" is symlink with destination "/dev/null"
+     #* Execute "nmcli con reload"
+     #Then "con_general" is not visible with command "nmcli connection"
+     #And "con_general" is visible with command "ls /usr/lib/NetworkManager/system-connections/"
+     #And "/etc/NetworkManager/system-connections/<noted_value>.nmmeta" is symlink with destination "/dev/null"
 
 
     @rhbz1674545
@@ -2170,11 +2170,11 @@ Feature: nmcli - general
     * Delete connection "con_general"
     Then "con_general" is not visible with command "nmcli connection"
     And "con_general" is visible with command "ls /usr/lib/NetworkManager/system-connections/"
-    And "/etc/NetworkManager/system-connections/<noted_value>.nmmeta" is symlink with destination "/dev/null"
-    * Execute "nmcli con reload"
-    Then "con_general" is not visible with command "nmcli connection"
-    And "con_general" is visible with command "ls /usr/lib/NetworkManager/system-connections/"
-    And "/etc/NetworkManager/system-connections/<noted_value>.nmmeta" is symlink with destination "/dev/null"
+    #And "/etc/NetworkManager/system-connections/<noted_value>.nmmeta" is symlink with destination "/dev/null"
+    #* Execute "nmcli con reload"
+    #Then "con_general" is not visible with command "nmcli connection"
+    #And "con_general" is visible with command "ls /usr/lib/NetworkManager/system-connections/"
+    #And "/etc/NetworkManager/system-connections/<noted_value>.nmmeta" is symlink with destination "/dev/null"
 
 
     @rhbz1708660
