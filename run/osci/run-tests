@@ -35,9 +35,12 @@ function run_needed_workarounds ()
         yum downgrade -y https://kojipkgs.fedoraproject.org//packages/dnsmasq/2.79/7.fc29/x86_64/dnsmasq-2.79-7.fc29.x86_64.rpm
     fi
 
-    # 3. Look we have simetimes timeouting hostnamectl 
+    # 3. Look we have simetimes timeouting hostnamectl
     systemctl restart systemd-hostnamed
     hostnamectl
+
+    # 4. we do miss yum in F31
+    ln -s /usr/bin/dnf /usr/bin/yum
 
     ###########################################
 }

@@ -71,7 +71,7 @@ install_fedora_packages () {
     dnf -4 -y install perl-IO-Pty-Easy perl-IO-Tty
 
     # Dnf more deps
-    dnf -4 -y install git nmap-ncat tcpreplay python3-netaddr dhcp-relay iw net-tools psmisc firewalld dhcp ethtool python3-dbus python3-gobject dnsmasq tcpdump wireshark-cli
+    dnf -4 -y install git nmap-ncat hostapd tcpreplay python3-netaddr dhcp-relay iw net-tools psmisc firewalld dhcp ethtool python3-dbus python3-gobject dnsmasq tcpdump wireshark-cli
 
     # Install behave with better reporting
     if python3 -V |grep -q "3.7"; then
