@@ -223,6 +223,7 @@ def back_to_main(context):
 @step(u'Choose to "{action}" a connection')
 def choose_connection_action(context, action):
     assert go_until_pattern_matches_aftercursor_text(context,keys['TAB'],r'%s.*' % action) is not None, "Could not go to action '%s' on screen!" % action
+    sleep(0.1)
     context.tui.send(keys['ENTER'])
     sleep(0.5)
 
