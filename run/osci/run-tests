@@ -30,6 +30,9 @@ function run_needed_workarounds ()
     if [[ $RELEASE == *fedora* ]]; then
         yum -y install ipsec-tools
         yum downgrade -y https://kojipkgs.fedoraproject.org//packages/ipsec-tools/0.8.2/10.fc28/x86_64/ipsec-tools-0.8.2-10.fc28.x86_64.rpm
+
+        # We can remove this once https://bugzilla.redhat.com/show_bug.cgi?id=1739797 is fixed
+        yum downgrade -y https://kojipkgs.fedoraproject.org//packages/dnsmasq/2.79/7.fc29/x86_64/dnsmasq-2.79-7.fc29.x86_64.rpm
     fi
     ###########################################
 }

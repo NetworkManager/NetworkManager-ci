@@ -76,7 +76,6 @@ ipv4_method_disabled
 ipv4_never_default_restart_persistence
 ipv4_never-default_remove
 set_mtu_from_DHCP
-dhcp4_outages_in_various_situation
 ipv4_dad
 ipv4_method_shared
 ipv6_addresses_set_several_IPv6s_with_masks_and_gws
