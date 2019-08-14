@@ -354,6 +354,7 @@ def teardown_hostapd_wireless():
 
 def teardown_hostapd():
     call("sh prepare/hostapd_wired.sh teardown", shell=True)
+    wait_for_testeth0()
 
 def get_lock(dir):
     locks = os.listdir(dir)
