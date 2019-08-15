@@ -1798,7 +1798,7 @@ def after_scenario(context, scenario):
         if 'team_slaves' in scenario.tags:
             print ("---------------------------")
             print ("deleting team slaves")
-            call('nmcli connection delete id team0.0 team0.1 team-slave-eth5 team-slave-eth6 eth5 eth6', shell=True)
+            call('nmcli connection delete id team0.0 team0.1 team-slave-eth5 team-slave-eth6 eth5 eth6 team-slave', shell=True)
             reset_hwaddr('eth5')
             reset_hwaddr('eth6')
             #sleep(TIMER)
