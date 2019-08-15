@@ -301,15 +301,16 @@ Feature: Team TUI tests
     * Choose the connection type "Ethernet"
     * Set "Profile name" field to "team-slave-eth2"
     * Set "Device" field to "eth2"
-    * Ensure "Automatically connect" is not checked
+    * Ensure "Automatically connect" is checked
     * Confirm the slave settings
     * Ensure "Automatically connect" is checked
     * Confirm the connection settings
     * Execute "nmcli connection up team0"
     * Team "team0" is up
     * Reboot
+    When "team0:connected:team0" is visible with command "nmcli -t -f DEVICE,STATE,CONNECTION device" in "40" seconds
     Then Check slave "eth1" in team "team0" is "down"
-    Then Check slave "eth2" in team "team0" is "down"
+    Then Check slave "eth2" in team "team0" is "up"
 
 
     @team

@@ -318,6 +318,7 @@ Feature: Bond TUI tests
     * Execute "nmcli connection up bond-slave-eth1"
     * Execute "nmcli connection up bond-slave-eth2"
     * Reboot
+    When "bond0:connected:bond0" is visible with command "nmcli -t -f DEVICE,STATE,CONNECTION device" in "40" seconds
     Then Check bond "bond0" state is "up"
     Then Check slave "eth1" not in bond "bond0" in proc
     Then Check slave "eth2" in bond "bond0" in proc
