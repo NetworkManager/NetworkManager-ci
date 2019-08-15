@@ -5,7 +5,7 @@ MY_PATH="`dirname \"$0\"`"
 TESTS=$(cat $MY_PATH/$RELEASE.tests)
 
 # Add failures and test counter variables
-COUNTER=0
+CNT=0
 FAILURES=()
 RESULTS_DIR=/tmp/artifacts
 RESULTS=$RESULTS_DIR/RESULTS
@@ -68,7 +68,7 @@ function run_tests ()
 
     # For all tests
     for T in $TESTS; do
-        COUNTER=$(printf "%03d\n" $COUNTER)
+        COUNTER=$(printf "%03d\n" $CNT)
         echo "RUNING $T"
 
         TIMEOUT=$(sed -n "/- $T:/,/ - /p" mapper.yaml | grep -e "timeout:" | awk -F: '{print $2}')
@@ -101,7 +101,7 @@ function run_tests ()
             fi
         fi
 
-        ((COUNTER++))
+        ((CNT++))
     done
 }
 
@@ -111,7 +111,7 @@ function report_results_and_exit ()
     rc=1
     # Write out tests failures
     if [ ${#FAILURES[@]} -ne 0 ]; then
-        echo "** $COUNTER TESTS PASSED"
+        echo "** $CNT TESTS PASSED"
         echo "--------------------------------------------"
         echo "** ${#FAILURES[@]} TESTS FAILED"
         echo "--------------------------------------------"
@@ -120,7 +120,7 @@ function report_results_and_exit ()
         done
     else
         rc=0
-        echo "** ALL $COUNTER TESTS PASSED!"
+        echo "** ALL $CNT TESTS PASSED!"
     fi
 
     exit $rc

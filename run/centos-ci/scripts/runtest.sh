@@ -9,7 +9,7 @@ sleep 5
 cd NetworkManager-ci
 
 # Add failures and test counter variables
-counter=0
+cnt=0
 failures=()
 
 # Overal result is PASS
@@ -20,12 +20,10 @@ echo "PASS" > /tmp/results/RESULT
 echo "WILL RUN:"
 echo $@
 
-counter=$(printf "%03d\n" $counter)
-
 # For all tests
 for test in $@; do
     echo "RUNING $test"
-    counter=$(printf "%03d\n" $counter)
+    counter=$(printf "%03d\n" $cnt)
 
     # Start watchdog. Default is 10m
     timer=$(sed -n "/- $test:/,/ - /p" mapper.yaml | grep -e "timeout:" | awk -F: '{print $2}')
@@ -52,14 +50,14 @@ for test in $@; do
         mv /tmp/report_NetworkManager_Test$counter"_"$test.html /tmp/results/Test$counter"_"$test.html
     fi
 
-    ((counter++))
+    ((cnt++))
 
 done
 
 rc=1
 # Write out tests failures
 if [ ${#failures[@]} -ne 0 ]; then
-    echo "** $counter TESTS PASSED"
+    echo "** $cnt TESTS PASSED"
     echo "--------------------------------------------"
     echo "** ${#failures[@]} TESTS FAILED"
     echo "--------------------------------------------"
@@ -68,7 +66,7 @@ if [ ${#failures[@]} -ne 0 ]; then
     done
 else
     rc=0
-    echo "** ALL $counter TESTS PASSED!"
+    echo "** ALL $cnt TESTS PASSED!"
 fi
 
 # Create archive with results
