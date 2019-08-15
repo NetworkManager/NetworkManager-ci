@@ -161,7 +161,7 @@
      * Submit "bond-slave" in editor
      * Expect "aster"
      * Submit "nm-bond" in editor
-     * Expect "Do you want to provide them\? \(yes\/no\) \[yes\]"
+     * Expect "Do you want to provide it\? \(yes\/no\) \[yes\]"
      * Submit "yes" in editor
      * Expect "Interface name"
      * Submit "eth1" in editor
