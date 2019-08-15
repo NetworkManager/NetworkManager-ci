@@ -20,9 +20,13 @@ echo "PASS" > /tmp/results/RESULT
 echo "WILL RUN:"
 echo $@
 
+counter=$(printf "%03d\n" $counter)
+
 # For all tests
 for test in $@; do
     echo "RUNING $test"
+    counter=$(printf "%03d\n" $counter)
+
     # Start watchdog. Default is 10m
     timer=$(sed -n "/- $test:/,/ - /p" mapper.yaml | grep -e "timeout:" | awk -F: '{print $2}')
     if [ "$timer" == "" ]; then
@@ -48,7 +52,7 @@ for test in $@; do
         mv /tmp/report_NetworkManager_Test$counter"_"$test.html /tmp/results/Test$counter"_"$test.html
     fi
 
-    counter=$((counter+1))
+    ((counter++))
 
 done
 
