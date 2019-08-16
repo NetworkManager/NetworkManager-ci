@@ -398,7 +398,7 @@ Feature: nmcli - ovs
 
 
     @rhbz1540218
-    @ver+=1.10
+    @ver+=1.10 @ver=-1.19.5
     @openvswitch @restart
     @NM_reboot_openvswitch_vlan_configuration
     Scenario: NM - openvswitch - reboot
@@ -413,14 +413,59 @@ Feature: nmcli - ovs
     * Execute "ovs-vsctl del-br ovsbridge0"
     * Reboot
     Then "activated" is visible with command "nmcli -g GENERAL.STATE con show ovs-iface0" in "40" seconds
-     And "Bridge \"ovsbridge0\"" is visible with command "ovs-vsctl show"
-     And "Port \"bond0\"\s+tag: 120\s+Interface \"eth[2-3]\"\s+type: system\s+Interface \"eth[2-3]\"\s+type: system" is visible with command "ovs-vsctl show"
-     And "Port \"port0\"\s+tag: 120\s+Interface \"iface0\"\s+type: internal" is visible with command "ovs-vsctl show"
-     And "master ovs-system" is visible with command "ip a s eth2"
-     And "master ovs-system" is visible with command "ip a s eth3"
-     And "192.168.100.*\/24" is visible with command "ip a s iface0"
-     And "fe80::" is visible with command "ip a s iface0"
-     And "default via 192.168.100.1 dev iface0 proto dhcp metric 800" is visible with command "ip r"
+    And "Bridge \"ovsbridge0\"" is visible with command "ovs-vsctl show"
+    And "Port \"bond0\"\s+tag: 120\s+Interface \"eth[2-3]\"\s+type: system\s+Interface \"eth[2-3]\"\s+type: system" is visible with command "ovs-vsctl show"
+    And "Port \"port0\"\s+tag: 120\s+Interface \"iface0\"\s+type: internal" is visible with command "ovs-vsctl show"
+    And "master ovs-system" is visible with command "ip a s eth2"
+    And "master ovs-system" is visible with command "ip a s eth3"
+    And "192.168.100.*\/24" is visible with command "ip a s iface0"
+    And "fe80::" is visible with command "ip a s iface0"
+
+
+    @rhbz1540218 @rhbz1734032
+    @ver+=1.20
+    @openvswitch @restart
+    @NM_reboot_openvswitch_vlan_configuration
+    Scenario: NM - openvswitch - reboot
+    * Add a new connection of type "ovs-bridge" and options "conn.interface ovsbridge0 con-name ovs-bridge0"
+    * Add a new connection of type "ovs-port" and options "conn.interface port0 conn.master ovsbridge0 con-name ovs-port0 ovs-port.tag 120"
+    * Add a new connection of type "ovs-port" and options "conn.interface bond0 conn.master ovsbridge0 con-name ovs-bond0 ovs-port.tag 120"
+    * Add a new connection of type "ethernet" and options "conn.interface eth2 conn.master bond0 slave-type ovs-port con-name ovs-eth2"
+    * Add a new connection of type "ethernet" and options "conn.interface eth3 conn.master bond0 slave-type ovs-port con-name ovs-eth3"
+    * Add a new connection of type "ovs-interface" and options "conn.interface iface0 conn.master port0 con-name ovs-iface0 ipv4.may-fail no"
+    When "activated" is visible with command "nmcli -g GENERAL.STATE con show ovs-iface0" in "40" seconds
+    * Stop NM
+    * Execute "ovs-vsctl del-br ovsbridge0"
+    * Reboot
+    Then "activated" is visible with command "nmcli -g GENERAL.STATE con show ovs-iface0" in "40" seconds
+    And "Bridge \"ovsbridge0\"" is visible with command "ovs-vsctl show"
+    And "Port \"bond0\"\s+tag: 120\s+Interface \"eth[2-3]\"\s+type: system\s+Interface \"eth[2-3]\"\s+type: system" is visible with command "ovs-vsctl show"
+    And "Port \"port0\"\s+tag: 120\s+Interface \"iface0\"\s+type: internal" is visible with command "ovs-vsctl show"
+    And "master ovs-system" is visible with command "ip a s eth2"
+    And "master ovs-system" is visible with command "ip a s eth3"
+    And "192.168.100.*\/24" is visible with command "ip a s iface0"
+    And "fe80::" is visible with command "ip a s iface0"
+    And "default via 192.168.100.1 dev iface0 proto dhcp metric 800" is visible with command "ip r"
+    * Restart NM
+    Then "activated" is visible with command "nmcli -g GENERAL.STATE con show ovs-iface0" in "40" seconds
+    And "Bridge \"ovsbridge0\"" is visible with command "ovs-vsctl show"
+    And "Port \"bond0\"\s+tag: 120\s+Interface \"eth[2-3]\"\s+type: system\s+Interface \"eth[2-3]\"\s+type: system" is visible with command "ovs-vsctl show"
+    And "Port \"port0\"\s+tag: 120\s+Interface \"iface0\"\s+type: internal" is visible with command "ovs-vsctl show"
+    And "master ovs-system" is visible with command "ip a s eth2"
+    And "master ovs-system" is visible with command "ip a s eth3"
+    And "192.168.100.*\/24" is visible with command "ip a s iface0"
+    And "fe80::" is visible with command "ip a s iface0"
+    And "default via 192.168.100.1 dev iface0 proto dhcp metric 800" is visible with command "ip r"
+    * Restart NM
+    Then "activated" is visible with command "nmcli -g GENERAL.STATE con show ovs-iface0" in "40" seconds
+    And "Bridge \"ovsbridge0\"" is visible with command "ovs-vsctl show"
+    And "Port \"bond0\"\s+tag: 120\s+Interface \"eth[2-3]\"\s+type: system\s+Interface \"eth[2-3]\"\s+type: system" is visible with command "ovs-vsctl show"
+    And "Port \"port0\"\s+tag: 120\s+Interface \"iface0\"\s+type: internal" is visible with command "ovs-vsctl show"
+    And "master ovs-system" is visible with command "ip a s eth2"
+    And "master ovs-system" is visible with command "ip a s eth3"
+    And "192.168.100.*\/24" is visible with command "ip a s iface0"
+    And "fe80::" is visible with command "ip a s iface0"
+    And "default via 192.168.100.1 dev iface0 proto dhcp metric 800" is visible with command "ip r"
 
 
     @rhbz1676551
