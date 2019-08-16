@@ -1333,6 +1333,10 @@ testmapper:
         feature: general
     - keyfile_nmconnection_extension:
         feature: general
+    - move_keyfile_to_usr_lib_dir:
+        feature: general
+    - no_uuid_in_keyfile_in_usr_lib_dir:
+        feature: general
     - busctl_LoadConnections_relative_path:
         feature: general
     - secret_key_file_permissions:

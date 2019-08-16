@@ -2080,6 +2080,13 @@ def after_scenario(context, scenario):
             print ("enabling ifcfg-plugin")
             call("sudo sh -c \"echo '[main]\nplugins=ifcfg-rh' > /etc/NetworkManager/NetworkManager.conf\" ", shell=True)
 
+        if 'keyfile_cleanup' in scenario.tags:
+            print ("---------------------------")
+            print ("removing residual files in /usr/lib/NetworkManager/system-connections")
+            call("sudo sh -c \"rm /usr/lib/NetworkManager/system-connections/*\" ", shell=True)
+            print ("removing residual files in /etc/NetworkManager/system-connections")
+            call("sudo sh -c \"rm /etc/NetworkManager/system-connections/*\" ", shell=True)
+
         if 'waitforip' in scenario.tags:
             print ("---------------------------")
             print ("waiting till original IP regained")

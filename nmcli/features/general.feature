@@ -2129,6 +2129,54 @@ Feature: nmcli - general
      And Path "/etc/NetworkManager/system-connections/con_general" does not exist
 
 
+     @rhbz1674545
+     @ver+=1.19
+     @con_general_remove @remove_custom_cfg @restart @keyfile_cleanup
+     @move_keyfile_to_usr_lib_dir
+     Scenario: NM - general - move keyfile to usr lib dir and check deletion
+     * Execute "echo '[main]' > /etc/NetworkManager/conf.d/99-xxcustom.conf"
+     * Execute "echo 'plugins=keyfile,ifcfg-rh' >> /etc/NetworkManager/conf.d/99-xxcustom.conf"
+     * Restart NM
+     * Add a new connection of type "ethernet" and options "ifname \* con-name con_general autoconnect no"
+     * Note the output of "nmcli -g connection.uuid connection show con_general"
+     * Execute "mv /etc/NetworkManager/system-connections/con_general* /tmp/"
+     * Delete connection "con_general"
+     When "con_general" is not visible with command "nmcli connection"
+     * Execute "mv /tmp/con_general* /usr/lib/NetworkManager/system-connections/"
+     * Execute "nmcli con reload"
+     When "con_general" is visible with command "nmcli connection"
+      And Noted value is visible with command "nmcli connection"
+     * Delete connection "con_general"
+     Then "con_general" is not visible with command "nmcli connection"
+      And "con_general" is visible with command "ls /usr/lib/NetworkManager/system-connections/"
+     # And "/etc/NetworkManager/system-connections/<noted_value>.nmmeta" is symlink with destination "/dev/null"
+     #* Execute "nmcli con reload"
+     #Then "con_general" is not visible with command "nmcli connection"
+     #And "con_general" is visible with command "ls /usr/lib/NetworkManager/system-connections/"
+     #And "/etc/NetworkManager/system-connections/<noted_value>.nmmeta" is symlink with destination "/dev/null"
+
+
+    @rhbz1674545
+    @ver+=1.19
+    @con_general_remove @remove_custom_cfg @restart @keyfile_cleanup
+    @no_uuid_in_keyfile_in_usr_lib_dir
+    Scenario: NM - general - read keyfiles without connection.uuid in usr lib dir
+    * Execute "echo -e '[main]\nplugins=keyfile,ifcfg-rh' > /etc/NetworkManager/conf.d/99-xxcustom.conf"
+    * Execute "echo -e '[connection]\nid=con_general\ntype=ethernet\nautoconnect=false\npermissions=\n\n[ethernet]\nmac-address-blacklist=\n\n[ipv4]\ndns-search=\nmethod=auto\n\n[ipv6]\naddr- gen-mode=stable-privacy\ndns-search=\nmethod=auto' > /usr/lib/NetworkManager/system-connections/con_general.nmconnection"
+    * Execute "sudo chmod go-rwx /usr/lib/NetworkManager/system-connections/con_general.nmconnection"
+    * Restart NM
+    When "con_general" is visible with command "nmcli connection" in "10" seconds
+    * Note the output of "nmcli -g connection.uuid connection show con_general"
+    * Delete connection "con_general"
+    Then "con_general" is not visible with command "nmcli connection"
+    And "con_general" is visible with command "ls /usr/lib/NetworkManager/system-connections/"
+    #And "/etc/NetworkManager/system-connections/<noted_value>.nmmeta" is symlink with destination "/dev/null"
+    #* Execute "nmcli con reload"
+    #Then "con_general" is not visible with command "nmcli connection"
+    #And "con_general" is visible with command "ls /usr/lib/NetworkManager/system-connections/"
+    #And "/etc/NetworkManager/system-connections/<noted_value>.nmmeta" is symlink with destination "/dev/null"
+
+
     @rhbz1708660
     @ver+=1.18
     @con_general_remove
