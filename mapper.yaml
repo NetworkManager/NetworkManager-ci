@@ -25,6 +25,7 @@ component:
       - usb_modeswitch-data
       - usb_modeswitch
       - mobile-broadband-provider-info
+      - libnl3
   gate-in: beaker
 
 dependencies:
@@ -203,7 +204,7 @@ testmapper:
         feature: bond
     - bridge_team_bond_autoconnect_nested_slaves:
         feature: bond
-        tags: gate
+        tags: gate libnl3
     - bond_in_bridge_mtu:
         feature: bond
         tags: gate
@@ -370,7 +371,7 @@ testmapper:
         feature: team
     - team_start_on_boot_with_team_and_one_slave_auto:
         feature: team
-        tags: gate
+        tags: gate libnl3
     - config_loadbalance:
         feature: team
     - config_broadcast:
@@ -1002,6 +1003,7 @@ testmapper:
         feature: ethernet
     - 8021x_tls_aes256_private_key:
         feature: ethernet
+        tags: libnl3
     - 8021x_tls_no_private_key_password:
         feature: ethernet
     - 8021x_tls_bad_password_flag:
@@ -1024,7 +1026,7 @@ testmapper:
         feature: ethernet
     - 8021x_ttls_mschapv2_eap:
         feature: ethernet
-        tags: gate
+        tags: gate libnl3
     - 8021x_ttls_md5:
         feature: ethernet
     - 8021x_ttls_gtc:
@@ -1265,7 +1267,7 @@ testmapper:
         feature: general
     - macsec_psk:
         feature: general
-        tags: gate
+        tags: gate libnl3
     - non_utf_device:
         feature: general
     - connectivity_check:
@@ -1622,19 +1624,19 @@ testmapper:
         feature: wifi_hwsim
     - simwifi_wpa2psk_profile:
         feature: wifi_hwsim
-        tags: gate
+        tags: gate libnl3
     - simwifi_wpa2psk_no_profile:
         feature: wifi_hwsim
     - simwifi_tls:
         feature: wifi_hwsim
-        tags: gate
+        tags: gate libnl3
     - simwifi_tls_bad_private_key_password:
         feature: wifi_hwsim
     - simwifi_tls_no_private_key_password:
         feature: wifi_hwsim
     - simwifi_peap_gtc:
         feature: wifi_hwsim
-        tags: gate
+        tags: gate libnl3
     - simwifi_peap_md5:
         feature: wifi_hwsim
     - simwifi_peap_mschapv2:
