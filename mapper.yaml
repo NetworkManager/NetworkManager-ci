@@ -72,6 +72,7 @@ testmapper:
     - bond_add_default_bond:
         feature: bond
         tags: gate
+        timeout: 20m
     - nmcli_editor_for_new_connection_set_con_id:
         feature: bond
     - bond_disconnect:
