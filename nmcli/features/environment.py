@@ -759,6 +759,15 @@ def before_scenario(context, scenario):
 
         if 'dns_systemd_resolved' in scenario.tags:
             print ("---------------------------")
+            context.systemd_resolved= True
+            print ("check systemd-resolved status:")
+            if call("systemctl is-active systemd-resolved", shell=True) != 0:
+                context.systemd_resolved = False
+                print ("start systemd-resolved as it is OFF and requried, now it's:")
+                call("systemctl start systemd-resolved", shell=True)
+                if call("systemctl is-active systemd-resolved", shell=True) != 0:
+                    print ("ERROR: Cannot start systemd-resolved")
+                    sys.exit(77)
             print ("set dns=systemd-resolved")
             call("printf '# configured by beaker-test\n[main]\ndns=systemd-resolved\n' > /etc/NetworkManager/conf.d/99-xtest-dns.conf", shell=True)
             reload_NM_service ()
@@ -1674,6 +1683,9 @@ def after_scenario(context, scenario):
 
         if 'dns_systemd_resolved' in scenario.tags:
             print ("---------------------------")
+            if context.systemd_resolved == False:
+                print ("stop systemd-resolved")
+                call("systemctl stop systemd-resolved", shell=True)
             print ("revert dns=default")
             call("rm -f /etc/NetworkManager/conf.d/99-xtest-dns.conf", shell=True)
             reload_NM_service ()
