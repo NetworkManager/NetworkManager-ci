@@ -165,7 +165,7 @@
      * Submit "yes" in editor
      * Expect "Interface name"
      * Submit "eth1" in editor
-    Then "activated" is visible with command "nmcli c show bond-slave-eth1" in "45" seconds
+    Then "activated" is visible with command "nmcli c show bond-slave" in "45" seconds
     Then Check bond "nm-bond" link state is "up"
     Then Check slave "eth1" in bond "nm-bond" in proc
 

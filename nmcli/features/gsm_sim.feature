@@ -49,7 +49,7 @@ Feature: nmcli: gsm
     * Open wizard for adding new connection
     * Expect "Connection type"
     * Submit "gsm" in editor
-    * Expect "There are .* optional.*for General setting"
+    * Expect "There is .* optional.*for General setting"
     * Submit "no" in editor
     * Expect "Do you want to provide them\? \(yes\/no\) \[yes\]"
     * Submit "no" in editor

@@ -1512,7 +1512,7 @@ def after_scenario(context, scenario):
             print ("deleting slave profiles")
             reset_hwaddr('eth1')
             reset_hwaddr('eth4')
-            call('nmcli connection delete id bond0.0 bond0.1 bond0.2 bond-slave-eth1', shell=True)
+            call('nmcli connection delete id bond0.0 bond0.1 bond0.2 bond-slave-eth1 bond-slave', shell=True)
 
             #sleep(TIMER)
 

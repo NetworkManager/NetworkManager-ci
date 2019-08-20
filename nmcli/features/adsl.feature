@@ -47,7 +47,7 @@ Feature: nmcli: adsl
     * Submit "test" in editor
     * Expect "Protocol"
     * Submit "pppoe" in editor
-    * Expect "There are .* optional.*for General setting"
+    * Expect "There is .* optional.*for General setting"
     * Enter in editor
     * Expect "Interface name"
     * Submit "test11" in editor
@@ -59,10 +59,10 @@ Feature: nmcli: adsl
     * Enter in editor
     * Dismiss IP configuration in editor
     * Dismiss Proxy configuration in editor
-    Then "adsl.username:\s+test" is visible with command "nmcli  connection show --show-secrets adsl-test11"
-    Then "adsl.password:\s+S3c4" is visible with command "nmcli  connection show --show-secrets adsl-test11"
-    Then "adsl.protocol:\s+pppoe" is visible with command "nmcli  connection show --show-secrets adsl-test11"
-    Then "adsl.encapsulation:\s+--" is visible with command "nmcli  connection show --show-secrets adsl-test11"
+    Then "adsl.username:\s+test" is visible with command "nmcli  connection show --show-secrets adsl"
+    Then "adsl.password:\s+S3c4" is visible with command "nmcli  connection show --show-secrets adsl"
+    Then "adsl.protocol:\s+pppoe" is visible with command "nmcli  connection show --show-secrets adsl"
+    Then "adsl.encapsulation:\s+--" is visible with command "nmcli  connection show --show-secrets adsl"
 
 
     @rhbz1264089

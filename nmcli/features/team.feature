@@ -86,7 +86,7 @@
      * Submit "eth5" in editor
      * Expect "There .* optional"
      * Submit "no" in editor
-     * Bring "up" connection "team-slave-eth5"
+     * Bring "up" connection "team-slave"
     Then Check slave "eth5" in team "nm-team" is "up"
 
 
