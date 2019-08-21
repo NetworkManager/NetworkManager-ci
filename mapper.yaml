@@ -1346,6 +1346,10 @@ testmapper:
         feature: general
     - invalid_config_warning:
         feature: general
+    - libnm_addconnection2_block_autoconnect:
+        feature: general
+    - libnm_update2_block_autoconnect:
+        feature: general
     - openvswitch_interface_recognized:
         feature: ovs
     - openvswitch_ignore_ovs_network_setup:

@@ -218,3 +218,97 @@ def start_generic_connection(context, connection, device):
     if r != 0:
         raise Exception('nmcli connection up %s timed out (180s)' % connection)
     sleep(4)
+
+
+def libnm_get_connection(nm_client, con_name):
+    con = None
+    for c in nm_client.get_connections():
+        if c.get_id() == con_name:
+            if con:
+                raise Exception("multiple connections with id '%s'" % con_name)
+            con = c
+    if not con:
+        raise Exception("no connection with id '%s'" % con_name)
+    return con
+
+def parse_NM_settings_flags_string(NMflags, flags):
+    flags = [ f.strip() for f in flags.split(',')]
+    nm_flags = NMflags.NONE
+    for flag in flags:
+        if flag:
+            nm_flags |= getattr(NMflags, flag)
+    return nm_flags
+
+
+@step(u'Clone connection "{con_src}" to "{con_dst}" using libnm')
+@step(u'Clone connection "{con_src}" to "{con_dst}" using libnm with flags "{flags}"')
+def clone_connection(context, con_src, con_dst, flags="TO_DISK"):
+    import gi
+    gi.require_version('NM', '1.0')
+    from gi.repository import GLib, NM
+
+    main_loop = GLib.MainLoop()
+    nm_client = NM.Client.new(None)
+    con = libnm_get_connection(nm_client, con_src)
+    nm_flags = parse_NM_settings_flags_string(NM.SettingsAddConnection2Flags, flags)
+
+    con2 = NM.SimpleConnection.new_clone(con)
+    s_con = con2.get_setting_connection()
+    s_con.set_property(NM.SETTING_CONNECTION_ID, con_dst)
+    s_con.set_property(NM.SETTING_CONNECTION_UUID, NM.utils_uuid_generate())
+    result = {}
+
+    def _add_connection2_cb(cl, async_result, user_data):
+        try:
+            nm_client.add_connection2_finish(async_result)
+        except Exception as e:
+            result['error'] = e
+        main_loop.quit()
+
+    nm_client.add_connection2(con2.to_dbus(NM.ConnectionSerializationFlags.ALL), nm_flags, None, False, None, _add_connection2_cb, None)
+
+    main_loop.run()
+
+    if 'error' in result:
+        raise Exception('add connection %s failed: %s' % (con_dst, result['error']))
+
+
+@step(u'Update connection "{con_name}" changing options "{options}" using libnm')
+@step(u'Update connection "{con_name}" changing options "{options}" using libnm with flags "{flags}"')
+def update2_connection_autoconnect(context, con_name, options, flags=""):
+    import gi
+    gi.require_version('NM', '1.0')
+    from gi.repository import GLib, NM
+
+    main_loop = GLib.MainLoop()
+    nm_client = NM.Client.new(None)
+    con = libnm_get_connection(nm_client, con_name)
+    nm_flags = parse_NM_settings_flags_string(NM.SettingsUpdate2Flags, flags)
+
+    con2 = NM.SimpleConnection.new_clone(con)
+    s_con = con2.get_setting_connection()
+    for option in options.split(','):
+        option = [ o.strip() for o in option.split(':') ]
+        if option[1].lower() in [ "true", "yes"]:
+            value = True
+        elif option[1].lower() in [ "false", "no"]:
+            value = False
+        else:
+            value = option[1]
+        s_con.set_property(getattr(NM, option[0]), value)
+
+    result = {}
+
+    def _update2_cb(con, async_result, user_data):
+        try:
+            con.update2_finish(async_result)
+        except Exception as e:
+            result['error'] = e
+        main_loop.quit()
+
+    con.update2(con2.to_dbus(NM.ConnectionSerializationFlags.ALL), nm_flags, None, None, _update2_cb, None)
+
+    main_loop.run()
+
+    if 'error' in result:
+        raise Exception('update2 connection %s failed: %s' % (con_name, result['error']))

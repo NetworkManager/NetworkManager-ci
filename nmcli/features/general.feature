@@ -2208,3 +2208,37 @@ Feature: nmcli - general
     * Restart NM
     * Note NM log
     Then Noted value contains "<warn>[^<]*config: unknown key 'something_nonexistent' in section \[main\] of file"
+
+
+    @rhbz1677068
+    @ver+=1.20
+    @con_general_remove
+    @libnm_addconnection2_block_autoconnect
+    Scenario: NM - general - libnm addconnection2 BLOCK_AUTOCONNECT flag
+    * Add a new connection of type "ethernet" and options "ifname eth8 con-name con_general autoconnect yes"
+    * Bring "down" connection "con_general"
+    When "con_general" is not visible with command "nmcli -g name con show --active" in "3" seconds
+    * Clone connection "con_general" to "con_general2" using libnm
+    Then "con_general2" is visible with command "nmcli -g name con show --active" in "5" seconds
+    * Delete connection "con_general2"
+    * Clone connection "con_general" to "con_general2" using libnm with flags "BLOCK_AUTOCONNECT,TO_DISK"
+    Then "con_general2" is not visible with command "nmcli -g name con show --active" for full "3" seconds
+    # check persistency of BLOCK_AUTOCONNECT flag
+    * Update connection "con_general2" changing options "SETTING_CONNECTION_AUTOCONNECT:True" using libnm
+    Then "con_general2" is not visible with command "nmcli -g name con show --active" for full "3" seconds
+
+
+    @rhbz1677068
+    @ver+=1.20
+    @con_general_remove
+    @libnm_update2_block_autoconnect
+    Scenario: NM - general - libnm update2 BLOCK_AUTOCONNECT flag
+    * Add a new connection of type "ethernet" and options "ifname eth8 con-name con_general autoconnect no"
+    * Update connection "con_general" changing options "SETTING_CONNECTION_AUTOCONNECT:True" using libnm with flags "BLOCK_AUTOCONNECT"
+    Then "con_general" is not visible with command "nmcli -g name con show --active" for full "3" seconds
+    # check persistency of BLOCK_AUTOCONNECT flag
+    * Update connection "con_general" changing options "SETTING_CONNECTION_AUTOCONNECT:True" using libnm
+    Then "con_general" is not visible with command "nmcli -g name con show --active" for full "3" seconds
+    * Add a new connection of type "ethernet" and options "ifname eth8 con-name con_general2 autoconnect no"
+    * Update connection "con_general2" changing options "SETTING_CONNECTION_AUTOCONNECT:True" using libnm
+    Then "con_general2" is visible with command "nmcli -g name con show --active" in "5" seconds
