@@ -237,6 +237,8 @@ deploy_ssh_keys () {
 
 enable_abrt_el8 () {
     if which abrt-auto-reporting > /dev/null; then
+        systemctl stop systemd-coredump.socket
+        systemctl mask systemd-coredump.socket
         abrt-auto-reporting enabled
         systemctl restart abrt-journal-core.service
         systemctl restart abrt-ccpp.service
@@ -328,12 +330,12 @@ local_setup_configure_nm_eth () {
         fi
     fi
     if grep -q -e 'Enterprise Linux .*release 8' -e 'CentOS Linux release 8' /etc/redhat-release; then
-        enable_abrt_el8
         install_el8_packages
         if ! check_packages; then
             sleep 20
             install_el8_packages
         fi
+        enable_abrt_el8
     fi
     if grep -q -e 'Enterprise Linux .*release 7' -e 'CentOS Linux release 7' /etc/redhat-release; then
         install_el7_packages
