@@ -573,7 +573,7 @@ local_setup_configure_nm_gsm () {
         install_usb_hub_driver_el7; RC=$?
     elif grep -q 'Enterprise Linux .*release 8' /etc/redhat-release; then
         install_usb_hub_driver_el8; RC=$?
-    elif grep -q -E 'Fedora .*release (29|30)' /etc/redhat-release; then
+    elif grep -q -E 'Fedora .*release' /etc/redhat-release; then
         install_usb_hub_driver_fc29; RC=$?
     else
         echo "Unsupported OS by Brainstem module." >&2
