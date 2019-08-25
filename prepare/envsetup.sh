@@ -117,6 +117,10 @@ install_fedora_packages () {
     # Make device mac address random
     echo -e "[Match]\nOriginalName=*\n[Link]\nMACAddressPolicy=random" > /etc/systemd/network/00-NM.link
 
+    # Make python3 default if it's not
+    rm -rf /usr/bin/python
+    ln -s /usr/bin/python3 /usr/bin/python
+
 }
 
 install_el8_packages () {
