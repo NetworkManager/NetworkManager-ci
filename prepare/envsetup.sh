@@ -76,9 +76,12 @@ install_fedora_packages () {
     # Install behave with better reporting
     if python3 -V |grep -q "3.6"; then
         dnf install -y http://download.eng.bos.redhat.com/brewroot/packages/python-behave/1.2.5/23.el8+7/noarch/python3-behave-1.2.5-23.el8+7.noarch.rpm http://download.eng.bos.redhat.com/brewroot/packages/python-parse/1.6.6/8.el8+7/noarch/python3-parse-1.6.6-8.el8+7.noarch.rpm http://download.eng.bos.redhat.com/brewroot/packages/python-parse_type/0.3.4/15.el8+7/noarch/python3-parse_type-0.3.4-15.el8+7.noarch.rpm
-    else
+    elif python3 -V |grep -q "3.7"; then
         dnf install -y https://vbenes.fedorapeople.org/NM/python3-behave-1.2.6-2.fc29.noarch.rpm
+    elif python3 -V |grep -q "3.8"; then
+        dnf install -y https://vbenes.fedorapeople.org/NM/python3-behave-1.2.6-3.fc32.noarch.rpm
     fi
+
     ln -s /usr/bin/behave-3 /usr/bin/behave
 
     # Install vpn dependencies
@@ -116,11 +119,6 @@ install_fedora_packages () {
 
     # Make device mac address random
     echo -e "[Match]\nOriginalName=*\n[Link]\nMACAddressPolicy=random" > /etc/systemd/network/00-NM.link
-
-    # Make python3 default if it's not
-    rm -rf /usr/bin/python
-    ln -s /usr/bin/python3 /usr/bin/python
-
 }
 
 install_el8_packages () {
