@@ -1354,6 +1354,8 @@ testmapper:
         feature: general
     - libnm_update2_block_autoconnect:
         feature: general
+    - libnm_update2_no_reapply:
+        feature: general
     - openvswitch_interface_recognized:
         feature: ovs
     - openvswitch_ignore_ovs_network_setup:

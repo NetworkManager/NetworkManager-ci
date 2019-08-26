@@ -2254,3 +2254,19 @@ Feature: nmcli - general
     * Add a new connection of type "ethernet" and options "ifname eth8 con-name con_general2 autoconnect no"
     * Update connection "con_general2" changing options "SETTING_CONNECTION_AUTOCONNECT:True" using libnm
     Then "con_general2" is visible with command "nmcli -g name con show --active" in "5" seconds
+
+
+    @rhbz1677070
+    @ver+=1.20
+    @con_general_remove
+    @libnm_update2_no_reapply
+    Scenario: NM - general - libnm update2 NO_REAPPLY flag
+    * Add a new connection of type "ethernet" and options "ifname eth8 con-name con_general connection.metered yes"
+    * Bring "up" connection "con_general"
+    When "u 1" is visible with command " busctl get-property org.freedesktop.NetworkManager $(nmcli -g DBUS-PATH,DEVICE device | sed -n 's/:eth8//p') org.freedesktop.NetworkManager.Device Metered"
+    * Update connection "con_general" changing options "SETTING_CONNECTION_METERED:2" using libnm with flags "TO_DISK"
+    Then "u 2" is visible with command " busctl get-property org.freedesktop.NetworkManager $(nmcli -g DBUS-PATH,DEVICE device | sed -n 's/:eth8//p') org.freedesktop.NetworkManager.Device Metered"
+    * Update connection "con_general" changing options "SETTING_CONNECTION_METERED:1" using libnm with flags "TO_DISK,NO_REAPPLY"
+    Then "u 2" is visible with command " busctl get-property org.freedesktop.NetworkManager $(nmcli -g DBUS-PATH,DEVICE device | sed -n 's/:eth8//p') org.freedesktop.NetworkManager.Device Metered"
+    * Execute "nmcli device reapply eth8"
+    Then "u 1" is visible with command " busctl get-property org.freedesktop.NetworkManager $(nmcli -g DBUS-PATH,DEVICE device | sed -n 's/:eth8//p') org.freedesktop.NetworkManager.Device Metered"
