@@ -781,6 +781,18 @@ Feature: nmcli - general
      Then "testeth8" is visible with command "nmcli con sh -a" in "5" seconds
 
 
+     @rhbz1729854
+     @ver+=1.14
+     @restart @not_on_s390x @no_config_server
+     @no_assumed_wired_connections
+     Scenario: NM - general - connection matching for anaconda
+     * Stop NM
+     * Execute "rm -rf /var/lib/NetworkManager/no-auto-default.state"
+     * Execute "rm -rf /var/run/NetworkManager/*"
+     * Start NM
+      Then "Wired" is not visible with command "nmcli con" in "5" seconds
+
+
     @rhbz1460760
     @ver+=1.8.0
     @con_general_remove @mtu
