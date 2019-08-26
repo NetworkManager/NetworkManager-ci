@@ -235,6 +235,8 @@ testmapper:
         feature: bond
     - bond_autoconnect_activation_fails_with_libnm:
         feature: bond
+    - bond_normalize_connection:
+        feature: bond
     - bridge_add_default:
         feature: bridge
     - bridge_add_custom_one:
