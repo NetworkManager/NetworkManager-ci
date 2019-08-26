@@ -1,0 +1,4 @@
+nmcli_add_basic_openvswitch_configuration
+nmcli_add_openvswitch_bond_configuration
+nmcli_add_openvswitch_vlan_configuration
+NM_reboot_openvswitch_vlan_configuration
