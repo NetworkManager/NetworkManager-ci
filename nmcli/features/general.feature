@@ -783,7 +783,7 @@ Feature: nmcli - general
 
      @rhbz1729854
      @ver+=1.14
-     @restart @not_on_s390x @no_config_server
+     @restart @not_on_s390x @no_config_server @rhel8_only
      @no_assumed_wired_connections
      Scenario: NM - general - connection matching for anaconda
      * Stop NM
