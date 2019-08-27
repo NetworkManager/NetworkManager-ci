@@ -553,7 +553,7 @@ Feature: nmcli: connection
      * Open editor for connection "con-wifi"
      * Check "adhoc|ap|infrastructure" are shown for object "wifi.mode"
      * Check "a|bg" are shown for object "wifi.band"
-     * Check "ieee8021x|none|wpa-eap|wpa-none|wpa-psk\s+" are shown for object "wifi-sec.key-mgmt"
+     * Check "ieee8021x|none|wpa-eap|wpa-psk\s+" are shown for object "wifi-sec.key-mgmt"
      * Check "leap|open|shared" are shown for object "wifi-sec.auth-alg"
      * Check "rsn|wpa" are shown for object "wifi-sec.proto"
      * Check "ccmp|tkip" are shown for object "wifi-sec.pairwise"
