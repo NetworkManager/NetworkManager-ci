@@ -10,6 +10,8 @@ FAILURES=()
 RESULTS_DIR=/tmp/artifacts
 RESULTS=$RESULTS_DIR/RESULTS
 
+export LC_ALL=C.UTF-8
+
 
 function run_needed_workarounds ()
 {
