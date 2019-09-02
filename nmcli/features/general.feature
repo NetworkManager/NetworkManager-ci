@@ -1651,7 +1651,6 @@ Feature: nmcli - general
 
     @rhbz1394345
     @ver+=1.12.0
-    @not_in_rhel8
     @con_general_remove @connectivity @eth0
     @per_device_connectivity_check
     Scenario: NM - general - per device connectivity check
@@ -1670,7 +1669,6 @@ Feature: nmcli - general
 
     @rhbz1534477
     @ver+=1.12
-    @not_in_rhel8
     @connectivity @con_general_remove @delete_testeth0 @restart @long
     @manipulate_connectivity_check_via_dbus
     Scenario: dbus - general - connectivity check manipulation
