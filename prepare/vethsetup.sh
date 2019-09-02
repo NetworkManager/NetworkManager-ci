@@ -197,7 +197,7 @@ function setup_veth_env ()
 
     # On s390x sometimes this extra default profile gets created in addition to custom static original one
     # Let's get rid of that
-    for i in $(nmcli -t -f NAME,UUID connection |grep -v testeth |awk -F ':' ' {print $2}'); do nmcli con del $i; done
+    for i in $(nmcli -t -f NAME,UUID connection |grep -v testeth |grep -v orig |awk -F ':' ' {print $2}'); do nmcli con del $i; done
 
     touch /tmp/nm_newveth_configured
 
