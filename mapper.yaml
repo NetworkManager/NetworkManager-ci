@@ -462,6 +462,9 @@ testmapper:
         feature: team
     - ipv6_block_just_routing_RA:
         feature: ipv6
+    - ipv6_accept_ra_handling:
+        feature: ipv6
+        tags: gate
     - ipv6_limited_router_solicitation:
         feature: ipv6
     - ipv6_routes_with_src:

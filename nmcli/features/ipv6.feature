@@ -472,6 +472,7 @@
 
 
     @rhbz1068673
+    @ver-=1.21.0
     @con_ipv6_remove
     @ipv6_block_just_routing_RA
     Scenario: NM - ipv6 - block just routing RA
@@ -481,6 +482,22 @@
     Then "0" is visible with command "cat /proc/sys/net/ipv6/conf/eth10/accept_ra_defrtr"
     Then "0" is visible with command "cat /proc/sys/net/ipv6/conf/eth10/accept_ra_rtr_pref"
     Then "0" is visible with command "cat /proc/sys/net/ipv6/conf/eth10/accept_ra_pinfo"
+
+
+    @rhbz1734470
+    @ver+=1.21.1
+    @con_ipv6_remove @stop_radvd @two_bridged_veths6
+    @ipv6_accept_ra_handling
+    Scenario: NM - ipv6 - accept RA handling
+    * Prepare veth pairs "test10" bridged over "vethbr6"
+    * Execute "ip -6 addr add 2001:db8:1::1/64 dev vethbr6"
+    * Start radvd server with config from "tmp/radvd2.conf"
+    * Add a new connection of type "ethernet" and options "con-name con_ipv6 ifname test10 ipv6.may-fail no"
+    When "2001:db8" is visible with command "ip a s test10" in "45" seconds
+    Then "0" is visible with command "cat /proc/sys/net/ipv6/conf/test10/accept_ra"
+    Then "300" is visible with command "cat /proc/sys/net/ipv6/neigh/test10/retrans_time_ms"
+    Then "12000" is visible with command "cat /proc/sys/net/ipv6/neigh/test10/base_reachable_time_ms"
+    Then "36" is visible with command "cat /proc/sys/net/ipv6/neigh/test10/gc_stale_time"
 
 
     @con_ipv6_remove
