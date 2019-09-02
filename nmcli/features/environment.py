@@ -1247,7 +1247,6 @@ def before_scenario(context, scenario):
                 context.remove_config_server = False
             else:
                 call('sudo yum -y install NetworkManager-config-server', shell=True)
-                call('sudo cp /usr/lib/NetworkManager/conf.d/00-server.conf /etc/NetworkManager/conf.d/00-server.conf', shell=True)
                 reload_NM_service()
                 context.remove_config_server = True
 
@@ -2129,7 +2128,6 @@ def after_scenario(context, scenario):
                 print ("---------------------------")
                 print ("removing NetworkManager-config-server")
                 call('sudo yum -y remove NetworkManager-config-server', shell=True)
-                call('sudo rm -f /etc/NetworkManager/conf.d/00-server.conf', shell=True)
                 reload_NM_service()
 
         if 'no_config_server' in scenario.tags:

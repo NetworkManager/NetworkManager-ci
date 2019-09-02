@@ -38,7 +38,6 @@ function setup_veth_env ()
     # Need 'config server' like setup
     if ! rpm -q NetworkManager-config-server; then
         yum -y install NetworkManager-config-server
-        cp /usr/lib/NetworkManager/conf.d/00-server.conf /etc/NetworkManager/conf.d/00-server.conf
     fi
 
     # If different than default connection is up after compilation bring it down and restart service
