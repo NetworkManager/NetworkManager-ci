@@ -1669,7 +1669,7 @@
      * Bring "up" connection "bond0"
      * Note MAC address output for device "nm-bond" via ip command
      * Run child "sudo tshark -l -O arp -i nm-bond -x -c 10 > /tmp/tshark.log"
-     * Execute "sleep 2"
+     * Execute "sleep 4"
      * Bring "up" connection "bond0.0"
      When "activated" is visible with command "nmcli c show bond0.0" in "10" seconds
      When "tshark" is not visible with command "ps aux" in "15" seconds
