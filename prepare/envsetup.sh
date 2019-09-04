@@ -185,6 +185,9 @@ install_el8_packages () {
     update-crypto-policies --set LEGACY
     systemctl restart wpa_supplicant
 
+    # Remove cloud-init dns
+    rm -rf /etc/NetworkManager/conf.d/99-cloud-init.conf
+
     install_plugins_dnf
 }
 
