@@ -188,6 +188,12 @@ install_el8_packages () {
     # Remove cloud-init dns
     rm -rf /etc/NetworkManager/conf.d/99-cloud-init.conf
 
+    # Install non crashing MM
+    dnf -4 -y update https://vbenes.fedorapeople.org/NM/ModemManager-1.10.4-1.el8.bz1745335.x86_64.rpm \
+    https://vbenes.fedorapeople.org/NM/ModemManager-devel-1.10.4-1.el8.bz1745335.x86_64.rpm \
+    https://vbenes.fedorapeople.org/NM/ModemManager-glib-1.10.4-1.el8.bz1745335.x86_64.rpm \
+    https://vbenes.fedorapeople.org/NM/ModemManager-glib-devel-1.10.4-1.el8.bz1745335.x86_64.rpm
+
     install_plugins_dnf
 }
 
