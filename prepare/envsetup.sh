@@ -115,6 +115,9 @@ install_fedora_packages () {
     update-crypto-policies --set LEGACY
     systemctl restart wpa_supplicant
 
+    # Install kernel-modules for currently running kernel
+    dnf -4 -y install kernel-modules-$(uname -r)
+    
     install_plugins_dnf
 
     # Make device mac address random
