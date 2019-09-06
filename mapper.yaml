@@ -1607,6 +1607,22 @@ testmapper:
         feature: connection
     - connection_short_info:
         feature: connection
+    - in_memory_connection_delete_on_reboot:
+        feature: connection
+    - in_memory_connection_restart_persistency:
+        feature: connection
+    - in_memory_connection_reload_persistency:
+        feature: connection
+    - all_to_in_memory_move:
+        feature: connection
+    - all_to_in_memory_only_move:
+        feature: connection
+    - all_to_in_memory_detached_move:
+        feature: connection
+    - in_memory_detached_resurrect:
+        feature: connection
+    - in_memory_detached_delete_nmmeta:
+        feature: connection
     - add_default_tap_device:
         feature: tuntap
         tags: gate

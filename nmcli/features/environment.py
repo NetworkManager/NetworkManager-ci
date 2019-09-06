@@ -1537,6 +1537,26 @@ def after_scenario(context, scenario):
             call("rm -rf /etc/sysconfig/network-scripts/ifcfg-connie*", shell=True)
             #sleep(TIMER)
 
+        if 'remove_tombed_connections' in scenario.tags:
+            print ("---------------------------")
+            print("removing tombed connections")
+            tombs = []
+            for dir in ["/etc/NetworkManager/system-connections/*.nmmeta", "/var/run/NetworkManager/system-connections/*.nmmeta"]:
+                try:
+                    tombs.extend(check_output('ls %s' % dir, shell=True).decode('utf-8').split("\n"))
+                except:
+                    pass
+            cons = []
+            for tomb in tombs:
+                print(tomb)
+                con_id = tomb.split("/")[-1]
+                con_id = con_id.split('.')[0]
+                cons.append(con_id)
+                call("rm -f %s" % tomb, shell=True)
+            if len(cons):
+                call("nmcli con reload", shell=True)
+                call("nmcli con delete %s" % " ".join(cons), shell=True)
+
         if 'AAA' in scenario.tags:
             print ("---------------------------")
             print ("deleting AAA")
