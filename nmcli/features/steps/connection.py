@@ -240,6 +240,45 @@ def parse_NM_settings_flags_string(NMflags, flags):
     return nm_flags
 
 
+@step(u'Add connection with name "{name}" and uuid "{uuid}" using libnm')
+@step(u'Add connection with name "{name}" and uuid "{uuid}" using libnm with flags "{flags}"')
+def clone_connection(context, name, uuid, flags="TO_DISK"):
+    import gi
+    gi.require_version('NM', '1.0')
+    from gi.repository import GLib, NM
+
+    main_loop = GLib.MainLoop()
+    nm_client = NM.Client.new(None)
+    if uuid == "random":
+        uuid = NM.utils_uuid_generate()
+    elif uuid == "noted":
+        uuid = context.noted_value
+    elif uuid.startswith("noted."):
+        index = uuid.replace("noted.","")
+        uuid = context.noted[index]
+    nm_flags = parse_NM_settings_flags_string(NM.SettingsAddConnection2Flags, flags)
+
+    con2 = NM.SimpleConnection()
+    s_con = NM.SettingConnection(type="802-3-ethernet", id=name, uuid=uuid)
+    con2.add_setting(s_con)
+
+    result = {}
+
+    def _add_connection2_cb(cl, async_result, user_data):
+        try:
+            nm_client.add_connection2_finish(async_result)
+        except Exception as e:
+            result['error'] = e
+        main_loop.quit()
+
+    nm_client.add_connection2(con2.to_dbus(NM.ConnectionSerializationFlags.ALL), nm_flags, None, False, None, _add_connection2_cb, None)
+
+    main_loop.run()
+
+    if 'error' in result:
+        raise Exception('add connection %s failed: %s' % (name, result['error']))
+
+
 @step(u'Clone connection "{con_src}" to "{con_dst}" using libnm')
 @step(u'Clone connection "{con_src}" to "{con_dst}" using libnm with flags "{flags}"')
 def clone_connection(context, con_src, con_dst, flags="TO_DISK"):
