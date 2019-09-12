@@ -40,6 +40,7 @@ $SUDO yum install \
     libudev-devel \
     libuuid-devel \
     libgudev1-devel \
+    mobile-broadband-provider-info-devel \
     vala-tools \
     iptables \
     bluez-libs-devel \
