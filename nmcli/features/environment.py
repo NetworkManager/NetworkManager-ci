@@ -158,7 +158,7 @@ def dump_status(context, when):
             call(cmd, shell=True, stdout=context.log)
     else:
         for cmd in ['NetworkManager --version', 'ip addr', 'ip -4 route', 'ip -6 route',
-            'nmcli g', 'nmcli c', 'nmcli d', 'nmcli -f IN-USE,SSID,CHAN,SIGNAL,SECURITY d w',
+            'nmcli g', 'nmcli c', 'nmcli d', 
             'hostnamectl', 'NetworkManager --print-config', 'ps aux | grep dhclient']:
             #'nmcli con show testeth0',\
             #'sysctl -a|grep ra |grep ipv6 |grep "all\|default\|eth\|test"']:
