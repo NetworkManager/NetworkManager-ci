@@ -419,7 +419,6 @@ def before_scenario(context, scenario):
         # dump status before the test preparation starts
         context.log = open('/tmp/log_%s.html' % scenario.name,'w')
         dump_status(context, 'before %s' % scenario.name)
-        exit(1)
         import time
         context.start_timestamp = int(time.time())
 
