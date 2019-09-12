@@ -158,7 +158,7 @@ def dump_status(context, when):
             call(cmd, shell=True, stdout=context.log)
     else:
         for cmd in ['NetworkManager --version', 'ip addr', 'ip -4 route', 'ip -6 route',
-            'nmcli g', 'nmcli c', 'nmcli d', 
+            'nmcli g', 'nmcli c', 'nmcli d',
             'hostnamectl', 'NetworkManager --print-config', 'ps aux | grep dhclient']:
             #'nmcli con show testeth0',\
             #'sysctl -a|grep ra |grep ipv6 |grep "all\|default\|eth\|test"']:
@@ -419,7 +419,7 @@ def before_scenario(context, scenario):
         # dump status before the test preparation starts
         context.log = open('/tmp/log_%s.html' % scenario.name,'w')
         dump_status(context, 'before %s' % scenario.name)
-
+        exit(1)
         import time
         context.start_timestamp = int(time.time())
 

@@ -38,7 +38,7 @@ elif [ $vc -eq 0 ]; then
     # if yes, run with -t $TAG
     if [ x$TAG != x"" ]; then
         logger "Running $TAG version of $NMTEST"
-        behave $DIR/nmcli/features -t $1 -t $TAG -k -f html -o "$NMTEST_REPORT" -f plain; rc=$?
+        behave $DIR/nmcli/features -t $1 -t $TAG -k -f html -o "$NMTEST_REPORT" -f plain 2>/dev/null; rc=$?
 
     # if not
     else
@@ -49,7 +49,7 @@ elif [ $vc -eq 0 ]; then
 
         # if we do not have tag or gsm_hub
         else
-            behave $DIR/nmcli/features -t $1 -k -f html -o "$NMTEST_REPORT" -f plain; rc=$?
+            behave $DIR/nmcli/features -t $1 -k -f html -o "$NMTEST_REPORT" -f plain 2>/dev/null; rc=$?
         fi
     fi
 fi
@@ -70,15 +70,17 @@ if grep -q CRASHED_STEP_NAME "$NMTEST_REPORT" ; then
     rc=1
 fi
 
-# check for empty file: -s means nonempty
-if [ -s "$NMTEST_REPORT" ]; then
-    rstrnt-report-result -o "$NMTEST_REPORT" $NMTEST $RESULT
-else
-    echo "removing empty report file"
-    rm -f "$NMTEST_REPORT"
-    rstrnt-report-result -o "" $NMTEST $RESULT
-fi
 
+if [ -n "$RECIPE_URL" ]; then
+    # check for empty file: -s means nonempty
+    if [ -s "$NMTEST_REPORT" ]; then
+        rstrnt-report-result -o "$NMTEST_REPORT" $NMTEST $RESULT
+    else
+        echo "removing empty report file"
+        rm -f "$NMTEST_REPORT"
+        rstrnt-report-result -o "" $NMTEST $RESULT
+    fi
+fi
 logger -t $0 "Test $1 finished with result $RESULT: $rc"
 
 echo "------------ Test result: $RESULT ------------"
