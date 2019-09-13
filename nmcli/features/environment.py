@@ -1303,7 +1303,6 @@ def after_step(context, step):
     if os.path.isfile('/tmp/nm_skip_restarts'):
         sleep(0.4)
 
-    sleep(0.1)
     if step.name == ('Flag "NM_802_11_DEVICE_CAP_AP" is set in WirelessCapabilites' or \
        step.name == 'Flag "NM_802_11_DEVICE_CAP_ADHOC" is set in WirelessCapabilites') and \
        step.status == 'failed' and step.step_type == 'given':
