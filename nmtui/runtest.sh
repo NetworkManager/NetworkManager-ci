@@ -45,7 +45,7 @@ if [ $vc -eq 1 ]; then
     exit 0
 
 elif [ $vc -eq 0 ]; then
-    if [ x$TAG != x"" ]; then
+    if [ "x$TAG" != "x" ]; then
         logger "Running $TAG version of $NMTEST"
         behave $DIR/nmtui/features --no-capture --no-capture-stderr -k -t $1 -t $TAG -f plain -o $NMTEST_REPORT; rc=$?
     else

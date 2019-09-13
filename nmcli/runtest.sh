@@ -36,7 +36,7 @@ if [ $vc -eq 1 ]; then
 # do we have tag to run tagged test?
 elif [ $vc -eq 0 ]; then
     # if yes, run with -t $TAG
-    if [ x$TAG != x"" ]; then
+    if [ "x$TAG" != "x" ]; then
         logger "Running $TAG version of $NMTEST"
         behave $DIR/nmcli/features -t $1 -t $TAG -k -f html -o "$NMTEST_REPORT" -f plain 2>/dev/null; rc=$?
 
