@@ -71,6 +71,7 @@
     * Add a connection named "openvpn" for device "\*" to "openvpn" VPN
     * Use certificate "sample-keys/client.crt" with key "sample-keys/client.key" and authority "sample-keys/ca.crt" for gateway "127.0.0.1" on OpenVPN connection "openvpn"
     * Execute "nmcli con modify openvpn ipv6.never-default yes"
+    * Bring "down" connection "openvpn"
     * Bring "up" connection "openvpn"
     Then "VPN.VPN-STATE:.*VPN connected" is visible with command "nmcli c show openvpn"
     Then "IP6.ADDRESS.*2001:db8:666:dead::2/64" is visible with command "nmcli c show openvpn"
