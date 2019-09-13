@@ -1105,7 +1105,7 @@
 
     @rhbz1083133 @rhbz1098319 @rhbz1127718
     @veth @eth3_disconnect
-    #@ver-=1.11.1
+    @ver-=1.11.1
     @ipv6_add_static_address_manually_not_active
     Scenario: NM - ipv6 - add a static address manually to non-active interface (legacy 1.10 behavior and older)
     Given "testeth3" is visible with command "nmcli connection"
