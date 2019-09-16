@@ -2186,6 +2186,8 @@ def after_scenario(context, scenario):
             call('nmcli con down testeth1', shell=True)
             call('nmcli con up testeth2', shell=True)
             call('nmcli con down testeth2', shell=True)
+            reset_hwaddr('eth2')
+            reset_hwaddr('eth3')
 
         if 'dpdk' in scenario.tags:
             print ("---------------------------")

@@ -473,12 +473,12 @@ Feature: nmcli - ovs
     @openvswitch @restart @vlan @bond @slaves @not_in_rhel8
     @restart_NM_with_mixed_setup
     Scenario: NM -  openvswitch - restart NM when OVS is unmanaged
-    * Add a new connection of type "bond" and options "ifname nm-bond con-name bond0"
+    * Add a new connection of type "bond" and options "ifname nm-bond con-name bond0 ipv4.method manual ipv4.addresses 10.0.0.2/16 ipv4.gateway 10.0.0.1"
     * Add a new connection of type "vlan" and options "con-name vlan1 dev nm-bond id 101 ipv6.method ignore ipv4.method manual ipv4.method manual ipv4.addresses 10.200.208.98/16  ipv4.routes 224.0.0.0/4"
     * Add a new connection of type "vlan" and options "con-name vlan2 dev nm-bond id 201 ipv6.method ignore ipv4.method manual ipv4.addresses 10.201.0.13/24 ipv4.gateway 10.201.0.1"
     * Add a new connection of type "ethernet" and options "ifname eth2 master nm-bond con-name bond0.0"
     * Add a new connection of type "ethernet" and options "ifname eth3 master nm-bond con-name bond0.1"
-    * Execute "ovs-vsctl add-br ovsbridge0 -- add-port ovsbridge0 nm-bond"
+    * Execute "ovs-vsctl add-br ovsbr0 -- add-port ovsbr0 nm-bond"
     When "activated" is visible with command "nmcli -g GENERAL.STATE con show bond0" in "40" seconds
      And "224.0.0.0/4 dev nm-bond.101" is visible with command "ip r"
      And "10.200.0.0/16 dev nm-bond.101" is visible with command "ip r"
