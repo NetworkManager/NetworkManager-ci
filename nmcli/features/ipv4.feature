@@ -458,33 +458,11 @@ Feature: nmcli: ipv4
     @con_ipv4_remove
     @ipv4_route_remove_basic_route
     Scenario: nmcli - ipv4 - routes - remove basic route
-    * Add connection type "ethernet" named "con_ipv4" for device "eth3"
-    * Open editor for connection "con_ipv4"
-    * Submit "set ipv4.method static" in editor
-    * Submit "set ipv4.addresses 192.168.3.10/24" in editor
-    * Submit "set ipv4.gateway 192.168.4.1" in editor
-    * Submit "set ipv4.routes 192.168.5.0/24 192.168.3.11 3" in editor
-    * Save in editor
-    * Quit editor
-    * Add connection type "ethernet" named "con_ipv42" for device "eth2"
-    * Open editor for connection "con_ipv42"
-    * Submit "set ipv4.method static" in editor
-    * Submit "set ipv4.addresses 192.168.1.10/24" in editor
-    * Submit "set ipv4.gateway 192.168.4.1" in editor
-    * Submit "set ipv4.routes 192.168.2.0/24 192.168.1.11 2" in editor
-    * Save in editor
-    * Quit editor
-    * Open editor for connection "con_ipv4"
-    * Submit "set ipv4.routes" in editor
-    * Enter in editor
-    * Save in editor
-    * Quit editor
+    * Add a new connection of type "ethernet" and options "ifname eth3 con-name con_ipv4 ipv4.may-fail no ipv4.method static ipv4.addresses 192.168.3.10/24 ipv4.gateway 192.168.4.1 ipv4.routes '192.168.5.0/24 192.168.3.11 2'"
+    * Add a new connection of type "ethernet" and options "ifname eth2 con-name con_ipv42 ipv4.may-fail no ipv4.method static ipv4.addresses 192.168.1.10/24 ipv4.gateway 192.168.4.1 ipv4.routes '192.168.2.0/24 192.168.1.11 3'"
+    * Execute "nmcli con modify con_ipv4 ipv4.routes '' "
     * Bring "up" connection "con_ipv4"
-    * Open editor for connection "con_ipv42"
-    * Submit "set ipv4.routes" in editor
-    * Enter in editor
-    * Save in editor
-    * Quit editor
+    * Execute "nmcli con modify con_ipv42 ipv4.routes '' "
     * Bring "up" connection "con_ipv42"
     Then "default via 192.168.4.1 dev eth3\s+proto static\s+metric 1" is visible with command "ip route" in "5" seconds
     Then "default via 192.168.4.1 dev eth2\s+proto static\s+metric 1" is visible with command "ip route" in "5" seconds
@@ -501,33 +479,11 @@ Feature: nmcli: ipv4
     @con_ipv4_remove
     @ipv4_route_remove_basic_route
     Scenario: nmcli - ipv4 - routes - remove basic route
-    * Add connection type "ethernet" named "con_ipv4" for device "eth3"
-    * Open editor for connection "con_ipv4"
-    * Submit "set ipv4.method static" in editor
-    * Submit "set ipv4.addresses 192.168.3.10/24" in editor
-    * Submit "set ipv4.gateway 192.168.4.1" in editor
-    * Submit "set ipv4.routes 192.168.5.0/24 192.168.3.11 200" in editor
-    * Save in editor
-    * Quit editor
-    * Add connection type "ethernet" named "con_ipv42" for device "eth2"
-    * Open editor for connection "con_ipv42"
-    * Submit "set ipv4.method static" in editor
-    * Submit "set ipv4.addresses 192.168.1.10/24" in editor
-    * Submit "set ipv4.gateway 192.168.4.1" in editor
-    * Submit "set ipv4.routes 192.168.2.0/24 192.168.1.11 300" in editor
-    * Save in editor
-    * Quit editor
-    * Open editor for connection "con_ipv4"
-    * Submit "set ipv4.routes" in editor
-    * Enter in editor
-    * Save in editor
-    * Quit editor
+    * Add a new connection of type "ethernet" and options "ifname eth3 con-name con_ipv4 ipv4.may-fail no ipv4.method static ipv4.addresses 192.168.3.10/24 ipv4.gateway 192.168.4.1 ipv4.routes '192.168.5.0/24 192.168.3.11 200'"
+    * Add a new connection of type "ethernet" and options "ifname eth2 con-name con_ipv42 ipv4.may-fail no ipv4.method static ipv4.addresses 192.168.1.10/24 ipv4.gateway 192.168.4.1 ipv4.routes '192.168.2.0/24 192.168.1.11 300'"
+    * Execute "nmcli con modify con_ipv4 ipv4.routes '' "
     * Bring "up" connection "con_ipv4"
-    * Open editor for connection "con_ipv42"
-    * Submit "set ipv4.routes" in editor
-    * Enter in editor
-    * Save in editor
-    * Quit editor
+    * Execute "nmcli con modify con_ipv42 ipv4.routes '' "
     * Bring "up" connection "con_ipv42"
     Then "default via 192.168.4.1 dev eth3\s+proto static\s+metric 1" is visible with command "ip route" in "5" seconds
     Then "default via 192.168.4.1 dev eth2\s+proto static\s+metric 1" is visible with command "ip route" in "5" seconds
@@ -1374,14 +1330,7 @@ Feature: nmcli: ipv4
     @con_ipv4_remove
     @ipv4_may-fail_yes
     Scenario: nmcli - ipv4 - may-fail - set true
-    * Add a new connection of type "ethernet" and options "ifname eth3 con-name con_ipv4 autoconnect no"
-    * Open editor for connection "con_ipv4"
-    * Submit "set ipv4.dhcp-client-id 1" in editor
-    * Submit "set ipv4.may-fail yes" in editor
-    * Submit "set ipv6.method manual" in editor
-    * Submit "set ipv6.addresses ::1" in editor
-    * Save in editor
-    * Quit editor
+    * Add a new connection of type "ethernet" and options "ifname eth3 con-name con_ipv4 autoconnect no ipv4.dhcp-client-id 1 ipv4.may-fail yes ipv6.method manual ipv6.addresses ::1"
     Then Bring "up" connection "con_ipv4"
 
 
