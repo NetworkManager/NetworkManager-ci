@@ -1541,12 +1541,10 @@ Feature: nmcli - general
     * Note the output of "pmap -x $(pidof NetworkManager) |grep 'total' | awk '{print $4}'" as value "1"
     * Execute "sh tmp/repro_1461643.sh && sleep 10"
     * Note the output of "pmap -x $(pidof NetworkManager) |grep 'total' | awk '{print $4}'" as value "2"
-    # * Execute "sh tmp/repro_1461643.sh"
-    # * Note the output of "pmap -x $(pidof NetworkManager) |grep 'total' | awk '{print $4}'" as value "3"
-    # * Execute "sh tmp/repro_1461643.sh"
-    # * Note the output of "pmap -x $(pidof NetworkManager) |grep 'total' | awk '{print $4}'" as value "4"
-    Then Check RSS writable memory in noted value "2" differs from "1" less than "300"
-    # Then Check RSS writable memory in noted value "3" differs from "2" less than "100"
+    * Execute "sh tmp/repro_1461643.sh && sleep 10"
+    * Note the output of "pmap -x $(pidof NetworkManager) |grep 'total' | awk '{print $4}'" as value "3"
+    #Then Check RSS writable memory in noted value "2" differs from "1" less than "300"
+    Then Check RSS writable memory in noted value "3" differs from "2" less than "300"
     # Then Check RSS writable memory in noted value "4" differs from "3" less than "50"
 
 
