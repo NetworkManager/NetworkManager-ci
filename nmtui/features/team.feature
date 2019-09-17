@@ -381,6 +381,7 @@ Feature: Team TUI tests
     * Ensure "Automatically connect" is checked
     * Confirm the slave settings
     * Set team json config to "{walderony {tutti frutti}}"
-    * Ensure "Automatically connect" is checked
+    #* Ensure "Automatically connect" is checked
     * Confirm the connection settings
+    Then ".*Unable to add new connection.*" is visible on screen
     Then Team "team0" is down
