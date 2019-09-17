@@ -916,7 +916,10 @@ def before_scenario(context, scenario):
                 sys.exit(77)
             call("echo -e '[device-wifi]\nwifi.scan-rand-mac-address=no' > /etc/NetworkManager/conf.d/99-wifi.conf", shell=True)
             call("echo -e '[connection-wifi]\nwifi.cloned-mac-address=preserve' >> /etc/NetworkManager/conf.d/99-wifi.conf", shell=True)
-            reload_NM_service()
+            call("echo -e '[keyfile]\nunmanaged-devices=wlan1\n' >> /etc/NetworkManager/conf.d/99-wifi.conf", shell=True)
+
+            restart_NM_service()
+
             call('modprobe mac80211_hwsim', shell=True)
             sleep(1)
             call('nmcli device set wlan1 managed off', shell=True)

@@ -239,7 +239,7 @@ Feature: nmcli - wifi
 
 
     @ver+=1.16
-    @not_in_rhel7 @not_in_rhel8
+    @not_in_rhel7 @not_in_rhel8 @skip_in_fedora
     @simwifi_p2p @attach_wpa_supplicant_log
     @simwifi_p2p_connect
     Scenario: nmcli - simwifi - p2p - connect
