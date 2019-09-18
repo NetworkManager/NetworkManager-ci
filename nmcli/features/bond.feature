@@ -95,6 +95,8 @@
      * Dismiss IP configuration in editor
      * Dismiss Proxy configuration in editor
      * Add slave connection for master "nm-bond" on device "eth1" named "bond0.0"
+    # Remove double up to prevent 1753214
+    # * Bring "up" connection "bond"
     When "activated" is visible with command "nmcli c show bond" in "45" seconds
     Then Check bond "nm-bond" link state is "up"
     Then "MII Polling Interval \(ms\): 100" is visible with command "cat /proc/net/bonding/nm-bond"
