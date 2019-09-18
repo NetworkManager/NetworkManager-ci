@@ -337,21 +337,23 @@ Feature: nmcli - ovs
     * Add a new connection of type "ovs-port" and options "conn.interface bond0 conn.master ovsbridge0 con-name ovs-bond0 ovs-port.tag 120"
     * Add a new connection of type "ethernet" and options "conn.interface eth2 conn.master bond0 slave-type ovs-port con-name ovs-eth2"
     * Add a new connection of type "ethernet" and options "conn.interface eth3 conn.master bond0 slave-type ovs-port con-name ovs-eth3"
-    * Add a new connection of type "ovs-interface" and options "conn.interface iface0 conn.master port0 con-name ovs-iface0"
+    * Add a new connection of type "ovs-interface" and options "conn.interface iface0 conn.master port0 con-name ovs-iface0 ipv4.may-fail no"
     When "activated" is visible with command "nmcli -g GENERAL.STATE con show ovs-iface0" in "40" seconds
     # VVV Reconnect master bridge connection
     * Bring "up" connection "ovs-bridge0"
+    When "activated" is not visible with command "nmcli -g GENERAL.STATE con show ovs-iface0" in "5" seconds
     When "activated" is visible with command "nmcli -g GENERAL.STATE con show ovs-iface0" in "40" seconds
      And "Bridge \"ovsbridge0\"" is visible with command "ovs-vsctl show"
      And "Port \"bond0\"\s+tag: 120\s+Interface \"eth[2-3]\"\s+type: system\s+Interface \"eth[2-3]\"\s+type: system" is visible with command "ovs-vsctl show"
      And "Port \"port0\"\s+tag: 120\s+Interface \"iface0\"\s+type: internal" is visible with command "ovs-vsctl show"
      And "master ovs-system" is visible with command "ip a s eth2"
      And "master ovs-system" is visible with command "ip a s eth3"
-     And "192.168.100.*\/24" is visible with command "ip a s iface0"
+     And "192.168.100.*\/24" is visible with command "ip a s iface0" in "45" seconds
      And "fe80::" is visible with command "ip a s iface0"
      And "default via 192.168.100.1 dev iface0 proto dhcp metric 800" is visible with command "ip r"
     # VVV Reconnect port connection
     * Bring "up" connection "ovs-port0"
+    When "activated" is not visible with command "nmcli -g GENERAL.STATE con show ovs-iface0" in "5" seconds
     When "activated" is visible with command "nmcli -g GENERAL.STATE con show ovs-iface0" in "40" seconds
      And "Bridge \"ovsbridge0\"" is visible with command "ovs-vsctl show"
      And "Port \"bond0\"\s+tag: 120\s+Interface \"eth[2-3]\"\s+type: system\s+Interface \"eth[2-3]\"\s+type: system" is visible with command "ovs-vsctl show"
