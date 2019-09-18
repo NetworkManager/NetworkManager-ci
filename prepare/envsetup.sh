@@ -398,6 +398,11 @@ local_setup_configure_nm_eth () {
     if [ $veth -eq 1 ]; then
         . prepare/vethsetup.sh setup
 
+        # If we are on RHEL8 let's test nettools DHCP plugin too
+        if grep -q -e 'Enterprise Linux .*release 8' /etc/redhat-release; then
+            echo -e "[main]\ndhcp=nettools\n" >> /etc/NetworkManager/conf.d/99-test.conf
+        fi
+        
         # Copy this once more just to be sure it's there as it's really crucial
         yes 2>/dev/null | cp -rf /etc/sysconfig/network-scripts/ifcfg-testeth0 /tmp/testeth0
         cat /tmp/testeth0
