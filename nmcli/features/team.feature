@@ -498,7 +498,7 @@
 
     @rhbz1360386
     @ver+=1.7.1
-    @team_slaves @team @clean @not_in_rhel
+    @team_slaves @team @clean @not_with_rhel_pkg
     @config_invalid1
     Scenario: nmcli - team - config - set invalid mode
      * Add connection type "team" named "team0" for device "nm-team"
@@ -517,7 +517,7 @@
 
     @rhbz1270814
     @ver+=1.3.0
-    @team_slaves @team @clean @long @not_in_rhel
+    @team_slaves @team @clean @long @not_with_rhel_pkg
     @config_invalid2
     Scenario: nmcli - team - config - set invalid mode
      * Add connection type "team" named "team0" for device "nm-team"
@@ -627,7 +627,7 @@
     Then Check slave "eth6" in team "nm-team" is "up"
 
 
-    @ver-=1.1
+    @ver-=1.1.0
     @dummy @teamd
     @team_reflect_changes_from_outside_of_NM
     Scenario: nmcli - team - reflect changes from outside of NM
@@ -1530,7 +1530,7 @@
 
 
     @rhbz1647414
-    @ver+=1.18 @not_in_rhel8
+    @ver+=1.18 @rhelver-=7
     @team @team_slaves @long
     @teamd_logging
     Scenario: nmcli - teamd - logging to syslog

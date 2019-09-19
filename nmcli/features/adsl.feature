@@ -10,7 +10,7 @@ Feature: nmcli: adsl
     @rhbz1264089
     @adsl
     @add_adsl_connection_novice_mode
-    @ver-=1.20
+    @ver-1.20
     Scenario: nmcli - adsl - create adsl connection in novice mode
     * Open wizard for adding new connection
     * Expect "Connection type"

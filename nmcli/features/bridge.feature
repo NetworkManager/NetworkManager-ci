@@ -354,7 +354,7 @@ Feature: nmcli - bridge
     Then "br4:.*192.168" is visible with command "ip a s br4" in "45" seconds
 
 
-    @ver-=1.1
+    @ver-=1.1.0
     @rhbz1030947
     @dummy
     @bridge_reflect_changes_from_outside_of_NM
@@ -421,7 +421,7 @@ Feature: nmcli - bridge
     Then "br0" is not visible with command "firewall-cmd --get-active-zones" in "5" seconds
 
 
-    @ver-=1.1
+    @ver-=1.1.0
     @dummy @bridge_assumed
     @bridge_assumed_connection_ip_methods
     Scenario: NM - bridge - Layer2 changes for bridge assumed connection

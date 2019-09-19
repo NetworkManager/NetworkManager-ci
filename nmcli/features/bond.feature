@@ -137,7 +137,7 @@
 
     @slaves @bond
     @nmcli_novice_mode_create_bond-slave_with_default_options
-    @ver-=1.20
+    @ver-1.20
     Scenario: nmcli - bond - novice - create bond-slave with default options
      * Add connection type "bond" named "bond0" for device "nm-bond"
      * Open wizard for adding new connection
@@ -455,7 +455,7 @@
 
     @rhbz1420708 @rhbz1420708
     @ver+=1.7.9
-    @rhel7_only
+    @rhelver-=7 @rhel_pkg
     @slaves @bond @bond_order @teardown_testveth @restart
     @bond_default_rhel7_slaves_ordering
     Scenario: NM - bond - default rhel7 slaves ordering (ifindex)
@@ -1198,7 +1198,7 @@
       And "fe80" is visible with command "nmcli connection show bond0 |grep IP6.ADDRESS"
 
 
-    @ver-=1.1
+    @ver-=1.1.0
     @dummy
     @bond_reflect_changes_from_outside_of_NM
     Scenario: nmcli - bond - reflect changes from outside of NM
@@ -1260,7 +1260,7 @@
 
 
     @rhbz1299103 @rhbz1348198
-    @ver-=1.10.0
+    @ver-1.10.0
     @slaves @bond
     @bond_set_active_backup_options
     Scenario: nmcli - bond - set active backup options
@@ -1524,7 +1524,7 @@
 
 
      @rhbz1371126
-     @ver-=1.13
+     @ver-1.13
      @slaves @bond @teardown_testveth @restart
      @bond_leave_L2_only_up_when_going_down
      Scenario: nmcli - bond - leave UP with L2 only config

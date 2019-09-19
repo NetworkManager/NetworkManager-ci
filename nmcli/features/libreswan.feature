@@ -205,7 +205,7 @@
 
 
     @rhbz1060460
-    @ver-=1.14.0
+    @ver-1.14.0
     @vpn
     @vpn_keep_username_from_data
     Scenario: nmcli - vpn - keep username from vpn.data
@@ -241,7 +241,7 @@
 
     @rhbz1060460
     @ver+=1.14.1
-    @rhel7_only
+    @rhelver-=7 @rhel_pkg
     @vpn
     @vpn_keep_username_from_data
     Scenario: nmcli - vpn - keep username from vpn.data
@@ -299,7 +299,7 @@
 
     @rhbz1633174
     @ver+=1.14.0
-    @libreswan @ikev2 @not_in_rhel7
+    @libreswan @ikev2 @rhelver+=8
     @libreswan_reimport
     Scenario: nmcli - libreswan - reimport exported connection
     * Add a new connection of type "vpn" and options "ifname \* con-name libreswan autoconnect no vpn-type libreswan"
@@ -323,7 +323,7 @@
 
     @rhbz1557035
     @ver+=1.14.0
-    @vpn @not_in_rhel7
+    @vpn @rhelver+=8
     @libreswan_configurable_options_reimport
     Scenario: nmcli - libreswan - check libreswan options in vpn.data
     * Add a new connection of type "vpn" and options "ifname \* con-name vpn autoconnect no vpn-type libreswan vpn.data 'right=1.2.3.4, rightid=server, rightrsasigkey=server-key, left=1.2.3.5, leftid=client, leftrsasigkey=client-key, leftcert=client-cert, ike=aes256-sha1;modp1536, esp=aes256-sha1, ikelifetime=10m, salifetime=1h, vendor=Cisco, rightsubnet=1.2.3.0/24, ikev2=yes, narrowing=yes, rekey=no, fragmentation=no'"

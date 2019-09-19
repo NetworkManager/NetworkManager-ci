@@ -133,7 +133,7 @@
 
 
     @ver+=1.16
-    @wireguard @not_in_rhel7
+    @wireguard @rhelver+=8
     @wireguard_activate_connection
     Scenario: nmcli - vpn - create and activate wireguard connection
     * Add a new connection of type "wireguard" and options "ifname nm-wireguard con-name wireguard wireguard.private-key qOdhat/redhat/redhat/redhat/redhat/redhatUE= wireguard.listen-port 23456 ipv4.method manual ipv4.addresses 172.25.17.1/24 "

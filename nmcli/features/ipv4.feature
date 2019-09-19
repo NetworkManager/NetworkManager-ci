@@ -733,7 +733,7 @@ Feature: nmcli: ipv4
 
     @rhbz+=1423490
     @ver+=1.8.0
-    @rhel7_only
+    @rhelver-=7 @rhel_pkg
     @con_ipv4_remove @restore_resolvconf @restart
     @ipv4_dns_resolvconf_rhel7_default
     Scenario: nmcli - ipv4 - dns - rhel7 default
@@ -904,7 +904,7 @@ Feature: nmcli: ipv4
     Then Ping "maps.google.com"
 
 
-    @ver-=1.7.9
+    @ver-1.8
     @tshark @con_ipv4_remove
     @ipv4_dhcp-hostname_set
     Scenario: nmcli - ipv4 - dhcp-hostname - set dhcp-hostname
@@ -1128,28 +1128,7 @@ Feature: nmcli: ipv4
     Then "169.254" is visible with command "ip a s eth3" in "10" seconds
 
 
-    @ver-=1.11.1 @not_with_rhel7_pkg
-    @eth2 @con_ipv4_remove @tshark
-    @ipv4_dhcp_client_id_set
-    Scenario: nmcli - ipv4 - dhcp-client-id - set client id
-    * Add connection type "ethernet" named "con_ipv4" for device "eth2"
-    * Bring "up" connection "con_ipv4"
-    * Bring "down" connection "con_ipv4"
-    * Open editor for connection "con_ipv4"
-    * Submit "set ipv4.dhcp-client-id AB" in editor
-    * Save in editor
-    * Quit editor
-    * Run child "sudo tshark -l -O bootp -i eth2 -x > /tmp/tshark.log"
-    When "empty" is not visible with command "file /tmp/tshark.log" in "150" seconds
-    * Bring "up" connection "con_ipv4"
-    Then "AB" is visible with command "cat /tmp/tshark.log" in "10" seconds
-    #Then "walderon" is visible with command "cat /var/lib/NetworkManager/dhclient-eth2.conf"
-    #VVV verify bug 999503
-     And "exceeds max \(255\) for precision" is not visible with command "grep exceeds max /var/log/messages"
-    * Finish "sudo pkill tshark"
-
-
-    @ver+=1.11.3 @not_with_rhel7_pkg
+    @ver+=1.11.3 @rhelver+=8
     @eth2 @con_ipv4_remove @tcpdump
     @ipv4_dhcp_client_id_set
     # https://bugzilla.gnome.org/show_bug.cgi?id=793957
@@ -1171,7 +1150,29 @@ Feature: nmcli: ipv4
     Then "Client-ID Option 61, length 4: hardware-type 192, ff:ee:ee" is visible with command "cat /tmp/tcpdump.log" in "10" seconds
 
 
-    @ver+=1.11.2 @rhel7_only
+    @ver+=1.11.3 @rhelver-=7 @not_with_rhel_pkg
+    @eth2 @con_ipv4_remove @tcpdump
+    @ipv4_dhcp_client_id_set
+    # https://bugzilla.gnome.org/show_bug.cgi?id=793957
+    Scenario: nmcli - ipv4 - dhcp-client-id - set client id
+    * Add connection type "ethernet" named "con_ipv4" for device "eth2"
+    * Open editor for connection "con_ipv4"
+    #### Try first with string client-id
+    * Submit "set ipv4.dhcp-client-id AB" in editor
+    * Save in editor
+    * Quit editor
+    * Run child "sudo tcpdump -i eth2 -v -n > /tmp/tcpdump.log"
+    * Bring "up" connection "con_ipv4"
+    When "empty" is not visible with command "file /tmp/tcpdump.log" in "150" seconds
+    * Bring "up" connection "con_ipv4"
+    Then "Client-ID Option 61, length 3: \"AB\"" is visible with command "cat /tmp/tcpdump.log" in "10" seconds
+    #### Then try hexadecimal client-id
+    * Execute "nmcli connection modify con_ipv4 ipv4.dhcp-client-id c0:ff:ee:ee"
+    * Bring "up" connection "con_ipv4"
+    Then "Client-ID Option 61, length 4: hardware-type 192, ff:ee:ee" is visible with command "cat /tmp/tcpdump.log" in "10" seconds
+
+
+    @ver+=1.11.2 @rhlever-=7 @rhel_pkg
     @eth2 @con_ipv4_remove @tshark
     @ipv4_dhcp_client_id_set
     Scenario: nmcli - ipv4 - dhcp-client-id - set client id
@@ -1223,7 +1224,7 @@ Feature: nmcli: ipv4
 
     @rhbz1642023
     @ver+=1.14
-    @con_ipv4_remove @restart @rhel8_only
+    @con_ipv4_remove @restart @rhelver+=8 @rhel_pkg
     @ipv4_dhcp_client_id_change_lease_restart
     Scenario: nmcli - ipv4 - dhcp-client-id - lease file change should not be considered even after NM restart
     * Add connection type "ethernet" named "con_ipv4" for device "eth2"
@@ -1274,7 +1275,7 @@ Feature: nmcli: ipv4
 
 
     @rhbz1661165
-    @ver+=1.15.1 @not_in_rhel
+    @ver+=1.15.1 @not_with_rhel_pkg
     @internal_DHCP @con_ipv4_remove @tcpdump @no_config_server
     @ipv4_dhcp_client_id_default
     Scenario: NM - ipv4 - ipv4 client id should default to mac with internal plugins
@@ -1288,7 +1289,7 @@ Feature: nmcli: ipv4
 
 
     @rhbz1661165
-    @ver+=1.12 @ver-=1.15 @not_in_rhel
+    @ver+=1.12 @ver-1.15 @not_with_rhel_pkg
     @internal_DHCP @con_ipv4_remove @tcpdump @no_config_server
     @ipv4_dhcp_client_id_default
     Scenario: NM - ipv4 - ipv4 client id should default to duid with internal plugins
@@ -1301,7 +1302,7 @@ Feature: nmcli: ipv4
 
 
     @rhbz1661165
-    @rhel8_only
+    @rhelver+=8 @rhel_pkg
     @internal_DHCP @con_ipv4_remove @tcpdump @no_config_server
     @ipv4_dhcp_client_id_default_rhel8
     Scenario: NM - ipv4 - ipv4 client id should default to mac with internal plugins
@@ -1315,7 +1316,7 @@ Feature: nmcli: ipv4
 
 
     @rhbz1661165
-    @rhel7_only
+    @rhelver-=7 @rhel_pkg
     @internal_DHCP @con_ipv4_remove @tcpdump @no_config_server
     @ipv4_dhcp_client_id_default_rhel7
     Scenario: NM - ipv4 - ipv4 client id should default to duid with internal plugins
@@ -1419,7 +1420,7 @@ Feature: nmcli: ipv4
     Then "mtu 1800" is visible with command "ip a s test2"
 
 
-    @ver-=1.10.99
+    @ver-1.11
     @con_ipv4_remove @teardown_testveth @long
     @renewal_gw_after_dhcp_outage
     Scenario: NM - ipv4 - renewal gw after DHCP outage
@@ -1436,7 +1437,7 @@ Feature: nmcli: ipv4
 
 
     @rhbz1503587
-    @ver+=1.10 @ver-=1.10.99
+    @ver+=1.10 @ver-1.11
     @con_ipv4_remove @teardown_testveth @long
     @renewal_gw_after_long_dhcp_outage
     Scenario: NM - ipv4 - renewal gw after DHCP outage
@@ -1501,7 +1502,7 @@ Feature: nmcli: ipv4
 
 
     @rhbz1246496
-    @ver-=1.10.99
+    @ver-1.11
     @con_ipv4_remove @teardown_testveth @long @restart
     @renewal_gw_after_dhcp_outage_for_assumed_var0
     Scenario: NM - ipv4 - assumed address renewal after DHCP outage for on-disk assumed
@@ -1544,7 +1545,7 @@ Feature: nmcli: ipv4
 
 
     @rhbz1518091
-    @ver+=1.10.1 @ver-=1.10.99
+    @ver+=1.10.1 @ver-1.11
     @teardown_testveth @long @restart
     @renewal_gw_after_dhcp_outage_for_assumed_var1
     Scenario: NM - ipv4 - assumed address renewal after DHCP outage for in-memory assumed
@@ -1896,7 +1897,7 @@ Feature: nmcli: ipv4
     @rhbz1394344 @rhbz1505893
     @ver+=1.9.1 @ver-=1.14
     @con_ipv4_remove @restore_rp_filters
-    @not_in_rhel
+    @not_with_rhel_pkg
     @ipv4_rp_filter_set_loose
     Scenario: NM - ipv4 - set loose RP filter
     * Execute "echo 1 > /proc/sys/net/ipv4/conf/eth2/rp_filter"
@@ -1912,7 +1913,7 @@ Feature: nmcli: ipv4
     @rhbz1394344 @rhbz1505893 @rhbz1492472
     @ver+=1.9.1
     @con_ipv4_remove @restore_rp_filters
-    @rhel_only
+    @rhel_pkg
     @ipv4_rp_filter_set_loose_rhel
     Scenario: NM - ipv4 - set loose RP filter
     * Execute "echo 1 > /proc/sys/net/ipv4/conf/eth2/rp_filter"
@@ -1942,7 +1943,7 @@ Feature: nmcli: ipv4
 
     @rhbz1394344 @rhbz1505893
     @ver+=1.9.1
-    @con_ipv4_remove @restore_rp_filters @rhel_only
+    @con_ipv4_remove @restore_rp_filters @rhel_pkg
     @ipv4_rp_filter_do_not_touch
     Scenario: NM - ipv4 - don't touch disabled RP filter
     * Execute "echo 1 > /proc/sys/net/ipv4/conf/eth2/rp_filter"
@@ -1976,7 +1977,7 @@ Feature: nmcli: ipv4
 
     @rhbz1394344 @rhbz1505893
     @ver+=1.9.1 @ver-=1.14
-    @not_in_rhel
+    @not_with_rhel_pkg
     @con_ipv4_remove @restore_rp_filters
     @ipv4_rp_filter_reset
     Scenario: NM - ipv4 - reset RP filter back
@@ -1996,7 +1997,7 @@ Feature: nmcli: ipv4
 
     @rhbz1394344 @rhbz1505893 @rhbz1492472
     @ver+=1.9.1
-    @rhel_only
+    @rhel_pkg
     @con_ipv4_remove @restore_rp_filters
     @ipv4_rp_filter_reset_rhel
     Scenario: NM - ipv4 - reset RP filter back

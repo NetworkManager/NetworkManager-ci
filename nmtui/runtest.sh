@@ -36,7 +36,8 @@ fi
 
 NMTEST_REPORT="/tmp/report_$NMTEST.log"
 
-#check if NM version is correct for test
+# get tags specific to software versions (NM, fedora, rhel)
+# see version_control.py for more details
 TAG="$(python $DIR/version_control.py $DIR/nmtui $NMTEST)"; vc=$?
 if [ $vc -eq 1 ]; then
     logger "Skipping due to incorrect NM version for this test"
@@ -45,11 +46,15 @@ if [ $vc -eq 1 ]; then
     exit 0
 
 elif [ $vc -eq 0 ]; then
+    FEATURE_FILE=$(grep "@$1" -l $DIR/nmtui/features/*.feature)
+    if [ -z $FEATURE_FILE ]; then
+        FEATURE_FILE=$DIR/nmtui/features
+    fi
     if [ "x$TAG" != "x" ]; then
         logger "Running $TAG version of $NMTEST"
-        behave $DIR/nmtui/features --no-capture --no-capture-stderr -k -t $1 -t $TAG -f plain -o $NMTEST_REPORT; rc=$?
+        behave $FEATURE_FILE --no-capture --no-capture-stderr -k -t $1 -t $TAG -f plain -o $NMTEST_REPORT; rc=$?
     else
-        behave $DIR/nmtui/features --no-capture --no-capture-stderr -k -t $1 -f plain -o $NMTEST_REPORT; rc=$?
+        behave $FEATURE_FILE --no-capture --no-capture-stderr -k -t $1 -f plain -o $NMTEST_REPORT; rc=$?
     fi
 fi
 

@@ -50,7 +50,7 @@ Feature: nmcli: inf
     Then "inet 172" is visible with command "ip a s inf_ib0.8002" in "10" seconds
 
 
-    @ver-=1.9.9
+    @ver-1.10
     @inf
     @inf_create_port_novice_mode
     Scenario: nmcli - inf - novice - create infiniband port with default options
@@ -209,7 +209,7 @@ Feature: nmcli: inf
 
 
     @rhbz1658057
-    @not_in_rhel7
+    @rhelver+=8
     @internal_DHCP @tcpdump @inf
     @inf_send_correct_client_id
     Scenario: NM - inf - internal - send client id
