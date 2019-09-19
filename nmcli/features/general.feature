@@ -236,7 +236,7 @@ Feature: nmcli - general
 
     @rhbz1371201
     @ver+=1.4.0
-    @rhel7_only
+    @rhelver-=7 @rhel_pkg
     @CAP_SYS_ADMIN_for_ibft
     Scenario: NM - service - CAP_SYS_ADMIN for ibft plugin
       Then "CAP_SYS_ADMIN" is visible with command "grep ^CapabilityBoundingSet /usr/lib/systemd/system/NetworkManager.service"
@@ -396,7 +396,7 @@ Feature: nmcli - general
      And "default via 192.168.99.1 dev testG" is visible with command "ip r"
 
 
-    @ver+=1.10.2  @ver-=1.10.99
+    @ver+=1.10.2  @ver-1.11
     @con_general_remove @teardown_testveth @dhcpd
     @device_reapply_routes
     Scenario: NM - device - reapply just routes
@@ -475,7 +475,7 @@ Feature: nmcli - general
 
 
     @rhbz1032717 @rhbz1505893
-    @ver+=1.10.2 @ver-=1.17.90
+    @ver+=1.10.2 @ver-1.18
     @con_general_remove @teardown_testveth @dhcpd
     @device_reapply_all
     Scenario: NM - device - reapply even address and gate
@@ -634,7 +634,7 @@ Feature: nmcli - general
     # Restoring orig. hostname in after_scenario
 
 
-    @ver-=1.1
+    @ver-=1.1.0
     @rhbz1136843
     @nmcli_general_ignore_specified_unamanaged_devices
     Scenario: NM - general - ignore specified unmanaged devices
@@ -783,7 +783,7 @@ Feature: nmcli - general
 
      @rhbz1729854
      @ver+=1.14
-     @restart @not_on_s390x @no_config_server @rhel8_only
+     @restart @not_on_s390x @no_config_server @rhelver+=8 @rhel_pkg
      @no_assumed_wired_connections
      Scenario: NM - general - connection matching for anaconda
      * Stop NM
@@ -987,7 +987,7 @@ Feature: nmcli - general
 
 
     @rhbz1201497
-    @ver-=1.9.9
+    @ver-1.10
     @runonce @restore_hostname @eth0 @restart
     @run_once_helper_for_localhost_localdomain
     Scenario: NM - general - helper running for localhost on localdo
@@ -1040,7 +1040,7 @@ Feature: nmcli - general
 
     @rhbz1520865
     @ver+=1.10
-    @rhel7_only
+    @rhelver-=7 @rhel_pkg
     @nm_wait_online_requisite_NM
     Scenario: NM - general - NM wait online - requisite NM
     Then "Requisite=NetworkManager.service" is visible with command "cat /usr/lib/systemd/system/NetworkManager-wait-online.service"
@@ -1048,7 +1048,7 @@ Feature: nmcli - general
 
     @rhbz1520865
     @ver+=1.10
-    @not_in_rhel
+    @rhelver-=0
     @nm_wait_online_requires_NM
     Scenario: NM - general - NM wait online - requires NM
     Then "Requires=NetworkManager.service" is visible with command "cat /usr/lib/systemd/system/NetworkManager-wait-online.service"
@@ -1615,7 +1615,7 @@ Feature: nmcli - general
 
     @rhbz1458399
     @ver+=1.12.0
-    @not_in_rhel8
+    @rhelver-=7
     @connectivity @con_general_remove @eth0
     @connectivity_check
     Scenario: NM - general - connectivity check
@@ -1632,7 +1632,7 @@ Feature: nmcli - general
 
     @rhbz1458399
     @ver+=1.12.0
-    @not_in_rhel8
+    @rhelver-=7
     @connectivity @con_general_remove @delete_testeth0 @restart
     @disable_connectivity_check
     Scenario: NM - general - disable connectivity check
@@ -2010,7 +2010,7 @@ Feature: nmcli - general
 
     @rhbz1578436
     @ver+=1.14
-    @not_in_rhel7 @con_general_remove
+    @rhelver+=8 @con_general_remove
     @ifup_ifdown_scripts_rhel8
     Scenario: NM - general - test ifup (ifdown) script uses NM
     * Add a new connection of type "ethernet" and options "con-name con_general ifname eth8 autoconnect no ipv4.address 1.2.3.4/24 ipv4.method manual"
@@ -2100,7 +2100,7 @@ Feature: nmcli - general
 
 
     @rhbz1697858
-    @rhel7_only @con_general_remove @remove_custom_cfg @restart
+    @rhelver-=7 @rhel_pkg @con_general_remove @remove_custom_cfg @restart
     @keyfile_nmconnection_extension_rhel7
     Scenario: NM - general - keyfile does not have .nmconnection extension
     * Execute "echo '[main]' > /etc/NetworkManager/conf.d/99-xxcustom.conf"
@@ -2113,7 +2113,7 @@ Feature: nmcli - general
 
     @rhbz1697858
     @ver+=1.19
-    @rhel8_only @con_general_remove @remove_custom_cfg @restart
+    @rhelver+=8 @rhel_pkg @con_general_remove @remove_custom_cfg @restart
     @keyfile_nmconnection_extension_rhel8
     Scenario: NM - general - keyfile does have .nmconnection extension
     * Execute "echo '[main]' > /etc/NetworkManager/conf.d/99-xxcustom.conf"
@@ -2126,7 +2126,7 @@ Feature: nmcli - general
 
     @rhbz1697858
     @ver+=1.14
-    @not_in_rhel @con_general_remove @remove_custom_cfg @restart
+    @not_with_rhel_pkg @con_general_remove @remove_custom_cfg @restart
     @keyfile_nmconnection_extension
     Scenario: NM - general - keyfile does have .nmconnection extension
     * Execute "echo '[main]' > /etc/NetworkManager/conf.d/99-xxcustom.conf"

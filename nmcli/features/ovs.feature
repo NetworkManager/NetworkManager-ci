@@ -22,7 +22,7 @@ Feature: nmcli - ovs
 
 
     @ver+=1.10
-    @rhel7_only
+    @rhelver-=7 @rhel_pkg
     @openvswitch
     @openvswitch_ignore_ovs_network_setup
     Scenario: NM - openvswitch - ignore ovs network setup
@@ -42,7 +42,7 @@ Feature: nmcli - ovs
 
 
     @ver+=1.10
-    @rhel7_only
+    @rhelver-=7 @rhel_pkg
     @openvswitch
     @openvswitch_ignore_ovs_vlan_network_setup
     Scenario: NM - openvswitch - ignore ovs network setup
@@ -58,7 +58,7 @@ Feature: nmcli - ovs
 
 
     @ver+=1.10
-    @rhel7_only
+    @rhelver-=7 @rhel_pkg
     @openvswitch
     @openvswitch_ignore_ovs_bond_network_setup
     Scenario: NM - openvswitch - ignore ovs network setup
@@ -77,7 +77,7 @@ Feature: nmcli - ovs
 
 
     @rhbz1540218
-    @ver+=1.10 @ver-=1.16
+    @ver+=1.10 @ver-1.16
     @openvswitch
     @nmcli_add_basic_openvswitch_configuration
     Scenario: nmcli - openvswitch - add basic setup
@@ -210,7 +210,7 @@ Feature: nmcli - ovs
 
 
     @rhbz1540218
-    @ver+=1.10 @ver-=1.16
+    @ver+=1.10 @ver-1.16
     @openvswitch
     @nmcli_remove_openvswitch_master_bridge_configuration_only
     Scenario: nmcli - openvswitch - remove master bridge connection
@@ -258,7 +258,7 @@ Feature: nmcli - ovs
 
 
     @rhbz1540218
-    @ver+=1.10 @ver-=1.17
+    @ver+=1.10 @ver-1.17
     @openvswitch
     @nmcli_reconnect_openvswitch_vlan_configuration
     Scenario: nmcli - openvswitch - reconnect all connections
@@ -472,7 +472,7 @@ Feature: nmcli - ovs
 
     @rhbz1676551
     @ver+=1.12
-    @openvswitch @restart @vlan @bond @slaves @not_in_rhel8
+    @openvswitch @restart @vlan @bond @slaves @rhelver-=7
     @restart_NM_with_mixed_setup
     Scenario: NM -  openvswitch - restart NM when OVS is unmanaged
     * Add a new connection of type "bond" and options "ifname nm-bond con-name bond0 ipv4.method manual ipv4.addresses 10.0.0.2/16 ipv4.gateway 10.0.0.1"

@@ -26,7 +26,8 @@ fi
 
 NMTEST_REPORT=/tmp/report_$NMTEST.html
 
-#check if NM version is correct for test
+# get tags specific to software versions (NM, fedora, rhel)
+# see version_control.py for more details
 TAG="$(python $DIR/version_control.py $DIR/nmcli $NMTEST)"; vc=$?
 if [ $vc -eq 1 ]; then
     logger "Skipping due to incorrect NM version for this test"
@@ -35,10 +36,14 @@ if [ $vc -eq 1 ]; then
 
 # do we have tag to run tagged test?
 elif [ $vc -eq 0 ]; then
+    FEATURE_FILE=$(grep "@$1" -l $DIR/nmcli/features/*.feature)
+    if [ -z $FEATURE_FILE ]; then
+        FEATURE_FILE=$DIR/nmcli/features
+    fi
     # if yes, run with -t $TAG
     if [ "x$TAG" != "x" ]; then
         logger "Running $TAG version of $NMTEST"
-        behave $DIR/nmcli/features -t $1 -t $TAG -k -f html -o "$NMTEST_REPORT" -f plain 2>/dev/null; rc=$?
+        behave $FEATURE_FILE -t $1 -t $TAG -k -f html -o "$NMTEST_REPORT" -f plain 2>/dev/null; rc=$?
 
     # if not
     else
@@ -49,7 +54,7 @@ elif [ $vc -eq 0 ]; then
 
         # if we do not have tag or gsm_hub
         else
-            behave $DIR/nmcli/features -t $1 -k -f html -o "$NMTEST_REPORT" -f plain 2>/dev/null; rc=$?
+            behave $FEATURE_FILE -t $1 -k -f html -o "$NMTEST_REPORT" -f plain 2>/dev/null; rc=$?
         fi
     fi
 fi

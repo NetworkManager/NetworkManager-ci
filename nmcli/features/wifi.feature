@@ -1304,7 +1304,7 @@ Feature: nmcli - wifi
     Then "qe-open" is visible with command "iw dev wlan0 link" in "30" seconds
 
 
-    @ver-=1.8
+    @ver-1.8
     @wifi
     @nmcli_wifi_add_connection_in_novice_nmcli_a_mode_specifying_options
     Scenario: nmcli - wifi - add connection in novice (nmcli -a) mode specifying options

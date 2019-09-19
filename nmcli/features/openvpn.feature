@@ -8,7 +8,7 @@
      # Scenario:
 
 
-    @ver-=1.12
+    @ver-1.12
     @openvpn @openvpn4
     @openvpn_ipv4
     Scenario: nmcli - openvpn - add and connect IPv4 connection

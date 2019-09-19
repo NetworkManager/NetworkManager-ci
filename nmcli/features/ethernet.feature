@@ -182,7 +182,7 @@ Feature: nmcli - ethernet
 
     @rhbz1413312
     @ver+=1.6.0
-    @rhel7_only @ethernet @mac
+    @rhelver-=7 @rhel_pkg @ethernet @mac
     @ethernet_mac_address_rhel7_default
     Scenario: NM - ethernet - mac address rhel7 dafault
     * Note the output of "nmcli -t --mode tabular --fields GENERAL.HWADDR device show eth1" as value "orig_eth1"

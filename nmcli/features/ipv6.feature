@@ -400,7 +400,7 @@
 
     @rhbz1436531
     @ver+=1.10
-    @ver-=1.10.99
+    @ver-1.11
     @con_ipv6_remove @flush_300
     @ipv6_route_set_route_with_tables_reapply
     Scenario: nmcli - ipv6 - routes - set route with tables reapply
@@ -1360,7 +1360,7 @@
 
     @rhbz1394500
     @ver+=1.8.0
-    @con_ipv6_remove @rhel7_only
+    @con_ipv6_remove @rhelver-=7 @rhel_pkg
     @ipv6_honor_ip_order
     Scenario: NM - ipv6 - honor IP order from configuration upon reapply
     * Add a new connection of type "ethernet" and options "con-name con_ipv6 ifname eth2 autoconnect no"
@@ -1374,7 +1374,7 @@
 
     @rhbz1394500
     @ver+=1.8.0
-    @con_ipv6_remove @not_in_rhel
+    @con_ipv6_remove @not_with_rhel_pkg
     @ipv6_honor_ip_order
     Scenario: NM - ipv6 - honor IP order from configuration upon reapply
     * Add a new connection of type "ethernet" and options "con-name con_ipv6 ifname eth2 autoconnect no"
