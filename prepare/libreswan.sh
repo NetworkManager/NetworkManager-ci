@@ -42,7 +42,7 @@ libreswan_gen_connection ()
     modecfgpull=yes
     modecfgdns1=8.8.8.8
     modecfgbanner=BUG_REPORT_URL
-    xauthby=alwaysok
+    xauthby=file
     ike-frag=yes
     ikev2=$IKEv2" > "$CONNECTION_CFG"
     if [ "$MODE" = "aggressive" ]; then
@@ -56,9 +56,12 @@ libreswan_gen_connection ()
 libreswan_gen_secrets ()
 {
     SECRETS_CFG="$1"
+    PASSWD_FILE="$2"
 
     echo ": PSK \"ipsecret\"" > "$SECRETS_CFG"
     chmod 600 "$SECRETS_CFG"
+
+    echo 'budulinek:$2y$05$blZd./TWeA4mYn3cxL/JJOjHEbIectXvnMXbUCEZ5U6GUtsQ0b5Ke:roadwarrior_psk' > "$PASSWD_FILE"
 }
 
 libreswan_gen_netconfig ()
@@ -93,6 +96,7 @@ libreswan_setup ()
     MODE="$1"
     CONNECTION_CFG="$LIBRESWAN_DIR/connection.conf"
     SECRETS_CFG="$LIBRESWAN_DIR/ipsec.secrets"
+    PASSWD_FILE="$LIBRESWAN_DIR/passwd"
     NSS_DIR="$LIBRESWAN_DIR/nss"
     if [ "$4" = "ikev2" ]; then
         IKEv2="insist"
@@ -103,7 +107,7 @@ libreswan_setup ()
     [ -d "$LIBRESWAN_DIR" ] || mkdir "$LIBRESWAN_DIR"
     [ -d "$NSS_DIR" ] || mkdir "$NSS_DIR"
 
-    libreswan_gen_secrets "$SECRETS_CFG"
+    libreswan_gen_secrets "$SECRETS_CFG" "$PASSWD_FILE"
     libreswan_gen_connection "$CONNECTION_CFG" "$MODE" "$IKEv2"
     libreswan_gen_netconfig
 

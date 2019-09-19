@@ -1415,6 +1415,8 @@ testmapper:
         feature: pptp
     - libreswan_add_profile:
         feature: libreswan
+    - libreswan_add_profile_wrong_password:
+        feature: libreswan
     - libreswan_terminate:
         feature: libreswan
     - libreswan_delete_active_profile:
