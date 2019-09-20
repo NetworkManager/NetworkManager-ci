@@ -7,7 +7,7 @@
      # @test_name (compiled from scenario name)
      # Scenario:
 
-    @libreswan
+    @libreswan @rhelver+=8
     @libreswan_add_profile
     Scenario: nmcli - libreswan - add and connect a connection
     * Add a connection named "libreswan" for device "\*" to "libreswan" VPN
@@ -22,7 +22,7 @@
     Then "IP4.GATEWAY:.*172.31.70.1" is visible with command "nmcli d show libreswan1"
 
 
-    @libreswan
+    @libreswan @rhelver+=8
     @libreswan_add_profile_wrong_password
     Scenario: nmcli - libreswan - add and connect a connection with worong password
     * Add a connection named "libreswan" for device "\*" to "libreswan" VPN
@@ -33,7 +33,7 @@
 
 
     @rhbz1250723
-    @libreswan @long
+    @libreswan @rhelver+=8 @long
     @libreswan_connection_renewal
     Scenario: NM - libreswan - main connection lifetime renewal
     * Add a connection named "libreswan" for device "\*" to "libreswan" VPN
@@ -49,7 +49,7 @@
 
 
     @rhbz1292912
-    @ver+=1.4.0
+    @ver+=1.4.0 @rhelver+=8
     @libreswan_main
     Scenario: nmcli - libreswan - connect in Main mode
     * Add a connection named "libreswan" for device "\*" to "libreswan" VPN
@@ -65,7 +65,7 @@
 
 
     @rhbz1141947
-    @libreswan
+    @libreswan @rhelver+=8
     @libreswan_activate_asking_for_password
     Scenario: nmcli - vpn - activate asking for password
     * Add a connection named "libreswan" for device "\*" to "libreswan" VPN
@@ -82,7 +82,7 @@
 
 
     @rhbz1349740
-    @libreswan @long
+    @libreswan @rhelver+=8 @long
     @libreswan_activate_asking_for_password_with_delay
     Scenario: nmcli - vpn - activate asking for password with delay
     * Add a connection named "libreswan" for device "\*" to "libreswan" VPN
@@ -99,7 +99,7 @@
 
 
     @rhbz1141947
-    @libreswan
+    @libreswan @rhelver+=8
     @libreswan_activate_asking_for_password_and_secret
     Scenario: nmcli - vpn - activate asking for password and secret
     * Add a connection named "libreswan" for device "\*" to "libreswan" VPN
@@ -114,7 +114,7 @@
     Then "IP4.ADDRESS.*172.31.70.*/24" is visible with command "nmcli d show libreswan1"
     Then "IP4.GATEWAY:.*172.31.70.1" is visible with command "nmcli d show libreswan1"
 
-    @libreswan
+    @libreswan @rhelver+=8
     @libreswan_terminate
     Scenario: nmcli - libreswan - terminate connection
     * Add a connection named "libreswan" for device "\*" to "libreswan" VPN
@@ -125,7 +125,7 @@
     Then "VPN.VPN-STATE:.*VPN connected" is not visible with command "nmcli c show libreswan" in "10" seconds
 
 
-    @libreswan
+    @libreswan @rhelver+=8
     @libreswan_delete_active_profile
     Scenario: nmcli - libreswan - delete active profile
     * Add a connection named "libreswan" for device "\*" to "libreswan" VPN
@@ -139,7 +139,7 @@
 
     @rhbz1348901
     @ver+=1.4.0
-    @libreswan
+    @libreswan @rhelver+=8
     @libreswan_dns
     Scenario: nmcli - libreswan - dns
     Given "nameserver 172.31.70.1\s+nameserver " is visible with command "cat /etc/resolv.conf"
@@ -183,7 +183,7 @@
 
     #this is somehow broken in 7.2 in libreswan not in NM
     @ver+=1.0.8
-    @libreswan
+    @libreswan @rhelver+=8
     @libreswan_start_as_secondary
     Scenario: nmcli - libreswan - start as secondary
     * Add a connection named "libreswan" for device "\*" to "libreswan" VPN
