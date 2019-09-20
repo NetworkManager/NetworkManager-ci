@@ -2090,16 +2090,16 @@ Feature: nmcli: ipv4
     @nm_dhcp_lease_renewal_link_down
     Scenario: NM - ipv4 - link down during dhcp renewal causes NM to never ask for new lease
     * Prepare simulated test "testX4" device
-    * Add connection type "ethernet" named "con_ipv4" for device "testX4"
+    * Add a new connection of type "ethernet" and options "ifname testX4 con-name con_ipv4 ipv4.may-fail no"
     * Bring "up" connection "con_ipv4"
-    * Wait for at least "10" seconds
-    * Execute "ip netns exec ip link set testX4_bridge down"
+    When "192.168" is visible with command "ip a s testX4" in "10" seconds
+    * Execute "ip netns exec testX4_ns ip link set testX4p down"
     * Execute "ip netns exec testX4_ns kill -SIGSTOP $(cat /tmp/testX4_ns.pid)"
-    * Wait for at least "120" seconds
-    * Execute "ip netns exec ip link set testX4_bridge up"
+    When "192.168" is not visible with command "ip a s testX4" in "140" seconds
+    * Execute "ip netns exec testX4_ns ip link set testX4p up"
     * Wait for at least "10" seconds
     * Execute "ip netns exec testX4_ns kill -SIGCONT $(cat /tmp/testX4_ns.pid)"
-    Then "IP4.ADDRESS" is visible with command "nmcli -f ip4.address device show testX4" in "10" seconds
+    Then "IP4.ADDRESS" is visible with command "nmcli -f ip4.address device show testX4" in "60" seconds
 
 
     @rhbz1636715
