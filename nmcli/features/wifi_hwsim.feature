@@ -239,10 +239,10 @@ Feature: nmcli - wifi
 
 
     @ver+=1.16
-    @rhelver-=0 @fedoraver-=0
+    @rhelver+=8 @fedoraver-=0
     @simwifi_p2p @attach_wpa_supplicant_log
     @simwifi_p2p_connect
     Scenario: nmcli - simwifi - p2p - connect
-    * Add a new connection of type "wifi-p2p" and options "ifname p2p-dev-wlan0 wifi-p2p.peer 02:00:00:00:01:00 con-name wifi-p2p"
-    * Run child "sleep 5; wpa_cli -i wlan1 -p /tmp/wpa_supplicant_peer_ctrl p2p_connect 02:00:00:00:00:00 pbc auth go_intent=0"
+    * Add a new connection of type "wifi-p2p" and options "ifname p2p-dev-wlan0 wifi-p2p.peer 42:00:00:00:01:00 con-name wifi-p2p"
+    * Run child "sleep 5; wpa_cli -i wlan1 -p /tmp/wpa_supplicant_peer_ctrl p2p_connect 42:00:00:00:00:00 pbc auth go_intent=0"
     Then "activated" is visible with command "nmcli con show wifi-p2p" in "120" seconds
