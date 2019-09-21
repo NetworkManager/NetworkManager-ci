@@ -218,6 +218,8 @@ install_el7_packages () {
     yum -y remove NetworkManager-config-connectivity-fedora NetworkManager-config-connectivity-redhat
 
     # Add OVS repo and install OVS
+    if grep -q -e 'CentOS Linux release 7' /etc/redhat-release; then
+        yum -y install https://cbs.centos.org/kojifiles/packages/openvswitch/2.11.0/4.el7/$(arch)/openvswitch-2.11.0-4.el7.$(arch).rpm
     mv -f  tmp/ovs-rhel7.repo /etc/yum.repos.d/ovs.repo
     yum -y install openvswitch
 
@@ -402,7 +404,7 @@ local_setup_configure_nm_eth () {
         if grep -q -e 'Enterprise Linux .*release 8' /etc/redhat-release; then
             echo -e "[main]\ndhcp=nettools\n" >> /etc/NetworkManager/conf.d/99-test.conf
         fi
-        
+
         # Copy this once more just to be sure it's there as it's really crucial
         yes 2>/dev/null | cp -rf /etc/sysconfig/network-scripts/ifcfg-testeth0 /tmp/testeth0
         cat /tmp/testeth0
