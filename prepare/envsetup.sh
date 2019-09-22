@@ -220,8 +220,10 @@ install_el7_packages () {
     # Add OVS repo and install OVS
     if grep -q -e 'CentOS Linux release 7' /etc/redhat-release; then
         yum -y install https://cbs.centos.org/kojifiles/packages/openvswitch/2.11.0/4.el7/$(arch)/openvswitch-2.11.0-4.el7.$(arch).rpm
-    mv -f  tmp/ovs-rhel7.repo /etc/yum.repos.d/ovs.repo
-    yum -y install openvswitch
+    else
+        mv -f  tmp/ovs-rhel7.repo /etc/yum.repos.d/ovs.repo
+        yum -y install openvswitch
+    fi
 
     # Install newer teamd
     yum -y install https://vbenes.fedorapeople.org/NM/team_rh1680655/libteam-1.27-9.el7.rh1680655.1.x86_64.rpm https://vbenes.fedorapeople.org/NM/team_rh1680655/teamd-1.27-9.el7.rh1680655.1.x86_64.rpm https://vbenes.fedorapeople.org/NM/team_rh1680655/teamd-devel-1.27-9.el7.rh1680655.1.x86_64.rpm
