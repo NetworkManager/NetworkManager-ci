@@ -1876,7 +1876,10 @@ def after_scenario(context, scenario):
             call('nmcli con del wifi-p2p', shell=True)
             call("kill -9 $(ps aux|grep wpa_suppli |grep wlan1 |awk '{print $2}')", shell=True)
             call("rm -rf /etc/NetworkManager/conf.d/99-wifi.conf", shell=True)
-            reload_NM_service()
+            call("systemctl restart wpa_supplicant", shell=True)
+
+            restart_NM_service()
+
 
         if "attach_hostapd_log" in scenario.tags:
             print("Attaching hostapd log")

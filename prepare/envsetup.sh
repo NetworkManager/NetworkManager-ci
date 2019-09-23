@@ -184,6 +184,8 @@ install_el8_packages () {
     # Enable debug logs for wpa_supplicant
     sed -i 's!OTHER_ARGS="-s"!OTHER_ARGS="-s -dddK"!' /etc/sysconfig/wpa_supplicant
 
+    # Install wifi p2p wpa_supplicant
+    dnf -4 -y install https://vbenes.fedorapeople.org/NM/wpa_supplicant-2.7-2.1.bz1693684.el8.x86_64.rpm https://vbenes.fedorapeople.org/NM/wpa_supplicant-debuginfo-2.7-2.1.bz1693684.el8.x86_64.rpm 
     # Make crypto policies a bit less strict
     update-crypto-policies --set LEGACY
     systemctl restart wpa_supplicant
