@@ -637,7 +637,7 @@ def before_scenario(context, scenario):
             print ("deleting eth7 connections")
             call("nmcli connection up testeth7", shell=True)
             call("nmcli connection delete eth7", shell=True)
-
+            
         if 'netcat' in scenario.tags:
             print ("---------------------------")
             print ("installing netcat")
@@ -1876,10 +1876,8 @@ def after_scenario(context, scenario):
             call('nmcli con del wifi-p2p', shell=True)
             call("kill -9 $(ps aux|grep wpa_suppli |grep wlan1 |awk '{print $2}')", shell=True)
             call("rm -rf /etc/NetworkManager/conf.d/99-wifi.conf", shell=True)
-            call("systemctl restart wpa_supplicant", shell=True)
 
             restart_NM_service()
-
 
         if "attach_hostapd_log" in scenario.tags:
             print("Attaching hostapd log")
