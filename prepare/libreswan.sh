@@ -24,6 +24,7 @@ libreswan_gen_connection ()
     CONNECTION_CFG="$1"
     MODE="$2"
     IKEv2="$3"
+    AUTH="$4"
 
     echo "conn roadwarrior_psk
     auto=add
@@ -42,7 +43,7 @@ libreswan_gen_connection ()
     modecfgpull=yes
     modecfgdns1=8.8.8.8
     modecfgbanner=BUG_REPORT_URL
-    xauthby=file
+    xauthby=$AUTH
     ike-frag=yes
     ikev2=$IKEv2" > "$CONNECTION_CFG"
     if [ "$MODE" = "aggressive" ]; then
@@ -107,8 +108,15 @@ libreswan_setup ()
     [ -d "$LIBRESWAN_DIR" ] || mkdir "$LIBRESWAN_DIR"
     [ -d "$NSS_DIR" ] || mkdir "$NSS_DIR"
 
+    # password authentication does not work on RHEL7 for some reason
+    if grep -qi "release 7" /etc/redhat-release; then
+        AUTH="alwaysok"
+    else
+        AUTH="file"
+    fi
+
     libreswan_gen_secrets "$SECRETS_CFG" "$PASSWD_FILE"
-    libreswan_gen_connection "$CONNECTION_CFG" "$MODE" "$IKEv2"
+    libreswan_gen_connection "$CONNECTION_CFG" "$MODE" "$IKEv2" "$AUTH"
     libreswan_gen_netconfig
 
     ### add default route connection that takes precedence over the system one

@@ -7,7 +7,7 @@
      # @test_name (compiled from scenario name)
      # Scenario:
 
-    @libreswan @rhelver+=8
+    @libreswan
     @libreswan_add_profile
     Scenario: nmcli - libreswan - add and connect a connection
     * Add a connection named "libreswan" for device "\*" to "libreswan" VPN
@@ -22,7 +22,8 @@
     Then "IP4.GATEWAY:.*172.31.70.1" is visible with command "nmcli d show libreswan1"
 
 
-    @libreswan @rhelver+=8
+    @rhelver+=8
+    @libreswan
     @libreswan_add_profile_wrong_password
     Scenario: nmcli - libreswan - add and connect a connection with worong password
     * Add a connection named "libreswan" for device "\*" to "libreswan" VPN
@@ -33,7 +34,7 @@
 
 
     @rhbz1250723
-    @libreswan @rhelver+=8 @long
+    @libreswan @long
     @libreswan_connection_renewal
     Scenario: NM - libreswan - main connection lifetime renewal
     * Add a connection named "libreswan" for device "\*" to "libreswan" VPN
@@ -49,7 +50,7 @@
 
 
     @rhbz1292912
-    @ver+=1.4.0 @rhelver+=8
+    @ver+=1.4.0
     @libreswan_main
     Scenario: nmcli - libreswan - connect in Main mode
     * Add a connection named "libreswan" for device "\*" to "libreswan" VPN
@@ -65,7 +66,7 @@
 
 
     @rhbz1141947
-    @libreswan @rhelver+=8
+    @libreswan
     @libreswan_activate_asking_for_password
     Scenario: nmcli - vpn - activate asking for password
     * Add a connection named "libreswan" for device "\*" to "libreswan" VPN
@@ -82,7 +83,7 @@
 
 
     @rhbz1349740
-    @libreswan @rhelver+=8 @long
+    @libreswan @long
     @libreswan_activate_asking_for_password_with_delay
     Scenario: nmcli - vpn - activate asking for password with delay
     * Add a connection named "libreswan" for device "\*" to "libreswan" VPN
@@ -99,7 +100,7 @@
 
 
     @rhbz1141947
-    @libreswan @rhelver+=8
+    @libreswan
     @libreswan_activate_asking_for_password_and_secret
     Scenario: nmcli - vpn - activate asking for password and secret
     * Add a connection named "libreswan" for device "\*" to "libreswan" VPN
@@ -114,7 +115,7 @@
     Then "IP4.ADDRESS.*172.31.70.*/24" is visible with command "nmcli d show libreswan1"
     Then "IP4.GATEWAY:.*172.31.70.1" is visible with command "nmcli d show libreswan1"
 
-    @libreswan @rhelver+=8
+    @libreswan
     @libreswan_terminate
     Scenario: nmcli - libreswan - terminate connection
     * Add a connection named "libreswan" for device "\*" to "libreswan" VPN
@@ -125,7 +126,7 @@
     Then "VPN.VPN-STATE:.*VPN connected" is not visible with command "nmcli c show libreswan" in "10" seconds
 
 
-    @libreswan @rhelver+=8
+    @libreswan
     @libreswan_delete_active_profile
     Scenario: nmcli - libreswan - delete active profile
     * Add a connection named "libreswan" for device "\*" to "libreswan" VPN
@@ -139,7 +140,7 @@
 
     @rhbz1348901
     @ver+=1.4.0
-    @libreswan @rhelver+=8
+    @libreswan
     @libreswan_dns
     Scenario: nmcli - libreswan - dns
     Given "nameserver 172.31.70.1\s+nameserver " is visible with command "cat /etc/resolv.conf"
@@ -183,7 +184,7 @@
 
     #this is somehow broken in 7.2 in libreswan not in NM
     @ver+=1.0.8
-    @libreswan @rhelver+=8
+    @libreswan
     @libreswan_start_as_secondary
     Scenario: nmcli - libreswan - start as secondary
     * Add a connection named "libreswan" for device "\*" to "libreswan" VPN
@@ -309,7 +310,7 @@
 
     @rhbz1633174
     @ver+=1.14.0
-    @libreswan @ikev2 @rhelver+=8
+    @libreswan @ikev2
     @libreswan_reimport
     Scenario: nmcli - libreswan - reimport exported connection
     * Add a new connection of type "vpn" and options "ifname \* con-name libreswan autoconnect no vpn-type libreswan"
@@ -333,7 +334,7 @@
 
     @rhbz1557035
     @ver+=1.14.0
-    @vpn @rhelver+=8
+    @vpn
     @libreswan_configurable_options_reimport
     Scenario: nmcli - libreswan - check libreswan options in vpn.data
     * Add a new connection of type "vpn" and options "ifname \* con-name vpn autoconnect no vpn-type libreswan vpn.data 'right=1.2.3.4, rightid=server, rightrsasigkey=server-key, left=1.2.3.5, leftid=client, leftrsasigkey=client-key, leftcert=client-cert, ike=aes256-sha1;modp1536, esp=aes256-sha1, ikelifetime=10m, salifetime=1h, vendor=Cisco, rightsubnet=1.2.3.0/24, ikev2=yes, narrowing=yes, rekey=no, fragmentation=no'"
