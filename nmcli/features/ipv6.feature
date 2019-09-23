@@ -1360,7 +1360,7 @@
 
     @rhbz1394500
     @ver+=1.8.0
-    @con_ipv6_remove @rhelver-=7 @rhel_pkg
+    @con_ipv6_remove
     @ipv6_honor_ip_order
     Scenario: NM - ipv6 - honor IP order from configuration upon reapply
     * Add a new connection of type "ethernet" and options "con-name con_ipv6 ifname eth2 autoconnect no"
@@ -1370,20 +1370,6 @@
     * Execute "nmcli con modify con_ipv6 ipv6.addresses 2001:db8:e:10::30/64,2001:db8:e:10::57/64,2001:db8:e:10::4/64"
     * Execute "nmcli dev reapply eth2"
     Then "2001:db8:e:10::4/64 scope global.*2001:db8:e:10::57/64 scope global.*2001:db8:e:10::30/64" is visible with command "ip a show eth2"
-
-
-    @rhbz1394500
-    @ver+=1.8.0
-    @con_ipv6_remove @not_with_rhel_pkg
-    @ipv6_honor_ip_order
-    Scenario: NM - ipv6 - honor IP order from configuration upon reapply
-    * Add a new connection of type "ethernet" and options "con-name con_ipv6 ifname eth2 autoconnect no"
-    * Execute "nmcli con modify con_ipv6 ipv6.method manual ipv6.addresses 2001:db8:e:10::4/64,2001:db8:e:10::57/64,2001:db8:e:10::30/64"
-    * Bring "up" connection "con_ipv6"
-    When "2001:db8:e:10::30/64 scope global.*2001:db8:e:10::57/64 scope global.*2001:db8:e:10::4/64" is visible with command "ip a show eth2" in "45" seconds
-    * Execute "nmcli con modify con_ipv6 ipv6.addresses 2001:db8:e:10::30/64,2001:db8:e:10::57/64,2001:db8:e:10::4/64"
-    * Execute "nmcli dev reapply eth2"
-    Then "2001:db8:e:10::30/64 scope global.*2001:db8:e:10::57/64 scope global.*2001:db8:e:10::4/64" is visible with command "ip a show eth2"
 
 
     @con_ipv6_remove
