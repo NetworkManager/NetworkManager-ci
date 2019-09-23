@@ -239,7 +239,7 @@ Feature: nmcli - wifi
 
 
     @ver+=1.16
-    @rhelver-=0 @fedoraver-=0
+    @rhelver+=8 @fedoraver-=0
     @simwifi_p2p @attach_wpa_supplicant_log
     @simwifi_p2p_connect
     Scenario: nmcli - simwifi - p2p - connect
