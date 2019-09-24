@@ -21,7 +21,7 @@
 
 
     @ver+=1.4.0
-    @libreswan @openvpn @openvpn6 @rhelver+=8
+    @libreswan @openvpn @openvpn6
     @multiple_vpn_connections
     Scenario: nmcli - vpn - multiple connections
     * Add a connection named "openvpn" for device "\*" to "openvpn" VPN
