@@ -89,7 +89,7 @@ class Job:
 
         return True
 
-    def __html_write_header__(self, fd):
+    def __html_write_header__(self, fd, file_builds, file_failures):
         fd.write(
             "<!DOCTYPE html>\n"
             "   <html>\n"
@@ -99,10 +99,10 @@ class Job:
             "       <body>\n"
             "           <h1>%s</h1>\n"
             "           <p style=\"font-weight:bold\">\n"
-            "               [ <a href=%s_index.html style=\"color:red\">builds</a> ]\n"
-            "               [ <a href=%s_failures.html>failures</a> ]\n"
+            "               [ <a href=%s style=\"color:red\">builds</a> ]\n"
+            "               [ <a href=%s>failures</a> ]\n"
             "           </p>\n"
-            % (HTML_STYLE, self.name, self.name, self.name))
+            % (HTML_STYLE, self.nick, file_builds, file_failures))
 
     def __html_write_buildstats__(self, fd):
         fd.write(
@@ -153,9 +153,12 @@ class Job:
             "       </body>\n"
             "    <html>\n")
 
-    def print_html(self, fname):
-        fd = open(fname, "w")
-        self.__html_write_header__(fd)
+    def print_html(self, file_name):
+        file_builds = "{:s}_builds.html".format(file_name)
+        file_failures = "{:s}_failures.html".format(file_name)
+
+        fd = open(file_builds, "w")
+        self.__html_write_header__(fd, file_builds, file_failures)
         self.__html_write_buildstats__(fd)
         self.__html_write_footer__(fd)
 
@@ -269,8 +272,11 @@ class Failure:
         cls.failures.sort(key=failure_last)
 
     @classmethod
-    def print_html(cls, fname, job_name):
-        fd = open(fname, "w")
+    def print_html(cls, file_name, job_nick):
+        file_failures = "{:s}_failures.html".format(file_name)
+        file_builds = "{:s}_builds.html".format(file_name)
+
+        fd = open(file_failures, "w")
         fd.write(
             "<!DOCTYPE html>\n"
             "   <html>\n"
@@ -280,8 +286,8 @@ class Failure:
             "       <body>\n"
             "           <h1>%s</h1>\n"
             "           <p style=\"font-weight:bold\">\n"
-            "               [ <a href=%s_index.html>builds</a> ]\n"
-            "               [ <a href=%s_failures.html style=\"color:red\">failures</a> ]\n"
+            "               [ <a href=%s>builds</a> ]\n"
+            "               [ <a href=%s style=\"color:red\">failures</a> ]\n"
             "           </p>\n"
             "           <table>\n"
             "               <tr>\n"
@@ -291,7 +297,7 @@ class Failure:
             "                   <th>Num</th>\n"
             "                   <th>Score</th>\n"
             "                   <th>Bugzilla</th>\n"
-            "               </tr>\n" % (HTML_STYLE, job_name, job_name, job_name))
+            "               </tr>\n" % (HTML_STYLE, job_nick, file_builds, file_failures))
 
         for failure in cls.failures:
             if failure.permanent:
@@ -398,8 +404,8 @@ def process_job(server, job_name, job_nick, max_builds=50):
 
     Failure.postprocess_failures(job.get_builds())
 
-    job.print_html("%s_index.html" % job_nick)
-    Failure.print_html("%s_failures.html" % job_nick, job_nick)
+    job.print_html(job_name)
+    Failure.print_html(job_name, job_nick)
 
 
 def main():
