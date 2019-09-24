@@ -25,6 +25,12 @@ def eprint(*args, **kwargs):
     print("ERR: ", *args, file=sys.stderr, **kwargs)
 
 
+class BuildCreationError(Exception):
+
+    def __init__(self, msg):
+        self.msg = msg
+
+
 class Job:
     """ Represents a Jenkins job, comprising several builds (runs).
     attributes:
@@ -64,8 +70,8 @@ class Job:
         for build_id in self.connection.get_build_ids():
             try:
                 build = Build(build_id, self.connection)
-            except jenkinsapi.custom_exceptions.NoResults:
-                print("Build #{:d} still running: Skip".format(build_id))
+            except BuildCreationError as error:
+                print("Build #{:d} - {:s} - Skip".format(build_id, error.msg))
                 continue
             except Exception as e:
                 eprint("Cannot retrieve build {:s} #{:d} [{:s}]: Skip\n".format(self.name, build_id, type(e)) +
@@ -109,23 +115,35 @@ class Job:
             "               </tr>\n")
 
         for build in self.builds:
-            if build.status in ('REGRESSION', 'FAILED'):
-                l_build = '<td style="background:red">'
+            if build.failed:
+                l_build = '<td style="background:black;color:white;font-weight:bold">' \
+                          '{:s}</td>'.format(build.status)
+                l_failures = '<td>--</td>'
             else:
-                l_build = "<td>"
-            l_build += '%s</td>' % build.status
+                if build.status in ('FAILURE', 'NOT_BUILT'):
+                    l_build = '<td style="color:red;font-weight:bold">'
+                elif build.status in 'SUCCESS':
+                    l_build = '<td style="color:green;font-weight:bold">'
+                else:
+                    l_build = "<td>"
+                l_build += '%s</td>' % build.status
 
-            n_failures = len(build.failures)
-            if n_failures > 9:
-                l_failures = '<td style="background:red">%d</td>' % n_failures
-            elif n_failures > 2:
-                l_failures = '<td style="background:yellow">%d</td>' % n_failures
-            else:
-                l_failures = '<td>%d</td>' % n_failures
+                n_failures = len(build.failures)
+                if n_failures > 9:
+                    l_failures = '<td style="background:red">%d</td>' % n_failures
+                elif n_failures > 2:
+                    l_failures = '<td style="background:yellow">%d</td>' % n_failures
+                else:
+                    l_failures = '<td>%d</td>' % n_failures
 
             fd.write(
-                '               <tr><td><a href="%s">%s</a></td><td>%s</td><td>%s</td><td>%s</td></tr>\n' %
-                (build.url, build.id, build.timestamp, l_build, l_failures))
+                '               <tr>'
+                '<td><a href="%s">%s</a></td>'
+                '<td>%s</td>'
+                '%s%s</tr>\n' %
+                (build.url, build.id,
+                 build.timestamp.ctime(),
+                 l_build, l_failures))
         fd.write(
             "           </table>\n")
 
@@ -149,7 +167,7 @@ class Build:
         - build_id: build id
         - job: jenkins job to which the build belongs
         - build: jenkins build obj
-        - status: jenkins' build status ('PASSED', 'SKIPPED', 'REGRESSION', 'FAILED', ??)
+        - status: jenkins' build status ('SUCCESS', 'UNSTABLE', 'FAILURE', 'NOT_BUILT', 'ABORTED')
         - timestamp
         - failures: list of the failures that happened in the build"""
 
@@ -160,19 +178,31 @@ class Build:
         self.build = job.get_build(build_id)
         self.url = self.build.baseurl
         self.status = self.build.get_status()
+        self.failed = False
         self.timestamp = self.build.get_timestamp()
         self.failures = []
 
-        results = self.build.get_resultset()
+        try:
+            results = self.build.get_resultset()
+        except jenkinsapi.custom_exceptions.NoResults:
+            if not self.status:
+                raise BuildCreationError("build has no status: still running?")
+            elif self.status == 'FAILURE' or \
+                    self.status == 'NOT_BUILT':
+                self.failed = True
+            return
+
         self.name = results.name
 
         for result in results.iteritems():
+            # item states: 'PASSED', 'SKIPPED', 'REGRESSION', 'FAILED', ??
             if result[1].status == 'REGRESSION' or result[1].status == 'FAILED':
                 failure = Failure.add_failure(result[1].name, self)
                 self.append_failure(failure)
 
     def append_failure(self, failure):
         self.failures.append(failure)
+
 
 def failure_number(failure):
     return len(failure.builds)
