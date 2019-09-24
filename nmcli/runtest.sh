@@ -43,7 +43,7 @@ elif [ $vc -eq 0 ]; then
     # if yes, run with -t $TAG
     if [ "x$TAG" != "x" ]; then
         logger "Running $TAG version of $NMTEST"
-        behave $FEATURE_FILE -t $1 -t $TAG -k -f html -o "$NMTEST_REPORT" -f plain 2>/dev/null; rc=$?
+        behave $FEATURE_FILE -t $1 -t $TAG -k -f html -o "$NMTEST_REPORT" -f plain; rc=$?
 
     # if not
     else
@@ -54,7 +54,7 @@ elif [ $vc -eq 0 ]; then
 
         # if we do not have tag or gsm_hub
         else
-            behave $FEATURE_FILE -t $1 -k -f html -o "$NMTEST_REPORT" -f plain 2>/dev/null; rc=$?
+            behave $FEATURE_FILE -t $1 -k -f html -o "$NMTEST_REPORT" -f plain; rc=$?
         fi
     fi
 fi
