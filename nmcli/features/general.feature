@@ -236,7 +236,7 @@ Feature: nmcli - general
 
     @rhbz1371201
     @ver+=1.4.0
-    @rhelver-=7 @rhel_pkg
+    @rhelver-=7 @rhel_pkg @fedoraver-=0
     @CAP_SYS_ADMIN_for_ibft
     Scenario: NM - service - CAP_SYS_ADMIN for ibft plugin
       Then "CAP_SYS_ADMIN" is visible with command "grep ^CapabilityBoundingSet /usr/lib/systemd/system/NetworkManager.service"
@@ -1040,7 +1040,7 @@ Feature: nmcli - general
 
     @rhbz1520865
     @ver+=1.10
-    @rhelver-=7 @rhel_pkg
+    @rhelver-=7 @rhel_pkg @fedoraver-=0
     @nm_wait_online_requisite_NM
     Scenario: NM - general - NM wait online - requisite NM
     Then "Requisite=NetworkManager.service" is visible with command "cat /usr/lib/systemd/system/NetworkManager-wait-online.service"
@@ -2100,7 +2100,8 @@ Feature: nmcli - general
 
 
     @rhbz1697858
-    @rhelver-=7 @rhel_pkg @con_general_remove @remove_custom_cfg @restart
+    @rhelver-=7 @rhel_pkg @restart @fedoraver-=0
+    @con_general_remove @remove_custom_cfg
     @keyfile_nmconnection_extension_rhel7
     Scenario: NM - general - keyfile does not have .nmconnection extension
     * Execute "echo '[main]' > /etc/NetworkManager/conf.d/99-xxcustom.conf"

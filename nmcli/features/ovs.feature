@@ -22,7 +22,7 @@ Feature: nmcli - ovs
 
 
     @ver+=1.10
-    @rhelver-=7 @rhel_pkg
+    @rhelver-=7 @rhel_pkg @fedoraver-=0
     @openvswitch
     @openvswitch_ignore_ovs_network_setup
     Scenario: NM - openvswitch - ignore ovs network setup
@@ -42,7 +42,7 @@ Feature: nmcli - ovs
 
 
     @ver+=1.10
-    @rhelver-=7 @rhel_pkg
+    @rhelver-=7 @rhel_pkg @fedoraver-=0
     @openvswitch
     @openvswitch_ignore_ovs_vlan_network_setup
     Scenario: NM - openvswitch - ignore ovs network setup
@@ -58,7 +58,7 @@ Feature: nmcli - ovs
 
 
     @ver+=1.10
-    @rhelver-=7 @rhel_pkg
+    @rhelver-=7 @rhel_pkg @fedoraver-=0
     @openvswitch
     @openvswitch_ignore_ovs_bond_network_setup
     Scenario: NM - openvswitch - ignore ovs network setup
@@ -472,7 +472,8 @@ Feature: nmcli - ovs
 
     @rhbz1676551
     @ver+=1.12
-    @openvswitch @restart @vlan @bond @slaves @rhelver-=7
+    @rhelver-=7 @fedoraver-=0
+    @openvswitch @restart @vlan @bond @slaves
     @restart_NM_with_mixed_setup
     Scenario: NM -  openvswitch - restart NM when OVS is unmanaged
     * Add a new connection of type "bond" and options "ifname nm-bond con-name bond0 ipv4.method manual ipv4.addresses 10.0.0.2/16 ipv4.gateway 10.0.0.1"

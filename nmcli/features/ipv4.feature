@@ -733,7 +733,7 @@ Feature: nmcli: ipv4
 
     @rhbz+=1423490
     @ver+=1.8.0
-    @rhelver-=7 @rhel_pkg
+    @rhelver-=7 @rhel_pkg @fedoraver-=0
     @con_ipv4_remove @restore_resolvconf @restart
     @ipv4_dns_resolvconf_rhel7_default
     Scenario: nmcli - ipv4 - dns - rhel7 default
@@ -1316,7 +1316,7 @@ Feature: nmcli: ipv4
 
 
     @rhbz1661165
-    @rhelver-=7 @rhel_pkg
+    @rhelver-=7 @rhel_pkg @fedoraver-=0
     @internal_DHCP @con_ipv4_remove @tcpdump @no_config_server
     @ipv4_dhcp_client_id_default_rhel7
     Scenario: NM - ipv4 - ipv4 client id should default to duid with internal plugins

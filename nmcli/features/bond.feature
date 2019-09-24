@@ -455,7 +455,7 @@
 
     @rhbz1420708 @rhbz1420708
     @ver+=1.7.9
-    @rhelver-=7 @rhel_pkg
+    @rhelver-=7 @fedoraver-=0 @rhel_pkg
     @slaves @bond @bond_order @teardown_testveth @restart
     @bond_default_rhel7_slaves_ordering
     Scenario: NM - bond - default rhel7 slaves ordering (ifindex)
