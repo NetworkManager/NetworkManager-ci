@@ -233,8 +233,7 @@
 
 
     @rhbz1060460
-    @ver+=1.14.0
-    @not_on_rhel7
+    @ver+=1.14.0 @rhelver+=8
     @vpn
     @vpn_keep_username_from_data
     Scenario: nmcli - vpn - keep username from vpn.data
@@ -309,7 +308,7 @@
 
 
     @rhbz1633174
-    @ver+=1.14.0
+    @ver+=1.14.0  @rhelver+=8
     @libreswan @ikev2
     @libreswan_reimport
     Scenario: nmcli - libreswan - reimport exported connection
@@ -333,7 +332,7 @@
 
 
     @rhbz1557035
-    @ver+=1.14.0
+    @ver+=1.14.0 @rhelver+=8
     @vpn
     @libreswan_configurable_options_reimport
     Scenario: nmcli - libreswan - check libreswan options in vpn.data
