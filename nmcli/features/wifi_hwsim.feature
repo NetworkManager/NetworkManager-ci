@@ -243,6 +243,14 @@ Feature: nmcli - wifi
     @simwifi_p2p @attach_wpa_supplicant_log
     @simwifi_p2p_connect
     Scenario: nmcli - simwifi - p2p - connect
-    * Add a new connection of type "wifi-p2p" and options "ifname p2p-dev-wlan0 wifi-p2p.peer 42:00:00:00:01:00 con-name wifi-p2p"
-    * Run child "sleep 5; wpa_cli -i wlan1 -p /tmp/wpa_supplicant_peer_ctrl p2p_connect 42:00:00:00:00:00 pbc auth go_intent=0"
+    # This is not needed now as unmanaged directly see environment.py simwifi_p2p tag
+    # * Execute "nmcli device set wlan1 managed off && sleep 1"
+    # Start wpa_supplicant instance for NM unamanged wlan1 interface
+    * Run child "wpa_supplicant -i wlan1 -C /tmp/wpa_supplicant_peer_ctrl"
+    # Tell wlan1's wpa_supplicant instance to listen and wait a bit
+    * Execute "sleep 1 && wpa_cli -i wlan1 -p /tmp/wpa_supplicant_peer_ctrl p2p_listen && sleep 3"
+    # Create a connection with dynamic mac address
+    * Execute "nmcli con add type wifi-p2p ifname p2p-dev-wlan0 wifi-p2p.peer $( wpa_cli -i wlan1 -p /tmp/wpa_supplicant_peer_ctrl status | sed -n 's/p2p_device_address=//p' ) con-name wifi-p2p"
+    # Wait a bit and pass a authentication command to wlan1's wpa_supplicant instance
+    * Run child "sleep 5; echo Peer address: $( wpa_cli -i wlan1 -p /tmp/wpa_supplicant_peer_ctrl p2p_peers ); wpa_cli -i wlan1 -p /tmp/wpa_supplicant_peer_ctrl p2p_connect $( wpa_cli -i wlan1 -p /tmp/wpa_supplicant_peer_ctrl p2p_peers ) pbc auth go_intent=0"
     Then "activated" is visible with command "nmcli con show wifi-p2p" in "120" seconds
