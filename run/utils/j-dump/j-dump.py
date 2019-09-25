@@ -25,6 +25,10 @@ def eprint(*args, **kwargs):
     print("ERR: ", *args, file=sys.stderr, **kwargs)
 
 
+def dprint(*args, **kwargs):
+    print("   :", *args, **kwargs)
+
+
 class BuildCreationError(Exception):
 
     def __init__(self, msg):
@@ -71,13 +75,15 @@ class Job:
             try:
                 build = Build(build_id, self.connection)
             except BuildCreationError as error:
-                print("Build #{:d} - {:s} - Skip".format(build_id, error.msg))
+                dprint("Build #{:d} - {:s} - skipped".format(build_id, error.msg))
                 continue
             except Exception as e:
-                eprint("Cannot retrieve build {:s} #{:d} [{:s}]: Skip\n".format(self.name, build_id, type(e)) +
-                       "{:s}".format(e.__cause__))
+                eprint("Build #{:d} - exception [{:s}] - skipped\n".format(build_id, str(type(e))))
+                dprint("---- traceback ----")
                 traceback.print_exc(file=sys.stderr)
+                dprint("----   -----   ----")
                 continue
+            dprint("Build #{:d} - processed".format(build_id))
 
             self.append_build(build)
             if i == max_builds:
@@ -423,6 +429,7 @@ def process_job(server, job_name, job_nick, max_builds=50):
 
     if not job.connect():
         return False
+    dprint("Processing job {:s}".format(job_name))
 
     if not job.builds_retrieve(max_builds):
         return False
@@ -467,6 +474,7 @@ def main():
     except ConnectionError:
         eprint("Connection to %s failed." % url)
         sys.exit(1)
+    dprint("Connected to {:s}".format(args.url))
 
     if args.name:
         job_nick = args.name
