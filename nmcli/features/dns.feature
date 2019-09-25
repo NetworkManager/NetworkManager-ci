@@ -473,6 +473,7 @@ Feature: nmcli - dns
     Then "127.0.0.1" is visible with command "grep nameserver /etc/resolv.conf"
 
     @ver+=1.15.1
+    @ver-1.21.2
     @con_dns_remove @dns_dnsmasq
     @dns_dnsmasq_kill_ratelimit
     # When dnsmasq dies, NM restarts it. But if dnsmasq dies too many
@@ -489,6 +490,24 @@ Feature: nmcli - dns
     # Check dnsmasq is no longer running and resolv.conf points to upstream servers
     Then "0" is visible with command "pgrep -c -P `pidof NetworkManager` dnsmasq"
     Then "172.16.1.53" is visible with command "grep nameserver /etc/resolv.conf"
+
+    @ver+=1.21.2
+    @con_dns_remove @dns_dnsmasq
+    @dns_dnsmasq_kill_ratelimit
+    # When dnsmasq dies, NM restarts it. But if dnsmasq dies too many
+    # times (5 times) in a short period (30 seconds), NM stops respawning
+    # it for one minute.
+    Scenario: NM - dns - dnsmasq rate-limiting
+    * Add a new connection of type "ethernet" and options "con-name con_dns ifname eth2 autoconnect no"
+    * Execute "nmcli connection modify con_dns ipv4.dns 172.16.1.53 ipv4.method manual ipv4.addresses 172.16.1.1/24"
+    * Bring "up" connection "con_dns"
+    Then "1" is visible with command "grep nameserver -c /etc/resolv.conf"
+    Then "127.0.0.1" is visible with command "grep nameserver /etc/resolv.conf"
+    * Execute "for i in `seq 12`; do pkill -P `pidof NetworkManager` dnsmasq; sleep 1; done"
+    * Execute "sleep 10"
+    # Check dnsmasq is no longer running. Since 1.21.1, resolv.conf still points to localhost
+    Then "0" is visible with command "pgrep -c -P `pidof NetworkManager` dnsmasq"
+    Then "127.0.0.1" is visible with command "grep nameserver /etc/resolv.conf"
 
 
     @rhbz1676635
