@@ -145,7 +145,7 @@ class Job:
 
             fd.write(
                 '               <tr>'
-                '<td><a href="%s">%s</a></td>'
+                '<td><a target="_blank" href="%s">%s</a></td>'
                 '<td>%s</td>'
                 '%s%s</tr>\n' %
                 (build.url, build.id,
