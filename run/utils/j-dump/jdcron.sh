@@ -13,6 +13,7 @@ JDUMP_BIN="$PWD/j-dump.py"
 OUTPUT_DIR="/tmp/j_dump/"
 LOG_FILE="logger.txt"
 HTML_INDEX_FILE="index.html"
+NM_LOGOTYPE_FILE="nm_logotype_235x75.png"
 
 # Put in CI_NICK the header that will be printed on top of your CI jobs.
 # Put in JENKINS_URL the base url of your jenkins server.
@@ -42,6 +43,7 @@ index_html_heading() {
 	        '  <head>\n' \
 	        '    <style>\n' \
 		'      * { font-family:arial, sans-serif; }\n' \
+		'      img { width:235px; height:75px; padding-right:50px; }\n' \
 		'      header { padding-left:30px; font-size:20px; }\n' \
 		'      nav { float:left; width:20%; padding-left:10px; }\n' \
 		'      article { float:left; width:75%; padding-left:20px; }\n' \
@@ -51,7 +53,9 @@ index_html_heading() {
 		'    </style>\n' \
 	        '  </head>\n' \
 	        '  <body>\n' \
-	        '    <header><h1>NetworManager CI results</h1></header>\n' \
+	        '    <header>\n' \
+		"      <h1><img src=\"$NM_LOGOTYPE_FILE\" alt=\"NetworkManager\" align=\"bottom\">CI results</h1>\n" \
+		'    </header>\n' \
 		'    <section>\n' \
 		'      <nav>\n' \
 	> $HTML_INDEX_FILE
@@ -86,6 +90,8 @@ index_html_trailing() {
 }
 
 mkdir -p "$OUTPUT_DIR"
+[ -f "$NM_LOGOTYPE_FILE" ] && cp "$NM_LOGOTYPE_FILE" "$OUTPUT_DIR"
+
 cd "$OUTPUT_DIR"
 log "-----------------------------------------------------------------"
 log `date`
