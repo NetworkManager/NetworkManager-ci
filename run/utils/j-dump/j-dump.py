@@ -4,6 +4,7 @@ import pickle
 import sys
 import traceback
 
+import requests
 import jenkinsapi
 from jenkinsapi.jenkins import Jenkins
 
@@ -471,9 +472,12 @@ def main():
 
     try:
         server = Jenkins(args.url, user, password)
-    except ConnectionError:
-        eprint("Connection to %s failed." % url)
-        sys.exit(1)
+    except requests.exceptions.ConnectionError as e:
+        eprint("Connection to {:s} failed:\n\t {:s}".format(url, str(e.args[0])))
+        sys.exit(-1)
+    except requests.exceptions.HTTPError as e:
+        eprint("Connection to {:s} failed:\n\t {:s}".format(url, str(e.args[0])))
+        sys.exit(-1)
     dprint("Connected to {:s}".format(args.url))
 
     if args.name:
