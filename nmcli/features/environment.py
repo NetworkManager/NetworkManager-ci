@@ -637,7 +637,7 @@ def before_scenario(context, scenario):
             print ("deleting eth7 connections")
             call("nmcli connection up testeth7", shell=True)
             call("nmcli connection delete eth7", shell=True)
-            
+
         if 'netcat' in scenario.tags:
             print ("---------------------------")
             print ("installing netcat")
@@ -868,20 +868,15 @@ def before_scenario(context, scenario):
             arch = check_output("uname -p", shell=True).decode('utf-8').strip()
             if arch != "x86_64":
                 sys.exit(77)
-            call("echo -e '[device-wifi]\nwifi.scan-rand-mac-address=no' > /etc/NetworkManager/conf.d/99-wifi.conf", shell=True)
-            call("echo -e '[connection-wifi]\nwifi.cloned-mac-address=preserve' >> /etc/NetworkManager/conf.d/99-wifi.conf", shell=True)
-            call("echo -e '[keyfile]\nunmanaged-devices=wlan1\n' >> /etc/NetworkManager/conf.d/99-wifi.conf", shell=True)
+            # This should be good as dynamic addresses are now used
+            #call("echo -e '[device-wifi]\nwifi.scan-rand-mac-address=no' > /etc/NetworkManager/conf.d/99-wifi.conf", shell=True)
+            #call("echo -e '[connection-wifi]\nwifi.cloned-mac-address=preserve' >> /etc/NetworkManager/conf.d/99-wifi.conf", shell=True)
 
+            # This is workaround for https://bugzilla.redhat.com/show_bug.cgi?id=1752780
+            call("echo -e '[keyfile]\nunmanaged-devices=wlan1\n' > /etc/NetworkManager/conf.d/99-wifi.conf", shell=True)
             restart_NM_service()
 
             call('modprobe mac80211_hwsim', shell=True)
-            sleep(1)
-            call('nmcli device set wlan1 managed off', shell=True)
-            sleep(1)
-            Popen('wpa_supplicant -i wlan1 -C /tmp/wpa_supplicant_peer_ctrl', shell=True)
-            sleep(1)
-            call('wpa_cli -i wlan1 -p /tmp/wpa_supplicant_peer_ctrl p2p_listen', shell=True)
-            sleep(3)
 
         if 'vpnc' in scenario.tags:
             print ("---------------------------")
