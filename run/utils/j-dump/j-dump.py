@@ -23,11 +23,11 @@ HTML_STYLE = """
 
 
 def eprint(*args, **kwargs):
-    print("ERR: ", *args, file=sys.stderr, **kwargs)
+    print("ERR: ", *args, file=sys.stderr, flush=True, **kwargs)
 
 
 def dprint(*args, **kwargs):
-    print("   :", *args, **kwargs)
+    print("   :", *args, flush=True, **kwargs)
 
 
 class BuildCreationError(Exception):
