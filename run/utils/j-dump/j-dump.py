@@ -185,13 +185,41 @@ class Build:
         self.timestamp = self.build.get_timestamp()
         self.failures = []
 
-        try:
+        if self.build.has_resultset():
             results = self.build.get_resultset()
-        except jenkinsapi.custom_exceptions.NoResults:
+        else:
             if not self.status:
-                raise BuildCreationError("build has no status: still running?")
-            elif self.status == 'FAILURE' or \
-                    self.status == 'NOT_BUILT':
+                if self.build.is_running():
+                    raise BuildCreationError("build is still running")
+                else:
+                    raise BuildCreationError("build has no status nor results")
+
+            # no results but failure: check if we have at least the artifacts
+            if self.status == 'FAILURE':
+                for artifact in self.build.get_artifact_dict():
+                    split_artifact = artifact.split("FAIL")
+                    if len(split_artifact) < 2:
+                        continue
+                    # let's check that the failure name in the artifact is as expected or skip...
+                    # something like "FAIL-Test252_ipv6_honor_ip_order.html" (We already stripped "FAIL")
+                    split_artifact = split_artifact[1].split("_", 1)
+                    if len(split_artifact) != 2:
+                        # what happened??
+                        eprint("Unexpected artifact '{:s}': skip...".format(artifact))
+                        continue
+
+                    split_artifact = split_artifact[1].split(".")
+                    if len(split_artifact) != 2:
+                        # no .html suffix?? not sure, skip...
+                        eprint("No .html suffix in artifact '{:s}': skip...".format(artifact))
+                        continue
+                    failure = Failure.add_failure(split_artifact[0], self)
+                    self.append_failure(failure)
+                # we got the artifacts, so we are done
+                if len(self.failures):
+                    return
+
+            if self.status == 'FAILURE' or self.status == 'NOT_BUILT' or self.status == 'ABORTED':
                 self.failed = True
             return
 
@@ -336,8 +364,8 @@ class Failure:
         for failure in cls.failures:
             fd.write('           <hr>\n\t<h3 id="%s">%s</h3>\n' % (failure.name, failure.name))
             fd.write('           <p>\n')
-            for job in failure.builds:
-                fd.write('          <a href="%s">%s</a><br>\n' % (job.url, job.name))
+            for build in failure.builds:
+                fd.write('          <a target="_blank" href="%s">%d</a><br>\n' % (build.url, build.id))
             fd.write('           </p>\n')
 
         fd.close()
