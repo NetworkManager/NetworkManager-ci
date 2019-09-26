@@ -573,8 +573,8 @@ local_setup_configure_nm_gsm () {
     VER=$(rpm -q --queryformat '%{VERSION}' NetworkManager)
     REL=$(rpm -q --queryformat '%{RELEASE}' NetworkManager)
 
-    if [ -d /tmp/nm-build/NetworkManager/contrib/fedora/rpm/latest0/RPMS/ ]; then
-        pushd /tmp/nm-build/NetworkManager/contrib/fedora/rpm/latest0/RPMS/$(arch)
+    if [ -d /root/nm-build/NetworkManager/contrib/fedora/rpm/latest0/RPMS/ ]; then
+        pushd /root/nm-build/NetworkManager/contrib/fedora/rpm/latest0/RPMS/$(arch)
             yum -y install NetworkManager-wwan-$VER-$REL.$(arch).rpm ModemManager usb_modeswitch usbutils NetworkManager-ppp-$VER-$REL.$(arch).rpm
         popd
     else
