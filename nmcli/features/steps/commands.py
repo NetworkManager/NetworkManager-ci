@@ -8,7 +8,7 @@ import re
 import subprocess
 from subprocess import Popen, check_output, call
 from glob import glob
-
+import json
 from steps import command_output, command_code, additional_sleep
 
 
@@ -154,14 +154,38 @@ def note_the_output_as(context, command, index):
 def note_the_output_of(context, command):
     context.noted_value = command_output(context, command).strip()
 
+def json_compare(pattern, out):
+    pattern_type = type(pattern)
+    if pattern_type is dict:
+        for x in pattern:
+            if x in out:
+                r = json_compare(pattern[x], out[x])
+                if r != 0:
+                    return r
+            else:
+                return 1
+        return 0
+    elif pattern_type is list:
+        assert false, "TODO: compare lists soomehow"
+    else:
+        if out == pattern:
+            return 0
+        else:
+            return 1
 
-def check_pattern_command(context, command, pattern, seconds, check_type="default", exact_check=False, timeout=180, maxread=100000, interval=1):
+def check_pattern_command(context, command, pattern, seconds, check_type="default", exact_check=False, timeout=180, maxread=100000, interval=1, json_check=False):
     seconds = int(seconds)
     orig_seconds = seconds
     while seconds > 0:
         proc = pexpect.spawn('/bin/bash', ['-c', command], timeout = timeout, maxread=maxread, logfile=context.log, encoding='utf-8')
         if exact_check:
             ret = proc.expect_exact([pattern, pexpect.EOF])
+        elif json_check:
+            proc.expect([pexpect.EOF])
+            out = proc.before
+            json_out = json.loads(out)
+            json_pattern = json.loads(pattern)
+            ret = json_compare(json_pattern, json_out)
         else:
             ret = proc.expect([pattern, pexpect.EOF])
         if check_type == "default":
@@ -229,6 +253,18 @@ def string_visible_command(context, command, string, seconds=2):
 @step(u'String "{string}" is not visible with command "{command}" in "{seconds}" seconds')
 def string_not_visible_command(context, command, string, seconds=2):
     return check_pattern_command(context, command, string, seconds, check_type="not", exact_check=True)
+
+
+@step(u'JSON "{string}" is visible with command "{command}"')
+@step(u'JSON "{string}" is visible with command "{command}" in "{seconds}" seconds')
+def string_visible_command(context, command, string, seconds=2):
+    return check_pattern_command(context, command, string, seconds, json_check=True)
+
+
+@step(u'JSON "{string}" is not visible with command "{command}"')
+@step(u'JSON "{string}" is not visible with command "{command}" in "{seconds}" seconds')
+def string_visible_command(context, command, string, seconds=2):
+    return check_pattern_command(context, command, string, seconds, check_type="not", json_check=True)
 
 
 @step(u'"{pattern}" is visible with command "{command}" for full "{seconds}" seconds')
