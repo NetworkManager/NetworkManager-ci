@@ -868,6 +868,10 @@ def before_scenario(context, scenario):
             arch = check_output("uname -p", shell=True).decode('utf-8').strip()
             if arch != "x86_64":
                 sys.exit(77)
+
+            call('modprobe -r mac80211_hwsim', shell=True)
+            sleep(1)
+
             # This should be good as dynamic addresses are now used
             #call("echo -e '[device-wifi]\nwifi.scan-rand-mac-address=no' > /etc/NetworkManager/conf.d/99-wifi.conf", shell=True)
             #call("echo -e '[connection-wifi]\nwifi.cloned-mac-address=preserve' >> /etc/NetworkManager/conf.d/99-wifi.conf", shell=True)
@@ -877,6 +881,7 @@ def before_scenario(context, scenario):
             restart_NM_service()
 
             call('modprobe mac80211_hwsim', shell=True)
+            sleep(1)
 
         if 'vpnc' in scenario.tags:
             print ("---------------------------")
