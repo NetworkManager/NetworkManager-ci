@@ -85,11 +85,11 @@ class Job:
                 dprint("----   -----   ----")
                 continue
             dprint("Build #{:d} - processed".format(build_id))
+            i += 1
 
             self.append_build(build)
             if i == max_builds:
                 break
-            i += 1
 
         if len(self.builds) == 0:
             return False
@@ -453,7 +453,7 @@ def main():
     parser.add_argument('--password', help="password to access Jenkins url")
     parser.add_argument('--token', help="Jenkins API token to access Jenkins url (use instead of password)")
     parser.add_argument('--ca_cert', help="file path of private CA to be used for https validation or 'disabled'")
-    parser.add_argument('--max_builds', help="maximum number of builds considered for the job")
+    parser.add_argument('--max_builds', type=int, help="maximum number of builds considered for the job")
     args = parser.parse_args()
 
     user = None
