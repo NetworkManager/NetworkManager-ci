@@ -93,8 +93,14 @@ def connect_to_vpn(context, vpn, password, secret=None, time_out=None):
     if secret != None:
         sleep(1)
         cli.sendline(secret)
-    r = cli.expect(['Error', pexpect.TIMEOUT, pexpect.EOF])
-    if r == 0:
-        raise Exception('Got an Error while connecting to network %s\n%s%s' % (vpn, cli.after, cli.buffer))
-    elif r == 1:
-        raise Exception('nmcli vpn connect ... timed out (180s)')
+    if call("systemctl -q is-active polkit", shell=True) == 0:
+        r = cli.expect(['Error', pexpect.TIMEOUT, pexpect.EOF])
+        if r == 0:
+            raise Exception('Got an Error while connecting to network %s\n%s%s' % (vpn, cli.after, cli.buffer))
+        elif r == 1:
+            raise Exception('nmcli vpn connect ... timed out (180s)')
+    else:
+        # Remove me when 1756441 is fixed
+        r = cli.expect(['Connection successfully activated', pexpect.TIMEOUT])
+        if r != 0:
+            raise Exception('Got an Error while connecting to network %s\n%s%s' % (vpn, cli.after, cli.buffer))
