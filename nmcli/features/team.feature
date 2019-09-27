@@ -1574,6 +1574,7 @@
     Scenario: nmcli - teamd - add multiple slaves with team-port option
     * Add a new connection of type "team" and options "ifname nm-team con-name team0 team.runner activebackup ip4 172.20.1.3/24"
     * Add a new connection of type "ethernet" and options "ifname eth5 master nm-team con-name team0.0 team-port.prio -10 team-port.sticky true"
+    * Bring "up" connection "team0.0"
     Then JSON "{"prio":-10, "sticky":true}" is visible with command "nmcli -g team-port.config connection show id team0.0 | sed 's/\\//g'"
     * Bring "up" connection "team0.0"
     When "activated" is visible with command "nmcli -g GENERAL.STATE con show team0" in "45" seconds
