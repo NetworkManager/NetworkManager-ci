@@ -6,8 +6,12 @@
 # It will produce as output two html files per job:
 # - ${job}_builds.html
 # - ${job}_failures.html
+#
+# The jobs are grouped under CI_NICKs labels. You can collect results under
+# multiple CI_NICKs and from different Jenkins instances.
 ###
 
+### GLOBAL CONFIG ###
 # Change the JDUMP_BIN to the path of j-dump.py script if required.
 JDUMP_BIN="$PWD/j-dump.py"
 OUTPUT_DIR="/tmp/j_dump/"
@@ -15,23 +19,36 @@ LOG_FILE="logger.txt"
 HTML_INDEX_FILE="index.html"
 NM_LOGOTYPE_FILE="nm_logotype_235x75.png"
 
+
+### CI_NICKs config ###
+# add to the CI_NICK_LIST each nickname you want to be used to group some jobs.
+# For each nickname you add, you should fill the CI_NICK_LABEL, JENKINS_URL,
+# USER, PASSWORD, JOB_HEADER and JOBS properties.
+#
 # Put in CI_NICK the header that will be printed on top of your CI jobs.
 # Put in JENKINS_URL the base url of your jenkins server.
 # Put in JOBS the job list you want to process (logs will be collected separately
 # for each job).
 # If your jobs have a common header, you can drop it from the jobs listed in JOBS
 # and put it in JOB_HEADER.
+#
 # Here a working example for the public NetworkManager CI on CentosCI, collecting
 # results for 3 jobs (matching 3 different branches on gitlab).
-CI_NICK="CentOS CI"
-JENKINS_URL="https://ci.centos.org"
-JOB_HEADER="NetworkManager-"
-JOBS="master nm-1-20"
 
-USER="$1"
-PASSWORD="$2"
+CI_NICK_LIST="CentOS"
 
-[ -n "$USER" -a -n "$PASSWORD" ] && JDUMP_OPTIONS="--user $USER --password $PASSWORD"
+### CentOS ###
+CentOS_CI_NICK_LABEL="CentOS"
+CentOS_USER=""
+CentOS_PASSWORD=""
+CentOS_JENKINS_URL="https://ci.centos.org"
+CentOS_JOB_HEADER="NetworkManager-"
+CentOS_JOBS=\
+"master "\
+"nm-1-20 "\
+"nm-1-18 "\
+"nm-1-16 "
+
 
 log() {
 	echo "$*" >> "$LOG_FILE"
@@ -89,6 +106,32 @@ index_html_trailing() {
 	>> $HTML_INDEX_FILE
 }
 
+
+process_job() {
+	local NICK="$1"
+	eval local CI_NICK_LABEL="\"\$${NICK}_CI_NICK_LABEL CI\""
+	eval local USER="\"\$${NICK}_USER\""
+	eval local PASSWORD="\"\$${NICK}_PASSWORD\""
+	eval local JENKINS_URL="\"\$${NICK}_JENKINS_URL\""
+	eval local JOB_HEADER="\"\$${NICK}_JOB_HEADER\""
+	eval local JOBS="\"\$${NICK}_JOBS\""
+
+	unset JDUMP_OPTIONS
+	[ -n "$USER" -a -n "$PASSWORD" ] && JDUMP_OPTIONS="--user $USER --password $PASSWORD"
+
+	log "***  $CI_NICK_LABEL ***"
+	index_html_ci_begin "$CI_NICK_LABEL"
+	for job in $JOBS
+	do
+		JOB_FULL_NAME="${JOB_HEADER}${job}"
+		[ -n "$JOB_HEADER" ] && JDUMP_JOB_NAME="--name ${job%-upstream}" || unset JDUMP_JOB_NAME
+
+		$JDUMP_BIN $JDUMP_OPTIONS $JDUMP_JOB_NAME "$JENKINS_URL" "$JOB_FULL_NAME" >> "$LOG_FILE" 2>&1
+		index_html_add_entry "$JOB_FULL_NAME" "${job%-upstream}"
+	done
+	index_html_ci_end
+}
+
 mkdir -p "$OUTPUT_DIR"
 [ -f "$NM_LOGOTYPE_FILE" ] && cp "$NM_LOGOTYPE_FILE" "$OUTPUT_DIR"
 
@@ -99,17 +142,11 @@ log "-----------------------------------------------------------------"
 
 index_html_heading
 
-log "***  $CI_NICK ***"
-index_html_ci_begin "$CI_NICK"
-for job in $JOBS
-do
-	JOB_FULL_NAME="${JOB_HEADER}${job}"
-	[ -n "$JOB_HEADER" ] && JDUMP_JOB_NAME="--name $job" || unset JDUMP_JOB_NAME
 
-	$JDUMP_BIN $JDUMP_OPTIONS $JDUMP_JOB_NAME "$JENKINS_URL" "$JOB_FULL_NAME" >> "$LOG_FILE" 2>&1
-	index_html_add_entry "$JOB_FULL_NAME" "${job}"
+for nick in $CI_NICK_LIST; do
+	process_job "$nick"
 done
-index_html_ci_end
+
 
 index_html_trailing
 
