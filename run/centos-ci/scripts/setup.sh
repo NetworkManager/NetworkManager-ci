@@ -24,6 +24,9 @@ sudo yum -y install \
         bash-completion \
         dnsmasq
 
+yum -y install https://cbs.centos.org/kojifiles/packages/openvswitch/2.11.0/4.el7/$(arch)/openvswitch-2.11.0-4.el7.$(arch).rpm
+
+
 # some minor compatibility items
 sudo dnf -y update firewalld dnsmasq --best
 sudo yum -y install easy_install
