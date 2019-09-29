@@ -444,7 +444,7 @@ Feature: nmcli - general
 
 
     @rhbz1032717 @rhbz1505893 @1702657
-    @ver+=1.12
+    @ver+=1.18
     @con_general_remove @teardown_testveth @dhcpd @mtu
     @device_reapply_all
     Scenario: NM - device - reapply even address and gate

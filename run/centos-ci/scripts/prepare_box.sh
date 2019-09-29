@@ -1,6 +1,6 @@
 #! /bin/bash
 
-BRANCH="${1:-master}"
+BRANCH="${1:-nm-1-12}"
 CI_REPO="https://github.com/NetworkManager/NetworkManager-ci"
 yum -y install git
 
