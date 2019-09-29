@@ -1895,7 +1895,7 @@ Feature: nmcli: ipv4
 
 
     @rhbz1394344 @rhbz1505893
-    @ver+=1.9.1 @ver-=1.14
+    @ver+=1.9.1 @ver-1.14
     @con_ipv4_remove @restore_rp_filters
     @not_with_rhel_pkg
     @ipv4_rp_filter_set_loose
@@ -1976,7 +1976,7 @@ Feature: nmcli: ipv4
 
 
     @rhbz1394344 @rhbz1505893
-    @ver+=1.9.1 @ver-=1.14
+    @ver+=1.9.1 @ver-1.14
     @not_with_rhel_pkg
     @con_ipv4_remove @restore_rp_filters
     @ipv4_rp_filter_reset
