@@ -117,6 +117,9 @@ function setup_veth_env ()
         fi
         # Bring devices up with new name
         ip link set orig-$DEV up
+
+        # And set it unmanaged
+        nmcli device set orig-$DEV managed off
     done
 
     # Create a network namespace for veth setup
