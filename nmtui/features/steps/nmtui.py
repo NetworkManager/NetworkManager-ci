@@ -122,8 +122,10 @@ def prepare_environment(context):
 @step(u'Start nmtui')
 def start_nmtui(context):
     context.tui = pexpect.spawn('sh -c "TERM=%s nmtui > %s"' % (TERM_TYPE, OUTPUT), encoding='utf-8')
-    sleep(3)
-
+    for line in context.screen.display:
+        if 'NetworkManager TUI' in line:
+            break
+    sleep(0.1)
 
 @step(u'Nmtui process is running')
 def check_process_running(context):
@@ -133,14 +135,6 @@ def check_process_running(context):
 @step(u'Nmtui process is not running')
 def check_process_not_running(context):
     assert context.tui.isalive() == False, "NMTUI (pid:%s) is still up!" % context.tui.pid
-
-
-@step(u'Main screen is visible')
-def can_see_welcome_screen(context):
-    for line in context.screen.display:
-        if 'NetworkManager TUI' in line:
-            return
-    assert False, "Could not read the main screen in output"
 
 
 @step(u'Press "{key}" key')
@@ -257,6 +251,14 @@ def confirm_connection_screen(context):
     assert match is not None, "Could not get to the <OK> button! (In form? Segfault?)"
     context.tui.send(keys['ENTER'])
     sleep(0.2)
+    context.stream.feed(open(OUTPUT, 'r').read().encode('utf-8'))
+    for line in context.screen.display:
+        print (line)
+        if '<Add>' in line:
+            break
+        else:
+            context.stream.feed(open(OUTPUT, 'r').read().encode('utf-8'))
+
 
 @step(u'Cannot confirm the connection settings')
 def cannot_confirm_connection_screen(context):

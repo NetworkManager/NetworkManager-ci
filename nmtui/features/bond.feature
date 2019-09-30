@@ -89,7 +89,7 @@ Feature: Bond TUI tests
     * Confirm the connection settings
     * Execute "nmcli con down bond0"
     * "bond0" is visible with command "nmcli connection"
-    * "bond0" is not visible with command "nmcli device"
+    * "bond0" is not visible with command "nmcli device" in "10" seconds
     * Come back to main screen
     * Choose to "Activate a connection" from main screen
     * Select connection "bond0" in the list
@@ -110,8 +110,7 @@ Feature: Bond TUI tests
     * Choose to "Activate a connection" from main screen
     * Select connection "bond0" in the list
     * Choose to "<Deactivate>" a connection
-    * Wait for at least "3" seconds
-    Then "bond0" is not visible with command "nmcli device"
+    Then "bond0" is not visible with command "nmcli device" in "10" seconds
     Then Check bond "bond0" link state is "down"
 
 
