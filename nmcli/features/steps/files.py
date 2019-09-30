@@ -7,6 +7,7 @@ import os
 import re
 import subprocess
 from subprocess import Popen, check_output, call
+from commands import check_pattern_command
 from glob import glob
 
 from steps import command_output, command_code, additional_sleep
@@ -97,15 +98,17 @@ def create_symlink(context, source, destination):
 
 @step(u'Check ifcfg-name file created with noted connection name')
 def check_ifcfg_exists(context):
-    cat = pexpect.spawn('cat /etc/sysconfig/network-scripts/ifcfg-%s' % context.noted_value, logfile=context.log, encoding='utf-8')
-    cat.expect('NAME=%s' % context.noted_value)
+    command = 'cat /etc/sysconfig/network-scripts/ifcfg-%s' % context.noted_value
+    pattern = 'NAME=%s' % context.noted_value
+    return check_pattern_command(context, command, pattern, seconds=2)
 
 
 @step(u'Check ifcfg-name file created for connection "{con_name}"')
 def check_ifcfg_exists_given_device(context, con_name):
     additional_sleep(1)
-    cat = pexpect.spawn('cat /etc/sysconfig/network-scripts/ifcfg-%s' % con_name, logfile=context.log, encoding='utf-8')
-    cat.expect('NAME=%s' % con_name)
+    command = 'cat /etc/sysconfig/network-scripts/ifcfg-%s' % con_name
+    pattern = 'NAME=%s' % con_name
+    return check_pattern_command(context, command, pattern, seconds=2)
 
 
 @step(u'Write dispatcher "{path}" file with params "{params}"')
