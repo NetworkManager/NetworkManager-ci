@@ -210,6 +210,24 @@ def prepare_simdev(context, device):
     context.testvethns.append("%s2_ns" % device)
 
 
+@step(u'Prepare simulated test "{device}" device without DHCP')
+def prepare_simdev_no_dhcp(context, device):
+    if not hasattr(context, 'testvethns'):
+        os.system('''echo 'ENV{ID_NET_DRIVER}=="veth", ENV{INTERFACE}=="test*", ENV{NM_UNMANAGED}="0"' >/etc/udev/rules.d/88-lr.rules''')
+        command_code(context, "udevadm control --reload-rules")
+        command_code(context, "udevadm settle --timeout=5")
+        command_code(context, "sleep 1")
+    command_code(context, "ip netns add {device}_ns".format(device=device))
+    command_code(context, "ip link add {device} type veth peer name {device}p".format(device=device))
+    command_code(context, "ip link set {device}p netns {device}_ns".format(device=device))
+    # Bring up devices
+    command_code(context, "ip link set {device} up".format(device=device))
+    command_code(context, "ip netns exec {device}_ns ip link set {device}p up".format(device=device))
+    if not hasattr(context, 'testvethns'):
+        context.testvethns = []
+    context.testvethns.append("%s_ns" % device)
+
+
 @step(u'Prepare simulated test "{device}" device for IPv6 PMTU discovery')
 def prepare_simdev(context, device):
     if not hasattr(context, 'testvethns'):

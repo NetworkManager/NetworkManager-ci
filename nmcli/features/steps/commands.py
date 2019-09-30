@@ -307,6 +307,13 @@ def run_child_process(context, command):
     Popen(command, shell=True)
 
 
+@step(u'Run child "{command}" without shell')
+def run_child_process(context, command):
+    children = getattr(context, "children", [])
+    children.append(Popen(command.split(" "), stdout=context.log, stderr=context.log))
+    context.children = children
+
+
 @step(u'Start following journal')
 def start_tailing_journal(context):
     context.journal = pexpect.spawn('sudo journalctl --follow -o cat', timeout = 180, logfile=context.log, encoding='utf-8')

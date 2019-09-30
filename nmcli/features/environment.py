@@ -742,8 +742,8 @@ def before_scenario(context, scenario):
             print ("---------------------------")
             print ("installing dhcp")
             wait_for_testeth0()
-            if call('rpm -q --quiet dhcp', shell=True) != 0:
-                call('yum -y install dhcp', shell=True)
+            if call('rpm -q --quiet dhcp-server', shell=True) != 0:
+                call('yum -y install dhcp-server', shell=True)
 
         if 'dummy' in scenario.tags:
             print ("---------------------------")
@@ -2405,6 +2405,12 @@ def after_scenario(context, scenario):
             sleep(1)
             reload_NM_service()
 
+        if 'kill_children' in scenario.tags:
+            children = getattr(context, "children", [])
+            print('--------------------------')
+            print('kill remaining children (%d)', len(children))
+            for child in children:
+                child.kill()
 
         if '@restore_rp_filters' in scenario.tags:
             print ("---------------------------")
