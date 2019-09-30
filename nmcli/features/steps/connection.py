@@ -328,12 +328,19 @@ def update2_connection_autoconnect(context, con_name, options, flags=""):
     s_con = con2.get_setting_connection()
     for option in options.split(','):
         option = [ o.strip() for o in option.split(':') ]
-        if option[1].lower() in [ "true", "yes"]:
-            value = True
-        elif option[1].lower() in [ "false", "no"]:
-            value = False
-        else:
-            value = option[1]
+        if len(option) == 3:
+            if option[1].lower().startswith('i'):
+                option[1]= int(option[2])
+            elif option[1].lower().startswith('f'):
+                option[1]= float(option[2])
+            elif option[1].lower().startswith('b'):
+                if option[2].lower().startswith('t'):
+                    option[1] = True
+                else:
+                    option[1] = False
+            else:
+                option[1] = option[2]
+        value = option[1]
         s_con.set_property(getattr(NM, option[0]), value)
 
     result = {}

@@ -2233,7 +2233,7 @@ Feature: nmcli - general
     * Clone connection "con_general" to "con_general2" using libnm with flags "BLOCK_AUTOCONNECT,TO_DISK"
     Then "con_general2" is not visible with command "nmcli -g name con show --active" for full "3" seconds
     # check persistency of BLOCK_AUTOCONNECT flag
-    * Update connection "con_general2" changing options "SETTING_CONNECTION_AUTOCONNECT:True" using libnm
+    * Update connection "con_general2" changing options "SETTING_CONNECTION_AUTOCONNECT:bool:True" using libnm
     Then "con_general2" is not visible with command "nmcli -g name con show --active" for full "3" seconds
 
 
@@ -2243,13 +2243,13 @@ Feature: nmcli - general
     @libnm_update2_block_autoconnect
     Scenario: NM - general - libnm update2 BLOCK_AUTOCONNECT flag
     * Add a new connection of type "ethernet" and options "ifname eth8 con-name con_general autoconnect no"
-    * Update connection "con_general" changing options "SETTING_CONNECTION_AUTOCONNECT:True" using libnm with flags "BLOCK_AUTOCONNECT"
+    * Update connection "con_general" changing options "SETTING_CONNECTION_AUTOCONNECT:bool:True" using libnm with flags "BLOCK_AUTOCONNECT"
     Then "con_general" is not visible with command "nmcli -g name con show --active" for full "3" seconds
     # check persistency of BLOCK_AUTOCONNECT flag
-    * Update connection "con_general" changing options "SETTING_CONNECTION_AUTOCONNECT:True" using libnm
+    * Update connection "con_general" changing options "SETTING_CONNECTION_AUTOCONNECT:bool:True" using libnm
     Then "con_general" is not visible with command "nmcli -g name con show --active" for full "3" seconds
     * Add a new connection of type "ethernet" and options "ifname eth8 con-name con_general2 autoconnect no"
-    * Update connection "con_general2" changing options "SETTING_CONNECTION_AUTOCONNECT:True" using libnm
+    * Update connection "con_general2" changing options "SETTING_CONNECTION_AUTOCONNECT:bool:True" using libnm
     Then "con_general2" is visible with command "nmcli -g name con show --active" in "5" seconds
 
 
@@ -2261,9 +2261,9 @@ Feature: nmcli - general
     * Add a new connection of type "ethernet" and options "ifname eth8 con-name con_general connection.metered yes"
     * Bring "up" connection "con_general"
     When "u 1" is visible with command " busctl get-property org.freedesktop.NetworkManager $(nmcli -g DBUS-PATH,DEVICE device | sed -n 's/:eth8//p') org.freedesktop.NetworkManager.Device Metered"
-    * Update connection "con_general" changing options "SETTING_CONNECTION_METERED:2" using libnm with flags "TO_DISK"
+    * Update connection "con_general" changing options "SETTING_CONNECTION_METERED:int:2" using libnm with flags "TO_DISK"
     Then "u 2" is visible with command " busctl get-property org.freedesktop.NetworkManager $(nmcli -g DBUS-PATH,DEVICE device | sed -n 's/:eth8//p') org.freedesktop.NetworkManager.Device Metered"
-    * Update connection "con_general" changing options "SETTING_CONNECTION_METERED:1" using libnm with flags "TO_DISK,NO_REAPPLY"
+    * Update connection "con_general" changing options "SETTING_CONNECTION_METERED:int:1" using libnm with flags "TO_DISK,NO_REAPPLY"
     Then "u 2" is visible with command " busctl get-property org.freedesktop.NetworkManager $(nmcli -g DBUS-PATH,DEVICE device | sed -n 's/:eth8//p') org.freedesktop.NetworkManager.Device Metered"
     * Execute "nmcli device reapply eth8"
     Then "u 1" is visible with command " busctl get-property org.freedesktop.NetworkManager $(nmcli -g DBUS-PATH,DEVICE device | sed -n 's/:eth8//p') org.freedesktop.NetworkManager.Device Metered"
