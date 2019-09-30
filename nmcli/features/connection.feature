@@ -608,9 +608,9 @@ Feature: nmcli: connection
     When "testX\s+ethernet\s+connected" is visible with command "nmcli device" in "5" seconds
     * Execute "ip netns exec testX_ns tcpreplay --intf1=testXp tmp/lldp.vlan.pcap"
     # check the deffinition of the step for more details about syntax
-    Then Check ":ieee-802-1-vid=0,:ieee-802-3-max-frame-size=1514,:ieee-802-1-vlan-name=default,:ieee-802-1-pvid=0" in LldpNeigbors via DBus for device "testX"
-     And Check ":ieee-802-1-vlans::name=default,:ieee-802-1-vlans::vid=0,:ieee-802-1-vlans::name=jbenc,:ieee-802-1-vlans::vid=99" in LldpNeigbors via DBus for device "testX"
-     And Check ":ieee-802-3-mac-phy-conf:pmd-autoneg-cap=32768,:ieee-802-3-mac-phy-conf:autoneg=0,:ieee-802-3-mac-phy-conf:operational-mau-type=0" in LldpNeigbors via DBus for device "testX"
+    Then Check ":ieee-802-1-vid=0,:ieee-802-3-max-frame-size=1514,:ieee-802-1-vlan-name='default',:ieee-802-1-pvid=0" in LldpNeighbors via DBus for device "testX"
+     And Check ":ieee-802-1-vlans::name='default',:ieee-802-1-vlans::vid=0,:ieee-802-1-vlans::name='jbenc',:ieee-802-1-vlans::vid=99" in LldpNeighbors via DBus for device "testX"
+     And Check ":ieee-802-3-mac-phy-conf:pmd-autoneg-cap=32768,:ieee-802-3-mac-phy-conf:autoneg=0,:ieee-802-3-mac-phy-conf:operational-mau-type=0" in LldpNeighbors via DBus for device "testX"
 
 
     @rhbz1417292
