@@ -424,8 +424,8 @@ def snapshot_action(context, action, devices, timeout=0, device=None):
 # example: ":802-1-vlans::id=10" - search for all elements of 'LldpNeighbor' (it is an array),
 #  pick index '802-1-vlans', then search there is some object with id equal to 10
 # note: empty index is usefull to search in all elements of an array
-@step(u'Check "{property}" in LldpNeigbors via DBus for device "{device}"')
-def check_lld_neigh(context, property, device):
+@step(u'Check "{property}" in LldpNeighbors via DBus for device "{device}"')
+def check_lldp_neighbours(context, property, device):
     import dbus
     bus = dbus.SystemBus()
     path = '/org/freedesktop/NetworkManager'
@@ -435,16 +435,16 @@ def check_lld_neigh(context, property, device):
 
     dev_proxy = bus.get_object("org.freedesktop.NetworkManager", dev_path)
     dev = dbus.Interface(dev_proxy, "org.freedesktop.DBus.Properties")
-    lldp_neigbors = dev.Get('org.freedesktop.NetworkManager.Device', 'LldpNeighbors')
+    lldp_neighbors = dev.Get('org.freedesktop.NetworkManager.Device', 'LldpNeighbors')
 
     # recursively checks the queue of indices on object, when que empty compare to value
     # if index is empty, search every index of object on that level
     def check_obj(idx, obj, val, queue):
         # stop recursion, if queue is empty
         if len(queue)==0:
-            cmp = str(obj[idx])
-            if cmp != val:
-                bad_vals.append(cmp)
+            val_obj = obj[idx]
+            if val_obj != val:
+                bad_vals.append(str(val_obj))
                 return False
             return True
         # if the index is empty, use 'for' loop on object
@@ -459,9 +459,10 @@ def check_lld_neigh(context, property, device):
 
     for prop in property.split(','):
         path, val = prop.split("=")
+        val = eval(val)
         queue = path.split(":")
         bad_vals = []
-        assert check_obj(queue[0], lldp_neigbors, val, queue[1:]), "value '%s' for property '%s' not found in ['%s']" % (val, path, "','".join(bad_vals))
+        assert check_obj(queue[0], lldp_neighbors, val, queue[1:]), "value '%s' for property '%s' not found in ['%s']" % (val, path, "','".join(bad_vals))
 
 
 @step(u'Check "{flag}" band cap flag set if device supported')
