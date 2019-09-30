@@ -1590,3 +1590,53 @@
      And "default" is visible with command "ip -6 r |grep testX6"
      # Eth3 device (just fe80)
      And "fe80" is visible with command "ip a s eth3"
+
+
+     @rhbz1755467
+     @ver+=1.22
+     @teardown_testveth @con_ipv6_remove @kill_children @internal_DHCP @dhcpd
+     @ipv6_prefix_delegation_internal
+     Scenario: nmcli - ipv6 - prefix delegation
+     * Prepare simulated test "testX" device without DHCP
+     * Execute "ip -n testX_ns addr add dev testXp fc01::1/64"
+     * Prepare simulated test "testY" device without DHCP
+     * Run child "ip netns exec testX_ns radvd -n -C tmp/ipv6/radvd.conf" without shell
+     * Execute "echo > /tmp/ip6leases.conf"
+     * Run child "ip netns exec testX_ns dhcpd -6 -d -cf tmp/ipv6/dhcpd.conf -lf /tmp/ip6leases.conf" without shell
+     * Add a new connection of type "ethernet" and options "ifname testX con-name con_ipv6 ipv4.method disabled ipv6.method auto autoconnect no"
+     * Bring "up" connection "con_ipv6"
+     When "inet6 fc01:" is visible with command "ip a show dev testX" in "5" seconds
+     * Add a new connection of type "ethernet" and options "ifname testY con-name con_ipv62 ipv4.method disabled ipv6.method shared autoconnect no"
+     * Bring "up" connection "con_ipv62"
+     When "iaaddr" is visible with command "cat /tmp/ip6leases.conf" in "10" seconds
+     When "iaprefix" is visible with command "cat /tmp/ip6leases.conf" in "10" seconds
+     * Execute "ip netns exec testX_ns ip route add $(grep -m 1 iaprefix /tmp/ip6leases.conf | sed -r 's/\s+iaprefix ([a-f0-9:/]+) \{.*/\1/') via $(grep -m 1 iaaddr /tmp/ip6leases.conf | sed -r 's/\s+iaaddr ([a-f0-9:]+) \{.*/\1/')"
+     # no need to call, because of IPv6 autoconfiguration
+     #Then Finish "ip netns exec testY_ns rdisc -d -v"
+     And  "inet6 fc01:bbbb:[a-f0-9:]+/64" is visible with command "ip -n testY_ns a show dev testYp" in "15" seconds
+     And  Finish "ip netns exec testY_ns ping -c2 fc01::1"
+
+
+     @rhbz1755467
+     @ver+=1.6
+     @teardown_testveth @con_ipv6_remove @kill_children @dhclient_DHCP @dhcpd
+     @ipv6_prefix_delegation_dhclient
+     Scenario: nmcli - ipv6 - prefix delegation
+     * Execute "systemctl stop dhcpd"
+     * Prepare simulated test "testX" device without DHCP
+     * Execute "ip -n testX_ns addr add dev testXp fc01::1/64"
+     * Prepare simulated test "testY" device without DHCP
+     * Run child "ip netns exec testX_ns radvd -n -C tmp/ipv6/radvd.conf" without shell
+     * Execute "echo > /tmp/ip6leases.conf"
+     * Run child "ip netns exec testX_ns dhcpd -6 -d -cf tmp/ipv6/dhcpd.conf -lf /tmp/ip6leases.conf" without shell
+     * Add a new connection of type "ethernet" and options "ifname testX con-name con_ipv6 ipv4.method disabled ipv6.method auto ipv6.route-metric 50 autoconnect no"
+     * Bring "up" connection "con_ipv6"
+     When "inet6 fc01:" is visible with command "ip a show dev testX" in "5" seconds
+     * Add a new connection of type "ethernet" and options "ifname testY con-name con_ipv62 ipv4.method disabled ipv6.method shared autoconnect no"
+     * Bring "up" connection "con_ipv62"
+     When "iaaddr" is visible with command "cat /tmp/ip6leases.conf" in "10" seconds
+     When "iaprefix" is visible with command "cat /tmp/ip6leases.conf" in "10" seconds
+     * Execute "ip netns exec testX_ns ip route add $(grep -m 1 iaprefix /tmp/ip6leases.conf | sed -r 's/\s+iaprefix ([a-f0-9:/]+) \{.*/\1/') via $(grep -m 1 iaaddr /tmp/ip6leases.conf | sed -r 's/\s+iaaddr ([a-f0-9:]+) \{.*/\1/')"
+     Then Finish "ip netns exec testY_ns rdisc -d -v"
+     And  "inet6 fc01:bbbb:[a-f0-9:]+/64" is visible with command "ip -n testY_ns a show dev testYp" in "15" seconds
+     And  Finish "ip netns exec testY_ns ping -c2 fc01::1"
