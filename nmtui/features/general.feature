@@ -5,19 +5,10 @@ Feature: General TUI tests
 
 
     @general
-    @nmtui_general_start_nmtui
-    Scenario: nmtui - general - start nmtui
-    * Start nmtui
-    Then Nmtui process is running
-    Then Main screen is visible
-
-
-    @general
     @nmtui_general_exit_nmtui
     Scenario: nmtui - general - exit nmtui
     * Start nmtui
     * Nmtui process is running
-    * Main screen is visible
     * Choose to "Quit" from main screen
     Then Screen is empty
 
@@ -26,7 +17,6 @@ Feature: General TUI tests
     @nmtui_general_open_edit_menu
     Scenario: nmtui - general - open edit menu
     * Start nmtui
-    * Main screen is visible
     * Choose to "Edit a connection" from main screen
     Then ".*<Add>.*<Delete>.*" is visible on screen
 
@@ -35,7 +25,6 @@ Feature: General TUI tests
     @nmtui_general_open_activation_menu
     Scenario: nmtui - general - open activation menu
     * Start nmtui
-    * Main screen is visible
     * Choose to "Activate a connection" from main screen
     Then ".*ctivate>.*<(Quit|Back)>.*" is visible on screen
 
@@ -44,7 +33,6 @@ Feature: General TUI tests
     @nmtui_general_open_hostname_dialog
     Scenario: nmtui - general - open hostname dialog
     * Start nmtui
-    * Main screen is visible
     * Choose to "Set system hostname" from main screen
     Then ".*Set Hostname.*" is visible on screen
 
@@ -196,7 +184,6 @@ Feature: General TUI tests
     @nmtui_general_activate_screen_no_connections
     Scenario: nmtui - general - active screen without connections
     * Start nmtui
-    * Main screen is visible
     * Choose to "Activate a connection" from main screen
     * Nmtui process is running
     Then ".*<(Quit|Back)>.*" is visible on screen

@@ -210,8 +210,8 @@ Feature: IPv6 TUI tests
     * Add ip route "3030::1/128 2001::2 112"
     * Confirm the connection settings
     Then "1010::1 via 2000::1 dev eth1\s+proto static\s+metric 111" is visible with command "ip -6 route"
-    Then "2000::/126 dev eth1\s+proto kernel\s+metric 100" is visible with command "ip -6 route"
-    Then "2001::/126 dev eth2\s+proto kernel\s+metric 101" is visible with command "ip -6 route"
+    Then "2000::/126 dev eth1\s+proto kernel\s+metric 1" is visible with command "ip -6 route"
+    Then "2001::/126 dev eth2\s+proto kernel\s+metric 1" is visible with command "ip -6 route"
     Then "3030::1 via 2001::2 dev eth2\s+proto static\s+metric 112" is visible with command "ip -6 route"
 
 

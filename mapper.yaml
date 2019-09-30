@@ -1771,9 +1771,6 @@ testmapper:
         feature: dns
     - dns_multiple_options:
         feature: dns
-    - nmtui_general_start_nmtui:
-        run: nmtui/./runtest.sh nmtui_general_start_nmtui
-        feature: nmtui
     - nmtui_general_exit_nmtui:
         run: nmtui/./runtest.sh nmtui_general_exit_nmtui
         feature: nmtui

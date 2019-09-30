@@ -137,14 +137,6 @@ def check_process_not_running(context):
     assert context.tui.isalive() == False, "NMTUI (pid:%s) is still up!" % context.tui.pid
 
 
-@step(u'Main screen is visible')
-def can_see_welcome_screen(context):
-    for line in context.screen.display:
-        if 'NetworkManager TUI' in line:
-            return
-    assert False, "Could not read the main screen in output"
-
-
 @step(u'Press "{key}" key')
 def press_key(context, key):
     context.tui.send(keys[key])
