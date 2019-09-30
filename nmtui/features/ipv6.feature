@@ -358,8 +358,8 @@ Feature: IPv6 TUI tests
     * Confirm the connection settings
     Then "inet6 fc01::1:5/68" is visible with command "ip a s eth1" in "10" seconds
     Then "inet6 fc05::1:5/68" is visible with command "ip a s eth2" in "10" seconds
-    Then "default via fc01::1:1 dev eth1\s+proto static\s+metric 100" is visible with command "ip -6 route" in "10" seconds
-    Then "default via fc05::1:1 dev eth2\s+proto static\s+metric 101" is visible with command "ip -6 route" in "10" seconds
+    Then "default via fc01::1:1 dev eth1\s+proto static\s+metric 10" is visible with command "ip -6 route" in "10" seconds
+    Then "default via fc05::1:1 dev eth2\s+proto static\s+metric 10" is visible with command "ip -6 route" in "10" seconds
     Then "fc01::/68 dev eth1\s+proto kernel" is visible with command "ip -6 route" in "10" seconds
     Then "fc05::/68 dev eth2\s+proto kernel" is visible with command "ip -6 route" in "10" seconds
 
