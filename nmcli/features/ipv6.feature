@@ -1594,7 +1594,7 @@
 
      @rhbz1755467
      @ver+=1.22
-     @teardown_testveth @con_ipv6_remove @kill_children @internal_DHCP @dhcpd
+     @teardown_testveth @con_ipv6_remove @kill_children @internal_DHCP @dhcpd @rhelver+=8
      @ipv6_prefix_delegation_internal
      Scenario: nmcli - ipv6 - prefix delegation
      * Prepare simulated test "testX" device without DHCP
@@ -1619,7 +1619,7 @@
 
      @rhbz1755467
      @ver+=1.6
-     @teardown_testveth @con_ipv6_remove @kill_children @dhclient_DHCP @dhcpd
+     @teardown_testveth @con_ipv6_remove @kill_children @dhclient_DHCP @dhcpd @rhelver+=8
      @ipv6_prefix_delegation_dhclient
      Scenario: nmcli - ipv6 - prefix delegation
      * Execute "systemctl stop dhcpd"
