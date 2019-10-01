@@ -738,13 +738,6 @@ def before_scenario(context, scenario):
             call("printf '# configured by beaker-test\n[main]\ndhcp=dhclient\n' > /etc/NetworkManager/conf.d/99-xtest-dhcp-dhclient.conf", shell=True)
             restart_NM_service()
 
-        if 'dhcpd' in scenario.tags:
-            print ("---------------------------")
-            print ("installing dhcp")
-            wait_for_testeth0()
-            if call('rpm -q --quiet dhcp-server', shell=True) != 0:
-                call('yum -y install dhcp-server', shell=True)
-
         if 'dummy' in scenario.tags:
             print ("---------------------------")
             print ("removing dummy devices")
