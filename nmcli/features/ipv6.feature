@@ -1603,7 +1603,7 @@
      * Run child "ip netns exec testX_ns radvd -n -C tmp/ipv6/radvd.conf" without shell
      * Execute "echo > /tmp/ip6leases.conf"
      * Run child "ip netns exec testX_ns dhcpd -6 -d -cf tmp/ipv6/dhcpd.conf -lf /tmp/ip6leases.conf" without shell
-     * Add a new connection of type "ethernet" and options "ifname testX con-name con_ipv6 ipv4.method disabled ipv6.method auto autoconnect no"
+     * Add a new connection of type "ethernet" and options "ifname testX con-name con_ipv6 ipv4.method disabled ipv6.method auto ipv6.route-metric 50 autoconnect no"
      * Bring "up" connection "con_ipv6"
      When "inet6 fc01:" is visible with command "ip a show dev testX" in "5" seconds
      * Add a new connection of type "ethernet" and options "ifname testY con-name con_ipv62 ipv4.method disabled ipv6.method shared autoconnect no"
