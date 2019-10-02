@@ -17,7 +17,7 @@ def run(context, command, *a, **kw):
         returncode = 0
         exception = None
     except subprocess.CalledProcessError as e:
-        output = str(e.output)
+        output = e.output.decode('utf-8')
         returncode = e.returncode
         exception = e
     context.embed('text/plain', '$?=%d' % returncode, caption='%s result' % command)
