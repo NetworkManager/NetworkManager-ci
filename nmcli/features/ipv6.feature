@@ -1613,7 +1613,8 @@
      * Execute "ip netns exec testX_ns ip route add $(grep -m 1 iaprefix /tmp/ip6leases.conf | sed -r 's/\s+iaprefix ([a-f0-9:/]+) \{.*/\1/') via $(grep -m 1 iaaddr /tmp/ip6leases.conf | sed -r 's/\s+iaaddr ([a-f0-9:]+) \{.*/\1/')"
      # no need to call, because of IPv6 autoconfiguration
      #Then Finish "ip netns exec testY_ns rdisc -d -v"
-     And  "inet6 fc01:bbbb:[a-f0-9:]+/64" is visible with command "ip -n testY_ns a show dev testYp" in "15" seconds
+     Then "inet6 fc01:bbbb:[a-f0-9:]+/64" is visible with command "ip -n testY_ns a show dev testYp" in "15" seconds
+     And  "tentative" is not visible with command "ip -n testY_ns a show dev testYp" in "15" seconds
      And  Finish "ip netns exec testY_ns ping -c2 fc01::1"
 
 
@@ -1639,4 +1640,5 @@
      * Execute "ip netns exec testX_ns ip route add $(grep -m 1 iaprefix /tmp/ip6leases.conf | sed -r 's/\s+iaprefix ([a-f0-9:/]+) \{.*/\1/') via $(grep -m 1 iaaddr /tmp/ip6leases.conf | sed -r 's/\s+iaaddr ([a-f0-9:]+) \{.*/\1/')"
      Then Finish "ip netns exec testY_ns rdisc -d -v"
      And  "inet6 fc01:bbbb:[a-f0-9:]+/64" is visible with command "ip -n testY_ns a show dev testYp" in "15" seconds
+     And  "tentative" is not visible with command "ip -n testY_ns a show dev testYp" in "15" seconds
      And  Finish "ip netns exec testY_ns ping -c2 fc01::1"
