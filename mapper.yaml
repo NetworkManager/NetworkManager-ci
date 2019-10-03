@@ -791,10 +791,6 @@ testmapper:
         feature: ipv4
     - ipv4_dhcp_client_id_default:
         feature: ipv4
-    - ipv4_dhcp_client_id_default_rhel7:
-        feature: ipv4
-    - ipv4_dhcp_client_id_default_rhel8:
-        feature: ipv4
     - ipv4_may-fail_yes:
         feature: ipv4
         tags: gate
@@ -1329,7 +1325,7 @@ testmapper:
         feature: general
     - autoconnect_no_secrets_prompt:
         feature: general
-    - ifup_ifdown_scripts_rhel8:
+    - ifup_ifdown_scripts:
         feature: general
     - resolv_conf_search_limit:
         feature: general
@@ -1342,10 +1338,6 @@ testmapper:
     - nmcli_modify_altsubject-matches:
         feature: general
     - libnm_get_dns_crash:
-        feature: general
-    - keyfile_nmconnection_extension_rhel7:
-        feature: general
-    - keyfile_nmconnection_extension_rhel8:
         feature: general
     - keyfile_nmconnection_extension:
         feature: general

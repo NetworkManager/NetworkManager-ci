@@ -1224,7 +1224,7 @@ Feature: nmcli: ipv4
 
     @rhbz1642023
     @ver+=1.14
-    @con_ipv4_remove @restart @rhelver+=8 @rhel_pkg
+    @con_ipv4_remove @restart @rhelver+=8 @rhel_pkg @internal_DHCP
     @ipv4_dhcp_client_id_change_lease_restart
     Scenario: nmcli - ipv4 - dhcp-client-id - lease file change should not be considered even after NM restart
     * Add connection type "ethernet" named "con_ipv4" for device "eth2"
@@ -1304,7 +1304,7 @@ Feature: nmcli: ipv4
     @rhbz1661165
     @rhelver+=8 @rhel_pkg
     @internal_DHCP @con_ipv4_remove @tcpdump @no_config_server
-    @ipv4_dhcp_client_id_default_rhel8
+    @ipv4_dhcp_client_id_default
     Scenario: NM - ipv4 - ipv4 client id should default to mac with internal plugins
     * Add connection type "ethernet" named "con_ipv4" for device "eth2"
     * Note MAC address output for device "eth2" via ip command
@@ -1318,7 +1318,7 @@ Feature: nmcli: ipv4
     @rhbz1661165
     @rhelver-=7 @rhel_pkg @fedoraver-=0
     @internal_DHCP @con_ipv4_remove @tcpdump @no_config_server
-    @ipv4_dhcp_client_id_default_rhel7
+    @ipv4_dhcp_client_id_default
     Scenario: NM - ipv4 - ipv4 client id should default to duid with internal plugins
     * Add connection type "ethernet" named "con_ipv4" for device "eth2"
     * Run child "sudo tcpdump -i eth2 -v -n > /tmp/tcpdump.log"

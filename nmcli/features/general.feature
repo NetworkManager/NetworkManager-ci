@@ -2010,8 +2010,8 @@ Feature: nmcli - general
 
     @rhbz1578436
     @ver+=1.14
-    @rhelver+=8 @con_general_remove
-    @ifup_ifdown_scripts_rhel8
+    @rhelver+=8 @fedoraver+=31 @con_general_remove
+    @ifup_ifdown_scripts
     Scenario: NM - general - test ifup (ifdown) script uses NM
     * Add a new connection of type "ethernet" and options "con-name con_general ifname eth8 autoconnect no ipv4.address 1.2.3.4/24 ipv4.method manual"
     * Execute "ifup con_general"
@@ -2102,7 +2102,7 @@ Feature: nmcli - general
     @rhbz1697858
     @rhelver-=7 @rhel_pkg @restart @fedoraver-=0
     @con_general_remove @remove_custom_cfg
-    @keyfile_nmconnection_extension_rhel7
+    @keyfile_nmconnection_extension
     Scenario: NM - general - keyfile does not have .nmconnection extension
     * Execute "echo '[main]' > /etc/NetworkManager/conf.d/99-xxcustom.conf"
     * Execute "echo 'plugins=keyfile,ifcfg-rh' >> /etc/NetworkManager/conf.d/99-xxcustom.conf"
@@ -2115,7 +2115,7 @@ Feature: nmcli - general
     @rhbz1697858
     @ver+=1.19
     @rhelver+=8 @rhel_pkg @con_general_remove @remove_custom_cfg @restart
-    @keyfile_nmconnection_extension_rhel8
+    @keyfile_nmconnection_extension
     Scenario: NM - general - keyfile does have .nmconnection extension
     * Execute "echo '[main]' > /etc/NetworkManager/conf.d/99-xxcustom.conf"
     * Execute "echo 'plugins=keyfile,ifcfg-rh' >> /etc/NetworkManager/conf.d/99-xxcustom.conf"
