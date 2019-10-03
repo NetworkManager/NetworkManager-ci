@@ -1391,8 +1391,6 @@ def after_scenario(context, scenario):
         if 'con_ipv4_remove' in scenario.tags:
             print ("---------------------------")
             print ("deleting connection con_ipv4 and con_ipv42")
-            call("nmcli connection down con_ipv4 ", shell=True)
-            call("nmcli connection down con_ipv42", shell=True)
             call("nmcli connection delete id con_ipv4 con_ipv42", shell=True)
             call("if nmcli con |grep con_ipv4; then echo 'con_ipv4 present: %s' >> /tmp/residues; fi" %scenario.tags, shell=True)
 
