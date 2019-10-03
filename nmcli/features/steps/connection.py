@@ -200,7 +200,9 @@ def is_not_readable(context, user, name):
 
 @step(u'Modify connection "{name}" changing options "{options}"')
 def modify_connection(context, name, options):
-    cli = pexpect.spawn('nmcli connection modify %s %s' % (name, options), logfile=context.log, encoding='utf-8')
+    # Pexpect throws '' away so we need to have space in the middle to clean values
+    options = options.replace("''","' '")
+    cli = pexpect.spawn("nmcli connection modify %s %s" % (name, options), logfile=context.log, encoding='utf-8')
     if cli.expect(['Error', pexpect.TIMEOUT, pexpect.EOF]) == 0:
         raise Exception('Got an Error while modifying %s options %s\n%s%s' % (name,options,cli.after,cli.buffer))
 

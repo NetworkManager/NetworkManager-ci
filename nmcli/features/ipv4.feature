@@ -802,7 +802,9 @@ Feature: nmcli: ipv4
     @tshark @con_ipv4_remove
     @nmcli_ipv4_remove_fqdn
     Scenario: nmcli - ipv4 - dhcp-fqdn - remove dhcp-fqdn
-    * Add a new connection of type "ethernet" and options "ifname eth2 con-name con_ipv4 ipv4.dhcp-fqdn foo.bar.com ipv4.may-fail no ipv4.dhcp-fqdn ''"
+    * Add a new connection of type "ethernet" and options "ifname eth2 con-name con_ipv4 ipv4.dhcp-fqdn foo.bar.com ipv4.may-fail no"
+    * Modify connection "con_ipv4" changing options "ipv4.dhcp-fqdn ''"
+    * Bring "up" connection "con_ipv4"
     * Run child "sudo tshark -l -O bootp -i eth2 > /tmp/tshark.log"
     When "empty" is not visible with command "file /tmp/tshark.log" in "150" seconds
     * Bring "up" connection "con_ipv4"
@@ -814,7 +816,7 @@ Feature: nmcli: ipv4
     @tshark @con_ipv4_remove
     @ipv4_do_not_send_hostname
     Scenario: nmcli - ipv4 - dhcp-send-hostname - don't send
-    * Add a new connection of type "ethernet" and options "ifname eth2 con-name con_ipv4 ipv4.may-fail no ipv4.dhcp-hostname RHC dhcp-send-hostname no"
+    * Add a new connection of type "ethernet" and options "ifname eth2 con-name con_ipv4 ipv4.may-fail no ipv4.dhcp-hostname RHC ipv4.dhcp-send-hostname no"
     * Run child "sudo tshark -l -O bootp -i eth2 > /tmp/hostname.log"
     When "empty" is not visible with command "file /tmp/hostname.log" in "150" seconds
     * Bring "up" connection "con_ipv4"
@@ -837,7 +839,7 @@ Feature: nmcli: ipv4
     @tshark @con_ipv4_remove
     @ipv4_ignore_sending_real_hostname
     Scenario: nmcli - ipv4 - dhcp-send-hostname - ignore sending real hostname
-    * Add a new connection of type "ethernet" and options "ifname eth2 con-name con_ipv4 ipv4.may-fail no dhcp-send-hostname no"
+    * Add a new connection of type "ethernet" and options "ifname eth2 con-name con_ipv4 ipv4.may-fail no ipv4.dhcp-send-hostname no"
     * Run child "sudo tshark -l -O bootp -i eth2 > /tmp/real.log"
     When "empty" is not visible with command "file /tmp/real.log" in "150" seconds
     * Bring "up" connection "con_ipv4"
@@ -1243,9 +1245,11 @@ Feature: nmcli: ipv4
     ## testX4 con_ipv4 for renewal_gw_after_dhcp_outage_for_assumed_var1
     * Prepare simulated test "testX4" device with "192.168.199" ipv4 and "dead:beaf:1" ipv6 dhcp address prefix
     * Add a new connection of type "ethernet" and options "ifname testX4 con-name con_ipv4"
+    * Bring "up" connection "con_ipv4"
     ## testY4 connie for renewal_gw_after_dhcp_outage_for_assumed_var0
     * Prepare simulated test "testY4" device with "192.168.200" ipv4 and "dead:beaf:2" ipv6 dhcp address prefix
     * Add a new connection of type "ethernet" and options "ifname testY4 con-name connie"
+    * Bring "up" connection "connie"
     When "default" is visible with command "ip r |grep testX4" in "30" seconds
     When "default" is visible with command "ip r |grep testY4" in "30" seconds
     When "inet 192" is visible with command "ip a s |grep testX4" in "30" seconds
