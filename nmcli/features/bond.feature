@@ -264,8 +264,8 @@
 
     @slaves
     @bond
-    @testcase_301107
-    Scenario: nmcli - connection - slave-type and master settings
+    @bond_slave_type
+    Scenario: nmcli - bond - slave-type and master settings
      * Add connection type "bond" named "bond0" for device "nm-bond"
      * Add connection type "ethernet" named "bond0.0" for device "eth1"
      * Open editor for connection "bond0.0"
@@ -422,10 +422,7 @@
      * Add connection type "bond" named "bond0" for device "nm-bond"
      * Add slave connection for master "nm-bond" on device "eth1" named "bond0.0"
      * Add slave connection for master "nm-bond" on device "eth4" named "bond0.1"
-     * Open editor for connection "bond0.0"
-     * Submit "set connection.autoconnect no" in editor
-     * Save in editor
-     * Quit editor
+     * Modify connection "bond0.0" changing options "autoconnect no"
      * Bring "up" connection "bond0"
      Then Check bond "nm-bond" link state is "up"
      Then Check slave "eth1" not in bond "nm-bond" in proc
@@ -438,14 +435,8 @@
      * Add connection type "bond" named "bond0" for device "nm-bond"
      * Add slave connection for master "nm-bond" on device "eth1" named "bond0.0"
      * Add slave connection for master "nm-bond" on device "eth4" named "bond0.1"
-     * Open editor for connection "bond0.0"
-     * Submit "set connection.autoconnect yes" in editor
-     * Save in editor
-     * Quit editor
-     * Open editor for connection "bond0.1"
-     * Submit "set connection.autoconnect yes" in editor
-     * Save in editor
-     * Quit editor
+     * Modify connection "bond0.0" changing options "autoconnect yes"
+     * Modify connection "bond0.1" changing options "autoconnect yes"
      * Bring "up" connection "bond0"
      * Reboot
      Then Check bond "nm-bond" link state is "up"
@@ -691,10 +682,7 @@
      * Add connection type "bond" named "bond0" for device "nm-bond"
      * Add slave connection for master "nm-bond" on device "eth1" named "bond0.0"
      * Add slave connection for master "nm-bond" on device "eth4" named "bond0.1"
-     * Open editor for connection "bond0"
-     * Submit "set connection.autoconnect-slaves 1" in editor
-     * Save in editor
-     * Quit editor
+     * Modify connection "bond0" changing options "connection.autoconnect-slaves 1"
      * Disconnect device "nm-bond"
      * Bring "up" connection "bond0"
      Then Check bond "nm-bond" link state is "up"
@@ -708,18 +696,9 @@
      * Add connection type "bond" named "bond0" for device "nm-bond"
      * Add slave connection for master "nm-bond" on device "eth1" named "bond0.0"
      * Add slave connection for master "nm-bond" on device "eth4" named "bond0.1"
-     * Open editor for connection "bond0.0"
-     * Submit "set connection.autoconnect no" in editor
-     * Save in editor
-     * Quit editor
-     * Open editor for connection "bond0.1"
-     * Submit "set connection.autoconnect no" in editor
-     * Save in editor
-     * Quit editor
-     * Open editor for connection "bond0"
-     * Submit "set connection.autoconnect no" in editor
-     * Save in editor
-     * Quit editor
+     * Modify connection "bond0.0" changing options "connection.autoconnect no"
+     * Modify connection "bond0.1" changing options "connection.autoconnect no"
+     * Modify connection "bond0" changing options "connection.autoconnect no"
      * Disconnect device "nm-bond"
      * Reboot
      Then Check bond "nm-bond" link state is "down"
@@ -733,18 +712,9 @@
      * Add connection type "bond" named "bond0" for device "nm-bond"
      * Add slave connection for master "nm-bond" on device "eth1" named "bond0.0"
      * Add slave connection for master "nm-bond" on device "eth4" named "bond0.1"
-     * Open editor for connection "bond0.0"
-     * Submit "set connection.autoconnect no" in editor
-     * Save in editor
-     * Quit editor
-     * Open editor for connection "bond0.1"
-     * Submit "set connection.autoconnect yes" in editor
-     * Save in editor
-     * Quit editor
-     * Open editor for connection "bond0"
-     * Submit "set connection.autoconnect no" in editor
-     * Save in editor
-     * Quit editor
+     * Modify connection "bond0.0" changing options "connection.autoconnect no"
+     * Modify connection "bond0.1" changing options "connection.autoconnect yes"
+     * Modify connection "bond0" changing options "connection.autoconnect yes"
      * Bring "up" connection "bond0"
      * Reboot
      Then Check bond "nm-bond" link state is "up"
@@ -758,18 +728,9 @@
      * Add connection type "bond" named "bond0" for device "nm-bond"
      * Add slave connection for master "nm-bond" on device "eth1" named "bond0.0"
      * Add slave connection for master "nm-bond" on device "eth4" named "bond0.1"
-     * Open editor for connection "bond0.0"
-     * Submit "set connection.autoconnect no" in editor
-     * Save in editor
-     * Quit editor
-     * Open editor for connection "bond0.1"
-     * Submit "set connection.autoconnect yes" in editor
-     * Save in editor
-     * Quit editor
-     * Open editor for connection "bond0"
-     * Submit "set connection.autoconnect yes" in editor
-     * Save in editor
-     * Quit editor
+     * Modify connection "bond0.0" changing options "connection.autoconnect no"
+     * Modify connection "bond0.1" changing options "connection.autoconnect yes"
+     * Modify connection "bond0" changing options "connection.autoconnect yes"
      * Bring "up" connection "bond0"
      * Bring "up" connection "bond0.0"
      * Bring "up" connection "bond0.1"
@@ -785,11 +746,7 @@
      * Add connection type "bond" named "bond0" for device "nm-bond"
      * Add slave connection for master "nm-bond" on device "eth1" named "bond0.0"
      * Add slave connection for master "nm-bond" on device "eth4" named "bond0.1"
-     * Open editor for connection "bond0"
-     * Set a property named "bond.options" to "mode=0, miimon=100, downdelay=100, updelay=100" in editor
-     * Save in editor
-     Then Value saved message showed in editor
-     * Quit editor
+     * Modify connection "bond0" changing options "bond.options mode=0,miimon=100,downdelay=100,updelay=100"
      * Bring "up" connection "bond0"
      Then "Bonding Mode: load balancing \(round-robin\)" is visible with command "cat /proc/net/bonding/nm-bond"
      Then Check bond "nm-bond" link state is "up"
@@ -804,11 +761,7 @@
      * Add connection type "bond" named "bond0" for device "nm-bond"
      * Add slave connection for master "nm-bond" on device "eth1" named "bond0.0"
      * Add slave connection for master "nm-bond" on device "eth4" named "bond0.1"
-     * Open editor for connection "bond0"
-     * Set a property named "bond.options" to "mode=0, arp_interval=1000, arp_ip_target=10.16.135.254" in editor
-     * Save in editor
-     Then Value saved message showed in editor
-     * Quit editor
+     * Modify connection "bond0" changing options "bond.options mode=0,arp_interval=1000,arp_ip_target=10.16.135.254"
      * Bring "up" connection "bond0"
      * Bring "up" connection "bond0.0"
      * Bring "up" connection "bond0.1"
@@ -828,11 +781,7 @@
      * Add connection type "bond" named "bond0" for device "nm-bond"
      * Add slave connection for master "nm-bond" on device "eth1" named "bond0.0"
      * Add slave connection for master "nm-bond" on device "eth4" named "bond0.1"
-     * Open editor for connection "bond0"
-     * Set a property named "bond.options" to "mode=0,miimon=100,arp_interval=1000,arp_ip_target=10.16.135.254" in editor
-     * Save in editor
-     Then Value saved message showed in editor
-     * Quit editor
+     * Modify connection "bond0" changing options "bond.options mode=0,miimon=100,arp_interval=1000,arp_ip_target=10.16.135.254"
      * Bring "up" connection "bond0"
      * Bring "up" connection "bond0.0"
      * Bring "up" connection "bond0.1"
@@ -922,11 +871,7 @@
      * Add connection type "bond" named "bond0" for device "nm-bond"
      * Add slave connection for master "nm-bond" on device "eth1" named "bond0.0"
      * Add slave connection for master "nm-bond" on device "eth4" named "bond0.1"
-     * Open editor for connection "bond0"
-     * Set a property named "bond.options" to "mode=0, miimon=100, downdelay=100, updelay=100" in editor
-     * Save in editor
-     Then Value saved message showed in editor
-     * Quit editor
+     * Modify connection "bond0" changing options "bond.options mode=0,miimon=100,downdelay=100,updelay=100"
      * Bring "up" connection "bond0"
      Then "Bonding Mode: load balancing \(round-robin\)" is visible with command "cat /proc/net/bonding/nm-bond"
      Then Check bond "nm-bond" link state is "up"
@@ -955,11 +900,7 @@
      * Add connection type "bond" named "bond0" for device "nm-bond"
      * Add slave connection for master "nm-bond" on device "eth1" named "bond0.0"
      * Add slave connection for master "nm-bond" on device "eth4" named "bond0.1"
-     * Open editor for connection "bond0"
-     * Set a property named "bond.options" to "mode=0, miimon=999" in editor
-     * Save in editor
-     Then Value saved message showed in editor
-     * Quit editor
+     * Modify connection "bond0" changing options "bond.options mode=0,miimon=999"
      * Bring "up" connection "bond0"
      Then "Bonding Mode: load balancing \(round-robin\)" is visible with command "cat /proc/net/bonding/nm-bond"
      Then Check bond "nm-bond" link state is "up"
@@ -972,19 +913,11 @@
      * Add connection type "bond" named "bond0" for device "nm-bond"
      * Add slave connection for master "nm-bond" on device "eth1" named "bond0.0"
      * Add slave connection for master "nm-bond" on device "eth4" named "bond0.1"
-     * Open editor for connection "bond0"
-     * Set a property named "bond.options" to "mode=2" in editor
-     * Save in editor
-     When Value saved message showed in editor
-     * Quit editor
+     * Modify connection "bond0" changing options "bond.options mode=2"
      * Bring "up" connection "bond0"
      Then "Bonding Mode: load balancing \(xor\)" is visible with command "cat /proc/net/bonding/nm-bond"
      Then Check bond "nm-bond" link state is "up"
-     * Open editor for connection "bond0"
-     * Set a property named "bond.options" to "mode=0" in editor
-     * Save in editor
-     Then Value saved message showed in editor
-     * Quit editor
+     * Modify connection "bond0" changing options "bond.options mode=0"
      * Bring "up" connection "bond0"
      Then "Bonding Mode: load balancing \(round-robin\)" is visible with command "cat /proc/net/bonding/nm-bond"
      Then Check bond "nm-bond" link state is "up"
@@ -996,11 +929,7 @@
      * Add connection type "bond" named "bond0" for device "nm-bond"
      * Add slave connection for master "nm-bond" on device "eth1" named "bond0.0"
      * Add slave connection for master "nm-bond" on device "eth4" named "bond0.1"
-     * Open editor for connection "bond0"
-     * Set a property named "bond.options" to "mode=1" in editor
-     * Save in editor
-     When Value saved message showed in editor
-     * Quit editor
+     * Modify connection "bond0" changing options "bond.options mode=1"
      * Bring "up" connection "bond0"
      Then "Bonding Mode: fault-tolerance \(active-backup\)" is visible with command "cat /proc/net/bonding/nm-bond"
      Then Check bond "nm-bond" link state is "up"
@@ -1012,11 +941,7 @@
      * Add connection type "bond" named "bond0" for device "nm-bond"
      * Add slave connection for master "nm-bond" on device "eth1" named "bond0.0"
      * Add slave connection for master "nm-bond" on device "eth4" named "bond0.1"
-     * Open editor for connection "bond0"
-     * Set a property named "bond.options" to "mode=active-backup,primary=eth1,miimon=100,fail_over_mac=2" in editor
-     * Save in editor
-     When Value saved message showed in editor
-     * Quit editor
+     * Modify connection "bond0" changing options "bond.options mode=active-backup,primary=eth1,miimon=100,fail_over_mac=2"
      * Bring "up" connection "bond0"
      * Bring "up" connection "bond0.0"
      * Bring "up" connection "bond0.1"
@@ -1030,11 +955,7 @@
      * Add connection type "bond" named "bond0" for device "nm-bond"
      * Add slave connection for master "nm-bond" on device "eth1" named "bond0.0"
      * Add slave connection for master "nm-bond" on device "eth4" named "bond0.1"
-     * Open editor for connection "bond0"
-     * Set a property named "bond.options" to "mode=2" in editor
-     * Save in editor
-     When Value saved message showed in editor
-     * Quit editor
+     * Modify connection "bond0" changing options "bond.options mode=2"
      * Bring "up" connection "bond0"
      Then "Bonding Mode: load balancing \(xor\)" is visible with command "cat /proc/net/bonding/nm-bond"
      Then Check bond "nm-bond" link state is "up"
@@ -1046,11 +967,7 @@
      * Add connection type "bond" named "bond0" for device "nm-bond"
      * Add slave connection for master "nm-bond" on device "eth1" named "bond0.0"
      * Add slave connection for master "nm-bond" on device "eth4" named "bond0.1"
-     * Open editor for connection "bond0"
-     * Set a property named "bond.options" to "mode=3" in editor
-     * Save in editor
-     Then Value saved message showed in editor
-     * Quit editor
+     * Modify connection "bond0" changing options "bond.options mode=3"
      * Bring "up" connection "bond0"
      Then "Bonding Mode: fault-tolerance \(broadcast\)" is visible with command "cat /proc/net/bonding/nm-bond"
      Then Check bond "nm-bond" link state is "up"
@@ -1062,11 +979,7 @@
      * Add connection type "bond" named "bond0" for device "nm-bond"
      * Add slave connection for master "nm-bond" on device "eth1" named "bond0.0"
      * Add slave connection for master "nm-bond" on device "eth4" named "bond0.1"
-     * Open editor for connection "bond0"
-     * Set a property named "bond.options" to "mode=4" in editor
-     * Save in editor
-     Then Value saved message showed in editor
-     * Quit editor
+     * Modify connection "bond0" changing options "bond.options mode=4"
      * Bring "up" connection "bond0"
      Then "Bonding Mode: IEEE 802.3ad Dynamic link aggregation" is visible with command "cat /proc/net/bonding/nm-bond"
      Then Check bond "nm-bond" link state is "up"
@@ -1078,11 +991,7 @@
      * Add connection type "bond" named "bond0" for device "nm-bond"
      * Add slave connection for master "nm-bond" on device "eth1" named "bond0.0"
      * Add slave connection for master "nm-bond" on device "eth4" named "bond0.1"
-     * Open editor for connection "bond0"
-     * Set a property named "bond.options" to "mode=802.3ad,miimon=100,xmit_hash_policy=layer2+3,lacp_rate=fast" in editor
-     * Save in editor
-     Then Value saved message showed in editor
-     * Quit editor
+     * Modify connection "bond0" changing options "bond.options mode=802.3ad,miimon=100,xmit_hash_policy=layer2+3,lacp_rate=fast"
      * Bring "up" connection "bond0"
      Then "Bonding Mode: IEEE 802.3ad Dynamic link aggregation" is visible with command "cat /proc/net/bonding/nm-bond"
      Then "Transmit Hash Policy:\s+layer2\+3" is visible with command "cat /proc/net/bonding/nm-bond"
@@ -1096,11 +1005,7 @@
      * Add connection type "bond" named "bond0" for device "nm-bond"
      * Add slave connection for master "nm-bond" on device "eth1" named "bond0.0"
      * Add slave connection for master "nm-bond" on device "eth4" named "bond0.1"
-     * Open editor for connection "bond0"
-     * Set a property named "bond.options" to "miimon=100,mode=5" in editor
-     * Save in editor
-     Then Value saved message showed in editor
-     * Quit editor
+     * Modify connection "bond0" changing options "bond.options miimon=100,mode=5"
      * Bring "up" connection "bond0"
      * Bring "up" connection "bond0.0"
      * Bring "up" connection "bond0.1"
@@ -1114,11 +1019,7 @@
      * Add connection type "bond" named "bond0" for device "nm-bond"
      * Add slave connection for master "nm-bond" on device "eth1" named "bond0.0"
      * Add slave connection for master "nm-bond" on device "eth4" named "bond0.1"
-     * Open editor for connection "bond0"
-     * Set a property named "bond.options" to "miimon=100,mode=6" in editor
-     * Save in editor
-     Then Value saved message showed in editor
-     * Quit editor
+     * Modify connection "bond0" changing options "bond.options miimon=100,mode=6"
      * Bring "up" connection "bond0"
      * Bring "up" connection "bond0.1"
      * Bring "up" connection "bond0.0"
@@ -1133,20 +1034,9 @@
      * Add connection type "bond" named "bond0" for device "nm-bond"
      * Add slave connection for master "nm-bond" on device "eth1" named "bond0.0"
      * Add slave connection for master "nm-bond" on device "eth4" named "bond0.1"
-     * Open editor for connection "bond0.0"
-     * Set a property named "802-3-ethernet.mtu" to "9000" in editor
-     * Save in editor
-     * Quit editor
-     * Open editor for connection "bond0.1"
-     * Set a property named "802-3-ethernet.mtu" to "9000" in editor
-     * Save in editor
-     * Quit editor
-     * Open editor for connection "bond0"
-     * Set a property named "802-3-ethernet.mtu" to "9000" in editor
-     * Set a property named "ipv4.method" to "manual" in editor
-     * Set a property named "ipv4.addresses" to "1.1.1.2/24" in editor
-     * Save in editor
-     * Quit editor
+     * Modify connection "bond0.0" changing options "802-3-ethernet.mtu 9000"
+     * Modify connection "bond0.1" changing options "802-3-ethernet.mtu 9000"
+     * Modify connection "bond0" changing options "802-3-ethernet.mtu 9000 ipv4.method manual ipv4.addresses 1.1.1.2/24"
      * Disconnect device "nm-bond"
      * Bring "up" connection "bond0"
      * Bring "up" connection "bond0.1"
@@ -1167,13 +1057,7 @@
      * Add connection type "bond" named "bond0" for device "nm-bond"
      * Add slave connection for master "nm-bond" on device "eth1" named "bond0.0"
      * Add slave connection for master "nm-bond" on device "eth4" named "bond0.1"
-     * Open editor for connection "bond0"
-     * Set a property named "ipv4.method" to "manual" in editor
-     * Set a property named "ipv4.addresses" to "1.1.1.2/24" in editor
-     * Set a property named "ipv6.method" to "manual" in editor
-     * Set a property named "ipv6.addresses" to "1::2/128" in editor
-     * Save in editor
-     * Quit editor
+     * Modify connection "bond0" changing options "ipv4.method manual ipv4.addresses 1.1.1.2/24 ipv6.method manual ipv6.addresses 1::2/128"
      * Bring "up" connection "bond0"
      * Bring "up" connection "bond0.1"
      * Bring "up" connection "bond0.0"
@@ -1353,11 +1237,7 @@
      * Bring "down" connection "bond0"
      # VVV Workaround for rhbz1450219
      * Wait for at least "2" seconds
-     * Open editor for connection "bond0"
-     * Set a property named "connection.interface-name" to "nm-bond" in editor
-     * Save in editor
-     Then Value saved message showed in editor
-     * Quit editor
+     * Modify connection "bond0" changing options "connection.interface-name nm-bond"
      * Bring "up" connection "bond0"
      * Bring "up" connection "bond0.0"
      * Bring "up" connection "bond0.1"
@@ -1373,11 +1253,7 @@
      * Add slave connection for master "nm-bond" on device "eth1" named "bond0.0"
      * Add slave connection for master "nm-bond" on device "eth4" named "bond0.1"
      * Bring "down" connection "bond0"
-     * Open editor for connection "bond0"
-     * Set a property named "connection.interface-name" to "nm-bond" in editor
-     * Save in editor
-     Then Value saved message showed in editor
-     * Quit editor
+     * Modify connection "bond0" changing options "connection.interface-name nm-bond"
      * Bring "up" connection "bond0"
      * Bring "up" connection "bond0.0"
      * Bring "up" connection "bond0.1"

@@ -93,6 +93,8 @@ testmapper:
         feature: bond
     - bond_remove_slave:
         feature: bond
+    - bond_slave_type:
+        feature: bond
     - bond_remove_all_slaves:
         feature: bond
         tags: gate
