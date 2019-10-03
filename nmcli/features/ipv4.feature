@@ -709,7 +709,7 @@ Feature: nmcli: ipv4
     Scenario: nmcli - ipv4 - dns - priority
     * Add a new connection of type "ethernet" and options "con-name con_ipv4 ifname eth2 -- ipv4.method manual ipv4.addresses 192.168.1.2/24 ipv4.dns 8.8.4.4 ipv4.dns-priority 300"
     * Add a new connection of type "ethernet" and options "con-name con_ipv42 ifname eth3 -- ipv4.method manual ipv4.addresses 192.168.2.2/24 ipv4.dns 8.8.8.8 ipv4.dns-priority 200"
-    When "nameserver 8.8.8.8\s+nameserver 8.8.4.4" is visible with command "cat /etc/resolv.conf" in "10" seconds
+    When "nameserver 8.8.8.8.*nameserver 8.8.4.4" is visible with command "cat /etc/resolv.conf" in "10" seconds
     * Modify connection "con_ipv4" changing options "ipv4.dns-priority 100"
     * Modify connection "con_ipv4" changing options "ipv6.dns-priority 300"
     * Bring "up" connection "con_ipv42"
