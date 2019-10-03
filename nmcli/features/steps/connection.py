@@ -200,8 +200,9 @@ def is_not_readable(context, user, name):
 
 @step(u'Modify connection "{name}" changing options "{options}"')
 def modify_connection(context, name, options):
-    if 'Error' in command_output(context, "nmcli connection modify %s %s" % (name, options)).strip():
-        raise Exception('Got an Error while modifying %s options %s\n%s%s' % (name,options))
+    out = command_output(context, "nmcli connection modify %s %s" % (name, options))
+    if 'Error' in out:
+        raise Exception('Got an Error while modifying %s options %s\n%s' % (name, options, out))
 
 
 @step(u'Reload connections')
