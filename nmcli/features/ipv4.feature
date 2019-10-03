@@ -1273,7 +1273,7 @@ Feature: nmcli: ipv4
     ## testZ4 and profie for renewal_gw_after_dhcp_outage
     * Prepare simulated test "testZ4" device with "192.168.201" ipv4 and "dead:beaf:3" ipv6 dhcp address prefix
     * Add a new connection of type "ethernet" and options "ifname testZ4 con-name profie ipv4.may-fail no"
-    * Bring "up" connection "con_ipv4"
+    * Bring "up" connection "con_ipv42"
     * Bring "up" connection "profie"
     When "default" is visible with command "ip r |grep testA4" in "30" seconds
     When "default" is visible with command "ip r |grep testZ4" in "30" seconds
