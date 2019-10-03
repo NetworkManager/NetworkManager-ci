@@ -868,7 +868,7 @@ Feature: nmcli: ipv4
     @ipv4_dns-search_ignore_auto_routes
     Scenario: nmcli - ipv4 - dns-search - dns-search + ignore auto obtained routes
     * Add a new connection of type "ethernet" and options "ifname eth3 con-name con_ipv4 ipv6.method ignore ipv6.ignore-auto-dns yes ipv4.dns-search google.com ipv4.ignore-auto-dns yes"
-    Then " google.com" is visible with command "cat /etc/resolv.conf"
+    Then "google.com" is visible with command "cat /etc/resolv.conf" in "45" seconds
     Then "virtual" is not visible with command "cat /etc/resolv.conf"
 
 
