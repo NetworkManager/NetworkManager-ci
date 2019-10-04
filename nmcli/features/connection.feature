@@ -532,7 +532,6 @@ Feature: nmcli: connection
     Scenario: nmcli - connection - lldp
      * Prepare simulated test "testX" device
      * Add a new connection of type "ethernet" and options "ifname testX con-name con_con ipv4.method manual ipv4.addresses 1.2.3.4/24 connection.lldp enable"
-     * Bring "up" connection "con_con"
      When "testX\s+ethernet\s+connected" is visible with command "nmcli device" in "5" seconds
      * Execute "ip netns exec testX_ns tcpreplay --intf1=testXp tmp/lldp.detailed.pcap"
      Then "NEIGHBOR\[0\].DEVICE:\s+testX" is visible with command "nmcli device lldp" in "5" seconds
@@ -551,7 +550,6 @@ Feature: nmcli: connection
     Scenario: nmcli - connection - lldp vlan name overflow
     * Prepare simulated test "testX" device
     * Add a new connection of type "ethernet" and options "ifname testX con-name con_con ipv4.method manual ipv4.addresses 1.2.3.4/24 connection.lldp enable"
-    * Bring "up" connection "con_con"
     When "testX\s+ethernet\s+connected" is visible with command "nmcli device" in "5" seconds
     * Execute "ip netns exec testX_ns tcpreplay --intf1=testXp tmp/lldp.vlan.pcap"
     Then "NEIGHBOR\[0\].IEEE-802-1-VLAN-NAME:\s+default\s" is visible with command "nmcli --fields all device lldp" in "5" seconds
@@ -564,7 +562,6 @@ Feature: nmcli: connection
     Scenario: NM - connection - lldp check vlan tvl values via DBus
     * Prepare simulated test "testX" device
     * Add a new connection of type "ethernet" and options "ifname testX con-name con_con ipv4.method manual ipv4.addresses 1.2.3.4/24 connection.lldp enable"
-    * Bring "up" connection "con_con"
     When "testX\s+ethernet\s+connected" is visible with command "nmcli device" in "5" seconds
     * Execute "ip netns exec testX_ns tcpreplay --intf1=testXp tmp/lldp.vlan.pcap"
     # check the deffinition of the step for more details about syntax
