@@ -381,7 +381,7 @@
     Scenario: nmcli - ipv6 - routes - set invalid route - missing gw
      * Add a new connection of type "ethernet" and options "ifname eth3 con-name con_ipv6 ipv6.method static ipv6.addresses 2001::1/126 ipv6.gateway 4000::1 ipv6.routes 1010::1/128"
     Then "default via 4000::1 dev eth3\s+proto static\s+metric" is visible with command "ip -6 route" in "45" seconds
-    Then "2001::/126 dev eth3\s+proto kernel\s+metric 100" is visible with command "ip -6 route"
+    Then "2001::/126 dev eth3\s+proto kernel\s+metric 10" is visible with command "ip -6 route"
     Then "1010::1 dev eth3\s+proto static\s+metric" is visible with command "ip -6 route"
 
 
@@ -1247,8 +1247,8 @@
     * Run child "sleep 2 && nmcli con up con_ipv6"
     Then "2000::1/128" is visible with command "ip a s testX6" in "5" seconds
      And "1010::1 via 2000::2 dev testX6\s+proto static\s+metric 10[0-1]" is visible with command "ip -6 route"
-     And "2000::1 dev testX6 proto kernel metric 10[0-1] pref medium" is visible with command "ip -6 route"
-     And "2000::2 dev testX6 proto static metric 10[0-1] pref medium" is visible with command "ip -6 route"
+     And "2000::1 dev testX6 proto kernel metric 10 pref medium" is visible with command "ip -6 route"
+     And "2000::2 dev testX6 proto static metric 10 pref medium" is visible with command "ip -6 route"
      # And "namespace 192.168.3.11" is visible with command "cat /etc/resolv.conf" in "10" seconds
      And "activated" is visible with command "nmcli -g GENERAL.STATE con show con_ipv6" in "45" seconds
 
