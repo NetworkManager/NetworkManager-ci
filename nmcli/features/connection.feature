@@ -183,13 +183,10 @@ Feature: nmcli: connection
     Scenario: nmcli - connection - set id
      * Add connection type "ethernet" named "con_con" for device "blah"
      * Open editor for connection "con_con"
-     * Submit "set connection.id after_rename" in editor
+     * Submit "set connection.id con_con2" in editor
      * Save in editor
      * Quit editor
-     #* Prompt is not running
-     Then Open editor for connection "after_rename"
-     * Quit editor
-     * Delete connection "after_rename"
+     Then "con_con2" is visible with command "nmcli -f NAME con show"
 
 
     @ver-=1.17.90
@@ -217,11 +214,7 @@ Feature: nmcli: connection
     @connection_set_interface-name
     Scenario: nmcli - connection - set interface-name
      * Add connection type "ethernet" named "con_con" for device "blah"
-     * Open editor for connection "con_con"
-     * Submit "set connection.interface-name eth6" in editor
-     * Save in editor
-     * Quit editor
-     #When Prompt is not running
+     * Modify connection "con_con" changing options "connection.interface-name eth6"
      * Bring "up" connection "con_con"
      Then "con_con" is visible with command "nmcli -t -f NAME  connection show -a" in "3" seconds
 
@@ -230,10 +223,7 @@ Feature: nmcli: connection
     @connection_autoconnect_yes
     Scenario: nmcli - connection - set autoconnect on
      * Add connection type "ethernet" named "con_con" for device "eth6"
-     * Open editor for connection "con_con"
-     * Submit "set connection.autoconnect yes" in editor
-     * Save in editor
-     * Quit editor
+     * Modify connection "con_con" changing options "connection.autoconnect yes"
      * Bring "up" connection "con_con"
      * Disconnect device "eth6"
      * Reboot
@@ -266,10 +256,7 @@ Feature: nmcli: connection
     @connection_autoconnect_no
     Scenario: nmcli - connection - set autoconnect off
      * Add connection type "ethernet" named "con_con" for device "eth6"
-     * Open editor for connection "con_con"
-     * Submit "set connection.autoconnect no" in editor
-     * Save in editor
-     * Quit editor
+     * Modify connection "con_con" changing options "connection.autoconnect no"
      * Bring "up" connection "con_con"
      * Reboot
      Then "con_con" is not visible with command "nmcli -t -f NAME  connection show -a" in "3" seconds
@@ -326,24 +313,19 @@ Feature: nmcli: connection
      Then "con_con" is visible with command "nmcli con"
 
 
-    @time
+    @con_con_remove
     @connection_timestamp
     Scenario: nmcli - connection - timestamp
-     * Add connection type "ethernet" named "time" for device "blah"
-     * Open editor for connection "time"
-     * Submit "set connection.autoconnect no" in editor
-     * Submit "set connection.interface-name eth6" in editor
-     * Save in editor
-     * Quit editor
-     * Open editor for connection "time"
+     * Add connection type "ethernet" named "con_con" for device "blah"
+     * Modify connection "con_con" changing options "connection.autoconnect no connection.interface-name eth6"
+     * Open editor for connection "con_con"
      When Check if object item "connection.timestamp:" has value "0" via print
      * Quit editor
-     * Bring "up" connection "time"
-     * Bring "down" connection "time"
-     * Open editor for connection "time"
+     * Bring "up" connection "con_con"
+     * Bring "down" connection "con_con"
+     * Open editor for connection "con_con"
      Then Check if object item "connection.timestamp:" has value "current_time" via print
      * Quit editor
-     * Delete connection "time"
 
 
     @con_con_remove
@@ -395,19 +377,10 @@ Feature: nmcli: connection
     @connection_zone_drop_to_public
     Scenario: nmcli - connection - zone to drop and public
      * Add connection type "ethernet" named "con_con" for device "eth6"
-     * Open editor for connection "con_con"
-     * Submit "set ipv4.method manual" in editor
-     * Submit "set ipv4.addresses 192.168.122.253" in editor
-     * Submit "set connection.zone drop" in editor
-     * Save in editor
-     * Quit editor
+     * Modify connection "con_con" changing options "ipv4.method manual ipv4.addresses 192.168.122.253 connection.zone drop"
      * Bring "up" connection "con_con"
      When "eth6" is visible with command "firewall-cmd --zone=drop --list-all"
-     * Open editor for connection "con_con"
-     * Submit "set connection.zone" in editor
-     * Enter in editor
-     * Save in editor
-     * Quit editor
+     * Modify connection "con_con" changing options "connection.zone ''"
      * Bring "up" connection "con_con"
      Then "eth6" is visible with command "firewall-cmd --zone=public --list-all"
 
@@ -466,10 +439,7 @@ Feature: nmcli: connection
     @connection_metered_manual_yes
     Scenario: nmcli - connection - metered manual yes
      * Add connection type "ethernet" named "con_con" for device "eth5"
-     * Open editor for connection "con_con"
-     * Submit "set connection.metered true" in editor
-     * Save in editor
-     * Quit editor
+     * Modify connection "con_con" changing options "connection.metered true"
      * Bring "up" connection "con_con"
      Then Metered status is "1"
 
@@ -479,10 +449,7 @@ Feature: nmcli: connection
     @connection_metered_manual_no
     Scenario: nmcli - connection - metered manual no
      * Add connection type "ethernet" named "con_con" for device "eth5"
-     * Open editor for connection "con_con"
-     * Submit "set connection.metered false" in editor
-     * Save in editor
-     * Quit editor
+     * Modify connection "con_con" changing options "connection.metered false"
      * Bring "up" connection "con_con"
      Then Metered status is "2"
 
@@ -492,10 +459,7 @@ Feature: nmcli: connection
     @connection_metered_guess_no
     Scenario: NM - connection - metered guess no
      * Add connection type "ethernet" named "con_con" for device "eth5"
-     * Open editor for connection "con_con"
-     * Submit "set connection.metered unknown" in editor
-     * Save in editor
-     * Quit editor
+     * Modify connection "con_con" changing options "connection.metered unknown"
      * Bring "up" connection "con_con"
      Then Metered status is "4"
 
@@ -507,11 +471,7 @@ Feature: nmcli: connection
     Scenario: NM - connection - metered guess yes
      * Prepare simulated test "testX" device with "192.168.99" ipv4 and "2620:52:0:dead" ipv6 dhcp address prefix and dhcp option "43,ANDROID_METERED"
      * Add a new connection of type "ethernet" and options "ifname testX con-name con_con autoconnect off"
-     * Open editor for connection "con_con"
-     * Submit "set ipv6.method ignore" in editor
-     * Submit "set connection.metered unknown" in editor
-     * Save in editor
-     * Quit editor
+     * Modify connection "con_con" changing options "connection.metered unknown"
      * Bring "up" connection "con_con"
      Then Metered status is "3"
 

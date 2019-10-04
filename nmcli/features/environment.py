@@ -1574,12 +1574,6 @@ def after_scenario(context, scenario):
                 call('hostnamectl set-hostname --static %s' % context.original_hostname, shell=True)
             wait_for_testeth0()
 
-        if 'time' in scenario.tags:
-            print ("---------------------------")
-            print ("time connection delete")
-            call("nmcli connection delete id time", shell=True)
-            #sleep(TIMER)
-
         if 'dcb' in scenario.tags:
             print ("---------------------------")
             print ("deleting connection dcb")
