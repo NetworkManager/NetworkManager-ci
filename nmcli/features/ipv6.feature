@@ -21,13 +21,7 @@
     @con_ipv6_remove
     @ipv6_method_manual_with_IP
     Scenario: nmcli - ipv6 - method - manual + IP
-    * Add a new connection of type "ethernet" and options "ifname eth3 con-name con_ipv6 autoconnect no"
-     * Open editor for connection "con_ipv6"
-     * Submit "set ipv6.method manual" in editor
-     * Submit "set ipv6.addresses 2607:f0d0:1002:51::4/64, 1050:0:0:0:5:600:300c:326b" in editor
-     * Save in editor
-     * Quit editor
-     * Bring "up" connection "con_ipv6"
+    * Add a new connection of type "ethernet" and options "ifname eth3 con-name con_ipv6 ipv6.method manual ipv6.addresses '2607:f0d0:1002:51::4/64, 1050:0:0:0:5:600:300c:326b'"
     Then "2607:f0d0:1002:51::4/64" is visible with command "ip a s eth3" in "45" seconds
     Then "1050::5:600:300c:326b/128" is visible with command "ip a s eth3"
 
@@ -35,13 +29,7 @@
     @con_ipv6_remove
     @ipv6_method_static_with_IP
     Scenario: nmcli - ipv6 - method - static + IP
-     * Add a new connection of type "ethernet" and options "ifname eth3 con-name con_ipv6 autoconnect no"
-     * Open editor for connection "con_ipv6"
-     * Submit "set ipv6.method static" in editor
-     * Submit "set ipv6.addresses 2607:f0d0:1002:51::4, 1050:0:0:0:5:600:300c:326b" in editor
-     * Save in editor
-     * Quit editor
-     * Bring "up" connection "con_ipv6"
+    * Add a new connection of type "ethernet" and options "ifname eth3 con-name con_ipv6 ipv6.method static ipv6.addresses '2607:f0d0:1002:51::4/64, 1050:0:0:0:5:600:300c:326b'"
     Then "2607:f0d0:1002:51::4/128" is visible with command "ip a s eth3" in "45" seconds
     Then "1050::5:600:300c:326b/128" is visible with command "ip a s eth3"
 
@@ -49,13 +37,7 @@
     @con_ipv6_remove
     @ipv6_addresses_IP_with_netmask
     Scenario: nmcli - ipv6 - addresses - IP slash netmask
-     * Add a new connection of type "ethernet" and options "ifname eth3 con-name con_ipv6 autoconnect no"
-     * Open editor for connection "con_ipv6"
-     * Submit "set ipv6.method manual" in editor
-     * Submit "set ipv6.addresses 2607:f0d0:1002:51::4/63, 1050:0:0:0:5:600:300c:326b/121" in editor
-     * Save in editor
-     * Quit editor
-     * Bring "up" connection "con_ipv6"
+    * Add a new connection of type "ethernet" and options "ifname eth3 con-name con_ipv6 ipv6.method manual ipv6.addresses '2607:f0d0:1002:51::4/63, 1050:0:0:0:5:600:300c:326b/121'"
     Then "2607:f0d0:1002:51::4/63" is visible with command "ip a s eth3" in "45" seconds
     Then "1050::5:600:300c:326b/121" is visible with command "ip a s eth3"
     # reproducer for 997759
@@ -103,15 +85,7 @@
     @con_ipv6_remove @eth0
     @ipv6_addresses_IP_with_mask_and_gw
     Scenario: nmcli - ipv6 - addresses - IP slash netmask and gw
-     * Add a new connection of type "ethernet" and options "ifname eth3 con-name con_ipv6 autoconnect no"
-     * Open editor for connection "con_ipv6"
-     * Submit "set ipv4.method disabled" in editor
-     * Submit "set ipv6.method static" in editor
-     * Submit "set ipv6.addresses 2607:f0d0:1002:51::4/64" in editor
-     * Submit "set ipv6.gateway 2607:f0d0:1002:51::1" in editor
-     * Save in editor
-     * Quit editor
-     * Bring "up" connection "con_ipv6"
+     * Add a new connection of type "ethernet" and options "ifname eth3 con-name con_ipv6 ipv4.method disabled ipv6.method static ipv6.addresses 2607:f0d0:1002:51::4/64 ipv6.gateway 2607:f0d0:1002:51::1"
     Then "2607:f0d0:1002:51::4/64" is visible with command "ip a s eth3" in "45" seconds
     Then "default via 2607:f0d0:1002:51::1 dev eth3\s+proto static\s+metric" is visible with command "ip -6 route"
 
@@ -119,15 +93,7 @@
     @con_ipv6_remove @eth0
     @ipv6_addresses_set_several_IPv6s_with_masks_and_gws
     Scenario: nmcli - ipv6 - addresses - several IPs slash netmask and gw
-     * Add a new connection of type "ethernet" and options "ifname eth3 con-name con_ipv6 autoconnect no"
-     * Open editor for connection "con_ipv6"
-     * Submit "set ipv6.method static" in editor
-     * Submit "set ipv6.addresses fc01::1:5/68, fb01::1:6/112" in editor
-     * Submit "set ipv6.addresses fc02::1:21/96" in editor
-     * Submit "set ipv6.gateway fc01::1:1" in editor
-     * Save in editor
-     * Quit editor
-     * Bring "up" connection "con_ipv6"
+    * Add a new connection of type "ethernet" and options "ifname eth3 con-name con_ipv6 ipv4.method disabled ipv6.method static ipv6.addresses 'fc01::1:5/68, fb01::1:6/112, fc02::1:21/96' ipv6.gateway fc01::1:1"
     Then "fc02::1:21/96" is visible with command "ip a s eth3" in "45" seconds
     Then "fc01::1:5/68" is visible with command "ip a s eth3"
     Then "fb01::1:6/112" is visible with command "ip a s eth3"
@@ -137,23 +103,8 @@
     @con_ipv6_remove
     @ipv6_addresses_delete_IP_moving_method_back_to_auto
     Scenario: nmcli - ipv6 - addresses - delete IP and set method back to auto
-     * Add a new connection of type "ethernet" and options "ifname eth10 con-name con_ipv6 autoconnect no"
-     * Open editor for connection "con_ipv6"
-     * Submit "set ipv4.method disabled" in editor
-     * Submit "set ipv6.method static" in editor
-     * Submit "set ipv6.addresses fc01::1:5/68" in editor
-     * Submit "set ipv6.gateway fc01::1:1" in editor
-     * Save in editor
-     * Quit editor
-     * Bring "up" connection "con_ipv6"
-     * Open editor for connection "con_ipv6"
-     * Submit "set ipv6.addresses" in editor
-     * Enter in editor
-     * Submit "set ipv6.gateway" in editor
-     * Enter in editor
-     * Submit "set ipv6.method auto" in editor
-     * Save in editor
-     * Quit editor
+     * Add a new connection of type "ethernet" and options "ifname eth10 con-name con_ipv6 ipv4.method disabled ipv6.method static ipv6.addresses fc01::1:5/68 ipv6.gateway fc01::1:1"
+     * Modify connection "con_ipv6" changing options "ipv6.addresses '', ipv6.gateway '', ipv6.method auto"
      * Bring "up" connection "con_ipv6"
     Then "fc01::1:5/68" is not visible with command "ip a s eth10" in "45" seconds
     Then "default via fc01::1:1 dev eth3" is not visible with command "ip -6 route"
@@ -164,22 +115,8 @@
     @ver-=1.9.1
     @ipv6_routes_set_basic_route
     Scenario: nmcli - ipv6 - routes - set basic route
-     * Add a new connection of type "ethernet" and options "ifname eth3 con-name con_ipv6 autoconnect no"
-     * Open editor for connection "con_ipv6"
-     * Submit "set ipv6.method static" in editor
-     * Submit "set ipv6.addresses 2000::2/126" in editor
-     * Submit "set ipv6.routes 1010::1/128 2000::1 1" in editor
-     * Save in editor
-     * Quit editor
-     * Add a new connection of type "ethernet" and options "ifname eth2 con-name con_ipv62 autoconnect no"
-     * Open editor for connection "con_ipv62"
-     * Submit "set ipv6.method static" in editor
-     * Submit "set ipv6.addresses 2001::1/126" in editor
-     * Submit "set ipv6.routes 3030::1/128 2001::2 1" in editor
-     * Save in editor
-     * Quit editor
-     * Bring "up" connection "con_ipv6"
-     * Bring "up" connection "con_ipv62"
+     * Add a new connection of type "ethernet" and options "ifname eth3 con-name con_ipv6 ipv6.method static ipv6.addresses 2000::2/126 ipv6.routes '1010::1/128 2000::1 1'"
+     * Add a new connection of type "ethernet" and options "ifname eth2 con-name con_ipv62 ipv6.method static ipv6.addresses 2001::1/126 ipv6.routes '3030::1/128 2001::2 1'"
     Then "1010::1 via 2000::1 dev eth3\s+proto static\s+metric 1" is visible with command "ip -6 route" in "45" seconds
     Then "2000::/126 dev eth3\s+proto kernel\s+metric 256" is visible with command "ip -6 route"
     Then "2001::/126 dev eth2\s+proto kernel\s+metric 256" is visible with command "ip -6 route"
@@ -191,25 +128,11 @@
     @ver+=1.9.2
     @ipv6_routes_set_basic_route
     Scenario: nmcli - ipv6 - routes - set basic route
-     * Add a new connection of type "ethernet" and options "ifname eth3 con-name con_ipv6 autoconnect no"
-     * Open editor for connection "con_ipv6"
-     * Submit "set ipv6.method static" in editor
-     * Submit "set ipv6.addresses 2000::2/126" in editor
-     * Submit "set ipv6.routes 1010::1/128 2000::1 1" in editor
-     * Save in editor
-     * Quit editor
-     * Add a new connection of type "ethernet" and options "ifname eth2 con-name con_ipv62 autoconnect no"
-     * Open editor for connection "con_ipv62"
-     * Submit "set ipv6.method static" in editor
-     * Submit "set ipv6.addresses 2001::1/126" in editor
-     * Submit "set ipv6.routes 3030::1/128 2001::2 1" in editor
-     * Save in editor
-     * Quit editor
-     * Bring "up" connection "con_ipv6"
-     * Bring "up" connection "con_ipv62"
+    * Add a new connection of type "ethernet" and options "ifname eth3 con-name con_ipv6 ipv6.method static ipv6.addresses 2000::2/126 ipv6.routes '1010::1/128 2000::1 1'"
+    * Add a new connection of type "ethernet" and options "ifname eth2 con-name con_ipv62 ipv6.method static ipv6.addresses 2001::1/126 ipv6.routes '3030::1/128 2001::2 1'"
     Then "1010::1 via 2000::1 dev eth3\s+proto static\s+metric 1" is visible with command "ip -6 route" in "45" seconds
-    Then "2000::/126 dev eth3\s+proto kernel\s+metric 100" is visible with command "ip -6 route"
-    Then "2001::/126 dev eth2\s+proto kernel\s+metric 101" is visible with command "ip -6 route"
+    Then "2000::/126 dev eth3\s+proto kernel\s+metric 10" is visible with command "ip -6 route"
+    Then "2001::/126 dev eth2\s+proto kernel\s+metric 10" is visible with command "ip -6 route"
     Then "3030::1 via 2001::2 dev eth2\s+proto static\s+metric 1" is visible with command "ip -6 route"
 
 
@@ -219,21 +142,18 @@
     @con_ipv6_remove
     @ipv6_route_set_route_with_options
     Scenario: nmcli - ipv6 - routes - set route with options
-    * Add a new connection of type "ethernet" and options "ifname eth3 con-name con_ipv6 autoconnect no ipv6.method manual ipv6.addresses 2000::2/126 ipv6.route-metric 258"
-    * Execute "nmcli con modify con_ipv6 ipv6.routes '1010::1/128 2000::1 1024 cwnd=15 lock-mtu=true mtu=1600'"
-    * Bring "up" connection "con_ipv6"
+    * Add a new connection of type "ethernet" and options "ifname eth3 con-name con_ipv6 autoconnect no ipv6.method manual ipv6.addresses 2000::2/126 ipv6.route-metric 258 ipv6.routes '1010::1/128 2000::1 1024 cwnd=15 lock-mtu=true mtu=1600'"
     Then "1010::1 via 2000::1 dev eth3\s+proto static\s+metric 1024\s+mtu lock 1600 cwnd 15" is visible with command "ip -6 route" in "45" seconds
     Then "2000::/126 dev eth3\s+proto kernel\s+metric 256" is visible with command "ip -6 route"
      And "default" is visible with command "ip r |grep eth0"
+
 
     @rhbz1373698
     @ver+=1.9.2
     @con_ipv6_remove
     @ipv6_route_set_route_with_options
     Scenario: nmcli - ipv6 - routes - set route with options
-    * Add a new connection of type "ethernet" and options "ifname eth3 con-name con_ipv6 autoconnect no ipv6.method manual ipv6.addresses 2000::2/126 ipv6.route-metric 258"
-    * Execute "nmcli con modify con_ipv6 ipv6.routes '1010::1/128 2000::1 1024 cwnd=15 lock-mtu=true mtu=1600'"
-    * Bring "up" connection "con_ipv6"
+    * Add a new connection of type "ethernet" and options "ifname eth3 con-name con_ipv6 autoconnect no ipv6.method manual ipv6.addresses 2000::2/126 ipv6.route-metric 258 ipv6.routes '1010::1/128 2000::1 1024 cwnd=15 lock-mtu=true mtu=1600'"
     Then "1010::1 via 2000::1 dev eth3\s+proto static\s+metric 1024\s+mtu lock 1600 cwnd 15" is visible with command "ip -6 route" in "45" seconds
     Then "2000::/126 dev eth3\s+proto kernel\s+metric 258" is visible with command "ip -6 route"
      And "default" is visible with command "ip r |grep eth0"
@@ -243,34 +163,12 @@
     @ver-=1.9.1
     @ipv6_routes_remove_basic_route
     Scenario: nmcli - ipv6 - routes - remove basic route
-     * Add a new connection of type "ethernet" and options "ifname eth3 con-name con_ipv6 autoconnect no"
-     * Open editor for connection "con_ipv6"
-     * Submit "set ipv6.method static" in editor
-     * Submit "set ipv6.addresses 2000::2/126" in editor
-     * Submit "set ipv6.routes 1010::1/128 2000::1 1" in editor
-     * Save in editor
-     * Quit editor
-     * Add a new connection of type "ethernet" and options "ifname eth2 con-name con_ipv62 autoconnect no"
-     * Open editor for connection "con_ipv62"
-     * Submit "set ipv6.method static" in editor
-     * Submit "set ipv6.addresses 2001::1/126" in editor
-     * Submit "set ipv6.routes 3030::1/128 2001::2 1" in editor
-     * Save in editor
-     * Quit editor
-     * Bring "up" connection "con_ipv6"
-     * Bring "up" connection "con_ipv62"
-     * Open editor for connection "con_ipv6"
-     * Submit "set ipv6.routes" in editor
-     * Enter in editor
-     * Save in editor
-     * Quit editor
-     * Open editor for connection "con_ipv62"
-     * Submit "set ipv6.routes" in editor
-     * Enter in editor
-     * Save in editor
-     * Quit editor
-     * Bring "up" connection "con_ipv6"
-     * Bring "up" connection "con_ipv62"
+    * Add a new connection of type "ethernet" and options "ifname eth3 con-name con_ipv6 ipv6.method static ipv6.addresses 2000::2/126 ipv6.routes '1010::1/128 2000::1 1'"
+    * Add a new connection of type "ethernet" and options "ifname eth2 con-name con_ipv62 ipv6.method static ipv6.addresses 2001::1/126 ipv6.routes '3030::1/128 2001::2 1'"
+    * Modify connection "con_ipv6" changing options "ipv6.routes ''"
+    * Modify connection "con_ipv62" changing options "ipv6.routes ''"
+    * Bring "up" connection "con_ipv6"
+    * Bring "up" connection "con_ipv62"
     Then "2000::2/126" is visible with command "ip a s eth3"
     Then "2001::1/126" is visible with command "ip a s eth2"
     Then "1010::1 via 2000::1 dev eth3\s+proto static\s+metric 1" is not visible with command "ip -6 route"
@@ -284,34 +182,12 @@
     @ver+=1.9.2
     @ipv6_routes_remove_basic_route
     Scenario: nmcli - ipv6 - routes - remove basic route
-     * Add a new connection of type "ethernet" and options "ifname eth3 con-name con_ipv6 autoconnect no"
-     * Open editor for connection "con_ipv6"
-     * Submit "set ipv6.method static" in editor
-     * Submit "set ipv6.addresses 2000::2/126" in editor
-     * Submit "set ipv6.routes 1010::1/128 2000::1 1" in editor
-     * Save in editor
-     * Quit editor
-     * Add a new connection of type "ethernet" and options "ifname eth2 con-name con_ipv62 autoconnect no"
-     * Open editor for connection "con_ipv62"
-     * Submit "set ipv6.method static" in editor
-     * Submit "set ipv6.addresses 2001::1/126" in editor
-     * Submit "set ipv6.routes 3030::1/128 2001::2 1" in editor
-     * Save in editor
-     * Quit editor
-     * Bring "up" connection "con_ipv6"
-     * Bring "up" connection "con_ipv62"
-     * Open editor for connection "con_ipv6"
-     * Submit "set ipv6.routes" in editor
-     * Enter in editor
-     * Save in editor
-     * Quit editor
-     * Open editor for connection "con_ipv62"
-     * Submit "set ipv6.routes" in editor
-     * Enter in editor
-     * Save in editor
-     * Quit editor
-     * Bring "up" connection "con_ipv6"
-     * Bring "up" connection "con_ipv62"
+    * Add a new connection of type "ethernet" and options "ifname eth3 con-name con_ipv6 ipv6.method static ipv6.addresses 2000::2/126 ipv6.routes '1010::1/128 2000::1 1'"
+    * Add a new connection of type "ethernet" and options "ifname eth2 con-name con_ipv62 ipv6.method static ipv6.addresses 2001::1/126 ipv6.routes '3030::1/128 2001::2 1'"
+    * Modify connection "con_ipv6" changing options "ipv6.routes ''"
+    * Modify connection "con_ipv62" changing options "ipv6.routes ''"
+    * Bring "up" connection "con_ipv6"
+    * Bring "up" connection "con_ipv62"
     Then "2000::2/126" is visible with command "ip a s eth3"
     Then "2001::1/126" is visible with command "ip a s eth2"
     Then "1010::1 via 2000::1 dev eth3\s+proto static\s+metric 1" is not visible with command "ip -6 route"
@@ -324,15 +200,7 @@
     @ver-=1.9.1
     @ipv6_routes_device_route
     Scenario: nmcli - ipv6 - routes - set device route
-     * Add a new connection of type "ethernet" and options "ifname eth3 con-name con_ipv6 autoconnect no"
-     * Open editor for connection "con_ipv6"
-     * Submit "set ipv6.method static" in editor
-     * Submit "set ipv6.addresses 2001::1/126" in editor
-     * Submit "set ipv6.gateway 4000::1" in editor
-     * Submit "set ipv6.routes 1010::1/128 :: 3, 3030::1/128 2001::2 2 " in editor
-     * Save in editor
-     * Quit editor
-     * Bring "up" connection "con_ipv6"
+     * Add a new connection of type "ethernet" and options "ifname eth3 con-name con_ipv6 ipv6.method static ipv6.addresses 2001::1/12 ipv6.gateway 4000::1 ipv6.routes '1010::1/128 :: 3, 3030::1/128 2001::2 2'"
     Then "default via 4000::1 dev eth3\s+proto static\s+metric" is visible with command "ip -6 route" in "45" seconds
     Then "3030::1 via 2001::2 dev eth3\s+proto static\s+metric 2" is visible with command "ip -6 route"
     Then "2001::/126 dev eth3\s+proto kernel\s+metric 256" is visible with command "ip -6 route"
@@ -343,15 +211,7 @@
     @ver+=1.9.2
     @ipv6_routes_device_route
     Scenario: nmcli - ipv6 - routes - set device route
-     * Add a new connection of type "ethernet" and options "ifname eth3 con-name con_ipv6 autoconnect no"
-     * Open editor for connection "con_ipv6"
-     * Submit "set ipv6.method static" in editor
-     * Submit "set ipv6.addresses 2001::1/126" in editor
-     * Submit "set ipv6.gateway 4000::1" in editor
-     * Submit "set ipv6.routes 1010::1/128 :: 3, 3030::1/128 2001::2 2 " in editor
-     * Save in editor
-     * Quit editor
-     * Bring "up" connection "con_ipv6"
+     * Add a new connection of type "ethernet" and options "ifname eth3 con-name con_ipv6 ipv6.method static ipv6.addresses 2001::1/12 ipv6.gateway 4000::1 ipv6.routes '1010::1/128 :: 3, 3030::1/128 2001::2 2'"
     Then "default via 4000::1 dev eth3\s+proto static\s+metric" is visible with command "ip -6 route" in "45" seconds
     Then "3030::1 via 2001::2 dev eth3\s+proto static\s+metric 2" is visible with command "ip -6 route"
     Then "2001::/126 dev eth3\s+proto kernel\s+metric 1" is visible with command "ip -6 route"
@@ -363,9 +223,7 @@
     @ver+=1.10
     @ipv6_routes_with_src
     Scenario: nmcli - ipv6 - routes - set route with src
-     * Add a new connection of type "ethernet" and options "ifname eth3 con-name con_ipv6 autoconnect no ipv6.method manual ipv6.addresses 2000::2/126 ipv6.route-metric 256"
-     * Modify connection "con_ipv6" changing options "ipv6.routes '2806:aabb:abba:abab:baba:bbaa:baab:bbbb/128 src=2000::2'"
-     * Bring "up" connection "con_ipv6"
+     * Add a new connection of type "ethernet" and options "ifname eth3 con-name con_ipv6 ipv6.method manual ipv6.addresses 2000::2/126 ipv6.route-metric 256 ipv6.routes '2806:aabb:abba:abab:baba:bbaa:baab:bbbb/128 src=2000::2'"
     Then "2806:aabb:abba:abab:baba:bbaa:baab:bbbb dev eth3 proto static src 2000::2 metric 256" is visible with command "ip -6 route" in "5" seconds
      And "2000::\/126 dev eth3\s+proto kernel\s+metric 256" is visible with command "ip -6 route"
 
@@ -454,9 +312,7 @@
     @con_ipv6_remove
     @ipv6_correct_slaac_setting
     Scenario: NM - ipv6 - correct slaac setting
-     * Add a new connection of type "ethernet" and options "ifname eth10 con-name con_ipv6 autoconnect no"
-     * Execute "nmcli connection modify con_ipv6 ipv6.may-fail no"
-     * Bring "up" connection "con_ipv6"
+     * Add a new connection of type "ethernet" and options "ifname eth10 con-name con_ipv6 ipv6.may-fail no"
     Then "2620:52:0:.*::/64 dev eth10\s+proto ra" is visible with command "ip -6 r show |grep -v eth0" in "20" seconds
     Then "2620:52:0:" is visible with command "ip -6 a s eth10 |grep global |grep noprefix" in "20" seconds
 
@@ -465,7 +321,6 @@
     @ipv6_limited_router_solicitation
     Scenario: NM - ipv6 - limited router solicitation
      * Add connection type "ethernet" named "con_ipv6" for device "eth2"
-     * Bring "up" connection "con_ipv6"
      * Finish "tshark -i eth2 -Y frame.len==62 -V -x -a duration:120 > /tmp/solicitation.txt"
      When "empty" is not visible with command "file /tmp/solicitation.txt" in "150" seconds
      Then Check solicitation for "eth2" in "/tmp/solicitation.txt"
@@ -477,7 +332,6 @@
     @ipv6_block_just_routing_RA
     Scenario: NM - ipv6 - block just routing RA
      * Add connection type "ethernet" named "con_ipv6" for device "eth10"
-     * Bring "up" connection "con_ipv6"
     Then "1" is visible with command "cat /proc/sys/net/ipv6/conf/eth10/accept_ra" in "45" seconds
     Then "0" is visible with command "cat /proc/sys/net/ipv6/conf/eth10/accept_ra_defrtr"
     Then "0" is visible with command "cat /proc/sys/net/ipv6/conf/eth10/accept_ra_rtr_pref"
@@ -516,15 +370,7 @@
     @ver-=1.9.1
     @ipv6_routes_without_gw
     Scenario: nmcli - ipv6 - routes - set invalid route - missing gw
-     * Add a new connection of type "ethernet" and options "ifname eth3 con-name con_ipv6 autoconnect no"
-     * Open editor for connection "con_ipv6"
-     * Submit "set ipv6.method static" in editor
-     * Submit "set ipv6.addresses 2001::1/126" in editor
-     * Submit "set ipv6.gateway 4000::1" in editor
-     * Submit "set ipv6.routes 1010::1/128" in editor
-     * Save in editor
-     * Quit editor
-     * Bring "up" connection "con_ipv6"
+     * Add a new connection of type "ethernet" and options "ifname eth3 con-name con_ipv6 ipv6.method static ipv6.addresses 2001::1/126 ipv6.gateway 4000::1 ipv6.routes 1010::1/128"
     Then "default via 4000::1 dev eth3\s+proto static\s+metric" is visible with command "ip -6 route" in "45" seconds
     Then "2001::/126 dev eth3\s+proto kernel\s+metric 256" is visible with command "ip -6 route"
     Then "1010::1 dev eth3\s+proto static\s+metric" is visible with command "ip -6 route"
@@ -533,15 +379,7 @@
     @ver+=1.9.2
     @ipv6_routes_without_gw
     Scenario: nmcli - ipv6 - routes - set invalid route - missing gw
-     * Add a new connection of type "ethernet" and options "ifname eth3 con-name con_ipv6 autoconnect no"
-     * Open editor for connection "con_ipv6"
-     * Submit "set ipv6.method static" in editor
-     * Submit "set ipv6.addresses 2001::1/126" in editor
-     * Submit "set ipv6.gateway 4000::1" in editor
-     * Submit "set ipv6.routes 1010::1/128" in editor
-     * Save in editor
-     * Quit editor
-     * Bring "up" connection "con_ipv6"
+     * Add a new connection of type "ethernet" and options "ifname eth3 con-name con_ipv6 ipv6.method static ipv6.addresses 2001::1/126 ipv6.gateway 4000::1 ipv6.routes 1010::1/128"
     Then "default via 4000::1 dev eth3\s+proto static\s+metric" is visible with command "ip -6 route" in "45" seconds
     Then "2001::/126 dev eth3\s+proto kernel\s+metric 100" is visible with command "ip -6 route"
     Then "1010::1 dev eth3\s+proto static\s+metric" is visible with command "ip -6 route"
@@ -550,16 +388,7 @@
     @con_ipv6_remove @eth0
     @ipv6_dns_manual_IP_with_manual_dns
     Scenario: nmcli - ipv6 - dns - method static + IP + dns
-     * Add a new connection of type "ethernet" and options "ifname eth10 con-name con_ipv6 autoconnect no"
-     * Open editor for connection "con_ipv6"
-     * Submit "set ipv4.may-fail no" in editor
-     * Submit "set ipv6.method static" in editor
-     * Submit "set ipv6.addresses 2001::1/126" in editor
-     * Submit "set ipv6.gateway 4000::1" in editor
-     * Submit "set ipv6.dns 4000::1, 5000::1" in editor
-     * Save in editor
-     * Quit editor
-     * Bring "up" connection "con_ipv6"
+     * Add a new connection of type "ethernet" and options "ifname eth10 con-name con_ipv6 ipv4.may-fail no ipv6.method static ipv6.addresses 2001::1/126 ipv6.gateway 4000::1 ipv6.dns '4000::1, 5000::1'"
     Then "nameserver 4000::1" is visible with command "cat /etc/resolv.conf" in "45" seconds
     Then "nameserver 5000::1" is visible with command "cat /etc/resolv.conf"
     Then "nameserver 10." is visible with command "cat /etc/resolv.conf"
@@ -568,13 +397,7 @@
     @con_ipv6_remove @eth0
     @ipv6_dns_auto_with_more_manually_set
     Scenario: nmcli - ipv6 - dns - method auto + dns
-     * Add connection type "ethernet" named "con_ipv6" for device "eth3"
-     * Open editor for connection "con_ipv6"
-     * Submit "set ipv4.may-fail no" in editor
-     * Submit "set ipv6.dns 4000::1, 5000::1" in editor
-     * Save in editor
-     * Quit editor
-     * Bring "up" connection "con_ipv6"
+     * Add a new connection of type "ethernet" and options "ifname eth3 con-name con_ipv6 ipv4.may-fail no ipv6.dns '4000::1, 5000::1'"
     Then "nameserver 4000::1" is visible with command "cat /etc/resolv.conf" in "45" seconds
     Then "nameserver 5000::1" is visible with command "cat /etc/resolv.conf"
     Then "nameserver 192.168.100.1" is visible with command "cat /etc/resolv.conf"
@@ -583,33 +406,17 @@
     @con_ipv6_remove
     @ipv6_dns_ignore-auto-dns_with_manually_set_dns
     Scenario: nmcli - ipv6 - dns - method auto + dns + ignore automaticaly obtained
-     * Add connection type "ethernet" named "con_ipv6" for device "eth3"
-     * Open editor for connection "con_ipv6"
-     * Submit "set ipv6.ignore-auto-dns yes" in editor
-     * Submit "set ipv6.dns 4000::1, 5000::1" in editor
-     * Save in editor
-     * Quit editor
-     * Bring "up" connection "con_ipv6"
+    * Add a new connection of type "ethernet" and options "ifname eth3 con-name con_ipv6 ipv6.ignore-auto-dns yes ipv6.dns '4000::1, 5000::1'"
     Then "nameserver 4000::1" is visible with command "cat /etc/resolv.conf" in "45" seconds
     Then "nameserver 5000::1" is visible with command "cat /etc/resolv.conf"
 
 
+    @ver+=1.18
     @con_ipv6_remove @eth0
     @ipv6_dns_add_more_when_already_have_some
     Scenario: nmcli - ipv6 - dns - add dns when one already set
-     * Add a new connection of type "ethernet" and options "ifname eth3 con-name con_ipv6 autoconnect no"
-     * Open editor for connection "con_ipv6"
-     * Submit "set ipv6.method static" in editor
-     * Submit "set ipv6.addresses 2001::1/126" in editor
-     * Submit "set ipv6.gateway 4000::1" in editor
-     * Submit "set ipv6.dns 4000::1, 5000::1" in editor
-     * Save in editor
-     * Quit editor
-     * Bring "up" connection "con_ipv6"
-     * Open editor for connection "con_ipv6"
-     * Submit "set ipv6.dns 2000::1" in editor
-     * Save in editor
-     * Quit editor
+    * Add a new connection of type "ethernet" and options "ifname eth3 con-name con_ipv6 ipv6.dns '4000::1, 5000::1'"
+    * Modify connection "con_ipv6" changing options "+ipv6.dns 2000::1"
      * Bring "up" connection "con_ipv6"
     Then "nameserver 4000::1" is visible with command "cat /etc/resolv.conf" in "45" seconds
     Then "nameserver 5000::1" is visible with command "cat /etc/resolv.conf"
@@ -619,18 +426,9 @@
     @con_ipv6_remove @eth0
     @ipv6_dns_remove_manually_set
     Scenario: nmcli - ipv6 - dns - method auto then delete all dns
-     * Add connection type "ethernet" named "con_ipv6" for device "eth3"
-     * Open editor for connection "con_ipv6"
-     * Submit "set ipv6.dns 4000::1, 5000::1" in editor
-     * Save in editor
-     * Quit editor
-     * Bring "up" connection "con_ipv6"
-     * Open editor for connection "con_ipv6"
-     * Submit "set ipv6.dns" in editor
-     * Enter in editor
-     * Save in editor
-     * Quit editor
-     * Bring "up" connection "con_ipv6"
+    * Add a new connection of type "ethernet" and options "ifname eth3 con-name con_ipv6 ipv6.dns '4000::1, 5000::1'"
+    * Modify connection "con_ipv6" changing options "ipv6.dns ''"
+    * Bring "up" connection "con_ipv6"
     Then "nameserver 4000::1" is not visible with command "cat /etc/resolv.conf"
     Then "nameserver 5000::1" is not visible with command "cat /etc/resolv.conf"
 
@@ -638,33 +436,15 @@
     @con_ipv6_remove @eth0
     @ipv6_dns-search_set
     Scenario: nmcli - ipv6 - dns-search - add dns-search
-     * Add connection type "ethernet" named "con_ipv6" for device "eth10"
-     * Open editor for connection "con_ipv6"
-     * Submit "set ipv4.method disabled" in editor
-     * Submit "set ipv4.ignore-auto-dns yes" in editor
-     * Submit "set ipv6.dns-search google.com" in editor
-     * Save in editor
-     * Quit editor
-     * Bring "up" connection "con_ipv6"
+    * Add a new connection of type "ethernet" and options "ifname eth10 con-name con_ipv6 ipv4.method disabled ipv4.ignore-auto-dns yes ipv6.dns-search google.com"
     Then "google.com" is visible with command "cat /etc/resolv.conf" in "45" seconds
 
 
     @con_ipv6_remove @eth0
     @ipv6_dns-search_remove
     Scenario: nmcli - ipv6 - dns-search - remove dns-search
-     * Add connection type "ethernet" named "con_ipv6" for device "eth10"
-     * Open editor for connection "con_ipv6"
-     * Submit "set ipv4.method disabled" in editor
-     * Submit "set ipv4.ignore-auto-dns yes" in editor
-     * Submit "set ipv6.dns-search google.com" in editor
-     * Save in editor
-     * Quit editor
-     * Bring "up" connection "con_ipv6"
-     * Open editor for connection "con_ipv6"
-     * Submit "set ipv6.dns-search" in editor
-     * Enter in editor
-     * Save in editor
-     * Quit editor
+    * Add a new connection of type "ethernet" and options "ifname eth10 con-name con_ipv6 ipv4.method disabled ipv.ignore-auto-dns yes ipv6.dns-search google.com"
+    * Modify connection "con_ipv6" changing options "ipv6.dns-search ''"
      * Bring "up" connection "con_ipv6"
     Then " google.com" is not visible with command "cat /etc/resolv.conf"
 
@@ -672,30 +452,8 @@
     @NM @con_ipv6_remove @eth0
     @ipv6_ignore-auto-dns_set
     Scenario: nmcli - ipv6 - ignore auto obtained dns
-     * Add connection type "ethernet" named "con_ipv6" for device "eth10"
-     * Open editor for connection "con_ipv6"
-     * Submit "set ipv4.method disabled" in editor
-     * Submit "set ipv4.ignore-auto-dns yes" in editor
-     * Submit "set ipv6.ignore-auto-dns yes" in editor
-     * Save in editor
-     * Quit editor
-     * Bring "up" connection "con_ipv6"
-    Then " google.com" is not visible with command "cat /etc/resolv.conf"
-    Then "virtual" is not visible with command "cat /etc/resolv.conf"
-    Then "nameserver " is not visible with command "cat /etc/resolv.conf" in "45" seconds
-
-
-    @NM @con_ipv6_remove @eth0
-    @ipv6_ignore-auto-dns_set-generic
-    Scenario: nmcli - ipv6 - ignore auto obtained dns - generic
-     * Add connection type "ethernet" named "con_ipv6" for device "eth10"
-     * Open editor for connection "con_ipv6"
-     * Submit "set ipv4.method disabled" in editor
-     * Submit "set ipv4.ignore-auto-dns yes" in editor
-     * Submit "set ipv6.ignore-auto-dns yes" in editor
-     * Save in editor
-     * Quit editor
-     * Bring "up" connection "con_ipv6"
+    * Add a new connection of type "ethernet" and options "ifname eth10 con-name con_ipv6 ipv4.method disabled ipv6.ignore-auto-dns yes ipv6.ignore-auto-dns yes"
+    * Bring "up" connection "con_ipv6"
     Then " google.com" is not visible with command "cat /etc/resolv.conf"
     Then "virtual" is not visible with command "cat /etc/resolv.conf"
     Then "nameserver " is not visible with command "cat /etc/resolv.conf" in "45" seconds
@@ -704,39 +462,22 @@
     @con_ipv6_remove
     @ipv6_method_link-local
     Scenario: nmcli - ipv6 - method - link-local
-     * Add a new connection of type "ethernet" and options "ifname eth3 con-name con_ipv6 autoconnect no"
-     * Open editor for connection "con_ipv6"
-     * Submit "set ipv6.method link-local" in editor
-     * Save in editor
-     * Quit editor
-     * Bring "up" connection "con_ipv6"
-    Then "inet6 fe80::" is visible with command "ip -6 a s eth3"
-    Then "scope global" is not visible with command "ip -6 a s eth3"
+     * Add a new connection of type "ethernet" and options "ifname eth3 con-name con_ipv6 ipv6.method link-local"
+    Then "inet6 fe80::" is visible with command "ip -6 a s eth3" in "20" seconds
+    Then "scope global" is not visible with command "ip -6 a s eth3" in "20" seconds
 
 
     @con_ipv6_remove
     @ipv6_may_fail_set_true
     Scenario: nmcli - ipv6 - may-fail - set true
-     * Add a new connection of type "ethernet" and options "ifname eth3 con-name con_ipv6 autoconnect no"
-     * Open editor for connection "con_ipv6"
-     * Submit "set ipv6.method dhcp" in editor
-     * Submit "set ipv6.may-fail yes" in editor
-     * Save in editor
-     * Quit editor
+     * Add a new connection of type "ethernet" and options "ifname eth3 con-name con_ipv6 autoconnect no ipv6.method dhcp ipv6.may-fail yes"
     Then Bring "up" connection "con_ipv6"
 
 
     @con_ipv6_remove
     @ipv6_method_ignored
     Scenario: nmcli - ipv6 - method - ignored
-     * Add a new connection of type "ethernet" and options "ifname eth3 con-name con_ipv6 autoconnect no"
-     * Open editor for connection "con_ipv6"
-     * Submit "set ipv4.method static" in editor
-     * Submit "set ipv4.addresses 192.168.122.253/24" in editor
-     * Submit "set ipv6.method ignore" in editor
-     * Save in editor
-     * Quit editor
-    Then Bring "up" connection "con_ipv6"
+     * Add a new connection of type "ethernet" and options "ifname eth10 con-name con_ipv6 ipv4.method static ipv4.addresses 192.168.122.253/24 ipv6.method ignore"
     # VVV commented out because of fe80 is still on by kernel very likely
     # Then "scope link" is not visible with command "ip -6 a s eth10"
     Then "scope global" is not visible with command "ip a -6 s eth10" in "45" seconds
@@ -764,11 +505,7 @@
     @con_ipv6_remove @eth10_disconnect
     @ipv6_never-default_set_true
     Scenario: nmcli - ipv6 - never-default - set
-     * Add connection type "ethernet" named "con_ipv6" for device "eth10"
-     * Open editor for connection "con_ipv6"
-     * Submit "set ipv6.never-default yes " in editor
-     * Save in editor
-     * Quit editor
+    * Add a new connection of type "ethernet" and options "ifname eth10 con-name con_ipv6 ipv6.never-default yes"
      * Bring "up" connection "testeth10"
     When "default via " is visible with command "ip -6 route |grep eth10" in "45" seconds
      * Bring "up" connection "con_ipv6"
@@ -779,17 +516,8 @@
     @con_ipv6_remove @eth10_disconnect
     @ipv6_never-default_remove
     Scenario: nmcli - ipv6 - never-default - remove
-     * Add connection type "ethernet" named "con_ipv6" for device "eth10"
-     * Open editor for connection "con_ipv6"
-     * Submit "set ipv6.never-default yes" in editor
-     * Save in editor
-     * Quit editor
-     * Bring "up" connection "con_ipv6"
-     * Open editor for connection "con_ipv6"
-     * Submit "set ipv6.never-default" in editor
-     * Enter in editor
-     * Save in editor
-     * Quit editor
+    * Add a new connection of type "ethernet" and options "ifname eth10 con-name con_ipv6 ipv6.never-default yes"
+    * Modify connection "con_ipv6" changing options "ipv6.never-default ''"
      * Bring "up" connection "testeth10"
     When "default via " is visible with command "ip -6 route |grep eth10" in "45" seconds
      * Bring "up" connection "con_ipv6"
@@ -800,14 +528,8 @@
     @not_under_internal_DHCP @con_ipv6_remove @tshark
     @ipv6_dhcp-hostname_set
     Scenario: nmcli - ipv6 - dhcp-hostname - set dhcp-hostname
-    * Add a new connection of type "ethernet" and options "ifname eth2 con-name con_ipv6 autoconnect no"
+    * Add a new connection of type "ethernet" and options "ifname eth2 con-name con_ipv6 ipv6.may-fail true ipv6.method dhcp ipv6.dhcp-hostname r.cx"
     * Run child "sudo tshark -i eth2 -f 'port 546' -V -x > /tmp/ipv6-hostname.log"
-    * Open editor for connection "con_ipv6"
-    * Submit "set ipv6.may-fail true" in editor
-    * Submit "set ipv6.method dhcp" in editor
-    * Submit "set ipv6.dhcp-hostname r.cx" in editor
-    * Save in editor
-    * Quit editor
     * Bring "up" connection "con_ipv6"
     When "empty" is not visible with command "file /tmp/ipv6-hostname.log" in "150" seconds
     Then "r.cx" is visible with command "grep r.cx /tmp/ipv6-hostname.log" in "245" seconds
@@ -817,20 +539,10 @@
     @not_under_internal_DHCP @con_ipv6_remove @tshark
     @ipv6_dhcp-hostname_remove
     Scenario: nmcli - ipv6 - dhcp-hostname - remove dhcp-hostname
-    * Add connection type "ethernet" named "con_ipv6" for device "eth2"
-    * Open editor for connection "con_ipv6"
-    * Submit "set ipv6.may-fail true" in editor
-    * Submit "set ipv6.method dhcp" in editor
-    * Submit "set ipv6.dhcp-hostname r.cx" in editor
-    * Save in editor
-    * Quit editor
+    * Add a new connection of type "ethernet" and options "ifname eth2 con-name con_ipv6 ipv6.may-fail true ipv6.method dhcp ipv6.dhcp-hostname r.cx"
     * Bring "up" connection "con_ipv6"
     * Bring "down" connection "con_ipv6"
-    * Open editor for connection "con_ipv6"
-    * Submit "set ipv6.dhcp-hostname" in editor
-    * Enter in editor
-    * Save in editor
-    * Quit editor
+    * Modify connection "con_ipv6" changing options "ipv6.dhcp-hostname ''"
     * Bring "up" connection "con_ipv6"
     * Bring "down" connection "con_ipv6"
     * Run child "sudo tshark -i eth2 -f 'port 546' -V -x > /tmp/tshark.log"
@@ -847,10 +559,7 @@
     * Add a new connection of type "ethernet" and options "ifname eth2 con-name con_ipv6 autoconnect no"
     * Execute "hostnamectl set-hostname dacan.local"
     * Run child "sudo tshark -i eth2 -f 'port 546' -V -x > /tmp/ipv6-hostname.log"
-    * Open editor for connection "con_ipv6"
-    * Submit "set ipv6.method dhcp" in editor
-    * Save in editor
-    * Quit editor
+    * Modify connection "con_ipv6" changing options "ipv6.method dhcp"
     * Bring "up" connection "con_ipv6"
     When "empty" is not visible with command "file /tmp/ipv6_hostname.log" in "150" seconds
     Then "dacan.local" is visible with command "cat /tmp/ipv6-hostname.log" in "145" seconds
@@ -870,18 +579,9 @@
     @con_ipv6_remove
     @ipv6_ip6-privacy_0
     Scenario: nmcli - ipv6 - ip6_privacy - 0
-    * Add connection type "ethernet" named "con_ipv6" for device "eth10"
-    * Open editor for connection "con_ipv6"
-    * Submit "set ipv4.method disabled" in editor
-    * Submit "set ipv6.ip6-privacy 2" in editor
-    * Save in editor
-    * Quit editor
-    * Bring "up" connection "con_ipv6"
+    * Add a new connection of type "ethernet" and options "ifname eth10 con-name con_ipv6 ipv4.method disabled ipv6.ip6-privacy 2"
     * Finish "sleep 2"
-    * Open editor for connection "con_ipv6"
-    * Submit "set ipv6.ip6-privacy 0" in editor
-    * Save in editor
-    * Quit editor
+    * Modify connection "con_ipv6" changing options "ipv6.ip6-privacy 0"
     * Bring "up" connection "con_ipv6"
     When "2620" is visible with command "ip a s eth10" in "45" seconds
      And "tentative dynamic" is not visible with command "ip a s eth10" in "45" seconds
@@ -892,13 +592,7 @@
     @con_ipv6_remove
     @ipv6_ip6-privacy_1
     Scenario: nmcli - ipv6 - ip6_privacy - 1
-    * Add connection type "ethernet" named "con_ipv6" for device "eth10"
-    * Open editor for connection "con_ipv6"
-    * Submit "set ipv4.method disabled" in editor
-    * Submit "set ipv6.ip6-privacy 1" in editor
-    * Save in editor
-    * Quit editor
-    * Bring "up" connection "con_ipv6"
+    * Add a new connection of type "ethernet" and options "ifname eth10 con-name con_ipv6 ipv4.method disabled ipv6.ip6-privacy 1"
     When "2620" is visible with command "ip a s eth10" in "45" seconds
      And "tentative dynamic" is not visible with command "ip a s eth10" in "45" seconds
     Then "1" is visible with command "cat /proc/sys/net/ipv6/conf/eth10/use_tempaddr"
@@ -908,13 +602,7 @@
     @con_ipv6_remove
     @ipv6_ip6-privacy_2
     Scenario: nmcli - ipv6 - ip6_privacy - 2
-    * Add connection type "ethernet" named "con_ipv6" for device "eth10"
-    * Open editor for connection "con_ipv6"
-    * Submit "set ipv4.method disabled" in editor
-    * Submit "set ipv6.ip6-privacy 2" in editor
-    * Save in editor
-    * Quit editor
-    * Bring "up" connection "con_ipv6"
+    * Add a new connection of type "ethernet" and options "ifname eth10 con-name con_ipv6 ipv4.method disabled ipv6.ip6-privacy 2"
     When "2620" is visible with command "ip a s eth10" in "45" seconds
      And "tentative dynamic" is not visible with command "ip a s eth10" in "45" seconds
     Then "2" is visible with command "cat /proc/sys/net/ipv6/conf/eth10/use_tempaddr" in "45" seconds
@@ -1259,12 +947,7 @@
     @ipv6_NM_stable_with_internal_DHCPv6
     Scenario: NM - ipv6 - stable with internal DHCPv6
     * Prepare simulated test "testX6" device
-    * Add a new connection of type "ethernet" and options "ifname testX6 con-name con_ipv6 autoconnect no"
-    * Open editor for connection "con_ipv6"
-    * Submit "set ipv4.method disabled" in editor
-    * Submit "set ipv6.method dhcp" in editor
-    * Save in editor
-    * Quit editor
+    * Add a new connection of type "ethernet" and options "ifname testX6 con-name con_ipv6 ipv4.method disabled ipv6.method dhcp"
     * Execute "nmcli con up id con_ipv6" for "50" times
 
 

@@ -538,8 +538,6 @@ testmapper:
         feature: ipv6
     - ipv6_ignore-auto-dns_set:
         feature: ipv6
-    - ipv6_ignore-auto-dns_set-generic:
-        feature: ipv6
     - ipv6_method_link-local:
         feature: ipv6
         tags: gate
