@@ -220,7 +220,7 @@
 
     @rhbz1452684 @rhbz1727193
     @con_ipv6_remove
-    @ver+=1.10
+    @ver+=1.18.3
     @ipv6_routes_with_src
     Scenario: nmcli - ipv6 - routes - set route with src
      * Add a new connection of type "ethernet" and options "ifname eth3 con-name con_ipv6 ipv6.method manual ipv6.addresses 2000::2/126 ipv6.route-metric 256 ipv6.routes '2806:aabb:abba:abab:baba:bbaa:baab:bbbb/128 src=2000::2'"
