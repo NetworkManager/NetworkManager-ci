@@ -153,7 +153,7 @@
     @con_ipv6_remove
     @ipv6_route_set_route_with_options
     Scenario: nmcli - ipv6 - routes - set route with options
-    * Add a new connection of type "ethernet" and options "ifname eth3 con-name con_ipv6 autoconnect no ipv6.method manual ipv6.addresses 2000::2/126 ipv6.route-metric 258 ipv6.routes '1010::1/128 2000::1 1024 cwnd=15 lock-mtu=true mtu=1600'"
+    * Add a new connection of type "ethernet" and options "ifname eth3 con-name con_ipv6 ipv6.method manual ipv6.addresses 2000::2/126 ipv6.route-metric 258 ipv6.routes '1010::1/128 2000::1 1024 cwnd=15 lock-mtu=true mtu=1600'"
     Then "1010::1 via 2000::1 dev eth3\s+proto static\s+metric 1024\s+mtu lock 1600 cwnd 15" is visible with command "ip -6 route" in "45" seconds
     Then "2000::/126 dev eth3\s+proto kernel\s+metric 258" is visible with command "ip -6 route"
      And "default" is visible with command "ip r |grep eth0"
@@ -200,7 +200,7 @@
     @ver-=1.9.1
     @ipv6_routes_device_route
     Scenario: nmcli - ipv6 - routes - set device route
-     * Add a new connection of type "ethernet" and options "ifname eth3 con-name con_ipv6 ipv6.method static ipv6.addresses 2001::1/12 ipv6.gateway 4000::1 ipv6.routes '1010::1/128 :: 3, 3030::1/128 2001::2 2'"
+     * Add a new connection of type "ethernet" and options "ifname eth3 con-name con_ipv6 ipv6.method static ipv6.addresses 2001::1/126 ipv6.gateway 4000::1 ipv6.routes '1010::1/128 :: 3, 3030::1/128 2001::2 2'"
     Then "default via 4000::1 dev eth3\s+proto static\s+metric" is visible with command "ip -6 route" in "45" seconds
     Then "3030::1 via 2001::2 dev eth3\s+proto static\s+metric 2" is visible with command "ip -6 route"
     Then "2001::/126 dev eth3\s+proto kernel\s+metric 256" is visible with command "ip -6 route"
@@ -211,7 +211,7 @@
     @ver+=1.9.2
     @ipv6_routes_device_route
     Scenario: nmcli - ipv6 - routes - set device route
-     * Add a new connection of type "ethernet" and options "ifname eth3 con-name con_ipv6 ipv6.method static ipv6.addresses 2001::1/12 ipv6.gateway 4000::1 ipv6.routes '1010::1/128 :: 3, 3030::1/128 2001::2 2'"
+     * Add a new connection of type "ethernet" and options "ifname eth3 con-name con_ipv6 ipv6.method static ipv6.addresses 2001::1/126 ipv6.gateway 4000::1 ipv6.routes '1010::1/128 :: 3, 3030::1/128 2001::2 2'"
     Then "default via 4000::1 dev eth3\s+proto static\s+metric" is visible with command "ip -6 route" in "45" seconds
     Then "3030::1 via 2001::2 dev eth3\s+proto static\s+metric 2" is visible with command "ip -6 route"
     Then "2001::/126 dev eth3\s+proto kernel\s+metric 1" is visible with command "ip -6 route"
