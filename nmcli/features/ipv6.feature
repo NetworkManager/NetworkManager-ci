@@ -29,7 +29,7 @@
     @con_ipv6_remove
     @ipv6_method_static_with_IP
     Scenario: nmcli - ipv6 - method - static + IP
-    * Add a new connection of type "ethernet" and options "ifname eth3 con-name con_ipv6 ipv6.method static ipv6.addresses '2607:f0d0:1002:51::4/64, 1050:0:0:0:5:600:300c:326b'"
+    * Add a new connection of type "ethernet" and options "ifname eth3 con-name con_ipv6 ipv6.method static ipv6.addresses '2607:f0d0:1002:51::4/128, 1050:0:0:0:5:600:300c:326b'"
     Then "2607:f0d0:1002:51::4/128" is visible with command "ip a s eth3" in "45" seconds
     Then "1050::5:600:300c:326b/128" is visible with command "ip a s eth3"
 
@@ -104,7 +104,7 @@
     @ipv6_addresses_delete_IP_moving_method_back_to_auto
     Scenario: nmcli - ipv6 - addresses - delete IP and set method back to auto
      * Add a new connection of type "ethernet" and options "ifname eth10 con-name con_ipv6 ipv4.method disabled ipv6.method static ipv6.addresses fc01::1:5/68 ipv6.gateway fc01::1:1"
-     * Modify connection "con_ipv6" changing options "ipv6.addresses '', ipv6.gateway '', ipv6.method auto"
+     * Modify connection "con_ipv6" changing options "ipv6.addresses '' ipv6.gateway '' ipv6.method auto"
      * Bring "up" connection "con_ipv6"
     Then "fc01::1:5/68" is not visible with command "ip a s eth10" in "45" seconds
     Then "default via fc01::1:1 dev eth3" is not visible with command "ip -6 route"
@@ -142,7 +142,7 @@
     @con_ipv6_remove
     @ipv6_route_set_route_with_options
     Scenario: nmcli - ipv6 - routes - set route with options
-    * Add a new connection of type "ethernet" and options "ifname eth3 con-name con_ipv6 autoconnect no ipv6.method manual ipv6.addresses 2000::2/126 ipv6.route-metric 258 ipv6.routes '1010::1/128 2000::1 1024 cwnd=15 lock-mtu=true mtu=1600'"
+    * Add a new connection of type "ethernet" and options "ifname eth3 con-name con_ipv6 ipv6.method manual ipv6.addresses 2000::2/126 ipv6.route-metric 258 ipv6.routes '1010::1/128 2000::1 1024 cwnd=15 lock-mtu=true mtu=1600'"
     Then "1010::1 via 2000::1 dev eth3\s+proto static\s+metric 1024\s+mtu lock 1600 cwnd 15" is visible with command "ip -6 route" in "45" seconds
     Then "2000::/126 dev eth3\s+proto kernel\s+metric 256" is visible with command "ip -6 route"
      And "default" is visible with command "ip r |grep eth0"
@@ -443,7 +443,7 @@
     @con_ipv6_remove @eth0
     @ipv6_dns-search_remove
     Scenario: nmcli - ipv6 - dns-search - remove dns-search
-    * Add a new connection of type "ethernet" and options "ifname eth10 con-name con_ipv6 ipv4.method disabled ipv.ignore-auto-dns yes ipv6.dns-search google.com"
+    * Add a new connection of type "ethernet" and options "ifname eth10 con-name con_ipv6 ipv4.method disabled ipv6.ignore-auto-dns yes ipv6.dns-search google.com"
     * Modify connection "con_ipv6" changing options "ipv6.dns-search ''"
      * Bring "up" connection "con_ipv6"
     Then " google.com" is not visible with command "cat /etc/resolv.conf"
