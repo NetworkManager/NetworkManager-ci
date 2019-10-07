@@ -717,7 +717,7 @@ def before_scenario(context, scenario):
             if call("systemctl is-active systemd-resolved", shell=True) != 0:
                 context.systemd_resolved = False
                 print ("start systemd-resolved as it is OFF and requried, now it's:")
-                call("systemctl start systemd-resolved", shell=True)
+                call("timeout 60 systemctl start systemd-resolved", shell=True)
                 if call("systemctl is-active systemd-resolved", shell=True) != 0:
                     print ("ERROR: Cannot start systemd-resolved")
                     sys.exit(77)
