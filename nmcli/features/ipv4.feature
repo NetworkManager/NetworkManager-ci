@@ -377,7 +377,7 @@ Feature: nmcli: ipv4
     * Add a new connection of type "ethernet" and options "ifname eth3 con-name con_ipv4 ipv4.may-fail no ipv4.method static ipv4.addresses 192.168.3.10/24 ipv4.gateway 192.168.4.1 ipv4.routes '192.168.5.0/24 192.168.3.11 2'"
     * Add a new connection of type "ethernet" and options "ifname eth2 con-name con_ipv42 ipv4.may-fail no ipv4.method static ipv4.addresses 192.168.1.10/24 ipv4.gateway 192.168.4.1 ipv4.routes '192.168.2.0/24 192.168.1.11 3'"
     * Modify connection "con_ipv4" changing options "ipv4.routes ''"
-    * Modify connection "con_ipv4" changing options "ipv4.routes ''"
+    * Modify connection "con_ipv42" changing options "ipv4.routes ''"
     * Bring "up" connection "con_ipv4"
     * Bring "up" connection "con_ipv42"
     Then "default via 192.168.4.1 dev eth3\s+proto static\s+metric 1" is visible with command "ip route" in "5" seconds
