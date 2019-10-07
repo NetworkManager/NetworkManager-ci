@@ -143,12 +143,17 @@ class Job:
                 else:
                     l_failures = '<td>%d</td>' % n_failures
 
+            route_to_artifacts = '/'
+            if nick == 'CentOS':
+                route_to_artifacts = '/artifact/artifacts/'
+            if nick == 'Fedora' or 'RedHat':
+                route_to_artifacts = '/artifact/results/'
             fd.write(
                 '               <tr>'
-                '<td><a target="_blank" href="%s">%s</a></td>'
+                '<td><a target="_blank" href="%s%s">%s</a></td>'
                 '<td>%s</td>'
                 '%s%s</tr>\n' %
-                (build.url, build.id,
+                (build.url, route_to_artifacts, build.id,
                  build.timestamp.ctime(),
                  l_build, l_failures))
         fd.write(
