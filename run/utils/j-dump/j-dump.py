@@ -8,7 +8,7 @@ import requests
 import jenkinsapi
 from jenkinsapi.jenkins import Jenkins
 
-# logging.basicConfig(level=logging.DEBUG)
+#logging.basicConfig(level=logging.DEBUG)
 
 HTML_STYLE = """
            <style>\n
@@ -143,14 +143,16 @@ class Job:
                 else:
                     l_failures = '<td>%d</td>' % n_failures
 
-            route_to_artifacts = '/'
-            if self.nick == 'CentOS':
-                route_to_artifacts = '/artifact/artifacts/'
-            if self.nick == 'Fedora' or 'RedHat':
-                route_to_artifacts = '/artifact/results/'
+
+            route_to_artifacts = ''
+            if 'centos' in build.url:
+                route_to_artifacts = 'artifact/results/'
+            if 'desktopqe' in build.url:
+                route_to_artifacts = 'artifact/artifacts/'
+
             fd.write(
                 '               <tr>'
-                '<td><a target="_blank" href="%s%s">%s</a></td>'
+                '<td><a target="_blank" href="%s/%s">%s</a></td>'
                 '<td>%s</td>'
                 '%s%s</tr>\n' %
                 (build.url, route_to_artifacts, build.id,
