@@ -144,9 +144,9 @@ class Job:
                     l_failures = '<td>%d</td>' % n_failures
 
             route_to_artifacts = '/'
-            if nick == 'CentOS':
+            if self.nick == 'CentOS':
                 route_to_artifacts = '/artifact/artifacts/'
-            if nick == 'Fedora' or 'RedHat':
+            if self.nick == 'Fedora' or 'RedHat':
                 route_to_artifacts = '/artifact/results/'
             fd.write(
                 '               <tr>'
