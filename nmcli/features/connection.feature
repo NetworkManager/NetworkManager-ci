@@ -147,33 +147,32 @@ Feature: nmcli: connection
 
 
     @rhbz1094296
-    @con_con_remove @time
+    @con_con_remove
     @connection_secondaries_restricted_to_vpn
     Scenario: nmcli - connection - restriction to single device
      * Add connection type "ethernet" named "con_con" for device "*"
-     * Add connection type "ethernet" named "time" for device "time"
+     * Add connection type "ethernet" named "con_con2" for device "eth5"
      * Open editor for connection "con_con"
-     * Submit "set connection.secondaries time" in editor
+     * Submit "set connection.secondaries con_con2" in editor
     Then Error type "is not a VPN connection profile" shown in editor
 
 
     @rhbz1108167
-    @CCC
+    @dummy
     @connection_removal_of_disapperared_device
     Scenario: nmcli - connection - remove connection of nonexisting device
-     * Finish "sudo ip link add name CCC type bridge"
-     * Finish "ip link set dev CCC up"
-     * Finish "ip addr add 192.168.201.3/24 dev CCC"
-     When "CCC" is visible with command "nmcli -f NAME connection show --active" in "5" seconds
-     * Finish "sudo ip link del CCC"
-     Then "CCC" is not visible with command "nmcli -f NAME connection show --active" in "5" seconds
+     * Finish "sudo ip link add name br0 type bridge"
+     * Finish "ip link set dev br0 up"
+     * Finish "ip addr add 192.168.201.3/24 dev br0"
+     When "br0" is visible with command "nmcli -f NAME connection show --active" in "5" seconds
+     * Finish "sudo ip link del br0"
+     Then "br0" is not visible with command "nmcli -f NAME connection show --active" in "5" seconds
 
 
     @con_con_remove
     @connection_down
     Scenario: nmcli - connection - down
      * Add connection type "ethernet" named "con_con" for device "eth5"
-     * Bring "up" connection "con_con"
      * Bring "down" connection "con_con"
      Then "con_con" is not visible with command "nmcli -f NAME connection show --active"
 
@@ -222,10 +221,8 @@ Feature: nmcli: connection
     @veth @con_con_remove @restart
     @connection_autoconnect_yes
     Scenario: nmcli - connection - set autoconnect on
-     * Add connection type "ethernet" named "con_con" for device "eth6"
+     * Add a new connection of type "ethernet" and options "con-name con_con ifname eth6 connection.autoconnect no"
      * Modify connection "con_con" changing options "connection.autoconnect yes"
-     * Bring "up" connection "con_con"
-     * Disconnect device "eth6"
      * Reboot
      Then "con_con" is visible with command "nmcli -t -f NAME  connection show -a" in "3" seconds
 
@@ -257,7 +254,6 @@ Feature: nmcli: connection
     Scenario: nmcli - connection - set autoconnect off
      * Add connection type "ethernet" named "con_con" for device "eth6"
      * Modify connection "con_con" changing options "connection.autoconnect no"
-     * Bring "up" connection "con_con"
      * Reboot
      Then "con_con" is not visible with command "nmcli -t -f NAME  connection show -a" in "3" seconds
 
@@ -316,8 +312,7 @@ Feature: nmcli: connection
     @con_con_remove
     @connection_timestamp
     Scenario: nmcli - connection - timestamp
-     * Add connection type "ethernet" named "con_con" for device "blah"
-     * Modify connection "con_con" changing options "connection.autoconnect no connection.interface-name eth6"
+     * Add a new connection of type "ethernet" and options "con-name con_con ifname eth6 autoconnect no"
      * Open editor for connection "con_con"
      When Check if object item "connection.timestamp:" has value "0" via print
      * Quit editor
@@ -376,9 +371,7 @@ Feature: nmcli: connection
     @con_con_remove @firewall
     @connection_zone_drop_to_public
     Scenario: nmcli - connection - zone to drop and public
-     * Add connection type "ethernet" named "con_con" for device "eth6"
-     * Modify connection "con_con" changing options "ipv4.method manual ipv4.addresses 192.168.122.253 connection.zone drop"
-     * Bring "up" connection "con_con"
+     * Add a new connection of type "ethernet" and options "con-name con_con ifname eth6 ipv4.method manual ipv4.addresses 192.168.122.253 connection.zone drop"
      When "eth6" is visible with command "firewall-cmd --zone=drop --list-all"
      * Modify connection "con_con" changing options "connection.zone ''"
      * Bring "up" connection "con_con"
@@ -416,12 +409,8 @@ Feature: nmcli: connection
     @veth @con_con_remove @con_con_remove @restart
     @profile_priorities
     Scenario: nmcli - connection - profile priorities
-     * Add connection type "ethernet" named "con_con2" for device "eth6"
-     * Add connection type "ethernet" named "con_con" for device "eth6"
-     * Execute "nmcli con modify con_con2 connection.autoconnect-priority 2"
-     * Execute "nmcli con modify con_con connection.autoconnect-priority 1"
-     * Bring "up" connection "con_con2"
-     * Bring "up" connection "con_con"
+     * Add a new connection of type "ethernet" and options "con-name con_con2 ifname eth6 connection.autoconnect-priority 2"
+     * Add a new connection of type "ethernet" and options "con-name con_con ifname eth6 connection.autoconnect-priority 1"
      * Disconnect device "eth6"
      * Restart NM
      Then "con_con2" is visible with command "nmcli con show -a"
@@ -438,9 +427,8 @@ Feature: nmcli: connection
     @con_con_remove @eth0
     @connection_metered_manual_yes
     Scenario: nmcli - connection - metered manual yes
-     * Add connection type "ethernet" named "con_con" for device "eth5"
-     * Modify connection "con_con" changing options "connection.metered true"
-     * Bring "up" connection "con_con"
+     * Add a new connection of type "ethernet" and options "con-name con_con ifname eth5 connection.metered true"
+     When "con_con" is visible with command "nmcli con show -a"
      Then Metered status is "1"
 
 
@@ -448,9 +436,8 @@ Feature: nmcli: connection
     @con_con_remove @eth0
     @connection_metered_manual_no
     Scenario: nmcli - connection - metered manual no
-     * Add connection type "ethernet" named "con_con" for device "eth5"
-     * Modify connection "con_con" changing options "connection.metered false"
-     * Bring "up" connection "con_con"
+     * Add a new connection of type "ethernet" and options "con-name con_con ifname eth5 connection.metered false"
+     When "con_con" is visible with command "nmcli con show -a"
      Then Metered status is "2"
 
 
@@ -458,9 +445,8 @@ Feature: nmcli: connection
     @con_con_remove @eth0
     @connection_metered_guess_no
     Scenario: NM - connection - metered guess no
-     * Add connection type "ethernet" named "con_con" for device "eth5"
-     * Modify connection "con_con" changing options "connection.metered unknown"
-     * Bring "up" connection "con_con"
+     * Add a new connection of type "ethernet" and options "con-name con_con ifname eth5 connection.metered unknown"
+     When "con_con" is visible with command "nmcli con show -a"
      Then Metered status is "4"
 
 
