@@ -11,7 +11,7 @@ test_res = []
 # async callback, appends test result to test_res list
 def add_con_cb(client, result, data):
     try:
-        client.save_hostname_finish(result)
+        client.add_connection_finish(result)
         # test result is False, because exception should be thrown
         test_res.append(1)
     except Exception as e:
