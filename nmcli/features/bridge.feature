@@ -411,7 +411,7 @@ Feature: nmcli - bridge
 
 
     @firewall
-    @dummy @bridge_assumed
+    @dummy
     @bridge_assumed_connection_no_firewalld_zone
     Scenario: NM - bridge - no firewalld zone for bridge assumed connection
     * Execute "sudo ip link add br0 type bridge"
@@ -422,7 +422,7 @@ Feature: nmcli - bridge
 
 
     @ver-=1.1.0
-    @dummy @bridge_assumed
+    @dummy
     @bridge_assumed_connection_ip_methods
     Scenario: NM - bridge - Layer2 changes for bridge assumed connection
     * Execute "sudo ip link add br0 type bridge"
@@ -440,7 +440,7 @@ Feature: nmcli - bridge
 
 
     @ver+=1.1.1
-    @dummy @bridge_assumed
+    @dummy
     @bridge_assumed_connection_ip_methods
     Scenario: NM - bridge - Layer2 changes for bridge assumed connection
     * Execute "sudo ip link add br0 type bridge"
@@ -474,7 +474,7 @@ Feature: nmcli - bridge
 
     @rhbz1363995
     @ver+=1.4
-    @dummy @bridge_assumed
+    @dummy
     @bridge_preserve_assumed_connection_ips
     Scenario: nmcli - bridge - preserve assumed connection's addresses
     * Execute "ip link add br0 type bridge"
