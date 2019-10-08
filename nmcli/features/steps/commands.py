@@ -177,7 +177,7 @@ def check_pattern_command(context, command, pattern, seconds, check_type="defaul
     seconds = int(seconds)
     orig_seconds = seconds
     while seconds > 0:
-        proc = pexpect.spawn('/bin/bash', ['-c', command], timeout = timeout, maxread=maxread, logfile=context.log, encoding='utf-8')
+        proc = pexpect.spawn('/bin/bash', ['-c', command], timeout = timeout, maxread=maxread, logfile=context.log)
         if exact_check:
             ret = proc.expect_exact([pattern, pexpect.EOF])
         elif json_check:
@@ -195,15 +195,15 @@ def check_pattern_command(context, command, pattern, seconds, check_type="defaul
             if ret != 0:
                 return True
         elif check_type == "full":
-            assert ret == 0, 'Pattern "%s" disappeared after %d seconds, ouput was:\n%s' % (pattern, orig_seconds-seconds, proc.before)
+            assert ret == 0, 'Pattern "%s" disappeared after %d seconds, ouput was:\n%s' % (pattern, orig_seconds-seconds, proc.before.decode('utf-8', 'ignore'))
         elif check_type == "not_full":
-            assert ret != 0, 'Pattern "%s" appeared after %d seconds, output was:\n%s%s' % (pattern, orig_seconds-seconds, proc.before, proc.after)
+            assert ret != 0, 'Pattern "%s" appeared after %d seconds, output was:\n%s%s' % (pattern, orig_seconds-seconds, proc.before.decode('utf-8', 'ignore'), proc.after.decode('utf-8', 'ignore'))
         seconds = seconds - 1
         sleep(interval)
     if check_type == "default":
-        raise Exception('Did not see the pattern "%s" in %d seconds, output was:\n%s' % (pattern, orig_seconds, proc.before))
+        raise Exception('Did not see the pattern "%s" in %d seconds, output was:\n%s' % (pattern, orig_seconds, proc.before.decode('utf-8', 'ignore')))
     elif check_type == "not":
-        raise Exception('Did still see the pattern "%s" in %d seconds, output was:\n%s%s' % (pattern, orig_seconds, proc.before, proc.after))
+        raise Exception('Did still see the pattern "%s" in %d seconds, output was:\n%s%s' % (pattern, orig_seconds, proc.before.decode('utf-8', 'ignore'), proc.after.decode('utf-8', 'ignore')))
     return True
 
 
