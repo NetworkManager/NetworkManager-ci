@@ -60,7 +60,7 @@ def find_modem():
         '19d2:2000': 'ZTE MF627'
     }
 
-    output = check_output('lsusb', shell=True).decode('utf-8')
+    output = check_output('lsusb', shell=True).decode('utf-8', 'backslashreplace')
     output = output.splitlines()
 
     if output:
@@ -84,7 +84,7 @@ def get_modem_info():
 
     # Get a list of modems from ModemManager.
     try:
-        output = check_output('mmcli -L', shell=True).decode('utf-8')
+        output = check_output('mmcli -L', shell=True).decode('utf-8', 'backslashreplace')
     except CalledProcessError:
         print('Cannot get modem info from ModemManager.'.format(modem_index))
         return None
@@ -95,7 +95,7 @@ def get_modem_info():
         modem_index = mo.groups()[0]
         cmd = 'mmcli -m {}'.format(modem_index)
         try:
-            modem_info = check_output(cmd, shell=True).decode('utf-8')
+            modem_info = check_output(cmd, shell=True).decode('utf-8', 'backslashreplace')
         except CalledProcessError:
             print('Cannot get modem info at index {}.'.format(modem_index))
             return None
@@ -110,7 +110,7 @@ def get_modem_info():
         sim_index = mo.groups()[0]
         cmd = 'mmcli --sim {}'.format(sim_index)
         try:
-            sim_info = check_output(cmd, shell=True).decode('utf-8')
+            sim_info = check_output(cmd, shell=True).decode('utf-8', 'backslashreplace')
         except:
             print('Cannot get SIM card info at index {}.'.format(sim_index))
 
@@ -127,12 +127,12 @@ def get_modem_info():
 
 def nm_pid():
     try:
-        pid = int(check_output(['systemctl', 'show', '-pMainPID', 'NetworkManager.service']).decode('utf-8').split('=')[-1])
+        pid = int(check_output(['systemctl', 'show', '-pMainPID', 'NetworkManager.service']).decode('utf-8', 'backslashreplace').split('=')[-1])
     except CalledProcessError as e:
         pid = None
     if not pid:
         try:
-            pid = int(check_output(['pgrep', 'NetworkManager']).decode('utf-8'))
+            pid = int(check_output(['pgrep', 'NetworkManager']).decode('utf-8', 'backslashreplace'))
         except CalledProcessError as e:
             pid = None
     return pid
@@ -198,7 +198,7 @@ def embed_dump(context, dump_dir, dump_output, caption):
 def list_dumps(dumps_search):
     p = Popen("ls -d %s" % (dumps_search), shell=True, stdin=PIPE, stdout=PIPE, stderr=PIPE, bufsize=-1)
     list_of_dumps, _ = p.communicate()
-    return list_of_dumps.decode('utf-8').strip('\n').split('\n')
+    return list_of_dumps.decode('utf-8', 'backslashreplace').strip('\n').split('\n')
 
 def check_coredump(context):
     coredump_search = "/var/lib/systemd/coredump/*"
@@ -222,7 +222,7 @@ def check_coredump(context):
         if not is_dump_reported(dump_dir):
             p = Popen('echo backtrace | coredumpctl debug %d' % (pid), shell=True, stdin=PIPE, stdout=PIPE, stderr=PIPE, bufsize=-1)
             dump_output, _ = p.communicate()
-            embed_dump(context, dump_dir, dump_output.decode('utf-8'), caption="COREDUMP")
+            embed_dump(context, dump_dir, dump_output.decode('utf-8', 'backslashreplace'), caption="COREDUMP")
 
 def check_faf(context):
     abrt_search = "/var/spool/abrt/ccpp*"
@@ -283,7 +283,7 @@ def teardown_libreswan():
     call("sh prepare/libreswan.sh teardown", shell=True)
 
 def get_ethernet_devices():
-    devs = check_output("nmcli dev | grep ' ethernet' | awk '{print $1}'", shell=True).decode('utf-8').strip()
+    devs = check_output("nmcli dev | grep ' ethernet' | awk '{print $1}'", shell=True).decode('utf-8', 'backslashreplace').strip()
     return devs.split('\n')
 
 def setup_strongswan():
@@ -299,7 +299,7 @@ def teardown_strongswan():
 
 def setup_racoon(mode, dh_group, phase1_al="aes", phase2_al=None):
     print ("setting up racoon")
-    arch = check_output("uname -p", shell=True).decode('utf-8').strip()
+    arch = check_output("uname -p", shell=True).decode('utf-8', 'backslashreplace').strip()
     wait_for_testeth0()
     if arch == "s390x":
         call("[ -x /usr/sbin/racoon ] || yum -y install https://vbenes.fedorapeople.org/NM/ipsec-tools-0.8.2-1.el7.$(uname -p).rpm", shell=True)
@@ -319,14 +319,14 @@ def teardown_racoon():
 
 def reset_hwaddr(ifname):
     if not os.path.isfile('/tmp/nm_newveth_configured'):
-        hwaddr = check_output("ethtool -P %s" % ifname, shell=True).decode('utf-8').split()[2]
+        hwaddr = check_output("ethtool -P %s" % ifname, shell=True).decode('utf-8', 'backslashreplace').split()[2]
         call("ip link set %s address %s" % (ifname, hwaddr), shell=True)
     call("ip link set %s up" % (ifname), shell=True)
 
 def setup_hostapd():
     print ("setting up hostapd")
     wait_for_testeth0()
-    arch = check_output("uname -p", shell=True).decode('utf-8').strip()
+    arch = check_output("uname -p", shell=True).decode('utf-8', 'backslashreplace').strip()
     if arch != "s390x":
         # Install under RHEL7 only
         if call("grep -q Maipo /etc/redhat-release", shell=True) == 0:
@@ -339,7 +339,7 @@ def setup_hostapd():
 def setup_hostapd_wireless(auth):
     print ("setting up hostapd wireless")
     wait_for_testeth0()
-    arch = check_output("uname -p", shell=True).decode('utf-8').strip()
+    arch = check_output("uname -p", shell=True).decode('utf-8', 'backslashreplace').strip()
     if arch != "s390x":
         # Install under RHEL7 only
         if call("grep -q Maipo /etc/redhat-release", shell=True) == 0:
@@ -449,23 +449,23 @@ def before_scenario(context, scenario):
                 call ('yum -y install http://dl.fedoraproject.org/pub/epel/7/x86_64/p/python2-pyroute2-0.4.13-1.el7.noarch.rpm', shell=True)
 
         if 'not_on_s390x' in scenario.tags:
-            arch = check_output("uname -p", shell=True).decode('utf-8').strip()
+            arch = check_output("uname -p", shell=True).decode('utf-8', 'backslashreplace').strip()
             if arch == "s390x":
                 sys.exit(77)
 
         if 'not_on_aarch64' in scenario.tags:
-            arch = check_output("uname -p", shell=True).decode('utf-8').strip()
+            arch = check_output("uname -p", shell=True).decode('utf-8', 'backslashreplace').strip()
             if arch == "aarch64":
                 sys.exit(77)
 
         if 'not_on_ppc64' in scenario.tags:
-            arch = check_output("uname -p", shell=True).decode('utf-8').strip()
+            arch = check_output("uname -p", shell=True).decode('utf-8', 'backslashreplace').strip()
             if arch == "ppc64":
                 sys.exit(77)
 
         if 'not_on_aarch64_but_pegas' in scenario.tags:
-            arch = check_output("uname -p", shell=True).decode('utf-8').strip()
-            ver = check_output("uname -r", shell=True).decode('utf-8').strip()
+            arch = check_output("uname -p", shell=True).decode('utf-8', 'backslashreplace').strip()
+            ver = check_output("uname -r", shell=True).decode('utf-8', 'backslashreplace').strip()
             if arch == "aarch64":
                 if "4.5" in ver:
                     sys.exit(77)
@@ -474,7 +474,7 @@ def before_scenario(context, scenario):
             call("sudo prepare/captive_portal.sh", shell=True)
 
         if 'gsm_sim' in scenario.tags:
-            arch = check_output("uname -p", shell=True).decode('utf-8').strip()
+            arch = check_output("uname -p", shell=True).decode('utf-8', 'backslashreplace').strip()
             if arch != "x86_64":
                 print ("---------------------------")
                 print ("Skipping on not intel arch")
@@ -592,7 +592,7 @@ def before_scenario(context, scenario):
             call("modprobe -r cdc-mbim", shell=True)
 
         if 'need_s390x' in scenario.tags:
-            arch = check_output("uname -p", shell=True).decode('utf-8').strip()
+            arch = check_output("uname -p", shell=True).decode('utf-8', 'backslashreplace').strip()
             if arch != "s390x":
                 sys.exit(77)
 
@@ -785,7 +785,7 @@ def before_scenario(context, scenario):
                 call('sudo nmcli con add type ethernet ifname eth2 con-name testeth2 autoconnect no', shell=True)
 
         if 'logging' in scenario.tags:
-            context.loggin_level = check_output('nmcli -t -f LEVEL general logging', shell=True).decode('utf-8').strip()
+            context.loggin_level = check_output('nmcli -t -f LEVEL general logging', shell=True).decode('utf-8', 'backslashreplace').strip()
 
         if 'logging_info_only' in scenario.tags:
             print ("---------------------------")
@@ -822,35 +822,35 @@ def before_scenario(context, scenario):
 
         if '8021x' in scenario.tags:
             print ("---------------------------")
-            arch = check_output("uname -p", shell=True).decode('utf-8').strip()
+            arch = check_output("uname -p", shell=True).decode('utf-8', 'backslashreplace').strip()
             if arch == "s390x":
                 call("[ -x /usr/sbin/hostapd ] || (yum -y install 'https://vbenes.fedorapeople.org/NM/hostapd-2.6-7.el7.s390x.rpm'; sleep 10)", shell=True)
             setup_hostapd()
 
         if 'simwifi_wpa2' in scenario.tags:
             print ("---------------------------")
-            arch = check_output("uname -p", shell=True).decode('utf-8').strip()
+            arch = check_output("uname -p", shell=True).decode('utf-8', 'backslashreplace').strip()
             if arch != "x86_64":
                 sys.exit(77)
             setup_hostapd_wireless('wpa2')
 
         if 'simwifi_open' in scenario.tags:
             print ("---------------------------")
-            arch = check_output("uname -p", shell=True).decode('utf-8').strip()
+            arch = check_output("uname -p", shell=True).decode('utf-8', 'backslashreplace').strip()
             if arch != "x86_64":
                 sys.exit(77)
             setup_hostapd_wireless('open')
 
         if 'simwifi_pskwep' in scenario.tags:
             print ("---------------------------")
-            arch = check_output("uname -p", shell=True).decode('utf-8').strip()
+            arch = check_output("uname -p", shell=True).decode('utf-8', 'backslashreplace').strip()
             if arch != "x86_64":
                 sys.exit(77)
             setup_hostapd_wireless('pskwep')
 
         if 'simwifi_dynwep' in scenario.tags:
             print ("---------------------------")
-            arch = check_output("uname -p", shell=True).decode('utf-8').strip()
+            arch = check_output("uname -p", shell=True).decode('utf-8', 'backslashreplace').strip()
             if arch != "x86_64":
                 sys.exit(77)
             setup_hostapd_wireless('dynwep')
@@ -858,7 +858,7 @@ def before_scenario(context, scenario):
         if 'simwifi_p2p' in scenario.tags:
             print ("---------------------------")
             print ("setting p2p test bed")
-            arch = check_output("uname -p", shell=True).decode('utf-8').strip()
+            arch = check_output("uname -p", shell=True).decode('utf-8', 'backslashreplace').strip()
             if arch != "x86_64":
                 sys.exit(77)
 
@@ -878,7 +878,7 @@ def before_scenario(context, scenario):
 
         if 'vpnc' in scenario.tags:
             print ("---------------------------")
-            arch = check_output("uname -p", shell=True).decode('utf-8').strip()
+            arch = check_output("uname -p", shell=True).decode('utf-8', 'backslashreplace').strip()
             if arch == "s390x":
                 sys.exit(77)
             # Install under RHEL7 only
@@ -892,7 +892,7 @@ def before_scenario(context, scenario):
         if 'tcpreplay' in scenario.tags:
             print ("---------------------------")
             print ("install tcpreplay")
-            arch = check_output("uname -p", shell=True).decode('utf-8').strip()
+            arch = check_output("uname -p", shell=True).decode('utf-8', 'backslashreplace').strip()
             if arch == "s390x":
                 sys.exit(77)
             wait_for_testeth0()
@@ -904,7 +904,7 @@ def before_scenario(context, scenario):
         if 'openvpn' in scenario.tags:
             print ("---------------------------")
             print ("setting up OpenVPN")
-            arch = check_output("uname -p", shell=True).decode('utf-8').strip()
+            arch = check_output("uname -p", shell=True).decode('utf-8', 'backslashreplace').strip()
             if arch == "s390x":
                 sys.exit(77)
             wait_for_testeth0()
@@ -980,7 +980,7 @@ def before_scenario(context, scenario):
         if 'strongswan' in scenario.tags:
             # Do not run on RHEL7 on s390x
             if call("grep -q 'release 7' /etc/redhat-release", shell=True) == 0:
-                arch = check_output("uname -p", shell=True).decode('utf-8').strip()
+                arch = check_output("uname -p", shell=True).decode('utf-8', 'backslashreplace').strip()
                 if arch == "s390x":
                     print("Skipping on RHEL7 on s390x")
                     sys.exit(77)
@@ -1022,7 +1022,7 @@ def before_scenario(context, scenario):
         if 'pptp' in scenario.tags:
             print ("---------------------------")
             print ("setting up pptpd")
-            arch = check_output("uname -p", shell=True).decode('utf-8').strip()
+            arch = check_output("uname -p", shell=True).decode('utf-8', 'backslashreplace').strip()
             if arch == "s390x":
                 sys.exit(77)
             wait_for_testeth0()
@@ -1062,7 +1062,7 @@ def before_scenario(context, scenario):
         if 'restore_hostname' in scenario.tags:
            print ("---------------------------")
            print ("saving original hostname")
-           context.original_hostname = check_output('hostname', shell=True).decode('utf-8').strip()
+           context.original_hostname = check_output('hostname', shell=True).decode('utf-8', 'backslashreplace').strip()
 
         if 'runonce' in scenario.tags:
             print ("---------------------------")
@@ -1076,7 +1076,7 @@ def before_scenario(context, scenario):
         if 'slow_team' in scenario.tags:
             print ("---------------------------")
             print ("run just on x86_64")
-            arch = check_output("uname -p", shell=True).decode('utf-8').strip()
+            arch = check_output("uname -p", shell=True).decode('utf-8', 'backslashreplace').strip()
             if arch != "x86_64":
                 sys.exit(77)
             print ("---------------------------")
@@ -1093,7 +1093,7 @@ def before_scenario(context, scenario):
         if 'openvswitch' in scenario.tags:
             print ("---------------------------")
             print ("starting openvswitch if not active")
-            arch = check_output("uname -p", shell=True).decode('utf-8').strip()
+            arch = check_output("uname -p", shell=True).decode('utf-8', 'backslashreplace').strip()
             if arch == "s390x":
                 sys.exit(77)
             if call('rpm -q NetworkManager-ovs', shell=True) != 0:
@@ -1162,7 +1162,7 @@ def before_scenario(context, scenario):
             call('sudo nmcli connection delete testeth10', shell=True)
 
         if 'pppoe' in scenario.tags:
-            arch = check_output("uname -p", shell=True).decode('utf-8').strip()
+            arch = check_output("uname -p", shell=True).decode('utf-8', 'backslashreplace').strip()
             # selinux on aarch64: see https://bugzilla.redhat.com/show_bug.cgi?id=1643954
             if arch == "aarch64":
                 print ("---------------------------")
@@ -1206,7 +1206,7 @@ def before_scenario(context, scenario):
                 context.restore_config_server = False
             else:
                 #call('sudo yum -y remove NetworkManager-config-server', shell=True)
-                config_files = check_output('rpm -ql NetworkManager-config-server', shell=True).decode('utf-8').strip().split('\n')
+                config_files = check_output('rpm -ql NetworkManager-config-server', shell=True).decode('utf-8', 'backslashreplace').strip().split('\n')
                 for config_file in config_files:
                     config_file = config_file.strip()
                     if os.path.isfile(config_file):
@@ -1217,7 +1217,7 @@ def before_scenario(context, scenario):
 
         if 'permissive' in scenario.tags:
             context.enforcing = False
-            if check_output('getenforce', shell=True).decode('utf-8').strip() == 'Enforcing':
+            if check_output('getenforce', shell=True).decode('utf-8', 'backslashreplace').strip() == 'Enforcing':
                 print("---------------------------")
                 print("WORKAROUND for permissive selinux")
                 context.enforcing = True
@@ -1240,7 +1240,7 @@ def before_scenario(context, scenario):
             if call("[ -f /etc/systemd/system/NetworkManager.service ] && grep -q valgrind /etc/systemd/system/NetworkManager.service", shell=True) == 0:
                 call("LOGNAME=root HOSTNAME=localhost gdb /usr/sbin/NetworkManager -ex 'target remote | vgdb' -ex 'monitor leak_check summary' -batch", shell=True, stdout=context.log, stderr=context.log)
 
-        context.log_cursor = check_output("journalctl --lines=0 --show-cursor |awk '/^-- cursor:/ {print \"\\\"--after-cursor=\"$NF\"\\\"\"; exit}'", shell=True).decode('utf-8').strip()
+        context.log_cursor = check_output("journalctl --lines=0 --show-cursor |awk '/^-- cursor:/ {print \"\\\"--after-cursor=\"$NF\"\\\"\"; exit}'", shell=True).decode('utf-8', 'backslashreplace').strip()
 
     except Exception as e:
         print(("Error in before_scenario"))
@@ -1288,7 +1288,7 @@ def after_scenario(context, scenario):
             print("Attaching traffic log")
             call("sudo kill -1 $(pidof tcpdump)", shell=True)
             if os.stat("/tmp/network-traffic.log").st_size < 20000000:
-                traffic = open("/tmp/network-traffic.log", 'r').read()
+                traffic = open("/tmp/network-traffic.log", 'r', encoding='utf-8', errors='backslashreplace').read()
                 if traffic:
                     context.embed('text/plain', traffic, caption="TRAFFIC")
             else:
@@ -1299,7 +1299,7 @@ def after_scenario(context, scenario):
             print("Attaching network.service log")
             os.system("echo '~~~~~~~~~~~~~~~~~~~~~~~~~~ NETWORK SRV LOG ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~' > /tmp/journal-netsrv.log")
             os.system("sudo journalctl -u network --no-pager -o cat %s >> /tmp/journal-netsrv.log" % context.log_cursor)
-            data = open("/tmp/journal-netsrv.log", 'r').read()
+            data = open("/tmp/journal-netsrv.log", 'r', encoding='utf-8', errors='backslashreplace').read()
             if data:
                 context.embed('text/plain', data, caption="NETSRV")
 
@@ -1489,7 +1489,7 @@ def after_scenario(context, scenario):
             tombs = []
             for dir in ["/etc/NetworkManager/system-connections/*.nmmeta", "/var/run/NetworkManager/system-connections/*.nmmeta"]:
                 try:
-                    tombs.extend(check_output('ls %s' % dir, shell=True).decode('utf-8').split("\n"))
+                    tombs.extend(check_output('ls %s' % dir, shell=True).decode('utf-8', 'backslashreplace').split("\n"))
                 except:
                     pass
             cons = []
@@ -1868,7 +1868,7 @@ def after_scenario(context, scenario):
             print("Attaching hostapd log")
             os.system("echo '~~~~~~~~~~~~~~~~~~~~~~~~~~ HOSTAPD LOG ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~' > /tmp/journal-hostapd.log")
             os.system("sudo journalctl -u nm-hostapd --no-pager -o cat %s >> /tmp/journal-hostapd.log" % context.log_cursor)
-            data = open("/tmp/journal-hostapd.log", 'r').read()
+            data = open("/tmp/journal-hostapd.log", 'r', encoding='utf-8', errors='backslashreplace').read()
             if data:
                 context.embed('text/plain', data, caption="HOSTAPD")
 
@@ -1876,7 +1876,7 @@ def after_scenario(context, scenario):
             print("Attaching wpa_supplicant log")
             os.system("echo '~~~~~~~~~~~~~~~~~~~~~~~~~~ WPA_SUPPLICANT LOG ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~' > /tmp/journal-wpa_supplicant.log")
             os.system("journalctl -u wpa_supplicant --no-pager -o cat %s >> /tmp/journal-wpa_supplicant.log" % context.log_cursor)
-            data = open("/tmp/journal-wpa_supplicant.log", 'r').read()
+            data = open("/tmp/journal-wpa_supplicant.log", 'r', encoding='utf-8', errors='backslashreplace').read()
             if data:
                 context.embed('text/plain', data, caption="WPA_SUP")
 
@@ -2095,7 +2095,7 @@ def after_scenario(context, scenario):
             if context.restore_config_server:
                 print ("---------------------------")
                 print ("restoring NetworkManager-config-server")
-                config_files = check_output('rpm -ql NetworkManager-config-server', shell=True).decode('utf-8').strip().split('\n')
+                config_files = check_output('rpm -ql NetworkManager-config-server', shell=True).decode('utf-8', 'backslashreplace').strip().split('\n')
                 for config_file in config_files:
                     config_file = config_file.strip()
                     if os.path.isfile(config_file + '.off'):
@@ -2209,7 +2209,7 @@ def after_scenario(context, scenario):
             os.system("echo '~~~~~~~~~~~~~~~~~~~~~~~~~~ MM LOG ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~' > /tmp/journal-mm.log")
             print("Attaching MM log")
             os.system("sudo journalctl -u ModemManager --no-pager -o cat %s >> /tmp/journal-mm.log" % context.log_cursor)
-            data = open("/tmp/journal-mm.log", 'r').read()
+            data = open("/tmp/journal-mm.log", 'r', encoding='utf-8', errors='backslashreplace').read()
             if data:
                 context.embed('text/plain', data, caption="MM")
             # Extract modem model.
@@ -2449,7 +2449,7 @@ def after_scenario(context, scenario):
             os.system("echo '~~~~~~~~~~~~~~~~~~~~~~~~~~ NM LOG ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~' > /tmp/journal-nm.log")
             os.system("sudo journalctl -all -u NetworkManager --no-pager -o cat %s >> /tmp/journal-nm.log" % context.log_cursor)
             if os.stat("/tmp/journal-nm.log").st_size < 20000000:
-                data = open("/tmp/journal-nm.log", 'r').read()
+                data = open("/tmp/journal-nm.log", 'r', encoding='utf-8', errors='backslashreplace').read()
                 if data:
                     context.embed('text/plain', data, caption="NM")
             else:
@@ -2464,7 +2464,7 @@ def after_scenario(context, scenario):
 
         context.log.close ()
         print("Attaching MAIN log")
-        context.embed('text/plain', open("/tmp/log_%s.html" % scenario.name, 'r').read(), caption="MAIN")
+        context.embed('text/plain', open("/tmp/log_%s.html" % scenario.name, 'r', encoding='utf-8', errors='backslashreplace').read(), caption="MAIN")
 
         if context.crashed_step:
             print ("\n\n!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")

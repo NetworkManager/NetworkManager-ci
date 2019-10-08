@@ -83,12 +83,12 @@ def execute_command(context, command):
 
 @step(u'Execute "{command}" for "{number}" times')
 def execute_multiple_times(context, command, number):
-    orig_nm_pid = check_output('pidof NetworkManager', shell=True).decode('utf-8')
+    orig_nm_pid = check_output('pidof NetworkManager', shell=True).decode('utf-8', 'backslashreplace')
 
     i = 0
     while i < int(number):
         command_code(context, command)
-        curr_nm_pid = check_output('pidof NetworkManager', shell=True).decode('utf-8')
+        curr_nm_pid = check_output('pidof NetworkManager', shell=True).decode('utf-8', 'backslashreplace')
         assert curr_nm_pid == orig_nm_pid, 'NM crashed as original pid was %s but now is %s' %(orig_nm_pid, curr_nm_pid)
         i += 1
 
@@ -177,7 +177,7 @@ def check_pattern_command(context, command, pattern, seconds, check_type="defaul
     seconds = int(seconds)
     orig_seconds = seconds
     while seconds > 0:
-        proc = pexpect.spawn('/bin/bash', ['-c', command], timeout = timeout, maxread=maxread, logfile=context.log, encoding='utf-8', codec_errors='ignore')
+        proc = pexpect.spawn('/bin/bash', ['-c', command], timeout = timeout, maxread=maxread, logfile=context.log, encoding='utf-8', codec_errors='backslashreplace')
         if exact_check:
             ret = proc.expect_exact([pattern, pexpect.EOF])
         elif json_check:
@@ -410,7 +410,7 @@ def check_metered_status(context, value):
                                                 org.freedesktop.DBus.Properties.Get \
                                                 string:"org.freedesktop.NetworkManager" \
                                                 string:"Metered" |grep variant| awk \'{print $3}\''
-    ret = check_output(cmd, shell=True).decode('utf-8').strip()
+    ret = check_output(cmd, shell=True).decode('utf-8', 'backslashreplace').strip()
     assert ret == value, "Metered value is %s but should be %s" %(ret, value)
 
 @step(u'Network trafic "{state}" dropped')
@@ -475,4 +475,4 @@ def set_logging(context, domain, level):
 
 @step(u'Note NM log')
 def note_NM_log(context):
-    context.noted_value = check_output( "sudo journalctl -all -u NetworkManager --no-pager -o cat %s" % context.log_cursor, shell=True).decode('utf-8')
+    context.noted_value = check_output( "sudo journalctl -all -u NetworkManager --no-pager -o cat %s" % context.log_cursor, shell=True).decode('utf-8', 'backslashreplace')

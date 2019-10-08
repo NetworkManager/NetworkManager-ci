@@ -13,11 +13,11 @@ from glob import glob
 
 def run(context, command, *a, **kw):
     try:
-        output = subprocess.check_output(command, shell=True, stderr=subprocess.STDOUT, *a, **kw).decode('utf-8')
+        output = subprocess.check_output(command, shell=True, stderr=subprocess.STDOUT, *a, **kw).decode('utf-8', 'backslashreplace')
         returncode = 0
         exception = None
     except subprocess.CalledProcessError as e:
-        output = e.output.decode('utf-8')
+        output = e.output.decode('utf-8', 'backslashreplace')
         returncode = e.returncode
         exception = e
     context.embed('text/plain', '$?=%d' % returncode, caption='%s result' % command)

@@ -54,13 +54,13 @@ def before_all(context):
         os.system("sudo pkill nmtui")
 
         # Store scenario start cursor for session logs
-        context.log_cursor = check_output("journalctl --lines=0 --show-cursor |awk '/^-- cursor:/ {print \"\\\"--after-cursor=\"$NF\"\\\"\"; exit}'", shell=True).decode('utf-8').strip()
+        context.log_cursor = check_output("journalctl --lines=0 --show-cursor |awk '/^-- cursor:/ {print \"\\\"--after-cursor=\"$NF\"\\\"\"; exit}'", shell=True).decode('utf-8', 'backslashreplace').strip()
     except Exception:
         print("Error in before_all:")
         traceback.print_exc(file=sys.stdout)
 
 def reset_hwaddr(ifname):
-    hwaddr = check_output("ethtool -P %s" % ifname, shell=True).decode('utf-8').split()[2]
+    hwaddr = check_output("ethtool -P %s" % ifname, shell=True).decode('utf-8', 'backslashreplace').split()[2]
     call("ip link set %s address %s" % (ifname, hwaddr), shell=True)
 
 def restore_testeth0():
