@@ -177,7 +177,7 @@ def check_pattern_command(context, command, pattern, seconds, check_type="defaul
     seconds = int(seconds)
     orig_seconds = seconds
     while seconds > 0:
-        proc = pexpect.spawn('/bin/bash', ['-c', command], timeout = timeout, maxread=maxread, logfile=context.log, encoding='utf-8', codec_errors='backslashreplace')
+        proc = pexpect.spawn('/bin/bash -c "%s"' %command, timeout = timeout, maxread=maxread, logfile=context.log, encoding='ascii', codec_errors='ignore')
         if exact_check:
             ret = proc.expect_exact([pattern, pexpect.EOF])
         elif json_check:
