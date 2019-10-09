@@ -3,10 +3,6 @@
 import os
 import pexpect
 import sys
-if sys.version_info < (3, 0):
-    reload(sys)
-    sys.setdefaultencoding('utf8')
-
 import traceback
 import string
 import fcntl
@@ -16,7 +12,6 @@ from glob import glob
 import re
 
 TIMER = 0.5
-
 def find_modem():
     """
     Find the 1st modem connected to a USB port or USB hub on a testing machine.
@@ -146,6 +141,13 @@ def nm_size_kb():
             continue
         memsize += int(fields[1])
     return memsize
+
+def my_open_read(file, mode='r'):
+    # Opens file and read it w/o non utf-8 chars
+    if sys.version_info.major < 3:
+        return open(file, mode).read().decode('utf-8', 'ignore').encode('utf-8')
+    else:
+        return open(file, mode, encoding='utf-8', errors='backslashreplace').read()
 
 def dump_status(context, when):
     context.log.write("\n\n\n=================================================================================\n")
@@ -1288,7 +1290,7 @@ def after_scenario(context, scenario):
             print("Attaching traffic log")
             call("sudo kill -1 $(pidof tcpdump)", shell=True)
             if os.stat("/tmp/network-traffic.log").st_size < 20000000:
-                traffic = open("/tmp/network-traffic.log", 'r', encoding='utf-8', errors='backslashreplace').read()
+                traffic = my_open_read("/tmp/network-traffic.log")
                 if traffic:
                     context.embed('text/plain', traffic, caption="TRAFFIC")
             else:
@@ -1299,7 +1301,8 @@ def after_scenario(context, scenario):
             print("Attaching network.service log")
             os.system("echo '~~~~~~~~~~~~~~~~~~~~~~~~~~ NETWORK SRV LOG ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~' > /tmp/journal-netsrv.log")
             os.system("sudo journalctl -u network --no-pager -o cat %s >> /tmp/journal-netsrv.log" % context.log_cursor)
-            data = open("/tmp/journal-netsrv.log", 'r', encoding='utf-8', errors='backslashreplace').read()
+
+            data = my_open_read("/tmp/journal-netsrv.log")
             if data:
                 context.embed('text/plain', data, caption="NETSRV")
 
@@ -1868,7 +1871,7 @@ def after_scenario(context, scenario):
             print("Attaching hostapd log")
             os.system("echo '~~~~~~~~~~~~~~~~~~~~~~~~~~ HOSTAPD LOG ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~' > /tmp/journal-hostapd.log")
             os.system("sudo journalctl -u nm-hostapd --no-pager -o cat %s >> /tmp/journal-hostapd.log" % context.log_cursor)
-            data = open("/tmp/journal-hostapd.log", 'r', encoding='utf-8', errors='backslashreplace').read()
+            data = my_open_read("/tmp/journal-hostapd.log")
             if data:
                 context.embed('text/plain', data, caption="HOSTAPD")
 
@@ -1876,7 +1879,7 @@ def after_scenario(context, scenario):
             print("Attaching wpa_supplicant log")
             os.system("echo '~~~~~~~~~~~~~~~~~~~~~~~~~~ WPA_SUPPLICANT LOG ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~' > /tmp/journal-wpa_supplicant.log")
             os.system("journalctl -u wpa_supplicant --no-pager -o cat %s >> /tmp/journal-wpa_supplicant.log" % context.log_cursor)
-            data = open("/tmp/journal-wpa_supplicant.log", 'r', encoding='utf-8', errors='backslashreplace').read()
+            data = my_open_read("/tmp/journal-wpa_supplicant.log")
             if data:
                 context.embed('text/plain', data, caption="WPA_SUP")
 
@@ -2209,7 +2212,7 @@ def after_scenario(context, scenario):
             os.system("echo '~~~~~~~~~~~~~~~~~~~~~~~~~~ MM LOG ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~' > /tmp/journal-mm.log")
             print("Attaching MM log")
             os.system("sudo journalctl -u ModemManager --no-pager -o cat %s >> /tmp/journal-mm.log" % context.log_cursor)
-            data = open("/tmp/journal-mm.log", 'r', encoding='utf-8', errors='backslashreplace').read()
+            data = my_open_read("/tmp/journal-mm.log")
             if data:
                 context.embed('text/plain', data, caption="MM")
             # Extract modem model.
@@ -2449,7 +2452,7 @@ def after_scenario(context, scenario):
             os.system("echo '~~~~~~~~~~~~~~~~~~~~~~~~~~ NM LOG ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~' > /tmp/journal-nm.log")
             os.system("sudo journalctl -all -u NetworkManager --no-pager -o cat %s >> /tmp/journal-nm.log" % context.log_cursor)
             if os.stat("/tmp/journal-nm.log").st_size < 20000000:
-                data = open("/tmp/journal-nm.log", 'r', encoding='utf-8', errors='backslashreplace').read()
+                data = my_open_read("/tmp/journal-nm.log")
                 if data:
                     context.embed('text/plain', data, caption="NM")
             else:
@@ -2464,7 +2467,7 @@ def after_scenario(context, scenario):
 
         context.log.close ()
         print("Attaching MAIN log")
-        context.embed('text/plain', open("/tmp/log_%s.html" % scenario.name, 'r', encoding='utf-8', errors='backslashreplace').read(), caption="MAIN")
+        context.embed('text/plain', my_open_read("/tmp/log_%s.html" % scenario.name), caption="MAIN")
 
         if context.crashed_step:
             print ("\n\n!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
