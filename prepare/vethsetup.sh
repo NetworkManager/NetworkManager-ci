@@ -119,6 +119,7 @@ function setup_veth_env ()
         ip link set orig-$DEV up
 
         # And set it unmanaged
+        nmcli device disconnect orig-$DEV
         nmcli device set orig-$DEV managed off
     done
 
