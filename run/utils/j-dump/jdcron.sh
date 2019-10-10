@@ -131,7 +131,7 @@ process_job() {
 		[ -n "$JOB_HEADER" ] && JDUMP_JOB_NAME="--name ${job%-upstream}" || unset JDUMP_JOB_NAME
 
 		$JDUMP_BIN $JDUMP_OPTIONS $JDUMP_JOB_NAME "$JENKINS_URL" "$JOB_FULL_NAME" >> "$LOG_FILE" 2>&1
-		index_html_add_entry "$JOB_FULL_NAME" "${job%-upstream}" "$(grep -m 1 '<tr><td>' $LOG_FILE | grep -o SUCCESS )"
+		index_html_add_entry "$JOB_FULL_NAME" "${job%-upstream}" "$(grep -m 1 '<tr><td>' ${JOB_FULL_NAME}_builds.html | grep -o SUCCESS )"
 	done
 	index_html_ci_end
 }
