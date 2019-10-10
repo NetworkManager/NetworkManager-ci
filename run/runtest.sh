@@ -17,8 +17,20 @@ esac
 
 logger -t $0 "Running $RUNTEST_TYPE test $1"
 
-export PATH=$PATH:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/root/bin
 DIR=$(pwd)
+
+[ -n "$PATH" ] && PATH=":$PATH"
+export PATH="$DIR/run-path/bin$PATH:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/root/bin"
+
+
+if [ -n "$NMCLI_WRAPPER" ]; then
+    [ -x "$DIR/run-path/nmcli.$NMCLI_WRAPPER" ] || die "invalid \$NMCLI_WRAPPER \"$NMCLI_WRAPPER\": file \"$DIR/run-path/nmcli.$NMCLI_WRAPPER\" is not valid"
+    ln -snf "$DIR/run-path/nmcli.$NMCLI_WRAPPER" "$DIR/run-path/bin/nmcli"
+elif ! [ -z "${NMCLI_WRAPPER+x}" ] then
+    rm -f "$DIR/run-path/bin/nmcli"
+fi
+ls -la "$DIR/run-path/bin/"
+
 
 test "$RUNTEST_TYPE" == nmtui || . $DIR/nmcli/gsm_hub.sh
 . $DIR/prepare/envsetup.sh

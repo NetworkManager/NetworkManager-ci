@@ -1,0 +1,18 @@
+#!/bin/bash
+
+DIRNAME="${0%/*}"
+
+IFS=: PATH0=($PATH)
+PATH1=()
+for p in "${PATH0[@]}"; do
+    if [ "$p" != "$DIRNAME" ]; then
+        PATH1+=("$p")
+    fi
+done
+IFS=: PATH="${PATH1[*]}"
+
+if [ -z "${G_DEBUG+x}" ]; then
+    export G_DEBUG=fatal-warnings
+fi
+
+exec nmcli "$@"
