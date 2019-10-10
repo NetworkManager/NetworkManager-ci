@@ -133,8 +133,8 @@ Feature: nmcli - dns
 
 
     @rhbz1512966
-    @ver+=1.11.3
-    @con_dns_remove @eth0 @dns_systemd_resolved @rhelver-=0
+    @ver+=1.11.3 @rhelver-=0 @fedoraver+=31
+    @con_dns_remove @eth0 @dns_systemd_resolved
     @dns_resolved_no_default
     Scenario: NM - dns - two connections without default route
 
