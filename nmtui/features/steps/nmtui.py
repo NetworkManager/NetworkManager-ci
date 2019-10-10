@@ -205,7 +205,7 @@ def back_to_con_list(context):
 
 @step(u'Come back to main screen')
 def back_to_main(context):
-    current_nm_version = "".join(check_output("""NetworkManager -V |awk 'BEGIN { FS = "." }; {printf "%03d%03d%03d", $1, $2, $3}'""", shell=True).decode('utf-8', 'backslashreplace').split('-')[0])
+    current_nm_version = "".join(check_output("""NetworkManager -V |awk 'BEGIN { FS = "." }; {printf "%03d%03d%03d", $1, $2, $3}'""", shell=True).decode('utf-8', 'ignore').split('-')[0])
     context.tui.send(keys['ESCAPE'])
     sleep(0.4)
     if current_nm_version < "001003000":

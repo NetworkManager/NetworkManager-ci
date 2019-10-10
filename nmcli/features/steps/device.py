@@ -520,7 +520,7 @@ def flag_cap_set(context, flag, n=None, device='wlan0', giveexception=True):
             org.freedesktop.DBus.Properties.Get \
             string:"org.freedesktop.NetworkManager.Device.Wireless" \
             string:"WirelessCapabilities" | grep variant | awk '{print $3}' ''' % path
-    ret = int(check_output(cmd, shell=True).decode('utf-8', 'backslashreplace').strip())
+    ret = int(check_output(cmd, shell=True).decode('utf-8', 'ignore').strip())
 
     if n is None:
         if wcaps[flag] & ret == wcaps[flag]:

@@ -33,7 +33,7 @@ if "NetworkManager" in sys.argv[2] and "Test" in sys.argv[2]:
 else:
     test_name = sys.argv[2]
 
-raw_tags = check_output ("cat %s/features/*.feature | awk -f tmp/get_tags.awk | grep %s" %(sys.argv[1], test_name), shell=True).decode('utf-8', 'backslashreplace').strip("\n")
+raw_tags = check_output ("cat %s/features/*.feature | awk -f tmp/get_tags.awk | grep %s" %(sys.argv[1], test_name), shell=True).decode('utf-8', 'ignore').strip("\n")
 tests_tags = raw_tags.split('\n')
 
 # compare two version lists, return True, iff tag does not violate current_version

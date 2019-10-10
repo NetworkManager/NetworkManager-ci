@@ -11,7 +11,7 @@ from subprocess import check_output
 
 def run(context, command, *a, **kw):
     try:
-        output = subprocess.check_output(command, shell=True, stderr=subprocess.STDOUT, *a, **kw).decode('utf-8', 'backslashreplace')
+        output = subprocess.check_output(command, shell=True, stderr=subprocess.STDOUT, *a, **kw).decode('utf-8', 'ignore')
         returncode = 0
         exception = None
     except subprocess.CalledProcessError as e:
