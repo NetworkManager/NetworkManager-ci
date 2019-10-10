@@ -144,18 +144,12 @@ class Job:
                     l_failures = '<td>%d</td>' % n_failures
 
 
-            route_to_artifacts = ''
-            if 'centos' in build.url:
-                route_to_artifacts = 'artifact/results/'
-            if 'desktopqe' in build.url:
-                route_to_artifacts = 'artifact/artifacts/'
-
             fd.write(
                 '               <tr>'
-                '<td><a target="_blank" href="%s/%s">%s</a></td>'
+                '<td><a target="_blank" href="%s">%s</a></td>'
                 '<td>%s</td>'
                 '%s%s</tr>\n' %
-                (build.url, route_to_artifacts, build.id,
+                (artifacts_url(build.url), build.id,
                  build.timestamp.ctime(),
                  l_build, l_failures))
         fd.write(
@@ -210,7 +204,8 @@ class Build:
 
             # no results but failure: check if we have at least the artifacts
             if self.status == 'FAILURE':
-                for artifact in self.build.get_artifact_dict():
+                artifacts = self.build.get_artifact_dict()
+                for artifact in artifacts:
                     split_artifact = artifact.split("FAIL")
                     if len(split_artifact) < 2:
                         continue
@@ -227,7 +222,7 @@ class Build:
                         # no .html suffix?? not sure, skip...
                         eprint("No .html suffix in artifact '{:s}': skip...".format(artifact))
                         continue
-                    failure = Failure.add_failure(split_artifact[0], self)
+                    failure = Failure.add_failure(split_artifact[0], self, artifacts[artifact])
                     self.append_failure(failure)
                 # we got the artifacts, so we are done
                 if len(self.failures):
@@ -282,12 +277,14 @@ class Failure:
     failures = []
 
     @classmethod
-    def add_failure(cls, name, job):
+    def add_failure(cls, name, job, artifact=None):
         for failure in cls.failures:
             if failure.name == name:
                 failure.append_job(job)
+                if artifact:
+                    failure.append_artifact(artifact)
                 return failure
-        failure = Failure(name, job)
+        failure = Failure(name, job, artifact)
         cls.failures.append(failure)
         return failure
 
@@ -378,13 +375,21 @@ class Failure:
         for failure in cls.failures:
             fd.write('           <hr>\n\t<h3 id="%s">%s</h3>\n' % (failure.name, failure.name))
             fd.write('           <p>\n')
-            for build in failure.builds:
-                fd.write('          <a target="_blank" href="%s">%d</a><br>\n' % (build.url, build.id))
+            builds = failure.builds
+            for artifact in failure.artifacts:
+                build=artifact.build
+                build_id=build.get_number()
+                fd.write('          <a target="_blank" href="%s">report</a> from <a href="%s">#%d</a><br>\n' % (artifact.url, artifacts_url(build.baseurl), build_id))
+                # remove artifact build from builds
+                builds = [ build for build in builds if build.id != build_id]
+            # process builds with no artifacts
+            for build in builds:
+                fd.write('          <a target="_blank" href="%s">#%d</a><br>\n' % (artifacts_url(build.url), build.id))
             fd.write('           </p>\n')
 
         fd.close()
 
-    def __init__(self, name, build=None):
+    def __init__(self, name, build=None, artifact=None):
         self.name = name
         self.permanent = True
         self.last = -1
@@ -394,9 +399,15 @@ class Failure:
         self.builds = []
         if build:
             self.builds.append(build)
+        self.artifacts = []
+        if artifact:
+            self.artifacts.append(artifact)
 
     def append_job(self, job):
         self.builds.append(job)
+
+    def append_artifact(self, artifact):
+        self.artifacts.append(artifact)
 
     def post_process(self, build_list):
         if not self.builds:
@@ -424,6 +435,12 @@ class Failure:
 
         # TODO: search bugzilla
 
+def artifacts_url(job_url):
+    if 'centos' in job_url:
+        return job_url + "/artifact/results/"
+    if 'desktopqe' in job_url:
+        return job_url + "/artifact/artifacts/'"
+    return job_url
 
 def save(pname, dname, data):
     fname = "%s_%s.bk" % (pname, dname)

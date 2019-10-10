@@ -93,8 +93,12 @@ index_html_ci_end() {
 index_html_add_entry() {
 	ref="$1_builds.html"
 	name="$2"
-
-	echo "      <li><a href=${ref} target=\"iframe_res\">${name}</a></li>" >> $HTML_INDEX_FILE
+	if [ "$3" == "SUCCESS" ]; then
+	    style="color:green;"
+	else
+	    style="color:red;"
+	fi
+	echo "      <li><a style=\"${style}\" href=${ref} target=\"iframe_res\">${name}</a></li>" >> $HTML_INDEX_FILE
 }
 
 index_html_trailing() {
@@ -127,7 +131,7 @@ process_job() {
 		[ -n "$JOB_HEADER" ] && JDUMP_JOB_NAME="--name ${job%-upstream}" || unset JDUMP_JOB_NAME
 
 		$JDUMP_BIN $JDUMP_OPTIONS $JDUMP_JOB_NAME "$JENKINS_URL" "$JOB_FULL_NAME" >> "$LOG_FILE" 2>&1
-		index_html_add_entry "$JOB_FULL_NAME" "${job%-upstream}"
+		index_html_add_entry "$JOB_FULL_NAME" "${job%-upstream}" "$(grep -m 1 '<tr><td>' $LOG_FILE | grep -o SUCCESS )"
 	done
 	index_html_ci_end
 }
@@ -152,4 +156,3 @@ index_html_trailing
 
 [ "$?" = "0" ] && log "*** Success ***"
 log "@@-------------------------------------------------------------@@"
-
