@@ -193,8 +193,17 @@ class Build:
         self.timestamp = self.build.get_timestamp()
         self.failures = []
 
+        if self.status == 'FAILURE' or self.status == 'NOT_BUILT' or self.status == 'ABORTED':
+            self.failed = True
+
         if self.build.has_resultset():
             results = self.build.get_resultset()
+            for result in results.iteritems():
+                # item states: 'PASSED', 'SKIPPED', 'REGRESSION', 'FAILED', ??
+                if result[1].status == 'REGRESSION' or result[1].status == 'FAILED':
+                    failure = Failure.add_failure(result[1].name, self)
+                    self.append_failure(failure)
+            self.name = results.name
         else:
             if not self.status:
                 if self.build.is_running():
@@ -202,43 +211,32 @@ class Build:
                 else:
                     raise BuildCreationError("build has no status nor results")
 
-            # no results but failure: check if we have at least the artifacts
-            if self.status == 'FAILURE':
-                artifacts = self.build.get_artifact_dict()
-                for artifact in artifacts:
-                    split_artifact = artifact.split("FAIL")
-                    if len(split_artifact) < 2:
-                        continue
-                    # let's check that the failure name in the artifact is as expected or skip...
-                    # something like "FAIL-Test252_ipv6_honor_ip_order.html" (We already stripped "FAIL")
-                    split_artifact = split_artifact[1].split("_", 1)
-                    if len(split_artifact) != 2:
-                        # what happened??
-                        eprint("Unexpected artifact '{:s}': skip...".format(artifact))
-                        continue
+        if self.status != 'SUCCESS':
+            artifacts = self.build.get_artifact_dict()
+            artifacts_fails = [ art for art in artifacts.keys() if "FAIL" in art ]
+            for artifact in artifacts_fails:
+                split_artifact = artifact.split("FAIL")
+                if len(split_artifact) < 2:
+                    continue
+                # let's check that the failure name in the artifact is as expected or skip...
+                # something like "FAIL-Test252_ipv6_honor_ip_order.html" (We already stripped "FAIL")
+                # or "FAIL_report_NetworkManager-ci_Test252_ipv6_honor_ip_order.html"
+                split_artifact = split_artifact[1].replace('_report_NetworkManager-ci_','')
+                split_artifact = split_artifact.split("_", 1)
+                if len(split_artifact) != 2:
+                    # what happened??
+                    eprint("Unexpected artifact '{:s}': skip...".format(artifact))
+                    continue
 
-                    split_artifact = split_artifact[1].split(".")
-                    if len(split_artifact) != 2:
-                        # no .html suffix?? not sure, skip...
-                        eprint("No .html suffix in artifact '{:s}': skip...".format(artifact))
-                        continue
-                    failure = Failure.add_failure(split_artifact[0], self, artifacts[artifact])
-                    self.append_failure(failure)
-                # we got the artifacts, so we are done
-                if len(self.failures):
-                    return
-
-            if self.status == 'FAILURE' or self.status == 'NOT_BUILT' or self.status == 'ABORTED':
-                self.failed = True
-            return
-
-        self.name = results.name
-
-        for result in results.iteritems():
-            # item states: 'PASSED', 'SKIPPED', 'REGRESSION', 'FAILED', ??
-            if result[1].status == 'REGRESSION' or result[1].status == 'FAILED':
-                failure = Failure.add_failure(result[1].name, self)
+                split_artifact = split_artifact[1].split(".")
+                if len(split_artifact) != 2:
+                    # no .html suffix?? not sure, skip...
+                    eprint("No .html suffix in artifact '{:s}': skip...".format(artifact))
+                    continue
+                failure = Failure.add_failure(split_artifact[0], self, artifacts[artifact])
                 self.append_failure(failure)
+
+
 
     def append_failure(self, failure):
         self.failures.append(failure)
@@ -439,7 +437,7 @@ def artifacts_url(job_url):
     if 'centos' in job_url:
         return job_url + "/artifact/results/"
     if 'desktopqe' in job_url:
-        return job_url + "/artifact/artifacts/'"
+        return job_url + "/artifact/artifacts/"
     return job_url
 
 def save(pname, dname, data):
