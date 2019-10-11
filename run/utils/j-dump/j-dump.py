@@ -213,6 +213,9 @@ class Build:
 
         if self.status != 'SUCCESS':
             artifacts = self.build.get_artifact_dict()
+            # if trere is small number of artifatcs, the build failed
+            if len(artifacts) < 10:
+                self.failed = True
             artifacts_fails = [ art for art in artifacts.keys() if "FAIL" in art ]
             for artifact in artifacts_fails:
                 split_artifact = artifact.split("FAIL")

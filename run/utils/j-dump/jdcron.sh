@@ -93,12 +93,14 @@ index_html_ci_end() {
 index_html_add_entry() {
 	ref="$1_builds.html"
 	name="$2"
-	if [ "$3" == "SUCCESS" ]; then
-	    style="color:green; border:1px solid green; background-color:#ffddff;"
-	else
-	    style="color:red;   border:1px solid red;   background-color:#ddffff;"
+    if [ "$3" == "green" ]; then
+        style="color:green; border:1px solid green; background-color:#ddffdd;"
+    elif [ "$3" == "black" ]; then
+        style="color:black; border:1px solid black; background-color:#dddddd;"
+    else
+        style="color:red;   border:1px solid red;   background-color:#ffdddd;"
 	fi
-	echo "      <li style=\"padding:2px 0;\"><a style=\"border-radius:2px; padding:0 2px; ${style}\" href=${ref} target=\"iframe_res\">${name}</a></li>" >> $HTML_INDEX_FILE
+	echo "      <li style=\"padding:2px 0;\"><a style=\"text-decoration:none; border-radius:2px; padding:0 3px; ${style}\" href=${ref} target=\"iframe_res\">${name}</a></li>" >> $HTML_INDEX_FILE
 }
 
 index_html_trailing() {
@@ -131,7 +133,7 @@ process_job() {
 		[ -n "$JOB_HEADER" ] && JDUMP_JOB_NAME="--name ${job%-upstream}" || unset JDUMP_JOB_NAME
 
 		$JDUMP_BIN $JDUMP_OPTIONS $JDUMP_JOB_NAME "$JENKINS_URL" "$JOB_FULL_NAME" >> "$LOG_FILE" 2>&1
-		index_html_add_entry "$JOB_FULL_NAME" "${job%-upstream}" "$(grep -m 1 '<tr><td>' ${JOB_FULL_NAME}_builds.html | grep -o SUCCESS )"
+		index_html_add_entry "$JOB_FULL_NAME" "${job%-upstream}" "$(grep -m 1 '<tr><td>' ${JOB_FULL_NAME}_builds.html | grep -o -e green -e black )"
 	done
 	index_html_ci_end
 }
