@@ -1202,10 +1202,6 @@ testmapper:
     - insufficient_perms_connection_up:
         feature: general
         tags: gate
-    - dns_none:
-        feature: general
-    - remove_dns_none:
-        feature: general
     - device_connect:
         feature: general
         tags: gate
@@ -1765,6 +1761,10 @@ testmapper:
     - dns_dnsmasq_kill_ratelimit:
         feature: dns
     - dns_multiple_options:
+        feature: dns
+    - dns_none:
+        feature: dns
+    - remove_dns_none:
         feature: dns
     - nmtui_general_exit_nmtui:
         run: nmtui/./runtest.sh nmtui_general_exit_nmtui

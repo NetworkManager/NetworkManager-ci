@@ -530,3 +530,34 @@ Feature: nmcli - dns
     Then "options[^\n]*attempts:2" is visible with command "cat /etc/resolv.conf" in "5" seconds
      And "options[^\n]*timeout:5" is visible with command "cat /etc/resolv.conf" in "5" seconds
      And "options[^\n]*ndots:1" is visible with command "cat /etc/resolv.conf" in "5" seconds
+
+
+    @restart @remove_dns_clean
+    @dns_none
+    Scenario: NM - dns none setting
+    * Execute "printf '[main]\ndns=none\n' | sudo tee /etc/NetworkManager/conf.d/90-test-dns-none.conf"
+    * Restart NM
+    * Execute "echo 'nameserver 1.2.3.4' | sudo bash -c 'cat > /etc/resolv.conf'"
+    * Execute "systemctl mask sendmail"
+    * Bring "up" connection "testeth0"
+    * Execute "systemctl unmask sendmail"
+    Then "nameserver 1.2.3.4" is visible with command "cat /etc/resolv.conf"
+    Then "nameserver 1[0-9]" is not visible with command "cat /etc/resolv.conf"
+
+
+    @restart @remove_dns_clean
+    @remove_dns_none
+    Scenario: NM - dns  none removal
+    * Execute "printf '[main]\ndns=none\n' | sudo tee /etc/NetworkManager/conf.d/90-test-dns-none.conf"
+    * Restart NM
+    * Execute "echo 'nameserver 1.2.3.4' | sudo bash -c 'cat > /etc/resolv.conf'"
+    * Execute "systemctl mask sendmail"
+    * Bring "up" connection "testeth0"
+    * Execute "systemctl unmask sendmail"
+    When "nameserver 1[0-9]" is not visible with command "cat /etc/resolv.conf"
+    When "nameserver 1.2.3.4" is visible with command "cat /etc/resolv.conf"
+    * Execute "sudo rm -rf /etc/NetworkManager/conf.d/90-test-dns-none.conf"
+    * Restart NM
+    * Bring "up" connection "testeth0"
+    Then "nameserver 1.2.3.4" is not visible with command "cat /etc/resolv.conf"
+    Then "nameserver 1[0-9]" is visible with command "cat /etc/resolv.conf" in "45" seconds

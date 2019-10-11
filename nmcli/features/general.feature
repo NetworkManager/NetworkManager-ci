@@ -480,37 +480,6 @@ Feature: nmcli - general
     Then "nm-bridge" is visible with command "nmcli connection show bridge"
 
 
-    @restart @remove_dns_clean
-    @dns_none
-    Scenario: NM - dns none setting
-    * Execute "printf '[main]\ndns=none\n' | sudo tee /etc/NetworkManager/conf.d/90-test-dns-none.conf"
-    * Restart NM
-    * Execute "echo 'nameserver 1.2.3.4' | sudo bash -c 'cat > /etc/resolv.conf'"
-    * Execute "systemctl mask sendmail"
-    * Bring "up" connection "testeth0"
-    * Execute "systemctl unmask sendmail"
-    Then "nameserver 1.2.3.4" is visible with command "cat /etc/resolv.conf"
-    Then "nameserver 1[0-9]" is not visible with command "cat /etc/resolv.conf"
-
-
-    @restart @remove_dns_clean
-    @remove_dns_none
-    Scenario: NM - dns  none removal
-    * Execute "printf '[main]\ndns=none\n' | sudo tee /etc/NetworkManager/conf.d/90-test-dns-none.conf"
-    * Restart NM
-    * Execute "echo 'nameserver 1.2.3.4' | sudo bash -c 'cat > /etc/resolv.conf'"
-    * Execute "systemctl mask sendmail"
-    * Bring "up" connection "testeth0"
-    * Execute "systemctl unmask sendmail"
-    When "nameserver 1[0-9]" is not visible with command "cat /etc/resolv.conf"
-    When "nameserver 1.2.3.4" is visible with command "cat /etc/resolv.conf"
-    * Execute "sudo rm -rf /etc/NetworkManager/conf.d/90-test-dns-none.conf"
-    * Restart NM
-    * Bring "up" connection "testeth0"
-    Then "nameserver 1.2.3.4" is not visible with command "cat /etc/resolv.conf"
-    Then "nameserver 1[0-9]" is visible with command "cat /etc/resolv.conf" in "45" seconds
-
-
     @rhbz1136836 @rhbz1173632
     @restart
     @connection_up_after_journald_restart
