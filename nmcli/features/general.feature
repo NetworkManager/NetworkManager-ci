@@ -62,9 +62,7 @@ Feature: nmcli - general
     @remove_fedora_connection_checker
     @general_state_connected
     Scenario: nmcli - general - state connected
-    * Note the output of "nmcli -t -f STATE general" as value "1"
-    * Note the output of "echo connected" as value "2"
-    Then Check noted values "1" and "2" are the same
+    Then "connected" is visible with command "nmcli -t -f STATE general"
 
 
     @restore_hostname
@@ -159,39 +157,32 @@ Feature: nmcli - general
      And "localhost" is visible with command "hostnamectl --transient" for full "20" seconds
 
 
-    @restart @veth
+    @restart @newveth
     @general_state_disconnected
     Scenario: nmcli - general - state disconnected
     * "disconnect" all " connected" devices
-    * Note the output of "nmcli -t -f STATE general" as value "1"
-    * Note the output of "echo disconnected" as value "2"
-    Then Check noted values "1" and "2" are the same
+    Then "disconnected" is visible with command "nmcli -t -f STATE general"
     * Bring up connection "testeth0"
 
 
-    @veth
+    @newveth @networking_on
     @general_state_asleep
     Scenario: nmcli - general - state asleep
     * Execute "nmcli networking off"
-    * Note the output of "nmcli -t -f STATE general" as value "1"
-    * Note the output of "echo asleep" as value "2"
-    Then Check noted values "1" and "2" are the same
-    Then Execute "nmcli networking on"
+    Then "asleep" is visible with command "nmcli -t -f STATE general"
+    * Execute "nmcli networking on"
 
 
     @general_state_running
     Scenario: nmcli - general - running
-    * Note the output of "nmcli -t -f RUNNING general" as value "1"
-    * Note the output of "echo running" as value "2"
-    Then Check noted values "1" and "2" are the same
+    Then "running" is visible with command "nmcli -t -f RUNNING general"
 
 
-    @veth @restart
+    @newveth @restart
     @general_state_not_running
     Scenario: nmcli - general - not running
     * Stop NM
-    * Wait for at least "2" seconds
-    Then "NetworkManager is not running" is visible with command "nmcli general"
+    Then "NetworkManager is not running" is visible with command "nmcli general" in "5" seconds
 
 
     @rhbz1311988
@@ -245,34 +236,24 @@ Feature: nmcli - general
     @networking_on
     @general_networking_on_off
     Scenario: nmcli - general - networking
-    * Note the output of "nmcli -t -f NETWORKING general" as value "1"
-    * Note the output of "echo enabled" as value "2"
-    Then Check noted values "1" and "2" are the same
+    When "enabled" is visible with command "nmcli -t -f NETWORKING general"
     * Execute "nmcli networking off"
-    * Note the output of "nmcli -t -f NETWORKING general" as value "3"
-    * Note the output of "echo disabled" as value "4"
-    Then Check noted values "3" and "4" are the same
+    When "disabled" is visible with command "nmcli -t -f NETWORKING general"
     Then Execute "nmcli networking on"
 
 
     @networking_on
     @general_networking_enabled
     Scenario: nmcli - networking - status - enabled
-    * Note the output of "nmcli networking" as value "1"
-    * Note the output of "echo enabled" as value "2"
-    Then Check noted values "1" and "2" are the same
+    Then "enabled" is visible with command "nmcli networking"
 
 
     @networking_on
     @general_networking_disabled
     Scenario: nmcli - networking - status - disabled
-    * Note the output of "nmcli networking" as value "1"
-    * Note the output of "echo enabled" as value "2"
-    * Check noted values "1" and "2" are the same
+    When "enabled" is visible with command "nmcli networking"
     * Execute "nmcli networking off"
-    * Note the output of "nmcli networking" as value "3"
-    * Note the output of "echo disabled" as value "4"
-    Then Check noted values "3" and "4" are the same
+    Then "disabled" is visible with command "nmcli networking"
     Then Execute "nmcli networking on"
 
 
@@ -307,13 +288,7 @@ Feature: nmcli - general
     @con_general_remove
     @nmcli_device_show_ip
     Scenario: nmcli - device - show - check ip
-    * Add a new connection of type "ethernet" and options "ifname eth8 con-name con_general autoconnect no"
-    * Open editor for connection "con_general"
-    * Set a property named "ipv4.method" to "manual" in editor
-    * Set a property named "ipv4.addresses" to "192.168.1.10/24" in editor
-    * Save in editor
-    * Check value saved message showed in editor
-    * Quit editor
+    * Add a new connection of type "ethernet" and options "ifname eth8 con-name con_general autoconnect no ipv4.method manual ipv4.addresses 192.168.1.10/24"
     * Bring up connection "con_general"
     Then "IP4.ADDRESS.*192.168.1.10/24" is visible with command "nmcli device show eth8"
 
@@ -350,43 +325,14 @@ Feature: nmcli - general
 
 
     @rhbz1032717
-    @ver+=1.2.0 @ver-=1.7.1
-    @con_general_remove @teardown_testveth @dhcpd
-    @device_reapply_routes
-    Scenario: NM - device - reapply just routes
-    * Prepare simulated test "testG" device
-    * Add connection type "ethernet" named "con_general" for device "testG"
-    * Bring "up" connection "con_general"
-    * Open editor for connection "con_general"
-    * Submit "set ipv4.routes 192.168.5.0/24 192.168.99.111 1" in editor
-    * Submit "set ipv4.route-metric 21" in editor
-    * Submit "set ipv6.method static" in editor
-    * Submit "set ipv6.addresses 2000::2/126" in editor
-    * Submit "set ipv6.routes 1010::1/128 2000::1 1" in editor
-    * Save in editor
-    * Execute "ip netns exec testG_ns kill -SIGSTOP $(cat /tmp/testG_ns.pid)"
-    * Execute "nmcli device reapply testG"
-    Then "1010::1 via 2000::1 dev testG\s+proto static\s+metric 1" is visible with command "ip -6 route" in "5" seconds
-     And "2000::/126 dev testG\s+proto kernel\s+metric 256" is visible with command "ip -6 route"
-     And "192.168.5.0/24 via 192.168.99.111 dev testG\s+proto static\s+metric" is visible with command "ip route"
-     And "routers = 192.168.99.1" is visible with command "nmcli con show con_general"
-     And "default via 192.168.99.1 dev testG" is visible with command "ip r"
-
-
     @ver+=1.7.1 @ver-=1.10.1
     @con_general_remove @teardown_testveth @dhcpd
     @device_reapply_routes
     Scenario: NM - device - reapply just routes
     * Prepare simulated test "testG" device
     * Add connection type "ethernet" named "con_general" for device "testG"
-    * Bring "up" connection "con_general"
-    * Open editor for connection "con_general"
-    * Submit "set ipv4.routes 192.168.5.0/24 192.168.99.111 1" in editor
-    * Submit "set ipv4.route-metric 21" in editor
-    * Submit "set ipv6.method static" in editor
-    * Submit "set ipv6.addresses 2000::2/126" in editor
-    * Submit "set ipv6.routes 1010::1/128 2000::1 1" in editor
-    * Save in editor
+    When "con_general" is visible with command "nmcli con show -a"
+    * Modify connection "con_general" changing options "ipv4.routes '192.168.5.0/24 192.168.99.111 1' ipv4.route-metric 21 ipv6.method static ipv6.addresses 2000::2/126 ipv6.routes '1010::1/128 2000::1 1'"
     * Execute "nmcli device reapply testG"
     Then "1010::1 via 2000::1 dev testG\s+proto static\s+metric 1" is visible with command "ip -6 route" in "5" seconds
      # metric 256 is valid for @ver-=1.9.1 only, please delete of too old
@@ -396,21 +342,15 @@ Feature: nmcli - general
      And "default via 192.168.99.1 dev testG" is visible with command "ip r"
 
 
+    @rhbz1032717
     @ver+=1.10.2  @ver-1.11
     @con_general_remove @teardown_testveth @dhcpd
     @device_reapply_routes
     Scenario: NM - device - reapply just routes
     * Prepare simulated test "testG" device
-    * Add a new connection of type "ethernet" and options "ifname testG con-name con_general autoconnect no ipv4.may-fail no ipv6.method ignore"
-    * Bring "up" connection "con_general"
-    * Open editor for connection "con_general"
-    * Submit "set ipv4.routes 192.168.5.0/24 192.168.99.111 1" in editor
-    * Submit "set ipv4.route-metric 21" in editor
-    * Submit "set ipv6.method static" in editor
-    * Submit "set ipv6.addresses 2000::2/126" in editor
-    * Submit "set ipv6.routes 1010::1/128 2000::1 1" in editor
-    * Save in editor
-    * Quit editor
+    * Add a new connection of type "ethernet" and options "ifname testG con-name con_general ipv4.may-fail no ipv6.method ignore"
+    When "con_general" is visible with command "nmcli con show -a"
+    * Modify connection "con_general" changing options "ipv4.routes '192.168.5.0/24 192.168.99.111 1' ipv4.route-metric 21 ipv6.method static ipv6.addresses 2000::2/126 ipv6.routes '1010::1/128 2000::1 1'"
     * Execute "nmcli device reapply testG"
     Then "1010::1 via 2000::1 dev testG\s+proto static\s+metric 1" is visible with command "ip -6 route" in "5" seconds
      And "2000::/126 dev testG\s+proto kernel\s+metric 1" is visible with command "ip -6 route"
@@ -424,16 +364,9 @@ Feature: nmcli - general
     @device_reapply_routes
     Scenario: NM - device - reapply just routes
     * Prepare simulated test "testG" device
-    * Add a new connection of type "ethernet" and options "ifname testG con-name con_general autoconnect no"
-    * Bring "up" connection "con_general"
-    * Open editor for connection "con_general"
-    * Submit "set ipv4.routes 192.168.5.0/24 192.168.99.111 1" in editor
-    * Submit "set ipv4.route-metric 21" in editor
-    * Submit "set ipv6.method static" in editor
-    * Submit "set ipv6.addresses 2000::2/126" in editor
-    * Submit "set ipv6.routes 1010::1/128 2000::1 1" in editor
-    * Save in editor
-    * Quit editor
+    * Add a new connection of type "ethernet" and options "ifname testG con-name con_general"
+    When "con_general" is visible with command "nmcli con show -a"
+    * Modify connection "con_general" changing options "ipv4.routes '192.168.5.0/24 192.168.99.111 1' ipv4.route-metric 21 ipv6.method static ipv6.addresses 2000::2/126 ipv6.routes '1010::1/128 2000::1 1'"
     * Execute "nmcli device reapply testG"
     Then "1010::1 via 2000::1 dev testG\s+proto static\s+metric 1" is visible with command "ip -6 route" in "5" seconds
      And "2000::/126 dev testG\s+proto kernel\s+metric 1" is visible with command "ip -6 route"
@@ -450,18 +383,8 @@ Feature: nmcli - general
     Scenario: NM - device - reapply even address and gate
     * Prepare simulated test "testG" device
     * Add a new connection of type "ethernet" and options "ifname testG con-name con_general 802-3-ethernet.mtu 1460"
-    * Bring "up" connection "con_general"
-    * Open editor for connection "con_general"
-    * Submit "set ipv4.method static" in editor
-    * Submit "set 802-3-ethernet.mtu 9000" in editor
-    * Submit "set ipv4.addresses 192.168.3.10/24" in editor
-    * Submit "set ipv4.gateway 192.168.4.1" in editor
-    * Submit "set ipv4.routes 192.168.5.0/24 192.168.3.11 1" in editor
-    * Submit "set ipv4.route-metric 21" in editor
-    * Submit "set ipv6.method static" in editor
-    * Submit "set ipv6.addresses 2000::2/126" in editor
-    * Submit "set ipv6.routes 1010::1/128 2000::1 1" in editor
-    * Save in editor
+    When "con_general" is visible with command "nmcli con show -a"
+    * Modify connection "con_general" changing options "ipv4.method static 802-3-ethernet.mtu 9000 ipv4.addresses 192.168.3.10/24 ipv4.gateway 192.168.4.1 ipv4.routes '192.168.5.0/24 192.168.3.11 1' ipv4.route-metric 21 ipv6.method static ipv6.addresses 2000::2/126 ipv6.routes '1010::1/128 2000::1 1'"
     * Execute "ip netns exec testG_ns kill -SIGSTOP $(cat /tmp/testG_ns.pid)"
     * Execute "nmcli device reapply testG"
     Then "1010::1 via 2000::1 dev testG\s+proto static\s+metric 1" is visible with command "ip -6 route" in "5" seconds
@@ -481,17 +404,8 @@ Feature: nmcli - general
     Scenario: NM - device - reapply even address and gate
     * Prepare simulated test "testG" device
     * Add connection type "ethernet" named "con_general" for device "testG"
-    * Bring "up" connection "con_general"
-    * Open editor for connection "con_general"
-    * Submit "set ipv4.method static" in editor
-    * Submit "set ipv4.addresses 192.168.3.10/24" in editor
-    * Submit "set ipv4.gateway 192.168.4.1" in editor
-    * Submit "set ipv4.routes 192.168.5.0/24 192.168.3.11 1" in editor
-    * Submit "set ipv4.route-metric 21" in editor
-    * Submit "set ipv6.method static" in editor
-    * Submit "set ipv6.addresses 2000::2/126" in editor
-    * Submit "set ipv6.routes 1010::1/128 2000::1 1" in editor
-    * Save in editor
+    When "con_general" is visible with command "nmcli con show -a"
+    * Modify connection "con_general" changing options "ipv4.routes '192.168.5.0/24 192.168.99.111 1' ipv4.route-metric 21 ipv6.method static ipv6.addresses 2000::2/126 ipv6.routes '1010::1/128 2000::1 1'"
     * Execute "ip netns exec testG_ns kill -SIGSTOP $(cat /tmp/testG_ns.pid)"
     * Execute "nmcli device reapply testG"
     Then "1010::1 via 2000::1 dev testG\s+proto static\s+metric 1" is visible with command "ip -6 route" in "5" seconds
@@ -504,7 +418,7 @@ Feature: nmcli - general
 
 
     @rhbz1113941
-    @veth
+    @newveth
     @device_connect_no_profile
     Scenario: nmcli - device - connect - no profile
     * Finish "nmcli connection delete id testeth9"
@@ -526,7 +440,7 @@ Feature: nmcli - general
 
 
     @rhbz1034150
-    @veth @newveth
+    @newveth
     @nmcli_device_attempt_hw_delete
     Scenario: nmcli - device - attempt to delete hw interface
     * "eth9\s+ethernet" is visible with command "nmcli device"
@@ -626,16 +540,12 @@ Feature: nmcli - general
     * Check noted values "orig_cmd" and "localh_cmd" are the same
     # Now set it to custom non-localhost value
     * Execute "echo myown.hostname > /etc/hostname"
-    * Note the output of "echo myown.hostname" as value "nonlocalh_file"
-    * Wait for at least "5" seconds
-    * Note the output of "nmcli g hostname" as value "nonlocalh_cmd"
-    # Now see that the non-locahost value has been set
-    Then Check noted values "nonlocalh_file" and "nonlocalh_cmd" are the same
+    Then "myown.hostname" is visible with command "nmcli g hostname" in "5" seconds
     # Restoring orig. hostname in after_scenario
 
 
-    @ver-=1.1.0
     @rhbz1136843
+    @ver-=1.1.0
     @nmcli_general_ignore_specified_unamanaged_devices
     Scenario: NM - general - ignore specified unmanaged devices
     * Execute "ip link add name dnt type bond"
@@ -652,21 +562,21 @@ Feature: nmcli - general
 
 
     @rhbz1136843
-    @ver+=1.1.1
+    @bond
     @nmcli_general_ignore_specified_unamanaged_devices
     Scenario: NM - general - ignore specified unmanaged devices
-    * Execute "ip link add name dnt type bond"
+    * Execute "ip link add name bond0 type bond"
     # Still unmanaged
-    * "dnt\s+bond\s+unmanaged" is visible with command "nmcli device"
-    * Execute "ip link set dev dnt up"
-    * "dnt\s+bond\s+unmanaged" is visible with command "nmcli device"
+    * "bond0\s+bond\s+unmanaged" is visible with command "nmcli device"
+    * Execute "ip link set dev bon0 up"
+    * "bond0\s+bond\s+unmanaged" is visible with command "nmcli device"
     # Add a config rule to unmanage the device
-    * Execute "echo -e \\n[keyfile]\\nunmanaged-devices=interface-name:dnt > /etc/NetworkManager/NetworkManager.conf"
+    * Execute "echo -e \\n[keyfile]\\nunmanaged-devices=interface-name:bond0 > /etc/NetworkManager/NetworkManager.conf"
     * Execute "pkill -HUP NetworkManager"
-    * Execute "ip addr add dev dnt 1.2.3.4/24"
+    * Execute "ip addr add dev bond0 1.2.3.4/24"
     * Wait for at least "5" seconds
     # Now the device should be listed as unmanaged
-    Then "dnt\s+bond\s+unmanaged" is visible with command "nmcli device"
+    Then "bond0\s+bond\s+unmanaged" is visible with command "nmcli device"
 
 
     @rhbz1371433
@@ -731,7 +641,7 @@ Feature: nmcli - general
     Then "eth9" is visible with command "nmcli con show eth8.100"
 
 
-    @ver-=1.5
+    @ver+=1.5
     @mock
     @nmcli_device_wifi_with_two_devices
     Scenario: nmcli - device - wifi show two devices
@@ -1337,24 +1247,12 @@ Feature: nmcli - general
     @con_general_remove @checkpoint_remove
     @snapshot_rollback
     Scenario: NM - general - snapshot and rollback
-    * Add connection type "ethernet" named "con_general" for device "eth8"
-    * Bring "up" connection "con_general"
-    * Add connection type "ethernet" named "con_general2" for device "eth9"
-    * Bring "up" connection "con_general2"
+    * Add a new connection of type "ethernet" and options "ifname eth8 con-name con_general"
+    * Add a new connection of type "ethernet" and options "ifname eth9 con-name con_general2"
     * Snapshot "create" for "eth8,eth9"
-    * Open editor for connection "con_general"
-    * Submit "set ipv4.method manual" in editor
-    * Submit "set ipv4.addresses 1.2.3.4/24" in editor
-    * Submit "set ipv4.gateway 1.2.3.1" in editor
-    * Save in editor
-    * Quit editor
+    * Modify connection "con_general" changing options "ipv4.method manual ipv4.addresses 1.2.3.4/24 ipv4.gateway 1.2.3.1"
     * Bring "up" connection "con_general"
-    * Open editor for connection "con_general2"
-    * Submit "set ipv4.method manual" in editor
-    * Submit "set ipv4.addresses 1.2.3.5/24" in editor
-    * Submit "set ipv4.gateway 1.2.3.1" in editor
-    * Save in editor
-    * Quit editor
+    * Modify connection "con_general2" changing options "ipv4.method manual ipv4.addresses 1.2.3.5/24 ipv4.gateway 1.2.3.1"
     * Bring "up" connection "con_general2"
     When "1.2.3.4/24" is visible with command "ip a s eth8" in "5" seconds
     When "1.2.3.5/24" is visible with command "ip a s eth9" in "5" seconds
@@ -1373,24 +1271,12 @@ Feature: nmcli - general
     @con_general_remove @checkpoint_remove
     @snapshot_rollback_all_devices
     Scenario: NM - general - snapshot and rollback all devices
-    * Add connection type "ethernet" named "con_general" for device "eth8"
-    * Bring "up" connection "con_general"
-    * Add connection type "ethernet" named "con_general2" for device "eth9"
-    * Bring "up" connection "con_general2"
+    * Add a new connection of type "ethernet" and options "ifname eth8 con-name con_general"
+    * Add a new connection of type "ethernet" and options "ifname eth9 con-name con_general2"
     * Snapshot "create" for "all"
-    * Open editor for connection "con_general"
-    * Submit "set ipv4.method manual" in editor
-    * Submit "set ipv4.addresses 1.2.3.4/24" in editor
-    * Submit "set ipv4.gateway 1.2.3.1" in editor
-    * Save in editor
-    * Quit editor
+    * Modify connection "con_general" changing options "ipv4.method manual ipv4.addresses 1.2.3.4/24 ipv4.gateway 1.2.3.1"
     * Bring "up" connection "con_general"
-    * Open editor for connection "con_general2"
-    * Submit "set ipv4.method manual" in editor
-    * Submit "set ipv4.addresses 1.2.3.5/24" in editor
-    * Submit "set ipv4.gateway 1.2.3.1" in editor
-    * Save in editor
-    * Quit editor
+    * Modify connection "con_general2" changing options "ipv4.method manual ipv4.addresses 1.2.3.5/24 ipv4.gateway 1.2.3.1"
     * Bring "up" connection "con_general2"
     When "1.2.3.4/24" is visible with command "ip a s eth8" in "5" seconds
     When "1.2.3.5/24" is visible with command "ip a s eth9" in "5" seconds
@@ -1409,24 +1295,12 @@ Feature: nmcli - general
     @con_general_remove @checkpoint_remove
     @snapshot_rollback_all_devices_with_timeout
     Scenario: NM - general - snapshot and rollback all devices with timeout
-    * Add connection type "ethernet" named "con_general" for device "eth8"
-    * Bring "up" connection "con_general"
-    * Add connection type "ethernet" named "con_general2" for device "eth9"
-    * Bring "up" connection "con_general2"
+    * Add a new connection of type "ethernet" and options "ifname eth8 con-name con_general"
+    * Add a new connection of type "ethernet" and options "ifname eth9 con-name con_general2"
     * Snapshot "create" for "all" with timeout "10"
-    * Open editor for connection "con_general"
-    * Submit "set ipv4.method manual" in editor
-    * Submit "set ipv4.addresses 1.2.3.4/24" in editor
-    * Submit "set ipv4.gateway 1.2.3.1" in editor
-    * Save in editor
-    * Quit editor
+    * Modify connection "con_general" changing options "ipv4.method manual ipv4.addresses 1.2.3.4/24 ipv4.gateway 1.2.3.1"
     * Bring "up" connection "con_general"
-    * Open editor for connection "con_general2"
-    * Submit "set ipv4.method manual" in editor
-    * Submit "set ipv4.addresses 1.2.3.5/24" in editor
-    * Submit "set ipv4.gateway 1.2.3.1" in editor
-    * Save in editor
-    * Quit editor
+    * Modify connection "con_general2" changing options "ipv4.method manual ipv4.addresses 1.2.3.5/24 ipv4.gateway 1.2.3.1"
     * Bring "up" connection "con_general2"
     When "1.2.3.4/24" is visible with command "ip a s eth8" in "5" seconds
     When "1.2.3.5/24" is visible with command "ip a s eth9" in "5" seconds
@@ -1834,24 +1708,12 @@ Feature: nmcli - general
     @con_general_remove @checkpoint_remove
     @libnm_snapshot_rollback
     Scenario: NM - general - libnm snapshot and rollback
-    * Add connection type "ethernet" named "con_general" for device "eth8"
-    * Bring "up" connection "con_general"
-    * Add connection type "ethernet" named "con_general2" for device "eth9"
-    * Bring "up" connection "con_general2"
+    * Add a new connection of type "ethernet" and options "ifname eth8 con-name con_general"
+    * Add a new connection of type "ethernet" and options "ifname eth9 con-name con_general2"
     * Execute "tmp/libnm_snapshot_checkpoint.py create 0 eth8 eth9"
-    * Open editor for connection "con_general"
-    * Submit "set ipv4.method manual" in editor
-    * Submit "set ipv4.addresses 1.2.3.4/24" in editor
-    * Submit "set ipv4.gateway 1.2.3.1" in editor
-    * Save in editor
-    * Quit editor
+    * Modify connection "con_general" changing options "ipv4.method manual ipv4.addresses 1.2.3.4/24 ipv4.gateway 1.2.3.1"
     * Bring "up" connection "con_general"
-    * Open editor for connection "con_general2"
-    * Submit "set ipv4.method manual" in editor
-    * Submit "set ipv4.addresses 1.2.3.5/24" in editor
-    * Submit "set ipv4.gateway 1.2.3.1" in editor
-    * Save in editor
-    * Quit editor
+    * Modify connection "con_general2" changing options "ipv4.method manual ipv4.addresses 1.2.3.5/24 ipv4.gateway 1.2.3.1"
     * Bring "up" connection "con_general2"
     When "1.2.3.4/24" is visible with command "ip a s eth8" in "5" seconds
     When "1.2.3.5/24" is visible with command "ip a s eth9" in "5" seconds
@@ -1870,24 +1732,12 @@ Feature: nmcli - general
     @con_general_remove @checkpoint_remove
     @libnm_snapshot_rollback_all_devices
     Scenario: NM - general - libnm snapshot and rollback all devices
-    * Add connection type "ethernet" named "con_general" for device "eth8"
-    * Bring "up" connection "con_general"
-    * Add connection type "ethernet" named "con_general2" for device "eth9"
-    * Bring "up" connection "con_general2"
+    * Add a new connection of type "ethernet" and options "ifname eth8 con-name con_general"
+    * Add a new connection of type "ethernet" and options "ifname eth9 con-name con_general2"
     * Execute "tmp/libnm_snapshot_checkpoint.py create 0"
-    * Open editor for connection "con_general"
-    * Submit "set ipv4.method manual" in editor
-    * Submit "set ipv4.addresses 1.2.3.4/24" in editor
-    * Submit "set ipv4.gateway 1.2.3.1" in editor
-    * Save in editor
-    * Quit editor
+    * Modify connection "con_general" changing options "ipv4.method manual ipv4.addresses 1.2.3.4/24 ipv4.gateway 1.2.3.1"
     * Bring "up" connection "con_general"
-    * Open editor for connection "con_general2"
-    * Submit "set ipv4.method manual" in editor
-    * Submit "set ipv4.addresses 1.2.3.5/24" in editor
-    * Submit "set ipv4.gateway 1.2.3.1" in editor
-    * Save in editor
-    * Quit editor
+    * Modify connection "con_general2" changing options "ipv4.method manual ipv4.addresses 1.2.3.5/24 ipv4.gateway 1.2.3.1"
     * Bring "up" connection "con_general2"
     When "1.2.3.4/24" is visible with command "ip a s eth8" in "5" seconds
     When "1.2.3.5/24" is visible with command "ip a s eth9" in "5" seconds
@@ -1906,24 +1756,12 @@ Feature: nmcli - general
     @con_general_remove @checkpoint_remove
     @libnm_snapshot_rollback_all_devices_with_timeout
     Scenario: NM - general - libnm snapshot and rollback all devices with timeout
-    * Add connection type "ethernet" named "con_general" for device "eth8"
-    * Bring "up" connection "con_general"
-    * Add connection type "ethernet" named "con_general2" for device "eth9"
-    * Bring "up" connection "con_general2"
+    * Add a new connection of type "ethernet" and options "ifname eth8 con-name con_general"
+    * Add a new connection of type "ethernet" and options "ifname eth9 con-name con_general2"
     * Execute "tmp/libnm_snapshot_checkpoint.py create 10"
-    * Open editor for connection "con_general"
-    * Submit "set ipv4.method manual" in editor
-    * Submit "set ipv4.addresses 1.2.3.4/24" in editor
-    * Submit "set ipv4.gateway 1.2.3.1" in editor
-    * Save in editor
-    * Quit editor
+    * Modify connection "con_general" changing options "ipv4.method manual ipv4.addresses 1.2.3.4/24 ipv4.gateway 1.2.3.1"
     * Bring "up" connection "con_general"
-    * Open editor for connection "con_general2"
-    * Submit "set ipv4.method manual" in editor
-    * Submit "set ipv4.addresses 1.2.3.5/24" in editor
-    * Submit "set ipv4.gateway 1.2.3.1" in editor
-    * Save in editor
-    * Quit editor
+    * Modify connection "con_general2" changing options "ipv4.method manual ipv4.addresses 1.2.3.5/24 ipv4.gateway 1.2.3.1"
     * Bring "up" connection "con_general2"
     When "1.2.3.4/24" is visible with command "ip a s eth8" in "5" seconds
     When "1.2.3.5/24" is visible with command "ip a s eth9" in "5" seconds
