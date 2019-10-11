@@ -199,12 +199,11 @@ install_el8_packages () {
     rm -rf /etc/NetworkManager/conf.d/99-cloud-init.conf
 
     # Install non crashing MM
-
-    dnf -4 -y update https://vbenes.fedorapeople.org/NM/ModemManager-ModemManager-1.10.4-1.el8.bz1745335.2.x86_64.rpm \
-    https://vbenes.fedorapeople.org/NM/ModemManager-ModemManager-debuginfo-1.10.4-1.el8.bz1745335.2.x86_64.rpm \
-    https://vbenes.fedorapeople.org/NM/ModemManager-ModemManager-glib-1.10.4-1.el8.bz1745335.2.x86_64.rpm \
-    https://vbenes.fedorapeople.org/NM/ModemManager-ModemManager-glib-debuginfo-1.10.4-1.el8.bz1745335.2.x86_64.rpm \
-    https://vbenes.fedorapeople.org/NM/ModemManager-ModemManager-glib-devel-1.10.4-1.el8.bz1745335.2.x86_64.rpm
+    dnf -4 -y update https://vbenes.fedorapeople.org/NM/ModemManager-1.10.4-1.el8.bz1745335.2.x86_64.rpm \
+    https://vbenes.fedorapeople.org/NM/ModemManager-debuginfo-1.10.4-1.el8.bz1745335.2.x86_64.rpm \
+    https://vbenes.fedorapeople.org/NM/ModemManager-glib-1.10.4-1.el8.bz1745335.2.x86_64.rpm \
+    https://vbenes.fedorapeople.org/NM/ModemManager-glib-debuginfo-1.10.4-1.el8.bz1745335.2.x86_64.rpm \
+    https://vbenes.fedorapeople.org/NM/ModemManager-glib-devel-1.10.4-1.el8.bz1745335.2.x86_64.rpm
 
     install_plugins_dnf
 }
