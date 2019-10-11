@@ -1360,10 +1360,10 @@ Feature: nmcli - general
     When "1.2.3.5/24" is visible with command "ip a s eth9" in "5" seconds
      And "1.2.3.1" is visible with command "ip r"
     * Snapshot "revert" for "eth8,eth9"
-    Then "192.168.100" is visible with command "ip a s eth8" in "5" seconds
-     And "192.168.100" is visible with command "ip a s eth9" in "5" seconds
+    Then "192.168.100" is visible with command "ip a s eth8" in "10" seconds
+     And "192.168.100" is visible with command "ip a s eth9" in "10" seconds
      And "1.2.3.4/24" is not visible with command "ip a s eth8"
-     And "1.2.3.5/24" is not visible with command "ip a s eth8"
+     And "1.2.3.5/24" is not visible with command "ip a s eth9"
      And "1.2.3.1" is not visible with command "ip r"
      And "192.168.100.1" is visible with command "ip r"
 
@@ -1399,7 +1399,7 @@ Feature: nmcli - general
     Then "192.168.100" is visible with command "ip a s eth8" in "5" seconds
      And "192.168.100" is visible with command "ip a s eth9" in "5" seconds
      And "1.2.3.4/24" is not visible with command "ip a s eth8"
-     And "1.2.3.5/24" is not visible with command "ip a s eth8"
+     And "1.2.3.5/24" is not visible with command "ip a s eth9"
      And "1.2.3.1" is not visible with command "ip r"
      And "192.168.100.1" is visible with command "ip r"
 
@@ -1435,7 +1435,7 @@ Feature: nmcli - general
     Then "192.168.100" is visible with command "ip a s eth8" in "5" seconds
      And "192.168.100" is visible with command "ip a s eth9" in "5" seconds
      And "1.2.3.4/24" is not visible with command "ip a s eth8"
-     And "1.2.3.5/24" is not visible with command "ip a s eth8"
+     And "1.2.3.5/24" is not visible with command "ip a s eth9"
      And "1.2.3.1" is not visible with command "ip r"
      And "192.168.100.1" is visible with command "ip r"
 
@@ -1860,7 +1860,7 @@ Feature: nmcli - general
     Then "192.168.100" is visible with command "ip a s eth8" in "45" seconds
      And "192.168.100" is visible with command "ip a s eth9" in "45" seconds
      And "1.2.3.4/24" is not visible with command "ip a s eth8"
-     And "1.2.3.5/24" is not visible with command "ip a s eth8"
+     And "1.2.3.5/24" is not visible with command "ip a s eth9"
      And "1.2.3.1" is not visible with command "ip r"
      And "192.168.100.1" is visible with command "ip r"
 
@@ -1896,7 +1896,7 @@ Feature: nmcli - general
     Then "192.168.100" is visible with command "ip a s eth8" in "45" seconds
      And "192.168.100" is visible with command "ip a s eth9" in "45" seconds
      And "1.2.3.4/24" is not visible with command "ip a s eth8"
-     And "1.2.3.5/24" is not visible with command "ip a s eth8"
+     And "1.2.3.5/24" is not visible with command "ip a s eth9"
      And "1.2.3.1" is not visible with command "ip r"
      And "192.168.100.1" is visible with command "ip r"
 
@@ -1932,7 +1932,7 @@ Feature: nmcli - general
     Then "192.168.100" is visible with command "ip a s eth8" in "45" seconds
      And "192.168.100" is visible with command "ip a s eth9" in "45" seconds
      And "1.2.3.4/24" is not visible with command "ip a s eth8"
-     And "1.2.3.5/24" is not visible with command "ip a s eth8"
+     And "1.2.3.5/24" is not visible with command "ip a s eth9"
      And "1.2.3.1" is not visible with command "ip r"
      And "192.168.100.1" is visible with command "ip r"
 
