@@ -82,7 +82,7 @@ index_html_ci_begin() {
 	ci_nick="$1"
 
 	echo -e "        <h2>${ci_nick}</h2>\n" \
-	        '        <ul>\n' \
+	        '        <ul style="list-style-type: none;">\n' \
 	>> $HTML_INDEX_FILE
 }
 
@@ -94,11 +94,11 @@ index_html_add_entry() {
 	ref="$1_builds.html"
 	name="$2"
 	if [ "$3" == "SUCCESS" ]; then
-	    style="color:green;"
+	    style="color:green; border:1px solid green; background-color:#ffddff;"
 	else
-	    style="color:red;"
+	    style="color:red;   border:1px solid red;   background-color:#ddffff;"
 	fi
-	echo "      <li><a style=\"${style}\" href=${ref} target=\"iframe_res\">${name}</a></li>" >> $HTML_INDEX_FILE
+	echo "      <li style=\"padding:2px 0;\"><a style=\"border-radius:2px; padding:0 2px; ${style}\" href=${ref} target=\"iframe_res\">${name}</a></li>" >> $HTML_INDEX_FILE
 }
 
 index_html_trailing() {
