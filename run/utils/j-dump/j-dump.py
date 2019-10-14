@@ -135,7 +135,7 @@ class Job:
                     l_build = "<td>"
                 l_build += '%s</td>' % build.status
 
-                n_failures = len(build.failures)
+                n_failures = len(set(build.failures))
                 if n_failures > 9:
                     l_failures = '<td style="background:red">%d</td>' % n_failures
                 elif n_failures > 2:
@@ -246,7 +246,7 @@ class Build:
 
 
 def failure_number(failure):
-    return len(failure.builds)
+    return len(set(failure.builds))
 
 
 def failure_last(failure):
@@ -366,7 +366,7 @@ class Failure:
                 '</tr>\n' % (failure.name, failure.name,
                              l_perm,
                              l_last,
-                             len(failure.builds),
+                             len(set(failure.builds)),
                              failure.score,
                              failure.bugzilla))
 
@@ -429,7 +429,7 @@ class Failure:
                     last_failed = False
                     last_failed_switches += 1
 
-        if last_failed_switches > 2 or len(self.builds) == 1 and self.last:
+        if last_failed_switches > 2 or len(set(self.builds)) == 1 and self.last:
             self.permanent = False
         else:
             self.permanent = True
