@@ -101,7 +101,10 @@ Feature: nmcli: gsm
      And "mtu 1500" is visible with command "nmcli |grep gsm"
     * Execute "nmcli con modify gsm gsm.mtu 1600"
     * Bring "down" connection "gsm"
-    * Run child "sh prepare/gsm_sim.sh teardown; sleep 2; sh prepare/gsm_sim.sh modemu"
+    * Wait for at least "2" seconds
+    * Execute "sh prepare/gsm_sim.sh teardown"
+    * Wait for at least "2" seconds
+    * Run child "sh prepare/gsm_sim.sh modemu"
     When "gsm" is visible with command "nmcli device status | grep -v unmanaged" in "60" seconds
     * Bring "up" connection "gsm"
     When "GENERAL.STATE:.*activated" is visible with command "nmcli con show gsm" in "60" seconds
@@ -121,7 +124,10 @@ Feature: nmcli: gsm
     And "proto kernel scope" is visible with command "ip r |grep 700"
     * Execute "nmcli con modify gsm ipv4.route-metric 120"
     * Bring "down" connection "gsm"
-    * Run child "sh prepare/gsm_sim.sh teardown; sleep 2; sh prepare/gsm_sim.sh modemu"
+    * Wait for at least "2" seconds
+    * Execute "sh prepare/gsm_sim.sh teardown"
+    * Wait for at least "2" seconds
+    * Run child "sh prepare/gsm_sim.sh modemu"
     When "gsm" is visible with command "nmcli device status | grep -v unmanaged" in "60" seconds
     * Bring "up" connection "gsm"
     When "GENERAL.STATE:.*activated" is visible with command "nmcli con show gsm" in "60" seconds
