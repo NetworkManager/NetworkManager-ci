@@ -331,9 +331,9 @@ Feature: nmcli - general
     Scenario: NM - device - reapply just routes
     * Prepare simulated test "testG" device
     * Add connection type "ethernet" named "con_general" for device "testG"
-    When "con_general" is visible with command "nmcli con show -a"
+    When "connected" is visible with command "nmcli -g GENERAL.STATE dev show testG" in "5" seconds
     * Modify connection "con_general" changing options "ipv4.routes '192.168.5.0/24 192.168.99.111 1' ipv4.route-metric 21 ipv6.method static ipv6.addresses 2000::2/126 ipv6.routes '1010::1/128 2000::1 1'"
-    * Execute "nmcli device reapply testG"
+    * "Error.*" is not visible with command "nmcli device reapply testG" in "1" seconds
     Then "1010::1 via 2000::1 dev testG\s+proto static\s+metric 1" is visible with command "ip -6 route" in "5" seconds
      # metric 256 is valid for @ver-=1.9.1 only, please delete of too old
      And "2000::/126 dev testG\s+proto kernel\s+metric (100|256)" is visible with command "ip -6 route"
@@ -349,9 +349,9 @@ Feature: nmcli - general
     Scenario: NM - device - reapply just routes
     * Prepare simulated test "testG" device
     * Add a new connection of type "ethernet" and options "ifname testG con-name con_general ipv4.may-fail no ipv6.method ignore"
-    When "con_general" is visible with command "nmcli con show -a"
+    When "connected" is visible with command "nmcli -g GENERAL.STATE dev show testG" in "5" seconds
     * Modify connection "con_general" changing options "ipv4.routes '192.168.5.0/24 192.168.99.111 1' ipv4.route-metric 21 ipv6.method static ipv6.addresses 2000::2/126 ipv6.routes '1010::1/128 2000::1 1'"
-    * Execute "nmcli device reapply testG"
+    * "Error.*" is not visible with command "nmcli device reapply testG" in "1" seconds
     Then "1010::1 via 2000::1 dev testG\s+proto static\s+metric 1" is visible with command "ip -6 route" in "5" seconds
      And "2000::/126 dev testG\s+proto kernel\s+metric 1" is visible with command "ip -6 route"
      And "192.168.5.0/24 via 192.168.99.111 dev testG\s+proto static\s+metric" is visible with command "ip route"
@@ -365,9 +365,9 @@ Feature: nmcli - general
     Scenario: NM - device - reapply just routes
     * Prepare simulated test "testG" device
     * Add a new connection of type "ethernet" and options "ifname testG con-name con_general"
-    When "con_general" is visible with command "nmcli con show -a"
+    When "connected" is visible with command "nmcli -g GENERAL.STATE dev show testG" in "5" seconds
     * Modify connection "con_general" changing options "ipv4.routes '192.168.5.0/24 192.168.99.111 1' ipv4.route-metric 21 ipv6.method static ipv6.addresses 2000::2/126 ipv6.routes '1010::1/128 2000::1 1'"
-    * Execute "nmcli device reapply testG"
+    * "Error.*" is not visible with command "nmcli device reapply testG" in "1" seconds
     Then "1010::1 via 2000::1 dev testG\s+proto static\s+metric 1" is visible with command "ip -6 route" in "5" seconds
      And "2000::/126 dev testG\s+proto kernel\s+metric 1" is visible with command "ip -6 route"
      And "192.168.5.0/24 via 192.168.99.111 dev testG\s+proto static\s+metric" is visible with command "ip route"
@@ -383,10 +383,10 @@ Feature: nmcli - general
     Scenario: NM - device - reapply even address and gate
     * Prepare simulated test "testG" device
     * Add a new connection of type "ethernet" and options "ifname testG con-name con_general 802-3-ethernet.mtu 1460"
-    When "con_general" is visible with command "nmcli con show -a"
+    When "connected" is visible with command "nmcli -g GENERAL.STATE dev show testG" in "5" seconds
     * Modify connection "con_general" changing options "ipv4.method static 802-3-ethernet.mtu 9000 ipv4.addresses 192.168.3.10/24 ipv4.gateway 192.168.4.1 ipv4.routes '192.168.5.0/24 192.168.3.11 1' ipv4.route-metric 21 ipv6.method static ipv6.addresses 2000::2/126 ipv6.routes '1010::1/128 2000::1 1'"
     * Execute "ip netns exec testG_ns kill -SIGSTOP $(cat /tmp/testG_ns.pid)"
-    * Execute "nmcli device reapply testG"
+    * "Error.*" is not visible with command "nmcli device reapply testG" in "1" seconds
     Then "1010::1 via 2000::1 dev testG\s+proto static\s+metric 1" is visible with command "ip -6 route" in "5" seconds
      And "2000::/126 dev testG\s+proto kernel\s+metric 1" is visible with command "ip -6 route"
      And "192.168.3.0/24 dev testG\s+proto kernel\s+scope link\s+src 192.168.3.10 metric 21" is visible with command "ip route"
@@ -404,10 +404,10 @@ Feature: nmcli - general
     Scenario: NM - device - reapply even address and gate
     * Prepare simulated test "testG" device
     * Add connection type "ethernet" named "con_general" for device "testG"
-    When "con_general" is visible with command "nmcli con show -a"
+    When "connected" is visible with command "nmcli -g GENERAL.STATE dev show testG" in "5" seconds
     * Modify connection "con_general" changing options "ipv4.routes '192.168.5.0/24 192.168.99.111 1' ipv4.route-metric 21 ipv6.method static ipv6.addresses 2000::2/126 ipv6.routes '1010::1/128 2000::1 1'"
     * Execute "ip netns exec testG_ns kill -SIGSTOP $(cat /tmp/testG_ns.pid)"
-    * Execute "nmcli device reapply testG"
+    * "Error.*" is not visible with command "nmcli device reapply testG" in "1" seconds
     Then "1010::1 via 2000::1 dev testG\s+proto static\s+metric 1" is visible with command "ip -6 route" in "5" seconds
      And "2000::/126 dev testG\s+proto kernel\s+metric 1" is visible with command "ip -6 route"
      And "192.168.3.0/24 dev testG\s+proto kernel\s+scope link\s+src 192.168.3.10 metric 21" is visible with command "ip route"
@@ -665,8 +665,7 @@ Feature: nmcli - general
     @con_general_remove @restart @restore_hostname
     @nmcli_general_DHCP_HOSTNAME_profile_pickup
     Scenario: nmcli - general - connect correct profile with DHCP_HOSTNAME
-    * Add connection type "ethernet" named "con_general" for device "eth8"
-    * Execute "nmcli connection modify con_general ipv4.dns 8.8.4.4"
+    * Add a new connection of type "ethernet" and options "con-name con_general ifname eth8 ipv4.dns 8.8.4.4"
     * Execute "echo -e 'DHCP_HOSTNAME=walderon' >> /etc/sysconfig/network-scripts/ifcfg-con_general"
     * Bring "up" connection "con_general"
     * Restart NM
@@ -807,9 +806,7 @@ Feature: nmcli - general
     @nat_from_shared_network
     Scenario: NM - general - NAT_dhcp from shared networks
     * Execute "ip link add test1g type veth peer name test1gp"
-    * Add a new connection of type "bridge" and options "ifname vethbrg con-name vethbrg autoconnect no"
-    * Execute "nmcli connection modify vethbrg ipv4.method shared"
-    * Execute "nmcli connection modify vethbrg ipv4.address 172.16.0.1/24"
+    * Add a new connection of type "bridge" and options "ifname vethbrg con-name vethbrg autoconnect no ipv4.method shared ipv4.address 172.16.0.1/24"
     * Bring "up" connection "vethbrg"
     * Execute "ip link set test1gp master vethbrg"
     * Execute "ip link set dev test1gp up"
@@ -827,8 +824,7 @@ Feature: nmcli - general
     @run_once_new_connection
     Scenario: NM - general - run once and quit start new ipv4 and ipv6 connection
     * Prepare simulated test "testG" device
-    * Add a new connection of type "ethernet" and options "ifname testG con-name con_general"
-    * Execute "nmcli connection modify con_general ipv4.addresses 1.2.3.4/24 ipv4.may-fail no ipv6.addresses 1::128/128 ipv6.may-fail no connection.autoconnect yes"
+    * Add a new connection of type "ethernet" and options "ifname testG con-name con_general ipv4.addresses 1.2.3.4/24 ipv4.may-fail no ipv6.addresses 1::128/128 ipv6.may-fail no connection.autoconnect yes"
     * Bring "up" connection "con_general"
     * Disconnect device "testG"
     * Stop NM and clean "testG"
@@ -970,10 +966,7 @@ Feature: nmcli - general
     @wait-online-for-both-ips
     Scenario: NM - general - wait-online - for both ipv4 and ipv6
     * Prepare simulated test "testG" device
-    * Add a new connection of type "ethernet" and options "ifname testG con-name con_general"
-    * Execute "nmcli con modify con_general ipv4.may-fail no ipv6.may-fail no"
-    * Bring "up" connection "con_general"
-    * Disconnect device "testG"
+    * Add a new connection of type "ethernet" and options "ifname testG con-name con_general ipv4.may-fail no ipv6.may-fail no"
     * Restart NM
     #When "2620:" is not visible with command "ip a s testG"
     * Execute "/usr/bin/nm-online -s -q --timeout=30"
@@ -1053,8 +1046,7 @@ Feature: nmcli - general
     # Up dhcp connection
     * Bring "up" connection "testeth9"
     # Create a static connection without gateway
-    * Add a new connection of type "ethernet" and options "ifname eth8 con-name con_general autoconnect no"
-    * Execute "nmcli connection modify con_general ipv4.method manual ipv4.addresses 1.2.3.4/24 ipv4.may-fail no"
+    * Add a new connection of type "ethernet" and options "ifname eth8 con-name con_general autoconnect no ipv4.method manual ipv4.addresses 1.2.3.4/24 ipv4.may-fail no"
     # Set a "general" gateway (normally discouraged)
     * Execute "echo 'GATEWAY=1.2.3.1' >> /etc/sysconfig/network"
     * Reload connections
@@ -1103,7 +1095,7 @@ Feature: nmcli - general
     * Add a new connection of type "ethernet" and options "ifname testG con-name con_general autoconnect no"
     * Prepare simulated veth device "testG" wihout carrier
     * Wait for at least "1" seconds
-    * Execute "nmcli con modify con_general ipv4.may-fail no"
+    * Modify connection "con_general" changing options "ipv4.may-fail no"
     * Execute "nmcli con up con_general" without waiting for process to finish
     * Wait for at least "1" seconds
     * Execute "ip netns exec testG_ns ip link set testGp up"
@@ -1196,17 +1188,16 @@ Feature: nmcli - general
     @device_reapply
     Scenario: nmcli - device -reapply
     * Add connection type "ethernet" named "con_general" for device "eth8"
-    * Bring "up" connection "con_general"
     * Write dispatcher "99-disp" file
+    When "connected" is visible with command "nmcli -g GENERAL.STATE dev show eth8" in "5" seconds
     * Execute "ip addr a 1.2.3.4/24 dev eth8"
-    * Execute "nmcli c modify con_general +ipv4.address 1.2.3.4/24"
-    * Execute "nmcli c modify con_general connection.autoconnect no"
-    * Execute "nmcli device reapply eth8"
+    * Modify connection "con_general" changing options "+ipv4.address 1.2.3.4/24 connection.autoconnect no"
+    * "Error.*" is not visible with command "nmcli device reapply eth8" in "1" seconds
     When "up" is not visible with command "cat /tmp/dispatcher.txt"
     And "con_general" is visible with command "nmcli con show -a"
     * Execute "ip addr a 1.2.3.4/24 dev eth8"
-    * Execute "nmcli c modify con_general -ipv4.address 1.2.3.4/24"
-    * Execute "nmcli device reapply eth8"
+    * Modify connection "con_general" changing options "-ipv4.address 1.2.3.4/24"
+    * "Error.*" is not visible with command "nmcli device reapply eth8" in "1" seconds
     Then "up" is not visible with command "cat /tmp/dispatcher.txt"
 
 
@@ -1571,8 +1562,7 @@ Feature: nmcli - general
     Scenario: NM - general - keep external device enslaved on down
     # Check that an externally configure device is not released from
     # its master when brought down externally
-    * Add a new connection of type "bridge" and options "ifname brX con-name con_general2 autoconnect no"
-    * Execute "nmcli connection modify con_general2 ipv4.method disabled ipv6.method ignore"
+    * Add a new connection of type "bridge" and options "ifname brX con-name con_general2 autoconnect no ipv4.method disabled ipv6.method ignore"
     * Bring "up" connection "con_general2"
     * Execute "ip tuntap add mode tap tap0"
     * Execute "ip link set tap0 master brX"
@@ -1590,7 +1580,7 @@ Feature: nmcli - general
     When "No such file" is visible with command "cat /etc/sysconfig/network-scripts/ifcfg-eth8"
      And "eth8" is visible with command "nmcli -g NAME connection" in "5" seconds
      And "dhclient" is not visible with command "ps aux| grep client-eth8"
-    * Execute "nmcli con modify eth8 ipv4.method auto"
+    * Modify connection "eth8" changing options "ipv4.method auto"
     When "activated" is visible with command "nmcli -g GENERAL.STATE con show eth8" in "45" seconds
      And "BOOTPROTO=dhcp" is visible with command "cat /etc/sysconfig/network-scripts/ifcfg-eth8"
      And "dhclient" is visible with command "ps aux| grep dhclient-eth8"
