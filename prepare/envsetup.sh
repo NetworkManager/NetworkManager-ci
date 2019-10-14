@@ -137,7 +137,6 @@ install_el8_packages () {
     #dnf -4 -y install python3-pip
     #python -m pip install --upgrade pip
 
-
     python -m pip install pyroute2
     python -m pip install pexpect
     python -m pip install netaddr
@@ -166,7 +165,6 @@ install_el8_packages () {
     VER=$(rpm -q --queryformat '%{VERSION}' kernel)
     REL=$(rpm -q --queryformat '%{RELEASE}' kernel)
     dnf -4 -y install http://download.eng.bos.redhat.com/brewroot/vol/rhel-8/packages/kernel/$VER/$REL/$(arch)/kernel-modules-internal-$VER-$REL.$(arch).rpm
-
 
     # Install OVS2 deps
     dnf -4 install -y http://download.eng.bos.redhat.com/brewroot/vol/rhel-8/packages/openvswitch2.11/2.11.0/18.el8fdp/$(arch)/openvswitch2.11-2.11.0-18.el8fdp.$(arch).rpm http://download.eng.bos.redhat.com/brewroot/vol/rhel-8/packages/openvswitch-selinux-extra-policy/1.0/18.el8fdp/noarch/openvswitch-selinux-extra-policy-1.0-18.el8fdp.noarch.rpm
@@ -201,6 +199,16 @@ install_el8_packages () {
     # Install non crashing MM
     dnf -4 -y install https://vbenes.fedorapeople.org/NM/ModemManager-1.10.6-1.el8.x86_64.rpm https://vbenes.fedorapeople.org/NM/ModemManager-debuginfo-1.10.6-1.el8.x86_64.rpm https://vbenes.fedorapeople.org/NM/ModemManager-debugsource-1.10.6-1.el8.x86_64.rpm https://vbenes.fedorapeople.org/NM/ModemManager-devel-1.10.6-1.el8.x86_64.rpm https://vbenes.fedorapeople.org/NM/ModemManager-glib-1.10.6-1.el8.x86_64.rpm https://vbenes.fedorapeople.org/NM/ModemManager-glib-debuginfo-1.10.6-1.el8.x86_64.rpm
 
+    # Install non crashing teamd 1684389
+    dnf -4 -y install https://vbenes.fedorapeople.org/NM/team_rhbz1684389/libteam-debugsource-1.29-1.el8_1.x86_64.rpm \
+    https://vbenes.fedorapeople.org/NM/team_rhbz1684389/libteam-1.29-1.el8_1.x86_64.rpm \
+    https://vbenes.fedorapeople.org/NM/team_rhbz1684389/python3-libteam-1.29-1.el8_1.x86_64.rpm \
+    https://vbenes.fedorapeople.org/NM/team_rhbz1684389/teamd-debuginfo-1.29-1.el8_1.x86_64.rpm \
+    https://vbenes.fedorapeople.org/NM/team_rhbz1684389/libteam-debuginfo-1.29-1.el8_1.x86_64.rpm \
+    https://vbenes.fedorapeople.org/NM/team_rhbz1684389/libteam-devel-1.29-1.el8_1.x86_64.rpm \
+    https://vbenes.fedorapeople.org/NM/team_rhbz1684389/teamd-1.29-1.el8_1.x86_64.rpm \
+    https://vbenes.fedorapeople.org/NM/team_rhbz1684389/teamd-devel-1.29-1.el8_1.x86_64.rpm
+
     install_plugins_dnf
 }
 
@@ -228,9 +236,6 @@ install_el7_packages () {
         mv -f  tmp/ovs-rhel7.repo /etc/yum.repos.d/ovs.repo
         yum -y install openvswitch
     fi
-
-    # Install newer teamd
-    yum -y install https://vbenes.fedorapeople.org/NM/team_rh1680655/libteam-1.27-9.el7.rh1680655.1.x86_64.rpm https://vbenes.fedorapeople.org/NM/team_rh1680655/teamd-1.27-9.el7.rh1680655.1.x86_64.rpm https://vbenes.fedorapeople.org/NM/team_rh1680655/teamd-devel-1.27-9.el7.rh1680655.1.x86_64.rpm
 
     # Tune wpa_supplicat to log into journal and enable debugging
     systemctl stop wpa_supplicant

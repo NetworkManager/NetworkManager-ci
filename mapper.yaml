@@ -456,8 +456,6 @@ testmapper:
         feature: team
     - teamd_logging:
         feature: team
-    - wait_for_slow_teamd:
-        feature: team
     - teamd_killed_by_NM:
         feature: team
     - teamd_boolean_values_problem:

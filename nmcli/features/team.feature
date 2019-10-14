@@ -1501,18 +1501,6 @@
     And "\"link_watch\": \[\s+{\s+\"delay_down\": 200,\s+\"delay_up\": 100,\s+\"name\": \"ethtool\"\s+},\s+{\s+\"init_wait\": 1000,\s+\"interval\": 100,\s+\"missed_max\": 999,\s+\"name\": \"arp_ping\",\s+\"source_host\": \"1.2.3.4\",\s+\"target_host\": \"1.2.3.1\"" is visible with command "teamdctl nm-team conf dump"
 
 
-    @rhbz1415641
-    @ver+=1.10
-    @slow_team @team @skip_str
-    @wait_for_slow_teamd
-    Scenario: nmcli - team - wait for slow team
-    * Add connection type "team" named "team0" for device "nm-team"
-    Then Bring "up" connection "team0"
-     And Bring "up" connection "team0"
-     And Bring "up" connection "team0"
-     And Bring "up" connection "team0"
-
-
     @rhbz1551958
     @ver+=1.10
     @team_slaves @team @restart @eth0
