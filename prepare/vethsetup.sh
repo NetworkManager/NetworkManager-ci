@@ -123,6 +123,9 @@ function setup_veth_env ()
         nmcli device set orig-$DEV managed off
     done
 
+    # unmanage orig- devices
+    echo -e "[keyfile]\nunmanaged-devices=interface-name:orig-*" > /etc/NetworkManager/conf.d/99-unmanage-orig.conf
+
     # Create a network namespace for veth setup
     ip netns add vethsetup
 
