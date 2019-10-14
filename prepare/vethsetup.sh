@@ -58,7 +58,7 @@ function setup_veth_env ()
     counter=0
     DEV=""
     while [ -z $DEV ]; do
-        DEV=$(nmcli -f TYPE,DEVICE -t c sh --active  | grep ethernet | awk '{split($0,a,":"); print a[2]}' | head -n 1)
+        DEV=$(nmcli -f DEVICE,TYPE,STATE -t d | grep ethernet | grep connected | awk -F':' '{print $1}' | head -n 1)
         sleep 1
         ((counter++))
         if [ $counter -eq 20 ]; then
@@ -360,7 +360,7 @@ function teardown_veth_env ()
     fi
 
     # Rename original devices back
-    for DEV in $(nmcli -f TYPE,DEVICE -t d | grep orig | awk '{split($0,a,":"); split(a[2],b,"-"); print b[2]}'); do
+    for DEV in $(nmcli -f DEVICE -t d | grep '^orig-' | sed 's/^orig-//'); do
         ip link set orig-$DEV down
         ip link set orig-$DEV name $DEV
         # Rename their profiles if these exist
