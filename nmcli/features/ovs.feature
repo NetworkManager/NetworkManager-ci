@@ -352,9 +352,7 @@ Feature: nmcli - ovs
      And "fe80::" is visible with command "ip a s iface0"
      And "default via 192.168.100.1 dev iface0 proto dhcp metric 800" is visible with command "ip r"
     # VVV Reconnect port connection
-    * Run child "nmcli con up ovs-port0"
-    #* Bring "up" connection "ovs-port0"
-    When "activated" is not visible with command "nmcli -g GENERAL.STATE con show ovs-iface0" in "5" seconds
+    * Bring "up" connection "ovs-port0"
     When "activated" is visible with command "nmcli -g GENERAL.STATE con show ovs-iface0" in "40" seconds
      And "Bridge \"ovsbridge0\"" is visible with command "ovs-vsctl show"
      And "Port \"bond0\"\s+tag: 120\s+Interface \"eth[2-3]\"\s+type: system\s+Interface \"eth[2-3]\"\s+type: system" is visible with command "ovs-vsctl show"
