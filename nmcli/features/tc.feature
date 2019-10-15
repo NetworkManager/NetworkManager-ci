@@ -34,10 +34,9 @@
     @remove_root_value
     Scenario: nmcli - tc - remove root value
     * Add a new connection of type "ethernet" and options "ifname eth0 con-name con_tc autoconnect no tc.qdiscs 'root pfifo_fast'"
-    * Bring "up" connection "con_tc"
     * Open editor for connection "con_tc"
     * Submit "set tc.qdiscs" in editor
     * Enter in editor
     * Save in editor
-    * Quit editor
-    Then Prompt is not running
+    * Submit "ac" in editor
+    Then "activated" is visible with command "nmcli -g GENERAL.STATE con show con_tc" in "45" seconds
