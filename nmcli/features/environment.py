@@ -345,7 +345,7 @@ def teardown_strongswan():
 def setup_racoon(mode, dh_group, phase1_al="aes", phase2_al=None):
     print ("setting up racoon")
     arch = check_output("uname -p", shell=True).decode('utf-8', 'ignore').strip()
-    wait_for_testeth0_nmcli()
+    wait_for_testeth0()
     if arch == "s390x":
         call("[ -x /usr/sbin/racoon ] || yum -y install https://vbenes.fedorapeople.org/NM/ipsec-tools-0.8.2-1.el7.$(uname -p).rpm", shell=True)
     else:
@@ -370,7 +370,7 @@ def reset_hwaddr_nmcli(ifname):
 
 def setup_hostapd():
     print ("setting up hostapd")
-    wait_for_testeth0_nmcli()
+    wait_for_testeth0()
     arch = check_output("uname -p", shell=True).decode('utf-8', 'ignore').strip()
     if arch != "s390x":
         # Install under RHEL7 only
@@ -383,7 +383,7 @@ def setup_hostapd():
 
 def setup_hostapd_wireless(auth):
     print ("setting up hostapd wireless")
-    wait_for_testeth0_nmcli()
+    wait_for_testeth0()
     arch = check_output("uname -p", shell=True).decode('utf-8', 'ignore').strip()
     if arch != "s390x":
         # Install under RHEL7 only
@@ -399,7 +399,7 @@ def teardown_hostapd_wireless():
 
 def teardown_hostapd():
     call("sh prepare/hostapd_wired.sh teardown", shell=True)
-    wait_for_testeth0_nmcli()
+    wait_for_testeth0()
 
 def get_lock(dir):
     locks = os.listdir(dir)
@@ -412,7 +412,7 @@ def delete_old_lock(dir, lock):
     print(("* deleting old gsm lock %s" %lock))
     os.rmdir("%s%s" %(dir, lock))
 
-def restore_testeth0_nmcli():
+def restore_testeth0():
     print ("* restoring testeth0")
     call("nmcli con delete testeth0 2>&1 > /dev/null", shell=True)
     call("yes 2>/dev/null | cp -rf /tmp/testeth0 /etc/sysconfig/network-scripts/ifcfg-testeth0", shell=True)
@@ -422,20 +422,10 @@ def restore_testeth0_nmcli():
     call("nmcli con up testeth0", shell=True)
     sleep(2)
 
-def restore_testeth0_nmtui():
-    print ("* restoring testeth0")
-    call("nmcli con delete testeth0 2>&1 > /dev/null", shell=True)
-    call("yes 2>/dev/null | cp -rf /tmp/testeth0 /etc/sysconfig/network-scripts/ifcfg-testeth0", shell=True)
-    sleep(1)
-    call("nmcli con reload", shell=True)
-    sleep(1)
-    call("nmcli con up testeth0", shell=True)
-    sleep(2)
-
-def wait_for_testeth0_nmcli():
+def wait_for_testeth0():
     print ("* waiting for testeth0 to connect")
     if call("nmcli connection show testeth0 > /dev/null", shell=True)!= 0:
-        restore_testeth0_nmcli()
+        restore_testeth0()
 
     if call("nmcli con show testeth0 |grep -q IP4.ADDRESS", shell=True) != 0:
         call("nmcli con up testeth0", shell=True)
@@ -445,23 +435,7 @@ def wait_for_testeth0_nmcli():
         sleep(1)
         counter-=1
         if counter == 20:
-            restore_testeth0_nmcli()
-        if counter == 0:
-            print ("Testeth0 cannot be upped..this is wrong")
-            sys.exit(1)
-
-def wait_for_testeth0_nmtui():
-    print ("* waiting for testeth0 to connect")
-    if call("nmcli connection show testeth0 > /dev/null", shell=True)!= 0:
-        restore_testeth0_nmtui()
-    if call("nmcli con show testeth0 |grep -q IP4.ADDRESS", shell=True) != 0:
-        call("nmcli con up testeth0", shell=True)
-    counter=40
-    while call("nmcli connection show testeth0 |grep IP4.ADDRESS > /dev/null", shell=True) != 0:
-        sleep(1)
-        counter-=1
-        if counter == 20:
-            restore_testeth0_nmtui()
+            restore_testeth0()
         if counter == 0:
             print ("Testeth0 cannot be upped..this is wrong")
             sys.exit(1)
@@ -588,7 +562,7 @@ def before_scenario(context, scenario):
             if '1000' in scenario.tags:
                 print ("---------------------------")
                 print ("installing pip and pyroute2")
-                wait_for_testeth0_nmcli()
+                wait_for_testeth0()
                 if call('python -m pip install pyroute2', shell=True) != 0:
                     call ('yum -y install http://dl.fedoraproject.org/pub/epel/7/x86_64/p/python2-pyroute2-0.4.13-1.el7.noarch.rpm', shell=True)
 
@@ -785,14 +759,14 @@ def before_scenario(context, scenario):
             if 'netcat' in scenario.tags:
                 print ("---------------------------")
                 print ("installing netcat")
-                wait_for_testeth0_nmcli()
+                wait_for_testeth0()
                 if not os.path.isfile('/usr/bin/nc'):
                     call('sudo yum -y install nmap-ncat', shell=True)
 
             if 'scapy' in scenario.tags:
                 print ("---------------------------")
                 print ("installing scapy and tcpdump")
-                wait_for_testeth0_nmcli()
+                wait_for_testeth0()
                 if not os.path.isfile('/usr/bin/scapy'):
                     call('yum -y install tcpdump', shell=True)
                     call("python -m pip install scapy", shell=True)
@@ -822,7 +796,7 @@ def before_scenario(context, scenario):
             if 'IPy' in scenario.tags:
                 print ("---------------------------")
                 print ("installing dbus-x11, pip, and IPy")
-                wait_for_testeth0_nmcli()
+                wait_for_testeth0()
                 if call('rpm -q --quiet dbus-x11', shell=True) != 0:
                     call('yum -y install dbus-x11', shell=True)
                 if call('python -m pip list |grep IPy', shell=True) != 0:
@@ -831,7 +805,7 @@ def before_scenario(context, scenario):
             if 'netaddr' in scenario.tags:
                 print ("---------------------------")
                 print ("install netaddr")
-                wait_for_testeth0_nmcli()
+                wait_for_testeth0()
                 if call('python -m pip list |grep netaddr', shell=True) != 0:
                     call("sudo python -m pip install netaddr", shell=True)
 
@@ -903,7 +877,7 @@ def before_scenario(context, scenario):
             if 'need_dispatcher_scripts' in scenario.tags:
                 print ("---------------------------")
                 print ("install dispatcher scripts")
-                wait_for_testeth0_nmcli()
+                wait_for_testeth0()
                 call("yum -y install NetworkManager-config-routing-rules", shell=True)
                 reload_NM_service()
 
@@ -911,7 +885,7 @@ def before_scenario(context, scenario):
                 print ("---------------------------")
                 print ("starting firewall")
                 if call("rpm -q firewalld", shell=True) != 0:
-                    wait_for_testeth0_nmcli()
+                    wait_for_testeth0()
                     call("sudo yum -y install firewalld", shell=True)
                 call("sudo systemctl unmask firewalld", shell=True)
                 call("sudo systemctl start firewalld", shell=True)
@@ -1039,7 +1013,7 @@ def before_scenario(context, scenario):
                 arch = check_output("uname -p", shell=True).decode('utf-8', 'ignore').strip()
                 if arch == "s390x":
                     sys.exit(77)
-                wait_for_testeth0_nmcli()
+                wait_for_testeth0()
                 # Install under RHEL7 only
                 if call("grep -q Maipo /etc/redhat-release", shell=True) == 0:
                     call("[ -f /etc/yum.repos.d/epel.repo ] || sudo rpm -i http://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm", shell=True)
@@ -1051,7 +1025,7 @@ def before_scenario(context, scenario):
                 arch = check_output("uname -p", shell=True).decode('utf-8', 'ignore').strip()
                 if arch == "s390x":
                     sys.exit(77)
-                wait_for_testeth0_nmcli()
+                wait_for_testeth0()
                 # Install under RHEL7 only
                 if call("grep -q Maipo /etc/redhat-release", shell=True) == 0:
                     call("[ -f /etc/yum.repos.d/epel.repo ] || sudo rpm -i http://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm", shell=True)
@@ -1101,7 +1075,7 @@ def before_scenario(context, scenario):
 
             if 'libreswan' in scenario.tags:
                 print ("---------------------------")
-                wait_for_testeth0_nmcli()
+                wait_for_testeth0()
                 if call("rpm -q NetworkManager-libreswan", shell=True) != 0:
                     call("sudo yum -y install NetworkManager-libreswan", shell=True)
                     restart_NM_service()
@@ -1113,7 +1087,7 @@ def before_scenario(context, scenario):
 
             if 'libreswan_main' in scenario.tags:
                 print ("---------------------------")
-                wait_for_testeth0_nmcli()
+                wait_for_testeth0()
                 call("rpm -q NetworkManager-libreswan || sudo yum -y install NetworkManager-libreswan", shell=True)
                 call("/usr/sbin/ipsec --checknss", shell=True)
                 ike="ikev1"
@@ -1130,7 +1104,7 @@ def before_scenario(context, scenario):
                         sys.exit(77)
 
                 print ("---------------------------")
-                wait_for_testeth0_nmcli()
+                wait_for_testeth0()
                 #call("/usr/sbin/ipsec --checknss", shell=True)
                 setup_strongswan()
 
@@ -1169,7 +1143,7 @@ def before_scenario(context, scenario):
                 arch = check_output("uname -p", shell=True).decode('utf-8', 'ignore').strip()
                 if arch == "s390x":
                     sys.exit(77)
-                wait_for_testeth0_nmcli()
+                wait_for_testeth0()
                 # Install under RHEL7 only
                 if call("grep -q Maipo /etc/redhat-release", shell=True) == 0:
                     call("[ -f /etc/yum.repos.d/epel.repo ] || sudo rpm -i http://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm", shell=True)
@@ -1329,7 +1303,7 @@ def before_scenario(context, scenario):
             if 'remove_fedora_connection_checker' in scenario.tags:
                 print("---------------------------")
                 print("Making sure NetworkManager-config-connectivity-fedora is not installed")
-                wait_for_testeth0_nmcli()
+                wait_for_testeth0()
                 call('yum -y remove NetworkManager-config-connectivity-fedora', shell=True)
                 reload_NM_service()
 
@@ -1516,7 +1490,7 @@ def after_scenario(context, scenario):
                 if call("systemctl is-active NetworkManager", shell=True) != 0:
                     call('sudo systemctl restart NetworkManager', shell=True)
                 if not os.path.isfile('/tmp/nm_dcb_inf_wol_sriov_configured'):
-                    wait_for_testeth0_nmtui()
+                    wait_for_testeth0()
             if ('ethernet' in scenario.tags) or ('ipv4' in scenario.tags) or ('ipv6' in scenario.tags):
                 os.system("sudo nmcli connection delete id ethernet ethernet1 ethernet2")
             if 'nmtui_ethernet_set_mtu' in scenario.tags:
@@ -1570,7 +1544,7 @@ def after_scenario(context, scenario):
             if "eth0" in scenario.tags:
                 print ("---------------------------")
                 print ("upping testeth0")
-                wait_for_testeth0_nmtui()
+                wait_for_testeth0()
 
         except Exception:
             # Stupid behave simply crashes in case exception has occurred
@@ -1649,13 +1623,13 @@ def after_scenario(context, scenario):
                 if call("systemctl is-active NetworkManager", shell=True) != 0:
                     restart_NM_service()
                 if not os.path.isfile('/tmp/nm_dcb_inf_wol_sriov_configured'):
-                    wait_for_testeth0_nmcli()
+                    wait_for_testeth0()
 
             if 'networking_on' in scenario.tags:
                 print ("---------------------------")
                 print ("enabling NM networking")
                 call("nmcli networking on", shell=True)
-                wait_for_testeth0_nmcli()
+                wait_for_testeth0()
 
             if 'restore_hostname' in scenario.tags:
                 print ("---------------------------")
@@ -1873,7 +1847,7 @@ def after_scenario(context, scenario):
                 if 'restore_hostname' in scenario.tags:
                     call('hostnamectl set-hostname --transien ""', shell=True)
                     call('hostnamectl set-hostname --static %s' % context.original_hostname, shell=True)
-                wait_for_testeth0_nmcli()
+                wait_for_testeth0()
 
             if 'dcb' in scenario.tags:
                 print ("---------------------------")
@@ -2194,7 +2168,7 @@ def after_scenario(context, scenario):
                 call('nmcli connection down libreswan', shell=True)
                 call('nmcli connection delete libreswan', shell=True)
                 teardown_libreswan ()
-                wait_for_testeth0_nmcli()
+                wait_for_testeth0()
 
             if 'libreswan_main' in scenario.tags:
                 print ("---------------------------")
@@ -2202,7 +2176,7 @@ def after_scenario(context, scenario):
                 call('nmcli connection down libreswan', shell=True)
                 call('nmcli connection delete libreswan', shell=True)
                 teardown_libreswan ()
-                wait_for_testeth0_nmcli()
+                wait_for_testeth0()
 
             if 'strongswan' in scenario.tags:
                 print ("---------------------------")
@@ -2211,7 +2185,7 @@ def after_scenario(context, scenario):
                 call('nmcli connection down strongswan', shell=True)
                 call('nmcli connection delete strongswan', shell=True)
                 teardown_strongswan ()
-                wait_for_testeth0_nmcli()
+                wait_for_testeth0()
 
             if 'pptp' in scenario.tags:
                 print ("---------------------------")
@@ -2404,7 +2378,7 @@ def after_scenario(context, scenario):
                             call('sudo mv -f %s.off %s' % (config_file, config_file), shell=True)
                     reload_NM_service()
                     call("for i in $(nmcli -t -f NAME,UUID connection |grep -v testeth |awk -F ':' ' {print $2}'); do nmcli con del $i; done", shell=True)
-                    restore_testeth0_nmcli()
+                    restore_testeth0()
 
             if 'openvswitch' in scenario.tags:
                 print ("---------------------------")
@@ -2502,7 +2476,7 @@ def after_scenario(context, scenario):
                 call('nmcli connection delete gsm', shell=True)
                 call('rm -rf /etc/NetworkManager/system-connections/gsm', shell=True)
                 call('nmcli con up testeth0', shell=True)
-                wait_for_testeth0_nmcli()
+                wait_for_testeth0()
                 if not os.path.isfile('/tmp/usb_hub'):
                     call('mount -o remount -t nfs nest.test.redhat.com:/mnt/qa/desktop/broadband_lock /mnt/scratch', shell=True)
                     delete_old_lock("/mnt/scratch/", get_lock("/mnt/scratch"))
@@ -2639,7 +2613,7 @@ def after_scenario(context, scenario):
                 print ("---------------------------")
                 print ("restoring testeth0 profile")
                 call('sudo nmcli connection delete eth0', shell=True)
-                restore_testeth0_nmcli()
+                restore_testeth0()
 
             if 'kill_dbus-monitor' in scenario.tags:
                 print ("---------------------------")
@@ -2649,7 +2623,7 @@ def after_scenario(context, scenario):
             if 'need_dispatcher_scripts' in scenario.tags:
                 print ("---------------------------")
                 print ("remove dispatcher scripts")
-                wait_for_testeth0_nmcli()
+                wait_for_testeth0()
                 call("yum -y remove NetworkManager-config-routing-rules ", shell=True)
                 call("rm -rf /etc/sysconfig/network-scripts/rule-con_general", shell=True)
                 call('rm -rf /etc/sysconfig/network-scripts/route-con_general', shell=True)
