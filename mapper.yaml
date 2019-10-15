@@ -1470,6 +1470,7 @@ testmapper:
         feature: vpn
     - wireguard_activate_connection:
         feature: vpn
+        timeout: 20m
     - openvpn_ipv4:
         feature: openvpn
     - openvpn_ipv4_neverdefault:
