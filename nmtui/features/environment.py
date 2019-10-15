@@ -44,25 +44,6 @@ def dump_status_nmtui(fd, when):
              call(cmd, shell=True, stdout=fd)
              fd.write("\n")
 
-def before_all(context):
-    """Setup gnome-weather stuff
-    Being executed before all features
-    """
-
-    try:
-        # Kill initial setup
-        os.system("sudo pkill nmtui")
-
-        # Store scenario start cursor for session logs
-        context.log_cursor = check_output("journalctl --lines=0 --show-cursor |awk '/^-- cursor:/ {print \"\\\"--after-cursor=\"$NF\"\\\"\"; exit}'", shell=True).decode('utf-8', 'ignore').strip()
-    except Exception:
-        print("Error in before_all:")
-        traceback.print_exc(file=sys.stdout)
-
-def reset_hwaddr_nmtui(ifname):
-    hwaddr = check_output("ethtool -P %s" % ifname, shell=True).decode('utf-8', 'ignore').split()[2]
-    call("ip link set %s address %s" % (ifname, hwaddr), shell=True)
-
 def restore_testeth0_nmtui():
     print ("* restoring testeth0")
     call("nmcli con delete testeth0 2>&1 > /dev/null", shell=True)
@@ -93,6 +74,25 @@ def reload_NM_service():
     sleep(0.5)
     call("pkill -HUP NetworkManager", shell=True)
     sleep(1)
+
+def before_all(context):
+    """Setup gnome-weather stuff
+    Being executed before all features
+    """
+
+    try:
+        # Kill initial setup
+        os.system("sudo pkill nmtui")
+
+        # Store scenario start cursor for session logs
+        context.log_cursor = check_output("journalctl --lines=0 --show-cursor |awk '/^-- cursor:/ {print \"\\\"--after-cursor=\"$NF\"\\\"\"; exit}'", shell=True).decode('utf-8', 'ignore').strip()
+    except Exception:
+        print("Error in before_all:")
+        traceback.print_exc(file=sys.stdout)
+
+def reset_hwaddr_nmtui(ifname):
+    hwaddr = check_output("ethtool -P %s" % ifname, shell=True).decode('utf-8', 'ignore').split()[2]
+    call("ip link set %s address %s" % (ifname, hwaddr), shell=True)
 
 def before_scenario(context, scenario):
     try:
