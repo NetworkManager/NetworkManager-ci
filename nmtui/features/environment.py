@@ -35,7 +35,7 @@ def log_screen(stepname, screen, path):
 def stripped(x):
     return "".join([i for i in x if 31 < ord(i) < 127])
 
-def dump_status(fd, when):
+def dump_status_nmtui(fd, when):
     fd.write("Network configuration %s scenario:\n----------------------------------\n" % when)
     for cmd in ['ip link', 'ip addr', 'ip -4 route', 'ip -6 route',
         'nmcli g', 'nmcli c', 'nmcli d', 'nmcli d w l']:
@@ -59,11 +59,11 @@ def before_all(context):
         print("Error in before_all:")
         traceback.print_exc(file=sys.stdout)
 
-def reset_hwaddr(ifname):
+def reset_hwaddr_nmtui(ifname):
     hwaddr = check_output("ethtool -P %s" % ifname, shell=True).decode('utf-8', 'ignore').split()[2]
     call("ip link set %s address %s" % (ifname, hwaddr), shell=True)
 
-def restore_testeth0():
+def restore_testeth0_nmtui():
     print ("* restoring testeth0")
     call("nmcli con delete testeth0 2>&1 > /dev/null", shell=True)
     call("yes 2>/dev/null | cp -rf /tmp/testeth0 /etc/sysconfig/network-scripts/ifcfg-testeth0", shell=True)
@@ -73,10 +73,10 @@ def restore_testeth0():
     call("nmcli con up testeth0", shell=True)
     sleep(2)
 
-def wait_for_testeth0():
+def wait_for_testeth0_nmtui():
     print ("* waiting for testeth0 to connect")
     if call("nmcli connection show testeth0 > /dev/null", shell=True)!= 0:
-        restore_testeth0()
+        restore_testeth0_nmtui()
     if call("nmcli con show testeth0 |grep -q IP4.ADDRESS", shell=True) != 0:
         call("nmcli con up testeth0", shell=True)
     counter=40
@@ -84,7 +84,7 @@ def wait_for_testeth0():
         sleep(1)
         counter-=1
         if counter == 20:
-            restore_testeth0()
+            restore_testeth0_nmtui()
         if counter == 0:
             print ("Testeth0 cannot be upped..this is wrong")
             sys.exit(1)
@@ -102,7 +102,7 @@ def before_scenario(context, scenario):
         if os.path.isfile('/tmp/tui-screen.log'):
             os.remove('/tmp/tui-screen.log')
         fd = open('/tmp/tui-screen.log', 'a+')
-        dump_status(fd, 'before')
+        dump_status_nmtui(fd, 'before')
         fd.write('Screen recordings after each step:' + '\n----------------------------------\n')
         fd.flush()
         fd.close()
@@ -186,7 +186,7 @@ def after_scenario(context, scenario):
         # record the network status after the test
         if os.path.isfile('/tmp/tui-screen.log'):
             fd = open('/tmp/tui-screen.log', 'a+')
-            dump_status(fd, 'after')
+            dump_status_nmtui(fd, 'after')
             fd.flush()
             fd.close()
         # Stop TUI
@@ -200,8 +200,8 @@ def after_scenario(context, scenario):
                 context.embed('text/plain', data, caption="NM")
         if 'bridge' in scenario.tags:
             os.system("sudo nmcli connection delete id bridge0 bridge-slave-eth1 bridge-slave-eth2")
-            reset_hwaddr('eth1')
-            reset_hwaddr('eth2')
+            reset_hwaddr_nmtui('eth1')
+            reset_hwaddr_nmtui('eth2')
             os.system("sudo ip link del bridge0")
         if 'vlan' in scenario.tags:
             os.system("sudo nmcli connection delete id vlan eth1.99")
@@ -209,13 +209,13 @@ def after_scenario(context, scenario):
             os.system("sudo ip link del eth2.88")
         if 'bond' in scenario.tags:
             os.system("sudo nmcli connection delete id bond0 bond-slave-eth1 bond-slave-eth2")
-            reset_hwaddr('eth1')
-            reset_hwaddr('eth2')
+            reset_hwaddr_nmtui('eth1')
+            reset_hwaddr_nmtui('eth2')
             os.system("sudo ip link del bond0")
         if 'team' in scenario.tags:
             os.system("sudo nmcli connection delete id team0 team-slave-eth1 team-slave-eth2")
-            reset_hwaddr('eth1')
-            reset_hwaddr('eth2')
+            reset_hwaddr_nmtui('eth1')
+            reset_hwaddr_nmtui('eth2')
             os.system("sudo ip link del team0")
         if 'inf' in scenario.tags:
             os.system("sudo nmcli connection delete id infiniband0 infiniband0-port")
@@ -243,7 +243,7 @@ def after_scenario(context, scenario):
             if call("systemctl is-active NetworkManager", shell=True) != 0:
                 call('sudo systemctl restart NetworkManager', shell=True)
             if not os.path.isfile('/tmp/nm_dcb_inf_wol_sriov_configured'):
-                wait_for_testeth0()
+                wait_for_testeth0_nmtui()
         if ('ethernet' in scenario.tags) or ('ipv4' in scenario.tags) or ('ipv6' in scenario.tags):
             os.system("sudo nmcli connection delete id ethernet ethernet1 ethernet2")
         if 'nmtui_ethernet_set_mtu' in scenario.tags:
@@ -251,33 +251,33 @@ def after_scenario(context, scenario):
         if 'nmtui_bridge_add_many_slaves' in scenario.tags:
             os.system("sudo nmcli con delete bridge-slave-eth3 bridge-slave-eth4 bridge-slave-eth5"+
                       " bridge-slave-eth6 bridge-slave-eth7 bridge-slave-eth8 bridge-slave-eth9")
-            reset_hwaddr('eth3')
-            reset_hwaddr('eth4')
-            reset_hwaddr('eth5')
-            reset_hwaddr('eth6')
-            reset_hwaddr('eth7')
-            reset_hwaddr('eth8')
-            reset_hwaddr('eth9')
+            reset_hwaddr_nmtui('eth3')
+            reset_hwaddr_nmtui('eth4')
+            reset_hwaddr_nmtui('eth5')
+            reset_hwaddr_nmtui('eth6')
+            reset_hwaddr_nmtui('eth7')
+            reset_hwaddr_nmtui('eth8')
+            reset_hwaddr_nmtui('eth9')
         if 'nmtui_bond_add_many_slaves' in scenario.tags:
             os.system("sudo nmcli con delete bond-slave-eth3 bond-slave-eth4 bond-slave-eth5"+
                       " bond-slave-eth6 bond-slave-eth7 bond-slave-eth8 bond-slave-eth9")
-            reset_hwaddr('eth3')
-            reset_hwaddr('eth4')
-            reset_hwaddr('eth5')
-            reset_hwaddr('eth6')
-            reset_hwaddr('eth7')
-            reset_hwaddr('eth8')
-            reset_hwaddr('eth9')
+            reset_hwaddr_nmtui('eth3')
+            reset_hwaddr_nmtui('eth4')
+            reset_hwaddr_nmtui('eth5')
+            reset_hwaddr_nmtui('eth6')
+            reset_hwaddr_nmtui('eth7')
+            reset_hwaddr_nmtui('eth8')
+            reset_hwaddr_nmtui('eth9')
         if 'nmtui_team_add_many_slaves' in scenario.tags:
             os.system("sudo nmcli con delete team-slave-eth3 team-slave-eth4 team-slave-eth5"+
                       " team-slave-eth6 team-slave-eth7 team-slave-eth8 team-slave-eth9")
-            reset_hwaddr('eth3')
-            reset_hwaddr('eth4')
-            reset_hwaddr('eth5')
-            reset_hwaddr('eth6')
-            reset_hwaddr('eth7')
-            reset_hwaddr('eth8')
-            reset_hwaddr('eth9')
+            reset_hwaddr_nmtui('eth3')
+            reset_hwaddr_nmtui('eth4')
+            reset_hwaddr_nmtui('eth5')
+            reset_hwaddr_nmtui('eth6')
+            reset_hwaddr_nmtui('eth7')
+            reset_hwaddr_nmtui('eth8')
+            reset_hwaddr_nmtui('eth9')
         if 'nmtui_ethernet_set_mtu' in scenario.tags:
             os.system("ip link set mtu 1500 dev eth1")
         if 'nmtui_wifi_ap' in scenario.tags:
@@ -297,7 +297,7 @@ def after_scenario(context, scenario):
         if "eth0" in scenario.tags:
             print ("---------------------------")
             print ("upping testeth0")
-            wait_for_testeth0()
+            wait_for_testeth0_nmtui()
 
     except Exception:
         # Stupid behave simply crashes in case exception has occurred
