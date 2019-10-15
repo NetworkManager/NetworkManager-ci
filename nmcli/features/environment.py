@@ -878,9 +878,9 @@ def before_scenario(context, scenario):
             # This is workaround for https://bugzilla.redhat.com/show_bug.cgi?id=1752780
             call("echo -e '[keyfile]\nunmanaged-devices=wlan1\n' > /etc/NetworkManager/conf.d/99-wifi.conf", shell=True)
             restart_NM_service()
-
-            call('modprobe mac80211_hwsim', shell=True)
             sleep(1)
+            call('modprobe mac80211_hwsim', shell=True)
+            sleep(3)
 
         if 'vpnc' in scenario.tags:
             print ("---------------------------")
@@ -1788,8 +1788,8 @@ def after_scenario(context, scenario):
             call('nmcli connection delete id team0 team', shell=True)
             if 'team_assumed' in scenario.tags:
                 call('ip link del nm-team' , shell=True)
-            #sleep(TIMER)
-            call("if nmcli con |grep 'team0 '; then echo 'team0 present: %s' >> /tmp/residues; fi" %scenario.tags, shell=True)
+            if call("ps aux|grep -q teamd", shell=True):
+                sleep(TIMER)
 
         if 'bond-team_remove' in scenario.tags:
             print ("---------------------------")
