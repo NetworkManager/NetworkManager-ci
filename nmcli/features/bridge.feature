@@ -14,7 +14,7 @@ Feature: nmcli - bridge
     Scenario: nmcli - bridge - add default bridge
     * Add a new connection of type "bridge" and options "bridge.stp no"
     * Open editor for connection "bridge"
-    * "nm-bridge:" is visible with command "ifconfig"
+    * "nm-bridge:" is visible with command "ip a s"
     * Note the "connection.id" property from editor print output
     * Quit editor
     Then Check ifcfg-name file created with noted connection name
@@ -25,7 +25,6 @@ Feature: nmcli - bridge
     Scenario: nmcli - bridge - add custom bridge
     * Add a new connection of type "bridge" and options "con-name br88 autoconnect no ifname br88 priority 5 forward-delay 3 hello-time 3 max-age 15 ageing-time 500000"
     * Bring up connection "br88" ignoring error
-    * "br88:" is visible with command "ifconfig"
     Then "br88" is visible with command "ip link show type bridge"
     Then "DELAY=3.*BRIDGING_OPTS=\"priority=5 hello_time=3 max_age=15 ageing_time=500000\".*NAME=br88.*ONBOOT=no" is visible with command "cat /etc/sysconfig/network-scripts/ifcfg-br88"
 
@@ -37,7 +36,6 @@ Feature: nmcli - bridge
     Scenario: nmcli - bridge - add forward delay
     * Add a new connection of type "bridge" and options "con-name br88 autoconnect no ifname br88 priority 5 group-forward-mask 8 ip4 1.2.3.4/24"
     * Bring "up" connection "br88"
-    * "br88:" is visible with command "ifconfig"
     Then "br88" is visible with command "ip link show type bridge"
     And "BRIDGING_OPTS=\"priority=5 group_fwd_mask=8\"" is visible with command "cat /etc/sysconfig/network-scripts/ifcfg-br88"
     And "0x8" is visible with command "cat /sys/class/net/br88/bridge/group_fwd_mask"
@@ -71,9 +69,9 @@ Feature: nmcli - bridge
     * Add a new connection of type "bridge" and options "con-name br11 ifname br11 autoconnect no bridge.stp off ip4 192.168.1.15/24"
     * Bring up connection "br11" ignoring error
     * "br11" is visible with command "ip link show type bridge"
-    * "inet 192.168.1.15" is visible with command "ifconfig"
+    * "inet 192.168.1.15" is visible with command "ip a s br11"
     * Bring down connection "br11"
-    * "inet 192.168.1.15" is not visible with command "ifconfig"
+    * "inet 192.168.1.15" is not visible with command "ip a s br11"
 
 
 	@bridge
@@ -82,9 +80,9 @@ Feature: nmcli - bridge
     * Add a new connection of type "bridge" and options "con-name br11 ifname br11 bridge.stp off autoconnect no ip4 192.168.1.10/24"
     * Bring up connection "br11" ignoring error
     * "br11" is visible with command "ip link show type bridge"
-    * "inet 192.168.1.10" is visible with command "ifconfig"
+    * "inet 192.168.1.10" is visible with command "ip a s br11"
     * Disconnect device "br11"
-    * "inet 192.168.1.10" is not visible with command "ifconfig"
+    * "inet 192.168.1.10" is not visible with command "ip a s br11"
 
 
     @bridge
@@ -122,9 +120,9 @@ Feature: nmcli - bridge
     Scenario: nmcli - bridge - delete connection while up
     * Add a new connection of type "bridge" and options "con-name br12 ifname br12 bridge.stp off autoconnect no ip4 192.168.1.19/24"
     * Bring up connection "br12" ignoring error
-    * "inet 192.168.1.19" is visible with command "ifconfig"
+    * "inet 192.168.1.19" is visible with command "ip a s br12"
     * Delete connection "br12"
-    Then "inet 192.168.1.19" is not visible with command "ifconfig"
+    Then "inet 192.168.1.19" is not visible with command "ip a s br12"
     Then ifcfg-"br12" file does not exist
 
 
