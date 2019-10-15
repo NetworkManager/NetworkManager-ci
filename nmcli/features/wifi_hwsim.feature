@@ -248,7 +248,7 @@ Feature: nmcli - wifi
     # Start wpa_supplicant instance for NM unamanged wlan1 interface
     * Run child "wpa_supplicant -i wlan1 -C /tmp/wpa_supplicant_peer_ctrl"
     # Tell wlan1's wpa_supplicant instance to listen and wait a bit
-    * Execute "sleep 1 && wpa_cli -i wlan1 -p /tmp/wpa_supplicant_peer_ctrl p2p_listen && sleep 3"
+    * Execute "sleep 2 && wpa_cli -i wlan1 -p /tmp/wpa_supplicant_peer_ctrl p2p_listen && sleep 5"
     # Create a connection with dynamic mac address
     * Execute "nmcli con add type wifi-p2p ifname p2p-dev-wlan0 wifi-p2p.peer $( wpa_cli -i wlan1 -p /tmp/wpa_supplicant_peer_ctrl status | sed -n 's/p2p_device_address=//p' ) con-name wifi-p2p"
     # Wait a bit and pass a authentication command to wlan1's wpa_supplicant instance
