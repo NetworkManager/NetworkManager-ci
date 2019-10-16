@@ -1140,8 +1140,8 @@ Feature: nmcli - general
     @device_reapply
     Scenario: nmcli - device -reapply
     * Add connection type "ethernet" named "con_general" for device "eth8"
+    When "connected" is visible with command "nmcli -g GENERAL.STATE dev show eth8" in "45" seconds
     * Write dispatcher "99-disp" file
-    When "connected" is visible with command "nmcli -g GENERAL.STATE dev show eth8" in "5" seconds
     * Execute "ip addr a 1.2.3.4/24 dev eth8"
     * Modify connection "con_general" changing options "+ipv4.address 1.2.3.4/24 connection.autoconnect no"
     * "Error.*" is not visible with command "nmcli device reapply eth8" in "1" seconds
