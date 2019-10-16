@@ -993,7 +993,7 @@
 
 
     @ver+=1.10.1
-    @skip_in_ootpa @skip_in_fedora #as we have no initscripts anymore
+    @rhelver-=7 @fedoraver-=0 #as we have no initscripts anymore
     @con_ipv6_remove @restart @selinux_allow_ifup @teardown_testveth
     @persistent_default_ipv6_gw
     Scenario: NM - ipv6 - persistent default ipv6 gw
@@ -1014,7 +1014,7 @@
 
     @rhbz1274894
     @ver+=1.9.2
-    @skip_in_ootpa @skip_in_fedora #as we have no initscripts anymore
+    @rhelver-=7 @fedoraver-=0 #as we have no initscripts anymore
     @con_ipv6_remove @restart @selinux_allow_ifup @teardown_testveth
     @persistent_ipv6_routes
     Scenario: NM - ipv6 - persistent ipv6 routes

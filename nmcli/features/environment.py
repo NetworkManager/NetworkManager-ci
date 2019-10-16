@@ -771,20 +771,6 @@ def before_scenario(context, scenario):
                     call('yum -y install tcpdump', shell=True)
                     call("python -m pip install scapy", shell=True)
 
-            if 'skip_in_ootpa' in scenario.tags:
-                print ("---------------------------")
-                print ("Skipping in Ootpa")
-                if call("grep -q Ootpa /etc/redhat-release", shell=True) == 0:
-                    print ("---------------------------")
-                    sys.exit(77)
-
-            if 'skip_in_fedora' in scenario.tags:
-                print ("---------------------------")
-                print ("Skipping in Fedoras")
-                if call("grep -q Fedora /etc/redhat-release", shell=True) == 0:
-                    print ("---------------------------")
-                    sys.exit(77)
-
             if 'mock' in scenario.tags:
                 print ("---------------------------")
                 print ("installing dbus-x11, pip, and python-dbusmock")
