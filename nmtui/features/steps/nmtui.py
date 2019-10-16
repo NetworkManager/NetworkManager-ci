@@ -54,12 +54,12 @@ def print_screen_wo_cursor(screen):
 def get_cursored_screen(screen):
     myscreen_display = screen.display
     lst = [item for item in myscreen_display[screen.cursor.y]]
-    lst[screen.cursor.x] = u'\u2588'
-    myscreen_display[screen.cursor.y] = u''.join(lst)
+    lst[screen.cursor.x] = '\u2588'
+    myscreen_display[screen.cursor.y] = ''.join(lst)
     return myscreen_display
 
 def get_screen_string(screen):
-    screen_string = u'\n'.join(screen.display)
+    screen_string = '\n'.join(screen.display)
     return screen_string
 
 def print_screen(screen):
@@ -113,68 +113,67 @@ def go_until_pattern_matches_aftercursor_text(context, key, pattern, limit=50, i
     return None
 
 
-
 @step('Prepare virtual terminal environment')
 def prepare_environment(context):
     context.stream, context.screen = init_screen()
 
 
-@step(u'Start nmtui')
+@step('Start nmtui')
 def start_nmtui(context):
-    context.tui = pexpect.spawn('sh -c "TERM=%s nmtui > %s"' % (TERM_TYPE, OUTPUT), encoding='utf-8')
+    context.tui = pexpect.spawn('sh -c "TERM=%s nmtui > %s"' % (TERM_TYPE, OUTPUT), encoding='utf-8', codec_errors='ignore')
     for line in context.screen.display:
         if 'NetworkManager TUI' in line:
             break
     sleep(0.1)
 
-@step(u'Nmtui process is running')
+@step('Nmtui process is running')
 def check_process_running(context):
     assert context.tui.isalive() == True, "NMTUI is down!"
 
 
-@step(u'Nmtui process is not running')
+@step('Nmtui process is not running')
 def check_process_not_running(context):
     assert context.tui.isalive() == False, "NMTUI (pid:%s) is still up!" % context.tui.pid
 
 
-@step(u'Press "{key}" key')
+@step('Press "{key}" key')
 def press_key(context, key):
     context.tui.send(keys[key])
     sleep(0.2)
 
-@step(u'Come back to the top of editor')
+@step('Come back to the top of editor')
 def come_back_to_top(context):
     context.tui.send(keys['UPARROW']*64)
 
-@step(u'Screen is empty')
+@step('Screen is empty')
 def screen_is_empty(context):
     for line in context.screen.display:
         assert re.match('^\s*$', line) is not None, 'Screen not empty on this line:"%s"' % line
 
 
-@step(u'Prepare new connection of type "{typ}" named "{name}"')
+@step('Prepare new connection of type "{typ}" named "{name}"')
 def prep_conn_abstract(context, typ, name):
-    context.execute_steps(u'''* Start nmtui
+    context.execute_steps('''* Start nmtui
                               * Choose to "Edit a connection" from main screen
                               * Choose to "<Add>" a connection
                               * Choose the connection type "%s"
                               * Set "Profile name" field to "%s"''' % (typ, name))
 
 
-@step(u'Choose to "{option}" from main screen')
+@step('Choose to "{option}" from main screen')
 def choose_main_option(context, option):
     assert go_until_pattern_matches_line(context,keys['DOWNARROW'],r'.*%s.*' % option) is not None, "Could not go to option '%s' on screen!" % option
     context.tui.send(keys['ENTER'])
     sleep(0.2)
 
-@step(u'Choose the connection type "{typ}"')
+@step('Choose the connection type "{typ}"')
 def select_con_type(context, typ):
     assert go_until_pattern_matches_line(context,keys['DOWNARROW'],r'.*%s.*' % typ) is not None, "Could not go to option '%s' on screen!" % typ
     assert go_until_pattern_matches_aftercursor_text(context,keys['TAB'],r'^<Create>.*$') is not None, "Could not go to action '<Create>' on screen!"
     context.tui.send(keys['ENTER'])
 
 
-@step(u'Press "{button}" button in the dialog')
+@step('Press "{button}" button in the dialog')
 def press_dialog_button(context, button):
     assert go_until_pattern_matches_aftercursor_text(context,keys['TAB'],r'^ +%s.*$' % button) is not None, "Could not go to action '<Create>' on screen!"
     context.tui.send(keys['ENTER'])
@@ -182,13 +181,13 @@ def press_dialog_button(context, button):
         sleep(0.5)
 
 
-@step(u'Press "{button}" button in the password dialog')
+@step('Press "{button}" button in the password dialog')
 def press_password_dialog_button(context, button):
     assert go_until_pattern_matches_aftercursor_text(context,keys['TAB'],r'^%s.*$' % button) is not None, "Could not go to action '<Create>' on screen!"
     context.tui.send(keys['ENTER'])
 
 
-@step(u'Select connection "{con_name}" in the list')
+@step('Select connection "{con_name}" in the list')
 def select_con_in_list(context, con_name):
     match = re.match('.*Delete.*', get_screen_string(context.screen), re.UNICODE | re.DOTALL)
     if match is not None:
@@ -198,23 +197,23 @@ def select_con_in_list(context, con_name):
         assert go_until_pattern_matches_line(context,keys['UPARROW'],r'.*%s.*' % con_name) is not None, "Could not go to connection '%s' on screen!" % con_name
 
 
-@step(u'Get back to the connection list')
+@step('Get back to the connection list')
 def back_to_con_list(context):
     context.tui.send(keys['LEFTARROW']*8)
     context.tui.send(keys['UPARROW']*32)
 
-@step(u'Come back to main screen')
+@step('Come back to main screen')
 def back_to_main(context):
     current_nm_version = "".join(check_output("""NetworkManager -V |awk 'BEGIN { FS = "." }; {printf "%03d%03d%03d", $1, $2, $3}'""", shell=True).decode('utf-8', 'ignore').split('-')[0])
     context.tui.send(keys['ESCAPE'])
     sleep(0.4)
     if current_nm_version < "001003000":
-        context.execute_steps(u'* Start nmtui')
+        context.execute_steps('* Start nmtui')
 
-@step(u'Exit nmtui via "{action}" button')
-@step(u'Choose to "{action}" a slave')
-@step(u'Exit the dialog via "{action}" button')
-@step(u'Choose to "{action}" a connection')
+@step('Exit nmtui via "{action}" button')
+@step('Choose to "{action}" a slave')
+@step('Exit the dialog via "{action}" button')
+@step('Choose to "{action}" a connection')
 def choose_connection_action(context, action):
     assert go_until_pattern_matches_aftercursor_text(context,keys['TAB'],r'%s.*' % action) is not None, "Could not go to action '%s' on screen!" % action
     sleep(0.1)
@@ -222,7 +221,7 @@ def choose_connection_action(context, action):
     sleep(0.5)
 
 
-@step(u'Confirm the route settings')
+@step('Confirm the route settings')
 def confirm_route_screen(context):
     context.tui.send(keys['DOWNARROW']*64)
     sleep(0.2)
@@ -232,7 +231,7 @@ def confirm_route_screen(context):
     context.tui.send(keys['ENTER'])
 
 
-@step(u'Confirm the slave settings')
+@step('Confirm the slave settings')
 def confirm_slave_screen(context):
     context.tui.send(keys['DOWNARROW']*64)
     sleep(0.2)
@@ -242,7 +241,7 @@ def confirm_slave_screen(context):
     context.tui.send(keys['ENTER'])
 
 
-@step(u'Confirm the connection settings')
+@step('Confirm the connection settings')
 def confirm_connection_screen(context):
     context.tui.send(keys['DOWNARROW']*64)
     sleep(0.2)
@@ -260,7 +259,7 @@ def confirm_connection_screen(context):
             context.stream.feed(open(OUTPUT, 'r').read().encode('utf-8'))
 
 
-@step(u'Cannot confirm the connection settings')
+@step('Cannot confirm the connection settings')
 def cannot_confirm_connection_screen(context):
     context.tui.send(keys['DOWNARROW']*64)
     sleep(0.2)
@@ -269,140 +268,140 @@ def cannot_confirm_connection_screen(context):
     assert match is not None, "<OK> button is likely not greyed got: %s at the last line" % match.group(1)
 
 
-@step(u'"{pattern}" is visible on screen')
+@step('"{pattern}" is visible on screen')
 def pattern_on_screen(context, pattern):
     match = re.match(pattern, get_screen_string(context.screen), re.UNICODE | re.DOTALL)
     assert match is not None, "Could see pattern '%s' on screen!" % pattern
 
 
-@step(u'"{pattern}" is not visible on screen')
+@step('"{pattern}" is not visible on screen')
 def pattern_not_on_screen(context, pattern):
     match = re.match(pattern, get_screen_string(context.screen), re.UNICODE | re.DOTALL)
     assert match is None, "The pattern is visible '%s' on screen!" % pattern
 
 
-@step(u'Set current field to "{value}"')
+@step('Set current field to "{value}"')
 def set_current_field_to(context, value):
     context.tui.send(keys['BACKSPACE']*100)
     context.tui.send(value)
     sleep(0.2)
 
 
-@step(u'Set "{field}" field to "{value}"')
+@step('Set "{field}" field to "{value}"')
 def set_specific_field_to(context, field, value):
-    assert go_until_pattern_matches_line(context,keys['DOWNARROW'],u'^[\u2500-\u2599\s]+%s.*' % field) is not None, "Could not go to option '%s' on screen!" % field
+    assert go_until_pattern_matches_line(context,keys['DOWNARROW'],'^[\u2500-\u2599\s]+%s.*' % field) is not None, "Could not go to option '%s' on screen!" % field
     context.tui.send(keys['BACKSPACE']*100)
     context.tui.send(value)
 
 
-@step(u'Empty the field "{field}"')
+@step('Empty the field "{field}"')
 def empty_specific_field(context, field):
-    assert go_until_pattern_matches_line(context,keys['DOWNARROW'],u'^[\u2500-\u2599\s]+%s.*' % field) is not None, "Could not go to option '%s' on screen!" % field
+    assert go_until_pattern_matches_line(context,keys['DOWNARROW'],'^[\u2500-\u2599\s]+%s.*' % field) is not None, "Could not go to option '%s' on screen!" % field
     context.tui.send(keys['BACKSPACE']*100)
 
 
-@step(u'In "{prop}" property add "{value}"')
+@step('In "{prop}" property add "{value}"')
 def add_in_property(context, prop, value):
-    assert go_until_pattern_matches_line(context,keys['DOWNARROW'],u'^.*[\u2502\s]+%s <Add.*' % prop) is not None, "Could not find '%s' property!" % prop
+    assert go_until_pattern_matches_line(context,keys['DOWNARROW'],'^.*[\u2502\s]+%s <Add.*' % prop) is not None, "Could not find '%s' property!" % prop
     context.tui.send(' ')
     context.tui.send(value)
 
 
-@step(u'In this property also add "{value}"')
+@step('In this property also add "{value}"')
 def add_more_property(context, value):
-    assert go_until_pattern_matches_line(context,keys['DOWNARROW'],u'^[\u2502\s]+<Add\.\.\.>.*') is not None, "Could not find the next <Add>"
+    assert go_until_pattern_matches_line(context,keys['DOWNARROW'],'^[\u2502\s]+<Add\.\.\.>.*') is not None, "Could not find the next <Add>"
     context.tui.send(' ')
     context.tui.send(value)
 
 
-@step(u'Add ip route "{values}"')
+@step('Add ip route "{values}"')
 def add_route(context, values):
-    assert go_until_pattern_matches_line(context,keys['DOWNARROW'],u'^[\u2502\s]+Routing.+<Edit') is not None, "Could not find the routing edit button"
+    assert go_until_pattern_matches_line(context,keys['DOWNARROW'],'^[\u2502\s]+Routing.+<Edit') is not None, "Could not find the routing edit button"
     context.tui.send('\r\n')
-    assert go_until_pattern_matches_aftercursor_text(context,keys['DOWNARROW'],u'^<Add.*') is not None, "Could not find the routing add button"
+    assert go_until_pattern_matches_aftercursor_text(context,keys['DOWNARROW'],'^<Add.*') is not None, "Could not find the routing add button"
     context.tui.send('\r\n')
     for value in values.split():
         context.tui.send(keys['BACKSPACE']*32)
         context.tui.send(value)
         context.tui.send('\t')
-    context.execute_steps(u'* Confirm the route settings')
+    context.execute_steps('* Confirm the route settings')
 
 
-@step(u'Cannot add ip route "{values}"')
+@step('Cannot add ip route "{values}"')
 def cannot_add_route(context, values):
-    assert go_until_pattern_matches_line(context,keys['DOWNARROW'],u'^[\u2502\s]+Routing.+<Edit') is not None, "Could not find the routing edit button"
+    assert go_until_pattern_matches_line(context,keys['DOWNARROW'],'^[\u2502\s]+Routing.+<Edit') is not None, "Could not find the routing edit button"
     context.tui.send('\r\n')
-    assert go_until_pattern_matches_aftercursor_text(context,keys['DOWNARROW'],u'^<Add.*') is not None, "Could not find the routing add button"
+    assert go_until_pattern_matches_aftercursor_text(context,keys['DOWNARROW'],'^<Add.*') is not None, "Could not find the routing add button"
     context.tui.send('\r\n')
     for value in values.split():
         context.tui.send(keys['BACKSPACE']*32)
         context.tui.send(value)
         context.tui.send('\t')
-    context.execute_steps(u'* Cannot confirm the connection settings')
+    context.execute_steps('* Cannot confirm the connection settings')
 
 
-@step(u'Remove all routes')
+@step('Remove all routes')
 def remove_routes(context):
-    assert go_until_pattern_matches_line(context,keys['DOWNARROW'],u'^[\u2502\s]+Routing.+<Edit') is not None, "Could not find the routing edit button"
+    assert go_until_pattern_matches_line(context,keys['DOWNARROW'],'^[\u2502\s]+Routing.+<Edit') is not None, "Could not find the routing edit button"
     context.tui.send('\r\n')
-    while go_until_pattern_matches_aftercursor_text(context,keys['DOWNARROW'],u'^<Remove.*', limit=5) is not None:
+    while go_until_pattern_matches_aftercursor_text(context,keys['DOWNARROW'],'^<Remove.*', limit=5) is not None:
         context.tui.send('\r\n')
-    context.execute_steps(u'* Confirm the connection settings')
+    context.execute_steps('* Confirm the connection settings')
 
 
-@step(u'Remove all "{prop}" property items')
+@step('Remove all "{prop}" property items')
 def remove_items(context, prop):
-    assert go_until_pattern_matches_line(context,keys['DOWNARROW'],u'^.*[\u2502\s]+%s.*' % prop) is not None, "Could not find '%s' property!" % prop
-    while go_until_pattern_matches_aftercursor_text(context,keys['DOWNARROW'],u'^<Remove.*', limit=2) is not None:
+    assert go_until_pattern_matches_line(context,keys['DOWNARROW'],'^.*[\u2502\s]+%s.*' % prop) is not None, "Could not find '%s' property!" % prop
+    while go_until_pattern_matches_aftercursor_text(context,keys['DOWNARROW'],'^<Remove.*', limit=2) is not None:
         context.tui.send('\r\n')
     context.tui.send(keys['UPARROW']*2)
 
 
-@step(u'Come in "{category}" category')
+@step('Come in "{category}" category')
 def come_in_category(context, category):
-    assert go_until_pattern_matches_line(context,keys['DOWNARROW'],u'^.*[\u2550|\u2564]\s%s.*' % category) is not None, "Could not go to category '%s' on screen!" % category
-    match = go_until_pattern_matches_aftercursor_text(context,keys['DOWNARROW'],u'^(<Hide>|<Show>).*')
+    assert go_until_pattern_matches_line(context,keys['DOWNARROW'],'^.*[\u2550|\u2564]\s%s.*' % category) is not None, "Could not go to category '%s' on screen!" % category
+    match = go_until_pattern_matches_aftercursor_text(context,keys['DOWNARROW'],'^(<Hide>|<Show>).*')
     assert match is not None, "Could not go to hide/show for the category %s " % category
-    if match.group(1) == u'<Show>':
+    if match.group(1) == '<Show>':
         context.tui.send(' ')
 
 
-@step(u'Set "{category}" category to "{setting}"')
+@step('Set "{category}" category to "{setting}"')
 def set_category(context, category, setting):
-    assert go_until_pattern_matches_line(context,keys['DOWNARROW'],u'^.*[\u2550|\u2564]\s%s.*' % category) is not None, "Could not go to category '%s' on screen!" % category
+    assert go_until_pattern_matches_line(context,keys['DOWNARROW'],'^.*[\u2550|\u2564]\s%s.*' % category) is not None, "Could not go to category '%s' on screen!" % category
     context.tui.send(' ')
     context.tui.send(keys['UPARROW']*16)
-    match = go_until_pattern_matches_aftercursor_text(context,keys['DOWNARROW'],u'^\s*%s\s*\u2502.*' % setting)
+    match = go_until_pattern_matches_aftercursor_text(context,keys['DOWNARROW'],'^\s*%s\s*\u2502.*' % setting)
     assert match is not None, "Could not find setting %s for the category %s " % (setting, category)
     context.tui.send('\r\n')
 
 
-@step(u'Set "{dropdown}" dropdown to "{setting}"')
+@step('Set "{dropdown}" dropdown to "{setting}"')
 def set_dropdown(context, dropdown, setting):
-    assert go_until_pattern_matches_line(context,keys['TAB'],u'^.*\s+%s.*' % dropdown) is not None, "Could not go to dropdown '%s' on screen!" % dropdown
+    assert go_until_pattern_matches_line(context,keys['TAB'],'^.*\s+%s.*' % dropdown) is not None, "Could not go to dropdown '%s' on screen!" % dropdown
     context.tui.send(' ')
     context.tui.send(keys['UPARROW']*16)
-    match = go_until_pattern_matches_aftercursor_text(context,keys['DOWNARROW'],u'^\s*%s\s*\u2502.*' % setting)
+    match = go_until_pattern_matches_aftercursor_text(context,keys['DOWNARROW'],'^\s*%s\s*\u2502.*' % setting)
     assert match is not None, "Could not find setting %s for the dropdown %s " % (setting, dropdown)
     context.tui.send('\r\n')
 
 
-@step(u'Ensure "{toggle}" is checked')
-@step(u'Ensure "{toggle}" is {n} checked')
+@step('Ensure "{toggle}" is checked')
+@step('Ensure "{toggle}" is {n} checked')
 def ensure_toggle_is_checked(context, toggle, n=None):
-    match = go_until_pattern_matches_line(context,keys['DOWNARROW'],u'^[\u2500-\u2599\s]+(\[.\])\s+%s.*' % toggle)
+    match = go_until_pattern_matches_line(context,keys['DOWNARROW'],'^[\u2500-\u2599\s]+(\[.\])\s+%s.*' % toggle)
     assert match is not None, "Could not go to toggle '%s' on screen!" % toggle
-    if match.group(1) == u'[ ]' and n is None:
+    if match.group(1) == '[ ]' and n is None:
         context.tui.send(' ')
-    elif match.group(1) == u'[X]' and n is not None:
+    elif match.group(1) == '[X]' and n is not None:
         context.tui.send(' ')
 
 
-@step(u'Set team json config to "{value}"')
+@step('Set team json config to "{value}"')
 def set_team_json(context, value):
-    assert go_until_pattern_matches_aftercursor_text(context,keys['TAB'],u'^<Edit.*') is not None
+    assert go_until_pattern_matches_aftercursor_text(context,keys['TAB'],'^<Edit.*') is not None
     context.tui.send(keys['TAB'])
-    assert go_until_pattern_matches_aftercursor_text(context,keys['TAB'],u'^<Edit.*') is not None, "Could not find the json edit button"
+    assert go_until_pattern_matches_aftercursor_text(context,keys['TAB'],'^<Edit.*') is not None, "Could not find the json edit button"
     sleep(2)
     context.tui.send('\r\n')
     sleep(5)
