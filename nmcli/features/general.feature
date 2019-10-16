@@ -523,7 +523,8 @@ Feature: nmcli - general
     * Execute "ip link set dev bon0 up"
     * "bond0\s+bond\s+unmanaged" is visible with command "nmcli device"
     # Add a config rule to unmanage the device
-    * Execute "echo -e [keyfile]\\nunmanaged-devices=interface-name:bond0 > /etc/NetworkManager/conf.d/99-xxcustom.conf"    * Execute "pkill -HUP NetworkManager"
+    * Execute "echo -e [keyfile]\\nunmanaged-devices=interface-name:bond0 > /etc/NetworkManager/conf.d/99-xxcustom.conf"
+    * Execute "pkill -HUP NetworkManager"
     * Execute "ip addr add dev bond0 1.2.3.4/24"
     * Wait for at least "5" seconds
     # Now the device should be listed as unmanaged
