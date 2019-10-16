@@ -1255,11 +1255,6 @@ def before_scenario(context, scenario):
                 print ("allow ifup in selinux")
                 call("semodule -i tmp/selinux-policy/ifup_policy.pp", shell=True)
 
-            if 'nmcli_general_ignore_specified_unamanaged_devices' in scenario.tags:
-                print ("---------------------------")
-                print ("backing up NetworkManager.conf")
-                call('sudo cp -f /etc/NetworkManager/NetworkManager.conf /tmp/bckp_nm.conf', shell=True)
-
             if 'ipv6_keep_connectivity_on_assuming_connection_profile' in scenario.tags:
                 print ("---------------------------")
                 print ("removing testeth10 profile")
@@ -2389,13 +2384,6 @@ def after_scenario(context, scenario):
                 print ("env sanitization")
                 call('nmcli connection delete testeth9 eth9', shell=True)
                 call('nmcli connection add type ethernet ifname eth9 con-name testeth9 autoconnect no', shell=True)
-
-            if 'nmcli_general_ignore_specified_unamanaged_devices' in scenario.tags:
-                print ("---------------------------")
-                print ("restoring original NetworkManager.conf and deleting bond device")
-                call('sudo cp -f /tmp/bckp_nm.conf /etc/NetworkManager/NetworkManager.conf', shell=True)
-                call('sudo ip link del dnt', shell=True)
-                call('sudo ip link del bond0', shell=True)
 
             if 'nmcli_general_keep_slave_device_unmanaged' in scenario.tags:
                 print ("---------------------------")

@@ -545,24 +545,7 @@ Feature: nmcli - general
 
 
     @rhbz1136843
-    @ver-=1.1.0
-    @nmcli_general_ignore_specified_unamanaged_devices
-    Scenario: NM - general - ignore specified unmanaged devices
-    * Execute "ip link add name dnt type bond"
-    # Still unmanaged
-    * "dnt\s+bond\s+unmanaged" is visible with command "nmcli device"
-    * Execute "ip link set dev dnt up"
-    * "dnt\s+bond\s+disconnected" is visible with command "nmcli device"
-    # Add a config rule to unmanage the device
-    * Execute "echo -e \\n[keyfile]\\nunmanaged-devices=interface-name:dnt > /etc/NetworkManager/NetworkManager.conf"
-    * Execute "pkill -HUP NetworkManager"
-    * Wait for at least "5" seconds
-    # Now the device should be listed as unmanaged
-    Then "dnt\s+bond\s+unmanaged" is visible with command "nmcli device"
-
-
-    @rhbz1136843
-    @bond
+    @bond @remove_custom_cfg
     @nmcli_general_ignore_specified_unamanaged_devices
     Scenario: NM - general - ignore specified unmanaged devices
     * Execute "ip link add name bond0 type bond"
@@ -571,8 +554,7 @@ Feature: nmcli - general
     * Execute "ip link set dev bon0 up"
     * "bond0\s+bond\s+unmanaged" is visible with command "nmcli device"
     # Add a config rule to unmanage the device
-    * Execute "echo -e \\n[keyfile]\\nunmanaged-devices=interface-name:bond0 > /etc/NetworkManager/NetworkManager.conf"
-    * Execute "pkill -HUP NetworkManager"
+    * Execute "echo -e [keyfile]\\nunmanaged-devices=interface-name:bond0 > /etc/NetworkManager/conf.d/99-xxcustom.conf"    * Execute "pkill -HUP NetworkManager"
     * Execute "ip addr add dev bond0 1.2.3.4/24"
     * Wait for at least "5" seconds
     # Now the device should be listed as unmanaged
