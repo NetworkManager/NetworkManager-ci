@@ -1687,15 +1687,15 @@ Feature: nmcli: ipv4
 
     @rhbz1449873
     @ver+=1.8.0
-    @AAA
+    @dummy
     @ipv4_keep_external_addresses
     Scenario: NM - ipv4 - keep external addresses
-    * Execute "ip link add AAA type dummy"
-    * Execute "ip link set dev AAA up"
-    * Execute "for i in $(seq 20); do for j in $(seq 200); do ip addr add 10.3.$i.$j/16 dev AAA; done; done"
-    Then "4000" is visible with command "ip addr show dev AAA | grep 'inet 10.3.' -c"
+    * Execute "ip link add dummy0 type dummy"
+    * Execute "ip link set dev dummy0 up"
+    * Execute "for i in $(seq 20); do for j in $(seq 200); do ip addr add 10.3.$i.$j/16 dev dummy0; done; done"
+    When "4000" is visible with command "ip addr show dev dummy0 | grep 'inet 10.3.' -c"
     * Execute "sleep 6"
-    Then "4000" is visible with command "ip addr show dev AAA | grep 'inet 10.3.' -c"
+    Then "4000" is visible with command "ip addr show dev dummy0 | grep 'inet 10.3.' -c"
 
 
     @rhbz1428334

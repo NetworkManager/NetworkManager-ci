@@ -1110,15 +1110,15 @@
 
     @rhbz1449873
     @ver+=1.8.0
-    @AAA
+    @dummy
     @ipv6_keep_external_addresses
     Scenario: NM - ipv6 - keep external addresses
-    * Execute "ip link add AAA type dummy"
-    * Execute "ip link set dev AAA up"
+    * Execute "ip link add dummy0 type dummy"
+    * Execute "ip link set dev dummy0 up"
     * Wait for at least "1" seconds
-    * Execute "for i in $(seq 3000); do ip addr add 2017::$i/64 dev AAA; done"
-    When "3000" is visible with command "ip addr show dev AAA | grep 'inet6 2017::' -c" in "2" seconds
-    Then "3000" is visible with command "ip addr show dev AAA | grep 'inet6 2017::' -c" for full "6" seconds
+    * Execute "for i in $(seq 3000); do ip addr add 2017::$i/64 dev dummy0; done"
+    When "3000" is visible with command "ip addr show dev dummy0 | grep 'inet6 2017::' -c" in "2" seconds
+    Then "3000" is visible with command "ip addr show dev dummy0 | grep 'inet6 2017::' -c" for full "6" seconds
 
 
     @rhbz1457242

@@ -1,6 +1,6 @@
 #!/usr/bin/bash
 
-DUMMY=BBB
+DUMMY=dummy0
 
 function set_up {
     ip l add $DUMMY type dummy

@@ -858,29 +858,30 @@ Feature: nmcli - general
 
 
     @rhbz1141264
-    @BBB
+    @tuntap
     @preserve_failed_assumed_connections
     Scenario: NM - general - presume failed assumed connections
-    * Execute "ip tuntap add BBB mode tap"
-    * Execute "ip link set dev BBB up"
-    * Execute "ip addr add 10.2.5.6/24 valid_lft 1024 preferred_lft 1024 dev BBB"
-    Then "10.2.5.6/24" is visible with command "ip addr show BBB" for full "50" seconds
-    * Bring "down" connection "BBB"
-    * Execute "ip link set dev BBB up"
-    * Execute "ip addr add 10.2.5.6/24 dev BBB"
-    Then "10.2.5.6/24" is visible with command "ip addr show BBB" for full "10" seconds
+    * Execute "ip tuntap add tap0 mode tap"
+    * Execute "ip link set dev tap0 up"
+    * Execute "ip addr add 10.2.5.6/24 valid_lft 1024 preferred_lft 1024 dev tap0"
+    Then "10.2.5.6/24" is visible with command "ip addr show tap0" for full "50" seconds
+    * Bring "down" connection "tap0"
+    * Execute "ip link set dev tap0 up"
+    * Execute "ip addr add 10.2.5.6/24 dev tap0"
+    Then "10.2.5.6/24" is visible with command "ip addr show tap0" for full "10" seconds
 
 
     @rhbz1066705
-    @BBB
+    @dummy
     @vxlan_interface_recognition
     Scenario: NM - general - vxlan interface support
-    * Execute "/sbin/ip link add BBB type vxlan id 42 group 239.1.1.1 dev eth8"
-    When "unmanaged" is visible with command "nmcli device show BBB" in "5" seconds
-    * Execute "ip link set dev BBB up"
-    * Execute "ip addr add fd00::666/8 dev BBB"
-    Then "connected" is visible with command "nmcli device show BBB" in "10" seconds
-    Then vxlan device "BBB" check for parent "eth8"
+    * Execute "/sbin/ip link add dummy0 type vxlan id 42 group 239.1.1.1 dev eth8"
+    When "unmanaged" is visible with command "nmcli device show dummy0" in "5" seconds
+    * Execute "ip link set dev dummy0 up"
+    * Execute "ip addr add fd00::666/8 dev dummy0"
+    Then "connected" is visible with command "nmcli device show dummy0" in "10" seconds
+    Then vxlan device "dummy0" check for parent "eth8"
+
 
 
     @rhbz1109426
@@ -1551,32 +1552,32 @@ Feature: nmcli - general
 
     @rhbz1398932
     @ver+=1.7.2
-    @BBB
+    @dummy @con_general_remove
     @dummy_connection
     Scenario: NM - general - create dummy connection
-    * Add a new connection of type "dummy" and options "ifname BBB con-name BBB ip4 1.2.3.4/24 autoconnect no"
-    * Bring up connection "BBB"
-    Then "dummy" is visible with command "ip -d l show BBB | grep dummy"
-    Then "1.2.3.4/24" is visible with command "ip a s BBB | grep inet"
+    * Add a new connection of type "dummy" and options "ifname br0 con-name con_general ip4 1.2.3.4/24 autoconnect no"
+    * Bring up connection "con_general"
+    Then "dummy" is visible with command "ip -d l show br0 | grep dummy"
+    Then "1.2.3.4/24" is visible with command "ip a s br0 | grep inet"
 
 
     @rhbz1527197
     @ver+=1.10.1
-    @BBB
+    @dummy @con_general_remove
     @dummy_with_qdisc
     Scenario: NM - general - create dummy with qdisc
-    * Add a new connection of type "dummy" and options "ifname BBB con-name BBB ipv4.method link-local ipv6.method link-local"
-    * Bring up connection "BBB"
-    * Bring up connection "BBB"
-    * Bring up connection "BBB"
-    * Execute "tc qdisc add dev BBB root handle 1234 fq_codel"
-    * Bring up connection "BBB"
-    Then "dummy" is visible with command "ip -d l show BBB | grep dummy"
+    * Add a new connection of type "dummy" and options "ifname br0 con-name con_general ipv4.method link-local ipv6.method link-local"
+    * Bring up connection "con_general"
+    * Bring up connection "con_general"
+    * Bring up connection "con_general"
+    * Execute "tc qdisc add dev br0 root handle 1234 fq_codel"
+    * Bring up connection "con_general"
+    Then "dummy" is visible with command "ip -d l show br0 | grep dummy"
 
 
     @rhbz1512316
     @ver+=1.10.1
-    @BBB
+    @dummy
     @do_not_touch_external_dummy
     Scenario: NM - general - do not touch external dummy device
     Then Finish "sh tmp/repro_1512316.sh"
