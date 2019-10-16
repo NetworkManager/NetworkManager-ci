@@ -428,7 +428,7 @@ Feature: nmcli: connection
     @connection_metered_manual_yes
     Scenario: nmcli - connection - metered manual yes
      * Add a new connection of type "ethernet" and options "con-name con_con ifname eth5 connection.metered true"
-     When "con_con" is visible with command "nmcli con show -a"
+     Then "eth5:connected:con_con" is visible with command "nmcli -t -f DEVICE,STATE,CONNECTION device" in "20" seconds
      Then Metered status is "1"
 
 
@@ -437,7 +437,7 @@ Feature: nmcli: connection
     @connection_metered_manual_no
     Scenario: nmcli - connection - metered manual no
      * Add a new connection of type "ethernet" and options "con-name con_con ifname eth5 connection.metered false"
-     When "con_con" is visible with command "nmcli con show -a"
+     Then "eth5:connected:con_con" is visible with command "nmcli -t -f DEVICE,STATE,CONNECTION device" in "20" seconds
      Then Metered status is "2"
 
 
@@ -446,7 +446,7 @@ Feature: nmcli: connection
     @connection_metered_guess_no
     Scenario: NM - connection - metered guess no
      * Add a new connection of type "ethernet" and options "con-name con_con ifname eth5 connection.metered unknown"
-     When "con_con" is visible with command "nmcli con show -a"
+     Then "eth5:connected:con_con" is visible with command "nmcli -t -f DEVICE,STATE,CONNECTION device" in "20" seconds
      Then Metered status is "4"
 
 
