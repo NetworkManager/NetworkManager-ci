@@ -405,7 +405,7 @@ Feature: nmcli - general
     * Prepare simulated test "testG" device
     * Add connection type "ethernet" named "con_general" for device "testG"
     When "connected" is visible with command "nmcli -g GENERAL.STATE dev show testG" in "45" seconds
-    * Modify connection "con_general" changing options "ipv4.routes '192.168.5.0/24 192.168.99.111 1' ipv4.route-metric 21 ipv6.method static ipv6.addresses 2000::2/126 ipv6.routes '1010::1/128 2000::1 1'"
+    * Modify connection "con_general" changing options "ipv4.method static ipv4.addresses 192.168.3.10/24 ipv4.gateway 192.168.4.1 ipv4.routes '192.168.5.0/24 192.168.3.11 1' ipv4.route-metric 21 ipv6.method static ipv6.addresses 2000::2/126 ipv6.routes '1010::1/128 2000::1 1'"
     * Execute "ip netns exec testG_ns kill -SIGSTOP $(cat /tmp/testG_ns.pid)"
     * "Error.*" is not visible with command "nmcli device reapply testG" in "1" seconds
     Then "1010::1 via 2000::1 dev testG\s+proto static\s+metric 1" is visible with command "ip -6 route" in "45" seconds
