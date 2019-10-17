@@ -112,6 +112,10 @@ install_fedora_packages () {
     # Enable debug logs for wpa_supplicant
     sed -i 's!OTHER_ARGS="-s"!OTHER_ARGS="-s -dddK"!' /etc/sysconfig/wpa_supplicant
 
+    # Update and install the latest dbus
+    dnf -4 -y update dbus*
+    systemctl restart messagebus
+    
     # Make crypto policies a bit less strict
     update-crypto-policies --set LEGACY
     systemctl restart wpa_supplicant
