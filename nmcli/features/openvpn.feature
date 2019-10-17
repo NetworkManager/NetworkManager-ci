@@ -60,7 +60,7 @@
     Then "VPN.VPN-STATE:.*VPN connected" is visible with command "nmcli c show openvpn"
     Then "IP6.ADDRESS.*2001:db8:666:dead::2/64" is visible with command "nmcli c show openvpn"
     Then "IP4.ADDRESS" is not visible with command "nmcli c show openvpn"
-     And "default" is visible with command "ip -6 r |grep ^default | grep -v eth0"
+     And "default dev tun" is visible with command "ip -6 r s default | grep -v eth0" in "40" seconds
 
 
     @rhbz1505886
@@ -76,7 +76,7 @@
     Then "VPN.VPN-STATE:.*VPN connected" is visible with command "nmcli c show openvpn"
     Then "IP6.ADDRESS.*2001:db8:666:dead::2/64" is visible with command "nmcli c show openvpn"
     Then "IP4.ADDRESS" is not visible with command "nmcli c show openvpn"
-     And "default" is not visible with command "ip -6 r |grep ^default | grep -v eth0"
+     And "default dev tun" is not visible with command "ip -6 r s default | grep -v eth0"
 
 
     @rhbz1267004

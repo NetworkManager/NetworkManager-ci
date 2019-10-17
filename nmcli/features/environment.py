@@ -978,7 +978,7 @@ def before_scenario(context, scenario):
                 restart_NM_service()
 
                 call('modprobe mac80211_hwsim', shell=True)
-                sleep(1)
+                sleep(3)
 
             if 'vpnc' in scenario.tags:
                 print ("---------------------------")
