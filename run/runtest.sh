@@ -63,12 +63,7 @@ fi
 TAG="$(python $DIR/version_control.py $DIR/$RUNTEST_TYPE $NMTEST)"; vc=$?
 if [ $vc -eq 1 ]; then
     logger "Skipping due to incorrect NM version for this test"
-    if [ "$RUNTEST_TYPE" == nmtui ]; then
-        rstrnt-report-result -o "" $NMTEST "SKIP"
-    else
-        # exit 0 doesn't affect overal result
-        rstrnt-report-result $NMTEST "SKIP"
-    fi
+    rstrnt-report-result -o "" $NMTEST "SKIP"
     exit 0
 
 # do we have tag to run tagged test?
@@ -77,30 +72,17 @@ elif [ $vc -eq 0 ]; then
     if [ -z $FEATURE_FILE ]; then
         FEATURE_FILE=$DIR/$RUNTEST_TYPE/features
     fi
-    # if yes, run with -t $TAG
-    if [ "x$TAG" != "x" ]; then
-        logger "Running $TAG version of $NMTEST"
-        if [ "$RUNTEST_TYPE" == nmtui ]; then
-            behave $FEATURE_FILE --no-capture --no-capture-stderr -k -t $1 -t $TAG -f plain -o $NMTEST_REPORT; rc=$?
-        else
-            behave $FEATURE_FILE -t $1 -t $TAG -k -f html -o "$NMTEST_REPORT" -f plain; rc=$?
-        fi
 
-    # if not
+    logger "Running $TAG version of $NMTEST"
+    if [ "$RUNTEST_TYPE" == nmtui ]; then
+        # Test nmtui
+        behave $FEATURE_FILE --no-capture --no-capture-stderr -k -t $1 -t $TAG -f plain -o $NMTEST_REPORT; rc=$?
+    elif [[ $1 == gsm_hub* ]];then
+        # Test all modems on USB hub with 8 ports.
+        test_modems_usb_hub; rc=$?
     else
-        if [ "$RUNTEST_TYPE" == nmtui ]; then
-            behave $FEATURE_FILE --no-capture --no-capture-stderr -k -t $1 -f plain -o $NMTEST_REPORT; rc=$?
-        else
-            # check if we have gsm_hub use this
-            if [[ $1 == gsm_hub* ]];then
-                # Test 3 modems on USB hub with 8 ports.
-                test_modems_usb_hub; rc=$?
-
-            # if we do not have tag or gsm_hub
-            else
-                behave $FEATURE_FILE -t $1 -k -f html -o "$NMTEST_REPORT" -f plain; rc=$?
-            fi
-        fi
+        # Test nmcli
+        behave $FEATURE_FILE -t $1 -t $TAG -k -f html -o "$NMTEST_REPORT" -f plain; rc=$?
     fi
 fi
 
@@ -137,19 +119,15 @@ if [ "$RUNTEST_TYPE" == nmtui ]; then
     fi
 fi
 
-if [ "$RUNTEST_TYPE" == nmtui ]; then
-    rstrnt-report-result -o "$NMTEST_REPORT" $NMTEST $RESULT
-else
-    # If we have running harness.py then upload logs
-    if ps aux|grep -v grep| grep -q harness.py; then
-        # check for empty file: -s means nonempty
-        if [ -s "$NMTEST_REPORT" ]; then
-            rstrnt-report-result -o "$NMTEST_REPORT" $NMTEST $RESULT
-        else
-            echo "removing empty report file"
-            rm -f "$NMTEST_REPORT"
-            rstrnt-report-result -o "" $NMTEST $RESULT
-        fi
+# If we have running harness.py then upload logs
+if ps aux|grep -v grep| grep -q harness.py; then
+    # check for empty file: -s means nonempty
+    if [ -s "$NMTEST_REPORT" ]; then
+        rstrnt-report-result -o "$NMTEST_REPORT" $NMTEST $RESULT
+    else
+        echo "removing empty report file"
+        rm -f "$NMTEST_REPORT"
+        rstrnt-report-result -o "" $NMTEST $RESULT
     fi
 fi
 
