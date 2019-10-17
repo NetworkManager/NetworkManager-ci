@@ -58,7 +58,7 @@ beaker-hardware:
       NetworkManager-gsm:
         - x86_64:
             hostname: gsm-r5s3-01.wlan.rhts.eng.bos.redhat.com
-            kernel-options: biosdevname=1
+            kernel-options: biosdevname=0 net.ifnames=0
 
       NetworkManager-dcb:
         - x86_64:
