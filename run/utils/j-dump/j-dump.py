@@ -193,7 +193,7 @@ class Build:
         self.timestamp = self.build.get_timestamp()
         self.failures = []
 
-        if self.status == 'FAILURE' or self.status == 'NOT_BUILT' or self.status == 'ABORTED':
+        if self.status == 'NOT_BUILT' or self.status == 'ABORTED':
             self.failed = True
 
         if self.build.has_resultset():
