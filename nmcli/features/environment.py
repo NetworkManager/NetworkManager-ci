@@ -2542,9 +2542,10 @@ def after_scenario(context, scenario):
             if 'non_utf_device' in scenario.tags:
                 print ("---------------------------")
                 print ("remove non utf-8 device")
-                call("nmcli device delete 'd\\314f\\\\c'", shell=True)
-                call("ip link del $'d\xccf\\c'", shell=True)
-                restart_NM_service()
+                if sys.version_info.major < 3:
+                    call("ip link del $'d\xccf\\c'", shell=True)
+                else:
+                    call("ip link del $'d\\xccf\\\\c'", shell=True)
 
             if 'shutdown' in scenario.tags:
                 print ("---------------------------")

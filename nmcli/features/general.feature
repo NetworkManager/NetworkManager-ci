@@ -1428,7 +1428,9 @@ Feature: nmcli - general
     * Execute "ip link add name $'d\xccf\\c' type dummy"
     When "/sys/devices/virtual/net/d\\314f\\\\c" is visible with command "nmcli -f GENERAL.UDI device show"
     * Restart NM
-    Then "dummy" is visible with command "nmcli device show d\\314f\\\\c"
+    When "dummy" is visible with command "nmcli -g GENERAL.TYPE device show d\\314f\\\\c"
+    Then Finish "nmcli device delete d\\314f\\\\c"
+     And String "d\\314f\\\\c" is not visible with command "nmcli -g DEVICE device"
 
 
     @rhbz1458399
