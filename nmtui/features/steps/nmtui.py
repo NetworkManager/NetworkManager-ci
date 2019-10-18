@@ -268,10 +268,19 @@ def cannot_confirm_connection_screen(context):
     assert match is not None, "<OK> button is likely not greyed got: %s at the last line" % match.group(1)
 
 
+@step('"{pattern}" is visible on screen in "{seconds}" seconds')
 @step('"{pattern}" is visible on screen')
-def pattern_on_screen(context, pattern):
-    match = re.match(pattern, get_screen_string(context.screen), re.UNICODE | re.DOTALL)
-    assert match is not None, "Could see pattern '%s' on screen!" % pattern
+def pattern_on_screen(context, pattern, seconds=1):
+    match = None
+    seconds = int(seconds)
+    while seconds and match is None:
+        seconds -= 1
+        screen = get_screen_string(context.screen)
+        match = re.match(pattern, screen, re.UNICODE | re.DOTALL)
+        if match is None:
+            context.stream.feed(open(OUTPUT, 'r').read().encode('utf-8'))
+            sleep(1)
+    assert match is not None, "Could not see pattern '%s' on screen:\n\n%s" % (pattern, screen)
 
 
 @step('"{pattern}" is not visible on screen')

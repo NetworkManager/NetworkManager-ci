@@ -76,7 +76,7 @@ Feature: General TUI tests
     * Set current field to "testsethostname"
     * ".*Hostname testsethostname.*" is visible on screen
     * Press "ENTER" key
-    * ".*Set hostname to 'testsethostname'.*" is visible on screen
+    * ".*Set hostname to 'testsethostname'.*" is visible on screen in "10" seconds
     * Press "ENTER" key
     * Choose to "Quit" from main screen
     Then Nmtui process is not running
