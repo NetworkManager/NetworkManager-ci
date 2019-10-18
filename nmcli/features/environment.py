@@ -2459,7 +2459,10 @@ def after_scenario(context, scenario):
                 call("sudo prepare/captive_portal.sh teardown", shell=True)
 
             if 'gsm_sim' in scenario.tags:
+                call("nmcli con down id gsm", shell=True)
+                sleep(2)
                 call("sudo prepare/gsm_sim.sh teardown", shell=True)
+                sleep(1)
                 call("nmcli con del id gsm", shell=True)
 
             if 'add_testeth10' in scenario.tags:
