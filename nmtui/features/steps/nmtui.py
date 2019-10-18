@@ -68,12 +68,14 @@ def print_screen(screen):
         print(cursored_screen[i])
 
 def feed_print_screen(context):
-    if os.path.isfile('/tmp/nmtui.out'):
-        context.stream.feed(open('/tmp/nmtui.out', 'r').read().encode('utf-8'))
+    if os.path.isfile(OUTPUT):
+        feed_screen()
     print_screen(context.screen)
 
+# update the screen
 def feed_stream(stream):
-    stream.feed(open(OUTPUT, 'r').read().encode('utf-8'))
+    if os.path.isfile(OUTPUT):
+        stream.feed(open(OUTPUT, 'r').read().encode('utf-8'))
 
 def init_screen():
     stream = pyte.ByteStream()
@@ -83,7 +85,7 @@ def init_screen():
 
 def go_until_pattern_matches_line(context, key, pattern, limit=50):
     sleep(0.2)
-    context.stream.feed(open(OUTPUT, 'r').read().encode('utf-8'))
+    feed_stream(context.stream)
     for i in range(0,limit):
         match = re.match(pattern, context.screen.display[context.screen.cursor.y], re.UNICODE)
         if match is not None:
@@ -91,14 +93,14 @@ def go_until_pattern_matches_line(context, key, pattern, limit=50):
         else:
             context.tui.send(key)
             sleep(0.3)
-            context.stream.feed(open(OUTPUT, 'r').read().encode('utf-8'))
+            feed_stream(context.stream)
     return None
 
 
 def go_until_pattern_matches_aftercursor_text(context, key, pattern, limit=50, include_precursor_char=True):
     pre_c = 0
     sleep(0.2)
-    context.stream.feed(open(OUTPUT, 'r').read().encode('utf-8'))
+    feed_stream(context.stream)
     if include_precursor_char is True:
         pre_c = -1
     for i in range(0,limit):
@@ -109,7 +111,7 @@ def go_until_pattern_matches_aftercursor_text(context, key, pattern, limit=50, i
         else:
             context.tui.send(key)
             sleep(0.3)
-            context.stream.feed(open(OUTPUT, 'r').read().encode('utf-8'))
+            feed_stream(context.stream)
     return None
 
 
@@ -225,7 +227,7 @@ def choose_connection_action(context, action):
 def confirm_route_screen(context):
     context.tui.send(keys['DOWNARROW']*64)
     sleep(0.2)
-    context.stream.feed(open(OUTPUT, 'r').read().encode('utf-8'))
+    feed_stream(context.stream)
     match = re.match(r'^<OK>.*', context.screen.display[context.screen.cursor.y][context.screen.cursor.x-1:], re.UNICODE)
     assert match is not None, "Could not get to the <OK> route dialog button!"
     context.tui.send(keys['ENTER'])
@@ -235,7 +237,7 @@ def confirm_route_screen(context):
 def confirm_slave_screen(context):
     context.tui.send(keys['DOWNARROW']*64)
     sleep(0.2)
-    context.stream.feed(open(OUTPUT, 'r').read().encode('utf-8'))
+    feed_stream(context.stream)
     match = re.match(r'^<OK>.*', context.screen.display[context.screen.cursor.y][context.screen.cursor.x-1:], re.UNICODE)
     assert match is not None, "Could not get to the <OK> button! (In form? Segfault?)"
     context.tui.send(keys['ENTER'])
@@ -245,25 +247,25 @@ def confirm_slave_screen(context):
 def confirm_connection_screen(context):
     context.tui.send(keys['DOWNARROW']*64)
     sleep(0.2)
-    context.stream.feed(open(OUTPUT, 'r').read().encode('utf-8'))
+    feed_stream(context.stream)
     match = re.match(r'^<OK>.*', context.screen.display[context.screen.cursor.y][context.screen.cursor.x-1:], re.UNICODE)
     assert match is not None, "Could not get to the <OK> button! (In form? Segfault?)"
     context.tui.send(keys['ENTER'])
     sleep(0.2)
-    context.stream.feed(open(OUTPUT, 'r').read().encode('utf-8'))
+    feed_stream(context.stream)
     for line in context.screen.display:
         print (line)
         if '<Add>' in line:
             break
         else:
-            context.stream.feed(open(OUTPUT, 'r').read().encode('utf-8'))
+            feed_stream(context.stream)
 
 
 @step('Cannot confirm the connection settings')
 def cannot_confirm_connection_screen(context):
     context.tui.send(keys['DOWNARROW']*64)
     sleep(0.2)
-    context.stream.feed(open(OUTPUT, 'r').read().encode('utf-8'))
+    feed_stream(context.stream)
     match = re.match(r'^<Cancel>.*', context.screen.display[context.screen.cursor.y][context.screen.cursor.x-1:], re.UNICODE)
     assert match is not None, "<OK> button is likely not greyed got: %s at the last line" % match.group(1)
 
@@ -278,7 +280,7 @@ def pattern_on_screen(context, pattern, seconds=1):
         screen = get_screen_string(context.screen)
         match = re.match(pattern, screen, re.UNICODE | re.DOTALL)
         if match is None:
-            context.stream.feed(open(OUTPUT, 'r').read().encode('utf-8'))
+            feed_stream(context.stream)
             sleep(1)
     assert match is not None, "Could not see pattern '%s' on screen:\n\n%s" % (pattern, screen)
 
