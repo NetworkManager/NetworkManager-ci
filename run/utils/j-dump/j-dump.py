@@ -119,6 +119,7 @@ class Job:
             "                   <th>Date</th>\n"
             "                   <th>Status</th>\n"
             "                   <th>Failures</th>\n"
+            "                   <th>Links</th>\n"
             "               </tr>\n")
 
         for build in self.builds:
@@ -148,10 +149,13 @@ class Job:
                 '               <tr>'
                 '<td><a target="_blank" href="%s">%s</a></td>'
                 '<td>%s</td>'
-                '%s%s</tr>\n' %
+                '%s%s'
+                '<td>%s</td>'
+                '</tr>\n' %
                 (artifacts_url(build.url), build.id,
                  build.timestamp.ctime(),
-                 l_build, l_failures))
+                 l_build, l_failures,
+                 build.description))
         fd.write(
             "           </table>\n")
 
@@ -189,6 +193,7 @@ class Build:
         self.build = job.get_build(build_id)
         self.url = self.build.baseurl
         self.status = self.build.get_status()
+        self.description = self.build.get_description() or "--"
         self.failed = False
         self.timestamp = self.build.get_timestamp()
         self.failures = []
