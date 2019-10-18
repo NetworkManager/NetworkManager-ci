@@ -29,9 +29,9 @@ component:
   gate-in: beaker
 
 dependencies:
-  beaker-tasks:
-    - /distribution/command:
-        CMDS_TO_RUN: 'if grep -q Ootpa /etc/redhat-release; then printf "[ovs]\nname=ovs\nbaseurl=http://download-ipv4.eng.brq.redhat.com/brewroot/repos/fast-datapath-rhel-8-build/latest/$(uname -p)/\nenable=1\ngpgcheck=0\n" /etc/yum.repos.d/ovs.repo; else yum -y install http://download.eng.bos.redhat.com/brewroot/vol/rhel-7/packages/openvswitch/2.9.0/92.el7fdn/$(arch)/openvswitch-2.9.0-92.el7fdn.$(arch).rpm http://download.eng.bos.redhat.com/brewroot/vol/rhel-7/packages/openvswitch-selinux-extra-policy/1.0/10.el7fdp/noarch/openvswitch-selinux-extra-policy-1.0-10.el7fdp.noarch.rpm http://download.eng.bos.redhat.com/brewroot/vol/rhel-7/packages/container-selinux/2.77/1.el7_6/noarch/container-selinux-2.77-1.el7_6.noarch.rpm; fi'
+  # beaker-tasks:
+  #   - /distribution/command:
+  #       CMDS_TO_RUN: 'if grep -q Ootpa /etc/redhat-release; then printf "[ovs]\nname=ovs\nbaseurl=http://download-ipv4.eng.brq.redhat.com/brewroot/repos/fast-datapath-rhel-8-build/latest/$(uname -p)/\nenable=1\ngpgcheck=0\n" /etc/yum.repos.d/ovs.repo; else yum -y install http://download.eng.bos.redhat.com/brewroot/vol/rhel-7/packages/openvswitch/2.9.0/92.el7fdn/$(arch)/openvswitch-2.9.0-92.el7fdn.$(arch).rpm http://download.eng.bos.redhat.com/brewroot/vol/rhel-7/packages/openvswitch-selinux-extra-policy/1.0/10.el7fdp/noarch/openvswitch-selinux-extra-policy-1.0-10.el7fdp.noarch.rpm http://download.eng.bos.redhat.com/brewroot/vol/rhel-7/packages/container-selinux/2.77/1.el7_6/noarch/container-selinux-2.77-1.el7_6.noarch.rpm; fi'
   packages:
       - dnsmasq
       - tcpdump
