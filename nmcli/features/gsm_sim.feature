@@ -9,7 +9,7 @@ Feature: nmcli: gsm
 
     @ver+=1.12.0
     @ver-=1.17.1
-    @gsm_sim
+    @gsm_sim @no_abrt
     @gsm_sim_create_assisted_connection
     Scenario: nmcli - gsm_sim - create an assisted connection
     Given "gsm" is visible with command "nmcli device status | grep -v unmanaged" in "60" seconds
@@ -30,7 +30,7 @@ Feature: nmcli: gsm
 
     @ver+=1.17.2
     @ver-=1.20
-    @gsm_sim
+    @gsm_sim @no_abrt
     @gsm_sim_create_assisted_connection
     Scenario: nmcli - gsm_sim - create an assisted connection
     Given "gsm" is visible with command "nmcli device status | grep -v unmanaged" in "60" seconds
@@ -48,7 +48,7 @@ Feature: nmcli: gsm
 
 
     @ver+=1.21.1
-    @gsm_sim
+    @gsm_sim @no_abrt
     @gsm_sim_create_assisted_connection
     Scenario: nmcli - gsm_sim - create an assisted connection
     Given "gsm" is visible with command "nmcli device status | grep -v unmanaged" in "60" seconds
@@ -66,7 +66,7 @@ Feature: nmcli: gsm
 
 
     @ver+=1.12.0
-    @gsm_sim
+    @gsm_sim @no_abrt
     @gsm_sim_create_default_connection
     Scenario: nmcli - gsm_sim - create a connection
     Given "gsm" is visible with command "nmcli device status | grep -v unmanaged" in "60" seconds
@@ -77,7 +77,7 @@ Feature: nmcli: gsm
 
 
     @ver+=1.12.0
-    @gsm_sim
+    @gsm_sim @no_abrt
     @gsm_sim_disconnect
     Scenario: nmcli - gsm_sim - disconnect
     Given "gsm" is visible with command "nmcli device status | grep -v unmanaged" in "60" seconds
@@ -91,7 +91,7 @@ Feature: nmcli: gsm
 
     @rhbz1388613 @rhbz1460217
     @ver+=1.12.0
-    @gsm_sim
+    @gsm_sim @no_abrt
     @gsm_sim_mtu
     Scenario: nmcli - gsm_sim - mtu
     Given "gsm" is visible with command "nmcli device status | grep -v unmanaged" in "60" seconds
@@ -114,7 +114,7 @@ Feature: nmcli: gsm
 
     @rhbz1585611
     @ver+=1.12
-    @gsm_sim
+    @gsm_sim @no_abrt
     @gsm_sim_route_metric
     Scenario: nmcli - gsm_sim - route metric
     Given "gsm" is visible with command "nmcli device status | grep -v unmanaged" in "60" seconds
@@ -136,7 +136,7 @@ Feature: nmcli: gsm
 
 
     @ver+=1.12.0
-    @gsm_sim
+    @gsm_sim @no_abrt
     @gsm_sim_load_from_file
     Scenario: nmcli - gsm_sim - load connection from file
     Given "gsm" is visible with command "nmcli device status | grep -v unmanaged" in "60" seconds
@@ -160,7 +160,7 @@ Feature: nmcli: gsm
 
 
     @ver+=1.18.0
-    @gsm_sim
+    @gsm_sim @no_abrt
     @gsm_sim_profile_with_serials
     Scenario: nmcli - gsm_sim - serial
     Given "gsm" is visible with command "nmcli device status | grep -v unmanaged" in "60" seconds

@@ -227,7 +227,7 @@ def check_dump_package(pkg_name):
 def is_dump_reported(dump_dir):
     return call('grep -q "%s" /tmp/reported_crashes' % (dump_dir), shell=True) == 0
 
-def embed_dump(context, dump_dir, dump_output, caption):
+def embed_dump(context, dump_dir, dump_output, caption, do_report):
     print("Attaching %s, %s" % (caption, dump_dir))
     context.embed('text/plain', dump_output, caption=caption)
     context.crash_embeded = True
@@ -236,16 +236,18 @@ def embed_dump(context, dump_dir, dump_output, caption):
         f.close()
     if not context.crashed_step:
         if context.nm_restarted:
-            context.crashed_step = "crash during scenario (NM restarted, not sure where was the crash)"
+            if do_report:
+                context.crashed_step = "crash during scenario (NM restarted, not sure where was the crash)"
         else:
-            context.crashed_step = "crash outside steps (envsetup, before / after scenario...)"
+            if do_report:
+                context.crashed_step = "crash outside steps (envsetup, before / after scenario...)"
 
 def list_dumps(dumps_search):
     p = Popen("ls -d %s" % (dumps_search), shell=True, stdin=PIPE, stdout=PIPE, stderr=PIPE, bufsize=-1)
     list_of_dumps, _ = p.communicate()
     return list_of_dumps.decode('utf-8', 'ignore').strip('\n').split('\n')
 
-def check_coredump(context):
+def check_coredump(context, do_report=True):
     coredump_search = "/var/lib/systemd/coredump/*"
     list_of_dumps =list_dumps(coredump_search)
 
@@ -267,9 +269,9 @@ def check_coredump(context):
         if not is_dump_reported(dump_dir):
             p = Popen('echo backtrace | coredumpctl debug %d' % (pid), shell=True, stdin=PIPE, stdout=PIPE, stderr=PIPE, bufsize=-1)
             dump_output, _ = p.communicate()
-            embed_dump(context, dump_dir, dump_output.decode('utf-8', 'ignore'), caption="COREDUMP")
+            embed_dump(context, dump_dir, dump_output.decode('utf-8', 'ignore'), "COREDUMP", do_report)
 
-def check_faf(context):
+def check_faf(context, do_report=True):
     abrt_search = "/var/spool/abrt/ccpp*"
     list_of_dumps =list_dumps(abrt_search)
     for dump_dir in list_of_dumps:
@@ -290,7 +292,8 @@ def check_faf(context):
             for report in reports:
                 if "URL=" in report:
                     url = report.replace("URL=","")
-            embed_dump(context, "%s-%s" % (dump_dir ,last_timestamp), url, caption="FAF")
+            print ("embedding dump with report=%s", do_report)
+            embed_dump(context, "%s-%s" % (dump_dir ,last_timestamp), url, "FAF", do_report)
 
 def reset_usb_devices():
     USBDEVFS_RESET= 21780
@@ -2667,8 +2670,13 @@ def after_scenario(context, scenario):
             # sets crash_embeded and crashed_step, if crash found
             context.crash_embeded = False
             try:
-                check_coredump(context)
-                check_faf(context)
+                if 'no_abrt' in scenario.tags:
+                    check_coredump(context, False)
+                    check_faf(context, False)
+                else:
+                    check_coredump(context)
+                    check_faf(context)
+
             except Exception as e:
                 print("Exception during crash search!")
                 traceback.print_exc(file=sys.stdout)
