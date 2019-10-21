@@ -136,7 +136,7 @@ class Job:
                     l_build = "<td>"
                 l_build += '%s</td>' % build.status
 
-                n_failures = len(set(build.failures))
+                n_failures = len(build.failures)
                 if n_failures > 9:
                     l_failures = '<td style="background:red">%d</td>' % n_failures
                 elif n_failures > 2:
@@ -241,17 +241,18 @@ class Build:
                     # no .html suffix?? not sure, skip...
                     eprint("No .html suffix in artifact '{:s}': skip...".format(artifact))
                     continue
-                failure = Failure.add_failure(split_artifact[0], self, artifacts[artifact])
+                failure = Failure.add_failure(split_artifact[0], self, artifacts[artifact].url)
                 self.append_failure(failure)
 
 
 
     def append_failure(self, failure):
-        self.failures.append(failure)
+        if failure not in self.failures:
+            self.failures.append(failure)
 
 
 def failure_number(failure):
-    return len(set(failure.builds))
+    return len(failure.builds)
 
 
 def failure_last(failure):
@@ -283,14 +284,12 @@ class Failure:
     failures = []
 
     @classmethod
-    def add_failure(cls, name, job, artifact=None):
+    def add_failure(cls, name, job, artifact_url=None):
         for failure in cls.failures:
             if failure.name == name:
-                failure.append_job(job)
-                if artifact:
-                    failure.append_artifact(artifact)
+                failure.append_job(job, artifact_url=artifact_url)
                 return failure
-        failure = Failure(name, job, artifact)
+        failure = Failure(name, job, artifact_url=artifact_url)
         cls.failures.append(failure)
         return failure
 
@@ -371,7 +370,7 @@ class Failure:
                 '</tr>\n' % (failure.name, failure.name,
                              l_perm,
                              l_last,
-                             len(set(failure.builds)),
+                             len(failure.builds),
                              failure.score,
                              failure.bugzilla))
 
@@ -382,20 +381,17 @@ class Failure:
             fd.write('           <hr>\n\t<h3 id="%s">%s</h3>\n' % (failure.name, failure.name))
             fd.write('           <p>\n')
             builds = failure.builds
-            for artifact in failure.artifacts:
-                build=artifact.build
-                build_id=build.get_number()
-                fd.write('          <a target="_blank" href="%s">report</a> from <a href="%s">#%d</a><br>\n' % (artifact.url, artifacts_url(build.baseurl), build_id))
-                # remove artifact build from builds
-                builds = [ build for build in builds if build.id != build_id]
-            # process builds with no artifacts
             for build in builds:
-                fd.write('          <a target="_blank" href="%s">#%d</a><br>\n' % (artifacts_url(build.url), build.id))
+                if build.id in failure.artifact_urls:
+                    artifact_url = failure.artifact_urls[build.id]
+                    fd.write('          <a target="_blank" href="%s">report</a> from <a href="%s">#%d</a><br>\n' % (artifact_url, artifacts_url(build.url), build.id))
+                else:
+                    fd.write('          <a target="_blank" href="%s">#%d</a><br>\n' % (artifacts_url(build.url), build.id))
             fd.write('           </p>\n')
 
         fd.close()
 
-    def __init__(self, name, build=None, artifact=None):
+    def __init__(self, name, build=None, artifact_url=None):
         self.name = name
         self.permanent = True
         self.last = -1
@@ -405,15 +401,15 @@ class Failure:
         self.builds = []
         if build:
             self.builds.append(build)
-        self.artifacts = []
-        if artifact:
-            self.artifacts.append(artifact)
+        self.artifact_urls = {}
+        if artifact_url and build:
+            self.artifact_urls[build.id] = artifact_url
 
-    def append_job(self, job):
-        self.builds.append(job)
-
-    def append_artifact(self, artifact):
-        self.artifacts.append(artifact)
+    def append_job(self, job, artifact_url=None):
+        if job not in self.builds:
+            self.builds.append(job)
+        if artifact_url:
+            self.artifact_urls[job.id] = artifact_url
 
     def post_process(self, build_list):
         if not self.builds:
@@ -434,7 +430,7 @@ class Failure:
                     last_failed = False
                     last_failed_switches += 1
 
-        if last_failed_switches > 2 or len(set(self.builds)) == 1 and self.last:
+        if last_failed_switches > 2 or len(self.builds) == 1 and self.last:
             self.permanent = False
         else:
             self.permanent = True
