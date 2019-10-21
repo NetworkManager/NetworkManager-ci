@@ -416,7 +416,7 @@ def delete_old_lock(dir, lock):
     os.rmdir("%s%s" %(dir, lock))
 
 def restore_testeth0():
-    print ("* restoring testeth0")
+    print ("* restoring testeth0 as we do not have that profile")
     call("nmcli con delete testeth0 2>&1 > /dev/null", shell=True)
     call("yes 2>/dev/null | cp -rf /tmp/testeth0 /etc/sysconfig/network-scripts/ifcfg-testeth0", shell=True)
     sleep(1)
@@ -527,13 +527,7 @@ def before_scenario(context, scenario):
     else:
         try:
             if not os.path.isfile('/tmp/nm_wifi_configured') and not os.path.isfile('/tmp/nm_dcb_inf_wol_sriov_configured'):
-                if call("nmcli device |grep testeth0 |grep ' connected'", shell=True) != 0:
-                    call("sudo nmcli connection modify testeth0 ipv4.may-fail no", shell=True)
-                    call("sudo nmcli connection up id testeth0", shell=True)
-                    for attempt in range(0, 10):
-                        if call("nmcli device |grep testeth0 |grep ' connected'", shell=True) == 0:
-                            break
-                        sleep(1)
+                wait_for_testeth0 ()
 
             os.environ['TERM'] = 'dumb'
 
@@ -1468,7 +1462,7 @@ def after_scenario(context, scenario):
                 call('rm -rf /etc/NetworkManager/conf.d/90-hostname.conf', shell=True)
                 call('rm -rf /etc/dnsmasq.d/dnsmasq_custom.conf', shell=True)
                 call('systemctl restart NetworkManager', shell=True)
-                call("nmcli con up testeth0", shell=True)
+                wait_for_testeth0()
             if 'restart' in scenario.tags:
                 print ("---------------------------")
                 print ("restarting NM service")
@@ -1527,8 +1521,6 @@ def after_scenario(context, scenario):
                     print ("Disconnect testeth7")
                     os.system("nmcli con down testeth7")
             if "eth0" in scenario.tags:
-                print ("---------------------------")
-                print ("upping testeth0")
                 wait_for_testeth0()
 
         except Exception:
@@ -1597,7 +1589,7 @@ def after_scenario(context, scenario):
                 call("for i in $(pidof nm-iface-helper); do kill -9 $i; done", shell=True)
                 call("nmcli connection delete con_general", shell=True)
                 call("nmcli device disconnect eth10", shell=True)
-                call("nmcli connection up testeth0", shell=True)
+                wait_for_testeth0()
 
             if 'secret_key_reset' in scenario.tags:
                 call("mv /var/lib/NetworkManager/secret_key_back /var/lib/NetworkManager/secret_key", shell=True)
@@ -1626,7 +1618,7 @@ def after_scenario(context, scenario):
                 call('rm -rf /etc/NetworkManager/conf.d/90-hostname.conf', shell=True)
                 call('rm -rf /etc/dnsmasq.d/dnsmasq_custom.conf', shell=True)
                 reload_NM_service()
-                call("nmcli con up testeth0", shell=True)
+                wait_for_testeth0()
 
             if '1000' in scenario.tags:
                 print ("---------------------------")
@@ -2321,7 +2313,7 @@ def after_scenario(context, scenario):
                 call('rm -rf /tmp/resolv.conf', shell=True)
                 call("rm -rf /etc/NetworkManager/conf.d/99-resolv.conf", shell=True)
                 reload_NM_service()
-                call("nmcli con up testeth0", shell=True)
+                wait_for_testeth0()
 
             if 'need_config_server' in scenario.tags:
                 if context.remove_config_server:
@@ -2408,7 +2400,6 @@ def after_scenario(context, scenario):
                 call('sudo mv -f /tmp/sysnetwork.backup /etc/sysconfig/network', shell=True)
                 call('sudo nmcli connection reload', shell=True)
                 call('sudo nmcli connection down testeth9', shell=True)
-                #call('sudo nmcli connection up testeth0', shell=True)
 
             if 'nmcli_general_profile_pickup_doesnt_break_network' in scenario.tags:
                 print("---------------------------")
@@ -2421,7 +2412,7 @@ def after_scenario(context, scenario):
                 call('sysctl net.ipv6.conf.default.accept_ra=1', shell=True)
                 call('sudo systemctl start NetworkManager.service', shell=True)
                 call('sudo nmcli connection down testeth8 testeth9', shell=True)
-                call('sudo nmcli connection up testeth0', shell=True)
+                wait_for_testeth0()
 
             if 'gsm' in scenario.tags:
                 # You can debug here only with console connection to the testing machine.
@@ -2432,7 +2423,6 @@ def after_scenario(context, scenario):
                 print ("remove gsm profile and delete lock and dump logs")
                 call('nmcli connection delete gsm', shell=True)
                 call('rm -rf /etc/NetworkManager/system-connections/gsm', shell=True)
-                call('nmcli con up testeth0', shell=True)
                 wait_for_testeth0()
                 if not os.path.isfile('/tmp/usb_hub'):
                     call('mount -o remount -t nfs nest.test.redhat.com:/mnt/qa/desktop/broadband_lock /mnt/scratch', shell=True)
@@ -2560,10 +2550,7 @@ def after_scenario(context, scenario):
                 call('route del default gw 192.168.50.1 eth8', shell=True)
 
             if 'connect_testeth0' in scenario.tags:
-                print ("---------------------------")
-                print ("upping testeth0")
-                call("nmcli connection up id testeth0", shell=True)
-                sleep(2)
+                wait_for_testeth0()
 
             if 'vlan_create_many_vlans' in scenario.tags:
                 print ("---------------------------")
