@@ -18,6 +18,7 @@ OUTPUT_DIR="/tmp/j_dump/"
 LOG_FILE="logger.txt"
 HTML_INDEX_FILE="index.html"
 NM_LOGOTYPE_FILE="nm_logotype_235x75.png"
+NM_ICON_FILE="nm_icon.png"
 
 
 ### CI_NICKs config ###
@@ -69,6 +70,7 @@ index_html_heading() {
 		'      }\n' \
 		'    </style>\n' \
 	        '  </head>\n' \
+			"  <link rel=\"icon\" href=\"$NM_ICON_FILE\">\n" \
 	        '  <body>\n' \
 	        '    <header>\n' \
 		"      <h1><img src=\"$NM_LOGOTYPE_FILE\" alt=\"NetworkManager\" align=\"bottom\">CI results</h1>\n" \
@@ -140,6 +142,7 @@ process_job() {
 
 mkdir -p "$OUTPUT_DIR"
 [ -f "$NM_LOGOTYPE_FILE" ] && cp "$NM_LOGOTYPE_FILE" "$OUTPUT_DIR"
+[ -f "$NM_ICON_FILE" ] && cp "$NM_ICON_FILE" "$OUTPUT_DIR"
 
 cd "$OUTPUT_DIR"
 log "-----------------------------------------------------------------"
