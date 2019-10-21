@@ -547,3 +547,18 @@ Feature: nmcli - vlan
     * Add a new connection of type "macvlan" and options "con-name vlan2 mode bridge macvlan.parent eth7.99 ifname mvl2"
     * Add a new connection of type "macvlan" and options "con-name vlan mode bridge macvlan.parent eth7.299 ifname mvl"
     * Restart NM
+
+
+    @rhbz1716438
+    @ver+=1.18.3
+    @vlan
+    @vlan_L2_UUID
+    Scenario: NM - vlan - L2 only master via UUID
+    * Add a new connection of type "ethernet" and options "con-name vlan1 ifname eth7 ipv4.method disabled ipv6.method ignore"
+    * Note the output of "nmcli --mode tabular -t -f connection.uuid connection show vlan1"
+    * Add a new connection of type "vlan" and options "con-name vlan ifname eth7.80 dev eth7 id 80 ip4 192.168.1.2/24"
+    * Modify connection "vlan" property "vlan.parent" to noted value
+    * Execute "nmcli connection modify vlan connection.autoconnect yes"
+    * Bring "up" connection "vlan"
+    Then "eth7:connected:vlan1" is visible with command "nmcli -t -f DEVICE,STATE,CONNECTION device" in "20" seconds
+    Then "eth7.80:connected:vlan" is visible with command "nmcli -t -f DEVICE,STATE,CONNECTION device" in "20" seconds
