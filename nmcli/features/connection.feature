@@ -219,12 +219,25 @@ Feature: nmcli: connection
 
 
     @veth @con_con_remove @restart
+    @ver-=1.18.3
     @connection_autoconnect_yes
     Scenario: nmcli - connection - set autoconnect on
-     * Add a new connection of type "ethernet" and options "con-name con_con ifname eth6 connection.autoconnect no"
-     * Modify connection "con_con" changing options "connection.autoconnect yes"
+    * Add a new connection of type "ethernet" and options "con-name con_con ifname eth6 connection.autoconnect no"
+    * Modify connection "con_con" changing options "connection.autoconnect yes"
+    * Reboot
+    Then "con_con" is visible with command "nmcli -t -f NAME  connection show -a" in "3" seconds
+
+
+    @rhbz1715887
+    @ver+=1.18.4
+    @veth @con_con_remove @restart
+    @connection_autoconnect_yes
+    Scenario: nmcli - connection - set autoconnect on
+     * Add a new connection of type "ethernet" and options "con-name con_con ifname eth6 connection.autoconnect no connection.autoconnect-retries 3"
+     * Modify connection "con_con" changing options "connection.autoconnect '' connection.autoconnect-retries ''"
      * Reboot
      Then "con_con" is visible with command "nmcli -t -f NAME  connection show -a" in "3" seconds
+     Then "-1 \(default\)" is visible with command "nmcli -f connection.autoconnect-retries con show con_con" in "3" seconds
 
 
     @rhbz1401515
