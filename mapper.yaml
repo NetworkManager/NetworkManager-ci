@@ -241,6 +241,9 @@ testmapper:
         feature: bond
     - bond_normalize_connection:
         feature: bond
+    - bond_arp_validate:
+        feature: bond
+        tags: gate            
     - bridge_add_default:
         feature: bridge
     - bridge_add_custom_one:

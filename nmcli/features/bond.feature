@@ -1554,19 +1554,46 @@
      Then Noted value is not visible with command "cat /tmp/tshark.log" in "2" seconds
 
 
-     @rhbz1667874
-     @ver+=1.19
-     @bond
-     @bond_autoconnect_activation_fails_with_libnm
-     Scenario: NM - bond - bond activation fails with autoconnect true using libnm
-     Then "Connection added\s+Connection activated" is visible with command "python tmp/bond_add_activate.py" in "1" seconds
-
-
-
-    @rhbz1718173
-    @ver+=1.20
+    @rhbz1667874
+    @ver+=1.19
     @bond
-    @bond_normalize_connection
-    Scenario: NM - bond - bond normalize connection
-    * Add a new connection of type "bond" and options "con-name bond0 ifname nm-bond bond.options mode=4,arp_interval=2,arp_ip_target=1.1.1.1"
-    Then "mode=802.3ad" is visible with command "nmcli c show bond0"
+    @bond_autoconnect_activation_fails_with_libnm
+    Scenario: NM - bond - bond activation fails with autoconnect true using libnm
+    Then "Connection added\s+Connection activated" is visible with command "python tmp/bond_add_activate.py" in "1" seconds
+
+
+    @rhbz1730793
+    @ver+=1.18.4
+    @bond @slaves
+    @bond_arp_validate
+    Scenario: NM - bond - bond set arp_validate
+    * Add a new connection of type "bond" and options "con-name bond0 ifname nm-bond autoconnect no ip4 10.16.135.1/24 -- connection.autoconnect-slaves 1 bond.options mode=active-backup,arp_interval=1000,arp_ip_target=10.16.135.254,arp_all_targets=1,arp_validate=6"
+    * Add a new connection of type "ethernet" and options "con-name bond0.1 ifname eth4 master nm-bond autoconnect no"
+    * Add a new connection of type "ethernet" and options "con-name bond0.0 ifname eth1 master nm-bond autoconnect no"
+    * Bring "up" connection "bond0"
+    When "nm-bond:connected:bond0" is visible with command "nmcli -t -f DEVICE,STATE,CONNECTION device" in "40" seconds
+    Then "filter_backup 6" is visible with command "cat /sys/class/net/nm-bond/bonding/arp_validate"
+    * Modify connection "bond0" changing options "bond.options mode=active-backup,arp_interval=1000,arp_ip_target=10.16.135.254,arp_all_targets=1,arp_validate=5"
+    * Bring "up" connection "bond0"
+    When "nm-bond:connected:bond0" is visible with command "nmcli -t -f DEVICE,STATE,CONNECTION device" in "40" seconds
+    Then "filter_active 5" is visible with command "cat /sys/class/net/nm-bond/bonding/arp_validate"
+    * Modify connection "bond0" changing options "bond.options mode=active-backup,arp_interval=1000,arp_ip_target=10.16.135.254,arp_all_targets=1,arp_validate=4"
+    * Bring "up" connection "bond0"
+    When "nm-bond:connected:bond0" is visible with command "nmcli -t -f DEVICE,STATE,CONNECTION device" in "40" seconds
+    Then "filter 4" is visible with command "cat /sys/class/net/nm-bond/bonding/arp_validate"
+    * Modify connection "bond0" changing options "bond.options mode=active-backup,arp_interval=1000,arp_ip_target=10.16.135.254,arp_all_targets=1,arp_validate=3"
+    * Bring "up" connection "bond0"
+    When "nm-bond:connected:bond0" is visible with command "nmcli -t -f DEVICE,STATE,CONNECTION device" in "40" seconds
+    Then "all 3" is visible with command "cat /sys/class/net/nm-bond/bonding/arp_validate"
+    * Modify connection "bond0" changing options "bond.options mode=active-backup,arp_interval=1000,arp_ip_target=10.16.135.254,arp_all_targets=1,arp_validate=2"
+    * Bring "up" connection "bond0"
+    When "nm-bond:connected:bond0" is visible with command "nmcli -t -f DEVICE,STATE,CONNECTION device" in "40" seconds
+    Then "backup 2" is visible with command "cat /sys/class/net/nm-bond/bonding/arp_validate"
+    * Modify connection "bond0" changing options "bond.options mode=active-backup,arp_interval=1000,arp_ip_target=10.16.135.254,arp_all_targets=1,arp_validate=1"
+    * Bring "up" connection "bond0"
+    When "nm-bond:connected:bond0" is visible with command "nmcli -t -f DEVICE,STATE,CONNECTION device" in "40" seconds
+    Then "active 1" is visible with command "cat /sys/class/net/nm-bond/bonding/arp_validate"
+    * Modify connection "bond0" changing options "bond.options mode=active-backup,arp_interval=1000,arp_ip_target=10.16.135.254,arp_all_targets=1,arp_validate=0"
+    * Bring "up" connection "bond0"
+    When "nm-bond:connected:bond0" is visible with command "nmcli -t -f DEVICE,STATE,CONNECTION device" in "40" seconds
+    Then "none 0" is visible with command "cat /sys/class/net/nm-bond/bonding/arp_validate"
