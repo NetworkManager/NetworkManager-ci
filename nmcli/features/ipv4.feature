@@ -804,6 +804,8 @@ Feature: nmcli: ipv4
     Scenario: nmcli - ipv4 - dhcp-fqdn - remove dhcp-fqdn
     * Add a new connection of type "ethernet" and options "ifname eth2 con-name con_ipv4 ipv4.dhcp-fqdn foo.bar.com ipv4.may-fail no"
     * Modify connection "con_ipv4" changing options "ipv4.dhcp-fqdn ''"
+    # This delay seems to be necessary in some cases, is dbus slow?
+    * Wait for at least "1" seconds
     * Bring "up" connection "con_ipv4"
     * Run child "sudo tshark -l -O bootp -i eth2 > /tmp/tshark.log"
     When "empty" is not visible with command "file /tmp/tshark.log" in "150" seconds
