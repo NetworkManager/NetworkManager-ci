@@ -104,9 +104,9 @@ index_html_add_entry() {
 	fi
 	echo -n "      <li style=\"padding:2px 0;\"><a style=\"text-decoration:none; border-radius:2px; padding:0 3px; ${style}\" href=${ref} target=\"iframe_res\">${name}" >> $HTML_INDEX_FILE
 	for i in `seq $4`; do
-		echo -n " <b>*</b>"
+		echo -n " <b>*</b>" >> $HTML_INDEX_FILE
 	done
-	echo '</a></li>'
+	echo '</a></li>' >> $HTML_INDEX_FILE
 }
 
 index_html_trailing() {
