@@ -3,6 +3,8 @@ Feature: Bond TUI tests
   Background:
   * Prepare virtual terminal environment
 
+    @rhbz1715720
+    @ver+=1.18.4
     @bond
     @nmtui_bond_add_default_bond
     Scenario: nmtui - bond - add default bond
@@ -11,6 +13,7 @@ Feature: Bond TUI tests
     * Confirm the connection settings
     Then Check ifcfg-name file created for connection "bond0"
     Then "TYPE=Bond" is visible with command "cat /etc/sysconfig/network-scripts/ifcfg-bond0"
+    Then "BONDING_OPTS=\"downdelay=0 miimon=100 mode=balance-rr updelay=0\"" is visible with command "cat /etc/sysconfig/network-scripts/ifcfg-bond0"
     Then "bond0:" is visible with command "ip a" in "10" seconds
     Then Check bond "bond0" in proc
     Then "bond0\s+bond" is visible with command "nmcli device"
