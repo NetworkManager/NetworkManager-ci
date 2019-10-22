@@ -111,7 +111,7 @@ index_html_add_entry() {
 
 index_html_trailing() {
 	echo -e '    </nav>\n' \
-		"    <article><iframe name=\"iframe_res\" width=100% height=1000px style=\"border:none\"\n" \
+		"    <article><iframe name=\"iframe_res\" width=100% height=1000px style=\"border:none\">\n" \
 		'    </section>\n' \
 		'  </body>\n' \
 	        '</html>' \
