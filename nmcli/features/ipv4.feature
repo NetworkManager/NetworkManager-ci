@@ -1786,18 +1786,18 @@ Feature: nmcli: ipv4
      And "activated" is visible with command "nmcli -g GENERAL.STATE con show con_ipv4" in "45" seconds
 
 
-    @rhbz1652653
-    @ver+=1.18
+    @rhbz1652653 @rhbz1696881
+    @ver+=1.18.4
     @con_ipv4_remove @restart
     @ipv4_routing_rules_manipulation
     Scenario: NM - ipv4 - routing rules manipulation
     * Add a new connection of type "ethernet" and options "ifname eth3 con-name con_ipv4 autoconnect no"
     * Bring "up" connection "con_ipv4"
-    * Modify connection "con_ipv4" changing options "ipv4.routing-rules 'priority 5 table 6, priority 6 from 192.168.6.7/32 table 7'"
+    * Modify connection "con_ipv4" changing options "ipv4.routing-rules 'priority 5 table 6, priority 6 from 192.168.6.7/32 table 7' autoconnect yes"
     * Bring "up" connection "con_ipv4"
     When "activated" is visible with command "nmcli -g GENERAL.STATE con show con_ipv4" in "45" seconds
-    # * Reboot
-    # When "activated" is visible with command "nmcli -g GENERAL.STATE con show con_ipv4" in "45" seconds
+    * Reboot
+    When "activated" is visible with command "nmcli -g GENERAL.STATE con show con_ipv4" in "45" seconds
     When "5:\s+from all lookup 6\s+6:\s+from 192.168.6.7 lookup 7" is visible with command "ip rule"
     * Bring "down" connection "con_ipv4"
     Then "5:\s+from all lookup 6\s+6:\s+from 192.168.6.7 lookup 7" is not visible with command "ip rule"
