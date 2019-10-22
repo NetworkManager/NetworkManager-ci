@@ -1849,14 +1849,14 @@ Feature: nmcli - general
     * Quit editor
 
 
-    @rhbz1588952
-    @ver+=1.14
+    @rhbz1588952 @rhbz1654062
+    @ver+=1.18.4
     @nmcli_novice_print_types
     Scenario: nmcli - general - print availiable connection types in connection assistant
     * Open wizard for adding new connection
     * Expect "Connection type"
     * Submit "<double_tab>"
-    Then Expect "adsl.*bluetooth.*bond.*bridge"
+    Then Expect "adsl.*bluetooth.*bond.*bridge.*bond-slave, bridge-slave, team-slave"
 
 
     @rhbz1671200
