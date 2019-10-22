@@ -324,48 +324,13 @@ Feature: nmcli - general
     Then "eth9\s+ethernet\s+connected" is visible with command "nmcli device"
 
 
-    @rhbz1032717
-    @ver+=1.7.1 @ver-=1.10.1
-    @con_general_remove @teardown_testveth @dhcpd
-    @device_reapply_routes
-    Scenario: NM - device - reapply just routes
-    * Prepare simulated test "testG" device
-    * Add connection type "ethernet" named "con_general" for device "testG"
-    When "connected" is visible with command "nmcli -g GENERAL.STATE dev show testG" in "5" seconds
-    * Modify connection "con_general" changing options "ipv4.routes '192.168.5.0/24 192.168.99.111 1' ipv4.route-metric 21 ipv6.method static ipv6.addresses 2000::2/126 ipv6.routes '1010::1/128 2000::1 1'"
-    * "Error.*" is not visible with command "nmcli device reapply testG" in "1" seconds
-    Then "1010::1 via 2000::1 dev testG\s+proto static\s+metric 1" is visible with command "ip -6 route" in "5" seconds
-     # metric 256 is valid for @ver-=1.9.1 only, please delete of too old
-     And "2000::/126 dev testG\s+proto kernel\s+metric (100|256)" is visible with command "ip -6 route"
-     And "192.168.5.0/24 via 192.168.99.111 dev testG\s+proto static\s+metric" is visible with command "ip route"
-     And "routers = 192.168.99.1" is visible with command "nmcli con show con_general"
-     And "default via 192.168.99.1 dev testG" is visible with command "ip r"
-
-
-    @rhbz1032717
-    @ver+=1.10.2  @ver-1.11
-    @con_general_remove @teardown_testveth @dhcpd
-    @device_reapply_routes
-    Scenario: NM - device - reapply just routes
-    * Prepare simulated test "testG" device
-    * Add a new connection of type "ethernet" and options "ifname testG con-name con_general ipv4.may-fail no ipv6.method ignore"
-    When "connected" is visible with command "nmcli -g GENERAL.STATE dev show testG" in "5" seconds
-    * Modify connection "con_general" changing options "ipv4.routes '192.168.5.0/24 192.168.99.111 1' ipv4.route-metric 21 ipv6.method static ipv6.addresses 2000::2/126 ipv6.routes '1010::1/128 2000::1 1'"
-    * "Error.*" is not visible with command "nmcli device reapply testG" in "1" seconds
-    Then "1010::1 via 2000::1 dev testG\s+proto static\s+metric 1" is visible with command "ip -6 route" in "5" seconds
-     And "2000::/126 dev testG\s+proto kernel\s+metric 1" is visible with command "ip -6 route"
-     And "192.168.5.0/24 via 192.168.99.111 dev testG\s+proto static\s+metric" is visible with command "ip route"
-     And "routers = 192.168.99.1" is visible with command "nmcli con show con_general"
-     And "default via 192.168.99.1 dev testG\s+proto dhcp\s+metric 21" is visible with command "ip r"
-
-
     @ver+=1.12.2
     @con_general_remove @teardown_testveth @dhcpd
     @device_reapply_routes
     Scenario: NM - device - reapply just routes
     * Prepare simulated test "testG" device
     * Add a new connection of type "ethernet" and options "ifname testG con-name con_general"
-    When "connected" is visible with command "nmcli -g GENERAL.STATE dev show testG" in "5" seconds
+    When "connected" is visible with command "nmcli -g GENERAL.STATE dev show testG" in "35" seconds
     * Modify connection "con_general" changing options "ipv4.routes '192.168.5.0/24 192.168.99.111 1' ipv4.route-metric 21 ipv6.method static ipv6.addresses 2000::2/126 ipv6.routes '1010::1/128 2000::1 1'"
     * "Error.*" is not visible with command "nmcli device reapply testG" in "1" seconds
     Then "1010::1 via 2000::1 dev testG\s+proto static\s+metric 1" is visible with command "ip -6 route" in "5" seconds

@@ -831,10 +831,10 @@
     @team_add_into_firewall_zone
     Scenario: nmcli - team - modify zones
     * Add connection type "team" named "team0" for device "nm-team"
-    When "public\s+interfaces: eth0 nm-team" is visible with command "firewall-cmd --get-active-zones"
+    When "public\s+interfaces: eth0 nm-team" is visible with command "firewall-cmd --get-active-zones" in "5" seconds
     * Execute "nmcli connection modify team0 connection.zone work"
     * Bring "up" connection "team0"
-    When "work\s+interfaces: nm-team" is visible with command "firewall-cmd --get-active-zones"
+    When "work\s+interfaces: nm-team" is visible with command "firewall-cmd --get-active-zones" in "5" seconds
 
 
     @rhbz1310676
