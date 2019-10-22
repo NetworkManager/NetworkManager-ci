@@ -49,6 +49,7 @@ class Job:
         self.nick = nick
         self.connection = None
         self.builds = []
+        self.running_builds = []
         self.failures = []
 
     def connect(self):
@@ -68,7 +69,11 @@ class Job:
         return self.builds
 
     def append_build(self, build):
-        self.builds.append(build)
+        if build.status == 'RUNNING':
+            self.running_builds.append(build)
+        else:
+            self.builds.append(build)
+
 
     def builds_retrieve(self, max_builds):
         i = 0
@@ -122,7 +127,7 @@ class Job:
             "                   <th>Links</th>\n"
             "               </tr>\n")
 
-        for build in self.builds:
+        for build in self.running_builds + self.builds:
             if build.failed:
                 l_build = '<td style="background:black;color:white;font-weight:bold">' \
                           '{:s}</td>'.format(build.status)
@@ -130,7 +135,9 @@ class Job:
             else:
                 if build.status in ('FAILURE', 'NOT_BUILT'):
                     l_build = '<td style="color:red;font-weight:bold">'
-                elif build.status in 'SUCCESS':
+                elif build.status == 'RUNNING':
+                    l_build = '<td style="color:brown;font-weight:bold">'
+                elif build.status == 'SUCCESS':
                     l_build = '<td style="color:green;font-weight:bold">'
                 else:
                     l_build = "<td>"
@@ -212,7 +219,8 @@ class Build:
         else:
             if not self.status:
                 if self.build.is_running():
-                    raise BuildCreationError("build is still running")
+                    self.status = "RUNNING"
+                    return
                 else:
                     raise BuildCreationError("build has no status nor results")
 

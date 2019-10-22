@@ -102,7 +102,11 @@ index_html_add_entry() {
     else
         style="color:red;   border:1px solid red;   background-color:#ffdddd;"
 	fi
-	echo "      <li style=\"padding:2px 0;\"><a style=\"text-decoration:none; border-radius:2px; padding:0 3px; ${style}\" href=${ref} target=\"iframe_res\">${name}</a></li>" >> $HTML_INDEX_FILE
+	echo -n "      <li style=\"padding:2px 0;\"><a style=\"text-decoration:none; border-radius:2px; padding:0 3px; ${style}\" href=${ref} target=\"iframe_res\">${name}" >> $HTML_INDEX_FILE
+	for i in `seq $4`; do
+		echo -n " <b>*</b>"
+	done
+	echo '</a></li>'
 }
 
 index_html_trailing() {
@@ -135,7 +139,9 @@ process_job() {
 		[ -n "$JOB_HEADER" ] && JDUMP_JOB_NAME="--name ${job%-upstream}" || unset JDUMP_JOB_NAME
 
 		$JDUMP_BIN $JDUMP_OPTIONS $JDUMP_JOB_NAME "$JENKINS_URL" "$JOB_FULL_NAME" >> "$LOG_FILE" 2>&1
-		index_html_add_entry "$JOB_FULL_NAME" "${job%-upstream}" "$(grep -m 1 '<tr><td>' ${JOB_FULL_NAME}_builds.html | grep -o -e green -e black )"
+		color="$(grep -v 'RUNNING' ${JOB_FULL_NAME}_builds.html | grep -m 1 '<tr><td>' | grep -o -e green -e black )"
+		running="$(grep -o 'RUNNING' ${JOB_FULL_NAME}_builds.html | wc -l)"
+		index_html_add_entry "$JOB_FULL_NAME" "${job%-upstream}" "$color" "$running"
 	done
 	index_html_ci_end
 }
