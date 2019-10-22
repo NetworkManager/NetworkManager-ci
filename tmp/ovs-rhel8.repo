@@ -1,0 +1,6 @@
+[OVS-RHEL8]
+name=ovs-rhel8
+baseurl=http://download.eng.bos.redhat.com/brewroot/repos/fast-datapath-rhel-8-build/latest/$basearch/
+enable=1
+skip_if_unavailable=1
+gpgcheck=0

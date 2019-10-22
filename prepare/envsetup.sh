@@ -90,8 +90,7 @@ install_fedora_packages () {
 
     # Install various NM dependencies
     dnf -4 -y remove NetworkManager-config-connectivity-fedora NetworkManager-config-connectivity-redhat
-    dnf -4 -y install openvswitch
-    dnf -4 -y install NetworkManager-ovs
+    dnf -4 -y install openvswitch NetworkManager-ovs
 
     if ! rpm -q --quiet NetworkManager-pptp; then
         dnf -4 -y install NetworkManager-pptp
@@ -115,7 +114,7 @@ install_fedora_packages () {
     # Update and install the latest dbus
     dnf -4 -y update dbus*
     systemctl restart messagebus
-    
+
     # Make crypto policies a bit less strict
     update-crypto-policies --set LEGACY
     systemctl restart wpa_supplicant
@@ -170,8 +169,9 @@ install_el8_packages () {
     REL=$(rpm -q --queryformat '%{RELEASE}' kernel)
     dnf -4 -y install http://download.eng.bos.redhat.com/brewroot/vol/rhel-8/packages/kernel/$VER/$REL/$(arch)/kernel-modules-internal-$VER-$REL.$(arch).rpm
 
-    # Install OVS2 deps
-    dnf -4 install -y http://download.eng.bos.redhat.com/brewroot/vol/rhel-8/packages/openvswitch2.11/2.11.0/18.el8fdp/$(arch)/openvswitch2.11-2.11.0-18.el8fdp.$(arch).rpm http://download.eng.bos.redhat.com/brewroot/vol/rhel-8/packages/openvswitch-selinux-extra-policy/1.0/18.el8fdp/noarch/openvswitch-selinux-extra-policy-1.0-18.el8fdp.noarch.rpm
+    # Install OVS
+    mv -f  tmp/ovs-rhel8.repo /etc/yum.repos.d/ovs.repo
+    yum -y install openvswitch
 
     dnf -4 -y install http://download.eng.bos.redhat.com/brewroot/packages/$(rpm -q --queryformat '%{NAME}/%{VERSION}/%{RELEASE}' NetworkManager)/$(uname -p)/NetworkManager-ovs-$(rpm -q --queryformat '%{VERSION}-%{RELEASE}' NetworkManager).$(uname -p).rpm
     if ! rpm -q --quiet NetworkManager-pptp; then
