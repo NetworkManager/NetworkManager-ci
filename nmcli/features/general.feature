@@ -330,7 +330,7 @@ Feature: nmcli - general
     Scenario: NM - device - reapply just routes
     * Prepare simulated test "testG" device
     * Add a new connection of type "ethernet" and options "ifname testG con-name con_general"
-    When "connected" is visible with command "nmcli -g GENERAL.STATE dev show testG" in "35" seconds
+    When "connected" is visible with command "nmcli -g GENERAL.STATE dev show testG" in "5" seconds
     * Modify connection "con_general" changing options "ipv4.routes '192.168.5.0/24 192.168.99.111 1' ipv4.route-metric 21 ipv6.method static ipv6.addresses 2000::2/126 ipv6.routes '1010::1/128 2000::1 1'"
     * "Error.*" is not visible with command "nmcli device reapply testG" in "1" seconds
     Then "1010::1 via 2000::1 dev testG\s+proto static\s+metric 1" is visible with command "ip -6 route" in "5" seconds
@@ -1814,14 +1814,16 @@ Feature: nmcli - general
     * Quit editor
 
 
-    @rhbz1588952
-    @ver+=1.14
+    @rhbz1588952 @rhbz1654062
+    @ver+=1.18.4
     @nmcli_novice_print_types
     Scenario: nmcli - general - print availiable connection types in connection assistant
     * Open wizard for adding new connection
     * Expect "Connection type"
     * Submit "<double_tab>"
-    Then Expect "adsl.*bluetooth.*bond.*bridge"
+    Then Expect "adsl.*bluetooth.*bond.*bond-slave.*bridge"
+    * Submit "<tab>"
+    Then Expect "bridge-slave.*team.*team-slave"
 
 
     @rhbz1671200
