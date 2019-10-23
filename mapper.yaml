@@ -244,6 +244,8 @@ testmapper:
     - bond_arp_validate:
         feature: bond
         tags: gate            
+    - bond_reapply_connection_without_wired_settings:
+        feature: bond
     - bridge_add_default:
         feature: bridge
     - bridge_add_custom_one:
