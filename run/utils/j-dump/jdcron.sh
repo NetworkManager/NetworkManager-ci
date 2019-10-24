@@ -1,5 +1,5 @@
-#!/bin/sh
-
+#!/bin/bash
+set -x
 ###
 # This script runs in batch j-dump sessions to collect result summaries from
 # multiple jenkins jobs.
@@ -9,47 +9,14 @@
 #
 # The jobs are grouped under CI_NICKs labels. You can collect results under
 # multiple CI_NICKs and from different Jenkins instances.
+# For more info check jdump.cfg
 ###
 
-### GLOBAL CONFIG ###
-# Change the JDUMP_BIN to the path of j-dump.py script if required.
-JDUMP_BIN="$PWD/j-dump.py"
-OUTPUT_DIR="/tmp/j_dump/"
-LOG_FILE="logger.txt"
-HTML_INDEX_FILE="index.html"
-NM_LOGOTYPE_FILE="nm_logotype_235x75.png"
-NM_ICON_FILE="nm_icon.png"
-
-
-### CI_NICKs config ###
-# add to the CI_NICK_LIST each nickname you want to be used to group some jobs.
-# For each nickname you add, you should fill the CI_NICK_LABEL, JENKINS_URL,
-# USER, PASSWORD, JOB_HEADER and JOBS properties.
-#
-# Put in CI_NICK the header that will be printed on top of your CI jobs.
-# Put in JENKINS_URL the base url of your jenkins server.
-# Put in JOBS the job list you want to process (logs will be collected separately
-# for each job).
-# If your jobs have a common header, you can drop it from the jobs listed in JOBS
-# and put it in JOB_HEADER.
-#
-# Here a working example for the public NetworkManager CI on CentosCI, collecting
-# results for 3 jobs (matching 3 different branches on gitlab).
-
-CI_NICK_LIST="CentOS"
-
-### CentOS ###
-CentOS_CI_NICK_LABEL="CentOS"
-CentOS_USER=""
-CentOS_PASSWORD=""
-CentOS_JENKINS_URL="https://ci.centos.org"
-CentOS_JOB_HEADER="NetworkManager-"
-CentOS_JOBS=\
-"master "\
-"nm-1-20 "\
-"nm-1-18 "\
-"nm-1-16 "
-
+CFG="jdcron.cfg"
+if ! source $CFG; then
+    echo "Cannot read config file in $CFG, exitting."
+	exit 1
+fi
 
 log() {
 	echo "$*" >> "$LOG_FILE"
@@ -61,7 +28,6 @@ index_html_heading() {
 	        '  <head>\n' \
 	        '    <style>\n' \
 		'      * { font-family:arial, sans-serif; }\n' \
-		'      img { width:235px; height:75px; padding-right:50px; }\n' \
 		'      header { padding-left:30px; font-size:20px; }\n' \
 		'      nav { float:left; width:20%; padding-left:10px; }\n' \
 		'      article { float:left; width:75%; padding-left:20px; }\n' \
@@ -73,7 +39,7 @@ index_html_heading() {
 			"  <link rel=\"icon\" href=\"$NM_ICON_FILE\">\n" \
 	        '  <body>\n' \
 	        '    <header>\n' \
-		"      <h1><img src=\"$NM_LOGOTYPE_FILE\" alt=\"NetworkManager\" align=\"bottom\">CI results</h1>\n" \
+		"      <h1><img style=\"width:235px; height:75px; padding-right:50px\" src=\"$NM_LOGOTYPE_FILE\" alt=\"NetworkManager\" align=\"bottom\">CI results</h1>\n" \
 		'    </header>\n' \
 		'    <section>\n' \
 		'      <nav>\n' \
@@ -102,7 +68,21 @@ index_html_add_entry() {
     else
         style="color:red;   border:1px solid red;   background-color:#ffdddd;"
 	fi
-	echo -n "      <li style=\"padding:2px 0;\"><a style=\"text-decoration:none; border-radius:2px; padding:0 3px; ${style}\" href=${ref} target=\"iframe_res\">${name}" >> $HTML_INDEX_FILE
+
+	hl="$5"
+	if [ $hl -eq 1 ] || [ $hl -eq 0 ] ; then
+		health="<img style=\"width:20px; height:20px; padding-right:20px\" src=\"health-00to19.png\">"
+	elif [ $hl -eq 2 ]; then
+		health="<img style=\"width:20px; height:20px; padding-right:20px\" src=\"health-20to39.png\">"
+	elif [ $hl -eq 3 ]; then
+		health="<img style=\"width:20px; height:20px; padding-right:20px\" src=\"health-40to59.png\">"
+	elif [ $hl -eq 4 ]; then
+		health="<img style=\"width:20px; height:20px; padding-right:20px\" src=\"health-60to79.png\">"
+	elif [ $hl -eq 5 ]; then
+		health="<img style=\"width:20px; height:20px; padding-right:20px\" src=\"health-80plus.png\">"
+    fi
+
+	echo -n "      <li>${health}<a style=\"text-decoration:none; border-radius:2px; padding:0 3px; ${style}\" href=${ref} target=\"iframe_res\">${name}" >> $HTML_INDEX_FILE
 	for i in `seq $4`; do
 		echo -n " <b>*</b>" >> $HTML_INDEX_FILE
 	done
@@ -141,7 +121,8 @@ process_job() {
 		$JDUMP_BIN $JDUMP_OPTIONS $JDUMP_JOB_NAME "$JENKINS_URL" "$JOB_FULL_NAME" >> "$LOG_FILE" 2>&1
 		color="$(grep -v 'RUNNING' ${JOB_FULL_NAME}_builds.html | grep -m 1 '<tr><td>' | grep -o -e green -e black )"
 		running="$(grep -o 'RUNNING' ${JOB_FULL_NAME}_builds.html | wc -l)"
-		index_html_add_entry "$JOB_FULL_NAME" "${job%-upstream}" "$color" "$running"
+		health="$(grep -v 'RUNNING' ${JOB_FULL_NAME}_builds.html | grep -m 5 '<tr><td>' |grep SUCCESS |wc -l) "
+		index_html_add_entry "$JOB_FULL_NAME" "${job%-upstream}" "$color" "$running" "$health"
 	done
 	index_html_ci_end
 }
@@ -149,6 +130,11 @@ process_job() {
 mkdir -p "$OUTPUT_DIR"
 [ -f "$NM_LOGOTYPE_FILE" ] && cp "$NM_LOGOTYPE_FILE" "$OUTPUT_DIR"
 [ -f "$NM_ICON_FILE" ] && cp "$NM_ICON_FILE" "$OUTPUT_DIR"
+[ -f "$NM_HEALTH_FILE1" ] && cp "$NM_HEALTH_FILE1" "$OUTPUT_DIR"
+[ -f "$NM_HEALTH_FILE2" ] && cp "$NM_HEALTH_FILE2" "$OUTPUT_DIR"
+[ -f "$NM_HEALTH_FILE3" ] && cp "$NM_HEALTH_FILE3" "$OUTPUT_DIR"
+[ -f "$NM_HEALTH_FILE4" ] && cp "$NM_HEALTH_FILE4" "$OUTPUT_DIR"
+[ -f "$NM_HEALTH_FILE5" ] && cp "$NM_HEALTH_FILE5" "$OUTPUT_DIR"
 
 cd "$OUTPUT_DIR"
 log "-----------------------------------------------------------------"
@@ -164,6 +150,8 @@ done
 
 
 index_html_trailing
+
+mv -f $OUTPUT_DIR/* $FINAL_DIR
 
 [ "$?" = "0" ] && log "*** Success ***"
 log "@@-------------------------------------------------------------@@"
