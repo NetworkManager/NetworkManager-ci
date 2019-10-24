@@ -1606,5 +1606,5 @@
     Scenario: NM - bond - reapply connection without wired settings
     * Add a new connection of type "bond" and options "con-name bond0 ifname nm-bond connection.autoconnect-slaves 1"
     * Add a new connection of type "ethernet" and options "con-name bond0.1 ifname eth4 master nm-bond"
-    When "connected" is visible with command "nmcli -g GENERAL.STATE dev show nm-bond" in "10" seconds
+    When "connected" is visible with command "nmcli -g GENERAL.STATE dev show nm-bond" in "40" seconds
     Then "Error.*" is not visible with command "python tmp/repro_reapply_no_wired_settings.py bond0 nm-bond" in "1" seconds
