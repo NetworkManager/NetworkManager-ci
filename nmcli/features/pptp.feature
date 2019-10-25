@@ -18,7 +18,7 @@
 
 
     @rhbz1628833
-    @ver+=1.12
+    @ver+=1.12 @fedoraver+=31
     @pptp
     @pptp_passwd_file
     Scenario: nmcli - pptp - password from file
@@ -35,6 +35,7 @@
      And "IP4.ADDRESS.*172.31.66.*/32" is visible with command "nmcli c show pptp"
 
 
+    @fedoraver+=31
     @pptp
     @pptp_terminate
     Scenario: nmcli - pptp - terminate connection
