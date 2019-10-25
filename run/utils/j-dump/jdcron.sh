@@ -12,8 +12,9 @@ set -x
 # For more info check jdump.cfg
 ###
 
+DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
 CFG="jdcron.cfg"
-if ! source $CFG; then
+if ! source $DIR/$CFG; then
     echo "Cannot read config file in $CFG, exitting."
 	exit 1
 fi
