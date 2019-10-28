@@ -27,6 +27,7 @@ Feature: nmcli: inf
      * Submit "no" in editor
      * Dismiss IP configuration in editor
      * Dismiss Proxy configuration in editor
+     * Wait for at least "1" seconds
      * Bring "up" connection "infiniband-inf_ib0"
     Then "inet 172" is visible with command "ip a s inf_ib0" in "10" seconds
 
@@ -75,6 +76,7 @@ Feature: nmcli: inf
      * Submit "0x8002" in editor
      * Dismiss IP configuration in editor
      * Dismiss Proxy configuration in editor
+     * Wait for at least "1" seconds
      * Bring "up" connection "inf"
      * Bring "up" connection "infiniband-inf_ib0.8002"
     Then "inet 172" is visible with command "ip a s inf_ib0.8002" in "10" seconds
@@ -105,6 +107,7 @@ Feature: nmcli: inf
      * Submit "inf_ib0" in editor
      * Dismiss IP configuration in editor
      * Dismiss Proxy configuration in editor
+     * Wait for at least "1" seconds
      * Bring "up" connection "inf"
      * Bring "up" connection "infiniband-inf_ib0.8002"
     Then "inet 172" is visible with command "ip a s inf_ib0.8002" in "10" seconds

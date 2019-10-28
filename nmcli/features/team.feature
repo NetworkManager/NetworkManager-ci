@@ -31,7 +31,7 @@
      Then "ifname": "nm-team" is visible with command "sudo teamdctl nm-team state dump"
 
 
-    @team
+    @team @team_slaves
     @ifcfg_team_slave_device_type
     Scenario: nmcli - team - slave ifcfg devicetype
      * Add connection type "team" named "team0" for device "nm-team"
@@ -66,6 +66,7 @@
      * Submit "nm-team" in editor
      * Expect "There .* optional"
      * Submit "no" in editor
+     * Wait for at least "1" seconds
      * Bring "up" connection "team-slave-eth5"
     Then Check slave "eth5" in team "nm-team" is "up"
 
@@ -86,6 +87,7 @@
      * Submit "eth5" in editor
      * Expect "There .* optional"
      * Submit "no" in editor
+     * Wait for at least "1" seconds
      * Bring "up" connection "team-slave"
     Then Check slave "eth5" in team "nm-team" is "up"
 
