@@ -156,6 +156,8 @@ class Job:
 
             self.add_build(build)
 
+        self.builds.sort(key = lambda build: build.id, reverse=True)
+
         if len(self.builds) == 0:
             return False
 
