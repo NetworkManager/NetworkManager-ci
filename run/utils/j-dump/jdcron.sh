@@ -19,6 +19,13 @@ if ! source $DIR/$CFG; then
 	exit 1
 fi
 
+mkdir -p "$OUTPUT_DIR"
+
+# wrap the code to be run exclusively with parentheses
+(
+# wait at most 10 seconds for lockfile (fd 200) to be released, if not exit 1
+flock -x -w 10 200 || exit 1
+
 log() {
 	echo "$*" >> "$LOG_FILE"
 }
@@ -128,7 +135,6 @@ process_job() {
 	index_html_ci_end
 }
 
-mkdir -p "$OUTPUT_DIR"
 [ -f "$NM_LOGOTYPE_FILE" ] && cp "$NM_LOGOTYPE_FILE" "$OUTPUT_DIR"
 [ -f "$NM_ICON_FILE" ] && cp "$NM_ICON_FILE" "$OUTPUT_DIR"
 [ -f "$NM_HEALTH_FILE1" ] && cp "$NM_HEALTH_FILE1" "$OUTPUT_DIR"
@@ -152,7 +158,9 @@ done
 
 index_html_trailing
 
-mv -f $OUTPUT_DIR/* $FINAL_DIR
+mv -f $OUTPUT_DIR/*.* $FINAL_DIR
 
 [ "$?" = "0" ] && log "*** Success ***"
 log "@@-------------------------------------------------------------@@"
+
+) 200>$OUTPUT_DIR/jdcronlock
