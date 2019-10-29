@@ -458,7 +458,7 @@ Feature: nmcli: ipv4
     @ipv4_route_set_invalid_missing_gw_route
     Scenario: nmcli - ipv4 - routes - set invalid route - missing gw
     * Add a new connection of type "ethernet" and options "ifname eth3 con-name con_ipv4 ipv4.method static ipv4.addresses 192.168.122.2/24 ipv4.gateway 192.168.122.1 ipv4.routes 192.168.1.0/24"
-    Then "default via 192.168.122.1 dev eth3\s+proto static\s+metric" is visible with command "ip route"
+    Then "default via 192.168.122.1 dev eth3\s+proto static\s+metric" is visible with command "ip route" in "5" seconds
     Then "192.168.1.0/24 dev eth3\s+proto static\s+scope link\s+metric" is visible with command "ip route"
     Then "192.168.122.0/24 dev eth3\s+proto kernel\s+scope link\s+src 192.168.122.2" is visible with command "ip route"
 
