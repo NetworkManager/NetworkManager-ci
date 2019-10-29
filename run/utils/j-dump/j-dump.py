@@ -98,7 +98,7 @@ class Job:
 
     def remove_build(self, build_id):
         self.builds = [ build for build in self.builds if build.id != build_id]
-        for failure in self.failures:
+        for failure in self.failures.values():
             failure.builds = [ build for build in failure.builds if build.id != build_id]
             if build_id in failure.artifact_urls:
                 del failure.artifact_urls[build_id]
