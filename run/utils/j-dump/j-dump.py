@@ -1,13 +1,14 @@
 #! /usr/bin/python3
 import argparse
 import pickle
-import sys
+import sys, os
 import traceback
+from subprocess import call
+import jsonpickle
 
 import requests
 import jenkinsapi
 from jenkinsapi.jenkins import Jenkins
-
 #logging.basicConfig(level=logging.DEBUG)
 
 HTML_STYLE = """
@@ -41,16 +42,23 @@ class Job:
     attributes:
         - server: connection to the jenkins server
         - name: relative link to the jenkins job main page
-        - nick: job nickname that will be shown on output"""
+        - nick: job nickname that will be shown on output
+        - builds: list of builds
+        - failures: dictionary of failures (key is failure name)
+        - cache_dir/cache_file: where to store the json dump if builds and failures"""
 
-    def __init__(self, server, name, nick):
+    def __init__(self, server, name, nick, cache_dir_prefix="./cache/"):
         self.server = server
         self.name = name
         self.nick = nick
         self.connection = None
         self.builds = []
         self.running_builds = []
-        self.failures = []
+        self.failures = {}
+        self.cache_dir = cache_dir_prefix
+        if not os.path.isdir(self.cache_dir):
+            call("mkdir -p %s" % (self.cache_dir), shell=True)
+        self.cache_file = self.cache_dir + self.name + ".json"
 
     def connect(self):
         try:
@@ -68,18 +76,73 @@ class Job:
     def get_builds(self):
         return self.builds
 
-    def append_build(self, build):
+    def get_failures(self):
+        return list(self.failures.values())
+
+    def add_build(self, build):
         if build.status == 'RUNNING':
             self.running_builds.append(build)
         else:
             self.builds.append(build)
 
+    def add_failure(self, failure_name, build, artifact_url = None):
+        if failure_name in self.failures:
+            failure = self.failures[failure_name]
+        else:
+            failure = Failure(failure_name)
+            self.failures[failure_name] = failure
+        failure.add_build(build)
+        if artifact_url:
+            failure.add_artifact(build.id, artifact_url)
+        build.add_failure(failure_name, failure)
+
+    def remove_build(self, build_id):
+        self.builds = [ build for build in self.builds if build.id != build_id]
+        for failure in self.failures:
+            failure.builds = [ build for build in failure.builds if build.id != build_id]
+            if build_id in failure.artifact_urls:
+                del failure.artifact_urls[build_id]
+
+    def load_cache(self, build_ids):
+        if not os.path.isfile(self.cache_file):
+            return
+        with open(self.cache_file, "r") as fd:
+            data_json = fd.read()
+        data = jsonpickle.decode(data_json)
+        self.builds, self.failures = data
+
+        # convert strings to integers
+        for failure in self.failures.values():
+            new_artifacts = {}
+            for build_id, artifact_url in failure.artifact_urls.items():
+                new_artifacts[int(build_id)] = artifact_url
+            failure.artifact_urls = new_artifacts
+
+        for build_id in [ build.id for build in self.builds]:
+            if build_id not in build_ids:
+                self.remove_build(build_id)
+        for failure_name in list(self.failures.keys()):
+            if len(self.failures[failure_name].builds) == 0:
+                del self.failures[failure_name]
+
+    def save_cache(self):
+        data = (self.builds, self.failures)
+        data_json = jsonpickle.encode(data)
+        with open(self.cache_file, "w") as fd:
+            fd.write(data_json)
 
     def builds_retrieve(self, max_builds):
         i = 0
-        for build_id in self.connection.get_build_ids():
+        build_ids = self.connection.get_build_ids()
+        build_ids = list(build_ids)[:max_builds]
+        self.load_cache(build_ids)
+        cache_build_ids = [ build.id for build in self.builds ]
+        for build_id in build_ids:
+            if build_id in cache_build_ids:
+                dprint("Build #{:d} - cached".format(build_id))
+                continue
             try:
-                build = Build(build_id, self.connection)
+                build = Build(build_id, self)
             except BuildCreationError as error:
                 dprint("Build #{:d} - {:s} - skipped".format(build_id, error.msg))
                 continue
@@ -90,18 +153,33 @@ class Job:
                 dprint("----   -----   ----")
                 continue
             dprint("Build #{:d} - processed".format(build_id))
-            i += 1
 
-            self.append_build(build)
-            if i == max_builds:
-                break
+            self.add_build(build)
 
         if len(self.builds) == 0:
             return False
 
         return True
 
-    def __html_write_header__(self, fd, file_builds, file_failures):
+    def postprocess_failures(self, all_sorted_builds):
+        if not all_sorted_builds:
+            return
+
+        failures = self.get_failures()
+
+        for failure in failures:
+            failure.post_process(all_sorted_builds)
+        failures.sort(key=failure_number, reverse=True)
+        failures.sort(key=failure_last)
+
+        self.sorted_failures = failures
+
+    def __html_write_header__(self, fd, file_builds, file_failures, failure=False):
+        style_build = "color:red"
+        style_failure = ""
+        if failure:
+            style_build, style_failure = style_failure, style_build
+
         fd.write(
             "<!DOCTYPE html>\n"
             "   <html>\n"
@@ -111,10 +189,10 @@ class Job:
             "       <body>\n"
             "           <h1>%s</h1>\n"
             "           <p style=\"font-weight:bold\">\n"
-            "               [ <a href=%s style=\"color:red\">builds</a> ]\n"
-            "               [ <a href=%s>failures</a> ]\n"
+            "               [ <a href=%s style=\"%s\">builds</a> ]\n"
+            "               [ <a href=%s style=\"%s\">failures</a> ]\n"
             "           </p>\n"
-            % (HTML_STYLE, self.nick, file_builds, file_failures))
+            % (HTML_STYLE, self.nick, file_builds, style_build, file_failures, style_failure))
 
     def __html_write_buildstats__(self, fd):
         fd.write(
@@ -166,181 +244,8 @@ class Job:
         fd.write(
             "           </table>\n")
 
-    @staticmethod
-    def __html_write_footer__(fd):
+    def __html_write_failurestats__(self,fd):
         fd.write(
-            "       </body>\n"
-            "    <html>\n")
-
-    def print_html(self, file_name):
-        file_builds = "{:s}_builds.html".format(file_name)
-        file_failures = "{:s}_failures.html".format(file_name)
-
-        fd = open(file_builds, "w")
-        self.__html_write_header__(fd, file_builds, file_failures)
-        self.__html_write_buildstats__(fd)
-        self.__html_write_footer__(fd)
-
-
-class Build:
-    """ Represents a job's run.
-
-    Attributes:
-        - build_id: build id
-        - job: jenkins job to which the build belongs
-        - build: jenkins build obj
-        - status: jenkins' build status ('SUCCESS', 'UNSTABLE', 'FAILURE', 'NOT_BUILT', 'ABORTED')
-        - timestamp
-        - failures: list of the failures that happened in the build"""
-
-    def __init__(self, build_id, job):
-
-        self.id = build_id
-        self.job = job
-        self.build = job.get_build(build_id)
-        self.url = self.build.baseurl
-        self.status = self.build.get_status()
-        self.description = self.build.get_description() or "--"
-        self.failed = False
-        self.timestamp = self.build.get_timestamp()
-        self.failures = []
-
-        if self.status == 'NOT_BUILT' or self.status == 'ABORTED':
-            self.failed = True
-
-        if self.build.has_resultset():
-            results = self.build.get_resultset()
-            for result in results.iteritems():
-                # item states: 'PASSED', 'SKIPPED', 'REGRESSION', 'FAILED', ??
-                if result[1].status == 'REGRESSION' or result[1].status == 'FAILED':
-                    failure = Failure.add_failure(result[1].name, self)
-                    self.append_failure(failure)
-            self.name = results.name
-        else:
-            if not self.status:
-                if self.build.is_running():
-                    self.status = "RUNNING"
-                    return
-                else:
-                    raise BuildCreationError("build has no status nor results")
-
-        if self.status != 'SUCCESS':
-            artifacts = self.build.get_artifact_dict()
-            # if trere is small number of artifatcs, the build failed
-            if len(artifacts) < 10:
-                self.failed = True
-            artifacts_fails = [ art for art in artifacts.keys() if "FAIL" in art ]
-            for artifact in artifacts_fails:
-                split_artifact = artifact.split("FAIL")
-                if len(split_artifact) < 2:
-                    continue
-                # let's check that the failure name in the artifact is as expected or skip...
-                # something like "FAIL-Test252_ipv6_honor_ip_order.html" (We already stripped "FAIL")
-                # or "FAIL_report_NetworkManager-ci_Test252_ipv6_honor_ip_order.html"
-                split_artifact = split_artifact[1].replace('_report_NetworkManager-ci_','')
-                split_artifact = split_artifact.split("_", 1)
-                if len(split_artifact) != 2:
-                    # what happened??
-                    eprint("Unexpected artifact '{:s}': skip...".format(artifact))
-                    continue
-
-                split_artifact = split_artifact[1].split(".")
-                if len(split_artifact) != 2:
-                    # no .html suffix?? not sure, skip...
-                    eprint("No .html suffix in artifact '{:s}': skip...".format(artifact))
-                    continue
-                failure = Failure.add_failure(split_artifact[0], self, artifacts[artifact].url)
-                self.append_failure(failure)
-
-
-
-    def append_failure(self, failure):
-        if failure not in self.failures:
-            self.failures.append(failure)
-
-
-def failure_number(failure):
-    return len(failure.builds)
-
-
-def failure_last(failure):
-    return failure.last
-
-
-class Failure:
-    """ Represents test failures. New failures should be created calling the
-    class method 'add_failure': in this way, the class will ensure to have
-    just one instance per failure.
-    Linkage of the builds back to the failure instance should be done by the
-    client.
-
-    Class attributes:
-        failures -- list containing all the failures retrieved.
-
-    Class methods:
-        add_failure -- will return the failure from the failures list if
-                       present: otherwise will create a new Failure object and
-                       add it to the failures list before returning it.
-    Instance Attributes:
-        name - the name of the test
-        permanent - true if the failure happens always, false if it is sporadic
-        last - how many days passed from the last occurrence of the failure
-        score - [0-100] indicates the severity of the failure (TODO - not filled yet)
-        builds - a list of the builds in which the failure is present
-    """
-
-    failures = []
-
-    @classmethod
-    def add_failure(cls, name, job, artifact_url=None):
-        for failure in cls.failures:
-            if failure.name == name:
-                failure.append_job(job, artifact_url=artifact_url)
-                return failure
-        failure = Failure(name, job, artifact_url=artifact_url)
-        cls.failures.append(failure)
-        return failure
-
-    @classmethod
-    def save_failures(cls, fname):
-        fd = open(fname, "wb")
-        pickle.dump(cls.failures, fd, protocol=3)
-        fd.close()
-
-    @classmethod
-    def load_failures(cls, fname):
-        fd = open(fname, "rb")
-        cls.failures = pickle.load(fd)
-        fd.close()
-
-    @classmethod
-    def postprocess_failures(cls, all_sorted_builds):
-        if not all_sorted_builds:
-            return
-
-        for failure in cls.failures:
-            failure.post_process(all_sorted_builds)
-        cls.failures.sort(key=failure_number, reverse=True)
-        cls.failures.sort(key=failure_last)
-
-    @classmethod
-    def print_html(cls, file_name, job_nick):
-        file_failures = "{:s}_failures.html".format(file_name)
-        file_builds = "{:s}_builds.html".format(file_name)
-
-        fd = open(file_failures, "w")
-        fd.write(
-            "<!DOCTYPE html>\n"
-            "   <html>\n"
-            "       <head>\n"
-            "%s"
-            "       </head>\n"
-            "       <body>\n"
-            "           <h1>%s</h1>\n"
-            "           <p style=\"font-weight:bold\">\n"
-            "               [ <a href=%s>builds</a> ]\n"
-            "               [ <a href=%s style=\"color:red\">failures</a> ]\n"
-            "           </p>\n"
             "           <table>\n"
             "               <tr>\n"
             "                   <th>Failure</th>\n"
@@ -349,9 +254,9 @@ class Failure:
             "                   <th>Num</th>\n"
             "                   <th>Score</th>\n"
             "                   <th>Bugzilla</th>\n"
-            "               </tr>\n" % (HTML_STYLE, job_nick, file_builds, file_failures))
+            "               </tr>\n")
 
-        for failure in cls.failures:
+        for failure in self.sorted_failures:
             if failure.permanent:
                 l_perm = "Permanent"
             else:
@@ -385,7 +290,7 @@ class Failure:
         fd.write(
             "           </table>\n")
 
-        for failure in cls.failures:
+        for failure in self.sorted_failures:
             fd.write('           <hr>\n\t<h3 id="%s">%s</h3>\n' % (failure.name, failure.name))
             fd.write('           <p>\n')
             builds = failure.builds
@@ -397,9 +302,127 @@ class Failure:
                     fd.write('          <a target="_blank" href="%s">#%d</a><br>\n' % (artifacts_url(build.url), build.id))
             fd.write('           </p>\n')
 
-        fd.close()
 
-    def __init__(self, name, build=None, artifact_url=None):
+    @staticmethod
+    def __html_write_footer__(fd):
+        fd.write(
+            "       </body>\n"
+            "    <html>\n")
+
+    def print_html(self, file_name=None):
+        if not file_name:
+            file_name = self.name
+        file_builds = "{:s}_builds.html".format(file_name)
+        file_failures = "{:s}_failures.html".format(file_name)
+
+        with open(file_builds, "w") as fd:
+            self.__html_write_header__(fd, file_builds, file_failures)
+            self.__html_write_buildstats__(fd)
+            self.__html_write_footer__(fd)
+
+        with open(file_failures, "w") as fd:
+            self.__html_write_header__(fd, file_builds, file_failures)
+            self.__html_write_failurestats__(fd)
+            self.__html_write_footer__(fd)
+
+
+
+class Build:
+    """ Represents a job's run.
+
+    Attributes:
+        - build_id: build id
+        - job: jenkins job to which the build belongs
+        - url
+        - status: jenkins' build status ('SUCCESS', 'UNSTABLE', 'FAILURE', 'NOT_BUILT', 'ABORTED')
+        - description
+        - failed: True if no test results
+        - timestamp
+        - failures: list of the failures that happened in the build"""
+
+    def __init__(self, build_id, job):
+
+        self.id = build_id
+        build = job.connection.get_build(build_id)
+        self.url = build.baseurl
+        self.status = build.get_status()
+        self.description = build.get_description() or "--"
+        self.failed = False
+        self.timestamp = build.get_timestamp()
+        self.failures = {}
+
+        if self.status == 'NOT_BUILT' or self.status == 'ABORTED':
+            self.failed = True
+
+        if build.has_resultset():
+            results = build.get_resultset()
+            for result in results.iteritems():
+                # item states: 'PASSED', 'SKIPPED', 'REGRESSION', 'FAILED', ??
+                result = result[1]
+                if result.status == 'REGRESSION' or result.status == 'FAILED':
+                    job.add_failure(result.name, self)
+            self.name = results.name
+        else:
+            if not self.status:
+                if build.is_running():
+                    self.status = "RUNNING"
+                    return
+                else:
+                    raise BuildCreationError("build has no status nor results")
+
+        if self.status != 'SUCCESS':
+            artifacts = build.get_artifact_dict()
+            # if trere is small number of artifatcs, the build failed
+            if len(artifacts) < 10:
+                self.failed = True
+            artifacts_fails = [ art for art in artifacts.keys() if "FAIL" in art ]
+            for artifact in artifacts_fails:
+                split_artifact = artifact.split("FAIL")
+                if len(split_artifact) < 2:
+                    continue
+                # let's check that the failure name in the artifact is as expected or skip...
+                # something like "FAIL-Test252_ipv6_honor_ip_order.html" (We already stripped "FAIL")
+                # or "FAIL_report_NetworkManager-ci_Test252_ipv6_honor_ip_order.html"
+                split_artifact = split_artifact[1].replace('_report_NetworkManager-ci_','')
+                split_artifact = split_artifact.split("_", 1)
+                if len(split_artifact) != 2:
+                    # what happened??
+                    eprint("Unexpected artifact '{:s}': skip...".format(artifact))
+                    continue
+
+                split_artifact = split_artifact[1].split(".")
+                if split_artifact[-1] != "html":
+                    # no .html suffix?? not sure, skip...
+                    eprint("No .html suffix in artifact '{:s}': skip...".format(artifact))
+                    continue
+                failure_name = '.'.join(split_artifact[:-1])
+                job.add_failure(failure_name, self, artifacts[artifact].url)
+
+    def add_failure(self, failure_name, failure):
+        self.failures[failure_name] = failure
+
+
+def failure_number(failure):
+    return len(failure.builds)
+
+
+def failure_last(failure):
+    return failure.last
+
+
+class Failure:
+    """ Represents test failures.
+
+    Instance Attributes:
+        name - the name of the test
+        permanent - true if the failure happens always, false if it is sporadic
+        last - how many days passed from the last occurrence of the failure
+        score - [0-100] indicates the severity of the failure (TODO - not filled yet)
+        builds - a list of the builds in which the failure is present
+        artifacts_urls - url of artifact for builds
+    """
+
+    def __init__(self, name):
         self.name = name
         self.permanent = True
         self.last = -1
@@ -407,17 +430,14 @@ class Failure:
         self.bugzilla = None
         # builds tracking will need some changes to support multiple jobs
         self.builds = []
-        if build:
-            self.builds.append(build)
         self.artifact_urls = {}
-        if artifact_url and build:
-            self.artifact_urls[build.id] = artifact_url
 
-    def append_job(self, job, artifact_url=None):
-        if job not in self.builds:
-            self.builds.append(job)
-        if artifact_url:
-            self.artifact_urls[job.id] = artifact_url
+    def add_build(self, build):
+        if build not in self.builds:
+            self.builds.append(build)
+
+    def add_artifact(self, build_id, artifact_url):
+        self.artifact_urls[build_id] = artifact_url
 
     def post_process(self, build_list):
         if not self.builds:
@@ -452,12 +472,6 @@ def artifacts_url(job_url):
         return job_url + "/artifact/artifacts/"
     return job_url
 
-def save(pname, dname, data):
-    fname = "%s_%s.bk" % (pname, dname)
-    fd = open(fname, "wb")
-    pickle.dump(data, fd, protocol=0)
-    fd.close()
-
 
 def process_job(server, job_name, job_nick, max_builds=50):
     job = Job(server, job_name, job_nick)
@@ -472,11 +486,11 @@ def process_job(server, job_name, job_nick, max_builds=50):
     # save(name, "project", p)
     # save(name, "failures", Failure.failures)
 
-    Failure.postprocess_failures(job.get_builds())
+    job.postprocess_failures(job.get_builds())
 
-    job.print_html(job_name)
-    Failure.print_html(job_name, job_nick)
+    job.save_cache()
 
+    job.print_html()
 
 def main():
     parser = argparse.ArgumentParser(description='Summarize NetworkManager jenkins results.')
