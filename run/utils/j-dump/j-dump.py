@@ -100,34 +100,27 @@ class Job:
         self.builds = [ build for build in self.builds if build.id != build_id]
         for failure in self.failures.values():
             failure.builds = [ build for build in failure.builds if build.id != build_id]
-            if build_id in failure.artifact_urls:
-                del failure.artifact_urls[build_id]
+            if build_id in failure.artifact_urls.keys():
+                failure.artifact_urls.pop(build_id)
 
     def load_cache(self, build_ids):
         if not os.path.isfile(self.cache_file):
             return
         with open(self.cache_file, "r") as fd:
             data_json = fd.read()
-        data = jsonpickle.decode(data_json)
+        data = jsonpickle.decode(data_json, keys=True)
         self.builds, self.failures = data
-
-        # convert strings to integers
-        for failure in self.failures.values():
-            new_artifacts = {}
-            for build_id, artifact_url in failure.artifact_urls.items():
-                new_artifacts[int(build_id)] = artifact_url
-            failure.artifact_urls = new_artifacts
 
         for build_id in [ build.id for build in self.builds]:
             if build_id not in build_ids:
                 self.remove_build(build_id)
         for failure_name in list(self.failures.keys()):
             if len(self.failures[failure_name].builds) == 0:
-                del self.failures[failure_name]
+                self.failures.pop(failure_name)
 
     def save_cache(self):
         data = (self.builds, self.failures)
-        data_json = jsonpickle.encode(data)
+        data_json = jsonpickle.encode(data, keys=True)
         with open(self.cache_file, "w") as fd:
             fd.write(data_json)
 
@@ -135,7 +128,8 @@ class Job:
         i = 0
         build_ids = self.connection.get_build_ids()
         build_ids = list(build_ids)[:max_builds]
-        self.load_cache(build_ids)
+        # do not cache the first build in list, because its status may change even when job not running
+        self.load_cache(build_ids[1:])
         cache_build_ids = [ build.id for build in self.builds ]
         for build_id in build_ids:
             if build_id in cache_build_ids:
@@ -444,6 +438,8 @@ class Failure:
     def post_process(self, build_list):
         if not self.builds:
             return
+
+        self.builds.sort(key = lambda build: build.id, reverse=True)
 
         self.last = build_list.index(self.builds[0])
         last_failed = self.last == 0
