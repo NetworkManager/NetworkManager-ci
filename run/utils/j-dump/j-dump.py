@@ -387,9 +387,9 @@ class Build:
                     continue
 
                 split_artifact = split_artifact[1].split(".")
-                if split_artifact[-1] != "html":
+                if split_artifact[-1] != "html" and split_artifact[-1] != "log":
                     # no .html suffix?? not sure, skip...
-                    eprint("No .html suffix in artifact '{:s}': skip...".format(artifact))
+                    eprint("No .html or .log suffix in artifact '{:s}': skip...".format(artifact))
                     continue
                 failure_name = '.'.join(split_artifact[:-1])
                 job.add_failure(failure_name, self, artifacts[artifact].url)

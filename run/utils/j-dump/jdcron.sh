@@ -78,16 +78,21 @@ index_html_add_entry() {
 	fi
 
 	hl="$5"
+    unset health
 	if [ $hl -eq 1 ] || [ $hl -eq 0 ] ; then
-		health="<img style=\"width:20px; height:20px; padding-right:20px\" src=\"health-00to19.png\">"
+		health="health-00to19.png"
 	elif [ $hl -eq 2 ]; then
-		health="<img style=\"width:20px; height:20px; padding-right:20px\" src=\"health-20to39.png\">"
+		health="health-20to39.png"
 	elif [ $hl -eq 3 ]; then
-		health="<img style=\"width:20px; height:20px; padding-right:20px\" src=\"health-40to59.png\">"
+		health="health-40to59.png"
 	elif [ $hl -eq 4 ]; then
-		health="<img style=\"width:20px; height:20px; padding-right:20px\" src=\"health-60to79.png\">"
+		health="health-60to79.png"
 	elif [ $hl -eq 5 ]; then
-		health="<img style=\"width:20px; height:20px; padding-right:20px\" src=\"health-80plus.png\">"
+		health="health-80plus.png"
+    fi
+
+    if [ -n "$health" ]; then
+        health="<img style=\"width:20px; height:20px; padding-right:20px; margin-top:5px; margin-bottom:-5px;\" src=\"$health\">"
     fi
 
 	echo -n "      <li>${health}<a style=\"text-decoration:none; border-radius:2px; padding:0 3px; ${style}\" href=${ref} target=\"iframe_res\">${name}" >> $HTML_INDEX_FILE
