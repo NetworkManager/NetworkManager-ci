@@ -970,10 +970,14 @@ def before_scenario(context, scenario):
 
             if 'simwifi_p2p' in scenario.tags:
                 print ("---------------------------")
-                print ("setting p2p test bed")
+                print ("* setting p2p test bed")
                 arch = check_output("uname -p", shell=True).decode('utf-8', 'ignore').strip()
                 if arch != "x86_64":
                     sys.exit(77)
+
+                if call("ls /tmp/nm_*_supp_configured", shell=True) == 0:
+                    print ("** need to remove previous setup")
+                    teardown_hostapd_wireless()
 
                 call('modprobe -r mac80211_hwsim', shell=True)
                 sleep(1)
