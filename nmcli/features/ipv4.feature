@@ -799,18 +799,17 @@ Feature: nmcli: ipv4
     * Finish "sudo pkill tshark"
 
 
-    @tshark @con_ipv4_remove
+    @tshark @con_ipv4_remove @teardown_testveth
     @nmcli_ipv4_remove_fqdn
     Scenario: nmcli - ipv4 - dhcp-fqdn - remove dhcp-fqdn
-    * Add a new connection of type "ethernet" and options "ifname eth2 con-name con_ipv4 ipv4.dhcp-fqdn foo.bar.com ipv4.may-fail no"
+    * Prepare simulated test "testX4" device
+    * Add a new connection of type "ethernet" and options "ifname testX4 con-name con_ipv4 ipv4.dhcp-fqdn foo.bar.com ipv4.may-fail no"
     * Modify connection "con_ipv4" changing options "ipv4.dhcp-fqdn ''"
-    # This delay seems to be necessary in some cases, is dbus slow?
-    * Wait for at least "1" seconds
     * Bring "up" connection "con_ipv4"
-    * Run child "sudo tshark -l -O bootp -i eth2 > /tmp/tshark.log"
+    * Run child "sudo tshark -l -O bootp -i testX4 > /tmp/tshark.log"
     When "empty" is not visible with command "file /tmp/tshark.log" in "150" seconds
     * Bring "up" connection "con_ipv4"
-     Then "foo.bar.com" is not visible with command "grep fqdn /var/lib/NetworkManager/dhclient-eth2.conf" in "10" seconds
+     Then "foo.bar.com" is not visible with command "grep fqdn /var/lib/NetworkManager/dhclient-testX4.conf" in "10" seconds
       And "foo.bar.com" is not visible with command "cat /tmp/tshark.log" for full "5" seconds
     * Finish "sudo pkill tshark"
 
