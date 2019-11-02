@@ -407,13 +407,9 @@ local_setup_configure_nm_eth () {
     if [ $wlan -eq 0 ]; then
         if [ $dcb_inf_wol_sriov -eq 0 ]; then
             for X in $(seq 0 10); do
-                if ! nmcli -f DEVICE -t device |grep eth${X}$; then
+                if ! nmcli -f DEVICE -t device |grep eth${X}; then
                     veth=1
                     break
-                else
-                    # Setting ipv6 dad to 0 as parallel test on different machines
-                    # there can be dad connected failures
-                    sysctl net.ipv6.conf.eth$X.accept_dad=0
                 fi
             done
         fi

@@ -223,8 +223,7 @@
     @ver+=1.18.3
     @ipv6_routes_with_src
     Scenario: nmcli - ipv6 - routes - set route with src
-     * Add a new connection of type "ethernet" and options "ifname eth3 con-name con_ipv6 autoconnect no ipv6.method manual ipv6.addresses 2000::2/126 ipv6.route-metric 256 ipv6.routes '2806:aabb:abba:abab:baba:bbaa:baab:bbbb/128 src=2000::2'"
-     * Bring "up" connection "con_ipv6"
+     * Add a new connection of type "ethernet" and options "ifname eth3 con-name con_ipv6 ipv6.method manual ipv6.addresses 2000::2/126 ipv6.route-metric 256 ipv6.routes '2806:aabb:abba:abab:baba:bbaa:baab:bbbb/128 src=2000::2'"
     Then "2806:aabb:abba:abab:baba:bbaa:baab:bbbb dev eth3 proto static src 2000::2 metric 256" is visible with command "ip -6 route" in "5" seconds
      And "2000::\/126 dev eth3\s+proto kernel\s+metric 256" is visible with command "ip -6 route"
 
