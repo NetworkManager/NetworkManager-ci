@@ -162,9 +162,11 @@ function setup_veth_env ()
 
     # Give bridge an internal format address in form used in tests
     ip netns exec vethsetup ip addr add 192.168.100.1/24 dev masq
+    ip netns exec vethsetup ip -6 addr add 2620:52:0:1086::2/64 dev masq
 
     # Start up a DHCP server on the internal bridge for IPv4
-    ip netns exec vethsetup dnsmasq --pid-file=/tmp/dhcp_inbr.pid --dhcp-leasefile=/tmp/dhcp_inbr.lease --listen-address=192.168.100.1 --dhcp-range=192.168.100.10,192.168.100.254,240 --interface=masq --bind-interfaces
+    ip netns exec vethsetup dnsmasq --pid-file=/tmp/dhcp_inbr.pid --dhcp-leasefile=/tmp/dhcp_inbr.lease --dhcp-range=192.168.100.10,192.168.100.254,240 --dhcp-range=2620:52:0:1086::2ff,2620:52:0:1086::9ff,slaac,64,240 --enable-ra --interface=masq --bind-interfaces
+
 
     # Setup simulated 'outside' connectivity device eth10 with IPv6 auto support
     ip link add eth10 type veth peer name eth10p
