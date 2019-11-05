@@ -189,13 +189,13 @@ Feature: nmcli: ipv4
     @con_ipv4_remove
     @ipv4_route_set_basic_route
     Scenario: nmcli - ipv4 - routes - set basic route
-    * Add a new connection of type "ethernet" and options "ifname eth3 con-name con_ipv4 ipv4.method static ipv4.addresses 192.168.3.10/24 ipv4.gateway 192.168.4.1 ipv4.routes '192.168.5.0/24 192.168.3.11 1' ipv4.route-metric 21"
     * Add a new connection of type "ethernet" and options "ifname eth2 con-name con_ipv4 ipv4.method static ipv4.addresses 192.168.1.10/24 ipv4.gateway 192.168.4.1 ipv4.routes '192.168.2.0/24 192.168.1.11 2' ipv4.route-metric 22"
+    * Add a new connection of type "ethernet" and options "ifname eth3 con-name con_ipv4 ipv4.method static ipv4.addresses 192.168.3.10/24 ipv4.gateway 192.168.4.1 ipv4.routes '192.168.5.0/24 192.168.3.11 1' ipv4.route-metric 21"
     Then "192.168.1.0/24 dev eth2\s+proto kernel\s+scope link\s+src 192.168.1.10" is visible with command "ip route"
     Then "192.168.2.0/24 via 192.168.1.11 dev eth2\s+proto static\s+metric" is visible with command "ip route"
+    Then "192.168.4.1 dev eth2\s+proto static\s+scope link\s+metric 22" is visible with command "ip route"
     Then "192.168.3.0/24 dev eth3\s+proto kernel\s+scope link\s+src 192.168.3.10" is visible with command "ip route"
     Then "192.168.4.1 dev eth3\s+proto static\s+scope link\s+metric 21" is visible with command "ip route"
-    Then "192.168.4.1 dev eth2\s+proto static\s+scope link\s+metric 22" is visible with command "ip route"
     Then "192.168.5.0/24 via 192.168.3.11 dev eth3\s+proto static\s+metric" is visible with command "ip route"
 
 
