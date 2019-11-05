@@ -241,6 +241,9 @@ install_el7_packages () {
         yum -y install openvswitch
     fi
 
+    # Remove cloud-init dns
+    rm -rf /etc/NetworkManager/conf.d/99-cloud-init.conf
+
     # Tune wpa_supplicat to log into journal and enable debugging
     systemctl stop wpa_supplicant
     sed -i 's!ExecStart=/usr/sbin/wpa_supplicant -u -f /var/log/wpa_supplicant.log -c /etc/wpa_supplicant/wpa_supplicant.conf!ExecStart=/usr/sbin/wpa_supplicant -u -c /etc/wpa_supplicant/wpa_supplicant.conf!' /etc/systemd/system/wpa_supplicant.service
