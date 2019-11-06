@@ -120,7 +120,7 @@ install_fedora_packages () {
     systemctl restart wpa_supplicant
 
     # Install kernel-modules for currently running kernel
-    dnf -4 -y install kernel-modules-$(uname -r)
+    dnf -4 -y install kernel-modules-*-$(uname -r)
 
     install_plugins_dnf
 
