@@ -330,6 +330,25 @@ def setup_libreswan(mode, dh_group, phase1_al="aes", phase2_al=None, ike="ikev1"
 def teardown_libreswan():
     call("sh prepare/libreswan.sh teardown", shell=True)
 
+def teardown_testveth (context):
+    print("---------------------------")
+    print("removing testveth device setup for all test devices")
+    if hasattr(context, 'testvethns'):
+        for ns in context.testvethns:
+            print(("Removing the setup in %s namespace" % ns))
+            call('[ -f /tmp/%s.pid ] && ip netns exec %s kill -SIGCONT $(cat /tmp/%s.pid)' % (ns, ns, ns), shell=True)
+            call('[ -f /tmp/%s.pid ] && kill $(cat /tmp/%s.pid)' % (ns, ns) , shell=True)
+            call('ip netns del %s' % ns, shell=True)
+            call('ip link del %s' % ns.split('_')[0], shell=True)
+            device=ns.split('_')[0]
+            print (device)
+            call('kill $(cat /var/run/dhclient-*%s.pid)' % device, shell=True)
+    call('rm -f /etc/udev/rules.d/88-lr.rules', shell=True)
+    call('udevadm control --reload-rules', shell=True)
+    call('udevadm settle --timeout=5', shell=True)
+    sleep(1)
+    reload_NM_service()
+
 def get_ethernet_devices():
     devs = check_output("nmcli dev | grep ' ethernet' | awk '{print $1}'", shell=True).decode('utf-8', 'ignore').strip()
     return devs.split('\n')
@@ -1289,6 +1308,21 @@ def before_scenario(context, scenario):
                 call("mknod /dev/ppp c 108 0", shell=True)
                 reload_NM_service()
 
+            if 'nmstate_setup' in scenario.tags:
+                # Rename eth1 and eth2 to nmstate_eth1 and nmstate_eth2
+                # as we need new eth1 and eth2
+                call("ip link set dev eth1 down", shell=True)
+                call("ip link set dev eth1 name nmstate_eth1", shell=True)
+                call("ip link set dev nmstate_eth1 up", shell=True)
+                call("ip link set dev eth2 down", shell=True)
+                call("ip link set dev eth2 name nmstate_eth2", shell=True)
+                call("ip link set dev nmstate_eth2 up", shell=True)
+
+                print("* attaching nmstate log")
+                nmstate = utf_only_open_read("/tmp/nmstate.txt")
+                if nmstate:
+                    context.embed('text/plain', nmstate, caption="NMSTATE")
+
             if 'nmcli_general_dhcp_profiles_general_gateway' in scenario.tags:
                 print("---------------------------")
                 print("backup of /etc/sysconfig/network")
@@ -1626,6 +1660,20 @@ def after_scenario(context, scenario):
                 call("nmcli networking on", shell=True)
                 wait_for_testeth0()
 
+            if 'nmstate_setup' in scenario.tags:
+                # Rename eth1 and eth2 to nmstate_eth1 and nmstate_eth2
+                # as we need new eth1 and eth2
+                call("ip link set dev nmstate_eth1 down", shell=True)
+                call("ip link set dev nmstate_eth1 name eth1", shell=True)
+                call("ip link set dev eth1 up", shell=True)
+                call("ip link set dev nmstate_eth2 down", shell=True)
+                call("ip link set dev nmstate_eth2 name eth2", shell=True)
+                call("ip link set dev eth2 up", shell=True)
+                reset_hwaddr_nmcli('eth1')
+                reset_hwaddr_nmcli('eth2')
+
+                call("nmcli con del eth1 eth2 linux-br0", shell=True)
+                
             if 'restore_hostname' in scenario.tags:
                 print ("---------------------------")
                 print ("restoring original hostname")
@@ -2618,23 +2666,7 @@ def after_scenario(context, scenario):
                 call('ip link del test11', shell=True)
 
             if 'teardown_testveth' in scenario.tags:
-                print("---------------------------")
-                print("removing testveth device setup for all test devices")
-                if hasattr(context, 'testvethns'):
-                    for ns in context.testvethns:
-                        print(("Removing the setup in %s namespace" % ns))
-                        call('[ -f /tmp/%s.pid ] && ip netns exec %s kill -SIGCONT $(cat /tmp/%s.pid)' % (ns, ns, ns), shell=True)
-                        call('[ -f /tmp/%s.pid ] && kill $(cat /tmp/%s.pid)' % (ns, ns) , shell=True)
-                        call('ip netns del %s' % ns, shell=True)
-                        call('ip link del %s' % ns.split('_')[0], shell=True)
-                        device=ns.split('_')[0]
-                        print (device)
-                        call('kill $(cat /var/run/dhclient-*%s.pid)' % device, shell=True)
-                call('rm -f /etc/udev/rules.d/88-lr.rules', shell=True)
-                call('udevadm control --reload-rules', shell=True)
-                call('udevadm settle --timeout=5', shell=True)
-                sleep(1)
-                reload_NM_service()
+                teardown_testveth (context)
 
             if 'kill_children' in scenario.tags:
                 children = getattr(context, "children", [])

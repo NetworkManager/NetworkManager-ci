@@ -1293,6 +1293,22 @@ Feature: nmcli - general
     * Snapshot "delete" for "all"
 
 
+    @ver+=1.12
+    @rhelver+=8
+    @nmstate_setup @teardown_testveth @regenerate_veth
+    @nmstate
+    Scenario: NM - general - nmstate
+    * Prepare simulated test "eth1" device
+    * Prepare simulated test "eth2" device
+    * Execute "git clone https://github.com/nmstate/nmstate/"
+    * Execute "yum -y install python3-devel"
+    * Execute "sh nmstate/packaging/make_rpm.sh && rm -rf nmstate/nmstate-*.src.rpm"
+    * Execute "yum -y install nmstate-* python3-libnmstate-*"
+    * Execute "pip3 install pytest"
+    * Execute "cd nmstate && pytest -vv tests/integration/ --log-level=DEBUG 2>&1 > /tmp/nmstate.txt"
+    Then "FAILED" is not visible with command "grep ' FAILED' /tmp/nmstate.txt"
+
+
     @rhbz1433303
     @ver+=1.4.0
     @delete_testeth0
