@@ -1063,6 +1063,7 @@ testmapper:
         feature: ethernet
     - nmstate:
         feature: general
+        timeout: 30m
         #tags: gate
     - logging:
         feature: general
