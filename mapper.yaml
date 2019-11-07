@@ -1061,6 +1061,9 @@ testmapper:
         feature: ethernet
     - ethtool_features_fixed_connection:
         feature: ethernet
+    - nmstate:
+        feature: general
+        #tags: gate
     - logging:
         feature: general
     - reduce_logging:
