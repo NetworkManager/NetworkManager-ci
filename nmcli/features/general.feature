@@ -1298,8 +1298,8 @@ Feature: nmcli - general
     @nmstate_setup @teardown_testveth @regenerate_veth
     @nmstate
     Scenario: NM - general - nmstate
-    * Prepare simulated test "eth1" device with "192.168.101" ipv4 and "dead:beaf:1" ipv6 dhcp address prefix
-    * Prepare simulated test "eth2" device with "192.168.201" ipv4 and "dead:beaf:2" ipv6 dhcp address prefix
+    * Prepare simulated test "eth1"
+    * Prepare simulated test "eth2"
     * Execute "git clone https://github.com/nmstate/nmstate/"
     * Execute "yum -y install python3-devel"
     * Execute "sh nmstate/packaging/make_rpm.sh && rm -rf nmstate/nmstate-*.src.rpm"

@@ -1317,6 +1317,8 @@ def before_scenario(context, scenario):
                 call("ip link set dev eth2 down", shell=True)
                 call("ip link set dev eth2 name nmstate_eth2", shell=True)
                 call("ip link set dev nmstate_eth2 up", shell=True)
+                call("nmcli device disconnect nmstate_eth1", shell=True)
+                call("nmcli device disconnect nmstate_eth2", shell=True)
 
             if 'nmcli_general_dhcp_profiles_general_gateway' in scenario.tags:
                 print("---------------------------")
