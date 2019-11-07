@@ -1318,11 +1318,6 @@ def before_scenario(context, scenario):
                 call("ip link set dev eth2 name nmstate_eth2", shell=True)
                 call("ip link set dev nmstate_eth2 up", shell=True)
 
-                print("* attaching nmstate log")
-                nmstate = utf_only_open_read("/tmp/nmstate.txt")
-                if nmstate:
-                    context.embed('text/plain', nmstate, caption="NMSTATE")
-
             if 'nmcli_general_dhcp_profiles_general_gateway' in scenario.tags:
                 print("---------------------------")
                 print("backup of /etc/sysconfig/network")
@@ -1673,7 +1668,12 @@ def after_scenario(context, scenario):
                 reset_hwaddr_nmcli('eth2')
 
                 call("nmcli con del eth1 eth2 linux-br0", shell=True)
-                
+
+                print("* attaching nmstate log")
+                nmstate = utf_only_open_read("/tmp/nmstate.txt")
+                if nmstate:
+                    context.embed('text/plain', nmstate, caption="NMSTATE")
+
             if 'restore_hostname' in scenario.tags:
                 print ("---------------------------")
                 print ("restoring original hostname")
