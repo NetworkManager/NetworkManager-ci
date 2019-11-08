@@ -1061,10 +1061,6 @@ testmapper:
         feature: ethernet
     - ethtool_features_fixed_connection:
         feature: ethernet
-    - nmstate:
-        feature: general
-        timeout: 30m
-        #tags: gate
     - logging:
         feature: general
     - reduce_logging:
@@ -1083,6 +1079,10 @@ testmapper:
         feature: general
     - hostname_mode_none:
         feature: general
+    - nmstate:
+        feature: general
+        timeout: 30m
+        #tags: gate
     - general_check_version:
         feature: general
     - general_state_connected:
