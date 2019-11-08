@@ -1295,7 +1295,7 @@ Feature: nmcli - general
 
     @ver+=1.12
     @rhelver+=8
-    @nmstate_setup @teardown_testveth @regenerate_veth
+    @nmstate_setup @regenerate_veth
     @nmstate
     Scenario: NM - general - nmstate
     * Execute "ip link add eth1 type veth peer name eth1p && ip link set dev eth1p up"

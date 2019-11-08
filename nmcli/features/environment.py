@@ -1656,8 +1656,12 @@ def after_scenario(context, scenario):
                 wait_for_testeth0()
 
             if 'nmstate_setup' in scenario.tags:
-                # Rename eth1 and eth2 to nmstate_eth1 and nmstate_eth2
-                # as we need new eth1 and eth2
+                print ("---------------------------")
+                print ("* remove nmstate setup")
+
+                call("ip link del eth1", shell=True)
+                call("ip link del eth2", shell=True)
+
                 call("ip link set dev nmstate_eth1 down", shell=True)
                 call("ip link set dev nmstate_eth1 name eth1", shell=True)
                 call("ip link set dev eth1 up", shell=True)
@@ -1669,7 +1673,7 @@ def after_scenario(context, scenario):
 
                 call("nmcli con del eth1 eth2 linux-br0", shell=True)
                 call("nmcli con up testeth1 && nmcli con down testeth1", shell=True)
-                call("nmcli con up testeth2 && nmcli con down testeth2", shell=True)
+                call("nmcli con up testeth2 && nmcli con down testeth1", shell=True)
 
                 print("* attaching nmstate log")
                 nmstate = utf_only_open_read("/tmp/nmstate.txt")
