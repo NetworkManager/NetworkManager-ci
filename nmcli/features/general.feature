@@ -1293,7 +1293,7 @@ Feature: nmcli - general
     * Snapshot "delete" for "all"
 
 
-    @ver+=1.12
+    @ver+=1.20.1
     @rhelver+=8
     @nmstate_setup @regenerate_veth
     @nmstate
