@@ -1331,6 +1331,14 @@ def before_scenario(context, scenario):
                 call("ip link set dev eth2 name nmstate_eth2", shell=True)
                 call("ip link set dev nmstate_eth2 up", shell=True)
 
+                # Install some deps
+                call("yum -y install python3-devel rpm-build", shell=True)
+                call("rm -rf /usr/bin/python && ln -s /usr/bin/python3 /usr/bin/python", shell=True)
+                call("git clone https://github.com/nmstate/nmstate/", shell=True)
+                call("sh nmstate/packaging/make_rpm.sh && rm -rf nmstate/nmstate-*.src.rpm", shell=True)
+                call("yum -y install nmstate-* python3-libnmstate-*", shell=True)
+                call("python -m pip install pytest", shell=True)
+
             if 'nmcli_general_dhcp_profiles_general_gateway' in scenario.tags:
                 print("---------------------------")
                 print("backup of /etc/sysconfig/network")
