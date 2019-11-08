@@ -53,8 +53,7 @@ check_packages () {
 
 install_fedora_packages () {
     # Make python3 default if it's not
-    rm -rf /usr/bin/python
-    ln -s /usr/bin/python3 /usr/bin/python
+    alternatives --set python /usr/bin/python3
 
     # Pip down some deps
     dnf -4 -y install python3-pip
