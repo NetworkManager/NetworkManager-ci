@@ -1317,8 +1317,6 @@ def before_scenario(context, scenario):
                 call("ip link set dev eth2 down", shell=True)
                 call("ip link set dev eth2 name nmstate_eth2", shell=True)
                 call("ip link set dev nmstate_eth2 up", shell=True)
-                call("nmcli device disconnect nmstate_eth1", shell=True)
-                call("nmcli device disconnect nmstate_eth2", shell=True)
 
             if 'nmcli_general_dhcp_profiles_general_gateway' in scenario.tags:
                 print("---------------------------")
@@ -1670,6 +1668,8 @@ def after_scenario(context, scenario):
                 reset_hwaddr_nmcli('eth2')
 
                 call("nmcli con del eth1 eth2 linux-br0", shell=True)
+                call("nmcli con up testeth1 && nmcli con down testeth1", shell=True)
+                call("nmcli con up testeth2 && nmcli con down testeth2", shell=True)
 
                 print("* attaching nmstate log")
                 nmstate = utf_only_open_read("/tmp/nmstate.txt")
