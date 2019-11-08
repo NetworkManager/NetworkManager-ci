@@ -134,7 +134,7 @@ install_fedora_packages () {
 install_el8_packages () {
     # Make python3 default if it's not
     rm -rf /usr/bin/python
-    ln -s /usr/libexec/platform-python /usr/bin/python
+    ln -s /usr/bin/python3 /usr/bin/python
 
     # The newest PIP seems to be broken on aarch64 under rhel8.1
     #dnf -4 -y install python3-pip
