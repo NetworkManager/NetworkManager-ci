@@ -327,6 +327,13 @@ def setup_libreswan(mode, dh_group, phase1_al="aes", phase2_al=None, ike="ikev1"
         teardown_libreswan()
         sys.exit(1)
 
+def restore_connections ():
+    print ("* recreate all connections")
+    for X in range(0,11):
+        call('nmcli con del testeh%s 2>&1 > /dev/null' % X, shell=True)
+        call('nmcli connection add type ethernet con-name testeth%s ifname eth%s autoconnect no' % (X,X), shell=True)
+    restore_testeth0 ()
+
 def manage_veths ():
     if not os.path.isfile('/tmp/nm_newveth_configured'):
         os.system('''echo 'ENV{ID_NET_DRIVER}=="veth", ENV{INTERFACE}=="eth[0-9]|eth[0-9]*[0-9]", ENV{NM_UNMANAGED}="0"' >/etc/udev/rules.d/88-veths.rules''')
@@ -1693,12 +1700,15 @@ def after_scenario(context, scenario):
                 reset_hwaddr_nmcli('eth2')
 
                 call("nmcli con del eth1 eth2 linux-br0", shell=True)
-                call("nmcli con up testeth1 && nmcli con down testeth1", shell=True)
-                call("nmcli con up testeth2 && nmcli con down testeth1", shell=True)
 
-                # Undo: set veths as managed if we don't use veths yet
+                call("nmcli con up testeth1 && nmcli con down testeth1", shell=True)
+                call("nmcli con up testeth2 && nmcli con down testeth2", shell=True)
+
                 if not os.path.isfile('/tmp/nm_newveth_configured'):
+                    # Undo: set veths as managed if we don't use veths yet
                     unmanage_veths ()
+                    # Restore all connections back as before
+                    restore_connections ()
 
                 print("* attaching nmstate log")
                 nmstate = utf_only_open_read("/tmp/nmstate.txt")
