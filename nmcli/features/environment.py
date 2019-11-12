@@ -2655,8 +2655,7 @@ def after_scenario(context, scenario):
             if 'connect_testeth0' in scenario.tags:
                 print ("---------------------------")
                 print ("upping testeth0")
-                call("nmcli connection up id testeth0", shell=True)
-                sleep(2)
+                wait_for_testeth0 ()
 
             if 'vlan_create_many_vlans' in scenario.tags:
                 print ("---------------------------")
