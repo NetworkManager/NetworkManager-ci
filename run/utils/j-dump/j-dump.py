@@ -233,7 +233,7 @@ class Job:
                 '%s%s'
                 '<td>%s</td>'
                 '</tr>\n' %
-                (artifacts_url(build.url), build.id,
+                (artifacts_url(build), build.id,
                  build.timestamp.ctime(),
                  l_build, l_failures,
                  build.description))
@@ -293,9 +293,9 @@ class Job:
             for build in builds:
                 if build.id in failure.artifact_urls:
                     artifact_url = failure.artifact_urls[build.id]
-                    fd.write('          <a target="_blank" href="%s">report</a> from <a href="%s">#%d</a><br>\n' % (artifact_url, artifacts_url(build.url), build.id))
+                    fd.write('          <a target="_blank" href="%s">report</a> from <a href="%s">#%d</a><br>\n' % (artifact_url, artifacts_url(build), build.id))
                 else:
-                    fd.write('          <a target="_blank" href="%s">#%d</a><br>\n' % (artifacts_url(build.url), build.id))
+                    fd.write('          <a target="_blank" href="%s">#%d</a><br>\n' % (artifacts_url(build), build.id))
             fd.write('           </p>\n')
 
 
@@ -463,12 +463,13 @@ class Failure:
 
         # TODO: search bugzilla
 
-def artifacts_url(job_url):
-    if 'centos' in job_url:
-        return job_url + "/artifact/results/"
-    if 'desktopqe' in job_url:
-        return job_url + "/artifact/artifacts/"
-    return job_url
+def artifacts_url(job):
+    if job.status != 'RUNNING':
+        if 'centos' in job.url:
+            return job.url + "/artifact/results/"
+        if 'desktopqe' in job.url:
+            return job.url + "/artifact/artifacts/"
+    return job.url
 
 
 def process_job(server, job_name, job_nick, max_builds=50):
