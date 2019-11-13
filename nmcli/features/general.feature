@@ -1303,6 +1303,7 @@ Feature: nmcli - general
     * Execute "cd nmstate && pytest -vv tests/integration -k 'not test_add_port_to_existing_bridge | test_add_port_to_existing_bridge | test_dhcp_on_bridge0' --log-level=DEBUG 2>&1 > /tmp/nmstate.txt"
     Then "PASSED" is visible with command "grep ' PASS' /tmp/nmstate.txt"
     Then "FAILED" is not visible with command "grep ' FAILED' /tmp/nmstate.txt"
+    Then "ERROR" is not visible with command "grep ' ERROR' /tmp/nmstate.txt"
 
 
     @rhbz1433303
