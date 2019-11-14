@@ -711,6 +711,7 @@ Feature: nmcli - general
 
 
     @rhbz1109426
+    @ver+=1.10
     @two_bridged_veths_gen
     @veth_goes_to_unmanaged_state
     Scenario: NM - general - veth in unmanaged state
