@@ -112,8 +112,9 @@ def restart_dhcp_server(context, device, ipv4, ipv6):
 
 @step(u'Prepare simulated test "{device}" device with "{ipv4}" ipv4 and "{ipv6}" ipv6 dhcp address prefix and dhcp option "{option}"')
 @step(u'Prepare simulated test "{device}" device with "{ipv4}" ipv4 and "{ipv6}" ipv6 dhcp address prefix')
+@step(u'Prepare simulated test "{device}" device with "{lease_time}" leasetime')
 @step(u'Prepare simulated test "{device}" device')
-def prepare_simdev(context, device, ipv4=None, ipv6=None, option=None):
+def prepare_simdev(context, device, lease_time="2m", ipv4=None, ipv6=None, option=None):
     if ipv4 is None:
         ipv4 = "192.168.99"
     if ipv6 is None:
@@ -146,19 +147,19 @@ def prepare_simdev(context, device, ipv4=None, ipv6=None, option=None):
         command_code(context, "ip netns exec {device}_ns dnsmasq \
                                             --pid-file=/tmp/{device}_ns.pid \
                                             --dhcp-leasefile=/tmp/{device}_ns.lease \
-                                            --dhcp-range={ipv4}.10,{ipv4}.15,2m \
-                                            --dhcp-range={ipv6}::100,{ipv6}::fff,slaac,64,2m \
+                                            --dhcp-range={ipv4}.10,{ipv4}.15,{lease_time} \
+                                            --dhcp-range={ipv6}::100,{ipv6}::fff,slaac,64,{lease_time} \
                                             --enable-ra --interface={device}_bridge \
-                                            --bind-interfaces".format(device=device, ipv4=ipv4, ipv6=ipv6))
+                                            --bind-interfaces".format(device=device, lease_time=lease_time, ipv4=ipv4, ipv6=ipv6))
     else:
         command_code(context, "ip netns exec {device}_ns dnsmasq \
                                             --pid-file=/tmp/{device}_ns.pid \
                                             --dhcp-leasefile=/tmp/{device}_ns.lease \
-                                            --dhcp-range={ipv4}.10,{ipv4}.15,2m \
-                                            --dhcp-range={ipv6}::100,{ipv6}::1ff,slaac,64,2m \
+                                            --dhcp-range={ipv4}.10,{ipv4}.15,{lease_time} \
+                                            --dhcp-range={ipv6}::100,{ipv6}::1ff,slaac,64,{lease_time} \
                                             --enable-ra --interface={device}_bridge \
                                             --dhcp-option-force={option} \
-                                            --bind-interfaces".format(device=device, ipv4=ipv4, ipv6=ipv6, option=option))
+                                            --bind-interfaces".format(device=device, lease_time=lease_time, ipv4=ipv4, ipv6=ipv6, option=option))
 
     if not hasattr(context, 'testvethns'):
         context.testvethns = []

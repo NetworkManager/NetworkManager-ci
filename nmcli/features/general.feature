@@ -607,6 +607,20 @@ Feature: nmcli - general
      Then "testeth8" is visible with command "nmcli con sh -a" in "5" seconds
 
 
+    @rhbz1771792
+    @ver+=1.20.1
+    @restart @teardown_testveth @not_on_s390x
+    @match_connections_with_infinite_leasetime
+    Scenario: NM - general - connection matching for dhcp with infinite leasetime
+    * Prepare simulated test "testG" device with "infinite" leasetime
+    * Add a new connection of type "ethernet" and options "ifname testG con-name con_general connection.autoconnect yes"
+    * Bring "up" connection "con_general"
+    * Stop NM
+    * Execute "rm -rf /var/run/NetworkManager/*"
+    * Start NM
+    Then "activated" is visible with command "nmcli -g GENERAL.STATE con show con_general" in "45" seconds
+
+
      @rhbz1729854
      @ver+=1.14
      @restart @not_on_s390x @no_config_server @rhelver+=8 @rhel_pkg
