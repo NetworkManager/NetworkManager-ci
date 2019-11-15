@@ -132,7 +132,7 @@ def prepare_simdev(context, device, lease_time="2m", ipv4=None, ipv6=None, optio
     command_code(context, "ip netns exec {device}_ns ip addr add {ip}.1/24 dev {device}p".format(device=device, ip=ipv4))
     command_code(context, "ip netns exec {device}_ns ip -6 addr add {ip}::1/64 dev {device}p".format(device=device, ip=ipv6))
     sleep(2)
-    if lifetime == 'infinite':
+    if lease_time == 'infinite':
         command_code(context, "ip netns exec {device}_ns dnsmasq \
                                             --pid-file=/tmp/{device}_ns.pid \
                                             --dhcp-leasefile=/tmp/{device}_ns.lease \
