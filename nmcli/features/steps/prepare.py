@@ -127,38 +127,34 @@ def prepare_simdev(context, device, lease_time="2m", ipv4=None, ipv6=None, optio
     command_code(context, "ip netns add {device}_ns".format(device=device))
     command_code(context, "ip link add {device} type veth peer name {device}p".format(device=device))
     command_code(context, "ip link set {device}p netns {device}_ns".format(device=device))
-    command_code(context, "ip netns exec {device}_ns ip link set {device}p up".format(device=device))
     command_code(context, "ip link set {device} up".format(device=device))
-    command_code(context, "ip netns exec {device}_ns ip link add name {device}_bridge type bridge".format(device=device))
-    command_code(context, "ip netns exec {device}_ns ip link set {device}p master {device}_bridge".format(device=device))
-    command_code(context, "ip netns exec {device}_ns ip addr add {ip}.1/24 dev {device}_bridge".format(device=device, ip=ipv4))
-    command_code(context, "ip netns exec {device}_ns ip -6 addr add {ip}::1/64 dev {device}_bridge".format(device=device, ip=ipv6))
-    command_code(context, "ip netns exec {device}_ns ip link set {device}_bridge up".format(device=device))
-    command_code(context, "echo '127.0.0.1   localhost localhost.localdomain localhost4 localhost4.localdomain4' > /etc/hosts")
-    command_code(context, "echo '::1         localhost localhost.localdomain localhost6 localhost6.localdomain6' >> /etc/hosts")
-    command_code(context, "echo '192.168.99.10 ip-192-168-99-10' >> /etc/hosts")
-    command_code(context, "echo '192.168.99.11 ip-192-168-99-11' >> /etc/hosts")
-    command_code(context, "echo '192.168.99.12 ip-192-168-99-12' >> /etc/hosts")
-    command_code(context, "echo '192.168.99.13 ip-192-168-99-13' >> /etc/hosts")
-    command_code(context, "echo '192.168.99.14 ip-192-168-99-14' >> /etc/hosts")
-    command_code(context, "echo '192.168.99.15 ip-192-168-99-15' >> /etc/hosts")
+    command_code(context, "ip netns exec {device}_ns ip link set {device}p up".format(device=device))
+    command_code(context, "ip netns exec {device}_ns ip addr add {ip}.1/24 dev {device}p".format(device=device, ip=ipv4))
+    command_code(context, "ip netns exec {device}_ns ip -6 addr add {ip}::1/64 dev {device}p".format(device=device, ip=ipv6))
     sleep(2)
-    if option is None:
+    if lifetime == 'infinite':
         command_code(context, "ip netns exec {device}_ns dnsmasq \
                                             --pid-file=/tmp/{device}_ns.pid \
                                             --dhcp-leasefile=/tmp/{device}_ns.lease \
                                             --dhcp-range={ipv4}.10,{ipv4}.15,{lease_time} \
-                                            --dhcp-range={ipv6}::100,{ipv6}::fff,slaac,64,{lease_time} \
-                                            --enable-ra --interface={device}_bridge \
-                                            --bind-interfaces".format(device=device, lease_time=lease_time, ipv4=ipv4, ipv6=ipv6))
+                                            --interface={device}p --bind-interfaces".format(device=device, lease_time=lease_time, ipv4=ipv4))
     else:
-        command_code(context, "ip netns exec {device}_ns dnsmasq \
-                                            --pid-file=/tmp/{device}_ns.pid \
-                                            --dhcp-leasefile=/tmp/{device}_ns.lease \
-                                            --dhcp-range={ipv4}.10,{ipv4}.15,{lease_time} \
-                                            --dhcp-range={ipv6}::100,{ipv6}::1ff,slaac,64,{lease_time} \
-                                            --enable-ra --interface={device}_bridge \
-                                            --dhcp-option-force={option} \
+        if option is None:
+            command_code(context, "ip netns exec {device}_ns dnsmasq \
+                                                --pid-file=/tmp/{device}_ns.pid \
+                                                --dhcp-leasefile=/tmp/{device}_ns.lease \
+                                                --dhcp-range={ipv4}.10,{ipv4}.15,{lease_time} \
+                                                --dhcp-range={ipv6}::100,{ipv6}::fff,slaac,64,{lease_time} \
+                                                --enable-ra --interface={device}p \
+                                                --bind-interfaces".format(device=device, lease_time=lease_time, ipv4=ipv4, ipv6=ipv6))
+        else:
+            command_code(context, "ip netns exec {device}_ns dnsmasq \
+                                                --pid-file=/tmp/{device}_ns.pid \
+                                                --dhcp-leasefile=/tmp/{device}_ns.lease \
+                                                --dhcp-range={ipv4}.10,{ipv4}.15,{lease_time} \
+                                                --dhcp-range={ipv6}::100,{ipv6}::1ff,slaac,64,{lease_time} \
+                                                --enable-ra --interface={device}p \
+                                                --dhcp-option-force={option} \
                                             --bind-interfaces".format(device=device, lease_time=lease_time, ipv4=ipv4, ipv6=ipv6, option=option))
 
     if not hasattr(context, 'testvethns'):

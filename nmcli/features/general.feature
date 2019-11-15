@@ -609,12 +609,13 @@ Feature: nmcli - general
 
     @rhbz1771792
     @ver+=1.20.1
-    @restart @teardown_testveth @not_on_s390x
+    @restart @con_general_remove @teardown_testveth @not_on_s390x
     @match_connections_with_infinite_leasetime
     Scenario: NM - general - connection matching for dhcp with infinite leasetime
-    * Prepare simulated test "testG" device with "infinite" leasetime
-    * Add a new connection of type "ethernet" and options "ifname testG con-name con_general connection.autoconnect yes"
+    * Prepare simulated test "testX" device with "infinite" leasetime
+    * Add a new connection of type "ethernet" and options "ifname testX con-name con_general"
     * Bring "up" connection "con_general"
+    When "192.168" is visible with command "ip a s testX" in "20" seconds
     * Stop NM
     * Execute "rm -rf /var/run/NetworkManager/*"
     * Start NM
