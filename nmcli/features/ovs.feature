@@ -501,11 +501,11 @@ Feature: nmcli - ovs
      Scenario: NM -  openvswitch - add dpdk device
      * Add a new connection of type "ovs-bridge" and options "conn.interface ovsbridge0 con-name ovs-bridge0 ovs-bridge.datapath-type netdev"
      * Add a new connection of type "ovs-port" and options "conn.interface port0 conn.master ovsbridge0 con-name ovs-port0"
-     * Add a new connection of type "ovs-interface" and options "conn.interface iface0 conn.master port0 con-name ovs-iface0 ovs-dpdk.devargs 0000:01:10.1"
+     * Add a new connection of type "ovs-interface" and options "conn.interface iface0 conn.master port0 con-name ovs-iface0 ovs-dpdk.devargs 0000:42:10.0"
      Then "activated" is visible with command "nmcli -g GENERAL.STATE con show ovs-iface0" in "40" seconds
      And "Bridge \"ovsbridge0\"" is visible with command "ovs-vsctl show"
      And "Port \"port0\"" is visible with command "ovs-vsctl show"
-     And "Port \"port0\"\s+Interface\s+\"iface0\"\s+type: dpdk\s+options: {dpdk-devargs=\"0000:01:10.1\"}" is visible with command "ovs-vsctl show"
+     And "Port \"port0\"\s+Interface\s+\"iface0\"\s+type: dpdk\s+options: {dpdk-devargs=\"0000:42:10.0\"}" is visible with command "ovs-vsctl show"
 
 
     @rhbz1676551 @rhbz1612503
@@ -516,13 +516,13 @@ Feature: nmcli - ovs
     * Add a new connection of type "ovs-bridge" and options "conn.interface ovsbridge0 con-name ovs-bridge0 ovs-bridge.datapath-type netdev"
     * Add a new connection of type "ovs-port" and options "conn.interface port0 conn.master ovsbridge0 con-name ovs-port0"
     * Add a new connection of type "ovs-port" and options "conn.interface bond0 conn.master ovsbridge0 con-name ovs-bond0 ovs-port.tag 120"
-    * Add a new connection of type "ovs-interface" and options "conn.interface iface0 conn.master port0 con-name ovs-iface0 ovs-dpdk.devargs 0000:01:10.1"
-    * Add a new connection of type "ovs-interface" and options "conn.interface iface1 conn.master bond0 con-name ovs-iface1 ovs-dpdk.devargs 0000:01:10.3"
-    * Add a new connection of type "ethernet" and options "conn.interface p4p1 conn.master bond0 slave-type ovs-port con-name ovs-eth3"
+    * Add a new connection of type "ovs-interface" and options "conn.interface iface0 conn.master port0 con-name ovs-iface0 ovs-dpdk.devargs 0000:42:10.0"
+    * Add a new connection of type "ovs-interface" and options "conn.interface iface1 conn.master bond0 con-name ovs-iface1 ovs-dpdk.devargs 0000:42:10.2"
+    * Add a new connection of type "ethernet" and options "conn.interface em1 conn.master bond0 slave-type ovs-port con-name ovs-eth3"
     * Bring "up" connection "ovs-eth3"
     Then "activated" is visible with command "nmcli -g GENERAL.STATE con show ovs-iface0" in "40" seconds
     Then "activated" is visible with command "nmcli -g GENERAL.STATE con show ovs-iface1" in "40" seconds
     And "Bridge \"ovsbridge0\"" is visible with command "ovs-vsctl show"
     And "Port \"port0\"" is visible with command "ovs-vsctl show"
-    And "Port \"port0\"\s+Interface\s+\"iface0\"\s+type: dpdk\s+options: {dpdk-devargs=\"0000:01:10.1\"}" is visible with command "ovs-vsctl show"
-    And "Port \"bond0\"\s+tag: 120\s+Interface\s+\"iface1\"\s+type: dpdk\s+options: {dpdk-devargs=\"0000:01:10.3\"}\s+Interface\s+\"p4p1\"\s+type: system|Port \"bond0\"\s+tag: 120\s+Interface\s+\"p4p1\"\s+type: system\s+Interface\s+\"iface1\"\s+type: dpdk\s+options: {dpdk-devargs=\"0000:01:10.3\"}" is visible with command "ovs-vsctl show"
+    And "Port \"port0\"\s+Interface\s+\"iface0\"\s+type: dpdk\s+options: {dpdk-devargs=\"0000:42:10.0\"}" is visible with command "ovs-vsctl show"
+    And "Port \"bond0\"\s+tag: 120\s+Interface\s+\"iface1\"\s+type: dpdk\s+options: {dpdk-devargs=\"0000:42:10.2\"}\s+Interface\s+\"em1\"\s+type: system|Port \"bond0\"\s+tag: 120\s+Interface\s+\"em1\"\s+type: system\s+Interface\s+\"iface1\"\s+type: dpdk\s+options: {dpdk-devargs=\"0000:42:10.2\"}" is visible with command "ovs-vsctl show"

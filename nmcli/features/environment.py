@@ -510,9 +510,12 @@ def before_all(context):
             traceback.print_exc(file=sys.stdout)
 
 def reset_hwaddr_nmtui(ifname):
-    hwaddr = check_output("ethtool -P %s" % ifname, shell=True).decode('utf-8', 'ignore').split()[2]
-    call("ip link set %s address %s" % (ifname, hwaddr), shell=True)
-
+    try:
+        # This can fail in case we don't have device
+        hwaddr = check_output("ethtool -P %s" % ifname, shell=True).decode('utf-8', 'ignore').split()[2]
+        call("ip link set %s address %s" % (ifname, hwaddr), shell=True)
+    except:
+        pass
 def before_scenario(context, scenario):
     if IS_NMTUI:
         try:
@@ -1280,12 +1283,12 @@ def before_scenario(context, scenario):
                 call('echo 1 > /sys/module/vfio/parameters/enable_unsafe_noiommu_mode', shell=True)
 
                 print (" * enable two VFs")
-                call('nmcli  connection add type ethernet ifname em2 con-name dpdk-sriov sriov.total-vfs 2', shell=True)
+                call('nmcli  connection add type ethernet ifname p4p1 con-name dpdk-sriov sriov.total-vfs 2', shell=True)
                 call('nmcli  connection up dpdk-sriov', shell=True)
 
                 print (" * add both VFs to DPDK")
-                call('dpdk-devbind -b vfio-pci 0000:01:10.3', shell=True)
-                call('dpdk-devbind -b vfio-pci 0000:01:10.1', shell=True)
+                call('dpdk-devbind -b vfio-pci 0000:42:10.0', shell=True)
+                call('dpdk-devbind -b vfio-pci 0000:42:10.2', shell=True)
 
                 call('systemctl restart openvswitch', shell=True)
                 restart_NM_service()
@@ -2079,7 +2082,7 @@ def after_scenario(context, scenario):
                 call("nmcli con del sriov_2", shell=True)
 
                 print ("set 0 to /sys/class/net/*/device/sriov_numvfs")
-                call("echo 0 > /sys/class/net/em2/device/sriov_numvfs", shell=True)
+                call("echo 0 > /sys/class/net/p6p1/device/sriov_numvfs", shell=True)
                 call("echo 0 > /sys/class/net/p4p1/device/sriov_numvfs", shell=True)
 
                 print ("remove /etc/NetworkManager/conf.d/9*-sriov.conf")
@@ -2088,7 +2091,7 @@ def after_scenario(context, scenario):
 
                 call("set 1 to /sys/class/net/p4p1/device/sriov_drivers_autoprobe", shell=True)
                 call("echo 1 > /sys/class/net/p4p1/device/sriov_drivers_autoprobe", shell=True)
-                call("echo 1 > /sys/class/net/em2/device/sriov_drivers_autoprobe", shell=True)
+                call("echo 1 > /sys/class/net/p6p1/device/sriov_drivers_autoprobe", shell=True)
 
                 print ("remove ixgbevf driver")
                 call("modprobe -r ixgbevf", shell=True)
@@ -2461,14 +2464,16 @@ def after_scenario(context, scenario):
                 call('nmcli con down testeth1', shell=True)
                 call('nmcli con up testeth2', shell=True)
                 call('nmcli con down testeth2', shell=True)
-                reset_hwaddr_nmcli('eth2')
-                reset_hwaddr_nmcli('eth3')
 
             if 'dpdk' in scenario.tags:
                 print ("---------------------------")
                 print ("remove dpdk residuals")
-                call('nmcli con del dpdk-sriov ovs-iface1', shell=True)
-                call('systemctl stop openvswitch ', shell=True)
+                call('systemctl stop ovsdb-server', shell=True)
+                call('systemctl stop openvswitch', shell=True)
+                sleep(5)
+                call('nmcli con del dpdk-sriov ovs-iface1 && sleep 1', shell=True)
+                call('systemctl device disconnect p4p1', shell=True)
+
 
             if 'remove_custom_cfg' in scenario.tags:
                 print("---------------------------")
