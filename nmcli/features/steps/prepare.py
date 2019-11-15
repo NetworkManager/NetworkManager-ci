@@ -131,6 +131,14 @@ def prepare_simdev(context, device, lease_time="2m", ipv4=None, ipv6=None, optio
     command_code(context, "ip netns exec {device}_ns ip link set {device}p up".format(device=device))
     command_code(context, "ip netns exec {device}_ns ip addr add {ip}.1/24 dev {device}p".format(device=device, ip=ipv4))
     command_code(context, "ip netns exec {device}_ns ip -6 addr add {ip}::1/64 dev {device}p".format(device=device, ip=ipv6))
+    command_code(context, "echo '127.0.0.1   localhost localhost.localdomain localhost4 localhost4.localdomain4' > /etc/hosts")
+    command_code(context, "echo '::1         localhost localhost.localdomain localhost6 localhost6.localdomain6' >> /etc/hosts")
+    command_code(context, "echo '192.168.99.10 ip-192-168-99-10' >> /etc/hosts")
+    command_code(context, "echo '192.168.99.11 ip-192-168-99-11' >> /etc/hosts")
+    command_code(context, "echo '192.168.99.12 ip-192-168-99-12' >> /etc/hosts")
+    command_code(context, "echo '192.168.99.13 ip-192-168-99-13' >> /etc/hosts")
+    command_code(context, "echo '192.168.99.14 ip-192-168-99-14' >> /etc/hosts")
+    command_code(context, "echo '192.168.99.15 ip-192-168-99-15' >> /etc/hosts")
     sleep(2)
     if lease_time == 'infinite':
         command_code(context, "ip netns exec {device}_ns dnsmasq \
