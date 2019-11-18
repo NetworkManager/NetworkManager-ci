@@ -469,7 +469,7 @@ testmapper:
         feature: team
     - team_port_multiple_slaves:
         feature: team
-    - ipv6_block_just_routing_RA:
+    - ipv6_block_RA:
         feature: ipv6
     - ipv6_accept_ra_handling:
         feature: ipv6
