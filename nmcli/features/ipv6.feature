@@ -328,10 +328,10 @@
 
 
     @rhbz1068673
-    @ver-=1.20.0
+    @ver-=1.19.90
     @con_ipv6_remove
-    @ipv6_block_just_routing_RA
-    Scenario: NM - ipv6 - block just routing RA
+    @ipv6_block_RA
+    Scenario: NM - ipv6 - block RA
      * Add connection type "ethernet" named "con_ipv6" for device "eth10"
     Then "1" is visible with command "cat /proc/sys/net/ipv6/conf/eth10/accept_ra" in "45" seconds
     Then "0" is visible with command "cat /proc/sys/net/ipv6/conf/eth10/accept_ra_defrtr"
@@ -342,8 +342,8 @@
     @rhbz1068673 @rhbz1734470
     @ver+=1.20.0
     @con_ipv6_remove
-    @ipv6_block_just_routing_RA
-    Scenario: NM - ipv6 - block just routing RA
+    @ipv6_block_RA
+    Scenario: NM - ipv6 - block RA
      * Add connection type "ethernet" named "con_ipv6" for device "eth10"
     Then "0" is visible with command "cat /proc/sys/net/ipv6/conf/eth10/accept_ra" in "45" seconds
     Then "0" is visible with command "cat /proc/sys/net/ipv6/conf/eth10/accept_ra_defrtr"
