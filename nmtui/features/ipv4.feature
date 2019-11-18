@@ -40,7 +40,7 @@ Feature: IPv4 TUI tests
     * Add ip route "192.168.2.0 192.168.1.11 256"
     * Confirm the connection settings
     Then "inet 192.168.1.10/24" is visible with command "ip a s eth1" in "10" seconds
-     And "192.168.2.0/24 via 192.168.1.11 dev eth1\s+proto static\s+metric 256" is visible with command "ip route"
+     And "192.168.2.0/24 via 192.168.1.11 dev eth1\s+proto static\s+metric 256" is visible with command "ip route" in "10" seconds
      And "eth1\s+ethernet\s+connected\s+ethernet" is visible with command "nmcli device"
 
 
@@ -56,7 +56,7 @@ Feature: IPv4 TUI tests
     * Add ip route "10.0.0.3 10.0.0.2 256"
     * Confirm the connection settings
     Then "inet 10.0.0.1/8" is visible with command "ip a s eth1" in "10" seconds
-     And "10.0.0.0/8 dev eth1" is visible with command "ip route"
+     And "10.0.0.0/8 dev eth1" is visible with command "ip route" in "10" seconds
      And "10.0.0.3/32 10.0.0.2 256" is visible with command "nmcli -g ipv4.routes con show ethernet"
      And "eth1\s+ethernet\s+connected\s+ethernet" is visible with command "nmcli device"
 
@@ -73,7 +73,7 @@ Feature: IPv4 TUI tests
     * Add ip route "192.168.0.3 192.168.0.2 256"
     * Confirm the connection settings
     Then "inet 192.168.0.1/24" is visible with command "ip a s eth1" in "10" seconds
-     And "192.168.0.0/24 dev eth1" is visible with command "ip route"
+     And "192.168.0.0/24 dev eth1" is visible with command "ip route" in "10" seconds
      And "192.168.0.3/32 192.168.0.2 256" is visible with command "nmcli -g ipv4.routes con show ethernet"
      And "eth1\s+ethernet\s+connected\s+ethernet" is visible with command "nmcli device"
 
@@ -90,7 +90,7 @@ Feature: IPv4 TUI tests
     * Add ip route "10.0.0.0 10.0.0.1 256"
     * Confirm the connection settings
     Then "inet 10.0.0.1/8" is visible with command "ip a s eth1" in "10" seconds
-     And "10.0.0.0/8 dev eth1" is visible with command "ip route"
+     And "10.0.0.0/8 dev eth1" is visible with command "ip route" in "10" seconds
      And "10.0.0.0/8 10.0.0.1 256" is visible with command "nmcli -g ipv4.routes con show ethernet"
      And "eth1\s+ethernet\s+connected\s+ethernet" is visible with command "nmcli device"
 
@@ -107,7 +107,7 @@ Feature: IPv4 TUI tests
     * Add ip route "172.16.0.0 172.16.0.1 256"
     * Confirm the connection settings
     Then "inet 172.16.0.0/16" is visible with command "ip a s eth1" in "10" seconds
-     And "172.16.0.0/16 dev eth1" is visible with command "ip route"
+     And "172.16.0.0/16 dev eth1" is visible with command "ip route" in "10" seconds
      And "172.16.0.0/16 172.16.0.1 256" is visible with command "nmcli -g ipv4.routes con show ethernet"
      And "eth1\s+ethernet\s+connected\s+ethernet" is visible with command "nmcli device"
 
