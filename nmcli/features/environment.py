@@ -1329,6 +1329,10 @@ def before_scenario(context, scenario):
                 reload_NM_service()
 
             if 'nmstate_setup' in scenario.tags:
+                if call ("id cloud-user" , shell=True) == 0:
+                    # Skip in OpenStack
+                    sys.exit(77)
+
                 # Set veths as managed if we don't use veths yet
                 manage_veths ()
 
