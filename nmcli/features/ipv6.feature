@@ -346,9 +346,6 @@
     Scenario: NM - ipv6 - block RA
      * Add connection type "ethernet" named "con_ipv6" for device "eth10"
     Then "0" is visible with command "cat /proc/sys/net/ipv6/conf/eth10/accept_ra" in "45" seconds
-    Then "0" is visible with command "cat /proc/sys/net/ipv6/conf/eth10/accept_ra_defrtr"
-    Then "0" is visible with command "cat /proc/sys/net/ipv6/conf/eth10/accept_ra_rtr_pref"
-    Then "0" is visible with command "cat /proc/sys/net/ipv6/conf/eth10/accept_ra_pinfo"
 
 
     @rhbz1734470
