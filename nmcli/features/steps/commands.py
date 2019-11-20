@@ -152,7 +152,9 @@ def note_the_output_as(context, command, index):
 
 @step(u'Note the output of "{command}"')
 def note_the_output_of(context, command):
-    context.noted_value = command_output(context, command).strip()
+    if not hasattr(context, 'noted'):
+        context.noted = {}
+    context.noted['noted-value'] = command_output(context, command).strip()
 
 def json_compare(pattern, out):
     pattern_type = type(pattern)
