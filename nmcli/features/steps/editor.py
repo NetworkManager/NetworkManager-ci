@@ -238,7 +238,7 @@ def set_property_in_editor(context, name, value):
 @step(u'Submit "{what}"')
 def submit(context, what):
     if what == 'noted-value':
-        context.prompt.sendline(context.noted_value)
+        context.prompt.sendline(context.noted['noted-value'])
     elif what == '<enter>':
         context.prompt.send("\n")
     elif what == '<tab>':

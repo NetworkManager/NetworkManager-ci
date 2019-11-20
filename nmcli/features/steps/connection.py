@@ -57,10 +57,10 @@ def add_port(context, name, ifname, parent, pkey):
 
 @step(u'Modify connection "{connection}" property "{prop}" to noted value')
 def modify_connection_with_noted(context, connection, prop):
-    cli = pexpect.spawn('nmcli connection modify %s %s %s' % (connection, prop, context.noted_value), encoding='utf-8')
+    cli = pexpect.spawn('nmcli connection modify %s %s %s' % (connection, prop, context.noted['noted-value']), encoding='utf-8')
     r = cli.expect(['Error', pexpect.EOF])
     if r == 0:
-        raise Exception('Got an Error while changing %s property for connection %s to %s\n%s%s' % (prop, connection, context.noted_value, cli.after, cli.buffer))
+        raise Exception('Got an Error while changing %s property for connection %s to %s\n%s%s' % (prop, connection, context.noted['noted-value'], cli.after, cli.buffer))
 
 
 @step(u'Add slave connection for master "{master}" on device "{device}" named "{name}"')
@@ -252,7 +252,7 @@ def clone_connection(context, name, uuid, flags="TO_DISK"):
     if uuid == "random":
         uuid = NM.utils_uuid_generate()
     elif uuid == "noted":
-        uuid = context.noted_value
+        uuid = context.noted['noted-value']
     elif uuid.startswith("noted."):
         index = uuid.replace("noted.","")
         uuid = context.noted[index]
