@@ -1194,7 +1194,7 @@ testmapper:
         feature: general
         tags: gate
     - match_connections_with_infinite_leasetime:
-        feature: general        
+        feature: general
     - no_assumed_wired_connections:
         feature: general
     - ifcfg_respect_externally_set_mtu:
@@ -2383,8 +2383,9 @@ testmapper:
         feature: wifi
     - nmcli_wifi_connect_to_wep_phrase_network_without_profile:
         feature: wifi
-    - nmcli_wifisec_configure_and_connect_wep_leap_profile:
-        feature: wifi
+    # Not working in the lab
+    # - nmcli_wifisec_configure_and_connect_wep_leap_profile:
+    #     feature: wifi
     - nmcli_wifi_create_a_new_connection_for_an_open_network:
         feature: wifi
     - nmcli_wifisec_configure_and_connect_weptls_profile:
@@ -2633,9 +2634,9 @@ testmapper:
     - nmtui_wifi_wep_passphrase_connection:
         run: nmtui/./runtest.sh nmtui_wifi_wep_passphrase_connection
         feature: nmtui-wifi
-    - nmtui_wifi_leap_connection:
-        run: nmtui/./runtest.sh nmtui_wifi_leap_connection
-        feature: nmtui-wifi
+    # - nmtui_wifi_leap_connection:
+    #     run: nmtui/./runtest.sh nmtui_wifi_leap_connection
+    #     feature: nmtui-wifi
     - nmtui_wifi_show_password:
         run: nmtui/./runtest.sh nmtui_wifi_show_password
         feature: nmtui-wifi

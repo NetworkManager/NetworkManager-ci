@@ -683,20 +683,8 @@ Feature: nmcli - wifi
     @wifi @wireless_certs
     @nmcli_wifisec_configure_and_connect_wpa1peap_profile
     Scenario: nmcli - wifi-sec - configure and connect WPA1-PEAP profile
-    * Add a new connection of type "wifi" and options "ifname wlan0 con-name qe-wpa1-enterprise autoconnect off ssid qe-wpa1-enterprise"
-    * Check ifcfg-name file created for connection "qe-wpa1-enterprise"
-    * Open editor for connection "qe-wpa1-enterprise"
-    * Set a property named "802-11-wireless-security.key-mgmt" to "wpa-eap" in editor
-    * Set a property named "802-1x.eap" to "peap" in editor
-    * Set a property named "802-1x.phase2-auth" to "gtc" in editor
-    * Set a property named "802-1x.identity" to "Bill Smith" in editor
-    * Set a property named "802-1x.password" to "testing123" in editor
-    * Set a property named "802-1x.ca-cert" to "file:///tmp/certs/eaptest_ca_cert.pem" in editor
-    * Save in editor
-    * No error appeared in editor
-    * Check value saved message showed in editor
-    * Quit editor
-    * Execute "sleep 2"
+    * Add a new connection of type "wifi" and options "ifname wlan0 con-name qe-wpa1-enterprise autoconnect off ssid qe-wpa1-enterprise 802-11-wireless-security.key-mgmt wpa-eap 802-1x.eap peap 02-1x.phase2-auth gtc 802-1x.identity 'Bill Smith' 802-1x.password testing123 802-1x.ca-cert 'file:///tmp/certs/eaptest_ca_cert.pem'"
+    * Execute "sleep 3"
     * Bring up connection "qe-wpa1-enterprise"
     Then "qe-wpa1-enterprise" is visible with command "iw dev wlan0 link"
     Then "\*\s+qe-wpa1-enterprise" is visible with command "nmcli -f IN-USE,SSID device wifi list"
@@ -1292,10 +1280,10 @@ Feature: nmcli - wifi
     @nmcli_wifi_add_default_connection_in_novice_nmcli_a_mode
     Scenario: nmcli - wifi - add default connection in novice (nmcli -a) mode
     * Open interactive connection addition mode for a type "wifi"
-    * Expect "Interface name"
-    * Submit "wlan0"
     * Expect "SSID"
     * Submit "qe-open"
+    * Expect "There is . optional .*General"
+    * Submit "no"
     * Expect "There are . optional .*Wi-Fi"
     * Submit "no"
     * Dismiss IP configuration in editor
@@ -1310,10 +1298,10 @@ Feature: nmcli - wifi
     Scenario: nmcli - wifi - add connection in novice (nmcli -a) mode specifying options
     * Open interactive connection addition mode for a type "wifi"
     * Note MAC address output for device "wlan0" via ethtool
-    * Expect "Interface name"
-    * Submit "wlan0"
     * Expect "SSID"
     * Submit "qe-open"
+    * Expect "There is . optional .*General"
+    * Submit "no"
     * Expect "There are . optional .*Wi-Fi"
     * Submit "yes"
     * Expect "Wi-Fi mode"
@@ -1336,10 +1324,10 @@ Feature: nmcli - wifi
     Scenario: nmcli - wifi - add connection in novice (nmcli -a) mode specifying options
     * Open interactive connection addition mode for a type "wifi"
     * Note MAC address output for device "wlan0" via ethtool
-    * Expect "Interface name"
-    * Submit "wlan0"
     * Expect "SSID"
     * Submit "qe-open"
+    * Expect "There is . optional .*General"
+    * Submit "no"
     * Expect "There are . optional .*Wi-Fi"
     * Submit "yes"
     * Expect "Wi-Fi mode"
@@ -1363,10 +1351,10 @@ Feature: nmcli - wifi
     * Open interactive connection addition mode
     * Expect "Connection type"
     * Submit "wifi"
-    * Expect "Interface name"
-    * Submit "wlan0"
     * Expect "SSID"
     * Submit "qe-open"
+    * Expect "There is . optional .*General"
+    * Submit "no"
     * Expect "There are . optional .*Wi-Fi"
     * Submit "no"
     * Agree to add IPv4 configuration in editor
@@ -1399,10 +1387,10 @@ Feature: nmcli - wifi
     * Open interactive connection addition mode
     * Expect "Connection type"
     * Submit "wifi"
-    * Expect "Interface name"
-    * Submit "wlan0"
     * Expect "SSID"
     * Submit "qe-open"
+    * Expect "There is . optional .*General"
+    * Submit "no"
     * Expect "There are . optional .*Wi-Fi"
     * Submit "no"
     * Agree to add IPv4 configuration in editor
