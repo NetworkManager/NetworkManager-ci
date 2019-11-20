@@ -125,8 +125,10 @@ def note_print_property(context, prop):
     category, item = prop.split('.')
     context.prompt.sendline('print %s' % category)
     context.prompt.expect('%s.%s:\s+(\S+)' % (category, item))
-    context.noted_value = context.prompt.match.group(1)
-    print (context.noted_value)
+
+    if not hasattr(context, 'noted'):
+        context.noted = {}
+    context.noted['noted-value'] = context.prompt.match.group(1)
 
 @step(u'Open editor for connection "{con_name}"')
 def open_editor_for_connection(context, con_name):

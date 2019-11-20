@@ -220,9 +220,10 @@ def note_print_property(context, prop, device):
 
 @step(u'Note MAC address output for device "{device}" via ethtool')
 def note_mac_address(context, device):
-    context.noted_value = command_output(context, "ethtool -P %s |grep -o -E '([[:xdigit:]]{1,2}:){5}[[:xdigit:]]{1,2}'" % device).strip()
-    print (context.noted_value)
-
+    if not hasattr(context, 'noted'):
+        context.noted = {}
+    context.noted['noted-value'] = command_output(context, "ethtool -P %s |grep -o -E '([[:xdigit:]]{1,2}:){5}[[:xdigit:]]{1,2}'" % device).strip()
+    
 
 @step(u'Note MAC address output for device "{device}" via ip command as "{index}"')
 @step(u'Note MAC address output for device "{device}" via ip command')
@@ -247,7 +248,9 @@ def note_mac_address_ip(context, device, index=None):
             context.noted = {}
         context.noted[index] = mac
     else:
-        context.noted_value = mac
+        if not hasattr(context, 'noted'):
+            context.noted = {}
+        context.noted['noted-value'] = mac
     print (mac)
 
 
