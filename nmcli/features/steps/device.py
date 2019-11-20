@@ -214,16 +214,17 @@ def connect_wifi_device_w_options(context, network, options):
 def note_print_property(context, prop, device):
     ifc = pexpect.spawn('ifconfig %s' % device, logfile=context.log, encoding='utf-8')
     ifc.expect('%s\s(\S+)' % prop)
-    context.noted_value = ifc.match.group(1)
-    print (context.noted_value)
-
+    if not hasattr(context, 'noted'):
+        context.noted = {}
+    context.noted['noted-value'] = ifc.match.group(1)
+    
 
 @step(u'Note MAC address output for device "{device}" via ethtool')
 def note_mac_address(context, device):
     if not hasattr(context, 'noted'):
         context.noted = {}
     context.noted['noted-value'] = command_output(context, "ethtool -P %s |grep -o -E '([[:xdigit:]]{1,2}:){5}[[:xdigit:]]{1,2}'" % device).strip()
-    
+
 
 @step(u'Note MAC address output for device "{device}" via ip command as "{index}"')
 @step(u'Note MAC address output for device "{device}" via ip command')
