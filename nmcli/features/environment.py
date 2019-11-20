@@ -826,6 +826,7 @@ def before_scenario(context, scenario):
                     call('yum -y install dbus-x11', shell=True)
                 if call('python -m pip list |grep python-dbusmock', shell=True) != 0:
                     call("sudo python -m pip install python-dbusmock", shell=True)
+                call('./tmp/patch-python-dbusmock.sh')
 
             if 'IPy' in scenario.tags:
                 print ("---------------------------")
