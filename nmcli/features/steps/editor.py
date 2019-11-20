@@ -227,7 +227,7 @@ def check_error_while_saving_in_editor_2(context):
 @step(u'Set a property named "{name}" to "{value}" in editor')
 def set_property_in_editor(context, name, value):
     if value == 'noted-value':
-        context.prompt.sendline('set %s %s' % (name,context.noted_value))
+        context.prompt.sendline('set %s %s' % (name,context.noted[value]))
     else:
         context.prompt.sendline('set %s %s' % (name,value))
     sleep(0.25)
