@@ -22,8 +22,6 @@ Feature: nmcli: gsm
     * Open wizard for adding new connection
     * Expect "Connection type"
     * Submit "gsm" in editor
-    * Expect "Interface name"
-    * Enter in editor
     * Expect "APN"
     * Submit "internet" in editor
     * Expect "Do you want to provide them\? \(yes\/no\) \[yes\]"
