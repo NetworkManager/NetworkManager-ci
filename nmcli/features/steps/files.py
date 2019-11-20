@@ -98,8 +98,8 @@ def create_symlink(context, source, destination):
 
 @step(u'Check ifcfg-name file created with noted connection name')
 def check_ifcfg_exists(context):
-    command = 'cat /etc/sysconfig/network-scripts/ifcfg-%s' % context.noted_value
-    pattern = 'NAME=%s' % context.noted_value
+    command = 'cat /etc/sysconfig/network-scripts/ifcfg-%s' % context.noted['noted_value']
+    pattern = 'NAME=%s' % context.context['noted-value']
     return check_pattern_command(context, command, pattern, seconds=2)
 
 

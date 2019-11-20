@@ -210,13 +210,13 @@ def check_pattern_command(context, command, pattern, seconds, check_type="defaul
 @step(u'Noted value is visible with command "{command}"')
 @step(u'Noted value is visible with command "{command}" in "{seconds}" seconds')
 def noted_visible_command(context, command, seconds=2):
-    check_pattern_command(context, command, context.noted_value, seconds, exact_check=True)
+    check_pattern_command(context, command, context.noted['noted-value'], seconds, exact_check=True)
 
 
 @step(u'Noted value is not visible with command "{command}"')
 @step(u'Noted value is not visible with command "{command}" in "{seconds}" seconds')
 def noted_not_visible_command(context, command, seconds=2):
-    return check_pattern_command(context, command, context.noted_value, seconds, check_type="not", exact_check=True)
+    return check_pattern_command(context, command, context.noted['noted-value'], seconds, check_type="not", exact_check=True)
 
 
 @step(u'Noted value "{index}" is visible with command "{command}"')
