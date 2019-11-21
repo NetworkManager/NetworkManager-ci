@@ -2534,7 +2534,6 @@ def after_scenario(context, scenario):
                 print ("remove gsm profile and delete lock and dump logs")
                 call('nmcli connection delete gsm', shell=True)
                 call('rm -rf /etc/NetworkManager/system-connections/gsm', shell=True)
-                call('nmcli con up testeth0', shell=True)
                 wait_for_testeth0()
                 if not os.path.isfile('/tmp/usb_hub'):
                     call('mount -o remount -t nfs nest.test.redhat.com:/mnt/qa/desktop/broadband_lock /mnt/scratch', shell=True)
