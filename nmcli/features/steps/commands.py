@@ -62,12 +62,12 @@ def check_same_noted_values(context, i1, i2):
 
 @step(u'Check noted output contains "{pattern}"')
 def check_noted_output_contains(context, pattern):
-    assert re.search(pattern, context.noted_value) is not None, "Noted output does not contain the pattern %s" % pattern
+    assert re.search(pattern, context.noted['noted-value']) is not None, "Noted output does not contain the pattern %s" % pattern
 
 
 @step(u'Check noted output does not contain "{pattern}"')
 def check_noted_output_contains(context, pattern):
-    assert re.search(pattern, context.noted_value) is None, "Noted output contains the pattern %s" % pattern
+    assert re.search(pattern, context.noted['noted-value']) is None, "Noted output contains the pattern %s" % pattern
 
 
 @step(u'Execute "{command}"')
@@ -107,7 +107,7 @@ def wait_for_process(context, command):
 
 @step(u'Restore hostname from the noted value')
 def restore_hostname(context):
-    command_code('nmcli g hostname %s' % context.noted_value)
+    command_code('nmcli g hostname %s' % context.noted['noted-value'])
     sleep(0.5)
 
 
@@ -141,7 +141,7 @@ def hostname_visible(context, log, seconds=1):
 
 @step(u'Noted value contains "{pattern}"')
 def note_print_property_b(context, pattern):
-    assert re.search(pattern, context.noted_value) is not None, "Noted value '%s' does not match the pattern '%s'!" % (context.noted_value, pattern)
+    assert re.search(pattern, context.noted['noted-value']) is not None, "Noted value '%s' does not match the pattern '%s'!" % (context.noted['noted-value'], pattern)
 
 
 @step(u'Note the output of "{command}" as value "{index}"')
@@ -152,7 +152,9 @@ def note_the_output_as(context, command, index):
 
 @step(u'Note the output of "{command}"')
 def note_the_output_of(context, command):
-    context.noted_value = command_output(context, command).strip()
+    if not hasattr(context, 'noted'):
+        context.noted = {}
+    context.noted['noted-value'] = command_output(context, command).strip()
 
 def json_compare(pattern, out):
     pattern_type = type(pattern)
@@ -210,13 +212,13 @@ def check_pattern_command(context, command, pattern, seconds, check_type="defaul
 @step(u'Noted value is visible with command "{command}"')
 @step(u'Noted value is visible with command "{command}" in "{seconds}" seconds')
 def noted_visible_command(context, command, seconds=2):
-    check_pattern_command(context, command, context.noted_value, seconds, exact_check=True)
+    check_pattern_command(context, command, context.noted['noted-value'], seconds, exact_check=True)
 
 
 @step(u'Noted value is not visible with command "{command}"')
 @step(u'Noted value is not visible with command "{command}" in "{seconds}" seconds')
 def noted_not_visible_command(context, command, seconds=2):
-    return check_pattern_command(context, command, context.noted_value, seconds, check_type="not", exact_check=True)
+    return check_pattern_command(context, command, context.noted['noted-value'], seconds, check_type="not", exact_check=True)
 
 
 @step(u'Noted value "{index}" is visible with command "{command}"')
@@ -475,4 +477,6 @@ def set_logging(context, domain, level):
 
 @step(u'Note NM log')
 def note_NM_log(context):
-    context.noted_value = check_output( "sudo journalctl -all -u NetworkManager --no-pager -o cat %s" % context.log_cursor, shell=True).decode('utf-8', 'ignore')
+    if not hasattr(context, 'noted'):
+        context.noted = {}
+    context.noted['noted-value'] = check_output( "sudo journalctl -all -u NetworkManager --no-pager -o cat %s" % context.log_cursor, shell=True).decode('utf-8', 'ignore')

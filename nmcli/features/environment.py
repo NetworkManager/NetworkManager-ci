@@ -2374,7 +2374,7 @@ def after_scenario(context, scenario):
                 print ("---------------------------")
                 print ("removing all wifi residues")
                 #call('sudo nmcli device disconnect wlan0', shell=True)
-                call('sudo nmcli con del qe-open qe-wep qe-wep-psk qe-wep-enterprise qe-wep-enterprise-cisco', shell=True)
+                call('sudo nmcli con del wifi qe-open qe-wep qe-wep-psk qe-wep-enterprise qe-wep-enterprise-cisco', shell=True)
                 call('sudo nmcli con del qe-wpa1-psk qe-wpa2-psk qe-wpa1-enterprise qe-wpa2-enterprise qe-hidden-wpa2-psk', shell=True)
                 call('sudo nmcli con del qe-adhoc qe-ap wifi-wlan0', shell=True)
                 if 'nmcli_wifi_add_connection_in_novice_nmcli_a_mode_with_bogus_ip' in scenario.tags:

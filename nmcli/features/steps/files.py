@@ -67,7 +67,7 @@ def is_file(context, path):
 @step('"{filename}" is symlink with destination "{destination}"')
 def is_file(context, filename, destination=None):
     if "<noted_value>" in filename:
-        filename = filename.replace("<noted_value>", context.noted_value)
+        filename = filename.replace("<noted_value>", context.noted['noted-value'])
     assert os.path.islink(filename), '"%s" is not a symlink' % filename
     realpath = os.path.realpath(filename)
     if destination is None:
@@ -98,8 +98,8 @@ def create_symlink(context, source, destination):
 
 @step(u'Check ifcfg-name file created with noted connection name')
 def check_ifcfg_exists(context):
-    command = 'cat /etc/sysconfig/network-scripts/ifcfg-%s' % context.noted_value
-    pattern = 'NAME=%s' % context.noted_value
+    command = 'cat /etc/sysconfig/network-scripts/ifcfg-%s' % context.noted['noted-value']
+    pattern = 'NAME=%s' % context.noted['noted-value']
     return check_pattern_command(context, command, pattern, seconds=2)
 
 
