@@ -1311,12 +1311,12 @@ Feature: nmcli - general
 
     @ver+=1.20.1
     @rhelver+=8
-    @nmstate_setup @regenerate_veth
+    @nmstate_setup
     @nmstate
     Scenario: NM - general - nmstate
     * Execute "ip link add eth1 type veth peer name eth1p && ip link set dev eth1p up"
     * Execute "ip link add eth2 type veth peer name eth2p && ip link set dev eth2p up"
-    * Execute "cd nmstate && pytest -vv tests/integration -k 'not test_add_port_to_existing_bridge | test_add_port_to_existing_bridge | test_dhcp_on_bridge0' --log-level=DEBUG 2>&1 | tee /tmp/nmstate.txt"
+    * Execute "cd nmstate && pytest -vv tests/integration -k 'not test_dhcp_on_bridge0' --log-level=DEBUG 2>&1 | tee /tmp/nmstate.txt"
     Then "PASSED" is visible with command "grep ' PASS' /tmp/nmstate.txt"
     Then "FAILED" is not visible with command "grep ' FAILED' /tmp/nmstate.txt"
     Then "ERROR" is not visible with command "grep ' ERROR' /tmp/nmstate.txt"
