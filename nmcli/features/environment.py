@@ -1710,6 +1710,10 @@ def after_scenario(context, scenario):
                 call("nmcli con up testeth1 && nmcli con down testeth1", shell=True)
                 call("nmcli con up testeth2 && nmcli con down testeth2", shell=True)
 
+                # in case of fail we need to kill this
+                call('rm -rf /etc/dnsmasq.d/nmstate.conf', shell=True)
+                call('systemctl stop dnsmasq', shell=True)
+
                 if not os.path.isfile('/tmp/nm_newveth_configured'):
                     # Undo: set veths as managed if we don't use veths yet
                     unmanage_veths ()
