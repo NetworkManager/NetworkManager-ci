@@ -52,6 +52,12 @@ check_packages () {
 
 
 install_fedora_packages () {
+    # Update sshd in Fedora 32 to avoid rhbz1771946
+    dnf -y -4 update https://kojipkgs.fedoraproject.org//packages/openssh/8.1p1/2.fc32/x86_64/openssh-8.1p1-2.fc32.x86_64.rpm https://kojipkgs.fedoraproject.org//packages/openssh/8.1p1/2.fc32/x86_64/openssh-server-8.1p1-2.fc32.x86_64.rpm https://kojipkgs.fedoraproject.org//packages/openssh/8.1p1/2.fc32/x86_64/openssh-clients-8.1p1-2.fc32.x86_64.rpm
+    # Enable rawhide sshd to root
+    echo "PermitRootLogin yes" >> /etc/ssh/sshd_config
+    systemctl restart sshd
+
     # Make python3 default if it's not
     rm -rf /usr/bin/python
     ln -s /usr/bin/python3 /usr/bin/python
