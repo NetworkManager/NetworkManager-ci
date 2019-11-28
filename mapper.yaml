@@ -1079,9 +1079,9 @@ testmapper:
         feature: general
     - hostname_mode_none:
         feature: general
-    - nmstate:
-        feature: general
-        timeout: 30m
+    #- nmstate:
+    #    feature: general
+    #    timeout: 30m
         #tags: gate
     - general_check_version:
         feature: general
