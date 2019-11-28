@@ -268,6 +268,9 @@ install_el7_packages () {
 }
 
 deploy_ssh_keys () {
+    if ! test -d /root/.ssh; then
+        mkdir /root/.ssh/
+    fi
 
     echo "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQCxWHTPdT+b/4EPoVgR/a88K9Wpdta8MdcqXPYOc4uNO/IDhLvGbU6HjlFjA1cI48U/KU6fM6qACJxgyeE/3h0EyMOt11UbzBK8d6Ts03HwdaKiE1Jvvs8Ga7FqZHBr37k7rESGT9B5zA11Bb7xIaBoZp2Q+D6VIGI5D9k0jcFUEEFW/+Rs0hVG8CczMLYAIeECsFSgksHKzrkY28lLn+N4iFWJBY6PpBlxZKiw9POi3L1gekbF+tEpzkeOmqWelZmD/t8ttKpqAeLp43K9nFLYdYaeoAPsaPANo6l5NSi30UGOjKtyWee0LGYDl92c7ahnyLmCybf2YgatD4GQphLh thaller@rh.com" >> /root/.ssh/authorized_keys
 
