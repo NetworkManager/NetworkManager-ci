@@ -608,7 +608,7 @@ Feature: nmcli - general
 
 
     @rhbz1771792
-    @ver+=1.22.0
+    @ver+=1.22.1
     @restart @con_general_remove @teardown_testveth @not_on_s390x
     @match_connections_with_infinite_leasetime
     Scenario: NM - general - connection matching for dhcp with infinite leasetime
