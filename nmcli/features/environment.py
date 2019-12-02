@@ -493,7 +493,26 @@ def reload_NM_service():
 def restart_NM_service():
     call("sudo systemctl restart NetworkManager.service", shell=True)
 
+def reset_hwaddr_nmtui(ifname):
+    try:
+        # This can fail in case we don't have device
+        hwaddr = check_output("ethtool -P %s" % ifname, shell=True).decode('utf-8', 'ignore').split()[2]
+        call("ip link set %s address %s" % (ifname, hwaddr), shell=True)
+    except:
+        pass
+
 def before_all(context):
+    def embed_data(mime_type, data, caption):
+        embed_to = None
+        for formatter in context._runner.formatters:
+            if "html" in formatter.name:
+                embed_to = formatter
+        if embed_to is not None:
+            embed_to.embedding(mime_type=mime_type, data=data, caption=caption)
+        else:
+            return None
+    context.embed = embed_data
+
     if IS_NMTUI:
         """Setup gnome-weather stuff
         Being executed before all features
@@ -509,13 +528,6 @@ def before_all(context):
             print("Error in before_all:")
             traceback.print_exc(file=sys.stdout)
 
-def reset_hwaddr_nmtui(ifname):
-    try:
-        # This can fail in case we don't have device
-        hwaddr = check_output("ethtool -P %s" % ifname, shell=True).decode('utf-8', 'ignore').split()[2]
-        call("ip link set %s address %s" % (ifname, hwaddr), shell=True)
-    except:
-        pass
 def before_scenario(context, scenario):
     if IS_NMTUI:
         try:

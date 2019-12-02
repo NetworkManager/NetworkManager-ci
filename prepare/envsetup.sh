@@ -51,6 +51,13 @@ check_packages () {
 }
 
 
+install_behave () {
+  python -m pip install behave
+  python -m pip install behave_html_formatter
+  echo -e "[behave.formatters]\nhtml = behave_html_formatter:HTMLFormatter" > ~/.behaverc
+  ln -s /usr/bin/behave-3 /usr/bin/behave
+}
+
 install_fedora_packages () {
     # Update sshd in Fedora 32 to avoid rhbz1771946
     dnf -y -4 update https://kojipkgs.fedoraproject.org//packages/openssh/8.1p1/2.fc32/x86_64/openssh-8.1p1-2.fc32.x86_64.rpm https://kojipkgs.fedoraproject.org//packages/openssh/8.1p1/2.fc32/x86_64/openssh-server-8.1p1-2.fc32.x86_64.rpm https://kojipkgs.fedoraproject.org//packages/openssh/8.1p1/2.fc32/x86_64/openssh-clients-8.1p1-2.fc32.x86_64.rpm
@@ -80,16 +87,7 @@ install_fedora_packages () {
     # Dnf more deps
     dnf -4 -y install git nmap-ncat hostapd tcpreplay python3-netaddr dhcp-relay iw net-tools psmisc firewalld dhcp-server ethtool python3-dbus python3-gobject dnsmasq tcpdump wireshark-cli
 
-    # Install behave with better reporting
-    if python3 -V |grep -q "3.6"; then
-        dnf install -y http://download.eng.bos.redhat.com/brewroot/packages/python-behave/1.2.5/23.el8+7/noarch/python3-behave-1.2.5-23.el8+7.noarch.rpm http://download.eng.bos.redhat.com/brewroot/packages/python-parse/1.6.6/8.el8+7/noarch/python3-parse-1.6.6-8.el8+7.noarch.rpm http://download.eng.bos.redhat.com/brewroot/packages/python-parse_type/0.3.4/15.el8+7/noarch/python3-parse_type-0.3.4-15.el8+7.noarch.rpm
-    elif python3 -V |grep -q "3.7"; then
-        dnf install -y https://vbenes.fedorapeople.org/NM/python3-behave-1.2.6-2.fc29.noarch.rpm
-    elif python3 -V |grep -q "3.8"; then
-        dnf install -y https://vbenes.fedorapeople.org/NM/python3-behave-1.2.6-3.fc32.noarch.rpm
-    fi
-
-    ln -s /usr/bin/behave-3 /usr/bin/behave
+    install_behave
 
     # Install vpn dependencies
     dnf -4 -y install NetworkManager-openvpn openvpn ipsec-tools
@@ -158,10 +156,8 @@ install_el8_packages () {
     # Dnf more deps
     dnf -4 -y install git python3-netaddr dhcp-relay iw net-tools psmisc firewalld dhcp-server ethtool python3-dbus python3-gobject dnsmasq tcpdump wireshark-cli --skip-broken
 
-    # Install behave with better reporting
     dnf -4 -y install https://kojipkgs.fedoraproject.org//packages/tcpreplay/4.2.5/4.fc28/$(uname -p)/tcpreplay-4.2.5-4.fc28.$(uname -p).rpm
-    dnf -4 -y install http://download.eng.bos.redhat.com/brewroot/packages/python-behave/1.2.5/23.el8+7/noarch/python3-behave-1.2.5-23.el8+7.noarch.rpm http://download.eng.bos.redhat.com/brewroot/packages/python-parse/1.6.6/8.el8+7/noarch/python3-parse-1.6.6-8.el8+7.noarch.rpm http://download.eng.bos.redhat.com/brewroot/packages/python-parse_type/0.3.4/15.el8+7/noarch/python3-parse_type-0.3.4-15.el8+7.noarch.rpm
-    ln -s /usr/bin/behave-3 /usr/bin/behave
+    install_behave
 
     # Install vpn dependencies
     dnf -4 -y install https://kojipkgs.fedoraproject.org//packages/NetworkManager-openvpn/1.8.4/1.fc28/$(arch)/NetworkManager-openvpn-1.8.4-1.fc28.$(arch).rpm https://kojipkgs.fedoraproject.org//packages/openvpn/2.4.6/1.fc28/$(arch)/openvpn-2.4.6-1.fc28.$(arch).rpm https://kojipkgs.fedoraproject.org//packages/ipsec-tools/0.8.2/10.fc28/$(arch)/ipsec-tools-0.8.2-10.fc28.$(arch).rpm https://kojipkgs.fedoraproject.org//packages/pkcs11-helper/1.22/5.fc28/$(arch)/pkcs11-helper-1.22-5.fc28.$(arch).rpm
@@ -229,15 +225,24 @@ install_el7_packages () {
     fi
 
     # Download some deps
-    yum -y install perl-IO-Pty-Easy wireshark python-setuptools python2-pip
-    easy_install pip
-    pip install --upgrade pip
-    pip install pexpect
-    pip install pyroute2
-    yum -y install git python-netaddr iw net-tools wireshark psmisc bridge-utils firewalld dhcp ethtool dbus-python pygobject3 pygobject2 dnsmasq NetworkManager-vpnc
-    yum -y install https://kojipkgs.fedoraproject.org//packages/python-behave/1.2.5/18.el7/noarch/python2-behave-1.2.5-18.el7.noarch.rpm https://kojipkgs.fedoraproject.org//packages/python-parse/1.6.4/4.el7/noarch/python-parse-1.6.4-4.el7.noarch.rpm https://kojipkgs.fedoraproject.org//packages/python-parse_type/0.3.4/6.el7/noarch/python-parse_type-0.3.4-6.el7.noarch.rpm https://kojipkgs.fedoraproject.org//packages/hostapd/2.8/1.el7/$(arch)/hostapd-2.8-1.el7.$(arch).rpm
+    yum -y install perl-IO-Pty-Easy wireshark
+
+    yum -y install python3 python3-pip
+
+    echo python3 > /tmp/python_command
+    export_python_command
+
+    python -m pip install --upgrade pip
+    python -m pip install pexpect
+    python -m pip install pyroute2
+    python -m pip install netaddr
+    yum -y install git python36-netaddr iw net-tools wireshark psmisc bridge-utils firewalld dhcp ethtool python36-dbus python36-gobject dnsmasq NetworkManager-vpnc
+
+    yum -y install https://kojipkgs.fedoraproject.org//packages/hostapd/2.8/1.el7/$(arch)/hostapd-2.8-1.el7.$(arch).rpm
 
     yum -y remove NetworkManager-config-connectivity-fedora NetworkManager-config-connectivity-redhat
+
+    install_behave
 
     # Add OVS repo and install OVS
     if grep -q -e 'CentOS Linux release 7' /etc/redhat-release; then
@@ -280,6 +285,23 @@ deploy_ssh_keys () {
 
     echo "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQDAM+2WB7nD+BbrmLCDk3AzI82EceBD5vXioOvGkVAjVIKKITs+D+Q7i4QpG42S/IIkeojlkodwE5Ht5omCtdqMSa5WBSPXhZASJskJs2EH3dAU23U/Rff6hSP845EO+Gs/zpGTgs5LAVvNpS9oZMiUdWyd/xI2QJlyOpcGbCr9AO1lGN5+Ls/ZJtCYL9W4F/Zp5H9ApYS8Z/EReiFY/TH0zngGj8sX3/L/em99H1aaFpkef9J2ZMZX13ixHhVfElA877Fj4CmLIX+aYXa24JBDBZLOJCsEK9WdCBo4imEfVd42Wm9FexRgDknpzfSOTVnukLN9lrYwr5FvUcHOOKE1 fpokryvk@rh" >> /root/.ssh/authorized_keys
 
+}
+
+export_python_command() {
+    if [ -f /tmp/python_command ]; then
+        PYTHON_COMMAND=$(cat /tmp/python_command)
+        if [ -n "$PYTHON_COMMAND" ]; then
+            python() {
+            if [ -f /tmp/python_command ]; then
+                PYTHON_COMMAND=$(cat /tmp/python_command)
+                if [ -n "$PYTHON_COMMAND" ]; then
+                    $PYTHON_COMMAND $@
+                fi
+            fi
+            }
+            export -f python
+        fi
+    fi
 }
 
 enable_abrt_el8 () {
@@ -538,7 +560,7 @@ local_setup_configure_nm_inf () {
     touch /tmp/inf_configured
 }
 
-install_usb_hub_driver_el8 () {
+install_usb_hub_driver_el () {
     # Works under RHEL 8.0.
     yum install -y libffi-devel python36-devel
     pushd tmp/usb_hub
@@ -546,21 +568,6 @@ install_usb_hub_driver_el8 () {
         tar xf brainstem_dev_kit_ubuntu_lts_18.04_no_qt_x86_64_1.tgz
         cd development/python/
         python -m pip install brainstem-2.7.0-py2.py3-none-any.whl; local rc=$?
-    popd
-    return $rc
-}
-
-install_usb_hub_driver_el7 () {
-    # Accomodate to RHEL7 and CentOS7.
-    yum install -y libffi-devel python-devel
-    pushd tmp/usb_hub
-        # The module brainstem is already stored in project NetworkManager-ci.
-        # Install BrainStem Development Kit (v2.7.1)
-        # for Ubuntu LTS 14.04 x86_64.
-        # This version of BrainStem works under RHEL 7.6 with Python 2.7.
-        tar xf brainstem_dev_kit_ubuntu_lts_14.04_x86_64.tgz
-        cd development/python/
-        python -m pip install brainstem-2.7.1-py2.py3-none-any.whl; local rc=$?
     popd
     return $rc
 }
@@ -621,11 +628,8 @@ local_setup_configure_nm_gsm () {
     semodule -i tmp/selinux-policy/ModemManager.pp
 
     # Prepare conditions for using Acroname USB hub.
-    if grep -q -E 'Enterprise Linux .*release 7|CentOS Linux .*release 7' /etc/redhat-release; then
-        # python2-pip is not available in RHEL 7.7.
-        install_usb_hub_driver_el7; RC=$?
-    elif grep -q 'Enterprise Linux .*release 8' /etc/redhat-release; then
-        install_usb_hub_driver_el8; RC=$?
+    if grep -q -E 'Enterprise Linux .*release|CentOS Linux .*release' /etc/redhat-release; then
+        install_usb_hub_driver_el; RC=$?
     elif grep -q -E 'Fedora .*release' /etc/redhat-release; then
         install_usb_hub_driver_fc29; RC=$?
     else

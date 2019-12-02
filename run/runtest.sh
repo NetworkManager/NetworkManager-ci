@@ -23,13 +23,13 @@ DIR=$(pwd)
 test "$RUNTEST_TYPE" == nmtui || . $DIR/nmcli/gsm_hub.sh
 . $DIR/prepare/envsetup.sh
 setup_configure_environment "$1"
+export_python_command
 
 if [ "$RUNTEST_TYPE" == nmtui ]; then
     # install the pyte VT102 emulator
     if [ ! -e /tmp/nmtui_pyte_installed ]; then
-        easy_install pip
-        pip install setuptools --upgrade
-        pip install pyte
+        python -m pip install setuptools --upgrade
+        python -m pip install pyte
 
         touch /tmp/nmtui_pyte_installed
     fi
