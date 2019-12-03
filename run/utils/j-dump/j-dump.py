@@ -196,6 +196,7 @@ class Job:
             "               <tr>\n"
             "                   <th>Id</th>\n"
             "                   <th>Date</th>\n"
+            "                   <th>Duration</th>\n"
             "                   <th>Status</th>\n"
             "                   <th>Failures</th>\n"
             "                   <th>Links</th>\n"
@@ -230,11 +231,13 @@ class Job:
                 '               <tr>'
                 '<td><a target="_blank" href="%s">%s</a></td>'
                 '<td>%s</td>'
+                '<td>%s</td>'
                 '%s%s'
                 '<td>%s</td>'
                 '</tr>\n' %
                 (artifacts_url(build), build.id,
                  build.timestamp.ctime(),
+                 str(build.duration).split('.')[0],
                  l_build, l_failures,
                  build.description))
         fd.write(
