@@ -236,7 +236,9 @@ install_el7_packages () {
     python -m pip install pexpect
     python -m pip install pyroute2
     python -m pip install netaddr
-    yum -y install git python36-netaddr iw net-tools wireshark psmisc bridge-utils firewalld dhcp ethtool python36-dbus python36-gobject dnsmasq NetworkManager-vpnc
+    python -m pip install IPy
+
+    yum -y install git iw net-tools wireshark psmisc bridge-utils firewalld dhcp ethtool python36-dbus python36-gobject dnsmasq NetworkManager-vpnc
 
     yum -y install https://kojipkgs.fedoraproject.org//packages/hostapd/2.8/1.el7/$(arch)/hostapd-2.8-1.el7.$(arch).rpm
 
