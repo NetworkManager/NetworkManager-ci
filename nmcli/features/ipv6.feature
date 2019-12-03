@@ -969,7 +969,8 @@
     Then "2620" is visible with command "ip a s testX6 |grep inet6" in "10" seconds
     Then "3" is not visible with command "ip a s testX6 |grep inet6 |wc -l" in "10" seconds
     Then "2" is visible with command "ip a s testX6 |grep inet6 |wc -l" in "10" seconds
-    Then "default via fe80" is visible with command "ip -6 r |grep testX6"
+    # VVV DHCPv6 doesn't give routes so this should not be present VVV
+    Then "default via fe80" is not visible with command "ip -6 r |grep testX6"
 
 
     @rhbz1268866
