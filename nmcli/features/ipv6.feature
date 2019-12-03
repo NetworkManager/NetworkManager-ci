@@ -944,12 +944,32 @@
 
 
     @con_ipv6_remove @internal_DHCP @teardown_testveth @long
+    @ver-=1.19.90
     @ipv6_DHCPv6
     Scenario: NM - ipv6 - internal DHCPv6
     * Prepare simulated test "testX6" device
     * Add a new connection of type "ethernet" and options "ifname testX6 con-name con_ipv6 autoconnect no ipv4.method disabled ipv6.method dhcp"
     * Bring "up" connection "con_ipv6"
     Then "testX6\s+ethernet\s+connected" is visible with command "nmcli device" in "20" seconds
+
+
+    @rhbz1734470
+    @ver+=1.20.0
+    @con_ipv6_remove @internal_DHCP @teardown_testveth @long
+    @ipv6_DHCPv6
+    Scenario: NM - ipv6 - internal DHCPv6
+    * Prepare simulated test "testX6" device
+    * Add a new connection of type "ethernet" and options "ifname testX6 con-name con_ipv6 autoconnect no ipv4.method disabled ipv6.method ignore"
+    * Bring "up" connection "con_ipv6"
+    When "testX6\s+ethernet\s+connected" is visible with command "nmcli device" in "20" seconds
+    When "2" is visible with command "ip a s testX6 |grep inet6 |wc -l" in "20" seconds
+    * Modify connection "con_ipv6" changing options "ipv6.method dhcp"
+    * Execute "nmcli dev reapply testX6"
+    When "testX6\s+ethernet\s+connected" is visible with command "nmcli device" in "20" seconds
+    Then "2620" is visible with command "ip a s testX6 |grep inet6" in "10" seconds
+    Then "3" is not visible with command "ip a s testX6 |grep inet6 |wc -l" in "10" seconds
+    Then "2" is visible with command "ip a s testX6 |grep inet6 |wc -l" in "10" seconds
+    Then "default via fe80" is visible with command "ip -6 r |grep testX6"
 
 
     @rhbz1268866
