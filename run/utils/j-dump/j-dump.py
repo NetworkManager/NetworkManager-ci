@@ -345,6 +345,7 @@ class Build:
         self.description = build.get_description() or "--"
         self.failed = False
         self.timestamp = build.get_timestamp()
+        self.duration = build.get_duration()
         self.failures = {}
 
         if self.status == 'NOT_BUILT' or self.status == 'ABORTED':
