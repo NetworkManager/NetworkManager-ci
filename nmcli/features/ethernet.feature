@@ -220,7 +220,9 @@ Feature: nmcli - ethernet
     * Execute "nmcli connection modify ethernet 802-3-ethernet.auto-negotiate no 802-3-ethernet.speed 0"
     Then "ETHTOOL_OPTS" is not visible with command "cat /etc/sysconfig/network-scripts/ifcfg-ethernet"
 
-    @ethernet
+
+    @ver-=1.20.0
+    @ethernet @mtu
     @ethernet_set_mtu
     Scenario: nmcli - ethernet - set mtu
     * Add a new connection of type "ethernet" and options "ifname eth1 con-name ethernet autoconnect no"
@@ -234,8 +236,22 @@ Feature: nmcli - ethernet
     Then "inet 192." is visible with command "ifconfig eth1"
 
 
-    @ethernet
-    @mtu
+    @rhbz1775136
+    @ver+=1.20.0
+    @ethernet @mtu
+    @ethernet_set_mtu
+    Scenario: nmcli - ethernet - set mtu
+    * Add a new connection of type "ethernet" and options "ifname eth1 con-name ethernet ipv6.method disable 802-3-ethernet.mtu 666"
+    * Bring up connection "ethernet"
+    When "MTU=666" is visible with command "cat /etc/sysconfig/network-scripts/ifcfg-ethernet"
+    When "666" is visible with command "ip a s eth1"
+    * Modify connection "ethernet" changing options "802-3-ethernet.mtu 9000"
+    * Bring up connection "ethernet"
+    When "MTU=9000" is visible with command "cat /etc/sysconfig/network-scripts/ifcfg-ethernet"
+    When "9000" is visible with command "ip a s eth1"
+
+
+    @ethernet @mtu
     @nmcli_set_mtu_lower_limit
     Scenario: nmcli - ethernet - set lower limit mtu
     * Add a new connection of type "ethernet" and options "ifname eth1 con-name ethernet autoconnect no"
