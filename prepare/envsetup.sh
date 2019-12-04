@@ -622,10 +622,11 @@ local_setup_configure_nm_gsm () {
         yum -y install NetworkManager-wwan-$VER-$REL ModemManager usb_modeswitch usbutils NetworkManager-ppp-$VER-$REL
     fi
 
+    modprobe -r qmi_wwan
+    modprobe qmi_wwan
     systemctl restart ModemManager
-    sleep 60
     systemctl restart NetworkManager
-    sleep 120
+    sleep 60
 
     # Selinux policy for gsm_sim (ModemManager needs access to /dev/pts/*)
     semodule -i tmp/selinux-policy/ModemManager.pp
