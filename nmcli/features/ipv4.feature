@@ -950,6 +950,7 @@ Feature: nmcli: ipv4
 
     @rhbz1642023
     @ver+=1.14
+    @ver-=1.21.0
     @con_ipv4_remove @restart @rhelver+=8 @rhel_pkg @internal_DHCP
     @ipv4_dhcp_client_id_change_lease_restart
     Scenario: nmcli - ipv4 - dhcp-client-id - lease file change should not be considered even after NM restart
