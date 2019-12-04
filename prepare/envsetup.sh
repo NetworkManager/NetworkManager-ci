@@ -237,6 +237,7 @@ install_el7_packages () {
     python -m pip install pyroute2
     python -m pip install netaddr
     python -m pip install IPy
+    python -m pip install python-dbusmock
 
     yum -y install git iw net-tools wireshark psmisc bridge-utils firewalld dhcp ethtool python36-dbus python36-gobject dnsmasq NetworkManager-vpnc
 
