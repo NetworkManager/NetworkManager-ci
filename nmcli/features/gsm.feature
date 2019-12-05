@@ -15,6 +15,15 @@ Feature: nmcli: gsm
     Scenario: nmcli - gsm - hub
     * Execute "echo 'PASS'"
 
+    @eth0 @gsm
+    @gsm_create_default_connection
+    Scenario: nmcli - gsm - create a connection
+     * Add a new connection of type "gsm" and options "ifname \* con-name gsm autoconnect no apn internet"
+    Then "GENERAL.STATE:.*activated" is visible with command "nmcli con show gsm" in "300" seconds
+     And "default" is visible with command "ip r |grep 700"
+     And Ping "8.8.8.8" "7" times
+
+
     @ver+=1.2.0 @ver-=1.17.2
     @eth0 @gsm
     @gsm_create_assisted_connection
@@ -85,15 +94,6 @@ Feature: nmcli: gsm
     Then "GENERAL.STATE:.*activated" is visible with command "nmcli con show gsm" in "60" seconds
     And "default" is visible with command "ip r |grep 700"
     * Ping "8.8.8.8" "7" times
-
-    @eth0 @gsm
-    @gsm_create_default_connection
-    Scenario: nmcli - gsm - create a connection
-     * Add a new connection of type "gsm" and options "ifname \* con-name gsm autoconnect no apn internet"
-     * Bring "up" connection "gsm"
-    Then "GENERAL.STATE:.*activated" is visible with command "nmcli con show gsm" in "60" seconds
-     And "default" is visible with command "ip r |grep 700"
-     And Ping "8.8.8.8" "7" times
 
 
     @eth0 @gsm
