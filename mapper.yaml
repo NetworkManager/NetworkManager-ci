@@ -768,6 +768,8 @@ testmapper:
         tags: gate
     - nmcli_ipv4_override_fqdn:
         feature: ipv4
+    - nmcli_ipv4_override_fqdn_var1:
+        feature: ipv4
     - nmcli_ipv4_remove_fqdn:
         feature: ipv4
     - ipv4_dhcp-hostname_remove:

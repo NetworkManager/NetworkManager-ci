@@ -784,6 +784,7 @@ Feature: nmcli: ipv4
 
     @rhbz1255507
     @ver+=1.3.0
+    @ver-=1.21.90
     @tshark @con_ipv4_remove @not_under_internal_DHCP
     @nmcli_ipv4_override_fqdn
     Scenario: nmcli - ipv4 - dhcp-fqdn - override dhcp-fqdn
@@ -798,6 +799,36 @@ Feature: nmcli: ipv4
      And "foo.bar.com" is visible with command "cat /tmp/tshark.log"
      And "Encoding: ASCII encoding" is visible with command "cat /tmp/tshark.log"
      And "Server: Client" is visible with command "cat /tmp/tshark.log"
+    * Finish "sudo pkill tshark"
+
+
+    @rhbz1255507 @rhbz1649368
+    @ver+=1.22
+    @tshark @con_ipv4_remove
+    @nmcli_ipv4_override_fqdn
+    Scenario: nmcli - ipv4 - dhcp-fqdn - override dhcp-fqdn
+    * Add a new connection of type "ethernet" and options "ifname eth2 con-name con_ipv4 ipv4.may-fail no ipv4.dhcp-fqdn foo.bar.com ipv4.dhcp-hostname-flags fqdn-clear-flags"
+    * Bring "up" connection "con_ipv4"
+    * Run child "sudo tshark -l -O bootp -i eth2 > /tmp/tshark.log"
+    When "empty" is not visible with command "file /tmp/tshark.log" in "150" seconds
+    * Bring "up" connection "con_ipv4"
+    Then "foo.bar.com" is visible with command "cat /tmp/tshark.log"
+    Then "Bootstrap Protocol \(Request\).*.... 0... = Server DDNS: Some server updates\s+.... .0.. = Encoding: ASCII encoding\s+.... ..0. = Server overrides: No override\s+.... ...0 = Server: Client" is visible with command "cat /tmp/tshark.log"
+    * Finish "sudo pkill tshark"
+
+
+    @rhbz1255507 @rhbz1649368
+    @ver+=1.22
+    @tshark @con_ipv4_remove
+    @nmcli_ipv4_override_fqdn_var1
+    Scenario: nmcli - ipv4 - dhcp-fqdn - override dhcp-fqdn
+    * Add a new connection of type "ethernet" and options "ifname eth2 con-name con_ipv4 ipv4.may-fail no ipv4.dhcp-fqdn foo.bar.com ipv4.dhcp-hostname-flags 'fqdn-serv-update fqdn-encoded'"
+    * Bring "up" connection "con_ipv4"
+    * Run child "sudo tshark -l -O bootp -i eth2 > /tmp/tshark.log"
+    When "empty" is not visible with command "file /tmp/tshark.log" in "150" seconds
+    * Bring "up" connection "con_ipv4"
+    Then "foo.bar.com" is visible with command "cat /tmp/tshark.log"
+    Then "Bootstrap Protocol \(Request\).*.... 0... = Server DDNS: Some server updates\s+.... .1.. = Encoding: Binary encoding\s+.... ..0. = Server overrides: No override\s+.... ...1 = Server: Server" is visible with command "cat /tmp/tshark.log"
     * Finish "sudo pkill tshark"
 
 
