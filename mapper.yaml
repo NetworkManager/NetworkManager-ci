@@ -246,6 +246,8 @@ testmapper:
         tags: gate
     - bond_reapply_connection_without_wired_settings:
         feature: bond
+    - bond_reconnect_previously_unavailable_device:
+        feature: bond
     - bridge_add_default:
         feature: bridge
     - bridge_add_custom_one:

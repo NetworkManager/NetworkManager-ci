@@ -2046,6 +2046,11 @@ def after_scenario(context, scenario):
                 call("kill -9 $(ps aux|grep '/usr/sbin/dns' |grep 192.168 |grep -v grep |awk '{print $2}')", shell=True)
                 call("kill -9 $(ps aux|grep '/usr/sbin/dns' |grep 192.168 |grep -v grep |awk '{print $2}')", shell=True)
 
+            if 'modprobe_cfg_remove' in scenario.tags:
+                print ("---------------------------")
+                print ("deleting modprobe config")
+                call("rm -rf /etc/modprobe.d/99-test.conf", shell=True)
+
             if 'inf' in scenario.tags:
                 print ("---------------------------")
                 print ("deleting infiniband connections")
