@@ -1840,3 +1840,15 @@ Feature: nmcli: ipv4
     * Add a new connection of type "ethernet" and options "ifname testX con-name con_ipv4"
     When "192.168.99." is visible with command "ip a show dev testX" in "40" seconds
     Then "private_245 = aa:bb:cc:dd" is visible with command "A=$(nmcli -t -f DHCP4 c s con_ipv4 | grep private_245); echo ${A#*:}"
+
+
+    @rhbz1767681 @rhbz1686634
+    @ver+=1.18.4
+    @two_bridged_veths @tshark
+    @ipv4_send_arp_announcements
+    Scenario: NM - ipv4 - check that gratuitous ARP announcements are sent"
+    * Prepare veth pairs "test1,test2" bridged over "vethbr"
+    * Add a new connection of type "ethernet" and options "con-name tc1 autoconnect no ifname test1 ip4 172.21.1.1/24 ipv6.method ignore"
+    * Run child "sudo tshark -l -i test2 arp > /tmp/tshark.log"
+    * Bring "up" connection "tc1"
+    Then "ok" is visible with command "[ $(grep -c 'Gratuitous ARP for 172.21.1.1' /tmp/tshark.log) -gt 1 ] && echo ok" in "20" seconds
