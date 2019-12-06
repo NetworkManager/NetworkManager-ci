@@ -78,7 +78,6 @@ function test_modems_usb_hub() {
         while [ $TIMER -gt 0 ]; do
             if nmcli d |grep -q gsm; then
                 # Give some more sleep so device can register to the BTS
-                sleep 80
                 break
             else
                 sleep 1
