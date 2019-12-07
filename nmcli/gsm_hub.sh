@@ -69,8 +69,9 @@ function test_modems_usb_hub() {
         done
         modprobe -r qmi_wwan
         systemctl restart ModemManager
-        sleep 5
-
+        sleep 3
+        modprobe qmi_wwan
+        sleep 3
         $DIR/tmp/usb_hub/acroname.py --port $M --enable
 
         # wait for device to appear in NM
@@ -78,7 +79,7 @@ function test_modems_usb_hub() {
         while [ $TIMER -gt 0 ]; do
             if nmcli d |grep -q gsm; then
                 # Give some more sleep so device can register to the BTS
-                sleep 60
+                sleep 80
                 break
             else
                 sleep 1
