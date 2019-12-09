@@ -413,7 +413,7 @@ Feature: nmcli - vlan
     @vlan_create_many_vlans
     Scenario: NM - vlan - create 255 vlans
     * Execute "for i in {1..255}; do ip link add link eth7 name vlan.$i type vlan id $i; ip link set dev vlan.$i up; ip add add 30.0.0.$i/24 dev vlan.$i;done" without waiting for process to finish
-    When "30.0.0.255/24" is visible with command "ip a s vlan.255" in "30" seconds
+    When "30.0.0.255/24" is visible with command "ip a s vlan.255" in "60" seconds
     Then "^[1]?[0-9][0-9][0-9]\s+" is visible with command "G_DBUS_DEBUG=message nmcli c 2>&1 |grep 'GDBus-debug:Message:' |wc -l" in "30" seconds
 
 
