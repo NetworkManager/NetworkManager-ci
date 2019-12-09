@@ -201,6 +201,7 @@ Feature: nmcli: ipv4
 
     @rhbz1373698
     @ver+=1.8.0
+    @ver-=1.21.90
     @con_ipv4_remove
     @ipv4_route_set_route_with_options
     Scenario: nmcli - ipv4 - routes - set route with options
@@ -210,6 +211,20 @@ Feature: nmcli: ipv4
     Then "192.168.4.1 dev eth3\s+proto static\s+scope link\s+metric 256" is visible with command "ip route"
     Then "192.168.5.0/24 via 192.168.3.11 dev eth3\s+proto static\s+metric 1024\s+mtu lock 1600 cwnd 14" is visible with command "ip route"
      And "default" is visible with command "ip r |grep eth0"
+
+
+    @rhbz1373698 @rhbz1714438
+    @ver+=1.22.0
+    @con_ipv4_remove
+    @ipv4_route_set_route_with_options
+    Scenario: nmcli - ipv4 - routes - set route with options
+    * Add a new connection of type "ethernet" and options "ifname eth3 con-name con_ipv4 ipv4.method manual ipv4.addresses 192.168.3.10/24 ipv4.gateway 192.168.4.1 ipv4.route-metric 256 ipv4.routes '192.168.5.0/24 192.168.3.11 1024 cwnd=14 lock-mtu=true mtu=1600, 0.0.0.0/0 192.168.4.1 mtu=1600'"
+    Then "default via 192.168.4.1 dev eth3\s+proto static\s+metric 256" is visible with command "ip route" in "20" seconds
+    Then "192.168.3.0/24 dev eth3\s+proto kernel\s+scope link\s+src 192.168.3.10\s+metric 256" is visible with command "ip route"
+    Then "192.168.4.1 dev eth3\s+proto static\s+scope link\s+metric 256" is visible with command "ip route"
+    Then "192.168.5.0/24 via 192.168.3.11 dev eth3\s+proto static\s+metric 1024\s+mtu lock 1600 cwnd 14" is visible with command "ip route"
+    And "default via 192.168.4.1 dev eth3 proto static metric 256 mtu 1600" is visible with command "ip r"
+    And "default via 192.168.4.1 dev eth3 proto static metric 256" is visible with command "ip r"
 
 
     @rhbz1373698
