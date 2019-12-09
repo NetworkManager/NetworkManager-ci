@@ -67,13 +67,10 @@ function test_modems_usb_hub() {
         for P in $(seq 0 1 $((PORT_COUNT-1)) ); do
             $DIR/prepare/acroname.py --port $P --disable
         done
-        systemctl stop ModemManager
         modprobe -r qmi_wwan
-        sleep 1
-        modprobe qmi_wwan
-        sleep 2
         systemctl restart ModemManager
-        sleep 3
+        sleep 5
+
         $DIR/prepare/acroname.py --port $M --enable
 
         # wait for device to appear in NM
@@ -81,7 +78,7 @@ function test_modems_usb_hub() {
         while [ $TIMER -gt 0 ]; do
             if nmcli d |grep -q gsm; then
                 # Give some more sleep so device can register to the BTS
-                sleep 60
+                sleep 80
                 break
             else
                 sleep 1
