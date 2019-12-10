@@ -89,8 +89,8 @@ Feature: Ethernet TUI tests
     * Select connection "testeth7" in the list
     * Select connection "ethernet" in the list
     * Choose to "<Activate>" a connection
-    Then "inet 192" is visible with command "ip a s eth7" in "60" seconds
-    Then "eth7\s+ethernet\s+connected\s+ethernet" is visible with command "nmcli device"
+    Then "eth7\s+ethernet\s+connected\s+ethernet" is visible with command "nmcli device" in "60" seconds
+    Then "inet 192" is visible with command "ip a s eth7"
 
 
     @ethernet
