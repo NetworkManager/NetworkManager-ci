@@ -595,9 +595,9 @@ Feature: nmcli - dns
     * Add a new connection of type "ethernet" and options "ifname eth8 con-name con_general ipv4.method manual ipv4.addresses 192.168.244.4/24 ipv4.gateway 192.168.244.1 ipv4.dns 192.168.244.1 ipv6.method ignore"
     * Stop NM
     * Remove file "/etc/resolv.conf" if exists
-    * Execute "echo 'nameserver 8.8.8.8 > /tmp/no-resolv.conf"
+    * Execute "echo 'nameserver 8.8.8.8' > /tmp/no-resolv.conf"
     * Create symlink "/etc/resolv.conf" with destination "/tmp/no-resolv.conf"
     * Start NM
     * Wait for at least "2" seconds
     Then "/etc/resolv.conf" is symlink with destination "/tmp/no-resolv.conf"
-    Then 'nameserver 8.8.8.8' is visible with "cat /tmp/no-resolv.conf"
+    Then "nameserver 8.8.8.8" is visible with command "cat /tmp/no-resolv.conf"
