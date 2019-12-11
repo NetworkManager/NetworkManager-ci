@@ -1097,6 +1097,8 @@ testmapper:
     - general_state_connected:
         feature: general
         tags: gate
+    - gen_activate_with_incorrect_hostname:
+        feature: general
     - general_state_disconnected:
         feature: general
         tags: gate

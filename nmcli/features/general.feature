@@ -157,6 +157,16 @@ Feature: nmcli - general
      And "localhost" is visible with command "hostnamectl --transient" for full "20" seconds
 
 
+    @rhbz1744427
+    @ver+=1.22.0
+    @con_general_remove @restore_hostname
+    @gen_activate_with_incorrect_hostname
+    Scenario: nmcli - ipv4 - dhcp-hostname - set dhcp-hostname
+    * Execute "hostnamectl set-hostname bpelled_invalid_hostname"
+    * Add a new connection of type "ethernet" and options "ifname eth8 con-name con_general"
+    Then Bring "up" connection "con_general"
+
+
     @restart @newveth
     @general_state_disconnected
     Scenario: nmcli - general - state disconnected
