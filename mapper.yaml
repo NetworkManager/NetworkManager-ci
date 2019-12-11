@@ -1319,8 +1319,6 @@ testmapper:
         feature: general
     - resolv_conf_overwrite_after_stop:
         feature: general
-    - resolv_conf_dangling_symlink:
-        feature: general
     - macsec_send-sci_by_default:
         feature: general
     - libnm_async_tasks_cancelable:
@@ -1791,6 +1789,10 @@ testmapper:
     - dns_none:
         feature: dns
     - remove_dns_none:
+        feature: dns
+    - resolv_conf_dangling_symlink:
+        feature: dns
+    - resolv_conf_do_not_overwrite_symlink:
         feature: dns
     - nmtui_general_exit_nmtui:
         run: nmtui/./runtest.sh nmtui_general_exit_nmtui

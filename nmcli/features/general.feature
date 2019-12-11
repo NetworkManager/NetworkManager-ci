@@ -1584,30 +1584,6 @@ Feature: nmcli - general
     Then Start NM
 
 
-    @rhbz1593661
-    @ver+=1.12
-    @restart @remove_custom_cfg @con_general_remove
-    @resolv_conf_dangling_symlink
-    Scenario: NM - general - follow resolv.conf when dangling symlink
-    * Add a new connection of type "ethernet" and options "ifname eth8 con-name con_general ipv4.method manual ipv4.addresses 192.168.244.4/24 ipv4.gateway 192.168.244.1 ipv4.dns 192.168.244.1 ipv6.method ignore"
-    * Stop NM
-    * Append "[main]" to file "/etc/NetworkManager/conf.d/99-xxcustom.conf"
-    * Append "rc-manager=file" to file "/etc/NetworkManager/conf.d/99-xxcustom.conf"
-    * Remove file "/etc/resolv.conf" if exists
-    * Remove file "/tmp/no-resolv.conf" if exists
-    * Create symlink "/etc/resolv.conf" with destination "/tmp/no-resolv.conf"
-    * Start NM
-    * Wait for at least "2" seconds
-    Then "/etc/resolv.conf" is symlink with destination "/tmp/no-resolv.conf"
-    * Stop NM
-    When "/etc/resolv.conf" is symlink with destination "/tmp/no-resolv.conf"
-    * Remove symlink "/etc/resolv.conf" if exists
-    * Wait for at least "3" seconds
-    * Start NM
-    Then "/tmp/no-resolv.conf" is file
-    * Remove file "/tmp/no-resolv.conf" if exists
-
-
     @rhbz1588041
     @ver+=1.12
     @macsec @not_on_aarch64_but_pegas @long
