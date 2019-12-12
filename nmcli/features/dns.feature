@@ -588,8 +588,8 @@ Feature: nmcli - dns
 
 
     @rhbz1593661
-    @ver+=1.12
-    @restart @remove_custom_cfg @con_general_remove
+    @ver+=1.12 @rhelver+=8
+    @restart @con_general_remove @restore_resolvconf
     @resolv_conf_do_not_overwrite_symlink
     Scenario: NM - general - do not overwrite dns symlink
     * Add a new connection of type "ethernet" and options "ifname eth8 con-name con_general ipv4.method manual ipv4.addresses 192.168.244.4/24 ipv4.gateway 192.168.244.1 ipv4.dns 192.168.244.1 ipv6.method ignore"
