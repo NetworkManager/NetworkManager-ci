@@ -880,6 +880,8 @@ testmapper:
         feature: ipv4
     - nm_dhcp_lease_renewal_link_down:
         feature: ipv4
+    - dhcp_renewal_with_ipv6:
+        feature: ipv4        
     - ipv4_dhcp_client_id_change_lease_restart:
         feature: ipv4
     - ipv4_prefix_route_missing_after_ip_link_down_up:

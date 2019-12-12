@@ -1806,6 +1806,19 @@ Feature: nmcli: ipv4
     Then "IP4.ADDRESS" is visible with command "nmcli -f ip4.address device show testX4" in "60" seconds
 
 
+    @rhbz1688329
+    @ver+=1.22.0
+    @teardown_testveth @long
+    @dhcp_renewal_with_ipv6
+    Scenario: NM - ipv4 - start dhcp after timeout with ipv6 already in
+    * Prepare simulated test "testX4" device
+    * Execute "ip netns exec testX4_ns pkill -SIGSTOP -F /tmp/testX4_ns.pid"
+    * Add a new connection of type "ethernet" and options "ifname testX4 con-name con_ipv4 ipv6.method manual ipv6.addresses dead::beaf/128"
+    When "activated" is visible with command "nmcli -g GENERAL.STATE con show con_ipv4" in "45" seconds
+    * Execute "sleep 45 && ip netns exec testX4_ns pkill -SIGCONT -F /tmp/testX4_ns.pid"
+    Then "192.168" is visible with command "ip a s testX4" in "20" seconds
+
+
     @rhbz1636715
     @ver+=1.12
     @con_ipv4_remove
