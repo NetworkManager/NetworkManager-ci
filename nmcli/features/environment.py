@@ -1270,7 +1270,6 @@ def before_scenario(context, scenario):
                     call('systemctl daemon-reload', shell=True)
                     restart_NM_service()
                 if call('systemctl is-active openvswitch', shell=True) != 0:
-                    call('yum -y install openvswitch', shell=True)
                     call('systemctl restart openvswitch', shell=True)
                     restart_NM_service()
 

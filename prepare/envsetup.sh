@@ -173,7 +173,7 @@ install_el8_packages () {
 
     # Install OVS
     mv -f  tmp/ovs-rhel8.repo /etc/yum.repos.d/ovs.repo
-    yum -y install openvswitch2*
+    yum -y install openvswitch2.12
 
     dnf -4 -y install http://download.eng.bos.redhat.com/brewroot/packages/$(rpm -q --queryformat '%{NAME}/%{VERSION}/%{RELEASE}' NetworkManager)/$(uname -p)/NetworkManager-ovs-$(rpm -q --queryformat '%{VERSION}-%{RELEASE}' NetworkManager).$(uname -p).rpm
     if ! rpm -q --quiet NetworkManager-pptp; then
