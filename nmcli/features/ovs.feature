@@ -341,7 +341,6 @@ Feature: nmcli - ovs
     When "activated" is visible with command "nmcli -g GENERAL.STATE con show ovs-iface0" in "40" seconds
     # VVV Reconnect master bridge connection
     * Bring "up" connection "ovs-bridge0"
-    When "activated" is not visible with command "nmcli -g GENERAL.STATE con show ovs-iface0" in "5" seconds
     When "activated" is visible with command "nmcli -g GENERAL.STATE con show ovs-iface0" in "40" seconds
      And "Bridge \"ovsbridge0\"" is visible with command "ovs-vsctl show"
      And "Port \"bond0\"\s+tag: 120\s+Interface \"eth[2-3]\"\s+type: system\s+Interface \"eth[2-3]\"\s+type: system" is visible with command "ovs-vsctl show"
