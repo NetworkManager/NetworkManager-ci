@@ -1256,9 +1256,6 @@ def before_scenario(context, scenario):
             if 'openvswitch' in scenario.tags:
                 print ("---------------------------")
                 print ("starting openvswitch if not active")
-                arch = check_output("uname -p", shell=True).decode('utf-8', 'ignore').strip()
-                if arch == "s390x":
-                    sys.exit(77)
                 if call('rpm -q NetworkManager-ovs', shell=True) != 0:
                     call('yum -y install NetworkManager-ovs', shell=True)
                     call('systemctl daemon-reload', shell=True)
