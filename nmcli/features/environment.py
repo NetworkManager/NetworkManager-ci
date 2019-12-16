@@ -2445,7 +2445,7 @@ def after_scenario(context, scenario):
                 call('rm -rf /tmp/resolv.conf', shell=True)
                 call("rm -rf /etc/NetworkManager/conf.d/99-resolv.conf", shell=True)
                 reload_NM_service()
-                call("nmcli con up testeth0", shell=True)
+                wait_for_testeth0 ()
 
             if 'need_config_server' in scenario.tags:
                 if context.remove_config_server:
