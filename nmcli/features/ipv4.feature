@@ -843,7 +843,7 @@ Feature: nmcli: ipv4
     When "empty" is not visible with command "file /tmp/tshark.log" in "150" seconds
     * Bring "up" connection "con_ipv4"
     Then "foo.bar.com" is visible with command "cat /tmp/tshark.log"
-    Then "Boot Request \(1\).*Flags: 0x05, Encoding, Server" is visible with command "cat /tmp/tshark.log"
+    Then "Boot Request \(1\).*Flags: 0x05" is visible with command "cat /tmp/tshark.log"
     * Finish "sudo pkill tshark"
 
 
