@@ -307,7 +307,6 @@ Feature: nmcli: connection
      And "IPADDR=192.0.2.2" is visible with command "cat /etc/sysconfig/network-scripts/ifcfg-con_con2"
      And "GATEWAY=192.0.2.1" is visible with command "cat /etc/sysconfig/network-scripts/ifcfg-con_con2"
      And "NETMASK=255.255.255.0" is visible with command "cat /etc/sysconfig/network-scripts/ifcfg-con_con2"
-     And "BOOTPROTO='static'" is visible with command "cat /etc/sysconfig/network-scripts/ifcfg-con_con2"
      And "DEVICE=eth5" is visible with command "cat /etc/sysconfig/network-scripts/ifcfg-con_con2"
      And "ONBOOT=yes" is visible with command "cat /etc/sysconfig/network-scripts/ifcfg-con_con2"
      And "IPV6INIT=yes" is visible with command "cat /etc/sysconfig/network-scripts/ifcfg-con_con2"
