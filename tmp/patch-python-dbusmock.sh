@@ -58,4 +58,45 @@ index ad0676c754ed..e711c7193733 100644
      NM.Set(MANAGER_IFACE, 'Devices', devices)
 EOF
 
+patch -f -p 1 --fuzz 0 --reject-file=- <<EOF
+diff --git c/$FILENAME w/$FILENAME
+index 7d0209629b93..9bccce89191a 100644
+--- c/$FILENAME
++++ w/$FILENAME
+@@ -272,31 +272,33 @@ def SetConnectivity(self, connectivity):
+     self.SetProperty(MANAGER_OBJ, MANAGER_IFACE, 'Connectivity', dbus.UInt32(connectivity, variant_level=1))
+ 
+ 
+ @dbus.service.method(MOCK_IFACE,
+                      in_signature='ss', out_signature='')
+ def SetDeviceActive(self, device_path, active_connection_path):
+     dev_obj = dbusmock.get_object(device_path)
+     dev_obj.Set(DEVICE_IFACE, 'ActiveConnection', dbus.ObjectPath(active_connection_path))
+     old_state = dev_obj.Get(DEVICE_IFACE, 'State')
+     dev_obj.Set(DEVICE_IFACE, 'State', dbus.UInt32(DeviceState.ACTIVATED))
++    dev_obj.Set(DEVICE_IFACE, 'StateReason', (dbus.UInt32(DeviceState.ACTIVATED), dbus.UInt32(0)))
+ 
+     dev_obj.EmitSignal(DEVICE_IFACE, 'StateChanged', 'uuu', [dbus.UInt32(DeviceState.ACTIVATED), old_state, dbus.UInt32(1)])
+ 
+ 
+ @dbus.service.method(MOCK_IFACE,
+                      in_signature='s', out_signature='')
+ def SetDeviceDisconnected(self, device_path):
+     dev_obj = dbusmock.get_object(device_path)
+     dev_obj.Set(DEVICE_IFACE, 'ActiveConnection', dbus.ObjectPath('/'))
+     old_state = dev_obj.Get(DEVICE_IFACE, 'State')
+     dev_obj.Set(DEVICE_IFACE, 'State', dbus.UInt32(DeviceState.DISCONNECTED))
++    dev_obj.Set(DEVICE_IFACE, 'StateReason', (dbus.UInt32(DeviceState.DISCONNECTED), dbus.UInt32(0)))
+ 
+     dev_obj.EmitSignal(DEVICE_IFACE, 'StateChanged', 'uuu', [dbus.UInt32(DeviceState.DISCONNECTED), old_state, dbus.UInt32(1)])
+ 
+ 
+ @dbus.service.method(MOCK_IFACE,
+                      in_signature='ssi', out_signature='s')
+ def AddEthernetDevice(self, device_name, iface_name, state):
+     '''Add an ethernet device.
+ 
+     You have to specify device_name, device interface name (e. g. eth0), and
+EOF
+
 done
