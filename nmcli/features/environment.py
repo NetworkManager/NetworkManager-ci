@@ -1714,7 +1714,7 @@ def after_scenario(context, scenario):
                 reset_hwaddr_nmcli('eth1')
                 reset_hwaddr_nmcli('eth2')
 
-                call("nmcli con del eth1 eth2 linux-br0 dhcpcli dhcpsrv bond99", shell=True)
+                call('for i in $(nmcli -t -f NAME connection); do if ! [[ $i == *"testeth"* ]]; then nmcli con del $i; fi;done', shell=True)
                 call("nmcli device delete dhcpsrv", shell=True)
                 call("nmcli device delete dhcpcli", shell=True)
                 call("nmcli device delete bond99", shell=True)
