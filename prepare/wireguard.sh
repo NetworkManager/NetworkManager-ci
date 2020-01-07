@@ -62,7 +62,7 @@ git clone https://git.zx2c4.com/WireGuard
 cd WireGuard
 
 # try latest tag
-make_from_src $(git tag | tail -n1)
+make_from_src $(git tag |grep -v experimental |tail -n1)
 if (is_installed) ; then exit 0; fi
 
 # if latest tag is not buildable, clean and try 20180613
