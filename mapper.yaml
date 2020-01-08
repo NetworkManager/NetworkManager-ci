@@ -899,6 +899,16 @@ testmapper:
     - ipv4_send_arp_announcements:
         feature: ipv4
         tags: gate
+    - dhcp_reboot:
+        feature: ipv4
+    - dhcp_reboot_nak:
+        feature: ipv4
+    - dhcp_rebind:
+        feature: ipv4
+    - dhcp_option_classless_routes:
+        feature: ipv4
+    - dhcp_option_domain_search:
+        feature: ipv4
     - vlan_add_default_device:
         feature: vlan
     - vlan_add_beyond_range:
