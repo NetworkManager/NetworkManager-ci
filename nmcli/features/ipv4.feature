@@ -1911,3 +1911,74 @@ Feature: nmcli: ipv4
     * Run child "sudo tshark -l -i test2 arp > /tmp/tshark.log"
     * Bring "up" connection "tc1"
     Then "ok" is visible with command "[ $(grep -c 'Gratuitous ARP for 172.21.1.1' /tmp/tshark.log) -gt 1 ] && echo ok" in "20" seconds
+
+
+    @tshark @con_ipv4_remove @teardown_testveth
+    @dhcp_reboot
+    Scenario: DHCPv4 reboot
+    # Check that the client reuses an existing lease
+    * Execute "rm /tmp/testX_ns.lease"
+    * Prepare simulated test "testX" device
+    * Add a new connection of type "ethernet" and options "ifname testX con-name con_ipv4 autoconnect no ipv4.may-fail no"
+    * Bring "up" connection "con_ipv4"
+    * Note the output of "nmcli -g ip4.address device show testX" as value "testX_ip1"
+    * Bring "down" connection "con_ipv4"
+    * Run child "sudo tshark -l -i testX udp port 67 > /tmp/tshark.log"
+    # Wait for tshark to start
+    * Execute "sleep 10"
+    * Bring "up" connection "con_ipv4"
+    * Note the output of "nmcli -g ip4.address device show testX" as value "testX_ip2"
+    Then Check noted values "testX_ip1" and "testX_ip2" are the same
+    # Check that the client directly requested the address without going through a discover
+    Then "DHCP Discover" is not visible with command "cat /tmp/tshark.log"
+    Then "DHCP Request" is visible with command "cat /tmp/tshark.log"
+
+
+    @internal_DHCP @tshark @con_ipv4_remove @teardown_testveth
+    @dhcp_reboot_nak
+    Scenario: DHCPv4 reboot NAK
+    # Check that the client performs a reboot when there is an existing lease and the server replies with a NAK
+    * Execute "rm /tmp/testX_ns.lease"
+    # Start with the --dhcp-authoritative option so that the server will not ignore unknown leases
+    * Prepare simulated test "testX" device with daemon options "--dhcp-authoritative"
+    * Add a new connection of type "ethernet" and options "ifname testX con-name con_ipv4 autoconnect no ipv4.may-fail no"
+    * Execute "echo ADDRESS=172.25.1.14 > /var/lib/NetworkManager/internal-$(nmcli -g connection.uuid connection show con_ipv4)-testX.lease"
+    * Run child "sudo tshark -l -i testX udp port 67 > /tmp/tshark.log"
+    * Execute "sleep 10"
+    * Bring "up" connection "con_ipv4"
+    Then "192\.168\.99\..." is visible with command "ip a show dev testX"
+    Then "DHCP Request" is visible with command "cat /tmp/tshark.log"
+    Then "DHCP NAK" is visible with command "cat /tmp/tshark.log"
+    Then "DHCP Discover" is visible with command "cat /tmp/tshark.log"
+    Then "DHCP Offer" is visible with command "cat /tmp/tshark.log"
+    Then "DHCP ACK" is visible with command "cat /tmp/tshark.log"
+
+
+    @con_ipv4_remove @teardown_testveth
+    @dhcp_option_classless_routes
+    Scenario: DHCPv4 classless routes option parsing
+    * Prepare simulated test "testX" device with dhcp option "option:classless-static-route,10.0.0.0/8,192.168.99.3,20.1.0.0/16,192.168.99.4,30.1.1.0/28,192.168.99.5"
+    * Add a new connection of type "ethernet" and options "ifname testX con-name con_ipv4 autoconnect no ipv4.may-fail no"
+    * Bring "up" connection "con_ipv4"
+    Then "10.0.0.0/8 via 192.168.99.3" is visible with command "ip route show dev testX"
+    Then "20.1.0.0/16 via 192.168.99.4" is visible with command "ip route show dev testX"
+    Then "30.1.1.0/28 via 192.168.99.5" is visible with command "ip route show dev testX"
+
+
+    @con_ipv4_remove @teardown_testveth
+    @dhcp_option_domain_search
+    Scenario: DHCPv4 domain search option parsing
+    * Prepare simulated test "testX" device with dhcp option "option:domain-search,corp.example.com,db.example.com,test.com"
+    * Add a new connection of type "ethernet" and options "ifname testX con-name con_ipv4 autoconnect no ipv4.may-fail no"
+    * Bring "up" connection "con_ipv4"
+    Then "corp\.example\.com db\.example\.com test\.com" is visible with command "grep search /etc/resolv.conf" in "2" seconds
+
+
+    @teardown_testveth @con_ipv6_remove @kill_children @dhcpd
+    @dhcp_rebind
+    Scenario: DHCPv4 rebind
+    * Execute "systemctl stop dhcpd"
+    * Prepare simulated test "testX" device using dhcpd and server identifier "10.10.10.1"
+    * Add a new connection of type "ethernet" and options "ifname testX con-name con_ipv4 autoconnect no ipv4.may-fail no"
+    * Bring "up" connection "con_ipv4"
+    Then "192\.168\.99\.1." is visible with command "ip addr show dev testX" for full "130" seconds
