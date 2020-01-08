@@ -546,6 +546,41 @@ Feature: nmcli - ethernet
     Then Bring "up" connection "con_ethernet"
 
 
+    @rhbz1698532
+    @ver+=1.22.0
+    @con_ethernet_remove @8021x @attach_hostapd_log @attach_wpa_supplicant_log
+    @8021x_auto_auth_retry_with_backup_network
+    Scenario: nmcli - ethernet - connect to 8021x auto auth retry
+    * Add a new connection of type "ethernet" and options "ifname test8X con-name con_ethernet autoconnect no 802-1x.eap ttls 802-1x.identity test_ttls 802-1x.anonymous-identity test 802-1x.ca-cert /tmp/certs/test_user.ca.pem 802-1x.phase2-auth chap 802-1x.password password connection.auth-retries 1 802-1x.optional yes 802-1x.auth-timeout 10"
+    # Shut down authenticated port
+    * Execute "ip link set dev test8Yp down"
+    # Bring up backup network port
+    * Execute "ip link set dev test8Zp up"
+    * Bring "up" connection "con_ethernet"
+    When "activated" is visible with command "nmcli -g GENERAL.STATE con show con_ethernet" in "20" seconds
+    When "10.0.254" is visible with command "ip a s test8X"
+    And Ping "10.0.254.1" "3" times
+    # Bring up backup authenticated network port
+    * Execute "ip link set dev test8Yp up"
+    * Execute "ip link set dev test8Zp down"
+    Then "10.0.253" is visible with command "ip a s test8X" in "120" seconds
+    And Ping "10.0.253.1" "3" times
+
+
+    @rhbz1698532
+    @ver+=1.22.0
+    @con_ethernet_remove @8021x @attach_hostapd_log @attach_wpa_supplicant_log
+    @8021x_auto_auth_retry
+    Scenario: nmcli - ethernet - connect to 8021x auto auth retry
+    * Add a new connection of type "ethernet" and options "ifname test8X con-name con_ethernet autoconnect no 802-1x.eap ttls 802-1x.identity test_ttls 802-1x.anonymous-identity test 802-1x.ca-cert /tmp/certs/test_user.ca.pem 802-1x.phase2-auth chap 802-1x.password password connection.auth-retries 5 802-1x.auth-timeout 180"
+    # Stop Hostapd
+    * Execute "pkill -SIGSTOP -F /tmp/hostapd.pid"
+    * Run child "nmcli con up con_ethernet"
+    # Start it again
+    * Execute "sleep 30 && kill -SIGCONT -F /tmp/hostapd.pid"
+    Then "activated" is visible with command "nmcli -g GENERAL.STATE con show con_ethernet" in "180" seconds
+
+
     @rhbz1456362
     @ver+=1.8.0
     @con_ethernet_remove @8021x @attach_hostapd_log @attach_wpa_supplicant_log

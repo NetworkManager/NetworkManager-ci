@@ -1064,6 +1064,8 @@ testmapper:
     - 8021x_without_password_with_ask_at_the_end:
         feature: ethernet
         tags: gate
+    - 8021x_auto_auth_retry_with_backup_network:
+        feature: ethernet
     - preserve_8021x_certs:
         feature: ethernet
     - preserve_8021x_leap_con:

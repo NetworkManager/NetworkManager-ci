@@ -25,11 +25,21 @@ function hostapd_setup ()
     ip link set dev test8Xp up
     ip link set dev test8Y up
     ip link set dev test8Yp up
+    # Create additional default down non protected network
+    ip link add test8Z type veth peer name test8Zp
+    ip link set test8Zp master test8X_bridge
+    ip link set dev test8Z up
 
-    # Create a connection which (in cooperation with dnsmasq) provides DHCP functionlity
+    # Create a connections which (in cooperation with dnsmasq) provide DHCP functionlity
+    # Auth one
     nmcli connection add type ethernet con-name DHCP_test8Y ifname test8Y ip4 10.0.253.1/24
     sleep 1
     nmcli connection up id DHCP_test8Y
+
+    # Non auth one
+    nmcli connection add type ethernet con-name DHCP_test8Z ifname test8Z ip4 10.0.254.1/24
+    sleep 1
+    nmcli connection up id DHCP_test8Z
 
     # Note: Adding an interface to a bridge will cause the interface to lose its existing IP address.
     # If you're connected remotely via the interface you intend to add to the bridge,
@@ -100,11 +110,27 @@ private_key_passwd=redhat" > $HOSTAPD_CFG
     --no-hosts\
     --bind-interfaces\
     --except-interface=lo\
+    --interface=test8Y\
     --clear-on-reload\
     --strict-order\
     --listen-address=10.0.253.1\
     --dhcp-range=10.0.253.10,10.0.253.200,10m\
     --dhcp-option=option:router,10.0.253.1\
+    --dhcp-lease-max=190
+
+    echo "Start DHCP server (dnsmasq)"
+    /usr/sbin/dnsmasq\
+    --pid-file=/tmp/dnsmasq_wired_noauth.pid\
+    --conf-file\
+    --no-hosts\
+    --bind-interfaces\
+    --except-interface=lo\
+    --interface=test8Z\
+    --clear-on-reload\
+    --strict-order\
+    --listen-address=10.0.254.1\
+    --dhcp-range=10.0.254.10,10.0.254.200,2m\
+    --dhcp-option=option:router,10.0.254.1\
     --dhcp-lease-max=190
 
     # Start 802.1x authentication and built-in RADIUS server.
@@ -114,12 +140,14 @@ private_key_passwd=redhat" > $HOSTAPD_CFG
 }
 function hostapd_teardown ()
 {
-    kill $(cat /tmp/dnsmasq_wired.pid)
-    kill $(cat /tmp/hostapd.pid)
+    pkill -F /tmp/dnsmasq_wired.pid
+    pkill -F /tmp/hostapd.pid
+    pkill -F /tmp/dnsmasq_wired_noauth.pid
     ip link del test8Yp
     ip link del test8Xp
+    ip link del test8Zp
     ip link del test8X_bridge
-    nmcli con del DHCP_test8Y
+    nmcli con del DHCP_test8Y DHCP_test8Z
 }
 
 if [ "$1" != "teardown" ]; then
