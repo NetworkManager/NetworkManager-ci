@@ -1982,3 +1982,11 @@ Feature: nmcli: ipv4
     * Add a new connection of type "ethernet" and options "ifname testX4 con-name con_ipv4 autoconnect no ipv4.may-fail no"
     * Bring "up" connection "con_ipv4"
     Then "corp\.example\.com db\.example\.com test\.com" is visible with command "grep search /etc/resolv.conf" in "2" seconds
+
+    @rhbz1764986
+    @ver+=1.22.4
+    @con_ipv4_remove
+    @ipv4_31_netprefix_ptp_link
+    Scenario: nmcli - ipv4 - addresses - manual with 31 bits network prefix length
+    * Add a new connection of type "ethernet" and options "ifname eth3 con-name con_ipv4 ipv4.method manual ipv4.addresses 172.16.0.2/31"
+    Then "brd 172.16.0.3" is not visible with command "ip a s eth3"
