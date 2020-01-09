@@ -1989,4 +1989,5 @@ Feature: nmcli: ipv4
     @ipv4_31_netprefix_ptp_link
     Scenario: nmcli - ipv4 - addresses - manual with 31 bits network prefix length
     * Add a new connection of type "ethernet" and options "ifname eth3 con-name con_ipv4 ipv4.method manual ipv4.addresses 172.16.0.2/31"
+    Then "172.16.0.2/31" is visible with command "ip a s eth3"
     Then "brd 172.16.0.3" is not visible with command "ip a s eth3"
