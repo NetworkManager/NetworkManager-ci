@@ -1907,10 +1907,11 @@ Feature: nmcli: ipv4
     @ipv4_send_arp_announcements
     Scenario: NM - ipv4 - check that gratuitous ARP announcements are sent"
     * Prepare veth pairs "test1,test2" bridged over "vethbr"
-    * Add a new connection of type "ethernet" and options "con-name tc1 autoconnect no ifname test1 ip4 172.21.1.1/24 ipv6.method ignore"
+    * Add a new connection of type "ethernet" and options "con-name tc1 ifname test1 ip4 172.21.1.1/24 ipv6.method ignore"
     * Run child "sudo tshark -l -i test2 arp > /tmp/tshark.log"
+    * Execute "sleep 8"
     * Bring "up" connection "tc1"
-    Then "ok" is visible with command "[ $(grep -c 'Gratuitous ARP for 172.21.1.1' /tmp/tshark.log) -gt 1 ] && echo ok" in "20" seconds
+    Then "ok" is visible with command "[ $(grep -c 'Gratuitous ARP for 172.21.1.1' /tmp/tshark.log) -gt 1 ] && echo ok" in "60" seconds
 
 
     @tshark @con_ipv4_remove @teardown_testveth
