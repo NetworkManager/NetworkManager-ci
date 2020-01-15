@@ -881,7 +881,7 @@ testmapper:
     - nm_dhcp_lease_renewal_link_down:
         feature: ipv4
     - dhcp_renewal_with_ipv6:
-        feature: ipv4        
+        feature: ipv4
     - ipv4_dhcp_client_id_change_lease_restart:
         feature: ipv4
     - ipv4_prefix_route_missing_after_ip_link_down_up:
@@ -1414,6 +1414,10 @@ testmapper:
     - NM_reboot_openvswitch_vlan_configuration:
         feature: ovs
     - restart_NM_with_mixed_setup:
+        feature: ovs
+    - ovs_cloned_mac_set_on_iface:
+        feature: ovs
+    - ovs_cloned_mac_with_the_same_bridge_iface_name:
         feature: ovs
     - dispatcher_preup_and_up:
         feature: dispatcher

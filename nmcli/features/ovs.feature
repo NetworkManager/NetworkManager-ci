@@ -468,6 +468,36 @@ Feature: nmcli - ovs
     And "default via 192.168.100.1 dev iface0 proto dhcp metric 800" is visible with command "ip r"
 
 
+    @rhbz1740557
+    @ver+=1.18.0
+    @openvswitch
+    @ovs_cloned_mac_set_on_iface
+    Scenario: nmcli - openvswitch - mac address set iface
+    * Add a new connection of type "ovs-bridge" and options "conn.interface ovsbridge0 con-name ovs-bridge0"
+    * Add a new connection of type "ovs-port" and options "conn.interface port0 conn.master ovsbridge0 con-name ovs-port0 ovs-port.tag 120"
+    * Add a new connection of type "ovs-port" and options "conn.interface bond0 conn.master ovsbridge0 con-name ovs-bond0 ovs-port.tag 120"
+    * Add a new connection of type "ethernet" and options "conn.interface eth2 conn.master bond0 slave-type ovs-port con-name ovs-eth2"
+    * Add a new connection of type "ethernet" and options "conn.interface eth3 conn.master bond0 slave-type ovs-port con-name ovs-eth3"
+    * Add a new connection of type "ovs-interface" and options "conn.interface iface0 conn.master port0 con-name ovs-iface0 ipv4.may-fail no  802-3-ethernet.cloned-mac-address 00:11:22:33:44:55"
+    When "activated" is visible with command "nmcli -g GENERAL.STATE con show ovs-iface0" in "40" seconds
+    Then "00:11:22:33:44:55" is visible with command "ip a s iface0"
+
+
+    @rhbz1740557
+    @ver+=1.18.0
+    @openvswitch
+    @ovs_cloned_mac_with_the_same_bridge_iface_name
+    Scenario: nmcli - openvswitch - mac address set on ovs-bridge (iface name is the same)
+    * Add a new connection of type "ovs-bridge" and options "conn.interface ovsbridge0 con-name ovs-bridge0 802-3-ethernet.cloned-mac-address 00:11:22:33:44:55"
+    * Add a new connection of type "ovs-port" and options "conn.interface port0 conn.master ovsbridge0 con-name ovs-port0 ovs-port.tag 120"
+    * Add a new connection of type "ovs-port" and options "conn.interface bond0 conn.master ovsbridge0 con-name ovs-bond0 ovs-port.tag 120"
+    * Add a new connection of type "ethernet" and options "conn.interface eth2 conn.master bond0 slave-type ovs-port con-name ovs-eth2"
+    * Add a new connection of type "ethernet" and options "conn.interface eth3 conn.master bond0 slave-type ovs-port con-name ovs-eth3"
+    * Add a new connection of type "ovs-interface" and options "conn.interface ovsbridge0 conn.master port0 con-name ovs-iface0 ipv4.may-fail no"
+    When "activated" is visible with command "nmcli -g GENERAL.STATE con show ovs-iface0" in "40" seconds
+    Then "00:11:22:33:44:55" is visible with command "ip a s ovsbridge0"
+
+
     @rhbz1676551
     @ver+=1.12
     @rhelver-=7 @fedoraver-=0
