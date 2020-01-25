@@ -248,6 +248,8 @@ testmapper:
         feature: bond
     - bond_reconnect_previously_unavailable_device:
         feature: bond
+    - bond_add_default_route_if_bond0_exists:
+        feature: bond
     - bridge_add_default:
         feature: bridge
     - bridge_add_custom_one:

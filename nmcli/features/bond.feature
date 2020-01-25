@@ -1622,3 +1622,18 @@
     * Execute "rm -rf /etc/modprobe.d/99-test.conf"
     * Bring "up" connection "bond0"
     When "connected" is visible with command "nmcli -g GENERAL.STATE dev show nm-bond" in "40" seconds
+
+
+    @rhbz1754511
+    @ver+=1.18
+    @bond @restart
+    @bond_add_default_route_if_bond0_exists
+    Scenario: NM - bond - reconnect device
+    * Add a new connection of type "bond" and options "con-name bond0 ifname bond0 ip4 1.2.3.4/24 gw4 1.2.3.1"
+    * Stop NM
+    * Execute "rm -rf /var/run/NetworkManager"
+    * Execute "ip link del bond0 2> /dev/null ; ip link add bond0 type bond"
+    * Start NM
+    * Bring "up" connection "bond0"
+    When "connected" is visible with command "nmcli -g GENERAL.STATE dev show bond0" in "40" seconds
+    Then "default" is visible with command "ip r |grep bond0"
