@@ -513,7 +513,8 @@ local_setup_configure_nm_eth () {
 
 
     systemctl restart NetworkManager
-    sleep 10
+    sleep 5
+    nmcli con del "System eth0"
     nmcli con up testeth0; rc=$?
     if [ $rc -ne 0 ]; then
         sleep 20
