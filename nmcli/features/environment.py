@@ -1341,25 +1341,24 @@ def before_scenario(context, scenario):
                 reload_NM_service()
 
             if 'nmstate_setup' in scenario.tags:
-                # Set veths as managed if we don't use veths yet
+                # Skip on deployments where we do not have veths
+                if not os.path.isfile('/tmp/nm_newveth_configured'):
+                    sys.exit(77)
+
+                call("sh prepare/vethsetup.sh teardown", shell=True)
+                # Need to have the file to be able to regenerate
+                call("touch /tmp/nm_newveth_configured", shell=True)
+                context.nm_restarted = True
+
                 manage_veths ()
 
-                # Rename eth1 and eth2 to nmstate_eth1 and nmstate_eth2
-                # as we need new eth1 and eth2 to be free
-                call("ip link set dev eth1 down", shell=True)
-                call("ip link set dev eth1 name nmstate_eth1", shell=True)
-                call("ip link set dev nmstate_eth1 up", shell=True)
-                call("ip link set dev eth2 down", shell=True)
-                call("ip link set dev eth2 name nmstate_eth2", shell=True)
-                call("ip link set dev nmstate_eth2 up", shell=True)
+                context.nm_pid = nm_pid()
+                # prepare nmstate
+                call("sh prepare/nmstate.sh", shell=True)
 
-                # Install some deps
-                call("yum -y install python3-devel rpm-build", shell=True)
-                call("rm -rf /usr/bin/python && ln -s /usr/bin/python3 /usr/bin/python", shell=True)
-                call("git clone https://github.com/nmstate/nmstate/", shell=True)
-                call("sh nmstate/packaging/make_rpm.sh && rm -rf nmstate/nmstate-*.src.rpm", shell=True)
-                call("yum -y install nmstate-* python3-libnmstate-*", shell=True)
-                call("python -m pip install pytest", shell=True)
+                if call('systemctl is-active openvswitch', shell=True) != 0:
+                    call('systemctl restart openvswitch', shell=True)
+                    restart_NM_service()
 
             if 'nmcli_general_dhcp_profiles_general_gateway' in scenario.tags:
                 print("---------------------------")
@@ -1702,38 +1701,25 @@ def after_scenario(context, scenario):
                 print ("---------------------------")
                 print ("* remove nmstate setup")
 
+                # nmstate restarts NM few times during tests
+                context.nm_restarted = True
+
                 call("ip link del eth1", shell=True)
                 call("ip link del eth2", shell=True)
 
-                call("ip link set dev nmstate_eth1 down", shell=True)
-                call("ip link set dev nmstate_eth1 name eth1", shell=True)
-                call("ip link set dev eth1 up", shell=True)
-                call("ip link set dev nmstate_eth2 down", shell=True)
-                call("ip link set dev nmstate_eth2 name eth2", shell=True)
-                call("ip link set dev eth2 up", shell=True)
-                reset_hwaddr_nmcli('eth1')
-                reset_hwaddr_nmcli('eth2')
-
-                call("nmcli con del eth1 eth2 linux-br0 dhcpcli dhcpsrv bond99", shell=True)
+                call("nmcli con del eth1 eth2 linux-br0 dhcpcli dhcpsrv brtest0 bond99 eth1.101 eth1.102", shell=True)
                 call("nmcli device delete dhcpsrv", shell=True)
                 call("nmcli device delete dhcpcli", shell=True)
                 call("nmcli device delete bond99", shell=True)
-
-                call("nmcli con up testeth1 && nmcli con down testeth1", shell=True)
-                call("nmcli con up testeth2 && nmcli con down testeth2", shell=True)
 
                 # in case of fail we need to kill this
                 call('rm -rf /etc/dnsmasq.d/nmstate.conf', shell=True)
                 call('systemctl stop dnsmasq', shell=True)
 
-                if not os.path.isfile('/tmp/nm_newveth_configured'):
-                    # Undo: set veths as managed if we don't use veths yet
-                    unmanage_veths ()
-                else:
-                    call('sh prepare/vethsetup.sh check', shell=True)
+                # remove nmstate bits
+                call("rm -rf nmstate", shell=True)
+                call("yum remove -y nmstate python3-libnmstate", shell=True)
 
-                # Restore all connections back as before
-                restore_connections ()
                 wait_for_testeth0 ()
 
                 print("* attaching nmstate log")

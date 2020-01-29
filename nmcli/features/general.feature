@@ -1321,12 +1321,13 @@ Feature: nmcli - general
 
     @ver+=1.20.1
     @rhelver+=8
-    @nmstate_setup
+    @nmstate_setup @regenerate_veth @restart
     @nmstate
     Scenario: NM - general - nmstate
+    * Restart NM
     * Execute "ip link add eth1 type veth peer name eth1p && ip link set dev eth1p up"
     * Execute "ip link add eth2 type veth peer name eth2p && ip link set dev eth2p up"
-    * Execute "cd nmstate && ulimit -n 10000 && pytest -vv tests/integration -k 'not test_dhcp_on_bridge0' --log-level=DEBUG 2>&1 | tee /tmp/nmstate.txt"
+    * Execute "cd nmstate && ulimit -n 10000 && pytest -vv tests/integration -k 'not test_dhcp_on_bridge0 | test_bond_with_a_slave  | test_take_over_virtual_interface_then_remove | test_take_over_virtual_interface_and_rollback | test_create_and_remove_vlan' --log-level=DEBUG 2>&1 | tee /tmp/nmstate.txt"
     Then "PASSED" is visible with command "grep ' PASS' /tmp/nmstate.txt"
     Then "100%" is visible with command "grep '100%' /tmp/nmstate.txt"
     Then "FAILED" is not visible with command "grep ' FAILED' /tmp/nmstate.txt"
