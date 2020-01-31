@@ -990,6 +990,12 @@ testmapper:
         feature: vlan
     - vlan_L2_UUID:
         feature: vlan
+    - vxlan_interface_recognition:
+        feature: vlan
+    - vxlan_libnm_shows_port_numbers:
+        feature: vlan
+    - vxlan_do_not_up_if_no_master:
+        feature: vlan
     - ethernet_create_with_editor:
         feature: ethernet
     - ethernet_create_default_connection:
@@ -1265,8 +1271,6 @@ testmapper:
     - nmcli_novice_mode_readline:
         feature: general
     - nmcli_device_wifi_with_two_devices:
-        feature: general
-    - vxlan_interface_recognition:
         feature: general
     - veth_goes_to_unmanaged_state:
         feature: general

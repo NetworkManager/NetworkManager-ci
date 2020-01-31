@@ -583,3 +583,49 @@ Feature: nmcli - vlan
     * Bring "up" connection "vlan"
     Then "eth7:connected:vlan1" is visible with command "nmcli -t -f DEVICE,STATE,CONNECTION device" in "20" seconds
     Then "eth7.80:connected:vlan" is visible with command "nmcli -t -f DEVICE,STATE,CONNECTION device" in "20" seconds
+
+
+    @rhbz1066705
+    @dummy
+    @vxlan_interface_recognition
+    Scenario: NM - vxlan - interface support
+    * Execute "/sbin/ip link add dummy0 type vxlan id 42 group 239.1.1.1 dev eth7"
+    When "unmanaged" is visible with command "nmcli device show dummy0" in "5" seconds
+    * Execute "ip link set dev dummy0 up"
+    * Execute "ip addr add fd00::666/8 dev dummy0"
+    Then "connected" is visible with command "nmcli device show dummy0" in "10" seconds
+    Then vxlan device "dummy0" check for parent "eth7"
+
+
+    @rhbz1768388
+    @ver+=1.22
+    @vlan
+    @vxlan_dbus_shows_port_numbers
+    Scenario: NM - vxlan - dbus shows port numbers
+    * Add a new connection of type "vxlan" and options "ifname vlan1 con-name vlan1 vxlan.destination-port 70 vxlan.source-port-max 50 vxlan.source-port-min 30 id 70 dev eth7 ip4 1.2.3.4/24 remote 1.2.3.1"
+    * Execute "nmcli con up vlan1"
+    Then vxlan device "vlan1" check for ports "70, 30, 50"
+
+
+    @rhbz1768388
+    @ver+=1.22
+    @vlan
+    @vxlan_libnm_shows_port_numbers
+    Scenario: NM - vxlan - libnm shows port numbers
+    * Add a new connection of type "vxlan" and options "ifname vlan1 con-name vlan1 vxlan.destination-port 70 vxlan.source-port-max 50 vxlan.source-port-min 30 id 70 dev eth7 ip4 1.2.3.4/24 remote 1.2.3.1"
+    * Execute "nmcli con up vlan1"
+    Then "70" is visible with command "python tmp/nmclient_get_connection_property.py vlan1 destination-port"
+    Then "30" is visible with command "python tmp/nmclient_get_connection_property.py vlan1 source-port-min"
+    Then "50" is visible with command "python tmp/nmclient_get_connection_property.py vlan1 source-port-max"
+    Then "70" is visible with command "python tmp/nmclient_get_device_property.py vlan1 get_dst_port"
+    Then "30" is visible with command "python tmp/nmclient_get_device_property.py vlan1 get_src_port_min"
+    Then "50" is visible with command "python tmp/nmclient_get_device_property.py vlan1 get_src_port_max"
+
+
+    @rhbz1774074
+    @ver+=1.22
+    @vlan
+    @vxlan_do_not_up_if_no_master
+    Scenario: NM - vxlan - do not up when no master
+    * Add a new connection of type "vxlan" and options "ifname vlan1 con-name vlan1 vxlan.parent not-exists id 70 remote 172.25.1.1"
+    Then "--" is visible with command "nmcli connection  |grep vlan1" for full "2" seconds

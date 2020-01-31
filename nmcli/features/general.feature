@@ -722,19 +722,6 @@ Feature: nmcli - general
     Then "10.2.5.6/24" is visible with command "ip addr show tap0" for full "10" seconds
 
 
-    @rhbz1066705
-    @dummy
-    @vxlan_interface_recognition
-    Scenario: NM - general - vxlan interface support
-    * Execute "/sbin/ip link add dummy0 type vxlan id 42 group 239.1.1.1 dev eth8"
-    When "unmanaged" is visible with command "nmcli device show dummy0" in "5" seconds
-    * Execute "ip link set dev dummy0 up"
-    * Execute "ip addr add fd00::666/8 dev dummy0"
-    Then "connected" is visible with command "nmcli device show dummy0" in "10" seconds
-    Then vxlan device "dummy0" check for parent "eth8"
-
-
-
     @rhbz1109426
     @ver+=1.10
     @two_bridged_veths_gen

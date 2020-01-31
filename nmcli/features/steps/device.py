@@ -217,7 +217,7 @@ def note_print_property(context, prop, device):
     if not hasattr(context, 'noted'):
         context.noted = {}
     context.noted['noted-value'] = ifc.match.group(1)
-    
+
 
 @step(u'Note MAC address output for device "{device}" via ethtool')
 def note_mac_address(context, device):
@@ -350,6 +350,32 @@ def vxlan_device_check(context, dev, parent):
         parent_props = parent_prop_iface.GetAll("org.freedesktop.NetworkManager.Device")
 
         assert parent_props['Interface'] == parent, "bad parent '%s'" % parent_props['Interface']
+
+@step(u'vxlan device "{dev}" check for ports "{dst_port}, {src_min}, {src_max}"')
+def vxlan_device_check_ports(context, dev, dst_port, src_min, src_max):
+    import dbus, sys
+
+    bus = dbus.SystemBus()
+    proxy = bus.get_object("org.freedesktop.NetworkManager", "/org/freedesktop/NetworkManager")
+    manager = dbus.Interface(proxy, "org.freedesktop.NetworkManager")
+
+
+    devices = manager.GetDevices()
+    assert devices, "Failed to find any vxlan interface"
+
+    for d in devices:
+        dev_proxy = bus.get_object("org.freedesktop.NetworkManager", d)
+        prop_iface = dbus.Interface(dev_proxy, "org.freedesktop.DBus.Properties")
+        props = prop_iface.GetAll("org.freedesktop.NetworkManager.Device")
+
+        if props['Interface'] != dev:
+            continue
+
+        vxlan = prop_iface.GetAll("org.freedesktop.NetworkManager.Device.Vxlan")
+
+        assert vxlan['SrcPortMin'] == src_min, "bad src port min '%s'" % vxlan['SrcPortMin']
+        assert vxlan['SrcPortMax'] == src_max, "bad src port max '%s'" % vxlan['SrcPortMax']
+        assert vxlan['DstPort'] == dst_port, "bad dst port '%s'" % vxlan['DstPort']
 
 
 @step(u'Snapshot "{action}" for "{devices}"')
