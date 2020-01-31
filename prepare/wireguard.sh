@@ -23,23 +23,18 @@ function install_module_cert {
 }
 
 function make_from_src {
-    wget "https://git.zx2c4.com/WireGuard/snapshot/WireGuard-$1.tar.xz"
-    wget "https://git.zx2c4.com/WireGuard/snapshot/WireGuard-$1.tar.asc"
-    unxz < "WireGuard-$1.tar.xz" > "WireGuard-$1.tar"
+    # compile module
+    git clone https://git.zx2c4.com/wireguard-linux-compat
+    pushd wireguard-linux-compat/src
+        make && sudo make install
+    popd
 
-    if ! gpg --verify "WireGuard-$1.tar.asc"; then
-        echo "unable to verify source code of wireguard"
-        exit 1
-    fi
+    #compile tools
+    git clone https://git.zx2c4.com/wireguard-tools
+    pushd wireguard-tools/src
+        make && sudo make install
+    popd
 
-    tar xf "WireGuard-$1.tar"
-
-    cd "WireGuard-$1"
-
-    # build
-    cd src
-    make && sudo make install
-    cd ..
 }
 
 # test whether wireguard module and utility are already installed
@@ -61,16 +56,18 @@ rm -rf WireGuard
 git clone https://git.zx2c4.com/WireGuard
 cd WireGuard
 
-# try latest tag
-make_from_src $(git tag |grep -v experimental |tail -n1)
-if (is_installed) ; then exit 0; fi
+# compile from repo
+make_from_src
+if (is_installed) ; then
+    exit 0
+fi
 
-# if latest tag is not buildable, clean and try 20180613
-cd ..
-rm -rf WireGuard*
-echo "trying to build snapshot 20180613"
-make_from_src 0.0.20180613
-if (is_installed) ; then exit 0; fi
+# # if latest tag is not buildable, clean and try 20180613
+# cd ..
+# rm -rf WireGuard*
+# echo "trying to build snapshot 20180613"
+# make_from_src 0.0.20180613
+# if (is_installed) ; then exit 0; fi
 
 # if not exited normaly yet, error ocured
 exit 1
