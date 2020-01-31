@@ -1034,8 +1034,8 @@ Feature: nmcli - general
     Then "2620" is visible with command "ip a s testG" in "60" seconds
 
 
-
     @rhbz1722024
+    @ver+=1.22
     @eth8_up
     @general_nmclient_query_carrier
     Scenario: nmclient - general - query carrier
