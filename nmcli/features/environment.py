@@ -1345,6 +1345,9 @@ def before_scenario(context, scenario):
                 if not os.path.isfile('/tmp/nm_newveth_configured'):
                     sys.exit(77)
 
+                # FIXME: workaround for rhbz1796838
+                call("modprobe -r ip_gre ip6_gre ip6_tunnel ip_gre sit gre ipip", shell=True)
+
                 call("sh prepare/vethsetup.sh teardown", shell=True)
                 # Need to have the file to be able to regenerate
                 call("touch /tmp/nm_newveth_configured", shell=True)
