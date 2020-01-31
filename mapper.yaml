@@ -1202,6 +1202,8 @@ testmapper:
     - nmcli_general_wait_for_carrier_on_new_device_request:
         feature: general
         tags: gate
+    - general_nmclient_query_carrier:
+        feature: general
     - connection_up_after_journald_restart:
         feature: general
     - nmcli_general_dhcp_hostname_over_localhost:

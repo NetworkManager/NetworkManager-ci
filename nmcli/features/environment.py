@@ -976,15 +976,6 @@ def before_scenario(context, scenario):
                 call("nmcli connection up testeth0", shell=True)
                 sleep(1)
 
-            # if 'vlan' in scenario.tags:
-            #     print ("connecting eth7")
-            #     call("nmcli connection up testeth7", shell=True)
-
-            # if 'bridge' in scenario.tags:
-            #     print ("---------------------------")
-            #     print ("connecting eth1")
-            #     call("nmcli connection up testeth1", shell=True)
-
             if '8021x' in scenario.tags:
                 print ("---------------------------")
                 arch = check_output("uname -p", shell=True).decode('utf-8', 'ignore').strip()
@@ -2286,8 +2277,12 @@ def after_scenario(context, scenario):
                 print ("---------------------------")
                 print ("removing ethernet profiles")
                 call("sudo nmcli connection delete id con_general con_general2", shell=True)
-                #call('sudo rm -rf /etc/sysconfig/network-scripts/ifcfg-ethernet*', shell=True) #ideally should do nothing
 
+            if 'eth8_up' in scenario.tags:
+                print ("---------------------------")
+                print ("upping eth8 device")
+                reset_hwaddr_nmcli('eth8')
+                
             if 'con_tc_remove' in scenario.tags:
                 print ("---------------------------")
                 print ("removing con_tc profiles")
@@ -2298,7 +2293,6 @@ def after_scenario(context, scenario):
                 print ("removing ethernet profiles")
                 call("sudo nmcli connection delete id eth8.100", shell=True)
                 call("sudo ip link del eth8.100", shell=True)
-                #call('sudo rm -rf /etc/sysconfig/network-scripts/ifcfg-ethernet*', shell=True) #ideally should do nothing
 
             if 'vlan' in scenario.tags:
                 print ("---------------------------")
@@ -2523,7 +2517,6 @@ def after_scenario(context, scenario):
                 call('sudo mv -f /tmp/sysnetwork.backup /etc/sysconfig/network', shell=True)
                 call('sudo nmcli connection reload', shell=True)
                 call('sudo nmcli connection down testeth9', shell=True)
-                #call('sudo nmcli connection up testeth0', shell=True)
 
             if 'nmcli_general_profile_pickup_doesnt_break_network' in scenario.tags:
                 print("---------------------------")

@@ -1034,6 +1034,17 @@ Feature: nmcli - general
     Then "2620" is visible with command "ip a s testG" in "60" seconds
 
 
+
+    @rhbz1722024
+    @eth8_up
+    @general_nmclient_query_carrier
+    Scenario: nmclient - general - query carrier
+    * Execute "ip link set dev eth8 up"
+    When "True" is visible with command "python tmp/nmclient_get_device_property.py eth8 get_carrier"
+    * Execute "ip link set dev eth8 down"
+    Then "False" is visible with command "python tmp/nmclient_get_device_property.py eth8 get_carrier"
+
+
     # Tied to the bz, though these are not direct verifiers
     @rhbz1079353
     @con_general_remove @need_config_server @teardown_testveth
