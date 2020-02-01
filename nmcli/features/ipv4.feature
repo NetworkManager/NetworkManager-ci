@@ -430,6 +430,7 @@ Feature: nmcli: ipv4
     @ipv4_route_set_device_route
     Scenario: nmcli - ipv4 - routes - set device route
     * Add a new connection of type "ethernet" and options "ifname eth3 con-name con_ipv4 ipv4.may-fail no ipv4.method static ipv4.addresses 192.168.122.2/24 ipv4.gateway 192.168.122.1 ipv4.routes '192.168.1.0/24 0.0.0.0, 192.168.2.0/24 192.168.122.5'"
+    Then "^connected" is visible with command "nmcli -t -f STATE,DEVICE device |grep eth3" in "5" seconds
     Then "default via 192.168.122.1 dev eth3\s+proto static\s+metric" is visible with command "ip route"
     Then "192.168.1.0/24 dev eth3\s+proto static\s+scope link\s+metric" is visible with command "ip route"
     Then "192.168.2.0/24 via 192.168.122.5 dev eth3\s+proto static\s+metric" is visible with command "ip route"
