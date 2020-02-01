@@ -1705,7 +1705,7 @@ def after_scenario(context, scenario):
                 call("nmcli device delete dhcpsrv", shell=True)
                 call("nmcli device delete dhcpcli", shell=True)
                 call("nmcli device delete bond99", shell=True)
-
+                call("ovs-vsctl del-br ovsbr0", shell=True)
                 # in case of fail we need to kill this
                 call('rm -rf /etc/dnsmasq.d/nmstate.conf', shell=True)
                 call('systemctl stop dnsmasq', shell=True)
@@ -2282,7 +2282,7 @@ def after_scenario(context, scenario):
                 print ("---------------------------")
                 print ("upping eth8 device")
                 reset_hwaddr_nmcli('eth8')
-                
+
             if 'con_tc_remove' in scenario.tags:
                 print ("---------------------------")
                 print ("removing con_tc profiles")
