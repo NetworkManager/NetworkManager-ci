@@ -1112,9 +1112,6 @@ testmapper:
         feature: general
     - hostname_mode_none:
         feature: general
-    - nmstate:
-       feature: general
-       timeout: 30m
     - general_check_version:
         feature: general
     - general_state_connected:
@@ -1398,6 +1395,9 @@ testmapper:
         feature: general
     - libnm_update2_no_reapply:
         feature: general
+    - nmstate:
+       feature: general
+       timeout: 30m
     - openvswitch_interface_recognized:
         feature: ovs
     - openvswitch_ignore_ovs_network_setup:
