@@ -1912,7 +1912,7 @@ Feature: nmcli: ipv4
     * Run child "sudo tshark -l -i test2 arp > /tmp/tshark.log"
     * Execute "sleep 8"
     * Bring "up" connection "tc1"
-    Then "ok" is visible with command "[ $(grep -c 'Gratuitous ARP for 172.21.1.1' /tmp/tshark.log) -gt 1 ] && echo ok" in "60" seconds
+    Then "ok" is visible with command "[ $(grep -c 'Gratuitous ARP for 172.21.1.1'|ARP Announcement for 172.21.1.1' /tmp/tshark.log) -gt 1 ] && echo ok" in "60" seconds
 
 
     @tshark @con_ipv4_remove @teardown_testveth
