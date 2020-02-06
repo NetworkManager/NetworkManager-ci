@@ -1705,6 +1705,7 @@ def after_scenario(context, scenario):
                 call("nmcli device delete dhcpsrv", shell=True)
                 call("nmcli device delete dhcpcli", shell=True)
                 call("nmcli device delete bond99", shell=True)
+
                 call("ovs-vsctl del-br ovsbr0", shell=True)
                 # in case of fail we need to kill this
                 call('rm -rf /etc/dnsmasq.d/nmstate.conf', shell=True)
