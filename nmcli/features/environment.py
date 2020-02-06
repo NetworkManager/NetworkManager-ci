@@ -1711,10 +1711,6 @@ def after_scenario(context, scenario):
                 call('rm -rf /etc/dnsmasq.d/nmstate.conf', shell=True)
                 call('systemctl stop dnsmasq', shell=True)
 
-                # remove nmstate bits
-                call("rm -rf nmstate", shell=True)
-                call("yum remove -y nmstate python3-libnmstate", shell=True)
-
                 wait_for_testeth0 ()
 
                 print("* attaching nmstate log")
