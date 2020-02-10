@@ -168,7 +168,7 @@ def json_compare(pattern, out):
                 return 1
         return 0
     elif pattern_type is list:
-        assert false, "TODO: compare lists soomehow"
+        assert False, "TODO: compare lists soomehow"
     else:
         if out == pattern:
             return 0
@@ -275,7 +275,7 @@ def check_pattern_visible_with_command_fortime(context, pattern, command, second
 
 
 @step(u'"{pattern}" is not visible with command "{command}" for full "{seconds}" seconds')
-def check_pattern_visible_with_command_fortime(context, pattern, command, seconds):
+def check_pattern_not_visible_with_command_fortime(context, pattern, command, seconds):
     return check_pattern_command(context, command, pattern, seconds, check_type="not_full")
 
 @step(u'"{pattern}" is visible with tab after "{command}"')
@@ -310,7 +310,7 @@ def run_child_process(context, command):
 
 
 @step(u'Run child "{command}" without shell')
-def run_child_process(context, command):
+def run_child_process_no_shell(context, command):
     children = getattr(context, "children", [])
     children.append(Popen(command.split(" "), stdout=context.log, stderr=context.log))
     context.children = children
