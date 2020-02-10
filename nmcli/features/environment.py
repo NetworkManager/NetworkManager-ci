@@ -2275,6 +2275,11 @@ def after_scenario(context, scenario):
                 print ("removing ethernet profiles")
                 call("sudo nmcli connection delete id con_general con_general2", shell=True)
 
+            if 'con_PBR_remove' in scenario.tags:
+                print ("---------------------------")
+                print ("removing PBR procedure profiles")
+                call("sudo nmcli connection delete id Servers Internal-Workstations Provider-A Provider-B", shell=True)
+
             if 'eth8_up' in scenario.tags:
                 print ("---------------------------")
                 print ("upping eth8 device")

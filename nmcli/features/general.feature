@@ -969,6 +969,45 @@ Feature: nmcli - general
      And "2620" is not visible with command "ip a s testG" in "20" seconds
 
 
+    @ver+=1.20
+    @con_PBR_remove @firewall @eth0 @teardown_testveth @tcpdump
+    @policy_based_routing_doc_procedure
+    Scenario: NM - general - PBR procedure in documentation
+    * Prepare PBR documentation procedure
+    * Add a new connection of type "ethernet" and options "con-name Provider-A ifname provA ipv4.method manual ipv4.addresses 198.51.100.1/30 ipv4.gateway 198.51.100.2 ipv4.dns 198.51.100.2 connection.zone external"
+    * Bring "up" connection "Provider-A"
+    * Add a new connection of type "ethernet" and options "con-name Provider-B ifname provB ipv4.method manual ipv4.addresses 192.0.2.1/30 ipv4.routes '0.0.0.0/1 192.0.2.2 table=5000, 128.0.0.0/1 192.0.2.2 table=5000' connection.zone external"
+    * Bring "up" connection "Provider-B"
+    * Add a new connection of type "ethernet" and options "con-name Internal-Workstations ifname int_work ipv4.method manual ipv4.addresses 10.0.0.1/24 ipv4.routes '10.0.0.0/24 src=192.0.2.1 table=5000' ipv4.routing-rules 'priority 5 from 10.0.0.0/24 table 5000' connection.zone internal"
+    * Bring "up" connection "Internal-Workstations"
+    * Add a new connection of type "ethernet" and options "con-name Servers ifname servers ipv4.method manual ipv4.addresses 203.0.113.1/24 connection.zone internal"
+    * Bring "up" connection "Servers"
+    * Finish "ip -n provB_ns route add default via 192.0.2.1"
+    * Finish "ip -n int_work_ns route add default via 10.0.0.1"
+    * Finish "ip -n servers_ns route add default via 203.0.113.1"
+    * Finish "ip -n provA_ns route add default via 198.51.100.1"
+    # do not bring down eth0 sooner, adding other default routes above may fail
+    * Bring "down" connection "testeth0"
+    Then "external\s+interfaces: provA provB" is visible with command "firewall-cmd --get-active-zones"
+    Then "internal\s+interfaces: int_work servers" is visible with command "firewall-cmd --get-active-zones"
+    Then "from 10.0.0.0/24 lookup 5000" is visible with command "ip rule list"
+    Then "0.0.0.0/1 via 192.0.2.2 dev provB" is visible with command "ip route list table 5000"
+    Then "10.0.0.0/24 dev int_work" is visible with command "ip route list table 5000"
+    Then "128.0.0.0/1 via 192.0.2.2 dev provB" is visible with command "ip route list table 5000"
+    * Run child "ip netns exec provA_ns tcpdump -nn -i provAp icmp > /tmp/tcpdump_provA.log"
+    * Run child "ip netns exec provB_ns tcpdump -nn -i provBp icmp > /tmp/tcpdump_provB.log"
+    * Execute "ip netns exec servers_ns ping -c 3 172.20.20.20"
+    * Execute "pkill tcpdump"
+    Then "198.51.100.1 > 172.20.20.20" is visible with command "cat /tmp/tcpdump_provA.log" in "30" seconds
+     And "> 172.20.20.20" is not visible with command "cat /tmp/tcpdump_provB.log"
+    * Run child "ip netns exec provA_ns tcpdump -nn -i provAp icmp > /tmp/tcpdump_provA.log"
+    * Run child "ip netns exec provB_ns tcpdump -nn -i provBp icmp > /tmp/tcpdump_provB.log"
+    * Execute "ip netns exec int_work_ns ping -c 3 172.20.20.20"
+    * Execute "pkill tcpdump"
+    Then "192.0.2.1 > 172.20.20.20" is visible with command "cat /tmp/tcpdump_provB.log" in "30" seconds
+     And "> 8.8.8.8" is not visible with command "cat /tmp/tcpdump_provA.log"
+
+
     @rhbz1262972
     @con_general_remove
     @nmcli_general_dhcp_profiles_general_gateway

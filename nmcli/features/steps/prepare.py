@@ -60,6 +60,22 @@ def prepare_sriov_config(context, conf, device, vfs):
     command_code(context, 'systemctl reload NetworkManager')
 
 
+@step(u'Prepare PBR documentation procedure')
+def pbr_doc_proc(context):
+    context.execute_steps('''
+        * Prepare simulated test "provA" device without DHCP
+        * Finish "ip -n provA_ns address add 198.51.100.2/30 dev provAp"
+        * Prepare simulated test "provB" device without DHCP
+        * Finish "ip -n provB_ns address add 192.0.2.2/30 dev provBp"
+        * Prepare simulated test "servers" device without DHCP
+        * Finish "ip -n servers_ns address add 203.0.113.2/24 dev serversp"
+        * Prepare simulated test "int_work" device without DHCP
+        * Finish "ip -n int_work_ns address add 10.0.0.2/24 dev int_workp"
+        * Create device "defA" in "provA_ns" with address "172.20.20.20/24"
+        * Create device "defB" in "provB_ns" with address "172.20.20.20/24"
+    ''')
+
+
 @step(u'Prepare pppoe server for user "{user}" with "{passwd}" password and IP "{ip}" authenticated via "{auth}"')
 def prepare_pppoe_server(context, user, passwd, ip, auth):
     command_code(context, "echo -e 'require-%s\nlogin\nlcp-echo-interval 10\nlcp-echo-failure 2\nms-dns 8.8.8.8\nms-dns 8.8.4.4\nnetmask 255.255.255.0\ndefaultroute\nnoipdefault\nusepeerdns' > /etc/ppp/pppoe-server-options" %auth)
@@ -142,12 +158,12 @@ def prepare_dhcpd_simdev(context, device, server_id):
     for line in config:
         f.write(line + '\n')
     f.close()
-    
+
     command_code(context, "ip netns exec {device}_ns dhcpd -4 -cf /tmp/dhcpd.conf -pf /tmp/{device}_ns.pid".format(device=device))
     if not hasattr(context, 'testvethns'):
         context.testvethns = []
     context.testvethns.append("%s_ns" % device)
-    
+
 @step(u'Prepare simulated test "{device}" device with "{ipv4}" ipv4 and "{ipv6}" ipv6 dhcp address prefix and dhcp option "{option}"')
 @step(u'Prepare simulated test "{device}" device with "{ipv4}" ipv4 and "{ipv6}" ipv6 dhcp address prefix')
 @step(u'Prepare simulated test "{device}" device with "{lease_time}" leasetime')

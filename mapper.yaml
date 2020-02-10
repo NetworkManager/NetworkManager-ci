@@ -1190,6 +1190,8 @@ testmapper:
         tags: gate
     - modify_policy_based_routing_connection:
         feature: general
+    - policy_based_routing_doc_procedure:
+        feature: general
     - nmcli_general_dhcp_profiles_general_gateway:
         feature: general
     - allow_wired_connections:

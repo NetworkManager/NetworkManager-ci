@@ -57,6 +57,16 @@ def check_dns_domain(context, device, domain, kind="routing"):
         raise AssertionError("Actual DNS configuration for %s is:\n%s\n" % (device, out))
 
 
+@step(u'Create device "{dev}" in "{ns}" with address "{addr}"')
+def create_device_in_ns(context, dev, ns, addr):
+    command_code(context, 'ip -n %s link add %s type veth peer name %sp' % (ns, dev, dev))
+    command_code(context, "ip -n %s link set %s up" % (ns, dev))
+    command_code(context, "ip -n %s addr add %s dev %s" % (ns, addr, dev))
+#    veth_to_delete = getattr(context, "veth_to_delete", [])
+#    veth_to_delete += [dev, dev+"p"]
+#    context.veth_to_delete = veth_to_delete
+
+
 @step(u'device "{device}" does not have DNS domain "{domain}"')
 @step(u'device "{device}" does not have DNS domain "{domain}" for "{kind}"')
 def check_dns_domain(context, device, domain, kind="routing"):
