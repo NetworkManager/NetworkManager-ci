@@ -606,3 +606,20 @@ Feature: nmcli - bridge
     * Delete connection "bridge0"
     Then "unmanaged" is not visible with command "nmcli device | grep bridge0"
      And "bridge0:" is not visible with command "ip link"
+
+
+    @rhbz1795919
+    @ver+=1.22.0
+    @bridge @slaves @dummy
+    @bridge_no_link_till_master
+    Scenario: NM - bridge - no link till master
+    * Add a new connection of type "dummy" and options "ifname dummy0 con-name bridge-slave-eth4 ip4 172.25.1.1/24 master nm-bridge slave-type bridge"
+    When "dummy0" is not visible with command "ip a s"
+    When Path "/sys/class/net/dummy0/ifindex" does not exist
+    * Execute "sleep 1 && nmcli con up bridge-slave-eth4"
+    When "dummy0" is not visible with command "ip a s"
+    When Path "/sys/class/net/dummy0/ifindex" does not exist
+    * Add a new connection of type "bridge" and options "ifname nm-bridge con-name bridge0 ip4 172.25.2.1/24"
+    Then "/sys/class/net/dummy0/ifindex" is file
+    Then "nm-bridge\s+bridge\s+connected\s+bridge0" is visible with command "nmcli d" in "10" seconds
+    Then "dummy0\s+dummy\s+connected\s+bridge-slave-eth4" is visible with command "nmcli d" in "10" seconds
