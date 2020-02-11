@@ -16,7 +16,7 @@ Feature: nmcli - dns
 
     @rhbz1512966
     @ver+=1.11.3
-    @con_dns_remove @dns_systemd_resolved @rhelver-=0
+    @con_dns_remove @dns_systemd_resolved @rhelver+=8
     @dns_resolved_two_default
     Scenario: NM - dns - two connections with default route
 
@@ -45,7 +45,7 @@ Feature: nmcli - dns
 
     @rhbz1512966
     @ver+=1.11.3
-    @con_dns_remove @dns_systemd_resolved @rhelver-=0
+    @con_dns_remove @dns_systemd_resolved @rhelver+=8
     @dns_resolved_one_default
     Scenario: NM - dns - two connections, one with default route
 
@@ -74,7 +74,7 @@ Feature: nmcli - dns
 
     @rhbz1512966
     @ver+=1.11.3
-    @con_dns_remove @dns_systemd_resolved @rhelver-=0
+    @con_dns_remove @dns_systemd_resolved @rhelver+=8
     @dns_resolved_two_default_with_priority
     Scenario: NM - dns - two connections with default route, one has higher priority
 
@@ -104,7 +104,7 @@ Feature: nmcli - dns
 
     @rhbz1512966
     @ver+=1.11.3
-    @con_dns_remove @dns_systemd_resolved @rhelver-=0
+    @con_dns_remove @dns_systemd_resolved @rhelver+=8
     @dns_resolved_two_default_with_negative_priority
     Scenario: NM - dns - two connections with default route, one has negative priority
 
@@ -133,7 +133,7 @@ Feature: nmcli - dns
 
 
     @rhbz1512966
-    @ver+=1.11.3 @rhelver-=0 @fedoraver+=31
+    @ver+=1.11.3 @rhelver+=8 @fedoraver+=31
     @con_dns_remove @eth0 @dns_systemd_resolved
     @dns_resolved_no_default
     Scenario: NM - dns - two connections without default route
@@ -163,7 +163,7 @@ Feature: nmcli - dns
 
     @rhbz1512966
     @ver+=1.11.3
-    @con_dns_remove @openvpn @openvpn4 @dns_systemd_resolved @rhelver-=0
+    @con_dns_remove @openvpn @openvpn4 @dns_systemd_resolved @rhelver+=8
     @dns_resolved_full_tunnel_vpn
     Scenario: NM - dns - full-tunnel VPN
 
@@ -191,7 +191,7 @@ Feature: nmcli - dns
 
     @rhbz1512966
     @ver+=1.11.3
-    @con_dns_remove @openvpn @openvpn4 @dns_systemd_resolved @rhelver-=0
+    @con_dns_remove @openvpn @openvpn4 @dns_systemd_resolved @rhelver+=8
     @dns_resolved_split_tunnel_vpn
     Scenario: NM - dns - split-tunnel VPN
 
