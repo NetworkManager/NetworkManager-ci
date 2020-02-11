@@ -128,9 +128,6 @@ install_fedora_packages () {
 
     install_plugins_dnf
 
-    # Make device mac address policy behave like old one
-    echo -e "[Match]\nOriginalName=*\n[Link]\nMACAddressPolicy=none" > /etc/systemd/network/00-NM.link
-
     # disable dhcpd dispatcher script: rhbz1758476
     [ -f /etc/NetworkManager/dispatcher.d/12-dhcpd ] && sudo chmod -x /etc/NetworkManager/dispatcher.d/12-dhcpd
 }
