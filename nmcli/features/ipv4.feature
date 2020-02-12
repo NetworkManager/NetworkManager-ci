@@ -1963,7 +1963,9 @@ Feature: nmcli: ipv4
     * Prepare simulated test "testX4" device using dhcpd and server identifier "10.10.10.1"
     * Add a new connection of type "ethernet" and options "ifname testX4 con-name con_ipv4 autoconnect no ipv4.may-fail no"
     * Bring "up" connection "con_ipv4"
-    Then "192\.168\.99\.1." is visible with command "ip addr show dev testX4" for full "130" seconds
+    When "valid_lft 14[0-9]" is visible with command "ip -4 addr show dev testX4" in "20" seconds
+    * Execute "sleep 10"
+    Then "valid_lft 14[0-9]" is visible with command "ip -4 addr show dev testX4" in "140" seconds
 
 
     @con_ipv4_remove @teardown_testveth

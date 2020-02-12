@@ -148,7 +148,7 @@ def prepare_dhcpd_simdev(context, device, server_id):
     config = []
     if server_id is not None:
         config.append("server-identifier {server_id};".format(server_id=server_id))
-    config.append("max-lease-time 120;")
+    config.append("max-lease-time 150;")
     config.append("default-lease-time 120;")
     config.append("subnet {ip}.0 netmask 255.255.255.0 {{".format(ip=ipv4))
     config.append("  range {ip}.10 {ip}.15;".format(ip=ipv4))
