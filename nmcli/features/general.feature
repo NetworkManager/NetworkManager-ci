@@ -1356,7 +1356,7 @@ Feature: nmcli - general
     * Snapshot "delete" for "all"
 
 
-    @ver+=1.20.1
+    @ver+=1.22.0
     @rhelver+=8
     @nmstate_setup @regenerate_veth @restart
     @nmstate
