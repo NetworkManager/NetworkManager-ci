@@ -2072,3 +2072,20 @@ Feature: nmcli - general
     Then "u 2" is visible with command " busctl get-property org.freedesktop.NetworkManager $(nmcli -g DBUS-PATH,DEVICE device | sed -n 's/:eth8//p') org.freedesktop.NetworkManager.Device Metered"
     * Execute "nmcli device reapply eth8"
     Then "u 1" is visible with command " busctl get-property org.freedesktop.NetworkManager $(nmcli -g DBUS-PATH,DEVICE device | sed -n 's/:eth8//p') org.freedesktop.NetworkManager.Device Metered"
+
+
+    @rhbz1795957
+    @ver+=1.22
+    @con_general_remove @teardown_testveth @long
+    @solicitation_period_prolonging
+    Scenario: NM - general - read router solicitation values
+    * Prepare simulated test "testG" device with "15s" leasetime
+    # Connection should be alive for full 160s
+    * Execute "echo 4 > /proc/sys/net/ipv6/conf/testG/router_solicitations"
+    * Execute "echo 40 > /proc/sys/net/ipv6/conf/testG/router_solicitation_interval"
+    * Execute "ip netns exec testG_ns kill -SIGSTOP $(cat /tmp/testG_ns.pid)"
+    * Add a new connection of type "ethernet" and options "ifname testG con-name con_general ipv4.method disable ipv6.may-fail no"
+    When "con_general" is visible with command "nmcli connection show -a"
+    When "con_general" is visible with command "nmcli connection show -a" for full "140" seconds
+    * Execute "ip netns exec testG_ns kill -SIGCONT $(cat /tmp/testG_ns.pid)"
+    Then "activated" is visible with command "nmcli -g GENERAL.STATE con show con_general" in "45" seconds

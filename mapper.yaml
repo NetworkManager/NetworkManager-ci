@@ -1399,6 +1399,8 @@ testmapper:
         feature: general
     - libnm_update2_no_reapply:
         feature: general
+    - solicitation_period_prolonging:
+        feature: general    
     - nmstate:
        feature: general
        timeout: 25m
