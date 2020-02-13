@@ -442,8 +442,10 @@ def network_dropped_two(context, state, device):
 @step(u'Send lifetime scapy packet')
 @step(u'Send lifetime scapy packet with "{hlim}"')
 @step(u'Send lifetime scapy packet from "{srcaddr}"')
+@step(u'Send lifetime scapy packet to dst "{prefix}"')
 @step(u'Send lifetime scapy packet with lifetimes "{valid}" "{pref}"')
-def send_packet(context, srcaddr=None, hlim=None, valid=3600, pref=1800):
+
+def send_packet(context, srcaddr=None, hlim=None, valid=3600, pref=1800, prefix="fd00:8086:1337::"):
     from scapy.all import get_if_hwaddr
     from scapy.all import sendp, Ether, IPv6
     from scapy.all import ICMPv6ND_RA
@@ -464,7 +466,7 @@ def send_packet(context, srcaddr=None, hlim=None, valid=3600, pref=1800):
     valid, pref = int(valid), int(pref)
 
     p /= ICMPv6ND_RA()
-    p /= ICMPv6NDOptPrefixInfo(prefix="fd00:8086:1337::", prefixlen=64, validlifetime=valid, preferredlifetime=pref)
+    p /= ICMPv6NDOptPrefixInfo(prefix=prefix, prefixlen=64, validlifetime=valid, preferredlifetime=pref)
     sendp(p, iface=in_if)
     sendp(p, iface=in_if)
 

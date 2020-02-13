@@ -596,6 +596,8 @@ testmapper:
         feature: ipv6
     - ipv6_drop_ra_from_non_ll_address:
         feature: ipv6
+    - ipv6_preserve_addr_order:
+        feature: ipv6
     - ipv6_keep_connectivity_on_assuming_connection_profile:
         feature: ipv6
     - ipv6_add_static_address_manually_not_active:
@@ -1397,7 +1399,7 @@ testmapper:
     - libnm_update2_no_reapply:
         feature: general
     - solicitation_period_prolonging:
-        feature: general    
+        feature: general
     - nmstate:
        feature: general
        timeout: 25m

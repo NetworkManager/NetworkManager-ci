@@ -791,6 +791,45 @@
     Then "valid_lft forever preferred_lft forever" is visible with command "ip a s test11"
 
 
+    @rhbz1744895
+    @ver+=1.22.0
+    @scapy
+    @ipv6_preserve_addr_order
+    Scenario: NM - ipv6 - preserve address order
+    * Finish "ip link add test10 type veth peer name test11"
+    * Finish "nmcli c add type ethernet ifname test10"
+    * Finish "nmcli c add type ethernet ifname test11"
+    * Execute "nmcli con modify ethernet-test10 ipv4.method disabled ipv6.method auto"
+    * Execute "nmcli con modify ethernet-test11 ipv4.method disabled ipv6.method auto ipv6.address dead::dead/128 ipv6.gateway dead::beaf/128"
+    * Finish "ip link set dev test10 up"
+    * Finish "ip link set dev test11 up"
+    * Execute "nmcli --wait 0 c up ethernet-test10"
+    * Execute "nmcli --wait 0 c up ethernet-test11"
+    When "ethernet-test10" is visible with command "nmcli con sh -a"
+    When "ethernet-test11" is visible with command "nmcli con sh -a"
+    * Execute "sleep 2"
+    * Send lifetime scapy packet to dst "dead:beef::"
+    * Send lifetime scapy packet to dst "cafe:cafe::"
+    When "IP6.ADDRESS\[1\]:\s+cafe:cafe::" is visible with command "nmcli device show test11"
+    When "IP6.ADDRESS\[2\]:\s+dead:beef::" is visible with command "nmcli device show test11"
+    * Send lifetime scapy packet to dst "cafe:cafe::"
+    * Send lifetime scapy packet to dst "dead:beef::"
+    When "IP6.ADDRESS\[1\]:\s+cafe:cafe::" is visible with command "nmcli device show test11"
+    When "IP6.ADDRESS\[2\]:\s+dead:beef::" is visible with command "nmcli device show test11"
+    * Send lifetime scapy packet to dst "cafe:cafe::"
+    * Send lifetime scapy packet to dst "dead:beef::"
+    When "IP6.ADDRESS\[1\]:\s+cafe:cafe::" is visible with command "nmcli device show test11"
+    When "IP6.ADDRESS\[2\]:\s+dead:beef::" is visible with command "nmcli device show test11"
+    * Send lifetime scapy packet to dst "cafe:cafe::"
+    * Send lifetime scapy packet to dst "dead:beef::"
+    When "IP6.ADDRESS\[1\]:\s+cafe:cafe::" is visible with command "nmcli device show test11"
+    When "IP6.ADDRESS\[2\]:\s+dead:beef::" is visible with command "nmcli device show test11"
+    * Send lifetime scapy packet to dst "cafe:cafe::"
+    * Send lifetime scapy packet to dst "dead:beef::"
+    Then "IP6.ADDRESS\[1\]:\s+cafe:cafe::" is visible with command "nmcli device show test11"
+    Then "IP6.ADDRESS\[2\]:\s+dead:beef::" is visible with command "nmcli device show test11"
+
+
     @rhbz1170530
     @add_testeth10 @con_ipv6_remove @restart
     @ipv6_keep_connectivity_on_assuming_connection_profile
