@@ -756,9 +756,6 @@ testmapper:
         tags: gate
     - reload_dns:
         feature: ipv4
-    - dns_priority:
-        feature: ipv4
-        tags: gate
     - ipv4_dns-search_add:
         feature: ipv4
         tags: gate
@@ -1796,6 +1793,27 @@ testmapper:
     - dns_resolved_full_tunnel_vpn:
         feature: dns
     - dns_resolved_split_tunnel_vpn:
+        feature: dns
+    - dns_priority:
+        feature: dns
+        tags: gate
+    - dns_priority_config:
+        feature: dns
+    - dns_default_two_default:
+        feature: dns
+    - dns_default_one_default:
+        feature: dns
+    - dns_default_two_default_with_priority:
+        feature: dns
+    - dns_default_two_default_with_negative_priority:
+        feature: dns
+    - dns_default_no_default:
+        feature: dns
+    - dns_default_full_tunnel_vpn:
+        feature: dns
+    - dns_default_split_tunnel_vpn:
+        feature: dns
+    - dns_default_split_tunnel_vpn_same_priority:
         feature: dns
     - dns_dnsmasq_two_default:
         feature: dns

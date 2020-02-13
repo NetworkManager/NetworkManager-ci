@@ -42,6 +42,8 @@ Feature: nmcli - dns
     Then device "eth3" has DNS domain "." for "routing"
     Then device "eth3" has DNS domain "con_dns2.domain" for "search"
 
+    Then "nameserver 127.0.0.53" is visible with command "cat /etc/resolv.conf"
+
 
     @rhbz1512966
     @ver+=1.11.3
@@ -85,7 +87,7 @@ Feature: nmcli - dns
     * Execute "nmcli connection modify con_dns ipv4.dns-priority 10"
     * Bring "up" connection "con_dns"
 
-    # Create connection on eth3 without default route
+    # Create connection on eth3 with default route
     * Add a new connection of type "ethernet" and options "con-name con_dns2 ifname eth3 autoconnect no"
     * Execute "nmcli connection modify con_dns2 ipv4.method manual ipv4.addresses 172.17.1.1/24 ipv4.gateway 172.17.1.2"
     * Execute "nmcli connection modify con_dns2 ipv4.dns 172.17.1.53 ipv4.dns-search con_dns2.domain"
@@ -115,7 +117,7 @@ Feature: nmcli - dns
     * Execute "nmcli connection modify con_dns ipv4.dns-priority -100"
     * Bring "up" connection "con_dns"
 
-    # Create connection on eth3 without default route
+    # Create connection on eth3 with default route
     * Add a new connection of type "ethernet" and options "con-name con_dns2 ifname eth3 autoconnect no"
     * Execute "nmcli connection modify con_dns2 ipv4.method manual ipv4.addresses 172.17.1.1/24 ipv4.gateway 172.17.1.2"
     * Execute "nmcli connection modify con_dns2 ipv4.dns 172.17.1.53 ipv4.dns-search con_dns2.domain"
@@ -216,6 +218,262 @@ Feature: nmcli - dns
     Then device "tun1" has DNS server "172.31.70.53"
     Then device "tun1" does not have DNS domain "." for "routing"
     Then device "tun1" has DNS domain "vpn.domain" for "search"
+
+##########################################
+# DEFAULT DNS TESTS
+##########################################
+
+    @rhbz1228707
+    @ver+=1.2.0
+    @con_dns_remove
+    @dns_priority
+    Scenario: nmcli - ipv4 - dns - priority
+    * Add a new connection of type "ethernet" and options "con-name con_dns ifname eth2 -- ipv4.method manual ipv4.addresses 192.168.1.2/24 ipv4.dns 8.8.4.4 ipv4.dns-priority 300"
+    * Add a new connection of type "ethernet" and options "con-name con_dns2 ifname eth3 -- ipv4.method manual ipv4.addresses 192.168.2.2/24 ipv4.dns 8.8.8.8 ipv4.dns-priority 200"
+    When "nameserver 8.8.8.8.*nameserver 8.8.4.4" is visible with command "cat /etc/resolv.conf"
+    * Modify connection "con_dns" changing options "ipv4.dns-priority 100"
+    * Modify connection "con_dns" changing options "ipv6.dns-priority 300"
+    * Bring "up" connection "con_dns"
+    * Bring "up" connection "con_dns2"
+    Then "nameserver 8.8.4.4.*nameserver 8.8.8.8" is visible with command "cat /etc/resolv.conf"
+    * Bring "up" connection "con_dns"
+    Then "nameserver 8.8.4.4.*nameserver 8.8.8.8" is visible with command "cat /etc/resolv.conf"
+
+
+    @con_dns_remove @remove_custom_cfg @restart
+    @dns_priority_config
+    Scenario: nmcli - ipv4 - dns - set priority in config
+    * Execute "echo -e '[connection]\nipv4.dns-priority=200' > /etc/NetworkManager/conf.d/99-xxcustom.conf"
+    * Execute "systemctl reload NetworkManager"
+    * Add a new connection of type "ethernet" and options "con-name con_dns ifname eth2 -- ipv4.method manual ipv4.addresses 192.168.1.2/24 ipv4.dns 8.8.4.4 ipv4.dns-priority 150"
+    * Add a new connection of type "ethernet" and options "con-name con_dns2 ifname eth3 -- ipv4.method manual ipv4.addresses 192.168.2.2/24 ipv4.dns 8.8.8.8"
+    * Bring "up" connection "con_dns"
+    * Bring "up" connection "con_dns2"
+    Then "nameserver 8.8.4.4.*nameserver 8.8.8.8" is visible with command "cat /etc/resolv.conf"
+    * Bring "up" connection "con_dns"
+    Then "nameserver 8.8.4.4.*nameserver 8.8.8.8" is visible with command "cat /etc/resolv.conf"
+    # check that 0 in config makes it default (50 VPN, 100 other)
+    * Execute "echo -e '[connection]\nipv4.dns-priority=0' > /etc/NetworkManager/conf.d/99-xxcustom.conf"
+    * Execute "systemctl reload NetworkManager"
+    * Modify connection "con_dns" changing options "ipv4.dns-priority 40"
+    * Bring "up" connection "con_dns"
+    * Bring "up" connection "con_dns2"
+    Then "nameserver 8.8.4.4.*nameserver 8.8.8.8" is visible with command "cat /etc/resolv.conf"
+    * Bring "up" connection "con_dns"
+    Then "nameserver 8.8.4.4.*nameserver 8.8.8.8" is visible with command "cat /etc/resolv.conf"
+
+
+    @rhbz1512966
+    @ver+=1.11.3
+    @con_dns_remove
+    @dns_default_two_default
+    Scenario: NM - dns - two connections with default route
+    # Create connection on eth2 with default route
+    * Add a new connection of type "ethernet" and options "con-name con_dns ifname eth2 autoconnect no"
+    * Execute "nmcli connection modify con_dns ipv4.method manual ipv4.addresses 172.16.1.1/24 ipv4.gateway 172.16.1.2"
+    * Execute "nmcli connection modify con_dns ipv4.dns 172.16.1.53 ipv4.dns-search con_dns.domain"
+    * Bring "up" connection "con_dns"
+
+    # Create connection on eth3 with default route
+    * Add a new connection of type "ethernet" and options "con-name con_dns2 ifname eth3 autoconnect no"
+    * Execute "nmcli connection modify con_dns2 ipv4.method manual ipv4.addresses 172.17.1.1/24 ipv4.gateway 172.17.1.2"
+    * Execute "nmcli connection modify con_dns2 ipv4.dns 172.17.1.53 ipv4.dns-search con_dns2.domain"
+    * Bring "up" connection "con_dns2"
+
+    Then "nameserver 172.16.1.53" is visible with command "cat /etc/resolv.conf"
+     And "nameserver 172.17.1.53" is visible with command "cat /etc/resolv.conf"
+    Then "search.*con_dns.domain.*con_dns2.domain" is visible with command "cat /etc/resolv.conf"
+
+
+    @rhbz1512966
+    @ver+=1.11.3
+    @con_dns_remove @eth0
+    @dns_default_one_default
+    Scenario: NM - dns - two connections, one with default route
+    * Bring "down" connection "testeth0"
+
+    # Create connection on eth2 with default route
+    * Add a new connection of type "ethernet" and options "con-name con_dns ifname eth2 autoconnect no"
+    * Execute "nmcli connection modify con_dns ipv4.method manual ipv4.addresses 172.16.1.1/24 ipv4.gateway 172.16.1.2"
+    * Execute "nmcli connection modify con_dns ipv4.dns 172.16.1.53 ipv4.dns-search con_dns.domain"
+    * Bring "up" connection "con_dns"
+
+    # Create connection on eth3 without default route
+    * Add a new connection of type "ethernet" and options "con-name con_dns2 ifname eth3 autoconnect no"
+    * Execute "nmcli connection modify con_dns2 ipv4.method manual ipv4.addresses 172.17.1.1/24"
+    * Execute "nmcli connection modify con_dns2 ipv4.dns 172.17.1.53 ipv4.dns-search con_dns2.domain"
+    * Bring "up" connection "con_dns2"
+
+    Then "nameserver 172.16.1.53.*nameserver 172.17.1.53" is visible with command "cat /etc/resolv.conf"
+    Then "search.*con_dns.domain.*con_dns2.domain" is visible with command "cat /etc/resolv.conf"
+
+    * Bring "up" connection "con_dns"
+
+    Then "nameserver 172.16.1.53.*nameserver 172.17.1.53" is visible with command "cat /etc/resolv.conf"
+    Then "search.*con_dns.domain.*con_dns2.domain" is visible with command "cat /etc/resolv.conf"
+
+
+    @rhbz1512966
+    @ver+=1.11.3
+    @con_dns_remove
+    @dns_default_two_default_with_priority
+    Scenario: NM - dns - two connections with default route, one has higher priority
+
+    # Create connection on eth2 with default route and higher priority
+    * Add a new connection of type "ethernet" and options "con-name con_dns ifname eth2 autoconnect no"
+    * Execute "nmcli connection modify con_dns ipv4.method manual ipv4.addresses 172.16.1.1/24 ipv4.gateway 172.16.1.2"
+    * Execute "nmcli connection modify con_dns ipv4.dns 172.16.1.53 ipv4.dns-search con_dns.domain"
+    * Execute "nmcli connection modify con_dns ipv4.dns-priority 10"
+    * Bring "up" connection "con_dns"
+
+    # Create connection on eth3 with default route
+    * Add a new connection of type "ethernet" and options "con-name con_dns2 ifname eth3 autoconnect no"
+    * Execute "nmcli connection modify con_dns2 ipv4.method manual ipv4.addresses 172.17.1.1/24 ipv4.gateway 172.17.1.2"
+    * Execute "nmcli connection modify con_dns2 ipv4.dns 172.17.1.53 ipv4.dns-search con_dns2.domain"
+    * Bring "up" connection "con_dns2"
+
+    Then "nameserver 172.16.1.53.*nameserver 172.17.1.53" is visible with command "cat /etc/resolv.conf"
+    Then "search.*con_dns.domain.*con_dns2.domain" is visible with command "cat /etc/resolv.conf"
+
+    * Bring "up" connection "con_dns"
+
+    Then "nameserver 172.16.1.53.*nameserver 172.17.1.53" is visible with command "cat /etc/resolv.conf"
+    Then "search.*con_dns.domain.*con_dns2.domain" is visible with command "cat /etc/resolv.conf"
+
+
+    @rhbz1512966
+    @ver+=1.11.3
+    @con_dns_remove
+    @dns_default_two_default_with_negative_priority
+    Scenario: NM - dns - two connections with default route, one has negative priority
+
+    # Create connection on eth2 with default route and negative priority
+    * Add a new connection of type "ethernet" and options "con-name con_dns ifname eth2 autoconnect no"
+    * Execute "nmcli connection modify con_dns ipv4.method manual ipv4.addresses 172.16.1.1/24 ipv4.gateway 172.16.1.2"
+    * Execute "nmcli connection modify con_dns ipv4.dns 172.16.1.53 ipv4.dns-search con_dns.domain"
+    * Execute "nmcli connection modify con_dns ipv4.dns-priority -100"
+    * Bring "up" connection "con_dns"
+
+    # Create connection on eth3 with default route
+    * Add a new connection of type "ethernet" and options "con-name con_dns2 ifname eth3 autoconnect no"
+    * Execute "nmcli connection modify con_dns2 ipv4.method manual ipv4.addresses 172.17.1.1/24 ipv4.gateway 172.17.1.2"
+    * Execute "nmcli connection modify con_dns2 ipv4.dns 172.17.1.53 ipv4.dns-search con_dns2.domain"
+    * Bring "up" connection "con_dns2"
+
+    Then "nameserver 172.16.1.53" is visible with command "cat /etc/resolv.conf"
+     And "nameserver 172.17.1.53" is not visible with command "cat /etc/resolv.conf"
+    Then "search.*con_dns.domain" is visible with command "cat /etc/resolv.conf"
+    Then "con_dns2.domain" is not visible with command "cat /etc/resolv.conf"
+
+    * Bring "up" connection "con_dns"
+
+    Then "nameserver 172.16.1.53" is visible with command "cat /etc/resolv.conf"
+     And "nameserver 172.17.1.53" is not visible with command "cat /etc/resolv.conf"
+    Then "search.*con_dns.domain" is visible with command "cat /etc/resolv.conf"
+    Then "con_dns2.domain" is not visible with command "cat /etc/resolv.conf"
+
+
+    @rhbz1512966
+    @ver+=1.11.3 @fedoraver+=31
+    @con_dns_remove @eth0
+    @dns_default_no_default
+    Scenario: NM - dns - two connections without default route
+
+    # Create connection on eth2 without default route
+    * Add a new connection of type "ethernet" and options "con-name con_dns ifname eth2 autoconnect no"
+    * Execute "nmcli connection modify con_dns ipv4.method manual ipv4.addresses 172.16.1.1/24"
+    * Execute "nmcli connection modify con_dns ipv4.dns 172.16.1.53 ipv4.dns-search con_dns.domain"
+    * Bring "up" connection "con_dns"
+
+    # Create connection on eth3 without default route
+    * Add a new connection of type "ethernet" and options "con-name con_dns2 ifname eth3 autoconnect no"
+    * Execute "nmcli connection modify con_dns2 ipv4.method manual ipv4.addresses 172.17.1.1/24"
+    * Execute "nmcli connection modify con_dns2 ipv4.dns 172.17.1.53 ipv4.dns-search con_dns2.domain"
+    * Bring "up" connection "con_dns2"
+
+    Then "nameserver 172.16.1.53" is visible with command "cat /etc/resolv.conf"
+     And "nameserver 172.17.1.53" is visible with command "cat /etc/resolv.conf"
+    Then "search.*con_dns.domain.*con_dns2.domain" is visible with command "cat /etc/resolv.conf"
+
+
+    @rhbz1512966
+    @ver+=1.11.3
+    @con_dns_remove @openvpn @openvpn4
+    @dns_default_full_tunnel_vpn
+    Scenario: NM - dns - full-tunnel VPN
+
+    # Create ethernet connection
+    * Add a new connection of type "ethernet" and options "con-name con_dns ifname eth2 autoconnect no"
+    * Execute "nmcli connection modify con_dns ipv4.method manual ipv4.addresses 172.16.1.1/24 ipv4.gateway 172.16.1.2"
+    * Execute "nmcli connection modify con_dns ipv4.dns 172.16.1.53 ipv4.dns-search con_dns.domain"
+    * Bring "up" connection "con_dns"
+
+    # Create full-tunnel VPN connection
+    * Add a connection named "openvpn" for device "\*" to "openvpn" VPN
+    * Use certificate "sample-keys/client.crt" with key "sample-keys/client.key" and authority "sample-keys/ca.crt" for gateway "127.0.0.1" on OpenVPN connection "openvpn"
+    * Bring "up" connection "openvpn"
+
+    Then "nameserver 172.31.70.53.*nameserver 172.16.1.53" is visible with command "cat /etc/resolv.conf"
+    Then "search.*vpn.domain.*con_dns.domain" is visible with command "cat /etc/resolv.conf"
+
+    * Bring "up" connection "con_dns"
+
+    Then "nameserver 172.31.70.53.*nameserver 172.16.1.53" is visible with command "cat /etc/resolv.conf"
+    Then "search.*vpn.domain.*con_dns.domain" is visible with command "cat /etc/resolv.conf"
+
+
+    @rhbz1512966
+    @ver+=1.11.3
+    @con_dns_remove @openvpn @openvpn4
+    @dns_default_split_tunnel_vpn
+    Scenario: NM - dns - split-tunnel VPN
+
+    # Create ethernet connection with default route
+    * Add a new connection of type "ethernet" and options "con-name con_dns ifname eth2 autoconnect no"
+    * Execute "nmcli connection modify con_dns ipv4.method manual ipv4.addresses 172.16.1.1/24 ipv4.gateway 172.16.1.2"
+    * Execute "nmcli connection modify con_dns ipv4.dns 172.16.1.53 ipv4.dns-search con_dns.domain"
+    * Bring "up" connection "con_dns"
+
+    # Create split-tunnel VPN connection
+    * Add a connection named "openvpn" for device "\*" to "openvpn" VPN
+    * Use certificate "sample-keys/client.crt" with key "sample-keys/client.key" and authority "sample-keys/ca.crt" for gateway "127.0.0.1" on OpenVPN connection "openvpn"
+    * Execute "nmcli con modify openvpn ipv4.never-default yes"
+    * Bring "up" connection "openvpn"
+
+    Then "nameserver 172.31.70.53.*nameserver 172.16.1.53" is visible with command "cat /etc/resolv.conf"
+    Then "search.*vpn.domain.*con_dns.domain" is visible with command "cat /etc/resolv.conf"
+
+    * Bring "up" connection "con_dns"
+
+    Then "nameserver 172.31.70.53.*nameserver 172.16.1.53" is visible with command "cat /etc/resolv.conf"
+    Then "search.*vpn.domain.*con_dns.domain" is visible with command "cat /etc/resolv.conf"
+
+
+    @ver+=1.11.3
+    @con_dns_remove @openvpn @openvpn4
+    @dns_default_split_tunnel_vpn_same_priority
+    Scenario: NM - dns - split-tunnel VPN - same dns priority
+
+    # Create ethernet connection with default route
+    * Add a new connection of type "ethernet" and options "con-name con_dns ifname eth2 autoconnect no"
+    * Execute "nmcli connection modify con_dns ipv4.method manual ipv4.addresses 172.16.1.1/24 ipv4.gateway 172.16.1.2"
+    * Execute "nmcli connection modify con_dns ipv4.dns 172.16.1.53 ipv4.dns-search con_dns.domain ipv4.dns-priority 10"
+    * Bring "up" connection "con_dns"
+
+    # Create split-tunnel VPN connection
+    * Add a connection named "openvpn" for device "\*" to "openvpn" VPN
+    * Use certificate "sample-keys/client.crt" with key "sample-keys/client.key" and authority "sample-keys/ca.crt" for gateway "127.0.0.1" on OpenVPN connection "openvpn"
+    * Execute "nmcli con modify openvpn ipv4.never-default yes ipv4.dns-priority 10"
+    * Bring "up" connection "openvpn"
+
+    Then "nameserver 172.31.70.53.*nameserver 172.16.1.53" is visible with command "cat /etc/resolv.conf"
+    Then "search.*vpn.domain.*con_dns.domain" is visible with command "cat /etc/resolv.conf"
+
+    * Bring "up" connection "con_dns"
+
+    Then "nameserver 172.31.70.53.*nameserver 172.16.1.53" is visible with command "cat /etc/resolv.conf"
+    Then "search.*vpn.domain.*con_dns.domain" is visible with command "cat /etc/resolv.conf"
+
 
 ##########################################
 # DNSMASQ TESTS
@@ -319,7 +577,7 @@ Feature: nmcli - dns
     * Execute "nmcli connection modify con_dns ipv4.dns-priority 10"
     * Bring "up" connection "con_dns"
 
-    # Create connection on eth3 without default route
+    # Create connection on eth3 with default route
     * Add a new connection of type "ethernet" and options "con-name con_dns2 ifname eth3 autoconnect no"
     * Execute "nmcli connection modify con_dns2 ipv4.method manual ipv4.addresses 172.17.1.1/24 ipv4.gateway 172.17.1.2"
     * Execute "nmcli connection modify con_dns2 ipv4.dns 172.17.1.53 ipv4.dns-search con_dns2.domain"
@@ -565,10 +823,10 @@ Feature: nmcli - dns
 
     @rhbz1593661
     @ver+=1.12
-    @restart @remove_custom_cfg @con_general_remove
+    @restart @remove_custom_cfg @con_dns_remove @restore_resolvconf
     @resolv_conf_dangling_symlink
     Scenario: NM - general - follow resolv.conf when dangling symlink
-    * Add a new connection of type "ethernet" and options "ifname eth8 con-name con_general ipv4.method manual ipv4.addresses 192.168.244.4/24 ipv4.gateway 192.168.244.1 ipv4.dns 192.168.244.1 ipv6.method ignore"
+    * Add a new connection of type "ethernet" and options "ifname eth8 con-name con_dns ipv4.method manual ipv4.addresses 192.168.244.4/24 ipv4.gateway 192.168.244.1 ipv4.dns 192.168.244.1 ipv6.method ignore"
     * Stop NM
     * Append "[main]" to file "/etc/NetworkManager/conf.d/99-xxcustom.conf"
     * Append "rc-manager=file" to file "/etc/NetworkManager/conf.d/99-xxcustom.conf"
@@ -589,10 +847,10 @@ Feature: nmcli - dns
 
     @rhbz1593661
     @ver+=1.12 @rhelver+=8
-    @restart @con_general_remove @restore_resolvconf
+    @restart @con_dns_remove @restore_resolvconf
     @resolv_conf_do_not_overwrite_symlink
     Scenario: NM - general - do not overwrite dns symlink
-    * Add a new connection of type "ethernet" and options "ifname eth8 con-name con_general ipv4.method manual ipv4.addresses 192.168.244.4/24 ipv4.gateway 192.168.244.1 ipv4.dns 192.168.244.1 ipv6.method ignore"
+    * Add a new connection of type "ethernet" and options "ifname eth8 con-name con_dns ipv4.method manual ipv4.addresses 192.168.244.4/24 ipv4.gateway 192.168.244.1 ipv4.dns 192.168.244.1 ipv6.method ignore"
     * Stop NM
     * Remove file "/etc/resolv.conf" if exists
     * Execute "echo 'nameserver 8.8.8.8' > /tmp/no-resolv.conf"
