@@ -198,33 +198,25 @@ def prepare_simdev(context, device, lease_time="2m", ipv4=None, ipv6=None, optio
     command_code(context, "echo '192.168.99.14 ip-192-168-99-14' >> /etc/hosts")
     command_code(context, "echo '192.168.99.15 ip-192-168-99-15' >> /etc/hosts")
     sleep(2)
-    if lease_time == 'infinite':
-        command_code(context, "ip netns exec {device}_ns dnsmasq \
-                                            --pid-file=/tmp/{device}_ns.pid \
-                                            --dhcp-leasefile=/tmp/{device}_ns.lease \
-                                            --dhcp-range={ipv4}.10,{ipv4}.15,{lease_time} \
-                                            {daemon_options} \
-                                            --interface={device}p --bind-interfaces".format(device=device, lease_time=lease_time, ipv4=ipv4, daemon_options=daemon_options))
+
+    if option:
+        option = "--dhcp-option-force=" + option
     else:
-        if option is None:
-            command_code(context, "ip netns exec {device}_ns dnsmasq \
-                                                --pid-file=/tmp/{device}_ns.pid \
-                                                --dhcp-leasefile=/tmp/{device}_ns.lease \
-                                                --dhcp-range={ipv4}.10,{ipv4}.15,{lease_time} \
-                                                --dhcp-range={ipv6}::100,{ipv6}::fff,slaac,64,{lease_time} \
-                                                --enable-ra --interface={device}p \
-                                                {daemon_options} \
-                                                --bind-interfaces".format(device=device, lease_time=lease_time, ipv4=ipv4, ipv6=ipv6, daemon_options=daemon_options))
-        else:
-            command_code(context, "ip netns exec {device}_ns dnsmasq \
-                                                --pid-file=/tmp/{device}_ns.pid \
-                                                --dhcp-leasefile=/tmp/{device}_ns.lease \
-                                                --dhcp-range={ipv4}.10,{ipv4}.15,{lease_time} \
-                                                --dhcp-range={ipv6}::100,{ipv6}::1ff,slaac,64,{lease_time} \
-                                                --enable-ra --interface={device}p \
-                                                --dhcp-option-force={option} \
-                                                {daemon_options} \
-                                                --bind-interfaces".format(device=device, lease_time=lease_time, ipv4=ipv4, ipv6=ipv6, option=option, daemon_options=daemon_options))
+        option = ""
+
+    dnsmasq_command = "ip netns exec {device}_ns dnsmasq \
+                                --interface={device}p \
+                                --bind-interfaces \
+                                --pid-file=/tmp/{device}_ns.pid \
+                                --dhcp-leasefile=/tmp/{device}_ns.lease \
+                                {option} \
+                                {daemon_options}".format(device=device, option=option, daemon_options=daemon_options)
+    dnsmasq_command += " --dhcp-range={ipv4}.10,{ipv4}.15,{lease_time} ".format(lease_time=lease_time, ipv4=ipv4)
+    if lease_time != 'infinite':
+        dnsmasq_command += " --dhcp-range={ipv6}::100,{ipv6}::fff,slaac,64,{lease_time} \
+                             --enable-ra".format(lease_time=lease_time, ipv6=ipv6)
+
+    assert command_code(context, dnsmasq_command) == 0, "unable to start dnsmasq using command `{dnsmasq_command}`".format(dnsmasq_command=dnsmasq_command)
 
     if not hasattr(context, 'testvethns'):
         context.testvethns = []
