@@ -1402,17 +1402,16 @@
      @con_ipv6_remove @bridge @teardown_testveth
      @ipv6_dhcp_iaid_unset
      Scenario: nmcli - ipv6 - IAID unset which defaults to ifname
-     * Prepare simulated test "testX" device
-     * Add a new connection of type "ethernet" and options "con-name con_ipv6 ifname testX ipv6.addr-gen-mode 0 ipv6.dhcp-duid ll"
-     When "/128" is visible with command "ip a s testX | grep inet6 | grep -o '[a-f0-9:]*/128'" in "10" seconds
-     * Note the output of "ip a s testX | grep inet6 | grep -o '[a-f0-9:]*/128'" as value "ipv6_testX"
+     * Add a new connection of type "ethernet" and options "con-name con_ipv6 ifname eth10 ipv6.addr-gen-mode 0 ipv6.dhcp-duid ll"
+     When "/128" is visible with command "ip a s eth10 | grep inet6 | grep -o '[a-f0-9:]*/128'" in "10" seconds
+     * Note the output of "ip a s eth10 | grep inet6 | grep -o '[a-f0-9:]*/128'" as value "ipv6_eth10"
      * Add a new connection of type "bridge" and options "con-name br88 ifname br88 bridge.stp false ipv6.addr-gen-mode 0 ipv6.dhcp-duid ll"
      * Modify connection "con_ipv6" changing options "connection.master br88 connection.slave-type bridge"
      * Bring "up" connection "br88"
      * Bring "up" connection "con_ipv6"
      When "/128" is visible with command "ip a s br88 | grep inet6 | grep -o '[a-f0-9:]*/128'" in "10" seconds
      * Note the output of "ip a s br88 | grep inet6 | grep -o '[a-f0-9:]*/128'" as value "ipv6_br88"
-     Then Check noted values "ipv6_testX" and "ipv6_br88" are not the same
+     Then Check noted values "ipv6_eth10" and "ipv6_br88" are not the same
 
 
      @rhbz1749358
@@ -1420,17 +1419,16 @@
      @con_ipv6_remove @bridge @teardown_testveth
      @ipv6_dhcp_iaid_ifname
      Scenario: nmcli - ipv6 - IAID ifname
-     * Prepare simulated test "testX" device
-     * Add a new connection of type "ethernet" and options "con-name con_ipv6 ifname testX ipv6.addr-gen-mode 0 ipv6.dhcp-duid ll ipv6.dhcp-iaid ifname"
-     When "/128" is visible with command "ip a s testX | grep inet6 | grep -o '[a-f0-9:]*/128'" in "10" seconds
-     * Note the output of "ip a s testX | grep inet6 | grep -o '[a-f0-9:]*/128'" as value "ipv6_testX"
+     * Add a new connection of type "ethernet" and options "con-name con_ipv6 ifname eth10 ipv6.addr-gen-mode 0 ipv6.dhcp-duid ll ipv6.dhcp-iaid ifname"
+     When "/128" is visible with command "ip a s eth10 | grep inet6 | grep -o '[a-f0-9:]*/128'" in "10" seconds
+     * Note the output of "ip a s eth10 | grep inet6 | grep -o '[a-f0-9:]*/128'" as value "ipv6_eth10"
      * Add a new connection of type "bridge" and options "con-name br88 ifname br88 bridge.stp false ipv6.addr-gen-mode 0 ipv6.dhcp-duid ll ipv6.dhcp-iaid ifname"
      * Modify connection "con_ipv6" changing options "connection.master br88 connection.slave-type bridge"
      * Bring "up" connection "br88"
      * Bring "up" connection "con_ipv6"
      When "/128" is visible with command "ip a s br88 | grep inet6 | grep -o '[a-f0-9:]*/128'" in "10" seconds
      * Note the output of "ip a s br88 | grep inet6 | grep -o '[a-f0-9:]*/128'" as value "ipv6_br88"
-     Then Check noted values "ipv6_testX" and "ipv6_br88" are not the same
+     Then Check noted values "ipv6_eth10" and "ipv6_br88" are not the same
 
 
      @rhbz1749358
@@ -1438,14 +1436,13 @@
      @con_ipv6_remove @bridge @teardown_testveth
      @ipv6_dhcp_iaid_mac
      Scenario: nmcli - ipv6 - IAID mac
-     * Prepare simulated test "testX" device
-     * Add a new connection of type "ethernet" and options "con-name con_ipv6 ifname testX ipv6.addr-gen-mode 0 ipv6.dhcp-duid ll ipv6.dhcp-iaid mac"
-     When "/128" is visible with command "ip a s testX | grep inet6 | grep -o '[a-f0-9:]*/128'" in "10" seconds
-     * Note the output of "ip a s testX | grep inet6 | grep -o '[a-f0-9:]*/128'" as value "ipv6_testX"
+     * Add a new connection of type "ethernet" and options "con-name con_ipv6 ifname eth10 ipv6.addr-gen-mode 0 ipv6.dhcp-duid ll ipv6.dhcp-iaid mac"
+     When "/128" is visible with command "ip a s eth10 | grep inet6 | grep -o '[a-f0-9:]*/128'" in "10" seconds
+     * Note the output of "ip a s eth10 | grep inet6 | grep -o '[a-f0-9:]*/128'" as value "ipv6_eth10"
      * Add a new connection of type "bridge" and options "con-name br88 ifname br88 bridge.stp false ipv6.addr-gen-mode 0 ipv6.dhcp-duid ll ipv6.dhcp-iaid mac"
      * Modify connection "con_ipv6" changing options "connection.master br88 connection.slave-type bridge"
      * Bring "up" connection "br88"
      * Bring "up" connection "con_ipv6"
      When "/128" is visible with command "ip a s br88 | grep inet6 | grep -o '[a-f0-9:]*/128'" in "10" seconds
      * Note the output of "ip a s br88 | grep inet6 | grep -o '[a-f0-9:]*/128'" as value "ipv6_br88"
-     Then Check noted values "ipv6_testX" and "ipv6_br88" are the same
+     Then Check noted values "ipv6_eth10" and "ipv6_br88" are the same
