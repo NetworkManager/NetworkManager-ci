@@ -1980,3 +1980,57 @@ Feature: nmcli: ipv4
     * Add a new connection of type "ethernet" and options "ifname eth3 con-name con_ipv4 ipv4.method manual ipv4.addresses 172.16.0.2/31"
     Then "172.16.0.2/31" is visible with command "ip a s eth3"
     Then "brd 172.16.0.3" is not visible with command "ip a s eth3"
+
+
+    @rhbz1749358
+    @ver+=1.22.0
+    @con_ipv4_remove @bridge @teardown_testveth
+    @ipv4_dhcp_iaid_unset
+    Scenario: nmcli - ipv4 - IAID unset which defaults to ifname
+    * Prepare simulated test "testX" device
+    * Add a new connection of type "ethernet" and options "con-name con_ipv4 ifname testX ipv4.dhcp-client-id duid"
+    When "192.168.99" is visible with command "ip a s testX | grep inet | grep -o '192.168.99.[0-9]*'" in "10" seconds
+    * Note the output of "ip a s testX | grep inet | grep -o '192.168.99.[0-9]*'" as value "ipv4_testX"
+    * Add a new connection of type "bridge" and options "con-name br88 ifname br88 bridge.stp false ipv4.dhcp-client-id duid"
+    * Modify connection "con_ipv4" changing options "connection.master br88 connection.slave-type bridge"
+    * Bring "up" connection "br88"
+    * Bring "up" connection "con_ipv4"
+    When "192.168.99" is visible with command "ip a s br88 | grep inet | grep -o '192.168.99.[0-9]*'" in "10" seconds
+    * Note the output of "ip a s br88 | grep inet | grep -o '192.168.99.[0-9]*'" as value "ipv4_br88"
+    Then Check noted values "ipv4_testX" and "ipv4_br88" are not the same
+
+
+    @rhbz1749358
+    @ver+=1.22.0
+    @con_ipv4_remove @bridge @teardown_testveth
+    @ipv4_dhcp_iaid_ifname
+    Scenario: nmcli - ipv4 - IAID ifname
+    * Prepare simulated test "testX" device
+    * Add a new connection of type "ethernet" and options "con-name con_ipv4 ifname testX ipv4.dhcp-client-id duid ipv4.dhcp-iaid ifname"
+    When "192.168.99" is visible with command "ip a s testX | grep inet | grep -o '192.168.99.[0-9]*'" in "10" seconds
+    * Note the output of "ip a s testX | grep inet | grep -o '192.168.99.[0-9]*'" as value "ipv4_testX"
+    * Add a new connection of type "bridge" and options "con-name br88 ifname br88 bridge.stp false ipv4.dhcp-client-id duid ipv4.dhcp-iaid ifname"
+    * Modify connection "con_ipv4" changing options "connection.master br88 connection.slave-type bridge"
+    * Bring "up" connection "br88"
+    * Bring "up" connection "con_ipv4"
+    When "192.168.99" is visible with command "ip a s br88 | grep inet | grep -o '192.168.99.[0-9]*'" in "10" seconds
+    * Note the output of "ip a s br88 | grep inet | grep -o '192.168.99.[0-9]*'" as value "ipv4_br88"
+    Then Check noted values "ipv4_testX" and "ipv4_br88" are not the same
+
+
+    @rhbz1749358
+    @ver+=1.22.0
+    @con_ipv4_remove @bridge @teardown_testveth
+    @ipv4_dhcp_iaid_mac
+    Scenario: nmcli - ipv4 - IAID mac
+    * Prepare simulated test "testX" device
+    * Add a new connection of type "ethernet" and options "con-name con_ipv4 ifname testX ipv4.dhcp-client-id duid ipv4.dhcp-iaid mac"
+    When "192.168.99" is visible with command "ip a s testX | grep inet | grep -o '192.168.99.[0-9]*'" in "10" seconds
+    * Note the output of "ip a s testX | grep inet | grep -o '192.168.99.[0-9]*'" as value "ipv4_testX"
+    * Add a new connection of type "bridge" and options "con-name br88 ifname br88 bridge.stp false ipv4.dhcp-client-id duid ipv4.dhcp-iaid mac"
+    * Modify connection "con_ipv4" changing options "connection.master br88 connection.slave-type bridge"
+    * Bring "up" connection "br88"
+    * Bring "up" connection "con_ipv4"
+    When "192.168.99" is visible with command "ip a s br88 | grep inet | grep -o '192.168.99.[0-9]*'" in "10" seconds
+    * Note the output of "ip a s br88 | grep inet | grep -o '192.168.99.[0-9]*'" as value "ipv4_br88"
+    Then Check noted values "ipv4_testX" and "ipv4_br88" are the same

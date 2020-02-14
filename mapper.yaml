@@ -658,6 +658,12 @@ testmapper:
         feature: ipv6
     - ipv6_prefix_delegation_dhclient:
         feature: ipv6
+    - ipv6_dhcp_iaid_unset:
+        feature: ipv6
+    - ipv6_dhcp_iaid_ifname:
+        feature: ipv6
+    - ipv6_dhcp_iaid_mac:
+        feature: ipv6
     - nmcli_general_correct_profile_activated_after_restart:
         feature: ipv4
         tags: gate
@@ -913,6 +919,12 @@ testmapper:
     - dhcp_option_domain_search:
         feature: ipv4
     - ipv4_31_netprefix_ptp_link:
+        feature: ipv4
+    - ipv4_dhcp_iaid_unset:
+        feature: ipv4
+    - ipv4_dhcp_iaid_ifname:
+        feature: ipv4
+    - ipv4_dhcp_iaid_mac:
         feature: ipv4
     - vlan_add_default_device:
         feature: vlan
