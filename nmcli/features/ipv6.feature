@@ -1399,7 +1399,7 @@
 
      @rhbz1749358
      @ver+=1.22.0
-     @con_ipv6_remove @bridge @teardown_testveth
+     @con_ipv6_remove @bridge @rhelver+=8
      @ipv6_dhcp_iaid_unset
      Scenario: nmcli - ipv6 - IAID unset which defaults to ifname
      * Add a new connection of type "ethernet" and options "con-name con_ipv6 ifname eth10 ipv6.addr-gen-mode 0 ipv6.dhcp-duid ll"
@@ -1416,7 +1416,7 @@
 
      @rhbz1749358
      @ver+=1.22.0
-     @con_ipv6_remove @bridge @teardown_testveth
+     @con_ipv6_remove @bridge @rhelver+=8
      @ipv6_dhcp_iaid_ifname
      Scenario: nmcli - ipv6 - IAID ifname
      * Add a new connection of type "ethernet" and options "con-name con_ipv6 ifname eth10 ipv6.addr-gen-mode 0 ipv6.dhcp-duid ll ipv6.dhcp-iaid ifname"
@@ -1433,7 +1433,7 @@
 
      @rhbz1749358
      @ver+=1.22.0
-     @con_ipv6_remove @bridge @teardown_testveth
+     @con_ipv6_remove @bridge @rhelver+=8
      @ipv6_dhcp_iaid_mac
      Scenario: nmcli - ipv6 - IAID mac
      * Add a new connection of type "ethernet" and options "con-name con_ipv6 ifname eth10 ipv6.addr-gen-mode 0 ipv6.dhcp-duid ll ipv6.dhcp-iaid mac"

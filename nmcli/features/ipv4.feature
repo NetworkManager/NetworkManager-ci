@@ -1984,7 +1984,7 @@ Feature: nmcli: ipv4
 
     @rhbz1749358
     @ver+=1.22.0
-    @con_ipv4_remove @bridge @teardown_testveth
+    @con_ipv4_remove @bridge @rhelver+=8
     @ipv4_dhcp_iaid_unset
     Scenario: nmcli - ipv4 - IAID unset which defaults to ifname
     * Add a new connection of type "ethernet" and options "con-name con_ipv4 ifname eth3 ipv4.dhcp-client-id duid"
@@ -2001,7 +2001,7 @@ Feature: nmcli: ipv4
 
     @rhbz1749358
     @ver+=1.22.0
-    @con_ipv4_remove @bridge @teardown_testveth
+    @con_ipv4_remove @bridge @rhelver+=8
     @ipv4_dhcp_iaid_ifname
     Scenario: nmcli - ipv4 - IAID ifname
     * Add a new connection of type "ethernet" and options "con-name con_ipv4 ifname eth3 ipv4.dhcp-client-id duid ipv4.dhcp-iaid ifname"
@@ -2018,7 +2018,7 @@ Feature: nmcli: ipv4
 
     @rhbz1749358
     @ver+=1.22.0
-    @con_ipv4_remove @bridge @teardown_testveth
+    @con_ipv4_remove @bridge @rhelver+=8
     @ipv4_dhcp_iaid_mac
     Scenario: nmcli - ipv4 - IAID mac
     * Add a new connection of type "ethernet" and options "con-name con_ipv4 ifname eth3 ipv4.dhcp-client-id duid ipv4.dhcp-iaid mac"
