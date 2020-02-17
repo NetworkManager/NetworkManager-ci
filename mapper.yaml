@@ -343,6 +343,8 @@ testmapper:
         feature: bridge
     - bridge_no_link_till_master:
         feature: bridge
+    - bridge_down_to_l2_only:
+        feature: bridge       
     - add_default_team:
         feature: team
     - add_default_team_after_journal_restart:

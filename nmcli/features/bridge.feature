@@ -623,3 +623,27 @@ Feature: nmcli - bridge
     Then "/sys/class/net/dummy0/ifindex" is file
     Then "nm-bridge\s+bridge\s+connected\s+bridge0" is visible with command "nmcli d" in "10" seconds
     Then "dummy0\s+dummy\s+connected\s+bridge-slave-eth4" is visible with command "nmcli d" in "10" seconds
+
+
+    @rhbz1791378
+    @ver+=1.22.0
+    @long
+    @bridge @slaves @teardown_testveth
+    @bridge_down_to_l2_only
+    Scenario: NM - bridge - go to L2 when DHCP is gone
+    * Prepare simulated test "test44" device
+    * Add a new connection of type "bridge" and options "ifname br4 con-name bridge4 bridge.stp off ipv4.dhcp-timeout infinity ipv6.method disable"
+    * Check ifcfg-name file created for connection "bridge4"
+    * Add a new connection of type "bridge-slave" and options "ifname test44 con-name bridge4.1 master br4"
+    * Bring up connection "bridge4.1"
+    When "br4:connected:bridge4" is visible with command "nmcli -t -f DEVICE,STATE,CONNECTION device" in "10" seconds
+    When "192.168.99" is visible with command "ip a s br4" in "20" seconds
+    * Execute "ip netns exec test44_ns pkill -SIGSTOP -F /tmp/test44_ns.pid"
+    When "192.168.99" is not visible with command "ip a s br4" in "150" seconds
+    Then "br4:connected:bridge4" is visible with command "nmcli -t -f DEVICE,STATE,CONNECTION device" in "10" seconds
+    Then "test44:connected:bridge4.1" is visible with command "nmcli -t -f DEVICE,STATE,CONNECTION device" in "10" seconds
+    * Execute "sleep 20"
+    * Execute "ip netns exec test44_ns pkill -SIGCONT -F /tmp/test44_ns.pid"
+    Then "192.168.99" is visible with command "ip a s br4" in "60" seconds
+    Then "br4:connected:bridge4" is visible with command "nmcli -t -f DEVICE,STATE,CONNECTION device" in "10" seconds
+    Then "test44:connected:bridge4.1" is visible with command "nmcli -t -f DEVICE,STATE,CONNECTION device" in "10" seconds
