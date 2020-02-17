@@ -1677,6 +1677,10 @@ def after_scenario(context, scenario):
             if 'secret_key_reset' in scenario.tags:
                 call("mv /var/lib/NetworkManager/secret_key_back /var/lib/NetworkManager/secret_key", shell=True)
 
+            if 'kill_dhclient_eth8' in scenario.tags:
+                call("kill $(cat /tmp/dhclient_eth8.pid)", shell=True)
+                call("rm -f /tmp/dhclient_eth8.pid", shell=True)
+
             if 'restart' in scenario.tags:
                 print ("---------------------------")
                 print ("restarting NM service")

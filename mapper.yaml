@@ -1414,6 +1414,8 @@ testmapper:
         feature: general
     - solicitation_period_prolonging:
         feature: general
+    - nmcli_general_unmanaged_device_dhclient_fail:
+        feature: general
     - nmstate:
        feature: general
        timeout: 25m

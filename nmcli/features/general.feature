@@ -2109,3 +2109,13 @@ Feature: nmcli - general
     When "con_general" is visible with command "nmcli connection show -a" for full "140" seconds
     * Execute "ip netns exec testG_ns kill -SIGCONT $(cat /tmp/testG_ns.pid)"
     Then "activated" is visible with command "nmcli -g GENERAL.STATE con show con_general" in "45" seconds
+
+
+    @rhbz1782642
+    @ver+=1.22
+    @manage_eth8 @eth8_disconnect @kill_dhclient_eth8
+    @nmcli_general_unmanaged_device_dhclient_fail
+    Scenario: NM - general - dhclient should not fail on unmanaged device
+    * Execute "nmcli device disconnect eth8"
+    * Finish "nmcli device set eth8 managed no"
+    * Finish "dhclient -v -pf /tmp/dhclient_eth8.pid eth8"
