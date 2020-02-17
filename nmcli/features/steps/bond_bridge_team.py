@@ -150,3 +150,15 @@ def team_is_down(context, team):
     if command_code(context, 'teamdctl %s state dump' %team) != 0:
         sleep(1)
         assert command_code(context, 'teamdctl %s state dump' %team) == 0, 'team "%s" does not exist' % (team)
+
+
+@step(u'Check that "{cap}" capability is loaded')
+def check_cap_loaded(context, cap):
+    import gi
+    gi.require_version('NM', '1.0')
+    from gi.repository import NM
+
+    nmc = NM.Client.new()
+    cap_id = getattr(NM.Capability, cap)
+    caps = nmc.get_capabilities()
+    assert cap_id in caps, "capability %s (id %d) is not in %s" % (cap, cap_id, str(caps))

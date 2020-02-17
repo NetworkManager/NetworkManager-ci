@@ -1419,6 +1419,8 @@ testmapper:
     - nmstate:
        feature: general
        timeout: 25m
+    - openvswitch_capability:
+        feature: ovs
     - openvswitch_interface_recognized:
         feature: ovs
     - openvswitch_ignore_ovs_network_setup:

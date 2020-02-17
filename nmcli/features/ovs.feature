@@ -8,6 +8,13 @@ Feature: nmcli - ovs
     # @test_name (compiled from scenario name)
     # Scenario:
 
+
+    @ver+=1.22
+    @openvswitch_capability
+    Scenario: NM - openvpswitch - check that OVS is in capabilities
+    Then Check that "OVS" capability is loaded
+
+
     @ver+=1.10
     @openvswitch
     @openvswitch_interface_recognized
