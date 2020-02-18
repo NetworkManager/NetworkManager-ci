@@ -344,7 +344,7 @@ testmapper:
     - bridge_no_link_till_master:
         feature: bridge
     - bridge_down_to_l2_only:
-        feature: bridge       
+        feature: bridge
     - add_default_team:
         feature: team
     - add_default_team_after_journal_restart:
@@ -1415,6 +1415,8 @@ testmapper:
     - solicitation_period_prolonging:
         feature: general
     - nmcli_general_unmanaged_device_dhclient_fail:
+        feature: general
+    - no_user_control:
         feature: general
     - nmstate:
        feature: general

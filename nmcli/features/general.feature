@@ -2119,3 +2119,15 @@ Feature: nmcli - general
     * Execute "nmcli device disconnect eth8"
     * Finish "nmcli device set eth8 managed no"
     * Finish "dhclient -v -pf /tmp/dhclient_eth8.pid eth8"
+
+
+    @rhbz1762011
+    @ver+=1.22
+    @remove_custom_cfg @restart
+    @no_user_control
+    Scenario: NM - general - root only control
+    * Execute "echo -e '[main]\nauth-polkit=root-only' > /etc/NetworkManager/conf.d/99-xxcustom.conf"
+    * Restart NM
+    # User test has been created in envsetup.py
+    Then "org.freedesktop.NetworkManager.network-control\s+no" is visible with command "sudo -u test nmcli gen perm"
+    Then " auth" is not visible with command "sudo -u test nmcli gen perm"
