@@ -95,10 +95,9 @@ Feature: General TUI tests
     * Execute "nmcli c a type bridge con-name bridge0 ifname bridge0"
     * Start nmtui
     * Choose to "Activate a connection" from main screen
-    Then ".* \* ethernet1.*" is visible on screen
-    Then ".*   ethernet2.*" is visible on screen
-    Then Select connection "bridge" in the list
-    Then ".* \* bridge.*" is visible on screen
+    Then Select connection " \* ethernet1" in the list
+    Then Select connection "   ethernet2" in the list
+    Then Select connection " \* bridge" in the list
 
 
     @general
