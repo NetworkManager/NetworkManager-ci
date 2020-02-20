@@ -13,7 +13,9 @@ Feature: Bond TUI tests
     * Confirm the connection settings
     Then Check ifcfg-name file created for connection "bond0"
     Then "TYPE=Bond" is visible with command "cat /etc/sysconfig/network-scripts/ifcfg-bond0"
-    Then "BONDING_OPTS=\"downdelay=0 miimon=100 mode=balance-rr updelay=0\"" is visible with command "cat /etc/sysconfig/network-scripts/ifcfg-bond0"
+    * Note the output of "grep BONDING_OPTS= /etc/sysconfig/network-scripts/ifcfg-bond0 | grep -o '".*"' | sed 's/"//g;s/ /\n/g' | sort | tr '\n' ' '" as value "ifcfg_opts"
+    * Note the output of "echo 'downdelay=0 miimon=100 mode=balance-rr updelay=0 '" as value "desired_opts"
+    Then Check noted values "ifcfg_opts" and "desired_opts" are the same
     Then "bond0:" is visible with command "ip a" in "10" seconds
     Then Check bond "bond0" in proc
     Then "bond0\s+bond" is visible with command "nmcli device"

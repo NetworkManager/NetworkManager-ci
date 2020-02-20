@@ -1144,7 +1144,6 @@
 
 
     @rhbz1299103 @rhbz1348198
-    @ver-1.10.0
     @slaves @bond
     @bond_set_active_backup_options
     Scenario: nmcli - bond - set active backup options
@@ -1153,25 +1152,14 @@
      * Add a new connection of type "ethernet" and options "con-name bond0.0 ifname eth1 master nm-bond autoconnect no"
      * Bring "up" connection "bond0"
      When "nm-bond:connected:bond0" is visible with command "nmcli -t -f DEVICE,STATE,CONNECTION device" in "40" seconds
-     Then "BONDING_OPTS=\"mode=active-backup num_grat_arp=3 num_unsol_na=3 active_slave=eth4\"" is visible with command "cat /etc/sysconfig/network-scripts/ifcfg-bond0"
+     # sort the BONDING_OPTS to prevent failures in the future
+     * Note the output of "grep BONDING_OPTS= /etc/sysconfig/network-scripts/ifcfg-bond0 | grep -o '".*"' | sed 's/"//g;s/ /\n/g' | sort | tr '\n' ' '" as value "ifcfg_opts"
+     * Note the output of "echo 'active_slave=eth4 mode=active-backup num_grat_arp=3 num_unsol_na=3 '" as value "desired_opts"
+     Then Check noted values "ifcfg_opts" and "desired_opts" are the same
       #And "Currently Active Slave: eth4" is visible with command "cat /proc/net/bonding/nm-bond"
       And "3" is visible with command "cat /sys/class/net/nm-bond/bonding/num_grat_arp"
       And "3" is visible with command "cat /sys/class/net/nm-bond/bonding/num_unsol_na"
 
-    @rhbz1299103 @rhbz1348198
-    @ver+=1.10.1
-    @slaves @bond
-    @bond_set_active_backup_options
-    Scenario: nmcli - bond - set active backup options
-     * Add a new connection of type "bond" and options "con-name bond0 ifname nm-bond autoconnect no -- connection.autoconnect-slaves 1 bond.options mode=active-backup,active_slave=eth4,num_grat_arp=3,num_unsol_na=3"
-     * Add a new connection of type "ethernet" and options "con-name bond0.1 ifname eth4 master nm-bond autoconnect no"
-     * Add a new connection of type "ethernet" and options "con-name bond0.0 ifname eth1 master nm-bond autoconnect no"
-     * Bring "up" connection "bond0"
-     When "nm-bond:connected:bond0" is visible with command "nmcli -t -f DEVICE,STATE,CONNECTION device" in "40" seconds
-     Then "BONDING_OPTS=\"active_slave=eth4 mode=active-backup num_grat_arp=3 num_unsol_na=3\"" is visible with command "cat /etc/sysconfig/network-scripts/ifcfg-bond0"
-      #And "Currently Active Slave: eth4" is visible with command "cat /proc/net/bonding/nm-bond"
-      And "3" is visible with command "cat /sys/class/net/nm-bond/bonding/num_grat_arp"
-      And "3" is visible with command "cat /sys/class/net/nm-bond/bonding/num_unsol_na"
 
     @rhbz1299103
     @slaves @bond
