@@ -928,6 +928,8 @@ testmapper:
         feature: ipv4
     - ipv4_dhcp_iaid_mac:
         feature: ipv4
+    - ipv4_external_addresses_no_double_routes:
+        feature: ipv4
     - vlan_add_default_device:
         feature: vlan
     - vlan_add_beyond_range:

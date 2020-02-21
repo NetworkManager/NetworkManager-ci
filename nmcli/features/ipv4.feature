@@ -2031,3 +2031,17 @@ Feature: nmcli: ipv4
     When "inet" is visible with command "ip a s br88 | grep -E -o 'inet\s+[0-9.]*'" in "10" seconds
     * Note the output of "ip a s br88 | grep -E -o 'inet\s+[0-9.]*'" as value "ipv4_br88"
     Then Check noted values "ipv4_eth3" and "ipv4_br88" are the same
+
+
+    @rhbz1700415
+    @ver+=1.22.0
+    @con_ipv4_remove @eth3_disconnect
+    @ipv4_external_addresses_no_double_routes
+    Scenario: NM - ipv4 - no routes are added by NM for external addresses
+    * Add a new connection of type "ethernet" and options "con-name con_ipv4 ifname eth3 ipv4.method manual ipv4.addresses 192.168.47.1/24"
+    When "192.168.47.1/24" is visible with command "ip a sh dev eth3" in "30" seconds
+    * Execute "ip a add 1.2.3.4/32 dev eth3; ip a add 4.3.2.1/30 dev eth3"
+    When "4.3.2.1/30" is visible with command "ip a sh dev eth3" in "30" seconds
+    * Execute "ip link set dev eth3 down; ip link set dev eth3 up"
+    Then "1.2.3.4" is not visible with command "ip r show dev eth3" for full "10" seconds
+    Then "4.3.2.0/30.*4.3.2.0/30" is not visible with command "ip r show dev eth3"
