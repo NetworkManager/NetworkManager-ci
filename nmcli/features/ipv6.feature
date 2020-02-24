@@ -1451,3 +1451,18 @@
      When "/128" is visible with command "ip a s br88 | grep inet6 | grep -o '[a-f0-9:]*/128'" in "30" seconds
      * Note the output of "ip a s br88 | grep inet6 | grep -o '[a-f0-9:]*/128'" as value "ipv6_br88"
      Then Check noted values "ipv6_testX" and "ipv6_br88" are the same
+
+
+
+    @rhbz1801158
+    @ver+=1.22.8
+    @con_ipv6_remove @teardown_testveth
+    @ra_timeout
+    Scenario: NM - ipv4 - add ra-timeout
+    * Prepare simulated test "testX6" device
+    * Execute "ip netns exec testX6_ns kill -SIGSTOP $(cat /tmp/testX6_ns.pid)"
+    * Add a new connection of type "ethernet" and options "ifname testX6 con-name con_ipv6 ipv4.method disabled ipv6.ra-timeout 65 autoconnect no"
+    * Execute "nmcli con up con_ipv6" without waiting for process to finish
+    When "con_ipv6" is visible with command "nmcli connection show -a"
+    * Execute "sleep 60; ip netns exec testX6_ns kill -SIGCONT $(cat /tmp/testX6_ns.pid)" without waiting for process to finish
+    Then "activated" is visible with command "nmcli -g GENERAL.STATE con show con_ipv6" in "70" seconds
