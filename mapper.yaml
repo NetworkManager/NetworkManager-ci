@@ -484,6 +484,8 @@ testmapper:
         tags: gate
     - ipv6_limited_router_solicitation:
         feature: ipv6
+    - solicitation_period_prolonging:
+        feature: ipv6
     - ipv6_routes_with_src:
         feature: ipv6
         tags: gate
@@ -1415,8 +1417,6 @@ testmapper:
     - libnm_update2_block_autoconnect:
         feature: general
     - libnm_update2_no_reapply:
-        feature: general
-    - solicitation_period_prolonging:
         feature: general
     - nmcli_general_unmanaged_device_dhclient_fail:
         feature: general

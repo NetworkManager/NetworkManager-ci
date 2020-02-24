@@ -101,8 +101,8 @@ Feature: nmcli: connection
     @teardown_testveth @con_con_remove
     @connection_profile_duplication
     Scenario: nmcli - connection - profile duplication
-     * Prepare simulated test "testX" device
-     * Add a new connection of type "ethernet" and options "ifname testX con-name con_con autoconnect no"
+     * Prepare simulated test "testXc" device
+     * Add a new connection of type "ethernet" and options "ifname testXc con-name con_con autoconnect no"
      * Execute "echo 'NM_CONTROLLED=no' >> /etc/sysconfig/network-scripts/ifcfg-con_con"
      * Reload connections
      * Execute "rm -f /etc/sysconfig/network-scripts/ifcfg-con_con"
@@ -467,8 +467,8 @@ Feature: nmcli: connection
     @teardown_testveth
     @connection_metered_guess_yes
     Scenario: NM - connection - metered guess yes
-     * Prepare simulated test "testX" device with "192.168.99" ipv4 and "2620:52:0:dead" ipv6 dhcp address prefix and dhcp option "43,ANDROID_METERED"
-     * Add a new connection of type "ethernet" and options "ifname testX con-name con_con autoconnect off"
+     * Prepare simulated test "testXc" device with "192.168.99" ipv4 and "2620:52:0:dead" ipv6 dhcp address prefix and dhcp option "43,ANDROID_METERED"
+     * Add a new connection of type "ethernet" and options "ifname testXc con-name con_con autoconnect off"
      * Modify connection "con_con" changing options "connection.metered unknown"
      * Bring "up" connection "con_con"
      Then Metered status is "3"
@@ -477,7 +477,7 @@ Feature: nmcli: connection
      @con_con_remove @long
      @display_allowed_values
      Scenario: nmcli - connection - showing allowed values
-     * Add connection type "ethernet" named "con_con" for device "testX"
+     * Add connection type "ethernet" named "con_con" for device "testXc"
      * Open editor for connection "con_con"
      * Check "fast|leap|md5|peap|pwd|sim|tls|ttls" are shown for object "802-1x.eap"
      * Check "0|1" are shown for object "802-1x.phase1-peapver"
@@ -528,11 +528,11 @@ Feature: nmcli: connection
     @con_con_remove @teardown_testveth @tcpreplay
     @lldp
     Scenario: nmcli - connection - lldp
-     * Prepare simulated test "testX" device
-     * Add a new connection of type "ethernet" and options "ifname testX con-name con_con ipv4.method manual ipv4.addresses 1.2.3.4/24 connection.lldp enable"
-     When "testX\s+ethernet\s+connected" is visible with command "nmcli device" in "5" seconds
-     * Execute "ip netns exec testX_ns tcpreplay --intf1=testXp tmp/lldp.detailed.pcap"
-     Then "NEIGHBOR\[0\].DEVICE:\s+testX" is visible with command "nmcli device lldp" in "5" seconds
+     * Prepare simulated test "testXc" device
+     * Add a new connection of type "ethernet" and options "ifname testXc con-name con_con ipv4.method manual ipv4.addresses 1.2.3.4/24 connection.lldp enable"
+     When "testXc\s+ethernet\s+connected" is visible with command "nmcli device" in "5" seconds
+     * Execute "ip netns exec testXc_ns tcpreplay --intf1=testXcp tmp/lldp.detailed.pcap"
+     Then "NEIGHBOR\[0\].DEVICE:\s+testXc" is visible with command "nmcli device lldp" in "5" seconds
       And "NEIGHBOR\[0\].CHASSIS-ID:\s+00:01:30:F9:AD:A0" is visible with command "nmcli device lldp"
       And "NEIGHBOR\[0\].PORT-ID:\s+1\/1" is visible with command "nmcli device lldp"
       And "NEIGHBOR\[0\].PORT-DESCRIPTION:\s+Summit300-48-Port 1001" is visible with command "nmcli device lldp"
@@ -546,10 +546,10 @@ Feature: nmcli: connection
     @con_con_remove @teardown_testveth @tcpreplay
     @lldp_vlan_name_overflow
     Scenario: nmcli - connection - lldp vlan name overflow
-    * Prepare simulated test "testX" device
-    * Add a new connection of type "ethernet" and options "ifname testX con-name con_con ipv4.method manual ipv4.addresses 1.2.3.4/24 connection.lldp enable"
-    When "testX\s+ethernet\s+connected" is visible with command "nmcli device" in "5" seconds
-    * Execute "ip netns exec testX_ns tcpreplay --intf1=testXp tmp/lldp.vlan.pcap"
+    * Prepare simulated test "testXc" device
+    * Add a new connection of type "ethernet" and options "ifname testXc con-name con_con ipv4.method manual ipv4.addresses 1.2.3.4/24 connection.lldp enable"
+    When "testXc\s+ethernet\s+connected" is visible with command "nmcli device" in "5" seconds
+    * Execute "ip netns exec testXc_ns tcpreplay --intf1=testXcp tmp/lldp.vlan.pcap"
     Then "NEIGHBOR\[0\].IEEE-802-1-VLAN-NAME:\s+default\s" is visible with command "nmcli --fields all device lldp" in "5" seconds
 
 
@@ -558,14 +558,14 @@ Feature: nmcli: connection
     @con_con_remove @teardown_testveth @tcpreplay
     @lldp_vlan_tlv
     Scenario: NM - connection - lldp check vlan tvl values via DBus
-    * Prepare simulated test "testX" device
-    * Add a new connection of type "ethernet" and options "ifname testX con-name con_con ipv4.method manual ipv4.addresses 1.2.3.4/24 connection.lldp enable"
-    When "testX\s+ethernet\s+connected" is visible with command "nmcli device" in "5" seconds
-    * Execute "ip netns exec testX_ns tcpreplay --intf1=testXp tmp/lldp.vlan.pcap"
+    * Prepare simulated test "testXc" device
+    * Add a new connection of type "ethernet" and options "ifname testXc con-name con_con ipv4.method manual ipv4.addresses 1.2.3.4/24 connection.lldp enable"
+    When "testXc\s+ethernet\s+connected" is visible with command "nmcli device" in "5" seconds
+    * Execute "ip netns exec testXc_ns tcpreplay --intf1=testXcp tmp/lldp.vlan.pcap"
     # check the deffinition of the step for more details about syntax
-    Then Check ":ieee-802-1-vid=0,:ieee-802-3-max-frame-size=1514,:ieee-802-1-vlan-name='default',:ieee-802-1-pvid=0" in LldpNeighbors via DBus for device "testX"
-     And Check ":ieee-802-1-vlans::name='default',:ieee-802-1-vlans::vid=0,:ieee-802-1-vlans::name='jbenc',:ieee-802-1-vlans::vid=99" in LldpNeighbors via DBus for device "testX"
-     And Check ":ieee-802-3-mac-phy-conf:pmd-autoneg-cap=32768,:ieee-802-3-mac-phy-conf:autoneg=0,:ieee-802-3-mac-phy-conf:operational-mau-type=0" in LldpNeighbors via DBus for device "testX"
+    Then Check ":ieee-802-1-vid=0,:ieee-802-3-max-frame-size=1514,:ieee-802-1-vlan-name='default',:ieee-802-1-pvid=0" in LldpNeighbors via DBus for device "testXc"
+     And Check ":ieee-802-1-vlans::name='default',:ieee-802-1-vlans::vid=0,:ieee-802-1-vlans::name='jbenc',:ieee-802-1-vlans::vid=99" in LldpNeighbors via DBus for device "testXc"
+     And Check ":ieee-802-3-mac-phy-conf:pmd-autoneg-cap=32768,:ieee-802-3-mac-phy-conf:autoneg=0,:ieee-802-3-mac-phy-conf:operational-mau-type=0" in LldpNeighbors via DBus for device "testXc"
 
 
     @rhbz1417292
@@ -583,7 +583,7 @@ Feature: nmcli: connection
     @con_con_remove
     @connection_user_settings_data
     Scenario: NM - connection - user settings data
-    * Add a new connection of type "ethernet" and options "ifname testX con-name con_con autoconnect no"
+    * Add a new connection of type "ethernet" and options "ifname testXc con-name con_con autoconnect no"
     * Execute "python tmp/setting-user-data.py set id con_con my.own.data good_morning_starshine"
     * Execute "python tmp/setting-user-data.py set id con_con my.own.data.two the_moon_says_hello"
     When "good_morning_starshine" is visible with command "python tmp/setting-user-data.py get id con_con my.own.data"
