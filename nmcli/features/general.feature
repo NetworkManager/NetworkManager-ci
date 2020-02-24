@@ -1385,7 +1385,7 @@ Feature: nmcli - general
     * Execute "ip link add eth1 type veth peer name eth1p && ip link set dev eth1p up"
     * Execute "ip link add eth2 type veth peer name eth2p && ip link set dev eth2p up"
     # These removed tests are removing NM's plugins, when compiling we do not have easy way to put them back now
-    * Execute "cd nmstate && ulimit -n 10000 && pytest -vv tests/integration -k 'not nm_team_plugin_missing | disable_nm_team_plugin | nm_ovs_plugin_missing' --log-level=DEBUG 2>&1 | tee /tmp/nmstate.txt"
+    * Execute "cd nmstate && ulimit -n 10000 && pytest -vv tests/integration -k 'not nm_team_plugin_missing | disable_nm_team_plugin | nm_ovs_plugin_missing | dhcp_on_bridge0' --log-level=DEBUG 2>&1 | tee /tmp/nmstate.txt"
     Then "PASSED" is visible with command "grep ' PASS' /tmp/nmstate.txt"
     Then "100%" is visible with command "grep '100%' /tmp/nmstate.txt"
     Then "FAILED" is not visible with command "grep ' FAILED' /tmp/nmstate.txt"
