@@ -1350,25 +1350,25 @@
      @teardown_testveth @con_ipv6_remove @kill_children @internal_DHCP @dhcpd @rhelver+=8
      @ipv6_prefix_delegation_internal
      Scenario: nmcli - ipv6 - prefix delegation
-     * Prepare simulated test "testX" device without DHCP
-     * Execute "ip -n testX_ns addr add dev testXp fc01::1/64"
-     * Prepare simulated test "testY" device without DHCP
-     * Run child "ip netns exec testX_ns radvd -n -C tmp/ipv6/radvd.conf" without shell
+     * Prepare simulated test "testX6" device without DHCP
+     * Execute "ip -n testX6_ns addr add dev testX6p fc01::1/64"
+     * Prepare simulated test "testY6" device without DHCP
+     * Run child "ip netns exec testX6_ns radvd -n -C tmp/ipv6/radvd.conf" without shell
      * Execute "echo > /tmp/ip6leases.conf"
-     * Run child "ip netns exec testX_ns dhcpd -6 -d -cf tmp/ipv6/dhcpd.conf -lf /tmp/ip6leases.conf" without shell
-     * Add a new connection of type "ethernet" and options "ifname testX con-name con_ipv6 ipv4.method disabled ipv6.method auto ipv6.route-metric 50 autoconnect no"
+     * Run child "ip netns exec testX6_ns dhcpd -6 -d -cf tmp/ipv6/dhcpd.conf -lf /tmp/ip6leases.conf" without shell
+     * Add a new connection of type "ethernet" and options "ifname testX6 con-name con_ipv6 ipv4.method disabled ipv6.method auto ipv6.route-metric 50 autoconnect no"
      * Bring "up" connection "con_ipv6"
-     When "inet6 fc01:" is visible with command "ip a show dev testX" in "5" seconds
-     * Add a new connection of type "ethernet" and options "ifname testY con-name con_ipv62 ipv4.method disabled ipv6.method shared autoconnect no"
+     When "inet6 fc01:" is visible with command "ip a show dev testX6" in "5" seconds
+     * Add a new connection of type "ethernet" and options "ifname testY6 con-name con_ipv62 ipv4.method disabled ipv6.method shared autoconnect no"
      * Bring "up" connection "con_ipv62"
      When "iaaddr" is visible with command "cat /tmp/ip6leases.conf" in "10" seconds
      When "iaprefix" is visible with command "cat /tmp/ip6leases.conf" in "10" seconds
-     * Execute "ip netns exec testX_ns ip route add $(grep -m 1 iaprefix /tmp/ip6leases.conf | sed -r 's/\s+iaprefix ([a-f0-9:/]+) \{.*/\1/') via $(grep -m 1 iaaddr /tmp/ip6leases.conf | sed -r 's/\s+iaaddr ([a-f0-9:]+) \{.*/\1/')"
+     * Execute "ip netns exec testX6_ns ip route add $(grep -m 1 iaprefix /tmp/ip6leases.conf | sed -r 's/\s+iaprefix ([a-f0-9:/]+) \{.*/\1/') via $(grep -m 1 iaaddr /tmp/ip6leases.conf | sed -r 's/\s+iaaddr ([a-f0-9:]+) \{.*/\1/')"
      # no need to call, because of IPv6 autoconfiguration
-     #Then Finish "ip netns exec testY_ns rdisc -d -v"
-     Then "inet6 fc01:bbbb:[a-f0-9:]+/64" is visible with command "ip -n testY_ns a show dev testYp" in "15" seconds
-     And  "tentative" is not visible with command "ip -n testY_ns a show dev testYp" in "15" seconds
-     And  Finish "ip netns exec testY_ns ping -c2 fc01::1"
+     #Then Finish "ip netns exec testY6_ns rdisc -d -v"
+     Then "inet6 fc01:bbbb:[a-f0-9:]+/64" is visible with command "ip -n testY6_ns a show dev testY6p" in "15" seconds
+     And  "tentative" is not visible with command "ip -n testY6_ns a show dev testY6p" in "15" seconds
+     And  Finish "ip netns exec testY6_ns ping -c2 fc01::1"
 
 
      @rhbz1755467
@@ -1377,24 +1377,24 @@
      @ipv6_prefix_delegation_dhclient
      Scenario: nmcli - ipv6 - prefix delegation
      * Execute "systemctl stop dhcpd"
-     * Prepare simulated test "testX" device without DHCP
-     * Execute "ip -n testX_ns addr add dev testXp fc01::1/64"
-     * Prepare simulated test "testY" device without DHCP
-     * Run child "ip netns exec testX_ns radvd -n -C tmp/ipv6/radvd.conf" without shell
+     * Prepare simulated test "testX6" device without DHCP
+     * Execute "ip -n testX6_ns addr add dev testX6p fc01::1/64"
+     * Prepare simulated test "testY6" device without DHCP
+     * Run child "ip netns exec testX6_ns radvd -n -C tmp/ipv6/radvd.conf" without shell
      * Execute "echo > /tmp/ip6leases.conf"
-     * Run child "ip netns exec testX_ns dhcpd -6 -d -cf tmp/ipv6/dhcpd.conf -lf /tmp/ip6leases.conf" without shell
-     * Add a new connection of type "ethernet" and options "ifname testX con-name con_ipv6 ipv4.method disabled ipv6.method auto ipv6.route-metric 50 autoconnect no"
+     * Run child "ip netns exec testX6_ns dhcpd -6 -d -cf tmp/ipv6/dhcpd.conf -lf /tmp/ip6leases.conf" without shell
+     * Add a new connection of type "ethernet" and options "ifname testX6 con-name con_ipv6 ipv4.method disabled ipv6.method auto ipv6.route-metric 50 autoconnect no"
      * Bring "up" connection "con_ipv6"
-     When "inet6 fc01:" is visible with command "ip a show dev testX" in "5" seconds
-     * Add a new connection of type "ethernet" and options "ifname testY con-name con_ipv62 ipv4.method disabled ipv6.method shared autoconnect no"
+     When "inet6 fc01:" is visible with command "ip a show dev testX6" in "5" seconds
+     * Add a new connection of type "ethernet" and options "ifname testY6 con-name con_ipv62 ipv4.method disabled ipv6.method shared autoconnect no"
      * Bring "up" connection "con_ipv62"
      When "iaaddr" is visible with command "cat /tmp/ip6leases.conf" in "10" seconds
      When "iaprefix" is visible with command "cat /tmp/ip6leases.conf" in "10" seconds
-     * Execute "ip netns exec testX_ns ip route add $(grep -m 1 iaprefix /tmp/ip6leases.conf | sed -r 's/\s+iaprefix ([a-f0-9:/]+) \{.*/\1/') via $(grep -m 1 iaaddr /tmp/ip6leases.conf | sed -r 's/\s+iaaddr ([a-f0-9:]+) \{.*/\1/')"
-     Then Finish "ip netns exec testY_ns rdisc -d -v"
-     And  "inet6 fc01:bbbb:[a-f0-9:]+/64" is visible with command "ip -n testY_ns a show dev testYp" in "15" seconds
-     And  "tentative" is not visible with command "ip -n testY_ns a show dev testYp" in "15" seconds
-     And  Finish "ip netns exec testY_ns ping -c2 fc01::1"
+     * Execute "ip netns exec testX6_ns ip route add $(grep -m 1 iaprefix /tmp/ip6leases.conf | sed -r 's/\s+iaprefix ([a-f0-9:/]+) \{.*/\1/') via $(grep -m 1 iaaddr /tmp/ip6leases.conf | sed -r 's/\s+iaaddr ([a-f0-9:]+) \{.*/\1/')"
+     Then Finish "ip netns exec testY6_ns rdisc -d -v"
+     And  "inet6 fc01:bbbb:[a-f0-9:]+/64" is visible with command "ip -n testY6_ns a show dev testY6p" in "15" seconds
+     And  "tentative" is not visible with command "ip -n testY6_ns a show dev testY6p" in "15" seconds
+     And  Finish "ip netns exec testY6_ns ping -c2 fc01::1"
 
 
      @rhbz1749358
@@ -1403,17 +1403,17 @@
      # dhclient support only ipv6.dhcp-iaid = mac
      @ipv6_dhcp_iaid_unset
      Scenario: nmcli - ipv6 - IAID unset which defaults to ifname
-     * Prepare simulated test "testX" device
-     * Add a new connection of type "ethernet" and options "con-name con_ipv6 ifname testX ipv6.addr-gen-mode 0 ipv6.dhcp-duid ll"
-     When "/128" is visible with command "ip a s testX | grep inet6 | grep -o '[a-f0-9:]*/128'" in "30" seconds
-     * Note the output of "ip a s testX | grep inet6 | grep -o '[a-f0-9:]*/128'" as value "ipv6_testX"
+     * Prepare simulated test "testX6" device
+     * Add a new connection of type "ethernet" and options "con-name con_ipv6 ifname testX6 ipv6.addr-gen-mode 0 ipv6.dhcp-duid ll"
+     When "/128" is visible with command "ip a s testX6 | grep inet6 | grep -o '[a-f0-9:]*/128'" in "30" seconds
+     * Note the output of "ip a s testX6 | grep inet6 | grep -o '[a-f0-9:]*/128'" as value "ipv6_testX6"
      * Add a new connection of type "bridge" and options "con-name br88 ifname br88 bridge.stp false ipv6.addr-gen-mode 0 ipv6.dhcp-duid ll"
      * Modify connection "con_ipv6" changing options "connection.master br88 connection.slave-type bridge"
      * Bring "up" connection "br88"
      * Bring "up" connection "con_ipv6"
      When "/128" is visible with command "ip a s br88 | grep inet6 | grep -o '[a-f0-9:]*/128'" in "30" seconds
      * Note the output of "ip a s br88 | grep inet6 | grep -o '[a-f0-9:]*/128'" as value "ipv6_br88"
-     Then Check noted values "ipv6_testX" and "ipv6_br88" are not the same
+     Then Check noted values "ipv6_testX6" and "ipv6_br88" are not the same
 
 
      @rhbz1749358
@@ -1422,17 +1422,17 @@
      # dhclient support only ipv6.dhcp-iaid = mac
      @ipv6_dhcp_iaid_ifname
      Scenario: nmcli - ipv6 - IAID ifname
-     * Prepare simulated test "testX" device
-     * Add a new connection of type "ethernet" and options "con-name con_ipv6 ifname testX ipv6.addr-gen-mode 0 ipv6.dhcp-duid ll ipv6.dhcp-iaid ifname"
-     When "/128" is visible with command "ip a s testX | grep inet6 | grep -o '[a-f0-9:]*/128'" in "30" seconds
-     * Note the output of "ip a s testX | grep inet6 | grep -o '[a-f0-9:]*/128'" as value "ipv6_testX"
+     * Prepare simulated test "testX6" device
+     * Add a new connection of type "ethernet" and options "con-name con_ipv6 ifname testX6 ipv6.addr-gen-mode 0 ipv6.dhcp-duid ll ipv6.dhcp-iaid ifname"
+     When "/128" is visible with command "ip a s testX6 | grep inet6 | grep -o '[a-f0-9:]*/128'" in "30" seconds
+     * Note the output of "ip a s testX6 | grep inet6 | grep -o '[a-f0-9:]*/128'" as value "ipv6_testX6"
      * Add a new connection of type "bridge" and options "con-name br88 ifname br88 bridge.stp false ipv6.addr-gen-mode 0 ipv6.dhcp-duid ll ipv6.dhcp-iaid ifname"
      * Modify connection "con_ipv6" changing options "connection.master br88 connection.slave-type bridge"
      * Bring "up" connection "br88"
      * Bring "up" connection "con_ipv6"
      When "/128" is visible with command "ip a s br88 | grep inet6 | grep -o '[a-f0-9:]*/128'" in "30" seconds
      * Note the output of "ip a s br88 | grep inet6 | grep -o '[a-f0-9:]*/128'" as value "ipv6_br88"
-     Then Check noted values "ipv6_testX" and "ipv6_br88" are not the same
+     Then Check noted values "ipv6_testX6" and "ipv6_br88" are not the same
 
 
      @rhbz1749358
@@ -1440,14 +1440,31 @@
      @con_ipv6_remove @bridge @teardown_testveth
      @ipv6_dhcp_iaid_mac
      Scenario: nmcli - ipv6 - IAID mac
-     * Prepare simulated test "testX" device
-     * Add a new connection of type "ethernet" and options "con-name con_ipv6 ifname testX ipv6.addr-gen-mode 0 ipv6.dhcp-duid ll ipv6.dhcp-iaid mac"
-     When "/128" is visible with command "ip a s testX | grep inet6 | grep -o '[a-f0-9:]*/128'" in "10" seconds
-     * Note the output of "ip a s testX | grep inet6 | grep -o '[a-f0-9:]*/128'" as value "ipv6_testX"
+     * Prepare simulated test "testX6" device
+     * Add a new connection of type "ethernet" and options "con-name con_ipv6 ifname testX6 ipv6.addr-gen-mode 0 ipv6.dhcp-duid ll ipv6.dhcp-iaid mac"
+     When "/128" is visible with command "ip a s testX6 | grep inet6 | grep -o '[a-f0-9:]*/128'" in "10" seconds
+     * Note the output of "ip a s testX6 | grep inet6 | grep -o '[a-f0-9:]*/128'" as value "ipv6_testX6"
      * Add a new connection of type "bridge" and options "con-name br88 ifname br88 bridge.stp false ipv6.addr-gen-mode 0 ipv6.dhcp-duid ll ipv6.dhcp-iaid mac"
      * Modify connection "con_ipv6" changing options "connection.master br88 connection.slave-type bridge"
      * Bring "up" connection "br88"
      * Bring "up" connection "con_ipv6"
      When "/128" is visible with command "ip a s br88 | grep inet6 | grep -o '[a-f0-9:]*/128'" in "30" seconds
      * Note the output of "ip a s br88 | grep inet6 | grep -o '[a-f0-9:]*/128'" as value "ipv6_br88"
-     Then Check noted values "ipv6_testX" and "ipv6_br88" are the same
+     Then Check noted values "ipv6_testX6" and "ipv6_br88" are the same
+
+
+    @rhbz1795957
+    @ver+=1.22
+    @con_ipv6_remove @teardown_testveth @long
+    @solicitation_period_prolonging
+    Scenario: NM - general - read router solicitation values
+    * Prepare simulated test "testX6" device with "15s" leasetime
+    # Connection should be alive for full 160s
+    * Execute "echo 4 > /proc/sys/net/ipv6/conf/testX6/router_solicitations"
+    * Execute "echo 40 > /proc/sys/net/ipv6/conf/testX6/router_solicitation_interval"
+    * Execute "ip netns exec testX6_ns kill -SIGSTOP $(cat /tmp/testX6_ns.pid)"
+    * Add a new connection of type "ethernet" and options "ifname testX6 con-name con_ipv6 ipv4.method disable ipv6.may-fail no"
+    When "con_ipv6" is visible with command "nmcli connection show -a"
+    When "con_ipv6" is visible with command "nmcli connection show -a" for full "140" seconds
+    * Execute "ip netns exec testX6_ns kill -SIGCONT $(cat /tmp/testX6_ns.pid)"
+    Then "activated" is visible with command "nmcli -g GENERAL.STATE con show con_ipv6" in "45" seconds
