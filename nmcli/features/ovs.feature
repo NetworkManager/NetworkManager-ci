@@ -562,3 +562,20 @@ Feature: nmcli - ovs
     And "Port [\"]?port0[\"]?" is visible with command "ovs-vsctl show"
     And "Port [\"]?port0[\"]?\s+Interface\s+[\"]?iface0[\"]?\s+type: dpdk\s+options: {dpdk-devargs=[\"]?0000:42:10.0[\"]?}" is visible with command "ovs-vsctl show"
     And "Port [\"]?bond0[\"]?\s+tag: 120\s+Interface\s+[\"]?iface1[\"]?\s+type: dpdk\s+options: {dpdk-devargs=[\"]?0000:42:10.2[\"]?}\s+Interface\s+[\"]?em1[\"]?\s+type: system|Port [\"]?bond0[\"]?\s+tag: 120\s+Interface\s+[\"]?em1[\"]?\s+type: system\s+Interface\s+[\"]?iface1[\"]?\s+type: dpdk\s+options: {dpdk-devargs=[\"]?0000:42:10.2[\"]?}" is visible with command "ovs-vsctl show"
+
+
+    @rhbz1804167
+    @ver+=1.22.7
+    @openvswitch
+    @clear_ovs_settings
+    Scenario: NM -  openvswitch - clear ovs settings
+    * Add a new connection of type "ovs-bridge" and options "conn.interface ovsbridge0 con-name ovs-bridge0"
+    * Add a new connection of type "ovs-port" and options "conn.interface port0 conn.master ovsbridge0 con-name ovs-port0"
+    * Add a new connection of type "ethernet" and options "ifname eth2 master port0 con-name eth2 slave-type ovs-port"
+    When "slave-type:\s+ovs-port" is visible with command "nmcli con show eth2"
+    When "connection.master:\s+port0" is visible with command "nmcli con show eth2"
+    When "ovs-interface" is visible with command "nmcli con show eth2"
+    * Send "remove ovs-interface, remove connection.master, remove connection.slave-type" via editor to "eth2"
+    Then "slave-type:\s+ovs-port" is not visible with command "nmcli con show eth2"
+    Then "connection.master:\s+port0" is not visible with command "nmcli con show eth2"
+    Then "ovs-interface" is not visible with command "nmcli con show eth2"

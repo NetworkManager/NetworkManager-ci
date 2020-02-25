@@ -25,6 +25,15 @@ def backspace_in_editor(context):
     context.prompt.send('\b')
 
 
+@step(u'Send "{commands}" via editor to "{connection}"')
+def send_com_via_editor(context, commands, connection):
+    coms = commands.split(',')
+    final = "echo -e '"
+    for c in coms:
+        final = final+"%s\n" % c.strip()
+    final = final+"print\nsave\nquit\n' | nmcli c edit %s" %connection
+    command_output(context, final)
+
 @step(u'Send "{what}" in editor')
 def send_sth_in_editor(context, what):
     context.prompt.send(what)

@@ -1455,6 +1455,8 @@ testmapper:
         feature: ovs
     - ovs_cloned_mac_with_the_same_bridge_iface_name:
         feature: ovs
+    - clear_ovs_settings:
+        feature: ovs
     - dispatcher_preup_and_up:
         feature: dispatcher
     - dispatcher_predown_and_down:
