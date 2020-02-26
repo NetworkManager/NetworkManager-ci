@@ -34,21 +34,17 @@ def main():
     settings_obj = bus.get_object(NM_BUS, OBJ_PRE + "/Settings")
     settings_if = dbus.Interface(settings_obj, IF_PRE + ".Settings")
     con_obj_path = settings_if.AddConnection(connection)
-    logging.debug("Added NM connection: %s" % con_obj_path) 
+    logging.debug("Added NM connection: %s" % con_obj_path)
     print ("%s" % con_obj_path)
     nm_obj = bus.get_object(NM_BUS, OBJ_PRE)
     nm_if = dbus.Interface(nm_obj, IF_PRE)
-    time.sleep(1)
-    try:
-        device_obj_path = nm_if.GetDeviceByIpIface("nm-bond")
-    except:
-        device_obj_path = "/"
+    #device_obj_path = nm_if.GetDeviceByIpIface("nm-bond")
     acon_obj_path = nm_if.ActivateConnection(con_obj_path,
-                                             device_obj_path, "/")
+                                             "/", "/")
     act_con = bus.get_object(NM_BUS, acon_obj_path)
     act_con_props = dbus.Interface(act_con, "org.freedesktop.DBus.Properties" )
-    
-    
+
+
 
 if __name__ == "__main__":
     main()

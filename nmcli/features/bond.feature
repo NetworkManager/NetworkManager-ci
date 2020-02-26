@@ -1119,7 +1119,7 @@
 
 #FIXME: more tests with arp and conflicts with load balancing can be written
 
-    @rhbz1133544
+    @rhbz1133544 @rhbz1804350
     @bond
     @bond_dbus_creation
     Scenario: NM - bond - dbus api bond setting
