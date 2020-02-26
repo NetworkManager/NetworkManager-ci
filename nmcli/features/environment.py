@@ -1661,6 +1661,11 @@ def after_scenario(context, scenario):
                         print ("destroying checkpoint with path %s" % checkpoint)
                         manager.CheckpointDestroy(checkpoint)
 
+            if 'clean_iptables' in scenario.tags:
+                print ("---------------------------")
+                print ("clean iptables")
+                call("iptables -D OUTPUT -p udp --dport 67 -j REJECT", shell=True)
+
             if 'runonce' in scenario.tags:
                 print ("---------------------------")
                 print ("delete profiles and start NM")

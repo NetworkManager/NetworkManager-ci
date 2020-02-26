@@ -920,6 +920,8 @@ testmapper:
         feature: ipv4
     - dhcp_rebind:
         feature: ipv4
+    - dhcp_rebind_with_firewall:
+        feature: ipv4
     - dhcp_option_classless_routes:
         feature: ipv4
     - dhcp_option_domain_search:

@@ -1953,6 +1953,21 @@ Feature: nmcli: ipv4
     Then "valid_lft 14[0-9]" is visible with command "ip -4 addr show dev testX4" in "140" seconds
 
 
+    @rhbz1806516
+    @ver+=1.22.7
+    @teardown_testveth @con_ipv4_remove @long @clean_iptables
+    @dhcp_rebind_with_firewall
+    Scenario: DHCPv4 rebind
+    * Execute "systemctl stop dhcpd"
+    * Prepare simulated test "testX4" device using dhcpd and server identifier "10.10.10.1"
+    * Add a new connection of type "ethernet" and options "ifname testX4 con-name con_ipv4 autoconnect no ipv4.may-fail no"
+    * Execute "iptables -A OUTPUT -p udp --dport 67 -j REJECT"
+    * Bring "up" connection "con_ipv4"
+    When "valid_lft 14[0-9]" is visible with command "ip -4 addr show dev testX4" in "20" seconds
+    * Execute "sleep 10"
+    Then "valid_lft 14[0-9]" is visible with command "ip -4 addr show dev testX4" in "140" seconds
+
+
     @con_ipv4_remove @teardown_testveth
     @dhcp_option_classless_routes
     Scenario: DHCPv4 classless routes option parsing
