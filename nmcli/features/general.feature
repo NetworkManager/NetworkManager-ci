@@ -956,6 +956,28 @@ Feature: nmcli - general
     Then "PASS" is visible with command "cat /tmp/nm-online.txt" in "10" seconds
 
 
+    @rhbz1759956
+    @ver+=1.22.5
+    @con_general_remove @delete_testeth0 @remove_custom_cfg @teardown_testveth @restart
+    @nm_online_wait_for_second_connection
+    Scenario: NM - general - wait for second device
+    * Add a new connection of type "ethernet" and options "ifname testG con-name con_general 802-1x.eap md5 802-1x.identity user 802-1x.password password connection.autoconnect-priority 50 connection.auth-retries 1"
+    * Add a new connection of type "ethernet" and options "ifname testG con-name con_general2 connection.autoconnect-priority 20"
+    * Stop NM
+    * Execute "rm -rf /var/run/NetworkManager"
+    * Prepare simulated test "testG" device
+    * Execute "ip netns exec testG_ns pkill -SIGSTOP -F /tmp/testG_ns.pid"
+    * Start NM
+    * Run child "echo FAIL > /tmp/nm-online.txt && /usr/bin/nm-online -s -q --timeout=60 && echo PASS > /tmp/nm-online.txt"
+    When "con_general" is visible with command "nmcli con show -a" in "10" seconds
+    When "FAIL" is visible with command "cat /tmp/nm-online.txt"
+    * Execute "sleep 10"
+    When "con_general2" is visible with command "nmcli con show -a" in "20" seconds
+    When "FAIL" is visible with command "cat /tmp/nm-online.txt"
+    * Execute "ip netns exec testG_ns pkill -SIGCONT -F /tmp/testG_ns.pid"
+    Then "PASS" is visible with command "cat /tmp/nm-online.txt" in "10" seconds
+
+
     @rhbz1160013
     @eth_down_and_delete @need_dispatcher_scripts @con_general_remove
     @policy_based_routing

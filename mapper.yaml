@@ -1208,6 +1208,8 @@ testmapper:
     - nm_online_wait_for_delayed_device:
         feature: general
         tags: gate
+    - nm_online_wait_for_second_connection:
+        feature: general
     - policy_based_routing:
         feature: general
         tags: gate
