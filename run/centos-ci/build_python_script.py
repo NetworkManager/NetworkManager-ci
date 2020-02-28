@@ -95,7 +95,7 @@ def run_tests(features, code_branch, test_branch):
     url_base="http://admin.ci.centos.org:8080"
     # This file was generated on your slave.  See https://wiki.centos.org/QaWiki/CI/GettingStarted
     api=open('/home/networkmanager/duffy.key').read().strip()
-    ver="7"
+    ver="8-stream"
     arch="x86_64"
     count=1
 
