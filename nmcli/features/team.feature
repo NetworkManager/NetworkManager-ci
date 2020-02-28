@@ -299,10 +299,7 @@
     Scenario: nmcli - team - config - mac spoof with mac in json
      * Add a new connection of type "team" and options "con-name team0 ethernet.cloned-mac-address 02:02:02:02:02:02"
      * Add a new connection of type "ethernet" and options "con-name team0.0 ifname eth5 master nm-team autoconnect no"
-     * Open editor for connection "team0"
-     * Submit "set team.config {\\"device\\":\"nm-team\",\"hwaddr\": \"02:03:03:03:03:03\",\"runner\":{\"name\":\"loadbalance\"},\"ports\":{\"eth5\":{},\"eth6\": {}}}" in editor
-     * Save in editor
-     * Quit editor
+     * Send "set team.config {"device":"nm-team","hwaddr":  "02:03:03:03:03:03","runner":{"name":"loadbalance"},"ports":{"eth5":{},"eth6": {}}}" via editor to "team0"
      * Bring "up" connection "team0"
      * Bring "up" connection "team0.0"
     Then Check slave "eth5" in team "nm-team" is "up"
@@ -436,10 +433,7 @@
      * Add connection type "team" named "team0" for device "nm-team"
      * Add slave connection for master "nm-team" on device "eth5" named "team0.0"
      * Add slave connection for master "nm-team" on device "eth6" named "team0.1"
-     * Open editor for connection "team0"
-     * Submit "set team.config {\\"device\\":\"nm-team\",\"runner\":{\"name\":\"loadbalance\"},\"ports\":{\"eth5\":{},\"eth6\": {}}}" in editor
-     * Save in editor
-     * Quit editor
+     * Send "set team.config {"device":"nm-team","runner":{"name":"loadbalance"},"ports":{"eth5":{},"eth6": {}}}" via editor to "team0"
      * Bring "up" connection "team0"
      * Bring "up" connection "team0.1"
      * Bring "up" connection "team0.0"

@@ -27,7 +27,7 @@ def backspace_in_editor(context):
 
 @step(u'Send "{commands}" via editor to "{connection}"')
 def send_com_via_editor(context, commands, connection):
-    coms = commands.split(',')
+    coms = commands.split(';')
     final = "echo -e '"
     for c in coms:
         final = final+"%s\n" % c.strip()

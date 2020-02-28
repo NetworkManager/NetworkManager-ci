@@ -575,7 +575,7 @@ Feature: nmcli - ovs
     When "slave-type:\s+ovs-port" is visible with command "nmcli con show eth2"
     When "connection.master:\s+port0" is visible with command "nmcli con show eth2"
     When "ovs-interface" is visible with command "nmcli con show eth2"
-    * Send "remove ovs-interface, remove connection.master, remove connection.slave-type" via editor to "eth2"
+    * Send "remove ovs-interface; remove connection.master; remove connection.slave-type" via editor to "eth2"
     Then "slave-type:\s+ovs-port" is not visible with command "nmcli con show eth2"
     Then "connection.master:\s+port0" is not visible with command "nmcli con show eth2"
     Then "ovs-interface" is not visible with command "nmcli con show eth2"
