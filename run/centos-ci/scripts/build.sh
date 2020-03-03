@@ -14,6 +14,10 @@ fi
 # Workaround for not working repo
 rm -rf /etc/yum.repos.d/CentOS-Media.repo
 
+$SUDO dnf -y install https://dl.fedoraproject.org/pub/epel/epel-release-latest-8.noarch.rpm
+$SUDO yum config-manager --set-enabled PowerTools
+$SUDO curl https://copr.fedorainfracloud.org/coprs/nmstate/nm-build-deps/repo/epel-8/nmstate-nm-build-deps-epel-8.repo > /etc/yum.repos.d/nmstate-nm-build-deps-epel-8.repo
+
 $SUDO yum install \
     git \
     rpm-build \
@@ -51,6 +55,7 @@ $SUDO yum install \
     newt-devel \
     /usr/bin/dbus-launch \
     pygobject3-base \
+    pygobject3-devel \
     dbus-python \
     libselinux-devel \
     polkit-devel \
@@ -58,9 +63,11 @@ $SUDO yum install \
     jansson-devel \
     make \
     libcurl-devel \
+    python3 \
     libasan \
     gnutls-devel \
-    https://kojipkgs.fedoraproject.org//packages/openvswitch/2.8.1/2.fc28/x86_64/openvswitch-2.8.1-2.fc28.x86_64.rpm \
+    https://vbenes.fedorapeople.org/NM/openvswitch2.13-2.13.0-4.el8fdp.$(arch).rpm \
+    https://vbenes.fedorapeople.org/NM/openvswitch-selinux-extra-policy-1.0-22.el8fdp.noarch.rpm \
     --skip-broken \
     -y
 
