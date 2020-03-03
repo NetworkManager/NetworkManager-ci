@@ -1011,7 +1011,7 @@ Feature: nmcli - general
      And "2620" is not visible with command "ip a s testG" in "20" seconds
 
 
-    @ver+=1.20
+    @ver+=1.18
     @con_PBR_remove @firewall @eth0 @teardown_testveth @tcpdump
     @policy_based_routing_doc_procedure
     Scenario: NM - general - PBR procedure in documentation
