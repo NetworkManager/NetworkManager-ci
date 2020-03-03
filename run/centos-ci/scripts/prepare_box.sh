@@ -8,4 +8,5 @@ git clone $CI_REPO
 
 cd NetworkManager-ci
 
+sh run/centos-ci/scripts/setup.sh
 sh run/centos-ci/scripts/build.sh $BRANCH
