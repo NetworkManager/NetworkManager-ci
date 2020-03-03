@@ -41,9 +41,7 @@ sudo yum -y install \
         gcc \
         rpm-build
 
-sudo dnf install -y https://cbs.centos.org/kojifiles/packages/openvswitch/2.12.0/1.el8/x86_64/openvswitch-2.12.0-1.el8.x86_64.rpm \
-        https://cbs.centos.org/kojifiles/packages/openvswitch-selinux-extra-policy/1.0/5.el7/noarch/openvswitch-selinux-extra-policy-1.0-5.el7.noarch.rpm
-
+sudo dnf install -y https://cbs.centos.org/kojifiles/packages/openvswitch/2.12.0/1.el8/x86_64/openvswitch-2.12.0-1.el8.x86_64.rpm
 # some minor compatibility items
 sudo dnf -y update firewalld dnsmasq --best
 sudo yum -y install easy_install
