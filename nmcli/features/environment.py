@@ -474,9 +474,10 @@ def wait_for_testeth0():
         call("nmcli con up testeth0", shell=True)
 
     counter=0
-    while call("nmcli connection show testeth0 |grep -q IP4.ADDRESS", shell=True) != 0:
+    # We need to check for all 3 items to have working connection out
+    while call("nmcli connection show testeth0 |grep -qzE 'IP4.ADDRESS.*IP4.GATEWAY.*IP4.DNS'", shell=True) != 0:
         sleep(1)
-        print ("** %s: we don't have IPv4 complete" %counter)
+        print ("** %s: we don't have IPv4 (address, default route or dns) complete" %counter)
         counter+=1
         if counter == 20:
             restore_testeth0()

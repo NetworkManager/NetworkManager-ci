@@ -140,6 +140,11 @@ install_el8_packages () {
     rm -rf /usr/bin/python
     ln -s /usr/bin/python3 /usr/bin/python
 
+    # Enable EPEL but on s390x
+    if ! uname -a |grep -q s390x; then
+        [ -f /etc/yum.repos.d/epel.repo ] || sudo rpm -i http://dl.fedoraproject.org/pub/epel/epel-release-latest-8.noarch.rpm
+    fi
+
     # The newest PIP seems to be broken on aarch64 under rhel8.1
     #dnf -4 -y install python3-pip
     #python -m pip install --upgrade pip
@@ -171,14 +176,17 @@ install_el8_packages () {
     REL=$(rpm -q --queryformat '%{RELEASE}' kernel)
     dnf -4 -y install http://download.eng.bos.redhat.com/brewroot/vol/rhel-8/packages/kernel/$VER/$REL/$(arch)/kernel-modules-internal-$VER-$REL.$(arch).rpm
 
-    # Install OVS
-    mv -f  tmp/ovs-rhel8.repo /etc/yum.repos.d/ovs.repo
-    yum -y install http://download.eng.bos.redhat.com/brewroot/vol/rhel-8/packages/openvswitch2.13/2.13.0/0.20200121git2a4f006.el8fdp/x86_64/openvswitch2.13-2.13.0-0.20200121git2a4f006.el8fdp.x86_64.rpm
-
-    dnf -4 -y install http://download.eng.bos.redhat.com/brewroot/packages/$(rpm -q --queryformat '%{NAME}/%{VERSION}/%{RELEASE}' NetworkManager)/$(uname -p)/NetworkManager-ovs-$(rpm -q --queryformat '%{VERSION}-%{RELEASE}' NetworkManager).$(uname -p).rpm
-    if ! rpm -q --quiet NetworkManager-pptp; then
-        dnf -4 -y install http://download.eng.bos.redhat.com/brewroot/packages/NetworkManager-pptp/1.2.4/4.el8+5/$(uname -p)/NetworkManager-pptp-1.2.4-4.el8+5.$(uname -p).rpm https://kojipkgs.fedoraproject.org//packages/pptpd/1.4.0/18.fc28/$(uname -p)/pptpd-1.4.0-18.fc28.$(uname -p).rpm http://download.eng.bos.redhat.com/brewroot/packages/pptp/1.10.0/3.el8+7/$(uname -p)/pptp-1.10.0-3.el8+7.$(uname -p).rpm
+    # Add OVS repo and install OVS
+    if ! grep -q -e 'CentOS Linux release 8' /etc/redhat-release; then
+        mv -f  tmp/ovs-rhel8.repo /etc/yum.repos.d/ovs.repo
+        yum -y install http://download.eng.bos.redhat.com/brewroot/vol/rhel-8/packages/openvswitch2.13/2.13.0/0.20200121git2a4f006.el8fdp/x86_64/openvswitch2.13-2.13.0-0.20200121git2a4f006.el8fdp.x86_64.rpm
     fi
+
+    # FIXME
+    # dnf -4 -y install http://download.eng.bos.redhat.com/brewroot/packages/$(rpm -q --queryformat '%{NAME}/%{VERSION}/%{RELEASE}' NetworkManager)/$(uname -p)/NetworkManager-ovs-$(rpm -q --queryformat '%{VERSION}-%{RELEASE}' NetworkManager).$(uname -p).rpm
+    # if ! rpm -q --quiet NetworkManager-pptp; then
+    #     dnf -4 -y install http://download.eng.bos.redhat.com/brewroot/packages/NetworkManager-pptp/1.2.4/4.el8+5/$(uname -p)/NetworkManager-pptp-1.2.4-4.el8+5.$(uname -p).rpm https://kojipkgs.fedoraproject.org//packages/pptpd/1.4.0/18.fc28/$(uname -p)/pptpd-1.4.0-18.fc28.$(uname -p).rpm http://download.eng.bos.redhat.com/brewroot/packages/pptp/1.10.0/3.el8+7/$(uname -p)/pptp-1.10.0-3.el8+7.$(uname -p).rpm
+    # fi
 
     if ! rpm -q --quiet NetworkManager-vpnc || ! rpm -q --quiet vpnc; then
         dnf -4 -y install https://kojipkgs.fedoraproject.org//packages/vpnc/0.5.3/33.svn550.fc29/$(arch)/vpnc-0.5.3-33.svn550.fc29.$(arch).rpm https://kojipkgs.fedoraproject.org//packages/NetworkManager-vpnc/1.2.6/1.fc29/$(arch)/NetworkManager-vpnc-1.2.6-1.fc29.$(arch).rpm https://kojipkgs.fedoraproject.org//packages/vpnc-script/20171004/3.git6f87b0f.fc29/noarch/vpnc-script-20171004-3.git6f87b0f.fc29.noarch.rpm
