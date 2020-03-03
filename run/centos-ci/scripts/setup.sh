@@ -41,7 +41,8 @@ sudo yum -y install \
         gcc \
         rpm-build \
         rsync \
-        bash-completion
+        bash-completion \
+        radvd
 
 sudo dnf install -y https://cbs.centos.org/kojifiles/packages/openvswitch/2.12.0/1.el8/x86_64/openvswitch-2.12.0-1.el8.x86_64.rpm
 # some minor compatibility items
