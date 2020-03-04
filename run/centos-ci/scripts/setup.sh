@@ -44,7 +44,12 @@ sudo dnf -y install \
         radvd \
         --skip-broken
 
+# Install OVS
 sudo dnf install -y https://cbs.centos.org/kojifiles/packages/openvswitch/2.12.0/1.el8/x86_64/openvswitch-2.12.0-1.el8.x86_64.rpm
+
+# Install rp-pppoe for pppoe feature
+sudo dnf install -y https://kojipkgs.fedoraproject.org//packages/rp-pppoe/3.12/11.fc28/$(arch)/rp-pppoe-3.12-11.fc28.$(arch).rpm
+
 # some minor compatibility items
 sudo dnf -y update firewalld dnsmasq --best
 sudo yum -y install easy_install

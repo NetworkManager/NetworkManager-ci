@@ -1337,6 +1337,15 @@ def before_scenario(context, scenario):
                     sys.exit(77)
 
                 call("sh prepare/vethsetup.sh teardown", shell=True)
+                # In case eth1 and eth2 exist we need to remove them
+                if call ("ip a s |grep -q 'eth1:'", shell=True) == 0:
+                    call("ip link set dev eth1 down", shell=True)
+                    call("ip link set name eth8 eth1", shell=True)
+                    call("ip link set dev eth8 up", shell=True)
+                if call ("ip a s |grep -q 'eth2:'", shell=True) == 0:
+                    call("ip link set dev eth2 down", shell=True)
+                    call("ip link set name eth9 eth2", shell=True)
+                    call("ip link set dev eth9 up", shell=True)
                 # Need to have the file to be able to regenerate
                 call("touch /tmp/nm_newveth_configured", shell=True)
                 context.nm_restarted = True

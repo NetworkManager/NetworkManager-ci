@@ -40,3 +40,4 @@ cp $RPM_DIR/x86_64/* $ARCH_DIR
 cp $RESULTS $ARCH_DIR
 
 RSYNC_PASSWORD=$KEY rsync -av /tmp/nightly/ networkmanager@artifacts.ci.centos.org::networkmanager/nightly
+# rsync -av . networkmanager@artifacts.ci.centos.org::networkmanager/nightly --delete
