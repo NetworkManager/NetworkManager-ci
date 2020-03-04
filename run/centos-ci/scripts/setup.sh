@@ -16,7 +16,7 @@ yum config-manager --set-enabled PowerTools
 curl https://copr.fedorainfracloud.org/coprs/nmstate/nm-build-deps/repo/epel-8/nmstate-nm-build-deps-epel-8.repo > /etc/yum.repos.d/nmstate-nm-build-deps-epel-8.repo
 
 # Install dependencies
-sudo yum -y install \
+sudo dnf -y install \
         NetworkManager-team \
         NetworkManager-wifi \
         NetworkManager-config-server \
@@ -33,16 +33,16 @@ sudo yum -y install \
         git \
         bridge-utils \
         wireshark-cli \
-        dbus-python \
-        python-gobject \
         wireshark \
         bash-completion \
         dnsmasq \
         gcc \
         rpm-build \
+        radvd \
         rsync \
         bash-completion \
-        radvd
+        radvd \
+        --skip-broken
 
 sudo dnf install -y https://cbs.centos.org/kojifiles/packages/openvswitch/2.12.0/1.el8/x86_64/openvswitch-2.12.0-1.el8.x86_64.rpm
 # some minor compatibility items
