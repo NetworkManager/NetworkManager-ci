@@ -504,14 +504,13 @@ def reset_hwaddr_nmtui(ifname):
 
 def before_all(context):
     def embed_data(mime_type, data, caption):
-        embed_to = None
+        # If data is empty we want to finish html tag by at least one character
+        non_empty_data = " " if not data else data
         for formatter in context._runner.formatters:
             if "html" in formatter.name:
-                embed_to = formatter
-        if embed_to is not None:
-            embed_to.embedding(mime_type=mime_type, data=data, caption=caption)
-        else:
-            return None
+                formatter.embedding(mime_type=mime_type, data=non_empty_data, caption=caption)
+                return
+
     context.embed = embed_data
 
     if IS_NMTUI:
