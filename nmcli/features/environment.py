@@ -924,8 +924,11 @@ def before_scenario(context, scenario):
             if 'need_dispatcher_scripts' in scenario.tags:
                 print ("---------------------------")
                 print ("install dispatcher scripts")
-                wait_for_testeth0()
-                call("yum -y install NetworkManager-config-routing-rules", shell=True)
+                if os.path.isfile("/tmp/nm-builddir"):
+                    call('yum install -y $(cat /tmp/nm-builddir)/noarch/NetworkManager-dispatcher-routing-rules*', shell=True)
+                else:
+                    wait_for_testeth0()
+                    call("yum -y install NetworkManager-config-routing-rules", shell=True)
                 reload_NM_service()
 
             if 'firewall' in scenario.tags:

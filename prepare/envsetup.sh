@@ -182,12 +182,14 @@ install_el8_packages () {
         yum -y install http://download.eng.bos.redhat.com/brewroot/vol/rhel-8/packages/openvswitch2.13/2.13.0/0.20200121git2a4f006.el8fdp/x86_64/openvswitch2.13-2.13.0-0.20200121git2a4f006.el8fdp.x86_64.rpm
     fi
 
-    #dnf -4 -y install http://download.eng.bos.redhat.com/brewroot/packages/$(rpm -q --queryformat '%{NAME}/%{VERSION}/%{RELEASE}' NetworkManager)/$(arch)/NetworkManager-ovs-$(rpm -q --queryformat '%{VERSION}-%{RELEASE}' NetworkManager).$(arch).rpm
+    # We still need pptp and pptpd in epel to be packaged
+    # https://bugzilla.redhat.com/show_bug.cgi?id=1810542
+    # https://bugzilla.redhat.com/show_bug.cgi?id=1810540
     if ! rpm -q --quiet NetworkManager-pptp; then
         if ! grep -q -e 'CentOS Linux release 8' /etc/redhat-release; then
-            dnf -4 -y install http://download.eng.bos.redhat.com/brewroot/packages/NetworkManager-pptp/1.2.4/4.el8+5/$(arch)/NetworkManager-pptp-1.2.4-4.el8+5.$(arch).rpm https://kojipkgs.fedoraproject.org//packages/pptpd/1.4.0/18.fc28/$(arch)/pptpd-1.4.0-18.fc28.$(arch).rpm http://download.eng.bos.redhat.com/brewroot/packages/pptp/1.10.0/3.el8+7/$(arch)/pptp-1.10.0-3.el8+7.$(arch).rpm
+            dnf -4 -y install https://kojipkgs.fedoraproject.org//packages/NetworkManager-pptp/1.2.8/1.el8.3/$(arch)/NetworkManager-pptp-1.2.8-1.el8.3.$(arch).rpm https://kojipkgs.fedoraproject.org//packages/pptpd/1.4.0/18.fc28/$(arch)/pptpd-1.4.0-18.fc28.$(arch).rpm http://download.eng.bos.redhat.com/brewroot/packages/pptp/1.10.0/3.el8+7/$(arch)/pptp-1.10.0-3.el8+7.$(arch).rpm
         else
-            dnf -4 -y install https://vbenes.fedorapeople.org/NM/NetworkManager-pptp-1.2.4-4.el8+5.x86_64.rpm https://vbenes.fedorapeople.org/NM/pptp-1.10.0-3.el8+7.x86_64.rpm https://kojipkgs.fedoraproject.org//packages/pptpd/1.4.0/18.fc28/$(arch)/pptpd-1.4.0-18.fc28.$(arch).rpm
+            dnf -4 -y install https://kojipkgs.fedoraproject.org//packages/NetworkManager-pptp/1.2.8/1.el8.3/$(arch)/NetworkManager-pptp-1.2.8-1.el8.3.$(arch).rpm https://vbenes.fedorapeople.org/NM/pptp-1.10.0-3.el8+7.x86_64.rpm https://kojipkgs.fedoraproject.org//packages/pptpd/1.4.0/18.fc28/$(arch)/pptpd-1.4.0-18.fc28.$(arch).rpm
         fi
     fi
 
@@ -427,6 +429,11 @@ local_setup_configure_nm_eth () {
             sleep 20
             install_el7_packages
         fi
+    fi
+
+    # If we have custom built packages let's store it's dir
+    if dir=$(find / -iname nm-build); then
+        then echo "$dir/NetworkManager/contrib/fedora/rpm/latest0/RPMS/" > /tmp/nm-builddir
     fi
 
     # Do we have special HW needs?
