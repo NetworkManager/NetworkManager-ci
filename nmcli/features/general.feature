@@ -967,6 +967,7 @@ Feature: nmcli - general
     * Execute "rm -rf /var/run/NetworkManager"
     * Prepare simulated test "testG" device
     * Execute "ip netns exec testG_ns pkill -SIGSTOP -F /tmp/testG_ns.pid"
+    * Execute "ip addr flush dev testG"
     * Start NM
     * Run child "echo FAIL > /tmp/nm-online.txt && /usr/bin/nm-online -s -q --timeout=60 && echo PASS > /tmp/nm-online.txt"
     When "con_general" is visible with command "nmcli con show -a" in "10" seconds
