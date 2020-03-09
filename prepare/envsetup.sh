@@ -427,7 +427,8 @@ local_setup_configure_nm_eth () {
     fi
 
     # If we have custom built packages let's store it's dir
-    if dir=$(find /root /tmp -name nm-build); then
+    dir="$(find /root /tmp -name nm-build)"
+    if test $dir ; then
         echo "$dir/NetworkManager/contrib/fedora/rpm/latest0/RPMS/" > /tmp/nm-builddir
     fi
 
