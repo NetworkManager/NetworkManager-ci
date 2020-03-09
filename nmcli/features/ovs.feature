@@ -365,7 +365,7 @@ Feature: nmcli - ovs
      And "Port [\"]?port0[\"]?\s+tag: 120\s+Interface [\"]?iface0[\"]?\s+type: internal" is visible with command "ovs-vsctl show"
      And "master ovs-system" is visible with command "ip a s eth2"
      And "master ovs-system" is visible with command "ip a s eth3"
-     And "192.168.100.*\/24" is visible with command "ip a s iface0"
+     And "192.168.100.*\/24" is visible with command "ip a s iface0" in "45" seconds
      And "fe80::" is visible with command "ip a s iface0"
      And "default via 192.168.100.1 dev iface0 proto dhcp metric 800" is visible with command "ip r"
     # VVV Reconnect bond master connection
@@ -376,7 +376,7 @@ Feature: nmcli - ovs
      And "Port [\"]?port0[\"]?\s+tag: 120\s+Interface [\"]?iface0[\"]?\s+type: internal" is visible with command "ovs-vsctl show"
      And "master ovs-system" is visible with command "ip a s eth2"
      And "master ovs-system" is visible with command "ip a s eth3"
-     And "192.168.100.*\/24" is visible with command "ip a s iface0"
+     And "192.168.100.*\/24" is visible with command "ip a s iface0" in "45" seconds
      And "fe80::" is visible with command "ip a s iface0"
      And "default via 192.168.100.1 dev iface0 proto dhcp metric 800" is visible with command "ip r"
     # VVV Reconnect bond slave connection
@@ -387,7 +387,7 @@ Feature: nmcli - ovs
      And "Port [\"]?port0[\"]?\s+tag: 120\s+Interface [\"]?iface0[\"]?\s+type: internal" is visible with command "ovs-vsctl show"
      And "master ovs-system" is visible with command "ip a s eth2"
      And "master ovs-system" is visible with command "ip a s eth3"
-     And "192.168.100.*\/24" is visible with command "ip a s iface0"
+     And "192.168.100.*\/24" is visible with command "ip a s iface0" in "45" seconds
      And "fe80::" is visible with command "ip a s iface0"
      And "default via 192.168.100.1 dev iface0 proto dhcp metric 800" is visible with command "ip r"
     # VVV Reconnect iface connection
@@ -399,7 +399,7 @@ Feature: nmcli - ovs
      And "Port [\"]?port0[\"]?\s+tag: 120\s+Interface [\"]?iface0[\"]?\s+type: internal" is visible with command "ovs-vsctl show"
      And "master ovs-system" is visible with command "ip a s eth2"
      And "master ovs-system" is visible with command "ip a s eth3"
-     And "192.168.100.*\/24" is visible with command "ip a s iface0"
+     And "192.168.100.*\/24" is visible with command "ip a s iface0" in "45" seconds
      And "fe80::" is visible with command "ip a s iface0"
      And "default via 192.168.100.1 dev iface0 proto dhcp metric 800" is visible with command "ip r"
 

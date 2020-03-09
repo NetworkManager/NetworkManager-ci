@@ -179,7 +179,9 @@ install_el8_packages () {
     # Add OVS repo and install OVS
     if ! grep -q -e 'CentOS Linux release 8' /etc/redhat-release; then
         mv -f  tmp/ovs-rhel8.repo /etc/yum.repos.d/ovs.repo
-        yum -y install http://download.eng.bos.redhat.com/brewroot/vol/rhel-8/packages/openvswitch2.13/2.13.0/0.20200117git8ae6a5f.el8fdp/x86_64/openvswitch2.13-2.13.0-0.20200117git8ae6a5f.el8fdp.x86_64.rpm
+        if ! yum -y install http://download.eng.bos.redhat.com/brewroot/vol/rhel-8/packages/openvswitch2.13/2.13.0/0.20200117git8ae6a5f.el8fdp.1/$(arch)/openvswitch2.13-2.13.0-0.20200117git8ae6a5f.el8fdp.1.$(arch).rpm; then
+            yum -y install openvswitch2.12
+        fi
     fi
 
     # We still need pptp and pptpd in epel to be packaged

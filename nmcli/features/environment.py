@@ -1257,7 +1257,7 @@ def before_scenario(context, scenario):
                 print ("---------------------------")
                 print ("starting openvswitch if not active")
                 arch = check_output("uname -p", shell=True).decode('utf-8', 'ignore').strip()
-                if arch == "s390x":
+                if arch == "s390x" and call("grep -q Ootpa /etc/redhat-release", shell=True) != 0:
                     sys.exit(77)
                 if call('rpm -q NetworkManager-ovs', shell=True) != 0:
                     call('yum -y install NetworkManager-ovs', shell=True)
