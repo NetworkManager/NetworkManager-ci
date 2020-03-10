@@ -38,34 +38,47 @@ function setup_veth_env ()
     # Need 'config server' like setup
     if ! rpm -q NetworkManager-config-server; then
         yum -y install NetworkManager-config-server
+        systemctl reload NetworkManager
     fi
-
-    # If different than default connection is up after compilation bring it down and restart service
-    for i in $(nmcli -t -f DEVICE connection); do
-        nmcli device disconnect $i
-        rm -rf /var/run/NetworkManager*
-    done
-    sleep 2
-    systemctl restart NetworkManager; sleep 5
-
-    # # log state of net after service restart
-    # ip a
-    # nmcli con
-    # nmcli dev
-    # nmcli gen
 
     # Get active device
     counter=0
     DEV=""
-    while [ -z $DEV ]; do
-        DEV=$(nmcli -f DEVICE,TYPE,STATE -t d | grep ethernet | grep connected | awk -F':' '{print $1}' | head -n 1)
-        sleep 1
-        ((counter++))
-        if [ $counter -eq 20 ]; then
-            echo "Unable to get active device"
-            exit 1
+    for d in $(nmcli -t -f DEVICE device); do
+        while [ -z $DEV ]; do
+            DEV=$(nmcli device show $d | grep -Ze IP4.DNS -e IP4.GATEWAY -e GENERAL.DEVICE |grep DEVICE |awk '{print $2}')
+            sleep 1
+            ((counter++))
+            if [ $counter -eq 20 ]; then
+                echo "Unable to get active device"
+                exit 1
+            fi
+        done
+        break
+    done
+
+    # Save device to be restored to file
+    echo $DEV > /tmp/nm_veth_device
+
+    # If different than default connection is up after compilation bring it down and restart service
+    for i in $(nmcli -t -f DEVICE connection); do
+        if ! [ "$DEV" == "$i" ]; then
+            nmcli device disconnect $i
         fi
     done
+    # systemctl stop NetworkManager
+    # sleep 0.5
+    # rm -rf /var/run/NetworkManager*
+    # sleep 0.5
+    # systemctl restart NetworkManager
+    # sleep 4
+
+    # # log state of net after service restart
+    ip a
+    nmcli con
+    nmcli dev
+    nmcli gen
+
     # Make sure the active ethernet device is eth0
     if ! [ "x$DEV" == "xeth0" ]; then
         sleep 1
@@ -75,6 +88,7 @@ function setup_veth_env ()
     UUID_NAME=$(nmcli -t -f UUID,NAME c show --active | head -n 1)
     NAME=${UUID_NAME#*:}
     UUID=${UUID_NAME%:*}
+
     # Overwrite the name in order to be sure to have all the NM keys (including UUID) in the ifcfg file
     nmcli con mod $UUID connection.id "$NAME"
 
@@ -341,19 +355,17 @@ function teardown_veth_env ()
     done
 
     # Get ORIGDEV name to bring device back to and copy the profile back
-    ORIGDEV=$(grep DEVICE /tmp/ifcfg-* | awk -F '=' '{print $2}' | tr -d '"')
-    if [ "x$ORIGDEV" == "x" ]; then
-        ORIGDEV=$(ls /tmp/ifcfg-* | awk -F '-' '{print $2}' |tr -d '"')
+    if test -f /tmp/nm_veth_device; then
+        ORIGDEV=$(cat /tmp/nm_veth_device)
     fi
+
     # Disconnect eth0
     nmcli device disconnect eth0
-
+    nmcli con delete testeth0
     # Move all profiles and reload
-    rm /etc/sysconfig/network-scripts/ifcfg-testeth0*
+    rm -rf /etc/sysconfig/network-scripts/ifcfg-testeth0
+    rm -rf /etc/sysconfig/network-scripts/ifcfg-$ORIGDEV
     mv -f /tmp/ifcfg-$ORIGDEV /etc/sysconfig/network-scripts/ifcfg-$ORIGDEV
-    sleep 1
-    nmcli con reload
-    sleep 1
 
     # Rename the device back to ORIGNAME
     if [ "$ORIGDEV" != "eth0" ]; then
@@ -361,6 +373,10 @@ function teardown_veth_env ()
         ip link set dev eth0 name $ORIGDEV
         ip link set dev $ORIGDEV up
     fi
+
+    nmcli con reload
+    sleep 1
+    nmcli device connect $ORIGDEV
 
     # Rename original devices back
     for DEV in $(nmcli -f DEVICE -t d | grep '^orig-' | sed 's/^orig-//'); do

@@ -43,6 +43,9 @@ install_plugins_dnf () {
     if ! rpm -q --quiet NetworkManager-openvpn; then
         dnf -4 -y install NetworkManager-openvpn
     fi
+    if ! rpm -q --quiet NetworkManager-ovs; then
+        dnf -4 -y install NetworkManager-ovs
+    fi
 }
 
 check_packages () {
