@@ -1342,7 +1342,7 @@ def before_scenario(context, scenario):
                 call("sh prepare/vethsetup.sh teardown", shell=True)
 
                 # We need this to avoid rhbz1748389 on s390x
-                call("DEV=$(cat /tmp/nm_veth_device); yes 2>/dev/null | cp -rf /etc/sysconfig/network-scripts/ifcfg-$DEV /tmp/$DEV_backup", shell=True)
+                call("DEV=$(cat /tmp/nm_veth_device); yes 2>/dev/null | cp -rf /etc/sysconfig/network-scripts/ifcfg-$DEV /tmp/nmstate_backup", shell=True)
 
                 # In case eth1 and eth2 exist we need to remove them
                 if call ("ip a s |grep -q 'eth1:'", shell=True) == 0:
@@ -1737,7 +1737,7 @@ def after_scenario(context, scenario):
 
                 # We need this to avoid rhbz1748389 on s390x
                 restore_testeth0 ()
-                call("DEV=$(cat /tmp/nm_veth_device); yes 2>/dev/null | cp -rf /tmp/$DEV_backup /tmp/ifcfg-$DEV ", shell=True)
+                call("DEV=$(cat /tmp/nm_veth_device) mv -f /tmp/nmstate_backup /tmp/ifcfg-$DEV ", shell=True)
 
                 print("* attaching nmstate log")
                 nmstate = utf_only_open_read("/tmp/nmstate.txt")
