@@ -1340,10 +1340,6 @@ def before_scenario(context, scenario):
                     sys.exit(77)
 
                 call("sh prepare/vethsetup.sh teardown", shell=True)
-
-                # We need this to avoid rhbz1748389 on s390x
-                call("DEV=$(cat /tmp/nm_veth_device); yes 2>/dev/null | cp -rf /etc/sysconfig/network-scripts/ifcfg-$DEV /tmp/$DEV_backup", shell=True)
-
                 # In case eth1 and eth2 exist we need to remove them
                 if call ("ip a s |grep -q 'eth1:'", shell=True) == 0:
                     call("ip link set dev eth1 down", shell=True)
@@ -1353,6 +1349,8 @@ def before_scenario(context, scenario):
                     call("ip link set dev eth2 down", shell=True)
                     call("ip link set name eth9 eth2", shell=True)
                     call("ip link set dev eth9 up", shell=True)
+                # Need to have the file to be able to regenerate
+                call("touch /tmp/nm_newveth_configured", shell=True)
                 context.nm_restarted = True
 
                 manage_veths ()
@@ -1718,6 +1716,9 @@ def after_scenario(context, scenario):
                 # nmstate restarts NM few times during tests
                 context.nm_restarted = True
 
+                call("ip link del eth1", shell=True)
+                call("ip link del eth2", shell=True)
+
                 call("nmcli con del eth1 eth2 linux-br0 dhcpcli dhcpsrv brtest0 bond99 eth1.101 eth1.102", shell=True)
                 call("nmcli device delete dhcpsrv", shell=True)
                 call("nmcli device delete dhcpcli", shell=True)
@@ -1728,16 +1729,7 @@ def after_scenario(context, scenario):
                 call('rm -rf /etc/dnsmasq.d/nmstate.conf', shell=True)
                 call('systemctl stop dnsmasq', shell=True)
 
-                call('ip link del eth1', shell=True)
-                call('ip link del eth2', shell=True)
-                call("ip link del linux-br0", shell=True)
-
-                # Need to setup and then perform only check later on
-                call('sh prepare/vethsetup.sh setup', shell=True)
-
-                # We need this to avoid rhbz1748389 on s390x
-                restore_testeth0 ()
-                call("DEV=$(cat /tmp/nm_veth_device); yes 2>/dev/null | cp -rf /tmp/$DEV_backup /tmp/ifcfg-$DEV ", shell=True)
+                wait_for_testeth0 ()
 
                 print("* attaching nmstate log")
                 nmstate = utf_only_open_read("/tmp/nmstate.txt")
