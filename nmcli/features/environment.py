@@ -1339,7 +1339,9 @@ def before_scenario(context, scenario):
                 if not os.path.isfile('/tmp/nm_newveth_configured'):
                     sys.exit(77)
 
+                call("rm -rf /tmp/nmstate_backup; mkdir /tmp/nmstate_backup; cp /tmp/ifcfg-* /tmp/nmstate_backup/", shell=True)
                 call("sh prepare/vethsetup.sh teardown", shell=True)
+
                 # In case eth1 and eth2 exist we need to remove them
                 if call ("ip a s |grep -q 'eth1:'", shell=True) == 0:
                     call("ip link set dev eth1 down", shell=True)
@@ -1729,7 +1731,10 @@ def after_scenario(context, scenario):
                 call('rm -rf /etc/dnsmasq.d/nmstate.conf', shell=True)
                 call('systemctl stop dnsmasq', shell=True)
 
-                wait_for_testeth0 ()
+                call("mv -f /tmp/nmstate_backup/* /etc/sysconfig/network-scripts/", shell=True)
+                call("systemctl stop NetworkManager; rm -rf /var/run/NetworkManager; systemctl restart NetworkManager; sleep 5", shell=True)
+
+                call("sh prepare/vethsetup.sh setup", shell=True)
 
                 print("* attaching nmstate log")
                 nmstate = utf_only_open_read("/tmp/nmstate.txt")

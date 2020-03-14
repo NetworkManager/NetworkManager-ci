@@ -1117,6 +1117,9 @@ testmapper:
         feature: ethernet
     - ethtool_features_fixed_connection:
         feature: ethernet
+    - nmstate:
+       feature: general
+       timeout: 25m
     - logging:
         feature: general
     - reduce_logging:
@@ -1426,9 +1429,6 @@ testmapper:
         feature: general
     - no_user_control:
         feature: general
-    - nmstate:
-       feature: general
-       timeout: 25m
     - openvswitch_capability:
         feature: ovs
     - openvswitch_interface_recognized:
