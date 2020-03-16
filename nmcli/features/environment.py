@@ -2478,7 +2478,19 @@ def after_scenario(context, scenario):
 
             if 'openvswitch' in scenario.tags:
                 print ("---------------------------")
-                print ("remove openvswitch residuals")
+                print ("remove openvswitch residuals and attach logs")
+
+                os.system("echo '~~~~~~~~~~~~~~~~~~~~~~~~~~ OVSDB LOG ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~' > /tmp/journal-mm.log")
+                print("Attaching OVSDB log")
+                data1 = utf_only_open_read("/var/log/openvswitch/ovsdb-server.log")
+                if data1:
+                    context.embed('text/plain', data1, caption="OVSDB")
+                os.system("echo '~~~~~~~~~~~~~~~~~~~~~~~~~~ OVSDemon LOG ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~' > /tmp/journal-mm.log")
+                print("Attaching OVSDemon log")
+                data2 = utf_only_open_read("/var/log/openvswitch/ovs-vswitchd.log")
+                if data2:
+                    context.embed('text/plain', data2, caption="OVSDemon")
+
                 call('sudo ifdown bond0', shell=True)
                 call('sudo ifdown eth1', shell=True)
                 call('sudo ifdown eth2', shell=True)
