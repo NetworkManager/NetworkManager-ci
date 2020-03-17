@@ -1263,7 +1263,8 @@ def before_scenario(context, scenario):
                     call('yum -y install NetworkManager-ovs', shell=True)
                     call('systemctl daemon-reload', shell=True)
                     restart_NM_service()
-                if call('systemctl is-active openvswitch', shell=True) != 0:
+                if call('systemctl is-active openvswitch', shell=True) != 0 or \
+                    call('systemctl status ovs-vswitchd.service |grep -q ERR', shell=True) != 0:
                     call('systemctl restart openvswitch', shell=True)
                     restart_NM_service()
 
@@ -1361,7 +1362,9 @@ def before_scenario(context, scenario):
                 # prepare nmstate
                 call("sh prepare/nmstate.sh", shell=True)
 
-                if call('systemctl is-active openvswitch', shell=True) != 0:
+                if call('systemctl is-active openvswitch', shell=True) != 0 or \
+                    call('systemctl status ovs-vswitchd.service |grep -q ERR', shell=True) != 0:
+                    print ("* restarting OVS service")
                     call('systemctl restart openvswitch', shell=True)
                     restart_NM_service()
 
