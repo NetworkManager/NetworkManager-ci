@@ -1296,8 +1296,8 @@ Feature: nmcli - general
     When "1.2.3.5/24" is visible with command "ip a s eth9" in "5" seconds
      And "1.2.3.1" is visible with command "ip r"
     * Snapshot "revert" for "all"
-    Then "192.168.100" is visible with command "ip a s eth8" in "5" seconds
-     And "192.168.100" is visible with command "ip a s eth9" in "5" seconds
+    Then "192.168.100" is visible with command "ip a s eth8" in "15" seconds
+     And "192.168.100" is visible with command "ip a s eth9" in "15" seconds
      And "1.2.3.4/24" is not visible with command "ip a s eth8"
      And "1.2.3.5/24" is not visible with command "ip a s eth9"
      And "1.2.3.1" is not visible with command "ip r"
