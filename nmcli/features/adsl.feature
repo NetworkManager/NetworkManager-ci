@@ -10,7 +10,7 @@ Feature: nmcli: adsl
     @rhbz1264089
     @adsl
     @add_adsl_connection_novice_mode
-    @ver-1.20
+    @ver-=1.20
     Scenario: nmcli - adsl - create adsl connection in novice mode
     * Open wizard for adding new connection
     * Expect "Connection type"
@@ -30,9 +30,9 @@ Feature: nmcli: adsl
     * Dismiss IP configuration in editor
     * Dismiss Proxy configuration in editor
     Then "adsl.username:\s+test" is visible with command "nmcli  connection show --show-secrets adsl-test11"
-    Then "adsl.password:\s+S3c4" is visible with command "nmcli  connection show --show-secrets adsl-test11"
     Then "adsl.protocol:\s+pppoe" is visible with command "nmcli  connection show --show-secrets adsl-test11"
     Then "adsl.encapsulation:\s+--" is visible with command "nmcli  connection show --show-secrets adsl-test11"
+    Then "adsl.password:\s+S3c4" is visible with command "nmcli  connection show --show-secrets adsl" in "3" seconds
 
 
     @rhbz1264089
@@ -60,9 +60,9 @@ Feature: nmcli: adsl
     * Dismiss IP configuration in editor
     * Dismiss Proxy configuration in editor
     Then "adsl.username:\s+test" is visible with command "nmcli  connection show --show-secrets adsl"
-    Then "adsl.password:\s+S3c4" is visible with command "nmcli  connection show --show-secrets adsl"
     Then "adsl.protocol:\s+pppoe" is visible with command "nmcli  connection show --show-secrets adsl"
     Then "adsl.encapsulation:\s+--" is visible with command "nmcli  connection show --show-secrets adsl"
+    Then "adsl.password:\s+S3c4" is visible with command "nmcli  connection show --show-secrets adsl" in "3" seconds
 
 
     @rhbz1264089
@@ -71,6 +71,6 @@ Feature: nmcli: adsl
     Scenario: nmcli - adsl - create adsl connection
     * Execute "nmcli connection add type adsl ifname adsl con-name adsl-test11 username test password S3c4!t protocol pppoe encapsulation llc"
     Then "adsl.username:\s+test" is visible with command "nmcli  connection show --show-secrets adsl-test11"
-    Then "adsl.password:\s+S3c4!t" is visible with command "nmcli  connection show --show-secrets adsl-test11"
     Then "adsl.protocol:\s+pppoe" is visible with command "nmcli  connection show --show-secrets adsl-test11"
     Then "adsl.encapsulation:\s+llc" is visible with command "nmcli  connection show --show-secrets adsl-test11"
+    Then "adsl.password:\s+S3c4" is visible with command "nmcli  connection show --show-secrets adsl" in "3" seconds

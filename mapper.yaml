@@ -1723,8 +1723,6 @@ testmapper:
         feature: tc
     - remove_root_value:
         feature: tc
-    - simwifi_p2p_connect:
-        feature: wifi_hwsim
     - simwifi_open:
         feature: wifi_hwsim
     - simwifi_wep_ask_passwd:
@@ -1774,6 +1772,8 @@ testmapper:
     - nmclient_get_wireless_hw_property:
         feature: wifi_hwsim
     - wifi_dbus_bitrate_property_name:
+        feature: wifi_hwsim
+    - simwifi_p2p_connect:
         feature: wifi_hwsim
     - gsm_sim_create_assisted_connection:
         feature: gsm_sim

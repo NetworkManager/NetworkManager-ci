@@ -311,8 +311,10 @@ function prepare_test_bed ()
     echo -e "[device-wifi]\nwifi.scan-rand-mac-address=no" > /etc/NetworkManager/conf.d/99-wifi.conf
     echo -e "[connection-wifi]\nwifi.cloned-mac-address=preserve" >> /etc/NetworkManager/conf.d/99-wifi.conf
 
-    modprobe mac80211_hwsim
-    sleep 5
+    if ! lsmod | grep -q -w mac80211_hwsim; then
+        modprobe mac80211_hwsim
+        sleep 5
+    fi
     if ! lsmod | grep -q -w mac80211_hwsim; then
         echo "Error. Cannot load module \"mac80211_hwsim\"." >&2
         return 1
