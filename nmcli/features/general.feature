@@ -2139,3 +2139,13 @@ Feature: nmcli - general
     # User test has been created in envsetup.py
     Then "org.freedesktop.NetworkManager.network-control\s+no" is visible with command "sudo -u test nmcli gen perm"
     Then " auth" is not visible with command "sudo -u test nmcli gen perm"
+
+
+    @rhbz1810153
+    @ver+=1.22.0
+    @dummy
+    @clean_device_state_files
+    Scenario: NM - general - clean device state files
+    * Run child "for i in $(seq 1 50); do ip link delete dummy0 &>/dev/null; ip link add dummy0 type bridge; ip addr add 1.1.1.1/2 dev dummy0;  ip link set dummy0 up; sleep 0.5; done"
+    When "4[0-9]" is visible with command "ls /run/NetworkManager/devices/ |wc -l" in "30" seconds
+    Then "1[5-9]" is visible with command "ls /run/NetworkManager/devices/ |wc -l" in "30" seconds
