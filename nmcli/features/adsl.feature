@@ -32,7 +32,7 @@ Feature: nmcli: adsl
     Then "adsl.username:\s+test" is visible with command "nmcli  connection show --show-secrets adsl-test11"
     Then "adsl.protocol:\s+pppoe" is visible with command "nmcli  connection show --show-secrets adsl-test11"
     Then "adsl.encapsulation:\s+--" is visible with command "nmcli  connection show --show-secrets adsl-test11"
-    Then "adsl.password:\s+S3c4" is visible with command "nmcli  connection show --show-secrets adsl" in "3" seconds
+    Then "adsl.password:\s+S3c4" is visible with command "nmcli  connection show --show-secrets adsl-test11" in "3" seconds
 
 
     @rhbz1264089
@@ -73,4 +73,4 @@ Feature: nmcli: adsl
     Then "adsl.username:\s+test" is visible with command "nmcli  connection show --show-secrets adsl-test11"
     Then "adsl.protocol:\s+pppoe" is visible with command "nmcli  connection show --show-secrets adsl-test11"
     Then "adsl.encapsulation:\s+llc" is visible with command "nmcli  connection show --show-secrets adsl-test11"
-    Then "adsl.password:\s+S3c4" is visible with command "nmcli  connection show --show-secrets adsl" in "3" seconds
+    Then "adsl.password:\s+S3c4" is visible with command "nmcli  connection show --show-secrets adsl-test11" in "3" seconds
