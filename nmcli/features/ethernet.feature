@@ -658,12 +658,17 @@ Feature: nmcli - ethernet
     @ethtool_features_connection
     Scenario: nmcli - ethernet - change ethtool feature in connection
     Given "fixed" is not visible with command "ethtool -k eth1 | grep tx-checksum-ip-generic:"
+    * Note the output of "ethtool -k eth1 | grep tx-checksum-ipv4:" as value "out1"
     * Add a new connection of type "ethernet" and options "ifname eth1 con-name con_ethernet autoconnect no ethtool.feature-tx-checksum-ip-generic on"
     * Bring "up" connection "con_ethernet"
     When "on" is visible with command "ethtool -k eth1 | grep tx-checksum-ip-generic:"
     * Modify connection "con_ethernet" changing options "ethtool.feature-tx-checksum-ip-generic off"
     * Bring "up" connection "con_ethernet"
     Then "off" is visible with command "ethtool -k eth1 | grep tx-checksum-ip-generic:"
+    * Modify connection "con_ethernet" changing options "ethtool.feature-tx-checksum-ip-generic ignore"
+    * Bring "up" connection "con_ethernet"
+    * Note the output of "ethtool -k eth1 | grep tx-checksum-ipv4:" as value "out2"
+    Then Check noted values "out1" and "out2" are the same
 
 
     @rhbz1335409
