@@ -9,7 +9,7 @@ Feature: nmcli - wifi
     # Scenario:
 
 
-    @ver+=1.9.1
+    @ver+=1.9.1 @fedoraver+=31
     @simwifi_open
     Scenario: nmcli - simwifi - connect to open network
     Given "open" is visible with command "nmcli -f SSID device wifi list" in "90" seconds
@@ -20,7 +20,7 @@ Feature: nmcli - wifi
     Then "\*\s+open" is visible with command "nmcli -f IN-USE,SSID device wifi list"
 
 
-    @ver+=1.9.1
+    @ver+=1.9.1 @fedoraver+=31
     @simwifi_pskwep
     @simwifi_wep_ask_passwd
     Scenario: nmcli - wifi - connect WEP network asking for password
@@ -32,7 +32,7 @@ Feature: nmcli - wifi
     Then "wep" is visible with command "iw dev wlan0 link"
 
 
-    @ver+=1.10
+    @ver+=1.10 @fedoraver+=31
     @simwifi_dynwep @attach_hostapd_log @attach_wpa_supplicant_log
     @simwifi_wep_tls
     Scenario: nmcli - simwifi - connect to WEP TLS
@@ -43,7 +43,7 @@ Feature: nmcli - wifi
     Then Bring "up" connection "wifi"
 
 
-    @ver+=1.10
+    @ver+=1.10 @fedoraver+=31
     @simwifi_dynwep @attach_hostapd_log @attach_wpa_supplicant_log
     @simwifi_wep_ttls_mschapv2_eap
     Scenario: nmcli - simwifi - connect to WEP TTLS MSCHAPv2 + EAP
@@ -53,7 +53,7 @@ Feature: nmcli - wifi
     Then Bring "up" connection "wifi"
 
 
-    @ver+=1.10
+    @ver+=1.10 @fedoraver+=31
     @simwifi_dynwep @attach_hostapd_log @attach_wpa_supplicant_log
     @simwifi_wep_peap_gtc
     Scenario: nmcli - simwifi - connect to WEP PEAP GTC
@@ -63,7 +63,7 @@ Feature: nmcli - wifi
     Then Bring "up" connection "wifi"
 
 
-    @ver+=1.9.1
+    @ver+=1.9.1 @fedoraver+=31
     @simwifi_wpa2
     @simwifi_wpa2psk_no_profile
     Scenario: nmcli - simwifi - connect to WPA2 PSK network without profile
@@ -75,7 +75,7 @@ Feature: nmcli - wifi
     Then "\*\s+wpa2-eap" is visible with command "nmcli -f IN-USE,SSID device wifi list"
 
 
-    @ver+=1.10
+    @ver+=1.10 @fedoraver+=31
     @simwifi_wpa2 @attach_hostapd_log @attach_wpa_supplicant_log
     @simwifi_wpa2psk_profile
     Scenario: nmcli - wifi-sec - configure and connect WPA2-PSK profile
@@ -87,7 +87,7 @@ Feature: nmcli - wifi
     Then "\*\s+wpa2-eap" is visible with command "nmcli -f IN-USE,SSID device wifi list"
 
 
-    @ver+=1.10
+    @ver+=1.10 @fedoraver+=31
     @simwifi_wpa2 @attach_hostapd_log @attach_wpa_supplicant_log
     @simwifi_tls
     Scenario: nmcli - simwifi - connect to TLS
@@ -98,7 +98,7 @@ Feature: nmcli - wifi
     Then Bring "up" connection "wifi"
 
 
-    @ver+=1.10
+    @ver+=1.10 @fedoraver+=31
     @simwifi_wpa2 @attach_hostapd_log @attach_wpa_supplicant_log
     @simwifi_tls_bad_private_key_password
     Scenario: nmcli - simwifi - connect to TLS - bad private key password
@@ -111,7 +111,7 @@ Feature: nmcli - wifi
 
 
     @rhbz1433536
-    @ver+=1.10
+    @ver+=1.10 @fedoraver+=31
     @simwifi_wpa2 @attach_hostapd_log @attach_wpa_supplicant_log
     @simwifi_tls_no_private_key_password
     Scenario: nmcli - simwifi - connect to TLS - no private key password
@@ -122,7 +122,7 @@ Feature: nmcli - wifi
     Then Bring "up" connection "wifi"
 
 
-    @ver+=1.10
+    @ver+=1.10 @fedoraver+=31
     @simwifi_wpa2 @attach_hostapd_log @attach_wpa_supplicant_log
     @simwifi_peap_gtc
     Scenario: nmcli - simwifi - connect to PEAP GTC
@@ -132,7 +132,7 @@ Feature: nmcli - wifi
     Then Bring "up" connection "wifi"
 
 
-    @ver+=1.10
+    @ver+=1.10 @fedoraver+=31
     @simwifi_wpa2 @attach_hostapd_log @attach_wpa_supplicant_log
     @simwifi_peap_md5
     Scenario: nmcli - simwifi - connect to PEAP MD5
@@ -142,7 +142,7 @@ Feature: nmcli - wifi
     Then Bring "up" connection "wifi"
 
 
-    @ver+=1.10
+    @ver+=1.10 @fedoraver+=31
     @simwifi_wpa2 @attach_hostapd_log @attach_wpa_supplicant_log
     @simwifi_peap_mschapv2
     Scenario: nmcli - simwifi - connect to PEAP MSCHAPv2
@@ -152,7 +152,7 @@ Feature: nmcli - wifi
     Then Bring "up" connection "wifi"
 
 
-    @ver+=1.10
+    @ver+=1.10 @fedoraver+=31
     @simwifi_wpa2 @attach_hostapd_log @attach_wpa_supplicant_log
     @simwifi_ttls_pap
     Scenario: nmcli - simwifi - connect to TTLS PAP
@@ -162,7 +162,7 @@ Feature: nmcli - wifi
     Then Bring "up" connection "wifi"
 
 
-    @ver+=1.10
+    @ver+=1.10 @fedoraver+=31
     @simwifi_wpa2 @attach_hostapd_log @attach_wpa_supplicant_log
     @simwifi_ttls_chap
     Scenario: nmcli - simwifi - connect to TTLS CHAP
@@ -172,7 +172,7 @@ Feature: nmcli - wifi
     Then Bring "up" connection "wifi"
 
 
-    @ver+=1.10
+    @ver+=1.10 @fedoraver+=31
     @simwifi_wpa2 @attach_hostapd_log @attach_wpa_supplicant_log
     @simwifi_ttls_mschap
     Scenario: nmcli - simwifi - connect to TTLS MSCHAP
@@ -182,7 +182,7 @@ Feature: nmcli - wifi
     Then Bring "up" connection "wifi"
 
 
-    @ver+=1.10
+    @ver+=1.10 @fedoraver+=31
     @simwifi_wpa2 @attach_hostapd_log @attach_wpa_supplicant_log
     @simwifi_ttls_mschapv2
     Scenario: nmcli - simwifi - connect to TTLS MSCHAPv2
@@ -192,7 +192,7 @@ Feature: nmcli - wifi
     Then Bring "up" connection "wifi"
 
 
-    @ver+=1.10
+    @ver+=1.10 @fedoraver+=31
     @simwifi_wpa2 @attach_hostapd_log @attach_wpa_supplicant_log
     @simwifi_ttls_mschapv2_eap
     Scenario: nmcli - simwifi - connect to TTLS MSCHAPv2 + EAP
@@ -202,7 +202,7 @@ Feature: nmcli - wifi
     Then Bring "up" connection "wifi"
 
 
-    @ver+=1.10
+    @ver+=1.10 @fedoraver+=31
     @simwifi_wpa2 @attach_hostapd_log @attach_wpa_supplicant_log
     @simwifi_ttls_md5
     Scenario: nmcli - simwifi - connect to TTLS MD5
@@ -212,7 +212,7 @@ Feature: nmcli - wifi
     Then Bring "up" connection "wifi"
 
 
-    @ver+=1.10
+    @ver+=1.10 @fedoraver+=31
     @simwifi_wpa2 @attach_hostapd_log @attach_wpa_supplicant_log
     @simwifi_ttls_gtc
     Scenario: nmcli - simwifi - connect to TTLS GTC
@@ -223,7 +223,7 @@ Feature: nmcli - wifi
 
 
     @rhbz1520398
-    @ver+=1.10
+    @ver+=1.10 @fedoraver+=31
     @simwifi_wpa2
     @nmclient_get_wireless_hw_property
     Scenario: nmclient - property - get wireless hardware property
@@ -231,7 +231,7 @@ Feature: nmcli - wifi
 
 
     @rhbz1626391
-    @ver+=1.12
+    @ver+=1.12 @fedoraver+=31
     @simwifi_wpa2 @simwifi_wpa2_teardown
     @wifi_dbus_bitrate_property_name
     Scenario: dbus - property name for Device.Wireless.Bitrate
@@ -239,7 +239,7 @@ Feature: nmcli - wifi
 
 
     @ver+=1.16
-    @rhelver+=8 @fedoraver-=0
+    @rhelver+=8 @fedoraver+=31
     @simwifi_p2p @attach_wpa_supplicant_log
     @simwifi_p2p_connect
     Scenario: nmcli - simwifi - p2p - connect
