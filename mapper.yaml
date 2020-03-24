@@ -31,12 +31,10 @@ component:
 dependencies:
   beaker-tasks:
     - /distribution/command:
-        CMDS_TO_RUN: 'if grep -q "Fedora release 31" /etc/redhat-release; then \
-        dnf -y install https://kojipkgs.fedoraproject.org//work/tasks/5558/42745558/kernel-5.5.11-200.bz1816765.fc31.x86_64.rpm https://kojipkgs.fedoraproject.org//work/tasks/5558/42745558/kernel-core-5.5.11-200.bz1816765.fc31.x86_64.rpm https://kojipkgs.fedoraproject.org//work/tasks/5558/42745558/kernel-modules-5.5.11-200.bz1816765.fc31.x86_64.rpm https://kojipkgs.fedoraproject.org//work/tasks/5558/42745558/kernel-modules-extra-5.5.11-200.bz1816765.fc31.x86_64.rpm https://kojipkgs.fedoraproject.org//work/tasks/5558/42745558/kernel-modules-internal-5.5.11-200.bz1816765.fc31.x86_64.rpm; fi'
+        CMDS_TO_RUN: 'if grep -q "Fedora release 31" /etc/redhat-release; then dnf -y install https://kojipkgs.fedoraproject.org//work/tasks/5558/42745558/kernel-5.5.11-200.bz1816765.fc31.x86_64.rpm https://kojipkgs.fedoraproject.org//work/tasks/5558/42745558/kernel-core-5.5.11-200.bz1816765.fc31.x86_64.rpm https://kojipkgs.fedoraproject.org//work/tasks/5558/42745558/kernel-modules-5.5.11-200.bz1816765.fc31.x86_64.rpm https://kojipkgs.fedoraproject.org//work/tasks/5558/42745558/kernel-modules-extra-5.5.11-200.bz1816765.fc31.x86_64.rpm https://kojipkgs.fedoraproject.org//work/tasks/5558/42745558/kernel-modules-internal-5.5.11-200.bz1816765.fc31.x86_64.rpm; fi'
     - /distribution/utils/reboot:
     - /distribution/command:
-        CMDS_TO_RUN: 'if grep -q "Fedora release 3[0-3]" /etc/redhat-release; then \
-        echo mq-deadline > /sys/block/sda/queue/scheduler; fi'
+        CMDS_TO_RUN: 'if grep -q "Fedora release 3[0-3]" /etc/redhat-release; then echo mq-deadline > /sys/block/sda/queue/scheduler; fi'
   packages:
       - chkconfig # Abrtd job dependency
       - dnsmasq
