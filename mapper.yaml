@@ -29,10 +29,16 @@ component:
   gate-in: beaker
 
 dependencies:
-  # beaker-tasks:
-  #   - /distribution/command:
-  #       CMDS_TO_RUN: 'if grep -q Ootpa /etc/redhat-release; then printf "[ovs]\nname=ovs\nbaseurl=http://download-ipv4.eng.brq.redhat.com/brewroot/repos/fast-datapath-rhel-8-build/latest/$(uname -p)/\nenable=1\ngpgcheck=0\n" /etc/yum.repos.d/ovs.repo; else yum -y install http://download.eng.bos.redhat.com/brewroot/vol/rhel-7/packages/openvswitch/2.9.0/92.el7fdn/$(arch)/openvswitch-2.9.0-92.el7fdn.$(arch).rpm http://download.eng.bos.redhat.com/brewroot/vol/rhel-7/packages/openvswitch-selinux-extra-policy/1.0/10.el7fdp/noarch/openvswitch-selinux-extra-policy-1.0-10.el7fdp.noarch.rpm http://download.eng.bos.redhat.com/brewroot/vol/rhel-7/packages/container-selinux/2.77/1.el7_6/noarch/container-selinux-2.77-1.el7_6.noarch.rpm; fi'
+  beaker-tasks:
+    - /distribution/command:
+        CMDS_TO_RUN: 'if grep -q -e "Fedora release 31" /etc/redhat-release; then \
+        yum -y install https://kojipkgs.fedoraproject.org//work/tasks/5558/42745558/kernel-5.5.11-200.bz1816765.fc31.x86_64.rpm https://kojipkgs.fedoraproject.org//work/tasks/5558/42745558/kernel-core-5.5.11-200.bz1816765.fc31.x86_64.rpm https://kojipkgs.fedoraproject.org//work/tasks/5558/42745558/kernel-modules-5.5.11-200.bz1816765.fc31.x86_64.rpm https://kojipkgs.fedoraproject.org//work/tasks/5558/42745558/kernel-modules-extra-5.5.11-200.bz1816765.fc31.x86_64.rpm https://kojipkgs.fedoraproject.org//work/tasks/5558/42745558/kernel-modules-internal-5.5.11-200.bz1816765.fc31.x86_64.rpm; fi'
+    - /distribution/utils/reboot:
+    - /distribution/command:
+        CMDS_TO_RUN: 'if grep -q -e "Fedora release 3[0-3]" /etc/redhat-release; then \
+        echo mq-deadline &gt; /sys/block/sda/queue/scheduler; fi'
   packages:
+      - chkconfig # Abrtd job dependency
       - dnsmasq
       - tcpdump
       - chrony
