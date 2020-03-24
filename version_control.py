@@ -14,10 +14,18 @@
 
 from __future__ import absolute_import, division, print_function, unicode_literals
 import sys
+import os
 from subprocess import call, check_output
 
 # gather current system info (versions, pkg vs. build)
-current_nm_version = [ int(x) for x in check_output(["NetworkManager","-V"]).decode("utf-8").split("-")[0].split(".") ]
+if "NM_VERSION" in os.environ:
+    current_nm_version = os.environ["NM_VERSION"]
+elif os.path.isfile("/tmp/nm_version_override"):
+    with open("/tmp/nm_version_override") as f:
+        current_nm_version = f.read()
+else:
+    current_nm_version = check_output(["NetworkManager","-V"]).decode("utf-8")
+current_nm_version = [ int(x) for x in current_nm_version.split("-")[0].split(".") ]
 distro_version = [ int(x) for x in check_output(["sed","s/.*release *//;s/ .*//","/etc/redhat-release"]).decode("utf-8").split(".") ]
 if call(["grep","-qi","fedora","/etc/redhat-release"]) == 0:
     current_rhel_version = False
