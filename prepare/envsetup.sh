@@ -126,6 +126,9 @@ install_fedora_packages () {
     update-crypto-policies --set LEGACY
     systemctl restart wpa_supplicant
 
+    # Avoid a bug 1816204
+    echo mq-deadline > /sys/block/sda/queue/scheduler
+
     # Install kernel-modules for currently running kernel
     dnf -4 -y install kernel-modules-*-$(uname -r)
 
