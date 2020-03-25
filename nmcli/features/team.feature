@@ -596,25 +596,16 @@
     @remove_config
     Scenario: nmcli - team - config - remove
      * Add connection type "team" named "team0" for device "nm-team"
+     * Send "set team.config {"device":"nm-team","runner":{"name":"loadbalance"},"ports":{"eth5":{},"eth6": {}}}" via editor to "team0"
      * Add slave connection for master "nm-team" on device "eth5" named "team0.0"
      * Add slave connection for master "nm-team" on device "eth6" named "team0.1"
-     * Bring "up" connection "team0.0"
-     * Bring "up" connection "team0.1"
-     * Open editor for connection "team0"
-     * Submit "set team.config {\"device\":\"nm-team\",\"runner\":{\"name\":\"loadbalance\"},\"ports\":{\"eth5\":{},\"eth6\": {}}}" in editor
-     * Save in editor
-     * Quit editor
      * Bring "up" connection "team0"
      * Bring "up" connection "team0.0"
      * Bring "up" connection "team0.1"
     Then "\"kernel_team_mode_name\": \"loadbalance\"" is visible with command "sudo teamdctl nm-team state dump"
     Then Check slave "eth5" in team "nm-team" is "up"
     Then Check slave "eth6" in team "nm-team" is "up"
-     * Open editor for connection "team0"
-     * Submit "set team.config" in editor
-     * Enter in editor
-     * Save in editor
-     * Quit editor
+     * Send "remove team.config" via editor to "team0"
      * Bring "up" connection "team0"
      * Bring "up" connection "team0.1"
      * Bring "up" connection "team0.0"

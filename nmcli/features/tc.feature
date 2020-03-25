@@ -35,9 +35,5 @@
     Scenario: nmcli - tc - remove root value
     * Add a new connection of type "ethernet" and options "ifname eth0 con-name con_tc autoconnect no tc.qdiscs 'root pfifo_fast'"
     * Bring "up" connection "con_tc"
-    * Open editor for connection "con_tc"
-    * Submit "set tc.qdiscs" in editor
-    * Enter in editor
-    * Save in editor
-    * Quit editor
-    Then Prompt is not running
+    * Send "remove tc.qdiscs" via editor to "con_tc"
+    Then Bring "up" connection "con_tc"
