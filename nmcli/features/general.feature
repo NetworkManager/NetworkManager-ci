@@ -1542,7 +1542,6 @@ Feature: nmcli - general
 
     @rhbz1458399
     @ver+=1.12.0
-    @rhelver-=7
     @connectivity @con_general_remove @eth0
     @connectivity_check
     Scenario: NM - general - connectivity check
@@ -1559,7 +1558,6 @@ Feature: nmcli - general
 
     @rhbz1458399
     @ver+=1.12.0
-    @rhelver-=7
     @connectivity @con_general_remove @delete_testeth0 @restart
     @disable_connectivity_check
     Scenario: NM - general - disable connectivity check
