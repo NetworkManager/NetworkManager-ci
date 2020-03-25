@@ -1551,9 +1551,9 @@ Feature: nmcli - general
      And "full" is visible with command "nmcli  -g CONNECTIVITY g" in "70" seconds
     * Append "1.2.3.4 static.redhat.com" to file "/etc/hosts"
     * Append "1::1 static.redhat.com" to file "/etc/hosts"
-    When "limited" is visible with command "nmcli  -g CONNECTIVITY g" in "100" seconds
+    When "limited" is visible with command "nmcli  -g CONNECTIVITY g" in "40" seconds
      * Reset /etc/hosts
-    Then "full" is visible with command "nmcli  -g CONNECTIVITY g" in "100" seconds
+    Then "full" is visible with command "nmcli  -g CONNECTIVITY g" in "10" seconds
 
 
     @rhbz1458399
@@ -1569,7 +1569,7 @@ Feature: nmcli - general
      And "full" is visible with command "nmcli  -g CONNECTIVITY g"
     * Append "1.2.3.4 static.redhat.com" to file "/etc/hosts"
     * Append "1::1 static.redhat.com" to file "/etc/hosts"
-    Then "full" is visible with command "nmcli  -g CONNECTIVITY g" for full "100" seconds
+    Then "full" is visible with command "nmcli  -g CONNECTIVITY g" for full "40" seconds
 
 
     @rhbz1394345
@@ -1581,12 +1581,12 @@ Feature: nmcli - general
     * Add a new connection of type "ethernet" and options "ifname eth0 con-name con_general ipv4.route-metric 1024 ipv6.method ignore"
     * Bring up connection "con_general"
     When "activated" is visible with command "nmcli -g GENERAL.STATE con show con_general" in "45" seconds
-    When "full" is visible with command "nmcli  -g CONNECTIVITY g" in "100" seconds
+    When "full" is visible with command "nmcli  -g CONNECTIVITY g" in "40" seconds
     # Device w/o connectivity but with high priority
     * Add a new connection of type "ethernet" and options "ifname eth8 con-name con_general2 autoconnect no ipv4.method manual ipv4.addresses 192.168.244.4/24 ipv4.gateway 192.168.244.1 ipv4.route-metric 100 ipv6.method ignore"
     * Bring up connection "con_general2"
     # Connection should stay at the lower priority device
-    Then "full" is visible with command "nmcli  -g CONNECTIVITY g" in "100" seconds
+    Then "full" is visible with command "nmcli  -g CONNECTIVITY g" in "40" seconds
      And Ping "boston.com"
 
 
