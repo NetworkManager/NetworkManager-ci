@@ -111,7 +111,12 @@ class Job:
         data = jsonpickle.decode(data_json, keys=True)
         self.builds, self.failures = data
 
-        for build_id in [ build.id for build in self.builds]:
+        cached_build_ids = [build.id for build in self.builds]
+        sorted(cached_build_ids, reverse=True)
+
+        self.remove_build(cached_build_ids[0])
+
+        for build_id in cached_build_ids:
             if build_id not in build_ids:
                 self.remove_build(build_id)
         for failure_name in list(self.failures.keys()):
@@ -129,7 +134,7 @@ class Job:
         build_ids = self.connection.get_build_ids()
         build_ids = list(build_ids)[:max_builds]
         # do not cache the first build in list, because its status may change even when job not running
-        self.load_cache(build_ids[1:])
+        self.load_cache(build_ids)
         cache_build_ids = [ build.id for build in self.builds ]
         for build_id in build_ids:
             if build_id in cache_build_ids:
