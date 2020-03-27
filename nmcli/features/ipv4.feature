@@ -741,7 +741,7 @@ Feature: nmcli: ipv4
 
 
     @rhbz1443437
-    @ver+=1.8.0
+    @ver+=1.8.0 @ver-=1.20
     @tshark @con_ipv4_remove
     @ipv4_dhcp-hostname_set
     Scenario: nmcli - ipv4 - dhcp-hostname - set dhcp-hostname
@@ -752,6 +752,21 @@ Feature: nmcli: ipv4
     * Bring "up" connection "con_ipv4"
     Then "RC" is visible with command "cat /tmp/tshark.log" in "10" seconds
      And "Option: \(12\) Host Name\s+Length: 2\s+Host Name: RC" is visible with command "cat /tmp/tshark.log"
+    * Finish "sudo pkill tshark"
+
+
+    @rhbz1443437 @rhbz1649376
+    @ver+=1.21.90
+    @tshark @con_ipv4_remove
+    @ipv4_dhcp-hostname_set
+    Scenario: nmcli - ipv4 - dhcp-hostname - set dhcp-hostname
+    * Add a new connection of type "ethernet" and options "ifname eth2 con-name con_ipv4 ipv4.may-fail no ipv4.dhcp-hostname example.com"
+    * Bring "down" connection "con_ipv4"
+    * Run child "sudo tshark -l -O bootp -i eth2 > /tmp/tshark.log"
+    When "empty" is not visible with command "file /tmp/tshark.log" in "150" seconds
+    * Bring "up" connection "con_ipv4"
+    Then "example.com" is visible with command "cat /tmp/tshark.log" in "10" seconds
+     And "Option: \(12\) Host Name\s+Length: 11\s+Host Name: example.com" is visible with command "cat /tmp/tshark.log"
     * Finish "sudo pkill tshark"
 
 
