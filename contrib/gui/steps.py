@@ -138,12 +138,11 @@ def prepare_gsm(context, modem="modemu"):
                             "sudo nmcli con delete "
                             "$(nmcli -g type,uuid con show | grep gsm: | sed 's/^gsm://g')",
                             shell=True)
-    #TODOOOOO FIX nm-ci-runner
     assert subprocess.call(f"sudo bash {NM_CI_RUNNER_CMD} "
                            f"prepare/gsm_sim.sh {modem} &> /tmp/gsm_sim.log",
                            shell=True) == 0, "gsm_sim setup failed !!!"
     for i in range(20):
-        out = subprocess.check_output(["mmcli", "-L"], stderr=subprocess.STDOUT)
+        out = subprocess.check_output(["mmcli", "-L"], stderr=subprocess.STDOUT).decode("utf-8")
         if "No modems were found" not in out:
             return
         sleep(1)
