@@ -6,7 +6,7 @@
 # add this repo as submodule in root of behve project (the same level as features dir)
 # and then `git mv NetworkManager-ci NMci`
 #
-# in strps.py use:
+# in steps.py use:
 #        from NMci.contrib.gui.steps import *
 #
 # in environment.py ensure that the following lines are in after_scenario:

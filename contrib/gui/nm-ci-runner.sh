@@ -22,9 +22,11 @@ if [ "$cmd" == "install" ]; then
     fi
 elif [ "$cmd" == "envsetup" ]; then
     set +e
+    cp /etc/shadow /etc/shadow.backup
     source prepare/envsetup.sh
     set -x
     setup_configure_environment "$@"
+    mv /etc/shadow.backup /etc/shadow
     set +x
 else
     chmod +x "$cmd"
