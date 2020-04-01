@@ -8,7 +8,9 @@ rm -rf nmstate
 
 git clone https://github.com/nmstate/nmstate
 cd nmstate
-git checkout $(git tag |tail -1)
+git checkout nmstate-0.2
+# We have some regressions now so let's use 0.2's HEAD ^^
+# git checkout $(git tag |tail -1)
 LC_TIME=en_US-UTF-8 sh packaging/make_rpm.sh; rc=$?
 if test $rc -eq 0; then
     rm -rf nmstate-*.src.rpm
