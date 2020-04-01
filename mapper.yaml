@@ -36,7 +36,7 @@ dependencies:
     - /distribution/command:
         CMDS_TO_RUN: 'if grep -q "Fedora release 3[0-3]" /etc/redhat-release; then echo mq-deadline > /sys/block/sda/queue/scheduler; fi'
     - /distribution/command:
-        CMDS_TO_RUN: 'if grep -q "Fedora release 33" /etc/redhat-release; then dnf -y install https://kojipkgs.fedoraproject.org//packages/annobin/9.16/1.fc33/x86_64/annobin-9.16-1.fc33.x86_64.rpm; fi'
+        CMDS_TO_RUN: 'if grep -q "Fedora release 33" /etc/redhat-release; then dnf -y install https://kojipkgs.fedoraproject.org//packages/annobin/9.18/1.fc33/x86_64/annobin-9.18-1.fc33.x86_64.rpm; fi; if grep -q "Fedora release 32" /etc/redhat-release; then dnf -y install https://kojipkgs.fedoraproject.org//packages/annobin/9.18/1.fc32/x86_64/annobin-9.18-1.fc32.x86_64.rpm; fi'
   packages:
       - chkconfig # Abrtd job dependency
       - dnsmasq
