@@ -9,7 +9,11 @@ CLIENT_KEYS_PATH="/tmp/certs"
 function start_dnsmasq ()
 {
     echo "Start DHCP server (dnsmasq)"
-    /usr/sbin/dnsmasq\
+    local dnsmasq="/usr/sbin/dnsmasq"
+    if $DO_NAMESPACE; then
+        dnsmasq="ip netns exec wlan_ns $dnsmasq"
+    fi
+    $dnsmasq\
     --pid-file=/tmp/dnsmasq_wireless.pid\
     --port=63\
     --conf-file\
@@ -21,8 +25,8 @@ function start_dnsmasq ()
     --dhcp-range=10.0.254.10,10.0.254.100,60m\
     --dhcp-option=option:router,10.0.254.1\
     --dhcp-lease-max=50
-
 }
+
 function write_hostapd_cfg_pskwep ()
 {
     echo "# Hostapd configuration for 802.1x client testing
@@ -39,7 +43,7 @@ wep_default_key=0
 wep_key0=\"abcde\"
 wep_key_len_broadcast=\"5\"
 wep_key_len_unicast=\"5\"
-wep_rekey_period=300" > $1
+wep_rekey_period=300" > $HOSTAPD_CFG
 }
 
 function write_hostapd_cfg_dynwep ()
@@ -69,7 +73,7 @@ ca_cert=$HOSTAPD_KEYS_PATH/hostapd.ca.pem
 dh_file=$HOSTAPD_KEYS_PATH/hostapd.dh.pem
 server_cert=$HOSTAPD_KEYS_PATH/hostapd.cert.pem
 private_key=$HOSTAPD_KEYS_PATH/hostapd.key.enc.pem
-private_key_passwd=redhat" > $1
+private_key_passwd=redhat" > $HOSTAPD_CFG
 
 # Create a list of users for network authentication, authentication types, and corresponding credentials.
 echo "# Create hostapd peap user file
@@ -81,7 +85,7 @@ echo "# Create hostapd peap user file
 \"test_md5\"       MD5         \"password\"  [2]
 \"test_gtc\"       GTC         \"password\"  [2]
 # Tunneled TLS and non-EAP authentication inside the tunnel.
-\"test_ttls\"      TTLS-PAP,TTLS-CHAP,TTLS-MSCHAP,TTLS-MSCHAPV2    \"password\"  [2]" > $2
+\"test_ttls\"      TTLS-PAP,TTLS-CHAP,TTLS-MSCHAP,TTLS-MSCHAPV2    \"password\"  [2]" > $EAP_USERS_FILE
 
 }
 
@@ -110,7 +114,7 @@ ca_cert=$HOSTAPD_KEYS_PATH/hostapd.ca.pem
 dh_file=$HOSTAPD_KEYS_PATH/hostapd.dh.pem
 server_cert=$HOSTAPD_KEYS_PATH/hostapd.cert.pem
 private_key=$HOSTAPD_KEYS_PATH/hostapd.key.enc.pem
-private_key_passwd=redhat" > $1
+private_key_passwd=redhat" > $HOSTAPD_CFG
 
     # Create a list of users for network authentication, authentication types, and corresponding credentials.
     echo "# Create hostapd peap user file
@@ -122,7 +126,7 @@ private_key_passwd=redhat" > $1
 \"test_md5\"       MD5         \"password\"  [2]
 \"test_gtc\"       GTC         \"password\"  [2]
 # Tunneled TLS and non-EAP authentication inside the tunnel.
-\"test_ttls\"      TTLS-PAP,TTLS-CHAP,TTLS-MSCHAP,TTLS-MSCHAPV2    \"password\"  [2]" > $2
+\"test_ttls\"      TTLS-PAP,TTLS-CHAP,TTLS-MSCHAP,TTLS-MSCHAPV2    \"password\"  [2]" > $EAP_USERS_FILE
 }
 
 function write_hostapd_cfg_open ()
@@ -137,7 +141,7 @@ hw_mode=g
 channel=6
 auth_algs=1
 wpa=0
-country_code=EN" > $1
+country_code=EN" > $HOSTAPD_CFG
 }
 
 function copy_certificates ()
@@ -165,15 +169,21 @@ function restart_services ()
 
 function start_nm_hostapd ()
 {
-    systemd-run --unit nm-hostapd hostapd -ddd $HOSTAPD_CFG
+    local hostapd="hostapd -ddd $HOSTAPD_CFG"
+    if $DO_NAMESPACE; then
+        hostapd="ip netns exec wlan_ns $hostapd"
+    fi
+    systemd-run --unit nm-hostapd $hostapd
+
     sleep 10
 }
 
-function wireless_hostapd_check_wpa ()
+function wireless_hostapd_check ()
 {
+    AUTH_TYPE=$1
     need_setup=0
     echo "* Checking hostapd type"
-    if [ ! -e /tmp/nm_wpa_supp_configured ]; then
+    if [ ! -e /tmp/nm_${AUTH_TYPE}_supp_configured ]; then
         echo "Not OK!!"
         need_setup=1
     fi
@@ -193,102 +203,12 @@ function wireless_hostapd_check_wpa ()
         echo "Not OK!!"
         need_setup=1
     fi
-    if [ $need_setup -eq 1 ]; then
-        rm -rf /tmp/nm_*_supp_configured
-        wireless_hostapd_teardown
-        return 1
+    echo "* Checking namespace"
+    namespace=false
+    if ip netns exec wlan_ns true; then
+        namespace=true
     fi
-
-    return 0
-}
-
-function wireless_hostapd_check_open ()
-{
-    need_setup=0
-    echo "* Checking hostapd type"
-    if [ ! -e /tmp/nm_open_supp_configured ]; then
-        echo "Not OK!!"
-        need_setup=1
-    fi
-    echo "* Checking dnsmasqs"
-    pid=$(cat /tmp/dnsmasq_wireless.pid)
-    if ! pidof dnsmasq |grep -q $pid; then
-        echo "Not OK!!"
-        need_setup=1
-    fi
-    echo "* Checking nm-hostapd"
-    if ! systemctl is-active nm-hostapd -q; then
-        echo "Not OK!!"
-        need_setup=1
-    fi
-    echo "* Checking wlan0"
-    if ! nmcli device show wlan0 |grep -q connected; then
-        echo "Not OK!!"
-        need_setup=1
-    fi
-    if [ $need_setup -eq 1 ]; then
-        rm -rf /tmp/nm_*_supp_configured
-        wireless_hostapd_teardown
-        return 1
-    fi
-
-    return 0
-}
-
-function wireless_hostapd_check_dynwep ()
-{
-    need_setup=0
-    echo "* Checking hostapd type"
-    if [ ! -e /tmp/nm_dynwep_supp_configured ]; then
-        echo "Not OK!!"
-        need_setup=1
-    fi
-    echo "* Checking dnsmasqs"
-    pid=$(cat /tmp/dnsmasq_wireless.pid)
-    if ! pidof dnsmasq |grep -q $pid; then
-        echo "Not OK!!"
-        need_setup=1
-    fi
-    echo "* Checking nm-hostapd"
-    if ! systemctl is-active nm-hostapd -q; then
-        echo "Not OK!!"
-        need_setup=1
-    fi
-    echo "* Checking wlan0"
-    if ! nmcli device show wlan0 |grep -q connected; then
-        echo "Not OK!!"
-        need_setup=1
-    fi
-    if [ $need_setup -eq 1 ]; then
-        rm -rf /tmp/nm_*_supp_configured
-        wireless_hostapd_teardown
-        return 1
-    fi
-
-    return 0
-}
-
-function wireless_hostapd_check_pskwep ()
-{
-    need_setup=0
-    echo "* Checking hostapd type"
-    if [ ! -e /tmp/nm_pskwep_supp_configured ]; then
-        echo "Not OK!!"
-        need_setup=1
-    fi
-    echo "* Checking dnsmasqs"
-    pid=$(cat /tmp/dnsmasq_wireless.pid)
-    if ! pidof dnsmasq |grep -q $pid; then
-        echo "Not OK!!"
-        need_setup=1
-    fi
-    echo "* Checking nm-hostapd"
-    if ! systemctl is-active nm-hostapd -q; then
-        echo "Not OK!!"
-        need_setup=1
-    fi
-    echo "* Checking wlan0"
-    if ! nmcli device show wlan0 |grep -q connected; then
+    if [ $namespace != $DO_NAMESPACE ]; then
         echo "Not OK!!"
         need_setup=1
     fi
@@ -306,6 +226,11 @@ function prepare_test_bed ()
     # Install haveged to increase entropy
     yum -y install haveged
     systemctl restart haveged
+
+    if $DO_NAMESPACE; then
+        semodule -i tmp/selinux-policy/hostapd_wireless.pp
+        ip netns add wlan_ns
+    fi
 
     # Disable mac randomization to avoid rhbz1490885
     echo -e "[device-wifi]\nwifi.scan-rand-mac-address=no" > /etc/NetworkManager/conf.d/99-wifi.conf
@@ -327,8 +252,12 @@ function prepare_test_bed ()
         return 1
     fi
 
-    nmcli device set wlan1 managed off
-    ip add add 10.0.254.1/24 dev wlan1
+    if $DO_NAMESPACE; then
+        iw phy phy1 set netns name wlan_ns
+        ip -n wlan_ns add add 10.0.254.1/24 dev wlan1
+    else
+        ip add add 10.0.254.1/24 dev wlan1
+    fi
     sleep 5
 
 }
@@ -342,143 +271,59 @@ function wireless_hostapd_setup ()
 
     echo "Configuring hostapd 802.1x server..."
 
-    if [ "$AUTH_TYPE" == "open" ]; then
-        if  wireless_hostapd_check_open; then
-            echo "OK. Configuration has already been done."
-            return 0
-        fi
-        echo "Auth type is Open"
-        prepare_test_bed
-        write_hostapd_cfg_open $HOSTAPD_CFG
-
-        set -e
-        start_dnsmasq
-        pid=$(cat /tmp/dnsmasq_wireless.pid)
-        if ! pidof dnsmasq | grep -q $pid; then
-            echo "Error. Cannot start dnsmasq as DHCP server." >&2
-            return 1
-        fi
-
-        # Start 802.1x authentication and built-in RADIUS server.
-        # Start hostapd as a service via systemd-run using configuration wifi adapters
-        start_nm_hostapd
-        if ! systemctl -q is-active nm-hostapd; then
-            echo "Error. Cannot start the service for hostapd." >&2
-            return 1
-        fi
-
-        touch /tmp/nm_open_supp_configured
-        # do not lower this as first test may fail then
-        sleep 5
-
-    elif [ "$AUTH_TYPE" == "dynwep" ]; then
-            if  wireless_hostapd_check_dynwep; then
-                echo "OK. Configuration has already been done."
-                return 0
-            fi
-            echo "Auth type is DYNAMIC WEP"
-            prepare_test_bed
-            write_hostapd_cfg_dynwep $HOSTAPD_CFG $EAP_USERS_FILE
-            copy_certificates $CERTS_PATH
-
-            set -e
-            start_dnsmasq
-            pid=$(cat /tmp/dnsmasq_wireless.pid)
-            if ! pidof dnsmasq | grep -q $pid; then
-                echo "Error. Cannot start dnsmasq as DHCP server." >&2
-                return 1
-            fi
-
-            # Start 802.1x authentication and built-in RADIUS server.
-            # Start hostapd as a service via systemd-run using configuration wifi adapters
-            start_nm_hostapd
-            if ! systemctl -q is-active nm-hostapd; then
-                echo "Error. Cannot start the service for hostapd." >&2
-                return 1
-            fi
-
-            touch /tmp/nm_dynwep_supp_configured
-            # do not lower this as first test may fail then
-            sleep 5
-
-    elif [ "$AUTH_TYPE" == "pskwep" ]; then
-            if  wireless_hostapd_check_pskwep; then
-                echo "OK. Configuration has already been done."
-                return 0
-            fi
-            echo "Auth type is PSK WEP"
-            prepare_test_bed
-            write_hostapd_cfg_pskwep $HOSTAPD_CFG $EAP_USERS_FILE
-            copy_certificates $CERTS_PATH
-
-            set -e
-            start_dnsmasq
-            pid=$(cat /tmp/dnsmasq_wireless.pid)
-            if ! pidof dnsmasq | grep -q $pid; then
-                echo "Error. Cannot start dnsmasq as DHCP server." >&2
-                return 1
-            fi
-
-            # Start 802.1x authentication and built-in RADIUS server.
-            # Start hostapd as a service via systemd-run using configuration wifi adapters
-            start_nm_hostapd
-            if ! systemctl -q is-active nm-hostapd; then
-                echo "Error. Cannot start the service for hostapd." >&2
-                return 1
-            fi
-
-            touch /tmp/nm_pskwep_supp_configured
-            # do not lower this as first test may fail then
-            sleep 5
-
-
-    elif [ "$AUTH_TYPE" == "wpa2" ]; then
-        if  wireless_hostapd_check_wpa; then
-            echo "OK. Configuration has already been done."
-            return 0
-        fi
-
-        echo "Auth type is WPA"
-
-        prepare_test_bed
-        write_hostapd_cfg_wpa2 $HOSTAPD_CFG $EAP_USERS_FILE
-        copy_certificates $CERTS_PATH
-
-        set -e
-        start_dnsmasq
-        pid=$(cat /tmp/dnsmasq_wireless.pid)
-        if ! pidof dnsmasq | grep -q $pid; then
-            echo "Error. Cannot start dnsmasq as DHCP server." >&2
-            return 1
-        fi
-
-        # Start 802.1x authentication and built-in RADIUS server.
-        # Start hostapd as a service via systemd-run using configuration wifi adapters
-        start_nm_hostapd
-        if ! systemctl -q is-active nm-hostapd; then
-            echo "Error. Cannot start the service for hostapd." >&2
-            return 1
-        fi
-
-        touch /tmp/nm_wpa_supp_configured
-        # do not lower this as first test may fail then
-        sleep 5
-
-    else
+    case $AUTH_TYPE in
+      open) ;;
+      dynwep) ;;
+      pskwep) ;;
+      wpa2) ;;
+      *)
         echo "Unsupported authentication type: $AUTH_TYPE." >&2
         return 1
+      ;;
+    esac
+
+    if  wireless_hostapd_check ${AUTH_TYPE}; then
+        echo "OK. Configuration has already been done."
+        return 0
     fi
+    echo "Auth type is ${AUTH_TYPE}"
+    prepare_test_bed
+    write_hostapd_cfg_${AUTH_TYPE}
+
+    if [ $AUTH_TYPE != "open" ]; then
+      copy_certificates $CERTS_PATH
+    fi
+
+    set -e
+    start_dnsmasq
+    pid=$(cat /tmp/dnsmasq_wireless.pid)
+    if ! pidof dnsmasq | grep -q $pid; then
+        echo "Error. Cannot start dnsmasq as DHCP server." >&2
+        return 1
+    fi
+
+    # Start 802.1x authentication and built-in RADIUS server.
+    # Start hostapd as a service via systemd-run using configuration wifi adapters
+    start_nm_hostapd
+    if ! systemctl -q is-active nm-hostapd; then
+        echo "Error. Cannot start the service for hostapd." >&2
+        return 1
+    fi
+
+    touch /tmp/nm_${AUTH_TYPE}_supp_configured
+    # do not lower this as first test may fail then
+    sleep 5
 }
 
 function wireless_hostapd_teardown ()
 {
     set -x
+    ip netns del wlan_ns
     kill $(cat /tmp/dnsmasq_wireless.pid)
     if systemctl --quiet is-failed nm-hostapd; then
         systemctl reset-failed nm-hostapd
     fi
     systemctl stop nm-hostapd
-    nmcli device set wlan1 managed on
     ip addr flush dev wlan1
     modprobe -r mac80211_hwsim
     [ -f /run/hostapd/wlan1 ] && rm -rf /run/hostapd/wlan1
@@ -491,6 +336,11 @@ function wireless_hostapd_teardown ()
 if [ "$1" != "teardown" ]; then
     # If hostapd's config fails then restore initial state.
     echo "Configure and start hostapd..."
+    # Set DO_NAMESPACE to true if "namespace" in arguments
+    DO_NAMESPACE=false
+    if [[ " $@ " == *" namespace "* ]]; then
+        DO_NAMESPACE=true
+    fi
     wireless_hostapd_setup $1 $2; RC=$?
     if [ $RC -eq 0 ]; then
         echo "hostapd started successfully."
