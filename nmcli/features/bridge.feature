@@ -550,7 +550,7 @@ Feature: nmcli - bridge
     * Add a new connection of type "ethernet" and options "con-name bridge-slave-eth4 ifname eth4 master bridge0"
     * "." is visible with command "nmcli -g IP4.ADDRESS  c s bridge0" in "45" seconds
     * Stop NM
-    * Execute "ip link set br0 type bridge forward_delay 0"
+    * Execute "ip link set bridge0 type bridge forward_delay 0"
     * Execute "ip link set eth4 type bridge_slave cost 4"
     * Wait for at least "2" seconds
     * Reboot
