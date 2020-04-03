@@ -171,7 +171,7 @@ def prepare_openvpn(context, version="ip46"):
 @step('Prepare Wi-Fi with security from test tag and certificates from "{certs_dir}"')
 @step('Prepare Wi-Fi with security "{security}"')
 @step('Prepare Wi-Fi with security "{security}" and certificates from "{certs_dir}"')
-def prepare_wifi(context, security="", certs_dir="tmp/8021x/certs"):
+def prepare_wifi(context, security="", certs_dir="tmp/8021x/certs", namespace=""):
     if not security:
         for tag in context.scenario.tags:
             if tag.startswith("wifi_"):
@@ -191,5 +191,13 @@ def prepare_wifi(context, security="", certs_dir="tmp/8021x/certs"):
                                    "Wireless"),
         context)
     assert subprocess.call(
-        f"sudo bash {NM_CI_RUNNER_CMD} prepare/hostapd_wireless.sh {certs_dir} {security} "
+        f"sudo bash {NM_CI_RUNNER_CMD} prepare/hostapd_wireless.sh {certs_dir} {security} {namespace}"
         f"&> /tmp/hostapd_wireless.log", shell=True) == 0, f"{security} wifi setup failed !!!"
+
+
+@step('Prepare single Wi-Fi with security from test tag')
+@step('Prepare single Wi-Fi with security from test tag and certificates from "{certs_dir}"')
+@step('Prepare single Wi-Fi with security "{security}"')
+@step('Prepare single Wi-Fi with security "{security}" and certificates from "{certs_dir}"')
+def prepare_wifi_namespace(context, security="", certs_dir="tmp/8021x/certs", namespace="namespace"):
+    prepare_wifi(context, security, certs_dir, namespace)
