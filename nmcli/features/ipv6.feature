@@ -677,7 +677,7 @@
 
 
     @rhbz1640237
-    @ver+=1.16
+    @ver+=1.16 @ver-=1.22
     @scapy
     @ipv6_lifetime_too_low
     Scenario: NM - ipv6 - valid lifetime too low should be ignored
@@ -705,6 +705,33 @@
     * Execute "sleep 2"
     # there is 7200 here (2h), because of RFC 4862, section-5.5.3.e).3.
     Then "IPv6" lifetimes are slightly smaller than "7200" and "10" for device "test11"
+
+
+    @rhbz1640237
+    @ver+=1.23.1
+    @scapy
+    @ipv6_lifetime_too_low
+    Scenario: NM - ipv6 - valid lifetime too low should be ignored
+    * Finish "ip link add test10 type veth peer name test11"
+    * Finish "nmcli c add type ethernet ifname test10"
+    * Finish "nmcli c add type ethernet ifname test11"
+    * Execute "nmcli con modify ethernet-test10 ipv4.method disabled ipv6.method auto"
+    * Execute "nmcli con modify ethernet-test11 ipv4.method disabled ipv6.method auto ipv6.address dead::dead/128 ipv6.gateway dead::beaf/128"
+    * Finish "ip link set dev test10 up"
+    * Finish "ip link set dev test11 up"
+    * Execute "nmcli --wait 0 c up ethernet-test10"
+    * Execute "nmcli --wait 0 c up ethernet-test11"
+    When "ethernet-test10" is visible with command "nmcli con sh -a"
+    When "ethernet-test11" is visible with command "nmcli con sh -a"
+    * Execute "sleep 2"
+    * Send lifetime scapy packet with lifetimes "300" "140"
+    * Execute "sleep 2"
+    Then "IPv6" lifetimes are slightly smaller than "300" and "140" for device "test11"
+    * Execute "sleep 2"
+    * Send lifetime scapy packet with lifetimes "20" "10"
+    * Execute "sleep 2"
+    # Change in behavior as https://gitlab.freedesktop.org/NetworkManager/NetworkManager/-/merge_requests/455
+    Then "IPv6" lifetimes are slightly smaller than "20" and "10" for device "test11"
 
 
     @rhbz1318945
