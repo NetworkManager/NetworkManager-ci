@@ -58,10 +58,22 @@ function setup_veth_env ()
     counter=0
     DEV=""
     while [ -z $DEV ]; do
-        DEV=$(nmcli -f DEVICE,TYPE,STATE -t d | grep ethernet | grep connected | awk -F':' '{print $1}' | head -n 1)
+        DEV=$(nmcli -f DEVICE,TYPE,STATE -t d | grep :ethernet | grep :connected | awk -F':' '{print $1}' | head -n 1)
         sleep 1
         ((counter++))
         if [ $counter -eq 20 ]; then
+            # in case, there is single ethernet device, connect it and count to 40
+            if [ $(nmcli -f DEVICE,TYPE,STATE -t d | grep :ethernet | wc -l) == 1 ]; then
+                DEV=$(nmcli -f DEVICE,TYPE,STATE -t d | grep :ethernet | awk -F':' '{print $1}' | head -n 1)
+                echo "Activating single ethernet device '$DEV'"
+                nmcli device connect $DEV
+            # fail otherwise
+            else
+                echo "All ethernet interfaces down, unable to determine gateway"
+                nmcli dev
+                exit 1
+            fi
+        elif [ $counter -eq 40 ]; then
             echo "Unable to get active device"
             exit 1
         fi
