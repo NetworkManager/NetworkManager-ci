@@ -1005,6 +1005,8 @@ testmapper:
         tags: gate
     - vlan_mtu_reapply:
         feature: vlan
+    - vlan_mtu_device_reapply:
+        feature: vlan
     - vlan_mtu_from_parent_with_slow_dhcp:
         feature: vlan
     - default_route_for_vlan_over_team:

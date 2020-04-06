@@ -457,6 +457,25 @@ Feature: nmcli - vlan
     Then "mtu 2000" is visible with command "ip a s eth7.399" in "10" seconds
 
 
+    @rhbz1779162
+    @ver+=1.22.0
+    @eth @vlan
+    @vlan_mtu_device_reapply
+    Scenario: nmcli - vlan - MTU device reapply
+    * Add a new connection of type "ethernet" and options "con-name vlan1 ifname eth7 802-3-ethernet.mtu 2000 ipv4.method disabled ipv6.method ignore"
+    * Bring "up" connection "vlan1"
+    * Add a new connection of type "vlan" and options "con-name eth7.299 ifname eth7.299 dev eth7 id 299 802-3-ethernet.mtu 2000 ipv4.method manual ipv4.addresses 1.2.3.4/24"
+    * Add a new connection of type "vlan" and options "con-name eth7.399 ifname eth7.399 dev eth7 id 399 802-3-ethernet.mtu 2000 ipv4.method manual ipv4.addresses 1.2.3.5/24"
+    When "mtu 2000" is visible with command "ip a s eth7" in "10" seconds
+    When "mtu 2000" is visible with command "ip a s eth7.299" in "10" seconds
+    When "mtu 2000" is visible with command "ip a s eth7.399" in "10" seconds
+    * Modify connection "eth7.399" changing options "ethe.mtu 1800"
+    * Execute "nmcli device reapply eth7.399"
+    Then "mtu 2000" is visible with command "ip a s eth7.299" in "10" seconds
+    Then "mtu 2000" is visible with command "ip a s eth7" in "10" seconds
+    Then "mtu 1800" is visible with command "ip a s eth7.399" in "10" seconds
+
+
     @rhbz1414901
     @ver+=1.10.0
     @vlan @restart @teardown_testveth
