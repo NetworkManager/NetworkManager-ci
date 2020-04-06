@@ -1956,6 +1956,7 @@ Feature: nmcli: ipv4
     Then "DHCP ACK" is visible with command "cat /tmp/tshark.log"
 
 
+    @rhbz1784508
     @teardown_testveth @con_ipv4_remove @kill_children @dhcpd @long
     @dhcp_rebind
     Scenario: DHCPv4 rebind
