@@ -1589,6 +1589,22 @@
     Then "none 0" is visible with command "cat /sys/class/net/nm-bond/bonding/arp_validate"
 
 
+    @rhbz1789437
+    @ver+=1.22.8
+    @bond @slaves
+    @bond_rr_arp_validate
+    Scenario: NM - bond - bond set arp_validate in rr mode
+    * Add a new connection of type "bond" and options "con-name bond0 ifname nm-bond autoconnect no ipv4.method disabled ipv6.method disabled bond.options mode=balance-rr"
+    * Add a new connection of type "ethernet" and options "con-name bond0.1 ifname eth4 master nm-bond autoconnect no"
+    * Add a new connection of type "ethernet" and options "con-name bond0.0 ifname eth1 master nm-bond autoconnect no"
+    * Bring "up" connection "bond0"
+    When "nm-bond:connected:bond0" is visible with command "nmcli -t -f DEVICE,STATE,CONNECTION device" in "40" seconds
+    * Modify connection "bond0" changing options "bond.options mode=balance-rr,arp_validate=active"
+    * Bring "down" connection "bond0"
+    * Bring "up" connection "bond0"
+    Then "active 1" is visible with command "cat /sys/class/net/nm-bond/bonding/arp_validate"
+
+
     @rhbz1703960
     @ver+=1.18.4
     @bond @slaves

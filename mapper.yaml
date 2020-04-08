@@ -250,6 +250,8 @@ testmapper:
     - bond_arp_validate:
         feature: bond
         tags: gate
+    - bond_rr_arp_validate:
+        feature: bond
     - bond_reapply_connection_without_wired_settings:
         feature: bond
     - bond_reconnect_previously_unavailable_device:
