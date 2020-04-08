@@ -1023,6 +1023,8 @@ testmapper:
         feature: vlan
     - vlan_L2_UUID:
         feature: vlan
+    - vlan_no_autoconnect_after_modify:
+        feature: vlan
     - vxlan_interface_recognition:
         feature: vlan
     - vxlan_libnm_shows_port_numbers:

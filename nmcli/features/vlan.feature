@@ -604,6 +604,22 @@ Feature: nmcli - vlan
     Then "eth7.80:connected:vlan" is visible with command "nmcli -t -f DEVICE,STATE,CONNECTION device" in "20" seconds
 
 
+    @rhbz1765047
+    @ver+=1.22.8
+    @vlan
+    @vlan_no_autoconnect_after_modify
+    Scenario: nmcli - vlan - no autoconnect after modify
+    * Add a new connection of type "vlan" and options "con-name vlan dev eth7 id 80 ip4 192.168.1.2/24 autoconnect yes"
+    Then "eth7.80" is visible with command "ip l" in "5" seconds
+    And "vlan" is visible with command "nmcli -t -f name con show --active" in "5" seconds
+    * Bring "down" connection "vlan"
+    Then "eth7.80" is not visible with command "ip l"
+    And "vlan" is not visible with command "nmcli -t -f name con show --active"
+    * Modify connection "vlan" changing options "+ipv4.address 192.168.1.3/24"
+    Then "eth7.80" is not visible with command "ip l" for full "5" seconds
+    And "vlan" is not visible with command "nmcli -t -f name con show --active"
+
+
     @rhbz1066705
     @dummy
     @vxlan_interface_recognition
