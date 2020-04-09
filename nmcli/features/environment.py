@@ -986,6 +986,13 @@ def before_scenario(context, scenario):
                     call("[ -x /usr/sbin/hostapd ] || (yum -y install 'https://vbenes.fedorapeople.org/NM/hostapd-2.6-7.el7.s390x.rpm'; sleep 10)", shell=True)
                 setup_hostapd()
 
+            if 'simwifi_wpa3' in scenario.tags:
+                print ("---------------------------")
+                arch = check_output("uname -p", shell=True).decode('utf-8', 'ignore').strip()
+                if arch != "x86_64":
+                    sys.exit(77)
+                setup_hostapd_wireless('wpa3')
+
             if 'simwifi_wpa2' in scenario.tags:
                 print ("---------------------------")
                 arch = check_output("uname -p", shell=True).decode('utf-8', 'ignore').strip()
@@ -1017,6 +1024,11 @@ def before_scenario(context, scenario):
             if 'simwifi_p2p' in scenario.tags:
                 print ("---------------------------")
                 print ("* setting p2p test bed")
+                if call("grep -q 'release 8' /etc/redhat-release", shell=True) == 0:
+                    call("dnf -4 -y install "
+                         "https://vbenes.fedorapeople.org/NM/wpa_supplicant-2.7-2.2.bz1693684.el8.x86_64.rpm "
+                         "https://vbenes.fedorapeople.org/NM/wpa_supplicant-debuginfo-2.7-2.2.bz1693684.el8.x86_64.rpm ", shell=True)
+                    call("systemctl restart wpa_supplicant", shell=True)
                 arch = check_output("uname -p", shell=True).decode('utf-8', 'ignore').strip()
                 if arch != "x86_64":
                     sys.exit(77)
@@ -2196,7 +2208,13 @@ def after_scenario(context, scenario):
                 #teardown_hostapd_wireless()
                 call("nmcli con del wpa2-eap wifi", shell=True)
 
-            if 'simwifi_wpa2_teardown' in scenario.tags:
+            if 'simwifi_wpa3' in scenario.tags:
+                print ("---------------------------")
+                print ("deleting wifi connections")
+                #teardown_hostapd_wireless()
+                call("nmcli con del wpa3 wifi", shell=True)
+
+            if 'simwifi_teardown' in scenario.tags:
                 print ("---------------------------")
                 print ("bringing down hostapd setup")
                 teardown_hostapd_wireless()
@@ -2216,13 +2234,11 @@ def after_scenario(context, scenario):
                 print ("deleting wifi connections")
                 call("nmcli con del wifi", shell=True)
 
-            if 'simwifi_open_teardown' in scenario.tags:
-                print ("---------------------------")
-                print ("bringing down hostapd setup")
-                teardown_hostapd_wireless()
-
             if 'simwifi_p2p' in scenario.tags:
                 print ("---------------------------")
+                if call("grep -q 'release 8' /etc/redhat-release", shell=True) == 0:
+                    call("dnf -y update wpa_supplicant", shell=True)
+                    call("systemctl restart wpa_supplicant", shell=True)
                 call('modprobe -r mac80211_hwsim', shell=True)
                 call('nmcli con del wifi-p2p', shell=True)
                 call("kill -9 $(ps aux|grep wpa_suppli |grep wlan1 |awk '{print $2}')", shell=True)

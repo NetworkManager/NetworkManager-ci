@@ -129,6 +129,23 @@ private_key_passwd=redhat" > $HOSTAPD_CFG
 \"test_ttls\"      TTLS-PAP,TTLS-CHAP,TTLS-MSCHAP,TTLS-MSCHAPV2    \"password\"  [2]" > $EAP_USERS_FILE
 }
 
+function write_hostapd_cfg_wpa3 ()
+{
+    echo "# Hostapd configuration for 802.1x client testing
+interface=wlan1
+driver=nl80211
+ctrl_interface=/var/run/hostapd
+ctrl_interface_group=0
+ssid=wpa3
+country_code=EN
+hw_mode=g
+channel=7
+auth_algs=3
+wpa=2
+wpa_key_mgmt=SAE
+wpa_passphrase=secret123" > $HOSTAPD_CFG
+}
+
 function write_hostapd_cfg_open ()
 {
     echo "# Hostapd configuration for 802.1x client testing
@@ -271,11 +288,13 @@ function wireless_hostapd_setup ()
 
     echo "Configuring hostapd 802.1x server..."
 
+    # list of supported AUTH_TYPEs
     case $AUTH_TYPE in
       open) ;;
       dynwep) ;;
       pskwep) ;;
       wpa2) ;;
+      wpa3) ;;
       *)
         echo "Unsupported authentication type: $AUTH_TYPE." >&2
         return 1

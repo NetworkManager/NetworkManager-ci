@@ -232,10 +232,30 @@ Feature: nmcli - wifi
 
     @rhbz1626391
     @ver+=1.12 @fedoraver+=31
-    @simwifi_wpa2 @simwifi_wpa2_teardown
+    @simwifi_wpa2
     @wifi_dbus_bitrate_property_name
     Scenario: dbus - property name for Device.Wireless.Bitrate
     Then "Bitrate" is visible with command "for dev_id in $(busctl tree org.freedesktop.NetworkManager | grep Devices/ | grep -o '[0-9]*$'); do busctl introspect org.freedesktop.NetworkManager /org/freedesktop/NetworkManager/Devices/$dev_id | grep Bitrate; done"
+
+
+    @rhbz1730177
+    @ver+=1.22 @fedoraver+=31
+    @simwifi_wpa3
+    @simwifi_wpa3_personal
+    Scenario: nmcli - simwifi - connect to WPA3 personal wifi
+    Given "wpa3" is visible with command "nmcli -f SSID device wifi list" in "60" seconds
+    Then "wpa3:WPA3" is visible with command "nmcli -t -f ssid,security device wifi list"
+    * Add a new connection of type "wifi" and options "ifname wlan0 con-name wifi autoconnect no ssid wpa3 802-11-wireless-security.key-mgmt sae 802-11-wireless-security.psk secret123"
+    Then Bring "up" connection "wifi"
+
+
+    @rhbz1730177
+    @ver+=1.22 @fedoraver+=31
+    @simwifi_wpa3 @simwifi_teardown
+    @simwifi_wpa3_personal_device_connect_ask
+    Scenario: nmcli - simwifi - connect to WPA3 personal wifi with device command
+    Given "wpa3" is visible with command "nmcli -f SSID device wifi list" in "60" seconds
+    Then Finish "echo secret123 | nmcli dev wifi connect wpa3 --ask"
 
 
     @ver+=1.16
