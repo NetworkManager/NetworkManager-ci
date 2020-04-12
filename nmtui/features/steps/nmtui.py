@@ -246,6 +246,8 @@ def confirm_slave_screen(context):
 @step('Confirm the connection settings')
 def confirm_connection_screen(context):
     context.tui.send(keys['DOWNARROW']*64)
+    context.tui.send(keys['RIGHTARROW']*3)
+    context.tui.send(keys['DOWNARROW']*64)
     sleep(0.2)
     feed_stream(context.stream)
     match = re.match(r'^<OK>.*', context.screen.display[context.screen.cursor.y][context.screen.cursor.x-1:], re.UNICODE)
