@@ -7,6 +7,33 @@ die() {
     exit 1
 }
 
+# kills last job with SIGINT, if not finished in 20 seconds, kills with SIGTERM
+kill_child() {
+    echo
+    echo "killed externally, SIGINT child $!..."
+    kill -2 $!
+    for _ in {1..20}; do
+        if ! kill -0 $! &> /dev/null; then
+            echo "child exited within 20 seconds after SIGINT"
+            return
+        fi
+        sleep 1
+    done
+    echo "killing child with SIGKILL"
+    kill -9 $!
+    sleep 1
+    if kill -0 $! &> /dev/null; then
+    echo "child survived SIGKILL, zombie?!"
+fi
+}
+
+dump_NM_journal() {
+    echo -e "No report generated, dumping NM journal log\n\n" > $NMTEST_REPORT
+    if [[ "$NMTEST_REPORT" == *".html" ]]; then echo "<pre>" >> $NMTEST_REPORT; fi
+    journalctl -u NetworkManager --no-pager -o cat "$LOG_CURSOR" | sed 's/</\&lt;/g;s/>/\&gt;/g' >> $NMTEST_REPORT
+    if [[ "$NMTEST_REPORT" == *".html" ]]; then echo "</pre>" >> $NMTEST_REPORT; fi
+}
+
 RUNTEST_TYPE="$(readlink -f "$(dirname "$0")")"
 RUNTEST_TYPE="${RUNTEST_TYPE##*/}"
 case "$RUNTEST_TYPE" in
@@ -58,6 +85,8 @@ else
     NMTEST_REPORT=/tmp/report_$NMTEST.html
 fi
 
+LOG_CURSOR=$(journalctl --lines=0 --show-cursor |awk '/^-- cursor:/ {print "--after-cursor="$NF; exit}')
+
 # get tags specific to software versions (NM, fedora, rhel)
 # see version_control.py for more details
 TAG="$(python $DIR/version_control.py $DIR/$RUNTEST_TYPE $NMTEST)"; vc=$?
@@ -76,13 +105,15 @@ elif [ $vc -eq 0 ]; then
     logger "Running $TAG version of $NMTEST"
     if [ "$RUNTEST_TYPE" == nmtui ]; then
         # Test nmtui
-        behave $FEATURE_FILE --no-capture --no-capture-stderr -k -t $1 -t $TAG -f plain -o $NMTEST_REPORT; rc=$?
+        trap kill_child SIGINT SIGTERM
+        behave $FEATURE_FILE --no-capture --no-capture-stderr -k -t $1 -t $TAG -f plain -o $NMTEST_REPORT & wait $!; rc=$?
     elif [[ $1 == gsm_hub* ]];then
         # Test all modems on USB hub with 8 ports.
         test_modems_usb_hub; rc=$?
     else
         # Test nmcli
-        behave $FEATURE_FILE -t $1 -t $TAG -k -f html -o "$NMTEST_REPORT" -f plain; rc=$?
+        trap kill_child SIGINT SIGTERM
+        behave $FEATURE_FILE -t $1 -t $TAG -k -f html -o "$NMTEST_REPORT" -f plain & wait $!; rc=$?
     fi
 fi
 
@@ -117,6 +148,11 @@ if [ "$RUNTEST_TYPE" == nmtui ]; then
         cat /tmp/journal-session.log >> $NMTEST_REPORT
         sleep 1
     fi
+fi
+
+# If we FAILED and no report, dump journal to report
+if [ "$RESULT" = FAIL -a ! -s "$NMTEST_REPORT" ]; then
+    dump_NM_journal
 fi
 
 # If we have running harness.py then upload logs
