@@ -273,6 +273,7 @@ function prepare_test_bed ()
         iw phy phy1 set netns name wlan_ns
         ip -n wlan_ns add add 10.0.254.1/24 dev wlan1
     else
+        nmcli device set wlan1 managed off
         ip add add 10.0.254.1/24 dev wlan1
     fi
     sleep 5
@@ -343,6 +344,7 @@ function wireless_hostapd_teardown ()
         systemctl reset-failed nm-hostapd
     fi
     systemctl stop nm-hostapd
+    nmcli device set wlan1 managed on
     ip addr flush dev wlan1
     modprobe -r mac80211_hwsim
     [ -f /run/hostapd/wlan1 ] && rm -rf /run/hostapd/wlan1
