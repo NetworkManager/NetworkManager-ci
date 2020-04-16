@@ -56,6 +56,7 @@ sudo yum -y install easy_install
 sudo pip install pexpect
 sudo yum -y install python-lxml
 
+sudo yum -y downgrade annobin
 sudo systemctl restart NetworkManager.service && sleep 5
 
 # FIXME: avoid debuginfo installation in low space semaphore
