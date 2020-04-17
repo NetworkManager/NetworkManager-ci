@@ -10,6 +10,7 @@ Feature: nmcli - wifi
 
 
     @ver+=1.9.1 @fedoraver+=31
+    @simwifi
     @simwifi_open
     Scenario: nmcli - simwifi - connect to open network
     Given "open" is visible with command "nmcli -f SSID device wifi list" in "90" seconds
@@ -21,7 +22,7 @@ Feature: nmcli - wifi
 
 
     @ver+=1.9.1 @fedoraver+=31
-    @simwifi_pskwep
+    @simwifi @simwifi_pskwep
     @simwifi_wep_ask_passwd
     Scenario: nmcli - wifi - connect WEP network asking for password
     Given "wep" is visible with command "nmcli -f SSID device wifi list" in "60" seconds
@@ -33,7 +34,7 @@ Feature: nmcli - wifi
 
 
     @ver+=1.10 @fedoraver+=31
-    @simwifi_dynwep @attach_hostapd_log @attach_wpa_supplicant_log
+    @simwifi @simwifi_dynwep @attach_hostapd_log @attach_wpa_supplicant_log
     @simwifi_wep_tls
     Scenario: nmcli - simwifi - connect to WEP TLS
     Given "dynwep" is visible with command "nmcli -f SSID device wifi list" in "60" seconds
@@ -44,7 +45,7 @@ Feature: nmcli - wifi
 
 
     @ver+=1.10 @fedoraver+=31
-    @simwifi_dynwep @attach_hostapd_log @attach_wpa_supplicant_log
+    @simwifi @simwifi_dynwep @attach_hostapd_log @attach_wpa_supplicant_log
     @simwifi_wep_ttls_mschapv2_eap
     Scenario: nmcli - simwifi - connect to WEP TTLS MSCHAPv2 + EAP
     Given "dynwep" is visible with command "nmcli -f SSID device wifi list" in "60" seconds
@@ -54,7 +55,7 @@ Feature: nmcli - wifi
 
 
     @ver+=1.10 @fedoraver+=31
-    @simwifi_dynwep @attach_hostapd_log @attach_wpa_supplicant_log
+    @simwifi @simwifi_dynwep @attach_hostapd_log @attach_wpa_supplicant_log
     @simwifi_wep_peap_gtc
     Scenario: nmcli - simwifi - connect to WEP PEAP GTC
     Given "dynwep" is visible with command "nmcli -f SSID device wifi list" in "60" seconds
@@ -64,7 +65,7 @@ Feature: nmcli - wifi
 
 
     @ver+=1.9.1 @fedoraver+=31
-    @simwifi_wpa2
+    @simwifi @simwifi_wpa2
     @simwifi_wpa2psk_no_profile
     Scenario: nmcli - simwifi - connect to WPA2 PSK network without profile
     Given "wpa2-eap" is visible with command "nmcli -f SSID device wifi list" in "90" seconds
@@ -76,7 +77,7 @@ Feature: nmcli - wifi
 
 
     @ver+=1.10 @fedoraver+=31
-    @simwifi_wpa2 @attach_hostapd_log @attach_wpa_supplicant_log
+    @simwifi @simwifi_wpa2 @attach_hostapd_log @attach_wpa_supplicant_log
     @simwifi_wpa2psk_profile
     Scenario: nmcli - wifi-sec - configure and connect WPA2-PSK profile
     Given "wpa2-eap" is visible with command "nmcli -f SSID device wifi list" in "90" seconds
@@ -88,7 +89,7 @@ Feature: nmcli - wifi
 
 
     @ver+=1.10 @fedoraver+=31
-    @simwifi_wpa2 @attach_hostapd_log @attach_wpa_supplicant_log
+    @simwifi @simwifi_wpa2 @attach_hostapd_log @attach_wpa_supplicant_log
     @simwifi_tls
     Scenario: nmcli - simwifi - connect to TLS
     Given "wpa2-eap" is visible with command "nmcli -f SSID device wifi list" in "60" seconds
@@ -99,7 +100,7 @@ Feature: nmcli - wifi
 
 
     @ver+=1.10 @fedoraver+=31
-    @simwifi_wpa2 @attach_hostapd_log @attach_wpa_supplicant_log
+    @simwifi @simwifi_wpa2 @attach_hostapd_log @attach_wpa_supplicant_log
     @simwifi_tls_bad_private_key_password
     Scenario: nmcli - simwifi - connect to TLS - bad private key password
     Given "wpa2-eap" is visible with command "nmcli -f SSID device wifi list" in "60" seconds
@@ -112,7 +113,7 @@ Feature: nmcli - wifi
 
     @rhbz1433536
     @ver+=1.10 @fedoraver+=31
-    @simwifi_wpa2 @attach_hostapd_log @attach_wpa_supplicant_log
+    @simwifi @simwifi_wpa2 @attach_hostapd_log @attach_wpa_supplicant_log
     @simwifi_tls_no_private_key_password
     Scenario: nmcli - simwifi - connect to TLS - no private key password
     Given "wpa2-eap" is visible with command "nmcli -f SSID device wifi list" in "60" seconds
@@ -123,7 +124,7 @@ Feature: nmcli - wifi
 
 
     @ver+=1.10 @fedoraver+=31
-    @simwifi_wpa2 @attach_hostapd_log @attach_wpa_supplicant_log
+    @simwifi @simwifi_wpa2 @attach_hostapd_log @attach_wpa_supplicant_log
     @simwifi_peap_gtc
     Scenario: nmcli - simwifi - connect to PEAP GTC
     Given "wpa2-eap" is visible with command "nmcli -f SSID device wifi list" in "60" seconds
@@ -133,7 +134,7 @@ Feature: nmcli - wifi
 
 
     @ver+=1.10 @fedoraver+=31
-    @simwifi_wpa2 @attach_hostapd_log @attach_wpa_supplicant_log
+    @simwifi @simwifi_wpa2 @attach_hostapd_log @attach_wpa_supplicant_log
     @simwifi_peap_md5
     Scenario: nmcli - simwifi - connect to PEAP MD5
     Given "wpa2-eap" is visible with command "nmcli -f SSID device wifi list" in "60" seconds
@@ -143,7 +144,7 @@ Feature: nmcli - wifi
 
 
     @ver+=1.10 @fedoraver+=31
-    @simwifi_wpa2 @attach_hostapd_log @attach_wpa_supplicant_log
+    @simwifi @simwifi_wpa2 @attach_hostapd_log @attach_wpa_supplicant_log
     @simwifi_peap_mschapv2
     Scenario: nmcli - simwifi - connect to PEAP MSCHAPv2
     Given "wpa2-eap" is visible with command "nmcli -f SSID device wifi list" in "60" seconds
@@ -153,7 +154,7 @@ Feature: nmcli - wifi
 
 
     @ver+=1.10 @fedoraver+=31
-    @simwifi_wpa2 @attach_hostapd_log @attach_wpa_supplicant_log
+    @simwifi @simwifi_wpa2 @attach_hostapd_log @attach_wpa_supplicant_log
     @simwifi_ttls_pap
     Scenario: nmcli - simwifi - connect to TTLS PAP
     Given "wpa2-eap" is visible with command "nmcli -f SSID device wifi list" in "60" seconds
@@ -163,7 +164,7 @@ Feature: nmcli - wifi
 
 
     @ver+=1.10 @fedoraver+=31
-    @simwifi_wpa2 @attach_hostapd_log @attach_wpa_supplicant_log
+    @simwifi @simwifi_wpa2 @attach_hostapd_log @attach_wpa_supplicant_log
     @simwifi_ttls_chap
     Scenario: nmcli - simwifi - connect to TTLS CHAP
     Given "wpa2-eap" is visible with command "nmcli -f SSID device wifi list" in "60" seconds
@@ -173,7 +174,7 @@ Feature: nmcli - wifi
 
 
     @ver+=1.10 @fedoraver+=31
-    @simwifi_wpa2 @attach_hostapd_log @attach_wpa_supplicant_log
+    @simwifi @simwifi_wpa2 @attach_hostapd_log @attach_wpa_supplicant_log
     @simwifi_ttls_mschap
     Scenario: nmcli - simwifi - connect to TTLS MSCHAP
     Given "wpa2-eap" is visible with command "nmcli -f SSID device wifi list" in "60" seconds
@@ -183,7 +184,7 @@ Feature: nmcli - wifi
 
 
     @ver+=1.10 @fedoraver+=31
-    @simwifi_wpa2 @attach_hostapd_log @attach_wpa_supplicant_log
+    @simwifi @simwifi_wpa2 @attach_hostapd_log @attach_wpa_supplicant_log
     @simwifi_ttls_mschapv2
     Scenario: nmcli - simwifi - connect to TTLS MSCHAPv2
     Given "wpa2-eap" is visible with command "nmcli -f SSID device wifi list" in "60" seconds
@@ -193,7 +194,7 @@ Feature: nmcli - wifi
 
 
     @ver+=1.10 @fedoraver+=31
-    @simwifi_wpa2 @attach_hostapd_log @attach_wpa_supplicant_log
+    @simwifi @simwifi_wpa2 @attach_hostapd_log @attach_wpa_supplicant_log
     @simwifi_ttls_mschapv2_eap
     Scenario: nmcli - simwifi - connect to TTLS MSCHAPv2 + EAP
     Given "wpa2-eap" is visible with command "nmcli -f SSID device wifi list" in "60" seconds
@@ -203,7 +204,7 @@ Feature: nmcli - wifi
 
 
     @ver+=1.10 @fedoraver+=31
-    @simwifi_wpa2 @attach_hostapd_log @attach_wpa_supplicant_log
+    @simwifi @simwifi_wpa2 @attach_hostapd_log @attach_wpa_supplicant_log
     @simwifi_ttls_md5
     Scenario: nmcli - simwifi - connect to TTLS MD5
     Given "wpa2-eap" is visible with command "nmcli -f SSID device wifi list" in "60" seconds
@@ -213,7 +214,7 @@ Feature: nmcli - wifi
 
 
     @ver+=1.10 @fedoraver+=31
-    @simwifi_wpa2 @attach_hostapd_log @attach_wpa_supplicant_log
+    @simwifi @simwifi_wpa2 @attach_hostapd_log @attach_wpa_supplicant_log
     @simwifi_ttls_gtc
     Scenario: nmcli - simwifi - connect to TTLS GTC
     Given "wpa2-eap" is visible with command "nmcli -f SSID device wifi list" in "60" seconds
@@ -224,7 +225,7 @@ Feature: nmcli - wifi
 
     @rhbz1520398
     @ver+=1.10 @fedoraver+=31
-    @simwifi_wpa2
+    @simwifi @simwifi_wpa2
     @nmclient_get_wireless_hw_property
     Scenario: nmclient - property - get wireless hardware property
     Then "True|False" is visible with command "python tmp/nmclient_get_property.py wireless-hardware-enabled"
@@ -232,7 +233,7 @@ Feature: nmcli - wifi
 
     @rhbz1626391
     @ver+=1.12 @fedoraver+=31
-    @simwifi_wpa2
+    @simwifi @simwifi_wpa2
     @wifi_dbus_bitrate_property_name
     Scenario: dbus - property name for Device.Wireless.Bitrate
     Then "Bitrate" is visible with command "for dev_id in $(busctl tree org.freedesktop.NetworkManager | grep Devices/ | grep -o '[0-9]*$'); do busctl introspect org.freedesktop.NetworkManager /org/freedesktop/NetworkManager/Devices/$dev_id | grep Bitrate; done"
@@ -240,7 +241,7 @@ Feature: nmcli - wifi
 
     @rhbz1730177
     @ver+=1.22 @rhelver+=8 @fedoraver+=31
-    @simwifi_wpa3
+    @simwifi @simwifi_wpa3
     @simwifi_wpa3_personal
     Scenario: nmcli - simwifi - connect to WPA3 personal wifi
     Given "wpa3" is visible with command "nmcli -f SSID device wifi list" in "60" seconds
@@ -251,15 +252,19 @@ Feature: nmcli - wifi
 
     @rhbz1730177
     @ver+=1.22 @rhelver+=8 @fedoraver+=31
-    @simwifi_wpa3 @simwifi_teardown
+    @simwifi @simwifi_wpa3
     @simwifi_wpa3_personal_device_connect_ask
     Scenario: nmcli - simwifi - connect to WPA3 personal wifi with device command
     Given "wpa3" is visible with command "nmcli -f SSID device wifi list" in "60" seconds
     Then Finish "echo secret123 | nmcli dev wifi connect wpa3 --ask"
 
 
-    @ver+=1.16
-    @rhelver+=8 @fedoraver-=0
+    @simwifi_teardown
+    Scenario: teardown wifi setup
+    * Execute "echo 'this is skipped'"
+
+
+    @ver+=1.16 @rhelver+=8 @fedoraver-=0
     @simwifi_p2p @attach_wpa_supplicant_log
     @simwifi_p2p_connect
     Scenario: nmcli - simwifi - p2p - connect

@@ -10,30 +10,52 @@ function start_dnsmasq ()
 {
     echo "Start DHCP server (dnsmasq)"
     local dnsmasq="/usr/sbin/dnsmasq"
+    local ip="ip"
     if $DO_NAMESPACE; then
         dnsmasq="ip netns exec wlan_ns $dnsmasq"
+        ip="ip -n wlan_ns"
     fi
+
+    # assign addreses to wlan1_* interfaces created by hostapd
+    # wlan1 is already configured
+    num=2
+    for dev in $($ip l | grep -o 'wlan1_[^:]*'); do
+      $ip add add 10.0.254.$((num++))/24 dev $dev
+    done
+
     $dnsmasq\
     --pid-file=/tmp/dnsmasq_wireless.pid\
     --port=63\
     --conf-file\
     --no-hosts\
-    --interface=wlan1\
+    --interface=wlan1*\
     --clear-on-reload\
     --strict-order\
     --listen-address=10.0.254.1\
-    --dhcp-range=10.0.254.10,10.0.254.100,60m\
+    --dhcp-range=10.0.254.$((num)),10.0.254.100,60m\
     --dhcp-option=option:router,10.0.254.1\
     --dhcp-lease-max=50
 }
 
-function write_hostapd_cfg_pskwep ()
+function write_hostapd_cfg ()
 {
     echo "# Hostapd configuration for 802.1x client testing
+
+#open
 interface=wlan1
+bssid=$new_mac
 driver=nl80211
 ctrl_interface=/var/run/hostapd
 ctrl_interface_group=0
+ssid=open
+hw_mode=g
+channel=6
+auth_algs=1
+wpa=0
+country_code=EN
+
+#pskwep
+bss=wlan1_pskwep
 ssid=wep
 channel=1
 hw_mode=g
@@ -43,16 +65,10 @@ wep_default_key=0
 wep_key0=\"abcde\"
 wep_key_len_broadcast=\"5\"
 wep_key_len_unicast=\"5\"
-wep_rekey_period=300" > $HOSTAPD_CFG
-}
+wep_rekey_period=300
 
-function write_hostapd_cfg_dynwep ()
-{
-    echo "# Hostapd configuration for 802.1x client testing
-interface=wlan1
-driver=nl80211
-ctrl_interface=/var/run/hostapd
-ctrl_interface_group=0
+#dynwep
+bss=wlan1_dynwep
 ssid=dynwep
 channel=1
 hw_mode=g
@@ -73,29 +89,10 @@ ca_cert=$HOSTAPD_KEYS_PATH/hostapd.ca.pem
 dh_file=$HOSTAPD_KEYS_PATH/hostapd.dh.pem
 server_cert=$HOSTAPD_KEYS_PATH/hostapd.cert.pem
 private_key=$HOSTAPD_KEYS_PATH/hostapd.key.enc.pem
-private_key_passwd=redhat" > $HOSTAPD_CFG
+private_key_passwd=redhat
 
-# Create a list of users for network authentication, authentication types, and corresponding credentials.
-echo "# Create hostapd peap user file
-# Phase 1 authentication
-\"user\"   MD5     \"password\"
-\"test\"   TLS,TTLS,PEAP
-# Phase 2 authentication (tunnelled within EAP-PEAP or EAP-TTLS)
-\"TESTERS\\test_mschapv2\"   MSCHAPV2    \"password\"  [2]
-\"test_md5\"       MD5         \"password\"  [2]
-\"test_gtc\"       GTC         \"password\"  [2]
-# Tunneled TLS and non-EAP authentication inside the tunnel.
-\"test_ttls\"      TTLS-PAP,TTLS-CHAP,TTLS-MSCHAP,TTLS-MSCHAPV2    \"password\"  [2]" > $EAP_USERS_FILE
-
-}
-
-function write_hostapd_cfg_wpa2 ()
-{
-    echo "# Hostapd configuration for 802.1x client testing
-interface=wlan1
-driver=nl80211
-ctrl_interface=/var/run/hostapd
-ctrl_interface_group=0
+#wpa2
+bss=wlan1_wpa2eap
 ssid=wpa2-eap
 country_code=EN
 hw_mode=g
@@ -114,10 +111,38 @@ ca_cert=$HOSTAPD_KEYS_PATH/hostapd.ca.pem
 dh_file=$HOSTAPD_KEYS_PATH/hostapd.dh.pem
 server_cert=$HOSTAPD_KEYS_PATH/hostapd.cert.pem
 private_key=$HOSTAPD_KEYS_PATH/hostapd.key.enc.pem
-private_key_passwd=redhat" > $HOSTAPD_CFG
+private_key_passwd=redhat
 
-    # Create a list of users for network authentication, authentication types, and corresponding credentials.
-    echo "# Create hostapd peap user file
+#wpa2_pskonly
+bss=wlan1_wpa2psk
+ssid=wpa2-psk
+country_code=EN
+hw_mode=g
+channel=7
+auth_algs=3
+wpa=3
+wpa_key_mgmt=WPA-PSK
+wpa_passphrase=secret123
+" > $HOSTAPD_CFG
+
+# wpa3 not supported on rhel7 so far
+if ! grep -qi "release 7" /etc/redhat-release; then
+echo "
+#wpa3
+bss=wlan1_wpa3
+ssid=wpa3
+country_code=EN
+hw_mode=g
+channel=7
+auth_algs=3
+wpa=2
+wpa_key_mgmt=SAE
+wpa_passphrase=secret123
+" >> $HOSTAPD_CFG
+fi
+
+# Create a list of users for network authentication, authentication types, and corresponding credentials.
+echo "# Create hostapd peap user file
 # Phase 1 authentication
 \"user\"   MD5     \"password\"
 \"test\"   TLS,TTLS,PEAP
@@ -127,44 +152,11 @@ private_key_passwd=redhat" > $HOSTAPD_CFG
 \"test_gtc\"       GTC         \"password\"  [2]
 # Tunneled TLS and non-EAP authentication inside the tunnel.
 \"test_ttls\"      TTLS-PAP,TTLS-CHAP,TTLS-MSCHAP,TTLS-MSCHAPV2    \"password\"  [2]" > $EAP_USERS_FILE
-}
 
-function write_hostapd_cfg_wpa3 ()
-{
-    echo "# Hostapd configuration for 802.1x client testing
-interface=wlan1
-driver=nl80211
-ctrl_interface=/var/run/hostapd
-ctrl_interface_group=0
-ssid=wpa3
-country_code=EN
-hw_mode=g
-channel=7
-auth_algs=3
-wpa=2
-wpa_key_mgmt=SAE
-wpa_passphrase=secret123" > $HOSTAPD_CFG
-}
-
-function write_hostapd_cfg_open ()
-{
-    echo "# Hostapd configuration for 802.1x client testing
-interface=wlan1
-driver=nl80211
-ctrl_interface=/var/run/hostapd
-ctrl_interface_group=0
-ssid=open
-hw_mode=g
-channel=6
-auth_algs=1
-wpa=0
-country_code=EN" > $HOSTAPD_CFG
 }
 
 function copy_certificates ()
 {
-    CERTS_PATH=$1
-
     # Copy certificates to correct places
     [ -d $HOSTAPD_KEYS_PATH ] || mkdir -p $HOSTAPD_KEYS_PATH
     /bin/cp -rf $CERTS_PATH/server/hostapd* $HOSTAPD_KEYS_PATH
@@ -197,10 +189,9 @@ function start_nm_hostapd ()
 
 function wireless_hostapd_check ()
 {
-    AUTH_TYPE=$1
     need_setup=0
-    echo "* Checking hostapd type"
-    if [ ! -e /tmp/nm_${AUTH_TYPE}_supp_configured ]; then
+    echo "* Checking hostapd"
+    if [ ! -e /tmp/nm_wifi_supp_configured ]; then
         echo "Not OK!!"
         need_setup=1
     fi
@@ -230,7 +221,7 @@ function wireless_hostapd_check ()
         need_setup=1
     fi
     if [ $need_setup -eq 1 ]; then
-        rm -rf /tmp/nm_*_supp_configured
+        rm -rf /tmp/nm_wifi_supp_configured
         wireless_hostapd_teardown
         return 1
     fi
@@ -245,13 +236,16 @@ function prepare_test_bed ()
     systemctl restart haveged
 
     if $DO_NAMESPACE; then
-        semodule -i tmp/selinux-policy/hostapd_wireless.pp
+        local major_ver=$(cat /etc/redhat-release | grep -o "release [0-9]*" | sed 's/release //')
+        local policy_file="tmp/selinux-policy/hostapd_wireless_$major_ver.pp"
+        semodule -i $policy_file || echo "ERROR: unable to load selinux policy !!!"
         ip netns add wlan_ns
     fi
 
     # Disable mac randomization to avoid rhbz1490885
     echo -e "[device-wifi]\nwifi.scan-rand-mac-address=no" > /etc/NetworkManager/conf.d/99-wifi.conf
     echo -e "[connection-wifi]\nwifi.cloned-mac-address=preserve" >> /etc/NetworkManager/conf.d/99-wifi.conf
+    echo -e "[keyfile]\nunmanaged-devices=interface-name:wlan1*" >> /etc/NetworkManager/conf.d/99-wifi.conf
 
     if ! lsmod | grep -q -w mac80211_hwsim; then
         modprobe mac80211_hwsim
@@ -269,11 +263,16 @@ function prepare_test_bed ()
         return 1
     fi
 
+    # zero last two bits in wlan1 MAC address
+    new_mac=$(ip link show dev wlan1 | grep -o 'link/ether [^ ]*' | sed 's/^.* //;s/:..$/:00/')
+    ip link set dev wlan1 down
+    ip link set dev wlan1 address "$new_mac"
+    ip link set dev wlan1 up
+
     if $DO_NAMESPACE; then
         iw phy phy1 set netns name wlan_ns
         ip -n wlan_ns add add 10.0.254.1/24 dev wlan1
     else
-        nmcli device set wlan1 managed off
         ip add add 10.0.254.1/24 dev wlan1
     fi
     sleep 5
@@ -282,45 +281,20 @@ function prepare_test_bed ()
 
 function wireless_hostapd_setup ()
 {
-    local CERTS_PATH=${1:?"Error. Path to certificates is not specified."}
-    local AUTH_TYPE=${2:?"Error. Authentication type is not specified."}
-
     set +x
 
     echo "Configuring hostapd 802.1x server..."
 
-    # list of supported AUTH_TYPEs
-    case $AUTH_TYPE in
-      open) ;;
-      dynwep) ;;
-      pskwep) ;;
-      wpa2) ;;
-      wpa3) ;;
-      *)
-        echo "Unsupported authentication type: $AUTH_TYPE." >&2
-        return 1
-      ;;
-    esac
-
-    if  wireless_hostapd_check ${AUTH_TYPE}; then
+    if  wireless_hostapd_check; then
         echo "OK. Configuration has already been done."
         return 0
     fi
-    echo "Auth type is ${AUTH_TYPE}"
-    prepare_test_bed
-    write_hostapd_cfg_${AUTH_TYPE}
 
-    if [ $AUTH_TYPE != "open" ]; then
-      copy_certificates $CERTS_PATH
-    fi
+    prepare_test_bed
+    write_hostapd_cfg
+    copy_certificates
 
     set -e
-    start_dnsmasq
-    pid=$(cat /tmp/dnsmasq_wireless.pid)
-    if ! pidof dnsmasq | grep -q $pid; then
-        echo "Error. Cannot start dnsmasq as DHCP server." >&2
-        return 1
-    fi
 
     # Start 802.1x authentication and built-in RADIUS server.
     # Start hostapd as a service via systemd-run using configuration wifi adapters
@@ -330,7 +304,14 @@ function wireless_hostapd_setup ()
         return 1
     fi
 
-    touch /tmp/nm_${AUTH_TYPE}_supp_configured
+    start_dnsmasq
+    pid=$(cat /tmp/dnsmasq_wireless.pid)
+    if ! pidof dnsmasq | grep -q $pid; then
+        echo "Error. Cannot start dnsmasq as DHCP server." >&2
+        return 1
+    fi
+
+    touch /tmp/nm_wifi_supp_configured
     # do not lower this as first test may fail then
     sleep 5
 }
@@ -350,7 +331,7 @@ function wireless_hostapd_teardown ()
     [ -f /run/hostapd/wlan1 ] && rm -rf /run/hostapd/wlan1
     rm -rf /etc/NetworkManager/conf.d/99-wifi.conf
     systemctl reload NetworkManager
-    rm -rf /tmp/nm_*_supp_configured
+    rm -rf /tmp/nm_wifi_supp_configured
 
 }
 
@@ -362,7 +343,10 @@ if [ "$1" != "teardown" ]; then
     if [[ " $@ " == *" namespace "* ]]; then
         DO_NAMESPACE=true
     fi
-    wireless_hostapd_setup $1 $2; RC=$?
+
+    CERTS_PATH=${1:?"Error. Path to certificates is not specified."}
+
+    wireless_hostapd_setup $1; RC=$?
     if [ $RC -eq 0 ]; then
         echo "hostapd started successfully."
     else

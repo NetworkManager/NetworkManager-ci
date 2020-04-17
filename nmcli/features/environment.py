@@ -420,7 +420,7 @@ def setup_hostapd():
         call("sh prepare/hostapd_wired.sh teardown", shell=True)
         sys.exit(1)
 
-def setup_hostapd_wireless(auth):
+def setup_hostapd_wireless():
     print ("setting up hostapd wireless")
     wait_for_testeth0()
     arch = check_output("uname -p", shell=True).decode('utf-8', 'ignore').strip()
@@ -429,7 +429,7 @@ def setup_hostapd_wireless(auth):
         if call("grep -q Maipo /etc/redhat-release", shell=True) == 0:
             call("[ -f /etc/yum.repos.d/epel.repo ] || sudo rpm -i http://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm", shell=True)
         call("[ -x /usr/sbin/hostapd ] || (yum -y install hostapd; sleep 10)", shell=True)
-    if call("sh prepare/hostapd_wireless.sh tmp/8021x/certs {}".format(auth), shell=True) != 0:
+    if call("sh prepare/hostapd_wireless.sh tmp/8021x/certs namespace", shell=True) != 0:
         call("sh prepare/hostapd_wireless.sh teardown", shell=True)
         sys.exit(1)
 
@@ -986,40 +986,12 @@ def before_scenario(context, scenario):
                     call("[ -x /usr/sbin/hostapd ] || (yum -y install 'https://vbenes.fedorapeople.org/NM/hostapd-2.6-7.el7.s390x.rpm'; sleep 10)", shell=True)
                 setup_hostapd()
 
-            if 'simwifi_wpa3' in scenario.tags:
+            if 'simwifi' in scenario.tags:
                 print ("---------------------------")
                 arch = check_output("uname -p", shell=True).decode('utf-8', 'ignore').strip()
                 if arch != "x86_64":
                     sys.exit(77)
-                setup_hostapd_wireless('wpa3')
-
-            if 'simwifi_wpa2' in scenario.tags:
-                print ("---------------------------")
-                arch = check_output("uname -p", shell=True).decode('utf-8', 'ignore').strip()
-                if arch != "x86_64":
-                    sys.exit(77)
-                setup_hostapd_wireless('wpa2')
-
-            if 'simwifi_open' in scenario.tags:
-                print ("---------------------------")
-                arch = check_output("uname -p", shell=True).decode('utf-8', 'ignore').strip()
-                if arch != "x86_64":
-                    sys.exit(77)
-                setup_hostapd_wireless('open')
-
-            if 'simwifi_pskwep' in scenario.tags:
-                print ("---------------------------")
-                arch = check_output("uname -p", shell=True).decode('utf-8', 'ignore').strip()
-                if arch != "x86_64":
-                    sys.exit(77)
-                setup_hostapd_wireless('pskwep')
-
-            if 'simwifi_dynwep' in scenario.tags:
-                print ("---------------------------")
-                arch = check_output("uname -p", shell=True).decode('utf-8', 'ignore').strip()
-                if arch != "x86_64":
-                    sys.exit(77)
-                setup_hostapd_wireless('dynwep')
+                setup_hostapd_wireless()
 
             if 'simwifi_p2p' in scenario.tags:
                 print ("---------------------------")
@@ -2218,6 +2190,7 @@ def after_scenario(context, scenario):
                 print ("---------------------------")
                 print ("bringing down hostapd setup")
                 teardown_hostapd_wireless()
+                sys.exit(77)
 
             if 'simwifi_open' in scenario.tags:
                 print ("---------------------------")

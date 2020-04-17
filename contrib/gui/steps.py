@@ -167,22 +167,9 @@ def prepare_openvpn(context, version="ip46"):
     assert running, f"openvpn server did not start, exitcode: {server.returncode}"
 
 
-@step('Prepare Wi-Fi with security from test tag')
-@step('Prepare Wi-Fi with security from test tag and certificates from "{certs_dir}"')
-@step('Prepare Wi-Fi with security "{security}"')
-@step('Prepare Wi-Fi with security "{security}" and certificates from "{certs_dir}"')
-def prepare_wifi(context, security="", certs_dir="tmp/8021x/certs", namespace=""):
-    if not security:
-        for tag in context.scenario.tags:
-            if tag.startswith("wifi_"):
-                security = tag.split("_")[1]
-    assert security, "Unable to detect wifi security from test tag"
-    if security == "teardown":
-        assert subprocess.call(
-            f"sudo bash {NM_CI_RUNNER_CMD} prepare/hostapd_wireless.sh teardown", shell=True) == 0, \
-            "wifi teardown failed !!!"
-        context.scenario.skip("Skipping Wi-Fi teardown test")
-        return
+@step('Prepare Wi-Fi')
+@step('Prepare Wi-Fi with certificates from "{certs_dir}"')
+def prepare_wifi(context, certs_dir="tmp/8021x/certs"):
     add_after_scenario_hook(
         context, subprocess.call, "sudo nmcli con delete $(sudo nmcli -g uuid,type c show "
         "| grep 802-11-wireless | grep -o '^[^:]*' )", shell=True)
@@ -191,13 +178,13 @@ def prepare_wifi(context, security="", certs_dir="tmp/8021x/certs", namespace=""
                                    "Wireless"),
         context)
     assert subprocess.call(
-        f"sudo bash {NM_CI_RUNNER_CMD} prepare/hostapd_wireless.sh {certs_dir} {security} {namespace}"
-        f"&> /tmp/hostapd_wireless.log", shell=True) == 0, f"{security} wifi setup failed !!!"
+        f"sudo bash {NM_CI_RUNNER_CMD} prepare/hostapd_wireless.sh {certs_dir} namespace"
+        f"&> /tmp/hostapd_wireless.log", shell=True) == 0, f"wifi setup failed !!!"
 
 
-@step('Prepare single Wi-Fi with security from test tag')
-@step('Prepare single Wi-Fi with security from test tag and certificates from "{certs_dir}"')
-@step('Prepare single Wi-Fi with security "{security}"')
-@step('Prepare single Wi-Fi with security "{security}" and certificates from "{certs_dir}"')
-def prepare_wifi_namespace(context, security="", certs_dir="tmp/8021x/certs", namespace="namespace"):
-    prepare_wifi(context, security, certs_dir, namespace)
+@step('Teardown Wi-Fi')
+def teardown_wifi(context):
+    assert subprocess.call(
+        f"sudo bash {NM_CI_RUNNER_CMD} prepare/hostapd_wireless.sh teardown", shell=True) == 0, \
+        "wifi teardown failed !!!"
+    context.scenario.skip("Skipping Wi-Fi teardown test")

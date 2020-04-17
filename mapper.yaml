@@ -1793,6 +1793,9 @@ testmapper:
         feature: wifi_hwsim
     - wifi_dbus_bitrate_property_name:
         feature: wifi_hwsim
+    - simwifi_teardown:
+        feature: wifi_hwsim
+        tags: gate
     - gsm_sim_create_assisted_connection:
         feature: gsm_sim
     - gsm_sim_create_default_connection:
