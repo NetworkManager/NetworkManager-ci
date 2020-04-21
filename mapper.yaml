@@ -27,6 +27,7 @@ component:
       - mobile-broadband-provider-info
       - libnl3
   gate-in: beaker
+  openstack-flavor: medium
 
 dependencies:
   beaker-tasks:
