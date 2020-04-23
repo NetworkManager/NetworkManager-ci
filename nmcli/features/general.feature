@@ -1088,7 +1088,7 @@ Feature: nmcli - general
 
     @rhbz1182085
     @ver+=1.9
-    @con_general_remove @netservice @restart @rhelver-=7 @fedoraver-=0 @connect_testeth0
+    @con_general_remove @netservice @restart @eth10_disconnect @rhelver-=7 @fedoraver-=0 @connect_testeth0
     @nmcli_general_profile_pickup_doesnt_break_network
     Scenario: nmcli - general - profile pickup does not break network service
     * Add a new connection of type "ethernet" and options "ifname * con-name con_general"
