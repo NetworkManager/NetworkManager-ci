@@ -240,7 +240,7 @@ Feature: nmcli - wifi
 
 
     @rhbz1730177
-    @ver+=1.22 @rhelver+=8 @fedoraver+=31
+    @ver+=1.22 @rhelver+=8.2 @fedoraver+=31
     @simwifi @simwifi_wpa3
     @simwifi_wpa3_personal
     Scenario: nmcli - simwifi - connect to WPA3 personal wifi
@@ -251,7 +251,7 @@ Feature: nmcli - wifi
 
 
     @rhbz1730177
-    @ver+=1.22 @rhelver+=8 @fedoraver+=31
+    @ver+=1.22 @rhelver+=8.2 @fedoraver+=31
     @simwifi @simwifi_wpa3
     @simwifi_wpa3_personal_device_connect_ask
     Scenario: nmcli - simwifi - connect to WPA3 personal wifi with device command
