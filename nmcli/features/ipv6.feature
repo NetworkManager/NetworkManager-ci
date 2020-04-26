@@ -708,7 +708,7 @@
 
 
     @rhbz1640237
-    @ver+=1.23.1
+    @ver+=1.25.1
     @scapy
     @ipv6_lifetime_too_low
     Scenario: NM - ipv6 - valid lifetime too low should be ignored
