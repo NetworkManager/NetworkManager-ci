@@ -37,6 +37,7 @@ sudo dnf -y install \
         bash-completion \
         dnsmasq \
         gcc \
+        make \
         rpm-build \
         radvd \
         rsync \
