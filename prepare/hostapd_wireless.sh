@@ -37,6 +37,10 @@ function start_dnsmasq ()
     --dhcp-lease-max=50
 }
 
+function ver_gte() {
+    test "$1" = "`echo -e "$1\n$2" | sort -V | tail -n1`"
+}
+
 function write_hostapd_cfg ()
 {
     echo "# Hostapd configuration for 802.1x client testing
@@ -125,8 +129,10 @@ wpa_key_mgmt=WPA-PSK
 wpa_passphrase=secret123
 " > $HOSTAPD_CFG
 
-# wpa3 not supported on rhel7 so far
-if ! grep -qi "release 7" /etc/redhat-release; then
+# wpa3 requires wpa_suuplicant >= 2.9
+wpa_ver=$(rpm -q wpa_supplicant)
+wpa_ver=${wpa_ver#wpa_supplicant-}
+if ver_gte $wpa_ver 2.9; then
 echo "
 #wpa3
 bss=wlan1_wpa3
