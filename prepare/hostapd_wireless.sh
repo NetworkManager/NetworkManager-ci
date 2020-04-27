@@ -179,8 +179,6 @@ function restart_services ()
 {
     systemctl daemon-reload
     systemctl restart NetworkManager
-    #TODO: remove this `sleep 5` after fixed https://bugzilla.redhat.com/show_bug.cgi?id=1823164 
-    sleep 5
     systemctl restart wpa_supplicant
 }
 
