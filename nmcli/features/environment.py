@@ -185,7 +185,8 @@ def stripped(x):
 
 def dump_status_nmtui(fd, when):
     fd.write("Network configuration %s scenario:\n----------------------------------\n" % when)
-    cmds = [ 'ip link',
+    cmds = [ 'date "+%Y%m%d-%H%M%S.%N"',
+             'ip link',
              'ip addr',
              'ip -4 route',
              'ip -6 route',
@@ -205,7 +206,7 @@ def dump_status_nmcli(context, when):
     f = open(os.devnull, 'w')
     nm_running = call('systemctl status NetworkManager', shell=True, stdout=f) == 0
 
-    cmds = []
+    cmds = [ 'date "+%Y%m%d-%H%M%S.%N"' ]
     if nm_running:
         cmds += [ 'NetworkManager --version' ]
     cmds += [ 'ip addr',
