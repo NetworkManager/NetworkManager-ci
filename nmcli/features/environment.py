@@ -185,31 +185,45 @@ def stripped(x):
 
 def dump_status_nmtui(fd, when):
     fd.write("Network configuration %s scenario:\n----------------------------------\n" % when)
-    for cmd in ['ip link', 'ip addr', 'ip -4 route', 'ip -6 route',
-        'nmcli g', 'nmcli c', 'nmcli d', 'nmcli d w l']:
-             fd.write("--- %s ---\n" % cmd)
-             fd.flush()
-             call(cmd, shell=True, stdout=fd)
-             fd.write("\n")
+    cmds = [ 'ip link',
+             'ip addr',
+             'ip -4 route',
+             'ip -6 route',
+             'nmcli g',
+             'nmcli c',
+             'nmcli d',
+             'nmcli d w l' ]
+    for cmd in cmds:
+        fd.write("--- %s ---\n" % cmd)
+        fd.flush()
+        call(cmd, shell=True, stdout=fd)
+        fd.write("\n")
 
 def dump_status_nmcli(context, when):
     context.log.write("\n\n\n=================================================================================\n")
     context.log.write("Network configuration %s:\n\n" % when)
     f = open(os.devnull, 'w')
-    if call('systemctl status NetworkManager', shell=True, stdout=f) != 0:
-        for cmd in ['ip addr', 'ip -4 route', 'ip -6 route']:
-            context.log.write("--- %s ---\n" % cmd)
-            context.log.flush()
-            call(cmd, shell=True, stdout=context.log)
-    else:
-        for cmd in ['NetworkManager --version', 'ip addr', 'ip -4 route', 'ip -6 route',
-            'nmcli g', 'nmcli c', 'nmcli d',
-            'hostnamectl', 'NetworkManager --print-config', 'ps aux | grep dhclient']:
-            #'nmcli con show testeth0',\
-            #'sysctl -a|grep ra |grep ipv6 |grep "all\|default\|eth\|test"']:
-            context.log.write("--- %s ---\n" % cmd)
-            context.log.flush()
-            call(cmd, shell=True, stdout=context.log)
+    nm_running = call('systemctl status NetworkManager', shell=True, stdout=f) == 0
+
+    cmds = []
+    if nm_running:
+        cmds += [ 'NetworkManager --version' ]
+    cmds += [ 'ip addr',
+              'ip -4 route',
+              'ip -6 route' ]
+    if nm_running:
+        cmds += [ 'nmcli g',
+                  'nmcli c',
+                  'nmcli d',
+                  'hostnamectl',
+                  'NetworkManager --print-config',
+                  'ps aux | grep dhclient' ]
+
+    for cmd in cmds:
+        context.log.write("--- %s ---\n" % cmd)
+        context.log.flush()
+        call(cmd, shell=True, stdout=context.log)
+    if nm_running:
         if os.path.isfile('/tmp/nm_newveth_configured'):
             context.log.write("\nVeth setup network namespace and DHCP server state:\n")
             for cmd in ['ip netns exec vethsetup ip addr', 'ip netns exec vethsetup ip -4 route',
