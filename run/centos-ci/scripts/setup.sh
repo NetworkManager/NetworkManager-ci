@@ -43,7 +43,8 @@ sudo dnf -y install \
         rsync \
         bash-completion \
         radvd \
-        --skip-broken
+        --skip-broken \
+        --nobest
 
 # Install OVS
 sudo dnf install -y https://cbs.centos.org/kojifiles/packages/openvswitch/2.12.0/1.el8/x86_64/openvswitch-2.12.0-1.el8.x86_64.rpm
