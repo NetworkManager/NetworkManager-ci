@@ -43,6 +43,7 @@ sudo dnf -y install \
         rsync \
         bash-completion \
         radvd \
+        dbus-x11 \
         --skip-broken \
         --nobest
 
