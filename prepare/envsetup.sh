@@ -15,7 +15,7 @@ install_plugins_yum () {
         yum -y install NetworkManager-pptp
     fi
     if ! rpm -q --quiet NetworkManager-ovs; then
-        dnf -4 -y install NetworkManager-ovs
+        yum -4 -y install NetworkManager-ovs
     fi
     if ! rpm -q --quiet NetworkManager-ppp && ! rpm -q NetworkManager |grep -q '1.4'; then
         yum -y install NetworkManager-ppp
@@ -23,6 +23,7 @@ install_plugins_yum () {
     if ! rpm -q --quiet NetworkManager-openvpn; then
         yum -y install NetworkManager-openvpn
     fi
+
 }
 
 
@@ -531,7 +532,7 @@ local_setup_configure_nm_eth () {
 
     nmcli c u testeth0
 
-
+    systemctl daemon-reload
     systemctl restart NetworkManager
     sleep 5
     nmcli con del "System eth0"
