@@ -32,12 +32,13 @@ component:
 dependencies:
   beaker-tasks:
     - /distribution/command:
-        CMDS_TO_RUN: 'if grep -q "Fedora release 31" /etc/redhat-release; then dnf -y install https://vbenes.fedorapeople.org/NM/F31_kernel/kernel-5.5.11-200.bz1816765.fc31.x86_64.rpm https://vbenes.fedorapeople.org/NM/F31_kernel/kernel-core-5.5.11-200.bz1816765.fc31.x86_64.rpm https://vbenes.fedorapeople.org/NM/F31_kernel/kernel-devel-5.5.11-200.bz1816765.fc31.x86_64.rpm https://vbenes.fedorapeople.org/NM/F31_kernel/kernel-modules-5.5.11-200.bz1816765.fc31.x86_64.rpm https://vbenes.fedorapeople.org/NM/F31_kernel/kernel-modules-extra-5.5.11-200.bz1816765.fc31.x86_64.rpm https://vbenes.fedorapeople.org/NM/F31_kernel/kernel-modules-internal-5.5.11-200.bz1816765.fc31.x86_64.rpm; fi; if grep -q "Fedora release 3[2-3]" /etc/redhat-release; then dnf -y install https://vbenes.fedorapeople.org/NM/glib_F32/glib2-2.64.2-2.fc32.x86_64.rpm https://vbenes.fedorapeople.org/NM/glib_F32/glib2-devel-2.64.2-2.fc32.x86_64.rpm; fi'
-    - /distribution/utils/reboot:
-    - /distribution/command:
         CMDS_TO_RUN: 'if grep -q "Fedora release 3[0-3]" /etc/redhat-release; then echo mq-deadline > /sys/block/sda/queue/scheduler; fi'
     - /distribution/command:
         CMDS_TO_RUN: 'if grep -q "Fedora release 33" /etc/redhat-release; then dnf -y install https://kojipkgs.fedoraproject.org//packages/openvswitch/2.13.0/1.fc33/x86_64/openvswitch-2.13.0-1.fc33.x86_64.rpm https://kojipkgs.fedoraproject.org//packages/openvswitch/2.13.0/1.fc33/x86_64/python3-openvswitch-2.13.0-1.fc33.x86_64.rpm https://kojipkgs.fedoraproject.org//packages/openvswitch/2.13.0/1.fc33/x86_64/openvswitch-devel-2.13.0-1.fc33.x86_64.rpm; fi'
+    - /distribution/command:
+        CMDS_TO_RUN: 'if grep -q "Fedora release 3[2-3]" /etc/redhat-release; then dnf -y install https://vbenes.fedorapeople.org/NM/glib_F32/glib2-2.64.2-2.fc32.x86_64.rpm https://vbenes.fedorapeople.org/NM/glib_F32/glib2-devel-2.64.2-2.fc32.x86_64.rpm; fi'
+    - /distribution/command:
+        CMDS_TO_RUN: 'if grep -q "Enterprise Linux release 7" /etc/redhat-release; then yum -y install http://download.eng.bos.redhat.com/brewroot/work/tasks/2514/28362514/glib2-2.56.1-6.1.el7.x86_64.rpm http://download.eng.bos.redhat.com/brewroot/work/tasks/2514/28362514/glib2-devel-2.56.1-6.1.el7.x86_64.rpm; fi'
   packages:
       - chkconfig # Abrtd job dependency
       - dnsmasq
