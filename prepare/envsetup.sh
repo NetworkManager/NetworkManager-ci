@@ -15,7 +15,7 @@ install_plugins_yum () {
         yum -y install NetworkManager-pptp
     fi
     if ! rpm -q --quiet NetworkManager-ovs; then
-        yum -4 -y install NetworkManager-ovs
+        yum -y install NetworkManager-ovs
     fi
     if ! rpm -q --quiet NetworkManager-ppp && ! rpm -q NetworkManager |grep -q '1.4'; then
         yum -y install NetworkManager-ppp
