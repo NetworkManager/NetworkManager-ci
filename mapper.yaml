@@ -2452,6 +2452,9 @@ testmapper:
     - nmtui_simwifi_connect_to_wpa2psk_network:
         run: nmtui/./runtest.sh nmtui_simwifi_connect_to_wpa2psk_network
         feature: nmtui
+    - nmtui_simwifi_connect_to_wpa3psk_network:
+        run: nmtui/./runtest.sh nmtui_simwifi_connect_to_wpa3psk_network
+        feature: nmtui
     - nmtui_simwifi_connect_to_wep_hexkey_network:
         run: nmtui/./runtest.sh nmtui_simwifi_connect_to_wep_hexkey_network
         feature: nmtui
@@ -2520,6 +2523,9 @@ testmapper:
         feature: nmtui
     - nmtui_simwifi_wpa2_connection:
         run: nmtui/./runtest.sh nmtui_simwifi_wpa2_connection
+        feature: nmtui
+    - nmtui_simwifi_wpa3_connection:
+        run: nmtui/./runtest.sh nmtui_simwifi_wpa3_connection
         feature: nmtui
     - nmtui_simwifi_wep_hexkey_connection:
         run: nmtui/./runtest.sh nmtui_simwifi_wep_hexkey_connection

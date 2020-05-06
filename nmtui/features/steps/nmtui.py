@@ -114,6 +114,23 @@ def go_until_pattern_matches_aftercursor_text(context, key, pattern, limit=50, i
             feed_stream(context.stream)
     return None
 
+def search_all_patterns_in_list(context, patterns, limit=50):
+    patterns = list(patterns)  # make local copy
+    context.tui.send(keys["UPARROW"]*limit)
+    sleep(0.2)
+    feed_stream(context.stream)
+    for i in range(0,limit):
+        for pattern in patterns:
+            match = re.match(pattern, context.screen.display[context.screen.cursor.y], re.UNICODE)
+            if match is not None:
+                patterns.remove(pattern)
+                break
+        if len(patterns) == 0:
+            break
+        context.tui.send(keys["DOWNARROW"])
+        sleep(0.3)
+        feed_stream(context.stream)
+    return patterns
 
 @step('Prepare virtual terminal environment')
 def prepare_environment(context):
@@ -197,6 +214,12 @@ def select_con_in_list(context, con_name):
         context.tui.send(keys['UPARROW']*16)
     if not go_until_pattern_matches_line(context,keys['DOWNARROW'],r'.*%s.*' % con_name):
         assert go_until_pattern_matches_line(context,keys['UPARROW'],r'.*%s.*' % con_name) is not None, "Could not go to connection '%s' on screen!" % con_name
+
+
+@step('Connections "{con_names}" are in the list')
+def all_cons_in_list(context, con_names):
+    patterns = search_all_patterns_in_list(context, [r".*%s.*" % name for name in con_names.split(",")])
+    assert len(patterns) == 0, "The following list items were not found: " + str(patterns)
 
 
 @step('Get back to the connection list')

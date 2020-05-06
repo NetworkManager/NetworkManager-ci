@@ -10,31 +10,17 @@ Feature: WIFI TUI tests
     Scenario: nmtui - wifi_hwsim - see all networks
     * Start nmtui
     * Choose to "Activate a connection" from main screen
-    Then ".*open.*" is visible on screen
-    Then ".* wep .*" is visible on screen
-    Then ".*wep-2.*" is visible on screen
-    Then ".*dynwep.*" is visible on screen
-    Then ".*wpa1-eap.*" is visible on screen
-    Then ".*wpa1-psk.*" is visible on screen
-    Then ".*wpa2-eap.*" is visible on screen
-    Then ".*wpa2-psk.*" is visible on screen
-    Then ".*wpa3.*" is visible on screen
+    Then Connections "open, wep ,wep-2,dynwep,wpa1-eap,wpa1-psk,wpa2-eap,wpa2-psk,wpa3" are in the list
 
 
+    # no wpa3 before 8.2
     @rhelver-=8.1
     @simwifi
     @nmtui_simwifi_see_all_networks
     Scenario: nmtui - wifi_hwsim - see all networks
     * Start nmtui
     * Choose to "Activate a connection" from main screen
-    Then ".*open.*" is visible on screen
-    Then ".* wep .*" is visible on screen
-    Then ".*wep-2.*" is visible on screen
-    Then ".*dynwep.*" is visible on screen
-    Then ".*wpa1-eap.*" is visible on screen
-    Then ".*wpa1-psk.*" is visible on screen
-    Then ".*wpa2-eap.*" is visible on screen
-    Then ".*wpa2-psk.*" is visible on screen
+    Then Connections "open, wep ,wep-2,dynwep,wpa1-eap,wpa1-psk,wpa2-eap,wpa2-psk" are in the list
 
 
     @simwifi
@@ -78,6 +64,23 @@ Feature: WIFI TUI tests
     * Press "ENTER" key
     Then "ESSID=(\"wpa2-psk\"|wpa2-psk)" is visible with command "cat /etc/sysconfig/network-scripts/ifcfg-wpa2-psk"
     Then "TYPE=Wireless" is visible with command "cat /etc/sysconfig/network-scripts/ifcfg-wpa2-psk"
+    Then "inet 10." is visible with command "ip a s wlan0" in "30" seconds
+
+
+    @rhelver+=8.2
+    @simwifi
+    @nmtui_simwifi_connect_to_wpa3psk_network
+    Scenario: nmtui - wifi_hwsim - connect to WPA3-PSK network straight
+    * Start nmtui
+    * Choose to "Activate a connection" from main screen
+    * Select connection "wpa3" in the list
+    * Choose to "<Activate>" a connection
+    * Wait for at least "2" seconds
+    * ".*Authentication required.*" is visible on screen
+    * Set current field to "secret123"
+    * Press "ENTER" key
+    Then "ESSID=(\"wpa3\"|wpa3)" is visible with command "cat /etc/sysconfig/network-scripts/ifcfg-wpa3"
+    Then "TYPE=Wireless" is visible with command "cat /etc/sysconfig/network-scripts/ifcfg-wpa3"
     Then "inet 10." is visible with command "ip a s wlan0" in "30" seconds
 
 
@@ -307,13 +310,12 @@ Feature: WIFI TUI tests
     Scenario: nmtui - wifi_hwsim - set existing bssid
     * Prepare new connection of type "Wi-Fi" named "wifi1"
     * Set "Device" field to "wlan0"
-    * Set "SSID" field to "open"
-    * Note the output of "nmcli -g bssid,ssid dev wifi list | grep ':open$' | head -n1 | sed 's/\\//g;s/:open//g'"
-    * Note the output of "nmcli -g bssid,ssid dev wifi list | grep ':open$' | head -n1 | sed 's/\\//g;s/:open//g' | tr 'A-F' 'a-f'" as value "bssid_small"
+    * Set "SSID" field to "multiopen"
+    * Note the output of "nmcli -g bssid,ssid dev wifi list | grep ':multiopen$' | head -n1 | sed 's/\\//g;s/:multiopen//g'"
     * Set "BSSID" field to "<noted>"
     * Confirm the connection settings
     Then Noted value is visible with command "cat /etc/sysconfig/network-scripts/ifcfg-wifi1"
-    Then Noted value "bssid_small" is visible with command "iw dev wlan0 link" in "30" seconds
+    Then Noted value is visible with command "iw dev wlan0 link | tr 'a-z' 'A-Z'" in "30" seconds
 
 
     @simwifi
@@ -415,6 +417,20 @@ Feature: WIFI TUI tests
     * Confirm the connection settings
     Then "inet 10." is visible with command "ip a s wlan0" in "30" seconds
     Then "SSID: wpa2-psk" is visible with command "iw dev wlan0 link" in "30" seconds
+
+
+    @rhelver+=8.2
+    @simwifi
+    @nmtui_simwifi_wpa3_connection
+    Scenario: nmtui - wifi_hwsim - WPA3 psk connection
+    * Prepare new connection of type "Wi-Fi" named "wifi1"
+    * Set "Device" field to "wlan0"
+    * Set "SSID" field to "wpa3"
+    * Set "Security" dropdown to "WPA3 Personal"
+    * Set "Password" field to "secret123"
+    * Confirm the connection settings
+    Then "inet 10." is visible with command "ip a s wlan0" in "30" seconds
+    Then "SSID: wpa3" is visible with command "iw dev wlan0 link" in "30" seconds
 
 
     @simwifi
