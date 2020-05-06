@@ -79,11 +79,8 @@ if [ -z "$NMTEST" ]; then
     exit 128
 fi
 
-if [ "$RUNTEST_TYPE" == nmtui ]; then
-    NMTEST_REPORT=/tmp/report_$NMTEST.log
-else
-    NMTEST_REPORT=/tmp/report_$NMTEST.html
-fi
+
+NMTEST_REPORT=/tmp/report_$NMTEST.html
 
 LOG_CURSOR=$(journalctl --lines=0 --show-cursor |awk '/^-- cursor:/ {print "--after-cursor="$NF; exit}')
 
@@ -103,17 +100,13 @@ elif [ $vc -eq 0 ]; then
     fi
 
     logger "Running $TAG version of $NMTEST"
-    if [ "$RUNTEST_TYPE" == nmtui ]; then
-        # Test nmtui
+    if [ "$RUNTEST_TYPE" == "nmcli" -o "$RUNTEST_TYPE" == "nmtui" ]; then
+        # Test nmtui and nmcli
         trap kill_child SIGINT SIGTERM
-        behave $FEATURE_FILE --no-capture --no-capture-stderr -k -t $1 -t $TAG -f plain -o $NMTEST_REPORT & wait $!; rc=$?
+        behave $FEATURE_FILE -t $1 -t $TAG -k -f html -o "$NMTEST_REPORT" -f plain & wait $!; rc=$?
     elif [[ $1 == gsm_hub* ]];then
         # Test all modems on USB hub with 8 ports.
         test_modems_usb_hub; rc=$?
-    else
-        # Test nmcli
-        trap kill_child SIGINT SIGTERM
-        behave $FEATURE_FILE -t $1 -t $TAG -k -f html -o "$NMTEST_REPORT" -f plain & wait $!; rc=$?
     fi
 fi
 
@@ -126,28 +119,11 @@ else
     RESULT="FAIL"
 fi
 
-if [ "$RUNTEST_TYPE" != nmtui ]; then
-    # check for NM crash
-    if grep -q CRASHED_STEP_NAME "$NMTEST_REPORT" ; then
-        RESULT="FAIL"
-        rc=1
-    fi
-fi
 
-if [ "$RUNTEST_TYPE" == nmtui ]; then
-    # only way to have screen snapshots for each step present in the individual logs
-    # the tui-screen log is created via environment.py
-    cat /tmp/tui-screen.log >> $NMTEST_REPORT
-
-    # this is to see the semi-useful output in the TESTOUT for failed tests too
-    echo "--------- $NMTEST_REPORT ---------"
-    cat $NMTEST_REPORT
-
-    if [ $RESULT == "FAIL" ]; then
-        echo "Attaching journal log as well"
-        cat /tmp/journal-session.log >> $NMTEST_REPORT
-        sleep 1
-    fi
+# check for NM crash
+if grep -q CRASHED_STEP_NAME "$NMTEST_REPORT" ; then
+    RESULT="FAIL"
+    rc=1
 fi
 
 # If we FAILED and no report, dump journal to report

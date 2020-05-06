@@ -593,6 +593,16 @@ def before_scenario(context, scenario):
                 os.system("mkdir /tmp/backup_profiles")
                 os.system("mv -f /etc/sysconfig/network-scripts/ifcfg-* /tmp/backup_profiles")
                 os.system("nmcli con reload")
+            if 'simwifi' in scenario.tags:
+                print ("Preparing simulated wifi setup")
+                arch = check_output("uname -p", shell=True).decode('utf-8', 'ignore').strip()
+                if arch != "x86_64":
+                    sys.exit(77)
+                setup_hostapd_wireless()
+            if 'simwifi_teardown' in scenario.tags:
+                print ("Bringing down simulated wifi setup")
+                teardown_hostapd_wireless()
+                sys.exit(77)
         except Exception:
             print("Error in before_scenario:")
             traceback.print_exc(file=sys.stdout)
@@ -1509,6 +1519,8 @@ def after_scenario(context, scenario):
                 dump_status_nmtui(fd, 'after')
                 fd.flush()
                 fd.close()
+            if os.path.isfile('/tmp/tui-screen.log'):
+                context.embed("text/plain", utf_only_open_read('/tmp/tui-screen.log'), caption="TUI")
             # Stop TUI
             os.system("sudo killall nmtui &> /dev/null")
             os.remove('/tmp/nmtui.out')
@@ -1618,6 +1630,10 @@ def after_scenario(context, scenario):
                 print ("---------------------------")
                 print ("upping testeth0")
                 wait_for_testeth0()
+            if 'simwifi' in scenario.tags:
+                print ("---------------------------")
+                print ("deleting all wifi connections")
+                call("nmcli con del uuid $(nmcli -t -f uuid,type con show | grep ':802-11-wireless$' | sed 's/:802-11-wireless$//g' )", shell=True)
 
         except Exception:
             # Stupid behave simply crashes in case exception has occurred
