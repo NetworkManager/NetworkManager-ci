@@ -435,6 +435,10 @@ def setup_hostapd():
         call("sh prepare/hostapd_wired.sh teardown", shell=True)
         sys.exit(1)
 
+def wifi_rescan():
+    print("Commencing wireless network rescan")
+    call("time sudo nmcli dev wifi list --rescan yes", shell=True)
+
 def setup_hostapd_wireless():
     print ("setting up hostapd wireless")
     wait_for_testeth0()
@@ -447,6 +451,7 @@ def setup_hostapd_wireless():
     if call("sh prepare/hostapd_wireless.sh tmp/8021x/certs namespace", shell=True) != 0:
         call("sh prepare/hostapd_wireless.sh teardown", shell=True)
         sys.exit(1)
+    wifi_rescan()
 
 def teardown_hostapd_wireless():
     call("sh prepare/hostapd_wireless.sh teardown", shell=True)
@@ -586,8 +591,7 @@ def before_scenario(context, scenario):
                     sleep(2)
                 print ("---------------------------")
             if 'wifi' in scenario.tags:
-                print("Commencing wireless network rescan")
-                os.system("sudo nmcli device wifi rescan")
+                wifi_rescan()
             if 'nmtui_general_activate_screen_no_connections' in scenario.tags:
                 print ("Moving all connection profiles to temp dir")
                 os.system("mkdir /tmp/backup_profiles")
@@ -1524,8 +1528,8 @@ def after_scenario(context, scenario):
             # Stop TUI
             os.system("sudo killall nmtui &> /dev/null")
             os.remove('/tmp/nmtui.out')
-            # Attach journalctl logs
-            if hasattr(context, "embed"):
+            # Attach journalctl logs if failed
+            if scenario.status == 'failed' and hasattr(context, "embed"):
                 os.system("sudo journalctl -u NetworkManager --no-pager -o cat %s > /tmp/journal-session.log" % context.log_cursor)
                 data = utf_only_open_read("/tmp/journal-session.log", 'r')
                 if data:
@@ -1615,7 +1619,7 @@ def after_scenario(context, scenario):
             if 'nmtui_wifi_ap' in scenario.tags:
                 os.system("sudo service NetworkManager restart")
                 sleep(5)
-                os.system("sudo nmcli device wifi rescan")
+                wifi_rescan()
                 sleep(10)
             if 'nmtui_general_activate_screen_no_connections' in scenario.tags:
                 print ("Restoring all connection profiles from temp dir")
@@ -2438,7 +2442,7 @@ def after_scenario(context, scenario):
                     call('sudo nmcli con del wifi-wlan0', shell=True)
 
             if 'nmcli_wifi_ap' in scenario.tags:
-                call("sudo nmcli device wifi rescan", shell=True)
+                wifi_rescan()
                 sleep(10)
 
             if 'ifcfg-rh' in scenario.tags:

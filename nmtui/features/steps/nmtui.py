@@ -302,6 +302,9 @@ def set_current_field_to(context, value):
 
 @step('Set "{field}" field to "{value}"')
 def set_specific_field_to(context, field, value):
+    if value == "<noted>":
+        value = context.noted['noted-value']
+        print(f"setting '{field}' to '{value}'")
     assert go_until_pattern_matches_line(context,keys['DOWNARROW'],'^[\u2500-\u2599\s]+%s.*' % field) is not None, "Could not go to option '%s' on screen!" % field
     context.tui.send(keys['BACKSPACE']*100)
     context.tui.send(value)

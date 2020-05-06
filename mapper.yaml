@@ -2440,6 +2440,102 @@ testmapper:
     - nmtui_inf_connected_mode:
         run: nmtui/./runtest.sh nmtui_inf_connected_mode
         feature: nmtui
+    - nmtui_simwifi_see_all_networks:
+        run: nmtui/./runtest.sh nmtui_simwifi_see_all_networks
+        feature: nmtui
+    - nmtui_simwifi_connect_to_open_network:
+        run: nmtui/./runtest.sh nmtui_simwifi_connect_to_open_network
+        feature: nmtui
+    - nmtui_simwifi_connect_to_wpa1psk_network:
+        run: nmtui/./runtest.sh nmtui_simwifi_connect_to_wpa1psk_network
+        feature: nmtui
+    - nmtui_simwifi_connect_to_wpa2psk_network:
+        run: nmtui/./runtest.sh nmtui_simwifi_connect_to_wpa2psk_network
+        feature: nmtui
+    - nmtui_simwifi_connect_to_wep_hexkey_network:
+        run: nmtui/./runtest.sh nmtui_simwifi_connect_to_wep_hexkey_network
+        feature: nmtui
+    - nmtui_simwifi_connect_to_wep_asciikey_network:
+        run: nmtui/./runtest.sh nmtui_simwifi_connect_to_wep_asciikey_network
+        feature: nmtui
+    - nmtui_simwifi_connect_to_wep_phrase_network:
+        run: nmtui/./runtest.sh nmtui_simwifi_connect_to_wep_phrase_network
+        feature: nmtui
+    - nmtui_simwifi_add_default_connection_open_network:
+        run: nmtui/./runtest.sh nmtui_simwifi_add_default_connection_open_network
+        feature: nmtui
+    - nmtui_simwifi_fixed_device_present:
+        run: nmtui/./runtest.sh nmtui_simwifi_fixed_device_present
+        feature: nmtui
+    - nmtui_simwifi_fixed_device_invalid:
+        run: nmtui/./runtest.sh nmtui_simwifi_fixed_device_invalid
+        feature: nmtui
+    - nmtui_simwifi_autoconnect_off:
+        run: nmtui/./runtest.sh nmtui_simwifi_autoconnect_off
+        feature: nmtui
+    - nmtui_simwifi_activate_wo_autoconnect:
+        run: nmtui/./runtest.sh nmtui_simwifi_activate_wo_autoconnect
+        feature: nmtui
+    - nmtui_simwifi_activate_with_autoconnect:
+        run: nmtui/./runtest.sh nmtui_simwifi_activate_with_autoconnect
+        feature: nmtui
+    - nmtui_simwifi_delete_connection_up:
+        run: nmtui/./runtest.sh nmtui_simwifi_delete_connection_up
+        feature: nmtui
+    - nmtui_simwifi_delete_connection_down:
+        run: nmtui/./runtest.sh nmtui_simwifi_delete_connection_down
+        feature: nmtui
+    - nmtui_simwifi_adhoc_network:
+        run: nmtui/./runtest.sh nmtui_simwifi_adhoc_network
+        feature: nmtui
+    - nmtui_simwifi_ap:
+        run: nmtui/./runtest.sh nmtui_simwifi_ap
+        feature: nmtui
+    - nmtui_simwifi_wrong_ssid:
+        run: nmtui/./runtest.sh nmtui_simwifi_wrong_ssid
+        feature: nmtui
+    - nmtui_simwifi_no_ssid:
+        run: nmtui/./runtest.sh nmtui_simwifi_no_ssid
+        feature: nmtui
+    - nmtui_simwifi_set_existing_bssid:
+        run: nmtui/./runtest.sh nmtui_simwifi_set_existing_bssid
+        feature: nmtui
+    - nmtui_simwifi_set_nonexisting_bssid:
+        run: nmtui/./runtest.sh nmtui_simwifi_set_nonexisting_bssid
+        feature: nmtui
+    - nmtui_simwifi_bogus_bssid:
+        run: nmtui/./runtest.sh nmtui_simwifi_bogus_bssid
+        feature: nmtui
+    - nmtui_simwifi_mac_spoofing:
+        run: nmtui/./runtest.sh nmtui_simwifi_mac_spoofing
+        feature: nmtui
+    - nmtui_simwifi_bogus_spoofing_address:
+        run: nmtui/./runtest.sh nmtui_simwifi_bogus_spoofing_address
+        feature: nmtui
+    - nmtui_simwifi_mtu:
+        run: nmtui/./runtest.sh nmtui_simwifi_mtu
+        feature: nmtui
+    - nmtui_simwifi_wpa1_connection:
+        run: nmtui/./runtest.sh nmtui_simwifi_wpa1_connection
+        feature: nmtui
+    - nmtui_simwifi_wpa2_connection:
+        run: nmtui/./runtest.sh nmtui_simwifi_wpa2_connection
+        feature: nmtui
+    - nmtui_simwifi_wep_hexkey_connection:
+        run: nmtui/./runtest.sh nmtui_simwifi_wep_hexkey_connection
+        feature: nmtui
+    - nmtui_simwifi_wep_ascii_connection:
+        run: nmtui/./runtest.sh nmtui_simwifi_wep_ascii_connection
+        feature: nmtui
+    - nmtui_simwifi_wep_passphrase_connection:
+        run: nmtui/./runtest.sh nmtui_simwifi_wep_passphrase_connection
+        feature: nmtui
+    - nmtui_simwifi_show_password:
+        run: nmtui/./runtest.sh nmtui_simwifi_show_password
+        feature: nmtui
+    - nmtui_simwifi_connect_to_network_after_dismissal:
+        run: nmtui/./runtest.sh nmtui_simwifi_connect_to_network_after_dismissal
+        feature: nmtui
 
 
   NetworkManager-gsm:
