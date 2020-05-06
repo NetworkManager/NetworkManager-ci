@@ -2536,6 +2536,9 @@ testmapper:
     - nmtui_simwifi_connect_to_network_after_dismissal:
         run: nmtui/./runtest.sh nmtui_simwifi_connect_to_network_after_dismissal
         feature: nmtui
+    - nmtui_simwifi_teardown:
+        run: nmtui/./runtest.sh nmtui_simwifi_teardown
+        feature: nmtui
 
 
   NetworkManager-gsm:

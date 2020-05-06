@@ -494,3 +494,9 @@ Feature: WIFI TUI tests
     Then "ESSID=(\"wpa2-psk\"|wpa2-psk)" is visible with command "cat /etc/sysconfig/network-scripts/ifcfg-wpa2-psk"
     Then "TYPE=Wireless" is visible with command "cat /etc/sysconfig/network-scripts/ifcfg-wpa2-psk"
     Then "inet 10." is visible with command "ip a s wlan0" in "30" seconds
+
+
+    @simwifi_teardown
+    @nmtui_simwifi_teardown
+    Scenario: teardown wifi setup
+    * Execute "echo 'this is skipped'"
