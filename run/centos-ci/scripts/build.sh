@@ -19,7 +19,7 @@ rm -rf /etc/yum.repos.d/CentOS-Media.repo
 wget https://gitlab.freedesktop.org/NetworkManager/NetworkManager/raw/automation/contrib/rh-bkr/build-from-source.sh -O /root/nm-build-from-source.sh
 
 # Build NM
-BUILD_ID=$BUILD_ID bash /root/nm-build-from-source.sh; RC=$?
+WITH_DEBUG=$WITH_DEBUG BUILD_ID=$BUILD_ID bash /root/nm-build-from-source.sh; RC=$?
 
 if [ $RC -eq 0 ]; then
     cp $BUILD_DIR/NetworkManager/examples/dispatcher/10-ifcfg-rh-routes.sh /etc/NetworkManager/dispatcher.d/
