@@ -5,8 +5,8 @@ RPM_DIR="NetworkManager/contrib/fedora/rpm/latest/RPMS/"
 BUILD_ID="$1"
 BUILD_REPO="${BUILD_REPO-https://github.com/NetworkManager/NetworkManager.git}"
 ARCH="${ARCH:-`arch`}"
-WITH_DEBUG="${WITH_DEBUG:yes}"
-DO_INSTALL="${DO_INSTALL:yes}"
+WITH_DEBUG="${WITH_DEBUG:-yes}"
+DO_INSTALL="${DO_INSTALL:-yes}"
 
 if [ -z "$SUDO" ]; then
     unset SUDO
