@@ -2461,9 +2461,6 @@ testmapper:
     - nmtui_simwifi_connect_to_wep_asciikey_network:
         run: nmtui/./runtest.sh nmtui_simwifi_connect_to_wep_asciikey_network
         feature: nmtui
-    - nmtui_simwifi_connect_to_wep_phrase_network:
-        run: nmtui/./runtest.sh nmtui_simwifi_connect_to_wep_phrase_network
-        feature: nmtui
     - nmtui_simwifi_add_default_connection_open_network:
         run: nmtui/./runtest.sh nmtui_simwifi_add_default_connection_open_network
         feature: nmtui
@@ -2532,9 +2529,6 @@ testmapper:
         feature: nmtui
     - nmtui_simwifi_wep_ascii_connection:
         run: nmtui/./runtest.sh nmtui_simwifi_wep_ascii_connection
-        feature: nmtui
-    - nmtui_simwifi_wep_passphrase_connection:
-        run: nmtui/./runtest.sh nmtui_simwifi_wep_passphrase_connection
         feature: nmtui
     - nmtui_simwifi_show_password:
         run: nmtui/./runtest.sh nmtui_simwifi_show_password

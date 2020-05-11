@@ -117,22 +117,6 @@ Feature: WIFI TUI tests
 
 
     @simwifi
-    @nmtui_simwifi_connect_to_wep_phrase_network
-    Scenario: nmtui - wifi_hwsim - connect to WEP phrase network straight
-    * Start nmtui
-    * Choose to "Activate a connection" from main screen
-    * Select connection " wep-2 " in the list
-    * Choose to "<Activate>" a connection
-    * Wait for at least "2" seconds
-    * ".*Authentication required.*" is visible on screen
-    * Set current field to "testing123456"
-    * Press "ENTER" key
-    Then "ESSID=(\"wep-2\"|wep-2)" is visible with command "cat /etc/sysconfig/network-scripts/ifcfg-wep-2"
-    Then "TYPE=Wireless" is visible with command "cat /etc/sysconfig/network-scripts/ifcfg-wep-2"
-    Then "inet 10." is visible with command "ip a s wlan0" in "30" seconds
-
-
-    @simwifi
     @nmtui_simwifi_add_default_connection_open_network
     Scenario: nmtui - wifi_hwsim - add default connection open network
     * Prepare new connection of type "Wi-Fi" named "wifi"
@@ -459,17 +443,18 @@ Feature: WIFI TUI tests
     Then "SSID: wep" is visible with command "iw dev wlan0 link" in "30" seconds
 
 
-    @simwifi
-    @nmtui_simwifi_wep_passphrase_connection
-    Scenario: nmtui - wifi_hwsim - WEP passphrase connection
-    * Prepare new connection of type "Wi-Fi" named "wifi1"
-    * Set "Device" field to "wlan0"
-    * Set "SSID" field to "wep-2"
-    * Set "Security" dropdown to "WEP 128-bit Passphrase"
-    * Set "Password" field to "testing123456"
-    * Confirm the connection settings
-    Then "inet 10." is visible with command "ip a s wlan0" in "30" seconds
-    Then "SSID: wep" is visible with command "iw dev wlan0 link" in "30" seconds
+    # mac80211_hwsim does not support WEP 128-bit Passphrase
+    #@simwifi
+    #@nmtui_simwifi_wep_passphrase_connection
+    #Scenario: nmtui - wifi_hwsim - WEP passphrase connection
+    #* Prepare new connection of type "Wi-Fi" named "wifi1"
+    #* Set "Device" field to "wlan0"
+    #* Set "SSID" field to "wep-2"
+    #* Set "Security" dropdown to "WEP 128-bit Passphrase"
+    #* Set "Password" field to "testing123456"
+    #* Confirm the connection settings
+    #Then "inet 10." is visible with command "ip a s wlan0" in "30" seconds
+    #Then "SSID: wep" is visible with command "iw dev wlan0 link" in "30" seconds
 
 
 #### Note TUI doesn't support enterprise and dynamic wep yet, tests will be added when support done. ####
