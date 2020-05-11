@@ -48,11 +48,14 @@ def ifcfg_doesnt_exist(context, con_name):
 
 
 @step('"{filename}" is file')
-def is_file(context, filename):
-    if not os.path.isfile(filename):
-        sleep(5)
-        assert os.path.isfile(filename), '"%s" is not a file' % filename
-    return True
+@step('"{filename}" is file in "{seconds}" seconds')
+def is_file(context, filename, seconds=5):
+    for _ in range(int(seconds)):
+        if os.path.isfile(filename):
+            return
+        sleep(1)
+    ls = command_output(context, 'ls -la "%s"' % filename)
+    assert os.path.isfile(filename), '"%s" is not a file:\n%s' % (filename, ls)
 
 
 @step('Path "{path}" does not exist')
