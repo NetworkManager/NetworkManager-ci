@@ -2434,7 +2434,7 @@ def after_scenario(context, scenario):
             if 'remove_dns_clean' in scenario.tags:
                 if call('grep dns /etc/NetworkManager/NetworkManager.conf', shell=True) == 0:
                     call("sudo sed -i 's/dns=none//' /etc/NetworkManager/NetworkManager.conf", shell=True)
-                call("sudo rm -rf /etc/NetworkManager/conf.d/90-test-dns-none.conf", shell=True)
+                call("sudo rm -rf /etc/NetworkManager/conf.d/90-test-dns-none.conf; sleep 1", shell=True)
                 reload_NM_service()
 
             if 'restore_resolvconf' in scenario.tags:
