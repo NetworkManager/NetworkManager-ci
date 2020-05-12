@@ -9,11 +9,11 @@ Feature: nmcli: gsm
 
     @gsm_hub
     Scenario: nmcli - gsm - hub
-    * Execute "echo 'PASS'"
+    * Finish "echo 'This should not be reached' && false"
 
     @gsm_hub_simple
     Scenario: nmcli - gsm - hub
-    * Execute "echo 'PASS'"
+    * Finish "echo 'This should not be reached' && false"
 
     @eth0 @gsm
     @gsm_create_default_connection

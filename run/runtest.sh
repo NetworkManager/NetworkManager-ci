@@ -94,19 +94,20 @@ if [ $vc -eq 1 ]; then
 
 # do we have tag to run tagged test?
 elif [ $vc -eq 0 ]; then
-    FEATURE_FILE=$(grep "@$1" -l $DIR/$RUNTEST_TYPE/features/*.feature)
-    if [ -z $FEATURE_FILE ]; then
-        FEATURE_FILE=$DIR/$RUNTEST_TYPE/features
-    fi
+    if [[ $1 == gsm_hub* ]];then
+      # Test all modems on USB hub with 8 ports.
+      test_modems_usb_hub; rc=$?
+    else
+      # Test nmtui and nmcli
+      FEATURE_FILE=$(grep "@$1" -l $DIR/$RUNTEST_TYPE/features/*.feature)
+      if [ -z $FEATURE_FILE ]; then
+          FEATURE_FILE=$DIR/$RUNTEST_TYPE/features
+      fi
 
-    logger "Running $TAG version of $NMTEST"
-    if [ "$RUNTEST_TYPE" == "nmcli" -o "$RUNTEST_TYPE" == "nmtui" ]; then
-        # Test nmtui and nmcli
-        trap kill_child SIGINT SIGTERM
-        behave $FEATURE_FILE -t $1 -t $TAG -k -f html -o "$NMTEST_REPORT" -f plain & wait $!; rc=$?
-    elif [[ $1 == gsm_hub* ]];then
-        # Test all modems on USB hub with 8 ports.
-        test_modems_usb_hub; rc=$?
+      logger "Running $TAG version of $NMTEST"
+
+      trap kill_child SIGINT SIGTERM
+      behave $FEATURE_FILE -t $1 -t $TAG -k -f html -o "$NMTEST_REPORT" -f plain & wait $!; rc=$?
     fi
 fi
 
