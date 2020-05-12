@@ -1043,7 +1043,7 @@ Feature: nmcli: ipv4
     @ipv4_dhcp_client_id_default
     Scenario: NM - ipv4 - ipv4 client id should default to mac with internal plugins
     * Add connection type "ethernet" named "con_ipv4" for device "eth2"
-    * Run child "sudo tcpdump -i eth2 -v -n > /tmp/tcpdump.log"
+    * Run child "sudo tcpdump -i eth2 -v -n -l > /tmp/tcpdump.log"
     * Note MAC address output for device "eth2" via ip command
     When "empty" is not visible with command "file /tmp/tcpdump.log" in "150" seconds
     * Bring "up" connection "con_ipv4"
@@ -1056,7 +1056,7 @@ Feature: nmcli: ipv4
     @ipv4_dhcp_client_id_default
     Scenario: NM - ipv4 - ipv4 client id should default to duid with internal plugins
     * Add connection type "ethernet" named "con_ipv4" for device "eth2"
-    * Run child "sudo tcpdump -i eth2 -v -n > /tmp/tcpdump.log"
+    * Run child "sudo tcpdump -i eth2 -v -n -l > /tmp/tcpdump.log"
     When "empty" is not visible with command "file /tmp/tcpdump.log" in "150" seconds
     * Bring "up" connection "con_ipv4"
     Then "00:02:00:00:ab:11" is visible with command "grep 'Option 61' /tmp/tcpdump.log" in "10" seconds
@@ -1068,7 +1068,7 @@ Feature: nmcli: ipv4
     @ipv4_dhcp_client_id_default
     Scenario: NM - ipv4 - ipv4 client id should default to mac with internal plugins
     * Add connection type "ethernet" named "con_ipv4" for device "eth2"
-    * Run child "sudo tcpdump -i eth2 -v -n > /tmp/tcpdump.log"
+    * Run child "sudo tcpdump -i eth2 -v -n -l > /tmp/tcpdump.log"
     * Note MAC address output for device "eth2" via ip command
     When "empty" is not visible with command "file /tmp/tcpdump.log" in "150" seconds
     * Bring "up" connection "con_ipv4"
@@ -1081,7 +1081,7 @@ Feature: nmcli: ipv4
     @ipv4_dhcp_client_id_default
     Scenario: NM - ipv4 - ipv4 client id should default to duid with internal plugins
     * Add connection type "ethernet" named "con_ipv4" for device "eth2"
-    * Run child "sudo tcpdump -i eth2 -v -n > /tmp/tcpdump.log"
+    * Run child "sudo tcpdump -i eth2 -v -n -l > /tmp/tcpdump.log"
     When "empty" is not visible with command "file /tmp/tcpdump.log" in "150" seconds
     * Bring "up" connection "con_ipv4"
     Then "00:02:00:00:ab:11" is visible with command "grep 'Option 61' /tmp/tcpdump.log" in "10" seconds
