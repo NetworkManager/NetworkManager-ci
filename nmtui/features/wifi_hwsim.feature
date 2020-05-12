@@ -159,6 +159,7 @@ Feature: WIFI TUI tests
     * Set "SSID" field to "open"
     * Ensure "Automatically connect" is not checked
     * Confirm the connection settings
+    Then "no" is visible with command "nmcli -g connection.autoconnect con show id wifi1"
     Then "ESSID=(\"open\"|open)" is visible with command "cat /etc/sysconfig/network-scripts/ifcfg-wifi"
     Then "DEVICE=wlan0" is visible with command "cat /etc/sysconfig/network-scripts/ifcfg-wifi"
     Then "wlan0\s+wifi\s+disconnected" is visible with command "nmcli device"
@@ -173,6 +174,7 @@ Feature: WIFI TUI tests
     * Ensure "Automatically connect" is not checked
     * Confirm the connection settings
     * "wifi1" is visible with command "nmcli connection"
+    Then "no" is visible with command "nmcli -g connection.autoconnect con show id wifi1"
     * "wifi1" is not visible with command "nmcli device"
     * Come back to main screen
     * Choose to "Activate a connection" from main screen
@@ -190,7 +192,8 @@ Feature: WIFI TUI tests
     * Set "SSID" field to "open"
     * Ensure "Automatically connect" is checked
     * Confirm the connection settings
-    * Execute "nmcli con down wifi1"
+    Then "yes" is visible with command "nmcli -g connection.autoconnect con show id wifi1"
+    * Bring "down" connection "wifi1"
     * "wifi1" is visible with command "nmcli connection"
     * "wifi1" is not visible with command "nmcli device"
     * Come back to main screen
