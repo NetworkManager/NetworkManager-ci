@@ -193,6 +193,8 @@ Feature: WIFI TUI tests
     * Ensure "Automatically connect" is checked
     * Confirm the connection settings
     Then "yes" is visible with command "nmcli -g connection.autoconnect con show id wifi1"
+    # don't "up" connection when this gets fixed https://bugzilla.redhat.com/show_bug.cgi?id=1834980
+    * Bring "up" connection "wifi1"
     * Bring "down" connection "wifi1"
     * "wifi1" is visible with command "nmcli connection"
     * "wifi1" is not visible with command "nmcli device"
