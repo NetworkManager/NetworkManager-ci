@@ -188,3 +188,9 @@ def teardown_wifi(context):
         f"sudo bash {NM_CI_RUNNER_CMD} prepare/hostapd_wireless.sh teardown", shell=True) == 0, \
         "wifi teardown failed !!!"
     context.scenario.skip("Skipping Wi-Fi teardown test")
+
+
+@step('Teardown Wi-Fi after test')
+def teardown_wifi_hook(context):
+    add_after_scenario_hook(context, subprocess.call,
+        f"sudo bash {NM_CI_RUNNER_CMD} prepare/hostapd_wireless.sh teardown", shell=True)
