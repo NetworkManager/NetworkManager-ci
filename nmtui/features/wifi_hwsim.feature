@@ -233,8 +233,10 @@ Feature: WIFI TUI tests
     * Set "Device" field to "wlan0"
     * Set "SSID" field to "open"
     * Confirm the connection settings
-    * Wait for at least "2" seconds
-    * Execute "nmcli connection down wifi1"
+    Then "yes" is visible with command "nmcli -g connection.autoconnect con show id wifi1"
+    # don't "up" connection when this gets fixed https://bugzilla.redhat.com/show_bug.cgi?id=1834980
+    * Bring "up" connection "wifi1"
+    * Bring "down" connection "wifi1"
     * "wifi1" is visible with command "nmcli connection"
     * "wifi1" is not visible with command "nmcli device"
     * Select connection "wifi1" in the list
