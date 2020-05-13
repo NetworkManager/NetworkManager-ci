@@ -230,13 +230,9 @@ Feature: nmcli: inf
     @inf
     @inf_mtu
     Scenario: nmcli - inf - mtu
-    * Add a new connection of type "infiniband" and options "con-name inf ifname inf_ib0 infiniband.transport-mode datagram infiniband.mtu 4080"
-    * Add a new connection of type "infiniband" and options "ifname inf_ib0.8002 parent inf_ib0 p-key 0x8002 con-name inf.8002 infiniband.mtu 2042"
+    * Add a new connection of type "infiniband" and options "ifname inf_ib0.8010 parent inf_ib0 p-key 0x8010 con-name inf infiniband.mtu 2042"
     * Bring "up" connection "inf"
-    * Bring "up" connection "inf.8002"
-    When "4080" is visible with command "ip a s inf_ib0"
-    When "2042" is visible with command "ip a s inf_ib0.8002"
-    * Add a new connection of type "infiniband" and options "con-name inf2 ifname inf_ib0 infiniband.transport-mode datagram infiniband.mtu 2044"
+    When "2042" is visible with command "ip a s inf_ib0.8010"
+    * Add a new connection of type "infiniband" and options "ifname inf_ib0.8010 parent inf_ib0 p-key 0x8010 con-name inf2 infiniband.mtu 4092"
     * Bring "up" connection "inf2"
-    Then "2044" is visible with command "ip a s inf_ib0"
-    Then "2042" is visible with command "ip a s inf_ib0.8002"
+    Then "4092" is visible with command "ip a s inf_ib0.8010"
