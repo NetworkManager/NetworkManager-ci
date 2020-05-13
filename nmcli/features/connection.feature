@@ -98,6 +98,7 @@ Feature: nmcli: connection
 
 
     @rhbz1171751
+    @ver+=1.18
     @teardown_testveth @con_con_remove
     @connection_profile_duplication
     Scenario: nmcli - connection - profile duplication
