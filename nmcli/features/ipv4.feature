@@ -1101,12 +1101,29 @@ Feature: nmcli: ipv4
     Then Bring "up" connection "con_ipv4"
 
 
+    @ver-=1.16
     @con_ipv4_remove @eth0
     @ipv4_never-default_set
     Scenario: nmcli - ipv4 - never-default - set
     * Add a new connection of type "ethernet" and options "ifname eth3 con-name con_ipv4 autoconnect no ipv4.may-fail no ipv4.never-default yes "
     * Bring "up" connection "con_ipv4"
     Then "default via 192." is not visible with command "ip route"
+
+
+    @rhbz1785039
+    @ver+=1.18
+    @con_ipv4_remove @eth0
+    @ipv4_never-default_set
+    Scenario: nmcli - ipv4 - never-default - set
+    * Add a new connection of type "ethernet" and options "ifname eth3 con-name con_ipv4 autoconnect no ipv4.may-fail no ipv4.never-default yes "
+    * Bring "up" connection "con_ipv4"
+    When "default via 1" is not visible with command "ip route"
+    * Modify connection "con_ipv4" changing options "ipv4.addresses 1.2.3.4/24 ipv4.gateway 1.2.3.4"
+    * Bring "up" connection "con_ipv4"
+    When "default via 1.2.3.4" is visible with command "ip route"
+    * Modify connection "con_ipv4" changing options "ipv4.never-default yes"
+    * Bring "up" connection "con_ipv4"
+    Then "default via 1" is not visible with command "ip route"
 
 
     @con_ipv4_remove @eth0
