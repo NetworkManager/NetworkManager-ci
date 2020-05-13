@@ -4,7 +4,7 @@ Feature: WIFI TUI tests
   * Prepare virtual terminal environment
 
 
-    @rhelver+=8.2
+    @rhelver+=8.2 @fedoraver+=31
     @simwifi
     @nmtui_simwifi_see_all_networks
     Scenario: nmtui - wifi_hwsim - see all networks
@@ -14,7 +14,7 @@ Feature: WIFI TUI tests
 
 
     # no wpa3 before 8.2
-    @rhelver-=8.1
+    @rhelver-=8.1 @fedoraver-=30
     @simwifi
     @nmtui_simwifi_see_all_networks
     Scenario: nmtui - wifi_hwsim - see all networks
@@ -67,7 +67,7 @@ Feature: WIFI TUI tests
     Then "inet 10." is visible with command "ip a s wlan0" in "30" seconds
 
 
-    @rhelver+=8.2
+    @rhelver+=8.2 @fedoraver+=31
     @simwifi
     @nmtui_simwifi_connect_to_wpa3psk_network
     Scenario: nmtui - wifi_hwsim - connect to WPA3-PSK network straight
@@ -408,7 +408,7 @@ Feature: WIFI TUI tests
     Then "SSID: wpa2-psk" is visible with command "iw dev wlan0 link" in "30" seconds
 
 
-    @rhelver+=8.2
+    @rhelver+=8.2 @fedoraver+=31
     @simwifi
     @nmtui_simwifi_wpa3_connection
     Scenario: nmtui - wifi_hwsim - WPA3 psk connection
