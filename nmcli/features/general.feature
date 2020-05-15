@@ -1527,6 +1527,24 @@ Feature: nmcli - general
     Then Ping "172.16.10.1" "10" times
 
 
+    @rhbz1723690
+    @ver+=1.18
+    @macsec @not_on_aarch64_but_pegas @long
+    @macsec_set_mtu_from_parent
+    Scenario: NM - general - MACsec MTU from parent
+    * Prepare MACsec PSK environment with CAK "00112233445566778899001122334455" and CKN "5544332211009988776655443322110055443322110099887766554433221100"
+    * Add a new connection of type "ethernet" and options "con-name test-macsec-base ifname macsec_veth ipv4.method disabled ipv6.method ignore 802-3-ethernet.mtu 1536"
+    * Add a new connection of type "macsec" and options "con-name test-macsec ifname macsec0 autoconnect no macsec.parent macsec_veth macsec.mode psk macsec.mka-cak 00112233445566778899001122334455 macsec.mka-ckn 5544332211009988776655443322110055443322110099887766554433221100"
+    * Bring up connection "test-macsec-base"
+    * Bring up connection "test-macsec"
+    #Then Ping "172.16.10.1" "10" times
+    When "1536" is visible with command "ip a s macsec_veth"
+    When "1504" is visible with command "ip a s macsec0"
+    * Bring up connection "test-macsec-base"
+    Then "1536" is visible with command "ip a s macsec_veth"
+    Then "1504" is visible with command "ip a s macsec0"
+
+
     @rhbz1443114
     @ver+=1.8.0
     @restart
