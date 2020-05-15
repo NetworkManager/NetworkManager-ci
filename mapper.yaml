@@ -38,7 +38,8 @@ dependencies:
     - /distribution/command:
         CMDS_TO_RUN: 'if grep -q "Fedora release 3[2-3]" /etc/redhat-release; then dnf -y install https://vbenes.fedorapeople.org/NM/glib_F32/glib2-2.64.2-2.fc32.x86_64.rpm https://vbenes.fedorapeople.org/NM/glib_F32/glib2-devel-2.64.2-2.fc32.x86_64.rpm; fi'
     - /distribution/command:
-        CMDS_TO_RUN: 'if grep -q "Enterprise Linux release 7" /etc/redhat-release; then yum -y install http://download.eng.bos.redhat.com/brewroot/work/tasks/2514/28362514/glib2-2.56.1-6.1.el7.x86_64.rpm http://download.eng.bos.redhat.com/brewroot/work/tasks/2514/28362514/glib2-devel-2.56.1-6.1.el7.x86_64.rpm; fi'
+        CMDS_TO_RUN: 'if grep -q "Enterprise Linux release 7" /etc/redhat-release; then yum -y install https://vbenes.fedorapeople.org/NM/glib_RHEL7/glib2-debuginfo-2.56.1-6.1.el7.x86_64.rpm https://vbenes.fedorapeople.org/NM/glib_RHEL7/glib2-devel-2.56.1-6.1.el7.x86_64.rpm https://vbenes.fedorapeople.org/NM/glib_RHEL7/glib2-2.56.1-6.1.el7.x86_64.rpm; fi'
+        
   packages:
       - chkconfig # Abrtd job dependency
       - dnsmasq
