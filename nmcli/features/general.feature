@@ -1902,7 +1902,7 @@ Feature: nmcli - general
 
 
     @rhbz1658217
-    @ver+=1.14
+    @ver+=1.14 @rhelver+=8
     @captive_portal @connectivity
     @captive_portal_detection
     Scenario: NM - general - portal is detected by NM
