@@ -2162,6 +2162,6 @@ Feature: nmcli - general
     @dummy
     @clean_device_state_files
     Scenario: NM - general - clean device state files
-    * Run child "for i in $(seq 1 50); do ip link delete dummy0 &>/dev/null; ip link add dummy0 type bridge; ip addr add 1.1.1.1/2 dev dummy0;  ip link set dummy0 up; sleep 0.5; done"
+    * Run child "for i in $(seq 1 70); do ip link delete dummy0 &>/dev/null; ip link add dummy0 type bridge; ip addr add 1.1.1.1/2 dev dummy0;  ip link set dummy0 up; sleep 0.5; done"
     When "4[0-9]" is visible with command "ls /run/NetworkManager/devices/ |wc -l" in "30" seconds
     Then "2[5-9]" is visible with command "ls /run/NetworkManager/devices/ |wc -l" in "50" seconds
