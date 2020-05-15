@@ -207,7 +207,7 @@ Feature: nmcli: connection
     * Open editor for connection "con_con"
     * Submit "set connection.uuid 00000000-0000-0000-0000-000000000000" in editor
     Then Error type "uuid" shown in editor
-    * Execute "python tmp/repro_1707261.py"
+    * Execute "/usr/bin/python tmp/repro_1707261.py"
 
 
     @con_con_remove
@@ -248,7 +248,7 @@ Feature: nmcli: connection
     Scenario: nmcli - connection - set autoconnect on without autoconnecting
      * Add a new connection of type "ethernet" and options "con-name con_con2 ifname eth5 autoconnect no"
      When "con_con2" is visible with command "nmcli con"
-     * Execute "python tmp/repro_1401515.py" without waiting for process to finish
+     * Execute "/usr/bin/python tmp/repro_1401515.py" without waiting for process to finish
      Then "yes" is visible with command "nmcli connection show con_con2 |grep autoconnect:" in "5" seconds
      Then "con_con" is not visible with command "nmcli -t -f NAME  connection show -a" in "3" seconds
 
@@ -573,7 +573,7 @@ Feature: nmcli: connection
     @eth5_disconnect
     @introspection_active_connection
     Scenario: introspection - check active connections
-     * Execute "python tmp/network_test.py testeth5 > /tmp/test"
+     * Execute "/usr/bin/python tmp/network_test.py testeth5 > /tmp/test"
      When "testeth5" is visible with command "nmcli con s -a"
      Then "Active connections before: 1" is visible with command "cat /tmp/test"
       And "Active connections after: 2.*Active connections after: 2" is visible with command "cat /tmp/test"
@@ -585,14 +585,14 @@ Feature: nmcli: connection
     @connection_user_settings_data
     Scenario: NM - connection - user settings data
     * Add a new connection of type "ethernet" and options "ifname testXc con-name con_con autoconnect no"
-    * Execute "python tmp/setting-user-data.py set id con_con my.own.data good_morning_starshine"
-    * Execute "python tmp/setting-user-data.py set id con_con my.own.data.two the_moon_says_hello"
-    When "good_morning_starshine" is visible with command "python tmp/setting-user-data.py get id con_con my.own.data"
-     And "the_moon_says_hello" is visible with command "python tmp/setting-user-data.py get id con_con my.own.data.two"
-    * Execute "python tmp/setting-user-data.py set id con_con -d my.own.data"
-    * Execute "python tmp/setting-user-data.py set id con_con -d my.own.data.two"
-    Then "[none]|[0]" is visible with command "python tmp/setting-user-data.py id con_con"
-     And "\"my.own.data\" = \"good_morning_starshine\"|\"my.own.data.two\" = \"the_moon_says_hello\"" is not visible with command "python tmp/setting-user-data.py id con_con" in "5" seconds
+    * Execute "/usr/bin/python tmp/setting-user-data.py set id con_con my.own.data good_morning_starshine"
+    * Execute "/usr/bin/python tmp/setting-user-data.py set id con_con my.own.data.two the_moon_says_hello"
+    When "good_morning_starshine" is visible with command "/usr/bin/python tmp/setting-user-data.py get id con_con my.own.data"
+     And "the_moon_says_hello" is visible with command "/usr/bin/python tmp/setting-user-data.py get id con_con my.own.data.two"
+    * Execute "/usr/bin/python tmp/setting-user-data.py set id con_con -d my.own.data"
+    * Execute "/usr/bin/python tmp/setting-user-data.py set id con_con -d my.own.data.two"
+    Then "[none]|[0]" is visible with command "/usr/bin/python tmp/setting-user-data.py id con_con"
+     And "\"my.own.data\" = \"good_morning_starshine\"|\"my.own.data.two\" = \"the_moon_says_hello\"" is not visible with command "/usr/bin/python tmp/setting-user-data.py id con_con" in "5" seconds
 
 
     @rhbz1448165

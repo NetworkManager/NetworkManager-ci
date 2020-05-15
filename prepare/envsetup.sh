@@ -239,6 +239,7 @@ install_el7_packages () {
         [ -f /etc/yum.repos.d/epel.repo ] || sudo rpm -i http://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm
     fi
 
+
     # Download some deps
     yum -y install perl-IO-Pty-Easy wireshark
 
@@ -253,6 +254,14 @@ install_el7_packages () {
     python -m pip install netaddr
     python -m pip install IPy
     python -m pip install python-dbusmock
+
+    # install dbus-python3 for s390x via pip
+    if uname -a |grep -q s390x; then
+        yum -y install gcc python3-devel cairo-gobject-devel pygobject3-devel cairo-devel cairo pycairo
+        python3 -m pip install dbus-python
+        python3 -m pip install PyGObject
+        python3 -m pip install scapy
+    fi
 
     yum -y install git iw net-tools wireshark psmisc bridge-utils firewalld dhcp ethtool python36-dbus python36-gobject dnsmasq NetworkManager-vpnc
 

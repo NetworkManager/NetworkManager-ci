@@ -228,7 +228,7 @@ Feature: nmcli - wifi
     @simwifi @simwifi_wpa2
     @nmclient_get_wireless_hw_property
     Scenario: nmclient - property - get wireless hardware property
-    Then "True|False" is visible with command "python tmp/nmclient_get_property.py wireless-hardware-enabled"
+    Then "True|False" is visible with command "/usr/bin/python tmp/nmclient_get_property.py wireless-hardware-enabled"
 
 
     @rhbz1626391

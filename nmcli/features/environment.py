@@ -858,7 +858,7 @@ def before_scenario(context, scenario):
                 wait_for_testeth0()
                 if not os.path.isfile('/usr/bin/scapy'):
                     call('yum -y install tcpdump', shell=True)
-                    call("python -m pip install scapy", shell=True)
+                    call("/usr/bin/python -m pip install scapy", shell=True)
 
             if 'mock' in scenario.tags:
                 print ("---------------------------")
@@ -959,19 +959,6 @@ def before_scenario(context, scenario):
                     wait_for_testeth0()
                     call("yum -y install NetworkManager-config-routing-rules", shell=True)
                 reload_NM_service()
-
-            if 'firewall' in scenario.tags:
-                print ("---------------------------")
-                print ("starting firewall")
-                if call("rpm -q firewalld", shell=True) != 0:
-                    wait_for_testeth0()
-                    call("sudo yum -y install firewalld", shell=True)
-                call("sudo systemctl unmask firewalld", shell=True)
-                call("sudo systemctl start firewalld", shell=True)
-                call("sudo nmcli con modify testeth0 connection.zone public", shell=True)
-                # Add a sleep here to prevent firewalld to hang
-                # (see https://bugzilla.redhat.com/show_bug.cgi?id=1495893)
-                call("sleep 1", shell=True)
 
             if 'ethernet' in scenario.tags:
                 print ("---------------------------")
@@ -1082,6 +1069,7 @@ def before_scenario(context, scenario):
                 print ("setting up OpenVPN")
                 arch = check_output("uname -p", shell=True).decode('utf-8', 'ignore').strip()
                 if arch == "s390x":
+                    wait_for_testeth0()
                     sys.exit(77)
                 wait_for_testeth0()
                 # Install under RHEL7 only
@@ -1234,6 +1222,19 @@ def before_scenario(context, scenario):
                     #call("nmcli con del pptp", shell=True)
                     call("touch /tmp/nm_pptp_configured", shell=True)
                     sleep(1)
+
+            if 'firewall' in scenario.tags:
+                print ("---------------------------")
+                print ("starting firewall")
+                if call("rpm -q firewalld", shell=True) != 0:
+                    wait_for_testeth0()
+                    call("sudo yum -y install firewalld", shell=True)
+                call("sudo systemctl unmask firewalld", shell=True)
+                call("sudo systemctl start firewalld", shell=True)
+                call("sudo nmcli con modify testeth0 connection.zone public", shell=True)
+                # Add a sleep here to prevent firewalld to hang
+                # (see https://bugzilla.redhat.com/show_bug.cgi?id=1495893)
+                call("sleep 1", shell=True)
 
             if 'restore_hostname' in scenario.tags:
                print ("---------------------------")

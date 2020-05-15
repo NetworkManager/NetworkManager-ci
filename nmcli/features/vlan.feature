@@ -649,12 +649,12 @@ Feature: nmcli - vlan
     Scenario: NM - vxlan - libnm shows port numbers
     * Add a new connection of type "vxlan" and options "ifname vlan1 con-name vlan1 vxlan.destination-port 70 vxlan.source-port-max 50 vxlan.source-port-min 30 id 70 dev eth7 ip4 1.2.3.4/24 remote 1.2.3.1"
     * Execute "nmcli con up vlan1"
-    Then "70" is visible with command "python tmp/nmclient_get_connection_property.py vlan1 destination-port"
-    Then "30" is visible with command "python tmp/nmclient_get_connection_property.py vlan1 source-port-min"
-    Then "50" is visible with command "python tmp/nmclient_get_connection_property.py vlan1 source-port-max"
-    Then "70" is visible with command "python tmp/nmclient_get_device_property.py vlan1 get_dst_port"
-    Then "30" is visible with command "python tmp/nmclient_get_device_property.py vlan1 get_src_port_min"
-    Then "50" is visible with command "python tmp/nmclient_get_device_property.py vlan1 get_src_port_max"
+    Then "70" is visible with command "/usr/bin/python tmp/nmclient_get_connection_property.py vlan1 destination-port"
+    Then "30" is visible with command "/usr/bin/python tmp/nmclient_get_connection_property.py vlan1 source-port-min"
+    Then "50" is visible with command "/usr/bin/python tmp/nmclient_get_connection_property.py vlan1 source-port-max"
+    Then "70" is visible with command "/usr/bin/python tmp/nmclient_get_device_property.py vlan1 get_dst_port"
+    Then "30" is visible with command "/usr/bin/python tmp/nmclient_get_device_property.py vlan1 get_src_port_min"
+    Then "50" is visible with command "/usr/bin/python tmp/nmclient_get_device_property.py vlan1 get_src_port_max"
 
 
     @rhbz1774074

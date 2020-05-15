@@ -724,7 +724,7 @@ Feature: nmcli - general
     @con_general_remove @IPy
     @nmcli_general_dbus_set_gateway
     Scenario: nmcli - general - dbus api gateway setting
-    * Execute "python tmp/dbus-set-gw.py"
+    * Execute "/usr/bin/python tmp/dbus-set-gw.py"
     Then "ipv4.gateway:\s+192.168.1.100" is visible with command "nmcli connection show con_general"
 
 
@@ -1122,9 +1122,9 @@ Feature: nmcli - general
     @general_nmclient_query_carrier
     Scenario: nmclient - general - query carrier
     * Execute "ip link set dev eth8 up"
-    When "True" is visible with command "python tmp/nmclient_get_device_property.py eth8 get_carrier"
+    When "True" is visible with command "/usr/bin/python tmp/nmclient_get_device_property.py eth8 get_carrier"
     * Execute "ip link set dev eth8 down"
-    Then "False" is visible with command "python tmp/nmclient_get_device_property.py eth8 get_carrier"
+    Then "False" is visible with command "/usr/bin/python tmp/nmclient_get_device_property.py eth8 get_carrier"
 
 
     # Tied to the bz, though these are not direct verifiers
@@ -1703,7 +1703,7 @@ Feature: nmcli - general
     @con_general_remove
     @libnm_async_tasks_cancelable
     Scenario: NM - general - cancelation of libnm async tasks (add_connection_async)
-    Then Finish "python tmp/repro_1555281.py con_general"
+    Then Finish "/usr/bin/python tmp/repro_1555281.py con_general"
 
 
     @rhbz1643085 @rhbz1642625
@@ -1711,7 +1711,7 @@ Feature: nmcli - general
     @con_general_remove
     @libnm_async_activation_cancelable_no_crash
     Scenario: NM - general - cancelation of libnm async activation - should not crash
-    Then Finish "python tmp/repro_1643085.py con_general eth8"
+    Then Finish "/usr/bin/python tmp/repro_1643085.py con_general eth8"
 
 
     @rhbz1614691
@@ -1962,7 +1962,7 @@ Feature: nmcli - general
     @ver+=1.16
     @libnm_get_dns_crash
     Scenario: nmcli - general - libnm crash when getting nmclient.props.dns_configuration
-    Then Finish "python tmp/repro_1689054.py"
+    Then Finish "/usr/bin/python tmp/repro_1689054.py"
 
 
     @rhbz1697858
