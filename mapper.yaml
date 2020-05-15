@@ -433,6 +433,8 @@ testmapper:
         feature: team
     - team_in_vlan:
         feature: team
+    - team_in_vlan_start_correct_device:
+        feature: team    
     - team_in_vlan_restart_persistence:
         feature: team
         tags: gate

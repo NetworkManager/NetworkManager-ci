@@ -751,6 +751,24 @@
      And "192.168.168.17" is visible with command "ip a s nm-team"
 
 
+    @rhbz1286105 @rhbz1312359
+    @ver+=1.18
+    @team @team_slaves
+    @team_in_vlan_start_correct_device
+    Scenario: nmcli - team - team in vlan start correct device
+    * Add a new connection of type "team" and options "con-name team0 ifname nm-team config '{"runner": {"name": "lacp"}}'"
+    * Add a new connection of type "team" and options "con-name team ifname nm-team2 config '{"runner": {"name": "lacp"}}'"
+    * Add a new connection of type "team-slave" and options "con-name team-slave-eth5 ifname eth5 master nm-team"
+    * Add a new connection of type "team-slave" and options "con-name team-slave-eth6 ifname eth6 master nm-team2"
+    * Add a new connection of type "vlan" and options "con-name team0.1 dev nm-team id 10 ip4 192.168.122.155/24 gw4 192.168.122.1"
+    * Add a new connection of type "vlan" and options "con-name team-slave dev nm-team2 id 10 ip4 192.168.122.155/24 gw4 192.168.122.1"
+    * Bring "down" connection "team0"
+    * Bring "down" connection "team"
+    * Bring "up" connection "team-slave-eth5"
+    Then "nm-team " is visible with command "nmcli con show -a" in "5" seconds
+    Then "nm-team2" is not visible with command "nmcli con show -a"
+
+
     @rhbz1286105 @rhbz1312359 @rhbz1490157
     @ver+=1.8.1
     @team @team_slaves @teardown_testveth @restart
