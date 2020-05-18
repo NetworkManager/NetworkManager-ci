@@ -858,7 +858,7 @@ def before_scenario(context, scenario):
                 wait_for_testeth0()
                 if not os.path.isfile('/usr/bin/scapy'):
                     call('yum -y install tcpdump', shell=True)
-                    call("/usr/bin/python -m pip install scapy", shell=True)
+                    call("python -m pip install scapy", shell=True)
 
             if 'mock' in scenario.tags:
                 print ("---------------------------")
