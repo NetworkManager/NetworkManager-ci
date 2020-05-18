@@ -17,6 +17,7 @@ curl https://copr.fedorainfracloud.org/coprs/nmstate/nm-build-deps/repo/epel-8/n
 
 # Install dependencies
 sudo dnf -y install \
+        python3 \
         NetworkManager-team \
         NetworkManager-wifi \
         NetworkManager-config-server \
@@ -56,7 +57,7 @@ sudo dnf install -y https://kojipkgs.fedoraproject.org//packages/rp-pppoe/3.12/1
 # some minor compatibility items
 sudo dnf -y update firewalld dnsmasq --best
 sudo yum -y install easy_install
-sudo pip install pexpect
+sudo pip3 install pexpect
 sudo yum -y install python-lxml
 
 sudo systemctl restart NetworkManager.service && sleep 5
