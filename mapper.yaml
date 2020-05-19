@@ -434,7 +434,7 @@ testmapper:
     - team_in_vlan:
         feature: team
     - team_in_vlan_start_correct_device:
-        feature: team    
+        feature: team
     - team_in_vlan_restart_persistence:
         feature: team
         tags: gate
@@ -1366,7 +1366,7 @@ testmapper:
         feature: general
         tags: gate libnl3
     - macsec_set_mtu_from_parent:
-        feature: general        
+        feature: general
     - non_utf_device:
         feature: general
     - connectivity_check:
@@ -1449,6 +1449,8 @@ testmapper:
     - no_user_control:
         feature: general
     - clean_device_state_files:
+        feature: general
+    - NM_merge_dhclient_conditionals:
         feature: general
     - openvswitch_capability:
         feature: ovs

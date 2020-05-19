@@ -2187,3 +2187,14 @@ Feature: nmcli - general
     When "dummy0" is not visible with command "ip a s" in "30" seconds
     When "dummy0" is not visible with command "ip a s" in "30" seconds
     When "dummy0" is not visible with command "ip a s" in "30" seconds
+
+
+    @rhbz1758550
+    @ver+=1.18.6
+    @con_general_remove @manage_eth8 @eth8_disconnect @tshark @dhclient_DHCP
+    @NM_merge_dhclient_conditionals
+    Scenario: NM - general - merge dhcp conditionals
+    * Add a new connection of type "ethernet" and options "ifname eth8 con-name con_general autoconnect no"
+    * Execute "echo -e 'if not option domain-name = "example.org" {\nprepend domain-name-servers 127.0.0.1;}' > /etc/dhcp/dhclient-eth8.conf"
+    * Bring "up" connection "con_general"
+    Then "prepend domain-name-servers 127.0.0.1" is visible with command "cat /var/lib/NetworkManager/dhclient-eth8.conf"
