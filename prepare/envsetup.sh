@@ -707,3 +707,11 @@ setup_configure_environment () {
             ;;
     esac
 }
+
+if [ "$1" == "setup" ]; then
+    if [ -n "$2" ]; then
+        set -e
+        setup_configure_environment "$2"
+        set +e
+    fi
+fi
