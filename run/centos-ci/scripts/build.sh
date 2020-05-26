@@ -15,11 +15,12 @@ fi
 # Workaround for not working repo
 rm -rf /etc/yum.repos.d/CentOS-Media.repo
 
+RC=1
 # Get a build script from NM repo
-wget https://gitlab.freedesktop.org/NetworkManager/NetworkManager/raw/automation/contrib/rh-bkr/build-from-source.sh -O /root/nm-build-from-source.sh
-
-# Build NM
-WITH_DEBUG=$WITH_DEBUG BUILD_ID=$BUILD_ID bash /root/nm-build-from-source.sh; RC=$?
+if wget https://gitlab.freedesktop.org/NetworkManager/NetworkManager/raw/automation/contrib/rh-bkr/build-from-source.sh -O /root/nm-build-from-source.sh; then
+    # Build NM
+    WITH_DEBUG=$WITH_DEBUG BUILD_ID=$BUILD_ID bash /root/nm-build-from-source.sh; RC=$?
+fi
 
 if [ $RC -eq 0 ]; then
     cp $BUILD_DIR/NetworkManager/examples/dispatcher/10-ifcfg-rh-routes.sh /etc/NetworkManager/dispatcher.d/
