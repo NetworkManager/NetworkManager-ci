@@ -76,17 +76,14 @@ def libreswan_teardown(context):
         f.write("\n\n### TEARDOWN ###\n\n")
     subprocess.call(f"sudo bash {NM_CI_RUNNER_CMD} "
                     "prepare/libreswan.sh teardown &>> /tmp/libreswan.log", shell=True)
-    context.embed("text/plain", utf_only_open_read("/tmp/libreswan.log"), "LIBRESWAN")
 
 
 def gsm_teardown(context):
     subprocess.call(f"sudo bash {NM_CI_RUNNER_CMD} prepare/gsm_sim.sh teardown", shell=True)
-    context.embed("text/plain", utf_only_open_read("/tmp/gsm_sim.log"), "GSM_SIM")
 
 
 def openvpn_teardown(context):
     subprocess.call("sudo kill -9 $(pidof openvpn)", shell=True)
-    context.embed("text/plain", utf_only_open_read("/tmp/openvpn.log"), "OPENVPN")
 
 
 def wifi_teardown():
@@ -112,8 +109,9 @@ def remove_connection_id_after_scenario(context, connection):
 
 
 @step('Delete all connections of type "{type}" after scenario')
-def remove_connection_id_after_scenario(context, type):
-    context.sandbox.add_after_scenario_hook(subprocess.call,
+def remove_connection_type_after_scenario(context, type):
+    context.sandbox.add_after_scenario_hook(
+        subprocess.call,
         "sudo nmcli con delete "
         f"$(nmcli -g type,uuid con show | grep '^{type}:' | sed 's/^{type}://g')",
         shell=True)
@@ -134,6 +132,11 @@ def nm_env(context):
     context.embed("text/plain", utf_only_open_read("/tmp/nm_envsetup_log.txt"),
                   "NM envsetup")
     assert ret == 0, "NetworkManager-ci envsetup failed !!!"
+    nm_install_pkgs(context)
+
+
+@step('Install packages')
+def nm_install_pkgs(context):
     ret = subprocess.call(
         f"sudo bash {NM_CI_RUNNER_CMD} install &> /tmp/nm_dep_pkg_install_log.txt", shell=True)
     context.embed("text/plain", utf_only_open_read("/tmp/nm_dep_pkg_install_log.txt"),
@@ -143,9 +146,10 @@ def nm_env(context):
 
 use_step_matcher("qecore")
 
+
 @step('Prepare libreswan | mode "{mode}" | DH group "{dh_group}" | phase1 algorithm "{phase1_al}" | ike "{ike}"')
 def prepare_libreswan(context, mode="aggressive", dh_group="5", phase1_al="aes", ike="ikev1"):
-    context.sandbox.add_after_scenario_hook(libreswan_teardown, context)
+    context.embed("text/plain", utf_only_open_read("/tmp/libreswan.log"), "LIBRESWAN")
     context.execute_steps("""* Delete all connections of type "vpn" after scenario""")
     subprocess.call("sudo systemctl restart NetworkManager", shell=True)
 
@@ -162,7 +166,7 @@ use_step_matcher("parse")
 @step('Prepare simulated gsm')
 @step('Prepare simulated gsm named "{modem}"')
 def prepare_gsm(context, modem="modemu"):
-    context.sandbox.add_after_scenario_hook(gsm_teardown, context)
+    context.embed("text/plain", utf_only_open_read("/tmp/gsm_sim.log"), "GSM_SIM")
     context.execute_steps("""* Delete all connections of type "gsm" after scenario""")
     assert subprocess.call(f"sudo bash {NM_CI_RUNNER_CMD} "
                            f"prepare/gsm_sim.sh {modem} &> /tmp/gsm_sim.log",
@@ -178,7 +182,7 @@ def prepare_gsm(context, modem="modemu"):
 @step('Prepare openvpn')
 @step('Prepare openvpn version "{version}"')
 def prepare_openvpn(context, version="ip46"):
-    context.sandbox.add_after_scenario_hook(openvpn_teardown, context)
+    context.embed("text/plain", utf_only_open_read("/tmp/openvpn.log"), "OPENVPN")
     context.execute_steps("""* Delete all connections of type "vpn" after scenario""")
     assert subprocess.call(
         f"sudo cp -r {NM_CI_PATH}/tmp/openvpn/sample-keys /tmp/", shell=True) == 0, \
