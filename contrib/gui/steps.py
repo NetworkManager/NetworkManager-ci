@@ -149,7 +149,9 @@ use_step_matcher("qecore")
 
 @step('Prepare libreswan | mode "{mode}" | DH group "{dh_group}" | phase1 algorithm "{phase1_al}" | ike "{ike}"')
 def prepare_libreswan(context, mode="aggressive", dh_group="5", phase1_al="aes", ike="ikev1"):
-    context.embed("text/plain", utf_only_open_read("/tmp/libreswan.log"), "LIBRESWAN")
+    context.sandbox.add_after_scenario_hook(
+        lambda c: c.embed("text/plain", utf_only_open_read("/tmp/libreswan.log"), "LIBRESWAN"),
+        context)
     context.execute_steps("""* Delete all connections of type "vpn" after scenario""")
     subprocess.call("sudo systemctl restart NetworkManager", shell=True)
 
@@ -166,7 +168,9 @@ use_step_matcher("parse")
 @step('Prepare simulated gsm')
 @step('Prepare simulated gsm named "{modem}"')
 def prepare_gsm(context, modem="modemu"):
-    context.embed("text/plain", utf_only_open_read("/tmp/gsm_sim.log"), "GSM_SIM")
+    context.sandbox.add_after_scenario_hook(
+        lambda c: c.embed("text/plain", utf_only_open_read("/tmp/gsm_sim.log"), "GSM_SIM"),
+        context)
     context.execute_steps("""* Delete all connections of type "gsm" after scenario""")
     assert subprocess.call(f"sudo bash {NM_CI_RUNNER_CMD} "
                            f"prepare/gsm_sim.sh {modem} &> /tmp/gsm_sim.log",
@@ -182,7 +186,9 @@ def prepare_gsm(context, modem="modemu"):
 @step('Prepare openvpn')
 @step('Prepare openvpn version "{version}"')
 def prepare_openvpn(context, version="ip46"):
-    context.embed("text/plain", utf_only_open_read("/tmp/openvpn.log"), "OPENVPN")
+    context.sandbox.add_after_scenario_hook(
+        lambda c: c.embed("text/plain", utf_only_open_read("/tmp/openvpn.log"), "OPENVPN"),
+        context)
     context.execute_steps("""* Delete all connections of type "vpn" after scenario""")
     assert subprocess.call(
         f"sudo cp -r {NM_CI_PATH}/tmp/openvpn/sample-keys /tmp/", shell=True) == 0, \
@@ -203,7 +209,7 @@ def prepare_openvpn(context, version="ip46"):
 def prepare_wifi(context, certs_dir="tmp/8021x/certs"):
     context.execute_steps("""* Delete all connections of type "802-11-wireless" after scenario""")
     context.sandbox.add_after_scenario_hook(
-        lambda c: c.embed("text/plain", utf_only_open_read("/tmp/hostapd_wireless.log"), "Wireless"),
+        lambda c: c.embed("text/plain", utf_only_open_read("/tmp/hostapd_wireless.log"), "WI-FI"),
         context)
     assert subprocess.call(
         f"sudo bash {NM_CI_RUNNER_CMD} prepare/hostapd_wireless.sh {certs_dir} namespace"
@@ -214,7 +220,7 @@ def prepare_wifi(context, certs_dir="tmp/8021x/certs"):
 @step('Prepare 8021x with certificates from "{certs_dir}"')
 def prepare_8021x(context, certs_dir="tmp/8021x/certs"):
     context.sandbox.add_after_scenario_hook(
-        lambda c: c.embed("text/plain", utf_only_open_read("/tmp/hostapd_wired.log"), "Wired"),
+        lambda c: c.embed("text/plain", utf_only_open_read("/tmp/hostapd_wired.log"), "8021X"),
         context)
     assert subprocess.call(
         f"sudo bash {NM_CI_RUNNER_CMD} prepare/hostapd_wired.sh {certs_dir}"
