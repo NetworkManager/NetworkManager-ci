@@ -26,16 +26,16 @@ def set_openvpn_connection(context, cert, key, ca, gateway, name):
 @step(u'Use user "{user}" with password "{password}" and group "{group}" with secret "{secret}" for gateway "{gateway}" on Libreswan connection "{name}"')
 def set_libreswan_connection(context, user, password, group, secret, gateway, name):
     if password == "ask" and secret != "ask":
-        cli = pexpect.spawn('nmcli c modify %s vpn.data "leftxauthusername = %s, leftid = %s, pskinputmodes = save, right = %s, xauthpasswordinputmodes = ask, pskvalue-flags = 0, xauthpassword-flags = 2, vendor = Cisco" vpn.secrets "pskvalue = %s"' % (name, user, group, gateway, secret), encoding='utf-8')
+        cli = pexpect.spawn('nmcli c modify %s vpn.data "leftxauthusername = %s, leftid = %s, pskinputmodes = save, right = %s, xauthpasswordinputmodes = ask, pskvalue-flags = 0, xauthpassword-flags = 2, vendor = Cisco, esp = aes-sha1;modp2048, ike = aes-sha1;modp2048" vpn.secrets "pskvalue = %s"' % (name, user, group, gateway, secret), encoding='utf-8')
     if password == "ask" and secret == "ask":
-        cli = pexpect.spawn('nmcli c modify %s vpn.data "leftxauthusername = %s, leftid = %s, pskinputmodes = ask, right = %s, xauthpasswordinputmodes = ask, pskvalue-flags = 2, xauthpassword-flags = 2, vendor = Cisco"' % (name, user, group, gateway), encoding='utf-8')
+        cli = pexpect.spawn('nmcli c modify %s vpn.data "leftxauthusername = %s, leftid = %s, pskinputmodes = ask, right = %s, xauthpasswordinputmodes = ask, pskvalue-flags = 2, xauthpassword-flags = 2, vendor = Cisco, esp = aes-sha1;modp2048, ike = aes-sha1;modp2048"' % (name, user, group, gateway), encoding='utf-8')
     if password != "ask" and secret == "ask":
-        cli = pexpect.spawn('nmcli c modify %s vpn.data "leftxauthusername = %s, leftid = %s, pskinputmodes = ask, right = %s, xauthpasswordinputmodes = save, pskvalue-flags = 2, xauthpassword-flags = 0, vendor = Cisco" vpn.secrets "xauthpassword = %s"' % (name, user, group, gateway), encoding='utf-8')
+        cli = pexpect.spawn('nmcli c modify %s vpn.data "leftxauthusername = %s, leftid = %s, pskinputmodes = ask, right = %s, xauthpasswordinputmodes = save, pskvalue-flags = 2, xauthpassword-flags = 0, vendor = Cisco, esp = aes-sha1;modp2048, ike = aes-sha1;modp2048" vpn.secrets "xauthpassword = %s"' % (name, user, group, gateway), encoding='utf-8')
     if password != "ask" and secret != "ask":
         if group == 'Main':
-            cli = pexpect.spawn('nmcli c modify %s vpn.data "leftxauthusername = %s, pskinputmodes = save, right = %s, xauthpasswordinputmodes = save, pskvalue-flags = 0, xauthpassword-flags = 0, vendor = Cisco" vpn.secrets "pskvalue = %s, xauthpassword = %s"' % (name, user, gateway, secret, password), encoding='utf-8')
+            cli = pexpect.spawn('nmcli c modify %s vpn.data "leftxauthusername = %s, pskinputmodes = save, right = %s, xauthpasswordinputmodes = save, pskvalue-flags = 0, xauthpassword-flags = 0, vendor = Cisco, esp = aes-sha1;modp2048, ike = aes-sha1;modp2048" vpn.secrets "pskvalue = %s, xauthpassword = %s"' % (name, user, gateway, secret, password), encoding='utf-8')
         else:
-            cli = pexpect.spawn('nmcli c modify %s vpn.data "leftxauthusername = %s, leftid = %s, pskinputmodes = save, right = %s, xauthpasswordinputmodes = save, pskvalue-flags = 0, xauthpassword-flags = 0, vendor = Cisco" vpn.secrets "pskvalue = %s, xauthpassword = %s"' % (name, user, group, gateway, secret, password), encoding='utf-8')
+            cli = pexpect.spawn('nmcli c modify %s vpn.data "leftxauthusername = %s, leftid = %s, pskinputmodes = save, right = %s, xauthpasswordinputmodes = save, pskvalue-flags = 0, xauthpassword-flags = 0, vendor = Cisco, esp = aes-sha1;modp2048, ike = aes-sha1;modp2048" vpn.secrets "pskvalue = %s, xauthpassword = %s"' % (name, user, group, gateway, secret, password), encoding='utf-8')
 
     r = cli.expect(['Error', pexpect.EOF])
     if r == 0:
