@@ -334,10 +334,10 @@ def reset_usb_devices():
             print(("failed to reset device:", msg))
         f.close()
 
-def setup_libreswan(mode, dh_group, phase1_al="aes", phase2_al=None, ike="ikev1"):
+def setup_libreswan(mode, dh_group, phase1_al="aes", phase2_al=None):
     print ("setting up libreswan")
 
-    RC = call("sh prepare/libreswan.sh %s %s %s %s" %(mode, dh_group, phase1_al, ike), shell=True)
+    RC = call("MODE=%s DH=%s PH1=%s sh prepare/libreswan.sh" %(mode, dh_group, phase1_al), shell=True)
     if RC != 0:
         teardown_libreswan()
         sys.exit(1)
@@ -1126,20 +1126,18 @@ def before_scenario(context, scenario):
                     call("sudo yum -y install NetworkManager-libreswan", shell=True)
                     restart_NM_service()
                 call("/usr/sbin/ipsec --checknss", shell=True)
-                ike="ikev1"
+                mode="aggressive"
                 if 'ikev2' in scenario.tags:
-                    ike="ikev2"
-                setup_libreswan (mode="aggressive", dh_group=5, ike=ike)
+                    mode="ikev2"
+                setup_libreswan (mode="aggressive", dh_group=14)
 
             if 'libreswan_main' in scenario.tags:
                 print ("---------------------------")
                 wait_for_testeth0()
                 call("rpm -q NetworkManager-libreswan || sudo yum -y install NetworkManager-libreswan", shell=True)
                 call("/usr/sbin/ipsec --checknss", shell=True)
-                ike="ikev1"
-                if 'ikev2' in scenario.tags:
-                    ike="ikev2"
-                setup_libreswan (mode="main", dh_group=5, ike=ike)
+                mode=main
+                setup_libreswan (mode, dh_group=14)
 
             if 'strongswan' in scenario.tags:
                 # Do not run on RHEL7 on s390x

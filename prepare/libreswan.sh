@@ -94,16 +94,17 @@ libreswan_setup ()
 {
     # Quit immediatelly on any script error
     set -e
-    MODE="$1"
+    MODE=$MODE
     CONNECTION_CFG="$LIBRESWAN_DIR/connection.conf"
     SECRETS_CFG="$LIBRESWAN_DIR/ipsec.secrets"
     PASSWD_FILE="$LIBRESWAN_DIR/passwd"
     NSS_DIR="$LIBRESWAN_DIR/nss"
-    if [ "$4" = "ikev2" ]; then
+    if [ "$MODE" = "ikev2" ]; then
         IKEv2="insist"
     else
         IKEv2="never"
     fi
+
     echo "Configuring remote Libreswan peer"
     [ -d "$LIBRESWAN_DIR" ] || mkdir "$LIBRESWAN_DIR"
     [ -d "$NSS_DIR" ] || mkdir "$NSS_DIR"
@@ -151,7 +152,7 @@ libreswan_teardown ()
 }
 
 if [ "$1" != "teardown" ]; then
-    libreswan_setup $1 $2 $3 $4
+    libreswan_setup $MODE $DH $PH1
 else
     libreswan_teardown
 fi

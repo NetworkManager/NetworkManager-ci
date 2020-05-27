@@ -8,6 +8,7 @@
      # Scenario:
 
     @libreswan
+    @ikev2
     @libreswan_add_profile
     Scenario: nmcli - libreswan - add and connect a connection
     * Add a connection named "libreswan" for device "\*" to "libreswan" VPN
@@ -223,7 +224,7 @@
     * Add a new connection of type "vpn" and options "ifname \* con-name vpn autoconnect no vpn-type libreswan"
     * Open editor for connection "vpn"
     * Submit "set vpn.service-type org.freedesktop.NetworkManager.libreswan" in editor
-    * Submit "set vpn.data right = vpn-test.com, xauthpasswordinputmodes = save, xauthpassword-flags = 1, esp = aes-sha1;modp1024, leftxauthusername = desktopqe, pskinputmodes = save, ike = aes-sha1;modp1024, pskvalue-flags = 1, leftid = desktopqe" in editor
+    * Submit "set vpn.data right = vpn-test.com, xauthpasswordinputmodes = save, xauthpassword-flags = 1, esp = aes-sha1;modp2048, leftxauthusername = desktopqe, pskinputmodes = save, ike = aes-sha1;modp2048, pskvalue-flags = 1, leftid = desktopqe" in editor
     * Save in editor
     * Submit "set vpn.user-name incorrectuser"
     * Save in editor
@@ -240,7 +241,7 @@
     * Add a new connection of type "vpn" and options "ifname \* con-name vpn autoconnect no vpn-type libreswan"
     * Open editor for connection "vpn"
     * Submit "set vpn.service-type org.freedesktop.NetworkManager.libreswan" in editor
-    * Submit "set vpn.data right = vpn-test.com, xauthpasswordinputmodes = save, xauthpassword-flags = 1, esp = aes-sha1;modp1024, leftxauthusername = desktopqe, pskinputmodes = save, ike = aes-sha1;modp1024, pskvalue-flags = 1, leftid = desktopqe" in editor
+    * Submit "set vpn.data right = vpn-test.com, xauthpasswordinputmodes = save, xauthpassword-flags = 1, esp = aes-sha1;modp2048, leftxauthusername = desktopqe, pskinputmodes = save, ike = aes-sha1;modp2048, pskvalue-flags = 1, leftid = desktopqe" in editor
     * Save in editor
     * Submit "set vpn.user-name incorrectuser"
     * Save in editor
@@ -258,7 +259,7 @@
     * Add a new connection of type "vpn" and options "ifname \* con-name vpn autoconnect no vpn-type libreswan"
     * Open editor for connection "vpn"
     * Submit "set vpn.service-type org.freedesktop.NetworkManager.libreswan" in editor
-    * Submit "set vpn.data right = vpn-test.com, xauthpasswordinputmodes = save, xauthpassword-flags = 1, esp = aes-sha1;modp1024, leftxauthusername = desktopqe, pskinputmodes = save, ike = aes-sha1;modp1024, pskvalue-flags = 1, leftid = desktopqe" in editor
+    * Submit "set vpn.data right = vpn-test.com, xauthpasswordinputmodes = save, xauthpassword-flags = 1, esp = aes-sha1;modp2048, leftxauthusername = desktopqe, pskinputmodes = save, ike = aes-sha1;modp2048, pskvalue-flags = 1, leftid = desktopqe" in editor
     * Save in editor
     * Submit "set vpn.user-name incorrectuser"
     * Save in editor
@@ -275,7 +276,7 @@
     * Execute "nmcli connection import file tmp/vpn.swan type libreswan"
     Then "leftid = VPN-standard" is visible with command "nmcli connection show vpn |grep vpn.data"
      And "right = vpn-test.com" is visible with command "nmcli connection show vpn |grep vpn.data"
-     And "ike = aes-sha1;modp1024" is visible with command "nmcli connection show vpn |grep vpn.data"
+     And "ike = aes-sha1;modp2048" is visible with command "nmcli connection show vpn |grep vpn.data"
      And "leftxauthusername = test_user" is visible with command "nmcli connection show vpn |grep vpn.data"
 
 
