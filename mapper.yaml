@@ -1514,7 +1514,9 @@ testmapper:
         feature: pptp
     - pptp_terminate:
         feature: pptp
-    - libreswan_add_profile:
+    - libreswan_ikev1_aggressive:
+        feature: libreswan
+    - libreswan_ikev1_main:
         feature: libreswan
     - libreswan_add_profile_wrong_password:
         feature: libreswan

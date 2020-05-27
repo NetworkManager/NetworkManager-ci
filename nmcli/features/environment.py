@@ -336,7 +336,6 @@ def reset_usb_devices():
 
 def setup_libreswan(mode, dh_group, phase1_al="aes", phase2_al=None):
     print ("setting up libreswan")
-
     RC = call("MODE=%s DH=%s PH1=%s sh prepare/libreswan.sh" %(mode, dh_group, phase1_al), shell=True)
     if RC != 0:
         teardown_libreswan()
@@ -1129,14 +1128,14 @@ def before_scenario(context, scenario):
                 mode="aggressive"
                 if 'ikev2' in scenario.tags:
                     mode="ikev2"
-                setup_libreswan (mode="aggressive", dh_group=14)
+                setup_libreswan (mode, dh_group=14)
 
-            if 'libreswan_main' in scenario.tags:
+            if 'libreswan_ikev1_main' in scenario.tags:
                 print ("---------------------------")
                 wait_for_testeth0()
                 call("rpm -q NetworkManager-libreswan || sudo yum -y install NetworkManager-libreswan", shell=True)
                 call("/usr/sbin/ipsec --checknss", shell=True)
-                mode=main
+                mode="main"
                 setup_libreswan (mode, dh_group=14)
 
             if 'strongswan' in scenario.tags:
@@ -2284,7 +2283,7 @@ def after_scenario(context, scenario):
                 teardown_libreswan ()
                 wait_for_testeth0()
 
-            if 'libreswan_main' in scenario.tags:
+            if 'libreswan_ikev1_main' in scenario.tags:
                 print ("---------------------------")
                 print ("deleting libreswan profile")
                 call('nmcli connection down libreswan', shell=True)
