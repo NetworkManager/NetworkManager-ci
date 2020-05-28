@@ -12,8 +12,8 @@ conn vpn
  rightmodecfgserver=yes
  modecfgpull=yes
  rightsubnet=0.0.0.0/0
- ike=aes-sha1;modp1024
- esp=aes-sha1;modp1024
+ ike=aes-sha1;modp2048
+ esp=aes-sha1;modp2048
  rekey=yes
  salifetime=24h
  ikelifetime=24h
