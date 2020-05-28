@@ -38,6 +38,7 @@
     Then "IP4.GATEWAY:.*172.31.70.1" is visible with command "nmcli d show libreswan1"
 
 
+    @rhelver+=8
     @libreswan
     @ikev2
     @libreswan_ikev2
