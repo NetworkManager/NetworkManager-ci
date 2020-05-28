@@ -44,10 +44,11 @@
     Scenario: nmcli - libreswan - connect in ike2
     * Add a connection named "libreswan" for device "\*" to "libreswan" VPN
     * Use user "budulinek" with password "passwd" and group "yolo" with secret "ipsecret" for gateway "172.31.70.1" on Libreswan connection "libreswan"
+    * Modify connection "libreswan" changing options "+vpn.data ikev2=insist"
     * Bring "up" connection "libreswan"
     Then "172.31.70.0/24 .*dev libreswan1" is visible with command "ip route"
     Then "VPN.VPN-STATE:.*VPN connected" is visible with command "nmcli c show libreswan"
-    Then "VPN.BANNER:.*BUG_REPORT_URL" is visible with command "nmcli c show libreswan"
+    #Then "VPN.BANNER:.*BUG_REPORT_URL" is visible with command "nmcli c show libreswan"
     Then "IP4.ADDRESS.*172.29.100.2/32" is visible with command "nmcli c show libreswan"
     Then "IP4.ADDRESS.*172.29.100.2/32" is visible with command "nmcli d show libreswan1"
     Then "IP4.ADDRESS.*172.31.70.*/24" is visible with command "nmcli d show libreswan1"
