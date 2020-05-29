@@ -113,7 +113,7 @@ def remove_connection_type_after_scenario(context, type):
     context.sandbox.add_after_scenario_hook(
         subprocess.call,
         "sudo nmcli con delete "
-        f"$(nmcli -g type,uuid con show | grep '^{type}:' | sed 's/^{type}://g')",
+        f"$(sudo nmcli -g type,uuid con show | grep '^{type}:' | sed 's/^{type}://g')",
         shell=True)
 
 
@@ -147,16 +147,16 @@ def nm_install_pkgs(context):
 use_step_matcher("qecore")
 
 
-@step('Prepare libreswan | mode "{mode}" | DH group "{dh_group}" | phase1 algorithm "{phase1_al}" | ike "{ike}"')
-def prepare_libreswan(context, mode="aggressive", dh_group="5", phase1_al="aes", ike="ikev1"):
+@step('Prepare libreswan | mode "{mode}" | DH group "{dh_group}" | phase1 algorithm "{phase1_al}"')
+def prepare_libreswan(context, mode="aggressive", dh_group="5", phase1_al="aes"):
+    context.execute_steps("""* Delete all connections of type "vpn" after scenario""")
     context.sandbox.add_after_scenario_hook(
         lambda c: c.embed("text/plain", utf_only_open_read("/tmp/libreswan.log"), "LIBRESWAN"),
         context)
-    context.execute_steps("""* Delete all connections of type "vpn" after scenario""")
     subprocess.call("sudo systemctl restart NetworkManager", shell=True)
 
-    cmd = f"sudo bash {NM_CI_RUNNER_CMD} prepare/libreswan.sh " \
-          f"{mode} {dh_group} {phase1_al} {ike} &>> /tmp/libreswan.log"
+    cmd = f"sudo MODE={mode} DH={dh_group} PH1={phase1_al} bash " \
+          f"{NM_CI_RUNNER_CMD} prepare/libreswan.sh &>> /tmp/libreswan.log"
     with open('/tmp/libreswan.log', 'w') as f:
         f.write(cmd + '\n\n\n')
     assert subprocess.call(cmd, shell=True) == 0, "libreswan setup failed !!!"
