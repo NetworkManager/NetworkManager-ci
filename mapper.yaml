@@ -1136,7 +1136,7 @@ testmapper:
         feature: ethernet
     - nmstate:
        feature: general
-       timeout: 25m
+       timeout: 28m
     - logging:
         feature: general
     - reduce_logging:
@@ -1519,7 +1519,7 @@ testmapper:
     - libreswan_ikev1_main:
         feature: libreswan
     - libreswan_ikev2:
-        feature: libreswan        
+        feature: libreswan
     - libreswan_add_profile_wrong_password:
         feature: libreswan
     - libreswan_terminate:
