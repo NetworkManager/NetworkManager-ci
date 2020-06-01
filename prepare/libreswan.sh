@@ -92,6 +92,10 @@ libreswan_gen_netconfig ()
 
 libreswan_setup ()
 {
+    # Enable logging
+    sed -i 's!#logfile=/var/log/pluto.log!logfile=/var/log/pluto.log!' /etc/ipsec.conf
+    sed -i 's!# logfile=/var/log/pluto.log!logfile=/var/log/pluto.log!' /etc/ipsec.conf
+
     # Quit immediatelly on any script error
     set -e
     MODE=$MODE

@@ -7,7 +7,7 @@
      # @test_name (compiled from scenario name)
      # Scenario:
 
-    @libreswan
+    @libreswan @attach_libreswan_logs
     @libreswan_ikev1_aggressive
     Scenario: nmcli - libreswan - connect in ike1 aggresive
     * Add a connection named "libreswan" for device "\*" to "libreswan" VPN
@@ -24,6 +24,7 @@
 
     @rhbz1292912
     @ver+=1.4.0
+    @attach_libreswan_logs
     @libreswan_ikev1_main
     Scenario: nmcli - libreswan - connect in ike1 main
     * Add a connection named "libreswan" for device "\*" to "libreswan" VPN
@@ -39,8 +40,7 @@
 
 
     @rhelver+=8
-    @libreswan
-    @ikev2
+    @libreswan @ikev2 @attach_libreswan_logs
     @libreswan_ikev2
     Scenario: nmcli - libreswan - connect in ike2
     * Add a connection named "libreswan" for device "\*" to "libreswan" VPN
