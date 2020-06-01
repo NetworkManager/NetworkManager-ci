@@ -2282,7 +2282,7 @@ def after_scenario(context, scenario):
                     context.embed('text/plain', data, caption="IPSEC_CONF")
                 data2 = utf_only_open_read("/var/log/pluto.log")
                 if data2:
-                    context.embed('text/plain', data, caption="PLUTO_LOG")
+                    context.embed('text/plain', data2, caption="PLUTO_LOG")
 
             if 'libreswan' in scenario.tags:
                 print ("---------------------------")
