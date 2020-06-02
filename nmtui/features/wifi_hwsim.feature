@@ -5,6 +5,7 @@ Feature: WIFI TUI tests
 
 
     @rhelver+=8.2 @fedoraver+=31
+    @ver+=1.22
     @simwifi
     @nmtui_simwifi_see_all_networks
     Scenario: nmtui - wifi_hwsim - see all networks
