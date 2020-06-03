@@ -336,9 +336,9 @@ def reset_usb_devices():
 
 def setup_libreswan(mode, dh_group, phase1_al="aes", phase2_al=None):
     print ("setting up libreswan")
-    RC = call("MODE=%s DH=%s PH1=%s sh prepare/libreswan.sh" %(mode, dh_group, phase1_al), shell=True)
+    RC = call("MODE=%s sh prepare/libreswan.sh > /tmp/libreswan_setup.log" %(mode), shell=True)
     if RC != 0:
-        teardown_libreswan()
+        teardown_libreswan(None)
         sys.exit(1)
 
 def restore_connections ():
@@ -361,8 +361,18 @@ def unmanage_veths ():
     call('udevadm settle --timeout=5', shell=True)
     sleep(1)
 
-def teardown_libreswan():
-    call("sh prepare/libreswan.sh teardown", shell=True)
+def teardown_libreswan (context):
+    call("echo '## TEARDOWN ##' >> /tmp/libreswan_setup.log", shell=True)
+    call("sh prepare/libreswan.sh teardown >> /tmp/libreswan_setup.log", shell=True)
+    if context is not None:
+        print("Attach Libreswan logs")
+        call("sudo journalctl -t pluto --no-pager -o cat %s > /tmp/journal-pluto.log" % context.log_cursor, shell=True)
+        journal_log = utf_only_open_read("/tmp/journal-pluto.log")
+        setup_log = utf_only_open_read("/tmp/libreswan_setup.log")
+        conf = utf_only_open_read("/opt/ipsec/connection.conf")
+        context.embed("text/plain", setup_log, caption="Libreswan Setup")
+        context.embed("text/plain", journal_log, caption="Libreswan Pluto Journal")
+        context.embed("text/plain", conf, caption="Libreswan Config")
 
 def teardown_testveth (context):
     print("---------------------------")
@@ -2280,7 +2290,7 @@ def after_scenario(context, scenario):
                 print ("deleting libreswan profile")
                 call('nmcli connection down libreswan', shell=True)
                 call('nmcli connection delete libreswan', shell=True)
-                teardown_libreswan ()
+                teardown_libreswan (context)
                 wait_for_testeth0()
 
             if 'libreswan_ikev1_main' in scenario.tags:
@@ -2288,7 +2298,7 @@ def after_scenario(context, scenario):
                 print ("deleting libreswan profile")
                 call('nmcli connection down libreswan', shell=True)
                 call('nmcli connection delete libreswan', shell=True)
-                teardown_libreswan ()
+                teardown_libreswan (context)
                 wait_for_testeth0()
 
             if 'strongswan' in scenario.tags:

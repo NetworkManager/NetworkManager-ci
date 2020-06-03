@@ -147,26 +147,22 @@ def nm_install_pkgs(context):
 use_step_matcher("qecore")
 
 
-@step('Prepare libreswan | mode "{mode}" | DH group "{dh_group}" | phase1 algorithm "{phase1_al}"')
-def prepare_libreswan(context, mode="aggressive", dh_group="5", phase1_al="aes"):
+@step('Prepare libreswan | mode "{mode}"')
+def prepare_libreswan(context, mode="aggressive"):
     context.execute_steps("""* Delete all connections of type "vpn" after scenario""")
     context.sandbox.add_after_scenario_hook(
         lambda c: c.embed("text/plain", utf_only_open_read("/tmp/libreswan.log"), "LIBRESWAN"),
         context)
     subprocess.call("sudo systemctl restart NetworkManager", shell=True)
 
-    cmd = f"sudo MODE={mode} DH={dh_group} PH1={phase1_al} bash " \
-          f"{NM_CI_RUNNER_CMD} prepare/libreswan.sh &>> /tmp/libreswan.log"
+    cmd = f"sudo MODE={mode} bash {NM_CI_RUNNER_CMD} " \
+          f"prepare/libreswan.sh &>> /tmp/libreswan.log"
     with open('/tmp/libreswan.log', 'w') as f:
         f.write(cmd + '\n\n\n')
     assert subprocess.call(cmd, shell=True) == 0, "libreswan setup failed !!!"
 
 
-use_step_matcher("parse")
-
-
-@step('Prepare simulated gsm')
-@step('Prepare simulated gsm named "{modem}"')
+@step('Prepare simulated gsm | named "{modem}"')
 def prepare_gsm(context, modem="modemu"):
     context.sandbox.add_after_scenario_hook(
         lambda c: c.embed("text/plain", utf_only_open_read("/tmp/gsm_sim.log"), "GSM_SIM"),
@@ -183,8 +179,7 @@ def prepare_gsm(context, modem="modemu"):
     assert False, "No modems were found using `mmcli -L' in 20 seconds"
 
 
-@step('Prepare openvpn')
-@step('Prepare openvpn version "{version}"')
+@step('Prepare openvpn | version "{version}"')
 def prepare_openvpn(context, version="ip46"):
     context.sandbox.add_after_scenario_hook(
         lambda c: c.embed("text/plain", utf_only_open_read("/tmp/openvpn.log"), "OPENVPN"),
@@ -204,8 +199,7 @@ def prepare_openvpn(context, version="ip46"):
     assert running, f"openvpn server did not start, exitcode: {server.returncode}"
 
 
-@step('Prepare Wi-Fi')
-@step('Prepare Wi-Fi with certificates from "{certs_dir}"')
+@step('Prepare Wi-Fi | with certificates from "{certs_dir}"')
 def prepare_wifi(context, certs_dir="tmp/8021x/certs"):
     context.execute_steps("""* Delete all connections of type "802-11-wireless" after scenario""")
     context.sandbox.add_after_scenario_hook(
@@ -216,8 +210,7 @@ def prepare_wifi(context, certs_dir="tmp/8021x/certs"):
         f"&> /tmp/hostapd_wireless.log", shell=True) == 0, f"wifi setup failed !!!"
 
 
-@step('Prepare 8021x')
-@step('Prepare 8021x with certificates from "{certs_dir}"')
+@step('Prepare 8021x | with certificates from "{certs_dir}"')
 def prepare_8021x(context, certs_dir="tmp/8021x/certs"):
     context.sandbox.add_after_scenario_hook(
         lambda c: c.embed("text/plain", utf_only_open_read("/tmp/hostapd_wired.log"), "8021X"),
@@ -225,6 +218,9 @@ def prepare_8021x(context, certs_dir="tmp/8021x/certs"):
     assert subprocess.call(
         f"sudo bash {NM_CI_RUNNER_CMD} prepare/hostapd_wired.sh {certs_dir}"
         f"&> /tmp/hostapd_wired.log", shell=True) == 0, f"8021x setup failed !!!"
+
+
+use_step_matcher("parse")
 
 
 @step('Teardown Wi-Fi')

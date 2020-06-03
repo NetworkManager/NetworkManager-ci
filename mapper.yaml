@@ -1548,6 +1548,8 @@ testmapper:
         feature: libreswan
     - libreswan_reimport:
         feature: libreswan
+    - libreswan_reimport_ikev2:
+        feature: libreswan
     - libreswan_configurable_options_reimport:
         feature: libreswan
     - strongswan_add_profile:

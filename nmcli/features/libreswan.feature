@@ -11,15 +11,15 @@
     @libreswan_ikev1_aggressive
     Scenario: nmcli - libreswan - connect in ike1 aggresive
     * Add a connection named "libreswan" for device "\*" to "libreswan" VPN
-    * Use user "budulinek" with password "passwd" and group "yolo" with secret "ipsecret" for gateway "172.31.70.1" on Libreswan connection "libreswan"
+    * Use user "budulinek" with password "passwd" and group "yolo" with secret "ipsecret" for gateway "11.12.13.14" on Libreswan connection "libreswan"
     * Bring "up" connection "libreswan"
-    Then "172.31.70.0/24 .*dev libreswan1" is visible with command "ip route"
+    Then "11.12.13.0/24 .*dev libreswan1" is visible with command "ip route"
     Then "VPN.VPN-STATE:.*VPN connected" is visible with command "nmcli c show libreswan"
     Then "VPN.BANNER:.*BUG_REPORT_URL" is visible with command "nmcli c show libreswan"
     Then "IP4.ADDRESS.*172.29.100.2/32" is visible with command "nmcli c show libreswan"
     Then "IP4.ADDRESS.*172.29.100.2/32" is visible with command "nmcli d show libreswan1"
-    Then "IP4.ADDRESS.*172.31.70.*/24" is visible with command "nmcli d show libreswan1"
-    Then "IP4.GATEWAY:.*172.31.70.1" is visible with command "nmcli d show libreswan1"
+    Then "IP4.ADDRESS.*11.12.13.15/24" is visible with command "nmcli d show libreswan1"
+    Then "IP4.GATEWAY:.*11.12.13.14" is visible with command "nmcli d show libreswan1"
 
 
     @rhbz1292912
@@ -27,15 +27,15 @@
     @libreswan_ikev1_main
     Scenario: nmcli - libreswan - connect in ike1 main
     * Add a connection named "libreswan" for device "\*" to "libreswan" VPN
-    * Use user "budulinek" with password "passwd" and group "Main" with secret "ipsecret" for gateway "172.31.70.1" on Libreswan connection "libreswan"
+    * Use user "budulinek" with password "passwd" and group "Main" with secret "ipsecret" for gateway "11.12.13.14" on Libreswan connection "libreswan"
     * Bring "up" connection "libreswan"
-    Then "172.31.70.0/24 .*dev libreswan1" is visible with command "ip route"
+    Then "11.12.13.0/24 .*dev libreswan1" is visible with command "ip route"
     Then "VPN.VPN-STATE:.*VPN connected" is visible with command "nmcli c show libreswan"
     Then "VPN.BANNER:.*BUG_REPORT_URL" is visible with command "nmcli c show libreswan"
     Then "IP4.ADDRESS.*172.29.100.2/32" is visible with command "nmcli c show libreswan"
     Then "IP4.ADDRESS.*172.29.100.2/32" is visible with command "nmcli d show libreswan1"
-    Then "IP4.ADDRESS.*172.31.70.*/24" is visible with command "nmcli d show libreswan1"
-    Then "IP4.GATEWAY:.*172.31.70.1" is visible with command "nmcli d show libreswan1"
+    Then "IP4.ADDRESS.*11.12.13.15/24" is visible with command "nmcli d show libreswan1"
+    Then "IP4.GATEWAY:.*11.12.13.14" is visible with command "nmcli d show libreswan1"
 
 
     @rhelver+=8
@@ -44,16 +44,15 @@
     @libreswan_ikev2
     Scenario: nmcli - libreswan - connect in ike2
     * Add a connection named "libreswan" for device "\*" to "libreswan" VPN
-    * Use user "budulinek" with password "passwd" and group "yolo" with secret "ipsecret" for gateway "172.31.70.1" on Libreswan connection "libreswan"
-    * Modify connection "libreswan" changing options "+vpn.data ikev2=insist"
+    * Modify connection "libreswan" changing options "vpn.data 'ikev2=insist, leftcert=LibreswanClient, leftid=%fromcert, right=11.12.13.14'"
     * Bring "up" connection "libreswan"
-    Then "172.31.70.0/24 .*dev libreswan1" is visible with command "ip route"
+    Then "11.12.13.0/24 .*dev libreswan1" is visible with command "ip route"
     Then "VPN.VPN-STATE:.*VPN connected" is visible with command "nmcli c show libreswan"
     #Then "VPN.BANNER:.*BUG_REPORT_URL" is visible with command "nmcli c show libreswan"
     Then "IP4.ADDRESS.*172.29.100.2/32" is visible with command "nmcli c show libreswan"
     Then "IP4.ADDRESS.*172.29.100.2/32" is visible with command "nmcli d show libreswan1"
-    Then "IP4.ADDRESS.*172.31.70.*/24" is visible with command "nmcli d show libreswan1"
-    Then "IP4.GATEWAY:.*172.31.70.1" is visible with command "nmcli d show libreswan1"
+    Then "IP4.ADDRESS.*11.12.13.15/24" is visible with command "nmcli d show libreswan1"
+    Then "IP4.GATEWAY:.*11.12.13.14" is visible with command "nmcli d show libreswan1"
 
 
     @rhelver+=8
@@ -61,7 +60,7 @@
     @libreswan_add_profile_wrong_password
     Scenario: nmcli - libreswan - add and connect a connection with worong password
     * Add a connection named "libreswan" for device "\*" to "libreswan" VPN
-    * Use user "budulinek" with password "simply_wrong" and group "yolo" with secret "ipsecret" for gateway "172.31.70.1" on Libreswan connection "libreswan"
+    * Use user "budulinek" with password "simply_wrong" and group "yolo" with secret "ipsecret" for gateway "11.12.13.14" on Libreswan connection "libreswan"
     * Bring up connection "libreswan" ignoring error
     Then "VPN.VPN-STATE:.*VPN connected" is not visible with command "nmcli c show libreswan"
     Then "VPN.BANNER:.*BUG_REPORT_URL" is not visible with command "nmcli c show libreswan"
@@ -72,15 +71,15 @@
     @libreswan_connection_renewal
     Scenario: NM - libreswan - main connection lifetime renewal
     * Add a connection named "libreswan" for device "\*" to "libreswan" VPN
-    * Use user "budulinek" with password "passwd" and group "yolo" with secret "ipsecret" for gateway "172.31.70.1" on Libreswan connection "libreswan"
+    * Use user "budulinek" with password "passwd" and group "yolo" with secret "ipsecret" for gateway "11.12.13.14" on Libreswan connection "libreswan"
     * Bring "up" connection "libreswan"
     Then "VPN.VPN-STATE:.*VPN connected" is visible with command "nmcli c show libreswan" for full "130" seconds
-    Then "172.31.70.0/24 .*dev libreswan1" is visible with command "ip route"
+    Then "11.12.13.0/24 .*dev libreswan1" is visible with command "ip route"
     Then "VPN.BANNER:.*BUG_REPORT_URL" is visible with command "nmcli c show libreswan"
     Then "IP4.ADDRESS.*172.29.100.2/32" is visible with command "nmcli c show libreswan"
     Then "IP4.ADDRESS.*172.29.100.2/32" is visible with command "nmcli d show libreswan1"
-    Then "IP4.ADDRESS.*172.31.70.*/24" is visible with command "nmcli d show libreswan1"
-    Then "IP4.GATEWAY:.*172.31.70.1" is visible with command "nmcli d show libreswan1"
+    Then "IP4.ADDRESS.*11.12.13.15/24" is visible with command "nmcli d show libreswan1"
+    Then "IP4.GATEWAY:.*11.12.13.14" is visible with command "nmcli d show libreswan1"
 
 
     @rhbz1141947
@@ -88,16 +87,16 @@
     @libreswan_activate_asking_for_password
     Scenario: nmcli - vpn - activate asking for password
     * Add a connection named "libreswan" for device "\*" to "libreswan" VPN
-    * Use user "budulinek" with password "ask" and group "yolo" with secret "ipsecret" for gateway "172.31.70.1" on Libreswan connection "libreswan"
+    * Use user "budulinek" with password "ask" and group "yolo" with secret "ipsecret" for gateway "11.12.13.14" on Libreswan connection "libreswan"
     * Connect to vpn "libreswan" with password "passwd"
     * Execute "nmcli --show-secrets con show libreswan > /tmp/libreswan"
     Then "VPN.VPN-STATE:.*VPN connected" is visible with command "nmcli c show libreswan" in "120" seconds
-    Then "172.31.70.0/24 .*dev libreswan1" is visible with command "ip route"
+    Then "11.12.13.0/24 .*dev libreswan1" is visible with command "ip route"
     Then "VPN.BANNER:.*BUG_REPORT_URL" is visible with command "nmcli c show libreswan"
     Then "IP4.ADDRESS.*172.29.100.2/32" is visible with command "nmcli c show libreswan"
     Then "IP4.ADDRESS.*172.29.100.2/32" is visible with command "nmcli d show libreswan1"
-    Then "IP4.ADDRESS.*172.31.70.*/24" is visible with command "nmcli d show libreswan1"
-    Then "IP4.GATEWAY:.*172.31.70.1" is visible with command "nmcli d show libreswan1"
+    Then "IP4.ADDRESS.*11.12.13.15/24" is visible with command "nmcli d show libreswan1"
+    Then "IP4.GATEWAY:.*11.12.13.14" is visible with command "nmcli d show libreswan1"
 
 
     @rhbz1349740
@@ -105,16 +104,16 @@
     @libreswan_activate_asking_for_password_with_delay
     Scenario: nmcli - vpn - activate asking for password with delay
     * Add a connection named "libreswan" for device "\*" to "libreswan" VPN
-    * Use user "budulinek" with password "ask" and group "yolo" with secret "ipsecret" for gateway "172.31.70.1" on Libreswan connection "libreswan"
+    * Use user "budulinek" with password "ask" and group "yolo" with secret "ipsecret" for gateway "11.12.13.14" on Libreswan connection "libreswan"
     * Connect to vpn "libreswan" with password "passwd" with timeout "40"
     * Execute "nmcli --show-secrets con show libreswan > /tmp/libreswan"
     Then "VPN.VPN-STATE:.*VPN connected" is visible with command "nmcli c show libreswan" in "120" seconds
-    Then "172.31.70.0/24 .*dev libreswan1" is visible with command "ip route"
+    Then "11.12.13.0/24 .*dev libreswan1" is visible with command "ip route"
     Then "VPN.BANNER:.*BUG_REPORT_URL" is visible with command "nmcli c show libreswan"
     Then "IP4.ADDRESS.*172.29.100.2/32" is visible with command "nmcli c show libreswan"
     Then "IP4.ADDRESS.*172.29.100.2/32" is visible with command "nmcli d show libreswan1"
-    Then "IP4.ADDRESS.*172.31.70.*/24" is visible with command "nmcli d show libreswan1"
-    Then "IP4.GATEWAY:.*172.31.70.1" is visible with command "nmcli d show libreswan1"
+    Then "IP4.ADDRESS.*11.12.13.15/24" is visible with command "nmcli d show libreswan1"
+    Then "IP4.GATEWAY:.*11.12.13.14" is visible with command "nmcli d show libreswan1"
 
 
     @rhbz1141947
@@ -122,22 +121,22 @@
     @libreswan_activate_asking_for_password_and_secret
     Scenario: nmcli - vpn - activate asking for password and secret
     * Add a connection named "libreswan" for device "\*" to "libreswan" VPN
-    * Use user "budulinek" with password "ask" and group "yolo" with secret "ask" for gateway "172.31.70.1" on Libreswan connection "libreswan"
+    * Use user "budulinek" with password "ask" and group "yolo" with secret "ask" for gateway "11.12.13.14" on Libreswan connection "libreswan"
     * Connect to vpn "libreswan" with password "passwd" and secret "ipsecret"
     * Execute "nmcli --show-secrets con show libreswan > /tmp/libreswan"
     Then "VPN.VPN-STATE:.*VPN connected" is visible with command "nmcli c show libreswan" in "120" seconds
-    Then "172.31.70.0/24 .*dev libreswan1" is visible with command "ip route"
+    Then "11.12.13.0/24 .*dev libreswan1" is visible with command "ip route"
     Then "VPN.BANNER:.*BUG_REPORT_URL" is visible with command "nmcli c show libreswan"
     Then "IP4.ADDRESS.*172.29.100.2/32" is visible with command "nmcli c show libreswan"
     Then "IP4.ADDRESS.*172.29.100.2/32" is visible with command "nmcli d show libreswan1"
-    Then "IP4.ADDRESS.*172.31.70.*/24" is visible with command "nmcli d show libreswan1"
-    Then "IP4.GATEWAY:.*172.31.70.1" is visible with command "nmcli d show libreswan1"
+    Then "IP4.ADDRESS.*11.12.13.15/24" is visible with command "nmcli d show libreswan1"
+    Then "IP4.GATEWAY:.*11.12.13.14" is visible with command "nmcli d show libreswan1"
 
     @libreswan
     @libreswan_terminate
     Scenario: nmcli - libreswan - terminate connection
     * Add a connection named "libreswan" for device "\*" to "libreswan" VPN
-    * Use user "budulinek" with password "passwd" and group "yolo" with secret "ipsecret" for gateway "172.31.70.1" on Libreswan connection "libreswan"
+    * Use user "budulinek" with password "passwd" and group "yolo" with secret "ipsecret" for gateway "11.12.13.14" on Libreswan connection "libreswan"
     * Bring "up" connection "libreswan"
     When "VPN.VPN-STATE:.*VPN connected" is visible with command "nmcli c show libreswan"
     * Bring "down" connection "libreswan"
@@ -148,7 +147,7 @@
     @libreswan_delete_active_profile
     Scenario: nmcli - libreswan - delete active profile
     * Add a connection named "libreswan" for device "\*" to "libreswan" VPN
-    * Use user "budulinek" with password "passwd" and group "yolo" with secret "ipsecret" for gateway "172.31.70.1" on Libreswan connection "libreswan"
+    * Use user "budulinek" with password "passwd" and group "yolo" with secret "ipsecret" for gateway "11.12.13.14" on Libreswan connection "libreswan"
     * Bring "up" connection "libreswan"
     When "VPN.VPN-STATE:.*VPN connected" is visible with command "nmcli c show libreswan"
     * Delete connection "libreswan"
@@ -161,16 +160,16 @@
     @libreswan
     @libreswan_dns
     Scenario: nmcli - libreswan - dns
-    Given "nameserver 172.31.70.1\s+nameserver " is visible with command "cat /etc/resolv.conf"
+    Given "nameserver 11.12.13.14\s+nameserver " is visible with command "cat /etc/resolv.conf"
     * Add a connection named "libreswan" for device "\*" to "libreswan" VPN
-    * Use user "budulinek" with password "passwd" and group "yolo" with secret "ipsecret" for gateway "172.31.70.1" on Libreswan connection "libreswan"
+    * Use user "budulinek" with password "passwd" and group "yolo" with secret "ipsecret" for gateway "11.12.13.14" on Libreswan connection "libreswan"
     * Bring "up" connection "libreswan"
     When "VPN.VPN-STATE:.*VPN connected" is visible with command "nmcli c show libreswan"
-     And "nameserver 8.8.8.8\s+nameserver 172.31.70.1\s+nameserver " is visible with command "cat /etc/resolv.conf"
+     And "nameserver 8.8.8.8\s+nameserver 11.12.13.14\s+nameserver " is visible with command "cat /etc/resolv.conf"
     * Delete connection "libreswan"
     When "VPN.VPN-STATE:.*VPN connected" is not visible with command "nmcli c show libreswan" in "10" seconds
-    Then "nameserver 8.8.8.8\s+nameserver 172.31.70.1\s+nameserver " is not visible with command "cat /etc/resolv.conf"
-     And "nameserver 172.31.70.1\s+nameserver " is visible with command "cat /etc/resolv.conf"
+    Then "nameserver 8.8.8.8\s+nameserver 11.12.13.14\s+nameserver " is not visible with command "cat /etc/resolv.conf"
+     And "nameserver 11.12.13.14\s+nameserver " is visible with command "cat /etc/resolv.conf"
 
 
     @rhbz1264552
@@ -187,16 +186,16 @@
     #Scenario: nmcli - libreswan - start on boot
     # * Add a connection named "libreswan" for device "\*" to "libreswan" VPN
     # * Execute "nmcli con modify eno1 connection.autoconnect no"
-    # * Use user "budulinek" with password "passwd" and group "yolo" with secret "ipsecret" for gateway "172.31.70.1" on Libreswan connection "libreswan"
+    # * Use user "budulinek" with password "passwd" and group "yolo" with secret "ipsecret" for gateway "11.12.13.14" on Libreswan connection "libreswan"
     # * Reboot
     # * "libreswan" is visible with command "nmcli con show -a" in "10" seconds
-    # Then "172.31.70.0/24 .*dev libreswan1" is visible with command "ip route"
+    # Then "11.12.13.0/24 .*dev libreswan1" is visible with command "ip route"
     # Then "VPN.VPN-STATE:.*VPN connected" is visible with command "nmcli c show libreswan"
     # Then "VPN.BANNER:.*BUG_REPORT_URL" is visible with command "nmcli c show libreswan"
     # Then "IP4.ADDRESS.*172.29.100.2/32" is visible with command "nmcli c show libreswan"
     # Then "IP4.ADDRESS.*172.29.100.2/32" is visible with command "nmcli d show libreswan1"
-    # Then "IP4.ADDRESS.*172.31.70.2/24" is visible with command "nmcli d show libreswan1"
-    # Then "IP4.GATEWAY:.*172.31.70.1" is visible with command "nmcli d show libreswan1"
+    # Then "IP4.ADDRESS.*11.12.13.15/24" is visible with command "nmcli d show libreswan1"
+    # Then "IP4.GATEWAY:.*11.12.13.14" is visible with command "nmcli d show libreswan1"
     # Then Ping "10.16.40.254"
 
 
@@ -206,20 +205,20 @@
     @libreswan_start_as_secondary
     Scenario: nmcli - libreswan - start as secondary
     * Add a connection named "libreswan" for device "\*" to "libreswan" VPN
-    * Use user "budulinek" with password "passwd" and group "yolo" with secret "ipsecret" for gateway "172.31.70.1" on Libreswan connection "libreswan"
+    * Use user "budulinek" with password "passwd" and group "yolo" with secret "ipsecret" for gateway "11.12.13.14" on Libreswan connection "libreswan"
     * Execute "sleep 2; nmcli con modify lib1 connection.secondaries libreswan; sleep 3"
     * Bring "down" connection "lib1"
     * Execute "ip link set dev libreswan1 up"
     * Bring "up" connection "lib1"
     Then "libreswan" is visible with command "nmcli con show -a" in "60" seconds
     Then "lib1" is visible with command "nmcli con show -a" in "60" seconds
-    Then "172.31.70.0/24 .*dev libreswan1" is visible with command "ip route"
+    Then "11.12.13.0/24 .*dev libreswan1" is visible with command "ip route"
     Then "VPN.VPN-STATE:.*VPN connected" is visible with command "nmcli c show libreswan"
     Then "VPN.BANNER:.*BUG_REPORT_URL" is visible with command "nmcli c show libreswan"
     Then "IP4.ADDRESS.*172.29.100.2/32" is visible with command "nmcli c show libreswan"
     Then "IP4.ADDRESS.*172.29.100.2/32" is visible with command "nmcli d show libreswan1"
-    Then "IP4.ADDRESS.*172.31.70.*/24" is visible with command "nmcli d show libreswan1"
-    Then "IP4.GATEWAY:.*172.31.70.1" is visible with command "nmcli d show libreswan1"
+    Then "IP4.ADDRESS.*11.12.13.15/24" is visible with command "nmcli d show libreswan1"
+    Then "IP4.GATEWAY:.*11.12.13.14" is visible with command "nmcli d show libreswan1"
 
 
     @vpn_describe
@@ -327,12 +326,11 @@
 
     @rhbz1633174
     @ver+=1.14.0  @rhelver+=8
-    @libreswan @ikev2
+    @libreswan
     @libreswan_reimport
     Scenario: nmcli - libreswan - reimport exported connection
     * Add a new connection of type "vpn" and options "ifname \* con-name libreswan autoconnect no vpn-type libreswan"
-    * Use user "budulinek" with password "ask" and group "yolo" with secret "ask" for gateway "172.31.70.1" on Libreswan connection "libreswan"
-    * Modify connection "libreswan" changing options "+vpn.data ikev2=insist"
+    * Use user "budulinek" with password "ask" and group "yolo" with secret "ask" for gateway "11.12.13.14" on Libreswan connection "libreswan"
     * Connect to vpn "libreswan" with password "passwd" and secret "ipsecret"
     When "VPN.VPN-STATE:.*VPN connected" is visible with command "nmcli c show libreswan"
     # options in vpn.data may be in arbitrary order, sort them so it is comparable
@@ -346,6 +344,28 @@
     * Note the output of "nmcli -t -f vpn.data connection show libreswan | sed -e 's/vpn.data:\s*//' | sed -e 's/\s*,\s*/\n/g' | sort" as value "vpn2"
     When Check noted values "vpn1" and "vpn2" are the same
     * Connect to vpn "libreswan" with password "passwd" and secret "ipsecret"
+    Then "VPN.VPN-STATE:.*VPN connected" is visible with command "nmcli c show libreswan"
+
+
+    @rhbz1633174
+    @ver+=1.14.0  @rhelver+=8
+    @libreswan @ikev2
+    @libreswan_reimport_ikev2
+    Scenario: nmcli - libreswan - reimport exported IKEv2 connection
+    * Add a new connection of type "vpn" and options "ifname \* con-name libreswan autoconnect no vpn-type libreswan"
+    * Modify connection "libreswan" changing options "vpn.data 'ikev2=insist, leftcert=LibreswanClient, leftid=%fromcert, right=11.12.13.14'"
+    * Bring "up" connection "libreswan"
+    When "VPN.VPN-STATE:.*VPN connected" is visible with command "nmcli c show libreswan"
+    # options in vpn.data may be in arbitrary order, sort them so it is comparable
+    * Note the output of "nmcli -t -f vpn.data connection show libreswan | sed -e 's/vpn.data:\s*//' | sed -e 's/\s*,\s*/\n/g' | sort" as value "vpn1"
+    * Execute "nmcli connection export libreswan > /tmp/vpn.swan"
+    * Bring "down" connection "libreswan"
+    * Delete connection "libreswan"
+    * Execute "nmcli con import file /tmp/vpn.swan type libreswan"
+    # add required options, which are not exported
+    * Note the output of "nmcli -t -f vpn.data connection show libreswan | sed -e 's/vpn.data:\s*//' | sed -e 's/\s*,\s*/\n/g' | sort" as value "vpn2"
+    When Check noted values "vpn1" and "vpn2" are the same
+    * Bring "up" connection "libreswan"
     Then "VPN.VPN-STATE:.*VPN connected" is visible with command "nmcli c show libreswan"
 
 
