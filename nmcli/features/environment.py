@@ -373,6 +373,8 @@ def teardown_libreswan (context):
         context.embed("text/plain", setup_log, caption="Libreswan Setup")
         context.embed("text/plain", journal_log, caption="Libreswan Pluto Journal")
         context.embed("text/plain", conf, caption="Libreswan Config")
+    else:
+        os.system("cat /tmp/libreswan_setup.log")
 
 def teardown_testveth (context):
     print("---------------------------")
