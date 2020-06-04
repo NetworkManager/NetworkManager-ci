@@ -72,10 +72,14 @@ def utf_only_open_read(file, mode='r'):
 
 
 def libreswan_teardown(context):
-    with open("/tmp/libreswan.log", "a") as f:
-        f.write("\n\n### TEARDOWN ###\n\n")
     subprocess.call(f"sudo bash {NM_CI_RUNNER_CMD} "
-                    "prepare/libreswan.sh teardown &>> /tmp/libreswan.log", shell=True)
+                    "prepare/libreswan.sh teardown &> /tmp/libreswan_teardown.log", shell=True)
+    journal_log = utf_only_open_read("/tmp/journal-pluto.log")
+    teardown_log = utf_only_open_read("/tmp/libreswan_teardown.log")
+    conf = utf_only_open_read("/opt/ipsec/connection.conf")
+    context.embed("text/plain", teardown_log, caption="Libreswan Teardown")
+    context.embed("text/plain", journal_log, caption="Libreswan Pluto Journal")
+    context.embed("text/plain", conf, caption="Libreswan Config")
 
 
 def gsm_teardown(context):
@@ -90,6 +94,7 @@ def wifi_teardown():
     assert subprocess.call(
         f"sudo bash {NM_CI_RUNNER_CMD} prepare/hostapd_wireless.sh teardown", shell=True) == 0, \
         "wifi teardown failed !!!"
+
 
 def hostapd_teardown():
     assert subprocess.call(
@@ -150,15 +155,12 @@ use_step_matcher("qecore")
 @step('Prepare libreswan | mode "{mode}"')
 def prepare_libreswan(context, mode="aggressive"):
     context.execute_steps("""* Delete all connections of type "vpn" after scenario""")
-    context.sandbox.add_after_scenario_hook(
-        lambda c: c.embed("text/plain", utf_only_open_read("/tmp/libreswan.log"), "LIBRESWAN"),
-        context)
-
     cmd = f"sudo MODE={mode} bash {NM_CI_RUNNER_CMD} " \
-          f"prepare/libreswan.sh &>> /tmp/libreswan.log"
-    with open('/tmp/libreswan.log', 'w') as f:
-        f.write(cmd + '\n\n\n')
-    assert subprocess.call(cmd, shell=True) == 0, "libreswan setup failed !!!"
+          f"prepare/libreswan.sh &> /tmp/libreswan_setup.log"
+    ret = subprocess.call(cmd, shell=True)
+    setup_log = utf_only_open_read("/tmp/libreswan_setup.log")
+    context.embed("text/plain", setup_log, "Libreswan Setup")
+    assert ret == 0, "libreswan setup failed !!!"
 
 
 @step('Prepare simulated gsm | named "{modem}"')
