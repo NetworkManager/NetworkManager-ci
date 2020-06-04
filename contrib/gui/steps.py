@@ -153,7 +153,6 @@ def prepare_libreswan(context, mode="aggressive"):
     context.sandbox.add_after_scenario_hook(
         lambda c: c.embed("text/plain", utf_only_open_read("/tmp/libreswan.log"), "LIBRESWAN"),
         context)
-    subprocess.call("sudo systemctl restart NetworkManager", shell=True)
 
     cmd = f"sudo MODE={mode} bash {NM_CI_RUNNER_CMD} " \
           f"prepare/libreswan.sh &>> /tmp/libreswan.log"

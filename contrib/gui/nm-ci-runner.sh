@@ -17,6 +17,7 @@ if [ "$cmd" == "install" ]; then
           https://kojipkgs.fedoraproject.org//packages/NetworkManager-openvpn/1.8.10/1.fc30/x86_64/NetworkManager-openvpn-1.8.10-1.fc30.x86_64.rpm \
           https://kojipkgs.fedoraproject.org//packages/NetworkManager-openvpn/1.8.10/1.fc30/x86_64/NetworkManager-openvpn-gnome-1.8.10-1.fc30.x86_64.rpm
         pip3 install proxy.py
+        systemctl restart NetworkManager
         touch /tmp/network_pkgs_installed
         set +x
     fi
