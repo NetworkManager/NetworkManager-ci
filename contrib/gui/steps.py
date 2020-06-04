@@ -74,11 +74,9 @@ def utf_only_open_read(file, mode='r'):
 def libreswan_teardown(context):
     subprocess.call(f"sudo bash {NM_CI_RUNNER_CMD} "
                     "prepare/libreswan.sh teardown &> /tmp/libreswan_teardown.log", shell=True)
-    journal_log = utf_only_open_read("/tmp/journal-pluto.log")
     teardown_log = utf_only_open_read("/tmp/libreswan_teardown.log")
     conf = utf_only_open_read("/opt/ipsec/connection.conf")
     context.embed("text/plain", teardown_log, caption="Libreswan Teardown")
-    context.embed("text/plain", journal_log, caption="Libreswan Pluto Journal")
     context.embed("text/plain", conf, caption="Libreswan Config")
 
 
