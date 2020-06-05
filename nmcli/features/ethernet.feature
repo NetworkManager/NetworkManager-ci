@@ -652,6 +652,15 @@ Feature: nmcli - ethernet
     Then "con_ethernet" is visible with command "nmcli con"
 
 
+    @rhbz1843360 @rhbz1841398 @rhbz1841397
+    @ver+=1.18.8
+    @con_ethernet_remove @ifcfg-rh
+    @8021x_ca_path_with_ifcfg_plugin
+    Scenario: nmcli - ethernet - check that CA path is saved with ifcfg-rh plugin
+    * Add a new connection of type "ethernet" and options "ifname test8X con-name con_ethernet autoconnect no 802-1x.eap ttls 802-1x.identity test_ttls 802-1x.anonymous-identity test 802-1x.ca-path /tmp/certs/ 802-1x.phase2-auth mschapv2 802-1x.password password"
+    Then "/tmp/certs/" is visible with command "nmcli -t -f 802-1x.ca-path con show id con_ethernet"
+
+
     @rhbz1335409
     @ver+=1.14
     @con_ethernet_remove
