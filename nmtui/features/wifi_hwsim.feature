@@ -4,8 +4,7 @@ Feature: WIFI TUI tests
   * Prepare virtual terminal environment
 
 
-    @rhelver+=8.2 @fedoraver+=31
-    @ver+=1.22
+    @rhelver+=8.2 @fedoraver+=32
     @simwifi
     @nmtui_simwifi_see_all_networks
     Scenario: nmtui - wifi_hwsim - see all networks
@@ -15,7 +14,7 @@ Feature: WIFI TUI tests
 
 
     # no wpa3 before 8.2
-    @rhelver-=8.1 @fedoraver-=30
+    @rhelver-=8.1 @fedoraver+=32
     @simwifi
     @nmtui_simwifi_see_all_networks
     Scenario: nmtui - wifi_hwsim - see all networks
@@ -24,6 +23,7 @@ Feature: WIFI TUI tests
     Then Connections "open, wep ,wep-2,dynwep,wpa1-eap,wpa1-psk,wpa2-eap,wpa2-psk" are in the list
 
 
+    @fedoraver+=32
     @simwifi
     @nmtui_simwifi_connect_to_open_network
     Scenario: nmtui - wifi_hwsim - connect to open network straight
@@ -36,6 +36,7 @@ Feature: WIFI TUI tests
     Then "inet 10." is visible with command "ip a s wlan0" in "30" seconds
 
 
+    @fedoraver+=32
     @simwifi
     @nmtui_simwifi_connect_to_wpa1psk_network
     Scenario: nmtui - wifi_hwsim - connect to WPA1-PSK network straight
@@ -52,6 +53,7 @@ Feature: WIFI TUI tests
     Then "inet 10." is visible with command "ip a s wlan0" in "30" seconds
 
 
+    @fedoraver+=32
     @simwifi
     @nmtui_simwifi_connect_to_wpa2psk_network
     Scenario: nmtui - wifi_hwsim - connect to WPA2-PSK network straight
@@ -68,7 +70,7 @@ Feature: WIFI TUI tests
     Then "inet 10." is visible with command "ip a s wlan0" in "30" seconds
 
 
-    @rhelver+=8.2 @fedoraver+=31
+    @rhelver+=8.2 @fedoraver+=32
     @simwifi
     @nmtui_simwifi_connect_to_wpa3psk_network
     Scenario: nmtui - wifi_hwsim - connect to WPA3-PSK network straight
@@ -85,6 +87,7 @@ Feature: WIFI TUI tests
     Then "inet 10." is visible with command "ip a s wlan0" in "30" seconds
 
 
+    @fedoraver+=32
     @simwifi
     @nmtui_simwifi_connect_to_wep_hexkey_network
     Scenario: nmtui - wifi_hwsim - connect to WEP hex-key network straight
@@ -101,6 +104,7 @@ Feature: WIFI TUI tests
     Then "inet 10." is visible with command "ip a s wlan0" in "30" seconds
 
 
+    @fedoraver+=32
     @simwifi
     @nmtui_simwifi_connect_to_wep_asciikey_network
     Scenario: nmtui - wifi_hwsim - connect to WEP ascii-key network straight
@@ -117,6 +121,7 @@ Feature: WIFI TUI tests
     Then "inet 10." is visible with command "ip a s wlan0" in "30" seconds
 
 
+    @fedoraver+=32
     @simwifi
     @nmtui_simwifi_add_default_connection_open_network
     Scenario: nmtui - wifi_hwsim - add default connection open network
@@ -129,6 +134,7 @@ Feature: WIFI TUI tests
     Then "inet 10." is visible with command "ip a s wlan0" in "30" seconds
 
 
+    @fedoraver+=32
     @simwifi
     @nmtui_simwifi_fixed_device_present
     Scenario: nmtui - wifi_hwsim - fixed device present
@@ -141,6 +147,7 @@ Feature: WIFI TUI tests
     Then "inet 10." is visible with command "ip a s wlan0" in "30" seconds
 
 
+    @fedoraver+=32
     @simwifi
     @nmtui_simwifi_fixed_device_invalid
     Scenario: nmtui - wifi_hwsim - fixed device invalid
@@ -152,6 +159,8 @@ Feature: WIFI TUI tests
     Then "DEVICE=nonexistent" is visible with command "cat /etc/sysconfig/network-scripts/ifcfg-wifi"
     Then "wlan0\s+wifi\s+disconnected" is visible with command "nmcli device"
 
+
+    @fedoraver+=32
     @simwifi
     @nmtui_simwifi_autoconnect_off
     Scenario: nmtui - wifi_hwsim - autoconnect off
@@ -166,6 +175,7 @@ Feature: WIFI TUI tests
     Then "wlan0\s+wifi\s+disconnected" is visible with command "nmcli device"
 
 
+    @fedoraver+=32
     @simwifi
     @nmtui_simwifi_activate_wo_autoconnect
     Scenario: nmtui - wifi_hwsim - activate connection without autoconnect
@@ -185,6 +195,7 @@ Feature: WIFI TUI tests
     Then "inet 10." is visible with command "ip a s wlan0" in "30" seconds
 
 
+    @fedoraver+=32
     @simwifi
     @nmtui_simwifi_activate_with_autoconnect
     Scenario: nmtui - wifi_hwsim - activate connection with autoconnect
@@ -207,6 +218,7 @@ Feature: WIFI TUI tests
     Then "inet 10." is visible with command "ip a s wlan0" in "30" seconds
 
 
+    @fedoraver+=32
     @simwifi
     @nmtui_simwifi_delete_connection_up
     Scenario: nmtui - wifi_hwsim - delete connection while up
@@ -227,6 +239,7 @@ Feature: WIFI TUI tests
     Then "inet 10." is not visible with command "ip a s wlan0"
 
 
+    @fedoraver+=32
     @simwifi
     @nmtui_simwifi_delete_connection_down
     Scenario: nmtui - wifi_hwsim - delete connection while down
@@ -250,6 +263,7 @@ Feature: WIFI TUI tests
     Then "inet 10." is not visible with command "ip a s wlan0"
 
 
+    @fedoraver+=32
     @simwifi
     @nmtui_simwifi_adhoc_network
     Scenario: nmtui - wifi_hwsim - adhoc network
@@ -264,6 +278,7 @@ Feature: WIFI TUI tests
     Then "type IBSS" is visible with command "iw dev wlan0 info"
 
 
+    @fedoraver+=32
     @simwifi
     @nmtui_simwifi_ap
     Scenario: nmtui - wifi_hwsim - ap
@@ -278,6 +293,7 @@ Feature: WIFI TUI tests
     Then "type AP" is visible with command "iw dev wlan0 info"
 
 
+    @fedoraver+=32
     @simwifi
     @nmtui_simwifi_wrong_ssid
     Scenario: nmtui - wifi_hwsim - wrong ssid (over 32 bytes)
@@ -288,6 +304,7 @@ Feature: WIFI TUI tests
     Then ".*Unable to add new connection.*SSID length.*" is visible on screen
 
 
+    @fedoraver+=32
     @simwifi
     @nmtui_simwifi_no_ssid
     Scenario: nmtui - wifi_hwsim - no ssid (over 32 bytes)
@@ -297,6 +314,7 @@ Feature: WIFI TUI tests
     Then Cannot confirm the connection settings
 
 
+    @fedoraver+=32
     @simwifi
     @nmtui_simwifi_set_existing_bssid
     Scenario: nmtui - wifi_hwsim - set existing bssid
@@ -310,6 +328,7 @@ Feature: WIFI TUI tests
     Then Noted value is visible with command "iw dev wlan0 link | tr 'a-z' 'A-Z'" in "30" seconds
 
 
+    @fedoraver+=32
     @simwifi
     @nmtui_simwifi_set_nonexisting_bssid
     Scenario: nmtui - wifi_hwsim - set nonexisting bssid
@@ -324,6 +343,7 @@ Feature: WIFI TUI tests
     Then "open" is not visible with command "iw dev wlan0 info"
 
 
+    @fedoraver+=32
     @simwifi
     @nmtui_simwifi_bogus_bssid
     Scenario: nmtui - wifi_hwsim - bogus bssid
@@ -343,6 +363,7 @@ Feature: WIFI TUI tests
     Then Cannot confirm the connection settings
 
 
+    @fedoraver+=32
     @simwifi
     @nmtui_simwifi_mac_spoofing
     Scenario: nmtui - wifi_hwsim - mac spoofing
@@ -355,6 +376,7 @@ Feature: WIFI TUI tests
     Then "ether f0:de:aa:fb:bb:cc" is visible with command "ip a s wlan0"
 
 
+    @fedoraver+=32
     @simwifi
     @nmtui_simwifi_bogus_spoofing_address
     Scenario: nmtui - wifi_hwsim - bogus spoofing address
@@ -374,6 +396,7 @@ Feature: WIFI TUI tests
     Then Cannot confirm the connection settings
 
 
+    @fedoraver+=32
     @simwifi
     @nmtui_simwifi_mtu
     Scenario: nmtui - wifi_hwsim - mtu
@@ -385,6 +408,8 @@ Feature: WIFI TUI tests
     * Confirm the connection settings
     Then "MTU=512" is visible with command "cat /etc/sysconfig/network-scripts/ifcfg-wifi1"
 
+
+    @fedoraver+=32
     @simwifi
     @nmtui_simwifi_wpa1_connection
     Scenario: nmtui - wifi_hwsim - WPA1 psk connection
@@ -398,6 +423,7 @@ Feature: WIFI TUI tests
     Then "SSID: wpa1-psk" is visible with command "iw dev wlan0 link" in "30" seconds
 
 
+    @fedoraver+=32
     @simwifi
     @nmtui_simwifi_wpa2_connection
     Scenario: nmtui - wifi_hwsim - WPA2 psk connection
@@ -411,7 +437,7 @@ Feature: WIFI TUI tests
     Then "SSID: wpa2-psk" is visible with command "iw dev wlan0 link" in "30" seconds
 
 
-    @rhelver+=8.2 @fedoraver+=31
+    @rhelver+=8.2 @fedoraver+=32
     @simwifi
     @nmtui_simwifi_wpa3_connection
     Scenario: nmtui - wifi_hwsim - WPA3 psk connection
@@ -425,6 +451,7 @@ Feature: WIFI TUI tests
     Then "SSID: wpa3" is visible with command "iw dev wlan0 link" in "30" seconds
 
 
+    @fedoraver+=32
     @simwifi
     @nmtui_simwifi_wep_hexkey_connection
     Scenario: nmtui - wifi_hwsim - WEP hex key connection
@@ -438,6 +465,7 @@ Feature: WIFI TUI tests
     Then "SSID: wep" is visible with command "iw dev wlan0 link" in "30" seconds
 
 
+    @fedoraver+=32
     @simwifi
     @nmtui_simwifi_wep_ascii_connection
     Scenario: nmtui - wifi_hwsim - WEP ascii connection
@@ -466,7 +494,7 @@ Feature: WIFI TUI tests
 
 
 #### Note TUI doesn't support enterprise and dynamic wep yet, tests will be added when support done. ####
-
+    @fedoraver+=32
     @simwifi
     @nmtui_simwifi_show_password
     Scenario: nmtui - wifi_hwsim - show password
@@ -483,6 +511,7 @@ Feature: WIFI TUI tests
 
 
     @bz1132612
+    @fedoraver+=32
     @simwifi
     @nmtui_simwifi_connect_to_network_after_dismissal
     Scenario: nmtui - wifi_hwsim - connect to a network after dialog dismissal
