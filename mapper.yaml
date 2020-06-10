@@ -1138,7 +1138,7 @@ testmapper:
         feature: ethernet
     - nmstate:
        feature: general
-       timeout: 28m
+       timeout: 35m
     - logging:
         feature: general
     - reduce_logging:
