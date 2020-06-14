@@ -8,10 +8,6 @@
 #
 # in steps.py use:
 #        from NMci.contrib.gui.steps import *
-#
-# in environment.py ensure that the following lines are in after_scenario:
-#        hook = getattr(context, "after_scenario_hook", None)
-#        if hook: hook()
 
 from behave import step
 from qecore.step_matcher import use_step_matcher
@@ -23,39 +19,6 @@ from time import sleep
 NM_CI_PATH = os.path.realpath(__file__).replace("contrib/gui/steps.py", "")
 NM_CI_RUNNER_PATH = f"{NM_CI_PATH}contrib/gui/nm-ci-runner.sh"
 NM_CI_RUNNER_CMD = f"{NM_CI_RUNNER_PATH} {NM_CI_PATH}"
-
-#######################
-# after_scenario hook # !!! deprecated !!!
-#######################
-
-# USAGE: in step definition call:
-# add_after_scenario_hook(context, callback_function, [arguments to callback])
-
-
-class Hook:
-    hooks = []
-
-    def __call__(self):
-        for fun, args, kwargs in self.hooks:
-            # use try block for each hook, so that crash of one hook
-            # will not have an influence of the other hooks
-            try:
-                fun(*args, **kwargs)
-            except Exception as e:
-                print("Exception in after_scenario hook:")
-                print(e.traceback)
-        # clean up hoooks, in case of multiple scenarios
-        self.hooks = []
-
-    def append_hook(self, fun, *args, **kwargs):
-        self.hooks.append((fun, args, kwargs))
-
-
-# deprecated, use Sandbox.add_after_scenario_hook() instead
-def add_after_scenario_hook(context, fun, *args, **kwargs):
-    hook = getattr(context, "after_scenario_hook", Hook())
-    hook.append_hook(fun, *args, **kwargs)
-    context.after_scenario_hook = hook
 
 
 ####################
@@ -69,6 +32,19 @@ def utf_only_open_read(file, mode='r'):
         return open(file, mode).read().decode('utf-8', 'ignore').encode('utf-8')
     else:
         return open(file, mode, encoding='utf-8', errors='ignore').read()
+
+
+def cmd_output_rc(cmd, **kwargs):
+    ret = subprocess.run(
+        cmd, stdout=subprocess.PIPE, stderr=subprocess.STDOUT,
+        check=False, encoding="utf-8", errors="ignore", **kwargs)
+    return (ret.stdout, ret.returncode)
+
+
+def cmd_output_rc_embed(context, cmd, **kwargs):
+    output, rc = cmd_output_rc(cmd, **kwargs)
+    context.embed("text/plain", f"{cmd}\nRC: {rc}\nOutput:\n{output}", caption="Command")
+    return (output, rc)
 
 
 def libreswan_teardown(context):
@@ -85,7 +61,7 @@ def gsm_teardown(context):
 
 
 def openvpn_teardown(context):
-    subprocess.call("sudo kill -9 $(pidof openvpn)", shell=True)
+    subprocess.call("sudo pkill -TERM openvpn", shell=True)
 
 
 def wifi_teardown():
@@ -103,6 +79,144 @@ def hostapd_teardown():
 ####################
 # steps defintions #
 ####################
+
+@step('Delete connection "{connection}"')
+@step('Delete connections "{connection}"')
+def remove_connection_id(context, connection):
+    out, rc = cmd_output_rc(f"sudo nmcli con del {connection}", shell=True)
+    assert rc == 0, f"Deletion of '{connection}' failed.\n{out}"
+
+
+@step('Delete all connections of type "{type}"')
+def remove_connection_type(context, type):
+    out, rc = cmd_output_rc(
+        "sudo nmcli con delete "
+        f"$(sudo nmcli -g type,uuid con show | grep '^{type}:' | sed 's/^{type}://g')",
+        shell=True)
+    assert rc == 0, f"Deletion of connections of type '{type}' failed.\n{out}"
+
+
+use_step_matcher("qecore")
+
+
+@step('Add connection "{connection}" | with options "{options}"')
+def add_connection(context, connection, options=None):
+    context.execute_steps(f"""
+        * Delete connection \"{connection}\" after scenario
+        """)
+    if options is None:
+        options = ""
+        for row in context.table:
+            options += f"{row[0]} {row[1]} "
+    out, rc = cmd_output_rc(f"nmcli con add con-name {connection} {options}", shell=True)
+    assert rc == 0, f"Add connection '{connection}' with options {options} failed.\n{out}"
+
+
+@step('Modify connection "{connection}" | changing options "{options}"')
+def modify_connection(context, connection, options=None):
+    if options is None:
+        options = ""
+        for row in context.table:
+            options += f"{row[0]} {row[1]} "
+    out, rc = cmd_output_rc(f"nmcli con mod {connection} {options}", shell=True)
+    assert rc == 0, f"Modify connection '{connection}' changing options {options} failed.\n{out}"
+
+
+@step('Check connection "{connection}" is | '
+      'having options "{options}" with values "{values}" | '
+      'in "{seconds}" seconds')
+def check_connection(context, connection, options=None, values=None, seconds=2):
+    if options is None:
+        options, values = [], []
+        for row in context.table:
+            options.append(row[0])
+            values.append(row[1])
+    else:
+        options, values = options.split(","), values.split(",")
+        assert len(options) == len(values), \
+            f"Differrent number of options and values.\noptions: {options}\nvalues: {values}"
+
+    # need function, because .index() can raise exception
+    def remove_braces(x):
+        if "[" in x:
+            x = x[:x.index("[")]
+        return x
+
+    options_args = ",".join(set([remove_braces(option) for option in options]))
+    nmcli_cmd = f"nmcli -t -f {options_args} con show {connection}"
+
+    last_error = None
+    for _ in range(int(seconds)):
+        try:
+            out, rc = cmd_output_rc(nmcli_cmd, shell=True)
+            assert rc == 0, f"Connection show with options '{options_args}' failed.\n{out}"
+
+            nmcli_lines = out.split('\n')
+            for option, value in zip(options, values):
+                if value.endswith("*"):
+                    found = False
+                    for line in nmcli_lines:
+                        if line.startswith(f"{option}:{value[:-1]}"):
+                            found = True
+                            break
+                    assert found, f"'{option}' is not '{value}' in '{connection}':\n{out}"
+                else:
+                    assert f"{option}:{value}" in nmcli_lines, \
+                        f"'{option}' is not '{value}' in '{connection}':\n{out}"
+            # break if no assert
+            return
+        except AssertionError as e:
+            last_error = e
+            sleep(1)
+    raise last_error
+
+
+CONNECTIONS_LIST_CMD = "nmcli -t -f NAME con show "
+ACTIVE_CONNECTIONS_LIST_CMD = f"{CONNECTIONS_LIST_CMD} --active"
+
+
+@step('"{connection}" is in connections list | in "{seconds}" seconds')
+def connection_list(context, connection, seconds=2):
+    for _ in range(int(seconds)):
+        out, rc = cmd_output_rc(CONNECTIONS_LIST_CMD, shell=True)
+        if rc == 0 and connection in out.split("\n"):
+            return
+        sleep(1)
+    assert False, f"'{connection}' not in list of connections:\n{out}"
+
+
+@step('"{connection}" is not in connections list | in "{seconds}" seconds')
+def not_connection_list(context, connection, seconds=2):
+    for _ in range(int(seconds)):
+        out, rc = cmd_output_rc(CONNECTIONS_LIST_CMD, shell=True)
+        if rc == 0 and connection not in out.split("\n"):
+            return
+        sleep(1)
+    assert False, f"'{connection}' is in list of connections:\n{out}"
+
+
+@step('"{connection}" is in active connections list | in "{seconds}" seconds')
+def active_connection_list(context, connection, seconds=2):
+    for _ in range(int(seconds)):
+        out, rc = cmd_output_rc(ACTIVE_CONNECTIONS_LIST_CMD, shell=True)
+        if rc == 0 and connection in out.split("\n"):
+            return
+        sleep(1)
+    assert False, f"'{connection}' not in list of active connections:\n{out}"
+
+
+@step('"{connection}" is not in active connections list | in "{seconds}" seconds')
+def not_active_connection_list(context, connection, seconds=2):
+    for _ in range(int(seconds)):
+        out, rc = cmd_output_rc(ACTIVE_CONNECTIONS_LIST_CMD, shell=True)
+        if rc == 0 and connection not in out.split("\n"):
+            return
+        sleep(1)
+    assert False, f"'{connection}' is in list of active connections:\n{out}"
+
+
+use_step_matcher("parse")
+
 
 @step('Delete connection "{connection}" after scenario')
 @step('Delete connections "{connection}" after scenario')
@@ -122,9 +236,25 @@ def remove_connection_type_after_scenario(context, type):
 
 @step('Restore "{device}" with connection "{connection}"')
 def restore_device(context, device, connection):
-    context.sandbox.add_after_scenario_hook(
-        subprocess.call, f"sudo nmcli connection up id {connection} "
-        f"|| sudo nmcli con add con-name {connection} type ethernet ifname {device}", shell=True)
+    check_cmd = "nmcli -t -f NAME,DEVICE con show"
+    check_cmd_out, _ = cmd_output_rc(check_cmd, shell=True)
+    assert f"{connection}:{device}" in check_cmd_out, \
+        f"'{connection}:{device}' not found in nmcli output:\n{check_cmd_out}"
+
+    cfile = f"/etc/sysconfig/network-scripts/ifcfg-{connection}"
+    if not os.path.isfile(cfile):
+        cfile = f"/etc/NetworkManager/system-connections/{connection}.nmconnection"
+    assert os.path.isfile(cfile), f"unable to find configuration file for '{connection}'"
+    assert subprocess.call(f"sudo cp '{cfile}' '/tmp/backup_{connection}'", shell=True) == 0, \
+        f"unable to backup file '{cfile}'"
+
+    def restore(connection, cfile):
+        subprocess.call(f"sudo mv '/tmp/backup_{connection}' '{cfile}'", shell=True)
+        subprocess.call("sudo nmcli con reload", shell=True)
+        assert subprocess.call(f"sudo nmcli con up '{connection}'", shell=True) == 0, \
+            f"Activation of '{connection}' failed"
+
+    context.sandbox.add_after_scenario_hook(restore, connection, cfile)
 
 
 @step('Run NetworkManager-ci envsetup')
@@ -178,18 +308,26 @@ def prepare_gsm(context, modem="modemu"):
     assert False, "No modems were found using `mmcli -L' in 20 seconds"
 
 
-@step('Prepare openvpn | version "{version}"')
-def prepare_openvpn(context, version="ip46"):
+@step('Prepare openvpn | version "{version}" | in "{path}"')
+def prepare_openvpn(context, version="ip46", path="/tmp/openvpn-"):
     context.sandbox.add_after_scenario_hook(
         lambda c: c.embed("text/plain", utf_only_open_read("/tmp/openvpn.log"), "OPENVPN"),
         context)
     context.execute_steps("""* Delete all connections of type "vpn" after scenario""")
     assert subprocess.call(
-        f"sudo cp -r {NM_CI_PATH}/tmp/openvpn/sample-keys /tmp/", shell=True) == 0, \
+        f"sudo rsync -r {NM_CI_PATH}/tmp/openvpn/sample-keys/ /tmp/", shell=True) == 0, \
         "Unable to copy openvpn keys, please check directories in NM-ci repo"
-    subprocess.call("sudo systemctl restart NetworkManager", shell=True)
+
+    out, rc = cmd_output_rc(
+        f"sudo cp -f {path}{version}.conf /tmp/openvpn-running.conf", shell=True)
+    assert rc == 0, f"Unable to copy '{path}{version}.conf':\n{out}"
+
+    # are we running already? try to reload
+    if subprocess.call("sudo pkill -HUP openvpn", shell=True) == 0:
+        return
+
     server = subprocess.Popen(
-        f"sudo openvpn /tmp/openvpn-{version}.conf &> /tmp/openvpn.log", shell=True)
+        "sudo openvpn /tmp/openvpn-running.conf &> /tmp/openvpn.log", shell=True)
     running = False
     try:
         server.wait(6)
