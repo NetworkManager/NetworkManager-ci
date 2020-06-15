@@ -315,7 +315,7 @@ def prepare_openvpn(context, version="ip46", path="/tmp/openvpn-"):
         context)
     context.execute_steps("""* Delete all connections of type "vpn" after scenario""")
     assert subprocess.call(
-        f"sudo rsync -r {NM_CI_PATH}/tmp/openvpn/sample-keys/ /tmp/", shell=True) == 0, \
+        f"sudo rsync -r {NM_CI_PATH}/tmp/openvpn/ /tmp/", shell=True) == 0, \
         "Unable to copy openvpn keys, please check directories in NM-ci repo"
 
     out, rc = cmd_output_rc(
