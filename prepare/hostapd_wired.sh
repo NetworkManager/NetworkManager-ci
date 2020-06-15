@@ -1,18 +1,147 @@
 #!/bin/bash
+set +x
 
-function hostapd_setup ()
+HOSTAPD_CFG="/etc/hostapd/wired.conf"
+EAP_USERS_FILE="/etc/hostapd/hostapd.eap_user"
+HOSTAPD_KEYS_PATH="/etc/hostapd/ssl"
+CLIENT_KEYS_PATH="/tmp/certs"
+
+function start_dnsmasq ()
 {
-    # Quit immediately on any script error
-    set -e
+    echo "Start DHCP server (dnsmasq)"
+    local dnsmasq="/usr/sbin/dnsmasq"
 
-    HOSTAPD_KEYS_PATH="/etc/hostapd/ssl"
-    CLIENT_KEYS_PATH="/tmp/certs"
-    HOSTAPD_CFG="/etc/hostapd/wired.conf"
-    EAP_USERS_FILE="/etc/hostapd/hostapd.eap_user"
-    CERTS_PATH=$1
+    echo "Start auth DHCP server (dnsmasq)"
+    $dnsmasq\
+    --pid-file=/tmp/dnsmasq_wired.pid\
+    --conf-file\
+    --no-hosts\
+    --bind-interfaces\
+    --except-interface=lo\
+    --interface=test8Y\
+    --clear-on-reload\
+    --strict-order\
+    --listen-address=10.0.253.1\
+    --dhcp-range=10.0.253.10,10.0.253.200,10m\
+    --dhcp-option=option:router,10.0.253.1\
+    --dhcp-lease-max=190
 
-    echo "Configuring hostapd 8021x server..."
+    echo "Start noauth DHCP server (dnsmasq)"
+    $dnsmasq\
+    --pid-file=/tmp/dnsmasq_wired_noauth.pid\
+    --conf-file\
+    --no-hosts\
+    --bind-interfaces\
+    --except-interface=lo\
+    --interface=test8Z\
+    --clear-on-reload\
+    --strict-order\
+    --listen-address=10.0.254.1\
+    --dhcp-range=10.0.254.10,10.0.254.200,2m\
+    --dhcp-option=option:router,10.0.254.1\
+    --dhcp-lease-max=190
+}
 
+function write_hostapd_cfg ()
+{
+    echo "# Hostapd configuration for 802.1x client testing
+interface=test8Y
+driver=wired
+logger_stdout=-1
+logger_stdout_level=1
+debug=2
+ieee8021x=1
+eap_reauth_period=3600
+eap_server=1
+use_pae_group_addr=1
+eap_user_file=$EAP_USERS_FILE
+ca_cert=$HOSTAPD_KEYS_PATH/hostapd.ca.pem
+dh_file=$HOSTAPD_KEYS_PATH/hostapd.dh.pem
+server_cert=$HOSTAPD_KEYS_PATH/hostapd.cert.pem
+private_key=$HOSTAPD_KEYS_PATH/hostapd.key.enc.pem
+private_key_passwd=redhat" > $HOSTAPD_CFG
+
+# Create a list of users for network authentication, authentication types, and corresponding credentials.
+echo "# Create hostapd peap user file
+# Phase 1 authentication
+\"user\"   MD5     \"password\"
+\"test\"   TLS,TTLS,PEAP
+# Phase 2 authentication (tunnelled within EAP-PEAP or EAP-TTLS)
+\"TESTERS\\test_mschapv2\"   MSCHAPV2    \"password\"  [2]
+\"test_md5\"       MD5         \"password\"  [2]
+\"test_gtc\"       GTC         \"password\"  [2]
+# Tunneled TLS and non-EAP authentication inside the tunnel.
+\"test_ttls\"      TTLS-PAP,TTLS-CHAP,TTLS-MSCHAP,TTLS-MSCHAPV2    \"password\"  [2]" > $EAP_USERS_FILE
+
+}
+
+function copy_certificates ()
+{
+    # Copy certificates to correct places
+    [ -d $HOSTAPD_KEYS_PATH ] || mkdir -p $HOSTAPD_KEYS_PATH
+    /bin/cp -rf $CERTS_PATH/server/hostapd* $HOSTAPD_KEYS_PATH
+
+    [ -d $CLIENT_KEYS_PATH ] || mkdir -p $CLIENT_KEYS_PATH
+    /bin/cp -rf $CERTS_PATH/client/test_user.* $CLIENT_KEYS_PATH
+
+    /bin/cp -rf $CERTS_PATH/client/test_user.ca.pem /etc/pki/ca-trust/source/anchors
+    chown -R test:test $CLIENT_KEYS_PATH
+    update-ca-trust extract
+}
+
+function start_nm_hostapd ()
+{
+    hostapd -P /tmp/hostapd_wired.pid -B $HOSTAPD_CFG &
+    sleep 5
+}
+
+function wired_hostapd_check ()
+{
+    need_setup=0
+    echo "* Checking hostapd"
+    if [ ! -e /tmp/nm_8021x_configured ]; then
+        echo "Not OK!!"
+        need_setup=1
+    fi
+    echo "* Checking auth dnsmasqs"
+    pid=$(cat /tmp/dnsmasq_wired.pid)
+    if ! pidof dnsmasq |grep -q $pid; then
+        echo "Not OK!!"
+        need_setup=1
+    fi
+    echo "* Checking noauth dnsmasqs"
+    pid=$(cat /tmp/dnsmasq_wired_noauth.pid)
+    if ! pidof dnsmasq |grep -q $pid; then
+        echo "Not OK!!"
+        need_setup=1
+    fi
+    echo "* Checking hostapd-wired"
+    pid=$(cat /tmp/hostapd_wired.pid)
+    if ! pidof hostapd |grep -q $pid; then
+        echo "Not OK!!"
+        need_setup=1
+    fi
+    echo "* Checking test8Y"
+    if ! nmcli device show test8Y | grep -qw connected; then
+        echo "Not OK!!"
+        need_setup=1
+    fi
+    echo "* Checking test8Z"
+    if ! nmcli device show test8Z | grep -qw connected; then
+        echo "Not OK!!"
+        need_setup=1
+    fi
+    if [ $need_setup -eq 1 ]; then
+        rm -rf /tmp/nm_8021x_configured
+        wired_hostapd_teardown
+        return 1
+    fi
+
+    return 0
+}
+
+function prepare_test_bed ()
+{
     # Create 2 Veth interface pairs and a bridge between their peers.
     ip link add test8Y type veth peer name test8Yp
     ip link add test8X type veth peer name test8Xp
@@ -50,137 +179,81 @@ function hostapd_setup ()
     # Note: without this capability the testing scenario fails.
     echo 8 > /sys/class/net/test8X_bridge/bridge/group_fwd_mask
 
-    # Create configuration for hostapd to be used with Ethernet adapters.
-    echo "# Hostapd configuration for 802.1x client testing
-interface=test8Y
-driver=wired
-logger_stdout=-1
-logger_stdout_level=1
-debug=2
-ieee8021x=1
-eap_reauth_period=3600
-eap_server=1
-use_pae_group_addr=1
-eap_user_file=$EAP_USERS_FILE
-ca_cert=$HOSTAPD_KEYS_PATH/hostapd.ca.pem
-dh_file=$HOSTAPD_KEYS_PATH/hostapd.dh.pem
-server_cert=$HOSTAPD_KEYS_PATH/hostapd.cert.pem
-private_key=$HOSTAPD_KEYS_PATH/hostapd.key.enc.pem
-private_key_passwd=redhat" > $HOSTAPD_CFG
+}
 
-# Include these lines when the environment is prepared for EAP-FAST authentication.
-# Configuration for EAP-FAST authentication
-# pac_opaque_encr_key=e350ddd67135c2029ad25ce0d2886c4e
-# eap_fast_a_id=c035cfc65e00352b84a64ea738bfa9af
-# eap_fast_a_id_info=testsvr
-# eap_fast_prov=3
-# pac_key_lifetime=604800
-# pac_key_refresh_time=86400
+function wired_hostapd_setup ()
+{
+    set +x
 
-    # Copy certificates to correct places
-    [ -d $HOSTAPD_KEYS_PATH ] || mkdir -p $HOSTAPD_KEYS_PATH
-    /bin/cp -rf $CERTS_PATH/server/hostapd* $HOSTAPD_KEYS_PATH
+    echo "Configuring hostapd 802.1x server..."
 
-    [ -d $CLIENT_KEYS_PATH ] || mkdir -p $CLIENT_KEYS_PATH
-    /bin/cp -rf $CERTS_PATH/client/test_user.* $CLIENT_KEYS_PATH
+    if  wired_hostapd_check; then
+        echo "OK. Configuration has already been done."
+        return 0
+    fi
 
-    /bin/cp -rf $CERTS_PATH/client/test_user.ca.pem /etc/pki/ca-trust/source/anchors
-    chown -R test:test $CLIENT_KEYS_PATH
-    update-ca-trust extract
+    prepare_test_bed
+    write_hostapd_cfg
+    copy_certificates
 
-
-    # Create a list of users for network authentication, authentication types, and corresponding credentials.
-    echo "# Create hostapd peap user file
-# Phase 1 authentication
-\"user\"   MD5     \"password\"
-\"test\"   TLS,TTLS,PEAP
-# Phase 2 authentication (tunnelled within EAP-PEAP or EAP-TTLS)
-\"TESTERS\\test_mschapv2\"   MSCHAPV2    \"password\"  [2]
-\"test_md5\"       MD5         \"password\"  [2]
-\"test_gtc\"       GTC         \"password\"  [2]
-# Tunneled TLS and non-EAP authentication inside the tunnel.
-\"test_ttls\"      TTLS-PAP,TTLS-CHAP,TTLS-MSCHAP,TTLS-MSCHAPV2    \"password\"  [2]" > $EAP_USERS_FILE
-
-    sleep 2
-
-    echo "Start DHCP server (dnsmasq)"
-    /usr/sbin/dnsmasq\
-    --pid-file=/tmp/dnsmasq_wired.pid\
-    --conf-file\
-    --no-hosts\
-    --bind-interfaces\
-    --except-interface=lo\
-    --interface=test8Y\
-    --clear-on-reload\
-    --strict-order\
-    --listen-address=10.0.253.1\
-    --dhcp-range=10.0.253.10,10.0.253.200,10m\
-    --dhcp-option=option:router,10.0.253.1\
-    --dhcp-lease-max=190
-
-    echo "Start DHCP server (dnsmasq)"
-    /usr/sbin/dnsmasq\
-    --pid-file=/tmp/dnsmasq_wired_noauth.pid\
-    --conf-file\
-    --no-hosts\
-    --bind-interfaces\
-    --except-interface=lo\
-    --interface=test8Z\
-    --clear-on-reload\
-    --strict-order\
-    --listen-address=10.0.254.1\
-    --dhcp-range=10.0.254.10,10.0.254.200,2m\
-    --dhcp-option=option:router,10.0.254.1\
-    --dhcp-lease-max=190
+    set -e
 
     # Start 802.1x authentication and built-in RADIUS server.
-    # Start hostapd on the background using configuration for Ethernet adapters.
-    hostapd -P /tmp/hostapd.pid -B $HOSTAPD_CFG &
-    sleep 5
+    # Start hostapd as a service via systemd-run using 802.1x configuration
+    start_dnsmasq
+    start_nm_hostapd
+
+    pid=$(cat /tmp/dnsmasq_wired.pid)
+    if ! pidof dnsmasq | grep -q $pid; then
+        echo "Error. Cannot start auth dnsmasq as DHCP server." >&2
+        return 1
+    fi
+
+    pid=$(cat /tmp/dnsmasq_wired_noauth.pid)
+    if ! pidof dnsmasq | grep -q $pid; then
+        echo "Error. Cannot start noauth dnsmasq as DHCP server." >&2
+        return 1
+    fi
+
+    pid=$(cat /tmp/hostapd_wired.pid)
+    if ! pidof hostapd | grep -q $pid; then
+        echo "Error. Cannot start hostapd." >&2
+        return 1
+    fi
+
+    touch /tmp/nm_8021x_configured
 }
-function hostapd_teardown ()
+
+function wired_hostapd_teardown ()
 {
-    pkill -F /tmp/dnsmasq_wired.pid
-    pkill -F /tmp/hostapd.pid
-    pkill -F /tmp/dnsmasq_wired_noauth.pid
+    set -x
+    kill $(cat /tmp/dnsmasq_wired.pid)
+    kill $(cat /tmp/dnsmasq_wired_noauth.pid)
+    kill $(cat /tmp/hostapd_wired.pid)
+    ip netns del 8021x_ns
     ip link del test8Yp
     ip link del test8Xp
     ip link del test8Zp
     ip link del test8X_bridge
     nmcli con del DHCP_test8Y DHCP_test8Z
+    rm -rf /tmp/nm_8021x_configured
+
 }
 
 if [ "$1" != "teardown" ]; then
-    hostapd_setup $1
-else
-    hostapd_teardown
-fi
+    # If hostapd's config fails then restore initial state.
+    echo "Configure and start hostapd..."
 
-# Test network authentication via IEEE 802.1x by using hostapd and dnsmasq.
-# Various authentication methods are tested, such as:
-# MD5, TLS, Tunneled TLS, PEAP
-# For one part of the tests username and password is enough.
-# For another part, CA certificate, server certificate, and client certificate are required.
-# Two pairs of Veth interfaces are created. Both are linked to a network bridge between the pairs.
-# This is used to test network authentication on a single host.
-# The authentication works on layer 2 of the OSI networking model.
-# EAP messages are exchanged, and therefore the bridge is made to forward them.
-# The network authenticator is hostapd. It implements IEEE 802.11 access point management,
-# IEEE 802.1X/WPA/WPA2/EAP authenticators and RADIUS authentication server.
-# For more info, see:
-#   yum info hostapd
-#   https://wiki.gentoo.org/wiki/Hostapd
-#   https://wiki.gentoo.org/wiki/Hostapd#Capabilities_of_Hostapd
-#
-# See details on configuration:
-#   http://w1.fi/hostapd/
-#   http://w1.fi/cgit/hostap/plain/hostapd/hostapd.conf
-#   Check the section: "IEEE 802.1X-2004 related configuration"
-#
-# For PEAP and TTLS configuration, see:
-#   http://w1.fi/cgit/hostap/tree/hostapd/hostapd.eap_user
-#
-# To have communication, IP addresses must be available.
-# In our case this is achieved by using dnsmasq.
-# dnsmasq provides services as a DNS cacher and a DHCP server.
-# For more info, see: https://wiki.archlinux.org/index.php/dnsmasq
+    CERTS_PATH=${1:?"Error. Path to certificates is not specified."}
+
+    wired_hostapd_setup $1; RC=$?
+    if [ $RC -eq 0 ]; then
+        echo "hostapd started successfully."
+    else
+        echo "Error. Failed to start hostapd." >&2
+        exit 1
+    fi
+else
+    wired_hostapd_teardown
+    echo "System's state returned prior to hostapd's config."
+fi
