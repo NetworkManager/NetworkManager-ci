@@ -1038,6 +1038,15 @@ testmapper:
         feature: vlan
     - vxlan_do_not_up_if_no_master:
         feature: vlan
+    - vrf_one_address_two_devices:
+        feature: vrf
+        tags: gate
+    - vrf_bring_down_connections:
+        feature: vrf
+    - vrf_delete_connections:
+        feature: vrf
+    - vrf_restart_persistence:
+        feature: vrf
     - ethernet_create_with_editor:
         feature: ethernet
     - ethernet_create_default_connection:

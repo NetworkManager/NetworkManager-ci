@@ -31,6 +31,9 @@ def reboot(context):
     # for nmtui
     command_code(context, "ip link del bond0")
     command_code(context, "ip link del team0")
+    # for vrf devices
+    command_code(context, "ip link del vrf0")
+    command_code(context, "ip link del vrf1")
 
 
     command_code(context, "rm -rf /var/run/NetworkManager")

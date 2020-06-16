@@ -1841,6 +1841,11 @@ def after_scenario(context, scenario):
                 print ("deleting connection con_ethernet")
                 call("nmcli connection delete id con_ethernet", shell=True)
 
+            if 'con_vrf_remove' in scenario.tags:
+                print ("---------------------------")
+                print ("deleting vrf connections")
+                call("nmcli connection delete id vrf.eth4 vrf.eth1 vrf0 vrf1", shell=True)
+
             if 'alias' in scenario.tags:
                 print ("---------------------------")
                 print ("deleting alias connections")
