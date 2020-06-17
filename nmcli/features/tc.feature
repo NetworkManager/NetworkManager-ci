@@ -37,3 +37,23 @@
     * Bring "up" connection "con_tc"
     * Send "remove tc.qdiscs" via editor to "con_tc"
     Then Bring "up" connection "con_tc"
+
+
+    @rhbz1546802
+    @ver+=1.25
+    @con_tc_remove @eth0
+    @set_tbf_qdiscs
+    Scenario: nmcli - tc - set qdisc tbf
+    * Add a new connection of type "ethernet" and options "ifname eth0 con-name con_tc autoconnect no tc.qdiscs 'handle 1235 root tbf rate 1000000 burst 5000 limit 10000 latency 10'"
+    * Bring "up" connection "con_tc"
+    Then "qdisc tbf" is visible with command "ip a s eth0" in "5" seconds
+
+
+    @rhbz1546802
+    @ver+=1.25
+    @con_tc_remove @eth0
+    @set_sqf_qdiscs
+    Scenario: nmcli - tc - set qdisc tbf
+    * Add a new connection of type "ethernet" and options "ifname eth0 con-name con_tc autoconnect no tc.qdiscs 'root sfq perturb 10'"
+    * Bring "up" connection "con_tc"
+    Then "qdisc sfq" is visible with command "ip a s eth0" in "5" seconds

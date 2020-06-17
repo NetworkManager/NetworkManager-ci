@@ -1765,6 +1765,10 @@ testmapper:
         feature: tc
     - remove_root_value:
         feature: tc
+    - set_tbf_qdiscs:
+        feature: tc
+    - set_sqf_qdiscs:
+        feature: tc
     - simwifi_p2p_connect:
         feature: wifi_hwsim
     - simwifi_open:
