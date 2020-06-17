@@ -1,6 +1,6 @@
 #! /bin/bash
 
-yum -y install python3-devel rpm-build
+yum -y install python3-devel rpm-build python3-openvswitch2.13
 rm -rf /usr/bin/python && ln -s /usr/bin/python3 /usr/bin/python
 
 # remove nmstate bits
