@@ -128,7 +128,7 @@ def external_bridge_check(context, number):
         context.execute_steps(u"""
             * Execute "sudo sh -c 'ip link add name br0 type bridge ; ip addr add 10.1.1.1/24 dev br0 ; ip link set br0 up'"
             * "10.1.1.1/24" is visible with command "ip addr show br0" in "4" seconds
-            * "GENERAL.STATE:\s+100 \(connected\)" is visible with command "nmcli device show br0" in "4" seconds
+            * "GENERAL.STATE:\s+100 \(connected" is visible with command "nmcli device show br0" in "4" seconds
             * "IP4.ADDRESS.+10.1.1.1/24" is visible with command "nmcli device show br0"
             * Execute "sudo sh -c 'ip link del br0'"
             * "br0" is not visible with command "nmcli device" in "5" seconds

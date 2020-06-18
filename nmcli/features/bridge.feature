@@ -352,7 +352,7 @@ Feature: nmcli - bridge
     Then "br4:.*192.168" is visible with command "ip a s br4" in "45" seconds
 
 
-    @ver-=1.1.0
+    @ver+=1.1.1 @ver-=1.24
     @rhbz1030947
     @dummy
     @bridge_reflect_changes_from_outside_of_NM
@@ -360,7 +360,7 @@ Feature: nmcli - bridge
     * Execute "ip link add br0 type bridge"
     When "br0\s+bridge\s+unmanaged" is visible with command "nmcli d" in "5" seconds
     * Execute "ip link set dev br0 up"
-    When "br0\s+bridge\s+disconnected" is visible with command "nmcli d" in "5" seconds
+    When "br0\s+bridge\s+unmanaged" is visible with command "nmcli d" in "5" seconds
     * Execute "ip link add dummy0 type dummy"
     When "dummy0\s+dummy\s+unmanaged" is visible with command "nmcli d" in "5" seconds
     * Execute "ip link set dev dummy0 up"
@@ -371,8 +371,8 @@ Feature: nmcli - bridge
     Then "BRIDGE.SLAVES:\s+dummy0" is visible with command "nmcli -f bridge.slaves dev show br0"
 
 
-    @ver+=1.1.1
-    @rhbz1030947
+    @ver+=1.25
+    @rhbz1030947 @rhbz1816202
     @dummy
     @bridge_reflect_changes_from_outside_of_NM
     Scenario: nmcli - bridge - reflect changes from outside of NM
@@ -384,9 +384,9 @@ Feature: nmcli - bridge
     When "dummy0\s+dummy\s+unmanaged" is visible with command "nmcli d" in "5" seconds
     * Execute "ip link set dev dummy0 up"
     * Execute "ip addr add 1.1.1.1/24 dev br0"
-    When "br0\s+bridge\s+connected\s+br0" is visible with command "nmcli d" in "5" seconds
+    When "br0\s+bridge\s+connected \(externally\)\s+br0" is visible with command "nmcli d" in "5" seconds
     * Execute "ip link set dummy0 master br0"
-    When "dummy0\s+dummy\s+connected\s+dummy" is visible with command "nmcli d" in "5" seconds
+    When "dummy0\s+dummy\s+connected \(externally\)\s+dummy" is visible with command "nmcli d" in "5" seconds
     Then "BRIDGE.SLAVES:\s+dummy0" is visible with command "nmcli -f bridge.slaves dev show br0"
 
 
@@ -471,7 +471,7 @@ Feature: nmcli - bridge
 
 
     @rhbz1363995
-    @ver+=1.4
+    @ver+=1.4 @ver-=1.24
     @dummy
     @bridge_preserve_assumed_connection_ips
     Scenario: nmcli - bridge - preserve assumed connection's addresses
@@ -479,6 +479,21 @@ Feature: nmcli - bridge
     * Execute "ip link set dev br0 up"
     * Execute "ip add add 30.0.0.1/24 dev br0"
     When "br0:connected:br0" is visible with command "nmcli -t -f DEVICE,STATE,CONNECTION device" in "10" seconds
+     And "inet 30.0.0.1\/24" is visible with command "ip a s br0"
+    * Execute "ip link set dev br0 down"
+    Then "br0:unmanaged" is visible with command "nmcli -t -f DEVICE,STATE,CONNECTION device" in "10" seconds
+     And "inet 30.0.0.1\/24" is visible with command "ip a s br0"
+
+
+    @rhbz1363995 @rhbz1816202
+    @ver+=1.25
+    @dummy
+    @bridge_preserve_assumed_connection_ips
+    Scenario: nmcli - bridge - preserve assumed connection's addresses
+    * Execute "ip link add br0 type bridge"
+    * Execute "ip link set dev br0 up"
+    * Execute "ip add add 30.0.0.1/24 dev br0"
+    When "br0:connected \(externally\):br0" is visible with command "nmcli -t -f DEVICE,STATE,CONNECTION device" in "10" seconds
      And "inet 30.0.0.1\/24" is visible with command "ip a s br0"
     * Execute "ip link set dev br0 down"
     Then "br0:unmanaged" is visible with command "nmcli -t -f DEVICE,STATE,CONNECTION device" in "10" seconds

@@ -677,7 +677,7 @@
 
 
     @rhbz1640237
-    @ver+=1.16 @ver-=1.22
+    @ver+=1.16
     @scapy
     @ipv6_lifetime_too_low
     Scenario: NM - ipv6 - valid lifetime too low should be ignored
@@ -707,31 +707,31 @@
     Then "IPv6" lifetimes are slightly smaller than "7200" and "10" for device "test11"
 
 
-    @rhbz1640237
-    @ver+=1.25.1
-    @scapy
-    @ipv6_lifetime_too_low
-    Scenario: NM - ipv6 - valid lifetime too low should be ignored
-    * Finish "ip link add test10 type veth peer name test11"
-    * Finish "nmcli c add type ethernet ifname test10"
-    * Finish "nmcli c add type ethernet ifname test11"
-    * Execute "nmcli con modify ethernet-test10 ipv4.method disabled ipv6.method auto"
-    * Execute "nmcli con modify ethernet-test11 ipv4.method disabled ipv6.method auto ipv6.address dead::dead/128 ipv6.gateway dead::beaf/128"
-    * Finish "ip link set dev test10 up"
-    * Finish "ip link set dev test11 up"
-    * Execute "nmcli --wait 0 c up ethernet-test10"
-    * Execute "nmcli --wait 0 c up ethernet-test11"
-    When "ethernet-test10" is visible with command "nmcli con sh -a"
-    When "ethernet-test11" is visible with command "nmcli con sh -a"
-    * Execute "sleep 2"
-    * Send lifetime scapy packet with lifetimes "300" "140"
-    * Execute "sleep 2"
-    Then "IPv6" lifetimes are slightly smaller than "300" and "140" for device "test11"
-    * Execute "sleep 2"
-    * Send lifetime scapy packet with lifetimes "20" "10"
-    * Execute "sleep 2"
-    # Change in behavior as https://gitlab.freedesktop.org/NetworkManager/NetworkManager/-/merge_requests/455
-    Then "IPv6" lifetimes are slightly smaller than "20" and "10" for device "test11"
+    # @rhbz1640237
+    # @ver+=1.25.1
+    # @scapy
+    # @ipv6_lifetime_too_low
+    # Scenario: NM - ipv6 - valid lifetime too low should be ignored
+    # * Finish "ip link add test10 type veth peer name test11"
+    # * Finish "nmcli c add type ethernet ifname test10"
+    # * Finish "nmcli c add type ethernet ifname test11"
+    # * Execute "nmcli con modify ethernet-test10 ipv4.method disabled ipv6.method auto"
+    # * Execute "nmcli con modify ethernet-test11 ipv4.method disabled ipv6.method auto ipv6.address dead::dead/128 ipv6.gateway dead::beaf/128"
+    # * Finish "ip link set dev test10 up"
+    # * Finish "ip link set dev test11 up"
+    # * Execute "nmcli --wait 0 c up ethernet-test10"
+    # * Execute "nmcli --wait 0 c up ethernet-test11"
+    # When "ethernet-test10" is visible with command "nmcli con sh -a"
+    # When "ethernet-test11" is visible with command "nmcli con sh -a"
+    # * Execute "sleep 2"
+    # * Send lifetime scapy packet with lifetimes "300" "140"
+    # * Execute "sleep 2"
+    # Then "IPv6" lifetimes are slightly smaller than "300" and "140" for device "test11"
+    # * Execute "sleep 2"
+    # * Send lifetime scapy packet with lifetimes "20" "10"
+    # * Execute "sleep 2"
+    # # Change in behavior as https://gitlab.freedesktop.org/NetworkManager/NetworkManager/-/merge_requests/455
+    # Then "IPv6" lifetimes are slightly smaller than "300" and "10" for device "test11"
 
 
     @rhbz1318945
@@ -869,28 +869,7 @@
 
     @rhbz1083133 @rhbz1098319 @rhbz1127718
     @veth @eth3_disconnect
-    @ver-=1.11.1
-    @ipv6_add_static_address_manually_not_active
-    Scenario: NM - ipv6 - add a static address manually to non-active interface (legacy 1.10 behavior and older)
-    Given "testeth3" is visible with command "nmcli connection"
-    Given "eth3\s+ethernet\s+connected" is not visible with command "nmcli device"
-    Given "state UP" is visible with command "ip a s eth3"
-    * "0" is visible with command "cat /proc/sys/net/ipv6/conf/eth3/disable_ipv6"
-    * Execute "ip -6 addr add 2001::dead:beef:01/64 dev eth3"
-    Then "0" is visible with command "cat /proc/sys/net/ipv6/conf/eth3/disable_ipv6"
-    Then "inet6 2001::dead:beef:1/64 scope global" is visible with command "ip a s eth3"
-    # Newer versions of NM no longer create IPv6 LL addresses for externally assumed devices.
-    # This test is obsoleted by @ipv6_add_static_address_manually_not_active (1.12+), but this
-    # behavior won't be backported to older versions.
-    Then "addrgenmode none " is visible with command "ip -d l show eth3"
-    Then "inet6 fe80" is visible with command "ip a s eth3" in "45" seconds
-    # the assumed connection is created, give just some time for DAD to complete
-    Then "eth3\s+ethernet\s+connected\s+eth3" is visible with command "nmcli device" in "45" seconds
-
-
-    @rhbz1083133 @rhbz1098319 @rhbz1127718
-    @veth @eth3_disconnect
-    @ver+=1.11.2
+    @ver+=1.11.2 @ver-=1.24
     @ipv6_add_static_address_manually_not_active
     Scenario: NM - ipv6 - add a static address manually to non-active interface
     Given "testeth3" is visible with command "nmcli connection"
@@ -910,6 +889,30 @@
     #
     # the assumed connection is created, give just some time for DAD to complete
     Then "eth3\s+ethernet\s+connected\s+eth3" is visible with command "nmcli device"
+
+
+    @rhbz1083133 @rhbz1098319 @rhbz1127718 @rhbz1816202
+    @veth @eth3_disconnect
+    @ver+=1.25
+    @ipv6_add_static_address_manually_not_active
+    Scenario: NM - ipv6 - add a static address manually to non-active interface
+    Given "testeth3" is visible with command "nmcli connection"
+    Given "eth3\s+ethernet\s+connected" is not visible with command "nmcli device"
+    Given "state UP" is visible with command "ip a s eth3"
+    * "0" is visible with command "cat /proc/sys/net/ipv6/conf/eth3/disable_ipv6"
+    * Execute "ip -6 addr add 2001::dead:beef:01/64 dev eth3"
+    Then "0" is visible with command "cat /proc/sys/net/ipv6/conf/eth3/disable_ipv6"
+    Then "inet6 2001::dead:beef:1/64 scope global" is visible with command "ip a s eth3"
+    #
+    # the connection is assumed externally, meaning it has "addrgenmode none". NM is not
+    # interferring with the device, hence there is no IPv6 LL address. Which is a problem,
+    # but a problem of the user who takes over the device without setting the addrgenmode
+    # to its liking.
+    Then "addrgenmode none " is visible with command "ip -d l show eth3"
+    Then "inet6 fe80" is not visible with command "ip a s eth3" for full "45" seconds
+    #
+    # the assumed connection is created, give just some time for DAD to complete
+    Then "eth3\s+ethernet\s+connected \(externally\)\s+eth3" is visible with command "nmcli device"
 
 
     @rhbz1138426
