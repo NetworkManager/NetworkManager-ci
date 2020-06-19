@@ -1288,6 +1288,8 @@ testmapper:
         tags: gate
     - match_connections_with_infinite_leasetime:
         feature: general
+    - match_connections_with_pci_address:
+        feature: general
     - no_assumed_wired_connections:
         feature: general
     - ifcfg_respect_externally_set_mtu:
