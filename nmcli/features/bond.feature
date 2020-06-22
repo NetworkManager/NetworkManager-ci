@@ -755,6 +755,23 @@
      Then "Down Delay \(ms\): 100" is visible with command "cat /proc/net/bonding/nm-bond"
 
 
+    @rhbz1805184
+    @ver+=1.25
+    @slaves @bond
+    @bond_set_zero_miimon_values
+    Scenario: nmcli - bond - options - set new miimon values
+     * Add connection type "bond" named "bond0" for device "nm-bond"
+     * Add slave connection for master "nm-bond" on device "eth1" named "bond0.0"
+     * Add slave connection for master "nm-bond" on device "eth4" named "bond0.1"
+     * Modify connection "bond0" changing options "bond.options mode=0,miimon=0,downdelay=0,updelay=0"
+     * Bring "up" connection "bond0"
+     Then "Bonding Mode: load balancing \(round-robin\)" is visible with command "cat /proc/net/bonding/nm-bond"
+     Then Check bond "nm-bond" link state is "up"
+     Then "MII Polling Interval \(ms\): 0" is visible with command "cat /proc/net/bonding/nm-bond"
+     Then "Up Delay \(ms\): 0" is visible with command "cat /proc/net/bonding/nm-bond"
+     Then "Down Delay \(ms\): 0" is visible with command "cat /proc/net/bonding/nm-bond"
+
+
     @slaves @bond
     @bond_options_new_arp_values
     Scenario: nmcli - bond - options - set new arp values

@@ -130,6 +130,8 @@ testmapper:
     - bond_set_miimon_values:
         feature: bond
         tags: gate
+    - bond_set_zero_miimon_values:
+        feature: bond
     - bond_options_new_arp_values:
         feature: bond
         tags: gate
