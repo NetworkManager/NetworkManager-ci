@@ -1294,6 +1294,8 @@ testmapper:
         feature: general
     - no_assumed_wired_connections:
         feature: general
+    - no_assumed_wired_connections_var2:
+        feature: general
     - ifcfg_respect_externally_set_mtu:
         feature: general
     - wpa_supplicant_not_started:

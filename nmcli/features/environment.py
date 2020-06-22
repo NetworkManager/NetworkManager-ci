@@ -2515,8 +2515,8 @@ def after_scenario(context, scenario):
                             print("* enabling file: %s" % config_file)
                             call('sudo mv -f %s.off %s' % (config_file, config_file), shell=True)
                     reload_NM_service()
-                    call("for i in $(nmcli -t -f NAME,UUID connection |grep -v testeth |awk -F ':' ' {print $2}'); do nmcli con del $i; done", shell=True)
-                    restore_testeth0()
+                call("for i in $(nmcli -t -f NAME,UUID connection |grep -v testeth |awk -F ':' ' {print $2}'); do nmcli con del $i; done", shell=True)
+                restore_testeth0()
 
             if 'openvswitch' in scenario.tags:
                 print ("---------------------------")
@@ -2675,8 +2675,8 @@ def after_scenario(context, scenario):
 
             if 'add_testeth8' in scenario.tags:
                 print ("---------------------------")
-                print ("restoring testeth1 profile")
-                call('sudo nmcli connection delete eth8 eth8 eth8 testeth8', shell=True)
+                print ("restoring testeth8 profile")
+                call('sudo nmcli connection delete eth8 testeth8', shell=True)
                 call('sudo nmcli connection add type ethernet con-name testeth8 ifname eth8 autoconnect no', shell=True)
 
             if 'eth1_disconnect' in scenario.tags:

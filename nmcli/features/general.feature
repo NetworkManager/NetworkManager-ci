@@ -675,6 +675,24 @@ Feature: nmcli - general
     Then "Wired" is not visible with command "nmcli con" in "5" seconds
 
 
+    @rhbz1687937
+    @ver+=1.25
+    @no_config_server @add_testeth8 @eth8_disconnect @restart @manage_eth8
+    @no_assumed_wired_connections_var2
+    Scenario: NM - general - no auto connection created
+    * Execute "nmcli device set eth8 managed no"
+    * Delete connection "testeth8"
+    * Add a new connection of type "ethernet" and options "ifname eth8 con-name con_general"
+    * Stop NM
+    * Execute "rm -rf /var/lib/NetworkManager/no-auto-default.state"
+    * Start NM
+    * Execute "sleep 1"
+    * Execute "nmcli device set eth8 managed yes"
+    When "activated" is visible with command "nmcli -g GENERAL.STATE con show con_general" in "45" seconds
+    * Delete connection "con_general"
+    Then "Wired" is not visible with command "nmcli con"
+
+
     @rhbz1460760
     @ver+=1.8.0
     @con_general_remove @mtu
