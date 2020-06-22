@@ -29,7 +29,7 @@
 
 
     @rhbz1546805
-    @ver+=1.16
+    @ver+=1.16 @ver-=1.24
     @con_tc_remove @eth0
     @remove_root_value
     Scenario: nmcli - tc - remove root value
@@ -37,6 +37,18 @@
     * Bring "up" connection "con_tc"
     * Send "remove tc.qdiscs" via editor to "con_tc"
     Then Bring "up" connection "con_tc"
+
+
+    @rhbz1546805 @rhbz1815875
+    @ver+=1.25
+    @con_tc_remove @eth0
+    @remove_root_value
+    Scenario: nmcli - tc - remove root value
+    * Add a new connection of type "ethernet" and options "ifname eth0 con-name con_tc autoconnect no tc.qdiscs 'root pfifo_fast'"
+    * Bring "up" connection "con_tc"
+    * Send "remove tc.qdiscs" via editor to "con_tc"
+    Then Bring "up" connection "con_tc"
+    Then "warn" is not visible with command "journalctl -u NetworkManager --since '20s ago'|grep qdisc |grep warn"
 
 
     @rhbz1546802
