@@ -693,3 +693,27 @@ Feature: nmcli - ethernet
     * Bring "up" connection "con_ethernet"
     * Note the output of "ethtool -k eth1 | grep tx-checksum-ipv4:" as value "out2"
     Then Check noted values "out1" and "out2" are the same
+
+
+    @rhbz1614700
+    @ver+=1.25
+    @con_ethernet_remove @prepare_patched_netdevsim
+    @ethtool_features_ring
+    Scenario: nmcli - ethernet - ethtool set ring options
+    * Add a new connection of type "ethernet" and options "ifname eth11 ipv4.method manual ipv4.addresses 192.0.2.1/24 con-name con_ethernet ethtool.ring-tx 1000 ethtool.ring-rx-jumbo 1000 ethtool.ring-rx-mini 100 ethtool.ring-rx 1"
+    When "RX:\s+1\s*RX Mini:\s+100\s*RX Jumbo:\s+1000\s*TX:\s+1000" is visible with command "ethtool -g eth11"
+    * Modify connection "con_ethernet" changing options "ethtool.ring-tx 0 ethtool.ring-rx-jumbo 0 ethtool.ring-rx-mini 0 ethtool.ring-rx 0"
+    * Bring "up" connection "con_ethernet"
+    Then "RX:\s+0\s*RX Mini:\s+0\s*RX Jumbo:\s+0\s*TX:\s+0" is visible with command "ethtool -g eth11"
+
+
+    @rhbz1614700
+    @ver+=1.25
+    @con_ethernet_remove @prepare_patched_netdevsim
+    @ethtool_features_coal
+    Scenario: nmcli - ethernet - ethtool set coalescing options
+    * Add a new connection of type "ethernet" and options "ifname eth11 ipv4.method manual ipv4.addresses 192.0.2.1/24 con-name con_ethernet ethtool.coalesce-adaptive-rx 1 ethtool.coalesce-adaptive-tx 1 ethtool.coalesce-pkt-rate-high 3 ethtool.coalesce-pkt-rate-low 2 ethtool.coalesce-rx-frames 1 ethtool.coalesce-rx-frames-high 3 ethtool.coalesce-rx-frames-irq 2 ethtool.coalesce-rx-frames-low 1 ethtool.coalesce-rx-usecs 1 ethtool.coalesce-rx-usecs-high 3 ethtool.coalesce-rx-usecs-irq 2 ethtool.coalesce-rx-usecs-low 1 ethtool.coalesce-sample-interval 2 ethtool.coalesce-stats-block-usecs 2 ethtool.coalesce-tx-frames 1 ethtool.coalesce-tx-frames-high 3 ethtool.coalesce-tx-frames-irq 2 ethtool.coalesce-tx-frames-low 1 ethtool.coalesce-tx-usecs 1 ethtool.coalesce-tx-usecs-high 3 ethtool.coalesce-tx-usecs-irq 2 ethtool.coalesce-tx-usecs-low 1"
+    When "Adaptive RX: on  TX: on\s*stats-block-usecs: 2\s*sample-interval: 2\s*pkt-rate-low: 2\s*pkt-rate-high: 3\s*rx-usecs: 1\s*rx-frames: 1\s*rx-usecs-irq: 2\s*rx-frames-irq: 2\s*tx-usecs: 1\s*tx-frames: 1\s*tx-usecs-irq: 2\s*tx-frames-irq: 2\s*rx-usecs-low: 1\s*rx-frame-low: 1\s*tx-usecs-low: 1\s*tx-frame-low: 1\s*rx-usecs-high: 3\s*rx-frame-high: 3\s*tx-usecs-high: 3\s*tx-frame-high: 3\s*" is visible with command "ethtool -c eth11"
+    * Modify connection "con_ethernet" changing options "ethtool.coalesce-adaptive-rx 0 ethtool.coalesce-adaptive-tx 0 ethtool.coalesce-pkt-rate-high 0 ethtool.coalesce-pkt-rate-low 0 ethtool.coalesce-rx-frames 0 ethtool.coalesce-rx-frames-high 0 ethtool.coalesce-rx-frames-irq 0 ethtool.coalesce-rx-frames-low 0 ethtool.coalesce-rx-usecs 0 ethtool.coalesce-rx-usecs-high 0 ethtool.coalesce-rx-usecs-irq 0 ethtool.coalesce-rx-usecs-low 0 ethtool.coalesce-sample-interval 0 ethtool.coalesce-stats-block-usecs 0 ethtool.coalesce-tx-frames 0 ethtool.coalesce-tx-frames-high 0 ethtool.coalesce-tx-frames-irq 0 ethtool.coalesce-tx-frames-low 0 ethtool.coalesce-tx-usecs 0 ethtool.coalesce-tx-usecs-high 0 ethtool.coalesce-tx-usecs-irq 0 ethtool.coalesce-tx-usecs-low 0"
+    * Bring "up" connection "con_ethernet"
+    Then "Adaptive RX: off  TX: off\s*stats-block-usecs: 0\s*sample-interval: 0\s*pkt-rate-low: 0\s*pkt-rate-high: 0\s*rx-usecs: 0\s*rx-frames: 0\s*rx-usecs-irq: 0\s*rx-frames-irq: 0\s*tx-usecs: 0\s*tx-frames: 0\s*tx-usecs-irq: 0\s*tx-frames-irq: 0\s*rx-usecs-low: 0\s*rx-frame-low: 0\s*tx-usecs-low: 0\s*tx-frame-low: 0\s*rx-usecs-high: 0\s*rx-frame-high: 0\s*tx-usecs-high: 0\s*tx-frame-high: 0\s*" is visible with command "ethtool -c eth11"

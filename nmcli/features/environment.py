@@ -1177,6 +1177,14 @@ def before_scenario(context, scenario):
                     print("wireguard setup failed with exitcode: %d" % rc)
                     sys.exit(rc)
 
+            if 'prepare_patched_netdevsim' in scenario.tags:
+                print("----------------------------")
+                print("* prepare patched netdevsim setup")
+                rc = call('sh prepare/netdevsim.sh setup', shell=True)
+                if rc != 0:
+                    print("netdevsim setup failed with exitcode: %d" % rc)
+                    sys.exit(rc)
+
             # if 'macsec' in scenario.tags:
             #     print("---------------------------")
             #     print("installing macsec stuff")
@@ -2269,6 +2277,11 @@ def after_scenario(context, scenario):
 
                 restart_NM_service()
 
+            if 'prepare_patched_netdevsim' in scenario.tags:
+                print("----------------------------")
+                print("* teardown patched netdevsim setup")
+                call('sh prepare/netdevsim.sh teardown', shell=True)
+                
             if "attach_hostapd_log" in scenario.tags:
                 print("Attaching hostapd log")
                 os.system("echo '~~~~~~~~~~~~~~~~~~~~~~~~~~ HOSTAPD LOG ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~' > /tmp/journal-hostapd.log")

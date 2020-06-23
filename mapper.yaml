@@ -1149,6 +1149,10 @@ testmapper:
         feature: ethernet
     - ethtool_features_fixed_connection:
         feature: ethernet
+    - ethtool_features_ring:
+        feature: ethernet
+    - ethtool_features_coal:
+        feature: ethernet
     - nmstate:
        feature: general
        timeout: 35m
