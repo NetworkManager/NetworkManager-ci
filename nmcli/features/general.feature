@@ -1434,8 +1434,8 @@ Feature: nmcli - general
     @nmstate
     Scenario: NM - general - nmstate
     * Restart NM
-    * Execute "ip link add eth1 type veth peer name eth1p && ip link set dev eth1p up"
-    * Execute "ip link add eth2 type veth peer name eth2p && ip link set dev eth2p up"
+    * Execute "ip link add eth1 type veth peer name eth1peer && ip link set dev eth1peer up"
+    * Execute "ip link add eth2 type veth peer name eth2peer && ip link set dev eth2peer up"
     # These removed tests are removing NM's plugins, when compiling we do not have easy way to put them back now
     * Execute "cd nmstate && ulimit -n 10000 && pytest -vv tests/integration -k 'not nm_team_plugin_missing | disable_nm_team_plugin | nm_ovs_plugin_missing | dhcp_on_bridge0' --log-level=DEBUG 2>&1 | tee /tmp/nmstate.txt"
     # Quick ovs nmstate test for debugging purposes
@@ -1452,8 +1452,8 @@ Feature: nmcli - general
     @nmstate
     Scenario: NM - general - nmstate
     * Restart NM
-    * Execute "ip link add eth1 type veth peer name eth1p && ip link set dev eth1p up"
-    * Execute "ip link add eth2 type veth peer name eth2p && ip link set dev eth2p up"
+    * Execute "ip link add eth1 type veth peer name eth1peer && ip link set dev eth1peer up"
+    * Execute "ip link add eth2 type veth peer name eth2peer && ip link set dev eth2peer up"
     # These removed tests are removing NM's plugins, when compiling we do not have easy way to put them back now
     * Execute "cd nmstate && ulimit -n 10000 && pytest -vv tests/integration -k 'not nm_team_plugin_missing | disable_nm_team_plugin | nm_ovs_plugin_missing | dhcp_on_bridge0 | linux_bridge_uses_the_port_mac_implicitly' --log-level=DEBUG 2>&1 | tee /tmp/nmstate.txt"
     # Quick ovs nmstate test for debugging purposes
