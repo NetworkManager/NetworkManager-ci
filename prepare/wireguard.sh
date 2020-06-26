@@ -51,11 +51,6 @@ cd tmp/
 install_module_cert
 gpg --import gpg/wireguard.asc
 
-# cleanup and clone repo
-rm -rf WireGuard
-git clone https://git.zx2c4.com/WireGuard
-cd WireGuard
-
 # compile from repo
 make_from_src
 if (is_installed) ; then
