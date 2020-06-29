@@ -28,6 +28,16 @@ Feature: nmcli - general
     Then "Stage" is not visible with command "journalctl _COMM=NetworkManager --since '2 min ago'       |grep '<info> .*gen-bond' |grep 'Stage'"
 
 
+    @rhbz1614726
+    @ver+=1.25
+    @man_pages
+    Scenario: NM - general - man pages
+    Then "nm-settings " is visible with tab after "man nm-settings"
+    Then "nm-settings-dbus" is visible with tab after "man nm-settings"
+    Then "nm-settings-keyfile" is visible with tab after "man nm-settings"
+    Then "nm-settings-nmcli" is visible with tab after "man nm-settings"
+
+
     @rhbz1362542
     @ver+=1.4.0
     @insufficient_logging_perms
