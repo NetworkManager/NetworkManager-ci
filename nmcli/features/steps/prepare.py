@@ -22,9 +22,9 @@ def create_policy_based_routing_files(context, profile, dev, table):
     command_code(context, "echo '%s dev %s table %s' > /etc/sysconfig/network-scripts/route-%s" % (ip_slash_prefix, dev, table, profile))
     command_code(context, "echo 'default via %s dev %s table %s' >> /etc/sysconfig/network-scripts/route-%s" % (gw, dev, table, profile))
 
-    command_code(context, "echo 'iif %s table %s' > /etc/sysconfig/network-scripts/rule-%s" % (dev, table, profile))
-    command_code(context, "echo 'from %s table %s' >> /etc/sysconfig/network-scripts/rule-%s" % (ip, table, profile))
-    sleep(3)
+    command_code(context, "echo 'prio 17201 iif %s table %s' > /etc/sysconfig/network-scripts/rule-%s" % (dev, table, profile))
+    command_code(context, "echo 'prio 17200 from %s table %s' >> /etc/sysconfig/network-scripts/rule-%s" % (ip, table, profile))
+    sleep(1)
 
 
 @step(u'Configure dhcp server for subnet "{subnet}" with lease time "{lease}"')
