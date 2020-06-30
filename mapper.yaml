@@ -1294,8 +1294,8 @@ testmapper:
     - match_connections_when_no_var_run_exists:
         feature: general
         tags: gate
-    - match_connections_with_infinite_leasetime:
-        feature: general
+    # - match_connections_with_infinite_leasetime:
+    #     feature: general
     - match_connections_with_pci_address:
         feature: general
     - no_assumed_wired_connections:
