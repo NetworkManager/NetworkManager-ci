@@ -1299,6 +1299,11 @@ def before_scenario(context, scenario):
                     call('systemctl restart openvswitch', shell=True)
                     restart_NM_service()
 
+            if 'sriov' in scenario.tags:
+                print ("---------------------------")
+                print ("* remove p4p1 connection")
+                call('nmcli con del p4p1', shell=True)
+
             if 'dpdk' in scenario.tags:
                 print ("---------------------------")
                 print ("Setting dpdk openvswitch")
@@ -2281,7 +2286,7 @@ def after_scenario(context, scenario):
                 print("----------------------------")
                 print("* teardown patched netdevsim setup")
                 call('sh prepare/netdevsim.sh teardown', shell=True)
-                
+
             if "attach_hostapd_log" in scenario.tags:
                 print("Attaching hostapd log")
                 os.system("echo '~~~~~~~~~~~~~~~~~~~~~~~~~~ HOSTAPD LOG ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~' > /tmp/journal-hostapd.log")
