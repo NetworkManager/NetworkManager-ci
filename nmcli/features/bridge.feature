@@ -662,3 +662,20 @@ Feature: nmcli - bridge
     Then "192.168.99" is visible with command "ip a s br4" in "60" seconds
     Then "br4:connected:bridge4" is visible with command "nmcli -t -f DEVICE,STATE,CONNECTION device" in "10" seconds
     Then "test44:connected:bridge4.1" is visible with command "nmcli -t -f DEVICE,STATE,CONNECTION device" in "10" seconds
+
+
+    @rhbz1816517
+    @ver+=1.25
+    @dummy @bridge @slaves
+    @bridge_remove_slaves_ipv6ll
+    Scenario: nmcli - bridge - remove slave's ipv6ll
+    * Execute "ip link add dummy0 type dummy"
+    * Execute "ip link set dummy0 up && sleep 2"
+    * Execute "nmcli dev set dummy0 managed yes"
+    When "fe80" is visible with command "ip a s dummy0" in "5" seconds
+    * Add a new connection of type "bridge" and options "ifname br4 con-name bridge4 ip4 172.25.89.1/24"
+    * Add a new connection of type "dummy" and options "ifname dummy0 con-name bridge-slave-eth4 master br4 autoconnect no"
+    * Bring "up" connection "bridge-slave-eth4"
+    When "br4:connected:bridge4" is visible with command "nmcli -t -f DEVICE,STATE,CONNECTION device" in "10" seconds
+    When "dummy0:connected:bridge-slave-eth4" is visible with command "nmcli -t -f DEVICE,STATE,CONNECTION device" in "10" seconds
+    Then "inet" is not visible with command "ip a s dummy0" in "5" seconds

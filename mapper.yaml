@@ -358,6 +358,8 @@ testmapper:
         feature: bridge
     - bridge_down_to_l2_only:
         feature: bridge
+    - bridge_remove_slaves_ipv6ll:
+        feature: bridge
     - add_default_team:
         feature: team
     - add_default_team_after_journal_restart:
@@ -1161,7 +1163,7 @@ testmapper:
     - reduce_logging:
         feature: general
     - man_pages:
-        feature: general        
+        feature: general
     - hostname_change:
         feature: general
         tags: gate
