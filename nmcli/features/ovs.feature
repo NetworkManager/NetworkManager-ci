@@ -490,6 +490,28 @@ Feature: nmcli - ovs
     Then "00:11:22:33:44:55" is visible with command "ip a s iface0"
 
 
+
+    @rhbz1820052
+    @ver+=1.25.0
+    @openvswitch @mtu
+    @ovs_mtu
+    Scenario: nmcli - openvswitch - mac address set iface
+    * Add a new connection of type "ovs-bridge" and options "conn.interface ovsbridge0 con-name ovs-bridge0 ethernet.mtu 9000"
+    * Add a new connection of type "ovs-port" and options "conn.interface port0 conn.master ovsbridge0 con-name ovs-port0 ovs-port.tag 120"
+    * Add a new connection of type "ovs-port" and options "conn.interface bond0 conn.master ovsbridge0 con-name ovs-bond0 ovs-port.tag 120"
+    * Add a new connection of type "ethernet" and options "conn.interface eth2 conn.master bond0 slave-type ovs-port con-name ovs-eth2 ethernet.mtu 9000"
+    * Add a new connection of type "ethernet" and options "conn.interface eth3 conn.master bond0 slave-type ovs-port con-name ovs-eth3 ethernet.mtu 9000"
+    * Add a new connection of type "ovs-interface" and options "conn.interface iface0 conn.master port0 con-name ovs-iface0 ipv4.may-fail no  802-3-ethernet.cloned-mac-address 00:11:22:33:44:55 ethernet.mtu 9000"
+    When "activated" is visible with command "nmcli -g GENERAL.STATE con show ovs-iface0" in "40" seconds
+    Then "9000" is visible with command "ip a s iface0"
+    Then "9000" is visible with command "ip a s eth2"
+    Then "9000" is visible with command "ip a s eth3"
+    * Reboot
+    When "activated" is visible with command "nmcli -g GENERAL.STATE con show ovs-iface0" in "40" seconds
+    Then "9000" is visible with command "ip a s iface0"
+    Then "9000" is visible with command "ip a s eth2"
+    Then "9000" is visible with command "ip a s eth3"
+
     @rhbz1740557
     @ver+=1.18.0
     @openvswitch
