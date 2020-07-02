@@ -1512,3 +1512,14 @@
     When "con_ipv6" is visible with command "nmcli connection show -a"
     * Execute "sleep 60; ip netns exec testX6_ns kill -SIGCONT $(cat /tmp/testX6_ns.pid)" without waiting for process to finish
     Then "activated" is visible with command "nmcli -g GENERAL.STATE con show con_ipv6" in "70" seconds
+
+
+    @rhbz1819680
+    @ver+=1.25
+    @con_ipv6_remove
+    @ipv6_token
+    Scenario: NM - ipv6 - set token
+    * Add a new connection of type "ethernet" and options "ifname eth10 con-name con_ipv6 ipv6.token ::123 ipv6.addr-gen-mode eui64"
+    * Bring "up" connection "con_ipv6"
+    When "activated" is visible with command "nmcli -g GENERAL.STATE con show con_ipv6" in "45" seconds
+    Then "token ::123 dev eth10" is visible with command "ip token |grep eth10"

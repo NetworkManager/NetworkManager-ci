@@ -687,6 +687,8 @@ testmapper:
         feature: ipv6
     - ra_timeout:
         feature: ipv6
+    - ipv6_token:
+        feature: ipv6        
     - nmcli_general_correct_profile_activated_after_restart:
         feature: ipv4
         tags: gate
@@ -1508,7 +1510,7 @@ testmapper:
     - ovs_cloned_mac_set_on_iface:
         feature: ovs
     - ovs_mtu:
-        feature: ovs        
+        feature: ovs
     - ovs_cloned_mac_with_the_same_bridge_iface_name:
         feature: ovs
     - clear_ovs_settings:
