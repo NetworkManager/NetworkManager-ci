@@ -279,3 +279,18 @@ Feature: nmcli - wifi
     # Wait a bit and pass a authentication command to wlan1's wpa_supplicant instance
     * Run child "sleep 5; echo Peer address: $( wpa_cli -i wlan1 -p /tmp/wpa_supplicant_peer_ctrl p2p_peers ); wpa_cli -i wlan1 -p /tmp/wpa_supplicant_peer_ctrl p2p_connect $( wpa_cli -i wlan1 -p /tmp/wpa_supplicant_peer_ctrl p2p_peers ) pbc auth go_intent=0"
     Then "activated" is visible with command "nmcli con show wifi-p2p" in "120" seconds
+
+
+    @rhbz1781253
+    @ver+=1.25
+    @simwifi @simwifi_wpa2 @attach_hostapd_log @attach_wpa_supplicant_log
+    @simwifi_do_not_block_autoconnect
+    Scenario: nmcli - simwifi - do not block autoconnect
+    Given "wpa2-eap" is visible with command "nmcli -f SSID device wifi list" in "90" seconds
+    * Add a new connection of type "wifi" and options "ifname wlan0 con-name wifi ssid wpa2-eap 802-11-wireless-security.key-mgmt wpa-psk 802-11-wireless-security.psk Secret123"
+    * Execute "sleep 1"
+    Then Bring up connection "wifi" ignoring error
+    And "GENERAL.STATE:activated" is not visible with command "nmcli -f GENERAL.STATE -t connection show id wifi"
+    * Modify connection "wifi" changing options "802-11-wireless-security.psk secret123"
+    * Reboot
+    And "GENERAL.STATE:activated" is visible with command "nmcli -f GENERAL.STATE -t connection show id wifi" in "45" seconds
