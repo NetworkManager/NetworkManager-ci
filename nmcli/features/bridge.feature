@@ -20,8 +20,9 @@ Feature: nmcli - bridge
     Then Check ifcfg-name file created with noted connection name
 
 
+    @ver-=1.24
 	@bridge
-    @bridge_add_custom_one
+    @bridge_options
     Scenario: nmcli - bridge - add custom bridge
     * Add a new connection of type "bridge" and options "con-name br88 autoconnect no ifname br88 priority 5 forward-delay 3 hello-time 3 max-age 15 ageing-time 500000"
     * Bring up connection "br88" ignoring error
@@ -29,8 +30,36 @@ Feature: nmcli - bridge
     Then "DELAY=3.*BRIDGING_OPTS=\"priority=5 hello_time=3 max_age=15 ageing_time=500000\".*NAME=br88.*ONBOOT=no" is visible with command "cat /etc/sysconfig/network-scripts/ifcfg-br88"
 
 
+    @ver+=1.25
+	@bridge
+    @bridge_options
+    Scenario: nmcli - bridge - add custom bridge
+    * Add a new connection of type "bridge" and options "con-name br88 ifname br88 ageing-time 10 forward-delay 5 bridge.group-address 01:80:C2:00:00:04 group-forward-mask 8 hello-time 3 bridge.mac-address 02:02:02:02:02:02 max-age 15 bridge.multicast-hash-max 4 bridge.multicast-last-member-count 2 bridge.multicast-last-member-interval 2 bridge.multicast-membership-interval 2 bridge.multicast-querier yes bridge.multicast-querier-interval 3 bridge.multicast-query-interval 2 bridge.multicast-query-response-interval 3 bridge.multicast-query-use-ifaddr yes bridge.multicast-router enable bridge.multicast-snooping true bridge.multicast-startup-query-count 2 bridge.multicast-startup-query-interval 5 ip4 192.0.2.1/24"
+    * Bring up connection "br88" ignoring error
+    Then "br88" is visible with command "ip link show type bridge"
+    Then "1000" is visible with command "cat /sys/class/net/br88/bridge/ageing_time"
+    Then "500" is visible with command "cat /sys/class/net/br88/bridge/forward_delay"
+    Then "01:80:c2:00:00:04" is visible with command "cat /sys/class/net/br88/bridge/group_addr"
+    Then "0x8" is visible with command "cat /sys/class/net/br88/bridge/group_fwd_mask"
+    Then "300" is visible with command "cat /sys/class/net/br88/bridge/hello_time"
+    Then "1500" is visible with command "cat /sys/class/net/br88/bridge/max_age"
+    Then "2" is visible with command "cat /sys/class/net/br88/bridge/multicast_last_member_count"
+    Then "2" is visible with command "cat /sys/class/net/br88/bridge/multicast_last_member_interval"
+    Then "2" is visible with command "cat /sys/class/net/br88/bridge/multicast_membership_interval"
+    Then "1" is visible with command "cat /sys/class/net/br88/bridge/multicast_querier"
+    Then "3" is visible with command "cat /sys/class/net/br88/bridge/multicast_querier_interval"
+    Then "2" is visible with command "cat /sys/class/net/br88/bridge/multicast_query_interval"
+    Then "3" is visible with command "cat /sys/class/net/br88/bridge/multicast_query_response_interval"
+    Then "1" is visible with command "cat /sys/class/net/br88/bridge/multicast_query_use_ifaddr"
+    Then "2" is visible with command "cat /sys/class/net/br88/bridge/multicast_router"
+    Then "1" is visible with command "cat /sys/class/net/br88/bridge/multicast_snooping"
+    Then "2" is visible with command "cat /sys/class/net/br88/bridge/multicast_startup_query_count"
+    Then "5" is visible with command "cat /sys/class/net/br88/bridge/multicast_startup_query_interval"
+
+
     @rhbz1358615
-    @ver+=1.10.2
+    #obsoleted by bridge_options test
+    @ver+=1.10.2 @ver-=1.24
     @bridge
     @bridge_add_forward_delay
     Scenario: nmcli - bridge - add forward delay
@@ -126,6 +155,8 @@ Feature: nmcli - bridge
     Then ifcfg-"br12" file does not exist
 
 
+    #obsoleted by bridge_options test
+    @ver-=1.24
     @bridge
     @bridge_set_mac
     Scenario: nmcli - bridge - set mac address
@@ -157,7 +188,8 @@ Feature: nmcli - bridge
 
 
     @rhbz1386872
-    @ver+=1.8.0
+    @ver+=1.8.0 @ver-=1.24
+    #obsoleted by bridge_options test
     @bridge
     @bridge_set_mac_var2
     Scenario: nmcli - bridge - set mac address via ethernet only

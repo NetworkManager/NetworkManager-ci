@@ -265,7 +265,7 @@ testmapper:
         feature: bond
     - bridge_add_default:
         feature: bridge
-    - bridge_add_custom_one:
+    - bridge_options:
         feature: bridge
         tags: gate
     - bridge_add_forward_delay:
