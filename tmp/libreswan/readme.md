@@ -62,5 +62,5 @@ If you do not want to encrypt private key of CA (do not publish such private key
 
 ```bash
 cd ca/
-openssl req -x509 -config libreswan_ca.req.conf -out libreswan_ca.pem
+openssl req -x509 -config libreswan_ca.req.conf -out libreswan_ca.cert.pem -days 3650
 ```
