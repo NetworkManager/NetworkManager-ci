@@ -696,7 +696,7 @@ Feature: nmcli - ethernet
 
 
     @rhbz1614700
-    @ver+=1.25
+    @ver+=1.25 @rhelver+=8
     @con_ethernet_remove @prepare_patched_netdevsim
     @ethtool_features_ring
     Scenario: nmcli - ethernet - ethtool set ring options
@@ -708,7 +708,7 @@ Feature: nmcli - ethernet
 
 
     @rhbz1614700
-    @ver+=1.25
+    @ver+=1.25 @rhelver+=8
     @con_ethernet_remove @prepare_patched_netdevsim
     @ethtool_features_coal
     Scenario: nmcli - ethernet - ethtool set coalescing options

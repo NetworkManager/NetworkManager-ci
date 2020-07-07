@@ -29,7 +29,7 @@ Feature: nmcli - general
 
 
     @rhbz1614726
-    @ver+=1.25
+    @ver+=1.25 @rhelver+=8
     @man_pages
     Scenario: NM - general - man pages
     Then "nm-settings " is visible with tab after "man nm-settings"

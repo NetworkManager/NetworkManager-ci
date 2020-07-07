@@ -21,7 +21,7 @@ Feature: nmcli - bridge
 
 
     @ver-=1.24
-	@bridge
+	@bridge @rhelver+=8
     @bridge_options
     Scenario: nmcli - bridge - add custom bridge
     * Add a new connection of type "bridge" and options "con-name br88 autoconnect no ifname br88 priority 5 forward-delay 3 hello-time 3 max-age 15 ageing-time 500000"
