@@ -503,7 +503,7 @@ Feature: nmcli - ovs
     * Add a new connection of type "ovs-interface" and options "conn.interface iface0 conn.master port0 con-name ovs-iface0 ipv4.may-fail no  802-3-ethernet.cloned-mac-address 00:11:22:33:44:55 ethernet.mtu 9000"
     When "activated" is visible with command "nmcli -g GENERAL.STATE con show ovs-iface0" in "40" seconds
     Then "GENERAL.HWADDR:\s+([0-9A-Fa-f]{2}[:-]){5}([0-9A-Fa-f]{2})" is visible with command "nmcli device show iface0"
-    # Not sure if we can show this one there is just ovs-system shown via ip a s 
+    # Not sure if we can show this one there is just ovs-system shown via ip a s
     # Then "GENERAL.HWADDR:\s+([0-9A-Fa-f]{2}[:-]){5}([0-9A-Fa-f]{2})" is visible with command "ip a s ovsbridge"
 
 
@@ -618,3 +618,20 @@ Feature: nmcli - ovs
     Then "slave-type:\s+ovs-port" is not visible with command "nmcli con show eth2"
     Then "connection.master:\s+port0" is not visible with command "nmcli con show eth2"
     Then "ovs-interface" is not visible with command "nmcli con show eth2"
+
+
+    @rhbz1845216
+    @ver+=1.25
+    @openvswitch
+    @ovs_patch_add
+    Scenario: NM -  openvswitch - add ovs patch
+    * Add a new connection of type "ovs-bridge" and options "conn.interface ovsbridge0 con-name ovs-bridge0"
+    * Add a new connection of type "ovs-port" and options "conn.interface port0 conn.master ovsbridge0 con-name ovs-port0"
+    * Add a new connection of type "ovs-interface" and options "ifname patch0 master port0 ovs-interface.type patch ovs-patch.peer patch1 con-name ovs-patch0"
+    * Add a new connection of type "ovs-bridge" and options "conn.interface ovsbridge1 con-name ovs-bridge1"
+    * Add a new connection of type "ovs-port" and options "conn.interface port1 conn.master ovsbridge1 con-name ovs-port0"
+    * Add a new connection of type "ovs-interface" and options "ifname patch1 master port1 ovs-interface.type patch ovs-patch.peer patch0 con-name ovs-patch1"
+    When "activated" is visible with command "nmcli -g GENERAL.STATE con show ovs-patch0" in "10" seconds
+    When "activated" is visible with command "nmcli -g GENERAL.STATE con show ovs-patch1" in "10" seconds
+    Then "Interface patch0\s*type: patch\s*options: \{peer\=patch1\}" is visible with command "ovs-vsctl show"
+    Then "Interface patch1\s*type: patch\s*options: \{peer\=patch0\}" is visible with command "ovs-vsctl show"
