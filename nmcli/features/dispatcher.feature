@@ -129,6 +129,7 @@ Feature: NM: dispatcher
     @openvswitch @restart
     @dispatcher_restart
     Scenario: NM - dispatcher - do not block NM service restart
+    * Restart NM
     * Execute "systemctl restart NetworkManager-dispatcher"
     * Add a new connection of type "ovs-bridge" and options "conn.interface ovsbridge0 con-name ovs-bridge0"
     * Add a new connection of type "ovs-port" and options "conn.interface port0 conn.master ovsbridge0 con-name ovs-port0 ovs-port.tag 120"
