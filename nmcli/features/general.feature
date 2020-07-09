@@ -958,7 +958,7 @@ Feature: nmcli - general
     * Add a new connection of type "ethernet" and options "ifname testG con-name con_general ipv4.may-fail no ipv6.may-fail no"
     * Restart NM
     #When "2620:" is not visible with command "ip a s testG"
-    * Execute "/usr/bin/nm-online -s -q --timeout=30"
+    * Execute "/usr/bin/cat  -s -q --timeout=30"
     When "inet .* global" is visible with command "ip a s testG"
     Then "inet6 .* global" is visible with command "ip a s testG"
 
@@ -996,7 +996,7 @@ Feature: nmcli - general
 
 
     @rhbz1759956
-    @ver+=1.22.5
+    @ver+=1.22.5 @ver-=1.24
     @con_general_remove @delete_testeth0 @remove_custom_cfg @teardown_testveth @restart
     @nm_online_wait_for_second_connection
     Scenario: NM - general - wait for second device
@@ -1011,7 +1011,30 @@ Feature: nmcli - general
     * Run child "echo FAIL > /tmp/nm-online.txt && /usr/bin/nm-online -s -q --timeout=60 && echo PASS > /tmp/nm-online.txt"
     When "con_general" is visible with command "nmcli con show -a" in "10" seconds
     When "FAIL" is visible with command "cat /tmp/nm-online.txt"
-    * Execute "sleep 10"
+    * Execute "sleep 30"
+    When "con_general2" is visible with command "nmcli con show -a" in "20" seconds
+    When "FAIL" is visible with command "cat /tmp/nm-online.txt"
+    * Execute "ip netns exec testG_ns pkill -SIGCONT -F /tmp/testG_ns.pid"
+    Then "PASS" is visible with command "cat /tmp/nm-online.txt" in "10" seconds
+
+
+    @rhbz1759956 @rhbz1828458
+    @ver+=1.25
+    @con_general_remove @delete_testeth0 @remove_custom_cfg @teardown_testveth @restart
+    @nm_online_wait_for_second_connection
+    Scenario: NM - general - wait for second device
+    * Add a new connection of type "ethernet" and options "ifname testG con-name con_general 802-1x.eap md5 802-1x.identity user 802-1x.password password connection.autoconnect-priority 50 connection.auth-retries 1"
+    * Add a new connection of type "ethernet" and options "ifname testG con-name con_general2 connection.autoconnect-priority 20"
+    * Stop NM
+    * Execute "rm -rf /var/run/NetworkManager"
+    * Prepare simulated test "testG" device
+    * Execute "ip netns exec testG_ns pkill -SIGSTOP -F /tmp/testG_ns.pid"
+    * Execute "ip addr flush dev testG"
+    * Start NM
+    * Run child "echo FAIL > /tmp/nm-online.txt && NM_ONLINE_TIMEOUT=60 /usr/bin/nm-online -s -q && echo PASS > /tmp/nm-online.txt"
+    When "con_general" is visible with command "nmcli con show -a" in "10" seconds
+    When "FAIL" is visible with command "cat /tmp/nm-online.txt"
+    * Execute "sleep 30"
     When "con_general2" is visible with command "nmcli con show -a" in "20" seconds
     When "FAIL" is visible with command "cat /tmp/nm-online.txt"
     * Execute "ip netns exec testG_ns pkill -SIGCONT -F /tmp/testG_ns.pid"
