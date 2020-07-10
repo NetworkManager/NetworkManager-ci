@@ -696,7 +696,7 @@ Feature: nmcli - bridge
     Then "test44:connected:bridge4.1" is visible with command "nmcli -t -f DEVICE,STATE,CONNECTION device" in "10" seconds
 
 
-    @rhbz1816517
+    @rhbz1816517 @rhbz1848888
     @ver+=1.25
     @dummy @bridge @slaves
     @bridge_remove_slaves_ipv6ll
@@ -711,3 +711,5 @@ Feature: nmcli - bridge
     When "br4:connected:bridge4" is visible with command "nmcli -t -f DEVICE,STATE,CONNECTION device" in "10" seconds
     When "dummy0:connected:bridge-slave-eth4" is visible with command "nmcli -t -f DEVICE,STATE,CONNECTION device" in "10" seconds
     Then "inet" is not visible with command "ip a s dummy0" in "5" seconds
+    # Reproducer for 1848888
+    Then "fe80" is not visible with command "python tmp/nmclient_get_device_property.py dummy0 get_ip6_config"

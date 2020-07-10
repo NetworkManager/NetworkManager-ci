@@ -21,7 +21,13 @@ for d in devices:
             print (dir(d))
             exit(1)
         device = d
-        print(getattr(device,property)())
+        if property in ['get_ip6_config', 'get_ip4_config' ]:
+            addrs = getattr(device,property)().get_addresses()
+            for a in addrs:
+                print(a.get_address())
+        else:
+            print(getattr(device,property)())
+
         exit(0)
 
 print ("No such device. %s" %(device))
