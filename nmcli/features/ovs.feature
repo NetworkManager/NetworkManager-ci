@@ -509,13 +509,15 @@ Feature: nmcli - ovs
     When "GENERAL.HWADDR:\s+00:11:22:33:44:55" is visible with command "nmcli dev show iface0"
     When  "mac\s+: "00:11:22:33:44:55"" is visible with command "sudo ovs-vsctl list interface"
     When  "mac_in_use\s+: "00:11:22:33:44:55"" is visible with command "sudo ovs-vsctl list interface"
-    * Execute "nmcli networking off && nmcli networking on"
+    # Need sleep 2 to avoid 1855563
+    * Execute "nmcli networking off && sleep 2 && nmcli networking on"
     When "activated" is visible with command "nmcli -g GENERAL.STATE con show ovs-iface0" in "40" seconds
     When "00:11:22:33:44:55" is visible with command "ip a s iface0"
     When "GENERAL.HWADDR:\s+00:11:22:33:44:55" is visible with command "nmcli dev show iface0"
     When  "mac\s+: "00:11:22:33:44:55"" is visible with command "sudo ovs-vsctl list interface"
     When  "mac_in_use\s+: "00:11:22:33:44:55"" is visible with command "sudo ovs-vsctl list interface"
-    * Execute "nmcli networking off && nmcli networking on"
+    # Need sleep 2 to avoid 1855563
+    * Execute "nmcli networking off && sleep 2 && nmcli networking on"
     When "activated" is visible with command "nmcli -g GENERAL.STATE con show ovs-iface0" in "40" seconds
     When "00:11:22:33:44:55" is visible with command "ip a s iface0"
     When "GENERAL.HWADDR:\s+00:11:22:33:44:55" is visible with command "nmcli dev show iface0"
