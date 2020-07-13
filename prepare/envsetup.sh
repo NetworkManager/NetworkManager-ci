@@ -72,6 +72,9 @@ install_fedora_packages () {
     echo "PermitRootLogin yes" >> /etc/ssh/sshd_config
     systemctl restart sshd
 
+    if grep -q Rawhide /etc/redhat-release; then
+        dnf update -y
+    fi
     # Make python3 default if it's not
     rm -rf /usr/bin/python
     ln -s /usr/bin/python3 /usr/bin/python
