@@ -1463,8 +1463,9 @@ Feature: nmcli: ipv4
     Then "ipv4.addresses:\s+192.168.100.1/24" is visible with command "nmcli con show con_ipv4"
 
 
+    @rhbz1834907
     @ver+=1.4
-    @two_bridged_veths @permissive
+    @two_bridged_veths @permissive @firewall
     @ipv4_method_shared
     Scenario: nmcli - ipv4 - method shared
     * Note the output of "pidof NetworkManager" as value "1"
