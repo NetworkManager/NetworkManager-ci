@@ -56,7 +56,7 @@ beaker-hardware:
   - subcomponents:
       NetworkManager-wifi:
         - x86_64:
-            hostname: wlan-r2s10.wlan.rhts.eng.bos.redhat.com
+            hostname: wlan-r2s20.wlan.rhts.eng.bos.redhat.com
       NetworkManager-infiniband:
         - x86_64:
             # hostname: rdma-dev-01.lab.bos.redhat.com
@@ -1518,7 +1518,7 @@ testmapper:
     - clear_ovs_settings:
         feature: ovs
     - ovs_patch_add:
-        feature: ovs        
+        feature: ovs
     - dispatcher_preup_and_up:
         feature: dispatcher
     - dispatcher_predown_and_down:
