@@ -90,10 +90,10 @@ Feature: nmcli - general
     * Execute "sudo nmcli general hostname localhost"
     * Execute "hostnamectl set-hostname --transient localhost.localdomain"
     * Add a new connection of type "ethernet" and options "ifname testG con-name con_general autoconnect no"
-    When "localhost" is visible with command "hostnamectl --transient" in "60" seconds
+    When "localhost|fedora" is visible with command "hostnamectl --transient" in "60" seconds
     * Bring up connection "con_general"
     When "ransient" is visible with command "hostnamectl" in "60" seconds
-    Then "localhost" is not visible with command "hostnamectl --transient" in "60" seconds
+    Then "localhost|fedora" is not visible with command "hostnamectl --transient" in "60" seconds
 
 
     @rhbz1405275
@@ -107,10 +107,10 @@ Feature: nmcli - general
     * Execute "sudo nmcli general hostname localhost"
     * Execute "hostnamectl set-hostname --transient localhost.localdomain"
     * Add a new connection of type "ethernet" and options "ifname testG con-name con_general autoconnect no"
-    When "localhost" is visible with command "hostnamectl --transient" in "60" seconds
+    When "localhost|fedora" is visible with command "hostnamectl --transient" in "60" seconds
     * Bring up connection "con_general"
     When "ransient" is visible with command "hostnamectl" in "60" seconds
-    Then "localhost" is not visible with command "hostnamectl --transient" in "60" seconds
+    Then "localhost|fedora" is not visible with command "hostnamectl --transient" in "60" seconds
 
 
     @rhbz1405275
@@ -124,10 +124,10 @@ Feature: nmcli - general
     * Execute "sudo nmcli general hostname localhost"
     * Execute "hostnamectl set-hostname --transient localhost.localdomain"
     * Add a new connection of type "ethernet" and options "ifname testG con-name con_general autoconnect no"
-    When "localhost" is visible with command "hostnamectl --transient" in "60" seconds
+    When "localhost|fedora" is visible with command "hostnamectl --transient" in "60" seconds
     * Bring up connection "con_general"
     When "ransient" is visible with command "hostnamectl" in "60" seconds
-    Then "localhost" is not visible with command "hostnamectl --transient" in "60" seconds
+    Then "localhost|fedora" is not visible with command "hostnamectl --transient" in "60" seconds
 
 
     @rhbz1405275
@@ -142,11 +142,11 @@ Feature: nmcli - general
     * Execute "sudo nmcli general hostname localhost"
     * Execute "hostnamectl set-hostname --transient localhost.localdomain"
     * Add a new connection of type "ethernet" and options "ifname testG con-name con_general autoconnect no"
-    When "localhost" is visible with command "hostnamectl --transient" in "60" seconds
+    When "localhost|fedora" is visible with command "hostnamectl --transient" in "60" seconds
     * Bring up connection "con_general"
     When "ransient" is visible with command "hostnamectl" in "60" seconds
-    Then "localhost" is visible with command "hostnamectl --transient" in "60" seconds
-     And "localhost" is visible with command "hostnamectl --transient" for full "20" seconds
+    Then "localhost|fedora" is visible with command "hostnamectl --transient" in "60" seconds
+     And "localhost|fedora" is visible with command "hostnamectl --transient" for full "20" seconds
 
 
     @rhbz1405275
@@ -160,11 +160,11 @@ Feature: nmcli - general
     * Execute "sudo nmcli general hostname localhost"
     * Execute "hostnamectl set-hostname --transient localhost.localdomain"
     * Add a new connection of type "ethernet" and options "ifname testG con-name con_general autoconnect no"
-    When "localhost" is visible with command "hostnamectl --transient" in "60" seconds
+    When "localhost|fedora" is visible with command "hostnamectl --transient" in "60" seconds
     * Bring up connection "con_general"
     When "ransient" is visible with command "hostnamectl" in "60" seconds
-    Then "localhost" is visible with command "hostnamectl --transient" in "60" seconds
-     And "localhost" is visible with command "hostnamectl --transient" for full "20" seconds
+    Then "localhost|fedora" is visible with command "hostnamectl --transient" in "60" seconds
+     And "localhost|fedora" is visible with command "hostnamectl --transient" for full "20" seconds
 
 
     @rhbz1744427
