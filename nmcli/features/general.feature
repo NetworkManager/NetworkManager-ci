@@ -673,6 +673,20 @@ Feature: nmcli - general
     Then "activated" is visible with command "nmcli -g GENERAL.STATE con show con_general" in "45" seconds
 
 
+    @rhbz1837999
+    @ver+=1.25.90
+    @restart @con_general_remove
+    @match_connections_via_kernel_option
+    Scenario: NM - general - connection matching via kernel option
+    * Add a new connection of type "ethernet" and options "ifname eth8 con-name con_general match.kernel-command-line root"
+    * Reboot
+    When "activated" is visible with command "nmcli -g GENERAL.STATE con show con_general" in "45" seconds
+    * Modify connection "con_general" changing options "match.kernel-command-line r00t"
+    * Reboot
+    # Kernel command line doesn't match so connection should be blocked
+    Then "eth8" is not visible with command "nmcli con show -a" in "10" seconds
+
+
     @rhbz1729854
     @ver+=1.14
     @restart @not_on_s390x @no_config_server @rhelver+=8 @rhel_pkg
