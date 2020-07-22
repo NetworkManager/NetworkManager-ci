@@ -1314,7 +1314,7 @@
 
 
     @rhbz1360386
-    @ver+=1.7.1
+    @ver+=1.7.1 @ver-=1.24
     @bond @bond_bridge @slaves @bond-team_remove
     @bridge_team_bond_autoconnect_nested_slaves
     Scenario: nmcli - bond - autoconnect slaves of slaves
@@ -1323,6 +1323,29 @@
      * Add a new connection of type "bond" and options "ifname nm-bond con-name bond0 master bond-team autoconnect no connection.autoconnect-slaves 1"
      * Add a new connection of type "ethernet" and options "ifname eth1 con-name bond-slave-eth1 master nm-bond autoconnect no"
      * Bring "up" connection "bond_bridge0"
+    Then "bond-bridge:bridge:connected:bond_bridge0" is visible with command "nmcli -t -f DEVICE,TYPE,STATE,CONNECTION device" in "60" seconds
+     And "bond-team:team:connected:bond-team0" is visible with command "nmcli -t -f DEVICE,TYPE,STATE,CONNECTION device" in "5" seconds
+     And "nm-bond:bond:connected:bond0" is visible with command "nmcli -t -f DEVICE,TYPE,STATE,CONNECTION device" in "5" seconds
+     And "eth1:ethernet:connected:bond-slave-eth1" is visible with command "nmcli -t -f DEVICE,TYPE,STATE,CONNECTION device" in "5" seconds
+
+
+    @rhbz1360386 @rhbz1845018
+    @ver+=1.25
+    @bond @bond_bridge @slaves @bond-team_remove
+    @bridge_team_bond_autoconnect_nested_slaves
+    Scenario: nmcli - bond - autoconnect slaves of slaves
+     * Add a new connection of type "bridge" and options "ifname bond-bridge con-name bond_bridge0 autoconnect no connection.autoconnect-slaves 1 bridge.stp off"
+     * Add a new connection of type "team" and options "ifname bond-team con-name bond-team0 master bond-bridge autoconnect no connection.autoconnect-slaves 1"
+     * Add a new connection of type "bond" and options "ifname nm-bond con-name bond0 master bond-team autoconnect no connection.autoconnect-slaves 1"
+     * Add a new connection of type "ethernet" and options "ifname eth1 con-name bond-slave-eth1 master nm-bond autoconnect no"
+     * Bring "up" connection "bond_bridge0"
+    When "bond-bridge:bridge:connected:bond_bridge0" is visible with command "nmcli -t -f DEVICE,TYPE,STATE,CONNECTION device" in "60" seconds
+     And "bond-team:team:connected:bond-team0" is visible with command "nmcli -t -f DEVICE,TYPE,STATE,CONNECTION device" in "5" seconds
+     And "nm-bond:bond:connected:bond0" is visible with command "nmcli -t -f DEVICE,TYPE,STATE,CONNECTION device" in "5" seconds
+     And "eth1:ethernet:connected:bond-slave-eth1" is visible with command "nmcli -t -f DEVICE,TYPE,STATE,CONNECTION device" in "5" seconds
+    * Modify connection "bond-slave-eth1" changing options "connection.autoconnect yes"
+    * Modify connection "bond0" changing options "connection.autoconnect-slaves 0"
+    * Reboot
     Then "bond-bridge:bridge:connected:bond_bridge0" is visible with command "nmcli -t -f DEVICE,TYPE,STATE,CONNECTION device" in "60" seconds
      And "bond-team:team:connected:bond-team0" is visible with command "nmcli -t -f DEVICE,TYPE,STATE,CONNECTION device" in "5" seconds
      And "nm-bond:bond:connected:bond0" is visible with command "nmcli -t -f DEVICE,TYPE,STATE,CONNECTION device" in "5" seconds

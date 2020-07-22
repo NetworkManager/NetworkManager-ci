@@ -2419,10 +2419,12 @@ def after_scenario(context, scenario):
                 call('sudo nmcli con del bridge-slave-eth4 bridge-nonslave-eth4 bridge-slave-eth4.80 eth4', shell=True)
                 call('sudo nmcli con del bridge0 bridge bridge.15 nm-bridge br88 br11 br12 br15 bridge-slave br15-slave br15-slave1 br15-slave2 br10 br10-slave', shell=True)
                 reset_hwaddr_nmcli('eth4')
+
             if 'bond_bridge' in scenario.tags:
                 print ("---------------------------")
                 print ("deleting all possible bond bridge")
                 call('sudo nmcli con del bond_bridge0', shell=True)
+                call('sudo ip link del bond-bridge', shell=True)
 
             if 'team_br_remove' in scenario.tags:
                 print ("---------------------------")
