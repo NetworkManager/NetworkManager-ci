@@ -135,7 +135,7 @@ Feature: NM: dispatcher
     * Add a new connection of type "ovs-port" and options "conn.interface port0 conn.master ovsbridge0 con-name ovs-port0 ovs-port.tag 120"
     * Add a new connection of type "ovs-interface" and options "conn.interface iface0 conn.master port0 con-name ovs-iface0 ip4 192.0.2.2/24"
     When "activated" is visible with command "nmcli -g GENERAL.STATE con show ovs-iface0" in "40" seconds
-    When "inactive" is visible with command "systemctl is-active NetworkManager-dispatcher.service" in "30" seconds
+    When "inactive|unknown" is visible with command "systemctl is-active NetworkManager-dispatcher.service" in "30" seconds
     * Run child "systemctl restart NetworkManager"
     # If NM hangs this will be never shown
     When "deactivating" is not visible with command "systemctl status NetworkManager" in "10" seconds

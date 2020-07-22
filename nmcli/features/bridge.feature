@@ -21,7 +21,7 @@ Feature: nmcli - bridge
 
 
     @ver-=1.24
-	@bridge @rhelver+=8
+	@bridge
     @bridge_options
     Scenario: nmcli - bridge - add custom bridge
     * Add a new connection of type "bridge" and options "con-name br88 autoconnect no ifname br88 priority 5 forward-delay 3 hello-time 3 max-age 15 ageing-time 500000"
@@ -31,7 +31,7 @@ Feature: nmcli - bridge
 
 
     @ver+=1.25
-	@bridge
+	@bridge @rhelver+=8
     @bridge_options
     Scenario: nmcli - bridge - add custom bridge
     * Add a new connection of type "bridge" and options "con-name br88 ifname br88 ageing-time 10 forward-delay 5 bridge.group-address 01:80:C2:00:00:04 group-forward-mask 8 hello-time 3 bridge.mac-address 02:02:02:02:02:02 max-age 15 bridge.multicast-hash-max 4 bridge.multicast-last-member-count 2 bridge.multicast-last-member-interval 2 bridge.multicast-membership-interval 2 bridge.multicast-querier yes bridge.multicast-querier-interval 3 bridge.multicast-query-interval 2 bridge.multicast-query-response-interval 3 bridge.multicast-query-use-ifaddr yes bridge.multicast-router enable bridge.multicast-snooping true bridge.multicast-startup-query-count 2 bridge.multicast-startup-query-interval 5 ip4 192.0.2.1/24"

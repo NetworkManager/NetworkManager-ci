@@ -656,7 +656,7 @@ Feature: nmcli - ovs
 
 
     @rhbz1845216
-    @ver+=1.25
+    @ver+=1.25 @rhelver+=8
     @openvswitch
     @ovs_patch_add
     Scenario: NM -  openvswitch - add ovs patch
