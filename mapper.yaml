@@ -1053,6 +1053,8 @@ testmapper:
         feature: vrf
     - vrf_restart_persistence:
         feature: vrf
+    - ethernet_default_initramfs_connection:
+        feature: ethernet
     - ethernet_create_with_editor:
         feature: ethernet
     - ethernet_create_default_connection:

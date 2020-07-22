@@ -9,6 +9,14 @@ Feature: nmcli - ethernet
     # Scenario:
 
 
+    @ver+=1.25
+    @rhelver+=8 @fedoraver+=32
+    @ethernet_default_initramfs_connection
+    Scenario: nmcli - ethernet - initramfs connection
+    Then "ipv6.method:\s+auto" is visible with command "nmcli  con show testeth0  |grep method"
+    Then "ipv4.method:\s+auto" is visible with command "nmcli  con show testeth0  |grep method"
+
+
     @ethernet
     @ethernet_create_with_editor
     Scenario: nmcli - ethernet - create with editor
