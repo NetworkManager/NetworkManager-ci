@@ -1111,7 +1111,7 @@ Feature: nmcli: ipv4
 
 
     @rhbz1785039
-    @ver+=1.18
+    @ver+=1.25
     @con_ipv4_remove @eth0
     @ipv4_never-default_set
     Scenario: nmcli - ipv4 - never-default - set
@@ -1464,7 +1464,22 @@ Feature: nmcli: ipv4
 
 
     @rhbz1834907
-    @ver+=1.4
+    @ver+=1.4 @ver-=1.24
+    @two_bridged_veths @permissive
+    @ipv4_method_shared
+    Scenario: nmcli - ipv4 - method shared
+    * Note the output of "pidof NetworkManager" as value "1"
+    * Prepare veth pairs "test1,test2" bridged over "vethbr"
+    * Add a new connection of type "ethernet" and options "con-name tc1 autoconnect no ifname test1 ipv4.method shared ipv6.method ignore"
+    * Add a new connection of type "ethernet" and options "con-name tc2 autoconnect no ifname test2"
+    Then Bring "up" connection "tc1"
+     And Bring "up" connection "tc2"
+     And Note the output of "pidof NetworkManager" as value "2"
+     And Check noted values "1" and "2" are the same
+
+
+    @rhbz1834907
+    @ver+=1.25
     @two_bridged_veths @permissive @firewall
     @ipv4_method_shared
     Scenario: nmcli - ipv4 - method shared
@@ -2003,7 +2018,7 @@ Feature: nmcli: ipv4
 
 
     @rhbz1841937
-    @ver+=1.22.8
+    @ver+=1.25.2
     @teardown_testveth @con_ipv4_remove @long
     @dhcp_rebind_with_firewall_var2
     Scenario: DHCPv4 rebind

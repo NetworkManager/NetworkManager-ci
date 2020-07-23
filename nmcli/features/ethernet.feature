@@ -661,7 +661,7 @@ Feature: nmcli - ethernet
 
 
     @rhbz1843360 @rhbz1841398 @rhbz1841397
-    @ver+=1.18.8
+    @ver+=1.25.2
     @con_ethernet_remove @ifcfg-rh
     @8021x_ca_path_with_ifcfg_plugin
     Scenario: nmcli - ethernet - check that CA path is saved with ifcfg-rh plugin
