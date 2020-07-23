@@ -1375,6 +1375,10 @@ def before_scenario(context, scenario):
                 if not os.path.isfile('/tmp/nm_newveth_configured'):
                     sys.exit(77)
 
+                # prepare nmstate and skip if unsuccesful
+                if call("sh prepare/nmstate.sh", shell=True) != 0:
+                    sys.exit(77)
+
                 call("rm -rf /tmp/nmstate_backup; mkdir /tmp/nmstate_backup; cp /tmp/ifcfg-* /tmp/nmstate_backup/", shell=True)
                 call("sh prepare/vethsetup.sh teardown", shell=True)
 
@@ -1398,8 +1402,6 @@ def before_scenario(context, scenario):
                 manage_veths ()
 
                 context.nm_pid = nm_pid()
-                # prepare nmstate
-                call("sh prepare/nmstate.sh", shell=True)
 
                 if call('systemctl is-active openvswitch', shell=True) != 0 or \
                     call('systemctl status ovs-vswitchd.service |grep -q ERR', shell=True) != 0:
