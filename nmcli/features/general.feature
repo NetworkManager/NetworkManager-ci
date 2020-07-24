@@ -972,7 +972,7 @@ Feature: nmcli - general
     * Add a new connection of type "ethernet" and options "ifname testG con-name con_general ipv4.may-fail no ipv6.may-fail no"
     * Restart NM
     #When "2620:" is not visible with command "ip a s testG"
-    * Execute "/usr/bin/cat  -s -q --timeout=30"
+    * Execute "/usr/bin/nm-online  -s -q --timeout=30"
     When "inet .* global" is visible with command "ip a s testG"
     Then "inet6 .* global" is visible with command "ip a s testG"
 
