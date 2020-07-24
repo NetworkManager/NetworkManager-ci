@@ -2277,7 +2277,7 @@ Feature: nmcli - general
 
 
     @rhbz1711215
-    @ver+=1.25
+    @ver+=1.25 @rhelver+=8
     @remove_custom_cfg
     @NM_performance_test1
     Scenario: NM - general - create and activate 100 devices in 3 to 6 seconds
