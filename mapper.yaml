@@ -1386,6 +1386,13 @@ testmapper:
         tags: gate
     - snapshot_deleted_soft_device_dbus_link:
         feature: general
+    - macsec_psk:
+        feature: general
+        tags: gate libnl3
+    - macsec_set_mtu_from_parent:
+        feature: general
+    - non_utf_device:
+        feature: general
     - stable_mem_consumption:
         feature: general
         timeout: 20m
@@ -1397,13 +1404,6 @@ testmapper:
     - dummy_with_qdisc:
         feature: general
     - do_not_touch_external_dummy:
-        feature: general
-    - macsec_psk:
-        feature: general
-        tags: gate libnl3
-    - macsec_set_mtu_from_parent:
-        feature: general
-    - non_utf_device:
         feature: general
     - connectivity_check:
         feature: general
