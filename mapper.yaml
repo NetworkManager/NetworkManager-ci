@@ -1159,6 +1159,9 @@ testmapper:
         feature: ethernet
     - ethtool_features_coal:
         feature: ethernet
+    - dracut_nfs_all:
+        feature: dracut
+        timeout: 60m
     - nmstate:
        feature: general
        timeout: 35m

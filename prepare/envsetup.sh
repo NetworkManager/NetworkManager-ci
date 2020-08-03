@@ -231,6 +231,10 @@ install_el8_packages () {
     https://vbenes.fedorapeople.org/NM/team_rhbz1684389/teamd-1.29-1.el8_1.x86_64.rpm \
     https://vbenes.fedorapeople.org/NM/team_rhbz1684389/teamd-devel-1.29-1.el8_1.x86_64.rpm
 
+    # dracut testing
+    dnf -4 -y install qemu-kvm
+    cp contrib/dracut/lsinitrd.sh /usr/lib/dracut/
+
     install_plugins_dnf
 }
 

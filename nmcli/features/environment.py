@@ -2299,6 +2299,24 @@ def after_scenario(context, scenario):
 
                 restart_NM_service()
 
+            if 'dracut' in scenario.tags:
+                print("---------------------------")
+                if os.path.isfile("/tmp/dracut_test_dirname"):
+                    dirname = utf_only_open_read("/tmp/dracut_test_dirname")
+                    rc = call(
+                        "cd %s; sudo basedir=/usr/lib/dracut/ testdir=../ "
+                        "bash ./test.sh --clean &> /tmp/dracut_clean.log"
+                        % (dirname), shell=True)
+                    context.embed("text/plain", utf_only_open_read("/tmp/dracut_clean.log"), "DRACUT_CLEAN")
+                    if os.path.isfile("/tmp/dracut_server.log"):
+                        context.embed("text/plain", utf_only_open_read("/tmp/dracut_server.log"), "DRACUT_SERVER")
+                        call("rm -f /tmp/dracut_server.log", shell=True)
+                    if rc == 0:
+                        print("Dracut cleanup after %s failed !!!" % (dirname))
+                    call("rm -f /tmp/dracut_test_dirname", shell=True)
+                else:
+                    print("Nothing to clean, no dracut directory")
+
             if 'prepare_patched_netdevsim' in scenario.tags:
                 print("----------------------------")
                 print("* teardown patched netdevsim setup")
