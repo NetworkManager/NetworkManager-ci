@@ -1180,6 +1180,7 @@
 
 
     @rhbz1299103 @rhbz1348198
+    @ver-=1.24
     @slaves @bond
     @bond_set_active_backup_options
     Scenario: nmcli - bond - set active backup options
@@ -1187,6 +1188,28 @@
      * Add a new connection of type "ethernet" and options "con-name bond0.1 ifname eth4 master nm-bond autoconnect no"
      * Add a new connection of type "ethernet" and options "con-name bond0.0 ifname eth1 master nm-bond autoconnect no"
      * Bring "up" connection "bond0"
+     When "nm-bond:connected:bond0" is visible with command "nmcli -t -f DEVICE,STATE,CONNECTION device" in "40" seconds
+     # sort the BONDING_OPTS to prevent failures in the future
+     * Note the output of "grep BONDING_OPTS= /etc/sysconfig/network-scripts/ifcfg-bond0 | grep -o '".*"' | sed 's/"//g;s/ /\n/g' | sort | tr '\n' ' '" as value "ifcfg_opts"
+     * Note the output of "echo 'active_slave=eth4 mode=active-backup num_grat_arp=3 num_unsol_na=3 '" as value "desired_opts"
+     Then Check noted values "ifcfg_opts" and "desired_opts" are the same
+      #And "Currently Active Slave: eth4" is visible with command "cat /proc/net/bonding/nm-bond"
+      And "3" is visible with command "cat /sys/class/net/nm-bond/bonding/num_grat_arp"
+      And "3" is visible with command "cat /sys/class/net/nm-bond/bonding/num_unsol_na"
+
+
+    @rhbz1299103 @rhbz1348198 @rhbz1858326
+    @ver+=1.26
+    @slaves @bond
+    @bond_set_active_backup_options
+    Scenario: nmcli - bond - set active backup options
+     * Add a new connection of type "bond" and options "con-name bond0 ifname nm-bond autoconnect no bond.options mode=active-backup,active_slave=eth4,num_grat_arp=3,num_unsol_na=3"
+     * Add a new connection of type "ethernet" and options "con-name bond0.1 ifname eth4 master nm-bond autoconnect no"
+     * Add a new connection of type "ethernet" and options "con-name bond0.0 ifname eth1 master nm-bond autoconnect no"
+     * Bring "up" connection "bond0"
+     And "error" is not visible with command "journalctl --since '10 seconds ago' --no-pager |grep active_backup ||grep error"
+     * Bring "up" connection "bond0.1"
+     * Bring "up" connection "bond0.0"
      When "nm-bond:connected:bond0" is visible with command "nmcli -t -f DEVICE,STATE,CONNECTION device" in "40" seconds
      # sort the BONDING_OPTS to prevent failures in the future
      * Note the output of "grep BONDING_OPTS= /etc/sysconfig/network-scripts/ifcfg-bond0 | grep -o '".*"' | sed 's/"//g;s/ /\n/g' | sort | tr '\n' ' '" as value "ifcfg_opts"
