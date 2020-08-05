@@ -338,7 +338,7 @@ test_setup() {
         . $basedir/dracut-init.sh
 
         inst_multiple sh shutdown poweroff stty cat ps ln ip dd \
-                      mount dmesg mkdir cp ping grep wc awk setsid ls vi /etc/virc less cat
+                      mount dmesg mkdir cp ping grep wc awk setsid ls find vi /etc/virc less cat
         for _terminfodir in /lib/terminfo /etc/terminfo /usr/share/terminfo; do
             [ -f ${_terminfodir}/l/linux ] && break
         done

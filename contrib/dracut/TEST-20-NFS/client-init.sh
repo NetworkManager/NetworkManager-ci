@@ -132,6 +132,19 @@ echo "made it to the rootfs! Doing checks..."
 echo "== nfs mounts =="
 mount | grep nfs
 
+echo "== ls ifcfg =="
+ls -la /etc/sysconfig/network-scripts/
+
+for file in $(find /etc/sysconfig/network-scripts/ -type f); do
+    echo "== $file =="
+    cat $file
+done
+
+for file in $(find /run/NetworkManager/ -type f); do
+    echo "== $file =="
+    cat $file
+done
+
 echo "== starting services =="
 echo "dbus"
 check_run systemctl start dbus
@@ -143,6 +156,20 @@ echo "systemd-hostnamed"
 check_run systemctl start systemd-hostnamed.service
 >/dev/watchdog
 echo "OK"
+
+for file in $(find /etc/sysconfig/network-scripts/ -type f); do
+    echo "== $file =="
+    cat $file
+done
+
+for file in $(find /run/NetworkManager/ -type f); do
+    echo "== $file =="
+    cat $file
+done
+
+echo "== NetworkManager config =="
+NetworkManager --print-config
+>/dev/watchdog
 
 # ifname detect
 ifname=ens2
