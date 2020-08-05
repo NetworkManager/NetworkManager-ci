@@ -98,11 +98,15 @@ def run_tests(features, code_branch, test_branch):
     ver="8-stream"
     arch="x86_64"
     count=1
-
-    get_nodes_url="%s/Node/get?key=%s&ver=%s&arch=%s&count=%s" % (url_base,api,ver,arch,count)
-
-    dat=urllib.urlopen(get_nodes_url).read()
-    b=json.loads(dat)
+    try:
+        get_nodes_url="%s/Node/get?key=%s&ver=%s&arch=%s&count=%s" % (url_base,api,ver,arch,count)
+        dat=urllib.urlopen(get_nodes_url).read()
+        b=json.loads(dat)
+    except:
+        ver="8"
+        get_nodes_url="%s/Node/get?key=%s&ver=%s&arch=%s&count=%s" % (url_base,api,ver,arch,count)
+        dat=urllib.urlopen(get_nodes_url).read()
+        b=json.loads(dat)
 
     tests=process_raw_features(features, test_branch)
     print (tests)
