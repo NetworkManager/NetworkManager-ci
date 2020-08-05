@@ -1265,8 +1265,6 @@ testmapper:
         tags: gate
     - modify_policy_based_routing_connection:
         feature: general
-    - policy_based_routing_doc_procedure:
-        feature: general
     - nmcli_general_dhcp_profiles_general_gateway:
         feature: general
     - allow_wired_connections:
@@ -1490,6 +1488,24 @@ testmapper:
         feature: general
     - NM_performance_test1:
         feature: general
+    - policy_based_routing_doc_procedure:
+        feature: doc_procedures
+        tags: gate
+    - 8021x_peap_mschapv2_doc_procedure:
+        feature: doc_procedures
+        tags: gate
+    - simwifi_peap_mschapv2_doc_procedure:
+        feature: doc_procedures
+        tags: gate
+    - iptunnel_ipip_doc_procedure:
+        feature: doc_procedures
+        tags: gate
+    - iptunnel_gre_doc_procedure:
+        feature: doc_procedures
+        tags: gate
+    - iptunnel_gretap_doc_procedure:
+        feature: doc_procedures
+        tags: gate
     - openvswitch_capability:
         feature: ovs
     - openvswitch_interface_recognized:

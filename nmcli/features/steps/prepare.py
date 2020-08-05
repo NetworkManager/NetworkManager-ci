@@ -421,3 +421,54 @@ def set_default_dcb(context):
     context.execute_steps(u"""
     * Execute "nmcli con modify dcb dcb.app-fcoe-flags 7 dcb.app-fcoe-priority 7 dcb.app-fcoe-mode vn2vn dcb.app-iscsi-flags 7 dcb.app-iscsi-priority 6 dcb.app-fip-flags 7 dcb.app-fip-priority 2  dcb.priority-flow-control-flags 7 dcb.priority-flow-control 1,0,0,1,1,0,1,0 dcb.priority-group-flags 7 dcb.priority-group-id 0,0,0,0,1,1,1,1 dcb.priority-group-bandwidth 13,13,13,13,12,12,12,12 dcb.priority-bandwidth 100,100,100,100,100,100,100,100 dcb.priority-traffic-class 7,6,5,4,3,2,1,0"
     """)
+
+
+@step(u'Prepare "{mode}" iptunnel networks A and B')
+def prepare_iptunnel_doc(context, mode):
+    bridge = False
+    if mode == "gretap":
+        bridge = True
+
+    # prepare Network A (range 192.0.2.1/2) and Network B in namespace (range 172.16.0.1/24)
+    context.execute_steps('* Prepare simulated test "netA" device without DHCP')
+    context.execute_steps('* Prepare simulated test "netB" device without DHCP')
+    command_code(context, "ip netns add iptunnelB")
+    command_code(context, "ip link set netB netns iptunnelB")
+    if bridge:
+        # if bridge, add addresses to "computers" in local networks
+        command_code(context, "ip -n netA_ns addr add 192.0.2.3/24 dev netAp")
+        command_code(context, "ip -n netB_ns addr add 192.0.2.4/24 dev netBp")
+    else:
+        # only add local addresses if not bridge
+        command_code(context, "ip addr add 192.0.2.1/24 dev netA")
+        command_code(context, "ip -n iptunnelB address add 172.16.0.1/24 dev netB")
+
+    # connect Network A (public IP 203.0.113.10) and Network B (public IP 198.51.100.5) via veth pair ipA and ipB
+    command_code(context, "ip link add ipA type veth peer name ipB")
+    command_code(context, "ip link set ipA up")
+    command_code(context, "ip addr add 203.0.113.10/32 dev ipA")
+    command_code(context, "ip route add 198.51.100.5/32 dev ipA")
+    command_code(context, "ip link set ipB netns iptunnelB")
+    command_code(context, "ip -n iptunnelB link set ipB up")
+    command_code(context, "ip -n iptunnelB address add 198.51.100.5/32 dev ipB")
+    command_code(context, "ip -n iptunnelB route add 203.0.113.10/32 dev ipB")
+    assert command_code(context, "ping -c 1 198.51.100.5") == 0, \
+        "unable to ping public IP of B from A"
+    assert command_code(context, "ip netns exec iptunnelB ping -c 1 203.0.113.10") == 0, \
+        "unable to ping public IP of A from B"
+
+    # preapre Network B part of iptunnel (in iptunnelB namespace)
+    command_code(context, "ip -n iptunnelB link add name tunB type %s local 198.51.100.5 remote 203.0.113.10" % (mode))
+    command_code(context, "ip -n iptunnelB link set tunB up")
+    if not bridge:
+        command_code(context, "ip -n iptunnelB addr add 10.0.1.2/30 dev tunB")
+        command_code(context, "ip -n iptunnelB route add 10.0.1.1 dev tunB")
+        command_code(context, "ip -n iptunnelB route add 192.0.2.0/24 dev tunB")
+    else:
+        command_code(context, "ip -n iptunnelB link add brB type bridge")
+        command_code(context, "ip -n iptunnelB link set netB down")
+        command_code(context, "ip -n iptunnelB link set netB master brB")
+        command_code(context, "ip -n iptunnelB link set netB up")
+        command_code(context, "ip -n iptunnelB link set brB up")
+        command_code(context, "ip -n iptunnelB addr add 192.0.2.2/24 dev brB")
+        command_code(context, "ip -n iptunnelB link set tunB master brB")

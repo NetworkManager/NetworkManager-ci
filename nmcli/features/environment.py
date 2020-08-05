@@ -2849,6 +2849,18 @@ def after_scenario(context, scenario):
                 print ("removing test11 device")
                 call('ip link del test11', shell=True)
 
+            if 'iptunnel_doc' in scenario.tags:
+                # this must be done before @teardown_testveth
+                # (netB is hidden in iptunnel_B namespace)
+                print("----------------------------")
+                print("iptunnel doc network teardown")
+                call("nmcli con delete gre1 tun0 bridge0 bridge0-port1 bridge0-port2", shell=True)
+                call("ip netns del iptunnelB", shell=True)
+                call("ip link del ipA", shell=True)
+                call("ip link del tunB", shell=True)
+                call("ip link del brB", shell=True)
+                call("ip link del bridge0", shell=True)
+
             if 'teardown_testveth' in scenario.tags:
                 teardown_testveth (context)
 

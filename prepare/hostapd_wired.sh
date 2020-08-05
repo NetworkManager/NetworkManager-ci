@@ -66,6 +66,9 @@ echo "# Create hostapd peap user file
 # Phase 1 authentication
 \"user\"   MD5     \"password\"
 \"test\"   TLS,TTLS,PEAP
+# this is for doc_procedures, not to require anonymous identity to be set
+\"TESTERS\\test_mschapv2\"   TLS,TTLS,PEAP
+
 # Phase 2 authentication (tunnelled within EAP-PEAP or EAP-TTLS)
 \"TESTERS\\test_mschapv2\"   MSCHAPV2    \"password\"  [2]
 \"test_md5\"       MD5         \"password\"  [2]
