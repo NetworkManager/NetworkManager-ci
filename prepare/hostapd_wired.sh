@@ -238,7 +238,7 @@ function wired_hostapd_teardown ()
     ip link del test8Xp
     ip link del test8Zp
     ip link del test8X_bridge
-    nmcli con del DHCP_test8Y DHCP_test8Z
+    nmcli con del DHCP_test8Y DHCP_test8Z test8X_bridge
     rm -rf /tmp/nm_8021x_configured
 
 }
