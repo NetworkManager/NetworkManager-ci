@@ -70,6 +70,10 @@ Feature: nmcli - procedures in documentation
     Then Bring "up" connection "wifi"
 
 
+    @simwifi_teardown_doc
+    Scenario: teardown wifi setup
+    * Execute "echo 'this is skipped'"
+
     @ver+=1.14
     @iptunnel_doc @teardown_testveth
     @iptunnel_ipip_doc_procedure
