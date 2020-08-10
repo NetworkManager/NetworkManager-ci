@@ -115,6 +115,13 @@ visible() {
     echo " * '$patt' is visible with command '$command' ... passed"
 }
 
+not_visible() {
+    patt=$1
+    command=$2
+    check_run "$command | grep -v -q -e $patt"
+    echo " * '$patt' is not visible with command '$command' ... passed"
+}
+
 die() {
     msg=$1
     echo "FAIL: $msg" | dd oflag=direct,dsync of=/dev/sda
@@ -148,13 +155,13 @@ done
 echo "== starting services =="
 echo "dbus"
 check_run systemctl start dbus
->/dev/watchdog
+echo > /dev/watchdog
 echo "NetworkManager"
 check_run systemctl start NetworkManager
->/dev/watchdog
+echo > /dev/watchdog
 echo "systemd-hostnamed"
 check_run systemctl start systemd-hostnamed.service
->/dev/watchdog
+echo > /dev/watchdog
 echo "OK"
 
 for file in $(find /etc/sysconfig/network-scripts/ -type f); do
@@ -169,7 +176,7 @@ done
 
 echo "== NetworkManager config =="
 NetworkManager --print-config
->/dev/watchdog
+echo > /dev/watchdog
 
 # ifname detect
 ifname=ens2
@@ -197,16 +204,27 @@ echo "== ip -6 route =="
 ip -6 route
 
 echo "== ip command checks =="
-visible "\"inet 192.168.50.\"" "ip addr show $ifname"
-echo OK
->/dev/watchdog
-
-# rhbz1710935
-echo "== IPv4 route duplicity check @rhbz1710935 =="
-visible "^1\$" "ip -4 r show | grep ^default | wc -l"
-visible "^1\$" "ip -4 r show | grep ^192.168.50 | wc -l"
+if ! grep -q -e "ip=auto6" -e "ip=dhcp6" /proc/cmdline; then
+    visible "\"inet 192.168.50.\"" "ip addr show $ifname"
+    not_visible "\"inet6 deaf:beef::1:\"" "ip addr show $ifname"
+else
+    visible "\"inet6 deaf:beef::1:\"" "ip addr show $ifname"
+    not_visible "\"inet 192.168.50.\"" "ip addr show $ifname"
+fi
 echo "OK"
->/dev/watchdog
+echo > /dev/watchdog
+
+if ! grep -q -e "ip=auto6" -e "ip=dhcp6" /proc/cmdline; then
+    # rhbz1710935
+    echo "== IPv4 route duplicity check @rhbz1710935 =="
+    visible "^1\$" "ip -4 r show | grep ^default | wc -l"
+    visible "^1\$" "ip -4 r show | grep ^192.168.50 | wc -l"
+else
+    echo "== IPv6 RA route check =="
+    visible "\"^deaf:beef::/64 dev ens2 proto ra\"" "ip -6 r show"
+fi
+echo "OK"
+echo > /dev/watchdog
 
 
 echo "== nmcli device =="
@@ -222,7 +240,7 @@ else
     visible "^1\$" "nmcli -t -f uuid con show | wc -l"
 fi
 echo "OK"
->/dev/watchdog
+echo > /dev/watchdog
 
 # rhbz1627820
 echo "== lease renewal check @rhbz1627820 =="
@@ -239,7 +257,7 @@ if ip a | grep -q 52:54:00:12:34:08 ; then
         fi
         last_lease=$lease_time
         lease_time="$(ip -4 a show $ifname | grep valid_lft | awk '{print $2}' | grep -o '[0-9]*')"
-        >/dev/watchdog
+        echo > /dev/watchdog
     done
     echo "lease time change: $last_lease -> $lease_time"
     visible "\"inet 192.168.50.\"" "ip addr show $ifname"
@@ -247,7 +265,7 @@ if ip a | grep -q 52:54:00:12:34:08 ; then
 else
     echo "SKIP"
 fi
->/dev/watchdog
+echo > /dev/watchdog
 
 echo "== dump nfs params =="
 while read dev fs fstype opts rest || [ -n "$dev" ]; do
@@ -257,5 +275,5 @@ while read dev fs fstype opts rest || [ -n "$dev" ]; do
 done < /proc/mounts
 echo "OK"
 
->/dev/watchdog
+echo > /dev/watchdog
 poweroff -f

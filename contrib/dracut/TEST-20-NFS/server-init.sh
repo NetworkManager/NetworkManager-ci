@@ -62,7 +62,9 @@ ip link set dev eth0 name ens2
 ip addr add 192.168.50.1/24 dev ens2
 ip addr add 192.168.50.2/24 dev ens2
 ip addr add 192.168.50.3/24 dev ens2
+ip -6 addr add deaf:beef::1/64 dev ens2
 linkup ens2
+ip -6 route add default via deaf:beef::aa dev ens2
 
 echo > /dev/watchdog
 modprobe af_packet
@@ -98,11 +100,20 @@ exportfs -r
 echo > /dev/watchdog
 mkdir -p /var/lib/dhcpd
 >/var/lib/dhcpd/dhcpd.leases
+>/var/lib/dhcpd/dhcpd6.leases
 echo > /dev/watchdog
 chmod 777 /var/lib/dhcpd/dhcpd.leases
+chmod 777 /var/lib/dhcpd/dhcpd6.leases
 echo > /dev/watchdog
 rm -f /var/run/dhcpd.pid
-dhcpd -d -cf /etc/dhcpd.conf -lf /var/lib/dhcpd/dhcpd.leases &
+dhcpd -d -cf /etc/dhcpd.conf -lf /var/lib/dhcpd/dhcpd.leases ens2 &
+dhcpd -6 -d -cf /etc/dhcpd6.conf -lf /var/lib/dhcpd/dhcpd6.leases ens2 &
+echo > /dev/watchdog
+mkdir /run/radvd
+echo > /dev/watchdog
+chown radvd:radvd /run/radvd
+echo > /dev/watchdog
+radvd -u radvd -m stderr &
 echo "Serving NFS mounts"
 while :; do
 	[ -n "$(jobs -rp)" ] && echo > /dev/watchdog

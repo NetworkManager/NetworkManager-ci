@@ -104,8 +104,8 @@ client_test() {
 
     # nfsinfo=( server:/path nfs{,4} options )
     nfsinfo=($(awk '{print $2, $3, $4; exit}' $TESTDIR/client.img))
-    if [[ "${nfsinfo[0]%%:*}" != "$server" ]]; then
-        echo "CLIENT INFO: got server: ${nfsinfo[0]%%:*}"
+    if [[ "${nfsinfo[0]%:*}" != "$server" ]]; then
+        echo "CLIENT INFO: got server: ${nfsinfo[0]%:*}"
         echo "CLIENT INFO: expected server: $server"
         echo "CLIENT END: $test_name [FAILED - WRONG SERVER]"
         return_fail "$cmdline"
@@ -199,13 +199,17 @@ test_nfsv3() {
     client_test "NFSv3 root=dhcp DHCP proto:IP:path,options" \
                 52:54:00:12:34:07 "root=dhcp" 192.168.50.3 wsize=4096 || return 1
 
-    # rhbz1627820
-    client_test "NFSv3 root=dhcp DHCP lease renewal bridge" 52:54:00:12:34:08 \
+    client_test "@rhbz1627820 NFSv3 root=dhcp DHCP lease renewal bridge" 52:54:00:12:34:08 \
                 "root=dhcp bridge net.ifnames=0" 192.168.50.3 wsize=4096 || return 1
 
-    # rhbz1710935
-    client_test "NFSv3 root=dhcp rd.neednet=1" 52:54:00:12:34:00 \
+    client_test "@rhbz1710935 NFSv3 root=dhcp rd.neednet=1" 52:54:00:12:34:00 \
                 "root=dhcp rd.neednet=1" 192.168.50.1 -wsize=4096 || return 1
+
+    client_test "@rhbz1854323 NFSv3 root=nfs:[ipv6]... ip=auto6" 52:54:00:12:34:a0 \
+                "root=nfs:[deaf:beef::1]:/nfs/client ip=auto6" [deaf:beef::1] -wsize=4096 || return 1
+
+    client_test "@rhbz1854323 NFSv3 root=nfs:[ipv6]... ip=dhcp6" 52:54:00:12:34:a0 \
+                "root=nfs:[deaf:beef::1]:/nfs/client ip=dhcp6" [deaf:beef::1] -wsize=4096 || return 1
 
     return 0
 }
@@ -235,8 +239,8 @@ kill_server() {
     if [[ -s $TESTDIR/server.pid ]]; then
         kill -TERM $(cat $TESTDIR/server.pid)
         rm -f -- $TESTDIR/server.pid
-        cp $TESTDIR/server.log /tmp/dracut_server.log
     fi
+    cp $TESTDIR/server.log /tmp/dracut_server.log
 }
 
 test_run() {
@@ -285,7 +289,7 @@ test_setup() {
         inst_multiple sh ls shutdown poweroff stty cat ps ln ip \
                       dmesg mkdir cp ping exportfs \
                       modprobe rpc.nfsd rpc.mountd showmount tcpdump \
-                      /etc/services sleep mount chmod rm
+                      /etc/services sleep mount chmod chown rm
         for _terminfodir in /lib/terminfo /etc/terminfo /usr/share/terminfo; do
             [ -f ${_terminfodir}/l/linux ] && break
         done
@@ -294,6 +298,8 @@ test_setup() {
         type -P rpcbind >/dev/null && inst_multiple rpcbind
         [ -f /etc/netconfig ] && inst_multiple /etc/netconfig
         type -P dhcpd >/dev/null && inst_multiple dhcpd
+        type -P radvd >/dev/null && inst_multiple radvd
+        type -P radvdump >/dev/null && inst_multiple radvdump
         [ -x /usr/sbin/dhcpd3 ] && inst /usr/sbin/dhcpd3 /usr/sbin/dhcpd
         instmods nfsd sunrpc ipv6 lockd af_packet
         inst ./server-init.sh /sbin/init
@@ -301,6 +307,8 @@ test_setup() {
         inst ./hosts /etc/hosts
         inst ./exports /etc/exports
         inst ./dhcpd.conf /etc/dhcpd.conf
+        inst ./dhcpd6.conf /etc/dhcpd6.conf
+        inst ./radvd.conf /etc/radvd.conf
         inst_multiple /etc/nsswitch.conf /etc/rpc /etc/protocols
         inst_multiple rpc.idmapd /etc/idmapd.conf
 
