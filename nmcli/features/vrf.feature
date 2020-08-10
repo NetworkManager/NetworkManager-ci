@@ -8,7 +8,7 @@
     # Scenario:
 
     @rhbz1773908
-    @ver+=1.25 @rhelve+=8
+    @ver+=1.25 @rhelver+=8
     @con_vrf_remove
     @vrf_one_address_two_devices
     Scenario: nmcli - vrf - reusing ip address on multiple devices
@@ -41,7 +41,7 @@
 
 
     @rhbz1773908
-    @ver+=1.25 @rhelve+=8
+    @ver+=1.25 @rhelver+=8
     @con_vrf_remove
     @vrf_bring_down_connections
     Scenario: nmcli - vrf - bring down vrf setup
@@ -73,7 +73,7 @@
 
 
     @rhbz1773908
-    @ver+=1.25 @rhelve+=8
+    @ver+=1.25 @rhelver+=8
     @con_vrf_remove
     @vrf_delete_connections
     Scenario: nmcli - vrf - delete ethernet profiles
@@ -105,7 +105,7 @@
 
 
     @rhbz1773908
-    @ver+=1.25 @rhelve+=8
+    @ver+=1.25 @rhelver+=8
     @con_vrf_remove
     @vrf_restart_persistence
     Scenario: nmcli - vrf - restart persistence
@@ -139,7 +139,7 @@
 
 
     @rhbz1773908
-    @ver+=1.25 @rhelve+=8
+    @ver+=1.25 @rhelver+=8
     @con_vrf_remove
     @vrf_external
     Scenario: nmcli - vrf - external setup
