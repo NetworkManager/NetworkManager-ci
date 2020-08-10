@@ -1497,6 +1497,9 @@ testmapper:
     - simwifi_peap_mschapv2_doc_procedure:
         feature: doc_procedures
         tags: gate
+    - simwifi_teardown_doc:
+        feature: doc_procedures
+        tags: gate
     - iptunnel_ipip_doc_procedure:
         feature: doc_procedures
         tags: gate

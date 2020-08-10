@@ -2266,7 +2266,7 @@ def after_scenario(context, scenario):
                 #teardown_hostapd_wireless()
                 call("nmcli con del wpa3 wifi", shell=True)
 
-            if 'simwifi_teardown' in scenario.tags:
+            if ('simwifi_teardown' or 'simwifi_teardown_doc') in scenario.tags:
                 print ("---------------------------")
                 print ("bringing down hostapd setup")
                 teardown_hostapd_wireless()
