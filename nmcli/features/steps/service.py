@@ -35,7 +35,6 @@ def reboot(context):
     command_code(context, "ip link del vrf0")
     command_code(context, "ip link del vrf1")
 
-
     command_code(context, "rm -rf /var/run/NetworkManager")
 
     sleep(1)

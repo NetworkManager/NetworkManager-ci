@@ -88,6 +88,7 @@ Feature: nmcli - ppp
      And "192.168.111.2 dev ppp.*\s+proto kernel\s+scope link\s+src 192.168.111.254" is visible with command "ip r" in "5" seconds
      And "default via 192.168.111.254 dev ppp.*\s+proto static\s+metric" is visible with command "ip r" in "5" seconds
 
+
     @rhbz1478694
     @ver+=1.9.1
     @not_on_s390x @pppoe @del_test1112_veths
@@ -106,3 +107,36 @@ Feature: nmcli - ppp
     * Bring "up" connection "ppp"
     Then "inet 192.168.111.2 peer 192.168.111.254/32" is visible with command "ip a s my-ppp"
     And "default via 192.168.111.254 dev my-ppp" is visible with command "ip r"
+
+
+    @rhbz1854892
+    @ver+=1.26
+    @not_on_s390x @pppoe @teardown_testveth
+    @pppoe_and_ethernet_together
+    Scenario: NM - ppp - pppoe and ethernet profiles
+    * Prepare pppoe server for user "test" with "networkmanager" password and IP "192.168.111.2" authenticated via "pap"
+    # We do create a namespace and simulated ethernets here
+    * Start pppoe server with "isp" and IP "192.168.111.254" in namespace "test11"
+    * Add a new connection of type "ethernet" and options "con-name ppp2 ifname test11"
+    * Add a new connection of type "pppoe" and options "con-name ppp ifname my-ppp service isp username test password networkmanager pppoe.parent test11"
+    * Bring "up" connection "ppp"
+    * Bring "up" connection "ppp2"
+    When "activated" is visible with command "nmcli -g GENERAL.STATE con show ppp" in "45" seconds
+    When "activated" is visible with command "nmcli -g GENERAL.STATE con show ppp2" in "45" seconds
+    When "nameserver 8.8.8.8" is visible with command "cat /etc/resolv.conf" in "5" seconds
+    When "nameserver 8.8.4.4" is visible with command "cat /etc/resolv.conf" in "5" seconds
+    When "inet 192.168.111.2 peer 192.168.111.254/32" is visible with command "ip a s my-ppp"
+    When "192.168.111.254 dev my-ppp\s+proto kernel\s+scope link\s+src 192.168.111.2" is visible with command "ip r"
+    When "default via 192.168.111.254 dev my-ppp.*\s+proto static\s+metric" is visible with command "ip r"
+    When "default via 192.168.99.1 dev test11\s+proto dhcp\s+metric" is visible with command "ip r"
+    When "192.168.99.0/24 dev test11 proto kernel scope link src 192.168.99" is visible with command "ip r"
+    * Reboot
+    Then "activated" is visible with command "nmcli -g GENERAL.STATE con show ppp" in "45" seconds
+    Then "activated" is visible with command "nmcli -g GENERAL.STATE con show ppp2" in "45" seconds
+    Then "nameserver 8.8.8.8" is visible with command "cat /etc/resolv.conf" in "5" seconds
+    Then "nameserver 8.8.4.4" is visible with command "cat /etc/resolv.conf" in "5" seconds
+    When "inet 192.168.111.2 peer 192.168.111.254/32" is visible with command "ip a s my-ppp"
+    When "192.168.111.254 dev my-ppp\s+proto kernel\s+scope link\s+src 192.168.111.2" is visible with command "ip r"
+    When "default via 192.168.111.254 dev my-ppp.*\s+proto static\s+metric" is visible with command "ip r"
+    When "default via 192.168.99.1 dev test11\s+proto dhcp\s+metric" is visible with command "ip r"
+    When "192.168.99.0/24 dev test11 proto kernel scope link src 192.168.99" is visible with command "ip r"

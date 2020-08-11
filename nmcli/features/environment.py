@@ -2837,7 +2837,7 @@ def after_scenario(context, scenario):
                 print ("---------------------------")
                 print ("kill pppoe server and remove ppp connection")
                 call('kill -9 $(pidof pppoe-server)', shell=True)
-                call('nmcli con del ppp', shell=True)
+                call('nmcli con del ppp ppp2', shell=True)
 
             if 'display_allowed_values' in scenario.tags:
                 print ("---------------------------")

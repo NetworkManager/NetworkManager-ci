@@ -1917,6 +1917,8 @@ testmapper:
         feature: ppp
     - pppoe_over_vlan:
         feature: ppp
+    - pppoe_and_ethernet_together:
+        feature: ppp
     - dns_resolved_two_default:
         feature: dns
     - dns_resolved_one_default:

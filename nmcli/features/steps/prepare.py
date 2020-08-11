@@ -381,6 +381,15 @@ def start_pppoe_server(context, name, ip, dev):
     sleep(0.5)
 
 
+@step(u'Start pppoe server with "{name}" and IP "{ip}" in namespace "{dev}"')
+def start_pppoe_server(context, name, ip, dev):
+    dev_p="%sp" %dev
+    context.execute_steps(u"""
+            * Prepare simulated test "%s" device"""%dev)
+    Popen("kill -9 $(pidof pppoe-server); ip netns exec %s_ns pppoe-server -S %s -C %s -L %s -p /etc/ppp/allip -I %s" %(dev, name, name, ip, dev_p), shell=True)
+    sleep(0.5)
+
+
 @step(u'Prepare MACsec PSK environment with CAK "{cak}" and CKN "{ckn}"')
 def setup_macsec_psk(context, cak, ckn):
     command_code(context, "modprobe macsec")
