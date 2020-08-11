@@ -110,7 +110,7 @@ Feature: nmcli - ppp
 
 
     @rhbz1854892
-    @ver+=1.26
+    @ver+=1.26 @rhelver+=8
     @not_on_s390x @pppoe @teardown_testveth
     @pppoe_and_ethernet_together
     Scenario: NM - ppp - pppoe and ethernet profiles
