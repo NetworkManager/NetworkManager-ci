@@ -34,6 +34,8 @@ def reboot(context):
     # for vrf devices
     command_code(context, "ip link del vrf0")
     command_code(context, "ip link del vrf1")
+    # for pppoe test
+    command_code(context, "sudo ip addr flush dev test11")
 
     command_code(context, "rm -rf /var/run/NetworkManager")
 
