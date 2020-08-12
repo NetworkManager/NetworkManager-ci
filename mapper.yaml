@@ -263,6 +263,18 @@ testmapper:
         feature: bond
     - bond_add_default_route_if_bond0_exists:
         feature: bond
+    - pppoe_and_ethernet_together:
+        feature: ppp
+    - connect_to_pppoe_via_pap:
+        feature: ppp
+    - connect_to_pppoe_via_chap:
+        feature: ppp
+    - disconnect_from_pppoe:
+        feature: ppp
+    - update_firewall_zone_upon_reconnect:
+        feature: ppp
+    - pppoe_over_vlan:
+        feature: ppp
     - nmstate:
        feature: general
     - bridge_add_default:
@@ -1906,18 +1918,6 @@ testmapper:
     - alias_ifcfg_reboot:
         feature: alias
         tags: gate
-    - connect_to_pppoe_via_pap:
-        feature: ppp
-    - connect_to_pppoe_via_chap:
-        feature: ppp
-    - disconnect_from_pppoe:
-        feature: ppp
-    - update_firewall_zone_upon_reconnect:
-        feature: ppp
-    - pppoe_over_vlan:
-        feature: ppp
-    - pppoe_and_ethernet_together:
-        feature: ppp
     - dns_resolved_two_default:
         feature: dns
     - dns_resolved_one_default:
