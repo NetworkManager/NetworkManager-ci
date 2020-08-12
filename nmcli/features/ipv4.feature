@@ -737,6 +737,7 @@ Feature: nmcli: ipv4
     * Bring "up" connection "con_ipv4"
     Then " google.com" is not visible with command "cat /etc/resolv.conf"
     Then Unable to ping "maps"
+    When "nameserver" is visible with command "cat /etc/resolv.conf" in "10" seconds
     Then Ping "maps.google.com"
 
 
