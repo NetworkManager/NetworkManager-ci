@@ -1370,6 +1370,14 @@ def before_scenario(context, scenario):
                 call("mknod /dev/ppp c 108 0", shell=True)
                 reload_NM_service()
 
+            if 'del_test1112_veths' in scenario.tags:
+                print ("---------------------------")
+                print ("manage test11 and 12")
+                os.system('''echo 'ENV{ID_NET_DRIVER}=="veth", ENV{INTERFACE}=="test11|test12", ENV{NM_UNMANAGED}="0"' >/etc/udev/rules.d/99-veths.rules''')
+                call("udevadm control --reload-rules", shell=True)
+                call("udevadm settle --timeout=5", shell=True)
+                sleep(1)
+
             if 'nmstate_setup' in scenario.tags:
                 # Skip on deployments where we do not have veths
                 if not os.path.isfile('/tmp/nm_newveth_configured'):
@@ -2848,6 +2856,10 @@ def after_scenario(context, scenario):
                 print ("---------------------------")
                 print ("removing test11 device")
                 call('ip link del test11', shell=True)
+                call('rm -f /etc/udev/rules.d/99-veths.rules', shell=True)
+                call('udevadm control --reload-rules', shell=True)
+                call('udevadm settle --timeout=5', shell=True)
+                sleep(1)
 
             if 'iptunnel_doc' in scenario.tags:
                 # this must be done before @teardown_testveth
