@@ -620,15 +620,15 @@
 
 
     @rhbz1187525
-    @con_ipv6_remove @privacy @restart
+    @con_ipv6_remove @remove_custom_cfg @restart
     @ipv6_ip6-default_privacy
     Scenario: nmcli - ipv6 - ip6_privacy - default value
     * Execute "echo 1 > /proc/sys/net/ipv6/conf/default/use_tempaddr"
     * Add connection type "ethernet" named "con_ipv6" for device "eth10"
     * Bring "up" connection "con_ipv6"
     When "1" is visible with command "cat /proc/sys/net/ipv6/conf/eth10/use_tempaddr"
-    * Execute "echo '[connection.ip6-privacy]' > /etc/NetworkManager/conf.d/01-default-ip6-privacy.conf"
-    * Execute "echo 'ipv6.ip6-privacy=2' >> /etc/NetworkManager/conf.d/01-default-ip6-privacy.conf"
+    * Execute "echo '[connection.ip6-privacy]' > /etc/NetworkManager/conf.d/remove_custom_cfg"
+    * Execute "echo 'ipv6.ip6-privacy=2' >> /etc/NetworkManager/conf.d/remove_custom_cfg"
     * Restart NM
     * Bring "down" connection "con_ipv6"
     * Bring "up" connection "con_ipv6"
