@@ -627,8 +627,8 @@
     * Add connection type "ethernet" named "con_ipv6" for device "eth10"
     * Bring "up" connection "con_ipv6"
     When "1" is visible with command "cat /proc/sys/net/ipv6/conf/eth10/use_tempaddr"
-    * Execute "echo '[connection.ip6-privacy]' > /etc/NetworkManager/conf.d/remove_custom_cfg"
-    * Execute "echo 'ipv6.ip6-privacy=2' >> /etc/NetworkManager/conf.d/remove_custom_cfg"
+    * Execute "echo '[connection.ip6-privacy]' > /etc/NetworkManager/conf.d/99-xxcustom.conf"
+    * Execute "echo 'ipv6.ip6-privacy=2' >> /etc/NetworkManager/conf.d/99-xxcustom.conf"
     * Restart NM
     * Bring "down" connection "con_ipv6"
     * Bring "up" connection "con_ipv6"
