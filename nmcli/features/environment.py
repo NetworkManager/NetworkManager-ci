@@ -1390,6 +1390,9 @@ def before_scenario(context, scenario):
                 call("rm -rf /tmp/nmstate_backup; mkdir /tmp/nmstate_backup; cp /tmp/ifcfg-* /tmp/nmstate_backup/", shell=True)
                 call("sh prepare/vethsetup.sh teardown", shell=True)
 
+                # We need to have use_tempaddr set to 0 to avoid test_dhcp_on_bridge0 PASSED
+                call("echo 0 > /proc/sys/net/ipv6/conf/default/use_tempaddr", shell=True)
+
                 # Create just ipv4 profile"
                 call("nmcli con add type ethernet ifname eth0 con-name nmstate_eth0 ipv6.method disabled", shell=True)
                 call("nmcli con up nmstate_eth0", shell=True)
