@@ -1776,7 +1776,13 @@ def after_scenario(context, scenario):
                 print ("---------------------------")
                 print ("* remove perf setup")
                 context.nm_restarted = True
-                call ("tmp/./setup.sh 0 ; sleep 3", shell=True)
+                # Settings device number to 0
+                call ("tmp/./setup.sh 0", shell=True)
+                # Deleting all connections
+                cons = ""
+                for i in range(1,101):cons=cons+('t-a%s ' %i)
+                command = "nmcli con del %s" %cons
+                call(command, shell=True)
 
             if 'nmstate_setup' in scenario.tags:
                 print ("---------------------------")
