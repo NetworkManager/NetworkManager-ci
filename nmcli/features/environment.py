@@ -1393,9 +1393,9 @@ def before_scenario(context, scenario):
                 # We need to have use_tempaddr set to 0 to avoid test_dhcp_on_bridge0 PASSED
                 call("echo 0 > /proc/sys/net/ipv6/conf/default/use_tempaddr", shell=True)
 
-                # Create just ipv4 profile"
-                call("nmcli con add type ethernet ifname eth0 con-name nmstate_eth0 ipv6.method disabled", shell=True)
-                call("nmcli con up nmstate_eth0", shell=True)
+                # # Create just ipv4 profile"
+                # call("nmcli con add type ethernet ifname \* con-name nmstate_eth0 ipv6.method disabled", shell=True)
+                # call("nmcli con up nmstate_eth0", shell=True)
 
                 # In case eth1 and eth2 exist we need to remove them
                 if call ("ip a s |grep -q 'eth1:'", shell=True) == 0:
@@ -1807,9 +1807,9 @@ def after_scenario(context, scenario):
                 call("mv -f /tmp/nmstate_backup/* /etc/sysconfig/network-scripts/", shell=True)
                 call("systemctl stop NetworkManager; rm -rf /var/run/NetworkManager; systemctl restart NetworkManager; sleep 5", shell=True)
 
-                # remove nmstate_eth0 ipv4 only
-                call("nmcli con del nmstate_eth0", shell=True)
-                call("nmcli device connect eth0", shell=True)
+                # # remove nmstate_eth0 ipv4 only
+                # call("nmcli con del nmstate_eth0", shell=True)
+                # call("nmcli device connect eth0", shell=True)
 
                 call("sh prepare/vethsetup.sh setup", shell=True)
 
