@@ -1167,6 +1167,8 @@ def before_scenario(context, scenario):
             if 'iptunnel' in scenario.tags:
                 print("----------------------------")
                 print("iptunnel setup")
+                # Workaround for 1869538
+                call("modprobe -r xfrm_interface", shell=True)
                 call('sh prepare/iptunnel.sh', shell=True)
 
             if 'wireguard' in scenario.tags:
