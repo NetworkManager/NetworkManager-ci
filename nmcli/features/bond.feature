@@ -1725,3 +1725,15 @@
     * Bring "up" connection "bond0"
     When "connected" is visible with command "nmcli -g GENERAL.STATE dev show bond0" in "40" seconds
     Then "default" is visible with command "ip r |grep bond0"
+
+
+    @rhbz1847814
+    @ver+=1.25
+    @bond
+    @bond_reapply
+    Scenario: NM - device - reapply just routes
+    * Add a new connection of type "bond" and options "con-name bond0 ifname nm-bond bond.options mode=0,miimon=100,updelay=100"
+    * Bring "up" connection "bond0"
+    * Modify connection "bond0" changing options "bond.options mode=0,miimon=100,downdelay=1000,updelay=100"
+    * Execute "sudo nmcli d reapply nm-bond"
+    Then "1000" is visible with command "cat /sys/class/net/nm-bond/bonding/downdelay"
