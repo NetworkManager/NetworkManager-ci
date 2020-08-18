@@ -1436,6 +1436,19 @@ Feature: nmcli - general
     * Snapshot "delete" for "all"
 
 
+    @rhbz1819587
+    @ver+=1.25.90
+    @con_general_remove  @checkpoint_remove @load_netdevsim
+    @snapshot_rollback_sriov
+    Scenario: NM - general - sriov
+    * Snapshot "create" for "all" with timeout "10"
+    * Add a new connection of type "ethernet" and options "ifname eth11 con-name con_general connection.autoconnect no ip4 172.25.14.1/24"
+    * Execute "nmcli connection modify con_general sriov.total-vfs 3"
+    * Bring "up" connection "con_general"
+    When "3" is visible with command "ip -c link show eth11 |grep vf |wc -l" in "5" seconds
+    When "0" is visible with command "ip -c link show eth11 |grep vf |wc -l" in "15" seconds
+
+
     @ver+=1.22.0
     @rhelver+=8 @fedoraver+=31
     @nmstate_setup

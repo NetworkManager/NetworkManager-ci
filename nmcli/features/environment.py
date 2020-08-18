@@ -1187,6 +1187,12 @@ def before_scenario(context, scenario):
                     print("netdevsim setup failed with exitcode: %d" % rc)
                     sys.exit(rc)
 
+            if 'load_netdevsim' in scenario.tags:
+                print("----------------------------")
+                print("* prepare patched netdevsim setup")
+                call('modprobe -r netdevsim; modprobe netdevsim', shell=True)
+                call("echo 1 1 > /sys/bus/netdevsim/new_device ; sleep 1", shell=True)
+
             if 'NM_performance_test1' in scenario.tags:
                 print ("---------------------------")
                 print ("* run only on gsm-r5 machine")
@@ -2340,6 +2346,11 @@ def after_scenario(context, scenario):
                 print("----------------------------")
                 print("* teardown patched netdevsim setup")
                 call('sh prepare/netdevsim.sh teardown', shell=True)
+
+            if 'load_netdevsim' in scenario.tags:
+                print("----------------------------")
+                print("* teardown patched netdevsim setup")
+                call('modprobe -r netdevsim; sleep 1', shell=True)
 
             if "attach_hostapd_log" in scenario.tags:
                 print("Attaching hostapd log")

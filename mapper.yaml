@@ -1396,6 +1396,8 @@ testmapper:
     - snapshot_rollback_soft_device:
         feature: general
         tags: gate
+    - snapshot_rollback_sriov:
+        feature: general        
     - snapshot_deleted_soft_device_dbus_link:
         feature: general
     - macsec_psk:
