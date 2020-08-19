@@ -1391,41 +1391,35 @@ def before_scenario(context, scenario):
                 if not os.path.isfile('/tmp/nm_newveth_configured'):
                     sys.exit(77)
 
-                # prepare nmstate and skip if unsuccesful
+                # Prepare nmstate and skip if unsuccesful
                 if call("sh prepare/nmstate.sh", shell=True) != 0:
                     sys.exit(77)
 
-                call("rm -rf /tmp/nmstate_backup; mkdir /tmp/nmstate_backup; cp /tmp/ifcfg-* /tmp/nmstate_backup/", shell=True)
-                call("sh prepare/vethsetup.sh teardown; sleep 1", shell=True)
+                print ("---------------------------")
+                print ("setting up nmstate env")
+
+                # Rename eth1/2 to ethX/Y as these are used by test
+                print ("* Rename eth1/eth2 devices")
+                call("ip link set dev eth1 down", shell=True)
+                call("ip link set name ethX eth1", shell=True)
+                call("ip link set dev eth2 down", shell=True)
+                call("ip link set name ethY eth2", shell=True)
 
                 # We need to have use_tempaddr set to 0 to avoid test_dhcp_on_bridge0 PASSED
                 call("echo 0 > /proc/sys/net/ipv6/conf/default/use_tempaddr", shell=True)
 
                 # Clone default profile but just ipv4 only"
+                print ("* Rename testeth0 to ipv4 only nmstate")
                 call('nmcli connection clone "$(nmcli -g NAME con show -a)" nmstate', shell=True)
                 call("nmcli con modify nmstate ipv6.method disabled ipv6.addresses '' ipv6.gateway ''", shell=True)
                 call("nmcli con up nmstate", shell=True)
 
-                # In case eth1 and eth2 exist we need to remove them
-                if call ("ip a s |grep -q 'eth1:'", shell=True) == 0:
-                    call("ip link set dev eth1 down", shell=True)
-                    call("ip link set name eth8 eth1", shell=True)
-                    call("ip link set dev eth8 up", shell=True)
-                if call ("ip a s |grep -q 'eth2:'", shell=True) == 0:
-                    call("ip link set dev eth2 down", shell=True)
-                    call("ip link set name eth9 eth2", shell=True)
-                    call("ip link set dev eth9 up", shell=True)
-                # Need to have the file to be able to regenerate
-                call("touch /tmp/nm_newveth_configured", shell=True)
-                context.nm_restarted = True
-
                 manage_veths ()
 
-                context.nm_pid = nm_pid()
-
+                print ("* is OVS active?")
                 if call('systemctl is-active openvswitch', shell=True) != 0 or \
-                    call('systemctl status ovs-vswitchd.service |grep -q ERR', shell=True) != 0:
-                    print ("* restarting OVS service")
+                    call('systemctl status ovs-vswitchd.service |grep -q ERR', shell=True) == 0:
+                    print ("** restarting OVS service")
                     call('systemctl restart openvswitch', shell=True)
                     restart_NM_service()
 
@@ -1800,26 +1794,39 @@ def after_scenario(context, scenario):
                 # nmstate restarts NM few times during tests
                 context.nm_restarted = True
 
-                call("ip link del eth1", shell=True)
-                call("ip link del eth2", shell=True)
+                call("nmcli con del linux-br0 dhcpcli dhcpsrv brtest0 bond99 eth1.101 eth1.102", shell=True)
+                call('nmcli con del eth0 eth1 eth2 eth3 eth4 eth5 eth6 eth7 eth8 eth9 eth10', shell=True)
 
-                call("nmcli con del eth1 eth2 linux-br0 dhcpcli dhcpsrv brtest0 bond99 eth1.101 eth1.102", shell=True)
                 call("nmcli device delete dhcpsrv", shell=True)
                 call("nmcli device delete dhcpcli", shell=True)
                 call("nmcli device delete bond99", shell=True)
 
                 call("ovs-vsctl del-br ovsbr0", shell=True)
+
                 # in case of fail we need to kill this
                 call('rm -rf /etc/dnsmasq.d/nmstate.conf', shell=True)
                 call('systemctl stop dnsmasq', shell=True)
 
-                call("mv -f /tmp/nmstate_backup/* /etc/sysconfig/network-scripts/", shell=True)
-                call("systemctl stop NetworkManager; rm -rf /var/run/NetworkManager; systemctl restart NetworkManager; sleep 5", shell=True)
+                # Rename devices back to eth1/eth2
+                call("ip link del eth1", shell=True)
+                call("ip link set dev ethX down", shell=True)
+                call("ip link set name eth1 ethX", shell=True)
+                call("ip link set dev eth1 up", shell=True)
 
-                # remove nmstate profile
-                call("nmcli con del nmstate", shell=True)
+                call("ip link del eth2", shell=True)
+                call("ip link set dev ethY down", shell=True)
+                call("ip link set name eth2 ethY", shell=True)
+                call("ip link set dev eth2 up", shell=True)
 
-                call("sh prepare/vethsetup.sh setup", shell=True)
+
+                # remove profiles
+                call("nmcli con del nmstate ethX ethY eth1peer eth2peer", shell=True)
+                # restore testethX
+                restore_connections ()
+                wait_for_testeth0 ()
+
+                # check just in case something went wrong
+                call("sh prepare/vethsetup.sh check", shell=True)
 
                 print("* attaching nmstate log")
                 nmstate = utf_only_open_read("/tmp/nmstate.txt")
