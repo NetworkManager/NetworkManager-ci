@@ -1397,7 +1397,7 @@ def before_scenario(context, scenario):
 
                 # Clone default profile but just ipv4 only"
                 call('nmcli connection clone "$(nmcli -g NAME con show -a)" nmstate', shell=True)
-                call("nmcli con modify nmstate ipv6.method disabled", shell=True)
+                call("nmcli con modify nmstate ipv6.method disabled ipv6.addresses '' ipv6.gateway ''", shell=True)
                 call("nmcli con up nmstate", shell=True)
 
                 # In case eth1 and eth2 exist we need to remove them
