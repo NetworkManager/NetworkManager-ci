@@ -1523,3 +1523,12 @@
     * Bring "up" connection "con_ipv6"
     When "activated" is visible with command "nmcli -g GENERAL.STATE con show con_ipv6" in "45" seconds
     Then "token ::123 dev eth10" is visible with command "ip token |grep eth10"
+
+
+    @rhbz1858344
+    @ver+=1.26
+    @restore_hostname @eth0
+    @dhcpv6_hostname
+    Scenario: nmcli - ipv6 - secondary
+    * Bring "down" connection "testeth0"
+    * "OK" is visible with command "sh tmp/repro_1858344.sh" in "10" seconds

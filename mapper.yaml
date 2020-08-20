@@ -706,6 +706,8 @@ testmapper:
         feature: ipv6
     - ipv6_token:
         feature: ipv6
+    - dhcpv6_hostname:
+        feature: ipv6
     - nmcli_general_correct_profile_activated_after_restart:
         feature: ipv4
         tags: gate
@@ -1397,7 +1399,7 @@ testmapper:
         feature: general
         tags: gate
     - snapshot_rollback_sriov:
-        feature: general        
+        feature: general
     - snapshot_deleted_soft_device_dbus_link:
         feature: general
     - macsec_psk:
