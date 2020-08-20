@@ -1437,7 +1437,7 @@ Feature: nmcli - general
 
 
     @rhbz1819587
-    @ver+=1.25.90
+    @ver+=1.25.90 @rhelver+=8
     @con_general_remove  @checkpoint_remove @load_netdevsim
     @snapshot_rollback_sriov
     Scenario: NM - general - sriov
