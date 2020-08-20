@@ -222,14 +222,7 @@ install_el8_packages () {
     dnf -4 -y upgrade https://vbenes.fedorapeople.org/NM/ModemManager-1.10.6-1.el8.x86_64.rpm https://vbenes.fedorapeople.org/NM/ModemManager-debuginfo-1.10.6-1.el8.x86_64.rpm https://vbenes.fedorapeople.org/NM/ModemManager-debugsource-1.10.6-1.el8.x86_64.rpm https://vbenes.fedorapeople.org/NM/ModemManager-devel-1.10.6-1.el8.x86_64.rpm https://vbenes.fedorapeople.org/NM/ModemManager-glib-1.10.6-1.el8.x86_64.rpm https://vbenes.fedorapeople.org/NM/ModemManager-glib-debuginfo-1.10.6-1.el8.x86_64.rpm --allowerasing
 
     # Install non crashing teamd 1684389
-    dnf -4 -y install https://vbenes.fedorapeople.org/NM/team_rhbz1684389/libteam-debugsource-1.29-1.el8_1.x86_64.rpm \
-    https://vbenes.fedorapeople.org/NM/team_rhbz1684389/libteam-1.29-1.el8_1.x86_64.rpm \
-    https://vbenes.fedorapeople.org/NM/team_rhbz1684389/python3-libteam-1.29-1.el8_1.x86_64.rpm \
-    https://vbenes.fedorapeople.org/NM/team_rhbz1684389/teamd-debuginfo-1.29-1.el8_1.x86_64.rpm \
-    https://vbenes.fedorapeople.org/NM/team_rhbz1684389/libteam-debuginfo-1.29-1.el8_1.x86_64.rpm \
-    https://vbenes.fedorapeople.org/NM/team_rhbz1684389/libteam-devel-1.29-1.el8_1.x86_64.rpm \
-    https://vbenes.fedorapeople.org/NM/team_rhbz1684389/teamd-1.29-1.el8_1.x86_64.rpm \
-    https://vbenes.fedorapeople.org/NM/team_rhbz1684389/teamd-devel-1.29-1.el8_1.x86_64.rpm
+    dnf -y -4 update http://download.eng.bos.redhat.com/brewroot/vol/rhel-8/packages/libteam/1.31/1.el8/$(arch)/libteam-1.31-1.el8.$(arch).rpm http://download.eng.bos.redhat.com/brewroot/vol/rhel-8/packages/libteam/1.31/1.el8/$(arch)/libteam-devel-1.31-1.el8.$(arch).rpm http://download.eng.bos.redhat.com/brewroot/vol/rhel-8/packages/libteam/1.31/1.el8/$(arch)/teamd-1.31-1.el8.$(arch).rpm http://download.eng.bos.redhat.com/brewroot/vol/rhel-8/packages/libteam/1.31/1.el8/$(arch)/teamd-devel-1.31-1.el8.$(arch).rpm http://download.eng.bos.redhat.com/brewroot/vol/rhel-8/packages/libteam/1.31/1.el8/$(arch)/python3-libteam-1.31-1.el8.$(arch).rpm
 
     # dracut testing
     dnf -4 -y install qemu-kvm
