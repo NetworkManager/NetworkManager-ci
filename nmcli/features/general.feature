@@ -2237,3 +2237,15 @@ Feature: nmcli - general
     Scenario: NM - general - create and activate 100 devices in 3 to 6 seconds
     * Restart NM
     Then "PASS" is visible with command "cd tmp; ./activate.py 100 |grep Completed |grep [3-6] && echo PASS" in "50" seconds
+
+
+    @rhbz1868982
+    @ver+=1.25
+    @nmcli_shows_correct_routes
+    Scenario: NM - general - nmclic shows correct routes
+    * Note the output of "ip -6 r |wc -l" as value "ip6_route"
+    * Note the output of "nmcli |grep route6 |wc -l" as value "nmcli6_route"
+    * Note the output of "ip r |wc -l" as value "ip4_route"
+    * Note the output of "nmcli |grep route4 |wc -l" as value "nmcli4_route"
+    Then Check noted values "ip6_route" and "nmcli6_route" are the same
+    Then Check noted values "ip4_route" and "nmcli4_route" are the same

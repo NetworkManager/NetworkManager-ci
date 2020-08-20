@@ -1506,6 +1506,8 @@ testmapper:
         feature: general
     - NM_performance_test1:
         feature: general
+    - nmcli_shows_correct_routes:
+        feature: general        
     - policy_based_routing_doc_procedure:
         feature: doc_procedures
         tags: gate
