@@ -111,33 +111,48 @@ fi
 visible() {
     patt=$1
     command=$2
-    check_run "$command | grep -q -e $patt"
+    rm /tmp/stdout
+    check_run "$command | tee /tmp/stdout | grep -q -e $patt"
     echo " * '$patt' is visible with command '$command' ... passed"
 }
 
 not_visible() {
     patt=$1
     command=$2
-    check_run "$command | grep -v -q -e $patt"
+    rm /tmp/stdout
+    check_run "$command | tee /tmp/stdout | grep -v -q -e $patt"
     echo " * '$patt' is not visible with command '$command' ... passed"
 }
 
 die() {
     msg=$1
-    echo "FAIL: $msg" | dd oflag=direct,dsync of=/dev/sda
+    echo -e "FAIL: $msg" | dd oflag=direct,dsync of=/dev/sda
     poweroff -f
 }
 
 check_run() {
     eval $@
     rc=$?
-    [[ "$rc" == 0 ]] || die "'$@' exited with code $rc"
+    [[ "$rc" == 0 ]] || die "'$@' exited with code $rc and output:\n$(cat /tmp/stdout)"
+}
+
+gateway() {
+    grep -q -v 'ip=' /proc/cmdline && return 0
+    grep -q -e 'ip=auto' -e 'ip=dhcp' /proc/cmdline && return 0
+    grep -q -e 'ip=[0-9.:]*192\.168\.5.\.1[^0]' /proc/cmdline && return 0
+    return 1
+}
+
+manual_if_num() {
+    grep -o 'ip=192\.168\.' /proc/cmdline | wc -l
 }
 
 echo "made it to the rootfs! Doing checks..."
 
 echo "== nfs mounts =="
 mount | grep nfs
+echo "== ext3 mounts =="
+mount | grep ext3
 
 echo "== ls ifcfg =="
 ls -la /etc/sysconfig/network-scripts/
@@ -205,11 +220,11 @@ ip -6 route
 
 echo "== ip command checks =="
 if ! grep -q -e "ip=auto6" -e "ip=dhcp6" /proc/cmdline; then
-    visible "\"inet 192.168.50.\"" "ip addr show $ifname"
+    visible "\"inet 192.168.5..\"" "ip addr show $ifname"
     not_visible "\"inet6 deaf:beef::1:\"" "ip addr show $ifname"
 else
     visible "\"inet6 deaf:beef::1:\"" "ip addr show $ifname"
-    not_visible "\"inet 192.168.50.\"" "ip addr show $ifname"
+    not_visible "\"inet 192.168.5..\"" "ip addr show $ifname"
 fi
 echo "OK"
 echo > /dev/watchdog
@@ -217,11 +232,13 @@ echo > /dev/watchdog
 if ! grep -q -e "ip=auto6" -e "ip=dhcp6" /proc/cmdline; then
     # rhbz1710935
     echo "== IPv4 route duplicity check @rhbz1710935 =="
-    visible "^1\$" "ip -4 r show | grep ^default | wc -l"
-    visible "^1\$" "ip -4 r show | grep ^192.168.50 | wc -l"
+    if gateway; then
+        visible "^1\$" "ip -4 r show dev $ifname | grep ^default | wc -l"
+    fi
+    visible "^1\$" "ip -4 r show dev $ifname | grep '^192\.168\.5.\.' | wc -l"
 else
     echo "== IPv6 RA route check =="
-    visible "\"^deaf:beef::/64 dev ens2 proto ra\"" "ip -6 r show"
+    visible "\"^deaf:beef::/64 proto ra\"" "ip -6 r show dev $ifname"
 fi
 echo "OK"
 echo > /dev/watchdog
@@ -236,6 +253,8 @@ echo "== nmcli checks =="
 visible "100" "nmcli -t -f GENERAL.STATE dev show $ifname"
 if grep -q bridge /proc/cmdline; then
     visible "^2\$" "nmcli -t -f uuid con show | wc -l"
+elif [ $(manual_if_num) != 0 ]; then
+    visible "^$(manual_if_num)\$" "nmcli -t -f uuid con show | wc -l"
 else
     visible "^1\$" "nmcli -t -f uuid con show | wc -l"
 fi
@@ -244,7 +263,7 @@ echo > /dev/watchdog
 
 # rhbz1627820
 echo "== lease renewal check @rhbz1627820 =="
-if ip a | grep -q 52:54:00:12:34:08 ; then
+if ip a | grep -q 52:54:00:12:34:08; then
     lease_time="$(ip -4 a show $ifname | grep valid_lft | awk '{print $2}' | grep -o '[0-9]*')"
     [ -n "$lease_time" ] || die "lease time for $ifname not found: $lease_time"
     (( $lease_time <= 120 )) || die "lease time is more than 120s: $lease_time"
@@ -267,10 +286,15 @@ else
 fi
 echo > /dev/watchdog
 
-echo "== dump nfs params =="
+echo "== dump mount params =="
 while read dev fs fstype opts rest || [ -n "$dev" ]; do
-    [ "$fstype" != "nfs" -a "$fstype" != "nfs4" ] && continue
-    echo "nfs-OK $dev $fstype $opts" | dd oflag=direct,dsync of=/dev/sda
+    if [ "$fstype" == "nfs" -o "$fstype" == "nfs4" ] ; then
+        echo "nfs-OK $dev $fstype $opts" | dd oflag=direct,dsync of=/dev/sda
+    elif [ "$fstype" == "ext3" ]; then
+        echo "iscsi-OK $dev $fstype $opts" | dd oflag=direct,dsync of=/dev/sda
+    else
+        continue
+    fi
     break
 done < /proc/mounts
 echo "OK"

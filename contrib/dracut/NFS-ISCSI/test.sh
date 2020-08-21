@@ -10,7 +10,7 @@ KVERSION=${KVERSION-$(uname -r)}
 # Uncomment this to debug failures
 DEBUGFAIL="loglevel=1"
 #DEBUGFAIL="rd.shell rd.break rd.debug loglevel=7 "
-#DEBUGFAIL="rd.debug loglevel=7 "
+DEBUGFAIL="rd.debug loglevel=7 "
 #SERVER_DEBUG="rd.debug loglevel=7"
 #SERIAL="tcp:127.0.0.1:9999"
 
@@ -21,8 +21,13 @@ run_server() {
     fsck -a $TESTDIR/server.ext3 || return 1
     $testdir/run-qemu \
         -drive format=raw,index=0,media=disk,file=$TESTDIR/server.ext3 \
+        -drive format=raw,index=1,media=disk,file=$TESTDIR/root.ext3 \
+        -drive format=raw,index=2,media=disk,file=$TESTDIR/iscsidisk2.img \
+        -drive format=raw,index=3,media=disk,file=$TESTDIR/iscsidisk3.img \
         -net socket,listen=127.0.0.1:12320 \
         -net nic,macaddr=52:54:00:12:34:56,model=e1000 \
+        -net nic,macaddr=52:54:00:12:34:57,model=e1000 \
+        -net nic,macaddr=52:54:00:12:34:58,model=e1000 \
         ${SERIAL:+-serial "$SERIAL"} \
         ${SERIAL:--serial file:"$TESTDIR"/server.log} \
         -watchdog i6300esb -watchdog-action poweroff \
@@ -65,7 +70,7 @@ return_pass() {
     fi
 }
 
-client_test() {
+nfs_client_test() {
     local test_name="$1"
     local mac=$2
     local cmdline="$3"
@@ -93,7 +98,7 @@ client_test() {
         -net socket,connect=127.0.0.1:12320 \
         -watchdog i6300esb -watchdog-action poweroff \
         -append "rd.net.timeout.dhcp=3 panic=1 systemd.crash_reboot rd.shell=0 $cmdline $DEBUGFAIL rd.retry=10 quiet ro console=ttyS0,115200n81 selinux=0 noapic" \
-        -initrd $TESTDIR/initramfs.testing
+        -initrd $TESTDIR/initramfs.nfs.testing
 
     if [[ $? -ne 0 ]] || ! grep -F -m 1 -q nfs-OK $TESTDIR/client.img; then
         echo "CLIENT MSG: $(cat $TESTDIR/client.img)"
@@ -151,64 +156,64 @@ test_nfsv3() {
     # NFSv3: last octect starts at 0x00 and works up
     # NFSv4: last octect starts at 0x80 and works up
 
-    client_test "NFSv3 root=dhcp DHCP path only" 52:54:00:12:34:00 \
+    nfs_client_test "NFSv3 root=dhcp DHCP path only" 52:54:00:12:34:00 \
                 "root=dhcp" 192.168.50.1 -wsize=4096 || return 1
 
     #if [[ "$(systemctl --version)" != *"systemd 230"* ]] 2>/dev/null; then
-        client_test "NFSv3 Legacy root=/dev/nfs nfsroot=IP:path" 52:54:00:12:34:01 \
+        nfs_client_test "NFSv3 Legacy root=/dev/nfs nfsroot=IP:path" 52:54:00:12:34:01 \
                     "root=/dev/nfs nfsroot=192.168.50.1:/nfs/client" 192.168.50.1 -wsize=4096 || return 1
 
-        client_test "NFSv3 Legacy root=/dev/nfs DHCP path only" 52:54:00:12:34:00 \
+        nfs_client_test "NFSv3 Legacy root=/dev/nfs DHCP path only" 52:54:00:12:34:00 \
                     "root=/dev/nfs" 192.168.50.1 -wsize=4096 || return 1
 
-        client_test "NFSv3 Legacy root=/dev/nfs DHCP IP:path" 52:54:00:12:34:01 \
+        nfs_client_test "NFSv3 Legacy root=/dev/nfs DHCP IP:path" 52:54:00:12:34:01 \
                     "root=/dev/nfs" 192.168.50.2 -wsize=4096 || return 1
     #fi
 
-    client_test "NFSv3 root=dhcp DHCP IP:path" 52:54:00:12:34:01 \
+    nfs_client_test "NFSv3 root=dhcp DHCP IP:path" 52:54:00:12:34:01 \
                 "root=dhcp" 192.168.50.2 -wsize=4096 || return 1
 
-    client_test "NFSv3 root=dhcp DHCP proto:IP:path" 52:54:00:12:34:02 \
+    nfs_client_test "NFSv3 root=dhcp DHCP proto:IP:path" 52:54:00:12:34:02 \
                 "root=dhcp" 192.168.50.3 -wsize=4096 || return 1
 
-    client_test "NFSv3 root=dhcp DHCP proto:IP:path:options" 52:54:00:12:34:03 \
+    nfs_client_test "NFSv3 root=dhcp DHCP proto:IP:path:options" 52:54:00:12:34:03 \
                 "root=dhcp" 192.168.50.3 wsize=4096 || return 1
 
-    client_test "NFSv3 root=nfs:..." 52:54:00:12:34:04 \
+    nfs_client_test "NFSv3 root=nfs:..." 52:54:00:12:34:04 \
                 "root=nfs:192.168.50.1:/nfs/client" 192.168.50.1 -wsize=4096 || return 1
 
-    client_test "NFSv3 Bridge root=nfs:..." 52:54:00:12:34:04 \
+    nfs_client_test "NFSv3 Bridge root=nfs:..." 52:54:00:12:34:04 \
                 "root=nfs:192.168.50.1:/nfs/client bridge net.ifnames=0" 192.168.50.1 -wsize=4096 || return 1
 
-    client_test "NFSv3 Legacy root=IP:path" 52:54:00:12:34:04 \
+    nfs_client_test "NFSv3 Legacy root=IP:path" 52:54:00:12:34:04 \
                 "root=192.168.50.1:/nfs/client" 192.168.50.1 -wsize=4096 || return 1
 
     # This test must fail: nfsroot= requires root=/dev/nfs
-    client_test "NFSv3 Invalid root=dhcp nfsroot=/nfs/client" 52:54:00:12:34:04 \
+    nfs_client_test "NFSv3 Invalid root=dhcp nfsroot=/nfs/client" 52:54:00:12:34:04 \
                 "root=dhcp nfsroot=/nfs/client failme rd.debug" 192.168.50.1 -wsize=4096 || return 1
 
-    client_test "NFSv3 root=dhcp DHCP path,options" \
+    nfs_client_test "NFSv3 root=dhcp DHCP path,options" \
                 52:54:00:12:34:05 "root=dhcp" 192.168.50.1 wsize=4096 || return 1
 
-    client_test "NFSv3 Bridge Customized root=dhcp DHCP path,options" \
+    nfs_client_test "NFSv3 Bridge Customized root=dhcp DHCP path,options" \
                 52:54:00:12:34:05 "root=dhcp bridge=foobr0:ens2" 192.168.50.1 wsize=4096 || return 1
 
-    client_test "NFSv3 root=dhcp DHCP IP:path,options" \
+    nfs_client_test "NFSv3 root=dhcp DHCP IP:path,options" \
                 52:54:00:12:34:06 "root=dhcp" 192.168.50.2 wsize=4096 || return 1
 
-    client_test "NFSv3 root=dhcp DHCP proto:IP:path,options" \
+    nfs_client_test "NFSv3 root=dhcp DHCP proto:IP:path,options" \
                 52:54:00:12:34:07 "root=dhcp" 192.168.50.3 wsize=4096 || return 1
 
-    client_test "@rhbz1627820 NFSv3 root=dhcp DHCP lease renewal bridge" 52:54:00:12:34:08 \
+    nfs_client_test "@rhbz1627820 NFSv3 root=dhcp DHCP lease renewal bridge" 52:54:00:12:34:08 \
                 "root=dhcp bridge net.ifnames=0" 192.168.50.3 wsize=4096 || return 1
 
-    client_test "@rhbz1710935 NFSv3 root=dhcp rd.neednet=1" 52:54:00:12:34:00 \
+    nfs_client_test "@rhbz1710935 NFSv3 root=dhcp rd.neednet=1" 52:54:00:12:34:00 \
                 "root=dhcp rd.neednet=1" 192.168.50.1 -wsize=4096 || return 1
 
-    client_test "@rhbz1854323 NFSv3 root=nfs:[ipv6]... ip=auto6" 52:54:00:12:34:a0 \
+    nfs_client_test "@rhbz1854323 NFSv3 root=nfs:[ipv6]... ip=auto6" 52:54:00:12:34:a0 \
                 "root=nfs:[deaf:beef::1]:/nfs/client ip=auto6" [deaf:beef::1] -wsize=4096 || return 1
 
-    client_test "@rhbz1854323 NFSv3 root=nfs:[ipv6]... ip=dhcp6" 52:54:00:12:34:a0 \
+    nfs_client_test "@rhbz1854323 NFSv3 root=nfs:[ipv6]... ip=dhcp6" 52:54:00:12:34:a0 \
                 "root=nfs:[deaf:beef::1]:/nfs/client ip=dhcp6" [deaf:beef::1] -wsize=4096 || return 1
 
     return 0
@@ -219,21 +224,129 @@ test_nfsv4() {
     # server, so put these later in the list to avoid a pause when doing
     # switch_root
 
-    client_test "NFSv4 root=dhcp DHCP proto:IP:path" 52:54:00:12:34:82 \
+    nfs_client_test "NFSv4 root=dhcp DHCP proto:IP:path" 52:54:00:12:34:82 \
                 "root=dhcp" 192.168.50.3 -wsize=4096 || return 1
 
-    client_test "NFSv4 root=dhcp DHCP proto:IP:path:options" 52:54:00:12:34:83 \
+    nfs_client_test "NFSv4 root=dhcp DHCP proto:IP:path:options" 52:54:00:12:34:83 \
                 "root=dhcp" 192.168.50.3 wsize=4096 || return 1
 
-    client_test "NFSv4 root=nfs4:..." 52:54:00:12:34:84 \
+    nfs_client_test "NFSv4 root=nfs4:..." 52:54:00:12:34:84 \
                 "root=nfs4:192.168.50.1:/client" 192.168.50.1 \
                 -wsize=4096 || return 1
 
-    client_test "NFSv4 root=dhcp DHCP proto:IP:path,options" \
+    nfs_client_test "NFSv4 root=dhcp DHCP proto:IP:path,options" \
                 52:54:00:12:34:87 "root=dhcp" 192.168.50.3 wsize=4096 || return 1
 
     return 0
 }
+
+iscsi_client_test() {
+    local test_name=$1; shift
+
+    if [ -n "$TEST_TO_RUN" ] && [ "$test_name" != "$TEST_TO_RUN" ]; then
+        return 0
+    fi
+
+    touch /tmp/dracut_test_match
+
+    echo "CLIENT TEST START: $test_name"
+
+    dd if=/dev/zero of=$TESTDIR/client.img bs=1M count=1
+
+    $testdir/run-qemu \
+        -drive format=raw,index=0,media=disk,file=$TESTDIR/client.img \
+        -net nic,macaddr=52:54:00:12:34:a1,model=e1000 \
+        -net nic,macaddr=52:54:00:12:34:a2,model=e1000 \
+        -net socket,connect=127.0.0.1:12320 \
+        -acpitable file=ibft.table \
+        -append "panic=1 systemd.crash_reboot rw rd.auto rd.retry=50 console=ttyS0,115200n81 selinux=0 rd.debug=0 rd.shell=0 $DEBUGFAIL $*" \
+        -initrd $TESTDIR/initramfs.iscsi.testing
+    if ! grep -F -m 1 -q iscsi-OK $TESTDIR/client.img; then
+        echo "CLIENT TEST MSG: $(cat $TESTDIR/client.img)"
+        echo "CLIENT TEST END: $test_name [FAILED - BAD EXIT]"
+        return 1
+    fi
+
+    echo "CLIENT TEST END: $test_name [OK]"
+    return 0
+}
+
+
+test_iscsi() {
+    initiator=$(iscsi-iname)
+
+    iscsi_client_test "iSCSI root=dhcp" \
+                      "root=/dev/root netroot=dhcp ip=ens2:dhcp" \
+                      "rd.iscsi.initiator=$initiator" \
+        || return 1
+
+    iscsi_client_test "iSCSI netroot=iscsi target0"\
+                      "root=LABEL=singleroot netroot=iscsi:192.168.51.1::::iqn.2009-06.dracut:target0" \
+                      "ip=192.168.51.101::192.168.51.1:255.255.255.0:iscsi-1:ens2:off" \
+                      "rd.iscsi.initiator=$initiator" \
+        || return 1
+
+    iscsi_client_test "iSCSI netroot=iscsi target1 target2" \
+                      "root=LABEL=sysroot" \
+                      "ip=dhcp" \
+                      "netroot=iscsi:192.168.52.1::::iqn.2009-06.dracut:target1" \
+                      "netroot=iscsi:192.168.51.1::::iqn.2009-06.dracut:target2" \
+                      "rd.iscsi.initiator=$initiator" \
+        || return 1
+
+    iscsi_client_test "iSCSI root=ibft" \
+                      "root=LABEL=singleroot" \
+                      "ip=ibft" \
+                      "rd.iscsi.ibft=1" \
+                      "rd.iscsi.firmware=1" \
+        || return 1
+
+    iscsi_client_test "iSCSI netroot=iscsi target1 target2 manual" \
+                      "root=LABEL=sysroot" \
+                      "ip=192.168.51.101:::255.255.255.0::ens2:off" \
+                      "ip=192.168.52.101:::255.255.255.0::ens3:off" \
+                      "netroot=iscsi:192.168.52.1::::iqn.2009-06.dracut:target1" \
+                      "netroot=iscsi:192.168.51.1::::iqn.2009-06.dracut:target2" \
+                      "rd.iscsi.initiator=$initiator" \
+        || return 1
+
+    iscsi_client_test "iSCSI netroot=iscsi target1 target2 rd.iscsi.waitnet=0" \
+                      "root=LABEL=sysroot" \
+                      "ip=192.168.51.101:::255.255.255.0::ens2:off" \
+                      "ip=192.168.52.101:::255.255.255.0::ens3:off" \
+                      "netroot=iscsi:192.168.52.1::::iqn.2009-06.dracut:target1" \
+                      "netroot=iscsi:192.168.51.1::::iqn.2009-06.dracut:target2" \
+                      "rd.iscsi.firmware" \
+                      "rd.iscsi.initiator=$initiator" \
+                      "rd.iscsi.waitnet=0" \
+        || return 1
+
+    iscsi_client_test "iSCSI netroot=iscsi target1 target2 rd.iscsi.waitnet=0 rd.iscsi.testroute=0" \
+                      "root=LABEL=sysroot" \
+                      "ip=192.168.51.101:::255.255.255.0::ens2:off" \
+                      "ip=192.168.52.101:::255.255.255.0::ens3:off" \
+                      "netroot=iscsi:192.168.52.1::::iqn.2009-06.dracut:target1" \
+                      "netroot=iscsi:192.168.51.1::::iqn.2009-06.dracut:target2" \
+                      "rd.iscsi.firmware" \
+                      "rd.iscsi.initiator=$initiator" \
+                      "rd.iscsi.waitnet=0 rd.iscsi.testroute=0" \
+        || return 1
+
+    iscsi_client_test "iSCSI netroot=iscsi target1 target2 rd.iscsi.waitnet=0 rd.iscsi.testroute=0 default GW" \
+                      "root=LABEL=sysroot" \
+                      "ip=192.168.51.101::192.168.51.1:255.255.255.0::ens2:off" \
+                      "ip=192.168.52.101::192.168.52.1:255.255.255.0::ens3:off" \
+                      "netroot=iscsi:192.168.52.1::::iqn.2009-06.dracut:target1" \
+                      "netroot=iscsi:192.168.51.1::::iqn.2009-06.dracut:target2" \
+                      "rd.iscsi.firmware" \
+                      "rd.iscsi.initiator=$initiator" \
+                      "rd.iscsi.waitnet=0 rd.iscsi.testroute=0" \
+        || return 1
+
+    return 0
+}
+
+
 
 kill_server() {
     if [[ -s $TESTDIR/server.pid ]]; then
@@ -247,7 +360,8 @@ test_run() {
     rm /tmp/dracut_test_match
 
     test_nfsv3 && \
-        test_nfsv4
+    test_nfsv4 && \
+    test_iscsi
 
     ret=$?
 
@@ -260,6 +374,7 @@ test_run() {
 }
 
 test_setup() {
+
     # Make server root
     dd if=/dev/zero of=$TESTDIR/server.ext3 bs=1M count=600
     mke2fs -j -F $TESTDIR/server.ext3
@@ -289,7 +404,8 @@ test_setup() {
         inst_multiple sh ls shutdown poweroff stty cat ps ln ip \
                       dmesg mkdir cp ping exportfs \
                       modprobe rpc.nfsd rpc.mountd showmount tcpdump \
-                      /etc/services sleep mount chmod chown rm
+                      /etc/services sleep mount chmod chown rm setsid
+        inst_multiple tgtd tgtadm
         for _terminfodir in /lib/terminfo /etc/terminfo /usr/share/terminfo; do
             [ -f ${_terminfodir}/l/linux ] && break
         done
@@ -345,8 +461,8 @@ test_setup() {
         export initdir=$TESTDIR/mnt/nfs/client
         . $basedir/dracut-init.sh
 
-        inst_multiple sh shutdown poweroff stty cat ps ln ip dd \
-                      mount dmesg mkdir cp ping grep wc awk setsid ls find vi /etc/virc less cat
+        inst_multiple sh shutdown poweroff stty cat ps ln ip dd mount dmesg \
+            mkdir cp ping grep wc awk setsid ls find vi /etc/virc less cat tee
         for _terminfodir in /lib/terminfo /etc/terminfo /usr/share/terminfo; do
             [ -f ${_terminfodir}/l/linux ] && break
         done
@@ -605,17 +721,76 @@ EOF
     # Make server's dracut image
     dracut -l -i $TESTDIR/overlay / \
            -m "bash udev-rules base rootfs-block fs-lib debug kernel-modules watchdog qemu" \
-           -d "af_packet piix ide-gd_mod ata_piix ext3 sd_mod e1000 i6300esb" \
+           -d "af_packet piix ide-gd_mod ata_piix ext3 sd_mod e1000 i6300esb drbg" \
            --no-hostonly-cmdline -N \
            -f $TESTDIR/initramfs.server $KVERSION || return 1
 
-    # Make client's dracut image
+    # Make NFS client's dracut image
     dracut -l -i $TESTDIR/overlay / \
-           -o "plymouth dash dash ${OMIT_NETWORK}" \
+           -o "plymouth dash ${OMIT_NETWORK}" \
            -a "debug watchdog ${USE_NETWORK}" \
            -d "af_packet piix ide-gd_mod ata_piix sd_mod e1000 nfs sunrpc i6300esb" \
            --no-hostonly-cmdline -N \
-           -f $TESTDIR/initramfs.testing $KVERSION || return 1
+           -f $TESTDIR/initramfs.nfs.testing $KVERSION || return 1
+
+     # Make iSCSI client's dracut image
+     dracut -l -i $TESTDIR/overlay / \
+            -o "plymouth dash dmraid nfs ${OMIT_NETWORK}" \
+            -a "debug watchdog ${USE_NETWORK}" \
+            -d "af_packet piix ide-gd_mod ata_piix ext3 sd_mod" \
+            --no-hostonly-cmdline -N \
+            -f $TESTDIR/initramfs.iscsi.testing $KVERSION || return 1
+
+      if ! command -v tgtd &>/dev/null || ! command -v tgtadm &>/dev/null; then
+          echo "Need tgtd and tgtadm from scsi-target-utils"
+          return 1
+      fi
+
+      # Create the blank file to use as a root filesystem
+      dd if=/dev/zero of=$TESTDIR/root.ext3 bs=1M count=600
+      dd if=/dev/zero of=$TESTDIR/iscsidisk2.img bs=1M count=300
+      dd if=/dev/zero of=$TESTDIR/iscsidisk3.img bs=1M count=300
+      dd if=/dev/zero of=$TESTDIR/client.img bs=1M count=1
+
+      kernel=$KVERSION
+      # Create what will eventually be our root filesystem onto an overlay
+      rm -rf -- $TESTDIR/overlay
+
+      # second, install the files needed to make the root filesystem
+      (
+          export initdir=$TESTDIR/overlay
+          . $basedir/dracut-init.sh
+          inst /etc/mke2fs.conf
+          inst_multiple sfdisk mkfs.ext3 poweroff cp umount setsid dd
+          inst_hook initqueue 01 ./create-root.sh
+          inst_hook initqueue/finished 01 ./finished-false.sh
+          inst_simple ./99-idesymlinks.rules /etc/udev/rules.d/99-idesymlinks.rules
+          mkdir $initdir/source -p
+          mount -o loop $TESTDIR/server.ext3 $initdir/source
+      )
+
+      # create an initramfs that will create the target root filesystem.
+      # We do it this way so that we do not risk trashing the host mdraid
+      # devices, volume groups, encrypted partitions, etc.
+      dracut -l -i $TESTDIR/overlay / \
+             -m "bash crypt lvm mdraid udev-rules base rootfs-block fs-lib kernel-modules qemu" \
+             -d "piix ide-gd_mod ata_piix ext3 sd_mod" \
+             --no-hostonly-cmdline -N \
+             -f $TESTDIR/initramfs.makeroot $KVERSION || return 1
+      umount $TESTDIR/overlay/source
+      rm -rf -- $TESTDIR/overlay
+
+
+      # Invoke KVM and/or QEMU to actually create the target filesystem.
+      $testdir/run-qemu \
+          -drive format=raw,index=0,media=disk,file=$TESTDIR/root.ext3 \
+          -drive format=raw,index=1,media=disk,file=$TESTDIR/client.img \
+          -drive format=raw,index=2,media=disk,file=$TESTDIR/iscsidisk2.img \
+          -drive format=raw,index=3,media=disk,file=$TESTDIR/iscsidisk3.img \
+          -append "root=/dev/fakeroot rw rootfstype=ext3 quiet console=ttyS0,115200n81 selinux=0" \
+          -initrd $TESTDIR/initramfs.makeroot  || return 1
+      grep -F -m 1 -q dracut-root-block-created $TESTDIR/client.img || return 1
+      rm -- $TESTDIR/client.img $TESTDIR/initramfs.makeroot
 
      if ! run_server; then
          echo "Failed to start server" 1>&2

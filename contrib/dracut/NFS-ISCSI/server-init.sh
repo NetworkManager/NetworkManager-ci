@@ -55,7 +55,10 @@ linkup() {
 }
 
 wait_for_if_link eth0 ens2
+wait_for_if_link eth1 ens3
+wait_for_if_link eth2 ens4
 
+#nfs
 ip addr add 127.0.0.1/8 dev lo
 ip link set lo up
 ip link set dev eth0 name ens2
@@ -65,7 +68,15 @@ ip addr add 192.168.50.3/24 dev ens2
 ip -6 addr add deaf:beef::1/64 dev ens2
 linkup ens2
 ip -6 route add default via deaf:beef::aa dev ens2
+#iscsi
+ip link set dev eth1 name ens3
+ip addr add 192.168.51.1/24 dev ens3
+ip link set ens3 up
+ip link set dev eth2 name ens4
+ip addr add 192.168.52.1/24 dev ens4
+ip link set ens4 up
 
+#nfs
 echo > /dev/watchdog
 modprobe af_packet
 echo > /dev/watchdog
@@ -106,15 +117,30 @@ chmod 777 /var/lib/dhcpd/dhcpd.leases
 chmod 777 /var/lib/dhcpd/dhcpd6.leases
 echo > /dev/watchdog
 rm -f /var/run/dhcpd.pid
-dhcpd -d -cf /etc/dhcpd.conf -lf /var/lib/dhcpd/dhcpd.leases ens2 &
-dhcpd -6 -d -cf /etc/dhcpd6.conf -lf /var/lib/dhcpd/dhcpd6.leases ens2 &
+dhcpd -d -cf /etc/dhcpd.conf -lf /var/lib/dhcpd/dhcpd.leases &
+dhcpd -6 -d -cf /etc/dhcpd6.conf -lf /var/lib/dhcpd/dhcpd6.leases &
 echo > /dev/watchdog
 mkdir /run/radvd
 echo > /dev/watchdog
 chown radvd:radvd /run/radvd
 echo > /dev/watchdog
-radvd -u radvd -m stderr &
-echo "Serving NFS mounts"
+radvd -u radvd -m stderr
+
+#iscsi
+tgtd
+tgtadm --lld iscsi --mode target --op new --tid 1 --targetname iqn.2009-06.dracut:target0
+tgtadm --lld iscsi --mode target --op new --tid 2 --targetname iqn.2009-06.dracut:target1
+tgtadm --lld iscsi --mode target --op new --tid 3 --targetname iqn.2009-06.dracut:target2
+tgtadm --lld iscsi --mode logicalunit --op new --tid 1 --lun 1 -b /dev/sdb
+tgtadm --lld iscsi --mode logicalunit --op new --tid 2 --lun 2 -b /dev/sdc
+tgtadm --lld iscsi --mode logicalunit --op new --tid 3 --lun 3 -b /dev/sdd
+tgtadm --lld iscsi --mode target --op bind --tid 1 -I 192.168.51.101
+tgtadm --lld iscsi --mode target --op bind --tid 2 -I 192.168.52.101
+tgtadm --lld iscsi --mode target --op bind --tid 3 -I 192.168.51.101
+tgtadm --lld iscsi --mode target --op show
+
+echo "Serving NFS and iSCSI mounts"
+
 while :; do
 	[ -n "$(jobs -rp)" ] && echo > /dev/watchdog
 	sleep 10
