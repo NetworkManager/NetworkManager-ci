@@ -1418,7 +1418,7 @@ def before_scenario(context, scenario):
 
                 print ("* is OVS active?")
                 if call('systemctl is-active openvswitch', shell=True) != 0 or \
-                    call('systemctl status ovs-vswitchd.service |grep -q ERR', shell=True) == 0:
+                    call('systemctl status ovs-vswitchd.service |grep -q ERR', shell=True) != 0:
                     print ("** restarting OVS service")
                     call('systemctl restart openvswitch', shell=True)
                     restart_NM_service()
