@@ -4,7 +4,6 @@ set -x
 export PATH=/sbin:/bin:/usr/sbin:/usr/bin
 export TERM=linux
 export PS1='nfstest-server:\w\$ '
-echo > /dev/watchdog
 stty sane
 echo "made it to the rootfs!"
 echo server > /proc/sys/kernel/hostname
@@ -13,117 +12,97 @@ wait_for_if_link() {
     local cnt=0
     local li
     while [ $cnt -lt 600 ]; do
-        li=$(ip -o link show dev $1 2>/dev/null)
-	[ -n "$li" ] && return 0
-        if [[ $2 ]]; then
-	    li=$(ip -o link show dev $2 2>/dev/null)
-	    [ -n "$li" ] && return 0
-        fi
+        li=$(ip -o link | grep "$1")
+	      [ -n "$li" ] && rename_if_link $2 $li && return 0
         sleep 0.1
         cnt=$(($cnt+1))
     done
-    return 1
+    poweroff -f
 }
 
-wait_for_if_up() {
-    local cnt=0
-    local li
-    while [ $cnt -lt 200 ]; do
-        li=$(ip -o link show up dev $1)
-        [ -n "$li" ] && return 0
-        sleep 0.1
-        cnt=$(($cnt+1))
-    done
-    return 1
+rename_if_link() {
+    local new_name=$1
+    local old_name=${3%:}
+    if [[ "$new_name" != "$old_name" ]]; then
+        ip link set $old_name down && \
+        ip link set $old_name name $new_name
+    fi
+    ip link set $new_name up
 }
 
-wait_for_route_ok() {
-    local cnt=0
-    while [ $cnt -lt 200 ]; do
-        li=$(ip route show)
-        [ -n "$li" ] && [ -z "${li##*$1*}" ] && return 0
-        sleep 0.1
-        cnt=$(($cnt+1))
-    done
-    return 1
-}
+ip a
 
-linkup() {
-    wait_for_if_link $1 2>/dev/null\
-     && ip link set $1 up 2>/dev/null\
-     && wait_for_if_up $1 2>/dev/null
-}
+wait_for_if_link 52:54:00:12:34:56 ens1
+wait_for_if_link 52:54:00:12:34:57 ens2
+wait_for_if_link 52:54:00:12:34:58 ens3
+wait_for_if_link 52:54:00:12:34:60 ens4
+wait_for_if_link 52:54:00:12:34:61 ens5
+wait_for_if_link 52:54:00:12:34:62 ens6
 
-wait_for_if_link eth0 ens2
-wait_for_if_link eth1 ens3
-wait_for_if_link eth2 ens4
+ip a
+
+find /lib/modules/
 
 #nfs
 ip addr add 127.0.0.1/8 dev lo
 ip link set lo up
-ip link set dev eth0 name ens2
-ip addr add 192.168.50.1/24 dev ens2
-ip addr add 192.168.50.2/24 dev ens2
-ip addr add 192.168.50.3/24 dev ens2
-ip -6 addr add deaf:beef::1/64 dev ens2
-linkup ens2
-ip -6 route add default via deaf:beef::aa dev ens2
+ip addr add 192.168.50.1/24 dev ens1
+ip addr add 192.168.50.2/24 dev ens1
+ip addr add 192.168.50.3/24 dev ens1
+ip -6 addr add deaf:beef::1/64 dev ens1
+ip -6 route add default via deaf:beef::aa dev ens1
 #iscsi
-ip link set dev eth1 name ens3
-ip addr add 192.168.51.1/24 dev ens3
-ip link set ens3 up
-ip link set dev eth2 name ens4
-ip addr add 192.168.52.1/24 dev ens4
-ip link set ens4 up
+ip addr add 192.168.51.1/24 dev ens2
+ip addr add 192.168.52.1/24 dev ens3
+#bond@ens4+ens5
+modprobe --first-time bonding
+ip link add bond0 type bond
+ip link set bond0 type bond miimon 100 mode active-backup
+ip link set ens4 down
+ip link set ens4 master bond0
+ip link set ens5 down
+ip link set ens5 master bond0
+ip link set bond0 up
+ip addr add 192.168.53.1/24 dev bond0
+#vlan47@ens6
+modprobe ipvlan
+modprobe macvlan
+modprobe 8021q
+ip link add link ens6 name ens6.47 type vlan id 47
+ip addr add 192.168.54.1/24 dev ens6.47
+#vlan48@bond0
+ip link add link bond0 name bond0.48 type vlan id 48
+ip addr add 192.168.55.1/24 dev bond0.48
+
+ip a
 
 #nfs
-echo > /dev/watchdog
 modprobe af_packet
-echo > /dev/watchdog
 mount --bind /nfs/client /nfs/nfs3-5
-echo > /dev/watchdog
 mount --bind /nfs/client /nfs/ip/192.168.50.101
-echo > /dev/watchdog
 mount --bind /nfs/client /nfs/tftpboot/nfs4-5
-echo > /dev/watchdog
 modprobe sunrpc
-echo > /dev/watchdog
 mount -t rpc_pipefs sunrpc /var/lib/nfs/rpc_pipefs
-echo > /dev/watchdog
 [ -x /sbin/portmap ] && portmap
-echo > /dev/watchdog
 mkdir -p /run/rpcbind
 [ -x /sbin/rpcbind ] && rpcbind
-echo > /dev/watchdog
 modprobe nfsd
-echo > /dev/watchdog
 mount -t nfsd nfsd /proc/fs/nfsd
-echo > /dev/watchdog
 exportfs -r
-echo > /dev/watchdog
 rpc.nfsd
-echo > /dev/watchdog
 rpc.mountd
-echo > /dev/watchdog
 rpc.idmapd
-echo > /dev/watchdog
 exportfs -r
-echo > /dev/watchdog
 mkdir -p /var/lib/dhcpd
 >/var/lib/dhcpd/dhcpd.leases
 >/var/lib/dhcpd/dhcpd6.leases
-echo > /dev/watchdog
 chmod 777 /var/lib/dhcpd/dhcpd.leases
 chmod 777 /var/lib/dhcpd/dhcpd6.leases
-echo > /dev/watchdog
 rm -f /var/run/dhcpd.pid
 dhcpd -d -cf /etc/dhcpd.conf -lf /var/lib/dhcpd/dhcpd.leases &
 dhcpd -6 -d -cf /etc/dhcpd6.conf -lf /var/lib/dhcpd/dhcpd6.leases &
-echo > /dev/watchdog
 mkdir /run/radvd
-echo > /dev/watchdog
 chown radvd:radvd /run/radvd
-echo > /dev/watchdog
 radvd -u radvd -m stderr
 
 #iscsi
@@ -137,12 +116,11 @@ tgtadm --lld iscsi --mode logicalunit --op new --tid 3 --lun 3 -b /dev/sdd
 tgtadm --lld iscsi --mode target --op bind --tid 1 -I 192.168.51.101
 tgtadm --lld iscsi --mode target --op bind --tid 2 -I 192.168.52.101
 tgtadm --lld iscsi --mode target --op bind --tid 3 -I 192.168.51.101
-tgtadm --lld iscsi --mode target --op show
 
 echo "Serving NFS and iSCSI mounts"
 
 while :; do
-	[ -n "$(jobs -rp)" ] && echo > /dev/watchdog
+	jobs -rp
 	sleep 10
 done
 mount -n -o remount,ro /

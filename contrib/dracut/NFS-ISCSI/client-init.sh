@@ -103,7 +103,6 @@ strstr() { [ "${1##*"$2"*}" != "$1" ]; }
 
 stty sane
 if getargbool 0 rd.shell; then
-    [ -c /dev/watchdog ] && printf 'V' > /dev/watchdog
 	strstr "$(setsid --help)" "control" && CTTY="-c"
 	setsid $CTTY sh -i
 fi
@@ -170,13 +169,10 @@ done
 echo "== starting services =="
 echo "dbus"
 check_run systemctl start dbus
-echo > /dev/watchdog
 echo "NetworkManager"
 check_run systemctl start NetworkManager
-echo > /dev/watchdog
 echo "systemd-hostnamed"
 check_run systemctl start systemd-hostnamed.service
-echo > /dev/watchdog
 echo "OK"
 
 for file in $(find /etc/sysconfig/network-scripts/ -type f); do
@@ -191,7 +187,6 @@ done
 
 echo "== NetworkManager config =="
 NetworkManager --print-config
-echo > /dev/watchdog
 
 # ifname detect
 ifname=ens2
@@ -227,7 +222,6 @@ else
     not_visible "\"inet 192.168.5..\"" "ip addr show $ifname"
 fi
 echo "OK"
-echo > /dev/watchdog
 
 if ! grep -q -e "ip=auto6" -e "ip=dhcp6" /proc/cmdline; then
     # rhbz1710935
@@ -241,7 +235,6 @@ else
     visible "\"^deaf:beef::/64 proto ra\"" "ip -6 r show dev $ifname"
 fi
 echo "OK"
-echo > /dev/watchdog
 
 
 echo "== nmcli device =="
@@ -259,7 +252,6 @@ else
     visible "^1\$" "nmcli -t -f uuid con show | wc -l"
 fi
 echo "OK"
-echo > /dev/watchdog
 
 # rhbz1627820
 echo "== lease renewal check @rhbz1627820 =="
@@ -284,7 +276,6 @@ if ip a | grep -q 52:54:00:12:34:08; then
 else
     echo "SKIP"
 fi
-echo > /dev/watchdog
 
 echo "== dump mount params =="
 while read dev fs fstype opts rest || [ -n "$dev" ]; do
@@ -299,5 +290,4 @@ while read dev fs fstype opts rest || [ -n "$dev" ]; do
 done < /proc/mounts
 echo "OK"
 
-echo > /dev/watchdog
 poweroff -f

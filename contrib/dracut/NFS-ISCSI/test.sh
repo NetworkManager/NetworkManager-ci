@@ -10,7 +10,7 @@ KVERSION=${KVERSION-$(uname -r)}
 # Uncomment this to debug failures
 DEBUGFAIL="loglevel=1"
 #DEBUGFAIL="rd.shell rd.break rd.debug loglevel=7 "
-DEBUGFAIL="rd.debug loglevel=7 "
+#DEBUGFAIL="rd.debug loglevel=7 "
 #SERVER_DEBUG="rd.debug loglevel=7"
 #SERIAL="tcp:127.0.0.1:9999"
 
@@ -24,13 +24,16 @@ run_server() {
         -drive format=raw,index=1,media=disk,file=$TESTDIR/root.ext3 \
         -drive format=raw,index=2,media=disk,file=$TESTDIR/iscsidisk2.img \
         -drive format=raw,index=3,media=disk,file=$TESTDIR/iscsidisk3.img \
-        -net socket,listen=127.0.0.1:12320 \
-        -net nic,macaddr=52:54:00:12:34:56,model=e1000 \
-        -net nic,macaddr=52:54:00:12:34:57,model=e1000 \
-        -net nic,macaddr=52:54:00:12:34:58,model=e1000 \
+        -netdev socket,id=n0,listen=127.0.0.1:12320 \
+        -netdev hubport,hubid=1,id=h1,netdev=n0 \
+        -netdev hubport,hubid=1,id=h2 -device e1000,mac=52:54:00:12:34:56,netdev=h2 \
+        -netdev hubport,hubid=1,id=h3 -device e1000,mac=52:54:00:12:34:57,netdev=h3 \
+        -netdev hubport,hubid=1,id=h4 -device e1000,mac=52:54:00:12:34:58,netdev=h4 \
+        -netdev socket,id=n1,listen=127.0.0.1:12321 -device e1000,netdev=n1,mac=52:54:00:12:34:60 \
+        -netdev socket,id=n2,listen=127.0.0.1:12322 -device e1000,netdev=n2,mac=52:54:00:12:34:61 \
+        -netdev socket,id=n3,listen=127.0.0.1:12323 -device e1000,netdev=n3,mac=52:54:00:12:34:62 \
         ${SERIAL:+-serial "$SERIAL"} \
         ${SERIAL:--serial file:"$TESTDIR"/server.log} \
-        -watchdog i6300esb -watchdog-action poweroff \
         -append "panic=1 quiet root=/dev/sda rootfstype=ext3 rw console=ttyS0,115200n81 selinux=0 noapic" \
         -initrd $TESTDIR/initramfs.server \
         -pidfile $TESTDIR/server.pid -daemonize || return 1
@@ -96,7 +99,6 @@ nfs_client_test() {
         -drive format=raw,index=0,media=disk,file=$TESTDIR/client.img \
         -net nic,macaddr=$mac,model=e1000 \
         -net socket,connect=127.0.0.1:12320 \
-        -watchdog i6300esb -watchdog-action poweroff \
         -append "rd.net.timeout.dhcp=3 panic=1 systemd.crash_reboot rd.shell=0 $cmdline $DEBUGFAIL rd.retry=10 quiet ro console=ttyS0,115200n81 selinux=0 noapic" \
         -initrd $TESTDIR/initramfs.nfs.testing
 
@@ -296,7 +298,6 @@ test_iscsi() {
 
     iscsi_client_test "iSCSI root=ibft" \
                       "root=LABEL=singleroot" \
-                      "ip=ibft" \
                       "rd.iscsi.ibft=1" \
                       "rd.iscsi.firmware=1" \
         || return 1
@@ -401,8 +402,8 @@ test_setup() {
             [[ $srcmods/$_f ]] && inst_simple "$srcmods/$_f" "/lib/modules/$kernel/$_f"
         done
 
-        inst_multiple sh ls shutdown poweroff stty cat ps ln ip \
-                      dmesg mkdir cp ping exportfs \
+        inst_multiple sh ls shutdown poweroff stty cat ps ln ip grep \
+                      dmesg mkdir cp ping exportfs find \
                       modprobe rpc.nfsd rpc.mountd showmount tcpdump \
                       /etc/services sleep mount chmod chown rm setsid
         inst_multiple tgtd tgtadm
@@ -415,9 +416,9 @@ test_setup() {
         [ -f /etc/netconfig ] && inst_multiple /etc/netconfig
         type -P dhcpd >/dev/null && inst_multiple dhcpd
         type -P radvd >/dev/null && inst_multiple radvd
-        type -P radvdump >/dev/null && inst_multiple radvdump
+        type -P teamd >/dev/null && inst_multiple teamd
         [ -x /usr/sbin/dhcpd3 ] && inst /usr/sbin/dhcpd3 /usr/sbin/dhcpd
-        instmods nfsd sunrpc ipv6 lockd af_packet
+        instmods nfsd sunrpc ipv6 lockd af_packet bonding ipvlan macvlan 8021q
         inst ./server-init.sh /sbin/init
         inst_simple /etc/os-release
         inst ./hosts /etc/hosts
@@ -720,23 +721,23 @@ EOF
 
     # Make server's dracut image
     dracut -l -i $TESTDIR/overlay / \
-           -m "bash udev-rules base rootfs-block fs-lib debug kernel-modules watchdog qemu" \
-           -d "af_packet piix ide-gd_mod ata_piix ext3 sd_mod e1000 i6300esb drbg" \
+           -m "bash udev-rules base rootfs-block fs-lib debug kernel-modules qemu" \
+           -d "8021q ipvlan macvlan bonding af_packet piix ide-gd_mod ata_piix ext3 sd_mod e1000 drbg" \
            --no-hostonly-cmdline -N \
            -f $TESTDIR/initramfs.server $KVERSION || return 1
 
     # Make NFS client's dracut image
     dracut -l -i $TESTDIR/overlay / \
            -o "plymouth dash ${OMIT_NETWORK}" \
-           -a "debug watchdog ${USE_NETWORK}" \
-           -d "af_packet piix ide-gd_mod ata_piix sd_mod e1000 nfs sunrpc i6300esb" \
+           -a "debug ${USE_NETWORK}" \
+           -d "8021q ipvlan macvlan bonding af_packet piix ide-gd_mod ata_piix sd_mod e1000 nfs sunrpc" \
            --no-hostonly-cmdline -N \
            -f $TESTDIR/initramfs.nfs.testing $KVERSION || return 1
 
      # Make iSCSI client's dracut image
      dracut -l -i $TESTDIR/overlay / \
             -o "plymouth dash dmraid nfs ${OMIT_NETWORK}" \
-            -a "debug watchdog ${USE_NETWORK}" \
+            -a "debug ${USE_NETWORK}" \
             -d "af_packet piix ide-gd_mod ata_piix ext3 sd_mod" \
             --no-hostonly-cmdline -N \
             -f $TESTDIR/initramfs.iscsi.testing $KVERSION || return 1
