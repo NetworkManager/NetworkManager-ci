@@ -225,9 +225,8 @@ install_el8_packages () {
     dnf -y -4 update http://download.eng.bos.redhat.com/brewroot/vol/rhel-8/packages/libteam/1.31/1.el8/$(arch)/libteam-1.31-1.el8.$(arch).rpm http://download.eng.bos.redhat.com/brewroot/vol/rhel-8/packages/libteam/1.31/1.el8/$(arch)/libteam-devel-1.31-1.el8.$(arch).rpm http://download.eng.bos.redhat.com/brewroot/vol/rhel-8/packages/libteam/1.31/1.el8/$(arch)/teamd-1.31-1.el8.$(arch).rpm http://download.eng.bos.redhat.com/brewroot/vol/rhel-8/packages/libteam/1.31/1.el8/$(arch)/teamd-devel-1.31-1.el8.$(arch).rpm http://download.eng.bos.redhat.com/brewroot/vol/rhel-8/packages/libteam/1.31/1.el8/$(arch)/python3-libteam-1.31-1.el8.$(arch).rpm
 
     # dracut testing
-    dnf -4 -y install qemu-kvm
+    dnf -4 -y install qemu-kvm lvm2 mdadm cryptsetup iscsi-initiator-utils
     dnf -4 -y install https://kojipkgs.fedoraproject.org//packages/scsi-target-utils/1.0.79/1.fc32/x86_64/scsi-target-utils-1.0.79-1.fc32.x86_64.rpm
-    cp contrib/dracut/lsinitrd.sh /usr/lib/dracut/
 
     install_plugins_dnf
 }

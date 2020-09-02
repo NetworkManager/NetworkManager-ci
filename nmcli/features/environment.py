@@ -1179,6 +1179,24 @@ def before_scenario(context, scenario):
                     print("wireguard setup failed with exitcode: %d" % rc)
                     sys.exit(rc)
 
+            if 'dracut' in scenario.tags:
+                print("---------------------------")
+                print("dracut setup")
+                env = "USE_NETWORK=network-manager; OMIT_NETWORK=network-legacy; "
+                if 'network_legacy' in scenario.tags:
+                    print("using network-legacy module")
+                    env = "USE_NETWORK=network-legacy; OMIT_NETWORK=network-manager; "
+                rc = call(
+                    "cd contrib/dracut; . ./test_environment.sh; . ./setup.sh ; " +
+                    env + " { time test_setup ; } &> /tmp/dracut_setup.log", shell=True)
+                if rc != 0:
+                    print("dracut setup failed, doing clean !!!")
+                    rc = call(
+                        "cd contrib/dracut; . ./test_environment.sh; . ./setup.sh ;"
+                        "{ time test_clean; } &> /tmp/dracut_clean.log", shell=True)
+                else:
+                    print("dracut setup OK")
+
             if 'prepare_patched_netdevsim' in scenario.tags:
                 print("----------------------------")
                 print("* prepare patched netdevsim setup")
@@ -2333,21 +2351,28 @@ def after_scenario(context, scenario):
 
             if 'dracut' in scenario.tags:
                 print("---------------------------")
-                if os.path.isfile("/tmp/dracut_test_dirname"):
-                    dirname = utf_only_open_read("/tmp/dracut_test_dirname")
-                    rc = call(
-                        "cd %s; sudo basedir=/usr/lib/dracut/ testdir=../ "
-                        "bash ./test.sh --clean &> /tmp/dracut_clean.log"
-                        % (dirname), shell=True)
+                print("dracut clean")
+                if os.path.isfile("/tmp/dracut_setup.log"):
+                    print("embeding SETUP log")
+                    context.embed("text/plain", utf_only_open_read("/tmp/dracut_setup.log"), "DRACUT_SETUP")
+                    call("rm -f /tmp/dracut_setup.log", shell=True)
+                if os.path.isfile("/tmp/dracut_clean.log"):
+                    print("embeding CLEAN log")
                     context.embed("text/plain", utf_only_open_read("/tmp/dracut_clean.log"), "DRACUT_CLEAN")
-                    if os.path.isfile("/tmp/dracut_server.log"):
-                        context.embed("text/plain", utf_only_open_read("/tmp/dracut_server.log"), "DRACUT_SERVER")
-                        call("rm -f /tmp/dracut_server.log", shell=True)
-                    if rc == 0:
-                        print("Dracut cleanup after %s failed !!!" % (dirname))
-                    call("rm -f /tmp/dracut_test_dirname", shell=True)
-                else:
-                    print("Nothing to clean, no dracut directory")
+                    call("rm -f /tmp/dracut_clean.log", shell=True)
+                rc = call(
+                    "cd contrib/dracut; . ./test_environment.sh; . ./setup.sh; "
+                    "{ time test_clean; } &> /tmp/dracut_clean.log", shell=True)
+                # do server log after clean is run, because clean kills server
+                if os.path.isfile("/tmp/dracut_server.log"):
+                    print("embeding SERVER log")
+                    context.embed("text/plain", utf_only_open_read("/tmp/dracut_server.log"), "DRACUT_SERVER")
+                    call("rm -f /tmp/dracut_server.log", shell=True)
+                print("embeding CLEAN log")
+                context.embed("text/plain", utf_only_open_read("/tmp/dracut_clean.log"), "DRACUT_CLEAN")
+                call("rm -f /tmp/dracut_clean.log", shell=True)
+                if rc == 0:
+                    print("Dracut clean failed !!!")
 
             if 'prepare_patched_netdevsim' in scenario.tags:
                 print("----------------------------")

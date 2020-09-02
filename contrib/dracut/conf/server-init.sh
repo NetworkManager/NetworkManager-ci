@@ -41,8 +41,6 @@ wait_for_if_link 52:54:00:12:34:62 ens6
 
 ip a
 
-find /lib/modules/
-
 #nfs
 ip addr add 127.0.0.1/8 dev lo
 ip link set lo up
@@ -69,9 +67,11 @@ modprobe ipvlan
 modprobe macvlan
 modprobe 8021q
 ip link add link ens6 name ens6.47 type vlan id 47
+ip link set dev ens6.47 up
 ip addr add 192.168.54.1/24 dev ens6.47
 #vlan48@bond0
 ip link add link bond0 name bond0.48 type vlan id 48
+ip link set dev bond0.48 up
 ip addr add 192.168.55.1/24 dev bond0.48
 
 ip a
@@ -105,7 +105,7 @@ mkdir /run/radvd
 chown radvd:radvd /run/radvd
 radvd -u radvd -m stderr
 
-#iscsi
+#iscsi server
 tgtd
 tgtadm --lld iscsi --mode target --op new --tid 1 --targetname iqn.2009-06.dracut:target0
 tgtadm --lld iscsi --mode target --op new --tid 2 --targetname iqn.2009-06.dracut:target1

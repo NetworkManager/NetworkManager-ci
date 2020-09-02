@@ -21,23 +21,38 @@ def utf_only_open_read(file, mode='r'):
         return open(file, mode, encoding='utf-8', errors='ignore').read()
 
 
-@step(u'Setup dracut test "{testdir}"')
-def dracut_test(context, testdir):
-    with open("/tmp/dracut_test_dirname", "w") as f:
-        f.write(testdir)
-    rc = subprocess.call(
-        "cd %s; timeout 6m sudo basedir=/usr/lib/dracut/ testdir=../ "
-        "bash ./test.sh --setup &> /tmp/dracut_setup.log"
-        % (testdir), shell=True)
-    context.embed("text/plain", utf_only_open_read("/tmp/dracut_setup.log"), "DRACUT_SETUP")
-    assert rc == 0, "Test setup failed"
+@step(u'Run dracut test')
+@step(u'Run dracut test')
+def dracut_run(context, env=""):
+    qemu_args = ""
+    kernel_args = "rd.net.timeout.dhcp=3 panic=1 systemd.crash_reboot rd.shell=0 $DEBUGFAIL " \
+                  "rd.retry=50 console=ttyS0,115200n81 selinux=0 noapic "
+    initrd = "initramfs.client"
+    checks = ""
+    for row in context.table:
+        if "qemu" in row[0].lower():
+            qemu_args += " " + row[1]
+        elif "kernel" in row[0].lower():
+            kernel_args += " " + row[1]
+        elif "initrd" in row[0].lower():
+            initrd = row[1]
+        elif "check" in row[0].lower():
+            checks += row[1] + " || die\n"
 
+    with open("/tmp/client-check.sh", "w") as f:
+        f.write("client_check() {\n" + checks + "}")
 
-@step(u'Run dracut test "{testdir}" named "{testname}"')
-def dracut_run(context, testname, testdir):
     rc = subprocess.call(
-        "cd %s; timeout 6m sudo basedir=/usr/lib/dracut/ testdir=../ TEST_TO_RUN='%s' "
-        "bash ./test.sh --run &> /tmp/dracut_run.log"
-        % (testdir, testname), shell=True)
+        "cd contrib/dracut/; . ./test_environment.sh; "
+        "echo FAIL > $TESTDIR/client.img; "
+        "cat check_lib/*.sh /tmp/client-check.sh > $TESTDIR/client_check.img; "
+        "timeout 6m sudo bash ./run-qemu "
+        "-drive format=raw,index=0,media=disk,file=$TESTDIR/client.img "
+        "-drive format=raw,index=1,media=disk,file=$TESTDIR/client_check.img "
+        "%s -append \"%s\" -initrd $TESTDIR/%s "
+        "&> /tmp/dracut_run.log" % (qemu_args, kernel_args, initrd), shell=True)
     context.embed("text/plain", utf_only_open_read("/tmp/dracut_run.log"), "DRACUT_RUN")
-    assert rc == 0, "Test run failed"
+    assert rc == 0, "Test run FAILED"
+    result = command_output(context,
+                            "cd contrib/dracut; . ./test_environment.sh; cat $TESTDIR/client.img")
+    assert "PASS" in result, "Test FAILED"

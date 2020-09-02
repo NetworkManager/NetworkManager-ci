@@ -1178,9 +1178,16 @@ testmapper:
         feature: ethernet
     - ethtool_features_coal:
         feature: ethernet
-    - dracut_all:
+    - dracut_NM:
         feature: dracut
         timeout: 60m
+    - dracut_legacy:
+        feature: dracut
+        timeout: 60m
+    - dracut_NM_gate:
+        feature: dracut
+        timeout: 60m
+        tags: gate
     - logging:
         feature: general
     - reduce_logging:
