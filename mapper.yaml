@@ -1180,7 +1180,7 @@ testmapper:
         feature: ethernet
     - dracut_NM:
         feature: dracut
-        timeout: 60m
+        timeout: 100m
     - dracut_legacy:
         feature: dracut
         timeout: 60m
@@ -1514,7 +1514,7 @@ testmapper:
     - NM_performance_test1:
         feature: general
     - nmcli_shows_correct_routes:
-        feature: general        
+        feature: general
     - policy_based_routing_doc_procedure:
         feature: doc_procedures
         tags: gate
