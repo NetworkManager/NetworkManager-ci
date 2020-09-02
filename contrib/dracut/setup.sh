@@ -380,13 +380,21 @@ EOF
        inst_simple ./conf/99-default.link /etc/systemd/network/99-default.link
     )
 
-    # Make NFS client's dracut image
+    # Make NFS client's dracut image using NM module
     dracut -i $TESTDIR/overlay / \
-           -o "plymouth dash dmraid ${OMIT_NETWORK}" \
-           -a "debug ${USE_NETWORK} ifcfg" \
+           -o "plymouth dash dmraid network-legacy" \
+           -a "debug network-manager ifcfg" \
            -d "8021q ipvlan macvlan bonding af_packet piix ext3 ide-gd_mod ata_piix sd_mod e1000 nfs sunrpc" \
            --no-hostonly-cmdline -N \
-           -f $TESTDIR/initramfs.client $KVERSION || return 1
+           -f $TESTDIR/initramfs.client.NM $KVERSION || return 1
+
+   # Make NFS client's dracut image using legacy network module
+   dracut -i $TESTDIR/overlay / \
+          -o "plymouth dash dmraid network-manager" \
+          -a "debug network-legacy ifcfg" \
+          -d "8021q ipvlan macvlan bonding af_packet piix ext3 ide-gd_mod ata_piix sd_mod e1000 nfs sunrpc" \
+          --no-hostonly-cmdline -N \
+          -f $TESTDIR/initramfs.client.legacy $KVERSION || return 1
 
     if ! command -v tgtd &>/dev/null || ! command -v tgtadm &>/dev/null; then
         echo "Need tgtd and tgtadm from scsi-target-utils"

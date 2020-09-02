@@ -1182,13 +1182,9 @@ def before_scenario(context, scenario):
             if 'dracut' in scenario.tags:
                 print("---------------------------")
                 print("dracut setup")
-                env = "USE_NETWORK=network-manager; OMIT_NETWORK=network-legacy; "
-                if 'network_legacy' in scenario.tags:
-                    print("using network-legacy module")
-                    env = "USE_NETWORK=network-legacy; OMIT_NETWORK=network-manager; "
                 rc = call(
-                    "cd contrib/dracut; . ./test_environment.sh; . ./setup.sh ; " +
-                    env + " { time test_setup ; } &> /tmp/dracut_setup.log", shell=True)
+                    "cd contrib/dracut; . ./test_environment.sh; . ./setup.sh ; "
+                    " { time test_setup ; } &> /tmp/dracut_setup.log", shell=True)
                 if rc != 0:
                     print("dracut setup failed, doing clean !!!")
                     rc = call(
@@ -2349,9 +2345,9 @@ def after_scenario(context, scenario):
 
                 restart_NM_service()
 
-            if 'dracut' in scenario.tags:
+            if 'dracut' in scenario.tags or 'dracut_clean' in scenario.tags:
                 print("---------------------------")
-                print("dracut clean")
+                print("dracut log embed")
                 if os.path.isfile("/tmp/dracut_setup.log"):
                     print("embeding SETUP log")
                     context.embed("text/plain", utf_only_open_read("/tmp/dracut_setup.log"), "DRACUT_SETUP")
@@ -2360,6 +2356,14 @@ def after_scenario(context, scenario):
                     print("embeding CLEAN log")
                     context.embed("text/plain", utf_only_open_read("/tmp/dracut_clean.log"), "DRACUT_CLEAN")
                     call("rm -f /tmp/dracut_clean.log", shell=True)
+                if os.path.isfile("/tmp/dracut_server.log"):
+                    print("embeding SERVER log")
+                    context.embed("text/plain", utf_only_open_read("/tmp/dracut_server.log"), "DRACUT_SERVER")
+                    call("rm -f /tmp/dracut_server.log", shell=True)
+
+            if 'dracut_clean' in scenario.tags:
+                print("---------------------------")
+                print("dracut clean")
                 rc = call(
                     "cd contrib/dracut; . ./test_environment.sh; . ./setup.sh; "
                     "{ time test_clean; } &> /tmp/dracut_clean.log", shell=True)

@@ -22,12 +22,11 @@ def utf_only_open_read(file, mode='r'):
 
 
 @step(u'Run dracut test')
-@step(u'Run dracut test')
-def dracut_run(context, env=""):
+def dracut_run(context):
     qemu_args = ""
     kernel_args = "rd.net.timeout.dhcp=3 panic=1 systemd.crash_reboot rd.shell=0 $DEBUGFAIL " \
                   "rd.retry=50 console=ttyS0,115200n81 selinux=0 noapic "
-    initrd = "initramfs.client"
+    initrd = "initramfs.client.NM"
     checks = ""
     for row in context.table:
         if "qemu" in row[0].lower():
@@ -53,6 +52,6 @@ def dracut_run(context, env=""):
         "&> /tmp/dracut_run.log" % (qemu_args, kernel_args, initrd), shell=True)
     context.embed("text/plain", utf_only_open_read("/tmp/dracut_run.log"), "DRACUT_RUN")
     assert rc == 0, "Test run FAILED"
-    result = command_output(context,
+    result = command_output(None,
                             "cd contrib/dracut; . ./test_environment.sh; cat $TESTDIR/client.img")
     assert "PASS" in result, "Test FAILED"

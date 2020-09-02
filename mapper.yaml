@@ -1188,6 +1188,9 @@ testmapper:
         feature: dracut
         timeout: 60m
         tags: gate
+    - dracut_clean:
+        feature: dracut
+        tags: gate
     - logging:
         feature: general
     - reduce_logging:

@@ -20,8 +20,9 @@ def run(context, command, *a, **kw):
         output = e.output.decode('utf-8', 'ignore')
         returncode = e.returncode
         exception = e
-    data = "%s\nreturncode: %d\noutput:\n%s" % (command, returncode, output)
-    context.embed('text/plain', data, caption=command[0:32]+"...")
+    if context is not None:
+        data = "%s\nreturncode: %d\noutput:\n%s" % (command, returncode, output)
+        context.embed('text/plain', data, caption=command[0:32]+"...")
     return output, returncode, exception
 
 def command_output(context, command, *a, **kw):

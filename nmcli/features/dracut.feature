@@ -337,11 +337,12 @@ Feature: NM: dracut
 
 
     @rhelver+=8.3 @fedoraver-=0
-    @dracut @long @network_legacy
+    @dracut @long
     @dracut_legacy
     Scenario: NM - dracut tests with network-legacy module
     * Run dracut test
       | descr  | iSCSI root=ibft                                |
+      | initrd | initramfs.client.legacy                        |
       | kernel | root=LABEL=singleroot rd.iscsi.ibft=1          |
       | kernel | rd.iscsi.firmware=1                            |
       | kernel | rw rd.auto                                     |
@@ -355,3 +356,9 @@ Feature: NM: dracut
       | check  | wait_for_ip_renew ibft0                        |
       | check  | nmcli_con_num 2                                |
       | check  | mount_root_type ext3                           |
+
+
+    @rhelver+=8.3 @fedoraver-=0
+    @dracut_clean
+    Scenario: NM - dracut tests cleanup and log collection
+    * Execute "true"
