@@ -476,7 +476,7 @@ Feature: nmcli - ovs
 
 
     @rhbz1740557
-    @ver+=1.18.0 @ver-=1.24
+    @ver+=1.18.0 @ver-=1.22.7
     @openvswitch
     @ovs_cloned_mac_set_on_iface
     Scenario: nmcli - openvswitch - mac address set iface
@@ -491,7 +491,7 @@ Feature: nmcli - ovs
 
 
     @rhbz1852612 @rhbz1845216 @rhbz1855563
-    @ver+=1.25
+    @ver+=1.22.8
     @openvswitch @disp
     @ovs_cloned_mac_set_on_iface
     Scenario: nmcli - openvswitch - mac address set iface
@@ -543,7 +543,7 @@ Feature: nmcli - ovs
 
 
     @rhbz1786937
-    @ver+=1.25.0
+    @ver+=1.22.8
     @openvswitch @mtu
     @ovs_mtu
     Scenario: nmcli - openvswitch - mtu
