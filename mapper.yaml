@@ -1569,8 +1569,6 @@ testmapper:
         feature: ovs
     - ovs_mtu:
         feature: ovs
-    - ovs_mac:
-        feature: ovs
     - ovs_cloned_mac_with_the_same_bridge_iface_name:
         feature: ovs
     - clear_ovs_settings:
