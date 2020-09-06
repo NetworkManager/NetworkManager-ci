@@ -41,7 +41,14 @@ if "NetworkManager" in sys.argv[2] and "Test" in sys.argv[2]:
 else:
     test_name = sys.argv[2]
 
-raw_tags = check_output ("cat %s/features/*.feature | awk -f tmp/get_tags.awk | grep '%s\($\|\s\)'" %(sys.argv[1], test_name), shell=True).decode('utf-8', 'ignore').strip("\n")
+try:
+    raw_tags = check_output(
+        "cat %s/features/*.feature | awk -f tmp/get_tags.awk | "
+        "grep '@%s\($\|\s\)'" %(sys.argv[1], test_name), shell=True
+        ).decode('utf-8', 'ignore').strip("\n")
+except:
+    sys.strerr.write("test with tag '%s' not defined!\n" % test_name)
+    sys.exit(1)
 tests_tags = raw_tags.split('\n')
 
 # compare two version lists, return True, iff tag does not violate current_version
@@ -113,4 +120,6 @@ for tags in tests_tags:
         print(" -t ".join(tags))
         sys.exit(0)
 
-sys.exit(1)
+# test definition found, but version mismatch
+sys.stderr.write("Skipping, version mismatch.\n")
+sys.exit(77)

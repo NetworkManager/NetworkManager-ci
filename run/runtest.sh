@@ -86,14 +86,9 @@ LOG_CURSOR=$(journalctl --lines=0 --show-cursor |awk '/^-- cursor:/ {print "--af
 
 # get tags specific to software versions (NM, fedora, rhel)
 # see version_control.py for more details
-TAG="$(python $DIR/version_control.py $DIR/$RUNTEST_TYPE $NMTEST)"; vc=$?
-if [ $vc -eq 1 ]; then
-    logger "Skipping due to incorrect NM version for this test"
-    rstrnt-report-result -o "" $NMTEST "SKIP"
-    exit 0
-
-# do we have tag to run tagged test?
-elif [ $vc -eq 0 ]; then
+TAG="$(python $DIR/version_control.py $DIR/$RUNTEST_TYPE $NMTEST)"; rc=$?
+# if version control exited normally, run the test
+if [ $rc -eq 0 ]; then
     if [[ $1 == gsm_hub* ]];then
       # Test all modems on USB hub with 8 ports.
       test_modems_usb_hub; rc=$?
@@ -104,7 +99,7 @@ elif [ $vc -eq 0 ]; then
           FEATURE_FILE=$DIR/$RUNTEST_TYPE/features
       fi
 
-      logger "Running $TAG version of $NMTEST"
+      logger "Running  $NMTEST  with tags '-t $TAG'"
 
       trap kill_child SIGINT SIGTERM
       behave $FEATURE_FILE -t $1 -t $TAG -k -f html -o "$NMTEST_REPORT" -f plain & wait $!; rc=$?
