@@ -1727,6 +1727,15 @@
     Then "default" is visible with command "ip r |grep bond0"
 
 
+    @rhbz1718173
+    @ver+=1.20
+    @bond
+    @bond_normalize_connection
+    Scenario: NM - bond - bond normalize connection
+    * Add a new connection of type "bond" and options "con-name bond0 ifname nm-bond bond.options mode=4,arp_interval=2,arp_ip_target=1.1.1.1"
+    Then "mode=802.3ad" is visible with command "nmcli c show bond0"
+
+
     @rhbz1847814
     @ver+=1.25
     @bond
