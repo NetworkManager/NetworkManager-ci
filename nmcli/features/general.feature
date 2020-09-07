@@ -2240,7 +2240,7 @@ Feature: nmcli - general
 
 
     @rhbz1868982
-    @ver+=1.25
+    @ver+=1.25 @rhelver+=8
     @nmcli_shows_correct_routes
     Scenario: NM - general - nmclic shows correct routes
     * Note the output of "ip -6 r |wc -l" as value "ip6_route"
