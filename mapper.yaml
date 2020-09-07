@@ -1184,9 +1184,6 @@ testmapper:
     - dracut_legacy:
         feature: dracut
         timeout: 60m
-    - dracut_NM_gate:
-        feature: dracut
-        timeout: 60m
         tags: gate
     - dracut_clean:
         feature: dracut
