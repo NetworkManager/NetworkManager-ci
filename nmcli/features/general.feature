@@ -1449,7 +1449,7 @@ Feature: nmcli - general
     When "0" is visible with command "ip -c link show eth11 |grep vf |wc -l" in "15" seconds
 
 
-    @ver+=1.22.0
+    @ver+=1.26.0
     @rhelver+=8 @fedoraver+=31
     @nmstate_setup
     @nmstate

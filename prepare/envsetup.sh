@@ -191,6 +191,8 @@ install_el8_packages () {
         mv -f  tmp/ovs-rhel8.repo /etc/yum.repos.d/ovs.repo
         yum -y install openvswitch2.13
         systemctl restart openvswitch
+    else
+        dnf -y install https://cbs.centos.org/kojifiles/packages/openvswitch2.13/2.13.0/39.el8/$(arch)/openvswitch2.13-2.13.0-39.el8.$(arch).rpm https://cbs.centos.org/kojifiles/packages/openvswitch2.13/2.13.0/39.el8/$(arch)/python3-openvswitch2.13-2.13.0-39.el8.$(arch).rpm https://cbs.centos.org/kojifiles/packages/openvswitch-selinux-extra-policy/1.0/22.el8/noarch/openvswitch-selinux-extra-policy-1.0-22.el8.noarch.rpm
     fi
 
     # We still need pptp and pptpd in epel to be packaged
@@ -270,12 +272,8 @@ install_el7_packages () {
     install_behave
 
     # Add OVS repo and install OVS
-    if grep -q -e 'CentOS Linux release 7' /etc/redhat-release; then
-        yum -y install https://cbs.centos.org/kojifiles/packages/openvswitch/2.11.0/4.el7/$(arch)/openvswitch-2.11.0-4.el7.$(arch).rpm
-    else
-        mv -f  tmp/ovs-rhel7.repo /etc/yum.repos.d/ovs.repo
-        yum -y install openvswitch
-    fi
+    mv -f  tmp/ovs-rhel7.repo /etc/yum.repos.d/ovs.repo
+    yum -y install openvswitch
 
     # Remove cloud-init dns
     rm -rf /etc/NetworkManager/conf.d/99-cloud-init.conf
