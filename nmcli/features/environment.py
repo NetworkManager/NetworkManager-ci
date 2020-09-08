@@ -1434,6 +1434,11 @@ def before_scenario(context, scenario):
                 call("nmcli con modify nmstate ipv6.method disabled ipv6.addresses '' ipv6.gateway ''", shell=True)
                 call("nmcli con up nmstate", shell=True)
 
+                # Move orig config file to /tmp
+                call('mv /etc/NetworkManager/conf.d/99-unmanage-orig.conf /tmp', shell=True)
+
+                # Remove connectivity packages if present
+                call("dnf -y remove NetworkManager-config-connectivity-fedora NetworkManager-config-connectivity-redhat", shell=True)
                 manage_veths ()
 
                 print ("* is OVS active?")
@@ -1841,6 +1846,10 @@ def after_scenario(context, scenario):
 
                 # remove profiles
                 call("nmcli con del nmstate ethX ethY eth1peer eth2peer", shell=True)
+
+                # Move orig config file to back
+                call('mv /tmp/99-unmanage-orig.conf /etc/NetworkManager/conf.d/', shell=True)
+
                 # restore testethX
                 restore_connections ()
                 wait_for_testeth0 ()
