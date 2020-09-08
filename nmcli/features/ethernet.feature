@@ -11,6 +11,7 @@ Feature: nmcli - ethernet
 
     @ver+=1.25
     @rhelver+=8 @fedoraver+=32
+    @skip_in_centos
     @ethernet_default_initramfs_connection
     Scenario: nmcli - ethernet - initramfs connection
     Then "ipv6.method:\s+auto" is visible with command "nmcli  con show testeth0  |grep method"
@@ -705,6 +706,7 @@ Feature: nmcli - ethernet
 
     @rhbz1614700 @rhbz1807171
     @ver+=1.25 @rhelver+=8
+    @skip_in_centos
     @con_ethernet_remove @prepare_patched_netdevsim
     @ethtool_features_ring
     Scenario: nmcli - ethernet - ethtool set ring options
@@ -719,6 +721,7 @@ Feature: nmcli - ethernet
 
     @rhbz1614700 @rhbz1807171
     @ver+=1.25 @rhelver+=8
+    @skip_in_centos
     @con_ethernet_remove @prepare_patched_netdevsim
     @ethtool_features_coal
     Scenario: nmcli - ethernet - ethtool set coalescing options

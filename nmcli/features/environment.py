@@ -646,6 +646,12 @@ def before_scenario(context, scenario):
                 if os.path.isfile('/tmp/nm_skip_long'):
                     sys.exit(77)
 
+            if 'skip_in_centos' in scenario.tags:
+                print ("---------------------------")
+                print ("skipping with centos")
+                if call("grep -q -e 'CentOS Linux release 8' /etc/redhat-release > /dev/null", shell=True) == 0:
+                    sys.exit(77)
+
             if 'eth0' in scenario.tags or 'delete_testeth0' in scenario.tags \
                                         or 'connect_testeth0' in scenario.tags \
                                         or 'restart' in scenario.tags \
