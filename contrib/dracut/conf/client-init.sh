@@ -8,10 +8,9 @@ export PS1='initramfs-test:\w\$ '
 dd if=/dev/sdb of=/check.sh
 source /check.sh
 
-echo "== nfs mounts =="
-mount | grep nfs
-echo "== ext3 mounts =="
-mount | grep ext3
+mount_list
+
+ip_list
 
 echo "== ls initrd ifcfg =="
 ls -la /run/initramfs/state/etc/sysconfig/network-scripts
@@ -44,18 +43,11 @@ for file in $(find /etc/sysconfig/network-scripts/ -type f); do
     cat $file
 done
 
-echo "== ip addr =="
-ip addr
-echo "== ip -4 route =="
-ip -4 route
-echo "== ip -6 route =="
-ip -6 route
+ip_list
 
-echo "== nmcli device =="
-nmcli device | cat
-echo "== nmcli connection =="
-nmcli con | cat
+nmcli_list
 
+echo "== checks =="
 client_check
 
 # client_check should "die" if failed

@@ -2,6 +2,10 @@ die() {
     echo "[FAIL] $@"
     echo FAIL | dd oflag=direct,dsync of=/dev/sda
     clean_root
+    echo "== dump state after fail =="
+    ip_list
+    nmcli_list
+    NM_logs
     poweroff -f
 }
 
@@ -11,7 +15,23 @@ arg() {
 }
 
 clean_root() {
-  rm -rf /etc/sysconfig/network-scripts/ifcg*
+  echo "== cleaning ifcfg =="
+  rm -vf /etc/sysconfig/network-scripts/ifcfg*
+  echo "== cleaning check script =="
+  rm -vf /check.sh
+  sync
+}
+
+mount_list() {
+  echo "== nfs mounts =="
+  mount | grep nfs
+  echo "== ext3 mounts =="
+  mount | grep ext3
+}
+
+NM_logs() {
+  echo "== NM logs =="
+  journalctl -u NetworkManager --no-pager -o cat
 }
 
 nfs_server() {

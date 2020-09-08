@@ -28,6 +28,8 @@ def dracut_run(context):
                   "rd.retry=50 console=ttyS0,115200n81 selinux=0 noapic "
     initrd = "initramfs.client.NM"
     checks = ""
+    log_contains = []
+    log_not_contains = []
     for row in context.table:
         if "qemu" in row[0].lower():
             qemu_args += " " + row[1]
@@ -37,6 +39,10 @@ def dracut_run(context):
             initrd = row[1]
         elif "check" in row[0].lower():
             checks += row[1] + " || die\n"
+        elif "log+" in row[0].lower():
+            log_contains.append(row[1])
+        elif "log-" in row[0].lower():
+            log_not_contains.append(row[1])
 
     with open("/tmp/client-check.sh", "w") as f:
         f.write("client_check() {\n" + checks + "}")
@@ -50,8 +56,14 @@ def dracut_run(context):
         "-drive format=raw,index=1,media=disk,file=$TESTDIR/client_check.img "
         "%s -append \"%s\" -initrd $TESTDIR/%s "
         "&> /tmp/dracut_run.log" % (qemu_args, kernel_args, initrd), shell=True)
-    context.embed("text/plain", utf_only_open_read("/tmp/dracut_run.log"), "DRACUT_RUN")
+    log = utf_only_open_read("/tmp/dracut_run.log")
+    context.embed("text/plain", log, "DRACUT_RUN")
     assert rc == 0, "Test run FAILED"
     result = command_output(None,
                             "cd contrib/dracut; . ./test_environment.sh; cat $TESTDIR/client.img")
     assert "PASS" in result, "Test FAILED"
+
+    for log_line in log_contains:
+        assert log_line in log, "Fail: not visible in log:\n" + log_line
+    for log_line in log_not_contains:
+        assert log_line not in log, "Fail: visible in log:\n" + log_line

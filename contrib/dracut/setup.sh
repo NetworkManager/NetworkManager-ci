@@ -91,7 +91,8 @@ test_setup() {
         . $basedir/dracut-init.sh
 
         inst_multiple sh shutdown poweroff stty cat ps ln ip dd mount dmesg \
-            mkdir cp ping grep wc awk setsid ls find vi /etc/virc less cat tee
+                      mkdir cp ping grep wc awk setsid ls find less cat tee \
+                      sync rm sed
         for _terminfodir in /lib/terminfo /etc/terminfo /usr/share/terminfo; do
             [ -f ${_terminfodir}/l/linux ] && break
         done
@@ -311,6 +312,9 @@ EOF
             /usr/lib/systemd/system/dbus-broker.service \
             /usr/lib/systemd/system/dbus.socket \
             busctl
+
+        # enable trace logs
+        inst /etc/NetworkManager/conf.d/99-test.conf
 
         for _rpm in $(rpm -qa | grep -e ^NetworkManager -e ^systemd | sort); do
             for _file in $(rpm -ql $_rpm); do

@@ -228,7 +228,7 @@ install_el8_packages () {
 
     # dracut testing
     dnf -4 -y install qemu-kvm lvm2 mdadm cryptsetup iscsi-initiator-utils
-    dnf -4 -y install https://kojipkgs.fedoraproject.org//packages/scsi-target-utils/1.0.79/1.fc32/x86_64/scsi-target-utils-1.0.79-1.fc32.x86_64.rpm
+    dnf -4 -y install https://kojipkgs.fedoraproject.org//packages/scsi-target-utils/1.0.79/1.fc32/$(arch)/scsi-target-utils-1.0.79-1.fc32.$(arch).rpm
 
     install_plugins_dnf
 }
