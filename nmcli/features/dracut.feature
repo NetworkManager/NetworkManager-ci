@@ -151,6 +151,29 @@ Feature: NM: dracut
       | check  | nfs_server [deaf:beef::1]                      |
 
 
+    @rhbz1840989
+    @ver+=1.26
+    @rhelver+=8.3 @fedoraver-=0
+    @dracut @long
+    @dracut_NM_NFS_root_nfs_ipv6_disable
+    Scenario: NM - dracut - NM module - NFSv3 root=nfs ipv6.disable
+    * Run dracut test
+      | Param  | Value                                          |
+      | kernel | root=nfs:192.168.50.1:/client ro               |
+      | kernel | ipv6.disable=1                                 |
+      | qemu   | -net nic,macaddr=52:54:00:12:34:00,model=e1000 |
+      | qemu   | -net socket,connect=127.0.0.1:12320            |
+      | check  | ip_mac 52:54:00:12:34:00 192.168.50.101        |
+      | check  | ip_route_unique "192.168.50.0/24 dev ens2 proto kernel scope link src 192.168.50.101" |
+      | check  | wait_for_ip4_renew 192.168.50.101 ens2         |
+      | check  | link_no_ip6 ens2                               |
+      | check  | nmcli_con_active "Wired Connection" ens2       |
+      | check  | nmcli_con_num 1                                |
+      | check  | no_ifcfg                                       |
+      | check  | nfs_server 192.168.50.1                        |
+      | check  | reproduce_1840989                              |
+
+
     #########
     # iSCSI #
     #########
@@ -322,7 +345,7 @@ Feature: NM: dracut
       | qemu   | -acpitable file=conf/ibft.table                |
       | check  | ip_mac 52:54:00:12:34:a1 192.168.51.101        |
       | check  | wait_for_ip4_renew 192.168.51.101 ibft0        |
-      # unique route no works with legacy 
+      # unique route no works with legacy
       #| check  | ip_route_unique "default via 192.168.51.1"     |
       #| check  | ip_route_unique "192.168.51.0/24 dev ibft0"    |
       | check  | link_no_ip4 ens3                               |

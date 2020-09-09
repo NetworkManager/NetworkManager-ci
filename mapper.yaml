@@ -1191,6 +1191,8 @@ testmapper:
         feature: dracut
     - dracut_NM_NFS_root_nfs_ip_manual_dhcp:
         feature: dracut
+    - dracut_NM_NFS_root_nfs_ipv6_disable:
+        feature: dracut
     - dracut_NM_NFS_root_nfs_ip_auto6:
         feature: dracut
     - dracut_NM_NFS_root_nfs_ip_dhcp6:

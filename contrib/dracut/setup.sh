@@ -92,7 +92,7 @@ test_setup() {
 
         inst_multiple sh shutdown poweroff stty cat ps ln ip dd mount dmesg \
                       mkdir cp ping grep wc awk setsid ls find less cat tee \
-                      sync rm sed
+                      sync rm sed time
         for _terminfodir in /lib/terminfo /etc/terminfo /usr/share/terminfo; do
             [ -f ${_terminfodir}/l/linux ] && break
         done
@@ -107,6 +107,9 @@ test_setup() {
                 ln -sfnr usr/$i $i
             done
         )
+
+        instmods nfsd sunrpc ipv6 lockd af_packet bonding ipvlan macvlan 8021q
+
         inst /etc/nsswitch.conf /etc/nsswitch.conf
         inst /etc/passwd /etc/passwd
         inst /etc/group /etc/group

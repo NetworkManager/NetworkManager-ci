@@ -21,18 +21,14 @@ for file in $(find /run/initramfs/state/etc/sysconfig/network-scripts -type f); 
 done
 
 echo "== starting services =="
-echo "import-state (to copy ifcfg files)"
+echo "start import-state (to copy ifcfg files)"
 systemctl start import-state.service || die "import-state failed: $(echo; systemctl status import-state.service)"
-systemctl status import-state.service | cat
-echo "dbus"
+echo "start dbus"
 systemctl start dbus.service || die "dbus failed: $(echo; systemctl status dbus.service)"
-systemctl status dbus.service | cat
-echo "NetworkManager"
+echo "start NetworkManager"
 systemctl start NetworkManager.service || die "NetworkManager failed: $(echo; systemctl status NetworkManager.service)"
-systemctl status NetworkManager.service | cat
-echo "systemd-hostnamed"
+echo "start systemd-hostnamed"
 systemctl start systemd-hostnamed.service || die "systemd-hostnamed failed: $(echo; systemctl status systemd-hostnamed.service)"
-systemctl status systemd-hostnamed.service | cat
 echo "OK"
 
 echo "== ls ifcfg =="

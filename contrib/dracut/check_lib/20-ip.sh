@@ -49,8 +49,14 @@ ip6_route_unique() {
 
 link_no_ip4() {
   ip -o addr show dev $1 | grep -q -w -F "inet" && \
-    die "link '$1' has address: $(echo; ip addr show dev $1)"
-  echo "[OK] link '$1' has no address"
+    die "link '$1' has IPv4 address: $(echo; ip addr show dev $1)"
+  echo "[OK] link '$1' has no IPv4 address"
+}
+
+link_no_ip6() {
+  ip -o addr show dev $1 | grep -q -w -F "inet6" && \
+    die "link '$1' has IPv6 address: $(echo; ip addr show dev $1)"
+  echo "[OK] link '$1' has no IPv6 address"
 }
 
 get_lease_time() {

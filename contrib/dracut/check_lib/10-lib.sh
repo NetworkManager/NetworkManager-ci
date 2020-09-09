@@ -31,7 +31,7 @@ mount_list() {
 
 NM_logs() {
   echo "== NM logs =="
-  journalctl -u NetworkManager --no-pager -o cat
+  time journalctl -b -u NetworkManager --no-pager -o cat
 }
 
 nfs_server() {
