@@ -31,6 +31,7 @@
      Then "ifname": "nm-team" is visible with command "sudo teamdctl nm-team state dump"
 
 
+    @ifcfg-rh
     @team @team_slaves
     @ifcfg_team_slave_device_type
     Scenario: nmcli - team - slave ifcfg devicetype

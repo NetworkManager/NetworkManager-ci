@@ -857,16 +857,6 @@
     Then "IP6.ADDRESS\[2\]:\s+dead:beef::" is visible with command "nmcli device show test11"
 
 
-    @rhbz1170530
-    @add_testeth10 @con_ipv6_remove @restart
-    @ipv6_keep_connectivity_on_assuming_connection_profile
-    Scenario: NM - ipv6 - keep connectivity on assuming connection profile
-    * Add a new connection of type "ethernet" and options "con-name con_ipv6 ifname eth10 autoconnect no"
-    * Bring up connection "con_ipv6"
-    * Wait for at least "20" seconds
-    Then Check ipv6 connectivity is stable on assuming connection profile "con_ipv6" for device "eth10"
-
-
     @rhbz1083133 @rhbz1098319 @rhbz1127718
     @veth @eth3_disconnect
     @ver+=1.11.2 @ver-=1.24

@@ -523,7 +523,7 @@ def reload_NM_service():
     sleep(1)
 
 def restart_NM_service():
-    call("sudo systemctl restart NetworkManager.service", shell=True)
+    call("systemctl reset-failed NetworkManager.service ; systemctl restart NetworkManager.service", shell=True)
 
 def reset_hwaddr_nmtui(ifname):
     try:
@@ -947,6 +947,12 @@ def before_scenario(context, scenario):
                 print ("---------------------------")
                 print ("set dhclient DHCP")
                 call("printf '# configured by beaker-test\n[main]\ndhcp=dhclient\n' > /etc/NetworkManager/conf.d/99-xtest-dhcp-dhclient.conf", shell=True)
+                restart_NM_service()
+
+            if 'ifcfg-rh' in scenario.tags:
+                print ("---------------------------")
+                print ("setting ifcfg-rh plugin")
+                call("printf '# configured by beaker-test\n[main]\nplugins=ifcfg-rh\n' > /etc/NetworkManager/conf.d/99-xxcustom.conf", shell=True)
                 restart_NM_service()
 
             if 'dummy' in scenario.tags:
@@ -1829,8 +1835,9 @@ def after_scenario(context, scenario):
                 call("ovs-vsctl del-br ovsbr0", shell=True)
 
                 # in case of fail we need to kill this
-                call('rm -rf /etc/dnsmasq.d/nmstate.conf', shell=True)
                 call('systemctl stop dnsmasq', shell=True)
+                call("pkill -f 'dnsmasq.*/etc/dnsmasq.d/nmstate.conf'", shell=True)
+                call('rm -rf /etc/dnsmasq.d/nmstate.conf', shell=True)
 
                 # Rename devices back to eth1/eth2
                 call("ip link del eth1", shell=True)
@@ -2153,6 +2160,12 @@ def after_scenario(context, scenario):
                 print ("---------------------------")
                 print ("revert dhclient DHCP")
                 call("rm -f /etc/NetworkManager/conf.d/99-xtest-dhcp-dhclient.conf", shell=True)
+                restart_NM_service()
+
+            if 'ifcfg-rh' in scenario.tags:
+                print ("---------------------------")
+                print ("resetting ifcfg plugin")
+                call('sudo rm -f /etc/NetworkManager/conf.d/99-xxcustom.conf', shell=True)
                 restart_NM_service()
 
             if 'dhcpd' in scenario.tags:
@@ -2596,11 +2609,6 @@ def after_scenario(context, scenario):
                 wifi_rescan()
                 sleep(10)
 
-            if 'ifcfg-rh' in scenario.tags:
-                print ("---------------------------")
-                print ("enabling ifcfg-plugin")
-                call("sudo sh -c \"echo '[main]\nplugins=ifcfg-rh' > /etc/NetworkManager/NetworkManager.conf\" ", shell=True)
-
             if 'keyfile_cleanup' in scenario.tags:
                 print ("---------------------------")
                 print ("removing residual files in /usr/lib/NetworkManager/system-connections")
@@ -2706,7 +2714,7 @@ def after_scenario(context, scenario):
                 print("---------------------------")
                 print("Removing custom cfg file in conf.d")
                 call('sudo rm -f /etc/NetworkManager/conf.d/99-xxcustom.conf', shell=True)
-                reload_NM_service()
+                restart_NM_service()
 
             if 'device_connect_no_profile' in scenario.tags or 'device_connect' in scenario.tags:
                 print ("---------------------------")

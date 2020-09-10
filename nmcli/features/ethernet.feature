@@ -18,7 +18,7 @@ Feature: nmcli - ethernet
     Then "ipv4.method:\s+auto" is visible with command "nmcli  con show testeth0  |grep method"
 
 
-    @ethernet
+    @ethernet @ifcfg-rh
     @ethernet_create_with_editor
     Scenario: nmcli - ethernet - create with editor
     * Open editor for a type "ethernet"
@@ -32,19 +32,17 @@ Feature: nmcli - ethernet
      Then Check ifcfg-name file created with noted connection name
 
 
-    @ethernet
+    @ethernet @ifcfg-rh
     @ethernet_create_default_connection
     Scenario: nmcli - ethernet - create default connection
     * Add a new connection of type "ethernet" and options "ifname eth1 con-name ethernet"
     Then Check ifcfg-name file created for connection "ethernet"
 
 
-    @ethernet
-    @veth
+    @ethernet @veth
     @ethernet_create_ifname_generic_connection
     Scenario: nmcli - ethernet - create ifname generic connection
     * Add a new connection of type "ethernet" and options "ifname * con-name ethos autoconnect no"
-    * Check ifcfg-name file created for connection "ethos"
     * Bring up connection "ethos"
     Then "ethernet\s+connected\s+ethos" is visible with command "nmcli device"
 
@@ -53,7 +51,6 @@ Feature: nmcli - ethernet
     @ethernet_connection_up
     Scenario: nmcli - ethernet - up
     * Add a new connection of type "ethernet" and options "ifname eth1 con-name ethernet autoconnect no ipv4.may-fail no"
-    * Check ifcfg-name file created for connection "ethernet"
     * "inet 192." is not visible with command "ifconfig eth1"
     * Bring up connection "ethernet"
     Then "inet 192." is visible with command "ifconfig eth1"
@@ -63,7 +60,6 @@ Feature: nmcli - ethernet
     @ethernet_disconnect_device
     Scenario: nmcli - ethernet - disconnect device
     * Add a new connection of type "ethernet" and options "ifname eth1 con-name ethernet autoconnect yes ipv4.may-fail no"
-    * Check ifcfg-name file created for connection "ethernet"
     * Bring up connection "ethernet"
     * "inet 192." is visible with command "ifconfig eth1"
     * Disconnect device "eth1"
@@ -202,23 +198,9 @@ Feature: nmcli - ethernet
     Then Check noted values "orig_eth1" and "new_eth1" are the same
 
 
-    @rhbz1353612
-    @ver+=1.7.1
-    @ver-=1.11.3
-    @ethernet
-    @ethernet_duplex_speed_auto_negotiation
-    Scenario: nmcli - ethernet - duplex speed and auto-negotiation
-    * Add a new connection of type "ethernet" and options "ifname eth1 con-name ethernet"
-    * Execute "nmcli connection modify ethernet 802-3-ethernet.duplex full 802-3-ethernet.speed 10"
-    When "ETHTOOL_OPTS="autoneg off speed 10 duplex full"" is visible with command "cat /etc/sysconfig/network-scripts/ifcfg-ethernet"
-    * Execute "nmcli connection modify ethernet 802-3-ethernet.auto-negotiate yes"
-    When "ETHTOOL_OPTS="autoneg on"" is visible with command "cat /etc/sysconfig/network-scripts/ifcfg-ethernet"
-    * Execute "nmcli connection modify ethernet 802-3-ethernet.auto-negotiate no"
-    Then "ETHTOOL_OPTS" is not visible with command "cat /etc/sysconfig/network-scripts/ifcfg-ethernet"
-
     @rhbz1487477
     @ver+=1.11.4
-    @ethernet
+    @ethernet @ifcfg-rh
     @ethernet_duplex_speed_auto_negotiation
     Scenario: nmcli - ethernet - duplex speed and auto-negotiation
     * Add a new connection of type "ethernet" and options "ifname eth1 con-name ethernet"
@@ -231,7 +213,7 @@ Feature: nmcli - ethernet
 
 
     @ver-=1.20.0
-    @ethernet @mtu
+    @ethernet @mtu @ifcfg-rh
     @ethernet_set_mtu
     Scenario: nmcli - ethernet - set mtu
     * Add a new connection of type "ethernet" and options "ifname eth1 con-name ethernet autoconnect no"
@@ -247,7 +229,7 @@ Feature: nmcli - ethernet
 
     @rhbz1775136
     @ver+=1.20.0
-    @ethernet @mtu
+    @ethernet @mtu @ifcfg-rh
     @ethernet_set_mtu
     Scenario: nmcli - ethernet - set mtu
     * Add a new connection of type "ethernet" and options "ifname eth1 con-name ethernet ipv6.method disable 802-3-ethernet.mtu 666"
@@ -705,7 +687,7 @@ Feature: nmcli - ethernet
 
 
     @rhbz1614700 @rhbz1807171
-    @ver+=1.25 @rhelver+=8
+    @ver+=1.25 @rhelver+=8 @fedoraver-=32
     @skip_in_centos
     @con_ethernet_remove @prepare_patched_netdevsim
     @ethtool_features_ring
@@ -720,7 +702,7 @@ Feature: nmcli - ethernet
 
 
     @rhbz1614700 @rhbz1807171
-    @ver+=1.25 @rhelver+=8
+    @ver+=1.25 @rhelver+=8 @fedoraver-=32
     @skip_in_centos
     @con_ethernet_remove @prepare_patched_netdevsim
     @ethtool_features_coal

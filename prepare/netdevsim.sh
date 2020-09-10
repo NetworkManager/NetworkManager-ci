@@ -8,9 +8,16 @@ function setup () {
     PATCH="0001-netdevsim-add-mock-support-for-coalescing-and-ring-o-1.patch"
     DRIVER="drivers/net/netdevsim"
 
+    if ! grep Fedora /etc/redhat-release; then
+        URL="http://download.eng.bos.redhat.com/brewroot/vol/rhel-8/packages/kernel"
+    else
+        URL='https://kojipkgs.fedoraproject.org//packages/kernel'
+        LINUX="$(echo $LINUX |awk -F '.' '{print $1 "." $2}')"
+    fi
+    
     # If we have all necessary things done
     if ! test -f /tmp/netdevsim_installed; then
-        URL="http://download.eng.bos.redhat.com/brewroot/vol/rhel-8/packages/kernel"
+
         # Install build dependencies
         yum -y install \
                wget git kernel-headers kernel-devel gcc \

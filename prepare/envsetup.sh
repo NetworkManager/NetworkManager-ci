@@ -73,6 +73,7 @@ install_fedora_packages () {
     systemctl restart sshd
 
     if grep -q Rawhide /etc/redhat-release; then
+        dnf -y install https://kojipkgs.fedoraproject.org//packages/ipsec-tools/0.8.2/17.fc32/$(arch)/ipsec-tools-0.8.2-17.fc32.$(arch).rpm
         dnf update -y
     fi
     # Make python3 default if it's not

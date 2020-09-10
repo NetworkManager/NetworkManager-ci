@@ -195,6 +195,7 @@
 
     @rhbz1369008
     @ver+=1.4.0
+    @ifcfg-rh
     @slaves @bond
     @bond_ifcfg_master_as_device
     Scenario: ifcfg - bond - slave has master as device
@@ -229,6 +230,7 @@
 
     @rhbz1369008
     @ver+=1.4.0
+    @ifcfg-rh
     @slaves @bond
     @bond_ifcfg_master_as_device_via_con_name
     Scenario: ifcfg - bond - slave has master as device via conname
@@ -1164,6 +1166,7 @@
 
 
     @rhbz1171009
+    @ifcfg-rh
     @slaves @bond
     @bond_mode_by_number_in_ifcfg
     Scenario: NM - bond - ifcfg - mode set by number
@@ -1212,9 +1215,9 @@
      * Bring "up" connection "bond0.0"
      When "nm-bond:connected:bond0" is visible with command "nmcli -t -f DEVICE,STATE,CONNECTION device" in "40" seconds
      # sort the BONDING_OPTS to prevent failures in the future
-     * Note the output of "grep BONDING_OPTS= /etc/sysconfig/network-scripts/ifcfg-bond0 | grep -o '".*"' | sed 's/"//g;s/ /\n/g' | sort | tr '\n' ' '" as value "ifcfg_opts"
-     * Note the output of "echo 'active_slave=eth4 mode=active-backup num_grat_arp=3 num_unsol_na=3 '" as value "desired_opts"
-     Then Check noted values "ifcfg_opts" and "desired_opts" are the same
+     #* Note the output of "grep BONDING_OPTS= /etc/sysconfig/network-scripts/ifcfg-bond0 | grep -o '".*"' | sed 's/"//g;s/ /\n/g' | sort | tr '\n' ' '" as value "ifcfg_opts"
+     #* Note the output of "echo 'active_slave=eth4 mode=active-backup num_grat_arp=3 num_unsol_na=3 '" as value "desired_opts"
+     #Then Check noted values "ifcfg_opts" and "desired_opts" are the same
       #And "Currently Active Slave: eth4" is visible with command "cat /proc/net/bonding/nm-bond"
       And "3" is visible with command "cat /sys/class/net/nm-bond/bonding/num_grat_arp"
       And "3" is visible with command "cat /sys/class/net/nm-bond/bonding/num_unsol_na"

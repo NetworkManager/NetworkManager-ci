@@ -9,7 +9,7 @@ Feature: nmcli - vlan
     # Scenario:
 
 
-    @vlan
+    @vlan @ifcfg-rh
     @vlan_add_default_device
     Scenario: nmcli - vlan - add default device
      * Add a new connection of type "vlan" and options "con-name eth7.99 dev eth7 id 99"
@@ -381,7 +381,7 @@ Feature: nmcli - vlan
 
     @rhbz1312281 @rhbz1250225
     @ver+=1.4.0
-    @vlan
+    @vlan @ifcfg-rh
     @reorder_hdr
     Scenario: nmcli - vlan - reorder HDR
     * Add a new connection of type "vlan" and options "con-name vlan ifname vlan dev eth7 id 80 ip4 1.2.3.4/32"

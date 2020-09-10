@@ -9,17 +9,6 @@ Feature: nmcli - bridge
     # Scenario:
 
 
-    @bridge
-    @bridge_add_default
-    Scenario: nmcli - bridge - add default bridge
-    * Add a new connection of type "bridge" and options "bridge.stp no"
-    * Open editor for connection "bridge"
-    * "nm-bridge:" is visible with command "ip a s"
-    * Note the "connection.id" property from editor print output
-    * Quit editor
-    Then Check ifcfg-name file created with noted connection name
-
-
     @ver-=1.24
 	@bridge
     @bridge_options
@@ -86,7 +75,6 @@ Feature: nmcli - bridge
     @bridge_connection_up
     Scenario: nmcli - bridge - up
     * Add a new connection of type "bridge" and options "con-name br11 ifname br11 autoconnect no bridge.stp no"
-    * Check ifcfg-name file created for connection "br11"
     * "br11" is not visible with command "ip link show type bridge"
     * Bring up connection "br11" ignoring error
     Then "br11" is visible with command "ip link show type bridge"
@@ -138,7 +126,6 @@ Feature: nmcli - bridge
     @bridge_delete_connection
     Scenario: nmcli - bridge - delete connection
     * Add a new connection of type "bridge" and options "con-name br11 ifname br11 bridge.stp off"
-    * Check ifcfg-name file created for connection "br11"
     * Bring up connection "br11" ignoring error
     * Delete connection "br11"
     Then ifcfg-"br11" file does not exist
@@ -161,7 +148,6 @@ Feature: nmcli - bridge
     @bridge_set_mac
     Scenario: nmcli - bridge - set mac address
     * Add a new connection of type "bridge" and options "con-name br12 ifname br12 bridge.stp off autoconnect no"
-    * Check ifcfg-name file created for connection "br12"
     * Open editor for connection "br12"
     * Set a property named "bridge.mac-address" to "f0:de:aa:fb:bb:cc" in editor
     * Save in editor
@@ -177,7 +163,6 @@ Feature: nmcli - bridge
     @bridge_set_mac_var1
     Scenario: nmcli - bridge - set mac address via two properties
     * Add a new connection of type "bridge" and options "con-name br12 ifname br12 autoconnect no bridge.stp off ethernet.cloned-mac-address 02:02:02:02:02:02"
-    * Check ifcfg-name file created for connection "br12"
     * Open editor for connection "br12"
     * Set a property named "bridge.mac-address" to "f0:de:aa:fb:bb:cc" in editor
     * Save in editor
@@ -199,6 +184,7 @@ Feature: nmcli - bridge
 
 
 	@bridge
+    @ifcfg-rh
     @bridge_add_slave
     Scenario: nmcli - bridge - add slave
     #* Execute "nmcli dev con eth4"
@@ -211,6 +197,7 @@ Feature: nmcli - bridge
 
 
 	@bridge
+    @ifcfg-rh
     @bridge_remove_slave
     Scenario: nmcli - bridge - remove slave
     #* Execute "nmcli dev con eth4"
@@ -225,6 +212,7 @@ Feature: nmcli - bridge
 
 
 	@bridge
+    @ifcfg-rh
     @bridge_up_with_slaves
     Scenario: nmcli - bridge - up with slaves
     * Add a new connection of type "bridge" and options "con-name br15 ifname br15 bridge.stp off ip4 192.168.1.19/24"
@@ -245,10 +233,10 @@ Feature: nmcli - bridge
     Scenario: nmcli - bridge - up slave
     * Add a new connection of type "bridge" and options "con-name br10 ifname br10 bridge.stp off ip4 192.168.1.19/24"
     * Add a new connection of type "bridge-slave" and options "con-name br10-slave autoconnect no ifname eth4 master br10"
-    * Check ifcfg-name file created for connection "br10-slave"
     * Bring up connection "br10-slave"
     Then  "eth4.*master br10" is visible with command "ip link show type bridge_slave"
     Then Disconnect device "br10"
+    Then  "eth4.*master br10" is not visible with command "ip link show type bridge_slave"
 
 
     @rhbz1158529
@@ -296,7 +284,6 @@ Feature: nmcli - bridge
     @bridge_dhcp_config_with_ethernet_port
     Scenario: nmcli - bridge - dhcp config with ethernet port
     * Add a new connection of type "bridge" and options "ifname bridge0 con-name bridge0 bridge.stp off"
-    * Check ifcfg-name file created for connection "bridge0"
     * Add a new connection of type "bridge-slave" and options "ifname eth4 con-name bridge-slave-eth4 master bridge0"
     * Bring up connection "bridge-slave-eth4"
     Then "eth4.*master bridge0" is visible with command "ip link show type bridge_slave" in "10" seconds
@@ -309,7 +296,6 @@ Feature: nmcli - bridge
     Scenario: nmcli - bridge - dhcp config with multiple ethernet ports
     * Prepare simulated test "test44" device
     * Add a new connection of type "bridge" and options "ifname br4 con-name bridge4 bridge.stp off"
-    * Check ifcfg-name file created for connection "bridge4"
     * Add a new connection of type "bridge-slave" and options "ifname eth4 con-name bridge4.0 master br4"
     * Bring up connection "bridge4.0"
     * Add a new connection of type "bridge-slave" and options "ifname test44 con-name bridge4.1 master br4"
@@ -377,7 +363,6 @@ Feature: nmcli - bridge
     @bridge_server_ingore_carrier_with_dhcp
     Scenario: nmcli - bridge - server ingore carrier with_dhcp
     * Add a new connection of type "bridge" and options "ifname br4 con-name bridge4 bridge.stp off"
-    * Check ifcfg-name file created for connection "bridge4"
     * Add a new connection of type "bridge-slave" and options "ifname eth4 con-name bridge-slave-eth4 master br4"
     * Bring up connection "bridge-slave-eth4"
     Then "eth4.*master br4" is visible with command "ip a s eth4" in "10" seconds
@@ -680,7 +665,6 @@ Feature: nmcli - bridge
     Scenario: NM - bridge - go to L2 when DHCP is gone
     * Prepare simulated test "test44" device
     * Add a new connection of type "bridge" and options "ifname br4 con-name bridge4 bridge.stp off ipv4.dhcp-timeout infinity ipv6.method disable"
-    * Check ifcfg-name file created for connection "bridge4"
     * Add a new connection of type "bridge-slave" and options "ifname test44 con-name bridge4.1 master br4"
     * Bring up connection "bridge4.1"
     When "br4:connected:bridge4" is visible with command "nmcli -t -f DEVICE,STATE,CONNECTION device" in "10" seconds
