@@ -79,12 +79,12 @@ Feature: NM: dracut
     * Run dracut test
       | Param  | Value                                          |
       | kernel | root=nfs:192.168.50.1:/client ro               |
-      | kernel | ip=192.168.50.102::255.255.255.0:::ens2:off    |
+      | kernel | ip=192.168.50.201::255.255.255.0:::ens2:off    |
       | qemu   | -net nic,macaddr=52:54:00:12:34:00,model=e1000 |
       | qemu   | -net socket,connect=127.0.0.1:12320            |
-      | check  | ip_mac 52:54:00:12:34:00 192.168.50.102        |
+      | check  | ip_mac 52:54:00:12:34:00 192.168.50.201        |
       | check  | ip_route_unique "192.168.50.0/24 dev ens2"     |
-      | check  | ip4_forever 192.168.50.102 ens2                |
+      | check  | ip4_forever 192.168.50.201 ens2                |
       | check  | nmcli_con_active ens2 ens2                     |
       | check  | nmcli_con_num 1                                |
       | check  | no_ifcfg                                       |
@@ -98,19 +98,41 @@ Feature: NM: dracut
     * Run dracut test
       | Param  | Value                                          |
       | kernel | root=nfs:192.168.50.1:/client ro               |
-      | kernel | ip=192.168.50.102::255.255.255.0:::ens2:dhcp   |
+      | kernel | ip=192.168.50.201::255.255.255.0:::ens2:dhcp   |
       | qemu   | -net nic,macaddr=52:54:00:12:34:00,model=e1000 |
       | qemu   | -net socket,connect=127.0.0.1:12320            |
       | check  | ip_mac 52:54:00:12:34:00 192.168.50.101        |
-      | check  | ip_mac 52:54:00:12:34:00 192.168.50.102        |
+      | check  | ip_mac 52:54:00:12:34:00 192.168.50.201        |
       | check  | ip_route_unique "192.168.50.0/24 dev ens2 proto kernel scope link src 192.168.50.101" |
-      | check  | ip_route_unique "192.168.50.0/24 dev ens2 proto kernel scope link src 192.168.50.102" |
+      | check  | ip_route_unique "192.168.50.0/24 dev ens2 proto kernel scope link src 192.168.50.201" |
       | check  | wait_for_ip4_renew 192.168.50.101 ens2         |
-      | check  | ip4_forever 192.168.50.102 ens2                |
+      | check  | ip4_forever 192.168.50.201 ens2                |
       | check  | nmcli_con_active ens2 ens2                     |
       | check  | nmcli_con_num 1                                |
       | check  | no_ifcfg                                       |
       | check  | nfs_server 192.168.50.1                        |
+
+
+    @rhbz1872299
+    @ver+=1.26
+    @rhelver+=8.3 @fedoraver-=0
+    @dracut @long
+    @dracut_NM_NFS_root_dhcp_vendor_class
+    Scenario: NM - dracut - NM module - NFSv3 root=nfs rd.net.dhcp.vendor-class
+    * Run dracut test
+      | Param  | Value                                          |
+      | kernel | root=dhcp ro                                   |
+      | kernel | rd.net.dhcp.vendor-class=RedHat                |
+      | qemu   | -net nic,macaddr=52:54:00:12:34:00,model=e1000 |
+      | qemu   | -net socket,connect=127.0.0.1:12320            |
+      | check  | ip_mac 52:54:00:12:34:00 192.168.50.102        |
+      | check  | ip_route_unique "192.168.50.0/24 dev ens2 proto kernel scope link src 192.168.50.102" |
+      | check  | wait_for_ip4_renew 192.168.50.102 ens2         |
+      | check  | nmcli_con_active "Wired Connection" ens2       |
+      | check  | nmcli_con_prop "Wired Connection" ipv4.dhcp-vendor-class-identifier RedHat |
+      | check  | nmcli_con_num 1                                |
+      | check  | no_ifcfg                                       |
+      | check  | nfs_server 192.168.50.2                        |
 
 
     @rhbz1854323

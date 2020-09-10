@@ -18,8 +18,12 @@ nmcli_con_num() {
   echo "[OK] number of NM connections: $1"
 }
 
-no_ifcfg() {
-  find /etc/sysconfig/network-scripts/ifcfg-* &> /dev/null && \
-    die "ifcfg file exists: $(echo; find /etc/sysconfig/network-scripts/ifcfg-*)"
-  echo "[OK] no ifcfg file exists"
+nmcli_con_prop() {
+  local con prop val res
+  con="$1"
+  prop="$2"
+  val="$3"
+  res=$(nmcli -g "$prop" con show "$con")
+  [[ "$res" == "$val" ]] || die "'$prop' of '$con' is not '$val', but '$res'"
+  echo "[OK] '$prop' of '$con' is '$val'"
 }

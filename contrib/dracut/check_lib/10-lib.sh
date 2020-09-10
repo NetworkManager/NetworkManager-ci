@@ -48,3 +48,9 @@ mount_root_type() {
     root_mnt=$(arg 5 $root_mnt)
     [[ $root_mnt == "$1" ]] || die "fstype of / is '$root_mnt', expected '$1'"
 }
+
+no_ifcfg() {
+  find /etc/sysconfig/network-scripts/ifcfg-* &> /dev/null && \
+    die "ifcfg file exists: $(echo; find /etc/sysconfig/network-scripts/ifcfg-*)"
+  echo "[OK] no ifcfg file exists"
+}
