@@ -4,6 +4,11 @@ test_setup() {
     # Exit if server is already running
     [[ -f $TESTDIR/server.pid ]] && pkill -0 -F $TESTDIR/server.pid && return 0
 
+    if ! command -v tgtd &>/dev/null || ! command -v tgtadm &>/dev/null; then
+        echo "Need tgtd and tgtadm from scsi-target-utils"
+        return 1
+    fi
+
     # Make server root
     dd if=/dev/zero of=$TESTDIR/server.ext3 bs=1M count=600
     mke2fs -j -F $TESTDIR/server.ext3
@@ -98,6 +103,7 @@ test_setup() {
         done
         inst_multiple -o ${_terminfodir}/l/linux
         inst_simple /etc/os-release
+        inst /etc/machine-id
         (
             cd "$initdir"
             mkdir -p dev sys proc etc run
@@ -353,66 +359,84 @@ EOF
     rm -fr -- $TESTDIR/mnt
 
     # server initramfs
-    rm -fr -- $TESTDIR/overlay
-    mkdir $TESTDIR/overlay
     (
-        export initdir=$TESTDIR/overlay
-        . $basedir/dracut-init.sh
-        inst /etc/mke2fs.conf
-        inst_multiple sfdisk mkfs.ext3 poweroff cp umount setsid dd lsblk
-        inst_hook initqueue/finished 01 ./conf/create-root.sh
-        inst_hook shutdown-emergency 000 ./conf/hard-off.sh
-        inst_hook emergency 000 ./conf/hard-off.sh
-        inst_simple ./conf/99-idesymlinks.rules /etc/udev/rules.d/99-idesymlinks.rules
-        inst_simple ./conf/99-default.link /etc/systemd/network/99-default.link
-    )
+      mkdir $TESTDIR/overlay-server
+      (
+          export initdir=$TESTDIR/overlay-server
+          . $basedir/dracut-init.sh
+          inst /etc/mke2fs.conf
+          inst_multiple sfdisk mkfs.ext3 poweroff cp umount setsid dd lsblk
+          inst_hook initqueue/finished 01 ./conf/create-root.sh
+          inst_hook shutdown-emergency 000 ./conf/hard-off.sh
+          inst_hook emergency 000 ./conf/hard-off.sh
+          inst_simple ./conf/99-idesymlinks.rules /etc/udev/rules.d/99-idesymlinks.rules
+          inst_simple ./conf/99-default.link /etc/systemd/network/99-default.link
+      )
 
-    # Make server's dracut image
-    dracut -i $TESTDIR/overlay / \
-           -m "bash crypt lvm mdraid udev-rules base rootfs-block fs-lib debug kernel-modules qemu" \
-           -d "8021q ipvlan macvlan bonding af_packet piix ide-gd_mod ata_piix ext3 sd_mod e1000 drbg" \
-           --no-hostonly-cmdline -N \
-           -f $TESTDIR/initramfs.server $KVERSION || return 1
+      # Make server's dracut image
+      dracut -i $TESTDIR/overlay-server / \
+             -m "bash crypt lvm mdraid udev-rules base rootfs-block fs-lib debug kernel-modules qemu" \
+             -d "8021q ipvlan macvlan bonding af_packet piix ide-gd_mod ata_piix ext3 sd_mod e1000 drbg" \
+             --no-hostonly-cmdline -N \
+             -f $TESTDIR/initramfs.server $KVERSION
+      rm -rf -- $TESTDIR/overlay-server
+    ) &
 
-    # client initramfs
-    rm -fr -- $TESTDIR/overlay
-    mkdir $TESTDIR/overlay
+    # client initramfs with NM module
     (
-       export initdir=$TESTDIR/overlay
-       . $basedir/dracut-init.sh
-       inst_multiple poweroff shutdown
-       inst_hook shutdown-emergency 000 ./conf/hard-off.sh
-       inst_hook emergency 000 ./conf/hard-off.sh
-       inst_simple ./conf/99-idesymlinks.rules /etc/udev/rules.d/99-idesymlinks.rules
-       inst_simple ./conf/99-default.link /etc/systemd/network/99-default.link
-    )
+        mkdir $TESTDIR/overlay-client-NM
+        (
+           export initdir=$TESTDIR/overlay-client-NM
+           . $basedir/dracut-init.sh
+           inst /etc/machine-id
+           inst_multiple poweroff shutdown
+           inst_hook shutdown-emergency 000 ./conf/hard-off.sh
+           inst_hook emergency 000 ./conf/hard-off.sh
+           inst_simple ./conf/99-idesymlinks.rules /etc/udev/rules.d/99-idesymlinks.rules
+           inst_simple ./conf/99-default.link /etc/systemd/network/99-default.link
+        )
 
-    # Make NFS client's dracut image using NM module
-    dracut -i $TESTDIR/overlay / \
-           -o "plymouth dash dmraid network-legacy" \
-           -a "debug network-manager ifcfg" \
-           -d "8021q ipvlan macvlan bonding af_packet piix ext3 ide-gd_mod ata_piix sd_mod e1000 nfs sunrpc" \
-           --no-hostonly-cmdline -N \
-           -f $TESTDIR/initramfs.client.NM $KVERSION || return 1
+        # Make NFS client's dracut image using NM module
+        dracut -i $TESTDIR/overlay-client-NM / \
+               -o "plymouth dash dmraid network-legacy" \
+               -a "debug network-manager ifcfg" \
+               -d "8021q ipvlan macvlan bonding af_packet piix ext3 ide-gd_mod ata_piix sd_mod e1000 nfs sunrpc" \
+               --no-hostonly-cmdline -N \
+               -f $TESTDIR/initramfs.client.NM $KVERSION
+       rm -rf -- $TESTDIR/overlay-client-NM
+     ) &
 
-   # Make NFS client's dracut image using legacy network module
-   dracut -i $TESTDIR/overlay / \
-          -o "plymouth dash dmraid network-manager" \
-          -a "debug network-legacy ifcfg" \
-          -d "8021q ipvlan macvlan bonding af_packet piix ext3 ide-gd_mod ata_piix sd_mod e1000 nfs sunrpc" \
-          --no-hostonly-cmdline -N \
-          -f $TESTDIR/initramfs.client.legacy $KVERSION || return 1
+     # client initramfs with legacy module
+     (
+       mkdir $TESTDIR/overlay-client-legacy
+       (
+          export initdir=$TESTDIR/overlay-client-legacy
+          . $basedir/dracut-init.sh
+          inst /etc/machine-id
+          inst_multiple poweroff shutdown
+          inst_hook shutdown-emergency 000 ./conf/hard-off.sh
+          inst_hook emergency 000 ./conf/hard-off.sh
+          inst_simple ./conf/99-idesymlinks.rules /etc/udev/rules.d/99-idesymlinks.rules
+          inst_simple ./conf/99-default.link /etc/systemd/network/99-default.link
+       )
 
-    if ! command -v tgtd &>/dev/null || ! command -v tgtadm &>/dev/null; then
-        echo "Need tgtd and tgtadm from scsi-target-utils"
-        return 1
-    fi
+       # Make NFS client's dracut image using legacy network module
+       dracut -i $TESTDIR/overlay-client-legacy / \
+              -o "plymouth dash dmraid network-manager" \
+              -a "debug network-legacy ifcfg" \
+              -d "8021q ipvlan macvlan bonding af_packet piix ext3 ide-gd_mod ata_piix sd_mod e1000 nfs sunrpc" \
+              --no-hostonly-cmdline -N \
+              -f $TESTDIR/initramfs.client.legacy $KVERSION
+       rm -rf -- $TESTDIR/overlay-client-legacy
+  ) &
 
-    if ! run_server; then
-        echo "Failed to start server" 1>&2
-        kill_server
-        return 1
-    fi
+  wait
+
+  if ! run_server; then
+      echo "Failed to start server" 1>&2
+      kill_server
+      return 1
+  fi
 }
 
 

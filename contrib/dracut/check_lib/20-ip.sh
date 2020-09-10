@@ -109,8 +109,7 @@ wait_for_ip_renew() {
       last_lease=$lease_time
       lease_time="$(get_lease_time)"
   done
-  echo "lease time change: $last_lease -> $lease_time"
-  echo "[OK] '$ifname' succesfully renewed"
+  echo "[OK] '$ifname' '$IP' lease renewd: ${last_lease}s -> ${lease_time}s"
 }
 
 wait_for_ip4_renew() {

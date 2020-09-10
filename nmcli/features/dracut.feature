@@ -147,7 +147,7 @@ Feature: NM: dracut
       | qemu   | -net nic,macaddr=52:54:00:12:34:00,model=e1000 |
       | qemu   | -net socket,connect=127.0.0.1:12320            |
       | check  | ip_mac 52:54:00:12:34:00 deaf:beef::1:10       |
-      #| check  | wait_for_ip6_renew deaf:beef::1:10 ens2        |
+      | check  | wait_for_ip6_renew deaf:beef::1:10 ens2        |
       | check  | ip6_route_unique "deaf:beef::/64 dev ens2 proto ra" |
       | check  | nmcli_con_active "Wired Connection" ens2       |
       | check  | nmcli_con_num 1                                |
@@ -166,7 +166,7 @@ Feature: NM: dracut
       | qemu   | -net nic,macaddr=52:54:00:12:34:00,model=e1000 |
       | qemu   | -net socket,connect=127.0.0.1:12320            |
       | check  | ip_mac 52:54:00:12:34:00 deaf:beef::1:10       |
-      #| check  | wait_for_ip6_renew deaf:beef::1:10 ens2        |
+      | check  | wait_for_ip6_renew deaf:beef::1:10 ens2        |
       | check  | ip6_route_unique "deaf:beef::/64 dev ens2 proto ra" |
       | check  | nmcli_con_active "Wired Connection" ens2       |
       | check  | nmcli_con_num 1                                |
