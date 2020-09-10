@@ -2126,3 +2126,15 @@ Feature: nmcli: ipv4
     * Execute "ip link set dev eth3 down; ip link set dev eth3 up"
     Then "1.2.3.4" is not visible with command "ip r show dev eth3" for full "10" seconds
     Then "4.3.2.0/30.*4.3.2.0/30" is not visible with command "ip r show dev eth3"
+
+
+    @rhbz1871042
+    @ver+=1.26
+    @con_ipv4_remove @ifcfg-rh
+    @ipv4_dhcp_vendor_class_ifcfg
+    Scenario: NM - ipv4 - ipv4.dhcp-vendor-class-identifier is translated to ifcfg
+    * Add a new connection of type "ethernet" and options "con-name con_ipv4 ifname eth3 ipv4.dhcp-vendor-class-identifier RedHat"
+    Then "RedHat" is visible with command "grep 'DHCP_VENDOR_CLASS_IDENTIFIER=' /etc/sysconfig/network-scripts/ifcfg-con_ipv4"
+    * Execute "sed -i 's/DHCP_VENDOR_CLASS_IDENTIFIER=.*/DHCP_VENDOR_CLASS_IDENTIFIER=RH/' /etc/sysconfig/network-scripts/ifcfg-con_ipv4"
+    * Reload connections
+    Then "RH" is visible with command "nmcli -g ipv4.dhcp-vendor-class-identifier con show con_ipv4"
