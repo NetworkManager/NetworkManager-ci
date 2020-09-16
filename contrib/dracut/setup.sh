@@ -252,6 +252,7 @@ EOF
         inst /usr/lib/systemd/system/dbus.service
         inst /usr/lib/systemd/system/dbus-broker.service
         inst /usr/lib/systemd/system/dbus-daemon.service
+        inst /etc/systemd/system/dbus.service
 
         (
             echo "FONT=eurlatgr"
@@ -315,6 +316,8 @@ EOF
         inst_multiple \
                 /usr/bin/dbus \
                 /usr/bin/dbus-launch \
+                /usr/bin/dbus-broker \
+                /usr/bin/dbus-broker-launch \
                 /usr/share/dbus-1/system.conf
 
         inst_multiple \
