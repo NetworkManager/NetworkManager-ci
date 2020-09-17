@@ -3,7 +3,7 @@ Feature: Team TUI tests
   Background:
   * Prepare virtual terminal environment
 
-    @team
+    @team @ifcfg-rh
     @nmtui_team_add_default_team
     Scenario: nmtui - team - add default team
     * Prepare new connection of type "Team" named "team0"
@@ -23,7 +23,6 @@ Feature: Team TUI tests
     * Set "Device" field to "team0"
     * Ensure "Automatically connect" is not checked
     * Confirm the connection settings
-    Then Check ifcfg-name file created for connection "team0"
     Then "team0" is visible with command "nmcli connection"
     Then "team0" is not visible with command "nmcli device"
     Then Team "team0" is down
@@ -239,7 +238,7 @@ Feature: Team TUI tests
     Then "team-slave-eth2" is not visible with command "nmcli connection"
 
 
-    @team
+    @team @ifcfg-rh
     @nmtui_team_infiniband_slaves
     Scenario: nmtui - team - infiniband slaves
     * Prepare new connection of type "Team" named "team0"

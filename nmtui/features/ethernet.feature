@@ -13,7 +13,6 @@ Feature: Ethernet TUI tests
     * Choose the connection type "Ethernet"
     * Set "Profile name" field to "ethernet"
     * Confirm the connection settings
-    Then Check ifcfg-name file created for connection "ethernet"
     Then "ethernet" is visible with command "nmcli -f NAME con sh -a"
     Then "IP4.ADDRESS\[1\]:\s+1" is visible with command "nmcli con show ethernet" in "30" seconds
     Then "IP4.GATEWAY:\s+1" is visible with command "nmcli con show ethernet" in "5" seconds
@@ -29,7 +28,6 @@ Feature: Ethernet TUI tests
     * Set "Profile name" field to "ethernet"
     * Set "Device" field to "eth1"
     * Confirm the connection settings
-    Then Check ifcfg-name file created for connection "ethernet"
     Then "inet 192" is visible with command "ip a s eth1" in "60" seconds
     Then "eth1\s+ethernet\s+connected\s+ethernet" is visible with command "nmcli device"
 
@@ -45,7 +43,6 @@ Feature: Ethernet TUI tests
     * Set "Device" field to "eth1"
     * Ensure "Automatically connect" is not checked
     * Confirm the connection settings
-    Then Check ifcfg-name file created for connection "ethernet"
     Then "ethernet\s+--\s+no" is visible with command "nmcli -f NAME,DEVICE,ACTIVE connection"
 
 
@@ -60,7 +57,6 @@ Feature: Ethernet TUI tests
     * Set "Device" field to "eth1"
     * Ensure "Automatically connect" is not checked
     * Confirm the connection settings
-    * Check ifcfg-name file created for connection "ethernet"
     * "ethernet\s+--\s+no" is visible with command "nmcli -f NAME,DEVICE,ACTIVE connection"
     * Come back to main screen
     * Choose to "Activate a connection" from main screen
@@ -82,7 +78,6 @@ Feature: Ethernet TUI tests
     * Set "Profile name" field to "ethernet"
     * Ensure "Automatically connect" is not checked
     * Confirm the connection settings
-    * Check ifcfg-name file created for connection "ethernet"
     * "ethernet\s+--\s+no" is visible with command "nmcli -f NAME,DEVICE,ACTIVE connection"
     * Come back to main screen
     * Choose to "Activate a connection" from main screen
@@ -117,12 +112,10 @@ Feature: Ethernet TUI tests
     * Set "Device" field to "eth1"
     * Ensure "Automatically connect" is not checked
     * Confirm the connection settings
-    * Check ifcfg-name file created for connection "ethernet1"
     * "ethernet1\s+--\s+no" is visible with command "nmcli -f NAME,DEVICE,ACTIVE connection"
     * Select connection "ethernet1" in the list
     * Choose to "<Delete>" a connection
     * Press "Delete" button in the dialog
-    Then ifcfg-"ethernet1" file does not exist
     Then "ethernet1" is not visible with command "nmcli connection"
 
 
@@ -137,16 +130,14 @@ Feature: Ethernet TUI tests
     * Set "Device" field to "eth1"
     * Ensure "Automatically connect" is checked
     * Confirm the connection settings
-    * Check ifcfg-name file created for connection "ethernet1"
     * "eth1\s+ethernet\s+connected" is visible with command "nmcli device" in "60" seconds
     * Select connection "ethernet1" in the list
     * Choose to "<Delete>" a connection
     * Press "Delete" button in the dialog
-    Then ifcfg-"ethernet1" file does not exist
     Then "ethernet1" is not visible with command "nmcli con"
 
 
-    @ethernet
+    @ethernet @ifcfg-rh
     @nmtui_ethernet_set_mtu
     Scenario: nmtui - ethernet - set mtu
     * Start nmtui
@@ -162,7 +153,7 @@ Feature: Ethernet TUI tests
     Then "mtu 128" is visible with command "ip a s eth1" in "60" seconds
 
 
-    @ethernet
+    @ethernet @ifcfg-rh
     @nmtui_ethernet_mac_spoofing
     Scenario: nmtui - ethernet - mac spoofing
     * Start nmtui
@@ -179,7 +170,7 @@ Feature: Ethernet TUI tests
 
 
     @rhbz1372799
-    @ethernet
+    @ethernet @ifcfg-rh
     @ver+=1.4.0
     @nmtui_ethernet_mac_removal
     Scenario: nmtui - ethernet - mac removal
@@ -190,14 +181,14 @@ Feature: Ethernet TUI tests
     * Set "Profile name" field to "ethernet"
     * Set "Device" field to "eth1"
     * Come in "ETHERNET" category
-    * Set "Cloned MAC address" field to "f0:de:aa:fb:bb:cc"
+    * Set "Cloned MAC address" field to "f1:de:aa:fb:bb:cc"
     * Come back to the top of editor
     * Empty the field "Cloned MAC address"
     * Confirm the connection settings
     * Execute "sleep 5"
     Then ".*Unable to add new connection.*" is not visible on screen
-    Then "ether f0:de:aa:fb:bb:cc" is not visible with command "ip a"
-    Then "MACADDR=F0:DE:AA:FB:BB:CC" is not visible with command "cat /etc/sysconfig/network-scripts/ifcfg-ethernet"
+    Then "ether f1:de:aa:fb:bb:cc" is not visible with command "ip a"
+    Then "MACADDR=F1:DE:AA:FB:BB:CC" is not visible with command "cat /etc/sysconfig/network-scripts/ifcfg-ethernet"
 
 
     @ethernet

@@ -26,8 +26,6 @@ Feature: WIFI TUI tests
     * Choose to "Activate a connection" from main screen
     * Select connection "qe-open" in the list
     * Choose to "<Activate>" a connection
-    Then "ESSID=(\"qe-open\"|qe-open)" is visible with command "cat /etc/sysconfig/network-scripts/ifcfg-qe-open"
-    Then "TYPE=Wireless" is visible with command "cat /etc/sysconfig/network-scripts/ifcfg-qe-open"
     Then "inet 10." is visible with command "ip a s wlan0" in "30" seconds
 
 
@@ -42,8 +40,6 @@ Feature: WIFI TUI tests
     * ".*Authentication required.*" is visible on screen
     * Set current field to "over the river and through the woods"
     * Press "ENTER" key
-    Then "ESSID=(\"qe-wpa1-psk\"|qe-wpa1-psk)" is visible with command "cat /etc/sysconfig/network-scripts/ifcfg-qe-wpa1-psk"
-    Then "TYPE=Wireless" is visible with command "cat /etc/sysconfig/network-scripts/ifcfg-qe-wpa1-psk"
     Then "inet 10." is visible with command "ip a s wlan0" in "30" seconds
 
 
@@ -58,8 +54,6 @@ Feature: WIFI TUI tests
     * ".*Authentication required.*" is visible on screen
     * Set current field to "over the river and through the woods"
     * Press "ENTER" key
-    Then "ESSID=(\"qe-wpa2-psk\"|qe-wpa2-psk)" is visible with command "cat /etc/sysconfig/network-scripts/ifcfg-qe-wpa2-psk"
-    Then "TYPE=Wireless" is visible with command "cat /etc/sysconfig/network-scripts/ifcfg-qe-wpa2-psk"
     Then "inet 10." is visible with command "ip a s wlan0" in "30" seconds
 
 
@@ -74,8 +68,6 @@ Feature: WIFI TUI tests
     * ".*Authentication required.*" is visible on screen
     * Set current field to "74657374696E67313233343536"
     * Press "ENTER" key
-    Then "ESSID=(\"qe-wep\"|qe-wep)" is visible with command "cat /etc/sysconfig/network-scripts/ifcfg-qe-wep"
-    Then "TYPE=Wireless" is visible with command "cat /etc/sysconfig/network-scripts/ifcfg-qe-wep"
     Then "inet 10." is visible with command "ip a s wlan0" in "30" seconds
 
 
@@ -90,8 +82,6 @@ Feature: WIFI TUI tests
     * ".*Authentication required.*" is visible on screen
     * Set current field to "testing123456"
     * Press "ENTER" key
-    Then "ESSID=(\"qe-wep\"|qe-wep)" is visible with command "cat /etc/sysconfig/network-scripts/ifcfg-qe-wep"
-    Then "TYPE=Wireless" is visible with command "cat /etc/sysconfig/network-scripts/ifcfg-qe-wep"
     Then "inet 10." is visible with command "ip a s wlan0" in "30" seconds
 
 
@@ -106,8 +96,6 @@ Feature: WIFI TUI tests
     * ".*Authentication required.*" is visible on screen
     * Set current field to "testing123456"
     * Press "ENTER" key
-    Then "ESSID=(\"qe-wep\"|qe-wep)" is visible with command "cat /etc/sysconfig/network-scripts/ifcfg-qe-wep"
-    Then "TYPE=Wireless" is visible with command "cat /etc/sysconfig/network-scripts/ifcfg-qe-wep"
     Then "inet 10." is visible with command "ip a s wlan0" in "30" seconds
 
 
@@ -117,9 +105,6 @@ Feature: WIFI TUI tests
     * Prepare new connection of type "Wi-Fi" named "wifi"
     * Set "SSID" field to "qe-open"
     * Confirm the connection settings
-    Then "ESSID=(\"qe-open\"|qe-open)" is visible with command "cat /etc/sysconfig/network-scripts/ifcfg-wifi"
-    Then "DEVICE" is not visible with command "cat /etc/sysconfig/network-scripts/ifcfg-wifi"
-    Then "TYPE=Wireless" is visible with command "cat /etc/sysconfig/network-scripts/ifcfg-wifi"
     Then "inet 10." is visible with command "ip a s wlan0" in "30" seconds
 
 
@@ -130,8 +115,6 @@ Feature: WIFI TUI tests
     * Set "Device" field to "wlan0"
     * Set "SSID" field to "qe-open"
     * Confirm the connection settings
-    Then "ESSID=(\"qe-open\"|qe-open)" is visible with command "cat /etc/sysconfig/network-scripts/ifcfg-wifi"
-    Then "DEVICE=wlan0" is visible with command "cat /etc/sysconfig/network-scripts/ifcfg-wifi"
     Then "inet 10." is visible with command "ip a s wlan0" in "30" seconds
 
 
@@ -142,8 +125,6 @@ Feature: WIFI TUI tests
     * Set "Device" field to "nonexistent"
     * Set "SSID" field to "qe-open"
     * Confirm the connection settings
-    Then "ESSID=(\"qe-open\"|qe-open)" is visible with command "cat /etc/sysconfig/network-scripts/ifcfg-wifi"
-    Then "DEVICE=nonexistent" is visible with command "cat /etc/sysconfig/network-scripts/ifcfg-wifi"
     Then "wlan0\s+wifi\s+disconnected" is visible with command "nmcli device"
 
     @wifi
@@ -154,8 +135,6 @@ Feature: WIFI TUI tests
     * Set "SSID" field to "qe-open"
     * Ensure "Automatically connect" is not checked
     * Confirm the connection settings
-    Then "ESSID=(\"qe-open\"|qe-open)" is visible with command "cat /etc/sysconfig/network-scripts/ifcfg-wifi"
-    Then "DEVICE=wlan0" is visible with command "cat /etc/sysconfig/network-scripts/ifcfg-wifi"
     Then "wlan0\s+wifi\s+disconnected" is visible with command "nmcli device"
 
 
@@ -210,7 +189,6 @@ Feature: WIFI TUI tests
     * Choose to "<Delete>" a connection
     * Press "Delete" button in the dialog
     * Wait for at least "3" seconds
-    Then ifcfg-"wifi1" file does not exist
     Then "wifi1" is not visible with command "nmcli connection"
     Then "wifi1" is not visible with command "nmcli device"
     Then "inet 10." is not visible with command "ip a s wlan0"
@@ -231,7 +209,6 @@ Feature: WIFI TUI tests
     * Choose to "<Delete>" a connection
     * Press "Delete" button in the dialog
     * Wait for at least "3" seconds
-    Then ifcfg-"wifi1" file does not exist
     Then "wifi1" is not visible with command "nmcli connection"
     Then "wifi1" is not visible with command "nmcli device"
     Then "inet 10." is not visible with command "ip a s wlan0"
@@ -284,7 +261,7 @@ Feature: WIFI TUI tests
     Then Cannot confirm the connection settings
 
 
-    @wifi
+    @wifi @ifcfg-rh
     @nmtui_wifi_set_existing_bssid
     Scenario: nmtui - wifi - set existing bssid
     * Prepare new connection of type "Wi-Fi" named "wifi1"
@@ -296,7 +273,7 @@ Feature: WIFI TUI tests
     Then "Connected to f4:0f:1b:0e:e8:a1" is visible with command "iw dev wlan0 link" in "30" seconds
 
 
-    @wifi
+    @wifi @ifcfg-rh
     @nmtui_wifi_set_nonexisting_bssid
     Scenario: nmtui - wifi - set nonexisting bssid
     * Prepare new connection of type "Wi-Fi" named "wifi1"
@@ -360,7 +337,7 @@ Feature: WIFI TUI tests
     Then Cannot confirm the connection settings
 
 
-    @wifi
+    @wifi @ifcfg-rh
     @nmtui_wifi_mtu
     Scenario: nmtui - wifi - mtu
     * Prepare new connection of type "Wi-Fi" named "wifi1"
@@ -484,6 +461,4 @@ Feature: WIFI TUI tests
     * Choose to "<Activate>" a connection
     * Set current field to "over the river and through the woods"
     * Press "ENTER" key
-    Then "ESSID=(\"qe-wpa2-psk\"|qe-wpa2-psk)" is visible with command "cat /etc/sysconfig/network-scripts/ifcfg-qe-wpa2-psk"
-    Then "TYPE=Wireless" is visible with command "cat /etc/sysconfig/network-scripts/ifcfg-qe-wpa2-psk"
     Then "inet 10." is visible with command "ip a s wlan0" in "30" seconds

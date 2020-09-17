@@ -99,7 +99,7 @@ Feature: nmcli: connection
 
     @rhbz1171751
     @ver+=1.18
-    @teardown_testveth @con_con_remove
+    @teardown_testveth @con_con_remove @ifcfg-rh
     @connection_profile_duplication
     Scenario: nmcli - connection - profile duplication
      * Prepare simulated test "testXc" device
@@ -364,7 +364,7 @@ Feature: nmcli: connection
      Then Error type "type" shown in editor
 
 
-    @con_con_remove
+    @con_con_remove @ifcfg-rh
     @connection_permission_to_user
     Scenario: nmcli - connection - permissions to user
      * Add connection type "ethernet" named "con_con" for device "eth6"

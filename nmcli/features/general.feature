@@ -562,7 +562,7 @@ Feature: nmcli - general
 
     @rhbz1371433
     @ver+=1.7.9
-    @con_general_remove @manage_eth8 @eth8_disconnect
+    @con_general_remove @ifcfg-rh @manage_eth8 @eth8_disconnect
     @nmcli_general_set_device_back_to_managed
     Scenario: NM - general - set device back from unmanaged state
     * Add a new connection of type "ethernet" and options "ifname eth8 con-name con_general autoconnect no"
@@ -588,7 +588,7 @@ Feature: nmcli - general
      And "192" is visible with command "ip r |grep eth8"
 
 
-    @general_vlan
+    @general_vlan @ifcfg-rh
     @nmcli_general_ifcfg_tailing_whitespace
     Scenario: nmcli - general - ifcfg tailing whitespace ignored
     * Add a new connection of type "vlan" and options "con-name eth8.100 autoconnect no dev eth8 id 100"
@@ -606,9 +606,13 @@ Feature: nmcli - general
 
 
     @rhbz1114681
-    @general_vlan
+    @general_vlan @ifcfg-rh @add_testeth8
     @nmcli_general_keep_slave_device_unmanaged
     Scenario: nmcli - general - keep slave device unmanaged
+    # We need to delete keyfile testeth8
+    * Execute "nmcli con del testeth8"
+    # And add ifcfg one
+    * Add a new connection of type "ethernet" and options "con-name testeth8 ifname eth8"
     Given Check ifcfg-name file created for connection "testeth8"
     * Execute "echo -e NM_CONTROLLED=no >> /etc/sysconfig/network-scripts/ifcfg-testeth8"
     * Reload connections
@@ -1452,7 +1456,7 @@ Feature: nmcli - general
 
     @ver+=1.26.0
     @rhelver+=8 @fedoraver+=31
-    @nmstate_setup
+    @nmstate_setup @ifcfg-rh
     @nmstate
     Scenario: NM - general - nmstate
     * Restart NM
@@ -1681,7 +1685,7 @@ Feature: nmcli - general
 
 
     @ver+=1.10
-    @add_testeth8 @eth8_disconnect
+    @add_testeth8 @eth8_disconnect @ifcfg-rh
     @overtake_external_device
     Scenario: nmcli - general - overtake external device
     * Execute "ip add add 1.2.3.4/24 dev eth8"
@@ -1923,7 +1927,7 @@ Feature: nmcli - general
 
     @rhbz1578436
     @ver+=1.14
-    @rhelver+=8 @fedoraver+=31 @con_general_remove
+    @rhelver+=8 @fedoraver+=31 @con_general_remove @ifcfg-rh
     @ifup_ifdown_scripts
     Scenario: NM - general - test ifup (ifdown) script uses NM
     * Add a new connection of type "ethernet" and options "con-name con_general ifname eth8 autoconnect no ipv4.address 1.2.3.4/24 ipv4.method manual"

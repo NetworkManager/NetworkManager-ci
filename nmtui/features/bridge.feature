@@ -3,7 +3,7 @@ Feature: Bridge TUI tests
   Background:
   * Prepare virtual terminal environment
 
-    @bridge
+    @bridge @ifcfg-rh
     @nmtui_bridge_add_default_bridge
     Scenario: nmtui - bridge - add default bridge
     * Prepare new connection of type "Bridge" named "bridge0"
@@ -16,24 +16,8 @@ Feature: Bridge TUI tests
     Then "bridge0" is visible with command "ip link show type bridge"
     Then "bridge0\s+bridge" is visible with command "nmcli device"
 
-    @ver-=1.10.1
-    @bridge
-    @nmtui_bridge_add_custom_bridge
-    Scenario: nmtui - bridge - add custom bridge
-    * Prepare new connection of type "Bridge" named "bridge0"
-    * Set "Device" field to "br88"
-    * Set "Aging time" field to "500000"
-    * Set "Priority" field to "5"
-    * Set "Forward delay" field to "3"
-    * Set "Hello time" field to "3"
-    * Set "Max age" field to "15"
-    * Confirm the connection settings
-    Then "br88:" is visible with command "ip a" in "10" seconds
-    Then "br88" is visible with command "ip link show type bridge"
-    Then "DELAY=3.*BRIDGING_OPTS=\"priority=5 hello_time=3 max_age=15 ageing_time=500000\".*NAME=bridge.*ONBOOT=yes" is visible with command "cat /etc/sysconfig/network-scripts/ifcfg-bridge0"
-
     @ver+=1.10.2
-    @bridge
+    @bridge @ifcfg-rh
     @nmtui_bridge_add_custom_bridge
     Scenario: nmtui - bridge - add custom bridge
     * Prepare new connection of type "Bridge" named "bridge0"
@@ -56,8 +40,6 @@ Feature: Bridge TUI tests
     * Set "Device" field to "bridge0"
     * Ensure "Automatically connect" is not checked
     * Confirm the connection settings
-    Then Check ifcfg-name file created for connection "bridge0"
-    Then "TYPE=Bridge" is visible with command "cat /etc/sysconfig/network-scripts/ifcfg-bridge0"
     Then "bridge0" is visible with command "nmcli connection"
     Then "bridge0" is not visible with command "nmcli device"
 
@@ -126,7 +108,6 @@ Feature: Bridge TUI tests
     * Choose to "<Delete>" a connection
     * Press "Delete" button in the dialog
     * Wait for at least "3" seconds
-    Then ifcfg-"bridge0" file does not exist
     Then "bridge0" is not visible with command "nmcli connection"
     Then "bridge0" is not visible with command "nmcli device"
     Then "bridge0" is not visible with command "ip link show type bridge"
@@ -146,14 +127,13 @@ Feature: Bridge TUI tests
     * Choose to "<Delete>" a connection
     * Press "Delete" button in the dialog
     * Wait for at least "3" seconds
-    Then ifcfg-"bridge0" file does not exist
     Then "bridge0" is not visible with command "nmcli connection"
     Then "bridge0" is not visible with command "nmcli device"
     Then "bridge0" is not visible with command "ip link show type bridge"
 
 
     @veth
-    @bridge
+    @bridge @ifcfg-rh
     @nmtui_bridge_add_many_slaves
     Scenario: nmtui - bridge - add many slaves
     * Prepare new connection of type "Bridge" named "bridge0"
@@ -348,7 +328,7 @@ Feature: Bridge TUI tests
     Then "169.254" is visible with command "ip a s bridge0"
 
 
-    @bridge
+    @bridge @ifcfg-rh
     @nmtui_bridge_custom_bridge_port
     Scenario: nmtui - bridge - custom bridge port
     * Prepare new connection of type "Bridge" named "bridge0"

@@ -145,13 +145,12 @@ Feature: IPv4 TUI tests
     * In "Addresses" property add "192.168.125.253/24"
     * Set "Gateway" field to "192.168.125.96"
     * Confirm the connection settings
-    Then "GATEWAY=192.168.125.96" is visible with command "cat /etc/sysconfig/network-scripts/ifcfg-ethernet"
     Then "192.168.125.253/24" is visible with command "ip a s eth1"
     Then "default via 192.168.125" is visible with command "ip route"
     Then "192.168.125.0/24 dev eth1" is visible with command "ip route"
 
 
-    @ipv4
+    @ipv4 @ifcfg-rh
     @nmtui_ipv4_addresses_several_IPs_slash_netmask_and_gateway_manual
     Scenario: nmtui - ipv4 - addresses - several IPs slash netmask and route - manual
     * Prepare new connection of type "Ethernet" named "ethernet"
@@ -182,7 +181,6 @@ Feature: IPv4 TUI tests
     * In this property also add "192.168.253.103/24"
     * Set "Gateway" field to "192.168.253.96"
     * Confirm the connection settings
-    Then "GATEWAY=192.168.253.96" is visible with command "cat /etc/sysconfig/network-scripts/ifcfg-ethernet"
     Then "inet 192.168[^ ]* brd 192.168[^ ]* scope global( noprefixroute)? dynamic( noprefixroute)? eth1" is visible with command "ip a s eth1" in "10" seconds
     Then "192.168.253.101/24" is visible with command "ip a s eth1"
     Then "192.168.253.102/24" is visible with command "ip a s eth1"
@@ -564,12 +562,11 @@ Feature: IPv4 TUI tests
     * Ensure "Require IPv4 addressing for this connection" is checked
     * Ensure "Automatically connect" is not checked
     * Confirm the connection settings
-    Then "IPV4_FAILURE_FATAL=yes" is visible with command "cat /etc/sysconfig/network-scripts/ifcfg-ethernet1"
     Then "ipv4.may-fail:\s+no" is visible with command "nmcli con show ethernet1"
 
 
     @bz1108839
-    @ipv4
+    @ipv4 @ifcfg-rh
     @nmtui_ipv4_may_connection_not_required
     Scenario: nmtui - ipv4 -  connection not required
     * Prepare new connection of type "Ethernet" named "ethernet1"
@@ -602,11 +599,10 @@ Feature: IPv4 TUI tests
     * Ensure "Never use this network for default route" is not checked
     * Ensure "Automatically connect" is not checked
     * Confirm the connection settings
-    Then "DEFROUTE=yes" is visible with command "cat /etc/sysconfig/network-scripts/ifcfg-ethernet1"
     Then "ipv4.never-default:\s+no" is visible with command "nmcli con show ethernet1"
 
 
-    @ipv4
+    @ipv4 @ifcfg-rh
     @nmtui_ipv4_never_default_set
     Scenario: nmtui - ipv4 - never-default - set
     * Prepare new connection of type "Ethernet" named "ethernet1"
@@ -757,7 +753,7 @@ Feature: IPv4 TUI tests
 
 
     @bz1105770
-    @ipv4
+    @ipv4 @ifcfg-rh
     @nmtui_ipv4_addresses_gateway_ip_prefix_nonzero_form
     Scenario: nmtui - ipv4 - addresses - gateway, address and prefix stored in nonzero notation
     * Prepare new connection of type "Ethernet" named "ethernet"

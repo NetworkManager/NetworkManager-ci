@@ -5,7 +5,7 @@ Feature: Bond TUI tests
 
     @rhbz1715720
     @ver+=1.18.4
-    @bond
+    @bond @ifcfg-rh
     @nmtui_bond_add_default_bond
     Scenario: nmtui - bond - add default bond
     * Prepare new connection of type "Bond" named "bond0"
@@ -62,8 +62,6 @@ Feature: Bond TUI tests
     * Set "Device" field to "bond0"
     * Ensure "Automatically connect" is not checked
     * Confirm the connection settings
-    Then Check ifcfg-name file created for connection "bond0"
-    Then "TYPE=Bond" is visible with command "cat /etc/sysconfig/network-scripts/ifcfg-bond0"
     Then "bond0" is visible with command "nmcli connection"
     Then "bond0" is not visible with command "nmcli device"
 
@@ -131,7 +129,6 @@ Feature: Bond TUI tests
     * Choose to "<Delete>" a connection
     * Press "Delete" button in the dialog
     * Wait for at least "3" seconds
-    Then ifcfg-"bond0" file does not exist
     Then "bond0" is not visible with command "nmcli connection"
     Then "bond0" is not visible with command "nmcli device"
     Then Check bond "bond0" link state is "down"
@@ -151,37 +148,14 @@ Feature: Bond TUI tests
     * Choose to "<Delete>" a connection
     * Press "Delete" button in the dialog
     * Wait for at least "3" seconds
-    Then ifcfg-"bond0" file does not exist
     Then "bond0" is not visible with command "nmcli connection"
     Then "bond0" is not visible with command "nmcli device"
     Then Check bond "bond0" link state is "down"
 
 
-    @rhbz1369008
-    @ver+=1.4.0
-    @ver-=1.7.9
-    @bond
-    @nmtui_bond_add_one_slave
-    Scenario: nmtui - bond - add one slave
-    * Prepare new connection of type "Bond" named "bond0"
-    * Set "Device" field to "bond0"
-    * Confirm the connection settings
-    * Select connection "bond0" in the list
-    * Choose to "<Edit...>" a connection
-    * Choose to "<Add>" a slave
-    * Choose the connection type "Ethernet"
-    * Set "Profile name" field to "bond-slave-eth1"
-    * Set "Device" field to "eth1"
-    * Confirm the slave settings
-    * Confirm the connection settings
-    Then Check bond "bond0" link state is "up"
-     And "Slave Interface: eth1" is visible with command "cat /proc/net/bonding/bond0"
-     And "MASTER=bond0" is visible with command "cat /etc/sysconfig/network-scripts/ifcfg-bond-slave-eth1"
-
-
     @rhbz1425409
     @ver+=1.8.0
-    @bond
+    @bond @ifcfg-rh
     @nmtui_bond_add_one_slave
     Scenario: nmtui - bond - add one slave
     * Prepare new connection of type "Bond" named "bond0"
@@ -279,7 +253,7 @@ Feature: Bond TUI tests
     Then "192.168" is visible with command "ip a s bond0"
 
 
-    @bond
+    @bond @ifcfg-rh
     @nmtui_bond_infiniband_slaves
     Scenario: nmtui - bond - infiniband slaves
     * Prepare new connection of type "Bond" named "bond0"

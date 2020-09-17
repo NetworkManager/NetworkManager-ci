@@ -83,7 +83,7 @@ Feature: IPv6 TUI tests
     * Cannot confirm the connection settings
 
 
-    @ipv6
+    @ipv6 @ifcfg-rh
     @nmtui_ipv6_addresses_IP_slash_netmask_and_gateway_manual
     Scenario: nmtui - ipv6 - addresses - IP slash netmask and gateway
     * Prepare new connection of type "Ethernet" named "ethernet"
@@ -112,7 +112,6 @@ Feature: IPv6 TUI tests
     * Set "Gateway" field to "fc01::1:1"
     * Confirm the connection settings
     * Wait for at least "3" seconds
-    Then "IPV6_DEFAULTGW=fc01::1:1" is visible with command "cat /etc/sysconfig/network-scripts/ifcfg-ethernet"
     Then "fc01::1:5/68" is visible with command "ip -6 a s eth1"
     Then "fc01::1:6/112" is visible with command "ip -6 a s eth1"
     Then "fc01::1:21/96" is visible with command "ip -6 a s eth1"
@@ -133,7 +132,6 @@ Feature: IPv6 TUI tests
     * In this property also add "fc01::1:21/96"
     * Set "Gateway" field to "fc01::1:1"
     * Confirm the connection settings
-    Then "IPV6_DEFAULTGW=fc01::1:1" is visible with command "cat /etc/sysconfig/network-scripts/ifcfg-ethernet"
     Then "dynamic" is visible with command "ip -6 a s eth10" in "30" seconds
     Then "fc01::1:5/68" is visible with command "ip -6 a s eth10"
     Then "fc01::1:6/112" is visible with command "ip -6 a s eth10"
@@ -543,7 +541,7 @@ Feature: IPv6 TUI tests
 
 
     @bz1108839
-    @ipv6
+    @ipv6 @ifcfg-rh
     @nmtui_ipv6_may_connection_required
     Scenario: nmtui - ipv6 -  connection required
     * Prepare new connection of type "Ethernet" named "ethernet1"
@@ -564,11 +562,10 @@ Feature: IPv6 TUI tests
     * Ensure "Require IPv6 addressing for this connection" is not checked
     * Ensure "Automatically connect" is not checked
     * Confirm the connection settings
-    Then "IPV6_FAILURE_FATAL=no" is visible with command "cat /etc/sysconfig/network-scripts/ifcfg-ethernet1"
     Then "ipv6.may-fail:\s+yes" is visible with command "nmcli con show ethernet1"
 
 
-    @ipv6
+    @ipv6 @ifcfg-rh
     @nmtui_ipv6_method_ignore
     Scenario: nmtui - ipv6 - method - ignore
     * Prepare new connection of type "Ethernet" named "ethernet1"
@@ -582,7 +579,7 @@ Feature: IPv6 TUI tests
     Then "inet6 ((?!fe80).)" is not visible with command "ip -6 a s eth1"
 
 
-    @ipv6
+    @ipv6 @ifcfg-rh
     @nmtui_ipv6_never_default_unset
     Scenario: nmtui - ipv6 - never-default - unset
     * Prepare new connection of type "Ethernet" named "ethernet1"
@@ -602,7 +599,6 @@ Feature: IPv6 TUI tests
     * Ensure "Never use this network for default route" is checked
     * Ensure "Automatically connect" is not checked
     * Confirm the connection settings
-    Then "IPV6_DEFROUTE=no" is visible with command "cat /etc/sysconfig/network-scripts/ifcfg-ethernet1"
     Then "ipv6.never-default:\s+yes" is visible with command "nmcli con show ethernet1"
 
 

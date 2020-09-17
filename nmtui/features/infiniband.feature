@@ -3,7 +3,7 @@ Feature: Bridge TUI tests
   Background:
   * Prepare virtual terminal environment
 
-    @inf
+    @inf @ifcfg-rh
     @nmtui_inf_create_master_connection
     Scenario: nmtui - inf - create master connection
     * Prepare new connection of type "InfiniBand" named "infiniband0"
@@ -17,7 +17,7 @@ Feature: Bridge TUI tests
     Then "infiniband0\s+.*infiniband" is visible with command "nmcli connection"
 
 
-    @inf
+    @inf @ifcfg-rh
     @nmtui_inf_create_port_connection
     Scenario: nmtui - inf - create port connection
     * Prepare new connection of type "InfiniBand" named "infiniband0"
@@ -37,7 +37,7 @@ Feature: Bridge TUI tests
     Then "infiniband0-port\s+.*infiniband" is visible with command "nmcli connection"
 
 
-    @inf
+    @inf @ifcfg-rh
     @nmtui_inf_add_connection_wo_autoconnect
     Scenario: nmtui - inf - add connnection without autoconnect
     * Prepare new connection of type "InfiniBand" named "infiniband0"
@@ -48,7 +48,7 @@ Feature: Bridge TUI tests
     Then "ONBOOT=no" is visible with command "cat /etc/sysconfig/network-scripts/ifcfg-infiniband0"
 
 
-    @inf
+    @inf @ifcfg-rh
     @nmtui_inf_delete_connection
     Scenario: nmtui - inf - delete connection
     * Prepare new connection of type "InfiniBand" named "infiniband0"
@@ -63,7 +63,7 @@ Feature: Bridge TUI tests
     Then "infiniband0" is not visible with command "nmcli connection"
 
 
-    @inf
+    @inf @ifcfg-rh
     @nmtui_inf_set_mtu
     Scenario: nmtui - inf - set MTU
     * Prepare new connection of type "InfiniBand" named "infiniband0"
@@ -74,7 +74,7 @@ Feature: Bridge TUI tests
     Then "MTU=1280" is visible with command "cat /etc/sysconfig/network-scripts/ifcfg-infiniband0"
 
 
-    @inf
+    @inf @ifcfg-rh
     @nmtui_inf_datagram_mode
     Scenario: nmtui - inf - set datagram mode
     * Prepare new connection of type "InfiniBand" named "infiniband0"
@@ -86,7 +86,7 @@ Feature: Bridge TUI tests
     Then "CONNECTED_MODE=yes" is not visible with command "cat /etc/sysconfig/network-scripts/ifcfg-infiniband0"
 
 
-    @inf
+    @inf @ifcfg-rh
     @nmtui_inf_connected_mode
     Scenario: nmtui - inf - set connected mode
     * Prepare new connection of type "InfiniBand" named "infiniband0"

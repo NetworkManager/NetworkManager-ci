@@ -3,7 +3,7 @@ Feature: VLAN TUI tests
   Background:
   * Prepare virtual terminal environment
 
-    @vlan
+    @vlan @ifcfg-rh
     @nmtui_vlan_add_default_connection
     Scenario: nmtui - vlan - add default connection
     * Prepare new connection of type "VLAN" named "vlan"
@@ -25,10 +25,6 @@ Feature: VLAN TUI tests
     * Set "Parent" field to "eth1"
     * Set "VLAN id" field to "99"
     * Confirm the connection settings
-    Then Check ifcfg-name file created for connection "vlan"
-    Then "TYPE=Vlan" is visible with command "cat /etc/sysconfig/network-scripts/ifcfg-vlan"
-    Then "DEVICE=vlan_device" is visible with command "cat /etc/sysconfig/network-scripts/ifcfg-vlan"
-    Then "VLAN_ID=99" is visible with command "cat /etc/sysconfig/network-scripts/ifcfg-vlan"
     Then "vlan_device@eth1:" is visible with command "ip a" in "10" seconds
     Then "vlan_device\s+vlan" is visible with command "nmcli device"
 
@@ -118,12 +114,10 @@ Feature: VLAN TUI tests
     * Set "Device" field to "eth1.99"
     * Ensure "Automatically connect" is not checked
     * Confirm the connection settings
-    * Check ifcfg-name file created for connection "eth1.99"
     * "eth1.99" is not visible with command "nmcli device"
     * Select connection "eth1.99" in the list
     * Choose to "<Delete>" a connection
     * Press "Delete" button in the dialog
-    Then ifcfg-"eth1.99" file does not exist
     Then "eth1.99" is not visible with command "nmcli connection"
 
 
@@ -134,12 +128,10 @@ Feature: VLAN TUI tests
     * Set "Device" field to "eth1.99"
     * Ensure "Automatically connect" is checked
     * Confirm the connection settings
-    * Check ifcfg-name file created for connection "eth1.99"
     * "eth1.99\s+vlan\s+connecting" is visible with command "nmcli device" in "10" seconds
     * Select connection "eth1.99" in the list
     * Choose to "<Delete>" a connection
     * Press "Delete" button in the dialog
-    Then ifcfg-"eth1.99" file does not exist
     Then "eth1.99" is not visible with command "nmcli connection"
     Then "eth1.99" is not visible with command "nmcli device"
 
@@ -152,13 +144,11 @@ Feature: VLAN TUI tests
     * Set "IPv4 CONFIGURATION" category to "Link-Local"
     * Ensure "Automatically connect" is checked
     * Confirm the connection settings
-    * Check ifcfg-name file created for connection "eth1.99"
     * "eth1.99\s+vlan\s+connected" is visible with command "nmcli device" in "10" seconds
     * "169.254" is visible with command "ip a s eth1.99" in "10" seconds
     * Select connection "eth1.99" in the list
     * Choose to "<Delete>" a connection
     * Press "Delete" button in the dialog
-    Then ifcfg-"eth1.99" file does not exist
     Then "eth1.99" is not visible with command "nmcli connection"
     Then "eth1.99" is not visible with command "nmcli device"
 
@@ -171,7 +161,6 @@ Feature: VLAN TUI tests
     * Set "IPv4 CONFIGURATION" category to "Link-Local"
     * Ensure "Automatically connect" is not checked
     * Confirm the connection settings
-    Then Check ifcfg-name file created for connection "eth1.99"
     Then "eth1.99" is visible with command "nmcli connection"
     Then "eth1.99" is not visible with command "nmcli device"
 
@@ -184,7 +173,6 @@ Feature: VLAN TUI tests
     * Set "IPv4 CONFIGURATION" category to "Link-Local"
     * Ensure "Automatically connect" is not checked
     * Confirm the connection settings
-    * Check ifcfg-name file created for connection "eth1.99"
     * "eth1.99" is visible with command "nmcli connection"
     * "eth1.99" is not visible with command "nmcli device"
     * Come back to main screen
@@ -195,7 +183,7 @@ Feature: VLAN TUI tests
     Then "eth1.99\s+vlan\s+connected" is visible with command "nmcli device"
 
 
-    @vlan
+    @vlan @ifcfg-rh
     @nmtui_vlan_deactivate_connection_wo_autoconnect
     Scenario: nmtui - vlan - deactivate connection without autoconnect
     * Prepare new connection of type "VLAN" named "eth1.99"
@@ -225,7 +213,6 @@ Feature: VLAN TUI tests
     * Set "IPv4 CONFIGURATION" category to "Link-Local"
     * Ensure "Automatically connect" is checked
     * Confirm the connection settings
-    * Check ifcfg-name file created for connection "eth1.99"
     * "eth1.99" is visible with command "nmcli connection"
     * "eth1.99" is visible with command "nmcli device"
     * Come back to main screen

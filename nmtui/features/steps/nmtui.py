@@ -143,7 +143,7 @@ def start_nmtui(context):
     for line in context.screen.display:
         if 'NetworkManager TUI' in line:
             break
-    sleep(0.1)
+    sleep(0.2)
 
 @step('Nmtui process is running')
 def check_process_running(context):
@@ -181,6 +181,7 @@ def prep_conn_abstract(context, typ, name):
 
 @step('Choose to "{option}" from main screen')
 def choose_main_option(context, option):
+    context.execute_steps('''* Come back to the top of editor''')
     assert go_until_pattern_matches_line(context,keys['DOWNARROW'],r'.*%s.*' % option) is not None, "Could not go to option '%s' on screen!" % option
     context.tui.send(keys['ENTER'])
     sleep(0.2)

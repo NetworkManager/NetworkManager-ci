@@ -24,7 +24,7 @@ Feature: WIFI TUI tests
 
 
     @fedoraver+=32
-    @simwifi
+    @simwifi @ifcfg-rh
     @nmtui_simwifi_connect_to_open_network
     Scenario: nmtui - wifi_hwsim - connect to open network straight
     * Start nmtui
@@ -48,8 +48,6 @@ Feature: WIFI TUI tests
     * ".*Authentication required.*" is visible on screen
     * Set current field to "secret123"
     * Press "ENTER" key
-    Then "ESSID=(\"wpa1-psk\"|wpa1-psk)" is visible with command "cat /etc/sysconfig/network-scripts/ifcfg-wpa1-psk"
-    Then "TYPE=Wireless" is visible with command "cat /etc/sysconfig/network-scripts/ifcfg-wpa1-psk"
     Then "inet 10." is visible with command "ip a s wlan0" in "30" seconds
 
 
@@ -65,8 +63,6 @@ Feature: WIFI TUI tests
     * ".*Authentication required.*" is visible on screen
     * Set current field to "secret123"
     * Press "ENTER" key
-    Then "ESSID=(\"wpa2-psk\"|wpa2-psk)" is visible with command "cat /etc/sysconfig/network-scripts/ifcfg-wpa2-psk"
-    Then "TYPE=Wireless" is visible with command "cat /etc/sysconfig/network-scripts/ifcfg-wpa2-psk"
     Then "inet 10." is visible with command "ip a s wlan0" in "30" seconds
 
 
@@ -82,13 +78,11 @@ Feature: WIFI TUI tests
     * ".*Authentication required.*" is visible on screen
     * Set current field to "secret123"
     * Press "ENTER" key
-    Then "ESSID=(\"wpa3\"|wpa3)" is visible with command "cat /etc/sysconfig/network-scripts/ifcfg-wpa3"
-    Then "TYPE=Wireless" is visible with command "cat /etc/sysconfig/network-scripts/ifcfg-wpa3"
     Then "inet 10." is visible with command "ip a s wlan0" in "30" seconds
 
 
     @fedoraver+=32
-    @simwifi
+    @simwifi @ifcfg-rh
     @nmtui_simwifi_connect_to_wep_hexkey_network
     Scenario: nmtui - wifi_hwsim - connect to WEP hex-key network straight
     * Start nmtui
@@ -116,13 +110,11 @@ Feature: WIFI TUI tests
     * ".*Authentication required.*" is visible on screen
     * Set current field to "testing123456"
     * Press "ENTER" key
-    Then "ESSID=(\"wep-2\"|wep-2)" is visible with command "cat /etc/sysconfig/network-scripts/ifcfg-wep-2"
-    Then "TYPE=Wireless" is visible with command "cat /etc/sysconfig/network-scripts/ifcfg-wep-2"
     Then "inet 10." is visible with command "ip a s wlan0" in "30" seconds
 
 
     @fedoraver+=32
-    @simwifi
+    @simwifi @ifcfg-rh
     @nmtui_simwifi_add_default_connection_open_network
     Scenario: nmtui - wifi_hwsim - add default connection open network
     * Prepare new connection of type "Wi-Fi" named "wifi"
@@ -142,8 +134,6 @@ Feature: WIFI TUI tests
     * Set "Device" field to "wlan0"
     * Set "SSID" field to "open"
     * Confirm the connection settings
-    Then "ESSID=(\"open\"|open)" is visible with command "cat /etc/sysconfig/network-scripts/ifcfg-wifi"
-    Then "DEVICE=wlan0" is visible with command "cat /etc/sysconfig/network-scripts/ifcfg-wifi"
     Then "inet 10." is visible with command "ip a s wlan0" in "30" seconds
 
 
@@ -155,8 +145,6 @@ Feature: WIFI TUI tests
     * Set "Device" field to "nonexistent"
     * Set "SSID" field to "open"
     * Confirm the connection settings
-    Then "ESSID=(\"open\"|open)" is visible with command "cat /etc/sysconfig/network-scripts/ifcfg-wifi"
-    Then "DEVICE=nonexistent" is visible with command "cat /etc/sysconfig/network-scripts/ifcfg-wifi"
     Then "wlan0\s+wifi\s+disconnected" is visible with command "nmcli device"
 
 
@@ -170,8 +158,6 @@ Feature: WIFI TUI tests
     * Ensure "Automatically connect" is not checked
     * Confirm the connection settings
     Then "no" is visible with command "nmcli -g connection.autoconnect con show id wifi1"
-    Then "ESSID=(\"open\"|open)" is visible with command "cat /etc/sysconfig/network-scripts/ifcfg-wifi"
-    Then "DEVICE=wlan0" is visible with command "cat /etc/sysconfig/network-scripts/ifcfg-wifi"
     Then "wlan0\s+wifi\s+disconnected" is visible with command "nmcli device"
 
 
@@ -233,7 +219,6 @@ Feature: WIFI TUI tests
     * Choose to "<Delete>" a connection
     * Press "Delete" button in the dialog
     * Wait for at least "3" seconds
-    Then ifcfg-"wifi1" file does not exist
     Then "wifi1" is not visible with command "nmcli connection"
     Then "wifi1" is not visible with command "nmcli device"
     Then "inet 10." is not visible with command "ip a s wlan0"
@@ -257,7 +242,6 @@ Feature: WIFI TUI tests
     * Choose to "<Delete>" a connection
     * Press "Delete" button in the dialog
     * Wait for at least "3" seconds
-    Then ifcfg-"wifi1" file does not exist
     Then "wifi1" is not visible with command "nmcli connection"
     Then "wifi1" is not visible with command "nmcli device"
     Then "inet 10." is not visible with command "ip a s wlan0"
@@ -315,7 +299,7 @@ Feature: WIFI TUI tests
 
 
     @fedoraver+=32
-    @simwifi
+    @simwifi @ifcfg-rh
     @nmtui_simwifi_set_existing_bssid
     Scenario: nmtui - wifi_hwsim - set existing bssid
     * Prepare new connection of type "Wi-Fi" named "wifi1"
@@ -329,7 +313,7 @@ Feature: WIFI TUI tests
 
 
     @fedoraver+=32
-    @simwifi
+    @simwifi @ifcfg-rh
     @nmtui_simwifi_set_nonexisting_bssid
     Scenario: nmtui - wifi_hwsim - set nonexisting bssid
     * Prepare new connection of type "Wi-Fi" named "wifi1"
@@ -397,7 +381,7 @@ Feature: WIFI TUI tests
 
 
     @fedoraver+=32
-    @simwifi
+    @simwifi @ifcfg-rh
     @nmtui_simwifi_mtu
     Scenario: nmtui - wifi_hwsim - mtu
     * Prepare new connection of type "Wi-Fi" named "wifi1"
@@ -529,8 +513,6 @@ Feature: WIFI TUI tests
     * Choose to "<Activate>" a connection
     * Set current field to "secret123"
     * Press "ENTER" key
-    Then "ESSID=(\"wpa2-psk\"|wpa2-psk)" is visible with command "cat /etc/sysconfig/network-scripts/ifcfg-wpa2-psk"
-    Then "TYPE=Wireless" is visible with command "cat /etc/sysconfig/network-scripts/ifcfg-wpa2-psk"
     Then "inet 10." is visible with command "ip a s wlan0" in "30" seconds
 
 

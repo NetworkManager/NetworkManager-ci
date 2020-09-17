@@ -601,12 +601,22 @@ def before_scenario(context, scenario):
                     os.system("nmcli device disconnect eth0")
                     sleep(2)
                 print ("---------------------------")
+            if 'ifcfg-rh' in scenario.tags:
+                if call("NetworkManager --print-config |grep '^plugins=ifcfg-rh'", shell=True) != 0:
+                    print ("---------------------------")
+                    print ("setting ifcfg-rh plugin")
+                    call("printf '# configured by beaker-test\n[main]\nplugins=ifcfg-rh\n' > /etc/NetworkManager/conf.d/99-xxcustom.conf", shell=True)
+                    restart_NM_service()
+                    # VV Do not lower this
+                    sleep(0.5)
+                    if 'simwifi' in scenario.tags:
+                        sleep(5)
             if 'wifi' in scenario.tags:
                 wifi_rescan()
             if 'nmtui_general_activate_screen_no_connections' in scenario.tags:
                 print ("Moving all connection profiles to temp dir")
-                os.system("mkdir /tmp/backup_profiles")
-                os.system("mv -f /etc/sysconfig/network-scripts/ifcfg-* /tmp/backup_profiles")
+                os.system("rm -rf /etc/NetworkManager/system-connections/testeth*")
+                os.system("rm -rf /etc/sysconfig/network-scripts/ifcfg-*")
                 os.system("nmcli con reload")
             if 'simwifi' in scenario.tags:
                 print ("Preparing simulated wifi setup")
@@ -934,7 +944,7 @@ def before_scenario(context, scenario):
                         sys.exit(77)
                 print ("set dns=systemd-resolved")
                 call("printf '# configured by beaker-test\n[main]\ndns=systemd-resolved\n' > /etc/NetworkManager/conf.d/99-xtest-dns.conf", shell=True)
-                reload_NM_service ()
+                restart_NM_service ()
                 context.dns_script="sd-resolved.py"
 
             if 'internal_DHCP' in scenario.tags:
@@ -949,12 +959,6 @@ def before_scenario(context, scenario):
                 call("printf '# configured by beaker-test\n[main]\ndhcp=dhclient\n' > /etc/NetworkManager/conf.d/99-xtest-dhcp-dhclient.conf", shell=True)
                 restart_NM_service()
 
-            if 'ifcfg-rh' in scenario.tags:
-                print ("---------------------------")
-                print ("setting ifcfg-rh plugin")
-                call("printf '# configured by beaker-test\n[main]\nplugins=ifcfg-rh\n' > /etc/NetworkManager/conf.d/99-xxcustom.conf", shell=True)
-                restart_NM_service()
-
             if 'dummy' in scenario.tags:
                 print ("---------------------------")
                 print ("removing dummy devices")
@@ -966,6 +970,13 @@ def before_scenario(context, scenario):
                 print ("delete testeth0")
                 call("nmcli device disconnect eth0", shell=True)
                 call("nmcli connection delete id testeth0", shell=True)
+
+            if 'ifcfg-rh' in scenario.tags:
+                if call("NetworkManager --print-config |grep '^plugins=ifcfg-rh'", shell=True) != 0:
+                    print ("---------------------------")
+                    print ("setting ifcfg-rh plugin")
+                    call("printf '# configured by beaker-test\n[main]\nplugins=ifcfg-rh\n' > /etc/NetworkManager/conf.d/99-xxcustom.conf", shell=True)
+                    restart_NM_service()
 
             if 'eth3_disconnect' in scenario.tags:
                 print ("---------------------------")
@@ -1626,6 +1637,12 @@ def after_scenario(context, scenario):
                 reset_hwaddr_nmtui('eth1')
                 reset_hwaddr_nmtui('eth2')
                 os.system("sudo ip link del team0")
+            if 'ifcfg-rh' in scenario.tags:
+                if call('test -f /etc/NetworkManager/conf.d/99-xxcustom.conf', shell=True) == 0:
+                    print ("---------------------------")
+                    print ("resetting ifcfg plugin")
+                    call('sudo rm -f /etc/NetworkManager/conf.d/99-xxcustom.conf', shell=True)
+                    restart_NM_service()
             if 'inf' in scenario.tags:
                 os.system("sudo nmcli connection delete id infiniband0 infiniband0-port")
             if 'dsl' in scenario.tags:
@@ -1696,9 +1713,8 @@ def after_scenario(context, scenario):
                 sleep(10)
             if 'nmtui_general_activate_screen_no_connections' in scenario.tags:
                 print ("Restoring all connection profiles from temp dir")
-                os.system("cp -f /tmp/backup_profiles/* /etc/sysconfig/network-scripts/")
-                os.system("rm -rf /tmp/backup_profiles")
-                os.system("nmcli con reload")
+                restore_connections ()
+                wait_for_testeth0 ()
             if 'nmtui_ethernet_activate_connection_specific_device' in scenario.tags:
                 if os.system("nmcli connection show -a |grep testeth7") == 0:
                     print ("Disconnect testeth7")
@@ -2163,10 +2179,11 @@ def after_scenario(context, scenario):
                 restart_NM_service()
 
             if 'ifcfg-rh' in scenario.tags:
-                print ("---------------------------")
-                print ("resetting ifcfg plugin")
-                call('sudo rm -f /etc/NetworkManager/conf.d/99-xxcustom.conf', shell=True)
-                restart_NM_service()
+                if call('test -f /etc/NetworkManager/conf.d/99-xxcustom.conf', shell=True) == 0:
+                    print ("---------------------------")
+                    print ("resetting ifcfg plugin")
+                    call('sudo rm -f /etc/NetworkManager/conf.d/99-xxcustom.conf', shell=True)
+                    restart_NM_service()
 
             if 'dhcpd' in scenario.tags:
                 print ("---------------------------")
