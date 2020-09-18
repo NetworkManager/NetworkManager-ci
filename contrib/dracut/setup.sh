@@ -49,7 +49,6 @@ test_setup() {
         [ -f /etc/netconfig ] && inst_multiple /etc/netconfig
         type -P dhcpd >/dev/null && inst_multiple dhcpd
         type -P radvd >/dev/null && inst_multiple radvd
-        type -P teamd >/dev/null && inst_multiple teamd
         [ -x /usr/sbin/dhcpd3 ] && inst /usr/sbin/dhcpd3 /usr/sbin/dhcpd
         instmods nfsd sunrpc ipv6 lockd af_packet bonding ipvlan macvlan 8021q
         inst ./conf/server-init.sh /sbin/init
@@ -96,14 +95,14 @@ test_setup() {
         . $basedir/dracut-init.sh
 
         inst_multiple sh shutdown poweroff stty cat ps ln ip dd mount dmesg \
-                      mkdir cp ping grep wc awk setsid ls find less cat tee \
+                      mkdir cp ping grep wc awk setsid ls find less tee \
                       sync rm sed time
         for _terminfodir in /lib/terminfo /etc/terminfo /usr/share/terminfo; do
             [ -f ${_terminfodir}/l/linux ] && break
         done
         inst_multiple -o ${_terminfodir}/l/linux
         inst_simple /etc/os-release
-        inst /etc/machine-id
+        inst_simple /etc/machine-id
         (
             cd "$initdir"
             mkdir -p dev sys proc etc run
@@ -134,6 +133,8 @@ test_setup() {
         cp -a /etc/ld.so.conf* $initdir/etc
         ldconfig -r "$initdir"
         echo "/dev/nfs / nfs defaults 1 1" > $initdir/etc/fstab
+
+        inst_multiple teamd teamdctl
     )
 
     # install systemd in client
@@ -377,7 +378,7 @@ EOF
       dracut -i $TESTDIR/overlay-server / \
              -m "bash crypt lvm mdraid udev-rules base rootfs-block fs-lib debug kernel-modules qemu" \
              -d "8021q ipvlan macvlan bonding af_packet piix ide-gd_mod ata_piix ext3 sd_mod e1000 drbg" \
-             --no-hostonly-cmdline -N \
+             --no-hostonly-cmdline -N --no-compress \
              -f $TESTDIR/initramfs.server $KVERSION
       rm -rf -- $TESTDIR/overlay-server
     ) &
@@ -401,7 +402,7 @@ EOF
                -o "plymouth dash dmraid network-legacy" \
                -a "debug network-manager ifcfg" \
                -d "8021q ipvlan macvlan bonding af_packet piix ext3 ide-gd_mod ata_piix sd_mod e1000 nfs sunrpc" \
-               --no-hostonly-cmdline -N \
+               --no-hostonly-cmdline -N --no-compress \
                -f $TESTDIR/initramfs.client.NM $KVERSION
        rm -rf -- $TESTDIR/overlay-client-NM
      ) &
@@ -425,7 +426,7 @@ EOF
               -o "plymouth dash dmraid network-manager" \
               -a "debug network-legacy ifcfg" \
               -d "8021q ipvlan macvlan bonding af_packet piix ext3 ide-gd_mod ata_piix sd_mod e1000 nfs sunrpc" \
-              --no-hostonly-cmdline -N \
+              --no-hostonly-cmdline -N --no-compress \
               -f $TESTDIR/initramfs.client.legacy $KVERSION
        rm -rf -- $TESTDIR/overlay-client-legacy
   ) &
@@ -475,9 +476,13 @@ run_server() {
         -netdev hubport,hubid=1,id=h2 -device e1000,mac=52:54:00:12:34:56,netdev=h2 \
         -netdev hubport,hubid=1,id=h3 -device e1000,mac=52:54:00:12:34:57,netdev=h3 \
         -netdev hubport,hubid=1,id=h4 -device e1000,mac=52:54:00:12:34:58,netdev=h4 \
-        -netdev socket,id=n1,listen=127.0.0.1:12321 -device e1000,netdev=n1,mac=52:54:00:12:34:60 \
-        -netdev socket,id=n2,listen=127.0.0.1:12322 -device e1000,netdev=n2,mac=52:54:00:12:34:61 \
-        -netdev socket,id=n3,listen=127.0.0.1:12323 -device e1000,netdev=n3,mac=52:54:00:12:34:62 \
+        -netdev socket,id=n1,listen=127.0.0.1:12321 -device e1000,netdev=n1,mac=52:54:00:12:34:61 \
+        -netdev socket,id=n2,listen=127.0.0.1:12322 -device e1000,netdev=n2,mac=52:54:00:12:34:62 \
+        -netdev socket,id=n3,listen=127.0.0.1:12323 -device e1000,netdev=n3,mac=52:54:00:12:34:63 \
+        -netdev socket,id=n4,listen=127.0.0.1:12324 -device e1000,netdev=n4,mac=52:54:00:12:34:64 \
+        -netdev socket,id=n5,listen=127.0.0.1:12325 -device e1000,netdev=n5,mac=52:54:00:12:34:65 \
+        -netdev socket,id=n6,listen=127.0.0.1:12326 -device e1000,netdev=n6,mac=52:54:00:12:34:66 \
+        -netdev socket,id=n7,listen=127.0.0.1:12327 -device e1000,netdev=n7,mac=52:54:00:12:34:67 \
         ${SERIAL:+-serial "$SERIAL"} \
         ${SERIAL:--serial file:"$TESTDIR"/server.log} \
         -append "panic=1 quiet root=/dev/sda rootfstype=ext3 rw $SERVER_DEBUG console=ttyS0,115200n81 selinux=0 noapic" \
@@ -496,8 +501,8 @@ run_server() {
         done
         return 1
     else
-        echo Sleeping 10 seconds to give the server a head start
-        sleep 10
+        echo Sleeping 60 seconds to give the server a head start
+        sleep 60
     fi
 
     cp $TESTDIR/iscsidisk2.img $TESTDIR/iscsidisk3.img /tmp/

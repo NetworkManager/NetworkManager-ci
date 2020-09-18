@@ -1210,6 +1210,14 @@ testmapper:
         feature: dracut
     - dracut_NM_bridge_custom_name_2_ifaces:
         feature: dracut
+    - dracut_NM_bond_over_2_ifaces:
+        feature: dracut
+    #- dracut_NM_team_over_2_ifaces:
+    #    feature: dracut
+    - dracut_NM_vlan_over_nic:
+        feature: dracut
+    - dracut_NM_vlan_over_everything:
+        feature: dracut
     - dracut_legacy_iSCSI_ibft_table:
         feature: dracut
     - dracut_clean:

@@ -1,3 +1,11 @@
+
+# define ip commands, that fail the test if returncode != 0
+ipX() { /sbin/ip $@ || die "ip command failed" ; }
+
+ip4() { ipX -4 $@ ; }
+ip6() { ipX -6 $@ ; }
+ip() { ipX $@ ; }
+
 ip_list() {
   echo "== ip addr =="
   ip addr
@@ -36,27 +44,41 @@ ip_route_unique() {
 }
 
 ip4_route_unique() {
-  ip() { /sbin/ip -4 $@ ; }
+  ip() { ip4 $@ ; }
   ip_route_unique "$1"
-  unset ip
+  ip() { ipX $@ ; }
 }
 
 ip6_route_unique() {
-  ip() { /sbin/ip -6 $@ ; }
+  ip() { ip6 $@ ; }
   ip_route_unique "$1"
-  unset ip
+  ip() { ipX $@ ; }
+}
+
+link_no_ip() {
+  ip -o addr show dev $ifname | grep -q -w -F "$inet" && \
+    die "link '$ifname' has IPv$ip_ver address: $(echo; ip addr show dev $ifname)"
+  echo "[OK] link '$ifname' has no IPv$ip_ver address"
 }
 
 link_no_ip4() {
-  ip -o addr show dev $1 | grep -q -w -F "inet" && \
-    die "link '$1' has IPv4 address: $(echo; ip addr show dev $1)"
-  echo "[OK] link '$1' has no IPv4 address"
+  local ifname ip_ver inet
+  ifname=$1
+  ip_ver=4
+  inet=inet
+  ip() { ip4 $@; }
+  link_no_ip
+  ip() { ipX $@ ; }
 }
 
 link_no_ip6() {
-  ip -o addr show dev $1 | grep -q -w -F "inet6" && \
-    die "link '$1' has IPv6 address: $(echo; ip addr show dev $1)"
-  echo "[OK] link '$1' has no IPv6 address"
+  local ifname ip_ver inet
+  ifname=$1
+  ip_ver=6
+  inet=inet6
+  ip() { ip6 $@; }
+  link_no_ip
+  ip() { ipX $@ ; }
 }
 
 get_lease_time() {
@@ -73,15 +95,15 @@ ip_forever() {
 }
 
 ip4_forever() {
-  ip() { /sbin/ip -4 $@ ; }
+  ip() { ip4 $@ ; }
   ip_forever "$1" "$2"
-  unset ip
+  ip() { ipX $@ ; }
 }
 
 ip6_forever() {
-  ip() { /sbin/ip -6 $@ ; }
+  ip() { ip6 $@ ; }
   ip_forever "$1" "$2"
-  unset ip
+  ip() { ipX $@ ; }
 }
 
 wait_for_ip_renew() {
@@ -109,17 +131,17 @@ wait_for_ip_renew() {
       last_lease=$lease_time
       lease_time="$(get_lease_time)"
   done
-  echo "[OK] '$ifname' '$IP' lease renewd: ${last_lease}s -> ${lease_time}s"
+  echo "[OK] '$ifname' '$IP' lease renewed: ${last_lease}s -> ${lease_time}s"
 }
 
 wait_for_ip4_renew() {
-  ip() { /sbin/ip -4 $@ ; }
+  ip() { ip4 $@ ; }
   wait_for_ip_renew "$1" "$2"
-  unset ip
+  ip() { ipX $@ ; }
 }
 
 wait_for_ip6_renew() {
-  ip() { /sbin/ip -6 $@ ; }
+  ip() { ip6 $@ ; }
   wait_for_ip_renew "$1" "$2"
-  unset ip
+  ip() { ipX $@ ; }
 }

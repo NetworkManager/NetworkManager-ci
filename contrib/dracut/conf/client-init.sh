@@ -6,7 +6,7 @@ export PS1='initramfs-test:\w\$ '
 
 # load check library
 dd if=/dev/sdb of=/check.sh
-source /check.sh
+source /check.sh || poweroff -f  # if source fails, we probably do not have `die`
 
 mount_list
 
@@ -44,7 +44,7 @@ ip_list
 nmcli_list
 
 echo "== checks =="
-client_check
+client_check || die "client_check did not exit with 0"
 
 # client_check should "die" if failed
 echo PASS | dd oflag=direct,dsync of=/dev/sda

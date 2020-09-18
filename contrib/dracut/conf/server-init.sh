@@ -35,9 +35,13 @@ ip a
 wait_for_if_link 52:54:00:12:34:56 ens1
 wait_for_if_link 52:54:00:12:34:57 ens2
 wait_for_if_link 52:54:00:12:34:58 ens3
-wait_for_if_link 52:54:00:12:34:60 ens4
-wait_for_if_link 52:54:00:12:34:61 ens5
-wait_for_if_link 52:54:00:12:34:62 ens6
+wait_for_if_link 52:54:00:12:34:61 ens4
+wait_for_if_link 52:54:00:12:34:62 ens5
+wait_for_if_link 52:54:00:12:34:63 ens6
+wait_for_if_link 52:54:00:12:34:64 ens7
+wait_for_if_link 52:54:00:12:34:65 ens8
+wait_for_if_link 52:54:00:12:34:66 ens9
+wait_for_if_link 52:54:00:12:34:67 ens10
 
 ip a
 
@@ -52,27 +56,53 @@ ip -6 route add default via deaf:beef::aa dev ens1
 #iscsi
 ip addr add 192.168.51.1/24 dev ens2
 ip addr add 192.168.52.1/24 dev ens3
-#bond@ens4+ens5
 modprobe --first-time bonding
+#bond@ens4+ens5
 ip link add bond0 type bond
-ip link set bond0 type bond miimon 100 mode active-backup
+ip link set bond0 type bond mode balance-rr
 ip link set ens4 down
 ip link set ens4 master bond0
 ip link set ens5 down
 ip link set ens5 master bond0
 ip link set bond0 up
 ip addr add 192.168.53.1/24 dev bond0
-#vlan47@ens6
+#bond1@ens6+ens7
+ip link add bond1 type bond
+ip link set bond1 type bond mode balance-rr
+ip link set ens6 down
+ip link set ens6 master bond1
+ip link set ens7 down
+ip link set ens7 master bond1
+ip link set bond1 up
+ip addr add 192.168.54.1/24 dev bond1
 modprobe ipvlan
 modprobe macvlan
 modprobe 8021q
-ip link add link ens6 name ens6.47 type vlan id 47
-ip link set dev ens6.47 up
-ip addr add 192.168.54.1/24 dev ens6.47
-#vlan48@bond0
-ip link add link bond0 name bond0.48 type vlan id 48
-ip link set dev bond0.48 up
-ip addr add 192.168.55.1/24 dev bond0.48
+#vlan5@ens10
+ip link add link ens10 name ens10.5 type vlan id 5
+ip link set dev ens10.5 up
+ip addr add 192.168.55.5/30 dev ens10.5
+#vlan9@ens10
+ip link add link ens10 name ens10.9 type vlan id 9
+ip link set dev ens10.9 up
+ip addr add 192.168.55.9/30 dev ens10.9
+#vlan13@bond0
+ip link add link bond0 name bond0.13 type vlan id 13
+ip link set dev bond0.13 up
+ip addr add 192.168.55.13/30 dev bond0.13
+#vlan17@bond1
+ip link add link bond1 name bond1.17 type vlan id 17
+ip link set dev bond1.17 up
+ip addr add 192.168.55.17/30 dev bond1.17
+#vlan33@ens8
+ip link add link ens8 name ens8.33 type vlan id 33
+ip link set dev ens8.33 up
+ip addr add 192.168.55.33/29 dev ens8.33
+#vlan33@ens9
+ip link add link ens9 name ens9.33 type vlan id 33
+ip link set dev ens9.33 up
+ip addr add 192.168.55.34/29 dev ens9.33
+
 
 ip a
 
