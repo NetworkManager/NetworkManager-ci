@@ -944,7 +944,7 @@ def before_scenario(context, scenario):
                         sys.exit(77)
                 print ("set dns=systemd-resolved")
                 call("printf '# configured by beaker-test\n[main]\ndns=systemd-resolved\n' > /etc/NetworkManager/conf.d/99-xtest-dns.conf", shell=True)
-                restart_NM_service ()
+                reload_NM_service ()
                 context.dns_script="sd-resolved.py"
 
             if 'internal_DHCP' in scenario.tags:
