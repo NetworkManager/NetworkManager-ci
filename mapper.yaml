@@ -1218,6 +1218,7 @@ testmapper:
         feature: dracut
     - dracut_NM_vlan_over_everything:
         feature: dracut
+        timeout: 20m
     - dracut_legacy_iSCSI_ibft_table:
         feature: dracut
     - dracut_clean:

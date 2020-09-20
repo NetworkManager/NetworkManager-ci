@@ -428,6 +428,7 @@ Feature: NM: dracut
     # bug for bootdev part (nfs_server check): https://bugzilla.redhat.com/show_bug.cgi?id=1879021
     * Run dracut test
       | Param  | Value                                          |
+      | timeout | 15m                                           |
       | kernel | root=dhcp ro                                   |
       | kernel | vlan=vlan0005:ens9                             |
       | kernel | vlan=vlan9:ens9                                |
