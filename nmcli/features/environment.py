@@ -2873,6 +2873,14 @@ def after_scenario(context, scenario):
                 call('sudo nmcli connection up testeth5', shell=True)
                 call('sudo nmcli connection down testeth5', shell=True)
 
+            if 'eth6_disconnect' in scenario.tags:
+                print ("---------------------------")
+                print ("disconnecting eth5 device")
+                call('sudo nmcli device disconnect eth5', shell=True)
+                # VVV Up/Down to preserve autoconnect feature
+                call('sudo nmcli connection up testeth5', shell=True)
+                call('sudo nmcli connection down testeth5', shell=True)
+
             if 'eth8_disconnect' in scenario.tags:
                 print ("---------------------------")
                 print ("disconnecting eth8 device")

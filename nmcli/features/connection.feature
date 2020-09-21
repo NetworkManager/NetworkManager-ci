@@ -364,7 +364,7 @@ Feature: nmcli: connection
      Then Error type "type" shown in editor
 
 
-    @con_con_remove @ifcfg-rh
+    @con_con_remove @ifcfg-rh @eth6_disconnect
     @connection_permission_to_user
     Scenario: nmcli - connection - permissions to user
      * Add connection type "ethernet" named "con_con" for device "eth6"
