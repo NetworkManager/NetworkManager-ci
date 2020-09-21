@@ -1563,7 +1563,7 @@ Feature: nmcli - general
 
 
     @rhbz1723690
-    @ver+=1.18
+    @ver+=1.18 @rhelver+=8
     @macsec @not_on_aarch64_but_pegas @long
     @macsec_set_mtu_from_parent
     Scenario: NM - general - MACsec MTU from parent
