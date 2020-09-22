@@ -385,6 +385,7 @@ Feature: nmcli: connection
     @connection_zone_drop_to_public
     Scenario: nmcli - connection - zone to drop and public
      * Add a new connection of type "ethernet" and options "con-name con_con ifname eth6 ipv4.method manual ipv4.addresses 192.168.122.253 connection.zone drop"
+     * Bring "up" connection "con_con"
      When "eth6" is visible with command "firewall-cmd --zone=drop --list-all"
      * Modify connection "con_con" changing options "connection.zone ''"
      * Bring "up" connection "con_con"
