@@ -339,8 +339,10 @@ function wireless_hostapd_setup ()
 
     echo "Configuring hostapd 802.1x server..."
 
+    rm -rf /tmp/wireless_hostapd_check.txt
     if  wireless_hostapd_check; then
         echo "OK. Configuration has already been done."
+        touch /tmp/wireless_hostapd_check.txt
         return 0
     fi
 
