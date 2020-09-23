@@ -1355,21 +1355,6 @@
 
 
     @rhbz1398925
-    @ver+=1.10
-    @team_slaves @team
-    @team_abs_set_link_watchers_ethtool
-    Scenario: nmcli - team_abs - set link_watchers ethtool
-    * Add a new connection of type "team" and options "con-name team0 ifname nm-team autoconnect no ip4 1.2.3.4/24 connection.autoconnect-slaves yes"
-    * Add slave connection for master "nm-team" on device "eth5" named "team0.0"
-    * Bring "up" connection "team0"
-    When "link_watch | ethtool" is not visible with command "nmcli connection show team0 |grep 'team.config'"
-    * Execute "nmcli con modify team0 team.link-watchers 'name=ethtool delay-up=100 delay-down=200'"
-    * Bring "up" connection "team0"
-    Then "{\s*\"link_watch\": {\s*\"name\": \"ethtool\", \"delay_up\": 100, \"delay_down\": 200\s*}\s*}" is visible with command "nmcli connection show team0 |grep 'team.config'"
-     And "\"link_watch\": {\s+\"delay_down\": 200,\s+\"delay_up\": 100,\s+\"name\": \"ethtool\"" is visible with command "teamdctl nm-team conf dump"
-
-
-    @rhbz1398925
     @ver+=1.10 @ver-=1.19.1
     @team_slaves @team
     @team_abs_set_link_watchers_nsna_ping
@@ -1380,8 +1365,8 @@
     When "link_watch | nsna_ping" is not visible with command "nmcli connection show team0 |grep 'team.config'"
     * Execute "nmcli con modify team0 team.link-watchers 'name=nsna_ping init-wait=1000 interval=100 missed-max=999 target-host=1.2.3.1'"
     * Bring "up" connection "team0"
-    Then "{\s*\"link_watch\": {\s*\"name\": \"nsna_ping\", \"interval\": 100, \"missed_max\": 999, \"target_host\": \"1.2.3.1\"\s*}\s*}" is visible with command "nmcli connection show team0 |grep 'team.config'"
-     And "\"link_watch\": {\s+\"interval\": 100,\s+\"missed_max\": 999,\s+\"name\": \"nsna_ping\",\s+\"target_host\": \"1.2.3.1\"" is visible with command "teamdctl nm-team conf dump"
+    Then "{\s*\"link_watch\": {\s*\"name\": \"nsna_ping\", \"init_wait\": 1000, \"interval\": 100, \"missed_max\": 999, \"target_host\": \"1.2.3.1\"\s*}\s*}" is visible with command "nmcli connection show team0 |grep 'team.config'"
+    And "\"link_watch\": {\s+\"init_wait\": 1000,\s+\"interval\": 100,\s+\"missed_max\": 999,\s+\"name\": \"nsna_ping\",\s+\"target_host\": \"1.2.3.1\"" is visible with command "teamdctl nm-team conf dump"
 
 
     @rhbz1398925
@@ -1410,8 +1395,8 @@
     When "link_watch | arp_ping" is not visible with command "nmcli connection show team0 |grep 'team.config'"
     * Execute "nmcli con modify team0 team.link-watchers 'name=arp_ping init-wait=1000 interval=100 missed-max=999 target-host=1.2.3.1 source-host=1.2.3.4'"
     * Bring "up" connection "team0"
-    Then "{\s*\"link_watch\": {\s*\"name\": \"arp_ping\", \"interval\": 100, \"missed_max\": 999, \"target_host\": \"1.2.3.1\", \"source_host\": \"1.2.3.4\"\s*}\s*}" is visible with command "nmcli connection show team0 |grep 'team.config'"
-    And "\"link_watch\": {\s+\"interval\": 100,\s+\"missed_max\": 999,\s+\"name\": \"arp_ping\",\s+\"source_host\": \"1.2.3.4\",\s+\"target_host\": \"1.2.3.1\"" is visible with command "teamdctl nm-team conf dump"
+    Then "{\s*\"link_watch\": {\s*\"name\": \"arp_ping\", \"init_wait\": 1000, \"interval\": 100, \"missed_max\": 999, \"target_host\": \"1.2.3.1\", \"source_host\": \"1.2.3.4\"\s*}\s*}" is visible with command "nmcli connection show team0 |grep 'team.config'"
+    And "\"link_watch\": {\s+\"init_wait\": 1000,\s+\"interval\": 100,\s+\"missed_max\": 999,\s+\"name\": \"arp_ping\",\s+\"source_host\": \"1.2.3.4\",\s+\"target_host\": \"1.2.3.1\"" is visible with command "teamdctl nm-team conf dump"
 
 
     @rhbz1398925
@@ -1437,8 +1422,8 @@
     * Add a new connection of type "team" and options "con-name team0 ifname nm-team autoconnect no ip4 1.2.3.4/24 connection.autoconnect-slaves yes team.link-watchers 'name=arp_ping init-wait=1000 interval=100 missed-max=999 target-host=1.2.3.1 source-host=1.2.3.4 vlanid=123'"
     * Add slave connection for master "nm-team" on device "eth5" named "team0.0"
     * Bring "up" connection "team0"
-    Then "{\s*\"link_watch\": {\s*\"name\": \"arp_ping\", \"interval\": 100, \"missed_max\": 999, \"target_host\": \"1.2.3.1\", \"vlanid\": 123, \"source_host\": \"1.2.3.4\"\s*}\s*}" is visible with command "nmcli connection show team0 |grep 'team.config'"
-    And "\"link_watch\": {\s+\"interval\": 100,\s+\"missed_max\": 999,\s+\"name\": \"arp_ping\",\s+\"source_host\": \"1.2.3.4\",\s+\"target_host\": \"1.2.3.1\",\s+\"vlanid\": 123" is visible with command "teamdctl nm-team conf dump"
+    Then "{\s*\"link_watch\": {\s*\"name\": \"arp_ping\", \"init_wait\": 1000, \"interval\": 100, \"missed_max\": 999, \"target_host\": \"1.2.3.1\", \"vlanid\": 123, \"source_host\": \"1.2.3.4\"\s*}\s*}" is visible with command "nmcli connection show team0 |grep 'team.config'"
+    And "\"link_watch\": {\s+\"init_wait\": 1000,\s+\"interval\": 100,\s+\"missed_max\": 999,\s+\"name\": \"arp_ping\",\s+\"source_host\": \"1.2.3.4\",\s+\"target_host\": \"1.2.3.1\",\s+\"vlanid\": 123" is visible with command "teamdctl nm-team conf dump"
 
 
     @rhbz1652931
@@ -1486,8 +1471,8 @@
     * Save in editor
     * Quit editor
     * Bring "up" connection "team0"
-    Then "{\s*\"link_watch\": \[{\s*\"name\": \"ethtool\", \"delay_up\": 100, \"delay_down\": 200}, {\s*\"name\": \"arp_ping\", \"interval\": 100, \"missed_max\": 999, \"target_host\": \"1.2.3.1\", \"source_host\": \"1.2.3.4\"\s*}\]\s*}" is visible with command "nmcli connection show team0 |grep 'team.config'"
-    And "\"link_watch\": \[\s+{\s+\"delay_down\": 200,\s+\"delay_up\": 100,\s+\"name\": \"ethtool\"\s+},\s+{\s+\"interval\": 100,\s+\"missed_max\": 999,\s+\"name\": \"arp_ping\",\s+\"source_host\": \"1.2.3.4\",\s+\"target_host\": \"1.2.3.1\"" is visible with command "teamdctl nm-team conf dump"
+    Then "{\"link_watch\": \[{\"name\": \"ethtool\", \"delay_up\": 100, \"delay_down\": 200}, {\"name\": \"arp_ping\", \"init_wait\": 1000, \"interval\": 100, \"missed_max\": 999, \"target_host\": \"1.2.3.1\", \"source_host\": \"1.2.3.4\"\}\]\}" is visible with command "nmcli connection show team0 |grep 'team.config'"
+    And "\"link_watch\": \[\s+{\s+\"delay_down\": 200,\s+\"delay_up\": 100,\s+\"name\": \"ethtool\"\s+},\s+{\s+\"init_wait\": 1000,\s+\"interval\": 100,\s+\"missed_max\": 999,\s+\"name\": \"arp_ping\",\s+\"source_host\": \"1.2.3.4\",\s+\"target_host\": \"1.2.3.1\"" is visible with command "teamdctl nm-team conf dump"
 
 
     @rhbz1533926

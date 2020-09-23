@@ -102,7 +102,7 @@ Feature: nmcli - procedures in documentation
     Then Finish "ip netns exec iptunnelB ping -c 1 192.0.2.1"
 
 
-    @ver+=1.14
+    @ver+=1.20
     @iptunnel_doc @teardown_testveth
     @iptunnel_gretap_doc_procedure
     Scenario: nmcli - docs - Configuring a GRETAP tunnel to transfer Ethernet frames over IPv4
