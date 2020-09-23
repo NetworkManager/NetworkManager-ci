@@ -617,7 +617,7 @@ def before_scenario(context, scenario):
                         wifi_rescan()
                     else:
                         # VV Do not lower this as nmtui can be behaving weirdly
-                        sleep(0.8)
+                        sleep(1)
             if 'wifi' in scenario.tags:
                 wifi_rescan()
             if 'nmtui_general_activate_screen_no_connections' in scenario.tags:
