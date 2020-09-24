@@ -615,9 +615,8 @@ def before_scenario(context, scenario):
                     restart_NM_service()
                     if 'simwifi' in scenario.tags:
                         wifi_rescan()
-                    else:
-                        # VV Do not lower this as nmtui can be behaving weirdly
-                        sleep(1)
+                    # VV Do not lower this as nmtui can be behaving weirdly
+                    sleep(1.5)
             if 'wifi' in scenario.tags:
                 wifi_rescan()
             if 'nmtui_general_activate_screen_no_connections' in scenario.tags:
@@ -1652,8 +1651,7 @@ def after_scenario(context, scenario):
                     restart_NM_service()
                     if 'simwifi' in scenario.tags:
                         wifi_rescan ()
-                    else:
-                        sleep(0.8)
+                    sleep(1.5)
             if 'inf' in scenario.tags:
                 os.system("sudo nmcli connection delete id infiniband0 infiniband0-port")
             if 'dsl' in scenario.tags:

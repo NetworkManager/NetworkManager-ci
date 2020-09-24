@@ -47,7 +47,7 @@ try:
         "grep '@%s\($\|\s\)'" %(sys.argv[1], test_name), shell=True
         ).decode('utf-8', 'ignore').strip("\n")
 except:
-    sys.strerr.write("test with tag '%s' not defined!\n" % test_name)
+    sys.stderr.write("test with tag '%s' not defined!\n" % test_name)
     sys.exit(1)
 tests_tags = raw_tags.split('\n')
 
