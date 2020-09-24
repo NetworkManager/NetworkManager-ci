@@ -192,6 +192,9 @@ test_setup() {
         # we want an empty environment
         > $initdir/etc/environment
 
+        # remove hostname
+        rm $initdir/etc/hostname
+
         # setup the testsuite target
         mkdir -p $initdir/etc/systemd/system
         cat >$initdir/etc/systemd/system/testsuite.target <<EOF

@@ -23,6 +23,8 @@ clean_root() {
   rm -vf /etc/sysconfig/network-scripts/ifcfg*
   echo "== cleaning check script =="
   rm -vf /check.sh
+  echo "== cleaning hostname =="
+  echo > /etc/hostname
   sync
 }
 
@@ -57,4 +59,11 @@ no_ifcfg() {
   find /etc/sysconfig/network-scripts/ifcfg-* &> /dev/null && \
     die "ifcfg file exists: $(echo; find /etc/sysconfig/network-scripts/ifcfg-*)"
   echo "[OK] no ifcfg file exists"
+}
+
+hostname_check() {
+  local hostname
+  hostname=$(cat /proc/sys/kernel/hostname)
+  [[ "$hostname" == "$1" ]] || die "hostname is not '$1', but '$hostname'"
+  echo "[OK] hostname is '$hostname'"
 }

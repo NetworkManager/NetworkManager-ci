@@ -113,6 +113,29 @@ Feature: NM: dracut
       | check  | nfs_server 192.168.50.1                        |
 
 
+    @rhelver+=8.3 @fedoraver-=0
+    @ver+=1.28
+    @dracut @long
+    @dracut_NM_NFS_root_nfs_ip_manual_gateway_hostname
+    Scenario: NM - dracut - NM module - NFSv3 root=nfs ip=IP:GW:NETMASK:HOSTNAME
+    * Run dracut test
+      | Param  | Value                                          |
+      | kernel | root=nfs:192.168.50.1:/client ro               |
+      | kernel | ip=192.168.50.201::192.168.50.1:255.255.255.0:dracut-nfs-client:52-54-00-12-34-00:none |
+      | qemu   | -net nic,macaddr=52:54:00:12:34:00,model=e1000 |
+      | qemu   | -net socket,connect=127.0.0.1:12320            |
+      | check  | ip_mac 52:54:00:12:34:00 192.168.50.201        |
+      | check  | ip_route_unique "default via 192.168.50.1 dev ens2"                                   |
+      | check  | ip_route_unique "192.168.50.0/24 dev ens2 proto kernel scope link src 192.168.50.201" |
+      | check  | ip4_forever 192.168.50.201 ens2                     |
+      | check  | nmcli_con_active '52\:54\:00\:12\:34\:00' ens2 |
+      | check  | nmcli_con_num 1                                |
+      | check  | no_ifcfg                                       |
+      # https://bugzilla.redhat.com/show_bug.cgi?id=1881974
+      #| check  | hostname_check dracut-nfs-client               |
+      | check  | nfs_server 192.168.50.1                        |
+
+
     @rhbz1872299
     @ver+=1.26
     @rhelver+=8.3 @fedoraver-=0
@@ -161,8 +184,8 @@ Feature: NM: dracut
     Scenario: NM - dracut - NM module - NFSv3 root=nfs ip=dhcp6
     * Run dracut test
       | Param  | Value                                          |
-      | kernel | root=nfs:[deaf:beef::1]:/nfs/client ip=dhcp6   |
-      | kernel | ro                                             |
+      | kernel | root=nfs:[deaf:beef::1]:/nfs/client ro         |
+      | kernel | ip=dhcp6                                       |
       | qemu   | -net nic,macaddr=52:54:00:12:34:00,model=e1000 |
       | qemu   | -net socket,connect=127.0.0.1:12320            |
       | check  | ip_mac 52:54:00:12:34:00 deaf:beef::1:10       |
@@ -170,6 +193,29 @@ Feature: NM: dracut
       | check  | ip6_route_unique "deaf:beef::/64 dev ens2 proto ra" |
       | check  | nmcli_con_active "Wired Connection" ens2       |
       | check  | nmcli_con_num 1                                |
+      | check  | nfs_server [deaf:beef::1]                      |
+
+
+    @rhelver+=8.3 @fedoraver-=0
+    @ver+=1.28
+    @dracut @long
+    @dracut_NM_NFS_root_nfs_ip6_manual_gateway_hostname
+    Scenario: NM - dracut - NM module - NFSv3 root=nfs ip=IP6:GW:NETMASK:HOSTNAME
+    * Run dracut test
+      | Param  | Value                                          |
+      | kernel | root=nfs:[deaf:beef::1]:/nfs/client ro         |
+      | kernel | ip=[deaf:beef::ac:1]::[deaf:beef::1]:64:dracut-nfs-client-6:52-54-00-12-34-00:none |
+      | qemu   | -net nic,macaddr=52:54:00:12:34:00,model=e1000 |
+      | qemu   | -net socket,connect=127.0.0.1:12320            |
+      | check  | ip_mac 52:54:00:12:34:00 deaf:beef::ac:1       |
+      | check  | ip6_route_unique "default via deaf:beef::1 dev ens2"    |
+      | check  | ip6_route_unique "deaf:beef::/64 dev ens2 proto kernel" |
+      | check  | ip6_forever deaf:beef::ac: ens2                         |
+      | check  | nmcli_con_active '52\:54\:00\:12\:34\:00' ens2     |
+      | check  | nmcli_con_num 1                                |
+      | check  | no_ifcfg                                       |
+      # https://bugzilla.redhat.com/show_bug.cgi?id=1881974
+      #| check  | hostname_check dracut-nfs-client-6             |
       | check  | nfs_server [deaf:beef::1]                      |
 
 
