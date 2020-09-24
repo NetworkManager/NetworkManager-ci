@@ -114,7 +114,7 @@ Feature: NM: dracut
 
 
     @rhelver+=8.3 @fedoraver-=0
-    @ver+=1.28
+    @ver+=1.27
     @dracut @long
     @dracut_NM_NFS_root_nfs_ip_manual_gateway_hostname
     Scenario: NM - dracut - NM module - NFSv3 root=nfs ip=IP:GW:NETMASK:HOSTNAME
@@ -197,7 +197,7 @@ Feature: NM: dracut
 
 
     @rhelver+=8.3 @fedoraver-=0
-    @ver+=1.28
+    @ver+=1.27
     @dracut @long
     @dracut_NM_NFS_root_nfs_ip6_manual_gateway_hostname
     Scenario: NM - dracut - NM module - NFSv3 root=nfs ip=IP6:GW:NETMASK:HOSTNAME
