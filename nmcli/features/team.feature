@@ -1355,6 +1355,21 @@
 
 
     @rhbz1398925
+    @ver+=1.10
+    @team_slaves @team
+    @team_abs_set_link_watchers_ethtool
+    Scenario: nmcli - team_abs - set link_watchers ethtool
+    * Add a new connection of type "team" and options "con-name team0 ifname nm-team autoconnect no ip4 1.2.3.4/24 connection.autoconnect-slaves yes"
+    * Add slave connection for master "nm-team" on device "eth5" named "team0.0"
+    * Bring "up" connection "team0"
+    When "link_watch | ethtool" is not visible with command "nmcli connection show team0 |grep 'team.config'"
+    * Execute "nmcli con modify team0 team.link-watchers 'name=ethtool delay-up=100 delay-down=200'"
+    * Bring "up" connection "team0"
+    Then "{\s*\"link_watch\": {\s*\"name\": \"ethtool\", \"delay_up\": 100, \"delay_down\": 200\s*}\s*}" is visible with command "nmcli connection show team0 |grep 'team.config'"
+     And "\"link_watch\": {\s+\"delay_down\": 200,\s+\"delay_up\": 100,\s+\"name\": \"ethtool\"" is visible with command "teamdctl nm-team conf dump"
+
+
+    @rhbz1398925
     @ver+=1.10 @ver-=1.19.1
     @team_slaves @team
     @team_abs_set_link_watchers_nsna_ping
