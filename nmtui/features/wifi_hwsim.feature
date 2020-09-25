@@ -214,7 +214,7 @@ Feature: WIFI TUI tests
     * Confirm the connection settings
     * Wait for at least "2" seconds
     * "wifi1" is visible with command "nmcli connection"
-    * "wifi1" is visible with command "nmcli device"
+    * "wifi1" is visible with command "nmcli device" in "20" seconds
     * Select connection "wifi1" in the list
     * Choose to "<Delete>" a connection
     * Press "Delete" button in the dialog

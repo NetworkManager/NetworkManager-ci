@@ -983,6 +983,7 @@ def before_scenario(context, scenario):
                     print ("setting ifcfg-rh plugin")
                     call("printf '# configured by beaker-test\n[main]\nplugins=ifcfg-rh\n' > /etc/NetworkManager/conf.d/99-xxcustom.conf", shell=True)
                     restart_NM_service()
+                    sleep(0.5)
 
             if 'eth3_disconnect' in scenario.tags:
                 print ("---------------------------")
@@ -2191,6 +2192,7 @@ def after_scenario(context, scenario):
                     print ("resetting ifcfg plugin")
                     call('sudo rm -f /etc/NetworkManager/conf.d/99-xxcustom.conf', shell=True)
                     restart_NM_service()
+                    sleep(0.5)
 
             if 'dhcpd' in scenario.tags:
                 print ("---------------------------")
