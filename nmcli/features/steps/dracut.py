@@ -39,7 +39,7 @@ def dracut_run(context):
         elif "initrd" in row[0].lower():
             initrd = row[1]
         elif "check" in row[0].lower():
-            checks += row[1] + " || die\n"
+            checks += row[1] + " || die '" + '"' + row[1] + '"' + " failed'\n"
         elif "log+" in row[0].lower():
             log_contains.append(row[1])
         elif "log-" in row[0].lower():

@@ -6,9 +6,22 @@ nmcli_list() {
 }
 
 nmcli_con_active() {
-  nmcli -g NAME,DEVICE con show --active | grep -q -F "$1:$2" \
-    || die "'$1' connection is not active on '$2'"
-  echo "[OK] '$1' connection is active on '$2'"
+  # recursively calls itself until connection is active or counter $i gets over $num
+  local num i
+  num="$3"
+  [[ -z "$1" ]] && die "nmcli_con_active: unspecified connection name"
+  [[ -z "$2" ]] && die "nmcli_con_active: unspecified interface name"
+  [[ -z "$num" ]] && num=10
+  i=0
+  while (( i <= num )); do
+    nmcli -g NAME,DEVICE,STATE con show --active | \
+      grep -q -F "$1:$2:activated"  && \
+      echo "[OK] connection '$1' is active on '$2' in $i seconds" && \
+      return 0
+    sleep 1
+    (( i++ ))
+  done
+  die "connection '$1' is not active on '$2' in $num seconds:$(echo; nmcli -g NAME,DEVICE,STATE con show)"
 }
 
 nmcli_con_num() {

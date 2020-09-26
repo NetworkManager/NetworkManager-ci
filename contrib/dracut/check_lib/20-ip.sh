@@ -15,27 +15,6 @@ ip_list() {
   ip -6 route
 }
 
-ip_ifname() {
-  local ifname="$1"
-  local ip="$2"
-  ip addr show dev "$ifname" | grep -q -F "$ip" || \
-    die "$ifname does not have IP $ip:$(echo; ip addr show dev "$ifname")"
-  echo "[OK] '$ifname' has IP '$ip'"
-}
-
-mac2ifname() {
-  IFNAME=$(ip -o link | grep -F "$1")
-  IFNAME="$(arg 2 $IFNAME)"
-  IFNAME="${IFNAME%:}"
-  export IFNAME
-}
-
-ip_mac() {
-  mac2ifname "$1"
-  echo "MAC '$1' is interface '$IFNAME'"
-  ip_ifname "$IFNAME" "$2"
-}
-
 ip_route_unique() {
   local r_num
   r_num=$(ip route | grep -F "$1" | wc -l)
