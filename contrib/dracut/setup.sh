@@ -486,8 +486,7 @@ run_server() {
         -netdev socket,id=n5,listen=127.0.0.1:12325 -device e1000,netdev=n5,mac=52:54:00:12:34:65 \
         -netdev socket,id=n6,listen=127.0.0.1:12326 -device e1000,netdev=n6,mac=52:54:00:12:34:66 \
         -netdev socket,id=n7,listen=127.0.0.1:12327 -device e1000,netdev=n7,mac=52:54:00:12:34:67 \
-        ${SERIAL:+-serial "$SERIAL"} \
-        ${SERIAL:--serial file:"$TESTDIR"/server.log} \
+        -serial file:"$TESTDIR"/server.log \
         -append "panic=1 quiet root=/dev/sda rootfstype=ext3 rw $SERVER_DEBUG console=ttyS0,115200n81 selinux=0 noapic" \
         -initrd $TESTDIR/initramfs.server \
         -pidfile $TESTDIR/server.pid -daemonize || return 1
@@ -496,17 +495,13 @@ run_server() {
     # Cleanup the terminal if we have one
     tty -s && stty sane
 
-    if ! [[ $SERIAL ]]; then
-        for _ in {1..100} ; do
-            grep -q Serving "$TESTDIR"/server.log && return 0
-            echo "Waiting for the server to startup"
-            sleep 1
-        done
-        return 1
-    else
-        echo Sleeping 60 seconds to give the server a head start
-        sleep 60
-    fi
+    RETRY=200
+    for _ in `seq $RETRY` ; do
+        grep -q Serving "$TESTDIR"/server.log && return 0
+        echo "Waiting for the server to startup"
+        sleep 1
+    done
 
-    cp $TESTDIR/iscsidisk2.img $TESTDIR/iscsidisk3.img /tmp/
+    echo "Server did not start in $RETRY seconds"
+    return 1
 }
