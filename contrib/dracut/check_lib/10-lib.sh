@@ -9,7 +9,6 @@ die_cmd() {
   echo "== dump state after fail =="
   ip_list
   nmcli_list
-  NM_logs
   poweroff -f
 }
 
@@ -25,7 +24,10 @@ clean_root() {
   rm -vf /check.sh
   echo "== cleaning hostname =="
   echo > /etc/hostname
+  echo "/etc/hostname is empty"
+  echo "== sync =="
   sync
+  echo "done"
 }
 
 mount_list() {
@@ -33,11 +35,6 @@ mount_list() {
   mount | grep nfs
   echo "== ext3 mounts =="
   mount | grep ext3
-}
-
-NM_logs() {
-  echo "== NM logs =="
-  time journalctl -b -u NetworkManager --no-pager -o cat
 }
 
 nfs_server() {

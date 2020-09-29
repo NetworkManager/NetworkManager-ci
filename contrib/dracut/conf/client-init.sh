@@ -1,8 +1,5 @@
 #!/bin/bash
 export PATH=/sbin:/bin:/usr/sbin:/usr/bin
-exec >/dev/console 2>&1
-export TERM=linux
-export PS1='initramfs-test:\w\$ '
 
 # load check library
 dd if=/dev/sdb of=/check.sh
@@ -51,5 +48,7 @@ echo PASS | dd oflag=direct,dsync of=/dev/sda
 
 # cleanup after succes
 clean_root
+
+echo "PASS"
 
 poweroff -f

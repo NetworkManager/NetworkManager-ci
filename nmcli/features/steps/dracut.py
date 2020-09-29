@@ -29,6 +29,7 @@ def dracut_run(context):
     initrd = "initramfs.client.NM"
     checks = ""
     timeout = "6m"
+    ram = "768"
     log_contains = []
     log_not_contains = []
     for row in context.table:
@@ -46,27 +47,42 @@ def dracut_run(context):
             log_not_contains.append(row[1])
         elif "timeout" in row[0].lower():
             timeout = row[1]
+        elif "ram" in row[0].lower():
+            ram = row[1]
 
     with open("/tmp/client-check.sh", "w") as f:
         f.write("client_check() {\n" + checks + "}")
 
     rc = subprocess.call(
-        "cd contrib/dracut/; . ./test_environment.sh; "
-        "echo FAIL > $TESTDIR/client.img; "
+        "cd contrib/dracut/; . ./setup.sh; "
+        "echo NONE > $TESTDIR/client.img; "
         "cat check_lib/*.sh /tmp/client-check.sh > $TESTDIR/client_check.img; "
-        "timeout %s sudo bash ./run-qemu "
+        "timeout %s sudo RAM=%s bash ./run-qemu "
         "-drive format=raw,index=0,media=disk,file=$TESTDIR/client.img "
         "-drive format=raw,index=1,media=disk,file=$TESTDIR/client_check.img "
         "%s -append \"%s\" -initrd $TESTDIR/%s "
-        "&> /tmp/dracut_run.log" % (timeout, qemu_args, kernel_args, initrd), shell=True)
-    log = utf_only_open_read("/tmp/dracut_run.log")
-    context.embed("text/plain", log, "DRACUT_RUN")
-    assert rc == 0, "Test run FAILED"
-    result = command_output(None,
-                            "cd contrib/dracut; . ./test_environment.sh; cat $TESTDIR/client.img")
-    assert "PASS" in result, "Test FAILED"
+        "&> /tmp/dracut_boot.log" % (timeout, ram, qemu_args, kernel_args, initrd), shell=True)
+
+    if os.path.isfile("/tmp/dracut_boot.log"):
+        boot_log = utf_only_open_read("/tmp/dracut_boot.log")
+        context.embed("text/plain", boot_log, "DRACUT_BOOT")
+
+    result = "NO_FILE"
+    if os.path.isfile("/tmp/dracut_test/client.img"):
+        result = utf_only_open_read("/tmp/dracut_test/client.img")
+
+    if not result.startswith("NO"):
+        test_log = subprocess.check_output(
+            "bash contrib/dracut/get_log.sh -u testsuite", shell=True, encoding='utf-8')
+        context.embed("text/plain", test_log + "\n", "DRACUT_TEST")
+        NM_log = subprocess.check_output(
+            "bash contrib/dracut/get_log.sh -u NetworkManager -o cat", shell=True, encoding='utf-8')
+        context.embed("text/plain", NM_log + "\n", "DRACUT_NM")
+
+    assert rc == 0, f"Test run FAILED, VM returncode: {rc}, VM result: {result}"
+    assert "PASS" in result, f"Test FAILED, VM result: {result}"
 
     for log_line in log_contains:
-        assert log_line in log, "Fail: not visible in log:\n" + log_line
+        assert log_line in test_log, "Fail: not visible in log:\n" + log_line
     for log_line in log_not_contains:
-        assert log_line not in log, "Fail: visible in log:\n" + log_line
+        assert log_line not in test_log, "Fail: visible in log:\n" + log_line

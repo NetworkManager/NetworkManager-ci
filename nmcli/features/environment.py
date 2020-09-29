@@ -1213,12 +1213,12 @@ def before_scenario(context, scenario):
                 print("---------------------------")
                 print("dracut setup")
                 rc = call(
-                    "cd contrib/dracut; . ./test_environment.sh; . ./setup.sh ; "
+                    "cd contrib/dracut; . ./setup.sh ; "
                     " { time test_setup ; } &> /tmp/dracut_setup.log", shell=True)
                 if rc != 0:
                     print("dracut setup failed, doing clean !!!")
                     rc = call(
-                        "cd contrib/dracut; . ./test_environment.sh; . ./setup.sh ;"
+                        "cd contrib/dracut; . ./setup.sh ;"
                         "{ time test_clean; } &> /tmp/dracut_clean.log", shell=True)
                 else:
                     print("dracut setup OK")
@@ -2418,17 +2418,14 @@ def after_scenario(context, scenario):
             if 'dracut_clean' in scenario.tags:
                 print("---------------------------")
                 print("dracut clean")
-                rc = call(
-                    "cd contrib/dracut; . ./test_environment.sh; . ./setup.sh; "
-                    "{ time test_clean; } &> /tmp/dracut_clean.log", shell=True)
-                # do server log after clean is run, because clean kills server
-                if os.path.isfile("/tmp/dracut_server.log"):
+                if os.path.isfile("/tmp/dracut_test/server.log"):
                     print("embeding SERVER log")
-                    context.embed("text/plain", utf_only_open_read("/tmp/dracut_server.log"), "DRACUT_SERVER")
-                    call("rm -f /tmp/dracut_server.log", shell=True)
+                    context.embed("text/plain", utf_only_open_read("/tmp/dracut_test/server.log"), "DRACUT_SERVER")
+                rc = call(
+                    "cd contrib/dracut; . ./setup.sh; "
+                    "{ time test_clean; } &> /tmp/dracut_clean.log", shell=True)
                 print("embeding CLEAN log")
                 context.embed("text/plain", utf_only_open_read("/tmp/dracut_clean.log"), "DRACUT_CLEAN")
-                call("rm -f /tmp/dracut_clean.log", shell=True)
                 if rc == 0:
                     print("Dracut clean failed !!!")
 

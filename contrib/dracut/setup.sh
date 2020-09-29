@@ -1,8 +1,15 @@
 #!/bin/bash
 
+TESTDIR=/tmp/dracut_test
+
+
 test_setup() {
     # Exit if server is already running
     [[ -f $TESTDIR/server.pid ]] && pkill -0 -F $TESTDIR/server.pid && return 0
+
+    mkdir $TESTDIR
+
+    basedir=/usr/lib/dracut/
 
     if ! command -v tgtd &>/dev/null || ! command -v tgtadm &>/dev/null; then
         echo "Need tgtd and tgtadm from scsi-target-utils"
@@ -134,7 +141,9 @@ test_setup() {
         ldconfig -r "$initdir"
         echo "/dev/nfs / nfs defaults 1 1" > $initdir/etc/fstab
 
-        inst_multiple teamd teamdctl
+
+        rpm -ql libteam | xargs -r $DRACUT_INSTALL ${initdir:+-D "$initdir"} -o -a -l
+        rpm -ql teamd | xargs -r $DRACUT_INSTALL ${initdir:+-D "$initdir"} -o -a -l
     )
 
     # install systemd in client
@@ -217,8 +226,8 @@ After=network.target
 [Service]
 ExecStart=/sbin/test-init
 Type=oneshot
-StandardInput=tty
-StandardOutput=tty
+StandardOutput=journal+console
+StandardError=journal+console
 EOF
         mkdir -p $initdir/etc/systemd/system/testsuite.target.wants
         ln -fs ../testsuite.service $initdir/etc/systemd/system/testsuite.target.wants/testsuite.service
@@ -329,18 +338,9 @@ EOF
         # enable trace logs
         inst /etc/NetworkManager/conf.d/99-test.conf
 
+
         for _rpm in $(rpm -qa | grep -e ^NetworkManager -e ^systemd | sort); do
-            for _file in $(rpm -ql $_rpm); do
-                if [ -d $_file ]; then
-                    inst_dir $_file
-                elif [ -L $_file ]; then
-                    inst_symlink $_file
-                elif [[ "$file" =  *".so"* ]]; then
-                    inst_libdir_file $_file
-                else
-                    inst $_file
-                fi
-            done
+          rpm -ql $_rpm | xargs -r $DRACUT_INSTALL ${initdir:+-D "$initdir"} -o -a -l
         done
     )
 
@@ -360,7 +360,10 @@ EOF
     cp -a -t $TESTDIR/mnt_root $TESTDIR/mnt/nfs/client/*
     umount $TESTDIR/mnt_root
     umount $TESTDIR/mnt
-    rm -fr -- $TESTDIR/mnt
+    rm -fr -- $TESTDIR/mnt $TESTDIR/mnt_root
+
+
+    KVERSION=${KVERSION-$(uname -r)}
 
     # server initramfs
     (
@@ -447,7 +450,6 @@ EOF
 test_clean() {
     kill_server
     rm -rf -- "$TESTDIR"
-    rm /tmp/dracut_testdir
     echo "dracut testdir $TESTDIR cleaned"
 }
 
@@ -457,9 +459,6 @@ kill_server() {
     if [[ -f $TESTDIR/server.pid ]]; then
         pkill -9 -F $TESTDIR/server.pid
         rm -f -- $TESTDIR/server.pid
-    fi
-    if [[ -f $TESTDIR/server.log ]]; then
-        cp $TESTDIR/server.log /tmp/dracut_server.log
     fi
 }
 
