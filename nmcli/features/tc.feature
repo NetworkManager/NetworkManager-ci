@@ -69,3 +69,47 @@
     * Add a new connection of type "ethernet" and options "ifname eth0 con-name con_tc autoconnect no tc.qdiscs 'root sfq perturb 10'"
     * Bring "up" connection "con_tc"
     Then "qdisc sfq" is visible with command "ip a s eth0" in "5" seconds
+
+
+    @rhbz1436535
+    @ver+=1.27
+    @con_tc_remove @dummy @tshark
+    @tc_morrir_traffic
+    Scenario: nmcli - tc - mirror traffic
+    * Execute "ip link add dummy0 type dummy"
+    * Execute "ip link set dev dummy0 up"
+    * Add a new connection of type "ethernet" and options "ifname eth2 con-name con_tc ipv4.may-fail no ipv4.dhcp-hostname example.com"
+    * Execute "nmcli connection modify con_tc +tc.qdisc "root prio handle 10:""
+    * Execute "nmcli connection modify con_tc +tc.qdisc "ingress handle ffff:""
+    * Execute "nmcli connection modify con_tc +tc.tfilter "parent ffff: matchall action mirred egress mirror dev dummy0""
+    * Execute "nmcli connection modify con_tc +tc.tfilter "parent 10:   matchall action mirred egress mirror dev dummy0""
+    * Bring "down" connection "con_tc"
+    * Bring "up" connection "con_tc"
+    * Run child "sudo tshark -l -O bootp -i dummy0 > /tmp/tshark.log"
+    When "empty" is not visible with command "file /tmp/tshark.log" in "150" seconds
+    * Bring "up" connection "con_tc"
+    Then "example.com" is visible with command "cat /tmp/tshark.log" in "10" seconds
+     And "Option: \(12\) Host Name\s+Length: 11\s+Host Name: example.com" is visible with command "cat /tmp/tshark.log"
+    * Finish "sudo pkill tshark"
+
+
+
+    @rhbz1436535
+    @ver+=1.27
+    @con_tc_remove @dummy @tshark
+    @tc_morrir_traffic_clsact
+    Scenario: nmcli - tc - mirror traffic clsact
+    * Execute "ip link add dummy0 type dummy"
+    * Execute "ip link set dev dummy0 up"
+    * Add a new connection of type "ethernet" and options "ifname eth2 con-name con_tc ipv4.may-fail no ipv4.dhcp-hostname example.com"
+    * Execute "nmcli connection modify con_tc +tc.qdisc "clsact""
+    * Execute "nmcli connection modify con_tc +tc.tfilter "parent ffff:fff3 matchall action mirred egress mirror dev dummy0""
+    * Execute "nmcli connection modify con_tc +tc.tfilter "parent ffff:fff2  matchall action mirred egress mirror dev"
+    * Bring "down" connection "con_tc"
+    * Bring "up" connection "con_tc"
+    * Run child "sudo tshark -l -O bootp -i dummy0 > /tmp/tshark.log"
+    When "empty" is not visible with command "file /tmp/tshark.log" in "150" seconds
+    * Bring "up" connection "con_tc"
+    Then "example.com" is visible with command "cat /tmp/tshark.log" in "10" seconds
+     And "Option: \(12\) Host Name\s+Length: 11\s+Host Name: example.com" is visible with command "cat /tmp/tshark.log"
+    * Finish "sudo pkill tshark"

@@ -1886,6 +1886,11 @@ testmapper:
         feature: tc
     - set_sqf_qdiscs:
         feature: tc
+    - tc_morrir_traffic:
+        feature: tc
+        tags: gate
+    - tc_morrir_traffic_clsact:
+        feature: tc
     - simwifi_p2p_connect:
         feature: wifi_hwsim
     - simwifi_open:
