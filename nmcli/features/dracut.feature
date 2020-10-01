@@ -452,7 +452,7 @@ Feature: NM: dracut
     # bug for bootdev part (nfs_server check): https://bugzilla.redhat.com/show_bug.cgi?id=1879021
     * Run dracut test
       | Param   | Value                                                      |
-      | timeout | 15m                                                       |
+      | timeout | 15m                                                        |
       | kernel  | root=dhcp ro                                               |
       | kernel  | vlan=vlan0005:ens9                                         |
       | kernel  | vlan=vlan9:ens9                                            |
@@ -481,17 +481,17 @@ Feature: NM: dracut
       | check   | nmcli_con_active ens3 ens3                                 |
       | check   | nmcli_con_active ens4 ens4                                 |
       | check   | nmcli_con_active bond0 bond0                               |
-      | check   | nmcli_con_active bond0.13 bond0.13                         |
+      | check   | nmcli_con_active bond0.13 bond0.13 45                      |
       | check   | nmcli_con_active ens5 ens5                                 |
       | check   | nmcli_con_active ens6 ens6                                 |
       | check   | nmcli_con_active team0 team0                               |
-      | check   | nmcli_con_active team0.0017 team0.0017                     |
+      | check   | nmcli_con_active team0.0017 team0.0017 45                  |
       #| check   | nmcli_con_active ens7 ens7                                 |
       #| check   | nmcli_con_active ens8 ens8                                 |
       #| check   | nmcli_con_active br0 br0                                   |
-      #| check   | nmcli_con_active br0.33 br0.33                             |
-      | check   | nmcli_con_active vlan0005 vlan0005                         |
-      | check   | nmcli_con_active vlan9 vlan9                               |
+      #| check   | nmcli_con_active br0.33 br0.33 45                          |
+      | check   | nmcli_con_active vlan0005 vlan0005 45                      |
+      | check   | nmcli_con_active vlan9 vlan9 45                            |
       #| check   | nmcli_con_num 14                                           |
       | check   | nmcli_con_num 10                                           |
       #| check   | link_no_ip4 br0                                            |

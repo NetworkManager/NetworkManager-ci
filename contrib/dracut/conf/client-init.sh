@@ -1,6 +1,9 @@
 #!/bin/bash
 export PATH=/sbin:/bin:/usr/sbin:/usr/bin
 
+# boot succeeded, so try to attach logs
+echo BOOT | dd oflag=direct,dsync of=/dev/sda
+
 # load check library
 dd if=/dev/sdb of=/check.sh
 source /check.sh || poweroff -f  # if source fails, we probably do not have `die`

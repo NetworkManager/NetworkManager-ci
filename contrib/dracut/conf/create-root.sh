@@ -1,5 +1,4 @@
 #!/bin/sh
-# don't let udev and this script step on eachother's toes
 
 finish() {
   mount
@@ -37,3 +36,4 @@ mkfs.ext3 -j -L sysroot /dev/dracut/root
 mount /dev/dracut/root /sysroot
 cp -a -t /sysroot /source/nfs/client/* || die
 finish
+echo "iSCSI RAID0 root complete"

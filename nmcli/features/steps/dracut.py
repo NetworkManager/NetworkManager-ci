@@ -1,16 +1,9 @@
 # -*- coding: UTF-8 -*-
 from __future__ import absolute_import, division, print_function, unicode_literals
 from behave import step
-from time import sleep, time
-import pexpect
 import sys
 import os
-import re
 import subprocess
-from subprocess import Popen, check_output, call
-from glob import glob
-import json
-from steps import command_output, command_code, additional_sleep
 
 
 def utf_only_open_read(file, mode='r'):
@@ -24,8 +17,8 @@ def utf_only_open_read(file, mode='r'):
 @step(u'Run dracut test')
 def dracut_run(context):
     qemu_args = ""
-    kernel_args = "rd.net.timeout.dhcp=3 panic=1 systemd.crash_reboot rd.shell=0 $DEBUGFAIL " \
-                  "rd.retry=50 console=ttyS0,115200n81 selinux=0 noapic "
+    kernel_args = "rd.net.timeout.dhcp=3 panic=1 systemd.crash_reboot rd.shell=0 rd.debug loglevel=7 " \
+                  "rd.retry=50 console=ttyS0,115200n81 noapic "
     initrd = "initramfs.client.NM"
     checks = ""
     timeout = "6m"
@@ -63,21 +56,22 @@ def dracut_run(context):
         "%s -append \"%s\" -initrd $TESTDIR/%s "
         "&> /tmp/dracut_boot.log" % (timeout, ram, qemu_args, kernel_args, initrd), shell=True)
 
-    if os.path.isfile("/tmp/dracut_boot.log"):
-        boot_log = utf_only_open_read("/tmp/dracut_boot.log")
-        context.embed("text/plain", boot_log, "DRACUT_BOOT")
-
-    result = "NO_FILE"
+    result = "NO_BOOT"
     if os.path.isfile("/tmp/dracut_test/client.img"):
         result = utf_only_open_read("/tmp/dracut_test/client.img")
+
+    if "PASS" not in result and os.path.isfile("/tmp/dracut_boot.log"):
+        boot_log = utf_only_open_read("/tmp/dracut_boot.log")
+        context.embed("text/plain", boot_log, "DRACUT_BOOT")
 
     if not result.startswith("NO"):
         test_log = subprocess.check_output(
             "bash contrib/dracut/get_log.sh -u testsuite", shell=True, encoding='utf-8')
         context.embed("text/plain", test_log + "\n", "DRACUT_TEST")
-        NM_log = subprocess.check_output(
-            "bash contrib/dracut/get_log.sh -u NetworkManager -o cat", shell=True, encoding='utf-8')
-        context.embed("text/plain", NM_log + "\n", "DRACUT_NM")
+        if "PASS" not in result:
+            NM_log = subprocess.check_output(
+                "bash contrib/dracut/get_log.sh -u NetworkManager -o cat", shell=True, encoding='utf-8')
+            context.embed("text/plain", NM_log + "\n", "DRACUT_NM")
 
     assert rc == 0, f"Test run FAILED, VM returncode: {rc}, VM result: {result}"
     assert "PASS" in result, f"Test FAILED, VM result: {result}"

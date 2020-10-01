@@ -43,10 +43,10 @@ test_setup() {
         done
 
         inst_multiple sh ls shutdown poweroff stty cat ps ln ip grep sed \
-                      dmesg mkdir cp ping exportfs find  \
+                      dmesg mkdir cp ping exportfs find \
                       modprobe rpc.nfsd rpc.mountd showmount tcpdump \
                       /etc/services sleep mount chmod chown rm setsid \
-                      umount tgtd tgtadm
+                      umount tgtd tgtadm date
         for _terminfodir in /lib/terminfo /etc/terminfo /usr/share/terminfo; do
             [ -f ${_terminfodir}/l/linux ] && break
         done
@@ -59,6 +59,7 @@ test_setup() {
         [ -x /usr/sbin/dhcpd3 ] && inst /usr/sbin/dhcpd3 /usr/sbin/dhcpd
         instmods nfsd sunrpc ipv6 lockd af_packet bonding ipvlan macvlan 8021q
         inst ./conf/server-init.sh /sbin/init
+        inst ./conf/logger.sh /sbin/logger
         inst_simple /etc/os-release
         inst ./conf/hosts /etc/hosts
         inst ./conf/exports /etc/exports
@@ -89,6 +90,9 @@ test_setup() {
 
         inst /etc/passwd /etc/passwd
         inst /etc/group /etc/group
+
+        # fix timezone
+        inst /etc/localtime
 
         cp -a /etc/ld.so.conf* $initdir/etc
         ldconfig -r "$initdir"
@@ -201,8 +205,8 @@ test_setup() {
         # we want an empty environment
         > $initdir/etc/environment
 
-        # remove hostname
-        rm $initdir/etc/hostname
+        # empty hostname
+        > $initdir/etc/hostname
 
         # setup the testsuite target
         mkdir -p $initdir/etc/systemd/system
@@ -486,7 +490,7 @@ run_server() {
         -netdev socket,id=n6,listen=127.0.0.1:12326 -device e1000,netdev=n6,mac=52:54:00:12:34:66 \
         -netdev socket,id=n7,listen=127.0.0.1:12327 -device e1000,netdev=n7,mac=52:54:00:12:34:67 \
         -serial file:"$TESTDIR"/server.log \
-        -append "panic=1 quiet root=/dev/sda rootfstype=ext3 rw $SERVER_DEBUG console=ttyS0,115200n81 selinux=0 noapic" \
+        -append "panic=1 quiet root=/dev/sda rootfstype=ext3 rw console=ttyS0,115200n81 noapic" \
         -initrd $TESTDIR/initramfs.server \
         -pidfile $TESTDIR/server.pid -daemonize || return 1
     chmod 644 $TESTDIR/server.pid || return 1
