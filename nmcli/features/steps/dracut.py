@@ -21,7 +21,7 @@ def dracut_run(context):
                   "rd.retry=50 console=ttyS0,115200n81 noapic "
     initrd = "initramfs.client.NM"
     checks = ""
-    timeout = "6m"
+    timeout = "8m"
     ram = "768"
     log_contains = []
     log_not_contains = []
