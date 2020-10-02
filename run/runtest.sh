@@ -11,7 +11,7 @@ die() {
 kill_child() {
     echo
     echo "killed externally, SIGINT child $!..."
-    kill -2 $!
+    kill -2 -- "-$!"
     for _ in {1..20}; do
         if ! kill -0 $! &> /dev/null; then
             echo "child exited within 20 seconds after SIGINT"
@@ -20,7 +20,7 @@ kill_child() {
         sleep 1
     done
     echo "killing child with SIGKILL"
-    kill -9 $!
+    kill -9 -- "-$!"
     sleep 1
     if kill -0 $! &> /dev/null; then
     echo "child survived SIGKILL, zombie?!"
