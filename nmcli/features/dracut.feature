@@ -8,6 +8,13 @@ Feature: NM: dracut
     # Scenario:
 
 
+    @rhelver+=8.3 @fedoraver-=0
+    @dracut @long
+    @dracut_setup
+    Scenario: NM - dracut - setup test environment
+    * Execute "true"
+
+
     #########
     # NFSv3 #
     #########
@@ -241,6 +248,7 @@ Feature: NM: dracut
     Scenario: NM - dracut - NM module - iSCSI netroot=dhcp
     * Run dracut test
       | Param  | Value                                          |
+      | type   | iscsi_single                                   |
       | kernel | root=/dev/root netroot=dhcp                    |
       | kernel | rw rd.auto rd.iscsi.initiator=$(iscsi-iname)   |
       | qemu   | -net nic,macaddr=52:54:00:12:34:a1,model=e1000 |
@@ -260,6 +268,7 @@ Feature: NM: dracut
     Scenario: NM - dracut - NM module - iSCSI netroot=dhcp ip=ens2:dhcp
     * Run dracut test
       | Param  | Value                                          |
+      | type   | iscsi_single                                   |
       | kernel | root=/dev/root netroot=dhcp ip=ens2:dhcp       |
       | kernel | rw rd.auto rd.iscsi.initiator=$(iscsi-iname)   |
       | qemu   | -net nic,macaddr=52:54:00:12:34:a1,model=e1000 |
@@ -281,6 +290,7 @@ Feature: NM: dracut
     Scenario: NM - dracut - NM module - iSCSI ibft.table
     * Run dracut test
       | Param  | Value                                          |
+      | type   | iscsi_single                                   |
       | kernel | root=LABEL=singleroot                          |
       | kernel | rd.iscsi.ibft=1 rd.iscsi.firmware=1            |
       | kernel | rw rd.auto                                     |
@@ -303,6 +313,7 @@ Feature: NM: dracut
     Scenario: NM - dracut - NM module - iSCSI 2 targets in RAID0
     * Run dracut test
       | Param  | Value                                                    |
+      | type   | iscsi_raid                                               |
       | kernel | root=LABEL=sysroot rw rd.auto                            |
       | kernel | ip=192.168.51.101::192.168.51.1:255.255.255.0::ens2:off  |
       | kernel | ip=192.168.52.101::192.168.52.1:255.255.255.0::ens3:off  |
@@ -540,6 +551,7 @@ Feature: NM: dracut
     * Run dracut test
       | Param  | Value                                          |
       | initrd | initramfs.client.legacy                        |
+      | type   | iscsi_single                                   |
       | kernel | root=LABEL=singleroot rd.iscsi.ibft=1          |
       | kernel | rd.iscsi.firmware=1                            |
       | kernel | rw rd.auto                                     |

@@ -2426,6 +2426,7 @@ def after_scenario(context, scenario):
                     "{ time test_clean; } &> /tmp/dracut_clean.log", shell=True)
                 print("embeding CLEAN log")
                 context.embed("text/plain", utf_only_open_read("/tmp/dracut_clean.log"), "DRACUT_CLEAN")
+                call("rm -f /tmp/dracut_clean.log", shell=True)
                 if rc == 0:
                     print("Dracut clean failed !!!")
 

@@ -25,6 +25,7 @@ def dracut_run(context):
     ram = "768"
     log_contains = []
     log_not_contains = []
+    test_type = "nfs"
     for row in context.table:
         if "qemu" in row[0].lower():
             qemu_args += " " + row[1]
@@ -38,6 +39,8 @@ def dracut_run(context):
             log_contains.append(row[1])
         elif "log-" in row[0].lower():
             log_not_contains.append(row[1])
+        elif "type" in row[0].lower():
+            test_type = row[1]
         elif "timeout" in row[0].lower():
             timeout = row[1]
         elif "ram" in row[0].lower():
@@ -66,11 +69,13 @@ def dracut_run(context):
 
     if not result.startswith("NO"):
         test_log = subprocess.check_output(
-            "bash contrib/dracut/get_log.sh -u testsuite", shell=True, encoding='utf-8')
+            "bash contrib/dracut/get_log.sh %s -u testsuite" % test_type,
+            shell=True, encoding='utf-8')
         context.embed("text/plain", test_log + "\n", "DRACUT_TEST")
         if "PASS" not in result:
             NM_log = subprocess.check_output(
-                "bash contrib/dracut/get_log.sh -u NetworkManager -o cat", shell=True, encoding='utf-8')
+                "bash contrib/dracut/get_log.sh %s -u NetworkManager -o cat" % test_type,
+                shell=True, encoding='utf-8')
             context.embed("text/plain", NM_log + "\n", "DRACUT_NM")
 
     assert rc == 0, f"Test run FAILED, VM returncode: {rc}, VM result: {result}"

@@ -498,7 +498,7 @@ run_server() {
     # Cleanup the terminal if we have one
     tty -s && stty sane
 
-    RETRY=200
+    RETRY=250
     for _ in `seq $RETRY` ; do
         grep -q Serving "$TESTDIR"/server.log && return 0
         echo "Waiting for the server to startup"

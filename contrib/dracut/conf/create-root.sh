@@ -5,7 +5,7 @@ finish() {
   lsblk
   umount /source
   umount /sysroot
-  lvm lvchange -a n /dev/dracut/root
+  lvm lvchange -a n /dev/dracutNMtest/root
   mdadm --stop /dev/md0
   mount
   lsblk
@@ -29,11 +29,11 @@ mkdir -p /sysroot
 mdadm --create /dev/md0 --run --auto=yes --level=stripe --raid-devices=2 /dev/sdc /dev/sdd || die
 mdadm -W /dev/md0
 lvm pvcreate -ff  -y /dev/md0
-lvm vgcreate dracut /dev/md0
-lvm lvcreate -y -l 100%FREE -n root dracut
+lvm vgcreate dracutNMtest /dev/md0
+lvm lvcreate -y -l 100%FREE -n root dracutNMtest
 lvm vgchange -ay
-mkfs.ext3 -j -L sysroot /dev/dracut/root
-mount /dev/dracut/root /sysroot
+mkfs.ext3 -j -L sysroot /dev/dracutNMtest/root
+mount /dev/dracutNMtest/root /sysroot
 cp -a -t /sysroot /source/nfs/client/* || die
 finish
 echo "iSCSI RAID0 root complete"
