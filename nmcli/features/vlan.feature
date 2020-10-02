@@ -605,7 +605,7 @@ Feature: nmcli - vlan
 
 
     @rhbz1716438
-    @ver+=1.18.3
+    @ver+=1.18.3 @ver-=1.26
     @vlan
     @vlan_L2_UUID
     Scenario: NM - vlan - L2 only master via UUID
@@ -617,6 +617,18 @@ Feature: nmcli - vlan
     * Bring "up" connection "vlan"
     Then "eth7:connected:vlan1" is visible with command "nmcli -t -f DEVICE,STATE,CONNECTION device" in "20" seconds
     Then "eth7.80:connected:vlan" is visible with command "nmcli -t -f DEVICE,STATE,CONNECTION device" in "20" seconds
+
+
+    @rhbz1716438 @rhbz1818697
+    @ver+=1.27
+    @vlan
+    @vlan_L2_UUID
+    Scenario: NM - vlan - L2 only master via UUID
+    * Add a new connection of type "ethernet" and options "con-name vlan1 ifname eth7 ipv4.method disabled ipv6.method ignore"
+    * Execute "nmcli con add type vlan con-name vlan ifname eth7.80 dev eth7 id 80 ipv4.dhcp-timeout 5 vlan.parent $(nmcli --mode tabular -t -f connection.uuid connection show vlan1) ipv6.method ignore"
+    * Bring "up" connection "vlan1"
+    Then "eth7:connected:vlan1" is visible with command "nmcli -t -f DEVICE,STATE,CONNECTION device" in "20" seconds
+    Then "\(connect" is visible with command "nmcli device show eth7.80" for full "10" seconds
 
 
     @rhbz1765047
