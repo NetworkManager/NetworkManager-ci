@@ -972,6 +972,7 @@
      Then Check bond "nm-bond" link state is "up"
 
 
+    @ver-=1.26
     @slaves @bond
     @bond_active-backup_primary_set
     Scenario: nmcli - bond - options - mode set to active backup with primary device
@@ -984,6 +985,41 @@
      * Bring "up" connection "bond0.1"
      Then "Bonding Mode: fault-tolerance \(active-backup\) \(fail_over_mac follow\)\s+Primary Slave: eth1 \(primary_reselect always\)\s+Currently Active Slave: eth1" is visible with command "cat /proc/net/bonding/nm-bond"
      Then Check bond "nm-bond" link state is "up"
+
+
+    @ver-=1.26
+    @slaves @bond
+    @bond_active-backup_primary_set
+    Scenario: nmcli - bond - options - mode set to active backup with primary device
+     * Add connection type "bond" named "bond0" for device "nm-bond"
+     * Add slave connection for master "nm-bond" on device "eth1" named "bond0.0"
+     * Add slave connection for master "nm-bond" on device "eth4" named "bond0.1"
+     * Modify connection "bond0" changing options "bond.options mode=active-backup,primary=eth1,miimon=100,fail_over_mac=2"
+     * Bring "up" connection "bond0"
+     * Bring "up" connection "bond0.0"
+     * Bring "up" connection "bond0.1"
+     Then "Bonding Mode: fault-tolerance \(active-backup\) \(fail_over_mac follow\)\s+Primary Slave: eth1 \(primary_reselect always\)\s+Currently Active Slave: eth1" is visible with command "cat /proc/net/bonding/nm-bond"
+     Then Check bond "nm-bond" link state is "up"
+
+
+
+    @rhbz1856640 @rhbz1876577
+    @ver+=1.27
+    @slaves @bond
+    @bond_active-backup_primary_set
+    Scenario: nmcli - bond - options - mode set to active backup with primary device
+     * Add a new connection of type "bond" and options "con-name bond0 ifname nm-bond autoconnect no -- connection.autoconnect-slaves 1 bond.options mode=active-backup,primary=eth1,miimon=100,fail_over_mac=2,primary=eth1"
+     * Add a new connection of type "ethernet" and options "con-name bond0.1 ifname eth4 master nm-bond autoconnect no"
+     * Add a new connection of type "ethernet" and options "con-name bond0.0 ifname eth1 master nm-bond autoconnect no"
+     * Bring "up" connection "bond0"
+     When "nm-bond:connected:bond0" is visible with command "nmcli -t -f DEVICE,STATE,CONNECTION device" in "40" seconds
+     When "Bonding Mode: fault-tolerance \(active-backup\) \(fail_over_mac follow\)\s+Primary Slave: eth1 \(primary_reselect always\)\s+Currently Active Slave: eth1" is visible with command "cat /proc/net/bonding/nm-bond"
+     When Check bond "nm-bond" link state is "up"
+     * "Error" is not visible with command "nmcli device modify nm-bond +bond.options 'primary = eth4'"
+     When "Bonding Mode: fault-tolerance \(active-backup\) \(fail_over_mac follow\)\s+Primary Slave: eth4 \(primary_reselect always\)\s+Currently Active Slave: eth4" is visible with command "cat /proc/net/bonding/nm-bond"
+     * "Error" is not visible with command "nmcli connection modify bond0 +bond.options 'active_slave = eth1' && nmcli device reapply nm-bond"
+     Then "nm-bond:connected:bond0" is visible with command "nmcli -t -f DEVICE,STATE,CONNECTION device" in "40" seconds
+     Then "Bonding Mode: fault-tolerance \(active-backup\) \(fail_over_mac follow\)\s+Primary Slave: eth1 \(primary_reselect always\)\s+Currently Active Slave: eth1" is visible with command "cat /proc/net/bonding/nm-bond"
 
 
     @slaves @bond
@@ -1264,6 +1300,7 @@
 
 
     @rhbz1299103 @rhbz1348573
+    @ver-=1.26
     @slaves @bond
     @bond_set_balance_tlb_options
     Scenario: nmcli - bond - set balance-tlb options
@@ -1274,6 +1311,28 @@
      #When "nm-bond:connected:bond0" is visible with command "nmcli -t -f DEVICE,STATE,CONNECTION device" in "40" seconds
      Then "0" is visible with command "cat /sys/class/net/nm-bond/bonding/tlb_dynamic_lb"
       And "666" is visible with command "cat /sys/class/net/nm-bond/bonding/lp_interval"
+
+
+    @rhbz1299103 @rhbz1348573 @rhbz1856640
+    @ver+=1.27
+    @slaves @bond
+    @bond_set_balance_tlb_options
+    Scenario: nmcli - bond - set balance-tlb options
+     * Add a new connection of type "bond" and options "con-name bond0 ifname nm-bond autoconnect no -- connection.autoconnect-slaves 1 bond.options mode=balance-tlb,tlb_dynamic_lb=0,lp_interval=666,primary=eth1,miimon=500,updelay=1000"
+     * Add a new connection of type "ethernet" and options "con-name bond0.1 ifname eth4 master nm-bond autoconnect no"
+     * Add a new connection of type "ethernet" and options "con-name bond0.0 ifname eth1 master nm-bond autoconnect no"
+     * Bring "up" connection "bond0"
+     When "nm-bond:connected:bond0" is visible with command "nmcli -t -f DEVICE,STATE,CONNECTION device" in "40" seconds
+      And "error" is not visible with command "journalctl --since '10 seconds ago' --no-pager |grep balance |grep error"
+      And "Primary Slave: eth1 \(primary_reselect always\)\s+Currently Active Slave: eth1" is visible with command "cat /proc/net/bonding/nm-bond"
+     * "Error" is not visible with command "nmcli device modify nm-bond +bond.options 'primary = eth4'"
+     When "0" is visible with command "cat /sys/class/net/nm-bond/bonding/tlb_dynamic_lb"
+      And "666" is visible with command "cat /sys/class/net/nm-bond/bonding/lp_interval"
+      And "Primary Slave: eth4 \(primary_reselect always\)\s+Currently Active Slave: eth4" is visible with command "cat /proc/net/bonding/nm-bond"
+     * "Error" is not visible with command "nmcli connection modify bond0 +bond.options 'active_slave = eth1' && nmcli device reapply nm-bond"
+     Then "nm-bond:connected:bond0" is visible with command "nmcli -t -f DEVICE,STATE,CONNECTION device" in "40" seconds
+      And "error" is not visible with command "journalctl --since '10 seconds ago' --no-pager |grep balance |grep error"
+      And "Primary Slave: eth1 \(primary_reselect always\)\s+Currently Active Slave: eth1" is visible with command "cat /proc/net/bonding/nm-bond"
 
 
     @ver-=1.8.1
