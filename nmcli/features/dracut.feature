@@ -492,11 +492,11 @@ Feature: NM: dracut
       | qemu    | -device e1000,netdev=n7,mac=52:54:00:12:34:17              |
       | check   | nmcli_con_active ens3 ens3                                 |
       | check   | nmcli_con_active ens4 ens4                                 |
-      | check   | nmcli_con_active bond0 bond0                               |
+      | check   | nmcli_con_active bond0 bond0 45                            |
       | check   | nmcli_con_active bond0.13 bond0.13 45                      |
       | check   | nmcli_con_active ens5 ens5                                 |
       | check   | nmcli_con_active ens6 ens6                                 |
-      | check   | nmcli_con_active team0 team0                               |
+      | check   | nmcli_con_active team0 team0 45                            |
       | check   | nmcli_con_active team0.0017 team0.0017 45                  |
       #| check   | nmcli_con_active ens7 ens7                                 |
       #| check   | nmcli_con_active ens8 ens8                                 |
