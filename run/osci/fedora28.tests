@@ -19,6 +19,8 @@ connection_permission_to_user
 connection_zone_drop_to_public
 profile_priorities
 lldp
+libreswan_ikev1_main
+libreswan_ikev2
 dispatcher_synchronicity_with_predown
 ethernet_set_mtu
 8021x_ttls_mschapv2_eap

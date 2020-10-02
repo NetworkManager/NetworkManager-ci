@@ -1,6 +1,4 @@
-libreswan_add_profile
-libreswan_connection_renewal
-libreswan_main
-libreswan_activate_asking_for_password_and_secret
-libreswan_delete_active_profile
+libreswan_ikev1_aggressive
+libreswan_ikev1_main
+libreswan_ikev2
 libreswan_dns

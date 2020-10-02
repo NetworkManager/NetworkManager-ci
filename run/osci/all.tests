@@ -532,7 +532,6 @@ add_adsl_connection
 libreswan_add_profile
 libreswan_terminate
 libreswan_delete_active_profile
-libreswan_dns
 libreswan_start_as_secondary
 libreswan_connection_renewal
 libreswan_provides_and_obsoletes
@@ -542,6 +541,10 @@ libreswan_autocompletion
 libreswan_activate_asking_for_password
 libreswan_activate_asking_for_password_with_delay
 libreswan_activate_asking_for_password_and_secret
+libreswan_ikev1_aggressive
+libreswan_ikev1_main
+libreswan_ikev2
+libreswan_dns
 openvpn_ipv4
 openvpn_ipv4_neverdefault
 openvpn_ipv6
