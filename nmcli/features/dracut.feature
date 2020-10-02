@@ -464,6 +464,7 @@ Feature: NM: dracut
     * Run dracut test
       | Param   | Value                                                      |
       | timeout | 15m                                                        |
+      | ram     | 1024                                                       |
       | kernel  | root=dhcp ro                                               |
       | kernel  | vlan=vlan0005:ens9                                         |
       | kernel  | vlan=vlan9:ens9                                            |
