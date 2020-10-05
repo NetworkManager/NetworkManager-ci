@@ -41,6 +41,7 @@ wait_for_if_link 52:54:00:12:34:64 ens7
 wait_for_if_link 52:54:00:12:34:65 ens8
 wait_for_if_link 52:54:00:12:34:66 ens9
 wait_for_if_link 52:54:00:12:34:67 ens10
+wait_for_if_link 52:54:00:12:34:70 ens11
 
 ip a
 
@@ -101,7 +102,8 @@ ip addr add 192.168.55.33/29 dev ens8.33
 ip link add link ens9 name ens9.33 type vlan id 33
 ip link set dev ens9.33 up
 ip addr add 192.168.55.34/29 dev ens9.33
-
+#Host network ens11
+ip addr add 192.168.49.1/24 dev ens11
 
 ip a
 

@@ -7,6 +7,11 @@ test_setup() {
     # Exit if server is already running
     [[ -f $TESTDIR/server.pid ]] && pkill -0 -F $TESTDIR/server.pid && return 0
 
+    # create dracut network bridge
+    ip link add dracutbr type bridge
+    ip link set dev dracutbr up
+    ip addr add 192.168.49.2/24 dev dracutbr
+
     mkdir $TESTDIR
 
     basedir=/usr/lib/dracut/
@@ -454,6 +459,7 @@ EOF
 test_clean() {
     kill_server
     rm -rf -- "$TESTDIR"
+    ip link del dracutbr
     echo "dracut testdir $TESTDIR cleaned"
 }
 
@@ -489,6 +495,7 @@ run_server() {
         -netdev socket,id=n5,listen=127.0.0.1:12325 -device e1000,netdev=n5,mac=52:54:00:12:34:65 \
         -netdev socket,id=n6,listen=127.0.0.1:12326 -device e1000,netdev=n6,mac=52:54:00:12:34:66 \
         -netdev socket,id=n7,listen=127.0.0.1:12327 -device e1000,netdev=n7,mac=52:54:00:12:34:67 \
+        -netdev tap,id=nH,script=$PWD/conf/qemu-ifup -device e1000,netdev=nH,mac=52:54:00:12:34:70 \
         -serial file:"$TESTDIR"/server.log \
         -append "panic=1 quiet root=/dev/sda rootfstype=ext3 rw console=ttyS0,115200n81 noapic" \
         -initrd $TESTDIR/initramfs.server \

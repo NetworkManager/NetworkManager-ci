@@ -68,20 +68,33 @@ def dracut_run(context):
         context.embed("text/plain", boot_log, "DRACUT_BOOT")
 
     if not result.startswith("NO"):
-        test_log = subprocess.check_output(
-            "bash contrib/dracut/get_log.sh %s -u testsuite" % test_type,
-            shell=True, encoding='utf-8')
-        context.embed("text/plain", test_log + "\n", "DRACUT_TEST")
+        logs = {}
+        logs["DRACUT_TEST"] = "-u testsuite"
         if "PASS" not in result:
-            NM_log = subprocess.check_output(
-                "bash contrib/dracut/get_log.sh %s -u NetworkManager -o cat" % test_type,
-                shell=True, encoding='utf-8')
-            context.embed("text/plain", NM_log + "\n", "DRACUT_NM")
+            logs["DRACUT_NM"] = "-u NetworkManager -o cat"
+        log_cmd = " ".join(["/tmp/%s.log '%s'" % (x, logs[x]) for x in logs])
+        log_cmd = "bash contrib/dracut/get_log.sh " + test_type + " " + log_cmd
+        proc = subprocess.run(log_cmd, shell=True, stdout=subprocess.PIPE, encoding="utf-8")
 
+        if proc.returncode != 0:
+            msg = "Error during log collection\nretcode:%d\noutput:%s" \
+                % (proc.returncode, str(proc.stdout))
+            context.embed("text/plain", msg, "DRACUT_LOGS_ERROR")
+        else:
+            for log in logs:
+                log_f = "/tmp/" + log + ".log"
+                if os.path.isfile(log_f):
+                    context.embed("text/plain", utf_only_open_read(log_f) + "\n", log)
+                    subprocess.call("rm -rf " + log_f, shell=True)
+                else:
+                    msg = "Error: log file '" + log_f + "' was not created for some reason"
+                    context.embed("text/plain", msg, log)
+        if proc.stdout is not None:
+            context.embed("text/plain", proc.stdout, "DRACUT_LOG_COLLECTOR")
     assert rc == 0, f"Test run FAILED, VM returncode: {rc}, VM result: {result}"
     assert "PASS" in result, f"Test FAILED, VM result: {result}"
 
     for log_line in log_contains:
-        assert log_line in test_log, "Fail: not visible in log:\n" + log_line
+        assert log_line in boot_log, "Fail: not visible in log:\n" + log_line
     for log_line in log_not_contains:
-        assert log_line not in test_log, "Fail: visible in log:\n" + log_line
+        assert log_line not in boot_log, "Fail: visible in log:\n" + log_line
