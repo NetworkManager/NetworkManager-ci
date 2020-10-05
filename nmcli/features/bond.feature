@@ -1318,7 +1318,7 @@
     @slaves @bond
     @bond_set_balance_tlb_options
     Scenario: nmcli - bond - set balance-tlb options
-     * Add a new connection of type "bond" and options "con-name bond0 ifname nm-bond autoconnect no -- connection.autoconnect-slaves 1 bond.options mode=balance-tlb,tlb_dynamic_lb=0,lp_interval=666,primary=eth1,miimon=500,updelay=1000"
+     * Add a new connection of type "bond" and options "con-name bond0 ifname nm-bond autoconnect no -- connection.autoconnect-slaves 1 bond.options mode=balance-tlb,tlb_dynamic_lb=0,lp_interval=666,primary=eth1,miimon=500,updelay=100"
      * Add a new connection of type "ethernet" and options "con-name bond0.1 ifname eth4 master nm-bond autoconnect no"
      * Add a new connection of type "ethernet" and options "con-name bond0.0 ifname eth1 master nm-bond autoconnect no"
      * Bring "up" connection "bond0"
