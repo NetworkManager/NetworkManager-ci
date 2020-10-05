@@ -1370,7 +1370,7 @@
 
 
     @rhbz1398925
-    @ver+=1.10 @ver-=1.19.1
+    @ver+=1.18 @ver-=1.19.1
     @team_slaves @team
     @team_abs_set_link_watchers_nsna_ping
     Scenario: nmcli - team_abs - set link_watchers nsna_ping
@@ -1400,7 +1400,7 @@
 
 
     @rhbz1398925
-    @ver+=1.10 @ver-=1.19.1
+    @ver+=1.18 @ver-=1.19.1
     @team_slaves @team
     @team_abs_set_link_watchers_arp_ping
     Scenario: nmcli - team_abs - set link_watchers arp_ping
@@ -1430,7 +1430,7 @@
 
 
     @rhbz1652931
-    @ver+=1.16 @ver-=1.19.1
+    @ver+=1.18 @ver-=1.19.1
     @team_slaves @team
     @team_abs_set_link_watchers_arp_ping_vlanid
     Scenario: nmcli - team_abs - set link_watchers arp_ping vlanid property
