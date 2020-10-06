@@ -1516,7 +1516,7 @@
 
 
     @rhbz1858344
-    @ver+=1.26
+    @ver+=1.22.8
     @restore_hostname @eth0
     @dhcpv6_hostname
     Scenario: nmcli - ipv6 - secondary
