@@ -72,7 +72,7 @@ install_fedora_packages () {
     echo "PermitRootLogin yes" >> /etc/ssh/sshd_config
     systemctl restart sshd
 
-    if grep -q Rawhide /etc/redhat-release; then
+    if grep -q Rawhide /etc/redhat-release || grep -q 33 /etc/redhat-release; then
         dnf -y install https://kojipkgs.fedoraproject.org//packages/ipsec-tools/0.8.2/17.fc32/$(arch)/ipsec-tools-0.8.2-17.fc32.$(arch).rpm
         dnf update -y
     fi
