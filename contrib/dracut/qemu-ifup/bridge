@@ -1,7 +1,8 @@
 #!/bin/sh
 set -x
 
-switch=dracutbr
+# get last part of the name of this script
+switch=${0##*/}
 
 if [ -n "$1" ];then
         # tunctl -u `whoami` -t $1 (use ip tuntap instead!)

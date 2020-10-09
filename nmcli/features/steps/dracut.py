@@ -17,8 +17,9 @@ def utf_only_open_read(file, mode='r'):
 @step(u'Run dracut test')
 def dracut_run(context):
     qemu_args = ""
-    kernel_args = "rd.net.timeout.dhcp=3 panic=1 systemd.crash_reboot rd.shell=0 rd.debug loglevel=7 " \
+    kernel_args = "rd.net.timeout.dhcp=10 panic=1 systemd.crash_reboot rd.shell=0 rd.debug loglevel=7 " \
                   "rd.retry=50 console=ttyS0,115200n81 noapic "
+    #kernel_args = "rd.net.timeout.dhcp=3 panic=1 systemd.crash_reboot rd.shell=0 " \
     initrd = "initramfs.client.NM"
     checks = ""
     timeout = "8m"
@@ -53,11 +54,11 @@ def dracut_run(context):
         "cd contrib/dracut/; . ./setup.sh; "
         "echo NONE > $TESTDIR/client.img; "
         "cat check_lib/*.sh /tmp/client-check.sh > $TESTDIR/client_check.img; "
-        "timeout %s sudo RAM=%s bash ./run-qemu "
+        "RAM=%s timeout %s bash ./run-qemu "
         "-drive format=raw,index=0,media=disk,file=$TESTDIR/client.img "
         "-drive format=raw,index=1,media=disk,file=$TESTDIR/client_check.img "
         "%s -append \"%s\" -initrd $TESTDIR/%s "
-        "&> /tmp/dracut_boot.log" % (timeout, ram, qemu_args, kernel_args, initrd), shell=True)
+        "&> /tmp/dracut_boot.log " % (ram, timeout, qemu_args, kernel_args, initrd), shell=True)
 
     result = "NO_BOOT"
     if os.path.isfile("/tmp/dracut_test/client.img"):

@@ -1,0 +1,23 @@
+#!/bin/bash
+set -x
+
+if [ -n "$1" ];then
+        . ./setup.sh
+        ip tuntap add $1 mode tap user `whoami`
+        #vlan5@tap
+        ip link add link $1 name $1.5 type vlan id 5
+        #vlan9@tap
+        ip link add link $1 name $1.9 type vlan id 9
+        # up the links
+        ip link set dev $1 up
+        ip link set dev $1.5 up
+        ip link set dev $1.9 up
+        ip addr add 192.168.55.5/30 dev $1.5
+        ip addr add 192.168.55.9/30 dev $1.9
+        stop_dhcp
+        start_dhcp
+        exit 0
+else
+        echo "Error: no interface specified"
+        exit 1
+fi

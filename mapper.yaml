@@ -1184,7 +1184,7 @@ testmapper:
         feature: dracut
     - dracut_NM_NFS_root_nfs_ip_manual_dhcp:
         feature: dracut
-    - dracut_NM_NFS_root_nfs_ip_manual_gateway_hostname:
+    - dracut_NM_NFS_root_nfs_ip_manual_gateway_hostname_mac:
         feature: dracut
     - dracut_NM_NFS_root_dhcp_vendor_class:
         feature: dracut
@@ -1194,7 +1194,7 @@ testmapper:
         feature: dracut
     - dracut_NM_NFS_root_nfs_ip_dhcp6:
         feature: dracut
-    - dracut_NM_NFS_root_nfs_ip6_manual_gateway_hostname:
+    - dracut_NM_NFS_root_nfs_ip6_manual_gateway_hostname_mac:
         feature: dracut
     - dracut_NM_iSCSI_netroot_dhcp:
         feature: dracut

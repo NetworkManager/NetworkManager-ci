@@ -28,8 +28,7 @@ dump_logs() {
 
 # mount client FS based on test type
 if [[ "$test_type" == "nfs" ]]; then
-  mkdir mnt
-  mount -t nfs 192.168.49.1:/nfs/client -o rw mnt/
+  ln -s nfs/client/ mnt
 
 elif [[ "$test_type" == "iscsi_single" ]]; then
   mkdir mnt
@@ -37,10 +36,8 @@ elif [[ "$test_type" == "iscsi_single" ]]; then
 
 elif [[ "$test_type" == "iscsi_raid" ]]; then
   mkdir mnt
-  losetup -f ./iscsidisk2.img
   iscsi_loop2="$(losetup -j ./iscsidisk2.img)"
   iscsi_loop2=${iscsi_loop2%%:*}
-  losetup -f ./iscsidisk3.img
   iscsi_loop3="$(losetup -j ./iscsidisk3.img)"
   iscsi_loop3=${iscsi_loop3%%:*}
   mdadm --assemble /dev/md0 $iscsi_loop2 $iscsi_loop3
@@ -68,8 +65,7 @@ df -h mnt/
 
 # umount client
 if [[ "$test_type" == "nfs" ]]; then
-  umount mnt
-  rmdir mnt
+  rm -f mnt
 
 elif [[ "$test_type" == "iscsi_single" ]]; then
   umount mnt

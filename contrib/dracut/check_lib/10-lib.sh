@@ -37,6 +37,11 @@ mount_list() {
   mount | grep ext3
 }
 
+NM_logs() {
+  echo "== NM logs =="
+  time journalctl -b -u NetworkManager --no-pager -o cat
+}
+
 nfs_server() {
     local nfs_mnt
     nfs_mnt=$(mount | grep "type nfs")

@@ -2410,17 +2410,12 @@ def after_scenario(context, scenario):
                     print("embeding CLEAN log")
                     context.embed("text/plain", utf_only_open_read("/tmp/dracut_clean.log"), "DRACUT_CLEAN")
                     call("rm -f /tmp/dracut_clean.log", shell=True)
-                    if os.path.isfile("/tmp/dracut_test/server.log"):
-                        print("embeding SERVER log")
-                        context.embed("text/plain", utf_only_open_read("/tmp/dracut_test/server.log"), "DRACUT_SERVER")
-                        call("rm -f /tmp/dracut_test/server.log", shell=True)
+                dhcpd_log = call("journalctl -all -t dhcpd --no-pager %s > /tmp/journal-dhcpd.log" % context.log_cursor, shell=True)
+                context.embed("text/plain", utf_only_open_read("/tmp/journal-dhcpd.log"), "DHCPD")
 
             if 'dracut_clean' in scenario.tags:
                 print("---------------------------")
                 print("dracut clean")
-                if os.path.isfile("/tmp/dracut_test/server.log"):
-                    print("embeding SERVER log")
-                    context.embed("text/plain", utf_only_open_read("/tmp/dracut_test/server.log"), "DRACUT_SERVER")
                 rc = call(
                     "cd contrib/dracut; . ./setup.sh; "
                     "{ time test_clean; } &> /tmp/dracut_clean.log", shell=True)
