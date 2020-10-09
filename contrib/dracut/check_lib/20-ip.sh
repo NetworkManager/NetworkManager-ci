@@ -87,7 +87,7 @@ ip6_forever() {
 
 wait_for_ip_renew() {
   local ifname IP lease_time last_lease count MAX_LEASE
-  MAX_LEASE=180
+  MAX_LEASE=120
   IP=$1
   ifname=$2
   lease_time="$(get_lease_time)"
@@ -104,7 +104,7 @@ wait_for_ip_renew() {
   count=0
   while (( lease_time <= last_lease )); do
       (( count++ > $MAX_LEASE )) && \
-          die "$ifname lease not renewed in 120s: $(echo; ip a show $ifname)"
+          die "$ifname lease not renewed in ${MAX_LEASE}s: $(echo; ip a show $ifname)"
       (( lease_time < 15 )) && \
           die "$ifname lease is <15s: $(echo; ip a show $ifname)"
       sleep 1

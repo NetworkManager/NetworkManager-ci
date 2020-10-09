@@ -19,7 +19,6 @@ def dracut_run(context):
     qemu_args = ""
     kernel_args = "rd.net.timeout.dhcp=10 panic=1 systemd.crash_reboot rd.shell=0 rd.debug loglevel=7 " \
                   "rd.retry=50 console=ttyS0,115200n81 noapic "
-    #kernel_args = "rd.net.timeout.dhcp=3 panic=1 systemd.crash_reboot rd.shell=0 " \
     initrd = "initramfs.client.NM"
     checks = ""
     timeout = "8m"
