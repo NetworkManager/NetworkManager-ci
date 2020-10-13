@@ -1,5 +1,5 @@
 die() {
-  die_cmd $@ 1>&2
+  die_cmd "$@" 1>&2
 }
 
 die_cmd() {

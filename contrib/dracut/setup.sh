@@ -463,14 +463,28 @@ run_server() {
 }
 
 network_setup() {
-  nmcli con add autoconnect "no" type "bridge" con-name "nfs"      ifname "nfs"      ipv4.addresses "192.168.50.1/24,192.168.50.2/24" ipv6.addresses "deaf:beef::1/64" ipv6.gateway "deaf:beef::aa" ipv4.method "manual" ipv6.method "manual"
-  nmcli con add autoconnect "no" type "bridge" con-name "iscsi0"   ifname "iscsi0"   ipv4.addresses "192.168.51.1/24" ipv4.method "manual" ipv6.method "disabled"
-  nmcli con add autoconnect "no" type "bridge" con-name "iscsi1"   ifname "iscsi1"   ipv4.addresses "192.168.52.1/24" ipv4.method "manual" ipv6.method "disabled"
+  # bridge devices to connect
+  nmcli con add autoconnect "no" type "bridge" bridge.stp "no" con-name "nfs"      ifname "nfs"      ipv4.addresses "192.168.50.1/24,192.168.50.2/24" ipv6.addresses "deaf:beef::1/64" ipv6.gateway "deaf:beef::aa" ipv4.method "manual" ipv6.method "manual"
+  nmcli con add autoconnect "no" type "bridge" bridge.stp "no" con-name "iscsi0"   ifname "iscsi0"   ipv4.addresses "192.168.51.1/24" ipv4.method "manual" ipv6.method "disabled"
+  nmcli con add autoconnect "no" type "bridge" bridge.stp "no" con-name "iscsi1"   ifname "iscsi1"   ipv4.addresses "192.168.52.1/24" ipv4.method "manual" ipv6.method "disabled"
+  nmcli con add autoconnect "no" type "bridge" bridge.stp "no" con-name "vlan"     ifname "vlan"     ipv4.method "disabled" ipv6.method "disabled"
+  nmcli con add autoconnect "no" type "bridge" bridge.stp "no" con-name "vlan33_0" ifname "vlan33_0" ipv4.addresses "192.168.55.21/30" ipv4.method "manual" ipv6.method "disabled"
+  nmcli con add autoconnect "no" type "bridge" bridge.stp "no" con-name "vlan33_1" ifname "vlan33_1" ipv4.method "disabled" ipv6.method "disabled"
+  nmcli con add autoconnect "no" type "bridge" bridge.stp "no" con-name "bond0_0"  ifname "bond0_0"  ipv4.method "disabled" ipv6.method "disabled" slave-type "bond" master "bond0"
+  nmcli con add autoconnect "no" type "bridge" bridge.stp "no" con-name "bond0_1"  ifname "bond0_1"  ipv4.method "disabled" ipv6.method "disabled" slave-type "bond" master "bond0"
+  nmcli con add autoconnect "no" type "bridge" bridge.stp "no" con-name "bond1_0"  ifname "bond1_0"  ipv4.method "disabled" ipv6.method "disabled" slave-type "bond" master "bond1"
+  nmcli con add autoconnect "no" type "bridge" bridge.stp "no" con-name "bond1_1"  ifname "bond1_1"  ipv4.method "disabled" ipv6.method "disabled" slave-type "bond" master "bond1"
+  # special devices over bridges
   nmcli con add autoconnect "no" type "bond"   con-name "bond0"    ifname "bond0"    ipv4.address "192.168.53.1/24" ipv4.method "manual" ipv6.method "disabled" bond.options "mode=balance-rr"
   nmcli con add autoconnect "no" type "bond"   con-name "bond1"    ifname "bond1"    ipv4.address "192.168.54.1/24" ipv4.method "manual" ipv6.method "disabled" bond.options "mode=balance-rr"
   nmcli con add autoconnect "no" type "vlan"   con-name "bond0.13" ifname "bond0.13" ipv4.addresses "192.168.55.13/30" ipv4.method "manual" ipv6.method "disabled" id "13" dev "bond0"
   nmcli con add autoconnect "no" type "vlan"   con-name "bond1.17" ifname "bond1.17" ipv4.addresses "192.168.55.17/30" ipv4.method "manual" ipv6.method "disabled" id "17" dev "bond1"
+  nmcli con add autoconnect "no" type "vlan"   con-name "vlan.5"   ifname "vlan.5"   ipv4.addresses "192.168.55.5/30" ipv4.method "manual" ipv6.method "disabled" id "5" dev "vlan"
+  nmcli con add autoconnect "no" type "vlan"   con-name "vlan.9"   ifname "vlan.9"   ipv4.addresses "192.168.55.9/30" ipv4.method "manual" ipv6.method "disabled" id "9" dev "vlan"
+  nmcli con add autoconnect "no" type "vlan"   con-name "vlan33_0.33" ifname "vlan33_0.33" ipv4.addresses "192.168.55.33/29" ipv4.method "manual" ipv6.method "disabled" id "33" dev "vlan33_0"
+  nmcli con add autoconnect "no" type "vlan"   con-name "vlan33_1.33" ifname "vlan33_1.33" ipv4.addresses "192.168.55.34/29" ipv4.method "manual" ipv6.method "disabled" id "33" dev "vlan33_1"
 
+  # up all connections
   nmcli con up id nfs
   nmcli con up id iscsi0
   nmcli con up id iscsi1
@@ -478,9 +492,42 @@ network_setup() {
   nmcli con up id bond0.13
   nmcli con up id bond1
   nmcli con up id bond1.17
+  nmcli con up id bond0_0
+  nmcli con up id bond0_1
+  nmcli con up id bond1_0
+  nmcli con up id bond1_1
+  nmcli con up id vlan
+  nmcli con up id vlan.5
+  nmcli con up id vlan.9
+  nmcli con up id vlan33_0
+  nmcli con up id vlan33_1
+  nmcli con up id vlan33_0.33
+  nmcli con up id vlan33_1.33
+
+  # there is packet loss (and NFS not working) if bond is not in promisc mode
+  ip link set bond0 promisc on
+  ip link set bond1 promisc on
 }
 
 
 network_clean() {
-  nmcli con del nfs iscsi{0,1} bond{0,1} bond0.13 bond1.17
+  nmcli con del \
+     nfs \
+     iscsi0 \
+     iscsi1 \
+     bond0 \
+     bond0.13 \
+     bond1 \
+     bond1.17 \
+     bond0_0 \
+     bond0_1 \
+     bond1_0 \
+     bond1_1 \
+     vlan \
+     vlan.5 \
+     vlan.9 \
+     vlan33_0 \
+     vlan33_1 \
+     vlan33_0.33 \
+     vlan33_1.33
 }

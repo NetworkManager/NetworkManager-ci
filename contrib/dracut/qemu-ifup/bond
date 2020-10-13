@@ -5,7 +5,7 @@ set -x
 switch=${0##*/}
 
 ip tuntap add $1 mode tap user `whoami`
-ip link set $1 up
-sleep 0.5s
 ip link set $1 master $switch
+sleep 0.5s
+ip link set $1 up
 exit 0

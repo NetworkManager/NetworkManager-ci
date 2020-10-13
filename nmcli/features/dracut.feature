@@ -400,9 +400,9 @@ Feature: NM: dracut
       | Param  | Value                                                |
       | kernel | root=dhcp ro                                         |
       | kernel | bond=bond0:ens3,ens4:mode=balance-rr                 |
-      | qemu   | -netdev tap,id=bond0_0,script=$PWD/qemu-ifup/bond0   |
+      | qemu   | -netdev tap,id=bond0_0,script=$PWD/qemu-ifup/bond0_0 |
       | qemu   | -device e1000,netdev=bond0_0,mac=52:54:00:12:34:10   |
-      | qemu   | -netdev tap,id=bond0_1,script=$PWD/qemu-ifup/bond0   |
+      | qemu   | -netdev tap,id=bond0_1,script=$PWD/qemu-ifup/bond0_1 |
       | qemu   | -device e1000,netdev=bond0_1,mac=52:54:00:12:34:11   |
       | check  | nmcli_con_active bond0 bond0                         |
       | check  | nmcli_con_active ens3 ens3                           |
@@ -419,20 +419,20 @@ Feature: NM: dracut
     #@dracut_NM_team_over_2_ifaces
     #Scenario: NM - dracut - NM module - team over 2 ifaces
     #* Run dracut test
-    #  | Param  | Value                                              |
-    #  | kernel | root=dhcp ro                                       |
-    #  | kernel | team=team0:ens4,ens4                               |
-    #  | qemu   | -netdev tap,id=bond0_0,script=$PWD/qemu-ifup/bond0 |
-    #  | qemu   | -device e1000,netdev=bond0_0,mac=52:54:00:12:34:10 |
-    #  | qemu   | -netdev tap,id=bond0_1,script=$PWD/qemu-ifup/bond0 |
-    #  | qemu   | -device e1000,netdev=bond0_1,mac=52:54:00:12:34:11 |
-    #  | check  | nmcli_con_active team0 team0                       |
-    #  | check  | nmcli_con_active ens4 ens4                         |
-    #  | check  | nmcli_con_active ens4 ens4                         |
-    #  | check  | nmcli_con_num 3                                    |
-    #  | check  | ip_route_unique "192.168.53.0/24 dev team0"        |
-    #  | check  | wait_for_ip4_renew 192.168.53.101 team0            |
-    #  | check  | nfs_server 192.168.53.1                            |
+    #  | Param  | Value                                                |
+    #  | kernel | root=dhcp ro                                         |
+    #  | kernel | team=team0:ens4,ens4                                 |
+    #  | qemu   | -netdev tap,id=bond0_0,script=$PWD/qemu-ifup/bond0_0 |
+    #  | qemu   | -device e1000,netdev=bond0_0,mac=52:54:00:12:34:10   |
+    #  | qemu   | -netdev tap,id=bond0_1,script=$PWD/qemu-ifup/bond0_1 |
+    #  | qemu   | -device e1000,netdev=bond0_1,mac=52:54:00:12:34:11   |
+    #  | check  | nmcli_con_active team0 team0                         |
+    #  | check  | nmcli_con_active ens4 ens4                           |
+    #  | check  | nmcli_con_active ens4 ens4                           |
+    #  | check  | nmcli_con_num 3                                      |
+    #  | check  | ip_route_unique "192.168.53.0/24 dev team0"          |
+    #  | check  | wait_for_ip4_renew 192.168.53.101 team0              |
+    #  | check  | nfs_server 192.168.53.1                              |
 
 
     ########
@@ -448,7 +448,7 @@ Feature: NM: dracut
       | Param  | Value                                                |
       | kernel | root=dhcp ro                                         |
       | kernel | vlan=vlan5:ens3                                      |
-      | qemu   | -netdev tap,id=vlan,script=$PWD/qemu-ifup/vlan,downscript=$PWD/qemu-ifdown/vlan |
+      | qemu   | -netdev tap,id=vlan,script=$PWD/qemu-ifup/vlan       |
       | qemu   | -device e1000,netdev=vlan,mac=52:54:00:12:34:11      |
       | check  | nmcli_con_active vlan5 vlan5                         |
       | check  | nmcli_con_num 1                                      |
@@ -479,19 +479,19 @@ Feature: NM: dracut
       | kernel  | vlan=br0.33:br0                                            |
       | kernel  | ip=vlan9:dhcp                                              |
       | kernel  | bootdev=vlan9                                              |
-      | qemu    | -netdev tap,id=bond0_0,script=$PWD/qemu-ifup/bond0         |
+      | qemu    | -netdev tap,id=bond0_0,script=$PWD/qemu-ifup/bond0_0       |
       | qemu    | -device e1000,netdev=bond0_0,mac=52:54:00:12:34:11         |
-      | qemu    | -netdev tap,id=bond0_1,script=$PWD/qemu-ifup/bond0         |
+      | qemu    | -netdev tap,id=bond0_1,script=$PWD/qemu-ifup/bond0_1       |
       | qemu    | -device e1000,netdev=bond0_1,mac=52:54:00:12:34:12         |
-      | qemu    | -netdev tap,id=bond1_0,script=$PWD/qemu-ifup/bond1         |
+      | qemu    | -netdev tap,id=bond1_0,script=$PWD/qemu-ifup/bond1_0       |
       | qemu    | -device e1000,netdev=bond1_0,mac=52:54:00:12:34:13         |
-      | qemu    | -netdev tap,id=bond1_1,script=$PWD/qemu-ifup/bond1         |
+      | qemu    | -netdev tap,id=bond1_1,script=$PWD/qemu-ifup/bond1_1       |
       | qemu    | -device e1000,netdev=bond1_1,mac=52:54:00:12:34:14         |
       | qemu    | -netdev tap,id=vlan33_0,script=$PWD/qemu-ifup/vlan33_0     |
       | qemu    | -device e1000,netdev=vlan33_0,mac=52:54:00:12:34:15        |
       | qemu    | -netdev tap,id=vlan33_1,script=$PWD/qemu-ifup/vlan33_1     |
       | qemu    | -device e1000,netdev=vlan33_1,mac=52:54:00:12:34:16        |
-      | qemu    | -netdev tap,id=vlan,script=$PWD/qemu-ifup/vlan,downscript=$PWD/qemu-ifdown/vlan |
+      | qemu    | -netdev tap,id=vlan,script=$PWD/qemu-ifup/vlan             |
       | qemu    | -device e1000,netdev=vlan,mac=52:54:00:12:34:17            |
       | check   | nmcli_con_active ens3 ens3                                 |
       | check   | nmcli_con_active ens4 ens4                                 |
@@ -566,9 +566,8 @@ Feature: NM: dracut
       | qemu   | -netdev tap,id=iscsi1,script=$PWD/qemu-ifup/iscsi1 |
       | qemu   | -acpitable file=conf/ibft.table                    |
       | check  | nmcli_con_active ibft0 ibft0                       |
-      | check  | nmcli_con_active ens4 ens4                         |
-      | check  | nmcli_con_num 2                                    |
-      # unique routes do no work with legacy module
+      | check  | nmcli_con_num 1                                    |
+      # duplicit routes with legacy module
       #| check  | ip_route_unique "default via 192.168.51.1"         |
       #| check  | ip_route_unique "192.168.51.0/24 dev ibft0"        |
       | check  | wait_for_ip4_renew 192.168.51.101 ibft0            |
