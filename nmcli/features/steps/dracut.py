@@ -14,6 +14,13 @@ def utf_only_open_read(file, mode='r'):
         return open(file, mode, encoding='utf-8', errors='ignore').read()
 
 
+def get_dhcpd_log(cursor):
+    with open("/tmp/cursor", "w") as f:
+        f.write(cursor)
+    subprocess.call("journalctl -all --no-pager %s | grep ' dhcpd\\[' > /tmp/journal-dhcpd.log" % cursor, shell=True)
+    return utf_only_open_read("/tmp/journal-dhcpd.log")
+
+
 @step(u'Run dracut test')
 def dracut_run(context):
     qemu_args = ""
@@ -91,8 +98,11 @@ def dracut_run(context):
                     context.embed("text/plain", msg, log)
         if proc.stdout is not None:
             context.embed("text/plain", proc.stdout, "DRACUT_LOG_COLLECTOR")
+
     assert rc == 0, f"Test run FAILED, VM returncode: {rc}, VM result: {result}"
     assert "PASS" in result, f"Test FAILED, VM result: {result}"
+
+    assert "no free leases" not in get_dhcpd_log(context.log_cursor), "DHCPD leases exhausted"
 
     for log_line in log_contains:
         assert log_line in boot_log, "Fail: not visible in log:\n" + log_line
