@@ -57,10 +57,15 @@ while [[ -n "$1" ]]; do
   dump_logs
 done
 
+echo "== before clean =="
+ls -lh mnt/var/log/journal
+df -h mnt/
+
 # clean logs
 rm -rf mnt/var/log/journal/*
-ls -la mnt/var/log/journal
-du -sch mnt/var/log/journal
+
+echo "== after clean =="
+ls -lh mnt/var/log/journal
 df -h mnt/
 
 # umount client
