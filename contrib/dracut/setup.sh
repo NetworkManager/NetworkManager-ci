@@ -361,10 +361,6 @@ test_clean() {
     losetup -d $loop
   done
 
-  umount $TESTDIR/nfs/nfs3-5
-  umount $TESTDIR/nfs/ip/192.168.50.101
-  umount $TESTDIR/nfs/tftpboot/nfs4-5
-
   rm -rf -- "$TESTDIR"
   echo "dracut testdir $TESTDIR cleaned"
   network_clean
@@ -385,6 +381,9 @@ start_nfs() {
 stop_nfs() {
   echo stopping nfs
   systemctl stop nfs-server
+  umount $TESTDIR/nfs/nfs3-5
+  umount $TESTDIR/nfs/ip/192.168.50.101
+  umount $TESTDIR/nfs/tftpboot/nfs4-5
 }
 
 
