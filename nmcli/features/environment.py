@@ -2399,7 +2399,7 @@ def after_scenario(context, scenario):
 
                 restart_NM_service()
 
-            if 'dracut' in scenario.tags or 'dracut_clean' in scenario.tags:
+            if 'dracut' in scenario.tags:
                 print("---------------------------")
                 print("dracut log embed")
                 if os.path.isfile("/tmp/dracut_setup.log"):
@@ -2407,11 +2407,15 @@ def after_scenario(context, scenario):
                     context.embed("text/plain", utf_only_open_read("/tmp/dracut_setup.log"), "DRACUT_SETUP")
                     call("rm -f /tmp/dracut_setup.log", shell=True)
                 if os.path.isfile("/tmp/dracut_clean.log"):
-                    print("embeding CLEAN log")
+                    print("embeding CLEAN log - dracut setup probably failed !!!")
                     context.embed("text/plain", utf_only_open_read("/tmp/dracut_clean.log"), "DRACUT_CLEAN")
                     call("rm -f /tmp/dracut_clean.log", shell=True)
-                dhcpd_log = call("journalctl -all -t dhcpd --no-pager %s > /tmp/journal-dhcpd.log" % context.log_cursor, shell=True)
+                call("journalctl -all --no-pager %s | grep ' dhcpd\\[' > /tmp/journal-dhcpd.log" % context.log_cursor, shell=True)
                 context.embed("text/plain", utf_only_open_read("/tmp/journal-dhcpd.log"), "DHCPD")
+                call("journalctl -all --no-pager %s | grep ' radvd\\[' > /tmp/journal-radvd.log" % context.log_cursor, shell=True)
+                context.embed("text/plain", utf_only_open_read("/tmp/journal-radvd.log"), "RADVD")
+                call("journalctl -all --no-pager %s | grep ' rpc.mountd\[' > /tmp/journal-nfs.log" % context.log_cursor, shell=True)
+                context.embed("text/plain", utf_only_open_read("/tmp/journal-nfs.log"), "NFS")
 
             if 'dracut_clean' in scenario.tags:
                 print("---------------------------")

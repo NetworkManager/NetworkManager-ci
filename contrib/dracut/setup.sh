@@ -436,7 +436,7 @@ stop_dhcp() {
 start_radvd() {
   mkdir /run/radvd
   chown radvd:radvd /run/radvd
-  radvd -C conf/radvd.conf -p $TESTDIR/radvd.pid -u radvd
+  radvd -C conf/radvd.conf -p $TESTDIR/radvd.pid -u radvd -d 5
 }
 
 
