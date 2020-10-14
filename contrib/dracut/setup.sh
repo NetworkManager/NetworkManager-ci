@@ -413,23 +413,22 @@ stop_iscsi() {
 }
 
 
-start_dhcp() {
+start_dhcpd() {
   mkdir -p /var/lib/dhcpd
-  >/var/lib/dhcpd/dhcpd.leases
-  >/var/lib/dhcpd/dhcpd6.leases
-  chmod 777 /var/lib/dhcpd/dhcpd.leases
-  chmod 777 /var/lib/dhcpd/dhcpd6.leases
-  dhcpd -q -cf conf/dhcpd.conf -lf /var/lib/dhcpd/dhcpd.leases -pf $TESTDIR/dhcpd.pid
-  dhcpd -6 -q -cf conf/dhcpd6.conf -lf /var/lib/dhcpd/dhcpd6.leases -pf $TESTDIR/dhcpd6.pid
+  > $TESTDIR/dhcpd.leases
+  > $TESTDIR/dhcpd6.leases
+  chmod 777 $TESTDIR/dhcpd.leases
+  chmod 777 $TESTDIR/dhcpd6.leases
+  dhcpd -q -cf conf/dhcpd.conf -lf $TESTDIR/dhcpd.leases -pf $TESTDIR/dhcpd.pid
+  dhcpd -6 -q -cf conf/dhcpd6.conf -lf $TESTDIR/dhcpd6.leases -pf $TESTDIR/dhcpd6.pid
 }
 
 
-stop_dhcp() {
-  echo stopping dhcp
+stop_dhcpd() {
+  echo stopping dhcpd
   pkill -9 -F $TESTDIR/dhcpd.pid
   pkill -9 -F $TESTDIR/dhcpd6.pid
-  rm -f $TESTDIR/dhcpd.pid
-  rm -f $TESTDIR/dhcpd6.pid
+  rm -f $TESTDIR/dhcpd.pid $TESTDIR/dhcpd6.pid $TESTDIR/dhcpd.leases $TESTDIR/dhcpd6.leases
 }
 
 
@@ -449,7 +448,7 @@ stop_radvd() {
 kill_server() {
   stop_nfs
   stop_iscsi
-  stop_dhcp
+  stop_dhcpd
   stop_radvd
 }
 
@@ -457,7 +456,7 @@ kill_server() {
 run_server() {
   start_nfs
   start_iscsi
-  start_dhcp
+  start_dhcpd
   start_radvd
 }
 
