@@ -1841,6 +1841,8 @@ def after_scenario(context, scenario):
                 for i in range(1,101):cons=cons+('t-a%s ' %i)
                 command = "nmcli con del %s" %cons
                 call(command, shell=True)
+                # setup.sh masks dispatcher scripts
+                call("systemctl unmask NetworkManager-dispatcher", shell=True)
 
             if 'nmstate_setup' in scenario.tags:
                 print ("---------------------------")
