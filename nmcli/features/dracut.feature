@@ -459,10 +459,80 @@ Feature: NM: dracut
 
 
     @rhelver+=8.3 @fedoraver-=0
+    @ver-=1.26
+    @dracut @long
+    @dracut_NM_vlan_over_everything
+    Scenario: NM - dracut - NM module - VLANs over everything (nic, nic, bond, team) except bridge
+    # bug for bridge part: https://bugzilla.redhat.com/show_bug.cgi?id=1879003
+    # bug for bootdev part (nfs_server check): https://bugzilla.redhat.com/show_bug.cgi?id=1879021
+    * Run dracut test
+      | Param   | Value                                                      |
+      | timeout | 15m                                                        |
+      | ram     | 1024                                                       |
+      | kernel  | root=dhcp ro                                               |
+      | kernel  | vlan=vlan0005:ens7                                         |
+      | kernel  | vlan=vlan9:ens7                                            |
+      | kernel  | vlan=bond0.13:bond0                                        |
+      | kernel  | bond=bond0:ens3,ens4:mode=balance-rr                       |
+      | kernel  | team=team0:ens5,ens6                                       |
+      | kernel  | vlan=team0.0017:team0                                      |
+      | kernel  | ip=vlan9:dhcp                                              |
+      | kernel  | bootdev=vlan9                                              |
+      | qemu    | -netdev tap,id=bond0_0,script=$PWD/qemu-ifup/bond0_0       |
+      | qemu    | -device e1000,netdev=bond0_0,mac=52:54:00:12:34:11         |
+      | qemu    | -netdev tap,id=bond0_1,script=$PWD/qemu-ifup/bond0_1       |
+      | qemu    | -device e1000,netdev=bond0_1,mac=52:54:00:12:34:12         |
+      | qemu    | -netdev tap,id=bond1_0,script=$PWD/qemu-ifup/bond1_0       |
+      | qemu    | -device e1000,netdev=bond1_0,mac=52:54:00:12:34:13         |
+      | qemu    | -netdev tap,id=bond1_1,script=$PWD/qemu-ifup/bond1_1       |
+      | qemu    | -device e1000,netdev=bond1_1,mac=52:54:00:12:34:14         |
+      | qemu    | -netdev tap,id=vlan,script=$PWD/qemu-ifup/vlan             |
+      | qemu    | -device e1000,netdev=vlan,mac=52:54:00:12:34:17            |
+      | check   | nmcli_con_active ens3 ens3                                 |
+      | check   | nmcli_con_active ens4 ens4                                 |
+      | check   | nmcli_con_active bond0 bond0 45                            |
+      | check   | nmcli_con_active bond0.13 bond0.13 45                      |
+      | check   | nmcli_con_active ens5 ens5                                 |
+      | check   | nmcli_con_active ens6 ens6                                 |
+      | check   | nmcli_con_active team0 team0 45                            |
+      | check   | nmcli_con_active team0.0017 team0.0017 45                  |
+      | check   | nmcli_con_active vlan0005 vlan0005 45                      |
+      | check   | nmcli_con_active vlan9 vlan9 45                            |
+      | check   | nmcli_con_num 10                                           |
+      | check   | link_no_ip4 ens3                                           |
+      | check   | link_no_ip4 ens4                                           |
+      | check   | link_no_ip4 ens5                                           |
+      | check   | link_no_ip4 ens6                                           |
+      | check   | link_no_ip4 ens7                                           |
+      | check   | ip_route_unique "192.168.53.0/24 dev bond0"                |
+      | check   | ip_route_unique "192.168.54.0/24 dev team0"                |
+      | check   | ip_route_unique "192.168.55.4/30 dev vlan0005"             |
+      | check   | ip_route_unique "192.168.55.8/30 dev vlan9"                |
+      | check   | ip_route_unique "192.168.55.12/30 dev bond0.13"            |
+      | check   | ip_route_unique "192.168.55.16/30 dev team0.0017"          |
+      | check   | ip_route_unique "default via 192.168.53.1 dev bond0"       |
+      | check   | ip_route_unique "default via 192.168.54.1 dev team0"       |
+      | check   | ip_route_unique "default via 192.168.55.5 dev vlan0005"    |
+      | check   | ip_route_unique "default via 192.168.55.9 dev vlan9"       |
+      | check   | ip_route_unique "default via 192.168.55.13 dev bond0.13"   |
+      | check   | ip_route_unique "default via 192.168.55.17 dev team0.0017" |
+      # run IP renew checks simultaneously, `wait` at the end until all checks are finished
+      | check   | { wait_for_ip4_renew 192.168.53.101 bond0 & }              |
+      | check   | { wait_for_ip4_renew 192.168.54.101 team0 & }              |
+      | check   | { wait_for_ip4_renew 192.168.55.6 vlan0005 & }             |
+      | check   | { wait_for_ip4_renew 192.168.55.10 vlan9 & }               |
+      | check   | { wait_for_ip4_renew 192.168.55.14 bond0.13 & }            |
+      | check   | { wait_for_ip4_renew 192.168.55.18 team0.0017 & }          |
+      | check   | wait                                                       |
+      #| check   | nfs_server 192.168.55.10                                   |
+
+
+    @rhbz1879003
+    @rhelver+=8.3 @fedoraver-=0
+    @ver+=1.27
     @dracut @long
     @dracut_NM_vlan_over_everything
     Scenario: NM - dracut - NM module - VLANs over everything (nic, nic, bond, team, bridge)
-    # bug bridge part: https://bugzilla.redhat.com/show_bug.cgi?id=1879003
     # bug for bootdev part (nfs_server check): https://bugzilla.redhat.com/show_bug.cgi?id=1879021
     * Run dracut test
       | Param   | Value                                                      |
