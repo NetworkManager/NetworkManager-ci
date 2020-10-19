@@ -353,7 +353,7 @@ Feature: NM: dracut
     * Run dracut test
       | Param  | Value                                          |
       | kernel | root=nfs:192.168.50.1:/client ro               |
-      | kernel | bridge net.ifnames=0                           |
+      | kernel | bridge net.ifnames=0 ip=br0:dhcp               |
       | qemu   | -device e1000,netdev=nfs,mac=52:54:00:12:34:00 |
       | qemu   | -netdev tap,id=nfs,script=$PWD/qemu-ifup/nfs   |
       | check  | nmcli_con_active br0 br0                       |
