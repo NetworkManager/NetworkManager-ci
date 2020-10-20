@@ -218,6 +218,7 @@ def dump_status_nmcli(context, when):
                   'nmcli d',
                   'hostnamectl',
                   'NetworkManager --print-config',
+                  'cat /etc/resolv.conf',
                   'ps aux | grep dhclient' ]
 
     for cmd in cmds:
@@ -849,6 +850,11 @@ def before_scenario(context, scenario):
                 else:
                     context.revert_unmanaged = False
 
+            if 'not_with_systemd_resolved' in scenario.tags:
+                print ("---------------------------")
+                if call("systemctl is-active systemd-resolved", shell=True) == 0:
+                    sys.exit(77)
+
             if 'not_under_internal_DHCP' in scenario.tags:
                 if call("grep -q Ootpa /etc/redhat-release", shell=True) == 0 and \
                    call("NetworkManager --print-config|grep dhclient", shell=True) != 0:
@@ -933,6 +939,12 @@ def before_scenario(context, scenario):
             if 'dns_dnsmasq' in scenario.tags:
                 print ("---------------------------")
                 print ("set dns=dnsmasq")
+                if call("systemctl is-active systemd-resolved", shell=True) == 0:
+                    context.systemd_resolved = True
+                    call("systemctl stop systemd-resolved", shell=True)
+                    call("rm -rf /etc/resolv.conf", shell=True)
+                else:
+                    context.systemd_resolved = False
                 call("printf '# configured by beaker-test\n[main]\ndns=dnsmasq\n' > /etc/NetworkManager/conf.d/99-xtest-dns.conf", shell=True)
                 reload_NM_service ()
                 context.dns_script="dnsmasq.sh"
@@ -1298,11 +1310,14 @@ def before_scenario(context, scenario):
                     wait_for_testeth0()
                     call("sudo yum -y install firewalld", shell=True)
                 call("sudo systemctl unmask firewalld", shell=True)
+                sleep(1)
+                call("sudo systemctl stop firewalld", shell=True)
+                sleep(5)
                 call("sudo systemctl start firewalld", shell=True)
                 call("sudo nmcli con modify testeth0 connection.zone public", shell=True)
                 # Add a sleep here to prevent firewalld to hang
                 # (see https://bugzilla.redhat.com/show_bug.cgi?id=1495893)
-                call("sleep 1", shell=True)
+                sleep(1)
 
             if 'restore_hostname' in scenario.tags:
                print ("---------------------------")
@@ -2175,6 +2190,9 @@ def after_scenario(context, scenario):
                 call("rm -f /etc/NetworkManager/conf.d/99-xtest-dns.conf", shell=True)
                 reload_NM_service ()
                 context.dns_script=""
+                if context.systemd_resolved == True:
+                    call("systemctl restart systemd-resolved", shell=True)
+
 
             if 'internal_DHCP' in scenario.tags:
                 print ("---------------------------")
@@ -2661,6 +2679,8 @@ def after_scenario(context, scenario):
                 print ("---------------------------")
                 print ("restore /etc/resolv.conf")
                 call('rm -rf /etc/resolv.conf', shell=True)
+                if call("systemctl is-active systemd-resolved", shell=True) == 0:
+                    call("ln -s /run/systemd/resolve/stub-resolv.conf /etc/resolv.conf", shell=True)
                 call('rm -rf /tmp/resolv_orig.conf', shell=True)
                 call('rm -rf /tmp/resolv.conf', shell=True)
                 call("rm -rf /etc/NetworkManager/conf.d/99-resolv.conf", shell=True)

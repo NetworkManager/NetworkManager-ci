@@ -1715,6 +1715,7 @@ Feature: nmcli - general
 
     @rhbz1541031
     @ver+=1.12
+    @not_with_systemd_resolved
     @restart @remove_custom_cfg
     @resolv_conf_overwrite_after_stop
     Scenario: NM - general - overwrite resolv conf after stop

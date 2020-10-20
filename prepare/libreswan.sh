@@ -154,7 +154,7 @@ libreswan_gen_netconfig ()
     nmcli connection add \
         type ethernet con-name lib1 ifname libreswan1 autoconnect no ipv6.method ignore \
         ipv4.route-metric 90 ipv4.method static ipv4.addresses 11.12.13.15/24 \
-        ipv4.gateway 11.12.13.14 ipv4.dns 11.12.13.14 ipv4.dns-priority 90
+        ipv4.gateway 11.12.13.14 ipv4.dns 11.12.13.14 ipv4.route-metric 90
     nmcli dev set libreswan1 managed yes
 
     # Warning: the next command interrupts any established SSH connection to the remote machine!

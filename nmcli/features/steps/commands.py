@@ -139,6 +139,32 @@ def hostname_visible(context, log, seconds=1):
     raise Exception('Hostname visible in log after %d seconds' % (orig_seconds - seconds))
 
 
+@step(u'Nameserver "{server}" is set')
+@step(u'Nameserver "{server}" is set in "{seconds}" seconds')
+@step(u'Domain "{server}" is set')
+@step(u'Domain "{server}" is set in "{seconds}" seconds')
+def get_nameserver_or_domain(context, server, seconds=1):
+    if call('systemctl is-active systemd-resolved.service -q', shell=True) == 0:
+        # We have systemd-resolvd running
+        cmd = 'resolvectl dns; resolvectl domain'
+    else:
+        cmd = 'cat /etc/resolv.conf'
+    return check_pattern_command(context, cmd, server, seconds)
+
+
+@step(u'Nameserver "{server}" is not set')
+@step(u'Nameserver "{server}" is not set in "{seconds}" seconds')
+@step(u'Domain "{server}" is not set')
+@step(u'Domain "{server}" is not set in "{seconds}" seconds')
+def get_nameserver_or_domain(context, server, seconds=1):
+    if call('systemctl is-active systemd-resolved.service -q', shell=True) == 0:
+        # We have systemd-resolvd running
+        cmd = 'systemd-resolve --status |grep -A 100 Link'
+    else:
+        cmd = 'cat /etc/resolv.conf'
+    return check_pattern_command(context, cmd, server, seconds, check_type="not")
+
+
 @step(u'Noted value contains "{pattern}"')
 def note_print_property_b(context, pattern):
     assert re.search(pattern, context.noted['noted-value']) is not None, "Noted value '%s' does not match the pattern '%s'!" % (context.noted['noted-value'], pattern)

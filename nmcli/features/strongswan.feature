@@ -66,17 +66,17 @@ Feature: nmcli: strongswan
     @strongswan
     @strongswan_dns
     Scenario: nmcli - strongswan - dns
-    Given "nameserver 172.31.70.1" is visible with command "cat /etc/resolv.conf"
+    Given Nameserver "172.31.70.1" is set
     * Add a connection named "strongswan" for device "\*" to "strongswan" VPN
     * Use user "budulinek" with secret "12345678901234567890" for gateway "172.31.70.1" on Strongswan connection "strongswan"
     * Bring "up" connection "strongswan"
     When "VPN.VPN-STATE:.*VPN connected" is visible with command "nmcli c show strongswan"
-     And "nameserver 8.8.8.8" is visible with command "cat /etc/resolv.conf"
-     And "nameserver 172.31.70.1" is visible with command "cat /etc/resolv.conf"
+     And Nameserver "8.8.8.8" is set
+     And Nameserver "172.31.70.1" is set
     * Delete connection "strongswan"
     When "VPN.VPN-STATE:.*VPN connected" is not visible with command "nmcli c show strongswan" in "10" seconds
-    Then "nameserver 8.8.8.8" is not visible with command "cat /etc/resolv.conf"
-     And "nameserver 172.31.70.1" is visible with command "cat /etc/resolv.conf"
+    Then Nameserver "8.8.8.8" is not set
+     And Nameserver "172.31.70.1" is set
 
 
      @ver+=1.12

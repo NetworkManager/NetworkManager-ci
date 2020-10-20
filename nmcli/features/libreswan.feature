@@ -160,16 +160,17 @@
     @libreswan
     @libreswan_dns
     Scenario: nmcli - libreswan - dns
-    Given "nameserver 11.12.13.14\s+nameserver " is visible with command "cat /etc/resolv.conf"
+    Given Nameserver "11.12.13.14" is set
     * Add a connection named "libreswan" for device "\*" to "libreswan" VPN
     * Use user "budulinek" with password "passwd" and group "yolo" with secret "ipsecret" for gateway "11.12.13.14" on Libreswan connection "libreswan"
     * Bring "up" connection "libreswan"
     When "VPN.VPN-STATE:.*VPN connected" is visible with command "nmcli c show libreswan"
-     And "nameserver 8.8.8.8\s+nameserver 11.12.13.14\s+nameserver " is visible with command "cat /etc/resolv.conf"
+     And Nameserver "8.8.8.8" is set
+     And Nameserver "11.12.13.14" is set
     * Delete connection "libreswan"
     When "VPN.VPN-STATE:.*VPN connected" is not visible with command "nmcli c show libreswan" in "10" seconds
-    Then "nameserver 8.8.8.8\s+nameserver 11.12.13.14\s+nameserver " is not visible with command "cat /etc/resolv.conf"
-     And "nameserver 11.12.13.14\s+nameserver " is visible with command "cat /etc/resolv.conf"
+    Then Nameserver "8.8.8.8" is not set
+     And Nameserver "11.12.13.14" is set
 
 
     @rhbz1264552

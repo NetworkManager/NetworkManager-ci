@@ -399,55 +399,54 @@
     @ipv6_dns_manual_IP_with_manual_dns
     Scenario: nmcli - ipv6 - dns - method static + IP + dns
      * Add a new connection of type "ethernet" and options "ifname eth10 con-name con_ipv6 ipv4.may-fail no ipv6.method static ipv6.addresses 2001::1/126 ipv6.gateway 4000::1 ipv6.dns '4000::1, 5000::1'"
-    Then "nameserver 4000::1" is visible with command "cat /etc/resolv.conf" in "45" seconds
-    Then "nameserver 5000::1" is visible with command "cat /etc/resolv.conf"
-    Then "nameserver 10." is visible with command "cat /etc/resolv.conf"
+    Then Nameserver "4000::1" is set in "45" seconds
+    Then Nameserver "5000::1" is set
+    Then Nameserver "10." is set in "45" seconds
 
 
     @con_ipv6_remove @eth0
     @ipv6_dns_auto_with_more_manually_set
     Scenario: nmcli - ipv6 - dns - method auto + dns
      * Add a new connection of type "ethernet" and options "ifname eth3 con-name con_ipv6 ipv4.may-fail no ipv6.dns '4000::1, 5000::1'"
-    Then "nameserver 4000::1" is visible with command "cat /etc/resolv.conf" in "45" seconds
-    Then "nameserver 5000::1" is visible with command "cat /etc/resolv.conf"
-    Then "nameserver 192.168.100.1" is visible with command "cat /etc/resolv.conf"
+    Then Nameserver "4000::1" is set in "45" seconds
+    Then Nameserver "5000::1" is set
+    Then Nameserver "192.168.100.1" is set in "45" seconds
 
 
-    @con_ipv6_remove
+    @con_ipv6_remove @eth0
     @ipv6_dns_ignore-auto-dns_with_manually_set_dns
     Scenario: nmcli - ipv6 - dns - method auto + dns + ignore automaticaly obtained
-    * Add a new connection of type "ethernet" and options "ifname eth3 con-name con_ipv6 ipv6.ignore-auto-dns yes ipv6.dns '4000::1, 5000::1'"
-    Then "nameserver 4000::1" is visible with command "cat /etc/resolv.conf" in "45" seconds
-    Then "nameserver 5000::1" is visible with command "cat /etc/resolv.conf"
+    * Add a new connection of type "ethernet" and options "ifname eth10 con-name con_ipv6 ipv6.ignore-auto-dns yes ipv6.dns '4000::1, 5000::1'"
+    Then Nameserver "4000::1" is set in "45" seconds
+    Then Nameserver "5000::1" is set
 
 
     @ver+=1.18
     @con_ipv6_remove @eth0
     @ipv6_dns_add_more_when_already_have_some
     Scenario: nmcli - ipv6 - dns - add dns when one already set
-    * Add a new connection of type "ethernet" and options "ifname eth3 con-name con_ipv6 ipv6.dns '4000::1, 5000::1'"
+    * Add a new connection of type "ethernet" and options "ifname eth10 con-name con_ipv6 ipv6.dns '4000::1'"
     * Modify connection "con_ipv6" changing options "+ipv6.dns 2000::1"
      * Bring "up" connection "con_ipv6"
-    Then "nameserver 4000::1" is visible with command "cat /etc/resolv.conf" in "45" seconds
-    Then "nameserver 5000::1" is visible with command "cat /etc/resolv.conf"
-    Then "nameserver 2000::1" is visible with command "cat /etc/resolv.conf"
+     Then Nameserver "2000::1" is set in "45" seconds
+    Then Nameserver "4000::1" is set
 
 
     @con_ipv6_remove @eth0
     @ipv6_dns_remove_manually_set
     Scenario: nmcli - ipv6 - dns - method auto then delete all dns
-    * Add a new connection of type "ethernet" and options "ifname eth3 con-name con_ipv6 ipv6.dns '4000::1, 5000::1'"
+    * Add a new connection of type "ethernet" and options "ifname eth10 con-name con_ipv6 ipv6.dns '4000::1, 5000::1'"
     * Modify connection "con_ipv6" changing options "ipv6.dns ''"
     * Bring "up" connection "con_ipv6"
-    Then "nameserver 4000::1" is not visible with command "cat /etc/resolv.conf"
-    Then "nameserver 5000::1" is not visible with command "cat /etc/resolv.conf"
+    Then Nameserver "4000::1" is not set
+    Then Nameserver "5000::1" is not set
 
 
     @con_ipv6_remove @eth0
     @ipv6_dns-search_set
     Scenario: nmcli - ipv6 - dns-search - add dns-search
     * Add a new connection of type "ethernet" and options "ifname eth10 con-name con_ipv6 ipv4.method disabled ipv4.ignore-auto-dns yes ipv6.dns-search google.com"
-    Then "google.com" is visible with command "cat /etc/resolv.conf" in "45" seconds
+    Then Domain "google.com" is set in "45" seconds
 
 
     @con_ipv6_remove @eth0
@@ -456,7 +455,7 @@
     * Add a new connection of type "ethernet" and options "ifname eth10 con-name con_ipv6 ipv4.method disabled ipv6.ignore-auto-dns yes ipv6.dns-search google.com"
     * Modify connection "con_ipv6" changing options "ipv6.dns-search ''"
      * Bring "up" connection "con_ipv6"
-    Then " google.com" is not visible with command "cat /etc/resolv.conf"
+    Then Domain " google.com" is not set
 
 
     @NM @con_ipv6_remove @eth0
@@ -464,9 +463,8 @@
     Scenario: nmcli - ipv6 - ignore auto obtained dns
     * Add a new connection of type "ethernet" and options "ifname eth10 con-name con_ipv6 ipv4.method disabled ipv6.ignore-auto-dns yes ipv6.ignore-auto-dns yes"
     * Bring "up" connection "con_ipv6"
-    Then " google.com" is not visible with command "cat /etc/resolv.conf"
-    Then "virtual" is not visible with command "cat /etc/resolv.conf"
-    Then "nameserver " is not visible with command "cat /etc/resolv.conf" in "45" seconds
+    Then Domain " google.com" is not set
+    Then Domain "virtual" is not set
 
 
     @con_ipv6_remove

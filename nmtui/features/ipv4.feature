@@ -458,7 +458,7 @@ Feature: IPv4 TUI tests
     * In "DNS servers" property add "8.8.8.8"
     * In this property also add "8.8.4.4"
     * Confirm the connection settings
-    Then "nameserver 8.8.8.8.*nameserver 8.8.4.4" is visible with command "cat /etc/resolv.conf" in "10" seconds
+    Then Nameserver "8.8.8.8.*8.8.4.4" is set in "10" seconds
 
 
     @ipv4
@@ -470,7 +470,7 @@ Feature: IPv4 TUI tests
     * In "DNS servers" property add "8.8.8.8"
     * In this property also add "8.8.4.4"
     * Confirm the connection settings
-    Then "nameserver 8.8.8.8.*nameserver 8.8.4.4" is visible with command "cat /etc/resolv.conf" in "10" seconds
+    Then Nameserver "8.8.8.8.*8.8.4.4" is set in "10" seconds
 
 
     @ipv4
@@ -491,7 +491,7 @@ Feature: IPv4 TUI tests
     * In this property also add "8.8.4.4"
     * Confirm the connection settings
     * Bring up connection "ethernet1"
-    Then "nameserver 8.8.8.8.*nameserver 8.8.4.4" is visible with command "cat /etc/resolv.conf" in "10" seconds
+    Then Nameserver "8.8.8.8.*8.8.4.4" is set in "10" seconds
 
 
     @ipv4
@@ -503,15 +503,15 @@ Feature: IPv4 TUI tests
     * In "DNS servers" property add "8.8.8.8"
     * In this property also add "8.8.4.4"
     * Confirm the connection settings
-    * "nameserver 8.8.8.8.*nameserver 8.8.4.4" is visible with command "cat /etc/resolv.conf" in "45" seconds
+    * Nameserver "8.8.8.8.*8.8.4.4" is set in "45" seconds
     * Select connection "ethernet1" in the list
     * Choose to "<Edit...>" a connection
     * Come in "IPv4 CONFIGURATION" category
     * Remove all "DNS servers" property items
     * Confirm the connection settings
     * Bring up connection "ethernet1"
-    Then "nameserver 8.8.8.8" is not visible with command "cat /etc/resolv.conf"
-    Then "nameserver 8.8.4.4" is not visible with command "cat /etc/resolv.conf"
+    Then Nameserver "8.8.8.8" is not set
+    Then Nameserver "8.8.4.4" is not set
 
 
     @ipv4
@@ -522,7 +522,7 @@ Feature: IPv4 TUI tests
     * Come in "IPv4 CONFIGURATION" category
     * In "Search domains" property add "heaven.com"
     * Confirm the connection settings
-    Then " heaven.com" is visible with command "cat /etc/resolv.conf" in "45" seconds
+    Then Domain "heaven.com" is set in "45" seconds
 
 
     @ipv4
@@ -533,14 +533,14 @@ Feature: IPv4 TUI tests
     * Come in "IPv4 CONFIGURATION" category
     * In "Search domains" property add "heaven.com"
     * Confirm the connection settings
-    * " heaven.com" is visible with command "cat /etc/resolv.conf" in "45" seconds
+    * Domain "heaven.com" is set in "45" seconds
     * Select connection "ethernet1" in the list
     * Choose to "<Edit...>" a connection
     * Come in "IPv4 CONFIGURATION" category
     * Remove all "Search domains" property items
     * Confirm the connection settings
     * Bring up connection "ethernet1"
-    Then " heaven.com" is not visible with command "cat /etc/resolv.conf"
+    Then Domain "heaven.com" is not set
 
 
     @ipv4

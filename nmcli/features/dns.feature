@@ -225,46 +225,49 @@ Feature: nmcli - dns
 
     @rhbz1228707
     @ver+=1.2.0
+    @not_with_systemd_resolved
     @con_dns_remove
     @dns_priority
     Scenario: nmcli - ipv4 - dns - priority
-    * Add a new connection of type "ethernet" and options "con-name con_dns ifname eth2 -- ipv4.method manual ipv4.addresses 192.168.1.2/24 ipv4.dns 8.8.4.4 ipv4.dns-priority 300"
-    * Add a new connection of type "ethernet" and options "con-name con_dns2 ifname eth3 -- ipv4.method manual ipv4.addresses 192.168.2.2/24 ipv4.dns 8.8.8.8 ipv4.dns-priority 200"
-    When "nameserver 8.8.8.8.*nameserver 8.8.4.4" is visible with command "cat /etc/resolv\.conf" in "5" seconds
+    * Add a new connection of type "ethernet" and options "con-name con_dns ifname eth2 -- ipv4.method manual ipv4.addresses 192.168.1.2/24 ipv4.gateway 172.16.1.2 ipv4.dns 2.3.4.1 ipv4.dns-priority 300"
+    * Add a new connection of type "ethernet" and options "con-name con_dns2 ifname eth3 -- ipv4.method manual ipv4.addresses 192.168.2.2/24 ipv4.gateway 172.16.1.2 ipv4.dns 1.2.3.4 ipv4.dns-priority 200"
+    When Nameserver "1.2.3.4.*2.3.4.1" is set in "5" seconds
     * Modify connection "con_dns" changing options "ipv4.dns-priority 100"
     * Modify connection "con_dns" changing options "ipv6.dns-priority 300"
     * Bring "up" connection "con_dns"
     * Bring "up" connection "con_dns2"
-    Then "nameserver 8.8.4.4.*nameserver 8.8.8.8" is visible with command "cat /etc/resolv\.conf" in "5" seconds
+    Then Nameserver "2.3.4.1.*1.2.3.4" is set in "5" seconds
     * Bring "up" connection "con_dns"
-    Then "nameserver 8.8.4.4.*nameserver 8.8.8.8" is visible with command "cat /etc/resolv\.conf" in "5" seconds
+    Then Nameserver "2.3.4.1.*1.2.3.4" is set in "5" seconds
 
 
+    @not_with_systemd_resolved
     @con_dns_remove @remove_custom_cfg @restart
     @dns_priority_config
     Scenario: nmcli - ipv4 - dns - set priority in config
     * Execute "echo -e '[connection]\nipv4.dns-priority=200' > /etc/NetworkManager/conf.d/99-xxcustom.conf"
     * Execute "systemctl reload NetworkManager"
-    * Add a new connection of type "ethernet" and options "con-name con_dns ifname eth2 -- ipv4.method manual ipv4.addresses 192.168.1.2/24 ipv4.dns 8.8.4.4 ipv4.dns-priority 150"
-    * Add a new connection of type "ethernet" and options "con-name con_dns2 ifname eth3 -- ipv4.method manual ipv4.addresses 192.168.2.2/24 ipv4.dns 8.8.8.8"
+    * Add a new connection of type "ethernet" and options "con-name con_dns ifname eth2 -- ipv4.method manual ipv4.addresses 192.168.1.2/24 ipv4.dns 2.3.4.1 ipv4.dns-priority 150"
+    * Add a new connection of type "ethernet" and options "con-name con_dns2 ifname eth3 -- ipv4.method manual ipv4.addresses 192.168.2.2/24 ipv4.dns 1.2.3.4"
     * Bring "up" connection "con_dns"
     * Bring "up" connection "con_dns2"
-    Then "nameserver 8.8.4.4.*nameserver 8.8.8.8" is visible with command "cat /etc/resolv\.conf" in "5" seconds
+    Then Nameserver "2.3.4.1.*1.2.3.4" is set in "5" seconds
     * Bring "up" connection "con_dns"
-    Then "nameserver 8.8.4.4.*nameserver 8.8.8.8" is visible with command "cat /etc/resolv\.conf" in "5" seconds
+    Then Nameserver "2.3.4.1.*1.2.3.4" is set in "5" seconds
     # check that 0 in config makes it default (50 VPN, 100 other)
     * Execute "echo -e '[connection]\nipv4.dns-priority=0' > /etc/NetworkManager/conf.d/99-xxcustom.conf"
     * Execute "systemctl reload NetworkManager"
     * Modify connection "con_dns" changing options "ipv4.dns-priority 40"
     * Bring "up" connection "con_dns"
     * Bring "up" connection "con_dns2"
-    Then "nameserver 8.8.4.4.*nameserver 8.8.8.8" is visible with command "cat /etc/resolv\.conf" in "5" seconds
+    Then Nameserver "2.3.4.1.*1.2.3.4" is set in "5" seconds
     * Bring "up" connection "con_dns"
-    Then "nameserver 8.8.4.4.*nameserver 8.8.8.8" is visible with command "cat /etc/resolv\.conf" in "5" seconds
+    Then Nameserver "2.3.4.1.*1.2.3.4" is set in "5" seconds
 
 
     @rhbz1512966
     @ver+=1.11.3
+    @not_with_systemd_resolved
     @con_dns_remove
     @dns_default_two_default
     Scenario: NM - dns - two connections with default route
@@ -280,13 +283,14 @@ Feature: nmcli - dns
     * Execute "nmcli connection modify con_dns2 ipv4.dns 172.17.1.53 ipv4.dns-search con_dns2.domain"
     * Bring "up" connection "con_dns2"
 
-    Then "nameserver 172.16.1.53" is visible with command "cat /etc/resolv\.conf" in "5" seconds
-     And "nameserver 172.17.1.53" is visible with command "cat /etc/resolv\.conf" in "5" seconds
-    Then "search.*con_dns.domain.*con_dns2.domain" is visible with command "cat /etc/resolv\.conf" in "5" seconds
+    Then Nameserver "172.16.1.53" is set in "5" seconds
+     And Nameserver "172.17.1.53" is set in "5" seconds
+    Then Domain "search.*con_dns.domain.*con_dns2.domain" is set in "5" seconds
 
 
     @rhbz1512966
     @ver+=1.11.3
+    @not_with_systemd_resolved
     @con_dns_remove @eth0
     @dns_default_one_default
     Scenario: NM - dns - two connections, one with default route
@@ -304,17 +308,18 @@ Feature: nmcli - dns
     * Execute "nmcli connection modify con_dns2 ipv4.dns 172.17.1.53 ipv4.dns-search con_dns2.domain"
     * Bring "up" connection "con_dns2"
 
-    Then "nameserver 172.16.1.53.*nameserver 172.17.1.53" is visible with command "cat /etc/resolv\.conf" in "5" seconds
-    Then "search.*con_dns.domain.*con_dns2.domain" is visible with command "cat /etc/resolv\.conf" in "5" seconds
+    Then Nameserver "172.16.1.53.*172.17.1.53" is set in "5" seconds
+    Then Domain "search.*con_dns.domain.*con_dns2.domain" is set in "5" seconds
 
     * Bring "up" connection "con_dns"
 
-    Then "nameserver 172.16.1.53.*nameserver 172.17.1.53" is visible with command "cat /etc/resolv\.conf" in "5" seconds
-    Then "search.*con_dns.domain.*con_dns2.domain" is visible with command "cat /etc/resolv\.conf" in "5" seconds
+    Then Nameserver "172.16.1.53.*nameserver 172.17.1.53" is set in "5" seconds
+    Then Domain "search.*con_dns.domain.*con_dns2.domain" is set in "5" seconds
 
 
     @rhbz1512966
     @ver+=1.11.3
+    @not_with_systemd_resolved
     @con_dns_remove
     @dns_default_two_default_with_priority
     Scenario: NM - dns - two connections with default route, one has higher priority
@@ -332,17 +337,18 @@ Feature: nmcli - dns
     * Execute "nmcli connection modify con_dns2 ipv4.dns 172.17.1.53 ipv4.dns-search con_dns2.domain"
     * Bring "up" connection "con_dns2"
 
-    Then "nameserver 172.16.1.53.*nameserver 172.17.1.53" is visible with command "cat /etc/resolv\.conf" in "5" seconds
-    Then "search.*con_dns.domain.*con_dns2.domain" is visible with command "cat /etc/resolv\.conf" in "5" seconds
+    Then Nameserver "172.16.1.53.*172.17.1.53" is set in "5" seconds
+    Then Domain "search.*con_dns.domain.*con_dns2.domain" is set in "5" seconds
 
     * Bring "up" connection "con_dns"
 
-    Then "nameserver 172.16.1.53.*nameserver 172.17.1.53" is visible with command "cat /etc/resolv\.conf" in "5" seconds
-    Then "search.*con_dns.domain.*con_dns2.domain" is visible with command "cat /etc/resolv\.conf" in "5" seconds
+    Then Nameserver "172.16.1.53.*172.17.1.53" is set in "5" seconds
+    Then Domain "search.*con_dns.domain.*con_dns2.domain" is set in "5" seconds
 
 
     @rhbz1512966
     @ver+=1.11.3
+    @not_with_systemd_resolved
     @con_dns_remove
     @dns_default_two_default_with_negative_priority
     Scenario: NM - dns - two connections with default route, one has negative priority
@@ -360,21 +366,22 @@ Feature: nmcli - dns
     * Execute "nmcli connection modify con_dns2 ipv4.dns 172.17.1.53 ipv4.dns-search con_dns2.domain"
     * Bring "up" connection "con_dns2"
 
-    Then "nameserver 172.16.1.53" is visible with command "cat /etc/resolv\.conf" in "5" seconds
-     And "nameserver 172.17.1.53" is not visible with command "cat /etc/resolv\.conf" in "5" seconds
-    Then "search.*con_dns.domain" is visible with command "cat /etc/resolv\.conf" in "5" seconds
-    Then "con_dns2.domain" is not visible with command "cat /etc/resolv\.conf" in "5" seconds
+    Then Nameserver "172.16.1.53" is set in "5" seconds
+     And Nameserver "172.17.1.53" is not set in "5" seconds
+    Then Domain "search.*con_dns.domain" is set in "5" seconds
+    Then Domain "con_dns2.domain" is not set in "5" seconds
 
     * Bring "up" connection "con_dns"
 
-    Then "nameserver 172.16.1.53" is visible with command "cat /etc/resolv\.conf" in "5" seconds
-     And "nameserver 172.17.1.53" is not visible with command "cat /etc/resolv\.conf" in "5" seconds
-    Then "search.*con_dns.domain" is visible with command "cat /etc/resolv\.conf" in "5" seconds
-    Then "con_dns2.domain" is not visible with command "cat /etc/resolv\.conf" in "5" seconds
+    Then Nameserver "172.16.1.53" is set in "5" seconds
+     And Nameserver "172.17.1.53" is not set in "5" seconds
+    Then Domain "search.*con_dns.domain" is set in "5" seconds
+    Then Domain "con_dns2.domain" is not set in "5" seconds
 
 
     @rhbz1512966
     @ver+=1.11.3 @fedoraver+=31
+    @not_with_systemd_resolved
     @con_dns_remove @eth0
     @dns_default_no_default
     Scenario: NM - dns - two connections without default route
@@ -391,13 +398,14 @@ Feature: nmcli - dns
     * Execute "nmcli connection modify con_dns2 ipv4.dns 172.17.1.53 ipv4.dns-search con_dns2.domain"
     * Bring "up" connection "con_dns2"
 
-    Then "nameserver 172.16.1.53" is visible with command "cat /etc/resolv\.conf" in "5" seconds
-     And "nameserver 172.17.1.53" is visible with command "cat /etc/resolv\.conf" in "5" seconds
-    Then "search.*con_dns.domain.*con_dns2.domain" is visible with command "cat /etc/resolv\.conf" in "5" seconds
+    Then Nameserver "172.16.1.53" is set in "5" seconds
+     And Nameserver "172.17.1.53" is set in "5" seconds
+    Then Domain "search.*con_dns.domain.*con_dns2.domain" is set in "5" seconds
 
 
     @rhbz1512966
     @ver+=1.11.3
+    @not_with_systemd_resolved
     @con_dns_remove @openvpn @openvpn4
     @dns_default_full_tunnel_vpn
     Scenario: NM - dns - full-tunnel VPN
@@ -413,17 +421,18 @@ Feature: nmcli - dns
     * Use certificate "sample-keys/client.crt" with key "sample-keys/client.key" and authority "sample-keys/ca.crt" for gateway "127.0.0.1" on OpenVPN connection "openvpn"
     * Bring "up" connection "openvpn"
 
-    Then "nameserver 172.31.70.53.*nameserver 172.16.1.53" is visible with command "cat /etc/resolv\.conf" in "5" seconds
-    Then "search.*vpn.domain.*con_dns.domain" is visible with command "cat /etc/resolv\.conf" in "5" seconds
+    Then Nameserver "172.31.70.53.*172.16.1.53" is set in "5" seconds
+    Then Domain "search.*vpn.domain.*con_dns.domain" is set in "5" seconds
 
     * Bring "up" connection "con_dns"
 
-    Then "nameserver 172.31.70.53.*nameserver 172.16.1.53" is visible with command "cat /etc/resolv\.conf" in "5" seconds
-    Then "search.*vpn.domain.*con_dns.domain" is visible with command "cat /etc/resolv\.conf" in "5" seconds
+    Then Nameserver "172.31.70.53.*172.16.1.53" is set in "5" seconds
+    Then Domain "search.*vpn.domain.*con_dns.domain" is set in "5" seconds
 
 
     @rhbz1512966
     @ver+=1.11.3
+    @not_with_systemd_resolved
     @con_dns_remove @openvpn @openvpn4
     @dns_default_split_tunnel_vpn
     Scenario: NM - dns - split-tunnel VPN
@@ -440,16 +449,17 @@ Feature: nmcli - dns
     * Execute "nmcli con modify openvpn ipv4.never-default yes"
     * Bring "up" connection "openvpn"
 
-    Then "nameserver 172.31.70.53.*nameserver 172.16.1.53" is visible with command "cat /etc/resolv\.conf" in "5" seconds
-    Then "search.*vpn.domain.*con_dns.domain" is visible with command "cat /etc/resolv\.conf" in "5" seconds
+    Then Nameserver "172.31.70.53.*172.16.1.53" is set in "5" seconds
+    Then Domain "search.*vpn.domain.*con_dns.domain" is set in "5" seconds
 
     * Bring "up" connection "con_dns"
 
-    Then "nameserver 172.31.70.53.*nameserver 172.16.1.53" is visible with command "cat /etc/resolv\.conf" in "5" seconds
-    Then "search.*vpn.domain.*con_dns.domain" is visible with command "cat /etc/resolv\.conf" in "5" seconds
+    Then Nameserver "172.31.70.53.*172.16.1.53" is set in "5" seconds
+    Then Domain "search.*vpn.domain.*con_dns.domain" is set in "5" seconds
 
 
     @ver+=1.11.3
+    @not_with_systemd_resolved
     @con_dns_remove @openvpn @openvpn4
     @dns_default_split_tunnel_vpn_same_priority
     Scenario: NM - dns - split-tunnel VPN - same dns priority
@@ -466,13 +476,13 @@ Feature: nmcli - dns
     * Execute "nmcli con modify openvpn ipv4.never-default yes ipv4.dns-priority 10"
     * Bring "up" connection "openvpn"
 
-    Then "nameserver 172.31.70.53.*nameserver 172.16.1.53" is visible with command "cat /etc/resolv\.conf" in "5" seconds
-    Then "search.*vpn.domain.*con_dns.domain" is visible with command "cat /etc/resolv\.conf" in "5" seconds
+    Then Nameserver "172.31.70.53.*172.16.1.53" is set in "5" seconds
+    Then Domain "search.*vpn.domain.*con_dns.domain" is set in "5" seconds
 
     * Bring "up" connection "con_dns"
 
-    Then "nameserver 172.31.70.53.*nameserver 172.16.1.53" is visible with command "cat /etc/resolv\.conf" in "5" seconds
-    Then "search.*vpn.domain.*con_dns.domain" is visible with command "cat /etc/resolv\.conf" in "5" seconds
+    Then Nameserver "172.31.70.53.*172.16.1.53" is set in "5" seconds
+    Then Domain "search.*vpn.domain.*con_dns.domain" is set in "5" seconds
 
 
 ##########################################
@@ -716,7 +726,7 @@ Feature: nmcli - dns
 ##########################################
 
     @ver+=1.15.1
-    @con_dns_remove @dns_dnsmasq
+    @con_dns_remove @dns_dnsmasq @restore_resolvconf
     @dns_dnsmasq_kill
     Scenario: NM - dns - dnsmasq gets restarted when killed
     * Add a new connection of type "ethernet" and options "con-name con_dns ifname eth2 autoconnect no"
@@ -732,7 +742,7 @@ Feature: nmcli - dns
 
     @ver+=1.15.1
     @ver-1.21.2
-    @con_dns_remove @dns_dnsmasq
+    @con_dns_remove @dns_dnsmasq @restore_resolvconf
     @dns_dnsmasq_kill_ratelimit
     # When dnsmasq dies, NM restarts it. But if dnsmasq dies too many
     # times in a short period, NM stops respawning it for 5 minutes
@@ -750,7 +760,7 @@ Feature: nmcli - dns
     Then "172.16.1.53" is visible with command "grep nameserver /etc/resolv.conf"
 
     @ver+=1.21.2
-    @con_dns_remove @dns_dnsmasq
+    @con_dns_remove @dns_dnsmasq @restore_resolvconf
     @dns_dnsmasq_kill_ratelimit
     # When dnsmasq dies, NM restarts it. But if dnsmasq dies too many
     # times (5 times) in a short period (30 seconds), NM stops respawning
@@ -768,9 +778,14 @@ Feature: nmcli - dns
     Then "127.0.0.1" is visible with command "grep nameserver /etc/resolv.conf"
 
 
+##########################################
+# OTHER TESTS
+##########################################
+
+
     @rhbz1676635
     @ver+=1.17.3
-    @con_dns_remove
+    @not_with_systemd_resolved @con_dns_remove
     @dns_multiple_options
     Scenario: nmcli - dns - add more options to ipv4.dns-options
     * Add a new connection of type "ethernet" and options "con-name con_dns ifname \* autoconnect no ipv4.dns-options ndots:2"
@@ -791,6 +806,7 @@ Feature: nmcli - dns
 
 
     @restart @remove_dns_clean
+    @not_with_systemd_resolved
     @dns_none
     Scenario: NM - dns none setting
     * Execute "printf '[main]\ndns=none\n' | sudo tee /etc/NetworkManager/conf.d/90-test-dns-none.conf"
@@ -799,11 +815,12 @@ Feature: nmcli - dns
     * Execute "systemctl mask sendmail"
     * Bring "up" connection "testeth0"
     * Execute "systemctl unmask sendmail"
-    Then "nameserver 1.2.3.4" is visible with command "cat /etc/resolv\.conf" in "5" seconds
-    Then "nameserver 1[0-9]" is not visible with command "cat /etc/resolv\.conf" in "5" seconds
+    Then Nameserver "1.2.3.4" is set in "5" seconds
+    Then Nameserver "1[0-9]" is not set in "5" seconds
 
 
     @restart @remove_dns_clean
+    @not_with_systemd_resolved
     @remove_dns_none
     Scenario: NM - dns  none removal
     * Execute "printf '[main]\ndns=none\n' | sudo tee /etc/NetworkManager/conf.d/90-test-dns-none.conf"
@@ -812,17 +829,18 @@ Feature: nmcli - dns
     * Execute "systemctl mask sendmail"
     * Bring "up" connection "testeth0"
     * Execute "systemctl unmask sendmail"
-    When "nameserver 1[0-9]" is not visible with command "cat /etc/resolv\.conf" in "5" seconds
-    When "nameserver 1.2.3.4" is visible with command "cat /etc/resolv\.conf" in "5" seconds
+    When Nameserver "1[0-9]" is not set in "5" seconds
+    When Nameserver "1.2.3.4" is set in "5" seconds
     * Execute "sudo rm -rf /etc/NetworkManager/conf.d/90-test-dns-none.conf"
     * Restart NM
     * Bring "up" connection "testeth0"
-    Then "nameserver 1.2.3.4" is not visible with command "cat /etc/resolv\.conf" in "5" seconds
-    Then "nameserver 1[0-9]" is visible with command "cat /etc/resolv\.conf" in "45" seconds
+    Then Nameserver "1.2.3.4" is not set in "5" seconds
+    Then Nameserver "1[0-9]" is set in "45" seconds
 
 
     @rhbz1593661
     @ver+=1.12
+    @not_with_systemd_resolved
     @restart @remove_custom_cfg @con_dns_remove @restore_resolvconf
     @resolv_conf_dangling_symlink
     Scenario: NM - general - follow resolv.conf when dangling symlink
@@ -847,15 +865,16 @@ Feature: nmcli - dns
 
     @rhbz1593661
     @ver+=1.12 @rhelver+=8
+    @not_with_systemd_resolved
     @restart @con_dns_remove @restore_resolvconf
     @resolv_conf_do_not_overwrite_symlink
     Scenario: NM - general - do not overwrite dns symlink
     * Add a new connection of type "ethernet" and options "ifname eth8 con-name con_dns ipv4.method manual ipv4.addresses 192.168.244.4/24 ipv4.gateway 192.168.244.1 ipv4.dns 192.168.244.1 ipv6.method ignore"
     * Stop NM
     * Remove file "/etc/resolv.conf" if exists
-    * Execute "echo 'nameserver 8.8.8.8' > /tmp/no-resolv.conf"
+    * Execute "echo 'nameserver 1.2.3.4' > /tmp/no-resolv.conf"
     * Create symlink "/etc/resolv.conf" with destination "/tmp/no-resolv.conf"
     * Start NM
     * Wait for at least "2" seconds
     Then "/etc/resolv.conf" is symlink with destination "/tmp/no-resolv.conf"
-    Then "nameserver 8.8.8.8" is visible with command "cat /tmp/no-resolv.conf"
+    Then "nameserver 1.2.3.4" is visible with command "cat /tmp/no-resolv.conf"
