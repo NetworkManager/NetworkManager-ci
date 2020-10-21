@@ -492,7 +492,12 @@ def delete_old_lock(dir, lock):
 def restore_testeth0():
     print ("* restoring testeth0")
     call("nmcli con delete testeth0 2>&1 > /dev/null", shell=True)
-    call("yes 2>/dev/null | cp -rf /tmp/testeth0 /etc/sysconfig/network-scripts/ifcfg-testeth0", shell=True)
+    if not os.path.isfile('/tmp/nm_plugin_keyfiles'):
+        # defaults to ifcfg files (RHELs)
+        call("yes 2>/dev/null | cp -rf /tmp/testeth0 /etc/sysconfig/network-scripts/ifcfg-testeth0", shell=True)
+    else:
+        # defaults to keyfiles (F33+)
+        call("yes 2>/dev/null | cp -rf /tmp/testeth0 /etc/NetworkManager/system-connections/testeth0.nmconnection", shell=True)
     sleep(1)
     call("nmcli con reload", shell=True)
     sleep(1)
@@ -1856,8 +1861,6 @@ def after_scenario(context, scenario):
                 for i in range(1,101):cons=cons+('t-a%s ' %i)
                 command = "nmcli con del %s" %cons
                 call(command, shell=True)
-                # setup.sh masks dispatcher scripts
-                call("systemctl unmask NetworkManager-dispatcher", shell=True)
 
             if 'nmstate_setup' in scenario.tags:
                 print ("---------------------------")
@@ -2419,7 +2422,7 @@ def after_scenario(context, scenario):
 
                 restart_NM_service()
 
-            if 'dracut' in scenario.tags:
+            if 'dracut' in scenario.tags or 'dracut_clean' in scenario.tags:
                 print("---------------------------")
                 print("dracut log embed")
                 if os.path.isfile("/tmp/dracut_setup.log"):
@@ -2427,21 +2430,20 @@ def after_scenario(context, scenario):
                     context.embed("text/plain", utf_only_open_read("/tmp/dracut_setup.log"), "DRACUT_SETUP")
                     call("rm -f /tmp/dracut_setup.log", shell=True)
                 if os.path.isfile("/tmp/dracut_clean.log"):
-                    print("embeding CLEAN log - dracut setup probably failed !!!")
+                    print("embeding CLEAN log")
                     context.embed("text/plain", utf_only_open_read("/tmp/dracut_clean.log"), "DRACUT_CLEAN")
                     call("rm -f /tmp/dracut_clean.log", shell=True)
-                call("journalctl -all --no-pager %s | grep ' dhcpd\\[' > /tmp/journal-dhcpd.log" % context.log_cursor, shell=True)
-                context.embed("text/plain", utf_only_open_read("/tmp/journal-dhcpd.log"), "DHCPD")
-                call("journalctl -all --no-pager %s | grep ' radvd\\[' > /tmp/journal-radvd.log" % context.log_cursor, shell=True)
-                context.embed("text/plain", utf_only_open_read("/tmp/journal-radvd.log"), "RADVD")
-                call("journalctl -all --no-pager %s | grep ' rpc.mountd\[' > /tmp/journal-nfs.log" % context.log_cursor, shell=True)
-                context.embed("text/plain", utf_only_open_read("/tmp/journal-nfs.log"), "NFS")
-                print("restart DHCPD server (to free up leases)")
-                call("cd contrib/dracut; . ./setup.sh; stop_dhcpd; start_dhcpd;", shell=True)
+                    if os.path.isfile("/tmp/dracut_test/server.log"):
+                        print("embeding SERVER log")
+                        context.embed("text/plain", utf_only_open_read("/tmp/dracut_test/server.log"), "DRACUT_SERVER")
+                        call("rm -f /tmp/dracut_test/server.log", shell=True)
 
             if 'dracut_clean' in scenario.tags:
                 print("---------------------------")
                 print("dracut clean")
+                if os.path.isfile("/tmp/dracut_test/server.log"):
+                    print("embeding SERVER log")
+                    context.embed("text/plain", utf_only_open_read("/tmp/dracut_test/server.log"), "DRACUT_SERVER")
                 rc = call(
                     "cd contrib/dracut; . ./setup.sh; "
                     "{ time test_clean; } &> /tmp/dracut_clean.log", shell=True)
