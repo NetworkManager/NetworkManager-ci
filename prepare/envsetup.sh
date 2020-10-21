@@ -485,6 +485,12 @@ local_setup_configure_nm_eth () {
         fi
     fi
 
+    # Do we have keyfiles or ifcfg plugins enabled?
+    if ! ls /etc/sysconfig/network-scripts/* && \
+        ls /etc/NetworkManager/system-connections/*.nmconnection; then
+        touch /tmp/nm_plugin_keyfiles
+    fi
+
     # Do veth setup if yes
     if [ $veth -eq 1 ]; then
         . prepare/vethsetup.sh setup
@@ -495,7 +501,16 @@ local_setup_configure_nm_eth () {
         fi
 
         # Copy this once more just to be sure it's there as it's really crucial
-        yes 2>/dev/null | cp -rf /etc/sysconfig/network-scripts/ifcfg-testeth0 /tmp/testeth0
+        if ! test -f /tmp/nm_plugin_keyfiles; then
+            if [ ! -e /tmp/testeth0 ] ; then
+                yes 2>/dev/null | cp -rf /etc/sysconfig/network-scripts/ifcfg-testeth0 /tmp/testeth0
+            fi
+        else
+            if ! test -f /tmp/testeth0; then
+                yes 2>/dev/null | cp -rf /etc/NetworkManager/system-connections/testeth0.nmconnection /tmp/testeth0
+            fi
+        fi
+
         cat /tmp/testeth0
 
         touch /tmp/nm_newveth_configured

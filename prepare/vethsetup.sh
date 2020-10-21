@@ -90,21 +90,39 @@ function setup_veth_env ()
     # Overwrite the name in order to be sure to have all the NM keys (including UUID) in the ifcfg file
     nmcli con mod $UUID connection.id "$NAME"
 
-    # Backup original ifcfg
-    nmcli device disconnect $DEV 2>&1 > /dev/null
+    if ! test -f /tmp/nm_plugin_keyfiles; then
+        # Backup original ifcfg
+        nmcli device disconnect $DEV 2>&1 > /dev/null
 
-    if [ ! -e /tmp/ifcfg-$DEV ]; then
-        mv /etc/sysconfig/network-scripts/ifcfg-$DEV /tmp/
+        if [ ! -e /tmp/ifcfg-$DEV ]; then
+            mv /etc/sysconfig/network-scripts/ifcfg-$DEV /tmp/
+            sleep 0.5
+            nmcli con reload
+            sleep 0.5
+        fi
+
+        # Copy backup to /etc/sysconfig/network-scripts/ and reload
+        yes 2>/dev/null | cp -rf /tmp/ifcfg-$DEV /etc/sysconfig/network-scripts/ifcfg-testeth0
+        sleep 0.5
+        nmcli con reload
+        sleep 0.5
+
+    else
+        # Backup original nmconnection file
+        nmcli device disconnect $DEV 2>&1 > /dev/null
+        if [ ! -e /tmp/$DEV.nmconnection ]; then
+            mv /etc/NetworkManager/system-connections/$DEV.nmconnection /tmp/
+            sleep 0.5
+            nmcli con reload
+            sleep 0.5
+        fi
+
+        # Copy backup to /etc/sysconfig/network-scripts/ and reload
+        yes 2>/dev/null | cp -rf /tmp/$DEV.nmconnection /etc/NetworkManager/system-connections/testeth0.nmconnection
         sleep 0.5
         nmcli con reload
         sleep 0.5
     fi
-
-    # Copy backup to /etc/sysconfig/network-scripts/ and reload
-    yes 2>/dev/null | cp -rf /tmp/ifcfg-$DEV /etc/sysconfig/network-scripts/ifcfg-testeth0
-    sleep 0.5
-    nmcli con reload
-    sleep 0.5
 
     # Bring up the device and prepare final profile testeth0
     ip link set eth0 up
@@ -211,12 +229,19 @@ function setup_veth_env ()
     nmcli c modify testeth0 ipv4.route-metric 99 ipv6.route-metric 99
     nmcli c u testeth0
 
-    if [ ! -e /tmp/testeth0 ] ; then
-        # THIS NEED TO BE DONE HERE FOR RECREATION REASONS
-        # Copy final connection to /tmp/testeth0 for later in test usage
-        yes 2>/dev/null | cp -rf /etc/sysconfig/network-scripts/ifcfg-testeth0 /tmp/testeth0
+    if ! test -f /tmp/nm_plugin_keyfiles; then
+        if [ ! -e /tmp/testeth0 ] ; then
+            # THIS NEED TO BE DONE HERE FOR RECREATION REASONS
+            # Copy final connection to /tmp/testeth0 for later in test usage
+            yes 2>/dev/null | cp -rf /etc/sysconfig/network-scripts/ifcfg-testeth0 /tmp/testeth0
+        fi
+    else
+        if ! test -f /tmp/testeth0; then
+            # THIS NEED TO BE DONE HERE FOR RECREATION REASONS
+            # Copy final connection to /tmp/testeth0 for later in test usage
+            yes 2>/dev/null | cp -rf /etc/NetworkManager/system-connections/testeth0.nmconnection /tmp/testeth0
+        fi
     fi
-
     # On s390x sometimes this extra default profile gets created in addition to custom static original one
     # Let's get rid of that
     for i in $(nmcli -t -f NAME,UUID connection |grep -v testeth |grep -v orig |awk -F ':' ' {print $2}'); do nmcli con del $i; done
@@ -355,17 +380,27 @@ function teardown_veth_env ()
         nmcli con del testeth${X}
     done
 
-    # Get ORIGDEV name to bring device back to and copy the profile back
-    ORIGDEV=$(grep DEVICE /tmp/ifcfg-* | awk -F '=' '{print $2}' | tr -d '"')
-    if [ "x$ORIGDEV" == "x" ]; then
-        ORIGDEV=$(ls /tmp/ifcfg-* | awk -F '-' '{print $2}' |tr -d '"')
+    if ! test /tmp/nm_plugin_keyfiles; then
+        # Get ORIGDEV name to bring device back to and copy the profile back
+        ORIGDEV=$(grep DEVICE /tmp/ifcfg-* | awk -F '=' '{print $2}' | tr -d '"')
+        if [ "x$ORIGDEV" == "x" ]; then
+            ORIGDEV=$(ls /tmp/ifcfg-* | awk -F '-' '{print $2}' |tr -d '"')
+        fi
+        # Disconnect eth0
+        nmcli device disconnect eth0
+        # Move all profiles
+        rm /etc/sysconfig/network-scripts/ifcfg-testeth0*
+        mv -f /tmp/ifcfg-$ORIGDEV /etc/sysconfig/network-scripts/ifcfg-$ORIGDEV
+    else
+        ORIGDEV=$(grep interface-name /tmp/*.nmconnection | awk -F '=' '{print $2}' | tr -d '"')
+        # Disconnect eth0
+        nmcli device disconnect eth0
+        rm /etc/NetworkManager/system-connections/testeth0.nmconnection
+        # Move all profiles
+        mv -f /tmp/$ORIGDEV.nmconnection /etc/NetworkManager/system-connections/$ORIGDEV.nmconnection
     fi
-    # Disconnect eth0
-    nmcli device disconnect eth0
 
-    # Move all profiles and reload
-    rm /etc/sysconfig/network-scripts/ifcfg-testeth0*
-    mv -f /tmp/ifcfg-$ORIGDEV /etc/sysconfig/network-scripts/ifcfg-$ORIGDEV
+    # and reload
     sleep 1
     nmcli con reload
     sleep 1

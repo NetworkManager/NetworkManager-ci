@@ -492,7 +492,14 @@ def delete_old_lock(dir, lock):
 def restore_testeth0():
     print ("* restoring testeth0")
     call("nmcli con delete testeth0 2>&1 > /dev/null", shell=True)
-    call("yes 2>/dev/null | cp -rf /tmp/testeth0 /etc/sysconfig/network-scripts/ifcfg-testeth0", shell=True)
+
+    if not os.path.isfile('/tmp/nm_plugin_keyfiles'):
+        # defaults to ifcfg files (RHELs)
+        call("yes 2>/dev/null | cp -rf /tmp/testeth0 /etc/sysconfig/network-scripts/ifcfg-testeth0", shell=True)
+    else:
+        # defaults to keyfiles (F33+)
+        call("yes 2>/dev/null | cp -rf /tmp/testeth0 /etc/NetworkManager/system-connections/testeth0.nmconnection", shell=True)
+
     sleep(1)
     call("nmcli con reload", shell=True)
     sleep(1)
