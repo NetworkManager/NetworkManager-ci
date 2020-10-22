@@ -369,6 +369,13 @@ test_clean() {
 }
 
 
+after_test() {
+    rm -rf $TESTDIR/nfs/client/var/run/NetworkManager/*
+    stop_dhcpd
+    start_dhcpd
+}
+
+
 start_nfs() {
   mount --bind $TESTDIR/nfs/client $TESTDIR/nfs/nfs3-5
   mount --bind $TESTDIR/nfs/client $TESTDIR/nfs/ip/192.168.50.101
@@ -462,16 +469,16 @@ run_server() {
 
 network_setup() {
   # bridge devices to connect
-  nmcli con add autoconnect "no" type "bridge" bridge.stp "no" con-name "nfs"      ifname "nfs"      ipv4.addresses "192.168.50.1/24,192.168.50.2/24" ipv6.addresses "deaf:beef::1/64" ipv6.gateway "deaf:beef::aa" ipv4.method "manual" ipv6.method "manual"
-  nmcli con add autoconnect "no" type "bridge" bridge.stp "no" con-name "iscsi0"   ifname "iscsi0"   ipv4.addresses "192.168.51.1/24" ipv4.method "manual" ipv6.method "disabled"
-  nmcli con add autoconnect "no" type "bridge" bridge.stp "no" con-name "iscsi1"   ifname "iscsi1"   ipv4.addresses "192.168.52.1/24" ipv4.method "manual" ipv6.method "disabled"
-  nmcli con add autoconnect "no" type "bridge" bridge.stp "no" con-name "vlan"     ifname "vlan"     ipv4.method "disabled" ipv6.method "disabled"
-  nmcli con add autoconnect "no" type "bridge" bridge.stp "no" con-name "vlan33_0" ifname "vlan33_0" ipv4.addresses "192.168.55.21/30" ipv4.method "manual" ipv6.method "disabled"
-  nmcli con add autoconnect "no" type "bridge" bridge.stp "no" con-name "vlan33_1" ifname "vlan33_1" ipv4.method "disabled" ipv6.method "disabled"
-  nmcli con add autoconnect "no" type "bridge" bridge.stp "no" con-name "bond0_0"  ifname "bond0_0"  ipv4.method "disabled" ipv6.method "disabled" slave-type "bond" master "bond0"
-  nmcli con add autoconnect "no" type "bridge" bridge.stp "no" con-name "bond0_1"  ifname "bond0_1"  ipv4.method "disabled" ipv6.method "disabled" slave-type "bond" master "bond0"
-  nmcli con add autoconnect "no" type "bridge" bridge.stp "no" con-name "bond1_0"  ifname "bond1_0"  ipv4.method "disabled" ipv6.method "disabled" slave-type "bond" master "bond1"
-  nmcli con add autoconnect "no" type "bridge" bridge.stp "no" con-name "bond1_1"  ifname "bond1_1"  ipv4.method "disabled" ipv6.method "disabled" slave-type "bond" master "bond1"
+  nmcli con add autoconnect "no" type "bridge" bridge.stp "no" ethernet.cloned-mac-address "random" con-name "nfs"      ifname "nfs"      ipv4.addresses "192.168.50.1/24,192.168.50.2/24" ipv6.addresses "deaf:beef::1/64" ipv6.gateway "deaf:beef::aa" ipv4.method "manual" ipv6.method "manual"
+  nmcli con add autoconnect "no" type "bridge" bridge.stp "no" ethernet.cloned-mac-address "random" con-name "iscsi0"   ifname "iscsi0"   ipv4.addresses "192.168.51.1/24" ipv4.method "manual" ipv6.method "disabled"
+  nmcli con add autoconnect "no" type "bridge" bridge.stp "no" ethernet.cloned-mac-address "random" con-name "iscsi1"   ifname "iscsi1"   ipv4.addresses "192.168.52.1/24" ipv4.method "manual" ipv6.method "disabled"
+  nmcli con add autoconnect "no" type "bridge" bridge.stp "no" ethernet.cloned-mac-address "random" con-name "vlan"     ifname "vlan"     ipv4.method "disabled" ipv6.method "disabled"
+  nmcli con add autoconnect "no" type "bridge" bridge.stp "no" ethernet.cloned-mac-address "random" con-name "vlan33_0" ifname "vlan33_0" ipv4.addresses "192.168.55.21/30" ipv4.method "manual" ipv6.method "disabled"
+  nmcli con add autoconnect "no" type "bridge" bridge.stp "no" ethernet.cloned-mac-address "random" con-name "vlan33_1" ifname "vlan33_1" ipv4.method "disabled" ipv6.method "disabled"
+  nmcli con add autoconnect "no" type "bridge" bridge.stp "no" ethernet.cloned-mac-address "random" con-name "bond0_0"  ifname "bond0_0"  ipv4.method "disabled" ipv6.method "disabled" slave-type "bond" master "bond0"
+  nmcli con add autoconnect "no" type "bridge" bridge.stp "no" ethernet.cloned-mac-address "random" con-name "bond0_1"  ifname "bond0_1"  ipv4.method "disabled" ipv6.method "disabled" slave-type "bond" master "bond0"
+  nmcli con add autoconnect "no" type "bridge" bridge.stp "no" ethernet.cloned-mac-address "random" con-name "bond1_0"  ifname "bond1_0"  ipv4.method "disabled" ipv6.method "disabled" slave-type "bond" master "bond1"
+  nmcli con add autoconnect "no" type "bridge" bridge.stp "no" ethernet.cloned-mac-address "random" con-name "bond1_1"  ifname "bond1_1"  ipv4.method "disabled" ipv6.method "disabled" slave-type "bond" master "bond1"
   # special devices over bridges
   nmcli con add autoconnect "no" type "bond"   con-name "bond0"    ifname "bond0"    ipv4.address "192.168.53.1/24" ipv4.method "manual" ipv6.method "disabled" bond.options "mode=balance-rr"
   nmcli con add autoconnect "no" type "bond"   con-name "bond1"    ifname "bond1"    ipv4.address "192.168.54.1/24" ipv4.method "manual" ipv6.method "disabled" bond.options "mode=balance-rr"

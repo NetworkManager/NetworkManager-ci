@@ -2443,8 +2443,8 @@ def after_scenario(context, scenario):
                 context.embed("text/plain", utf_only_open_read("/tmp/journal-radvd.log"), "RADVD")
                 call("journalctl -all --no-pager %s | grep ' rpc.mountd\[' > /tmp/journal-nfs.log" % context.log_cursor, shell=True)
                 context.embed("text/plain", utf_only_open_read("/tmp/journal-nfs.log"), "NFS")
-                print("restart DHCPD server (to free up leases)")
-                call("cd contrib/dracut; . ./setup.sh; stop_dhcpd; start_dhcpd;", shell=True)
+                print("running after_test (free up dhcpd leases)")
+                call("cd contrib/dracut; . ./setup.sh; afrer_test", shell=True)
 
             if 'dracut_clean' in scenario.tags:
                 print("---------------------------")
