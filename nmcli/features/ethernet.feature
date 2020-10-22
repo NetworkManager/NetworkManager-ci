@@ -21,7 +21,7 @@ Feature: nmcli - ethernet
     @ethernet @ifcfg-rh
     @ethernet_create_with_editor
     Scenario: nmcli - ethernet - create with editor
-    * Open editor for a type "ethernet"
+    * Open editor for a type "ethernet-dude"
     * Set a property named "ipv4.method" to "auto" in editor
     * Set a property named "connection.interface-name" to "eth1" in editor
     * Set a property named "connection.autoconnect" to "no" in editor
