@@ -436,7 +436,7 @@ Feature: IPv6 TUI tests
     @nmtui_ipv6_dns_method_static_+_IP_+_dns
     Scenario: nmtui - ipv6 - dns - method static + IP + dns
     * Prepare new connection of type "Ethernet" named "ethernet1"
-    * Set "Device" field to "eth1"
+    * Set "Device" field to "eth10"
     * Set "IPv6 CONFIGURATION" category to "Manual"
     * Come in "IPv6 CONFIGURATION" category
     * In "Addresses" property add "2001::2/126"
@@ -444,7 +444,8 @@ Feature: IPv6 TUI tests
     * In "DNS servers" property add "4000::1"
     * In this property also add "5000::1"
     * Confirm the connection settings
-    Then "nameserver 4000::1.+nameserver 5000::1" is visible with command "cat /etc/resolv.conf"
+    Then Nameserver "4000::1" is set in "10" seconds
+    Then Nameserver "5000::1" is set
 
 
     @ipv6
@@ -456,14 +457,15 @@ Feature: IPv6 TUI tests
     * In "DNS servers" property add "4000::1"
     * In this property also add "5000::1"
     * Confirm the connection settings
-    Then "nameserver 4000::1.+nameserver 5000::1" is visible with command "cat /etc/resolv.conf"
+    Then Nameserver "4000::1" is set in "10" seconds
+    Then Nameserver "5000::1" is set
 
 
     @ipv6
     @nmtui_ipv6_dns_add_dns_when_one_already_set
     Scenario: nmtui - ipv6 - dns - add dns when one already set
     * Prepare new connection of type "Ethernet" named "ethernet1"
-    * Set "Device" field to "eth1"
+    * Set "Device" field to "eth10"
     * Set "IPv6 CONFIGURATION" category to "Manual"
     * Come in "IPv6 CONFIGURATION" category
     * In "Addresses" property add "2001::2/126"
@@ -477,56 +479,58 @@ Feature: IPv6 TUI tests
     * In this property also add "5000::1"
     * Confirm the connection settings
     * Bring up connection "ethernet1"
-    Then "nameserver 4000::1.+nameserver 5000::1" is visible with command "cat /etc/resolv.conf" in "10" seconds
+    Then Nameserver "4000::1" is set in "10" seconds
+    Then Nameserver "5000::1" is set in "10" seconds
 
 
     @ipv6
     @nmtui_ipv6_dns_method_auto_then_delete_all_dns
     Scenario: nmtui - ipv6 - dns - method auto then delete all dns
     * Prepare new connection of type "Ethernet" named "ethernet1"
-    * Set "Device" field to "eth1"
+    * Set "Device" field to "eth10"
     * Come in "IPv6 CONFIGURATION" category
     * In "DNS servers" property add "4000::1"
     * In this property also add "5000::1"
     * Confirm the connection settings
-    * "nameserver 4000::1.+nameserver 5000::1" is visible with command "cat /etc/resolv.conf" in "45" seconds
+    When Nameserver "4000::1" is set in "10" seconds
+    When Nameserver "5000::1" is set in "10" seconds
     * Select connection "ethernet1" in the list
     * Choose to "<Edit...>" a connection
     * Come in "IPv6 CONFIGURATION" category
     * Remove all "DNS servers" property items
     * Confirm the connection settings
     * Bring up connection "ethernet1"
-    Then "nameserver 4000::1" is not visible with command "cat /etc/resolv.conf"
-    Then "nameserver 5000::1" is not visible with command "cat /etc/resolv.conf"
+    Then Nameserver "4000::1" is not set
+    Then Nameserver "5000::1" is not set
 
 
     @ipv6
     @nmtui_ipv6_dns_search_add_dns_search
     Scenario: nmtui - ipv6 - dns-search - add dns-search
     * Prepare new connection of type "Ethernet" named "ethernet1"
-    * Set "Device" field to "eth1"
+    * Set "Device" field to "eth10"
     * Come in "IPv6 CONFIGURATION" category
     * In "Search domains" property add "heaven.com"
     * Confirm the connection settings
-    Then " heaven.com" is visible with command "cat /etc/resolv.conf" in "10" seconds
+    Then Domain "heaven.com" is set in "10" seconds
 
 
     @ipv6
     @nmtui_ipv6_dns_search_remove_dns_search
     Scenario: nmtui - ipv6 - dns-search - remove dns-search
     * Prepare new connection of type "Ethernet" named "ethernet1"
-    * Set "Device" field to "eth1"
+    * Set "Device" field to "eth10"
     * Come in "IPv6 CONFIGURATION" category
     * In "Search domains" property add "heaven.com"
     * Confirm the connection settings
-    * " heaven.com" is visible with command "cat /etc/resolv.conf" in "45" seconds
+    * Domain "heaven.com" is set in "45" seconds
     * Select connection "ethernet1" in the list
     * Choose to "<Edit...>" a connection
     * Come in "IPv6 CONFIGURATION" category
     * Remove all "Search domains" property items
     * Confirm the connection settings
     * Bring up connection "ethernet1"
-    Then " heaven.com" is not visible with command "cat /etc/resolv.conf"
+    Then Domain "heaven.com" is not set
 
 
     @ipv6
