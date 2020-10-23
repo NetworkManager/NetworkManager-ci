@@ -71,7 +71,7 @@ Feature: nmcli: strongswan
     * Use user "budulinek" with secret "12345678901234567890" for gateway "172.31.70.1" on Strongswan connection "strongswan"
     * Bring "up" connection "strongswan"
     When "VPN.VPN-STATE:.*VPN connected" is visible with command "nmcli c show strongswan"
-     And Nameserver "8.8.8.8" is set
+     And Nameserver "8.8.8.8" is set in "5" seconds
      And Nameserver "172.31.70.1" is set
     * Delete connection "strongswan"
     When "VPN.VPN-STATE:.*VPN connected" is not visible with command "nmcli c show strongswan" in "10" seconds

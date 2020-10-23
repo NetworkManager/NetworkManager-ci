@@ -1093,7 +1093,7 @@ Feature: nmcli - general
 
 
     @rhbz1262972
-    @con_general_remove
+    @con_general_remove @ifcfg-rh
     @nmcli_general_dhcp_profiles_general_gateway
     Scenario: NM - general - auto connections ignore the generic-set gateway
     # Up dhcp connection
@@ -1946,7 +1946,7 @@ Feature: nmcli - general
 
     @rhbz1649704
     @ver+=1.14
-    @con_general_remove
+    @con_general_remove @not_with_systemd_resolved
     @resolv_conf_search_limit
     Scenario: NM - general - save more than 6 search domains in resolv.conf
     * Execute "nmcli con add type ethernet con-name con_general ifname eth8 autoconnect no ipv4.dns-search $(echo {a..g}.noexist.redhat.com, | tr -d ' ')"
