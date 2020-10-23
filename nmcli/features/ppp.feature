@@ -14,15 +14,13 @@ Feature: nmcli - ppp
     * Execute "ip link add test11 type veth peer name test12"
     * Prepare pppoe server for user "test" with "networkmanager" password and IP "192.168.111.2" authenticated via "pap"
     * Start pppoe server with "isp" and IP "192.168.111.254" on device "test12"
-    * Add a new connection of type "pppoe" and options "con-name ppp ifname test11 service isp username test password networkmanager"
+    * Add a new connection of type "pppoe" and options "con-name ppp ifname my-ppp pppoe.parent test11 service isp username test password networkmanager"
     * Execute "ip link set dev test11 up"
     * Bring "up" connection "ppp"
     Then Nameserver "8.8.8.8" is set in "5" seconds
     Then Nameserver "8.8.4.4" is set in "5" seconds
-    Then "inet 192.168.111.2 peer 192.168.111.254/32 .*scope global ppp" is visible with command "ip a s"
-    Then "inet 192.168.111.254 peer 192.168.111.2/32 .*scope global ppp" is visible with command "ip a s"
-    Then "192.168.111.2 dev ppp.*\s+proto kernel\s+scope link\s+src 192.168.111.254" is visible with command "ip r"
-    Then "default via 192.168.111.254 dev ppp.*\s+proto static\s+metric" is visible with command "ip r"
+    Then "inet 192.168.111.2 peer 192.168.111.254/32" is visible with command "ip a s my-ppp"
+    And "default via 192.168.111.254 dev my-ppp" is visible with command "ip r"
 
 
     @not_on_s390x @pppoe @del_test1112_veths
@@ -31,15 +29,13 @@ Feature: nmcli - ppp
     * Execute "ip link add test11 type veth peer name test12"
     * Prepare pppoe server for user "test" with "networkmanager" password and IP "192.168.111.2" authenticated via "chap"
     * Start pppoe server with "isp" and IP "192.168.111.254" on device "test12"
-    * Add a new connection of type "pppoe" and options "con-name ppp ifname test11 service isp username test password networkmanager"
+    * Add a new connection of type "pppoe" and options "con-name ppp ifname my-ppp pppoe.parent test11 service isp username test password networkmanager"
     * Execute "ip link set dev test11 up"
     * Bring "up" connection "ppp"
     Then Nameserver "8.8.8.8" is set in "5" seconds
     Then Nameserver "8.8.4.4" is set in "5" seconds
-    Then "inet 192.168.111.2 peer 192.168.111.254/32 .*scope global ppp" is visible with command "ip a s"
-    Then "inet 192.168.111.254 peer 192.168.111.2/32 .*scope global ppp" is visible with command "ip a s"
-    Then "192.168.111.2 dev ppp.*\s+proto kernel\s+scope link\s+src 192.168.111.254" is visible with command "ip r"
-    Then "default via 192.168.111.254 dev ppp.*\s+proto static\s+metric" is visible with command "ip r"
+    Then "inet 192.168.111.2 peer 192.168.111.254/32" is visible with command "ip a s my-ppp"
+    And "default via 192.168.111.254 dev my-ppp" is visible with command "ip r"
 
 
     @not_on_s390x @pppoe @del_test1112_veths
@@ -48,14 +44,14 @@ Feature: nmcli - ppp
     * Execute "ip link add test11 type veth peer name test12"
     * Prepare pppoe server for user "test" with "networkmanager" password and IP "192.168.111.2" authenticated via "chap"
     * Start pppoe server with "isp" and IP "192.168.111.254" on device "test12"
-    * Add a new connection of type "pppoe" and options "con-name ppp ifname test11 service isp username test password networkmanager"
+    * Add a new connection of type "pppoe" and options "con-name ppp ifname my-ppp pppoe.parent test11 service isp username test password networkmanager"
     * Execute "ip link set dev test11 up"
     * Bring "up" connection "ppp"
     * Bring "down" connection "ppp"
     Then Nameserver "8.8.8.8" is not set in "5" seconds
     Then Nameserver "8.8.4.4" is not set in "5" seconds
-    Then "inet 192.168.111.2 peer 192.168.111.254/32 scope global ppp" is not visible with command "ip a s"
-    Then "default via 192.168.111.254 dev ppp.*\s+proto static\s+metric" is not visible with command "ip r"
+    Then "inet 192.168.111.2 peer 192.168.111.254/32" is not visible with command "ip a s my-ppp"
+    And "default via 192.168.111.254 dev my-ppp" is not visible with command "ip r"
 
 
     @rhbz1110465
@@ -66,27 +62,21 @@ Feature: nmcli - ppp
     * Execute "ip link add test11 type veth peer name test12"
     * Prepare pppoe server for user "test" with "networkmanager" password and IP "192.168.111.2" authenticated via "pap"
     * Start pppoe server with "isp" and IP "192.168.111.254" on device "test12"
-    * Add a new connection of type "pppoe" and options "con-name ppp ifname test11 service isp username test password networkmanager"
+    * Add a new connection of type "pppoe" and options "con-name ppp ifname my-ppp pppoe.parent test11 service isp username test password networkmanager"
     * Execute "nmcli connection modify ppp connection.zone external"
     * Execute "ip link set dev test11 up"
     * Bring "up" connection "ppp"
-#    When "external" is visible with command "firewall-cmd --get-zone-of-interface=ppp0" in "10" seconds
-     And "external" is visible with command "firewall-cmd --get-zone-of-interface=test11" in "10" seconds
+    When "external" is visible with command "firewall-cmd --get-zone-of-interface=my-ppp" in "10" seconds
      And Nameserver "8.8.8.8" is set in "5" seconds
      And Nameserver "8.8.4.4" is set in "5" seconds
-     And "inet 192.168.111.2 peer 192.168.111.254/32 .*scope global ppp" is visible with command "ip a s"
-     And "inet 192.168.111.254 peer 192.168.111.2/32 .*scope global ppp" is visible with command "ip a s"
-     And "192.168.111.2 dev ppp.*\s+proto kernel\s+scope link\s+src 192.168.111.254" is visible with command "ip r"
-     And "default via 192.168.111.254 dev ppp.*\s+proto static\s+metric" is visible with command "ip r"
+    Then "inet 192.168.111.2 peer 192.168.111.254/32" is visible with command "ip a s my-ppp"
+    And "default via 192.168.111.254 dev my-ppp" is visible with command "ip r"
     * Execute "ip link set dev test12 down && sleep 2 && ip link set dev test12 up"
-    Then "external" is visible with command "firewall-cmd --get-zone-of-interface=ppp0" in "10" seconds
-     And "external" is visible with command "firewall-cmd --get-zone-of-interface=test11" in "10" seconds
+    Then "external" is visible with command "firewall-cmd --get-zone-of-interface=my-ppp" in "10" seconds
      And Nameserver "8.8.8.8" is set in "5" seconds
      And Nameserver "8.8.4.4" is set in "5" seconds
-     And "inet 192.168.111.2 peer 192.168.111.254/32 .*scope global ppp" is visible with command "ip a s" in "5" seconds
-     And "inet 192.168.111.254 peer 192.168.111.2/32 .*scope global ppp" is visible with command "ip a s" in "5" seconds
-     And "192.168.111.2 dev ppp.*\s+proto kernel\s+scope link\s+src 192.168.111.254" is visible with command "ip r" in "5" seconds
-     And "default via 192.168.111.254 dev ppp.*\s+proto static\s+metric" is visible with command "ip r" in "5" seconds
+    Then "inet 192.168.111.2 peer 192.168.111.254/32" is visible with command "ip a s my-ppp"
+    And "default via 192.168.111.254 dev my-ppp" is visible with command "ip r"
 
 
     @rhbz1478694
