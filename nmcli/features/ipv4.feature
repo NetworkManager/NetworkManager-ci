@@ -2095,7 +2095,7 @@ Feature: nmcli: ipv4
     @ipv4_dhcp_iaid_ifname
     Scenario: nmcli - ipv4 - IAID ifname
     * Add a new connection of type "ethernet" and options "con-name con_ipv4 ifname eth3 ipv4.dhcp-client-id duid ipv4.dhcp-iaid ifname"
-    When "inet" is visible with command "ip a s eth3 | grep -E -o 'inet\s+[0-9.]*'" in "10" seconds
+    When "inet" is visible with command "ip a s eth3 | grep -E -o 'inet\s+[0-9.]*'" in "40" seconds
     * Note the output of "ip a s eth3 | grep -E -o 'inet\s+[0-9.]*'" as value "ipv4_eth3"
     * Add a new connection of type "bridge" and options "con-name br88 ifname br88 bridge.stp false ipv4.dhcp-client-id duid ipv4.dhcp-iaid ifname"
     * Modify connection "con_ipv4" changing options "connection.master br88 connection.slave-type bridge"
