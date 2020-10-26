@@ -696,6 +696,11 @@ def before_scenario(context, scenario):
                 if call('python -m pip install pyroute2', shell=True) != 0:
                     call ('yum -y install http://dl.fedoraproject.org/pub/epel/7/x86_64/p/python2-pyroute2-0.4.13-1.el7.noarch.rpm', shell=True)
 
+            if 'x86_64_only' in scenario.tags:
+                arch = check_output("uname -p", shell=True).decode('utf-8', 'ignore').strip()
+                if arch != "x86_64":
+                    sys.exit(77)
+
             if 'not_on_s390x' in scenario.tags:
                 arch = check_output("uname -p", shell=True).decode('utf-8', 'ignore').strip()
                 if arch == "s390x":
@@ -709,6 +714,11 @@ def before_scenario(context, scenario):
             if 'not_on_ppc64' in scenario.tags:
                 arch = check_output("uname -p", shell=True).decode('utf-8', 'ignore').strip()
                 if arch == "ppc64":
+                    sys.exit(77)
+
+            if 'not_on_ppc64le' in scenario.tags:
+                arch = check_output("uname -p", shell=True).decode('utf-8', 'ignore').strip()
+                if arch == "ppc64le":
                     sys.exit(77)
 
             if 'not_on_aarch64_but_pegas' in scenario.tags:
@@ -2444,7 +2454,7 @@ def after_scenario(context, scenario):
                 call("journalctl -all --no-pager %s | grep ' rpc.mountd\[' > /tmp/journal-nfs.log" % context.log_cursor, shell=True)
                 context.embed("text/plain", utf_only_open_read("/tmp/journal-nfs.log"), "NFS")
                 print("running after_test (free up dhcpd leases)")
-                call("cd contrib/dracut; . ./setup.sh; afrer_test", shell=True)
+                call("cd contrib/dracut; . ./setup.sh; after_test", shell=True)
 
             if 'dracut_clean' in scenario.tags:
                 print("---------------------------")

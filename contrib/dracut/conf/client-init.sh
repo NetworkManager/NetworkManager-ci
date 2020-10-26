@@ -1,11 +1,17 @@
 #!/bin/bash
 export PATH=/sbin:/bin:/usr/sbin:/usr/bin
 
+if [ $(uname -p) == "x86_64" ]; then
+  DEV=/dev/sd
+else
+  DEV=/dev/vd
+fi
+
 # boot succeeded, so try to attach logs
-echo BOOT | dd oflag=direct,dsync of=/dev/sda
+echo BOOT | dd oflag=direct,dsync of=${DEV}a
 
 # load check library
-dd if=/dev/sdb of=/check.sh
+dd if=${DEV}b of=/check.sh
 source /check.sh || poweroff -f  # if source fails, we probably do not have `die`
 
 mount_list
@@ -47,7 +53,7 @@ echo "== checks =="
 client_check || die "client_check did not exit with 0"
 
 # client_check should "die" if failed
-echo PASS | dd oflag=direct,dsync of=/dev/sda
+echo PASS | dd oflag=direct,dsync of=${DEV}a
 
 # cleanup after succes
 clean_root

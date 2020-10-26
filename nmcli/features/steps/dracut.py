@@ -24,8 +24,14 @@ def get_dhcpd_log(cursor):
 @step(u'Run dracut test')
 def dracut_run(context):
     qemu_args = ""
-    kernel_args = "rd.net.timeout.dhcp=10 panic=1 systemd.crash_reboot rd.shell=0 rd.debug loglevel=7 " \
-                  "rd.retry=50 console=ttyS0,115200n81 noapic "
+    kernel_args = "rd.net.timeout.dhcp=10 panic=1 systemd.crash_reboot rd.shell=0 "\
+                  "rd.debug loglevel=7 rd.retry=50 biosdevname=0 net.ifnames=0 noapic "
+    kernel_arch_args = {
+        "x86_64": "console=ttyS0,115200n81 ",
+    }
+    arch = subprocess.check_output(["uname", "-p"], encoding="utf-8").strip()
+    if arch in kernel_arch_args.keys():
+        kernel_args += kernel_arch_args[arch]
     initrd = "initramfs.client.NM"
     checks = ""
     timeout = "8m"

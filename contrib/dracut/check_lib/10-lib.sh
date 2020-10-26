@@ -4,7 +4,7 @@ die() {
 
 die_cmd() {
   echo "[FAIL] $@"
-  echo FAIL | dd oflag=direct,dsync of=/dev/sda
+  echo FAIL | dd oflag=direct,dsync of=${DEV}a
   clean_root
   echo "== dump state after fail =="
   ip_list

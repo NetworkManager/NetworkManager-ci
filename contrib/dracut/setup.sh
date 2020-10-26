@@ -28,7 +28,7 @@ test_setup() {
 
       inst_multiple sh shutdown poweroff stty cat ps ln ip dd mount dmesg \
                     mkdir cp ping grep wc awk setsid ls find less tee \
-                    sync rm sed time
+                    sync rm sed time uname
       for _terminfodir in /lib/terminfo /etc/terminfo /usr/share/terminfo; do
           [ -f ${_terminfodir}/l/linux ] && break
       done
