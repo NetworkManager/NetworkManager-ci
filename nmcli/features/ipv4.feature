@@ -2101,7 +2101,7 @@ Feature: nmcli: ipv4
     * Modify connection "con_ipv4" changing options "connection.master br88 connection.slave-type bridge"
     * Bring "up" connection "br88"
     * Bring "up" connection "con_ipv4"
-    When "inet" is visible with command "ip a s br88 | grep -E -o 'inet\s+[0-9.]*'" in "10" seconds
+    When "inet" is visible with command "ip a s br88 | grep -E -o 'inet\s+[0-9.]*'" in "40" seconds
     * Note the output of "ip a s br88 | grep -E -o 'inet\s+[0-9.]*'" as value "ipv4_br88"
     Then Check noted values "ipv4_eth3" and "ipv4_br88" are not the same
 
