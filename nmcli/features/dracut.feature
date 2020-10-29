@@ -59,21 +59,86 @@ Feature: NM: dracut
 
     @rhelver+=8.3 @fedoraver-=0
     @dracut @long @not_on_ppc64le
-    @dracut_NM_NFS_nfsroot_ip_dhcp
-    Scenario: NM - dracut - NM module - NFSv3 nfsroot= ip=dhcp
+    @dracut_NM_NFS_root_dhcp_ip_dhcp_peerdns0
+    Scenario: NM - dracut - NM module - NFSv3 root=dhcp ip=dhcp rd.peerdns=0
     * Run dracut test
-      | Param  | Value                                               |
-      | kernel | root=/dev/nfs nfsroot=192.168.50.1:/client ro       |
-      | kernel | ip=dhcp                                             |
-      | qemu   | -device virtio-net,netdev=nfs,mac=52:54:00:12:34:00 |
-      | qemu   | -netdev tap,id=nfs,script=$PWD/qemu-ifup/nfs        |
-      | check  | nmcli_con_active "Wired Connection" eth0            |
-      | check  | nmcli_con_num 1                                     |
-      | check  | no_ifcfg                                            |
-      | check  | ip_route_unique "default via 192.168.50.1"          |
-      | check  | ip_route_unique "192.168.50.0/24 dev eth0"          |
-      | check  | wait_for_ip4_renew 192.168.50.101 eth0              |
-      | check  | nfs_server 192.168.50.1                             |
+      | Param  | Value                                                          |
+      | kernel | root=dhcp ro ip=dhcp rd.peerdns=0                              |
+      | qemu   | -device virtio-net,netdev=nfs,mac=52:54:00:12:34:00            |
+      | qemu   | -netdev tap,id=nfs,script=$PWD/qemu-ifup/nfs                   |
+      | check  | nmcli_con_active "Wired Connection" eth0                       |
+      | check  | nmcli_con_num 1                                                |
+      | check  | nmcli_con_prop "Wired Connection" "ipv4.ignore-auto-dns" "yes" |
+      | check  | no_ifcfg                                                       |
+      | check  | ip_route_unique "default via 192.168.50.1"                     |
+      | check  | ip_route_unique "192.168.50.0/24 dev eth0"                     |
+      | check  | wait_for_ip4_renew 192.168.50.101 eth0                         |
+      | check  | nfs_server 192.168.50.1                                        |
+
+
+    @rhbz1872299
+    @ver+=1.26
+    @rhelver+=8.3 @fedoraver-=0
+    @dracut @long @not_on_ppc64le
+    @dracut_NM_NFS_root_dhcp_vendor_class
+    Scenario: NM - dracut - NM module - NFSv3 root=nfs rd.net.dhcp.vendor-class
+    * Run dracut test
+      | Param  | Value                                                                                 |
+      | kernel | root=dhcp ro rd.net.dhcp.vendor-class=RedHat                                          |
+      | qemu   | -device virtio-net,netdev=nfs,mac=52:54:00:12:34:00                                   |
+      | qemu   | -netdev tap,id=nfs,script=$PWD/qemu-ifup/nfs                                          |
+      | check  | nmcli_con_active "Wired Connection" eth0                                              |
+      | check  | nmcli_con_prop "Wired Connection" ipv4.dhcp-vendor-class-identifier RedHat            |
+      | check  | nmcli_con_num 1                                                                       |
+      | check  | no_ifcfg                                                                              |
+      | check  | ip_route_unique "192.168.50.0/24 dev eth0 proto kernel scope link src 192.168.50.102" |
+      | check  | wait_for_ip4_renew 192.168.50.102 eth0                                                |
+      | check  | nfs_server 192.168.50.2                                                               |
+
+
+    @rhelver+=8.3 @fedoraver-=0
+    @ver+=1.26.0
+    @dracut @long @not_on_ppc64le
+    @dracut_NM_NFS_root_nfs_ip_dhcp_cloned_mac_mtu
+    Scenario: NM - dracut - NM module - NFSv3 root=nfs ip=IFNAME:AUTOCONF:MTU:CMAC
+    * Run dracut test
+      | Param  | Value                                                                                 |
+      | kernel | root=nfs:192.168.50.1:/client ro ip=eth0:dhcp:1490:52:54:00:12:34:10                  |
+      | qemu   | -device virtio-net,netdev=nfs,mac=52:54:00:12:34:00                                   |
+      | qemu   | -netdev tap,id=nfs,script=$PWD/qemu-ifup/nfs                                          |
+      | check  | nmcli_con_active 'eth0' eth0                                                          |
+      | check  | nmcli_con_num 1                                                                       |
+      | check  | nmcli_con_prop 'eth0' '802-3-ethernet.mtu' '1490'                                     |
+      | check  | nmcli_con_prop 'eth0' '802-3-ethernet.cloned-mac-address' '52\:54\:00\:12\:34\:10'    |
+      | check  | no_ifcfg                                                                              |
+      | check  | ip_route_unique "default via 192.168.50.1 dev eth0"                                   |
+      | check  | ip_route_unique "192.168.50.0/24 dev eth0 proto kernel scope link src 192.168.50.101" |
+      | check  | wait_for_ip4_renew 192.168.50.101 eth0                                                |
+      | check  | nfs_server 192.168.50.1                                                               |
+
+
+    @rhelver+=8.3 @fedoraver-=0
+    @ver+=1.26.0
+    @dracut @long @not_on_ppc64le
+    @dracut_NM_NFS_root_nfs_ip_dhcp_rd_routes
+    Scenario: NM - dracut - NM module - NFSv3 root=nfs ip=IFNAME:dhcp rd.route
+    * Run dracut test
+      | Param  | Value                                                                                            |
+      | kernel | root=nfs:192.168.50.1:/client ro ip=eth0:dhcp:1490:52:54:00:12:34:10                             |
+      | kernel | rd.route=192.168.48.0/24:192.168.50.3:eth0                                                       |
+      | kernel | rd.route=192.168.49.0/24:192.168.50.4:eth0                                                       |
+      | qemu   | -device virtio-net,netdev=nfs,mac=52:54:00:12:34:00                                              |
+      | qemu   | -netdev tap,id=nfs,script=$PWD/qemu-ifup/nfs                                                     |
+      | check  | nmcli_con_active 'eth0' eth0                                                                     |
+      | check  | nmcli_con_num 1                                                                                  |
+      | check  | nmcli_con_prop 'eth0' 'ipv4.routes' '192.168.48.0/24 192.168.50.3, 192.168.49.0/24 192.168.50.4' |
+      | check  | no_ifcfg                                                                                         |
+      | check  | ip_route_unique "default via 192.168.50.1 dev eth0"                                              |
+      | check  | ip_route_unique "192.168.50.0/24 dev eth0 proto kernel scope link src 192.168.50.101"            |
+      | check  | ip_route_unique "192.168.48.0/24 via 192.168.50.3 dev eth0"                                      |
+      | check  | ip_route_unique "192.168.49.0/24 via 192.168.50.4 dev eth0"                                      |
+      | check  | wait_for_ip4_renew 192.168.50.101 eth0                                                           |
+      | check  | nfs_server 192.168.50.1                                                                          |
 
 
     @rhelver+=8.3 @fedoraver-=0
@@ -136,25 +201,104 @@ Feature: NM: dracut
       | check  | nfs_server 192.168.50.1                                                                |
 
 
-    @rhbz1872299
-    @ver+=1.26
     @rhelver+=8.3 @fedoraver-=0
+    @ver+=1.26.0
     @dracut @long @not_on_ppc64le
-    @dracut_NM_NFS_root_dhcp_vendor_class
-    Scenario: NM - dracut - NM module - NFSv3 root=nfs rd.net.dhcp.vendor-class
+    @dracut_NM_NFS_root_nfs_ip_manual_cloned_mac_mtu
+    Scenario: NM - dracut - NM module - NFSv3 root=nfs ip=IP:::NETMASK::IFNAME:AUTOCONF:MTU:CMAC
     * Run dracut test
       | Param  | Value                                                                                 |
-      | kernel | root=dhcp ro                                                                          |
-      | kernel | rd.net.dhcp.vendor-class=RedHat                                                       |
+      | kernel | root=nfs:192.168.50.1:/client ro                                                      |
+      | kernel | ip=192.168.50.201:::255.255.255.0::eth0:none:1491:52:54:00:12:34:11                   |
       | qemu   | -device virtio-net,netdev=nfs,mac=52:54:00:12:34:00                                   |
       | qemu   | -netdev tap,id=nfs,script=$PWD/qemu-ifup/nfs                                          |
-      | check  | nmcli_con_active "Wired Connection" eth0                                              |
-      | check  | nmcli_con_prop "Wired Connection" ipv4.dhcp-vendor-class-identifier RedHat            |
+      | check  | nmcli_con_active 'eth0' eth0                                                          |
       | check  | nmcli_con_num 1                                                                       |
+      | check  | nmcli_con_prop 'eth0' '802-3-ethernet.mtu' '1491'                                     |
+      | check  | nmcli_con_prop 'eth0' '802-3-ethernet.cloned-mac-address' '52\:54\:00\:12\:34\:11'    |
       | check  | no_ifcfg                                                                              |
-      | check  | ip_route_unique "192.168.50.0/24 dev eth0 proto kernel scope link src 192.168.50.102" |
-      | check  | wait_for_ip4_renew 192.168.50.102 eth0                                                |
-      | check  | nfs_server 192.168.50.2                                                               |
+      | check  | ip_route_unique "192.168.50.0/24 dev eth0 proto kernel scope link src 192.168.50.201" |
+      | check  | ip4_forever 192.168.50.201 eth0                                                       |
+      | check  | nfs_server 192.168.50.1                                                               |
+
+
+    @rhelver+=8.3 @fedoraver-=0
+    @ver+=1.26.0
+    @dracut @long @not_on_ppc64le
+    @dracut_NM_NFS_root_nfs_ip_manual_dns1
+    Scenario: NM - dracut - NM module - NFSv3 root=nfs ip=IP:::NETMASK::IFNAME:AUTOCONF:DNS1
+    * Run dracut test
+      | Param  | Value                                                                                 |
+      | kernel | root=nfs:192.168.50.1:/client ro                                                      |
+      | kernel | ip=192.168.50.201:::255.255.255.0::eth0:none:192.168.50.4                             |
+      | qemu   | -device virtio-net,netdev=nfs,mac=52:54:00:12:34:00                                   |
+      | qemu   | -netdev tap,id=nfs,script=$PWD/qemu-ifup/nfs                                          |
+      | check  | nmcli_con_active 'eth0' eth0                                                          |
+      | check  | nmcli_con_num 1                                                                       |
+      | check  | nmcli_con_prop 'eth0' 'ipv4.dns' '192.168.50.4'                                       |
+      | check  | no_ifcfg                                                                              |
+      | check  | ip_route_unique "192.168.50.0/24 dev eth0 proto kernel scope link src 192.168.50.201" |
+      | check  | ip4_forever 192.168.50.201 eth0                                                       |
+      | check  | nfs_server 192.168.50.1                                                               |
+
+
+    @rhelver+=8.3 @fedoraver-=0
+    @ver+=1.26.0
+    @dracut @long @not_on_ppc64le
+    @dracut_NM_NFS_root_nfs_ip_manual_dns2
+    Scenario: NM - dracut - NM module - NFSv3 root=nfs ip=IP:::NETMASK::IFNAME:AUTOCONF:DNS1:DNS2
+    * Run dracut test
+      | Param  | Value                                                                                 |
+      | kernel | root=nfs:192.168.50.1:/client ro                                                      |
+      | kernel | ip=192.168.50.201:::255.255.255.0::eth0:none:192.168.50.4:192.168.50.5                |
+      | qemu   | -device virtio-net,netdev=nfs,mac=52:54:00:12:34:00                                   |
+      | qemu   | -netdev tap,id=nfs,script=$PWD/qemu-ifup/nfs                                          |
+      | check  | nmcli_con_active 'eth0' eth0                                                          |
+      | check  | nmcli_con_num 1                                                                       |
+      | check  | nmcli_con_prop 'eth0' 'ipv4.dns' '192.168.50.4,192.168.50.5'                          |
+      | check  | no_ifcfg                                                                              |
+      | check  | ip_route_unique "192.168.50.0/24 dev eth0 proto kernel scope link src 192.168.50.201" |
+      | check  | ip4_forever 192.168.50.201 eth0                                                       |
+      | check  | nfs_server 192.168.50.1                                                               |
+
+
+    @rhelver+=8.3 @fedoraver-=0
+    @ver+=1.26.0
+    @dracut @long @not_on_ppc64le
+    @dracut_NM_NFS_root_nfs_ip_manual_dns3
+    Scenario: NM - dracut - NM module - NFSv3 root=nfs ip=IP:::NETMASK::IFNAME:AUTOCONF:DNS1:DNS2 nameserver
+    * Run dracut test
+      | Param  | Value                                                                                  |
+      | kernel | root=nfs:192.168.50.1:/client ro nameserver=192.168.50.7 nameserver=192.168.50.6       |
+      | kernel | ip=192.168.50.201:::255.255.255.0::eth0:none:192.168.50.4:192.168.50.5                 |
+      | qemu   | -device virtio-net,netdev=nfs,mac=52:54:00:12:34:00                                    |
+      | qemu   | -netdev tap,id=nfs,script=$PWD/qemu-ifup/nfs                                           |
+      | check  | nmcli_con_active 'eth0' eth0                                                           |
+      | check  | nmcli_con_num 1                                                                        |
+      | check  | nmcli_con_prop 'eth0' 'ipv4.dns' '192.168.50.4,192.168.50.5,192.168.50.7,192.168.50.6' |
+      | check  | no_ifcfg                                                                               |
+      | check  | ip_route_unique "192.168.50.0/24 dev eth0 proto kernel scope link src 192.168.50.201"  |
+      | check  | ip4_forever 192.168.50.201 eth0                                                        |
+      | check  | nfs_server 192.168.50.1                                                                |
+
+
+    @rhelver+=8.3 @fedoraver-=0
+    @ver+=1.26.0
+    @dracut @long @not_on_ppc64le
+    @dracut_NM_NFS_root_nfs_ip_manual_custom_ifname
+    Scenario: NM - dracut - NM module - NFSv3 root=nfs ip=manual ifname=nfs
+    * Run dracut test
+      | Param  | Value                                                                                |
+      | kernel | root=nfs:192.168.50.1:/client ro                                                     |
+      | kernel | ip=192.168.50.201:::255.255.255.0::nfs:none ifname=nfs:52:54:00:12:34:00             |
+      | qemu   | -device virtio-net,netdev=nfs,mac=52:54:00:12:34:00                                  |
+      | qemu   | -netdev tap,id=nfs,script=$PWD/qemu-ifup/nfs                                         |
+      | check  | nmcli_con_active 'nfs' nfs                                                           |
+      | check  | nmcli_con_num 1                                                                      |
+      | check  | no_ifcfg                                                                             |
+      | check  | ip_route_unique "192.168.50.0/24 dev nfs proto kernel scope link src 192.168.50.201" |
+      | check  | ip4_forever 192.168.50.201 nfs                                                       |
+      | check  | nfs_server 192.168.50.1                                                              |
 
 
     @rhbz1854323
