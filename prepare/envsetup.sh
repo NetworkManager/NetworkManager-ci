@@ -144,6 +144,7 @@ install_fedora_packages () {
 
     # disable dhcpd dispatcher script: rhbz1758476
     [ -f /etc/NetworkManager/dispatcher.d/12-dhcpd ] && sudo chmod -x /etc/NetworkManager/dispatcher.d/12-dhcpd
+
 }
 
 install_el8_packages () {
@@ -300,6 +301,37 @@ install_el7_packages () {
     install_plugins_yum
 }
 
+
+install_packages () {
+    if ! test -f /tmp/nm_packages_installed; then
+        # Install packages for various distributions
+        if grep -q 'Fedora' /etc/redhat-release; then
+            install_fedora_packages
+            if ! check_packages; then
+                sleep 20
+                install_fedora_packages
+            fi
+        fi
+        if grep -q -e 'Enterprise Linux .*release 8' -e 'CentOS Linux release 8' /etc/redhat-release; then
+            install_el8_packages
+            if ! check_packages; then
+                sleep 20
+                install_el8_packages
+            fi
+            enable_abrt_el8
+        fi
+        if grep -q -e 'Enterprise Linux .*release 7' -e 'CentOS Linux release 7' /etc/redhat-release; then
+            install_el7_packages
+            if ! check_packages; then
+                sleep 20
+                install_el7_packages
+            fi
+        fi
+
+        touch /tmp/nm_packages_installed
+    fi
+}
+
 deploy_ssh_keys () {
     if ! test -d /root/.ssh; then
         mkdir /root/.ssh/
@@ -345,8 +377,8 @@ enable_abrt_el8 () {
     fi
 }
 
-local_setup_configure_nm_eth () {
-    [ -e /tmp/nm_eth_configured ] && return
+local_setup_configure_nm_eth_part1 () {
+    [ -e /tmp/nm_eth_configured_part1 ] && return
 
     # Set the root password to 'networkmanager' (for overcoming polkit easily)
     echo "Setting root password to 'networkmanager'"
@@ -408,6 +440,15 @@ local_setup_configure_nm_eth () {
     # Deploy ssh-keys
     deploy_ssh_keys
 
+    install_packages
+
+    touch /tmp/nm_eth_configured_part1
+}
+
+local_setup_configure_nm_eth_part2 () {
+    [ -e /tmp/nm_eth_configured ] && return
+    # Prepare all devices
+
     # Making sure all wifi devices are named wlanX
     NUM=0
     wlan=0
@@ -418,30 +459,6 @@ local_setup_configure_nm_eth () {
         ip link set wlan$NUM up
         NUM=$(($NUM+1))
     done
-
-    # Install packages for various distributions
-    if grep -q 'Fedora' /etc/redhat-release; then
-        install_fedora_packages
-        if ! check_packages; then
-            sleep 20
-            install_fedora_packages
-        fi
-    fi
-    if grep -q -e 'Enterprise Linux .*release 8' -e 'CentOS Linux release 8' /etc/redhat-release; then
-        install_el8_packages
-        if ! check_packages; then
-            sleep 20
-            install_el8_packages
-        fi
-        enable_abrt_el8
-    fi
-    if grep -q -e 'Enterprise Linux .*release 7' -e 'CentOS Linux release 7' /etc/redhat-release; then
-        install_el7_packages
-        if ! check_packages; then
-            sleep 20
-            install_el7_packages
-        fi
-    fi
 
     # If we have custom built packages let's store it's dir
     dir="$(find /root /tmp -name nm-build)"
@@ -710,7 +727,12 @@ local_setup_configure_nm_gsm () {
 }
 
 setup_configure_environment () {
-    local_setup_configure_nm_eth "$1"
+    # Configure real basics and install packages
+    local_setup_configure_nm_eth_part1
+    [ "$1" == "first_test_setup" ] && return
+
+    # Configure hw specific needs (veth, wifi, etc)
+    local_setup_configure_nm_eth_part2 $1
     case "$1" in
         *dcb_*)
             local_setup_configure_nm_dcb
