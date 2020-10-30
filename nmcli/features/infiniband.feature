@@ -191,7 +191,7 @@ Feature: nmcli: inf
     Scenario: NM - inf - internal - send client id
     * Add connection type "infiniband" named "inf" for device "inf_ib0"
     * Add a new connection of type "infiniband" and options "ifname inf_ib0.8002 parent inf_ib0 p-key 0x8002 con-name inf.8002 ipv4.addresses 1.2.3.4/24,1.2.4.5/24,1.2.5.6/24,1.2.6.8/24,1.3.5.7/24,1.2.1.2/24,1.1.2.1/24,1.1.2.2/24,1.1.2.3/24,1.1.2.4/24,1.1.2.5/24,1.1.2.6/24,1.1.2.7/24,1.1.2.8/24,1.1.2.9/24,1.1.2.10/24"
-    * Run child "sleep 0.1 && sudo tcpdump -l -i inf_ib0.8002 -v -n > /tmp/tcpdump.log"
+    * Run child "sudo tcpdump -l -i any -v -n > /tmp/tcpdump.log"
     * Run child "nmcli con up inf.8002"
     When "empty" is not visible with command "file /tmp/tcpdump.log" in "150" seconds
     * Note MAC address output for device "inf_ib0.8002" via ip command
