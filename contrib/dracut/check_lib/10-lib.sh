@@ -22,6 +22,8 @@ clean_root() {
   rm -vf /etc/sysconfig/network-scripts/ifcfg*
   echo "== cleaning check script =="
   rm -vf /check.sh
+  echo "== cleaning resolv.conf =="
+  rm -vf /etc/resolv.conf
   echo "== cleaning hostname =="
   echo > /etc/hostname
   echo "/etc/hostname is empty"
@@ -48,6 +50,7 @@ nfs_server() {
     nfs_mnt=$(arg 1 $nfs_mnt)
     nfs_mnt=${nfs_mnt%:*}
     [[ "$nfs_mnt" == "$1" ]] || die "NFS server is '$nfs_mnt', expected '$1'"
+    echo "[OK] NFS server is '$nfs_mnt'"
 }
 
 mount_root_type() {
@@ -68,4 +71,19 @@ hostname_check() {
   hostname=$(cat /proc/sys/kernel/hostname)
   [[ "$hostname" == "$1" ]] || die "hostname is not '$1', but '$hostname'"
   echo "[OK] hostname is '$hostname'"
+}
+
+dns_search() {
+    local search
+    search=$(grep "^search" /etc/resolv.conf | sed 's/^search\s\+//g')
+    [[ "$search" == "$1" ]] || die "DNS search is '$search', expected '$1'"
+    echo "[OK] DNS search is '$search'"
+}
+
+
+ifname_mac() {
+    local mac
+    mac=$(ip l show "$1" | grep "link/ether" | sed 's@\s\+link/ether\s\+\(\([0-9a-f]\+:\)\+[0-9a-f]\+\).*@\1@')
+    [[ "$mac" == "$2" ]] || die "'$1' MAC is '$mac', expected '$1'"
+    echo "[OK] '$1' MAC is '$mac'"
 }
