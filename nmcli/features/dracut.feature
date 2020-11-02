@@ -33,7 +33,7 @@ Feature: NM: dracut
       | check  | nmcli_con_active "Wired Connection" eth0                         |
       | check  | nmcli_con_prop "Wired Connection" IP4.DNS 192.168.50.1           |
       | check  | nmcli_con_prop "Wired Connection" IP4.DOMAIN cl01.nfs.redhat.com |
-      | check  | dns_search nfs.redhat.com                                        |
+      | check  | dns_search 'nfs.redhat.com nfs6.redhat.com'                      |
       | check  | nmcli_con_num 1                                                  |
       | check  | no_ifcfg                                                         |
       | check  | ip_route_unique "default via 192.168.50.1"                       |
@@ -54,7 +54,7 @@ Feature: NM: dracut
       | check  | nmcli_con_active "Wired Connection" eth0                         |
       | check  | nmcli_con_prop "Wired Connection" IP4.DNS 192.168.50.1           |
       | check  | nmcli_con_prop "Wired Connection" IP4.DOMAIN cl01.nfs.redhat.com |
-      | check  | dns_search nfs.redhat.com                                        |
+      | check  | dns_search 'nfs.redhat.com nfs6.redhat.com'                      |
       | check  | nmcli_con_num 1                                                  |
       | check  | no_ifcfg                                                         |
       | check  | ip_route_unique "default via 192.168.50.1"                       |
@@ -100,7 +100,7 @@ Feature: NM: dracut
       | check  | nmcli_con_prop "Wired Connection" ipv4.dhcp-vendor-class-identifier RedHat            |
       | check  | nmcli_con_prop "Wired Connection" IP4.DNS 192.168.50.1                                |
       | check  | nmcli_con_prop "Wired Connection" IP4.DOMAIN cl02.nfs.redhat.com                      |
-      | check  | dns_search nfs.redhat.com                                                             |
+      | check  | dns_search 'nfs.redhat.com nfs6.redhat.com'                                           |
       | check  | nmcli_con_num 1                                                                       |
       | check  | no_ifcfg                                                                              |
       | check  | ip_route_unique "192.168.50.0/24 dev eth0 proto kernel scope link src 192.168.50.102" |
@@ -125,7 +125,7 @@ Feature: NM: dracut
       | check  | nmcli_con_prop eth0 802-3-ethernet.cloned-mac-address '52\:54\:00\:12\:34\:10'        |
       | check  | nmcli_con_prop eth0 IP4.DNS 192.168.50.1                                              |
       | check  | nmcli_con_prop eth0 IP4.DOMAIN cl01.nfs.redhat.com                                    |
-      | check  | dns_search nfs.redhat.com                                                             |
+      | check  | dns_search 'nfs.redhat.com nfs6.redhat.com'                                           |
       | check  | no_ifcfg                                                                              |
       | check  | ifname_mac eth0 52:54:00:12:34:10                                                     |
       | check  | ip_route_unique "default via 192.168.50.1 dev eth0"                                   |
@@ -151,7 +151,7 @@ Feature: NM: dracut
       | check  | nmcli_con_prop eth0 ipv4.routes '192.168.48.0/24 192.168.50.3, 192.168.49.0/24 192.168.50.4' |
       | check  | nmcli_con_prop eth0 IP4.DNS 192.168.50.1                                                     |
       | check  | nmcli_con_prop eth0 IP4.DOMAIN cl01.nfs.redhat.com                                           |
-      | check  | dns_search nfs.redhat.com                                                                    |
+      | check  | dns_search 'nfs.redhat.com nfs6.redhat.com'                                                  |
       | check  | no_ifcfg                                                                                     |
       | check  | ip_route_unique "default via 192.168.50.1 dev eth0"                                          |
       | check  | ip_route_unique "192.168.50.0/24 dev eth0 proto kernel scope link src 192.168.50.101"        |
@@ -173,6 +173,8 @@ Feature: NM: dracut
       | qemu   | -netdev tap,id=nfs,script=$PWD/qemu-ifup/nfs                                          |
       | check  | nmcli_con_active eth0 eth0                                                            |
       | check  | nmcli_con_prop eth0 IP4.DNS 192.168.50.1                                              |
+      | check  | nmcli_con_prop eth0 IP4.DOMAIN 'cl01.nfs.redhat.com'                                  |
+      | check  | dns_search 'nfs.redhat.com nfs6.redhat.com'                                           |
       | check  | nmcli_con_num 1                                                                       |
       | check  | no_ifcfg                                                                              |
       | check  | ip_route_unique "192.168.50.0/24 dev eth0 proto kernel scope link src 192.168.50.101" |
@@ -183,6 +185,31 @@ Feature: NM: dracut
 
 
     @rhelver+=8.2 @fedoraver-=0
+    @ver-=1.28
+    @dracut @long @not_on_ppc64le
+    @dracut_NM_NFS_root_nfs_ip_manual
+    Scenario: NM - dracut - NM module - NFSv3 root=nfs ip=manual
+    * Run dracut test
+      | Param  | Value                                               |
+      | kernel | root=nfs:192.168.50.1:/client ro                    |
+      | kernel | ip=192.168.50.201::255.255.255.0:::eth0:off         |
+      | qemu   | -device virtio-net,netdev=nfs,mac=52:54:00:12:34:00 |
+      | qemu   | -netdev tap,id=nfs,script=$PWD/qemu-ifup/nfs        |
+      | check  | nmcli_con_active eth0 eth0                          |
+      | check  | nmcli_con_prop eth0 IP4.DNS ''                      |
+      | check  | nmcli_con_prop eth0 IP4.DOMAIN ''                   |
+      # do not check search because of bug: https://bugzilla.redhat.com/show_bug.cgi?id=1883958
+      #| check  | dns_search ''                                       |
+      | check  | nmcli_con_num 1                                     |
+      | check  | no_ifcfg                                            |
+      | check  | ip_route_unique "192.168.50.0/24 dev eth0"          |
+      | check  | ip4_forever 192.168.50.201 eth0                     |
+      | check  | nfs_server 192.168.50.1                             |
+
+
+    @rhbz1883958
+    @rhelver+=8.2 @fedoraver-=0
+    @ver+=1.29
     @dracut @long @not_on_ppc64le
     @dracut_NM_NFS_root_nfs_ip_manual
     Scenario: NM - dracut - NM module - NFSv3 root=nfs ip=manual
@@ -200,6 +227,7 @@ Feature: NM: dracut
       | check  | no_ifcfg                                            |
       | check  | ip_route_unique "192.168.50.0/24 dev eth0"          |
       | check  | ip4_forever 192.168.50.201 eth0                     |
+      | check  | link_no_ip6 eth0                                    |
       | check  | nfs_server 192.168.50.1                             |
 
 
@@ -217,7 +245,8 @@ Feature: NM: dracut
       | check  | nmcli_con_active '52\:54\:00\:12\:34\:00' eth0                                         |
       | check  | nmcli_con_prop '52\:54\:00\:12\:34\:00' IP4.DNS ''                                     |
       | check  | nmcli_con_prop '52\:54\:00\:12\:34\:00' IP4.DOMAIN ''                                  |
-      | check  | dns_search ''                                                                          |
+      # do not check search because of bug: https://bugzilla.redhat.com/show_bug.cgi?id=1883958
+      #| check  | dns_search ''                                                                          |
       | check  | nmcli_con_num 1                                                                        |
       | check  | no_ifcfg                                                                               |
       | check  | ip_route_unique "default via 192.168.50.1 dev eth0"                                    |
@@ -244,7 +273,8 @@ Feature: NM: dracut
       | check  | nmcli_con_prop eth0 802-3-ethernet.mtu 1491                                           |
       | check  | nmcli_con_prop eth0 802-3-ethernet.cloned-mac-address '52\:54\:00\:12\:34\:11'        |
       | check  | nmcli_con_prop eth0 IP4.DOMAIN ''                                                     |
-      | check  | dns_search ''                                                                         |
+      # do not check search because of bug: https://bugzilla.redhat.com/show_bug.cgi?id=1883958
+      #| check  | dns_search ''                                                                         |
       | check  | nmcli_con_prop eth0 IP4.DNS ''                                                        |
       | check  | no_ifcfg                                                                              |
       | check  | ip_route_unique "192.168.50.0/24 dev eth0 proto kernel scope link src 192.168.50.201" |
@@ -267,7 +297,8 @@ Feature: NM: dracut
       | check  | nmcli_con_prop eth0 ipv4.dns 192.168.50.4                                             |
       | check  | nmcli_con_prop eth0 IP4.DNS 192.168.50.4                                              |
       | check  | nmcli_con_prop eth0 IP4.DOMAIN ''                                                     |
-      | check  | dns_search ''                                                                         |
+      # do not check search because of bug: https://bugzilla.redhat.com/show_bug.cgi?id=1883958
+      #| check  | dns_search ''                                                                         |
       | check  | nmcli_con_num 1                                                                       |
       | check  | no_ifcfg                                                                              |
       | check  | ip_route_unique "192.168.50.0/24 dev eth0 proto kernel scope link src 192.168.50.201" |
@@ -290,7 +321,8 @@ Feature: NM: dracut
       | check  | nmcli_con_prop eth0 ipv4.dns 192.168.50.4,192.168.50.5                                |
       | check  | nmcli_con_prop eth0 IP4.DNS '192.168.50.4 \| 192.168.50.5'                            |
       | check  | nmcli_con_prop eth0 IP4.DOMAIN ''                                                     |
-      | check  | dns_search ''                                                                         |
+      # do not check search because of bug: https://bugzilla.redhat.com/show_bug.cgi?id=1883958
+      #| check  | dns_search ''                                                                         |
       | check  | nmcli_con_num 1                                                                       |
       | check  | no_ifcfg                                                                              |
       | check  | ip_route_unique "192.168.50.0/24 dev eth0 proto kernel scope link src 192.168.50.201" |
@@ -314,7 +346,8 @@ Feature: NM: dracut
       | check  | nmcli_con_prop eth0 ipv4.dns '192.168.50.4,192.168.50.5,192.168.50.7,192.168.50.6'         |
       | check  | nmcli_con_prop eth0 IP4.DNS '192.168.50.4 \| 192.168.50.5 \| 192.168.50.7 \| 192.168.50.6' |
       | check  | nmcli_con_prop eth0 IP4.DOMAIN ''                                                          |
-      | check  | dns_search ''                                                                              |
+      # do not check search because of bug: https://bugzilla.redhat.com/show_bug.cgi?id=1883958
+      #| check  | dns_search ''                                                                              |
       | check  | no_ifcfg                                                                                   |
       | check  | ip_route_unique "192.168.50.0/24 dev eth0 proto kernel scope link src 192.168.50.201"      |
       | check  | ip4_forever 192.168.50.201 eth0                                                            |
@@ -335,7 +368,8 @@ Feature: NM: dracut
       | check  | nmcli_con_active nfs nfs                                                             |
       | check  | nmcli_con_prop nfs IP4.DNS ''                                                        |
       | check  | nmcli_con_prop eth0 IP4.DOMAIN ''                                                    |
-      | check  | dns_search ''                                                                        |
+      # do not check search because of bug: https://bugzilla.redhat.com/show_bug.cgi?id=1883958
+      #| check  | dns_search ''                                                                        |
       | check  | nmcli_con_num 1                                                                      |
       | check  | no_ifcfg                                                                             |
       | check  | ip_route_unique "192.168.50.0/24 dev nfs proto kernel scope link src 192.168.50.201" |
@@ -567,7 +601,7 @@ Feature: NM: dracut
       | check  | nmcli_con_active eth0 eth0                          |
       | check  | nmcli_con_prop br0 IP4.DNS 192.168.50.1             |
       | check  | nmcli_con_prop br0 IP4.DOMAIN cl01.nfs.redhat.com   |
-      | check  | dns_search nfs.redhat.com                           |
+      | check  | dns_search 'nfs.redhat.com nfs6.redhat.com'         |
       | check  | nmcli_con_num 2                                     |
       | check  | ip_route_unique "default via 192.168.50.1"          |
       | check  | ip_route_unique "192.168.50.0/24 dev br0"           |
@@ -593,7 +627,8 @@ Feature: NM: dracut
       | check  | nmcli_con_active eth1 eth1                            |
       | check  | nmcli_con_prop foobr0 IP4.DNS ''                      |
       | check  | nmcli_con_prop foobr0 IP4.DOMAIN ''                   |
-      | check  | dns_search ''                                         |
+      # do not check search because of bug: https://bugzilla.redhat.com/show_bug.cgi?id=1883958
+      #| check  | dns_search ''                                         |
       | check  | nmcli_con_num 3                                       |
       | check  | ip_route_unique "192.168.50.0/24 dev foobr0"          |
       | check  | ip4_forever 192.168.50.101 foobr0                     |
