@@ -7,25 +7,6 @@ die() {
     exit 1
 }
 
-# kills last job with SIGINT, if not finished in 20 seconds, kills with SIGTERM
-kill_child() {
-    echo
-    echo "killed externally, SIGINT child $!..."
-    kill -2 -- "-$!"
-    for _ in {1..20}; do
-        if ! kill -0 $! &> /dev/null; then
-            echo "child exited within 20 seconds after SIGINT"
-            return
-        fi
-        sleep 1
-    done
-    echo "killing child with SIGKILL"
-    kill -9 -- "-$!"
-    sleep 1
-    if kill -0 $! &> /dev/null; then
-    echo "child survived SIGKILL, zombie?!"
-fi
-}
 
 dump_NM_journal() {
     echo -e "No report generated, dumping NM journal log\n\n" > $NMTEST_REPORT
@@ -101,8 +82,7 @@ if [ $rc -eq 0 ]; then
 
       logger "Running  $NMTEST  with tags '-t $TAG'"
 
-      trap kill_child SIGINT SIGTERM
-      behave $FEATURE_FILE -t $1 -t $TAG -k -f html -o "$NMTEST_REPORT" -f plain & wait $!; rc=$?
+      behave $FEATURE_FILE -t $1 -t $TAG -k -f html -o "$NMTEST_REPORT" -f plain ; rc=$?
     fi
 fi
 

@@ -17,6 +17,7 @@ from subprocess import call, Popen, PIPE, check_output, CalledProcessError
 from time import sleep, localtime, strftime
 from glob import glob
 import re
+import signal
 
 TIMER = 0.5
 
@@ -547,7 +548,13 @@ def reset_hwaddr_nmtui(ifname):
     except:
         pass
 
+def on_signal(signum, frame):
+    assert False, "killed externally (timeout)"
+
 def before_all(context):
+    signal.signal(signal.SIGTERM, on_signal)
+    signal.signal(signal.SIGINT, on_signal)
+
     def embed_data(mime_type, data, caption):
         # If data is empty we want to finish html tag by at least one character
         non_empty_data = " " if not data else data
@@ -583,6 +590,12 @@ def before_all(context):
             traceback.print_exc(file=sys.stdout)
 
 def before_scenario(context, scenario):
+    # set important context attributes
+    context.nm_restarted = False
+    context.nm_pid = nm_pid()
+    context.crashed_step = False
+    context.log_cursor = ""
+
     if IS_NMTUI:
         try:
             os.environ['TERM'] = 'dumb'
@@ -1051,13 +1064,11 @@ def before_scenario(context, scenario):
                 call("echo 'domains=ALL' >> %s" %log, shell=True)
                 sleep(0.5)
                 restart_NM_service()
-                context.nm_restarted = True
                 sleep(1)
 
             if 'nmcli_general_profile_pickup_doesnt_break_network' in scenario.tags:
                 print("---------------------------")
                 print("turning on network.service")
-                context.nm_restarted = True
                 call('sudo pkill -9 /sbin/dhclient', shell=True)
                 # Make orig- devices unmanaged as they may be unfunctional
                 call('for dev in $(nmcli  -g DEVICE d |grep orig); do nmcli device set $dev managed off; done', shell=True)
@@ -1274,7 +1285,6 @@ def before_scenario(context, scenario):
                     print ("** skipping")
                     sys.exit(77)
                 # NM needs to go down
-                context.nm_restarted = True
 
             if 'preserve_8021x_certs' in scenario.tags:
                 print ("---------------------------")
@@ -1558,7 +1568,6 @@ def before_scenario(context, scenario):
 
             context.nm_pid = nm_pid()
 
-            context.nm_restarted = False
             context.crashed_step = False
 
             print(("NetworkManager process id before: %s" % context.nm_pid))

@@ -6,8 +6,6 @@ test_setup() {
   # Exit if setup is already done
   [ -f /tmp/dracut_setup_done ] && return 0
 
-  touch /tmp/dracut_setup_done
-
   network_setup
 
   mkdir $TESTDIR
@@ -350,6 +348,9 @@ EOF
       kill_server
       return 1
   fi
+
+  touch /tmp/dracut_setup_done
+
 }
 
 
