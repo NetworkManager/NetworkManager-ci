@@ -552,11 +552,20 @@ def before_all(context):
         # If data is empty we want to finish html tag by at least one character
         non_empty_data = " " if not data else data
         for formatter in context._runner.formatters:
-            if "html" in formatter.name:
+            if "html" in formatter.name and getattr(formatter, "embedding", None) is not None:
                 formatter.embedding(mime_type=mime_type, data=non_empty_data, caption=caption)
-                return
+                return True
+        return False
+
+    def set_title(title, append=False, tag="span", **kwargs):
+        for formatter in context._runner.formatters:
+            if "html" in formatter.name and getattr(formatter, "set_title", None) is not None:
+                formatter.set_title(title=title, append=append, tag=tag, **kwargs)
+                return True
+        return False
 
     context.embed = embed_data
+    context.set_title = set_title
 
     if IS_NMTUI:
         """Setup gnome-weather stuff
@@ -745,11 +754,7 @@ def before_scenario(context, scenario):
                 # Extract modem's identification and keep it in a global variable for further use.
                 # Only 1 modem is expected per test.
                 context.modem_str = find_modem()
-                if context.modem_str:
-                    # Create a file containging modem identification. Use the file for HTML reports.
-                    m_file = open('/tmp/modem_id', 'w')
-                    m_file.write(context.modem_str)
-                    m_file.close()
+                context.set_title(" - " + modem_str, append=True)
 
                 if not os.path.isfile('/tmp/usb_hub'):
                     import time

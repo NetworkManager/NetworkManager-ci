@@ -28,16 +28,9 @@ function runtest () {
         behave $FEATURE_FILE -t $TEST_NAME -k -f html -o /tmp/report.html -f plain || RC=1
     fi
 
-    # Insert the modem's USB ID and model into the HTML report.
-    if [ -f /tmp/modem_id ]; then
-        MODEM_ID=$(cat /tmp/modem_id)
-        sed -i -e "s/Behave Test Report/Behave Test Report - $MODEM_ID/g" /tmp/report.html
-        # Create unique IDs of embedded sections in the HTML report.
-        # Allow joining of two or more reports with collapsible sections.
-        sed -i -e "s/embed_/${MODEM_INDEX}_${TEST_NAME}_embed_/g" /tmp/report.html
-        # Remove modem id for next test.
-        rm -f /tmp/modem_id
-    fi
+    # Create unique IDs of embedded sections in the HTML report.
+    # Allow joining of two or more reports with collapsible sections.
+    sed -i -e "s/embed_/${MODEM_INDEX}_${TEST_NAME}_embed_/g" /tmp/report.html
 
     return $RC
 }
