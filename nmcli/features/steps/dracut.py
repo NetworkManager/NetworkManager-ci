@@ -70,7 +70,7 @@ def dracut_run(context):
         "-drive format=raw,index=0,media=disk,file=$TESTDIR/client.img "
         "-drive format=raw,index=1,media=disk,file=$TESTDIR/client_check.img "
         "%s -append \"%s\" -initrd $TESTDIR/%s "
-        "&> /tmp/dracut_boot.log " % (ram, timeout, qemu_args, kernel_args, initrd), shell=True)
+        "> /tmp/dracut_boot.log 2>&1" % (ram, timeout, qemu_args, kernel_args, initrd), shell=True)
 
     result = "NO_BOOT"
     if os.path.isfile("/tmp/dracut_test/client.img"):
