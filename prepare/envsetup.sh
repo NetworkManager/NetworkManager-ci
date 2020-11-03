@@ -147,6 +147,86 @@ install_fedora_packages () {
 
 }
 
+install_el9_packages () {
+
+    # # Enable EPEL but on s390x
+    # if ! uname -a |grep -q s390x; then
+    #     [ -f /etc/yum.repos.d/epel.repo ] || sudo rpm -i http://dl.fedoraproject.org/pub/epel/epel-release-latest-8.noarch.rpm
+    # fi
+
+    python -m pip install pyroute2
+    python -m pip install pexpect
+    python -m pip install netaddr
+    python -m pip install pyte
+    python -m pip install IPy
+
+    # # Needed for gsm_sim
+    # dnf -4 -y install https://kojipkgs.fedoraproject.org//packages/perl-IO-Pty-Easy/0.10/5.fc28/noarch/perl-IO-Pty-Easy-0.10-5.fc28.noarch.rpm https://kojipkgs.fedoraproject.org//packages/perl-IO-Tty/1.12/11.fc28/$(arch)/perl-IO-Tty-1.12-11.fc28.$(arch).rpm
+
+    # Dnf more deps
+    dnf -4 -y install git python3-netaddr dhcp-relay iw net-tools psmisc firewalld dhcp-server ethtool python3-dbus python3-gobject dnsmasq tcpdump wireshark-cli file --skip-broken
+
+    dnf -4 -y install https://kojipkgs.fedoraproject.org//packages/tcpreplay/4.2.5/4.fc28/$(arch)/tcpreplay-4.2.5-4.fc28.$(arch).rpm
+
+    install_behave
+
+    # Install vpn dependencies
+    dnf -4 -y install https://kojipkgs.fedoraproject.org//packages/NetworkManager-openvpn/1.8.4/1.fc28/$(arch)/NetworkManager-openvpn-1.8.4-1.fc28.$(arch).rpm https://kojipkgs.fedoraproject.org//packages/openvpn/2.4.6/1.fc28/$(arch)/openvpn-2.4.6-1.fc28.$(arch).rpm https://kojipkgs.fedoraproject.org//packages/ipsec-tools/0.8.2/10.fc28/$(arch)/ipsec-tools-0.8.2-10.fc28.$(arch).rpm https://kojipkgs.fedoraproject.org//packages/pkcs11-helper/1.22/5.fc28/$(arch)/pkcs11-helper-1.22-5.fc28.$(arch).rpm
+
+    # Install various NM dependencies
+    dnf -4 -y remove NetworkManager-config-connectivity-fedora NetworkManager-config-connectivity-redhat
+    dnf -4 -y install http://download.eng.bos.redhat.com/brewroot/vol/rhel-8/packages/libmnl/1.0.4/6.el8/$(arch)/libmnl-devel-1.0.4-6.el8.$(arch).rpm https://kojipkgs.fedoraproject.org//packages/hostapd/2.9/3.el8/$(arch)/hostapd-2.9-3.el8.$(arch).rpm
+
+    # Install kernel-modules-internal for mac80211_hwsim
+    VER=$(rpm -q --queryformat '%{VERSION}' kernel)
+    REL=$(rpm -q --queryformat '%{RELEASE}' kernel)
+    dnf -4 -y install http://download.eng.bos.redhat.com/brewroot/vol/rhel-9/packages/kernel/$VER/$REL/$(arch)/kernel-modules-internal-$VER-$REL.$(arch).rpm
+
+    if ! dnf -y install openvswitch; then
+        dnf -y install https://kojipkgs.fedoraproject.org//packages/openvswitch/2.14.0/2.eln103/$(arch)/network-scripts-openvswitch-2.14.0-2.eln103.$(arch).rpm https://kojipkgs.fedoraproject.org//packages/openvswitch/2.14.0/2.eln103/$(arch)/openvswitch-ipsec-2.14.0-2.eln103.$(arch).rpm https://kojipkgs.fedoraproject.org//packages/openvswitch/2.14.0/2.eln103/$(arch)/python3-openvswitch-2.14.0-2.eln103.$(arch).rpm https://kojipkgs.fedoraproject.org//packages/openvswitch/2.14.0/2.eln103/$(arch)/openvswitch-2.14.0-2.eln103.$(arch).rpm
+    fi
+    # # Add OVS repo and install OVS
+    # if ! grep -q -e 'CentOS Linux release 8' /etc/redhat-release; then
+    #     mv -f  tmp/ovs-rhel8.repo /etc/yum.repos.d/ovs.repo
+    #     yum -y install openvswitch2.13
+    #     systemctl restart openvswitch
+    # else
+    #     dnf -y install https://cbs.centos.org/kojifiles/packages/openvswitch2.13/2.13.0/39.el8/$(arch)/openvswitch2.13-2.13.0-39.el8.$(arch).rpm https://cbs.centos.org/kojifiles/packages/openvswitch2.13/2.13.0/39.el8/$(arch)/python3-openvswitch2.13-2.13.0-39.el8.$(arch).rpm https://cbs.centos.org/kojifiles/packages/openvswitch-selinux-extra-policy/1.0/22.el8/noarch/openvswitch-selinux-extra-policy-1.0-22.el8.noarch.rpm
+    # fi
+
+    # We still need pptp and pptpd in epel to be packaged
+    # https://bugzilla.redhat.com/show_bug.cgi?id=1810542
+    if ! rpm -q --quiet NetworkManager-pptp; then
+        dnf -4 -y install https://kojipkgs.fedoraproject.org//packages/NetworkManager-pptp/1.2.8/1.el8.3/$(arch)/NetworkManager-pptp-1.2.8-1.el8.3.$(arch).rpm https://kojipkgs.fedoraproject.org//packages/pptpd/1.4.0/18.fc28/$(arch)/pptpd-1.4.0-18.fc28.$(arch).rpm
+    fi
+
+    if ! rpm -q --quiet NetworkManager-vpnc || ! rpm -q --quiet vpnc; then
+        dnf -4 -y install https://kojipkgs.fedoraproject.org//packages/vpnc/0.5.3/33.svn550.fc29/$(arch)/vpnc-0.5.3-33.svn550.fc29.$(arch).rpm https://kojipkgs.fedoraproject.org//packages/NetworkManager-vpnc/1.2.6/1.fc29/$(arch)/NetworkManager-vpnc-1.2.6-1.fc29.$(arch).rpm https://kojipkgs.fedoraproject.org//packages/vpnc-script/20171004/3.git6f87b0f.fc29/noarch/vpnc-script-20171004-3.git6f87b0f.fc29.noarch.rpm
+    fi
+
+    # strongswan
+    if ! rpm -q --quiet NetworkManager-strongswan || ! rpm -q --quiet strongswan; then
+        dnf -4 -y install https://kojipkgs.fedoraproject.org//packages/NetworkManager-strongswan/1.4.4/1.fc29/$(arch)/NetworkManager-strongswan-1.4.4-1.fc29.$(arch).rpm https://kojipkgs.fedoraproject.org//packages/strongswan/5.7.2/1.fc29/$(arch)/strongswan-5.7.2-1.fc29.$(arch).rpm https://kojipkgs.fedoraproject.org//packages/strongswan/5.7.2/1.fc29/$(arch)/strongswan-charon-nm-5.7.2-1.fc29.$(arch).rpm
+    fi
+
+    # Enable debug logs for wpa_supplicant
+    sed -i 's!OTHER_ARGS="-s"!OTHER_ARGS="-s -dddK"!' /etc/sysconfig/wpa_supplicant
+    systemctl restart wpa_supplicant
+
+    # Remove cloud-init dns
+    rm -rf /etc/NetworkManager/conf.d/99-cloud-init.conf
+
+    # dracut testing
+    dnf -4 -y install qemu-kvm lvm2 mdadm cryptsetup iscsi-initiator-utils nfs-utils radvd
+    if [[ $(uname -p) = "s390x" ]]; then
+        # perl-Config-Genral not installable on s390x and needed by scsi-target-utils
+        dnf -4 -y install http://download.eng.bos.redhat.com/brewroot/vol/rhel-8/packages/perl-Config-General/2.63/5.el8+7/noarch/perl-Config-General-2.63-5.el8+7.noarch.rpm
+    fi
+    dnf -4 -y install https://kojipkgs.fedoraproject.org//packages/scsi-target-utils/1.0.79/1.fc32/$(arch)/scsi-target-utils-1.0.79-1.fc32.$(arch).rpm
+
+    install_plugins_dnf
+}
+
 install_el8_packages () {
     # Make python3 default if it's not
     rm -rf /usr/bin/python
@@ -313,10 +393,10 @@ install_packages () {
             fi
         fi
         if grep -q -e 'Enterprise Linux .*release 9' -e 'CentOS Linux release 9' /etc/redhat-release; then
-            install_el8_packages
+            install_el9_packages
             if ! check_packages; then
                 sleep 20
-                install_el8_packages
+                install_el9_packages
             fi
             enable_abrt_el8
         fi
