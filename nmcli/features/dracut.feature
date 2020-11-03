@@ -8,7 +8,7 @@ Feature: NM: dracut
     # Scenario:
 
 
-    @rhelver+=8.2 @fedoraver-=0
+    @rhelver+=8.3 @fedoraver-=0
     @dracut @long @not_on_ppc64le
     @dracut_setup
     Scenario: NM - dracut - setup test environment
@@ -21,7 +21,7 @@ Feature: NM: dracut
 
 
     @rhbz1710935
-    @rhelver+=8.2 @fedoraver-=0
+    @rhelver+=8.3 @fedoraver-=0
     @dracut @long @not_on_ppc64le
     @dracut_NM_NFS_root_dhcp
     Scenario: NM - dracut - NM module - NFSv3 root=dhcp
@@ -42,7 +42,7 @@ Feature: NM: dracut
       | check  | nfs_server 192.168.50.1                                          |
 
 
-    @rhelver+=8.2 @fedoraver-=0
+    @rhelver+=8.3 @fedoraver-=0
     @dracut @long @not_on_ppc64le
     @dracut_NM_NFS_root_dhcp_ip_dhcp_neednet
     Scenario: NM - dracut - NM module - NFSv3 root=dhcp ip=dhcp neednet
@@ -63,7 +63,7 @@ Feature: NM: dracut
       | check  | nfs_server 192.168.50.1                                          |
 
 
-    @rhelver+=8.2 @fedoraver-=0
+    @rhelver+=8.3 @fedoraver-=0
     @dracut @long @not_on_ppc64le
     @dracut_NM_NFS_root_dhcp_ip_dhcp_peerdns0
     Scenario: NM - dracut - NM module - NFSv3 root=dhcp ip=dhcp rd.peerdns=0
@@ -87,7 +87,7 @@ Feature: NM: dracut
 
     @rhbz1872299
     @ver+=1.26
-    @rhelver+=8.2 @fedoraver-=0
+    @rhelver+=8.3 @fedoraver-=0
     @dracut @long @not_on_ppc64le
     @dracut_NM_NFS_root_dhcp_vendor_class
     Scenario: NM - dracut - NM module - NFSv3 root=nfs rd.net.dhcp.vendor-class
@@ -108,7 +108,7 @@ Feature: NM: dracut
       | check  | nfs_server 192.168.50.2                                                               |
 
 
-    @rhelver+=8.2 @fedoraver-=0
+    @rhelver+=8.3 @fedoraver-=0
     @ver+=1.26.0
     @dracut @long @not_on_ppc64le
     @dracut_NM_NFS_root_nfs_ip_dhcp_cloned_mac_mtu
@@ -134,7 +134,7 @@ Feature: NM: dracut
       | check  | nfs_server 192.168.50.1                                                               |
 
 
-    @rhelver+=8.2 @fedoraver-=0
+    @rhelver+=8.3 @fedoraver-=0
     @ver+=1.26.0
     @dracut @long @not_on_ppc64le
     @dracut_NM_NFS_root_nfs_ip_dhcp_rd_routes
@@ -161,7 +161,7 @@ Feature: NM: dracut
       | check  | nfs_server 192.168.50.1                                                                      |
 
 
-    @rhelver+=8.2 @fedoraver-=0
+    @rhelver+=8.3 @fedoraver-=0
     @dracut @long @not_on_ppc64le
     @dracut_NM_NFS_root_nfs_ip_manual_dhcp
     Scenario: NM - dracut - NM module - NFSv3 root=nfs ip=IP:::NETMASK::MAC:dhcp
@@ -184,7 +184,7 @@ Feature: NM: dracut
       | check  | nfs_server 192.168.50.1                                                               |
 
 
-    @rhelver+=8.2 @fedoraver-=0
+    @rhelver+=8.3 @fedoraver-=0
     @ver-=1.28
     @dracut @long @not_on_ppc64le
     @dracut_NM_NFS_root_nfs_ip_manual
@@ -208,7 +208,7 @@ Feature: NM: dracut
 
 
     @rhbz1883958
-    @rhelver+=8.2 @fedoraver-=0
+    @rhelver+=8.3 @fedoraver-=0
     @ver+=1.29
     @dracut @long @not_on_ppc64le
     @dracut_NM_NFS_root_nfs_ip_manual
@@ -231,7 +231,7 @@ Feature: NM: dracut
       | check  | nfs_server 192.168.50.1                             |
 
 
-    @rhelver+=8.2 @fedoraver-=0
+    @rhelver+=8.3 @fedoraver-=0
     @ver+=1.26.0
     @dracut @long @not_on_ppc64le
     @dracut_NM_NFS_root_nfs_ip_manual_gateway_hostname_mac
@@ -257,7 +257,7 @@ Feature: NM: dracut
       | check  | nfs_server 192.168.50.1                                                                |
 
 
-    @rhelver+=8.2 @fedoraver-=0
+    @rhelver+=8.3 @fedoraver-=0
     @ver+=1.26.0
     @dracut @long @not_on_ppc64le
     @dracut_NM_NFS_root_nfs_ip_manual_cloned_mac_mtu
@@ -282,7 +282,7 @@ Feature: NM: dracut
       | check  | nfs_server 192.168.50.1                                                               |
 
 
-    @rhelver+=8.2 @fedoraver-=0
+    @rhelver+=8.3 @fedoraver-=0
     @ver+=1.26.0
     @dracut @long @not_on_ppc64le
     @dracut_NM_NFS_root_nfs_ip_manual_dns1
@@ -306,7 +306,7 @@ Feature: NM: dracut
       | check  | nfs_server 192.168.50.1                                                               |
 
 
-    @rhelver+=8.2 @fedoraver-=0
+    @rhelver+=8.3 @fedoraver-=0
     @ver+=1.26.0
     @dracut @long @not_on_ppc64le
     @dracut_NM_NFS_root_nfs_ip_manual_dns2
@@ -330,7 +330,7 @@ Feature: NM: dracut
       | check  | nfs_server 192.168.50.1                                                               |
 
 
-    @rhelver+=8.2 @fedoraver-=0
+    @rhelver+=8.3 @fedoraver-=0
     @ver+=1.26.0
     @dracut @long @not_on_ppc64le
     @dracut_NM_NFS_root_nfs_ip_manual_dns3
@@ -354,7 +354,7 @@ Feature: NM: dracut
       | check  | nfs_server 192.168.50.1                                                                    |
 
 
-    @rhelver+=8.2 @fedoraver-=0
+    @rhelver+=8.3 @fedoraver-=0
     @ver+=1.26.0
     @dracut @long @not_on_ppc64le
     @dracut_NM_NFS_root_nfs_ip_manual_custom_ifname
@@ -378,7 +378,7 @@ Feature: NM: dracut
 
 
     @rhbz1854323
-    @rhelver+=8.2 @fedoraver-=0
+    @rhelver+=8.3 @fedoraver-=0
     @dracut @long @not_on_ppc64le
     @dracut_NM_NFS_root_nfs_ip_auto6
     Scenario: NM - dracut - NM module - NFSv3 root=nfs ip=auto6
@@ -398,7 +398,7 @@ Feature: NM: dracut
 
 
     @rhbz1854323
-    @rhelver+=8.2 @fedoraver-=0
+    @rhelver+=8.3 @fedoraver-=0
     @dracut @long @not_on_ppc64le
     @dracut_NM_NFS_root_nfs_ip_dhcp6
     Scenario: NM - dracut - NM module - NFSv3 root=nfs ip=dhcp6
@@ -417,7 +417,7 @@ Feature: NM: dracut
       | check  | nfs_server [deaf:beef::1]                                   |
 
 
-    @rhelver+=8.2 @fedoraver-=0
+    @rhelver+=8.3 @fedoraver-=0
     @ver+=1.26.0
     @dracut @long @not_on_ppc64le
     @dracut_NM_NFS_root_nfs_ip6_manual_gateway_hostname_mac
@@ -443,7 +443,7 @@ Feature: NM: dracut
 
     @rhbz1840989
     @ver+=1.26
-    @rhelver+=8.2 @fedoraver-=0
+    @rhelver+=8.3 @fedoraver-=0
     @dracut @long @not_on_ppc64le
     @dracut_NM_NFS_root_nfs_ipv6_disable
     Scenario: NM - dracut - NM module - NFSv3 root=nfs ipv6.disable
@@ -471,7 +471,7 @@ Feature: NM: dracut
     #########
 
 
-    @rhelver+=8.2 @fedoraver-=0
+    @rhelver+=8.3 @fedoraver-=0
     @dracut @long @not_on_ppc64le
     @dracut_NM_iSCSI_netroot_dhcp
     Scenario: NM - dracut - NM module - iSCSI netroot=dhcp
@@ -494,7 +494,7 @@ Feature: NM: dracut
       | check  | mount_root_type ext3                                              |
 
 
-    @rhelver+=8.2 @fedoraver-=0
+    @rhelver+=8.3 @fedoraver-=0
     @dracut @long @not_on_ppc64le
     @dracut_NM_iSCSI_netroot_dhcp_ip_dhcp
     Scenario: NM - dracut - NM module - iSCSI netroot=dhcp ip=eth0:dhcp
@@ -520,7 +520,7 @@ Feature: NM: dracut
       | check  | mount_root_type ext3                                   |
 
 
-    @rhelver+=8.2 @fedoraver-=0
+    @rhelver+=8.3 @fedoraver-=0
     @dracut @long @x86_64_only
     @dracut_NM_iSCSI_ibft_table
     Scenario: NM - dracut - NM module - iSCSI ibft.table
@@ -546,7 +546,7 @@ Feature: NM: dracut
       | check  | mount_root_type ext3                                               |
 
 
-    @rhelver+=8.2 @fedoraver-=0
+    @rhelver+=8.3 @fedoraver-=0
     @dracut @long @not_on_ppc64le
     @dracut_NM_iSCSI_multiple_targets
     Scenario: NM - dracut - NM module - iSCSI 2 targets in RAID0
@@ -588,7 +588,7 @@ Feature: NM: dracut
 
 
     @rhbz1627820
-    @rhelver+=8.2 @fedoraver-=0
+    @rhelver+=8.3 @fedoraver-=0
     @dracut @long @not_on_ppc64le
     @dracut_NM_bridge_eth0
     Scenario: NM - dracut - NM module - bridge over eth0
@@ -609,7 +609,7 @@ Feature: NM: dracut
       | check  | nfs_server 192.168.50.1                             |
 
 
-    @rhelver+=8.2 @fedoraver-=0
+    @rhelver+=8.3 @fedoraver-=0
     @dracut @long @not_on_ppc64le
     @dracut_NM_bridge_custom_name_2_ifaces
     Scenario: NM - dracut - NM module - custom bridge name over 2 ifaces
@@ -640,7 +640,7 @@ Feature: NM: dracut
     #############
 
 
-    @rhelver+=8.2 @fedoraver-=0
+    @rhelver+=8.3 @fedoraver-=0
     @dracut @long @not_on_ppc64le
     @dracut_NM_bond_over_2_ifaces
     Scenario: NM - dracut - NM module - bond over 2 ifaces
@@ -666,7 +666,7 @@ Feature: NM: dracut
 
     # dracut bug: https://bugzilla.redhat.com/show_bug.cgi?id=1879014
     #@rhbz1879014
-    #@rhelver+=8.2 @fedoraver-=0
+    #@rhelver+=8.3 @fedoraver-=0
     #@dracut @long @not_on_ppc64le
     #@dracut_NM_team_over_2_ifaces
     #Scenario: NM - dracut - NM module - team over 2 ifaces
@@ -695,7 +695,7 @@ Feature: NM: dracut
     ########
 
 
-    @rhelver+=8.2 @fedoraver-=0
+    @rhelver+=8.3 @fedoraver-=0
     @dracut @long @not_on_ppc64le
     @dracut_NM_vlan_over_nic
     Scenario: NM - dracut - NM module - VLAN over single NIC
@@ -715,7 +715,7 @@ Feature: NM: dracut
       | check  | nfs_server 192.168.55.5                              |
 
 
-    @rhelver+=8.2 @fedoraver-=0
+    @rhelver+=8.3 @fedoraver-=0
     @ver-=1.26
     @dracut @long @not_on_ppc64le
     @dracut_NM_vlan_over_everything
@@ -798,7 +798,7 @@ Feature: NM: dracut
 
 
     @rhbz1879003
-    @rhelver+=8.2 @fedoraver-=0
+    @rhelver+=8.3 @fedoraver-=0
     @ver+=1.27
     @dracut @long @not_on_ppc64le
     @dracut_NM_vlan_over_everything
@@ -906,7 +906,7 @@ Feature: NM: dracut
     ##########
 
 
-    @rhelver+=8.2 @fedoraver-=0
+    @rhelver+=8.3 @fedoraver-=0
     @dracut @long @x86_64_only
     @dracut_legacy_iSCSI_ibft_table
     Scenario: NM - dracut - legacy module - iSCSI ibft table
@@ -940,7 +940,7 @@ Feature: NM: dracut
     ############
 
 
-    @rhelver+=8.2 @fedoraver-=0
+    @rhelver+=8.3 @fedoraver-=0
     @dracut_clean
     Scenario: NM - dracut tests cleanup and log collection
     * Execute "true"
