@@ -312,6 +312,14 @@ install_packages () {
                 install_fedora_packages
             fi
         fi
+        if grep -q -e 'Enterprise Linux .*release 9' -e 'CentOS Linux release 9' /etc/redhat-release; then
+            install_el8_packages
+            if ! check_packages; then
+                sleep 20
+                install_el8_packages
+            fi
+            enable_abrt_el8
+        fi
         if grep -q -e 'Enterprise Linux .*release 8' -e 'CentOS Linux release 8' /etc/redhat-release; then
             install_el8_packages
             if ! check_packages; then
