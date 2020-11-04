@@ -183,8 +183,12 @@ install_el9_packages () {
     dnf -4 -y install http://download.eng.bos.redhat.com/brewroot/vol/rhel-9/packages/kernel/$VER/$REL/$(arch)/kernel-modules-internal-$VER-$REL.$(arch).rpm
 
     if ! dnf -y install openvswitch; then
-        dnf -y install https://kojipkgs.fedoraproject.org//packages/openvswitch/2.14.0/2.eln103/$(arch)/network-scripts-openvswitch-2.14.0-2.eln103.$(arch).rpm https://kojipkgs.fedoraproject.org//packages/openvswitch/2.14.0/2.eln103/$(arch)/openvswitch-ipsec-2.14.0-2.eln103.$(arch).rpm https://kojipkgs.fedoraproject.org//packages/openvswitch/2.14.0/2.eln103/$(arch)/python3-openvswitch-2.14.0-2.eln103.$(arch).rpm https://kojipkgs.fedoraproject.org//packages/openvswitch/2.14.0/2.eln103/$(arch)/openvswitch-2.14.0-2.eln103.$(arch).rpm
+        dnf -y install https://kojipkgs.fedoraproject.org//packages/openvswitch/2.14.0/2.eln103/$(arch)/openvswitch-ipsec-2.14.0-2.eln103.$(arch).rpm https://kojipkgs.fedoraproject.org//packages/openvswitch/2.14.0/2.eln103/$(arch)/python3-openvswitch-2.14.0-2.eln103.$(arch).rpm https://kojipkgs.fedoraproject.org//packages/openvswitch/2.14.0/2.eln103/$(arch)/openvswitch-2.14.0-2.eln103.$(arch).rpm
     fi
+
+    # Install 1894495 workaround
+    dnf -y install https://vbenes.fedorapeople.org/NM/ELN/rhbz1894495/glib2-2.67.0-1.fix1.el9.$(arch).rpm
+
     # # Add OVS repo and install OVS
     # if ! grep -q -e 'CentOS Linux release 8' /etc/redhat-release; then
     #     mv -f  tmp/ovs-rhel8.repo /etc/yum.repos.d/ovs.repo
