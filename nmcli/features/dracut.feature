@@ -377,6 +377,31 @@ Feature: NM: dracut
       | check  | nfs_server 192.168.50.1                                                              |
 
 
+    @rhbz1883958
+    @ver+=1.29
+    @rhelver+=8.3 @fedoraver-=0
+    @dracut @long @not_on_ppc64le
+    @dracut_NM_NFS_root_nfs_ip_off
+    Scenario: NM - dracut - NM module - NFSv3 root=nfs ip=off
+    * Run dracut test
+      | Param  | Value                                                                                 |
+      | kernel | root=nfs:192.168.50.1:/client ro ip=eth1:off                                          |
+      | kernel | ip=192.168.50.201:::255.255.255.0::eth0:none                                          |
+      | qemu   | -device virtio-net,netdev=nfs,mac=52:54:00:12:34:00                                   |
+      | qemu   | -netdev tap,id=nfs,script=$PWD/qemu-ifup/nfs                                          |
+      | qemu   | -device virtio-net,netdev=vlan33_0,mac=52:54:00:12:34:01                              |
+      | qemu   | -netdev tap,id=vlan33_0,script=$PWD/qemu-ifup/vlan33_0                                |
+      | check  | nmcli_con_active eth0 eth0                                                            |
+      | check  | nmcli_con_active eth1 eth1                                                            |
+      | check  | nmcli_con_prop eth1 ipv4.method disabled                                              |
+      | check  | nmcli_con_prop eth1 ipv6.method disabled                                              |
+      | check  | nmcli_con_num 2                                                                       |
+      | check  | ip_route_unique "192.168.50.0/24 dev eth0 proto kernel scope link src 192.168.50.201" |
+      | check  | ip4_forever 192.168.50.201 eth0                                                       |
+      | check  | link_no_ip4 eth1                                                                      |
+      | check  | nfs_server 192.168.50.1                                                               |
+
+
     @rhbz1854323
     @rhelver+=8.3 @fedoraver-=0
     @dracut @long @not_on_ppc64le

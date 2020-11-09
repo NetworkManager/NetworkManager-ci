@@ -1202,6 +1202,8 @@ testmapper:
         feature: dracut
     - dracut_NM_NFS_root_nfs_ip_manual_custom_ifname:
         feature: dracut
+    - dracut_NM_NFS_root_nfs_ip_off:
+        feature: dracut
     - dracut_NM_NFS_root_nfs_ipv6_disable:
         feature: dracut
     - dracut_NM_NFS_root_nfs_ip_auto6:
