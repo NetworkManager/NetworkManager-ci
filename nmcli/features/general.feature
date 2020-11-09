@@ -2255,3 +2255,11 @@ Feature: nmcli - general
     * Note the output of "nmcli |grep route4 |wc -l" as value "nmcli4_route"
     Then Check noted values "ip6_route" and "nmcli6_route" are the same
     Then Check noted values "ip4_route" and "nmcli4_route" are the same
+
+
+
+    @rhbz1882380
+    @ver+=1.27 @rhelver+=8
+    @nm_device_get_applied_connection_user_allowed
+    Scenario: NM - general - NM Device get applied connection can be used by user
+    Then "not authorized" is not visible with command "sudo -u test busctl call org.freedesktop.NetworkManager $(nmcli -g DEVICE,DBUS-PATH device | sed -n 's/^eth0://p') org.freedesktop.NetworkManager.Device GetAppliedConnection u 0"

@@ -1566,6 +1566,8 @@ testmapper:
         feature: general
     - nmcli_shows_correct_routes:
         feature: general
+    - nm_device_get_applied_connection_user_allowed:
+        feature: general
     - policy_based_routing_doc_procedure:
         feature: doc_procedures
         tags: gate
