@@ -2263,3 +2263,13 @@ Feature: nmcli - general
     @nm_device_get_applied_connection_user_allowed
     Scenario: NM - general - NM Device get applied connection can be used by user
     Then "not authorized" is not visible with command "sudo -u test busctl call org.freedesktop.NetworkManager $(nmcli -g DEVICE,DBUS-PATH device | sed -n 's/^eth0://p') org.freedesktop.NetworkManager.Device GetAppliedConnection u 0"
+
+
+    @rhbz1890634
+    @ver+=1.26
+    @dummy @con_general_remove
+    @user_cannot_reapply_roots_connection
+    Scenario: NM - general - user cannot reapply root's connection
+    * Add a new connection of type "dummy" and options "ifname dummy0 con-name con_general ipv4.method manual ipv4.addresses 1.2.3.4/24 connection.permissions 'user:root'"
+    * Bring up connection "con_general"
+    Then "no permission" is visible with command "sudo -u test nmcli d reapply dummy0"
