@@ -2246,9 +2246,13 @@ Feature: nmcli - general
 
 
     @rhbz1868982
+    @eth0
     @ver+=1.25 @rhelver+=8
     @nmcli_shows_correct_routes
     Scenario: NM - general - nmclic shows correct routes
+    * Bring "up" connection "testeth0"
+    When "default" is visible with command "ip r"
+    When "default" is visible with command "ip -6 r"
     * Note the output of "ip -6 r |wc -l" as value "ip6_route"
     * Note the output of "nmcli |grep route6 |wc -l" as value "nmcli6_route"
     * Note the output of "ip r |wc -l" as value "ip4_route"
