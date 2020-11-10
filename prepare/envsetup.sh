@@ -229,7 +229,7 @@ install_el8_packages () {
     dnf -y -4 update http://download.eng.bos.redhat.com/brewroot/vol/rhel-8/packages/libteam/1.31/2.el8/$(arch)/libteam-1.31-2.el8.$(arch).rpm http://download.eng.bos.redhat.com/brewroot/vol/rhel-8/packages/libteam/1.31/2.el8/$(arch)/libteam-devel-1.31-2.el8.$(arch).rpm http://download.eng.bos.redhat.com/brewroot/vol/rhel-8/packages/libteam/1.31/2.el8/$(arch)/teamd-1.31-2.el8.$(arch).rpm http://download.eng.bos.redhat.com/brewroot/vol/rhel-8/packages/libteam/1.31/2.el8/$(arch)/teamd-devel-1.31-2.el8.$(arch).rpm http://download.eng.bos.redhat.com/brewroot/vol/rhel-8/packages/libteam/1.31/2.el8/$(arch)/python3-libteam-1.31-2.el8.$(arch).rpm
 
     # dracut testing
-    dnf -4 -y install qemu-kvm lvm2 mdadm cryptsetup iscsi-initiator-utils nfs-utils radvd
+    dnf -4 -y install qemu-kvm lvm2 mdadm cryptsetup iscsi-initiator-utils nfs-utils radvd gdb
     if [[ $(uname -p) = "s390x" ]]; then
         # perl-Config-Genral not installable on s390x and needed by scsi-target-utils
         dnf -4 -y install http://download.eng.bos.redhat.com/brewroot/vol/rhel-8/packages/perl-Config-General/2.63/5.el8+7/noarch/perl-Config-General-2.63-5.el8+7.noarch.rpm
