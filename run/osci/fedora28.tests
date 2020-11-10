@@ -9,7 +9,6 @@ vlan_over_no_L3_bond_restart_persistence
 bond_set_miimon_values
 bond_options_new_arp_values
 bond_remove_all_slaves
-bridge_add_custom_one
 bridge_dhcp_config_with_multiple_ethernet_ports
 bridge_remove_slave
 bridge_delete_connection_with_device
