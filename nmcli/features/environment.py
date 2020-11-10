@@ -1091,6 +1091,16 @@ def before_scenario(context, scenario):
                     sys.exit(77)
                 setup_hostapd_wireless()
 
+            if 'simwifi_ap' in scenario.tags:
+                print ("---------------------------")
+                arch = check_output("uname -p", shell=True).decode('utf-8', 'ignore').strip()
+                if arch != "x86_64":
+                    sys.exit(77)
+                call("modprobe -r mac80211_hwsim", shell=True)
+                call("modprobe mac80211_hwsim", shell=True)
+                call("systemctl restart wpa_supplicant", shell=True)
+                call("systemctl restart NetworkManager", shell=True)
+
             if 'simwifi_p2p' in scenario.tags:
                 print ("---------------------------")
                 print ("* setting p2p test bed")
@@ -2443,6 +2453,16 @@ def after_scenario(context, scenario):
                 call("rm -rf /etc/NetworkManager/conf.d/99-wifi.conf", shell=True)
 
                 restart_NM_service()
+
+            if 'simwifi_ap' in scenario.tags:
+                print ("---------------------------")
+                print ("deleting wifi AP connections")
+                call("nmcli con del wifi-ap wifi-client br0 br0-slave1 br0-slave2", shell=True)
+                call("ip link delete br0", shell=True)
+                print ("unload kernel module")
+                call("modprobe -r mac80211_hwsim", shell=True)
+                call("systemctl restart wpa_supplicant", shell=True)
+                call("systemctl restart NetworkManager", shell=True)
 
             if 'dracut' in scenario.tags:
                 print("---------------------------")

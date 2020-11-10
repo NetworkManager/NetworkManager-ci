@@ -1962,9 +1962,15 @@ testmapper:
         feature: wifi_hwsim
     - wifi_dbus_bitrate_property_name:
         feature: wifi_hwsim
+    - simwifi_do_not_block_autoconnect:
+        feature: wifi_hwsim
     - simwifi_teardown:
         feature: wifi_hwsim
         tags: gate
+    - simwifi_ap_wpa_psk_method_shared:
+        feature: wifi_hwsim
+    - simwifi_ap_in_bridge_wpa_psk_method_manual:
+        feature: wifi_hwsim
     - gsm_sim_create_assisted_connection:
         feature: gsm_sim
     - gsm_sim_create_default_connection:

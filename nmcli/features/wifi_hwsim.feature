@@ -259,6 +259,21 @@ Feature: nmcli - wifi
     Then Finish "echo secret123 | nmcli dev wifi connect wpa3 --ask"
 
 
+    @rhbz1781253
+    @ver+=1.25
+    @simwifi @simwifi_wpa2 @attach_hostapd_log @attach_wpa_supplicant_log
+    @simwifi_do_not_block_autoconnect
+    Scenario: nmcli - simwifi - do not block autoconnect
+    Given "wpa2-eap" is visible with command "nmcli -f SSID device wifi list" in "90" seconds
+    * Add a new connection of type "wifi" and options "ifname wlan0 con-name wifi ssid wpa2-eap 802-11-wireless-security.key-mgmt wpa-psk 802-11-wireless-security.psk Secret123"
+    * Execute "sleep 1"
+    Then Bring up connection "wifi" ignoring error
+    And "GENERAL.STATE:activated" is not visible with command "nmcli -f GENERAL.STATE -t connection show id wifi"
+    * Modify connection "wifi" changing options "802-11-wireless-security.psk secret123"
+    * Reboot
+    And "GENERAL.STATE:activated" is visible with command "nmcli -f GENERAL.STATE -t connection show id wifi" in "45" seconds
+
+
     @simwifi_teardown
     Scenario: teardown wifi setup
     * Execute "echo 'this is skipped'"
@@ -281,16 +296,27 @@ Feature: nmcli - wifi
     Then "activated" is visible with command "nmcli con show wifi-p2p" in "120" seconds
 
 
-    @rhbz1781253
-    @ver+=1.25
-    @simwifi @simwifi_wpa2 @attach_hostapd_log @attach_wpa_supplicant_log
-    @simwifi_do_not_block_autoconnect
-    Scenario: nmcli - simwifi - do not block autoconnect
-    Given "wpa2-eap" is visible with command "nmcli -f SSID device wifi list" in "90" seconds
-    * Add a new connection of type "wifi" and options "ifname wlan0 con-name wifi ssid wpa2-eap 802-11-wireless-security.key-mgmt wpa-psk 802-11-wireless-security.psk Secret123"
-    * Execute "sleep 1"
-    Then Bring up connection "wifi" ignoring error
-    And "GENERAL.STATE:activated" is not visible with command "nmcli -f GENERAL.STATE -t connection show id wifi"
-    * Modify connection "wifi" changing options "802-11-wireless-security.psk secret123"
-    * Reboot
-    And "GENERAL.STATE:activated" is visible with command "nmcli -f GENERAL.STATE -t connection show id wifi" in "45" seconds
+    @rhelver+=8 @fedoraver+=31
+    @simwifi_ap
+    @simwifi_ap_wpa_psk_method_shared
+    Scenario: nmcli - simwifi - AP - connect to NM AP with WPA2 psk security and method shared
+    * Add a new connection of type "wifi" and options "ifname wlan1 con-name wifi-ap ssid AP_test 802-11-wireless-security.key-mgmt wpa-psk 802-11-wireless-security.psk Secret123 mode ap ipv4.method shared"
+    * Bring "up" connection "wifi-ap"
+    When "AP_test" is visible with command "nmcli dev wifi list"
+    * Add a new connection of type "wifi" and options "ifname wlan0 con-name wifi-client ssid AP_test 802-11-wireless-security.key-mgmt wpa-psk 802-11-wireless-security.psk Secret123 mode infrastructure"
+    Then Bring "up" connection "wifi-client"
+
+
+    @rhbz1888051
+    @ver+=1.29 @rhelver+=8.4 @fedoraver+=33
+    @simwifi_ap @teardown_testveth
+    @simwifi_ap_in_bridge_wpa_psk_method_manual
+    Scenario: nmcli - simwifi - AP - connect to NM AP with WPA2 psk security and method shared
+    * Prepare simulated test "testW" device without dhcp
+    * Add a new connection of type "bridge" and options "con-name br0 ifname br0 connection.autoconnect true ipv4.method manual ipv4.addresses 192.168.14.1/24"
+    * Add a new connection of type "ethernet" and options "con-name br0-slave1 ifname testW"
+    * Add a new connection of type "wifi" and options "con-name br0-slave2 master br0 ifname wlan1 ssid AP_test 802-11-wireless-security.key-mgmt wpa-psk 802-11-wireless-security.psk Secret123 mode ap"
+    * Bring "up" connection "br0"
+    When "AP_test" is visible with command "nmcli dev wifi list" in "5" seconds
+    * Add a new connection of type "wifi" and options "ifname wlan0 con-name wifi-client ssid AP_test 802-11-wireless-security.key-mgmt wpa-psk 802-11-wireless-security.psk Secret123 mode infrastructure ipv4.method manual ipv4.addresses 192.168.14.2/24"
+    Then Bring "up" connection "wifi-client"
