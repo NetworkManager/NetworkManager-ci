@@ -347,8 +347,8 @@ EOF
      # set core_pattern at the very beginning
      inst_hook cmdline 00 ./conf/core_pattern_setup.sh
      # add check to every dracut hook
-     inst_hook initqueue/pre-udev 99 ./conf/check_core_dumps.sh
-     inst_hook initqueue/pre-trigger 99 ./conf/check_core_dumps.sh
+     inst_hook pre-udev 99 ./conf/check_core_dumps.sh
+     inst_hook pre-trigger 99 ./conf/check_core_dumps.sh
      inst_hook initqueue/settled 99 ./conf/check_core_dumps.sh
      inst_hook initqueue/timeout 99 ./conf/check_core_dumps.sh
      inst_hook initqueue/online 99 ./conf/check_core_dumps.sh
@@ -358,7 +358,7 @@ EOF
      inst_hook pre-pivot 99 ./conf/check_core_dumps.sh
      inst_hook cleanup 99 ./conf/check_core_dumps.sh
      inst_simple ./conf/99-default.link /etc/systemd/network/99-default.link
-  )
+  ) || exit 1
 
   # Make NFS client's dracut image using NM module
   dracut -i $TESTDIR/overlay-client / \
@@ -366,7 +366,7 @@ EOF
          -a "debug network-manager ifcfg" \
          -d "8021q ipvlan macvlan bonding af_packet piix ext3 ide-gd_mod ata_piix sd_mod e1000 nfs sunrpc" \
          --no-hostonly-cmdline -N --no-compress \
-         -f $TESTDIR/initramfs.client.NM $KVERSION
+         -f $TESTDIR/initramfs.client.NM $KVERSION || exit 1
 
   # Make NFS client's dracut image using legacy network module
   dracut -i $TESTDIR/overlay-client / \
@@ -374,7 +374,7 @@ EOF
          -a "debug network-legacy ifcfg" \
          -d "8021q ipvlan macvlan bonding af_packet piix ext3 ide-gd_mod ata_piix sd_mod e1000 nfs sunrpc" \
          --no-hostonly-cmdline -N --no-compress \
-         -f $TESTDIR/initramfs.client.legacy $KVERSION
+         -f $TESTDIR/initramfs.client.legacy $KVERSION || exit 1
 
   rm -rf -- $TESTDIR/overlay-client
 

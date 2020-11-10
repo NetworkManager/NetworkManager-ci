@@ -12,7 +12,7 @@ copy_dumps() {
     poweroff -f
 }
 
-echo "Checking for coredumps" 1>&2
+echo "Checking for coredumps, core_pattern:" 1>&2
 cat /proc/sys/kernel/core_pattern 1>&2
 
 for dump in /tmp/dumps/dump_* ; do

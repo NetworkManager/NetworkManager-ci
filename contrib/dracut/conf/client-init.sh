@@ -12,9 +12,6 @@ echo BOOT | dd status=none oflag=direct,dsync of=${DEV_STATE}
 
 /core_pattern_setup
 
-lsblk
-ls -lA /dev/disk/by-uuid/
-
 # load check library
 mkdir -p /check_lib
 mount ${DEV_CHECK} /check_lib
