@@ -1,18 +1,26 @@
 #!/bin/bash
 export PATH=/sbin:/bin:/usr/sbin:/usr/bin
 
-if [ $(uname -p) == "x86_64" ]; then
-  DEV=/dev/sd
-else
-  DEV=/dev/vd
-fi
+UUID_STATE=a32d3ed2-225f-11eb-bf6a-525400c7ed04
+UUID_CHECK=a467c808-225f-11eb-96df-525400c7ed04
+
+DEV_STATE=/dev/disk/by-uuid/$UUID_STATE
+DEV_CHECK=/dev/disk/by-uuid/$UUID_CHECK
 
 # boot succeeded, so try to attach logs
-echo BOOT | dd oflag=direct,dsync of=${DEV}a
+echo BOOT | dd status=none oflag=direct,dsync of=${DEV_STATE}
+
+/core_pattern_setup
+
+lsblk
+ls -lA /dev/disk/by-uuid/
 
 # load check library
-dd if=${DEV}b of=/check.sh
-source /check.sh || poweroff -f  # if source fails, we probably do not have `die`
+mkdir -p /check_lib
+mount ${DEV_CHECK} /check_lib
+for script in /check_lib/*.sh; do
+  source "$script" || ( echo "$script failed to load"; poweroff -f )
+done
 
 mount_list
 
@@ -52,8 +60,10 @@ nmcli_list
 echo "== checks =="
 client_check || die "client_check did not exit with 0"
 
+/check_core_dumps
+
 # client_check should "die" if failed
-echo PASS | dd oflag=direct,dsync of=${DEV}a
+echo PASS | dd status=none oflag=direct,dsync of=${DEV_STATE}
 
 # cleanup after succes
 clean_root

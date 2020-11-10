@@ -2,6 +2,13 @@
 
 TESTDIR=/tmp/dracut_test
 
+UUID_STATE=a32d3ed2-225f-11eb-bf6a-525400c7ed04
+UUID_CHECK=a467c808-225f-11eb-96df-525400c7ed04
+UUID_DUMPS=a6673314-225f-11eb-a9a2-525400c7ed04
+DEV_STATE=/dev/disk/by-uuid/$UUID_STATE
+DEV_CHECK=/dev/disk/by-uuid/$UUID_CHECK
+DEV_DUMPS=/dev/disk/by-uuid/$UUID_DUMPS
+
 test_setup() {
   # Exit if setup is already done
   [ -f /tmp/dracut_setup_done ] && return 0
@@ -26,13 +33,15 @@ test_setup() {
 
       inst_multiple sh shutdown poweroff stty cat ps ln ip dd mount dmesg \
                     mkdir cp ping grep wc awk setsid ls find less tee \
-                    sync rm sed time uname
+                    sync rm sed time uname lsblk df free cat ps ln ip umount \
+                    strace head tail setsid reset
+
       for _terminfodir in /lib/terminfo /etc/terminfo /usr/share/terminfo; do
           [ -f ${_terminfodir}/l/linux ] && break
       done
       inst_multiple -o ${_terminfodir}/l/linux
-      inst_simple /etc/os-release
-      inst_simple /etc/machine-id
+      inst /etc/os-release
+      inst /etc/machine-id
       (
           cd "$initdir"
           mkdir -p dev sys proc etc run
@@ -43,11 +52,11 @@ test_setup() {
           done
       )
 
-      instmods nfsd sunrpc ipv6 lockd af_packet bonding ipvlan macvlan 8021q
+      instmods nfsd ext3 sunrpc ipv6 lockd af_packet bonding ipvlan macvlan 8021q
 
-      inst /etc/nsswitch.conf /etc/nsswitch.conf
-      inst /etc/passwd /etc/passwd
-      inst /etc/group /etc/group
+      inst /etc/nsswitch.conf
+      inst /etc/passwd
+      inst /etc/group
 
       inst_libdir_file 'libnfsidmap_nsswitch.so*'
       inst_libdir_file 'libnfsidmap/*.so*'
@@ -67,6 +76,9 @@ test_setup() {
 
       rpm -ql libteam | xargs -r $DRACUT_INSTALL ${initdir:+-D "$initdir"} -o -a -l
       rpm -ql teamd | xargs -r $DRACUT_INSTALL ${initdir:+-D "$initdir"} -o -a -l
+
+      inst_simple ./conf/check_core_dumps.sh /check_core_dumps
+      inst_simple ./conf/core_pattern_setup.sh /core_pattern_setup
   )
 
   # install systemd in client
@@ -84,10 +96,6 @@ test_setup() {
 
       ln -sfn /run "$initdir/var/run"
       ln -sfn /run/lock "$initdir/var/lock"
-
-      inst_multiple sh df free ls shutdown poweroff stty cat ps ln ip \
-                    mount dmesg mkdir cp ping dd head tail grep \
-                    umount strace less setsid tree systemctl reset
 
       for _terminfodir in /lib/terminfo /etc/terminfo /usr/share/terminfo; do
           [ -f ${_terminfodir}/l/linux ] && break
@@ -226,7 +234,7 @@ EOF
       # install ld.so.conf* and run ldconfig
       cp -a /etc/ld.so.conf* $initdir/etc
       ldconfig -r "$initdir"
-      ddebug "Strip binaeries"
+      ddebug "Strip binaries"
       find "$initdir" -perm /0111 -type f | xargs -r strip --strip-unneeded | ddebug
 
       # copy depmod files
@@ -241,6 +249,8 @@ EOF
       # disable some services
       systemctl --root "$initdir" mask systemd-update-utmp
       systemctl --root "$initdir" mask systemd-tmpfiles-setup
+      # we we do not want core_pattern to be rewritten
+      systemctl --root "$initdir" mask systemd-coredump.socket
   )
 
   # install NetworkManager to client
@@ -270,6 +280,19 @@ EOF
   mkdir -p $TESTDIR/nfs/nfs3-5
   mkdir -p $TESTDIR/nfs/ip/192.168.50.101
   mkdir -p $TESTDIR/nfs/tftpboot/nfs4-5
+
+  dd if=/dev/zero of=$TESTDIR/client_state.img bs=1M count=5
+  dd if=/dev/zero of=$TESTDIR/client_check.img bs=1M count=20
+  dd if=/dev/zero of=$TESTDIR/client_dumps.img bs=1M count=100
+  mkfs.ext3 -U $UUID_STATE $TESTDIR/client_state.img
+  mkfs.ext3 -U $UUID_CHECK $TESTDIR/client_check.img
+  mkfs.ext3 -U $UUID_DUMPS $TESTDIR/client_dumps.img
+  losetup -f $TESTDIR/client_state.img
+  losetup -f $TESTDIR/client_check.img
+  losetup -f $TESTDIR/client_dumps.img
+  # do not make dir for client_state, as it is file
+  mkdir $TESTDIR/client_check
+  mkdir $TESTDIR/client_dumps
 
   # Create the blank file to use as a root filesystem
   dd if=/dev/zero of=$TESTDIR/root.ext3 bs=1M count=600
@@ -313,20 +336,32 @@ EOF
   KVERSION=${KVERSION-$(uname -r)}
 
   # client initramfs with NM module
-  mkdir $TESTDIR/overlay-client-NM
+  mkdir $TESTDIR/overlay-client
   (
-     export initdir=$TESTDIR/overlay-client-NM
+     export initdir=$TESTDIR/overlay-client
      . $basedir/dracut-init.sh
      inst /etc/machine-id
-     inst_multiple poweroff shutdown
+     inst_multiple poweroff shutdown mount umount mv mkdir
      inst_hook shutdown-emergency 000 ./conf/hard-off.sh
      inst_hook emergency 000 ./conf/hard-off.sh
-     inst_simple ./conf/99-idesymlinks.rules /etc/udev/rules.d/99-idesymlinks.rules
+     # set core_pattern at the very beginning
+     inst_hook cmdline 00 ./conf/core_pattern_setup.sh
+     # add check to every dracut hook
+     inst_hook initqueue/pre-udev 99 ./conf/check_core_dumps.sh
+     inst_hook initqueue/pre-trigger 99 ./conf/check_core_dumps.sh
+     inst_hook initqueue/settled 99 ./conf/check_core_dumps.sh
+     inst_hook initqueue/timeout 99 ./conf/check_core_dumps.sh
+     inst_hook initqueue/online 99 ./conf/check_core_dumps.sh
+     inst_hook initqueue/finished 99 ./conf/check_core_dumps.sh
+     inst_hook pre-mount 99 ./conf/check_core_dumps.sh
+     inst_hook mount 99 ./conf/check_core_dumps.sh
+     inst_hook pre-pivot 99 ./conf/check_core_dumps.sh
+     inst_hook cleanup 99 ./conf/check_core_dumps.sh
      inst_simple ./conf/99-default.link /etc/systemd/network/99-default.link
   )
 
   # Make NFS client's dracut image using NM module
-  dracut -i $TESTDIR/overlay-client-NM / \
+  dracut -i $TESTDIR/overlay-client / \
          -o "plymouth dash dmraid network-legacy" \
          -a "debug network-manager ifcfg" \
          -d "8021q ipvlan macvlan bonding af_packet piix ext3 ide-gd_mod ata_piix sd_mod e1000 nfs sunrpc" \
@@ -334,14 +369,14 @@ EOF
          -f $TESTDIR/initramfs.client.NM $KVERSION
 
   # Make NFS client's dracut image using legacy network module
-  dracut -i $TESTDIR/overlay-client-legacy / \
+  dracut -i $TESTDIR/overlay-client / \
          -o "plymouth dash dmraid network-manager" \
          -a "debug network-legacy ifcfg" \
          -d "8021q ipvlan macvlan bonding af_packet piix ext3 ide-gd_mod ata_piix sd_mod e1000 nfs sunrpc" \
          --no-hostonly-cmdline -N --no-compress \
          -f $TESTDIR/initramfs.client.legacy $KVERSION
 
-  rm -rf -- $TESTDIR/overlay-client-NM
+  rm -rf -- $TESTDIR/overlay-client
 
   if ! run_server; then
       echo "Failed to start server" 1>&2
@@ -356,7 +391,15 @@ EOF
 
 test_clean() {
   kill_server
-  for file in $TESTDIR/root.ext3 $TESTDIR/iscsidisk2.img $TESTDIR/iscsidisk3.img; do
+  umount $TESTDIR/client_check
+  for file in \
+    $TESTDIR/client_state.img \
+    $TESTDIR/client_check.img \
+    $TESTDIR/client_dumps.img \
+    $TESTDIR/root.ext3 \
+    $TESTDIR/iscsidisk2.img \
+    $TESTDIR/iscsidisk3.img
+  do
     loop="$(losetup -j $file)"
     loop=${loop%%:*}
     losetup -d $loop
@@ -521,19 +564,39 @@ network_clean() {
      nfs \
      iscsi0 \
      iscsi1 \
-     bond0 \
      bond0.13 \
-     bond1 \
+     bond0 \
      bond1.17 \
+     bond1 \
      bond0_0 \
      bond0_1 \
      bond1_0 \
      bond1_1 \
-     vlan \
      vlan.5 \
      vlan.9 \
-     vlan33_0 \
-     vlan33_1 \
+     vlan \
      vlan33_0.33 \
-     vlan33_1.33
+     vlan33_1.33 \
+     vlan33_0 \
+     vlan33_1
+
+  # delete bridges left by NM
+  ip link del nfs
+  ip link del iscsi0
+  ip link del iscsi1
+  ip link del bond0
+  ip link del bond0.13
+  ip link del bond1
+  ip link del bond1.17
+  ip link del bond0_0
+  ip link del bond0_1
+  ip link del bond1_0
+  ip link del bond1_1
+  ip link del vlan
+  ip link del vlan.5
+  ip link del vlan.9
+  ip link del vlan33_0
+  ip link del vlan33_1
+  ip link del vlan33_0.33
+  ip link del vlan33_1.33
 }

@@ -3,6 +3,7 @@ from __future__ import absolute_import, division, print_function, unicode_litera
 from behave import step
 import sys
 import os
+import base64
 import subprocess
 
 
@@ -17,8 +18,58 @@ def utf_only_open_read(file, mode='r'):
 def get_dhcpd_log(cursor):
     with open("/tmp/cursor", "w") as f:
         f.write(cursor)
-    subprocess.call("journalctl -all --no-pager %s | grep ' dhcpd\\[' > /tmp/journal-dhcpd.log" % cursor, shell=True)
+    subprocess.call(
+        "journalctl -all --no-pager %s | grep ' dhcpd\\[' > /tmp/journal-dhcpd.log" % cursor,
+        shell=True)
     return utf_only_open_read("/tmp/journal-dhcpd.log")
+
+
+def get_backtrace(filename):
+    proc = subprocess.run(
+        ["gdb", "-quiet"],
+        cwd="/tmp/dracut_test/client_dumps/",
+        stdout=subprocess.PIPE,
+        check=False,
+        encoding="utf-8",
+        input="core-file " + filename + "\nbacktrace")
+    return proc.stdout
+
+
+def get_dump(filename):
+    result = "data:application/octet-stream;base64,"
+    data_base64 = base64.b64encode(
+        open("/tmp/dracut_test/client_dumps/"+filename, "rb").read())
+    data_encoded = data_base64.decode("utf-8").replace("\n", "")
+    return result + data_encoded
+
+
+def check_core_dumps(context):
+    subprocess.call(
+        "cd contrib/dracut/; . ./setup.sh; "
+        "mount $DEV_DUMPS $TESTDIR/client_dumps; ",
+        shell=True)
+
+    backtraces = ""
+    dumps = []
+
+    for filename in os.listdir("/tmp/dracut_test/client_dumps/"):
+        if filename.startswith("dump_"):
+            backtraces += filename.replace("dump_", "", 1) + ":\n" \
+                + get_backtrace(filename) + "\n\n"
+            dumps.append((get_dump(filename), filename))
+
+    subprocess.call(
+        "cd contrib/dracut/; . ./setup.sh; "
+        "rm -f $TESTDIR/client_dumps/dump_*; "
+        "umount $DEV_DUMPS; ",
+        shell=True)
+
+    if backtraces:
+        context.embed("text/plain", backtraces, caption="CRASH_IN_INITRD_BACKTRACE")
+        context.embed("link", dumps, caption="CRASH_IN_INITRD_DUMP")
+        return False
+    else:
+        return True
 
 
 @step(u'Run dracut test')
@@ -59,24 +110,33 @@ def dracut_run(context):
         elif "ram" in row[0].lower():
             ram = row[1]
 
-    with open("/tmp/client-check.sh", "w") as f:
+    subprocess.call(
+        "cd contrib/dracut/; . ./setup.sh; "
+        "mount $DEV_CHECK $TESTDIR/client_check/; "
+        "rm -rf $TESTDIR/client_check/*; "
+        "cp ./check_lib/*.sh $TESTDIR/client_check/; ",
+        shell=True
+    )
+    with open("/tmp/dracut_test/client_check/client_check.sh", "w") as f:
         f.write("client_check() {\n" + checks + "}")
+    subprocess.call("cd contrib/dracut/; . ./setup.sh; umount $DEV_CHECK", shell=True)
 
     rc = subprocess.call(
         "cd contrib/dracut/; . ./setup.sh; "
-        "echo NONE > $TESTDIR/client.img; "
-        "cat check_lib/*.sh /tmp/client-check.sh > $TESTDIR/client_check.img; "
+        "echo NONE | dd status=none oflag=direct,dsync of=$DEV_STATE; "
         "RAM=%s timeout %s bash ./run-qemu "
-        "-drive format=raw,index=0,media=disk,file=$TESTDIR/client.img "
+        "-drive format=raw,index=0,media=disk,file=$TESTDIR/client_state.img "
         "-drive format=raw,index=1,media=disk,file=$TESTDIR/client_check.img "
+        "-drive format=raw,index=2,media=disk,file=$TESTDIR/client_dumps.img "
         "%s -append \"%s\" -initrd $TESTDIR/%s "
-        "> /tmp/dracut_boot.log 2>&1" % (ram, timeout, qemu_args, kernel_args, initrd), shell=True)
+        "> /tmp/dracut_boot.log 2>&1 ; rc=$?; "
+        "dd status=none if=$DEV_STATE of=$TESTDIR/client_state bs=1 count=5; "
+        "exit $rc" % (ram, timeout, qemu_args, kernel_args, initrd),
+        shell=True)
 
-    result = "NO_BOOT"
-    if os.path.isfile("/tmp/dracut_test/client.img"):
-        result = utf_only_open_read("/tmp/dracut_test/client.img")
+    result = utf_only_open_read("/tmp/dracut_test/client_state")
 
-    if "PASS" not in result and os.path.isfile("/tmp/dracut_boot.log"):
+    if not result.startswith("PASS") and os.path.isfile("/tmp/dracut_boot.log"):
         boot_log = utf_only_open_read("/tmp/dracut_boot.log")
         context.embed("text/plain", boot_log, "DRACUT_BOOT")
 
@@ -104,6 +164,8 @@ def dracut_run(context):
                     context.embed("text/plain", msg, log)
         if proc.stdout is not None:
             context.embed("text/plain", proc.stdout, "DRACUT_LOG_COLLECTOR")
+
+    assert check_core_dumps(context), "Crash in initrd"
 
     assert rc == 0, f"Test run FAILED, VM returncode: {rc}, VM result: {result}"
     assert "PASS" in result, f"Test FAILED, VM result: {result}"
