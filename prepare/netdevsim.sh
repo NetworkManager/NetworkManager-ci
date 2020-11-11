@@ -2,11 +2,8 @@
 
 function setup () {
     MAJOR="$(uname -r |awk -F '-' '{print $1}')"
-    if test $(uname -r |awk -F '-' '{print $2}'|awk -F '.' '{print $3}') == $(arch); then
-        MINOR="$(uname -r |awk -F '-' '{print $2}'|awk -F '.' '{print  $1"."$2}')"
-    else
-        MINOR="$(uname -r |awk -F '-' '{print $2}'|awk -F '.' '{print  $1"."$2"."$3}')"
-    fi
+    $arch=$arch
+    MINOR="$(uname -r |awk -F '-' '{print $2}'| rev| cut -d. -f2-  |rev)"
     LINUX=linux-$MAJOR-$MINOR
     # We need this patched netdevsim device to support ring/coal ethtool options
     PATCH="0001-netdevsim-add-mock-support-for-coalescing-and-ring-o-1.patch"
@@ -47,6 +44,7 @@ function setup () {
 
     # Remove module in case netdevsim is loaded
     if lsmod |grep netdevsim > /dev/null; then
+        echo "** removing previous kernel module"
         modprobe -r netdevsim
     fi
 
@@ -54,6 +52,7 @@ function setup () {
     cd /tmp/$LINUX/$DRIVER
 
     # If we are able to insert module create devices and exit 0
+    echo "** installing the patched one"
     if insmod netdevsim.ko; then
         echo "0 3" > /sys/bus/netdevsim/new_device
         touch /tmp/netdevsim
@@ -61,6 +60,7 @@ function setup () {
         # If we fail to load exit 1
         exit 1
     fi
+    echo "** done"
     exit 0
 }
 
