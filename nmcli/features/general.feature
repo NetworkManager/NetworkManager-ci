@@ -81,7 +81,6 @@ Feature: nmcli - general
     * Execute "sudo nmcli general hostname walderon"
     Then "walderon" is visible with command "cat /etc/hostname"
 
-
     @ver+=1.4.0
     @con_general_remove @teardown_testveth @eth0 @restore_hostname
     @pull_hostname_from_dhcp
@@ -94,6 +93,104 @@ Feature: nmcli - general
     * Bring up connection "con_general"
     When "ransient" is visible with command "hostnamectl" in "60" seconds
     Then "localhost|fedora" is not visible with command "hostnamectl --transient" in "60" seconds
+
+
+    @ver+=1.29.0
+    @con_general_remove @teardown_testveth @eth0 @restore_hostname
+    @pull_hostname_from_dhcp_and_dns
+    Scenario: nmcli - general - pull hostname from DHCP and DNS
+    * Prepare simulated test "testG" device with daemon options "--dhcp-host=00:11:22:33:44:55,192.168.99.13,foobar"
+    * Execute "sudo nmcli general hostname localhost"
+    * Execute "hostnamectl set-hostname --transient localhost.localdomain"
+    * Add a new connection of type "ethernet" and options "ifname testG con-name con_general autoconnect no ethernet.cloned-mac-address 00:11:22:33:44:55 ipv6.method disabled"
+    When "localhost|fedora" is visible with command "hostnamectl --transient" in "60" seconds
+    # 1. get hostname from DHCP
+    * Bring up connection "con_general"
+    When "ransient" is visible with command "hostnamectl" in "60" seconds
+    When "foobar" is visible with command "hostnamectl --transient" in "60" seconds
+    # 2. get hostname from DNS
+    * Execute "nmcli connection modify con_general hostname.from-dhcp false"
+    * Bring up connection "con_general"
+    When "ransient" is visible with command "hostnamectl" in "60" seconds
+    Then "ip-192-168-99-" is visible with command "hostnamectl --transient" in "60" seconds
+    # 3. no hostname
+    * Execute "nmcli connection modify con_general hostname.from-dns false"
+    * Bring up connection "con_general"
+    When "ransient" is visible with command "hostnamectl" in "60" seconds
+    Then "localhost|fedora" is visible with command "hostnamectl --transient" for full "10" seconds
+
+
+    @ver+=1.4.0
+    @con_general_remove @teardown_testveth @eth0 @restore_hostname
+    @pull_hostname_from_dns
+    Scenario: nmcli - general - pull hostname from DNS
+    # Don't send a "hostname" option via DHCP
+    * Prepare simulated test "testG" device with daemon options "--dhcp-option=12"
+    * Execute "sudo nmcli general hostname localhost"
+    * Execute "hostnamectl set-hostname --transient localhost.localdomain"
+    * Add a new connection of type "ethernet" and options "ifname testG con-name con_general autoconnect no ipv6.method disabled"
+    When "localhost|fedora" is visible with command "hostnamectl --transient" in "60" seconds
+    * Bring up connection "con_general"
+    When "ransient" is visible with command "hostnamectl" in "60" seconds
+    Then "ip-192-168-99-" is visible with command "hostnamectl --transient" in "60" seconds
+
+
+    @ver+=1.4.0
+    @con_general_remove @teardown_testveth @eth0 @restore_hostname
+    @do_not_pull_hostname_from_non_default_device
+    Scenario: nmcli - general - do not pull hostname from non default device
+    # Don't send a "router" option via DHCP
+    * Prepare simulated test "testG" device with daemon options "--dhcp-option=3"
+    * Execute "sudo nmcli general hostname localhost"
+    * Execute "hostnamectl set-hostname --transient localhost.localdomain"
+    * Add a new connection of type "ethernet" and options "ifname testG con-name con_general autoconnect no ipv6.method disabled"
+    When "localhost|fedora" is visible with command "hostnamectl --transient" in "60" seconds
+    * Bring up connection "con_general"
+    When "ransient" is visible with command "hostnamectl" in "60" seconds
+    Then "localhost|fedora" is visible with command "hostnamectl --transient" for full "10" seconds
+
+
+    @ver+=1.29.0
+    @con_general_remove @teardown_testveth @eth0 @restore_hostname
+    @pull_hostname_from_non_default_device
+    Scenario: nmcli - general - pull hostname from non default device
+    # Don't send a "router" option
+    * Prepare simulated test "testG" device with daemon options "--dhcp-option=3"
+    * Execute "sudo nmcli general hostname localhost"
+    * Execute "hostnamectl set-hostname --transient localhost.localdomain"
+    * Add a new connection of type "ethernet" and options "ifname testG con-name con_general autoconnect no hostname.only-from-default false ipv6.method disabled"
+    When "localhost|fedora" is visible with command "hostnamectl --transient" in "60" seconds
+    * Bring up connection "con_general"
+    When "ransient" is visible with command "hostnamectl" in "60" seconds
+    Then "ip-192-168-99-" is visible with command "hostnamectl --transient" in "60" seconds
+
+
+    @ver+=1.29.0
+    @con_general_remove @teardown_testveth @restart @delete_testeth0 @restore_hostname
+    @hostname_priority
+    Scenario: nmcli - general - Hostname priority
+    * Execute "echo -e '[connection-hostname]\nmatch-device=interface-name:test?\nhostname.only-from-default=0' > /etc/NetworkManager/conf.d/90-hostname.conf"
+    * Restart NM
+    * Prepare simulated test "testG" device with daemon options "--dhcp-option=3 --dhcp-host=00:11:22:33:44:55,192.168.99.13,foo"
+    * Prepare simulated test "testH" device with "192.168.98" ipv4 and daemon options "--dhcp-option=3 --dhcp-host=00:00:11:00:00:11,192.168.98.11,bar"
+    * Execute "sudo nmcli general hostname localhost"
+    * Execute "hostnamectl set-hostname --transient localhost.localdomain"
+    * Add a new connection of type "ethernet" and options "ifname testG con-name con_general autoconnect no ethernet.cloned-mac-address 00:11:22:33:44:55 ipv6.method disabled"
+    * Add a new connection of type "ethernet" and options "ifname testH con-name con_general2 autoconnect no ethernet.cloned-mac-address 00:00:11:00:00:11 ipv6.method disabled"
+    When "localhost|fedora" is visible with command "hostnamectl --transient" in "60" seconds
+    * Bring up connection "con_general"
+    When "ransient" is visible with command "hostnamectl" in "60" seconds
+    Then "foo" is visible with command "hostnamectl --transient" in "60" seconds
+    * Bring up connection "con_general2"
+    When "ransient" is visible with command "hostnamectl" in "60" seconds
+    # Since connections have the same priority, the one activated earlier wins
+    Then "foo" is visible with command "hostnamectl --transient" in "60" seconds
+    # Increase the priority of the second connection and retry
+    * Execute "nmcli connection modify con_general2 hostname.priority 100"
+    * Bring up connection "con_general2"
+    When "ransient" is visible with command "hostnamectl" in "60" seconds
+    # Now con_general2 has higher priority and wins
+    Then "bar" is visible with command "hostnamectl --transient" in "60" seconds
 
 
     @rhbz1405275
