@@ -2250,16 +2250,15 @@ Feature: nmcli - general
     @ver+=1.25 @rhelver+=8
     @nmcli_shows_correct_routes
     Scenario: NM - general - nmclic shows correct routes
-    * Bring "up" connection "testeth0"
-    When "default" is visible with command "ip r"
-    When "default" is visible with command "ip -6 r"
+    * Bring "up" connection "testeth10"
+    When "default" is visible with command "ip r" in "20" seconds
+    When "default" is visible with command "ip -6 r" in "20" seconds
     * Note the output of "ip -6 r |wc -l" as value "ip6_route"
     * Note the output of "nmcli |grep route6 |wc -l" as value "nmcli6_route"
     * Note the output of "ip r |wc -l" as value "ip4_route"
     * Note the output of "nmcli |grep route4 |wc -l" as value "nmcli4_route"
     Then Check noted values "ip6_route" and "nmcli6_route" are the same
     Then Check noted values "ip4_route" and "nmcli4_route" are the same
-
 
 
     @rhbz1882380
