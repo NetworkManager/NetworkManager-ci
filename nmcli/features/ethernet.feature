@@ -693,6 +693,7 @@ Feature: nmcli - ethernet
     @ethtool_features_ring
     Scenario: nmcli - ethernet - ethtool set ring options
     * Add a new connection of type "ethernet" and options "ifname eth11 ipv4.method manual ipv4.addresses 192.0.2.1/24 con-name con_ethernet ethtool.ring-tx 1000 ethtool.ring-rx-jumbo 1000 ethtool.ring-rx-mini 100 ethtool.ring-rx 1"
+    * Bring "up" connection "con_ethernet"
     When "RX:\s+1\s*RX Mini:\s+100\s*RX Jumbo:\s+1000\s*TX:\s+1000" is visible with command "ethtool -g eth11"
     * Disconnect device "eth11"
     When "RX:\s+0\s*RX Mini:\s+0\s*RX Jumbo:\s+0\s*TX:\s+0" is visible with command "ethtool -g eth11"
@@ -708,6 +709,7 @@ Feature: nmcli - ethernet
     @ethtool_features_coal
     Scenario: nmcli - ethernet - ethtool set coalescing options
     * Add a new connection of type "ethernet" and options "ifname eth11 ipv4.method manual ipv4.addresses 192.0.2.1/24 con-name con_ethernet ethtool.coalesce-adaptive-rx 1 ethtool.coalesce-adaptive-tx 1 ethtool.coalesce-pkt-rate-high 3 ethtool.coalesce-pkt-rate-low 2 ethtool.coalesce-rx-frames 1 ethtool.coalesce-rx-frames-high 3 ethtool.coalesce-rx-frames-irq 2 ethtool.coalesce-rx-frames-low 1 ethtool.coalesce-rx-usecs 1 ethtool.coalesce-rx-usecs-high 3 ethtool.coalesce-rx-usecs-irq 2 ethtool.coalesce-rx-usecs-low 1 ethtool.coalesce-sample-interval 2 ethtool.coalesce-stats-block-usecs 2 ethtool.coalesce-tx-frames 1 ethtool.coalesce-tx-frames-high 3 ethtool.coalesce-tx-frames-irq 2 ethtool.coalesce-tx-frames-low 1 ethtool.coalesce-tx-usecs 1 ethtool.coalesce-tx-usecs-high 3 ethtool.coalesce-tx-usecs-irq 2 ethtool.coalesce-tx-usecs-low 1"
+    * Bring "up" connection "con_ethernet"
     When "Adaptive RX: on  TX: on\s*stats-block-usecs: 2\s*sample-interval: 2\s*pkt-rate-low: 2\s*pkt-rate-high: 3" is visible with command "ethtool -c eth11"
     When "rx-usecs: 1\s*rx-frames: 1\s*rx-usecs-irq: 2\s*rx-frames-irq: 2" is visible with command "ethtool -c eth11"
     When "rx-frames-irq: 2\s*tx-usecs: 1\s*tx-frames: 1\s*tx-usecs-irq: 2\s*tx-frames-irq: 2" is visible with command "ethtool -c eth11"

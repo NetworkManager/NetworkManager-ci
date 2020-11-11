@@ -2,7 +2,6 @@
 
 function setup () {
     MAJOR="$(uname -r |awk -F '-' '{print $1}')"
-    $arch=$arch
     MINOR="$(uname -r |awk -F '-' '{print $2}'| rev| cut -d. -f2-  |rev)"
     LINUX=linux-$MAJOR-$MINOR
     # We need this patched netdevsim device to support ring/coal ethtool options
@@ -54,10 +53,11 @@ function setup () {
     # If we are able to insert module create devices and exit 0
     echo "** installing the patched one"
     if insmod netdevsim.ko; then
+        sleep 0.5
         echo "0 3" > /sys/bus/netdevsim/new_device
         touch /tmp/netdevsim
     else
-        # If we fail to load exit 1
+        echo "** we fail to load - > exit 1"
         exit 1
     fi
     echo "** done"
