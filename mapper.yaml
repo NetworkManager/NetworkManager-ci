@@ -369,6 +369,9 @@ testmapper:
         feature: bridge
     - bridge_remove_slaves_ipv6ll:
         feature: bridge
+    - bridge_set_mtu:
+        feature: bridge
+        tags: gate
     - add_default_team:
         feature: team
     - add_default_team_after_journal_restart:

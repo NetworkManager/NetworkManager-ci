@@ -721,3 +721,29 @@ Feature: nmcli - bridge
     Then "inet" is not visible with command "ip a s dummy0" in "5" seconds
     # Reproducer for 1848888
     Then "fe80" is not visible with command "python tmp/nmclient_get_device_property.py dummy0 get_ip6_config"
+
+
+    @rhbz1778590
+    @ver+=1.29
+    @dummy @bridge @slaves
+    @bridge_set_mtu
+    Scenario: nmcli - bridge - mtu handling
+    * Add a new connection of type "bridge" and options "con-name bridge0 ifname br0 ipv4.method manual ipv4.addresses 1.2.3.4/24 connection.autoconnect-slaves no mtu 1500"
+    * Add a new connection of type "dummy" and options "ifname dummy0 con-name bridge-slave-eth4 master br0 autoconnect no mtu 9000"
+    * Bring "up" connection "bridge0"
+    * Bring "up" connection "bridge-slave-eth4"
+    When "mtu 1500" is visible with command "ip a s br0"
+    When "mtu 9000" is visible with command "ip a s dummy0"
+    When "1500" is visible with command "nmcli -g GENERAL.MTU d show br0" in "5" seconds
+    * Delete connection "bridge0"
+    * Add a new connection of type "bridge" and options "con-name bridge0 ifname br0 ipv4.method manual ipv4.addresses 1.2.3.4/24 connection.autoconnect-slaves no 802-3-ethernet.mtu 0"
+    * Bring "up" connection "bridge0"
+    * Bring "up" connection "bridge-slave-eth4"
+    When "mtu 9000" is visible with command "ip a s br0"
+    When "mtu 9000" is visible with command "ip a s dummy0"
+    * Modify connection "bridge0" changing options "802-3-ethernet.mtu 1500"
+    * Execute "sudo nmcli d reapply br0"
+    * Bring "up" connection "bridge-slave-eth4"
+    Then "mtu 1500" is visible with command "ip a s br0"
+    Then "mtu 9000" is visible with command "ip a s dummy0"
+    When "1500" is visible with command "nmcli -g GENERAL.MTU d show br0" in "5" seconds
