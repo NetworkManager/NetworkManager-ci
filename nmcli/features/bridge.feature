@@ -724,7 +724,7 @@ Feature: nmcli - bridge
 
 
     @rhbz1778590
-    @ver+=1.29
+    @ver+=1.29 @rhelver+=8
     @dummy @bridge @slaves
     @bridge_set_mtu
     Scenario: nmcli - bridge - mtu handling
