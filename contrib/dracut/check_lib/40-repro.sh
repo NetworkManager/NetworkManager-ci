@@ -1,3 +1,5 @@
+# more complex scenarios for reproducers
+
 reproduce_1840989() {
   nmcli c add type vlan \
     ifname eth0.195 \
@@ -12,4 +14,5 @@ reproduce_1840989() {
   NM_logs | grep -F 'device (eth0.195): mtu: failure to set IPv6 MTU' && \
     die "message visible in NM logs"
   echo "[OK] message not visible in NM logs"
+  nmcli con delete eth0.195
 }

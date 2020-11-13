@@ -21,8 +21,6 @@ done
 
 mount_list
 
-ip_list
-
 echo "== ls initrd ifcfg =="
 ls -la /run/initramfs/state/etc/sysconfig/network-scripts
 
@@ -40,7 +38,9 @@ echo "start NetworkManager"
 systemctl start NetworkManager.service || die "NetworkManager failed: $(echo; systemctl status NetworkManager.service)"
 echo "start systemd-hostnamed"
 systemctl start systemd-hostnamed.service || die "systemd-hostnamed failed: $(echo; systemctl status systemd-hostnamed.service)"
-echo "OK"
+
+echo "== NetworkManager --version =="
+NetworkManager --version
 
 echo "== ls ifcfg =="
 ls -la /etc/sysconfig/network-scripts/
@@ -50,11 +50,12 @@ for file in $(find /etc/sysconfig/network-scripts/ -type f); do
     cat $file
 done
 
-ip_list
-
 nmcli_list
 
-echo "== checks =="
+echo "== checks #1 =="
+client_check || die "client_check did not exit with 0"
+wait  # wait for ip_renew tests to finish
+echo "== checks #2 =="
 client_check || die "client_check did not exit with 0"
 
 /check_core_dumps

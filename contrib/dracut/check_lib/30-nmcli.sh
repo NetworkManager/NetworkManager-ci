@@ -1,3 +1,5 @@
+# nmcli related checks
+
 nmcli_list() {
   echo "== nmcli device =="
   nmcli device | cat
@@ -5,24 +7,26 @@ nmcli_list() {
   nmcli con | cat
 }
 
+
 nmcli_con_active() {
   # recursively calls itself until connection is active or counter $i gets over $num
-  local num i
-  num="$3"
-  [[ -z "$1" ]] && die "nmcli_con_active: unspecified connection name"
-  [[ -z "$2" ]] && die "nmcli_con_active: unspecified interface name"
-  [[ -z "$num" ]] && num=10
+  local rep i con
+  rep="$3"
+  con=$(echo "$1" | sed 's/:/\\:/g')
+  [[ "$1" ]] || die "nmcli_con_active: unspecified connection name"
+  [[ "$2" ]] || die "nmcli_con_active: unspecified interface name"
+  [[ "$rep" ]] || rep=10
   i=0
-  while (( i <= num )); do
+  while (( i++ <= rep )); do
     nmcli -g NAME,DEVICE,STATE con show --active | \
-      grep -q -F "$1:$2:activated"  && \
-      echo "[OK] connection '$1' is active on '$2' in $i seconds" && \
+      grep -q -F "$con:$2:activated"  && \
+      echo "[OK] connection '$1' is active on '$2' ($((i-1))s)" && \
       return 0
     sleep 1
-    (( i++ ))
   done
-  die "connection '$1' is not active on '$2' in $num seconds:$(echo; nmcli -g NAME,DEVICE,STATE con show)"
+  die "connection '$con' is not active on '$2' in $num seconds:$(echo; nmcli -g NAME,DEVICE,STATE con show)"
 }
+
 
 nmcli_con_num() {
   local num
@@ -31,12 +35,22 @@ nmcli_con_num() {
   echo "[OK] number of NM connections: $1"
 }
 
+
 nmcli_con_prop() {
-  local con prop val res
+  local con prop val res rep i
   con="$1"
   prop="$2"
   val="$3"
-  res=$(nmcli -g "$prop" con show "$con")
-  [[ "$res" == "$val" ]] || die "'$prop' of '$con' is not '$val', but '$res'"
-  echo "[OK] '$prop' of '$con' is '$val'"
+  rep="$4"
+  if ! [[ "$rep" ]]; then rep=1; fi
+  i=0
+  while (( i++ < rep )); do
+    res=$(nmcli -g "$prop" con show "$con")
+    # unescape "\:" in case of single property (no ',')
+    [[ "$prop" != *,* ]] && res=$(echo "$res" | sed 's/\\:/:/g')
+    [[ "$res" == $val ]] || { sleep 1; continue; }
+    echo "[OK] '$prop' of '$con' is '$val' ($((i-1))s)"
+    return 0
+  done
+  die "'$prop' of '$con' is not '$val', but '$res'"
 }

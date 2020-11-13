@@ -1,6 +1,9 @@
+# general checks and functions
+
 die() {
   die_cmd "$@" 1>&2
 }
+
 
 die_cmd() {
   echo "[FAIL] $@"
@@ -13,10 +16,12 @@ die_cmd() {
   poweroff -f
 }
 
+
 arg() {
   shift $1
   echo $1
 }
+
 
 clean_root() {
   echo "== cleaning ifcfg =="
@@ -33,6 +38,7 @@ clean_root() {
   echo "done"
 }
 
+
 mount_list() {
   echo "== nfs mounts =="
   mount | grep nfs
@@ -40,10 +46,12 @@ mount_list() {
   mount | grep ext3
 }
 
+
 NM_logs() {
   echo "== NM logs =="
   time journalctl -b -u NetworkManager --no-pager -o cat
 }
+
 
 nfs_server() {
     local nfs_mnt
@@ -54,6 +62,7 @@ nfs_server() {
     echo "[OK] NFS server is '$nfs_mnt'"
 }
 
+
 mount_root_type() {
     local root_mnt
     root_mnt=$(mount | grep " / type ")
@@ -61,11 +70,13 @@ mount_root_type() {
     [[ "$root_mnt" == "$1" ]] || die "fstype of / is '$root_mnt', expected '$1'"
 }
 
+
 no_ifcfg() {
   find /etc/sysconfig/network-scripts/ifcfg-* &> /dev/null && \
     die "ifcfg file exists: $(echo; find /etc/sysconfig/network-scripts/ifcfg-*)"
   echo "[OK] no ifcfg file exists"
 }
+
 
 hostname_check() {
   local hostname
@@ -74,10 +85,11 @@ hostname_check() {
   echo "[OK] hostname is '$hostname'"
 }
 
+
 dns_search() {
     local search
     search=$(grep "^search" /etc/resolv.conf | sed 's/^search\s\+//g')
-    [[ "$search" == "$1" ]] || die "DNS search is '$search', expected '$1'"
+    [[ "$search" == $1 ]] || die "DNS search is '$search', expected '$1'"
     echo "[OK] DNS search is '$search'"
 }
 
@@ -85,6 +97,14 @@ dns_search() {
 ifname_mac() {
     local mac
     mac=$(ip l show "$1" | grep "link/ether" | sed 's@\s\+link/ether\s\+\(\([0-9a-f]\+:\)\+[0-9a-f]\+\).*@\1@')
-    [[ "$mac" == "$2" ]] || die "'$1' MAC is '$mac', expected '$1'"
+    [[ "$mac" == "$2" ]] || die "'$1' MAC is '$mac', expected '$2'"
     echo "[OK] '$1' MAC is '$mac'"
+}
+
+
+ifname_mtu() {
+    local mtu
+    mtu=$(ip -o l show "$1" | sed 's@.*mtu \([0-9]*\).*@\1@')
+    [[ "$mtu" == "$2" ]] || die "'$1' MTU is '$mtu', expected '$2'"
+    echo "[OK] '$1' MTU is '$mtu'"
 }

@@ -1185,17 +1185,21 @@ testmapper:
         feature: dracut
     - dracut_NM_NFS_root_dhcp_vendor_class:
         feature: dracut
-    - dracut_NM_NFS_root_nfs_ip_dhcp_cloned_mac_mtu:
+    - dracut_NM_NFS_root_nfs_ip_dhcp_mtu:
+        feature: dracut
+    - dracut_NM_NFS_root_nfs_ip_dhcp_mtu_cloned_mac:
         feature: dracut
     - dracut_NM_NFS_root_nfs_ip_dhcp_rd_routes:
         feature: dracut
-    - dracut_NM_NFS_root_nfs_ip_manual:
-        feature: dracut
     - dracut_NM_NFS_root_nfs_ip_manual_dhcp:
+        feature: dracut
+    - dracut_NM_NFS_root_nfs_ip_manual:
         feature: dracut
     - dracut_NM_NFS_root_nfs_ip_manual_gateway_hostname_mac:
         feature: dracut
-    - dracut_NM_NFS_root_nfs_ip_manual_cloned_mac_mtu:
+    - dracut_NM_NFS_root_nfs_ip_manual_mtu:
+        feature: dracut
+    - dracut_NM_NFS_root_nfs_ip_manual_mtu_cloned_mac:
         feature: dracut
     - dracut_NM_NFS_root_nfs_ip_manual_dns1:
         feature: dracut
@@ -1207,13 +1211,13 @@ testmapper:
         feature: dracut
     - dracut_NM_NFS_root_nfs_ip_off:
         feature: dracut
-    - dracut_NM_NFS_root_nfs_ipv6_disable:
-        feature: dracut
     - dracut_NM_NFS_root_nfs_ip_auto6:
         feature: dracut
     - dracut_NM_NFS_root_nfs_ip_dhcp6:
         feature: dracut
-    - dracut_NM_NFS_root_nfs_ip6_manual_gateway_hostname_mac:
+    - dracut_NM_NFS_root_nfs_ip_manual6_gateway_hostname_mac:
+        feature: dracut
+    - dracut_NM_NFS_root_nfs_ipv6_disable:
         feature: dracut
     - dracut_NM_iSCSI_netroot_dhcp:
         feature: dracut
@@ -1228,15 +1232,20 @@ testmapper:
         feature: dracut
     - dracut_NM_bridge_custom_name_2_ifaces:
         feature: dracut
-    - dracut_NM_bond_over_2_ifaces:
+    - dracut_NM_bond_over_2_ifaces_rr:
         feature: dracut
     #- dracut_NM_team_over_2_ifaces:
     #    feature: dracut
     - dracut_NM_vlan_over_nic:
         feature: dracut
-    - dracut_NM_vlan_over_everything:
+    - dracut_NM_vlan_mutliple_over_nic:
         feature: dracut
-        timeout: 20m
+    - dracut_NM_vlan_over_bridge:
+        feature: dracut
+    - dracut_NM_vlan_over_bond:
+        feature: dracut
+    - dracut_NM_vlan_over_team_no_boot:
+        feature: dracut
     - dracut_legacy_iSCSI_ibft_table:
         feature: dracut
     - dracut_clean:
