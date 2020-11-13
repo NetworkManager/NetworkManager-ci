@@ -2369,13 +2369,6 @@ def after_scenario(context, scenario):
                 #sleep(TIMER)
                 call("if nmcli con |grep 'team0 '; then echo 'team0 present: %s' >> /tmp/residues; fi" %scenario.tags, shell=True)
 
-            if 'bond-team_remove' in scenario.tags:
-                print ("---------------------------")
-                print ("deleting team masters")
-                call('nmcli connection delete id bond-team0 bond-team', shell=True)
-                call('ip link del bond-team', shell=True)
-
-
             if 'teamd' in scenario.tags:
                 call("systemctl stop teamd", shell=True)
                 call("systemctl reset-failed teamd", shell=True)

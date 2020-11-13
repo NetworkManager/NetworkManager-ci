@@ -28,6 +28,7 @@ def reboot(context):
     command_code(context, "ip link del nm-team")
     command_code(context, "ip link del team7")
     command_code(context, "ip link del bridge7")
+
     # for nmtui
     command_code(context, "ip link del bond0")
     command_code(context, "ip link del team0")

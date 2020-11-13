@@ -62,7 +62,7 @@ bond_set_packets_per_slave_option
 bond_set_balance_tlb_options
 bond_device_rename
 bond_enslave_to_bridge
-bridge_team_bond_autoconnect_nested_slaves
+bridge_bond_autoconnect_nested_slaves
 bond_in_bridge_mtu
 bond_8023ad_no_error
 bond_balance-alb_no_error

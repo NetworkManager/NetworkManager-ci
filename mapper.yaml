@@ -212,7 +212,7 @@ testmapper:
         feature: bond
     - bond_enslave_to_bridge:
         feature: bond
-    - bridge_team_bond_autoconnect_nested_slaves:
+    - bridge_bond_autoconnect_nested_slaves:
         feature: bond
         tags: gate libnl3
     - bond_in_bridge_mtu:
