@@ -54,6 +54,7 @@ Feature: NM: dracut
 
 
     @rhelver+=8.3 @fedoraver-=0
+    @ver+=1.26
     @dracut @long @not_on_ppc64le
     @dracut_NM_NFS_root_dhcp_ip_dhcp_neednet
     Scenario: NM - dracut - NM module - NFSv3 root=dhcp ip=dhcp neednet
@@ -86,6 +87,7 @@ Feature: NM: dracut
 
 
     @rhelver+=8.3 @fedoraver-=0
+    @ver+=1.26
     @dracut @long @not_on_ppc64le
     @dracut_NM_NFS_root_dhcp_ip_dhcp_peerdns0
     Scenario: NM - dracut - NM module - NFSv3 root=dhcp ip=dhcp rd.peerdns=0
@@ -267,6 +269,7 @@ Feature: NM: dracut
 
 
     @rhelver+=8.3 @fedoraver-=0
+    @ver+=1.26
     @dracut @long @not_on_ppc64le
     @dracut_NM_NFS_root_nfs_ip_manual_dhcp
     Scenario: NM - dracut - NM module - NFSv3 root=nfs ip=IP:::NETMASK::MAC:dhcp
@@ -607,6 +610,7 @@ Feature: NM: dracut
 
     @rhbz1854323
     @rhelver+=8.3 @fedoraver-=0
+    @ver+=1.26
     @dracut @long @not_on_ppc64le
     @dracut_NM_NFS_root_nfs_ip_dhcp6
     Scenario: NM - dracut - NM module - NFSv3 root=nfs ip=dhcp6
@@ -730,6 +734,7 @@ Feature: NM: dracut
 
 
     @rhelver+=8.3 @fedoraver-=0
+    @ver+=1.26
     @dracut @long @not_on_ppc64le
     @dracut_NM_iSCSI_netroot_dhcp_ip_dhcp
     Scenario: NM - dracut - NM module - iSCSI netroot=dhcp ip=eth0:dhcp
@@ -853,6 +858,7 @@ Feature: NM: dracut
 
     @rhbz1627820
     @rhelver+=8.3 @fedoraver-=0
+    @ver+=1.26
     @dracut @long @not_on_ppc64le
     @dracut_NM_bridge_eth0
     Scenario: NM - dracut - NM module - bridge over eth0
@@ -863,7 +869,7 @@ Feature: NM: dracut
       | qemu   | -netdev tap,id=nfs,script=$PWD/qemu-ifup/nfs                              |
       | check  | nmcli_con_active br0 br0 45                                               |
       | check  | nmcli_con_prop br0 ipv4.method auto                                       |
-      | check  | nmcli_con_prop br0 IP4.ADDRESS 192.168.50.101/24 10                       |
+      | check  | nmcli_con_prop br0 IP4.ADDRESS 192.168.50.101/24 45                       |
       | check  | nmcli_con_prop br0 IP4.GATEWAY 192.168.50.1                               |
       | check  | nmcli_con_prop br0 IP4.ROUTE *192.168.50.0/24*                            |
       | check  | nmcli_con_prop br0 IP4.DNS 192.168.50.1                                   |
@@ -906,7 +912,7 @@ Feature: NM: dracut
       | check  | nmcli_con_active foobr0 foobr0 45                                            |
       | check  | nmcli_con_prop foobr0 ipv4.method manual                                     |
       | check  | nmcli_con_prop foobr0 ipv4.addresses 192.168.50.201/24                       |
-      | check  | nmcli_con_prop foobr0 IP4.ADDRESS 192.168.50.201/24 10                       |
+      | check  | nmcli_con_prop foobr0 IP4.ADDRESS 192.168.50.201/24 45                       |
       | check  | nmcli_con_prop foobr0 IP4.GATEWAY ''                                         |
       | check  | nmcli_con_prop foobr0 IP4.ROUTE *192.168.50.0/24*                            |
       | check  | nmcli_con_prop foobr0 IP4.DNS ''                                             |
@@ -950,7 +956,7 @@ Feature: NM: dracut
       | check  | nmcli_con_active bond0 bond0 45                                             |
       | check  | nmcli_con_prop bond0 bond.options mode=balance-rr                           |
       | check  | nmcli_con_prop bond0 ipv4.method auto                                       |
-      | check  | nmcli_con_prop bond0 IP4.ADDRESS 192.168.53.101/24 10                       |
+      | check  | nmcli_con_prop bond0 IP4.ADDRESS 192.168.53.101/24 45                       |
       | check  | nmcli_con_prop bond0 IP4.GATEWAY 192.168.53.1                               |
       | check  | nmcli_con_prop bond0 IP4.ROUTE *192.168.53.0/24*                            |
       | check  | nmcli_con_prop bond0 IP4.DNS 192.168.53.1                                   |
@@ -991,7 +997,7 @@ Feature: NM: dracut
     #  | qemu   | -device virtio-net,netdev=bond0_1,mac=52:54:00:12:34:11                     |
     #  | check  | nmcli_con_active team0 team0 45                                             |
     #  | check  | nmcli_con_prop team0 ipv4.method auto                                       |
-    #  | check  | nmcli_con_prop team0 IP4.ADDRESS 192.168.53.101/24 10                       |
+    #  | check  | nmcli_con_prop team0 IP4.ADDRESS 192.168.53.101/24 45                       |
     #  | check  | nmcli_con_prop team0 IP4.GATEWAY 192.168.53.1                               |
     #  | check  | nmcli_con_prop team0 IP4.ROUTE *192.168.53.0/24*                            |
     #  | check  | nmcli_con_prop team0 IP4.DNS 192.168.53.1                                   |
@@ -1035,7 +1041,7 @@ Feature: NM: dracut
       | check  | nmcli_con_prop vlan5 vlan.id 5                       |
       | check  | nmcli_con_prop vlan5 vlan.parent eth0                |
       | check  | nmcli_con_prop vlan5 ipv4.method auto                |
-      | check  | nmcli_con_prop vlan5 IP4.ADDRESS 192.168.55.6/30 10  |
+      | check  | nmcli_con_prop vlan5 IP4.ADDRESS 192.168.55.6/30 45  |
       | check  | nmcli_con_prop vlan5 IP4.GATEWAY 192.168.55.5        |
       | check  | nmcli_con_prop vlan5 IP4.ROUTE *192.168.55.4/30*     |
       | check  | nmcli_con_prop vlan5 IP4.DNS 192.168.55.5            |
@@ -1065,7 +1071,7 @@ Feature: NM: dracut
       | check  | nmcli_con_prop vlan.5 vlan.id 5                          |
       | check  | nmcli_con_prop vlan.5 vlan.parent eth0                   |
       | check  | nmcli_con_prop vlan.5 ipv4.method auto                   |
-      | check  | nmcli_con_prop vlan.5 IP4.ADDRESS 192.168.55.6/30 10     |
+      | check  | nmcli_con_prop vlan.5 IP4.ADDRESS 192.168.55.6/30 45     |
       | check  | nmcli_con_prop vlan.5 IP4.GATEWAY 192.168.55.5           |
       | check  | nmcli_con_prop vlan.5 IP4.ROUTE *192.168.55.4/30*        |
       | check  | nmcli_con_prop vlan.5 IP4.DNS 192.168.55.5               |
@@ -1076,7 +1082,7 @@ Feature: NM: dracut
       | check  | nmcli_con_prop vlan.0009 vlan.id 9                       |
       | check  | nmcli_con_prop vlan.0009 vlan.parent eth0                |
       | check  | nmcli_con_prop vlan.0009 ipv4.method auto                |
-      | check  | nmcli_con_prop vlan.0009 IP4.ADDRESS 192.168.55.10/30 10 |
+      | check  | nmcli_con_prop vlan.0009 IP4.ADDRESS 192.168.55.10/30 45 |
       | check  | nmcli_con_prop vlan.0009 IP4.GATEWAY 192.168.55.9        |
       | check  | nmcli_con_prop vlan.0009 IP4.ROUTE *192.168.55.8/30*     |
       | check  | nmcli_con_prop vlan.0009 IP4.DNS 192.168.55.9            |
@@ -1112,7 +1118,7 @@ Feature: NM: dracut
       | qemu   | -device virtio-net,netdev=vlan33_1,mac=52:54:00:12:34:16 |
       | check  | nmcli_con_active br0 br0 45                              |
       | check  | nmcli_con_prop br0 ipv4.method auto                      |
-      | check  | nmcli_con_prop br0 IP4.ADDRESS 192.168.55.22/30 10       |
+      | check  | nmcli_con_prop br0 IP4.ADDRESS 192.168.55.22/30 45       |
       | check  | nmcli_con_prop br0 IP4.GATEWAY 192.168.55.21             |
       | check  | nmcli_con_prop br0 IP4.ROUTE *192.168.55.20/30*          |
       | check  | nmcli_con_prop br0 IP4.DNS 192.168.55.21                 |
@@ -1123,7 +1129,7 @@ Feature: NM: dracut
       | check  | nmcli_con_prop br0.0033 vlan.id 33                       |
       | check  | nmcli_con_prop br0.0033 vlan.parent br0                  |
       | check  | nmcli_con_prop br0.0033 ipv4.method auto                 |
-      | check  | nmcli_con_prop br0.0033 IP4.ADDRESS 192.168.55.35/29 10  |
+      | check  | nmcli_con_prop br0.0033 IP4.ADDRESS 192.168.55.35/29 45  |
       | check  | nmcli_con_prop br0.0033 IP4.GATEWAY 192.168.55.33        |
       | check  | nmcli_con_prop br0.0033 IP4.ROUTE *192.168.55.32/29*     |
       | check  | nmcli_con_prop br0.0033 IP4.DNS 192.168.55.33            |
@@ -1159,7 +1165,7 @@ Feature: NM: dracut
       | check  | nmcli_con_active bond0 bond0 45                         |
       | check  | nmcli_con_prop bond0 bond.options mode=balance-rr       |
       | check  | nmcli_con_prop bond0 ipv4.method auto                   |
-      | check  | nmcli_con_prop bond0 IP4.ADDRESS 192.168.53.101/24 10   |
+      | check  | nmcli_con_prop bond0 IP4.ADDRESS 192.168.53.101/24 45   |
       | check  | nmcli_con_prop bond0 IP4.GATEWAY 192.168.53.1           |
       | check  | nmcli_con_prop bond0 IP4.ROUTE *192.168.53.0/24*        |
       | check  | nmcli_con_prop bond0 IP4.DNS 192.168.53.1               |
@@ -1170,7 +1176,7 @@ Feature: NM: dracut
       | check  | nmcli_con_prop bond0.13 vlan.id 13                      |
       | check  | nmcli_con_prop bond0.13 vlan.parent bond0               |
       | check  | nmcli_con_prop bond0.13 ipv4.method auto                |
-      | check  | nmcli_con_prop bond0.13 IP4.ADDRESS 192.168.55.14/30 10 |
+      | check  | nmcli_con_prop bond0.13 IP4.ADDRESS 192.168.55.14/30 45 |
       | check  | nmcli_con_prop bond0.13 IP4.GATEWAY 192.168.55.13       |
       | check  | nmcli_con_prop bond0.13 IP4.ROUTE *192.168.55.12/30*    |
       | check  | nmcli_con_prop bond0.13 IP4.DNS 192.168.55.13           |
@@ -1191,6 +1197,7 @@ Feature: NM: dracut
 
 
     @rhelver+=8.3 @fedoraver-=0
+    @ver+=1.26
     @dracut @long @not_on_ppc64le
     @dracut_NM_vlan_over_team_no_boot
     Scenario: NM - dracut - NM module - VLAN over team boot over other iface (team not stable)
@@ -1206,7 +1213,7 @@ Feature: NM: dracut
       | qemu   | -device virtio-net,netdev=nfs,mac=52:54:00:12:34:10      |
       | check  | nmcli_con_active team0 team0 45                          |
       | check  | nmcli_con_prop team0 ipv4.method auto                    |
-      | check  | nmcli_con_prop team0 IP4.ADDRESS 192.168.54.101/24 10    |
+      | check  | nmcli_con_prop team0 IP4.ADDRESS 192.168.54.101/24 45    |
       | check  | nmcli_con_prop team0 IP4.GATEWAY 192.168.54.1            |
       | check  | nmcli_con_prop team0 IP4.ROUTE *192.168.54.0/24*         |
       | check  | nmcli_con_prop team0 IP4.DNS 192.168.54.1                |
@@ -1217,10 +1224,10 @@ Feature: NM: dracut
       | check  | nmcli_con_prop vlan0017 vlan.id 17                       |
       | check  | nmcli_con_prop vlan0017 vlan.parent team0                |
       | check  | nmcli_con_prop vlan0017 ipv4.method auto                 |
-      | check  | nmcli_con_prop vlan0017 IP4.ADDRESS 192.168.55.18/30 10  |
+      | check  | nmcli_con_prop vlan0017 IP4.ADDRESS 192.168.55.18/30 45  |
       | check  | nmcli_con_prop vlan0017 IP4.GATEWAY 192.168.55.17        |
       | check  | nmcli_con_prop vlan0017 IP4.ROUTE *192.168.55.16/30*     |
-      | check  | nmcli_con_prop vlan0017 IP4.DNS 192.168.55.17 10         |
+      | check  | nmcli_con_prop vlan0017 IP4.DNS 192.168.55.17 45         |
       | check  | nmcli_con_prop vlan0017 IP4.DOMAIN cl.vl17.redhat.com    |
       | check  | nmcli_con_prop vlan0017 ipv6.method auto                 |
       | check  | nmcli_con_prop vlan0017 IP6.DNS ''                       |
