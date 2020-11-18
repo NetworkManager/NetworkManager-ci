@@ -26,13 +26,14 @@ arg() {
 clean_root() {
   echo "== cleaning ifcfg =="
   rm -vf /etc/sysconfig/network-scripts/ifcfg*
+  echo "== cleaning /var/run/NetworkManager/ =="
+  rm -rf /var/run/NetworkManager/*
   echo "== cleaning check script =="
   rm -vf /check.sh
   echo "== cleaning resolv.conf =="
   rm -vf /etc/resolv.conf
   echo "== cleaning hostname =="
   echo > /etc/hostname
-  echo "/etc/hostname is empty"
   echo "== sync =="
   sync
   echo "done"

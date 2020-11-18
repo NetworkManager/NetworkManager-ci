@@ -2460,6 +2460,9 @@ def after_scenario(context, scenario):
             if 'dracut' in scenario.tags:
                 print("---------------------------")
                 print("dracut log embed")
+                if scenario.status == 'failed' and os.path.isfile("/tmp/dracut_boot.log"):
+                    boot_log = utf_only_open_read("/tmp/dracut_boot.log")
+                    context.embed("text/plain", boot_log, "DRACUT_BOOT")
                 if os.path.isfile("/tmp/dracut_setup.log"):
                     print("embeding SETUP log")
                     context.embed("text/plain", utf_only_open_read("/tmp/dracut_setup.log"), "DRACUT_SETUP")

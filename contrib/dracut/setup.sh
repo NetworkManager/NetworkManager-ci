@@ -15,6 +15,9 @@ test_setup() {
 
   network_setup
 
+  touch /etc/qemu-ifdown
+  chmod +x /etc/qemu-ifdown
+
   mkdir $TESTDIR
 
   basedir=/usr/lib/dracut/
@@ -390,6 +393,7 @@ EOF
 
 
 test_clean() {
+  stop_qemu
   kill_server
   umount $TESTDIR/client_check
   for file in \
@@ -414,7 +418,6 @@ test_clean() {
 
 
 after_test() {
-    rm -rf $TESTDIR/nfs/client/var/run/NetworkManager/*
     stop_dhcpd
     start_dhcpd
 }
@@ -509,6 +512,10 @@ run_server() {
   start_iscsi
   start_dhcpd
   start_radvd
+}
+
+stop_qemu() {
+  pkill -F  $TESTDIR/qemu.pid
 }
 
 network_setup() {

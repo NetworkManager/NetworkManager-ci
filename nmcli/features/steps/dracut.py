@@ -5,6 +5,7 @@ import sys
 import os
 import base64
 import subprocess
+import signal
 
 
 def utf_only_open_read(file, mode='r'):
@@ -72,9 +73,25 @@ def check_core_dumps(context):
         return True
 
 
+class QemuStopper:
+
+    def __init__(self, proc):
+        self.proc = proc
+        signal.signal(signal.SIGTERM, self.stop_qemu)
+        signal.signal(signal.SIGINT, self.stop_qemu)
+
+    def stop_qemu(self, sig, frame):
+        # first stop shell script to prevent qemu-kvm restart
+        if self.proc.pid:
+            os.killpg(self.proc.pid, signal.SIGTERM)
+        # stop qemu-kvm
+        subprocess.call("cd contrib/dracut/; . ./setup.sh; stop_qemu;", shell=True)
+        assert False, "killed externally (timeout) - called stop_qemu hook"
+
+
 @step(u'Run dracut test')
 def dracut_run(context):
-    qemu_args = ""
+    qemu_args = []
     kernel_args = "rd.net.timeout.dhcp=10 panic=1 systemd.crash_reboot rd.shell=0 "\
                   "rd.debug loglevel=7 rd.retry=50 biosdevname=0 net.ifnames=0 noapic "
     kernel_arch_args = {
@@ -92,7 +109,7 @@ def dracut_run(context):
     test_type = "nfs"
     for row in context.table:
         if "qemu" in row[0].lower():
-            qemu_args += " " + row[1]
+            qemu_args += row[1].split(" ")
         elif "kernel" in row[0].lower():
             kernel_args += " " + row[1]
         elif "initrd" in row[0].lower():
@@ -121,24 +138,27 @@ def dracut_run(context):
         f.write("client_check() {\n" + checks + "}")
     subprocess.call("cd contrib/dracut/; . ./setup.sh; umount $DEV_CHECK", shell=True)
 
-    rc = subprocess.call(
-        "cd contrib/dracut/; . ./setup.sh; "
-        "echo NONE | dd status=none oflag=direct,dsync of=$DEV_STATE; "
-        "RAM=%s timeout %s bash ./run-qemu "
-        "-drive format=raw,index=0,media=disk,file=$TESTDIR/client_state.img "
-        "-drive format=raw,index=1,media=disk,file=$TESTDIR/client_check.img "
-        "-drive format=raw,index=2,media=disk,file=$TESTDIR/client_dumps.img "
-        "%s -append \"%s\" -initrd $TESTDIR/%s "
-        "> /tmp/dracut_boot.log 2>&1 ; rc=$?; "
-        "dd status=none if=$DEV_STATE of=$TESTDIR/client_state bs=1 count=5; "
-        "exit $rc" % (ram, timeout, qemu_args, kernel_args, initrd),
-        shell=True)
+    env = dict(os.environ)
+    env["RAM"] = ram
+    env["TIMEOUT"] = timeout
+    with open("/tmp/dracut_boot.log", "wb") as boot_log_f:
+        proc = subprocess.Popen([
+            "./run-qemu",
+            *qemu_args,
+            "-append", kernel_args,
+            "-initrd", "$TESTDIR/"+initrd,
+            ],
+            env=env,
+            cwd="./contrib/dracut/",
+            stdout=boot_log_f,
+            stderr=subprocess.STDOUT,
+            preexec_fn=os.setsid)
+        QemuStopper(proc)
+        proc.wait()
+        rc = proc.returncode
 
-    result = utf_only_open_read("/tmp/dracut_test/client_state")
-
-    if not result.startswith("PASS") and os.path.isfile("/tmp/dracut_boot.log"):
-        boot_log = utf_only_open_read("/tmp/dracut_boot.log")
-        context.embed("text/plain", boot_log, "DRACUT_BOOT")
+    with open("/tmp/dracut_test/client_state.img", "br") as f:
+        result = f.read(4).decode("utf-8")
 
     if not result.startswith("NO"):
         logs = {}
@@ -172,6 +192,7 @@ def dracut_run(context):
 
     assert "no free leases" not in get_dhcpd_log(context.log_cursor), "DHCPD leases exhausted"
 
+    boot_log = utf_only_open_read("/tmp/dracut_boot.log")
     for log_line in log_contains:
         assert log_line in boot_log, "Fail: not visible in log:\n" + log_line
     for log_line in log_not_contains:

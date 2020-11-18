@@ -1,10 +1,21 @@
 #!/bin/bash
 # Check which virtualization technology to use
 # We prefer kvm, kqemu, userspace in that order.
-export PATH=/sbin:/bin:/usr/sbin:/usr/bin
+#export PATH=/sbin:/bin:/usr/sbin:/usr/bin
 
-[[ -x /usr/libexec/qemu-kvm ]] && BIN=/usr/libexec/qemu-kvm && ARGS="-cpu max"
-[[ -c /dev/kvm ]] && [[ -x /usr/libexec/qemu-kvm ]] && ARGS="-cpu host"
+# import important vars
+. ./setup.sh
+
+# number of qemu-kvm retries
+REP=5
+# number of seconds qemu-kvm must be running to accept
+THRESHOLD=10
+
+echo NONE | dd status=none oflag=direct,dsync of=$DEV_STATE;
+
+ARGS=()
+[[ -x /usr/libexec/qemu-kvm ]] && BIN=/usr/libexec/qemu-kvm && ARGS+=(-cpu max)
+[[ -c /dev/kvm ]] && [[ -x /usr/libexec/qemu-kvm ]] && ARGS+=(-cpu host)
 
 [[ $BIN ]] || {
    echo "Could not find a working KVM or QEMU to test with!" >&2
@@ -14,13 +25,41 @@ export PATH=/sbin:/bin:/usr/sbin:/usr/bin
 
 [[ -z $RAM ]] && RAM=768
 
-[[ $(uname -p) = "ppc64le" ]] && ARGS="$ARGS -M cap-nested-hv=on,cap-cfpc=broken,cap-sbbc=broken,cap-ibs=broken,cap-ccf-assist=off,cap-hpt-max-page-size=4194304"
+[[ $(uname -p) = "ppc64le" ]] && ARGS+=(-M cap-nested-hv=on,cap-cfpc=broken,cap-sbbc=broken,cap-ibs=broken,cap-ccf-assist=off,cap-hpt-max-page-size=4194304)
 
 # Provide rng device sourcing the hosts /dev/urandom and other standard parameters
-ARGS="$ARGS -smp 2 -m $RAM -nodefaults -vga none -display none -no-reboot -device virtio-rng"
+ARGS+=(-smp 2 -m $RAM -nodefaults -vga none -display none -no-reboot -device virtio-rng)
+
+if [ -f $TESTDIR/qemu.pid ] ; then
+  echo "Warning, pidfile exists!"
+  pkill -9 -F $TESTDIR/qemu.pid
+  rm -rf $TESTDIR/qemu.pid
+fi
+ARGS+=(-pidfile $TESTDIR/qemu.pid)
+
+# disk files
+ARGS+=(-drive format=raw,index=0,media=disk,file=$TESTDIR/client_state.img)
+ARGS+=(-drive format=raw,index=1,media=disk,file=$TESTDIR/client_check.img)
+ARGS+=(-drive format=raw,index=2,media=disk,file=$TESTDIR/client_dumps.img)
+
+# eval script args
+for arg in "$@"
+do
+    arg_eval=
+    for part in $arg
+    do
+        eval part_eval=$part
+        if [ "$arg_eval" ]; then
+            arg_eval="$arg_eval $part_eval"
+        else
+            arg_eval="$part_eval"
+        fi
+    done
+    ARGS+=("$arg_eval")
+done
 
 if ! [[ $* = *-daemonize* ]]; then
-    ARGS="$ARGS -serial stdio"
+    ARGS+=(-serial stdio)
 fi
 
 KVERSION=${KVERSION-$(uname -r)}
@@ -37,5 +76,30 @@ if ! [ -f "$VMLINUZ" ]; then
     fi
 fi
 
-echo $BIN $ARGS -kernel $VMLINUZ "$@"
-exec $BIN $ARGS -kernel $VMLINUZ "$@"
+# print escaped qemu-command command
+echo -n "$BIN "
+for arg in "${ARGS[@]}"; do
+  if [[ "$arg" == *" "* ]]; then
+    echo -n "'$arg' "
+  else
+    echo -n "$arg "
+  fi
+done
+echo -kernel $VMLINUZ
+
+i=0
+while (( i++ < REP)); do
+  date1=$(date '+%s')
+  # do not remove "& wait $!" here, as qemu-kvm process starts
+  # in stopped state (no idea why)
+  timeout $TIMEOUT $BIN "${ARGS[@]}" -kernel $VMLINUZ < /dev/null; rc=$?
+  date2=$(date '+%s')
+
+  # if qemu-kvm lasted at least 10s, finish
+  (( date2 - date1 > THRESHOLD )) && exit $rc
+
+  # else try again
+  echo "qemu-kvm failed too quickly, restarting..."
+done
+
+exit $rc

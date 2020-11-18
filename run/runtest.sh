@@ -82,7 +82,7 @@ if [ $rc -eq 0 ]; then
 
       logger "Running  $NMTEST  with tags '-t $TAG'"
 
-      behave $FEATURE_FILE -t $1 -t $TAG -k -f html -o "$NMTEST_REPORT" -f plain & wait $!; rc=$?
+      behave $FEATURE_FILE -t $1 -t $TAG -k -f html -o "$NMTEST_REPORT" -f plain ; rc=$?
     fi
 fi
 
