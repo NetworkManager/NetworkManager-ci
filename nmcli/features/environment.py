@@ -244,13 +244,16 @@ def check_dump_package(pkg_name):
 def is_dump_reported(dump_dir):
     return call('grep -q "%s" /tmp/reported_crashes' % (dump_dir), shell=True) == 0
 
-def embed_dump(context, dump_dir, dump_output, caption, do_report):
-    print("Attaching %s, %s" % (caption, dump_dir))
-    context.embed('text/plain', dump_output, caption=caption)
+def embed_dump(context, dump_id, dump_output, caption, do_report):
+    print("Attaching %s, %s" % (caption, dump_id))
+    if isinstance(dump_output, str):
+        mime_type = "text/plain"
+    else:
+        mime_type = "link"
+    context.embed(mime_type, dump_output, caption=caption)
     context.crash_embeded = True
     with open("/tmp/reported_crashes", "a") as f:
-        f.write(dump_dir+"\n")
-        f.close()
+        f.write(dump_id+"\n")
     if not context.crashed_step:
         if context.nm_restarted:
             if do_report:
@@ -303,14 +306,26 @@ def check_faf(context, do_report=True):
             last_timestamp = f.read()
         # append last_timestamp, to check if last occurrence is reported
         if not is_dump_reported("%s-%s" % (dump_dir, last_timestamp)):
-            with open("%s/reported_to" % (dump_dir), "r") as f:
-                reports = f.read().strip("\n").split("\n")
-            url = ""
+            reports=[]
+            if os.path.isfile("%s/reported_to" % (dump_dir)):
+                with open("%s/reported_to" % (dump_dir), "r") as f:
+                    reports = f.read().strip("\n").split("\n")
+            urls = []
             for report in reports:
                 if "URL=" in report:
-                    url = report.replace("URL=","")
-            print ("embedding dump with report=%s", do_report)
-            embed_dump(context, "%s-%s" % (dump_dir ,last_timestamp), url, "FAF", do_report)
+                    report = report.replace("URL=","",1).split(":", 1)
+                    urls.append([report[1].strip(), report[0].strip()])
+            dump_id = "%s-%s" % (dump_dir, last_timestamp)
+            if urls:
+                embed_dump(context, dump_id, urls, "FAF", do_report)
+            else:
+                if os.path.isfile("%s/backtrace" % (dump_dir)):
+                    data = "Report not yet uploaded, please check FAF portal.\n\nBacktrace:\n"
+                    data += utf_only_open_read("%s/backtrace" % (dump_dir))
+                    embed_dump(context, dump_id, data, "FAF", do_report)
+                else:
+                    msg = "Report not yet uploaded, no backtrace yet, please check FAF portal."
+                    embed_dump(context, dump_id, msg, "FAF", do_report)
 
 def reset_usb_devices():
     USBDEVFS_RESET= 21780
