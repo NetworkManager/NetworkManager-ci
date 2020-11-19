@@ -308,7 +308,7 @@ Feature: NM: dracut
 
     @rhbz1883958
     @rhelver+=8.3 @fedoraver-=0
-    @ver+=1.27
+    @ver+=1.29
     @dracut @long @not_on_ppc64le
     @dracut_NM_NFS_root_nfs_ip_manual
     Scenario: NM - dracut - NM module - NFSv3 root=nfs ip=manual
@@ -337,7 +337,7 @@ Feature: NM: dracut
 
     @rhbz1879795
     @rhelver+=8.3 @fedoraver-=0
-    @ver+=1.27.0
+    @ver+=1.29.0
     @dracut @long @not_on_ppc64le
     @dracut_NM_NFS_root_nfs_ip_manual_gateway_hostname_mac
     Scenario: NM - dracut - NM module - NFSv3 root=nfs ip=IP::GW:NETMASK:HOSTNAME:MAC:none
@@ -369,7 +369,7 @@ Feature: NM: dracut
 
 
     @rhelver+=8.3 @fedoraver-=0
-    @ver+=1.27.0
+    @ver+=1.29.0
     @dracut @long @not_on_ppc64le
     @dracut_NM_NFS_root_nfs_ip_manual_mtu
     Scenario: NM - dracut - NM module - NFSv3 root=nfs ip=IP:::NETMASK::IFNAME:none:MTU
@@ -399,7 +399,7 @@ Feature: NM: dracut
 
 
     @rhelver+=8.3 @fedoraver-=0
-    @ver+=1.27.0
+    @ver+=1.29.0
     @dracut @long @not_on_ppc64le
     @dracut_NM_NFS_root_nfs_ip_manual_mtu_cloned_mac
     Scenario: NM - dracut - NM module - NFSv3 root=nfs ip=IP:::NETMASK::IFNAME:none:MTU:CMAC
@@ -431,7 +431,7 @@ Feature: NM: dracut
 
 
     @rhelver+=8.3 @fedoraver-=0
-    @ver+=1.27.0
+    @ver+=1.29.0
     @dracut @long @not_on_ppc64le
     @dracut_NM_NFS_root_nfs_ip_manual_dns1
     Scenario: NM - dracut - NM module - NFSv3 root=nfs ip=IP:::NETMASK::IFNAME:none:DNS1
@@ -460,7 +460,7 @@ Feature: NM: dracut
 
 
     @rhelver+=8.3 @fedoraver-=0
-    @ver+=1.27.0
+    @ver+=1.29.0
     @dracut @long @not_on_ppc64le
     @dracut_NM_NFS_root_nfs_ip_manual_dns2
     Scenario: NM - dracut - NM module - NFSv3 root=nfs ip=IP:::NETMASK::IFNAME:none:DNS1:DNS2
@@ -489,7 +489,7 @@ Feature: NM: dracut
 
 
     @rhelver+=8.3 @fedoraver-=0
-    @ver+=1.27.0
+    @ver+=1.29.0
     @dracut @long @not_on_ppc64le
     @dracut_NM_NFS_root_nfs_ip_manual_dns3
     Scenario: NM - dracut - NM module - NFSv3 root=nfs ip=IP:::NETMASK::IFNAME:none:DNS1:DNS2 nameserver
@@ -518,7 +518,7 @@ Feature: NM: dracut
 
 
     @rhelver+=8.3 @fedoraver-=0
-    @ver+=1.27.0
+    @ver+=1.29.0
     @dracut @long @not_on_ppc64le
     @dracut_NM_NFS_root_nfs_ip_manual_custom_ifname
     Scenario: NM - dracut - NM module - NFSv3 root=nfs ip=manual ifname=nfs
@@ -800,7 +800,7 @@ Feature: NM: dracut
 
 
     @rhelver+=8.3 @fedoraver-=0
-    @ver+=1.27
+    @ver+=1.29
     @dracut @long @not_on_ppc64le
     @dracut_NM_iSCSI_multiple_targets
     Scenario: NM - dracut - NM module - iSCSI 2 targets in RAID0
@@ -896,7 +896,7 @@ Feature: NM: dracut
 
 
     @rhelver+=8.3 @fedoraver-=0
-    @ver+=1.27
+    @ver+=1.29
     @dracut @long @not_on_ppc64le
     @dracut_NM_bridge_custom_name_2_ifaces
     Scenario: NM - dracut - NM module - custom bridge name over 2 ifaces
