@@ -337,7 +337,7 @@ deploy_ssh_keys () {
         mkdir /root/.ssh/
     fi
 
-    echo "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQCxWHTPdT+b/4EPoVgR/a88K9Wpdta8MdcqXPYOc4uNO/IDhLvGbU6HjlFjA1cI48U/KU6fM6qACJxgyeE/3h0EyMOt11UbzBK8d6Ts03HwdaKiE1Jvvs8Ga7FqZHBr37k7rESGT9B5zA11Bb7xIaBoZp2Q+D6VIGI5D9k0jcFUEEFW/+Rs0hVG8CczMLYAIeECsFSgksHKzrkY28lLn+N4iFWJBY6PpBlxZKiw9POi3L1gekbF+tEpzkeOmqWelZmD/t8ttKpqAeLp43K9nFLYdYaeoAPsaPANo6l5NSi30UGOjKtyWee0LGYDl92c7ahnyLmCybf2YgatD4GQphLh thaller@rh.com" >> /root/.ssh/authorized_keys
+    echo "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIGO5ve3AN8ynbd6/0DfG0Vm9mVxBKvO0oVERpkqj+sfO thaller@redhat.com" >> /root/.ssh/authorized_keys
 
     echo "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQDSLEW8B8/uX4VpsKIwrtrqBc/dAq+EaL17iegWZGR1qFbhC4xt8X+BoGRH/A9DlZPKhdMENHz+ZZT2XHkhLGSoRq0ElDM/WB9ppGxaVDh6plhvJL9aV8W8QcvOUPatdggGR3/b0qqnbGMwWnbPLJgqu/XwVm+z92oBJHh0W65cRg5jw/jedVPzFHe0ZVwfpZT3eUL2p6H16NV3phZVoIAJbkMEf59vSfKgK2816nNtKWCjwtCIzSR/K9KzejAfpUKyJNlNfxjtkoFf2zorPrdTT+DXiPprkTcExS4YEQl3fPp2/jT6gpcXuR+q8OGMIZDO8NkFVLL9AXhjR7nY+6Vr vbenes@benjoband" >> /root/.ssh/authorized_keys
 
