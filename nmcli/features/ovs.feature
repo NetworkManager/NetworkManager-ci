@@ -714,3 +714,33 @@ Feature: nmcli - ovs
     When "activated" is visible with command "nmcli -g GENERAL.STATE con show ovs-patch1" in "10" seconds
     Then "Interface patch0\s*type: patch\s*options: \{peer\=patch1\}" is visible with command "ovs-vsctl show"
     Then "Interface patch1\s*type: patch\s*options: \{peer\=patch0\}" is visible with command "ovs-vsctl show"
+
+
+    @rhbz1866227
+    @ver+=1.29.1
+    @openvswitch
+    @ovs_external_ids
+    Scenario: NM -  openvswitch - add dpdk device
+    * Add a new connection of type "ovs-bridge" and options "    conn.interface i-ovs-br0    con-name c-ovs-br0    autoconnect no"
+    * Add a new connection of type "ovs-port" and options "      conn.interface i-ovs-port0  con-name c-ovs-port0  autoconnect no conn.master i-ovs-br0"
+    * Add a new connection of type "ovs-interface" and options " conn.interface i-ovs-iface0 con-name c-ovs-iface0 autoconnect no conn.master i-ovs-port0   ovs-interface.type internal ipv4.method disabled ipv6.method disabled"
+
+    * Finish "python3 tmp/ovs-external-ids.py set id c-ovs-br0 br0-key0 br0-val0 br0-key1 br0-val1"
+    Then "br0-key0.*br0-val0.*br0-key1.*br0-val1" is visible with command "python3 tmp/ovs-external-ids.py get id c-ovs-br0"
+    * Finish "python3 tmp/ovs-external-ids.py set id c-ovs-port0 port0-key0 port0-val0"
+    Then "port0-key0.*port0-val0" is visible with command "python3 tmp/ovs-external-ids.py get id c-ovs-port0"
+    * Finish "python3 tmp/ovs-external-ids.py set id c-ovs-iface0 iface0-key0 iface0-val0 iface0-key1 iface0-val1 iface0-key2 iface0-val2"
+    Then "iface0-key0.*iface0-val0.*iface0-key1.*iface0-val1.*iface0-key2.*iface0-val2" is visible with command "python3 tmp/ovs-external-ids.py get id c-ovs-iface0"
+
+    * Bring "up" connection "c-ovs-iface0"
+    * Finish "tmp/ovs-assert-external-ids.py Bridge    i-ovs-br0    NM.connection.uuid ~. br0-key0 br0-val0 br0-key1 br0-val1"
+    * Finish "tmp/ovs-assert-external-ids.py Port      i-ovs-port0  NM.connection.uuid ~. port0-key0 port0-val0"
+    * Finish "tmp/ovs-assert-external-ids.py Interface i-ovs-iface0 NM.connection.uuid ~. iface0-key0 iface0-val0 iface0-key1 iface0-val1 iface0-key2 iface0-val2"
+
+    * Finish "python3 tmp/ovs-external-ids.py apply iface i-ovs-port0 -port0-key0 port0-key3 port0-val3"
+    * Finish "tmp/ovs-assert-external-ids.py Port i-ovs-port0 NM.connection.uuid ~. port0-key3 port0-val3"
+
+    * Finish "ovs-vsctl set Bridge i-ovs-br0 external-ids:foo=boo"
+    * Finish "tmp/ovs-assert-external-ids.py Bridge i-ovs-br0 NM.connection.uuid ~. br0-key0 br0-val0 br0-key1 br0-val1 foo boo"
+    * Finish "python3 tmp/ovs-external-ids.py apply iface i-ovs-br0 -br0-key0 br0-key3 br0-val3"
+    * Finish "tmp/ovs-assert-external-ids.py Bridge i-ovs-br0 NM.connection.uuid ~. br0-key1 br0-val1 br0-key3 br0-val3 foo boo"

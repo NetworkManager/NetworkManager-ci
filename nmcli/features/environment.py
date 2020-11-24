@@ -2783,11 +2783,12 @@ def after_scenario(context, scenario):
                 call('sudo ifdown eth1', shell=True)
                 call('sudo ifdown eth2', shell=True)
                 call('sudo ifdown ovsbridge0', shell=True)
-                call('sudo nmcli con del eth1 eth2 ovs-bond0 ovs-port0 ovs-patch0 ovs-patch1 ovs-bridge1 ovs-bridge0 ovs-port1 ovs-eth2 ovs-eth3 ovs-iface0 eth2 dpdk-sriov', shell=True) # to be sure
+                call('sudo nmcli con del eth1 eth2 ovs-bond0 ovs-port0 ovs-patch0 ovs-patch1 ovs-bridge1 ovs-bridge0 ovs-port1 ovs-eth2 ovs-eth3 ovs-iface0 eth2 dpdk-sriov c-ovs-br0 c-ovs-port0 c-ovs-iface0', shell=True) # to be sure
                 sleep(1)
                 call('ovs-vsctl del-br ovsbr0', shell=True)
                 call('ovs-vsctl del-br ovsbridge0', shell=True)
                 call('ovs-vsctl del-br ovsbridge1', shell=True)
+                call('ovs-vsctl del-br i-ovs-br0', shell=True)
                 call('nmcli device delete bond0', shell=True)
                 call('nmcli device delete port0', shell=True)
                 call('sudo rm -rf /etc/sysconfig/network-scripts/ifcfg-eth1', shell=True)
