@@ -1028,7 +1028,7 @@ Feature: NM: dracut
 
 
     @rhelver+=8.3 @fedoraver-=0
-    @ver-=1.28
+    @ver-=1.26
     @dracut @long @not_on_ppc64le
     @dracut_NM_vlan_over_nic
     Scenario: NM - dracut - NM module - VLAN over single NIC
@@ -1059,7 +1059,7 @@ Feature: NM: dracut
 
 
     @rhelver+=8.3 @fedoraver-=0
-    @ver+=1.29
+    @ver+=1.27
     @dracut @long @not_on_ppc64le
     @dracut_NM_vlan_over_nic
     Scenario: NM - dracut - NM module - VLAN over single NIC
@@ -1090,7 +1090,7 @@ Feature: NM: dracut
 
 
     @rhelver+=8.3 @fedoraver-=0
-    @ver-=1.28
+    @ver-=1.26
     @dracut @long @not_on_ppc64le
     @dracut_NM_vlan_mutliple_over_nic
     Scenario: NM - dracut - NM module - multiple VLANs over single NIC
@@ -1136,7 +1136,7 @@ Feature: NM: dracut
 
 
     @rhelver+=8.3 @fedoraver-=0
-    @ver+=1.29
+    @ver+=1.27
     @dracut @long @not_on_ppc64le
     @dracut_NM_vlan_mutliple_over_nic
     Scenario: NM - dracut - NM module - multiple VLANs over single NIC
@@ -1183,54 +1183,7 @@ Feature: NM: dracut
 
     @rhbz1879003
     @rhelver+=8.3 @fedoraver-=0
-    @ver+=1.27 @ver-=1.28
-    @dracut @long @not_on_ppc64le
-    @dracut_NM_vlan_over_bridge
-    Scenario: NM - dracut - NM module - VLAN over bridge
-    * Run dracut test
-      | Param  | Value                                                    |
-      | kernel | root=nfs:192.168.55.33:/client ro                        |
-      | kernel | bridge=br0:eth0,eth1 vlan=br0.0033:br0                   |
-      | qemu   | -netdev tap,id=vlan33_0,script=$PWD/qemu-ifup/vlan33_0   |
-      | qemu   | -device virtio-net,netdev=vlan33_0,mac=52:54:00:12:34:15 |
-      | qemu   | -netdev tap,id=vlan33_1,script=$PWD/qemu-ifup/vlan33_1   |
-      | qemu   | -device virtio-net,netdev=vlan33_1,mac=52:54:00:12:34:16 |
-      | check  | nmcli_con_active br0 br0 45                              |
-      | check  | nmcli_con_prop br0 ipv4.method auto                      |
-      | check  | nmcli_con_prop br0 IP4.ADDRESS 192.168.55.22/30 45       |
-      | check  | nmcli_con_prop br0 IP4.GATEWAY 192.168.55.21             |
-      | check  | nmcli_con_prop br0 IP4.ROUTE *192.168.55.20/30*          |
-      | check  | nmcli_con_prop br0 IP4.DNS 192.168.55.21                 |
-      | check  | nmcli_con_prop br0 IP4.DOMAIN cl.br.redhat.com           |
-      | check  | nmcli_con_prop br0 ipv6.method auto                      |
-      | check  | nmcli_con_prop br0 IP6.DNS ''                            |
-      | check  | nmcli_con_active br0.0033 br0.0033 45                    |
-      | check  | nmcli_con_prop br0.0033 vlan.id 33                       |
-      | check  | nmcli_con_prop br0.0033 vlan.parent br0                  |
-      | check  | nmcli_con_prop br0.0033 ipv4.method auto                 |
-      | check  | nmcli_con_prop br0.0033 IP4.ADDRESS 192.168.55.35/29 45  |
-      | check  | nmcli_con_prop br0.0033 IP4.GATEWAY 192.168.55.33        |
-      | check  | nmcli_con_prop br0.0033 IP4.ROUTE *192.168.55.32/29*     |
-      | check  | nmcli_con_prop br0.0033 IP4.DNS 192.168.55.33            |
-      | check  | nmcli_con_prop br0.0033 IP4.DOMAIN cl.vl33.redhat.com    |
-      | check  | nmcli_con_prop br0.0033 ipv6.method auto                 |
-      | check  | nmcli_con_prop br0.0033 IP6.DNS ''                       |
-      | check  | wait_for_ip4_renew 192.168.55.22 br0                     |
-      | check  | wait_for_ip4_renew 192.168.55.35 br0.0033                |
-      | check  | dns_search *br.redhat.com*                               |
-      | check  | dns_search *vl33.redhat.com*                             |
-      | check  | nmcli_con_num 4                                          |
-      | check  | no_ifcfg                                                 |
-      | check  | ip_route_unique "192.168.55.20/30 dev br0"               |
-      | check  | ip_route_unique "192.168.55.32/29 dev br0.0033"          |
-      | check  | ip_route_unique "default via 192.168.55.21 dev br0"      |
-      | check  | ip_route_unique "default via 192.168.55.33 dev br0.0033" |
-      | check  | nfs_server 192.168.55.33                                 |
-
-
-    @rhbz1879003
-    @rhelver+=8.3 @fedoraver-=0
-    @ver+=1.29
+    @ver+=1.27
     @dracut @long @not_on_ppc64le
     @dracut_NM_vlan_over_bridge
     Scenario: NM - dracut - NM module - VLAN over bridge
@@ -1266,7 +1219,7 @@ Feature: NM: dracut
 
 
     @rhelver+=8.3 @fedoraver-=0
-    @ver-=1.28
+    @ver-=1.26
     @dracut @long @not_on_ppc64le
     @dracut_NM_vlan_over_bond
     Scenario: NM - dracut - NM module - VLAN over bond
@@ -1314,7 +1267,7 @@ Feature: NM: dracut
 
 
     @rhelver+=8.3 @fedoraver-=0
-    @ver+=1.29
+    @ver+=1.27
     @dracut @long @not_on_ppc64le
     @dracut_NM_vlan_over_bond
     Scenario: NM - dracut - NM module - VLAN over bond
@@ -1352,7 +1305,7 @@ Feature: NM: dracut
 
 
     @rhelver+=8.3 @fedoraver-=0
-    @ver+=1.25 @ver-=1.28
+    @ver+=1.25 @ver-=1.26
     @dracut @long @not_on_ppc64le
     @dracut_NM_vlan_over_team_no_boot
     Scenario: NM - dracut - NM module - VLAN over team boot over other iface (team not stable)
@@ -1420,7 +1373,7 @@ Feature: NM: dracut
 
 
     @rhelver+=8.3 @fedoraver-=0
-    @ver+=1.29
+    @ver+=1.27
     @dracut @long @not_on_ppc64le
     @dracut_NM_vlan_over_team_no_boot
     Scenario: NM - dracut - NM module - VLAN over team boot over other iface (team not stable)
