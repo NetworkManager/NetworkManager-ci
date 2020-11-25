@@ -2026,6 +2026,8 @@ testmapper:
         feature: dns
     - dns_resolved_split_tunnel_vpn:
         feature: dns
+    - dns_resolved_add_remove_ipv6_dns:
+        feature: dns
     - dns_priority:
         feature: dns
         tags: gate

@@ -427,15 +427,18 @@
     Scenario: nmcli - ipv6 - dns - add dns when one already set
     * Add a new connection of type "ethernet" and options "ifname eth10 con-name con_ipv6 ipv6.dns '4000::1'"
     * Modify connection "con_ipv6" changing options "+ipv6.dns 2000::1"
-     * Bring "up" connection "con_ipv6"
-     Then Nameserver "2000::1" is set in "45" seconds
+    * Bring "up" connection "con_ipv6"
+    Then Nameserver "2000::1" is set in "45" seconds
     Then Nameserver "4000::1" is set
 
 
     @con_ipv6_remove @eth0
     @ipv6_dns_remove_manually_set
     Scenario: nmcli - ipv6 - dns - method auto then delete all dns
-    * Add a new connection of type "ethernet" and options "ifname eth10 con-name con_ipv6 ipv6.dns '4000::1, 5000::1'"
+    * Add a new connection of type "ethernet" and options "ifname eth10 con-name con_ipv6 ipv4.method disabled ip6 fd01::1/64 ipv6.dns '4000::1 5000::1' ipv6.gateway fd01::"
+    * Bring "up" connection "con_ipv6"
+    When Nameserver "4000::1" is set in "5" seconds
+    When Nameserver "5000::1" is set in "5" seconds
     * Modify connection "con_ipv6" changing options "ipv6.dns ''"
     * Bring "up" connection "con_ipv6"
     Then Nameserver "4000::1" is not set

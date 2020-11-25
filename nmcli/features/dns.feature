@@ -219,6 +219,21 @@ Feature: nmcli - dns
     Then device "tun1" does not have DNS domain "." for "routing"
     Then device "tun1" has DNS domain "vpn.domain" for "search"
 
+
+    @rhbz1888229
+    @ver+=1.28 @rhelver+=8 @fedoraver+=33
+    @con_dns_remove @eth0 @dns_systemd_resolved
+    @dns_resolved_add_remove_ipv6_dns
+    Scenario: nmcli - dns - add remove ipv6 dns under resolved
+    * Add a new connection of type "ethernet" and options "ifname eth10 con-name con_dns ipv4.method disabled ip6 fd01::1/64 ipv6.dns '4000::1 5000::1' ipv6.gateway fd01::2 autoconnect no"
+    * Bring "up" connection "con_dns"
+    When Nameserver "4000::1" is set in "5" seconds
+    When Nameserver "5000::1" is set in "5" seconds
+    * Modify connection "con_dns" changing options "ipv6.dns ''"
+    * Bring "up" connection "con_dns"
+    Then Nameserver "4000::1" is not set
+    Then Nameserver "5000::1" is not set
+
 ##########################################
 # DEFAULT DNS TESTS
 ##########################################
