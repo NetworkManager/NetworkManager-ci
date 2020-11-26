@@ -236,6 +236,9 @@ install_el8_packages () {
     fi
     dnf -4 -y install https://kojipkgs.fedoraproject.org//packages/scsi-target-utils/1.0.79/1.fc32/$(arch)/scsi-target-utils-1.0.79-1.fc32.$(arch).rpm
 
+    #wpa_supplicant for rhel8.3 or sooner - needed by @simwifi_ap_in_bridge_wpa_psk_method_manual
+    dnf -4 -y install https://vbenes.fedorapeople.org/NM/rhbz1888051/wpa_supplicant{,-debuginfo,-debugsource}-2.9-3.el8.$(arch).rpm
+
     install_plugins_dnf
 }
 

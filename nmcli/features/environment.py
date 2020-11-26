@@ -2453,6 +2453,7 @@ def after_scenario(context, scenario):
             if 'simwifi_p2p' in scenario.tags:
                 print ("---------------------------")
                 if call("grep -q 'release 8' /etc/redhat-release", shell=True) == 0:
+                    call("dnf -4 -y install https://vbenes.fedorapeople.org/NM/rhbz1888051/wpa_supplicant{,-debuginfo,-debugsource}-2.9-3.el8.$(arch).rpm", shell=True)
                     call("dnf -y update wpa_supplicant", shell=True)
                     call("systemctl restart wpa_supplicant", shell=True)
                 call('modprobe -r mac80211_hwsim', shell=True)

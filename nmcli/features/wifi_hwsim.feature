@@ -297,7 +297,7 @@ Feature: nmcli - wifi
 
 
     @rhelver+=8 @fedoraver+=31
-    @simwifi_ap
+    @simwifi_ap @attach_wpa_supplicant_log
     @simwifi_ap_wpa_psk_method_shared
     Scenario: nmcli - simwifi - AP - connect to NM AP with WPA2 psk security and method shared
     * Add a new connection of type "wifi" and options "ifname wlan1 con-name wifi-ap ssid AP_test 802-11-wireless-security.key-mgmt wpa-psk 802-11-wireless-security.psk Secret123 mode ap ipv4.method shared"
@@ -308,8 +308,8 @@ Feature: nmcli - wifi
 
 
     @rhbz1888051
-    @ver+=1.29 @rhelver+=8.4 @fedoraver+=33
-    @simwifi_ap @teardown_testveth
+    @ver+=1.29 @rhelver+=8 @fedoraver+=33
+    @simwifi_ap @teardown_testveth @attach_wpa_supplicant_log
     @simwifi_ap_in_bridge_wpa_psk_method_manual
     Scenario: nmcli - simwifi - AP - connect to NM AP with WPA2 psk security and method shared
     * Prepare simulated test "testW" device without dhcp
@@ -317,6 +317,6 @@ Feature: nmcli - wifi
     * Add a new connection of type "ethernet" and options "con-name br0-slave1 ifname testW"
     * Add a new connection of type "wifi" and options "con-name br0-slave2 master br0 ifname wlan1 ssid AP_test 802-11-wireless-security.key-mgmt wpa-psk 802-11-wireless-security.psk Secret123 mode ap"
     * Bring "up" connection "br0"
-    When "AP_test" is visible with command "nmcli dev wifi list" in "5" seconds
+    When "AP_test" is visible with command "nmcli dev wifi list --rescan yes" in "5" seconds
     * Add a new connection of type "wifi" and options "ifname wlan0 con-name wifi-client ssid AP_test 802-11-wireless-security.key-mgmt wpa-psk 802-11-wireless-security.psk Secret123 mode infrastructure ipv4.method manual ipv4.addresses 192.168.14.2/24"
     Then Bring "up" connection "wifi-client"
