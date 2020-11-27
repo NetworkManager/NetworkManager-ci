@@ -1,17 +1,15 @@
 # -*- coding: UTF-8 -*-
 from __future__ import absolute_import, division, print_function, unicode_literals
-from behave import step
-from time import sleep, time
-import pexpect
+
 import os
+import pexpect
 import re
 import subprocess
-from subprocess import Popen, check_output, call
+import time
+from behave import step
+
 from commands import check_pattern_command
-from glob import glob
-
 from steps import command_output, command_code, additional_sleep
-
 
 
 @step('Append "{line}" to file "{name}"')
@@ -53,7 +51,7 @@ def is_file(context, filename, seconds=5):
     for _ in range(int(seconds)):
         if os.path.isfile(filename):
             return
-        sleep(1)
+        time.sleep(1)
     ls = command_output(context, 'ls -la "%s"' % filename)
     assert os.path.isfile(filename), '"%s" is not a file:\n%s' % (filename, ls)
 
@@ -61,7 +59,7 @@ def is_file(context, filename, seconds=5):
 @step('Path "{path}" does not exist')
 def is_file(context, path):
     if os.path.exists(path):
-        sleep(3)
+        time.sleep(3)
         assert not os.path.exists(path), '"%s" is valid path' % path
     return True
 
@@ -132,7 +130,7 @@ def write_dispatcher_file(context, path, params=None):
     f.close()
     command_code(context, 'chmod +x %s' % disp_file)
     command_code(context, "> /tmp/dispatcher.txt")
-    sleep(8)
+    time.sleep(8)
 
 
 @step('Reset /etc/hosts')

@@ -1,26 +1,25 @@
 # -*- coding: UTF-8 -*-
 from __future__ import absolute_import, division, print_function, unicode_literals
-from behave import step
-from time import sleep, time
-import pexpect
+
+import glob
 import os
+import pexpect
 import re
 import subprocess
-from subprocess import Popen, check_output, call
-from glob import glob
+import time
+from behave import step
 
 from steps import command_output, command_code, additional_sleep
 
 
-
 @step(u'Use certificate "{cert}" with key "{key}" and authority "{ca}" for gateway "{gateway}" on OpenVPN connection "{name}"')
 def set_openvpn_connection(context, cert, key, ca, gateway, name):
-    samples = glob(os.path.abspath('tmp/openvpn/'))[0]+'/'
+    samples = glob.glob(os.path.abspath('tmp/openvpn/'))[0]+'/'
     cli = pexpect.spawn('nmcli c modify %s vpn.data "tunnel-mtu = 1400, key = %s, connection-type = tls, ca = %s, cert = %s, remote = %s, cert-pass-flags = 0"' % (name, samples + key, samples + ca, samples + cert, gateway), encoding='utf-8')
     r = cli.expect(['Error', pexpect.EOF])
     if r == 0:
         raise Exception('Got an Error while editing %s connection data\n%s%s' % (name, cli.after, cli.buffer))
-    sleep(1)
+    time.sleep(1)
 
 
 @step(u'Use user "{user}" with password "{password}" and group "{group}" with secret "{secret}" for gateway "{gateway}" on Libreswan connection "{name}"')
@@ -72,7 +71,7 @@ def set_pptp_connection(context, user, password, mppe, gateway, name):
     r = cli.expect(['Error', pexpect.EOF])
     if r == 0:
         raise Exception('Got an Error while editing %s connection data\n%s%s' % (name, cli.after, cli.buffer))
-    sleep(1)
+    time.sleep(1)
     if flag != "2":
         cli = pexpect.spawn('nmcli c modify %s vpn.secrets "password = %s"' % (name, password), encoding='utf-8')
         r = cli.expect(['Error', pexpect.EOF])
@@ -86,14 +85,14 @@ def set_pptp_connection(context, user, password, mppe, gateway, name):
 def connect_to_vpn(context, vpn, password, secret=None, time_out=None):
     cli = pexpect.spawn('nmcli -a connect up %s' % (vpn), timeout = 180, logfile=context.log, encoding='utf-8')
     if not time_out:
-        sleep(1)
+        time.sleep(1)
     else:
-        sleep(int(time_out))
+        time.sleep(int(time_out))
     cli.sendline(password)
     if secret != None:
-        sleep(1)
+        time.sleep(1)
         cli.sendline(secret)
-    if call("systemctl -q is-active polkit", shell=True) == 0:
+    if subprocess.call("systemctl -q is-active polkit", shell=True) == 0:
         r = cli.expect(['Error', pexpect.TIMEOUT, pexpect.EOF])
         if r == 0:
             raise Exception('Got an Error while connecting to network %s\n%s%s' % (vpn, cli.after, cli.buffer))

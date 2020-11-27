@@ -1,15 +1,16 @@
 # -*- coding: UTF-8 -*-
 from __future__ import absolute_import, division, print_function, unicode_literals
+
 import os
-import pyte
 import pexpect
+import pyte
 import re
 import subprocess
+import time
 from behave import step
-from time import sleep
-from subprocess import check_output
 
 from steps import command_output, command_code, additional_sleep
+
 
 OUTPUT = '/tmp/nmtui.out'
 TERM_TYPE = 'vt102'
@@ -84,7 +85,7 @@ def init_screen():
     return stream, screen
 
 def go_until_pattern_matches_line(context, key, pattern, limit=50):
-    sleep(0.2)
+    time.sleep(0.2)
     feed_stream(context.stream)
     for i in range(0,limit):
         match = re.match(pattern, context.screen.display[context.screen.cursor.y], re.UNICODE)
@@ -92,14 +93,14 @@ def go_until_pattern_matches_line(context, key, pattern, limit=50):
             return match
         else:
             context.tui.send(key)
-            sleep(0.3)
+            time.sleep(0.3)
             feed_stream(context.stream)
     return None
 
 
 def go_until_pattern_matches_aftercursor_text(context, key, pattern, limit=50, include_precursor_char=True):
     pre_c = 0
-    sleep(0.2)
+    time.sleep(0.2)
     feed_stream(context.stream)
     if include_precursor_char is True:
         pre_c = -1
@@ -110,14 +111,14 @@ def go_until_pattern_matches_aftercursor_text(context, key, pattern, limit=50, i
             return match
         else:
             context.tui.send(key)
-            sleep(0.3)
+            time.sleep(0.3)
             feed_stream(context.stream)
     return None
 
 def search_all_patterns_in_list(context, patterns, limit=50):
     patterns = list(patterns)  # make local copy
     context.tui.send(keys["UPARROW"]*limit)
-    sleep(0.2)
+    time.sleep(0.2)
     feed_stream(context.stream)
     for i in range(0,limit):
         for pattern in patterns:
@@ -128,7 +129,7 @@ def search_all_patterns_in_list(context, patterns, limit=50):
         if len(patterns) == 0:
             break
         context.tui.send(keys["DOWNARROW"])
-        sleep(0.3)
+        time.sleep(0.3)
         feed_stream(context.stream)
     return patterns
 
@@ -143,7 +144,7 @@ def start_nmtui(context):
     for line in context.screen.display:
         if 'NetworkManager TUI' in line:
             break
-    sleep(0.2)
+    time.sleep(0.2)
 
 @step('Nmtui process is running')
 def check_process_running(context):
@@ -158,7 +159,7 @@ def check_process_not_running(context):
 @step('Press "{key}" key')
 def press_key(context, key):
     context.tui.send(keys[key])
-    sleep(0.2)
+    time.sleep(0.2)
 
 @step('Come back to the top of editor')
 def come_back_to_top(context):
@@ -184,7 +185,7 @@ def choose_main_option(context, option):
     context.execute_steps('''* Come back to the top of editor''')
     assert go_until_pattern_matches_line(context,keys['DOWNARROW'],r'.*%s.*' % option) is not None, "Could not go to option '%s' on screen!" % option
     context.tui.send(keys['ENTER'])
-    sleep(0.2)
+    time.sleep(0.2)
 
 @step('Choose the connection type "{typ}"')
 def select_con_type(context, typ):
@@ -198,7 +199,7 @@ def press_dialog_button(context, button):
     assert go_until_pattern_matches_aftercursor_text(context,keys['TAB'],r'^ +%s.*$' % button) is not None, "Could not go to action '<Create>' on screen!"
     context.tui.send(keys['ENTER'])
     if button == 'Delete':
-        sleep(0.5)
+        time.sleep(0.5)
 
 
 @step('Press "{button}" button in the password dialog')
@@ -230,9 +231,9 @@ def back_to_con_list(context):
 
 @step('Come back to main screen')
 def back_to_main(context):
-    current_nm_version = "".join(check_output("""NetworkManager -V |awk 'BEGIN { FS = "." }; {printf "%03d%03d%03d", $1, $2, $3}'""", shell=True).decode('utf-8', 'ignore').split('-')[0])
+    current_nm_version = "".join(subprocess.check_output("""NetworkManager -V |awk 'BEGIN { FS = "." }; {printf "%03d%03d%03d", $1, $2, $3}'""", shell=True).decode('utf-8', 'ignore').split('-')[0])
     context.tui.send(keys['ESCAPE'])
-    sleep(0.4)
+    time.sleep(0.4)
     if current_nm_version < "001003000":
         context.execute_steps('* Start nmtui')
 
@@ -242,15 +243,15 @@ def back_to_main(context):
 @step('Choose to "{action}" a connection')
 def choose_connection_action(context, action):
     assert go_until_pattern_matches_aftercursor_text(context,keys['TAB'],r'%s.*' % action) is not None, "Could not go to action '%s' on screen!" % action
-    sleep(0.1)
+    time.sleep(0.1)
     context.tui.send(keys['ENTER'])
-    sleep(0.5)
+    time.sleep(0.5)
 
 
 @step('Confirm the route settings')
 def confirm_route_screen(context):
     context.tui.send(keys['DOWNARROW']*64)
-    sleep(0.2)
+    time.sleep(0.2)
     feed_stream(context.stream)
     match = re.match(r'^<OK>.*', context.screen.display[context.screen.cursor.y][context.screen.cursor.x-1:], re.UNICODE)
     assert match is not None, "Could not get to the <OK> route dialog button!"
@@ -260,7 +261,7 @@ def confirm_route_screen(context):
 @step('Confirm the slave settings')
 def confirm_slave_screen(context):
     context.tui.send(keys['DOWNARROW']*64)
-    sleep(0.2)
+    time.sleep(0.2)
     feed_stream(context.stream)
     match = re.match(r'^<OK>.*', context.screen.display[context.screen.cursor.y][context.screen.cursor.x-1:], re.UNICODE)
     assert match is not None, "Could not get to the <OK> button! (In form? Segfault?)"
@@ -272,12 +273,12 @@ def confirm_connection_screen(context):
     context.tui.send(keys['DOWNARROW']*64)
     context.tui.send(keys['RIGHTARROW']*3)
     context.tui.send(keys['DOWNARROW']*64)
-    sleep(0.2)
+    time.sleep(0.2)
     feed_stream(context.stream)
     match = re.match(r'^<OK>.*', context.screen.display[context.screen.cursor.y][context.screen.cursor.x-1:], re.UNICODE)
     assert match is not None, "Could not get to the <OK> button! (In form? Segfault?)"
     context.tui.send(keys['ENTER'])
-    sleep(0.2)
+    time.sleep(0.2)
     feed_stream(context.stream)
     for line in context.screen.display:
         print (line)
@@ -290,7 +291,7 @@ def confirm_connection_screen(context):
 @step('Cannot confirm the connection settings')
 def cannot_confirm_connection_screen(context):
     context.tui.send(keys['DOWNARROW']*64)
-    sleep(0.2)
+    time.sleep(0.2)
     feed_stream(context.stream)
     match = re.match(r'^<Cancel>.*', context.screen.display[context.screen.cursor.y][context.screen.cursor.x-1:], re.UNICODE)
     assert match is not None, "<OK> button is likely not greyed got: %s at the last line" % match.group(1)
@@ -307,7 +308,7 @@ def pattern_on_screen(context, pattern, seconds=1):
         match = re.match(pattern, screen, re.UNICODE | re.DOTALL)
         if match is None:
             feed_stream(context.stream)
-            sleep(1)
+            time.sleep(1)
     assert match is not None, "Could not see pattern '%s' on screen:\n\n%s" % (pattern, screen)
 
 
@@ -321,7 +322,7 @@ def pattern_not_on_screen(context, pattern):
 def set_current_field_to(context, value):
     context.tui.send(keys['BACKSPACE']*100)
     context.tui.send(value)
-    sleep(0.2)
+    time.sleep(0.2)
 
 
 @step('Set "{field}" field to "{value}"')
@@ -442,16 +443,16 @@ def set_team_json(context, value):
     assert go_until_pattern_matches_aftercursor_text(context,keys['TAB'],'^<Edit.*') is not None
     context.tui.send(keys['TAB'])
     assert go_until_pattern_matches_aftercursor_text(context,keys['TAB'],'^<Edit.*') is not None, "Could not find the json edit button"
-    sleep(2)
+    time.sleep(2)
     context.tui.send('\r\n')
-    sleep(5)
+    time.sleep(5)
     context.tui.send('i')
-    sleep(5)
+    time.sleep(5)
     context.tui.send(value)
-    sleep(5)
+    time.sleep(5)
     context.tui.send(keys['ESCAPE'])
-    sleep(5)
+    time.sleep(5)
     context.tui.send(":wq")
-    sleep(5)
+    time.sleep(5)
     context.tui.send('\r\n')
-    sleep(5)
+    time.sleep(5)

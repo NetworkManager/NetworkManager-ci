@@ -1,7 +1,10 @@
 # -*- coding: UTF-8 -*-
 import os
+import pexpect
+import pyte
+import re
 import subprocess
-from time import sleep
+import time
 
 IS_NMTUI = "nmtui" in __file__
 
@@ -40,6 +43,6 @@ def command_code(context, command, *a, **kw):
     return code
 
 
-def additional_sleep(time):
+def additional_sleep(secs):
     if IS_NMTUI:
-        sleep(time)
+        time.sleep(secs)

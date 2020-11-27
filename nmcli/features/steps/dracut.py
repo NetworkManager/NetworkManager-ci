@@ -1,11 +1,12 @@
 # -*- coding: UTF-8 -*-
 from __future__ import absolute_import, division, print_function, unicode_literals
-from behave import step
-import sys
-import os
+
 import base64
-import subprocess
+import os
 import signal
+import subprocess
+import sys
+from behave import step
 
 
 def utf_only_open_read(file, mode='r'):

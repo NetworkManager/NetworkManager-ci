@@ -1,16 +1,14 @@
 # -*- coding: UTF-8 -*-
 from __future__ import absolute_import, division, print_function, unicode_literals
-from behave import step
-from time import sleep, time
-import pexpect
+
 import os
+import pexpect
 import re
 import subprocess
-from subprocess import Popen, check_output, call
-from glob import glob
+import time
+from behave import step
 
 from steps import command_output, command_code, additional_sleep
-
 
 
 @step(u'Reboot')
@@ -40,9 +38,9 @@ def reboot(context):
 
     command_code(context, "rm -rf /var/run/NetworkManager")
 
-    sleep(1)
+    time.sleep(1)
     assert command_code(context, "sudo systemctl restart NetworkManager") == 0
-    sleep(2)
+    time.sleep(2)
 
 
 @step(u'Start NM')
@@ -56,7 +54,7 @@ def restart_NM(context):
     context.nm_restarted = True
     command_code(context, "systemctl restart NetworkManager") == 0
     # For stability reasons 1 is not enough, please do not lower this
-    sleep(2)
+    time.sleep(2)
 
 
 @step(u'Kill NM with signal "{signal}"')
@@ -65,7 +63,7 @@ def stop_NM(context, signal=""):
     context.nm_restarted = True
     if signal:
         signal = "-" + signal
-    call("kill %s $(pidof NetworkManager) && sleep 5" % (signal), shell=True)
+    subprocess.call("kill %s $(pidof NetworkManager) && sleep 5" % (signal), shell=True)
 
 
 @step(u'Stop NM')

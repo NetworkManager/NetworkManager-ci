@@ -1,16 +1,14 @@
 # -*- coding: UTF-8 -*-
 from __future__ import absolute_import, division, print_function, unicode_literals
-from behave import step
-from time import sleep, time
-import pexpect
+
 import os
+import pexpect
 import re
 import subprocess
-from subprocess import Popen, check_output, call
-from glob import glob
+import time
+from behave import step
 
 from steps import command_output, command_code, additional_sleep
-
 
 
 @step(u'Autoconnect warning is shown')
@@ -51,7 +49,7 @@ def check_describe_output_in_editor(context, options, obj):
         context.prompt.sendcontrol('c')
         context.prompt.send('\n')
         context.prompt.send('set %s \t\t' % obj)
-        sleep(0.25)
+        time.sleep(0.25)
         a =  context.prompt.expect(["%s" % opt, pexpect.TIMEOUT], timeout=5)
         assert a == 0 , "Option %s was not shown!" % opt
 
@@ -72,9 +70,9 @@ def check_saved_in_editor(context):
 @step(u'Delete connection "{name}" and hit enter')
 def delete_connection_with_enter(context, name):
     command_code(context, 'nmcli connection delete id %s' %name)
-    sleep(5)
+    time.sleep(5)
     context.prompt.send('\n')
-    sleep(2)
+    time.sleep(2)
     assert context.prompt.isalive() is True, 'Something went wrong'
 
 
@@ -141,7 +139,7 @@ def note_print_property(context, prop):
 
 @step(u'Open editor for connection "{con_name}"')
 def open_editor_for_connection(context, con_name):
-    sleep(0.2)
+    time.sleep(0.2)
     prompt = pexpect.spawn('/bin/nmcli connection ed %s' % con_name, logfile=context.log, encoding='utf-8')
     context.prompt = prompt
     r = prompt.expect([con_name, 'Error'])
@@ -152,7 +150,7 @@ def open_editor_for_connection(context, con_name):
 @step(u'Open editor for "{con_name}" with timeout')
 def open_editor_for_connection_with_timeout(context, con_name):
     prompt = pexpect.spawn('nmcli connection ed %s' % (con_name), logfile=context.log, maxread=6000, timeout=5, encoding='utf-8')
-    sleep(2)
+    time.sleep(2)
     context.prompt = prompt
     r = prompt.expect(['Error', con_name])
     if r == 0:
@@ -163,7 +161,7 @@ def open_editor_for_connection_with_timeout(context, con_name):
 def open_editor_for_connection_type(context, con_name, type):
     prompt = pexpect.spawn('nmcli connection ed type %s con-name %s' % (type, con_name), logfile=context.log, maxread=6000, encoding='utf-8')
     context.prompt = prompt
-    sleep(1)
+    time.sleep(1)
     r = prompt.expect(['nmcli interactive connection editor','Error'])
     if r != 0:
         raise Exception('Got an Error while opening  %s profile %s\n%s%s' % (type, con_name, prompt.after, prompt.buffer))
@@ -204,14 +202,14 @@ def print_in_editor(context):
 
 @step(u'Prompt is not running')
 def prompt_is_not_running(context):
-    sleep(0.2)
+    time.sleep(0.2)
     if context.prompt.pid:
         prompt = False
         for x in range(1,4):
             prompt = context.prompt.isalive()
             if not prompt:
                 break
-            sleep(0.5)
+            time.sleep(0.5)
         assert prompt is False
     else:
         return True
@@ -221,13 +219,13 @@ def prompt_is_not_running(context):
 def quit_editor(context):
     context.prompt.sendline('quit')
     # VVV We shouldn't go lower here
-    sleep(0.3)
+    time.sleep(0.3)
 
 
 @step(u'Save in editor')
 def save_in_editor(context):
     context.prompt.sendline('save')
-    sleep(0.2)
+    time.sleep(0.2)
 
 
 @step(u'See Error while saving in editor')
@@ -241,7 +239,7 @@ def set_property_in_editor(context, name, value):
         context.prompt.sendline('set %s %s' % (name,context.noted[value]))
     else:
         context.prompt.sendline('set %s %s' % (name,value))
-    sleep(0.25)
+    time.sleep(0.25)
 
 
 @step(u'Submit "{what}"')
@@ -334,9 +332,9 @@ def wrong_bond_options_in_editor(context):
 @step(u'Check if object item "{item}" has value "{value}" via print')
 def value_printed(context, item, value):
     context.prompt.sendline('print')
-    #sleep(2)
+    #time.sleep(2)
     if value == "current_time":
-        t_int = int(time())
+        t_int = int(time.time())
         t_str = str(t_int)
         value = t_str[:-3]
         print (value)

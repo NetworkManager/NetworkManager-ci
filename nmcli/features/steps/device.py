@@ -1,16 +1,14 @@
 # -*- coding: UTF-8 -*-
 from __future__ import absolute_import, division, print_function, unicode_literals
-from behave import step
-from time import sleep, time
-import pexpect
+
 import os
+import pexpect
 import re
 import subprocess
-from subprocess import Popen, check_output, call
-from glob import glob
+import time
+from behave import step
 
 from steps import command_output, command_code, additional_sleep
-
 
 
 @step(u'{action} all "{what}" devices')
@@ -239,9 +237,9 @@ def note_mac_address(context, device):
 @step(u'Note MAC address output for device "{device}" via ip command as "{index}"')
 @step(u'Note MAC address output for device "{device}" via ip command')
 def note_mac_address_ip(context, device, index=None):
-    if call("ip a s %s |grep -q ether" %device, shell=True) == 0:
+    if subprocess.call("ip a s %s |grep -q ether" %device, shell=True) == 0:
         mac = command_output(context, "ip link show %s | grep 'link/ether' | awk '{print $2}'" % device).strip()
-    if call("ip a s %s |grep -q infiniband" %device, shell=True) == 0:
+    if subprocess.call("ip a s %s |grep -q infiniband" %device, shell=True) == 0:
         ip_out = command_output(context, "ip link show %s | grep 'link/inf' | awk '{print $2}'" % device).strip()
         mac = ip_out.split()[-1]
         client_id = ""
@@ -560,7 +558,7 @@ def flag_cap_set(context, flag, n=None, device='wlan0', giveexception=True):
             org.freedesktop.DBus.Properties.Get \
             string:"org.freedesktop.NetworkManager.Device.Wireless" \
             string:"WirelessCapabilities" | grep variant | awk '{print $3}' ''' % path
-    ret = int(check_output(cmd, shell=True).decode('utf-8', 'ignore').strip())
+    ret = int(subprocess.check_output(cmd, shell=True).decode('utf-8', 'ignore').strip())
 
     if n is None:
         if wcaps[flag] & ret == wcaps[flag]:
@@ -610,9 +608,9 @@ def check_ipv6_connectivity_on_assumal(context, profile, device):
     assert command_code(context, 'systemctl stop NetworkManager.service') == 0
     assert command_code(context, "sed -i 's/UUID=/#UUID=/' /etc/sysconfig/network-scripts/ifcfg-%s" % profile)  == 0
     ping = pexpect.spawn('ping6 %s -i 0.2 -c 50' % address, logfile=context.log, encoding='utf-8')
-    sleep(1)
+    time.sleep(1)
     assert command_code(context, 'systemctl start NetworkManager.service') == 0
-    sleep(12)
+    time.sleep(12)
     r = ping.expect(["0% packet loss", pexpect.EOF, pexpect.TIMEOUT])
     if r != 0:
         raise Exception('Had packet loss on pinging the address!')

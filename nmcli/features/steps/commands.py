@@ -1,16 +1,15 @@
 # -*- coding: UTF-8 -*-
 from __future__ import absolute_import, division, print_function, unicode_literals
-from behave import step
-from time import sleep, time
-import pexpect
+
+import json
 import os
+import pexpect
 import re
 import subprocess
-from subprocess import Popen, check_output, call
-from glob import glob
-import json
-from steps import command_output, command_code, additional_sleep
+import time
+from behave import step
 
+from steps import command_output, command_code, additional_sleep
 
 
 @step(u'Autocomplete "{cmd}" in bash and execute')
@@ -18,9 +17,9 @@ def autocomplete_command(context, cmd):
     bash = pexpect.spawn("bash", encoding='utf-8')
     bash.send(cmd)
     bash.send('\t')
-    sleep(1)
+    time.sleep(1)
     bash.send('\r\n')
-    sleep(1)
+    time.sleep(1)
     bash.sendeof()
 
 
@@ -73,22 +72,22 @@ def check_noted_output_contains(context, pattern):
 @step(u'Execute "{command}"')
 def execute_command(context, command):
     command_code(context, command)
-    sleep(0.3)
+    time.sleep(0.3)
 
 
 @step(u'Execute "{command}" without waiting for process to finish')
 def execute_command(context, command):
-    Popen(command, shell=True)
+    subprocess.Popen(command, shell=True)
 
 
 @step(u'Execute "{command}" for "{number}" times')
 def execute_multiple_times(context, command, number):
-    orig_nm_pid = check_output('pidof NetworkManager', shell=True).decode('utf-8', 'ignore')
+    orig_nm_pid = subprocess.check_output('pidof NetworkManager', shell=True).decode('utf-8', 'ignore')
 
     i = 0
     while i < int(number):
         command_code(context, command)
-        curr_nm_pid = check_output('pidof NetworkManager', shell=True).decode('utf-8', 'ignore')
+        curr_nm_pid = subprocess.check_output('pidof NetworkManager', shell=True).decode('utf-8', 'ignore')
         assert curr_nm_pid == orig_nm_pid, 'NM crashed as original pid was %s but now is %s' %(orig_nm_pid, curr_nm_pid)
         i += 1
 
@@ -96,19 +95,19 @@ def execute_multiple_times(context, command, number):
 @step(u'Finish "{command}"')
 def wait_for_process(context, command):
     assert command_code(context, command) == 0
-    sleep(0.1)
+    time.sleep(0.1)
 
 
 @step(u'"{command}" fails')
 def wait_for_process(context, command):
     assert command_code(context, command) != 0
-    sleep(0.1)
+    time.sleep(0.1)
 
 
 @step(u'Restore hostname from the noted value')
 def restore_hostname(context):
     command_code('nmcli g hostname %s' % context.noted['noted-value'])
-    sleep(0.5)
+    time.sleep(0.5)
 
 
 @step(u'Hostname is visible in log "{log}"')
@@ -121,7 +120,7 @@ def hostname_visible(context, log, seconds=1):
         if command_code(context, cmd) == 0:
             return True
         seconds = seconds - 1
-        sleep(1)
+        time.sleep(1)
     raise Exception('Hostname not visible in log in %d seconds' % (orig_seconds))
 
 
@@ -135,7 +134,7 @@ def hostname_visible(context, log, seconds=1):
         if command_code(context, cmd) != 0:
             return True
         seconds = seconds - 1
-        sleep(1)
+        time.sleep(1)
     raise Exception('Hostname visible in log after %d seconds' % (orig_seconds - seconds))
 
 
@@ -144,7 +143,7 @@ def hostname_visible(context, log, seconds=1):
 @step(u'Domain "{server}" is set')
 @step(u'Domain "{server}" is set in "{seconds}" seconds')
 def get_nameserver_or_domain(context, server, seconds=1):
-    if call('systemctl is-active systemd-resolved.service -q', shell=True) == 0:
+    if subprocess.call('systemctl is-active systemd-resolved.service -q', shell=True) == 0:
         # We have systemd-resolvd running
         cmd = 'resolvectl dns; resolvectl domain'
     else:
@@ -157,7 +156,7 @@ def get_nameserver_or_domain(context, server, seconds=1):
 @step(u'Domain "{server}" is not set')
 @step(u'Domain "{server}" is not set in "{seconds}" seconds')
 def get_nameserver_or_domain(context, server, seconds=1):
-    if call('systemctl is-active systemd-resolved.service -q', shell=True) == 0:
+    if subprocess.call('systemctl is-active systemd-resolved.service -q', shell=True) == 0:
         # We have systemd-resolvd running
         cmd = 'systemd-resolve --status |grep -A 100 Link'
     else:
@@ -227,7 +226,7 @@ def check_pattern_command(context, command, pattern, seconds, check_type="defaul
         elif check_type == "not_full":
             assert ret != 0, 'Pattern "%s" appeared after %d seconds, output was:\n%s%s' % (pattern, orig_seconds-seconds, proc.before, proc.after)
         seconds = seconds - 1
-        sleep(interval)
+        time.sleep(interval)
     if check_type == "default":
         raise Exception('Did not see the pattern "%s" in %d seconds, output was:\n%s' % (pattern, orig_seconds, proc.before))
     elif check_type == "not":
@@ -333,14 +332,14 @@ def check_pattern_not_visible_with_tab_after_command(context, pattern, command):
 @step(u'Run child "{command}"')
 def run_child_process(context, command):
     children = getattr(context, "children", [])
-    children.append(Popen(command, shell=True))
+    children.append(subprocess.Popen(command, shell=True))
     context.children = children
 
 
 @step(u'Run child "{command}" without shell')
 def run_child_process_no_shell(context, command):
     children = getattr(context, "children", [])
-    children.append(Popen(command.split(" "), stdout=context.log, stderr=context.log))
+    children.append(subprocess.Popen(command.split(" "), stdout=context.log, stderr=context.log))
     context.children = children
 
 @step(u'Kill children')
@@ -353,7 +352,7 @@ def kill_children(context):
 @step(u'Start following journal')
 def start_tailing_journal(context):
     context.journal = pexpect.spawn('sudo journalctl --follow -o cat', timeout = 180, logfile=context.log, encoding='utf-8')
-    sleep(0.3)
+    time.sleep(0.3)
 
 
 @step(u'Look for "{content}" in journal')
@@ -369,7 +368,7 @@ def terminate_spawned_process(context, command):
 
 @step(u'Wait for at least "{secs}" seconds')
 def wait_for_x_seconds(context,secs):
-    sleep(int(secs))
+    time.sleep(int(secs))
     assert True
 
 
@@ -382,7 +381,7 @@ def find_tailing(context, content):
 @step(u'Start tailing file "{archivo}"')
 def start_tailing(context, archivo):
     context.tail = pexpect.spawn('sudo tail -f %s' % archivo, timeout = 180, logfile=context.log, encoding='utf-8')
-    sleep(0.3)
+    time.sleep(0.3)
 
 
 @step('Ping "{domain}"')
@@ -446,7 +445,7 @@ def check_metered_status(context, value):
                                                 org.freedesktop.DBus.Properties.Get \
                                                 string:"org.freedesktop.NetworkManager" \
                                                 string:"Metered" |grep variant| awk \'{print $3}\''
-    ret = check_output(cmd, shell=True).decode('utf-8', 'ignore').strip()
+    ret = subprocess.check_output(cmd, shell=True).decode('utf-8', 'ignore').strip()
     assert ret == value, "Metered value is %s but should be %s" %(ret, value)
 
 @step(u'Network trafic "{state}" dropped')
@@ -496,7 +495,7 @@ def send_packet(context, srcaddr=None, hlim=None, valid=3600, pref=1800, prefix=
     sendp(p, iface=in_if)
     sendp(p, iface=in_if)
 
-    sleep(3)
+    time.sleep(3)
 
 
 @step(u'Set logging for "{domain}" to "{level}"')
@@ -515,4 +514,4 @@ def set_logging(context, domain, level):
 def note_NM_log(context):
     if not hasattr(context, 'noted'):
         context.noted = {}
-    context.noted['noted-value'] = check_output( "sudo journalctl -all -u NetworkManager --no-pager -o cat %s" % context.log_cursor, shell=True).decode('utf-8', 'ignore')
+    context.noted['noted-value'] = subprocess.check_output( "sudo journalctl -all -u NetworkManager --no-pager -o cat %s" % context.log_cursor, shell=True).decode('utf-8', 'ignore')

@@ -1,16 +1,14 @@
 # -*- coding: UTF-8 -*-
 from __future__ import absolute_import, division, print_function, unicode_literals
-from behave import step
-from time import sleep, time
-import pexpect
+
 import os
+import pexpect
 import re
 import subprocess
-from subprocess import Popen, check_output, call
-from glob import glob
+import time
+from behave import step
 
 from steps import command_output, command_code, additional_sleep
-
 
 
 @step(u'Create PBR files for profile "{profile}" and "{dev}" device in table "{table}"')
@@ -24,7 +22,7 @@ def create_policy_based_routing_files(context, profile, dev, table):
 
     command_code(context, "echo 'prio 17201 iif %s table %s' > /etc/sysconfig/network-scripts/rule-%s" % (dev, table, profile))
     command_code(context, "echo 'prio 17200 from %s table %s' >> /etc/sysconfig/network-scripts/rule-%s" % (ip, table, profile))
-    sleep(1)
+    time.sleep(1)
 
 
 @step(u'Configure dhcp server for subnet "{subnet}" with lease time "{lease}"')
@@ -108,7 +106,7 @@ def start_radvd(context, location):
     command_code(context, "rm -rf /etc/radvd.conf")
     command_code(context, "cp %s /etc/radvd.conf" % location)
     command_code(context, "systemctl restart radvd")
-    sleep(2)
+    time.sleep(2)
 
 
 @step(u'Restart dhcp server on {device} device with {ipv4} ipv4 and {ipv6} ipv6 dhcp address prefix')
@@ -199,7 +197,7 @@ def prepare_simdev(context, device, lease_time="2m", ipv4=None, ipv6=None, optio
     command_code(context, "echo '192.168.99.13 ip-192-168-99-13' >> /etc/hosts")
     command_code(context, "echo '192.168.99.14 ip-192-168-99-14' >> /etc/hosts")
     command_code(context, "echo '192.168.99.15 ip-192-168-99-15' >> /etc/hosts")
-    sleep(2)
+    time.sleep(2)
 
     if option:
         option = "--dhcp-option-force=" + option
@@ -333,7 +331,7 @@ def prepare_simdev(context, device):
     # Add route
     command_code(context, "ip netns exec {device}2_ns ip route add fd01::/64 via fd02::1 dev {device}2p".format(device=device))
     # Run netcat server to receive some data
-    Popen("ip netns exec {device}2_ns nc -6 -l -p 8080 > /dev/null".format(device=device) , shell=True)
+    subprocess.Popen("ip netns exec {device}2_ns nc -6 -l -p 8080 > /dev/null".format(device=device) , shell=True)
 
     if not hasattr(context, 'testvethns'):
         context.testvethns = []
@@ -377,8 +375,8 @@ def prepare_simdev_no_carrier(context, device):
 @step(u'Start pppoe server with "{name}" and IP "{ip}" on device "{dev}"')
 def start_pppoe_server(context, name, ip, dev):
     command_code(context, "ip link set dev %s up" %dev)
-    Popen("kill -9 $(pidof pppoe-server); pppoe-server -S %s -C %s -L %s -p /etc/ppp/allip -I %s" %(name, name, ip, dev), shell=True)
-    sleep(0.5)
+    subprocess.Popen("kill -9 $(pidof pppoe-server); pppoe-server -S %s -C %s -L %s -p /etc/ppp/allip -I %s" %(name, name, ip, dev), shell=True)
+    time.sleep(0.5)
 
 
 @step(u'Start pppoe server with "{name}" and IP "{ip}" in namespace "{dev}"')
@@ -386,8 +384,8 @@ def start_pppoe_server(context, name, ip, dev):
     dev_p="%sp" %dev
     context.execute_steps(u"""
             * Prepare simulated test "%s" device"""%dev)
-    Popen("kill -9 $(pidof pppoe-server); ip netns exec %s_ns pppoe-server -S %s -C %s -L %s -p /etc/ppp/allip -I %s" %(dev, name, name, ip, dev_p), shell=True)
-    sleep(0.5)
+    subprocess.Popen("kill -9 $(pidof pppoe-server); ip netns exec %s_ns pppoe-server -S %s -C %s -L %s -p /etc/ppp/allip -I %s" %(dev, name, name, ip, dev_p), shell=True)
+    time.sleep(0.5)
 
 
 @step(u'Prepare MACsec PSK environment with CAK "{cak}" and CKN "{ckn}"')
@@ -414,7 +412,7 @@ def setup_macsec_psk(context, cak, ckn):
                                          -B \
                                          -D macsec_linux \
                                          -P /tmp/wpa_supplicant_ms.pid")
-    sleep(6)
+    time.sleep(6)
     assert command_code(context, "ip netns exec macsec_ns ip link show macsec0") == 0, "wpa_supplicant didn't create a MACsec interface"
     command_code(context, "ip netns exec macsec_ns ip link set macsec0 up")
     command_code(context, "ip netns exec macsec_ns ip addr add 172.16.10.1/24 dev macsec0")
