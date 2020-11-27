@@ -5,7 +5,7 @@ import subprocess
 import time
 from behave import step
 
-from nmci_step import command_code, additional_sleep
+import nmci_step
 
 
 @step(u'Check bond "{bond}" in proc')
@@ -28,18 +28,18 @@ def check_slave_in_bond_in_proc(context, slave, bond):
 @step(u'Check slave "{slave}" in team "{team}" is "{state}"')
 def check_slave_in_team_is_up(context, slave, team, state):
     #time.sleep(2)
-    r = command_code(context, 'sudo teamdctl %s port present %s' %(team, slave))
+    r = nmci_step.command_code(context, 'sudo teamdctl %s port present %s' %(team, slave))
     if state == "up":
         if r != 0:
             time.sleep(1)
-            r = command_code(context, 'sudo teamdctl %s port present %s' %(team, slave))
+            r = nmci_step.command_code(context, 'sudo teamdctl %s port present %s' %(team, slave))
             if r != 0:
                 raise Exception('Device %s was not found in dump of team %s' % (slave, team))
 
     if state == "down":
         if r == 0:
             time.sleep(1)
-            r = command_code(context, 'sudo teamdctl %s port present %s' %(team, slave))
+            r = nmci_step.command_code(context, 'sudo teamdctl %s port present %s' %(team, slave))
             if r == 0:
                 raise Exception('Device %s was found in dump of team %s' % (slave, team))
 
@@ -133,18 +133,18 @@ def external_bridge_check(context, number):
 
 @step(u'Team "{team}" is down')
 def team_is_down(context, team):
-    additional_sleep(2)
-    if command_code(context, 'teamdctl %s state dump' %team) == 0:
+    nmci_step.additional_sleep(2)
+    if nmci_step.command_code(context, 'teamdctl %s state dump' %team) == 0:
         time.sleep(1)
-        assert command_code(context, 'teamdctl %s state dump' %team) != 0, 'team "%s" exists' % (team)
+        assert nmci_step.command_code(context, 'teamdctl %s state dump' %team) != 0, 'team "%s" exists' % (team)
 
 
 @step(u'Team "{team}" is up')
 def team_is_down(context, team):
-    additional_sleep(2)
-    if command_code(context, 'teamdctl %s state dump' %team) != 0:
+    nmci_step.additional_sleep(2)
+    if nmci_step.command_code(context, 'teamdctl %s state dump' %team) != 0:
         time.sleep(1)
-        assert command_code(context, 'teamdctl %s state dump' %team) == 0, 'team "%s" does not exist' % (team)
+        assert nmci_step.command_code(context, 'teamdctl %s state dump' %team) == 0, 'team "%s" does not exist' % (team)
 
 
 @step(u'Check that "{cap}" capability is loaded')

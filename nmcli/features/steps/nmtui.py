@@ -6,8 +6,6 @@ import subprocess
 import time
 from behave import step
 
-from nmci_step import command_output, command_code, additional_sleep
-
 
 OUTPUT = '/tmp/nmtui.out'
 TERM_TYPE = 'vt102'

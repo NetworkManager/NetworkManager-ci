@@ -5,7 +5,7 @@ import subprocess
 import time
 from behave import step
 
-from nmci_step import command_output, command_code, additional_sleep
+import nmci_step
 
 
 @step(u'Activate connection')
@@ -75,7 +75,7 @@ def open_slave_connection(context, master, device, name):
 @step(u'Bring "{action}" connection "{name}"')
 def start_stop_connection(context, action, name):
     if action == "down":
-        if command_code(context, "nmcli connection show --active |grep %s" %name) != 0:
+        if nmci_step.command_code(context, "nmcli connection show --active |grep %s" %name) != 0:
             print ("Warning: Connection is down no need to down it again")
             return
 
@@ -195,14 +195,14 @@ def is_not_readable(context, user, name):
 
 @step(u'Modify connection "{name}" changing options "{options}"')
 def modify_connection(context, name, options):
-    out = command_output(context, "nmcli connection modify %s %s" % (name, options))
+    out = nmci_step.command_output(context, "nmcli connection modify %s %s" % (name, options))
     if 'Error' in out:
         raise Exception('Got an Error while modifying %s options %s\n%s' % (name, options, out))
 
 
 @step(u'Reload connections')
 def reload_connections(context):
-    command_code(context, "nmcli con reload")
+    nmci_step.command_code(context, "nmcli con reload")
     time.sleep(0.5)
 
 

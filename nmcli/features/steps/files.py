@@ -5,20 +5,20 @@ import subprocess
 import time
 from behave import step
 
-from commands import check_pattern_command
-from nmci_step import command_output, command_code, additional_sleep
+import commands
+import nmci_step
 
 
 @step('Append "{line}" to file "{name}"')
 def append_to_file(context, line, name):
     cmd = 'sudo echo "%s" >> %s' % (line, name)
-    command_code(context, cmd)
+    nmci_step.command_code(context, cmd)
 
 
 @step('Append "{line}" to ifcfg file "{name}"')
 def append_to_ifcfg(context, line, name):
     cmd = 'sudo echo "%s" >> /etc/sysconfig/network-scripts/ifcfg-%s' % (line, name)
-    command_code(context, cmd)
+    nmci_step.command_code(context, cmd)
 
 
 @step(u'Check file "{file1}" is contained in file "{file2}"')
@@ -49,7 +49,7 @@ def is_file(context, filename, seconds=5):
         if os.path.isfile(filename):
             return
         time.sleep(1)
-    ls = command_output(context, 'ls -la "%s"' % filename)
+    ls = nmci_step.command_output(context, 'ls -la "%s"' % filename)
     assert os.path.isfile(filename), '"%s" is not a file:\n%s' % (filename, ls)
 
 
@@ -91,22 +91,22 @@ def remove_file(context, filename):
 @step('Create symlink {source} with destination {destination}')
 def create_symlink(context, source, destination):
     cmd = 'sudo ln -s "%s" "%s"' % (destination, source)
-    command_code(context, cmd)
+    nmci_step.command_code(context, cmd)
 
 
 @step(u'Check ifcfg-name file created with noted connection name')
 def check_ifcfg_exists(context):
     command = 'cat /etc/sysconfig/network-scripts/ifcfg-%s' % context.noted['noted-value']
     pattern = 'NAME=%s' % context.noted['noted-value']
-    return check_pattern_command(context, command, pattern, seconds=2)
+    return commands.check_pattern_command(context, command, pattern, seconds=2)
 
 
 @step(u'Check ifcfg-name file created for connection "{con_name}"')
 def check_ifcfg_exists_given_device(context, con_name):
-    additional_sleep(1)
+    nmci_step.additional_sleep(1)
     command = 'cat /etc/sysconfig/network-scripts/ifcfg-%s' % con_name
     pattern = 'NAME=%s' % con_name
-    return check_pattern_command(context, command, pattern, seconds=2)
+    return commands.check_pattern_command(context, command, pattern, seconds=2)
 
 
 @step(u'Write dispatcher "{path}" file with params "{params}"')
@@ -125,17 +125,17 @@ def write_dispatcher_file(context, path, params=None):
         f.write(params)
     f.write('\necho $2 >> /tmp/dispatcher.txt\n')
     f.close()
-    command_code(context, 'chmod +x %s' % disp_file)
-    command_code(context, "> /tmp/dispatcher.txt")
+    nmci_step.command_code(context, 'chmod +x %s' % disp_file)
+    nmci_step.command_code(context, "> /tmp/dispatcher.txt")
     time.sleep(8)
 
 
 @step('Reset /etc/hosts')
 def reset_hosts(context):
     cmd = "echo '127.0.0.1   localhost localhost.localdomain localhost4 localhost4.localdomain4' > /etc/hosts"
-    command_code(context, cmd)
+    nmci_step.command_code(context, cmd)
     cmd = "echo '::1         localhost localhost.localdomain localhost6 localhost6.localdomain6' >> /etc/hosts"
-    command_code(context, cmd)
+    nmci_step.command_code(context, cmd)
 
 
 @step(u'Check solicitation for "{dev}" in "{file}"')
@@ -144,7 +144,7 @@ def check_solicitation(context, dev, file):
     #dev = 'enp0s25'
     cmd = "ip a s %s |grep ff:ff|awk {'print $2'}" %dev
     mac = ""
-    for line in command_output(context, cmd).split('\n'):
+    for line in nmci_step.command_output(context, cmd).split('\n'):
         if line.find(':') != -1:
             mac = line.strip()
 

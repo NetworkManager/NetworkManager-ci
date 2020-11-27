@@ -5,7 +5,7 @@ import subprocess
 import time
 from behave import step
 
-from nmci_step import command_output, command_code, additional_sleep
+import nmci_step
 
 
 @step(u'Autoconnect warning is shown')
@@ -27,7 +27,7 @@ def send_com_via_editor(context, commands, connection):
     for c in coms:
         final = final+"%s\n" % c.strip()
     final = final+"print\nsave\nquit\n' | nmcli c edit %s" %connection
-    command_output(context, final)
+    nmci_step.command_output(context, final)
 
 @step(u'Send "{what}" in editor')
 def send_sth_in_editor(context, what):
@@ -66,7 +66,7 @@ def check_saved_in_editor(context):
 
 @step(u'Delete connection "{name}" and hit enter')
 def delete_connection_with_enter(context, name):
-    command_code(context, 'nmcli connection delete id %s' %name)
+    nmci_step.command_code(context, 'nmcli connection delete id %s' %name)
     time.sleep(5)
     context.prompt.send('\n')
     time.sleep(2)

@@ -6,7 +6,7 @@ import subprocess
 import time
 from behave import step
 
-from nmci_step import command_output, command_code, additional_sleep
+import nmci_step
 
 
 @step(u'Autocomplete "{cmd}" in bash and execute')
@@ -68,7 +68,7 @@ def check_noted_output_contains(context, pattern):
 
 @step(u'Execute "{command}"')
 def execute_command(context, command):
-    command_code(context, command)
+    nmci_step.command_code(context, command)
     time.sleep(0.3)
 
 
@@ -83,7 +83,7 @@ def execute_multiple_times(context, command, number):
 
     i = 0
     while i < int(number):
-        command_code(context, command)
+        nmci_step.command_code(context, command)
         curr_nm_pid = subprocess.check_output('pidof NetworkManager', shell=True).decode('utf-8', 'ignore')
         assert curr_nm_pid == orig_nm_pid, 'NM crashed as original pid was %s but now is %s' %(orig_nm_pid, curr_nm_pid)
         i += 1
@@ -91,19 +91,19 @@ def execute_multiple_times(context, command, number):
 
 @step(u'Finish "{command}"')
 def wait_for_process(context, command):
-    assert command_code(context, command) == 0
+    assert nmci_step.command_code(context, command) == 0
     time.sleep(0.1)
 
 
 @step(u'"{command}" fails')
 def wait_for_process(context, command):
-    assert command_code(context, command) != 0
+    assert nmci_step.command_code(context, command) != 0
     time.sleep(0.1)
 
 
 @step(u'Restore hostname from the noted value')
 def restore_hostname(context):
-    command_code('nmcli g hostname %s' % context.noted['noted-value'])
+    nmci_step.command_code('nmcli g hostname %s' % context.noted['noted-value'])
     time.sleep(0.5)
 
 
@@ -114,7 +114,7 @@ def hostname_visible(context, log, seconds=1):
     orig_seconds = seconds
     cmd = "grep $(hostname -s) '%s'" %log
     while seconds > 0:
-        if command_code(context, cmd) == 0:
+        if nmci_step.command_code(context, cmd) == 0:
             return True
         seconds = seconds - 1
         time.sleep(1)
@@ -128,7 +128,7 @@ def hostname_visible(context, log, seconds=1):
     orig_seconds = seconds
     cmd = "grep $(hostname -s) '%s'" %log
     while seconds > 0:
-        if command_code(context, cmd) != 0:
+        if nmci_step.command_code(context, cmd) != 0:
             return True
         seconds = seconds - 1
         time.sleep(1)
@@ -170,13 +170,13 @@ def note_print_property_b(context, pattern):
 def note_the_output_as(context, command, index):
     if not hasattr(context, 'noted'):
         context.noted = {}
-    context.noted[index] = command_output(context, command+" 2>/dev/null").strip()
+    context.noted[index] = nmci_step.command_output(context, command+" 2>/dev/null").strip()
 
 @step(u'Note the output of "{command}"')
 def note_the_output_of(context, command):
     if not hasattr(context, 'noted'):
         context.noted = {}
-    context.noted['noted-value'] = command_output(context, command).strip()
+    context.noted['noted-value'] = nmci_step.command_output(context, command).strip()
 
 def json_compare(pattern, out):
     pattern_type = type(pattern)
@@ -448,17 +448,17 @@ def check_metered_status(context, value):
 @step(u'Network trafic "{state}" dropped')
 def network_dropped(context, state):
     if state == "is":
-        assert command_code(context, 'ping -c 1 -W 1 boston.com') != 0
+        assert nmci_step.command_code(context, 'ping -c 1 -W 1 boston.com') != 0
     if state == "is not":
-        assert command_code(context, 'ping -c 1 -W 1 boston.com') == 0
+        assert nmci_step.command_code(context, 'ping -c 1 -W 1 boston.com') == 0
 
 
 @step(u'Network trafic "{state}" dropped on "{device}"')
 def network_dropped_two(context, state, device):
     if state == "is":
-        assert command_code(context, 'ping -c 2 -I %s -W 1 8.8.8.8' % device) != 0
+        assert nmci_step.command_code(context, 'ping -c 2 -I %s -W 1 8.8.8.8' % device) != 0
     if state == "is not":
-        assert command_code(context, 'ping -c 2 -I %s -W 1 8.8.8.8' % device) == 0
+        assert nmci_step.command_code(context, 'ping -c 2 -I %s -W 1 8.8.8.8' % device) == 0
 
 
 @step(u'Send lifetime scapy packet')

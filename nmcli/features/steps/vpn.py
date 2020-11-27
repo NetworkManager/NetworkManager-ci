@@ -6,8 +6,6 @@ import subprocess
 import time
 from behave import step
 
-from nmci_step import command_output, command_code, additional_sleep
-
 
 @step(u'Use certificate "{cert}" with key "{key}" and authority "{ca}" for gateway "{gateway}" on OpenVPN connection "{name}"')
 def set_openvpn_connection(context, cert, key, ca, gateway, name):
