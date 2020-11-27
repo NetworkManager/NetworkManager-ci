@@ -1,11 +1,11 @@
 import os
-import pexpect
-import pyte
-import re
 import subprocess
 import time
 
 IS_NMTUI = "nmtui" in __file__
+
+
+###############################################################################
 
 
 def run(context, command, *a, **kw):
