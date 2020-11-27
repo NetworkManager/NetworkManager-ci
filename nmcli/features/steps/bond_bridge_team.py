@@ -5,7 +5,7 @@ import subprocess
 import time
 from behave import step
 
-from steps import command_code, additional_sleep
+from nmci_step import command_code, additional_sleep
 
 
 @step(u'Check bond "{bond}" in proc')

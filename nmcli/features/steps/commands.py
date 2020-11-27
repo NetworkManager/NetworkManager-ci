@@ -6,7 +6,7 @@ import subprocess
 import time
 from behave import step
 
-from steps import command_output, command_code, additional_sleep
+from nmci_step import command_output, command_code, additional_sleep
 
 
 @step(u'Autocomplete "{cmd}" in bash and execute')

@@ -6,7 +6,7 @@ import time
 from behave import step
 
 from commands import check_pattern_command
-from steps import command_output, command_code, additional_sleep
+from nmci_step import command_output, command_code, additional_sleep
 
 
 @step('Append "{line}" to file "{name}"')
