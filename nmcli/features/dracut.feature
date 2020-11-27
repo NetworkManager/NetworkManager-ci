@@ -1028,7 +1028,7 @@ Feature: NM: dracut
 
 
     @rhelver+=8.3 @fedoraver-=0
-    @ver-=1.26
+    @ver-=1.24
     @dracut @long @not_on_ppc64le
     @dracut_NM_vlan_over_nic
     Scenario: NM - dracut - NM module - VLAN over single NIC
@@ -1059,7 +1059,7 @@ Feature: NM: dracut
 
 
     @rhelver+=8.3 @fedoraver-=0
-    @ver+=1.27
+    @ver+=1.25
     @dracut @long @not_on_ppc64le
     @dracut_NM_vlan_over_nic
     Scenario: NM - dracut - NM module - VLAN over single NIC
@@ -1090,7 +1090,7 @@ Feature: NM: dracut
 
 
     @rhelver+=8.3 @fedoraver-=0
-    @ver-=1.26
+    @ver-=1.24
     @dracut @long @not_on_ppc64le
     @dracut_NM_vlan_mutliple_over_nic
     Scenario: NM - dracut - NM module - multiple VLANs over single NIC
@@ -1136,7 +1136,7 @@ Feature: NM: dracut
 
 
     @rhelver+=8.3 @fedoraver-=0
-    @ver+=1.27
+    @ver+=1.25
     @dracut @long @not_on_ppc64le
     @dracut_NM_vlan_mutliple_over_nic
     Scenario: NM - dracut - NM module - multiple VLANs over single NIC
@@ -1219,7 +1219,7 @@ Feature: NM: dracut
 
 
     @rhelver+=8.3 @fedoraver-=0
-    @ver-=1.26
+    @ver-=1.24
     @dracut @long @not_on_ppc64le
     @dracut_NM_vlan_over_bond
     Scenario: NM - dracut - NM module - VLAN over bond
@@ -1267,7 +1267,7 @@ Feature: NM: dracut
 
 
     @rhelver+=8.3 @fedoraver-=0
-    @ver+=1.27
+    @ver+=1.25
     @dracut @long @not_on_ppc64le
     @dracut_NM_vlan_over_bond
     Scenario: NM - dracut - NM module - VLAN over bond
@@ -1302,74 +1302,6 @@ Feature: NM: dracut
       | check  | ip4_route_unique "default via 192.168.55.13"            |
       | check  | ip4_route_unique "192.168.55.12/30 dev bond0.13"        |
       | check  | nfs_server 192.168.55.13                                |
-
-
-    @rhelver+=8.3 @fedoraver-=0
-    @ver+=1.25 @ver-=1.26
-    @dracut @long @not_on_ppc64le
-    @dracut_NM_vlan_over_team_no_boot
-    Scenario: NM - dracut - NM module - VLAN over team boot over other iface (team not stable)
-    * Run dracut test
-      | Param  | Value                                                    |
-      | kernel | root=nfs:192.168.50.1:/client ro                         |
-      | kernel | team=team0:eth0,eth1 vlan=vlan0017:team0 ip=eth2:dhcp    |
-      | qemu   | -netdev tap,id=bond1_0,script=$PWD/qemu-ifup/bond1_0     |
-      | qemu   | -device virtio-net,netdev=bond1_0,mac=52:54:00:12:34:11  |
-      | qemu   | -netdev tap,id=bond1_1,script=$PWD/qemu-ifup/bond1_1     |
-      | qemu   | -device virtio-net,netdev=bond1_1,mac=52:54:00:12:34:12  |
-      | qemu   | -netdev tap,id=nfs,script=$PWD/qemu-ifup/nfs             |
-      | qemu   | -device virtio-net,netdev=nfs,mac=52:54:00:12:34:10      |
-      | check  | nmcli_con_active team0 team0 45                          |
-      | check  | nmcli_con_prop team0 ipv4.method auto                    |
-      | check  | nmcli_con_prop team0 IP4.ADDRESS 192.168.54.101/24 45    |
-      | check  | nmcli_con_prop team0 IP4.GATEWAY 192.168.54.1            |
-      | check  | nmcli_con_prop team0 IP4.ROUTE *192.168.54.0/24*         |
-      | check  | nmcli_con_prop team0 IP4.DNS 192.168.54.1                |
-      | check  | nmcli_con_prop team0 IP4.DOMAIN cl.bond1.redhat.com      |
-      | check  | nmcli_con_prop team0 ipv6.method auto                    |
-      | check  | nmcli_con_prop team0 IP6.DNS ''                          |
-      | check  | nmcli_con_active vlan0017 vlan0017 45                    |
-      | check  | nmcli_con_prop vlan0017 vlan.id 17                       |
-      | check  | nmcli_con_prop vlan0017 vlan.parent team0                |
-      | check  | nmcli_con_prop vlan0017 ipv4.method auto                 |
-      | check  | nmcli_con_prop vlan0017 IP4.ADDRESS 192.168.55.18/30 45  |
-      | check  | nmcli_con_prop vlan0017 IP4.GATEWAY 192.168.55.17        |
-      | check  | nmcli_con_prop vlan0017 IP4.ROUTE *192.168.55.16/30*     |
-      | check  | nmcli_con_prop vlan0017 IP4.DNS 192.168.55.17 45         |
-      | check  | nmcli_con_prop vlan0017 IP4.DOMAIN cl.vl17.redhat.com    |
-      | check  | nmcli_con_prop vlan0017 ipv6.method auto                 |
-      | check  | nmcli_con_prop vlan0017 IP6.DNS ''                       |
-      | check  | nmcli_con_active eth2 eth2                               |
-      | check  | nmcli_con_prop eth2 ipv4.method auto                     |
-      | check  | nmcli_con_prop eth2 IP4.ADDRESS 192.168.50.101/24 10     |
-      | check  | nmcli_con_prop eth2 IP4.GATEWAY 192.168.50.1             |
-      | check  | nmcli_con_prop eth2 IP4.ROUTE *192.168.50.0/24*          |
-      | check  | nmcli_con_prop eth2 IP4.DNS 192.168.50.1                 |
-      | check  | nmcli_con_prop eth2 IP4.DOMAIN cl01.nfs.redhat.com       |
-      | check  | nmcli_con_prop eth2 ipv6.method auto                     |
-      | check  | nmcli_con_prop eth2 IP6.ADDRESS *deaf:beef::1:10/128* 10 |
-      | check  | nmcli_con_prop eth2 IP6.ROUTE *deaf:beef::/64*           |
-      | check  | nmcli_con_prop eth2 IP6.DNS deaf:beef::1                 |
-      | check  | wait_for_ip4_renew 192.168.54.101/24 team0               |
-      | check  | wait_for_ip4_renew 192.168.55.18/30 vlan0017             |
-      | check  | wait_for_ip4_renew 192.168.50.101/24 eth2                |
-      | check  | wait_for_ip6_renew deaf:beef::1:10/128 eth2              |
-      | check  | dns_search *bond1.redhat.com*                            |
-      | check  | dns_search *vl17.redhat.com*                             |
-      | check  | dns_search *nfs.redhat.com*                              |
-      | check  | dns_search *nfs6.redhat.com*                             |
-      | check  | dns_search *nfs6.redhat.com*                             |
-      | check  | nmcli_con_num 5                                          |
-      | check  | no_ifcfg                                                 |
-      | check  | ip4_route_unique "default via 192.168.54.1"              |
-      | check  | ip4_route_unique "192.168.54.0/24 dev team0"             |
-      | check  | ip4_route_unique "default via 192.168.55.17"             |
-      | check  | ip4_route_unique "192.168.55.16/30 dev vlan0017"         |
-      | check  | ip4_route_unique "default via 192.168.50.1"              |
-      | check  | ip4_route_unique "192.168.50.0/24 dev eth2"              |
-      | check  | ip6_route_unique "deaf:beef::1:10 dev eth2 proto kernel" |
-      | check  | ip6_route_unique "deaf:beef::/64 dev eth2 proto ra"      |
-      | check  | nfs_server 192.168.50.1                                  |
 
 
     @rhelver+=8.3 @fedoraver-=0
