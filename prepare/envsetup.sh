@@ -258,11 +258,14 @@ install_el7_packages () {
     export_python_command
 
     python -m pip install --upgrade pip
+    python -m pip install setuptools --upgrade
     python -m pip install pexpect
     python -m pip install pyroute2
     python -m pip install netaddr
     python -m pip install IPy
     python -m pip install python-dbusmock
+    python -m pip install pyte
+
 
     # install dbus-python3 for s390x via pip
     if uname -a |grep -q s390x; then

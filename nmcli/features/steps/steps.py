@@ -1,14 +1,7 @@
 # -*- coding: UTF-8 -*-
-from __future__ import absolute_import, division, print_function, unicode_literals
 import os
-import pyte
-import pexpect
-import re
 import subprocess
-from subprocess import Popen, check_output, call
-from behave import step
-from time import sleep, time
-from glob import glob
+from time import sleep
 
 IS_NMTUI = "nmtui" in __file__
 
