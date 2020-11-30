@@ -8,7 +8,7 @@ IS_NMTUI = "nmtui" in __file__
 
 def run(context, command, *a, **kw):
     proc = subprocess.run(command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT,
-                          encoding="utf-8", errors="ignore", *a, *kw)
+                          encoding="utf-8", *a, *kw)
     if not IS_NMTUI:
         if context is not None:
             data = "%s\nreturncode: %d\noutput:\n%s" % (command, proc.returncode, proc.stdout)
