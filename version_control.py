@@ -1,4 +1,6 @@
-# this chcesks for tests with given tag and returns all tags of the first test satisfying all conditions
+#!/bin/python
+#
+# this checks for tests with given tag and returns all tags of the first test satisfying all conditions
 #
 # this parses tags: ver{-,+,-=,+=}, rhelver{-,+,-=,+=}, fedoraver{-,+,-=,+=}, [not_with_]rhel_pkg, [not_with_]fedora_pkg.
 #
@@ -12,10 +14,12 @@
 # since the first satisfying test is returned, the last test does not have to contain distro restrictions
 # and it will run only in remaining conditions - so order of the tests matters in this case
 
-from __future__ import absolute_import, division, print_function, unicode_literals
 import sys
 import os
 from subprocess import call, check_output
+
+import nmci.misc
+
 
 # gather current system info (versions, pkg vs. build)
 if "NM_VERSION" in os.environ:
@@ -26,6 +30,7 @@ elif os.path.isfile("/tmp/nm_version_override"):
 else:
     current_nm_version = check_output(["NetworkManager", "-V"]).decode("utf-8")
 current_nm_version = [int(x) for x in current_nm_version.split("-")[0].split(".")]
+
 distro_version = [
     int(x)
     for x in check_output(["sed", "s/.*release *//;s/ .*//", "/etc/redhat-release"])
@@ -45,10 +50,7 @@ pkg_ver = (
 )
 pkg = int(pkg_ver) < 200
 
-if "NetworkManager" in sys.argv[2] and "Test" in sys.argv[2]:
-    test_name = "".join("_".join(sys.argv[2].split("_")[2:]))
-else:
-    test_name = sys.argv[2]
+test_name = nmci.misc.test_name_normalize(sys.argv[2])
 
 try:
     raw_tags = (
