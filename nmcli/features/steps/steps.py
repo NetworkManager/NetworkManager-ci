@@ -7,21 +7,13 @@ IS_NMTUI = "nmtui" in __file__
 
 
 def run(context, command, *a, **kw):
-    try:
-        output = subprocess.check_output(
-            command, shell=True, stderr=subprocess.STDOUT, *a, **kw
-        ).decode("utf-8", "ignore")
-        returncode = 0
-        exception = None
-    except subprocess.CalledProcessError as e:
-        output = e.output.decode("utf-8", "ignore")
-        returncode = e.returncode
-        exception = e
+    proc = subprocess.run(command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT,
+                          encoding="utf-8", errors="ignore", *a, *kw)
     if not IS_NMTUI:
         if context is not None:
-            data = "%s\nreturncode: %d\noutput:\n%s" % (command, returncode, output)
+            data = "%s\nreturncode: %d\noutput:\n%s" % (command, proc.returncode, proc.stdout)
             context.embed("text/plain", data, caption=command[0:32] + "...")
-    return output, returncode, exception
+    return (proc.stdout, proc.returncode)
 
 
 def command_output(context, command, *a, **kw):
@@ -33,19 +25,18 @@ def command_output(context, command, *a, **kw):
         fd = open("/tmp/tui-screen.log", "a+")
         fd.write("----------\nInfo: next failed step's '%s' output:\n" % command)
         fd.flush()
-        output, _, _ = run(context, command)
+        output, _ = run(context, command)
         fd.write(output + "\n")
         fd.flush()
         fd.close()
     else:
-        output, code, e = run(context, command, *a, **kw)
-        if code != 0:
-            raise e
+        output, code = run(context, command, *a, **kw)
+        assert code == 0, "command '%s' exited with code %d\noutput:\n%s" % (command, code, output)
     return output
 
 
 def command_code(context, command, *a, **kw):
-    _, code, _ = run(context, command, *a, **kw)
+    _, code = run(context, command, *a, **kw)
     return code
 
 
