@@ -58,20 +58,20 @@ if not test_tags:
     sys.exit(1)
 
 # compare two version lists, return True, iff tag does not violate current_version
-def cmp(tag, tag_version, current_version):
+def cmp(op, tag_version, current_version):
     if not current_version:
         # return true here, because tag does nto violate version
         return True
-    if "+=" in tag:
+    if op == "+=":
         if current_version < tag_version:
             return False
-    elif "-=" in tag:
+    elif op == "-=":
         if current_version > tag_version:
             return False
-    elif "-" in tag:
+    elif op == "-":
         if current_version >= tag_version:
             return False
-    elif "+" in tag:
+    elif op == "+":
         if current_version <= tag_version:
             return False
     return True
@@ -79,53 +79,32 @@ def cmp(tag, tag_version, current_version):
 
 # pad version list to the specified length
 # add 9999 if comparing -=, because we want -=1.20 to be true also for 1.20.5
-def padding(tag, tag_version, length):
+def padding(op, tag_version, length):
     app = 0
-    if "-=" in tag:
+    if op == "-=":
         app = 9999
     while len(tag_version) < length:
         tag_version.append(app)
     return tag_version
 
 
-# go through all the tests
 for tags in test_tags:
-    # so far, there is not tag violation, run is True
     run = True
-    # check all tags for this test
     for tag in tags:
-        if tag.startswith("ver+") or tag.startswith("ver-"):
-            tag_nm_version = [
-                int(x)
-                for x in tag.replace("=", "")
-                .replace("ver+", "")
-                .replace("ver-", "")
-                .split(".")
-            ]
-            tag_nm_version = padding(tag, tag_nm_version, 3)
-            if not cmp(tag, tag_nm_version, current_nm_version):
+        if tag.startswith("ver"):
+            op, ver = nmci.misc.test_version_tag_parse(tag, "ver")
+            ver = padding(op, ver, 3)
+            if not cmp(op, ver, current_nm_version):
                 run = False
-        elif tag.startswith("rhelver+") or tag.startswith("rhelver-"):
-            tag_rhel_version = [
-                int(x)
-                for x in tag.replace("=", "")
-                .replace("rhelver+", "")
-                .replace("rhelver-", "")
-                .split(".")
-            ]
-            tag_rhel_version = padding(tag, tag_rhel_version, 2)
-            if not cmp(tag, tag_rhel_version, current_rhel_version):
+        elif tag.startswith("rhelver"):
+            op, ver = nmci.misc.test_version_tag_parse(tag, "rhelver")
+            ver = padding(op, ver, 2)
+            if not cmp(op, ver, current_rhel_version):
                 run = False
-        elif tag.startswith("fedoraver+") or tag.startswith("fedoraver-"):
-            tag_fedora_version = [
-                int(x)
-                for x in tag.replace("=", "")
-                .replace("fedoraver+", "")
-                .replace("fedoraver-", "")
-                .split(".")
-            ]
+        elif tag.startswith("fedoraver"):
+            op, ver = nmci.misc.test_version_tag_parse(tag, "fedoraver")
             # do not pad Fedora version - single number
-            if not cmp(tag, tag_fedora_version, current_fedora_version):
+            if not cmp(op, ver, current_fedora_version):
                 run = False
         elif tag == "rhel_pkg":
             if current_rhel_version and not pkg:
