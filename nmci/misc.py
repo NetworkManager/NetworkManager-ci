@@ -101,5 +101,43 @@ class _Misc:
         ver_arr = [int(x) for x in ver.split(".")]
         return (op, ver_arr)
 
+    def test_version_tag_eval(self, ver_tags, version, padding_length):
+
+        # compare two version lists, return True, iff tag does not violate current_version
+        def cmp(op, tag_version, current_version):
+            if not current_version:
+                # return true here, because tag does nto violate version
+                return True
+            if op == "+=":
+                if current_version < tag_version:
+                    return False
+            elif op == "-=":
+                if current_version > tag_version:
+                    return False
+            elif op == "-":
+                if current_version >= tag_version:
+                    return False
+            elif op == "+":
+                if current_version <= tag_version:
+                    return False
+            return True
+
+        # pad version list to the specified length
+        # add 9999 if comparing -=, because we want -=1.20 to be true also for 1.20.5
+        def padding(op, tag_version, length):
+            app = 0
+            if op == "-=":
+                app = 9999
+            while len(tag_version) < length:
+                tag_version.append(app)
+            return tag_version
+
+        for op, ver in ver_tags:
+            ver = padding(op, ver, padding_length)
+            if not cmp(op, ver, version):
+                return False
+
+        return True
+
 
 sys.modules[__name__] = _Misc()

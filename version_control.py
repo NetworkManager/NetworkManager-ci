@@ -38,11 +38,11 @@ distro_version = [
     .split(".")
 ]
 if call(["grep", "-qi", "fedora", "/etc/redhat-release"]) == 0:
-    current_rhel_version = False
+    current_rhel_version = None
     current_fedora_version = distro_version
 else:
     current_rhel_version = distro_version
-    current_fedora_version = False
+    current_fedora_version = None
 pkg_ver = (
     check_output(["rpm", "--queryformat", "%{RELEASE}", "-q", "NetworkManager"])
     .decode("utf-8")
@@ -57,55 +57,20 @@ if not test_tags:
     sys.stderr.write("test with tag '%s' not defined!\n" % test_name)
     sys.exit(1)
 
-# compare two version lists, return True, iff tag does not violate current_version
-def cmp(op, tag_version, current_version):
-    if not current_version:
-        # return true here, because tag does nto violate version
-        return True
-    if op == "+=":
-        if current_version < tag_version:
-            return False
-    elif op == "-=":
-        if current_version > tag_version:
-            return False
-    elif op == "-":
-        if current_version >= tag_version:
-            return False
-    elif op == "+":
-        if current_version <= tag_version:
-            return False
-    return True
-
-
-# pad version list to the specified length
-# add 9999 if comparing -=, because we want -=1.20 to be true also for 1.20.5
-def padding(op, tag_version, length):
-    app = 0
-    if op == "-=":
-        app = 9999
-    while len(tag_version) < length:
-        tag_version.append(app)
-    return tag_version
-
+result = None
 
 for tags in test_tags:
+    tags_ver = []
+    tags_rhelver = []
+    tags_fedoraver = []
     run = True
     for tag in tags:
         if tag.startswith("ver"):
-            op, ver = nmci.misc.test_version_tag_parse(tag, "ver")
-            ver = padding(op, ver, 3)
-            if not cmp(op, ver, current_nm_version):
-                run = False
+            tags_ver.append(nmci.misc.test_version_tag_parse(tag, "ver"))
         elif tag.startswith("rhelver"):
-            op, ver = nmci.misc.test_version_tag_parse(tag, "rhelver")
-            ver = padding(op, ver, 2)
-            if not cmp(op, ver, current_rhel_version):
-                run = False
+            tags_rhelver.append(nmci.misc.test_version_tag_parse(tag, "rhelver"))
         elif tag.startswith("fedoraver"):
-            op, ver = nmci.misc.test_version_tag_parse(tag, "fedoraver")
-            # do not pad Fedora version - single number
-            if not cmp(op, ver, current_fedora_version):
-                run = False
+            tags_fedoraver.append(nmci.misc.test_version_tag_parse(tag, "fedoraver"))
         elif tag == "rhel_pkg":
             if current_rhel_version and not pkg:
                 run = False
@@ -118,10 +83,32 @@ for tags in test_tags:
         elif tag == "not_with_fedora_pkg":
             if current_fedora_version and pkg:
                 run = False
-    if run:
-        print(" -t ".join(tags))
-        sys.exit(0)
+    if not run:
+        continue
 
-# test definition found, but version mismatch
-sys.stderr.write("Skipping, version mismatch.\n")
-sys.exit(77)
+    if not nmci.misc.test_version_tag_eval(tags_ver, current_nm_version, 3):
+        continue
+    if current_rhel_version and not nmci.misc.test_version_tag_eval(
+        tags_rhelver, current_rhel_version, 2
+    ):
+        continue
+    if current_fedora_version and not nmci.misc.test_version_tag_eval(
+        tags_fedoraver, current_fedora_version, 1
+    ):
+        continue
+
+    if result:
+        sys.stderr.write(
+            "test with tag '%s' has more than one match: %r and %r!\n"
+            % (test_name, result, tags)
+        )
+        sys.exit(1)
+
+    result = tags
+
+if not result:
+    sys.stderr.write("Skipping, version mismatch.\n")
+    sys.exit(77)
+
+print(" -t ".join(result))
+sys.exit(0)
