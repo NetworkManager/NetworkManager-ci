@@ -286,7 +286,7 @@ Feature: nmcli: connection
 
 
     @ver+=1.8.0
-    @con_con_remove @con_con_remove @restart
+    @con_con_remove @restart
     @ifcfg_compliant_with_kickstart
     Scenario: ifcfg - connection - pykickstart compliance
     * Append "UUID='8b4753fb-c562-4784-bfa7-f44dc6581e73'" to ifcfg file "con_con2"
@@ -420,7 +420,7 @@ Feature: nmcli: connection
 
 
     @rhbz663730
-    @veth @con_con_remove @con_con_remove @restart
+    @veth @con_con_remove @restart
     @profile_priorities
     Scenario: nmcli - connection - profile priorities
      * Add a new connection of type "ethernet" and options "con-name con_con2 ifname eth6 connection.autoconnect-priority 2"

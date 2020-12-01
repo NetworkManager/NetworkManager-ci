@@ -446,7 +446,7 @@
      Then Check slave "eth4" in bond "nm-bond" in proc
 
 
-    @rhbz1420708 @rhbz1420708
+    @rhbz1420708
     @ver+=1.7.9
     @rhelver-=7 @fedoraver-=0 @rhel_pkg
     @slaves @bond @bond_order @teardown_testveth @restart
@@ -493,7 +493,7 @@
      And Check noted values "new_eth5" and "bond" are the same
 
 
-    @rhbz1420708 @rhbz1420708
+    @rhbz1420708
     @ver+=1.7.9
     @slaves @bond @bond_order @teardown_testveth @restart
     @bond_slaves_ordering_by_ifindex
@@ -540,7 +540,7 @@
      And Check noted values "new_eth5" and "bond" are the same
 
 
-    @rhbz1420708 @rhbz1420708
+    @rhbz1420708
     @ver+=1.7.9
     @slaves @bond @bond_order @teardown_testveth @restart
     @bond_slaves_ordering_by_ifindex_with_autoconnect_slaves
@@ -584,7 +584,7 @@
      And Check noted values "new_eth5" and "bond" are the same
 
 
-    @rhbz1420708 @rhbz1420708
+    @rhbz1420708
     @ver+=1.7.9
     @slaves @bond @bond_order @teardown_testveth @restart
     @bond_slaves_ordering_by_name
@@ -631,7 +631,7 @@
      And Check noted values "new_eth4" and "bond" are the same
 
 
-    @rhbz1420708 @rhbz1420708
+    @rhbz1420708
     @ver+=1.7.9
     @slaves @bond @bond_order @teardown_testveth @restart
     @bond_slaves_ordering_by_name_with_autoconnect_slaves
