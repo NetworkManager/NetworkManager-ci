@@ -110,5 +110,5 @@ if not result:
     sys.stderr.write("Skipping, version mismatch.\n")
     sys.exit(77)
 
-print(" -t ".join(result))
+print("-t " + (" -t ".join(result)))
 sys.exit(0)

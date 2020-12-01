@@ -23,7 +23,7 @@ function runtest () {
         FEATURE_FILE=$DIR/nmcli/features
     fi
     if [ "x$TAG" != "x" ]; then
-        behave $FEATURE_FILE -t $TEST_NAME -t $TAG -k -f html -o /tmp/report.html -f plain || RC=1
+        behave $FEATURE_FILE -t $TEST_NAME $TAG -k -f html -o /tmp/report.html -f plain || RC=1
     else
         behave $FEATURE_FILE -t $TEST_NAME -k -f html -o /tmp/report.html -f plain || RC=1
     fi

@@ -72,9 +72,9 @@ if [ $rc -eq 0 ]; then
           FEATURE_FILE=$DIR/$RUNTEST_TYPE/features
       fi
 
-      logger "Running  $NMTEST  with tags '-t $TAG'"
+      logger "Running  $NMTEST  with tags '$TAG'"
 
-      behave $FEATURE_FILE -t $1 -t $TAG -k -f html -o "$NMTEST_REPORT" -f plain ; rc=$?
+      behave $FEATURE_FILE -t $1 $TAG -k -f html -o "$NMTEST_REPORT" -f plain ; rc=$?
     fi
 fi
 
