@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 
 import pytest
+import re
 
 from . import misc
 
@@ -396,3 +397,46 @@ def test_misc_test_version_tag_eval():
         [("-", [1, 26, 5]), ("-", [1, 27, 91]), ("-", [1, 28, 0]), ("-", [1, 29, 2]),],
         [1, 30, 2],
     )
+
+
+def test_feature_tags():
+
+    for feature in ["nmcli", "nmtui"]:
+        all_tags = misc.test_load_tags_from_features(feature)
+
+        unique_tags = set()
+        for tags in all_tags:
+            assert tags
+            assert type(tags) is list
+            for tag in tags:
+                assert type(tag) is str
+                assert tag
+                assert re.match("^[-a-z_.A-Z0-9+=]+$", tag)
+                assert re.match("^" + misc.TEST_NAME_VALID_CHAR_REGEX + "+$", tag)
+                if sum([1 for s in tags if s == tag]) != 1:
+                    pytest.fail(f'tag "{tag}" is not unique in {tags}')
+
+                for ver_prefix, ver_len in [
+                    ["ver", 3],
+                    ["rhelver", 2],
+                    ["fedoraver", 1],
+                ]:
+                    if not tag.startswith(ver_prefix):
+                        continue
+                    op, ver = misc.test_version_tag_parse(tag, ver_prefix)
+                    assert type(op) is str
+                    assert type(ver) is list
+                    assert op in ["+", "+=", "-", "-="]
+                    assert ver
+                    assert all([type(v) is int for v in ver])
+                    assert all([v >= 0 for v in ver])
+                    assert len(ver) <= ver_len
+                    assert tag.startswith(ver_prefix + op)
+
+                if tag.startswith("rhbz"):
+                    assert re.match("^rhbz[0-9]+$", tag)
+
+            tt = tuple(tags)
+            if tt in unique_tags:
+                pytest.fail(f'tags "{tags}" are duplicate over the {feature} tests')
+            unique_tags.add(tt)
