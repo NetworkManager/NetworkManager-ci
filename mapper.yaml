@@ -1189,6 +1189,8 @@ testmapper:
         feature: dracut
     - dracut_NM_NFS_root_nfs_ip_dhcp_mtu_cloned_mac:
         feature: dracut
+    - dracut_NM_NFS_root_nfs_ip_dhcp_hostname:
+        feature: dracut
     - dracut_NM_NFS_root_nfs_ip_dhcp_rd_routes:
         feature: dracut
     - dracut_NM_NFS_root_nfs_ip_manual_dhcp:
