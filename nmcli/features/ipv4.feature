@@ -623,7 +623,7 @@ Feature: nmcli: ipv4
      And Nameserver "1.2.3.4" is set
 
 
-    @rhbz+=1423490
+    @rhbz1423490
     @ver+=1.8.0
     @rhelver-=7 @rhel_pkg
     @not_with_systemd_resolved
@@ -642,7 +642,7 @@ Feature: nmcli: ipv4
      And "/etc/resolv.conf -> /tmp/resolv.conf" is visible with command "ls -all /etc/resolv.conf"
 
 
-    @rhbz+=1423490
+    @rhbz1423490
     @ver+=1.8.0
     @not_with_systemd_resolved
     @con_ipv4_remove @restore_resolvconf @restart
@@ -665,7 +665,7 @@ Feature: nmcli: ipv4
      And "/etc/resolv.conf -> /tmp/resolv.conf" is visible with command "ls -all /etc/resolv.conf"
 
 
-    @rhbz+=1423490
+    @rhbz1423490
     @ver+=1.8.0
     @rhel_pkg @not_with_systemd_resolved
     @con_ipv4_remove @restore_resolvconf @restart
