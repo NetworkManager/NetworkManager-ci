@@ -52,20 +52,10 @@ pkg = int(pkg_ver) < 200
 
 test_name = nmci.misc.test_name_normalize(sys.argv[2])
 
-try:
-    raw_tags = (
-        check_output(
-            "cat %s/features/*.feature | awk -f tmp/get_tags.awk | "
-            "grep '@%s\($\|\s\)'" % (sys.argv[1], test_name),
-            shell=True,
-        )
-        .decode("utf-8", "ignore")
-        .strip("\n")
-    )
-except:
+test_tags = nmci.misc.test_load_tags_from_features(sys.argv[1], test_name)
+if not test_tags:
     sys.stderr.write("test with tag '%s' not defined!\n" % test_name)
     sys.exit(1)
-tests_tags = raw_tags.split("\n")
 
 # compare two version lists, return True, iff tag does not violate current_version
 def cmp(tag, tag_version, current_version):
@@ -99,10 +89,9 @@ def padding(tag, tag_version, length):
 
 
 # go through all the tests
-for tags in tests_tags:
+for tags in test_tags:
     # so far, there is not tag violation, run is True
     run = True
-    tags = [tag.strip("@") for tag in tags.split()]
     # check all tags for this test
     for tag in tags:
         if tag.startswith("ver+") or tag.startswith("ver-"):
