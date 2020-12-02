@@ -2,8 +2,10 @@
 
 import pytest
 import re
+import subprocess
 
 from . import misc
+from . import util
 
 
 def test_misc_test_version_tag_eval():
@@ -440,3 +442,24 @@ def test_feature_tags():
             if tt in unique_tags:
                 pytest.fail(f'tags "{tags}" are duplicate over the {feature} tests')
             unique_tags.add(tt)
+
+
+def test_black_code_fromatting():
+
+    files = [
+        util.base_dir("nmci"),
+        util.base_dir("version_control.py"),
+    ]
+
+    try:
+        proc = subprocess.run(
+            ["black", "-q", "--diff"] + files,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+        )
+    except FileNotFoundError:
+        pytest.skip("python black is not available")
+
+    assert not proc.stderr
+    assert not proc.stdout
+    assert proc.returncode == 0
