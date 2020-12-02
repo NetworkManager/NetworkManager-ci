@@ -73,7 +73,9 @@ Feature: nmcli - ppp
     And "default via 192.168.111.254 dev my-ppp" is visible with command "ip r"
     * Execute "ip link set dev test12 down && sleep 2 && ip link set dev test12 up"
     Then "external" is visible with command "firewall-cmd --get-zone-of-interface=my-ppp" in "10" seconds
-     And Nameserver "8.8.8.8" is set in "5" seconds
+    # Wait till down and reconnect
+    * Execute "sleep 5"
+     And Nameserver "8.8.8.8" is set in "45" seconds
      And Nameserver "8.8.4.4" is set in "5" seconds
     Then "inet 192.168.111.2 peer 192.168.111.254/32" is visible with command "ip a s my-ppp"
     And "default via 192.168.111.254 dev my-ppp" is visible with command "ip r"
