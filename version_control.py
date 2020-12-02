@@ -86,14 +86,14 @@ for tags in test_tags:
     if not run:
         continue
 
-    if not nmci.misc.test_version_tag_eval(tags_ver, current_nm_version, 3):
+    if not nmci.misc.test_version_tag_eval(tags_ver, current_nm_version):
         continue
     if current_rhel_version and not nmci.misc.test_version_tag_eval(
-        tags_rhelver, current_rhel_version, 2
+        tags_rhelver, current_rhel_version
     ):
         continue
     if current_fedora_version and not nmci.misc.test_version_tag_eval(
-        tags_fedoraver, current_fedora_version, 1
+        tags_fedoraver, current_fedora_version
     ):
         continue
 
