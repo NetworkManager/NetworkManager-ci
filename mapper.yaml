@@ -259,6 +259,8 @@ testmapper:
         feature: bond
     - bond_reapply:
         feature: bond
+    - update_firewall_zone_upon_reconnect:
+        feature: ppp
     - pppoe_and_ethernet_together:
         feature: ppp
     - connect_to_pppoe_via_pap:
@@ -266,8 +268,6 @@ testmapper:
     - connect_to_pppoe_via_chap:
         feature: ppp
     - disconnect_from_pppoe:
-        feature: ppp
-    - update_firewall_zone_upon_reconnect:
         feature: ppp
     - pppoe_over_vlan:
         feature: ppp
