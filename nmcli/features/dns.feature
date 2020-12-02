@@ -34,13 +34,13 @@ Feature: nmcli - dns
 
     # Check eth2 configuration
     Then device "eth2" has DNS server "172.16.1.53"
-    Then device "eth2" has DNS domain "." for "routing"
-    Then device "eth2" has DNS domain "con_dns.domain" for "search"
+    Then device "eth2" has DNS domain "." for "domain-routing"
+    Then device "eth2" has DNS domain "con_dns.domain" for "domain-search"
 
     # Check eth3 configuration
     Then device "eth3" has DNS server "172.17.1.53"
-    Then device "eth3" has DNS domain "." for "routing"
-    Then device "eth3" has DNS domain "con_dns2.domain" for "search"
+    Then device "eth3" has DNS domain "." for "domain-routing"
+    Then device "eth3" has DNS domain "con_dns2.domain" for "domain-search"
 
     Then "nameserver 127.0.0.53" is visible with command "cat /etc/resolv\.conf" in "5" seconds
 
@@ -65,13 +65,13 @@ Feature: nmcli - dns
 
     # Check eth2 configuration
     Then device "eth2" has DNS server "172.16.1.53"
-    Then device "eth2" has DNS domain "." for "routing"
-    Then device "eth2" has DNS domain "con_dns.domain" for "search"
+    Then device "eth2" has DNS domain "." for "domain-routing"
+    Then device "eth2" has DNS domain "con_dns.domain" for "domain-search"
 
     # eth3 doesn't have a default route and so doesn't get the "." domain
     Then device "eth3" has DNS server "172.17.1.53"
-    Then device "eth3" does not have DNS domain "." for "routing"
-    Then device "eth3" has DNS domain "con_dns2.domain" for "search"
+    Then device "eth3" does not have DNS domain "."
+    Then device "eth3" has DNS domain "con_dns2.domain" for "domain-search"
 
 
     @rhbz1512966
@@ -95,13 +95,13 @@ Feature: nmcli - dns
 
     # Check eth2 configuration
     Then device "eth2" has DNS server "172.16.1.53"
-    Then device "eth2" has DNS domain "." for "routing"
-    Then device "eth2" has DNS domain "con_dns.domain" for "search"
+    Then device "eth2" has DNS domain "." for "domain-routing"
+    Then device "eth2" has DNS domain "con_dns.domain" for "domain-search"
 
     # eth3 doesn't have the "." domain because eth2 has higher priority
     Then device "eth3" has DNS server "172.17.1.53"
-    Then device "eth3" does not have DNS domain "." for "routing"
-    Then device "eth3" has DNS domain "con_dns2.domain" for "search"
+    Then device "eth3" does not have DNS domain "."
+    Then device "eth3" has DNS domain "con_dns2.domain" for "domain-search"
 
 
     @rhbz1512966
@@ -125,13 +125,13 @@ Feature: nmcli - dns
 
     # Check eth2 configuration
     Then device "eth2" has DNS server "172.16.1.53"
-    Then device "eth2" has DNS domain "." for "routing"
-    Then device "eth2" has DNS domain "con_dns.domain" for "search"
+    Then device "eth2" has DNS domain "." for "domain-routing"
+    Then device "eth2" has DNS domain "con_dns.domain" for "domain-search"
 
     # eth3 configuration is overridden by eth2 with negative priority
     Then device "eth3" does not have DNS server "172.17.1.53"
-    Then device "eth3" does not have DNS domain "." for "routing"
-    Then device "eth3" does not have DNS domain "con_dns2.domain" for "search"
+    Then device "eth3" does not have DNS domain "."
+    Then device "eth3" does not have DNS domain "con_dns2.domain"
 
 
     @rhbz1512966
@@ -154,13 +154,13 @@ Feature: nmcli - dns
 
     # Since there is no default route eth2 gets the "." domain
     Then device "eth2" has DNS server "172.16.1.53"
-    Then device "eth2" has DNS domain "." for "routing"
-    Then device "eth2" has DNS domain "con_dns.domain" for "search"
+    Then device "eth2" has DNS domain "." for "domain-routing"
+    Then device "eth2" has DNS domain "con_dns.domain" for "domain-search"
 
     # Since there is no default route eth3 gets the "." domain
     Then device "eth3" has DNS server "172.17.1.53"
-    Then device "eth3" has DNS domain "." for "routing"
-    Then device "eth3" has DNS domain "con_dns2.domain" for "search"
+    Then device "eth3" has DNS domain "." for "domain-routing"
+    Then device "eth3" has DNS domain "con_dns2.domain" for "domain-search"
 
 
     @rhbz1512966
@@ -182,13 +182,13 @@ Feature: nmcli - dns
 
     # Check tun1 configuration
     Then device "tun1" has DNS server "172.31.70.53"
-    Then device "tun1" has DNS domain "." for "routing"
-    Then device "tun1" has DNS domain "vpn.domain" for "search"
+    Then device "tun1" has DNS domain "." for "domain-routing"
+    Then device "tun1" has DNS domain "vpn.domain" for "domain-search"
 
     # Check eth2 configuration
     Then device "eth2" has DNS server "172.16.1.53"
-    Then device "eth2" has DNS domain "con_dns.domain" for "search"
-    Then device "eth2" does not have DNS domain "." for "routing"
+    Then device "eth2" has DNS domain "con_dns.domain" for "domain-search"
+    Then device "eth2" does not have DNS domain "."
 
 
     @rhbz1512966
@@ -211,13 +211,13 @@ Feature: nmcli - dns
 
     # Check eth2 configuration
     Then device "eth2" has DNS server "172.16.1.53"
-    Then device "eth2" has DNS domain "." for "routing"
-    Then device "eth2" has DNS domain "con_dns.domain" for "search"
+    Then device "eth2" has DNS domain "." for "domain-routing"
+    Then device "eth2" has DNS domain "con_dns.domain" for "domain-search"
 
     # Check tun1 configuration
     Then device "tun1" has DNS server "172.31.70.53"
-    Then device "tun1" does not have DNS domain "." for "routing"
-    Then device "tun1" has DNS domain "vpn.domain" for "search"
+    Then device "tun1" does not have DNS domain "."
+    Then device "tun1" has DNS domain "vpn.domain" for "domain-search"
 
 
     @rhbz1888229

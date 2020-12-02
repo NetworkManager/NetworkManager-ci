@@ -990,7 +990,7 @@ def before_scenario(context, scenario):
                     context.systemd_resolved = False
                 call("printf '# configured by beaker-test\n[main]\ndns=dnsmasq\n' > /etc/NetworkManager/conf.d/99-xtest-dns.conf", shell=True)
                 reload_NM_service ()
-                context.dns_script="dnsmasq.sh"
+                context.dns_plugin="dnsmasq"
 
             if 'dns_systemd_resolved' in scenario.tags:
                 print ("---------------------------")
@@ -1006,7 +1006,7 @@ def before_scenario(context, scenario):
                 print ("set dns=systemd-resolved")
                 call("printf '# configured by beaker-test\n[main]\ndns=systemd-resolved\n' > /etc/NetworkManager/conf.d/99-xtest-dns.conf", shell=True)
                 reload_NM_service ()
-                context.dns_script="sd-resolved.py"
+                context.dns_plugin="systemd-resolved"
 
             if 'internal_DHCP' in scenario.tags:
                 print ("---------------------------")
@@ -2231,14 +2231,14 @@ def after_scenario(context, scenario):
                 print ("revert dns=default")
                 call("rm -f /etc/NetworkManager/conf.d/99-xtest-dns.conf", shell=True)
                 reload_NM_service ()
-                context.dns_script=""
+                context.dns_plugin=""
 
             if 'dns_dnsmasq' in scenario.tags:
                 print ("---------------------------")
                 print ("revert dns=default")
                 call("rm -f /etc/NetworkManager/conf.d/99-xtest-dns.conf", shell=True)
                 reload_NM_service ()
-                context.dns_script=""
+                context.dns_plugin=""
                 if context.systemd_resolved == True:
                     call("systemctl restart systemd-resolved", shell=True)
 

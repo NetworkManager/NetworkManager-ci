@@ -6,6 +6,7 @@ import time
 from behave import step
 
 import nmci_step
+import nmci.misc
 
 
 @step(u'{action} all "{what}" devices')
@@ -24,32 +25,56 @@ def add_secondary_addr_same_subnet(context, device):
     assert nmci_step.command_code(context, 'ip addr add dev %s %s/%d' % (device, str(secondary_ip), primary_ipn.prefixlen)) == 0
 
 
-@step(u'device "{device}" has DNS server "{dns}"')
-def check_dns_domain(context, device, dns):
+def dns_check(dns_plugin, device, kind, arg, has):
+    info = None
+    ex = None
     try:
-        context.execute_steps('* "DNS: %s\\r\\n" is visible with command "prepare/%s %s"' % (re.escape(dns), context.dns_script, device))
-    except AssertionError:
-        out = nmci_step.command_output(context, "prepare/%s %s" % (context.dns_script, device)).strip()
-        raise AssertionError("Actual DNS configuration for %s is:\n%s\n" % (device, out))
+        info = nmci.misc.get_dns_info(dns_plugin, ifname=device)
+
+        assert info['default_route'] is not None or dns_plugin == 'systemd-resolved'
+
+        if kind == 'dns':
+            xhas = (arg in info['dns'])
+            if has == xhas:
+                return
+        elif kind in ['domain-search', 'domain-routing']:
+            xkind = kind[7:]
+            xhas = any((arg == d[0] and xkind == d[1] for d in info['domains']))
+            if has == xhas:
+                return
+        elif kind == 'domain':
+            xhas = any((arg == d[0] for d in info['domains']))
+            if has == xhas:
+                return
+        else:
+            raise ValueError(f"unsupported kind \"{kind}\"")
+    except Exception as e:
+        ex = e
+
+    raise AssertionError("DNS %s \"%s\" is unexpectedly %sset for device \"%s\" (plugin %s) (settings: %s) (exception: %s)" % (
+                         kind, arg, 'not ' if has else '', device, dns_plugin, info, ex))
+
+
+@step(u'device "{device}" has DNS server "{dns}"')
+def dns_check_dns_has(context, device, dns):
+    dns_check(context.dns_plugin, device, 'dns', dns, True)
 
 
 @step(u'device "{device}" does not have DNS server "{dns}"')
-def check_dns_domain(context, device, dns):
-    try:
-        context.execute_steps(u'''* "DNS: %s\\r\\n" is not visible with command "prepare/%s %s"''' % (re.escape(dns), context.dns_script, device))
-    except AssertionError:
-        out = nmci_step.command_output(context, "prepare/%s.py %s" % (context.dns_script, device)).strip()
-        raise AssertionError("Actual DNS configuration for %s is:\n%s\n" % (device, out))
+def dns_check_dns_not(context, device, dns):
+    dns_check(context.dns_plugin, device, 'dns', dns, False)
 
 
 @step(u'device "{device}" has DNS domain "{domain}"')
 @step(u'device "{device}" has DNS domain "{domain}" for "{kind}"')
-def check_dns_domain(context, device, domain, kind="routing"):
-    try:
-        context.execute_steps(u'''* "Domain: \(%s\) %s\\r\\n" is visible with command "prepare/%s %s"''' % (kind, re.escape(domain), context.dns_script, device))
-    except AssertionError:
-        out = nmci_step.command_output(context, "prepare/%s %s" % (context.dns_script, device)).strip()
-        raise AssertionError("Actual DNS configuration for %s is:\n%s\n" % (device, out))
+def dns_check_domain_has(context, device, domain, kind="domain-routing"):
+    dns_check(context.dns_plugin, device, kind, domain, True)
+
+
+@step(u'device "{device}" does not have DNS domain "{domain}"')
+@step(u'device "{device}" does not have DNS domain "{domain}" for "{kind}"')
+def dns_check_domain_not(context, device, domain, kind='domain'):
+    dns_check(context.dns_plugin, device, kind, domain, False)
 
 
 @step(u'Create device "{dev}" in "{ns}" with address "{addr}"')
@@ -60,16 +85,6 @@ def create_device_in_ns(context, dev, ns, addr):
 #    veth_to_delete = getattr(context, "veth_to_delete", [])
 #    veth_to_delete += [dev, dev+"p"]
 #    context.veth_to_delete = veth_to_delete
-
-
-@step(u'device "{device}" does not have DNS domain "{domain}"')
-@step(u'device "{device}" does not have DNS domain "{domain}" for "{kind}"')
-def check_dns_domain(context, device, domain, kind="routing"):
-    try:
-        context.execute_steps(u'''* "Domain: \(%s\) %s\\r\\n" is not visible with command "prepare/%s %s"''' % (kind, re.escape(domain), context.dns_script, device))
-    except AssertionError:
-        out = nmci_step.command_output(context, "prepare/%s %s" % (context.dns_script, device)).strip()
-        raise AssertionError("Actual DNS configuration for %s is:\n%s\n" % (device, out))
 
 
 @step(u'Compare kernel and NM devices')
