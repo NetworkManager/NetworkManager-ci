@@ -987,21 +987,6 @@
      Then Check bond "nm-bond" link state is "up"
 
 
-    @ver-=1.26
-    @slaves @bond
-    @bond_active-backup_primary_set
-    Scenario: nmcli - bond - options - mode set to active backup with primary device
-     * Add connection type "bond" named "bond0" for device "nm-bond"
-     * Add slave connection for master "nm-bond" on device "eth1" named "bond0.0"
-     * Add slave connection for master "nm-bond" on device "eth4" named "bond0.1"
-     * Modify connection "bond0" changing options "bond.options mode=active-backup,primary=eth1,miimon=100,fail_over_mac=2"
-     * Bring "up" connection "bond0"
-     * Bring "up" connection "bond0.0"
-     * Bring "up" connection "bond0.1"
-     Then "Bonding Mode: fault-tolerance \(active-backup\) \(fail_over_mac follow\)\s+Primary Slave: eth1 \(primary_reselect always\)\s+Currently Active Slave: eth1" is visible with command "cat /proc/net/bonding/nm-bond"
-     Then Check bond "nm-bond" link state is "up"
-
-
 
     @rhbz1856640 @rhbz1876577
     @ver+=1.27
