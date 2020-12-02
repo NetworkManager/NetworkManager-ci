@@ -46,6 +46,18 @@ def dns_check(dns_plugin, device, kind, arg, has):
             xhas = any((arg == d[0] for d in info['domains']))
             if has == xhas:
                 return
+        elif kind == 'default-route':
+            if arg == 'no':
+                if info['default_route'] in [None, False] and not any((d[0] == '.' for d in info['domains'])):
+                   return
+            elif arg == 'default':
+                if info['default_route'] in [None, True] and not any((d[0] == '.' for d in info['domains'])):
+                   return
+            elif arg in ['routing', 'search']:
+                if info['default_route'] in [None, True] and any((d[0] == '.' and d[1] == arg for d in info['domains'])):
+                   return
+            else:
+                raise ValueError(f"unsupported default-route kind {arg}")
         else:
             raise ValueError(f"unsupported kind \"{kind}\"")
     except Exception as e:
@@ -75,6 +87,12 @@ def dns_check_domain_has(context, device, domain, kind="domain-routing"):
 @step(u'device "{device}" does not have DNS domain "{domain}" for "{kind}"')
 def dns_check_domain_not(context, device, domain, kind='domain'):
     dns_check(context.dns_plugin, device, kind, domain, False)
+
+
+@step(u'device "{device}" has "{what}" DNS default-route')
+def dns_check_default_route_has(context, device, what):
+    assert what in ['no', 'default', 'routing', 'search']
+    dns_check(context.dns_plugin, device, 'default-route', what, None)
 
 
 @step(u'Create device "{dev}" in "{ns}" with address "{addr}"')
