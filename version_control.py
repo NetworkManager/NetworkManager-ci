@@ -59,6 +59,24 @@ if not test_tags:
 
 result = None
 
+
+def ver_param_to_str(
+    current_nm_version, current_rhel_version, current_fedora_version, pkg
+):
+
+    current_nm_version = ".".join([str(c) for c in current_nm_version])
+    if current_rhel_version:
+        current_rhel_version = ".".join([str(c) for c in current_rhel_version])
+    if current_fedora_version:
+        current_fedora_version = ".".join([str(c) for c in current_fedora_version])
+    return "ver:%s%s%s, pkg:%s" % (
+        current_nm_version,
+        f", rhelver:{current_rhel_version}" if current_rhel_version else "",
+        f", fedoraver:{current_fedora_version}" if current_fedora_version else "",
+        "pkg" if pkg else "upstream",
+    )
+
+
 for tags in test_tags:
     tags_ver = []
     tags_rhelver = []
@@ -99,15 +117,32 @@ for tags in test_tags:
 
     if result:
         sys.stderr.write(
-            "test with tag '%s' has more than one match: %r and %r!\n"
-            % (test_name, result, tags)
+            "test with tag '%s' has more than one match for %s: %r and %r!\n"
+            % (
+                ver_param_to_str(
+                    current_nm_version,
+                    current_rhel_version,
+                    current_fedora_version,
+                    pkg,
+                ),
+                test_name,
+                result,
+                tags,
+            )
         )
         sys.exit(1)
 
     result = tags
 
 if not result:
-    sys.stderr.write("Skipping, version mismatch.\n")
+    sys.stderr.write(
+        "Skipping, version mismatch for %s.\n"
+        % (
+            ver_param_to_str(
+                current_nm_version, current_rhel_version, current_fedora_version, pkg
+            )
+        )
+    )
     sys.exit(77)
 
 print("-t " + (" -t ".join(result)))
