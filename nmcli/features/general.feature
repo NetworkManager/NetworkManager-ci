@@ -1992,8 +1992,9 @@ Feature: nmcli - general
     * Expect "Connection type"
     * Submit "<double_tab>"
     Then Expect "adsl.*bluetooth.*bond.*bond-slave.*bridge"
-    * Submit "<tab>"
-    Then Expect "bridge-slave.*team.*team-slave"
+	* Send "t" in editor
+    * Submit "<double_tab>"
+    Then Expect "team\s+team-slave\s+tun"
 
 
     @rhbz1671200
