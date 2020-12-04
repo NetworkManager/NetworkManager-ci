@@ -1115,6 +1115,9 @@ Feature: NM: dracut
       | check  | nmcli_con_prop vlan5 IP4.DOMAIN cl.vl5.redhat.com    |
       | check  | nmcli_con_prop vlan5 ipv6.method auto                |
       | check  | nmcli_con_prop vlan5 IP6.DNS ''                      |
+      | check  | nmcli_con_active eth0 eth0                           |
+      | check  | nmcli_con_prop eth0 ipv4.method disabled             |
+      | check  | nmcli_con_prop eth0 ipv6.method disabled             |
       | check  | wait_for_ip4_renew 192.168.55.6/30 vlan5             |
       | check  | dns_search vl5.redhat.com                            |
       | check  | nmcli_con_num 2                                      |
@@ -1203,6 +1206,9 @@ Feature: NM: dracut
       | check  | nmcli_con_prop vlan.0009 IP4.DOMAIN cl.vl9.redhat.com    |
       | check  | nmcli_con_prop vlan.0009 ipv6.method auto                |
       | check  | nmcli_con_prop vlan.0009 IP6.DNS ''                      |
+      | check  | nmcli_con_active eth0 eth0                               |
+      | check  | nmcli_con_prop eth0 ipv4.method disabled                 |
+      | check  | nmcli_con_prop eth0 ipv6.method disabled                 |
       | check  | wait_for_ip4_renew 192.168.55.6/30 vlan.5                |
       | check  | wait_for_ip4_renew 192.168.55.10/30 vlan.0009            |
       | check  | dns_search *vl5.redhat.com*                              |
