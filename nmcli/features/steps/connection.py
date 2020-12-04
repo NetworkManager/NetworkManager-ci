@@ -1,16 +1,11 @@
-# -*- coding: UTF-8 -*-
-from __future__ import absolute_import, division, print_function, unicode_literals
-from behave import step
-from time import sleep, time
-import pexpect
 import os
+import pexpect
 import re
 import subprocess
-from subprocess import Popen, check_output, call
-from glob import glob
+import time
+from behave import step
 
-from steps import command_output, command_code, additional_sleep
-
+import nmci_step
 
 
 @step(u'Activate connection')
@@ -23,7 +18,7 @@ def activate_connection(context):
 def add_vpnc_connection_for_iface(context, name, ifname, vpn):
     cli = pexpect.spawn('nmcli connection add con-name %s type vpn ifname %s vpn-type %s' % (name, ifname, vpn), logfile=context.log, encoding='utf-8')
     r = cli.expect(['Error', pexpect.EOF])
-    sleep(1)
+    time.sleep(1)
     if r == 0:
         raise Exception('Got an Error while adding %s connection %s for device %s\n%s%s' % (vpn, name, ifname, cli.after, cli.buffer))
 
@@ -52,7 +47,7 @@ def add_port(context, name, ifname, parent, pkey):
     r = cli.expect(['Error', pexpect.EOF])
     if r == 0:
         raise Exception('Got an Error while adding %s connection %s for device %s\n%s%s' % (typ, name, ifname, cli.after, cli.buffer))
-    sleep(1)
+    time.sleep(1)
 
 
 @step(u'Modify connection "{connection}" property "{prop}" to noted value')
@@ -80,7 +75,7 @@ def open_slave_connection(context, master, device, name):
 @step(u'Bring "{action}" connection "{name}"')
 def start_stop_connection(context, action, name):
     if action == "down":
-        if command_code(context, "nmcli connection show --active |grep %s" %name) != 0:
+        if nmci_step.command_code(context, "nmcli connection show --active |grep %s" %name) != 0:
             print ("Warning: Connection is down no need to down it again")
             return
 
@@ -147,7 +142,7 @@ def bring_down_connection_ignoring(context, connection):
 @step(u'Bring up connection "{connection}" ignoring everything')
 def bring_up_connection_ignore_everything(context, connection):
     subprocess.Popen('nmcli connection up %s' % connection, shell=True)
-    sleep(1)
+    time.sleep(1)
 
 
 @step(u'Check if "{name}" is active connection')
@@ -200,15 +195,15 @@ def is_not_readable(context, user, name):
 
 @step(u'Modify connection "{name}" changing options "{options}"')
 def modify_connection(context, name, options):
-    out = command_output(context, "nmcli connection modify %s %s" % (name, options))
+    out = nmci_step.command_output(context, "nmcli connection modify %s %s" % (name, options))
     if 'Error' in out:
         raise Exception('Got an Error while modifying %s options %s\n%s' % (name, options, out))
 
 
 @step(u'Reload connections')
 def reload_connections(context):
-    command_code(context, "nmcli con reload")
-    sleep(0.5)
+    nmci_step.command_code(context, "nmcli con reload")
+    time.sleep(0.5)
 
 
 @step(u'Start generic connection "{connection}" for "{device}"')
@@ -217,7 +212,7 @@ def start_generic_connection(context, connection, device):
     r = cli.expect([pexpect.EOF, pexpect.TIMEOUT])
     if r != 0:
         raise Exception('nmcli connection up %s timed out (180s)' % connection)
-    sleep(4)
+    time.sleep(4)
 
 
 def libnm_get_connection(nm_client, con_name):

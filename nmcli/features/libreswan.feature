@@ -222,17 +222,6 @@
     Then "IP4.GATEWAY:.*11.12.13.14" is visible with command "nmcli d show libreswan1"
 
 
-    @vpn_describe
-    Scenario: nmcli - vpn - describe
-    * Open editor for a type "vpn"
-    When Check "<<< vpn >>>" are present in describe output for object "vpn"
-    When Check "=== \[service-type\] ===\s+\[NM property description\]\s+D-Bus service name of the VPN plugin that this setting uses to connect to its network.  i.e. org.freedesktop.NetworkManager.vpnc for the vpnc plugin.\s+" are present in describe output for object "vpn"
-    When Check "=== \[user-name\] ===\s+\[NM property description\]\s+If the VPN connection requires a user name for authentication, that name should be provided here.  If the connection is available to more than one user, and the VPN requires each user to supply a different name, then leave this property empty.  If this property is empty, NetworkManager will automatically supply the username of the user which requested the VPN connection.\s+" are present in describe output for object "vpn"
-    When Check "=== \[persistent\] ===\s+\[NM property description\]\s+If the VPN service supports persistence, and this property is TRUE, the VPN will attempt to stay connected across link changes and outages, until explicitly disconnected.\s+" are present in describe output for object "vpn"
-    When Check "=== \[data\] ===\s+\[NM property description\]\s+Dictionary of key/value pairs of VPN plugin specific data.  Both keys and values must be strings.\s+" are present in describe output for object "vpn"
-    When Check "=== \[secrets\] ===\s+\[NM property description\]\s+Dictionary of key\/value pairs of VPN plugin specific secrets like passwords or private keys.\s+Both keys and values must be strings." are present in describe output for object "vpn"
-
-
     @rhbz1060460
     @ver-1.14.0
     @vpn

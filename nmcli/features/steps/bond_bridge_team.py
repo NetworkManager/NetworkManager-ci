@@ -1,16 +1,11 @@
-# -*- coding: UTF-8 -*-
-from __future__ import absolute_import, division, print_function, unicode_literals
-from behave import step
-from time import sleep, time
-import pexpect
 import os
+import pexpect
 import re
 import subprocess
-from subprocess import Popen, check_output, call
-from glob import glob
+import time
+from behave import step
 
-from steps import command_output, command_code, additional_sleep
-
+import nmci_step
 
 
 @step(u'Check bond "{bond}" in proc')
@@ -23,7 +18,7 @@ def check_bond_in_proc(context, bond):
 def check_slave_in_bond_in_proc(context, slave, bond):
     child = pexpect.spawn('cat /proc/net/bonding/%s' % (bond), logfile=context.log, encoding='utf-8')
     if child.expect(["Slave Interface: %s\s+MII Status: up" % slave, pexpect.EOF]) != 0:
-        sleep(1)
+        time.sleep(1)
         child = pexpect.spawn('cat /proc/net/bonding/%s' % (bond), logfile=context.log, encoding='utf-8')
         assert child.expect(["Slave Interface: %s\s+MII Status: up" % slave, pexpect.EOF]) == 0, "Slave %s is not in %s" % (slave, bond)
     else:
@@ -32,19 +27,19 @@ def check_slave_in_bond_in_proc(context, slave, bond):
 
 @step(u'Check slave "{slave}" in team "{team}" is "{state}"')
 def check_slave_in_team_is_up(context, slave, team, state):
-    #sleep(2)
-    r = command_code(context, 'sudo teamdctl %s port present %s' %(team, slave))
+    #time.sleep(2)
+    r = nmci_step.command_code(context, 'sudo teamdctl %s port present %s' %(team, slave))
     if state == "up":
         if r != 0:
-            sleep(1)
-            r = command_code(context, 'sudo teamdctl %s port present %s' %(team, slave))
+            time.sleep(1)
+            r = nmci_step.command_code(context, 'sudo teamdctl %s port present %s' %(team, slave))
             if r != 0:
                 raise Exception('Device %s was not found in dump of team %s' % (slave, team))
 
     if state == "down":
         if r == 0:
-            sleep(1)
-            r = command_code(context, 'sudo teamdctl %s port present %s' %(team, slave))
+            time.sleep(1)
+            r = nmci_step.command_code(context, 'sudo teamdctl %s port present %s' %(team, slave))
             if r == 0:
                 raise Exception('Device %s was found in dump of team %s' % (slave, team))
 
@@ -82,7 +77,7 @@ def check_bond_link_state(context, bond, state):
         if child.expect(["MII Status: %s" %  state, pexpect.EOF]) == 0:
             return
         else:
-            sleep(0.2)
+            time.sleep(0.2)
             i-=1
     assert child.expect(["MII Status: %s" %  state, pexpect.EOF]) == 0, "%s is not in %s link state" % (bond, state)
 
@@ -91,9 +86,9 @@ def check_bond_link_state(context, bond, state):
 def create_delete_bridges(context):
     i = 0
     while i < 300:
-        Popen('ip link add name br0 type bridge' , shell=True).wait()
-        Popen('ip addr add 1.1.1.1/24 dev br0' , shell=True).wait()
-        Popen('ip link delete dev br0' , shell=True).wait()
+        subprocess.Popen('ip link add name br0 type bridge' , shell=True).wait()
+        subprocess.Popen('ip addr add 1.1.1.1/24 dev br0' , shell=True).wait()
+        subprocess.Popen('ip link delete dev br0' , shell=True).wait()
         i += 1
 
 
@@ -106,7 +101,7 @@ def settle(context):
 
     while True:
          devs = client.get_devices()
-         sleep(1)
+         time.sleep(1)
          devs2 = client.get_devices()
 
          if len(devs) != len(devs2):
@@ -138,18 +133,18 @@ def external_bridge_check(context, number):
 
 @step(u'Team "{team}" is down')
 def team_is_down(context, team):
-    additional_sleep(2)
-    if command_code(context, 'teamdctl %s state dump' %team) == 0:
-        sleep(1)
-        assert command_code(context, 'teamdctl %s state dump' %team) != 0, 'team "%s" exists' % (team)
+    nmci_step.additional_sleep(2)
+    if nmci_step.command_code(context, 'teamdctl %s state dump' %team) == 0:
+        time.sleep(1)
+        assert nmci_step.command_code(context, 'teamdctl %s state dump' %team) != 0, 'team "%s" exists' % (team)
 
 
 @step(u'Team "{team}" is up')
 def team_is_down(context, team):
-    additional_sleep(2)
-    if command_code(context, 'teamdctl %s state dump' %team) != 0:
-        sleep(1)
-        assert command_code(context, 'teamdctl %s state dump' %team) == 0, 'team "%s" does not exist' % (team)
+    nmci_step.additional_sleep(2)
+    if nmci_step.command_code(context, 'teamdctl %s state dump' %team) != 0:
+        time.sleep(1)
+        assert nmci_step.command_code(context, 'teamdctl %s state dump' %team) == 0, 'team "%s" does not exist' % (team)
 
 
 @step(u'Check that "{cap}" capability is loaded')

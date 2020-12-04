@@ -1,80 +1,108 @@
-# -*- coding: UTF-8 -*-
-from __future__ import absolute_import, division, print_function, unicode_literals
-from behave import step
-from time import sleep, time
-import pexpect
 import os
+import pexpect
 import re
 import subprocess
-from subprocess import Popen, check_output, call
-from glob import glob
+import time
+from behave import step
 
-from steps import command_output, command_code, additional_sleep
-
+import nmci_step
+import nmci.misc
 
 
 @step(u'{action} all "{what}" devices')
 def do_device_stuff(context, action, what):
-    command_code(context, "for dev in $(nmcli device status | grep '%s' | awk {'print $1'}); do nmcli device %s $dev; done" % (what, action))
+    nmci_step.command_code(context, "for dev in $(nmcli device status | grep '%s' | awk {'print $1'}); do nmcli device %s $dev; done" % (what, action))
 
 
 @step(u'Add a secondary address to device "{device}" within the same subnet')
 def add_secondary_addr_same_subnet(context, device):
     from netaddr import IPNetwork
-    primary_ipn = IPNetwork(command_output(context, "ip -4 a s %s | awk '/inet .*dynamic/ {print $2}'" % device))
+    primary_ipn = IPNetwork(nmci_step.command_output(context, "ip -4 a s %s | awk '/inet .*dynamic/ {print $2}'" % device))
     if str(primary_ipn.ip).split('.')[2] == str(primary_ipn.ip+1).split('.')[2]:
         secondary_ip = primary_ipn.ip+1
     else:
         secondary_ip = primary_ipn.ip-1
-    assert command_code(context, 'ip addr add dev %s %s/%d' % (device, str(secondary_ip), primary_ipn.prefixlen)) == 0
+    assert nmci_step.command_code(context, 'ip addr add dev %s %s/%d' % (device, str(secondary_ip), primary_ipn.prefixlen)) == 0
+
+
+def dns_check(dns_plugin, device, kind, arg, has):
+    info = None
+    ex = None
+    try:
+        info = nmci.misc.get_dns_info(dns_plugin, ifname=device)
+
+        assert info['default_route'] is not None or dns_plugin == 'systemd-resolved'
+
+        if kind == 'dns':
+            xhas = (arg in info['dns'])
+            if has == xhas:
+                return
+        elif kind in ['domain-search', 'domain-routing']:
+            xkind = kind[7:]
+            xhas = any((arg == d[0] and xkind == d[1] for d in info['domains']))
+            if has == xhas:
+                return
+        elif kind == 'domain':
+            xhas = any((arg == d[0] for d in info['domains']))
+            if has == xhas:
+                return
+        elif kind == 'default-route':
+            if arg == 'no':
+                if info['default_route'] in [None, False] and not any((d[0] == '.' for d in info['domains'])):
+                   return
+            elif arg == 'default':
+                if info['default_route'] in [None, True] and not any((d[0] == '.' for d in info['domains'])):
+                   return
+            elif arg in ['routing', 'search']:
+                if info['default_route'] in [None, True] and any((d[0] == '.' and d[1] == arg for d in info['domains'])):
+                   return
+            else:
+                raise ValueError(f"unsupported default-route kind {arg}")
+        else:
+            raise ValueError(f"unsupported kind \"{kind}\"")
+    except Exception as e:
+        ex = e
+
+    raise AssertionError("DNS %s \"%s\" is unexpectedly %sset for device \"%s\" (plugin %s) (settings: %s) (exception: %s)" % (
+                         kind, arg, 'not ' if has else '', device, dns_plugin, info, ex))
 
 
 @step(u'device "{device}" has DNS server "{dns}"')
-def check_dns_domain(context, device, dns):
-    try:
-        context.execute_steps('* "DNS: %s\\r\\n" is visible with command "prepare/%s %s"' % (re.escape(dns), context.dns_script, device))
-    except AssertionError:
-        out = command_output(context, "prepare/%s %s" % (context.dns_script, device)).strip()
-        raise AssertionError("Actual DNS configuration for %s is:\n%s\n" % (device, out))
+def dns_check_dns_has(context, device, dns):
+    dns_check(context.dns_plugin, device, 'dns', dns, True)
 
 
 @step(u'device "{device}" does not have DNS server "{dns}"')
-def check_dns_domain(context, device, dns):
-    try:
-        context.execute_steps(u'''* "DNS: %s\\r\\n" is not visible with command "prepare/%s %s"''' % (re.escape(dns), context.dns_script, device))
-    except AssertionError:
-        out = command_output(context, "prepare/%s.py %s" % (context.dns_script, device)).strip()
-        raise AssertionError("Actual DNS configuration for %s is:\n%s\n" % (device, out))
+def dns_check_dns_not(context, device, dns):
+    dns_check(context.dns_plugin, device, 'dns', dns, False)
 
 
 @step(u'device "{device}" has DNS domain "{domain}"')
 @step(u'device "{device}" has DNS domain "{domain}" for "{kind}"')
-def check_dns_domain(context, device, domain, kind="routing"):
-    try:
-        context.execute_steps(u'''* "Domain: \(%s\) %s\\r\\n" is visible with command "prepare/%s %s"''' % (kind, re.escape(domain), context.dns_script, device))
-    except AssertionError:
-        out = command_output(context, "prepare/%s %s" % (context.dns_script, device)).strip()
-        raise AssertionError("Actual DNS configuration for %s is:\n%s\n" % (device, out))
-
-
-@step(u'Create device "{dev}" in "{ns}" with address "{addr}"')
-def create_device_in_ns(context, dev, ns, addr):
-    command_code(context, 'ip -n %s link add %s type veth peer name %sp' % (ns, dev, dev))
-    command_code(context, "ip -n %s link set %s up" % (ns, dev))
-    command_code(context, "ip -n %s addr add %s dev %s" % (ns, addr, dev))
-#    veth_to_delete = getattr(context, "veth_to_delete", [])
-#    veth_to_delete += [dev, dev+"p"]
-#    context.veth_to_delete = veth_to_delete
+def dns_check_domain_has(context, device, domain, kind="domain-routing"):
+    dns_check(context.dns_plugin, device, kind, domain, True)
 
 
 @step(u'device "{device}" does not have DNS domain "{domain}"')
 @step(u'device "{device}" does not have DNS domain "{domain}" for "{kind}"')
-def check_dns_domain(context, device, domain, kind="routing"):
-    try:
-        context.execute_steps(u'''* "Domain: \(%s\) %s\\r\\n" is not visible with command "prepare/%s %s"''' % (kind, re.escape(domain), context.dns_script, device))
-    except AssertionError:
-        out = command_output(context, "prepare/%s %s" % (context.dns_script, device)).strip()
-        raise AssertionError("Actual DNS configuration for %s is:\n%s\n" % (device, out))
+def dns_check_domain_not(context, device, domain, kind='domain'):
+    dns_check(context.dns_plugin, device, kind, domain, False)
+
+
+@step(u'device "{device}" has "{what}" DNS default-route')
+def dns_check_default_route_has(context, device, what):
+    assert what in ['no', 'default', 'routing', 'search']
+    dns_check(context.dns_plugin, device, 'default-route', what, None)
+
+
+@step(u'Create device "{dev}" in "{ns}" with address "{addr}"')
+def create_device_in_ns(context, dev, ns, addr):
+    nmci_step.command_code(context, 'ip -n %s link add %s type veth peer name %sp' % (ns, dev, dev))
+    nmci_step.command_code(context, "ip -n %s link set %s up" % (ns, dev))
+    nmci_step.command_code(context, "ip -n %s addr add %s dev %s" % (ns, addr, dev))
+#    veth_to_delete = getattr(context, "veth_to_delete", [])
+#    veth_to_delete += [dev, dev+"p"]
+#    context.veth_to_delete = veth_to_delete
 
 
 @step(u'Compare kernel and NM devices')
@@ -233,16 +261,16 @@ def note_print_property(context, prop, device):
 def note_mac_address(context, device):
     if not hasattr(context, 'noted'):
         context.noted = {}
-    context.noted['noted-value'] = command_output(context, "ethtool -P %s |grep -o -E '([[:xdigit:]]{1,2}:){5}[[:xdigit:]]{1,2}'" % device).strip()
+    context.noted['noted-value'] = nmci_step.command_output(context, "ethtool -P %s |grep -o -E '([[:xdigit:]]{1,2}:){5}[[:xdigit:]]{1,2}'" % device).strip()
 
 
 @step(u'Note MAC address output for device "{device}" via ip command as "{index}"')
 @step(u'Note MAC address output for device "{device}" via ip command')
 def note_mac_address_ip(context, device, index=None):
-    if call("ip a s %s |grep -q ether" %device, shell=True) == 0:
-        mac = command_output(context, "ip link show %s | grep 'link/ether' | awk '{print $2}'" % device).strip()
-    if call("ip a s %s |grep -q infiniband" %device, shell=True) == 0:
-        ip_out = command_output(context, "ip link show %s | grep 'link/inf' | awk '{print $2}'" % device).strip()
+    if subprocess.call("ip a s %s |grep -q ether" %device, shell=True) == 0:
+        mac = nmci_step.command_output(context, "ip link show %s | grep 'link/ether' | awk '{print $2}'" % device).strip()
+    if subprocess.call("ip a s %s |grep -q infiniband" %device, shell=True) == 0:
+        ip_out = nmci_step.command_output(context, "ip link show %s | grep 'link/inf' | awk '{print $2}'" % device).strip()
         mac = ip_out.split()[-1]
         client_id = ""
         mac_split = mac.split(":")[-8:]
@@ -271,7 +299,7 @@ def global_tem_address_check(context, dev):
     mac = ""
     temp_ipv6 = ""
     ipv6 = ""
-    for line in command_output(context,cmd).split('\n'):
+    for line in nmci_step.command_output(context,cmd).split('\n'):
         if line.find('brd ff:ff:ff:ff:ff:ff') != -1:
             mac = line.split()[1]
         if line.find('scope global temporary dynamic') != -1:
@@ -324,9 +352,9 @@ def delete_device(context, device):
 
 @step(u'Rename device "{old_device}" to "{new_device}"')
 def delete_device(context, old_device, new_device):
-    command_code(context, "ip link set dev %s down" % old_device)
-    command_code(context, "ip link set %s name %s" % (old_device, new_device))
-    command_code(context, "ip link set dev %s ip" % old_device)
+    nmci_step.command_code(context, "ip link set dev %s down" % old_device)
+    nmci_step.command_code(context, "ip link set %s name %s" % (old_device, new_device))
+    nmci_step.command_code(context, "ip link set dev %s ip" % old_device)
 
 
 @step(u'vxlan device "{dev}" check for parent "{parent}"')
@@ -560,7 +588,7 @@ def flag_cap_set(context, flag, n=None, device='wlan0', giveexception=True):
             org.freedesktop.DBus.Properties.Get \
             string:"org.freedesktop.NetworkManager.Device.Wireless" \
             string:"WirelessCapabilities" | grep variant | awk '{print $3}' ''' % path
-    ret = int(check_output(cmd, shell=True).decode('utf-8', 'ignore').strip())
+    ret = int(subprocess.check_output(cmd, shell=True).decode('utf-8', 'ignore').strip())
 
     if n is None:
         if wcaps[flag] & ret == wcaps[flag]:
@@ -576,9 +604,9 @@ def flag_cap_set(context, flag, n=None, device='wlan0', giveexception=True):
 
 @step(u'Force renew IPv6 for "{device}"')
 def force_renew_ipv6(context, device):
-    mac = command_output(context, "ip a s %s |grep fe80 |awk '{print $2}'" % device).strip()
-    command_code(context, "ip -6 addr flush dev %s" % (device))
-    command_code(context, "ip addr add %s dev %s" % (mac, device))
+    mac = nmci_step.command_output(context, "ip a s %s |grep fe80 |awk '{print $2}'" % device).strip()
+    nmci_step.command_code(context, "ip -6 addr flush dev %s" % (device))
+    nmci_step.command_code(context, "ip addr add %s dev %s" % (mac, device))
 
 
 @step(u'"{typ}" lifetimes are slightly smaller than "{valid_lft}" and "{pref_lft}" for device "{device}"')
@@ -591,8 +619,8 @@ def correct_lifetime(context, typ, valid_lft, pref_lft, device):
     valid_cmd = "ip a s '%s' |grep -A 1 -w '%s'| grep -A 1 -w 'scope global' |grep valid_lft |awk '{print $2}'" % (device, inet)
     pref_cmd  = "ip a s '%s' |grep -A 1 -w '%s'| grep -A 1 -w 'scope global' |grep valid_lft |awk '{print $4}'" % (device, inet)
 
-    valid = command_output(context, valid_cmd).split()[0]
-    pref = command_output(context, pref_cmd).split()[0]
+    valid = nmci_step.command_output(context, valid_cmd).split()[0]
+    pref = nmci_step.command_output(context, pref_cmd).split()[0]
 
     valid = valid.strip()
     valid = valid.replace('sec', '')
@@ -606,13 +634,13 @@ def correct_lifetime(context, typ, valid_lft, pref_lft, device):
 @step(u'Check ipv6 connectivity is stable on assuming connection profile "{profile}" for device "{device}"')
 def check_ipv6_connectivity_on_assumal(context, profile, device):
     context.nm_restarted = True
-    address = command_output(context, "ip -6 a s %s | grep dynamic | awk '{print $2; exit}' | cut -d '/' -f1" % device)
-    assert command_code(context, 'systemctl stop NetworkManager.service') == 0
-    assert command_code(context, "sed -i 's/UUID=/#UUID=/' /etc/sysconfig/network-scripts/ifcfg-%s" % profile)  == 0
+    address = nmci_step.command_output(context, "ip -6 a s %s | grep dynamic | awk '{print $2; exit}' | cut -d '/' -f1" % device)
+    assert nmci_step.command_code(context, 'systemctl stop NetworkManager.service') == 0
+    assert nmci_step.command_code(context, "sed -i 's/UUID=/#UUID=/' /etc/sysconfig/network-scripts/ifcfg-%s" % profile)  == 0
     ping = pexpect.spawn('ping6 %s -i 0.2 -c 50' % address, logfile=context.log, encoding='utf-8')
-    sleep(1)
-    assert command_code(context, 'systemctl start NetworkManager.service') == 0
-    sleep(12)
+    time.sleep(1)
+    assert nmci_step.command_code(context, 'systemctl start NetworkManager.service') == 0
+    time.sleep(12)
     r = ping.expect(["0% packet loss", pexpect.EOF, pexpect.TIMEOUT])
     if r != 0:
         raise Exception('Had packet loss on pinging the address!')
