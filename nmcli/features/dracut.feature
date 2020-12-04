@@ -1177,7 +1177,7 @@ Feature: NM: dracut
     Scenario: NM - dracut - NM module - multiple VLANs over single NIC
     * Run dracut test
       | Param  | Value                                                    |
-      | kernel | root=nfs:192.168.55.9:/client ro                         |
+      | kernel | root=nfs:192.168.55.9:/client ro ip=vlan.5:dhcp          |
       | kernel | vlan=vlan.5:eth0 vlan=vlan.0009:eth0                     |
       | qemu   | -netdev tap,id=vlan,script=$PWD/qemu-ifup/vlan           |
       | qemu   | -device virtio-net,netdev=vlan,mac=52:54:00:12:34:11     |
