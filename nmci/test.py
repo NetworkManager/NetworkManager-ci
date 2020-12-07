@@ -4,6 +4,7 @@ import pytest
 import re
 import subprocess
 
+from . import ip
 from . import misc
 from . import util
 
@@ -463,3 +464,14 @@ def test_black_code_fromatting():
     assert not proc.stderr
     assert not proc.stdout
     assert proc.returncode == 0
+
+
+def test_ip_link_show_all():
+
+    l0 = ip._link_show_all_legacy()
+    l1 = ip.link_show_all()
+
+    def _normalize(i):
+        return (i["ifindex"], i["ifname"])
+
+    assert [_normalize(i) for i in l0] == [_normalize(i) for i in l1]
