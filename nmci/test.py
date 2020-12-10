@@ -516,18 +516,12 @@ def test_feature_tags():
 def test_black_code_fromatting():
 
     files = [
-        util.base_dir("nmci"),
-        util.base_dir("version_control.py"),
-    ]
-
-    exclude = [
-        "--exclude",
-        "nmci/(tags|lib|run)\\.py",
+        util.base_dir(),
     ]
 
     try:
         proc = subprocess.run(
-            ["black", "-q", "--diff"] + exclude + files,
+            ["black", "-q", "--diff"] + files,
             stdout=subprocess.PIPE,
             stderr=subprocess.PIPE,
         )
