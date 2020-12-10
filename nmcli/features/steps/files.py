@@ -19,28 +19,39 @@ def append_to_ifcfg(context, line, name):
     context.command_code(cmd)
 
 
-@step(u'Check file "{file1}" is contained in file "{file2}"')
+@step('Check file "{file1}" is contained in file "{file2}"')
 def check_file_is_contained(context, file1, file2):
     with open(file1) as f1_lines:
         with open(file2) as f2_lines:
             diff = set(f1_lines).difference(f2_lines)
-    assert not len(diff), f"Following lines in '{file1}' are not in '{file2}':\n" + "".join(diff)
+    assert not len(
+        diff
+    ), f"Following lines in '{file1}' are not in '{file2}':\n" + "".join(diff)
 
 
-@step(u'Check file "{file1}" is identical to file "{file2}"')
+@step('Check file "{file1}" is identical to file "{file2}"')
 def check_file_is_identical(context, file1, file2):
     import filecmp
-    assert filecmp.cmp(file1, file2), "".join((
-        f"Files '{file1}' and '{file2}' differ",
-        "" if context.embed("text/plain", nmci.lib.utf_only_open_read(file1), file1) else "",
-        "" if context.embed("text/plain", nmci.lib.utf_only_open_read(file2), file2) else "",
-    ))
+
+    assert filecmp.cmp(file1, file2), "".join(
+        (
+            f"Files '{file1}' and '{file2}' differ",
+            ""
+            if context.embed("text/plain", nmci.lib.utf_only_open_read(file1), file1)
+            else "",
+            ""
+            if context.embed("text/plain", nmci.lib.utf_only_open_read(file2), file2)
+            else "",
+        )
+    )
 
 
-@step(u'ifcfg-"{con_name}" file does not exist')
+@step('ifcfg-"{con_name}" file does not exist')
 def ifcfg_doesnt_exist(context, con_name):
-    cat = context.pexpect_spawn('cat /etc/sysconfig/network-scripts/ifcfg-%s' % con_name)
-    assert cat.expect('No such file') == 0, 'Ifcfg-%s exists!' % con_name
+    cat = context.pexpect_spawn(
+        "cat /etc/sysconfig/network-scripts/ifcfg-%s" % con_name
+    )
+    assert cat.expect("No such file") == 0, "Ifcfg-%s exists!" % con_name
 
 
 @step('"{filename}" is file')
@@ -65,12 +76,18 @@ def no_path(context, path):
 @step('"{filename}" is symlink with destination "{destination}"')
 def is_symlink(context, filename, destination=None):
     if "<noted_value>" in filename:
-        filename = filename.replace("<noted_value>", context.noted['noted-value'])
+        filename = filename.replace("<noted_value>", context.noted["noted-value"])
     assert os.path.islink(filename), '"%s" is not a symlink' % filename
     realpath = os.path.realpath(filename)
     if destination is None:
         return True
-    assert realpath == destination, 'symlink "%s" has destination "%s" instead of "%s"' % (filename, realpath, destination)
+    assert (
+        realpath == destination
+    ), 'symlink "%s" has destination "%s" instead of "%s"' % (
+        filename,
+        realpath,
+        destination,
+    )
 
 
 @step('Remove file "{filename}" if exists')
@@ -85,29 +102,31 @@ def remove_symlink(context, filename):
         os.remove(filename)
 
 
-@step('Create symlink {source} with destination {destination}')
+@step("Create symlink {source} with destination {destination}")
 def create_symlink(context, source, destination):
     cmd = 'sudo ln -s "%s" "%s"' % (destination, source)
     context.command_code(cmd)
 
 
-@step(u'Check ifcfg-name file created with noted connection name')
+@step("Check ifcfg-name file created with noted connection name")
 def check_ifcfg_exists(context):
-    command = 'cat /etc/sysconfig/network-scripts/ifcfg-%s' % context.noted['noted-value']
-    pattern = 'NAME=%s' % context.noted['noted-value']
+    command = (
+        "cat /etc/sysconfig/network-scripts/ifcfg-%s" % context.noted["noted-value"]
+    )
+    pattern = "NAME=%s" % context.noted["noted-value"]
     return commands.check_pattern_command(context, command, pattern, seconds=2)
 
 
-@step(u'Check ifcfg-name file created for connection "{con_name}"')
+@step('Check ifcfg-name file created for connection "{con_name}"')
 def check_ifcfg_exists_given_device(context, con_name):
     context.additional_sleep(1)
-    command = 'cat /etc/sysconfig/network-scripts/ifcfg-%s' % con_name
-    pattern = 'NAME=%s' % con_name
+    command = "cat /etc/sysconfig/network-scripts/ifcfg-%s" % con_name
+    pattern = "NAME=%s" % con_name
     return commands.check_pattern_command(context, command, pattern, seconds=2)
 
 
-@step(u'Write dispatcher "{path}" file with params "{params}"')
-@step(u'Write dispatcher "{path}" file')
+@step('Write dispatcher "{path}" file with params "{params}"')
+@step('Write dispatcher "{path}" file')
 def write_dispatcher_file(context, path, params=None):
     if path.startswith("/"):
         disp_file = path
@@ -115,19 +134,19 @@ def write_dispatcher_file(context, path, params=None):
         if not os.path.exists(dir):
             os.makedirs(dir)
     else:
-        disp_file = '/etc/NetworkManager/dispatcher.d/%s' % path
-    f = open(disp_file, 'w')
-    f.write('#!/bin/bash\n')
+        disp_file = "/etc/NetworkManager/dispatcher.d/%s" % path
+    f = open(disp_file, "w")
+    f.write("#!/bin/bash\n")
     if params:
         f.write(params)
-    f.write('\necho $2 >> /tmp/dispatcher.txt\n')
+    f.write("\necho $2 >> /tmp/dispatcher.txt\n")
     f.close()
-    context.command_code('chmod +x %s' % disp_file)
+    context.command_code("chmod +x %s" % disp_file)
     context.command_code("> /tmp/dispatcher.txt")
     time.sleep(8)
 
 
-@step('Reset /etc/hosts')
+@step("Reset /etc/hosts")
 def reset_hosts(context):
     cmd = "echo '127.0.0.1   localhost localhost.localdomain localhost4 localhost4.localdomain4' > /etc/hosts"
     context.command_code(cmd)
@@ -135,23 +154,25 @@ def reset_hosts(context):
     context.command_code(cmd)
 
 
-@step(u'Check solicitation for "{dev}" in "{file}"')
+@step('Check solicitation for "{dev}" in "{file}"')
 def check_solicitation(context, dev, file):
-    #file = '/tmp/solicitation.txt'
-    #dev = 'enp0s25'
-    cmd = "ip a s %s |grep ff:ff|awk {'print $2'}" %dev
+    # file = '/tmp/solicitation.txt'
+    # dev = 'enp0s25'
+    cmd = "ip a s %s |grep ff:ff|awk {'print $2'}" % dev
     mac = ""
-    for line in context.command_output(cmd).split('\n'):
-        if line.find(':') != -1:
+    for line in context.command_output(cmd).split("\n"):
+        if line.find(":") != -1:
             mac = line.strip()
 
-    mac_last_4bits = mac.split(':')[-2]+mac.split(':')[-1]
-    dump = open(file, 'r')
+    mac_last_4bits = mac.split(":")[-2] + mac.split(":")[-1]
+    dump = open(file, "r")
 
-    assert mac_last_4bits not in dump.readlines(), "Route solicitation from %s was found in tshark dump" % mac
+    assert mac_last_4bits not in dump.readlines(), (
+        "Route solicitation from %s was found in tshark dump" % mac
+    )
 
 
-@step(u'Check keyfile "{file}" has options')
+@step('Check keyfile "{file}" has options')
 def check_keyfile(context, file):
     cp = configparser.ConfigParser()
     assert file in cp.read(file), "File '%s' is not valid config file" % file
@@ -163,18 +184,24 @@ def check_keyfile(context, file):
         assert cfg_val == value, "'%s' not found in file '%s'" % (line, file)
 
 
-@step(u'Check ifcfg-file "{file}" has options')
+@step('Check ifcfg-file "{file}" has options')
 def check_ifcfg(context, file):
     assert os.path.isfile(file), "File '%s' does not exist" % file
     with open(file) as f:
         cfg = [opt.strip() for opt in f.readlines()]
     for line in context.text.split("\n"):
-        assert line in cfg, "'%s' not found in file '%s':\n%s" % (line, file, "\n".join(cfg))
+        assert line in cfg, "'%s' not found in file '%s':\n%s" % (
+            line,
+            file,
+            "\n".join(cfg),
+        )
 
 
-@step(u'Create keyfile "{file}"')
+@step('Create keyfile "{file}"')
 def create_keyfile(context, file):
     with open(file, "w") as f:
         f.write(context.text)
-    assert nmci.command_code("chmod 600 " + file) == 0, "Unable to set permissions on '%s'" % file
+    assert nmci.command_code("chmod 600 " + file) == 0, (
+        "Unable to set permissions on '%s'" % file
+    )
     nmci.lib.reload_NM_connections(context)

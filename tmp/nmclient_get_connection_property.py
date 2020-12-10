@@ -2,7 +2,8 @@
 
 import sys
 import gi
-gi.require_version('NM', '1.0')
+
+gi.require_version("NM", "1.0")
 from gi.repository import NM
 
 # Usage nmclient_get_connection_property $connection $property
@@ -22,8 +23,8 @@ for c in connections:
             except:
                 continue
         if val:
-            print (val)
+            print(val)
             exit(0)
 
-print ("No such property for connection %s:%s" %(connection,property))
+print("No such property for connection %s:%s" % (connection, property))
 exit(1)

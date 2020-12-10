@@ -14,8 +14,15 @@ import nmci.tags
 
 TIMER = 0.5
 
-IS_NMTUI = 'nmtui' in __file__
-DEBUG = os.environ.get("NMCI_DEBUG", "").lower() not in ["", "n", "no", "f", "false", "0"]
+IS_NMTUI = "nmtui" in __file__
+DEBUG = os.environ.get("NMCI_DEBUG", "").lower() not in [
+    "",
+    "n",
+    "no",
+    "f",
+    "false",
+    "0",
+]
 
 # the order of these steps is as follows
 # 1. before scenario
@@ -25,7 +32,6 @@ DEBUG = os.environ.get("NMCI_DEBUG", "").lower() not in ["", "n", "no", "f", "fa
 
 
 def before_all(context):
-
     def on_signal(signum, frame):
         assert False, "killed externally (timeout)"
 
@@ -40,23 +46,28 @@ def before_all(context):
             if getattr(formatter, "set_title", None) is not None:
                 context.set_title = formatter.set_title
             if getattr(formatter, "embedding", None) is not None:
+
                 def embed(formatter, context):
                     def fn(mime_type, data, caption, html_el=None, fail_only=False):
                         data = data or " "
                         if html_el is None:
                             html_el = formatter.actual["act_step_embed_span"]
                         if mime_type == "call" or fail_only:
-                            context._to_embed.append({
-                                "html_el": html_el,
-                                "mime_type": mime_type,
-                                "data": data,
-                                "caption": caption,
-                                "fail_only": fail_only,
-                                })
+                            context._to_embed.append(
+                                {
+                                    "html_el": html_el,
+                                    "mime_type": mime_type,
+                                    "data": data,
+                                    "caption": caption,
+                                    "fail_only": fail_only,
+                                }
+                            )
                         else:
                             formatter._doEmbed(html_el, mime_type, data, caption)
                             ET.SubElement(html_el, "br")
+
                     return fn
+
                 embed_fn = embed(formatter, context)
                 formatter.embedding = embed_fn
                 context.embed = embed_fn
@@ -69,14 +80,12 @@ def before_all(context):
 
     def _command_output(command, *a, **kw):
         out, err, code = _run(command, *a, **kw)
-        assert code == 0, "command '%s' exited with code %d" \
-            % (command, code, out, err)
+        assert code == 0, "command '%s' exited with code %d" % (command, code, out, err)
         return out
 
     def _command_output_err(command, *a, **kw):
         out, err, code = _run(command, *a, **kw)
-        assert code == 0, "command '%s' exited with code %d" \
-            % (command, code, out, err)
+        assert code == 0, "command '%s' exited with code %d" % (command, code, out, err)
         return out, err
 
     def _command_code(command, *a, **kw):
@@ -85,7 +94,7 @@ def before_all(context):
 
     def _pexpect_spawn(*a, encoding="utf-8", logfile=None, **kw):
         if logfile is None:
-            logfile = open("/tmp/expect.log."+str(context._log_index), "w")
+            logfile = open("/tmp/expect.log." + str(context._log_index), "w")
             context._log_index += 1
         proc = pexpect.spawn(*a, **kw, logfile=logfile, encoding=encoding)
         context._expect_procs.append((proc, logfile))
@@ -93,7 +102,7 @@ def before_all(context):
 
     def _pexpect_service(*a, encoding="utf-8", logfile=None, **kw):
         if logfile is None:
-            logfile = open("/tmp/expect_service.log."+str(context._log_index), "w")
+            logfile = open("/tmp/expect_service.log." + str(context._log_index), "w")
             context._log_index += 1
         proc = pexpect.spawn(*a, **kw, logfile=logfile, encoding=encoding)
         context._expect_services.append((proc, logfile))
@@ -144,9 +153,13 @@ def before_scenario(context, scenario):
 
 def _before_scenario(context, scenario):
     time_begin = time.time()
-    context.before_scenario_step_el = ET.Element("li", {"class": "step passed", "style": "margin-bottom:1rem;"})
+    context.before_scenario_step_el = ET.Element(
+        "li", {"class": "step passed", "style": "margin-bottom:1rem;"}
+    )
     ET.SubElement(context.before_scenario_step_el, "b").text = "Before scenario"
-    duration_el = ET.SubElement(context.before_scenario_step_el, "small", {"class": "step_duration"})
+    duration_el = ET.SubElement(
+        context.before_scenario_step_el, "small", {"class": "step_duration"}
+    )
     embed_el = ET.SubElement(context.before_scenario_step_el, "div")
     context.html_formatter.actual["act_step_embed_span"] = embed_el
 
@@ -160,38 +173,49 @@ def _before_scenario(context, scenario):
     context.rh_release = nmci.command_output("cat /etc/redhat-release")
 
     if IS_NMTUI:
-        os.environ['TERM'] = 'dumb'
+        os.environ["TERM"] = "dumb"
         # Do the cleanup
-        if os.path.isfile('/tmp/tui-screen.log'):
-            os.remove('/tmp/tui-screen.log')
-        fd = open('/tmp/tui-screen.log', 'a+')
-        nmci.lib.dump_status_nmtui(context, 'before', fail_only=True)
-        fd.write('Screen recordings after each step:' + '\n----------------------------------\n')
+        if os.path.isfile("/tmp/tui-screen.log"):
+            os.remove("/tmp/tui-screen.log")
+        fd = open("/tmp/tui-screen.log", "a+")
+        nmci.lib.dump_status_nmtui(context, "before", fail_only=True)
+        fd.write(
+            "Screen recordings after each step:"
+            + "\n----------------------------------\n"
+        )
         fd.flush()
         fd.close()
     else:
-        if not os.path.isfile('/tmp/nm_wifi_configured') \
-                and not os.path.isfile('/tmp/nm_dcb_inf_wol_sriov_configured'):
+        if not os.path.isfile("/tmp/nm_wifi_configured") and not os.path.isfile(
+            "/tmp/nm_dcb_inf_wol_sriov_configured"
+        ):
             if nmci.command_code("nmcli device |grep testeth0 |grep ' connected'") != 0:
                 nmci.run("sudo nmcli connection modify testeth0 ipv4.may-fail no")
                 nmci.run("sudo nmcli connection up id testeth0")
                 for attempt in range(0, 10):
-                    if nmci.command_code("nmcli device |grep testeth0 |grep ' connected'") == 0:
+                    if (
+                        nmci.command_code(
+                            "nmcli device |grep testeth0 |grep ' connected'"
+                        )
+                        == 0
+                    ):
                         break
                     time.sleep(1)
 
-        os.environ['TERM'] = 'dumb'
+        os.environ["TERM"] = "dumb"
 
         # dump status before the test preparation starts
-        nmci.lib.dump_status_nmcli(context, 'Before Scenario', fail_only=True)
+        nmci.lib.dump_status_nmcli(context, "Before Scenario", fail_only=True)
         context.start_timestamp = int(time.time())
 
     excepts = []
-    if 'eth0' in scenario.tags \
-            or 'delete_testeth0' in scenario.tags \
-            or 'connect_testeth0' in scenario.tags \
-            or 'restart' in scenario.tags \
-            or 'dummy' in scenario.tags:
+    if (
+        "eth0" in scenario.tags
+        or "delete_testeth0" in scenario.tags
+        or "connect_testeth0" in scenario.tags
+        or "restart" in scenario.tags
+        or "dummy" in scenario.tags
+    ):
         try:
             nmci.tags.skip_restarts_bs(context, scenario)
         except Exception as e:
@@ -223,27 +247,38 @@ def _before_scenario(context, scenario):
 
     if excepts:
         context.before_scenario_step_el.set("class", "step failed")
-        context.embed("text/plain", "\n\n".join(excepts), "Exception in before scenario tags")
+        context.embed(
+            "text/plain", "\n\n".join(excepts), "Exception in before scenario tags"
+        )
         assert False, "Exception in before scenario tags"
 
 
 def after_step(context, step):
     context.no_step = False
-    if ("DEVICE_CAP_AP" in step.name or "DEVICE_CAP_ADHOC" in step.name) \
-            and "is set in WirelessCapabilites" in step.name and \
-            step.status == 'failed' and step.step_type == 'given':
+    if (
+        ("DEVICE_CAP_AP" in step.name or "DEVICE_CAP_ADHOC" in step.name)
+        and "is set in WirelessCapabilites" in step.name
+        and step.status == "failed"
+        and step.step_type == "given"
+    ):
         print("Omiting the test as device does not support AP/ADHOC mode")
         sys.exit(77)
     # for nmcli_wifi_right_band_80211a - HW dependent 'passes'
-    if "DEVICE_CAP_FREQ_5GZ" in step.name \
-            and "is set in WirelessCapabilites" in step.name and \
-            step.status == 'failed' and step.step_type == 'given':
+    if (
+        "DEVICE_CAP_FREQ_5GZ" in step.name
+        and "is set in WirelessCapabilites" in step.name
+        and step.status == "failed"
+        and step.step_type == "given"
+    ):
         print("Omitting the test as device does not support 802.11a")
         sys.exit(77)
     # for testcase_306559
-    if "DEVICE_CAP_FREQ_5GZ" in step.name \
-            and "is not set in WirelessCapabilites" in step.name and \
-            step.status == 'failed' and step.step_type == 'given':
+    if (
+        "DEVICE_CAP_FREQ_5GZ" in step.name
+        and "is not set in WirelessCapabilites" in step.name
+        and step.status == "failed"
+        and step.step_type == "given"
+    ):
         print("Omitting the test as device supports 802.11a")
         sys.exit(77)
 
@@ -255,30 +290,32 @@ def after_step(context, step):
         """Teardown after each step.
         Here we make screenshot and embed it (if one of formatters supports it)
         """
-        if os.path.isfile('/tmp/nmtui.out'):
+        if os.path.isfile("/tmp/nmtui.out"):
             # This doesn't need utf_only_open_read as it's strictly utf-8
-            context.stream.feed(open('/tmp/nmtui.out', 'r').read().encode('utf-8'))
+            context.stream.feed(open("/tmp/nmtui.out", "r").read().encode("utf-8"))
         nmci.lib.print_screen(context.screen)
-        nmci.lib.log_screen(step.name, context.screen, '/tmp/tui-screen.log')
+        nmci.lib.log_screen(step.name, context.screen, "/tmp/tui-screen.log")
 
-        if step.status == 'failed':
+        if step.status == "failed":
             # Test debugging - set DEBUG_ON_FAILURE to drop to ipdb on step failure
-            if os.environ.get('DEBUG_ON_FAILURE'):
+            if os.environ.get("DEBUG_ON_FAILURE"):
                 import ipdb
+
                 ipdb.set_trace()  # flake8: noqa
 
     else:
-        """
-        """
+        """"""
         # This is for RedHat's STR purposes sleep
-        if os.path.isfile('/tmp/nm_skip_restarts'):
+        if os.path.isfile("/tmp/nm_skip_restarts"):
             time.sleep(0.4)
 
         if not context.nm_restarted and not context.crashed_step:
             new_pid = nmci.lib.nm_pid()
             if new_pid != context.nm_pid:
-                print('NM Crashed as new PID %s is not old PID %s'
-                      % (new_pid, context.nm_pid))
+                print(
+                    "NM Crashed as new PID %s is not old PID %s"
+                    % (new_pid, context.nm_pid)
+                )
                 context.crashed_step = step.name
 
 
@@ -294,9 +331,13 @@ def after_scenario(context, scenario):
 
 def _after_scenario(context, scenario):
     time_begin = time.time()
-    context.after_scenario_step_el = ET.Element("li", {"class": "step passed", "style": "margin-top:1rem;"})
+    context.after_scenario_step_el = ET.Element(
+        "li", {"class": "step passed", "style": "margin-top:1rem;"}
+    )
     ET.SubElement(context.after_scenario_step_el, "b").text = "After scenario"
-    duration_el = ET.SubElement(context.after_scenario_step_el, "small", {"class": "step_duration"})
+    duration_el = ET.SubElement(
+        context.after_scenario_step_el, "small", {"class": "step_duration"}
+    )
     embed_el = ET.SubElement(context.after_scenario_step_el, "div")
     context.html_formatter.actual["act_step_embed_span"] = embed_el
 
@@ -306,18 +347,25 @@ def _after_scenario(context, scenario):
         nmci.lib.restart_NM_service(context)
 
     if IS_NMTUI:
-        if os.path.isfile('/tmp/tui-screen.log'):
-            context.embed("text/plain",
-                          nmci.lib.utf_only_open_read('/tmp/tui-screen.log'),
-                          caption="TUI")
+        if os.path.isfile("/tmp/tui-screen.log"):
+            context.embed(
+                "text/plain",
+                nmci.lib.utf_only_open_read("/tmp/tui-screen.log"),
+                caption="TUI",
+            )
         # Stop TUI
         nmci.run("sudo killall nmtui &> /dev/null")
-        os.remove('/tmp/nmtui.out')
+        os.remove("/tmp/nmtui.out")
 
-    print(("NetworkManager process id after: %s (was %s)" % (nm_pid_after, context.nm_pid)))
+    print(
+        (
+            "NetworkManager process id after: %s (was %s)"
+            % (nm_pid_after, context.nm_pid)
+        )
+    )
 
-    if scenario.status == 'failed' or DEBUG:
-        nmci.lib.dump_status_nmcli(context, 'After Scenario', fail_only=True)
+    if scenario.status == "failed" or DEBUG:
+        nmci.lib.dump_status_nmcli(context, "After Scenario", fail_only=True)
 
     # run after_scenario tags (in reverse order)
     excepts = []
@@ -334,12 +382,14 @@ def _after_scenario(context, scenario):
 
     # check for crash reports and embed them
     # sets crash_embeded and crashed_step, if crash found
-    nmci.lib.check_coredump(context, 'no_abrt' not in scenario.tags)
-    nmci.lib.check_faf(context, 'no_abrt' not in scenario.tags)
+    nmci.lib.check_coredump(context, "no_abrt" not in scenario.tags)
+    nmci.lib.check_faf(context, "no_abrt" not in scenario.tags)
 
     nmci.lib.process_commands(context, "after_scenario")
 
-    scenario_fail = scenario.status == 'failed' or context.crashed_step or DEBUG or len(excepts) > 0
+    scenario_fail = (
+        scenario.status == "failed" or context.crashed_step or DEBUG or len(excepts) > 0
+    )
 
     # Attach postponed or "fail_only" embeds
     # !!! all embed calls with "fail_only" after this are ignored !!!
@@ -353,31 +403,39 @@ def _after_scenario(context, scenario):
         if kwargs["mime_type"] == "call":
             # "data" is function, "caption" is args, function returns triple
             mime_type, data, caption = kwargs["data"](*kwargs["caption"])
-            kwargs["mime_type"], kwargs["data"], kwargs["caption"] = mime_type, data, caption
+            kwargs["mime_type"], kwargs["data"], kwargs["caption"] = (
+                mime_type,
+                data,
+                caption,
+            )
         context.embed(**kwargs)
 
-    nmci.lib.dump_status_nmcli(context, 'After Clean', fail_only=False)
+    nmci.lib.dump_status_nmcli(context, "After Clean", fail_only=False)
 
     if scenario_fail:
         # Attach journalctl logs
         print("Attaching NM log")
         log = "~~~~~~~~~~~~~~~~~~~~~~~~~~ NM LOG ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n"
         log += nmci.lib.NM_log(context.log_cursor)[:20000001] or "NM log is empty!"
-        context.embed('text/plain', log, caption="NM")
+        context.embed("text/plain", log, caption="NM")
 
     if context.crashed_step:
-        print("\n\n" + ("!"*80))
-        print("!! NM CRASHED. NEEDS INSPECTION. FAILING THE TEST                      !!")
+        print("\n\n" + ("!" * 80))
+        print(
+            "!! NM CRASHED. NEEDS INSPECTION. FAILING THE TEST                      !!"
+        )
         print("!!  %-74s !!" % ("CRASHING STEP: " + context.crashed_step))
-        print(("!"*80) + "\n\n")
-        context.embed('text/plain', context.crashed_step, caption="CRASHED_STEP_NAME")
+        print(("!" * 80) + "\n\n")
+        context.embed("text/plain", context.crashed_step, caption="CRASHED_STEP_NAME")
         if not context.crash_embeded:
             msg = "!!! no crash report detected, but NM PID changed !!!"
-            context.embed('text/plain', msg, caption="NO_COREDUMP/NO_FAF")
+            context.embed("text/plain", msg, caption="NO_COREDUMP/NO_FAF")
 
     if excepts:
         context.after_scenario_step_el.set("class", "step failed")
-        context.embed("text/plain", "\n\n".join(excepts), "Exception in after scenario tags")
+        context.embed(
+            "text/plain", "\n\n".join(excepts), "Exception in after scenario tags"
+        )
 
     # add Before/After scenario steps to HTML
     context.html_formatter.steps.insert(0, context.before_scenario_step_el)
@@ -394,8 +452,8 @@ def _after_scenario(context, scenario):
 
 def after_tag(context, tag):
     if IS_NMTUI:
-        if tag in ('vlan', 'bridge', 'bond', 'team', 'inf'):
-            if hasattr(context, 'is_virtual'):
+        if tag in ("vlan", "bridge", "bond", "team", "inf"):
+            if hasattr(context, "is_virtual"):
                 context.is_virtual = False
 
 

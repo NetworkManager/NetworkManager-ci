@@ -3,11 +3,13 @@ import gi
 import subprocess
 import sys
 import uuid
-gi.require_version('NM', '1.0')
-from gi.repository import GLib,NM
+
+gi.require_version("NM", "1.0")
+from gi.repository import GLib, NM
 from timeit import default_timer as timer
 
 ### Usage: ./activate.py <num-devices>
+
 
 def create_profile(name):
     profile = NM.SimpleConnection.new()
@@ -49,7 +51,7 @@ def devices_states(client):
 
 def run():
     num_devices = 100
-    if (len(sys.argv) >= 2):
+    if len(sys.argv) >= 2:
         num_devices = int(sys.argv[1])
 
     print("### Number of devices: {}".format(num_devices))
@@ -60,6 +62,7 @@ def run():
     main_loop = GLib.MainLoop()
 
     print("### Delete existing connections")
+
     def delete_cb(con, result, data):
         nonlocal num_left
         try:
@@ -81,6 +84,7 @@ def run():
         main_loop.run()
 
     print("### Wait that all devices are disconnected")
+
     def check_state_cb(client):
         states = devices_states(client)
         print()
@@ -94,10 +98,13 @@ def run():
     main_loop.run()
 
     print("### Start logging")
-    with open("/tmp/journal.txt","wb") as out:
-        logger_pid = subprocess.Popen("journalctl -f -u NetworkManager", stdout=out, shell=True)
+    with open("/tmp/journal.txt", "wb") as out:
+        logger_pid = subprocess.Popen(
+            "journalctl -f -u NetworkManager", stdout=out, shell=True
+        )
 
     print("### Create connections")
+
     def add_cb(client, result, con):
         nonlocal num_left
         try:
@@ -118,6 +125,7 @@ def run():
     main_loop.run()
 
     print("### Activate connections")
+
     def activate_cb(client, result, con):
         nonlocal num_left
         try:
@@ -139,6 +147,7 @@ def run():
 
     print("### Wait that all devices activate")
     start_time = timer()
+
     def check_state_cb(client):
         states = devices_states(client)
         print()

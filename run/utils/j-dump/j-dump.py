@@ -9,7 +9,8 @@ import jsonpickle
 import requests
 import jenkinsapi
 from jenkinsapi.jenkins import Jenkins
-#logging.basicConfig(level=logging.DEBUG)
+
+# logging.basicConfig(level=logging.DEBUG)
 
 HTML_STYLE = """
            <style>\n
@@ -32,13 +33,12 @@ def dprint(*args, **kwargs):
 
 
 class BuildCreationError(Exception):
-
     def __init__(self, msg):
         self.msg = msg
 
 
 class Job:
-    """ Represents a Jenkins job, comprising several builds (runs).
+    """Represents a Jenkins job, comprising several builds (runs).
     attributes:
         - server: connection to the jenkins server
         - name: relative link to the jenkins job main page
@@ -80,12 +80,12 @@ class Job:
         return list(self.failures.values())
 
     def add_build(self, build):
-        if build.status == 'RUNNING':
+        if build.status == "RUNNING":
             self.running_builds.append(build)
         else:
             self.builds.append(build)
 
-    def add_failure(self, failure_name, build, artifact_url = None):
+    def add_failure(self, failure_name, build, artifact_url=None):
         if failure_name in self.failures:
             failure = self.failures[failure_name]
         else:
@@ -97,9 +97,9 @@ class Job:
         build.add_failure(failure_name, failure)
 
     def remove_build(self, build_id):
-        self.builds = [ build for build in self.builds if build.id != build_id]
+        self.builds = [build for build in self.builds if build.id != build_id]
         for failure in self.failures.values():
-            failure.builds = [ build for build in failure.builds if build.id != build_id]
+            failure.builds = [build for build in failure.builds if build.id != build_id]
             if build_id in failure.artifact_urls.keys():
                 failure.artifact_urls.pop(build_id)
 
@@ -135,7 +135,7 @@ class Job:
         build_ids = list(build_ids)[:max_builds]
         # do not cache the first build in list, because its status may change even when job not running
         self.load_cache(build_ids)
-        cache_build_ids = [ build.id for build in self.builds ]
+        cache_build_ids = [build.id for build in self.builds]
         for build_id in build_ids:
             if build_id in cache_build_ids:
                 dprint("Build #{:d} - cached".format(build_id))
@@ -146,7 +146,11 @@ class Job:
                 dprint("Build #{:d} - {:s} - skipped".format(build_id, error.msg))
                 continue
             except Exception as e:
-                eprint("Build #{:d} - exception [{:s}] - skipped\n".format(build_id, str(type(e))))
+                eprint(
+                    "Build #{:d} - exception [{:s}] - skipped\n".format(
+                        build_id, str(type(e))
+                    )
+                )
                 dprint("---- traceback ----")
                 traceback.print_exc(file=sys.stderr)
                 dprint("----   -----   ----")
@@ -155,7 +159,7 @@ class Job:
 
             self.add_build(build)
 
-        self.builds.sort(key = lambda build: build.id, reverse=True)
+        self.builds.sort(key=lambda build: build.id, reverse=True)
 
         if len(self.builds) == 0:
             return False
@@ -189,11 +193,19 @@ class Job:
             "       </head>\n"
             "       <body>\n"
             "           <h1>%s</h1>\n"
-            "           <p style=\"font-weight:bold\">\n"
-            "               [ <a href=%s style=\"%s\">builds</a> ]\n"
-            "               [ <a href=%s style=\"%s\">failures</a> ]\n"
+            '           <p style="font-weight:bold">\n'
+            '               [ <a href=%s style="%s">builds</a> ]\n'
+            '               [ <a href=%s style="%s">failures</a> ]\n'
             "           </p>\n"
-            % (HTML_STYLE, self.nick, file_builds, style_build, file_failures, style_failure))
+            % (
+                HTML_STYLE,
+                self.nick,
+                file_builds,
+                style_build,
+                file_failures,
+                style_failure,
+            )
+        )
 
     def __html_write_buildstats__(self, fd):
         fd.write(
@@ -205,23 +217,26 @@ class Job:
             "                   <th>Status</th>\n"
             "                   <th>Failures</th>\n"
             "                   <th>Links</th>\n"
-            "               </tr>\n")
+            "               </tr>\n"
+        )
 
         for build in self.running_builds + self.builds:
             if build.failed:
-                l_build = '<td style="background:black;color:white;font-weight:bold">' \
-                          '{:s}</td>'.format(build.status)
-                l_failures = '<td>--</td>'
+                l_build = (
+                    '<td style="background:black;color:white;font-weight:bold">'
+                    "{:s}</td>".format(build.status)
+                )
+                l_failures = "<td>--</td>"
             else:
-                if build.status in ('FAILURE', 'NOT_BUILT'):
+                if build.status in ("FAILURE", "NOT_BUILT"):
                     l_build = '<td style="color:red;font-weight:bold">'
-                elif build.status == 'RUNNING':
+                elif build.status == "RUNNING":
                     l_build = '<td style="color:brown;font-weight:bold">'
-                elif build.status == 'SUCCESS':
+                elif build.status == "SUCCESS":
                     l_build = '<td style="color:green;font-weight:bold">'
                 else:
                     l_build = "<td>"
-                l_build += '%s</td>' % build.status
+                l_build += "%s</td>" % build.status
 
                 n_failures = len(build.failures)
                 if n_failures > 9:
@@ -229,26 +244,29 @@ class Job:
                 elif n_failures > 2:
                     l_failures = '<td style="background:yellow">%d</td>' % n_failures
                 else:
-                    l_failures = '<td>%d</td>' % n_failures
-
+                    l_failures = "<td>%d</td>" % n_failures
 
             fd.write(
-                '               <tr>'
+                "               <tr>"
                 '<td><a target="_blank" href="%s">%s</a></td>'
-                '<td>%s</td>'
-                '<td>%s</td>'
-                '%s%s'
-                '<td>%s</td>'
-                '</tr>\n' %
-                (artifacts_url(build), build.id,
-                 build.timestamp.ctime(),
-                 str(build.duration).split('.')[0],
-                 l_build, l_failures,
-                 build.description))
-        fd.write(
-            "           </table>\n")
+                "<td>%s</td>"
+                "<td>%s</td>"
+                "%s%s"
+                "<td>%s</td>"
+                "</tr>\n"
+                % (
+                    artifacts_url(build),
+                    build.id,
+                    build.timestamp.ctime(),
+                    str(build.duration).split(".")[0],
+                    l_build,
+                    l_failures,
+                    build.description,
+                )
+            )
+        fd.write("           </table>\n")
 
-    def __html_write_failurestats__(self,fd):
+    def __html_write_failurestats__(self, fd):
         fd.write(
             "           <table>\n"
             "               <tr>\n"
@@ -258,7 +276,8 @@ class Job:
             "                   <th>Num</th>\n"
             "                   <th>Score</th>\n"
             "                   <th>Bugzilla</th>\n"
-            "               </tr>\n")
+            "               </tr>\n"
+        )
 
         for failure in self.sorted_failures:
             if failure.permanent:
@@ -277,41 +296,51 @@ class Job:
                 l_last = '<td style="background:red">{:d}</td>'.format(failure.last)
 
             fd.write(
-                '               <tr>'
+                "               <tr>"
                 '<td><a href="#%s">%s</a></td>'
-                '<td>%s</td>'
-                '%s'
-                '<td>%d</td>'
-                '<td>%d</td>'
-                '<td>%s</td>'
-                '</tr>\n' % (failure.name, failure.name,
-                             l_perm,
-                             l_last,
-                             len(failure.builds),
-                             failure.score,
-                             failure.bugzilla))
+                "<td>%s</td>"
+                "%s"
+                "<td>%d</td>"
+                "<td>%d</td>"
+                "<td>%s</td>"
+                "</tr>\n"
+                % (
+                    failure.name,
+                    failure.name,
+                    l_perm,
+                    l_last,
+                    len(failure.builds),
+                    failure.score,
+                    failure.bugzilla,
+                )
+            )
 
-        fd.write(
-            "           </table>\n")
+        fd.write("           </table>\n")
 
         for failure in self.sorted_failures:
-            fd.write('           <hr>\n\t<h3 id="%s">%s</h3>\n' % (failure.name, failure.name))
-            fd.write('           <p>\n')
+            fd.write(
+                '           <hr>\n\t<h3 id="%s">%s</h3>\n'
+                % (failure.name, failure.name)
+            )
+            fd.write("           <p>\n")
             builds = failure.builds
             for build in builds:
                 if build.id in failure.artifact_urls:
                     artifact_url = failure.artifact_urls[build.id]
-                    fd.write('          <a target="_blank" href="%s">report</a> from <a href="%s">#%d</a><br>\n' % (artifact_url, artifacts_url(build), build.id))
+                    fd.write(
+                        '          <a target="_blank" href="%s">report</a> from <a href="%s">#%d</a><br>\n'
+                        % (artifact_url, artifacts_url(build), build.id)
+                    )
                 else:
-                    fd.write('          <a target="_blank" href="%s">#%d</a><br>\n' % (artifacts_url(build), build.id))
-            fd.write('           </p>\n')
-
+                    fd.write(
+                        '          <a target="_blank" href="%s">#%d</a><br>\n'
+                        % (artifacts_url(build), build.id)
+                    )
+            fd.write("           </p>\n")
 
     @staticmethod
     def __html_write_footer__(fd):
-        fd.write(
-            "       </body>\n"
-            "    <html>\n")
+        fd.write("       </body>\n" "    <html>\n")
 
     def print_html(self, file_name=None):
         if not file_name:
@@ -330,9 +359,8 @@ class Job:
             self.__html_write_footer__(fd)
 
 
-
 class Build:
-    """ Represents a job's run.
+    """Represents a job's run.
 
     Attributes:
         - build_id: build id
@@ -356,7 +384,7 @@ class Build:
         self.duration = build.get_duration()
         self.failures = {}
 
-        if self.status == 'NOT_BUILT' or self.status == 'ABORTED':
+        if self.status == "NOT_BUILT" or self.status == "ABORTED":
             self.failed = True
 
         if build.has_resultset():
@@ -364,7 +392,7 @@ class Build:
             for result in results.iteritems():
                 # item states: 'PASSED', 'SKIPPED', 'REGRESSION', 'FAILED', ??
                 result = result[1]
-                if result.status == 'REGRESSION' or result.status == 'FAILED':
+                if result.status == "REGRESSION" or result.status == "FAILED":
                     job.add_failure(result.name, self)
             self.name = results.name
         else:
@@ -375,12 +403,12 @@ class Build:
                 else:
                     raise BuildCreationError("build has no status nor results")
 
-        if self.status != 'SUCCESS':
+        if self.status != "SUCCESS":
             artifacts = build.get_artifact_dict()
             # if trere is small number of artifatcs, the build failed
             if len(artifacts) < 10:
                 self.failed = True
-            artifacts_fails = [ art for art in artifacts.keys() if "FAIL" in art ]
+            artifacts_fails = [art for art in artifacts.keys() if "FAIL" in art]
             for artifact in artifacts_fails:
                 split_artifact = artifact.split("FAIL")
                 if len(split_artifact) < 2:
@@ -388,7 +416,9 @@ class Build:
                 # let's check that the failure name in the artifact is as expected or skip...
                 # something like "FAIL-Test252_ipv6_honor_ip_order.html" (We already stripped "FAIL")
                 # or "FAIL_report_NetworkManager-ci_Test252_ipv6_honor_ip_order.html"
-                split_artifact = split_artifact[1].replace('_report_NetworkManager-ci_','')
+                split_artifact = split_artifact[1].replace(
+                    "_report_NetworkManager-ci_", ""
+                )
                 split_artifact = split_artifact.split("_", 1)
                 if len(split_artifact) != 2:
                     # what happened??
@@ -398,9 +428,13 @@ class Build:
                 split_artifact = split_artifact[1].split(".")
                 if split_artifact[-1] != "html" and split_artifact[-1] != "log":
                     # no .html suffix?? not sure, skip...
-                    eprint("No .html or .log suffix in artifact '{:s}': skip...".format(artifact))
+                    eprint(
+                        "No .html or .log suffix in artifact '{:s}': skip...".format(
+                            artifact
+                        )
+                    )
                     continue
-                failure_name = '.'.join(split_artifact[:-1])
+                failure_name = ".".join(split_artifact[:-1])
                 job.add_failure(failure_name, self, artifacts[artifact].url)
 
     def add_failure(self, failure_name, failure):
@@ -416,7 +450,7 @@ def failure_last(failure):
 
 
 class Failure:
-    """ Represents test failures.
+    """Represents test failures.
 
     Instance Attributes:
         name - the name of the test
@@ -448,7 +482,7 @@ class Failure:
         if not self.builds:
             return
 
-        self.builds.sort(key = lambda build: build.id, reverse=True)
+        self.builds.sort(key=lambda build: build.id, reverse=True)
 
         self.last = build_list.index(self.builds[0])
         last_failed = self.last == 0
@@ -472,11 +506,12 @@ class Failure:
 
         # TODO: search bugzilla
 
+
 def artifacts_url(job):
-    if job.status != 'RUNNING':
-        if 'centos' in job.url:
+    if job.status != "RUNNING":
+        if "centos" in job.url:
             return job.url + "/artifact/results/"
-        if 'desktopqe' in job.url:
+        if "desktopqe" in job.url:
             return job.url + "/artifact/artifacts/"
     return job.url
 
@@ -500,16 +535,27 @@ def process_job(server, job_name, job_nick, max_builds=50):
 
     job.print_html()
 
+
 def main():
-    parser = argparse.ArgumentParser(description='Summarize NetworkManager jenkins results.')
-    parser.add_argument('url', help="Jenkins base url")
-    parser.add_argument('job', help="Jenkins job")
-    parser.add_argument('--name', help="Job nickname to use in results")
-    parser.add_argument('--user', help="username to access Jenkins url")
-    parser.add_argument('--password', help="password to access Jenkins url")
-    parser.add_argument('--token', help="Jenkins API token to access Jenkins url (use instead of password)")
-    parser.add_argument('--ca_cert', help="file path of private CA to be used for https validation or 'disabled'")
-    parser.add_argument('--max_builds', type=int, help="maximum number of builds considered for the job")
+    parser = argparse.ArgumentParser(
+        description="Summarize NetworkManager jenkins results."
+    )
+    parser.add_argument("url", help="Jenkins base url")
+    parser.add_argument("job", help="Jenkins job")
+    parser.add_argument("--name", help="Job nickname to use in results")
+    parser.add_argument("--user", help="username to access Jenkins url")
+    parser.add_argument("--password", help="password to access Jenkins url")
+    parser.add_argument(
+        "--token",
+        help="Jenkins API token to access Jenkins url (use instead of password)",
+    )
+    parser.add_argument(
+        "--ca_cert",
+        help="file path of private CA to be used for https validation or 'disabled'",
+    )
+    parser.add_argument(
+        "--max_builds", type=int, help="maximum number of builds considered for the job"
+    )
     args = parser.parse_args()
 
     user = None
@@ -549,5 +595,5 @@ def main():
     process_job(server, job_name, job_nick, max_builds)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

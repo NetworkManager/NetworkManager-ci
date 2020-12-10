@@ -2,7 +2,8 @@
 
 import sys
 import gi
-gi.require_version('NM', '1.0')
+
+gi.require_version("NM", "1.0")
 from gi.repository import NM
 
 connection_name = sys.argv[1]
@@ -17,4 +18,4 @@ for c in nm_client.get_active_connections():
 if con != None:
     print(con.get_state_flags())
 else:
-    print("Error: no %s connection" %connection_name)
+    print("Error: no %s connection" % connection_name)
