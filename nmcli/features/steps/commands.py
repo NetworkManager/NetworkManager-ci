@@ -12,14 +12,16 @@ import nmci
 def autocomplete_command(context, cmd):
     bash = context.pexpect_spawn("bash")
     bash.send(cmd)
-    bash.send('\t')
+    bash.send("\t")
     time.sleep(1)
-    bash.send('\r\n')
+    bash.send("\r\n")
     time.sleep(1)
     bash.sendeof()
 
 
-@step(u'Check RSS writable memory in noted value "{i2}" differs from "{i1}" less than "{dif}"')
+@step(
+    u'Check RSS writable memory in noted value "{i2}" differs from "{i1}" less than "{dif}"'
+)
 def check_rss_rw_dif(context, i2, i1, dif):
     # def sum_rss_writable_memory(context, pmap_raw):
     #     total = 0
@@ -33,36 +35,52 @@ def check_rss_rw_dif(context, i2, i1, dif):
     # sum1 = int(sum_rss_writable_memory(context, context.noted[i1]))
     sum2 = int(context.noted[i2])
     sum1 = int(context.noted[i1])
-    assert (sum1 + int(dif) > sum2), \
-        "rw RSS mem: %d + %s !> %d !" % (sum1, dif, sum2)
+    assert sum1 + int(dif) > sum2, "rw RSS mem: %d + %s !> %d !" % (sum1, dif, sum2)
 
 
 @step(u'Check noted value "{i2}" difference from "{i1}" is lower than "{dif}"')
 def check_dif_in_values(context, i2, i1, dif):
-    assert (int(context.noted[i1].strip()) + int(dif)) > int(context.noted[i2].strip()), \
-     "Noted values: %s + %s !> %s !" % (context.noted[i1].strip(), dif, context.noted[i2].strip())
+    assert (int(context.noted[i1].strip()) + int(dif)) > int(
+        context.noted[i2].strip()
+    ), "Noted values: %s + %s !> %s !" % (
+        context.noted[i1].strip(),
+        dif,
+        context.noted[i2].strip(),
+    )
 
 
 @step(u'Check noted values "{i1}" and "{i2}" are the same')
 def check_same_noted_values(context, i1, i2):
-    assert context.noted[i1].strip() == context.noted[i2].strip(), \
-     "Noted values: %s != %s !" % (context.noted[i1].strip(), context.noted[i2].strip())
+    assert (
+        context.noted[i1].strip() == context.noted[i2].strip()
+    ), "Noted values: %s != %s !" % (
+        context.noted[i1].strip(),
+        context.noted[i2].strip(),
+    )
 
 
 @step(u'Check noted values "{i1}" and "{i2}" are not the same')
 def check_same_noted_values_equals(context, i1, i2):
-    assert context.noted[i1].strip() != context.noted[i2].strip(), \
-     "Noted values: %s == %s !" % (context.noted[i1].strip(), context.noted[i2].strip())
+    assert (
+        context.noted[i1].strip() != context.noted[i2].strip()
+    ), "Noted values: %s == %s !" % (
+        context.noted[i1].strip(),
+        context.noted[i2].strip(),
+    )
 
 
 @step(u'Check noted output contains "{pattern}"')
 def check_noted_output_contains(context, pattern):
-    assert re.search(pattern, context.noted['noted-value']) is not None, "Noted output does not contain the pattern %s" % pattern
+    assert re.search(pattern, context.noted["noted-value"]) is not None, (
+        "Noted output does not contain the pattern %s" % pattern
+    )
 
 
 @step(u'Check noted output does not contain "{pattern}"')
 def check_noted_output_not_contains(context, pattern):
-    assert re.search(pattern, context.noted['noted-value']) is None, "Noted output contains the pattern %s" % pattern
+    assert re.search(pattern, context.noted["noted-value"]) is None, (
+        "Noted output contains the pattern %s" % pattern
+    )
 
 
 @step(u'Execute "{command}"')
@@ -88,7 +106,12 @@ def execute_multiple_times(context, command, number):
     while i < int(number):
         context.command_code(command)
         curr_nm_pid = nmci.lib.nm_pid()
-        assert curr_nm_pid == orig_nm_pid, 'NM crashed as original pid was %s but now is %s' %(orig_nm_pid, curr_nm_pid)
+        assert (
+            curr_nm_pid == orig_nm_pid
+        ), "NM crashed as original pid was %s but now is %s" % (
+            orig_nm_pid,
+            curr_nm_pid,
+        )
         i += 1
 
 
@@ -98,9 +121,9 @@ def wait_for_process(context, command):
     time.sleep(0.1)
 
 
-@step(u'Restore hostname from the noted value')
+@step(u"Restore hostname from the noted value")
 def restore_hostname(context):
-    context.command_code('hostname %s' % context.noted['noted-value'])
+    context.command_code("hostname %s" % context.noted["noted-value"])
     time.sleep(0.5)
 
 
@@ -109,13 +132,13 @@ def restore_hostname(context):
 def hostname_visible(context, log, seconds=1):
     seconds = int(seconds)
     orig_seconds = seconds
-    cmd = "grep $(hostname -s) '%s'" %log
+    cmd = "grep $(hostname -s) '%s'" % log
     while seconds > 0:
         if context.command_code(cmd) == 0:
             return True
         seconds = seconds - 1
         time.sleep(1)
-    raise Exception('Hostname not visible in log in %d seconds' % (orig_seconds))
+    raise Exception("Hostname not visible in log in %d seconds" % (orig_seconds))
 
 
 @step(u'Hostname is not visible in log "{log}"')
@@ -123,13 +146,15 @@ def hostname_visible(context, log, seconds=1):
 def hostname_not_visible(context, log, seconds=1):
     seconds = int(seconds)
     orig_seconds = seconds
-    cmd = "grep $(hostname -s) '%s'" %log
+    cmd = "grep $(hostname -s) '%s'" % log
     while seconds > 0:
         if context.command_code(cmd) != 0:
             return True
         seconds = seconds - 1
         time.sleep(1)
-    raise Exception('Hostname visible in log after %d seconds' % (orig_seconds - seconds))
+    raise Exception(
+        "Hostname visible in log after %d seconds" % (orig_seconds - seconds)
+    )
 
 
 @step(u'Nameserver "{server}" is set')
@@ -137,11 +162,11 @@ def hostname_not_visible(context, log, seconds=1):
 @step(u'Domain "{server}" is set')
 @step(u'Domain "{server}" is set in "{seconds}" seconds')
 def get_nameserver_or_domain(context, server, seconds=1):
-    if context.command_code('systemctl is-active systemd-resolved.service -q') == 0:
+    if context.command_code("systemctl is-active systemd-resolved.service -q") == 0:
         # We have systemd-resolvd running
-        cmd = 'resolvectl dns; resolvectl domain'
+        cmd = "resolvectl dns; resolvectl domain"
     else:
-        cmd = 'cat /etc/resolv.conf'
+        cmd = "cat /etc/resolv.conf"
     return check_pattern_command(context, cmd, server, seconds)
 
 
@@ -150,23 +175,27 @@ def get_nameserver_or_domain(context, server, seconds=1):
 @step(u'Domain "{server}" is not set')
 @step(u'Domain "{server}" is not set in "{seconds}" seconds')
 def get_nameserver_or_domain_not(context, server, seconds=1):
-    if context.command_code('systemctl is-active systemd-resolved.service -q') == 0:
+    if context.command_code("systemctl is-active systemd-resolved.service -q") == 0:
         # We have systemd-resolvd running
-        cmd = 'systemd-resolve --status |grep -A 100 Link'
+        cmd = "systemd-resolve --status |grep -A 100 Link"
     else:
-        cmd = 'cat /etc/resolv.conf'
+        cmd = "cat /etc/resolv.conf"
     return check_pattern_command(context, cmd, server, seconds, check_type="not")
 
 
 @step(u'Noted value contains "{pattern}"')
 def note_print_property_b(context, pattern):
-    assert re.search(pattern, context.noted['noted-value']) is not None, \
-        "Noted value '%s' does not match the pattern '%s'!" % (context.noted['noted-value'], pattern)
+    assert (
+        re.search(pattern, context.noted["noted-value"]) is not None
+    ), "Noted value '%s' does not match the pattern '%s'!" % (
+        context.noted["noted-value"],
+        pattern,
+    )
 
 
 @step(u'Note the output of "{command}" as value "{index}"')
 def note_the_output_as(context, command, index):
-    if not hasattr(context, 'noted'):
+    if not hasattr(context, "noted"):
         context.noted = {}
     # use nmci as embed might be big in general
     context.noted[index] = nmci.command_output_err(command)[0].strip()
@@ -174,10 +203,10 @@ def note_the_output_as(context, command, index):
 
 @step(u'Note the output of "{command}"')
 def note_the_output_of(context, command):
-    if not hasattr(context, 'noted'):
+    if not hasattr(context, "noted"):
         context.noted = {}
     # use nmci as embed might be big in general
-    context.noted['noted-value'] = nmci.command_output(command).strip()
+    context.noted["noted-value"] = nmci.command_output(command).strip()
 
 
 def json_compare(pattern, out):
@@ -200,11 +229,28 @@ def json_compare(pattern, out):
             return 1
 
 
-def check_pattern_command(context, command, pattern, seconds, check_type="default", exact_check=False, timeout=180, maxread=100000, interval=1, json_check=False):
+def check_pattern_command(
+    context,
+    command,
+    pattern,
+    seconds,
+    check_type="default",
+    exact_check=False,
+    timeout=180,
+    maxread=100000,
+    interval=1,
+    json_check=False,
+):
     seconds = int(seconds)
     orig_seconds = seconds
     while seconds > 0:
-        proc = context.pexpect_spawn('/bin/bash', ['-c', command], timeout=timeout, maxread=maxread, codec_errors='ignore')
+        proc = context.pexpect_spawn(
+            "/bin/bash",
+            ["-c", command],
+            timeout=timeout,
+            maxread=maxread,
+            codec_errors="ignore",
+        )
         if exact_check:
             ret = proc.expect_exact([pattern, pexpect.EOF])
         elif json_check:
@@ -222,39 +268,85 @@ def check_pattern_command(context, command, pattern, seconds, check_type="defaul
             if ret != 0:
                 return True
         elif check_type == "full":
-            assert ret == 0, 'Pattern "%s" disappeared after %d seconds, ouput was:\n%s' % (pattern, orig_seconds-seconds, proc.before)
+            assert (
+                ret == 0
+            ), 'Pattern "%s" disappeared after %d seconds, ouput was:\n%s' % (
+                pattern,
+                orig_seconds - seconds,
+                proc.before,
+            )
         elif check_type == "not_full":
-            assert ret != 0, 'Pattern "%s" appeared after %d seconds, output was:\n%s%s' % (pattern, orig_seconds-seconds, proc.before, proc.after)
+            assert (
+                ret != 0
+            ), 'Pattern "%s" appeared after %d seconds, output was:\n%s%s' % (
+                pattern,
+                orig_seconds - seconds,
+                proc.before,
+                proc.after,
+            )
         seconds = seconds - 1
         time.sleep(interval)
     if check_type == "default":
-        assert False, 'Did not see the pattern "%s" in %d seconds, output was:\n%s' % (pattern, orig_seconds, proc.before)
+        assert False, 'Did not see the pattern "%s" in %d seconds, output was:\n%s' % (
+            pattern,
+            orig_seconds,
+            proc.before,
+        )
     elif check_type == "not":
-        assert False, 'Did still see the pattern "%s" in %d seconds, output was:\n%s%s' % (pattern, orig_seconds, proc.before, proc.after)
+        assert (
+            False
+        ), 'Did still see the pattern "%s" in %d seconds, output was:\n%s%s' % (
+            pattern,
+            orig_seconds,
+            proc.before,
+            proc.after,
+        )
 
 
 @step(u'Noted value is visible with command "{command}"')
 @step(u'Noted value is visible with command "{command}" in "{seconds}" seconds')
 def noted_visible_command(context, command, seconds=2):
-    check_pattern_command(context, command, context.noted['noted-value'], seconds, exact_check=True)
+    check_pattern_command(
+        context, command, context.noted["noted-value"], seconds, exact_check=True
+    )
 
 
 @step(u'Noted value is not visible with command "{command}"')
 @step(u'Noted value is not visible with command "{command}" in "{seconds}" seconds')
 def noted_not_visible_command(context, command, seconds=2):
-    return check_pattern_command(context, command, context.noted['noted-value'], seconds, check_type="not", exact_check=True)
+    return check_pattern_command(
+        context,
+        command,
+        context.noted["noted-value"],
+        seconds,
+        check_type="not",
+        exact_check=True,
+    )
 
 
 @step(u'Noted value "{index}" is visible with command "{command}"')
-@step(u'Noted value "{index}" is visible with command "{command}" in "{seconds}" seconds')
+@step(
+    u'Noted value "{index}" is visible with command "{command}" in "{seconds}" seconds'
+)
 def noted_index_visible_command(context, command, index, seconds=2):
-    return check_pattern_command(context, command, context.noted[index], seconds, exact_check=True)
+    return check_pattern_command(
+        context, command, context.noted[index], seconds, exact_check=True
+    )
 
 
 @step(u'Noted value "{index}" is not visible with command "{command}"')
-@step(u'Noted value "{index}" is not visible with command "{command}" in "{seconds}" seconds')
+@step(
+    u'Noted value "{index}" is not visible with command "{command}" in "{seconds}" seconds'
+)
 def noted_index_not_visible_command(context, command, index, seconds=2):
-    return check_pattern_command(context, command, context.noted[index], seconds, check_type="not", exact_check=True)
+    return check_pattern_command(
+        context,
+        command,
+        context.noted[index],
+        seconds,
+        check_type="not",
+        exact_check=True,
+    )
 
 
 @step(u'"{pattern}" is visible with command "{command}"')
@@ -276,9 +368,13 @@ def string_visible_command(context, command, string, seconds=2):
 
 
 @step(u'String "{string}" is not visible with command "{command}"')
-@step(u'String "{string}" is not visible with command "{command}" in "{seconds}" seconds')
+@step(
+    u'String "{string}" is not visible with command "{command}" in "{seconds}" seconds'
+)
 def string_not_visible_command(context, command, string, seconds=2):
-    return check_pattern_command(context, command, string, seconds, check_type="not", exact_check=True)
+    return check_pattern_command(
+        context, command, string, seconds, check_type="not", exact_check=True
+    )
 
 
 @step(u'JSON "{string}" is visible with command "{command}"')
@@ -290,7 +386,9 @@ def json_visible_command(context, command, string, seconds=2):
 @step(u'JSON "{string}" is not visible with command "{command}"')
 @step(u'JSON "{string}" is not visible with command "{command}" in "{seconds}" seconds')
 def json_not_visible_command(context, command, string, seconds=2):
-    return check_pattern_command(context, command, string, seconds, check_type="not", json_check=True)
+    return check_pattern_command(
+        context, command, string, seconds, check_type="not", json_check=True
+    )
 
 
 @step(u'"{pattern}" is visible with command "{command}" for full "{seconds}" seconds')
@@ -298,35 +396,43 @@ def check_pattern_visible_with_command_fortime(context, pattern, command, second
     return check_pattern_command(context, command, pattern, seconds, check_type="full")
 
 
-@step(u'"{pattern}" is not visible with command "{command}" for full "{seconds}" seconds')
+@step(
+    u'"{pattern}" is not visible with command "{command}" for full "{seconds}" seconds'
+)
 def check_pattern_not_visible_with_command_fortime(context, pattern, command, seconds):
-    return check_pattern_command(context, command, pattern, seconds, check_type="not_full")
+    return check_pattern_command(
+        context, command, pattern, seconds, check_type="not_full"
+    )
 
 
 @step(u'"{pattern}" is visible with tab after "{command}"')
 def check_pattern_visible_with_tab_after_command(context, pattern, command):
     os.system('echo "set page-completions off" > ~/.inputrc')
-    exp = context.pexpect_spawn('/bin/bash')
+    exp = context.pexpect_spawn("/bin/bash")
     exp.send(command)
-    exp.sendcontrol('i')
-    exp.sendcontrol('i')
-    exp.sendcontrol('i')
+    exp.sendcontrol("i")
+    exp.sendcontrol("i")
+    exp.sendcontrol("i")
     exp.sendeof()
 
-    assert exp.expect([pattern, pexpect.EOF]) == 0, 'pattern %s is not visible with "%s"' % (pattern, command)
+    assert (
+        exp.expect([pattern, pexpect.EOF]) == 0
+    ), 'pattern %s is not visible with "%s"' % (pattern, command)
 
 
 @step(u'"{pattern}" is not visible with tab after "{command}"')
 def check_pattern_not_visible_with_tab_after_command(context, pattern, command):
     context.run('echo "set page-completions off" > ~/.inputrc')
-    exp = context.pexpect_spawn('/bin/bash')
+    exp = context.pexpect_spawn("/bin/bash")
     exp.send(command)
-    exp.sendcontrol('i')
-    exp.sendcontrol('i')
-    exp.sendcontrol('i')
+    exp.sendcontrol("i")
+    exp.sendcontrol("i")
+    exp.sendcontrol("i")
     exp.sendeof()
 
-    assert exp.expect([pattern, pexpect.EOF, pexpect.TIMEOUT]) != 0, 'pattern %s is visible with "%s"' % (pattern, command)
+    assert (
+        exp.expect([pattern, pexpect.EOF, pexpect.TIMEOUT]) != 0
+    ), 'pattern %s is visible with "%s"' % (pattern, command)
 
 
 @step(u'Run child "{command}"')
@@ -343,22 +449,26 @@ def run_child_process_no_shell(context, command):
     context.children.append(child)
 
 
-@step(u'Kill children')
+@step(u"Kill children")
 def kill_children(context):
     for child in getattr(context, "children", []):
         child.kill(9)
 
 
-@step(u'Start following journal')
+@step(u"Start following journal")
 def start_tailing_journal(context):
-    context.journal = context.pexpect_service('sudo journalctl --follow -o cat', timeout=180)
+    context.journal = context.pexpect_service(
+        "sudo journalctl --follow -o cat", timeout=180
+    )
     time.sleep(0.3)
 
 
 @step(u'Look for "{content}" in journal')
 def find_tailing_journal(context, content):
     if context.journal.expect([content, pexpect.TIMEOUT, pexpect.EOF]) == 1:
-        raise Exception('Did not see the "%s" in journal output before timeout (180s)' % content)
+        raise Exception(
+            'Did not see the "%s" in journal output before timeout (180s)' % content
+        )
 
 
 @step(u'Wait for at least "{secs}" seconds')
@@ -369,13 +479,14 @@ def wait_for_x_seconds(context, secs):
 
 @step(u'Look for "{content}" in tailed file')
 def find_tailing(context, content):
-    assert context.tail.expect([content, pexpect.TIMEOUT, pexpect.EOF]) != 1, \
+    assert context.tail.expect([content, pexpect.TIMEOUT, pexpect.EOF]) != 1, (
         'Did not see the "%s" in tail output before timeout (180s)' % content
+    )
 
 
 @step(u'Start tailing file "{archivo}"')
 def start_tailing(context, archivo):
-    context.tail = context.pexpect_service('sudo tail -f %s' % archivo, timeout=180)
+    context.tail = context.pexpect_service("sudo tail -f %s" % archivo, timeout=180)
     time.sleep(0.3)
 
 
@@ -403,19 +514,19 @@ def ping6_domain(context, domain):
 
 @step(u'Unable to ping "{domain}"')
 def cannot_ping_domain(context, domain):
-    rc = context.command_code('curl %s' % domain)
+    rc = context.command_code("curl %s" % domain)
     assert rc != 0
 
 
 @step(u'Unable to ping "{domain}" from "{device}" device')
 def cannot_ping_domain_from_device(context, domain, device):
-    rc = context.command_code('ping -c 2 -I %s %s ' % (device, domain))
+    rc = context.command_code("ping -c 2 -I %s %s " % (device, domain))
     assert rc != 0
 
 
 @step(u'Unable to ping6 "{domain}"')
 def cannot_ping6_domain(context, domain):
-    rc = context.command_code('ping6 -c 2 %s' % domain)
+    rc = context.command_code("ping6 -c 2 %s" % domain)
     assert rc != 0
 
 
@@ -433,25 +544,27 @@ def check_metered_status(context, value):
 @step(u'Network trafic "{state}" dropped')
 def network_dropped(context, state):
     if state == "is":
-        assert context.command_code('ping -c 1 -W 1 boston.com') != 0
+        assert context.command_code("ping -c 1 -W 1 boston.com") != 0
     if state == "is not":
-        assert context.command_code('ping -c 1 -W 1 boston.com') == 0
+        assert context.command_code("ping -c 1 -W 1 boston.com") == 0
 
 
 @step(u'Network trafic "{state}" dropped on "{device}"')
 def network_dropped_two(context, state, device):
     if state == "is":
-        assert context.command_code('ping -c 2 -I %s -W 1 8.8.8.8' % device) != 0
+        assert context.command_code("ping -c 2 -I %s -W 1 8.8.8.8" % device) != 0
     if state == "is not":
-        assert context.command_code('ping -c 2 -I %s -W 1 8.8.8.8' % device) == 0
+        assert context.command_code("ping -c 2 -I %s -W 1 8.8.8.8" % device) == 0
 
 
-@step(u'Send lifetime scapy packet')
+@step(u"Send lifetime scapy packet")
 @step(u'Send lifetime scapy packet with "{hlim}"')
 @step(u'Send lifetime scapy packet from "{srcaddr}"')
 @step(u'Send lifetime scapy packet to dst "{prefix}"')
 @step(u'Send lifetime scapy packet with lifetimes "{valid}" "{pref}"')
-def send_packet(context, srcaddr=None, hlim=None, valid=3600, pref=1800, prefix="fd00:8086:1337::"):
+def send_packet(
+    context, srcaddr=None, hlim=None, valid=3600, pref=1800, prefix="fd00:8086:1337::"
+):
     from scapy.all import get_if_hwaddr
     from scapy.all import sendp, Ether, IPv6
     from scapy.all import ICMPv6ND_RA
@@ -472,7 +585,9 @@ def send_packet(context, srcaddr=None, hlim=None, valid=3600, pref=1800, prefix=
     valid, pref = int(valid), int(pref)
 
     p /= ICMPv6ND_RA()
-    p /= ICMPv6NDOptPrefixInfo(prefix=prefix, prefixlen=64, validlifetime=valid, preferredlifetime=pref)
+    p /= ICMPv6NDOptPrefixInfo(
+        prefix=prefix, prefixlen=64, validlifetime=valid, preferredlifetime=pref
+    )
     sendp(p, iface=in_if)
     sendp(p, iface=in_if)
 
@@ -482,18 +597,23 @@ def send_packet(context, srcaddr=None, hlim=None, valid=3600, pref=1800, prefix=
 @step(u'Set logging for "{domain}" to "{level}"')
 def set_logging(context, domain, level):
     if level == " ":
-        cli = context.pexpect_spawn('nmcli g l domains %s' % (domain), timeout=60)
+        cli = context.pexpect_spawn("nmcli g l domains %s" % (domain), timeout=60)
     else:
-        cli = context.pexpect_spawn('nmcli g l level %s domains %s' % (level, domain), timeout=60)
+        cli = context.pexpect_spawn(
+            "nmcli g l level %s domains %s" % (level, domain), timeout=60
+        )
 
-    r = cli.expect(['Error', 'Timeout', pexpect.TIMEOUT, pexpect.EOF])
+    r = cli.expect(["Error", "Timeout", pexpect.TIMEOUT, pexpect.EOF])
     if r != 3:
-        assert False, 'Something bad happened when changing log level'
+        assert False, "Something bad happened when changing log level"
 
 
-@step(u'Note NM log')
+@step(u"Note NM log")
 def note_NM_log(context):
-    if not hasattr(context, 'noted'):
+    if not hasattr(context, "noted"):
         context.noted = {}
     # do not use context, as log might be too big to embed
-    context.noted['noted-value'] = nmci.command_output("sudo journalctl -all -u NetworkManager --no-pager -o cat %s" % context.log_cursor)
+    context.noted["noted-value"] = nmci.command_output(
+        "sudo journalctl -all -u NetworkManager --no-pager -o cat %s"
+        % context.log_cursor
+    )

@@ -13,23 +13,41 @@ REMOTE_JOURNAL = "--root=" + REMOTE_JOURNAL_DIR
 
 
 def embed_dracut_logs(context):
-    nmci.lib.embed_file_if_exists(context, "/tmp/dracut_setup.log", caption="Dracut setup", fail_only=True)
-    #nmci.lib.embed_file_if_exists(context, "/tmp/dracut_boot.log", caption="Dracut boot", fail_only=True)
-    context.run("cd contrib/dracut/; . ./setup.sh; "
-                "mount $DEV_DUMPS $TESTDIR/client_dumps; ")
+    nmci.lib.embed_file_if_exists(
+        context, "/tmp/dracut_setup.log", caption="Dracut setup", fail_only=True
+    )
+    # nmci.lib.embed_file_if_exists(context, "/tmp/dracut_boot.log", caption="Dracut boot", fail_only=True)
+    context.run(
+        "cd contrib/dracut/; . ./setup.sh; " "mount $DEV_DUMPS $TESTDIR/client_dumps; "
+    )
 
     if context.dracut_boot:
-        nmci.lib.embed_service_log(context, "test-init", "Dracut Test", journal_arg=REMOTE_JOURNAL, fail_only=False)
-        nmci.lib.embed_service_log(context, "NetworkManager", "Dracut NM", journal_arg=REMOTE_JOURNAL, fail_only=True)
+        nmci.lib.embed_service_log(
+            context,
+            "test-init",
+            "Dracut Test",
+            journal_arg=REMOTE_JOURNAL,
+            fail_only=False,
+        )
+        nmci.lib.embed_service_log(
+            context,
+            "NetworkManager",
+            "Dracut NM",
+            journal_arg=REMOTE_JOURNAL,
+            fail_only=True,
+        )
 
     crash = check_core_dumps(context)
 
     context.run(
         "cd contrib/dracut/; . ./setup.sh; "
         "rm -rf $TESTDIR/client_dumps/*; "
-        "umount $DEV_DUMPS; ")
+        "umount $DEV_DUMPS; "
+    )
 
-    nmci.lib.embed_file_if_exists(context, "/tmp/dracut_teardown.log", "Dracut teardown", fail_only=True)
+    nmci.lib.embed_file_if_exists(
+        context, "/tmp/dracut_teardown.log", "Dracut teardown", fail_only=True
+    )
 
     assert not crash, f"Unexpected crash in initrd (or expected crash did not happen)"
 
@@ -71,13 +89,12 @@ def check_core_dumps(context):
                 crash_test = True
             else:
                 other_crash = True
-            backtraces += filename + ":\n" \
-                + get_backtrace(context, filename) + "\n\n"
+            backtraces += filename + ":\n" + get_backtrace(context, filename) + "\n\n"
             nmci.lib.embed_file_if_exists(
                 context,
                 "/var/dracut_test/client_dumps/" + filename,
                 mime_type="link",
-                caption="Dracut Crash Dump"
+                caption="Dracut Crash Dump",
             )
 
     if crash_test or other_crash:
@@ -100,11 +117,13 @@ def prepare_checks(checks):
     nmci.run("cd contrib/dracut/; . ./setup.sh; umount $DEV_CHECK")
 
 
-@step(u'Run dracut test')
+@step("Run dracut test")
 def dracut_run(context):
     qemu_args = []
-    kernel_args = "rd.net.timeout.dhcp=10 panic=1 systemd.crash_reboot rd.shell=0 "\
-                  "rd.debug loglevel=7 rd.retry=50 biosdevname=0 net.ifnames=0 noapic "
+    kernel_args = (
+        "rd.net.timeout.dhcp=10 panic=1 systemd.crash_reboot rd.shell=0 "
+        "rd.debug loglevel=7 rd.retry=50 biosdevname=0 net.ifnames=0 noapic "
+    )
     kernel_arch_args = {
         "x86_64": "console=ttyS0,115200n81 ",
     }
@@ -145,11 +164,14 @@ def dracut_run(context):
         os.getcwd() + "/contrib/dracut/run-qemu",
         [
             *qemu_args,
-            "-append", kernel_args,
-            "-initrd", "$TESTDIR/"+initrd,
+            "-append",
+            kernel_args,
+            "-initrd",
+            "$TESTDIR/" + initrd,
         ],
         cwd="./contrib/dracut/",
-        timeout=p_timeout)
+        timeout=p_timeout,
+    )
     res = proc.expect([pexpect.EOF, pexpect.TIMEOUT])
     proc.kill(9)
     rc = proc.exitstatus

@@ -3,7 +3,7 @@ import time
 from behave import step
 
 
-@step(u'Reboot')
+@step(u"Reboot")
 def reboot(context):
     context.nm_restarted = True
     assert context.command_code("sudo systemctl stop NetworkManager") == 0
@@ -38,13 +38,13 @@ def reboot(context):
     time.sleep(2)
 
 
-@step(u'Start NM')
+@step(u"Start NM")
 def start_NM(context):
     context.nm_restarted = True
     assert context.command_code("sudo systemctl start NetworkManager.service") == 0
 
 
-@step(u'Restart NM')
+@step(u"Restart NM")
 def restart_NM(context):
     context.nm_restarted = True
     context.command_code("systemctl restart NetworkManager") == 0
@@ -53,7 +53,7 @@ def restart_NM(context):
 
 
 @step(u'Kill NM with signal "{signal}"')
-@step(u'Kill NM')
+@step(u"Kill NM")
 def kill_NM(context, signal=""):
     context.nm_restarted = True
     if signal:
@@ -61,7 +61,7 @@ def kill_NM(context, signal=""):
     subprocess.call("kill %s $(pidof NetworkManager) && sleep 5" % (signal), shell=True)
 
 
-@step(u'Stop NM')
+@step(u"Stop NM")
 def stop_NM(context):
     context.nm_restarted = True
     assert context.command_code("sudo systemctl stop NetworkManager.service") == 0

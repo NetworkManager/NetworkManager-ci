@@ -27,50 +27,60 @@ NM_CI_RUNNER_CMD = f"{NM_CI_RUNNER_PATH} {NM_CI_PATH}"
 ####################
 
 
-def utf_only_open_read(file, mode='r'):
+def utf_only_open_read(file, mode="r"):
     # Opens file and read it w/o non utf-8 chars
     if sys.version_info.major < 3:
-        return open(file, mode).read().decode('utf-8', 'ignore').encode('utf-8')
+        return open(file, mode).read().decode("utf-8", "ignore").encode("utf-8")
     else:
-        return open(file, mode, encoding='utf-8', errors='ignore').read()
+        return open(file, mode, encoding="utf-8", errors="ignore").read()
 
 
 def cmd_output_rc(cmd, **kwargs):
     ret = subprocess.run(
-        cmd, stdout=subprocess.PIPE, stderr=subprocess.STDOUT,
-        check=False, encoding="utf-8", errors="ignore", **kwargs)
+        cmd,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.STDOUT,
+        check=False,
+        encoding="utf-8",
+        errors="ignore",
+        **kwargs,
+    )
     return (ret.stdout, ret.returncode)
 
 
 def cmd_output_rc_embed(context, cmd, **kwargs):
     output, rc = cmd_output_rc(cmd, **kwargs)
-    context.embed("text/plain", f"{cmd}\nRC: {rc}\nOutput:\n{output}", caption="Command")
+    context.embed(
+        "text/plain", f"{cmd}\nRC: {rc}\nOutput:\n{output}", caption="Command"
+    )
     return (output, rc)
 
 
 def check_star_expr(needle, haystack):
     if needle.startswith("*") and needle.endswith("*"):
-        assert needle[1:-1] in haystack, \
-            f"searched '{needle}' is no infix of '{haystack}'"
+        assert (
+            needle[1:-1] in haystack
+        ), f"searched '{needle}' is no infix of '{haystack}'"
     elif needle.endswith("*"):
-        assert haystack.startswith(needle[:-1]), \
-            f"searched '{needle}' is no prefix of '{haystack}'"
+        assert haystack.startswith(
+            needle[:-1]
+        ), f"searched '{needle}' is no prefix of '{haystack}'"
     elif needle.startswith("*"):
-        assert haystack.endswith(needle[1:]), \
-            f"searched '{needle}' is no suffix of '{haystack}'"
+        assert haystack.endswith(
+            needle[1:]
+        ), f"searched '{needle}' is no suffix of '{haystack}'"
     else:
-        assert haystack == needle, \
-            f"searched '{needle}' is not '{haystack}'"
+        assert haystack == needle, f"searched '{needle}' is not '{haystack}'"
 
 
 def remove_braces(option):
     if "[" in option:
-        option = option[:option.index("[")]
+        option = option[: option.index("[")]
     return option
 
 
 def nmcli_out_to_dic(out):
-    nmcli_lines = out.strip().split('\n')
+    nmcli_lines = out.strip().split("\n")
     if nmcli_lines == [""]:
         return {}
     nmcli_dic = {}
@@ -122,8 +132,11 @@ def netdev_replace(context, s):
 
 
 def libreswan_teardown(context):
-    subprocess.call(f"sudo bash {NM_CI_RUNNER_CMD} "
-                    "prepare/libreswan.sh teardown &> /tmp/libreswan_teardown.log", shell=True)
+    subprocess.call(
+        f"sudo bash {NM_CI_RUNNER_CMD} "
+        "prepare/libreswan.sh teardown &> /tmp/libreswan_teardown.log",
+        shell=True,
+    )
     teardown_log = utf_only_open_read("/tmp/libreswan_teardown.log")
     conf = utf_only_open_read("/opt/ipsec/connection.conf")
     context.embed("text/plain", teardown_log, caption="Libreswan Teardown")
@@ -131,7 +144,9 @@ def libreswan_teardown(context):
 
 
 def gsm_teardown(context):
-    subprocess.call(f"sudo bash {NM_CI_RUNNER_CMD} prepare/gsm_sim.sh teardown", shell=True)
+    subprocess.call(
+        f"sudo bash {NM_CI_RUNNER_CMD} prepare/gsm_sim.sh teardown", shell=True
+    )
 
 
 def openvpn_teardown(context):
@@ -139,20 +154,29 @@ def openvpn_teardown(context):
 
 
 def wifi_teardown():
-    assert subprocess.call(
-        f"sudo bash {NM_CI_RUNNER_CMD} prepare/hostapd_wireless.sh teardown", shell=True) == 0, \
-        "wifi teardown failed !!!"
+    assert (
+        subprocess.call(
+            f"sudo bash {NM_CI_RUNNER_CMD} prepare/hostapd_wireless.sh teardown",
+            shell=True,
+        )
+        == 0
+    ), "wifi teardown failed !!!"
 
 
 def hostapd_teardown():
-    assert subprocess.call(
-        f"sudo bash {NM_CI_RUNNER_CMD} prepare/hostapd_wired.sh teardown", shell=True) == 0, \
-        "8021x teardown failed !!!"
+    assert (
+        subprocess.call(
+            f"sudo bash {NM_CI_RUNNER_CMD} prepare/hostapd_wired.sh teardown",
+            shell=True,
+        )
+        == 0
+    ), "8021x teardown failed !!!"
 
 
 ####################
 # steps defintions #
 ####################
+
 
 @step('Delete connection "{connection}"')
 @step('Delete connections "{connection}"')
@@ -166,7 +190,8 @@ def remove_connection_type(context, type):
     out, rc = cmd_output_rc(
         "sudo nmcli con delete "
         f"$(sudo nmcli -g type,uuid con show | grep '^{type}:' | sed 's/^{type}://g')",
-        shell=True)
+        shell=True,
+    )
     assert rc == 0, f"Deletion of connections of type '{type}' failed.\n{out}"
 
 
@@ -175,16 +200,22 @@ use_step_matcher("qecore")
 
 @step('Add connection "{connection}" | with options "{options}"')
 def add_connection(context, connection, options=None):
-    context.execute_steps(f"""
+    context.execute_steps(
+        f"""
         * Delete connection \"{connection}\" after scenario
-        """)
+        """
+    )
     if options is None:
         options = ""
         for row in context.table:
             options += f"{row[0]} {row[1]} "
     options = netdev_replace(context, options)
-    out, rc = cmd_output_rc(f"nmcli con add con-name {connection} {options}", shell=True)
-    assert rc == 0, f"Add connection '{connection}' with options {options} failed.\n{out}"
+    out, rc = cmd_output_rc(
+        f"nmcli con add con-name {connection} {options}", shell=True
+    )
+    assert (
+        rc == 0
+    ), f"Add connection '{connection}' with options {options} failed.\n{out}"
 
 
 @step('Modify connection "{connection}" | changing options "{options}"')
@@ -195,12 +226,16 @@ def modify_connection(context, connection, options=None):
             options += f"{row[0]} {row[1]} "
     options = netdev_replace(context, options)
     out, rc = cmd_output_rc(f"nmcli con mod {connection} {options}", shell=True)
-    assert rc == 0, f"Modify connection '{connection}' changing options {options} failed.\n{out}"
+    assert (
+        rc == 0
+    ), f"Modify connection '{connection}' changing options {options} failed.\n{out}"
 
 
-@step('Check connection "{connection}" is | '
-      'having options "{options}" with values "{values}" | '
-      'in "{seconds}" seconds')
+@step(
+    'Check connection "{connection}" is | '
+    'having options "{options}" with values "{values}" | '
+    'in "{seconds}" seconds'
+)
 def check_connection(context, connection, options=None, values=None, seconds=2):
     if options is None:
         options, values = [], []
@@ -210,8 +245,9 @@ def check_connection(context, connection, options=None, values=None, seconds=2):
     else:
         values = netdev_replace(context, values)
         options, values = options.split(","), values.split(",")
-        assert len(options) == len(values), \
-            f"Differrent number of options and values.\noptions: {options}\nvalues: {values}"
+        assert len(options) == len(
+            values
+        ), f"Differrent number of options and values.\noptions: {options}\nvalues: {values}"
 
     options_args = ",".join(set([remove_braces(option) for option in options]))
     nmcli_cmd = f"nmcli -t -f {options_args} con show {connection} --show-secrets"
@@ -220,7 +256,9 @@ def check_connection(context, connection, options=None, values=None, seconds=2):
     for _ in range(int(seconds)):
         try:
             out, rc = cmd_output_rc(nmcli_cmd, shell=True)
-            assert rc == 0, f"Connection show with options '{options_args}' failed.\n{out}"
+            assert (
+                rc == 0
+            ), f"Connection show with options '{options_args}' failed.\n{out}"
             nmcli_dic = nmcli_out_to_dic(out)
 
             for option, value in zip(options, values):
@@ -253,7 +291,9 @@ def connection_not_activated(context, connection, seconds=10):
         assert rc == 0, f"Connection show GENRAL.STATE failed.\n{out}"
         nmcli_dic = nmcli_out_to_dic(out)
         val = nmcli_dic.get("GENERAL.STATE", "")
-        assert val != "activated", f"Connection '{connection}' activated after {i} seconds"
+        assert (
+            val != "activated"
+        ), f"Connection '{connection}' activated after {i} seconds"
         sleep(1)
 
 
@@ -323,7 +363,8 @@ use_step_matcher("parse")
 @step('Delete connections "{connection}" after scenario')
 def remove_connection_id_after_scenario(context, connection):
     context.sandbox.add_after_scenario_hook(
-        subprocess.call, f"sudo nmcli con del {connection}", shell=True)
+        subprocess.call, f"sudo nmcli con del {connection}", shell=True
+    )
 
 
 @step('Delete all connections of type "{type}" after scenario')
@@ -332,49 +373,64 @@ def remove_connection_type_after_scenario(context, type):
         subprocess.call,
         "sudo nmcli con delete "
         f"$(sudo nmcli -g type,uuid con show | grep '^{type}:' | sed 's/^{type}://g')",
-        shell=True)
+        shell=True,
+    )
 
 
 @step('Restore "{device}" with connection "{connection}"')
 def restore_device(context, device, connection):
     check_cmd = "nmcli -t -f NAME,DEVICE con show"
     check_cmd_out, _ = cmd_output_rc(check_cmd, shell=True)
-    assert f"{connection}:{device}" in check_cmd_out, \
-        f"'{connection}:{device}' not found in nmcli output:\n{check_cmd_out}"
+    assert (
+        f"{connection}:{device}" in check_cmd_out
+    ), f"'{connection}:{device}' not found in nmcli output:\n{check_cmd_out}"
 
     cfile = f"/etc/sysconfig/network-scripts/ifcfg-{connection}"
     if not os.path.isfile(cfile):
         cfile = f"/etc/NetworkManager/system-connections/{connection}.nmconnection"
-    assert os.path.isfile(cfile), f"unable to find configuration file for '{connection}'"
-    assert subprocess.call(f"sudo cp '{cfile}' '/tmp/backup_{connection}'", shell=True) == 0, \
-        f"unable to backup file '{cfile}'"
+    assert os.path.isfile(
+        cfile
+    ), f"unable to find configuration file for '{connection}'"
+    assert (
+        subprocess.call(f"sudo cp '{cfile}' '/tmp/backup_{connection}'", shell=True)
+        == 0
+    ), f"unable to backup file '{cfile}'"
 
     def restore(connection, cfile):
         subprocess.call(f"sudo mv '/tmp/backup_{connection}' '{cfile}'", shell=True)
         subprocess.call("sudo nmcli con reload", shell=True)
-        assert subprocess.call(f"sudo nmcli con up '{connection}'", shell=True) == 0, \
-            f"Activation of '{connection}' failed"
+        assert (
+            subprocess.call(f"sudo nmcli con up '{connection}'", shell=True) == 0
+        ), f"Activation of '{connection}' failed"
 
     context.sandbox.add_after_scenario_hook(restore, connection, cfile)
 
 
-@step('Run NetworkManager-ci envsetup')
+@step("Run NetworkManager-ci envsetup")
 def nm_env(context):
-    tags = ','.join(context.scenario.tags)
+    tags = ",".join(context.scenario.tags)
     ret = subprocess.call(
-        f"sudo bash {NM_CI_RUNNER_CMD} envsetup '{tags}' &> /tmp/nm_envsetup_log.txt", shell=True)
-    context.embed("text/plain", utf_only_open_read("/tmp/nm_envsetup_log.txt"),
-                  "NM envsetup")
+        f"sudo bash {NM_CI_RUNNER_CMD} envsetup '{tags}' &> /tmp/nm_envsetup_log.txt",
+        shell=True,
+    )
+    context.embed(
+        "text/plain", utf_only_open_read("/tmp/nm_envsetup_log.txt"), "NM envsetup"
+    )
     assert ret == 0, "NetworkManager-ci envsetup failed !!!"
     nm_install_pkgs(context)
 
 
-@step('Install packages')
+@step("Install packages")
 def nm_install_pkgs(context):
     ret = subprocess.call(
-        f"sudo bash {NM_CI_RUNNER_CMD} install &> /tmp/nm_dep_pkg_install_log.txt", shell=True)
-    context.embed("text/plain", utf_only_open_read("/tmp/nm_dep_pkg_install_log.txt"),
-                  "NM Deps Install")
+        f"sudo bash {NM_CI_RUNNER_CMD} install &> /tmp/nm_dep_pkg_install_log.txt",
+        shell=True,
+    )
+    context.embed(
+        "text/plain",
+        utf_only_open_read("/tmp/nm_dep_pkg_install_log.txt"),
+        "NM Deps Install",
+    )
     assert ret == 0, "Unable to install required packages !!!"
 
 
@@ -384,8 +440,10 @@ use_step_matcher("qecore")
 @step('Prepare libreswan | mode "{mode}"')
 def prepare_libreswan(context, mode="aggressive"):
     context.execute_steps("""* Delete all connections of type "vpn" after scenario""")
-    cmd = f"sudo MODE={mode} bash {NM_CI_RUNNER_CMD} " \
-          f"prepare/libreswan.sh &> /tmp/libreswan_setup.log"
+    cmd = (
+        f"sudo MODE={mode} bash {NM_CI_RUNNER_CMD} "
+        f"prepare/libreswan.sh &> /tmp/libreswan_setup.log"
+    )
     ret = subprocess.call(cmd, shell=True)
     setup_log = utf_only_open_read("/tmp/libreswan_setup.log")
     context.embed("text/plain", setup_log, "Libreswan Setup")
@@ -395,14 +453,24 @@ def prepare_libreswan(context, mode="aggressive"):
 @step('Prepare simulated gsm | named "{modem}"')
 def prepare_gsm(context, modem="modemu"):
     context.sandbox.add_after_scenario_hook(
-        lambda c: c.embed("text/plain", utf_only_open_read("/tmp/gsm_sim.log"), "GSM_SIM"),
-        context)
+        lambda c: c.embed(
+            "text/plain", utf_only_open_read("/tmp/gsm_sim.log"), "GSM_SIM"
+        ),
+        context,
+    )
     context.execute_steps("""* Delete all connections of type "gsm" after scenario""")
-    assert subprocess.call(f"sudo bash {NM_CI_RUNNER_CMD} "
-                           f"prepare/gsm_sim.sh {modem} &> /tmp/gsm_sim.log",
-                           shell=True) == 0, "gsm_sim setup failed !!!"
+    assert (
+        subprocess.call(
+            f"sudo bash {NM_CI_RUNNER_CMD} "
+            f"prepare/gsm_sim.sh {modem} &> /tmp/gsm_sim.log",
+            shell=True,
+        )
+        == 0
+    ), "gsm_sim setup failed !!!"
     for i in range(20):
-        out = subprocess.check_output(["mmcli", "-L"], stderr=subprocess.STDOUT).decode("utf-8")
+        out = subprocess.check_output(["mmcli", "-L"], stderr=subprocess.STDOUT).decode(
+            "utf-8"
+        )
         if "No modems were found" not in out:
             return
         sleep(1)
@@ -412,15 +480,22 @@ def prepare_gsm(context, modem="modemu"):
 @step('Prepare openvpn | version "{version}" | in "{path}"')
 def prepare_openvpn(context, version="ip46", path="/tmp/openvpn-"):
     context.sandbox.add_after_scenario_hook(
-        lambda c: c.embed("text/plain", utf_only_open_read("/tmp/openvpn.log"), "OPENVPN"),
-        context)
+        lambda c: c.embed(
+            "text/plain", utf_only_open_read("/tmp/openvpn.log"), "OPENVPN"
+        ),
+        context,
+    )
     context.execute_steps("""* Delete all connections of type "vpn" after scenario""")
-    assert subprocess.call(
-        f"sudo rsync -r {NM_CI_PATH}/contrib/openvpn/ /tmp/", shell=True) == 0, \
-        "Unable to copy openvpn keys, please check directories in NM-ci repo"
+    assert (
+        subprocess.call(
+            f"sudo rsync -r {NM_CI_PATH}/contrib/openvpn/ /tmp/", shell=True
+        )
+        == 0
+    ), "Unable to copy openvpn keys, please check directories in NM-ci repo"
 
     out, rc = cmd_output_rc(
-        f"sudo cp -f {path}{version}.conf /tmp/openvpn-running.conf", shell=True)
+        f"sudo cp -f {path}{version}.conf /tmp/openvpn-running.conf", shell=True
+    )
     assert rc == 0, f"Unable to copy '{path}{version}.conf':\n{out}"
 
     # are we running already? try to reload
@@ -428,7 +503,8 @@ def prepare_openvpn(context, version="ip46", path="/tmp/openvpn-"):
         return
 
     server = subprocess.Popen(
-        "sudo openvpn /tmp/openvpn-running.conf &> /tmp/openvpn.log", shell=True)
+        "sudo openvpn /tmp/openvpn-running.conf &> /tmp/openvpn.log", shell=True
+    )
     running = False
     try:
         server.wait(6)
@@ -439,93 +515,120 @@ def prepare_openvpn(context, version="ip46", path="/tmp/openvpn-"):
 
 @step('Prepare Wi-Fi | with certificates from "{certs_dir}"')
 def prepare_wifi(context, certs_dir="tmp/8021x/certs"):
-    context.execute_steps("""* Delete all connections of type "802-11-wireless" after scenario""")
+    context.execute_steps(
+        """* Delete all connections of type "802-11-wireless" after scenario"""
+    )
     context.sandbox.add_after_scenario_hook(
-        lambda c: c.embed("text/plain", utf_only_open_read("/tmp/hostapd_wireless.log"), "WI-FI"),
-        context)
-    assert subprocess.call(
-        f"sudo bash {NM_CI_RUNNER_CMD} prepare/hostapd_wireless.sh {certs_dir} namespace"
-        f"&> /tmp/hostapd_wireless.log", shell=True) == 0, f"wifi setup failed !!!"
+        lambda c: c.embed(
+            "text/plain", utf_only_open_read("/tmp/hostapd_wireless.log"), "WI-FI"
+        ),
+        context,
+    )
+    assert (
+        subprocess.call(
+            f"sudo bash {NM_CI_RUNNER_CMD} prepare/hostapd_wireless.sh {certs_dir} namespace"
+            f"&> /tmp/hostapd_wireless.log",
+            shell=True,
+        )
+        == 0
+    ), f"wifi setup failed !!!"
 
 
 @step('Prepare 8021x | with certificates from "{certs_dir}"')
 def prepare_8021x(context, certs_dir="tmp/8021x/certs"):
     context.sandbox.add_after_scenario_hook(
-        lambda c: c.embed("text/plain", utf_only_open_read("/tmp/hostapd_wired.log"), "8021X"),
-        context)
-    assert subprocess.call(
-        f"sudo bash {NM_CI_RUNNER_CMD} prepare/hostapd_wired.sh {certs_dir}"
-        f"&> /tmp/hostapd_wired.log", shell=True) == 0, f"8021x setup failed !!!"
+        lambda c: c.embed(
+            "text/plain", utf_only_open_read("/tmp/hostapd_wired.log"), "8021X"
+        ),
+        context,
+    )
+    assert (
+        subprocess.call(
+            f"sudo bash {NM_CI_RUNNER_CMD} prepare/hostapd_wired.sh {certs_dir}"
+            f"&> /tmp/hostapd_wired.log",
+            shell=True,
+        )
+        == 0
+    ), f"8021x setup failed !!!"
 
 
 @step('Prepare netdevsim | num "{num}"')
 def prepare_netdevsim(context, num="1"):
     rc = subprocess.call(
         f"sudo bash {NM_CI_RUNNER_CMD} prepare/netdevsim.sh setup {num}"
-        f"&> /tmp/netdevsim.log", shell=True)
-    context.embed("text/plain", utf_only_open_read("/tmp/netdevsim.log"), "Netdevsim Setup")
+        f"&> /tmp/netdevsim.log",
+        shell=True,
+    )
+    context.embed(
+        "text/plain", utf_only_open_read("/tmp/netdevsim.log"), "Netdevsim Setup"
+    )
     assert rc == 0, f"netdevsim setup failed !!!"
     ifnames = subprocess.check_output(
-        "sudo ls /sys/bus/netdevsim/devices/netdevsim0/net/", shell=True, encoding="utf-8")
+        "sudo ls /sys/bus/netdevsim/devices/netdevsim0/net/",
+        shell=True,
+        encoding="utf-8",
+    )
     ifnames = ifnames.strip().split()
-    assert len(ifnames) == int(num), f"created {len(ifnames)} instead of {num} devices: {ifnames}"
+    assert len(ifnames) == int(
+        num
+    ), f"created {len(ifnames)} instead of {num} devices: {ifnames}"
     context.netdevs = ifnames
 
 
 use_step_matcher("parse")
 
 
-@step('Teardown Wi-Fi')
+@step("Teardown Wi-Fi")
 def teardown_wifi(context):
     wifi_teardown()
 
 
-@step('Teardown Wi-Fi after scenario')
-@step('Teardown Wi-Fi after test')
+@step("Teardown Wi-Fi after scenario")
+@step("Teardown Wi-Fi after test")
 def teardown_wifi_hook(context):
     context.sandbox.add_after_scenario_hook(wifi_teardown)
 
 
-@step('Teardown libreswan')
+@step("Teardown libreswan")
 def teardown_libreswan(context):
     libreswan_teardown(context)
 
 
-@step('Teardown libreswan after scenario')
-@step('Teardown libreswan after test')
+@step("Teardown libreswan after scenario")
+@step("Teardown libreswan after test")
 def teardown_libreswan_hook(context):
     context.sandbox.add_after_scenario_hook(libreswan_teardown, context)
 
 
-@step('Teardown openvpn')
+@step("Teardown openvpn")
 def teardown_openvpn(context):
     openvpn_teardown(context)
 
 
-@step('Teardown openvpn after scenario')
-@step('Teardown openvpn after test')
+@step("Teardown openvpn after scenario")
+@step("Teardown openvpn after test")
 def teardown_openvpn_hook(context):
     context.sandbox.add_after_scenario_hook(openvpn_teardown, context)
 
 
-@step('Teardown gsm')
+@step("Teardown gsm")
 def teardown_gsm(context):
     gsm_teardown(context)
 
 
-@step('Teardown gsm after scenario')
-@step('Teardown gsm after test')
+@step("Teardown gsm after scenario")
+@step("Teardown gsm after test")
 def teardown_gsm_hook(context):
     context.sandbox.add_after_scenario_hook(gsm_teardown, context)
 
 
-@step('Teardown 8021x')
+@step("Teardown 8021x")
 def teardown_8021x(context):
     hostapd_teardown()
 
 
-@step('Teardown 8021x after scenario')
-@step('Teardown 8021x after test')
+@step("Teardown 8021x after scenario")
+@step("Teardown 8021x after test")
 def teardown_8021x_hook(context):
     context.sandbox.add_after_scenario_hook(hostapd_teardown)
 
@@ -533,16 +636,17 @@ def teardown_8021x_hook(context):
 use_step_matcher("qecore")
 
 
-@step('Teardown netdevsim')
+@step("Teardown netdevsim")
 def teardown_netdevsim(context):
-    assert subprocess.call(
-        f"echo 0 | sudo tee /sys/bus/netdevsim/del_device", shell=True) == 0, \
-        f"unable to delete netdevsim device"
+    assert (
+        subprocess.call(f"echo 0 | sudo tee /sys/bus/netdevsim/del_device", shell=True)
+        == 0
+    ), f"unable to delete netdevsim device"
     context.netdevs = []
 
 
-@step('Teardown netdevsim after scenario')
-@step('Teardown netdevsim after test')
+@step("Teardown netdevsim after scenario")
+@step("Teardown netdevsim after test")
 def teardown_netdevsim_hook(context):
     context.sandbox.add_after_scenario_hook(teardown_netdevsim, context)
 

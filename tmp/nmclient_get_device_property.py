@@ -2,7 +2,8 @@
 
 import sys
 import gi
-gi.require_version('NM', '1.0')
+
+gi.require_version("NM", "1.0")
 from gi.repository import NM
 
 # Usage nmclient_get_device_property $device $property
@@ -14,22 +15,22 @@ devices = nmclient.get_devices()
 for d in devices:
     if device == d.get_iface():
         try:
-            getattr(d,property)
+            getattr(d, property)
         except:
-            print ("No such property on device. %s:%s" %(device, property))
-            print ("These are just available")
-            print (dir(d))
+            print("No such property on device. %s:%s" % (device, property))
+            print("These are just available")
+            print(dir(d))
             exit(1)
         device = d
-        if property in ['get_ip6_config', 'get_ip4_config' ]:
-            addrs = getattr(device,property)().get_addresses()
+        if property in ["get_ip6_config", "get_ip4_config"]:
+            addrs = getattr(device, property)().get_addresses()
             for a in addrs:
                 print(a.get_address())
         else:
-            print(getattr(device,property)())
+            print(getattr(device, property)())
 
         exit(0)
 
-print ("No such device. %s" %(device))
+print("No such device. %s" % (device))
 
 exit(1)
