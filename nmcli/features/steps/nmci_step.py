@@ -8,17 +8,19 @@ IS_NMTUI = "nmtui" in __file__
 ###############################################################################
 
 
-def run(context, command, *a, **kw):
-    proc = subprocess.run(command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT,
-                          encoding="utf-8", *a, *kw)
+def run(context, command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT,
+        encoding="utf-8", *a, **kw):
+    proc = subprocess.run(command, shell=shell, stdout=stdout, stderr=stderr,
+                          encoding=encoding, *a, *kw)
     if not IS_NMTUI:
         if context is not None:
-            data = "%s\nreturncode: %d\noutput:\n%s" % (command, proc.returncode, proc.stdout)
-            context.embed("text/plain", data, caption=command[0:32] + "...")
-    return (proc.stdout, proc.returncode)
+            command_calls = getattr(context, "command_calls", [])
+            command_calls.append((command, proc.returncode, proc.stdout, proc.stderr))
+    return (proc.stdout, proc.stderr, proc.returncode)
 
 
-def command_output(context, command, *a, **kw):
+def command_output(context, command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT,
+                   encoding="utf-8", *a, **kw):
     if IS_NMTUI:
         assert not a
         assert not kw
@@ -27,18 +29,46 @@ def command_output(context, command, *a, **kw):
         fd = open("/tmp/tui-screen.log", "a+")
         fd.write("----------\nInfo: next failed step's '%s' output:\n" % command)
         fd.flush()
-        output, _ = run(context, command)
+        output, _, _ = run(context, command, shell=shell, stdout=stdout, stderr=stderr,
+                           encoding=encoding, *a, *kw)
         fd.write(output + "\n")
         fd.flush()
         fd.close()
     else:
-        output, code = run(context, command, *a, **kw)
-        assert code == 0, "command '%s' exited with code %d\noutput:\n%s" % (command, code, output)
+        output, err, code = run(context, command, shell=shell, stdout=stdout, stderr=stderr,
+                                encoding=encoding, *a, *kw)
+        assert code == 0, "command '%s' exited with code %d\noutput:\n%s\nstderr:\n%s" \
+            % (command, code, output, err)
     return output
 
 
-def command_code(context, command, *a, **kw):
-    _, code = run(context, command, *a, **kw)
+def command_output_err(context, command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE,
+                       encoding="utf-8", *a, **kw):
+    if IS_NMTUI:
+        assert not a
+        assert not kw
+        if not os.path.isfile("/tmp/tui-screen.log"):
+            return
+        fd = open("/tmp/tui-screen.log", "a+")
+        fd.write("----------\nInfo: next failed step's '%s' output:\n" % command)
+        fd.flush()
+        output, err, _ = run(context, command, shell=shell, stdout=stdout, stderr=stderr,
+                             encoding=encoding, *a, *kw)
+        fd.write(err + "\n")
+        fd.flush()
+        fd.close()
+    else:
+        output, err, code = run(context, command, shell=shell, stdout=stdout, stderr=stderr,
+                                encoding=encoding, *a, *kw)
+        assert code == 0, "command '%s' exited with code %d\noutput:\n%s\nstderr:\n%s" \
+            % (command, code, output, err)
+    return output, err
+
+
+def command_code(context, command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT,
+                 encoding="utf-8", *a, **kw):
+    _, _, code = run(context, command, shell=shell, stdout=stdout, stderr=stderr,
+                     encoding=encoding, *a, *kw)
     return code
 
 
