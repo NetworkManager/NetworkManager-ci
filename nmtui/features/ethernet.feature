@@ -67,7 +67,7 @@ Feature: Ethernet TUI tests
 
 
     @veth
-    @ethernet
+    @ethernet @testeth7_disconnect
     @nmtui_ethernet_activate_connection_specific_device
     Scenario: nmtui - ethernet - activate connection on specific device
     * Execute "nmcli con up testeth7"
@@ -137,7 +137,7 @@ Feature: Ethernet TUI tests
     Then "ethernet1" is not visible with command "nmcli con"
 
 
-    @ethernet @ifcfg-rh
+    @ethernet @ifcfg-rh @restore_eth1_mtu
     @nmtui_ethernet_set_mtu
     Scenario: nmtui - ethernet - set mtu
     * Start nmtui

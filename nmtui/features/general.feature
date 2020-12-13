@@ -179,7 +179,7 @@ Feature: General TUI tests
 
 
     @bz1197203
-    @general
+    @general @no_connections
     @nmtui_general_activate_screen_no_connections
     Scenario: nmtui - general - active screen without connections
     * Start nmtui

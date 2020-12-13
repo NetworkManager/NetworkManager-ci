@@ -252,7 +252,7 @@ Feature: nmcli - general
 
 
       @rhbz1311988
-      @restart @shutdown
+      @restart @shutdown @unload_kernel_modules
       @shutdown_service_any
       Scenario: NM - general - shutdown service - all
       * Stop NM
@@ -621,7 +621,7 @@ Feature: nmcli - general
 
 
     @rhbz1114681
-    @general_vlan @ifcfg-rh @add_testeth8
+    @general_vlan @ifcfg-rh @add_testeth8 @restore_eth8
     @nmcli_general_keep_slave_device_unmanaged
     Scenario: nmcli - general - keep slave device unmanaged
     # We need to delete keyfile testeth8
@@ -1108,7 +1108,7 @@ Feature: nmcli - general
 
 
     @rhbz1262972
-    @con_general_remove @ifcfg-rh
+    @con_general_remove @ifcfg-rh @backup_sysconfig_network
     @nmcli_general_dhcp_profiles_general_gateway
     Scenario: NM - general - auto connections ignore the generic-set gateway
     # Up dhcp connection
@@ -1144,7 +1144,7 @@ Feature: nmcli - general
 
     @rhbz1182085
     @ver+=1.9
-    @con_general_remove @netservice @restart @eth10_disconnect @rhelver-=7 @fedoraver-=0 @connect_testeth0
+    @con_general_remove @netservice @restart @eth10_disconnect @rhelver-=7 @fedoraver-=0 @connect_testeth0 @restore_broken_network
     @nmcli_general_profile_pickup_doesnt_break_network
     Scenario: nmcli - general - profile pickup does not break network service
     * Add a new connection of type "ethernet" and options "ifname * con-name con_general"
@@ -1209,7 +1209,7 @@ Feature: nmcli - general
 
 
     @rhbz1272974
-    @need_s390x
+    @s390x_only
     @remove_ctcdevice
     @ctc_device_recognition
     Scenario: NM - general - ctc device as ethernet recognition
@@ -2254,7 +2254,7 @@ Feature: nmcli - general
 
     @rhbz1711215
     @ver+=1.25 @rhelver+=8
-    @remove_custom_cfg
+    @remove_custom_cfg @performance
     @NM_performance_test1
     Scenario: NM - general - create and activate 100 devices in 3 to 6 seconds
     * Restart NM

@@ -425,6 +425,7 @@ Feature: nmcli - vlan
 
     @rhbz1231526
     @ver+=1.8.0
+    @many_vlans
     @vlan_create_many_vlans
     Scenario: NM - vlan - create 255 vlans
     * Execute "for i in {1..255}; do ip link add link eth7 name vlan.$i type vlan id $i; ip link set dev vlan.$i up; ip add add 30.0.0.$i/24 dev vlan.$i;done" without waiting for process to finish

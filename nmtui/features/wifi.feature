@@ -228,7 +228,7 @@ Feature: WIFI TUI tests
     Then "type IBSS" is visible with command "iw dev wlan0 info"
 
 
-    @wifi
+    @wifi @wifi_rescan
     @nmtui_wifi_ap
     Scenario: nmtui - wifi - ap
     Given Flag "NM_802_11_DEVICE_CAP_AP" is set in WirelessCapabilites

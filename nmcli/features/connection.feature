@@ -476,7 +476,7 @@ Feature: nmcli: connection
      Then Metered status is "3"
 
 
-     @con_con_remove @long
+     @con_con_remove @long @many_con_remove
      @display_allowed_values
      Scenario: nmcli - connection - showing allowed values
      * Add connection type "ethernet" named "con_con" for device "testXc"

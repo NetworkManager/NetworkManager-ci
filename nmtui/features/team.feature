@@ -119,7 +119,7 @@ Feature: Team TUI tests
     Then Team "team0" is down
 
 
-    @team
+    @team @many_slaves
     @nmtui_team_add_many_slaves
     Scenario: nmtui - team - add many slaves
     * Prepare new connection of type "Team" named "team0"

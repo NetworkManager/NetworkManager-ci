@@ -133,7 +133,7 @@ Feature: Bridge TUI tests
 
 
     @veth
-    @bridge @ifcfg-rh
+    @bridge @ifcfg-rh @many_slaves
     @nmtui_bridge_add_many_slaves
     Scenario: nmtui - bridge - add many slaves
     * Prepare new connection of type "Bridge" named "bridge0"

@@ -129,7 +129,7 @@ Feature: nmcli - wifi
     Then "type IBSS" is visible with command "iw dev wlan0 info" in "30" seconds
 
 
-    @wifi
+    @wifi @rescan
     @nmcli_wifi_ap
     Scenario: nmcli - wifi - ap open network
     Given Flag "NM_802_11_DEVICE_CAP_AP" is set in WirelessCapabilites
@@ -1369,7 +1369,7 @@ Feature: nmcli - wifi
     Then "10.1.1.5" is visible with command "ip a" in "30" seconds
 
 
-    @wifi
+    @wifi @novice
     @nmcli_wifi_add_connection_in_novice_nmcli_a_mode_with_bogus_ip
     Scenario: nmcli - wifi - add connection in novice (nmcli -a) mode with bogus IP
     * Open interactive connection addition mode

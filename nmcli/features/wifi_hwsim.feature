@@ -275,6 +275,7 @@ Feature: nmcli - wifi
 
 
     @simwifi_teardown
+    @nmcli_simwifi_teardown
     Scenario: teardown wifi setup
     * Execute "echo 'this is skipped'"
 

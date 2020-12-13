@@ -171,7 +171,7 @@ Feature: Bond TUI tests
      And "MASTER=bond0" is visible with command "cat /etc/sysconfig/network-scripts/ifcfg-bond-slave-eth1"
 
 
-    @bond
+    @bond @many_slaves
     @nmtui_bond_add_many_slaves
     Scenario: nmtui - bond - add many slaves
     * Prepare new connection of type "Bond" named "bond0"

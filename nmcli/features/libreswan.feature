@@ -24,6 +24,7 @@
 
     @rhbz1292912
     @ver+=1.4.0
+    @libreswan @main
     @libreswan_ikev1_main
     Scenario: nmcli - libreswan - connect in ike1 main
     * Add a connection named "libreswan" for device "\*" to "libreswan" VPN

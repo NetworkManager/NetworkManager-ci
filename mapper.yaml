@@ -1595,7 +1595,7 @@ testmapper:
     - simwifi_peap_mschapv2_doc_procedure:
         feature: doc_procedures
         tags: gate
-    - simwifi_teardown_doc:
+    - nmcli_simwifi_teardown_doc:
         feature: doc_procedures
         tags: gate
     - iptunnel_ipip_doc_procedure:
@@ -1984,7 +1984,7 @@ testmapper:
         feature: wifi_hwsim
     - simwifi_do_not_block_autoconnect:
         feature: wifi_hwsim
-    - simwifi_teardown:
+    - nmcli_simwifi_teardown:
         feature: wifi_hwsim
         tags: gate
     - simwifi_ap_wpa_psk_method_shared:

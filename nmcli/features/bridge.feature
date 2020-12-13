@@ -438,7 +438,7 @@ Feature: nmcli - bridge
     Then "active" is visible with command "systemctl is-active NetworkManager.service"
 
 
-    @1000 @not_on_aarch64 @skip_str
+    @1000 @not_on_aarch64 @skip_str @unload_kernel_modules
     @bridge_manipulation_with_1000_slaves
     Scenario: NM - bridge - manipulation with 1000 slaves bridge
     * Add a new connection of type "bridge" and options "ifname bridge0 con-name bridge4 bridge.stp off"

@@ -70,7 +70,8 @@ Feature: nmcli - procedures in documentation
     Then Bring "up" connection "wifi"
 
 
-    @simwifi_teardown_doc
+    @simwifi_teardown
+    @nmcli_simwifi_teardown_doc
     Scenario: teardown wifi setup
     * Execute "echo 'this is skipped'"
 
