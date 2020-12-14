@@ -12,7 +12,9 @@ touch /tmp/nm_skip_long
 
 # Add some extra repos
 dnf -y install https://dl.fedoraproject.org/pub/epel/epel-release-latest-8.noarch.rpm
+# For some reason names can differ, so enable both powertools
 yum config-manager --set-enabled PowerTools
+yum config-manager --set-enabled powertools
 curl https://copr.fedorainfracloud.org/coprs/nmstate/nm-build-deps/repo/epel-8/nmstate-nm-build-deps-epel-8.repo > /etc/yum.repos.d/nmstate-nm-build-deps-epel-8.repo
 
 # Install dependencies
