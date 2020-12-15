@@ -28,7 +28,7 @@
     Scenario: nmcli - openvpn - add and connect IPv4 connection
     * Add a connection named "openvpn" for device "\*" to "openvpn" VPN
     * Use certificate "sample-keys/client.crt" with key "sample-keys/client.key" and authority "sample-keys/ca.crt" for gateway "127.0.0.1" on OpenVPN connection "openvpn"
-    * Execute "nmcli con up openvpn ifname tun0"
+    * Finish "nmcli con up openvpn ifname tun0"
     Then "VPN.VPN-STATE:.*VPN connected" is visible with command "nmcli c show openvpn"
     Then "IP4.ADDRESS.*172.31.70.*/32" is visible with command "nmcli c show openvpn"
     Then "IP6.ADDRESS" is not visible with command "nmcli c show openvpn"
@@ -42,7 +42,7 @@
     Scenario: nmcli - openvpn - add neverdefault IPv4 connection
     * Add a connection named "openvpn" for device "\*" to "openvpn" VPN
     * Use certificate "sample-keys/client.crt" with key "sample-keys/client.key" and authority "sample-keys/ca.crt" for gateway "127.0.0.1" on OpenVPN connection "openvpn"
-    * Execute "nmcli con modify openvpn ipv4.never-default yes"
+    * Modify connection "openvpn" changing options "ipv4.never-default yes"
     * Bring "up" connection "openvpn"
     Then "VPN.VPN-STATE:.*VPN connected" is visible with command "nmcli c show openvpn"
      And "IP4.ADDRESS.*172.31.70.*/32" is visible with command "nmcli c show openvpn"
@@ -70,7 +70,7 @@
     Scenario: nmcli - openvpn - add neverdefault IPv6 connection
     * Add a connection named "openvpn" for device "\*" to "openvpn" VPN
     * Use certificate "sample-keys/client.crt" with key "sample-keys/client.key" and authority "sample-keys/ca.crt" for gateway "127.0.0.1" on OpenVPN connection "openvpn"
-    * Execute "nmcli con modify openvpn ipv6.never-default yes"
+    * Modify connection "openvpn" changing options "ipv6.never-default yes"
     * Bring "down" connection "openvpn"
     * Bring "up" connection "openvpn"
     Then "VPN.VPN-STATE:.*VPN connected" is visible with command "nmcli c show openvpn"
@@ -97,7 +97,7 @@
     Scenario: nmcli - openvpn - set firewall zone
     * Add a connection named "openvpn" for device "\*" to "openvpn" VPN
     * Use certificate "sample-keys/client.crt" with key "sample-keys/client.key" and authority "sample-keys/ca.crt" for gateway "127.0.0.1" on OpenVPN connection "openvpn"
-    * Execute "nmcli con modify openvpn connection.zone public"
+    * Modify connection "openvpn" changing options "connection.zone public"
     * Bring "up" connection "openvpn"
     Then "VPN.VPN-STATE:.*VPN connected" is visible with command "nmcli c show openvpn"
     Then "IP4.ADDRESS.*172.31.70.*/32" is visible with command "nmcli c show openvpn"
@@ -108,7 +108,7 @@
     Scenario: nmcli - openvpn - terminate connection
     * Add a connection named "openvpn" for device "\*" to "openvpn" VPN
     * Use certificate "sample-keys/client.crt" with key "sample-keys/client.key" and authority "sample-keys/ca.crt" for gateway "127.0.0.1" on OpenVPN connection "openvpn"
-    * Execute "nmcli c modify openvpn vpn.persistent true"
+    * Modify connection "openvpn" changing options "vpn.persistent true"
     * Bring "up" connection "openvpn"
     When "VPN.VPN-STATE:.*VPN connected" is visible with command "nmcli c show openvpn"
     * Execute "kill -9 $(ps aux|grep 'openvpn --remote' | awk '{print $2'})"
@@ -122,7 +122,7 @@
     Scenario: nmcli - openvpn - delete connection
     * Add a connection named "openvpn" for device "\*" to "openvpn" VPN
     * Use certificate "sample-keys/client.crt" with key "sample-keys/client.key" and authority "sample-keys/ca.crt" for gateway "127.0.0.1" on OpenVPN connection "openvpn"
-    * Execute "nmcli c modify openvpn vpn.persistent true"
+    * Modify connection "openvpn" changing options "vpn.persistent true"
     * Bring "up" connection "openvpn"
     When "VPN.VPN-STATE:.*VPN connected" is visible with command "nmcli c show openvpn"
     * Delete connection "openvpn"
