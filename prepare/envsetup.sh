@@ -310,6 +310,8 @@ install_el7_packages () {
 
 install_packages () {
     if ! test -f /tmp/nm_packages_installed; then
+        /usr/bin/python3 -V || yum -y install python3
+
         # Install packages for various distributions
         if grep -q 'Fedora' /etc/redhat-release; then
             install_fedora_packages
