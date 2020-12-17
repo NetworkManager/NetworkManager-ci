@@ -1296,6 +1296,10 @@ testmapper:
     - pull_hostname_from_dhcp:
         feature: general
         tags: gate
+    - pull_hostname_from_dns:
+        feature: general
+    - hostname_priority:
+        feature: general
     - hostname_mode_full:
         feature: general
     - hostname_mode_dhcp:

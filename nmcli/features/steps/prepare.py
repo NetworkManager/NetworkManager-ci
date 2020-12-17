@@ -162,6 +162,7 @@ def prepare_dhcpd_simdev(context, device, server_id):
 
 @step(u'Prepare simulated test "{device}" device with "{ipv4}" ipv4 and "{ipv6}" ipv6 dhcp address prefix and dhcp option "{option}"')
 @step(u'Prepare simulated test "{device}" device with "{ipv4}" ipv4 and "{ipv6}" ipv6 dhcp address prefix')
+@step(u'Prepare simulated test "{device}" device with "{ipv4}" ipv4 and daemon options "{daemon_options}"')
 @step(u'Prepare simulated test "{device}" device with "{lease_time}" leasetime')
 @step(u'Prepare simulated test "{device}" device with dhcp option "{option}"')
 @step(u'Prepare simulated test "{device}" device')
