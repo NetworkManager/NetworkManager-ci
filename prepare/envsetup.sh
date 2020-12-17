@@ -330,7 +330,7 @@ install_packages () {
             fi
             enable_abrt_el8
         fi
-        if grep -q -e 'Enterprise Linux .*release 7'
+        if grep -q -e 'Enterprise Linux .*release 7' \
                    -e 'CentOS Linux release 7' /etc/redhat-release; then
             install_el7_packages
             if ! check_packages; then
