@@ -189,7 +189,7 @@ install_el8_packages () {
     dnf -4 -y install http://download.eng.bos.redhat.com/brewroot/vol/rhel-8/packages/kernel/$VER/$REL/$(arch)/kernel-modules-internal-$VER-$REL.$(arch).rpm
 
     # Add OVS repo and install OVS
-    if ! grep -q -e 'CentOS Linux release 8' /etc/redhat-release; then
+    if ! grep -q -e 'CentOS .* release 8' /etc/redhat-release; then
         mv -f  tmp/ovs-rhel8.repo /etc/yum.repos.d/ovs.repo
         yum -y install openvswitch2.13
         systemctl restart openvswitch
@@ -320,7 +320,9 @@ install_packages () {
                 install_fedora_packages
             fi
         fi
-        if grep -q -e 'Enterprise Linux .*release 8' -e 'CentOS Linux release 8' /etc/redhat-release; then
+        if grep -q -e 'Enterprise Linux .*release 8' \
+                   -e 'CentOS Linux release 8' \
+                   -e 'CentOS Stream release 8' /etc/redhat-release; then
             install_el8_packages
             if ! check_packages; then
                 sleep 20
@@ -328,7 +330,8 @@ install_packages () {
             fi
             enable_abrt_el8
         fi
-        if grep -q -e 'Enterprise Linux .*release 7' -e 'CentOS Linux release 7' /etc/redhat-release; then
+        if grep -q -e 'Enterprise Linux .*release 7'
+                   -e 'CentOS Linux release 7' /etc/redhat-release; then
             install_el7_packages
             if ! check_packages; then
                 sleep 20
@@ -712,7 +715,7 @@ local_setup_configure_nm_gsm () {
     semodule -i tmp/selinux-policy/ModemManager.pp
 
     # Prepare conditions for using Acroname USB hub.
-    if grep -q -E 'Enterprise Linux .*release|CentOS Linux .*release' /etc/redhat-release; then
+    if grep -q -E 'Enterprise Linux .*release|CentOS.*release' /etc/redhat-release; then
         install_usb_hub_driver_el; RC=$?
     elif grep -q -E 'Fedora .*release' /etc/redhat-release; then
         install_usb_hub_driver_fc29; RC=$?
