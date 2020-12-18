@@ -122,3 +122,16 @@ Feature: nmcli - procedures in documentation
     Then Finish "ip netns exec iptunnelB ping -c 1 192.0.2.1"
     Then Finish "ip netns exec netA_ns ping -c 1 192.0.2.4"
     Then Finish "ip netns exec netB_ns ping -c 1 192.0.2.3"
+
+
+    @con_tc_remove @eth0
+    @qdisc_doc_procedure
+    Scenario: nmcli - docs - Permanently setting the current qdisk of a network interface
+    Given "qdisc fq_codel 0: root refcnt 2" is visible with command "tc qdisc show dev eth0"
+    * Add a new connection of type "ethernet" and options "con-name con_tc ifname eth0"
+    * Modify connection "con_tc" changing options "tc.qdisc 'root pfifo_fast'"
+    * Modify connection "con_tc" changing options "+tc.qdisc 'ingress handle ffff:'"
+    When "qdisc fq_codel 0: root refcnt 2" is visible with command "tc qdisc show dev eth0"
+    * Bring "up" connection "con_tc"
+    Then "qdisc pfifo_fast .*: root refcnt 2 bands 3 priomap 1 2 2 2 1 2 0 0 1 1 1 1 1 1 1 1" is visible with command "tc qdisc show dev eth0"
+    And  "qdisc ingress ffff: parent ffff:fff1 ----------------" is visible with command "tc qdisc show dev eth0"
