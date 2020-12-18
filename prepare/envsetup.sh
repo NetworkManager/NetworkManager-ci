@@ -93,10 +93,18 @@ install_fedora_packages () {
 
     # Needed for gsm_sim
     dnf -4 -y install perl-IO-Pty-Easy perl-IO-Tty
-    dnf -4 -y upgrade https://vbenes.fedorapeople.org/NM/ModemManager-1.10.6-1.fc30.x86_64.rpm https://vbenes.fedorapeople.org/NM/ModemManager-debuginfo-1.10.6-1.fc30.x86_64.rpm https://vbenes.fedorapeople.org/NM/ModemManager-debugsource-1.10.6-1.fc30.x86_64.rpm https://vbenes.fedorapeople.org/NM/ModemManager-devel-1.10.6-1.fc30.x86_64.rpm https://vbenes.fedorapeople.org/NM/ModemManager-glib-1.10.6-1.fc30.x86_64.rpm https://vbenes.fedorapeople.org/NM/ModemManager-glib-debuginfo-1.10.6-1.fc30.x86_64.rpm --allowerasing
+    dnf -4 -y upgrade https://vbenes.fedorapeople.org/NM/ModemManager-1.10.6-1.fc30.x86_64.rpm \
+                      https://vbenes.fedorapeople.org/NM/ModemManager-debuginfo-1.10.6-1.fc30.x86_64.rpm \
+                      https://vbenes.fedorapeople.org/NM/ModemManager-debugsource-1.10.6-1.fc30.x86_64.rpm \
+                      https://vbenes.fedorapeople.org/NM/ModemManager-devel-1.10.6-1.fc30.x86_64.rpm \
+                      https://vbenes.fedorapeople.org/NM/ModemManager-glib-1.10.6-1.fc30.x86_64.rpm \
+                      https://vbenes.fedorapeople.org/NM/ModemManager-glib-debuginfo-1.10.6-1.fc30.x86_64.rpm \
+                      --allowerasing
 
     # Dnf more deps
-    dnf -4 -y install git nmap-ncat hostapd tcpreplay python3-netaddr dhcp-relay iw net-tools psmisc firewalld dhcp-server ethtool python3-dbus python3-gobject dnsmasq tcpdump wireshark-cli
+    dnf -4 -y install git nmap-ncat hostapd tcpreplay python3-netaddr dhcp-relay iw net-tools \
+                      psmisc firewalld dhcp-server ethtool python3-dbus python3-gobject dnsmasq \
+                      tcpdump wireshark-cli tc
 
     install_behave
 
@@ -168,10 +176,13 @@ install_el8_packages () {
     python -m pip install IPy
 
     # Needed for gsm_sim
-    dnf -4 -y install https://kojipkgs.fedoraproject.org//packages/perl-IO-Pty-Easy/0.10/5.fc28/noarch/perl-IO-Pty-Easy-0.10-5.fc28.noarch.rpm https://kojipkgs.fedoraproject.org//packages/perl-IO-Tty/1.12/11.fc28/$(arch)/perl-IO-Tty-1.12-11.fc28.$(arch).rpm
+    dnf -4 -y install https://kojipkgs.fedoraproject.org//packages/perl-IO-Pty-Easy/0.10/5.fc28/noarch/perl-IO-Pty-Easy-0.10-5.fc28.noarch.rpm \
+                      https://kojipkgs.fedoraproject.org//packages/perl-IO-Tty/1.12/11.fc28/$(arch)/perl-IO-Tty-1.12-11.fc28.$(arch).rpm
 
     # Dnf more deps
-    dnf -4 -y install git python3-netaddr dhcp-relay iw net-tools psmisc firewalld dhcp-server ethtool python3-dbus python3-gobject dnsmasq tcpdump wireshark-cli file --skip-broken
+    dnf -4 -y install git python3-netaddr dhcp-relay iw net-tools psmisc firewalld dhcp-server ethtool \
+                          python3-dbus python3-gobject dnsmasq tcpdump wireshark-cli file tc \
+                          --skip-broken
 
     dnf -4 -y install https://kojipkgs.fedoraproject.org//packages/tcpreplay/4.2.5/4.fc28/$(arch)/tcpreplay-4.2.5-4.fc28.$(arch).rpm
     install_behave
@@ -275,7 +286,8 @@ install_el7_packages () {
         python3 -m pip install scapy
     fi
 
-    yum -y install git iw net-tools wireshark psmisc bridge-utils firewalld dhcp ethtool python36-dbus python36-gobject dnsmasq NetworkManager-vpnc
+    yum -y install git iw net-tools wireshark psmisc bridge-utils firewalld dhcp ethtool python36-dbus \
+                   python36-gobject dnsmasq NetworkManager-vpnc tc
 
     yum -y install https://kojipkgs.fedoraproject.org//packages/hostapd/2.8/1.el7/$(arch)/hostapd-2.8-1.el7.$(arch).rpm
 
