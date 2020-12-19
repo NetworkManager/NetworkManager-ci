@@ -133,5 +133,5 @@ Feature: nmcli - procedures in documentation
     * Modify connection "con_tc" changing options "+tc.qdisc 'ingress handle ffff:'"
     When "qdisc fq_codel 0: root refcnt 2" is visible with command "tc qdisc show dev eth0"
     * Bring "up" connection "con_tc"
-    Then "qdisc pfifo_fast .*: root refcnt 2 bands 3 priomap 1 2 2 2 1 2 0 0 1 1 1 1 1 1 1 1" is visible with command "tc qdisc show dev eth0"
-    And  "qdisc ingress ffff: parent ffff:fff1 ----------------" is visible with command "tc qdisc show dev eth0"
+    Then "qdisc pfifo_fast .*: root refcnt 2 bands 3 priomap\s+1 2 2 2 1 2 0 0 1 1 1 1 1 1 1 1" is visible with command "tc qdisc show dev eth0"
+    And  "qdisc ingress ffff: parent ffff:fff1\s+----------------" is visible with command "tc qdisc show dev eth0"
