@@ -124,6 +124,7 @@ Feature: nmcli - procedures in documentation
     Then Finish "ip netns exec netB_ns ping -c 1 192.0.2.3"
 
 
+    @rhelver+=8
     @con_tc_remove @eth0
     @qdisc_doc_procedure
     Scenario: nmcli - docs - Permanently setting the current qdisk of a network interface
