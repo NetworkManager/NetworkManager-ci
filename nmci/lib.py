@@ -3,16 +3,16 @@ import os
 import fcntl
 import time
 import re
-import nmci.run
+import nmci
 
 
 def nm_pid():
     pid = None
-    out, _, code = nmci.run.run("systemctl show -pMainPID NetworkManager.service")
+    out, _, code = nmci.run("systemctl show -pMainPID NetworkManager.service")
     if code == 0:
         pid = int(out.split('=')[-1])
     if not pid:
-        out, _, code = nmci.run.run("pgrep NetworkManager")
+        out, _, code = nmci.run("pgrep NetworkManager")
         if code == 0:
             pid = int(out)
     return pid
@@ -30,7 +30,7 @@ def nm_size_kb():
 
 
 def new_log_cursor():
-    return '"--after-cursor=%s"' % nmci.run.command_output(
+    return '"--after-cursor=%s"' % nmci.command_output(
         "journalctl --lines=0 --quiet --show-cursor").replace("-- cursor: ", "").strip()
 
 
@@ -100,14 +100,14 @@ def dump_status_nmtui(fd, when):
     for cmd in cmds:
         fd.write("--- %s ---\n" % cmd)
         fd.flush()
-        nmci.run.run(cmd, stdout=fd)
+        nmci.run(cmd, stdout=fd)
         fd.write("\n")
 
 
 def dump_status_nmcli(context, when):
     context.log.write("\n\n\n" + ("="*80) + "\n")
     context.log.write("Network configuration %s:\n\n" % when)
-    nm_running = nmci.run.command_code('systemctl status NetworkManager') == 0
+    nm_running = nmci.command_code('systemctl status NetworkManager') == 0
 
     cmds = ['date "+%Y%m%d-%H%M%S.%N"']
     if nm_running:
@@ -127,7 +127,7 @@ def dump_status_nmcli(context, when):
     for cmd in cmds:
         context.log.write("--- %s ---\n" % cmd)
         context.log.flush()
-        nmci.run.run(cmd, stdout=context.log)
+        nmci.run(cmd, stdout=context.log)
     if nm_running:
         if os.path.isfile('/tmp/nm_newveth_configured'):
             context.log.write("\nVeth setup network namespace and DHCP server state:\n")
@@ -135,7 +135,7 @@ def dump_status_nmcli(context, when):
                         'ip netns exec vethsetup ip -6 route', 'ps aux | grep dnsmasq']:
                 context.log.write("--- %s ---\n" % cmd)
                 context.log.flush()
-                nmci.run.run(cmd, stdout=context.log)
+                nmci.run(cmd, stdout=context.log)
     context.log.write(("="*80) + "\n\n\n")
 
 
@@ -146,7 +146,7 @@ def check_dump_package(pkg_name):
 
 
 def is_dump_reported(dump_dir):
-    return nmci.run.command_code('grep -q "%s" /tmp/reported_crashes' % (dump_dir)) == 0
+    return nmci.command_code('grep -q "%s" /tmp/reported_crashes' % (dump_dir)) == 0
 
 
 def embed_dump(context, dump_id, dump_output, caption, do_report):
@@ -169,7 +169,7 @@ def embed_dump(context, dump_id, dump_output, caption, do_report):
 
 
 def list_dumps(dumps_search):
-    out, err, code = nmci.run.run("ls -d %s" % (dumps_search))
+    out, err, code = nmci.run("ls -d %s" % (dumps_search))
     if code != 0:
         return []
     return out.strip('\n').split('\n')
@@ -195,7 +195,7 @@ def check_coredump(context, do_report=True):
             print("Some garbage in %s: %s" % (dump_dir, str(e)))
             continue
         if not is_dump_reported(dump_dir):
-            dump = nmci.run.command_output('echo backtrace | coredumpctl debug %d' % (pid))
+            dump = nmci.command_output('echo backtrace | coredumpctl debug %d' % (pid))
             embed_dump(context, dump_dir, dump, "COREDUMP", do_report)
 
 
@@ -263,23 +263,23 @@ def reset_usb_devices():
 
 
 def reinitialize_devices():
-    if nmci.run.command_code('systemctl is-active ModemManager  > /dev/null') != 0:
-        nmci.run.run('systemctl restart ModemManager')
+    if nmci.command_code('systemctl is-active ModemManager  > /dev/null') != 0:
+        nmci.run('systemctl restart ModemManager')
         timer = 40
-        while nmci.run.command_code("nmcli device |grep gsm > /dev/null") != 0:
+        while nmci.command_code("nmcli device |grep gsm > /dev/null") != 0:
             time.sleep(1)
             timer -= 1
             if timer == 0:
                 break
-    if nmci.run.command_code('nmcli d |grep gsm > /dev/null') != 0:
+    if nmci.command_code('nmcli d |grep gsm > /dev/null') != 0:
         print("---------------------------")
         print("reinitialize devices")
         nmci.lib.reset_usb_devices()
-        nmci.run.run('for i in $(ls /sys/bus/usb/devices/usb*/authorized); do echo 0 > $i; done')
-        nmci.run.run('for i in $(ls /sys/bus/usb/devices/usb*/authorized); do echo 1 > $i; done')
-        nmci.run.run('systemctl restart ModemManager')
+        nmci.run('for i in $(ls /sys/bus/usb/devices/usb*/authorized); do echo 0 > $i; done')
+        nmci.run('for i in $(ls /sys/bus/usb/devices/usb*/authorized); do echo 1 > $i; done')
+        nmci.run('systemctl restart ModemManager')
         timer = 80
-        while nmci.run.command_code("nmcli device |grep gsm > /dev/null") != 0:
+        while nmci.command_code("nmcli device |grep gsm > /dev/null") != 0:
             time.sleep(1)
             timer -= 1
             if timer == 0:
@@ -322,7 +322,7 @@ def delete_old_lock(dir, lock):
 
 def setup_libreswan(mode, dh_group, phase1_al="aes", phase2_al=None):
     print("setting up libreswan")
-    RC = nmci.run.command_code("MODE=%s sh prepare/libreswan.sh > /tmp/libreswan_setup.log" % (mode))
+    RC = nmci.command_code("MODE=%s sh prepare/libreswan.sh > /tmp/libreswan_setup.log" % (mode))
     if RC != 0:
         teardown_libreswan(None)
         assert False, "Libreswan setup failed"
@@ -331,32 +331,32 @@ def setup_libreswan(mode, dh_group, phase1_al="aes", phase2_al=None):
 def restore_connections():
     print("* recreate all connections")
     for X in range(0, 11):
-        nmci.run.run('nmcli con del testeth%s 2>&1 > /dev/null' % X)
-        nmci.run.run('nmcli connection add type ethernet con-name testeth%s ifname eth%s autoconnect no' % (X,X))
+        nmci.run('nmcli con del testeth%s 2>&1 > /dev/null' % X)
+        nmci.run('nmcli connection add type ethernet con-name testeth%s ifname eth%s autoconnect no' % (X,X))
     restore_testeth0()
 
 
 def manage_veths():
     if not os.path.isfile('/tmp/nm_newveth_configured'):
-        nmci.run.run('''echo 'ENV{ID_NET_DRIVER}=="veth", ENV{INTERFACE}=="eth[0-9]|eth[0-9]*[0-9]", ENV{NM_UNMANAGED}="0"' >/etc/udev/rules.d/88-veths.rules''')
-        nmci.run.run("udevadm control --reload-rules")
-        nmci.run.run("udevadm settle --timeout=5")
+        nmci.run('''echo 'ENV{ID_NET_DRIVER}=="veth", ENV{INTERFACE}=="eth[0-9]|eth[0-9]*[0-9]", ENV{NM_UNMANAGED}="0"' >/etc/udev/rules.d/88-veths.rules''')
+        nmci.run("udevadm control --reload-rules")
+        nmci.run("udevadm settle --timeout=5")
         time.sleep(1)
 
 
 def unmanage_veths():
-    nmci.run.run('rm -f /etc/udev/rules.d/88-veths.rules')
-    nmci.run.run('udevadm control --reload-rules')
-    nmci.run.run('udevadm settle --timeout=5')
+    nmci.run('rm -f /etc/udev/rules.d/88-veths.rules')
+    nmci.run('udevadm control --reload-rules')
+    nmci.run('udevadm settle --timeout=5')
     time.sleep(1)
 
 
 def teardown_libreswan(context):
-    nmci.run.run("echo '## TEARDOWN ##' >> /tmp/libreswan_setup.log")
-    nmci.run.run("sh prepare/libreswan.sh teardown >> /tmp/libreswan_setup.log")
+    nmci.run("echo '## TEARDOWN ##' >> /tmp/libreswan_setup.log")
+    nmci.run("sh prepare/libreswan.sh teardown >> /tmp/libreswan_setup.log")
     if context is not None:
         print("Attach Libreswan logs")
-        nmci.run.run("sudo journalctl -t pluto --no-pager -o cat %s > /tmp/journal-pluto.log" % context.log_cursor)
+        nmci.run("sudo journalctl -t pluto --no-pager -o cat %s > /tmp/journal-pluto.log" % context.log_cursor)
         journal_log = utf_only_open_read("/tmp/journal-pluto.log")
         setup_log = utf_only_open_read("/tmp/libreswan_setup.log")
         conf = utf_only_open_read("/opt/ipsec/connection.conf")
@@ -373,145 +373,145 @@ def teardown_testveth(context):
     if hasattr(context, 'testvethns'):
         for ns in context.testvethns:
             print("Removing the setup in %s namespace" % ns)
-            nmci.run.run('[ -f /tmp/%s.pid ] && ip netns exec %s kill -SIGCONT $(cat /tmp/%s.pid)' % (ns, ns, ns))
-            nmci.run.run('[ -f /tmp/%s.pid ] && kill $(cat /tmp/%s.pid)' % (ns, ns))
-            nmci.run.run('ip netns del %s' % ns)
-            nmci.run.run('ip link del %s' % ns.split('_')[0])
+            nmci.run('[ -f /tmp/%s.pid ] && ip netns exec %s kill -SIGCONT $(cat /tmp/%s.pid)' % (ns, ns, ns))
+            nmci.run('[ -f /tmp/%s.pid ] && kill $(cat /tmp/%s.pid)' % (ns, ns))
+            nmci.run('ip netns del %s' % ns)
+            nmci.run('ip link del %s' % ns.split('_')[0])
             device = ns.split('_')[0]
             print(device)
-            nmci.run.run('kill $(cat /var/run/dhclient-*%s.pid)' % device)
+            nmci.run('kill $(cat /var/run/dhclient-*%s.pid)' % device)
     unmanage_veths()
     reload_NM_service()
 
 
 def get_ethernet_devices():
-    devs = nmci.run.command_output("nmcli dev | grep ' ethernet' | awk '{print $1}'").strip()
+    devs = nmci.command_output("nmcli dev | grep ' ethernet' | awk '{print $1}'").strip()
     return devs.split('\n')
 
 
 def setup_strongswan():
     print("setting up strongswan")
-    RC = nmci.run.command_code("sh prepare/strongswan.sh")
+    RC = nmci.command_code("sh prepare/strongswan.sh")
     if RC != 0:
         teardown_strongswan()
         assert False, "Strongswan setup failed"
 
 
 def teardown_strongswan():
-    nmci.run.run("sh prepare/strongswan.sh teardown")
+    nmci.run("sh prepare/strongswan.sh teardown")
 
 
 def setup_racoon(mode, dh_group, phase1_al="aes", phase2_al=None):
     print("setting up racoon")
-    arch = nmci.run.command_output("uname -p").strip()
+    arch = nmci.command_output("uname -p").strip()
     wait_for_testeth0()
     if arch == "s390x":
-        nmci.run.run("[ -x /usr/sbin/racoon ] || yum -y install https://vbenes.fedorapeople.org/NM/ipsec-tools-0.8.2-1.el7.$(uname -p).rpm")
+        nmci.run("[ -x /usr/sbin/racoon ] || yum -y install https://vbenes.fedorapeople.org/NM/ipsec-tools-0.8.2-1.el7.$(uname -p).rpm")
     else:
         # Install under RHEL7 only
-        if nmci.run.command_code("grep -q Maipo /etc/redhat-release") == 0:
-            nmci.run.run("[ -f /etc/yum.repos.d/epel.repo ] || sudo rpm -i http://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm")
-        nmci.run.run("[ -x /usr/sbin/racoon ] || yum -y install ipsec-tools")
+        if nmci.command_code("grep -q Maipo /etc/redhat-release") == 0:
+            nmci.run("[ -f /etc/yum.repos.d/epel.repo ] || sudo rpm -i http://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm")
+        nmci.run("[ -x /usr/sbin/racoon ] || yum -y install ipsec-tools")
 
-    RC = nmci.run.command_code("sh prepare/racoon.sh %s %s %s" % (mode, dh_group, phase1_al))
+    RC = nmci.command_code("sh prepare/racoon.sh %s %s %s" % (mode, dh_group, phase1_al))
     if RC != 0:
         teardown_racoon()
         assert False, "Racoon setup failed"
 
 
 def teardown_racoon():
-    nmci.run.run("sh prepare/racoon.sh teardown")
+    nmci.run("sh prepare/racoon.sh teardown")
 
 
 def reset_hwaddr_nmcli(ifname):
     if not os.path.isfile('/tmp/nm_newveth_configured'):
-        hwaddr = nmci.run.command_output("ethtool -P %s" % ifname).split()[2]
-        nmci.run.run("ip link set %s address %s" % (ifname, hwaddr))
-    nmci.run.run("ip link set %s up" % (ifname))
+        hwaddr = nmci.command_output("ethtool -P %s" % ifname).split()[2]
+        nmci.run("ip link set %s address %s" % (ifname, hwaddr))
+    nmci.run("ip link set %s up" % (ifname))
 
 
 def setup_hostapd():
     print("setting up hostapd")
     wait_for_testeth0()
-    arch = nmci.run.command_output("uname -p").strip()
+    arch = nmci.command_output("uname -p").strip()
     if arch != "s390x":
         # Install under RHEL7 only
-        if nmci.run.command_code("grep -q Maipo /etc/redhat-release") == 0:
-            nmci.run.run("[ -f /etc/yum.repos.d/epel.repo ] || sudo rpm -i http://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm")
-        nmci.run.run("[ -x /usr/sbin/hostapd ] || (yum -y install hostapd; sleep 10)")
-    if nmci.run.command_code("sh prepare/hostapd_wired.sh tmp/8021x/certs") != 0:
-        nmci.run.run("sh prepare/hostapd_wired.sh teardown")
+        if nmci.command_code("grep -q Maipo /etc/redhat-release") == 0:
+            nmci.run("[ -f /etc/yum.repos.d/epel.repo ] || sudo rpm -i http://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm")
+        nmci.run("[ -x /usr/sbin/hostapd ] || (yum -y install hostapd; sleep 10)")
+    if nmci.command_code("sh prepare/hostapd_wired.sh tmp/8021x/certs") != 0:
+        nmci.run("sh prepare/hostapd_wired.sh teardown")
         assert False, "hostapd setup failed"
 
 
 def wifi_rescan():
     print("Commencing wireless network rescan")
-    out = nmci.run.command_output("time sudo nmcli dev wifi list --rescan yes").strip()
+    out = nmci.command_output("time sudo nmcli dev wifi list --rescan yes").strip()
     while 'wpa2-psk' not in out:
         time.sleep(5)
         print("* still not seeing wpa2-psk")
-        out = nmci.run.command_output("time sudo nmcli dev wifi list --rescan yes").strip()
+        out = nmci.command_output("time sudo nmcli dev wifi list --rescan yes").strip()
     print(out)
 
 
 def setup_hostapd_wireless():
     print("setting up hostapd wireless")
     wait_for_testeth0()
-    arch = nmci.run.command_output("uname -p").strip()
+    arch = nmci.command_output("uname -p").strip()
     if arch != "s390x":
         # Install under RHEL7 only
-        if nmci.run.command_code("grep -q Maipo /etc/redhat-release") == 0:
-            nmci.run.run("[ -f /etc/yum.repos.d/epel.repo ] || sudo rpm -i http://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm")
-        nmci.run.run("[ -x /usr/sbin/hostapd ] || (yum -y install hostapd; sleep 10)")
-    if nmci.run.command_code("sh prepare/hostapd_wireless.sh tmp/8021x/certs namespace") != 0:
-        nmci.run.run("sh prepare/hostapd_wireless.sh teardown")
+        if nmci.command_code("grep -q Maipo /etc/redhat-release") == 0:
+            nmci.run("[ -f /etc/yum.repos.d/epel.repo ] || sudo rpm -i http://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm")
+        nmci.run("[ -x /usr/sbin/hostapd ] || (yum -y install hostapd; sleep 10)")
+    if nmci.command_code("sh prepare/hostapd_wireless.sh tmp/8021x/certs namespace") != 0:
+        nmci.run("sh prepare/hostapd_wireless.sh teardown")
         assert False, "hostapd_wireless setup failed"
     if not os.path.isfile('/tmp/wireless_hostapd_check.txt'):
         wifi_rescan()
 
 
 def teardown_hostapd_wireless():
-    nmci.run.run("sh prepare/hostapd_wireless.sh teardown")
+    nmci.run("sh prepare/hostapd_wireless.sh teardown")
 
 
 def teardown_hostapd():
-    nmci.run.run("sh prepare/hostapd_wired.sh teardown")
+    nmci.run("sh prepare/hostapd_wired.sh teardown")
     wait_for_testeth0()
 
 
 def restore_testeth0():
     print("* restoring testeth0")
-    nmci.run.run("nmcli con delete testeth0 2>&1 > /dev/null")
+    nmci.run("nmcli con delete testeth0 2>&1 > /dev/null")
 
     if not os.path.isfile('/tmp/nm_plugin_keyfiles'):
         # defaults to ifcfg files (RHELs)
-        nmci.run.run("yes 2>/dev/null | cp -rf /tmp/testeth0 /etc/sysconfig/network-scripts/ifcfg-testeth0")
+        nmci.run("yes 2>/dev/null | cp -rf /tmp/testeth0 /etc/sysconfig/network-scripts/ifcfg-testeth0")
     else:
         # defaults to keyfiles (F33+)
-        nmci.run.run("yes 2>/dev/null | cp -rf /tmp/testeth0 /etc/NetworkManager/system-connections/testeth0.nmconnection")
+        nmci.run("yes 2>/dev/null | cp -rf /tmp/testeth0 /etc/NetworkManager/system-connections/testeth0.nmconnection")
 
     time.sleep(1)
-    nmci.run.run("nmcli con reload")
+    nmci.run("nmcli con reload")
     time.sleep(1)
-    nmci.run.run("nmcli con up testeth0")
+    nmci.run("nmcli con up testeth0")
     time.sleep(2)
 
 
 def wait_for_testeth0():
     print("* waiting for testeth0 to connect")
-    if nmci.run.command_code("nmcli connection |grep -q testeth0") != 0:
+    if nmci.command_code("nmcli connection |grep -q testeth0") != 0:
         restore_testeth0()
 
-    if nmci.run.command_code("nmcli con show -a |grep -q testeth0") != 0:
+    if nmci.command_code("nmcli con show -a |grep -q testeth0") != 0:
         print("** we don't have testeth0 activat{ing,ed}, let's do it now")
-        if nmci.run.command_code("nmcli device show eth0 |grep -q '(connected)'") == 0:
+        if nmci.command_code("nmcli device show eth0 |grep -q '(connected)'") == 0:
             print("** device eth0 is connected, let's disconnect it first")
-            nmci.run.run("nmcli dev disconnect eth0")
-        nmci.run.run("nmcli con up testeth0")
+            nmci.run("nmcli dev disconnect eth0")
+        nmci.run("nmcli con up testeth0")
 
     counter = 0
     # We need to check for all 3 items to have working connection out
-    while nmci.run.command_code("nmcli connection show testeth0 |grep -qzE 'IP4.ADDRESS.*IP4.GATEWAY.*IP4.DNS'") != 0:
+    while nmci.command_code("nmcli connection show testeth0 |grep -qzE 'IP4.ADDRESS.*IP4.GATEWAY.*IP4.DNS'") != 0:
         time.sleep(1)
         print("** %s: we don't have IPv4 (address, default route or dns) complete" % counter)
         counter += 1
@@ -524,19 +524,19 @@ def wait_for_testeth0():
 
 def reload_NM_service():
     time.sleep(0.5)
-    nmci.run.run("pkill -HUP NetworkManager")
+    nmci.run("pkill -HUP NetworkManager")
     time.sleep(1)
 
 
 def restart_NM_service():
-    nmci.run.run("systemctl reset-failed NetworkManager.service ; systemctl restart NetworkManager.service")
+    nmci.run("systemctl reset-failed NetworkManager.service ; systemctl restart NetworkManager.service")
 
 
 def reset_hwaddr_nmtui(ifname):
     try:
         # This can fail in case we don't have device
-        hwaddr = nmci.run.check_output(None, "ethtool -P %s" % ifname).split()[2]
-        nmci.run.run("ip link set %s address %s" % (ifname, hwaddr))
+        hwaddr = nmci.check_output(None, "ethtool -P %s" % ifname).split()[2]
+        nmci.run("ip link set %s address %s" % (ifname, hwaddr))
     except:
         pass
 
@@ -584,7 +584,7 @@ def find_modem():
         '19d2:2000': 'ZTE MF627'
     }
 
-    output = nmci.run.command_output('lsusb')
+    output = nmci.command_output('lsusb')
     output = output.splitlines()
 
     if output:
@@ -608,7 +608,7 @@ def get_modem_info():
     output = modem_index = modem_info = sim_index = sim_info = None
 
     # Get a list of modems from ModemManager.
-    output, _, code = nmci.run.run('mmcli -L')
+    output, _, code = nmci.run('mmcli -L')
     if code != 0:
         print('Cannot get modem info from ModemManager.'.format(modem_index))
         return None
@@ -618,7 +618,7 @@ def get_modem_info():
     if mo:
         modem_index = mo.groups()[0]
         cmd = 'mmcli -m {}'.format(modem_index)
-        modem_info, _, code = nmci.run.run(cmd)
+        modem_info, _, code = nmci.run(cmd)
         if code != 0:
             print('Cannot get modem info at index {}.'.format(modem_index))
             return None
@@ -632,7 +632,7 @@ def get_modem_info():
         # Get SIM card info from ModemManager.
         sim_index = mo.groups()[0]
         cmd = 'mmcli --sim {}'.format(sim_index)
-        sim_info, _, code = nmci.run.run(cmd)
+        sim_info, _, code = nmci.run(cmd)
         if code != 0:
             print('Cannot get SIM card info at index {}.'.format(sim_index))
 

@@ -5,9 +5,9 @@ import time
 import signal
 import traceback
 
+import nmci
 import nmci.lib
 import nmci.tags
-import nmci.run
 
 TIMER = 0.5
 
@@ -45,13 +45,13 @@ def before_all(context):
         return False
 
     def _run(command, *a, **kw):
-        out, err, code = nmci.run.run(command, *a, **kw)
+        out, err, code = nmci.run(command, *a, **kw)
         command_calls = getattr(context, "command_calls", [])
         command_calls.append((command, code, out, err))
         return out, err, code
 
     def _command_output(command, *a, **kw):
-        out, err, code = nmci.run.run(command, *a, **kw)
+        out, err, code = nmci.run(command, *a, **kw)
         assert code == 0, "command '%s' exited with code %d\noutput:\n%s\nstderr:\n%s" \
             % (command, code, out, err)
         command_calls = getattr(context, "command_calls", [])
@@ -59,7 +59,7 @@ def before_all(context):
         return out
 
     def _command_output_err(command, *a, **kw):
-        out, err, code = nmci.run.run(command, *a, **kw)
+        out, err, code = nmci.run(command, *a, **kw)
         assert code == 0, "command '%s' exited with code %d\noutput:\n%s\nstderr:\n%s" \
             % (command, code, out, err)
         command_calls = getattr(context, "command_calls", [])
@@ -67,7 +67,7 @@ def before_all(context):
         return out, err
 
     def _command_code(command, *a, **kw):
-        out, err, code = nmci.run.run(command, *a, **kw)
+        out, err, code = nmci.run(command, *a, **kw)
         command_calls = getattr(context, "command_calls", [])
         command_calls.append((command, code, out, err))
         return code
@@ -85,7 +85,7 @@ def before_all(context):
         """
 
         # Kill initial setup
-        nmci.run.run("sudo pkill nmtui")
+        nmci.run("sudo pkill nmtui")
 
         # Store scenario start cursor for session logs
         context.log_cursor = nmci.lib.new_log_cursor()
@@ -98,7 +98,7 @@ def before_scenario(context, scenario):
     context.nm_pid = nmci.lib.nm_pid()
     context.crashed_step = False
     context.log_cursor = ""
-    context.arch = nmci.run.command_output("uname -p").strip()
+    context.arch = nmci.command_output("uname -p").strip()
     context.IS_NMTUI = IS_NMTUI
 
     if IS_NMTUI:
@@ -115,11 +115,11 @@ def before_scenario(context, scenario):
     else:
         if not os.path.isfile('/tmp/nm_wifi_configured') \
                 and not os.path.isfile('/tmp/nm_dcb_inf_wol_sriov_configured'):
-            if nmci.run.command_code("nmcli device |grep testeth0 |grep ' connected'") != 0:
-                nmci.run.run("sudo nmcli connection modify testeth0 ipv4.may-fail no")
-                nmci.run.run("sudo nmcli connection up id testeth0")
+            if nmci.command_code("nmcli device |grep testeth0 |grep ' connected'") != 0:
+                nmci.run("sudo nmcli connection modify testeth0 ipv4.may-fail no")
+                nmci.run("sudo nmcli connection up id testeth0")
                 for attempt in range(0, 10):
-                    if nmci.run.command_code("nmcli device |grep testeth0 |grep ' connected'") == 0:
+                    if nmci.command_code("nmcli device |grep testeth0 |grep ' connected'") == 0:
                         break
                     time.sleep(1)
 
@@ -159,9 +159,9 @@ def before_scenario(context, scenario):
         context.log.write(
             "NetworkManager memory consumption before: %d KiB\n" % nmci.lib.nm_size_kb())
         if os.path.isfile("/etc/systemd/system/NetworkManager.service") \
-                and nmci.run.command_code(
+                and nmci.command_code(
                     "grep -q valgrind /etc/systemd/system/NetworkManager.service") == 0:
-            nmci.run.run("LOGNAME=root HOSTNAME=localhost gdb /usr/sbin/NetworkManager "
+            nmci.run("LOGNAME=root HOSTNAME=localhost gdb /usr/sbin/NetworkManager "
                          " -ex 'target remote | vgdb' -ex 'monitor leak_check summary' -batch",
                          stdout=context.log, stderr=context.log)
 
@@ -239,7 +239,7 @@ def after_scenario(context, scenario):
                           nmci.lib.utf_only_open_read('/tmp/tui-screen.log'),
                           caption="TUI")
         # Stop TUI
-        nmci.run.run("sudo killall nmtui &> /dev/null")
+        nmci.run("sudo killall nmtui &> /dev/null")
         os.remove('/tmp/nmtui.out')
         # Attach journalctl logs if failed
         if scenario.status == 'failed' and hasattr(context, "embed"):
@@ -287,10 +287,10 @@ def after_scenario(context, scenario):
             context.log.write(
                 "NetworkManager memory consumption after: %d KiB\n" % nmci.lib.nm_size_kb())
             if os.path.isfile("/etc/systemd/system/NetworkManager.service") \
-                    and nmci.run.command_code(
+                    and nmci.command_code(
                         "grep -q valgrind /etc/systemd/system/NetworkManager.service") == 0:
                 time.sleep(3)
-                nmci.run.run(
+                nmci.run(
                     "LOGNAME=root HOSTNAME=localhost gdb /usr/sbin/NetworkManager "
                     " -ex 'target remote | vgdb' -ex 'monitor leak_check summary' -batch",
                     stdout=context.log, stderr=context.log)
