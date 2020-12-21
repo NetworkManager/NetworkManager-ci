@@ -104,7 +104,7 @@ install_fedora_packages () {
     # Dnf more deps
     dnf -4 -y install git nmap-ncat hostapd tcpreplay python3-netaddr dhcp-relay iw net-tools \
                       psmisc firewalld dhcp-server ethtool python3-dbus python3-gobject dnsmasq \
-                      tcpdump wireshark-cli tc
+                      tcpdump wireshark-cli tc --skip-broken
 
     install_behave
 
