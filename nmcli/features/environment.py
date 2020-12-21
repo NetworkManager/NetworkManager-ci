@@ -225,8 +225,12 @@ def after_step(context, step):
                 context.crashed_step = step.name
 
 
-
 def after_scenario(context, scenario):
+    nm_pid_after = nmci.lib.nm_pid()
+    if not nm_pid_after:
+        print("Starting NM as it was found stopped")
+        nmci.lib.restart_NM_service()
+
     if IS_NMTUI:
         # record the network status after the test
         if os.path.isfile('/tmp/tui-screen.log'):
@@ -246,7 +250,6 @@ def after_scenario(context, scenario):
             logs = nmci.lib.NM_log(context.log_cursor) or "NM log is empty!"
             context.embed('text/plain', logs, caption="NM")
     else:
-        nm_pid_after = nmci.lib.nm_pid()
         print(("NetworkManager process id after: %s (was %s)" % (nm_pid_after, context.nm_pid)))
 
         if scenario.status == 'failed':
