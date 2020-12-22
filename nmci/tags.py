@@ -106,7 +106,7 @@ _register_tag("gsm_sim", gsm_sim_bs, gsm_sim_as)
 
 def not_with_systemd_resolved_bs(ctx, scen):
     print("---------------------------")
-    if nmci.run("systemctl is-active systemd-resolved") == 0:
+    if nmci.command_code("systemctl is-active systemd-resolved") == 0:
         sys.exit(77)
 
 
