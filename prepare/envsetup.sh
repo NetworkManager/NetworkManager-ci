@@ -182,13 +182,13 @@ install_el8_packages () {
     # Dnf more deps
     dnf -4 -y install git python3-netaddr dhcp-relay iw net-tools psmisc firewalld dhcp-server ethtool \
                           python3-dbus python3-gobject dnsmasq tcpdump wireshark-cli file iproute-tc \
-                          --skip-broken
+                          openvpn --skip-broken
 
     dnf -4 -y install https://kojipkgs.fedoraproject.org//packages/tcpreplay/4.2.5/4.fc28/$(arch)/tcpreplay-4.2.5-4.fc28.$(arch).rpm
     install_behave
 
     # Install vpn dependencies
-    dnf -4 -y install https://kojipkgs.fedoraproject.org//packages/NetworkManager-openvpn/1.8.4/1.fc28/$(arch)/NetworkManager-openvpn-1.8.4-1.fc28.$(arch).rpm https://kojipkgs.fedoraproject.org//packages/openvpn/2.4.6/1.fc28/$(arch)/openvpn-2.4.6-1.fc28.$(arch).rpm https://kojipkgs.fedoraproject.org//packages/ipsec-tools/0.8.2/10.fc28/$(arch)/ipsec-tools-0.8.2-10.fc28.$(arch).rpm https://kojipkgs.fedoraproject.org//packages/pkcs11-helper/1.22/5.fc28/$(arch)/pkcs11-helper-1.22-5.fc28.$(arch).rpm
+    dnf -4 -y install https://kojipkgs.fedoraproject.org//packages/ipsec-tools/0.8.2/10.fc28/$(arch)/ipsec-tools-0.8.2-10.fc28.$(arch).rpm https://kojipkgs.fedoraproject.org//packages/pkcs11-helper/1.22/5.fc28/$(arch)/pkcs11-helper-1.22-5.fc28.$(arch).rpm
 
     # Install various NM dependencies
     dnf -4 -y remove NetworkManager-config-connectivity-fedora NetworkManager-config-connectivity-redhat
@@ -287,7 +287,7 @@ install_el7_packages () {
     fi
 
     yum -y install git iw net-tools wireshark psmisc bridge-utils firewalld dhcp ethtool python36-dbus \
-                   python36-gobject dnsmasq NetworkManager-vpnc tc
+                   python36-gobject dnsmasq NetworkManager-vpnc iproute-tc openvpn
 
     yum -y install https://kojipkgs.fedoraproject.org//packages/hostapd/2.8/1.el7/$(arch)/hostapd-2.8-1.el7.$(arch).rpm
 

@@ -4,6 +4,7 @@ import fcntl
 import time
 import re
 import nmci
+import glob
 
 
 def nm_pid():
@@ -328,6 +329,54 @@ def setup_libreswan(mode, dh_group, phase1_al="aes", phase2_al=None):
         assert False, "Libreswan setup failed"
 
 
+def setup_openvpn(tags):
+    print ("* writing openvpn config")
+    path = "%s/contrib/openvpn" %os.getcwd()
+    samples = glob.glob(os.path.abspath(path))[0]
+    with open("/etc/openvpn/trest-server.conf", "w") as cfg:
+        cfg.write('# OpenVPN configuration for client testing')
+        cfg.write("\n" + 'mode server')
+        cfg.write("\n" + 'tls-server')
+        cfg.write("\n" + 'port 1194')
+        cfg.write("\n" + 'proto udp')
+        cfg.write("\n" + 'dev tun')
+        cfg.write("\n" + 'persist-key')
+        cfg.write("\n" + 'persist-tun')
+        cfg.write("\n" + 'ca %s/sample-keys/ca.crt' % samples)
+        cfg.write("\n" + 'cert %s/sample-keys/server.crt' % samples)
+        cfg.write("\n" + 'key %s/sample-keys/server.key' % samples)
+        cfg.write("\n" + 'dh %s/sample-keys/dh2048.pem' % samples)
+        if 'openvpn6' not in tags:
+            cfg.write("\n" + 'server 172.31.70.0 255.255.255.0')
+            cfg.write("\n" + 'push "dhcp-option DNS 172.31.70.53"')
+            cfg.write("\n" + 'push "dhcp-option DOMAIN vpn.domain"')
+        if 'openvpn4' not in tags:
+            cfg.write("\n" + 'tun-ipv6')
+            cfg.write("\n" + 'push tun-ipv6')
+            cfg.write("\n" + 'ifconfig-ipv6 2001:db8:666:dead::1/64 2001:db8:666:dead::1')
+            # Not working for newer Fedoras (rhbz1909741)
+            # cfg.write("\n" + 'ifconfig-ipv6-pool 2001:db8:666:dead::/64')
+            cfg.write("\n" + 'push "ifconfig-ipv6 2001:db8:666:dead::2/64 2001:db8:666:dead::1"')
+            cfg.write("\n" + 'push "route-ipv6 2001:db8:666:dead::/64 2001:db8:666:dead::1"')
+        cfg.write("\n")
+    time.sleep(1)
+    openvpn_log = open("/tmp/openvpn.log", "w")
+    print ("* starting openvpn server")
+    ovpn_proc = nmci.Popen("sudo openvpn /etc/openvpn/trest-server.conf",
+                                   stdout=openvpn_log)
+
+    time.sleep(1)
+    counter = 1
+    while nmci.command_code("grep 'Initialization Sequence Completed' /tmp/openvpn.log ") != 0:
+        print (" ** waiting %ss", counter )
+        time.sleep(1)
+        counter += 1
+        if counter == 5:
+            break
+    print (" ** Done" )
+    return openvpn_log, ovpn_proc
+
+
 def restore_connections():
     print("* recreate all connections")
     for X in range(0, 11):
@@ -503,9 +552,9 @@ def wait_for_testeth0():
         restore_testeth0()
 
     if nmci.command_code("nmcli con show -a |grep -q testeth0") != 0:
-        print("** we don't have testeth0 activat{ing,ed}, let's do it now")
+        print(" ** we don't have testeth0 activat{ing,ed}, let's do it now")
         if nmci.command_code("nmcli device show eth0 |grep -q '(connected)'") == 0:
-            print("** device eth0 is connected, let's disconnect it first")
+            print(" ** device eth0 is connected, let's disconnect it first")
             nmci.run("nmcli dev disconnect eth0")
         nmci.run("nmcli con up testeth0")
 
@@ -513,13 +562,13 @@ def wait_for_testeth0():
     # We need to check for all 3 items to have working connection out
     while nmci.command_code("nmcli connection show testeth0 |grep -qzE 'IP4.ADDRESS.*IP4.GATEWAY.*IP4.DNS'") != 0:
         time.sleep(1)
-        print("** %s: we don't have IPv4 (address, default route or dns) complete" % counter)
+        print(" ** %s: we don't have IPv4 (address, default route or dns) complete" % counter)
         counter += 1
         if counter == 20:
             restore_testeth0()
         if counter == 40:
             assert False, "Testeth0 cannot be upped..this is wrong"
-    print("** we do have IPv4 complete")
+    print(" ** we do have IPv4 complete")
 
 
 def reload_NM_service():

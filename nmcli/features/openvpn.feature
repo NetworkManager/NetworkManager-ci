@@ -65,9 +65,11 @@
 
     @rhbz1505886
     @ver+=1.0.8
-    @openvpn @openvpn6 @eth0
+    @openvpn @openvpn6 @eth10_disconnect
     @openvpn_ipv6_neverdefault
     Scenario: nmcli - openvpn - add neverdefault IPv6 connection
+    * Delete connection "testeth0"
+    * Bring "up" connection "testeth10"
     * Add a connection named "openvpn" for device "\*" to "openvpn" VPN
     * Use certificate "sample-keys/client.crt" with key "sample-keys/client.key" and authority "sample-keys/ca.crt" for gateway "127.0.0.1" on OpenVPN connection "openvpn"
     * Modify connection "openvpn" changing options "ipv6.never-default yes"
@@ -76,7 +78,7 @@
     Then "VPN.VPN-STATE:.*VPN connected" is visible with command "nmcli c show openvpn"
     Then "IP6.ADDRESS.*2001:db8:666:dead::2/64" is visible with command "nmcli c show openvpn"
     Then "IP4.ADDRESS" is not visible with command "nmcli c show openvpn"
-     And "default dev tun" is not visible with command "ip -6 r s default | grep -v eth0"
+     And "default" is not visible with command "ip -6 r s default | grep -v eth10"
 
 
     @rhbz1267004
