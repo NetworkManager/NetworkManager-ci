@@ -390,8 +390,12 @@ testmapper:
         feature: team
     - remove_all_slaves:
         feature: team
+    #- team_restart_persistence:
+    #    feature: team
     - remove_one_slave:
         feature: team
+    #- change_slave_type_and_master:
+    #    feature: team
     - remove_active_team_profile:
         feature: team
     - disconnect_active_team:
@@ -426,6 +430,10 @@ testmapper:
     - config_lacp:
         feature: team
         tags: gate
+    #- config_invalid1:
+    #    feature: team
+    #- config_invalid2:
+    #    feature: team
     - config_invalid3:
         feature: team
     - remove_config:
@@ -883,8 +891,12 @@ testmapper:
     - dhcp4_outages_in_various_situation:
         feature: ipv4
         timeout: 20m
+    #- dhcp_change_pool:
+    #    feature: ipv4
     - manual_routes_removed_when_never-default_no:
         feature: ipv4
+    #- ipv4_remove_default_route_for_no_carrier:
+    #    feature: ipv4
     - ipv4_dad:
         feature: ipv4
         tags: gate
@@ -1056,6 +1068,8 @@ testmapper:
         feature: vlan
     - vxlan_libnm_shows_port_numbers:
         feature: vlan
+    #- vxlan_dbus_shows_port_numbers:
+    #    feature: vlan
     - vxlan_do_not_up_if_no_master:
         feature: vlan
     - vrf_one_address_two_devices:
@@ -1067,6 +1081,8 @@ testmapper:
         feature: vrf
     - vrf_restart_persistence:
         feature: vrf
+    #- vrf_external:
+    #    feature: vrf
     - ethernet_default_initramfs_connection:
         feature: ethernet
     - ethernet_create_with_editor:
@@ -1159,7 +1175,9 @@ testmapper:
         tags: gate
     - 8021x_auto_auth_retry_with_backup_network:
         feature: ethernet
-    - preserve_8021x_certs:
+    #- 8021x_auto_auth_retry:
+    #    feature: ethernet
+    - preserve_8021x_certs_ethernet:
         feature: ethernet
     - preserve_8021x_leap_con:
         feature: ethernet
@@ -1250,10 +1268,10 @@ testmapper:
         feature: dracut
     - dracut_legacy_iSCSI_ibft_table:
         feature: dracut
-    - dracut_clean:
+    - dracut_teardown_nmcli:
         feature: dracut
         tags: gate
-    - logging:
+    - nmcli_logging:
         feature: general
     - reduce_logging:
         feature: general
@@ -1361,6 +1379,8 @@ testmapper:
         feature: general
     - ctc_device_recognition:
         feature: general
+    #- connect_to_slow_router:
+    #    feature: general
     - nmcli_general_wait_for_carrier_on_new_device_request:
         feature: general
         tags: gate
@@ -1421,16 +1441,16 @@ testmapper:
     - insufficient_perms_connection_up:
         feature: general
         tags: gate
-    - device_connect:
+    - nmcli_device_connect:
         feature: general
         tags: gate
-    - device_reapply_routes:
+    - nmcli_device_reapply_routes:
         feature: general
         tags: gate
-    - device_reapply_all:
+    - nmcli_device_reapply_all:
         feature: general
         tags: gate
-    - device_connect_no_profile:
+    - nmcli_device_connect_no_profile:
         feature: general
         tags: gate
     - nmcli_device_delete:
@@ -1481,7 +1501,7 @@ testmapper:
         tags: gate libnl3
     - macsec_set_mtu_from_parent:
         feature: general
-    - non_utf_device:
+    - dummy_non_utf_device:
         feature: general
     - stable_mem_consumption:
         feature: general
@@ -1629,6 +1649,8 @@ testmapper:
         feature: ovs
     - nmcli_remove_openvswitch_ports_and_master_bridge_configuration:
         feature: ovs
+    #- nmcli_remove_openvswitch_master_bridge_configuration_only:
+    #    feature: ovs
     - nmcli_reconnect_openvswitch_vlan_configuration:
         feature: ovs
     - NM_reboot_openvswitch_vlan_configuration:
@@ -1729,6 +1751,8 @@ testmapper:
         feature: strongswan
     - strongswan_start_as_secondary:
         feature: strongswan
+    #- vpn_add_profile:
+    #    feature: vpn
     - vpn_describe:
         feature: vpn
     - multiple_vpn_connections:
@@ -1774,7 +1798,7 @@ testmapper:
         feature: connection
     - connection_help:
         feature: connection
-    - device_autocompletion:
+    - nmcli_device_autocompletion:
         feature: connection
     - connection_names_autocompletion:
         feature: connection
@@ -1811,6 +1835,8 @@ testmapper:
         feature: connection
     - connection_autoconnect_yes_without_immediate_effects:
         feature: connection
+    #- connection_autoconnect_warning:
+    #    feature: connection
     - ifcfg_parse_options_with_comment:
         feature: connection
     - ifcfg_compliant_with_kickstart:
@@ -1857,7 +1883,7 @@ testmapper:
         feature: connection
     - display_allowed_values:
         feature: connection
-    - device_reapply:
+    - nmcli_device_reapply:
         feature: connection
     - firewall_zones_restart_persistence:
         feature: connection
@@ -1928,7 +1954,7 @@ testmapper:
         feature: tc
     - simwifi_p2p_connect:
         feature: wifi_hwsim
-    - simwifi_open:
+    - simwifi_open_connect:
         feature: wifi_hwsim
     - simwifi_wep_ask_passwd:
         feature: wifi_hwsim
@@ -3119,6 +3145,8 @@ testmapper:
         feature: sriov
     - sriov_con_drv_add_VF_vlan:
         feature: sriov
+    #- sriov_con_drv_add_VF_trust_on:
+    #    feature: sriov
     - sriov_con_drv_add_VF_trust_off:
         feature: sriov
     - sriov_con_drv_add_VF_spoof_off:

@@ -494,7 +494,7 @@ Feature: WIFI TUI tests
     Then ".*testingpassword.*" is visible on screen
 
 
-    @bz1132612
+    @rhbz1132612
     @fedoraver+=32
     @simwifi
     @nmtui_simwifi_connect_to_network_after_dismissal

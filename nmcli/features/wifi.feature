@@ -1,4 +1,3 @@
-@testplan
 Feature: nmcli - wifi
 
     # Please do use tags as follows:
@@ -785,23 +784,23 @@ Feature: nmcli - wifi
     Then "qe-wpa2-enterprise" is visible with command "iw dev wlan0 link"
     Then "\*\s+qe-wpa2-enterprise" is visible with command "nmcli -f IN-USE,SSID device wifi list"
 
-    @wifi @wireless_certs
-    @nmcli_wifisec_configure_and_connect_wep_leap_profile
-    Scenario: nmcli - wifi-sec - configure and connect WEP LEAP profile
-    * Add a new connection of type "wifi" and options "ifname wlan0 con-name qe-wep-enterprise-cisco autoconnect off ssid qe-wep-enterprise-cisco"
-    * Check ifcfg-name file created for connection "qe-wep-enterprise-cisco"
-    * Open editor for connection "qe-wep-enterprise-cisco"
-    * Set a property named "802-11-wireless-security.key-mgmt" to "ieee8021x" in editor
-    * Set a property named "802-11-wireless-security.auth-alg" to "leap" in editor
-    * Set a property named "802-11-wireless-security.leap-username" to "Bill Smith" in editor
-    * Set a property named "802-11-wireless-security.leap-password" to "testing123" in editor
-    * Save in editor
-    * No error appeared in editor
-    * Check value saved message showed in editor
-    * Quit editor
-    * Bring up connection "qe-wep-enterprise-cisco"
-    Then "qe-wep-enterprise-cisco" is visible with command "iw dev wlan0 link"
-    Then "\*\s+qe-wep-enterprise-cisco" is visible with command "nmcli -f IN-USE,SSID device wifi list"
+#    @wifi @wireless_certs
+#    @nmcli_wifisec_configure_and_connect_wep_leap_profile
+#    Scenario: nmcli - wifi-sec - configure and connect WEP LEAP profile
+#    * Add a new connection of type "wifi" and options "ifname wlan0 con-name qe-wep-enterprise-cisco autoconnect off ssid qe-wep-enterprise-cisco"
+#    * Check ifcfg-name file created for connection "qe-wep-enterprise-cisco"
+#    * Open editor for connection "qe-wep-enterprise-cisco"
+#    * Set a property named "802-11-wireless-security.key-mgmt" to "ieee8021x" in editor
+#    * Set a property named "802-11-wireless-security.auth-alg" to "leap" in editor
+#    * Set a property named "802-11-wireless-security.leap-username" to "Bill Smith" in editor
+#    * Set a property named "802-11-wireless-security.leap-password" to "testing123" in editor
+#    * Save in editor
+#    * No error appeared in editor
+#    * Check value saved message showed in editor
+#    * Quit editor
+#    * Bring up connection "qe-wep-enterprise-cisco"
+#    Then "qe-wep-enterprise-cisco" is visible with command "iw dev wlan0 link"
+#    Then "\*\s+qe-wep-enterprise-cisco" is visible with command "nmcli -f IN-USE,SSID device wifi list"
 
 
     @wifi
@@ -1064,24 +1063,24 @@ Feature: nmcli - wifi
     Then "\*\s+qe-wpa2-psk" is visible with command "nmcli -f IN-USE,SSID device wifi list"
 
 
-    @wifi
-    @nmcli_wifisec_pairwise_tkip
-    Scenario: nmcli - wifi-sec - pairwise - tkip
-    * Add a new connection of type "wifi" and options "ifname wlan0 con-name qe-wpa1-psk autoconnect off ssid qe-wpa1-psk"
-    * Check ifcfg-name file created for connection "qe-wpa1-psk"
-    * Open editor for connection "qe-wpa1-psk"
-    * Set a property named "802-11-wireless-security.key-mgmt" to "wpa-psk" in editor
-    * Set a property named "802-11-wireless-security.psk" to "over the river and through the woods" in editor
-    * Set a property named "802-11-wireless-security.pairwise" to "tkip" in editor
-    * Save in editor
-    * No error appeared in editor
-    * Check value saved message showed in editor
-    * Quit editor
-    * Start following journal
-    * Bring up connection "qe-wpa1-psk"
-    Then Look for "added 'pairwise' value 'TKIP'" in journal
-    Then "qe-wpa1-psk" is visible with command "iw dev wlan0 link"
-    Then "\*\s+qe-wpa1-psk" is visible with command "nmcli -f IN-USE,SSID device wifi list"
+#    @wifi
+#    @nmcli_wifisec_pairwise_tkip
+#    Scenario: nmcli - wifi-sec - pairwise - tkip
+#    * Add a new connection of type "wifi" and options "ifname wlan0 con-name qe-wpa1-psk autoconnect off ssid qe-wpa1-psk"
+#    * Check ifcfg-name file created for connection "qe-wpa1-psk"
+#    * Open editor for connection "qe-wpa1-psk"
+#    * Set a property named "802-11-wireless-security.key-mgmt" to "wpa-psk" in editor
+#    * Set a property named "802-11-wireless-security.psk" to "over the river and through the woods" in editor
+#    * Set a property named "802-11-wireless-security.pairwise" to "tkip" in editor
+#    * Save in editor
+#    * No error appeared in editor
+#    * Check value saved message showed in editor
+#    * Quit editor
+#    * Start following journal
+#    * Bring up connection "qe-wpa1-psk"
+#    Then Look for "added 'pairwise' value 'TKIP'" in journal
+#    Then "qe-wpa1-psk" is visible with command "iw dev wlan0 link"
+#    Then "\*\s+qe-wpa1-psk" is visible with command "nmcli -f IN-USE,SSID device wifi list"
 
 
     @wifi
@@ -1123,24 +1122,24 @@ Feature: nmcli - wifi
     Then "\*\s+qe-wpa2-psk" is visible with command "nmcli -f IN-USE,SSID device wifi list"
 
 
-    @wifi
-    @nmcli_wifisec_group_tkip
-    Scenario: nmcli - wifi-sec - group - tkip
-    * Add a new connection of type "wifi" and options "ifname wlan0 con-name qe-wpa1-psk autoconnect off ssid qe-wpa1-psk"
-    * Check ifcfg-name file created for connection "qe-wpa1-psk"
-    * Open editor for connection "qe-wpa1-psk"
-    * Set a property named "802-11-wireless-security.key-mgmt" to "wpa-psk" in editor
-    * Set a property named "802-11-wireless-security.psk" to "over the river and through the woods" in editor
-    * Set a property named "802-11-wireless-security.group" to "tkip" in editor
-    * Save in editor
-    * No error appeared in editor
-    * Check value saved message showed in editor
-    * Quit editor
-    * Start following journal
-    * Bring up connection "qe-wpa1-psk"
-    Then Look for "added 'group' value 'TKIP'" in journal
-    Then "qe-wpa1-psk" is visible with command "iw dev wlan0 link"
-    Then "\*\s+qe-wpa1-psk" is visible with command "nmcli -f IN-USE,SSID device wifi list"
+#    @wifi
+#    @nmcli_wifisec_group_tkip
+#    Scenario: nmcli - wifi-sec - group - tkip
+#    * Add a new connection of type "wifi" and options "ifname wlan0 con-name qe-wpa1-psk autoconnect off ssid qe-wpa1-psk"
+#    * Check ifcfg-name file created for connection "qe-wpa1-psk"
+#    * Open editor for connection "qe-wpa1-psk"
+#    * Set a property named "802-11-wireless-security.key-mgmt" to "wpa-psk" in editor
+#    * Set a property named "802-11-wireless-security.psk" to "over the river and through the woods" in editor
+#    * Set a property named "802-11-wireless-security.group" to "tkip" in editor
+#    * Save in editor
+#    * No error appeared in editor
+#    * Check value saved message showed in editor
+#    * Quit editor
+#    * Start following journal
+#    * Bring up connection "qe-wpa1-psk"
+#    Then Look for "added 'group' value 'TKIP'" in journal
+#    Then "qe-wpa1-psk" is visible with command "iw dev wlan0 link"
+#    Then "\*\s+qe-wpa1-psk" is visible with command "nmcli -f IN-USE,SSID device wifi list"
 
 
     @wifi
@@ -1425,7 +1424,7 @@ Feature: nmcli - wifi
     Then "wlan0\s+wifi\s+connected" is visible with command "nmcli device" in "15" seconds
 
 
-    @bz1080628
+    @rhbz1080628
     @wifi
     @nmcli_wifi_keep_secrets_after_modification
     Scenario: nmcli - wifi-sec - keep secrets after connection modification

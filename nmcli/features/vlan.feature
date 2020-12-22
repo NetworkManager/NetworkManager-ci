@@ -1,4 +1,3 @@
-@testplan
 Feature: nmcli - vlan
 
     # Please do use tags as follows:
@@ -435,7 +434,7 @@ Feature: nmcli - vlan
 
     @rhbz1414186
     @ver+=1.6
-    @eth @vlan @restart
+    @vlan @restart
     @vlan_mtu_from_parent
     Scenario: nmcli - vlan - MTU from parent
     * Add a new connection of type "ethernet" and options "con-name vlan1 ifname eth7 802-3-ethernet.mtu 9000 ipv4.method disabled ipv6.method ignore"
@@ -454,7 +453,7 @@ Feature: nmcli - vlan
 
     @rhbz1770691
     @ver+=1.20.0
-    @eth @vlan
+    @vlan
     @vlan_mtu_reapply
     Scenario: nmcli - vlan - MTU from parent
     * Add a new connection of type "ethernet" and options "con-name vlan1 ifname eth7 802-3-ethernet.mtu 2000 ipv4.method disabled ipv6.method ignore"
@@ -475,7 +474,7 @@ Feature: nmcli - vlan
 
     @rhbz1779162
     @ver+=1.22.0
-    @eth @vlan
+    @vlan
     @vlan_mtu_device_reapply
     Scenario: nmcli - vlan - MTU device reapply
     * Add a new connection of type "ethernet" and options "con-name vlan1 ifname eth7 802-3-ethernet.mtu 2000 ipv4.method disabled ipv6.method ignore"
@@ -662,14 +661,14 @@ Feature: nmcli - vlan
     Then vxlan device "dummy0" check for parent "eth7"
 
 
-    @rhbz1768388
-    @ver+=1.22
-    @vlan
-    @vxlan_dbus_shows_port_numbers
-    Scenario: NM - vxlan - dbus shows port numbers
-    * Add a new connection of type "vxlan" and options "ifname vlan1 con-name vlan1 vxlan.destination-port 70 vxlan.source-port-max 50 vxlan.source-port-min 30 id 70 dev eth7 ip4 1.2.3.4/24 remote 1.2.3.1"
-    * Execute "nmcli con up vlan1"
-    Then vxlan device "vlan1" check for ports "70, 30, 50"
+    #@rhbz1768388
+    #@ver+=1.22
+    #@vlan
+    #@vxlan_dbus_shows_port_numbers
+    #Scenario: NM - vxlan - dbus shows port numbers
+    #* Add a new connection of type "vxlan" and options "ifname vlan1 con-name vlan1 vxlan.destination-port 70 vxlan.source-port-max 50 vxlan.source-port-min 30 id 70 dev eth7 ip4 1.2.3.4/24 remote 1.2.3.1"
+    #* Execute "nmcli con up vlan1"
+    #Then vxlan device "vlan1" check for ports "70, 30, 50"
 
 
     @rhbz1768388

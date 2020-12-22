@@ -1,4 +1,3 @@
-@testplan
 Feature: nmcli - ppp
 
     # Please do use tags as follows:

@@ -141,23 +141,23 @@
     Then Check slave "eth5" in team "nm-team" is "down"
 
 
-    @rhbz1294728
-    @ver+=1.1
-    @team @restart @team_slaves
-    @team_restart_persistence
-    Scenario: nmcli - team - restart persistence
-     * Add connection type "team" named "team0" for device "nm-team"
-     * Add slave connection for master "nm-team" on device "eth5" named "team0.0"
-     * Add slave connection for master "nm-team" on device "eth6" named "team0.1"
-     When "nm-team:connected:team0" is visible with command "nmcli -t -f DEVICE,STATE,CONNECTION device" in "20" seconds
-     * Restart NM
-     * Restart NM
-     * Restart NM
-     Then Check slave "eth6" in team "nm-team" is "up"
-      And Check slave "eth5" in team "nm-team" is "up"
-      And "team0" is visible with command "nmcli con show -a"
-      And "team0.0" is visible with command "nmcli con show -a"
-      And "team0.1" is visible with command "nmcli con show -a"
+    #@rhbz1294728
+    #@ver+=1.1
+    #@team @restart @team_slaves
+    #@team_restart_persistence
+    #Scenario: nmcli - team - restart persistence
+    # * Add connection type "team" named "team0" for device "nm-team"
+    # * Add slave connection for master "nm-team" on device "eth5" named "team0.0"
+    # * Add slave connection for master "nm-team" on device "eth6" named "team0.1"
+    # When "nm-team:connected:team0" is visible with command "nmcli -t -f DEVICE,STATE,CONNECTION device" in "20" seconds
+    # * Restart NM
+    # * Restart NM
+    # * Restart NM
+    # Then Check slave "eth6" in team "nm-team" is "up"
+    #  And Check slave "eth5" in team "nm-team" is "up"
+    #  And "team0" is visible with command "nmcli con show -a"
+    #  And "team0.0" is visible with command "nmcli con show -a"
+    #  And "team0.1" is visible with command "nmcli con show -a"
 
 
     @team_slaves @team
@@ -174,20 +174,20 @@
 
 
 
-    @team_slaves @team
-    @change_slave_type_and_master
-    Scenario: nmcli - connection - slave-type and master settings
-     * Add connection type "team" named "team0" for device "nm-team"
-     * Add connection type "ethernet" named "team0.0" for device "eth5"
-     * Open editor for connection "team0.0"
-     * Set a property named "connection.slave-type" to "team" in editor
-     * Set a property named "connection.master" to "nm-team" in editor
-     * Submit "yes" in editor
-     * Submit "verify fix" in editor
-     * Save in editor
-     * Quit editor
-     * Bring "up" connection "team0.0"
-    Then Check slave "eth5" in team "nm-team" is "up"
+    #@team_slaves @team
+    #@change_slave_type_and_master
+    #Scenario: nmcli - connection - slave-type and master settings
+    # * Add connection type "team" named "team0" for device "nm-team"
+    # * Add connection type "ethernet" named "team0.0" for device "eth5"
+    # * Open editor for connection "team0.0"
+    # * Set a property named "connection.slave-type" to "team" in editor
+    # * Set a property named "connection.master" to "nm-team" in editor
+    # * Submit "yes" in editor
+    # * Submit "verify fix" in editor
+    # * Save in editor
+    # * Quit editor
+    # * Bring "up" connection "team0.0"
+    #Then Check slave "eth5" in team "nm-team" is "up"
 
 
 
@@ -478,61 +478,61 @@
 
 
 
-    @ver-=1.7.0
-    @team_slaves @team @clean @long
-    @config_invalid
-    Scenario: nmcli - team - config - set invalid mode
-     * Add connection type "team" named "team0" for device "nm-team"
-     * Add slave connection for master "nm-team" on device "eth5" named "team0.0"
-     * Add slave connection for master "nm-team" on device "eth6" named "team0.1"
-     * Open editor for connection "team0"
-     * Submit "set team.config {\"one\":1,\"two\":2,\"three\":3}" in editor
-     * Save in editor
-     * Quit editor
-     * Bring up connection "team0" ignoring error
-    Then Team "nm-team" is down
+    #@ver-=1.7.0
+    #@team_slaves @team @long
+    #@config_invalid1
+    #Scenario: nmcli - team - config - set invalid mode
+    # * Add connection type "team" named "team0" for device "nm-team"
+    # * Add slave connection for master "nm-team" on device "eth5" named "team0.0"
+    # * Add slave connection for master "nm-team" on device "eth6" named "team0.1"
+    # * Open editor for connection "team0"
+    # * Submit "set team.config {\"one\":1,\"two\":2,\"three\":3}" in editor
+    # * Save in editor
+    # * Quit editor
+    # * Bring up connection "team0" ignoring error
+    #Then Team "nm-team" is down
 
 
-    @rhbz1360386
-    @ver+=1.7.1
-    @team_slaves @team @clean @not_with_rhel_pkg
-    @config_invalid1
-    Scenario: nmcli - team - config - set invalid mode
-     * Add connection type "team" named "team0" for device "nm-team"
-     * Add slave connection for master "nm-team" on device "eth5" named "team0.0"
-     * Add slave connection for master "nm-team" on device "eth6" named "team0.1"
-     * Open editor for connection "team0"
-     * Submit "set team.config {\"one\":1,\"two\":2,\"three\":3}" in editor
-     * Save in editor
-     * Quit editor
-     * Bring up connection "team0" ignoring error
-    When Team "nm-team" is down
-     * Bring up connection "team0.0" ignoring error
-    Then "team0.0 " is not visible with command "nmcli d"
-     And "team0 " is not visible with command "nmcli d"
+    #@rhbz1360386
+    #@ver+=1.7.1
+    #@team_slaves @team @not_with_rhel_pkg
+    #@config_invalid1
+    #Scenario: nmcli - team - config - set invalid mode
+    # * Add connection type "team" named "team0" for device "nm-team"
+    # * Add slave connection for master "nm-team" on device "eth5" named "team0.0"
+    # * Add slave connection for master "nm-team" on device "eth6" named "team0.1"
+    # * Open editor for connection "team0"
+    # * Submit "set team.config {\"one\":1,\"two\":2,\"three\":3}" in editor
+    # * Save in editor
+    # * Quit editor
+    # * Bring up connection "team0" ignoring error
+    #When Team "nm-team" is down
+    # * Bring up connection "team0.0" ignoring error
+    #Then "team0.0 " is not visible with command "nmcli d"
+    # And "team0 " is not visible with command "nmcli d"
 
 
-    @rhbz1270814
-    @ver+=1.3.0
-    @team_slaves @team @clean @long @not_with_rhel_pkg
-    @config_invalid2
-    Scenario: nmcli - team - config - set invalid mode
-     * Add connection type "team" named "team0" for device "nm-team"
-     * Add slave connection for master "nm-team" on device "eth5" named "team0.0"
-     * Add slave connection for master "nm-team" on device "eth6" named "team0.1"
-     * Open editor for connection "team0"
-     * Submit "set team.config {\"one\":1,\"two\":2,\"three\":3}" in editor
-     * Save in editor
-     * Quit editor
-     * Bring up connection "team0" ignoring error
-    Then Team "nm-team" is down
-     And "connecting" is not visible with command "nmcli device"
+    #@rhbz1270814
+    #@ver+=1.3.0
+    #@team_slaves @team @long @not_with_rhel_pkg
+    #@config_invalid2
+    #Scenario: nmcli - team - config - set invalid mode
+    # * Add connection type "team" named "team0" for device "nm-team"
+    # * Add slave connection for master "nm-team" on device "eth5" named "team0.0"
+    # * Add slave connection for master "nm-team" on device "eth6" named "team0.1"
+    # * Open editor for connection "team0"
+    # * Submit "set team.config {\"one\":1,\"two\":2,\"three\":3}" in editor
+    # * Save in editor
+    # * Quit editor
+    # * Bring up connection "team0" ignoring error
+    #Then Team "nm-team" is down
+    # And "connecting" is not visible with command "nmcli device"
 
 
      @rhbz1312726
      @ver+=1.4.0
      @ver-=1.10.0
-     @team_slaves @team @clean @long
+     @team_slaves @team @long
      @config_invalid3
      Scenario: nmcli - team - config - set invalid mode
       * Add connection type "team" named "team0" for device "nm-team"
@@ -547,7 +547,7 @@
 
      @rhbz1366300
      @ver+=1.4.0
-     @team_slaves @team @clean
+     @team_slaves @team
      @team_config_null
      Scenario: nmcli - team - config - empty string
      * Add a new connection of type "team" and options "con-name team0 ifname nm-team autoconnect no team.config "" "
@@ -1127,7 +1127,7 @@
     And "65535 \(default\)" is visible with command "nmcli connection show team0 |grep 'team.runner-sys-prio'"
 
 
-    @rhbz1398925 @1533830
+    @rhbz1398925 @rhbz1533830
     @ver+=1.10 @ver-=1.19.1
     @team_slaves @team
     @team_abs_set_runner_min_ports
@@ -1153,7 +1153,7 @@
      And "0 \(default\)" is visible with command "nmcli connection show team0 |grep min-port"
 
 
-    @rhbz1398925 @1533830
+    @rhbz1398925 @rhbz1533830
     @ver+=1.19.2
     @team_slaves @team
     @team_abs_set_runner_min_ports

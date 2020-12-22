@@ -1,4 +1,3 @@
-@testplan
 Feature: nmcli - general
 
     # Please do use tags as follows:
@@ -10,6 +9,7 @@ Feature: nmcli - general
 
 
     @logging
+    @nmcli_logging
     Scenario: NM - general - setting log level and autocompletion
     Then "DEBUG\s+ERR\s+INFO\s+.*TRACE\s+WARN" is visible with tab after "sudo nmcli general logging level "
     * Set logging for "all" to "INFO"
@@ -349,8 +349,8 @@ Feature: nmcli - general
 
 ## Basically various bug related reproducer tests follow here
 
-    @con_general_remove
-    @device_connect
+    @con_general_remove @device_connect
+    @nmcli_device_connect
     Scenario: nmcli - device - connect
     * Bring "up" connection "testeth9"
     * Disconnect device "eth9"
@@ -362,7 +362,7 @@ Feature: nmcli - general
     @ver+=1.12.2
     @ver-=1.20
     @con_general_remove @teardown_testveth @dhcpd
-    @device_reapply_routes
+    @nmcli_device_reapply_routes
     Scenario: NM - device - reapply just routes
     * Prepare simulated test "testG" device
     * Add a new connection of type "ethernet" and options "ifname testG con-name con_general"
@@ -380,7 +380,7 @@ Feature: nmcli - general
     @rhbz1763062
     @ver+=1.22
     @con_general_remove @teardown_testveth @dhcpd
-    @device_reapply_routes
+    @nmcli_device_reapply_routes
     Scenario: NM - device - reapply just routes
     * Prepare simulated test "testG" device
     * Execute "ip netns exec testG_ns kill -SIGSTOP $(cat /tmp/testG_ns.pid)"
@@ -396,10 +396,10 @@ Feature: nmcli - general
     And "default via 192.168.99.1 dev testG\s+proto dhcp\s+metric 21" is visible with command "ip r"
 
 
-    @rhbz1032717 @rhbz1505893 @1702657
+    @rhbz1032717 @rhbz1505893 @rhbz1702657
     @ver+=1.18
     @con_general_remove @teardown_testveth @dhcpd @mtu
-    @device_reapply_all
+    @nmcli_device_reapply_all
     Scenario: NM - device - reapply even address and gate
     * Prepare simulated test "testG" device
     * Add a new connection of type "ethernet" and options "ifname testG con-name con_general 802-3-ethernet.mtu 1460"
@@ -420,7 +420,7 @@ Feature: nmcli - general
     @rhbz1032717 @rhbz1505893
     @ver+=1.10.2 @ver-1.18
     @con_general_remove @teardown_testveth @dhcpd
-    @device_reapply_all
+    @nmcli_device_reapply_all
     Scenario: NM - device - reapply even address and gate
     * Prepare simulated test "testG" device
     * Add connection type "ethernet" named "con_general" for device "testG"
@@ -439,7 +439,7 @@ Feature: nmcli - general
 
     @rhbz1113941
     @newveth
-    @device_connect_no_profile
+    @nmcli_device_connect_no_profile
     Scenario: nmcli - device - connect - no profile
     * Finish "nmcli connection delete id testeth9"
     * Connect device "eth9"
@@ -666,19 +666,19 @@ Feature: nmcli - general
      Then "testeth8" is visible with command "nmcli con sh -a" in "5" seconds
 
 
-    @rhbz1771792
-    @ver+=1.25.90
-    @restart @con_general_remove @teardown_testveth @not_on_s390x
-    @match_connections_with_infinite_leasetime
-    Scenario: NM - general - connection matching for dhcp with infinite leasetime
-    * Prepare simulated test "testG" device with "infinite" leasetime
-    * Add a new connection of type "ethernet" and options "ifname testG con-name con_general"
-    * Bring "up" connection "con_general"
-    When "192.168" is visible with command "ip a s testG" in "20" seconds
-    * Stop NM
-    * Execute "rm -rf /var/run/NetworkManager/*"
-    * Start NM
-    Then "activated" is visible with command "nmcli -g GENERAL.STATE con show con_general" in "45" seconds
+#    @rhbz1771792
+#    @ver+=1.25.90
+#    @restart @con_general_remove @teardown_testveth @not_on_s390x
+#    @match_connections_with_infinite_leasetime
+#    Scenario: NM - general - connection matching for dhcp with infinite leasetime
+#    * Prepare simulated test "testG" device with "infinite" leasetime
+#    * Add a new connection of type "ethernet" and options "ifname testG con-name con_general"
+#    * Bring "up" connection "con_general"
+#    When "192.168" is visible with command "ip a s testG" in "20" seconds
+#    * Stop NM
+#    * Execute "rm -rf /var/run/NetworkManager/*"
+#    * Start NM
+#    Then "activated" is visible with command "nmcli -g GENERAL.STATE con show con_general" in "45" seconds
 
 
     @rhbz1673321
@@ -1075,7 +1075,7 @@ Feature: nmcli - general
 
 
     @rhbz1160013
-    @eth_down_and_delete @need_dispatcher_scripts @con_general_remove @ifcfg-rh
+    @need_dispatcher_scripts @con_general_remove @ifcfg-rh
     @policy_based_routing
     Scenario: NM - general - policy based routing
     * Add a new connection of type "ethernet" and options "ifname eth8 con-name con_general"
@@ -1093,7 +1093,7 @@ Feature: nmcli - general
 
     @rhbz1384799
     @ver+=1.10
-    @con_general_remove @eth_down_and_delete @need_dispatcher_scripts @teardown_testveth @restart @ifcfg-rh
+    @con_general_remove @need_dispatcher_scripts @teardown_testveth @restart @ifcfg-rh
     @modify_policy_based_routing_connection
     Scenario: NM - general - modify policy based routing connection
     * Prepare simulated test "testG" device
@@ -1217,23 +1217,23 @@ Feature: nmcli - general
     Then "ethernet" is visible with command "nmcli dev |grep $(znetconf -c |grep ctc | awk '{print $5}')"
 
 
-    @rhbz1128581
-    @con_general_remove @eth0 @teardown_testveth
-    @connect_to_slow_router
-    Scenario: NM - general - connection up to 60 seconds
-    * Prepare simulated test "testM" device
-    * Add a new connection of type "ethernet" and options "ifname testM con-name con_general autoconnect no"
-    * Modify connection "con_general" changing options "ipv4.method manual ipv4.address '192.168.99.99/24' ipv4.gateway '192.168.99.1' ipv6.method ignore"
-    * Append "GATEWAY_PING_TIMEOUT=60" to ifcfg file "con_general"
-    * Reload connections
-    # VVV Remove gateway's ip address so it is unpingable
-    * Execute "ip netns exec testM_ns ip a del 192.168.99.1/24 dev testM_bridge"
-    * Run child "nmcli con up con_general"
-    When "gateway ping failed with error code 1" is visible with command "journalctl -o cat --since '50 seconds ago' |grep testM" in "20" seconds
-    # VVV Add gateway's ip address so it is pingable again
-    * Run child "sleep 40 && ip netns exec testM_ns ip a add 192.168.99.1/24 dev testM_bridge"
-    Then "connected:con_general" is visible with command "nmcli -t -f STATE,CONNECTION device" in "55" seconds
-    And "connected:full" is visible with command "nmcli -t -f STATE,CONNECTIVITY general status"
+    #@rhbz1128581
+    #@con_general_remove @eth0 @teardown_testveth
+    #@connect_to_slow_router
+    #Scenario: NM - general - connection up to 60 seconds
+    #* Prepare simulated test "testM" device
+    #* Add a new connection of type "ethernet" and options "ifname testM con-name con_general autoconnect no"
+    #* Modify connection "con_general" changing options "ipv4.method manual ipv4.address '192.168.99.99/24' ipv4.gateway '192.168.99.1' ipv6.method ignore"
+    #* Append "GATEWAY_PING_TIMEOUT=60" to ifcfg file "con_general"
+    #* Reload connections
+    ## VVV Remove gateway's ip address so it is unpingable
+    #* Execute "ip netns exec testM_ns ip a del 192.168.99.1/24 dev testM_bridge"
+    #* Run child "nmcli con up con_general"
+    #When "gateway ping failed with error code 1" is visible with command "journalctl -o cat --since '50 seconds ago' |grep testM" in "20" seconds
+    ## VVV Add gateway's ip address so it is pingable again
+    #* Run child "sleep 40 && ip netns exec testM_ns ip a add 192.168.99.1/24 dev testM_bridge"
+    #Then "connected:con_general" is visible with command "nmcli -t -f STATE,CONNECTION device" in "55" seconds
+    #And "connected:full" is visible with command "nmcli -t -f STATE,CONNECTIVITY general status"
 
 
     @rhbz1034158
@@ -1264,7 +1264,7 @@ Feature: nmcli - general
     @rhbz998000 @rhbz1591631
     @ver+=1.10.2
     @con_general_remove @disp
-    @device_reapply
+    @nmcli_device_reapply
     Scenario: nmcli - device -reapply
     * Add connection type "ethernet" named "con_general" for device "eth8"
     When "connected" is visible with command "nmcli -g GENERAL.STATE dev show eth8" in "45" seconds
@@ -1598,7 +1598,7 @@ Feature: nmcli - general
     @rhbz1443114
     @ver+=1.8.0
     @restart
-    @non_utf_device
+    @dummy_non_utf_device
     Scenario: NM - general - non UTF-8 device
     * Execute "ip link add name $'d\xccf\\c' type dummy"
     When "/sys/devices/virtual/net/d\\314f\\\\c" is visible with command "nmcli -f GENERAL.UDI device show"
@@ -2207,12 +2207,12 @@ Feature: nmcli - general
 
     @rhbz1782642
     @ver+=1.22
-    @manage_eth8 @eth8_disconnect @kill_dhclient_eth8
+    @manage_eth8 @eth8_disconnect @kill_dhclient_custom
     @nmcli_general_unmanaged_device_dhclient_fail
     Scenario: NM - general - dhclient should not fail on unmanaged device
     * Execute "nmcli device disconnect eth8"
     * Finish "nmcli device set eth8 managed no"
-    * Finish "dhclient -v -pf /tmp/dhclient_eth8.pid eth8"
+    * Finish "dhclient -v -pf /tmp/dhclient_custom.pid eth8"
 
 
     @rhbz1762011

@@ -1,4 +1,3 @@
-@testplan
 Feature: nmcli - ethernet
 
     # Please do use tags as follows:
@@ -558,18 +557,18 @@ Feature: nmcli - ethernet
     And Ping "10.0.253.1" "3" times
 
 
-    @rhbz1698532
-    @ver+=1.22.0
-    @con_ethernet_remove @8021x @attach_hostapd_log @attach_wpa_supplicant_log
-    @8021x_auto_auth_retry
-    Scenario: nmcli - ethernet - connect to 8021x auto auth retry
-    * Add a new connection of type "ethernet" and options "ifname test8X con-name con_ethernet autoconnect no 802-1x.eap ttls 802-1x.identity test_ttls 802-1x.anonymous-identity test 802-1x.ca-cert /tmp/certs/test_user.ca.pem 802-1x.phase2-auth chap 802-1x.password password connection.auth-retries 5 802-1x.auth-timeout 180"
-    # Stop Hostapd
-    * Execute "pkill -SIGSTOP -F /tmp/hostapd.pid"
-    * Run child "nmcli con up con_ethernet"
-    # Start it again
-    * Execute "sleep 30 && kill -SIGCONT -F /tmp/hostapd.pid"
-    Then "activated" is visible with command "nmcli -g GENERAL.STATE con show con_ethernet" in "180" seconds
+    #@rhbz1698532
+    #@ver+=1.22.0
+    #@con_ethernet_remove @8021x @attach_hostapd_log @attach_wpa_supplicant_log
+    #@8021x_auto_auth_retry
+    #Scenario: nmcli - ethernet - connect to 8021x auto auth retry
+    #* Add a new connection of type "ethernet" and options "ifname test8X con-name con_ethernet autoconnect no 802-1x.eap ttls 802-1x.identity test_ttls 802-1x.anonymous-identity test 802-1x.ca-cert /tmp/certs/test_user.ca.pem 802-1x.phase2-auth chap 802-1x.password password connection.auth-retries 5 802-1x.auth-timeout 180"
+    ## Stop Hostapd
+    #* Execute "pkill -SIGSTOP -F /tmp/hostapd.pid"
+    #* Run child "nmcli con up con_ethernet"
+    ## Start it again
+    #* Execute "sleep 30 && kill -SIGCONT -F /tmp/hostapd.pid"
+    #Then "activated" is visible with command "nmcli -g GENERAL.STATE con show con_ethernet" in "180" seconds
 
 
     @rhbz1456362
@@ -625,8 +624,8 @@ Feature: nmcli - ethernet
 
     @rhbz1391477
     @ver+=1.7.1
-    @con_ethernet_remove
-    @preserve_8021x_certs
+    @con_ethernet_remove @preserve_8021x_certs
+    @preserve_8021x_certs_ethernet
     Scenario: nmcli - ethernet - preserve 8021x certs
     * Add a new connection of type "ethernet" and options "ifname \* con-name con_ethernet 802-1x.eap 'tls' 802-1x.client-cert /tmp/test2_ca_cert.pem 802-1x.private-key-password x 802-1x.private-key /tmp/test_key_and_cert.pem  802-1x.password pass1"
     * Reload connections

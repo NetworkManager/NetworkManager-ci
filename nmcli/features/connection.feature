@@ -42,7 +42,7 @@ Feature: nmcli: connection
 
     @rhbz1375933
     @con_con_remove
-    @device_autocompletion
+    @nmcli_device_autocompletion
     Scenario: nmcli - connection - device autocompletion
     Then "eth0|eth1|eth10" is visible with tab after "nmcli connection add type ethernet ifname "
 
@@ -253,14 +253,14 @@ Feature: nmcli: connection
      Then "con_con" is not visible with command "nmcli -t -f NAME  connection show -a" in "3" seconds
 
 
-    @con_con_remove
-    @connection_autoconnect_warning
-    Scenario: nmcli - connection - autoconnect warning while saving new
-     * Open editor for new connection "con_con" type "ethernet"
-     * Save in editor
-     Then autoconnect warning is shown
-     * Enter in editor
-     * Quit editor
+    #@con_con_remove
+    #@connection_autoconnect_warning
+    #Scenario: nmcli - connection - autoconnect warning while saving new
+    # * Open editor for new connection "con_con" type "ethernet"
+    # * Save in editor
+    # Then autoconnect warning is shown
+    # * Enter in editor
+    # * Quit editor
 
 
     @con_con_remove @restart

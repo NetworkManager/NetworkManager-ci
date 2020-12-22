@@ -544,7 +544,7 @@ Feature: IPv6 TUI tests
     Then "scope global" is not visible with command "ip -6 a s eth1"
 
 
-    @bz1108839
+    @rhbz1108839
     @ipv6 @ifcfg-rh
     @nmtui_ipv6_may_connection_required
     Scenario: nmtui - ipv6 -  connection required
@@ -557,7 +557,7 @@ Feature: IPv6 TUI tests
     Then "ipv6.may-fail:\s+no" is visible with command "nmcli con show ethernet1"
 
 
-    @bz1108839
+    @rhbz1108839
     @ipv6
     @nmtui_ipv6_may_connection_not_required
     Scenario: nmtui - ipv6 -  connection not required
@@ -728,7 +728,7 @@ Feature: IPv6 TUI tests
     Then Cannot confirm the connection settings
 
 
-    @bz1131434
+    @rhbz1131434
     @ipv6
     @nmtui_ipv6_addresses_can_add_after_removing_invalid
     Scenario: nmtui - ipv6 - addresses - add address after removing invalid one

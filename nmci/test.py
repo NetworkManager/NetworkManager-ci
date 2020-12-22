@@ -3,10 +3,12 @@
 import pytest
 import re
 import subprocess
+import yaml
 
 from . import ip
 from . import misc
 from . import util
+from . import tags as tag_registry
 
 
 def test_misc_test_version_tag_eval():
@@ -404,45 +406,88 @@ def test_misc_test_version_tag_eval():
 
 def test_feature_tags():
 
+    with open(util.base_dir() + "/mapper.yaml", "r") as mapper_file:
+        mapper_content = mapper_file.read()
+    mapper_yaml = yaml.load(mapper_content)
+    testmappers = [x for x in mapper_yaml["testmapper"]]
+    mapper_tests = [list(x.keys())[0] for tm in testmappers for x in mapper_yaml["testmapper"][tm]]
+
+    def check_ver(tag):
+        for ver_prefix, ver_len in [
+            ["ver", 3],
+            ["rhelver", 2],
+            ["fedoraver", 1],
+        ]:
+            if not tag.startswith(ver_prefix):
+                continue
+            op, ver = misc.test_version_tag_parse(tag, ver_prefix)
+            assert type(op) is str
+            assert type(ver) is list
+            assert op in ["+", "+=", "-", "-="]
+            assert ver
+            assert all([type(v) is int for v in ver])
+            assert all([v >= 0 for v in ver])
+            assert len(ver) <= ver_len
+            assert tag.startswith(ver_prefix + op)
+            return True
+        return tag in ["rhel_pkg",
+                       "not_with_rhel_pkg",
+                       "fedora_pkg",
+                       "not_with_fedora_pkg"]
+
+    def check_bugzilla(tag):
+        if tag.startswith("rhbz"):
+            assert re.match("^rhbz[0-9]+$", tag)
+            return True
+        if tag.startswith("gnomebz"):
+            assert re.match("^gnomebz[0-9]+$", tag)
+            return True
+        return False
+
+    def check_registry(tag):
+        return tag in tag_registry.tag_names
+
+    def check_mapper(tag):
+        return tag in mapper_tests
+
     for feature in ["nmcli", "nmtui"]:
         all_tags = misc.test_load_tags_from_features(feature)
 
+        tag_registry_used = set()
         unique_tags = set()
         for tags in all_tags:
             assert tags
             assert type(tags) is list
+            test_in_mapper = False
             for tag in tags:
                 assert type(tag) is str
                 assert tag
                 assert re.match("^[-a-z_.A-Z0-9+=]+$", tag)
                 assert re.match("^" + misc.TEST_NAME_VALID_CHAR_REGEX + "+$", tag)
-                if sum([1 for s in tags if s == tag]) != 1:
-                    pytest.fail(f'tag "{tag}" is not unique in {tags}')
+                assert tags.count(tag) == 1, f'tag "{tag}" is not unique in {tags}'
+                is_ver = check_ver(tag)
+                is_bugzilla = check_bugzilla(tag)
+                is_registry = check_registry(tag)
+                is_mapper = check_mapper(tag)
+                test_in_mapper = test_in_mapper or is_mapper
+                if is_registry:
+                    tag_registry_used.add(tag)
+                assert is_ver or is_bugzilla or is_registry or is_mapper, \
+                    f'tag "{tag}" has no effect'
+                assert [is_ver, is_bugzilla, is_registry, is_mapper].count(True) == 1, \
+                    f'tag "{tag}" is multipurpose ({"mapper, " if is_mapper else ""}' \
+                    f'{"registry, " if is_registry else ""}{"ver, " if is_ver else ""}' \
+                    f'{"bugzilla, " if is_bugzilla else ""})'
 
-                for ver_prefix, ver_len in [
-                    ["ver", 3],
-                    ["rhelver", 2],
-                    ["fedoraver", 1],
-                ]:
-                    if not tag.startswith(ver_prefix):
-                        continue
-                    op, ver = misc.test_version_tag_parse(tag, ver_prefix)
-                    assert type(op) is str
-                    assert type(ver) is list
-                    assert op in ["+", "+=", "-", "-="]
-                    assert ver
-                    assert all([type(v) is int for v in ver])
-                    assert all([v >= 0 for v in ver])
-                    assert len(ver) <= ver_len
-                    assert tag.startswith(ver_prefix + op)
-
-                if tag.startswith("rhbz"):
-                    assert re.match("^rhbz[0-9]+$", tag)
+            assert test_in_mapper, f"none of {tags} is in mapper"
 
             tt = tuple(tags)
             if tt in unique_tags:
                 pytest.fail(f'tags "{tags}" are duplicate over the {feature} tests')
             unique_tags.add(tt)
+
+        #for tag in tag_registry.tag_names:
+        #    assert tag in tag_registry_used, f'tag "{tag}" is defined but never used'
 
 
 def test_black_code_fromatting():

@@ -553,7 +553,7 @@ Feature: IPv4 TUI tests
     Then "169.254" is visible with command "ip a s eth1" in "10" seconds
 
 
-    @bz1108839
+    @rhbz1108839
     @ipv4
     @nmtui_ipv4_may_connection_required
     Scenario: nmtui - ipv4 -  connection required
@@ -565,7 +565,7 @@ Feature: IPv4 TUI tests
     Then "ipv4.may-fail:\s+no" is visible with command "nmcli con show ethernet1"
 
 
-    @bz1108839
+    @rhbz1108839
     @ipv4 @ifcfg-rh
     @nmtui_ipv4_may_connection_not_required
     Scenario: nmtui - ipv4 -  connection not required
@@ -752,7 +752,7 @@ Feature: IPv4 TUI tests
     Then Cannot confirm the connection settings
 
 
-    @bz1105770
+    @rhbz1105770
     @ipv4 @ifcfg-rh
     @nmtui_ipv4_addresses_gateway_ip_prefix_nonzero_form
     Scenario: nmtui - ipv4 - addresses - gateway, address and prefix stored in nonzero notation
@@ -770,7 +770,7 @@ Feature: IPv4 TUI tests
 
 
     @ipv4
-    @bz1131434
+    @rhbz1131434
     @nmtui_ipv4_addresses_can_add_after_removing_invalid
     Scenario: nmtui - ipv4 - addresses - add address after removing invalid one
     Given Prepare new connection of type "Ethernet" named "ethernet"

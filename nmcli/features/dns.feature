@@ -1,4 +1,3 @@
-@testplan
 Feature: nmcli - dns
 
     # Please do use tags as follows:

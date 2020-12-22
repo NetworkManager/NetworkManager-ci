@@ -396,7 +396,7 @@
      And Check noted values "old_nm-bond" and "old_nm-bond" are the same
 
 
-    @rhbz1472965 @1649394
+    @rhbz1472965 @rhbz1649394
     @ver+=1.16.2
     @slaves @bond
     @bond_mac_reconnect_preserve

@@ -1,4 +1,3 @@
-@testplan
 Feature: nmcli - procedures in documentation
 
     # Please do use tags as follows:

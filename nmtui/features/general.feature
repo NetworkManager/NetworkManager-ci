@@ -4,7 +4,6 @@ Feature: General TUI tests
   * Prepare virtual terminal environment
 
 
-    @general
     @nmtui_general_exit_nmtui
     Scenario: nmtui - general - exit nmtui
     * Start nmtui
@@ -13,7 +12,6 @@ Feature: General TUI tests
     Then Screen is empty
 
 
-    @general
     @nmtui_general_open_edit_menu
     Scenario: nmtui - general - open edit menu
     * Start nmtui
@@ -21,7 +19,6 @@ Feature: General TUI tests
     Then ".*<Add>.*<Delete>.*" is visible on screen
 
 
-    @general
     @nmtui_general_open_activation_menu
     Scenario: nmtui - general - open activation menu
     * Start nmtui
@@ -29,7 +26,6 @@ Feature: General TUI tests
     Then ".*ctivate>.*<(Quit|Back)>.*" is visible on screen
 
 
-    @general
     @nmtui_general_open_hostname_dialog
     Scenario: nmtui - general - open hostname dialog
     * Start nmtui
@@ -37,7 +33,6 @@ Feature: General TUI tests
     Then ".*Set Hostname.*" is visible on screen
 
 
-    @general
     @nmtui_general_display_proper_hostname
     Scenario: nmtui - general - display proper hostname
     * Note the output of "hostname"
@@ -49,7 +44,7 @@ Feature: General TUI tests
 
 
     @ver-=1.2.9
-    @general @restore_hostname
+    @restore_hostname
     @nmtui_general_set_new_hostname
     Scenario: nmtui - general - set hostname
     * Note the output of "hostname"
@@ -66,7 +61,7 @@ Feature: General TUI tests
 
 
     @ver+=1.3.0
-    @general @restore_hostname
+    @restore_hostname
     @nmtui_general_set_new_hostname
     Scenario: nmtui - general - set hostname
     * Note the output of "hostname"
@@ -84,7 +79,6 @@ Feature: General TUI tests
 
 
     @veth
-    @general
     @bridge
     @ethernet
     @nmtui_general_active_connections_display
@@ -100,7 +94,6 @@ Feature: General TUI tests
     Then Select connection " \* bridge" in the list
 
 
-    @general
     @ethernet
     @nmtui_general_realtime_refresh_edit_screen
     Scenario: nmtui - general - realtime connection refresh edit screen
@@ -110,7 +103,6 @@ Feature: General TUI tests
     Then Select connection "ethernet1" in the list
 
 
-    @general
     @ethernet
     @nmtui_general_realtime_refresh_activate_screen_wo_autoconnect
     Scenario: nmtui - general - realtime connection refresh activation screen without autoconnect
@@ -120,7 +112,6 @@ Feature: General TUI tests
     Then ".*   ethernet1.*" is visible on screen
 
 
-    @general
     @ethernet
     @nmtui_general_realtime_refresh_activate_screen
     Scenario: nmtui - general - realtime connection refresh activation screen
@@ -150,8 +141,7 @@ Feature: General TUI tests
     Then "dsl0\s+.*pppoe" is visible with command "nmcli connection"
 
 
-    @bz1131574
-    @general
+    @rhbz1131574
     @team
     @nmtui_general_show_orphaned_slaves
     Scenario: nmtui - general - show orphaned slaves
@@ -178,8 +168,8 @@ Feature: General TUI tests
     Then ".*team-slave-eth2.*" is visible on screen
 
 
-    @bz1197203
-    @general @no_connections
+    @rhbz1197203
+    @no_connections
     @nmtui_general_activate_screen_no_connections
     Scenario: nmtui - general - active screen without connections
     * Start nmtui

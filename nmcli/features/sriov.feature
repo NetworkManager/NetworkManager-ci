@@ -151,7 +151,7 @@
     @rhbz1555013
     @ver+=1.14.0
     @sriov
-    @sriov_con_drv_add_VF_mac
+    @sriov_con_drv_add_VF_mac_and_trust
     Scenario: nmcli - sriov - drv - add 1 VF with mac and trust
     * Add a new connection of type "ethernet" and options "ifname p4p1 con-name sriov sriov.vfs '0 mac=00:11:22:33:44:99 trust=true' sriov.total-vfs 1 autoconnect no"
     * Bring "up" connection "sriov"
@@ -208,17 +208,17 @@
     # * Execute "pkill tcpdump"
 
 
-    @rhbz1555013
-    @ver+=1.14.0
-    @sriov
-    @sriov_con_drv_add_VF_trust_on
-    Scenario: nmcli - sriov - drv - add 1 VF with trust on
-    * Add a new connection of type "ethernet" and options "ifname p4p1 con-name sriov sriov.vfs '0 mac=00:11:22:33:44:99 trust=true' sriov.total-vfs 1 "
-    * Add a new connection of type "ethernet" and options "ifname p4p1_0 con-name sriov_2 ipv4.method manual ipv4.address 1.2.3.4/24"
-    When " connected" is visible with command "nmcli  device |grep p4p1_0"
-    * Execute "ip link set dev p4p1_0 address 00:11:22:33:44:55"
-    Then "trust on" is visible with command " ip link show p4p1"
-    And "00:11:22:33:44:55" is visible with command "ip a s p4p1_0"
+    #@rhbz1555013
+    #@ver+=1.14.0
+    #@sriov
+    #@sriov_con_drv_add_VF_trust_on
+    #Scenario: nmcli - sriov - drv - add 1 VF with trust on
+    #* Add a new connection of type "ethernet" and options "ifname p4p1 con-name sriov sriov.vfs '0 mac=00:11:22:33:44:99 trust=true' sriov.total-vfs 1 "
+    #* Add a new connection of type "ethernet" and options "ifname p4p1_0 con-name sriov_2 ipv4.method manual ipv4.address 1.2.3.4/24"
+    #When " connected" is visible with command "nmcli  device |grep p4p1_0"
+    #* Execute "ip link set dev p4p1_0 address 00:11:22:33:44:55"
+    #Then "trust on" is visible with command " ip link show p4p1"
+    #And "00:11:22:33:44:55" is visible with command "ip a s p4p1_0"
 
 
     @rhbz1555013

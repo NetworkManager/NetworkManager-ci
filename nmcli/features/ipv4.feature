@@ -941,7 +941,7 @@ Feature: nmcli: ipv4
 
 
     @ver+=1.11.3 @rhelver+=8
-    @eth2 @con_ipv4_remove @tcpdump
+    @con_ipv4_remove @tcpdump
     @ipv4_dhcp_client_id_set
     Scenario: nmcli - ipv4 - dhcp-client-id - set client id
     * Add a new connection of type "ethernet" and options "ifname eth2 con-name con_ipv4 ipv4.may-fail no ipv4.dhcp-client-id AB"
@@ -955,9 +955,9 @@ Feature: nmcli: ipv4
     Then "Client-ID Option 61, length 4: hardware-type 192, ff:ee:ee" is visible with command "cat /tmp/tcpdump.log" in "10" seconds
 
 
-    @gnome793957
+    @gnomebz793957
     @ver+=1.11.3 @rhelver-=7 @not_with_rhel_pkg
-    @eth2 @con_ipv4_remove @tcpdump
+    @con_ipv4_remove @tcpdump
     @ipv4_dhcp_client_id_set
     Scenario: nmcli - ipv4 - dhcp-client-id - set client id
     * Add a new connection of type "ethernet" and options "ifname eth2 con-name con_ipv4 ipv4.may-fail no ipv4.dhcp-client-id AB"
@@ -971,8 +971,8 @@ Feature: nmcli: ipv4
     Then "Client-ID Option 61, length 4: hardware-type 192, ff:ee:ee" is visible with command "cat /tmp/tcpdump.log" in "10" seconds
 
 
-    @ver+=1.11.2 @rhlever-=7 @rhel_pkg
-    @eth2 @con_ipv4_remove @tshark
+    @ver+=1.11.2 @rhelver-=7 @rhel_pkg
+    @con_ipv4_remove @tshark
     @ipv4_dhcp_client_id_set
     Scenario: nmcli - ipv4 - dhcp-client-id - set client id
     * Add a new connection of type "ethernet" and options "ifname eth2 con-name con_ipv4 ipv4.may-fail no ipv4.dhcp-client-id AB"
@@ -986,7 +986,7 @@ Feature: nmcli: ipv4
     * Finish "sudo pkill tshark"
 
 
-    @gnome793957
+    @gnomebz793957
     @ver+=1.11.2
     @con_ipv4_remove @tcpdump @internal_DHCP @restart
     @ipv4_dhcp_client_id_set_internal
@@ -1040,7 +1040,7 @@ Feature: nmcli: ipv4
 
     @rhbz1531173
     @ver+=1.10
-    @eth2 @con_ipv4_remove @internal_DHCP @restart
+    @con_ipv4_remove @internal_DHCP @restart
     @ipv4_set_very_long_dhcp_client_id
     Scenario: nmcli - ipv4 - dhcp-client-id - set long client id
     * Add a new connection of type "ethernet" and options "ifname eth2 con-name con_ipv4 ipv4.may-fail no autoconnect no"
@@ -1398,19 +1398,20 @@ Feature: nmcli: ipv4
     Then "default via 192.168.* dev testZ4" is visible with command "ip r"
 
 
-    @ver+=1.11
-    @con_ipv4_remove @teardown_testveth @long
-    @dhcp_change_pool
-    Scenario: NM - ipv4 - renewal after changed DHCP pool
-    # Check that the address is renewed immediately after a NAK
-    # from server due to changed configuration.
-    # https://bugzilla.gnome.org/show_bug.cgi?id=783391
-    * Prepare simulated test "testX4" device with "192.168.99" ipv4 and "2620:cafe" ipv6 dhcp address prefix
-    * Add a new connection of type "ethernet" and options "ifname testX4 con-name con_ipv4 ipv4.may-fail no ipv6.method ignore autoconnect no"
-    * Bring "up" connection "con_ipv4"
-    When "default via 192.168.99.1 dev testX4" is visible with command "ip r"
-    * Restart dhcp server on "testX4" device with "192.168.98" ipv4 and "2620:cafe" ipv6 dhcp address prefix
-    Then "default via 192.168.98.1 dev testX4" is visible with command "ip r" in "130" seconds
+    #@gnomebz783391
+    #@ver+=1.11
+    #@con_ipv4_remove @teardown_testveth @long
+    #@dhcp_change_pool
+    #Scenario: NM - ipv4 - renewal after changed DHCP pool
+    ## Check that the address is renewed immediately after a NAK
+    ## from server due to changed configuration.
+    ## https://bugzilla.gnome.org/show_bug.cgi?id=783391
+    #* Prepare simulated test "testX4" device with "192.168.99" ipv4 and "2620:cafe" ipv6 dhcp address prefix
+    #* Add a new connection of type "ethernet" and options "ifname testX4 con-name con_ipv4 ipv4.may-fail no ipv6.method ignore autoconnect no"
+    #* Bring "up" connection "con_ipv4"
+    #When "default via 192.168.99.1 dev testX4" is visible with command "ip r"
+    #* Restart dhcp server on "testX4" device with "192.168.98" ipv4 and "2620:cafe" ipv6 dhcp address prefix
+    #Then "default via 192.168.98.1 dev testX4" is visible with command "ip r" in "130" seconds
 
 
     @rhbz1205405
@@ -1437,16 +1438,16 @@ Feature: nmcli: ipv4
     Then "default via 192.168.99.1 dev testX4\s+metric 666" is not visible with command "ip r" in "70" seconds
 
 
-    @rhbz1284261
-    @no_config_server @con_ipv4_remove @teardown_testveth
-    @ipv4_remove_default_route_for_no_carrier
-    Scenario: NM - ipv4 - remove default route for no carrier
-    * Prepare simulated test "testX4" device
-    * Add a new connection of type "ethernet" and options "ifname testX4 con-name con_ipv4 ipv4.may-fail no"
-    When "default" is visible with command "ip r | grep testX4" in "40" seconds
-    * Execute "ip netns exec testX4_ns ip link set dev testX4p down"
-    Then "default" is not visible with command "ip r |grep testX4" in "10" seconds
-     And "con_ipv4" is not visible with command "nmcli con show -a"
+    #@rhbz1284261
+    #@no_config_server @con_ipv4_remove @teardown_testveth
+    #@ipv4_remove_default_route_for_no_carrier
+    #Scenario: NM - ipv4 - remove default route for no carrier
+    #* Prepare simulated test "testX4" device
+    #* Add a new connection of type "ethernet" and options "ifname testX4 con-name con_ipv4 ipv4.may-fail no"
+    #When "default" is visible with command "ip r | grep testX4" in "40" seconds
+    #* Execute "ip netns exec testX4_ns ip link set dev testX4p down"
+    #Then "default" is not visible with command "ip r |grep testX4" in "10" seconds
+    # And "con_ipv4" is not visible with command "nmcli con show -a"
 
 
      @rhbz1259063

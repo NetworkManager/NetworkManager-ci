@@ -210,7 +210,7 @@ Feature: Team TUI tests
     Then "192.168" is visible with command "ip a s team0"
 
 
-    @bz1131574
+    @rhbz1131574
     @team
     @nmtui_team_delete_slaves_after_deleting_profile
     Scenario: nmtui - team - delete slaves after deleting master

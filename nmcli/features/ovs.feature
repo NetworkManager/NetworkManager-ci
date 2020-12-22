@@ -1,4 +1,3 @@
-@testplan
 Feature: nmcli - ovs
 
     # Please do use tags as follows:
@@ -216,52 +215,52 @@ Feature: nmcli - ovs
      And "ovs" is not visible with command "nmcli device"
 
 
-    @rhbz1540218
-    @ver+=1.10 @ver-1.16
-    @openvswitch
-    @nmcli_remove_openvswitch_master_bridge_configuration_only
-    Scenario: nmcli - openvswitch - remove master bridge connection
-    * Add a new connection of type "ovs-bridge" and options "conn.interface ovsbridge0 con-name ovs-bridge0"
-    * Add a new connection of type "ovs-port" and options "conn.interface port0 conn.master ovsbridge0 con-name ovs-port0 ovs-port.tag 120"
-    * Add a new connection of type "ovs-port" and options "conn.interface bond0 conn.master ovsbridge0 con-name ovs-bond0 ovs-port.tag 120"
-    * Add a new connection of type "ethernet" and options "conn.interface eth2 conn.master bond0 slave-type ovs-port con-name ovs-eth2"
-    * Add a new connection of type "ethernet" and options "conn.interface eth3 conn.master bond0 slave-type ovs-port con-name ovs-eth3"
-    * Add a new connection of type "ovs-interface" and options "conn.interface iface0 conn.master port0 con-name ovs-iface0"
-    When "activated" is visible with command "nmcli -g GENERAL.STATE con show ovs-iface0" in "40" seconds
-    * Delete connection "ovs-bridge0"
-    Then "Bridge [\"]?ovsbridge0[\"]?" is not visible with command "ovs-vsctl show"
-     And "Port [\"]?bond0[\"]?\s+tag: 120\s+Interface [\"]?eth3[\"]?\s+type: system" is not visible with command "ovs-vsctl show"
-     And "Port [\"]?port0[\"]?\s+tag: 120\s+Interface [\"]?iface0[\"]?\s+type: internal" is not visible with command "ovs-vsctl show"
-     And "master ovs-system" is not visible with command "ip a s eth2"
-     And "master ovs-system" is not visible with command "ip a s eth3"
-     And "192.168.100.*\/24" is not visible with command "ip a s iface0"
-     And "fe80::" is not visible with command "ip a s iface0"
-     And "default via 192.168.100.1 dev iface0 proto dhcp metric 800" is not visible with command "ip r"
-     #And "ovs" is not visible with command "nmcli device"
+    #@rhbz1540218
+    #@ver+=1.10 @ver-1.16
+    #@openvswitch
+    #@nmcli_remove_openvswitch_master_bridge_configuration_only
+    #Scenario: nmcli - openvswitch - remove master bridge connection
+    #* Add a new connection of type "ovs-bridge" and options "conn.interface ovsbridge0 con-name ovs-bridge0"
+    #* Add a new connection of type "ovs-port" and options "conn.interface port0 conn.master ovsbridge0 con-name ovs-port0 ovs-port.tag 120"
+    #* Add a new connection of type "ovs-port" and options "conn.interface bond0 conn.master ovsbridge0 con-name ovs-bond0 ovs-port.tag 120"
+    #* Add a new connection of type "ethernet" and options "conn.interface eth2 conn.master bond0 slave-type ovs-port con-name ovs-eth2"
+    #* Add a new connection of type "ethernet" and options "conn.interface eth3 conn.master bond0 slave-type ovs-port con-name ovs-eth3"
+    #* Add a new connection of type "ovs-interface" and options "conn.interface iface0 conn.master port0 con-name ovs-iface0"
+    #When "activated" is visible with command "nmcli -g GENERAL.STATE con show ovs-iface0" in "40" seconds
+    #* Delete connection "ovs-bridge0"
+    #Then "Bridge [\"]?ovsbridge0[\"]?" is not visible with command "ovs-vsctl show"
+    # And "Port [\"]?bond0[\"]?\s+tag: 120\s+Interface [\"]?eth3[\"]?\s+type: system" is not visible with command "ovs-vsctl show"
+    # And "Port [\"]?port0[\"]?\s+tag: 120\s+Interface [\"]?iface0[\"]?\s+type: internal" is not visible with command "ovs-vsctl show"
+    # And "master ovs-system" is not visible with command "ip a s eth2"
+    # And "master ovs-system" is not visible with command "ip a s eth3"
+    # And "192.168.100.*\/24" is not visible with command "ip a s iface0"
+    # And "fe80::" is not visible with command "ip a s iface0"
+    # And "default via 192.168.100.1 dev iface0 proto dhcp metric 800" is not visible with command "ip r"
+    # #And "ovs" is not visible with command "nmcli device"
 
 
-    @rhbz1540218
-    @ver+=1.16.2
-    @openvswitch
-    @nmcli_remove_openvswitch_master_bridge_configuration_only
-    Scenario: nmcli - openvswitch - remove master bridge connection
-    * Add a new connection of type "ovs-bridge" and options "conn.interface ovsbridge0 con-name ovs-bridge0"
-    * Add a new connection of type "ovs-port" and options "conn.interface port0 conn.master ovsbridge0 con-name ovs-port0 ovs-port.tag 120"
-    * Add a new connection of type "ovs-port" and options "conn.interface bond0 conn.master ovsbridge0 con-name ovs-bond0 ovs-port.tag 120"
-    * Add a new connection of type "ethernet" and options "conn.interface eth2 conn.master bond0 slave-type ovs-port con-name ovs-eth2"
-    * Add a new connection of type "ethernet" and options "conn.interface eth3 conn.master bond0 slave-type ovs-port con-name ovs-eth3"
-    * Add a new connection of type "ovs-interface" and options "conn.interface iface0 conn.master port0 con-name ovs-iface0"
-    When "activated" is visible with command "nmcli -g GENERAL.STATE con show ovs-iface0" in "40" seconds
-    * Delete connection "ovs-bridge0"
-    Then "Bridge [\"]?ovsbridge0[\"]?" is not visible with command "ovs-vsctl show"
-     And "Port [\"]?bond0[\"]?\s+tag: 120\s+Interface [\"]?eth3[\"]?\s+type: system" is not visible with command "ovs-vsctl show"
-     And "Port [\"]?port0[\"]?\s+tag: 120\s+Interface [\"]?iface0[\"]?\s+type: internal" is not visible with command "ovs-vsctl show"
-     And "master ovs-system" is not visible with command "ip a s eth2"
-     And "master ovs-system" is not visible with command "ip a s eth3"
-     And "192.168.100.*\/24" is not visible with command "ip a s iface0"
-     And "fe80::" is not visible with command "ip a s iface0"
-     And "default via 192.168.100.1 dev iface0 proto dhcp metric 800" is not visible with command "ip r"
-     And "ovs" is not visible with command "nmcli device"
+    #@rhbz1540218
+    #@ver+=1.16.2
+    #@openvswitch
+    #@nmcli_remove_openvswitch_master_bridge_configuration_only
+    #Scenario: nmcli - openvswitch - remove master bridge connection
+    #* Add a new connection of type "ovs-bridge" and options "conn.interface ovsbridge0 con-name ovs-bridge0"
+    #* Add a new connection of type "ovs-port" and options "conn.interface port0 conn.master ovsbridge0 con-name ovs-port0 ovs-port.tag 120"
+    #* Add a new connection of type "ovs-port" and options "conn.interface bond0 conn.master ovsbridge0 con-name ovs-bond0 ovs-port.tag 120"
+    #* Add a new connection of type "ethernet" and options "conn.interface eth2 conn.master bond0 slave-type ovs-port con-name ovs-eth2"
+    #* Add a new connection of type "ethernet" and options "conn.interface eth3 conn.master bond0 slave-type ovs-port con-name ovs-eth3"
+    #* Add a new connection of type "ovs-interface" and options "conn.interface iface0 conn.master port0 con-name ovs-iface0"
+    #When "activated" is visible with command "nmcli -g GENERAL.STATE con show ovs-iface0" in "40" seconds
+    #* Delete connection "ovs-bridge0"
+    #Then "Bridge [\"]?ovsbridge0[\"]?" is not visible with command "ovs-vsctl show"
+    # And "Port [\"]?bond0[\"]?\s+tag: 120\s+Interface [\"]?eth3[\"]?\s+type: system" is not visible with command "ovs-vsctl show"
+    # And "Port [\"]?port0[\"]?\s+tag: 120\s+Interface [\"]?iface0[\"]?\s+type: internal" is not visible with command "ovs-vsctl show"
+    # And "master ovs-system" is not visible with command "ip a s eth2"
+    # And "master ovs-system" is not visible with command "ip a s eth3"
+    # And "192.168.100.*\/24" is not visible with command "ip a s iface0"
+    # And "fe80::" is not visible with command "ip a s iface0"
+    # And "default via 192.168.100.1 dev iface0 proto dhcp metric 800" is not visible with command "ip r"
+    # And "ovs" is not visible with command "nmcli device"
 
 
     @rhbz1540218

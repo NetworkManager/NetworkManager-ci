@@ -25,6 +25,10 @@ def _register_tag(tag_name, before_scenario=None, after_scenario=None):
     tag_registry.append(Tag(tag_name, before_scenario, after_scenario))
 
 
+# tags that have efect outside this file
+_register_tag("no_abrt")
+
+
 def skip_restarts_bs(ctx, scen):
     if os.path.isfile('/tmp/nm_skip_restarts') or os.path.isfile('/tmp/nm_skip_STR'):
         print("---------------------------")
@@ -1170,7 +1174,7 @@ def dracut_bs(ctx, scen):
         print("dracut setup failed, doing clean !!!")
         nmci.run(
             "cd contrib/dracut; . ./setup.sh ;"
-            "{ time test_clean; } &> /tmp/dracut_clean.log", shell=True)
+            "{ time test_clean; } &> /tmp/dracut_teardown.log", shell=True)
         assert False, "dracut setup failed"
     else:
         print("dracut setup OK")
@@ -1186,10 +1190,10 @@ def dracut_as(ctx, scen):
         print("embeding SETUP log")
         ctx.embed("text/plain", nmci.lib.utf_only_open_read("/tmp/dracut_setup.log"), "DRACUT_SETUP")
         nmci.run("rm -f /tmp/dracut_setup.log")
-    if os.path.isfile("/tmp/dracut_clean.log"):
+    if os.path.isfile("/tmp/dracut_teardown.log"):
         print("embeding CLEAN log - dracut setup probably failed !!!")
-        ctx.embed("text/plain", nmci.lib.utf_only_open_read("/tmp/dracut_clean.log"), "DRACUT_CLEAN")
-        nmci.run("rm -f /tmp/dracut_clean.log")
+        ctx.embed("text/plain", nmci.lib.utf_only_open_read("/tmp/dracut_teardown.log"), "DRACUT_CLEAN")
+        nmci.run("rm -f /tmp/dracut_teardown.log")
     nmci.run("journalctl -all --no-pager %s | grep ' dhcpd\\[' > /tmp/journal-dhcpd.log" % ctx.log_cursor)
     ctx.embed("text/plain", nmci.lib.utf_only_open_read("/tmp/journal-dhcpd.log"), "DHCPD")
     nmci.run("journalctl -all --no-pager %s | grep ' radvd\\[' > /tmp/journal-radvd.log" % ctx.log_cursor)
@@ -1203,20 +1207,20 @@ def dracut_as(ctx, scen):
 _register_tag("dracut", dracut_bs, dracut_as)
 
 
-def dracut_clean_as(ctx, scen):
+def dracut_teardown_as(ctx, scen):
     print("---------------------------")
     print("dracut clean")
     rc = nmci.command_code(
         "cd contrib/dracut; . ./setup.sh; "
-        "{ time test_clean; } &> /tmp/dracut_clean.log")
+        "{ time test_clean; } &> /tmp/dracut_teardown.log")
     print("embeding CLEAN log")
-    ctx.embed("text/plain", nmci.lib.utf_only_open_read("/tmp/dracut_clean.log"), "DRACUT_CLEAN")
-    nmci.run("rm -f /tmp/dracut_clean.log")
+    ctx.embed("text/plain", nmci.lib.utf_only_open_read("/tmp/dracut_teardown.log"), "DRACUT_CLEAN")
+    nmci.run("rm -f /tmp/dracut_teardown.log")
     if rc == 0:
         print("Dracut clean failed !!!")
 
 
-_register_tag("dracut_clean", None, dracut_clean_as)
+_register_tag("dracut_teardown", None, dracut_teardown_as)
 
 
 def prepare_patched_netdevsim_bs(ctx, scen):
@@ -2224,12 +2228,12 @@ def clean_iptables_as(ctx, scen):
 _register_tag("clean_iptables", None, clean_iptables_as)
 
 
-def kill_dhclient_eth8_as(ctx, scen):
-    nmci.run("kill $(cat /tmp/dhclient_eth8.pid)")
-    nmci.run("rm -f /tmp/dhclient_eth8.pid")
+def kill_dhclient_custom_as(ctx, scen):
+    nmci.run("kill $(cat /tmp/dhclient_custom.pid)")
+    nmci.run("rm -f /tmp/dhclient_custom.pid")
 
 
-_register_tag("kill_dhclient_eth8", None, kill_dhclient_eth8_as)
+_register_tag("kill_dhclient_custom", None, kill_dhclient_custom_as)
 
 
 def networking_on_as(ctx, scen):
@@ -2809,7 +2813,7 @@ def eth_disconnect_as(num):
     return _eth_disconnect_as
 
 
-for i in [1, 2, 5, 6, 8, 10]:
+for i in [1, 2, 4, 5, 6, 8, 10]:
     _register_tag("eth%d_disconnect" % i, None, eth_disconnect_as(i))
 
 

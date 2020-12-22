@@ -1,4 +1,3 @@
-@testplan
 Feature: nmcli - wifi
 
     # Please do use tags as follows:
@@ -10,8 +9,8 @@ Feature: nmcli - wifi
 
 
     @ver+=1.9.1 @fedoraver+=31
-    @simwifi
-    @simwifi_open
+    @simwifi @simwifi_open
+    @simwifi_open_connect
     Scenario: nmcli - simwifi - connect to open network
     Given "open" is visible with command "nmcli -f SSID device wifi list" in "90" seconds
     * Add a new connection of type "wifi" and options "ifname wlan0 con-name open autoconnect no ssid open"

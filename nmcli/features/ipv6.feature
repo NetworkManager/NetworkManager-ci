@@ -461,7 +461,7 @@
     Then Domain " google.com" is not set
 
 
-    @NM @con_ipv6_remove @eth0
+    @con_ipv6_remove @eth0
     @ipv6_ignore-auto-dns_set
     Scenario: nmcli - ipv6 - ignore auto obtained dns
     * Add a new connection of type "ethernet" and options "ifname eth10 con-name con_ipv6 ipv4.method disabled ipv6.ignore-auto-dns yes ipv6.ignore-auto-dns yes"
@@ -1268,7 +1268,7 @@
 
     @rhbz1368018
     @ver+=1.8
-    @con_ipv6_ifcfg_remove @con_ipv6_remove @restart @kill_dhclient @teardown_testveth
+    @con_ipv6_ifcfg_remove @con_ipv6_remove @restart @kill_dhclient_custom @teardown_testveth
     @persistent_ipv6_after_device_rename
     Scenario: NM - ipv6 - persistent ipv6 after device rename
     * Prepare simulated test "testX6" device
@@ -1279,7 +1279,7 @@
     * Restart NM
     When "0" is visible with command "cat /proc/sys/net/ipv6/conf/testX6/disable_ipv6"
     * Rename device "testX6" to "festY"
-    * Execute "dhclient -1 festY" without waiting for process to finish
+    * Execute "dhclient -1 -pf /tmp/dhclient_custom.pid festY" without waiting for process to finish
     * Wait for at least "45" seconds
     * Execute "kill -9 $(pidof dhclient)"
     When "0" is visible with command "cat /proc/sys/net/ipv6/conf/festY/disable_ipv6"

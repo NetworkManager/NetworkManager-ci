@@ -413,18 +413,18 @@ Feature: WIFI TUI tests
     Then "SSID: qe-wep" is visible with command "iw dev wlan0 link" in "30" seconds
 
 
-    @wifi
-    @nmtui_wifi_leap_connection
-    Scenario: nmtui - wifi - LEAP connection
-    * Prepare new connection of type "Wi-Fi" named "wifi1"
-    * Set "Device" field to "wlan0"
-    * Set "SSID" field to "qe-wep-enterprise-cisco"
-    * Set "Security" dropdown to "LEAP"
-    * Set "Username" field to "Bill Smith"
-    * Set "Password" field to "testing123"
-    * Confirm the connection settings
-    Then "inet 10." is visible with command "ip a s wlan0" in "30" seconds
-    Then "SSID: qe-wep-enterprise-cisco" is visible with command "iw dev wlan0 link" in "30" seconds
+#    @wifi
+#    @nmtui_wifi_leap_connection
+#    Scenario: nmtui - wifi - LEAP connection
+#    * Prepare new connection of type "Wi-Fi" named "wifi1"
+#    * Set "Device" field to "wlan0"
+#    * Set "SSID" field to "qe-wep-enterprise-cisco"
+#    * Set "Security" dropdown to "LEAP"
+#    * Set "Username" field to "Bill Smith"
+#    * Set "Password" field to "testing123"
+#    * Confirm the connection settings
+#    Then "inet 10." is visible with command "ip a s wlan0" in "30" seconds
+#    Then "SSID: qe-wep-enterprise-cisco" is visible with command "iw dev wlan0 link" in "30" seconds
 
 #### Note TUI doesn't support enterprise and dynamic wep yet, tests will be added when support done. ####
 
@@ -443,7 +443,7 @@ Feature: WIFI TUI tests
     Then ".*testingpassword.*" is visible on screen
 
 
-    @bz1132612
+    @rhbz1132612
     @wifi
     @nmtui_wifi_connect_to_network_after_dismissal
     Scenario: nmtui - wifi - connect to a network after dialog dismissal

@@ -270,12 +270,8 @@ def after_scenario(context, scenario):
         # check for crash reports and embed them
         # sets crash_embeded and crashed_step, if crash found
 
-        if 'no_abrt' in scenario.tags:
-            nmci.lib.check_coredump(context, False)
-            nmci.lib.check_faf(context, False)
-        else:
-            nmci.lib.check_coredump(context)
-            nmci.lib.check_faf(context)
+        nmci.lib.check_coredump(context, 'no_abrt' not in scenario.tags)
+        nmci.lib.check_faf(context, 'no_abrt' not in scenario.tags)
 
         if scenario.status == 'failed' or context.crashed_step:
             nmci.lib.dump_status_nmcli(context, 'after cleanup %s' % scenario.name)

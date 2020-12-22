@@ -31,11 +31,11 @@ Feature: NM: dispatcher
     Then "pre-down.*\s+down" is not visible with command "cat /tmp/dispatcher.txt"
     Then "pre-down.*\s+down" is visible with command "cat /tmp/dispatcher.txt" in "50" seconds
 
-    @dispatcher_vpn_up
-    Scenario: NM - dispatcher - vpn-up
-
-    @dispatcher_vpn_down
-    Scenario: NM - dispatcher - vpn-down
+#    @dispatcher_vpn_up
+#    Scenario: NM - dispatcher - vpn-up
+#
+#    @dispatcher_vpn_down
+#    Scenario: NM - dispatcher - vpn-down
 
     @disp @restore_hostname
     @dispatcher_hostname
@@ -44,11 +44,11 @@ Feature: NM: dispatcher
     * Execute "nmcli general hostname walderoon"
     Then "hostname" is visible with command "cat /tmp/dispatcher.txt"
 
-    @dispatcher_dhcp4_change
-    Scenario: NM - dispatcher - dhcp4-change
-
-    @dispatcher_dhcp6_change
-    Scenario: NM - dispatcher - dhcp6-change
+#    @dispatcher_dhcp4_change
+#    Scenario: NM - dispatcher - dhcp4-change
+#
+#    @dispatcher_dhcp6_change
+#    Scenario: NM - dispatcher - dhcp6-change
 
 
     @rhbz1048345

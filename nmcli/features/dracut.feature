@@ -1448,6 +1448,7 @@ Feature: NM: dracut
 
 
     @rhelver+=8.3 @fedoraver-=0
-    @dracut_clean
+    @dracut_teardown
+    @dracut_teardown_nmcli
     Scenario: NM - dracut tests cleanup and log collection
     * Execute "true"

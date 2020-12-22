@@ -8,16 +8,16 @@
     # Scenario:
 
 
-    @libreswan
-    @vpn_add_profile
-    Scenario: nmcli - vpn - add default connection
-    * Add a new connection of type "vpn" and options "ifname \* con-name vpn vpn-type libreswan"
-    * Open editor for connection "vpn"
-    * Submit "set vpn.service-type org.freedesktop.NetworkManager.libreswan" in editor
-    * Submit "set vpn.data right = vpn-test.com, xauthpasswordinputmodes = save, xauthpassword-flags = 1, esp = aes-sha1;modp1024, leftxauthusername = desktopqe, pskinputmodes = save, ike = aes-sha1;modp1024, pskvalue-flags = 1, leftid = desktopqe" in editor
-    * Save in editor
-    * Quit editor
-    Then "vpn.service-type:\s+org.freedesktop.NetworkManager.libreswan" is visible with command "nmcli connection show vpn"
+    #@libreswan
+    #@vpn_add_profile
+    #Scenario: nmcli - vpn - add default connection
+    #* Add a new connection of type "vpn" and options "ifname \* con-name vpn vpn-type libreswan"
+    #* Open editor for connection "vpn"
+    #* Submit "set vpn.service-type org.freedesktop.NetworkManager.libreswan" in editor
+    #* Submit "set vpn.data right = vpn-test.com, xauthpasswordinputmodes = save, xauthpassword-flags = 1, esp = aes-sha1;modp1024, leftxauthusername = desktopqe, pskinputmodes = save, ike = aes-sha1;modp1024, pskvalue-flags = 1, leftid = desktopqe" in editor
+    #* Save in editor
+    #* Quit editor
+    #Then "vpn.service-type:\s+org.freedesktop.NetworkManager.libreswan" is visible with command "nmcli connection show vpn"
 
 
     @ver+=1.4.0
@@ -41,32 +41,32 @@
     Then "IP6.ADDRESS.*2001:db8:666:dead::2/64" is visible with command "nmcli c show openvpn"
 
 
-    @vpn_add_profile_novice_mode
-    Scenario: nmcli - vpn - novice mode - add default connection
+#    @vpn_add_profile_novice_mode
+#    Scenario: nmcli - vpn - novice mode - add default connection
 
 
-    @vpn_activate_with_stored_credentials
-    Scenario: nmcli - vpn - activate with stored credentials
+#    @vpn_activate_with_stored_credentials
+#    Scenario: nmcli - vpn - activate with stored credentials
 
 
-    @vpn_activate_asking_for_credentials
-    Scenario: nmcli - vpn - activate asking for password
+#    @vpn_activate_asking_for_credentials
+#    Scenario: nmcli - vpn - activate asking for password
 
 
-    @vpn_deactivate
-    Scenario: nmcli - vpn - deactivate
+#    @vpn_deactivate
+#    Scenario: nmcli - vpn - deactivate
 
 
-    @vpn_delete_active_profile
-    Scenario: nmcli - vpn - delete active profile
+#    @vpn_delete_active_profile
+#    Scenario: nmcli - vpn - delete active profile
 
 
-    @vpn_start_on_boot
-    Scenario: nmcli - vpn - start on boot
+#    @vpn_start_on_boot
+#    Scenario: nmcli - vpn - start on boot
 
 
-    @vpn_start_as_secondary
-    Scenario: nmcli - vpn - start as secondary
+#    @vpn_start_as_secondary
+#    Scenario: nmcli - vpn - start as secondary
 
 
     @vpn_describe
