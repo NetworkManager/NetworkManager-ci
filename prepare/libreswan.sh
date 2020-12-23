@@ -180,8 +180,15 @@ libreswan_setup ()
     SECRETS_CFG="$LIBRESWAN_DIR/ipsec.secrets"
     PASSWD_FILE="$LIBRESWAN_DIR/passwd"
     NSS_DIR="$LIBRESWAN_DIR/nss"
-    # this is NSS database for client (used by pluto started by NM in main namespace)
-    NSS_CLIENT_DIR="/etc/ipsec.d/"
+
+    # this is NSS database for client
+    # (used by pluto started by NM in main namespace)
+    if rpm -q --quiet libreswan-4*; then
+        NSS_CLIENT_DIR="/var/lib/ipsec/nss/"
+    else
+        NSS_CLIENT_DIR="/etc/ipsec.d/"
+    fi
+
     if [ "$MODE" = "ikev2" ]; then
         IKEv2="insist"
     else
