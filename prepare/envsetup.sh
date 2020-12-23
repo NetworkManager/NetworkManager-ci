@@ -110,6 +110,8 @@ install_fedora_packages () {
 
     # Install vpn dependencies
     dnf -4 -y install NetworkManager-openvpn openvpn ipsec-tools
+    PKG="NetworkManager-libreswan-1.2.12-1.fc34.3.x86_64.rpm"
+    dnf -y install https://vbenes.fedorapeople.org/NM/NM-libreswan_4compat/$PKG
 
     # Install various NM dependencies
     dnf -4 -y remove NetworkManager-config-connectivity-fedora NetworkManager-config-connectivity-redhat

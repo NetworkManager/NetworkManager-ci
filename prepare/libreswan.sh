@@ -35,6 +35,14 @@ add_pluto_connection ()
 
 libreswan_gen_connection ()
 {
+    if rpm -q --quiet libreswan-4*; then
+        MODECFGDNS="modecfgdns=8.8.8.8"
+        FRAGMENTATION="fragmentation=yes"
+    else
+        MODECFGDNS="modecfgdns1=8.8.8.8"
+        FRAGMENTATION="ike-frag=yes"
+    fi
+
     cat > "$CONNECTION_CFG" << EOF
 conn roadwarrior_psk
     auto=add
@@ -49,9 +57,9 @@ conn roadwarrior_psk
     leftmodecfgserver=yes
     rightmodecfgclient=yes
     modecfgpull=yes
-    modecfgdns1=8.8.8.8
+    $MODECFGDNS
     modecfgbanner=BUG_REPORT_URL
-    ike-frag=yes
+    $FRAGMENTATION
     cisco-unity=yes
     ikev2=$IKEv2
 EOF
