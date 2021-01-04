@@ -1014,6 +1014,35 @@ def teardown_testveth_as(ctx, scen):
 _register_tag("teardown_testveth", None, teardown_testveth_as)
 
 
+def libreswan_bs(ctx, scen):
+    print("---------------------------")
+    nmci.lib.wait_for_testeth0()
+    if nmci.command_code("rpm -q NetworkManager-libreswan") != 0:
+        nmci.run("sudo yum -y install NetworkManager-libreswan")
+        nmci.lib.restart_NM_service()
+    nmci.run("/usr/sbin/ipsec --checknss")
+    mode = "aggressive"
+    if "ikev2" in scen.tags:
+        mode = "ikev2"
+    if "main" in scen.tags:
+        mode = "main"
+    nmci.lib.setup_libreswan(mode, dh_group=14)
+
+
+def libreswan_as(ctx, scen):
+    print("---------------------------")
+    print("deleting libreswan profile")
+    nmci.run('nmcli connection down libreswan')
+    nmci.run('nmcli connection delete libreswan')
+    nmci.lib.teardown_libreswan(ctx)
+    nmci.lib.wait_for_testeth0()
+
+
+_register_tag("libreswan", libreswan_bs, libreswan_as)
+_register_tag("ikev2")
+_register_tag("main")
+
+
 def openvpn_bs(ctx, scen):
     print("---------------------------")
     print("setting up OpenVPN")
@@ -1046,35 +1075,6 @@ def openvpn_as(ctx, scen):
 _register_tag("openvpn", openvpn_bs, openvpn_as)
 _register_tag("openvpn4")
 _register_tag("openvpn6")
-
-
-def libreswan_bs(ctx, scen):
-    print("---------------------------")
-    nmci.lib.wait_for_testeth0()
-    if nmci.command_code("rpm -q NetworkManager-libreswan") != 0:
-        nmci.run("sudo yum -y install NetworkManager-libreswan")
-        nmci.lib.restart_NM_service()
-    nmci.run("/usr/sbin/ipsec --checknss")
-    mode = "aggressive"
-    if "ikev2" in scen.tags:
-        mode = "ikev2"
-    if "main" in scen.tags:
-        mode = "main"
-    nmci.lib.setup_libreswan(mode, dh_group=14)
-
-
-def libreswan_as(ctx, scen):
-    print("---------------------------")
-    print("deleting libreswan profile")
-    nmci.run('nmcli connection down libreswan')
-    nmci.run('nmcli connection delete libreswan')
-    nmci.lib.teardown_libreswan(ctx)
-    nmci.lib.wait_for_testeth0()
-
-
-_register_tag("libreswan", libreswan_bs, libreswan_as)
-_register_tag("ikev2")
-_register_tag("main")
 
 
 def strongswan_bs(ctx, scen):
