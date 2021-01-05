@@ -456,8 +456,7 @@ def mock_bs(ctx, scen):
     print("installing dbus-x11, pip, and python-dbusmock dataclasses")
     if nmci.command_code('rpm -q --quiet dbus-x11') != 0:
         nmci.run('yum -y install dbus-x11')
-    if nmci.command_code('python -m pip list |grep python-dbusmock') != 0:
-        nmci.run("sudo python -m pip install python-dbusmock dataclasses")
+    nmci.run("sudo python3 -m pip install python-dbusmock dataclasses")
     nmci.run('./tmp/patch-python-dbusmock.sh')
 
 
