@@ -58,11 +58,16 @@ check_packages () {
 }
 
 
-install_behave () {
+install_behave_pytest () {
   python -m pip install behave
   python -m pip install behave_html_formatter
   echo -e "[behave.formatters]\nhtml = behave_html_formatter:HTMLFormatter" > ~/.behaverc
   ln -s /usr/bin/behave-3 /usr/bin/behave
+  # pytest is needed for NetworkManager-ci unit tests and nmstate test
+  python -m pip install pytest
+  # black is needed by unit tests to check code format
+  # stick to fedora 33 version of black: 19.10b0
+  python -m pip install --prefix /usr/ black==19.10b0
 }
 
 install_fedora_packages () {
@@ -106,7 +111,7 @@ install_fedora_packages () {
                       psmisc firewalld dhcp-server ethtool python3-dbus python3-gobject dnsmasq \
                       tcpdump wireshark-cli iproute-tc gdb --skip-broken
 
-    install_behave
+    install_behave_pytest
 
     # Install vpn dependencies
     dnf -4 -y install NetworkManager-openvpn openvpn ipsec-tools
@@ -187,7 +192,7 @@ install_el8_packages () {
                           openvpn --skip-broken
 
     dnf -4 -y install https://kojipkgs.fedoraproject.org//packages/tcpreplay/4.2.5/4.fc28/$(arch)/tcpreplay-4.2.5-4.fc28.$(arch).rpm
-    install_behave
+    install_behave_pytest
 
     # Install vpn dependencies
     dnf -4 -y install https://kojipkgs.fedoraproject.org//packages/ipsec-tools/0.8.2/10.fc28/$(arch)/ipsec-tools-0.8.2-10.fc28.$(arch).rpm https://kojipkgs.fedoraproject.org//packages/pkcs11-helper/1.22/5.fc28/$(arch)/pkcs11-helper-1.22-5.fc28.$(arch).rpm
@@ -295,7 +300,7 @@ install_el7_packages () {
 
     yum -y remove NetworkManager-config-connectivity-fedora NetworkManager-config-connectivity-redhat
 
-    install_behave
+    install_behave_pytest
 
     # Add OVS repo and install OVS
     mv -f  tmp/ovs-rhel7.repo /etc/yum.repos.d/ovs.repo

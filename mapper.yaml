@@ -68,7 +68,15 @@ beaker-hardware:
             hostname: dell-per720-03.klab.eng.bos.redhat.com
             kernel-options: biosdevname=1 default_hugepagesz=1G hugepagesz=1G hugepages=32 iommu=on intel_iommu=pt
 
-setup: './prepare/envsetup.sh setup first_test_setup'
+setup: |
+  ./prepare/envsetup.sh setup first_test_setup
+  (time python -m pytest -vvvv ./nmci/test.py) > /tmp/NetworkManager-ci-unit_tests.log 2>&1; rc=$?
+  if [ $rc == 0 ]; then
+    result=PASS
+  else
+    result=FAIL
+  fi
+  rstrnt-report-result -o /tmp/NetworkManager-ci-unit_tests.log "NetworkManager-ci unit tests" $result
 
 cleanup:
 

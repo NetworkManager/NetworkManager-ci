@@ -21,7 +21,6 @@ else
         rm -rf nmstate-*.src.rpm
         yum remove -y nmstate python3-libnmstate
         yum -y localinstall python3-libnmstate* nmstate-*; RC=$?
-        python -m pip install pytest
         if test $RC -eq 0; then
             touch /tmp/nmstate_setup.txt
         fi
