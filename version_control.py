@@ -90,13 +90,13 @@ for tags in test_tags:
         elif tag.startswith("fedoraver"):
             tags_fedoraver.append(nmci.misc.test_version_tag_parse(tag, "fedoraver"))
         elif tag == "rhel_pkg":
-            if current_rhel_version and not pkg:
+            if not (current_rhel_version and pkg):
                 run = False
         elif tag == "not_with_rhel_pkg":
             if current_rhel_version and pkg:
                 run = False
         elif tag == "fedora_pkg":
-            if current_fedora_version and not pkg:
+            if not (current_fedora_version and pkg):
                 run = False
         elif tag == "not_with_fedora_pkg":
             if current_fedora_version and pkg:
