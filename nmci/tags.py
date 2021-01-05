@@ -1992,7 +1992,7 @@ def bridge_as(ctx, scen):
         nmci.lib.reset_hwaddr_nmtui('eth1')
         nmci.lib.reset_hwaddr_nmtui('eth2')
         nmci.run("sudo ip link del bridge0")
-        if "more_slaves" in scen.tags:
+        if "many_slaves" in scen.tags:
             nmci.run(
                 "sudo nmcli con delete id bridge-slave-eth3 bridge-slave-eth4 bridge-slave-eth5"
                 " bridge-slave-eth6 bridge-slave-eth7 bridge-slave-eth8 bridge-slave-eth9")
