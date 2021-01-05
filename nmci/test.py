@@ -410,7 +410,9 @@ def test_feature_tags():
         mapper_content = mapper_file.read()
     mapper_yaml = yaml.load(mapper_content)
     testmappers = [x for x in mapper_yaml["testmapper"]]
-    mapper_tests = [list(x.keys())[0] for tm in testmappers for x in mapper_yaml["testmapper"][tm]]
+    mapper_tests = [
+        list(x.keys())[0] for tm in testmappers for x in mapper_yaml["testmapper"][tm]
+    ]
 
     def check_ver(tag):
         for ver_prefix, ver_len in [
@@ -430,10 +432,12 @@ def test_feature_tags():
             assert len(ver) <= ver_len
             assert tag.startswith(ver_prefix + op)
             return True
-        return tag in ["rhel_pkg",
-                       "not_with_rhel_pkg",
-                       "fedora_pkg",
-                       "not_with_fedora_pkg"]
+        return tag in [
+            "rhel_pkg",
+            "not_with_rhel_pkg",
+            "fedora_pkg",
+            "not_with_fedora_pkg",
+        ]
 
     def check_bugzilla(tag):
         if tag.startswith("rhbz"):
@@ -472,12 +476,14 @@ def test_feature_tags():
                 test_in_mapper = test_in_mapper or is_mapper
                 if is_registry:
                     tag_registry_used.add(tag)
-                assert is_ver or is_bugzilla or is_registry or is_mapper, \
-                    f'tag "{tag}" has no effect'
-                assert [is_ver, is_bugzilla, is_registry, is_mapper].count(True) == 1, \
-                    f'tag "{tag}" is multipurpose ({"mapper, " if is_mapper else ""}' \
-                    f'{"registry, " if is_registry else ""}{"ver, " if is_ver else ""}' \
+                assert (
+                    is_ver or is_bugzilla or is_registry or is_mapper
+                ), f'tag "{tag}" has no effect'
+                assert [is_ver, is_bugzilla, is_registry, is_mapper].count(True) == 1, (
+                    f'tag "{tag}" is multipurpose ({"mapper, " if is_mapper else ""}'
+                    f'{"registry, " if is_registry else ""}{"ver, " if is_ver else ""}'
                     f'{"bugzilla, " if is_bugzilla else ""})'
+                )
 
             assert test_in_mapper, f"none of {tags} is in mapper"
 
@@ -486,7 +492,7 @@ def test_feature_tags():
                 pytest.fail(f'tags "{tags}" are duplicate over the {feature} tests')
             unique_tags.add(tt)
 
-        #for tag in tag_registry.tag_names:
+        # for tag in tag_registry.tag_names:
         #    assert tag in tag_registry_used, f'tag "{tag}" is defined but never used'
 
 
@@ -497,9 +503,14 @@ def test_black_code_fromatting():
         util.base_dir("version_control.py"),
     ]
 
+    exclude = [
+        "--exclude",
+        "nmci/(tags|lib|run)\\.py",
+    ]
+
     try:
         proc = subprocess.run(
-            ["black", "-q", "--diff"] + files,
+            ["black", "-q", "--diff"] + exclude + files,
             stdout=subprocess.PIPE,
             stderr=subprocess.PIPE,
         )
