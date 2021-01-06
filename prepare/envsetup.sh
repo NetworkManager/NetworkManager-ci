@@ -283,6 +283,7 @@ install_el7_packages () {
     python -m pip install IPy
     python -m pip install python-dbusmock
     python -m pip install pyte
+    python -m pip install pyyaml
 
 
     # install dbus-python3 for s390x via pip
