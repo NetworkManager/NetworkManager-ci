@@ -70,7 +70,7 @@ beaker-hardware:
 
 setup: |
   ./prepare/envsetup.sh setup first_test_setup
-  (time python -m pytest -vvvv ./nmci/test.py) > /tmp/NetworkManager-ci-unit_tests.log 2>&1; rc=$?
+  (time python3 -m pytest -vvvv ./nmci/test.py) > /tmp/NetworkManager-ci-unit_tests.log 2>&1; rc=$?
   if [ $rc == 0 ]; then
     result=PASS
   else
