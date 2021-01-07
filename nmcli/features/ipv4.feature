@@ -956,7 +956,7 @@ Feature: nmcli: ipv4
 
 
     @gnomebz793957
-    @ver+=1.11.3 @rhelver-=7 @not_with_rhel_pkg
+    @ver+=1.11.3 @rhelver-=7 @fedoraver-=0 @not_with_rhel_pkg
     @con_ipv4_remove @tcpdump
     @ipv4_dhcp_client_id_set
     Scenario: nmcli - ipv4 - dhcp-client-id - set client id
