@@ -334,7 +334,7 @@ Feature: nmcli - dns
 
     # Check tun1 configuration
     Then device "tun1" has DNS server "172.31.70.53"
-    Then device "eth2" has "routing" DNS default-route
+    Then device "tun1" has "routing" DNS default-route
     Then device "tun1" has DNS domain "vpn.domain" for "domain-search"
 
     # Check eth2 configuration
@@ -365,7 +365,7 @@ Feature: nmcli - dns
 
     # Check tun1 configuration
     Then device "tun1" has DNS server "172.31.70.53"
-    Then device "eth2" has "default" DNS default-route
+    Then device "tun1" has "default" DNS default-route
     Then device "tun1" has DNS domain "vpn.domain" for "domain-search"
 
     # Check eth2 configuration
