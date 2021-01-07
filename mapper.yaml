@@ -70,13 +70,16 @@ beaker-hardware:
 
 setup: |
   ./prepare/envsetup.sh setup first_test_setup
-  (time python3 -m pytest -vvvv ./nmci/test.py) > /tmp/NetworkManager-ci-unit_tests.log 2>&1; rc=$?
+  file=/tmp/NetworkManager-ci-unit_tests.log
+  (time python3 -m pytest -vvvv ./nmci/test.py) > $file 2>&1; rc=$?
   if [ $rc == 0 ]; then
     result=PASS
   else
     result=FAIL
+    mv $file /tmp/FAIL_NetworkManager-ci-unit_tests.log
+    file=/tmp/FAIL_NetworkManager-ci-unit_tests.log
   fi
-  rstrnt-report-result -o /tmp/NetworkManager-ci-unit_tests.log "NetworkManager-ci unit tests" $result
+  rstrnt-report-result -o $file "NetworkManager-ci unit tests" $result
 
 cleanup:
 
