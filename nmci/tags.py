@@ -52,7 +52,7 @@ _register_tag("long", long_bs)
 def skip_in_centos_bs(ctx, scen):
     print("---------------------------")
     print("skipping with centos")
-    if nmci.command_code("grep -q -e 'CentOS Linux release 8' /etc/redhat-release") == 0:
+    if 'CentOS' in ctx.rh_release:
         sys.exit(77)
 
 
@@ -117,7 +117,7 @@ _register_tag("not_with_systemd_resolved", not_with_systemd_resolved_bs)
 
 
 def not_under_internal_DHCP_bs(ctx, scen):
-    if nmci.command_code("grep -q Ootpa /etc/redhat-release") == 0 and \
+    if "Ootpa" in ctx.rh_release and \
        nmci.command_code("NetworkManager --print-config|grep dhclient") != 0:
         sys.exit(77)
     if nmci.command_code("NetworkManager --print-config|grep internal") == 0:
@@ -872,7 +872,7 @@ _register_tag("simwifi_ap", simwifi_ap_bs, simwifi_ap_as)
 def simwifi_p2p_bs(ctx, scen):
     print("---------------------------")
     print("* setting p2p test bed")
-    if nmci.command_code("grep -q 'release 8' /etc/redhat-release") == 0:
+    if "release 8" in ctx.rh_release:
         nmci.run("dnf -4 -y install "
              "https://vbenes.fedorapeople.org/NM/wpa_supplicant-2.7-2.2.bz1693684.el8.x86_64.rpm "
              "https://vbenes.fedorapeople.org/NM/wpa_supplicant-debuginfo-2.7-2.2.bz1693684.el8.x86_64.rpm ")
@@ -901,7 +901,7 @@ def simwifi_p2p_bs(ctx, scen):
 
 def simwifi_p2p_as(ctx, scen):
     print("---------------------------")
-    if nmci.command_code("grep -q 'release 8' /etc/redhat-release") == 0:
+    if "release 8" in ctx.rh_release:
         nmci.run("dnf -4 -y install https://vbenes.fedorapeople.org/NM/rhbz1888051/wpa_supplicant{,-debuginfo,-debugsource}-2.9-3.el8.$(arch).rpm")
         nmci.run("dnf -y update wpa_supplicant")
         nmci.run("systemctl restart wpa_supplicant")
@@ -977,7 +977,7 @@ def vpnc_bs(ctx, scen):
     if ctx.arch == "s390x":
         sys.exit(77)
     # Install under RHEL7 only
-    if nmci.command_code("grep -q Maipo /etc/redhat-release") == 0:
+    if "Maipo" in ctx.rh_release:
         nmci.run("[ -f /etc/yum.repos.d/epel.repo ] || sudo rpm -i http://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm")
     if nmci.command_code("rpm -q NetworkManager-vpnc") != 0:
         nmci.run("sudo yum -y install NetworkManager-vpnc")
@@ -1002,7 +1002,7 @@ def tcpreplay_bs(ctx, scen):
         sys.exit(77)
     nmci.lib.wait_for_testeth0()
     # Install under RHEL7 only
-    if nmci.command_code("grep -q Maipo /etc/redhat-release") == 0:
+    if "Maipo" in ctx.rh_release:
         nmci.run("[ -f /etc/yum.repos.d/epel.repo ] || sudo rpm -i http://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm")
     nmci.run("[ -x /usr/bin/tcpreplay ] || yum -y install tcpreplay")
 
@@ -1082,7 +1082,7 @@ _register_tag("openvpn6")
 
 def strongswan_bs(ctx, scen):
     # Do not run on RHEL7 on s390x
-    if nmci.command_code("grep -q 'release 7' /etc/redhat-release") == 0:
+    if "release 7" in ctx.rh_release:
         if ctx.arch == "s390x":
             print("Skipping on RHEL7 on s390x")
             sys.exit(77)
@@ -1329,7 +1329,7 @@ def pptp_bs(ctx, scen):
         sys.exit(77)
     nmci.lib.wait_for_testeth0()
     # Install under RHEL7 only
-    if nmci.command_code("grep -q Maipo /etc/redhat-release") == 0:
+    if "Maipo" in ctx.rh_release:
         nmci.run("[ -f /etc/yum.repos.d/epel.repo ] || sudo rpm -i http://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm")
     nmci.run("[ -x /usr/sbin/pptpd ] || sudo yum -y install /usr/sbin/pptpd")
     nmci.run("rpm -q NetworkManager-pptp || sudo yum -y install NetworkManager-pptp")
@@ -1480,7 +1480,7 @@ _register_tag("slow_team", slow_team_bs, slow_team_as)
 def openvswitch_bs(ctx, scen):
     print("---------------------------")
     print("starting openvswitch if not active")
-    if ctx.arch == "s390x" and nmci.run("grep -q Ootpa /etc/redhat-release") != 0:
+    if ctx.arch == "s390x" and "Ootpa" not in ctx.rh_release:
         sys.exit(77)
     if nmci.command_code('rpm -q NetworkManager-ovs') != 0:
         nmci.run('yum -y install NetworkManager-ovs')

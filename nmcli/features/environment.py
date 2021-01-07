@@ -100,6 +100,7 @@ def before_scenario(context, scenario):
     context.log_cursor = ""
     context.arch = nmci.command_output("uname -p").strip()
     context.IS_NMTUI = IS_NMTUI
+    context.rh_release = nmci.command_output("cat /etc/redhat-release")
 
     if IS_NMTUI:
         os.environ['TERM'] = 'dumb'
