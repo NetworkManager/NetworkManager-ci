@@ -465,9 +465,6 @@ local_setup_configure_nm_eth_part1 () {
     # Setting ulimit to unlimited for test user
     echo "ulimit -c unlimited" >> /home/test/.bashrc
 
-    # Give proper context to openvpn profiles
-    chcon -R system_u:object_r:usr_t:s0 tmp/openvpn/sample-keys/
-
     # Deploy ssh-keys
     deploy_ssh_keys
 

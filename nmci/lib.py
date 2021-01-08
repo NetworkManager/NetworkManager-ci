@@ -330,6 +330,8 @@ def setup_libreswan(mode, dh_group, phase1_al="aes", phase2_al=None):
 
 
 def setup_openvpn(tags):
+    print ("* selinux policy for keys directory")
+    nmci.run("chcon -R system_u:object_r:usr_t:s0 contrib/openvpn/sample-keys/")
     print ("* writing openvpn config")
     path = "%s/contrib/openvpn" %os.getcwd()
     samples = glob.glob(os.path.abspath(path))[0]
