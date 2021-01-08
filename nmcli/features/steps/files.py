@@ -7,6 +7,7 @@ from behave import step
 
 import commands
 import nmci_step
+import nmci.lib
 
 
 @step('Append "{line}" to file "{name}"')
@@ -26,13 +27,17 @@ def check_file_is_contained(context, file1, file2):
     with open(file1) as f1_lines:
         with open(file2) as f2_lines:
             diff = set(f1_lines).difference(f2_lines)
-    assert not bool(diff)
+    assert not len(diff), f"Following lines in '{file1}' are not in '{file2}':\n" + "".join(diff)
 
 
 @step(u'Check file "{file1}" is identical to file "{file2}"')
 def check_file_is_identical(context, file1, file2):
     import filecmp
-    assert filecmp.cmp(file1, file2)
+    assert filecmp.cmp(file1, file2), "".join((
+        f"Files '{file1}' and '{file2}' differ",
+        "" if context.embed("text/plain", nmci.lib.utf_only_open_read(file1), file1) else "",
+        "" if context.embed("text/plain", nmci.lib.utf_only_open_read(file2), file2) else "",
+    ))
 
 
 @step(u'ifcfg-"{con_name}" file does not exist')
