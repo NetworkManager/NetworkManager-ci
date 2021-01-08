@@ -43,7 +43,8 @@ Feature: NM: dracut
       | check  | nmcli_con_prop "Wired Connection" IP6.DNS deaf:beef::1                 |
       | check  | wait_for_ip4_renew 192.168.50.101/24 eth0                              |
       | check  | wait_for_ip6_renew deaf:beef::1:10/128 eth0                            |
-      | check  | dns_search 'nfs.redhat.com nfs6.redhat.com'                            |
+      | check  | dns_search *'nfs.redhat.com'*                                          |
+      | check  | dns_search *'nfs6.redhat.com'*                                         |
       | check  | nmcli_con_num 1                                                        |
       | check  | no_ifcfg                                                               |
       | check  | ip4_route_unique "default via 192.168.50.1"                            |
@@ -76,7 +77,8 @@ Feature: NM: dracut
       | check  | nmcli_con_prop "Wired Connection" IP6.DNS deaf:beef::1                 |
       | check  | wait_for_ip4_renew 192.168.50.101/24 eth0                              |
       | check  | wait_for_ip6_renew deaf:beef::1:10/128 eth0                            |
-      | check  | dns_search 'nfs.redhat.com nfs6.redhat.com'                            |
+      | check  | dns_search *'nfs.redhat.com'*                                          |
+      | check  | dns_search *'nfs6.redhat.com'*                                         |
       | check  | nmcli_con_num 1                                                        |
       | check  | no_ifcfg                                                               |
       | check  | ip4_route_unique "default via 192.168.50.1"                            |
@@ -146,7 +148,8 @@ Feature: NM: dracut
       | check  | nmcli_con_prop "Wired Connection" IP6.DNS deaf:beef::1                     |
       | check  | wait_for_ip4_renew 192.168.50.102/24 eth0                                  |
       | check  | wait_for_ip6_renew deaf:beef::1:10/128 eth0                                |
-      | check  | dns_search 'nfs.redhat.com nfs6.redhat.com'                                |
+      | check  | dns_search *'nfs.redhat.com'*                                              |
+      | check  | dns_search *'nfs6.redhat.com'*                                             |
       | check  | nmcli_con_num 1                                                            |
       | check  | no_ifcfg                                                                   |
       | check  | ip4_route_unique "default via 192.168.50.1"                                |
@@ -181,7 +184,8 @@ Feature: NM: dracut
       | check  | ifname_mtu eth0 1490                                     |
       | check  | wait_for_ip4_renew 192.168.50.101/24 eth0                |
       | check  | wait_for_ip6_renew deaf:beef::1:10/128 eth0              |
-      | check  | dns_search 'nfs.redhat.com nfs6.redhat.com'              |
+      | check  | dns_search *'nfs.redhat.com'*                            |
+      | check  | dns_search *'nfs6.redhat.com'                            |
       | check  | nmcli_con_num 1                                          |
       | check  | no_ifcfg                                                 |
       | check  | ip4_route_unique "default via 192.168.50.1"              |
@@ -218,7 +222,8 @@ Feature: NM: dracut
       | check  | ifname_mac eth0 52:54:00:12:34:10                                       |
       | check  | wait_for_ip4_renew 192.168.50.101/24 eth0                               |
       | check  | wait_for_ip6_renew deaf:beef::1:10/128 eth0                             |
-      | check  | dns_search 'nfs.redhat.com nfs6.redhat.com'                             |
+      | check  | dns_search *'nfs.redhat.com'*                                           |
+      | check  | dns_search *'nfs6.redhat.com'*                                          |
       | check  | nmcli_con_num 1                                                         |
       | check  | no_ifcfg                                                                |
       | check  | ip4_route_unique "default via 192.168.50.1"                             |
@@ -291,7 +296,8 @@ Feature: NM: dracut
       | check  | nmcli_con_prop eth0 IP6.DNS deaf:beef::1                         |
       | check  | wait_for_ip4_renew 192.168.50.101/24 eth0                        |
       | check  | wait_for_ip6_renew deaf:beef::1:10/128 eth0                      |
-      | check  | dns_search 'nfs.redhat.com nfs6.redhat.com'                      |
+      | check  | dns_search *'nfs.redhat.com'*                                    |
+      | check  | dns_search *'nfs6.redhat.com'*                                   |
       | check  | nmcli_con_num 1                                                  |
       | check  | no_ifcfg                                                         |
       | check  | ip4_route_unique "default via 192.168.50.1"                      |
@@ -330,7 +336,8 @@ Feature: NM: dracut
       | check  | ip4_forever 192.168.50.201/24 eth0                                                     |
       | check  | wait_for_ip4_renew 192.168.50.101/24 eth0                                              |
       | check  | wait_for_ip6_renew deaf:beef::1:10/128 eth0                                            |
-      | check  | dns_search 'nfs.redhat.com nfs6.redhat.com'                                            |
+      | check  | dns_search *'nfs.redhat.com'*                                                          |
+      | check  | dns_search *'nfs6.redhat.com'*                                                         |
       | check  | nmcli_con_num 1                                                                        |
       | check  | no_ifcfg                                                                               |
       | check  | ip4_route_unique "default via 192.168.50.1"                                            |
@@ -920,7 +927,8 @@ Feature: NM: dracut
       | check  | nmcli_con_prop eth0 ipv6.method ''                                        |
       | check  | wait_for_ip4_renew 192.168.50.101/24 br0                                  |
       | check  | wait_for_ip6_renew deaf:beef::1:10/128 br0                                |
-      | check  | dns_search 'nfs.redhat.com nfs6.redhat.com'                               |
+      | check  | dns_search *'nfs.redhat.com'*                                             |
+      | check  | dns_search *'nfs6.redhat.com'*                                            |
       | check  | nmcli_con_num 2                                                           |
       | check  | no_ifcfg                                                                  |
       | check  | ip4_route_unique "default via 192.168.50.1"                               |
