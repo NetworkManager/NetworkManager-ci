@@ -162,7 +162,7 @@ install_fedora_packages () {
 
 }
 
-nstall_el9_packages () {
+install_el9_packages () {
     # Make python3 default if it's not
     rm -rf /usr/bin/python
     ln -s /usr/bin/python3 /usr/bin/python
