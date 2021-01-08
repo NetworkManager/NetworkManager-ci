@@ -162,6 +162,77 @@ install_fedora_packages () {
 
 }
 
+nstall_el9_packages () {
+    # Make python3 default if it's not
+    rm -rf /usr/bin/python
+    ln -s /usr/bin/python3 /usr/bin/python
+
+    # Enable EPEL but on s390x
+    if ! uname -a |grep -q s390x; then
+        [ -f /etc/yum.repos.d/epel.repo ] || sudo rpm -i http://dl.fedoraproject.org/pub/epel/epel-release-latest-9.noarch.rpm
+    fi
+
+    # The newest PIP seems to be broken on aarch64 under rhel8.1
+    #dnf -4 -y install python3-pip
+    #python -m pip install --upgrade pip
+
+    python -m pip install pyroute2
+    python -m pip install pexpect
+    python -m pip install netaddr
+    python -m pip install pyte
+    python -m pip install IPy
+
+    # Needed for gsm_sim
+    dnf -4 -y install https://kojipkgs.fedoraproject.org//packages/perl-IO-Pty-Easy/0.10/5.fc28/noarch/perl-IO-Pty-Easy-0.10-5.fc28.noarch.rpm \
+                      https://kojipkgs.fedoraproject.org//packages/perl-IO-Tty/1.12/11.fc28/$(arch)/perl-IO-Tty-1.12-11.fc28.$(arch).rpm
+
+    # Dnf more deps
+    dnf -4 -y install git python3-netaddr dhcp-relay iw net-tools psmisc firewalld dhcp-server ethtool \
+                          python3-dbus python3-gobject dnsmasq tcpdump wireshark-cli file iproute-tc \
+                          openvpn --skip-broken
+
+    dnf -4 -y install https://kojipkgs.fedoraproject.org//packages/tcpreplay/4.2.5/4.fc28/$(arch)/tcpreplay-4.2.5-4.fc28.$(arch).rpm
+    install_behave_pytest
+
+    # Install vpn dependencies
+    dnf -4 -y install https://kojipkgs.fedoraproject.org//packages/ipsec-tools/0.8.2/10.fc28/$(arch)/ipsec-tools-0.8.2-10.fc28.$(arch).rpm https://kojipkgs.fedoraproject.org//packages/pkcs11-helper/1.22/5.fc28/$(arch)/pkcs11-helper-1.22-5.fc28.$(arch).rpm
+
+    # Install various NM dependencies
+    dnf -4 -y remove NetworkManager-config-connectivity-fedora NetworkManager-config-connectivity-redhat
+
+    # Install kernel-modules-internal for mac80211_hwsim
+    VER=$(rpm -q --queryformat '%{VERSION}' kernel)
+    REL=$(rpm -q --queryformat '%{RELEASE}' kernel)
+    dnf -4 -y install http://download.eng.bos.redhat.com/brewroot/vol/rhel-9/packages/kernel/$VER/$REL/$(arch)/kernel-modules-internal-$VER-$REL.$(arch).rpm
+
+    # We still need pptp and pptpd in epel to be packaged
+    # https://bugzilla.redhat.com/show_bug.cgi?id=1810542
+    if ! rpm -q --quiet NetworkManager-pptp; then
+        dnf -4 -y install https://kojipkgs.fedoraproject.org//packages/NetworkManager-pptp/1.2.8/1.el8.3/$(arch)/NetworkManager-pptp-1.2.8-1.el8.3.$(arch).rpm https://kojipkgs.fedoraproject.org//packages/pptpd/1.4.0/18.fc28/$(arch)/pptpd-1.4.0-18.fc28.$(arch).rpm
+    fi
+
+    if ! rpm -q --quiet NetworkManager-vpnc || ! rpm -q --quiet vpnc; then
+        dnf -4 -y install https://kojipkgs.fedoraproject.org//packages/vpnc/0.5.3/33.svn550.fc29/$(arch)/vpnc-0.5.3-33.svn550.fc29.$(arch).rpm https://kojipkgs.fedoraproject.org//packages/NetworkManager-vpnc/1.2.6/1.fc29/$(arch)/NetworkManager-vpnc-1.2.6-1.fc29.$(arch).rpm https://kojipkgs.fedoraproject.org//packages/vpnc-script/20171004/3.git6f87b0f.fc29/noarch/vpnc-script-20171004-3.git6f87b0f.fc29.noarch.rpm
+    fi
+
+    # strongswan
+    if ! rpm -q --quiet NetworkManager-strongswan || ! rpm -q --quiet strongswan; then
+        dnf -4 -y install https://kojipkgs.fedoraproject.org//packages/NetworkManager-strongswan/1.4.4/1.fc29/$(arch)/NetworkManager-strongswan-1.4.4-1.fc29.$(arch).rpm https://kojipkgs.fedoraproject.org//packages/strongswan/5.7.2/1.fc29/$(arch)/strongswan-5.7.2-1.fc29.$(arch).rpm https://kojipkgs.fedoraproject.org//packages/strongswan/5.7.2/1.fc29/$(arch)/strongswan-charon-nm-5.7.2-1.fc29.$(arch).rpm
+    fi
+
+    # Enable debug logs for wpa_supplicant
+    sed -i 's!OTHER_ARGS="-s"!OTHER_ARGS="-s -dddK"!' /etc/sysconfig/wpa_supplicant
+
+    # Make crypto policies a bit less strict
+    update-crypto-policies --set LEGACY
+    systemctl restart wpa_supplicant
+
+    # Remove cloud-init dns
+    rm -rf /etc/NetworkManager/conf.d/99-cloud-init.conf
+
+    install_plugins_dnf
+}
+
 install_el8_packages () {
     # Make python3 default if it's not
     rm -rf /usr/bin/python
@@ -350,6 +421,15 @@ install_packages () {
             fi
             enable_abrt_el8
         fi
+        if grep -q -e 'release 9' /etc/redhat-release; then
+            install_el9_packages
+            if ! check_packages; then
+                sleep 20
+                install_el9_packages
+            fi
+            enable_abrt_el8
+        fi
+
         if grep -q -e 'Enterprise Linux .*release 7' \
                    -e 'CentOS Linux release 7' /etc/redhat-release; then
             install_el7_packages
