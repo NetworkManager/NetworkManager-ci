@@ -66,7 +66,7 @@ Feature: nmcli: strongswan
     @strongswan
     @strongswan_dns
     Scenario: nmcli - strongswan - dns
-    Given Nameserver "172.31.70.1" is set
+    Given Nameserver "172.31.70.1" is set in "20" seconds
     * Add a connection named "strongswan" for device "\*" to "strongswan" VPN
     * Use user "budulinek" with secret "12345678901234567890" for gateway "172.31.70.1" on Strongswan connection "strongswan"
     * Bring "up" connection "strongswan"

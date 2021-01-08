@@ -161,7 +161,7 @@
     @libreswan
     @libreswan_dns
     Scenario: nmcli - libreswan - dns
-    Given Nameserver "11.12.13.14" is set
+    Given Nameserver "11.12.13.14" is set in "20" seconds
     * Add a connection named "libreswan" for device "\*" to "libreswan" VPN
     * Use user "budulinek" with password "passwd" and group "yolo" with secret "ipsecret" for gateway "11.12.13.14" on Libreswan connection "libreswan"
     * Bring "up" connection "libreswan"

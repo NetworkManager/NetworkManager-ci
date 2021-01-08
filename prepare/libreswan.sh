@@ -183,7 +183,8 @@ libreswan_setup ()
 
     # this is NSS database for client
     # (used by pluto started by NM in main namespace)
-    if rpm -q --quiet libreswan-4*; then
+    # DB was moved to /var/lib but not for RHEL and CentOS
+    if rpm -q --quiet libreswan-4* && grep -qv 'release 8' /etc/redhat-release; then
         NSS_CLIENT_DIR="/var/lib/ipsec/nss/"
     else
         NSS_CLIENT_DIR="/etc/ipsec.d/"
