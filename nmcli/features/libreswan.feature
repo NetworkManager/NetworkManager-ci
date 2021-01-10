@@ -9,7 +9,7 @@
 
     @libreswan
     @libreswan_ikev1_aggressive
-    Scenario: nmcli - libreswan - connect in ike1 aggresive
+    Scenario: nmcli - libreswan - connect in ike1 aggressive
     * Add a connection named "libreswan" for device "\*" to "libreswan" VPN
     * Use user "budulinek" with password "passwd" and group "yolo" with secret "ipsecret" for gateway "11.12.13.14" on Libreswan connection "libreswan"
     * Bring "up" connection "libreswan"
