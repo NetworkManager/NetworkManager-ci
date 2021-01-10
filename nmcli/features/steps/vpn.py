@@ -46,8 +46,12 @@ def set_openvpn_connection(context, cert, key, ca, gateway, name):
 
 @step(u'Use user "{user}" with password "{password}" and group "{group}" with secret "{secret}" for gateway "{gateway}" on Libreswan connection "{name}"')
 def set_libreswan_connection(context, user, password, group, secret, gateway, name):
+    if nmci.command_code("rpm -qa | grep -q libreswan-4") == 0 and 'release 8' not in context.rh_release:
+        username_option = "leftusername"
+    else:
+        username_option = "leftxauthusername"
     vpn_data = {
-        "leftxauthusername": user,
+        username_option: user,
         "right": gateway,
         "xauthpasswordinputmodes": "ask" if password == "ask" else "save",
         "xauthpassword-flags": "2" if password == "ask" else "0",

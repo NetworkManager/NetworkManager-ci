@@ -276,29 +276,57 @@
 
 
     @rhbz1034105
-    @ver+=1.3.0
+    @ver+=1.3.0 @rhelver-=8 @fedoraver-=31
     @vpn
     @libreswan_import
     Scenario: nmcli - libreswan - import
-    * Execute "nmcli connection import file tmp/vpn.swan type libreswan"
+    * Execute "nmcli connection import file tmp/vpn.swan3 type libreswan"
     Then "leftid = VPN-standard" is visible with command "nmcli connection show vpn |grep vpn.data"
      And "right = vpn-test.com" is visible with command "nmcli connection show vpn |grep vpn.data"
      And "ike = aes-sha1;modp2048" is visible with command "nmcli connection show vpn |grep vpn.data"
      And "leftxauthusername = test_user" is visible with command "nmcli connection show vpn |grep vpn.data"
 
 
+    @rhbz1034105
+    @ver+=1.3.0 @rhelver+=9 @fedoraver+=32
+    @vpn
+    @libreswan_import
+    Scenario: nmcli - libreswan - import
+    * Execute "nmcli connection import file tmp/vpn.swan4 type libreswan"
+    Then "leftid = VPN-standard" is visible with command "nmcli connection show vpn |grep vpn.data"
+     And "right = vpn-test.com" is visible with command "nmcli connection show vpn |grep vpn.data"
+     And "ike = aes-sha1;modp2048" is visible with command "nmcli connection show vpn |grep vpn.data"
+     And "leftusername = test_user" is visible with command "nmcli connection show vpn |grep vpn.data"
+
+
     @rhbz1034105 @rhbz1626485
-    @ver+=1.3.0
+    @ver+=1.3.0 @rhelver-=8 @fedoraver-=31
     @vpn
     @libreswan_export
     Scenario: nmcli - libreswan - export
-    * Execute "nmcli connection import file tmp/vpn.swan type libreswan"
-    * Execute "nmcli connection export vpn > /tmp/vpn.swan"
-    * Execute "sed -i 's/phase2alg=/esp=/g' /tmp/vpn.swan"
-    Then Check file "tmp/vpn.swan" is contained in file "/tmp/vpn.swan"
+    * Execute "nmcli connection import file tmp/vpn.swan3 type libreswan"
+    * Execute "nmcli connection export vpn > /tmp/vpn.swan3"
+    * Execute "sed -i 's/phase2alg=/esp=/g' /tmp/vpn.swan3"
+    Then Check file "tmp/vpn.swan3" is contained in file "/tmp/vpn.swan3"
     * Execute "nmcli -g vpn.data conn show vpn > /tmp/vpn1.data"
     * Delete connection "vpn"
-    * Execute "nmcli connection import file /tmp/vpn.swan type libreswan"
+    * Execute "nmcli connection import file /tmp/vpn.swan3 type libreswan"
+    * Execute "nmcli -g vpn.data conn show vpn > /tmp/vpn2.data"
+    Then Check file "/tmp/vpn1.data" is identical to file "/tmp/vpn2.data"
+
+
+    @rhbz1034105 @rhbz1626485
+    @ver+=1.3.0 @rhelver+=9 @fedoraver+=32
+    @vpn
+    @libreswan_export
+    Scenario: nmcli - libreswan - export
+    * Execute "nmcli connection import file tmp/vpn.swan4 type libreswan"
+    * Execute "nmcli connection export vpn > /tmp/vpn.swan4"
+    * Execute "sed -i 's/phase2alg=/esp=/g' /tmp/vpn.swan4"
+    Then Check file "tmp/vpn.swan4" is contained in file "/tmp/vpn.swan4"
+    * Execute "nmcli -g vpn.data conn show vpn > /tmp/vpn1.data"
+    * Delete connection "vpn"
+    * Execute "nmcli connection import file /tmp/vpn.swan4 type libreswan"
     * Execute "nmcli -g vpn.data conn show vpn > /tmp/vpn2.data"
     Then Check file "/tmp/vpn1.data" is identical to file "/tmp/vpn2.data"
 
@@ -311,12 +339,12 @@
     * "file.*type" is visible with tab after "nmcli con import "
     Then "vpn.swan" is visible with tab after "nmcli con import file tmp/"
      And "vpn.swan" is visible with tab after "nmcli con import type libreswan file tmp/"
-     And "type" is visible with tab after "nmcli con import file tmp/vpn.swan "
+     And "type" is visible with tab after "nmcli con import file tmp/vpn.swan3 "
      And "libreswan|openswan|openconnect|strongswan" is visible with tab after "nmcli con import file tmp/vpn.swan type "
 
 
     @rhbz1633174
-    @ver+=1.14.0  @rhelver+=8
+    @ver+=1.14.0  @rhelver+=8 @rhelver-=8 @fedoraver-=31
     @libreswan
     @libreswan_reimport
     Scenario: nmcli - libreswan - reimport exported connection
@@ -332,6 +360,29 @@
     * Execute "nmcli con import file /tmp/vpn.swan type libreswan"
     # add required options, which are not exported
     * Modify connection "libreswan" changing options "+vpn.data pskinputmodes=ask,xauthpasswordinputmodes=ask,pskvalue-flags=2,xauthpassword-flags=2,leftxauthusername=budulinek"
+    * Note the output of "nmcli -t -f vpn.data connection show libreswan | sed -e 's/vpn.data:\s*//' | sed -e 's/\s*,\s*/\n/g' | sort" as value "vpn2"
+    When Check noted values "vpn1" and "vpn2" are the same
+    * Connect to vpn "libreswan" with password "passwd" and secret "ipsecret"
+    Then "VPN.VPN-STATE:.*VPN connected" is visible with command "nmcli c show libreswan"
+
+
+    @rhbz1633174
+    @ver+=1.14.0  @rhelver+=9 @fedoraver+=32
+    @libreswan
+    @libreswan_reimport
+    Scenario: nmcli - libreswan - reimport exported connection
+    * Add a new connection of type "vpn" and options "ifname \* con-name libreswan autoconnect no vpn-type libreswan"
+    * Use user "budulinek" with password "ask" and group "yolo" with secret "ask" for gateway "11.12.13.14" on Libreswan connection "libreswan"
+    * Connect to vpn "libreswan" with password "passwd" and secret "ipsecret"
+    When "VPN.VPN-STATE:.*VPN connected" is visible with command "nmcli c show libreswan"
+    # options in vpn.data may be in arbitrary order, sort them so it is comparable
+    * Note the output of "nmcli -t -f vpn.data connection show libreswan | sed -e 's/vpn.data:\s*//' | sed -e 's/\s*,\s*/\n/g' | sort" as value "vpn1"
+    * Execute "nmcli connection export libreswan > /tmp/vpn.swan4"
+    * Bring "down" connection "libreswan"
+    * Delete connection "libreswan"
+    * Execute "nmcli con import file /tmp/vpn.swan4 type libreswan"
+    # add required options, which are not exported
+    * Modify connection "libreswan" changing options "+vpn.data pskinputmodes=ask,xauthpasswordinputmodes=ask,pskvalue-flags=2,xauthpassword-flags=2,leftusername=budulinek"
     * Note the output of "nmcli -t -f vpn.data connection show libreswan | sed -e 's/vpn.data:\s*//' | sed -e 's/\s*,\s*/\n/g' | sort" as value "vpn2"
     When Check noted values "vpn1" and "vpn2" are the same
     * Connect to vpn "libreswan" with password "passwd" and secret "ipsecret"
