@@ -258,6 +258,17 @@ Feature: nmcli - wifi
     Then Finish "echo secret123 | nmcli dev wifi connect wpa3 --ask"
 
 
+    @ver+=1.29 @rhelver+=8 @fedoraver-=0
+    @simwifi @simwifi_wpa3 @attach_hostapd_log @attach_wpa_supplicant_log
+    @simwifi_tls_wpa3
+    Scenario: nmcli - simwifi - connect to TLS
+    Given "wpa3-eap" is visible with command "nmcli -f SSID device wifi list" in "60" seconds
+    * Add a new connection of type "wifi" and options "ifname wlan0 con-name wifi autoconnect no ssid wpa3-eap"
+    * Modify connection "wifi" changing options "802-11-wireless-security.key-mgmt wpa-eap-suite-b-192 802-1x.eap tls 802-1x.identity test 802-1x.ca-cert /tmp/certs/test_user.ca.pem 802-1x.client-cert /tmp/certs/test_user.cert.pem 802-1x.private-key /tmp/certs/test_user.key.enc.pem 802-1x.private-key-password redhat"
+    * Execute "sleep 3"
+    Then Bring "up" connection "wifi"
+
+
     @rhbz1781253
     @ver+=1.25
     @simwifi @simwifi_wpa2 @attach_hostapd_log @attach_wpa_supplicant_log

@@ -301,6 +301,24 @@ install_el8_packages () {
         dnf -4 -y install https://kojipkgs.fedoraproject.org//packages/NetworkManager-strongswan/1.4.4/1.fc29/$(arch)/NetworkManager-strongswan-1.4.4-1.fc29.$(arch).rpm https://kojipkgs.fedoraproject.org//packages/strongswan/5.7.2/1.fc29/$(arch)/strongswan-5.7.2-1.fc29.$(arch).rpm https://kojipkgs.fedoraproject.org//packages/strongswan/5.7.2/1.fc29/$(arch)/strongswan-charon-nm-5.7.2-1.fc29.$(arch).rpm
     fi
 
+    # install wpa_supplicant and hostapd with WPA3 enterprise capabilities
+    if [ $(arch) == "x86_64" ]; then
+        dnf -4 y install wpa_supplicant{,-debuginfo,-debugsource} --skip-broken
+        dnf -4 -y update \
+            https://vbenes.fedorapeople.org/NM/WPA3/hostapd-2.9-6.el8.x86_64.rpm \
+            https://vbenes.fedorapeople.org/NM/WPA3/hostapd-debuginfo-2.9-6.el8.x86_64.rpm \
+            https://vbenes.fedorapeople.org/NM/WPA3/hostapd-debugsource-2.9-6.el8.x86_64.rpm \
+            https://vbenes.fedorapeople.org/NM/WPA3/hostapd-logwatch-2.9-6.el8.x86_64.rpm \
+            https://vbenes.fedorapeople.org/NM/WPA3/wpa_supplicant-2.9-8.el8.x86_64.rpm \
+            https://vbenes.fedorapeople.org/NM/WPA3/wpa_supplicant-debuginfo-2.9-8.el8.x86_64.rpm \
+            https://vbenes.fedorapeople.org/NM/WPA3/wpa_supplicant-debugsource-2.9-8.el8.x86_64.rpm
+    else
+        # WPA3 Personal capable wpa_supplicant for RHEL 8.3
+        dnf -4 -y install https://vbenes.fedorapeople.org/NM/rhbz1888051/wpa_supplicant{,-debuginfo,-debugsource}-2.9-3.el8.$(arch).rpm
+        # update in case newer version is in repo
+        dnf -4 -y update wpa_supplicant
+    fi
+
     # Enable debug logs for wpa_supplicant
     sed -i 's!OTHER_ARGS="-s"!OTHER_ARGS="-s -dddK"!' /etc/sysconfig/wpa_supplicant
 
@@ -324,9 +342,6 @@ install_el8_packages () {
         dnf -4 -y install http://download.eng.bos.redhat.com/brewroot/vol/rhel-8/packages/perl-Config-General/2.63/5.el8+7/noarch/perl-Config-General-2.63-5.el8+7.noarch.rpm
     fi
     dnf -4 -y install https://kojipkgs.fedoraproject.org//packages/scsi-target-utils/1.0.79/1.fc32/$(arch)/scsi-target-utils-1.0.79-1.fc32.$(arch).rpm
-
-    #wpa_supplicant for rhel8.3 or sooner - needed by @simwifi_ap_in_bridge_wpa_psk_method_manual
-    dnf -4 -y install https://vbenes.fedorapeople.org/NM/rhbz1888051/wpa_supplicant{,-debuginfo,-debugsource}-2.9-3.el8.$(arch).rpm
 
     install_plugins_dnf
 }
@@ -381,7 +396,7 @@ install_el7_packages () {
     # Remove cloud-init dns
     rm -rf /etc/NetworkManager/conf.d/99-cloud-init.conf
 
-    # Tune wpa_supplicat to log into journal and enable debugging
+    # Tune wpa_supplicant to log into journal and enable debugging
     systemctl stop wpa_supplicant
     sed -i 's!ExecStart=/usr/sbin/wpa_supplicant -u -f /var/log/wpa_supplicant.log -c /etc/wpa_supplicant/wpa_supplicant.conf!ExecStart=/usr/sbin/wpa_supplicant -u -c /etc/wpa_supplicant/wpa_supplicant.conf!' /etc/systemd/system/wpa_supplicant.service
     sed -i 's!OTHER_ARGS="-P /var/run/wpa_supplicant.pid"!OTHER_ARGS="-P /var/run/wpa_supplicant.pid -dddK"!' /etc/sysconfig/wpa_supplicant

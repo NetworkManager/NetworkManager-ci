@@ -902,7 +902,10 @@ def simwifi_p2p_bs(ctx, scen):
 def simwifi_p2p_as(ctx, scen):
     print("---------------------------")
     if "release 8" in ctx.rh_release:
-        nmci.run("dnf -4 -y install https://vbenes.fedorapeople.org/NM/rhbz1888051/wpa_supplicant{,-debuginfo,-debugsource}-2.9-3.el8.$(arch).rpm")
+        if ctx.arch == "x86_64":
+            nmci.run("dnf -4 -y install https://vbenes.fedorapeople.org/NM/WPA3/wpa_supplicant{,-debuginfo,-debugsource}-2.9-8.el8.$(arch).rpm")
+        else:
+            nmci.run("dnf -4 -y install https://vbenes.fedorapeople.org/NM/rhbz1888051/wpa_supplicant{,-debuginfo,-debugsource}-2.9-3.el8.$(arch).rpm")
         nmci.run("dnf -y update wpa_supplicant")
         nmci.run("systemctl restart wpa_supplicant")
     nmci.run('modprobe -r mac80211_hwsim')
@@ -930,7 +933,7 @@ def simwifi_wpa3_as(ctx, scen):
     print("---------------------------")
     print("deleting wifi connections")
     #teardown_hostapd_wireless()
-    nmci.run("nmcli con del wpa3 wifi")
+    nmci.run("nmcli con del wpa3 wpa3-eap wifi")
 
 
 _register_tag("simwifi_wpa3", None, simwifi_wpa3_as)

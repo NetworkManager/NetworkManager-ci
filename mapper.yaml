@@ -2017,6 +2017,8 @@ testmapper:
         feature: wifi_hwsim
     - simwifi_wpa3_personal_device_connect_ask:
         feature: wifi_hwsim
+    - simwifi_tls_wpa3:
+        feature: wifi_hwsim
     - nmclient_get_wireless_hw_property:
         feature: wifi_hwsim
     - wifi_dbus_bitrate_property_name:

@@ -192,6 +192,37 @@ wpa_passphrase=secret123
 " >> $HOSTAPD_CFG
 fi
 
+hostapd_ver=$(rpm -q hostapd)
+hostapd_ver=${wpa_ver#hostapd-}
+if ver_gte $wpa_ver 2.9-6; then
+echo "
+#wpa3eap
+bss=wlan1_wpa3eap
+ssid=wpa3-eap
+country_code=EN
+hw_mode=g
+channel=7
+auth_algs=3
+wpa=2
+ieee8021x=1
+eapol_version=1
+ieee80211w=2
+wpa_key_mgmt=WPA-EAP-SUITE-B-192
+eap_reauth_period=3600
+eap_server=1
+use_pae_group_addr=1
+eap_user_file=$EAP_USERS_FILE
+ca_cert=$HOSTAPD_KEYS_PATH/hostapd.ca.pem
+dh_file=$HOSTAPD_KEYS_PATH/hostapd.dh.pem
+server_cert=$HOSTAPD_KEYS_PATH/hostapd.cert.pem
+private_key=$HOSTAPD_KEYS_PATH/hostapd.key.enc.pem
+private_key_passwd=redhat
+rsn_pairwise=GCMP-256
+group_cipher=GCMP-256
+group_mgmt_cipher=BIP-GMAC-256
+" >> $HOSTAPD_CFG
+fi
+
 # Create a list of users for network authentication, authentication types, and corresponding credentials.
 echo "# Create hostapd peap user file
 # Phase 1 authentication
