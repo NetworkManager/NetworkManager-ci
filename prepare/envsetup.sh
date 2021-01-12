@@ -196,7 +196,18 @@ install_el9_packages () {
 
     # Install vpn dependencies
     dnf -4 -y install https://kojipkgs.fedoraproject.org//packages/ipsec-tools/0.8.2/10.fc28/$(arch)/ipsec-tools-0.8.2-10.fc28.$(arch).rpm https://kojipkgs.fedoraproject.org//packages/pkcs11-helper/1.22/5.fc28/$(arch)/pkcs11-helper-1.22-5.fc28.$(arch).rpm
-    dnf -4 -y install http://download.eng.bos.redhat.com/brewroot/vol/rhel-9/packages/NetworkManager-libreswan/1.2.14/1.el9/$(arch)/NetworkManager-libreswan-1.2.14-1.el9.$(arch).rpm
+    # libreswan please remove when in compose 12012021
+    if ! rpm -q --quiet NetworkManager-libreswan || ! rpm -q --quiet libreswan; then
+        dnf -4 -y install http://download.eng.bos.redhat.com/brewroot/vol/rhel-9/packages/NetworkManager-libreswan/1.2.14/1.el9/$(arch)/NetworkManager-libreswan-1.2.14-1.el9.$(arch).rpm
+    fi
+    # openvpn, please remove once in epel 12012021
+    if ! rpm -q --quiet NetworkManager-openvpn || ! rpm -q --quiet openvpn; then
+        dnf -4 -y install https://kojipkgs.fedoraproject.org//packages/NetworkManager-openvpn/1.8.12/1.fc33.1/$(arch)/NetworkManager-openvpn-1.8.12-1.fc33.1.$(arch).rpm https://kojipkgs.fedoraproject.org//packages/openvpn/2.5.0/1.fc34/$(arch)/openvpn-2.5.0-1.fc34.$(arch).rpm https://kojipkgs.fedoraproject.org//packages/pkcs11-helper/1.27.0/2.fc34/$(arch)/pkcs11-helper-1.27.0-2.fc34.$(arch).rpm
+    fi
+    # strongswan remove once in epel 12012021
+    if ! rpm -q --quiet NetworkManager-strongswan || ! rpm -q --quiet strongswan; then
+        dnf -4 -y install https://kojipkgs.fedoraproject.org//packages/NetworkManager-strongswan/1.5.0/2.fc33/$(arch)/NetworkManager-strongswan-1.5.0-2.fc33.$(arch).rpm NetworkManager-strongswan https://kojipkgs.fedoraproject.org//packages/strongswan/5.9.0/2.fc33/$(arch)/strongswan-5.9.0-2.fc33.$(arch).rpm https://kojipkgs.fedoraproject.org//packages/strongswan/5.9.0/2.fc33/$(arch)/strongswan-charon-nm-5.9.0-2.fc33.$(arch).rpm
+    fi
 
     # Install various NM dependencies
     dnf -4 -y remove NetworkManager-config-connectivity-fedora NetworkManager-config-connectivity-redhat
@@ -216,10 +227,6 @@ install_el9_packages () {
         dnf -4 -y install https://kojipkgs.fedoraproject.org//packages/vpnc/0.5.3/33.svn550.fc29/$(arch)/vpnc-0.5.3-33.svn550.fc29.$(arch).rpm https://kojipkgs.fedoraproject.org//packages/NetworkManager-vpnc/1.2.6/1.fc29/$(arch)/NetworkManager-vpnc-1.2.6-1.fc29.$(arch).rpm https://kojipkgs.fedoraproject.org//packages/vpnc-script/20171004/3.git6f87b0f.fc29/noarch/vpnc-script-20171004-3.git6f87b0f.fc29.noarch.rpm
     fi
 
-    # strongswan
-    if ! rpm -q --quiet NetworkManager-strongswan || ! rpm -q --quiet strongswan; then
-        dnf -4 -y install https://kojipkgs.fedoraproject.org//packages/NetworkManager-strongswan/1.4.4/1.fc29/$(arch)/NetworkManager-strongswan-1.4.4-1.fc29.$(arch).rpm https://kojipkgs.fedoraproject.org//packages/strongswan/5.7.2/1.fc29/$(arch)/strongswan-5.7.2-1.fc29.$(arch).rpm https://kojipkgs.fedoraproject.org//packages/strongswan/5.7.2/1.fc29/$(arch)/strongswan-charon-nm-5.7.2-1.fc29.$(arch).rpm
-    fi
 
     # Enable debug logs for wpa_supplicant
     sed -i 's!OTHER_ARGS="-s"!OTHER_ARGS="-s -dddK"!' /etc/sysconfig/wpa_supplicant
