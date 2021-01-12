@@ -196,6 +196,7 @@ install_el9_packages () {
 
     # Install vpn dependencies
     dnf -4 -y install https://kojipkgs.fedoraproject.org//packages/ipsec-tools/0.8.2/10.fc28/$(arch)/ipsec-tools-0.8.2-10.fc28.$(arch).rpm https://kojipkgs.fedoraproject.org//packages/pkcs11-helper/1.22/5.fc28/$(arch)/pkcs11-helper-1.22-5.fc28.$(arch).rpm
+    dnf -4 -y install http://download.eng.bos.redhat.com/brewroot/vol/rhel-9/packages/NetworkManager-libreswan/1.2.14/1.el9/$(arch)/NetworkManager-libreswan-1.2.14-1.el9.$(arch).rpm
 
     # Install various NM dependencies
     dnf -4 -y remove NetworkManager-config-connectivity-fedora NetworkManager-config-connectivity-redhat
