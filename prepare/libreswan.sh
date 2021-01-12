@@ -147,8 +147,11 @@ libreswan_gen_netconfig ()
 
     # IPv6 on a veth confuses pluto. Sigh. (TODO: check id still true)
     # ERROR: bind() for 80/80 fe80::94bf:8cff:fe1b:7620:500 in process_raw_ifaces(). Errno 22: Invalid argument
-    echo 1 > /proc/sys/net/ipv6/conf/default/disable_ipv6
-    ip netns exec libreswan echo 1 > /proc/sys/net/ipv6/conf/default/disable_ipv6
+    # We don't need it in RHEL9/Fedoras
+    if grep -q -e 'release [7|8]' /etc/redhat-release; then
+        echo 1 > /proc/sys/net/ipv6/conf/default/disable_ipv6
+        ip netns exec libreswan echo 1 > /proc/sys/net/ipv6/conf/default/disable_ipv6
+    fi
     ip link add libreswan0 type veth peer name libreswan1
     ip link set libreswan0 netns libreswan
 
@@ -226,7 +229,9 @@ libreswan_setup ()
 libreswan_teardown ()
 {
     [ -f "$LIBRESWAN_DIR/pluto.pid" ] && kill $(cat "$LIBRESWAN_DIR/pluto.pid")
-    echo 0 > /proc/sys/net/ipv6/conf/default/disable_ipv6
+    if grep -q -e 'release [7|8]' /etc/redhat-release; then
+        echo 0 > /proc/sys/net/ipv6/conf/default/disable_ipv6
+    fi
     ip netns list | grep -q libreswan && ip netns del libreswan
     ip link | grep -q libreswan1 && ip link del libreswan1
     nmcli -f NAME c show | grep -q 'lib1' && nmcli connection del lib1
