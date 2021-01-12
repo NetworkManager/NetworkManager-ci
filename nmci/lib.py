@@ -207,6 +207,10 @@ def check_faf(context, do_report=True):
         if not dump_dir:
             continue
         print("Examing crash: " + dump_dir)
+        if not os.path.isfile("%s/pkg_name" % (dump_dir)) or \
+                not os.path.isfile("%s/last_occurrence" % (dump_dir)):
+            print("* incomplete report, skipping.")
+            continue
         with open("%s/pkg_name" % (dump_dir), "r") as f:
             pkg = f.read()
         if not check_dump_package(pkg):
