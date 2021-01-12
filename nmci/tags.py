@@ -1715,6 +1715,18 @@ def del_test1112_veths_as(ctx, scen):
 _register_tag("del_test1112_veths", del_test1112_veths_bs, del_test1112_veths_as)
 
 
+def veth_remove_as(ctx, scen):
+    print("---------------------------")
+    print("removing test11 device")
+    nmci.run('nmcli con down con_veth2')
+    nmci.run('nmcli con down con_veth1')
+    nmci.run('nmcli con delete con_veth1')
+    nmci.run('nmcli con delete con_veth2')
+
+
+_register_tag("veth_remove", None, veth_remove_as)
+
+
 def nmstate_setup_bs(ctx, scen):
     # Skip on deployments where we do not have veths
     if not os.path.isfile('/tmp/nm_newveth_configured'):

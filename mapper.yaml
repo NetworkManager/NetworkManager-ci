@@ -1954,6 +1954,16 @@ testmapper:
         feature: tuntap
     - tuntap_device_kernel_properties:
         feature: tuntap
+    - veth_profile_add:
+        feature: veth
+    - veth_profile_remove:
+        feature: veth
+# failing due to 1915278
+#    - veth_device_remove:
+#        feature: veth
+# failing due to 1915284
+#    - veth_profile_restart_persistnce:
+#        feature: veth
     - set_fq_codel_queue:
         feature: tc
     - set_pfifo_fast_queue:
