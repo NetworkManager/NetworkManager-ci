@@ -8,7 +8,7 @@
     # Scenario:
 
 
-    @rhelver-=8
+    @rhelver-=8 @fedoraver-=33
     @vpnc
     @vpnc_add_profile
     Scenario: nmcli - vpnc - add and connect a connection
@@ -20,7 +20,7 @@
     Then "IP4.ADDRESS.*172.31.60.2/24" is visible with command "nmcli c show vpnc"
 
 
-    @rhelver-=8
+    @rhelver-=8 @fedoraver-=33
     @vpnc
     @vpnc_terminate
     Scenario: nmcli - vpnc - terminate connection

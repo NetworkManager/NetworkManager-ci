@@ -115,7 +115,6 @@ vlan_mtu_from_parent
 default_route_for_vlan_over_team
 vlan_on_bond_autoconnect
 multiple_vpn_connections
-vpnc_add_profile
 nmtui_bond_start_on_boot_with_one_slave_auto
 nmtui_bridge_over_vlans
 nmtui_bridge_custom_bridge_port
