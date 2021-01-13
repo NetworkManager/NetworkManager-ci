@@ -172,10 +172,6 @@ install_el9_packages () {
         [ -f /etc/yum.repos.d/epel.repo ] || sudo rpm -i http://dl.fedoraproject.org/pub/epel/epel-release-latest-9.noarch.rpm
     fi
 
-    # The newest PIP seems to be broken on aarch64 under rhel8.1
-    #dnf -4 -y install python3-pip
-    #python -m pip install --upgrade pip
-
     python -m pip install pyroute2
     python -m pip install pexpect
     python -m pip install netaddr
@@ -191,7 +187,10 @@ install_el9_packages () {
                           python3-dbus python3-gobject dnsmasq tcpdump wireshark-cli file iproute-tc \
                           openvpn --skip-broken
 
-    dnf -4 -y install https://kojipkgs.fedoraproject.org//packages/tcpreplay/4.2.5/4.fc28/$(arch)/tcpreplay-4.2.5-4.fc28.$(arch).rpm
+    # and few more
+    dnf -4 -y install https://kojipkgs.fedoraproject.org//packages/tcpreplay/4.3.3/3.fc34/$(arch)/tcpreplay-4.3.3-3.fc34.$(arch).rpm \
+                https://kojipkgs.fedoraproject.org//packages/hostapd/2.9/6.fc34/$(arch)/hostapd-2.9-6.fc34.$(arch).rpm
+
     install_behave_pytest
 
     # Install vpn dependencies
@@ -209,7 +208,7 @@ install_el9_packages () {
         dnf -4 -y install https://kojipkgs.fedoraproject.org//packages/NetworkManager-strongswan/1.5.0/2.fc33/$(arch)/NetworkManager-strongswan-1.5.0-2.fc33.$(arch).rpm NetworkManager-strongswan https://kojipkgs.fedoraproject.org//packages/strongswan/5.9.0/2.fc33/$(arch)/strongswan-5.9.0-2.fc33.$(arch).rpm https://kojipkgs.fedoraproject.org//packages/strongswan/5.9.0/2.fc33/$(arch)/strongswan-charon-nm-5.9.0-2.fc33.$(arch).rpm
     fi
 
-    # Install various NM dependencies
+    # Remove connectivity checks
     dnf -4 -y remove NetworkManager-config-connectivity-fedora NetworkManager-config-connectivity-redhat
 
     # Install kernel-modules-internal for mac80211_hwsim
@@ -220,13 +219,8 @@ install_el9_packages () {
     # We still need pptp and pptpd in epel to be packaged
     # https://bugzilla.redhat.com/show_bug.cgi?id=1810542
     if ! rpm -q --quiet NetworkManager-pptp; then
-        dnf -4 -y install https://kojipkgs.fedoraproject.org//packages/NetworkManager-pptp/1.2.8/1.el8.3/$(arch)/NetworkManager-pptp-1.2.8-1.el8.3.$(arch).rpm https://kojipkgs.fedoraproject.org//packages/pptpd/1.4.0/18.fc28/$(arch)/pptpd-1.4.0-18.fc28.$(arch).rpm
+        dnf -4 -y install https://kojipkgs.fedoraproject.org//packages/NetworkManager-pptp/1.2.8/2.fc34.1/$(arch)/NetworkManager-pptp-1.2.8-2.fc34.1.$(arch).rpm https://kojipkgs.fedoraproject.org//packages/pptpd/1.4.0/25.fc34/$(arch)/pptpd-1.4.0-25.fc34.$(arch).rpm
     fi
-
-    if ! rpm -q --quiet NetworkManager-vpnc || ! rpm -q --quiet vpnc; then
-        dnf -4 -y install https://kojipkgs.fedoraproject.org//packages/vpnc/0.5.3/33.svn550.fc29/$(arch)/vpnc-0.5.3-33.svn550.fc29.$(arch).rpm https://kojipkgs.fedoraproject.org//packages/NetworkManager-vpnc/1.2.6/1.fc29/$(arch)/NetworkManager-vpnc-1.2.6-1.fc29.$(arch).rpm https://kojipkgs.fedoraproject.org//packages/vpnc-script/20171004/3.git6f87b0f.fc29/noarch/vpnc-script-20171004-3.git6f87b0f.fc29.noarch.rpm
-    fi
-
 
     # Enable debug logs for wpa_supplicant
     sed -i 's!OTHER_ARGS="-s"!OTHER_ARGS="-s -dddK"!' /etc/sysconfig/wpa_supplicant
