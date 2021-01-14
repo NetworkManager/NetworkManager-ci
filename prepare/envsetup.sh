@@ -209,6 +209,7 @@ install_el9_packages () {
         dnf -4 -y install https://kojipkgs.fedoraproject.org//packages/NetworkManager-strongswan/1.5.0/2.fc33/$(arch)/NetworkManager-strongswan-1.5.0-2.fc33.$(arch).rpm NetworkManager-strongswan https://kojipkgs.fedoraproject.org//packages/strongswan/5.9.0/2.fc33/$(arch)/strongswan-5.9.0-2.fc33.$(arch).rpm https://kojipkgs.fedoraproject.org//packages/strongswan/5.9.0/2.fc33/$(arch)/strongswan-charon-nm-5.9.0-2.fc33.$(arch).rpm
     fi
 
+
     # Remove connectivity checks
     dnf -4 -y remove NetworkManager-config-connectivity-fedora NetworkManager-config-connectivity-redhat
 
@@ -220,7 +221,13 @@ install_el9_packages () {
     # We still need pptp and pptpd in epel to be packaged
     # https://bugzilla.redhat.com/show_bug.cgi?id=1810542
     if ! rpm -q --quiet NetworkManager-pptp; then
-        dnf -4 -y install https://kojipkgs.fedoraproject.org//packages/NetworkManager-pptp/1.2.8/2.fc34.1/$(arch)/NetworkManager-pptp-1.2.8-2.fc34.1.$(arch).rpm https://kojipkgs.fedoraproject.org//packages/pptpd/1.4.0/25.fc34/$(arch)/pptpd-1.4.0-25.fc34.$(arch).rpm ttps://kojipkgs.fedoraproject.org//packages/pptp/1.10.0/11.eln107/$(arch)/pptp-1.10.0-11.eln107.$(arch).rpm
+        dnf -4 -y install https://kojipkgs.fedoraproject.org//packages/NetworkManager-pptp/1.2.8/2.fc34.1/$(arch)/NetworkManager-pptp-1.2.8-2.fc34.1.$(arch).rpm https://kojipkgs.fedoraproject.org//packages/pptpd/1.4.0/25.fc34/$(arch)/pptpd-1.4.0-25.fc34.$(arch).rpm https://kojipkgs.fedoraproject.org//packages/pptp/1.10.0/11.eln107/$(arch)/pptp-1.10.0-11.eln107.$(arch).rpm
+    fi
+
+    if ! rpm -q --quiet NetworkManager-ppp; then
+        VER=$(rpm -q --queryformat '%{VERSION}' NetworkManager)
+        REL=$(rpm -q --queryformat '%{RELEASE}' NetworkManager)
+        dnf -y install http://download.eng.bos.redhat.com/brewroot/vol/rhel-9/packages/NetworkManager/$VER/$REL/$(arch)/NetworkManager-ppp-$VER-$REL.$(arch).rpm
     fi
 
     # Enable debug logs for wpa_supplicant
