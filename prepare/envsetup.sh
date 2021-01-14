@@ -220,7 +220,7 @@ install_el9_packages () {
     # We still need pptp and pptpd in epel to be packaged
     # https://bugzilla.redhat.com/show_bug.cgi?id=1810542
     if ! rpm -q --quiet NetworkManager-pptp; then
-        dnf -4 -y install https://kojipkgs.fedoraproject.org//packages/NetworkManager-pptp/1.2.8/2.fc34.1/$(arch)/NetworkManager-pptp-1.2.8-2.fc34.1.$(arch).rpm https://kojipkgs.fedoraproject.org//packages/pptpd/1.4.0/25.fc34/$(arch)/pptpd-1.4.0-25.fc34.$(arch).rpm
+        dnf -4 -y install https://kojipkgs.fedoraproject.org//packages/NetworkManager-pptp/1.2.8/2.fc34.1/$(arch)/NetworkManager-pptp-1.2.8-2.fc34.1.$(arch).rpm https://kojipkgs.fedoraproject.org//packages/pptpd/1.4.0/25.fc34/$(arch)/pptpd-1.4.0-25.fc34.$(arch).rpm ttps://kojipkgs.fedoraproject.org//packages/pptp/1.10.0/11.eln107/$(arch)/pptp-1.10.0-11.eln107.$(arch).rpm
     fi
 
     # Enable debug logs for wpa_supplicant

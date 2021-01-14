@@ -33,8 +33,8 @@ def reboot(context):
     # for pppoe test
     nmci_step.command_code(context, "sudo ip addr flush dev test11")
     # for veth tests
-    nmci_step.command_code(context, "sudo ip link del test11")
-    nmci_step.command_code(context, "sudo ip link del test12")
+    nmci_step.command_code(context, "sudo ip link del veth11")
+    nmci_step.command_code(context, "sudo ip link del veth12")
 
     nmci_step.command_code(context, "rm -rf /var/run/NetworkManager")
 
