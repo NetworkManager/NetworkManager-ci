@@ -72,7 +72,7 @@ Feature: WIFI TUI tests
     Scenario: nmtui - wifi_hwsim - connect to WPA3-PSK network straight
     * Start nmtui
     * Choose to "Activate a connection" from main screen
-    * Select connection "wpa3" in the list
+    * Select connection "wpa3-psk" in the list
     * Choose to "<Activate>" a connection
     * Wait for at least "2" seconds
     * ".*Authentication required.*" is visible on screen
@@ -427,12 +427,12 @@ Feature: WIFI TUI tests
     Scenario: nmtui - wifi_hwsim - WPA3 psk connection
     * Prepare new connection of type "Wi-Fi" named "wifi1"
     * Set "Device" field to "wlan0"
-    * Set "SSID" field to "wpa3"
+    * Set "SSID" field to "wpa3-psk"
     * Set "Security" dropdown to "WPA3 Personal"
     * Set "Password" field to "secret123"
     * Confirm the connection settings
     Then "inet 10." is visible with command "ip a s wlan0" in "30" seconds
-    Then "SSID: wpa3" is visible with command "iw dev wlan0 link" in "30" seconds
+    Then "SSID: wpa3-psk" is visible with command "iw dev wlan0 link" in "30" seconds
 
 
     @fedoraver+=32

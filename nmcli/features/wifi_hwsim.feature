@@ -243,9 +243,9 @@ Feature: nmcli - wifi
     @simwifi @simwifi_wpa3
     @simwifi_wpa3_personal
     Scenario: nmcli - simwifi - connect to WPA3 personal wifi
-    Given "wpa3" is visible with command "nmcli -f SSID device wifi list" in "60" seconds
-    Then "wpa3:WPA3" is visible with command "nmcli -t -f ssid,security device wifi list"
-    * Add a new connection of type "wifi" and options "ifname wlan0 con-name wifi autoconnect no ssid wpa3 802-11-wireless-security.key-mgmt sae 802-11-wireless-security.psk secret123"
+    Given "wpa3-psk" is visible with command "nmcli -f SSID device wifi list" in "60" seconds
+    Then "wpa3-psk:WPA3" is visible with command "nmcli -t -f ssid,security device wifi list"
+    * Add a new connection of type "wifi" and options "ifname wlan0 con-name wifi autoconnect no ssid wpa3-psk 802-11-wireless-security.key-mgmt sae 802-11-wireless-security.psk secret123"
     Then Bring "up" connection "wifi"
 
 
@@ -254,8 +254,8 @@ Feature: nmcli - wifi
     @simwifi @simwifi_wpa3
     @simwifi_wpa3_personal_device_connect_ask
     Scenario: nmcli - simwifi - connect to WPA3 personal wifi with device command
-    Given "wpa3" is visible with command "nmcli -f SSID device wifi list" in "60" seconds
-    Then Finish "echo secret123 | nmcli dev wifi connect wpa3 --ask"
+    Given "wpa3-psk" is visible with command "nmcli -f SSID device wifi list" in "60" seconds
+    Then Finish "echo secret123 | nmcli dev wifi connect wpa3-psk --ask"
 
 
     @ver+=1.29 @rhelver+=8 @fedoraver-=0

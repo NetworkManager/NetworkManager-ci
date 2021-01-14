@@ -180,8 +180,8 @@ wpa_ver=${wpa_ver#wpa_supplicant-}
 if ver_gte $wpa_ver 2.9; then
 echo "
 #wpa3
-bss=wlan1_wpa3
-ssid=wpa3
+bss=wlan1_wpa3psk
+ssid=wpa3-psk
 country_code=EN
 hw_mode=g
 channel=7
