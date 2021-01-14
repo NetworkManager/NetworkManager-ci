@@ -230,6 +230,22 @@ install_el9_packages () {
         dnf -y install http://download.eng.bos.redhat.com/brewroot/vol/rhel-9/packages/NetworkManager/$VER/$REL/$(arch)/NetworkManager-ppp-$VER-$REL.$(arch).rpm
     fi
 
+    # install wpa_supplicant and hostapd with WPA3 enterprise capabilities
+    if [ $(arch) == "x86_64" ]; then
+        dnf -4 y install wpa_supplicant{,-debuginfo,-debugsource} --skip-broken
+        dnf -4 -y update \
+            https://vbenes.fedorapeople.org/NM/WPA3/hostapd-2.9-6.el9.x86_64.rpm \
+            https://vbenes.fedorapeople.org/NM/WPA3/hostapd-debuginfo-2.9-6.el9.x86_64.rpm \
+            https://vbenes.fedorapeople.org/NM/WPA3/hostapd-debugsource-2.9-6.el9.x86_64.rpm \
+            https://vbenes.fedorapeople.org/NM/WPA3/hostapd-logwatch-2.9-6.el9.x86_64.rpm \
+            https://vbenes.fedorapeople.org/NM/WPA3/wpa_supplicant-2.9-8.el9.x86_64.rpm \
+            https://vbenes.fedorapeople.org/NM/WPA3/wpa_supplicant-debuginfo-2.9-8.el9.x86_64.rpm \
+            https://vbenes.fedorapeople.org/NM/WPA3/wpa_supplicant-debugsource-2.9-8.el9.x86_64.rpm
+    fi
+
+
+
+
     # Enable debug logs for wpa_supplicant
     sed -i 's!OTHER_ARGS="-s"!OTHER_ARGS="-s -dddK"!' /etc/sysconfig/wpa_supplicant
 
