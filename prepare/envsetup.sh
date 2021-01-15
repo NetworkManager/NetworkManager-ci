@@ -178,14 +178,10 @@ install_el9_packages () {
     python -m pip install pyte
     python -m pip install IPy
 
-    # Needed for gsm_sim
-    dnf -4 -y install https://kojipkgs.fedoraproject.org//packages/perl-IO-Pty-Easy/0.10/5.fc28/noarch/perl-IO-Pty-Easy-0.10-5.fc28.noarch.rpm \
-                      https://kojipkgs.fedoraproject.org//packages/perl-IO-Tty/1.12/11.fc28/$(arch)/perl-IO-Tty-1.12-11.fc28.$(arch).rpm
-
     # Dnf more deps
     dnf -4 -y install git python3-netaddr dhcp-relay iw net-tools psmisc firewalld dhcp-server ethtool \
                           python3-dbus python3-gobject dnsmasq tcpdump wireshark-cli file iproute-tc \
-                          openvpn --skip-broken
+                          openvpn perl-IO-Tty --skip-broken
 
     # and few more
     # hostapd and tcpreplay is in epel (not available now), iw was just missing in el9 1915791 (needed for hostpad_wireless)
@@ -242,7 +238,7 @@ install_el9_packages () {
                 https://vbenes.fedorapeople.org/NM/WPA3/hostapd-2.9-6.el9.x86_64.rpm \
                 https://vbenes.fedorapeople.org/NM/WPA3/hostapd-debuginfo-2.9-6.el9.x86_64.rpm \
                 https://vbenes.fedorapeople.org/NM/WPA3/hostapd-debugsource-2.9-6.el9.x86_64.rpm
-        fi
+            fi
     fi
 
 
