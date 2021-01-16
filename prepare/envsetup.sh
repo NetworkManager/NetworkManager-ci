@@ -138,6 +138,9 @@ install_fedora_packages () {
         dnf -4 -y install NetworkManager-vpnc
     fi
 
+    # dracut testing
+    dnf -4 -y install qemu-kvm lvm2 mdadm cryptsetup iscsi-initiator-utils nfs-utils radvd gdb dracut-network scsi-target-utils
+
     # Enable debug logs for wpa_supplicant
     sed -i 's!OTHER_ARGS="-s"!OTHER_ARGS="-s -dddK"!' /etc/sysconfig/wpa_supplicant
 
