@@ -31,6 +31,12 @@ done
 
 echo "== checking services =="
 for service in import-state dbus NetworkManager systemd-hostnamed; do
+    for i in {1..15}; do
+        systemctl is-active $service.service | grep -q ^active && \
+            break
+        sleep 1
+    done
+
     systemctl is-active $service.service | grep -q ^active || \
         die "$service.service failed: $(echo; systemctl status $service.service)"
     echo "[OK] $service.service is active"
