@@ -34,10 +34,11 @@ test_setup() {
       export initdir=$TESTDIR/nfs/client
       . $basedir/dracut-init.sh
 
-      inst_multiple sh shutdown poweroff stty cat ps ln ip dd mount dmesg \
-                    mkdir cp ping grep wc awk setsid ls find less tee \
-                    sync rm sed time uname lsblk df free cat ps ln ip umount \
-                    strace head tail setsid reset
+      inst_multiple sh bash shutdown poweroff stty cat ps ln ip dd mount dmesg \
+                    mkdir cp ping grep wc awk setsid ls find less tee echo \
+                    sync rm sed uname lsblk df free cat ps ln ip mount umount \
+                    strace head tail reset loadkeys setfont login sushell sulogin \
+                    gzip sleep modprobe
 
       for _terminfodir in /lib/terminfo /etc/terminfo /usr/share/terminfo; do
           [ -f ${_terminfodir}/l/linux ] && break
@@ -109,9 +110,7 @@ test_setup() {
       inst /lib/systemd/system/systemd-remount-fs.service
       inst /lib/systemd/systemd-remount-fs
       inst /lib/systemd/system/systemd-journal-flush.service
-      inst /etc/sysconfig/init
       inst /lib/systemd/system/slices.target
-      inst /lib/systemd/system/system.slice
       inst /usr/lib/systemd/system/import-state.service
       inst_multiple -o /lib/systemd/system/dracut*
 
@@ -165,20 +164,13 @@ StandardError=journal+console
 EOF
       mkdir -p $initdir/etc/systemd/system/testsuite.target.wants
       ln -fs ../testsuite.service $initdir/etc/systemd/system/testsuite.target.wants/testsuite.service
+      # start NetworkManager before testsuite
+      ln -fs /usr/lib/systemd/system/NetworkManager.service $initdir/etc/systemd/system/testsuite.target.wants/NetworkManager.service
+      # import-state before testsuite
+      ln -fs /usr/lib/systemd/system/import-state.service $initdir/etc/systemd/system/testsuite.target.wants/import-state.service
 
       # make the testsuite the default target
       ln -fs testsuite.target $initdir/etc/systemd/system/default.target
-
-      #         mkdir -p $initdir/etc/rc.d
-      #         cat >$initdir/etc/rc.d/rc.local <<EOF
-      # #!/bin/bash
-      # exit 0
-      # EOF
-
-      # install basic tools needed
-      inst_multiple sh bash setsid loadkeys setfont \
-                    login sushell sulogin gzip sleep echo mount umount
-      inst_multiple modprobe
 
       # install libnss_files for login
       inst_libdir_file "libnss_files*"
@@ -193,12 +185,6 @@ EOF
           | while read file || [ -n "$file" ]; do
           inst_multiple -o $file
       done
-
-      # install dbus socket and service file
-      inst /usr/lib/systemd/system/dbus.socket
-      inst /usr/lib/systemd/system/dbus.service
-      inst /usr/lib/systemd/system/dbus-broker.service
-      inst /usr/lib/systemd/system/dbus-daemon.service
 
       (
           echo "FONT=eurlatgr"
@@ -261,23 +247,20 @@ EOF
       export initdir=$TESTDIR/nfs/client
       . $basedir/dracut-init.sh
 
-      inst_multiple \
-              /usr/bin/dbus \
-              /usr/bin/dbus-launch \
-              /usr/share/dbus-1/system.conf
-
-      inst_multiple \
-          /usr/lib/systemd/system/dbus-broker.service \
-          /usr/lib/systemd/system/dbus.socket \
-          busctl
-
       # enable trace logs
       inst /etc/NetworkManager/conf.d/99-test.conf
 
-
-      for _rpm in $(rpm -qa | grep -e ^NetworkManager -e ^systemd | sort); do
+      for _rpm in $(rpm -qa | grep -e ^NetworkManager -e ^systemd -e ^dbus | grep -v -F '.build-id' |sort); do
         rpm -ql $_rpm | xargs -r $DRACUT_INSTALL ${initdir:+-D "$initdir"} -o -a -l
       done
+
+      # without this simlink D-Bus service fails to start on RHEL9/Fedora
+      ln -s /usr/lib/systemd/system/dbus-broker.service $initdir/etc/systemd/system/dbus.service
+
+      systemctl --root "$initdir" enable import-state.service
+      systemctl --root "$initdir" enable dbus.service
+      systemctl --root "$initdir" enable NetworkManager.service
+      systemctl --root "$initdir" enable systemd-hostnamed.service
   )
 
   mkdir -p $TESTDIR/nfs/nfs3-5
@@ -371,13 +354,15 @@ EOF
          --no-hostonly-cmdline -N --no-compress \
          -f $TESTDIR/initramfs.client.NM $KVERSION || exit 1
 
-  # Make NFS client's dracut image using legacy network module
-  dracut -i $TESTDIR/overlay-client / \
-         -o "plymouth dash dmraid network-manager" \
-         -a "debug network-legacy ifcfg" \
-         -d "8021q ipvlan macvlan bonding af_packet piix ext3 ide-gd_mod ata_piix sd_mod e1000 nfs sunrpc" \
-         --no-hostonly-cmdline -N --no-compress \
-         -f $TESTDIR/initramfs.client.legacy $KVERSION || exit 1
+  # Make NFS client's dracut image using legacy network module - RHEL8 only
+  if grep -q 'release 8' /etc/redhat-release; then
+      dracut -i $TESTDIR/overlay-client / \
+             -o "plymouth dash dmraid network-manager" \
+             -a "debug network-legacy ifcfg" \
+             -d "8021q ipvlan macvlan bonding af_packet piix ext3 ide-gd_mod ata_piix sd_mod e1000 nfs sunrpc" \
+             --no-hostonly-cmdline -N --no-compress \
+             -f $TESTDIR/initramfs.client.legacy $KVERSION || exit 1
+  fi
 
   rm -rf -- $TESTDIR/overlay-client
 

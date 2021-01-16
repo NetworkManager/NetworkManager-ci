@@ -29,15 +29,12 @@ for file in $(find /run/initramfs/state/etc/sysconfig/network-scripts -type f); 
     cat $file
 done
 
-echo "== starting services =="
-echo "start import-state (to copy ifcfg files)"
-systemctl start import-state.service || die "import-state failed: $(echo; systemctl status import-state.service)"
-echo "start dbus"
-systemctl start dbus.service || die "dbus failed: $(echo; systemctl status dbus.service)"
-echo "start NetworkManager"
-systemctl start NetworkManager.service || die "NetworkManager failed: $(echo; systemctl status NetworkManager.service)"
-echo "start systemd-hostnamed"
-systemctl start systemd-hostnamed.service || die "systemd-hostnamed failed: $(echo; systemctl status systemd-hostnamed.service)"
+echo "== checking services =="
+for service in import-state dbus NetworkManager systemd-hostnamed; do
+    systemctl is-active $service.service | grep -q ^active || \
+        die "$service.service failed: $(echo; systemctl status $service.service)"
+    echo "[OK] $service.service is active"
+done
 
 echo "== NetworkManager --version =="
 NetworkManager --version

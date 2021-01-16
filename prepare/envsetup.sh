@@ -252,6 +252,12 @@ install_el9_packages () {
     # Remove cloud-init dns
     rm -rf /etc/NetworkManager/conf.d/99-cloud-init.conf
 
+    # dracut testing
+    dnf -4 -y install qemu-kvm lvm2 mdadm cryptsetup iscsi-initiator-utils nfs-utils radvd gdb
+    # perl-Config-Genral not installable on s390x and needed by scsi-target-utils
+    dnf -4 -y install http://download.eng.bos.redhat.com/brewroot/vol/rhel-9/packages/perl-Config-General/2.63/13.el9/noarch/perl-Config-General-2.63-13.el9.noarch.rpm
+    dnf -4 -y install https://kojipkgs.fedoraproject.org//packages/scsi-target-utils/1.0.79/2.fc33/$(arch)/scsi-target-utils-1.0.79-2.fc33.$(arch).rpm
+
     install_plugins_dnf
 }
 
