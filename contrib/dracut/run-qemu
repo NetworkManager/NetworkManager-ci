@@ -14,8 +14,13 @@ THRESHOLD=10
 echo NONE | dd status=none oflag=direct,dsync of=$DEV_STATE;
 
 ARGS=()
-[[ -x /usr/libexec/qemu-kvm ]] && BIN=/usr/libexec/qemu-kvm && ARGS+=(-cpu max)
-[[ -c /dev/kvm ]] && [[ -x /usr/libexec/qemu-kvm ]] && ARGS+=(-cpu host)
+[[ -x /usr/libexec/qemu-kvm ]] && BIN=/usr/libexec/qemu-kvm
+[[ -x /usr/bin/qemu-kvm ]] && BIN=/usr/bin/qemu-kvm 
+if [[ -c /dev/kvm ]] ; then
+	ARGS+=(-cpu host)
+else
+	ARGS+=(-cpu max)
+fi
 
 [[ $BIN ]] || {
    echo "Could not find a working KVM or QEMU to test with!" >&2
