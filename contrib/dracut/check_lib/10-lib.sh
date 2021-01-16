@@ -91,7 +91,7 @@ dns_search() {
     local search
     search=$(grep "^search" /etc/resolv.conf | sed 's/^search\s\+//g')
     [[ "$search" == $1 ]] || die "DNS search is '$search', expected '$1'"
-    echo "[OK] DNS search is '$search'"
+    echo "[OK] DNS search '$search' is '$1'"
 }
 
 
