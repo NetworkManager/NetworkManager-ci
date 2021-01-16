@@ -9,13 +9,13 @@
 # number of qemu-kvm retries
 REP=5
 # number of seconds qemu-kvm must be running to accept
-THRESHOLD=10
+THRESHOLD=5
 
 echo NONE | dd status=none oflag=direct,dsync of=$DEV_STATE;
 
 ARGS=()
 [[ -x /usr/libexec/qemu-kvm ]] && BIN=/usr/libexec/qemu-kvm
-[[ -x /usr/bin/qemu-kvm ]] && BIN=/usr/bin/qemu-kvm 
+[[ -x /usr/bin/qemu-kvm ]] && BIN=/usr/bin/qemu-kvm
 if [[ -c /dev/kvm ]] ; then
 	ARGS+=(-cpu host)
 else
