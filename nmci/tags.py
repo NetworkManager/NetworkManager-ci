@@ -933,7 +933,7 @@ def simwifi_wpa3_as(ctx, scen):
     print("---------------------------")
     print("deleting wifi connections")
     #teardown_hostapd_wireless()
-    nmci.run("nmcli con del wpa3 wpa3-eap wifi")
+    nmci.run("nmcli con del wpa3-psk wpa3-eap wifi")
 
 
 _register_tag("simwifi_wpa3", None, simwifi_wpa3_as)
