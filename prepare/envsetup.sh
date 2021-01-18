@@ -189,7 +189,6 @@ install_el9_packages () {
     # and few more
     # hostapd and tcpreplay is in epel (not available now), iw was just missing in el9 1915791 (needed for hostpad_wireless)
     dnf -4 -y install https://kojipkgs.fedoraproject.org//packages/tcpreplay/4.3.3/3.fc34/$(arch)/tcpreplay-4.3.3-3.fc34.$(arch).rpm \
-                https://kojipkgs.fedoraproject.org//packages/hostapd/2.9/6.fc34/$(arch)/hostapd-2.9-6.fc34.$(arch).rpm \
                 https://kojipkgs.fedoraproject.org//packages/iw/5.4/3.fc34/$(arch)/iw-5.4-3.fc34.$(arch).rpm
     install_behave_pytest
 
@@ -231,17 +230,15 @@ install_el9_packages () {
 
     # install wpa_supplicant and hostapd with WPA3 enterprise capabilities
     if [ $(arch) == "x86_64" ]; then
-        dnf -4 y install wpa_supplicant{,-debuginfo,-debugsource} --skip-broken
-        dnf -4 -y update \
-            https://vbenes.fedorapeople.org/NM/WPA3/wpa_supplicant-2.9-8.el9.x86_64.rpm \
-            https://vbenes.fedorapeople.org/NM/WPA3/wpa_supplicant-debuginfo-2.9-8.el9.x86_64.rpm \
-            https://vbenes.fedorapeople.org/NM/WPA3/wpa_supplicant-debugsource-2.9-8.el9.x86_64.rpm
+        rpm -q --quiet wpa_supplicant || dnf install -y wpa_supplicant
+        dnf -y update \
+            https://vbenes.fedorapeople.org/NM/WPA3/wpa_supplicant-2.9-8.el9.x86_64.rpm
         if ! rpm -q --quiet hostapd; then
             dnf -4 -y install \
                 https://vbenes.fedorapeople.org/NM/WPA3/hostapd-2.9-6.el9.x86_64.rpm \
                 https://vbenes.fedorapeople.org/NM/WPA3/hostapd-debuginfo-2.9-6.el9.x86_64.rpm \
                 https://vbenes.fedorapeople.org/NM/WPA3/hostapd-debugsource-2.9-6.el9.x86_64.rpm
-            fi
+        fi
     fi
 
 
