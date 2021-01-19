@@ -666,7 +666,7 @@ def ifcfg_rh_bs(ctx, scen):
 
 
 def ifcfg_rh_as(ctx, scen):
-    if nmci.run('test -f /etc/NetworkManager/conf.d/99-xxcustom.conf') == 0:
+    if os.path.isfile("/etc/NetworkManager/conf.d/99-xxcustom.conf"):
         print("---------------------------")
         print("resetting ifcfg plugin")
         nmci.run('sudo rm -f /etc/NetworkManager/conf.d/99-xxcustom.conf')
