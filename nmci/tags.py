@@ -786,6 +786,16 @@ def logging_info_only_as(ctx, scen):
 _register_tag("logging_info_only", logging_info_only_bs, logging_info_only_as)
 
 
+def remove_custom_cfg_as(ctx, scen):
+    print("---------------------------")
+    print("Removing custom cfg file in conf.d")
+    nmci.run('sudo rm -f /etc/NetworkManager/conf.d/99-xxcustom.conf')
+    nmci.lib.restart_NM_service()
+
+
+_register_tag("remove_custom_cfg", None, remove_custom_cfg_as)
+
+
 def netservice_bs(ctx, scen):
     print("---------------------------")
     print("turning on network.service")
@@ -2754,16 +2764,6 @@ def restore_resolvconf_as(ctx, scen):
 
 
 _register_tag("restore_resolvconf", None, restore_resolvconf_as)
-
-
-def remove_custom_cfg_as(ctx, scen):
-    print("---------------------------")
-    print("Removing custom cfg file in conf.d")
-    nmci.run('sudo rm -f /etc/NetworkManager/conf.d/99-xxcustom.conf')
-    nmci.lib.restart_NM_service()
-
-
-_register_tag("remove_custom_cfg", None, remove_custom_cfg_as)
 
 
 def device_connect_as(ctx, scen):
