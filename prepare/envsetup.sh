@@ -189,6 +189,7 @@ install_el9_packages () {
     # and few more
     # hostapd and tcpreplay is in epel (not available now), iw was just missing in el9 1915791 (needed for hostpad_wireless)
     dnf -4 -y install https://kojipkgs.fedoraproject.org//packages/tcpreplay/4.3.3/3.fc34/$(arch)/tcpreplay-4.3.3-3.fc34.$(arch).rpm \
+                https://kojipkgs.fedoraproject.org//packages/libdnet/1.14/1.fc34/$(arch)/libdnet-1.14-1.fc34.$(arch).rpm \
                 https://kojipkgs.fedoraproject.org//packages/iw/5.4/3.fc34/$(arch)/iw-5.4-3.fc34.$(arch).rpm
     install_behave_pytest
 

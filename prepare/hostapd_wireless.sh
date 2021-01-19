@@ -193,9 +193,9 @@ wpa_passphrase=secret123
 fi
 
 hostapd_ver=$(rpm -q hostapd)
-hostapd_ver=${wpa_ver#hostapd-}
+hostapd_ver=${hostapd_ver#hostapd-}
 # There is no wpa_supplicant support in Fedoras
-if ver_gte $wpa_ver 2.9-6 && grep -q -e 'release \(8\|9\)' /etc/redhat-release; then
+if ver_gte $hostapd_ver 2.9-6 && grep -q -e 'release \(8\|9\)' /etc/redhat-release; then
 echo "
 #wpa3eap
 bss=wlan1_wpa3eap
