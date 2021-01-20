@@ -264,7 +264,7 @@ Feature: NM: dracut
         | check  | ip6_route_unique "deaf:beef::1:10 dev eth0 proto kernel"               |
         | check  | ip6_route_unique "deaf:beef::/64 dev eth0 proto ra"                    |
         # https://bugzilla.redhat.com/show_bug.cgi?id=1881974
-        #| check  | hostname_check nfs-cl                                                  |
+        | check  | hostname_check nfs-cl                                                  |
         | check  | nfs_server 192.168.50.1                                                |
 
 
@@ -406,7 +406,7 @@ Feature: NM: dracut
       | check  | ip4_route_unique "default via 192.168.50.1 dev eth0"                        |
       | check  | ip4_route_unique "192.168.50.0/24 dev eth0"                                 |
       # https://bugzilla.redhat.com/show_bug.cgi?id=1881974
-      #| check  | hostname_check nfs-cl                                                       |
+      | check  | hostname_check nfs-cl                                                       |
       | check  | nfs_server 192.168.50.1                                                     |
 
 
@@ -704,7 +704,7 @@ Feature: NM: dracut
       | check  | ip6_route_unique "default via deaf:beef::1 dev eth0"                               |
       | check  | ip6_route_unique "deaf:beef::/64 dev eth0 proto kernel"                            |
       # https://bugzilla.redhat.com/show_bug.cgi?id=1881974
-      #| check  | hostname_check dracut-nfs-client-6                                                 |
+      | check  | hostname_check dracut-nfs-client-6                                                 |
       | check  | nfs_server [deaf:beef::1]                                                          |
 
 
