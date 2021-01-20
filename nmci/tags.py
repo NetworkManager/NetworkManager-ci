@@ -661,7 +661,7 @@ def ifcfg_rh_bs(ctx, scen):
             # if "simwifi" in scen.tags:
             #     nmci.lib.wifi_rescan()
             # VV Do not lower this as nmtui can be behaving weirdly
-            time.sleep(1)
+            time.sleep(2.5)
         time.sleep(0.5)
 
 
