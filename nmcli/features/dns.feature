@@ -1075,7 +1075,7 @@ Feature: nmcli - dns
     @rhbz1593661
     @ver+=1.12
     @not_with_systemd_resolved
-    @restart @remove_custom_cfg @con_dns_remove @restore_resolvconf
+    @restart @remove_custom_cfg @con_dns_remove @restore_resolvconf @eth8_disconnect
     @resolv_conf_dangling_symlink
     Scenario: NM - general - follow resolv.conf when dangling symlink
     * Add a new connection of type "ethernet" and options "ifname eth8 con-name con_dns ipv4.method manual ipv4.addresses 192.168.244.4/24 ipv4.gateway 192.168.244.1 ipv4.dns 192.168.244.1 ipv6.method ignore"
