@@ -661,7 +661,7 @@ def ifcfg_rh_bs(ctx, scen):
             # if "simwifi" in scen.tags:
             #     nmci.lib.wifi_rescan()
             # VV Do not lower this as nmtui can be behaving weirdly
-            time.sleep(2.5)
+            time.sleep(4)
         time.sleep(0.5)
 
 
@@ -735,12 +735,13 @@ def ethernet_bs(ctx, scen):
 
 
 def ethernet_as(ctx, scen):
-    nmci.run("sudo nmcli connection delete id ethernet ethernet1 ethernet2")
+    nmci.run("sudo nmcli connection delete id eth1 eth2 ethernet ethernet1 ethernet2")
 
     if 'ipv4' not in scen.tags and 'ipv6' not in scen.tags:
         print("---------------------------")
         print("removing ethernet profiles")
         nmci.run("sudo nmcli connection delete id ethernet ethernet0 ethos")
+        sleep(0.1)
         nmci.run('sudo rm -rf /etc/sysconfig/network-scripts/ifcfg-ethernet*') #ideally should do nothing
 
 
