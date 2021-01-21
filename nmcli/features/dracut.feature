@@ -234,7 +234,7 @@ Feature: NM: dracut
 
 
       @rhbz1900260
-      @rhelver+=8.3 @fedoraver+=32
+      @rhelver+=8.4 @fedoraver+=32
       @ver+=1.26.0
       @dracut @long @not_on_ppc64le
       @dracut_NM_NFS_root_nfs_ip_dhcp_hostname
@@ -378,7 +378,7 @@ Feature: NM: dracut
 
 
     @rhbz1879795
-    @rhelver+=8.3 @fedoraver+=32
+    @rhelver+=8.4 @fedoraver+=32
     @ver+=1.29.0
     @dracut @long @not_on_ppc64le
     @dracut_NM_NFS_root_nfs_ip_manual_gateway_hostname_mac
@@ -678,7 +678,7 @@ Feature: NM: dracut
 
 
     @rhbz1879795
-    @rhelver+=8.3 @fedoraver+=32
+    @rhelver+=8.4 @fedoraver+=32
     @ver+=1.25.0
     @dracut @long @not_on_ppc64le
     @dracut_NM_NFS_root_nfs_ip_manual6_gateway_hostname_mac
