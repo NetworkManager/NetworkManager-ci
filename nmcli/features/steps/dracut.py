@@ -101,7 +101,7 @@ def dracut_run(context):
     initrd = "initramfs.client.NM"
     checks = ""
     timeout = "8m"
-    ram = "768"
+    ram = "1200"
     log_contains = []
     log_not_contains = []
     test_type = "nfs"
