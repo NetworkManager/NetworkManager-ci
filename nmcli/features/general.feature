@@ -859,9 +859,9 @@ Feature: nmcli - general
     Scenario: NM - general - presume failed assumed connections
     * Execute "ip tuntap add tap0 mode tap"
     * Execute "ip link set dev tap0 up"
-    * Execute "ip addr add 10.2.5.6/24 valid_lft 1024 preferred_lft 1024 dev tap0"
-    Then "10.2.5.6/24" is visible with command "ip addr show tap0" for full "50" seconds
-    * Bring "down" connection "tap0"
+    * Execute "ip addr add 10.2.5.6/24 valid_lft 30 preferred_lft 30 dev tap0"
+    Then "10.2.5.6/24" is visible with command "ip addr show tap0" for full "25" seconds
+    Then "10.2.5.6/24" is not visible with command "ip addr show tap0" in "10" seconds
     * Execute "ip link set dev tap0 up"
     * Execute "ip addr add 10.2.5.6/24 dev tap0"
     Then "10.2.5.6/24" is visible with command "ip addr show tap0" for full "10" seconds
