@@ -744,6 +744,8 @@ def ethernet_as(ctx, scen):
         sleep(0.1)
         nmci.run('sudo rm -rf /etc/sysconfig/network-scripts/ifcfg-ethernet*') #ideally should do nothing
 
+    time.sleep(0.2)
+
 
 _register_tag("ethernet", ethernet_bs, ethernet_as)
 _register_tag("ipv4", None, ethernet_as)
