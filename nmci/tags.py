@@ -741,7 +741,6 @@ def ethernet_as(ctx, scen):
         print("---------------------------")
         print("removing ethernet profiles")
         nmci.run("sudo nmcli connection delete id ethernet ethernet0 ethos")
-        sleep(0.1)
         nmci.run('sudo rm -rf /etc/sysconfig/network-scripts/ifcfg-ethernet*') #ideally should do nothing
 
     time.sleep(0.2)
