@@ -674,7 +674,7 @@ def ifcfg_rh_as(ctx, scen):
         if ctx.IS_NMTUI:
             # if 'simwifi' in scen.tags:
             #     nmci.lib.wifi_rescan()
-            time.sleep(1)
+            time.sleep(4)
         time.sleep(0.5)
 
 
