@@ -658,20 +658,31 @@ local_setup_configure_nm_eth_part2 () {
         fi
     fi
 
+
     # Do we have keyfiles or ifcfg plugins enabled?
     if ! ls /etc/sysconfig/network-scripts/* && \
         ls /etc/NetworkManager/system-connections/*.nmconnection; then
         touch /tmp/nm_plugin_keyfiles
     fi
 
+    # Drop compiled in defaults into proper config
+    if grep -q -e 'release 8' /etc/redhat-release; then
+        echo -e "[main]\ndhcp=nettools\nplugins=ifcfg-rh,keyfile" >> /etc/NetworkManager/conf.d/99-test.conf
+    fi
+    if grep -q -e 'release 7' /etc/redhat-release; then
+        echo -e "[main]\ndhcp=dhclient\nplugins=ifcfg-rh,keyfile" >> /etc/NetworkManager/conf.d/99-test.conf
+    fi
+    if grep -q -e 'release 9' /etc/redhat-release; then
+        echo -e "[main]\ndhcp=nettools\nplugins=keyfile,ifcfg-rh" >> /etc/NetworkManager/conf.d/99-test.conf
+    fi
+    if grep -q -e 'Fedora' /etc/redhat-release; then
+        echo -e "[main]\ndhcp=nettools\nplugins=keyfile,ifcfg-rh" >> /etc/NetworkManager/conf.d/99-test.conf
+    fi
+
+
     # Do veth setup if yes
     if [ $veth -eq 1 ]; then
         . prepare/vethsetup.sh setup
-
-        # If we are on RHEL8 let's test nettools DHCP plugin too
-        if grep -q -e 'Enterprise Linux .*release 8' /etc/redhat-release; then
-            echo -e "[main]\ndhcp=nettools\n" >> /etc/NetworkManager/conf.d/99-test.conf
-        fi
 
         # Copy this once more just to be sure it's there as it's really crucial
         if ! test -f /tmp/nm_plugin_keyfiles; then
