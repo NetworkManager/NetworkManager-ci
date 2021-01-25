@@ -650,6 +650,32 @@ def delete_testeth0_as(ctx, scen):
 _register_tag("delete_testeth0", delete_testeth0_bs, delete_testeth0_as)
 
 
+def ethernet_bs(ctx, scen):
+    print("---------------------------")
+    print("sanitizing eth1 and eth2")
+    if nmci.command_code('nmcli con |grep testeth1') == 0 or nmci.run('nmcli con |grep testeth2') == 0:
+        nmci.run('sudo nmcli con del testeth1 testeth2')
+        nmci.run('sudo nmcli con add type ethernet ifname eth1 con-name testeth1 autoconnect no')
+        nmci.run('sudo nmcli con add type ethernet ifname eth2 con-name testeth2 autoconnect no')
+
+
+def ethernet_as(ctx, scen):
+    nmci.run("sudo nmcli connection delete id eth1 eth2 ethernet ethernet1 ethernet2")
+
+    if 'ipv4' not in scen.tags and 'ipv6' not in scen.tags:
+        print("---------------------------")
+        print("removing ethernet profiles")
+        nmci.run("sudo nmcli connection delete id ethernet ethernet0 ethos")
+        nmci.run('sudo rm -rf /etc/sysconfig/network-scripts/ifcfg-ethernet*') #ideally should do nothing
+
+    time.sleep(0.2)
+
+
+_register_tag("ethernet", ethernet_bs, ethernet_as)
+_register_tag("ipv4", None, ethernet_as)
+_register_tag("ipv6", None, ethernet_as)
+
+
 def ifcfg_rh_bs(ctx, scen):
     if nmci.command_code("NetworkManager --print-config |grep '^plugins=ifcfg-rh'") != 0:
         print("---------------------------")
@@ -723,32 +749,6 @@ def need_dispatcher_scripts_as(ctx, scen):
 
 
 _register_tag("need_dispatcher_scripts", need_dispatcher_scripts_bs, need_dispatcher_scripts_as)
-
-
-def ethernet_bs(ctx, scen):
-    print("---------------------------")
-    print("sanitizing eth1 and eth2")
-    if nmci.command_code('nmcli con |grep testeth1') == 0 or nmci.run('nmcli con |grep testeth2') == 0:
-        nmci.run('sudo nmcli con del testeth1 testeth2')
-        nmci.run('sudo nmcli con add type ethernet ifname eth1 con-name testeth1 autoconnect no')
-        nmci.run('sudo nmcli con add type ethernet ifname eth2 con-name testeth2 autoconnect no')
-
-
-def ethernet_as(ctx, scen):
-    nmci.run("sudo nmcli connection delete id eth1 eth2 ethernet ethernet1 ethernet2")
-
-    if 'ipv4' not in scen.tags and 'ipv6' not in scen.tags:
-        print("---------------------------")
-        print("removing ethernet profiles")
-        nmci.run("sudo nmcli connection delete id ethernet ethernet0 ethos")
-        nmci.run('sudo rm -rf /etc/sysconfig/network-scripts/ifcfg-ethernet*') #ideally should do nothing
-
-    time.sleep(0.2)
-
-
-_register_tag("ethernet", ethernet_bs, ethernet_as)
-_register_tag("ipv4", None, ethernet_as)
-_register_tag("ipv6", None, ethernet_as)
 
 
 def logging_bs(ctx, scen):
