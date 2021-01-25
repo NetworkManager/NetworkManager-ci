@@ -117,7 +117,7 @@ _register_tag("not_with_systemd_resolved", not_with_systemd_resolved_bs)
 
 
 def not_under_internal_DHCP_bs(ctx, scen):
-    if "Ootpa" in ctx.rh_release and \
+    if "release 8" in ctx.rh_release and \
        nmci.command_code("NetworkManager --print-config|grep dhclient") != 0:
         sys.exit(77)
     if nmci.command_code("NetworkManager --print-config|grep internal") == 0:
