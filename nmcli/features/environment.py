@@ -28,9 +28,13 @@ def before_all(context):
     signal.signal(signal.SIGTERM, on_signal)
     signal.signal(signal.SIGINT, on_signal)
 
+    context.no_step = True
+
     def embed_data(mime_type, data, caption):
         # If data is empty we want to finish html tag by at least one character
         non_empty_data = " " if not data else data
+        if context.no_step:
+            print(f"Embed in before_scenario ({mime_type}):\n== {caption} ==\n\n{data}\n\n")
         for formatter in context._runner.formatters:
             if "html" in formatter.name and getattr(formatter, "embedding", None) is not None:
                 formatter.embedding(mime_type=mime_type, data=non_empty_data, caption=caption)
@@ -170,6 +174,7 @@ def before_scenario(context, scenario):
 
 
 def after_step(context, step):
+    context.no_step = False
     if ("DEVICE_CAP_AP" in step.name or "DEVICE_CAP_ADHOC" in step.name) \
             and "is set in WirelessCapabilites" in step.name and \
             step.status == 'failed' and step.step_type == 'given':
