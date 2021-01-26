@@ -14,7 +14,7 @@ else
     git clone https://github.com/nmstate/nmstate
     cd nmstate
     # We have some regressions now so let's use 0.3's HEAD
-    git checkout nmstate-0.3
+    # git checkout nmstate-0.3
     # git checkout $(git tag |tail -1)
     LC_TIME=en_US-UTF-8 sh packaging/make_rpm.sh; rc=$?
     if test $rc -eq 0; then
