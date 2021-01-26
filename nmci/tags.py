@@ -1164,9 +1164,9 @@ _register_tag("iptunnel_doc", None, iptunnel_doc_as)
 def wireguard_bs(ctx, scen):
     print("----------------------------")
     print("wireguard setup")
-    rc = nmci.command_code('sh prepare/wireguard.sh')
+    stdout, stderr, rc = nmci.run('sh prepare/wireguard.sh')
     if rc != 0:
-        assert False, "wireguard setup failed with exitcode: %d" % rc
+        assert False, "wireguard setup failed with exitcode: %d\nOutput:\n\n%s" % (rc, stdout)
 
 
 def wireguard_as(ctx, scen):
