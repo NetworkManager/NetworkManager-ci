@@ -680,6 +680,8 @@ def ifcfg_rh_bs(ctx, scen):
     if nmci.command_code("NetworkManager --print-config |grep '^plugins=ifcfg-rh'") != 0:
         print("---------------------------")
         print("setting ifcfg-rh plugin")
+        # VV Do not lower this as some devices can be still going down
+        time.sleep(0.5)
         nmci.run("printf '# configured by beaker-test\n[main]\nplugins=ifcfg-rh\n' > /etc/NetworkManager/conf.d/99-xxcustom.conf")
         nmci.lib.restart_NM_service()
         if ctx.IS_NMTUI:

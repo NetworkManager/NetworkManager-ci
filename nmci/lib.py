@@ -385,8 +385,9 @@ def setup_openvpn(tags):
 
 def restore_connections():
     print("* recreate all connections")
-    for X in range(0, 11):
-        nmci.run('nmcli con del testeth%s 2>&1 > /dev/null' % X)
+    nmci.run('for i in $(nmcli -g NAME connection show); do nmcli con del $i 2>&1 > /dev/null; done')
+    nmci.run('for i in $(nmcli -g DEVICE device |grep -v -e ^eth -e lo); do nmcli dev del $i 2>&1 > /dev/null; done')
+    for X in range(1, 11):
         nmci.run('nmcli connection add type ethernet con-name testeth%s ifname eth%s autoconnect no' % (X,X))
     restore_testeth0()
 
