@@ -3,6 +3,7 @@ import pexpect
 import re
 import subprocess
 import time
+import configparser
 from behave import step
 
 import commands
@@ -157,3 +158,32 @@ def check_solicitation(context, dev, file):
     dump = open(file, 'r')
 
     assert mac_last_4bits not in dump.readlines(), "Route solicitation from %s was found in tshark dump" % mac
+
+
+@step(u'Check keyfile "{file}" has options')
+def check_keyfile(context, file):
+    cp = configparser.ConfigParser()
+    assert file in cp.read(file), "File '%s' is not valid config file" % file
+    for line in context.text.split("\n"):
+        opt, value = line.split("=")
+        opt = opt.split(".")
+        value = value.strip()
+        cfg_val = cp.get(*opt)
+        assert cfg_val == value, "'%s' not found in file '%s'" % (line, file)
+
+
+@step(u'Check ifcfg-file "{file}" has options')
+def check_ifcfg(context, file):
+    assert os.path.isfile(file), "File '%s' does not exist" % file
+    with open(file) as f:
+        cfg = [opt.strip() for opt in f.readlines()]
+    for line in context.text.split("\n"):
+        assert line in cfg, "'%s' not found in file '%s':\n%s" % (line, file, "\n".join(cfg))
+
+
+@step(u'Create keyfile "{file}"')
+def create_keyfile(context, file):
+    with open(file, "w") as f:
+        f.write(context.text)
+    assert nmci.command_code("chmod 600 " + file) == 0, "Unable to set permissions on '%s'" % file
+    nmci.lib.reload_NM_connections()

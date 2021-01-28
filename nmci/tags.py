@@ -709,6 +709,29 @@ def ifcfg_rh_as(ctx, scen):
 _register_tag("ifcfg-rh", ifcfg_rh_bs, ifcfg_rh_as)
 
 
+def plugin_default_bs(ctx, scen):
+    if os.path.isfile("/etc/NetworkManager/conf.d/99-test.conf"):
+        print("---------------------------")
+        print("remove 'plugins=*' from 99-test.conf")
+        assert nmci.command_code("cp /etc/NetworkManager/conf.d/99-test.conf /tmp/99-test.conf") == 0, \
+            "unable to backup 99-test.conf"
+        assert nmci.command_code("sed -i 's/^plugins=/#plugins=/' /etc/NetworkManager/conf.d/99-test.conf") == 0, \
+            "unable to modify '99-test.conf'"
+        nmci.lib.restart_NM_service()
+
+
+def plugin_default_as(ctx, scen):
+    if os.path.isfile("/etc/NetworkManager/conf.d/99-test.conf"):
+        print("---------------------------")
+        print("restore 99-test.conf")
+        assert nmci.command_code("mv /tmp/99-test.conf /etc/NetworkManager/conf.d/99-test.conf") == 0, \
+            "unable to restore '99-test.conf'"
+        nmci.lib.restart_NM_service()
+
+
+_register_tag("plugin_default", plugin_default_bs, plugin_default_as)
+
+
 def eth3_disconnect_bs(ctx, scen):
     print("---------------------------")
     print("disconnecting eth3 device")
@@ -2109,7 +2132,7 @@ def bond_as(ctx, scen):
         nmci.run('ip link del nm-bond')
         nmci.run('ip link del bond0')
         #sleep(TIMER)
-        print(ctx.command_output('ls /proc/net/bonding'))
+        print(ctx.command_output('ls /proc/net/bonding || true'))
 
 
 _register_tag("bond", None, bond_as)

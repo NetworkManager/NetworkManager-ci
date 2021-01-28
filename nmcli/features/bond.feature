@@ -7,6 +7,38 @@
     # @test_name (compiled from scenario name)
     # Scenario:
 
+    @rhelver+=9 @fedoraver+=32
+    @bond @plugin_default
+    @bond_config_file
+    Scenario: nmcli - bond - check keyfile config
+    * Add a new connection of type "bond" and options "ifname nm-bond con-name bond0 autoconnect no mode active-backup"
+    * Check keyfile "/etc/NetworkManager/system-connections/bond0.nmconnection" has options
+      """
+      connection.id=bond0
+      connection.type=bond
+      connection.autoconnect=false
+      connection.interface-name=nm-bond
+      bond.mode=active-backup
+      """
+
+
+    @rhelver-=8 @fedoraver-=31
+    @bond @plugin_default
+    @bond_config_file
+    Scenario: nmcli - bond - check ifcfg config
+    * Add a new connection of type "bond" and options "ifname nm-bond con-name bond0 autoconnect no mode active-backup"
+    * Check ifcfg-file "/etc/sysconfig/network-scripts/ifcfg-bond0" has options
+      """
+      BONDING_OPTS=mode=active-backup
+      TYPE=Bond
+      BONDING_MASTER=yes
+      DEFROUTE=yes
+      NAME=bond0
+      DEVICE=nm-bond
+      ONBOOT=no
+      """
+
+
     @slaves @bond
     @bond_add_default_bond
     Scenario: nmcli - bond - add default bond
@@ -57,15 +89,15 @@
 
     @rhbz1368761
     @ver+=1.4.0
-    @slaves @bond
+    @slaves @bond @ifcfg-rh
     @nmcli_bond_manual_ipv4
     Scenario: nmcli - bond - remove BOOTPROTO dhcp for enslaved ethernet
     * Add a new connection of type "ethernet" and options "ifname eth1 con-name bond0.0 autoconnect no"
     * Add a new connection of type "ethernet" and options "ifname eth4 con-name bond0.1 autoconnect no"
     * Add a new connection of type "bond" and options "ifname nm-bond con-name bond0 autoconnect no mode active-backup"
-    * Execute "nmcli con mod id bond0 ipv4.addresses 10.35.1.2/24 ipv4.gateway 10.35.1.254 ipv4.method manual"
-    * Execute "nmcli connection modify id bond0.0 connection.slave-type bond connection.master nm-bond connection.autoconnect yes"
-    * Execute "nmcli connection modify id bond0.1 connection.slave-type bond connection.master nm-bond connection.autoconnect yes"
+    * Modify connection "bond0" changing options "ipv4.addresses 10.35.1.2/24 ipv4.gateway 10.35.1.254 ipv4.method manual"
+    * Modify connection "bond0.0" changing options "connection.slave-type bond connection.master nm-bond connection.autoconnect yes"
+    * Modify connection "bond0.1" changing options "connection.slave-type bond connection.master nm-bond connection.autoconnect yes"
     * Bring "up" connection "bond0"
     * Bring "up" connection "bond0.0"
     * Bring "up" connection "bond0.1"
@@ -227,11 +259,9 @@
      And "eth1:connected:bond0.0" is visible with command "nmcli -t -f DEVICE,STATE,CONNECTION device" in "10" seconds
 
 
-
     @rhbz1369008
     @ver+=1.4.0
-    @ifcfg-rh
-    @slaves @bond
+    @ifcfg-rh @slaves @bond
     @bond_ifcfg_master_as_device_via_con_name
     Scenario: ifcfg - bond - slave has master as device via conname
     * Add connection type "bond" named "bond0" for device "nm-bond"
@@ -239,6 +269,43 @@
     Then Check bond "nm-bond" link state is "up"
      And Check slave "eth1" in bond "nm-bond" in proc
      And "MASTER=nm-bond" is visible with command "cat /etc/sysconfig/network-scripts/ifcfg-bond0.0"
+
+
+     @ver+=1.8.0
+     @slaves @bond
+     @bond_keyfile_master
+     Scenario: ifcfg - bond - master with Ethernet type
+     * Create keyfile "/etc/NetworkManager/system-connections/bond0.nmconnection"
+       """
+       [connection]
+       id=bond0
+       uuid=4a2b8b74-12cd-4f94-b086-3c62542d027c
+       type=bond
+       interface-name=nm-bond
+       autoconnect=true
+       permissions=
+
+       [bond]
+       lacp_rate=1
+       miimon=100
+       mode=802.3ad
+
+       [ipv4]
+       dns-search=
+       method=auto
+
+       [ipv6]
+       addr-gen-mode=stable-privacy
+       dns-search=
+       method=auto
+
+       [proxy]
+       """
+     * Add slave connection for master "nm-bond" on device "eth1" named "bond0.0"
+     Then Check bond "nm-bond" link state is "up"
+      And Check slave "eth1" in bond "nm-bond" in proc
+      And "nm-bond:connected:bond0" is visible with command "nmcli -t -f DEVICE,STATE,CONNECTION device" in "50" seconds
+      And "eth1:connected:bond0.0" is visible with command "nmcli -t -f DEVICE,STATE,CONNECTION device" in "10" seconds
 
 
     @slaves @bond
@@ -1187,8 +1254,7 @@
 
 
     @rhbz1171009
-    @ifcfg-rh
-    @slaves @bond
+    @ifcfg-rh @slaves @bond
     @bond_mode_by_number_in_ifcfg
     Scenario: NM - bond - ifcfg - mode set by number
      * Add connection type "bond" named "bond0" for device "nm-bond"

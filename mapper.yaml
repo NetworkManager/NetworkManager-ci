@@ -91,6 +91,8 @@ testmapper:
         feature: bond
         tags: gate
         timeout: 20m
+    - bond_config_file:
+        feature: bond
     - nmcli_editor_for_new_connection_set_con_id:
         feature: bond
     - bond_disconnect:
@@ -106,6 +108,8 @@ testmapper:
     - bond_ifcfg_master_called_ethernet:
         feature: bond
     - bond_ifcfg_master_as_device_via_con_name:
+        feature: bond
+    - bond_keyfile_master:
         feature: bond
     - nmcli_bond_manual_ipv4:
         feature: bond

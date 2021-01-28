@@ -578,6 +578,11 @@ def wait_for_testeth0():
     print(" ** we do have IPv4 complete")
 
 
+def reload_NM_connections():
+    out, err, rc = nmci.run("nmcli con reload")
+    assert rc == 0, "`nmcli con reload` failed:\n\n%s\n%s" % (out, err)
+
+
 def reload_NM_service():
     time.sleep(0.5)
     nmci.run("pkill -HUP NetworkManager")
