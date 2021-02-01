@@ -412,8 +412,10 @@ def setup_macsec_psk(context, cak, ckn):
                                          -P /tmp/wpa_supplicant_ms.pid")
     time.sleep(6)
     assert nmci_step.command_code(context, "ip netns exec macsec_ns ip link show macsec0") == 0, "wpa_supplicant didn't create a MACsec interface"
+    assert nmci_step.command_code(context, "nmcli device set macsec_veth managed yes") == 0, "wpa_supplicant didn't create a MACsec interface"
     nmci_step.command_code(context, "ip netns exec macsec_ns ip link set macsec0 up")
     nmci_step.command_code(context, "ip netns exec macsec_ns ip addr add 172.16.10.1/24 dev macsec0")
+    nmci_step.command_code(context, "ip netns exec macsec_ns ip -6 addr add 2001:db8:1::fffe/32 dev macsec0")
     nmci_step.command_code(context, "ip netns exec macsec_ns dnsmasq \
                                          --pid-file=/tmp/dnsmasq_ms.pid \
                                          --dhcp-range=172.16.10.10,172.16.10.254,60m  \

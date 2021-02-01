@@ -136,3 +136,16 @@ Feature: nmcli - procedures in documentation
     * Bring "up" connection "con_tc"
     Then "qdisc pfifo_fast .*: root refcnt 2 bands 3 priomap\s+1 2 2 2 1 2 0 0 1 1 1 1 1 1 1 1" is visible with command "tc qdisc show dev eth0"
     And  "qdisc ingress ffff: parent ffff:fff1\s+----------------" is visible with command "tc qdisc show dev eth0"
+
+
+    @rhelver+=8
+    @macsec @not_on_aarch64_but_pegas @long
+    @macsec_doc_procedure
+    Scenario: nmcli - docs - Using MACsec to encrypt layer-2 traffic in the same physical network
+    * Prepare MACsec PSK environment with CAK "00112233445566778899001122334455" and CKN "5544332211009988776655443322110055443322110099887766554433221100"
+    * Add a new connection of type "macsec" and options "con-name test-macsec ifname macsec0 autoconnect no macsec.parent macsec_veth macsec.mode psk macsec.mka-cak 00112233445566778899001122334455 macsec.mka-ckn 5544332211009988776655443322110055443322110099887766554433221100"
+    * Modify connection "test-macsec" changing options "ipv4.method manual ipv4.addresses '172.16.10.5/24' ipv4.gateway '172.16.10.1' ipv4.dns '172.16.10.1'"
+    * Modify connection "test-macsec" changing options "ipv6.method manual ipv6.addresses '2001:db8:1::1/32' ipv6.gateway '2001:db8:1::fffe' ipv6.dns '2001:db8:1::fffe'"
+    * Bring up connection "test-macsec"
+    Then Ping "172.16.10.1" "10" times
+    Then Ping6 "2001:db8:1::fffe"

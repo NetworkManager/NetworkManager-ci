@@ -1650,6 +1650,10 @@ testmapper:
         tags: gate
     - qdisc_doc_procedure:
         feature: doc_procedures
+        tags: gate
+    - macsec_doc_procedure:
+        feature: doc_procedures
+        tags: gate
     - openvswitch_capability:
         feature: ovs
     - openvswitch_interface_recognized:
