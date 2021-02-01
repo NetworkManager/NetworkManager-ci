@@ -142,8 +142,8 @@ Feature: nmcli - procedures in documentation
     @macsec @not_on_aarch64_but_pegas @long
     @macsec_doc_procedure
     Scenario: nmcli - docs - Using MACsec to encrypt layer-2 traffic in the same physical network
-    * Prepare MACsec PSK environment with CAK "00112233445566778899001122334455" and CKN "5544332211009988776655443322110055443322110099887766554433221100"
-    * Add a new connection of type "macsec" and options "con-name test-macsec ifname macsec0 autoconnect no macsec.parent macsec_veth macsec.mode psk macsec.mka-cak 00112233445566778899001122334455 macsec.mka-ckn 5544332211009988776655443322110055443322110099887766554433221100"
+    * Prepare MACsec PSK environment with CAK "50b71a8ef0bd5751ea76de6d6c98c03a" and CKN "f2b4297d39da7330910a74abc0449feb45b5c0b9fc23df1430e1898fcf1c4550"
+    * Add a new connection of type "macsec" and options "con-name test-macsec ifname macsec0 autoconnect no macsec.parent macsec_veth macsec.mode psk macsec.mka-cak 50b71a8ef0bd5751ea76de6d6c98c03a macsec.mka-ckn f2b4297d39da7330910a74abc0449feb45b5c0b9fc23df1430e1898fcf1c4550"
     * Modify connection "test-macsec" changing options "ipv4.method manual ipv4.addresses '172.16.10.5/24' ipv4.gateway '172.16.10.1' ipv4.dns '172.16.10.1'"
     * Modify connection "test-macsec" changing options "ipv6.method manual ipv6.addresses '2001:db8:1::1/32' ipv6.gateway '2001:db8:1::fffe' ipv6.dns '2001:db8:1::fffe'"
     * Bring up connection "test-macsec"
