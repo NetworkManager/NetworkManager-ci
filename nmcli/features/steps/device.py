@@ -105,7 +105,7 @@ def create_device_in_ns(context, dev, ns, addr):
 #    context.veth_to_delete = veth_to_delete
 
 
-@step(u'Compare kernel and NM devices')
+@step(u'Compare kernel and NM master-slave devices')
 def compare_devices(context):
     # A tool that gets devices from Route Netlink & NetworkManager and
     # finds differencies (errors in NetworkManager external change tracking)
@@ -123,31 +123,18 @@ def compare_devices(context):
         Query devices from NetworkManager
         """
 
-        client = NM.Client.new (None)
+        client = NM.Client.new(None)
 
         devs = client.get_devices()
         devices = {}
-
-        for c in devs:
-            iface = c.get_iface()
-            if iface:
-                devices[c.get_iface()] = {}
 
         # Enslave devices
         for c in devs:
             typ = type(c).__name__
 
-            if typ == 'DeviceBridge':
-                slaves = c.get_slaves()
-            elif typ == 'DeviceBond':
-                slaves = c.get_slaves()
-            elif typ == 'DeviceTeam':
-                slaves = c.get_slaves()
-            else:
-                slaves = []
-
-            for s in slaves:
-                devices[s.get_iface()]['master'] = c.get_iface()
+            if typ in ['DeviceBridge', 'DeviceBond',  'DeviceTeam']:
+                for s in c.get_slaves():
+                    devices[s.get_iface()] = {'master': c.get_iface()}
 
         return devices
 
@@ -171,9 +158,8 @@ def compare_devices(context):
             master = l.get_attr('IFLA_MASTER')
             name = names[l['index']]
 
-            devices[name] = {}
             if master:
-                devices[name]['master'] = names[master]
+                devices[name] = {'master': names[master]}
 
         return devices
 
@@ -182,40 +168,40 @@ def compare_devices(context):
         Deeply compare structures
         """
 
-        ret = True;
+        ret = True
 
         a_type = type(a).__name__
         b_type = type(b).__name__
 
         if a_type != b_type:
-            print ('%s is a %s whereas %s is a %s' % (a_desc, a_type,
-                                                      b_desc, b_type))
+            print('%s is a %s whereas %s is a %s' % (a_desc, a_type,
+                                                     b_desc, b_type))
             return False
 
         if a_type == 'dict':
             for a_key in a.keys():
                 if a_key in b:
                     if not deep_compare(a_desc + '.' + a_key, a[a_key],
-                                b_desc + '.' + a_key, b[a_key]):
+                                        b_desc + '.' + a_key, b[a_key]):
                         ret = False
                 else:
-                    print ('%s does not have %s' % (b_desc, a_key))
+                    print('%s does not have %s: %s' % (b_desc, a_key, str(a[a_key])))
                     ret = False
 
             for b_key in b.keys():
                 if b_key not in a:
-                    print ('%s does not have %s' % (a_desc, b_key))
+                    print('%s does not have %s: %s' % (a_desc, b_key, str(b[b_key])))
                     ret = False
         else:
             if a != b:
-                print ('%s == %s while %s == %s' % (a_desc, a,
-                                                    b_desc, b))
+                print('%s == %s while %s == %s' % (a_desc, a,
+                                                   b_desc, b))
                 ret = False
 
         return ret
 
-    assert deep_compare ('NM', nm_devices(), 'RTNL', rtnl_devices()), \
-            "Kernel and NetworkManager's device lists are different"
+    assert deep_compare('NM', nm_devices(), 'RTNL', rtnl_devices()), \
+        "Kernel and NetworkManager's device lists are different"
 
 
 @step(u'Connect device "{device}"')
