@@ -95,6 +95,7 @@ Feature: nmcli - general
     When "ransient" is visible with command "hostnamectl" in "60" seconds
     Then "localhost|fedora" is not visible with command "hostnamectl --transient" in "60" seconds
 
+
     @ver+=1.4.0
     @con_general_remove @teardown_testveth @eth0 @restore_hostname
     @pull_hostname_from_dns
@@ -110,8 +111,8 @@ Feature: nmcli - general
     * Prepare simulated test "testG" device with "172.25.15" ipv4 and daemon options "--dhcp-option=12 --dhcp-host=00:11:22:33:44:55,172.25.15.1,foo-bar"
     * Execute "sudo nmcli general hostname localhost"
     * Execute "hostnamectl set-hostname --transient localhost.localdomain"
-    * Add a new connection of type "ethernet" and options "ifname testG con-name con_general autoconnect no ipv6.method disabled ipv4.method auto"
-    * Execute "nmcli connection modify con_general ipv4.address 172.25.13.1/30 ethernet.cloned-mac-address 00:11:22:33:44:55"
+    * Add a new connection of type "ethernet" and options "ifname testG con-name con_general autoconnect no ipv6.method ignore ipv4.method auto"
+    * Modify connection "con_general" changing options "ipv4.address 172.25.13.1/30 ethernet.cloned-mac-address 00:11:22:33:44:55"
     When "localhost|fedora" is visible with command "hostnamectl --transient" in "60" seconds
     * Bring up connection "con_general"
     When "ransient" is visible with command "hostnamectl" in "60" seconds
@@ -142,7 +143,7 @@ Feature: nmcli - general
     Then "foo" is visible with command "hostnamectl --transient" in "60" seconds
 
     # Increase the priority of the second connection and retry
-    * Execute "nmcli connection modify con_general2 hostname.priority 50"
+    * Modify connection "con_general2" changing options "hostname.priority 50"
     * Bring up connection "con_general2"
     When "ransient" is visible with command "hostnamectl" in "60" seconds
     # Now con_general2 has higher priority and wins
