@@ -7,6 +7,12 @@ function teardown() {
     ip l del veth0
     ip netns del iptunnel
     nmcli connection delete iptunnel-veth ipip1 gre1
+    modprobe -r ip_gre
+    modprobe -r ipip
+    modprobe -r ip6_gre
+    modprobe -r sit
+    modprobe -r ip_tunnel
+    modprobe -r ip6_tunnel
 }
 
 function setup() {

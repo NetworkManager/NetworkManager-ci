@@ -606,6 +606,14 @@ local_setup_configure_nm_eth_part2 () {
     [ -e /tmp/nm_eth_configured ] && return
     # Prepare all devices
 
+    # unload modules after NM build
+    modprobe -r ip_gre
+    modprobe -r ipip
+    modprobe -r ip6_gre
+    modprobe -r sit
+    modprobe -r ip_tunnel
+    modprobe -r ip6_tunnel
+
     # Making sure all wifi devices are named wlanX
     NUM=0
     wlan=0
