@@ -1694,6 +1694,8 @@ testmapper:
         feature: ovs
     - ovs_external_ids:
         feature: ovs
+    - NM_clean_during_service_start:
+        feature: ovs
     - dispatcher_preup_and_up:
         feature: dispatcher
     - dispatcher_predown_and_down:

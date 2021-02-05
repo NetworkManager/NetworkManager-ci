@@ -705,3 +705,33 @@ Feature: nmcli - ovs
     * Finish "tmp/ovs-assert-external-ids.py Bridge i-ovs-br0 NM.connection.uuid ~. br0-key0 br0-val0 br0-key1 br0-val1 foo boo"
     * Finish "python3 tmp/ovs-external-ids.py apply iface i-ovs-br0 -br0-key0 br0-key3 br0-val3"
     * Finish "tmp/ovs-assert-external-ids.py Bridge i-ovs-br0 NM.connection.uuid ~. br0-key1 br0-val1 br0-key3 br0-val3 foo boo"
+
+
+    @rhbz1861296
+    @ver+=1.29
+    @openvswitch @restart
+    @NM_clean_during_service_start
+    Scenario: NM - openvswitch - clean during service start
+    * Execute "ovs-vsctl add-br ovsbr0"
+    * "ovsbr0" is visible with command "ip a"
+    # Save no means to have just in memory profiles
+    * Add a new connection of type "ovs-bridge" and options "conn.interface ovsbridge0 con-name ovs-bridge0 save no"
+    * Add a new connection of type "ovs-port" and options "conn.interface port0 conn.master ovsbridge0 con-name ovs-port0 ovs-port.tag 120 save no"
+    * Add a new connection of type "ovs-port" and options "conn.interface bond0 conn.master ovsbridge0 con-name ovs-bond0 ovs-port.tag 120 save no"
+    * Add a new connection of type "ethernet" and options "conn.interface eth2 conn.master bond0 slave-type ovs-port con-name ovs-eth2 save no"
+    * Add a new connection of type "ethernet" and options "conn.interface eth3 conn.master bond0 slave-type ovs-port con-name ovs-eth3 save no"
+    * Add a new connection of type "ovs-interface" and options "conn.interface iface0 conn.master port0 con-name ovs-iface0 ipv4.may-fail no save no"
+    Then "activated" is visible with command "nmcli -g GENERAL.STATE con show ovs-iface0" in "40" seconds
+    * Reboot
+    # This bridge was created by NM and should be gone
+    And "Bridge [\"]?ovsbridge0[\"]?" is not visible with command "ovs-vsctl show"
+    And "Port [\"]?bond0[\"]?\s+tag: 120\s+Interface [\"]?eth[2-3][\"]?\s+type: system\s+Interface [\"]?eth[2-3][\"]?\s+type: system" is not visible with command "ovs-vsctl show"
+    And "Port [\"]?port0[\"]?\s+tag: 120\s+Interface [\"]?iface0[\"]?\s+type: internal" is not visible with command "ovs-vsctl show"
+    And "master ovs-system" is not visible with command "ip a s eth2"
+    And "master ovs-system" is not visible with command "ip a s eth3"
+    # This bridge was not created by NM and should still be here
+    Then "ovsbr0\s+ovs-bridge\s+unmanaged" is visible with command "nmcli device"
+    And "ovsbr0\s+ovs-port\s+unmanaged" is visible with command "nmcli device"
+    And "ovsbr0\s+ovs-interface\s+disconnected" is visible with command "nmcli device"
+    Then "Bridge [\"]?ovsbr0[\"]?" is visible with command "ovs-vsctl show"
+     And "Port [\"]?ovsbr0[\"]?\s+Interface [\"]?ovsbr0[\"]?\s+type: internal" is visible with command "ovs-vsctl show"
