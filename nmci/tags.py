@@ -1763,8 +1763,16 @@ def veth_remove_as(ctx, scen):
 
 _register_tag("veth_remove", None, veth_remove_as)
 
+def nmstate_bs(ctx, scen):
+    print("---------------------------")
+    print("installing nmstate")
+    nmci.run("yum -y remove nmstate")
+    nmci.run("yum -y install nmstate")
 
-def nmstate_setup_bs(ctx, scen):
+_register_tag("nmstate", nmstate_bs, None)
+
+
+def nmstate_upstream_setup_bs(ctx, scen):
     # Skip on deployments where we do not have veths
     if not os.path.isfile('/tmp/nm_newveth_configured'):
         sys.exit(77)
@@ -1807,7 +1815,7 @@ def nmstate_setup_bs(ctx, scen):
         nmci.lib.restart_NM_service()
 
 
-def nmstate_setup_as(ctx, scen):
+def nmstate_upstream_setup_as(ctx, scen):
     print("---------------------------")
     print("* remove nmstate setup")
 
@@ -1859,7 +1867,7 @@ def nmstate_setup_as(ctx, scen):
         ctx.embed('text/plain', nmstate, caption="NMSTATE")
 
 
-_register_tag("nmstate_setup", nmstate_setup_bs, nmstate_setup_as)
+_register_tag("nmstate_upstream_setup", nmstate_upstream_setup_bs, nmstate_upstream_setup_as)
 
 
 def backup_sysconfig_network_bs(ctx, scen):

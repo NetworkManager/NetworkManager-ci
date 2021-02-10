@@ -288,7 +288,7 @@ testmapper:
         feature: ppp
     - pppoe_over_vlan:
         feature: ppp
-    - nmstate:
+    - nmstate_upstream:
        timeout: 15m
        feature: general
     - bridge_options:
@@ -1696,6 +1696,8 @@ testmapper:
         feature: ovs
     - NM_clean_during_service_start:
         feature: ovs
+    - ovs_nmstate:
+        feature: ovs    
     - dispatcher_preup_and_up:
         feature: dispatcher
     - dispatcher_predown_and_down:

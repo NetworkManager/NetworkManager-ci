@@ -735,3 +735,18 @@ Feature: nmcli - ovs
     And "ovsbr0\s+ovs-interface\s+disconnected" is visible with command "nmcli device"
     Then "Bridge [\"]?ovsbr0[\"]?" is visible with command "ovs-vsctl show"
      And "Port [\"]?ovsbr0[\"]?\s+Interface [\"]?ovsbr0[\"]?\s+type: internal" is visible with command "ovs-vsctl show"
+
+
+
+    @rhbz1923248
+    @ver+=1.29
+    @nmstate  @openvswitch 
+    @ovs_nmstate
+    Scenario: NM - openvswitch - nmstate
+    # There was a connection up race here, here we do create two namespace
+    # environment with 5 veth pairs and two namespaces and doing bond and
+    # bridge operation inside OVS on top of that via nmstate.
+    # Running 3 times just to be sure.
+    Then Finish "sh tmp/repro_1923248.sh"
+    Then Finish "sh tmp/repro_1923248.sh"
+    Then Finish "sh tmp/repro_1923248.sh"

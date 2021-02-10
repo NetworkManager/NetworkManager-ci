@@ -1525,8 +1525,8 @@ Feature: nmcli - general
 
     @ver+=1.26.0
     @rhelver+=8 @fedoraver+=31
-    @nmstate_setup @ifcfg-rh
-    @nmstate
+    @nmstate_upstream_setup @ifcfg-rh
+    @nmstate_upstream
     Scenario: NM - general - nmstate
     * Restart NM
     * Execute "ip link add eth1 type veth peer name eth1peer && ip link set dev eth1peer up"
