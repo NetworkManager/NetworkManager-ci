@@ -1854,3 +1854,41 @@
     * Modify connection "bond0" changing options "bond.options mode=0,miimon=100,downdelay=1000,updelay=100"
     * Execute "sudo nmcli d reapply nm-bond"
     Then "1000" is visible with command "cat /sys/class/net/nm-bond/bonding/downdelay"
+
+
+    @rhbz1870691
+    @ver+=1.29
+    @veth_remove @slaves @bond
+    @bond_change_mode_of_externally_created_bond
+    Scenario: nmcli - bond - options - change mode of externally created bond
+    * Execute "ip link add veth11 type veth peer name veth12"
+    * Execute "ip link set veth12 up"
+    * Execute "ip link add nm-bond type bond"
+    * Execute "ip link set veth11 down"
+    * Execute "ip link set veth11 master nm-bond"
+    * Execute "ip link set veth11 up"
+    * Execute "ip link set nm-bond up"
+    * Add a new connection of type "bond" and options
+                                    """
+                                    con-name bond0 ifname nm-bond
+                                    connection.autoconnect no
+                                    connection.autoconnect-slaves no
+                                    bond.option mode=active-backup
+                                    ipv4.method disabled
+                                    ipv6.method disabled
+                                    """
+    * Add a new connection of type "ethernet" and options
+                                    """
+                                    ifname veth11
+                                    connection.id bond0.1
+                                    connection.master nm-bond
+                                    connection.slave-type bond
+                                    connection.autoconnect no
+                                    connection.autoconnect-slaves no
+                                    """
+    * Bring "down" connection "bond0"
+    * Bring "up" connection "bond0"
+    * Bring "up" connection "bond0.1"
+     When "activated" is visible with command "nmcli -g GENERAL.STATE con show bond0" in "40" seconds
+     Then "Bonding Mode: fault-tolerance \(active-backup\)" is visible with command "cat /proc/net/bonding/nm-bond"
+     Then Check bond "nm-bond" link state is "up"

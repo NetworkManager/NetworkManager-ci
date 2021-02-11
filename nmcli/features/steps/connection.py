@@ -34,8 +34,13 @@ def add_new_default_connection(context, typ, ifname, options):
     pass
 
 
+@step(u'Add a new connection of type "{typ}" and options')
 @step(u'Add a new connection of type "{typ}" and options "{options}"')
-def add_new_default_connection_without_ifname(context, typ, options):
+def add_new_default_connection_without_ifname(context, typ, options=None):
+    if options == None:
+        options = ""
+        for line in context.text.split("\n"):
+            options=options+" "+line
     cli = pexpect.spawn('nmcli connection add type %s %s' % (typ, options), logfile=context.log, encoding='utf-8')
     if cli.expect(['Error', pexpect.TIMEOUT, pexpect.EOF]) == 0:
         raise Exception('Got an Error while creating connection of type %s with options %s\n%s%s' % (typ,options,cli.after,cli.buffer))

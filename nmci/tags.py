@@ -1759,6 +1759,7 @@ def veth_remove_as(ctx, scen):
     nmci.run('nmcli con down con_veth1')
     nmci.run('nmcli con delete con_veth1')
     nmci.run('nmcli con delete con_veth2')
+    nmci.run('ip link del veth11')
 
 
 _register_tag("veth_remove", None, veth_remove_as)
