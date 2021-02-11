@@ -739,8 +739,8 @@ Feature: nmcli - ovs
 
 
     @rhbz1923248
-    @ver+=1.29
-    @nmstate  @openvswitch 
+    @ver+=1.29 @rhelver+=8
+    @nmstate  @openvswitch
     @ovs_nmstate
     Scenario: NM - openvswitch - nmstate
     # There was a connection up race here, here we do create two namespace
