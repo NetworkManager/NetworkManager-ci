@@ -2051,8 +2051,14 @@ _register_tag("no_connections", no_connections_bs, no_connections_as)
 
 
 def bridge_as(ctx, scen):
+    print("---------------------------")
+    print("deleting all possible bridge residues")
     if ctx.IS_NMTUI:
+        nmci.run("sudo nmcli con down bridge0")
+        time.sleep(1)
         nmci.run("sudo nmcli connection delete id bridge0 bridge-slave-eth1 bridge-slave-eth2")
+        time.sleep(1)
+
         nmci.lib.reset_hwaddr_nmtui('eth1')
         nmci.lib.reset_hwaddr_nmtui('eth2')
         nmci.run("sudo ip link del bridge0")
@@ -2068,9 +2074,6 @@ def bridge_as(ctx, scen):
             nmci.lib.reset_hwaddr_nmtui('eth8')
             nmci.lib.reset_hwaddr_nmtui('eth9')
     else:
-        print("---------------------------")
-        print("deleting all possible bridge residues")
-
         if 'bridge_assumed' in scen.tags:
             nmci.run('ip link del bridge0')
             nmci.run('ip link del br0')
@@ -2079,6 +2082,7 @@ def bridge_as(ctx, scen):
         nmci.run('sudo nmcli con del bridge-slave-eth4 bridge-nonslave-eth4 bridge-slave-eth4.80 eth4')
         nmci.run('sudo nmcli con del bridge0 bridge bridge.15 nm-bridge br88 br11 br12 br15 bridge-slave br15-slave br15-slave1 br15-slave2 br10 br10-slave')
         nmci.lib.reset_hwaddr_nmcli('eth4')
+    print(" * done")
 
 
 _register_tag("bridge", None, bridge_as)
