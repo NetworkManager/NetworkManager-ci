@@ -278,6 +278,8 @@ testmapper:
         feature: bond
     - bond_change_mode_of_externally_created_bond:
         feature: bond
+    - bond_8023ad_with_vlan_srcmac:
+        feature: bond
     - update_firewall_zone_upon_reconnect:
         feature: ppp
     - pppoe_and_ethernet_together:
