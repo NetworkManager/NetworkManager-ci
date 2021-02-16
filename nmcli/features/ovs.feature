@@ -774,4 +774,4 @@ Feature: nmcli - ovs
                                 """
     Then "success" is visible with command "firewall-cmd --reload"
     Then "running" is visible with command "firewall-cmd --state"
-    Then "work" is visible with command "firewall-cmd  --get-zone-of-interface=iface0" in "3" seconds
+    Then "public" is visible with command "firewall-cmd  --get-zone-of-interface=iface0" in "3" seconds
