@@ -1892,3 +1892,21 @@
      When "activated" is visible with command "nmcli -g GENERAL.STATE con show bond0" in "40" seconds
      Then "Bonding Mode: fault-tolerance \(active-backup\)" is visible with command "cat /proc/net/bonding/nm-bond"
      Then Check bond "nm-bond" link state is "up"
+
+
+    @rhbz1915457
+    @ver+=1.30 @rhelver+=8.4
+    @slaves @bond
+    @bond_8023ad_with_vlan_srcmac
+    Scenario: nmcli - bond - options - mode set to 802.3ad with vlan+srcmax
+    * Add a new connection of type "bond" and options
+                                    """
+                                    con-name bond0 ifname nm-bond
+                                    bond.options 'mode=802.3ad,
+                                    miimon=100,xmit_hash_policy=vlan+srcmac'
+                                    """
+     * Add slave connection for master "nm-bond" on device "eth1" named "bond0.0"
+     * Bring "up" connection "bond0.0"
+     Then "Bonding Mode: IEEE 802.3ad Dynamic link aggregation" is visible with command "cat /proc/net/bonding/nm-bond"
+     Then "Transmit Hash Policy:\s+vlan\+srcmac" is visible with command "cat /proc/net/bonding/nm-bond"
+     Then Check bond "nm-bond" link state is "up"
