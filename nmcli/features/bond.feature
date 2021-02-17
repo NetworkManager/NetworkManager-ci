@@ -1895,7 +1895,7 @@
 
 
     @rhbz1915457
-    @ver+=1.30 @rhelver+=8.4
+    @ver+=1.30 @rhelver+=8.4 @skip_in_centos
     @slaves @bond
     @bond_8023ad_with_vlan_srcmac
     Scenario: nmcli - bond - options - mode set to 802.3ad with vlan+srcmax
