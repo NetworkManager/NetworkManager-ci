@@ -258,16 +258,10 @@ Feature: Bridge TUI tests
     * Set "Profile name" field to "bridge-slave-eth1"
     * Set "Device" field to "eth1"
     * Confirm the slave settings
-    * Choose to "<Add>" a slave
-    * Choose the connection type "Ethernet"
-    * Set "Profile name" field to "bridge-slave-eth2"
-    * Set "Device" field to "eth2"
-    * Confirm the slave settings
     * Ensure "Enable STP" is not checked
     * Confirm the connection settings
     Then "bridge0\s+bridge\s+connected" is visible with command "nmcli device" in "60" seconds
     Then "eth1\s+ethernet\s+connected\s+bridge-slave-eth1" is visible with command "nmcli device"
-    Then "eth2\s+ethernet\s+connected\s+bridge-slave-eth2" is visible with command "nmcli device"
     Then "inet 1" is visible with command "ip a s bridge0"
 
 
@@ -284,18 +278,12 @@ Feature: Bridge TUI tests
     * Set "Profile name" field to "bridge-slave-eth1"
     * Set "Device" field to "eth1.99"
     * Confirm the slave settings
-    * Choose to "<Add>" a slave
-    * Choose the connection type "VLAN"
-    * Set "Profile name" field to "bridge-slave-eth2"
-    * Set "Device" field to "eth2.88"
-    * Confirm the slave settings
     * Set "IPv4 CONFIGURATION" category to "Link-Local"
     * Come in "IPv4 CONFIGURATION" category
     * Ensure "Require IPv4 addressing for this connection" is checked
     * Confirm the connection settings
     Then "bridge0\s+bridge\s+connected" is visible with command "nmcli device" in "60" seconds
     Then "eth1.99\s+vlan\s+connected\s+bridge-slave-eth1" is visible with command "nmcli device"
-    Then "eth2.88\s+vlan\s+connected\s+bridge-slave-eth2" is visible with command "nmcli device"
     Then "169.254" is visible with command "ip a s bridge0"
 
 
@@ -312,11 +300,6 @@ Feature: Bridge TUI tests
     * Set "Profile name" field to "bridge-slave-eth1"
     * Set "Device" field to "eth1.99"
     * Confirm the slave settings
-    * Choose to "<Add>" a slave
-    * Choose the connection type "VLAN"
-    * Set "Profile name" field to "bridge-slave-eth2"
-    * Set "Device" field to "eth2.88"
-    * Confirm the slave settings
     * Ensure "Enable STP" is not checked
     * Set "IPv4 CONFIGURATION" category to "Link-Local"
     * Come in "IPv4 CONFIGURATION" category
@@ -324,7 +307,6 @@ Feature: Bridge TUI tests
     * Confirm the connection settings
     Then "bridge0\s+bridge\s+connected" is visible with command "nmcli device" in "60" seconds
     Then "eth1.99\s+vlan\s+connected\s+bridge-slave-eth1" is visible with command "nmcli device"
-    Then "eth2.88\s+vlan\s+connected\s+bridge-slave-eth2" is visible with command "nmcli device"
     Then "169.254" is visible with command "ip a s bridge0"
 
 
