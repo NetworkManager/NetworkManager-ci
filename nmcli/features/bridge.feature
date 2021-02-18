@@ -214,7 +214,7 @@ Feature: nmcli - bridge
     @ifcfg-rh
     @bridge_up_with_slaves
     Scenario: nmcli - bridge - up with slaves
-    * Add a new connection of type "bridge" and options "con-name br15 ifname br15 bridge.stp off ip4 192.168.1.19/24"
+    * Add a new connection of type "bridge" and options "con-name br15 ifname br15 bridge.stp on ip4 192.168.1.19/24"
     * Add a new connection of type "vlan" and options "con-name eth4.80 dev eth4 id 80"
     * Check ifcfg-name file created for connection "eth4.80"
     * Add a new connection of type "vlan" and options "con-name eth4.90 dev eth4 id 90"
@@ -261,7 +261,7 @@ Feature: nmcli - bridge
     @bridge
     @bridge_autoconnect_slaves_when_master_reconnected
     Scenario: nmcli - bridge - start slave upon master reconnection
-    * Add a new connection of type "bridge" and options "con-name br10 ifname br10 bridge.stp off"
+    * Add a new connection of type "bridge" and options "con-name br10 ifname br10 bridge.stp on"
     * Add a new connection of type "bridge-slave" and options "con-name br10-slave ifname eth4 master br10"
     * Open editor for connection "br10"
     * Set a property named "ipv4.method" to "manual" in editor
@@ -294,7 +294,7 @@ Feature: nmcli - bridge
     @bridge_dhcp_config_with_multiple_ethernet_ports
     Scenario: nmcli - bridge - dhcp config with multiple ethernet ports
     * Prepare simulated test "test44" device
-    * Add a new connection of type "bridge" and options "ifname br4 con-name bridge4 bridge.stp off"
+    * Add a new connection of type "bridge" and options "ifname br4 con-name bridge4 bridge.stp on"
     * Add a new connection of type "bridge-slave" and options "ifname eth4 con-name bridge4.0 master br4"
     * Bring up connection "bridge4.0"
     * Add a new connection of type "bridge-slave" and options "ifname test44 con-name bridge4.1 master br4"
@@ -309,7 +309,7 @@ Feature: nmcli - bridge
     @bridge_static_config_with_multiple_ethernet_ports
     Scenario: nmcli - bridge - dhcp config with multiple ethernet ports
     * Prepare simulated test "test44" device
-    * Add a new connection of type "bridge" and options "ifname br4 con-name bridge4 autoconnect no bridge.stp off ip4 192.168.1.19/24"
+    * Add a new connection of type "bridge" and options "ifname br4 con-name bridge4 autoconnect no bridge.stp on ip4 192.168.1.19/24"
     * Add a new connection of type "bridge-slave" and options "ifname eth4 con-name bridge4.0 master br4"
     * Bring up connection "bridge4.0"
     * Add a new connection of type "bridge-slave" and options "ifname test44 con-name bridge4.1 master br4"
@@ -327,7 +327,7 @@ Feature: nmcli - bridge
     # if the master is autoconnect-slaves, then it will forcefully activate all slaves,
     # even if the device is currently busy with another (non-slave) profile.
     * Add a new connection of type "ethernet" and options "ifname eth4 con-name bridge-nonslave-eth4 autoconnect no"
-    * Add a new connection of type "bridge" and options "ifname br15 con-name bridge4 autoconnect no connection.autoconnect-slaves yes bridge.stp no"
+    * Add a new connection of type "bridge" and options "ifname br15 con-name bridge4 autoconnect no connection.autoconnect-slaves yes bridge.stp yes bridge.forward-delay 2"
     * Add a new connection of type "bridge-slave" and options "ifname eth4 con-name bridge-slave-eth4 master br15 autoconnect no"
     * Bring up connection "bridge-nonslave-eth4"
     When "eth4\s+ethernet\s+connected\s+bridge-nonslave-eth4" is visible with command "nmcli d"
@@ -351,7 +351,7 @@ Feature: nmcli - bridge
     * Bring up connection "bridge-nonslave-eth4"
     When "eth4\s+ethernet\s+connected\s+bridge-nonslave-eth4" is visible with command "nmcli d"
     * Execute "nmcli con modify bridge-nonslave-eth4 master br15 slave-type bridge"
-    * Add a new connection of type "bridge" and options "ifname br15 con-name bridge4 autoconnect yes connection.autoconnect-slaves yes bridge.stp no"
+    * Add a new connection of type "bridge" and options "ifname br15 con-name bridge4 autoconnect yes connection.autoconnect-slaves yes bridge.stp yes bridge.forward-delay 2"
     Then "br15\s+bridge\s+connected\s+bridge4" is visible with command "nmcli d" in "10" seconds
      And "eth4\s+ethernet\s+connected\s+bridge-nonslave-eth4" is visible with command "nmcli d"
      And "eth4.*master br15" is visible with command "ip a s eth4"
