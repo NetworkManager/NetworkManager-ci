@@ -1355,8 +1355,8 @@ _register_tag("performance", performance_bs, performance_as)
 
 def preserve_8021x_certs_bs(ctx, scen):
     print("---------------------------")
-    nmci.run("curl -s https://raw.githubusercontent.com/NetworkManager/NetworkManager/master/libnm-core/tests/certs/test-key-and-cert.pem -o /tmp/test_key_and_cert.pem")
-    nmci.run("curl -s https://raw.githubusercontent.com/NetworkManager/NetworkManager/master/libnm-core/tests/certs/test2_ca_cert.pem -o /tmp/test2_ca_cert.pem")
+    nmci.run("curl -s https://gitlab.freedesktop.org/NetworkManager/NetworkManager/-/raw/master/src/libnm-core-impl/tests/certs/test-key-and-cert.pem -o /tmp/test_key_and_cert.pem")
+    nmci.run("curl -s https://gitlab.freedesktop.org/NetworkManager/NetworkManager/-/raw/master/src/libnm-core-impl/tests/certs/test2_ca_cert.pem -o /tmp/test2_ca_cert.pem")
 
 
 _register_tag("preserve_8021x_certs", preserve_8021x_certs_bs)
