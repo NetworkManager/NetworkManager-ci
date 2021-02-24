@@ -354,15 +354,13 @@ EOF
          --no-hostonly-cmdline -N --no-compress \
          -f $TESTDIR/initramfs.client.NM $KVERSION || exit 1
 
-  # Make NFS client's dracut image using legacy network module - RHEL8 only
-  if grep -q 'release 8' /etc/redhat-release; then
-      dracut -i $TESTDIR/overlay-client / \
-             -o "plymouth dash dmraid network-manager" \
-             -a "debug network-legacy ifcfg" \
-             -d "8021q ipvlan macvlan bonding af_packet piix ext3 ide-gd_mod ata_piix sd_mod e1000 nfs sunrpc" \
-             --no-hostonly-cmdline -N --no-compress \
-             -f $TESTDIR/initramfs.client.legacy $KVERSION || exit 1
-  fi
+  # Make NFS client's dracut image using legacy network module
+  dracut -i $TESTDIR/overlay-client / \
+         -o "plymouth dash dmraid network-manager" \
+         -a "debug network-legacy ifcfg" \
+         -d "8021q ipvlan macvlan bonding af_packet piix ext3 ide-gd_mod ata_piix sd_mod e1000 nfs sunrpc" \
+         --no-hostonly-cmdline -N --no-compress \
+         -f $TESTDIR/initramfs.client.legacy $KVERSION || exit 1
 
   rm -rf -- $TESTDIR/overlay-client
 
