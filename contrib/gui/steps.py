@@ -143,7 +143,7 @@ def check_connection(context, connection, options=None, values=None, seconds=2):
         return x
 
     options_args = ",".join(set([remove_braces(option) for option in options]))
-    nmcli_cmd = f"nmcli -t -f {options_args} con show {connection}"
+    nmcli_cmd = f"nmcli -t -f {options_args} con show {connection} --show-secrets"
 
     last_error = None
     for _ in range(int(seconds)):
