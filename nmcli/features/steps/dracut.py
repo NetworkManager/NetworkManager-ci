@@ -26,7 +26,7 @@ def get_dhcpd_log(cursor):
 def get_backtrace(filename):
     proc = subprocess.run(
         ["gdb", "-quiet"],
-        cwd="/tmp/dracut_test/client_dumps/",
+        cwd="/var/dracut_test/client_dumps/",
         stdout=subprocess.PIPE,
         check=False,
         encoding="utf-8",
@@ -37,7 +37,7 @@ def get_backtrace(filename):
 def get_dump(filename):
     result = "data:application/octet-stream;base64,"
     data_base64 = base64.b64encode(
-        open("/tmp/dracut_test/client_dumps/"+filename, "rb").read())
+        open("/var/dracut_test/client_dumps/"+filename, "rb").read())
     data_encoded = data_base64.decode("utf-8").replace("\n", "")
     return result + data_encoded
 
@@ -51,7 +51,7 @@ def check_core_dumps(context):
     backtraces = ""
     dumps = []
 
-    for filename in os.listdir("/tmp/dracut_test/client_dumps/"):
+    for filename in os.listdir("/var/dracut_test/client_dumps/"):
         if filename.startswith("dump_"):
             backtraces += filename.replace("dump_", "", 1) + ":\n" \
                 + get_backtrace(filename) + "\n\n"
@@ -132,7 +132,7 @@ def dracut_run(context):
         "cp ./check_lib/*.sh $TESTDIR/client_check/; ",
         shell=True
     )
-    with open("/tmp/dracut_test/client_check/client_check.sh", "w") as f:
+    with open("/var/dracut_test/client_check/client_check.sh", "w") as f:
         f.write("client_check() {\n" + checks + "}")
     subprocess.call("cd contrib/dracut/; . ./setup.sh; umount $DEV_CHECK", shell=True)
 
@@ -155,7 +155,7 @@ def dracut_run(context):
         proc.wait()
         rc = proc.returncode
 
-    with open("/tmp/dracut_test/client_state.img", "br") as f:
+    with open("/var/dracut_test/client_state.img", "br") as f:
         result = f.read(4).decode("utf-8")
 
     if not result.startswith("NO"):

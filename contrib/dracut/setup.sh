@@ -1,6 +1,6 @@
 #!/bin/bash
 
-TESTDIR=/tmp/dracut_test
+TESTDIR=/var/dracut_test
 
 UUID_STATE=a32d3ed2-225f-11eb-bf6a-525400c7ed04
 UUID_CHECK=a467c808-225f-11eb-96df-525400c7ed04
