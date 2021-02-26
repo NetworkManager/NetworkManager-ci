@@ -17,7 +17,7 @@ EOF
 # redirect stderr to stdout
 exec 2>&1
 
-. ./setup.sh
+. ./contrib/dracut/setup.sh
 cd $TESTDIR
 
 test_type="$1"
