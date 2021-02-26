@@ -631,7 +631,7 @@ Feature: NM: dracut
     Scenario: NM - dracut - NM module - NFSv3 root=nfs ip=auto6
     * Run dracut test
       | Param  | Value                                                                  |
-      | kernel | root=nfs:[deaf:beef::1]:/tmp/dracut_test/nfs/client                    |
+      | kernel | root=nfs:[deaf:beef::1]:/var/dracut_test/nfs/client                    |
       | kernel | ip=auto6 ro                                                            |
       | qemu   | -device virtio-net,netdev=nfs,mac=52:54:00:12:34:00                    |
       | qemu   | -netdev tap,id=nfs,script=$PWD/qemu-ifup/nfs                           |
@@ -658,7 +658,7 @@ Feature: NM: dracut
     Scenario: NM - dracut - NM module - NFSv3 root=nfs ip=dhcp6
     * Run dracut test
       | Param  | Value                                                                  |
-      | kernel | root=nfs:[deaf:beef::1]:/tmp/dracut_test/nfs/client                    |
+      | kernel | root=nfs:[deaf:beef::1]:/var/dracut_test/nfs/client                    |
       | kernel | ip=dhcp6 ro                                                            |
       | qemu   | -device virtio-net,netdev=nfs,mac=52:54:00:12:34:00                    |
       | qemu   | -netdev tap,id=nfs,script=$PWD/qemu-ifup/nfs                           |
@@ -685,7 +685,7 @@ Feature: NM: dracut
     Scenario: NM - dracut - NM module - NFSv3 root=nfs ip=IP6:GW::NETMASK:HOSTNAME:MAC
     * Run dracut test
       | Param  | Value                                                                              |
-      | kernel | root=nfs:[deaf:beef::1]:/tmp/dracut_test/nfs/client ro                             |
+      | kernel | root=nfs:[deaf:beef::1]:/var/dracut_test/nfs/client ro                             |
       | kernel | ip=[deaf:beef::ac:1]::[deaf:beef::1]:64:dracut-nfs-client-6:52-54-00-12-34-00:none |
       | qemu   | -device virtio-net,netdev=nfs,mac=52:54:00:12:34:00                                |
       | qemu   | -netdev tap,id=nfs,script=$PWD/qemu-ifup/nfs                                       |
