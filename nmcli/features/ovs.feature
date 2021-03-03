@@ -512,39 +512,42 @@ Feature: nmcli - ovs
     When  "mac_in_use\s+: "00:11:22:33:44:55"" is visible with command "sudo ovs-vsctl list interface"
 
 
-    @rhbz1740557 @rhbz1852612 @rhbz1855563
+    @rhbz1740557 @rhbz1852612 @rhbz1855563 @rhbz1868176
     @ver+=1.26
-    @openvswitch @disp
+    @openvswitch @disp @teardown_testveth
     @ovs_cloned_mac_set_on_iface
     Scenario: nmcli - openvswitch - mac address set iface
     * Execute "systemctl restart NetworkManager-dispatcher"
     * Execute "echo -e '#!/bin/bash\nsleep 1' >/etc/NetworkManager/dispatcher.d/pre-down.d/97-disp"
     * Execute "chmod +x /etc/NetworkManager/dispatcher.d/pre-down.d/97-disp"
+    * Prepare simulated test "testX" device with "192.168.97" ipv4 and daemon options "--dhcp-host=00:11:22:33:45:67,192.168.97.13,foobar"
     * Add a new connection of type "ovs-bridge" and options "conn.interface ovsbridge0 con-name ovs-bridge0"
-    * Add a new connection of type "ovs-port" and options "conn.interface port0 conn.master ovsbridge0 con-name ovs-port0 ovs-port.tag 120"
-    * Add a new connection of type "ovs-port" and options "conn.interface bond0 conn.master ovsbridge0 con-name ovs-bond0 ovs-port.tag 120"
-    * Add a new connection of type "ethernet" and options "conn.interface eth2 conn.master bond0 slave-type ovs-port con-name ovs-eth2"
-    * Add a new connection of type "ethernet" and options "conn.interface eth3 conn.master bond0 slave-type ovs-port con-name ovs-eth3"
-    * Add a new connection of type "ovs-interface" and options "conn.interface iface0 conn.master port0 con-name ovs-iface0 ipv4.may-fail no  802-3-ethernet.cloned-mac-address 00:11:22:33:44:55"
+    * Add a new connection of type "ovs-port" and options "conn.interface port0 conn.master ovsbridge0 con-name ovs-port0"
+    * Add a new connection of type "ovs-port" and options "conn.interface port1 conn.master ovsbridge0 con-name ovs-port1"
+    * Add a new connection of type "ethernet" and options "conn.interface testX conn.master port0 slave-type ovs-port con-name ovs-testX"
+    * Add a new connection of type "ovs-interface" and options "conn.interface iface0 conn.master port1 con-name ovs-iface0 ipv4.may-fail no 802-3-ethernet.cloned-mac-address 00:11:22:33:45:67"
     When "activated" is visible with command "nmcli -g GENERAL.STATE con show ovs-iface0" in "40" seconds
-    When "00:11:22:33:44:55" is visible with command "ip a s iface0"
-    When "GENERAL.HWADDR:\s+00:11:22:33:44:55" is visible with command "nmcli dev show iface0"
-    When  "mac\s+: "00:11:22:33:44:55"" is visible with command "sudo ovs-vsctl list interface"
-    When  "mac_in_use\s+: "00:11:22:33:44:55"" is visible with command "sudo ovs-vsctl list interface"
+    Then "192.168.97.13/24" is visible with command "ip a s iface0"
+    When "00:11:22:33:45:67" is visible with command "ip a s iface0"
+    When "GENERAL.HWADDR:\s+00:11:22:33:45:67" is visible with command "nmcli dev show iface0"
+    When  "mac\s+: "00:11:22:33:45:67"" is visible with command "sudo ovs-vsctl list interface"
+    When  "mac_in_use\s+: "00:11:22:33:45:67"" is visible with command "sudo ovs-vsctl list interface"
     # No sleep 2 as a reproducer of 1855563
     * Execute "nmcli networking off && nmcli networking on"
     When "activated" is visible with command "nmcli -g GENERAL.STATE con show ovs-iface0" in "40" seconds
-    When "00:11:22:33:44:55" is visible with command "ip a s iface0"
-    When "GENERAL.HWADDR:\s+00:11:22:33:44:55" is visible with command "nmcli dev show iface0"
-    When  "mac\s+: "00:11:22:33:44:55"" is visible with command "sudo ovs-vsctl list interface"
-    When  "mac_in_use\s+: "00:11:22:33:44:55"" is visible with command "sudo ovs-vsctl list interface"
+    Then "192.168.97.13/24" is visible with command "ip a s iface0"
+    When "00:11:22:33:45:67" is visible with command "ip a s iface0"
+    When "GENERAL.HWADDR:\s+00:11:22:33:45:67" is visible with command "nmcli dev show iface0"
+    When  "mac\s+: "00:11:22:33:45:67"" is visible with command "sudo ovs-vsctl list interface"
+    When  "mac_in_use\s+: "00:11:22:33:45:67"" is visible with command "sudo ovs-vsctl list interface"
     # No sleep 2 as a reproducer of 1855563
     * Execute "nmcli networking off && nmcli networking on"
     When "activated" is visible with command "nmcli -g GENERAL.STATE con show ovs-iface0" in "40" seconds
-    When "00:11:22:33:44:55" is visible with command "ip a s iface0"
-    When "GENERAL.HWADDR:\s+00:11:22:33:44:55" is visible with command "nmcli dev show iface0"
-    When  "mac\s+: "00:11:22:33:44:55"" is visible with command "sudo ovs-vsctl list interface"
-    When  "mac_in_use\s+: "00:11:22:33:44:55"" is visible with command "sudo ovs-vsctl list interface"
+    Then "192.168.97.13/24" is visible with command "ip a s iface0"
+    When "00:11:22:33:45:67" is visible with command "ip a s iface0"
+    When "GENERAL.HWADDR:\s+00:11:22:33:45:67" is visible with command "nmcli dev show iface0"
+    When  "mac\s+: "00:11:22:33:45:67"" is visible with command "sudo ovs-vsctl list interface"
+    When  "mac_in_use\s+: "00:11:22:33:45:67"" is visible with command "sudo ovs-vsctl list interface"
 
 
     @rhbz1786937
