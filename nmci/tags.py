@@ -1551,7 +1551,7 @@ def openvswitch_as(ctx, scen):
     nmci.run('sudo ifdown eth1')
     nmci.run('sudo ifdown eth2')
     nmci.run('sudo ifdown ovsbridge0')
-    nmci.run('sudo nmcli con del eth1 eth2 ovs-bond0 ovs-port0 ovs-patch0 ovs-patch1 ovs-bridge1 ovs-bridge0 ovs-port1 ovs-eth2 ovs-eth3 ovs-iface0 eth2 dpdk-sriov c-ovs-br0 c-ovs-port0 c-ovs-iface0') # to be sure
+    nmci.run('sudo nmcli con del eth1 eth2 ovs-bond0 ovs-port0 ovs-patch0 ovs-patch1 ovs-bridge1 ovs-bridge0 ovs-port1 ovs-eth2 ovs-eth3 ovs-iface0 eth2 dpdk-sriov c-ovs-br0 c-ovs-port0 c-ovs-iface0 ovs-testX') # to be sure
     time.sleep(1)
     nmci.run('ovs-vsctl del-br ovsbr0')
     nmci.run('ovs-vsctl del-br ovsbridge0')
