@@ -1093,6 +1093,8 @@ testmapper:
     #    feature: vlan
     - vxlan_do_not_up_if_no_master:
         feature: vlan
+    - vlan_create_500_vlans:
+        feature: vlan
     - vrf_one_address_two_devices:
         feature: vrf
         tags: gate

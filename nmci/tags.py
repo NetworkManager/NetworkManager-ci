@@ -192,6 +192,14 @@ def tag1000_as(ctx, scen):
 _register_tag("1000", tag1000_bs, tag1000_as)
 
 
+def tag500_vlans_as(ctx, scen):
+    print("---------------------------")
+    print("deleting 500 vlans setup")
+    nmci.run("sh prepare/vlans.sh clean")
+
+_register_tag("500_vlans", None, tag500_vlans_as)
+
+
 def captive_portal_bs(ctx, scen):
     # do not capture output, let it log to the console, otherwise this hangs!
     nmci.run("sudo prepare/captive_portal.sh", stdout=None, stderr=None)

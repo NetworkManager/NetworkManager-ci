@@ -693,3 +693,32 @@ Feature: nmcli - vlan
     Scenario: NM - vxlan - do not up when no master
     * Add a new connection of type "vxlan" and options "ifname vlan1 con-name vlan1 vxlan.parent not-exists id 70 remote 172.25.1.1"
     Then "--" is visible with command "nmcli connection  |grep vlan1" for full "2" seconds
+
+
+    @rhbz1933041 @rhbz1926599
+    @ver+=1.30
+    @500_vlans @restart @logging_info_only
+    @vlan_create_500_vlans
+    Scenario: NM - vlan - create 500 vlans
+    # Prepare veth pair with the other end in namespace
+    # Create 500 (from 10 to 510) vlans on top of eth11p
+    # Run dnsmasq inside the namespace to server incoming connections
+    * Finish "sh prepare/vlans.sh setup 500"
+    # Create 500 profiles which should be autoconnected after a while
+    * Finish "for i in $(seq 10 510); do nmcli con add type vlan con-name eth11.$i id $i dev eth11 ethernet.cloned-mac-address random; done"
+    # Wait till we have "all" addresses assigned
+    When "\s+activated" is visible with command "nmcli con show eth11.100" in "150" seconds
+    When "\s+activated" is visible with command "nmcli con show eth11.200" in "50" seconds
+    When "\s+activated" is visible with command "nmcli con show eth11.300" in "50" seconds
+    When "\s+activated" is visible with command "nmcli con show eth11.400" in "50" seconds
+    When "\s+activated" is visible with command "nmcli con show eth11.500" in "50" seconds
+    # Simulate reboot and delete all devices
+    * Stop NM
+    * Execute "for i in $(seq 10 510); do ip link del eth11.$i; done"
+    * Reboot
+    # Wait till we have "all" addresses assigned again
+    Then "\s+activated" is visible with command "nmcli con show eth11.101" in "150" seconds
+    Then "\s+activated" is visible with command "nmcli con show eth11.201" in "50" seconds
+    Then "\s+activated" is visible with command "nmcli con show eth11.301" in "50" seconds
+    Then "\s+activated" is visible with command "nmcli con show eth11.401" in "50" seconds
+    Then "\s+activated" is visible with command "nmcli con show eth11.510" in "50" seconds
