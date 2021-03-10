@@ -34,7 +34,7 @@ dependencies:
     - /distribution/command:
         CMDS_TO_RUN: 'if grep -q "Fedora release 3[0-3]" /etc/redhat-release; then echo mq-deadline > /sys/block/sda/queue/scheduler; fi'
     - /distribution/command:
-        CMDS_TO_RUN: 'if grep -q "release 9" /etc/redhat-release; then dnf -y install https://kojipkgs.fedoraproject.org//packages/openvswitch/2.14.0/2.eln103/x86_64/openvswitch-2.14.0-2.eln103.x86_64.rpm https://kojipkgs.fedoraproject.org//packages/dpdk/19.11.3/2.eln107/x86_64/dpdk-19.11.3-2.eln107.x86_64.rpm https://kojipkgs.fedoraproject.org//packages/ppp/2.4.9/1.eln108/x86_64/ppp-2.4.9-1.eln108.x86_64.rpm http://download.eng.bos.redhat.com/brewroot/vol/rhel-9/packages/wireless-regdb/2020.11.20/1.el9/noarch/wireless-regdb-2020.11.20-1.el9.noarch.rpm https://kojipkgs.fedoraproject.org//packages/iw/5.9/1.fc34/x86_64/iw-5.9-1.fc34.x86_64.rpm; fi '
+        CMDS_TO_RUN: 'if grep -q "release 9" /etc/redhat-release; then dnf -y install https://kojipkgs.fedoraproject.org/packages/openvswitch/2.15.0/5.fc34/x86_64/network-scripts-openvswitch-2.15.0-5.fc34.x86_64.rpm https://kojipkgs.fedoraproject.org//packages/dpdk/19.11.3/2.eln107/x86_64/dpdk-19.11.3-2.eln107.x86_64.rpm https://kojipkgs.fedoraproject.org//packages/ppp/2.4.9/1.eln108/x86_64/ppp-2.4.9-1.eln108.x86_64.rpm http://download.eng.bos.redhat.com/brewroot/vol/rhel-9/packages/wireless-regdb/2020.11.20/1.el9/noarch/wireless-regdb-2020.11.20-1.el9.noarch.rpm https://kojipkgs.fedoraproject.org//packages/iw/5.9/1.fc34/x86_64/iw-5.9-1.fc34.x86_64.rpm; fi '
 
   packages:
       - chkconfig # Abrtd job dependency
