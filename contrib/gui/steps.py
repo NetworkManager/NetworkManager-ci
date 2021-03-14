@@ -14,6 +14,7 @@ from qecore.step_matcher import use_step_matcher
 import subprocess
 import os
 import sys
+import re
 from time import sleep
 
 NM_CI_PATH = os.path.realpath(__file__).replace("contrib/gui/steps.py", "")
@@ -45,6 +46,79 @@ def cmd_output_rc_embed(context, cmd, **kwargs):
     output, rc = cmd_output_rc(cmd, **kwargs)
     context.embed("text/plain", f"{cmd}\nRC: {rc}\nOutput:\n{output}", caption="Command")
     return (output, rc)
+
+
+def check_star_expr(needle, haystack):
+    if needle.startswith("*") and needle.endswith("*"):
+        assert needle[1:-1] in haystack, \
+            f"searched '{needle}' is no infix of '{haystack}'"
+    elif needle.endswith("*"):
+        assert haystack.startswith(needle[:-1]), \
+            f"searched '{needle}' is no prefix of '{haystack}'"
+    elif needle.startswith("*"):
+        assert haystack.endswith(needle[1:]), \
+            f"searched '{needle}' is no suffix of '{haystack}'"
+    else:
+        assert haystack == needle, \
+            f"searched '{needle}' is not '{haystack}'"
+
+
+def remove_braces(option):
+    if "[" in option:
+        option = option[:option.index("[")]
+    return option
+
+
+def nmcli_out_to_dic(out):
+    nmcli_lines = out.strip().split('\n')
+    if nmcli_lines == [""]:
+        return {}
+    nmcli_dic = {}
+    for line in nmcli_lines:
+        opt, val = line.split(":", 1)
+        nmcli_dic[opt] = val
+        opt_no_braces = remove_braces(opt)
+        if opt_no_braces != opt:
+            val_orig = nmcli_dic.get(opt_no_braces, "")
+            if val_orig:
+                nmcli_dic[opt_no_braces] = val_orig + "," + val
+            else:
+                nmcli_dic[opt_no_braces] = val
+    return nmcli_dic
+
+
+MAC_RE = re.compile("([0-9A-F]{2}:){5}([0-9A-F]){2}")
+
+
+def get_ip_l_mac(ifname):
+    out, rc = cmd_output_rc(f"ip link show dev {ifname}", shell=True)
+    assert rc == 0, f"Unable to get mac for '{ifname}': {out}"
+    mac = out.strip().split("\n")[1].strip().split(" ")[1].upper()
+    assert MAC_RE.match(mac) is not None, f"Inavlid MAC for {ifname}: {mac}\n{out}"
+    return mac
+
+
+def get_mac(ifname):
+    out, rc = cmd_output_rc(f"ethtool -P {ifname}", shell=True)
+    assert rc == 0, f"Unable to get mac for '{ifname}': {out}"
+    mac = out.strip().split(" ")[-1].upper()
+    if MAC_RE.match(mac) is None:
+        mac = get_ip_l_mac(ifname)
+    return mac
+
+
+def netdev_replace(context, s):
+    if not s:
+        return s
+    if "<netdev" not in s:
+        return s
+    netdevs = getattr(context, "netdevs", [])
+    for i in range(len(netdevs)):
+        s = s.replace(f"<netdev{i+1}>", netdevs[i])
+        if f"<netdev{i+1}:mac>" in s:
+            s = s.replace(f"<netdev{i+1}:mac>", get_mac(netdevs[i]))
+    assert "<netdev" not in s, f"Some netdev not found: {s}"
+    return s
 
 
 def libreswan_teardown(context):
@@ -108,6 +182,7 @@ def add_connection(context, connection, options=None):
         options = ""
         for row in context.table:
             options += f"{row[0]} {row[1]} "
+    options = netdev_replace(context, options)
     out, rc = cmd_output_rc(f"nmcli con add con-name {connection} {options}", shell=True)
     assert rc == 0, f"Add connection '{connection}' with options {options} failed.\n{out}"
 
@@ -118,6 +193,7 @@ def modify_connection(context, connection, options=None):
         options = ""
         for row in context.table:
             options += f"{row[0]} {row[1]} "
+    options = netdev_replace(context, options)
     out, rc = cmd_output_rc(f"nmcli con mod {connection} {options}", shell=True)
     assert rc == 0, f"Modify connection '{connection}' changing options {options} failed.\n{out}"
 
@@ -130,49 +206,60 @@ def check_connection(context, connection, options=None, values=None, seconds=2):
         options, values = [], []
         for row in context.table:
             options.append(row[0])
-            values.append(row[1])
+            values.append(netdev_replace(context, row[1]))
     else:
+        values = netdev_replace(context, values)
         options, values = options.split(","), values.split(",")
         assert len(options) == len(values), \
             f"Differrent number of options and values.\noptions: {options}\nvalues: {values}"
-
-    # need function, because .index() can raise exception
-    def remove_braces(x):
-        if "[" in x:
-            x = x[:x.index("[")]
-        return x
 
     options_args = ",".join(set([remove_braces(option) for option in options]))
     nmcli_cmd = f"nmcli -t -f {options_args} con show {connection} --show-secrets"
 
     last_error = None
     for _ in range(int(seconds)):
+        out, rc = cmd_output_rc(nmcli_cmd, shell=True)
+        assert rc == 0, f"Connection show with options '{options_args}' failed.\n{out}"
         try:
-            out, rc = cmd_output_rc(nmcli_cmd, shell=True)
-            assert rc == 0, f"Connection show with options '{options_args}' failed.\n{out}"
+            nmcli_dic = nmcli_out_to_dic(out)
 
-            nmcli_lines = out.split('\n')
             for option, value in zip(options, values):
-                if value.endswith("*"):
-                    found = False
-                    for line in nmcli_lines:
-                        if line.startswith(f"{option}:{value[:-1]}"):
-                            found = True
-                            break
-                    assert found, f"'{option}' is not '{value}' in '{connection}':\n{out}"
-                else:
-                    assert f"{option}:{value}" in nmcli_lines, \
-                        f"'{option}' is not '{value}' in '{connection}':\n{out}"
-            # break if no assert
+                val_nmcli = nmcli_dic.get(option, None)
+                assert val_nmcli is not None, f"nmcli option '{option}' is not set"
+                check_star_expr(value, val_nmcli)
+
+            # if no assert every option was found
             return
         except AssertionError as e:
             last_error = e
             sleep(1)
+    context.embed("text/plain", out, "nmcli STDOUT")
     raise last_error
+
+
+@step('Connection "{connection}" is activated | in "{seconds:d}" seconds')
+def connection_activated(context, connection, seconds=10):
+    context.execute_steps(
+        f'* Check connection "{connection}" is having options "GENERAL.STATE" '
+        f'with values "activated" in "{seconds}" seconds'
+    )
+
+
+@step('Connection "{connection}" is not activated | for full "{seconds:d}" seconds')
+def connection_not_activated(context, connection, seconds=10):
+    nmcli_cmd = f"nmcli -t -f GENERAL.STATE con show {connection}"
+    for i in range(int(seconds)):
+        out, rc = cmd_output_rc(nmcli_cmd, shell=True)
+        assert rc == 0, f"Connection show GENRAL.STATE failed.\n{out}"
+        nmcli_dic = nmcli_out_to_dic(out)
+        val = nmcli_dic.get("GENERAL.STATE", "")
+        assert val != "activated", f"Connection '{connection}' activated after {i} seconds"
+        sleep(1)
 
 
 CONNECTIONS_LIST_CMD = "nmcli -t -f NAME con show "
 ACTIVE_CONNECTIONS_LIST_CMD = f"{CONNECTIONS_LIST_CMD} --active"
+DEVICE_STATE_LIST_CMD = "nmcli -t -f STATE,DEVICE dev"
 
 
 @step('"{connection}" is in connections list | in "{seconds}" seconds')
@@ -213,6 +300,20 @@ def not_active_connection_list(context, connection, seconds=2):
             return
         sleep(1)
     assert False, f"'{connection}' is in list of active connections:\n{out}"
+
+
+@step('"{device}" device is "{state}" | in "{seconds}" seconds')
+def device_state(context, device, state, seconds=10):
+    device = netdev_replace(context, device)
+    outs = ""
+    for i in range(int(seconds)):
+        out, rc = cmd_output_rc(DEVICE_STATE_LIST_CMD, shell=True)
+        if rc == 0 and f"{state}:{device}" in out.split("\n"):
+            return
+        outs += f"{DEVICE_STATE_LIST_CMD} #{i}\n{out}\n"
+        sleep(1)
+    context.embed("text/plain", outs, caption="Device States")
+    assert False, f"'{device}' is not '{state}':\n{out}"
 
 
 use_step_matcher("parse")
@@ -357,6 +458,20 @@ def prepare_8021x(context, certs_dir="tmp/8021x/certs"):
         f"&> /tmp/hostapd_wired.log", shell=True) == 0, f"8021x setup failed !!!"
 
 
+@step('Prepare netdevsim | num "{num}"')
+def prepare_netdevsim(context, num="1"):
+    rc = subprocess.call(
+        f"sudo bash {NM_CI_RUNNER_CMD} prepare/netdevsim.sh setup {num}"
+        f"&> /tmp/netdevsim.log", shell=True)
+    context.embed("text/plain", utf_only_open_read("/tmp/netdevsim.log"), "Netdevsim Setup")
+    assert rc == 0, f"netdevsim setup failed !!!"
+    ifnames = subprocess.check_output(
+        "sudo ls /sys/bus/netdevsim/devices/netdevsim0/net/", shell=True, encoding="utf-8")
+    ifnames = ifnames.strip().split()
+    assert len(ifnames) == int(num), f"created {len(ifnames)} instead of {num} devices: {ifnames}"
+    context.netdevs = ifnames
+
+
 use_step_matcher("parse")
 
 
@@ -413,3 +528,23 @@ def teardown_8021x(context):
 @step('Teardown 8021x after test')
 def teardown_8021x_hook(context):
     context.sandbox.add_after_scenario_hook(hostapd_teardown)
+
+
+use_step_matcher("qecore")
+
+
+@step('Teardown netdevsim')
+def teardown_netdevsim(context):
+    assert subprocess.call(
+        f"echo 0 | sudo tee /sys/bus/netdevsim/del_device", shell=True) == 0, \
+        f"unable to delete netdevsim device"
+    context.netdevs = []
+
+
+@step('Teardown netdevsim after scenario')
+@step('Teardown netdevsim after test')
+def teardown_netdevsim_hook(context):
+    context.sandbox.add_after_scenario_hook(teardown_netdevsim, context)
+
+
+use_step_matcher("parse")
