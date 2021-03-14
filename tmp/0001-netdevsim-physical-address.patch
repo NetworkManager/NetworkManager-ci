@@ -1,0 +1,12 @@
+diff --git a/drivers/net/netdevsim/netdev.c.orig b/drivers/net/netdevsim/netdev.c
+index 7178468..df23115 100644
+--- a/drivers/net/netdevsim/netdev.c.orig
++++ b/drivers/net/netdevsim/netdev.c
+@@ -267,6 +267,7 @@ static void nsim_setup(struct net_device *dev)
+ {
+ 	ether_setup(dev);
+ 	eth_hw_addr_random(dev);
++	memcpy(dev->perm_addr, dev->dev_addr, dev->addr_len);
+ 
+ 	dev->tx_queue_len = 0;
+ 	dev->flags |= IFF_NOARP;
