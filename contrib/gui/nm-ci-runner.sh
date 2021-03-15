@@ -8,14 +8,26 @@ shift 1
 cmd=$1
 shift 1
 
+nm_openvpn_gnome() {
+  if grep -q 'release 9' in /etc/redhat/release; then
+    dnf -4 -y install \
+      https://kojipkgs.fedoraproject.org//packages/NetworkManager-openvpn/1.8.12/1.fc34.2/$(arch)/NetworkManager-openvpn-1.8.12-1.fc34.2.$(arch).rpm \
+      https://kojipkgs.fedoraproject.org//packages/NetworkManager-openvpn/1.8.12/1.fc34.2/$(arch)/NetworkManager-openvpn-gnome-1.8.12-1.fc34.2.$(arch).rpm
+  elif grep -q 'release 8' in /etc/redhat/release; then
+    dnf -4 -y install \
+      https://kojipkgs.fedoraproject.org//packages/NetworkManager-openvpn/1.8.10/1.fc30/$(arch)/NetworkManager-openvpn-1.8.10-1.fc30.$(arch).rpm \
+      https://kojipkgs.fedoraproject.org//packages/NetworkManager-openvpn/1.8.10/1.fc30/$(arch)/NetworkManager-openvpn-gnome-1.8.10-1.fc30.$(arch).rpm
+  fi
+}
+
 if [ "$cmd" == "install" ]; then
     if ! [ -f /tmp/network_pkgs_installed ]; then
         set -x
-        yum -y install NetworkManager-libreswan-gnome NetworkManager-libreswan
-        yum -y install NetworkManager-openvpn-gnome NetworkManager-openvpn \
-        || yum -y install \
-          https://kojipkgs.fedoraproject.org//packages/NetworkManager-openvpn/1.8.10/1.fc30/x86_64/NetworkManager-openvpn-1.8.10-1.fc30.x86_64.rpm \
-          https://kojipkgs.fedoraproject.org//packages/NetworkManager-openvpn/1.8.10/1.fc30/x86_64/NetworkManager-openvpn-gnome-1.8.10-1.fc30.x86_64.rpm
+        sleep 5
+        dnf -4 -y install NetworkManager-libreswan-gnome NetworkManager-libreswan
+        dnf -4 -y install NetworkManager-openvpn-gnome NetworkManager-openvpn || \
+          nm_openvpn_gnome
+
         python3 -m pip install proxy.py
         systemctl restart NetworkManager
         touch /tmp/network_pkgs_installed
