@@ -192,12 +192,20 @@ def tag1000_as(ctx, scen):
 _register_tag("1000", tag1000_bs, tag1000_as)
 
 
+def tag500_vlans_bs(ctx, scen):
+    print("---------------------------")
+    print("allowing managed veths")
+    nmci.lib.manage_veths()
+    nmci.run("sh prepare/vlans.sh clean")
+
+
 def tag500_vlans_as(ctx, scen):
     print("---------------------------")
     print("deleting 500 vlans setup")
     nmci.run("sh prepare/vlans.sh clean")
+    nmci.lib.unmanage_veths()
 
-_register_tag("500_vlans", None, tag500_vlans_as)
+_register_tag("500_vlans", tag500_vlans_bs, tag500_vlans_as)
 
 
 def captive_portal_bs(ctx, scen):
