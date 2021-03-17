@@ -26,6 +26,11 @@ component:
       - usb_modeswitch
       - mobile-broadband-provider-info
       - libnl3
+  gated-by:
+    - gnome-control-center
+    - gnome-shell
+    - network-manager-applet
+
   gate-in: beaker
   openstack-flavor: medium
 
