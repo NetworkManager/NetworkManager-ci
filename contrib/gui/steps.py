@@ -218,9 +218,9 @@ def check_connection(context, connection, options=None, values=None, seconds=2):
 
     last_error = None
     for _ in range(int(seconds)):
-        out, rc = cmd_output_rc(nmcli_cmd, shell=True)
-        assert rc == 0, f"Connection show with options '{options_args}' failed.\n{out}"
         try:
+            out, rc = cmd_output_rc(nmcli_cmd, shell=True)
+            assert rc == 0, f"Connection show with options '{options_args}' failed.\n{out}"
             nmcli_dic = nmcli_out_to_dic(out)
 
             for option, value in zip(options, values):
