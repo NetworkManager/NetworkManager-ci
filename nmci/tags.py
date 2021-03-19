@@ -150,6 +150,30 @@ def regenerate_veth_as(ctx, scen):
 _register_tag("regenerate_veth", None, regenerate_veth_as)
 
 
+def logging_info_only_bs(ctx, scen):
+    print("---------------------------")
+    print("add info only logging")
+    log = "/etc/NetworkManager/conf.d/99-xlogging.conf"
+    nmci.run("echo '[logging]' > %s" % log)
+    nmci.run("echo 'level=INFO' >> %s" % log)
+    nmci.run("echo 'domains=ALL' >> %s" % log)
+    time.sleep(0.5)
+    nmci.lib.restart_NM_service()
+    time.sleep(1)
+
+
+def logging_info_only_as(ctx, scen):
+    print("---------------------------")
+    print("remove info only logging")
+    log = "/etc/NetworkManager/conf.d/99-xlogging.conf"
+    nmci.run("rm -rf %s" %log)
+    nmci.lib.restart_NM_service()
+    time.sleep(1)
+
+
+_register_tag("logging_info_only", logging_info_only_bs, logging_info_only_as)
+
+
 def restart_as(ctx, scen):
     print("---------------------------")
     print("restarting NM service")
@@ -197,6 +221,8 @@ def tag500_vlans_bs(ctx, scen):
     print("allowing managed veths")
     nmci.lib.manage_veths()
     nmci.run("sh prepare/vlans.sh clean")
+    # We need NM to sanitize itself a bit
+    time.sleep(20)
 
 
 def tag500_vlans_as(ctx, scen):
@@ -804,29 +830,6 @@ def logging_as(ctx, scen):
 
 _register_tag("logging", logging_bs, logging_as)
 
-
-def logging_info_only_bs(ctx, scen):
-    print("---------------------------")
-    print("add info only logging")
-    log = "/etc/NetworkManager/conf.d/99-xlogging.conf"
-    nmci.run("echo '[logging]' > %s" % log)
-    nmci.run("echo 'level=INFO' >> %s" % log)
-    nmci.run("echo 'domains=ALL' >> %s" % log)
-    time.sleep(0.5)
-    nmci.lib.restart_NM_service()
-    time.sleep(1)
-
-
-def logging_info_only_as(ctx, scen):
-    print("---------------------------")
-    print("remove info only logging")
-    log = "/etc/NetworkManager/conf.d/99-xlogging.conf"
-    nmci.run("rm -rf %s" %log)
-    nmci.lib.restart_NM_service()
-    time.sleep(1)
-
-
-_register_tag("logging_info_only", logging_info_only_bs, logging_info_only_as)
 
 
 def remove_custom_cfg_as(ctx, scen):
