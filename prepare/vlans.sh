@@ -19,8 +19,11 @@ function setup {
             ip -n eth11_ns link set eth11p.$i up
             ip -n eth11_ns add add 11.1.$((i / 100)).$((i % 100))/8 dev eth11p.$i
     done
-    ip netns exec eth11_ns dnsmasq --dhcp-range=11.2.0.1,11.2.10.250,2m \
-            --no-ping --pid-file=/tmp/dnsmasq_vlan.pid
+    ip netns exec eth11_ns dnsmasq \
+            --dhcp-range=11.2.0.1,11.2.10.250,2m \
+            --no-ping \
+            --dhcp-leasefile=/var/lib/dnsmasq/vlans.leases \
+            --pid-file=/tmp/dnsmasq_vlan.pid
     echo $NUM > /tmp/vlan_count.txt
     echo "*****************************************"
     echo "$NUM vlans inside namespace created!"
