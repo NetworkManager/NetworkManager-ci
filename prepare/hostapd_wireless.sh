@@ -34,6 +34,7 @@ function start_dnsmasq ()
     --listen-address=10.0.254.1\
     --dhcp-range=10.0.254.$((num)),10.0.254.100,60m\
     --dhcp-option=option:router,10.0.254.1\
+    --dhcp-leasefile=/var/lib/dnsmasq/hostapd.leases \
     --dhcp-lease-max=50
 }
 

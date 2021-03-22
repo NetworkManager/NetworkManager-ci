@@ -24,6 +24,7 @@ function start_dnsmasq ()
     --listen-address=10.0.253.1\
     --dhcp-range=10.0.253.10,10.0.253.200,10m\
     --dhcp-option=option:router,10.0.253.1\
+    --dhcp-leasefile=/var/lib/dnsmasq/hostapd.leases \
     --dhcp-lease-max=190
 
     echo "Start noauth DHCP server (dnsmasq)"
@@ -39,6 +40,7 @@ function start_dnsmasq ()
     --listen-address=10.0.254.1\
     --dhcp-range=10.0.254.10,10.0.254.200,2m\
     --dhcp-option=option:router,10.0.254.1\
+    --dhcp-leasefile=/var/lib/dnsmasq/hostapd.leases \
     --dhcp-lease-max=190
 }
 
