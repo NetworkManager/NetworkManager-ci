@@ -150,8 +150,10 @@ def before_scenario(context, scenario):
         except Exception as e:
             excepts.append(str(e))
 
-    for tag in nmci.tags.tag_registry:
-        if tag.tag_name in scenario.tags and tag.before_scenario is not None:
+    for tag_name in scenario.tags:
+        tag = nmci.tags.tag_registry.get(tag_name, None)
+        if tag is not None and tag.before_scenario is not None:
+            print("Executing @" + tag_name)
             try:
                 tag.before_scenario(context, scenario)
             except Exception:
@@ -267,10 +269,12 @@ def after_scenario(context, scenario):
 
     # run after_scenario tags (in reverse order)
     excepts = []
-    tag_registry = list(nmci.tags.tag_registry)
-    tag_registry.reverse()
-    for tag in tag_registry:
-        if tag.tag_name in scenario.tags and tag.after_scenario is not None:
+    scenario_tags = list(scenario.tags)
+    scenario_tags.reverse()
+    for tag_name in scenario_tags:
+        tag = nmci.tags.tag_registry.get(tag_name, None)
+        if tag is not None and tag.after_scenario is not None:
+            print("Executing @" + tag_name)
             try:
                 tag.after_scenario(context, scenario)
             except Exception:

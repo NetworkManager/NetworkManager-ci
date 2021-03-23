@@ -14,15 +14,13 @@ class Tag:
         self.after_scenario = after_scenario
 
 
-tag_registry = []
-tag_names = set()
+tag_registry = {}
 
 
 def _register_tag(tag_name, before_scenario=None, after_scenario=None):
-    assert tag_name not in tag_names, \
+    assert tag_name not in tag_registry, \
         "multiple definitions for tag '@%s'" % tag_name
-    tag_names.add(tag_name)
-    tag_registry.append(Tag(tag_name, before_scenario, after_scenario))
+    tag_registry[tag_name] = Tag(tag_name, before_scenario, after_scenario)
 
 
 # tags that have efect outside this file

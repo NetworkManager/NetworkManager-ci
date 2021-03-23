@@ -449,7 +449,7 @@ def test_feature_tags():
         return False
 
     def check_registry(tag):
-        return tag in tag_registry.tag_names
+        return tag in tag_registry.tag_registry
 
     def check_mapper(tag):
         return tag in mapper_tests
@@ -492,7 +492,7 @@ def test_feature_tags():
                 pytest.fail(f'tags "{tags}" are duplicate over the {feature} tests')
             unique_tags.add(tt)
 
-        # for tag in tag_registry.tag_names:
+        # for tag in tag_registry.tag_tag_registry:
         #    assert tag in tag_registry_used, f'tag "{tag}" is defined but never used'
 
 
