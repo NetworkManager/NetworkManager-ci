@@ -122,11 +122,3 @@
           branch: 'nm-1-28'
       - 'NetworkManager-{branch}':
           branch: 'nm-1-26'
-      - 'NetworkManager-{branch}':
-          branch: 'nm-1-24'
-      - 'NetworkManager-{branch}':
-          branch: 'nm-1-22'
-      - 'NetworkManager-{branch}':
-          branch: 'nm-1-20'
-      - 'NetworkManager-{branch}':
-          branch: 'nm-1-18'
