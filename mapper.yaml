@@ -1100,6 +1100,7 @@ testmapper:
         feature: vlan
     - vlan_create_500_vlans:
         feature: vlan
+        timeout: 17m
     - vrf_one_address_two_devices:
         feature: vrf
         tags: gate
