@@ -1256,7 +1256,7 @@ def dracut_as(ctx, scen):
     ctx.embed("text/plain", nmci.lib.utf_only_open_read("/tmp/journal-dhcpd.log"), "DHCPD")
     nmci.run("journalctl -all --no-pager %s | grep ' radvd\\[' > /tmp/journal-radvd.log" % ctx.log_cursor)
     ctx.embed("text/plain", nmci.lib.utf_only_open_read("/tmp/journal-radvd.log"), "RADVD")
-    nmci.run("journalctl -all --no-pager %s | grep ' rpc.mountd\[' > /tmp/journal-nfs.log" % ctx.log_cursor)
+    nmci.run("journalctl -all --no-pager %s | grep ' rpc.mountd\\[' > /tmp/journal-nfs.log" % ctx.log_cursor)
     ctx.embed("text/plain", nmci.lib.utf_only_open_read("/tmp/journal-nfs.log"), "NFS")
     print("running after_test (free up dhcpd leases)")
     nmci.run("cd contrib/dracut; . ./setup.sh; after_test")
