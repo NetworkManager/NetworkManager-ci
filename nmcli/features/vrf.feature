@@ -40,6 +40,42 @@
     When "broadcast 192.0.2.255 dev eth4 proto kernel scope link src 192.0.2.1" is visible with command "ip r show table 1002"
 
 
+    @rhbz1907661
+    @ver+=1.31
+    @ver+=1.30.3
+    @rhelver+=8
+    @con_vrf_remove
+    @vrf_check_local_routes
+    Scenario: nmcli - vrf - reusing ip address on multiple devices
+    * Add a new connection of type "vrf" and options "ifname vrf0 con-name vrf0 autoconnect no table 1001 ipv4.method disabled ipv6.method disabled"
+    * Add a new connection of type "ethernet" and options "con-name vrf.eth1 autoconnect no ifname eth1 master vrf0 ipv4.method manual ipv4.address '192.0.2.1/24,192.0.2.2/24' ipv6.method manual ipv6.addresses '1:2:3:4:5::1/64,1:2:3:4:5::2/64'"
+    * Bring "up" connection "vrf.eth1"
+
+    When "eth1\:ethernet\:connected\:vrf.eth1" is visible with command "nmcli -t device" in "5" seconds
+    When "vrf0\:vrf\:connected\:vrf0" is visible with command "nmcli -t device"
+    When "eth1" is not visible with command "ip r"
+    When "192.0.2.1" is visible with command "ip a s eth1"
+    When "broadcast 192.0.2.0 dev eth1 proto kernel scope link src 192.0.2.1" is visible with command "ip r show table 1001"
+    When "192.0.2.0\/24 dev eth1 proto kernel scope link src 192.0.2.1 metric 1" is visible with command "ip r show table 1001"
+    When "local 192.0.2.1 dev eth1 proto kernel scope host src 192.0.2.1" is visible with command "ip r show table 1001"
+    When "local 192.0.2.2 dev eth1 proto kernel scope host src 192.0.2.1" is visible with command "ip r show table 1001"
+    When "broadcast 192.0.2.255 dev eth1 proto kernel scope link src 192.0.2.1" is visible with command "ip r show table 1001"
+    When "local 1:2:3:4:5::1 dev eth1 table 1001 proto kernel metric 0 pref medium" is visible with command "ip -6 route show table all"
+    When "local 1:2:3:4:5::2 dev eth1 table 1001 proto kernel metric 0 pref medium" is visible with command "ip -6 route show table all"
+
+    * Execute "nmcli device modify eth1 ipv4.address 192.0.2.2/24"
+    When "192.0.2.1" is not visible with command "ip route show table all"
+    When "local 192.0.2.2 dev eth1 table 1001 proto kernel scope host src 192.0.2.2" is visible with command "ip route show table all"
+    When "local 1:2:3:4:5::1 dev eth1 table 1001 proto kernel metric 0 pref medium" is visible with command "ip -6 route show table all"
+    When "local 1:2:3:4:5::2 dev eth1 table 1001 proto kernel metric 0 pref medium" is visible with command "ip -6 route show table all"
+
+    * Execute "nmcli device modify eth1 ipv6.address 1:2:3:4:5::2/64"
+    When "192.0.2.1" is not visible with command "ip route show table all"
+    When "local 192.0.2.2 dev eth1 table 1001 proto kernel scope host src 192.0.2.2" is visible with command "ip route show table all"
+    When "1:2:3:4:5::1" is not visible with command "ip -6 route show table all"
+    When "local 1:2:3:4:5::2 dev eth1 table 1001 proto kernel metric 0 pref medium" is visible with command "ip -6 route show table all"
+
+
     @rhbz1773908
     @ver+=1.25 @rhelver+=8
     @con_vrf_remove

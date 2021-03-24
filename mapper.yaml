@@ -893,6 +893,8 @@ testmapper:
         tags: gate
     - ipv4_describe:
         feature: ipv4
+    - check_local_routes:
+        feature: ipv4
     - set_mtu_from_DHCP:
         feature: ipv4
         tags: gate
@@ -1103,6 +1105,8 @@ testmapper:
     - vrf_delete_connections:
         feature: vrf
     - vrf_restart_persistence:
+        feature: vrf
+    - vrf_check_local_routes:
         feature: vrf
     #- vrf_external:
     #    feature: vrf

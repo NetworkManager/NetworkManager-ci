@@ -370,6 +370,37 @@ Feature: nmcli: ipv4
      And "192.168.100.0\/24 dev eth3 proto kernel scope link src 192.168.100.* metric 1" is visible with command "ip r show"
 
 
+    @rhbz1907661
+    @ver+=1.31
+    @ver+=1.30.3
+    @rhelver+=8
+    @con_ipv4_remove
+    @check_local_routes
+    Scenario: nmcli - ipv4 - test handling of local routes
+    * Add a new connection of type "ethernet" and options "con-name con_ipv4 ifname eth3 ipv4.method manual ipv4.address '192.0.2.1/24,192.0.2.2/24' ipv6.method manual ipv6.addresses '1:2:3:4:5::1/64,1:2:3:4:5::2/64'"
+
+    When "eth3\:ethernet\:connected\:con_ipv4" is visible with command "nmcli -t device" in "5" seconds
+    When "192.0.2.1" is visible with command "ip a s eth3"
+    When "broadcast 192.0.2.0 dev eth3 table local proto kernel scope link src 192.0.2.1" is visible with command "ip r show table all"
+    When "192.0.2.0/24 dev eth3 proto kernel scope link src 192.0.2.1 metric 1" is visible with command "ip r show table all"
+    When "local 192.0.2.1 dev eth3 table local proto kernel scope host src 192.0.2.1" is visible with command "ip r show table all"
+    When "local 192.0.2.2 dev eth3 table local proto kernel scope host src 192.0.2.1" is visible with command "ip r show table all"
+    When "broadcast 192.0.2.255 dev eth3 table local proto kernel scope link src 192.0.2.1" is visible with command "ip r show table all"
+    When "local 1:2:3:4:5::1 dev eth3 table local proto kernel metric 0 pref medium" is visible with command "ip -6 route show table all"
+    When "local 1:2:3:4:5::2 dev eth3 table local proto kernel metric 0 pref medium" is visible with command "ip -6 route show table all"
+
+    * Execute "nmcli device modify eth3 ipv4.address 192.0.2.2/24"
+    When "192.0.2.1" is not visible with command "ip route show table all"
+    When "local 192.0.2.2 dev eth3 table local proto kernel scope host src 192.0.2.2" is visible with command "ip route show table all"
+    When "local 1:2:3:4:5::1 dev eth3 table local proto kernel metric 0 pref medium" is visible with command "ip -6 route show table all"
+    When "local 1:2:3:4:5::2 dev eth3 table local proto kernel metric 0 pref medium" is visible with command "ip -6 route show table all"
+
+    * Execute "nmcli device modify eth3 ipv6.address 1:2:3:4:5::2/64"
+    When "192.0.2.1" is not visible with command "ip route show table all"
+    When "local 192.0.2.2 dev eth3 table local proto kernel scope host src 192.0.2.2" is visible with command "ip route show table all"
+    When "1:2:3:4:5::1" is not visible with command "ip -6 route show table all"
+    When "local 1:2:3:4:5::2 dev eth3 table local proto kernel metric 0 pref medium" is visible with command "ip -6 route show table all"
+
     @rhbz1503769
     @ver+=1.10
     @con_ipv4_remove
