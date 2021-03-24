@@ -408,7 +408,7 @@ def test_feature_tags():
 
     with open(util.base_dir() + "/mapper.yaml", "r") as mapper_file:
         mapper_content = mapper_file.read()
-    mapper_yaml = yaml.load(mapper_content)
+    mapper_yaml = yaml.load(mapper_content, Loader=yaml.BaseLoader)
     testmappers = [x for x in mapper_yaml["testmapper"]]
     mapper_tests = [
         list(x.keys())[0] for tm in testmappers for x in mapper_yaml["testmapper"][tm]
