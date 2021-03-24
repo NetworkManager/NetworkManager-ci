@@ -594,7 +594,7 @@ Feature: nmcli - general
     * Execute "ip link add name bond0 type bond"
     # Still unmanaged
     * "bond0\s+bond\s+unmanaged" is visible with command "nmcli device"
-    * Execute "ip link set dev bon0 up"
+    * Execute "ip link set dev bond0 up"
     * "bond0\s+bond\s+unmanaged" is visible with command "nmcli device"
     # Add a config rule to unmanage the device
     * Execute "echo -e [keyfile]\\nunmanaged-devices=interface-name:bond0 > /etc/NetworkManager/conf.d/99-xxcustom.conf"
@@ -720,24 +720,9 @@ Feature: nmcli - general
      Then "testeth8" is visible with command "nmcli con sh -a" in "5" seconds
 
 
-#    @rhbz1771792
-#    @ver+=1.25.90
-#    @restart @con_general_remove @teardown_testveth @not_on_s390x
-#    @match_connections_with_infinite_leasetime
-#    Scenario: NM - general - connection matching for dhcp with infinite leasetime
-#    * Prepare simulated test "testG" device with "infinite" leasetime
-#    * Add a new connection of type "ethernet" and options "ifname testG con-name con_general"
-#    * Bring "up" connection "con_general"
-#    When "192.168" is visible with command "ip a s testG" in "20" seconds
-#    * Stop NM
-#    * Execute "rm -rf /var/run/NetworkManager/*"
-#    * Start NM
-#    Then "activated" is visible with command "nmcli -g GENERAL.STATE con show con_general" in "45" seconds
-
-
     @rhbz1673321
     @ver+=1.25.90
-    @restart @con_general_remove
+    @not_on_veth @restart @con_general_remove
     @match_connections_with_pci_address
     Scenario: NM - general - connection matching for dhcp with infinite leasetime
     * Add a new connection of type "ethernet" and options "con-name con_general"

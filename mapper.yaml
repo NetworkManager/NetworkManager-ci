@@ -912,17 +912,11 @@ testmapper:
         feature: ipv4
     - renewal_gw_after_dhcp_outage_for_assumed_var1:
         feature: ipv4
-    - manual_routes_preserved_when_never-default_yes:
-        feature: ipv4
     - dhcp4_outages_in_various_situation:
         feature: ipv4
         timeout: 20m
-    #- dhcp_change_pool:
-    #    feature: ipv4
-    - manual_routes_removed_when_never-default_no:
+    - manual_routes_removed:
         feature: ipv4
-    #- ipv4_remove_default_route_for_no_carrier:
-    #    feature: ipv4
     - ipv4_dad:
         feature: ipv4
         tags: gate

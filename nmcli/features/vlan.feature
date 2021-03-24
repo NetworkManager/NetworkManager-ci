@@ -579,10 +579,10 @@ Feature: nmcli - vlan
     @vlan @bond @slaves @restart
     @vlan_on_bond_autoconnect
     Scenario: NM - vlan - autoconnect vlan on bond specified as UUID
-    * Add connection type "bond" named "bond0" for device "nm-bond"
+    * Add a new connection of type "bond" and options "con-name bond0 ifname nm-bond mtu 9000"
     * Note the output of "nmcli --mode tabular -t -f connection.uuid connection show bond0"
-    * Add a new connection of type "ethernet" and options "ifname eth1 con-name bond0.0 mtu 9000"
-    * Add a new connection of type "ethernet" and options "ifname eth4 con-name bond0.1 mtu 9000"
+    * Add a new connection of type "ethernet" and options "con-name bond0.0 ifname eth1 master nm-bond connection.slave-type bond"
+    * Add a new connection of type "ethernet" and options "con-name bond0.1 ifname eth4 master nm-bond connection.slave-type bond"
     * Add a new connection of type "vlan" and options "con-name vlan_bond7 dev nm-bond id 7 ip4 192.168.168.16/24 autoconnect no"
     * Modify connection "vlan_bond7" property "vlan.parent" to noted value
     * Execute "nmcli connection modify vlan_bond7 connection.autoconnect yes"

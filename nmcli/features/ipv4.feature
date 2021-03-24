@@ -1385,56 +1385,17 @@ Feature: nmcli: ipv4
     Then "default via 192.168.* dev testZ4" is visible with command "ip r"
 
 
-    #@gnomebz783391
-    #@ver+=1.11
-    #@con_ipv4_remove @teardown_testveth @long
-    #@dhcp_change_pool
-    #Scenario: NM - ipv4 - renewal after changed DHCP pool
-    ## Check that the address is renewed immediately after a NAK
-    ## from server due to changed configuration.
-    ## https://bugzilla.gnome.org/show_bug.cgi?id=783391
-    #* Prepare simulated test "testX4" device with "192.168.99" ipv4 and "2620:cafe" ipv6 dhcp address prefix
-    #* Add a new connection of type "ethernet" and options "ifname testX4 con-name con_ipv4 ipv4.may-fail no ipv6.method ignore autoconnect no"
-    #* Bring "up" connection "con_ipv4"
-    #When "default via 192.168.99.1 dev testX4" is visible with command "ip r"
-    #* Restart dhcp server on "testX4" device with "192.168.98" ipv4 and "2620:cafe" ipv6 dhcp address prefix
-    #Then "default via 192.168.98.1 dev testX4" is visible with command "ip r" in "130" seconds
-
-
-    @rhbz1205405
-    @con_ipv4_remove @teardown_testveth @long
-    @manual_routes_preserved_when_never-default_yes
-    Scenario: NM - ipv4 - don't touch manual route with never-default
+    @ver+=1.26
+    @teardown_testveth @con_ipv4_remove
+    @manual_routes_removed
+    Scenario: NM - ipv4 - celan manual routes upon reapply
     * Prepare simulated test "testX4" device
-    * Add a new connection of type "ethernet" and options "ifname testX4 con-name con_ipv4 ipv4.may-fail no ipv4.never-default yes autoconnect no"
+    * Add a new connection of type "ethernet" and options "ifname testX4 con-name con_ipv4 ipv4.may-fail no autoconnect no"
     * Bring "up" connection "con_ipv4"
-    When "default" is not visible with command "ip r |grep testX4"
     * Execute "ip route add default via 192.168.99.1 dev testX4 metric 666"
-    * Execute "sleep 70"
-    Then "default via 192.168.99.1 dev testX4\s+metric 666" is visible with command "ip r"
-
-
-    @rhbz1205405
-    @teardown_testveth @con_ipv4_remove @long
-    @manual_routes_removed_when_never-default_no
-    Scenario: NM - ipv4 - rewrite manual route with dhcp renewal
-    * Prepare simulated test "testX4" device
-    * Add a new connection of type "ethernet" and options "ifname testX4 con-name con_ipv4 ipv4.may-fail no ipv4.never-default no autoconnect no"
-    * Bring "up" connection "con_ipv4"
-    * Execute "ip route add default via 192.168.99.1 dev testX4\s+metric 666"
-    Then "default via 192.168.99.1 dev testX4\s+metric 666" is not visible with command "ip r" in "70" seconds
-
-
-    #@rhbz1284261
-    #@no_config_server @con_ipv4_remove @teardown_testveth
-    #@ipv4_remove_default_route_for_no_carrier
-    #Scenario: NM - ipv4 - remove default route for no carrier
-    #* Prepare simulated test "testX4" device
-    #* Add a new connection of type "ethernet" and options "ifname testX4 con-name con_ipv4 ipv4.may-fail no"
-    #When "default" is visible with command "ip r | grep testX4" in "40" seconds
-    #* Execute "ip netns exec testX4_ns ip link set dev testX4p down"
-    #Then "default" is not visible with command "ip r |grep testX4" in "10" seconds
-    # And "con_ipv4" is not visible with command "nmcli con show -a"
+    When "default via 192.168.99.1 dev testX4\s+metric 666" is visible with command "ip r"
+    * Execute "nmcli device reapply testX4"
+    Then "default via 192.168.99.1 dev testX4\s+metric 666" is not visible with command "ip r" in "2" seconds
 
 
      @rhbz1259063

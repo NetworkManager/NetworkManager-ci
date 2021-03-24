@@ -736,7 +736,6 @@
     @team_in_vlan
     Scenario: nmcli - team - team in vlan
      * Add a new connection of type "team" and options "con-name team0 ifname nm-team autoconnect no ipv4.method manual ipv4.addresses 192.168.168.17/24 ipv4.gateway 192.168.103.1 ipv6.method manual ipv6.addresses 2168::17/64"
-     * Execute "ip link set nm-team mtu 1500"
      * Add a new connection of type "vlan" and options "con-name team0.1 dev nm-team id 1 mtu 1500 autoconnect no ipv4.method manual ipv4.addresses 192.168.168.16/24 ipv4.gateway 192.168.103.1 ipv6.method manual ipv6.addresses 2168::16/64"
      * Bring "up" connection "team0"
      * Bring "up" connection "team0.1"
@@ -746,7 +745,7 @@
       And "192.168.168.17" is visible with command "ip a s nm-team"
      * Add a new connection of type "team-slave" and options "con-name team0.0 ifname eth5 master nm-team"
      * Bring "up" connection "team0.0"
-     * Wait for at least "10" seconds
+     * Wait for at least "5" seconds
     Then "2168::16" is visible with command "ip a s nm-team.1"
      And "2168::17" is visible with command "ip a s nm-team"
      And "192.168.168.16" is visible with command "ip a s nm-team.1"
