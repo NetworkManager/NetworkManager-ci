@@ -52,6 +52,7 @@ def before_all(context):
         out, err, code = nmci.run(command, *a, **kw)
         command_calls = getattr(context, "command_calls", [])
         command_calls.append((command, code, out, err))
+        context.command_calls = command_calls
         return out, err, code
 
     def _command_output(command, *a, **kw):
@@ -60,6 +61,7 @@ def before_all(context):
             % (command, code, out, err)
         command_calls = getattr(context, "command_calls", [])
         command_calls.append((command, code, out, err))
+        context.command_calls = command_calls
         return out
 
     def _command_output_err(command, *a, **kw):
@@ -68,12 +70,14 @@ def before_all(context):
             % (command, code, out, err)
         command_calls = getattr(context, "command_calls", [])
         command_calls.append((command, code, out, err))
+        context.command_calls = command_calls
         return out, err
 
     def _command_code(command, *a, **kw):
         out, err, code = nmci.run(command, *a, **kw)
         command_calls = getattr(context, "command_calls", [])
         command_calls.append((command, code, out, err))
+        context.command_calls = command_calls
         return code
 
     context.embed = embed_data
@@ -195,7 +199,7 @@ def after_step(context, step):
 
     command_calls = getattr(context, "command_calls", [])
     # array of 4-tuples: (command, code, stdout, stderr)
-    if command_calls:
+    if command_calls and step.status == "failed":
         message = "\n\n".join(["'%s' returned %d:\nSTDOUT:\n%s\nSTDERR:\n%s\n" % call
                                for call in command_calls])
         context.embed("text/plain", message, caption="COMMANDS")

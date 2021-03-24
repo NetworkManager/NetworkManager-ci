@@ -68,7 +68,7 @@ def check_noted_output_contains(context, pattern):
 
 @step(u'Execute "{command}"')
 def execute_command(context, command):
-    assert nmci_step.command_code(context, command) == 0
+    assert context.command_code(command) == 0
 
 
 @step(u'Execute "{command}" without waiting for process to finish')
