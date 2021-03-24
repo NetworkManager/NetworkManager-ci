@@ -721,12 +721,23 @@ Feature: nmcli - general
 
 
     @rhbz1673321
-    @ver+=1.25.90
+    @ver+=1.25.90 @ver-=1.30
     @not_on_veth @restart @con_general_remove
     @match_connections_with_pci_address
     Scenario: NM - general - connection matching for dhcp with infinite leasetime
     * Add a new connection of type "ethernet" and options "con-name con_general"
     * Execute "nmcli con mod con_general +match.path $(udevadm info /sys/class/net/eth1 | grep ID_PATH= | awk -F '=' '{print $2}')"
+    * Bring "up" connection "con_general"
+    Then "activated" is visible with command "nmcli -g GENERAL.STATE con show con_general" in "45" seconds
+
+
+    @rhbz1673321 @rhbz1942741
+    @ver+=1.31
+    @eth0 @restart @con_general_remove
+    @match_connections_with_pci_address
+    Scenario: NM - general - connection matching for dhcp with infinite leasetime
+    * Add a new connection of type "ethernet" and options "con-name con_general"
+    * Execute "nmcli con mod con_general +match.path $(udevadm info /sys/class/net/eth0 | grep ID_PATH= | awk -F '=' '{print $2}')"
     * Bring "up" connection "con_general"
     Then "activated" is visible with command "nmcli -g GENERAL.STATE con show con_general" in "45" seconds
 
