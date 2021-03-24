@@ -255,7 +255,7 @@ Feature: nmcli - wifi
     @simwifi_wpa3_personal_device_connect_ask
     Scenario: nmcli - simwifi - connect to WPA3 personal wifi with device command
     Given "wpa3-psk" is visible with command "nmcli -f SSID device wifi list" in "60" seconds
-    Then Finish "echo secret123 | nmcli dev wifi connect wpa3-psk --ask"
+    Then Execute "echo secret123 | nmcli dev wifi connect wpa3-psk --ask"
 
 
     @ver+=1.29 @rhelver+=8 @fedoraver-=0

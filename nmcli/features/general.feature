@@ -495,7 +495,7 @@ Feature: nmcli - general
     @newveth
     @nmcli_device_connect_no_profile
     Scenario: nmcli - device - connect - no profile
-    * Finish "nmcli connection delete id testeth9"
+    * Execute "nmcli connection delete id testeth9"
     * Connect device "eth9"
     * Bring "down" connection "eth9"
     Then "eth9" is not visible with command "nmcli connection show -a"
@@ -560,7 +560,7 @@ Feature: nmcli - general
     Scenario: NM - general - bring up connection after journald restart
     #* Add connection type "ethernet" named "con_general" for device "eth8"
     #* Bring "up" connection "testeth0"
-    * Finish "sudo systemctl restart systemd-journald.service"
+    * Execute "sudo systemctl restart systemd-journald.service"
     Then Bring "up" connection "testeth0"
 
 
@@ -1207,7 +1207,7 @@ Feature: nmcli - general
     * "connected:con_general2" is visible with command "nmcli -t -f STATE,CONNECTION device" in "50" seconds
     # Finish asserts the command exited with 0, thus the network service completed properly
     * Restart NM
-    Then Finish "sleep 3 && systemctl restart network.service"
+    Then Execute "sleep 3 && systemctl restart network.service"
 
 
     @rhbz1079353
@@ -1608,14 +1608,14 @@ Feature: nmcli - general
     @dummy
     @do_not_touch_external_dummy
     Scenario: NM - general - do not touch external dummy device
-    Then Finish "sh tmp/repro_1512316.sh"
-     And Finish "sh tmp/repro_1512316.sh"
-     And Finish "sh tmp/repro_1512316.sh"
-     And Finish "sh tmp/repro_1512316.sh"
-     And Finish "sh tmp/repro_1512316.sh"
-     And Finish "sh tmp/repro_1512316.sh"
-     And Finish "sh tmp/repro_1512316.sh"
-     And Finish "sh tmp/repro_1512316.sh"
+    Then Execute "sh tmp/repro_1512316.sh"
+     And Execute "sh tmp/repro_1512316.sh"
+     And Execute "sh tmp/repro_1512316.sh"
+     And Execute "sh tmp/repro_1512316.sh"
+     And Execute "sh tmp/repro_1512316.sh"
+     And Execute "sh tmp/repro_1512316.sh"
+     And Execute "sh tmp/repro_1512316.sh"
+     And Execute "sh tmp/repro_1512316.sh"
 
 
     @rhbz1337997
@@ -1658,7 +1658,7 @@ Feature: nmcli - general
     When "/sys/devices/virtual/net/d\\314f\\\\c" is visible with command "nmcli -f GENERAL.UDI device show"
     * Restart NM
     When "dummy" is visible with command "nmcli -g GENERAL.TYPE device show d\\314f\\\\c"
-    Then Finish "nmcli device delete d\\314f\\\\c"
+    Then Execute "nmcli device delete d\\314f\\\\c"
      And String "d\\314f\\\\c" is not visible with command "nmcli -g DEVICE device"
 
 
@@ -1826,7 +1826,7 @@ Feature: nmcli - general
     @con_general_remove
     @libnm_async_tasks_cancelable
     Scenario: NM - general - cancelation of libnm async tasks (add_connection_async)
-    Then Finish "/usr/bin/python tmp/repro_1555281.py con_general"
+    Then Execute "/usr/bin/python tmp/repro_1555281.py con_general"
 
 
     @rhbz1643085 @rhbz1642625
@@ -1834,7 +1834,7 @@ Feature: nmcli - general
     @con_general_remove
     @libnm_async_activation_cancelable_no_crash
     Scenario: NM - general - cancelation of libnm async activation - should not crash
-    Then Finish "/usr/bin/python tmp/repro_1643085.py con_general eth8"
+    Then Execute "/usr/bin/python tmp/repro_1643085.py con_general eth8"
 
 
     @rhbz1614691
@@ -1976,9 +1976,9 @@ Feature: nmcli - general
     @libnm_snapshot_destroy_after_rollback
     Scenario: NM - general - snapshot and destroy checkpoint
     * Execute "tmp/libnm_snapshot_checkpoint.py create 5"
-    Then Finish "tmp/libnm_snapshot_checkpoint.py destroy last 1"
+    Then Execute "tmp/libnm_snapshot_checkpoint.py destroy last 1"
     * Execute "tmp/libnm_snapshot_checkpoint.py create 5"
-    Then Finish "! tmp/libnm_snapshot_checkpoint.py destroy last 7"
+    Then Execute "! tmp/libnm_snapshot_checkpoint.py destroy last 7"
 
 
     @rhbz1553113
@@ -2072,21 +2072,21 @@ Feature: nmcli - general
     @nmcli_modify_altsubject-matches
     Scenario: nmcli - general - modification of 802-1x.altsubject-matches sometimes leads to nmcli SIGSEGV
     * Add a new connection of type "ethernet" and options "ifname \* con-name con_general autoconnect no 802-1x.eap peap 802-1x.identity aaa 802-1x.phase2-auth mschap"
-    Then Finish "nmcli con mod con_general 802-1x.altsubject-matches '/something/very/long/should/be/there/at/least/fortyfour/characters' "
-     And Finish "nmcli con mod con_general 802-1x.altsubject-matches '/something/very/long/should/be/there/at/least/fortyfour/characters' "
-     And Finish "nmcli con mod con_general 802-1x.altsubject-matches '/something/very/long/should/be/there/at/least/fortyfour/characters' "
-     And Finish "nmcli con mod con_general 802-1x.altsubject-matches '/something/very/long/should/be/there/at/least/fortyfour/characters' "
-     And Finish "nmcli con mod con_general 802-1x.altsubject-matches '/something/very/long/should/be/there/at/least/fortyfour/characters' "
-     And Finish "nmcli con mod con_general 802-1x.altsubject-matches '/something/very/long/should/be/there/at/least/fortyfour/characters' "
-     And Finish "nmcli con mod con_general 802-1x.altsubject-matches '/something/very/long/should/be/there/at/least/fortyfour/characters' "
-     And Finish "nmcli con mod con_general 802-1x.altsubject-matches '/something/very/long/should/be/there/at/least/fortyfour/characters' "
+    Then Execute "nmcli con mod con_general 802-1x.altsubject-matches '/something/very/long/should/be/there/at/least/fortyfour/characters' "
+     And Execute "nmcli con mod con_general 802-1x.altsubject-matches '/something/very/long/should/be/there/at/least/fortyfour/characters' "
+     And Execute "nmcli con mod con_general 802-1x.altsubject-matches '/something/very/long/should/be/there/at/least/fortyfour/characters' "
+     And Execute "nmcli con mod con_general 802-1x.altsubject-matches '/something/very/long/should/be/there/at/least/fortyfour/characters' "
+     And Execute "nmcli con mod con_general 802-1x.altsubject-matches '/something/very/long/should/be/there/at/least/fortyfour/characters' "
+     And Execute "nmcli con mod con_general 802-1x.altsubject-matches '/something/very/long/should/be/there/at/least/fortyfour/characters' "
+     And Execute "nmcli con mod con_general 802-1x.altsubject-matches '/something/very/long/should/be/there/at/least/fortyfour/characters' "
+     And Execute "nmcli con mod con_general 802-1x.altsubject-matches '/something/very/long/should/be/there/at/least/fortyfour/characters' "
 
 
     @rhbz1689054
     @ver+=1.16
     @libnm_get_dns_crash
     Scenario: nmcli - general - libnm crash when getting nmclient.props.dns_configuration
-    Then Finish "/usr/bin/python tmp/repro_1689054.py"
+    Then Execute "/usr/bin/python tmp/repro_1689054.py"
 
 
     @rhbz1697858
@@ -2265,8 +2265,8 @@ Feature: nmcli - general
     @nmcli_general_unmanaged_device_dhclient_fail
     Scenario: NM - general - dhclient should not fail on unmanaged device
     * Execute "nmcli device disconnect eth8"
-    * Finish "nmcli device set eth8 managed no"
-    * Finish "dhclient -v -pf /tmp/dhclient_custom.pid eth8"
+    * Execute "nmcli device set eth8 managed no"
+    * Execute "dhclient -v -pf /tmp/dhclient_custom.pid eth8"
 
 
     @rhbz1762011

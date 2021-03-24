@@ -90,8 +90,6 @@
     * Bring "up" connection "con_tc"
     Then "example.com" is visible with command "cat /tmp/tshark.log" in "10" seconds
      And "Option: \(12\) Host Name\s+Length: 11\s+Host Name: example.com" is visible with command "cat /tmp/tshark.log"
-    * Finish "sudo pkill tshark"
-
 
 
     @rhbz1436535
@@ -112,4 +110,3 @@
     * Bring "up" connection "con_tc"
     Then "example.com" is visible with command "cat /tmp/tshark.log" in "10" seconds
      And "Option: \(12\) Host Name\s+Length: 11\s+Host Name: example.com" is visible with command "cat /tmp/tshark.log"
-    * Finish "sudo pkill tshark"

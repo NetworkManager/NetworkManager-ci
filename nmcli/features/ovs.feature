@@ -689,25 +689,25 @@ Feature: nmcli - ovs
     * Add a new connection of type "ovs-port" and options "      conn.interface i-ovs-port0  con-name c-ovs-port0  autoconnect no conn.master i-ovs-br0"
     * Add a new connection of type "ovs-interface" and options " conn.interface i-ovs-iface0 con-name c-ovs-iface0 autoconnect no conn.master i-ovs-port0   ovs-interface.type internal ipv4.method disabled ipv6.method disabled"
 
-    * Finish "python3 tmp/ovs-external-ids.py set id c-ovs-br0 br0-key0 br0-val0 br0-key1 br0-val1"
+    * Execute "python3 tmp/ovs-external-ids.py set id c-ovs-br0 br0-key0 br0-val0 br0-key1 br0-val1"
     Then "br0-key0.*br0-val0.*br0-key1.*br0-val1" is visible with command "python3 tmp/ovs-external-ids.py get id c-ovs-br0"
-    * Finish "python3 tmp/ovs-external-ids.py set id c-ovs-port0 port0-key0 port0-val0"
+    * Execute "python3 tmp/ovs-external-ids.py set id c-ovs-port0 port0-key0 port0-val0"
     Then "port0-key0.*port0-val0" is visible with command "python3 tmp/ovs-external-ids.py get id c-ovs-port0"
-    * Finish "python3 tmp/ovs-external-ids.py set id c-ovs-iface0 iface0-key0 iface0-val0 iface0-key1 iface0-val1 iface0-key2 iface0-val2"
+    * Execute "python3 tmp/ovs-external-ids.py set id c-ovs-iface0 iface0-key0 iface0-val0 iface0-key1 iface0-val1 iface0-key2 iface0-val2"
     Then "iface0-key0.*iface0-val0.*iface0-key1.*iface0-val1.*iface0-key2.*iface0-val2" is visible with command "python3 tmp/ovs-external-ids.py get id c-ovs-iface0"
 
     * Bring "up" connection "c-ovs-iface0"
-    * Finish "tmp/ovs-assert-external-ids.py Bridge    i-ovs-br0    NM.connection.uuid ~. br0-key0 br0-val0 br0-key1 br0-val1"
-    * Finish "tmp/ovs-assert-external-ids.py Port      i-ovs-port0  NM.connection.uuid ~. port0-key0 port0-val0"
-    * Finish "tmp/ovs-assert-external-ids.py Interface i-ovs-iface0 NM.connection.uuid ~. iface0-key0 iface0-val0 iface0-key1 iface0-val1 iface0-key2 iface0-val2"
+    * Execute "tmp/ovs-assert-external-ids.py Bridge    i-ovs-br0    NM.connection.uuid ~. br0-key0 br0-val0 br0-key1 br0-val1"
+    * Execute "tmp/ovs-assert-external-ids.py Port      i-ovs-port0  NM.connection.uuid ~. port0-key0 port0-val0"
+    * Execute "tmp/ovs-assert-external-ids.py Interface i-ovs-iface0 NM.connection.uuid ~. iface0-key0 iface0-val0 iface0-key1 iface0-val1 iface0-key2 iface0-val2"
 
-    * Finish "python3 tmp/ovs-external-ids.py apply iface i-ovs-port0 -port0-key0 port0-key3 port0-val3"
-    * Finish "tmp/ovs-assert-external-ids.py Port i-ovs-port0 NM.connection.uuid ~. port0-key3 port0-val3"
+    * Execute "python3 tmp/ovs-external-ids.py apply iface i-ovs-port0 -port0-key0 port0-key3 port0-val3"
+    * Execute "tmp/ovs-assert-external-ids.py Port i-ovs-port0 NM.connection.uuid ~. port0-key3 port0-val3"
 
-    * Finish "ovs-vsctl set Bridge i-ovs-br0 external-ids:foo=boo"
-    * Finish "tmp/ovs-assert-external-ids.py Bridge i-ovs-br0 NM.connection.uuid ~. br0-key0 br0-val0 br0-key1 br0-val1 foo boo"
-    * Finish "python3 tmp/ovs-external-ids.py apply iface i-ovs-br0 -br0-key0 br0-key3 br0-val3"
-    * Finish "tmp/ovs-assert-external-ids.py Bridge i-ovs-br0 NM.connection.uuid ~. br0-key1 br0-val1 br0-key3 br0-val3 foo boo"
+    * Execute "ovs-vsctl set Bridge i-ovs-br0 external-ids:foo=boo"
+    * Execute "tmp/ovs-assert-external-ids.py Bridge i-ovs-br0 NM.connection.uuid ~. br0-key0 br0-val0 br0-key1 br0-val1 foo boo"
+    * Execute "python3 tmp/ovs-external-ids.py apply iface i-ovs-br0 -br0-key0 br0-key3 br0-val3"
+    * Execute "tmp/ovs-assert-external-ids.py Bridge i-ovs-br0 NM.connection.uuid ~. br0-key1 br0-val1 br0-key3 br0-val3 foo boo"
 
 
     @rhbz1861296
@@ -749,9 +749,9 @@ Feature: nmcli - ovs
     # environment with 5 veth pairs and two namespaces and doing bond and
     # bridge operation inside OVS on top of that via nmstate.
     # Running 3 times just to be sure.
-    Then Finish "sh tmp/repro_1923248.sh"
-    Then Finish "sh tmp/repro_1923248.sh"
-    Then Finish "sh tmp/repro_1923248.sh"
+    Then Execute "sh tmp/repro_1923248.sh"
+    Then Execute "sh tmp/repro_1923248.sh"
+    Then Execute "sh tmp/repro_1923248.sh"
 
 
     @rhbz1921107

@@ -12,7 +12,7 @@ Feature: NM: dracut
     @dracut @long @not_on_ppc64le
     @dracut_setup
     Scenario: NM - dracut - setup test environment
-    * Finish "[ -f /tmp/dracut_setup_done ]"
+    * Execute "[ -f /tmp/dracut_setup_done ]"
 
 
     #########

@@ -162,11 +162,11 @@ Feature: nmcli: connection
     @dummy
     @connection_removal_of_disapperared_device
     Scenario: nmcli - connection - remove connection of nonexisting device
-     * Finish "sudo ip link add name br0 type bridge"
-     * Finish "ip link set dev br0 up"
-     * Finish "ip addr add 192.168.201.3/24 dev br0"
+     * Execute "sudo ip link add name br0 type bridge"
+     * Execute "ip link set dev br0 up"
+     * Execute "ip addr add 192.168.201.3/24 dev br0"
      When "br0" is visible with command "nmcli -f NAME connection show --active" in "5" seconds
-     * Finish "sudo ip link del br0"
+     * Execute "sudo ip link del br0"
      Then "br0" is not visible with command "nmcli -f NAME connection show --active" in "5" seconds
 
 

@@ -322,7 +322,7 @@
     @ipv6_limited_router_solicitation
     Scenario: NM - ipv6 - limited router solicitation
      * Add connection type "ethernet" named "con_ipv6" for device "eth2"
-     * Finish "tshark -i eth2 -Y frame.len==62 -V -x -a duration:120 > /tmp/solicitation.txt"
+     * Execute "tshark -i eth2 -Y frame.len==62 -V -x -a duration:120 > /tmp/solicitation.txt"
      When "empty" is not visible with command "file /tmp/solicitation.txt" in "150" seconds
      Then Check solicitation for "eth2" in "/tmp/solicitation.txt"
 
@@ -544,7 +544,6 @@
     * Bring "up" connection "con_ipv6"
     When "empty" is not visible with command "file /tmp/ipv6-hostname.log" in "150" seconds
     Then "r.cx" is visible with command "grep r.cx /tmp/ipv6-hostname.log" in "245" seconds
-    * Execute "sudo pkill tshark"
 
 
     @not_under_internal_DHCP @con_ipv6_remove @tshark
@@ -559,7 +558,7 @@
     * Run child "sudo tshark -i eth2 -f 'port 546' -V -x > /tmp/tshark.log"
     * Bring "up" connection "con_ipv6"
     When "empty" is not visible with command "file /tmp/tshark.log" in "150" seconds
-    * Finish "sleep 5"
+    * Execute "sleep 5"
     * Execute "sudo pkill tshark"
     Then "r.cx" is not visible with command "cat /tmp/tshark.log" in "45" seconds
 
@@ -575,7 +574,6 @@
     When "empty" is not visible with command "file /tmp/ipv6_hostname.log" in "150" seconds
     Then "dacan.local" is visible with command "cat /tmp/ipv6-hostname.log" in "145" seconds
      And "0. = O bit" is visible with command "cat /tmp/ipv6-hostname.log"
-    * Execute "sudo pkill tshark"
 
 
     @con_ipv6_remove @teardown_testveth
@@ -591,7 +589,7 @@
     @ipv6_ip6-privacy_0
     Scenario: nmcli - ipv6 - ip6_privacy - 0
     * Add a new connection of type "ethernet" and options "ifname eth10 con-name con_ipv6 ipv4.method disabled ipv6.ip6-privacy 2"
-    * Finish "sleep 2"
+    * Execute "sleep 2"
     * Modify connection "con_ipv6" changing options "ipv6.ip6-privacy 0"
     * Bring "up" connection "con_ipv6"
     When "2620" is visible with command "ip a s eth10" in "45" seconds
@@ -682,13 +680,13 @@
     @scapy
     @ipv6_lifetime_too_low
     Scenario: NM - ipv6 - valid lifetime too low should be ignored
-    * Finish "ip link add test10 type veth peer name test11"
-    * Finish "nmcli c add type ethernet ifname test10"
-    * Finish "nmcli c add type ethernet ifname test11"
+    * Execute "ip link add test10 type veth peer name test11"
+    * Execute "nmcli c add type ethernet ifname test10"
+    * Execute "nmcli c add type ethernet ifname test11"
     * Execute "nmcli con modify ethernet-test10 ipv4.method disabled ipv6.method auto"
     * Execute "nmcli con modify ethernet-test11 ipv4.method disabled ipv6.method auto ipv6.address dead::dead/128 ipv6.gateway dead::beaf/128"
-    * Finish "ip link set dev test10 up"
-    * Finish "ip link set dev test11 up"
+    * Execute "ip link set dev test10 up"
+    * Execute "ip link set dev test11 up"
     * Execute "nmcli --wait 0 c up ethernet-test10"
     * Execute "nmcli --wait 0 c up ethernet-test11"
     When "ethernet-test10" is visible with command "nmcli con sh -a"
@@ -713,13 +711,13 @@
     # @scapy
     # @ipv6_lifetime_too_low
     # Scenario: NM - ipv6 - valid lifetime too low should be ignored
-    # * Finish "ip link add test10 type veth peer name test11"
-    # * Finish "nmcli c add type ethernet ifname test10"
-    # * Finish "nmcli c add type ethernet ifname test11"
+    # * Execute "ip link add test10 type veth peer name test11"
+    # * Execute "nmcli c add type ethernet ifname test10"
+    # * Execute "nmcli c add type ethernet ifname test11"
     # * Execute "nmcli con modify ethernet-test10 ipv4.method disabled ipv6.method auto"
     # * Execute "nmcli con modify ethernet-test11 ipv4.method disabled ipv6.method auto ipv6.address dead::dead/128 ipv6.gateway dead::beaf/128"
-    # * Finish "ip link set dev test10 up"
-    # * Finish "ip link set dev test11 up"
+    # * Execute "ip link set dev test10 up"
+    # * Execute "ip link set dev test11 up"
     # * Execute "nmcli --wait 0 c up ethernet-test10"
     # * Execute "nmcli --wait 0 c up ethernet-test11"
     # When "ethernet-test10" is visible with command "nmcli con sh -a"
@@ -740,13 +738,13 @@
     @scapy
     @ipv6_lifetime_no_padding
     Scenario: NM - ipv6 - RA lifetime with no padding
-    * Finish "ip link add test10 type veth peer name test11"
-    * Finish "nmcli c add type ethernet ifname test10"
-    * Finish "nmcli c add type ethernet ifname test11"
+    * Execute "ip link add test10 type veth peer name test11"
+    * Execute "nmcli c add type ethernet ifname test10"
+    * Execute "nmcli c add type ethernet ifname test11"
     * Execute "nmcli con modify ethernet-test10 ipv4.method disabled ipv6.method auto"
     * Execute "nmcli con modify ethernet-test11 ipv4.method disabled ipv6.method auto ipv6.address dead::dead/128 ipv6.gateway dead::beaf/128"
-    * Finish "ip link set dev test10 up"
-    * Finish "ip link set dev test11 up"
+    * Execute "ip link set dev test10 up"
+    * Execute "ip link set dev test11 up"
     * Execute "nmcli --wait 0 c up ethernet-test10"
     * Execute "nmcli --wait 0 c up ethernet-test11"
     When "ethernet-test10" is visible with command "nmcli con sh -a"
@@ -761,13 +759,13 @@
     @scapy
     @ipv6_drop_ra_with_low_hlimit
     Scenario: NM - ipv6 - drop scapy packet with lower hop limit
-    * Finish "ip link add test10 type veth peer name test11"
-    * Finish "nmcli c add type ethernet ifname test10"
-    * Finish "nmcli c add type ethernet ifname test11"
+    * Execute "ip link add test10 type veth peer name test11"
+    * Execute "nmcli c add type ethernet ifname test10"
+    * Execute "nmcli c add type ethernet ifname test11"
     * Execute "nmcli con modify ethernet-test10 ipv4.method disabled ipv6.method auto"
     * Execute "nmcli con modify ethernet-test11 ipv4.method disabled ipv6.method auto ipv6.address dead::dead/128 ipv6.gateway dead::beaf/128"
-    * Finish "ip link set dev test10 up"
-    * Finish "ip link set dev test11 up"
+    * Execute "ip link set dev test10 up"
+    * Execute "ip link set dev test11 up"
     * Execute "nmcli --wait 0 c up ethernet-test10"
     * Execute "nmcli --wait 0 c up ethernet-test11"
     When "ethernet-test10" is visible with command "nmcli con sh -a"
@@ -782,13 +780,13 @@
     @scapy
     @ipv6_drop_ra_with_255_hlimit
     Scenario: NM - ipv6 - scapy packet with 255 hop limit
-    * Finish "ip link add test10 type veth peer name test11"
-    * Finish "nmcli c add type ethernet ifname test10"
-    * Finish "nmcli c add type ethernet ifname test11"
+    * Execute "ip link add test10 type veth peer name test11"
+    * Execute "nmcli c add type ethernet ifname test10"
+    * Execute "nmcli c add type ethernet ifname test11"
     * Execute "nmcli con modify ethernet-test10 ipv4.method disabled ipv6.method auto"
     * Execute "nmcli con modify ethernet-test11 ipv4.method disabled ipv6.method auto ipv6.address dead::dead/128 ipv6.gateway dead::beaf/128"
-    * Finish "ip link set dev test10 up"
-    * Finish "ip link set dev test11 up"
+    * Execute "ip link set dev test10 up"
+    * Execute "ip link set dev test11 up"
     * Execute "nmcli --wait 0 c up ethernet-test10"
     * Execute "nmcli --wait 0 c up ethernet-test11"
     When "ethernet-test10" is visible with command "nmcli con sh -a"
@@ -803,13 +801,13 @@
     @scapy
     @ipv6_drop_ra_from_non_ll_address
     Scenario: NM - ipv6 - drop scapy packet from non LL address
-    * Finish "ip link add test10 type veth peer name test11"
-    * Finish "nmcli c add type ethernet ifname test10"
-    * Finish "nmcli c add type ethernet ifname test11"
+    * Execute "ip link add test10 type veth peer name test11"
+    * Execute "nmcli c add type ethernet ifname test10"
+    * Execute "nmcli c add type ethernet ifname test11"
     * Execute "nmcli con modify ethernet-test10 ipv4.method disabled ipv6.method auto"
     * Execute "nmcli con modify ethernet-test11 ipv4.method disabled ipv6.method auto ipv6.address dead::dead/128 ipv6.gateway dead::beaf/128"
-    * Finish "ip link set dev test10 up"
-    * Finish "ip link set dev test11 up"
+    * Execute "ip link set dev test10 up"
+    * Execute "ip link set dev test11 up"
     * Execute "nmcli --wait 0 c up ethernet-test10"
     * Execute "nmcli --wait 0 c up ethernet-test11"
     When "ethernet-test10" is visible with command "nmcli con sh -a"
@@ -824,13 +822,13 @@
     @scapy
     @ipv6_preserve_addr_order
     Scenario: NM - ipv6 - preserve address order
-    * Finish "ip link add test10 type veth peer name test11"
-    * Finish "nmcli c add type ethernet ifname test10"
-    * Finish "nmcli c add type ethernet ifname test11"
+    * Execute "ip link add test10 type veth peer name test11"
+    * Execute "nmcli c add type ethernet ifname test10"
+    * Execute "nmcli c add type ethernet ifname test11"
     * Execute "nmcli con modify ethernet-test10 ipv4.method disabled ipv6.method auto"
     * Execute "nmcli con modify ethernet-test11 ipv4.method disabled ipv6.method auto ipv6.address dead::dead/128 ipv6.gateway dead::beaf/128"
-    * Finish "ip link set dev test10 up"
-    * Finish "ip link set dev test11 up"
+    * Execute "ip link set dev test10 up"
+    * Execute "ip link set dev test11 up"
     * Execute "nmcli --wait 0 c up ethernet-test10"
     * Execute "nmcli --wait 0 c up ethernet-test11"
     When "ethernet-test10" is visible with command "nmcli con sh -a"
@@ -923,18 +921,18 @@
     @mtu @kill_dnsmasq_ip6
     @ipv6_set_ra_announced_mtu
     Scenario: NM - ipv6 - set RA received MTU
-    * Finish "ip link add test10 type veth peer name test10p"
-    * Finish "ip link add test11 type veth peer name test11p"
-    * Finish "ip link add name vethbr6 type bridge forward_delay 2 stp_state 1"
-    * Finish "ip link set dev vethbr6 up"
-    * Finish "ip link set dev test10 up"
-    * Finish "ip link set dev test10p up"
-    * Finish "ip link set dev test11 up"
-    * Finish "ip link set dev test11p up"
-    * Finish "ip link set dev test10p master vethbr6"
-    * Finish "ip link set dev test11p master vethbr6"
-    * Finish "nmcli connection add type ethernet con-name tc16 ifname test10 autoconnect no"
-    * Finish "nmcli connection add type ethernet con-name tc26 ifname test11 autoconnect no mtu 1100 ip6 fd01::1/64"
+    * Execute "ip link add test10 type veth peer name test10p"
+    * Execute "ip link add test11 type veth peer name test11p"
+    * Execute "ip link add name vethbr6 type bridge forward_delay 2 stp_state 1"
+    * Execute "ip link set dev vethbr6 up"
+    * Execute "ip link set dev test10 up"
+    * Execute "ip link set dev test10p up"
+    * Execute "ip link set dev test11 up"
+    * Execute "ip link set dev test11p up"
+    * Execute "ip link set dev test10p master vethbr6"
+    * Execute "ip link set dev test11p master vethbr6"
+    * Execute "nmcli connection add type ethernet con-name tc16 ifname test10 autoconnect no"
+    * Execute "nmcli connection add type ethernet con-name tc26 ifname test11 autoconnect no mtu 1100 ip6 fd01::1/64"
     * Bring "up" connection "tc26"
     When "test11:connected:tc26" is visible with command "nmcli -t -f DEVICE,STATE,CONNECTION device" in "45" seconds
     * Execute "/usr/sbin/dnsmasq --pid-file=/tmp/dnsmasq_ip6.pid --no-resolv --bind-interfaces -i test11 --enable-ra --dhcp-range=::1,::400,constructor:test11,ra-only,64,15s"
@@ -947,11 +945,11 @@
     @eth0 @mtu
     @nm-online_wait_for_ipv6_to_finish
     Scenario: NM - ipv6 - nm-online wait for non tentative ipv6
-    * Finish "ip link add test10 type veth peer name test10p"
-    * Finish "ip link set dev test10 up"
-    * Finish "ip link set dev test10p up"
-    * Finish "nmcli connection add type ethernet con-name tc16 ifname test10 autoconnect no ip4 192.168.99.1/24 ip6 2620:52:0:beef::1/64"
-    * Finish "nmcli connection modify tc16 ipv6.may-fail no"
+    * Execute "ip link add test10 type veth peer name test10p"
+    * Execute "ip link set dev test10 up"
+    * Execute "ip link set dev test10p up"
+    * Execute "nmcli connection add type ethernet con-name tc16 ifname test10 autoconnect no ip4 192.168.99.1/24 ip6 2620:52:0:beef::1/64"
+    * Execute "nmcli connection modify tc16 ipv6.may-fail no"
     Then "tentative" is not visible with command "nmcli connection down testeth0 ; nmcli connection down tc16; sleep 2; nmcli connection up id tc16; time nm-online ;ip a s test10|grep 'global tentative'; nmcli connection up testeth0"
 
 
@@ -1389,7 +1387,7 @@
      #Then Finish "ip netns exec testY6_ns rdisc -d -v"
      Then "inet6 fc01:bbbb:[a-f0-9:]+/64" is visible with command "ip -n testY6_ns a show dev testY6p" in "15" seconds
      And  "tentative" is not visible with command "ip -n testY6_ns a show dev testY6p" in "15" seconds
-     And  Finish "ip netns exec testY6_ns ping -c2 fc01::1"
+     And  Execute "ip netns exec testY6_ns ping -c2 fc01::1"
 
 
      @rhbz1755467
@@ -1412,10 +1410,10 @@
      When "iaaddr" is visible with command "cat /tmp/ip6leases.conf" in "10" seconds
      When "iaprefix" is visible with command "cat /tmp/ip6leases.conf" in "10" seconds
      * Execute "ip netns exec testX6_ns ip route add $(grep -m 1 iaprefix /tmp/ip6leases.conf | sed -r 's/\s+iaprefix ([a-f0-9:/]+) \{.*/\1/') via $(grep -m 1 iaaddr /tmp/ip6leases.conf | sed -r 's/\s+iaaddr ([a-f0-9:]+) \{.*/\1/')"
-     Then Finish "ip netns exec testY6_ns rdisc -d -v"
+     Then Execute "ip netns exec testY6_ns rdisc -d -v"
      And  "inet6 fc01:bbbb:[a-f0-9:]+/64" is visible with command "ip -n testY6_ns a show dev testY6p" in "15" seconds
      And  "tentative" is not visible with command "ip -n testY6_ns a show dev testY6p" in "15" seconds
-     And  Finish "ip netns exec testY6_ns ping -c2 fc01::1"
+     And  Execute "ip netns exec testY6_ns ping -c2 fc01::1"
 
 
      @rhbz1749358

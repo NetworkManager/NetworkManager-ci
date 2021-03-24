@@ -59,13 +59,13 @@ def prepare_sriov_config(context, conf, device, vfs):
 def pbr_doc_proc(context):
     context.execute_steps('''
         * Prepare simulated test "provA" device without DHCP
-        * Finish "ip -n provA_ns address add 198.51.100.2/30 dev provAp"
+        * Execute "ip -n provA_ns address add 198.51.100.2/30 dev provAp"
         * Prepare simulated test "provB" device without DHCP
-        * Finish "ip -n provB_ns address add 192.0.2.2/30 dev provBp"
+        * Execute "ip -n provB_ns address add 192.0.2.2/30 dev provBp"
         * Prepare simulated test "servers" device without DHCP
-        * Finish "ip -n servers_ns address add 203.0.113.2/24 dev serversp"
+        * Execute "ip -n servers_ns address add 203.0.113.2/24 dev serversp"
         * Prepare simulated test "int_work" device without DHCP
-        * Finish "ip -n int_work_ns address add 10.0.0.2/24 dev int_workp"
+        * Execute "ip -n int_work_ns address add 10.0.0.2/24 dev int_workp"
         * Create device "defA" in "provA_ns" with address "172.20.20.20/24"
         * Create device "defB" in "provB_ns" with address "172.20.20.20/24"
     ''')

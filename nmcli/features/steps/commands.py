@@ -68,8 +68,7 @@ def check_noted_output_contains(context, pattern):
 
 @step(u'Execute "{command}"')
 def execute_command(context, command):
-    nmci_step.command_code(context, command)
-    time.sleep(0.3)
+    assert nmci_step.command_code(context, command) == 0
 
 
 @step(u'Execute "{command}" without waiting for process to finish')
@@ -87,12 +86,6 @@ def execute_multiple_times(context, command, number):
         curr_nm_pid = subprocess.check_output('pidof NetworkManager', shell=True).decode('utf-8', 'ignore')
         assert curr_nm_pid == orig_nm_pid, 'NM crashed as original pid was %s but now is %s' %(orig_nm_pid, curr_nm_pid)
         i += 1
-
-
-@step(u'Finish "{command}"')
-def wait_for_process(context, command):
-    assert nmci_step.command_code(context, command) == 0
-    time.sleep(0.1)
 
 
 @step(u'"{command}" fails')

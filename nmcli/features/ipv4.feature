@@ -761,7 +761,6 @@ Feature: nmcli: ipv4
     * Bring "up" connection "con_ipv4"
     Then "RC" is visible with command "cat /tmp/tshark.log" in "10" seconds
      And "Option: \(12\) Host Name\s+Length: 2\s+Host Name: RC" is visible with command "cat /tmp/tshark.log"
-    * Finish "sudo pkill tshark"
 
 
     @rhbz1443437 @rhbz1649376
@@ -776,7 +775,6 @@ Feature: nmcli: ipv4
     * Bring "up" connection "con_ipv4"
     Then "example.com" is visible with command "cat /tmp/tshark.log" in "10" seconds
      And "Option: \(12\) Host Name\s+Length: 11\s+Host Name: example.com" is visible with command "cat /tmp/tshark.log"
-    * Finish "sudo pkill tshark"
 
 
     @tshark @con_ipv4_remove
@@ -789,7 +787,6 @@ Feature: nmcli: ipv4
     When "empty" is not visible with command "file /tmp/tshark.log" in "150" seconds
     * Bring "up" connection "con_ipv4"
    Then "RHB" is not visible with command "cat /tmp/tshark.log" in "10" seconds
-    * Finish "sudo pkill tshark"
 
 
     @rhbz1255507
@@ -804,7 +801,6 @@ Feature: nmcli: ipv4
     Then "foo.bar.com" is visible with command "cat /tmp/tshark.log" in "10" seconds
      And "Encoding: Binary encoding" is visible with command "cat /tmp/tshark.log"
      And "Server: Server" is visible with command "cat /tmp/tshark.log"
-    * Finish "sudo pkill tshark"
 
 
     @rhbz1255507
@@ -824,7 +820,6 @@ Feature: nmcli: ipv4
      And "foo.bar.com" is visible with command "cat /tmp/tshark.log"
      And "Encoding: ASCII encoding" is visible with command "cat /tmp/tshark.log"
      And "Server: Client" is visible with command "cat /tmp/tshark.log"
-    * Finish "sudo pkill tshark"
 
 
     @rhbz1255507 @rhbz1649368
@@ -839,7 +834,6 @@ Feature: nmcli: ipv4
     * Bring "up" connection "con_ipv4"
     Then "foo.bar.com" is visible with command "cat /tmp/tshark.log"
     Then "Boot Request \(1\).*Flags: 0x00\s+" is visible with command "cat /tmp/tshark.log"
-    * Finish "sudo pkill tshark"
 
 
     @rhbz1255507 @rhbz1649368
@@ -854,7 +848,6 @@ Feature: nmcli: ipv4
     * Bring "up" connection "con_ipv4"
     Then "foo.bar.com" is visible with command "cat /tmp/tshark.log"
     Then "Boot Request \(1\).*Flags: 0x05" is visible with command "cat /tmp/tshark.log"
-    * Finish "sudo pkill tshark"
 
 
     @tshark @con_ipv4_remove @teardown_testveth
@@ -869,7 +862,6 @@ Feature: nmcli: ipv4
     * Bring "up" connection "con_ipv4"
      Then "foo.bar.com" is not visible with command "grep fqdn /var/lib/NetworkManager/dhclient-testX4.conf" in "10" seconds
       And "foo.bar.com" is not visible with command "cat /tmp/tshark.log" for full "5" seconds
-    * Finish "sudo pkill tshark"
 
 
     @tshark @con_ipv4_remove
@@ -880,7 +872,6 @@ Feature: nmcli: ipv4
     When "empty" is not visible with command "file /tmp/hostname.log" in "150" seconds
     * Bring "up" connection "con_ipv4"
     Then "RHC" is not visible with command "cat /tmp/hostname.log" in "10" seconds
-    * Finish "sudo pkill tshark"
 
 
     @tshark @con_ipv4_remove @restore_hostname
@@ -892,7 +883,6 @@ Feature: nmcli: ipv4
     When "empty" is not visible with command "file /tmp/tshark.log" in "150" seconds
     * Bring "up" connection "con_ipv4"
     Then Hostname is visible in log "/tmp/tshark.log" in "10" seconds
-    * Finish "sudo pkill tshark"
 
 
     @tshark @con_ipv4_remove
@@ -903,7 +893,6 @@ Feature: nmcli: ipv4
     When "empty" is not visible with command "file /tmp/real.log" in "150" seconds
     * Bring "up" connection "con_ipv4"
     Then Hostname is not visible in log "/tmp/real.log" for full "10" seconds
-    * Finish "sudo pkill tshark"
 
 
     @rhbz1264410
@@ -983,7 +972,6 @@ Feature: nmcli: ipv4
     #Then "walderon" is visible with command "cat /var/lib/NetworkManager/dhclient-eth2.conf"
     #VVV verify bug 999503
      And "exceeds max \(255\) for precision" is not visible with command "grep exceeds max /var/log/messages"
-    * Finish "sudo pkill tshark"
 
 
     @gnomebz793957
@@ -1035,7 +1023,6 @@ Feature: nmcli: ipv4
     When "empty" is not visible with command "file /tmp/tshark.log" in "150" seconds
     * Bring "up" connection "con_ipv4"
     Then "BC" is not visible with command "cat /tmp/tshark.log" in "10" seconds
-    * Execute "sudo pkill tshark"
 
 
     @rhbz1531173
@@ -1159,18 +1146,18 @@ Feature: nmcli: ipv4
     @mtu @kill_dnsmasq_ip4
     @set_mtu_from_DHCP
     Scenario: NM - ipv4 - set dhcp received MTU
-    * Finish "ip link add test1 type veth peer name test1p"
-    * Finish "ip link add test2 type veth peer name test2p"
-    * Finish "ip link add name vethbr type bridge"
-    * Finish "ip link set dev vethbr up"
-    * Finish "ip link set test1p master vethbr"
-    * Finish "ip link set test2p master vethbr"
-    * Finish "ip link set dev test1 up"
-    * Finish "ip link set dev test1p up"
-    * Finish "ip link set dev test2 up"
-    * Finish "ip link set dev test2p up"
-    * Finish "nmcli connection add type ethernet con-name tc1 ifname test1 ip4 192.168.99.1/24"
-    * Finish "nmcli connection add type ethernet con-name tc2 ifname test2"
+    * Execute "ip link add test1 type veth peer name test1p"
+    * Execute "ip link add test2 type veth peer name test2p"
+    * Execute "ip link add name vethbr type bridge"
+    * Execute "ip link set dev vethbr up"
+    * Execute "ip link set test1p master vethbr"
+    * Execute "ip link set test2p master vethbr"
+    * Execute "ip link set dev test1 up"
+    * Execute "ip link set dev test1p up"
+    * Execute "ip link set dev test2 up"
+    * Execute "ip link set dev test2p up"
+    * Execute "nmcli connection add type ethernet con-name tc1 ifname test1 ip4 192.168.99.1/24"
+    * Execute "nmcli connection add type ethernet con-name tc2 ifname test2"
     * Bring "up" connection "tc1"
     When "test1:connected:tc1" is visible with command "nmcli -t -f DEVICE,STATE,CONNECTION device" in "10" seconds
     * Execute "/usr/sbin/dnsmasq --pid-file=/tmp/dnsmasq_ip4.pid --conf-file --no-hosts --keep-in-foreground --bind-interfaces --except-interface=lo --clear-on-reload --strict-order --listen-address=192.168.99.1 --dhcp-range=192.168.99.10,192.168.99.254,60m --dhcp-option=option:router,192.168.99.1 --dhcp-lease-max=50 --dhcp-option-force=26,1800 &"

@@ -348,8 +348,8 @@ Feature: nmcli - vlan
     * "connected:vlan_bond7.7" is visible with command "nmcli -t -f STATE,CONNECTION device" in "5" seconds
     # Delete bridge and bond outside NM, leaving the vlan device (with its mac set)
     * Stop NM
-    * Finish "ip link del bond7"
-    * Finish "ip link del bridge7"
+    * Execute "ip link del bond7"
+    * Execute "ip link del bridge7"
     * Start NM
     # Check the configuration has been restored in full after by NM again
     Then "connected:vlan_bridge7" is visible with command "nmcli -t -f STATE,CONNECTION device" in "30" seconds
@@ -550,7 +550,7 @@ Feature: nmcli - vlan
 
 
     @rhbz1553595 @rhbz1701585
-    @ver+=1.18.0
+    @ver+=1.18.0 @ver-=1.29
     @vlan @bond @slaves @restart
     @vlan_on_bond_autoconnect
     Scenario: NM - vlan - autoconnect vlan on bond specified as UUID
@@ -572,6 +572,43 @@ Feature: nmcli - vlan
     * Execute "nmcli networking on"
     Then "nm-bond:connected:bond0" is visible with command "nmcli -t -f DEVICE,STATE,CONNECTION device" in "20" seconds
     Then "nm-bond.7:connected:vlan_bond7" is visible with command "nmcli -t -f DEVICE,STATE,CONNECTION device" in "20" seconds
+
+
+    @rhbz1553595 @rhbz1701585 @rhbz1937723
+    @ver+=1.30.0
+    @vlan @bond @slaves @restart
+    @vlan_on_bond_autoconnect
+    Scenario: NM - vlan - autoconnect vlan on bond specified as UUID
+    * Add connection type "bond" named "bond0" for device "nm-bond"
+    * Note the output of "nmcli --mode tabular -t -f connection.uuid connection show bond0"
+    * Add a new connection of type "ethernet" and options "ifname eth1 con-name bond0.0 mtu 9000"
+    * Add a new connection of type "ethernet" and options "ifname eth4 con-name bond0.1 mtu 9000"
+    * Add a new connection of type "vlan" and options "con-name vlan_bond7 dev nm-bond id 7 ip4 192.168.168.16/24 autoconnect no"
+    * Modify connection "vlan_bond7" property "vlan.parent" to noted value
+    * Execute "nmcli connection modify vlan_bond7 connection.autoconnect yes"
+    * Reboot
+    Then "nm-bond:connected:bond0" is visible with command "nmcli -t -f DEVICE,STATE,CONNECTION device" in "20" seconds
+    Then "nm-bond.7:connected:vlan_bond7" is visible with command "nmcli -t -f DEVICE,STATE,CONNECTION device" in "20" seconds
+    Then "9000" is visible with command "ip a s nm-bond.7" in "20" seconds
+    Then "9000" is visible with command "ip a s nm-bond" in "20" seconds
+    Then "9000" is visible with command "ip a s eth1" in "20" seconds
+    Then "9000" is visible with command "ip a s eth4" in "20" seconds
+    * Restart NM
+    Then "nm-bond:connected:bond0" is visible with command "nmcli -t -f DEVICE,STATE,CONNECTION device" in "20" seconds
+    Then "nm-bond.7:connected:vlan_bond7" is visible with command "nmcli -t -f DEVICE,STATE,CONNECTION device" in "20" seconds
+    Then "9000" is visible with command "ip a s nm-bond.7" in "20" seconds
+    Then "9000" is visible with command "ip a s nm-bond" in "20" seconds
+    Then "9000" is visible with command "ip a s eth1" in "20" seconds
+    Then "9000" is visible with command "ip a s eth4" in "20" seconds
+    * Execute "nmcli networking off"
+    * Restart NM
+    * Execute "nmcli networking on"
+    Then "nm-bond:connected:bond0" is visible with command "nmcli -t -f DEVICE,STATE,CONNECTION device" in "20" seconds
+    Then "nm-bond.7:connected:vlan_bond7" is visible with command "nmcli -t -f DEVICE,STATE,CONNECTION device" in "20" seconds
+    Then "9000" is visible with command "ip a s nm-bond.7" in "20" seconds
+    Then "9000" is visible with command "ip a s nm-bond" in "20" seconds
+    Then "9000" is visible with command "ip a s eth1" in "20" seconds
+    Then "9000" is visible with command "ip a s eth4" in "20" seconds
 
 
     @rhbz1659063
@@ -703,9 +740,9 @@ Feature: nmcli - vlan
     # Prepare veth pair with the other end in namespace
     # Create 500 (from 10 to 510) vlans on top of eth11p
     # Run dnsmasq inside the namespace to server incoming connections
-    * Finish "sh prepare/vlans.sh setup 500"
+    * Execute "sh prepare/vlans.sh setup 500"
     # Create 500 profiles which should be autoconnected after a while
-    * Finish "for i in $(seq 10 510); do nmcli con add type vlan con-name eth11.$i id $i dev eth11 ethernet.cloned-mac-address random; done"
+    * Execute "for i in $(seq 10 510); do nmcli con add type vlan con-name eth11.$i id $i dev eth11 ethernet.cloned-mac-address random; done"
     # Wait till we have "all" addresses assigned
     When "\s+activated" is visible with command "nmcli con show eth11.100" in "150" seconds
     When "\s+activated" is visible with command "nmcli con show eth11.200" in "50" seconds

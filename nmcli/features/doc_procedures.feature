@@ -20,10 +20,10 @@ Feature: nmcli - procedures in documentation
     * Bring "up" connection "Internal-Workstations"
     * Add a new connection of type "ethernet" and options "con-name Servers ifname servers ipv4.method manual ipv4.addresses 203.0.113.1/24 connection.zone internal"
     * Bring "up" connection "Servers"
-    * Finish "ip -n provB_ns route add default via 192.0.2.1"
-    * Finish "ip -n int_work_ns route add default via 10.0.0.1"
-    * Finish "ip -n servers_ns route add default via 203.0.113.1"
-    * Finish "ip -n provA_ns route add default via 198.51.100.1"
+    * Execute "ip -n provB_ns route add default via 192.0.2.1"
+    * Execute "ip -n int_work_ns route add default via 10.0.0.1"
+    * Execute "ip -n servers_ns route add default via 203.0.113.1"
+    * Execute "ip -n provA_ns route add default via 198.51.100.1"
     # do not bring down eth0 sooner, adding other default routes above may fail
     * Bring "down" connection "testeth0"
     Then "external\s+interfaces: provA provB" is visible with command "firewall-cmd --get-active-zones"
@@ -84,8 +84,8 @@ Feature: nmcli - procedures in documentation
     * Modify connection "tun0" changing options "ipv4.method manual"
     * Modify connection "tun0" changing options "+ipv4.routes '172.16.0.0/24 10.0.1.2'"
     Then Bring "up" connection "tun0"
-    Then Finish "ping -c 1 172.16.0.1"
-    Then Finish "ip netns exec iptunnelB ping -c 1 192.0.2.1"
+    Then Execute "ping -c 1 172.16.0.1"
+    Then Execute "ip netns exec iptunnelB ping -c 1 192.0.2.1"
 
 
     @ver+=1.14
@@ -98,8 +98,8 @@ Feature: nmcli - procedures in documentation
     * Modify connection "gre1" changing options "ipv4.method manual"
     * Modify connection "gre1" changing options "+ipv4.routes '172.16.0.0/24 10.0.1.2'"
     Then Bring "up" connection "gre1"
-    Then Finish "ping -c 1 172.16.0.1"
-    Then Finish "ip netns exec iptunnelB ping -c 1 192.0.2.1"
+    Then Execute "ping -c 1 172.16.0.1"
+    Then Execute "ip netns exec iptunnelB ping -c 1 192.0.2.1"
 
 
     @ver+=1.20
@@ -118,10 +118,10 @@ Feature: nmcli - procedures in documentation
     Then "bridge0:bridge:connected:bridge0" is visible with command "nmcli -t device"
     Then "netA:ethernet:connected:bridge0-port1" is visible with command "nmcli -t device"
     Then "gretap1:iptunnel:connected:bridge0-port2" is visible with command "nmcli -t device"
-    Then Finish "ping -c 1 192.0.2.2"
-    Then Finish "ip netns exec iptunnelB ping -c 1 192.0.2.1"
-    Then Finish "ip netns exec netA_ns ping -c 1 192.0.2.4"
-    Then Finish "ip netns exec netB_ns ping -c 1 192.0.2.3"
+    Then Execute "ping -c 1 192.0.2.2"
+    Then Execute "ip netns exec iptunnelB ping -c 1 192.0.2.1"
+    Then Execute "ip netns exec netA_ns ping -c 1 192.0.2.4"
+    Then Execute "ip netns exec netB_ns ping -c 1 192.0.2.3"
 
 
     @rhelver+=8
