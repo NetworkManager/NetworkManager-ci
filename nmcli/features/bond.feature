@@ -1679,7 +1679,7 @@
     When "IP4" is not visible with command "/usr/bin/python tmp/nmclient_get_state_flags.py bond0.0"
     When "IP6" is not visible with command "/usr/bin/python tmp/nmclient_get_state_flags.py bond0.0"
     * Prepare simulated veth device "testXB" wihout carrier
-    * Execute "nmcli con modify bond0.0 ipv4.may-fail no"
+    * Execute "nmcli con modify bond0 ipv4.may-fail no"
     * Execute "nmcli con up bond0.0" without waiting for process to finish
     When "IP4" is not visible with command "/usr/bin/python tmp/nmclient_get_state_flags.py bond0"
      And "IP6" is not visible with command "/usr/bin/python tmp/nmclient_get_state_flags.py bond0"

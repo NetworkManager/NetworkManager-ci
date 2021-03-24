@@ -9,7 +9,7 @@ Feature: nmcli - bridge
 
 
     @ver-=1.24
-	  @bridge
+    @bridge
     @bridge_options
     Scenario: nmcli - bridge - add custom bridge
     * Add a new connection of type "bridge" and options "con-name br88 autoconnect no ifname br88 priority 5 forward-delay 3 hello-time 3 max-age 15 ageing-time 500000"
@@ -671,7 +671,7 @@ Feature: nmcli - bridge
     * Add a new connection of type "dummy" and options "ifname dummy0 con-name bridge-slave-eth4 ip4 172.25.1.1/24 master nm-bridge slave-type bridge"
     When "dummy0" is not visible with command "ip a s"
     When Path "/sys/class/net/dummy0/ifindex" does not exist
-    * Execute "sleep 1 && nmcli con up bridge-slave-eth4"
+    * Execute "sleep 1 && nmcli con up bridge-slave-eth4 || true"
     When "dummy0" is not visible with command "ip a s"
     When Path "/sys/class/net/dummy0/ifindex" does not exist
     * Add a new connection of type "bridge" and options "ifname nm-bridge con-name bridge0 ip4 172.25.2.1/24"

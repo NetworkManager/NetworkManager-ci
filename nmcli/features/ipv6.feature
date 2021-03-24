@@ -681,10 +681,8 @@
     @ipv6_lifetime_too_low
     Scenario: NM - ipv6 - valid lifetime too low should be ignored
     * Execute "ip link add test10 type veth peer name test11"
-    * Execute "nmcli c add type ethernet ifname test10"
-    * Execute "nmcli c add type ethernet ifname test11"
-    * Execute "nmcli con modify ethernet-test10 ipv4.method disabled ipv6.method auto"
-    * Execute "nmcli con modify ethernet-test11 ipv4.method disabled ipv6.method auto ipv6.address dead::dead/128 ipv6.gateway dead::beaf/128"
+    * Execute "nmcli c add type ethernet ifname test10 ipv4.method disabled ipv6.method auto"
+    * Execute "nmcli c add type ethernet ifname test11 ipv4.method disabled ipv6.method auto"
     * Execute "ip link set dev test10 up"
     * Execute "ip link set dev test11 up"
     * Execute "nmcli --wait 0 c up ethernet-test10"
@@ -706,43 +704,14 @@
     Then "IPv6" lifetimes are slightly smaller than "7200" and "10" for device "test11"
 
 
-    # @rhbz1640237
-    # @ver+=1.25.1
-    # @scapy
-    # @ipv6_lifetime_too_low
-    # Scenario: NM - ipv6 - valid lifetime too low should be ignored
-    # * Execute "ip link add test10 type veth peer name test11"
-    # * Execute "nmcli c add type ethernet ifname test10"
-    # * Execute "nmcli c add type ethernet ifname test11"
-    # * Execute "nmcli con modify ethernet-test10 ipv4.method disabled ipv6.method auto"
-    # * Execute "nmcli con modify ethernet-test11 ipv4.method disabled ipv6.method auto ipv6.address dead::dead/128 ipv6.gateway dead::beaf/128"
-    # * Execute "ip link set dev test10 up"
-    # * Execute "ip link set dev test11 up"
-    # * Execute "nmcli --wait 0 c up ethernet-test10"
-    # * Execute "nmcli --wait 0 c up ethernet-test11"
-    # When "ethernet-test10" is visible with command "nmcli con sh -a"
-    # When "ethernet-test11" is visible with command "nmcli con sh -a"
-    # * Execute "sleep 2"
-    # * Send lifetime scapy packet with lifetimes "300" "140"
-    # * Execute "sleep 2"
-    # Then "IPv6" lifetimes are slightly smaller than "300" and "140" for device "test11"
-    # * Execute "sleep 2"
-    # * Send lifetime scapy packet with lifetimes "20" "10"
-    # * Execute "sleep 2"
-    # # Change in behavior as https://gitlab.freedesktop.org/NetworkManager/NetworkManager/-/merge_requests/455
-    # Then "IPv6" lifetimes are slightly smaller than "300" and "10" for device "test11"
-
-
     @rhbz1318945
     @ver+=1.4.0
     @scapy
     @ipv6_lifetime_no_padding
     Scenario: NM - ipv6 - RA lifetime with no padding
     * Execute "ip link add test10 type veth peer name test11"
-    * Execute "nmcli c add type ethernet ifname test10"
-    * Execute "nmcli c add type ethernet ifname test11"
-    * Execute "nmcli con modify ethernet-test10 ipv4.method disabled ipv6.method auto"
-    * Execute "nmcli con modify ethernet-test11 ipv4.method disabled ipv6.method auto ipv6.address dead::dead/128 ipv6.gateway dead::beaf/128"
+    * Execute "nmcli c add type ethernet ifname test10 ipv4.method disabled ipv6.method auto"
+    * Execute "nmcli c add type ethernet ifname test11 ipv4.method disabled ipv6.method auto"
     * Execute "ip link set dev test10 up"
     * Execute "ip link set dev test11 up"
     * Execute "nmcli --wait 0 c up ethernet-test10"
@@ -760,10 +729,8 @@
     @ipv6_drop_ra_with_low_hlimit
     Scenario: NM - ipv6 - drop scapy packet with lower hop limit
     * Execute "ip link add test10 type veth peer name test11"
-    * Execute "nmcli c add type ethernet ifname test10"
-    * Execute "nmcli c add type ethernet ifname test11"
-    * Execute "nmcli con modify ethernet-test10 ipv4.method disabled ipv6.method auto"
-    * Execute "nmcli con modify ethernet-test11 ipv4.method disabled ipv6.method auto ipv6.address dead::dead/128 ipv6.gateway dead::beaf/128"
+    * Execute "nmcli c add type ethernet ifname test10 ipv4.method disabled ipv6.method auto"
+    * Execute "nmcli c add type ethernet ifname test11 ipv4.method disabled ipv6.method auto"
     * Execute "ip link set dev test10 up"
     * Execute "ip link set dev test11 up"
     * Execute "nmcli --wait 0 c up ethernet-test10"
@@ -781,10 +748,8 @@
     @ipv6_drop_ra_with_255_hlimit
     Scenario: NM - ipv6 - scapy packet with 255 hop limit
     * Execute "ip link add test10 type veth peer name test11"
-    * Execute "nmcli c add type ethernet ifname test10"
-    * Execute "nmcli c add type ethernet ifname test11"
-    * Execute "nmcli con modify ethernet-test10 ipv4.method disabled ipv6.method auto"
-    * Execute "nmcli con modify ethernet-test11 ipv4.method disabled ipv6.method auto ipv6.address dead::dead/128 ipv6.gateway dead::beaf/128"
+    * Execute "nmcli c add type ethernet ifname test10 ipv4.method disabled ipv6.method auto"
+    * Execute "nmcli c add type ethernet ifname test11 ipv4.method disabled ipv6.method auto"
     * Execute "ip link set dev test10 up"
     * Execute "ip link set dev test11 up"
     * Execute "nmcli --wait 0 c up ethernet-test10"
@@ -802,10 +767,8 @@
     @ipv6_drop_ra_from_non_ll_address
     Scenario: NM - ipv6 - drop scapy packet from non LL address
     * Execute "ip link add test10 type veth peer name test11"
-    * Execute "nmcli c add type ethernet ifname test10"
-    * Execute "nmcli c add type ethernet ifname test11"
-    * Execute "nmcli con modify ethernet-test10 ipv4.method disabled ipv6.method auto"
-    * Execute "nmcli con modify ethernet-test11 ipv4.method disabled ipv6.method auto ipv6.address dead::dead/128 ipv6.gateway dead::beaf/128"
+    * Execute "nmcli c add type ethernet ifname test10 ipv4.method disabled ipv6.method auto"
+    * Execute "nmcli c add type ethernet ifname test11 ipv4.method disabled ipv6.method auto"
     * Execute "ip link set dev test10 up"
     * Execute "ip link set dev test11 up"
     * Execute "nmcli --wait 0 c up ethernet-test10"
@@ -823,10 +786,8 @@
     @ipv6_preserve_addr_order
     Scenario: NM - ipv6 - preserve address order
     * Execute "ip link add test10 type veth peer name test11"
-    * Execute "nmcli c add type ethernet ifname test10"
-    * Execute "nmcli c add type ethernet ifname test11"
-    * Execute "nmcli con modify ethernet-test10 ipv4.method disabled ipv6.method auto"
-    * Execute "nmcli con modify ethernet-test11 ipv4.method disabled ipv6.method auto ipv6.address dead::dead/128 ipv6.gateway dead::beaf/128"
+    * Execute "nmcli c add type ethernet ifname test10 ipv4.method disabled ipv6.method auto"
+    * Execute "nmcli c add type ethernet ifname test11 ipv4.method disabled ipv6.method auto"
     * Execute "ip link set dev test10 up"
     * Execute "ip link set dev test11 up"
     * Execute "nmcli --wait 0 c up ethernet-test10"
