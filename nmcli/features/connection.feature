@@ -207,7 +207,8 @@ Feature: nmcli: connection
     * Open editor for connection "con_con"
     * Submit "set connection.uuid 00000000-0000-0000-0000-000000000000" in editor
     Then Error type "uuid" shown in editor
-    * Execute "/usr/bin/python tmp/repro_1707261.py"
+    # There will be non zero exit code but we are looking for a crash
+    Then Execute "/usr/bin/python tmp/repro_1707261.py || true"
 
 
     @con_con_remove

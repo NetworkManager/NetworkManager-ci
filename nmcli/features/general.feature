@@ -1324,7 +1324,7 @@ Feature: nmcli - general
     * "Error.*" is not visible with command "nmcli device reapply eth8" in "1" seconds
     When "up" is not visible with command "cat /tmp/dispatcher.txt"
     And "con_general" is visible with command "nmcli con show -a"
-    * Execute "ip addr a 1.2.3.4/24 dev eth8"
+    * Execute "ip addr a 1.2.3.4/24 dev eth8 || true"
     * Modify connection "con_general" changing options "-ipv4.address 1.2.3.4/24"
     * "Error.*" is not visible with command "nmcli device reapply eth8" in "1" seconds
     Then "up" is not visible with command "cat /tmp/dispatcher.txt"

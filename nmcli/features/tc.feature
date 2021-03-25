@@ -102,7 +102,7 @@
     * Add a new connection of type "ethernet" and options "ifname eth2 con-name con_tc ipv4.may-fail no ipv4.dhcp-hostname example.com"
     * Execute "nmcli connection modify con_tc +tc.qdisc "clsact""
     * Execute "nmcli connection modify con_tc +tc.tfilter "parent ffff:fff3 matchall action mirred egress mirror dev dummy0""
-    * Execute "nmcli connection modify con_tc +tc.tfilter "parent ffff:fff2  matchall action mirred egress mirror dev"
+    * Execute "nmcli connection modify con_tc +tc.tfilter "parent ffff:fff2  matchall action mirred egress mirror dev dummy0""
     * Bring "down" connection "con_tc"
     * Bring "up" connection "con_tc"
     * Run child "sudo tshark -l -O bootp -i dummy0 > /tmp/tshark.log"
