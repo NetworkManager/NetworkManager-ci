@@ -878,7 +878,7 @@ Feature: nmcli - general
     @nat_from_shared_network
     Scenario: NM - general - NAT_dhcp from shared networks
     * Execute "ip link add test1g type veth peer name test1gp"
-    * Add a new connection of type "bridge" and options "ifname vethbrg con-name vethbrg autoconnect no ipv4.method shared ipv4.address 172.16.0.1/24"
+    * Add a new connection of type "bridge" and options "ifname vethbrg stp no con-name vethbrg autoconnect no ipv4.method shared ipv4.address 172.16.0.1/24"
     * Bring "up" connection "vethbrg"
     * Execute "ip link set test1gp master vethbrg"
     * Execute "ip link set dev test1gp up"
@@ -887,7 +887,7 @@ Feature: nmcli - general
     * Execute "ip netns exec peers ip link set dev test1g up"
     * Execute "ip netns exec peers ip addr add 172.16.0.111/24 dev test1g"
     * Execute "ip netns exec peers ip route add default via 172.16.0.1"
-    Then Execute "ip netns exec peers ping -c 2 -I test1g 8.8.8.8"
+    Then "OK" is visible with command "ip netns exec peers curl --interface test1g http://static.redhat.com/test/rhel-networkmanager.txt" in "20" second
     Then Unable to ping "172.16.0.111" from "eth0" device
 
 
