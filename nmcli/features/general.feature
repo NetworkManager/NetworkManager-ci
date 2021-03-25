@@ -887,7 +887,7 @@ Feature: nmcli - general
     * Execute "ip netns exec peers ip link set dev test1g up"
     * Execute "ip netns exec peers ip addr add 172.16.0.111/24 dev test1g"
     * Execute "ip netns exec peers ip route add default via 172.16.0.1"
-    Then "OK" is visible with command "ip netns exec peers curl --interface test1g http://static.redhat.com/test/rhel-networkmanager.txt" in "20" second
+    Then "OK" is visible with command "ip netns exec peers curl --interface test1g http://static.redhat.com/test/rhel-networkmanager.txt" in "20" seconds
     Then Unable to ping "172.16.0.111" from "eth0" device
 
 
