@@ -1357,6 +1357,7 @@ Feature: nmcli - general
 
     @rhbz1358335
     @ver+=1.4.0
+    @not_on_veth
     @NM_syslog_in_anaconda
     Scenario: NM - general - syslog in Anaconda
     Then "NetworkManager" is visible with command "grep NetworkManager /var/log/anaconda/syslog"
@@ -2257,10 +2258,10 @@ Feature: nmcli - general
 
     @rhbz1782642
     @ver+=1.22
-    @manage_eth8 @eth8_disconnect @kill_dhclient_custom
+    @dhclient_DHCP @manage_eth8 @eth8_disconnect @kill_dhclient_custom
     @nmcli_general_unmanaged_device_dhclient_fail
     Scenario: NM - general - dhclient should not fail on unmanaged device
-    * Execute "nmcli device disconnect eth8"
+    * Execute "nmcli device disconnect eth8 || true"
     * Execute "nmcli device set eth8 managed no"
     * Execute "dhclient -v -pf /tmp/dhclient_custom.pid eth8"
 
