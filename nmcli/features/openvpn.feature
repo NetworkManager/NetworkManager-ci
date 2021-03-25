@@ -134,8 +134,10 @@
     Scenario: nmcli - openvpn - persist connection
     * Add a connection named "openvpn" for device "\*" to "openvpn" VPN
     * Use certificate "sample-keys/client.crt" with key "sample-keys/client.key" and authority "sample-keys/ca.crt" for gateway "127.0.0.1" on OpenVPN connection "openvpn"
+    * Modify connection "openvpn" changing options "vpn.persistent true"
     * Bring "up" connection "openvpn"
     When "VPN.VPN-STATE:.*VPN connected" is visible with command "nmcli c show openvpn"
-    * Execute "systemctl restart openvpn@trest-server"
+    * Execute "pkill openvpn"
     * Execute "sleep 3"
-    Then "VPN.VPN-STATE:.*VPN connected" is visible with command "nmcli c show openvpn"
+    * Run child "openvpn /etc/openvpn/trest-server.conf"
+    Then "VPN.VPN-STATE:.*VPN connected" is visible with command "nmcli c show openvpn" in "10" seconds
