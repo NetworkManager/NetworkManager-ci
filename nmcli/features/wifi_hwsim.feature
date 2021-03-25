@@ -259,7 +259,7 @@ Feature: nmcli - wifi
 
 
     @ver+=1.29 @rhelver+=8 @fedoraver-=0
-    @simwifi @simwifi_wpa3 @attach_hostapd_log @attach_wpa_supplicant_log
+    @simwifi @simwifi_wpa3 @simwifi_wpa3_eap @attach_hostapd_log @attach_wpa_supplicant_log
     @simwifi_tls_wpa3
     Scenario: nmcli - simwifi - connect to TLS
     Given "wpa3-eap" is visible with command "nmcli -f SSID device wifi list" in "60" seconds

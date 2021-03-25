@@ -985,6 +985,17 @@ def simwifi_wpa2_as(ctx, scen):
 _register_tag("simwifi_wpa2", None, simwifi_wpa2_as)
 
 
+def simwifi_wpa3_eap_bs(ctx, scen):
+    print("---------------------------")
+    print("Do we have wpa3_eap?")
+    if nmci.command_code("nmcli device wifi list --rescan auto |grep -q wpa3-eap") != 0:
+        print ("No we don't, skipping")
+        sys.exit(77)
+
+
+_register_tag("simwifi_wpa3_eap", simwifi_wpa3_eap_bs, None)
+
+
 def simwifi_wpa3_as(ctx, scen):
     print("---------------------------")
     print("deleting wifi connections")
