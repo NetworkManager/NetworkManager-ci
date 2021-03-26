@@ -1056,7 +1056,7 @@
 
 
     @rhbz1856640 @rhbz1876577
-    @ver+=1.27
+    @ver+=1.27 @ver-=1.29
     @slaves @bond
     @bond_active-backup_primary_set
     Scenario: nmcli - bond - options - mode set to active backup with primary device
@@ -1075,6 +1075,42 @@
 
 
 
+    @rhbz1856640 @rhbz1876577 @rhbz1933292
+    @ver+=1.30
+    @slaves @bond
+    @bond_active-backup_primary_set
+    Scenario: nmcli - bond - options - mode set to active backup with primary device
+     * Note MAC address output for device "eth1" via ip command
+     * Add a new connection of type "bond" and options "con-name bond0 ifname nm-bond autoconnect no -- connection.autoconnect-slaves 1 bond.options mode=active-backup,primary=eth1,miimon=100,fail_over_mac=2,primary=eth1"
+     * Add a new connection of type "ethernet" and options "con-name bond0.1 ifname eth4 master nm-bond autoconnect no"
+     * Add a new connection of type "ethernet" and options "con-name bond0.0 ifname eth1 master nm-bond autoconnect no"
+     * Bring "up" connection "bond0"
+     When "nm-bond:connected:bond0" is visible with command "nmcli -t -f DEVICE,STATE,CONNECTION device" in "40" seconds
+     When "Bonding Mode: fault-tolerance \(active-backup\) \(fail_over_mac follow\)\s+Primary Slave: eth1 \(primary_reselect always\)\s+Currently Active Slave: eth1" is visible with command "cat /proc/net/bonding/nm-bond"
+     When Check bond "nm-bond" link state is "up"
+     # VVV nm-bond has eth1's mac
+     When Noted value is visible with command "ip a s nm-bond" in "2" seconds
+
+     * "Error" is not visible with command "nmcli device modify nm-bond +bond.options 'primary = eth4'"
+     When "Bonding Mode: fault-tolerance \(active-backup\) \(fail_over_mac follow\)\s+Primary Slave: eth4 \(primary_reselect always\)\s+Currently Active Slave: eth4" is visible with command "cat /proc/net/bonding/nm-bond"
+     # VVV nm-bond has eth1's mac as changing primary should not change mac
+     When Noted value is visible with command "ip a s nm-bond" in "2" seconds
+
+     * "Error" is not visible with command "nmcli connection modify bond0 +bond.options 'active_slave = eth1' && nmcli device reapply nm-bond"
+     When "nm-bond:connected:bond0" is visible with command "nmcli -t -f DEVICE,STATE,CONNECTION device" in "40" seconds
+     When "Bonding Mode: fault-tolerance \(active-backup\) \(fail_over_mac follow\)\s+Primary Slave: eth1 \(primary_reselect always\)\s+Currently Active Slave: eth1" is visible with command "cat /proc/net/bonding/nm-bond"
+     # VVV nm-bond has eth1's mac
+     When Noted value is visible with command "ip a s nm-bond" in "2" seconds
+
+     * Bring "down" connection "bond0.0"
+     * Bring "down" connection "bond0.1"
+
+     * Bring "up" connection "bond0"
+     Then "nm-bond:connected:bond0" is visible with command "nmcli -t -f DEVICE,STATE,CONNECTION device" in "40" seconds
+     Then "Bonding Mode: fault-tolerance \(active-backup\) \(fail_over_mac follow\)\s+Primary Slave: eth1 \(primary_reselect always\)\s+Currently Active Slave: eth1" is visible with command "cat /proc/net/bonding/nm-bond"
+     Then Check bond "nm-bond" link state is "up"
+     # VVV nm-bond has eth1's mac
+     Then Noted value is visible with command "ip a s nm-bond" in "2" seconds
 
 
     @slaves @bond
