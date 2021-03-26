@@ -893,7 +893,7 @@ Feature: nmcli - general
 
 
     @rhbz1083683 @rhbz1256772 @rhbz1260243
-    @runonce @teardown_testveth @restart
+    @restart @teardown_testveth @runonce
     @run_once_new_connection
     Scenario: NM - general - run once and quit start new ipv4 and ipv6 connection
     * Prepare simulated test "testG" device
@@ -918,8 +918,7 @@ Feature: nmcli - general
 
 
     @rhbz1083683 @rhbz1256772
-    @teardown_testveth
-    @runonce @restart
+    @restart @teardown_testveth @runonce
     @run_once_ip4_renewal
     Scenario: NM - general - run once and quit ipv4 renewal
     * Prepare simulated test "testG" device
@@ -943,8 +942,7 @@ Feature: nmcli - general
 
     @rhbz1083683 @rhbz1256772
     @ver+=1.12
-    @teardown_testveth
-    @runonce @restart
+    @restart @teardown_testveth @runonce
     @run_once_ip6_renewal
     Scenario: NM - general - run once and quit ipv6 renewal
     * Prepare simulated test "testG" device
@@ -968,7 +966,7 @@ Feature: nmcli - general
 
     @rhbz1201497
     @ver-1.10
-    @runonce @restore_hostname @eth0 @restart
+    @restart @eth0 @restore_hostname @runonce
     @run_once_helper_for_localhost_localdomain
     Scenario: NM - general - helper running for localhost on localdo
     * Bring "up" connection "testeth0"
@@ -989,7 +987,7 @@ Feature: nmcli - general
 
     @rhbz1201497
     @ver+=1.10
-    @runonce @restore_hostname @eth0 @restart
+    @restart @eth0 @restore_hostname @runonce
     @run_once_helper_for_localhost_localdomain
     Scenario: NM - general - helper running for localhost on localdo
     * Bring "up" connection "testeth0"
@@ -1523,7 +1521,7 @@ Feature: nmcli - general
 
     @ver+=1.26.0
     @rhelver+=8 @fedoraver+=31
-    @nmstate_upstream_setup @ifcfg-rh
+    @ifcfg-rh @nmstate_upstream_setup
     @nmstate_upstream
     Scenario: NM - general - nmstate
     * Restart NM

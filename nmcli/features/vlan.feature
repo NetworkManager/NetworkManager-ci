@@ -734,7 +734,7 @@ Feature: nmcli - vlan
 
     @rhbz1933041 @rhbz1926599
     @ver+=1.30
-    @500_vlans @restart @logging_info_only
+    @logging_info_only @restart @500_vlans
     @vlan_create_500_vlans
     Scenario: NM - vlan - create 500 vlans
     # Prepare veth pair with the other end in namespace
