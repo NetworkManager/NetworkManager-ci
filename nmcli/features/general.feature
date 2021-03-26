@@ -732,7 +732,8 @@ Feature: nmcli - general
 
 
     @rhbz1673321 @rhbz1942741
-    @ver+=1.31
+    # Fixed in 1.30.0-7
+    @ver+=1.30
     @eth0 @restart @con_general_remove
     @match_connections_with_pci_address
     Scenario: NM - general - connection matching for dhcp with infinite leasetime
