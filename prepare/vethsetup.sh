@@ -391,6 +391,8 @@ function teardown_veth_env ()
         # Move all profiles
         rm /etc/sysconfig/network-scripts/ifcfg-testeth0*
         mv -f /tmp/ifcfg-$ORIGDEV /etc/sysconfig/network-scripts/ifcfg-$ORIGDEV
+        # mv also copies selinux context of user_tmp_t, switch it back to net_conf_t
+        restorecon /etc/sysconfig/network-scripts/ifcfg-$ORIGDEV
     else
         ORIGDEV=$(grep interface-name /tmp/*.nmconnection | awk -F '=' '{print $2}' | tr -d '"')
         # Disconnect eth0
@@ -398,6 +400,8 @@ function teardown_veth_env ()
         rm /etc/NetworkManager/system-connections/testeth0.nmconnection
         # Move all profiles
         mv -f /tmp/$ORIGDEV.nmconnection /etc/NetworkManager/system-connections/$ORIGDEV.nmconnection
+        # mv also copies selinux context of user_tmp_t, switch it back to NetworkManager_etc_rw_t
+        restorecon /etc/NetworkManager/system-connections/$ORIGDEV.nmconnection
     fi
 
     # and reload
