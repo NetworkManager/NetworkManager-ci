@@ -2355,6 +2355,9 @@ def allow_veth_connections_bs(ctx, scen):
         cfg.write("\n" + 'no-auto-default=eth*')
         cfg.write("\n")
         cfg.close()
+        ctx.run('udevadm control --reload-rules')
+        ctx.run('udevadm settle --timeout=5')
+        ctx.run('rm -rf /var/lib/NetworkManager/no-auto-default.state')
         nmci.lib.reload_NM_service()
         ctx.revert_unmanaged = True
     else:
@@ -2365,6 +2368,8 @@ def allow_veth_connections_as(ctx, scen):
     if ctx.revert_unmanaged:
         nmci.run("sed -i 's/^#ENV{ID_NET_DRIVER}==\"veth\", ENV{NM_UNMANAGED}=\"1\"/ENV{ID_NET_DRIVER}==\"veth\", ENV{NM_UNMANAGED}=\"1\"/' /usr/lib/udev/rules.d/85-nm-unmanaged.rules")
         nmci.run('sudo rm -rf /etc/NetworkManager/conf.d/99-unmanaged.conf')
+        ctx.run('udevadm control --reload-rules')
+        ctx.run('udevadm settle --timeout=5')
         nmci.lib.reload_NM_service()
     nmci.run("nmcli con del 'Wired connection 1'")
     nmci.run("nmcli con del 'Wired connection 2'")
