@@ -266,9 +266,9 @@ Feature: nmcli - vlan
     * Execute "yum -y install wireshark"
     * Add a new connection of type "vlan" and options "con-name eth7.80 dev eth7 id 80"
     * "eth7.80:" is visible with command "ifconfig" in "10" seconds
-    * Spawn "ping -I eth7.80 8.8.8.8" command
+    * Run child "ping -I eth7.80 8.8.8.8"
     Then "ID: 80" is visible with command "tshark -i eth7 -T fields -e vlan" in "150" seconds
-    Then Terminate spawned process "ping -I eth7.80 8.8.8.8"
+    Then Kill children
 
 
     @vlan
@@ -618,7 +618,7 @@ Feature: nmcli - vlan
     Scenario: NM - vlan - static route is not deleted after NM changes MAC
     * Prepare simulated test "test77" device
     * Add connection type "bond" named "bond0" for device "nm-bond"
-    * Add a new connection of type "bond" ifname "nm-bond" and options "autocnnect no ethernet.cloned-mac-address preserve"
+    #* Add a new connection of type "bond" and options "autoconnect no ifname nm-bond ethernet.cloned-mac-address preserve"
     * Add a new connection of type "vlan" and options "autoconnect no ethernet.cloned-mac-address preserve con-name vlan_bond7 ipv4.method disabled ipv6.method ignore vlan.id 7 vlan.parent nm-bond"
     * Add a new connection of type "ethernet" and options "autoconnect no con-name bond0.0 ethernet.cloned-mac-address preserve ifname test77 master nm-bond slave-type bond"
     * Bring "up" connection "bond0"

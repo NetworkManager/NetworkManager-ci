@@ -1295,7 +1295,7 @@ testmapper:
         feature: dracut
     - dracut_legacy_iSCSI_ibft_table:
         feature: dracut
-    - dracut_teardown_nmcli:
+    - dracut_teardown:
         feature: dracut
         tags: gate
     - nmcli_logging:

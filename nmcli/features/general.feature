@@ -1983,7 +1983,7 @@ Feature: nmcli - general
     Scenario: NM - general - count number of password prompts with autoconnect yes and no secrets provided
     * Add a new connection of type "ethernet" and options "ifname eth5 con-name con_general 802-1x.identity test 802-1x.password-flags 2 802-1x.eap md5 connection.autoconnect no"
     * Wait for at least "2" seconds
-    * Execute "tmp/nm_agent_prompt_counter.sh start" without waiting for process to finish
+    * Execute "tmp/nm_agent_prompt_counter.sh start"
     * Wait for at least "2" seconds
     * Modify connection "con_general" changing options "connection.autoconnect yes"
     * Wait for at least "2" seconds

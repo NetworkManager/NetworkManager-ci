@@ -3,9 +3,11 @@ export PATH=/sbin:/bin:/usr/sbin:/usr/bin
 
 UUID_STATE=a32d3ed2-225f-11eb-bf6a-525400c7ed04
 UUID_CHECK=a467c808-225f-11eb-96df-525400c7ed04
+UUID_DUMPS=a6673314-225f-11eb-a9a2-525400c7ed04
 
 DEV_STATE=/dev/disk/by-uuid/$UUID_STATE
 DEV_CHECK=/dev/disk/by-uuid/$UUID_CHECK
+DEV_DUMPS=/dev/disk/by-uuid/$UUID_DUMPS
 
 # boot succeeded, so try to attach logs
 echo BOOT | dd status=none oflag=direct,dsync of=${DEV_STATE}

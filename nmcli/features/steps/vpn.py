@@ -73,7 +73,6 @@ def set_libreswan_connection(context, user, password, group, secret, gateway, na
     ''' % (name, vpn_options_str(vpn_data, vpn_secrets)))
 
 
-
 @step(u'Use user "{user}" with secret "{secret}" for gateway "{gateway}" on Strongswan connection "{name}"')
 def set_strongswan_connection(context, user, secret, gateway, name):
     vpn_data = {
@@ -141,7 +140,7 @@ def set_pptp_connection(context, user, password, mppe, gateway, name):
 @step(u'Connect to vpn "{vpn}" with password "{password}" with timeout "{time_out}"')
 @step(u'Connect to vpn "{vpn}" with password "{password}" and secret "{secret}"')
 def connect_to_vpn(context, vpn, password, secret=None, time_out=None):
-    cli = pexpect.spawn('nmcli -a connect up %s' % (vpn), timeout=180, logfile=context.log, encoding='utf-8')
+    cli = context.pexpect_spawn('nmcli -a connect up %s' % (vpn), timeout=180)
     if not time_out:
         time.sleep(1)
     else:

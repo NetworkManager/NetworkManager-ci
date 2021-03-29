@@ -30,6 +30,7 @@ Feature: NM: dracut
       | kernel | root=dhcp ro                                                           |
       | qemu   | -device virtio-net,netdev=nfs,mac=52:54:00:12:34:00                    |
       | qemu   | -netdev tap,id=nfs,script=$PWD/qemu-ifup/nfs                           |
+      | check  | dracut_crash_test                                                      |
       | check  | nmcli_con_active "Wired Connection" eth0                               |
       | check  | nmcli_con_prop "Wired Connection" ipv4.method auto                     |
       | check  | nmcli_con_prop "Wired Connection" IP4.ADDRESS 192.168.50.101/24 10     |
@@ -1457,6 +1458,5 @@ Feature: NM: dracut
 
     @rhelver+=8.3 @fedoraver+=32
     @dracut_teardown
-    @dracut_teardown_nmcli
-    Scenario: NM - dracut tests cleanup and log collection
-    * Execute "true"
+    Scenario: NM - dracut tests cleanup
+    * Execute "cd contrib/dracut; . ./setup.sh; { time test_clean; }"

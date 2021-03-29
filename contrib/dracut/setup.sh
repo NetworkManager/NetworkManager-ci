@@ -35,8 +35,8 @@ test_setup() {
       . $basedir/dracut-init.sh
 
       inst_multiple sh bash shutdown poweroff stty cat ps ln ip dd mount dmesg \
-                    mkdir cp ping grep wc awk setsid ls find less tee echo \
-                    sync rm sed uname lsblk df free cat ps ln ip mount umount \
+                    mkdir cp mv ping grep wc awk setsid ls find less tee echo \
+                    sync rm sed uname lsblk df du free cat ps ln ip mount umount \
                     strace head tail reset loadkeys setfont login sushell sulogin \
                     gzip sleep modprobe
 
@@ -269,7 +269,7 @@ EOF
 
   dd if=/dev/zero of=$TESTDIR/client_state.img bs=1M count=5
   dd if=/dev/zero of=$TESTDIR/client_check.img bs=1M count=20
-  dd if=/dev/zero of=$TESTDIR/client_dumps.img bs=1M count=100
+  dd if=/dev/zero of=$TESTDIR/client_dumps.img bs=1M count=200
   mkfs.ext3 -U $UUID_STATE $TESTDIR/client_state.img
   mkfs.ext3 -U $UUID_CHECK $TESTDIR/client_check.img
   mkfs.ext3 -U $UUID_DUMPS $TESTDIR/client_dumps.img

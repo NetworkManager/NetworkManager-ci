@@ -1,90 +1,103 @@
-import base64
 import os
 import signal
 import subprocess
-import sys
+import pexpect
 from behave import step
 
-
-def utf_only_open_read(file, mode='r'):
-    # Opens file and read it w/o non utf-8 chars
-    if sys.version_info.major < 3:
-        return open(file, mode).read().decode('utf-8', 'ignore').encode('utf-8')
-    else:
-        return open(file, mode, encoding='utf-8', errors='ignore').read()
+import nmci.lib
+import nmci
 
 
-def get_dhcpd_log(cursor):
-    with open("/tmp/cursor", "w") as f:
-        f.write(cursor)
-    subprocess.call(
-        "journalctl -all --no-pager %s | grep ' dhcpd\\[' > /tmp/journal-dhcpd.log" % cursor,
-        shell=True)
-    return utf_only_open_read("/tmp/journal-dhcpd.log")
+REMOTE_JOURNAL_DIR = "/var/dracut_test/client_dumps/"
+REMOTE_JOURNAL = "--root=" + REMOTE_JOURNAL_DIR
 
 
-def get_backtrace(filename):
-    proc = subprocess.run(
-        ["gdb", "-quiet"],
-        cwd="/var/dracut_test/client_dumps/",
-        stdout=subprocess.PIPE,
-        check=False,
-        encoding="utf-8",
-        input="core-file " + filename + "\nbacktrace")
-    return proc.stdout
+def embed_dracut_logs(context):
+    nmci.lib.embed_file_if_exists(context, "/tmp/dracut_setup.log", caption="Dracut setup", fail_only=True)
+    #nmci.lib.embed_file_if_exists(context, "/tmp/dracut_boot.log", caption="Dracut boot", fail_only=True)
+    context.run("cd contrib/dracut/; . ./setup.sh; "
+                "mount $DEV_DUMPS $TESTDIR/client_dumps; ")
+
+    if context.dracut_boot:
+        nmci.lib.embed_service_log(context, "test-init", "Dracut Test", journal_arg=REMOTE_JOURNAL, fail_only=False)
+        nmci.lib.embed_service_log(context, "NetworkManager", "Dracut NM", journal_arg=REMOTE_JOURNAL, fail_only=True)
+
+    crash = check_core_dumps(context)
+
+    context.run(
+        "cd contrib/dracut/; . ./setup.sh; "
+        "rm -rf $TESTDIR/client_dumps/*; "
+        "umount $DEV_DUMPS; ")
+
+    nmci.lib.embed_file_if_exists(context, "/tmp/dracut_teardown.log", "Dracut teardown", fail_only=True)
+
+    assert not crash, f"Unexpected crash in initrd (or expected crash did not happen)"
 
 
-def get_dump(filename):
-    result = "data:application/octet-stream;base64,"
-    data_base64 = base64.b64encode(
-        open("/var/dracut_test/client_dumps/"+filename, "rb").read())
-    data_encoded = data_base64.decode("utf-8").replace("\n", "")
-    return result + data_encoded
+def get_backtrace(context, filename):
+    gdb = context.pexpect_spawn("gdb -quiet", cwd="/var/dracut_test/client_dumps/")
+    prompt = gdb.expect(["\\(gdb\\)", pexpect.TIMEOUT, pexpect.EOF], timeout=5)
+    if prompt != 0:
+        return "ERROR: gdb did not start"
+
+    gdb.sendline("core-file " + filename)
+    prompt = gdb.expect(["\\(gdb\\)", pexpect.TIMEOUT, pexpect.EOF], timeout=20)
+    if prompt != 0:
+        return "ERROR: corefile not loaded"
+
+    gdb.sendline("backtrace")
+    prompt = gdb.expect(["\\(gdb\\)", pexpect.TIMEOUT, pexpect.EOF], timeout=60)
+    if prompt != 0:
+        return "ERROR: backtrace did not finish"
+    backtrace = gdb.before
+
+    gdb.sendline("quit")
+    prompt = gdb.expect([pexpect.TIMEOUT, pexpect.EOF], timeout=5)
+
+    return backtrace
 
 
 def check_core_dumps(context):
-    subprocess.call(
-        "cd contrib/dracut/; . ./setup.sh; "
-        "mount $DEV_DUMPS $TESTDIR/client_dumps; ",
-        shell=True)
+    """
+    return True if unexpected crash happened, False otherwise
+    """
 
     backtraces = ""
-    dumps = []
-
+    crash_test = False
+    other_crash = False
     for filename in os.listdir("/var/dracut_test/client_dumps/"):
         if filename.startswith("dump_"):
-            backtraces += filename.replace("dump_", "", 1) + ":\n" \
-                + get_backtrace(filename) + "\n\n"
-            dumps.append((get_dump(filename), filename))
+            if filename == "dump_dracut_crash_test":
+                crash_test = True
+            else:
+                other_crash = True
+            backtraces += filename + ":\n" \
+                + get_backtrace(context, filename) + "\n\n"
+            nmci.lib.embed_file_if_exists(
+                context,
+                "/var/dracut_test/client_dumps/" + filename,
+                mime_type="link",
+                caption="Dracut Crash Dump"
+            )
 
-    subprocess.call(
+    if crash_test or other_crash:
+        context.embed("text/plain", backtraces, caption="Dracut Backtraces")
+
+    # return True (crash not OK) if the is crash other than dracut_crash_test,
+    # or crash_test and context.dracut_crash_test differ
+    return other_crash or (crash_test != getattr(context, "dracut_crash_test", False))
+
+
+def prepare_checks(checks):
+    nmci.run(
         "cd contrib/dracut/; . ./setup.sh; "
-        "rm -f $TESTDIR/client_dumps/dump_*; "
-        "umount $DEV_DUMPS; ",
-        shell=True)
-
-    if backtraces:
-        context.embed("text/plain", backtraces, caption="CRASH_IN_INITRD_BACKTRACE")
-        context.embed("link", dumps, caption="CRASH_IN_INITRD_DUMP")
-        return False
-    else:
-        return True
-
-
-class QemuStopper:
-
-    def __init__(self, proc):
-        self.proc = proc
-        signal.signal(signal.SIGTERM, self.stop_qemu)
-        signal.signal(signal.SIGINT, self.stop_qemu)
-
-    def stop_qemu(self, sig, frame):
-        # first stop shell script to prevent qemu-kvm restart
-        if self.proc.pid:
-            os.killpg(self.proc.pid, signal.SIGTERM)
-        # stop qemu-kvm
-        subprocess.call("cd contrib/dracut/; . ./setup.sh; stop_qemu;", shell=True)
-        assert False, "killed externally (timeout) - called stop_qemu hook"
+        "mount $DEV_CHECK $TESTDIR/client_check/; "
+        "rm -rf $TESTDIR/client_check/*; "
+        "cp ./check_lib/*.sh $TESTDIR/client_check/; "
+    )
+    with open("/var/dracut_test/client_check/client_check.sh", "w") as f:
+        f.write("client_check() {\n" + checks + "}")
+    nmci.run("cd contrib/dracut/; . ./setup.sh; umount $DEV_CHECK")
 
 
 @step(u'Run dracut test')
@@ -102,9 +115,6 @@ def dracut_run(context):
     checks = ""
     timeout = "8m"
     ram = "1200"
-    log_contains = []
-    log_not_contains = []
-    test_type = "nfs"
     for row in context.table:
         if "qemu" in row[0].lower():
             qemu_args += row[1].split(" ")
@@ -114,84 +124,43 @@ def dracut_run(context):
             initrd = row[1]
         elif "check" in row[0].lower():
             checks += row[1] + " || die '" + '"' + row[1] + '"' + " failed'\n"
-        elif "log+" in row[0].lower():
-            log_contains.append(row[1])
-        elif "log-" in row[0].lower():
-            log_not_contains.append(row[1])
-        elif "type" in row[0].lower():
-            test_type = row[1]
+            if "dracut_crash_test" in row[1]:
+                context.dracut_crash_test = True
         elif "timeout" in row[0].lower():
             timeout = row[1]
         elif "ram" in row[0].lower():
             ram = row[1]
 
-    subprocess.call(
-        "cd contrib/dracut/; . ./setup.sh; "
-        "mount $DEV_CHECK $TESTDIR/client_check/; "
-        "rm -rf $TESTDIR/client_check/*; "
-        "cp ./check_lib/*.sh $TESTDIR/client_check/; ",
-        shell=True
-    )
-    with open("/var/dracut_test/client_check/client_check.sh", "w") as f:
-        f.write("client_check() {\n" + checks + "}")
-    subprocess.call("cd contrib/dracut/; . ./setup.sh; umount $DEV_CHECK", shell=True)
+    prepare_checks(checks)
 
-    env = dict(os.environ)
-    env["RAM"] = ram
-    env["TIMEOUT"] = timeout
-    with open("/tmp/dracut_boot.log", "wb") as boot_log_f:
-        proc = subprocess.Popen([
-            "./run-qemu",
+    os.environ["RAM"] = ram
+    os.environ["TIMEOUT"] = timeout
+
+    if timeout.endswith("m"):
+        p_timeout = int(timeout.strip("m")) * 60 + 10
+    else:
+        p_timeout = int(timeout) + 10
+
+    proc = context.pexpect_spawn(
+        os.getcwd() + "/contrib/dracut/run-qemu",
+        [
             *qemu_args,
             "-append", kernel_args,
             "-initrd", "$TESTDIR/"+initrd,
-            ],
-            env=env,
-            cwd="./contrib/dracut/",
-            stdout=boot_log_f,
-            stderr=subprocess.STDOUT,
-            preexec_fn=os.setsid)
-        QemuStopper(proc)
-        proc.wait()
-        rc = proc.returncode
+        ],
+        cwd="./contrib/dracut/",
+        timeout=p_timeout)
+    res = proc.expect([pexpect.EOF, pexpect.TIMEOUT])
+    proc.kill(9)
+    rc = proc.exitstatus
 
     with open("/var/dracut_test/client_state.img", "br") as f:
         result = f.read(4).decode("utf-8")
 
-    if not result.startswith("NO"):
-        logs = {}
-        logs["DRACUT_TEST"] = "-u testsuite"
-        if "PASS" not in result:
-            logs["DRACUT_NM"] = "-u NetworkManager -o cat"
-        log_cmd = " ".join(["/tmp/%s.log '%s'" % (x, logs[x]) for x in logs])
-        log_cmd = "bash contrib/dracut/get_log.sh " + test_type + " " + log_cmd
-        proc = subprocess.run(log_cmd, shell=True, stdout=subprocess.PIPE, encoding="utf-8")
+    context.dracut_boot = not result.startswith("NO")
 
-        if proc.returncode != 0:
-            msg = "Error during log collection\nretcode:%d\noutput:%s" \
-                % (proc.returncode, str(proc.stdout))
-            context.embed("text/plain", msg, "DRACUT_LOGS_ERROR")
-        else:
-            for log in logs:
-                log_f = "/tmp/" + log + ".log"
-                if os.path.isfile(log_f):
-                    context.embed("text/plain", utf_only_open_read(log_f) + "\n", log)
-                    subprocess.call("rm -rf " + log_f, shell=True)
-                else:
-                    msg = "Error: log file '" + log_f + "' was not created for some reason"
-                    context.embed("text/plain", msg, log)
-        if proc.stdout is not None:
-            context.embed("text/plain", proc.stdout, "DRACUT_LOG_COLLECTOR")
+    embed_dracut_logs(context)
 
-    assert check_core_dumps(context), "Crash in initrd"
-
+    assert res == 0, "pexpect.TIMEOUT should not happen! (raise offset?)"
     assert rc == 0, f"Test run FAILED, VM returncode: {rc}, VM result: {result}"
     assert "PASS" in result, f"Test FAILED, VM result: {result}"
-
-    assert "no free leases" not in get_dhcpd_log(context.log_cursor), "DHCPD leases exhausted"
-
-    boot_log = utf_only_open_read("/tmp/dracut_boot.log")
-    for log_line in log_contains:
-        assert log_line in boot_log, "Fail: not visible in log:\n" + log_line
-    for log_line in log_not_contains:
-        assert log_line not in boot_log, "Fail: visible in log:\n" + log_line

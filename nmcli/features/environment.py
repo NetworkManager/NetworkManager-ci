@@ -4,6 +4,10 @@ import sys
 import time
 import signal
 import traceback
+import pexpect
+import subprocess
+
+import xml.etree.ElementTree as ET
 
 import nmci
 import nmci.lib
@@ -12,6 +16,7 @@ import nmci.tags
 TIMER = 0.5
 
 IS_NMTUI = 'nmtui' in __file__
+DEBUG = os.environ.get("NMCI_DEBUG", "").lower() not in ["", "n", "no", "f", "false", "0"]
 
 # the order of these steps is as follows
 # 1. before scenario
@@ -30,62 +35,86 @@ def before_all(context):
 
     context.no_step = True
 
-    def embed_data(mime_type, data, caption):
-        # If data is empty we want to finish html tag by at least one character
-        non_empty_data = " " if not data else data
-        if context.no_step:
-            print(f"Embed in before_scenario ({mime_type}):\n== {caption} ==\n\n{data}\n\n")
-        for formatter in context._runner.formatters:
-            if "html" in formatter.name and getattr(formatter, "embedding", None) is not None:
-                formatter.embedding(mime_type=mime_type, data=non_empty_data, caption=caption)
-                return True
-        return False
-
-    def _set_title(title, append=False, tag="span", **kwargs):
-        for formatter in context._runner.formatters:
-            if "html" in formatter.name and getattr(formatter, "set_title", None) is not None:
-                formatter.set_title(title=title, append=append, tag=tag, **kwargs)
-                return True
-        return False
+    # setup formatter embed and set_title
+    for formatter in context._runner.formatters:
+        if "html" in formatter.name:
+            if getattr(formatter, "set_title", None) is not None:
+                context.set_title = formatter.set_title
+            if getattr(formatter, "embedding", None) is not None:
+                def embed(formatter, context):
+                    def fn(mime_type, data, caption, html_el=None, fail_only=False):
+                        data = data or " "
+                        if html_el is None:
+                            html_el = formatter.actual["act_step_embed_span"]
+                        if mime_type == "call" or fail_only:
+                            context._to_embed.append({
+                                "html_el": html_el,
+                                "mime_type": mime_type,
+                                "data": data,
+                                "caption": caption,
+                                "fail_only": fail_only,
+                                })
+                        else:
+                            formatter._doEmbed(html_el, mime_type, data, caption)
+                            ET.SubElement(html_el, "br")
+                    return fn
+                embed_fn = embed(formatter, context)
+                formatter.embedding = embed_fn
+                context.embed = embed_fn
+                context.html_formatter = formatter
 
     def _run(command, *a, **kw):
         out, err, code = nmci.run(command, *a, **kw)
-        command_calls = getattr(context, "command_calls", [])
-        command_calls.append((command, code, out, err))
-        context.command_calls = command_calls
+        context._command_calls.append((command, code, out, err))
         return out, err, code
 
     def _command_output(command, *a, **kw):
-        out, err, code = nmci.run(command, *a, **kw)
-        assert code == 0, "command '%s' exited with code %d\noutput:\n%s\nstderr:\n%s" \
+        out, err, code = _run(command, *a, **kw)
+        assert code == 0, "command '%s' exited with code %d" \
             % (command, code, out, err)
-        command_calls = getattr(context, "command_calls", [])
-        command_calls.append((command, code, out, err))
-        context.command_calls = command_calls
         return out
 
     def _command_output_err(command, *a, **kw):
-        out, err, code = nmci.run(command, *a, **kw)
-        assert code == 0, "command '%s' exited with code %d\noutput:\n%s\nstderr:\n%s" \
+        out, err, code = _run(command, *a, **kw)
+        assert code == 0, "command '%s' exited with code %d" \
             % (command, code, out, err)
-        command_calls = getattr(context, "command_calls", [])
-        command_calls.append((command, code, out, err))
-        context.command_calls = command_calls
         return out, err
 
     def _command_code(command, *a, **kw):
-        out, err, code = nmci.run(command, *a, **kw)
-        command_calls = getattr(context, "command_calls", [])
-        command_calls.append((command, code, out, err))
-        context.command_calls = command_calls
+        out, err, code = _run(command, *a, **kw)
         return code
 
-    context.embed = embed_data
-    context.set_title = _set_title
+    def _pexpect_spawn(*a, encoding="utf-8", logfile=None, **kw):
+        if logfile is None:
+            logfile = open("/tmp/expect.log."+str(context._log_index), "w")
+            context._log_index += 1
+        proc = pexpect.spawn(*a, **kw, logfile=logfile, encoding=encoding)
+        context._expect_procs.append((proc, logfile))
+        return proc
+
+    def _pexpect_service(*a, encoding="utf-8", logfile=None, **kw):
+        if logfile is None:
+            logfile = open("/tmp/expect_service.log."+str(context._log_index), "w")
+            context._log_index += 1
+        proc = pexpect.spawn(*a, **kw, logfile=logfile, encoding=encoding)
+        context._expect_services.append((proc, logfile))
+        return proc
+
+    context._to_embed = []
     context.command_code = _command_code
     context.run = _run
     context.command_output = _command_output
     context.command_output_err = _command_output_err
+    # pexpect_spawn commands are killed after step (if survives)
+    context.pexpect_spawn = _pexpect_spawn
+    # pexpect_spawn commands are killed at the end of the test
+    context.pexpect_service = _pexpect_service
+    context._command_calls = []
+    context._expect_procs = []
+    context._expect_services = []
+    context._log_index = 0
+
+    context.crash_embeded = False
 
     if IS_NMTUI:
         """
@@ -99,9 +128,13 @@ def before_all(context):
         context.log_cursor = nmci.lib.new_log_cursor()
 
 
-
 def before_scenario(context, scenario):
     # set important context attributes
+    context.before_scenario_step_el = ET.Element("li", {"class": "step passed"})
+    ET.SubElement(context.before_scenario_step_el, "b").text = "Before scenario"
+    embed_el = ET.SubElement(context.before_scenario_step_el, "div")
+    context.html_formatter.actual["act_step_embed_span"] = embed_el
+
     context.nm_restarted = False
     context.nm_pid = nmci.lib.nm_pid()
     context.crashed_step = False
@@ -116,11 +149,10 @@ def before_scenario(context, scenario):
         if os.path.isfile('/tmp/tui-screen.log'):
             os.remove('/tmp/tui-screen.log')
         fd = open('/tmp/tui-screen.log', 'a+')
-        nmci.lib.dump_status_nmtui(fd, 'before')
+        nmci.lib.dump_status_nmtui(context, 'before', fail_only=True)
         fd.write('Screen recordings after each step:' + '\n----------------------------------\n')
         fd.flush()
         fd.close()
-        context.log = None
     else:
         if not os.path.isfile('/tmp/nm_wifi_configured') \
                 and not os.path.isfile('/tmp/nm_dcb_inf_wol_sriov_configured'):
@@ -133,10 +165,9 @@ def before_scenario(context, scenario):
                     time.sleep(1)
 
         os.environ['TERM'] = 'dumb'
-        context.log = open('/tmp/log_%s.html' % scenario.name, 'w')
 
         # dump status before the test preparation starts
-        nmci.lib.dump_status_nmcli(context, 'before %s' % scenario.name)
+        nmci.lib.dump_status_nmcli(context, 'Before Scenario', fail_only=True)
         context.start_timestamp = int(time.time())
 
     excepts = []
@@ -158,7 +189,6 @@ def before_scenario(context, scenario):
                 tag.before_scenario(context, scenario)
             except Exception:
                 excepts.append(traceback.format_exc())
-    assert not excepts, "Exceptions in before_scenario():\n" + "\n\n".join(excepts)
 
     context.nm_pid = nmci.lib.nm_pid()
 
@@ -166,17 +196,14 @@ def before_scenario(context, scenario):
 
     print(("NetworkManager process id before: %s" % context.nm_pid))
 
-    if context.nm_pid is not None and context.log is not None:
-        context.log.write(
-            "NetworkManager memory consumption before: %d KiB\n" % nmci.lib.nm_size_kb())
-        if os.path.isfile("/etc/systemd/system/NetworkManager.service") \
-                and nmci.command_code(
-                    "grep -q valgrind /etc/systemd/system/NetworkManager.service") == 0:
-            nmci.run("LOGNAME=root HOSTNAME=localhost gdb /usr/sbin/NetworkManager "
-                         " -ex 'target remote | vgdb' -ex 'monitor leak_check summary' -batch",
-                         stdout=context.log, stderr=context.log)
-
     context.log_cursor = nmci.lib.new_log_cursor()
+
+    nmci.lib.process_commands(context, "before_scenario")
+
+    if excepts:
+        context.before_scenario_step_el.set("class", "step failed")
+        context.embed("text/plain", "\n\n".join(excepts), "Exception in before scenario tags")
+        assert False, "Exception in before scenario tags"
 
 
 def after_step(context, step):
@@ -199,12 +226,9 @@ def after_step(context, step):
         print("Omitting the test as device supports 802.11a")
         sys.exit(77)
 
-    command_calls = getattr(context, "command_calls", [])
-    # array of 4-tuples: (command, code, stdout, stderr)
-    if command_calls and step.status == "failed":
-        message = "\n\n".join(["'%s' returned %d:\nSTDOUT:\n%s\nSTDERR:\n%s\n" % call
-                               for call in command_calls])
-        context.embed("text/plain", message, caption="COMMANDS")
+    nmci.lib.process_commands(context, "")
+
+    context._command_calls = []
 
     if IS_NMTUI:
         """Teardown after each step.
@@ -238,18 +262,17 @@ def after_step(context, step):
 
 
 def after_scenario(context, scenario):
+    context.after_scenario_step_el = ET.Element("li", {"class": "step passed"})
+    ET.SubElement(context.after_scenario_step_el, "b").text = "After scenario"
+    embed_el = ET.SubElement(context.after_scenario_step_el, "div")
+    context.html_formatter.actual["act_step_embed_span"] = embed_el
+
     nm_pid_after = nmci.lib.nm_pid()
     if not nm_pid_after:
         print("Starting NM as it was found stopped")
-        nmci.lib.restart_NM_service()
+        nmci.lib.restart_NM_service(context)
 
     if IS_NMTUI:
-        # record the network status after the test
-        if os.path.isfile('/tmp/tui-screen.log'):
-            fd = open('/tmp/tui-screen.log', 'a+')
-            nmci.lib.dump_status_nmtui(fd, 'after')
-            fd.flush()
-            fd.close()
         if os.path.isfile('/tmp/tui-screen.log'):
             context.embed("text/plain",
                           nmci.lib.utf_only_open_read('/tmp/tui-screen.log'),
@@ -257,15 +280,11 @@ def after_scenario(context, scenario):
         # Stop TUI
         nmci.run("sudo killall nmtui &> /dev/null")
         os.remove('/tmp/nmtui.out')
-        # Attach journalctl logs if failed
-        if scenario.status == 'failed' and hasattr(context, "embed"):
-            logs = nmci.lib.NM_log(context.log_cursor) or "NM log is empty!"
-            context.embed('text/plain', logs, caption="NM")
-    else:
-        print(("NetworkManager process id after: %s (was %s)" % (nm_pid_after, context.nm_pid)))
 
-        if scenario.status == 'failed':
-            nmci.lib.dump_status_nmcli(context, 'after %s' % scenario.name)
+    print(("NetworkManager process id after: %s (was %s)" % (nm_pid_after, context.nm_pid)))
+
+    if scenario.status == 'failed' or DEBUG:
+        nmci.lib.dump_status_nmcli(context, 'After Scenario', fail_only=True)
 
     # run after_scenario tags (in reverse order)
     excepts = []
@@ -280,50 +299,62 @@ def after_scenario(context, scenario):
             except Exception:
                 excepts.append(traceback.format_exc())
 
-    if not IS_NMTUI:
-        # check for crash reports and embed them
-        # sets crash_embeded and crashed_step, if crash found
+    # check for crash reports and embed them
+    # sets crash_embeded and crashed_step, if crash found
+    nmci.lib.check_coredump(context, 'no_abrt' not in scenario.tags)
+    nmci.lib.check_faf(context, 'no_abrt' not in scenario.tags)
 
-        nmci.lib.check_coredump(context, 'no_abrt' not in scenario.tags)
-        nmci.lib.check_faf(context, 'no_abrt' not in scenario.tags)
+    nmci.lib.process_commands(context, "after_scenario")
 
-        if scenario.status == 'failed' or context.crashed_step:
-            nmci.lib.dump_status_nmcli(context, 'after cleanup %s' % scenario.name)
+    scenario_fail = scenario.status == 'failed' or context.crashed_step or DEBUG or len(excepts) > 0
 
-            # Attach journalctl logs
-            print("Attaching NM log")
-            log = "~~~~~~~~~~~~~~~~~~~~~~~~~~ NM LOG ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n"
-            log += nmci.lib.NM_log(context.log_cursor)[:20000001] or "NM log is empty!"
-            context.embed('text/plain', log, caption="NM")
+    # Attach postponed or "fail_only" embeds
+    # !!! all embed calls with "fail_only" after this are ignored !!!
+    for kwargs in getattr(context, "_to_embed", []):
+        # skip "fail_only" when scenario passed
+        if not scenario_fail and kwargs["fail_only"]:
+            continue
+        # reset "fail_only" to prevent loop
+        kwargs["fail_only"] = False
+        # execute postponed "call"s
+        if kwargs["mime_type"] == "call":
+            # "data" is function, "caption" is args, function returns triple
+            mime_type, data, caption = kwargs["data"](*kwargs["caption"])
+            kwargs["mime_type"], kwargs["data"], kwargs["caption"] = mime_type, data, caption
+        context.embed(**kwargs)
 
-        if nm_pid_after is not None and context.nm_pid == nm_pid_after:
-            context.log.write(
-                "NetworkManager memory consumption after: %d KiB\n" % nmci.lib.nm_size_kb())
-            if os.path.isfile("/etc/systemd/system/NetworkManager.service") \
-                    and nmci.command_code(
-                        "grep -q valgrind /etc/systemd/system/NetworkManager.service") == 0:
-                time.sleep(3)
-                nmci.run(
-                    "LOGNAME=root HOSTNAME=localhost gdb /usr/sbin/NetworkManager "
-                    " -ex 'target remote | vgdb' -ex 'monitor leak_check summary' -batch",
-                    stdout=context.log, stderr=context.log)
+    # if there is some embed in before_scenario, prepend cached step element
+    if len(context.before_scenario_step_el.getchildren()[1].getchildren()):
+        context.html_formatter.steps.insert(0, context.before_scenario_step_el)
 
-        context.log.close()
-        print("Attaching MAIN log")
-        log = nmci.lib.utf_only_open_read("/tmp/log_%s.html" % scenario.name)
-        context.embed('text/plain', log, caption="MAIN")
+    nmci.lib.dump_status_nmcli(context, 'After Clean', fail_only=False)
 
-        if context.crashed_step:
-            print("\n\n" + ("!"*80))
-            print("!! NM CRASHED. NEEDS INSPECTION. FAILING THE TEST                      !!")
-            print("!!  %-74s !!" % ("CRASHING STEP: " + context.crashed_step))
-            print(("!"*80) + "\n\n")
-            context.embed('text/plain', context.crashed_step, caption="CRASHED_STEP_NAME")
-            if not context.crash_embeded:
-                msg = "!!! no crash report detected, but NM PID changed !!!"
-                context.embed('text/plain', msg, caption="NO_COREDUMP/NO_FAF")
+    if scenario_fail:
+        # Attach journalctl logs
+        print("Attaching NM log")
+        log = "~~~~~~~~~~~~~~~~~~~~~~~~~~ NM LOG ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n"
+        log += nmci.lib.NM_log(context.log_cursor)[:20000001] or "NM log is empty!"
+        context.embed('text/plain', log, caption="NM")
 
-        assert not excepts, "Exceptions in after_scenario(): \n " + "\n\n".join(excepts)
+    if context.crashed_step:
+        print("\n\n" + ("!"*80))
+        print("!! NM CRASHED. NEEDS INSPECTION. FAILING THE TEST                      !!")
+        print("!!  %-74s !!" % ("CRASHING STEP: " + context.crashed_step))
+        print(("!"*80) + "\n\n")
+        context.embed('text/plain', context.crashed_step, caption="CRASHED_STEP_NAME")
+        if not context.crash_embeded:
+            msg = "!!! no crash report detected, but NM PID changed !!!"
+            context.embed('text/plain', msg, caption="NO_COREDUMP/NO_FAF")
+
+    if excepts:
+        context.after_scenario_step_el.set("class", "step failed")
+        context.embed("text/plain", "\n\n".join(excepts), "Exception in after scenario tags")
+
+    # if there is some embed in after_scenario, append cached step element
+    if len(context.after_scenario_step_el.getchildren()[1].getchildren()):
+        context.html_formatter.steps.append(context.after_scenario_step_el)
+
+    assert not excepts, "Exception in after scenario tags"
 
 
 def after_tag(context, tag):

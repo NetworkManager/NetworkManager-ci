@@ -36,7 +36,7 @@ def command_code(command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.
     return code
 
 
-def Popen(command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT,
+def Popen(command, shell=True, stdin=subprocess.DEVNULL, stdout=subprocess.PIPE, stderr=subprocess.STDOUT,
           encoding="utf-8", errors="ignore", *a, **kw):
-    return subprocess.Popen(command, *a, shell=shell, stdout=stdout, stderr=stderr,
-                            encoding=encoding, errors=errors ,**kw)
+    return subprocess.Popen(command, *a, shell=shell, stdin=stdin, stdout=stdout, stderr=stderr,
+                            encoding=encoding, errors=errors, **kw)

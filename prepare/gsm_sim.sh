@@ -36,7 +36,7 @@ function modem_teardown ()
 }
 
 if [ "$1" != "teardown" ]; then
-    modem_setup $1
+    modem_setup $1 2&>1 >> /tmp/gsm_sim.log
 else
     modem_teardown
 fi

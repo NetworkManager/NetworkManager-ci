@@ -1,28 +1,25 @@
-import os
 import pexpect
-import re
 import subprocess
 import time
 from behave import step
 
-import nmci_step
 import nmci.misc
 
 
 @step(u'{action} all "{what}" devices')
 def do_device_stuff(context, action, what):
-    nmci_step.command_code(context, "for dev in $(nmcli device status | grep '%s' | awk {'print $1'}); do nmcli device %s $dev; done" % (what, action))
+    context.command_code("for dev in $(nmcli device status | grep '%s' | awk {'print $1'}); do nmcli device %s $dev; done" % (what, action))
 
 
 @step(u'Add a secondary address to device "{device}" within the same subnet')
 def add_secondary_addr_same_subnet(context, device):
     from netaddr import IPNetwork
-    primary_ipn = IPNetwork(nmci_step.command_output(context, "ip -4 a s %s | awk '/inet .*dynamic/ {print $2}'" % device))
+    primary_ipn = IPNetwork(context.command_output("ip -4 a s %s | awk '/inet .*dynamic/ {print $2}'" % device))
     if str(primary_ipn.ip).split('.')[2] == str(primary_ipn.ip+1).split('.')[2]:
         secondary_ip = primary_ipn.ip+1
     else:
         secondary_ip = primary_ipn.ip-1
-    assert nmci_step.command_code(context, 'ip addr add dev %s %s/%d' % (device, str(secondary_ip), primary_ipn.prefixlen)) == 0
+    assert context.command_code('ip addr add dev %s %s/%d' % (device, str(secondary_ip), primary_ipn.prefixlen)) == 0
 
 
 def dns_check(dns_plugin, device, kind, arg, has):
@@ -63,8 +60,8 @@ def dns_check(dns_plugin, device, kind, arg, has):
     except Exception as e:
         ex = e
 
-    raise AssertionError("DNS %s \"%s\" is unexpectedly %sset for device \"%s\" (plugin %s) (settings: %s) (exception: %s)" % (
-                         kind, arg, 'not ' if has else '', device, dns_plugin, info, ex))
+    assert False, "DNS %s \"%s\" is unexpectedly %sset for device \"%s\" (plugin %s) (settings: %s) (exception: %s)" % \
+        (kind, arg, 'not ' if has else '', device, dns_plugin, info, ex)
 
 
 @step(u'device "{device}" has DNS server "{dns}"')
@@ -97,9 +94,9 @@ def dns_check_default_route_has(context, device, what):
 
 @step(u'Create device "{dev}" in "{ns}" with address "{addr}"')
 def create_device_in_ns(context, dev, ns, addr):
-    nmci_step.command_code(context, 'ip -n %s link add %s type veth peer name %sp' % (ns, dev, dev))
-    nmci_step.command_code(context, "ip -n %s link set %s up" % (ns, dev))
-    nmci_step.command_code(context, "ip -n %s addr add %s dev %s" % (ns, addr, dev))
+    context.command_code('ip -n %s link add %s type veth peer name %sp' % (ns, dev, dev))
+    context.command_code("ip -n %s link set %s up" % (ns, dev))
+    context.command_code("ip -n %s addr add %s dev %s" % (ns, addr, dev))
 #    veth_to_delete = getattr(context, "veth_to_delete", [])
 #    veth_to_delete += [dev, dev+"p"]
 #    context.veth_to_delete = veth_to_delete
@@ -206,38 +203,32 @@ def compare_devices(context):
 
 @step(u'Connect device "{device}"')
 def connect_device(context, device):
-    cli = pexpect.spawn('nmcli device con %s' % device, timeout = 180, logfile=context.log, encoding='utf-8')
+    cli = context.pexpect_spawn('nmcli device con %s' % device, timeout=180)
     r = cli.expect(['Error', pexpect.TIMEOUT, pexpect.EOF])
-    if r == 0:
-        raise Exception('Got an Error while connecting a device %s\n%s%s' % (device, cli.after, cli.buffer))
-    elif r == 1:
-        raise Exception('nmcli device connect %s timed out (180s)' % device)
+    assert r != 0, 'Got an Error while connecting a device %s\n%s%s' % (device, cli.after, cli.buffer)
+    assert r != 1, 'nmcli device connect %s timed out (180s)' % device
 
 
 @step(u'Connect wifi device to "{network}" network')
 def connect_wifi_device(context, network):
-    cli = pexpect.spawn('nmcli device wifi connect "%s"' % network, timeout = 180, logfile=context.log, encoding='utf-8')
+    cli = context.pexpect_spawn('nmcli device wifi connect "%s"' % network, timeout=180)
     r = cli.expect(['Error', pexpect.TIMEOUT, pexpect.EOF])
-    if r == 0:
-        raise Exception('Got an Error while connecting to network %s\n%s%s' % (network, cli.after, cli.buffer))
-    elif r == 1:
-        raise Exception('nmcli device wifi connect ... timed out (180s)')
+    assert r != 0, 'Got an Error while connecting to network %s\n%s%s' % (network, cli.after, cli.buffer)
+    assert r != 1, 'nmcli device wifi connect ... timed out (180s)'
 
 
 @step(u'Connect wifi device to "{network}" network with options "{options}"')
 def connect_wifi_device_w_options(context, network, options):
-    cli = pexpect.spawn('nmcli device wifi connect "%s" %s' % (network, options), timeout = 180, logfile=context.log, encoding='utf-8')
+    cli = context.pexpect_spawn('nmcli device wifi connect "%s" %s' % (network, options), timeout=180)
     r = cli.expect(['Error', pexpect.TIMEOUT, pexpect.EOF])
-    if r == 0:
-        raise Exception('Got an Error while connecting to network %s\n%s%s' % (network, cli.after, cli.buffer))
-    elif r == 1:
-        raise Exception('nmcli device wifi connect ... timed out (180s)')
+    assert r != 0, 'Got an Error while connecting to network %s\n%s%s' % (network, cli.after, cli.buffer)
+    assert r != 1, 'nmcli device wifi connect ... timed out (180s)'
 
 
 @step(u'Note the "{prop}" property from ifconfig output for device "{device}"')
 def note_print_property(context, prop, device):
-    ifc = pexpect.spawn('ifconfig %s' % device, logfile=context.log, encoding='utf-8')
-    ifc.expect('%s\s(\S+)' % prop)
+    ifc = context.pexpect_spawn('ifconfig %s' % device)
+    ifc.expect('%s\\s(\\S+)' % prop)
     if not hasattr(context, 'noted'):
         context.noted = {}
     context.noted['noted-value'] = ifc.match.group(1)
@@ -247,24 +238,24 @@ def note_print_property(context, prop, device):
 def note_mac_address(context, device):
     if not hasattr(context, 'noted'):
         context.noted = {}
-    context.noted['noted-value'] = nmci_step.command_output(context, "ethtool -P %s |grep -o -E '([[:xdigit:]]{1,2}:){5}[[:xdigit:]]{1,2}'" % device).strip()
+    context.noted['noted-value'] = context.command_output("ethtool -P %s |grep -o -E '([[:xdigit:]]{1,2}:){5}[[:xdigit:]]{1,2}'" % device).strip()
 
 
 @step(u'Note MAC address output for device "{device}" via ip command as "{index}"')
 @step(u'Note MAC address output for device "{device}" via ip command')
 def note_mac_address_ip(context, device, index=None):
-    if subprocess.call("ip a s %s |grep -q ether" %device, shell=True) == 0:
-        mac = nmci_step.command_output(context, "ip link show %s | grep 'link/ether' | awk '{print $2}'" % device).strip()
-    if subprocess.call("ip a s %s |grep -q infiniband" %device, shell=True) == 0:
-        ip_out = nmci_step.command_output(context, "ip link show %s | grep 'link/inf' | awk '{print $2}'" % device).strip()
+    if context.command_code("ip a s %s |grep -q ether" % device, shell=True) == 0:
+        mac = context.command_output("ip link show %s | grep 'link/ether' | awk '{print $2}'" % device).strip()
+    if subprocess.call("ip a s %s |grep -q infiniband" % device, shell=True) == 0:
+        ip_out = context.command_output("ip link show %s | grep 'link/inf' | awk '{print $2}'" % device).strip()
         mac = ip_out.split()[-1]
         client_id = ""
         mac_split = mac.split(":")[-8:]
         for i in mac_split:
             if i == mac_split[-1]:
-                client_id+=i
+                client_id += i
             else:
-                client_id+=i+":"
+                client_id += i + ":"
 
         mac = client_id
 
@@ -276,16 +267,16 @@ def note_mac_address_ip(context, device, index=None):
         if not hasattr(context, 'noted'):
             context.noted = {}
         context.noted['noted-value'] = mac
-    print (mac)
+    print(mac)
 
 
 @step(u'Global temporary ip is not based on mac of device "{dev}"')
 def global_tem_address_check(context, dev):
-    cmd = "ip a s %s" %dev
+    cmd = "ip a s %s" % dev
     mac = ""
     temp_ipv6 = ""
     ipv6 = ""
-    for line in nmci_step.command_output(context,cmd).split('\n'):
+    for line in context.command_output(cmd).split('\n'):
         if line.find('brd ff:ff:ff:ff:ff:ff') != -1:
             mac = line.split()[1]
         if line.find('scope global temporary dynamic') != -1:
@@ -316,31 +307,27 @@ def check_ifaces_in_state(context, exclude_ifaces, iface_state):
 
 @step(u'Disconnect device "{name}"')
 def disconnect_connection(context, name):
-    cli = pexpect.spawn('nmcli device disconnect %s' % name, logfile=context.log,  timeout=180, encoding='utf-8')
+    cli = context.pexpect_spawn('nmcli device disconnect %s' % name)
 
     r = cli.expect(['Error', pexpect.TIMEOUT, pexpect.EOF])
-    if r == 0:
-        raise Exception('Got an Error while disconnecting device %s\n%s%s' % (name, cli.after, cli.buffer))
-    elif r == 1:
-        raise Exception('nmcli disconnect %s timed out (180s)' % name)
+    assert r != 0, 'Got an Error while disconnecting device %s\n%s%s' % (name, cli.after, cli.buffer)
+    assert r != 1, 'nmcli disconnect %s timed out (180s)' % name
 
 
 @step(u'Delete device "{device}"')
 def delete_device(context, device):
-    cli = pexpect.spawn('nmcli device delete %s' % device, logfile=context.log,  timeout=180, encoding='utf-8')
+    cli = context.pexpect_spawn('nmcli device delete %s' % device)
 
     r = cli.expect(['Error', pexpect.TIMEOUT, pexpect.EOF])
-    if r == 0:
-        raise Exception('Got an Error while deleting device %s\n%s%s' % (device, cli.after, cli.buffer))
-    elif r == 1:
-        raise Exception('nmcli device delete %s timed out (180s)' % device)
+    assert r != 0, 'Got an Error while deleting device %s\n%s%s' % (device, cli.after, cli.buffer)
+    assert r != 1, 'nmcli device delete %s timed out (180s)' % device
 
 
 @step(u'Rename device "{old_device}" to "{new_device}"')
 def delete_device(context, old_device, new_device):
-    nmci_step.command_code(context, "ip link set dev %s down" % old_device)
-    nmci_step.command_code(context, "ip link set %s name %s" % (old_device, new_device))
-    nmci_step.command_code(context, "ip link set dev %s ip" % old_device)
+    context.command_code("ip link set dev %s down" % old_device)
+    context.command_code("ip link set %s name %s" % (old_device, new_device))
+    context.command_code("ip link set dev %s ip" % old_device)
 
 
 @step(u'vxlan device "{dev}" check for parent "{parent}"')
@@ -350,7 +337,6 @@ def vxlan_device_check(context, dev, parent):
     bus = dbus.SystemBus()
     proxy = bus.get_object("org.freedesktop.NetworkManager", "/org/freedesktop/NetworkManager")
     manager = dbus.Interface(proxy, "org.freedesktop.NetworkManager")
-
 
     devices = manager.GetDevices()
     assert devices, "Failed to find any vxlan interface"
@@ -375,6 +361,7 @@ def vxlan_device_check(context, dev, parent):
 
         assert parent_props['Interface'] == parent, "bad parent '%s'" % parent_props['Interface']
 
+
 @step(u'vxlan device "{dev}" check for ports "{dst_port}, {src_min}, {src_max}"')
 def vxlan_device_check_ports(context, dev, dst_port, src_min, src_max):
     import dbus, sys
@@ -382,7 +369,6 @@ def vxlan_device_check_ports(context, dev, dst_port, src_min, src_max):
     bus = dbus.SystemBus()
     proxy = bus.get_object("org.freedesktop.NetworkManager", "/org/freedesktop/NetworkManager")
     manager = dbus.Interface(proxy, "org.freedesktop.NetworkManager")
-
 
     devices = manager.GetDevices()
     assert devices, "Failed to find any vxlan interface"
@@ -422,8 +408,7 @@ def snapshot_action(context, action, devices, timeout=0, device=None):
             if iface == device:
                 dpath = d
                 return manager, dpath
-        if not dpath or not len(dpath):
-            raise Exception("NetworkManager knows nothing about %s" % device)
+        assert dpath and len(dpath), "NetworkManager knows nothing about %s" % device
 
     if not hasattr(context, 'checkpoints'):
         context.checkpoints = {}
@@ -441,22 +426,22 @@ def snapshot_action(context, action, devices, timeout=0, device=None):
             dpaths.append(dpath)
 
     if action == "create":
-        print ("Create checkpoint for device(s) %s" % devices)
+        print("Create checkpoint for device(s) %s" % devices)
         context.checkpoints[devices] = manager.CheckpointCreate(dpaths,
                                       int(timeout),   # no rollback
                                       1)  # DESTROY_ALL
     if action == "revert":
-        print ("Rollback checkpoint for device(s) %s" % devices)
+        print("Rollback checkpoint for device(s) %s" % devices)
         results = manager.CheckpointRollback(context.checkpoints[devices])
         for d in results:
-            print ("  - device %s: result %u" % (d, results[d]))
+            print("  - device %s: result %u" % (d, results[d]))
 
     if action == "delete":
-        print ("Destroy checkpoint for device(s) %s" % devices)
+        print("Destroy checkpoint for device(s) %s" % devices)
         manager.CheckpointDestroy(context.checkpoints[devices])
 
     if action == "does contain" or action == "does not contain":
-        print ("Checking that device %s is %s in checkpoint for device(s) %s" % (device, action, devices))
+        print("Checking that device %s is %s in checkpoint for device(s) %s" % (device, action, devices))
         if device != "last":
             manager, dpath = initialize_manager_for_device(device)
             context.checkpoints_last_device = dpath
@@ -495,7 +480,7 @@ def check_lldp_neighbours(context, property, device):
     # if index is empty, search every index of object on that level
     def check_obj(idx, obj, val, queue):
         # stop recursion, if queue is empty
-        if len(queue)==0:
+        if len(queue) == 0:
             val_obj = obj[idx]
             if val_obj != val:
                 bad_vals.append(str(val_obj))
@@ -550,8 +535,7 @@ def flag_cap_set(context, flag, n=None, device='wlan0', giveexception=True):
             if iface == device:
                 dpath = d
                 break
-        if not dpath or not len(dpath):
-            raise Exception("NetworkManager knows nothing about %s" % device)
+        assert dpath and len(dpath), "NetworkManager knows nothing about %s" % device
         return dpath
 
     wcaps = {}
@@ -579,20 +563,17 @@ def flag_cap_set(context, flag, n=None, device='wlan0', giveexception=True):
     if n is None:
         if wcaps[flag] & ret == wcaps[flag]:
             return True
-        elif giveexception:
-            raise AssertionError("The flag is unset! WirelessCapabilities: %d" % ret)
-        else:
-            return False
+        assert not giveexception, "The flag is unset! WirelessCapabilities: %d" % ret
+        return False
     else:
-        if wcaps[flag] & ret == wcaps[flag]:
-            raise AssertionError("The flag is set! WirelessCapabilities: %d" % ret)
+        assert wcaps[flag] & ret != wcaps[flag], "The flag is set! WirelessCapabilities: %d" % ret
 
 
 @step(u'Force renew IPv6 for "{device}"')
 def force_renew_ipv6(context, device):
-    mac = nmci_step.command_output(context, "ip a s %s |grep fe80 |awk '{print $2}'" % device).strip()
-    nmci_step.command_code(context, "ip -6 addr flush dev %s" % (device))
-    nmci_step.command_code(context, "ip addr add %s dev %s" % (mac, device))
+    mac = context.command_output("ip a s %s |grep fe80 |awk '{print $2}'" % device).strip()
+    context.command_code("ip -6 addr flush dev %s" % (device))
+    context.command_code("ip addr add %s dev %s" % (mac, device))
 
 
 @step(u'"{typ}" lifetimes are slightly smaller than "{valid_lft}" and "{pref_lft}" for device "{device}"')
@@ -605,8 +586,8 @@ def correct_lifetime(context, typ, valid_lft, pref_lft, device):
     valid_cmd = "ip a s '%s' |grep -A 1 -w '%s'| grep -A 1 -w 'scope global' |grep valid_lft |awk '{print $2}'" % (device, inet)
     pref_cmd  = "ip a s '%s' |grep -A 1 -w '%s'| grep -A 1 -w 'scope global' |grep valid_lft |awk '{print $4}'" % (device, inet)
 
-    valid = nmci_step.command_output(context, valid_cmd).split()[0]
-    pref = nmci_step.command_output(context, pref_cmd).split()[0]
+    valid = context.command_output(valid_cmd).split()[0]
+    pref = context.command_output(pref_cmd).split()[0]
 
     valid = valid.strip()
     valid = valid.replace('sec', '')
@@ -620,13 +601,12 @@ def correct_lifetime(context, typ, valid_lft, pref_lft, device):
 @step(u'Check ipv6 connectivity is stable on assuming connection profile "{profile}" for device "{device}"')
 def check_ipv6_connectivity_on_assumal(context, profile, device):
     context.nm_restarted = True
-    address = nmci_step.command_output(context, "ip -6 a s %s | grep dynamic | awk '{print $2; exit}' | cut -d '/' -f1" % device)
-    assert nmci_step.command_code(context, 'systemctl stop NetworkManager.service') == 0
-    assert nmci_step.command_code(context, "sed -i 's/UUID=/#UUID=/' /etc/sysconfig/network-scripts/ifcfg-%s" % profile)  == 0
-    ping = pexpect.spawn('ping6 %s -i 0.2 -c 50' % address, logfile=context.log, encoding='utf-8')
+    address = context.command_output("ip -6 a s %s | grep dynamic | awk '{print $2; exit}' | cut -d '/' -f1" % device)
+    assert context.command_code('systemctl stop NetworkManager.service') == 0
+    assert context.command_code("sed -i 's/UUID=/#UUID=/' /etc/sysconfig/network-scripts/ifcfg-%s" % profile)  == 0
+    ping = context.pexpect_spawn('ping6 %s -i 0.2 -c 50' % address)
     time.sleep(1)
-    assert nmci_step.command_code(context, 'systemctl start NetworkManager.service') == 0
+    assert context.command_code('systemctl start NetworkManager.service') == 0
     time.sleep(12)
     r = ping.expect(["0% packet loss", pexpect.EOF, pexpect.TIMEOUT])
-    if r != 0:
-        raise Exception('Had packet loss on pinging the address!')
+    assert r == 0, 'Had packet loss on pinging the address!'
