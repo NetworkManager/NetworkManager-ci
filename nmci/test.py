@@ -3,6 +3,7 @@
 import pytest
 import re
 import subprocess
+import sys
 import yaml
 
 from . import ip
@@ -528,6 +529,12 @@ def test_black_code_fromatting():
         )
     except FileNotFoundError:
         pytest.skip("python black is not available")
+
+    if proc.stdout:
+        sys.stdout.buffer.write(
+            b">>> `black -q --diff %s` failed:\n%s\n<<<\n"
+            % (" ".join(files).encode("utf-8"), proc.stdout)
+        )
 
     assert not proc.stderr
     assert not proc.stdout
