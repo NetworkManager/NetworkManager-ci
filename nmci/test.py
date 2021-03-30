@@ -526,6 +526,7 @@ def test_black_code_fromatting():
 
     files = [
         util.base_dir(),
+        util.base_dir("run/fedora-vagrant/nmtest"),
     ]
 
     try:
