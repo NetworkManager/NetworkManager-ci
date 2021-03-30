@@ -504,6 +504,9 @@ def test_feature_tags():
 
                 if is_mapper:
                     test_in_mapper = True
+                    assert (
+                        "fail" not in tag.lower()
+                    ), f'tag "{tag}" must not contain the substring "fail"'
 
                 if is_registry:
                     tag_registry_used.add(tag)

@@ -858,7 +858,7 @@ Feature: nmcli - general
 
     @rhbz1141264
     @tuntap
-    @preserve_failed_assumed_connections
+    @preserve_assumed_connections_on_error
     Scenario: NM - general - presume failed assumed connections
     * Execute "ip tuntap add tap0 mode tap"
     * Execute "ip link set dev tap0 up"
@@ -2262,7 +2262,7 @@ Feature: nmcli - general
     @rhbz1782642
     @ver+=1.22
     @dhclient_DHCP @manage_eth8 @eth8_disconnect @kill_dhclient_custom
-    @nmcli_general_unmanaged_device_dhclient_fail
+    @nmcli_general_unmanaged_device_dhclient_no_error
     Scenario: NM - general - dhclient should not fail on unmanaged device
     * Execute "nmcli device disconnect eth8 || true"
     * Execute "nmcli device set eth8 managed no"

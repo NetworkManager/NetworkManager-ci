@@ -1777,7 +1777,7 @@
     @rhbz1667874
     @ver+=1.19
     @bond
-    @bond_autoconnect_activation_fails_with_libnm
+    @bond_autoconnect_activation_error_with_libnm
     Scenario: NM - bond - bond activation fails with autoconnect true using libnm
     Then "Connection added\s+Connection activated" is visible with command "/usr/bin/python tmp/bond_add_activate.py" in "1" seconds
 

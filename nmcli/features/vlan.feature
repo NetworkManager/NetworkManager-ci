@@ -205,7 +205,7 @@ Feature: nmcli - vlan
 
     @rhbz1244048
     @vlan
-    @assertion_failure
+    @nmcli_edit_vlan_no_assert
     Scenario: nmcli - vlan - assertion failure
     * Add a new connection of type "vlan" and options "con-name eth7.99 autoconnect no ifname eth7.101 dev eth7 id 99"
     * Open editor for connection "eth7.99"

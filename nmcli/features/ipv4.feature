@@ -1117,7 +1117,7 @@ Feature: nmcli: ipv4
 
 
     @con_ipv4_remove
-    @ipv4_may-fail_yes
+    @ipv4_not_needed_yes
     Scenario: nmcli - ipv4 - may-fail - set true
     * Add a new connection of type "ethernet" and options "ifname eth3 con-name con_ipv4 autoconnect no ipv4.dhcp-client-id 1 ipv4.may-fail yes ipv6.method manual ipv6.addresses ::1"
     Then Bring "up" connection "con_ipv4"

@@ -204,7 +204,7 @@ ipv6_ignore-auto-dns_set
 ipv6_ignore-auto-dns_set-generic
 ipv6_method_link-local
 ipv6_method_ignored
-ipv6_may_fail_set_true
+ipv6_not_needed_set_true
 ipv6_never-default_set_true
 ipv6_never-default_remove
 ipv6_dhcp-hostname_set
@@ -306,7 +306,7 @@ ipv4_dhcp_client_id_set
 ipv4_dhcp_client_id_set_internal
 ipv4_dhcp_client_id_remove
 ipv4_set_very_long_dhcp_client_id
-ipv4_may-fail_yes
+ipv4_not_needed_yes
 ipv4_method_disabled
 ipv4_never-default_set
 ipv4_never-default_remove
@@ -356,7 +356,7 @@ vlan_change_id_with_no_interface_set
 vlan_describe_separately
 vlan_describe_all
 vlan_on_bridge
-assertion_failure
+nmcli_edit_vlan_no_assert
 vlan_not_duplicated
 vlan_not_stalled_after_connection_delete
 vlan_update_mac_from_bond
@@ -465,7 +465,7 @@ match_connections_when_no_var_run_exists
 ifcfg_respect_externally_set_mtu
 wpa_supplicant_not_started
 nmcli_general_dbus_set_gateway
-preserve_failed_assumed_connections
+preserve_assumed_connections_on_error
 connection_objects_autocompletion
 802_1x_objects_autocompletion
 insufficient_logging_perms

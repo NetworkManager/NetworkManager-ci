@@ -266,7 +266,7 @@ testmapper:
         feature: bond
     - bond_send_correct_arp:
         feature: bond
-    - bond_autoconnect_activation_fails_with_libnm:
+    - bond_autoconnect_activation_error_with_libnm:
         feature: bond
     - bond_normalize_connection:
         feature: bond
@@ -625,7 +625,7 @@ testmapper:
         feature: ipv6
     - ipv6_method_disabled:
         feature: ipv6
-    - ipv6_may_fail_set_true:
+    - ipv6_not_needed_set_true:
         feature: ipv6
         tags: gate
     - ipv6_never-default_set_true:
@@ -882,7 +882,7 @@ testmapper:
         feature: ipv4
     - ipv4_dhcp_client_id_default:
         feature: ipv4
-    - ipv4_may-fail_yes:
+    - ipv4_not_needed_yes:
         feature: ipv4
         tags: gate
     - ipv4_method_disabled:
@@ -1046,7 +1046,7 @@ testmapper:
     - vlan_on_bridge:
         feature: vlan
         tags: gate
-    - assertion_failure:
+    - nmcli_edit_vlan_no_assert:
         feature: vlan
     - vlan_over_bridge_over_team_over_nic:
         feature: vlan
@@ -1462,7 +1462,7 @@ testmapper:
         feature: general
     - nmcli_general_dbus_set_gateway:
         feature: general
-    - preserve_failed_assumed_connections:
+    - preserve_assumed_connections_on_error:
         feature: general
     - connection_objects_autocompletion:
         feature: general
@@ -1625,7 +1625,7 @@ testmapper:
         feature: general
     - libnm_update2_no_reapply:
         feature: general
-    - nmcli_general_unmanaged_device_dhclient_fail:
+    - nmcli_general_unmanaged_device_dhclient_no_error:
         feature: general
     - no_user_control:
         feature: general

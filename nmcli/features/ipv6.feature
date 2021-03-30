@@ -479,7 +479,7 @@
 
 
     @con_ipv6_remove
-    @ipv6_may_fail_set_true
+    @ipv6_not_needed_set_true
     Scenario: nmcli - ipv6 - may-fail - set true
      * Add a new connection of type "ethernet" and options "ifname eth3 con-name con_ipv6 autoconnect no ipv6.method dhcp ipv6.may-fail yes"
     Then Bring "up" connection "con_ipv6"

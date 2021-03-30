@@ -72,7 +72,7 @@ nmcli_ipv4_set_fqdn
 nmcli_ipv4_remove_fqdn
 ipv4_dhcp_client_id_set
 ipv4_dhcp_client_id_remove
-ipv4_may-fail_yes
+ipv4_not_needed_yes
 ipv4_method_disabled
 ipv4_never_default_restart_persistence
 ipv4_never-default_remove
@@ -88,7 +88,7 @@ ipv6_route_set_route_with_tables
 ipv6_correct_slaac_setting
 ipv6_dns_ignore-auto-dns_with_manually_set_dns
 ipv6_method_link-local
-ipv6_may_fail_set_true
+ipv6_not_needed_set_true
 ipv6_never-default_set_true
 ipv6_never-default_remove
 ipv6_dhcp-hostname_remove
