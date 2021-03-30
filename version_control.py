@@ -23,13 +23,16 @@ import nmci.misc
 
 # gather current system info (versions, pkg vs. build)
 if "NM_VERSION" in os.environ:
-    current_nm_version = os.environ["NM_VERSION"]
+    current_version_str = os.environ["NM_VERSION"]
 elif os.path.isfile("/tmp/nm_version_override"):
     with open("/tmp/nm_version_override") as f:
-        current_nm_version = f.read()
+        current_version_str = f.read()
 else:
-    current_nm_version = check_output(["NetworkManager", "-V"]).decode("utf-8")
-current_nm_version = [int(x) for x in current_nm_version.split("-")[0].split(".")]
+    current_version_str = check_output(["NetworkManager", "-V"]).decode("utf-8")
+
+(current_nm_stream, current_nm_version) = nmci.misc.nm_version_parse(
+    current_version_str
+)
 
 distro_version = [
     int(x)
@@ -43,12 +46,6 @@ if call(["grep", "-qi", "fedora", "/etc/redhat-release"]) == 0:
 else:
     current_rhel_version = distro_version
     current_fedora_version = None
-pkg_ver = (
-    check_output(["rpm", "--queryformat", "%{RELEASE}", "-q", "NetworkManager"])
-    .decode("utf-8")
-    .split(".")[0]
-)
-pkg = int(pkg_ver) < 200
 
 test_name = nmci.misc.test_name_normalize(sys.argv[2])
 
@@ -61,7 +58,7 @@ result = None
 
 
 def ver_param_to_str(
-    current_nm_version, current_rhel_version, current_fedora_version, pkg
+    current_nm_stream, current_nm_version, current_rhel_version, current_fedora_version
 ):
 
     current_nm_version = ".".join([str(c) for c in current_nm_version])
@@ -69,11 +66,11 @@ def ver_param_to_str(
         current_rhel_version = ".".join([str(c) for c in current_rhel_version])
     if current_fedora_version:
         current_fedora_version = ".".join([str(c) for c in current_fedora_version])
-    return "ver:%s%s%s, pkg:%s" % (
+    return "ver:%s, stream:%s%s%s" % (
         current_nm_version,
+        current_nm_stream,
         f", rhelver:{current_rhel_version}" if current_rhel_version else "",
         f", fedoraver:{current_fedora_version}" if current_fedora_version else "",
-        "pkg" if pkg else "upstream",
     )
 
 
@@ -90,16 +87,16 @@ for tags in test_tags:
         elif tag.startswith("fedoraver"):
             tags_fedoraver.append(nmci.misc.test_version_tag_parse(tag, "fedoraver"))
         elif tag == "rhel_pkg":
-            if not (current_rhel_version and pkg):
+            if not (current_rhel_version and current_nm_stream.startswith("rhel")):
                 run = False
         elif tag == "not_with_rhel_pkg":
-            if current_rhel_version and pkg:
+            if current_rhel_version and current_nm_stream.startswith("rhel"):
                 run = False
         elif tag == "fedora_pkg":
-            if not (current_fedora_version and pkg):
+            if not (current_fedora_version and current_nm_stream.startswith("fedora")):
                 run = False
         elif tag == "not_with_fedora_pkg":
-            if current_fedora_version and pkg:
+            if current_fedora_version and current_nm_stream.startswith("fedora"):
                 run = False
     if not run:
         continue
@@ -120,10 +117,10 @@ for tags in test_tags:
             "test with tag '%s' has more than one match for %s: %r and %r!\n"
             % (
                 ver_param_to_str(
+                    current_nm_stream,
                     current_nm_version,
                     current_rhel_version,
                     current_fedora_version,
-                    pkg,
                 ),
                 test_name,
                 result,
@@ -139,7 +136,10 @@ if not result:
         "Skipping, version mismatch for %s.\n"
         % (
             ver_param_to_str(
-                current_nm_version, current_rhel_version, current_fedora_version, pkg
+                current_nm_stream,
+                current_nm_version,
+                current_rhel_version,
+                current_fedora_version,
             )
         )
     )
