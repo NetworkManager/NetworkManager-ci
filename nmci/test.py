@@ -404,6 +404,23 @@ def test_misc_test_version_tag_eval():
     )
 
 
+def test_misc_nm_version_parse():
+    def _assert(version, expect_stream, expect_version):
+        (stream, version) = misc.nm_version_parse(version)
+        assert expect_stream == stream
+        assert expect_version == version
+
+    _assert("1.31.1-28009.copr.067893f8d3.fc33", "upstream", [1, 31, 1, 28009])
+    _assert("1.26.0-12.el8_3", "rhel-8-3", [1, 26, 0, 12])
+    _assert("1.26.0-12.el8", "rhel-8", [1, 26, 0, 12])
+    _assert("1.26.0-0.5.el8", "rhel-8", [1, 26, 0, 0, 5])
+    _assert("1.26.0-0.5.el8_10", "rhel-8-10", [1, 26, 0, 0, 5])
+    _assert("1.26.0-foo", "unknown", [1, 26, 0])
+    _assert("1.26.6-1.fc33", "fedora-33", [1, 26, 6, 1])
+    _assert("1.26.6-0.2.fc33", "fedora-33", [1, 26, 6, 0, 2])
+    _assert("1.31.2-28040.11545c0ca0.el8", "upstream", [1, 31, 2, 28040])
+
+
 def test_feature_tags():
 
     with open(util.base_dir() + "/mapper.yaml", "r") as mapper_file:

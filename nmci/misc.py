@@ -75,6 +75,66 @@ class _Misc:
 
         return test_tags
 
+    def nm_version_parse(self, version):
+
+        # Parses the version string from `/sbin/NetworkManager -V` and detects a version
+        # array and a stream string.
+        #
+        # In particular, the stream is whether this is a package from upstream or from
+        # dist-git (fedora/fedpkg or rhel/rhpkg).
+        #
+        # Since a package build for e.g. rhel-8.3 always has the suffix .el8, we cannot
+        # use that reliably to detect the stream. Well, we can, but all el8 packages
+        # that are not actually "rhel-8" stream, must have a unique version tag.
+        # Like for example copr builds of upstream have.
+
+        m = re.match(
+            r"^([0-9]+)\.([0-9]+)\.([0-9]+)-([0-9]+)\.(fc|el)([0-9]+)(_([0-9]+))?$",
+            version,
+        )
+        if m and int(m.group(4)) < 1000:
+            if m.group(5) == "el":
+                s = "rhel"
+            else:
+                s = "fedora"
+            if m.group(7):
+                stream = "%s-%s-%s" % (s, int(m.group(6)), int(m.group(8)))
+            else:
+                stream = "%s-%s" % (s, int(m.group(6)))
+            return (stream, [int(m.group(x)) for x in range(1, 5)])
+
+        m = re.match(
+            r"^([0-9]+)\.([0-9]+)\.([0-9]+)-([0-9]+)\.([0-9]+)\.(fc|el)([0-9]+)(_([0-9]+))?$",
+            version,
+        )
+        if m and int(m.group(4)) < 1000:
+            if m.group(6) == "el":
+                s = "rhel"
+            else:
+                s = "fedora"
+            if m.group(8):
+                stream = "%s-%s-%s" % (s, int(m.group(7)), int(m.group(9)))
+            else:
+                stream = "%s-%s" % (s, int(m.group(7)))
+            return (stream, [int(m.group(x)) for x in range(1, 6)])
+
+        m = re.match(
+            r"^([0-9]+)\.([0-9]+)\.([0-9]+)-([0-9]+)\.[a-z0-9]+\.(el|fc)[0-9]+$",
+            version,
+        )
+        if m and int(m.group(4)) >= 1000:
+            return ("upstream", [int(m.group(x)) for x in range(1, 5)])
+
+        m = re.match(r"^([0-9]+)\.([0-9]+)\.([0-9]+)-([0-9]+)\.copr.*$", version)
+        if m and int(m.group(4)) >= 1000:
+            return ("upstream", [int(m.group(x)) for x in range(1, 5)])
+
+        m = re.match(r"^([0-9]+)\.([0-9]+)\.([0-9]+)-.*$", version)
+        if m:
+            return ("unknown", [int(m.group(x)) for x in range(1, 4)])
+
+        raise ValueError('cannot parse version "%s"' % (version))
+
     def test_version_tag_parse(self, version_tag, tag_candidate):
 
         if not version_tag.startswith(tag_candidate):
