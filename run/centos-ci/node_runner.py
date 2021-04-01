@@ -174,8 +174,13 @@ def prepare_box(branch):
 
     # # Prepare copr repo
     dir = "NetworkManager-CI-master"
-    if branch == "1.30":
+    if branch == "nm-1-30":
         dir = "NetworkManager-1.30-debug"
+    if branch == "nm-1-28":
+        dir = "NetworkManager-CI-1.28-git"
+    if branch == "nm-1-26":
+        dir = "NetworkManager-CI-1.26-git"
+
     logging.debug("prepare %s copr repo" %dir)
     if not write_copr (dir):
         return False
@@ -192,8 +197,8 @@ def prepare_box(branch):
 
 if __name__ == "__main__":
     logging.basicConfig(level=logging.DEBUG)
-    code_branch = sys.argv[1]
-    test_branch = sys.argv[2]
+    test_branch = sys.argv[1]
+    code_branch = sys.argv[2]
     features = sys.argv[3]
 
     # if not prepare_box (code_branch):
