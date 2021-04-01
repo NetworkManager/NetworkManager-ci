@@ -205,7 +205,6 @@ if __name__ == "__main__":
     else:
         logging.debug("tests to run: %s" %tests)
 
-    tests = "bond_add_default_bond"
     cmd = "sh run/centos-ci/scripts/./runtest.sh %s" %tests
     runtest = subprocess.Popen(cmd, shell=True)
     exit_code = runtest.wait()
