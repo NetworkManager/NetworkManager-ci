@@ -201,8 +201,8 @@ if __name__ == "__main__":
     code_branch = sys.argv[2]
     features = sys.argv[3]
 
-    # if not prepare_box (code_branch):
-    #     sys.exit(1)
+    if not prepare_box (code_branch):
+        sys.exit(1)
     tests = process_raw_features (features, test_branch)
     if tests == "":
         logging.debug("no tests to run: %s" %tests)
