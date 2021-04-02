@@ -52,7 +52,7 @@ def add_epel_crb_repos():
     # Add some extra repos
     epel_url = "https://dl.fedoraproject.org/pub/epel/"
     rpm = "epel-release-latest-8.noarch.rpm"
-    subprocess.call("dnf -y install %s%s" %(epel, rpm), shell=True)
+    subprocess.call("dnf -y install %s%s" %(epel_url, rpm), shell=True)
     # For some reason names can differ, so enable both powertools
     subprocess.call("yum config-manager --set-enabled PowerTools", shell=True)
     subprocess.call("yum config-manager --set-enabled powertools", shell=True)
@@ -195,14 +195,27 @@ def prepare_box(branch):
     if subprocess.call(cmd, shell=True) == 0:
         return True
 
+def install_workarounds ():
+    # We need non crashing lindp
+    fedora_url = "https://vbenes.fedorapeople.org/NM/libndp_rhbz1933041/"
+    libnl = fedora_url+"libndp-1.7-5.el8.x86_64.rpm"
+    libnl_devel = fedora_url+"libndp-devel-1.7-5.el8.x86_64.rpm"
+    cmd0 = "yum install -y libnl libnl-devel"
+    cmd1 = "yum -y update %s %s" %(libnl, libnl_devel)
+    subprocess.call(cmd0, shell=True) == 0
+    subprocess.call(cmd1, shell=True) == 0
+
 if __name__ == "__main__":
     logging.basicConfig(level=logging.DEBUG)
     test_branch = sys.argv[1]
     code_branch = sys.argv[2]
     features = sys.argv[3]
 
+    install_workarounds ()
+
     if not prepare_box (code_branch):
         sys.exit(1)
+
     tests = process_raw_features (features, test_branch)
     if tests == "":
         logging.debug("no tests to run: %s" %tests)
