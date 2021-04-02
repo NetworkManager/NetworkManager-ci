@@ -553,7 +553,7 @@ Feature: nmcli - ethernet
     # Bring up backup authenticated network port
     * Execute "ip link set dev test8Yp up"
     * Execute "ip link set dev test8Zp down"
-    Then "10.0.253" is visible with command "ip a s test8X" in "120" seconds
+    Then "10.0.253" is visible with command "ip a s test8X" in "130" seconds
     And Ping "10.0.253.1" "3" times
 
 
