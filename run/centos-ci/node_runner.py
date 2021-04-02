@@ -173,7 +173,7 @@ def prepare_box(branch):
                         --skip-broken", shell=True)
 
     # # Prepare copr repo
-    dir = "NetworkManager-CI-master"
+    dir = "NetworkManager-main-debug"
     if branch == "nm-1-30":
         dir = "NetworkManager-1.30-debug"
     if branch == "nm-1-28":
