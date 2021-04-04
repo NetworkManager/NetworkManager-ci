@@ -251,7 +251,7 @@ Feature: nmcli - dns
     @ver-1.28.0
     @ver-1.29.2
     @rhelver+=8 @fedoraver+=31
-    @con_dns_remove @eth0 @dns_systemd_resolved
+    @con_dns_remove @dns_systemd_resolved @eth0
     @dns_resolved_no_default
     Scenario: NM - dns - two connections without default route
 
@@ -284,7 +284,7 @@ Feature: nmcli - dns
     @ver+=1.28.0
     @ver+=1.29.2
     @rhelver+=8 @fedoraver+=31
-    @con_dns_remove @eth0 @dns_systemd_resolved
+    @con_dns_remove @dns_systemd_resolved @eth0
     @dns_resolved_no_default
     Scenario: NM - dns - two connections without default route
 
@@ -441,7 +441,7 @@ Feature: nmcli - dns
 
     @rhbz1888229
     @ver+=1.28 @rhelver+=8 @fedoraver+=33
-    @con_dns_remove @eth0 @dns_systemd_resolved
+    @con_dns_remove @dns_systemd_resolved @eth0
     @dns_resolved_add_remove_ipv6_dns
     Scenario: nmcli - dns - add remove ipv6 dns under resolved
     * Add a new connection of type "ethernet" and options "ifname eth10 con-name con_dns ipv4.method disabled ip6 fd01::1/64 ipv6.dns '4000::1 5000::1' ipv6.gateway fd01::2 autoconnect no"
@@ -872,7 +872,7 @@ Feature: nmcli - dns
 
     @rhbz1512966
     @ver+=1.11.3
-    @con_dns_remove @eth0 @dns_dnsmasq
+    @con_dns_remove @dns_dnsmasq @eth0
     @dns_dnsmasq_no_default
     Scenario: NM - dns - two connections without default route
 
