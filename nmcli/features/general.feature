@@ -2318,8 +2318,10 @@ Feature: nmcli - general
     * Bring "up" connection "testeth10"
     When "default" is visible with command "ip r" in "20" seconds
     When "default" is visible with command "ip -6 r" in "20" seconds
-    * Note the output of "ip -6 r |wc -l" as value "ip6_route"
-    * Note the output of "nmcli |grep route6 |wc -l" as value "nmcli6_route"
+    # dev lo is not managed by NM
+    * Note the output of "ip -6 r | grep -v 'dev lo' | wc -l" as value "ip6_route"
+    # ff00::/8 are not shown in `ip -6 r`
+    * Note the output of "nmcli | grep route6 | grep -v 'ff00::/8' |wc -l" as value "nmcli6_route"
     * Note the output of "ip r |wc -l" as value "ip4_route"
     * Note the output of "nmcli |grep route4 |wc -l" as value "nmcli4_route"
     Then Check noted values "ip6_route" and "nmcli6_route" are the same
