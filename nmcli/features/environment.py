@@ -129,12 +129,14 @@ def before_all(context):
 
 
 def before_scenario(context, scenario):
-    # set important context attributes
-    context.before_scenario_step_el = ET.Element("li", {"class": "step passed"})
+    time_begin = time.time()
+    context.before_scenario_step_el = ET.Element("li", {"class": "step passed", "style": "margin-bottom:1rem;"})
     ET.SubElement(context.before_scenario_step_el, "b").text = "Before scenario"
+    duration_el = ET.SubElement(context.before_scenario_step_el, "small", {"class": "step_duration"})
     embed_el = ET.SubElement(context.before_scenario_step_el, "div")
     context.html_formatter.actual["act_step_embed_span"] = embed_el
 
+    # set important context attributes
     context.nm_restarted = False
     context.nm_pid = nmci.lib.nm_pid()
     context.crashed_step = False
@@ -200,6 +202,11 @@ def before_scenario(context, scenario):
 
     nmci.lib.process_commands(context, "before_scenario")
 
+    duration = time.time() - time_begin
+    status = "failed" if excepts else "passed"
+    print(f"before_scenario ... {status} in {duration:.3f}s")
+    duration_el.text = f"({duration:.3f}s)"
+
     if excepts:
         context.before_scenario_step_el.set("class", "step failed")
         context.embed("text/plain", "\n\n".join(excepts), "Exception in before scenario tags")
@@ -262,8 +269,10 @@ def after_step(context, step):
 
 
 def after_scenario(context, scenario):
-    context.after_scenario_step_el = ET.Element("li", {"class": "step passed"})
+    time_begin = time.time()
+    context.after_scenario_step_el = ET.Element("li", {"class": "step passed", "style": "margin-top:1rem;"})
     ET.SubElement(context.after_scenario_step_el, "b").text = "After scenario"
+    duration_el = ET.SubElement(context.after_scenario_step_el, "small", {"class": "step_duration"})
     embed_el = ET.SubElement(context.after_scenario_step_el, "div")
     context.html_formatter.actual["act_step_embed_span"] = embed_el
 
@@ -323,10 +332,6 @@ def after_scenario(context, scenario):
             kwargs["mime_type"], kwargs["data"], kwargs["caption"] = mime_type, data, caption
         context.embed(**kwargs)
 
-    # if there is some embed in before_scenario, prepend cached step element
-    if len(context.before_scenario_step_el.getchildren()[1].getchildren()):
-        context.html_formatter.steps.insert(0, context.before_scenario_step_el)
-
     nmci.lib.dump_status_nmcli(context, 'After Clean', fail_only=False)
 
     if scenario_fail:
@@ -350,9 +355,15 @@ def after_scenario(context, scenario):
         context.after_scenario_step_el.set("class", "step failed")
         context.embed("text/plain", "\n\n".join(excepts), "Exception in after scenario tags")
 
-    # if there is some embed in after_scenario, append cached step element
-    if len(context.after_scenario_step_el.getchildren()[1].getchildren()):
-        context.html_formatter.steps.append(context.after_scenario_step_el)
+    # add Before/After scenario steps to HTML
+    context.html_formatter.steps.insert(0, context.before_scenario_step_el)
+    context.html_formatter.steps.append(context.after_scenario_step_el)
+
+    duration = time.time() - time_begin
+    status = "failed" if excepts else "passed"
+    print(f"after_scenario ... {status} in {duration:.3f}s")
+
+    duration_el.text = f"({duration:.3f}s)"
 
     assert not excepts, "Exception in after scenario tags"
 

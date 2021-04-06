@@ -127,9 +127,9 @@ def embed_commands(command_calls, when):
             command, code, stdout, stderr = cmd
         message += f"{'-'*50}\n{repr(command)} returned {code}"
         if stdout:
-            message += f"\nSTDOUT:\n{stdout}\n"
+            message += f"\nSTDOUT:\n{stdout}"
         if stderr:
-            message += f"\nSTDERR:\n{stderr}\n"
+            message += f"\nSTDERR:\n{stderr}"
         message += "\n"
     return ["text/plain", message, "Commands"]
 
