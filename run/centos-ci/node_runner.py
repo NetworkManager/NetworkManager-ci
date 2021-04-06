@@ -106,6 +106,7 @@ def get_test_cases_for_features(features, testbranch):
 
 
 def generate_junit(results_dir):
+    logging.debug("Generate JUNIT")
     failed = []
     passed = []
     for f in os.listdir(results_dir):
@@ -136,6 +137,7 @@ def generate_junit(results_dir):
     root._setroot(testsuite)
     junit_path = "%s/junit.xml" %results_dir
     root.write(junit_path)
+    logging.debug("JUNIT Done")
     return 0
 
 
@@ -196,14 +198,9 @@ def prepare_box(branch):
         return True
 
 def install_workarounds ():
-    # We need non crashing lindp
-    fedora_url = "https://vbenes.fedorapeople.org/NM/libndp_rhbz1933041/"
-    libnl = fedora_url+"libndp-1.7-5.el8.x86_64.rpm"
-    libnl_devel = fedora_url+"libndp-devel-1.7-5.el8.x86_64.rpm"
-    cmd0 = "yum install -y libnl libnl-devel"
-    cmd1 = "yum -y update %s %s" %(libnl, libnl_devel)
-    subprocess.call(cmd0, shell=True) == 0
-    subprocess.call(cmd1, shell=True) == 0
+    pass
+    # cmd0 = "cat /etc/resolv.conf; nmcli c show"
+    # subprocess.call(cmd0, shell=True)
 
 if __name__ == "__main__":
     logging.basicConfig(level=logging.DEBUG)
@@ -227,4 +224,5 @@ if __name__ == "__main__":
     runtest = subprocess.Popen(cmd, shell=True)
     exit_code = runtest.wait()
     generate_junit ("/tmp/results")
+    logging.debug("All Done. Exit with %s" %exit_code)
     sys.exit (exit_code)

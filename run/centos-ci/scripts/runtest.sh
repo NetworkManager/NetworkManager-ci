@@ -68,6 +68,10 @@ else
     rc=0
     echo "** ALL $cnt TESTS PASSED!"
 fi
+# Push results into results dir too
+echo "results" > results.log
+mkdir results
+cp  /tmp/results/* results
 
 # Create archive with results
 cd /tmp/results
