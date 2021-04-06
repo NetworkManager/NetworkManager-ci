@@ -627,7 +627,7 @@ Feature: nmcli - ethernet
     @con_ethernet_remove @preserve_8021x_certs
     @preserve_8021x_certs_ethernet
     Scenario: nmcli - ethernet - preserve 8021x certs
-    * Add a new connection of type "ethernet" and options "ifname \* con-name con_ethernet 802-1x.eap 'tls' 802-1x.client-cert /tmp/test2_ca_cert.pem 802-1x.private-key-password x 802-1x.private-key /tmp/test_key_and_cert.pem  802-1x.password pass1"
+    * Add a new connection of type "ethernet" and options "ifname \* con-name con_ethernet 802-1x.eap 'tls' 802-1x.client-cert /tmp/certs/test_user.ca.pem 802-1x.private-key-password x 802-1x.private-key /tmp/certs/test_user.cert_and_enc_key.pem 802-1x.password pass1"
     * Reload connections
     Then "con_ethernet" is visible with command "nmcli con"
 
