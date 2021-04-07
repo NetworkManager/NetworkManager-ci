@@ -46,6 +46,10 @@ if call(["grep", "-qi", "fedora", "/etc/redhat-release"]) == 0:
 else:
     current_rhel_version = distro_version
     current_fedora_version = None
+    if current_rhel_version == [8]:
+        # CentOS stream only gives "CentOS Stream release 8". Hack a minor version
+        # number
+        current_rhel_version = [8, 99]
 
 test_name = nmci.misc.test_name_normalize(sys.argv[2])
 
