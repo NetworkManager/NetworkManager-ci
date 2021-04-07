@@ -15,7 +15,7 @@ Feature: nmcli: gsm
     Scenario: nmcli - gsm - hub
     * Execute "echo 'This should not be reached' && false"
 
-    @gsm @eth0
+    @gsm
     @gsm_create_default_connection
     Scenario: nmcli - gsm - create a connection
      * Add a new connection of type "gsm" and options "ifname \* con-name gsm apn internet"
@@ -25,7 +25,7 @@ Feature: nmcli: gsm
 
 
     @ver+=1.2.0 @ver-=1.17.2
-    @gsm @eth0
+    @gsm
     @gsm_create_assisted_connection
     Scenario: nmcli - gsm - create an assisted connection
     * Open wizard for adding new connection
@@ -44,7 +44,7 @@ Feature: nmcli: gsm
 
     @ver+=1.17.3
     @ver-=1.21.0
-    @gsm @eth0
+    @gsm
     @gsm_create_assisted_connection
     Scenario: nmcli - gsm - create an assisted connection
     * Open wizard for adding new connection
@@ -70,7 +70,7 @@ Feature: nmcli: gsm
 
 
     @ver+=1.21.3
-    @gsm @eth0
+    @gsm
     @gsm_create_assisted_connection
     Scenario: nmcli - gsm - create an assisted connection
     * Open wizard for adding new connection
@@ -96,7 +96,7 @@ Feature: nmcli: gsm
     * Ping "8.8.8.8" "7" times
 
 
-    @gsm @eth0
+    @gsm
     @gsm_disconnect
     Scenario: nmcli - gsm - disconnect
      * Add a new connection of type "gsm" and options "ifname \* con-name gsm autoconnect no apn internet"
@@ -108,7 +108,7 @@ Feature: nmcli: gsm
      And Unable to ping "8.8.8.8"
 
 
-    @gsm @eth0
+    @gsm
     @gsm_create_one_minute_ping
     Scenario: nmcli - gsm - one minute ping
     * Add a new connection of type "gsm" and options "ifname \* con-name gsm autoconnect no apn internet"
@@ -121,7 +121,7 @@ Feature: nmcli: gsm
 
     @rhbz1388613 @rhbz1460217
     @ver+=1.8.0
-    @gsm @eth0
+    @gsm
     @gsm_mtu
     Scenario: nmcli - gsm - mtu
     * Add a new connection of type "gsm" and options "ifname \* con-name gsm autoconnect no apn internet gsm.mtu 1430"
@@ -139,7 +139,7 @@ Feature: nmcli: gsm
 
     @rhbz1585611
     @ver+=1.12
-    @gsm @eth0
+    @gsm
     @gsm_route_metric
     Scenario: nmcli - gsm - route metric
     * Add a new connection of type "gsm" and options "ifname \* con-name gsm autoconnect no apn internet"
@@ -156,7 +156,7 @@ Feature: nmcli: gsm
 
     # Modems are not stable enough to test such things VVV
     # @ver+=1.2.0
-    # @eth0 @gsm
+    # @gsm
     # @gsm_up_down_up
     # Scenario: nmcli - gsm - reconnect with down
     #  * Add a new connection of type "gsm" and options "ifname \* con-name gsm autoconnect no apn internet"
@@ -171,7 +171,7 @@ Feature: nmcli: gsm
     #
     #
     # @ver+=1.2.0
-    # @eth0 @gsm
+    # @gsm
     # @gsm_up_up
     # Scenario: nmcli - gsm - reconnect without down
     #  * Add a new connection of type "gsm" and options "ifname \* con-name gsm autoconnect no apn internet"
@@ -193,7 +193,7 @@ Feature: nmcli: gsm
 
 
     @ver+=1.2.0
-    @gsm @eth0
+    @gsm
     @gsm_load_from_file
     Scenario: nmcli - gsm - load connection from file
      * Append "[connection]" to file "/etc/NetworkManager/system-connections/gsm"
@@ -216,7 +216,7 @@ Feature: nmcli: gsm
      * Ping "8.8.8.8" "7" times
 
     @ver+=1.8.0
-    @gsm @connectivity @eth0
+    @connectivity @gsm
     @gsm_connectivity_check
     Scenario: nmcli - gsm - connectivity check
     When "none|limited" is visible with command "nmcli g" in "60" seconds

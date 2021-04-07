@@ -272,6 +272,7 @@ def gsm_bs(ctx, scen):
                         raise Exception("Timeout reached!")
                     continue
 
+    ctx.run('nmcli con down testeth0')
 
 def gsm_as(ctx, scen):
     # You can debug here only with console connection to the testing machine.
