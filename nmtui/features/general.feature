@@ -100,7 +100,11 @@ Feature: General TUI tests
     * Start nmtui
     * Choose to "Edit a connection" from main screen
     * Execute "nmcli con add type ethernet con-name ethernet1 ifname eth1 autoconnect no"
-    Then Select connection "ethernet1" in the list
+    # bring con up in the list by bringing it up :)
+    * Bring up connection "ethernet1"
+    Then ".* ethernet1.*" is visible on screen in "5" seconds
+    * Execute "nmcli con del ethernet1"
+    Then ".* ethernet1.*" is not visible on screen in "5" seconds
 
 
     @ethernet
@@ -109,7 +113,9 @@ Feature: General TUI tests
     * Start nmtui
     * Choose to "Activate a connection" from main screen
     * Execute "nmcli con add type ethernet con-name ethernet1 ifname eth1 autoconnect no"
-    Then ".*   ethernet1.*" is visible on screen
+    Then ".*   ethernet1.*" is visible on screen in "5" seconds
+    * Execute "nmcli con del ethernet1"
+    Then ".*   ethernet1.*" is not visible on screen in "5" seconds
 
 
     @ethernet
@@ -119,7 +125,9 @@ Feature: General TUI tests
     * Choose to "Activate a connection" from main screen
     * Execute "nmcli con add type ethernet con-name ethernet1 ifname eth1 autoconnect no"
     * Bring up connection "ethernet1"
-    Then ".* \* ethernet1.*" is visible on screen
+    Then ".* \* ethernet1.*" is visible on screen in "5" seconds
+    * Execute "nmcli con del ethernet1"
+    Then ".* \* ethernet1.*" is not visible on screen in "5" seconds
 
 
     @dsl
