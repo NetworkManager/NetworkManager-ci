@@ -56,6 +56,8 @@ def add_epel_crb_repos():
     # For some reason names can differ, so enable both powertools
     subprocess.call("yum config-manager --set-enabled PowerTools", shell=True)
     subprocess.call("yum config-manager --set-enabled powertools", shell=True)
+    # Enable build deps for NM
+    subprocess.call("yum -y copr enable nmstate/nm-build-deps", shell=True)
 
 def write_copr(nm_dir):
     host = "https://copr-be.cloud.fedoraproject.org"
@@ -162,8 +164,7 @@ def process_raw_features(features, testbranch):
         tests=tests+test+" "
     return tests.strip()
 
-
-def prepare_box(branch):
+def install_all_nm_packages ():
     # Install all packages and remove them
     add_epel_crb_repos()
     logging.debug("install all packages to pull in all deps")
@@ -174,43 +175,72 @@ def prepare_box(branch):
                         NetworkManager-bluetooth NetworkManager-libnm-devel \
                         --skip-broken", shell=True)
 
-    # # Prepare copr repo
-    dir = "NetworkManager-main-debug"
-    if branch == "nm-1-30":
-        dir = "NetworkManager-1.30-debug"
-    if branch == "nm-1-28":
-        dir = "NetworkManager-CI-1.28-git"
-    if branch == "nm-1-26":
-        dir = "NetworkManager-CI-1.26-git"
-
-    logging.debug("prepare %s copr repo" %dir)
-    if not write_copr (dir):
-        return False
-
+def remove_all_nm_packages ():
     logging.debug("Removing NM rpms")
-    cmd = "rpm -ea --nodeps $(rpm -qa | grep NetworkManager)"
-    subprocess.call(cmd, shell=True)
+    cmd1 = "rpm -ea --nodeps $(rpm -qa | grep NetworkManager)"
+    subprocess.call(cmd1, shell=True)
     logging.debug("Done")
 
-    # Install new rpms
-    cmd = "yum -y install --repo nm-copr-repo NetworkManager*"
-    if subprocess.call(cmd, shell=True) == 0:
-        return True
+def prepare_log_dir (results_dir):
+    subprocess.call("mkdir -p %s" %results_dir, shell=True)
+
+def prepare_box(nm_refspec):
+    results_dir = "/tmp/results/"
+    build_dir = "/root/nm-build"
+    install_all_nm_packages ()
+    prepare_log_dir (results_dir)
+
+    # Prepare copr repo if we know branch
+    dir = ""
+    if nm_refspec == "main":
+        dir = "NetworkManager-main-debug"
+    if nm_refspec == "nm-1-30":
+        dir = "NetworkManager-1.30-debug"
+    if nm_refspec == "nm-1-28":
+        dir = "NetworkManager-CI-1.28-git"
+    if nm_refspec == "nm-1-26":
+        dir = "NetworkManager-CI-1.26-git"
+
+    #remove_all_nm_packages ()
+
+    if dir != "":
+        logging.debug("prepare %s copr repo" %dir)
+        if not write_copr (dir):
+            return 1
+        # Install new rpms
+        cmd2 = "yum -y install --repo nm-copr-repo NetworkManager*"
+        return subprocess.call(cmd2, shell=True)
+
+    else:
+        # compile from source
+        logging.debug("Building from refspec id %s" %nm_refspec)
+        cmd0 = "sh run/centos-ci/scripts/./build.sh %s" %nm_refspec
+        if subprocess.call(cmd0, shell=True) == 1:
+            # We want config.log to be archived
+            cmd1 = "cp %s/NetworkManager/config.log %s" %(build_dir,results_dir)
+            subprocess.call(cmd1, shell=True)
+        else:
+            return 0
+
+    return 1
 
 def install_workarounds ():
-    pass
-    # cmd0 = "cat /etc/resolv.conf; nmcli c show"
-    # subprocess.call(cmd0, shell=True)
+    # pass
+    cmd0 = "yum -y install https://vbenes.fedorapeople.org/NM/libndp_rhbz1933041/libndp-1.7-5.el8.x86_64.rpm https://vbenes.fedorapeople.org/NM/libndp_rhbz1933041/libndp-devel-1.7-5.el8.x86_64.rpm"
+    subprocess.call(cmd0, shell=True)
+    cmd1 = "yum -y install make"
+    subprocess.call(cmd1, shell=True)
+
 
 if __name__ == "__main__":
     logging.basicConfig(level=logging.DEBUG)
     test_branch = sys.argv[1]
-    code_branch = sys.argv[2]
+    nm_refspec = sys.argv[2]
     features = sys.argv[3]
 
     install_workarounds ()
 
-    if not prepare_box (code_branch):
+    if prepare_box (nm_refspec) != 0:
         sys.exit(1)
 
     tests = process_raw_features (features, test_branch)

@@ -10,7 +10,7 @@ node('cico-workspace') {
             println("Running tests")
             install = "yum install -y git python3"
             clone = "git clone https://gitlab.freedesktop.org/NetworkManager/NetworkManager-ci.git -b ${TEST_BRANCH}"
-            run = "cd NetworkManager-ci; python3 run/centos-ci/node_runner.py ${TEST_BRANCH} ${CODE_BRANCH} ${FEATURES}"
+            run = "cd NetworkManager-ci; python3 run/centos-ci/node_runner.py ${TEST_BRANCH} ${REFSPEC} ${FEATURES}"
             sh "ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no root@${node_hostname} '${install}'"
             sh "ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no root@${node_hostname} '${clone}'"
             sh "ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no root@${node_hostname} '${run}'"
@@ -20,8 +20,11 @@ node('cico-workspace') {
         try {
             stage('publish results') {
                 sh "scp -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no root@${node_hostname}:/tmp/results/* ."
-                archiveArtifacts '*.html'
+                archiveArtifacts '*.*'
                 junit 'junit.xml'
+            }
+            stage('reserve') {
+                println("You can log in via: ssh root@${node_hostname}")
                 sh 'sleep ${RESERVE}'
             }
         }
