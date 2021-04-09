@@ -22,6 +22,7 @@ node('cico-workspace') {
                 sh "scp -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no root@${node_hostname}:/tmp/results/* ."
                 archiveArtifacts '*.html'
                 junit 'junit.xml'
+                sh 'sleep ${RESERVE}'
             }
         }
         finally {
