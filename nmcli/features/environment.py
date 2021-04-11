@@ -132,7 +132,17 @@ def before_all(context):
         context.log_cursor = nmci.lib.new_log_cursor()
 
 
+# print exception traceback
 def before_scenario(context, scenario):
+    try:
+        _before_scenario(context, scenario)
+    except Exception as E:
+        E_tb = traceback.format_exc()
+        print(E_tb)
+        raise E
+
+
+def _before_scenario(context, scenario):
     time_begin = time.time()
     context.before_scenario_step_el = ET.Element("li", {"class": "step passed", "style": "margin-bottom:1rem;"})
     ET.SubElement(context.before_scenario_step_el, "b").text = "Before scenario"
@@ -272,7 +282,17 @@ def after_step(context, step):
                 context.crashed_step = step.name
 
 
+# print exception traceback
 def after_scenario(context, scenario):
+    try:
+        _after_scenario(context, scenario)
+    except Exception as E:
+        E_tb = traceback.format_exc()
+        print(E_tb)
+        raise E
+
+
+def _after_scenario(context, scenario):
     time_begin = time.time()
     context.after_scenario_step_el = ET.Element("li", {"class": "step passed", "style": "margin-top:1rem;"})
     ET.SubElement(context.after_scenario_step_el, "b").text = "After scenario"
