@@ -201,7 +201,7 @@ def prepare_box(nm_refspec):
     if nm_refspec == "nm-1-26":
         dir = "NetworkManager-CI-1.26-git"
 
-    #remove_all_nm_packages ()
+    remove_all_nm_packages ()
 
     if dir != "":
         logging.debug("prepare %s copr repo" %dir)
