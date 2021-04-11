@@ -2,8 +2,6 @@ import pexpect
 import time
 from behave import step
 
-import nmci_step
-
 
 @step(u'Check bond "{bond}" in proc')
 def check_bond_in_proc(context, bond):
@@ -133,7 +131,7 @@ def external_bridge_check(context, number):
 
 @step(u'Team "{team}" is down')
 def team_is_down(context, team):
-    nmci_step.additional_sleep(2)
+    context.additional_sleep(2)
     if context.command_code('teamdctl %s state dump' % team) == 0:
         time.sleep(1)
         assert context.command_code('teamdctl %s state dump' % team) != 0, \
@@ -142,7 +140,7 @@ def team_is_down(context, team):
 
 @step(u'Team "{team}" is up')
 def team_is_up(context, team):
-    nmci_step.additional_sleep(2)
+    context.additional_sleep(2)
     if context.command_code('teamdctl %s state dump' % team) != 0:
         time.sleep(1)
         assert context.command_code('teamdctl %s state dump' % team) == 0, \

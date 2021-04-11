@@ -1,6 +1,4 @@
 import os
-import signal
-import subprocess
 import pexpect
 from behave import step
 
@@ -108,7 +106,7 @@ def dracut_run(context):
     kernel_arch_args = {
         "x86_64": "console=ttyS0,115200n81 ",
     }
-    arch = subprocess.check_output(["uname", "-p"], encoding="utf-8").strip()
+    arch = context.arch
     if arch in kernel_arch_args.keys():
         kernel_args += kernel_arch_args[arch]
     initrd = "initramfs.client.NM"
@@ -133,6 +131,7 @@ def dracut_run(context):
 
     prepare_checks(checks)
 
+    # replace env of child processes
     os.environ["RAM"] = ram
     os.environ["TIMEOUT"] = timeout
 

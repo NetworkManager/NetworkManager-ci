@@ -1,5 +1,4 @@
 import pexpect
-import subprocess
 import time
 from behave import step
 
@@ -246,7 +245,7 @@ def note_mac_address(context, device):
 def note_mac_address_ip(context, device, index=None):
     if context.command_code("ip a s %s |grep -q ether" % device, shell=True) == 0:
         mac = context.command_output("ip link show %s | grep 'link/ether' | awk '{print $2}'" % device).strip()
-    if subprocess.call("ip a s %s |grep -q infiniband" % device, shell=True) == 0:
+    if context.command_code("ip a s %s |grep -q infiniband" % device, shell=True) == 0:
         ip_out = context.command_output("ip link show %s | grep 'link/inf' | awk '{print $2}'" % device).strip()
         mac = ip_out.split()[-1]
         client_id = ""
@@ -558,7 +557,7 @@ def flag_cap_set(context, flag, n=None, device='wlan0', giveexception=True):
             org.freedesktop.DBus.Properties.Get \
             string:"org.freedesktop.NetworkManager.Device.Wireless" \
             string:"WirelessCapabilities" | grep variant | awk '{print $3}' ''' % path
-    ret = int(subprocess.check_output(cmd, shell=True).decode('utf-8', 'ignore').strip())
+    ret = int(context.command_output(cmd).strip())
 
     if n is None:
         if wcaps[flag] & ret == wcaps[flag]:

@@ -1,8 +1,6 @@
 import os
-import pexpect
 import pyte
 import re
-import subprocess
 import time
 from behave import step
 
@@ -139,7 +137,7 @@ def prepare_environment(context):
 
 @step('Start nmtui')
 def start_nmtui(context):
-    context.tui = pexpect.spawn('sh -c "TERM=%s nmtui > %s"' % (TERM_TYPE, OUTPUT), encoding='utf-8', codec_errors='ignore')
+    context.tui = context.pexpect_service('sh -c "TERM=%s nmtui > %s"' % (TERM_TYPE, OUTPUT))
     for line in context.screen.display:
         if 'NetworkManager TUI' in line:
             break
@@ -235,7 +233,7 @@ def back_to_con_list(context):
 
 @step('Come back to main screen')
 def back_to_main(context):
-    current_nm_version = "".join(subprocess.check_output("""NetworkManager -V |awk 'BEGIN { FS = "." }; {printf "%03d%03d%03d", $1, $2, $3}'""", shell=True).decode('utf-8', 'ignore').split('-')[0])
+    current_nm_version = "".join(context.command_output("""NetworkManager -V |awk 'BEGIN { FS = "." }; {printf "%03d%03d%03d", $1, $2, $3}'""").split('-')[0])
     context.tui.send(keys['ESCAPE'])
     time.sleep(0.4)
     if current_nm_version < "001003000":

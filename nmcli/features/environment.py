@@ -5,7 +5,6 @@ import time
 import signal
 import traceback
 import pexpect
-import subprocess
 
 import xml.etree.ElementTree as ET
 
@@ -100,6 +99,10 @@ def before_all(context):
         context._expect_services.append((proc, logfile))
         return proc
 
+    def _additional_sleep(seconds):
+        if context.IS_NMTUI:
+            time.sleep(seconds)
+
     context._to_embed = []
     context.command_code = _command_code
     context.run = _run
@@ -109,6 +112,7 @@ def before_all(context):
     context.pexpect_spawn = _pexpect_spawn
     # pexpect_spawn commands are killed at the end of the test
     context.pexpect_service = _pexpect_service
+    context.additional_sleep = _additional_sleep
     context._command_calls = []
     context._expect_procs = []
     context._expect_services = []

@@ -1,11 +1,9 @@
 import os
-import pexpect
 import time
 import configparser
 from behave import step
 
 import commands
-import nmci_step
 import nmci.lib
 
 
@@ -102,7 +100,7 @@ def check_ifcfg_exists(context):
 
 @step(u'Check ifcfg-name file created for connection "{con_name}"')
 def check_ifcfg_exists_given_device(context, con_name):
-    nmci_step.additional_sleep(1)
+    context.additional_sleep(1)
     command = 'cat /etc/sysconfig/network-scripts/ifcfg-%s' % con_name
     pattern = 'NAME=%s' % con_name
     return commands.check_pattern_command(context, command, pattern, seconds=2)

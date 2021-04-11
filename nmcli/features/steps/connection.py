@@ -2,7 +2,7 @@ import pexpect
 import time
 from behave import step
 
-import nmci_step
+import nmci.lib
 
 
 @step(u'Add a connection named "{name}" for device "{ifname}" to "{vpn}" VPN')
@@ -163,7 +163,7 @@ def modify_connection(context, name, options):
 
 @step(u'Reload connections')
 def reload_connections(context):
-    nmci_step.command_code(context, "nmcli con reload")
+    nmci.lib.reload_NM_connections(context)
     time.sleep(0.5)
 
 

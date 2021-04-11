@@ -1,4 +1,3 @@
-import subprocess
 import time
 from behave import step
 
@@ -58,7 +57,7 @@ def kill_NM(context, signal=""):
     context.nm_restarted = True
     if signal:
         signal = "-" + signal
-    subprocess.call("kill %s $(pidof NetworkManager) && sleep 5" % (signal), shell=True)
+    context.run("kill %s $(pidof NetworkManager) && sleep 5" % (signal), shell=True)
 
 
 @step(u'Stop NM')
