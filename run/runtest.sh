@@ -68,7 +68,7 @@ if [ $rc -eq 0 ]; then
     else
       # Test nmtui and nmcli
       FEATURE_FILE=$(grep "@$1" -l $DIR/$RUNTEST_TYPE/features/*.feature)
-      if [ -z $FEATURE_FILE ]; then
+      if [ -z "$FEATURE_FILE" ]; then
           FEATURE_FILE=$DIR/$RUNTEST_TYPE/features
       fi
 
