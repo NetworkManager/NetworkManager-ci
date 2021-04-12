@@ -87,7 +87,7 @@ Feature: nmcli - general
     @pull_hostname_from_dhcp
     Scenario: nmcli - general - pull hostname from DHCP
     * Prepare simulated test "testG" device
-    * Execute "sudo nmcli general hostname localhost"
+    * Execute "hostnamectl set-hostname """
     * Execute "hostnamectl set-hostname --transient localhost.localdomain"
     * Add a new connection of type "ethernet" and options "ifname testG con-name con_general autoconnect no"
     When "localhost|fedora" is visible with command "hostnamectl --transient" in "60" seconds
@@ -109,7 +109,7 @@ Feature: nmcli - general
     # after the DHCPv4 lease is obtained, NM will try again and succeed.
     # Note/3: --dhcp-option=12 is to prevent NM from sending a hostname option
     * Prepare simulated test "testG" device with "172.25.15" ipv4 and daemon options "--dhcp-option=12 --dhcp-host=00:11:22:33:44:55,172.25.15.1,foo-bar"
-    * Execute "sudo nmcli general hostname localhost"
+    * Execute "hostnamectl set-hostname """
     * Execute "hostnamectl set-hostname --transient localhost.localdomain"
     * Add a new connection of type "ethernet" and options "ifname testG con-name con_general autoconnect no ipv6.method ignore ipv4.method auto"
     * Modify connection "con_general" changing options "ipv4.address 172.25.13.1/30 ethernet.cloned-mac-address 00:11:22:33:44:55"
