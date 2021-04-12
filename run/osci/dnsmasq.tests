@@ -1,7 +1,6 @@
 bond_add_default_bond
 nmcli_device_disconnect
 set_mtu_from_DHCP
-pull_hostname_from_dhcp
 ipv6_set_ra_announced_mtu
 ipv6_preserve_cached_routes
 ipv6_no_activation_schedule_error_in_logs
