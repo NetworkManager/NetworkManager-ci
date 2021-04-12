@@ -192,7 +192,8 @@ def dump_status_nmtui(context, when, fail_only=False):
             'nmcli d w l']
     for cmd in cmds:
         msg += "\n--- %s ---\n" % cmd
-        msg += nmci.command_output(cmd)
+        cmd_out, _, _ = nmci.run(cmd)
+        msg += cmd_out
     context.embed("text/plain", msg, "Status " + when, fail_only=fail_only)
 
 
@@ -216,23 +217,26 @@ def dump_status_nmcli(context, when, fail_only=False):
 
     for cmd in cmds:
         msg += "\n--- %s ---\n" % cmd
-        msg += nmci.command_output(cmd)
+        cmd_out, _, _ = nmci.run(cmd)
+        msg += cmd_out
     if nm_running:
         if os.path.isfile('/tmp/nm_newveth_configured'):
             msg += "\nVeth setup network namespace and DHCP server state:\n"
             for cmd in ['ip netns exec vethsetup ip addr', 'ip netns exec vethsetup ip -4 route',
                         'ip netns exec vethsetup ip -6 route', 'ps aux | grep dnsmasq']:
                 msg += "\n--- %s ---\n" % cmd
-                msg += nmci.command_output(cmd)
+                cmd_out, _, _ = nmci.run(cmd)
+                msg += cmd_out
 
     if context.nm_pid is not None:
         msg += "NetworkManager memory consumption before: %d KiB\n" % nmci.lib.nm_size_kb()
         if os.path.isfile("/etc/systemd/system/NetworkManager.service") \
                 and nmci.command_code(
                     "grep -q valgrind /etc/systemd/system/NetworkManager.service") == 0:
-            msg += nmci.command_output(
+            cmd_out, _, _ = nmci.run(
                     "LOGNAME=root HOSTNAME=localhost gdb /usr/sbin/NetworkManager "
                     " -ex 'target remote | vgdb' -ex 'monitor leak_check summary' -batch")
+            msg += cmd_out
 
     context.embed("text/plain", msg, "Status " + when, fail_only=fail_only)
 
