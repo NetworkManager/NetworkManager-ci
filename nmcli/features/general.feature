@@ -8,6 +8,11 @@ Feature: nmcli - general
     # Scenario:
 
 
+    @pass
+    Scenario: Dummy scenario that is supposed to pass
+    * Execute "nmcli --version"
+
+
     @logging
     @nmcli_logging
     Scenario: NM - general - setting log level and autocompletion

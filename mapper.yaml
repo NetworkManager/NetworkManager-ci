@@ -92,6 +92,8 @@ cleanup:
 
 testmapper:
   default:
+    - pass:
+        feature: general
     - bond_add_default_bond:
         feature: bond
         tags: gate
