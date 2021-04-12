@@ -151,6 +151,7 @@ function setup_veth_env ()
         # And set it unmanaged
         nmcli device disconnect orig-$DEV
         nmcli device set orig-$DEV managed off
+        ip addr flush dev orig-$DEV
     done
 
     # unmanage orig- devices
