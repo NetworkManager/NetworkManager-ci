@@ -214,6 +214,8 @@ install_el9_packages () {
         dnf -4 -y install https://kojipkgs.fedoraproject.org//packages/NetworkManager-strongswan/1.5.0/2.fc33/$(arch)/NetworkManager-strongswan-1.5.0-2.fc33.$(arch).rpm NetworkManager-strongswan https://kojipkgs.fedoraproject.org//packages/strongswan/5.9.0/2.fc33/$(arch)/strongswan-5.9.0-2.fc33.$(arch).rpm https://kojipkgs.fedoraproject.org//packages/strongswan/5.9.0/2.fc33/$(arch)/strongswan-charon-nm-5.9.0-2.fc33.$(arch).rpm
     fi
 
+    # Remove systemd's MAC radnomization
+    echo -e "[Match]\nOriginalName=*\n[Link]\nMACAddressPolicy=none" > /etc/systemd/network/00-NM.link
 
     # Remove connectivity checks
     dnf -4 -y remove NetworkManager-config-connectivity-fedora NetworkManager-config-connectivity-redhat
