@@ -338,7 +338,7 @@ install_el8_packages () {
 
     # install wpa_supplicant and hostapd with WPA3 enterprise capabilities
     if [ $(arch) == "x86_64" ]; then
-        dnf -4 y install hostpad wpa_supplicant{,-debuginfo,-debugsource} --skip-broken
+        dnf -4 -y install hostpad wpa_supplicant{,-debuginfo,-debugsource} --skip-broken
         dnf -4 -y update \
             https://vbenes.fedorapeople.org/NM/WPA3/hostapd-2.9-6.el8.x86_64.rpm \
             https://vbenes.fedorapeople.org/NM/WPA3/hostapd-debuginfo-2.9-6.el8.x86_64.rpm \
