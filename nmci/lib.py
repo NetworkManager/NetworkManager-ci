@@ -23,7 +23,15 @@ def nm_pid():
 
 def nm_size_kb():
     memsize = 0
-    smaps = open("/proc/%d/smaps" % nm_pid())
+    pid = nm_pid()
+    if not pid:
+        print("Warning: unable to get mem usage, NetworkManager is not running!")
+        return 0
+    out, _, rc = nmci.run("sudo cat /proc/%d/smaps" % pid)
+    if rc != 0:
+        print("Warning: unable to get mem usage, smaps file missing for NetworkManager process!")
+        return 0
+    smaps = out.strip("\n").split("\n")
     for line in smaps:
         fields = line.split()
         if not fields[0] in ('Private_Dirty:', 'Swap:'):
