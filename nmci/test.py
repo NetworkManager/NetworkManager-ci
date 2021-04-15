@@ -481,26 +481,32 @@ def test_feature_tags():
             assert type(tags) is list
             test_in_mapper = False
             for tag in tags:
+
                 assert type(tag) is str
                 assert tag
                 assert re.match("^[-a-z_.A-Z0-9+=]+$", tag)
                 assert re.match("^" + misc.TEST_NAME_VALID_CHAR_REGEX + "+$", tag)
                 assert tags.count(tag) == 1, f'tag "{tag}" is not unique in {tags}'
+
                 is_ver = check_ver(tag)
                 is_bugzilla = check_bugzilla(tag)
                 is_registry = check_registry(tag)
                 is_mapper = check_mapper(tag)
-                test_in_mapper = test_in_mapper or is_mapper
-                if is_registry:
-                    tag_registry_used.add(tag)
+
                 assert (
                     is_ver or is_bugzilla or is_registry or is_mapper
                 ), f'tag "{tag}" has no effect'
-                assert [is_ver, is_bugzilla, is_registry, is_mapper].count(True) == 1, (
+                assert (is_ver + is_bugzilla + is_registry + is_mapper) == 1, (
                     f'tag "{tag}" is multipurpose ({"mapper, " if is_mapper else ""}'
                     f'{"registry, " if is_registry else ""}{"ver, " if is_ver else ""}'
                     f'{"bugzilla, " if is_bugzilla else ""})'
                 )
+
+                if is_mapper:
+                    test_in_mapper = True
+
+                if is_registry:
+                    tag_registry_used.add(tag)
 
             assert test_in_mapper, f"none of {tags} is in mapper"
 
