@@ -1206,6 +1206,8 @@ testmapper:
         feature: ethernet
     #- 8021x_auto_auth_retry:
     #    feature: ethernet
+    - 8021x_stop_wpa_supplicant_with_8021x_optional:
+        feature: ethernet
     - preserve_8021x_certs_ethernet:
         feature: ethernet
     - preserve_8021x_leap_con:

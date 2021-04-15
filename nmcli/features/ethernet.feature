@@ -651,6 +651,19 @@ Feature: nmcli - ethernet
     Then "/tmp/certs/" is visible with command "nmcli -t -f 802-1x.ca-path con show id con_ethernet"
 
 
+    @ver+=1.32.0
+    @con_ethernet_remove @8021x @attach_hostapd_log @attach_wpa_supplicant_log
+    @8021x_stop_wpa_supplicant_with_8021x_optional
+    Scenario: nmcli - ethernet - stop wpa_supplicant with 802-1x optional
+    * Add a new connection of type "ethernet" and options "ifname test8X con-name con_ethernet 802-1x.eap peap 802-1x.optional yes 802-1x.identity test_md5 802-1x.anonymous-identity test 802-1x.ca-cert /tmp/certs/test_user.ca.pem 802-1x.phase2-auth md5 802-1x.password password"
+    Then Bring "up" connection "con_ethernet"
+    Then "activated" is visible with command "nmcli -g general.state con show id con_ethernet" in "10" seconds
+    * Execute "systemctl stop wpa_supplicant.service"
+    Then "activated" is not visible with command "nmcli -g general.state con show id con_ethernet" in "10" seconds
+    And "^active" is visible with command "systemctl is-active wpa_supplicant.service"
+    Then "activated" is visible with command "nmcli -g general.state con show id con_ethernet" in "10" seconds
+
+
     @rhbz1335409
     @ver+=1.14
     @con_ethernet_remove
