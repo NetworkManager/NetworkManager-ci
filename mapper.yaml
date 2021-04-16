@@ -1541,9 +1541,9 @@ testmapper:
     - stable_mem_consumption:
         feature: general
         timeout: 20m
-    - stable_mem_consumption2:
-        feature: general
-        timeout: 20m
+        #    - stable_mem_consumption2:
+        #feature: general
+        #timeout: 20m
     - dummy_connection:
         feature: general
     - dummy_with_qdisc:
