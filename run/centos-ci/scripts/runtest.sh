@@ -8,9 +8,11 @@ sleep 5
 
 cd NetworkManager-ci
 
-# Add failures and test counter variables
+# Add fail, skip, pass, and test counter variables
 cnt=0
-failures=()
+fail=()
+skip=()
+pass=()
 
 # Overal result is PASS
 # This can be used as a test result indicator
@@ -43,30 +45,45 @@ for test in $@; do
         # Overal result is FAIL
         echo "FAIL" > /tmp/results/RESULT
         mv /tmp/report_NetworkManager_Test$counter"_"$test.html /tmp/results/FAIL-Test$counter"_"$test.html
-        failures+=($test)
+        fail+=($test)
         systemctl restart NetworkManager
         nmcli con up id testeth0
     else
-        mv /tmp/report_NetworkManager_Test$counter"_"$test.html /tmp/results/Test$counter"_"$test.html
+        # File has a non zero size (was no skipped)
+        if [ -s /tmp/report_NetworkManager_Test$counter"_"$test.html ]; then
+            mv /tmp/report_NetworkManager_Test$counter"_"$test.html /tmp/results/Test$counter"_"$test.html
+            pass+=($test)
+        else
+            skip+=($test)
+            rm -rf /tmp/report_NetworkManager_Test$counter"_"$test.html
+        fi
     fi
-
     ((cnt++))
 
 done
 
 rc=1
-# Write out tests failures
-if [ ${#failures[@]} -ne 0 ]; then
-    echo "** $cnt TESTS PASSED"
-    echo "--------------------------------------------"
-    echo "** ${#failures[@]} TESTS FAILED"
-    echo "--------------------------------------------"
-    for fail in "${failures[@]}"; do
-        echo "$fail"
-    done
-else
+echo "--------------------------------------------"
+echo "** ${#pass[@]} TESTS PASSED"
+if [ ${#pass[@]} -ne 0 ]; then
     rc=0
-    echo "** ALL $cnt TESTS PASSED!"
 fi
+if [ ${#fail[@]} -ne 0 ]; then
+    echo "** ${#fail[@]} TESTS FAILED"
+    echo "--------------------------------------------"
+    for f in "${fail[@]}"; do
+        echo "$f"
+    done
+fi
+if [ ${#skip[@]} -ne 0 ]; then
+    echo "** ${#skip[@]} TESTS FAILED"
+    echo "--------------------------------------------"
+    for s in "${skip[@]}"; do
+        echo "$s"
+    done
+fi
+echo "${#pass[@]}" > /tmp/summary.txt
+echo "${#fail[@]}" >> /tmp/summary.txt
+echo "${#skip[@]}" >> /tmp/summary.txt
 
 exit $rc

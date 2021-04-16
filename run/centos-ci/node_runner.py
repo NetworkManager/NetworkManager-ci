@@ -6,6 +6,7 @@ import urllib.request
 import gzip
 import os
 import yaml
+import json
 
 def check_build(baseurl):
     copr_log = "backend.log.gz"
@@ -231,18 +232,75 @@ def install_workarounds ():
     cmd1 = "yum -y install make"
     subprocess.call(cmd1, shell=True)
 
+def set_gitlab (trigger_data, gl_token):
+    with open("/etc/python-gitlab.cfg", "w") as cfg:
+        cfg.write('[global]\n')
+        cfg.write('default = gitlab.freedesktop.org\n')
+        cfg.write('ssl_verify = false\n')
+        cfg.write('timeout = 30\n')
+        cfg.write('[gitlab.freedesktop.org]\n')
+        cfg.write('url = https://gitlab.freedesktop.org\n')
+        cfg.write('private_token = %s\n' %gl_token)
+        cfg.write("\n")
+        cfg.close()
+
+    import base64
+    content = base64.b64decode(trigger_data).decode('utf-8').strip()
+    data = json.loads(content)
+    logging.debug(data)
+    from cico_gitlab_trigger import GitlabTrigger
+    gitlab_trigger = GitlabTrigger(data)
+    return gitlab_trigger
+
+def post_results (gl_trigger):
+    with open('/tmp/summary.txt', 'r') as f:
+        lines = f.readlines()
+    # PASS/FAIL/SKIP
+    p = lines[0].strip()
+    f = lines[1].strip()
+    s = lines[2].strip()
+    msg = "CentOS Testing Summary:\n"
+    if p == 0 and f == 0 and s == 0:
+        msg+= "Something went wrong!\n"
+    if f != 0:
+        msg+= "Result: Unstable: Some tests failed!\n"
+    else:
+        msg+= "Result: STABLE: All tests passing!\n"
+    msg+="\nPassed: %s, Failed: %s, Skipped: %s" %(p, f, s)
+    with open('/etc/redhat-release') as f:
+        msg+="Executed on: %s" %(f.read())
+    gl_trigger.post_commit_comment(msg)
 
 if __name__ == "__main__":
     logging.basicConfig(level=logging.DEBUG)
+    logging.debug("reading params")
     test_branch = sys.argv[1]
     nm_refspec = sys.argv[2]
     features = sys.argv[3]
+    build_id = sys.argv[4]
+    gl_token = sys.argv[5]
+    trigger_data = sys.argv[6]
+
+    logging.debug(test_branch)
+    logging.debug(nm_refspec)
+    logging.debug(features)
+    logging.debug(build_id)
+    logging.debug(trigger_data)
+    logging.debug(gl_token)
+    os.environ['BUILD_URL'] = build_id
+
+    gitlab_trigger = None
+    if trigger_data != "":
+        gitlab_trigger = set_gitlab(trigger_data, gl_token, )
+        # gitlab_trigger.post_commit_comment('vokokos')
 
     install_workarounds ()
 
     if prepare_box (nm_refspec) != 0:
         sys.exit(1)
 
+    if 'best' in features:
+        features = "adsl"
     tests = process_raw_features (features, test_branch)
     if tests == "":
         logging.debug("no tests to run: %s" %tests)
@@ -251,8 +309,17 @@ if __name__ == "__main__":
         logging.debug("tests to run: %s" %tests)
 
     cmd = "sh run/centos-ci/scripts/./runtest.sh %s" %tests
+    gitlab_trigger.set_pipeline('running')
     runtest = subprocess.Popen(cmd, shell=True)
     exit_code = runtest.wait()
+
+    if gitlab_trigger:
+        if exit_code != 0:
+            gitlab_trigger.set_pipeline('failed')
+        else:
+            gitlab_trigger.set_pipeline('success')
+        post_results (gitlab_trigger)
+
     generate_junit ("/tmp/results")
     logging.debug("All Done. Exit with %s" %exit_code)
     sys.exit (exit_code)
