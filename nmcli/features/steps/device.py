@@ -326,7 +326,7 @@ def delete_device(context, device):
 def delete_device(context, old_device, new_device):
     context.command_code("ip link set dev %s down" % old_device)
     context.command_code("ip link set %s name %s" % (old_device, new_device))
-    context.command_code("ip link set dev %s up" % old_device)
+    context.command_code("ip link set dev %s up" % new_device)
 
 
 @step(u'vxlan device "{dev}" check for parent "{parent}"')
