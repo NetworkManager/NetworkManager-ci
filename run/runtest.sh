@@ -78,6 +78,20 @@ if [ $rc -eq 0 ]; then
     fi
 fi
 
+# xfail handling
+if [[ $TAG = *"-t xfail "* ]]; then
+    if [ "$rc" = 0 ]; then
+      rc=1
+    elif [ "$rc" != 77 ]; then
+      rc=0
+    fi
+# may_fail
+elif [[ $TAG = *"-t may_fail "* ]]; then
+    if [ "$rc" != 77 ]; then
+      rc=0
+    fi
+fi
+
 if [ $rc -eq 0 ]; then
     RESULT="PASS"
 elif [ $rc -eq 77 ]; then

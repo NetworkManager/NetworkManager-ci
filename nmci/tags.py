@@ -27,6 +27,15 @@ def _register_tag(tag_name, before_scenario=None, after_scenario=None):
 
 # tags that have efect outside this file
 _register_tag("no_abrt")
+_register_tag("xfail")
+_register_tag("may_fail")
+
+
+def temporary_skip_bs(ctx, scen):
+    sys.exit(77)
+
+
+_register_tag("temporary_skip", temporary_skip_bs)
 
 
 def skip_restarts_bs(ctx, scen):

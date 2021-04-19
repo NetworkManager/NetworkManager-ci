@@ -1561,7 +1561,7 @@ Feature: nmcli - general
 
     @rhbz1461643
     @ver+=1.10.0
-    @long @logging_info_only @delete_testeth0 @no_config_server @allow_veth_connections
+    @may_fail @long @logging_info_only @delete_testeth0 @no_config_server @allow_veth_connections
     @stable_mem_consumption2
     Scenario: NM - general - stable mem consumption - var 2
     * Execute "sh tmp/repro_1461643.sh && sleep 10"
