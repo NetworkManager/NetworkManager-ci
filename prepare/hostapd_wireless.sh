@@ -6,6 +6,12 @@ EAP_USERS_FILE="/etc/hostapd/hostapd.eap_user"
 HOSTAPD_KEYS_PATH="/etc/hostapd/ssl"
 CLIENT_KEYS_PATH="/tmp/certs"
 
+function get_phy() {
+    ifname=$1
+    phynum=$(iw dev $ifname info | grep "wiphy [0-9]\+" | awk '{print $2}')
+    echo "phy$phynum"
+}
+
 function start_dnsmasq ()
 {
     echo "Start DHCP server (dnsmasq)"
@@ -357,7 +363,8 @@ function prepare_test_bed ()
     ip link set dev wlan1 up
 
     if $DO_NAMESPACE; then
-        iw phy phy1 set netns name wlan_ns
+        phy=$(get_phy wlan1)
+        iw phy $phy set netns name wlan_ns
         ip -n wlan_ns add add 10.0.254.1/24 dev wlan1
     else
         ip add add 10.0.254.1/24 dev wlan1
