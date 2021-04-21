@@ -150,6 +150,21 @@ def set_up_commands(context):
     context._log_index = 0
 
 
+def embed_after_scenario(context, scenario_fail=False):
+    for kwargs in getattr(context, "_to_embed", []):
+        # execute postponed "call"s
+        if kwargs["mime_type"] == "call":
+            # "data" is function, "caption" is args, function returns triple
+            mime_type, data, caption = kwargs["data"](*kwargs["caption"])
+            kwargs["mime_type"], kwargs["data"], kwargs["caption"] = mime_type, data, caption
+        # skip "fail_only" when scenario passed
+        if not scenario_fail and kwargs["fail_only"]:
+            continue
+        # reset "fail_only" to prevent loop
+        kwargs["fail_only"] = False
+        context.embed(**kwargs)
+
+
 def embed_service_log(context, service, descr, journal_arg=None, fail_only=False, now=True):
     print("embedding " + descr + " logs")
     if journal_arg is None:

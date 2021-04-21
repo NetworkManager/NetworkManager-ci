@@ -266,18 +266,7 @@ def _after_scenario(context, scenario):
 
     # Attach postponed or "fail_only" embeds
     # !!! all embed calls with "fail_only" after this are ignored !!!
-    for kwargs in getattr(context, "_to_embed", []):
-        # skip "fail_only" when scenario passed
-        if not scenario_fail and kwargs["fail_only"]:
-            continue
-        # reset "fail_only" to prevent loop
-        kwargs["fail_only"] = False
-        # execute postponed "call"s
-        if kwargs["mime_type"] == "call":
-            # "data" is function, "caption" is args, function returns triple
-            mime_type, data, caption = kwargs["data"](*kwargs["caption"])
-            kwargs["mime_type"], kwargs["data"], kwargs["caption"] = mime_type, data, caption
-        context.embed(**kwargs)
+    nmci.lib.process_embeds(context, scenario_fail)
 
     nmci.lib.dump_status_nmcli(context, 'After Clean', fail_only=False)
 
