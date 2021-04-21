@@ -59,7 +59,7 @@ def NM_log(cursor):
         print(msg)
         return msg
 
-    return nmci.lib.utf_only_open_read("/tmp/journal-nm.log")
+    return utf_only_open_read("/tmp/journal-nm.log")
 
 
 def get_service_log(service, journal_arg):
@@ -221,7 +221,7 @@ def get_pexpect_logs(proc, logfile):
     if proc.expect([pexpect.EOF, pexpect.TIMEOUT], timeout=3) != 1:
         proc.kill(9)
     logfile.close()
-    stdout = nmci.lib.utf_only_open_read(logfile.name)
+    stdout = utf_only_open_read(logfile.name)
     os.remove(logfile.name)
     return ["pexpect:"+proc.name, proc.status, stdout, None]
 
@@ -337,7 +337,7 @@ def dump_status_nmcli(context, when, fail_only=False):
                 msg += cmd_out
 
     if context.nm_pid is not None:
-        msg += "NetworkManager memory consumption before: %d KiB\n" % nmci.lib.nm_size_kb()
+        msg += "NetworkManager memory consumption before: %d KiB\n" % nm_size_kb()
         if os.path.isfile("/etc/systemd/system/NetworkManager.service") \
                 and nmci.command_code(
                     "grep -q valgrind /etc/systemd/system/NetworkManager.service") == 0:
@@ -490,7 +490,7 @@ def reinitialize_devices():
                 break
     if nmci.command_code('nmcli d |grep gsm') != 0:
         print("reinitialize devices")
-        nmci.lib.reset_usb_devices()
+        reset_usb_devices()
         nmci.run('for i in $(ls /sys/bus/usb/devices/usb*/authorized); do echo 0 > $i; done')
         nmci.run('for i in $(ls /sys/bus/usb/devices/usb*/authorized); do echo 1 > $i; done')
         nmci.run('systemctl restart ModemManager')
