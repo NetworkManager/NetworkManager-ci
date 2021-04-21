@@ -34,89 +34,14 @@ def before_all(context):
 
     context.no_step = True
 
-    # setup formatter embed and set_title
-    for formatter in context._runner.formatters:
-        if "html" in formatter.name:
-            if getattr(formatter, "set_title", None) is not None:
-                context.set_title = formatter.set_title
-            if getattr(formatter, "embedding", None) is not None:
-                def embed(formatter, context):
-                    def fn(mime_type, data, caption, html_el=None, fail_only=False):
-                        data = data or " "
-                        if html_el is None:
-                            html_el = formatter.actual["act_step_embed_span"]
-                        if mime_type == "call" or fail_only:
-                            context._to_embed.append({
-                                "html_el": html_el,
-                                "mime_type": mime_type,
-                                "data": data,
-                                "caption": caption,
-                                "fail_only": fail_only,
-                                })
-                        else:
-                            formatter._doEmbed(html_el, mime_type, data, caption)
-                            ET.SubElement(html_el, "br")
-                    return fn
-                embed_fn = embed(formatter, context)
-                formatter.embedding = embed_fn
-                context.embed = embed_fn
-                context.html_formatter = formatter
-
-    def _run(command, *a, **kw):
-        out, err, code = nmci.run(command, *a, **kw)
-        context._command_calls.append((command, code, out, err))
-        return out, err, code
-
-    def _command_output(command, *a, **kw):
-        out, err, code = _run(command, *a, **kw)
-        assert code == 0, "command '%s' exited with code %d" \
-            % (command, code, out, err)
-        return out
-
-    def _command_output_err(command, *a, **kw):
-        out, err, code = _run(command, *a, **kw)
-        assert code == 0, "command '%s' exited with code %d" \
-            % (command, code, out, err)
-        return out, err
-
-    def _command_code(command, *a, **kw):
-        out, err, code = _run(command, *a, **kw)
-        return code
-
-    def _pexpect_spawn(*a, encoding="utf-8", logfile=None, **kw):
-        if logfile is None:
-            logfile = open("/tmp/expect.log."+str(context._log_index), "w")
-            context._log_index += 1
-        proc = pexpect.spawn(*a, **kw, logfile=logfile, encoding=encoding)
-        context._expect_procs.append((proc, logfile))
-        return proc
-
-    def _pexpect_service(*a, encoding="utf-8", logfile=None, **kw):
-        if logfile is None:
-            logfile = open("/tmp/expect_service.log."+str(context._log_index), "w")
-            context._log_index += 1
-        proc = pexpect.spawn(*a, **kw, logfile=logfile, encoding=encoding)
-        context._expect_services.append((proc, logfile))
-        return proc
+    nmci.lib.set_up_embedding(context)
+    nmci.lib.set_up_commands(context)
 
     def _additional_sleep(seconds):
         if context.IS_NMTUI:
             time.sleep(seconds)
 
-    context._to_embed = []
-    context.command_code = _command_code
-    context.run = _run
-    context.command_output = _command_output
-    context.command_output_err = _command_output_err
-    # pexpect_spawn commands are killed after step (if survives)
-    context.pexpect_spawn = _pexpect_spawn
-    # pexpect_spawn commands are killed at the end of the test
-    context.pexpect_service = _pexpect_service
     context.additional_sleep = _additional_sleep
-    context._command_calls = []
-    context._expect_procs = []
-    context._expect_services = []
-    context._log_index = 0
 
     context.crash_embeded = False
 
@@ -248,8 +173,6 @@ def after_step(context, step):
         sys.exit(77)
 
     nmci.lib.process_commands(context, "")
-
-    context._command_calls = []
 
     if IS_NMTUI:
         """Teardown after each step.
