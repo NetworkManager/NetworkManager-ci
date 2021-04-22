@@ -76,7 +76,7 @@ if [ ${#fail[@]} -ne 0 ]; then
     done
 fi
 if [ ${#skip[@]} -ne 0 ]; then
-    echo "** ${#skip[@]} TESTS FAILED"
+    echo "** ${#skip[@]} TESTS SKIPPED"
     echo "--------------------------------------------"
     for s in "${skip[@]}"; do
         echo "$s"

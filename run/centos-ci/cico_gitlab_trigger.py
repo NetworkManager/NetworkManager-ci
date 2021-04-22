@@ -25,8 +25,8 @@ class GitlabTrigger(object):
             self.gl_api = gitlab.Gitlab.from_config('gitlab.freedesktop.org')
             group = 'NetworkManager'
             self.gl_project = self.gl_api.projects.get('%s/%s' % (group, data['repository']['name']))
-        except Exception as ex:
-            print(ex)
+        except:
+            pass
     @property
     def request_type(self):
         return self.data['object_kind']
@@ -203,17 +203,11 @@ def get_mapper_yaml(repo_name):
 def execute_build(gt, content, os_override=None):
 
     component = gt.repository
-    print (component)
-    print ("EXECUTION")
-    print (content)
     params = []
-    # params.append({'name': 'ARCH', 'value': 'x86_64'})
-    #if 'NetworkManager' not in name:
-    # if (component != 'control-center') or (component == 'control-center' and name not in coexec[component]):
-    #     params.append({'name': 'OPENSTACK', 'value': 'true'})
     os_version = default_os
-    # if next_branch_base in gt.target_branch:
-    #     os_version = next_os
+
+    if os_override:
+        os_version = os_override
     params.append({'name': 'RELEASE', 'value': os_version})
 
     if gt.repository == 'NetworkManager': # NM CODE trigger will always use main (not TESTS repo)
@@ -255,10 +249,12 @@ def process_request(data, content):
         comment = gt.comment
         if comment.lower() == 'rebuild':
             execute_build(gt, content)
-        elif comment.lower() == 'rebuild rawhide':
-            execute_build(gt, content, os_override='Rawhide')
-        elif comment.lower().startswith('rebuild') and len(comment.split()) == 2:
-            execute_build(gt, content, os_override=comment.split()[1].upper())
+        elif comment.lower() == 'rebuild 7':
+            execute_build(gt, content, os_override='7')
+        elif comment.lower() == 'rebuild 8':
+            execute_build(gt, content, os_override='8')
+        elif comment.lower() == 'rebuild 8-stream':
+            execute_build(gt, content)
         elif '@runtests:' in comment.lower():
             execute_build(gt, content)
         elif '@build:' in comment.lower(): # NM specific tag to set UPSTREAM_REFSPEC_ID
@@ -274,6 +270,8 @@ def process_request(data, content):
             if gt.title.startswith("WIPI"):
                 print("This is WIP Merge Request - not proceeding")
             else:
+                if not os.path.exists('/tmp/gl_commits'):
+                    os.system("echo '' > /tmp/gl_commits")
                 with open('/tmp/gl_commits') as f:
                     commits = f.read().splitlines()
                     if gt.commit not in commits:
@@ -283,6 +281,7 @@ def process_request(data, content):
                         execute_build(gt, content, os_override=override)
                     else:
                         print("Commit %s have already executed, use rebuild if needed" % gt.commit)
+
         else:
             if gt.title.startswith("WIPI"):
                 print("This is WIP Merge Request - not proceeding")
@@ -297,16 +296,14 @@ def run():
         print("Invalid input")
         sys.exit(1)
     json_file = sys.argv[1]
-    print(json_file)
     with open(json_file) as f:
         content = f.read()
-    #content = content.encode('ascii', 'ignore').decode()
+    content = """%s"""%content
     print('\n\n\n\n\n-------------')
     print(datetime.datetime.fromtimestamp(int(time.time())).strftime('%Y-%m-%d %H:%M:%S'))
 
-    print(content)
     data = json.loads(content)
-    pprint(data)
+    #pprint(data)
     process_request(data, content)
     print('----end-------')
 

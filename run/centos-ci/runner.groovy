@@ -1,15 +1,23 @@
 node('cico-workspace') {
     try {
         stage ('set env') {
-            currentBuild.displayName = "${VERSION}"
-            if (TRIGGER_DATA != null) {
-                println("WE DO HAVE TRIGGER_DATA")
-                println ("${TRIGGER_DATA}")
-                println("WE DO HAVE TRIGGER_DATA")
+            if (params['VERSION']) {
+                currentBuild.displayName = "${VERSION}"
             }
-            else {
-                println("NO TRIGGER_DATA")
+            if (!params['TRIGGER_DATA']) {
                 TRIGGER_DATA = ""
+            }
+            if (!params['REFSPEC']) {
+                REFSPEC = "main"
+            }
+            if (!params['TEST_BRANCH']) {
+                TEST_BRANCH = "master"
+            }
+            if (!params['FEATURES']) {
+                FEATURES = "all"
+            }
+            if (!params['RESERVE']) {
+                RESERVE = "0s"
             }
         }
         stage('get cico node') {
@@ -22,10 +30,9 @@ node('cico-workspace') {
             println("Prepare env")
             // Use byte64 to push the data to avoid encoding issues
             TD = TRIGGER_DATA.bytes.encodeBase64().toString()
-            //TD = TRIGGER_DATA
             println("Preparing commands")
             install = "yum install -y git python3"
-            install2 = "python3 -m pip install python-gitlab"
+            install2 = "python3 -m pip install python-gitlab pyyaml"
             clone = "git clone https://gitlab.freedesktop.org/NetworkManager/NetworkManager-ci.git -b ${TEST_BRANCH}"
             run = "cd NetworkManager-ci; python3 run/centos-ci/node_runner.py ${TEST_BRANCH} ${REFSPEC} ${FEATURES} ${env.BUILD_URL} ${GL_TOKEN} ${TD}"
             println("Running install")

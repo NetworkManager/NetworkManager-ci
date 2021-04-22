@@ -94,6 +94,7 @@ def get_testmapper(testbranch):
         logging.debug ("No testmapper")
         return None
 
+
 def get_test_cases_for_features(features, testbranch):
     testnames = []
     mapper = get_testmapper(testbranch)
@@ -143,24 +144,40 @@ def generate_junit(results_dir):
     logging.debug("JUNIT Done")
     return 0
 
+def get_features_from_mapper(branch):
+    mapper = get_testmapper(branch)
+    print (mapper)
+    if mapper:
+        content = mapper.read().decode('utf-8')
+        content_parsed = yaml.load(content)
+        default_exclude = ['dcb', 'wifi', 'infiniband', 'wol', 'sriov', 'gsm']
+        features = []
+        for test in content_parsed['testmapper']['default']:
+            for test_name in test:
+                f = test[test_name]['feature']
+                if f not in default_exclude:
+                    if f not in features:
+                        features.append(f)
+        return (features)
+    return None
 
-def process_raw_features(features, testbranch):
+def process_raw_features(raw_features, testbranch, gitlab_trigger=None):
     tests = ""
-    if not features or features.lower() == 'all':
-        raw_features = "adsl,alias, \
-                        bond,bridge,\
-                        team,vlan, \
-                        connection,dispatcher, \
-                        ethernet,general, \
-                        ipv4,ipv6,\
-                        libreswan,openvpn,\
-                        ppp,pptp,\
-                        tuntap,vpnc,tc"
+
+    if 'best' in raw_features:
+        if gitlab_trigger:
+            features = get_modified_features_for_testarea (gitlab_trigger)
+            if features == None or features == []:
+                features = ["all"]
+        else:
+            features = ["all"]
+        logging.debug("running best effort execution to shorten time: %s" %features)
+
+    elif '' in raw_features or 'all' in raw_features:
+        features = get_features_from_mapper(testbranch)
     else:
-        raw_features = features
-    features = []
-    for f in raw_features.split(','):
-        features.append(f.strip())
+        features = raw_features.split(',')
+
     for test in get_test_cases_for_features(features, testbranch):
         tests=tests+test+" "
     return tests.strip()
@@ -252,6 +269,30 @@ def set_gitlab (trigger_data, gl_token):
     gitlab_trigger = GitlabTrigger(data)
     return gitlab_trigger
 
+def get_modified_features_for_testarea(gl_trigger):
+    default_exlude = ['dcb', 'wifi', 'infiniband', 'wol', 'sriov', 'gsm']
+    features = []
+    # do it via wget and raw mode - as API is silly complicated in getting MR's diff
+    print(">> Reading patch from gitlab merge request: " + gl_trigger.merge_request_url)
+    cmd = "wget %s.diff -O patch.diff" % gl_trigger.merge_request_url
+    print("Executing " + cmd)
+    if os.system(cmd) != 0:
+        print("Failed downloading diff")
+        return None
+    with open('patch.diff', 'r') as f:
+        content = f.readlines()
+
+    for line in content:
+        import re
+        m = re.match(r'^\+\+\+(.*/(\S+)\.feature)', line)
+        if m is not None and 'nmcli' in m.group(1):
+            if m.group(2) not in default_exlude:
+                logging.debug('Found feature: %s' % m.group(1))
+                features.append(m.group(2))
+        elif m is not None and 'nmtui' in m.group(1):
+            features.append('nmtui')
+    return features
+
 def post_results (gl_trigger):
     with open('/tmp/summary.txt', 'r') as f:
         lines = f.readlines()
@@ -274,42 +315,50 @@ def post_results (gl_trigger):
 if __name__ == "__main__":
     logging.basicConfig(level=logging.DEBUG)
     logging.debug("reading params")
-    test_branch = sys.argv[1]
-    nm_refspec = sys.argv[2]
-    features = sys.argv[3]
-    build_id = sys.argv[4]
-    gl_token = sys.argv[5]
-    trigger_data = sys.argv[6]
+    logging.debug(sys.argv)
 
+    test_branch = sys.argv[1]
     logging.debug(test_branch)
-    logging.debug(nm_refspec)
-    logging.debug(features)
-    logging.debug(build_id)
-    logging.debug(trigger_data)
-    logging.debug(gl_token)
-    os.environ['BUILD_URL'] = build_id
+
+    if len(sys.argv) > 2:
+        nm_refspec = sys.argv[2]
+        logging.debug(nm_refspec)
+    if len(sys.argv) > 3:
+        raw_features = sys.argv[3]
+        logging.debug(raw_features)
+    if len(sys.argv) > 4:
+        build_id = sys.argv[4]
+        logging.debug(build_id)
+        os.environ['BUILD_URL'] = build_id
+    if len(sys.argv) > 5:
+        gl_token = sys.argv[5]
+        logging.debug(gl_token)
+    if len(sys.argv) > 6:
+        trigger_data = sys.argv[6]
+        logging.debug(trigger_data)
 
     gitlab_trigger = None
     if trigger_data != "":
-        gitlab_trigger = set_gitlab(trigger_data, gl_token, )
-        # gitlab_trigger.post_commit_comment('vokokos')
+        gitlab_trigger = set_gitlab(trigger_data, gl_token)
+    if gitlab_trigger:
+        tests = process_raw_features (raw_features, test_branch, gitlab_trigger)
+    else:
+        tests = process_raw_features (raw_features, test_branch)
 
-    install_workarounds ()
-
-    if prepare_box (nm_refspec) != 0:
-        sys.exit(1)
-
-    if 'best' in features:
-        features = "bond"
-    tests = process_raw_features (features, test_branch)
     if tests == "":
         logging.debug("no tests to run: %s" %tests)
         sys.exit(1)
     else:
         logging.debug("tests to run: %s" %tests)
 
+    install_workarounds ()
+
+    if prepare_box (nm_refspec) != 0:
+        sys.exit(1)
+
     cmd = "sh run/centos-ci/scripts/./runtest.sh %s" %tests
-    gitlab_trigger.set_pipeline('running')
+    if gitlab_trigger:
+        gitlab_trigger.set_pipeline('running')
     runtest = subprocess.Popen(cmd, shell=True)
     exit_code = runtest.wait()
 

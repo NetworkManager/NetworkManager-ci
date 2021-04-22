@@ -7,6 +7,7 @@ Feature: nmcli: adsl
     # @test_name (compiled from scenario name)
     # Scenario:
 
+
     @rhbz1264089
     @adsl
     @add_adsl_connection_novice_mode
