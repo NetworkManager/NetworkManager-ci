@@ -150,7 +150,7 @@ def set_up_commands(context):
     context._log_index = 0
 
 
-def embed_after_scenario(context, scenario_fail=False):
+def process_embeds(context, scenario_fail=False):
     for kwargs in getattr(context, "_to_embed", []):
         # execute postponed "call"s
         if kwargs["mime_type"] == "call":
