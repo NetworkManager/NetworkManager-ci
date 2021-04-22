@@ -259,14 +259,14 @@ def post_results (gl_trigger):
     p = lines[0].strip()
     f = lines[1].strip()
     s = lines[2].strip()
-    msg = "CentOS Testing Summary:\n"
-    if p == 0 and f == 0 and s == 0:
+    msg = "CentOS Testing Summary\n\n"
+    if p == '0' and f == '0' and s == '0':
         msg+= "Something went wrong!\n"
-    if f != 0:
+    if f != '0':
         msg+= "Result: Unstable: Some tests failed!\n"
     else:
         msg+= "Result: STABLE: All tests passing!\n"
-    msg+="\nPassed: %s, Failed: %s, Skipped: %s" %(p, f, s)
+    msg+="\nPassed: %s, Failed: %s, Skipped: %s\n\n" %(p, f, s)
     with open('/etc/redhat-release') as f:
         msg+="Executed on: %s" %(f.read())
     gl_trigger.post_commit_comment(msg)
@@ -300,7 +300,7 @@ if __name__ == "__main__":
         sys.exit(1)
 
     if 'best' in features:
-        features = "adsl"
+        features = "bond"
     tests = process_raw_features (features, test_branch)
     if tests == "":
         logging.debug("no tests to run: %s" %tests)
