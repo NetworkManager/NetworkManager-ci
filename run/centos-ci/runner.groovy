@@ -31,7 +31,7 @@ node('cico-workspace') {
             // Use byte64 to push the data to avoid encoding issues
             TD = TRIGGER_DATA.bytes.encodeBase64().toString()
             println("Preparing commands")
-            install = "yum install -y git python3"
+            install = "yum install -y git python3 wget"
             install2 = "python3 -m pip install python-gitlab pyyaml"
             clone = "git clone https://gitlab.freedesktop.org/NetworkManager/NetworkManager-ci.git -b ${TEST_BRANCH}"
             run = "cd NetworkManager-ci; python3 run/centos-ci/node_runner.py ${TEST_BRANCH} ${REFSPEC} ${FEATURES} ${env.BUILD_URL} ${GL_TOKEN} ${TD}"

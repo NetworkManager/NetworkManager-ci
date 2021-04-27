@@ -185,8 +185,9 @@ def process_raw_features(raw_features, testbranch, gitlab_trigger=None):
 def install_all_nm_packages ():
     # Install all packages and remove them
     add_epel_crb_repos()
+
     logging.debug("install all packages to pull in all deps")
-    subprocess.call("yum -q -y install NetworkManager-team \
+    subprocess.call("yum -y install crda NetworkManager-team \
                         NetworkManager-ppp NetworkManager-wifi \
                         NetworkManager-adsl NetworkManager-ovs \
                         NetworkManager-tui NetworkManager-wwan \
@@ -246,7 +247,7 @@ def install_workarounds ():
     # pass
     cmd0 = "yum -y install https://vbenes.fedorapeople.org/NM/libndp_rhbz1933041/libndp-1.7-5.el8.x86_64.rpm https://vbenes.fedorapeople.org/NM/libndp_rhbz1933041/libndp-devel-1.7-5.el8.x86_64.rpm"
     subprocess.call(cmd0, shell=True)
-    cmd1 = "yum -y install make"
+    cmd1 = "yum -y install crda make"
     subprocess.call(cmd1, shell=True)
 
 def set_gitlab (trigger_data, gl_token):
@@ -336,9 +337,11 @@ if __name__ == "__main__":
     if len(sys.argv) > 6:
         trigger_data = sys.argv[6]
         logging.debug(trigger_data)
+    else:
+        trigger_data = None
 
     gitlab_trigger = None
-    if trigger_data != "":
+    if trigger_data:
         gitlab_trigger = set_gitlab(trigger_data, gl_token)
     if gitlab_trigger:
         tests = process_raw_features (raw_features, test_branch, gitlab_trigger)

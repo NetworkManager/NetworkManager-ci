@@ -249,11 +249,9 @@ def process_request(data, content):
         comment = gt.comment
         if comment.lower() == 'rebuild':
             execute_build(gt, content)
-        elif comment.lower() == 'rebuild 7':
-            execute_build(gt, content, os_override='7')
-        elif comment.lower() == 'rebuild 8':
+        elif comment.lower() == 'rebuild centos8':
             execute_build(gt, content, os_override='8')
-        elif comment.lower() == 'rebuild 8-stream':
+        elif comment.lower() == 'rebuild centos8-stream':
             execute_build(gt, content)
         elif '@runtests:' in comment.lower():
             execute_build(gt, content)
@@ -267,7 +265,7 @@ def process_request(data, content):
         elif data['object_attributes']['action'] == 'close':
             print("CLOSE packet, ignoring")
         elif data['object_attributes']['action'] == 'update':
-            if gt.title.startswith("WIPI"):
+            if gt.title.startswith("WIP"):
                 print("This is WIP Merge Request - not proceeding")
             else:
                 if not os.path.exists('/tmp/gl_commits'):
