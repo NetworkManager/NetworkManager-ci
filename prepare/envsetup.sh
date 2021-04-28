@@ -582,9 +582,16 @@ local_setup_configure_nm_eth_part1 () {
     fi
 
     # Removing rate limit for systemd journaling
-    sed -i 's/^#\?\(RateLimitInterval *= *\).*/\10/' /etc/systemd/journald.conf
-    sed -i 's/^#\?\(RateLimitBurst *= *\).*/\10/' /etc/systemd/journald.conf
-    sed -i 's/^#\?\(SystemMaxUse *= *\).*/\115G/' /etc/systemd/journald.conf
+    sed -i -e '/^ *\(Storage\|SystemMaxUse\|RateLimitBurst\|RateLimitInterval\|SystemMaxFiles\|SystemMaxFileSize\)=.*/d' \
+      /etc/systemd/journald.conf
+    cat << EOF >> /etc/systemd/journald.conf
+Storage=persistent
+SystemMaxUse=25G
+RateLimitBurst=0
+RateLimitInterval=0
+SystemMaxFiles=500
+SystemMaxFileSize=256M
+EOF
     systemctl restart systemd-journald.service
 
     # Fake console
