@@ -313,8 +313,8 @@ install_el8_packages () {
     if ! grep -q -e 'CentOS .* release 8' /etc/redhat-release; then
         dnf -4 -y install http://download.eng.bos.redhat.com/brewroot/vol/rhel-8/packages/kernel/$VER/$REL/$(arch)/kernel-modules-internal-$VER-$REL.$(arch).rpm
     else
-        wget https://koji.mbox.centos.org/pkgs/packages/kernel/$VER/$REL/$(arch)/kernel-modules-internal-$VER-$REL.$(arch).rpm --no-check-certificate
-        dnf -y localinstall kernel-modules-internal
+        wget https://koji.mbox.centos.org/pkgs/packages/kernel/$VER/$REL/$(arch)/kernel-modules-internal-$VER-$REL.$(arch).rpm -O /tmp/kernel-modules-internal.rpm --no-check-certificate
+        dnf -y localinstall /tmp/kernel-modules-internal.rpm
     fi
 
     # Add OVS repo and install OVS
