@@ -352,7 +352,7 @@ if __name__ == "__main__":
 
     if tests == "":
         tests = "pass"
-        logging.debug("no tests to run, running just pass test)
+        logging.debug("no tests to run, running just pass test")
     else:
         logging.debug("tests to run: %s" %tests)
 
