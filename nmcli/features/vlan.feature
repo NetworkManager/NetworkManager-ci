@@ -759,3 +759,13 @@ Feature: nmcli - vlan
     Then "\s+activated" is visible with command "nmcli con show eth11.301" in "50" seconds
     Then "\s+activated" is visible with command "nmcli con show eth11.401" in "50" seconds
     Then "\s+activated" is visible with command "nmcli con show eth11.510" in "50" seconds
+
+
+    @rhbz1907960
+    @ver+=1.31
+    @vlan
+    @vlan_ifname_vlan0_with_id_7
+    Scenario: NM - vlan - use ID 7 with ifname vlan0
+    * Add a new connection of type "vlan" and options "ifname vlan0 con-name vlan vlan.id 7 dev eth7 ipv4.method disable ipv6.method ignore"
+    Then "7" is visible with command "nmcli -g vlan.id con show id vlan"
+    Then " 802.1Q id 7 " is visible with command "ip -d link show dev vlan0"

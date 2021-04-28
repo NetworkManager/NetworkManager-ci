@@ -1860,6 +1860,7 @@ def vlan_as(ctx, scen):
         ctx.run('ip link del eth7.80')
         ctx.run('ip link del eth7.90')
         ctx.run('ip link del vlan7')
+        ctx.run('ip link del vlan0')
         ctx.run('nmcli con down testeth7')
         nmci.lib.reset_hwaddr_nmcli(ctx, 'eth7')
 
