@@ -173,7 +173,7 @@ def process_raw_features(raw_features, testbranch, gitlab_trigger=None):
             features = ["all"]
         logging.debug("running best effort execution to shorten time: %s" %features)
 
-    elif '' in raw_features or 'all' in raw_features:
+    elif raw_features == "" or 'all' in raw_features:
         features = get_features_from_mapper(testbranch)
     else:
         features = raw_features.split(',')
@@ -316,7 +316,8 @@ def post_results (gl_trigger):
 if __name__ == "__main__":
     logging.basicConfig(level=logging.DEBUG)
     logging.debug("reading params")
-    logging.debug(sys.argv)
+    # NEVER PRINT THIS AS IT HAS GL_TOKEN
+    # logging.debug(sys.argv)
 
     test_branch = sys.argv[1]
     logging.debug(test_branch)
@@ -333,7 +334,8 @@ if __name__ == "__main__":
         os.environ['BUILD_URL'] = build_id
     if len(sys.argv) > 5:
         gl_token = sys.argv[5]
-        logging.debug(gl_token)
+        # NEVER PRINT THIS AS IT HAS GL_TOKEN
+        # logging.debug(gl_token)
     if len(sys.argv) > 6:
         trigger_data = sys.argv[6]
         logging.debug(trigger_data)
@@ -349,8 +351,8 @@ if __name__ == "__main__":
         tests = process_raw_features (raw_features, test_branch)
 
     if tests == "":
-        logging.debug("no tests to run: %s" %tests)
-        sys.exit(1)
+        tests = "pass"
+        logging.debug("no tests to run, running just pass test)
     else:
         logging.debug("tests to run: %s" %tests)
 
