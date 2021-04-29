@@ -1892,7 +1892,7 @@
     Scenario: NM - bond - bond normalize connection
     * Add a new connection of type "bond" and options "con-name bond0 ifname nm-bond bond.options mode=4,arp_interval=2,arp_ip_target=1.1.1.1"
     Then "mode=802.3ad" is visible with command "nmcli c show bond0"
-    Then "error" is not visible with command "journalctl  -t NetworkManager  --since -1m -p 3 -o cat"
+    Then "error" is not visible with command "journalctl  -t NetworkManager  --since -20s -p 3 -o cat"
 
 
     @rhbz1847814
