@@ -1559,9 +1559,9 @@ Feature: nmcli - general
     Then Check RSS writable memory in noted value "4" differs from "3" less than "300"
 
 
-    @rhbz1461643
+    @rhbz1461643 @rhbz1945282
     @ver+=1.10.0
-    @may_fail @long @logging_info_only @delete_testeth0 @no_config_server @allow_veth_connections
+    @long @logging_info_only @delete_testeth0 @no_config_server @allow_veth_connections
     @stable_mem_consumption2
     Scenario: NM - general - stable mem consumption - var 2
     * Execute "sh tmp/repro_1461643.sh && sleep 10"
