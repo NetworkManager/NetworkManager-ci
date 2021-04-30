@@ -3,8 +3,9 @@
 if test -f /tmp/nmstate_setup.txt; then
     exit 0
 else
-    yum -y install python3-devel rpm-build python3-openvswitch2.13
-    yum -y install python3-devel rpm-build python3-openvswitch
+    yum -y install python3-devel rpm-build \
+                   python3-openvswitch \
+                   python3-openvswitch2.13 --skip-broken
 
     rm -rf /usr/bin/python && ln -s /usr/bin/python3 /usr/bin/python
 
