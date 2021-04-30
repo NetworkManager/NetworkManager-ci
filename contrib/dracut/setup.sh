@@ -2,10 +2,10 @@
 
 TESTDIR=/var/dracut_test
 
-UUID_STATE=a32d3ed2-225f-11eb-bf6a-525400c7ed04
+UUID_LOG=a32d3ed2-225f-11eb-bf6a-525400c7ed04
 UUID_CHECK=a467c808-225f-11eb-96df-525400c7ed04
 UUID_DUMPS=a6673314-225f-11eb-a9a2-525400c7ed04
-DEV_STATE=/dev/disk/by-uuid/$UUID_STATE
+DEV_LOG=/dev/disk/by-uuid/$UUID_LOG
 DEV_CHECK=/dev/disk/by-uuid/$UUID_CHECK
 DEV_DUMPS=/dev/disk/by-uuid/$UUID_DUMPS
 
@@ -76,6 +76,7 @@ test_setup() {
       cp -a /etc/ld.so.conf* $initdir/etc
       ldconfig -r "$initdir"
       echo "/dev/nfs / nfs defaults 1 1" > $initdir/etc/fstab
+      echo "$DEV_LOG /var/log/ ext3 defaults 1 1" >> $initdir/etc/fstab
 
 
       rpm -ql libteam | xargs -r $DRACUT_INSTALL ${initdir:+-D "$initdir"} -o -a -l
@@ -267,20 +268,20 @@ EOF
   mkdir -p $TESTDIR/nfs/ip/192.168.50.101
   mkdir -p $TESTDIR/nfs/tftpboot/nfs4-5
 
-  dd if=/dev/zero of=$TESTDIR/client_state.img bs=1M count=5
+  dd if=/dev/zero of=$TESTDIR/client_log.img bs=1M count=200
   dd if=/dev/zero of=$TESTDIR/client_check.img bs=1M count=20
   dd if=/dev/zero of=$TESTDIR/client_dumps.img bs=1M count=200
-  mkfs.ext3 -U $UUID_STATE $TESTDIR/client_state.img
+  mkfs.ext3 -U $UUID_LOG $TESTDIR/client_log.img
   mkfs.ext3 -U $UUID_CHECK $TESTDIR/client_check.img
   mkfs.ext3 -U $UUID_DUMPS $TESTDIR/client_dumps.img
-  losetup -f $TESTDIR/client_state.img
+  losetup -f $TESTDIR/client_log.img
   losetup -f $TESTDIR/client_check.img
   losetup -f $TESTDIR/client_dumps.img
-  # do not make dir for client_state, as it is file
+  mkdir -p $TESTDIR/client_log/var/log/
   mkdir $TESTDIR/client_check
   mkdir $TESTDIR/client_dumps
 
-  # Create the blank file to use as a root filesystem
+  # Create the blank file to use as a root iSCSI filesystem
   dd if=/dev/zero of=$TESTDIR/root.ext3 bs=1M count=600
   dd if=/dev/zero of=$TESTDIR/iscsidisk2.img bs=1M count=300
   dd if=/dev/zero of=$TESTDIR/iscsidisk3.img bs=1M count=300
@@ -380,7 +381,7 @@ test_clean() {
   kill_server
   umount $TESTDIR/client_check
   for file in \
-    $TESTDIR/client_state.img \
+    $TESTDIR/client_log.img \
     $TESTDIR/client_check.img \
     $TESTDIR/client_dumps.img \
     $TESTDIR/root.ext3 \

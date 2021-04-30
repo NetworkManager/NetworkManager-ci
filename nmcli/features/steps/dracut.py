@@ -6,17 +6,22 @@ import nmci.lib
 import nmci
 
 
-REMOTE_JOURNAL_DIR = "/var/dracut_test/client_dumps/"
+REMOTE_JOURNAL_DIR = "/var/dracut_test/client_log/"
 REMOTE_JOURNAL = "--root=" + REMOTE_JOURNAL_DIR
 
 
 def embed_dracut_logs(context):
     nmci.lib.embed_file_if_exists(context, "/tmp/dracut_setup.log", caption="Dracut setup", fail_only=True)
-    #nmci.lib.embed_file_if_exists(context, "/tmp/dracut_boot.log", caption="Dracut boot", fail_only=True)
-    context.run("cd contrib/dracut/; . ./setup.sh; "
-                "mount $DEV_DUMPS $TESTDIR/client_dumps; ")
 
-    if context.dracut_boot:
+    context.run("cd contrib/dracut/; . ./setup.sh; "
+                "mount $DEV_DUMPS $TESTDIR/client_dumps; "
+                "mount $DEV_LOG $TESTDIR/client_log/var/log/; "
+                )
+
+    context.dracut_vm_state, _, _ = context.run(
+        "cd contrib/dracut/; . ./setup.sh; cat $TESTDIR/client_log/var/log/vm_state")
+
+    if not context.dracut_vm_state.startswith("NO"):
         nmci.lib.embed_service_log(context, "test-init", "Dracut Test", journal_arg=REMOTE_JOURNAL, fail_only=False)
         nmci.lib.embed_service_log(context, "NetworkManager", "Dracut NM", journal_arg=REMOTE_JOURNAL, fail_only=True)
 
@@ -25,7 +30,8 @@ def embed_dracut_logs(context):
     context.run(
         "cd contrib/dracut/; . ./setup.sh; "
         "rm -rf $TESTDIR/client_dumps/*; "
-        "umount $DEV_DUMPS; ")
+        "umount $DEV_DUMPS; "
+        "umount $DEV_LOG; ")
 
     nmci.lib.embed_file_if_exists(context, "/tmp/dracut_teardown.log", "Dracut teardown", fail_only=True)
 
@@ -86,16 +92,20 @@ def check_core_dumps(context):
     return other_crash or (crash_test != getattr(context, "dracut_crash_test", False))
 
 
-def prepare_checks(checks):
-    nmci.run(
+def prepare_dracut(context, checks):
+    context.run(
         "cd contrib/dracut/; . ./setup.sh; "
         "mount $DEV_CHECK $TESTDIR/client_check/; "
         "rm -rf $TESTDIR/client_check/*; "
         "cp ./check_lib/*.sh $TESTDIR/client_check/; "
+        "mount $DEV_LOG $TESTDIR/client_log/var/log/; "
+        "rm -rf $TESTDIR/client_log/var/log/*; "
+        "echo NOBOOT > $TESTDIR/client_log/var/log/vm_state; "
+        "mkdir $TESTDIR/client_log/var/log/journal/; "
     )
     with open("/var/dracut_test/client_check/client_check.sh", "w") as f:
         f.write("client_check() {\n" + checks + "}")
-    nmci.run("cd contrib/dracut/; . ./setup.sh; umount $DEV_CHECK")
+    context.run("cd contrib/dracut/; . ./setup.sh; umount $DEV_CHECK; umount $DEV_LOG;")
 
 
 @step(u'Run dracut test')
@@ -129,7 +139,7 @@ def dracut_run(context):
         elif "ram" in row[0].lower():
             ram = row[1]
 
-    prepare_checks(checks)
+    prepare_dracut(context, checks)
 
     # replace env of child processes
     os.environ["RAM"] = ram
@@ -153,13 +163,8 @@ def dracut_run(context):
     proc.kill(9)
     rc = proc.exitstatus
 
-    with open("/var/dracut_test/client_state.img", "br") as f:
-        result = f.read(4).decode("utf-8")
-
-    context.dracut_boot = not result.startswith("NO")
-
     embed_dracut_logs(context)
 
     assert res == 0, "pexpect.TIMEOUT should not happen! (raise offset?)"
-    assert rc == 0, f"Test run FAILED, VM returncode: {rc}, VM result: {result}"
-    assert "PASS" in result, f"Test FAILED, VM result: {result}"
+    assert rc == 0, f"Test run FAILED, VM returncode: {rc}, VM result: {context.dracut_vm_state}"
+    assert "PASS" in context.dracut_vm_state, f"Test FAILED, VM result: {context.dracut_vm_state}"

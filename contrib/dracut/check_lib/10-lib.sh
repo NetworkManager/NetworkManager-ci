@@ -7,7 +7,7 @@ die() {
 
 die_cmd() {
   echo "[FAIL] $@"
-  echo FAIL | dd status=none oflag=direct,dsync of=${DEV_STATE}
+  vm_state FAIL
   /check_core_dumps
   echo "== dump state after fail =="
   ip_list
@@ -34,23 +34,24 @@ clean_root() {
   rm -vf /etc/resolv.conf
   echo "== cleaning hostname =="
   echo > /etc/hostname
-  echo "== cleaning (and dumping) journal =="
-  copy_journal
   echo "== sync =="
   sync
   echo "done"
 }
 
-copy_journal() {
-  mkdir -p /mnt/dumps
-  mount $DEV_DUMPS /mnt/dumps
-  mkdir -p /mnt/dumps/var/log
-  du -sch /var/log/journal
-  df -h
-  cp -r /var/log/journal /mnt/dumps/var/log/
-  df -h
-  umount /mnt/dumps/
-  rm -rvf /var/log/journal
+
+vm_state() {
+  echo "== $1 =="
+  ls -l /var/log/
+  [ -f /var/log/vm_state ] || remount_var_log
+  echo $1 > /var/log/vm_state
+  sync
+}
+
+remount_var_log() {
+  echo "Warning: remounting log, something bad happened!"
+  umount /var/log || true
+  mount $DEV_LOG /var/log
 }
 
 

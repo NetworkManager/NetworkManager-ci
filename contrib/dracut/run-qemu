@@ -11,8 +11,6 @@ REP=5
 # number of seconds qemu-kvm must be running to accept
 THRESHOLD=5
 
-echo NONE | dd status=none oflag=direct,dsync of=$DEV_STATE;
-
 ARGS=()
 [[ -x /usr/libexec/qemu-kvm ]] && BIN=/usr/libexec/qemu-kvm
 [[ -x /usr/bin/qemu-kvm ]] && BIN=/usr/bin/qemu-kvm
@@ -43,7 +41,7 @@ fi
 ARGS+=(-pidfile $TESTDIR/qemu.pid)
 
 # disk files
-ARGS+=(-drive format=raw,index=0,media=disk,file=$TESTDIR/client_state.img)
+ARGS+=(-drive format=raw,index=0,media=disk,file=$TESTDIR/client_log.img)
 ARGS+=(-drive format=raw,index=1,media=disk,file=$TESTDIR/client_check.img)
 ARGS+=(-drive format=raw,index=2,media=disk,file=$TESTDIR/client_dumps.img)
 

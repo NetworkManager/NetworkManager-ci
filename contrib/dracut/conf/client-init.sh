@@ -1,16 +1,14 @@
 #!/bin/bash
 export PATH=/sbin:/bin:/usr/sbin:/usr/bin
 
-UUID_STATE=a32d3ed2-225f-11eb-bf6a-525400c7ed04
+UUID_LOG=a32d3ed2-225f-11eb-bf6a-525400c7ed04
 UUID_CHECK=a467c808-225f-11eb-96df-525400c7ed04
 UUID_DUMPS=a6673314-225f-11eb-a9a2-525400c7ed04
 
-DEV_STATE=/dev/disk/by-uuid/$UUID_STATE
+DEV_LOG=/dev/disk/by-uuid/$UUID_LOG
 DEV_CHECK=/dev/disk/by-uuid/$UUID_CHECK
 DEV_DUMPS=/dev/disk/by-uuid/$UUID_DUMPS
 
-# boot succeeded, so try to attach logs
-echo BOOT | dd status=none oflag=direct,dsync of=${DEV_STATE}
 
 /core_pattern_setup
 
@@ -20,6 +18,10 @@ mount ${DEV_CHECK} /check_lib
 for script in /check_lib/*.sh; do
   source "$script" || ( echo "$script failed to load"; poweroff -f )
 done
+
+# boot succeeded, log it
+vm_state BOOT
+
 
 mount_list
 
@@ -66,11 +68,9 @@ client_check || die "client_check did not exit with 0"
 /check_core_dumps
 
 # client_check should "die" if failed
-echo PASS | dd status=none oflag=direct,dsync of=${DEV_STATE}
+vm_state PASS
 
 # cleanup after succes
 clean_root
-
-echo "PASS"
 
 poweroff -f
