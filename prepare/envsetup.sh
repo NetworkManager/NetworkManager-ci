@@ -266,6 +266,12 @@ install_el9_packages () {
     dnf -4 -y install https://kojipkgs.fedoraproject.org//packages/scsi-target-utils/1.0.79/2.fc33/$(arch)/scsi-target-utils-1.0.79-2.fc33.$(arch).rpm
 
     install_plugins_dnf
+
+    # Disable mac radnomization
+    echo -e "[Match]\nOriginalName=*\n[Link]\nMACAddressPolicy=none" > /etc/systemd/network/00-NM.link
+    sleep 0.5
+    systemctl restart systemd-udevd
+
 }
 
 install_el8_packages () {
