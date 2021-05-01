@@ -427,18 +427,15 @@ def check_faf(context, do_report=True):
                 not os.path.isfile("%s/last_occurrence" % (dump_dir)):
             print("* incomplete report, skipping.")
             continue
-        with open("%s/pkg_name" % (dump_dir), "r") as f:
-            pkg = f.read()
+        pkg = utf_only_open_read("%s/pkg_name" % (dump_dir))
         if not check_dump_package(pkg):
             continue
-        with open("%s/last_occurrence" % (dump_dir), "r") as f:
-            last_timestamp = f.read()
+        last_timestamp = utf_only_open_read("%s/last_occurrence" % (dump_dir))
         # append last_timestamp, to check if last occurrence is reported
         if not is_dump_reported("%s-%s" % (dump_dir, last_timestamp)):
             reports = []
             if os.path.isfile("%s/reported_to" % (dump_dir)):
-                with open("%s/reported_to" % (dump_dir), "r") as f:
-                    reports = f.read().strip("\n").split("\n")
+                reports = utf_only_open_read("%s/reported_to" % (dump_dir)).strip("\n").split("\n")
             urls = []
             for report in reports:
                 if "URL=" in report:
