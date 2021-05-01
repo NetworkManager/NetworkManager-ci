@@ -88,6 +88,12 @@ def set_up_embedding(context):
                                 })
                         else:
                             formatter._doEmbed(html_el, mime_type, data, caption)
+                            if mime_type == "link":
+                                # list() on ElementTree returns children
+                                last_embed = list(html_el)[-1]
+                                for a_tag in last_embed.findall("a"):
+                                    if a_tag.get("href", "").startswith("data:"):
+                                        a_tag.set("download", a_tag.text)
                             ET.SubElement(html_el, "br")
                     return fn
                 embed_fn = embed(formatter, context)
