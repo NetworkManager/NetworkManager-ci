@@ -210,9 +210,13 @@ def file_to_base64_url(filename):
 def utf_only_open_read(file, mode='r'):
     # Opens file and read it w/o non utf-8 chars
     if sys.version_info.major < 3:
-        return open(file, mode).read().decode('utf-8', 'ignore').encode('utf-8')
+        with open(file, mode) as f:
+            data = f.read().decode('utf-8', 'ignore').encode('utf-8')
+        return data
     else:
-        return open(file, mode, encoding='utf-8', errors='ignore').read()
+        with open(file, mode, encoding='utf-8', errors='ignore') as f:
+            data = f.read()
+        return data
 
 
 def get_pexpect_logs(proc, logfile):
