@@ -184,17 +184,9 @@ def embed_file_if_exists(context, fname, mime_type="text/plain", caption=None, f
             data = [(file_to_base64_url(fname), fname)]
         else:
             data = utf_only_open_read(fname)
-        context.embed(mime_type, data, caption, fail_only=fail_only)
         if remove:
             os.remove(fname)
-        if mime_type == "link":
-            embed_els = context.html_formatter.actual["act_step_embed_span"].getchildren()
-            if len(embed_els) < 2:
-                return
-            file_el = embed_els[-2].find("a")
-            if file_el is not None:
-                file_el.set("download", fname.split("/")[-1])
-
+        context.embed(mime_type, data, caption, fail_only=fail_only)
     else:
         print("Warning: File " + repr(fname) + " not found")
 
