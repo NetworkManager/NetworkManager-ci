@@ -23,7 +23,8 @@ def embed_dracut_logs(context):
 
     if not context.dracut_vm_state.startswith("NO"):
         nmci.lib.embed_service_log(context, "test-init", "Dracut Test", journal_arg=REMOTE_JOURNAL, fail_only=False)
-        nmci.lib.embed_service_log(context, "NetworkManager", "Dracut NM", journal_arg=REMOTE_JOURNAL, fail_only=True)
+        #nmci.lib.embed_service_log(context, "NetworkManager", "Dracut NM", journal_arg=REMOTE_JOURNAL, fail_only=True)
+        nmci.lib.embed_service_log(context, "*", "Dracut Journal", journal_arg=REMOTE_JOURNAL, fail_only=False)
 
     crash = check_core_dumps(context)
 
