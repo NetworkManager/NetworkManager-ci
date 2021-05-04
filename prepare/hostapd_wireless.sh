@@ -195,6 +195,8 @@ channel=7
 auth_algs=3
 wpa=2
 wpa_key_mgmt=SAE
+rsn_pairwise=CCMP
+ieee80211w=2
 wpa_passphrase=secret123
 " >> $HOSTAPD_CFG
 fi
