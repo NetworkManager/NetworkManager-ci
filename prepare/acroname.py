@@ -5,10 +5,10 @@ import sys
 
 def main():
   p = optparse.OptionParser()
-  p.add_option('--port', type='int', dest='port', help='USB port number')
-  p.add_option('--enable', action='store_true', dest='enable', help='Enable USB port')
-  p.add_option('--disable', action='store_true', dest='disable', help='Disable USB port')
-  p.add_option('--cycle', action='store_true', dest='cycle', help='Disables then Enables USB port')
+  p.add_option('-p','--port', type='int', dest='port', help='USB port number')
+  p.add_option('-e','--enable', action='store_true', dest='enable', help='Enable USB port')
+  p.add_option('-d','--disable', action='store_true', dest='disable', help='Disable USB port')
+  p.add_option('-c','--cycle', action='store_true', dest='cycle', help='Disables then Enables USB port')
 
   options, arguments = p.parse_args()
 
