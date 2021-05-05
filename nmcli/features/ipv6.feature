@@ -1227,7 +1227,7 @@
 
     @rhbz1368018
     @ver+=1.8
-    @con_ipv6_ifcfg_remove @con_ipv6_remove @restart @kill_dhclient_custom @teardown_testveth
+    @ifcfg-rh @con_ipv6_ifcfg_remove @con_ipv6_remove @restart @kill_dhclient_custom @teardown_testveth
     @persistent_ipv6_after_device_rename
     Scenario: NM - ipv6 - persistent ipv6 after device rename
     * Prepare simulated test "testX6" device
@@ -1238,9 +1238,9 @@
     * Restart NM
     When "0" is visible with command "cat /proc/sys/net/ipv6/conf/testX6/disable_ipv6"
     * Rename device "testX6" to "festY"
-    * Execute "dhclient -1 -pf /tmp/dhclient_custom.pid festY" without waiting for process to finish
+    * Execute "dhclient -6 -pf /tmp/dhclient_custom.pid festY" without waiting for process to finish
     * Wait for at least "45" seconds
-    * Execute "kill -9 $(pidof dhclient)"
+    * Execute "pkill -F /tmp/dhclient_custom.pid"
     When "0" is visible with command "cat /proc/sys/net/ipv6/conf/festY/disable_ipv6"
     * Rename device "festY" to "testX6"
     Then "0" is visible with command "cat /proc/sys/net/ipv6/conf/testX6/disable_ipv6"
