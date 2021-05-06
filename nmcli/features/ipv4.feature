@@ -968,11 +968,11 @@ Feature: nmcli: ipv4
     * Run child "sudo tcpdump -i eth2 -v -n > /tmp/tcpdump.log"
     When "empty" is not visible with command "file /tmp/tcpdump.log" in "150" seconds
     * Bring "up" connection "con_ipv4"
-    Then "Client-ID Option 61, length 3: \"AB\"" is visible with command "cat /tmp/tcpdump.log" in "10" seconds
+    Then "Client-ID (Option )?\(?61\)?, length 3: \"AB\"" is visible with command "cat /tmp/tcpdump.log" in "10" seconds
     #### Then try hexadecimal client-id
     * Modify connection "con_ipv4" changing options "ipv4.dhcp-client-id c0:ff:ee:ee"
     * Bring "up" connection "con_ipv4"
-    Then "Client-ID Option 61, length 4: hardware-type 192, ff:ee:ee" is visible with command "cat /tmp/tcpdump.log" in "10" seconds
+    Then "Client-ID (Option )?\(?61\)?, length 4: hardware-type 192, ff:ee:ee" is visible with command "cat /tmp/tcpdump.log" in "10" seconds
 
 
     @gnomebz793957
@@ -1014,7 +1014,7 @@ Feature: nmcli: ipv4
     * Run child "sudo tcpdump -i eth2 -v -n > /tmp/tcpdump.log"
     When "empty" is not visible with command "file /tmp/tcpdump.log" in "150" seconds
     * Bring "up" connection "con_ipv4"
-    Then "Client-ID Option 61, length 5: \"abcd\"" is visible with command "grep 61 /tmp/tcpdump.log" in "10" seconds
+    Then "Client-ID (Option )?\(?61\)?, length 5: \"abcd\"" is visible with command "grep 61 /tmp/tcpdump.log" in "10" seconds
     #### Then try hexadecimal client-id
     * Modify connection "con_ipv4" changing options "ipv4.dhcp-client-id c0:ff:ee:11"
     * Execute "pkill tcpdump"
@@ -1022,7 +1022,7 @@ Feature: nmcli: ipv4
     * Bring "up" connection "con_ipv4"
     When "empty" is not visible with command "file /tmp/tcpdump.log" in "150" seconds
     * Bring "up" connection "con_ipv4"
-    Then "Client-ID Option 61, length 4: hardware-type 192, ff:ee:11" is visible with command "grep 61 /tmp/tcpdump.log" in "10" seconds
+    Then "Client-ID (Option )?\(?61\)?, length 4: hardware-type 192, ff:ee:11" is visible with command "grep 61 /tmp/tcpdump.log" in "10" seconds
 
 
     @rhbz1642023
@@ -1076,19 +1076,7 @@ Feature: nmcli: ipv4
     * Note MAC address output for device "eth2" via ip command
     When "empty" is not visible with command "file /tmp/tcpdump.log" in "150" seconds
     * Bring "up" connection "con_ipv4"
-    Then Noted value is visible with command "grep 'Option 61' /tmp/tcpdump.log" in "10" seconds
-
-
-    @rhbz1661165
-    @ver+=1.12 @ver-1.15 @not_with_rhel_pkg
-    @internal_DHCP @con_ipv4_remove @tcpdump @no_config_server
-    @ipv4_dhcp_client_id_default
-    Scenario: NM - ipv4 - ipv4 client id should default to duid with internal plugins
-    * Add connection type "ethernet" named "con_ipv4" for device "eth2"
-    * Run child "sudo tcpdump -i eth2 -v -n -l > /tmp/tcpdump.log"
-    When "empty" is not visible with command "file /tmp/tcpdump.log" in "150" seconds
-    * Bring "up" connection "con_ipv4"
-    Then "00:02:00:00:ab:11" is visible with command "grep 'Option 61' /tmp/tcpdump.log" in "10" seconds
+    Then Noted value is visible with command "grep -E 'Client-ID (Option )?\(?61\)?' /tmp/tcpdump.log" in "10" seconds
 
 
     @rhbz1661165
@@ -1101,7 +1089,7 @@ Feature: nmcli: ipv4
     * Note MAC address output for device "eth2" via ip command
     When "empty" is not visible with command "file /tmp/tcpdump.log" in "150" seconds
     * Bring "up" connection "con_ipv4"
-    Then Noted value is visible with command "grep 'Option 61' /tmp/tcpdump.log" in "10" seconds
+    Then Noted value is visible with command "grep -E 'Client-ID (Option )?\(?61\)?' /tmp/tcpdump.log" in "10" seconds
 
 
     @rhbz1661165

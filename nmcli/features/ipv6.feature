@@ -1238,7 +1238,7 @@
     * Restart NM
     When "0" is visible with command "cat /proc/sys/net/ipv6/conf/testX6/disable_ipv6"
     * Rename device "testX6" to "festY"
-    * Execute "dhclient -6 -pf /tmp/dhclient_custom.pid festY" without waiting for process to finish
+    * Execute "dhclient -4 -pf /tmp/dhclient_custom.pid festY" without waiting for process to finish
     * Wait for at least "45" seconds
     * Execute "pkill -F /tmp/dhclient_custom.pid"
     When "0" is visible with command "cat /proc/sys/net/ipv6/conf/festY/disable_ipv6"
