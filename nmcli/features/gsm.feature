@@ -18,8 +18,9 @@ Feature: nmcli: gsm
     @gsm
     @gsm_create_default_connection
     Scenario: nmcli - gsm - create a connection
-     * Add a new connection of type "gsm" and options "ifname \* con-name gsm apn internet"
-    Then "GENERAL.STATE:.*activated" is visible with command "nmcli con show gsm" in "300" seconds
+    * Add a new connection of type "gsm" and options "ifname \* con-name gsm autoconnect no apn internet"
+    * Bring "up" connection "gsm"
+    Then "GENERAL.STATE:.*activated" is visible with command "nmcli con show gsm" in "60" seconds
      And "default" is visible with command "ip r |grep 700"
      And Ping "8.8.8.8" "7" times
 

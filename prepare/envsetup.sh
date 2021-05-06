@@ -899,9 +899,8 @@ local_setup_configure_nm_gsm () {
     fi
 
     systemctl restart ModemManager
-    sleep 60
+    sleep 5
     systemctl restart NetworkManager
-    sleep 120
 
     # Selinux policy for gsm_sim (ModemManager needs access to /dev/pts/*)
     semodule -i tmp/selinux-policy/ModemManager.pp

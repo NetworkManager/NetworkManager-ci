@@ -37,7 +37,7 @@ function runtest () {
 
 function test_modems_usb_hub() {
     # Number of modems that are plugged into Acroname USB hub.
-    local MODEM_COUNT=6
+    local MODEM_COUNT=5
     # Number of ports Acroname USB hub has.
     local PORT_COUNT=8
     # Return code
@@ -55,28 +55,32 @@ function test_modems_usb_hub() {
 
     touch /tmp/usb_hub
     echo "USB_HUB" > /tmp/report_$NMTEST.html
-    for M in $(seq 0 1 $((MODEM_COUNT-1)) ); do
+    for M in $(seq 1 1 $((MODEM_COUNT-1)) ); do
 
         for P in $(seq 0 1 $((PORT_COUNT-1)) ); do
             $DIR/prepare/acroname.py --port $P --disable
         done
-        modprobe -r qmi_wwan
-        systemctl restart ModemManager
-        sleep 5
+
+        # systemctl stop ModemManager
+        # modprobe -r qmi_wwan
+        # modprobe qmi_wwan
+        # sleep 2
+        # systemctl restart ModemManager
 
         $DIR/prepare/acroname.py --port $M --enable
 
-        # wait for device to appear in NM
-        TIMER=60
+        # wait up to 200s for device to appear in NM
+        TIMER=20
         while [ $TIMER -gt 0 ]; do
             if nmcli d |grep -q gsm; then
-                # Give some more sleep so device can register to the BTS
-                sleep 80
-                break
-            else
-                sleep 1
-                ((TIMER--))
+                mmcli -m $(mmcli -L |awk -F '/' '{print $6}')
+                if mmcli -m $(mmcli -L |awk -F '/' '{print $6}' |awk '{print $1}') |grep 'state:\sregistered'; then
+                    break
+                fi
             fi
+            mmcli -L
+            sleep 10
+            ((TIMER--))
         done
 
         # Run just one test to be as quick as possible

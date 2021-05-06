@@ -816,7 +816,7 @@ def find_modem(context):
         '0af0:d033': 'Option GlobeTrotter Icon322',
         '04e8:6601': 'Samsung SGH-Z810',
         '1199:9051': 'Sierra Wireless AirCard 340U',
-        '1199:68c0': 'Sierra Wireless MC7304',
+        '1199:68c0': 'Sierra Wireless MC7608',
         '1199:a001': 'Sierra Wireless EM7345',
         '1199:9041': 'Sierra Wireless EM7355',
         '413c:81a4': 'Sierra Wireless EM8805',
