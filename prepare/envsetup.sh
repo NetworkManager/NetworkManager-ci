@@ -192,9 +192,8 @@ install_el9_packages () {
     dnf -4 -y install https://kojipkgs.fedoraproject.org//packages/tcpreplay/4.3.3/3.fc34/$(arch)/tcpreplay-4.3.3-3.fc34.$(arch).rpm \
                 https://kojipkgs.fedoraproject.org//packages/libdnet/1.14/1.fc34/$(arch)/libdnet-1.14-1.fc34.$(arch).rpm \
                 https://kojipkgs.fedoraproject.org//packages/iw/5.4/3.fc34/$(arch)/iw-5.4-3.fc34.$(arch).rpm \
-                https://kojipkgs.fedoraproject.org//packages/openvswitch/2.14.0/2.eln103/$(arch)/python3-openvswitch-2.14.0-2.eln103.$(arch).rpm \
                 http://download.eng.bos.redhat.com/brewroot/vol/rhel-9/packages/libsmi/0.4.8/27.el9.1/$(arch)/libsmi-0.4.8-27.el9.1.$(arch).rpm \
-                http://download.eng.bos.redhat.com/brewroot/vol/rhel-9/packages/wireshark/3.4.0/1.el9.1/$(arch)/wireshark-cli-3.4.0-1.el9.1.$(arch).rpm
+                http://download.eng.bos.redhat.com/brewroot/vol/rhel-9/packages/wireshark/3.4.0/1.el9.1/$(arch)/wireshark-cli-3.4.0-1.el9.1.$(arch).rpm --skip-broken
 
 
     install_behave_pytest
