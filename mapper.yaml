@@ -2076,8 +2076,6 @@ testmapper:
         feature: wifi_hwsim
     - simwifi_ap_in_bridge_wpa_psk_method_manual:
         feature: wifi_hwsim
-    - gsm_sim_create_assisted_connection:
-        feature: gsm_sim
     - gsm_sim_create_default_connection:
         feature: gsm_sim
     - gsm_sim_disconnect:
@@ -2089,6 +2087,8 @@ testmapper:
     - gsm_sim_load_from_file:
         feature: gsm_sim
     - gsm_sim_profile_with_serials:
+        feature: gsm_sim
+    - gsm_sim_create_assisted_connection:
         feature: gsm_sim
     - alias_ifcfg_add_single_alias:
         feature: alias
