@@ -746,3 +746,55 @@ Feature: nmcli - bridge
     Then "mtu 1500" is visible with command "ip a s br0"
     Then "mtu 9000" is visible with command "ip a s dummy0"
     When "1500" is visible with command "nmcli -g GENERAL.MTU d show br0" in "5" seconds
+
+
+    @rhbz1942331
+    @ver+=1.31
+    @bridge
+    @bridge_accept_all_mac_addresses
+    Scenario: nmcli - bridge - accept-all-mac-addresses (promisc mode)
+    * Add a new connection of type "bridge" and options "con-name bridge0 ifname bridge0 autoconnect no"
+    * Bring "up" connection "bridge0"
+    Then "PROMISC" is not visible with command "ip link show dev bridge0"
+    * Modify connection "bridge0" changing options "802-3-ethernet.accept-all-mac-addresses true"
+    * Bring "up" connection "bridge0"
+    Then "PROMISC" is visible with command "ip link show dev bridge0"
+    * Modify connection "bridge0" changing options "802-3-ethernet.accept-all-mac-addresses false"
+    * Bring "up" connection "bridge0"
+    Then "PROMISC" is not visible with command "ip link show dev bridge0"
+
+
+    @rhbz1942331
+    @ver+=1.31
+    @bridge @bridge_assumed
+    @bridge_accept_all_mac_addresses_external_device
+    Scenario: nmcli - bridge - accept-all-mac-addresses (promisc mode)
+    # promisc off -> default
+    * Execute "ip link add bridge0 type bridge && ip link set dev bridge0 promisc off"
+    When "PROMISC" is not visible with command "ip link show dev bridge0"
+    * Add a new connection of type "bridge" and options
+       """
+       con-name bridge0 ifname bridge0 autoconnect no 802-3-ethernet.accept-all-mac-addresses default
+       """
+    * Bring "up" connection "bridge0"
+    Then "PROMISC" is not visible with command "ip link show dev bridge0"
+    * Bring "down" connection "bridge0"
+    # promisc on -> default
+    * Execute "ip link set dev bridge0 promisc on"
+    When "PROMISC" is visible with command "ip link show dev bridge0"
+    * Bring "up" connection "bridge0"
+    Then "PROMISC" is visible with command "ip link show dev bridge0"
+    * Bring "down" connection "bridge0"
+    # promisc off -> true
+    * Execute "ip link set dev bridge0 promisc off"
+    When "PROMISC" is not visible with command "ip link show dev bridge0"
+    * Modify connection "bridge0" changing options "802-3-ethernet.accept-all-mac-addresses true"
+    * Bring "up" connection "bridge0"
+    Then "PROMISC" is visible with command "ip link show dev bridge0"
+    * Bring "down" connection "bridge0"
+    # promisc on -> false
+    * Execute "ip link set dev bridge0 promisc on"
+    When "PROMISC" is visible with command "ip link show dev bridge0"
+    * Modify connection "bridge0" changing options "802-3-ethernet.accept-all-mac-addresses false"
+    * Bring "up" connection "bridge0"
+    Then "PROMISC" is not visible with command "ip link show dev bridge0"
