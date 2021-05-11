@@ -1113,6 +1113,10 @@ testmapper:
         timeout: 20m
     - vlan_ifname_vlan0_with_id_7:
         feature: vlan
+    - vlan_accept_all_mac_addresses:
+        feature: vlan
+    - vlan_accept_all_mac_addresses_external_device:
+        feature: vlan
     - vrf_one_address_two_devices:
         feature: vrf
         tags: gate

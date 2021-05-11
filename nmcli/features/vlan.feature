@@ -769,3 +769,63 @@ Feature: nmcli - vlan
     * Add a new connection of type "vlan" and options "ifname vlan0 con-name vlan vlan.id 7 dev eth7 ipv4.method disable ipv6.method ignore"
     Then "7" is visible with command "nmcli -g vlan.id con show id vlan"
     Then " 802.1Q id 7 " is visible with command "ip -d link show dev vlan0"
+
+
+    @rhbz1942331
+    @ver+=1.31
+    @vlan
+    @vlan_accept_all_mac_addresses
+    Scenario: nmcli - vlan - accept-all-mac-addresses (promisc mode)
+    * Add a new connection of type "vlan" and options
+        """
+        con-name vlan id 80 dev eth7 ifname eth7.80
+        autoconnect no
+        ipv4.method disable ipv6.method disable
+        """
+    * Bring "up" connection "vlan"
+    Then "PROMISC" is not visible with command "ip link show dev eth7.80"
+    * Modify connection "vlan" changing options "802-3-ethernet.accept-all-mac-addresses true"
+    * Bring "up" connection "vlan"
+    Then "PROMISC" is visible with command "ip link show dev eth7.80"
+    * Modify connection "vlan" changing options "802-3-ethernet.accept-all-mac-addresses false"
+    * Bring "up" connection "vlan"
+    Then "PROMISC" is not visible with command "ip link show dev eth7.80"
+
+
+    @rhbz1942331
+    @ver+=1.31
+    @vlan
+    @vlan_accept_all_mac_addresses_external_device
+    Scenario: nmcli - vlan - accept-all-mac-addresses (promisc mode)
+    # promisc off -> default
+    * Execute "ip link add link eth7 name eth7.80 type vlan id 80 && ip link set dev eth7.80 promisc off"
+    When "PROMISC" is not visible with command "ip link show dev eth7.80"
+    * Add a new connection of type "vlan" and options
+       """
+       con-name vlan id 80 dev eth7 ifname eth7.80
+       autoconnect no
+       ipv4.method disable ipv6.method disable
+       802-3-ethernet.accept-all-mac-addresses default
+       """
+    * Bring "up" connection "vlan"
+    Then "PROMISC" is not visible with command "ip link show dev eth7.80"
+    * Bring "down" connection "vlan"
+    # promisc on -> default
+    * Execute "ip link set dev eth7.80 promisc on"
+    When "PROMISC" is visible with command "ip link show dev eth7.80"
+    * Bring "up" connection "vlan"
+    Then "PROMISC" is visible with command "ip link show dev eth7.80"
+    * Bring "down" connection "vlan"
+    # promisc off -> true
+    * Execute "ip link set dev eth7.80 promisc off"
+    When "PROMISC" is not visible with command "ip link show dev eth7.80"
+    * Modify connection "vlan" changing options "802-3-ethernet.accept-all-mac-addresses true"
+    * Bring "up" connection "vlan"
+    Then "PROMISC" is visible with command "ip link show dev eth7.80"
+    * Bring "down" connection "vlan"
+    # promisc on -> false
+    * Execute "ip link set dev eth7.80 promisc on"
+    When "PROMISC" is visible with command "ip link show dev eth7.80"
+    * Modify connection "vlan" changing options "802-3-ethernet.accept-all-mac-addresses false"
+    * Bring "up" connection "vlan"
+    Then "PROMISC" is not visible with command "ip link show dev eth7.80"
