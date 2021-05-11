@@ -1603,3 +1603,55 @@
     * Bring "down" connection "team0.0"
     Then JSON "{"ports":{"eth5":{}}}" is visible with command "teamdctl nm-team config dump"
     And  JSON "{"device":"nm-team","ports":{"eth6":{"prio": 10}}}" is visible with command "teamdctl nm-team config dump"
+
+
+    @rhbz1942331
+    @ver+=1.31
+    @team
+    @team_accept_all_mac_addresses
+    Scenario: nmcli - team - accept-all-mac-addresses (promisc mode)
+    * Add a new connection of type "team" and options "con-name team0 ifname nm-team autoconnect no"
+    * Bring "up" connection "team0"
+    Then "PROMISC" is not visible with command "ip link show dev nm-team"
+    * Modify connection "team0" changing options "802-3-ethernet.accept-all-mac-addresses true"
+    * Bring "up" connection "team0"
+    Then "PROMISC" is visible with command "ip link show dev nm-team"
+    * Modify connection "team0" changing options "802-3-ethernet.accept-all-mac-addresses false"
+    * Bring "up" connection "team0"
+    Then "PROMISC" is not visible with command "ip link show dev nm-team"
+
+
+    @rhbz1942331
+    @ver+=1.31
+    @team @team_assumed
+    @team_accept_all_mac_addresses_external_device
+    Scenario: nmcli - team - accept-all-mac-addresses (promisc mode)
+    # promisc off -> default
+    * Execute "ip link add nm-team type team && ip link set dev nm-team promisc off"
+    When "PROMISC" is not visible with command "ip link show dev nm-team"
+    * Add a new connection of type "team" and options
+       """
+       con-name team0 ifname nm-team autoconnect no 802-3-ethernet.accept-all-mac-addresses default
+       """
+    * Bring "up" connection "team0"
+    Then "PROMISC" is not visible with command "ip link show dev nm-team"
+    * Bring "down" connection "team0"
+    # promisc on -> default
+    * Execute "ip link set dev nm-team promisc on"
+    When "PROMISC" is visible with command "ip link show dev nm-team"
+    * Bring "up" connection "team0"
+    Then "PROMISC" is visible with command "ip link show dev nm-team"
+    * Bring "down" connection "team0"
+    # promisc off -> true
+    * Execute "ip link set dev nm-team promisc off"
+    When "PROMISC" is not visible with command "ip link show dev nm-team"
+    * Modify connection "team0" changing options "802-3-ethernet.accept-all-mac-addresses true"
+    * Bring "up" connection "team0"
+    Then "PROMISC" is visible with command "ip link show dev nm-team"
+    * Bring "down" connection "team0"
+    # promisc on -> false
+    * Execute "ip link set dev nm-team promisc on"
+    When "PROMISC" is visible with command "ip link show dev nm-team"
+    * Modify connection "team0" changing options "802-3-ethernet.accept-all-mac-addresses false"
+    * Bring "up" connection "team0"
+    Then "PROMISC" is not visible with command "ip link show dev nm-team"

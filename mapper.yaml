@@ -550,6 +550,10 @@ testmapper:
         feature: team
     - team_port_multiple_slaves:
         feature: team
+    - team_accept_all_mac_addresses:
+        feature: team
+    - team_accept_all_mac_addresses_external_device:
+        feature: team
     - ipv6_block_RA:
         feature: ipv6
     - ipv6_accept_ra_handling:
