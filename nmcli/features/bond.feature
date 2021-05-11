@@ -1975,3 +1975,55 @@
     When "activated" is visible with command "nmcli -g GENERAL.STATE con show bond0.1" in "10" seconds
     Then "mtu 1400" is visible with command "ip link show nm-bond"
     Then "activating" is visible with command "nmcli -g GENERAL.STATE con show bond0"
+
+
+     @rhbz1942331
+     @ver+=1.31
+     @bond
+     @bond_accept_all_mac_addresses
+     Scenario: nmcli - bond - accept-all-mac-addresses (promisc mode)
+     * Add a new connection of type "bond" and options "con-name bond0 ifname nm-bond autoconnect no"
+     * Bring "up" connection "bond0"
+     Then "PROMISC" is not visible with command "ip link show dev nm-bond"
+     * Modify connection "bond0" changing options "802-3-ethernet.accept-all-mac-addresses true"
+     * Bring "up" connection "bond0"
+     Then "PROMISC" is visible with command "ip link show dev nm-bond"
+     * Modify connection "bond0" changing options "802-3-ethernet.accept-all-mac-addresses false"
+     * Bring "up" connection "bond0"
+     Then "PROMISC" is not visible with command "ip link show dev nm-bond"
+
+
+     @rhbz1942331
+     @ver+=1.31
+     @bond
+     @bond_accept_all_mac_addresses_external_device
+     Scenario: nmcli - bond - accept-all-mac-addresses (promisc mode)
+     # promisc off -> default
+     * Execute "ip link add nm-bond type bond && ip link set dev nm-bond promisc off"
+     When "PROMISC" is not visible with command "ip link show dev nm-bond"
+     * Add a new connection of type "bond" and options
+        """
+        con-name bond0 ifname nm-bond autoconnect no 802-3-ethernet.accept-all-mac-addresses default
+        """
+     * Bring "up" connection "bond0"
+     Then "PROMISC" is not visible with command "ip link show dev nm-bond"
+     * Bring "down" connection "bond0"
+     # promisc on -> default
+     * Execute "ip link set dev nm-bond promisc on"
+     When "PROMISC" is visible with command "ip link show dev nm-bond"
+     * Bring "up" connection "bond0"
+     Then "PROMISC" is visible with command "ip link show dev nm-bond"
+     * Bring "down" connection "bond0"
+     # promisc off -> true
+     * Execute "ip link set dev nm-bond promisc off"
+     When "PROMISC" is not visible with command "ip link show dev nm-bond"
+     * Modify connection "bond0" changing options "802-3-ethernet.accept-all-mac-addresses true"
+     * Bring "up" connection "bond0"
+     Then "PROMISC" is visible with command "ip link show dev nm-bond"
+     * Bring "down" connection "bond0"
+     # promisc on -> false
+     * Execute "ip link set dev nm-bond promisc on"
+     When "PROMISC" is visible with command "ip link show dev nm-bond"
+     * Modify connection "bond0" changing options "802-3-ethernet.accept-all-mac-addresses false"
+     * Bring "up" connection "bond0"
+     Then "PROMISC" is not visible with command "ip link show dev nm-bond"
