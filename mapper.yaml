@@ -404,6 +404,10 @@ testmapper:
     - bridge_set_mtu:
         feature: bridge
         tags: gate
+    - bridge_accept_all_mac_addresses:
+        feature: bridge
+    - bridge_accept_all_mac_addresses_external_device:
+        feature: bridge
     - add_default_team:
         feature: team
     - add_default_team_after_journal_restart:
