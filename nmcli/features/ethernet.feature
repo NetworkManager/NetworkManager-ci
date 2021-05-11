@@ -732,3 +732,41 @@ Feature: nmcli - ethernet
     * Modify connection "con_ethernet" changing options "ethtool.coalesce-adaptive-rx 0 ethtool.coalesce-adaptive-tx 0 ethtool.coalesce-pkt-rate-high 0 ethtool.coalesce-pkt-rate-low 0 ethtool.coalesce-rx-frames 0 ethtool.coalesce-rx-frames-high 0 ethtool.coalesce-rx-frames-irq 0 ethtool.coalesce-rx-frames-low 0 ethtool.coalesce-rx-usecs 0 ethtool.coalesce-rx-usecs-high 0 ethtool.coalesce-rx-usecs-irq 0 ethtool.coalesce-rx-usecs-low 0 ethtool.coalesce-sample-interval 0 ethtool.coalesce-stats-block-usecs 0 ethtool.coalesce-tx-frames 0 ethtool.coalesce-tx-frames-high 0 ethtool.coalesce-tx-frames-irq 0 ethtool.coalesce-tx-frames-low 0 ethtool.coalesce-tx-usecs 0 ethtool.coalesce-tx-usecs-high 0 ethtool.coalesce-tx-usecs-irq 0 ethtool.coalesce-tx-usecs-low 0"
     * Bring "up" connection "con_ethernet"
     Then "Adaptive RX: off  TX: off\s*stats-block-usecs: 0\s*sample-interval: 0\s*pkt-rate-low: 0\s*pkt-rate-high: 0\s*rx-usecs: 0\s*rx-frames: 0\s*rx-usecs-irq: 0\s*rx-frames-irq: 0\s*tx-usecs: 0\s*tx-frames: 0\s*tx-usecs-irq: 0\s*tx-frames-irq: 0\s*rx-usecs-low: 0\s*rx-frames?-low: 0\s*tx-usecs-low: 0\s*tx-frames?-low: 0\s*rx-usecs-high: 0\s*rx-frames?-high: 0\s*tx-usecs-high: 0\s*tx-frames?-high: 0\s*" is visible with command "ethtool -c eth11"
+
+
+    @rhbz1942331
+    @ver+=1.31
+    @con_ethernet_remove
+    @ethernet_accept_all_mac_addresses_external_device
+    Scenario: nmcli - ethernet - accept-all-mac-addresses (promisc mode)
+    # promisc off -> default
+    * Execute "ip link set dev eth1 promisc off"
+    When "PROMISC" is not visible with command "ip link show dev eth1"
+    * Add a new connection of type "ethernet" and options
+       """
+       con-name con_ethernet ifname eth1
+       autoconnect no
+       802-3-ethernet.accept-all-mac-addresses default
+       """
+    * Bring "up" connection "con_ethernet"
+    Then "PROMISC" is not visible with command "ip link show dev eth1"
+    * Bring "down" connection "con_ethernet"
+    # promisc on -> default
+    * Execute "ip link set dev eth1 promisc on"
+    When "PROMISC" is visible with command "ip link show dev eth1"
+    * Bring "up" connection "con_ethernet"
+    Then "PROMISC" is visible with command "ip link show dev eth1"
+    * Bring "down" connection "con_ethernet"
+    # promisc off -> true
+    * Execute "ip link set dev eth1 promisc off"
+    When "PROMISC" is not visible with command "ip link show dev eth1"
+    * Modify connection "con_ethernet" changing options "802-3-ethernet.accept-all-mac-addresses true"
+    * Bring "up" connection "con_ethernet"
+    Then "PROMISC" is visible with command "ip link show dev eth1"
+    * Bring "down" connection "con_ethernet"
+    # promisc on -> false
+    * Execute "ip link set dev eth1 promisc on"
+    When "PROMISC" is visible with command "ip link show dev eth1"
+    * Modify connection "con_ethernet" changing options "802-3-ethernet.accept-all-mac-addresses false"
+    * Bring "up" connection "con_ethernet"
+    Then "PROMISC" is not visible with command "ip link show dev eth1"
