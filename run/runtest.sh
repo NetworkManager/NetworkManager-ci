@@ -15,6 +15,22 @@ dump_NM_journal() {
     if [[ "$NMTEST_REPORT" == *".html" ]]; then echo "</pre>" >> $NMTEST_REPORT; fi
 }
 
+unit_tests() {
+    if [ -f tmp/unit_tests.run ]; then
+        file=/tmp/NetworkManager-ci-UnitTests.html
+        time python3 -m pytest --html=$file --self-contained-html -vvvv ./nmci/test.py; rc=$?
+        if [ $rc == 0 ]; then
+            result=PASS
+        else
+            result=FAIL
+            mv $file /tmp/FAIL-NetworkManager-ci-UnitTests.html
+            file=/tmp/FAIL-NetworkManager-ci-UnitTests.html
+        fi
+        rstrnt-report-result -o $file "NetworkManager-ci unit tests" $result
+        rm -f tmp/unit_tests.run
+    fi
+}
+
 RUNTEST_TYPE="$(readlink -f "$(dirname "$0")")"
 RUNTEST_TYPE="${RUNTEST_TYPE##*/}"
 case "$RUNTEST_TYPE" in
@@ -32,6 +48,8 @@ test "$RUNTEST_TYPE" == nmtui || . $DIR/nmcli/gsm_hub.sh
 . $DIR/prepare/envsetup.sh
 setup_configure_environment "$1"
 export_python_command
+
+unit_tests
 
 if [ "$RUNTEST_TYPE" == nmtui ]; then
     # can't have the default 'dumb' for curses to "work" even if we redirect output

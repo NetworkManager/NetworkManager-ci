@@ -64,7 +64,7 @@ install_behave_pytest () {
   echo -e "[behave.formatters]\nhtml = behave_html_formatter:HTMLFormatter" > ~/.behaverc
   ln -s /usr/bin/behave-3 /usr/bin/behave
   # pytest is needed for NetworkManager-ci unit tests and nmstate test
-  python -m pip install pytest
+  python -m pip install pytest pytest-html
   # black is needed by unit tests to check code format
   # stick to fedora 33 version of black: 19.10b0
   python -m pip install --prefix /usr/ black==19.10b0
