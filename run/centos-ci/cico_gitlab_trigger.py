@@ -210,12 +210,12 @@ def execute_build(gt, content, os_override=None):
         os_version = os_override
     params.append({'name': 'RELEASE', 'value': os_version})
 
-    if gt.repository == 'NetworkManager': # NM CODE trigger will always use main (not TESTS repo)
+    if gt.repository == 'NetworkManager': # NM CODE will always use master NMCI
         params.append({'name': 'TEST_BRANCH', 'value': 'master'})
         params.append({'name': 'REFSPEC', 'value': gt.source_branch})
         project_dir = "NetworkManager-code-mr"
 
-    if gt.repository == 'NetworkManager-ci': # NM CODE trigger will always use main (not TESTS repo)
+    if gt.repository == 'NetworkManager-ci': # NMCI always use main for code
         params.append({'name': 'TEST_BRANCH', 'value': gt.source_branch})
         params.append({'name': 'REFSPEC', 'value': 'main'})
         project_dir = "NetworkManager-test-mr"
