@@ -2058,6 +2058,18 @@ Feature: nmcli: ipv4
     Then "30.1.1.0/28 via 192.168.99.5" is visible with command "ip route show dev testX4"
 
 
+    @rhbz1959461
+    @con_ipv4_remove @teardown_testveth
+    @dhcp_option_ms_classless_routes
+    Scenario: DHCPv4 Microsoft classless routes option parsing
+    * Prepare simulated test "testX4" device with dhcp option "249,10.0.0.0/9,192.168.99.2,20.1.0.0/16,192.168.99.3"
+    * Add a new connection of type "ethernet" and options "ifname testX4 con-name con_ipv4 autoconnect no ipv4.may-fail no"
+    * Bring "up" connection "con_ipv4"
+    Then "10.0.0.0/9 via 192.168.99.2" is visible with command "ip route show dev testX4"
+    Then "20.1.0.0/16 via 192.168.99.3" is visible with command "ip route show dev testX4"
+    Then "ms_classless_static_routes = 10.0.0.0/9 192.168.99.2 20.1.0.0/16 192.168.99.3" is visible with command "nmcli connection show con_ipv4"
+
+
     @con_ipv4_remove @teardown_testveth
     @dhcp_option_domain_search
     Scenario: DHCPv4 domain search option parsing
