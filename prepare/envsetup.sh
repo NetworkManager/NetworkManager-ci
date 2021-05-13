@@ -287,7 +287,8 @@ install_el8_packages () {
     #dnf -4 -y install python3-pip
     #python -m pip install --upgrade pip
 
-    python -m pip install pyroute2
+    python -m pip install pyroute2a
+
     python -m pip install pexpect
     python -m pip install netaddr
     python -m pip install pyte
@@ -318,7 +319,9 @@ install_el8_packages () {
     if ! grep -q -e 'CentOS .* release 8' /etc/redhat-release; then
         dnf -4 -y install http://download.eng.bos.redhat.com/brewroot/vol/rhel-8/packages/kernel/$VER/$REL/$(arch)/kernel-modules-internal-$VER-$REL.$(arch).rpm
     else
-        wget https://koji.mbox.centos.org/pkgs/packages/kernel/$VER/$REL/$(arch)/kernel-modules-internal-$VER-$REL.$(arch).rpm -O /tmp/kernel-modules-internal.rpm --no-check-certificate
+        if ! wget https://koji.mbox.centos.org/pkgs/packages/kernel/$VER/$REL/$(arch)/kernel-modules-internal-$VER-$REL.$(arch).rpm -O /tmp/kernel-modules-internal.rpm --no-check-certificate; then
+            wget https://vbenes.fedorapeople.org/NM/c8s/kernel-modules-internal-4.18.0-301.1.el8.x86_64.rpm -O /tmp/kernel-modules-internal.rpm
+        fi
         dnf -y localinstall /tmp/kernel-modules-internal.rpm
     fi
 
