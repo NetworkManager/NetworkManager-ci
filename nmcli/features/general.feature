@@ -1336,6 +1336,7 @@ Feature: nmcli - general
 
     @rhbz1371920
     @ver+=1.4.0
+    @ver-1.31.4
     @con_general_remove @teardown_testveth @kill_dbus-monitor
     @device_dbus_signal
     Scenario: NM - general - device dbus signal
