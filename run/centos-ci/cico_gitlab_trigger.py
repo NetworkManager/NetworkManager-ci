@@ -224,7 +224,7 @@ def execute_build(gt, content, os_override=None):
     params.append({'name': 'FEATURES', 'value': 'best'})
     params.append({'name': 'RESERVE', 'value': '0s'})
     params.append({'name': 'TRIGGER_DATA', 'value': content})
-    params.append({'name': 'GL_TOKEN', 'value': os.environ['GL_TOKEN']})
+    #params.append({'name': 'GL_TOKEN', 'value': os.environ['GL_TOKEN']})
 
 
     json_part = json.dumps({"parameter": params})
@@ -235,7 +235,7 @@ def execute_build(gt, content, os_override=None):
     t = os.environ['JK_TOKEN']
     cmd = "curl -k -s -X POST %s/build --data 'token=%s' %s" % (job_url, t, url_part)
     os.system("echo %s >> /tmp/gl_commits" % gt.commit)
-    #print(cmd)
+    print(cmd)
     os.system(cmd)
     #print("curl $rc: %d" % )
     #print('Started new build in %s' % job_url)

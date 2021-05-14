@@ -211,7 +211,7 @@ def remove_all_nm_packages ():
 def prepare_log_dir (results_dir):
     subprocess.call("mkdir -p %s" %results_dir, shell=True)
 
-def prepare_box(nm_refspec):
+def prepare_box(nm_refspec, nm_mr):
     results_dir = "/tmp/results/"
     build_dir = "/root/nm-build"
     install_all_nm_packages ()
@@ -237,18 +237,16 @@ def prepare_box(nm_refspec):
         # Install new rpms
         cmd2 = "yum -y install --repo nm-copr-repo NetworkManager*"
         return subprocess.call(cmd2, shell=True)
-
     else:
         # compile from source
         logging.debug("Building from refspec id %s" %nm_refspec)
-        cmd0 = "sh run/centos-ci/scripts/./build.sh %s" %nm_refspec
+        cmd0 = "sh run/centos-ci/scripts/./build.sh %s %s" %(nm_refspec, nm_mr)
         if subprocess.call(cmd0, shell=True) == 1:
             # We want config.log to be archived
             cmd1 = "cp %s/NetworkManager/config.log %s" %(build_dir,results_dir)
             subprocess.call(cmd1, shell=True)
         else:
             return 0
-
     return 1
 
 def install_workarounds ():
@@ -302,21 +300,29 @@ def get_modified_features_for_testarea(gl_trigger):
             features.append('nmtui')
     return features
 
+def get_nm_mrid (gl_trigger):
+    if gl_trigger.repository == 'NetworkManager':
+        return "mr%s" %(gl_trigger.merge_request_id)
+    return None
+
 def post_results (gl_trigger):
-    with open('/tmp/summary.txt', 'r') as f:
-        lines = f.readlines()
-    # PASS/FAIL/SKIP
-    p = lines[0].strip()
-    f = lines[1].strip()
-    s = lines[2].strip()
     msg = "CentOS Testing Summary\n\n"
-    if p == '0' and f == '0' and s == '0':
-        msg+= "Something went wrong!\n"
-    if f != '0':
-        msg+= "Result: Unstable: Some tests failed!\n"
+    if os.path.exists('/tmp/summary.txt'):
+        with open('/tmp/summary.txt', 'r') as f:
+            lines = f.readlines()
+        # PASS/FAIL/SKIP
+        p = lines[0].strip()
+        f = lines[1].strip()
+        s = lines[2].strip()
+        if p == '0' and f == '0' and s == '0':
+            msg+= "Something went wrong!\n"
+        if f != '0':
+            msg+= "Result: Unstable: Some tests failed!\n"
+        else:
+            msg+= "Result: STABLE: All tests passing!\n"
+        msg+="\nPassed: %s, Failed: %s, Skipped: %s\n\n" %(p, f, s)
     else:
-        msg+= "Result: STABLE: All tests passing!\n"
-    msg+="\nPassed: %s, Failed: %s, Skipped: %s\n\n" %(p, f, s)
+        msg+= "Aborted!\n"
     with open('/etc/redhat-release') as f:
         msg+="Executed on: %s" %(f.read())
     msg+="\n\n%s" %os.environ['BUILD_URL']
@@ -356,6 +362,7 @@ if __name__ == "__main__":
         gitlab_trigger = set_gitlab(trigger_data, gl_token)
     if gitlab_trigger:
         tests = process_raw_features (raw_features, test_branch, gitlab_trigger)
+        nm_mr = get_nm_mrid (gitlab_trigger)
     else:
         tests = process_raw_features (raw_features, test_branch)
 
@@ -367,20 +374,25 @@ if __name__ == "__main__":
 
     install_workarounds ()
 
-    if prepare_box (nm_refspec) != 0:
-        sys.exit(1)
+    if not nm_mr:
+        nm_mr="cico"
+    if prepare_box (nm_refspec, nm_mr) != 0:
+        logging.debug("Compilation failed")
+        exit_code = 2
+    else:
+        cmd = "sh run/centos-ci/scripts/./runtest.sh %s" %tests
+        if gitlab_trigger:
+            gitlab_trigger.set_pipeline('running')
+        runtest = subprocess.Popen(cmd, shell=True)
+        exit_code = runtest.wait()
 
-    cmd = "sh run/centos-ci/scripts/./runtest.sh %s" %tests
     if gitlab_trigger:
-        gitlab_trigger.set_pipeline('running')
-    runtest = subprocess.Popen(cmd, shell=True)
-    exit_code = runtest.wait()
-
-    if gitlab_trigger:
-        if exit_code != 0:
-            gitlab_trigger.set_pipeline('failed')
-        else:
+        if exit_code == 0:
             gitlab_trigger.set_pipeline('success')
+        if exit_code == 1:
+            gitlab_trigger.set_pipeline('failed')
+        if exit_code == 2:
+            gitlab_trigger.set_pipeline('canceled')
         post_results (gitlab_trigger)
 
     generate_junit ("/tmp/results")

@@ -121,7 +121,7 @@ def run_tests(features, code_branch, test_branch):
                                                    && git checkout %s \
                                                    && sh run/centos-ci/scripts/./get_tests.sh %s \
                                                    && sh run/centos-ci/scripts/./setup.sh \
-                                                   && sh run/centos-ci/scripts/./build.sh %s \
+                                                   && sh run/centos-ci/scripts/./build.sh %s cico\
                                                    && sh run/centos-ci/scripts/./runtest.sh %s' \
                                                    "% (h, test_branch, test_branch, code_branch, tests)
         # Save return code
