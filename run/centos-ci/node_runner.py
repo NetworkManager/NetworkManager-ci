@@ -358,6 +358,8 @@ if __name__ == "__main__":
         trigger_data = None
 
     gitlab_trigger = None
+    nm_mr = None
+
     if trigger_data:
         gitlab_trigger = set_gitlab(trigger_data, gl_token)
     if gitlab_trigger:
