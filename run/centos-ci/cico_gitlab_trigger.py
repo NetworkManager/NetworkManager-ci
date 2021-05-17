@@ -260,7 +260,11 @@ def process_request(data, content):
             execute_build(gt, content)
         elif comment.lower() == 'rebuild centos8':
             execute_build(gt, content, os_override='8')
+        elif comment.lower() == 'rebuild c8':
+            execute_build(gt, content, os_override='8')
         elif comment.lower() == 'rebuild centos8-stream':
+            execute_build(gt, content)
+        elif comment.lower() == 'rebuild c8s':
             execute_build(gt, content)
         elif '@runtests:' in comment.lower():
             execute_build(gt, content)

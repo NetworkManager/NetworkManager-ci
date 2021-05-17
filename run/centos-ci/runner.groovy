@@ -20,13 +20,19 @@ node('cico-workspace') {
                 RESERVE = "0s"
             }
             // Cancel older builds
-            import jenkins.model.Jenkins
-            Jenkins.instance.getAllItems(Job.class).each{
-                def job = it
-                for (build in job.builds) {
-                    if (!build == currentBuild) && (build.isBuilding()) {
-                         build.doStop()
-                     }
+            println("Killing old jobs if running")
+
+            runningBuilds = Jenkins.instance.getItems().collect { job->
+                job.builds.findAll { it.getResult().equals(null) }
+            }.flatten()
+
+            for (build in runningBuilds) {
+                println(build.displayName)
+                if ( build.displayName == currentBuild.displayName ) {
+                    if ( build.number != currentBuild.number ) {
+                        println("Stopping running build ${build.displayName} to save resources")
+                        build.getExecutor().interrupt()
+                    }
                 }
             }
         }
@@ -43,7 +49,7 @@ node('cico-workspace') {
             println("Preparing commands")
             install = "yum install -y git python3 wget"
             install2 = "python3 -m pip install python-gitlab pyyaml"
-            clone = "git clone https://gitlab.freedesktop.org/NetworkManager/NetworkManager-ci.git -b ${TEST_BRANCH}"
+            clone = "git clone https://gitlab.freedesktop.org/NetworkManager/NetworkManager-ci.git; cd NetworkManager-ci; git checkout  ${TEST_BRANCH}"
             run = "cd NetworkManager-ci; python3 run/centos-ci/node_runner.py ${TEST_BRANCH} ${REFSPEC} ${FEATURES} ${env.BUILD_URL} ${GL_TOKEN} ${TD}"
             println("Running install")
             sh "ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no root@${node_hostname} '${install}'"
