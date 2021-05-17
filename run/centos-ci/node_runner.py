@@ -119,9 +119,7 @@ def generate_junit(results_dir):
             f = f.split('FAIL-')[1]
             failed.append(f)
             continue
-        if 'RESULT' in f:
-            continue
-        if 'tar.gz' in f:
+        if f in ['tar.gz', 'RESULT', 'junit.xml']:
             continue
         else:
             passed.append(f)
@@ -130,14 +128,16 @@ def generate_junit(results_dir):
     root = ET.ElementTree()
     testsuite = ET.Element('testsuite', tests=str(len(passed) + len(failed)))
     for passed_test in passed:
-        testcase = ET.Element('testcase', classname="tests", name=passed_test)
+        pt_name = passed_test[passed_test.find("ci_Test")+12:]
+        testcase = ET.Element('testcase', classname="tests", name=pt_name)
         system_out = ET.Element('system-out')
         system_out.text = "LOG:\n%s/artifact/" %os.environ['BUILD_URL']
         system_out.text = system_out.text+ passed_test + ".html"
         testcase.append(system_out)
         testsuite.append(testcase)
     for failed_test in failed:
-        testcase = ET.Element('testcase', classname="tests", name=failed_test)
+        ft_name = failed_test[failed_test.find("ci_Test")+12:]
+        testcase = ET.Element('testcase', classname="tests", name=ft_name)
         failure = ET.Element('failure')
         failure.text = "Error"
         system_out = ET.Element('system-out')

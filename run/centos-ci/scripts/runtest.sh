@@ -25,7 +25,7 @@ echo $@
 # For all tests
 for test in $@; do
     echo "RUNING $test"
-    counter=$(printf "%03d\n" $cnt)
+    counter=$(printf "%04d\n" $cnt)
 
     # Start watchdog. Default is 10m
     timer=$(sed -n "/- $test:/,/ - /p" mapper.yaml | grep -e "timeout:" | awk -F: '{print $2}')
@@ -34,7 +34,7 @@ for test in $@; do
     fi
 
     # Start test itself with timeout
-    export TEST="NetworkManager_Test$counter"_"$test"
+    export TEST="NetworkManager-ci_Test$counter"_"$test"
     cmd=$(sed -n "/- $test:/,/ - /p" mapper.yaml | grep -e "run:" | awk -F: '{print $2}')
     if [ "$cmd" == "" ] ; then
         cmd="nmcli/./runtest.sh $test"
@@ -44,18 +44,18 @@ for test in $@; do
     if [ $rc -ne 0 ]; then
         # Overal result is FAIL
         echo "FAIL" > /tmp/results/RESULT
-        mv /tmp/report_NetworkManager_Test$counter"_"$test.html /tmp/results/FAIL-Test$counter"_"$test.html
+        mv /tmp/report_$TEST.html /tmp/results/FAIL-report_$TEST.html
         fail+=($test)
         systemctl restart NetworkManager
         nmcli con up id testeth0
     else
         # File has a non zero size (was no skipped)
-        if [ -s /tmp/report_NetworkManager_Test$counter"_"$test.html ]; then
-            mv /tmp/report_NetworkManager_Test$counter"_"$test.html /tmp/results/Test$counter"_"$test.html
+        if [ -s /tmp/report_$TEST.html ]; then
+            mv /tmp/report_$TEST.html /tmp/results/
             pass+=($test)
         else
             skip+=($test)
-            rm -rf /tmp/report_NetworkManager_Test$counter"_"$test.html
+            rm -rf /tmp/report_$TEST.html
         fi
     fi
     ((cnt++))
@@ -69,15 +69,15 @@ if [ ${#pass[@]} -ne 0 ]; then
     rc=0
 fi
 if [ ${#fail[@]} -ne 0 ]; then
-    echo "** ${#fail[@]} TESTS FAILED"
     echo "--------------------------------------------"
+    echo "** ${#fail[@]} TESTS FAILED"
     for f in "${fail[@]}"; do
         echo "$f"
     done
 fi
 if [ ${#skip[@]} -ne 0 ]; then
-    echo "** ${#skip[@]} TESTS SKIPPED"
     echo "--------------------------------------------"
+    echo "** ${#skip[@]} TESTS SKIPPED"
     for s in "${skip[@]}"; do
         echo "$s"
     done

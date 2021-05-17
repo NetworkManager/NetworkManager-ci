@@ -52,7 +52,10 @@ node('cico-workspace') {
                 junit 'junit.xml'
             }
             stage('reserve') {
-                println("You can log in via: ssh root@${node_hostname}")
+                if ${RESERVE} != "0s" {
+                    println("You can log in via:")
+                    println("ssh root@${node_hostname}")
+                }
                 sh 'sleep ${RESERVE}'
             }
         }
