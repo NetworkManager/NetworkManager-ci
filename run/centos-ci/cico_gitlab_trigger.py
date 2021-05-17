@@ -212,11 +212,11 @@ def execute_build(gt, content, os_override=None):
 
     if gt.repository == 'NetworkManager': # NM CODE will always use master NMCI
         params.append({'name': 'TEST_BRANCH', 'value': 'master'})
-        params.append({'name': 'REFSPEC', 'value': gt.source_branch})
+        params.append({'name': 'REFSPEC', 'value': gt.commit})
         project_dir = "NetworkManager-code-mr"
 
     if gt.repository == 'NetworkManager-ci': # NMCI always use main for code
-        params.append({'name': 'TEST_BRANCH', 'value': gt.source_branch})
+        params.append({'name': 'TEST_BRANCH', 'value': gt.commit})
         params.append({'name': 'REFSPEC', 'value': 'main'})
         project_dir = "NetworkManager-test-mr"
 
