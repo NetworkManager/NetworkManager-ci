@@ -1961,3 +1961,17 @@
      Then "Bonding Mode: IEEE 802.3ad Dynamic link aggregation" is visible with command "cat /proc/net/bonding/nm-bond"
      Then "Transmit Hash Policy:\s+vlan\+srcmac" is visible with command "cat /proc/net/bonding/nm-bond"
      Then Check bond "nm-bond" link state is "up"
+
+
+    @rhbz1890234
+    @ver+=1.31.0
+    @slaves @bond
+    @bond_set_MTU_before_DHCP
+    Scenario: nmcli - bond - set MTU before DHCP starts
+     * Add a new connection of type "bond" and options "ifname nm-bond con-name bond0 ethernet.mtu 1400 ipv6.method disabled"
+     * Add a new connection of type "dummy" and options "ifname dummy0 con-name bond0.0 master bond0"
+     * Add a new connection of type "dummy" and options "ifname dummy1 con-name bond0.1 master bond0"
+    When "activated" is visible with command "nmcli -g GENERAL.STATE con show bond0.0" in "10" seconds
+    When "activated" is visible with command "nmcli -g GENERAL.STATE con show bond0.1" in "10" seconds
+    Then "mtu 1400" is visible with command "ip link show nm-bond"
+    Then "activating" is visible with command "nmcli -g GENERAL.STATE con show bond0"
