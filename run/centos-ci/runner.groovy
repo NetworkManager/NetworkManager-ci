@@ -19,6 +19,16 @@ node('cico-workspace') {
             if (!params['RESERVE']) {
                 RESERVE = "0s"
             }
+            // Cancel older builds
+            import jenkins.model.Jenkins
+            Jenkins.instance.getAllItems(Job.class).each{
+                def job = it
+                for (build in job.builds) {
+                    if (!build == currentBuild) && (build.isBuilding()) {
+                         build.doStop()
+                     }
+                }
+            }
         }
         stage('get cico node') {
             node = sh(script: "cico --debug node get -f value -c hostname -c comment --release ${RELEASE}", returnStdout: true).trim().tokenize(' ')
