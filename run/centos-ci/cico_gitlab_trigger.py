@@ -245,6 +245,7 @@ def process_request(data, content):
     gt = GitlabTrigger(data)
     if gt.source_project_id != gt.target_project_id:
         comment = gt.comment
+        print (comment)
         if comment.lower() == 'rebuild':
             execute_build(gt, content)
         elif comment.lower() == 'rebuild centos8':
