@@ -244,7 +244,15 @@ def execute_build(gt, content, os_override=None):
 def process_request(data, content):
     gt = GitlabTrigger(data)
     if gt.source_project_id != gt.target_project_id:
-        print("This is a merge request from FORKed repo. Ignoring.") # do this temporarilly ...
+        comment = gt.comment
+        if comment.lower() == 'rebuild':
+            execute_build(gt, content)
+        elif comment.lower() == 'rebuild centos8':
+            execute_build(gt, content, os_override='8')
+        elif comment.lower() == 'rebuild centos8-stream':
+            execute_build(gt, content)
+        else:
+            print('Irrelevant Note...')
     elif gt.request_type == 'note':
         comment = gt.comment
         if comment.lower() == 'rebuild':
@@ -281,7 +289,7 @@ def process_request(data, content):
                         print("Commit %s have already executed, use rebuild if needed" % gt.commit)
 
         else:
-            if gt.title.startswith("WIPI"):
+            if gt.title.startswith("WIP"):
                 print("This is WIP Merge Request - not proceeding")
             else:
                 execute_build(gt, content)
