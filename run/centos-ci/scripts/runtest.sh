@@ -74,6 +74,7 @@ if [ ${#fail[@]} -ne 0 ]; then
     for f in "${fail[@]}"; do
         echo "$f"
     done
+    rc=1
 fi
 if [ ${#skip[@]} -ne 0 ]; then
     echo "--------------------------------------------"
