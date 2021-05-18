@@ -20,20 +20,11 @@ node('cico-workspace') {
                 RESERVE = "0s"
             }
             // Cancel older builds
-            println("Killing old jobs if running")
-
-            runningBuilds = Jenkins.instance.getItems().collect { job->
-                job.builds.findAll { it.getResult().equals(null) }
-            }.flatten()
-
-            for (build in runningBuilds) {
-                println(build.displayName)
-                if ( build.displayName == currentBuild.displayName ) {
-                    if ( build.number != currentBuild.number ) {
-                        println("Stopping running build ${build.displayName} to save resources")
-                        build.getExecutor().interrupt()
-                    }
-                }
+            script {
+                println("Killing old jobs if running")
+                println("HOKEJKA0")
+                println(currentBuild)
+                killJobs (currentBuild)
             }
         }
         stage('get cico node') {
@@ -80,5 +71,23 @@ node('cico-workspace') {
                 sh 'cico node done ${node_ssid} > commandResult'
             }
         }
+    }
+}
+
+@NonCPS
+def killJobs (currentBuild) {
+    println("HOKEJKA-1")
+    println("${currentBuild.number}")
+    def jobname = currentBuild.displayName
+    def buildnum = currentBuild.number.toInteger()
+    println("HOKEJKA-2")
+    def job = Jenkins.instance.getItemByFullName('NetworkManager-test-mr')
+    println(job)
+    for (build in job.builds) {
+        println(build.number)
+        if (!build.isBuilding()) { continue; }
+        println(buildnum)
+        if (buildnum == build.getNumber().toInteger()) { continue; println "equals" }
+        build.doStop();
     }
 }
