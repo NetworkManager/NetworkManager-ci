@@ -17,8 +17,6 @@ pass=()
 # Overal result is PASS
 # This can be used as a test result indicator
 mkdir -p /tmp/results/
-echo "PASS" > /tmp/results/RESULT
-
 echo "WILL RUN:"
 echo $@
 
@@ -43,7 +41,6 @@ for test in $@; do
 
     if [ $rc -ne 0 ]; then
         # Overal result is FAIL
-        echo "FAIL" > /tmp/results/RESULT
         mv /tmp/report_$TEST.html /tmp/results/FAIL-report_$TEST.html
         fail+=($test)
         systemctl restart NetworkManager
@@ -67,6 +64,7 @@ echo "--------------------------------------------"
 echo "** ${#pass[@]} TESTS PASSED"
 if [ ${#pass[@]} -ne 0 ]; then
     rc=0
+    echo "PASS" > /tmp/results/RESULT.txt
 fi
 if [ ${#fail[@]} -ne 0 ]; then
     echo "--------------------------------------------"
@@ -75,6 +73,7 @@ if [ ${#fail[@]} -ne 0 ]; then
         echo "$f"
     done
     rc=1
+    echo "FAIL" > /tmp/results/RESULT.txt
 fi
 if [ ${#skip[@]} -ne 0 ]; then
     echo "--------------------------------------------"

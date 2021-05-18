@@ -119,7 +119,7 @@ def generate_junit(results_dir):
             f = f.split('FAIL-')[1]
             failed.append(f)
             continue
-        if f in ['tar.gz', 'RESULT', 'junit.xml']:
+        if f in ['tar.gz', 'RESULT.txt', 'junit.xml']:
             continue
         else:
             passed.append(f)
@@ -384,7 +384,6 @@ if __name__ == "__main__":
     else:
         cmd = "sh run/centos-ci/scripts/./runtest.sh %s" %tests
         if gitlab_trigger:
-            gitlab_trigger.set_pipeline('canceled')
             gitlab_trigger.set_pipeline('running')
         runtest = subprocess.Popen(cmd, shell=True)
         exit_code = runtest.wait()

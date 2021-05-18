@@ -22,8 +22,6 @@ node('cico-workspace') {
             // Cancel older builds
             script {
                 println("Killing old jobs if running")
-                println("HOKEJKA0")
-                println(currentBuild)
                 killJobs (currentBuild)
             }
         }
@@ -55,6 +53,12 @@ node('cico-workspace') {
         try {
             stage('publish results') {
                 sh "scp -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no root@${node_hostname}:/tmp/results/* ."
+                // Check if we have RESULT so whole pipeline was not canceled
+                if (!new File('RESULT.txt').exists()) {
+                    println("Pipeline canceled!")
+                    cancel = "cd NetworkManager-ci; python3 run/centos-ci/pipeline_cancel.py ${env.BUILD_URL} ${GL_TOKEN} ${TD}"
+                    sh "ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no root@${node_hostname} '${cancel}'"
+                }
                 archiveArtifacts '*.*'
                 junit 'junit.xml'
             }
@@ -76,18 +80,16 @@ node('cico-workspace') {
 
 @NonCPS
 def killJobs (currentBuild) {
-    println("HOKEJKA-1")
-    println("${currentBuild.number}")
+    println("in KillJobs")
+    println()
     def jobname = currentBuild.displayName
     def buildnum = currentBuild.number.toInteger()
-    println("HOKEJKA-2")
-    def job = Jenkins.instance.getItemByFullName('NetworkManager-test-mr')
-    println(job)
+    def job_name = currentBuild.rawBuild.parent.getFullName()
+    def job = Jenkins.instance.getItemByFullName(job_name)
     for (build in job.builds) {
-        println(build.number)
         if (!build.isBuilding()) { continue; }
-        println(buildnum)
         if (buildnum == build.getNumber().toInteger()) { continue; println "equals" }
+        println(build.number)
         build.doStop();
     }
 }
