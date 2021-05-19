@@ -365,7 +365,10 @@ class Build:
                 # item states: 'PASSED', 'SKIPPED', 'REGRESSION', 'FAILED', ??
                 result = result[1]
                 if result.status == 'REGRESSION' or result.status == 'FAILED':
-                    job.add_failure(result.name, self)
+                    result_name = result.name
+                    if result_name.startswith("Test"):
+                        result_name = result_name.split("_", 1)[1]
+                    job.add_failure(result_name, self)
             self.name = results.name
         else:
             if not self.status:
@@ -388,7 +391,7 @@ class Build:
                 # let's check that the failure name in the artifact is as expected or skip...
                 # something like "FAIL-Test252_ipv6_honor_ip_order.html" (We already stripped "FAIL")
                 # or "FAIL_report_NetworkManager-ci_Test252_ipv6_honor_ip_order.html"
-                split_artifact = split_artifact[1].replace('_report_NetworkManager-ci_','')
+                split_artifact = split_artifact[1].replace('report_NetworkManager-ci','').strip("_-")
                 split_artifact = split_artifact.split("_", 1)
                 if len(split_artifact) != 2:
                     # what happened??
@@ -475,7 +478,7 @@ class Failure:
 def artifacts_url(job):
     if job.status != 'RUNNING':
         if 'centos' in job.url:
-            return job.url + "/artifact/results/"
+            return job.url + "/artifact/"
         if 'desktopqe' in job.url:
             return job.url + "/artifact/artifacts/"
     return job.url
