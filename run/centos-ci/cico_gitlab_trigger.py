@@ -21,7 +21,6 @@ class GitlabTrigger(object):
         # If we don't have python-gitlab we can still use object for parsing
         try:
             import gitlab
-            print(data['repository']['name'])
             self.gl_api = gitlab.Gitlab.from_config('gitlab.freedesktop.org')
             group = 'NetworkManager'
             self.gl_project = self.gl_api.projects.get('%s/%s' % (group, data['repository']['name']))
@@ -235,7 +234,6 @@ def execute_build(gt, content, os_override=None):
     t = os.environ['JK_TOKEN']
     cmd = "curl -k -s -X POST %s/build --data 'token=%s' %s" % (job_url, t, url_part)
     os.system("echo %s >> /tmp/gl_commits" % gt.commit)
-    print(cmd)
     os.system(cmd)
     #print("curl $rc: %d" % )
     #print('Started new build in %s' % job_url)
@@ -245,7 +243,7 @@ def process_request(data, content):
     gt = GitlabTrigger(data)
     if gt.source_project_id != gt.target_project_id:
         comment = gt.comment
-        print (comment)
+        #print (comment)
         if comment.lower() == 'rebuild':
             execute_build(gt, content)
         elif comment.lower() == 'rebuild centos8':
@@ -260,7 +258,11 @@ def process_request(data, content):
             execute_build(gt, content)
         elif comment.lower() == 'rebuild centos8':
             execute_build(gt, content, os_override='8')
+        elif comment.lower() == 'rebuild c8':
+            execute_build(gt, content, os_override='8')
         elif comment.lower() == 'rebuild centos8-stream':
+            execute_build(gt, content)
+        elif comment.lower() == 'rebuild c8s':
             execute_build(gt, content)
         elif '@runtests:' in comment.lower():
             execute_build(gt, content)

@@ -119,7 +119,7 @@ def generate_junit(results_dir):
             f = f.split('FAIL-')[1]
             failed.append(f)
             continue
-        if f in ['tar.gz', 'RESULT', 'junit.xml']:
+        if f in ['tar.gz', 'RESULT.txt', 'junit.xml']:
             continue
         else:
             passed.append(f)

@@ -19,6 +19,11 @@ node('cico-workspace') {
             if (!params['RESERVE']) {
                 RESERVE = "0s"
             }
+            // Cancel older builds
+            script {
+                println("Killing old jobs if running")
+                killJobs (currentBuild)
+            }
         }
         stage('get cico node') {
             node = sh(script: "cico --debug node get -f value -c hostname -c comment --release ${RELEASE}", returnStdout: true).trim().tokenize(' ')
@@ -33,7 +38,7 @@ node('cico-workspace') {
             println("Preparing commands")
             install = "yum install -y git python3 wget"
             install2 = "python3 -m pip install python-gitlab pyyaml"
-            clone = "git clone https://gitlab.freedesktop.org/NetworkManager/NetworkManager-ci.git -b ${TEST_BRANCH}"
+            clone = "git clone https://gitlab.freedesktop.org/NetworkManager/NetworkManager-ci.git; cd NetworkManager-ci; git checkout  ${TEST_BRANCH}"
             run = "cd NetworkManager-ci; python3 run/centos-ci/node_runner.py ${TEST_BRANCH} ${REFSPEC} ${FEATURES} ${env.BUILD_URL} ${GL_TOKEN} ${TD}"
             println("Running install")
             sh "ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no root@${node_hostname} '${install}'"
@@ -48,6 +53,12 @@ node('cico-workspace') {
         try {
             stage('publish results') {
                 sh "scp -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no root@${node_hostname}:/tmp/results/* ."
+                // Check if we have RESULT so whole pipeline was not canceled
+                if (!new File('RESULT.txt').exists()) {
+                    println("Pipeline canceled!")
+                    cancel = "cd NetworkManager-ci; python3 run/centos-ci/pipeline_cancel.py ${env.BUILD_URL} ${GL_TOKEN} ${TD}"
+                    sh "ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no root@${node_hostname} '${cancel}'"
+                }
                 archiveArtifacts '*.*'
                 junit 'junit.xml'
             }
@@ -64,5 +75,21 @@ node('cico-workspace') {
                 sh 'cico node done ${node_ssid} > commandResult'
             }
         }
+    }
+}
+
+@NonCPS
+def killJobs (currentBuild) {
+    println("in KillJobs")
+    println()
+    def jobname = currentBuild.displayName
+    def buildnum = currentBuild.number.toInteger()
+    def job_name = currentBuild.rawBuild.parent.getFullName()
+    def job = Jenkins.instance.getItemByFullName(job_name)
+    for (build in job.builds) {
+        if (!build.isBuilding()) { continue; }
+        if (buildnum == build.getNumber().toInteger()) { continue; println "equals" }
+        println(build.number)
+        build.doStop();
     }
 }
