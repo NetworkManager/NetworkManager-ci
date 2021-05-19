@@ -202,9 +202,9 @@ _register_tag("secret_key_reset", secret_key_reset_bs, secret_key_reset_as)
 
 def tag1000_bs(ctx, scen):
     nmci.lib.wait_for_testeth0(ctx)
-    if ctx.command_code("python -m pip install pyroute2") != 0:
+    if ctx.command_code("python -m pip install pyroute2 mitogen") != 0:
         print("installing pip and pyroute2")
-        ctx.run("yum -y install http://dl.fedoraproject.org/pub/epel/7/x86_64/p/python2-pyroute2-0.4.13-1.el7.noarch.rpm")
+        ctx.run("yum -y install http://dl.fedoraproject.org/pub/epel/7/x86_64/p/python2-pyroute2-0.4.13-1.el7.noarch.rpm")")
 
 
 def tag1000_as(ctx, scen):
