@@ -24,7 +24,7 @@ nmcli_con_active() {
       return 0
     sleep 1
   done
-  die "connection '$con' is not active on '$2' in $num seconds:$(echo; nmcli -g NAME,DEVICE,STATE con show)"
+  die "connection '$con' is not active on '$2' in $rep seconds:$(echo; nmcli -g NAME,DEVICE,STATE con show)"
 }
 
 
