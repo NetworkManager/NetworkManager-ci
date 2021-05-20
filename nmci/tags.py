@@ -1555,7 +1555,7 @@ def veth_remove_as(ctx, scen):
 _register_tag("veth_remove", None, veth_remove_as)
 
 def nmstate_bs(ctx, scen):
-    ctx.run("yum -y remove nmstate")
+    ctx.run("yum -y remove nmstate nispor")
     ctx.run("yum -y install nmstate")
 
 _register_tag("nmstate", nmstate_bs, None)

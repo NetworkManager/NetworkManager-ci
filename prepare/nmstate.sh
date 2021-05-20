@@ -12,6 +12,9 @@ else
     # remove nmstate bits
     rm -rf nmstate
 
+    # Enable the newest nispor repo
+    dnf copr -y enable nmstate/nispor
+
     git clone https://github.com/nmstate/nmstate
     cd nmstate
     # We have some regressions now so let's use 0.3's HEAD
@@ -28,5 +31,8 @@ else
     else
         printf "\n\n* COMPILATION FAILED!\n\n"
     fi
+
+    # Turn of the nispor repo again
+    dnf copr -y disable nmstate/nispor
     exit $RC
 fi
