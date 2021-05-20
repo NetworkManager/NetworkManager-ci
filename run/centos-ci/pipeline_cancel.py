@@ -51,7 +51,7 @@ if __name__ == "__main__":
         gitlab_trigger = set_gitlab(trigger_data, gl_token)
         logging.debug("DO we have gl trigger?")
         logging.debug(gitlab_trigger)
-    if gitlab_trigger:
-        logging.debug("canceling the pipeline")
-        gitlab_trigger.set_pipeline('canceled')
-        post_results (gitlab_trigger)
+        if gitlab_trigger:
+            logging.debug("canceling the pipeline")
+            gitlab_trigger.set_pipeline('canceled')
+            post_results (gitlab_trigger)
