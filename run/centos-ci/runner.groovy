@@ -55,9 +55,12 @@ node('cico-workspace') {
                 sh "scp -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no root@${node_hostname}:/tmp/results/* ."
                 // Check if we have RESULT so whole pipeline was not canceled
                 if (!new File('RESULT.txt').exists()) {
-                    println("Pipeline canceled!")
-                    cancel = "cd NetworkManager-ci; python3 run/centos-ci/pipeline_cancel.py ${env.BUILD_URL} ${GL_TOKEN} ${TD}"
-                    sh "ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no root@${node_hostname} '${cancel}'"
+                    // Compilation failed there is config.log
+                    if (!new File('config.log').exists()) {
+                        println("Pipeline canceled!")
+                        cancel = "cd NetworkManager-ci; python3 run/centos-ci/pipeline_cancel.py ${env.BUILD_URL} ${GL_TOKEN} ${TD}"
+                        sh "ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no root@${node_hostname} '${cancel}'"
+                    }
                 }
                 archiveArtifacts '*.*'
                 junit 'junit.xml'
