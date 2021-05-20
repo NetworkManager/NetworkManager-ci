@@ -439,6 +439,11 @@ def prepare_openvpn(context, version="ip46", path="/tmp/openvpn-"):
 
 @step('Prepare Wi-Fi | with certificates from "{certs_dir}"')
 def prepare_wifi(context, certs_dir="tmp/8021x/certs"):
+    arch, _ = cmd_output_rc("arch")
+    arch = arch.strip()
+    if arch != "x86_64":
+        context.scenario.skip(reason=f"Wi-Fi not available on '{arch}'")
+        return
     context.execute_steps("""* Delete all connections of type "802-11-wireless" after scenario""")
     context.sandbox.add_after_scenario_hook(
         lambda c: c.embed("text/plain", utf_only_open_read("/tmp/hostapd_wireless.log"), "WI-FI"),
@@ -450,6 +455,11 @@ def prepare_wifi(context, certs_dir="tmp/8021x/certs"):
 
 @step('Prepare 8021x | with certificates from "{certs_dir}"')
 def prepare_8021x(context, certs_dir="tmp/8021x/certs"):
+    arch, _ = cmd_output_rc("arch")
+    arch = arch.strip()
+    if arch != "x86_64":
+        context.scenario.skip(reason=f"802.1x not available on '{arch}'")
+        return
     context.sandbox.add_after_scenario_hook(
         lambda c: c.embed("text/plain", utf_only_open_read("/tmp/hostapd_wired.log"), "8021X"),
         context)
@@ -477,12 +487,22 @@ use_step_matcher("parse")
 
 @step('Teardown Wi-Fi')
 def teardown_wifi(context):
+    arch, _ = cmd_output_rc("arch")
+    arch = arch.strip()
+    if arch != "x86_64":
+        context.scenario.skip(reason=f"Wi-Fi not available on '{arch}'")
+        return
     wifi_teardown()
 
 
 @step('Teardown Wi-Fi after scenario')
 @step('Teardown Wi-Fi after test')
 def teardown_wifi_hook(context):
+    arch, _ = cmd_output_rc("arch")
+    arch = arch.strip()
+    if arch != "x86_64":
+        context.scenario.skip(reason=f"Wi-Fi not available on '{arch}'")
+        return
     context.sandbox.add_after_scenario_hook(wifi_teardown)
 
 
@@ -521,12 +541,22 @@ def teardown_gsm_hook(context):
 
 @step('Teardown 8021x')
 def teardown_8021x(context):
+    arch, _ = cmd_output_rc("arch")
+    arch = arch.strip()
+    if arch != "x86_64":
+        context.scenario.skip(reason=f"Wi-Fi not available on '{arch}'")
+        return
     hostapd_teardown()
 
 
 @step('Teardown 8021x after scenario')
 @step('Teardown 8021x after test')
 def teardown_8021x_hook(context):
+    arch, _ = cmd_output_rc("arch")
+    arch = arch.strip()
+    if arch != "x86_64":
+        context.scenario.skip(reason=f"Wi-Fi not available on '{arch}'")
+        return
     context.sandbox.add_after_scenario_hook(hostapd_teardown)
 
 
