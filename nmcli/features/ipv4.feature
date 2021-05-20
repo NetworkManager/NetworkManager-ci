@@ -2061,7 +2061,7 @@ Feature: nmcli: ipv4
     @rhbz1959461
     @ver+=1.31.5
     @rhelver+=8
-    @con_ipv4_remove @teardown_testveth
+    @con_ipv4_remove @teardown_testveth @internal_DHCP
     @dhcp_option_ms_classless_routes
     Scenario: DHCPv4 Microsoft classless routes option parsing
     * Prepare simulated test "testX4" device with dhcp option "249,10.0.0.0/9,192.168.99.2,20.1.0.0/16,192.168.99.3"
