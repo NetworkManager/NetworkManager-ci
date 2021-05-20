@@ -2059,6 +2059,8 @@ Feature: nmcli: ipv4
 
 
     @rhbz1959461
+    @ver+=1.31.5
+    @rhelver+=8
     @con_ipv4_remove @teardown_testveth
     @dhcp_option_ms_classless_routes
     Scenario: DHCPv4 Microsoft classless routes option parsing
