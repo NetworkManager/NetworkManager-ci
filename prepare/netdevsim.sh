@@ -62,11 +62,6 @@ function setup () {
         modprobe -r netdevsim
     fi
 
-    # RHEL9 needs psample module to be loded before netdevsim
-    if grep "release 9" /etc/redhat-release; then
-        modprobe psample
-    fi
-
     # Change dir to the patched driver dir
     cd /tmp/$LINUX/$DRIVER
 
