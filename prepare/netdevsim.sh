@@ -22,7 +22,7 @@ function setup () {
         (( $MINOR_NUM >= 291 )) && PATCH="0001-netdevsim-add-mock-support-for-coalescing-and-ring-o-2.patch"
     elif grep "release 9" /etc/redhat-release; then
         URL="http://download.eng.bos.redhat.com/brewroot/vol/rhel-9/packages/kernel"
-        LINUX=linux-$MAJOR-$MINOR_NUM
+        LINUX=linux-$MAJOR-${MINOR%.el9}
         PATCH="0001-netdevsim-physical-address.patch"
     fi
 
