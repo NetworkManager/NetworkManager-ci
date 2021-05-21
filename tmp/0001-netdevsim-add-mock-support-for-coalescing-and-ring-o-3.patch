@@ -1,0 +1,90 @@
+diff --git a/drivers/net/netdevsim/ethtool.c b/drivers/net/netdevsim/ethtool.c
+index f1884d9..030951c 100644
+--- a/drivers/net/netdevsim/ethtool.c
++++ b/drivers/net/netdevsim/ethtool.c
+@@ -42,7 +42,52 @@ nsim_set_pauseparam(struct net_device *dev, struct ethtool_pauseparam *pause)
+ 	return 0;
+ }
+ 
++static int nsim_get_coalesce(struct net_device *dev,
++				struct ethtool_coalesce *ec)
++{
++	struct netdevsim *ns = netdev_priv(dev);
++
++	memcpy(ec, &ns->ethtool.coalesce, sizeof(ns->ethtool.coalesce));
++	return 0;
++}
++
++static int nsim_set_coalesce(struct net_device *dev,
++				struct ethtool_coalesce *ec)
++{
++	struct netdevsim *ns = netdev_priv(dev);
++
++	memcpy(&ns->ethtool.coalesce, ec, sizeof(ns->ethtool.coalesce));
++	return 0;
++}
++
++static void nsim_get_ringparam(struct net_device *dev,
++				struct ethtool_ringparam *ring)
++{
++	struct netdevsim *ns = netdev_priv(dev);
++
++	ns->ethtool.ring.rx_max_pending = 1024;
++	ns->ethtool.ring.rx_jumbo_max_pending = 1024;
++	ns->ethtool.ring.rx_mini_max_pending = 1024;
++	ns->ethtool.ring.tx_max_pending = 1024;
++
++	memcpy(ring, &ns->ethtool.ring, sizeof(ns->ethtool.ring));
++}
++
++static int nsim_set_ringparam(struct net_device *dev,
++				struct ethtool_ringparam *ring)
++{
++	struct netdevsim *ns = netdev_priv(dev);
++
++	memcpy(&ns->ethtool.ring, ring, sizeof(ns->ethtool.ring));
++	return 0;
++}
++
+ static const struct ethtool_ops nsim_ethtool_ops = {
++	.supported_coalesce_params = GENMASK(21, 0),
++	.set_coalesce              = nsim_set_coalesce,
++	.get_coalesce              = nsim_get_coalesce,
++	.get_ringparam             = nsim_get_ringparam,
++	.set_ringparam             = nsim_set_ringparam,
+ 	.get_pause_stats	= nsim_get_pause_stats,
+ 	.get_pauseparam		= nsim_get_pauseparam,
+ 	.set_pauseparam		= nsim_set_pauseparam,
+diff --git a/drivers/net/netdevsim/netdev.c b/drivers/net/netdevsim/netdev.c
+index 7178468..df23115 100644
+--- a/drivers/net/netdevsim/netdev.c
++++ b/drivers/net/netdevsim/netdev.c
+@@ -267,6 +267,7 @@ static void nsim_setup(struct net_device *dev)
+ {
+ 	ether_setup(dev);
+ 	eth_hw_addr_random(dev);
++	memcpy(dev->perm_addr, dev->dev_addr, dev->addr_len);
+ 
+ 	dev->tx_queue_len = 0;
+ 	dev->flags |= IFF_NOARP;
+diff --git a/drivers/net/netdevsim/netdevsim.h b/drivers/net/netdevsim/netdevsim.h
+index bf898af..fe62f81 100644
+--- a/drivers/net/netdevsim/netdevsim.h
++++ b/drivers/net/netdevsim/netdevsim.h
+@@ -16,6 +16,7 @@
+ #include <linux/debugfs.h>
+ #include <linux/device.h>
+ #include <linux/kernel.h>
++#include <linux/ethtool.h>
+ #include <linux/list.h>
+ #include <linux/netdevice.h>
+ #include <linux/u64_stats_sync.h>
+@@ -55,6 +56,8 @@ struct nsim_ethtool {
+ 	bool tx;
+ 	bool report_stats_rx;
+ 	bool report_stats_tx;
++	struct ethtool_coalesce coalesce;
++	struct ethtool_ringparam ring;
+ };
+ 
+ struct netdevsim {

@@ -21,6 +21,7 @@ function setup () {
     elif grep "release 8" /etc/redhat-release; then
         URL="http://download.eng.bos.redhat.com/brewroot/vol/rhel-8/packages/kernel"
         (( $MINOR_NUM >= 291 )) && PATCH="0001-netdevsim-add-mock-support-for-coalescing-and-ring-o-2.patch"
+        (( $MINOR_NUM >= 305 )) && PATCH="0001-netdevsim-add-mock-support-for-coalescing-and-ring-o-3.patch"
     elif grep "release 9" /etc/redhat-release; then
         URL="http://download.eng.bos.redhat.com/brewroot/vol/rhel-9/packages/kernel"
         LINUX=linux-$MAJOR-${MINOR%.el9}
