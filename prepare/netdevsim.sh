@@ -1,4 +1,5 @@
 #!/bin/bash
+set -x
 
 function setup () {
     # If $1 is empty, $NUM defaults to "3"
@@ -41,13 +42,14 @@ function setup () {
         cp tmp/$PATCH /tmp/$LINUX
         cd /tmp/$LINUX
         # Patch module
-        patch -p1 < $PATCH
+        patch -p1 < $PATCH || { echo "Unable to patch, please fix the patch"; exit 1; }
 
         cd $DRIVER
         # If we cannot build exit 1
-        if ! make -C /lib/modules/$(uname -r)/build M=$PWD; then
-            exit 1
-        fi
+        make -C /lib/modules/$(uname -r)/build M=$PWD || \
+          { echo "Unable to build module"; exit 1; }
+        make -C /lib/modules/$(uname -r)/build M=$PWD modules_install || \
+          { echo "Unable to install module"; exit 1; }
 
         # We are all OK installing deps
         touch /tmp/netdevsim_installed
@@ -59,12 +61,17 @@ function setup () {
         modprobe -r netdevsim
     fi
 
+    # RHEL9 needs psample module to be loded before netdevsim
+    if grep "release 9" /etc/redhat-release; then
+        modprobe psample
+    fi
+
     # Change dir to the patched driver dir
     cd /tmp/$LINUX/$DRIVER
 
     # If we are able to insert module create devices and exit 0
     echo "** installing the patched one"
-    if insmod netdevsim.ko; then
+    if modprobe netdevsim; then
         sleep 0.5
         echo "0 $NUM" > /sys/bus/netdevsim/new_device
         touch /tmp/netdevsim
