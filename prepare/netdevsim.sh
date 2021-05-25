@@ -20,8 +20,18 @@ function setup () {
         PATCH="0001-netdevsim-physical-address.patch"
     elif grep "release 8" /etc/redhat-release; then
         URL="http://download.eng.bos.redhat.com/brewroot/vol/rhel-8/packages/kernel"
-        (( $MINOR_NUM >= 291 )) && PATCH="0001-netdevsim-add-mock-support-for-coalescing-and-ring-o-2.patch"
-        (( $MINOR_NUM >= 306 )) && PATCH="0001-netdevsim-add-mock-support-for-coalescing-and-ring-o-3.patch"
+        if grep -E "release 8.[0,1,2,3]" /etc/redhat-release; then
+            PATCH="0001-netdevsim-add-mock-support-for-coalescing-and-ring-o-1.patch"
+        elif grep "release 8.4" /etc/redhat-release; then
+            PATCH="0001-netdevsim-add-mock-support-for-coalescing-and-ring-o-2.patch"
+        elif grep -E "release 8.[5,6,7,8,9]" /etc/redhat-release; then
+            PATCH="0001-netdevsim-add-mock-support-for-coalescing-and-ring-o-3.patch"
+        elif grep -E "CentOS Stream" /etc/redhat-release; then
+            URL="https://koji.mbox.centos.org/pkgs/packages/kernel/"
+            PATCH="0001-netdevsim-add-mock-support-for-coalescing-and-ring-o-2.patch"
+            # Enable once netdevsim tests are failing
+            # PATCH="0001-netdevsim-add-mock-support-for-coalescing-and-ring-o-3.patch"
+        fi
     elif grep "release 9" /etc/redhat-release; then
         URL="http://download.eng.bos.redhat.com/brewroot/vol/rhel-9/packages/kernel"
         LINUX=linux-$MAJOR-${MINOR%.el9}
@@ -31,14 +41,17 @@ function setup () {
     # If we have all necessary things done
     if ! test -f /tmp/netdevsim_installed; then
 
-        # Install build dependencies
+        # Install build dependencies with skipbroken as yasm not present on 9
         yum -y install \
-               wget git kernel-headers kernel-devel gcc \
-               patch elfutils-libelf-devel bc yasm
+               wget git kernel-headers gcc \
+               patch elfutils-libelf-devel bc yasm --skip-broken
+        yum -y install kernel-devel-$MAJOR-$MINOR
 
         # Install srpm (first try manualy cached file in /root)
         rpm -i /root/kernel-$MAJOR-$MINOR.src.rpm || \
-        rpm -i $URL/$MAJOR/$MINOR/src/kernel-$MAJOR-$MINOR.src.rpm
+        wget $URL/$MAJOR/$MINOR/src/kernel-$MAJOR-$MINOR.src.rpm \
+        --no-check-certificate -O /root/kernel-$MAJOR-$MINOR.src.rpm && \
+        rpm -i /root/kernel-$MAJOR-$MINOR.src.rpm
         tar xf /root/rpmbuild/SOURCES/$LINUX.tar.xz -C /tmp
         cp tmp/$PATCH /tmp/$LINUX
         cd /tmp/$LINUX
@@ -63,7 +76,7 @@ function setup () {
     fi
 
     # Change dir to the patched driver dir
-    cd /tmp/$LINUX/$DRIVER
+        cd /tmp/$LINUX/$DRIVER
 
     # If we are able to insert module create devices and exit 0
     echo "** installing the patched one"

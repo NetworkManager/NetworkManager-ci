@@ -56,11 +56,9 @@ node('cico-workspace') {
                 // Check if we have RESULT so whole pipeline was not canceled
                 sh 'sleep 10'
                 if (!fileExists('RESULT.txt')) {
-                    println("I assume we have been ABORTED as there is no RESULT.TXT")
-                    sh "ls"
                     // Compilation failed there is config.log
                     if (!fileExists('config.log')) {
-                        println("Pipeline canceled!")
+                        println("Pipeline canceled! We do have no RESULT.txt or config.log")
                         cancel = "cd NetworkManager-ci; python3 run/centos-ci/pipeline_cancel.py ${env.BUILD_URL} ${GL_TOKEN} ${TD}"
                         sh "ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no root@${node_hostname} '${cancel}'"
                     }

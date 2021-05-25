@@ -699,8 +699,7 @@ Feature: nmcli - ethernet
 
 
     @rhbz1614700 @rhbz1807171
-    @ver+=1.25 @rhelver+=8 @fedoraver-=32
-    @skip_in_centos
+    @ver+=1.25 @rhelver+=8 @fedoraver+=34
     @con_ethernet_remove @prepare_patched_netdevsim
     @ethtool_features_ring
     Scenario: nmcli - ethernet - ethtool set ring options
@@ -715,8 +714,7 @@ Feature: nmcli - ethernet
 
 
     @rhbz1614700 @rhbz1807171
-    @ver+=1.25 @rhelver+=8 @fedoraver-=32
-    @skip_in_centos
+    @ver+=1.25 @rhelver+=8 @fedoraver+=34
     @con_ethernet_remove @prepare_patched_netdevsim
     @ethtool_features_coal
     Scenario: nmcli - ethernet - ethtool set coalescing options
