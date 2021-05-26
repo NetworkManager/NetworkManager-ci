@@ -1102,7 +1102,7 @@ testmapper:
         feature: vlan
     - vlan_create_500_vlans:
         feature: vlan
-        timeout: 17m
+        timeout: 20m
     - vlan_ifname_vlan0_with_id_7:
         feature: vlan
     - vrf_one_address_two_devices:
