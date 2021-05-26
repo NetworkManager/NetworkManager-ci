@@ -13,7 +13,13 @@ else
     rm -rf nmstate
 
     # Enable the newest nispor repo
-    dnf copr -y enable nmstate/nispor
+    # No EPEL9 use F34's version
+    if grep 'release 9' /etc/redhat-release; then
+        dnf -y install https://download.copr.fedorainfracloud.org/results/nmstate/nispor/fedora-34-x86_64/02198489-nispor/nispor-1.1.0-1.fc34.x86_64.rpm \
+        https://download.copr.fedorainfracloud.org/results/nmstate/nispor/fedora-34-x86_64/02198489-nispor/python3-nispor-1.1.0-1.fc34.noarch.rpm
+    else
+        dnf copr -y enable nmstate/nispor
+    fi
 
     git clone https://github.com/nmstate/nmstate
     cd nmstate
@@ -33,6 +39,8 @@ else
     fi
 
     # Turn of the nispor repo again
-    dnf copr -y disable nmstate/nispor
+    if ! grep 'release 9' /etc/redhat-release; then
+        dnf copr -y disable nmstate/nispor
+    fi
     exit $RC
 fi
