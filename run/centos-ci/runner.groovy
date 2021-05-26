@@ -93,7 +93,9 @@ def killJobs (currentBuild) {
     for (build in job.builds) {
         if (!build.isBuilding()) { continue; }
         if (buildnum == build.getNumber().toInteger()) { continue; println "equals" }
-        println(build.number)
-        build.doStop();
+        if (build.displayName == currentBuild.displayName) {
+            println(build.number)
+            build.doStop();
+        }
     }
 }
