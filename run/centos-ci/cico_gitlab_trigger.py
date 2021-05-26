@@ -243,12 +243,19 @@ def process_request(data, content):
     gt = GitlabTrigger(data)
     if gt.source_project_id != gt.target_project_id:
         comment = gt.comment
-        #print (comment)
         if comment.lower() == 'rebuild':
             execute_build(gt, content)
         elif comment.lower() == 'rebuild centos8':
             execute_build(gt, content, os_override='8')
+        elif comment.lower() == 'rebuild c8':
+            execute_build(gt, content, os_override='8')
         elif comment.lower() == 'rebuild centos8-stream':
+            execute_build(gt, content)
+        elif comment.lower() == 'rebuild c8s':
+            execute_build(gt, content)
+        elif '@runtests:' in comment.lower():
+            execute_build(gt, content)
+        elif '@build:' in comment.lower(): # NM specific tag to set UPSTREAM_REFSPEC_ID
             execute_build(gt, content)
         else:
             print('Irrelevant Note...')
