@@ -712,6 +712,27 @@ Feature: nmcli - ethernet
     * Bring "up" connection "con_ethernet"
     When "RX:\s+0\s*RX Mini:\s+0\s*RX Jumbo:\s+0\s*TX:\s+0" is visible with command "ethtool -g eth11"
 
+    @rhbz1899372
+    @ver+=1.31 @rhelver+=8.5 @fedoraver+=34
+    @skip_in_centos
+    @con_ethernet_remove @prepare_patched_netdevsim
+    @ethtool_features_pause
+    Scenario: nmcli - ethernet - ethtool set pause options
+    * Add a new connection of type "ethernet" and options "ifname eth11 ipv4.method manual ipv4.addresses 192.0.2.1/24 con-name con_ethernet ethtool.pause-tx on ethtool.pause-rx on ethtool.pause-autoneg off"
+    * Bring "up" connection "con_ethernet"
+    When "Autonegotiate:" is visible with command "ethtool -a eth11"
+    Then "Autonegotiate:\s+off" is visible with command "ethtool -a eth11"
+    Then "RX:\s+on" is visible with command "ethtool -a eth11"
+    Then "TX:\s+on" is visible with command "ethtool -a eth11"
+    * Disconnect device "eth11"
+    When "Autonegotiate" is visible with command "ethtool -a eth11"
+    * Modify connection "con_ethernet" changing options "ethtool.pause-rx off ethtool.pause-tx off"
+    * Bring "up" connection "con_ethernet"
+    When "Autonegotiate:" is visible with command "ethtool -a eth11"
+    Then "Autonegotiate:\s+off" is visible with command "ethtool -a eth11"
+    Then "RX:\s+off" is visible with command "ethtool -a eth11"
+    Then "TX:\s+off" is visible with command "ethtool -a eth11"
+
 
     @rhbz1614700 @rhbz1807171
     @ver+=1.25 @rhelver+=8 @fedoraver+=34
