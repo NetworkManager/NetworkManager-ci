@@ -53,7 +53,6 @@ class Job:
         self.nick = nick
         self.connection = None
         self.builds = []
-        self.running_builds = []
         self.failures = {}
         self.cache_dir = cache_dir_prefix
         if not os.path.isdir(self.cache_dir):
@@ -80,10 +79,7 @@ class Job:
         return list(self.failures.values())
 
     def add_build(self, build):
-        if build.status == 'RUNNING':
-            self.running_builds.append(build)
-        else:
-            self.builds.append(build)
+        self.builds.append(build)
 
     def add_failure(self, failure_name, build, artifact_url = None):
         if failure_name in self.failures:
@@ -111,6 +107,10 @@ class Job:
         data = jsonpickle.decode(data_json, keys=True)
         self.builds, self.failures = data
 
+        for build in self.builds:
+            if build.status == "RUNNING":
+                self.remove_build(build.id)
+
         cached_build_ids = [build.id for build in self.builds]
         sorted(cached_build_ids, reverse=True)
 
@@ -127,6 +127,11 @@ class Job:
         data = (self.builds, self.failures)
         data_json = jsonpickle.encode(data, keys=True)
         with open(self.cache_file, "w") as fd:
+            fd.write(data_json)
+        # for faster JS site loading
+        data = (self.builds, )
+        data_json = jsonpickle.encode(data, keys=True)
+        with open(self.cache_file.replace(".json", "-builds.json"), "w") as fd:
             fd.write(data_json)
 
     def builds_retrieve(self, max_builds):
@@ -207,7 +212,7 @@ class Job:
             "                   <th>Links</th>\n"
             "               </tr>\n")
 
-        for build in self.running_builds + self.builds:
+        for build in self.builds:
             if build.failed:
                 l_build = '<td style="background:black;color:white;font-weight:bold">' \
                           '{:s}</td>'.format(build.status)

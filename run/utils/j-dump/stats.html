@@ -1,0 +1,431 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-+0n0xVW2eSR5OomGNYDnhzAbDsOXxcvSN1TPprVMTNDbiYZCxYbOOl7+AMvyTG2x" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.1/dist/js/bootstrap.bundle.min.js" integrity="sha384-gtEjrD/SeCtmISkJkNUaaKMoLD0//ElJ19smozuHV6z3Iehds+3Ulb9Bn9Plx0x4" crossorigin="anonymous"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.5.0/font/bootstrap-icons.css">
+    <style>
+      .btn-outline-danger {background-color:rgba(220, 53, 69, 0.3);}
+      .btn-outline-dark {background-color:rgba(33, 37, 41, 0.3);}
+      .btn-outline-success {background-color:rgba(25, 135, 84, 0.3);}
+      .btn-outline-primary {background-color:rgba(13, 110, 253, 0.3);}
+    </style>
+    <link rel="icon" href="nm_icon.png">
+  </head>
+  <body class="p-3">
+    <a class="h1" style="color:black;" href="#"><img src="nm_logotype_235x75.png" class="m-2" alt="NetworkManager"> CI Results</a>
+    <div class="row">
+      <div id="projects" class="col-sm-2">
+      </div>
+      <div class="col-sm-10">
+        <span class="input-group mb-1">
+          <select class="form-select w-25 flex-grow-0" id="search_mode">
+            <option value="current" selected>Search in current project</option>
+            <option value="all">Search in all projects</option>
+          </select>
+          <input id="search" type="search" class="form-control flex-grow-1" placeholder="Failure name">
+          <a id="x" class="btn btn-outline-secondary"><i class="bi bi-backspace"></i></a>
+          <a id="s" class="btn btn-primary"><i class="bi bi-search"></i> Search</a>
+        </span>
+        <table id="table" class="table table-striped table-sm w-auto">
+        </table>
+      </div>
+    </div>
+  </body>
+
+  <script src="conf.js"></script>
+
+  <script>
+
+  var failures = {};
+  var builds = {};
+  var failure_builds = {};
+  var stats = {};
+  var queue = {};
+
+  var no_search = false;
+  var load_all = false;
+
+  function build_date(build) {
+    var time_raw = atob(build.timestamp.__reduce__[1][0]);
+    var year = time_raw.charCodeAt(0)*256+time_raw.charCodeAt(1);
+    var month = time_raw.charCodeAt(2);
+    var day = time_raw.charCodeAt(3);
+    var hour = time_raw.charCodeAt(4);
+    var min = time_raw.charCodeAt(5);
+    var sec = time_raw.charCodeAt(6);
+    var options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric', hour:'numeric', minute:'2-digit', second:'2-digit' };
+    // do month-1 here, as it counts from 0
+    return new Date(year, month-1, day, hour, min, sec, 0).toLocaleDateString("en-US", options);
+  }
+
+  function build_duration(build) {
+    var duration_raw = build.duration["py/reduce"][1]["py/tuple"];
+    var days = duration_raw[0];
+    if (days != 0) { days = "" + days + "d, "; }
+    else { days = ""; }
+    var hour = parseInt(duration_raw[1]/3600);
+    var minute = parseInt((duration_raw[1]%3600)/60);
+    var second = duration_raw[1]%60;
+    return days + hour + ":" + ("0"+minute).slice(-2) + ":" + ("0"+second).slice(-2);
+  }
+
+  function process_failures(build, state) {
+    Object.entries(build.failures).forEach(function (failure) {
+      if(failure[0] in failure_builds[build.project]) {
+        var fb = failure_builds[build.project][failure[0]];
+        if(fb.indexOf(build.id) == -1) {
+          fb.push(build.id);
+        }
+      }
+      else {
+        failure_builds[build.project][failure[0]] = [build.id];
+      }
+      var failure = failure[1];
+      if(failure["py/id"] !== undefined) { return; }
+      failure.builds.forEach(function (bld) {
+          if(bld["py/id"] !== undefined) { return; }
+          bld.project = build.project;
+          builds[build.project].push(bld);
+          process_failures(bld, state);
+      });
+      failures[build.project].push(failure);
+    });
+  }
+
+  function load_cache(state) {
+    var failures_url = '<a href="#build:">Failures</a>';
+    var builds_url = '<a href="#preserve_search">Builds</a>';
+    var projs = projects;
+    if ("project" in state && !load_all) {
+      failures_url = "Failures";
+      builds_url = "Builds";
+      projs = projects.filter(function (p) { return p.project ==state.project; });
+    }
+    var table = $('#table')
+    $(table).html("");
+    if("build" in state) {
+      $(table).append($('<thead> \
+      <tr> \
+        <th class="position-sticky" style="top:2rem;background:white;box-shadow: inset 0px -1px;text-align:left">Failure</th> \
+        <th class="position-sticky" style="top:2rem;background:white;box-shadow: inset 0px -1px;text-align:center">Last</th> \
+        <th class="position-sticky" style="top:2rem;background:white;box-shadow: inset 0px -1px;text-align:center">Num</th> \
+        <th class="position-sticky" style="top:2rem;background:white;box-shadow: inset 0px -1px;text-align:left">' + builds_url + '</th> \
+      </tr> \
+      </thead>'));
+    }
+    else {
+      $(table).append($('<thead> \
+      <tr> \
+        <th class="position-sticky" style="top:2rem;background:white;box-shadow: inset 0px -1px;text-align:center">Build</th> \
+        <th class="position-sticky" style="top:2rem;background:white;box-shadow: inset 0px -1px;text-align:right">Date</th> \
+        <th class="position-sticky" style="top:2rem;background:white;box-shadow: inset 0px -1px;text-align:right">Duration</th> \
+        <th class="position-sticky" style="top:2rem;background:white;box-shadow: inset 0px -1px;text-align:center">Status</th> \
+        <th class="position-sticky" style="top:2rem;background:white;box-shadow: inset 0px -1px;text-align:center">' + failures_url + '</th> \
+        <th class="position-sticky" style="top:2rem;background:white;box-shadow: inset 0px -1px;text-align:left">links</th> \
+      </tr> \
+      </thead>'));
+    }
+
+    projs.forEach(function(project) {
+      if(queue[project.project]) {
+        return;
+      }
+      queue[project.project] = true;
+      $('#' + project.project + " img").hide();
+      $('#' + project.project + " #loader").show();
+      $(table).append('<thead id="thead-' + project.project + '"></thead>');
+      $(table).append('<tbody id="tbody-' + project.project + '"></tbody>');
+      $.ajax({
+        url: "cache/" + project.project + "-builds.json",
+        dataType:"text",
+        async: true,
+        beforeSend: function(xhr) { xhr.overrideMimeType("text/plain; charset=utf-8");},
+        error: function(a,b) {queue[project.project]=false; console.log("ajax-fail:", a, b);},
+        success:function (data) {
+          $('#' + project.project + " img").show();
+          $('#' + project.project + " #loader").hide();
+          builds[project.project] = [];
+          failures[project.project] = [];
+          failure_builds[project.project] = [];
+          stats[project.project] = {};
+          data = JSON.parse(data);
+          data["py/tuple"][0].forEach(function (build) {
+            if(build["py/id"] !== undefined) { return; }
+            build.project = project.project;
+            builds[project.project].push(build);
+            process_failures(build, state);
+          });
+          builds[project.project].sort(function(b1, b2) { if(b1.id < b2.id) return 1; if(b1.id > b2.id) return -1; return 0; });
+          failures[project.project].sort(function(f1, f2) { if(f1.last < f2.last) return -1; if(f1.last > f2.last) return 1; return 0; });
+          stats[project.project].last = builds[project.project].filter(function(b) {return b.status != "RUNNING";})[0];
+          stats[project.project].health = builds[project.project].filter(function(b) {return b.status != "RUNNING";}).slice(0, 5).filter(function(b) {return b.status == "SUCCESS";}).length;
+          stats[project.project].running = builds[project.project].filter(function(b) {return b.status == "RUNNING";}).length;
+          queue[project.project] = false;
+          $('#' + project.project).replaceWith(get_project_button(project));
+          if(!("project" in state) || state.project == project.project){
+            if("build" in state) {
+              show_failures(state, project);
+            }
+            else {
+              show_builds(state, project);
+            }
+          }
+        }
+      });
+    });
+  }
+
+  function show_builds(state, project) {
+    var tbody = $('#tbody-' + project.project);
+    var thead = $('#thead-' + project.project);
+    $(thead).append('<tr><th colspan="6" class="position-sticky" style="top:0;background:white;box-shadow: inset 0px -1px"><a href="#project:'+project.project+';build:">' + project.os + ": " + project.name + ' failures</th></tr>');
+    builds[project.project].forEach(function (build) {
+      if (state.search) {
+        if(!Object.keys(build.failures).find(function(f) {return f.indexOf(state.search) != -1; })) {
+          return;
+        }
+      }
+      var failure_num = Object.keys(build.failures).length;
+      var tr = $("<tr></tr>");
+      var cls = "";
+      if (build.status == "ABORTED" || build.failed) {
+        cls = "table-dark";
+      }
+      else if (build.status == "UNSTABLE" || build.status == "FAILURE") {
+        cls = "table-danger";
+      }
+      else if (build.status == "SUCCESS") {
+        cls = "table-success";
+      }
+      else if (build.status == "RUNNING") {
+        cls = "table-primary";
+      }
+      $(tr).append($('<td style="text-align:center"><a target="_blank" href="' + build.url + '">' + build.id + "</a></td>"));
+      $(tr).append($('<td style="text-align:right">' + build_date(build) + "</td>"));
+      $(tr).append($('<td style="text-align:right">' + build_duration(build) + "</td>"));
+      $(tr).append($('<td style="text-align:center" class="' + cls+ '">' + build.status + "</td>"));
+      if(failure_num) {
+        $(tr).append($('<td style="text-align:center"><a href="#project:'+project.project+';build:'+build.id+'">' + failure_num + "</a></td>"));
+      }
+      else {
+        $(tr).append($('<td style="text-align:center">0</td>'));
+      }
+
+      var links = [];
+      if(build.status != "RUNNING") {
+        var artifacts = "/artifact/";
+        if(build.url.indexOf("centos") == -1) {artifacts += "artifacts/";}
+        links.push('<a target="_blank" href="' + build.url + artifacts + '">Artifacts</a>');
+      }
+      if(build.description != "--") {
+        links.push(build.description);
+      }
+      $(tr).append($('<td>' + links.join(", ") + "</td>"));
+      $(tbody).append(tr);
+    });
+  }
+
+  function show_failures(state, project) {
+    var tbody = $('#tbody-' + project.project);
+    var thead = $('#thead-' + project.project);
+    $(thead).append('<tr><th class="position-sticky" colspan="4" style="top:0;background:white;box-shadow: inset 0px -1px"><a href="#project:'+project.project+'">' + project.os + ": " + project.name + '</a></th></tr>');
+    failures[project.project].forEach(function (failure) {
+      if (!isNaN(state.build)) {
+        if(failure_builds[project.project][failure.name].indexOf(state.build) == -1) { return; }
+      }
+      if (state.search) {
+        if (failure.name.indexOf(state.search) == -1) {
+          return;
+        }
+      }
+
+      var failure_num = failure.builds.length;
+      var tr = $("<tr></tr>");
+      var cls = "";
+      if(failure.last == 0) {
+        cls = "table-danger";
+      }
+      var failure_search = '<a class="text-dark" href="#build:;search:'+failure.name+'" title="Search in all projects">'+failure.name+'</a>';
+      $(tr).append($('<td style="text-align:left">' + failure_search + "</td>"));
+      $(tr).append($('<td style="text-align:center" class="' + cls + '">' + failure.last + "</td>"));
+      $(tr).append($('<td style="text-align:center">' + failure_num + "</td>"));
+      $(tr).append($('<td style="text-align:left">' + format_failure_builds(failure, project.project, state) + "</td>"));
+      $(tbody).append(tr);
+    });
+  }
+
+  function format_failure_builds(failure, project, state) {
+    var res = "";
+    var fb = failure_builds[project][failure.name];
+    fb.sort(function(b1, b2) { if(b1 < b2) return 1; if(b1 > b2) return -1; return 0; });
+    fb.forEach(function (build_id) {
+      if(build_id == state.build) {
+        res += "<strong>"
+      }
+      if (("json://" + build_id) in failure.artifact_urls) {
+        res += '<a target="_blank" href="' + failure.artifact_urls["json://" + build_id] + '">' + build_id + '</a> ';
+      }
+      else {
+        res += '<span title="No report">' + build_id + "</span> ";
+      }
+      if(build_id == state.build) {
+        res += "</strong>"
+      }
+    });
+    return res;
+  }
+
+  function get_project_button(project) {
+    var d = $('<div class="pb-1 d-flex"></div>');
+    $(d).attr("id", project.project);
+    $(d).append('<span id="loader" class="spinner-border spinner-border-sm me-3" style="display:none; height:1rem; width:1rem;" role="status"></span>');
+    var img = health_img[0];
+    if(project.project in stats) { img = health_img[stats[project.project].health];}
+    $(d).append('<img style="height:1.5rem" class="me-2" src="' + img + '"/>');
+    var btn = $('<a></a>');
+    var running = "";
+    if(project.project in stats) {
+      for(var i = 0; i<stats[project.project].running; i++) {
+        running += ' <i class="bi bi-circle-fill"></i>';
+      }
+    }
+    $(btn).attr("href", "#project:"+project.project);
+    $(btn).append('<strong class="me-auto">' + project.name + "</strong>" + running);
+    var class_attr = "w-100 d-flex p-0 ps-2 pe-2 btn btn-sm ";
+    if(project.project in stats) {
+      var last_build = stats[project.project].last;
+      if (last_build.status == "SUCCESS") {
+        class_attr += "btn-outline-success";
+      }
+      else if (last_build.status == "ABORTED" || last_build.failed) {
+        class_attr += "btn-outline-dark";
+      }
+      else if (last_build.status == "FAILURE" || last_build.status == "UNSTABLE") {
+        class_attr += "btn-outline-danger";
+      }
+    }
+    else {
+      class_attr += "btn-outline-primary";
+    }
+    $(btn).attr("class", class_attr);
+    $(d).append(btn);
+    return d;
+  }
+
+  function show_projects() {
+    var last_os = "";
+    var act_div = "";
+    var proj_div = $("#projects");
+    $(proj_div).html("");
+    projects.forEach(function (project) {
+      if(last_os != project.os) {
+        last_os = project.os;
+        $(proj_div).append(act_div);
+        act_div = $('<div></div>');
+        $(act_div).append('<div class="h4 mt-2">'+project.os+'</div>');
+      }
+      $(act_div).append(get_project_button(project));
+    });
+    $(proj_div).append(act_div);
+  }
+
+  function show_state(state) {
+      show_projects();
+      load_cache(state);
+      load_all = false;
+  }
+
+  function hash_split_to_state(hash_split) {
+    var state = {};
+    hash_split.forEach(function(e) {
+      if (e.startsWith("project:")) {
+        state["project"] = e.replace("project:","");
+      }
+      if (e.startsWith("build:")) {
+        state["build"] = parseInt(e.replace("build:",""));
+      }
+      if (e.startsWith("search:")) {
+        var search = e.replace("search:","")
+        state["search"] = search;
+      }
+      if (e == "preserve_search") {
+        state["preserve_search"] = true;
+      }
+    });
+    return state;
+  }
+
+  function process_hash() {
+    no_search = false;
+    var hash = window.location.hash.replace('#','');
+    var state_raw = hash.split(";")
+    var state = {};
+    state = hash_split_to_state(state_raw);
+    if("search" in state){$('#search').val(state.search);}
+    show_state(state);
+  }
+
+  $(window).on('hashchange', function(e){
+    var oldURL = e.originalEvent.oldURL;
+    var newURL = e.originalEvent.newURL;
+    var old_hash_split = oldURL.replace(/^[^#]*#?/, "").split(";");
+    var new_hash_split = newURL.replace(/^[^#]*#?/, "").split(";");
+    var old_state = hash_split_to_state(old_hash_split);
+    var new_state = hash_split_to_state(new_hash_split);
+    console.log(old_state, new_state);
+    if("project" in new_state) {
+      $('#search_mode').val("current");
+    }
+    else {
+      $('#search_mode').val("all");
+    };
+    if((!no_search || "preserve_search" in new_state) && "search" in old_state && !("search" in new_state)) {
+      var hash = window.location.hash.replace(/^#/, "");
+      if(hash) {
+        replace_search(old_state.search);
+        // return here, as replace_search() changes hash
+        return;
+      }
+      else {
+        $("#search").val("");
+      }
+    }
+    process_hash();
+  });
+
+  function do_search() {
+    var search_mode = $('#search_mode').val();
+    var hash_split = window.location.hash.replace(/^#/, "").split(";").filter(function(word) {
+      if(word.startsWith("search:")) {return false;}
+      if(search_mode == "all" && word.startsWith("project:")) {return false;}
+      if(word == "preserve_search") {return false;}
+      return true;
+    });
+    var search = $('#search').val();
+    if(search) {
+      hash_split.push("search:" + search);
+    }
+    else {
+      no_search = true;
+    }
+    window.location.hash = "#" + hash_split.join(";");
+  }
+
+  function replace_search(search) {
+    $("#search").val(search);
+    do_search();
+  }
+
+  $(document).ready(function() {
+    load_all = true;
+    process_hash();
+    $("#search").on("change", do_search);
+    $('#s').on("click", do_search);
+    $("#x").on("click", function() {replace_search("");});
+  });
+
+  </script>
+</html>

@@ -54,6 +54,10 @@ index_html_heading() {
 	> $HTML_INDEX_FILE
 }
 
+js_heading() {
+  echo "var projects = [" > $JS_CONFIG_FILE
+}
+
 index_html_ci_begin() {
 	ci_nick="$1"
 
@@ -78,18 +82,18 @@ index_html_add_entry() {
 	fi
 
 	hl="$5"
-    unset health
+  unset health
 	if [ $hl -eq 1 ] || [ $hl -eq 0 ] ; then
-		health="health-00to19.png"
+		health=$NM_HEALTH_FILE1
 	elif [ $hl -eq 2 ]; then
-		health="health-20to39.png"
+		health=$NM_HEALTH_FILE2
 	elif [ $hl -eq 3 ]; then
-		health="health-40to59.png"
+		health=$NM_HEALTH_FILE3
 	elif [ $hl -eq 4 ]; then
-		health="health-60to79.png"
+		health=$NM_HEALTH_FILE4
 	elif [ $hl -eq 5 ]; then
-		health="health-80plus.png"
-    fi
+		health=$NM_HEALTH_FILE5
+  fi
 
     if [ -n "$health" ]; then
         health="<img style=\"width:20px; height:20px; padding-right:20px; margin-top:5px; margin-bottom:-5px;\" src=\"$health\">"
@@ -102,6 +106,16 @@ index_html_add_entry() {
 	echo '</a></li>' >> $HTML_INDEX_FILE
 }
 
+js_add_entry() {
+  cat << EOF >> $JS_CONFIG_FILE
+  {
+    project:"$1",
+    name:"$2",
+    os:"$3",
+  },
+EOF
+}
+
 index_html_trailing() {
 	echo -e '    </nav>\n' \
 		"    <article><iframe name=\"iframe_res\" width=100% height=1000px style=\"border:none\">\n" \
@@ -111,6 +125,20 @@ index_html_trailing() {
 	>> $HTML_INDEX_FILE
 }
 
+js_trailing() {
+  # end projects array, output health images names (image 0 and 1 are the same)
+  cat << EOF >> $JS_CONFIG_FILE
+  ];
+  var health_img = [
+  "$NM_HEALTH_FILE1",
+  "$NM_HEALTH_FILE1",
+  "$NM_HEALTH_FILE2",
+  "$NM_HEALTH_FILE3",
+  "$NM_HEALTH_FILE4",
+  "$NM_HEALTH_FILE5",
+  ];
+EOF
+}
 
 process_job() {
 	local NICK="$1"
@@ -136,6 +164,7 @@ process_job() {
 		running="$(grep -o 'RUNNING' ${JOB_FULL_NAME}_builds.html | wc -l)"
 		health="$(grep -v 'RUNNING' ${JOB_FULL_NAME}_builds.html | grep -m 5 '<tr><td>' |grep SUCCESS |wc -l) "
 		index_html_add_entry "$JOB_FULL_NAME" "${job%-upstream}" "$color" "$running" "$health"
+    js_add_entry "$JOB_FULL_NAME" "${job%-upstream}" "$CI_NICK_LABEL"
 	done
 	index_html_ci_end
 }
@@ -154,7 +183,7 @@ log `date`
 log "-----------------------------------------------------------------"
 
 index_html_heading
-
+js_heading
 
 for nick in $CI_NICK_LIST; do
 	process_job "$nick"
@@ -162,8 +191,10 @@ done
 
 
 index_html_trailing
+js_trailing
 
 mv -f $OUTPUT_DIR/*.* $FINAL_DIR
+cp -r $OUTPUT_DIR/cache $FINAL_DIR
 
 [ "$?" = "0" ] && log "*** Success ***"
 log "@@-------------------------------------------------------------@@"
