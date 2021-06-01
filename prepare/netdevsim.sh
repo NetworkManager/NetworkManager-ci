@@ -6,7 +6,6 @@ function setup () {
     NUM="${1:-3}"
     MAJOR="$(uname -r |awk -F '-' '{print $1}')"
     MINOR="$(uname -r |awk -F '-' '{print $2}'| rev| cut -d. -f2-  |rev)"
-    MINOR_NUM="$(uname -r |awk -F '-' '{print $2}'|  cut -d. -f1 )"
     LINUX=linux-$MAJOR-$MINOR
     # We need this patched netdevsim device to support ring/coal ethtool options and physical address
     PATCH="0001-netdevsim-add-mock-support-for-coalescing-and-ring-o-1.patch"
@@ -50,8 +49,11 @@ function setup () {
         # Install srpm (first try manualy cached file in /root)
         rpm -i /root/kernel-$MAJOR-$MINOR.src.rpm || \
         wget $URL/$MAJOR/$MINOR/src/kernel-$MAJOR-$MINOR.src.rpm \
-        --no-check-certificate -O /root/kernel-$MAJOR-$MINOR.src.rpm && \
-        rpm -i /root/kernel-$MAJOR-$MINOR.src.rpm
+            --no-check-certificate -O /root/kernel-$MAJOR-$MINOR.src.rpm && \
+          rpm -i /root/kernel-$MAJOR-$MINOR.src.rpm
+        [ -f /root/rpmbuild/SOURCES/$LINUX.tar.xz ] || \
+          LINUX=$(ls /root/rpmbuild/SOURCES/linux-${MAJOR%.*}*.tar.xz | tail -n1 | \
+            sed 's@/root/rpmbuild/SOURCES/@@;s@\.tar\.xz@@')
         tar xf /root/rpmbuild/SOURCES/$LINUX.tar.xz -C /tmp
         cp tmp/$PATCH /tmp/$LINUX
         cd /tmp/$LINUX
