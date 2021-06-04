@@ -3,7 +3,6 @@
 import pytest
 import re
 import subprocess
-import yaml
 
 from . import ip
 from . import misc
@@ -423,13 +422,9 @@ def test_misc_nm_version_parse():
 
 def test_feature_tags():
 
-    with open(util.base_dir() + "/mapper.yaml", "r") as mapper_file:
-        mapper_content = mapper_file.read()
-    mapper_yaml = yaml.load(mapper_content, Loader=yaml.BaseLoader)
-    testmappers = [x for x in mapper_yaml["testmapper"]]
-    mapper_tests = [
-        list(x.keys())[0] for tm in testmappers for x in mapper_yaml["testmapper"][tm]
-    ]
+    mapper = misc.get_mapper_obj()
+    mapper_tests = misc.get_mapper_tests(mapper)
+    mapper_tests = [test["testname"] for test in mapper_tests]
 
     def check_ver(tag):
         for ver_prefix, ver_len in [

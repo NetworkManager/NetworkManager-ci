@@ -2,6 +2,7 @@ import os
 import re
 import subprocess
 import sys
+import yaml
 
 from . import ip
 from . import sdresolved
@@ -24,6 +25,9 @@ class _Misc:
         return test_name
 
     def test_get_feature_files(self, feature):
+
+        if feature.endswith(".feature"):
+            return [feature]
 
         import glob
 
@@ -74,6 +78,34 @@ class _Misc:
                         test_tags.append(words)
 
         return test_tags
+
+    def get_mapper_obj(self):
+        with open(util.base_dir() + "/mapper.yaml", "r") as mapper_file:
+            mapper_content = mapper_file.read()
+            return yaml.load(mapper_content, Loader=yaml.BaseLoader)
+
+    def get_mapper_tests(self, mapper, feature="*"):
+        all_features = ["*", "all"]
+        testmappers = [x for x in mapper["testmapper"]]
+
+        def flatten_test(test):
+            testname = list(test.keys())[0]
+            test = test[testname]
+            test["testname"] = testname
+            return test
+
+        mapper_tests = [
+            flatten_test(x) for tm in testmappers for x in mapper["testmapper"][tm]
+        ]
+        return [
+            test
+            for test in mapper_tests
+            if (
+                "feature" in test
+                and (test["feature"] == feature or feature in all_features)
+            )
+            or ("feature" not in test and feature in all_features)
+        ]
 
     def nm_version_parse(self, version):
 
