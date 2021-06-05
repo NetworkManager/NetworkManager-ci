@@ -58,6 +58,7 @@ mapper_feature [feature_name [format]]
 
             print(json.dumps(mapper_tests))
         else:
+            i = 0
             for test in mapper_tests:
                 if format == "name":
                     print(test["testname"])
@@ -69,8 +70,11 @@ mapper_feature [feature_name [format]]
                     if "timeout" in test:
                         timeout = test["timeout"]
                     print(
-                        f"testname='{test['testname']}'; timeout {timeout} {test_run};"
+                        f"testname='{test['testname']}'; "
+                        f"export TEST='report_NetworkManager-ci_Test{i:04}_{test['testname']}'; "
+                        f"timeout {timeout} {test_run}; "
                     )
+                i += 1
     else:
         print(f"Unrecognized command: {sys.argv[1]}")
         usage()
