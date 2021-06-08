@@ -8,8 +8,8 @@ This repo contains a set of integration tests for NetworkManager and CentOS 8 St
 | ------------| ------------ |
 | main | [![Build Status](https://jenkins-networkmanager.apps.ocp.ci.centos.org/job/NetworkManager-main/badge/icon)](https://jenkins-networkmanager.apps.ocp.ci.centos.org/job/NetworkManager-main/) |
 | 1.30.x | [![Build Status](https://jenkins-networkmanager.apps.ocp.ci.centos.org/job/NetworkManager-1-30/badge/icon)](https://jenkins-networkmanager.apps.ocp.ci.centos.org/job/NetworkManager-1-30/) |
-| 1.28.x | [![Build Status](https://jenkins-networkmanager.apps.ocp.ci.centos.org/job/NetworkManager-1-30/badge/icon)](https://jenkins-networkmanager.apps.ocp.ci.centos.org/job/NetworkManager-1-28/) |
-| 1.26.x | [![Build Status](https://jenkins-networkmanager.apps.ocp.ci.centos.org/job/NetworkManager-1-30/badge/icon)](https://jenkins-networkmanager.apps.ocp.ci.centos.org/job/NetworkManager-1-26/) |
+| 1.28.x | [![Build Status](https://jenkins-networkmanager.apps.ocp.ci.centos.org/job/NetworkManager-1-28/badge/icon)](https://jenkins-networkmanager.apps.ocp.ci.centos.org/job/NetworkManager-1-28/) |
+| 1.26.x | [![Build Status](https://jenkins-networkmanager.apps.ocp.ci.centos.org/job/NetworkManager-1-26/badge/icon)](https://jenkins-networkmanager.apps.ocp.ci.centos.org/job/NetworkManager-1-26/) |
 
 ### Howto execute basic test suite manually on localhost 
 
