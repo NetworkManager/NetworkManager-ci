@@ -1,4 +1,5 @@
 #!/usr/bin/python3
+import argparse
 import logging
 import subprocess
 import sys
@@ -55,6 +56,7 @@ def add_epel_crb_repos():
     rpm = "epel-release-latest-8.noarch.rpm"
     subprocess.call("dnf -y install %s%s" %(epel_url, rpm), shell=True)
     # For some reason names can differ, so enable both powertools
+    subprocess.call("yum install -y 'dnf-command(config-manager)'", shell=True)
     subprocess.call("yum config-manager --set-enabled PowerTools", shell=True)
     subprocess.call("yum config-manager --set-enabled powertools", shell=True)
     # Enable build deps for NM
@@ -111,6 +113,9 @@ def get_test_cases_for_features(features, testbranch):
 
 def generate_junit(results_dir):
     logging.debug("Generate JUNIT")
+    if "BUILD_URL" not in os.environ:
+        os.environ['BUILD_URL'] = "/tmp/"
+
     failed = []
     passed = []
     for f in os.listdir(results_dir):
@@ -181,10 +186,10 @@ def process_raw_features(raw_features, testbranch, gitlab_trigger=None):
             features = ["all"]
         logging.debug("running best effort execution to shorten time: %s" %features)
 
-    elif raw_features == "" or 'all' in raw_features:
+    elif not raw_features or 'all' in raw_features:
         features = get_features_from_mapper(testbranch)
     else:
-        features = raw_features.split(',')
+        features = [x.strip() for x in raw_features.split(',')]
 
     for test in get_test_cases_for_features(features, testbranch):
         tests=tests+test+" "
@@ -211,26 +216,31 @@ def remove_all_nm_packages ():
 def prepare_log_dir (results_dir):
     subprocess.call("mkdir -p %s" %results_dir, shell=True)
 
-def prepare_box(nm_refspec, nm_mr):
+def prepare_box(nm_refspec, nm_mr, nm_repo=None):
+    if not nm_mr:
+        nm_mr = "custom"
+
     results_dir = "/tmp/results/"
     build_dir = "/root/nm-build"
+
     install_all_nm_packages ()
     prepare_log_dir (results_dir)
 
     # Prepare copr repo if we know branch
-    dir = ""
-    if nm_refspec == "main":
-        dir = "NetworkManager-main-debug"
-    if nm_refspec == "nm-1-30":
-        dir = "NetworkManager-1.30-debug"
-    if nm_refspec == "nm-1-28":
-        dir = "NetworkManager-CI-1.28-git"
-    if nm_refspec == "nm-1-26":
-        dir = "NetworkManager-CI-1.26-git"
+    dir = None
+    if not nm_repo:
+        if nm_refspec == "main":
+            dir = "NetworkManager-main-debug"
+        if nm_refspec == "nm-1-30":
+            dir = "NetworkManager-1.30-debug"
+        if nm_refspec == "nm-1-28":
+            dir = "NetworkManager-CI-1.28-git"
+        if nm_refspec == "nm-1-26":
+            dir = "NetworkManager-CI-1.26-git"
 
     remove_all_nm_packages ()
 
-    if dir != "":
+    if dir:
         logging.debug("prepare %s copr repo" %dir)
         if not write_copr (dir):
             return 1
@@ -240,7 +250,11 @@ def prepare_box(nm_refspec, nm_mr):
     else:
         # compile from source
         logging.debug("Building from refspec id %s" %nm_refspec)
-        cmd0 = "sh run/centos-ci/scripts/./build.sh %s %s" %(nm_refspec, nm_mr)
+        if not nm_repo:
+            cmd0 = "sh run/centos-ci/scripts/./build.sh %s %s" %(nm_refspec, nm_mr)
+        else:
+            logging.debug("of repo %s" %nm_repo)
+            cmd0 = "BUILD_REPO=%s sh run/centos-ci/scripts/./build.sh %s %s" %(nm_repo, nm_refspec, nm_mr)
         if subprocess.call(cmd0, shell=True) == 1:
             # We want config.log to be archived
             cmd1 = "cp %s/NetworkManager/config.log %s" %(build_dir,results_dir)
@@ -328,40 +342,55 @@ def post_results (gl_trigger):
     msg+="\n\n%s" %os.environ['BUILD_URL']
     gl_trigger.post_commit_comment(msg)
 
-if __name__ == "__main__":
+def main ():
     logging.basicConfig(level=logging.DEBUG)
     logging.debug("reading params")
-    # NEVER PRINT THIS AS IT HAS GL_TOKEN
-    # logging.debug(sys.argv)
+    parser = argparse.ArgumentParser()
+    parser.add_argument('-t', '--test_branch')
+    parser.add_argument('-c', '--code_refspec')
+    parser.add_argument('-f', '--features')
+    parser.add_argument('-b', '--build_id')
+    parser.add_argument('-g', '--gitlab_token')
+    parser.add_argument('-d', '--trigger_data')
+    parser.add_argument('-r', '--nm_repo')
+    parser.add_argument('-D', '--do_not_touch_NM', action="store_true", default=False)
 
-    test_branch = sys.argv[1]
-    logging.debug(test_branch)
+    args = parser.parse_args()
 
-    if len(sys.argv) > 2:
-        nm_refspec = sys.argv[2]
-        logging.debug(nm_refspec)
-    if len(sys.argv) > 3:
-        raw_features = sys.argv[3]
-        logging.debug(raw_features)
-    if len(sys.argv) > 4:
-        build_id = sys.argv[4]
-        logging.debug(build_id)
-        os.environ['BUILD_URL'] = build_id
-    if len(sys.argv) > 5:
-        gl_token = sys.argv[5]
-        # NEVER PRINT THIS AS IT HAS GL_TOKEN
-        # logging.debug(gl_token)
-    if len(sys.argv) > 6:
-        trigger_data = sys.argv[6]
-        logging.debug(trigger_data)
+    if args.test_branch:
+        test_branch = args.test_branch
     else:
-        trigger_data = None
+        test_branch = "master"
+    logging.debug(test_branch)
+    if args.code_refspec:
+        nm_refspec = args.code_refspec
+    else:
+        nm_refspec = None
+    if args.do_not_touch_NM == True:
+        nm_refspec = None
+    logging.debug("NM_REFSPEC")
+    logging.debug(nm_refspec)
+    if args.features:
+        raw_features = args.features
+    else:
+        raw_features = "all"
+    logging.debug("FEATURES")
+    logging.debug(raw_features)
+    if args.build_id:
+        os.environ['BUILD_URL'] = args.build_id
+    if args.gitlab_token:
+        gl_token = args.gitlab_token
+    if args.nm_repo:
+        nm_repo = args.nm_repo
+    else:
+        nm_repo = "https://gitlab.freedesktop.org/NetworkManager/NetworkManager/"
 
     gitlab_trigger = None
     nm_mr = None
-
-    if trigger_data:
+    if args.trigger_data:
+        trigger_data = args.trigger_data
         gitlab_trigger = set_gitlab(trigger_data, gl_token)
+
     if gitlab_trigger:
         tests = process_raw_features (raw_features, test_branch, gitlab_trigger)
         nm_mr = get_nm_mrid (gitlab_trigger)
@@ -376,17 +405,15 @@ if __name__ == "__main__":
 
     install_workarounds ()
 
-    if not nm_mr:
-        nm_mr="cico"
-    if prepare_box (nm_refspec, nm_mr) != 0:
-        logging.debug("Compilation failed")
-        exit_code = 2
-    else:
-        cmd = "sh run/centos-ci/scripts/./runtest.sh %s" %tests
-        if gitlab_trigger:
-            gitlab_trigger.set_pipeline('running')
-        runtest = subprocess.Popen(cmd, shell=True)
-        exit_code = runtest.wait()
+    if nm_refspec:
+        if prepare_box (nm_refspec, nm_mr, nm_repo) != 0:
+            logging.debug("Compilation failed")
+            exit_code = 2
+    cmd = "sh run/centos-ci/scripts/./runtest.sh %s" %tests
+    if gitlab_trigger:
+        gitlab_trigger.set_pipeline('running')
+    runtest = subprocess.Popen(cmd, shell=True)
+    exit_code = runtest.wait()
 
     if gitlab_trigger:
         if exit_code == 0:
@@ -400,3 +427,7 @@ if __name__ == "__main__":
     generate_junit ("/tmp/results")
     logging.debug("All Done. Exit with %s" %exit_code)
     sys.exit (exit_code)
+
+
+if __name__ == "__main__":
+    main()

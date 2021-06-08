@@ -3,7 +3,7 @@
 BUILD_DIR="${BUILD_DIR:-/root/nm-build}"
 RPM_DIR="NetworkManager/contrib/fedora/rpm/latest/RPMS/"
 BUILD_ID="$1"
-BUILD_REPO="${BUILD_REPO-https://github.com/NetworkManager/NetworkManager.git}"
+BUILD_REPO="${BUILD_REPO:-https://github.com/NetworkManager/NetworkManager.git}"
 BUILD_SNAPSHOT="$2"
 ARCH="${ARCH:-`arch`}"
 WITH_DEBUG="${WITH_DEBUG:-yes}"
@@ -20,7 +20,11 @@ RC=1
 # Get a build script from NM repo
 if wget https://gitlab.freedesktop.org/NetworkManager/NetworkManager/raw/automation/contrib/rh-bkr/build-from-source.sh -O /root/nm-build-from-source.sh; then
     # Build NM
-    WITH_DEBUG=$WITH_DEBUG BUILD_ID=$BUILD_ID BUILD_SNAPSHOT=$BUILD_SNAPSHOT bash /root/nm-build-from-source.sh; RC=$?
+    BUILD_REPO=$BUILD_REPO \
+    WITH_DEBUG=$WITH_DEBUG \
+    BUILD_ID=$BUILD_ID \
+    BUILD_SNAPSHOT=$BUILD_SNAPSHOT \
+    bash /root/nm-build-from-source.sh; RC=$?
 fi
 
 if [ $RC -eq 0 ]; then
