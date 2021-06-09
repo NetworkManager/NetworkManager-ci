@@ -71,7 +71,7 @@ mapper_feature [feature_name [format]]
                         timeout = test["timeout"]
                     print(
                         f"testname='{test['testname']}'; "
-                        f"export TEST='report_NetworkManager-ci_Test{i:04}_{test['testname']}'; "
+                        f"export TEST='{test['testname']}'; "
                         f"timeout {timeout} {test_run}; "
                     )
                 i += 1
