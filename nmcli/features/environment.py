@@ -134,7 +134,7 @@ def _before_scenario(context, scenario):
     context.nm_pid = nmci.lib.nm_pid()
 
     context.crashed_step = False
-
+    context.regenerate = False
     print(("NetworkManager process id before: %s" % context.nm_pid))
 
     context.log_cursor = nmci.lib.new_log_cursor()
@@ -254,6 +254,9 @@ def _after_scenario(context, scenario):
                 tag.after_scenario(context, scenario)
             except Exception:
                 excepts.append(traceback.format_exc())
+
+    if context.regenerate:
+        nmci.tags.regenerate_veth_as(context, scenario)
 
     # check for crash reports and embed them
     # sets crash_embeded and crashed_step, if crash found

@@ -183,8 +183,7 @@ def restart_as(ctx, scen):
         nmci.lib.restart_NM_service(ctx)
     if not os.path.isfile('/tmp/nm_dcb_inf_wol_sriov_configured'):
         nmci.lib.wait_for_testeth0(ctx)
-    regenerate_veth_as(ctx, scen)
-
+    ctx.regenerate = True
 
 _register_tag("restart", None, restart_as)
 
