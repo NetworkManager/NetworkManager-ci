@@ -125,7 +125,7 @@ Feature: nmcli - general
 
 
     @ver+=1.29.0
-    @con_general_remove @teardown_testveth @restart @delete_testeth0 @restore_hostname
+    @con_general_remove @teardown_testveth @restart_if_needed @delete_testeth0 @restore_hostname
     @hostname_priority
     Scenario: nmcli - general - Hostname priority
     * Execute "echo -e '[connection-hostname]\nmatch-device=interface-name:test?\nhostname.only-from-default=0' > /etc/NetworkManager/conf.d/90-hostname.conf"
@@ -157,7 +157,7 @@ Feature: nmcli - general
 
     @rhbz1405275
     @ver+=1.8.0
-    @con_general_remove @teardown_testveth @restart @delete_testeth0 @restore_hostname
+    @con_general_remove @teardown_testveth @restart_if_needed @delete_testeth0 @restore_hostname
     @hostname_mode_full
     Scenario: NM - general - hostname mode full
     * Execute "echo -e '[main]\nhostname-mode=full' > /etc/NetworkManager/conf.d/90-hostname.conf"
@@ -174,7 +174,7 @@ Feature: nmcli - general
 
     @rhbz1405275
     @ver+=1.8.0
-    @con_general_remove @teardown_testveth @restart @delete_testeth0 @restore_hostname
+    @con_general_remove @teardown_testveth @restart_if_needed @delete_testeth0 @restore_hostname
     @hostname_mode_dhcp
     Scenario: NM - general - hostname mode dhcp
     * Execute "echo -e '[main]\nhostname-mode=dhcp' > /etc/NetworkManager/conf.d/90-hostname.conf"
@@ -191,7 +191,7 @@ Feature: nmcli - general
 
     @rhbz1766944
     @ver+=1.29
-    @con_general_remove @teardown_testveth @restart @delete_testeth0 @restore_hostname
+    @con_general_remove @teardown_testveth @restart_if_needed @delete_testeth0 @restore_hostname
     @pull_hostname_from_dhcp_no_gw_no_default_hostname
     Scenario: nmcli - general - pull hostname from DHCP - no gw - no need for it
     * Prepare simulated test "testG" device
@@ -206,7 +206,7 @@ Feature: nmcli - general
 
     @rhbz1405275
     @ver+=1.8.0
-    @con_general_remove @teardown_testveth @restart @delete_testeth0 @restore_hostname
+    @con_general_remove @teardown_testveth @restart_if_needed @delete_testeth0 @restore_hostname
     @hostname_mode_full_without_dhcp_hosts
     Scenario: NM - general - hostname mode dhcp without dhcp hosts
     * Execute "echo -e '[main]\nhostname-mode=dhcp' > /etc/NetworkManager/conf.d/90-hostname.conf"
@@ -225,7 +225,7 @@ Feature: nmcli - general
 
     @rhbz1405275
     @ver+=1.8.0
-    @con_general_remove @teardown_testveth @restart @delete_testeth0 @restore_hostname
+    @con_general_remove @teardown_testveth @restart_if_needed @delete_testeth0 @restore_hostname
     @hostname_mode_none
     Scenario: NM - general - hostname mode none
     * Execute "echo -e '[main]\nhostname-mode=none' > /etc/NetworkManager/conf.d/90-hostname.conf"
@@ -251,7 +251,7 @@ Feature: nmcli - general
     Then Bring "up" connection "con_general"
 
 
-    @restart @newveth
+    @restart_if_needed @newveth
     @general_state_disconnected
     Scenario: nmcli - general - state disconnected
     * "disconnect" all " connected" devices
@@ -272,7 +272,7 @@ Feature: nmcli - general
     Then "running" is visible with command "nmcli -t -f RUNNING general"
 
 
-    @newveth @restart
+    @newveth @restart_if_needed
     @general_state_not_running
     Scenario: nmcli - general - not running
     * Stop NM
@@ -280,7 +280,7 @@ Feature: nmcli - general
 
 
     @rhbz1311988
-    @restart @add_testeth8 @shutdown @eth8_disconnect
+    @restart_if_needed @add_testeth8 @shutdown @eth8_disconnect
     @shutdown_service_assumed
     Scenario: NM - general - shutdown service - assumed
     * Delete connection "testeth8"
@@ -298,7 +298,7 @@ Feature: nmcli - general
 
 
      @rhbz1311988
-     @con_general_remove @restart @shutdown
+     @con_general_remove @restart_if_needed @shutdown
      @shutdown_service_connected
      Scenario: NM - general - shutdown service - connected
      * Add a new connection of type "ethernet" and options "ifname eth8 con-name con_general autoconnect no ipv4.may-fail no "
@@ -311,7 +311,7 @@ Feature: nmcli - general
 
 
       @rhbz1311988
-      @restart @shutdown @unload_kernel_modules
+      @restart_if_needed @shutdown @unload_kernel_modules
       @shutdown_service_any
       Scenario: NM - general - shutdown service - all
       * Stop NM
@@ -528,7 +528,7 @@ Feature: nmcli - general
 
 
     @rhbz1067712
-    @con_general_remove @teardown_testveth @restart
+    @con_general_remove @teardown_testveth @restart_if_needed
     @nmcli_general_correct_profile_activated_after_restart
     Scenario: nmcli - general - correct profile activated after restart
     * Prepare simulated test "testG" device
@@ -560,7 +560,7 @@ Feature: nmcli - general
 
 
     @rhbz1136836 @rhbz1173632
-    @restart
+    @restart_if_needed
     @connection_up_after_journald_restart
     Scenario: NM - general - bring up connection after journald restart
     #* Add connection type "ethernet" named "con_general" for device "eth8"
@@ -570,7 +570,7 @@ Feature: nmcli - general
 
 
     @rhbz1110436
-    @restore_hostname @restart
+    @restore_hostname @restart_if_needed
     @nmcli_general_dhcp_hostname_over_localhost
     Scenario: NM - general - dont take localhost as configured hostname
     * Execute "hostnamectl set-hostname walderon"
@@ -612,7 +612,7 @@ Feature: nmcli - general
 
     @rhbz1371433
     @ver+=1.7.9
-    @con_general_remove @manage_eth8 @eth8_disconnect @restart
+    @con_general_remove @manage_eth8 @eth8_disconnect @restart_if_needed
     @nmcli_general_set_device_unmanaged
     Scenario: NM - general - set device to unmanaged state
     * Add a new connection of type "ethernet" and options "ifname eth8 con-name con_general autoconnect no"
@@ -697,7 +697,7 @@ Feature: nmcli - general
 
 
     @rhbz1393997
-    @con_general_remove @restart @restore_hostname
+    @con_general_remove @restart_if_needed @restore_hostname
     @nmcli_general_DHCP_HOSTNAME_profile_pickup
     Scenario: nmcli - general - connect correct profile with DHCP_HOSTNAME
     * Add a new connection of type "ethernet" and options "con-name con_general ifname eth8 ipv4.dns 8.8.4.4"
@@ -709,7 +709,7 @@ Feature: nmcli - general
 
     @rhbz1171751
     @ver+=1.8.0
-    @add_testeth8 @restart @not_on_s390x
+    @add_testeth8 @restart_if_needed @not_on_s390x
     @match_connections_when_no_var_run_exists
     Scenario: NM - general - connection matching for anaconda
      * Stop NM
@@ -727,7 +727,7 @@ Feature: nmcli - general
 
     @rhbz1673321
     @ver+=1.25.90 @ver-=1.29
-    @not_on_veth @restart @con_general_remove
+    @not_on_veth @restart_if_needed @con_general_remove
     @match_connections_with_pci_address
     Scenario: NM - general - connection matching for dhcp with infinite leasetime
     * Add a new connection of type "ethernet" and options "con-name con_general"
@@ -739,7 +739,7 @@ Feature: nmcli - general
     @rhbz1673321 @rhbz1942741
     # Fixed in 1.30.0-7
     @ver+=1.30
-    @eth0 @restart @con_general_remove
+    @eth0 @restart_if_needed @con_general_remove
     @match_connections_with_pci_address
     Scenario: NM - general - connection matching for dhcp with infinite leasetime
     * Add a new connection of type "ethernet" and options "con-name con_general"
@@ -750,7 +750,7 @@ Feature: nmcli - general
 
     @rhbz1837999
     @ver+=1.25.90
-    @restart @con_general_remove
+    @restart_if_needed @con_general_remove
     @match_connections_via_kernel_option
     Scenario: NM - general - connection matching via kernel option
     * Add a new connection of type "ethernet" and options "ifname eth8 con-name con_general match.kernel-command-line root"
@@ -764,7 +764,7 @@ Feature: nmcli - general
 
     @rhbz1729854
     @ver+=1.14
-    @restart @not_on_s390x @no_config_server @rhelver+=8 @rhel_pkg
+    @restart_if_needed @not_on_s390x @no_config_server @rhelver+=8 @rhel_pkg
     @no_assumed_wired_connections
     Scenario: NM - general - connection matching for anaconda
     * Stop NM
@@ -776,7 +776,7 @@ Feature: nmcli - general
 
     @rhbz1687937
     @ver+=1.25
-    @no_config_server @add_testeth8 @eth8_disconnect @restart @manage_eth8
+    @no_config_server @add_testeth8 @eth8_disconnect @restart_if_needed @manage_eth8
     @no_assumed_wired_connections_var2
     Scenario: NM - general - no auto connection created
     * Execute "nmcli device set eth8 managed no"
@@ -818,7 +818,7 @@ Feature: nmcli - general
 
     @rhbz1103777
     @ver+=1.8.0 @fedoraver+=31
-    @firewall @con_general_remove @restart
+    @firewall @con_general_remove @restart_if_needed
     @show_zones_after_firewalld_install
     Scenario: NM - general - show zones after firewall restart
     * Execute "yum -y remove firewalld"
@@ -830,7 +830,7 @@ Feature: nmcli - general
 
 
     @rhbz1286576
-    @restart
+    @restart_if_needed
     @wpa_supplicant_not_started
     Scenario: NM - general - do not start wpa_supplicant
     * Execute "sudo systemctl stop wpa_supplicant"
@@ -898,7 +898,7 @@ Feature: nmcli - general
 
 
     @rhbz1083683 @rhbz1256772 @rhbz1260243
-    @restart @teardown_testveth @runonce
+    @restart_if_needed @teardown_testveth @runonce
     @run_once_new_connection
     Scenario: NM - general - run once and quit start new ipv4 and ipv6 connection
     * Prepare simulated test "testG" device
@@ -923,7 +923,7 @@ Feature: nmcli - general
 
 
     @rhbz1083683 @rhbz1256772
-    @restart @teardown_testveth @runonce
+    @restart_if_needed @teardown_testveth @runonce
     @run_once_ip4_renewal
     Scenario: NM - general - run once and quit ipv4 renewal
     * Prepare simulated test "testG" device
@@ -947,7 +947,7 @@ Feature: nmcli - general
 
     @rhbz1083683 @rhbz1256772
     @ver+=1.12
-    @restart @teardown_testveth @runonce
+    @restart_if_needed @teardown_testveth @runonce
     @run_once_ip6_renewal
     Scenario: NM - general - run once and quit ipv6 renewal
     * Prepare simulated test "testG" device
@@ -971,7 +971,7 @@ Feature: nmcli - general
 
     @rhbz1201497
     @ver-1.10
-    @restart @eth0 @restore_hostname @runonce
+    @restart_if_needed @eth0 @restore_hostname @runonce
     @run_once_helper_for_localhost_localdomain
     Scenario: NM - general - helper running for localhost on localdo
     * Bring "up" connection "testeth0"
@@ -992,7 +992,7 @@ Feature: nmcli - general
 
     @rhbz1201497
     @ver+=1.10
-    @restart @eth0 @restore_hostname @runonce
+    @restart_if_needed @eth0 @restore_hostname @runonce
     @run_once_helper_for_localhost_localdomain
     Scenario: NM - general - helper running for localhost on localdo
     * Bring "up" connection "testeth0"
@@ -1038,8 +1038,8 @@ Feature: nmcli - general
 
 
     @rhbz1086906
-    @veth @delete_testeth0 @newveth @con_general_remove @teardown_testveth @restart
-        @wait-online-for-both-ips
+    @veth @delete_testeth0 @newveth @con_general_remove @teardown_testveth @restart_if_needed
+    @wait-online-for-both-ips
     Scenario: NM - general - wait-online - for both ipv4 and ipv6
     * Prepare simulated test "testG" device
     * Add a new connection of type "ethernet" and options "ifname testG con-name con_general ipv4.may-fail no ipv6.may-fail no"
@@ -1052,7 +1052,7 @@ Feature: nmcli - general
 
     @rhbz1498807
     @ver+=1.8.0
-    @gen_br_remove @restart
+    @gen_br_remove @restart_if_needed
     @wait_online_with_autoconnect_no_connection
     Scenario: NM - general - wait-online - skip non autoconnect soft device connections
     * Add a new connection of type "bridge" and options "con-name gen_br ifname brX autoconnect no"
@@ -1063,7 +1063,7 @@ Feature: nmcli - general
 
     @rhbz1515027
     @ver+=1.10
-    @con_general_remove @delete_testeth0 @remove_custom_cfg @teardown_testveth @restart
+    @con_general_remove @delete_testeth0 @remove_custom_cfg @teardown_testveth @restart_if_needed
     @nm_online_wait_for_delayed_device
     Scenario: NM - general - wait for delayed device
     * Add a new connection of type "ethernet" and options "ifname testG con-name con_general"
@@ -1084,7 +1084,7 @@ Feature: nmcli - general
 
     @rhbz1759956
     @ver+=1.22.5 @ver-=1.24
-    @con_general_remove @delete_testeth0 @remove_custom_cfg @teardown_testveth @restart
+    @con_general_remove @delete_testeth0 @remove_custom_cfg @teardown_testveth @restart_if_needed
     @nm_online_wait_for_second_connection
     Scenario: NM - general - wait for second device
     * Add a new connection of type "ethernet" and options "ifname testG con-name con_general 802-1x.eap md5 802-1x.identity user 802-1x.password password connection.autoconnect-priority 50 connection.auth-retries 1"
@@ -1107,7 +1107,7 @@ Feature: nmcli - general
 
     @rhbz1759956 @rhbz1828458
     @ver+=1.25
-    @con_general_remove @delete_testeth0 @remove_custom_cfg @teardown_testveth @restart
+    @con_general_remove @delete_testeth0 @remove_custom_cfg @teardown_testveth @restart_if_needed
     @nm_online_wait_for_second_connection
     Scenario: NM - general - wait for second device
     * Add a new connection of type "ethernet" and options "ifname testG con-name con_general 802-1x.eap md5 802-1x.identity user 802-1x.password password connection.autoconnect-priority 50 connection.auth-retries 1"
@@ -1147,7 +1147,7 @@ Feature: nmcli - general
 
     @rhbz1384799
     @ver+=1.10
-    @con_general_remove @need_dispatcher_scripts @teardown_testveth @restart @ifcfg-rh
+    @con_general_remove @need_dispatcher_scripts @teardown_testveth @restart_if_needed @ifcfg-rh
     @modify_policy_based_routing_connection
     Scenario: NM - general - modify policy based routing connection
     * Prepare simulated test "testG" device
@@ -1188,7 +1188,7 @@ Feature: nmcli - general
 
 
     @rhbz1254089
-    @teardown_testveth @allow_veth_connections @restart
+    @teardown_testveth @allow_veth_connections @restart_if_needed
     @allow_wired_connections
     Scenario: NM - general - create Wired connection for veth devices
     * Prepare simulated test "testG" device
@@ -1198,7 +1198,7 @@ Feature: nmcli - general
 
     @rhbz1182085
     @ver+=1.9
-    @con_general_remove @netservice @restart @eth10_disconnect @rhelver-=7 @fedoraver-=0 @connect_testeth0 @restore_broken_network
+    @con_general_remove @netservice @restart_if_needed @eth10_disconnect @rhelver-=7 @fedoraver-=0 @connect_testeth0 @restore_broken_network
     @nmcli_general_profile_pickup_doesnt_break_network
     Scenario: nmcli - general - profile pickup does not break network service
     * Add a new connection of type "ethernet" and options "ifname * con-name con_general"
@@ -1652,7 +1652,7 @@ Feature: nmcli - general
 
     @rhbz1443114
     @ver+=1.8.0
-    @restart
+    @restart_if_needed
     @dummy_non_utf_device
     Scenario: NM - general - non UTF-8 device
     * Execute "ip link add name $'d\xccf\\c' type dummy"
@@ -1681,7 +1681,7 @@ Feature: nmcli - general
 
     @rhbz1458399
     @ver+=1.12.0
-    @connectivity @con_general_remove @delete_testeth0 @restart
+    @connectivity @con_general_remove @delete_testeth0 @restart_if_needed
     @disable_connectivity_check
     Scenario: NM - general - disable connectivity check
     * Execute "rm -rf /etc/NetworkManager/conf.d/99-connectivity.conf"
@@ -1715,7 +1715,7 @@ Feature: nmcli - general
 
     @rhbz1534477
     @ver+=1.12
-    @connectivity @con_general_remove @delete_testeth0 @restart @long
+    @connectivity @con_general_remove @delete_testeth0 @restart_if_needed @long
     @manipulate_connectivity_check_via_dbus
     Scenario: dbus - general - connectivity check manipulation
     * Add a new connection of type "ethernet" and options "ifname eth0 con-name con_general autoconnect no ipv6.method ignore"
@@ -1771,7 +1771,7 @@ Feature: nmcli - general
 
     @rhbz1487702
     @ver+=1.10
-    @con_general_remove @no_config_server @teardown_testveth @restart
+    @con_general_remove @no_config_server @teardown_testveth @restart_if_needed
     @wait_10s_for_flappy_carrier
     Scenario: NM - general - wait for flappy carrier up to 10s
     * Add a new connection of type "ethernet" and options "ifname testG con-name con_general autoconnect no 802-3-ethernet.mtu 9000"
@@ -1786,7 +1786,7 @@ Feature: nmcli - general
     @rhbz1541031
     @ver+=1.12
     @not_with_systemd_resolved
-    @restart @remove_custom_cfg
+    @restart_if_needed @remove_custom_cfg
     @resolv_conf_overwrite_after_stop
     Scenario: NM - general - overwrite resolv conf after stop
     * Append "[main]" to file "/etc/NetworkManager/conf.d/99-xxcustom.conf"
@@ -1800,7 +1800,7 @@ Feature: nmcli - general
 
     @rhbz1593519
     @ver+=1.12
-    @remove_custom_cfg @restart
+    @remove_custom_cfg @restart_if_needed
     @NM_starts_with_incorrect_logging_config
     Scenario: NM - general - nm starts even when logging is incorrectly configured
     * Stop NM
@@ -2091,7 +2091,7 @@ Feature: nmcli - general
 
 
     @rhbz1697858
-    @rhelver-=7 @rhel_pkg @restart @fedoraver-=0
+    @rhelver-=7 @rhel_pkg @restart_if_needed @fedoraver-=0
     @con_general_remove @remove_custom_cfg
     @keyfile_nmconnection_extension
     Scenario: NM - general - keyfile does not have .nmconnection extension
@@ -2105,7 +2105,7 @@ Feature: nmcli - general
 
     @rhbz1697858
     @ver+=1.19
-    @rhelver+=8 @rhel_pkg @con_general_remove @remove_custom_cfg @restart
+    @rhelver+=8 @rhel_pkg @con_general_remove @remove_custom_cfg @restart_if_needed
     @keyfile_nmconnection_extension
     Scenario: NM - general - keyfile does have .nmconnection extension
     * Execute "echo '[main]' > /etc/NetworkManager/conf.d/99-xxcustom.conf"
@@ -2118,7 +2118,7 @@ Feature: nmcli - general
 
     @rhbz1697858
     @ver+=1.14
-    @not_with_rhel_pkg @con_general_remove @remove_custom_cfg @restart
+    @not_with_rhel_pkg @con_general_remove @remove_custom_cfg @restart_if_needed
     @keyfile_nmconnection_extension
     Scenario: NM - general - keyfile does have .nmconnection extension
     * Execute "echo '[main]' > /etc/NetworkManager/conf.d/99-xxcustom.conf"
@@ -2131,7 +2131,7 @@ Feature: nmcli - general
 
      @rhbz1674545
      @ver+=1.19
-     @con_general_remove @remove_custom_cfg @restart @keyfile_cleanup
+     @con_general_remove @remove_custom_cfg @restart_if_needed @keyfile_cleanup
      @move_keyfile_to_usr_lib_dir
      Scenario: NM - general - move keyfile to usr lib dir and check deletion
      * Execute "echo '[main]' > /etc/NetworkManager/conf.d/99-xxcustom.conf"
@@ -2158,7 +2158,7 @@ Feature: nmcli - general
 
     @rhbz1674545
     @ver+=1.19
-    @con_general_remove @remove_custom_cfg @restart @keyfile_cleanup
+    @con_general_remove @remove_custom_cfg @restart_if_needed @keyfile_cleanup
     @no_uuid_in_keyfile_in_usr_lib_dir
     Scenario: NM - general - read keyfiles without connection.uuid in usr lib dir
     * Execute "echo -e '[main]\nplugins=keyfile,ifcfg-rh' > /etc/NetworkManager/conf.d/99-xxcustom.conf"
@@ -2191,7 +2191,7 @@ Feature: nmcli - general
 
     @rhbz1709849
     @ver+=1.18
-    @secret_key_reset @restart @con_general_remove
+    @secret_key_reset @restart_if_needed @con_general_remove
     @secret_key_file_permissions
     Scenario: NM - general - check secret_key file permissions
     * Restart NM
@@ -2201,7 +2201,7 @@ Feature: nmcli - general
 
     @rhbz1541013
     @ver+=1.19
-    @remove_custom_cfg @restart
+    @remove_custom_cfg @restart_if_needed
     @invalid_config_warning
     Scenario: NM - general - warn about invalid config options
     * Execute "echo -e '[main]\nsomething_nonexistent = some_value' > /etc/NetworkManager/conf.d/99-xxcustom.conf;"
@@ -2272,7 +2272,7 @@ Feature: nmcli - general
 
     @rhbz1762011
     @ver+=1.22
-    @remove_custom_cfg @restart
+    @remove_custom_cfg @restart_if_needed
     @no_user_control
     Scenario: NM - general - root only control
     * Execute "echo -e '[main]\nauth-polkit=root-only' > /etc/NetworkManager/conf.d/99-xxcustom.conf"

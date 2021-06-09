@@ -91,7 +91,7 @@ Feature: nmcli: ipv4
 
 
     @rhbz1073824
-    @veth @con_ipv4_remove @delete_testeth0 @restart
+    @veth @con_ipv4_remove @delete_testeth0 @restart_if_needed
     @ipv4_take_manually_created_ifcfg_with_ip
     Scenario: nmcli - ipv4 - use manually created ipv4 profile
     * Append "DEVICE='eth3'" to ifcfg file "con_ipv4"
@@ -229,7 +229,7 @@ Feature: nmcli: ipv4
 
     @rhbz1373698
     @ver+=1.8.0
-    @con_ipv4_remove @restart
+    @con_ipv4_remove @restart_if_needed
     @ipv4_route_set_route_with_src_new_syntax
     Scenario: nmcli - ipv4 - routes - set route with src in new syntax
     * Note the output of "ip r |grep eth0 |wc -l" as value "1"
@@ -282,7 +282,7 @@ Feature: nmcli: ipv4
 
     @rhbz1373698
     @ver+=1.8.0
-    @con_ipv4_remove @restart @ifcfg-rh
+    @con_ipv4_remove @restart_if_needed @ifcfg-rh
     @ipv4_route_set_route_with_src_old_syntax_restart_persistence
     Scenario: nmcli - ipv4 - routes - set route with src old syntaxt restart persistence
     * Add a new connection of type "ethernet" and options "ifname eth3 con-name con_ipv4 ipv4.method manual ipv4.addresses 192.168.3.10/24 ipv4.gateway 192.168.4.1 ipv4.route-metric 256"
@@ -303,7 +303,7 @@ Feature: nmcli: ipv4
 
     @rhbz1373698
     @ver+=1.8.0
-    @con_ipv4_remove @restart
+    @con_ipv4_remove @restart_if_needed
     @ipv4_route_set_route_with_src_new_syntax_restart_persistence
     Scenario: nmcli - ipv4 - routes - set route with src new syntaxt restart persistence
     * Add a new connection of type "ethernet" and options "ifname eth3 con-name con_ipv4 ipv4.method manual ipv4.addresses 192.168.3.10/24 ipv4.gateway 192.168.4.1 ipv4.route-metric 256 ipv4.routes '192.168.122.3 src=192.168.3.10'"
@@ -320,7 +320,7 @@ Feature: nmcli: ipv4
 
 
     @rhbz1302532
-    @con_ipv4_remove @restart
+    @con_ipv4_remove @restart_if_needed
     @no_metric_route_connection_restart_persistence
     Scenario: nmcli - ipv4 - routes - no\s+metric route connection restart persistence
     * Add a new connection of type "ethernet" and options "ifname eth3 con-name con_ipv4 ipv4.method static ipv4.addresses 192.168.3.10/24 ipv4.gateway 192.168.4.1 ipv4.routes '192.168.5.0/24 192.168.3.11'"
@@ -569,7 +569,7 @@ Feature: nmcli: ipv4
     @rhbz1405431
     @ver+=1.6.0
     @not_with_systemd_resolved
-    @con_ipv4_remove @restart @delete_testeth0
+    @con_ipv4_remove @restart_if_needed @delete_testeth0
     @ipv4_ignore_resolveconf_with_ignore_auto_dns
     Scenario: nmcli - ipv4 - preserve resolveconf if ignore_auto_dns
     * Add a new connection of type "ethernet" and options "con-name con_ipv4 ifname eth3 ipv4.ignore-auto-dns yes ipv6.ignore-auto-dns yes"
@@ -591,7 +591,7 @@ Feature: nmcli: ipv4
     @rhbz1426748
     @ver+=1.8.0
     @not_with_systemd_resolved
-    @con_ipv4_remove @restart @delete_testeth0
+    @con_ipv4_remove @restart_if_needed @delete_testeth0
     @ipv4_ignore_resolveconf_with_ignore_auto_dns_var1
     Scenario: NM - ipv4 - preserve resolveconf if ignore_auto_dns with NM service up
     * Add a new connection of type "ethernet" and options "con-name con_ipv4 ifname eth3 ipv4.ignore-auto-dns yes ipv6.ignore-auto-dns yes"
@@ -658,7 +658,7 @@ Feature: nmcli: ipv4
     @ver+=1.8.0
     @rhelver-=7 @rhel_pkg
     @not_with_systemd_resolved
-    @con_ipv4_remove @restore_resolvconf @restart
+    @con_ipv4_remove @restore_resolvconf @restart_if_needed
     @ipv4_dns_resolvconf_rhel7_default
     Scenario: nmcli - ipv4 - dns - rhel7 default
     When "activated" is visible with command "nmcli -g GENERAL.STATE con show testeth0" in "45" seconds
@@ -676,7 +676,7 @@ Feature: nmcli: ipv4
     @rhbz1423490
     @ver+=1.8.0
     @not_with_systemd_resolved
-    @con_ipv4_remove @restore_resolvconf @restart
+    @con_ipv4_remove @restore_resolvconf @restart_if_needed
     @ipv4_dns_resolvconf_symlinked
     Scenario: nmcli - ipv4 - dns - symlink
     * Bring "down" connection "testeth0"
@@ -699,7 +699,7 @@ Feature: nmcli: ipv4
     @rhbz1423490
     @ver+=1.8.0
     @rhel_pkg @not_with_systemd_resolved
-    @con_ipv4_remove @restore_resolvconf @restart
+    @con_ipv4_remove @restore_resolvconf @restart_if_needed
     @ipv4_dns_resolvconf_file
     Scenario: nmcli - ipv4 - dns - file
     * Bring "down" connection "testeth0"
@@ -1007,7 +1007,7 @@ Feature: nmcli: ipv4
 
     @gnomebz793957
     @ver+=1.11.2
-    @con_ipv4_remove @tcpdump @internal_DHCP @restart
+    @con_ipv4_remove @tcpdump @internal_DHCP @restart_if_needed
     @ipv4_dhcp_client_id_set_internal
     Scenario: nmcli - ipv4 - dhcp-client-id - set client id with internal client
     * Add a new connection of type "ethernet" and options "ifname eth2 con-name con_ipv4 ipv4.may-fail no ipv4.dhcp-client-id abcd"
@@ -1028,7 +1028,7 @@ Feature: nmcli: ipv4
     @rhbz1642023
     @ver+=1.14
     @ver-=1.21.0
-    @con_ipv4_remove @restart @rhelver+=8 @rhel_pkg @internal_DHCP
+    @con_ipv4_remove @restart_if_needed @rhelver+=8 @rhel_pkg @internal_DHCP
     @ipv4_dhcp_client_id_change_lease_restart
     Scenario: nmcli - ipv4 - dhcp-client-id - lease file change should not be considered even after NM restart
     * Add connection type "ethernet" named "con_ipv4" for device "eth2"
@@ -1058,7 +1058,7 @@ Feature: nmcli: ipv4
 
     @rhbz1531173
     @ver+=1.10
-    @con_ipv4_remove @internal_DHCP @restart
+    @con_ipv4_remove @internal_DHCP @restart_if_needed
     @ipv4_set_very_long_dhcp_client_id
     Scenario: nmcli - ipv4 - dhcp-client-id - set long client id
     * Add a new connection of type "ethernet" and options "ifname eth2 con-name con_ipv4 ipv4.may-fail no autoconnect no"
@@ -1154,7 +1154,7 @@ Feature: nmcli: ipv4
 
     @rhbz1313091
     @ver+=1.2.0
-    @con_ipv4_remove @restart
+    @con_ipv4_remove @restart_if_needed
     @ipv4_never_default_restart_persistence
     Scenario: nmcli - ipv4 - never-default - restart persistence
     * Add a new connection of type "ethernet" and options "ifname eth3 con-name con_ipv4 ipv4.may-fail no ipv4.method manual ipv4.addresses 1.2.3.4/24 ipv4.gateway 1.2.3.1 ipv4.never-default yes"
@@ -1244,7 +1244,7 @@ Feature: nmcli: ipv4
 
     @rhbz1350830
     @ver+=1.10.0
-    @con_ipv4_remove @remove_custom_cfg @teardown_testveth @restart
+    @con_ipv4_remove @remove_custom_cfg @teardown_testveth @restart_if_needed
     @dhcp-timeout_default_in_cfg
     Scenario: nmcli - ipv4 - dhcp_timout infinity in cfg file
     * Execute "echo -e '[connection-eth-dhcp-timeout]\nmatch-device=type:ethernet;type:veth\nipv4.dhcp-timeout=2147483647' > /etc/NetworkManager/conf.d/99-xxcustom.conf"
@@ -1262,7 +1262,7 @@ Feature: nmcli: ipv4
 
     @rhbz1246496
     @ver-1.11
-    @con_ipv4_remove @teardown_testveth @long @restart
+    @con_ipv4_remove @teardown_testveth @long @restart_if_needed
     @renewal_gw_after_dhcp_outage_for_assumed_var0
     Scenario: NM - ipv4 - assumed address renewal after DHCP outage for on-disk assumed
     * Prepare simulated test "testX4" device
@@ -1282,7 +1282,7 @@ Feature: nmcli: ipv4
 
     @rhbz1265239
     @ver-=1.10.0
-    @teardown_testveth @long @restart
+    @teardown_testveth @long @restart_if_needed
     @renewal_gw_after_dhcp_outage_for_assumed_var1
     Scenario: NM - ipv4 - assumed address renewal after DHCP outage for in-memory assumed
     * Prepare simulated test "testX4" device
@@ -1303,7 +1303,7 @@ Feature: nmcli: ipv4
 
     @rhbz1518091
     @ver+=1.10.1 @ver-1.11
-    @teardown_testveth @long @restart
+    @teardown_testveth @long @restart_if_needed
     @renewal_gw_after_dhcp_outage_for_assumed_var1
     Scenario: NM - ipv4 - assumed address renewal after DHCP outage for in-memory assumed
     * Prepare simulated test "testX4" device
@@ -1323,7 +1323,7 @@ Feature: nmcli: ipv4
 
     @rhbz1518091 @rhbz1246496 @rhbz1503587
     @ver+=1.11
-    @con @profie @con_ipv4_remove @teardown_testveth @long @restart @ifcfg-rh
+    @con @profie @con_ipv4_remove @teardown_testveth @long @restart_if_needed @ifcfg-rh
     @dhcp4_outages_in_various_situation
     Scenario: NM - ipv4 - all types of dhcp outages
     ################# PREPARE testX4 AND testY4 ################################
@@ -1433,7 +1433,7 @@ Feature: nmcli: ipv4
      Then "testX4:connected:con_ipv4" is visible with command "nmcli -t -f DEVICE,STATE,CONNECTION device" in "10" seconds
 
 
-    @con_ipv4_remove @restart
+    @con_ipv4_remove @restart_if_needed
     @custom_shared_range_preserves_restart
     Scenario: nmcli - ipv4 - shared custom range preserves restart
     * Add a new connection of type "ethernet" and options "con-name con_ipv4 ifname eth3 autoconnect no"
@@ -1897,7 +1897,7 @@ Feature: nmcli: ipv4
 
     @rhbz1652653 @rhbz1696881
     @ver+=1.18.4
-    @con_ipv4_remove @restart
+    @con_ipv4_remove @restart_if_needed
     @ipv4_routing_rules_manipulation
     Scenario: NM - ipv4 - routing rules manipulation
     * Add a new connection of type "ethernet" and options "ifname eth3 con-name con_ipv4 autoconnect no"

@@ -220,7 +220,7 @@ Feature: nmcli: connection
      Then "con_con" is visible with command "nmcli -t -f NAME  connection show -a" in "3" seconds
 
 
-    @veth @con_con_remove @restart
+    @veth @con_con_remove @restart_if_needed
     @ver-=1.18.3
     @connection_autoconnect_yes
     Scenario: nmcli - connection - set autoconnect on
@@ -232,7 +232,7 @@ Feature: nmcli: connection
 
     @rhbz1715887
     @ver+=1.18.4
-    @veth @con_con_remove @restart
+    @veth @con_con_remove @restart_if_needed
     @connection_autoconnect_yes
     Scenario: nmcli - connection - set autoconnect on
      * Add a new connection of type "ethernet" and options "con-name con_con ifname eth6 connection.autoconnect no connection.autoconnect-retries 3"
@@ -264,7 +264,7 @@ Feature: nmcli: connection
     # * Quit editor
 
 
-    @con_con_remove @restart
+    @con_con_remove @restart_if_needed
     @connection_autoconnect_no
     Scenario: nmcli - connection - set autoconnect off
      * Add connection type "ethernet" named "con_con" for device "eth6"
@@ -274,7 +274,7 @@ Feature: nmcli: connection
 
 
     @ver+=1.7.1
-    @con_con_remove @restart
+    @con_con_remove @restart_if_needed
     @ifcfg_parse_options_with_comment
     Scenario: ifcfg - connection - parse options with comments
      * Execute "echo 'DEVICE=eth5' >> /etc/sysconfig/network-scripts/ifcfg-con_con"
@@ -287,7 +287,7 @@ Feature: nmcli: connection
 
 
     @ver+=1.8.0
-    @con_con_remove @restart
+    @con_con_remove @restart_if_needed
     @ifcfg_compliant_with_kickstart
     Scenario: ifcfg - connection - pykickstart compliance
     * Append "UUID='8b4753fb-c562-4784-bfa7-f44dc6581e73'" to ifcfg file "con_con2"
@@ -395,7 +395,7 @@ Feature: nmcli: connection
 
      @rhbz1366288
      @ver+=1.4.0
-     @con_con_remove @firewall @restart
+     @con_con_remove @firewall @restart_if_needed
      @firewall_zones_restart_persistence
      Scenario: nmcli - connection - zone to drop and public
       * Add connection type "ethernet" named "con_con" for device "eth5"
@@ -421,7 +421,7 @@ Feature: nmcli: connection
 
 
     @rhbz663730
-    @veth @con_con_remove @restart
+    @veth @con_con_remove @restart_if_needed
     @profile_priorities
     Scenario: nmcli - connection - profile priorities
      * Add a new connection of type "ethernet" and options "con-name con_con2 ifname eth6 connection.autoconnect-priority 2"
@@ -684,7 +684,7 @@ Feature: nmcli: connection
 
 
     @ver+=1.14
-    @con_con_remove @restart
+    @con_con_remove @restart_if_needed
     @connection_multiconnect_autoconnect
     Scenario: nmcli - connection - multi-connect with autoconnect
     * Add a new connection of type "ethernet" and options "con-name con_con connection.autoconnect yes connection.autoconnect-priority 0 ifname '' connection.multi-connect manual-multiple"
@@ -699,7 +699,7 @@ Feature: nmcli: connection
 
 
     @ver+=1.14
-    @con_con_remove @restart
+    @con_con_remove @restart_if_needed
     @connection_multiconnect_reboot
     Scenario: nmcli - connection - multi-connect reboot
     * Add a new connection of type "ethernet" and options "con-name con_con connection.autoconnect yes connection.autoconnect-priority 0 ifname '' connection.multi-connect multiple match.interface-name '!eth0'"
@@ -753,7 +753,7 @@ Feature: nmcli: connection
 
 
     @ver+=1.19.5
-    @con_con_remove @restart
+    @con_con_remove @restart_if_needed
     @in_memory_connection_delete_on_reboot
     Scenario: nmcli - connection - in-memory connection delete on reboot
     * Add a new connection of type "ethernet" and options "ifname eth5 con-name con_con autoconnect yes save no"
@@ -763,7 +763,7 @@ Feature: nmcli: connection
 
 
     @ver+=1.19.5
-    @con_con_remove @restart
+    @con_con_remove @restart_if_needed
     @in_memory_connection_restart_persistency
     Scenario: nmcli - connection - in-memory connection restart persistency
     * Add a new connection of type "ethernet" and options "ifname eth5 con-name con_con autoconnect yes save no"
@@ -773,7 +773,7 @@ Feature: nmcli: connection
 
 
     @ver+=1.19.5
-    @con_con_remove @restart
+    @con_con_remove @restart_if_needed
     @in_memory_connection_reload_persistency
     Scenario: nmcli - connection - in-memory connection reload persistency
     * Add a new connection of type "ethernet" and options "ifname eth5 con-name con_con autoconnect yes save no"

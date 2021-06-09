@@ -126,7 +126,7 @@ Feature: NM: dispatcher
 
     @rhbz1732791
     @ver+=1.25
-    @openvswitch @restart
+    @openvswitch @restart_if_needed
     @dispatcher_restart
     Scenario: NM - dispatcher - do not block NM service restart
     * Restart NM

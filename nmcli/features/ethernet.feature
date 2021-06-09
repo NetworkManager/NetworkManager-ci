@@ -106,7 +106,7 @@ Feature: nmcli - ethernet
 
 
     @ethernet
-    @teardown_testveth @restart
+    @teardown_testveth @restart_if_needed
     @no_assumed_connection_for_veth
     Scenario: NM - ethernet - no assumed connection for veth
     * Prepare simulated test "testE" device
@@ -157,7 +157,7 @@ Feature: nmcli - ethernet
 
     @rhbz1413312
     @ver+=1.6.0
-    @ethernet @mac @restart
+    @ethernet @mac @restart_if_needed
     @ethernet_mac_address_preserve
     Scenario: NM - ethernet - mac address preserve
     * Execute "echo -e '[connection]\nethernet.cloned-mac-address=preserve' > /etc/NetworkManager/conf.d/99-mac.conf"
@@ -171,7 +171,7 @@ Feature: nmcli - ethernet
 
     @rhbz1413312
     @ver+=1.6.0
-    @ethernet @mac @restart
+    @ethernet @mac @restart_if_needed
     @ethernet_mac_address_permanent
     Scenario: NM - ethernet - mac address permanent
     * Note the output of "nmcli -t --mode tabular --fields GENERAL.HWADDR device show eth1" as value "orig_eth1"
@@ -315,7 +315,7 @@ Feature: nmcli - ethernet
 
     @rhbz1141417
     @ethernet
-    @restart
+    @restart_if_needed
     @nmcli_ethernet_wol_default
     Scenario: nmcli - ethernet - wake-on-lan default
     * Stop NM
@@ -446,7 +446,7 @@ Feature: nmcli - ethernet
 
      @rhbz1714610
      @ver+=1.18.0
-     @con_ethernet_remove @8021x @attach_hostapd_log @attach_wpa_supplicant_log @restart
+     @con_ethernet_remove @8021x @attach_hostapd_log @attach_wpa_supplicant_log @restart_if_needed
      @8021x_tls_pkcs12_key_restart
      Scenario: nmcli - ethernet - 8021x - tls - connection with pkcs12 key persists restart
      * Add a new connection of type "ethernet" and options "ifname test8X con-name con_ethernet autoconnect no 802-1x.eap tls 802-1x.identity test 802-1x.ca-cert /tmp/certs/test_user.ca.pem 802-1x.private-key /tmp/certs/test_user.p12 802-1x.private-key-password redhat"

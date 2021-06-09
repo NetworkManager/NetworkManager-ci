@@ -109,7 +109,7 @@
 
 
     @ver+=1.14
-    @iptunnel @restart
+    @iptunnel @restart_if_needed
     @iptunnel_restart
     Scenario: nmcli - vpn - detect IP tunnel by NM
     * Add a new connection of type "ip-tunnel" and options "ifname ipip1 con-name ipip1 mode ipip ip-tunnel.parent veth0 remote 172.25.16.2 local 172.25.16.1 ip4 172.25.30.1/24"

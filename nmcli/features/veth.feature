@@ -67,7 +67,7 @@ Feature: nmcli: veth
     #
     # @rhbz1901523
     # @ver+=1.29
-    # @veth_remove @restart
+    # @veth_remove @restart_if_needed
     # @veth_profile_restart_persistnce
     # Scenario: nmcli - veth - restart persistence
     # * Add a new connection of type "veth" and options "con-name con_veth1 ifname veth11 veth.peer veth12 ip4 10.42.0.2"

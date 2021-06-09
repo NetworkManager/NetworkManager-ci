@@ -149,7 +149,7 @@
     Then "inet 192.168.0.103" is not visible with command "ip a s eth7"
 
 
-    @veth @alias @restart @ifcfg-rh
+    @veth @alias @restart_if_needed @ifcfg-rh
     @alias_ifcfg_reboot
     Scenario: ifcfg - alias - reboot
     * Add a new connection of type "ethernet" and options "ifname eth7 con-name eth7 autoconnect yes ipv4.may-fail no ipv4.method manual ipv4.addresses 192.168.0.100/24 ipv4.gateway 192.168.0.1"

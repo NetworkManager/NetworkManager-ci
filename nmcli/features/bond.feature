@@ -241,7 +241,7 @@
 
     @rhbz1434555
     @ver+=1.8.0
-    @slaves @bond @restart
+    @slaves @bond @restart_if_needed
     @bond_ifcfg_master_called_ethernet
     Scenario: ifcfg - bond - master with Ethernet type
     * Append "DEVICE=nm-bond" to ifcfg file "bond0"
@@ -499,7 +499,7 @@
      Then Check slave "eth4" in bond "nm-bond" in proc
 
 
-    @veth @slaves @bond @restart
+    @veth @slaves @bond @restart_if_needed
     @bond_start_on_boot
     Scenario: nmcli - bond - start bond on boot
      * Add connection type "bond" named "bond0" for device "nm-bond"
@@ -517,7 +517,7 @@
     @rhbz1420708
     @ver+=1.7.9
     @rhelver-=7 @fedoraver-=0 @rhel_pkg
-    @slaves @bond @bond_order @teardown_testveth @restart
+    @slaves @bond @bond_order @teardown_testveth @restart_if_needed
     @bond_default_rhel7_slaves_ordering
     Scenario: NM - bond - default rhel7 slaves ordering (ifindex)
     * Prepare simulated test "eth11" device
@@ -563,7 +563,7 @@
 
     @rhbz1420708
     @ver+=1.7.9
-    @slaves @bond @bond_order @teardown_testveth @restart
+    @slaves @bond @bond_order @teardown_testveth @restart_if_needed
     @bond_slaves_ordering_by_ifindex
     Scenario: NM - bond - ifindex slaves ordering
     * Prepare simulated test "eth11" device
@@ -610,7 +610,7 @@
 
     @rhbz1420708
     @ver+=1.7.9
-    @slaves @bond @bond_order @teardown_testveth @restart
+    @slaves @bond @bond_order @teardown_testveth @restart_if_needed
     @bond_slaves_ordering_by_ifindex_with_autoconnect_slaves
     Scenario: NM - bond - autoconnect slaves - ifindex slaves ordering
     * Prepare simulated test "eth11" device
@@ -654,7 +654,7 @@
 
     @rhbz1420708
     @ver+=1.7.9
-    @slaves @bond @bond_order @teardown_testveth @restart
+    @slaves @bond @bond_order @teardown_testveth @restart_if_needed
     @bond_slaves_ordering_by_name
     Scenario: NM - bond - alphabet slaves ordering
     * Prepare simulated test "eth11" device
@@ -701,7 +701,7 @@
 
     @rhbz1420708
     @ver+=1.7.9
-    @slaves @bond @bond_order @teardown_testveth @restart
+    @slaves @bond @bond_order @teardown_testveth @restart_if_needed
     @bond_slaves_ordering_by_name_with_autoconnect_slaves
     Scenario: NM - bond - autoconnect slaves - alphabet slaves ordering
     * Prepare simulated test "eth11" device
@@ -760,7 +760,7 @@
      Then Check slave "eth4" in bond "nm-bond" in proc
 
 
-    @veth @slaves @bond @restart
+    @veth @slaves @bond @restart_if_needed
     @bond_start_on_boot_with_nothing_auto
     Scenario: nmcli - bond - start bond on boot - nothing auto
      * Add connection type "bond" named "bond0" for device "nm-bond"
@@ -776,7 +776,7 @@
      Then Check slave "eth4" not in bond "nm-bond" in proc
 
 
-    @veth @slaves @bond @restart
+    @veth @slaves @bond @restart_if_needed
     @bond_start_on_boot_with_one_auto_only
     Scenario: nmcli - bond - start bond on boot - one slave auto only
      * Add connection type "bond" named "bond0" for device "nm-bond"
@@ -792,7 +792,7 @@
      Then Check slave "eth4" in bond "nm-bond" in proc
 
 
-    @veth @slaves @bond @restart
+    @veth @slaves @bond @restart_if_needed
     @bond_start_on_boot_with_bond_and_one_slave_auto
     Scenario: nmcli - bond - start bond on boot - bond and one slave auto
      * Add connection type "bond" named "bond0" for device "nm-bond"
@@ -1216,7 +1216,7 @@
 
     @rhbz1304641
     @ver+=1.8
-    @slaves @bond @restart
+    @slaves @bond @restart_if_needed
     @bond_addreses_restart_persistence
     Scenario: nmcli - bond - addresses restart persistence
      * Add connection type "bond" named "bond0" for device "nm-bond"
@@ -1461,7 +1461,7 @@
 
 
     @rhbz1243371
-    @bond @slaves @restart
+    @bond @slaves @restart_if_needed
     @delete_addrgenmode_bond
     Scenario: NM - bond - addrgenmode bond delete
     * Stop NM
@@ -1536,7 +1536,7 @@
 
      @rhbz1349266
      @ver+=1.4.0
-     @bond @restart
+     @bond @restart_if_needed
      @bond_balance-alb_no_error
      Scenario: nmcli - bond - no error in balance-alb setup
       * Run child "journalctl -f > /tmp/journal.txt"
@@ -1588,7 +1588,7 @@
 
     @rhbz1333983
     @ver+=1.8.0
-    @slaves @bond @vlan @restart
+    @slaves @bond @vlan @restart_if_needed
     @vlan_over_no_L3_bond_restart_persistence
     Scenario: nmcli - bond - restart persistence of no L3 bond in vlan
     * Add a new connection of type "bond" and options "con-name bond0 autoconnect no ifname nm-bond ipv4.method disable ipv6.method ignore"
@@ -1619,7 +1619,7 @@
 
      @rhbz1371126
      @ver-1.13
-     @slaves @bond @teardown_testveth @restart
+     @slaves @bond @teardown_testveth @restart_if_needed
      @bond_leave_L2_only_up_when_going_down
      Scenario: nmcli - bond - leave UP with L2 only config
       * Prepare simulated test "testXB" device
@@ -1641,7 +1641,7 @@
 
     @rhbz1593282
     @ver+=1.14.0
-    @slaves @bond @teardown_testveth @restart
+    @slaves @bond @teardown_testveth @restart_if_needed
     @bond_leave_L2_only_up_when_going_down
     Scenario: nmcli - bond - leave UP with L2 only config
     * Prepare simulated test "testXB" device
@@ -1663,7 +1663,7 @@
 
     @rhbz1463077
     @ver+=1.8.1
-    @bond @restart
+    @bond @restart_if_needed
     @bond_assume_options_1
     Scenario: nmcli - bond - assume options 1
      * Stop NM
@@ -1680,7 +1680,7 @@
 
     @rhbz1463077
     @ver+=1.10.0
-    @bond @restart
+    @bond @restart_if_needed
     @bond_assume_options_2
     Scenario: nmcli - bond - assume options 2
      * Add a new connection of type "bond" and options "ifname nm-bond con-name bond bond.options mode=1,miimon=100,updelay=200 ip4 172.16.1.1/24"
@@ -1691,7 +1691,7 @@
 
     @rhbz1463077
     @ver+=1.10.0
-    @bond @restart
+    @bond @restart_if_needed
     @bond_assume_options_3
     Scenario: nmcli - bond - assume options 3
      * Add a new connection of type "bond" and options "ifname nm-bond con-name bond bond.options mode=1,arp_interval=100,arp_ip_target=172.16.1.100 ip4 172.16.1.1/24"
@@ -1863,7 +1863,7 @@
 
     @rhbz1754511
     @ver+=1.18
-    @bond @restart
+    @bond @restart_if_needed
     @bond_add_default_route_if_bond0_exists
     Scenario: NM - bond - reconnect device
     * Add a new connection of type "bond" and options "con-name bond0 ifname bond0 ip4 1.2.3.4/24 gw4 1.2.3.1"

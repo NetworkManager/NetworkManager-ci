@@ -405,7 +405,7 @@ Feature: nmcli - ovs
 
     @rhbz1540218
     @ver+=1.10 @ver-=1.18.7
-    @openvswitch @restart
+    @openvswitch @restart_if_needed
     @NM_reboot_openvswitch_vlan_configuration
     Scenario: NM - openvswitch - reboot
     * Add a new connection of type "ovs-bridge" and options "conn.interface ovsbridge0 con-name ovs-bridge0"
@@ -430,7 +430,7 @@ Feature: nmcli - ovs
 
     @rhbz1540218 @rhbz1734032
     @ver+=1.18.8
-    @openvswitch @restart
+    @openvswitch @restart_if_needed
     @NM_reboot_openvswitch_vlan_configuration
     Scenario: NM - openvswitch - reboot
     * Add a new connection of type "ovs-bridge" and options "conn.interface ovsbridge0 con-name ovs-bridge0"
@@ -590,7 +590,7 @@ Feature: nmcli - ovs
     @rhbz1676551
     @ver+=1.12
     @rhelver-=7 @fedoraver-=0
-    @openvswitch @restart @vlan @bond @slaves
+    @openvswitch @restart_if_needed @vlan @bond @slaves
     @restart_NM_with_mixed_setup
     Scenario: NM -  openvswitch - restart NM when OVS is unmanaged
     * Add a new connection of type "bond" and options "ifname nm-bond con-name bond0 ipv4.method manual ipv4.addresses 10.0.0.2/16 ipv4.gateway 10.0.0.1"
@@ -712,7 +712,7 @@ Feature: nmcli - ovs
 
     @rhbz1861296
     @ver+=1.29
-    @openvswitch @restart
+    @openvswitch @restart_if_needed
     @NM_clean_during_service_start
     Scenario: NM - openvswitch - clean during service start
     * Execute "ovs-vsctl add-br ovsbr0"

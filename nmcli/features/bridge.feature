@@ -430,7 +430,7 @@ Feature: nmcli - bridge
     Then "master" is not visible with command "ip a s dummy0"
 
 
-    @restart
+    @restart_if_needed
     @bridge_assumed_connection_race
     Scenario: NM - bridge - no crash when bridge started and shutdown immediately
     * Create 300 bridges and delete them
@@ -494,7 +494,7 @@ Feature: nmcli - bridge
 
 
     @rhbz1269199
-    @dummy @restart @long
+    @dummy @restart_if_needed @long
     @bridge_external_unmanaged
     Scenario: bridge_external_unmanaged: add external bridge, ensure is unmanaged
     * Execute "sudo sh -c 'nmcli general logging level DEBUG'"
@@ -502,7 +502,7 @@ Feature: nmcli - bridge
 
 
     @rhbz1169936
-    @two_bridged_veths @restart
+    @two_bridged_veths @restart_if_needed
     @outer_bridge_restart_persistence
     Scenario: NM - bridge - bridge restart persistence
     * Prepare veth pairs "test1" bridged over "vethbr"
@@ -542,7 +542,7 @@ Feature: nmcli - bridge
 
      @rhbz1355656
      @ver+=1.4
-     @bridge @restart
+     @bridge @restart_if_needed
      @bridge_slave_to_ethernet_conversion
      Scenario: nmcli - bridge - slave to ethernet conversion
      * Add a new connection of type "bridge" and options "ifname bridge0 con-name bridge0 bridge.stp off ipv4.method manual ipv4.address '192.168.99.99/24' ipv6.method ignore"
@@ -575,7 +575,7 @@ Feature: nmcli - bridge
 
 
     @ver+=1.10
-    @bridge @restart @bridge_assumed
+    @bridge @restart_if_needed @bridge_assumed
     @bridge_delete_connection_without_device
     Scenario: nmcli - bridge - delete without device
     * Add a new connection of type "bridge" and options "con-name bridge0 ifname bridge0 bridge.stp off autoconnect yes ip4 192.168.1.19/24"
@@ -598,7 +598,7 @@ Feature: nmcli - bridge
 
     @rhbz1593939
     @ver+=1.14
-    @bridge @restart @bridge_assumed
+    @bridge @restart_if_needed @bridge_assumed
     @bridge_detect_initrd_device
     Scenario: NM - bridge - nm detects initrd bridge
     * Add a new connection of type "bridge" and options "con-name bridge0 ifname bridge0 bridge.stp no"
@@ -651,7 +651,7 @@ Feature: nmcli - bridge
 
     @rhbz1679230
     @ver+=1.19
-    @bridge @bridge_assumed @remove_custom_cfg @restart
+    @bridge @bridge_assumed @remove_custom_cfg @restart_if_needed
     @bridge_device_created_unmanaged
     Scenario: NM - bridge - virtual bridge created by NM should not be unmanaged
     * Execute "echo -e '[device]\nmatch-device=*\nmanaged=0' > /etc/NetworkManager/conf.d/99-xxcustom.conf;"

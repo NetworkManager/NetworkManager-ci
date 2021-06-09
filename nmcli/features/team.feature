@@ -23,7 +23,7 @@
 
     @rhbz1393853
     @ver+=1.8
-    @team @restart
+    @team @restart_if_needed
     @add_default_team_after_journal_restart
     Scenario: nmcli - team - add default team after journal restart
      * Execute "systemctl restart systemd-journald"
@@ -143,7 +143,7 @@
 
     #@rhbz1294728
     #@ver+=1.1
-    #@team @restart @team_slaves
+    #@team @restart_if_needed @team_slaves
     #@team_restart_persistence
     #Scenario: nmcli - team - restart persistence
     # * Add connection type "team" named "team0" for device "nm-team"
@@ -325,7 +325,7 @@
     Then Check slave "eth6" in team "nm-team" is "up"
 
 
-    @veth @team_slaves @team @restart
+    @veth @team_slaves @team @restart_if_needed
     @start_team_on_boot
     Scenario: nmcli - team - start team on boot
      * Add connection type "team" named "team0" for device "nm-team"
@@ -350,7 +350,7 @@
      And Check slave "eth6" in team "nm-team" is "up"
 
 
-    @veth @team_slaves @team @restart
+    @veth @team_slaves @team @restart_if_needed
     @team_start_on_boot_with_nothing_auto
     Scenario: nmcli - team - start team on boot - nothing auto
      * Add connection type "team" named "team0" for device "nm-team"
@@ -377,7 +377,7 @@
 
     #VVV    THIS IS DIFFERENT IN BOND AREA
 
-    @veth @team_slaves @team @restart
+    @veth @team_slaves @team @restart_if_needed
     @team_start_on_boot_with_one_auto_only
     Scenario: nmcli - team - start team on boot - one slave auto only
      * Add connection type "team" named "team0" for device "nm-team"
@@ -403,7 +403,7 @@
      And Check slave "eth5" in team "nm-team" is "down"
 
 
-    @veth @team_slaves @team @restart
+    @veth @team_slaves @team @restart_if_needed
     @team_start_on_boot_with_team_and_one_slave_auto
     Scenario: nmcli - team - start team on boot - team and one slave auto
      * Add connection type "team" named "team0" for device "nm-team"
@@ -463,7 +463,7 @@
 
     @rhbz149733
     @ver+=1.10
-    @team_slaves @team @not_on_veth @restart
+    @team_slaves @team @not_on_veth @restart_if_needed
     @config_lacp
     Scenario: nmcli - team - config - set lacp mode
      * Add a new connection of type "team" and options "con-name team0 ifname nm-team config '{"runner":{"name": "lacp"}}' ipv4.method manual ipv4.address 10.0.0.1/24"
@@ -772,7 +772,7 @@
 
     @rhbz1286105 @rhbz1312359 @rhbz1490157
     @ver+=1.8.1
-    @team @team_slaves @teardown_testveth @restart
+    @team @team_slaves @teardown_testveth @restart_if_needed
     @team_in_vlan_restart_persistence
     Scenario: nmcli - team - team in vlan restart persistence
      * Prepare simulated test "testXT2" device
@@ -788,7 +788,7 @@
 
     @rhbz1427482
     @ver+=1.8.0
-    @team @team_slaves @restart
+    @team @team_slaves @restart_if_needed
     @vlan_in_team
     Scenario: nmcli - team - vlans in team
      * Add a new connection of type "team" and options "con-name team0 ifname nm-team ip4 192.168.168.17/24 ipv6.method ignore"
@@ -806,7 +806,7 @@
 
     @rhbz1371126
     @ver+=1.4.0
-    @team_slaves @team @teardown_testveth @restart
+    @team_slaves @team @teardown_testveth @restart_if_needed
     @team_leave_L2_only_up_when_going_down
     Scenario: nmcli - team - leave UP with L2 only config
      * Prepare simulated test "testXT1" device
@@ -833,7 +833,7 @@
 
     @rhbz1445242
     @ver+=1.8.0
-    @team @firewall @restart
+    @team @firewall @restart_if_needed
     @team_add_into_firewall_zone
     Scenario: nmcli - team - modify zones
     * Add connection type "team" named "team0" for device "nm-team"
@@ -1509,7 +1509,7 @@
 
     @rhbz1551958
     @ver+=1.10
-    @team_slaves @team @restart @eth0
+    @team_slaves @team @restart_if_needed @eth0
     @restart_L2_only_lacp
     Scenario: nmcli - team - reboot L2 lacp
     * Add a new connection of type "team" and options "con-name team0 ifname nm-team config '{"runner": {"name": "lacp"}, "link_watch": {"name": "ethtool"}}' ipv4.method disable ipv6.method ignore"

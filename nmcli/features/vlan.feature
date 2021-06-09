@@ -26,7 +26,7 @@ Feature: nmcli - vlan
 
 
     @rhbz1273879
-    @restart @vlan
+    @restart_if_needed @vlan
     @nmcli_vlan_restart_persistence
     Scenario: nmcli - vlan - restart persistence
     * Stop NM
@@ -46,7 +46,7 @@ Feature: nmcli - vlan
 
     @rhbz1378418
     @ver+=1.4.0
-    @restart @two_bridged_veths @kill_dnsmasq_vlan
+    @restart_if_needed @two_bridged_veths @kill_dnsmasq_vlan
     @vlan_ipv4_ipv6_restart_persistence
     Scenario: NM - vlan - ipv4 and ipv6 restart persistence
     * Prepare veth pairs "test1" bridged over "vethbr"
@@ -301,7 +301,7 @@ Feature: nmcli - vlan
 
 
     @rhbz1276343
-    @vlan @restart
+    @vlan @restart_if_needed
     @vlan_not_duplicated
     Scenario: nmcli - vlan - do not duplicate mtu and ipv4 vlan
     * Add a new connection of type "vlan" and options "con-name vlan dev eth7 id 80"
@@ -314,7 +314,7 @@ Feature: nmcli - vlan
 
     @rhbz1376199
     @ver+=1.8.0
-    @restart @vlan
+    @restart_if_needed @vlan
     @vlan_not_stalled_after_connection_delete
     Scenario: nmcli - vlan - delete vlan device after restart
     * Add a new connection of type "vlan" and options "con-name vlan dev eth7 id 80"
@@ -328,7 +328,7 @@ Feature: nmcli - vlan
 
 
     @rhbz1264322
-    @restart @vlan
+    @restart_if_needed @vlan
     @vlan_update_mac_from_bond
     Scenario: nmcli - vlan - update mac address from bond
     # Setup given in the bug description
@@ -434,7 +434,7 @@ Feature: nmcli - vlan
 
     @rhbz1414186
     @ver+=1.6
-    @vlan @restart
+    @vlan @restart_if_needed
     @vlan_mtu_from_parent
     Scenario: nmcli - vlan - MTU from parent
     * Add a new connection of type "ethernet" and options "con-name vlan1 ifname eth7 802-3-ethernet.mtu 9000 ipv4.method disabled ipv6.method ignore"
@@ -493,7 +493,7 @@ Feature: nmcli - vlan
 
     @rhbz1414901
     @ver+=1.10.0
-    @vlan @restart @teardown_testveth
+    @vlan @restart_if_needed @teardown_testveth
     @vlan_mtu_from_parent_with_slow_dhcp
     Scenario: nmcli - vlan - MTU from parent
     * Prepare simulated test "test77" device
@@ -531,7 +531,7 @@ Feature: nmcli - vlan
 
     @rhbz1553595
     @ver+=1.10.2 @ver-=1.17.90
-    @vlan @bond @slaves @restart
+    @vlan @bond @slaves @restart_if_needed
     @vlan_on_bond_autoconnect
     Scenario: NM - vlan - autoconnect vlan on bond specified as UUID
     * Add connection type "bond" named "bond0" for device "nm-bond"
@@ -551,7 +551,7 @@ Feature: nmcli - vlan
 
     @rhbz1553595 @rhbz1701585
     @ver+=1.18.0 @ver-=1.29
-    @vlan @bond @slaves @restart
+    @vlan @bond @slaves @restart_if_needed
     @vlan_on_bond_autoconnect
     Scenario: NM - vlan - autoconnect vlan on bond specified as UUID
     * Add connection type "bond" named "bond0" for device "nm-bond"
@@ -576,7 +576,7 @@ Feature: nmcli - vlan
 
     @rhbz1553595 @rhbz1701585 @rhbz1937723
     @ver+=1.30.0
-    @vlan @bond @slaves @restart
+    @vlan @bond @slaves @restart_if_needed
     @vlan_on_bond_autoconnect
     Scenario: NM - vlan - autoconnect vlan on bond specified as UUID
     * Add a new connection of type "bond" and options "con-name bond0 ifname nm-bond mtu 9000"
@@ -630,7 +630,7 @@ Feature: nmcli - vlan
 
 
     @ver+=1.12
-    @vlan @restart
+    @vlan @restart_if_needed
     @vlan_create_macvlan_on_vlan
     Scenario: nmcli - vlan - create macvlan on vlan
     * Add a new connection of type "vlan" and options "con-name eth7.99 dev eth7 id 99"
@@ -734,7 +734,7 @@ Feature: nmcli - vlan
 
     @rhbz1933041 @rhbz1926599
     @ver+=1.30
-    @logging_info_only @restart @500_vlans
+    @logging_info_only @restart_if_needed @500_vlans
     @vlan_create_500_vlans
     Scenario: NM - vlan - create 500 vlans
     # Prepare veth pair with the other end in namespace

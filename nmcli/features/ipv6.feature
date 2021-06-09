@@ -619,7 +619,7 @@
 
 
     @rhbz1187525
-    @con_ipv6_remove @remove_custom_cfg @restart
+    @con_ipv6_remove @remove_custom_cfg @restart_if_needed
     @ipv6_ip6-default_privacy
     Scenario: nmcli - ipv6 - ip6_privacy - default value
     * Execute "echo 1 > /proc/sys/net/ipv6/conf/default/use_tempaddr"
@@ -661,7 +661,7 @@
 
 
     @rhbz1073824
-    @veth @con_ipv6_remove @restart
+    @veth @con_ipv6_remove @restart_if_needed
     @ipv6_take_manually_created_ifcfg
     Scenario: ifcfg - ipv6 - use manually created link-local profile
     * Append "DEVICE='eth10'" to ifcfg file "con_ipv6"
@@ -866,7 +866,7 @@
 
 
     @rhbz1138426
-    @restart @add_testeth10
+    @restart_if_needed @add_testeth10
     @ipv6_no_assumed_connection_for_ipv6ll_only
     Scenario: NM - ipv6 - no assumed connection on IPv6LL only device
     * Delete connection "testeth10"
@@ -1002,7 +1002,7 @@
 
 
     @ver-=1.6
-    @con_ipv6_remove @restart @selinux_allow_ifup @teardown_testveth
+    @con_ipv6_remove @restart_if_needed @selinux_allow_ifup @teardown_testveth
     @persistent_default_ipv6_gw
     Scenario: NM - ipv6 - persistent default ipv6 gw
     * Add a new connection of type "ethernet" and options "ifname testX6 con-name con_ipv6"
@@ -1022,7 +1022,7 @@
 
 
     @ver+=1.7 @ver-=1.10.0
-    @con_ipv6_remove @restart @selinux_allow_ifup @teardown_testveth
+    @con_ipv6_remove @restart_if_needed @selinux_allow_ifup @teardown_testveth
     @persistent_default_ipv6_gw
     Scenario: NM - ipv6 - persistent default ipv6 gw
     * Add a new connection of type "ethernet" and options "ifname testX6 con-name con_ipv6"
@@ -1044,7 +1044,7 @@
 
     @ver+=1.10.1
     @rhelver-=7 @fedoraver-=0 #as we have no initscripts anymore
-    @con_ipv6_remove @restart @selinux_allow_ifup @teardown_testveth
+    @con_ipv6_remove @restart_if_needed @selinux_allow_ifup @teardown_testveth
     @persistent_default_ipv6_gw
     Scenario: NM - ipv6 - persistent default ipv6 gw
     * Add a new connection of type "ethernet" and options "ifname testX6 con-name con_ipv6"
@@ -1065,7 +1065,7 @@
     @rhbz1274894
     @ver+=1.9.2
     @rhelver-=7 @fedoraver-=0 #as we have no initscripts anymore
-    @con_ipv6_remove @restart @selinux_allow_ifup @teardown_testveth
+    @con_ipv6_remove @restart_if_needed @selinux_allow_ifup @teardown_testveth
     @persistent_ipv6_routes
     Scenario: NM - ipv6 - persistent ipv6 routes
     * Add a new connection of type "ethernet" and options "ifname testX6 con-name con_ipv6 ipv4.method disabled"
@@ -1200,7 +1200,7 @@
 
     @rhbz1508001
     @ver+=1.10.0
-    @con_ipv6_remove @teardown_testveth @restart
+    @con_ipv6_remove @teardown_testveth @restart_if_needed
     @ipv4_dad_not_preventing_ipv6
     Scenario: NM - ipv6 - add address after ipv4 DAD fail
     * Prepare simulated test "testX6" device
@@ -1227,7 +1227,7 @@
 
     @rhbz1368018
     @ver+=1.8
-    @ifcfg-rh @con_ipv6_ifcfg_remove @con_ipv6_remove @restart @kill_dhclient_custom @teardown_testveth
+    @ifcfg-rh @con_ipv6_ifcfg_remove @con_ipv6_remove @restart_if_needed @kill_dhclient_custom @teardown_testveth
     @persistent_ipv6_after_device_rename
     Scenario: NM - ipv6 - persistent ipv6 after device rename
     * Prepare simulated test "testX6" device
