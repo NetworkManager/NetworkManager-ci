@@ -11,11 +11,11 @@ This repo contains a set of integration tests for NetworkManager and CentOS 8 St
 | 1.28.x | [![Build Status](https://jenkins-networkmanager.apps.ocp.ci.centos.org/job/NetworkManager-1-28/badge/icon)](https://jenkins-networkmanager.apps.ocp.ci.centos.org/job/NetworkManager-1-28/) |
 | 1.26.x | [![Build Status](https://jenkins-networkmanager.apps.ocp.ci.centos.org/job/NetworkManager-1-26/badge/icon)](https://jenkins-networkmanager.apps.ocp.ci.centos.org/job/NetworkManager-1-26/) |
 
-### Howto execute basic test suite manually on localhost 
+### Howto execute basic test suite manually on localhost
 
 * Prerequisites
   * CentOS qcow2 image, running libvirtd
-  ```
+  ```bash
   yum -y install virt-install /usr/bin/virt-sysprep virt-viewer libvirt
   systemctl start libvirtd
 
@@ -24,24 +24,24 @@ This repo contains a set of integration tests for NetworkManager and CentOS 8 St
   wget https://cloud.centos.org/centos/8-stream/x86_64/images/$IMG
 
   virt-sysprep -root-password password:centos -a $IMG
-    
+
   # We need sudo to access default bridged networking
   sudo virt-install --name CentOS_8_Stream --memory 4096 --vcpus 4 --disk $IMG,bus=sata --import --os-variant centos-stream8 --network default
-    
-  # Virsh doesn't sort machines so you may need to use different than first 
+
+  # Virsh doesn't sort machines so you may need to use different than first
   # But you need IP for later usage
   IP=$(sudo virsh net-dhcp-leases default | grep ipv4 | awk '{print $5}' |head -1 | awk -F '/' '{print $1}')
   ssh-copy-id root@$IP
   ```
 
 * Running Tests
-  * with NM compilation 
-  ```
+  * with NM compilation
+  ```bash
   # NMCI test code. NMCI master should work everywhere
   TEST_BRANCH='master'
   # REFSPEC of your NM code change, work with repo below
   REFSPEC='main'
-  # Change to whatever repo you want to compile NM from 
+  # Change to whatever repo you want to compile NM from
   NM_REPO='https://gitlab.freedesktop.org/vbenes/NetworkManager'
   # Choose a list of features you want to test, you can have 'all' to test everything
   FEATURES='adsl, bond'
@@ -58,7 +58,7 @@ This repo contains a set of integration tests for NetworkManager and CentOS 8 St
   ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no root@$IP $TEST
   ```
   * you can avoid compilation and use already installed packages
-  ```
+  ```bash
   # NMCI test code. NMCI master should work everywhere
   TEST_BRANCH='vb/nmtest'
   # Choose a list of features you want to test, you can have 'all' to test everything
@@ -76,7 +76,7 @@ This repo contains a set of integration tests for NetworkManager and CentOS 8 St
   ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no root@$IP $TEST
   ```
   * or you can just ssh into the machine and run
-  ```
+  ```bash
   cd /root/NetworkManager-ci
   # Test by test as defined in mapper.txt
   nmcli/./runtest.sh your_desired_test
@@ -94,14 +94,14 @@ This repo contains a set of integration tests for NetworkManager and CentOS 8 St
   * https://behave.readthedocs.io/en/stable/
 * It's quite readable and easy to learn
 * Let's describe directory structure and files of NMCI first
- * / 
+ * /
    * mapper.yaml file
      * use for driving tests
      * all tests names are written there (together with features)
      * all dependencies and basically all metadata is there
    * version_control.py script
      * we have just one NMCI branch for all NM versions, RHELs, Fedora, CentOSes
-     * this is the control mechanism if we need to skip test here and there 
+     * this is the control mechanism if we need to skip test here and there
    * nmci dir
      * various scripts used for driving tests
      * the most interesting are tags that are used for preparing and cleaning environment
@@ -109,8 +109,8 @@ This repo contains a set of integration tests for NetworkManager and CentOS 8 St
   * nmcli dir
 	* all non nmtui tests are here in feature files in features directory
     * runtest.sh script (link to run/runtest.sh)
-      * the main driver of tests 
-      * execution of test looks like: nmcli/./runtest.sh test_name
+      * the main driver of tests
+      * execution of test looks like: `nmcli/./runtest.sh test_name`
     * features dir
       * sets of features in .feature files
       * test itself will be described deeper later on
@@ -127,7 +127,7 @@ This repo contains a set of integration tests for NetworkManager and CentOS 8 St
   * prepare dir
     * various scripts for preparing environment
     * vethsetup.sh
-      * this one creates whole 11 device wide test bed 
+      * this one creates whole 11 device wide test bed
       * executed at first test execution if needed
     * envsetup.sh
       * installs various packages and tunes environment
@@ -138,18 +138,19 @@ This repo contains a set of integration tests for NetworkManager and CentOS 8 St
       * decribed above in nmcli section
     * runfeature.sh
       * doing the same as runtest.sh but for whole features
-      * run/runfeature.sh bond for example
+      * `run/runfeature.sh bond` for example
+      * `run/runfeature.sh bond --dry` just lists tests
   * tmp/contrib
     * various files and reproducers needed for tests
     * should be later moved to contrib where we have +- the same
 
 
 * Let's use an example test to describe how we do that
-  * 
-  ```    
+  *
+  ```gherkin  
   # Reference to bugzilla, doing nothing
   @rhbz1915457
-  # Version control, test will run on F32+ or RHEL8.4+ 
+  # Version control, test will run on F32+ or RHEL8.4+
   # with NM of 1.30+ only. Test will be skipped in CentOS
   @ver+=1.30 @rhelver+=8.4 @fedver+=32 @skip_in_centos
   # Bond and slaves residuals will be deleted after test
@@ -173,14 +174,16 @@ This repo contains a set of integration tests for NetworkManager and CentOS 8 St
   * Execute "echo 'Hello world'"
   # Check various value via period of time (once a second). Then keyword is useles, just marking results more visible
   Then "Bonding Mode: IEEE 802.3ad Dynamic link aggregation" is visible with command "cat /proc/net/bonding/nm-bond" in "5" seconds
-  # Check various value immediately
+  # Check various value twice (default)
   Then "Transmit Hash Policy:\s+vlan\+srcmac" is visible with command "cat /proc/net/bonding/nm-bond"
-  # Very bond specific step checking if bond device is up. 
+  # Check various value immediately
+  Then "Transmit Hash Policy:\s+vlan\+srcmac" is visible with command "cat /proc/net/bonding/nm-bond" in "1" seconds
+  # Very bond specific step checking if bond device is up.
   Then Check bond "nm-bond" link state is "up"
   ```
 
 * Reports
-  * You can see stdou output when running from command line
+  * You can see stdout output when running from command line
   * You can see nice HTML reports too stored in /tmp
     * PASS report has just after cleanup info in it
       * https://vbenes.fedorapeople.org/NM/PASS_bond_8023ad_with_vlan_srcmac.html
