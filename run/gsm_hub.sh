@@ -12,15 +12,15 @@ function runtest () {
 
     # get tags specific to software versions (NM, fedora, rhel)
     # see version_control.py for more details
-    TAG="$(python $DIR/version_control.py $DIR/nmcli $TEST_NAME)"; vc=$?
+    TAG="$(python $DIR/version_control.py $TEST_NAME)"; vc=$?
     if [ $vc -eq 1 ]; then
         logger "Skipping due to incorrect NM version for this test"
         return 0
     fi
 
-    FEATURE_FILE=$(grep "@$TEST_NAME" -l $DIR/nmcli/features/*.feature)
+    FEATURE_FILE=$(grep "@$TEST_NAME" -l $DIR/features/scenarios/*.feature)
     if [ -z $FEATURE_FILE ]; then
-        FEATURE_FILE=$DIR/nmcli/features
+        FEATURE_FILE=$DIR/features
     fi
     if [ "x$TAG" != "x" ]; then
         behave $FEATURE_FILE -t $TEST_NAME $TAG -k -f html -o /tmp/report.html -f plain || RC=1

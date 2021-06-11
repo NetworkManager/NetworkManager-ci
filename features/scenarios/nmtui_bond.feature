@@ -1,3 +1,4 @@
+@nmtui
 Feature: Bond TUI tests
 
   Background:

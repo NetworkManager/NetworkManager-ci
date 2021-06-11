@@ -27,11 +27,12 @@ mapper_feature [feature_name [format]]
     elif sys.argv[1] == "get_test_tags":
         import nmci.misc
 
-        feature = "nmcli"
         if len(sys.argv) > 2:
-            feature = sys.argv[2]
-        if feature != "nmcli" and feature != "nmtui":
-            feature = f"nmcli/features/{feature}.feature"
+            feature = f"/features/scenarios/{sys.argv[2]}.feature"
+        else:
+            print("expected feature name")
+            sys.exit(1)
+
         test_name = None
         if len(sys.argv) > 3:
             test_name = sys.argv[3]

@@ -1,3 +1,4 @@
+@nmtui
 Feature: IPv4 TUI tests
 
   Background:

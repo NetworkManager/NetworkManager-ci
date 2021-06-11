@@ -1,3 +1,4 @@
+@nmtui
 Feature: WIFI TUI tests
 
   Background:

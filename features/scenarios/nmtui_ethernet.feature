@@ -1,3 +1,4 @@
+@nmtui
 Feature: Ethernet TUI tests
 
   Background:

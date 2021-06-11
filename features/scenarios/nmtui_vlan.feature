@@ -1,3 +1,4 @@
+@nmtui
 Feature: VLAN TUI tests
 
   Background:

@@ -1,3 +1,4 @@
+@nmtui
 Feature: Team TUI tests
 
   Background:

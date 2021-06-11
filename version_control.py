@@ -53,7 +53,7 @@ else:
 
 test_name = nmci.misc.test_name_normalize(sys.argv[2])
 
-test_tags = nmci.misc.test_load_tags_from_features(sys.argv[1], test_name)
+test_tags = nmci.misc.test_load_tags_from_features(sys.argv[1], test_name=test_name)
 if not test_tags:
     sys.stderr.write("test with tag '%s' not defined!\n" % test_name)
     sys.exit(1)

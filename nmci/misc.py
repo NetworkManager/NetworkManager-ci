@@ -32,9 +32,9 @@ class _Misc:
         import glob
 
         if feature[0] == "/":
-            feature_dir = os.path.join(feature, "features")
+            feature_dir = os.path.join(feature, "features", "scenarios")
         else:
-            feature_dir = util.base_dir(feature, "features")
+            feature_dir = util.base_dir(feature, "features", "scenarios")
 
         return glob.glob(feature_dir + "/*.feature")
 

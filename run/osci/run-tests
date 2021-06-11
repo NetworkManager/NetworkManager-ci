@@ -78,11 +78,7 @@ function run_tests ()
             TIMEOUT="10m"
         fi
 
-        if [[ $T == *nmtui* ]]; then
-            TEST=NetworkManager-ci_Test$COUNTER"_"$T timeout $TIMEOUT nmtui/./runtest.sh $T; rc=$?
-        else
-            TEST=NetworkManager-ci_Test$COUNTER"_"$T timeout $TIMEOUT nmcli/./runtest.sh $T; rc=$?
-        fi
+        TEST=NetworkManager-ci_Test$COUNTER"_"$T timeout $TIMEOUT run/runtest.sh $T; rc=$?
 
         if [ $rc -ne 0 ]; then
             # Overal result is FAIL

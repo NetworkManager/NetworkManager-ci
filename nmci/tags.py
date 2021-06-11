@@ -29,6 +29,7 @@ def _register_tag(tag_name, before_scenario=None, after_scenario=None):
 _register_tag("no_abrt")
 _register_tag("xfail")
 _register_tag("may_fail")
+_register_tag("nmtui")
 
 
 def temporary_skip_bs(ctx, scen):

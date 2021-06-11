@@ -1,3 +1,4 @@
+@nmtui
 Feature: General TUI tests
 
   Background:

@@ -35,7 +35,7 @@ for test in $@; do
     export TEST="NetworkManager-ci_Test$counter"_"$test"
     cmd=$(sed -n "/- $test:/,/ - /p" mapper.yaml | grep -e "run:" | awk -F: '{print $2}')
     if [ "$cmd" == "" ] ; then
-        cmd="nmcli/./runtest.sh $test"
+        cmd="run/./runtest.sh $test"
     fi
     timeout $timer $cmd; rc=$?
 

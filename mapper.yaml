@@ -16,7 +16,7 @@ component:
     - NetworkManager-dcb:
         arches:
           - x86_64
-  test-run: nmcli/./runtest.sh $testname
+  test-run: run/runtest.sh $testname
   covers:
       - jimtcl
       - libmbim
@@ -2195,643 +2195,440 @@ testmapper:
     - resolv_conf_do_not_overwrite_symlink:
         feature: dns
     - nmtui_general_exit_nmtui:
-        run: nmtui/./runtest.sh nmtui_general_exit_nmtui
         feature: nmtui
     - nmtui_general_open_edit_menu:
-        run: nmtui/./runtest.sh nmtui_general_open_edit_menu
         feature: nmtui
     - nmtui_general_open_activation_menu:
-        run: nmtui/./runtest.sh nmtui_general_open_activation_menu
         feature: nmtui
     - nmtui_general_open_hostname_dialog:
-        run: nmtui/./runtest.sh nmtui_general_open_hostname_dialog
         feature: nmtui
     - nmtui_general_display_proper_hostname:
-        run: nmtui/./runtest.sh nmtui_general_display_proper_hostname
         feature: nmtui
     - nmtui_general_set_new_hostname:
-        run: nmtui/./runtest.sh nmtui_general_set_new_hostname
         feature: nmtui
         tags: gate
     - nmtui_general_active_connections_display:
-        run: nmtui/./runtest.sh nmtui_general_active_connections_display
         feature: nmtui
         tags: gate
     - nmtui_general_realtime_refresh_edit_screen:
-        run: nmtui/./runtest.sh nmtui_general_realtime_refresh_edit_screen
         feature: nmtui
     - nmtui_general_realtime_refresh_activate_screen_wo_autoconnect:
-        run: nmtui/./runtest.sh nmtui_general_realtime_refresh_activate_screen_wo_autoconnect
         feature: nmtui
     - nmtui_general_realtime_refresh_activate_screen:
-        run: nmtui/./runtest.sh nmtui_general_realtime_refresh_activate_screen
         feature: nmtui
     - nmtui_dsl_create_default_connection:
-        run: nmtui/./runtest.sh nmtui_dsl_create_default_connection
         feature: nmtui
     - nmtui_general_show_orphaned_slaves:
-        run: nmtui/./runtest.sh nmtui_general_show_orphaned_slaves
         feature: nmtui
     - nmtui_general_activate_screen_no_connections:
-        run: nmtui/./runtest.sh nmtui_general_activate_screen_no_connections
         feature: nmtui
     - nmtui_ethernet_create_default_connection:
-        run: nmtui/./runtest.sh nmtui_ethernet_create_default_connection
         feature: nmtui
     - nmtui_ethernet_create_device_bound_connection:
-        run: nmtui/./runtest.sh nmtui_ethernet_create_device_bound_connection
         feature: nmtui
     - nmtui_ethernet_create_connection_wo_autoconnect:
-        run: nmtui/./runtest.sh nmtui_ethernet_create_connection_wo_autoconnect
         feature: nmtui
     - nmtui_ethernet_activate_connection:
-        run: nmtui/./runtest.sh nmtui_ethernet_activate_connection
         feature: nmtui
     - nmtui_ethernet_activate_connection_specific_device:
-        run: nmtui/./runtest.sh nmtui_ethernet_activate_connection_specific_device
         feature: nmtui
         tags: gate
     - nmtui_ethernet_deactivate_connection:
-        run: nmtui/./runtest.sh nmtui_ethernet_deactivate_connection
         feature: nmtui
         tags: gate
     - nmtui_ethernet_delete_connection_down:
-        run: nmtui/./runtest.sh nmtui_ethernet_delete_connection_down
         feature: nmtui
     - nmtui_ethernet_delete_connection_up:
-        run: nmtui/./runtest.sh nmtui_ethernet_delete_connection_up
         feature: nmtui
         tags: gate
     - nmtui_ethernet_set_mtu:
-        run: nmtui/./runtest.sh nmtui_ethernet_set_mtu
         feature: nmtui
         tags: gate
     - nmtui_ethernet_mac_spoofing:
-        run: nmtui/./runtest.sh nmtui_ethernet_mac_spoofing
         feature: nmtui
         tags: gate
     - nmtui_ethernet_mac_removal:
-        run: nmtui/./runtest.sh nmtui_ethernet_mac_removal
         feature: nmtui
     - nmtui_ethernet_static_ipv4:
-        run: nmtui/./runtest.sh nmtui_ethernet_static_ipv4
         feature: nmtui
     - nmtui_ethernet_static_ipv6:
-        run: nmtui/./runtest.sh nmtui_ethernet_static_ipv6
         feature: nmtui
     - nmtui_ethernet_static_combined:
-        run: nmtui/./runtest.sh nmtui_ethernet_static_combined
         feature: nmtui
         tags: gate
     - nmtui_ipv4_addresses_static_no_address:
-        run: nmtui/./runtest.sh nmtui_ipv4_addresses_static_no_address
         feature: nmtui
     - nmtui_ipv4_addresses_static_no_mask:
-        run: nmtui/./runtest.sh nmtui_ipv4_addresses_static_no_mask
         feature: nmtui
     - nmtui_ipv4_addresses_static_no_mask_var2:
-        run: nmtui/./runtest.sh nmtui_ipv4_addresses_static_no_mask_var2
         feature: nmtui
     - nmtui_ipv4_addresses_static_no_mask_var3:
-        run: nmtui/./runtest.sh nmtui_ipv4_addresses_static_no_mask_var3
         feature: nmtui
     - nmtui_ipv4_addresses_static_no_mask_var4:
-        run: nmtui/./runtest.sh nmtui_ipv4_addresses_static_no_mask_var4
         feature: nmtui
     - nmtui_ipv4_addresses_static_no_mask_var5:
-        run: nmtui/./runtest.sh nmtui_ipv4_addresses_static_no_mask_var5
         feature: nmtui
     - nmtui_ipv4_addresses_auto_with_manual:
-        run: nmtui/./runtest.sh nmtui_ipv4_addresses_auto_with_manual
         feature: nmtui
     - nmtui_ipv4_addresses_IP_slash_invalid_netmask:
-        run: nmtui/./runtest.sh nmtui_ipv4_addresses_IP_slash_invalid_netmask
         feature: nmtui
     - nmtui_ipv4_addresses_IP_slash_netmask_and_gateway_manual:
-        run: nmtui/./runtest.sh nmtui_ipv4_addresses_IP_slash_netmask_and_gateway_manual
         feature: nmtui
     - nmtui_ipv4_addresses_several_IPs_slash_netmask_and_gateway_manual:
-        run: nmtui/./runtest.sh nmtui_ipv4_addresses_several_IPs_slash_netmask_and_gateway_manual
         feature: nmtui
         tags: gate
     - nmtui_ipv4_addresses_several_IPs_slash_netmask_and_gateway_auto:
-        run: nmtui/./runtest.sh nmtui_ipv4_addresses_several_IPs_slash_netmask_and_gateway_auto
         feature: nmtui
     - nmtui_ipv4_addresses_delete_ip_and_back_to_auto:
-        run: nmtui/./runtest.sh nmtui_ipv4_addresses_delete_ip_and_back_to_auto
         feature: nmtui
     - nmtui_ipv4_routes_set_basic_route:
-        run: nmtui/./runtest.sh nmtui_ipv4_routes_set_basic_route
         feature: nmtui
         tags: gate
     - nmtui_ipv4_routes_remove_basic_route:
-        run: nmtui/./runtest.sh nmtui_ipv4_routes_remove_basic_route
         feature: nmtui
     - nmtui_ipv4_routes_set_device_route:
-        run: nmtui/./runtest.sh nmtui_ipv4_routes_set_device_route
         feature: nmtui
         tags: gate
     - nmtui_ipv4_routes_several_default_routes_metrics:
-        run: nmtui/./runtest.sh nmtui_ipv4_routes_several_default_routes_metrics
         feature: nmtui
         tags: gate
     - nmtui_ipv4_routes_set_invalid_route_destination:
-        run: nmtui/./runtest.sh nmtui_ipv4_routes_set_invalid_route_destination
         feature: nmtui
     - nmtui_ipv4_routes_set_invalid_route_hop:
-        run: nmtui/./runtest.sh nmtui_ipv4_routes_set_invalid_route_hop
         feature: nmtui
     - nmtui_ipv4_routes_set_unreachable_route:
-        run: nmtui/./runtest.sh nmtui_ipv4_routes_set_unreachable_route
         feature: nmtui
     - nmtui_ipv4_dns_method_static_+_IP_+_dns:
-        run: nmtui/./runtest.sh nmtui_ipv4_dns_method_static_runtest.sh nmtui_general_start_nmtui
         feature: nmtui
     - nmtui_ipv4_dns_method_auto_+_dns:
-        run: nmtui/./runtest.sh nmtui_ipv4_dns_method_auto_sh nmtui_general_start_nmtui
         feature: nmtui
     - nmtui_ipv4_dns_add_dns_when_one_already_set:
-        run: nmtui/./runtest.sh nmtui_ipv4_dns_add_dns_when_one_already_set
         feature: nmtui
     - nmtui_ipv4_dns_method_auto_then_delete_all_dns:
-        run: nmtui/./runtest.sh nmtui_ipv4_dns_method_auto_then_delete_all_dns
         feature: nmtui
         tags: gate
     - nmtui_ipv4_dns_search_add_dns_search:
-        run: nmtui/./runtest.sh nmtui_ipv4_dns_search_add_dns_search
         feature: nmtui
     - nmtui_ipv4_dns_search_remove_dns_search:
-        run: nmtui/./runtest.sh nmtui_ipv4_dns_search_remove_dns_search
         feature: nmtui
         tags: gate
     - nmtui_ipv4_method_link_local:
-        run: nmtui/./runtest.sh nmtui_ipv4_method_link_local
         feature: nmtui
     - nmtui_ipv4_may_connection_required:
-        run: nmtui/./runtest.sh nmtui_ipv4_may_connection_required
         feature: nmtui
     - nmtui_ipv4_may_connection_not_required:
-        run: nmtui/./runtest.sh nmtui_ipv4_may_connection_not_required
         feature: nmtui
     - nmtui_ipv4_method_disabled:
-        run: nmtui/./runtest.sh nmtui_ipv4_method_disabled
         feature: nmtui
     - nmtui_ipv4_never_default_unset:
-        run: nmtui/./runtest.sh nmtui_ipv4_never_default_unset
         feature: nmtui
     - nmtui_ipv4_never_default_set:
-        run: nmtui/./runtest.sh nmtui_ipv4_never_default_set
         feature: nmtui
         tags: gate
     - nmtui_ipv4_invalid_address:
-        run: nmtui/./runtest.sh nmtui_ipv4_invalid_address
         feature: nmtui
     - nmtui_ipv4_invalid_gateway:
-        run: nmtui/./runtest.sh nmtui_ipv4_invalid_gateway
         feature: nmtui
     - nmtui_ipv4_invalid_dns:
-        run: nmtui/./runtest.sh nmtui_ipv4_invalid_dns
         feature: nmtui
     - nmtui_ipv4_addresses_gateway_ip_prefix_nonzero_form:
-        run: nmtui/./runtest.sh nmtui_ipv4_addresses_gateway_ip_prefix_nonzero_form
         feature: nmtui
     - nmtui_ipv4_addresses_can_add_after_removing_invalid:
-        run: nmtui/./runtest.sh nmtui_ipv4_addresses_can_add_after_removing_invalid
         feature: nmtui
     - nmtui_ipv4_addresses_gateway_ip_prefix_nonzero_form:
-        run: nmtui/./runtest.sh nmtui_ipv4_addresses_gateway_ip_prefix_nonzero_form
         feature: nmtui
     - nmtui_ipv6_addresses_static_no_address:
-        run: nmtui/./runtest.sh nmtui_ipv6_addresses_static_no_address
         feature: nmtui
     - nmtui_ipv6_addresses_static_no_mask:
-        run: nmtui/./runtest.sh nmtui_ipv6_addresses_static_no_mask
         feature: nmtui
     - nmtui_ipv6_addresses_static_with_mask:
-        run: nmtui/./runtest.sh nmtui_ipv6_addresses_static_with_mask
         feature: nmtui
     - nmtui_ipv6_addresses_auto_with_manual:
-        run: nmtui/./runtest.sh nmtui_ipv6_addresses_auto_with_manual
         feature: nmtui
     - nmtui_ipv6_addresses_IP_slash_invalid_netmask:
-        run: nmtui/./runtest.sh nmtui_ipv6_addresses_IP_slash_invalid_netmask
         feature: nmtui
     - nmtui_ipv6_addresses_IP_slash_netmask_and_gateway_manual:
-        run: nmtui/./runtest.sh nmtui_ipv6_addresses_IP_slash_netmask_and_gateway_manual
         feature: nmtui
     - nmtui_ipv6_addresses_several_IPs_slash_netmask_and_gateway_manual:
-        run: nmtui/./runtest.sh nmtui_ipv6_addresses_several_IPs_slash_netmask_and_gateway_manual
         feature: nmtui
         tags: gate
     - nmtui_ipv6_addresses_several_IPs_slash_netmask_and_gateway_auto:
-        run: nmtui/./runtest.sh nmtui_ipv6_addresses_several_IPs_slash_netmask_and_gateway_auto
         feature: nmtui
     - nmtui_ipv6_addresses_delete_ip_and_back_to_auto:
-        run: nmtui/./runtest.sh nmtui_ipv6_addresses_delete_ip_and_back_to_auto
         feature: nmtui
         tags: gate
     - nmtui_ipv6_routes_set_basic_route:
-        run: nmtui/./runtest.sh nmtui_ipv6_routes_set_basic_route
         feature: nmtui
     - nmtui_ipv6_routes_remove_basic_route:
-        run: nmtui/./runtest.sh nmtui_ipv6_routes_remove_basic_route
         feature: nmtui
         tags: gate
     - nmtui_ipv6_routes_set_device_route:
-        run: nmtui/./runtest.sh nmtui_ipv6_routes_set_device_route
         feature: nmtui
         tags: gate
     - nmtui_ipv6_routes_several_default_routes_metrics:
-        run: nmtui/./runtest.sh nmtui_ipv6_routes_several_default_routes_metrics
         feature: nmtui
     - nmtui_ipv6_routes_set_invalid_route_destination:
-        run: nmtui/./runtest.sh nmtui_ipv6_routes_set_invalid_route_destination
         feature: nmtui
     - nmtui_ipv6_routes_set_invalid_route_hop:
-        run: nmtui/./runtest.sh nmtui_ipv6_routes_set_invalid_route_hop
         feature: nmtui
     - nmtui_ipv6_dns_method_static_+_IP_+_dns:
-        run: nmtui/./runtest.sh nmtui_ipv6_dns_method_static_runtest.sh nmtui_general_start_nmtui
         feature: nmtui
     - nmtui_ipv6_dns_method_auto_+_dns:
-        run: nmtui/./runtest.sh nmtui_ipv6_dns_method_auto_sh nmtui_general_start_nmtui
         feature: nmtui
     - nmtui_ipv6_dns_add_dns_when_one_already_set:
-        run: nmtui/./runtest.sh nmtui_ipv6_dns_add_dns_when_one_already_set
         feature: nmtui
     - nmtui_ipv6_dns_method_auto_then_delete_all_dns:
-        run: nmtui/./runtest.sh nmtui_ipv6_dns_method_auto_then_delete_all_dns
         feature: nmtui
         tags: gate
     - nmtui_ipv6_dns_search_add_dns_search:
-        run: nmtui/./runtest.sh nmtui_ipv6_dns_search_add_dns_search
         feature: nmtui
     - nmtui_ipv6_dns_search_remove_dns_search:
-        run: nmtui/./runtest.sh nmtui_ipv6_dns_search_remove_dns_search
         feature: nmtui
     - nmtui_ipv6_method_link_local:
-        run: nmtui/./runtest.sh nmtui_ipv6_method_link_local
         feature: nmtui
     - nmtui_ipv6_may_connection_required:
-        run: nmtui/./runtest.sh nmtui_ipv6_may_connection_required
         feature: nmtui
     - nmtui_ipv6_may_connection_not_required:
-        run: nmtui/./runtest.sh nmtui_ipv6_may_connection_not_required
         feature: nmtui
     - nmtui_ipv6_method_ignore:
-        run: nmtui/./runtest.sh nmtui_ipv6_method_ignore
         feature: nmtui
     - nmtui_ipv6_never_default_unset:
-        run: nmtui/./runtest.sh nmtui_ipv6_never_default_unset
         feature: nmtui
     - nmtui_ipv6_never_default_set:
-        run: nmtui/./runtest.sh nmtui_ipv6_never_default_set
         feature: nmtui
         tags: gate
     - nmtui_ipv6_invalid_address:
-        run: nmtui/./runtest.sh nmtui_ipv6_invalid_address
         feature: nmtui
     - nmtui_ipv6_invalid_gateway:
-        run: nmtui/./runtest.sh nmtui_ipv6_invalid_gateway
         feature: nmtui
     - nmtui_ipv6_invalid_dns:
-        run: nmtui/./runtest.sh nmtui_ipv6_invalid_dns
         feature: nmtui
     - nmtui_ipv6_addresses_can_add_after_removing_invalid:
-        run: nmtui/./runtest.sh nmtui_ipv6_addresses_can_add_after_removing_invalid
         feature: nmtui
     - nmtui_vlan_add_default_connection:
-        run: nmtui/./runtest.sh nmtui_vlan_add_default_connection
         feature: nmtui
     - nmtui_vlan_set_device:
-        run: nmtui/./runtest.sh nmtui_vlan_set_device
         feature: nmtui
     - nmtui_vlan_missing_parent:
-        run: nmtui/./runtest.sh nmtui_vlan_missing_parent
         feature: nmtui
     - nmtui_vlan_set_parent_as_device:
-        run: nmtui/./runtest.sh nmtui_vlan_set_parent_as_device
         feature: nmtui
     - nmtui_vlan_set_non_existant_parent:
-        run: nmtui/./runtest.sh nmtui_vlan_set_non_existant_parent
         feature: nmtui
     - nmtui_vlan_autocompletion:
-        run: nmtui/./runtest.sh nmtui_vlan_autocompletion
         feature: nmtui
     - nmtui_vlan_invalid_ids:
-        run: nmtui/./runtest.sh nmtui_vlan_invalid_ids
         feature: nmtui
     - nmtui_vlan_delete_connection_down:
-        run: nmtui/./runtest.sh nmtui_vlan_delete_connection_down
         feature: nmtui
     - nmtui_vlan_delete_connection_activating:
-        run: nmtui/./runtest.sh nmtui_vlan_delete_connection_activating
         feature: nmtui
         tags: gate
     - nmtui_vlan_delete_connection_up:
-        run: nmtui/./runtest.sh nmtui_vlan_delete_connection_up
         feature: nmtui
     - nmtui_vlan_create_no_autoconnect:
-        run: nmtui/./runtest.sh nmtui_vlan_create_no_autoconnect
         feature: nmtui
     - nmtui_vlan_activate_connection:
-        run: nmtui/./runtest.sh nmtui_vlan_activate_connection
         feature: nmtui
     - nmtui_vlan_deactivate_connection_wo_autoconnect:
-        run: nmtui/./runtest.sh nmtui_vlan_deactivate_connection_wo_autoconnect
         feature: nmtui
         tags: gate
     - nmtui_vlan_deactivate_connection_with_autoconnect:
-        run: nmtui/./runtest.sh nmtui_vlan_deactivate_connection_with_autoconnect
         feature: nmtui
         tags: gate
     - nmtui_vlan_change_id:
-        run: nmtui/./runtest.sh nmtui_vlan_change_id
         feature: nmtui
         tags: gate
     - nmtui_bridge_add_default_bridge:
-        run: nmtui/./runtest.sh nmtui_bridge_add_default_bridge
         feature: nmtui
     - nmtui_bridge_add_custom_bridge:
-        run: nmtui/./runtest.sh nmtui_bridge_add_custom_bridge
         feature: nmtui
     - nmtui_bridge_add_connection_wo_autoconnect:
-        run: nmtui/./runtest.sh nmtui_bridge_add_connection_wo_autoconnect
         feature: nmtui
     - nmtui_bridge_activate_wo_autoconnect:
-        run: nmtui/./runtest.sh nmtui_bridge_activate_wo_autoconnect
         feature: nmtui
     - nmtui_bridge_activate_with_autoconnect:
-        run: nmtui/./runtest.sh nmtui_bridge_activate_with_autoconnect
         feature: nmtui
     - nmtui_bridge_deactivate_connection:
-        run: nmtui/./runtest.sh nmtui_bridge_deactivate_connection
         feature: nmtui
     - nmtui_bridge_delete_connection_up:
-        run: nmtui/./runtest.sh nmtui_bridge_delete_connection_up
         feature: nmtui
     - nmtui_bridge_delete_connection_down:
-        run: nmtui/./runtest.sh nmtui_bridge_delete_connection_down
         feature: nmtui
     - nmtui_bridge_add_many_slaves:
-        run: nmtui/./runtest.sh nmtui_bridge_add_many_slaves
         feature: nmtui
     - nmtui_bridge_over_ethernet_devices:
-        run: nmtui/./runtest.sh nmtui_bridge_over_ethernet_devices
         feature: nmtui
     - nmtui_bridge_over_ethernet_devices_no_stp:
-        run: nmtui/./runtest.sh nmtui_bridge_over_ethernet_devices_no_stp
         feature: nmtui
     - nmtui_bridge_over_vlans:
-        run: nmtui/./runtest.sh nmtui_bridge_over_vlans
         feature: nmtui
         tags: gate
     - nmtui_bridge_over_vlans_no_stp:
-        run: nmtui/./runtest.sh nmtui_bridge_over_vlans_no_stp
         feature: nmtui
     - nmtui_bridge_custom_bridge_port:
-        run: nmtui/./runtest.sh nmtui_bridge_custom_bridge_port
         feature: nmtui
         tags: gate
     - nmtui_bridge_over_ethernet_and_vlan:
-        run: nmtui/./runtest.sh nmtui_bridge_over_ethernet_and_vlan
         feature: nmtui
     - nmtui_bond_add_default_bond:
-        run: nmtui/./runtest.sh nmtui_bond_add_default_bond
         feature: nmtui
     - nmtui_bond_add_custom_bond_mii:
-        run: nmtui/./runtest.sh nmtui_bond_add_custom_bond_mii
         feature: nmtui
     - nmtui_bond_add_custom_bond_arp:
-        run: nmtui/./runtest.sh nmtui_bond_add_custom_bond_arp
         feature: nmtui
     - nmtui_bond_add_connection_wo_autoconnect:
-        run: nmtui/./runtest.sh nmtui_bond_add_connection_wo_autoconnect
         feature: nmtui
     - nmtui_bond_activate_wo_autoconnect:
-        run: nmtui/./runtest.sh nmtui_bond_activate_wo_autoconnect
         feature: nmtui
     - nmtui_bond_activate_with_autoconnect:
-        run: nmtui/./runtest.sh nmtui_bond_activate_with_autoconnect
         feature: nmtui
     - nmtui_bond_deactivate_connection:
-        run: nmtui/./runtest.sh nmtui_bond_deactivate_connection
         feature: nmtui
     - nmtui_bond_delete_connection_up:
-        run: nmtui/./runtest.sh nmtui_bond_delete_connection_up
         feature: nmtui
     - nmtui_bond_delete_connection_down:
-        run: nmtui/./runtest.sh nmtui_bond_delete_connection_down
         feature: nmtui
     - nmtui_bond_add_one_slave:
-        run: nmtui/./runtest.sh nmtui_bond_add_one_slave
         feature: nmtui
     - nmtui_bond_add_many_slaves:
-        run: nmtui/./runtest.sh nmtui_bond_add_many_slaves
         feature: nmtui
     - nmtui_bond_over_ethernet_devices:
-        run: nmtui/./runtest.sh nmtui_bond_over_ethernet_devices
         feature: nmtui
     - nmtui_bond_infiniband_slaves:
-        run: nmtui/./runtest.sh nmtui_bond_infiniband_slaves
         feature: nmtui
     - nmtui_bond_start_on_boot_with_one_slave_auto:
-        run: nmtui/./runtest.sh nmtui_bond_start_on_boot_with_one_slave_auto
         feature: nmtui
         tags: gate
     - nmtui_bond_add_mode_active_backup:
-        run: nmtui/./runtest.sh nmtui_bond_add_mode_active_backup
         feature: nmtui
     - nmtui_bond_add_mode_round_robin:
-        run: nmtui/./runtest.sh nmtui_bond_add_mode_round_robin
         feature: nmtui
     - nmtui_bond_add_mode_xor:
-        run: nmtui/./runtest.sh nmtui_bond_add_mode_xor
         feature: nmtui
     - nmtui_bond_add_mode_broadcast:
-        run: nmtui/./runtest.sh nmtui_bond_add_mode_broadcast
         feature: nmtui
     - nmtui_bond_add_mode_8023ad:
-        run: nmtui/./runtest.sh nmtui_bond_add_mode_8023ad
         feature: nmtui
     - nmtui_bond_add_mode_balance_tlb:
-        run: nmtui/./runtest.sh nmtui_bond_add_mode_balance_tlb
         feature: nmtui
     - nmtui_bond_add_mode_balance_alb:
-        run: nmtui/./runtest.sh nmtui_bond_add_mode_balance_alb
         feature: nmtui
     - nmtui_bond_change_mode_ac_to_rr:
-        run: nmtui/./runtest.sh nmtui_bond_change_mode_ac_to_rr
         feature: nmtui
     - nmtui_team_add_default_team:
-        run: nmtui/./runtest.sh nmtui_team_add_default_team
         feature: nmtui
     - nmtui_team_add_connection_wo_autoconnect:
-        run: nmtui/./runtest.sh nmtui_team_add_connection_wo_autoconnect
         feature: nmtui
     - nmtui_team_activate_wo_autoconnect:
-        run: nmtui/./runtest.sh nmtui_team_activate_wo_autoconnect
         feature: nmtui
     - nmtui_team_activate_with_autoconnect:
-        run: nmtui/./runtest.sh nmtui_team_activate_with_autoconnect
         feature: nmtui
     - nmtui_team_deactivate_connection:
-        run: nmtui/./runtest.sh nmtui_team_deactivate_connection
         feature: nmtui
     - nmtui_team_delete_connection_up:
-        run: nmtui/./runtest.sh nmtui_team_delete_connection_up
         feature: nmtui
     - nmtui_team_delete_connection_down:
-        run: nmtui/./runtest.sh nmtui_team_delete_connection_down
         feature: nmtui
     - nmtui_team_add_many_slaves:
-        run: nmtui/./runtest.sh nmtui_team_add_many_slaves
         feature: nmtui
     - nmtui_team_over_ethernet_devices:
-        run: nmtui/./runtest.sh nmtui_team_over_ethernet_devices
         feature: nmtui
     - nmtui_team_delete_slaves_after_deleting_profile:
-        run: nmtui/./runtest.sh nmtui_team_delete_slaves_after_deleting_profile
         feature: nmtui
         tags: gate
     - nmtui_team_infiniband_slaves:
-        run: nmtui/./runtest.sh nmtui_team_infiniband_slaves
         feature: nmtui
     - nmtui_team_slaves_non_auto:
-        run: nmtui/./runtest.sh nmtui_team_slaves_non_auto
         feature: nmtui
     - nmtui_team_boot_with_team_and_one_slave_auto:
-        run: nmtui/./runtest.sh nmtui_team_boot_with_team_and_one_slave_auto
         feature: nmtui
         tags: gate
     - nmtui_team_json_set_loadbalance_mode:
-        run: nmtui/./runtest.sh nmtui_team_json_set_loadbalance_mode
         feature: nmtui
     - nmtui_team_json_set_broadcast_mode:
-        run: nmtui/./runtest.sh nmtui_team_json_set_broadcast_mode
         feature: nmtui
     - nmtui_team_json_set_invalid_mode:
-        run: nmtui/./runtest.sh nmtui_team_json_set_invalid_mode
         feature: nmtui
     - nmtui_inf_create_master_connection:
-        run: nmtui/./runtest.sh nmtui_inf_create_master_connection
         feature: nmtui
     - nmtui_inf_create_port_connection:
-        run: nmtui/./runtest.sh nmtui_inf_create_port_connection
         feature: nmtui
     - nmtui_inf_add_connection_wo_autoconnect:
-        run: nmtui/./runtest.sh nmtui_inf_add_connection_wo_autoconnect
         feature: nmtui
     - nmtui_inf_delete_connection:
-        run: nmtui/./runtest.sh nmtui_inf_delete_connection
         feature: nmtui
     - nmtui_inf_set_mtu:
-        run: nmtui/./runtest.sh nmtui_inf_set_mtu
         feature: nmtui
     - nmtui_inf_datagram_mode:
-        run: nmtui/./runtest.sh nmtui_inf_datagram_mode
         feature: nmtui
     - nmtui_inf_connected_mode:
-        run: nmtui/./runtest.sh nmtui_inf_connected_mode
         feature: nmtui
     - nmtui_simwifi_see_all_networks:
-        run: nmtui/./runtest.sh nmtui_simwifi_see_all_networks
         feature: nmtui
     - nmtui_simwifi_connect_to_open_network:
-        run: nmtui/./runtest.sh nmtui_simwifi_connect_to_open_network
         feature: nmtui
     - nmtui_simwifi_connect_to_wpa1psk_network:
-        run: nmtui/./runtest.sh nmtui_simwifi_connect_to_wpa1psk_network
         feature: nmtui
     - nmtui_simwifi_connect_to_wpa2psk_network:
-        run: nmtui/./runtest.sh nmtui_simwifi_connect_to_wpa2psk_network
         feature: nmtui
     - nmtui_simwifi_connect_to_wpa3psk_network:
-        run: nmtui/./runtest.sh nmtui_simwifi_connect_to_wpa3psk_network
         feature: nmtui
     - nmtui_simwifi_connect_to_wep_hexkey_network:
-        run: nmtui/./runtest.sh nmtui_simwifi_connect_to_wep_hexkey_network
         feature: nmtui
     - nmtui_simwifi_connect_to_wep_asciikey_network:
-        run: nmtui/./runtest.sh nmtui_simwifi_connect_to_wep_asciikey_network
         feature: nmtui
     - nmtui_simwifi_add_default_connection_open_network:
-        run: nmtui/./runtest.sh nmtui_simwifi_add_default_connection_open_network
         feature: nmtui
     - nmtui_simwifi_fixed_device_present:
-        run: nmtui/./runtest.sh nmtui_simwifi_fixed_device_present
         feature: nmtui
     - nmtui_simwifi_fixed_device_invalid:
-        run: nmtui/./runtest.sh nmtui_simwifi_fixed_device_invalid
         feature: nmtui
     - nmtui_simwifi_autoconnect_off:
-        run: nmtui/./runtest.sh nmtui_simwifi_autoconnect_off
         feature: nmtui
     - nmtui_simwifi_activate_wo_autoconnect:
-        run: nmtui/./runtest.sh nmtui_simwifi_activate_wo_autoconnect
         feature: nmtui
     - nmtui_simwifi_activate_with_autoconnect:
-        run: nmtui/./runtest.sh nmtui_simwifi_activate_with_autoconnect
         feature: nmtui
     - nmtui_simwifi_delete_connection_up:
-        run: nmtui/./runtest.sh nmtui_simwifi_delete_connection_up
         feature: nmtui
     - nmtui_simwifi_delete_connection_down:
-        run: nmtui/./runtest.sh nmtui_simwifi_delete_connection_down
         feature: nmtui
     - nmtui_simwifi_adhoc_network:
-        run: nmtui/./runtest.sh nmtui_simwifi_adhoc_network
         feature: nmtui
     - nmtui_simwifi_ap:
-        run: nmtui/./runtest.sh nmtui_simwifi_ap
         feature: nmtui
     - nmtui_simwifi_wrong_ssid:
-        run: nmtui/./runtest.sh nmtui_simwifi_wrong_ssid
         feature: nmtui
     - nmtui_simwifi_no_ssid:
-        run: nmtui/./runtest.sh nmtui_simwifi_no_ssid
         feature: nmtui
     - nmtui_simwifi_set_existing_bssid:
-        run: nmtui/./runtest.sh nmtui_simwifi_set_existing_bssid
         feature: nmtui
     - nmtui_simwifi_set_nonexisting_bssid:
-        run: nmtui/./runtest.sh nmtui_simwifi_set_nonexisting_bssid
         feature: nmtui
     - nmtui_simwifi_bogus_bssid:
-        run: nmtui/./runtest.sh nmtui_simwifi_bogus_bssid
         feature: nmtui
     - nmtui_simwifi_mac_spoofing:
-        run: nmtui/./runtest.sh nmtui_simwifi_mac_spoofing
         feature: nmtui
     - nmtui_simwifi_bogus_spoofing_address:
-        run: nmtui/./runtest.sh nmtui_simwifi_bogus_spoofing_address
         feature: nmtui
     - nmtui_simwifi_mtu:
-        run: nmtui/./runtest.sh nmtui_simwifi_mtu
         feature: nmtui
     - nmtui_simwifi_wpa1_connection:
-        run: nmtui/./runtest.sh nmtui_simwifi_wpa1_connection
         feature: nmtui
     - nmtui_simwifi_wpa2_connection:
-        run: nmtui/./runtest.sh nmtui_simwifi_wpa2_connection
         feature: nmtui
     - nmtui_simwifi_wpa3_connection:
-        run: nmtui/./runtest.sh nmtui_simwifi_wpa3_connection
         feature: nmtui
     - nmtui_simwifi_wep_hexkey_connection:
-        run: nmtui/./runtest.sh nmtui_simwifi_wep_hexkey_connection
         feature: nmtui
     - nmtui_simwifi_wep_ascii_connection:
-        run: nmtui/./runtest.sh nmtui_simwifi_wep_ascii_connection
         feature: nmtui
     - nmtui_simwifi_show_password:
-        run: nmtui/./runtest.sh nmtui_simwifi_show_password
         feature: nmtui
     - nmtui_simwifi_connect_to_network_after_dismissal:
-        run: nmtui/./runtest.sh nmtui_simwifi_connect_to_network_after_dismissal
         feature: nmtui
     - nmtui_simwifi_teardown:
-        run: nmtui/./runtest.sh nmtui_simwifi_teardown
         feature: nmtui
 
 
@@ -3057,103 +2854,70 @@ testmapper:
     - nmcli_wifi_do_not_show_device_in_list:
         feature: wifi
     - nmtui_wifi_see_all_networks:
-        run: nmtui/./runtest.sh nmtui_wifi_see_all_networks
         feature: nmtui-wifi
     - nmtui_wifi_connect_to_open_network:
-        run: nmtui/./runtest.sh nmtui_wifi_connect_to_open_network
         feature: nmtui-wifi
     - nmtui_wifi_connect_to_wpa1psk_network:
-        run: nmtui/./runtest.sh nmtui_wifi_connect_to_wpa1psk_network
         feature: nmtui-wifi
     - nmtui_wifi_connect_to_wpa2psk_network:
-        run: nmtui/./runtest.sh nmtui_wifi_connect_to_wpa2psk_network
         feature: nmtui-wifi
     - nmtui_wifi_connect_to_wep_hexkey_network:
-        run: nmtui/./runtest.sh nmtui_wifi_connect_to_wep_hexkey_network
         feature: nmtui-wifi
     - nmtui_wifi_connect_to_wep_asciikey_network:
-        run: nmtui/./runtest.sh nmtui_wifi_connect_to_wep_asciikey_network
         feature: nmtui-wifi
     - nmtui_wifi_connect_to_wep_phrase_network:
-        run: nmtui/./runtest.sh nmtui_wifi_connect_to_wep_phrase_network
         feature: nmtui-wifi
     - nmtui_wifi_add_default_connection_open_network:
-        run: nmtui/./runtest.sh nmtui_wifi_add_default_connection_open_network
         feature: nmtui-wifi
     - nmtui_wifi_fixed_device_present:
-        run: nmtui/./runtest.sh nmtui_wifi_fixed_device_present
         feature: nmtui-wifi
     - nmtui_wifi_fixed_device_invalid:
-        run: nmtui/./runtest.sh nmtui_wifi_fixed_device_invalid
         feature: nmtui-wifi
     - nmtui_wifi_autoconnect_off:
-        run: nmtui/./runtest.sh nmtui_wifi_autoconnect_off
         feature: nmtui-wifi
     - nmtui_wifi_activate_wo_autoconnect:
-        run: nmtui/./runtest.sh nmtui_wifi_activate_wo_autoconnect
         feature: nmtui-wifi
     - nmtui_wifi_activate_with_autoconnect:
-        run: nmtui/./runtest.sh nmtui_wifi_activate_with_autoconnect
         feature: nmtui-wifi
     - nmtui_wifi_delete_connection_up:
-        run: nmtui/./runtest.sh nmtui_wifi_delete_connection_up
         feature: nmtui-wifi
     - nmtui_wifi_delete_connection_down:
-        run: nmtui/./runtest.sh nmtui_wifi_delete_connection_down
         feature: nmtui-wifi
     - nmtui_wifi_adhoc_network:
-        run: nmtui/./runtest.sh nmtui_wifi_adhoc_network
         feature: nmtui-wifi
     - nmtui_wifi_ap:
-        run: nmtui/./runtest.sh nmtui_wifi_ap
         feature: nmtui-wifi
     - nmtui_wifi_wrong_ssid:
-        run: nmtui/./runtest.sh nmtui_wifi_wrong_ssid
         feature: nmtui-wifi
     - nmtui_wifi_no_ssid:
-        run: nmtui/./runtest.sh nmtui_wifi_no_ssid
         feature: nmtui-wifi
     - nmtui_wifi_set_existing_bssid:
-        run: nmtui/./runtest.sh nmtui_wifi_set_existing_bssid
         feature: nmtui-wifi
     - nmtui_wifi_set_nonexisting_bssid:
-        run: nmtui/./runtest.sh nmtui_wifi_set_nonexisting_bssid
         feature: nmtui-wifi
     - nmtui_wifi_bogus_bssid:
-        run: nmtui/./runtest.sh nmtui_wifi_bogus_bssid
         feature: nmtui-wifi
     - nmtui_wifi_mac_spoofing:
-        run: nmtui/./runtest.sh nmtui_wifi_mac_spoofing
         feature: nmtui-wifi
     - nmtui_wifi_bogus_spoofing_address:
-        run: nmtui/./runtest.sh nmtui_wifi_bogus_spoofing_address
         feature: nmtui-wifi
     - nmtui_wifi_mtu:
-        run: nmtui/./runtest.sh nmtui_wifi_mtu
         feature: nmtui-wifi
     - nmtui_wifi_wpa1_connection:
-        run: nmtui/./runtest.sh nmtui_wifi_wpa1_connection
         feature: nmtui-wifi
     - nmtui_wifi_wpa2_connection:
-        run: nmtui/./runtest.sh nmtui_wifi_wpa2_connection
         feature: nmtui-wifi
     - nmtui_wifi_wep_hexkey_connection:
-        run: nmtui/./runtest.sh nmtui_wifi_wep_hexkey_connection
         feature: nmtui-wifi
     - nmtui_wifi_wep_ascii_connection:
-        run: nmtui/./runtest.sh nmtui_wifi_wep_ascii_connection
         feature: nmtui-wifi
     - nmtui_wifi_wep_passphrase_connection:
-        run: nmtui/./runtest.sh nmtui_wifi_wep_passphrase_connection
         feature: nmtui-wifi
     # - nmtui_wifi_leap_connection:
-    #     run: nmtui/./runtest.sh nmtui_wifi_leap_connection
     #     feature: nmtui-wifi
     - nmtui_wifi_show_password:
-        run: nmtui/./runtest.sh nmtui_wifi_show_password
         feature: nmtui-wifi
     - nmtui_wifi_connect_to_network_after_dismissal:
-        run: nmtui/./runtest.sh nmtui_wifi_connect_to_network_after_dismissal
         feature: nmtui-wifi
 
 

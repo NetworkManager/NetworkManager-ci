@@ -14,7 +14,6 @@ import nmci.tags
 
 TIMER = 0.5
 
-IS_NMTUI = 'nmtui' in __file__
 DEBUG = os.environ.get("NMCI_DEBUG", "").lower() not in ["", "n", "no", "f", "false", "0"]
 
 # the order of these steps is as follows
@@ -45,17 +44,6 @@ def before_all(context):
 
     context.crash_embeded = False
 
-    if IS_NMTUI:
-        """
-        Being executed before all features
-        """
-
-        # Kill initial setup
-        nmci.run("sudo pkill nmtui")
-
-        # Store scenario start cursor for session logs
-        context.log_cursor = nmci.lib.new_log_cursor()
-
 
 # print exception traceback
 def before_scenario(context, scenario):
@@ -81,11 +69,13 @@ def _before_scenario(context, scenario):
     context.crashed_step = False
     context.log_cursor = ""
     context.arch = nmci.command_output("uname -p").strip()
-    context.IS_NMTUI = IS_NMTUI
+    context.IS_NMTUI = "nmtui" in scenario.effective_tags
     context.rh_release = nmci.command_output("cat /etc/redhat-release")
 
-    if IS_NMTUI:
-        os.environ['TERM'] = 'dumb'
+    os.environ['TERM'] = 'dumb'
+
+    if context.IS_NMTUI:
+        nmci.run("sudo pkill nmtui")
         # Do the cleanup
         if os.path.isfile('/tmp/tui-screen.log'):
             os.remove('/tmp/tui-screen.log')
@@ -104,9 +94,6 @@ def _before_scenario(context, scenario):
                     if nmci.command_code("nmcli device |grep testeth0 |grep ' connected'") == 0:
                         break
                     time.sleep(1)
-
-        os.environ['TERM'] = 'dumb'
-
         # dump status before the test preparation starts
         nmci.lib.dump_status_nmcli(context, 'Before Scenario', fail_only=True)
         context.start_timestamp = int(time.time())
@@ -174,7 +161,7 @@ def after_step(context, step):
 
     nmci.lib.process_commands(context, "")
 
-    if IS_NMTUI:
+    if context.IS_NMTUI:
         """Teardown after each step.
         Here we make screenshot and embed it (if one of formatters supports it)
         """
@@ -228,7 +215,7 @@ def _after_scenario(context, scenario):
         print("Starting NM as it was found stopped")
         nmci.lib.restart_NM_service(context)
 
-    if IS_NMTUI:
+    if context.IS_NMTUI:
         if os.path.isfile('/tmp/tui-screen.log'):
             context.embed("text/plain",
                           nmci.lib.utf_only_open_read('/tmp/tui-screen.log'),
@@ -305,7 +292,9 @@ def _after_scenario(context, scenario):
 
 
 def after_tag(context, tag):
-    if IS_NMTUI:
+    if tag == "nmtui":
+        context.IS_NMTUI = True
+    if context.IS_NMTUI:
         if tag in ('vlan', 'bridge', 'bond', 'team', 'inf'):
             if hasattr(context, 'is_virtual'):
                 context.is_virtual = False

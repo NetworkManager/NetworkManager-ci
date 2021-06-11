@@ -1,3 +1,4 @@
+@nmtui
 Feature: Bridge TUI tests
 
   Background:
