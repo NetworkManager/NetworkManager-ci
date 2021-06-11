@@ -219,7 +219,6 @@ def prepare_log_dir (results_dir):
 def prepare_box(nm_refspec, nm_mr, nm_repo=None):
     if not nm_mr:
         nm_mr = "custom"
-
     results_dir = "/tmp/results/"
     build_dir = "/root/nm-build"
 
@@ -228,7 +227,7 @@ def prepare_box(nm_refspec, nm_mr, nm_repo=None):
 
     # Prepare copr repo if we know branch
     dir = None
-    if not nm_repo:
+    if not nm_repo or nm_repo == "https://gitlab.freedesktop.org/NetworkManager/NetworkManager/":
         if nm_refspec == "main":
             dir = "NetworkManager-main-debug"
         if nm_refspec == "nm-1-30":
