@@ -43,8 +43,10 @@ NMTEST_REPORT=/tmp/report_$NMTEST.html
 LOG_CURSOR=$(journalctl --lines=0 --show-cursor |awk '/^-- cursor:/ {print "--after-cursor="$NF; exit}')
 
 
-FEATURE_FILE=$(grep "@$1" -l $DIR/features/scenarios/*.feature)
-if [ -z "$FEATURE_FILE" ]; then
+FEATURE_FILE=$(grep "@$1\(\s\|\$\)" -l $DIR/features/scenarios/*.feature)
+# if $FEATURE_FILE is empty or contains more than one line
+if [ -z "$FEATURE_FILE" -o $( wc -l <<< "$FEATURE_FILE" ) != 1 ]; then
+    logger "Resetting FEATURE_FILE, as it is: $FEATURE_FILE"
     FEATURE_FILE=$DIR/features
 fi
 # get tags specific to software versions (NM, fedora, rhel)
