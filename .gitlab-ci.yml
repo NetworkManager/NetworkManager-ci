@@ -1,0 +1,12 @@
+UnitTests:
+  image: registry.fedoraproject.org/fedora
+  stage: test
+  script:
+    - dnf -y install python3 python3-pip iproute
+    - python3 -m pip install pytest PyYAML pexpect
+    - python3 -m pip install --prefix /usr/ black==19.10b0
+    - python3 -m pytest nmci/test.py --junitxml=report.xml
+  artifacts:
+    when: always
+    reports:
+      junit: report.xml
