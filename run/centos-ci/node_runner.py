@@ -87,13 +87,13 @@ def write_copr(nm_dir):
 
 def get_testmapper(testbranch):
     gh_url = "https://raw.githubusercontent.com/"
-    gh_dirs = "NetworkManager/NetworkManager-ci/%s/" %testbranch
+    gh_dirs = "NetworkManager/NetworkManager-ci/%s" %testbranch
     testmapper_url = '%s/%s/mapper.yaml' %(gh_url, gh_dirs)
     try:
         logging.debug ("Opening %s" %testmapper_url)
         return urllib.request.urlopen(testmapper_url)
-    except:
-        logging.debug ("No testmapper")
+    except Exception as e:
+        logging.debug ("No testmapper: " + str(e))
         return None
 
 
