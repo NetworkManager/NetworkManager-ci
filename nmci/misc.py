@@ -24,21 +24,22 @@ class _Misc:
             raise ValueError(f"Invalid test name {test_name0}")
         return test_name
 
-    def test_get_feature_files(self, feature):
-
-        if feature.endswith(".feature"):
-            return [feature]
+    def test_get_feature_files(self, feature="*"):
 
         import glob
 
-        if feature[0] == "/":
-            feature_dir = os.path.join(feature, "features", "scenarios")
-        else:
-            feature_dir = util.base_dir(feature, "features", "scenarios")
+        feature_dir = ""
 
-        return glob.glob(feature_dir + "/*.feature")
+        if feature[0] != "/":
+            feature_dir = util.base_dir("features", "scenarios")
 
-    def test_load_tags_from_features(self, feature, test_name=None):
+        if not feature.endswith(".feature"):
+            feature = feature + ".feature"
+
+        feature_path = os.path.join(feature_dir, feature)
+        return glob.glob(feature_path)
+
+    def test_load_tags_from_features(self, feature="*", test_name=None):
 
         re_chr = re.compile("^@" + self.TEST_NAME_VALID_CHAR_REGEX + "+$")
         re_tag = re.compile(r"^\s*(@[^#]*)")

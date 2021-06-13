@@ -426,6 +426,10 @@ def test_feature_tags():
     mapper_tests = misc.get_mapper_tests(mapper)
     mapper_tests = [test["testname"] for test in mapper_tests]
 
+    unique_tags = set()
+    tag_registry_used = set()
+    all_test_tags = misc.test_load_tags_from_features("*")
+
     def check_ver(tag):
         for ver_prefix, ver_len in [
             ["ver", 3],
@@ -466,46 +470,68 @@ def test_feature_tags():
     def check_mapper(tag):
         return tag in mapper_tests
 
-    for feature in ["nmcli", "nmtui"]:
-        all_tags = misc.test_load_tags_from_features(feature)
+    for tags in all_test_tags:
+        assert tags
+        assert type(tags) is list
+        test_in_mapper = False
+        for tag in tags:
+            assert type(tag) is str
+            assert tag
+            assert re.match("^[-a-z_.A-Z0-9+=]+$", tag)
+            assert re.match("^" + misc.TEST_NAME_VALID_CHAR_REGEX + "+$", tag)
+            assert tags.count(tag) == 1, f'tag "{tag}" is not unique in {tags}'
+            is_ver = check_ver(tag)
+            is_bugzilla = check_bugzilla(tag)
+            is_registry = check_registry(tag)
+            is_mapper = check_mapper(tag)
+            test_in_mapper = test_in_mapper or is_mapper
+            if is_registry:
+                tag_registry_used.add(tag)
+            assert (
+                is_ver or is_bugzilla or is_registry or is_mapper
+            ), f'tag "{tag}" has no effect'
+            assert [is_ver, is_bugzilla, is_registry, is_mapper].count(True) == 1, (
+                f'tag "{tag}" is multipurpose ({"mapper, " if is_mapper else ""}'
+                f'{"registry, " if is_registry else ""}{"ver, " if is_ver else ""}'
+                f'{"bugzilla, " if is_bugzilla else ""})'
+            )
 
-        tag_registry_used = set()
-        unique_tags = set()
-        for tags in all_tags:
-            assert tags
-            assert type(tags) is list
-            test_in_mapper = False
-            for tag in tags:
-                assert type(tag) is str
-                assert tag
-                assert re.match("^[-a-z_.A-Z0-9+=]+$", tag)
-                assert re.match("^" + misc.TEST_NAME_VALID_CHAR_REGEX + "+$", tag)
-                assert tags.count(tag) == 1, f'tag "{tag}" is not unique in {tags}'
-                is_ver = check_ver(tag)
-                is_bugzilla = check_bugzilla(tag)
-                is_registry = check_registry(tag)
-                is_mapper = check_mapper(tag)
-                test_in_mapper = test_in_mapper or is_mapper
-                if is_registry:
-                    tag_registry_used.add(tag)
-                assert (
-                    is_ver or is_bugzilla or is_registry or is_mapper
-                ), f'tag "{tag}" has no effect'
-                assert [is_ver, is_bugzilla, is_registry, is_mapper].count(True) == 1, (
-                    f'tag "{tag}" is multipurpose ({"mapper, " if is_mapper else ""}'
-                    f'{"registry, " if is_registry else ""}{"ver, " if is_ver else ""}'
-                    f'{"bugzilla, " if is_bugzilla else ""})'
-                )
+        assert test_in_mapper, f"none of {tags} is in mapper"
 
-            assert test_in_mapper, f"none of {tags} is in mapper"
+        tt = tuple(tags)
+        if tt in unique_tags:
+            pytest.fail(f'tags "{tags}" are duplicate')
+        unique_tags.add(tt)
 
-            tt = tuple(tags)
-            if tt in unique_tags:
-                pytest.fail(f'tags "{tags}" are duplicate over the {feature} tests')
-            unique_tags.add(tt)
+    # for tag in tag_registry.tag_tag_registry:
+    #    assert tag in tag_registry_used, f'tag "{tag}" is defined but never used'
 
-        # for tag in tag_registry.tag_tag_registry:
-        #    assert tag in tag_registry_used, f'tag "{tag}" is defined but never used'
+
+def test_mapper_feature_file():
+    """
+    Check that feature defined in mapper coresponds to .feature file name
+    """
+    mapper = misc.get_mapper_obj()
+    mapper_tests = misc.get_mapper_tests(mapper)
+
+    feature_tests = {}
+
+    for test in mapper_tests:
+        feature = test.get("feature", None)
+        testname = test["testname"]
+        if feature is None:
+            continue
+        if feature not in feature_tests:
+            feature_tags = misc.test_load_tags_from_features(feature)
+            feature_tests[feature] = feature_tags
+        else:
+            feature_tags = feature_tests[feature]
+        found = False
+        for test_tags in feature_tags:
+            if testname in test_tags:
+                found = True
+                break
+        assert found, f"test @{testname} not defined in feature file {feature}"
 
 
 def test_black_code_fromatting():
