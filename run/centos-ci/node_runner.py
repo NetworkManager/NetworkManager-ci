@@ -304,13 +304,10 @@ def get_modified_features_for_testarea(gl_trigger):
 
     for line in content:
         import re
-        m = re.match(r'^\+\+\+(.*/(\S+)\.feature)', line)
-        if m is not None and 'nmcli' in m.group(1):
-            if m.group(2) not in default_exlude:
-                logging.debug('Found feature: %s' % m.group(1))
-                features.append(m.group(2))
-        elif m is not None and 'nmtui' in m.group(1):
-            features.append('nmtui')
+        m = re.match(r'^\+\+\+.*/(\S+)\.feature', line)
+        if m is not None and m.group(1) not in default_exlude:
+            logging.debug('Found feature: %s' % m.group(1))
+            features.append(m.group(1))
     return features
 
 def get_nm_mrid (gl_trigger):
