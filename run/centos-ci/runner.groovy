@@ -49,7 +49,10 @@ node('cico-workspace') {
             println("Running clone")
             sh "ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no root@${node_hostname} '${clone}'"
             println("Running tests")
-            sh "ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no root@${node_hostname} '${run}'"
+            sh '''
+                set +x
+                ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no root@${node_hostname} '${run}'
+            '''
         }
     }
     finally {
@@ -63,7 +66,10 @@ node('cico-workspace') {
                     if (!fileExists('config.log')) {
                         println("Pipeline canceled! We do have no RESULT.txt or config.log")
                         cancel = "cd NetworkManager-ci; python3 run/centos-ci/pipeline_cancel.py ${env.BUILD_URL} ${GL_TOKEN} ${TD}"
-                        sh "ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no root@${node_hostname} '${cancel}'"
+                        sh '''
+                            set +x
+                            ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no root@${node_hostname} '${cancel}'
+                        '''
                     }
                 }
                 archiveArtifacts '*.*'
