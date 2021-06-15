@@ -16,9 +16,6 @@ TestResults:
   stage: test
   variables:
     JUNIT_URL: "https://jenkins-networkmanager.apps.ocp.ci.centos.org/job/NetworkManager-test-mr/504/artifact/junit.xml"
-  rules:
-  - if: $JUNIT_URL == ""
-    when: never
   script:
     - dnf -y install wget
     - wget -O report.xml "$JUNIT_URL"
