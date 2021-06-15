@@ -50,25 +50,24 @@ Feature: nmcli: veth
     Then Execute "for i in {1..20}; do sh tmp/repro_1915276.sh; done"
 
 
-    #
-    # @rhbz1901523
-    # @ver+=1.29
-    # @veth_remove
-    # @veth_device_remove
-    # Scenario: nmcli - veth - remove device
-    # * Add a new connection of type "veth" and options "con-name con_veth1 ifname veth11 veth.peer veth12 ip4 10.42.0.2"
-    # * Add a new connection of type "veth" and options "con-name con_veth2 ifname veth12 veth.peer veth11 ip4 10.42.0.1"
-    # * Bring "up" connection "con_veth2"
-    # When "activated" is visible with command "nmcli -g GENERAL.STATE con show con_veth1" in "45" seconds
-    # When "activated" is visible with command "nmcli -g GENERAL.STATE con show con_veth2" in "45" seconds
-    # # Null error, both connections should go down 1915278
-    # * Delete device "veth11"
-    # Then "veth11" is not visible with command "ip a s"
-    # Then "veth11" is not visible with command "nmcli device"
-    # Then "veth12" is not visible with command "ip a s"
-    # Then "veth12" is not visible with command "nmcli device"
-    #
-    #
+    @rhbz1915278
+    @ver+=1.29
+    @veth_remove
+    @veth_device_remove
+    Scenario: nmcli - veth - remove device
+    * Add a new connection of type "veth" and options "con-name con_veth1 ifname veth11 veth.peer veth12 ip4 10.42.0.2"
+    * Add a new connection of type "veth" and options "con-name con_veth2 ifname veth12 veth.peer veth11 ip4 10.42.0.1"
+    * Bring "up" connection "con_veth2"
+    When "activated" is visible with command "nmcli -g GENERAL.STATE con show con_veth1" in "45" seconds
+    When "activated" is visible with command "nmcli -g GENERAL.STATE con show con_veth2" in "45" seconds
+    # Null error, both connections should go down 1915278
+    * Delete device "veth11"
+    Then "veth11" is not visible with command "ip a s"
+    Then "veth11" is not visible with command "nmcli device"
+    Then "veth12" is not visible with command "ip a s"
+    Then "veth12" is not visible with command "nmcli device"
+
+
     # # @veth_change_peer
     # # @veth_in_bridge
     # # @veth_in_bond
