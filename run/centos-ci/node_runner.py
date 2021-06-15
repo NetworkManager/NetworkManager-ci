@@ -335,7 +335,8 @@ def post_results (gl_trigger):
         msg+="Executed on: %s" %(f.read())
     msg+="\n\n%s" %os.environ['BUILD_URL']
     gl_trigger.post_commit_comment(msg)
-    gl_trigger.report_junit(os.environ['BUILD_URL'] + "/artifact/junit.xml")
+    if gl_trigger.repository == "NetworkManager-ci":
+        gl_trigger.report_junit(os.environ['BUILD_URL'] + "/artifact/junit.xml")
 
 def main ():
     logging.basicConfig(level=logging.DEBUG)
