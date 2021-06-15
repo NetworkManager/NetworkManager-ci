@@ -14,6 +14,8 @@ UnitTests:
 TestResults:
   image: registry.fedoraproject.org/fedora
   stage: test
+  variables:
+    JUNIT_URL: ""
   rules:
   - if: $JUNIT_URL == ""
     when: never
