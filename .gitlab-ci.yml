@@ -1,6 +1,15 @@
+---
 UnitTests:
   image: registry.fedoraproject.org/fedora
   stage: test
+  variables:
+    JUNIT_URL: ""
+  rules:
+    - if: '$JUNIT_URL != ""'
+      when: never
+    - if: '$CI_PIPELINE_SOURCE != "merge_request_event"'
+      when: never
+    - when: always
   script:
     - dnf -y install python3 python3-pip iproute
     - python3 -m pip install pytest PyYAML pexpect
@@ -9,17 +18,24 @@ UnitTests:
   artifacts:
     when: always
     reports:
-      junit: report.xml
+      junit:
+        - report.xml
 
 TestResults:
   image: registry.fedoraproject.org/fedora
   stage: test
   variables:
-    JUNIT_URL: "https://jenkins-networkmanager.apps.ocp.ci.centos.org/job/NetworkManager-test-mr/504/artifact/junit.xml"
+    JUNIT_URL: ""
+  rules:
+    - if: '$JUNIT_URL == ""'
+      when: never
+    - when: always
   script:
-    - dnf -y install wget
-    - wget -O report.xml "$JUNIT_URL"
+    - dnf -y install wget grep coreutils
+    - 'for i in {1..100}; do wget -O report.xml "$JUNIT_URL" && break; sleep 5; done'
+    - '[ -f report.xml ] && ! grep -F "<failure>" report.xml'
   artifacts:
     when: always
     reports:
-      junit: report.xml
+      junit:
+        - report.xml

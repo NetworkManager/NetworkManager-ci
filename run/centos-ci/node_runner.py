@@ -146,12 +146,8 @@ def generate_junit(results_dir):
         ft_name = failed_test[failed_test.find("ci_Test")+12:]
         testcase = ET.Element('testcase', classname="tests", name=ft_name)
         failure = ET.Element('failure')
-        failure.text = "Error"
-        system_out = ET.Element('system-out')
-        system_out.text = "LOG:\n%s/artifact/FAIL-" %os.environ['BUILD_URL']
-        system_out.text = system_out.text+ failed_test + ".html"
+        failure.text = "Error\nLOG:\n%s/artifact/FAIL-%s.html" % (os.environ['BUILD_URL'], failed_test)
         testcase.append(failure)
-        testcase.append(system_out)
         testsuite.append(testcase)
     root._setroot(testsuite)
     junit_path = "%s/junit.xml" %results_dir
@@ -339,6 +335,7 @@ def post_results (gl_trigger):
         msg+="Executed on: %s" %(f.read())
     msg+="\n\n%s" %os.environ['BUILD_URL']
     gl_trigger.post_commit_comment(msg)
+    gl_trigger.report_junit(os.environ['BUILD_URL'] + "/artifact/junit.xml")
 
 def main ():
     logging.basicConfig(level=logging.DEBUG)

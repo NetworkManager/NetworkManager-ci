@@ -122,6 +122,9 @@ class GitlabTrigger(object):
         com = self.gl_project.commits.get(self.commit)
         com.comments.create({'note': text})
 
+    def report_junit(self, junit_url):
+        self.gl_project.pipelines.create({"ref": self.source_branch, "variables": [{"key": "JUNIT_URL", "value": junit_url}]})
+
     def mapper_text(self, refspec):
         print(">> Reading mapper.yaml from gitlab ref: " + refspec)
         f = self.gl_project.files.get(file_path='mapper.yaml', ref=refspec)
