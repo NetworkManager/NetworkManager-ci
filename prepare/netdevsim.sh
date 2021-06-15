@@ -27,9 +27,7 @@ function setup () {
             PATCH="0001-netdevsim-add-mock-support-for-coalescing-and-ring-o-3.patch"
         elif grep -E "CentOS Stream" /etc/redhat-release; then
             URL="https://koji.mbox.centos.org/pkgs/packages/kernel/"
-            PATCH="0001-netdevsim-add-mock-support-for-coalescing-and-ring-o-2.patch"
-            # Enable once netdevsim tests are failing
-            # PATCH="0001-netdevsim-add-mock-support-for-coalescing-and-ring-o-3.patch"
+            PATCH="0001-netdevsim-add-mock-support-for-coalescing-and-ring-o-3.patch"
         fi
     elif grep "release 9" /etc/redhat-release; then
         URL="http://download.eng.bos.redhat.com/brewroot/vol/rhel-9/packages/kernel"
