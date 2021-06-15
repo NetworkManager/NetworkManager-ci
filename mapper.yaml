@@ -289,7 +289,7 @@ testmapper:
         feature: bond
     - bond_set_MTU_before_DHCP:
         feature: bond
-        tags: customer
+        tags: customer-scenario
     - bond_accept_all_mac_addresses:
         feature: bond
     - bond_accept_all_mac_addresses_external_device:
