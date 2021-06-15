@@ -15,7 +15,7 @@ TestResults:
   image: registry.fedoraproject.org/fedora
   stage: test
   variables:
-    JUNIT_URL: ""
+    JUNIT_URL: "https://jenkins-networkmanager.apps.ocp.ci.centos.org/job/NetworkManager-test-mr/504/artifact/junit.xml"
   rules:
   - if: $JUNIT_URL == ""
     when: never
