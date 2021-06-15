@@ -2015,6 +2015,8 @@ testmapper:
         feature: veth
     - veth_profile_remove:
         feature: veth
+    - veth_profile_remove_in_cycle:
+        feature: veth
 # failing due to 1915278
 #    - veth_device_remove:
 #        feature: veth

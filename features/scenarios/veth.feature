@@ -41,6 +41,15 @@ Feature: nmcli: veth
     Then "veth12" is not visible with command "ip a s"
     Then "veth12" is not visible with command "nmcli device"
 
+
+    @rhbz1915276
+    @ver+=1.31
+    @veth_remove
+    @veth_profile_remove_in_cycle
+    Scenario: nmcli - veth - remove profile in cycle
+    Then Execute "for i in {1..20}; do sh tmp/repro_1915276.sh; done"
+
+
     #
     # @rhbz1901523
     # @ver+=1.29
