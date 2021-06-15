@@ -1526,7 +1526,9 @@ testmapper:
         feature: general
     - veth_goes_to_unmanaged_state:
         feature: general
-    - nat_from_shared_network:
+    - nat_from_shared_network_iptables:
+        feature: general
+    - nat_from_shared_network_nftables:
         feature: general
     - nmcli_general_activate_static_connection_carrier_ignored:
         feature: general

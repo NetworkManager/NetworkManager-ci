@@ -880,9 +880,54 @@ Feature: nmcli - general
 
 
     @rhbz1067299
+    @ver-=1.31.4
     @two_bridged_veths_gen @peers_ns
-    @nat_from_shared_network
+    @nat_from_shared_network_iptables
     Scenario: NM - general - NAT_dhcp from shared networks
+    * Execute "ip link add test1g type veth peer name test1gp"
+    * Add a new connection of type "bridge" and options "ifname vethbrg stp no con-name vethbrg autoconnect no ipv4.method shared ipv4.address 172.16.0.1/24"
+    * Bring "up" connection "vethbrg"
+    * Execute "ip link set test1gp master vethbrg"
+    * Execute "ip link set dev test1gp up"
+    * Execute "ip netns add peers"
+    * Execute "ip link set test1g netns peers"
+    * Execute "ip netns exec peers ip link set dev test1g up"
+    * Execute "ip netns exec peers ip addr add 172.16.0.111/24 dev test1g"
+    * Execute "ip netns exec peers ip route add default via 172.16.0.1"
+    Then "OK" is visible with command "ip netns exec peers curl --interface test1g http://static.redhat.com/test/rhel-networkmanager.txt" in "20" seconds
+    Then Unable to ping "172.16.0.111" from "eth0" device
+
+
+    @rhbz1067299 @rhbz1548825
+    @rhelver+=8 @fedoraver+=32
+    @ver+=1.31.5
+    @two_bridged_veths_gen @peers_ns @remove_custom_cfg
+    @nat_from_shared_network_iptables
+    Scenario: NM - general - NAT_dhcp from shared networks - iptables
+    Given Execute "printf '[main]\nfirewall-backend=iptables' > /etc/NetworkManager/conf.d/99-xxcustom.conf"
+    Given Restart NM
+    * Execute "ip link add test1g type veth peer name test1gp"
+    * Add a new connection of type "bridge" and options "ifname vethbrg stp no con-name vethbrg autoconnect no ipv4.method shared ipv4.address 172.16.0.1/24"
+    * Bring "up" connection "vethbrg"
+    * Execute "ip link set test1gp master vethbrg"
+    * Execute "ip link set dev test1gp up"
+    * Execute "ip netns add peers"
+    * Execute "ip link set test1g netns peers"
+    * Execute "ip netns exec peers ip link set dev test1g up"
+    * Execute "ip netns exec peers ip addr add 172.16.0.111/24 dev test1g"
+    * Execute "ip netns exec peers ip route add default via 172.16.0.1"
+    Then "OK" is visible with command "ip netns exec peers curl --interface test1g http://static.redhat.com/test/rhel-networkmanager.txt" in "20" seconds
+    Then Unable to ping "172.16.0.111" from "eth0" device
+
+
+    @rhbz1548825
+    @rhelver+=8 @fedoraver+=32
+    @ver+=1.31.5
+    @two_bridged_veths_gen @peers_ns @remove_custom_cfg @permissive
+    @nat_from_shared_network_nftables
+    Scenario: NM - general - NAT_dhcp from shared networks - nftables
+    Given Execute "printf '[main]\nfirewall-backend=nftables' > /etc/NetworkManager/conf.d/99-xxcustom.conf"
+    Given Restart NM
     * Execute "ip link add test1g type veth peer name test1gp"
     * Add a new connection of type "bridge" and options "ifname vethbrg stp no con-name vethbrg autoconnect no ipv4.method shared ipv4.address 172.16.0.1/24"
     * Bring "up" connection "vethbrg"
