@@ -10,3 +10,17 @@ UnitTests:
     when: always
     reports:
       junit: report.xml
+
+TestResults:
+  image: registry.fedoraproject.org/fedora
+  stage: test
+  rules:
+  - if: $JUNIT_URL == ""
+    when: never
+  script:
+    - dnf -y install wget
+    - wget -O report.xml "$JUNIT_URL"
+  artifacts:
+    when: always
+    reports:
+      junit: report.xml
