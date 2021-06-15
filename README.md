@@ -79,7 +79,7 @@ This repo contains a set of integration tests for NetworkManager and CentOS 8 St
   ```bash
   cd /root/NetworkManager-ci
   # Test by test as defined in mapper.txt
-  nmcli/./runtest.sh your_desired_test
+  run/runtest.sh your_desired_test
   # Feature by feature as listed too in mapper.txt
   run/runfeature.sh your_desired_feature
   ```
@@ -106,24 +106,18 @@ This repo contains a set of integration tests for NetworkManager and CentOS 8 St
      * various scripts used for driving tests
      * the most interesting are tags that are used for preparing and cleaning environment
      * we have unit tests for version_control here, libs for tags, run for running commands, etc
-  * nmcli dir
-	* all non nmtui tests are here in feature files in features directory
-    * runtest.sh script (link to run/runtest.sh)
-      * the main driver of tests
-      * execution of test looks like: `nmcli/./runtest.sh test_name`
-    * features dir
+  * features dir
+    * scenarios dir
       * sets of features in .feature files
       * test itself will be described deeper later on
-      * environment.py script
-        * script driving setup and teardown of each test
-        * includes nmci/tags.py to be more readable
-        * collects all logs and creates html log
-    * features/steps dir
+    * environment.py script
+      * script driving setup and teardown of each test
+      * includes nmci/tags.py to be more readable
+      * collects all logs and creates html log
+    * steps dir
       * all steps (aka test lines) are defined here
       * strictly python, with paramterized decorators used in features itself
  	  * categorized into various functional areas like bond_bridge_team/connection/commands, etc
-  * nmtui dir
-    * the same as above, soon to be merged with nmcli
   * prepare dir
     * various scripts for preparing environment
     * vethsetup.sh
@@ -135,7 +129,8 @@ This repo contains a set of integration tests for NetworkManager and CentOS 8 St
   * run
     * various executors for various envs
     * runtest.sh
-      * decribed above in nmcli section
+      * the main driver of tests
+      * execution of test looks like: `run/runtest.sh test_name`
     * runfeature.sh
       * doing the same as runtest.sh but for whole features
       * `run/runfeature.sh bond` for example
