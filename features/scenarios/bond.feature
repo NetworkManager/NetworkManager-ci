@@ -1426,6 +1426,20 @@
       And "Primary Slave: eth1 \(primary_reselect always\)\s+Currently Active Slave: eth1" is visible with command "cat /proc/net/bonding/nm-bond"
 
 
+    @rhbz1959934
+    @ver+=1.30
+    @rhelver+=8.4
+    @slaves @bond
+    @bond_set_balance_tlb_options_var2
+    Scenario: nmcli - bond - set balance-tlb options
+     * Add a new connection of type "bond" and options "con-name bond0 ifname nm-bond autoconnect no -- connection.autoconnect-slaves 1 bond.options mode=balance-alb,miimon=100,xmit_hash_policy=5,tlb_dynamic_lb=0"
+     * Add a new connection of type "ethernet" and options "con-name bond0.1 ifname eth4 master nm-bond autoconnect no"
+     * Add a new connection of type "ethernet" and options "con-name bond0.0 ifname eth1 master nm-bond autoconnect no"
+     * Bring "up" connection "bond0"
+     When "nm-bond:connected:bond0" is visible with command "nmcli -t -f DEVICE,STATE,CONNECTION device" in "40" seconds
+     Then "0" is visible with command "cat /sys/class/net/nm-bond/bonding/tlb_dynamic_lb"
+
+
     @ver-=1.8.1
     @rhbz979425
     @slaves @bond

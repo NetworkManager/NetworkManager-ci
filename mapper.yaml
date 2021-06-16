@@ -232,6 +232,9 @@ testmapper:
         feature: bond
     - bond_set_balance_tlb_options:
         feature: bond
+    - bond_set_balance_tlb_options_var2:
+        feature: bond
+        tags: customer-scenario
     - bond_device_rename:
         feature: bond
     - bond_enslave_to_bridge:
