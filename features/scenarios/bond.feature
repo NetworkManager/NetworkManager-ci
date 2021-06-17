@@ -514,6 +514,44 @@
      Then Check slave "eth4" in bond "nm-bond" in proc
 
 
+    @rhbz1959961
+    @ver+=1.30.0
+    @slaves @bond @restart_if_needed
+    @bond_connect_slave_over_ethernet_upon_reboot
+    Scenario: NM - bond - autoconnect slaves - if ethernet exist
+    * Add a new connection of type "ethernet" and options
+                                    """
+                                    ifname eth1
+                                    connection.id bond0.0
+                                    autoconnect yes
+                                    """
+    * Bring "up" connection "bond0.0"
+    * Add a new connection of type "bond" and options
+                                    """
+                                    con-name bond0 ifname nm-bond
+                                    con.autoconnect-sl 1
+                                    con.autoconnect-priority 1
+                                    ipv4.method manual
+                                    ipv4.addresses 192.168.100.12/24
+                                    ipv4.dhcp-client-id mac
+                                    ipv6.method disabled
+                                    autoconnect yes
+                                    """
+    * Add a new connection of type "ethernet" and options
+                                    """
+                                    ifname eth1
+                                    con.autoconnect-priority 1
+                                    connection.id bond0.1
+                                    connection.master nm-bond
+                                    connection.slave-type bond
+                                    autoconnect yes
+                                    """
+    * Reboot
+    Then "bond0.0" is not visible with command "nmcli -g name connection show -a"
+    Then "bond0.1" is visible with command "nmcli -g name connection show -a"
+    Then "activated" is visible with command "nmcli c show bond0" in "45" seconds
+
+
     @rhbz1420708
     @ver+=1.7.9
     @rhelver-=7 @fedoraver-=0 @rhel_pkg
