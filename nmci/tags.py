@@ -185,7 +185,7 @@ def restart_if_needed_as(ctx, scen):
     if not os.path.isfile('/tmp/nm_dcb_inf_wol_sriov_configured'):
         nmci.lib.wait_for_testeth0(ctx)
 
-    
+
 _register_tag("restart_if_needed", None, restart_if_needed_as)
 
 
@@ -601,12 +601,6 @@ def dhclient_DHCP_as(ctx, scen):
 _register_tag("dhclient_DHCP", dhclient_DHCP_bs, dhclient_DHCP_as)
 
 
-def dummy_bs(ctx, scen):
-    skip_restarts_bs(ctx, scen)
-    ctx.run("ip link add dummy0 type dummy")
-    ctx.run("ip link delete dummy0")
-
-
 def dummy_as(ctx, scen):
     ctx.run("nmcli con del dummy0 dummy1")
     ctx.run("ip link delete dummy0")
@@ -616,7 +610,7 @@ def dummy_as(ctx, scen):
     ctx.run("ip link del team0")
 
 
-_register_tag("dummy", dummy_bs, dummy_as)
+_register_tag("dummy", dummy_as)
 
 
 def delete_testeth0_bs(ctx, scen):
