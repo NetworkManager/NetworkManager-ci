@@ -3,6 +3,7 @@ import time
 from behave import step
 
 import nmci.misc
+from nmci.util import NM
 
 
 @step(u'{action} all "{what}" devices')
@@ -609,3 +610,14 @@ def check_ipv6_connectivity_on_assumal(context, profile, device):
     time.sleep(12)
     r = ping.expect(["0% packet loss", pexpect.EOF, pexpect.TIMEOUT])
     assert r == 0, 'Had packet loss on pinging the address!'
+
+
+@step(u'Check "{device}" device LLDP status flag via libnm')
+def device_lldp_status_libnm(context, device):
+    nm_client = NM.Client.new(None)
+    nm_device = nm_client.get_device_by_iface(device)
+    assert nm_device is not None, f"device '{device}' not found"
+    nm_device_flags = nm_device.get_interface_flags()
+    assert nm_device_flags & NM.DeviceInterfaceFlags.LLDP_CLIENT_ENABLED, \
+        f"LLDP status flag not set:\nDevice Flags: {nm_device_flags:032b}\n" \
+        f"LLDP flag:    {NM.DeviceInterfaceFlags.LLDP_CLIENT_ENABLED:032b}"

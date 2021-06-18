@@ -1974,6 +1974,8 @@ testmapper:
         feature: connection
     - lldp_vlan_tlv:
         feature: connection
+    - lldp_status_flag_libnm:
+        feature: connection
     - connection_multiconnect_default_single:
         feature: connection
     - connection_multiconnect_manual:

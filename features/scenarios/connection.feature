@@ -571,6 +571,18 @@ Feature: nmcli: connection
      And Check ":ieee-802-3-mac-phy-conf:pmd-autoneg-cap=32768,:ieee-802-3-mac-phy-conf:autoneg=0,:ieee-802-3-mac-phy-conf:operational-mau-type=0" in LldpNeighbors via DBus for device "testXc"
 
 
+    @rhbz1832273
+    @ver+=1.32
+    @con_con_remove @teardown_testveth @tcpreplay
+    @lldp_status_flag_libnm
+    Scenario: nmcli - connection - lldp check status flag via libnm
+    * Prepare simulated test "testXc" device
+    * Add a new connection of type "ethernet" and options "ifname testXc con-name con_con ipv4.method manual ipv4.addresses 1.2.3.4/24 connection.lldp enable"
+    When "testXc\s+ethernet\s+connected" is visible with command "nmcli device" in "5" seconds
+    * Execute "ip netns exec testXc_ns tcpreplay --intf1=testXcp tmp/lldp.detailed.pcap"
+    Then Check "testXc" device LLDP status flag via libnm
+
+
     @rhbz1417292
     @eth5_disconnect
     @introspection_active_connection
