@@ -610,7 +610,7 @@ def dummy_as(ctx, scen):
     ctx.run("ip link del team0")
 
 
-_register_tag("dummy", dummy_as)
+_register_tag("dummy", None, dummy_as)
 
 
 def delete_testeth0_bs(ctx, scen):

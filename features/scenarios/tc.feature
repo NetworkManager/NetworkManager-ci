@@ -52,7 +52,7 @@
     Then Bring "up" connection "con_tc"
 
 
-    @rhbz1546805 @rhbz1815875
+    @rhbz1928078
     @ver+=1.25
     @con_tc_remove @dummy
     @remove_root_value
@@ -66,6 +66,62 @@
     * Send "remove tc.qdiscs" via editor to "con_tc"
     Then Bring "up" connection "con_tc"
     Then "warn" is not visible with command "journalctl -u NetworkManager --since '20s ago'|grep qdisc |grep warn"
+
+
+    @rhbz1928078
+    @ver+=1.30
+    @con_tc_remove @dummy
+    @do_not_touch_external_tc
+    Scenario: nmcli - tc - do not touch external ones
+    * Execute "ip link add dummy0 type dummy"
+    * Execute "ip link set dev dummy0 up"
+    * Execute "tc qdisc add dev dummy0 root sfq"
+    * Add a new connection of type "dummy" and options
+                        """
+                        ifname dummy0 con-name con_tc
+                        ipv4.method manual ipv4.addresses 10.0.0.2/24
+                        """
+    Then Bring "up" connection "con_tc"
+    # We should leave what was set before
+    Then "qdisc sfq" is visible with command "ip a s dummy0" in "5" seconds
+
+
+    @rhbz1928078
+    @ver+=1.30
+    @con_tc_remove @dummy
+    @override_externally_set_one
+    Scenario: nmcli - tc - override external ones
+    * Execute "ip link add dummy0 type dummy"
+    * Execute "ip link set dev dummy0 up"
+    * Execute "tc qdisc add dev dummy0 root sfq"
+    * Add a new connection of type "dummy" and options
+                        """
+                        ifname dummy0 con-name con_tc
+                        ipv4.method manual ipv4.addresses 10.0.0.2/24
+                        tc.qdisc "root prio"
+                        """
+    Then Bring "up" connection "con_tc"
+    # We should have what NM wanted
+    Then "qdisc sfq" is not visible with command "ip a s dummy0" in "5" seconds
+
+
+    @rhbz1546805 @rhbz1815875
+    @ver+=1.30
+    @con_tc_remove @dummy
+    @honor_empty_tc
+    Scenario: nmcli - tc - reset to default
+    * Execute "ip link add dummy0 type dummy"
+    * Execute "ip link set dev dummy0 up"
+    * Execute "tc qdisc add dev dummy0 root sfq"
+    * Add a new connection of type "dummy" and options
+                        """
+                        ifname dummy0 con-name con_tc
+                        ipv4.method manual ipv4.addresses 10.0.0.2/24
+                        tc.qdisc ' '
+                        """
+    Then Bring "up" connection "con_tc"
+    # We should be back to kernel default
+    Then "sfq" is not visible with command "ip a s dummy0" in "5" seconds
 
 
     @rhbz1546802

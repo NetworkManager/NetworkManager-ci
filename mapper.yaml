@@ -2036,6 +2036,15 @@ testmapper:
         feature: tc
     - remove_root_value:
         feature: tc
+    - do_not_touch_external_tc:
+        feature: tc
+        tags: customer-scenario
+    - override_externally_set_one:
+        feature: tc
+        tags: customer-scenario
+    - honor_empty_tc:
+        feature: tc
+        tags: customer-scenario
     - set_tbf_qdiscs:
         feature: tc
     - set_sqf_qdiscs:
@@ -2043,6 +2052,7 @@ testmapper:
     - tc_morrir_traffic:
         feature: tc
         tags: gate
+        tags: customer-scenario
     - tc_morrir_traffic_clsact:
         feature: tc
     - simwifi_p2p_connect:
