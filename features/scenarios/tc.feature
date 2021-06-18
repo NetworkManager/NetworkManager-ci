@@ -7,33 +7,37 @@
     # @test_name (compiled from scenario name)
     # Scenario:
 
+    Background:
+    * Execute "ip link add dummy0 type dummy"
+    * Execute "ip link set dev dummy0 up"
+
     @rhbz909236
     @ver+=1.10
-    @con_tc_remove @eth0
+    @con_tc_remove @dummy
     @set_fq_codel_queue
     Scenario: nmcli - tc - set fq_codel
-    * Add a new connection of type "ethernet" and options "ifname eth0 con-name con_tc autoconnect no tc.qdiscs 'root fq_codel'"
+    * Add a new connection of type "ethernet" and options "ifname dummy0 con-name con_tc autoconnect no tc.qdiscs 'root fq_codel'"
     * Bring "up" connection "con_tc"
-    Then "fq_codel" is visible with command "ip a s eth0" in "5" seconds
+    Then "fq_codel" is visible with command "ip a s dummy0" in "5" seconds
 
 
     @rhbz909236
     @ver+=1.10
-    @con_tc_remove @eth0
+    @con_tc_remove @dummy
     @set_pfifo_fast_queue
     Scenario: nmcli - tc - set pfifo_fast
-    * Add a new connection of type "ethernet" and options "ifname eth0 con-name con_tc autoconnect no tc.qdiscs 'root fq_codel'"
+    * Add a new connection of type "ethernet" and options "ifname dummy0 con-name con_tc autoconnect no tc.qdiscs 'root fq_codel'"
     * Execute "nmcli con modify con_tc tc.qdiscs 'root pfifo_fast'"
     * Bring "up" connection "con_tc"
-    Then "pfifo_fast" is visible with command "ip a s eth0" in "5" seconds
+    Then "pfifo_fast" is visible with command "ip a s dummy0" in "5" seconds
 
 
     @rhbz1546805
     @ver+=1.16 @ver-=1.24
-    @con_tc_remove @eth0
+    @con_tc_remove @dummy
     @remove_root_value
     Scenario: nmcli - tc - remove root value
-    * Add a new connection of type "ethernet" and options "ifname eth0 con-name con_tc autoconnect no tc.qdiscs 'root pfifo_fast'"
+    * Add a new connection of type "ethernet" and options "ifname dummy0 con-name con_tc autoconnect no tc.qdiscs 'root pfifo_fast'"
     * Bring "up" connection "con_tc"
     * Send "remove tc.qdiscs" via editor to "con_tc"
     Then Bring "up" connection "con_tc"
@@ -41,10 +45,10 @@
 
     @rhbz1546805 @rhbz1815875
     @ver+=1.25
-    @con_tc_remove @eth0
+    @con_tc_remove @dummy
     @remove_root_value
     Scenario: nmcli - tc - remove root value
-    * Add a new connection of type "ethernet" and options "ifname eth0 con-name con_tc autoconnect no tc.qdiscs 'root pfifo_fast'"
+    * Add a new connection of type "ethernet" and options "ifname dummy0 con-name con_tc autoconnect no tc.qdiscs 'root pfifo_fast'"
     * Bring "up" connection "con_tc"
     * Send "remove tc.qdiscs" via editor to "con_tc"
     Then Bring "up" connection "con_tc"
@@ -53,22 +57,22 @@
 
     @rhbz1546802
     @ver+=1.25
-    @con_tc_remove @eth0
+    @con_tc_remove @dummy
     @set_tbf_qdiscs
     Scenario: nmcli - tc - set qdisc tbf
-    * Add a new connection of type "ethernet" and options "ifname eth0 con-name con_tc autoconnect no tc.qdiscs 'handle 1235 root tbf rate 1000000 burst 5000 limit 10000 latency 10'"
+    * Add a new connection of type "ethernet" and options "ifname dummy0 con-name con_tc autoconnect no tc.qdiscs 'handle 1235 root tbf rate 1000000 burst 5000 limit 10000 latency 10'"
     * Bring "up" connection "con_tc"
-    Then "qdisc tbf" is visible with command "ip a s eth0" in "5" seconds
+    Then "qdisc tbf" is visible with command "ip a s dummy0" in "5" seconds
 
 
     @rhbz1546802
     @ver+=1.25
-    @con_tc_remove @eth0
+    @con_tc_remove @dummy
     @set_sqf_qdiscs
     Scenario: nmcli - tc - set qdisc tbf
-    * Add a new connection of type "ethernet" and options "ifname eth0 con-name con_tc autoconnect no tc.qdiscs 'root sfq perturb 10'"
+    * Add a new connection of type "ethernet" and options "ifname dummy0 con-name con_tc autoconnect no tc.qdiscs 'root sfq perturb 10'"
     * Bring "up" connection "con_tc"
-    Then "qdisc sfq" is visible with command "ip a s eth0" in "5" seconds
+    Then "qdisc sfq" is visible with command "ip a s dummy0" in "5" seconds
 
 
     @rhbz1436535
