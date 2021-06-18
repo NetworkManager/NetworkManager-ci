@@ -297,26 +297,26 @@ Feature: nmcli - general
      And "inet 192.168.50.5" is visible with command "ip a s eth8"
 
 
-     @rhbz1311988
-     @con_general_remove @restart_if_needed @shutdown
-     @shutdown_service_connected
-     Scenario: NM - general - shutdown service - connected
-     * Add a new connection of type "ethernet" and options "ifname eth8 con-name con_general autoconnect no ipv4.may-fail no "
-     * Bring "up" connection "con_general"
-     * "default via 192.168.100.1 dev eth8" is visible with command "ip r"
-     * "inet 192.168.100" is visible with command "ip a s eth8" in "5" seconds
-     * Stop NM
-     Then "default via 192.168.100.1 dev eth8" is visible with command "ip r" for full "5" seconds
-      And "inet 192.168.100" is visible with command "ip a s eth8"
+    @rhbz1311988
+    @con_general_remove @restart_if_needed @shutdown
+    @shutdown_service_connected
+    Scenario: NM - general - shutdown service - connected
+    * Add a new connection of type "ethernet" and options "ifname eth8 con-name con_general autoconnect no ipv4.may-fail no "
+    * Bring "up" connection "con_general"
+    * "default via 192.168.100.1 dev eth8" is visible with command "ip r"
+    * "inet 192.168.100" is visible with command "ip a s eth8" in "5" seconds
+    * Stop NM
+    Then "default via 192.168.100.1 dev eth8" is visible with command "ip r" for full "5" seconds
+     And "inet 192.168.100" is visible with command "ip a s eth8"
 
 
-      @rhbz1311988
-      @restart_if_needed @shutdown @unload_kernel_modules
-      @shutdown_service_any
-      Scenario: NM - general - shutdown service - all
-      * Stop NM
-      Then All ifaces but "gre0, gretap0, dummy0, ip6tnl0, tunl0, sit0, erspan0" are not in state "DOWN"
-       And "After=network-pre.target dbus.service" is visible with command "grep After /usr/lib/systemd/system/NetworkManager.service"
+    @rhbz1311988
+    @restart_if_needed @shutdown @unload_kernel_modules
+    @shutdown_service_any
+    Scenario: NM - general - shutdown service - all
+    * Stop NM
+    Then All ifaces but "gre0, gretap0, dummy0, ip6tnl0, tunl0, sit0, erspan0, orig*" are not in state "DOWN"
+     And "After=network-pre.target dbus.service" is visible with command "grep After /usr/lib/systemd/system/NetworkManager.service"
 
 
     @rhbz1371201
@@ -324,7 +324,7 @@ Feature: nmcli - general
     @rhelver-=7 @rhel_pkg @fedoraver-=0
     @CAP_SYS_ADMIN_for_ibft
     Scenario: NM - service - CAP_SYS_ADMIN for ibft plugin
-      Then "CAP_SYS_ADMIN" is visible with command "grep ^CapabilityBoundingSet /usr/lib/systemd/system/NetworkManager.service"
+    Then "CAP_SYS_ADMIN" is visible with command "grep ^CapabilityBoundingSet /usr/lib/systemd/system/NetworkManager.service"
 
 
     @networking_on
