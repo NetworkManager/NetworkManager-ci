@@ -623,6 +623,10 @@ EOF
     # Setting ulimit to unlimited for test user
     echo "ulimit -c unlimited" >> /home/test/.bashrc
 
+    # set bash completion
+    ln -s run/runtest.sh ./test_run.sh
+    cp contrib/bash_completion/nmci.sh /etc/bash_completion.d/nmci
+
     # Deploy ssh-keys
     deploy_ssh_keys
 
