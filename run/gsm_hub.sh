@@ -10,18 +10,21 @@ function runtest () {
         return 1
     fi
 
+    FEATURE_FILE=$(grep "@$TEST_NAME\(\s\|\$\)" -l $DIR/features/scenarios/*.feature)
+    # if $FEATURE_FILE is empty or contains more than one line
+    if [ -z "$FEATURE_FILE" -o $( wc -l <<< "$FEATURE_FILE" ) != 1 ]; then
+        logger "Resetting FEATURE_FILE, as it is: $FEATURE_FILE"
+        FEATURE_FILE=$DIR/features
+    fi
+
     # get tags specific to software versions (NM, fedora, rhel)
     # see version_control.py for more details
-    TAG="$(python $DIR/version_control.py $TEST_NAME)"; vc=$?
+    TAG="$(python $DIR/version_control.py "$FEATURE_FILE" "$TEST_NAME")"; vc=$?
     if [ $vc -eq 1 ]; then
         logger "Skipping due to incorrect NM version for this test"
         return 0
     fi
 
-    FEATURE_FILE=$(grep "@$TEST_NAME" -l $DIR/features/scenarios/*.feature)
-    if [ -z $FEATURE_FILE ]; then
-        FEATURE_FILE=$DIR/features
-    fi
     if [ "x$TAG" != "x" ]; then
         behave $FEATURE_FILE -t $TEST_NAME $TAG -k -f html -o /tmp/report.html -f plain || RC=1
     else
