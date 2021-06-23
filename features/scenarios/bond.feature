@@ -1286,7 +1286,7 @@
 
 
     @rhbz1816202
-    @ver+=1.25
+    @ver+=1.25 @rhelver+=8
     @dummy
     @bond_reflect_changes_from_outside_of_NM
     Scenario: nmcli - bond - reflect changes from outside of NM
