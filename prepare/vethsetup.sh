@@ -381,7 +381,7 @@ function teardown_veth_env ()
         nmcli con del testeth${X}
     done
 
-    if ! test /tmp/nm_plugin_keyfiles; then
+    if ! test -f /tmp/nm_plugin_keyfiles; then
         # Get ORIGDEV name to bring device back to and copy the profile back
         ORIGDEV=$(grep DEVICE /tmp/ifcfg-* | awk -F '=' '{print $2}' | tr -d '"')
         if [ "x$ORIGDEV" == "x" ]; then
