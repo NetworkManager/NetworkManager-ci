@@ -1,9 +1,8 @@
 _test_list()
 {
-    local cur cmd path file tests
+    local cur path file tests
     COMPREPLY=()
     cur="${COMP_WORDS[COMP_CWORD]}"
-    cmd="${COMP_WORDS[0]}"
 
     path="${PWD}/features/"
 
