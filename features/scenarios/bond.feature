@@ -1285,24 +1285,6 @@
       And "fe80" is visible with command "nmcli connection show bond0 |grep IP6.ADDRESS"
 
 
-    @ver+=1.1.1 @ver-=1.24
-    @dummy
-    @bond_reflect_changes_from_outside_of_NM
-    Scenario: nmcli - bond - reflect changes from outside of NM
-    * Execute "ip link add bond0 type bond"
-    When "bond0\s+bond\s+unmanaged" is visible with command "nmcli d" in "5" seconds
-    * Execute "ip link set dev bond0 up"
-    When "bond0\s+bond\s+unmanaged" is visible with command "nmcli d" in "5" seconds
-    * Execute "ip link add dummy0 type dummy"
-    When "dummy0\s+dummy\s+unmanaged" is visible with command "nmcli d" in "5" seconds
-    * Execute "ip link set dev dummy0 up"
-    * Execute "ip addr add 1.1.1.1/24 dev bond0"
-    When "bond0\s+bond\s+connected\s+bond0" is visible with command "nmcli d" in "5" seconds
-    * Execute "ifenslave bond0 dummy0"
-    When "dummy0\s+dummy\s+connected\s+dummy" is visible with command "nmcli d" in "5" seconds
-    Then "BOND.SLAVES:\s+dummy0" is visible with command "nmcli -f bond.slaves dev show bond0"
-
-
     @rhbz1816202
     @ver+=1.25
     @dummy

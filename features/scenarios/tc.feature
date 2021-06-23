@@ -22,7 +22,7 @@
 
 
     @rhbz909236
-    @ver+=1.10
+    @ver+=1.25
     @con_tc_remove @dummy
     @set_pfifo_fast_queue
     Scenario: nmcli - tc - set pfifo_fast
@@ -35,21 +35,6 @@
     * Execute "nmcli con modify con_tc tc.qdiscs 'root pfifo_fast'"
     * Bring "up" connection "con_tc"
     Then "pfifo_fast" is visible with command "ip a s dummy0" in "5" seconds
-
-
-    @rhbz1546805
-    @ver+=1.16 @ver-=1.24
-    @con_tc_remove @dummy
-    @remove_root_value
-    Scenario: nmcli - tc - remove root value
-    * Add a new connection of type "dummy" and options
-                        """
-                        ifname dummy0 con-name con_tc
-                        ipv4.method manual ipv4.addresses 10.0.0.2/24
-                        tc.qdiscs 'root pfifo_fast'
-                        """
-    * Send "remove tc.qdiscs" via editor to "con_tc"
-    Then Bring "up" connection "con_tc"
 
 
     @rhbz1928078
