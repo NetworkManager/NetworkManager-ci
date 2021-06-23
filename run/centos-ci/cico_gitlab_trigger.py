@@ -285,7 +285,7 @@ def process_request(data, content):
             print("MERGE packet, ignoring")
         elif data['object_attributes']['action'] == 'close':
             print("CLOSE packet, ignoring")
-        elif data['object_attributes']['action'] == 'approved':
+        elif data['object_attributes']['action'] in ['approved', 'unapproved']:
             print("APPROVED packet, ignoring")
         elif data['object_attributes']['action'] == 'update':
             if gt.title.startswith("WIP"):
