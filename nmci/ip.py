@@ -46,6 +46,46 @@ class _IP:
 
         return result
 
+    def _link_show_all_legacy_raw(self):
+
+        jstr = util.process_run(["ip", "-d", "link", "show"], as_utf8=False, timeout=2)
+
+        result = []
+
+        lines = jstr.split(b"\n")
+        i = 0
+
+        if lines and not lines[-1]:
+            del lines[-1]
+
+        if not lines:
+            raise Exception("output of ip link is empty")
+
+        while i < len(lines):
+            line = lines[i]
+            i += 1
+
+            # currently we only parse 'ifindex' and 'ifname'
+
+            ip_data = {}
+
+            m = re.match(rb"^([0-9]+): *([^:@]+)[:@].*", line)
+            if not m:
+                raise Exception("Unexpected line in ip link output: %s" % (line))
+
+            ip_data["ifindex"] = int(m.group(1))
+            ip_data["ifname"] = m.group(2)
+
+            while i < len(lines):
+                line = lines[i]
+                if not re.match(rb"^ +", line):
+                    break
+                i += 1
+
+            result.append(ip_data)
+
+        return result
+
     def link_show_all(self):
 
         # We require iproute2 to give valid UTF-8. That means, you cannot use this

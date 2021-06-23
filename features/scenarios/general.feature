@@ -13,6 +13,17 @@ Feature: nmcli - general
     * Execute "nmcli --version"
 
 
+    @xfail
+    @crash
+    @crashing_NM_binary
+    Scenario: Dummy scenario that is supposed to test crash embeding
+    * Stop NM
+    * Execute "cp /tmp/crash /sbin/NetworkManager"
+    * Restart NM
+    # leave some time for abrt or coredump to process crashes
+    * Execute "sleep 10"
+
+
     @logging
     @nmcli_logging
     Scenario: NM - general - setting log level and autocompletion

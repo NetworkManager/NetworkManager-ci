@@ -116,6 +116,25 @@ def gsm_sim_as(ctx, scen):
 _register_tag("gsm_sim", gsm_sim_bs, gsm_sim_as)
 
 
+def crash_bs(ctx, scen):
+    # backup NM binary (if not done already)
+    if not os.path.isfile("/tmp/NetworkManager"):
+        ctx.run("cp /sbin/NetworkManager /tmp/NetworkManager")
+    # compile crashing binary
+    src = "contrib/crash/crash.c"
+    assert ctx.command_code(f"gcc -o /tmp/crash {src}") == 0, \
+        f"Unable to compile crashing binary {src}"
+
+
+def crash_as(ctx, scen):
+    # copy NM binary back
+    ctx.run("cp /tmp/NetworkManager /sbin/NetworkManager")
+    ctx.run("systemctl restart NetworkManager")
+
+
+_register_tag("crash", crash_bs, crash_as)
+
+
 def not_with_systemd_resolved_bs(ctx, scen):
     if ctx.command_code("systemctl is-active systemd-resolved") == 0:
         print("Skipping as systemd-resolved is running")

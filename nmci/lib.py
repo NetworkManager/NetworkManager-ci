@@ -381,6 +381,7 @@ def embed_dump(context, dump_id, dump_output, caption, do_report):
         else:
             if do_report:
                 context.crashed_step = "crash outside steps (envsetup, before / after scenario...)"
+    after_crash_reset(context)
 
 
 def list_dumps(dumps_search):
@@ -601,6 +602,76 @@ def unmanage_veths(context):
     context.run('udevadm control --reload-rules')
     context.run('udevadm settle --timeout=5')
     time.sleep(1)
+
+
+def after_crash_reset(context):
+    print('@after_crash_reset')
+    if getattr(context, "after_crash_reset_run", False):
+        print(" skip - already executed")
+        return
+    context.after_crash_reset_run = True
+
+    print("Stop NM")
+    context.run("systemctl stop NetworkManager")
+
+    print("Remove all links except eth*")
+    allowed_links = [b"lo"] + [f"eth{i}".encode("utf-8") for i in range(0, 11)]
+    for link in nmci.ip._link_show_all_legacy_raw():
+        if link["ifname"] in allowed_links or link["ifname"].startswith(b"orig-"):
+            continue
+        context.run("ip link delete $'" + link['ifname'].decode("utf-8", "backslashreplace") + "'")
+
+    print("Remove all ifcfg files")
+    dir = "/etc/sysconfig/network-scripts"
+    ifcfg_files = glob.glob(dir + "/ifcfg-*")
+    context.run("rm -vrf " + " ".join(ifcfg_files))
+
+    print("Remove all keyfiles in /etc")
+    dir = "/etc/NetworkManager/system-connections"
+    key_files = glob.glob(dir + "/*")
+    context.run("rm -vrf " + " ".join(key_files))
+
+    print("Remove all config in /etc except 99-test.conf")
+    dir = "/etc/NetworkManager/conf.d"
+    conf_files = [f for f in glob.glob(dir + "/*") if not f.endswith("/99-test.conf")]
+    context.run("rm -vrf " + " ".join(conf_files))
+
+    print("Remove /run/NetworkManager/")
+    if os.path.isdir("/run/NetworkManager/"):
+        context.run("rm -vrf /run/NetworkManager/*")
+    elif os.path.isdir("/var/run/NetworkManager/"):
+        context.run("rm -vrf /var/run/NetworkManager/*")
+    else:
+        print("Warning: could not find NetworkManager run directory")
+
+    print("Remove /var/lib/NetworkManager/")
+    if os.path.isdir("/var/lib/NetworkManager/"):
+        context.run("rm -vrf /var/lib/NetworkManager/*")
+    else:
+        print("Warning: could not find NetworkManager in /var/lib directory")
+
+    print("Flush eth0 IP")
+    context.run("ip addr flush dev eth0")
+    context.run("ip -6 addr flush dev eth0")
+
+    print("Start NM")
+    rc = context.command_code("systemctl start NetworkManager")
+    if rc != 0:
+        print("Unable to start NM! Something very bad happened.")
+
+    print("Wait for testeth0")
+    wait_for_testeth0(context)
+
+    if os.path.isfile('/tmp/nm_newveth_configured'):
+        print("Regenerate veth setup")
+        context.run('sh prepare/vethsetup.sh check')
+    else:
+        print("Up eth1-10 links")
+        for link in range(1, 11):
+            context.run('ip link set eth%d up' % link)
+        print("Add testseth1-10 connections")
+        for link in range(1, 11):
+            context.run('nmcli con add type ethernet ifname eth%d con-name testeth%d autoconnect no' % (link, link))
 
 
 def teardown_libreswan(context):

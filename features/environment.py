@@ -274,7 +274,7 @@ def _after_scenario(context, scenario):
             msg = "!!! no crash report detected, but NM PID changed !!!"
             context.embed('text/plain', msg, caption="NO_COREDUMP/NO_FAF")
 
-    if excepts:
+    if excepts or context.crashed_step:
         context.after_scenario_step_el.set("class", "step failed")
         context.embed("text/plain", "\n\n".join(excepts), "Exception in after scenario tags")
 

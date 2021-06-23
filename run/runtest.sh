@@ -65,6 +65,12 @@ if [ $rc -eq 0 ]; then
     fi
 fi
 
+# check for NM crash
+if grep -q CRASHED_STEP_NAME "$NMTEST_REPORT" ; then
+    RESULT="FAIL"
+    rc=1
+fi
+
 # xfail handling
 if [[ $TAG = *"-t xfail "* ]]; then
     if [ "$rc" = 0 ]; then
@@ -86,13 +92,6 @@ elif [ $rc -eq 77 ]; then
     rc=0
 else
     RESULT="FAIL"
-fi
-
-
-# check for NM crash
-if grep -q CRASHED_STEP_NAME "$NMTEST_REPORT" ; then
-    RESULT="FAIL"
-    rc=1
 fi
 
 # If we FAILED and no report, dump journal to report

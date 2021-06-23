@@ -109,7 +109,7 @@ install_fedora_packages () {
     # Dnf more deps
     dnf -4 -y install git nmap-ncat hostapd tcpreplay python3-netaddr dhcp-relay iw net-tools \
                       psmisc firewalld dhcp-server ethtool python3-dbus python3-gobject dnsmasq \
-                      tcpdump wireshark-cli iproute-tc gdb --skip-broken
+                      tcpdump wireshark-cli iproute-tc gdb gcc --skip-broken
 
     install_behave_pytest
 
@@ -185,7 +185,7 @@ install_el9_packages () {
     # Dnf more deps
     dnf -4 -y install git python3-netaddr dhcp-relay iw net-tools psmisc firewalld dhcp-server ethtool \
                           python3-dbus python3-gobject dnsmasq tcpdump wireshark-cli file iproute-tc \
-                          openvpn perl-IO-Tty dhcp-client rpm-build --skip-broken
+                          openvpn perl-IO-Tty dhcp-client rpm-build gcc --skip-broken
 
     # and few more
     # hostapd and tcpreplay is in epel (not available now), iw was just missing in el9 1915791 (needed for hostpad_wireless)
@@ -301,7 +301,7 @@ install_el8_packages () {
     # Dnf more deps
     dnf -4 -y install git python3-netaddr dhcp-relay iw net-tools psmisc firewalld dhcp-server ethtool \
                           python3-dbus python3-gobject dnsmasq tcpdump wireshark-cli file iproute-tc \
-                          openvpn --skip-broken
+                          openvpn gcc --skip-broken
 
     dnf -4 -y install https://kojipkgs.fedoraproject.org//packages/tcpreplay/4.2.5/4.fc28/$(arch)/tcpreplay-4.2.5-4.fc28.$(arch).rpm
     install_behave_pytest
@@ -414,6 +414,8 @@ install_el7_packages () {
 
     yum -y install python3 python3-pip
 
+    yum -y install gcc
+
     echo python3 > /tmp/python_command
     export_python_command
 
@@ -430,7 +432,7 @@ install_el7_packages () {
 
     # install dbus-python3 for s390x via pip
     if uname -a |grep -q s390x; then
-        yum -y install gcc python3-devel cairo-gobject-devel pygobject3-devel cairo-devel cairo pycairo
+        yum -y install python3-devel cairo-gobject-devel pygobject3-devel cairo-devel cairo pycairo
         python3 -m pip install dbus-python
         python3 -m pip install PyGObject
         python3 -m pip install scapy
