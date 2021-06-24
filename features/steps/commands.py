@@ -201,9 +201,11 @@ def json_compare(pattern, out):
 
 
 def check_pattern_command(context, command, pattern, seconds, check_type="default", exact_check=False, timeout=180, maxread=100000, interval=1, json_check=False):
-    seconds = int(seconds)
-    orig_seconds = seconds
-    while seconds > 0:
+    start_time = time.clock_gettime(nmci.util.CLOCK_BOOTTIME)
+    wait_seconds = float(seconds)
+    assert wait_seconds >= 0
+    end_time = start_time + wait_seconds
+    while True:
         proc = context.pexpect_spawn('/bin/bash', ['-c', command], timeout=timeout, maxread=maxread, codec_errors='ignore')
         if exact_check:
             ret = proc.expect_exact([pattern, pexpect.EOF])
@@ -215,6 +217,9 @@ def check_pattern_command(context, command, pattern, seconds, check_type="defaul
             ret = json_compare(json_pattern, json_out)
         else:
             ret = proc.expect([pattern, pexpect.EOF])
+
+        now = time.clock_gettime(nmci.util.CLOCK_BOOTTIME)
+
         if check_type == "default":
             if ret == 0:
                 return True
@@ -222,15 +227,18 @@ def check_pattern_command(context, command, pattern, seconds, check_type="defaul
             if ret != 0:
                 return True
         elif check_type == "full":
-            assert ret == 0, 'Pattern "%s" disappeared after %d seconds, ouput was:\n%s' % (pattern, orig_seconds-seconds, proc.before)
+            assert ret == 0, 'Pattern "%s" disappeared after %s seconds, ouput was:\n%s' % (pattern, now - start_time, proc.before)
         elif check_type == "not_full":
-            assert ret != 0, 'Pattern "%s" appeared after %d seconds, output was:\n%s%s' % (pattern, orig_seconds-seconds, proc.before, proc.after)
-        seconds = seconds - 1
-        time.sleep(interval)
+            assert ret != 0, 'Pattern "%s" appeared after %s seconds, output was:\n%s%s' % (pattern, now - start_time, proc.before, proc.after)
+
+        if now >= end_time:
+            break
+        time.sleep(min(interval, end_time - now + 0.01))
+
     if check_type == "default":
-        assert False, 'Did not see the pattern "%s" in %d seconds, output was:\n%s' % (pattern, orig_seconds, proc.before)
+        assert False, 'Did not see the pattern "%s" in %d seconds, output was:\n%s' % (pattern, seconds, proc.before)
     elif check_type == "not":
-        assert False, 'Did still see the pattern "%s" in %d seconds, output was:\n%s%s' % (pattern, orig_seconds, proc.before, proc.after)
+        assert False, 'Did still see the pattern "%s" in %d seconds, output was:\n%s%s' % (pattern, seconds, proc.before, proc.after)
 
 
 @step(u'Noted value is visible with command "{command}"')
