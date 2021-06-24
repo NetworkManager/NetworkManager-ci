@@ -49,9 +49,6 @@ function write_hostapd_cfg ()
     echo "# Hostapd configuration for 802.1x client testing
 interface=test8Y
 driver=wired
-logger_stdout=-1
-logger_stdout_level=1
-debug=2
 ieee8021x=1
 eap_reauth_period=3600
 eap_server=1
@@ -96,7 +93,9 @@ function copy_certificates ()
 
 function start_nm_hostapd ()
 {
-    hostapd -P /tmp/hostapd_wired.pid -B $HOSTAPD_CFG &
+
+    local hostapd="hostapd -ddd $HOSTAPD_CFG"
+    systemd-run --unit nm-hostapd $hostapd
     sleep 5
 }
 
@@ -121,8 +120,8 @@ function wired_hostapd_check ()
         need_setup=1
     fi
     echo "* Checking hostapd-wired"
-    pid=$(cat /tmp/hostapd_wired.pid)
-    if ! pidof hostapd |grep -q $pid; then
+    #pid=$(cat /tmp/hostapd_wired.pid)
+    if ! systemctl is-active nm-hostapd; then
         echo "Not OK!!"
         need_setup=1
     fi
@@ -220,8 +219,8 @@ function wired_hostapd_setup ()
         return 1
     fi
 
-    pid=$(cat /tmp/hostapd_wired.pid)
-    if ! pidof hostapd | grep -q $pid; then
+    #pid=$(cat /tmp/hostapd_wired.pid)
+    if ! systemctl is-active nm-hostapd; then
         echo "Error. Cannot start hostapd." >&2
         return 1
     fi
@@ -232,9 +231,13 @@ function wired_hostapd_setup ()
 function wired_hostapd_teardown ()
 {
     set -x
+    if systemctl --quiet is-failed nm-hostapd; then
+        systemctl reset-failed nm-hostapd
+    fi
+    systemctl stop nm-hostapd
     kill $(cat /tmp/dnsmasq_wired.pid)
     kill $(cat /tmp/dnsmasq_wired_noauth.pid)
-    kill $(cat /tmp/hostapd_wired.pid)
+    #kill $(cat /tmp/hostapd_wired.pid)
     ip netns del 8021x_ns
     ip link del test8Yp
     ip link del test8Xp
