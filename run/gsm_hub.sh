@@ -58,7 +58,7 @@ function test_modems_usb_hub() {
 
     touch /tmp/usb_hub
     echo "USB_HUB" > /tmp/report_$NMTEST.html
-    for M in $(seq 1 1 $((MODEM_COUNT-1)) ); do
+    for M in $(seq 0 1 $((MODEM_COUNT-1)) ); do
 
         for P in $(seq 0 1 $((PORT_COUNT-1)) ); do
             $DIR/prepare/acroname.py --port $P --disable
