@@ -683,7 +683,7 @@ Feature: nmcli: ipv4
     * Execute "echo -e '[main]\nrc-manager=symlink' > /etc/NetworkManager/conf.d/99-resolv.conf"
     * Restart NM
     When "activated" is visible with command "nmcli -g GENERAL.STATE con show testeth0" in "45" seconds
-    When Nameserver "nameserver" is set in "20" seconds
+    When Nameserver "nameserver" is set in "0" seconds
     * Execute "cp /etc/resolv.conf /tmp/resolv_orig.conf"
     * Execute "mv -f /etc/resolv.conf /tmp/resolv.conf"
     * Execute "ln -s /tmp/resolv.conf /etc/resolv.conf"
@@ -706,7 +706,7 @@ Feature: nmcli: ipv4
     * Execute "echo -e '[main]\nrc-manager=file' > /etc/NetworkManager/conf.d/99-resolv.conf"
     * Restart NM
     When "activated" is visible with command "nmcli -g GENERAL.STATE con show testeth0" in "45" seconds
-    When Nameserver "nameserver" is set in "20" seconds
+    When Nameserver "nameserver" is set in "0" seconds
     * Execute "cp /etc/resolv.conf /tmp/resolv_orig.conf"
     * Execute "mv -f /etc/resolv.conf /tmp/resolv.conf"
     * Execute "ln -s /tmp/resolv.conf /etc/resolv.conf"
