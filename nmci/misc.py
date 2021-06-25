@@ -4,9 +4,13 @@ import subprocess
 import sys
 import yaml
 
+import xml.etree.ElementTree as ET
+
 from . import ip
 from . import sdresolved
 from . import util
+import nmci
+from nmci.tags import tag_registry
 
 
 class _Misc:
@@ -369,6 +373,88 @@ class _Misc:
 
         info["dns_plugin"] = dns_plugin
         return info
+
+    def html_report_tag_links(self, scenario_el):
+        tags_el = scenario_el.find(".//span[@class='tag']")
+        if tags_el is not None:
+            tags_list = tags_el.text.split(" ")
+            tags_el.text = ""
+            for tag in tags_list:
+                if tag.startswith("@rhbz"):
+                    link = ET.SubElement(
+                        tags_el,
+                        "a",
+                        {
+                            "href": "https://bugzilla.redhat.com/"
+                            + tag.replace("@rhbz", "").strip(", "),
+                            "target": "_blank",
+                            "style": "color:inherit",
+                        },
+                    )
+                    link.text = tag
+                elif tag.strip("@, ") in tag_registry and self.project_git_url:
+                    lineno = tag_registry[tag.strip("@, ")].lineno
+                    link = ET.SubElement(
+                        tags_el,
+                        "a",
+                        {
+                            "href": f"{self.project_git_url}/-/tree/{self.project_git_commit}/nmci/tags.py#L{lineno}",
+                            "target": "_blank",
+                            "style": "color:inherit",
+                        },
+                    )
+                    link.text = tag
+                else:
+                    tag_el = ET.SubElement(tags_el, "span")
+                    tag_el.text = tag
+
+    def html_report_file_links(self, scenario_el):
+        git_url = self.project_git_url
+        git_commit = self.project_git_commit
+        if not git_url or not git_commit:
+            return
+        url_base = f"{self.project_git_url}/-/tree/{self.project_git_commit}/"
+        file_els = [scenario_el.find(".//span[@class='scenario_file']")]
+        file_els += scenario_el.findall(".//div[@class='step_file']/span")
+
+        for file_el in file_els:
+            if file_el is not None:
+                file_name, line = file_el.text.split(":", 2)
+                link = ET.SubElement(
+                    file_el,
+                    "a",
+                    {
+                        "href": url_base + file_name + "#L" + line,
+                        "target": "_blank",
+                        "style": "color:inherit",
+                    },
+                )
+                link.text = file_el.text
+                file_el.text = ""
+
+    @property
+    def project_git_url(self):
+        r = getattr(self, "_project_git_url", None)
+        if r is None:
+            r, _, rc = nmci.run("git config --get remote.origin.url")
+            r = r.strip("\n")[:-4]
+            if rc != 0:
+                r = False
+            elif r.startswith("git@"):
+                r = r.replace(":", "/").replace("git@", "https://")
+            self._project_git_url = r
+        return r
+
+    @property
+    def project_git_commit(self):
+        r = getattr(self, "_project_git_commit", None)
+        if r is None:
+            r, _, rc = nmci.run("git rev-parse HEAD")
+            r = r.strip("\n")
+            if rc != 0:
+                r = False
+            self._project_git_commit = r
+        return r
 
 
 sys.modules[__name__] = _Misc()

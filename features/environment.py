@@ -11,6 +11,7 @@ import xml.etree.ElementTree as ET
 import nmci
 import nmci.lib
 import nmci.tags
+import nmci.misc
 
 TIMER = 0.5
 
@@ -209,6 +210,9 @@ def _after_scenario(context, scenario):
     duration_el = ET.SubElement(context.after_scenario_step_el, "small", {"class": "step_duration"})
     embed_el = ET.SubElement(context.after_scenario_step_el, "div")
     context.html_formatter.actual["act_step_embed_span"] = embed_el
+
+    nmci.misc.html_report_tag_links(context.html_formatter.scenario_el)
+    nmci.misc.html_report_file_links(context.html_formatter.scenario_el)
 
     nm_pid_after = nmci.lib.nm_pid()
     if not nm_pid_after:

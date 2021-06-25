@@ -5,12 +5,15 @@ import nmci
 import subprocess
 import time
 import re
+import inspect
 
 import nmci.lib
 
 
 class Tag:
     def __init__(self, tag_name, before_scenario=None, after_scenario=None):
+        stack = inspect.stack()
+        self.lineno = stack[2].lineno
         self.tag_name = tag_name
         self.before_scenario = before_scenario
         self.after_scenario = after_scenario
