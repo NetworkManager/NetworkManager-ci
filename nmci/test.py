@@ -3,6 +3,8 @@
 import pytest
 import re
 import subprocess
+import sys
+import time
 
 from . import ip
 from . import misc
@@ -569,3 +571,17 @@ def test_ip_link_show_all():
         return (i["ifindex"], i["ifname"])
 
     assert [_normalize(i) for i in l0] == [_normalize(i) for i in l1]
+
+
+def test_clock_boottime():
+
+    try:
+        c = time.CLOCK_BOOTTIME
+    except AttributeError:
+        assert sys.version_info[:2] < (3, 7)
+    else:
+        assert c == util.CLOCK_BOOTTIME
+
+    t = time.clock_gettime(util.CLOCK_BOOTTIME)
+    assert type(t) is float
+    assert t > 0
