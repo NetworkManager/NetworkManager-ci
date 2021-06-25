@@ -4,6 +4,10 @@ import sys
 
 
 class _Util:
+
+    # like time.CLOCK_BOOTTIME, which only exists since Python 3.7
+    CLOCK_BOOTTIME = 7
+
     @property
     def GLib(self):
 
