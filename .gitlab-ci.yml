@@ -2,19 +2,16 @@
 UnitTests:
   image: registry.fedoraproject.org/fedora
   stage: test
-  variables:
-    JUNIT_URL: ""
   rules:
-    - if: '$JUNIT_URL != ""'
-      when: never
     - if: '$CI_PIPELINE_SOURCE != "merge_request_event"'
       when: never
     - when: always
   script:
-    - dnf -y install python3 python3-pip iproute
-    - python3 -m pip install pytest PyYAML pexpect
-    - python3 -m pip install --prefix /usr/ black==19.10b0
-    - python3 -m pytest nmci/test.py --junitxml=report.xml
+    - |
+      dnf -y install python3 python3-pip iproute
+      python3 -m pip install pytest PyYAML pexpect
+      python3 -m pip install --prefix /usr/ black==19.10b0
+      python3 -m pytest nmci/test.py --junitxml=report.xml
   artifacts:
     when: always
     reports:
@@ -24,16 +21,24 @@ UnitTests:
 TestResults:
   image: registry.fedoraproject.org/fedora
   stage: test
-  variables:
-    JUNIT_URL: ""
   rules:
-    - if: '$JUNIT_URL == ""'
+    - if: '$CI_PIPELINE_SOURCE != "merge_request_event"'
       when: never
-    - when: always
+    - when: manual
   script:
-    - dnf -y install wget grep coreutils
-    - 'for i in {1..100}; do wget -O report.xml "$JUNIT_URL" && break; sleep 5; done'
-    - '[ -f report.xml ] && ! grep -F "<failure>" report.xml'
+    - |
+      dnf -y install wget grep sed coreutils python3 python3-pip
+      python3 -m pip install python-gitlab
+      JUNIT_URL="$(python3 run/centos-ci/gitlab_junit.py)"; RC=$?
+      echo $JUNIT_URL
+      [ "$RC" == 0 ] || exit 1
+      for i in {1..50}; do
+          wget -O report.xml "$JUNIT_URL" && break
+          sleep 5
+      done
+      [ -f report.xml ] || exit 1
+      sed -n "/LOG:/n;p" report.xml | sed "s/<.*//g" | sort
+      ! grep -F "<failure>" report.xml
   artifacts:
     when: always
     reports:

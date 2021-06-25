@@ -329,14 +329,14 @@ def post_results (gl_trigger):
         else:
             msg+= "Result: STABLE: All tests passing!\n"
         msg+="\nPassed: %s, Failed: %s, Skipped: %s\n\n" %(p, f, s)
+        if gl_trigger.repository == "NetworkManager-ci":
+            gl_trigger.play_commit_job()
     else:
         msg+= "Aborted!\n"
     with open('/etc/redhat-release') as f:
         msg+="Executed on: %s" %(f.read())
     msg+="\n\n%s" %os.environ['BUILD_URL']
     gl_trigger.post_commit_comment(msg)
-    if gl_trigger.repository == "NetworkManager-ci":
-        gl_trigger.report_junit(os.environ['BUILD_URL'] + "/artifact/junit.xml")
 
 def main ():
     logging.basicConfig(level=logging.DEBUG)

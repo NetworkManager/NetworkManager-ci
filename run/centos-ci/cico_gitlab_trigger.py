@@ -122,8 +122,16 @@ class GitlabTrigger(object):
         com = self.gl_project.commits.get(self.commit)
         com.comments.create({'note': text})
 
-    def report_junit(self, junit_url):
-        self.gl_project.pipelines.create({"ref": self.source_branch, "variables": [{"key": "JUNIT_URL", "value": junit_url}]})
+    def play_commit_job(self):
+        com = self.gl_project.commits.get(self.commit)
+        if com.last_pipeline is None:
+            return
+        pipeline = self.gl_project.pipelines.get(com.last_pipeline["id"])
+        jobs = pipeline.jobs.list()
+        for job in jobs:
+            if job.name == "TestResults":
+                job_trigger = self.gl_project.jobs.get(job.id)
+                job_trigger.play()
 
     def mapper_text(self, refspec):
         print(">> Reading mapper.yaml from gitlab ref: " + refspec)
