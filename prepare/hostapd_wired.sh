@@ -94,6 +94,11 @@ function copy_certificates ()
 function start_nm_hostapd ()
 {
 
+    if grep -q 'Stream release 8' /etc/redhat-release ;then
+        local policy_file="tmp/selinux-policy/hostapd-wired-c8s.pp"
+        semodule -i $policy_file || echo "ERROR: unable to load selinux policy !!!"
+    fi
+
     local hostapd="hostapd -ddd $HOSTAPD_CFG"
     systemd-run --unit nm-hostapd $hostapd
     sleep 5
