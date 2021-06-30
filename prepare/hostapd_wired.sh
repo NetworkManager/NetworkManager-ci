@@ -91,11 +91,21 @@ function copy_certificates ()
     update-ca-trust extract
 }
 
+function release_between () {
+    rel_min="release $1"
+    rel_max="release $2"
+    rel="$(grep -o 'release [0-9.]*' /etc/redhat-release)"
+    vers="$(echo -e "$rel_min\n$rel_max\n$rel" | sort -V)"
+    [ "$rel_min" == "$(echo "$vers" | head -n1)" ] || return 1
+    [ "$rel_max" == "$(echo "$vers" | tail -n1)" ] || return 1
+    return 0
+}
+
 function start_nm_hostapd ()
 {
 
-    if grep -q 'Stream release 8' /etc/redhat-release ;then
-        local policy_file="tmp/selinux-policy/hostapd-wired-c8s.pp"
+    if grep -q 'Stream release 8' /etc/redhat-release || release_between 8.5 8.999; then
+        local policy_file="tmp/selinux-policy/hostapd_wired_c8s.pp"
         semodule -i $policy_file || echo "ERROR: unable to load selinux policy !!!"
     fi
 
