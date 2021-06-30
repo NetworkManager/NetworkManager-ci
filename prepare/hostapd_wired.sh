@@ -106,7 +106,10 @@ function start_nm_hostapd ()
 
     if grep -q 'Stream release 8' /etc/redhat-release || release_between 8.5 8.999; then
         local policy_file="tmp/selinux-policy/hostapd_wired_c8s.pp"
-        semodule -i $policy_file || echo "ERROR: unable to load selinux policy !!!"
+        if ! [ -f "/tmp/hostapd_wired_selinux" ] ; then
+            touch "/tmp/hostapd_wired_selinux"
+            semodule -i $policy_file || echo "ERROR: unable to load selinux policy !!!"
+        fi
     fi
 
     local hostapd="hostapd -ddd $HOSTAPD_CFG"
