@@ -324,7 +324,7 @@ def prepare_simdev(context, device):
     # Add route
     context.command_code("ip netns exec {device}2_ns ip route add fd01::/64 via fd02::1 dev {device}2p".format(device=device))
     # Run netcat server to receive some data
-    context.pexpect_service("/bin/bash", ["-c", "ip netns exec {device}2_ns nc -6 -l -p 8080 > /dev/null".format(device=device)])
+    context.pexpect_service("ip netns exec {device}2_ns nc -6 -l -p 8080 > /dev/null".format(device=device), shell=True)
 
     if not hasattr(context, 'testvethns'):
         context.testvethns = []
@@ -368,7 +368,7 @@ def prepare_simdev_no_carrier(context, device):
 @step(u'Start pppoe server with "{name}" and IP "{ip}" on device "{dev}"')
 def start_pppoe_server(context, name, ip, dev):
     context.command_code("ip link set dev %s up" % dev)
-    context.pexpect_service("/bin/bash", ["-c", "kill -9 $(pidof pppoe-server); pppoe-server -S %s -C %s -L %s -p /etc/ppp/allip -I %s" % (name, name, ip, dev)])
+    context.pexpect_service("kill -9 $(pidof pppoe-server); pppoe-server -S %s -C %s -L %s -p /etc/ppp/allip -I %s" % (name, name, ip, dev), shell=True)
     time.sleep(0.5)
 
 
@@ -377,7 +377,7 @@ def start_pppoe_server(context, name, ip, dev):
     dev_p = dev + "p"
     context.execute_steps(u"""
             * Prepare simulated test "%s" device""" % dev)
-    context.pexpect_service("/bin/bash", ["-c", "kill -9 $(pidof pppoe-server); ip netns exec %s_ns pppoe-server -S %s -C %s -L %s -p /etc/ppp/allip -I %s" %(dev, name, name, ip, dev_p)])
+    context.pexpect_service("kill -9 $(pidof pppoe-server); ip netns exec %s_ns pppoe-server -S %s -C %s -L %s -p /etc/ppp/allip -I %s" %(dev, name, name, ip, dev_p), shell=True)
     time.sleep(0.5)
 
 

@@ -26,7 +26,7 @@ def add_new_default_connection_without_ifname(context, typ, options=None):
     if options is None:
         options = context.text.replace("\n", " ")
 
-    cli = context.pexpect_spawn('nmcli connection add type %s %s' % (typ, options))
+    cli = context.pexpect_spawn('nmcli connection add type %s %s' % (typ, options), shell=True)
     assert cli.expect(['Error', pexpect.TIMEOUT, pexpect.EOF]) == 2, \
         'Got an Error while creating connection of type %s with options %s\n%s%s' % (typ, options, cli.after, cli.buffer)
 

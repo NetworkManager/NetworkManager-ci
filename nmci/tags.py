@@ -1761,7 +1761,7 @@ _register_tag("permissive", permissive_bs, permissive_as)
 def tcpdump_bs(ctx, scen):
     with open("/tmp/network-traffic.log", "w") as f:
         f.write("~~~~~~~~~~~~~~~~~~~~~~~~~~ TRAFFIC LOG ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
-    ctx.pexpect_service("/bin/bash", ["-c", "sudo tcpdump -nne -i any >> /tmp/network-traffic.log"])
+    ctx.pexpect_service("sudo tcpdump -nne -i any >> /tmp/network-traffic.log", shell=True)
 
 
 def tcpdump_as(ctx, scen):

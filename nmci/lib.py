@@ -126,18 +126,22 @@ def set_up_commands(context):
         out, err, code = _run(command, *a, **kw)
         return code
 
-    def _pexpect_spawn(*a, encoding="utf-8", logfile=None, **kw):
+    def _pexpect_spawn(*a, encoding="utf-8", logfile=None, shell=False, **kw):
         if logfile is None:
             logfile = open("/tmp/expect.log."+str(context._log_index), "w")
             context._log_index += 1
+        if shell:
+            a = ["/bin/bash", ["-c", *a]]
         proc = pexpect.spawn(*a, **kw, logfile=logfile, encoding=encoding)
         context._expect_procs.append((proc, logfile))
         return proc
 
-    def _pexpect_service(*a, encoding="utf-8", logfile=None, **kw):
+    def _pexpect_service(*a, encoding="utf-8", logfile=None, shell=False, **kw):
         if logfile is None:
             logfile = open("/tmp/expect_service.log."+str(context._log_index), "w")
             context._log_index += 1
+        if shell:
+            a = ["/bin/bash", ["-c", *a]]
         proc = pexpect.spawn(*a, **kw, logfile=logfile, encoding=encoding)
         context._expect_services.append((proc, logfile))
         return proc

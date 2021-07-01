@@ -72,7 +72,7 @@ def execute_command(context, command):
 
 @step(u'Execute "{command}" without waiting for process to finish')
 def execute_command_nowait(context, command):
-    context.pexpect_service("/bin/bash", ["-c", command])
+    context.pexpect_service(command, shell=True)
 
 
 @step(u'Execute "{command}" without output redirect')
@@ -204,7 +204,7 @@ def check_pattern_command(context, command, pattern, seconds, check_type="defaul
     seconds = int(seconds)
     orig_seconds = seconds
     while seconds > 0:
-        proc = context.pexpect_spawn('/bin/bash', ['-c', command], timeout=timeout, maxread=maxread, codec_errors='ignore')
+        proc = context.pexpect_spawn(command, shell=True, timeout=timeout, maxread=maxread, codec_errors='ignore')
         if exact_check:
             ret = proc.expect_exact([pattern, pexpect.EOF])
         elif json_check:
@@ -332,7 +332,7 @@ def check_pattern_not_visible_with_tab_after_command(context, pattern, command):
 @step(u'Run child "{command}"')
 def run_child_process(context, command):
     context.children = getattr(context, "children", [])
-    child = context.pexpect_service("/bin/bash", ["-c", command])
+    child = context.pexpect_service(command, shell=True)
     context.children.append(child)
 
 
