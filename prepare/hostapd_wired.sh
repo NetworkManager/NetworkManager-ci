@@ -104,7 +104,7 @@ function release_between () {
 function start_nm_hostapd ()
 {
 
-    if grep -q 'Stream release 8' /etc/redhat-release || release_between 8.5 8.999; then
+    if grep -q 'Stream release 8' /etc/redhat-release || release_between 8.4 8.999; then
         local policy_file="tmp/selinux-policy/hostapd_wired_c8s.pp"
         if ! [ -f "/tmp/hostapd_wired_selinux" ] ; then
             touch "/tmp/hostapd_wired_selinux"
