@@ -26,6 +26,7 @@ component:
       - usb_modeswitch
       - mobile-broadband-provider-info
       - libnl3
+      - dracut
   gated-by:
     - gnome-control-center
     - gnome-shell
@@ -1259,12 +1260,12 @@ testmapper:
         feature: ethernet
     - dracut_setup:
         feature: dracut
-        tags: gate
+        tags: gate dracut
     - dracut_NM_NFS_root_dhcp:
         feature: dracut
     - dracut_NM_NFS_root_dhcp_ip_dhcp_neednet:
         feature: dracut
-        tags: gate
+        tags: gate dracut
     - dracut_NM_NFS_root_dhcp_ip_dhcp_peerdns0:
         feature: dracut
     - dracut_NM_NFS_root_dhcp_vendor_class:
@@ -1273,6 +1274,7 @@ testmapper:
         feature: dracut
     - dracut_NM_NFS_root_nfs_ip_dhcp_mtu_cloned_mac:
         feature: dracut
+        tags: dracut
     - dracut_NM_NFS_root_nfs_ip_dhcp_hostname:
         feature: dracut
     - dracut_NM_NFS_root_nfs_ip_dhcp_rd_routes:
@@ -1281,6 +1283,7 @@ testmapper:
         feature: dracut
     - dracut_NM_NFS_root_nfs_ip_manual:
         feature: dracut
+        tags: dracut
     - dracut_NM_NFS_root_nfs_ip_manual_gateway_hostname_mac:
         feature: dracut
     - dracut_NM_NFS_root_nfs_ip_manual_mtu:
@@ -1311,7 +1314,7 @@ testmapper:
         feature: dracut
     - dracut_NM_iSCSI_ibft_table:
         feature: dracut
-        tags: gate
+        tags: gate dracut
     - dracut_NM_iSCSI_multiple_targets:
         feature: dracut
     - dracut_NM_bridge_eth0:
@@ -1336,7 +1339,7 @@ testmapper:
         feature: dracut
     - dracut_teardown:
         feature: dracut
-        tags: gate
+        tags: gate dracut
     - nmcli_logging:
         feature: general
     - reduce_logging:
