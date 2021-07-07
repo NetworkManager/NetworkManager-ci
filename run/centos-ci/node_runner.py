@@ -228,6 +228,12 @@ def prepare_box(nm_refspec, nm_mr, nm_repo=None):
     if not nm_repo or nm_repo == "https://gitlab.freedesktop.org/NetworkManager/NetworkManager/":
         if nm_refspec == "main":
             dir = "NetworkManager-main-debug"
+        if nm_refspec == "nm-1-36":
+            dir = "NetworkManager-1.36-debug"
+        if nm_refspec == "nm-1-34":
+            dir = "NetworkManager-1.34-debug"
+        if nm_refspec == "nm-1-32":
+            dir = "NetworkManager-1.32-debug"
         if nm_refspec == "nm-1-30":
             dir = "NetworkManager-1.30-debug"
         if nm_refspec == "nm-1-28":
