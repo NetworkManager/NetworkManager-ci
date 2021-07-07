@@ -38,7 +38,7 @@ TestResults:
       done
       [ -f report.xml ] || exit 1
       sed -n "/LOG:/n;p" report.xml | sed "s/<.*//g" | sort
-      ! grep -F "<failure>" report.xml
+      ! grep -q -F "<failure>" report.xml
   artifacts:
     when: always
     reports:
