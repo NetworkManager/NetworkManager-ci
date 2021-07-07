@@ -2655,6 +2655,8 @@ testmapper:
         feature: nmtui_wifi_hwsim
     - nmtui_simwifi_teardown:
         feature: nmtui_wifi_hwsim
+    - crashing_NM_binary:
+        feature: general
 
 
   NetworkManager-gsm:
@@ -2944,8 +2946,6 @@ testmapper:
         feature: nmtui_wifi
     - nmtui_wifi_connect_to_network_after_dismissal:
         feature: nmtui_wifi
-    - crashing_NM_binary:
-        feature: general
 
 
   NetworkManager-infiniband:
