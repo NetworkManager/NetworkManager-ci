@@ -661,7 +661,10 @@ def after_crash_reset(context):
     print("Start NM")
     rc = context.command_code("systemctl start NetworkManager")
     if rc != 0:
-        print("Unable to start NM! Something very bad happened.")
+        print("Unable to start NM! Something very bad happened, trying to `pkill NetworkManager`")
+        if context.command_code("pkill NetworkManager") == 0:
+            if context.command_code("systemctl start NetworkManager") != 0:
+                print("NM still not up!")
 
     print("Wait for testeth0")
     wait_for_testeth0(context)

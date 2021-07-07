@@ -280,6 +280,7 @@ def _after_scenario(context, scenario):
 
     if excepts or context.crashed_step:
         context.after_scenario_step_el.set("class", "step failed")
+    if excepts:
         context.embed("text/plain", "\n\n".join(excepts), "Exception in after scenario tags")
 
     # add Before/After scenario steps to HTML
@@ -293,6 +294,12 @@ def _after_scenario(context, scenario):
     duration_el.text = f"({duration:.3f}s)"
 
     assert not excepts, "Exception in after scenario tags"
+
+    if context.crashed_step and "crash" not in scenario.effective_tags:
+        assert False, "Crash happened"
+
+    if not context.crashed_step and "crash" in scenario.effective_tags:
+        assert False, "Crash did not happen"
 
 
 def after_tag(context, tag):

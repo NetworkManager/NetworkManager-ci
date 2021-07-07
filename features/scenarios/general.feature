@@ -13,15 +13,11 @@ Feature: nmcli - general
     * Execute "nmcli --version"
 
 
-    @xfail
     @crash
     @crashing_NM_binary
     Scenario: Dummy scenario that is supposed to test crash embeding
-    * Stop NM
-    * Execute "cp /tmp/crash /sbin/NetworkManager"
-    * Restart NM
-    # leave some time for abrt or coredump to process crashes
-    * Execute "sleep 10"
+    * Execute "pkill -SIGSEGV NetworkManager"
+    * Execute "echo 'Leave some time for coredump to process crash'; sleep 10"
 
 
     @logging

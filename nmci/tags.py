@@ -120,19 +120,21 @@ _register_tag("gsm_sim", gsm_sim_bs, gsm_sim_as)
 
 
 def crash_bs(ctx, scen):
-    # backup NM binary (if not done already)
-    if not os.path.isfile("/tmp/NetworkManager"):
-        ctx.run("cp /sbin/NetworkManager /tmp/NetworkManager")
-    # compile crashing binary
-    src = "contrib/crash/crash.c"
-    assert ctx.command_code(f"gcc -o /tmp/crash {src}") == 0, \
-        f"Unable to compile crashing binary {src}"
+    # set core pattern to coredump
+    ctx.core_pattern = ctx.command_output("sysctl -n kernel.core_pattern")
+    # default systemd core_pattern, but search for it in sysctl.d
+    systemd_core_pattern = "|/usr/lib/systemd/systemd-coredump %P %u %g %s %t %c %h %e"
+    if "systemd-coredump" not in ctx.core_pattern:
+        if os.path.isfile("/usr/lib/sysctl.d/50-coredump.conf"):
+            ctx.command_output("sysctl -p /usr/lib/sysctl.d/50-coredump.conf")
+        else:
+            ctx.command_output(f"sysctl -w kernel.core_pattern='{systemd_core_pattern}'")
 
 
 def crash_as(ctx, scen):
-    # copy NM binary back
-    ctx.run("cp /tmp/NetworkManager /sbin/NetworkManager")
     ctx.run("systemctl restart NetworkManager")
+    if "systemd-coredump" not in ctx.core_pattern:
+        ctx.command_output(f"sysctl -w kernel.core_pattern='{ctx.core_pattern}'")
 
 
 _register_tag("crash", crash_bs, crash_as)
