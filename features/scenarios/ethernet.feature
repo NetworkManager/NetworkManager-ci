@@ -41,7 +41,7 @@ Feature: nmcli - ethernet
     @ethernet @veth
     @ethernet_create_ifname_generic_connection
     Scenario: nmcli - ethernet - create ifname generic connection
-    * Add a new connection of type "ethernet" and options "ifname * con-name ethos autoconnect no"
+    * Add a new connection of type "ethernet" and options "ifname '*' con-name ethos autoconnect no"
     * Bring up connection "ethos"
     Then "ethernet\s+connected\s+ethos" is visible with command "nmcli device"
 
@@ -93,7 +93,7 @@ Feature: nmcli - ethernet
     @ethernet
     @ethernet_set_matching_mac
     Scenario: nmcli - ethernet - set matching mac adress
-    * Add a new connection of type "ethernet" and options "ifname * con-name ethernet autoconnect no"
+    * Add a new connection of type "ethernet" and options "ifname '*' con-name ethernet autoconnect no"
     * Note the "ether" property from ifconfig output for device "eth1"
     * Open editor for connection "ethernet"
     * Set a property named "802-3-ethernet.mac-address" to "noted-value" in editor

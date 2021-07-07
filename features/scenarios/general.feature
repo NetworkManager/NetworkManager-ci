@@ -1257,8 +1257,8 @@ Feature: nmcli - general
     @con_general_remove @netservice @restart_if_needed @eth10_disconnect @rhelver-=7 @fedoraver-=0 @connect_testeth0 @restore_broken_network
     @nmcli_general_profile_pickup_doesnt_break_network
     Scenario: nmcli - general - profile pickup does not break network service
-    * Add a new connection of type "ethernet" and options "ifname * con-name con_general"
-    * Add a new connection of type "ethernet" and options "ifname * con-name con_general2"
+    * Add a new connection of type "ethernet" and options "ifname '*' con-name con_general"
+    * Add a new connection of type "ethernet" and options "ifname '*' con-name con_general2"
     * "connected:con_general" is visible with command "nmcli -t -f STATE,CONNECTION device" in "50" seconds
     * "connected:con_general2" is visible with command "nmcli -t -f STATE,CONNECTION device" in "50" seconds
     # Finish asserts the command exited with 0, thus the network service completed properly
