@@ -120,21 +120,32 @@ _register_tag("gsm_sim", gsm_sim_bs, gsm_sim_as)
 
 
 def crash_bs(ctx, scen):
-    # set core pattern to coredump
+    # get core pattern
     ctx.core_pattern = ctx.command_output("sysctl -n kernel.core_pattern")
-    # default systemd core_pattern, but search for it in sysctl.d
-    systemd_core_pattern = "|/usr/lib/systemd/systemd-coredump %P %u %g %s %t %c %h %e"
     if "systemd-coredump" not in ctx.core_pattern:
+        # search for core pattern it in sysctl.d, if not found use default
         if os.path.isfile("/usr/lib/sysctl.d/50-coredump.conf"):
             ctx.command_output("sysctl -p /usr/lib/sysctl.d/50-coredump.conf")
         else:
+            systemd_core_pattern = "|/usr/lib/systemd/systemd-coredump %P %u %g %s %t %c %h %e"
             ctx.command_output(f"sysctl -w kernel.core_pattern='{systemd_core_pattern}'")
+    # unmask systemd-coredump.socket if needed
+    out, _, rc = ctx.run("systemctl is-enabled systemd-coredump.socket")
+    ctx.systemd_coredump_masked = rc != 0 and "masked" in out
+    if ctx.systemd_coredump_masked:
+        ctx.run("systemctl unmask systemd-coredump.socket")
+        ctx.run("systemctl restart systemd-coredump.socket")
+    # set core file size limit of Networkmanager (centos workaround)
+    ctx.run("prlimit --core=unlimited:unlimited --pid $(pidof NetworkManager)")
 
 
 def crash_as(ctx, scen):
     ctx.run("systemctl restart NetworkManager")
     if "systemd-coredump" not in ctx.core_pattern:
         ctx.command_output(f"sysctl -w kernel.core_pattern='{ctx.core_pattern}'")
+    if ctx.systemd_coredump_masked:
+        ctx.run("systemctl stop systemd-coredump.socket")
+        ctx.run("systemctl mask systemd-coredump.socket")
 
 
 _register_tag("crash", crash_bs, crash_as)

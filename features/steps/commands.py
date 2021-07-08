@@ -497,3 +497,12 @@ def note_NM_log(context):
         context.noted = {}
     # do not use context, as log might be too big to embed
     context.noted['noted-value'] = nmci.command_output("sudo journalctl -all -u NetworkManager --no-pager -o cat %s" % context.log_cursor)
+
+
+@step(u'Check coredump is not found in "{seconds}" seconds')
+def check_no_coredump(context, seconds):
+    for i in range(int(seconds)):
+        nmci.lib.check_coredump(context)
+        if context.crash_embeded:
+            assert False, "Coredump found"
+        time.sleep(1)

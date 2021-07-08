@@ -277,6 +277,7 @@ def _after_scenario(context, scenario):
         if not context.crash_embeded:
             msg = "!!! no crash report detected, but NM PID changed !!!"
             context.embed('text/plain', msg, caption="NO_COREDUMP/NO_FAF")
+        nmci.lib.after_crash_reset(context)
 
     if excepts or context.crashed_step:
         context.after_scenario_step_el.set("class", "step failed")
@@ -293,13 +294,15 @@ def _after_scenario(context, scenario):
 
     duration_el.text = f"({duration:.3f}s)"
 
-    assert not excepts, "Exception in after scenario tags"
+    # we need to keep state "passed" here, as '@crash' test is expected to fail
+    if 'crash' in scenario.effective_tags and not context.crash_embeded:
+        print("No crashdump found")
+        return
 
-    if context.crashed_step and "crash" not in scenario.effective_tags:
+    if context.crashed_step:
         assert False, "Crash happened"
 
-    if not context.crashed_step and "crash" in scenario.effective_tags:
-        assert False, "Crash did not happen"
+    assert not excepts, "Exception in after scenario tags"
 
 
 def after_tag(context, tag):

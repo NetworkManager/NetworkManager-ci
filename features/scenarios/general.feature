@@ -13,11 +13,13 @@ Feature: nmcli - general
     * Execute "nmcli --version"
 
 
-    @crash
+    @xfail @crash
     @crashing_NM_binary
     Scenario: Dummy scenario that is supposed to test crash embeding
+    * Execute "sysctl kernel.core_pattern"
     * Execute "pkill -SIGSEGV NetworkManager"
-    * Execute "echo 'Leave some time for coredump to process crash'; sleep 10"
+    # the test should fail, because @xfail reverts returncode
+    Then Check coredump is not found in "60" seconds
 
 
     @logging

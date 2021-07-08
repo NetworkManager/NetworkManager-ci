@@ -385,7 +385,6 @@ def embed_dump(context, dump_id, dump_output, caption, do_report):
         else:
             if do_report:
                 context.crashed_step = "crash outside steps (envsetup, before / after scenario...)"
-    after_crash_reset(context)
 
 
 def list_dumps(dumps_search):
@@ -610,10 +609,6 @@ def unmanage_veths(context):
 
 def after_crash_reset(context):
     print('@after_crash_reset')
-    if getattr(context, "after_crash_reset_run", False):
-        print(" skip - already executed")
-        return
-    context.after_crash_reset_run = True
 
     print("Stop NM")
     context.run("systemctl stop NetworkManager")
