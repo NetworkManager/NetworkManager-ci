@@ -420,7 +420,8 @@ Feature: nmcli - bridge
     Then "active" is visible with command "systemctl is-active NetworkManager.service"
 
 
-    @1000 @not_on_aarch64 @skip_str @unload_kernel_modules
+    @not_on_aarch64 @skip_str
+    @1000 @dummy @unload_kernel_modules
     @bridge_manipulation_with_1000_slaves
     Scenario: NM - bridge - manipulation with 1000 slaves bridge
     * Add a new connection of type "bridge" and options "ifname bridge0 con-name bridge4 bridge.stp off"
@@ -440,24 +441,6 @@ Feature: nmcli - bridge
     * Execute "sudo ip addr add 1.1.1.2/24 dev br0"
     When "IP4.ADDRESS\[1\]:\s+1.1.1.2\/24" is visible with command "nmcli con show br0" in "5" seconds
     Then "br0" is not visible with command "firewall-cmd --get-active-zones" in "5" seconds
-
-
-    @ver-=1.1.0
-    @dummy
-    @bridge_assumed_connection_ip_methods
-    Scenario: NM - bridge - Layer2 changes for bridge assumed connection
-    * Execute "sudo ip link add br0 type bridge"
-    * Execute "sudo ip link add dummy0 type dummy"
-    * Execute "sudo ip link set dummy0 master br0"
-    When "br0" is not visible with command "nmcli con"
-    * Execute "sudo ip link set dev br0 up"
-    When "ipv4.method:\s+disabled.*ipv6.method:\s+ignore" is visible with command "nmcli connection show br0" in "5" seconds
-    * Execute "sudo ip link set dev dummy0 up"
-    * Execute "sudo ip addr add 1.1.1.2/24 dev dummy0"
-    When "ipv4.method:\s+disabled.*ipv6.method:\s+link-local" is visible with command "nmcli connection show br0" in "5" seconds
-    * Execute "sudo ip addr add 1::3/128 dev br0"
-    * Execute "sudo ip addr add 1.1.1.3/24 dev br0"
-    Then "ipv4.method:\s+manual.*ipv4.addresses:\s+1.1.1.3\/24.*ipv6.method:\s+manual.*ipv6.addresses:\s+1::3\/128" is visible with command "nmcli connection show br0" in "5" seconds
 
 
     @ver+=1.1.1
