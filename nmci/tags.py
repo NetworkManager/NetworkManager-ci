@@ -717,6 +717,37 @@ def ifcfg_rh_as(ctx, scen):
 _register_tag("ifcfg-rh", ifcfg_rh_bs, ifcfg_rh_as)
 
 
+def keyfile_bs(ctx, scen):
+    if ctx.command_code("NetworkManager --print-config |grep '^plugins=keyfile'") != 0:
+        print("setting keyfile plugin")
+        # VV Do not lower this as some devices can be still going down
+        time.sleep(0.5)
+        ctx.run("printf '# configured by beaker-test\n[main]\nplugins=ifcfg-rh\n' > /etc/NetworkManager/conf.d/99-xxcustom.conf")
+        nmci.lib.restart_NM_service(ctx)
+        if ctx.IS_NMTUI:
+            # comment out wifi_rescan, as simwifi prepare not done yet
+            # if "simwifi" in scen.tags:
+            #     nmci.lib.wifi_rescan()
+            # VV Do not lower this as nmtui can be behaving weirdly
+            time.sleep(4)
+        time.sleep(0.5)
+
+
+def keyfile_as(ctx, scen):
+    if os.path.isfile("/etc/NetworkManager/conf.d/99-xxcustom.conf"):
+        print("resetting ifcfg plugin")
+        ctx.run('sudo rm -f /etc/NetworkManager/conf.d/99-xxcustom.conf')
+        nmci.lib.restart_NM_service(ctx)
+        if ctx.IS_NMTUI:
+            # if 'simwifi' in scen.tags:
+            #     nmci.lib.wifi_rescan()
+            time.sleep(4)
+        time.sleep(0.5)
+
+
+_register_tag("keyfile", keyfile_bs, keyfile_as)
+
+
 def plugin_default_bs(ctx, scen):
     if os.path.isfile("/etc/NetworkManager/conf.d/99-test.conf"):
         print("remove 'plugins=*' from 99-test.conf")

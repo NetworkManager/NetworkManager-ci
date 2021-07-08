@@ -789,3 +789,50 @@ Feature: nmcli - ethernet
     * Modify connection "con_ethernet" changing options "802-3-ethernet.accept-all-mac-addresses false"
     * Bring "up" connection "con_ethernet"
     Then "PROMISC" is not visible with command "ip link show dev eth1"
+
+
+    @rhbz1935842
+    @keyfile @con_ethernet_remove
+    @ethernet_s390_options_with_subchannels
+    Scenario: nmcli - ethernet - set ethernet.s390-options with subchannels
+    * Add a new connection of type "ethernet" and options
+       """
+       con-name con_ethernet ifname eth1
+       autoconnect no
+       802-3-ethernet.s390-options portno=20
+       802-3-ethernet.s390-subchannels "0.0.8000,0.0.8001,0.0.8002"
+       """
+    Then "portno=20" is visible with command "nmcli -g 802-3-ethernet.s390-options con show id con_ethernet"
+    And "0.0.8000,0.0.8001,0.0.8002" is visible with command "nmcli -g 802-3-ethernet.s390-subchannels con show id con_ethernet"
+    * Modify connection "con_ethernet" changing options "802-3-ethernet.s390-options layer2=secondary,portno=6"
+    Then "layer2=secondary" is visible with command "nmcli -g 802-3-ethernet.s390-options con show id con_ethernet"
+    And "portno=6" is visible with command "nmcli -g 802-3-ethernet.s390-options con show id con_ethernet"
+    * Modify connection "con_ethernet" changing options "+802-3-ethernet.s390-options layer2=none"
+    Then "layer2=none" is visible with command "nmcli -g 802-3-ethernet.s390-options con show id con_ethernet"
+    And "portno=6" is visible with command "nmcli -g 802-3-ethernet.s390-options con show id con_ethernet"
+    * Modify connection "con_ethernet" changing options "-802-3-ethernet.s390-options portno"
+    Then "layer2=none" is visible with command "nmcli -g 802-3-ethernet.s390-options con show id con_ethernet"
+    And "portno" is not visible with command "nmcli -g 802-3-ethernet.s390-options con show id con_ethernet"
+
+
+    @rhbz1935842
+    @ver+=1.32.2
+    @con_ethernet_remove
+    @ethernet_s390_options_without_subchannels
+    Scenario: nmcli - ethernet - set ethernet.s390-options without setting s390-subchannels
+    * Add a new connection of type "ethernet" and options
+       """
+       con-name con_ethernet ifname eth1
+       autoconnect no
+       802-3-ethernet.s390-options bridge_role=primary
+       """
+    Then "bridge_role=primary" is visible with command "nmcli -g 802-3-ethernet.s390-options con show id con_ethernet"
+    * Modify connection "con_ethernet" changing options "802-3-ethernet.s390-options bridge_role=secondary,portno=6"
+    Then "bridge_role=secondary" is visible with command "nmcli -g 802-3-ethernet.s390-options con show id con_ethernet"
+    And "portno=6" is visible with command "nmcli -g 802-3-ethernet.s390-options con show id con_ethernet"
+    * Modify connection "con_ethernet" changing options "+802-3-ethernet.s390-options bridge_role=none"
+    Then "bridge_role=none" is visible with command "nmcli -g 802-3-ethernet.s390-options con show id con_ethernet"
+    And "portno=6" is visible with command "nmcli -g 802-3-ethernet.s390-options con show id con_ethernet"
+    * Modify connection "con_ethernet" changing options "-802-3-ethernet.s390-options portno"
+    Then "bridge_role=none" is visible with command "nmcli -g 802-3-ethernet.s390-options con show id con_ethernet"
+    And "portno" is not visible with command "nmcli -g 802-3-ethernet.s390-options con show id con_ethernet"

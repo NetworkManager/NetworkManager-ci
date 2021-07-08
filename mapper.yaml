@@ -1256,6 +1256,10 @@ testmapper:
         feature: ethernet
     - ethtool_features_pause:
         feature: ethernet
+    - ethernet_s390_options_with_subchannels:
+        feature: ethernet
+    - ethernet_s390_options_without_subchannels:
+        feature: ethernet
     - dracut_setup:
         feature: dracut
         tags: gate dracut
