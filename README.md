@@ -131,6 +131,7 @@ This repo contains a set of integration tests for NetworkManager and CentOS 8 St
     * runtest.sh
       * the main driver of tests
       * execution of test looks like: `run/runtest.sh test_name`
+      * to embed everything to HTML use: `NMCI_DEBUG=yes run/runtest.sh test_name`
     * runfeature.sh
       * doing the same as runtest.sh but for whole features
       * `run/runfeature.sh bond` for example
