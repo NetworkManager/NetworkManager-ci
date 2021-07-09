@@ -111,6 +111,7 @@ Feature: nmcli - general
 
 
     @ver+=1.4.0
+    @ver-=1.31
     @con_general_remove @teardown_testveth @eth0 @restore_hostname
     @pull_hostname_from_dns
     Scenario: nmcli - general - pull hostname from DNS
@@ -128,6 +129,42 @@ Feature: nmcli - general
     * Add a new connection of type "ethernet" and options "ifname testG con-name con_general autoconnect no ipv6.method ignore ipv4.method auto"
     * Modify connection "con_general" changing options "ipv4.address 172.25.13.1/30 ethernet.cloned-mac-address 00:11:22:33:44:55"
     When "localhost|fedora" is visible with command "hostnamectl --transient" in "60" seconds
+    * Bring up connection "con_general"
+    When "ransient" is visible with command "hostnamectl" in "60" seconds
+    Then "foo-bar" is visible with command "hostnamectl --transient" in "60" seconds
+
+
+    @rhbz1970335
+    @ver+=1.32.0
+    @con_general_remove @teardown_testveth @kill_children @internal_DHCP @dhcpd
+    @eth0 @restore_hostname
+    @pull_hostname_from_dns
+    Scenario: nmcli - general - pull hostname from DNS
+    # Note: we want to test the name resolution via DNS lookup. If we used the
+    # default DHCP range, even if the DNS lookup fails the glibc resolver would
+    # look into /etc/hosts and return one of the names there. Instead, use a
+    # different range without mapping in /etc/hosts.
+    # Note/2: we also add a static address so that NM will first try to resolve
+    # that (and fail because at that point there is no name server). Later,
+    # after the DHCPv4 lease is obtained, NM will try again and succeed.
+    # Note/3: --dhcp-option=12 is to prevent NM from sending a hostname option
+    # Note/4: We have ipv6 only default device testX6 not setting hostname.
+    * Prepare simulated test "testX6" device without DHCP
+    * Execute "ip -n testX6_ns addr add dev testX6p fc01::1/64"
+    * Run child "ip netns exec testX6_ns radvd -n -C tmp/ipv6/radvd.conf" without shell
+    * Execute "echo > /tmp/ip6leases.conf"
+    * Run child "ip netns exec testX6_ns dhcpd -6 -d -cf tmp/ipv6/dhcpd.conf -lf /tmp/ip6leases.conf" without shell
+    * Prepare simulated test "testG" device with "172.25.15" ipv4 and daemon options "--dhcp-option=12 --dhcp-host=00:11:22:33:44:55,172.25.15.1,foo-bar"
+    * Execute "ip netns exec testG_ns kill -SIGSTOP $(cat /tmp/testG_ns.pid)"
+    * Execute "hostnamectl set-hostname """
+    * Execute "hostnamectl set-hostname --transient localhost.localdomain"
+    * Add a new connection of type "ethernet" and options "ifname testG con-name con_general autoconnect no ipv4.method auto"
+    * Add a new connection of type "ethernet" and options "ifname testX6 con-name con_general2 ipv6.method auto"
+    * Modify connection "con_general" changing options "ipv4.address 172.25.13.1/30 ethernet.cloned-mac-address 00:11:22:33:44:55"
+    When "connected" is visible with command "nmcli -g GENERAL.STATE dev show testX6" in "25" seconds
+    When "localhost|fedora" is visible with command "hostnamectl --transient" in "60" seconds
+    * Execute "sleep 10"
+    * Execute "ip netns exec testG_ns kill -SIGCONT $(cat /tmp/testG_ns.pid)"
     * Bring up connection "con_general"
     When "ransient" is visible with command "hostnamectl" in "60" seconds
     Then "foo-bar" is visible with command "hostnamectl --transient" in "60" seconds
