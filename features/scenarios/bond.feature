@@ -1410,6 +1410,28 @@
      Then "1024" is visible with command "cat /sys/class/net/nm-bond/bonding/packets_per_slave"
 
 
+    @rhbz1963854
+    @ver+=1.33.0
+    @slaves @bond
+    @bond_set_peer_notif_delay_option
+    Scenario: nmcli - bond - set peer_notif_delay option
+     * Add a new connection of type "bond" and options "con-name bond0 ifname nm-bond autoconnect no -- connection.autoconnect-slaves 1 bond.options mode=balance-rr,miimon=300,peer_notif_delay=600"
+     * Add a new connection of type "ethernet" and options "con-name bond0.1 ifname eth4 master nm-bond autoconnect no"
+     * Add a new connection of type "ethernet" and options "con-name bond0.0 ifname eth1 master nm-bond autoconnect no"
+     * Bring "up" connection "bond0"
+     When "nm-bond:connected:bond0" is visible with command "nmcli -t -f DEVICE,STATE,CONNECTION device" in "40" seconds
+     Then "600" is visible with command "cat /sys/class/net/nm-bond/bonding/peer_notif_delay"
+
+
+    @rhbz1963854
+    @ver+=1.33.0
+    @slaves @bond
+    @bond_set_invalid_peer_notif_delay_option
+    Scenario: nmcli - bond - set invalid peer_notif_delay option
+     Then "Error.*needs to be a value multiple of 'miimon' value" is visible with command "nmcli con add type bond con-name bond0 ifname nm-bond autoconnect no -- connection.autoconnect-slaves 1 bond.options mode=balance-rr,miimon=295,peer_notif_delay=600" in "1" seconds
+     Then "Error.*requires 'miimon' option to be enabled" is visible with command "nmcli con add type bond con-name bond0 ifname nm-bond autoconnect no -- connection.autoconnect-slaves 1 bond.options mode=balance-rr,miimon=0,peer_notif_delay=600" in "1" seconds
+
+
     @rhbz1299103 @rhbz1348573
     @ver-=1.26
     @slaves @bond

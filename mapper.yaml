@@ -234,6 +234,10 @@ testmapper:
         feature: bond
     - bond_set_packets_per_slave_option:
         feature: bond
+    - bond_set_peer_notif_delay_option:
+        feature: bond
+    - bond_set_invalid_peer_notif_delay_option:
+        feature: bond
     - bond_set_balance_tlb_options:
         feature: bond
     - bond_set_balance_tlb_options_var2:
