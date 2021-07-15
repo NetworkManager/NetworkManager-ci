@@ -643,6 +643,7 @@ def dummy_as(ctx, scen):
     ctx.run("ip link del vlan")
     ctx.run("ip link del bond0")
     ctx.run("ip link del team0")
+    ctx.run("ip link delete dummy0")
 
 
 _register_tag("dummy", None, dummy_as)
