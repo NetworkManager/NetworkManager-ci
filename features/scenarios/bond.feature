@@ -2021,6 +2021,7 @@
 
     @rhbz1890234
     @ver+=1.31.0
+    @rhel+=8
     @slaves @bond
     @bond_set_MTU_before_DHCP
     Scenario: nmcli - bond - set MTU before DHCP starts
