@@ -514,6 +514,7 @@ Feature: nmcli - ovs
 
     @rhbz1740557 @rhbz1852612 @rhbz1855563 @rhbz1868176
     @ver+=1.26
+    @rhelver+=8
     @openvswitch @disp @teardown_testveth
     @ovs_cloned_mac_set_on_iface
     Scenario: nmcli - openvswitch - mac address set iface
