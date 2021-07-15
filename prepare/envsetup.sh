@@ -187,7 +187,6 @@ install_el9_packages () {
                           python3-dbus python3-gobject dnsmasq tcpdump wireshark-cli file iproute-tc \
                           openvpn perl-IO-Tty dhcp-client rpm-build gcc --skip-broken
 
-    # and few more
     # hostapd and tcpreplay is in epel (not available now), iw was just missing in el9 1915791 (needed for hostpad_wireless)
     dnf -4 -y install https://kojipkgs.fedoraproject.org//packages/tcpreplay/4.3.3/3.fc34/$(arch)/tcpreplay-4.3.3-3.fc34.$(arch).rpm \
                 https://kojipkgs.fedoraproject.org//packages/libdnet/1.14/1.fc34/$(arch)/libdnet-1.14-1.fc34.$(arch).rpm \
@@ -195,6 +194,8 @@ install_el9_packages () {
                 http://download.eng.bos.redhat.com/brewroot/vol/rhel-9/packages/libsmi/0.4.8/27.el9.1/$(arch)/libsmi-0.4.8-27.el9.1.$(arch).rpm \
                 http://download.eng.bos.redhat.com/brewroot/vol/rhel-9/packages/wireshark/3.4.0/1.el9.1/$(arch)/wireshark-cli-3.4.0-1.el9.1.$(arch).rpm --skip-broken
 
+    # and few more
+    dnf -4 -y install https://vbenes.fedorapeople.org/NM/bz1975718/hostapd-2.9-10.el9.bz1975718v4.x86_64.rpm https://vbenes.fedorapeople.org/NM/bz1975718/wpa_supplicant-2.9-15.el9.bz1975718v4.x86_64.rpm
 
     install_behave_pytest
 
