@@ -1412,6 +1412,7 @@
 
     @rhbz1963854
     @ver+=1.33.0
+    @rhelver+=8
     @slaves @bond
     @bond_set_peer_notif_delay_option
     Scenario: nmcli - bond - set peer_notif_delay option
@@ -2021,7 +2022,7 @@
 
     @rhbz1890234
     @ver+=1.31.0
-    @rhel+=8
+    @rhelver+=8
     @slaves @bond
     @bond_set_MTU_before_DHCP
     Scenario: nmcli - bond - set MTU before DHCP starts
