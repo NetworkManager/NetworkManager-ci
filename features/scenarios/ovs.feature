@@ -757,6 +757,7 @@ Feature: nmcli - ovs
 
     @rhbz1921107
     @ver+=1.30
+    @xfail
     @openvswitch @firewall
     @ovs_set_firewalld_zone
     Scenario: NM -  openvswitch - set firewalld zone
