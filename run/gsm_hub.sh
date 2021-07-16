@@ -62,8 +62,9 @@ function test_modems_usb_hub() {
 
         for P in $(seq 0 1 $((PORT_COUNT-1)) ); do
             $DIR/prepare/acroname.py --port $P --disable
+            sleep 1
         done
-
+        sleep 5
         # systemctl stop ModemManager
         # modprobe -r qmi_wwan
         # modprobe qmi_wwan
@@ -71,7 +72,7 @@ function test_modems_usb_hub() {
         # systemctl restart ModemManager
 
         $DIR/prepare/acroname.py --port $M --enable
-
+        sleep 20
         # wait up to 200s for device to appear in NM
         TIMER=20
         while [ $TIMER -gt 0 ]; do
