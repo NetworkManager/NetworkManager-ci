@@ -1171,17 +1171,25 @@ _register_tag("wireguard", wireguard_bs, wireguard_as)
 
 def dracut_bs(ctx, scen):
     rc = ctx.command_code(
-        "cd contrib/dracut; . ./setup.sh ; "
+        "cd contrib/dracut; . ./setup.sh ; set -x; "
         " { time test_setup ; } &> /tmp/dracut_setup.log", shell=True)
+    nmci.lib.embed_file_if_exists(ctx, "/tmp/dracut_setup.log", caption="Dracut setup", fail_only=False)
     if rc != 0:
         print("dracut setup failed, doing clean !!!")
         ctx.run(
             "cd contrib/dracut; . ./setup.sh ;"
             "{ time test_clean; } &> /tmp/dracut_teardown.log", shell=True)
+        nmci.lib.embed_file_if_exists(ctx, "/tmp/dracut_teardown.log", caption="Dracut teardown", fail_only=False)
         assert False, "dracut setup failed"
 
 
 def dracut_as(ctx, scen):
+    # clean an umount client_dumps
+    ctx.run(
+        "cd contrib/dracut/; . ./setup.sh; "
+        "rm -rf $TESTDIR/client_dumps/*; "
+        "umount $DEV_DUMPS; "
+        "umount $DEV_LOG; ")
     # do not embed DHCP directly, cache output for "no free leases" check
     # nmci.lib.embed_service_log(ctx, "dhcpd", "DHCP")
     dhcpd_log = nmci.lib.get_service_log("dhcpd", ctx.log_cursor)

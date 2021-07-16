@@ -80,6 +80,7 @@ if ! [ -f "$VMLINUZ" ]; then
 fi
 
 # print escaped qemu-command command
+echo "QEMU-KVM command:"
 echo -n "$BIN "
 for arg in "${ARGS[@]}"; do
   if [[ "$arg" == *" "* ]]; then
@@ -93,9 +94,7 @@ echo -kernel $VMLINUZ
 i=0
 while (( i++ < REP)); do
   date1=$(date '+%s')
-  # do not remove "& wait $!" here, as qemu-kvm process starts
-  # in stopped state (no idea why)
-  timeout $TIMEOUT $BIN "${ARGS[@]}" -kernel $VMLINUZ < /dev/null; rc=$?
+  timeout $TIMEOUT $BIN "${ARGS[@]}" -kernel $VMLINUZ < /dev/null > /tmp/dracut_boot.log; rc=$?
   date2=$(date '+%s')
 
   # if qemu-kvm lasted at least 10s, finish

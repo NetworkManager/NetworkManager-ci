@@ -11,8 +11,6 @@ REMOTE_JOURNAL = "--root=" + REMOTE_JOURNAL_DIR
 
 
 def embed_dracut_logs(context):
-    nmci.lib.embed_file_if_exists(context, "/tmp/dracut_setup.log", caption="Dracut setup", fail_only=True)
-
     context.run("cd contrib/dracut/; . ./setup.sh; "
                 "mount $DEV_DUMPS $TESTDIR/client_dumps; "
                 "mount $DEV_LOG $TESTDIR/client_log/var/log/; "
@@ -21,22 +19,13 @@ def embed_dracut_logs(context):
     context.dracut_vm_state, _, _ = context.run(
         "cd contrib/dracut/; . ./setup.sh; cat $TESTDIR/client_log/var/log/vm_state")
 
+    nmci.lib.embed_file_if_exists(context, "/tmp/dracut_boot.log", caption="Dracut boot", fail_only=True)
     if not context.dracut_vm_state.startswith("NO"):
         nmci.lib.embed_service_log(context, "test-init", "Dracut Test", journal_arg=REMOTE_JOURNAL, fail_only=False)
         #nmci.lib.embed_service_log(context, "NetworkManager", "Dracut NM", journal_arg=REMOTE_JOURNAL, fail_only=True)
         nmci.lib.embed_service_log(context, "*", "Dracut Journal", journal_arg=REMOTE_JOURNAL, fail_only=False)
 
-    crash = check_core_dumps(context)
-
-    context.run(
-        "cd contrib/dracut/; . ./setup.sh; "
-        "rm -rf $TESTDIR/client_dumps/*; "
-        "umount $DEV_DUMPS; "
-        "umount $DEV_LOG; ")
-
-    nmci.lib.embed_file_if_exists(context, "/tmp/dracut_teardown.log", "Dracut teardown", fail_only=True)
-
-    assert not crash, f"Unexpected crash in initrd (or expected crash did not happen)"
+    check_core_dumps(context)
 
 
 def get_backtrace(context, filename):
@@ -68,12 +57,12 @@ def check_core_dumps(context):
     """
 
     backtraces = ""
-    crash_test = False
+    sleep_crash = False
     other_crash = False
     for filename in os.listdir("/var/dracut_test/client_dumps/"):
         if filename.startswith("dump_"):
-            if filename == "dump_dracut_crash_test":
-                crash_test = True
+            if "sleep" in filename:
+                sleep_crash = True
             else:
                 other_crash = True
             backtraces += filename + ":\n" \
@@ -85,12 +74,13 @@ def check_core_dumps(context):
                 caption="Dracut Crash Dump"
             )
 
-    if crash_test or other_crash:
+    if backtraces:
         context.embed("text/plain", backtraces, caption="Dracut Backtraces")
 
-    # return True (crash not OK) if the is crash other than dracut_crash_test,
-    # or crash_test and context.dracut_crash_test differ
-    return other_crash or (crash_test != getattr(context, "dracut_crash_test", False))
+    assert sleep_crash == getattr(context, "dracut_crash_test", False), \
+        "Excpected sleep crash not detected in initrd"
+    assert not other_crash, "Crash in inird detected"
+
 
 
 def prepare_dracut(context, checks):

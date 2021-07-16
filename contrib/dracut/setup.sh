@@ -15,8 +15,10 @@ test_setup() {
 
   network_setup
 
-  touch /etc/qemu-ifdown
-  chmod +x /etc/qemu-ifdown
+  [ -x /etc/qemu-ifdown ] || {
+      echo '#!/bin/sh' > /etc/qemu-ifdown;
+      chmod +x /etc/qemu-ifdown;
+  }
 
   mkdir $TESTDIR
 
@@ -31,6 +33,7 @@ test_setup() {
 
   # Make client root
   (
+      set +x
       export initdir=$TESTDIR/nfs/client
       . $basedir/dracut-init.sh
 
@@ -88,6 +91,7 @@ test_setup() {
 
   # install systemd in client
   (
+      set +x
       export initdir=$TESTDIR/nfs/client
       . $basedir/dracut-init.sh
 
@@ -245,6 +249,7 @@ EOF
 
   # install NetworkManager to client
   (
+      set +x
       export initdir=$TESTDIR/nfs/client
       . $basedir/dracut-init.sh
 
@@ -325,6 +330,7 @@ EOF
   # client initramfs with NM module
   mkdir $TESTDIR/overlay-client
   (
+     set +x
      export initdir=$TESTDIR/overlay-client
      . $basedir/dracut-init.sh
      inst /etc/machine-id

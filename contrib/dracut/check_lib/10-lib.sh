@@ -119,8 +119,13 @@ ifname_mac() {
 
 
 dracut_crash_test() {
-    # TODO: install crashing binary (eg. derefrence null) and let it crash
-    echo "This is not dump file! It's purpose is to test crash detection." > /tmp/dumps/dump_dracut_crash_test
+    # check for file in /var/log - it gets cleared after the test
+    [ -f /var/log/sleep_crashed ] && return
+    echo > /var/log/sleep_crashed
+    echo "Crashing sleep..."
+    sleep 10 &
+    sleep 1
+    kill -SIGSEGV $!
 }
 
 
