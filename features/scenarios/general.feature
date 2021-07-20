@@ -111,7 +111,7 @@ Feature: nmcli - general
 
 
     @ver+=1.4.0
-    @ver-=1.31
+    @ver-=1.29
     @con_general_remove @teardown_testveth @eth0 @restore_hostname
     @pull_hostname_from_dns
     Scenario: nmcli - general - pull hostname from DNS
@@ -135,7 +135,7 @@ Feature: nmcli - general
 
 
     @rhbz1970335
-    @ver+=1.32.0
+    @ver+=1.30.0
     @con_general_remove @teardown_testveth @kill_children @internal_DHCP @dhcpd
     @eth0 @restore_hostname
     @pull_hostname_from_dns
