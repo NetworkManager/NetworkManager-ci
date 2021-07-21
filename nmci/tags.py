@@ -136,7 +136,7 @@ def crash_bs(ctx, scen):
         ctx.run("systemctl unmask systemd-coredump.socket")
         ctx.run("systemctl restart systemd-coredump.socket")
     # set core file size limit of Networkmanager (centos workaround)
-    ctx.run("prlimit --core=unlimited:unlimited --pid $(pidof NetworkManager)")
+    # ctx.run("prlimit --core=unlimited:unlimited --pid $(pidof NetworkManager)")
 
 
 def crash_as(ctx, scen):

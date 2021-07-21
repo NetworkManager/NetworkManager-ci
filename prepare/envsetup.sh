@@ -603,6 +603,11 @@ SystemMaxFileSize=256M
 EOF
     systemctl restart systemd-journald.service
 
+    # Set max corefile size to infinity
+    sed 's/.*DefaultLimitCORE=.*/DefaultLimitCORE=infinity/g' -i /etc/systemd/system.conf
+    systemctl daemon-reexec
+    systemctl restart NetworkManager
+
     # Fake console
     echo "Faking a console session..."
     touch /run/console/test
