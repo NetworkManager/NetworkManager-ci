@@ -41,7 +41,7 @@ test_setup() {
                     mkdir cp mv ping grep wc awk setsid ls find less tee echo \
                     sync rm sed uname lsblk df du free cat ps ln ip mount umount \
                     strace head tail reset loadkeys setfont login sushell sulogin \
-                    gzip sleep modprobe
+                    gzip sleep modprobe tr
 
       for _terminfodir in /lib/terminfo /etc/terminfo /usr/share/terminfo; do
           [ -f ${_terminfodir}/l/linux ] && break
@@ -511,6 +511,7 @@ stop_qemu() {
 network_setup() {
   # bridge devices to connect
   nmcli con add autoconnect "no" type "bridge" bridge.stp "no" ethernet.cloned-mac-address "random" con-name "nfs"      ifname "nfs"      ipv4.addresses "192.168.50.1/24,192.168.50.2/24" ipv6.addresses "deaf:beef::1/64" ipv6.gateway "deaf:beef::aa" ipv4.method "manual" ipv6.method "manual"
+  nmcli con add autoconnect "no" type "bridge" bridge.stp "no" ethernet.cloned-mac-address "random" con-name "nfs_ip6"  ifname "nfs_ip6"  ipv4.method "disabled" ipv6.addresses "deaf:beaf::1/64" ipv6.gateway "deaf:beaf::aa" ipv6.method "manual"
   nmcli con add autoconnect "no" type "bridge" bridge.stp "no" ethernet.cloned-mac-address "random" con-name "iscsi0"   ifname "iscsi0"   ipv4.addresses "192.168.51.1/24" ipv4.method "manual" ipv6.method "disabled"
   nmcli con add autoconnect "no" type "bridge" bridge.stp "no" ethernet.cloned-mac-address "random" con-name "iscsi1"   ifname "iscsi1"   ipv4.addresses "192.168.52.1/24" ipv4.method "manual" ipv6.method "disabled"
   nmcli con add autoconnect "no" type "bridge" bridge.stp "no" ethernet.cloned-mac-address "random" con-name "vlan"     ifname "vlan"     ipv4.method "disabled" ipv6.method "disabled"
@@ -532,6 +533,7 @@ network_setup() {
 
   # up all connections
   nmcli con up id nfs
+  nmcli con up id nfs_ip6
   nmcli con up id iscsi0
   nmcli con up id iscsi1
   nmcli con up id bond0
@@ -559,6 +561,7 @@ network_setup() {
 network_clean() {
   nmcli con del \
      nfs \
+     nfs_ip6 \
      iscsi0 \
      iscsi1 \
      bond0.13 \
@@ -579,6 +582,7 @@ network_clean() {
 
   # delete bridges left by NM
   ip link del nfs
+  ip link del nfs_ip6
   ip link del iscsi0
   ip link del iscsi1
   ip link del bond0

@@ -45,9 +45,9 @@ nmcli_con_prop() {
   if ! [[ "$rep" ]]; then rep=1; fi
   i=0
   while (( i++ < rep )); do
-    res=$(nmcli -g "$prop" con show "$con")
+    res="$(nmcli -g "$prop" con show "$con")"
     # unescape "\:" in case of single property (no ',')
-    [[ "$prop" != *,* ]] && res=$(echo "$res" | sed 's/\\:/:/g')
+    [[ "$prop" != *,* ]] && res="$(echo "$res" | sed 's/\\:/:/g')"
     [[ "$res" == $val ]] || { sleep 1; continue; }
     echo "[OK] '$prop' of '$con' is '$val' ($((i-1))s)"
     return 0

@@ -1170,6 +1170,9 @@ _register_tag("wireguard", wireguard_bs, wireguard_as)
 
 
 def dracut_bs(ctx, scen):
+    # log dracut version to "Commands"
+    ctx.run('rpm -qa | grep dracut | sort')
+
     rc = ctx.command_code(
         "cd contrib/dracut; . ./setup.sh ; set -x; "
         " { time test_setup ; } &> /tmp/dracut_setup.log", shell=True)
