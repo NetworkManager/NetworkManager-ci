@@ -10,7 +10,6 @@ DEV_CHECK=/dev/disk/by-uuid/$UUID_CHECK
 DEV_DUMPS=/dev/disk/by-uuid/$UUID_DUMPS
 
 
-/core_pattern_setup
 
 # load check library
 mkdir -p /check_lib
@@ -18,10 +17,10 @@ mount ${DEV_CHECK} /check_lib
 for script in /check_lib/*.sh; do
   source "$script" || ( echo "$script failed to load"; poweroff -f )
 done
-
 # boot succeeded, log it
 vm_state BOOT
 
+core_pattern_setup
 
 mount_list
 
@@ -65,7 +64,7 @@ wait  # wait for ip_renew tests to finish
 echo "== checks #2 =="
 client_check || die "client_check did not exit with 0"
 
-/check_core_dumps
+check_core_dumps
 
 # client_check should "die" if failed
 vm_state PASS

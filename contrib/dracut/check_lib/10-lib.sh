@@ -54,6 +54,26 @@ remount_var_log() {
   mount $DEV_LOG /var/log
 }
 
+core_pattern_setup() {
+  # mount to /var/log which is local FS (mounted disk) to prevent deadlock
+  mkdir -p /var/log/dumps/
+  mount $DEV_DUMPS /var/log/dumps/
+  echo "Setting core_pattern to /var/log/dumps/dump_*"
+  echo "/var/log/dumps/dump_%e-%P-%u-%g-%s-%t-%c-%h" > /proc/sys/kernel/core_pattern
+}
+
+check_core_dumps() {
+  echo "Checking for coredumps, core_pattern:"
+  cat /proc/sys/kernel/core_pattern
+
+  for dump in /var/log/dumps/dump_* ; do
+    if [ -f "$dump" ]; then
+      echo -e "[FAIL] Found core dumps:\n$(ls -l /var/log/dumps/dump_*)"
+      return
+    fi
+  done
+  echo "[OK] No coredumps found"
+}
 
 mount_list() {
   echo "== nfs mounts =="
