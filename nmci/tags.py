@@ -2103,7 +2103,8 @@ _register_tag("clean_iptables", None, clean_iptables_as)
 
 
 def kill_dhclient_custom_as(ctx, scen):
-    ctx.run("kill $(cat /tmp/dhclient_custom.pid)")
+    time.sleep(0.5)
+    ctx.run("pkill -F /tmp/dhclient_custom.pid")
     ctx.run("rm -f /tmp/dhclient_custom.pid")
 
 
