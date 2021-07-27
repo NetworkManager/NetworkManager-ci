@@ -2085,3 +2085,21 @@
      * Modify connection "bond0" changing options "802-3-ethernet.accept-all-mac-addresses false"
      * Bring "up" connection "bond0"
      Then "PROMISC" is not visible with command "ip link show dev nm-bond"
+
+
+    @rhbz1956793
+    @ver+=1.32.4
+    @bond @bond_bridge @slaves @tshark
+    @bond_enslave_to_bridge_correct_ARP
+    Scenario: nmcli - bond - send correct ARP for bond in bridge
+     * Add a new connection of type "bridge" and options "ifname bond-bridge con-name bond_bridge0 ip4 172.25.14.1/24 autoconnect no bridge.stp no"
+     * Add a new connection of type "bond" and options "ifname nm-bond con-name bond0 master bond-bridge autoconnect no"
+     * Add a new connection of type "ethernet" and options "ifname eth1 con-name bond-slave-eth1 master nm-bond autoconnect no"
+     * Bring "up" connection "bond_bridge0"
+     * Note MAC address output for device "bond-bridge" via ip command as "mac_bridge"
+     * Bring "up" connection "bond0"
+     * Note MAC address output for device "nm-bond" via ip command as "mac_bond"
+     * Bring "up" connection "bond-slave-eth1"
+     * Execute "tshark -i bond-bridge -a duration:5 -Y arp -T fields -e eth.src -e arp.src.hw_mac -e _ws.col.Info > /tmp/tshark.log"
+     Then Noted value "mac_bridge" is not visible with command "cat /tmp/tshark.log"
+     Then Noted value "mac_bond" is not visible with command "cat /tmp/tshark.log"

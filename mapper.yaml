@@ -305,6 +305,8 @@ testmapper:
         feature: bond
     - bond_accept_all_mac_addresses_external_device:
         feature: bond
+    - bond_enslave_to_bridge_correct_ARP:
+        feature: bond
     - update_firewall_zone_upon_reconnect:
         feature: ppp
     - pppoe_and_ethernet_together:
