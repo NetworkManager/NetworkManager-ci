@@ -2222,7 +2222,7 @@ Feature: nmcli - general
 
      @rhbz1674545
      @ver+=1.19
-     @con_general_remove @remove_custom_cfg @restart_if_needed @keyfile_cleanup
+     @con_general_remove @keyfile_cleanup @remove_custom_cfg
      @move_keyfile_to_usr_lib_dir
      Scenario: NM - general - move keyfile to usr lib dir and check deletion
      * Execute "echo '[main]' > /etc/NetworkManager/conf.d/99-xxcustom.conf"
