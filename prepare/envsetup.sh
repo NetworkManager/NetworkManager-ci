@@ -159,6 +159,7 @@ install_fedora_packages () {
     install_plugins_dnf
 
     # Make device mac address policy behave like old one
+    test -d /etc/systemd/network/ || mkdir /etc/systemd/network/
     echo -e "[Match]\nOriginalName=*\n[Link]\nMACAddressPolicy=none" > /etc/systemd/network/00-NM.link
 
     # disable dhcpd dispatcher script: rhbz1758476
@@ -268,6 +269,7 @@ install_el9_packages () {
     install_plugins_dnf
 
     # Disable mac radnomization
+    test -d /etc/systemd/network/ || mkdir /etc/systemd/network/
     echo -e "[Match]\nOriginalName=*\n[Link]\nMACAddressPolicy=none" > /etc/systemd/network/00-NM.link
     sleep 0.5
     systemctl restart systemd-udevd
