@@ -2501,6 +2501,9 @@ _register_tag("eth8_up", None, eth8_up_as)
 def keyfile_cleanup_as(ctx, scen):
     ctx.run("sudo sh -c \"rm /usr/lib/NetworkManager/system-connections/*\" ")
     ctx.run("sudo sh -c \"rm /etc/NetworkManager/system-connections/*\" ")
+    # restore testethX
+    nmci.lib.restore_connections(ctx)
+    nmci.lib.wait_for_testeth0(ctx)
 
 
 _register_tag("keyfile_cleanup", None, keyfile_cleanup_as)
