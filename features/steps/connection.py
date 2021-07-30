@@ -312,3 +312,67 @@ def update2_connection_autoconnect(context, con_name, options, flags=""):
 
     assert 'error' not in result, \
         'update2 connection %s failed: %s' % (con_name, result['error'])
+
+
+@step(u'Add bridges over VLANs in range from "{begin}" to "{end}" on interface "{ifname}" via libnm')
+def add_bridges_vlans_range(context, begin, end, ifname):
+    try:
+        begin = int(begin)
+        end = int(end)
+        assert begin > 0, f"invalid range: begin is not positive integer: {begin}"
+        assert end > 0, f"invalid range: end is not positive integer: {end}"
+        assert begin <= end, f"invalid range: begin is not less than end: {begin} > {end}"
+    except Exception:
+        assert False, f"begin and end must be positive integers: {begin}, {end}"
+
+    vlan_range = [f"{ifname}.{id}" for id in range(begin, end+1)]
+    vlan_range += [f"br{id}" for id in range(begin, end+1)]
+    context.vlan_range = getattr(context, "vlan_range", [])
+    context.vlan_range += vlan_range
+
+    from nmci.util import GLib, NM
+    nm_client = NM.Client.new(None)
+    result = {}
+
+    def _add_connection_cb(cl, async_result, user_data):
+        try:
+            cl.add_connection_finish(async_result)
+        except Exception as e:
+            result['error'] = e
+        if user_data is not None:
+            user_data.quit()
+
+    for id in range(begin, end+1):
+
+        main_loop = GLib.MainLoop()
+        con = NM.SimpleConnection.new()
+        uuid = NM.utils_uuid_generate()
+        s_con = NM.SettingConnection(type="bridge", id=f"br{id}", uuid=uuid)
+        s_con.set_property(NM.SETTING_CONNECTION_INTERFACE_NAME, f"br{id}")
+        s_bridge = NM.SettingBridge.new()
+        s_ip4 = NM.SettingIP4Config.new()
+        s_ip4.set_property(NM.SETTING_IP_CONFIG_METHOD, "disabled")
+        s_ip6 = NM.SettingIP6Config.new()
+        s_ip6.set_property(NM.SETTING_IP_CONFIG_METHOD, "disabled")
+        con.add_setting(s_con)
+        con.add_setting(s_bridge)
+        con.add_setting(s_ip4)
+        con.add_setting(s_ip6)
+        nm_client.add_connection_async(con, True, None, _add_connection_cb, main_loop)
+        main_loop.run()
+
+        main_loop = GLib.MainLoop()
+        con = NM.SimpleConnection.new()
+        uuid = NM.utils_uuid_generate()
+        s_con = NM.SettingConnection(type="vlan", id=f"{ifname}.{id}", uuid=uuid)
+        s_con.set_property(NM.SETTING_CONNECTION_INTERFACE_NAME, f"{ifname}.{id}")
+        s_con.set_property(NM.SETTING_CONNECTION_SLAVE_TYPE, "bridge")
+        s_con.set_property(NM.SETTING_CONNECTION_MASTER, f"br{id}")
+        s_vlan = NM.SettingVlan(id=id, parent=ifname)
+        con.add_setting(s_con)
+        con.add_setting(s_vlan)
+        nm_client.add_connection_async(con, True, None, _add_connection_cb, main_loop)
+        main_loop.run()
+
+        assert 'error' not in result, \
+            'add connection %s failed: %s' % (result['error'])

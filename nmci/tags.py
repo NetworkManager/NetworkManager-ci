@@ -265,6 +265,29 @@ def tag500_vlans_as(ctx, scen):
 _register_tag("500_vlans", tag500_vlans_bs, tag500_vlans_as)
 
 
+def remove_vlan_range(ctx, scen):
+    vlan_range = getattr(ctx, "vlan_range", None)
+    if vlan_range is None:
+        return
+
+    # remove vlans and bridgess
+    ip_cleanup_cmd = "; ".join((f"ip link del {dev}" for dev in vlan_range))
+    ctx.run(ip_cleanup_cmd)
+
+    # remove ifcfg (if any)
+    ifcfg_list = " ".join((f"/etc/sysconfig/network-scripts/ifcfg-{dev}" for dev in vlan_range))
+    ctx.run("rm -rvf " + ifcfg_list)
+
+    # remove keyfile (if any)
+    keyfile_list = " ".join((f"/etc/NetworkManager/system-connections/{dev}*" for dev in vlan_range))
+    ctx.run("rm -rvf " + keyfile_list)
+
+    nmci.lib.restart_NM_service(ctx)
+
+
+_register_tag("remove_vlan_range", None, remove_vlan_range)
+
+
 def captive_portal_bs(ctx, scen):
     # do not capture output, let it log to the console, otherwise this hangs!
     ctx.run("sudo prepare/captive_portal.sh", stdout=None, stderr=None)

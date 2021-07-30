@@ -1129,6 +1129,9 @@ testmapper:
     - vlan_create_500_vlans:
         feature: vlan
         timeout: 20m
+    - vlan_create_1000_bridges_over_1000_vlans:
+        feature: vlan
+        timeout: 25m
     - vlan_ifname_vlan0_with_id_7:
         feature: vlan
     - vlan_accept_all_mac_addresses:
