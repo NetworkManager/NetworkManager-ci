@@ -196,7 +196,7 @@ install_el9_packages () {
                 http://download.eng.bos.redhat.com/brewroot/vol/rhel-9/packages/wireshark/3.4.0/1.el9.1/$(arch)/wireshark-cli-3.4.0-1.el9.1.$(arch).rpm --skip-broken
 
     # and few more
-    dnf -4 -y install https://vbenes.fedorapeople.org/NM/bz1975718/hostapd-2.9-10.el9.bz1975718v4.x86_64.rpm https://vbenes.fedorapeople.org/NM/bz1975718/wpa_supplicant-2.9-15.el9.bz1975718v4.x86_64.rpm
+    dnf -4 -y update https://vbenes.fedorapeople.org/NM/bz1975718/hostapd-2.9-10.el9.bz1975718v4.x86_64.rpm https://vbenes.fedorapeople.org/NM/bz1975718/wpa_supplicant-2.9-15.el9.bz1975718v4.x86_64.rpm
 
     install_behave_pytest
 
