@@ -756,7 +756,7 @@ Feature: nmcli - ovs
 
 
     @rhbz1921107
-    @rhelver-=8 @fedoraver-=32 @ver+=1.30
+    @rhelver-=8.4 @fedoraver-=32 @ver+=1.30
     @openvswitch @firewall
     @ovs_set_firewalld_zone
     Scenario: NM -  openvswitch - set firewalld zone
@@ -782,7 +782,7 @@ Feature: nmcli - ovs
 
 
     @rhbz1921107
-    @rhelver+=9 @fedoraver+=33 @ver+=1.30
+    @rhelver+=8.5 @fedoraver+=33 @ver+=1.30
     @xfail
     @openvswitch @firewall
     @ovs_set_firewalld_zone
