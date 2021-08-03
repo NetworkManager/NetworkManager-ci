@@ -178,7 +178,7 @@ Feature: nmcli - general
     * Restart NM
     * Prepare simulated test "testG" device with "192.168.97" ipv4 and daemon options "--dhcp-option=3 --dhcp-host=00:11:22:33:44:55,192.168.97.13,foo"
     * Prepare simulated test "testH" device with "192.168.98" ipv4 and daemon options "--dhcp-option=3 --dhcp-host=00:00:11:00:00:11,192.168.98.11,bar"
-    * Execute "sudo nmcli general hostname localhost"
+    * Execute "hostnamectl set-hostname """
     * Execute "hostnamectl set-hostname --transient localhost.localdomain"
     * Add a new connection of type "ethernet" and options "ifname testG con-name con_general autoconnect no ethernet.cloned-mac-address 00:11:22:33:44:55 ipv6.method disabled"
     * Add a new connection of type "ethernet" and options "ifname testH con-name con_general2 autoconnect no ethernet.cloned-mac-address 00:00:11:00:00:11 ipv6.method disabled"
@@ -209,7 +209,7 @@ Feature: nmcli - general
     * Execute "echo -e '[main]\nhostname-mode=full' > /etc/NetworkManager/conf.d/90-hostname.conf"
     * Restart NM
     * Prepare simulated test "testG" device
-    * Execute "sudo nmcli general hostname localhost"
+    * Execute "hostnamectl set-hostname """
     * Execute "hostnamectl set-hostname --transient localhost.localdomain"
     * Add a new connection of type "ethernet" and options "ifname testG con-name con_general autoconnect no"
     When "localhost|fedora" is visible with command "hostnamectl --transient" in "60" seconds
@@ -226,7 +226,7 @@ Feature: nmcli - general
     * Execute "echo -e '[main]\nhostname-mode=dhcp' > /etc/NetworkManager/conf.d/90-hostname.conf"
     * Restart NM
     * Prepare simulated test "testG" device
-    * Execute "sudo nmcli general hostname localhost"
+    * Execute "hostnamectl set-hostname """
     * Execute "hostnamectl set-hostname --transient localhost.localdomain"
     * Add a new connection of type "ethernet" and options "ifname testG con-name con_general autoconnect no"
     When "localhost|fedora" is visible with command "hostnamectl --transient" in "60" seconds
@@ -241,7 +241,7 @@ Feature: nmcli - general
     @pull_hostname_from_dhcp_no_gw_no_default_hostname
     Scenario: nmcli - general - pull hostname from DHCP - no gw - no need for it
     * Prepare simulated test "testG" device
-    * Execute "sudo nmcli general hostname localhost"
+    * Execute "hostnamectl set-hostname """
     * Execute "hostnamectl set-hostname --transient localhost.localdomain"
     * Add a new connection of type "ethernet" and options "ifname testG con-name con_general autoconnect no ipv4.never-default yes hostname.only-from-default false"
     When "localhost|fedora" is visible with command "hostnamectl --transient" in "60" seconds
@@ -259,7 +259,7 @@ Feature: nmcli - general
     * Execute "echo no-hosts > /etc/dnsmasq.d/dnsmasq_custom.conf"
     * Restart NM
     * Prepare simulated test "testG" device
-    * Execute "sudo nmcli general hostname localhost"
+    * Execute "hostnamectl set-hostname """
     * Execute "hostnamectl set-hostname --transient localhost.localdomain"
     * Add a new connection of type "ethernet" and options "ifname testG con-name con_general autoconnect no"
     When "localhost|fedora" is visible with command "hostnamectl --transient" in "60" seconds
@@ -277,7 +277,7 @@ Feature: nmcli - general
     * Execute "echo -e '[main]\nhostname-mode=none' > /etc/NetworkManager/conf.d/90-hostname.conf"
     * Restart NM
     * Prepare simulated test "testG" device
-    * Execute "sudo nmcli general hostname localhost"
+    * Execute "hostnamectl set-hostname """
     * Execute "hostnamectl set-hostname --transient localhost.localdomain"
     * Add a new connection of type "ethernet" and options "ifname testG con-name con_general autoconnect no"
     When "localhost|fedora" is visible with command "hostnamectl --transient" in "60" seconds
