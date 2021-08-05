@@ -309,35 +309,37 @@ def gsm_bs(ctx, scen):
     ctx.set_title(" - " + ctx.modem_str, append=True)
 
     if not os.path.isfile('/tmp/usb_hub'):
-        import time
-        dir = "/mnt/scratch/"
-        timeout = 3600
-        initialized = False
-        freq = 30
-
-        while(True):
-            print("* looking for gsm lock in nfs nest.test.redhat.com:/mnt/qa/desktop/broadband_lock")
-            lock = nmci.lib.get_lock(dir)
-            if not lock:
-                if not initialized:
-                    initialized = nmci.lib.reinitialize_devices()
-                if nmci.lib.create_lock(dir):
-                    break
-                else:
-                    continue
-            if lock:
-                if nmci.lib.is_lock_old(lock):
-                    nmci.lib.delete_old_lock(dir, lock)
-                    continue
-                else:
-                    timeout -= freq
-                    print(" ** still locked.. wating %s seconds before next try" % freq)
-                    if not initialized:
-                        initialized = nmci.lib.reinitialize_devices()
-                    time.sleep(freq)
-                    if timeout == 0:
-                        raise Exception("Timeout reached!")
-                    continue
+        ctx.run("sh prepare/initialize_modem.sh")
+        # OBSOLETE: 2021/08/05
+        # import time
+        # dir = "/mnt/scratch/"
+        # timeout = 3600
+        # initialized = False
+        # freq = 30
+        #
+        # while(True):
+        #     print("* looking for gsm lock in nfs nest.test.redhat.com:/mnt/qa/desktop/broadband_lock")
+        #     lock = nmci.lib.get_lock(dir)
+        #     if not lock:
+        #         if not initialized:
+        #             initialized = nmci.lib.reinitialize_devices()
+        #         if nmci.lib.create_lock(dir):
+        #             break
+        #         else:
+        #             continue
+        #     if lock:
+        #         if nmci.lib.is_lock_old(lock):
+        #             nmci.lib.delete_old_lock(dir, lock)
+        #             continue
+        #         else:
+        #             timeout -= freq
+        #             print(" ** still locked.. wating %s seconds before next try" % freq)
+        #             if not initialized:
+        #                 initialized = nmci.lib.reinitialize_devices()
+        #             time.sleep(freq)
+        #             if timeout == 0:
+        #                 raise Exception("Timeout reached!")
+        #             continue
 
     ctx.run('nmcli con down testeth0')
 
@@ -345,14 +347,15 @@ def gsm_as(ctx, scen):
     # You can debug here only with console connection to the testing machine.
     # SSH connection is interrupted.
     # import ipdb
-
     ctx.run('nmcli connection delete gsm')
     ctx.run('rm -rf /etc/NetworkManager/system-connections/gsm')
-    ctx.run('nmcli con up testeth0')
     nmci.lib.wait_for_testeth0(ctx)
-    if not os.path.isfile('/tmp/usb_hub'):
-        ctx.run('mount -o remount -t nfs nest.test.redhat.com:/mnt/qa/desktop/broadband_lock /mnt/scratch')
-        nmci.lib.delete_old_lock("/mnt/scratch/", nmci.lib.get_lock("/mnt/scratch"))
+
+    # OBSOLETE: 2021/08/05
+    # if not os.path.isfile('/tmp/usb_hub'):
+    #     ctx.run('mount -o remount -t nfs nest.test.redhat.com:/mnt/qa/desktop/broadband_lock /mnt/scratch')
+    #     nmci.lib.delete_old_lock("/mnt/scratch/", nmci.lib.get_lock("/mnt/scratch"))
+
     # Attach journalctl logs
     ctx.run("echo '~~~~~~~~~~~~~~~~~~~~~~~~~~ MM LOG ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~' > /tmp/journal-mm.log")
     ctx.run("sudo journalctl -u ModemManager --no-pager -o cat %s >> /tmp/journal-mm.log" % ctx.log_cursor)

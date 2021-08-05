@@ -72,33 +72,8 @@ function test_modems_usb_hub() {
 
         $DIR/prepare/acroname.py --port $M --enable
 
-        # wait up to 200s for device to appear in NM
-        TIMER=30
-        while [ $TIMER -gt 0 ]; do
-            if nmcli d |grep -q gsm; then
-                mmcli -m $(mmcli -L |awk -F '/' '{print $6}')
-                if mmcli -m $(mmcli -L |awk -F '/' '{print $6}' |awk '{print $1}') |grep 'state:\sregistered'; then
-                    break
-                fi
-            fi
-            if [ $TIMER -eq 20 ]; then
-                echo "**********************************"
-                echo "DOING RESTART THIS SHOULDNT HAPPEN"
-                echo "**********************************"
-                mmcli -m $(mmcli -L |awk -F '/' '{print $6}') -r
-            fi
-            if [ $TIMER -eq 10 ]; then
-                echo "********************************************"
-                echo "DOING RESTART ONCE MORE THIS SHOULDNT HAPPEN"
-                echo "********************************************"
-                mmcli -m $(mmcli -L |awk -F '/' '{print $6}') -r
-            fi
-
-            mmcli -L
-            sleep 10
-            ((TIMER--))
-        done
-
+        # wait up to 300s for device to appear in NM
+        sh $DIR/prepare/initialize_modem.sh
 
 
         # Run just one test to be as quick as possible
