@@ -915,6 +915,10 @@ local_setup_configure_nm_gsm () {
         yum -y install NetworkManager-wwan-$VER-$REL ModemManager usb_modeswitch usbutils NetworkManager-ppp-$VER-$REL
     fi
 
+    # Reset USB devices
+    for i in $(ls /sys/bus/usb/devices/usb*/authorized); do echo 0 > $i; done
+    for i in $(ls /sys/bus/usb/devices/usb*/authorized); do echo 1 > $i; done
+
     systemctl restart ModemManager
     sleep 5
     systemctl restart NetworkManager
