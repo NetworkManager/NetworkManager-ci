@@ -770,6 +770,8 @@ testmapper:
         tags: gate
     - nmcli_general_profile_pickup_doesnt_break_network:
         feature: general
+    - nmcli_general_assign_valid_hostname_to_device:
+        feature: general  
     - ipv4_take_manually_created_ifcfg_with_ip:
         feature: ipv4
     - ipv4_method_static_no_IP:

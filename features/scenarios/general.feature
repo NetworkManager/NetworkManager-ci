@@ -2440,3 +2440,25 @@ Feature: nmcli - general
     * Add a new connection of type "dummy" and options "ifname dummy0 con-name con_general ipv4.method manual ipv4.addresses 1.2.3.4/24 connection.permissions 'user:root'"
     * Bring up connection "con_general"
     Then "no permission" is visible with command "sudo -u test nmcli d reapply dummy0"
+
+
+    @rhbz1820770
+    @ver+=1.32.2
+    @eth0 @restore_hostname @con_ipv6_remove @teardown_testveth @kill_children
+    @nmcli_general_assign_valid_hostname_to_device
+    Scenario: NM - general - assign - valid - hostname - to - device
+    * Bring "down" connection "testeth0"
+    * Execute "hostnamectl set-hostname """
+    * Execute "hostnamectl set-hostname --transient localhost.localdomain"
+    * Prepare simulated test "testX6" device without DHCP
+    * Execute "ip -n testX6_ns addr add dev testX6p fd01::1/64"
+    * Run child "ip netns exec testX6_ns dnsmasq --bind-interfaces --interface testX6p --pid-file=/tmp/dnsmasq.pid  --host-record=deprecated1,fd01::91 --host-record=validhostname,fd01::92 --host-record=deprecated2,fd01::93" without shell
+    * Run child "ip netns exec testX6_ns radvd -n -C tmp/radvd3.conf" without shell
+    * Add a new connection of type "ethernet" and options " ifname testX6 con-name con_ipv6 autoconnect no ipv4.method disabled ipv6.method auto "
+    * Bring "up" connection "con_ipv6"
+    * Execute "ip addr add dev testX6 fd01::91/128 valid_lft forever preferred_lft 0"
+    * Execute "ip addr add dev testX6 fd01::92/128"
+    * Execute "ip addr add dev testX6 fd01::93/128 valid_lft forever preferred_lft 0"
+    Then "fd01::92" is visible with command "ip address show testX6" in "10" seconds
+        And "validhostname" is visible with command "hostname" in "10" seconds
+
