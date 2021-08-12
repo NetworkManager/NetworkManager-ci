@@ -2682,6 +2682,8 @@ testmapper:
         feature: nmtui_wifi_hwsim
     - crashing_NM_binary:
         feature: general
+    - ipv4_spurious_leftover_route:
+        feature: ipv4
 
 
   NetworkManager-gsm:
