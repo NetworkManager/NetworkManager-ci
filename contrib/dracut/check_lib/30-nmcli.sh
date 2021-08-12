@@ -28,6 +28,17 @@ nmcli_con_active() {
 }
 
 
+nmcli_con_inactive() {
+  local con
+  [[ "$1" ]] || die "nmcli_con_active: unspecified connection name"
+  con=$(echo "$1" | sed 's/:/\\:/g')
+  nmcli -g NAME,STATE con show | \
+      grep -q "^$con:\$"  || \
+      die "connection '$con' is not inactive:$(echo; nmcli -g NAME,STATE con show)"
+  echo "[OK] connection '$1' is inactive "
+}
+
+
 nmcli_con_num() {
   local num
   num=$(nmcli -g UUID con show | wc -l)

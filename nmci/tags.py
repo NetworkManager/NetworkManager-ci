@@ -1233,6 +1233,21 @@ def dracut_as(ctx, scen):
 _register_tag("dracut", dracut_bs, dracut_as)
 
 
+def dracut_remote_NFS_clean_as(ctx, scen):
+    # keep nfs service stopped as it hangs rm commands for 90s
+    ctx.run(
+        ". contrib/dracut/setup.sh; "
+        "systemctl stop nfs-server.service; "
+        "rm -vrf $TESTDIR/nfs/client/etc/NetworkManager/system-connections/*; "
+        "rm -vrf $TESTDIR/nfs/client/etc/NetworkManager/conf.d/50-*; "
+        "rm -vrf $TESTDIR/nfs/client/etc/sysconfig/network-scripts/ifcfg-*; "
+        "systemctl start nfs-server.service; "
+    )
+
+
+_register_tag("dracut_remote_NFS_clean", None, dracut_remote_NFS_clean_as)
+
+
 def prepare_patched_netdevsim_bs(ctx, scen):
     rc = ctx.command_code('sh prepare/netdevsim.sh setup')
     assert rc == 0, "netdevsim setup failed with exitcode: %d" % rc
