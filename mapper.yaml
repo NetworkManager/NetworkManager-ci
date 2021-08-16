@@ -1658,6 +1658,12 @@ testmapper:
         feature: general
     - ifup_ifdown_scripts:
         feature: general
+    - ifup_ifdown_scripts_new_conn_from_ifcfg:
+        feature: general
+    - ifup_ifdown_keyfile:
+        feature: general
+    - ifup_ifdown_keyfile_new_conn_from_ifcfg:
+        feature: general
     - resolv_conf_search_limit:
         feature: general
     - captive_portal_detection:
