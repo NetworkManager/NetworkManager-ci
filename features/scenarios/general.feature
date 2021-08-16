@@ -839,7 +839,7 @@ Feature: nmcli - general
 
 
     @rhbz1460760
-    @ver+=1.8.0
+    @ver+=1.8.0 @ver-=1.32
     @con_general_remove @mtu
     @ifcfg_respect_externally_set_mtu
     Scenario: NM - general - respect externally set mtu
@@ -852,6 +852,23 @@ Feature: nmcli - general
     * Reload connections
     * Bring "up" connection "con_general"
     Then "1400" is visible with command "ip a s eth8" in "5" seconds
+
+    @rhbz1954607 @rhbz1460760
+    @ver+=1.33
+    @con_general_remove @mtu
+    @ifcfg_respect_externally_set_mtu
+    Scenario: NM - general - respect externally set mtu
+    * Execute "ip link set dev eth8 mtu 1400"
+    * Execute "echo 'DEVICE=eth8' >> /etc/sysconfig/network-scripts/ifcfg-configfile"
+    * Execute "echo 'NAME=con_general' >> /etc/sysconfig/network-scripts/ifcfg-configfile"
+    * Execute "echo 'BOOTPROTO=dhcp' >> /etc/sysconfig/network-scripts/ifcfg-configfile"
+    * Execute "echo 'IPV6INIT=yes' >> /etc/sysconfig/network-scripts/ifcfg-configfile"
+    * Execute "echo 'TYPE=Ethernet' >> /etc/sysconfig/network-scripts/ifcfg-configfile"
+    * Execute "ifdown configfile"
+    When Check if "con_general" is not active connection
+    * Execute "ifup con_general"
+    Then Check if "con_general" is active connection 
+    And "1400" is visible with command "ip a s eth8" in "5" seconds
 
 
     @rhbz1103777
