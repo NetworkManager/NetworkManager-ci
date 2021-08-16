@@ -16,7 +16,7 @@ function setup () {
     if grep Fedora /etc/redhat-release; then
         URL='https://kojipkgs.fedoraproject.org//packages/kernel'
         LINUX="$(echo $LINUX |awk -F '.' '{print $1 "." $2}')"
-        PATCH="0001-netdevsim-physical-address.patch"
+        PATCH="0001-netdevsim-physical-address-ring.patch"
     elif grep "release 8" /etc/redhat-release; then
         URL="http://download.eng.bos.redhat.com/brewroot/vol/rhel-8/packages/kernel"
         if grep -E "release 8.[0,1,2,3]" /etc/redhat-release; then
@@ -24,15 +24,15 @@ function setup () {
         elif grep "release 8.4" /etc/redhat-release; then
             PATCH="0001-netdevsim-add-mock-support-for-coalescing-and-ring-o-2.patch"
         elif grep -E "release 8.[5,6,7,8,9]" /etc/redhat-release; then
-            PATCH="0001-netdevsim-add-mock-support-for-coalescing-and-ring-o-3.patch"
+            PATCH="0001-netdevsim-physical-address-ring.patch"
         elif grep -E "CentOS Stream" /etc/redhat-release; then
             URL="https://koji.mbox.centos.org/pkgs/packages/kernel/"
-            PATCH="0001-netdevsim-add-mock-support-for-coalescing-and-ring-o-3.patch"
+            PATCH="0001-netdevsim-physical-address-ring.patch"
         fi
     elif grep "release 9" /etc/redhat-release; then
         URL="http://download.eng.bos.redhat.com/brewroot/vol/rhel-9/packages/kernel"
         LINUX=linux-$MAJOR-${MINOR%.el9}
-        PATCH="0001-netdevsim-physical-address.patch"
+        PATCH="0001-netdevsim-physical-address-ring.patch"
     fi
 
     # If we have all necessary things done
@@ -81,6 +81,11 @@ function setup () {
     # If we are able to insert module create devices and exit 0
     echo "** installing the patched one"
     if modprobe netdevsim; then
+        # RHEL9 prefers signed module, use insmod instead
+        if grep "release 9" /etc/redhat-release; then
+            rmmod netdevsim
+            insmod /lib/modules/$(uname -r)/extra/netdevsim.ko
+        fi
         sleep 0.5
         echo "0 $NUM" > /sys/bus/netdevsim/new_device
         touch /tmp/netdevsim
