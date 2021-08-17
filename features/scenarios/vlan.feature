@@ -762,7 +762,7 @@ Feature: nmcli - vlan
     Then "\s+activated" is visible with command "nmcli con show eth11.510" in "50" seconds
 
 
-    @ver+=1.30
+    @ver+=1.32
     @rhelver+=8
     @logging_info_only @remove_vlan_range
     @vlan_create_1000_bridges_over_1000_vlans
