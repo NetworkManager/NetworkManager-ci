@@ -70,7 +70,7 @@ Feature: nmcli: gsm
     @gsm_sim_create_default_connection
     Scenario: nmcli - gsm_sim - create a connection
     Given "gsm" is visible with command "nmcli device status | grep -v unmanaged" in "60" seconds
-     * Add a new connection of type "gsm" and options "ifname \* con-name gsm autoconnect no apn internet ipv6.method ignore"
+     * Add a new connection of type "gsm" and options "ifname \* con-name gsm autoconnect no apn internet"
      * Bring "up" connection "gsm"
     Then "GENERAL.STATE:.*activated" is visible with command "nmcli con show gsm" in "60" seconds
      And "default" is visible with command "ip r |grep 700"
@@ -81,7 +81,7 @@ Feature: nmcli: gsm
     @gsm_sim_disconnect
     Scenario: nmcli - gsm_sim - disconnect
     Given "gsm" is visible with command "nmcli device status | grep -v unmanaged" in "60" seconds
-     * Add a new connection of type "gsm" and options "ifname \* con-name gsm autoconnect no apn internet ipv6.method ignore"
+     * Add a new connection of type "gsm" and options "ifname \* con-name gsm autoconnect no apn internet"
      * Bring "up" connection "gsm"
     Then "GENERAL.STATE:.*activated" is visible with command "nmcli con show gsm" in "60" seconds
      * Bring "down" connection "gsm"
@@ -95,7 +95,7 @@ Feature: nmcli: gsm
     @gsm_sim_mtu
     Scenario: nmcli - gsm_sim - mtu
     Given "gsm" is visible with command "nmcli device status | grep -v unmanaged" in "60" seconds
-     * Add a new connection of type "gsm" and options "ifname \* con-name gsm autoconnect no apn internet ipv6.method ignore"
+     * Add a new connection of type "gsm" and options "ifname \* con-name gsm autoconnect no apn internet"
     * Bring "up" connection "gsm"
     When "default" is visible with command "ip r |grep 700" in "60" seconds
      And "mtu 1500" is visible with command "nmcli |grep gsm"
@@ -118,7 +118,7 @@ Feature: nmcli: gsm
     @gsm_sim_route_metric
     Scenario: nmcli - gsm_sim - route metric
     Given "gsm" is visible with command "nmcli device status | grep -v unmanaged" in "60" seconds
-     * Add a new connection of type "gsm" and options "ifname \* con-name gsm autoconnect no apn internet ipv6.method ignore"
+     * Add a new connection of type "gsm" and options "ifname \* con-name gsm autoconnect no apn internet"
     * Bring "up" connection "gsm"
     When "default" is visible with command "ip r |grep 700" in "60" seconds
     And "proto kernel scope" is visible with command "ip r |grep 700"
