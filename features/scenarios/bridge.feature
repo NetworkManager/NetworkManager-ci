@@ -743,6 +743,19 @@ Feature: nmcli - bridge
     When "1500" is visible with command "nmcli -g GENERAL.MTU d show br0" in "5" seconds
 
 
+    @rhbz1973536
+    @ver+=1.33
+    @bridge
+    @bridge_mtu_after_8023_removal
+    Scenario: nmcli - bridge - MTU is set correctly after 802-3 configuration removal
+    * Add a new connection of type "bridge" and options "con-name bridge0 ifname br0 ipv4.method disabled ipv6.method disabled bridge.stp no 802-3-ethernet.mtu 1400"
+    * Bring "up" connection "bridge0"
+    When "mtu 1400" is visible with command "ip l show dev br0"
+    * Execute "nmcli c modify bridge0 remove 802-3-ethernet"
+    * Bring "up" connection "bridge0"
+    Then "mtu 1500" is visible with command "ip l show dev br0"
+
+
     @rhbz1942331
     @ver+=1.31
     @bridge

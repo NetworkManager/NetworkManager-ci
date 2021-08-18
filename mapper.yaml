@@ -420,6 +420,8 @@ testmapper:
     - bridge_set_mtu:
         feature: bridge
         tags: gate
+    - bridge_mtu_after_8023_removal:
+        feature: bridge
     - bridge_accept_all_mac_addresses:
         feature: bridge
     - bridge_accept_all_mac_addresses_external_device:
