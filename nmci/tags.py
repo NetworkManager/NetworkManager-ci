@@ -670,6 +670,7 @@ def dummy_as(ctx, scen):
     ctx.run("ip link del bond0")
     ctx.run("ip link del team0")
     ctx.run("ip link delete dummy0")
+    ctx.run("nmcli d del dummy1")
 
 
 _register_tag("dummy", None, dummy_as)

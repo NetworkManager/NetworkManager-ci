@@ -2042,6 +2042,8 @@ testmapper:
         feature: connection
     - in_memory_detached_delete_nmmeta:
         feature: connection
+    - connection_external_dummy_interface:
+        feature: connection
     - add_default_tap_device:
         feature: tuntap
         tags: gate

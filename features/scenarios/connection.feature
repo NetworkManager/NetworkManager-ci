@@ -939,3 +939,14 @@ Feature: nmcli: connection
       And Noted value "uuid" is not visible with command "ls /var/run/NetworkManager/system-connections/"
       And "con_con" is visible with command "ls /etc/NetworkManager/system-connections/ /etc/sysconfig/network-scripts/ifcfg-*"
      * Update connection "con_con" changing options "SETTING_CONNECTION_INTERFACE_NAME:eth5" using libnm with flags "IN_MEMORY_DETACHED"
+
+
+     @rhbz1763054
+     @ver+=1.33
+     @dummy
+     @connection_external_dummy_interface
+     Scenario: nmcli - connection - create & activate connection from external dummy interface
+     * Execute "ip l add dummy1 type dummy"
+     * Connect device "dummy1"
+     Then "dummy1" is visible with command "nmcli -g connection.interface-name connection show dummy1"
+      And Check if "dummy1" is active connection
