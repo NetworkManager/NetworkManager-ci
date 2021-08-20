@@ -2481,6 +2481,19 @@ Feature: nmcli - general
     Then Check noted values "ip4_route" and "nmcli4_route" are the same
 
 
+    @rhbz1870059
+    @ver+=1.33
+    @con_general_remove
+    @nmcli_show_gateways
+    Scenario: nmcli - general - show default gateways when called without arguments
+    * Add a new connection of type "ethernet" and options "ifname eth8 con-name con_general ipv4.method static ipv4.addresses 192.168.122.253/24 ipv4.gateway 192.168.122.96 ipv6.method static ipv6.addresses 2607:f0d0:1002:51::4/64 ipv6.gateway 2607:f0d0:1002:51::1"
+    * Bring up connection "con_general"
+    * "default via 192.168.122.96" is visible with command "ip -4 r show default"
+    * "default via 2607:f0d0:1002:51::1" is visible with command "ip -6 r show default"
+    * "via 192.168.122.96" is visible with command "nmcli"
+    * "via 2607:f0d0:1002:51::1" is visible with command "nmcli"
+
+
     @rhbz1882380
     @ver+=1.27 @rhelver+=8
     @nm_device_get_applied_connection_user_allowed
@@ -2517,4 +2530,3 @@ Feature: nmcli - general
     * Execute "ip addr add dev testX6 fd01::93/128 valid_lft forever preferred_lft 0"
     Then "fd01::92" is visible with command "ip address show testX6" in "10" seconds
         And "validhostname" is visible with command "hostname" in "10" seconds
-

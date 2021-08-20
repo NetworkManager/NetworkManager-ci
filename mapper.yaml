@@ -1706,6 +1706,8 @@ testmapper:
         feature: general
     - nmcli_shows_correct_routes:
         feature: general
+    - nmcli_show_gateways:
+        feature: general
     - user_cannot_reapply_roots_connection:
         feature: general
     - nm_device_get_applied_connection_user_allowed:
