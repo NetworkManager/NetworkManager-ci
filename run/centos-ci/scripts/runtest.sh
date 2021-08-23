@@ -19,10 +19,12 @@ pass=()
 mkdir -p /tmp/results/
 echo "WILL RUN:"
 echo $@
+echo "Starting time:" $(date)
 
 # For all tests
 for test in $@; do
-    echo "RUNING $test"
+    echo "_______________________________"
+    echo "RUNNING $test"
     counter=$(printf "%04d\n" $cnt)
 
     # Start watchdog. Default is 10m
@@ -38,6 +40,7 @@ for test in $@; do
         cmd="run/./runtest.sh $test"
     fi
     timeout $timer $cmd; rc=$?
+    echo "Finished at:" $(date)
 
     if [ $rc -ne 0 ]; then
         # Overal result is FAIL
