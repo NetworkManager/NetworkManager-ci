@@ -921,6 +921,7 @@ def simwifi_as(ctx, scen):
     if ctx.IS_NMTUI:
         print("deleting all wifi connections")
         ctx.run("nmcli con del uuid $(nmcli -t -f uuid,type con show | grep ':802-11-wireless$' | sed 's/:802-11-wireless$//g' )")
+        nmci.lib.wait_for_testeth0(ctx)
 
 
 _register_tag("simwifi", simwifi_bs, simwifi_as)
