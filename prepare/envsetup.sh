@@ -196,9 +196,6 @@ install_el9_packages () {
                 http://download.eng.bos.redhat.com/brewroot/vol/rhel-9/packages/libsmi/0.4.8/27.el9.1/$(arch)/libsmi-0.4.8-27.el9.1.$(arch).rpm \
                 http://download.eng.bos.redhat.com/brewroot/vol/rhel-9/packages/wireshark/3.4.0/1.el9.1/$(arch)/wireshark-cli-3.4.0-1.el9.1.$(arch).rpm --skip-broken
 
-    # and few more
-    dnf -4 -y update https://vbenes.fedorapeople.org/NM/bz1975718/hostapd-2.9-10.el9.bz1975718v4.x86_64.rpm https://vbenes.fedorapeople.org/NM/bz1975718/wpa_supplicant-2.9-15.el9.bz1975718v4.x86_64.rpm
-
     install_behave_pytest
 
     # Install vpn dependencies
@@ -237,16 +234,9 @@ install_el9_packages () {
         dnf -y install http://download.eng.bos.redhat.com/brewroot/vol/rhel-9/packages/NetworkManager/$VER/$REL/$(arch)/NetworkManager-ppp-$VER-$REL.$(arch).rpm
     fi
 
-    # install wpa_supplicant and hostapd with WPA3 enterprise capabilities
-    if [ $(arch) == "x86_64" ]; then
-        rpm -q --quiet wpa_supplicant || dnf install -y wpa_supplicant
-        dnf -y update \
-            https://vbenes.fedorapeople.org/NM/WPA3/wpa_supplicant-2.9-8.el9.x86_64.rpm
-        if ! rpm -q --quiet hostapd; then
-            dnf -4 -y install \
-                https://vbenes.fedorapeople.org/NM/bz1975718/hostapd-2.9-10.el9.bz1975718v4.x86_64.rpm
-        fi
-    fi
+    # installhostapd with WPA3 enterprise capabilities
+    dnf -4 -y install \
+        https://vbenes.fedorapeople.org/NM/bz1975718/hostapd-2.9-10.el9.bz1975718v4.x86_64.rpm
 
 
     # Enable debug logs for wpa_supplicant
