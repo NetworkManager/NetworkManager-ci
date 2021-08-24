@@ -152,6 +152,7 @@ install_fedora_packages () {
     # Make crypto policies a bit less strict
     update-crypto-policies --set LEGACY
     systemctl restart wpa_supplicant
+    sed -i s/'^##'/''/g /etc/pki/tls/openssl.cnf
 
     # Install kernel-modules for currently running kernel
     dnf -4 -y install kernel-modules-*-$(uname -r)
@@ -243,9 +244,7 @@ install_el9_packages () {
             https://vbenes.fedorapeople.org/NM/WPA3/wpa_supplicant-2.9-8.el9.x86_64.rpm
         if ! rpm -q --quiet hostapd; then
             dnf -4 -y install \
-                https://vbenes.fedorapeople.org/NM/WPA3/hostapd-2.9-6.el9.x86_64.rpm \
-                https://vbenes.fedorapeople.org/NM/WPA3/hostapd-debuginfo-2.9-6.el9.x86_64.rpm \
-                https://vbenes.fedorapeople.org/NM/WPA3/hostapd-debugsource-2.9-6.el9.x86_64.rpm
+                https://vbenes.fedorapeople.org/NM/bz1975718/hostapd-2.9-10.el9.bz1975718v4.x86_64.rpm
         fi
     fi
 
@@ -256,6 +255,7 @@ install_el9_packages () {
     # Make crypto policies a bit less strict
     update-crypto-policies --set LEGACY
     systemctl restart wpa_supplicant
+    sed -i s/'^##'/''/g /etc/pki/tls/openssl.cnf
 
     # Remove cloud-init dns
     rm -rf /etc/NetworkManager/conf.d/99-cloud-init.conf
