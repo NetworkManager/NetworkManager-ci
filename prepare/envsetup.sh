@@ -245,7 +245,7 @@ install_el9_packages () {
     # Make crypto policies a bit less strict
     update-crypto-policies --set LEGACY
     systemctl restart wpa_supplicant
-    sed -i s/'^##'/''/g /etc/pki/tls/openssl.cnf
+    #sed -i s/'^##'/''/g /etc/pki/tls/openssl.cnf
 
     # Remove cloud-init dns
     rm -rf /etc/NetworkManager/conf.d/99-cloud-init.conf
