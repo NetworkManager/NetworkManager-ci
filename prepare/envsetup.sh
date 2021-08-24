@@ -236,7 +236,7 @@ install_el9_packages () {
 
     # installhostapd with WPA3 enterprise capabilities
     dnf -4 -y install \
-        https://vbenes.fedorapeople.org/NM/bz1975718/hostapd-2.9-10.el9.bz1975718v4.x86_64.rpm
+        https://vbenes.fedorapeople.org/NM/bz1975718/hostapd-2.9-11.el9.$(arch).rpm
 
 
     # Enable debug logs for wpa_supplicant
