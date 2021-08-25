@@ -6,7 +6,7 @@ Feature: WIFI TUI tests
 
 
     @rhelver+=8.2 @fedoraver+=32
-    @simwifi
+    @simwifi @attach_hostapd_log @attach_wpa_supplicant_log
     @nmtui_simwifi_see_all_networks
     Scenario: nmtui - wifi_hwsim - see all networks
     * Start nmtui
@@ -16,7 +16,7 @@ Feature: WIFI TUI tests
 
     # no wpa3 before 8.2
     @rhelver-=8.1 @fedoraver+=32
-    @simwifi
+    @simwifi @attach_hostapd_log @attach_wpa_supplicant_log
     @nmtui_simwifi_see_all_networks
     Scenario: nmtui - wifi_hwsim - see all networks
     * Start nmtui
@@ -25,7 +25,7 @@ Feature: WIFI TUI tests
 
 
     @fedoraver+=32
-    @simwifi @ifcfg-rh
+    @simwifi @attach_hostapd_log @attach_wpa_supplicant_log @ifcfg-rh
     @nmtui_simwifi_connect_to_open_network
     Scenario: nmtui - wifi_hwsim - connect to open network straight
     * Start nmtui
@@ -38,7 +38,7 @@ Feature: WIFI TUI tests
 
 
     @fedoraver+=32
-    @simwifi
+    @simwifi @attach_hostapd_log @attach_wpa_supplicant_log
     @nmtui_simwifi_connect_to_wpa1psk_network
     Scenario: nmtui - wifi_hwsim - connect to WPA1-PSK network straight
     * Start nmtui
@@ -53,7 +53,7 @@ Feature: WIFI TUI tests
 
 
     @fedoraver+=32
-    @simwifi
+    @simwifi @attach_hostapd_log @attach_wpa_supplicant_log
     @nmtui_simwifi_connect_to_wpa2psk_network
     Scenario: nmtui - wifi_hwsim - connect to WPA2-PSK network straight
     * Start nmtui
@@ -68,7 +68,7 @@ Feature: WIFI TUI tests
 
 
     @rhelver+=8.2 @fedoraver+=32
-    @simwifi
+    @simwifi @attach_hostapd_log @attach_wpa_supplicant_log
     @nmtui_simwifi_connect_to_wpa3psk_network
     Scenario: nmtui - wifi_hwsim - connect to WPA3-PSK network straight
     * Start nmtui
@@ -83,7 +83,7 @@ Feature: WIFI TUI tests
 
 
     @fedoraver+=32
-    @simwifi @ifcfg-rh
+    @simwifi @attach_hostapd_log @attach_wpa_supplicant_log @ifcfg-rh
     @nmtui_simwifi_connect_to_wep_hexkey_network
     Scenario: nmtui - wifi_hwsim - connect to WEP hex-key network straight
     * Start nmtui
@@ -100,7 +100,7 @@ Feature: WIFI TUI tests
 
 
     @fedoraver+=32
-    @simwifi
+    @simwifi @attach_hostapd_log @attach_wpa_supplicant_log
     @nmtui_simwifi_connect_to_wep_asciikey_network
     Scenario: nmtui - wifi_hwsim - connect to WEP ascii-key network straight
     * Start nmtui
@@ -115,7 +115,7 @@ Feature: WIFI TUI tests
 
 
     @fedoraver+=32
-    @simwifi @ifcfg-rh
+    @simwifi @attach_hostapd_log @attach_wpa_supplicant_log @ifcfg-rh
     @nmtui_simwifi_add_default_connection_open_network
     Scenario: nmtui - wifi_hwsim - add default connection open network
     * Prepare new connection of type "Wi-Fi" named "wifi"
@@ -128,7 +128,7 @@ Feature: WIFI TUI tests
 
 
     @fedoraver+=32
-    @simwifi
+    @simwifi @attach_hostapd_log @attach_wpa_supplicant_log
     @nmtui_simwifi_fixed_device_present
     Scenario: nmtui - wifi_hwsim - fixed device present
     * Prepare new connection of type "Wi-Fi" named "wifi"
@@ -139,7 +139,7 @@ Feature: WIFI TUI tests
 
 
     @fedoraver+=32
-    @simwifi
+    @simwifi @attach_hostapd_log @attach_wpa_supplicant_log
     @nmtui_simwifi_fixed_device_invalid
     Scenario: nmtui - wifi_hwsim - fixed device invalid
     * Prepare new connection of type "Wi-Fi" named "wifi"
@@ -150,7 +150,7 @@ Feature: WIFI TUI tests
 
 
     @fedoraver+=32
-    @simwifi
+    @simwifi @attach_hostapd_log @attach_wpa_supplicant_log
     @nmtui_simwifi_autoconnect_off
     Scenario: nmtui - wifi_hwsim - autoconnect off
     * Prepare new connection of type "Wi-Fi" named "wifi"
@@ -163,7 +163,7 @@ Feature: WIFI TUI tests
 
 
     @fedoraver+=32
-    @simwifi
+    @simwifi @attach_hostapd_log @attach_wpa_supplicant_log
     @nmtui_simwifi_activate_wo_autoconnect
     Scenario: nmtui - wifi_hwsim - activate connection without autoconnect
     * Prepare new connection of type "Wi-Fi" named "wifi1"
@@ -183,7 +183,7 @@ Feature: WIFI TUI tests
 
 
     @fedoraver+=32
-    @simwifi
+    @simwifi @attach_hostapd_log @attach_wpa_supplicant_log
     @nmtui_simwifi_activate_with_autoconnect
     Scenario: nmtui - wifi_hwsim - activate connection with autoconnect
     * Prepare new connection of type "Wi-Fi" named "wifi1"
@@ -206,7 +206,7 @@ Feature: WIFI TUI tests
 
 
     @fedoraver+=32
-    @simwifi
+    @simwifi @attach_hostapd_log @attach_wpa_supplicant_log
     @nmtui_simwifi_delete_connection_up
     Scenario: nmtui - wifi_hwsim - delete connection while up
     * Prepare new connection of type "Wi-Fi" named "wifi1"
@@ -226,7 +226,7 @@ Feature: WIFI TUI tests
 
 
     @fedoraver+=32
-    @simwifi
+    @simwifi @attach_hostapd_log @attach_wpa_supplicant_log
     @nmtui_simwifi_delete_connection_down
     Scenario: nmtui - wifi_hwsim - delete connection while down
     * Prepare new connection of type "Wi-Fi" named "wifi1"
@@ -249,7 +249,7 @@ Feature: WIFI TUI tests
 
 
     @fedoraver+=32
-    @simwifi
+    @simwifi @attach_hostapd_log @attach_wpa_supplicant_log
     @nmtui_simwifi_adhoc_network
     Scenario: nmtui - wifi_hwsim - adhoc network
     Given Flag "NM_802_11_DEVICE_CAP_ADHOC" is set in WirelessCapabilites
@@ -264,7 +264,7 @@ Feature: WIFI TUI tests
 
 
     @fedoraver+=32
-    @simwifi
+    @simwifi @attach_hostapd_log @attach_wpa_supplicant_log
     @nmtui_simwifi_ap
     Scenario: nmtui - wifi_hwsim - ap
     Given Flag "NM_802_11_DEVICE_CAP_AP" is set in WirelessCapabilites
@@ -279,7 +279,7 @@ Feature: WIFI TUI tests
 
 
     @fedoraver+=32
-    @simwifi
+    @simwifi @attach_hostapd_log @attach_wpa_supplicant_log
     @nmtui_simwifi_wrong_ssid
     Scenario: nmtui - wifi_hwsim - wrong ssid (over 32 bytes)
     * Prepare new connection of type "Wi-Fi" named "wifi1"
@@ -290,7 +290,7 @@ Feature: WIFI TUI tests
 
 
     @fedoraver+=32
-    @simwifi
+    @simwifi @attach_hostapd_log @attach_wpa_supplicant_log
     @nmtui_simwifi_no_ssid
     Scenario: nmtui - wifi_hwsim - no ssid (over 32 bytes)
     * Prepare new connection of type "Wi-Fi" named "wifi1"
@@ -300,7 +300,7 @@ Feature: WIFI TUI tests
 
 
     @fedoraver+=32
-    @simwifi @ifcfg-rh
+    @simwifi @attach_hostapd_log @attach_wpa_supplicant_log @ifcfg-rh
     @nmtui_simwifi_set_existing_bssid
     Scenario: nmtui - wifi_hwsim - set existing bssid
     * Prepare new connection of type "Wi-Fi" named "wifi1"
@@ -314,7 +314,7 @@ Feature: WIFI TUI tests
 
 
     @fedoraver+=32
-    @simwifi @ifcfg-rh
+    @simwifi @attach_hostapd_log @attach_wpa_supplicant_log @ifcfg-rh
     @nmtui_simwifi_set_nonexisting_bssid
     Scenario: nmtui - wifi_hwsim - set nonexisting bssid
     * Prepare new connection of type "Wi-Fi" named "wifi1"
@@ -329,7 +329,7 @@ Feature: WIFI TUI tests
 
 
     @fedoraver+=32
-    @simwifi
+    @simwifi @attach_hostapd_log @attach_wpa_supplicant_log
     @nmtui_simwifi_bogus_bssid
     Scenario: nmtui - wifi_hwsim - bogus bssid
     * Prepare new connection of type "Wi-Fi" named "wifi1"
@@ -349,7 +349,7 @@ Feature: WIFI TUI tests
 
 
     @fedoraver+=32
-    @simwifi
+    @simwifi @attach_hostapd_log @attach_wpa_supplicant_log
     @nmtui_simwifi_mac_spoofing
     Scenario: nmtui - wifi_hwsim - mac spoofing
     * Prepare new connection of type "Wi-Fi" named "wifi1"
@@ -362,7 +362,7 @@ Feature: WIFI TUI tests
 
 
     @fedoraver+=32
-    @simwifi
+    @simwifi @attach_hostapd_log @attach_wpa_supplicant_log
     @nmtui_simwifi_bogus_spoofing_address
     Scenario: nmtui - wifi_hwsim - bogus spoofing address
     * Prepare new connection of type "Wi-Fi" named "wifi1"
@@ -382,7 +382,7 @@ Feature: WIFI TUI tests
 
 
     @fedoraver+=32
-    @simwifi @ifcfg-rh
+    @simwifi @attach_hostapd_log @attach_wpa_supplicant_log @ifcfg-rh
     @nmtui_simwifi_mtu
     Scenario: nmtui - wifi_hwsim - mtu
     * Prepare new connection of type "Wi-Fi" named "wifi1"
@@ -395,7 +395,7 @@ Feature: WIFI TUI tests
 
 
     @fedoraver+=32
-    @simwifi
+    @simwifi @attach_hostapd_log @attach_wpa_supplicant_log
     @nmtui_simwifi_wpa1_connection
     Scenario: nmtui - wifi_hwsim - WPA1 psk connection
     * Prepare new connection of type "Wi-Fi" named "wifi1"
@@ -409,7 +409,7 @@ Feature: WIFI TUI tests
 
 
     @fedoraver+=32
-    @simwifi
+    @simwifi @attach_hostapd_log @attach_wpa_supplicant_log
     @nmtui_simwifi_wpa2_connection
     Scenario: nmtui - wifi_hwsim - WPA2 psk connection
     * Prepare new connection of type "Wi-Fi" named "wifi1"
@@ -423,7 +423,7 @@ Feature: WIFI TUI tests
 
 
     @rhelver+=8.2 @fedoraver+=32
-    @simwifi
+    @simwifi @attach_hostapd_log @attach_wpa_supplicant_log
     @nmtui_simwifi_wpa3_connection
     Scenario: nmtui - wifi_hwsim - WPA3 psk connection
     * Prepare new connection of type "Wi-Fi" named "wifi1"
@@ -437,7 +437,7 @@ Feature: WIFI TUI tests
 
 
     @fedoraver+=32
-    @simwifi
+    @simwifi @attach_hostapd_log @attach_wpa_supplicant_log
     @nmtui_simwifi_wep_hexkey_connection
     Scenario: nmtui - wifi_hwsim - WEP hex key connection
     * Prepare new connection of type "Wi-Fi" named "wifi1"
@@ -451,7 +451,7 @@ Feature: WIFI TUI tests
 
 
     @fedoraver+=32
-    @simwifi
+    @simwifi @attach_hostapd_log @attach_wpa_supplicant_log
     @nmtui_simwifi_wep_ascii_connection
     Scenario: nmtui - wifi_hwsim - WEP ascii connection
     * Prepare new connection of type "Wi-Fi" named "wifi1"
@@ -465,7 +465,7 @@ Feature: WIFI TUI tests
 
 
     # mac80211_hwsim does not support WEP 128-bit Passphrase
-    #@simwifi
+    #@simwifi @attach_hostapd_log @attach_wpa_supplicant_log
     #@nmtui_simwifi_wep_passphrase_connection
     #Scenario: nmtui - wifi_hwsim - WEP passphrase connection
     #* Prepare new connection of type "Wi-Fi" named "wifi1"
@@ -480,7 +480,7 @@ Feature: WIFI TUI tests
 
 #### Note TUI doesn't support enterprise and dynamic wep yet, tests will be added when support done. ####
     @fedoraver+=32
-    @simwifi
+    @simwifi @attach_hostapd_log @attach_wpa_supplicant_log
     @nmtui_simwifi_show_password
     Scenario: nmtui - wifi_hwsim - show password
     * Prepare new connection of type "Wi-Fi" named "wifi1"
@@ -497,7 +497,7 @@ Feature: WIFI TUI tests
 
     @rhbz1132612
     @fedoraver+=32
-    @simwifi
+    @simwifi @attach_hostapd_log @attach_wpa_supplicant_log
     @nmtui_simwifi_connect_to_network_after_dismissal
     Scenario: nmtui - wifi_hwsim - connect to a network after dialog dismissal
     * Start nmtui
@@ -517,7 +517,7 @@ Feature: WIFI TUI tests
     Then "inet 10." is visible with command "ip a s wlan0" in "30" seconds
 
 
-    @simwifi_teardown
+    @simwifi @attach_hostapd_log @attach_wpa_supplicant_log_teardown
     @nmtui_simwifi_teardown
     Scenario: teardown wifi setup
     * Execute "echo 'this is skipped'"

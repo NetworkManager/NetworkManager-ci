@@ -9,7 +9,7 @@ Feature: nmcli - wifi
 
 
     @ver+=1.9.1 @fedoraver+=31
-    @simwifi @simwifi_open
+    @simwifi @attach_hostapd_log @attach_wpa_supplicant_log @simwifi_open
     @simwifi_open_connect
     Scenario: nmcli - simwifi - connect to open network
     Given "open" is visible with command "nmcli -f SSID device wifi list" in "90" seconds
@@ -21,7 +21,7 @@ Feature: nmcli - wifi
 
 
     @ver+=1.9.1 @fedoraver+=31
-    @simwifi @simwifi_pskwep
+    @attach_hostapd_log @attach_wpa_supplicant_log @simwifi_pskwep
     @simwifi_wep_ask_passwd
     Scenario: nmcli - wifi - connect WEP network asking for password
     Given "wep" is visible with command "nmcli -f SSID device wifi list" in "60" seconds
@@ -64,7 +64,7 @@ Feature: nmcli - wifi
 
 
     @ver+=1.9.1 @fedoraver+=31
-    @simwifi @simwifi_wpa2
+    @attach_hostapd_log @attach_wpa_supplicant_log @simwifi_wpa2
     @simwifi_wpa2psk_no_profile
     Scenario: nmcli - simwifi - connect to WPA2 PSK network without profile
     Given "wpa2-eap" is visible with command "nmcli -f SSID device wifi list" in "90" seconds
@@ -232,7 +232,7 @@ Feature: nmcli - wifi
 
     @rhbz1626391
     @ver+=1.12 @fedoraver+=31
-    @simwifi @simwifi_wpa2
+    @attach_hostapd_log @attach_wpa_supplicant_log @simwifi_wpa2
     @wifi_dbus_bitrate_property_name
     Scenario: dbus - property name for Device.Wireless.Bitrate
     Then "Bitrate" is visible with command "for dev_id in $(busctl tree org.freedesktop.NetworkManager | grep Devices/ | grep -o '[0-9]*$'); do busctl introspect org.freedesktop.NetworkManager /org/freedesktop/NetworkManager/Devices/$dev_id | grep Bitrate; done"
@@ -240,7 +240,7 @@ Feature: nmcli - wifi
 
     @rhbz1730177
     @ver+=1.22 @rhelver+=8.2 @fedoraver+=31
-    @simwifi @simwifi_wpa3
+    @attach_hostapd_log @attach_wpa_supplicant_log @simwifi_wpa3
     @simwifi_wpa3_personal
     Scenario: nmcli - simwifi - connect to WPA3 personal wifi
     Given "wpa3-psk" is visible with command "nmcli -f SSID device wifi list" in "60" seconds
@@ -251,7 +251,7 @@ Feature: nmcli - wifi
 
     @rhbz1730177
     @ver+=1.22 @rhelver+=8.2 @fedoraver+=31
-    @simwifi @simwifi_wpa3
+    @attach_hostapd_log @attach_wpa_supplicant_log @simwifi_wpa3
     @simwifi_wpa3_personal_device_connect_ask
     Scenario: nmcli - simwifi - connect to WPA3 personal wifi with device command
     Given "wpa3-psk" is visible with command "nmcli -f SSID device wifi list" in "60" seconds
@@ -291,7 +291,7 @@ Feature: nmcli - wifi
 
 
     @ver+=1.16 @rhelver+=8 @fedoraver-=0
-    @simwifi_p2p @attach_wpa_supplicant_log
+    @simwifi_p2p @attach_wpa_supplicant_log @attach_hostapd_log
     @simwifi_p2p_connect
     Scenario: nmcli - simwifi - p2p - connect
     # This is not needed now as unmanaged directly see environment.py simwifi_p2p tag
@@ -308,7 +308,7 @@ Feature: nmcli - wifi
 
 
     @rhelver+=8 @fedoraver+=31
-    @simwifi_ap @attach_wpa_supplicant_log
+    @simwifi_ap @attach_wpa_supplicant_log @attach_hostapd_log
     @simwifi_ap_wpa_psk_method_shared
     Scenario: nmcli - simwifi - AP - connect to NM AP with WPA2 psk security and method shared
     * Add a new connection of type "wifi" and options "ifname wlan1 con-name wifi-ap ssid AP_test 802-11-wireless-security.key-mgmt wpa-psk 802-11-wireless-security.psk Secret123 mode ap ipv4.method shared"
@@ -320,7 +320,7 @@ Feature: nmcli - wifi
 
     @rhbz1888051
     @ver+=1.29 @rhelver+=8 @fedoraver+=33
-    @simwifi_ap @teardown_testveth @attach_wpa_supplicant_log
+    @simwifi_ap @teardown_testveth @attach_wpa_supplicant_log @attach_hostapd_log
     @simwifi_ap_in_bridge_wpa_psk_method_manual
     Scenario: nmcli - simwifi - AP - connect to NM AP with WPA2 psk security and method shared
     * Prepare simulated test "testW" device without dhcp
