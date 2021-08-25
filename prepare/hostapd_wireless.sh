@@ -126,6 +126,7 @@ wpa=3
 ieee8021x=1
 eapol_version=1
 wpa_key_mgmt=WPA-EAP WPA-PSK
+rsn_pairwise=CCMP
 wpa_passphrase=secret123
 eap_reauth_period=3600
 eap_server=1
@@ -146,6 +147,7 @@ channel=7
 auth_algs=3
 wpa=3
 wpa_key_mgmt=WPA-PSK
+rsn_pairwise=CCMP
 wpa_passphrase=secret123
 
 #wpa1eap
@@ -159,6 +161,7 @@ wpa=1
 ieee8021x=1
 eapol_version=1
 wpa_key_mgmt=WPA-EAP
+wpa_pairwise=CCMP
 eap_reauth_period=3600
 eap_server=1
 use_pae_group_addr=1
@@ -178,6 +181,7 @@ channel=7
 auth_algs=3
 wpa=1
 wpa_key_mgmt=WPA-PSK
+wpa_pairwise=CCMP
 wpa_passphrase=secret123
 " > $HOSTAPD_CFG
 
