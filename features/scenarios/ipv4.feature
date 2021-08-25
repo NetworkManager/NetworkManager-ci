@@ -1338,7 +1338,7 @@ Feature: nmcli: ipv4
 
     @rhbz1518091 @rhbz1246496 @rhbz1503587
     @ver+=1.11
-    @con @profie @con_ipv4_remove @teardown_testveth @long @restart_if_needed @ifcfg-rh
+    @con @profie @con_ipv4_remove @teardown_testveth @long @restart_if_needed @ifcfg-rh @skip_in_centos
     @dhcp4_outages_in_various_situation
     Scenario: NM - ipv4 - all types of dhcp outages
     ################# PREPARE testX4 AND testY4 ################################

@@ -331,6 +331,7 @@ function check_veth_env ()
         exit 0
     else
         echo "Need to regenerate vethsetup!!"
+        echo "Regenerate $TEST" > /tmp/regenerate_vethsetups
         teardown_veth_env
         setup_veth_env
     fi
