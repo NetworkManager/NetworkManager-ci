@@ -517,7 +517,7 @@ Feature: WIFI TUI tests
     Then "inet 10." is visible with command "ip a s wlan0" in "30" seconds
 
 
-    @simwifi @attach_hostapd_log @attach_wpa_supplicant_log_teardown
+    @simwifi_teardown
     @nmtui_simwifi_teardown
     Scenario: teardown wifi setup
     * Execute "echo 'this is skipped'"

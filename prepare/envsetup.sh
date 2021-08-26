@@ -149,10 +149,9 @@ install_fedora_packages () {
     dnf -4 -y update dbus*
     systemctl restart messagebus
 
-    # Make crypto policies a bit less strict
-    update-crypto-policies --set LEGACY
-    systemctl restart wpa_supplicant
-    sed -i s/'^##'/''/g /etc/pki/tls/openssl.cnf
+    # # Make crypto policies a bit less strict
+    # update-crypto-policies --set LEGACY
+    # systemctl restart wpa_supplicant
 
     # Install kernel-modules for currently running kernel
     dnf -4 -y install kernel-modules-*-$(uname -r)
@@ -245,7 +244,6 @@ install_el9_packages () {
     # Make crypto policies a bit less strict
     update-crypto-policies --set LEGACY
     systemctl restart wpa_supplicant
-    #sed -i s/'^##'/''/g /etc/pki/tls/openssl.cnf
 
     # Remove cloud-init dns
     rm -rf /etc/NetworkManager/conf.d/99-cloud-init.conf

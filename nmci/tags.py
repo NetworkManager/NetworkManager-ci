@@ -835,6 +835,23 @@ def need_dispatcher_scripts_as(ctx, scen):
 _register_tag("need_dispatcher_scripts", need_dispatcher_scripts_bs, need_dispatcher_scripts_as)
 
 
+def need_legacy_crypto_bs(ctx, scen):
+    # We have openssl3 in RHEL9 with a bunch of algs deprecated
+    if "release 9" in ctx.rh_release:
+        ctx.run("sed '-i.bak' s/'^##'/''/g /etc/pki/tls/openssl.cnf")
+        ctx.run("systemctl restart wpa_supplicant")
+        ctx.run("systemctl restart nm-hostapd")
+
+
+def need_legacy_crypto_as(ctx, scen):
+    if "release 9" in ctx.rh_release:
+        ctx.run("mv -f /etc/pki/tls/openssl.cnf.bak /etc/pki/tls/openssl.cnf")
+        ctx.run("systemctl restart wpa_supplicant")
+        ctx.run("systemctl restart nm-hostapd")
+
+_register_tag("need_legacy_crypto", need_legacy_crypto_bs, need_legacy_crypto_as)
+
+
 def logging_bs(ctx, scen):
     ctx.loggin_level = ctx.command_output('nmcli -t -f LEVEL general logging').strip()
 
@@ -846,7 +863,6 @@ def logging_as(ctx, scen):
 
 
 _register_tag("logging", logging_bs, logging_as)
-
 
 
 def remove_custom_cfg_as(ctx, scen):

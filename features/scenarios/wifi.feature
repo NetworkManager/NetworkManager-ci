@@ -699,7 +699,7 @@ Feature: nmcli - wifi
     Then "\*\s+qe-wpa1-enterprise" is visible with command "nmcli -f IN-USE,SSID device wifi list"
 
 
-    @wifi
+    @wifi @need_legacy_crypto
     @nmcli_wifisec_configure_and_connect_wpa1ttls_profile
     Scenario: nmcli - wifi-sec - configure and connect WPA1-TTLS profile
     * Add a new connection of type "wifi" and options "ifname wlan0 con-name qe-wpa1-enterprise autoconnect off ssid qe-wpa1-enterprise"
@@ -764,7 +764,7 @@ Feature: nmcli - wifi
     Then "\*\s+qe-wpa2-enterprise" is visible with command "nmcli -f IN-USE,SSID device wifi list"
 
 
-    @wifi
+    @wifi @need_legacy_crypto
     @nmcli_wifisec_configure_and_connect_wpa2ttls_profile
     Scenario: nmcli - wifi-sec - configure and connect WPA2-TTLS profile
     * Add a new connection of type "wifi" and options "ifname wlan0 con-name qe-wpa2-enterprise autoconnect off ssid qe-wpa2-enterprise"
@@ -825,7 +825,7 @@ Feature: nmcli - wifi
     Then "\*\s+qe-wep-enterprise" is visible with command "nmcli -f IN-USE,SSID device wifi list"
 
 
-    @wifi @wireless_certs
+    @wifi @wireless_certs @need_legacy_crypto
     @nmcli_wifisec_configure_and_connect_wepttls_profile
     Scenario: nmcli - wifi-sec - configure and connect WEP-TTLS profile
     * Add a new connection of type "wifi" and options "ifname wlan0 con-name qe-wep-enterprise autoconnect off ssid qe-wep-enterprise"

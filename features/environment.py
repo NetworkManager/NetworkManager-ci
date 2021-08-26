@@ -226,7 +226,8 @@ def _after_scenario(context, scenario):
                           caption="TUI")
         # Stop TUI
         nmci.run("sudo killall nmtui &> /dev/null")
-        os.remove('/tmp/nmtui.out')
+        if os.path.isfile('/tmp/nmtui.out'):
+            os.remove('/tmp/nmtui.out')
 
     print(("NetworkManager process id after: %s (was %s)" % (nm_pid_after, context.nm_pid)))
 

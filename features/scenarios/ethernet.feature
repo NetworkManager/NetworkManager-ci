@@ -447,6 +447,7 @@ Feature: nmcli - ethernet
      @rhbz1714610
      @ver+=1.18.0
      @con_ethernet_remove @8021x @attach_hostapd_log @attach_wpa_supplicant_log @restart_if_needed
+     @need_legacy_crypto
      @8021x_tls_pkcs12_key_restart
      Scenario: nmcli - ethernet - 8021x - tls - connection with pkcs12 key persists restart
      * Add a new connection of type "ethernet" and options "ifname test8X con-name con_ethernet autoconnect no 802-1x.eap tls 802-1x.identity test 802-1x.ca-cert /tmp/certs/test_user.ca.pem 802-1x.private-key /tmp/certs/test_user.p12 802-1x.private-key-password redhat"
@@ -466,6 +467,7 @@ Feature: nmcli - ethernet
 
     @ver+=1.6.0
     @con_ethernet_remove @8021x @attach_hostapd_log @attach_wpa_supplicant_log
+    @need_legacy_crypto
     @8021x_peap_mschapv2
     Scenario: nmcli - ethernet - connect to 8021x - peap - mschapv2
     * Add a new connection of type "ethernet" and options "ifname test8X con-name con_ethernet autoconnect no 802-1x.eap peap 802-1x.identity TESTERS\\test_mschapv2 802-1x.anonymous-identity test 802-1x.ca-cert /tmp/certs/test_user.ca.pem 802-1x.phase2-auth mschapv2 802-1x.password password"
@@ -498,6 +500,7 @@ Feature: nmcli - ethernet
 
     @ver+=1.6.0
     @con_ethernet_remove @8021x @attach_hostapd_log @attach_wpa_supplicant_log
+    @need_legacy_crypto
     @8021x_ttls_mschap
     Scenario: nmcli - ethernet - connect to 8021x -ttls - mschap
     * Add a new connection of type "ethernet" and options "ifname test8X con-name con_ethernet autoconnect no 802-1x.eap ttls 802-1x.identity test_ttls 802-1x.anonymous-identity test 802-1x.ca-cert /tmp/certs/test_user.ca.pem 802-1x.phase2-auth mschap 802-1x.password password"
@@ -506,6 +509,7 @@ Feature: nmcli - ethernet
 
     @ver+=1.6.0
     @con_ethernet_remove @8021x @attach_hostapd_log @attach_wpa_supplicant_log
+    @need_legacy_crypto
     @8021x_ttls_mschapv2
     Scenario: nmcli - ethernet - connect to 8021x -ttls - mschapv2
     * Add a new connection of type "ethernet" and options "ifname test8X con-name con_ethernet autoconnect no 802-1x.eap ttls 802-1x.identity test_ttls 802-1x.anonymous-identity test 802-1x.ca-cert /tmp/certs/test_user.ca.pem 802-1x.phase2-auth mschapv2 802-1x.password password"
@@ -514,6 +518,7 @@ Feature: nmcli - ethernet
 
     @ver+=1.6.0
     @con_ethernet_remove @8021x @attach_hostapd_log @attach_wpa_supplicant_log
+    @need_legacy_crypto
     @8021x_ttls_mschapv2_eap
     Scenario: nmcli - ethernet - connect to 8021x -ttls - mschap - eap
     * Add a new connection of type "ethernet" and options "ifname test8X con-name con_ethernet autoconnect no 802-1x.eap ttls 802-1x.identity TESTERS\\test_mschapv2 802-1x.anonymous-identity test 802-1x.ca-cert /tmp/certs/test_user.ca.pem 802-1x.phase2-autheap mschapv2 802-1x.password password"
