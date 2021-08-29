@@ -279,7 +279,8 @@ def remove_vlan_range(ctx, scen):
     ctx.run("rm -rvf " + ifcfg_list)
 
     # remove keyfile (if any)
-    keyfile_list = " ".join((f"/etc/NetworkManager/system-connections/{dev}*" for dev in vlan_range))
+    keyfile_list = " ".join(
+        (f"/etc/NetworkManager/system-connections/{dev}*" for dev in vlan_range))
     ctx.run("rm -rvf " + keyfile_list)
 
     nmci.lib.restart_NM_service(ctx)
@@ -342,6 +343,7 @@ def gsm_bs(ctx, scen):
         #             continue
 
     ctx.run('nmcli con down testeth0')
+
 
 def gsm_as(ctx, scen):
     # You can debug here only with console connection to the testing machine.
@@ -468,10 +470,10 @@ def eth0_bs(ctx, scen):
 
 
 def eth0_as(ctx, scen):
-#    if not ctx.IS_NMTUI:
-#        if 'restore_hostname' in scen.tags:
-#            ctx.run('hostnamectl set-hostname --transien ""')
-#            ctx.run('hostnamectl set-hostname --static %s' % ctx.original_hostname)
+    #    if not ctx.IS_NMTUI:
+    #        if 'restore_hostname' in scen.tags:
+    #            ctx.run('hostnamectl set-hostname --transien ""')
+    #            ctx.run('hostnamectl set-hostname --static %s' % ctx.original_hostname)
     nmci.lib.wait_for_testeth0(ctx)
 
 
@@ -593,7 +595,8 @@ def dns_dnsmasq_bs(ctx, scen):
         ctx.run("rm -rf /etc/resolv.conf")
     else:
         ctx.systemd_resolved = False
-    ctx.run("printf '# configured by beaker-test\n[main]\ndns=dnsmasq\n' > /etc/NetworkManager/conf.d/99-xtest-dns.conf")
+    ctx.run(
+        "printf '# configured by beaker-test\n[main]\ndns=dnsmasq\n' > /etc/NetworkManager/conf.d/99-xtest-dns.conf")
     nmci.lib.reload_NM_service(ctx)
     ctx.dns_plugin = "dnsmasq"
 
@@ -601,7 +604,7 @@ def dns_dnsmasq_bs(ctx, scen):
 def dns_dnsmasq_as(ctx, scen):
     ctx.run("rm -f /etc/NetworkManager/conf.d/99-xtest-dns.conf")
     nmci.lib.reload_NM_service(ctx)
-    ctx.dns_plugin=""
+    ctx.dns_plugin = ""
     if ctx.systemd_resolved == True:
         print("starting systemd-resolved")
         ctx.run("systemctl restart systemd-resolved")
@@ -619,7 +622,8 @@ def dns_systemd_resolved_bs(ctx, scen):
         if ctx.command_code("systemctl is-active systemd-resolved") != 0:
             print("ERROR: Cannot start systemd-resolved")
             sys.exit(77)
-    ctx.run("printf '# configured by beaker-test\n[main]\ndns=systemd-resolved\n' > /etc/NetworkManager/conf.d/99-xtest-dns.conf")
+    ctx.run(
+        "printf '# configured by beaker-test\n[main]\ndns=systemd-resolved\n' > /etc/NetworkManager/conf.d/99-xtest-dns.conf")
     nmci.lib.reload_NM_service(ctx)
     ctx.dns_plugin = "systemd-resolved"
 
@@ -637,7 +641,8 @@ _register_tag("dns_systemd_resolved", dns_systemd_resolved_bs, dns_systemd_resol
 
 
 def internal_DHCP_bs(ctx, scen):
-    ctx.run("printf '# configured by beaker-test\n[main]\ndhcp=internal\n' > /etc/NetworkManager/conf.d/99-xtest-dhcp-internal.conf")
+    ctx.run(
+        "printf '# configured by beaker-test\n[main]\ndhcp=internal\n' > /etc/NetworkManager/conf.d/99-xtest-dhcp-internal.conf")
     nmci.lib.restart_NM_service(ctx)
 
 
@@ -650,7 +655,8 @@ _register_tag("internal_DHCP", internal_DHCP_bs, internal_DHCP_as)
 
 
 def dhclient_DHCP_bs(ctx, scen):
-    ctx.run("printf '# configured by beaker-test\n[main]\ndhcp=dhclient\n' > /etc/NetworkManager/conf.d/99-xtest-dhcp-dhclient.conf")
+    ctx.run(
+        "printf '# configured by beaker-test\n[main]\ndhcp=dhclient\n' > /etc/NetworkManager/conf.d/99-xtest-dhcp-dhclient.conf")
     nmci.lib.restart_NM_service(ctx)
 
 
@@ -704,7 +710,8 @@ def ethernet_as(ctx, scen):
     if 'ipv4' not in scen.tags and 'ipv6' not in scen.tags:
         print("removing ethernet profiles")
         ctx.run("sudo nmcli connection delete id ethernet ethernet0 ethos")
-        ctx.run('sudo rm -rf /etc/sysconfig/network-scripts/ifcfg-ethernet*') #ideally should do nothing
+        # ideally should do nothing
+        ctx.run('sudo rm -rf /etc/sysconfig/network-scripts/ifcfg-ethernet*')
 
     time.sleep(0.2)
 
@@ -719,7 +726,8 @@ def ifcfg_rh_bs(ctx, scen):
         print("setting ifcfg-rh plugin")
         # VV Do not lower this as some devices can be still going down
         time.sleep(0.5)
-        ctx.run("printf '# configured by beaker-test\n[main]\nplugins=ifcfg-rh\n' > /etc/NetworkManager/conf.d/99-xxcustom.conf")
+        ctx.run(
+            "printf '# configured by beaker-test\n[main]\nplugins=ifcfg-rh\n' > /etc/NetworkManager/conf.d/99-xxcustom.conf")
         nmci.lib.restart_NM_service(ctx)
         if ctx.IS_NMTUI:
             # comment out wifi_rescan, as simwifi prepare not done yet
@@ -750,7 +758,8 @@ def keyfile_bs(ctx, scen):
         print("setting keyfile plugin")
         # VV Do not lower this as some devices can be still going down
         time.sleep(0.5)
-        ctx.run("printf '# configured by beaker-test\n[main]\nplugins=ifcfg-rh\n' > /etc/NetworkManager/conf.d/99-xxcustom.conf")
+        ctx.run(
+            "printf '# configured by beaker-test\n[main]\nplugins=ifcfg-rh\n' > /etc/NetworkManager/conf.d/99-xxcustom.conf")
         nmci.lib.restart_NM_service(ctx)
         if ctx.IS_NMTUI:
             # comment out wifi_rescan, as simwifi prepare not done yet
@@ -848,6 +857,7 @@ def need_legacy_crypto_as(ctx, scen):
         ctx.run("mv -f /etc/pki/tls/openssl.cnf.bak /etc/pki/tls/openssl.cnf")
         ctx.run("systemctl restart wpa_supplicant")
         ctx.run("systemctl restart nm-hostapd")
+
 
 _register_tag("need_legacy_crypto", need_legacy_crypto_bs, need_legacy_crypto_as)
 
@@ -955,8 +965,8 @@ def simwifi_p2p_bs(ctx, scen):
 
     if "release 8" in ctx.rh_release:
         ctx.run("dnf -4 -y install "
-             "https://vbenes.fedorapeople.org/NM/wpa_supplicant-2.7-2.2.bz1693684.el8.x86_64.rpm "
-             "https://vbenes.fedorapeople.org/NM/wpa_supplicant-debuginfo-2.7-2.2.bz1693684.el8.x86_64.rpm ")
+                "https://vbenes.fedorapeople.org/NM/wpa_supplicant-2.7-2.2.bz1693684.el8.x86_64.rpm "
+                "https://vbenes.fedorapeople.org/NM/wpa_supplicant-debuginfo-2.7-2.2.bz1693684.el8.x86_64.rpm ")
         ctx.run("systemctl restart wpa_supplicant")
 
     if ctx.command_code("ls /tmp/nm_*_supp_configured") == 0:
@@ -971,7 +981,8 @@ def simwifi_p2p_bs(ctx, scen):
     #ctx.run("echo -e '[connection-wifi]\nwifi.cloned-mac-address=preserve' >> /etc/NetworkManager/conf.d/99-wifi.conf")
 
     # This is workaround for https://bugzilla.redhat.com/show_bug.cgi?id=1752780
-    ctx.run("echo -e '[keyfile]\nunmanaged-devices=wlan1\n' > /etc/NetworkManager/conf.d/99-wifi.conf")
+    ctx.run(
+        "echo -e '[keyfile]\nunmanaged-devices=wlan1\n' > /etc/NetworkManager/conf.d/99-wifi.conf")
     nmci.lib.restart_NM_service(ctx)
 
     ctx.run('modprobe mac80211_hwsim')
@@ -983,10 +994,12 @@ def simwifi_p2p_as(ctx, scen):
     if "release 8" in ctx.rh_release:
         if ctx.arch == "x86_64":
             print("Install patched wpa_supplicant for x86_64")
-            ctx.run("dnf -4 -y install https://vbenes.fedorapeople.org/NM/WPA3/wpa_supplicant{,-debuginfo,-debugsource}-2.9-8.el8.$(arch).rpm")
+            ctx.run(
+                "dnf -4 -y install https://vbenes.fedorapeople.org/NM/WPA3/wpa_supplicant{,-debuginfo,-debugsource}-2.9-8.el8.$(arch).rpm")
         else:
             print("Install patched wpa_supplicant")
-            ctx.run("dnf -4 -y install https://vbenes.fedorapeople.org/NM/rhbz1888051/wpa_supplicant{,-debuginfo,-debugsource}-2.9-3.el8.$(arch).rpm")
+            ctx.run(
+                "dnf -4 -y install https://vbenes.fedorapeople.org/NM/rhbz1888051/wpa_supplicant{,-debuginfo,-debugsource}-2.9-3.el8.$(arch).rpm")
         ctx.run("dnf -y update wpa_supplicant")
         ctx.run("systemctl restart wpa_supplicant")
     ctx.run('modprobe -r mac80211_hwsim')
@@ -1221,13 +1234,15 @@ def dracut_bs(ctx, scen):
     rc = ctx.command_code(
         "cd contrib/dracut; . ./setup.sh ; set -x; "
         " { time test_setup ; } &> /tmp/dracut_setup.log", shell=True)
-    nmci.lib.embed_file_if_exists(ctx, "/tmp/dracut_setup.log", caption="Dracut setup", fail_only=False)
+    nmci.lib.embed_file_if_exists(ctx, "/tmp/dracut_setup.log",
+                                  caption="Dracut setup", fail_only=False)
     if rc != 0:
         print("dracut setup failed, doing clean !!!")
         ctx.run(
             "cd contrib/dracut; . ./setup.sh ;"
             "{ time test_clean; } &> /tmp/dracut_teardown.log", shell=True)
-        nmci.lib.embed_file_if_exists(ctx, "/tmp/dracut_teardown.log", caption="Dracut teardown", fail_only=False)
+        nmci.lib.embed_file_if_exists(ctx, "/tmp/dracut_teardown.log",
+                                      caption="Dracut teardown", fail_only=False)
         assert False, "dracut setup failed"
 
 
@@ -1276,7 +1291,8 @@ def prepare_patched_netdevsim_as(ctx, scen):
     ctx.run('sh prepare/netdevsim.sh teardown')
 
 
-_register_tag("prepare_patched_netdevsim", prepare_patched_netdevsim_bs, prepare_patched_netdevsim_as)
+_register_tag("prepare_patched_netdevsim", prepare_patched_netdevsim_bs,
+              prepare_patched_netdevsim_as)
 
 
 def load_netdevsim_bs(ctx, scen):
@@ -1328,8 +1344,9 @@ def performance_as(ctx, scen):
     ctx.run("tmp/./setup.sh 0")
     # Deleting all connections
     cons = ""
-    for i in range(1,101):cons=cons+('t-a%s ' %i)
-    command = "nmcli con del %s" %cons
+    for i in range(1, 101):
+        cons = cons+('t-a%s ' % i)
+    command = "nmcli con del %s" % cons
     ctx.run(command)
     # setup.sh masks dispatcher scripts
     ctx.run("systemctl unmask NetworkManager-dispatcher")
@@ -1340,7 +1357,8 @@ _register_tag("performance", performance_bs, performance_as)
 
 def preserve_8021x_certs_bs(ctx, scen):
     assert ctx.command_code("mkdir -p /tmp/certs/") == 0, "unable to create /tmp/certs/ directory"
-    assert ctx.command_code("cp -r tmp/8021x/certs/client/* /tmp/certs/") == 0, "unable to copy certificates"
+    assert ctx.command_code(
+        "cp -r tmp/8021x/certs/client/* /tmp/certs/") == 0, "unable to copy certificates"
 
 
 _register_tag("preserve_8021x_certs", preserve_8021x_certs_bs)
@@ -1517,7 +1535,7 @@ def openvswitch_as(ctx, scen):
     ctx.run('sudo ifdown eth1')
     ctx.run('sudo ifdown eth2')
     ctx.run('sudo ifdown ovsbridge0')
-    ctx.run('sudo nmcli con del eth1 eth2 ovs-bond0 ovs-port0 ovs-patch0 ovs-patch1 ovs-bridge1 ovs-bridge0 ovs-port1 ovs-eth2 ovs-eth3 ovs-iface0 eth2 dpdk-sriov c-ovs-br0 c-ovs-port0 c-ovs-iface0 ovs-testX') # to be sure
+    ctx.run('sudo nmcli con del eth1 eth2 ovs-bond0 ovs-port0 ovs-patch0 ovs-patch1 ovs-bridge1 ovs-bridge0 ovs-port1 ovs-eth2 ovs-eth3 ovs-iface0 eth2 dpdk-sriov c-ovs-br0 c-ovs-port0 c-ovs-iface0 ovs-testX')  # to be sure
     time.sleep(1)
     ctx.run('ovs-vsctl del-br ovsbr0')
     ctx.run('ovs-vsctl del-br ovsbridge0')
@@ -1659,7 +1677,8 @@ _register_tag("pppoe", pppoe_bs, pppoe_as)
 
 
 def del_test1112_veths_bs(ctx, scen):
-    ctx.run('''echo 'ENV{ID_NET_DRIVER}=="veth", ENV{INTERFACE}=="test11|test12", ENV{NM_UNMANAGED}="0"' >/etc/udev/rules.d/99-veths.rules''')
+    ctx.run(
+        '''echo 'ENV{ID_NET_DRIVER}=="veth", ENV{INTERFACE}=="test11|test12", ENV{NM_UNMANAGED}="0"' >/etc/udev/rules.d/99-veths.rules''')
     ctx.run("udevadm control --reload-rules")
     ctx.run("udevadm settle --timeout=5")
     time.sleep(1)
@@ -1686,9 +1705,11 @@ def veth_remove_as(ctx, scen):
 
 _register_tag("veth_remove", None, veth_remove_as)
 
+
 def nmstate_bs(ctx, scen):
     ctx.run("yum -y remove nmstate nispor")
     ctx.run("yum -y install nmstate")
+
 
 _register_tag("nmstate", nmstate_bs, None)
 
@@ -1761,7 +1782,6 @@ def nmstate_upstream_setup_as(ctx, scen):
     ctx.run("ip link set name eth2 ethY")
     ctx.run("ip link set dev eth2 up")
 
-
     # remove profiles
     ctx.run("nmcli con del nmstate ethX ethY eth1peer eth2peer")
 
@@ -1831,7 +1851,8 @@ def no_config_server_bs(ctx, scen):
         ctx.restore_config_server = False
     else:
         #ctx.run('sudo yum -y remove NetworkManager-config-server')
-        config_files = ctx.command_output('rpm -ql NetworkManager-config-server').strip().split('\n')
+        config_files = ctx.command_output(
+            'rpm -ql NetworkManager-config-server').strip().split('\n')
         for config_file in config_files:
             config_file = config_file.strip()
             if os.path.isfile(config_file):
@@ -1843,14 +1864,16 @@ def no_config_server_bs(ctx, scen):
 
 def no_config_server_as(ctx, scen):
     if ctx.restore_config_server:
-        config_files = ctx.command_output('rpm -ql NetworkManager-config-server').strip().split('\n')
+        config_files = ctx.command_output(
+            'rpm -ql NetworkManager-config-server').strip().split('\n')
         for config_file in config_files:
             config_file = config_file.strip()
             if os.path.isfile(config_file + '.off'):
                 print("* enabling file: %s" % config_file)
                 ctx.run('sudo mv -f %s.off %s' % (config_file, config_file))
         nmci.lib.reload_NM_service(ctx)
-    ctx.run("for i in $(nmcli -t -f NAME,UUID connection |grep -v testeth |awk -F ':' ' {print $2}'); do nmcli con del $i; done")
+    ctx.run(
+        "for i in $(nmcli -t -f NAME,UUID connection |grep -v testeth |awk -F ':' ' {print $2}'); do nmcli con del $i; done")
     nmci.lib.restore_testeth0(ctx)
 
 
@@ -1924,7 +1947,6 @@ def rescan_as(ctx, scen):
 
 
 _register_tag("rescan", None, rescan_as)
-
 
 
 def no_connections_bs(ctx, scen):
@@ -2056,9 +2078,9 @@ def team_as(ctx, scen):
         ctx.run('nmcli connection down team0')
         ctx.run('nmcli connection delete id team0 team')
         if 'team_assumed' in scen.tags:
-            ctx.run('ip link del nm-team' )
+            ctx.run('ip link del nm-team')
         #sleep(TIMER)
-        ctx.run("if nmcli con |grep 'team0 '; then echo 'team0 present: %s' >> /tmp/residues; fi" %scen.tags)
+        ctx.run("if nmcli con |grep 'team0 '; then echo 'team0 present: %s' >> /tmp/residues; fi" % scen.tags)
 
 
 _register_tag("team", None, team_as)
@@ -2228,7 +2250,7 @@ def con_ipv6_remove_as(ctx, scen):
     ctx.run("nmcli connection down con_ipv6 ")
     ctx.run("nmcli connection down con_ipv62 ")
     ctx.run("nmcli connection delete id con_ipv6 con_ipv62")
-    ctx.run("if nmcli con |grep con_ipv6; then echo 'con_ipv6 present: %s' >> /tmp/residues; fi" %scen.tags)
+    ctx.run("if nmcli con |grep con_ipv6; then echo 'con_ipv6 present: %s' >> /tmp/residues; fi" % scen.tags)
 
 
 _register_tag("con_ipv6_remove", None, con_ipv6_remove_as)
