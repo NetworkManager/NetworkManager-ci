@@ -1046,7 +1046,7 @@ _register_tag("simwifi_dynwep", None, simwifi_dynwep_as)
 
 def simwifi_teardown_bs(ctx, scen):
     nmci.lib.teardown_hostapd_wireless(ctx)
-    wait_for_testeth0 ()
+    nmci.lib.wait_for_testeth0()
     sys.exit(77)
 
 
