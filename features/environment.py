@@ -58,9 +58,11 @@ def before_scenario(context, scenario):
 
 def _before_scenario(context, scenario):
     time_begin = time.time()
-    context.before_scenario_step_el = ET.Element("li", {"class": "step passed", "style": "margin-bottom:1rem;"})
+    context.before_scenario_step_el = ET.Element(
+        "li", {"class": "step passed", "style": "margin-bottom:1rem;"})
     ET.SubElement(context.before_scenario_step_el, "b").text = "Before scenario"
-    duration_el = ET.SubElement(context.before_scenario_step_el, "small", {"class": "step_duration"})
+    duration_el = ET.SubElement(context.before_scenario_step_el,
+                                "small", {"class": "step_duration"})
     embed_el = ET.SubElement(context.before_scenario_step_el, "div")
     context.html_formatter.actual["act_step_embed_span"] = embed_el
 
@@ -114,10 +116,14 @@ def _before_scenario(context, scenario):
         tag = nmci.tags.tag_registry.get(tag_name, None)
         if tag is not None and tag.before_scenario is not None:
             print("Executing @" + tag_name)
+            t_start = time.time()
+            t_status = "passed"
             try:
                 tag.before_scenario(context, scenario)
             except Exception:
+                t_status = "failed"
                 excepts.append(traceback.format_exc())
+            print(f"  @{tag_name} ... {t_status} in {time.time() - t_start:.3f}s")
 
     context.nm_pid = nmci.lib.nm_pid()
 
@@ -205,7 +211,8 @@ def after_scenario(context, scenario):
 
 def _after_scenario(context, scenario):
     time_begin = time.time()
-    context.after_scenario_step_el = ET.Element("li", {"class": "step passed", "style": "margin-top:1rem;"})
+    context.after_scenario_step_el = ET.Element(
+        "li", {"class": "step passed", "style": "margin-top:1rem;"})
     ET.SubElement(context.after_scenario_step_el, "b").text = "After scenario"
     duration_el = ET.SubElement(context.after_scenario_step_el, "small", {"class": "step_duration"})
     embed_el = ET.SubElement(context.after_scenario_step_el, "div")
@@ -242,10 +249,14 @@ def _after_scenario(context, scenario):
         tag = nmci.tags.tag_registry.get(tag_name, None)
         if tag is not None and tag.after_scenario is not None:
             print("Executing @" + tag_name)
+            t_start = time.time()
+            t_status = "passed"
             try:
                 tag.after_scenario(context, scenario)
             except Exception:
+                t_status = "failed"
                 excepts.append(traceback.format_exc())
+            print(f"  @{tag_name} ... {t_status} in {time.time() - t_start:.3f}s")
 
     # check for crash reports and embed them
     # sets crash_embeded and crashed_step, if crash found
