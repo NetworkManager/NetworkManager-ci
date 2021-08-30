@@ -840,14 +840,25 @@ def need_legacy_crypto_bs(ctx, scen):
     if "release 9" in ctx.rh_release:
         ctx.run("sed '-i.bak' s/'^##'/''/g /etc/pki/tls/openssl.cnf")
         ctx.run("systemctl restart wpa_supplicant")
-        ctx.run("systemctl restart nm-hostapd")
-
+        if os.path.isfile("/tmp/nm_wifi_supp_configured"):
+            # We need to do this differently due to hostapd's devices
+            # and it's addresses that are set via hostapd_wireless.sh
+            ctx.run("sh prepare/hostapd_wireless.sh restart_services")
+        if os.path.isfile("/tmp/nm_8021x_configured"):
+            # For 1x it's OK to restart nm-hostapd only
+            ctx.run("systemctl restart nm-hostapd")
 
 def need_legacy_crypto_as(ctx, scen):
     if "release 9" in ctx.rh_release:
         ctx.run("mv -f /etc/pki/tls/openssl.cnf.bak /etc/pki/tls/openssl.cnf")
         ctx.run("systemctl restart wpa_supplicant")
-        ctx.run("systemctl restart nm-hostapd")
+        if os.path.isfile("/tmp/nm_wifi_supp_configured"):
+            # We need to do this differently due to hostapd's devices
+            # and it's addresses that are set via hostapd_wireless.sh
+            ctx.run("sh prepare/hostapd_wireless.sh restart_services")
+        if os.path.isfile("/tmp/nm_8021x_configured"):
+            # For 1x it's OK to restart nm-hostapd only
+            ctx.run("systemctl restart nm-hostapd")
 
 _register_tag("need_legacy_crypto", need_legacy_crypto_bs, need_legacy_crypto_as)
 

@@ -422,7 +422,7 @@ function wireless_hostapd_teardown ()
 {
     set -x
     ip netns del wlan_ns
-    kill $(cat /tmp/dnsmasq_wireless.pid)
+    pkill -F /tmp/dnsmasq_wireless.pid
     if systemctl --quiet is-failed nm-hostapd; then
         systemctl reset-failed nm-hostapd
     fi
@@ -436,8 +436,41 @@ function wireless_hostapd_teardown ()
     rm -rf /tmp/nm_wifi_supp_configured
 
 }
+if [ "$1" == "teardown" ]; then
+    wireless_hostapd_teardown
+    echo "System's state returned prior to hostapd's config."
 
-if [ "$1" != "teardown" ]; then
+elif [ "$1" == "restart_services" ]; then
+    restart_services
+    rm -rf /tmp/nm_wifi_supp_configured
+
+    DO_NAMESPACE=false
+    if ip netns list| grep -q wlan_ns; then
+        DO_NAMESPACE=true
+    fi
+    restart_services
+
+    systemctl restart nm-hostapd
+    sleep 5
+    if ! systemctl -q is-active nm-hostapd; then
+        echo "Error. Don't have nm-hostapd running." >&2
+        exit 1
+    fi
+
+    pkill -F /tmp/dnsmasq_wireless.pid
+    echo $DO_NAMESPACE
+    start_dnsmasq
+    pid=$(cat /tmp/dnsmasq_wireless.pid)
+    if ! pidof dnsmasq | grep -q $pid; then
+        echo "Error. Cannot start dnsmasq as DHCP server." >&2
+        exit 1
+    fi
+
+    touch /tmp/nm_wifi_supp_configured
+    # do not lower this as first test may fail then
+    sleep 5
+
+else
     # If hostapd's config fails then restore initial state.
     echo "Configure and start hostapd..."
     # Set DO_NAMESPACE to true if "namespace" in arguments
@@ -455,7 +488,4 @@ if [ "$1" != "teardown" ]; then
         echo "Error. Failed to start hostapd." >&2
         exit 1
     fi
-else
-    wireless_hostapd_teardown
-    echo "System's state returned prior to hostapd's config."
 fi
