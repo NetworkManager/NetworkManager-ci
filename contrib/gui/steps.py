@@ -450,11 +450,11 @@ def prepare_wifi(context, certs_dir="tmp/8021x/certs"):
         context)
     assert subprocess.call(
         f"sudo bash {NM_CI_RUNNER_CMD} prepare/hostapd_wireless.sh {certs_dir} namespace"
-        f"&> /tmp/hostapd_wireless.log", shell=True) == 0, f"wifi setup failed !!!"
+        "&> /tmp/hostapd_wireless.log", shell=True) == 0, "wifi setup failed !!!"
 
 
-@step('Prepare 8021x | with certificates from "{certs_dir}"')
-def prepare_8021x(context, certs_dir="tmp/8021x/certs"):
+@step('Prepare 8021x | with certificates from "{certs_dir}" | with crypto "{crypto}"')
+def prepare_8021x(context, certs_dir="tmp/8021x/certs", crypto=None):
     arch, _ = cmd_output_rc("arch")
     arch = arch.strip()
     if arch != "x86_64":
@@ -465,16 +465,30 @@ def prepare_8021x(context, certs_dir="tmp/8021x/certs"):
         context)
     assert subprocess.call(
         f"sudo bash {NM_CI_RUNNER_CMD} prepare/hostapd_wired.sh {certs_dir}"
-        f"&> /tmp/hostapd_wired.log", shell=True) == 0, f"8021x setup failed !!!"
+        "&> /tmp/hostapd_wired.log", shell=True) == 0, "8021x setup failed !!!"
+
+    if crypto == "legacy":
+        cmd_output_rc("sudo systemctl restart wpa_supplicant", shell=True)
+        cmd_output_rc("sudo sed '-i.bak' s/'^##'/''/g /etc/pki/tls/openssl.cnf", shell=True)
+        cmd_output_rc("sudo systemctl restart nm-hostapd", shell=True)
+
+        context.sandbox.add_after_scenario_hook(
+            cmd_output_rc, "sudo mv -f /etc/pki/tls/openssl.cnf.bak /etc/pki/tls/openssl.cnf", shell=True)
+        context.sandbox.add_after_scenario_hook(
+            cmd_output_rc, "sudo systemctl restart wpa_supplicant", shell=True)
+        context.sandbox.add_after_scenario_hook(
+            cmd_output_rc, "sudo systemctl restart nm-hostapd", shell=True)
+    elif crypto is not None:
+        assert False, f"Unknown crypto type: '{crypto}', allowed value: 'legacy'"
 
 
 @step('Prepare netdevsim | num "{num}"')
 def prepare_netdevsim(context, num="1"):
     rc = subprocess.call(
         f"sudo bash {NM_CI_RUNNER_CMD} prepare/netdevsim.sh setup {num}"
-        f"&> /tmp/netdevsim.log", shell=True)
+        "&> /tmp/netdevsim.log", shell=True)
     context.embed("text/plain", utf_only_open_read("/tmp/netdevsim.log"), "Netdevsim Setup")
-    assert rc == 0, f"netdevsim setup failed !!!"
+    assert rc == 0, "netdevsim setup failed !!!"
     ifnames = subprocess.check_output(
         "sudo ls /sys/bus/netdevsim/devices/netdevsim0/net/", shell=True, encoding="utf-8")
     ifnames = ifnames.strip().split()
@@ -566,8 +580,8 @@ use_step_matcher("qecore")
 @step('Teardown netdevsim')
 def teardown_netdevsim(context):
     assert subprocess.call(
-        f"echo 0 | sudo tee /sys/bus/netdevsim/del_device", shell=True) == 0, \
-        f"unable to delete netdevsim device"
+        "echo 0 | sudo tee /sys/bus/netdevsim/del_device", shell=True) == 0, \
+        "unable to delete netdevsim device"
     context.netdevs = []
 
 
