@@ -1027,6 +1027,8 @@ testmapper:
         feature: ipv4
     - dhcp_option_domain_search:
         feature: ipv4
+    - dhcp_option_filename:
+        feature: ipv4
     - ipv4_31_netprefix_ptp_link:
         feature: ipv4
     - ipv4_dhcp_iaid_unset:

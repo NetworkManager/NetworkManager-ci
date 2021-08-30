@@ -2095,6 +2095,18 @@ Feature: nmcli: ipv4
     * Bring "up" connection "con_ipv4"
     Then "corp\.example\.com db\.example\.com test\.com" is visible with command "grep search /etc/resolv.conf" in "2" seconds
 
+
+    @rhbz1979387
+    @ver+=1.32.6
+    @con_ipv4_remove @teardown_testveth
+    @dhcp_option_filename
+    Scenario: DHCPv4 filename option parsing
+    * Prepare simulated test "testX4" device with dhcp option "option:bootfile-name,test.bin"
+    * Add a new connection of type "ethernet" and options "ifname testX4 con-name con_ipv4"
+    When "192.168.99." is visible with command "ip a show dev testX4" in "40" seconds
+    Then "test.bin" is visible with command "nmcli -t -f DHCP4 c s con_ipv4"
+
+
     @rhbz1764986
     @ver+=1.22.4
     @con_ipv4_remove
