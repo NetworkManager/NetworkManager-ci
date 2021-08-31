@@ -189,6 +189,8 @@ wpa_passphrase=secret123
 # wpa3 requires wpa_suuplicant >= 2.9
 wpa_ver=$(rpm -q wpa_supplicant)
 wpa_ver=${wpa_ver#wpa_supplicant-}
+nm_ap=8
+
 if ver_gte $wpa_ver 2.9; then
 ((num_ap++))
 echo "
@@ -204,7 +206,9 @@ wpa_key_mgmt=SAE
 rsn_pairwise=CCMP
 ieee80211w=2
 wpa_passphrase=secret123
+
 " >> $HOSTAPD_CFG
+
 fi
 
 hostapd_ver=$(rpm -q hostapd)
@@ -297,7 +301,7 @@ function start_nm_hostapd ()
         sleep 0.5
     done
 
-#    sleep 10
+    # sleep 10
 }
 
 function wireless_hostapd_check ()
