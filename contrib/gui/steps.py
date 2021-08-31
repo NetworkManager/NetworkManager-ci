@@ -437,8 +437,8 @@ def prepare_openvpn(context, version="ip46", path="/tmp/openvpn-"):
     assert running, f"openvpn server did not start, exitcode: {server.returncode}"
 
 
-@step('Prepare Wi-Fi | with certificates from "{certs_dir}"')
-def prepare_wifi(context, certs_dir="tmp/8021x/certs"):
+@step('Prepare Wi-Fi | with certificates from "{certs_dir}" | with crypto "{crypto}"')
+def prepare_wifi(context, certs_dir="tmp/8021x/certs", crypto="default"):
     arch, _ = cmd_output_rc("arch")
     arch = arch.strip()
     if arch != "x86_64":
@@ -448,8 +448,13 @@ def prepare_wifi(context, certs_dir="tmp/8021x/certs"):
     context.sandbox.add_after_scenario_hook(
         lambda c: c.embed("text/plain", utf_only_open_read("/tmp/hostapd_wireless.log"), "WI-FI"),
         context)
+    if crypto == "legacy":
+        cmd_output_rc("sudo sed '-i.bak' s/'^##'/''/g /etc/pki/tls/openssl.cnf", shell=True)
+        context.sandbox.add_after_scenario_hook(
+            cmd_output_rc, "sudo mv -f /etc/pki/tls/openssl.cnf.bak /etc/pki/tls/openssl.cnf", shell=True)
+
     assert subprocess.call(
-        f"sudo bash {NM_CI_RUNNER_CMD} prepare/hostapd_wireless.sh {certs_dir} namespace"
+        f"sudo bash {NM_CI_RUNNER_CMD} prepare/hostapd_wireless.sh {certs_dir} namespace {crypto}_crypto"
         "&> /tmp/hostapd_wireless.log", shell=True) == 0, "wifi setup failed !!!"
 
 
@@ -468,8 +473,8 @@ def prepare_8021x(context, certs_dir="tmp/8021x/certs", crypto=None):
         "&> /tmp/hostapd_wired.log", shell=True) == 0, "8021x setup failed !!!"
 
     if crypto == "legacy":
-        cmd_output_rc("sudo systemctl restart wpa_supplicant", shell=True)
         cmd_output_rc("sudo sed '-i.bak' s/'^##'/''/g /etc/pki/tls/openssl.cnf", shell=True)
+        cmd_output_rc("sudo systemctl restart wpa_supplicant", shell=True)
         cmd_output_rc("sudo systemctl restart nm-hostapd", shell=True)
 
         context.sandbox.add_after_scenario_hook(
