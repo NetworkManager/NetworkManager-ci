@@ -2521,7 +2521,7 @@ Feature: nmcli - general
     * Execute "hostnamectl set-hostname --transient localhost.localdomain"
     * Prepare simulated test "testX6" device without DHCP
     * Execute "ip -n testX6_ns addr add dev testX6p fd01::1/64"
-    * Run child "ip netns exec testX6_ns dnsmasq --bind-interfaces --interface testX6p --pid-file=/tmp/dnsmasq.pid  --host-record=deprecated1,fd01::91 --host-record=validhostname,fd01::92 --host-record=deprecated2,fd01::93" without shell
+    * Run child "ip netns exec testX6_ns dnsmasq --bind-interfaces --interface testX6p --pid-file=/tmp/testX6_ns.pid  --host-record=deprecated1,fd01::91 --host-record=validhostname,fd01::92 --host-record=deprecated2,fd01::93" without shell
     * Run child "ip netns exec testX6_ns radvd -n -C tmp/radvd3.conf" without shell
     * Add a new connection of type "ethernet" and options " ifname testX6 con-name con_ipv6 autoconnect no ipv4.method disabled ipv6.method auto "
     * Bring "up" connection "con_ipv6"
