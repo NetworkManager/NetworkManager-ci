@@ -848,25 +848,16 @@ def need_legacy_crypto_bs(ctx, scen):
     # We have openssl3 in RHEL9 with a bunch of algs deprecated
     if "release 9" in ctx.rh_release:
         ctx.run("sed '-i.bak' s/'^##'/''/g /etc/pki/tls/openssl.cnf")
-        ctx.run("systemctl restart wpa_supplicant")
-        if os.path.isfile("/tmp/nm_wifi_supp_configured"):
-            # We need to do this differently due to hostapd's devices
-            # and it's addresses that are set via hostapd_wireless.sh
-            ctx.run("sh prepare/hostapd_wireless.sh restart_services")
         if os.path.isfile("/tmp/nm_8021x_configured"):
-            # For 1x it's OK to restart nm-hostapd only
+            ctx.run("systemctl restart wpa_supplicant")
             ctx.run("systemctl restart nm-hostapd")
+
 
 def need_legacy_crypto_as(ctx, scen):
     if "release 9" in ctx.rh_release:
         ctx.run("mv -f /etc/pki/tls/openssl.cnf.bak /etc/pki/tls/openssl.cnf")
-        ctx.run("systemctl restart wpa_supplicant")
-        if os.path.isfile("/tmp/nm_wifi_supp_configured"):
-            # We need to do this differently due to hostapd's devices
-            # and it's addresses that are set via hostapd_wireless.sh
-            ctx.run("sh prepare/hostapd_wireless.sh restart_services")
         if os.path.isfile("/tmp/nm_8021x_configured"):
-            # For 1x it's OK to restart nm-hostapd only
+            ctx.run("systemctl restart wpa_supplicant")
             ctx.run("systemctl restart nm-hostapd")
 
 
@@ -935,7 +926,10 @@ def simwifi_bs(ctx, scen):
     if ctx.arch != "x86_64":
         print("Skipping as not on x86_64")
         sys.exit(77)
-    nmci.lib.setup_hostapd_wireless(ctx)
+    args = ["namespace"]
+    if 'need_legacy_crypto' in scen.tags:
+        args.append("legacy_crypto")
+    nmci.lib.setup_hostapd_wireless(ctx, args)
 
 
 def simwifi_as(ctx, scen):

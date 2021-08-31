@@ -2097,13 +2097,25 @@ testmapper:
         feature: tc
     - simwifi_p2p_connect:
         feature: wifi_hwsim
+    ## @need_legacy_crypto (mschap) tests
+    # group these tests to eliminate hostapd restarts
+    - simwifi_wep_ttls_mschapv2_eap:
+        feature: wifi_hwsim
+    - simwifi_ttls_mschap:
+        feature: wifi_hwsim
+    - simwifi_ttls_mschapv2:
+        feature: wifi_hwsim
+    - simwifi_ttls_mschapv2_eap:
+        feature: wifi_hwsim
+        tags: gate
+    - simwifi_peap_mschapv2:
+        feature: wifi_hwsim
+    ## end of @need_legacy_crypto
     - simwifi_open_connect:
         feature: wifi_hwsim
     - simwifi_wep_ask_passwd:
         feature: wifi_hwsim
     - simwifi_wep_tls:
-        feature: wifi_hwsim
-    - simwifi_wep_ttls_mschapv2_eap:
         feature: wifi_hwsim
     - simwifi_wep_peap_gtc:
         feature: wifi_hwsim
@@ -2124,18 +2136,9 @@ testmapper:
         tags: gate libnl3
     - simwifi_peap_md5:
         feature: wifi_hwsim
-    - simwifi_peap_mschapv2:
-        feature: wifi_hwsim
     - simwifi_ttls_pap:
         feature: wifi_hwsim
     - simwifi_ttls_chap:
-        feature: wifi_hwsim
-        tags: gate
-    - simwifi_ttls_mschap:
-        feature: wifi_hwsim
-    - simwifi_ttls_mschapv2:
-        feature: wifi_hwsim
-    - simwifi_ttls_mschapv2_eap:
         feature: wifi_hwsim
         tags: gate
     - simwifi_ttls_md5:

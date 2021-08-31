@@ -50,6 +50,7 @@ function ver_gte() {
 
 function write_hostapd_cfg ()
 {
+    ap_num=7
     echo "# Hostapd configuration for 802.1x client testing
 
 #open
@@ -189,6 +190,7 @@ wpa_passphrase=secret123
 wpa_ver=$(rpm -q wpa_supplicant)
 wpa_ver=${wpa_ver#wpa_supplicant-}
 if ver_gte $wpa_ver 2.9; then
+((num_ap++))
 echo "
 #wpa3
 bss=wlan1_wpa3psk
@@ -209,6 +211,7 @@ hostapd_ver=$(rpm -q hostapd)
 hostapd_ver=${hostapd_ver#hostapd-}
 # There is no wpa_supplicant support in Fedoras
 if ver_gte $hostapd_ver 2.9-6 && grep -q -e 'release \(8\|9\)' /etc/redhat-release; then
+((num_ap++))
 echo "
 #wpa3eap
 bss=wlan1_wpa3eap
@@ -252,6 +255,7 @@ echo "# Create hostapd peap user file
 # Tunneled TLS and non-EAP authentication inside the tunnel.
 \"test_ttls\"      TTLS-PAP,TTLS-CHAP,TTLS-MSCHAP,TTLS-MSCHAPV2    \"password\"  [2]" > $EAP_USERS_FILE
 
+echo $num_ap > /tmp/nm_wifi_ap_num
 }
 
 function copy_certificates ()
@@ -277,18 +281,29 @@ function restart_services ()
 
 function start_nm_hostapd ()
 {
+    local ip="ip"
     local hostapd="hostapd -ddd $HOSTAPD_CFG"
     if $DO_NAMESPACE; then
+        ip="ip -n wlan_ns"
         hostapd="ip netns exec wlan_ns $hostapd"
     fi
     systemd-run --unit nm-hostapd $hostapd
 
-    sleep 10
+    ap_num=$(cat /tmp/nm_wifi_ap_num)
+    for i in {1..20}; do
+        if [ $($ip -o l | grep wlan1_ | wc -l) == "$ap_num" ]; then
+            break;
+        fi
+        sleep 0.5
+    done
+
+#    sleep 10
 }
 
 function wireless_hostapd_check ()
 {
     need_setup=0
+    need_restart=0
     echo "* Checking hostapd"
     if [ ! -e /tmp/nm_wifi_supp_configured ]; then
         echo "Not OK!!"
@@ -319,10 +334,36 @@ function wireless_hostapd_check ()
         echo "Not OK!!"
         need_setup=1
     fi
+
+    echo "* Checking crypto"
+    crypto="default"
+    if [ -f /tmp/nm_wifi_supp_legacy_crypto ]; then
+      crypto="legacy"
+    fi
+    if [ $crypto != $CRYPTO ]; then
+        if grep -q "release 9" /etc/redhat-release; then
+            echo "Not OK!! (restart suffices)"
+            need_restart=1
+        fi
+    fi
+
     if [ $need_setup -eq 1 ]; then
         rm -rf /tmp/nm_wifi_supp_configured
         wireless_hostapd_teardown
         return 1
+    fi
+
+    if [ $need_restart -eq 1 ]; then
+        if [ "$CRYPTO" == "default" ]; then
+          rm -rf /tmp/nm_wifi_supp_legacy_crypto
+        else
+          touch /tmp/nm_wifi_supp_legacy_crypto
+        fi
+        restart_services
+        systemctl stop nm-hostapd
+        pkill -F /tmp/dnsmasq_wireless.pid
+        start_ap
+
     fi
 
     return 0
@@ -339,6 +380,12 @@ function prepare_test_bed ()
         local policy_file="tmp/selinux-policy/hostapd_wireless_$major_ver.pp"
         semodule -i $policy_file || echo "ERROR: unable to load selinux policy !!!"
         ip netns add wlan_ns
+    fi
+
+    if [ "$CRYPTO" == "legacy" ]; then
+        touch /tmp/nm_wifi_supp_legacy_crypto
+    else
+        rm -rf /tmp/nm_wifi_supp_legacy_crypto
     fi
 
     # Disable mac randomization to avoid rhbz1490885
@@ -398,6 +445,12 @@ function wireless_hostapd_setup ()
 
     set -e
 
+    start_ap
+
+    touch /tmp/nm_wifi_supp_configured
+}
+
+function start_ap () {
     # Start 802.1x authentication and built-in RADIUS server.
     # Start hostapd as a service via systemd-run using configuration wifi adapters
     start_nm_hostapd
@@ -413,7 +466,6 @@ function wireless_hostapd_setup ()
         return 1
     fi
 
-    touch /tmp/nm_wifi_supp_configured
     # do not lower this as first test may fail then
     sleep 5
 }
@@ -439,37 +491,6 @@ function wireless_hostapd_teardown ()
 if [ "$1" == "teardown" ]; then
     wireless_hostapd_teardown
     echo "System's state returned prior to hostapd's config."
-
-elif [ "$1" == "restart_services" ]; then
-    restart_services
-    rm -rf /tmp/nm_wifi_supp_configured
-
-    DO_NAMESPACE=false
-    if ip netns list| grep -q wlan_ns; then
-        DO_NAMESPACE=true
-    fi
-    restart_services
-
-    systemctl restart nm-hostapd
-    sleep 5
-    if ! systemctl -q is-active nm-hostapd; then
-        echo "Error. Don't have nm-hostapd running." >&2
-        exit 1
-    fi
-
-    pkill -F /tmp/dnsmasq_wireless.pid
-    echo $DO_NAMESPACE
-    start_dnsmasq
-    pid=$(cat /tmp/dnsmasq_wireless.pid)
-    if ! pidof dnsmasq | grep -q $pid; then
-        echo "Error. Cannot start dnsmasq as DHCP server." >&2
-        exit 1
-    fi
-
-    touch /tmp/nm_wifi_supp_configured
-    # do not lower this as first test may fail then
-    sleep 5
-
 else
     # If hostapd's config fails then restore initial state.
     echo "Configure and start hostapd..."
@@ -477,6 +498,11 @@ else
     DO_NAMESPACE=false
     if [[ " $@ " == *" namespace "* ]]; then
         DO_NAMESPACE=true
+    fi
+
+    CRYPTO="default"
+    if [[ " $@ " == *" legacy_crypto "* ]]; then
+        CRYPTO="legacy"
     fi
 
     CERTS_PATH=${1:?"Error. Path to certificates is not specified."}

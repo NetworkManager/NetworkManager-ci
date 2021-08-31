@@ -767,7 +767,7 @@ def wifi_rescan(context):
         out = context.command_output("time sudo nmcli dev wifi list --rescan yes").strip()
 
 
-def setup_hostapd_wireless(context):
+def setup_hostapd_wireless(context, args=[]):
     wait_for_testeth0(context)
     arch = nmci.command_output("uname -p").strip()
     if arch != "s390x":
@@ -775,7 +775,8 @@ def setup_hostapd_wireless(context):
         if "Maipo" in context.rh_release:
             context.run("[ -f /etc/yum.repos.d/epel.repo ] || sudo rpm -i http://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm")
         context.run("[ -x /usr/sbin/hostapd ] || (yum -y install hostapd; sleep 10)")
-    if context.command_code("sh prepare/hostapd_wireless.sh tmp/8021x/certs namespace") != 0:
+    args = " ".join(args)
+    if context.command_code("sh prepare/hostapd_wireless.sh tmp/8021x/certs " + args) != 0:
         context.run("sh prepare/hostapd_wireless.sh teardown")
         assert False, "hostapd_wireless setup failed"
     if not os.path.isfile('/tmp/wireless_hostapd_check.txt'):
