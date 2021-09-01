@@ -733,9 +733,8 @@ Feature: nmcli - vlan
 
 
     @rhbz1933041 @rhbz1926599
-    @ver+=1.30
-    @rhelver+=8
-    @logging_info_only @restart_if_needed @500_vlans @skip_in_centos
+    @ver+=1.30 @rhelver+=8 @skip_in_centos
+    @logging_info_only @restart_if_needed @500_vlans
     @vlan_create_500_vlans
     Scenario: NM - vlan - create 500 vlans
     # Prepare veth pair with the other end in namespace
@@ -762,9 +761,8 @@ Feature: nmcli - vlan
     Then "\s+activated" is visible with command "nmcli con show eth11.510" in "50" seconds
 
 
-    @ver+=1.32
-    @rhelver+=8
-    @logging_info_only @remove_vlan_range @skip_in_centos
+    @ver+=1.32 @rhelver+=8 @skip_in_centos
+    @logging_info_only @remove_vlan_range
     @vlan_create_1000_bridges_over_1000_vlans
     Scenario: NM - vlan - create 1000 bridges over 1000 VLANs
     * Add bridges over VLANs in range from "1" to "1000" on interface "eth7" via libnm

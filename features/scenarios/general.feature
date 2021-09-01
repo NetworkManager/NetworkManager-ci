@@ -1603,8 +1603,7 @@ Feature: nmcli - general
 
 
     @rhbz1819587
-    @ver+=1.25.90 @rhelver+=8
-    @skip_in_centos
+    @ver+=1.25.90 @rhelver+=8 @skip_in_centos
     @con_general_remove  @checkpoint_remove @load_netdevsim
     @snapshot_rollback_sriov
     Scenario: NM - general - sriov
@@ -1633,9 +1632,8 @@ Feature: nmcli - general
 
 
     @rhbz1433303
-    @ver+=1.4.0
-    @delete_testeth0
-    @long @gen_br_remove @logging_info_only @skip_in_centos
+    @ver+=1.4.0 @skip_in_centos
+    @delete_testeth0 @long @gen_br_remove @logging_info_only
     @stable_mem_consumption
     Scenario: NM - general - stable mem consumption
     * Execute "sh tmp/repro_1433303.sh && sleep 10"
@@ -1652,8 +1650,8 @@ Feature: nmcli - general
 
 
     @rhbz1461643 @rhbz1945282
-    @ver+=1.10.0
-    @long @logging_info_only @delete_testeth0 @no_config_server @allow_veth_connections @skip_in_centos
+    @ver+=1.10.0 @skip_in_centos
+    @long @logging_info_only @delete_testeth0 @no_config_server @allow_veth_connections
     @stable_mem_consumption2
     Scenario: NM - general - stable mem consumption - var 2
     * Execute "sh tmp/repro_1461643.sh && sleep 10"
