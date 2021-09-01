@@ -209,7 +209,8 @@ install_el9_packages () {
     fi
     # strongswan remove once in epel 12012021
     if ! rpm -q --quiet NetworkManager-strongswan || ! rpm -q --quiet strongswan; then
-        dnf -4 -y install https://kojipkgs.fedoraproject.org//packages/NetworkManager-strongswan/1.5.0/2.fc33/$(arch)/NetworkManager-strongswan-1.5.0-2.fc33.$(arch).rpm NetworkManager-strongswan https://kojipkgs.fedoraproject.org//packages/strongswan/5.9.0/2.fc33/$(arch)/strongswan-5.9.0-2.fc33.$(arch).rpm https://kojipkgs.fedoraproject.org//packages/strongswan/5.9.0/2.fc33/$(arch)/strongswan-charon-nm-5.9.0-2.fc33.$(arch).rpm
+        dnf -4 -y install https://kojipkgs.fedoraproject.org//packages/trousers/0.3.15/2.fc34/$(arch)/trousers-lib-0.3.15-2.fc34.$(arch).rpm https://kojipkgs.fedoraproject.org//packages/NetworkManager-strongswan/1.5.0/3.fc34/$(arch)/NetworkManager-strongswan-1.5.0-3.fc34.$(arch).rpm https://kojipkgs.fedoraproject.org//packages/strongswan/5.9.3/1.fc34/$(arch)/strongswan-5.9.3-1.fc34.$(arch).rpm https://kojipkgs.fedoraproject.org//packages/strongswan/5.9.3/1.fc34/$(arch)/strongswan-charon-nm-5.9.3-1.fc34.$(arch).rpm 
+
     fi
 
 
