@@ -50,7 +50,7 @@ function ver_gte() {
 
 function write_hostapd_cfg ()
 {
-    ap_num=7
+    num_ap=8
     echo "# Hostapd configuration for 802.1x client testing
 
 #open
@@ -189,7 +189,6 @@ wpa_passphrase=secret123
 # wpa3 requires wpa_suuplicant >= 2.9
 wpa_ver=$(rpm -q wpa_supplicant)
 wpa_ver=${wpa_ver#wpa_supplicant-}
-nm_ap=8
 
 if ver_gte $wpa_ver 2.9; then
 ((num_ap++))

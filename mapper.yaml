@@ -1714,33 +1714,6 @@ testmapper:
         feature: general
     - nm_device_get_applied_connection_user_allowed:
         feature: general
-    - policy_based_routing_doc_procedure:
-        feature: doc_procedures
-        tags: gate
-    - 8021x_peap_mschapv2_doc_procedure:
-        feature: doc_procedures
-        tags: gate
-    - simwifi_peap_mschapv2_doc_procedure:
-        feature: doc_procedures
-        tags: gate
-    - nmcli_simwifi_teardown_doc:
-        feature: doc_procedures
-        tags: gate
-    - iptunnel_ipip_doc_procedure:
-        feature: doc_procedures
-        tags: gate
-    - iptunnel_gre_doc_procedure:
-        feature: doc_procedures
-        tags: gate
-    - iptunnel_gretap_doc_procedure:
-        feature: doc_procedures
-        tags: gate
-    - qdisc_doc_procedure:
-        feature: doc_procedures
-        tags: gate
-    - macsec_doc_procedure:
-        feature: doc_procedures
-        tags: gate
     - openvswitch_capability:
         feature: ovs
     - openvswitch_interface_recognized:
@@ -2160,11 +2133,39 @@ testmapper:
         feature: wifi_hwsim
     - nmcli_simwifi_teardown:
         feature: wifi_hwsim
-        tags: gate
+    # We don't need AP anymore for the rest of tests
     - simwifi_ap_wpa_psk_method_shared:
         feature: wifi_hwsim
     - simwifi_ap_in_bridge_wpa_psk_method_manual:
         feature: wifi_hwsim
+        tags: gate
+    - policy_based_routing_doc_procedure:
+        feature: doc_procedures
+        tags: gate
+    - 8021x_peap_mschapv2_doc_procedure:
+        feature: doc_procedures
+        tags: gate
+    - simwifi_peap_mschapv2_doc_procedure:
+        feature: doc_procedures
+        tags: gate
+    - nmcli_simwifi_teardown_doc:
+        feature: doc_procedures
+        tags: gate
+    - iptunnel_ipip_doc_procedure:
+        feature: doc_procedures
+        tags: gate
+    - iptunnel_gre_doc_procedure:
+        feature: doc_procedures
+        tags: gate
+    - iptunnel_gretap_doc_procedure:
+        feature: doc_procedures
+        tags: gate
+    - qdisc_doc_procedure:
+        feature: doc_procedures
+        tags: gate
+    - macsec_doc_procedure:
+        feature: doc_procedures
+        tags: gate
     - gsm_sim_create_default_connection:
         feature: gsm_sim
     - gsm_sim_disconnect:
