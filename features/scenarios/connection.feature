@@ -208,7 +208,7 @@ Feature: nmcli: connection
     * Submit "set connection.uuid 00000000-0000-0000-0000-000000000000" in editor
     Then Error type "uuid" shown in editor
     # There will be non zero exit code but we are looking for a crash
-    Then Execute "/usr/bin/python tmp/repro_1707261.py || true"
+    Then Execute "/usr/bin/python contrib/reproducers/repro_1707261.py || true"
 
 
     @con_con_remove
@@ -249,7 +249,7 @@ Feature: nmcli: connection
     Scenario: nmcli - connection - set autoconnect on without autoconnecting
      * Add a new connection of type "ethernet" and options "con-name con_con2 ifname eth5 autoconnect no"
      When "con_con2" is visible with command "nmcli con"
-     * Execute "/usr/bin/python tmp/repro_1401515.py" without waiting for process to finish
+     * Execute "/usr/bin/python contrib/reproducers/repro_1401515.py" without waiting for process to finish
      Then "yes" is visible with command "nmcli connection show con_con2 |grep autoconnect:" in "5" seconds
      Then "con_con" is not visible with command "nmcli -t -f NAME  connection show -a" in "3" seconds
 
@@ -534,7 +534,7 @@ Feature: nmcli: connection
      * Prepare simulated test "testXc" device
      * Add a new connection of type "ethernet" and options "ifname testXc con-name con_con ipv4.method manual ipv4.addresses 1.2.3.4/24 connection.lldp enable"
      When "testXc\s+ethernet\s+connected" is visible with command "nmcli device" in "5" seconds
-     * Execute "ip netns exec testXc_ns tcpreplay --intf1=testXcp tmp/lldp.detailed.pcap"
+     * Execute "ip netns exec testXc_ns tcpreplay --intf1=testXcp contrib/pcap/lldp.detailed.pcap"
      Then "NEIGHBOR\[0\].DEVICE:\s+testXc" is visible with command "nmcli device lldp" in "5" seconds
       And "NEIGHBOR\[0\].CHASSIS-ID:\s+00:01:30:F9:AD:A0" is visible with command "nmcli device lldp"
       And "NEIGHBOR\[0\].PORT-ID:\s+1\/1" is visible with command "nmcli device lldp"
@@ -552,7 +552,7 @@ Feature: nmcli: connection
     * Prepare simulated test "testXc" device
     * Add a new connection of type "ethernet" and options "ifname testXc con-name con_con ipv4.method manual ipv4.addresses 1.2.3.4/24 connection.lldp enable"
     When "testXc\s+ethernet\s+connected" is visible with command "nmcli device" in "5" seconds
-    * Execute "ip netns exec testXc_ns tcpreplay --intf1=testXcp tmp/lldp.vlan.pcap"
+    * Execute "ip netns exec testXc_ns tcpreplay --intf1=testXcp contrib/pcap/lldp.vlan.pcap"
     Then "NEIGHBOR\[0\].IEEE-802-1-VLAN-NAME:\s+default\s" is visible with command "nmcli --fields all device lldp" in "5" seconds
 
 
@@ -564,7 +564,7 @@ Feature: nmcli: connection
     * Prepare simulated test "testXc" device
     * Add a new connection of type "ethernet" and options "ifname testXc con-name con_con ipv4.method manual ipv4.addresses 1.2.3.4/24 connection.lldp enable"
     When "testXc\s+ethernet\s+connected" is visible with command "nmcli device" in "5" seconds
-    * Execute "ip netns exec testXc_ns tcpreplay --intf1=testXcp tmp/lldp.vlan.pcap"
+    * Execute "ip netns exec testXc_ns tcpreplay --intf1=testXcp contrib/pcap/lldp.vlan.pcap"
     # check the deffinition of the step for more details about syntax
     Then Check ":ieee-802-1-vid=0,:ieee-802-3-max-frame-size=1514,:ieee-802-1-vlan-name='default',:ieee-802-1-pvid=0" in LldpNeighbors via DBus for device "testXc"
      And Check ":ieee-802-1-vlans::name='default',:ieee-802-1-vlans::vid=0,:ieee-802-1-vlans::name='jbenc',:ieee-802-1-vlans::vid=99" in LldpNeighbors via DBus for device "testXc"
@@ -579,7 +579,7 @@ Feature: nmcli: connection
     * Prepare simulated test "testXc" device
     * Add a new connection of type "ethernet" and options "ifname testXc con-name con_con ipv4.method manual ipv4.addresses 1.2.3.4/24 connection.lldp enable"
     When "testXc\s+ethernet\s+connected" is visible with command "nmcli device" in "5" seconds
-    * Execute "ip netns exec testXc_ns tcpreplay --intf1=testXcp tmp/lldp.detailed.pcap"
+    * Execute "ip netns exec testXc_ns tcpreplay --intf1=testXcp contrib/pcap/lldp.detailed.pcap"
     Then Check "testXc" device LLDP status flag via libnm
 
 
@@ -587,7 +587,7 @@ Feature: nmcli: connection
     @eth5_disconnect
     @introspection_active_connection
     Scenario: introspection - check active connections
-     * Execute "/usr/bin/python tmp/network_test.py testeth5 > /tmp/test"
+     * Execute "/usr/bin/python contrib/gi/network_test.py testeth5 > /tmp/test"
      When "testeth5" is visible with command "nmcli con s -a"
      Then "Active connections before: 1" is visible with command "cat /tmp/test"
       And "Active connections after: 2.*Active connections after: 2" is visible with command "cat /tmp/test"
@@ -599,14 +599,14 @@ Feature: nmcli: connection
     @connection_user_settings_data
     Scenario: NM - connection - user settings data
     * Add a new connection of type "ethernet" and options "ifname testXc con-name con_con autoconnect no"
-    * Execute "/usr/bin/python tmp/setting-user-data.py set id con_con my.own.data good_morning_starshine"
-    * Execute "/usr/bin/python tmp/setting-user-data.py set id con_con my.own.data.two the_moon_says_hello"
-    When "good_morning_starshine" is visible with command "/usr/bin/python tmp/setting-user-data.py get id con_con my.own.data"
-     And "the_moon_says_hello" is visible with command "/usr/bin/python tmp/setting-user-data.py get id con_con my.own.data.two"
-    * Execute "/usr/bin/python tmp/setting-user-data.py set id con_con -d my.own.data"
-    * Execute "/usr/bin/python tmp/setting-user-data.py set id con_con -d my.own.data.two"
-    Then "[none]|[0]" is visible with command "/usr/bin/python tmp/setting-user-data.py id con_con"
-     And "\"my.own.data\" = \"good_morning_starshine\"|\"my.own.data.two\" = \"the_moon_says_hello\"" is not visible with command "/usr/bin/python tmp/setting-user-data.py id con_con" in "5" seconds
+    * Execute "/usr/bin/python contrib/gi/setting-user-data.py set id con_con my.own.data good_morning_starshine"
+    * Execute "/usr/bin/python contrib/gi/setting-user-data.py set id con_con my.own.data.two the_moon_says_hello"
+    When "good_morning_starshine" is visible with command "/usr/bin/python contrib/gi/setting-user-data.py get id con_con my.own.data"
+     And "the_moon_says_hello" is visible with command "/usr/bin/python contrib/gi/setting-user-data.py get id con_con my.own.data.two"
+    * Execute "/usr/bin/python contrib/gi/setting-user-data.py set id con_con -d my.own.data"
+    * Execute "/usr/bin/python contrib/gi/setting-user-data.py set id con_con -d my.own.data.two"
+    Then "[none]|[0]" is visible with command "/usr/bin/python contrib/gi/setting-user-data.py id con_con"
+     And "\"my.own.data\" = \"good_morning_starshine\"|\"my.own.data.two\" = \"the_moon_says_hello\"" is not visible with command "/usr/bin/python contrib/gi/setting-user-data.py id con_con" in "5" seconds
 
 
     @rhbz1448165

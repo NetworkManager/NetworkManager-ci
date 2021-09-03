@@ -1323,9 +1323,9 @@ Feature: nmcli - general
     @general_nmclient_query_carrier
     Scenario: nmclient - general - query carrier
     * Execute "ip link set dev eth8 up"
-    When "True" is visible with command "/usr/bin/python tmp/nmclient_get_device_property.py eth8 get_carrier"
+    When "True" is visible with command "/usr/bin/python contrib/gi/nmclient_get_device_property.py eth8 get_carrier"
     * Execute "ip link set dev eth8 down"
-    Then "False" is visible with command "/usr/bin/python tmp/nmclient_get_device_property.py eth8 get_carrier"
+    Then "False" is visible with command "/usr/bin/python contrib/gi/nmclient_get_device_property.py eth8 get_carrier"
 
 
     # Tied to the bz, though these are not direct verifiers
@@ -1636,15 +1636,15 @@ Feature: nmcli - general
     @delete_testeth0 @long @gen_br_remove @logging_info_only
     @stable_mem_consumption
     Scenario: NM - general - stable mem consumption
-    * Execute "sh tmp/repro_1433303.sh && sleep 10"
+    * Execute "sh contrib/reproducers/repro_1433303.sh && sleep 10"
     * Note the output of "pmap -x $(pidof NetworkManager) |grep 'total' | awk '{print $4}'" as value "0"
-    * Execute "sh tmp/repro_1433303.sh && sleep 10"
+    * Execute "sh contrib/reproducers/repro_1433303.sh && sleep 10"
     * Note the output of "pmap -x $(pidof NetworkManager) |grep 'total' | awk '{print $4}'" as value "1"
-    * Execute "sh tmp/repro_1433303.sh && sleep 10"
+    * Execute "sh contrib/reproducers/repro_1433303.sh && sleep 10"
     * Note the output of "pmap -x $(pidof NetworkManager) |grep 'total' | awk '{print $4}'" as value "2"
-    * Execute "sh tmp/repro_1433303.sh && sleep 10"
+    * Execute "sh contrib/reproducers/repro_1433303.sh && sleep 10"
     * Note the output of "pmap -x $(pidof NetworkManager) |grep 'total' | awk '{print $4}'" as value "3"
-    * Execute "sh tmp/repro_1433303.sh && sleep 10"
+    * Execute "sh contrib/reproducers/repro_1433303.sh && sleep 10"
     * Note the output of "pmap -x $(pidof NetworkManager) |grep 'total' | awk '{print $4}'" as value "4"
     Then Check RSS writable memory in noted value "4" differs from "3" less than "300"
 
@@ -1654,13 +1654,13 @@ Feature: nmcli - general
     @long @logging_info_only @delete_testeth0 @no_config_server @allow_veth_connections
     @stable_mem_consumption2
     Scenario: NM - general - stable mem consumption - var 2
-    * Execute "sh tmp/repro_1461643.sh && sleep 10"
+    * Execute "sh contrib/reproducers/repro_1461643.sh && sleep 10"
     * Note the output of "pmap -x $(pidof NetworkManager) |grep 'total' | awk '{print $4}'" as value "0"
-    * Execute "sh tmp/repro_1461643.sh && sleep 10"
+    * Execute "sh contrib/reproducers/repro_1461643.sh && sleep 10"
     * Note the output of "pmap -x $(pidof NetworkManager) |grep 'total' | awk '{print $4}'" as value "1"
-    * Execute "sh tmp/repro_1461643.sh && sleep 10"
+    * Execute "sh contrib/reproducers/repro_1461643.sh && sleep 10"
     * Note the output of "pmap -x $(pidof NetworkManager) |grep 'total' | awk '{print $4}'" as value "2"
-    * Execute "sh tmp/repro_1461643.sh && sleep 10"
+    * Execute "sh contrib/reproducers/repro_1461643.sh && sleep 10"
     * Note the output of "pmap -x $(pidof NetworkManager) |grep 'total' | awk '{print $4}'" as value "3"
     #Then Check RSS writable memory in noted value "2" differs from "1" less than "300"
     Then Check RSS writable memory in noted value "3" differs from "2" less than "300"
@@ -1698,14 +1698,14 @@ Feature: nmcli - general
     @dummy
     @do_not_touch_external_dummy
     Scenario: NM - general - do not touch external dummy device
-    Then Execute "sh tmp/repro_1512316.sh"
-     And Execute "sh tmp/repro_1512316.sh"
-     And Execute "sh tmp/repro_1512316.sh"
-     And Execute "sh tmp/repro_1512316.sh"
-     And Execute "sh tmp/repro_1512316.sh"
-     And Execute "sh tmp/repro_1512316.sh"
-     And Execute "sh tmp/repro_1512316.sh"
-     And Execute "sh tmp/repro_1512316.sh"
+    Then Execute "sh contrib/reproducers/repro_1512316.sh"
+     And Execute "sh contrib/reproducers/repro_1512316.sh"
+     And Execute "sh contrib/reproducers/repro_1512316.sh"
+     And Execute "sh contrib/reproducers/repro_1512316.sh"
+     And Execute "sh contrib/reproducers/repro_1512316.sh"
+     And Execute "sh contrib/reproducers/repro_1512316.sh"
+     And Execute "sh contrib/reproducers/repro_1512316.sh"
+     And Execute "sh contrib/reproducers/repro_1512316.sh"
 
 
     @rhbz1337997
@@ -1916,7 +1916,7 @@ Feature: nmcli - general
     @con_general_remove
     @libnm_async_tasks_cancelable
     Scenario: NM - general - cancelation of libnm async tasks (add_connection_async)
-    Then Execute "/usr/bin/python tmp/repro_1555281.py con_general"
+    Then Execute "/usr/bin/python contrib/reproducers/repro_1555281.py con_general"
 
 
     @rhbz1643085 @rhbz1642625
@@ -1924,7 +1924,7 @@ Feature: nmcli - general
     @con_general_remove
     @libnm_async_activation_cancelable_no_crash
     Scenario: NM - general - cancelation of libnm async activation - should not crash
-    Then Execute "/usr/bin/python tmp/repro_1643085.py con_general eth8"
+    Then Execute "/usr/bin/python contrib/reproducers/repro_1643085.py con_general eth8"
 
 
     @rhbz1614691
@@ -1948,7 +1948,7 @@ Feature: nmcli - general
     Scenario: NM - general - libnm snapshot and rollback
     * Add a new connection of type "ethernet" and options "ifname eth8 con-name con_general"
     * Add a new connection of type "ethernet" and options "ifname eth9 con-name con_general2"
-    * Execute "tmp/libnm_snapshot_checkpoint.py create 0 eth8 eth9"
+    * Execute "contrib/gi/libnm_snapshot_checkpoint.py create 0 eth8 eth9"
     * Modify connection "con_general" changing options "ipv4.method manual ipv4.addresses 1.2.3.4/24 ipv4.gateway 1.2.3.1"
     * Bring "up" connection "con_general"
     * Modify connection "con_general2" changing options "ipv4.method manual ipv4.addresses 1.2.3.5/24 ipv4.gateway 1.2.3.1"
@@ -1956,7 +1956,7 @@ Feature: nmcli - general
     When "1.2.3.4/24" is visible with command "ip a s eth8" in "5" seconds
     When "1.2.3.5/24" is visible with command "ip a s eth9" in "5" seconds
      And "1.2.3.1" is visible with command "ip r"
-    * Execute "tmp/libnm_snapshot_checkpoint.py rollback"
+    * Execute "contrib/gi/libnm_snapshot_checkpoint.py rollback"
     Then "192.168.100" is visible with command "ip a s eth8" in "45" seconds
      And "192.168.100" is visible with command "ip a s eth9" in "45" seconds
      And "1.2.3.4/24" is not visible with command "ip a s eth8"
@@ -1972,7 +1972,7 @@ Feature: nmcli - general
     Scenario: NM - general - libnm snapshot and rollback all devices
     * Add a new connection of type "ethernet" and options "ifname eth8 con-name con_general"
     * Add a new connection of type "ethernet" and options "ifname eth9 con-name con_general2"
-    * Execute "tmp/libnm_snapshot_checkpoint.py create 0"
+    * Execute "contrib/gi/libnm_snapshot_checkpoint.py create 0"
     * Modify connection "con_general" changing options "ipv4.method manual ipv4.addresses 1.2.3.4/24 ipv4.gateway 1.2.3.1"
     * Bring "up" connection "con_general"
     * Modify connection "con_general2" changing options "ipv4.method manual ipv4.addresses 1.2.3.5/24 ipv4.gateway 1.2.3.1"
@@ -1980,7 +1980,7 @@ Feature: nmcli - general
     When "1.2.3.4/24" is visible with command "ip a s eth8" in "5" seconds
     When "1.2.3.5/24" is visible with command "ip a s eth9" in "5" seconds
      And "1.2.3.1" is visible with command "ip r"
-    * Execute "tmp/libnm_snapshot_checkpoint.py rollback"
+    * Execute "contrib/gi/libnm_snapshot_checkpoint.py rollback"
     Then "192.168.100" is visible with command "ip a s eth8" in "45" seconds
      And "192.168.100" is visible with command "ip a s eth9" in "45" seconds
      And "1.2.3.4/24" is not visible with command "ip a s eth8"
@@ -1996,7 +1996,7 @@ Feature: nmcli - general
     Scenario: NM - general - libnm snapshot and rollback all devices with timeout
     * Add a new connection of type "ethernet" and options "ifname eth8 con-name con_general"
     * Add a new connection of type "ethernet" and options "ifname eth9 con-name con_general2"
-    * Execute "tmp/libnm_snapshot_checkpoint.py create 10"
+    * Execute "contrib/gi/libnm_snapshot_checkpoint.py create 10"
     * Modify connection "con_general" changing options "ipv4.method manual ipv4.addresses 1.2.3.4/24 ipv4.gateway 1.2.3.1"
     * Bring "up" connection "con_general"
     * Modify connection "con_general2" changing options "ipv4.method manual ipv4.addresses 1.2.3.5/24 ipv4.gateway 1.2.3.1"
@@ -2019,7 +2019,7 @@ Feature: nmcli - general
     @libnm_snapshot_rollback_unmanaged
     Scenario: NM - general - libnm snapshot and rollback unmanaged
     * Execute "nmcli device set eth8 managed off"
-    * Execute "tmp/libnm_snapshot_checkpoint.py create 10 eth8"
+    * Execute "contrib/gi/libnm_snapshot_checkpoint.py create 10 eth8"
     * Execute "nmcli device set eth8 managed on"
     When "unmanaged" is not visible with command "nmcli device show eth8" in "5" seconds
     * Wait for at least "15" seconds
@@ -2032,7 +2032,7 @@ Feature: nmcli - general
     @libnm_snapshot_rollback_managed
     Scenario: NM - general - libnm snapshot and rollback managed
     * Execute "nmcli device set eth8 managed on"
-    * Execute "tmp/libnm_snapshot_checkpoint.py create 10 eth8"
+    * Execute "contrib/gi/libnm_snapshot_checkpoint.py create 10 eth8"
     * Execute "nmcli device set eth8 managed off"
     When "unmanaged" is visible with command "nmcli device show eth8" in "5" seconds
     * Wait for at least "15" seconds
@@ -2051,7 +2051,7 @@ Feature: nmcli - general
     * Bring "up" connection "gen-bond0.1"
     When Check slave "eth8" in bond "gen-bond" in proc
     When Check slave "eth9" in bond "gen-bond" in proc
-    * Execute "tmp/libnm_snapshot_checkpoint.py create 10"
+    * Execute "contrib/gi/libnm_snapshot_checkpoint.py create 10"
     * Delete connection "gen-bond0.0"
     * Delete connection "gen-bond0.1"
     * Delete connection "gen-bond0"
@@ -2065,10 +2065,10 @@ Feature: nmcli - general
     @gen-bond_remove @checkpoint_remove
     @libnm_snapshot_destroy_after_rollback
     Scenario: NM - general - snapshot and destroy checkpoint
-    * Execute "tmp/libnm_snapshot_checkpoint.py create 5"
-    Then Execute "tmp/libnm_snapshot_checkpoint.py destroy last 1"
-    * Execute "tmp/libnm_snapshot_checkpoint.py create 5"
-    Then Execute "! tmp/libnm_snapshot_checkpoint.py destroy last 7"
+    * Execute "contrib/gi/libnm_snapshot_checkpoint.py create 5"
+    Then Execute "contrib/gi/libnm_snapshot_checkpoint.py destroy last 1"
+    * Execute "contrib/gi/libnm_snapshot_checkpoint.py create 5"
+    Then Execute "! contrib/gi/libnm_snapshot_checkpoint.py destroy last 7"
 
 
     @rhbz1553113
@@ -2232,7 +2232,7 @@ Feature: nmcli - general
     @ver+=1.16
     @libnm_get_dns_crash
     Scenario: nmcli - general - libnm crash when getting nmclient.props.dns_configuration
-    Then Execute "/usr/bin/python tmp/repro_1689054.py"
+    Then Execute "/usr/bin/python contrib/reproducers/repro_1689054.py"
 
 
     @rhbz1697858

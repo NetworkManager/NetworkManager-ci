@@ -319,7 +319,7 @@ install_el8_packages () {
 
     # Add OVS repo and install OVS
     if ! grep -q -e 'CentOS .* release 8' /etc/redhat-release; then
-        mv -f  tmp/ovs-rhel8.repo /etc/yum.repos.d/ovs.repo
+        mv -f  contrib/ovs/ovs-rhel8.repo /etc/yum.repos.d/ovs.repo
         yum -y install openvswitch2.13
         systemctl restart openvswitch
     else
@@ -435,7 +435,7 @@ install_el7_packages () {
     install_behave_pytest
 
     # Add OVS repo and install OVS
-    mv -f  tmp/ovs-rhel7.repo /etc/yum.repos.d/ovs.repo
+    mv -f  contrib/ovs/ovs-rhel7.repo /etc/yum.repos.d/ovs.repo
     yum -y install openvswitch
 
     # Remove cloud-init dns

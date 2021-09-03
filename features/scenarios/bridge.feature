@@ -685,7 +685,7 @@ Feature: nmcli - bridge
     When "dummy0:connected:bridge-slave-eth4" is visible with command "nmcli -t -f DEVICE,STATE,CONNECTION device" in "10" seconds
     Then "inet" is not visible with command "ip a s dummy0" in "5" seconds
     # Reproducer for 1848888
-    Then "fe80" is not visible with command "python tmp/nmclient_get_device_property.py dummy0 get_ip6_config"
+    Then "fe80" is not visible with command "python contrib/gi/nmclient_get_device_property.py dummy0 get_ip6_config"
 
 
     @rhbz1778590
@@ -723,7 +723,7 @@ Feature: nmcli - bridge
     * Bring "up" connection "bridge0"
     When "mtu 1500" is visible with command "ip a s br0" in "5" seconds
     * Modify connection "bridge0" changing options "remove 802-3-ethernet"
-    * Bring "up" connection "bridge0"    
+    * Bring "up" connection "bridge0"
     When "mtu 1499" is not visible with command "ip a s br0" for full "2" seconds
     * Add a new connection of type "dummy" and options "ifname dummy0 con-name bridge-slave-eth4 master br0 autoconnect no mtu 9000"
     * Bring "up" connection "bridge-slave-eth4"

@@ -1499,4 +1499,4 @@
     @dhcpv6_hostname
     Scenario: nmcli - ipv6 - secondary
     * Bring "down" connection "testeth0"
-    * "OK" is visible with command "sh tmp/repro_1858344.sh" in "10" seconds
+    * "OK" is visible with command "sh contrib/reproducers/repro_1858344.sh" in "10" seconds
