@@ -438,7 +438,7 @@ def prepare_openvpn(context, version="ip46", path="/tmp/openvpn-"):
 
 
 @step('Prepare Wi-Fi | with certificates from "{certs_dir}" | with crypto "{crypto}"')
-def prepare_wifi(context, certs_dir="tmp/8021x/certs", crypto="default"):
+def prepare_wifi(context, certs_dir="contrib/8021x/certs", crypto="default"):
     arch, _ = cmd_output_rc("arch")
     arch = arch.strip()
     if arch != "x86_64":
@@ -459,7 +459,7 @@ def prepare_wifi(context, certs_dir="tmp/8021x/certs", crypto="default"):
 
 
 @step('Prepare 8021x | with certificates from "{certs_dir}" | with crypto "{crypto}"')
-def prepare_8021x(context, certs_dir="tmp/8021x/certs", crypto=None):
+def prepare_8021x(context, certs_dir="contrib/8021x/certs", crypto=None):
     arch, _ = cmd_output_rc("arch")
     arch = arch.strip()
     if arch != "x86_64":

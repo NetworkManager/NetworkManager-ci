@@ -1373,7 +1373,7 @@ _register_tag("performance", performance_bs, performance_as)
 def preserve_8021x_certs_bs(ctx, scen):
     assert ctx.command_code("mkdir -p /tmp/certs/") == 0, "unable to create /tmp/certs/ directory"
     assert ctx.command_code(
-        "cp -r tmp/8021x/certs/client/* /tmp/certs/") == 0, "unable to copy certificates"
+        "cp -r contrib/8021x/certs/client/* /tmp/certs/") == 0, "unable to copy certificates"
 
 
 _register_tag("preserve_8021x_certs", preserve_8021x_certs_bs)
