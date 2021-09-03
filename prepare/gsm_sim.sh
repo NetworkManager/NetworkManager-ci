@@ -15,7 +15,7 @@ function modem_setup ()
     (
         while true;
         do
-            perl tmp/gsm_sim.pl $1 &
+            perl contrib/gsm_sim/gsm_sim.pl $1 &
             # get pid of perl script
             echo $!> /tmp/gsm_sim_perl.pid
             wait
