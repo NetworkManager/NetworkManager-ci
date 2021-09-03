@@ -722,7 +722,7 @@ Feature: nmcli - general
     @mock
     @nmcli_device_wifi_with_two_devices
     Scenario: nmcli - device - wifi show two devices
-    Then "test_two_wifi_with_accesspoints \(__main__.TestNetworkManager\) ... ok" is visible with command "sudo -u test python3 ./tmp/dbusmock-unittest.py"
+    Then "test_two_wifi_with_accesspoints \(__main__.TestNetworkManager\) ... ok" is visible with command "sudo -u test python3 ./contrib/dbus/dbusmock-unittest.py"
 
 
     @rhbz1114681
@@ -898,7 +898,7 @@ Feature: nmcli - general
     @con_general_remove @IPy
     @nmcli_general_dbus_set_gateway
     Scenario: nmcli - general - dbus api gateway setting
-    * Execute "/usr/bin/python tmp/dbus-set-gw.py"
+    * Execute "/usr/bin/python contrib/dbus/dbus-set-gw.py"
     Then "ipv4.gateway:\s+192.168.1.100" is visible with command "nmcli connection show con_general"
 
 

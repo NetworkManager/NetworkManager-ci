@@ -1359,7 +1359,7 @@
     @bond
     @bond_dbus_creation
     Scenario: NM - bond - dbus api bond setting
-    * Execute "/usr/bin/python tmp/dbus-set-bond.py"
+    * Execute "/usr/bin/python contrib/dbus/dbus-set-bond.py"
     Then "bond0.*bond\s+nm-bond" is visible with command "nmcli connection"
 
 
