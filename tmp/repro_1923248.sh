@@ -47,7 +47,7 @@ interfaces:
     state: up
     link-aggregation:
       mode: balance-rr
-      slaves:
+      port:
       - veth0c_p
       - veth1c_p
     ipv4:
