@@ -151,9 +151,9 @@ Feature: nmcli - general
     # Note/4: We have ipv6 only default device testX6 not setting hostname.
     * Prepare simulated test "testX6" device without DHCP
     * Execute "ip -n testX6_ns addr add dev testX6p fc01::1/64"
-    * Run child "ip netns exec testX6_ns radvd -n -C tmp/ipv6/radvd.conf" without shell
+    * Run child "ip netns exec testX6_ns radvd -n -C contrib/ipv6/radvd.conf" without shell
     * Execute "echo > /tmp/ip6leases.conf"
-    * Run child "ip netns exec testX6_ns dhcpd -6 -d -cf tmp/ipv6/dhcpd.conf -lf /tmp/ip6leases.conf" without shell
+    * Run child "ip netns exec testX6_ns dhcpd -6 -d -cf contrib/ipv6/dhcpd.conf -lf /tmp/ip6leases.conf" without shell
     * Prepare simulated test "testG" device with "172.25.15" ipv4 and daemon options "--dhcp-option=12 --dhcp-host=00:11:22:33:44:55,172.25.15.1,foo-bar"
     * Execute "ip netns exec testG_ns kill -SIGSTOP $(cat /tmp/testG_ns.pid)"
     * Execute "hostnamectl set-hostname """
@@ -2520,7 +2520,7 @@ Feature: nmcli - general
     * Prepare simulated test "testX6" device without DHCP
     * Execute "ip -n testX6_ns addr add dev testX6p fd01::1/64"
     * Run child "ip netns exec testX6_ns dnsmasq --bind-interfaces --interface testX6p --pid-file=/tmp/testX6_ns.pid  --host-record=deprecated1,fd01::91 --host-record=validhostname,fd01::92 --host-record=deprecated2,fd01::93" without shell
-    * Run child "ip netns exec testX6_ns radvd -n -C tmp/radvd3.conf" without shell
+    * Run child "ip netns exec testX6_ns radvd -n -C contrib/ipv6/radvd3.conf" without shell
     * Add a new connection of type "ethernet" and options " ifname testX6 con-name con_ipv6 autoconnect no ipv4.method disabled ipv6.method auto "
     * Bring "up" connection "con_ipv6"
     * Execute "ip addr add dev testX6 fd01::91/128 valid_lft forever preferred_lft 0"

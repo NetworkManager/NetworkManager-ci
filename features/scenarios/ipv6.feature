@@ -355,7 +355,7 @@
     Scenario: NM - ipv6 - accept RA handling
     * Prepare veth pairs "test10" bridged over "vethbr6"
     * Execute "ip -6 addr add 2001:db8:1::1/64 dev vethbr6"
-    * Start radvd server with config from "tmp/radvd2.conf"
+    * Start radvd server with config from "contrib/ipv6/radvd2.conf"
     * Add a new connection of type "ethernet" and options "con-name con_ipv6 ifname test10 ipv6.may-fail no"
     When "2001:db8" is visible with command "ip a s test10" in "45" seconds
     Then "0" is visible with command "cat /proc/sys/net/ipv6/conf/test10/accept_ra"
@@ -1283,7 +1283,7 @@
     * Execute "ip -6 addr add dead:beef::1/64 dev vethbr6"
     * Execute "ip -6 addr add beef:dead::1/64 dev test10p"
     * Execute "ip -6 addr add fe80::dead:dead:dead:dead/64 dev test10p"
-    * Start radvd server with config from "tmp/radvd.conf"
+    * Start radvd server with config from "contrib/ipv6/radvd1.conf"
     * Add a new connection of type "ethernet" and options "con-name con_ipv6 ifname test10 ipv6.may-fail no"
     Then "2" is visible with command "ip -6 r | grep default -A 3|grep 'via fe80' |grep test10 |wc -l" in "60" seconds
 
@@ -1351,9 +1351,9 @@
      * Prepare simulated test "testX6" device without DHCP
      * Execute "ip -n testX6_ns addr add dev testX6p fc01::1/64"
      * Prepare simulated test "testY6" device without DHCP
-     * Run child "ip netns exec testX6_ns radvd -n -C tmp/ipv6/radvd.conf" without shell
+     * Run child "ip netns exec testX6_ns radvd -n -C contrib/ipv6/radvd.conf" without shell
      * Execute "echo > /tmp/ip6leases.conf"
-     * Run child "ip netns exec testX6_ns dhcpd -6 -d -cf tmp/ipv6/dhcpd.conf -lf /tmp/ip6leases.conf" without shell
+     * Run child "ip netns exec testX6_ns dhcpd -6 -d -cf contrib/ipv6/dhcpd.conf -lf /tmp/ip6leases.conf" without shell
      * Add a new connection of type "ethernet" and options "ifname testX6 con-name con_ipv6 ipv4.method disabled ipv6.method auto ipv6.route-metric 50 autoconnect no"
      * Bring "up" connection "con_ipv6"
      When "inet6 fc01:" is visible with command "ip a show dev testX6" in "5" seconds
@@ -1378,9 +1378,9 @@
      * Prepare simulated test "testX6" device without DHCP
      * Execute "ip -n testX6_ns addr add dev testX6p fc01::1/64"
      * Prepare simulated test "testY6" device without DHCP
-     * Run child "ip netns exec testX6_ns radvd -n -C tmp/ipv6/radvd.conf" without shell
+     * Run child "ip netns exec testX6_ns radvd -n -C contrib/ipv6/radvd.conf" without shell
      * Execute "echo > /tmp/ip6leases.conf"
-     * Run child "ip netns exec testX6_ns dhcpd -6 -d -cf tmp/ipv6/dhcpd.conf -lf /tmp/ip6leases.conf" without shell
+     * Run child "ip netns exec testX6_ns dhcpd -6 -d -cf contrib/ipv6/dhcpd.conf -lf /tmp/ip6leases.conf" without shell
      * Add a new connection of type "ethernet" and options "ifname testX6 con-name con_ipv6 ipv4.method disabled ipv6.method auto ipv6.route-metric 50 autoconnect no"
      * Bring "up" connection "con_ipv6"
      When "inet6 fc01:" is visible with command "ip a show dev testX6" in "5" seconds
