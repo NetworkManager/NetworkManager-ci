@@ -100,13 +100,13 @@ import_certificates ()
     echo "import server certificates into libreswan namespace NSS (if not exist yet)..."
     ipsec checknss --nssdir "$NSS_DIR"
     # ipsec import command asks for pkcs12 password, so importing manually
-    pk12util -W "" -i tmp/libreswan/server/libreswan_server.p12 -d sql:$NSS_DIR
+    pk12util -W "" -i contrib/libreswan/server/libreswan_server.p12 -d sql:$NSS_DIR
     certutil -M -n RedHat -t "CT,," -d sql:$NSS_DIR
 
     echo "import client certificates into default NSS (if not exist yet)..."
     ipsec checknss --nssdir "$NSS_CLIENT_DIR"
     # ipsec import command asks for pkcs12 password, so importing manually
-    pk12util -W "" -i tmp/libreswan/client/libreswan_client.p12 -d sql:$NSS_CLIENT_DIR
+    pk12util -W "" -i contrib/libreswan/client/libreswan_client.p12 -d sql:$NSS_CLIENT_DIR
     certutil -M -n RedHat -t "CT,," -d sql:$NSS_CLIENT_DIR
 }
 

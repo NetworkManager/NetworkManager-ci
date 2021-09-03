@@ -46,10 +46,8 @@ fi
 # install tools required for build
 sudo yum -y install libmnl-devel elfutils-libelf-devel kernel-devel-$(uname -r) pkg-config gcc git
 
-cd tmp/
-
 install_module_cert
-gpg --import gpg/wireguard.asc
+gpg --import contrib/gpg/wireguard.asc
 
 # compile from repo
 make_from_src
