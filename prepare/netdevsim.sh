@@ -53,7 +53,7 @@ function setup () {
           LINUX=$(ls /root/rpmbuild/SOURCES/linux-${MAJOR%.*}*.tar.xz | tail -n1 | \
             sed 's@/root/rpmbuild/SOURCES/@@;s@\.tar\.xz@@')
         tar xf /root/rpmbuild/SOURCES/$LINUX.tar.xz -C /tmp
-        cp tmp/$PATCH /tmp/$LINUX
+        cp contrib/netdevsim/$PATCH /tmp/$LINUX
         cd /tmp/$LINUX
         # Patch module
         patch -p1 < $PATCH || { echo "Unable to patch, please fix the patch"; exit 1; }
