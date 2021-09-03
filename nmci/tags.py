@@ -1657,7 +1657,7 @@ _register_tag("wireless_certs", wireless_certs_bs)
 
 
 def selinux_allow_ifup_bs(ctx, scen):
-    ctx.run("semodule -i tmp/selinux-policy/ifup_policy.pp")
+    ctx.run("semodule -i contrib/selinux-policy/ifup_policy.pp")
 
 
 _register_tag("selinux_allow_ifup", selinux_allow_ifup_bs)
@@ -1674,7 +1674,7 @@ def pppoe_bs(ctx, scen):
     # selinux on aarch64: see https://bugzilla.redhat.com/show_bug.cgi?id=1643954
     if ctx.arch == "aarch64":
         print("enable pppd selinux policy on aarch64")
-        ctx.run("semodule -i tmp/selinux-policy/pppd.pp")
+        ctx.run("semodule -i contrib/selinux-policy/pppd.pp")
     # This -x is to avoid upgrade of NetworkManager in older version testing
     ctx.run("rpm -q NetworkManager-ppp || yum -y install NetworkManager-ppp -x NetworkManager")
     ctx.run('rpm -q rp-pppoe || yum -y install rp-pppoe')

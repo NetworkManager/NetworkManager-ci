@@ -209,7 +209,7 @@ install_el9_packages () {
     fi
     # strongswan remove once in epel 12012021
     if ! rpm -q --quiet NetworkManager-strongswan || ! rpm -q --quiet strongswan; then
-        dnf -4 -y install https://kojipkgs.fedoraproject.org//packages/trousers/0.3.15/2.fc34/$(arch)/trousers-lib-0.3.15-2.fc34.$(arch).rpm https://kojipkgs.fedoraproject.org//packages/NetworkManager-strongswan/1.5.0/3.fc34/$(arch)/NetworkManager-strongswan-1.5.0-3.fc34.$(arch).rpm https://kojipkgs.fedoraproject.org//packages/strongswan/5.9.3/1.fc34/$(arch)/strongswan-5.9.3-1.fc34.$(arch).rpm https://kojipkgs.fedoraproject.org//packages/strongswan/5.9.3/1.fc34/$(arch)/strongswan-charon-nm-5.9.3-1.fc34.$(arch).rpm 
+        dnf -4 -y install https://kojipkgs.fedoraproject.org//packages/trousers/0.3.15/2.fc34/$(arch)/trousers-lib-0.3.15-2.fc34.$(arch).rpm https://kojipkgs.fedoraproject.org//packages/NetworkManager-strongswan/1.5.0/3.fc34/$(arch)/NetworkManager-strongswan-1.5.0-3.fc34.$(arch).rpm https://kojipkgs.fedoraproject.org//packages/strongswan/5.9.3/1.fc34/$(arch)/strongswan-5.9.3-1.fc34.$(arch).rpm https://kojipkgs.fedoraproject.org//packages/strongswan/5.9.3/1.fc34/$(arch)/strongswan-charon-nm-5.9.3-1.fc34.$(arch).rpm
 
     fi
 
@@ -840,7 +840,7 @@ local_setup_configure_nm_inf () {
 install_usb_hub_driver_el () {
     # Works under RHEL 8.0.
     yum install -y libffi-devel python36-devel
-    pushd tmp/usb_hub
+    pushd contrib/usb_hub
         # The module brainstem is already stored in project NetworkManager-ci.
         if grep -q -e 'Enterprise Linux .*release 7' -e 'CentOS Linux release 7' /etc/redhat-release; then
             # Compatible with RHEL7
@@ -860,7 +860,7 @@ install_usb_hub_driver_el () {
 install_usb_hub_driver_fc29 () {
     # Accomodate to Fedora 29.
     yum install -y libffi-devel python3-devel python-unversioned-command
-    pushd tmp/usb_hub
+    pushd contrib/usb_hub
         # The module brainstem is already stored in project NetworkManager-ci.
         tar xf brainstem_dev_kit_ubuntu_lts_18.04_no_qt_x86_64_1.tgz
         cd development/python/
@@ -877,9 +877,9 @@ install_usb_hub_utility () {
     # Using a local copy of that utility.
     # Augment the default search path for Python modules.
     if [ -z "$PYTHONPATH" ]; then
-        export PYTHONPATH=$(pwd)/tmp/usb_hub/acroname.py
+        export PYTHONPATH=$(pwd)/contrib/usb_hub/acroname.py
     else
-        export PYTHONPATH=$PYTHONPATH:$(pwd)/tmp/usb_hub/acroname.py
+        export PYTHONPATH=$PYTHONPATH:$(pwd)/contrib/usb_hub/acroname.py
     fi
     [ -z "$PYTHONPATH" ] && return 1 || return 0
     # How to use PYTHONPATH?
@@ -913,7 +913,7 @@ local_setup_configure_nm_gsm () {
     systemctl restart NetworkManager
 
     # Selinux policy for gsm_sim (ModemManager needs access to /dev/pts/*)
-    semodule -i tmp/selinux-policy/ModemManager.pp
+    semodule -i contrib/selinux-policy/ModemManager.pp
 
     # Prepare conditions for using Acroname USB hub.
     if grep -q -E 'Enterprise Linux .*release|CentOS.*release' /etc/redhat-release; then

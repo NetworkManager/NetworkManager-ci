@@ -380,7 +380,7 @@ function prepare_test_bed ()
 
     if $DO_NAMESPACE; then
         local major_ver=$(cat /etc/redhat-release | grep -o "release [0-9]*" | sed 's/release //')
-        local policy_file="tmp/selinux-policy/hostapd_wireless_$major_ver.pp"
+        local policy_file="contrib/selinux-policy/hostapd_wireless_$major_ver.pp"
         semodule -i $policy_file || echo "ERROR: unable to load selinux policy !!!"
         ip netns add wlan_ns
     fi

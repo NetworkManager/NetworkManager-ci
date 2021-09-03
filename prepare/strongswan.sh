@@ -150,7 +150,7 @@ strongswan_setup ()
 
 
         # selinux policy
-        semodule -i tmp/selinux-policy/strongswan.pp
+        semodule -i contrib/selinux-policy/strongswan.pp
 
         echo "Configuring remote Strongswan peer"
 
