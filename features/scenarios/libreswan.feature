@@ -280,7 +280,7 @@
     @vpn
     @libreswan_import
     Scenario: nmcli - libreswan - import
-    * Execute "nmcli connection import file tmp/vpn.swan3 type libreswan"
+    * Execute "nmcli connection import file contrib/vpn/vpn.swan3 type libreswan"
     Then "leftid = VPN-standard" is visible with command "nmcli connection show vpn |grep vpn.data"
      And "right = vpn-test.com" is visible with command "nmcli connection show vpn |grep vpn.data"
      And "ike = aes-sha1;modp2048" is visible with command "nmcli connection show vpn |grep vpn.data"
@@ -292,7 +292,7 @@
     @vpn
     @libreswan_import
     Scenario: nmcli - libreswan - import
-    * Execute "nmcli connection import file tmp/vpn.swan4 type libreswan"
+    * Execute "nmcli connection import file contrib/vpn/vpn.swan4 type libreswan"
     Then "leftid = VPN-standard" is visible with command "nmcli connection show vpn |grep vpn.data"
      And "right = vpn-test.com" is visible with command "nmcli connection show vpn |grep vpn.data"
      And "ike = aes-sha1;modp2048" is visible with command "nmcli connection show vpn |grep vpn.data"
@@ -304,7 +304,7 @@
     @vpn
     @libreswan_export
     Scenario: nmcli - libreswan - export
-    * Execute "nmcli connection import file tmp/vpn.swan3 type libreswan"
+    * Execute "nmcli connection import file contrib/vpn/vpn.swan3 type libreswan"
     * Execute "nmcli connection export vpn > /tmp/vpn.swan3"
     * Execute "sed -i 's/phase2alg=/esp=/g' /tmp/vpn.swan3"
     Then Check file "tmp/vpn.swan3" is contained in file "/tmp/vpn.swan3"
@@ -320,7 +320,7 @@
     @vpn
     @libreswan_export
     Scenario: nmcli - libreswan - export
-    * Execute "nmcli connection import file tmp/vpn.swan4 type libreswan"
+    * Execute "nmcli connection import file contrib/vpn/vpn.swan4 type libreswan"
     * Execute "nmcli connection export vpn > /tmp/vpn.swan4"
     * Execute "sed -i 's/phase2alg=/esp=/g' /tmp/vpn.swan4"
     Then Check file "tmp/vpn.swan4" is contained in file "/tmp/vpn.swan4"
@@ -337,10 +337,10 @@
     @libreswan_autocompletion
     Scenario: nmcli - libreswan - autocompletion
     * "file.*type" is visible with tab after "nmcli con import "
-    Then "vpn.swan" is visible with tab after "nmcli con import file tmp/"
-     And "vpn.swan" is visible with tab after "nmcli con import type libreswan file tmp/"
-     And "type" is visible with tab after "nmcli con import file tmp/vpn.swan3 "
-     And "libreswan|openswan|openconnect|strongswan" is visible with tab after "nmcli con import file tmp/vpn.swan type "
+    Then "vpn.swan" is visible with tab after "nmcli con import file contrib/vpn/"
+     And "vpn.swan" is visible with tab after "nmcli con import type libreswan file contrib/vpn/"
+     And "type" is visible with tab after "nmcli con import file contrib/vpn/vpn.swan3 "
+     And "libreswan|openswan|openconnect|strongswan" is visible with tab after "nmcli con import file contrib/vpn/vpn.swan type "
 
 
     @rhbz1633174

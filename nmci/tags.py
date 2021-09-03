@@ -541,7 +541,7 @@ def mock_bs(ctx, scen):
         print("installing dbus-x11, pip, and python-dbusmock dataclasses")
         ctx.run('yum -y install dbus-x11')
     ctx.run("sudo python3 -m pip install python-dbusmock dataclasses")
-    ctx.run('./tmp/patch-python-dbusmock.sh')
+    ctx.run('./contrib/dbusmock/patch-python-dbusmock.sh')
 
 
 _register_tag("mock", mock_bs)

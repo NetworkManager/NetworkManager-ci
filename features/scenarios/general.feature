@@ -2078,11 +2078,11 @@ Feature: nmcli - general
     Scenario: NM - general - count number of password prompts with autoconnect yes and no secrets provided
     * Add a new connection of type "ethernet" and options "ifname eth5 con-name con_general 802-1x.identity test 802-1x.password-flags 2 802-1x.eap md5 connection.autoconnect no"
     * Wait for at least "2" seconds
-    * Execute "tmp/nm_agent_prompt_counter.sh start"
+    * Execute "contrib/nm_agent/nm_agent_prompt_counter.sh start"
     * Wait for at least "2" seconds
     * Modify connection "con_general" changing options "connection.autoconnect yes"
     * Wait for at least "2" seconds
-    Then "PASSWORD_PROMPT_COUNT='1'" is visible with command "tmp/nm_agent_prompt_counter.sh stop"
+    Then "PASSWORD_PROMPT_COUNT='1'" is visible with command "contrib/nm_agent/nm_agent_prompt_counter.sh stop"
 
 
     @rhbz1578436
@@ -2327,8 +2327,8 @@ Feature: nmcli - general
     @con_general_remove
     @busctl_LoadConnections_relative_path
     Scenario: NM - general - busctl LoadConnections does not accept relative paths
-    When "bas false 1 \"tmp/eth8-con.keyfile\"" is visible with command "busctl call org.freedesktop.NetworkManager /org/freedesktop/NetworkManager/Settings org.freedesktop.NetworkManager.Settings LoadConnections as 1 tmp/eth8-con.keyfile"
-    * Execute "cp tmp/eth8-con.keyfile /etc/NetworkManager/system-connections/con_general"
+    When "bas false 1 \"contrib/profiles/eth8-con.keyfile\"" is visible with command "busctl call org.freedesktop.NetworkManager /org/freedesktop/NetworkManager/Settings org.freedesktop.NetworkManager.Settings LoadConnections as 1 contrib/profiles/eth8-con.keyfile"
+    * Execute "cp contrib/profiles/eth8-con.keyfile /etc/NetworkManager/system-connections/con_general"
     * Execute "chmod 0600 /etc/NetworkManager/system-connections/con_general"
     Then "bas true 0" is visible with command "busctl call org.freedesktop.NetworkManager /org/freedesktop/NetworkManager/Settings org.freedesktop.NetworkManager.Settings LoadConnections as 1 /etc/NetworkManager/system-connections/con_general"
      And "con_general" is visible with command "nmcli connection show"
