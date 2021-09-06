@@ -432,7 +432,7 @@ def main ():
         post_results (gitlab_trigger)
 
     generate_junit ("/tmp/results")
-    zip_journal ("")
+    zip_journal ("/tmp/results")
 
     logging.debug("All Done. Exit with %s" %exit_code)
     sys.exit (exit_code)
