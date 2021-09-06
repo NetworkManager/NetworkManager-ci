@@ -126,7 +126,7 @@ def generate_junit(results_dir):
             f = f.split('FAIL-')[1]
             failed.append(f)
             continue
-        if f in ['tar.gz', 'RESULT.txt', 'junit.xml']:
+        if f in ['log.bz2', 'RESULT.txt', 'junit.xml']:
             continue
         else:
             passed.append(f)
@@ -154,6 +154,11 @@ def generate_junit(results_dir):
     root.write(junit_path)
     logging.debug("JUNIT Done")
     return 0
+
+
+def zip_journal (results_dir):
+    cmd = "journalctl -b --no-pager -o short-monotonic --all | bzip2 --best > %s/journal.log.bz2" %results_dir
+    subprocess.call(cmd, shell=True)
 
 def get_features_from_mapper(branch):
     mapper = get_testmapper(branch)
@@ -427,6 +432,8 @@ def main ():
         post_results (gitlab_trigger)
 
     generate_junit ("/tmp/results")
+    zip_journal ("")
+
     logging.debug("All Done. Exit with %s" %exit_code)
     sys.exit (exit_code)
 
