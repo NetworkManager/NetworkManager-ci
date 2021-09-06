@@ -1356,7 +1356,7 @@ def performance_bs(ctx, scen):
 def performance_as(ctx, scen):
     ctx.nm_restarted = True
     # Settings device number to 0
-    ctx.run("tmp/./setup.sh 0")
+    ctx.run("contrib/gi/./setup.sh 0")
     # Deleting all connections
     cons = ""
     for i in range(1, 101):
