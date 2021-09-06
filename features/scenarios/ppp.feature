@@ -102,7 +102,7 @@ Feature: nmcli - ppp
 
     @rhbz1854892
     @ver+=1.26 @rhelver+=8
-    @not_on_s390x @pppoe @del_test1112_veths
+    @not_on_s390x @pppoe @del_test1112_veths @restart_if_needed
     @pppoe_and_ethernet_together
     Scenario: NM - ppp - pppoe and ethernet profiles
     * Execute "ip link add test11 type veth peer name test12"

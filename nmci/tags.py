@@ -69,6 +69,16 @@ def skip_in_centos_bs(ctx, scen):
 _register_tag("skip_in_centos", skip_in_centos_bs)
 
 
+def skip_in_kvm_bs(ctx, scen):
+    if 'kvm' in ctx.hypervisor:
+        if ctx.arch != 'x86_64':
+            print("skipping on non x86_64 machine with kvm hypvervisor")
+            sys.exit(77)
+
+
+_register_tag("skip_in_kvm", skip_in_kvm_bs)
+
+
 def arch_only_bs(arch):
     def arch_check(ctx, scen):
         if ctx.arch != arch:

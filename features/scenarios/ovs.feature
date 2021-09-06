@@ -553,7 +553,7 @@ Feature: nmcli - ovs
 
     @rhbz1786937
     @ver+=1.18.8
-    @openvswitch @mtu
+    @openvswitch @mtu  @restart_if_needed
     @ovs_mtu
     Scenario: nmcli - openvswitch - mtu
     * Add a new connection of type "ovs-bridge" and options "conn.interface ovsbridge0 con-name ovs-bridge0 ethernet.mtu 9000"

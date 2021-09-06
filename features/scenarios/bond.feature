@@ -1612,7 +1612,7 @@
 
     @rhbz1360386 @rhbz1845018
     @ver+=1.25
-    @bond @bond_bridge @slaves
+    @bond @bond_bridge @slaves @restart_if_needed
     @bridge_bond_autoconnect_nested_slaves
     Scenario: nmcli - bond - autoconnect slaves of slaves
      * Add a new connection of type "bridge" and options "ifname bond-bridge con-name bond_bridge0 autoconnect no connection.autoconnect-slaves 1 bridge.stp off"
