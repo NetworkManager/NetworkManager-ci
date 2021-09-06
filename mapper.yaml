@@ -109,6 +109,8 @@ testmapper:
         feature: bond
     - bond_add_slaves:
         feature: bond
+    - bond_add_slaves_with_queue-id:
+        feature: bond
     - add_bond_master_via_uuid:
         feature: bond
     - bond_ifcfg_master_as_device:

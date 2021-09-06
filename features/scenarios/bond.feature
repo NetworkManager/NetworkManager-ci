@@ -168,9 +168,9 @@
      Then "ARP IP target/s \(n.n.n.n form\):.*192.168.100.1" is visible with command "cat /proc/net/bonding/nm-bond"
 
 
+    @ver-1.20
     @slaves @bond
     @nmcli_novice_mode_create_bond-slave_with_default_options
-    @ver-1.20
     Scenario: nmcli - bond - novice - create bond-slave with default options
      * Add connection type "bond" named "bond0" for device "nm-bond"
      * Open wizard for adding new connection
@@ -185,9 +185,9 @@
     Then Check slave "eth1" in bond "nm-bond" in proc
 
 
+    @ver+=1.21.1 @ver-=1.32
     @slaves @bond
     @nmcli_novice_mode_create_bond-slave_with_default_options
-    @ver+=1.21.1
     Scenario: nmcli - bond - novice - create bond-slave with default options
      * Add connection type "bond" named "bond0" for device "nm-bond"
      * Open wizard for adding new connection
@@ -204,6 +204,27 @@
     Then Check slave "eth1" in bond "nm-bond" in proc
 
 
+    @ver+=1.33
+    @slaves @bond
+    @nmcli_novice_mode_create_bond-slave_with_default_options
+    Scenario: nmcli - bond - novice - create bond-slave with default options
+     * Add connection type "bond" named "bond0" for device "nm-bond"
+     * Open wizard for adding new connection
+     * Expect "Connection type"
+     * Submit "bond-slave" in editor
+     * Expect "aster"
+     * Submit "nm-bond" in editor
+     * Expect "Do you want to provide it\? \(yes\/no\) \[yes\]"
+     * Submit "yes" in editor
+     * Expect "Interface name"
+     * Submit "eth1" in editor
+     * Expect "Do you want to provide it\? \(yes\/no\) \[yes\]"
+     * Submit "no"
+    Then "activated" is visible with command "nmcli c show bond-slave" in "45" seconds
+    Then Check bond "nm-bond" link state is "up"
+    Then Check slave "eth1" in bond "nm-bond" in proc
+
+
     @slaves @bond
     @bond_add_slaves
     Scenario: nmcli - bond - add slaves
@@ -214,6 +235,35 @@
      * Bring "up" connection "bond0.1"
      Then Check slave "eth1" in bond "nm-bond" in proc
      Then Check slave "eth4" in bond "nm-bond" in proc
+
+
+    @rhbz1949127
+    @ver+=1.33
+    @slaves @bond
+    @bond_add_slaves_with_queue-id
+    Scenario: nmcli - bond - add slaves
+     * Add a new connection of type "bond" and options 
+                                    """
+                                    ifname nm-bond con-name bond0
+                                    ipv4.addresses 1.2.3.4/24 ipv4.method manual
+                                    """
+     * Add a new connection of type "ethernet" and options 
+                                    """
+                                    ifname eth1 con-name bond0.0
+                                    master nm-bond queue-id 2
+                                    """
+     * Add a new connection of type "ethernet" and options 
+                                    """
+                                    ifname eth4 con-name bond0.1 
+                                    master nm-bond queue-id 4
+                                    """
+     When "activated" is visible with command "nmcli -g GENERAL.STATE con show bond0" in "40" seconds
+      Then Check slave "eth1" in bond "nm-bond" in proc
+       And "2" is visible with command "nmcli -f bond-port.queue-id con show bond0.0"
+       And "Slave queue ID: 2" is visible with command "cat /proc/net/bonding/nm-bond | sed -n '/eth1/,/^$/p'" 
+      Then Check slave "eth4" in bond "nm-bond" in proc
+       And "Slave queue ID: 4" is visible with command "cat /proc/net/bonding/nm-bond | sed -n '/eth4/,/^$/p'"
+       And "4" is visible with command "nmcli -f bond-port.queue-id con show bond0.1"
 
 
     @rhbz1057494
