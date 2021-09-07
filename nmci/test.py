@@ -562,7 +562,7 @@ def test_black_code_fromatting():
 
 def test_ip_link_show_all():
 
-    l0 = ip._link_show_all_legacy()
+    l0 = ip._link_show_all_manual_parsing(binary=None)
     l1 = ip.link_show_all()
 
     def _normalize(i):

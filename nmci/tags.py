@@ -7,6 +7,7 @@ import time
 import re
 import inspect
 
+import nmci.ip
 import nmci.lib
 
 
@@ -1300,6 +1301,8 @@ _register_tag("dracut_remote_NFS_clean", None, dracut_remote_NFS_clean_as)
 def prepare_patched_netdevsim_bs(ctx, scen):
     rc = ctx.command_code('sh prepare/netdevsim.sh setup')
     assert rc == 0, "netdevsim setup failed with exitcode: %d" % rc
+    nmci.ip.link_set(ifname='eth11', up=True, wait_for_device=1)
+    nmci.ip.link_show(ifname='eth11', flags='LOWER_UP', timeout=1)
 
 
 def prepare_patched_netdevsim_as(ctx, scen):

@@ -70,6 +70,20 @@ class _Util:
         j = JsonGLib.gvariant_serialize(variant)
         return json.loads(JsonGLib.to_string(j, 0))
 
+    def bytes_to_str(self, s, errors="strict"):
+        if isinstance(s, bytes):
+            return s.decode("utf-8", errors=errors)
+        if isinstance(s, str):
+            return s
+        raise ValueError("Expects either a str or bytes")
+
+    def str_to_bytes(self, s):
+        if isinstance(s, str):
+            return s.encode("utf-8")
+        if isinstance(s, bytes):
+            return s
+        raise ValueError("Expects either a str or bytes")
+
     def gvariant_type(self, s):
 
         if s is None:
@@ -85,7 +99,7 @@ class _Util:
 
     def process_run(self, argv, as_utf8=False, timeout=30):
 
-        argv = list(argv)
+        argv = [self.str_to_bytes(a) for a in argv]
 
         proc = subprocess.run(
             argv, stdout=subprocess.PIPE, stderr=subprocess.PIPE, timeout=timeout
@@ -96,12 +110,19 @@ class _Util:
             # a fail.
             raise Exception(
                 "`%s` printed something on stderr: %s"
-                % (" ".join(argv), proc.stderr.decode("utf-8", "replace"))
+                % (
+                    " ".join([self.bytes_to_str(s, errors="replace") for s in argv]),
+                    proc.stderr.decode("utf-8", errors="replace"),
+                )
             )
 
         if proc.returncode != 0:
             raise Exception(
-                "`%s` returned exit code %s" % (" ".join(argv), proc.returncode)
+                "`%s` returned exit code %s"
+                % (
+                    " ".join([self.bytes_to_str(s, errors="replace") for s in argv]),
+                    proc.returncode,
+                )
             )
 
         out = proc.stdout

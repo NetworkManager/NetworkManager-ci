@@ -615,7 +615,7 @@ def after_crash_reset(context):
 
     print("Remove all links except eth*")
     allowed_links = [b"lo"] + [f"eth{i}".encode("utf-8") for i in range(0, 11)]
-    for link in nmci.ip._link_show_all_legacy_raw():
+    for link in nmci.ip.link_show_all(binary=True):
         if link["ifname"] in allowed_links or link["ifname"].startswith(b"orig-"):
             continue
         context.run("ip link delete $'" + link['ifname'].decode("utf-8", "backslashreplace") + "'")
