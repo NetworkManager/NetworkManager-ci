@@ -36,7 +36,9 @@ else:
 
 distro_version = [
     int(x)
-    for x in check_output(["sed", "s/.*release *//;s/ .*//", "/etc/redhat-release"])
+    for x in check_output(
+        ["sed", "s/.*release *//;s/ .*//;s/Beta//;s/Alpha//", "/etc/redhat-release"]
+    )
     .decode("utf-8")
     .split(".")
 ]
