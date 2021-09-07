@@ -1742,9 +1742,9 @@ def nmstate_upstream_setup_bs(ctx, scen):
 
     # Rename eth1/2 to ethX/Y as these are used by test
     ctx.run("ip link set dev eth1 down")
-    ctx.run("ip link set name ethX eth1")
+    ctx.run("ip link set name eth01 eth1")
     ctx.run("ip link set dev eth2 down")
-    ctx.run("ip link set name ethY eth2")
+    ctx.run("ip link set name eth02 eth2")
 
     # We need to have use_tempaddr set to 0 to avoid test_dhcp_on_bridge0 PASSED
     ctx.run("echo 0 > /proc/sys/net/ipv6/conf/default/use_tempaddr")
@@ -1788,17 +1788,17 @@ def nmstate_upstream_setup_as(ctx, scen):
 
     # Rename devices back to eth1/eth2
     ctx.run("ip link del eth1")
-    ctx.run("ip link set dev ethX down")
-    ctx.run("ip link set name eth1 ethX")
+    ctx.run("ip link set dev eth01 down")
+    ctx.run("ip link set name eth1 eth01")
     ctx.run("ip link set dev eth1 up")
 
     ctx.run("ip link del eth2")
-    ctx.run("ip link set dev ethY down")
-    ctx.run("ip link set name eth2 ethY")
+    ctx.run("ip link set dev eth02 down")
+    ctx.run("ip link set name eth2 eth02")
     ctx.run("ip link set dev eth2 up")
 
     # remove profiles
-    ctx.run("nmcli con del nmstate ethX ethY eth1peer eth2peer")
+    ctx.run("nmcli con del nmstate eth01 eth02 eth1peer eth2peer")
 
     # Move orig config file to back
     ctx.run('mv /tmp/99-unmanage-orig.conf /etc/NetworkManager/conf.d/')
