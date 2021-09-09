@@ -2109,6 +2109,14 @@ testmapper:
         tags: gate libnl3
     - simwifi_wpa2psk_no_profile:
         feature: wifi_hwsim
+    - simwifi_tls_pkcs11_saved_pw:
+        feature: wifi_hwsim
+    - simwifi_tls_pkcs11_pwfile:
+        feature: wifi_hwsim
+    - simwifi_tls_pkcs11_nmcli_ask:
+        feature: wifi_hwsim
+    - simwifi_tls_pkcs11_pw_in_uri_flag_nr:
+        feature: wifi_hwsim
     - simwifi_tls:
         feature: wifi_hwsim
         tags: gate libnl3

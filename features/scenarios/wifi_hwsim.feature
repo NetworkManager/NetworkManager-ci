@@ -88,6 +88,58 @@ Feature: nmcli - wifi
     Then "\*\s+wpa2-eap" is visible with command "nmcli -f IN-USE,SSID device wifi list"
 
 
+    @ver+=1.33 @fedoraver+=35
+    @simwifi @simwifi_wpa2 @pkcs11 @attach_hostapd_log @attach_wpa_supplicant_log
+    @simwifi_tls_pkcs11_saved_pw
+    Scenario: nmcli - simwifi - connect to TLS - PKCS#11 - saved PIN
+    Given "wpa2-eap" is visible with command "nmcli -f SSID device wifi list" in "60" seconds
+    * Add a new connection of type "wifi" and options "ifname wlan0 con-name wifi autoconnect no ssid wpa2-eap"
+    * Execute "nmcli con modify wifi 802-11-wireless-security.key-mgmt wpa-eap 802-1x.eap tls 802-1x.identity test 802-1x.ca-cert /tmp/certs/test_user.ca.pem 802-1x.client-cert 'pkcs11:token=nmci;object=nmclient' 802-1x.client-cert-password-flags 4 802-1x.private-key 'pkcs11:token=nmci;object=nmclient' 802-1x.private-key-password 1234"
+    * Execute "sleep 3"
+    Then Bring "up" connection "wifi"
+
+
+    @ver+=1.33 @fedoraver+=35
+    @simwifi @simwifi_wpa2 @pkcs11 @attach_hostapd_log @attach_wpa_supplicant_log
+    @simwifi_tls_pkcs11_pwfile
+    Scenario: nmcli - simwifi - connect to TLS - PKCS#11
+    Given "wpa2-eap" is visible with command "nmcli -f SSID device wifi list" in "60" seconds
+    * Add a new connection of type "wifi" and options "ifname wlan0 con-name wifi autoconnect no ssid wpa2-eap"
+    * Execute "nmcli con modify wifi 802-11-wireless-security.key-mgmt wpa-eap 802-1x.eap tls 802-1x.identity test 802-1x.ca-cert /tmp/certs/test_user.ca.pem 802-1x.client-cert 'pkcs11:token=nmci;object=nmclient' 802-1x.client-cert-password-flags 4 802-1x.private-key 'pkcs11:token=nmci;object=nmclient'"
+    * Execute "sleep 3"
+    * Execute "nmcli con up wifi passwd-file /tmp/pkcs11_passwd-file"
+    Then "wlan0:connected:wifi" is visible with command "nmcli -t -f DEVICE,STATE,CONNECTION device" in "20" seconds
+
+
+    @ver+=1.33 @fedoraver+=35
+    @simwifi @simwifi_wpa2 @pkcs11 @attach_hostapd_log @attach_wpa_supplicant_log
+    @simwifi_tls_pkcs11_nmcli_ask
+    Scenario: nmcli - simwifi - connect to TLS - PKCS#11
+    Given "wpa2-eap" is visible with command "nmcli -f SSID device wifi list" in "60" seconds
+    * Add a new connection of type "wifi" and options "ifname wlan0 con-name wifi autoconnect no ssid wpa2-eap"
+    * Execute "nmcli con modify wifi 802-11-wireless-security.key-mgmt wpa-eap 802-1x.eap tls 802-1x.identity test 802-1x.ca-cert /tmp/certs/test_user.ca.pem 802-1x.client-cert 'pkcs11:token=nmci;object=nmclient' 802-1x.client-cert-password-flags 4 802-1x.private-key 'pkcs11:token=nmci;object=nmclient' 802-1x.private-key-password-flags 2"
+    * Execute "sleep 3"
+    * Spawn "nmcli -a con up wifi" command
+    * Expect "802-1x.identity"
+    * Enter in editor
+    * Expect "802-1x.private-key-password"
+    * Send "1234" in editor
+    * Enter in editor
+    Then "wlan0:connected:wifi" is visible with command "nmcli -t -f DEVICE,STATE,CONNECTION device" in "20" seconds
+
+
+    @ver+=1.33 @fedoraver+=35
+    @simwifi @simwifi_wpa2 @pkcs11 @attach_hostapd_log @attach_wpa_supplicant_log
+    @simwifi_tls_pkcs11_pw_in_uri_flag_nr
+    Scenario: nmcli - simwifi - connect to TLS - PKCS#11
+    # these settings are hacky and may stop working when this is resolved: https://gitlab.freedesktop.org/NetworkManager/NetworkManager/-/issues/792
+    Given "wpa2-eap" is visible with command "nmcli -f SSID device wifi list" in "60" seconds
+    * Add a new connection of type "wifi" and options "ifname wlan0 con-name wifi autoconnect no ssid wpa2-eap"
+    * Execute "nmcli con modify wifi 802-11-wireless-security.key-mgmt wpa-eap 802-1x.eap tls 802-1x.identity test 802-1x.ca-cert /tmp/certs/test_user.ca.pem 802-1x.client-cert 'pkcs11:token=nmci;object=nmclient' 802-1x.client-cert-password-flags 4 802-1x.private-key 'pkcs11:token=nmci;object=nmclient?pin-value=1234' 802-1x.private-key-password-flags 4"
+    * Execute "sleep 3"
+    Then Bring "up" connection "wifi"
+
+
     @ver+=1.10 @fedoraver+=31
     @simwifi @simwifi_wpa2 @attach_hostapd_log @attach_wpa_supplicant_log
     @simwifi_tls
