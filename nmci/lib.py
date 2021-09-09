@@ -8,6 +8,7 @@ import glob
 import pexpect
 import base64
 import xml.etree.ElementTree as ET
+import shutil
 
 
 def nm_pid():
@@ -756,6 +757,30 @@ def setup_hostapd(context):
     if nmci.command_code("sh prepare/hostapd_wired.sh contrib/8021x/certs") != 0:
         nmci.run("sh prepare/hostapd_wired.sh teardown")
         assert False, "hostapd setup failed"
+
+
+def setup_pkcs11(context):
+    """
+    Don't touch token, key or cert if they're already present in order
+    to avoid SoftHSM errors. No teardown for this reason, too.
+    """
+    install_packages = []
+    if not shutil.which("softhsm2-util"):
+        install_packages.append("softhsm")
+    if not shutil.which("pkcs11-tool"):
+        install_packages.append("opensc")
+    if len(install_packages) > 0:
+        context.run(f"dnf -y install {' '.join(install_packages)}")
+    re_token = re.compile(r'(?m)Label:[\s]*nmci[\s]*$')
+    re_nmclient = re.compile(r'(?m)label:[\s]*nmclient$')
+    with open("/tmp/pkcs11_passwd-file", "w") as f:
+        f.write("802-1x.identity:test\n802-1x.private-key-password:1234\n")
+    if not re.search(re_token, context.command_output("softhsm2-util --show-slots")):
+        context.run("softhsm2-util --init-token --free --pin 1234 --so-pin 123456 --label 'nmci'")
+    if not re.search(re_nmclient, context.command_output("pkcs11-tool --module /usr/lib64/pkcs11/libsofthsm2.so -l -p 1234 --token-label nmci -y privkey -O")):
+        context.run("pkcs11-tool --module /usr/lib64/pkcs11/libsofthsm2.so -l -p 1234 --token-label nmci --label nmclient -y privkey --write-object contrib/8021x/certs/client/test_user.key.pem")
+    if not re.search(re_nmclient, context.command_output("pkcs11-tool --module /usr/lib64/pkcs11/libsofthsm2.so -l -p 1234 --token-label nmci -y cert -O")):
+        context.run("pkcs11-tool --module /usr/lib64/pkcs11/libsofthsm2.so -l -p 1234 --token-label nmci --label nmclient -y cert --write-object contrib/8021x/certs/client/test_user.cert.der")
 
 
 def wifi_rescan(context):

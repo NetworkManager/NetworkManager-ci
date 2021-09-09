@@ -933,6 +933,16 @@ def tag8021x_as(ctx, scen):
 _register_tag("8021x", tag8021x_bs, tag8021x_as)
 
 
+def pkcs11_bs(ctx, scen):
+    nmci.lib.setup_pkcs11(ctx)
+    ctx.command_output("p11-kit list-modules")
+    ctx.command_output("softhsm2-util --show-slots")
+    ctx.command_output("pkcs11-tool --module /usr/lib64/pkcs11/libsofthsm2.so --token-label nmci -l --pin 1234 -O")
+
+
+_register_tag("pkcs11", pkcs11_bs)
+
+
 def simwifi_bs(ctx, scen):
     if ctx.arch != "x86_64":
         print("Skipping as not on x86_64")

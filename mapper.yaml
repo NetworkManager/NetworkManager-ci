@@ -1206,6 +1206,14 @@ testmapper:
         feature: ethernet
     - no_assumed_connection_for_veth:
         feature: ethernet
+    - 8021x_tls_pkcs11_saved_pw:
+        feature: ethernet
+    - 8021x_tls_pkcs11_pwfile:
+        feature: ethernet
+    - 8021x_tls_pkcs11_nmcli_ask:
+        feature: ethernet
+    - 8021x_tls_pkcs11_pw_in_uri_flag_nr:
+        feature: ethernet
     - 8021x_with_credentials:
         feature: ethernet
     - 8021x_tls:
