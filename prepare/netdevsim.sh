@@ -52,9 +52,9 @@ function setup () {
         [ -f /root/rpmbuild/SOURCES/$LINUX.tar.xz ] || \
           LINUX=$(ls /root/rpmbuild/SOURCES/linux-${MAJOR%.*}*.tar.xz | tail -n1 | \
             sed 's@/root/rpmbuild/SOURCES/@@;s@\.tar\.xz@@')
-        tar xf /root/rpmbuild/SOURCES/$LINUX.tar.xz -C /tmp
-        cp contrib/netdevsim/$PATCH /tmp/$LINUX
-        cd /tmp/$LINUX
+        tar xf /root/rpmbuild/SOURCES/$LINUX.tar.xz -C /var/src
+        cp contrib/netdevsim/$PATCH /var/src/$LINUX
+        cd /var/src/$LINUX
         # Patch module
         patch -p1 < $PATCH || { echo "Unable to patch, please fix the patch"; exit 1; }
 
@@ -76,7 +76,7 @@ function setup () {
     fi
 
     # Change dir to the patched driver dir
-        cd /tmp/$LINUX/$DRIVER
+        cd /var/src/$LINUX/$DRIVER
 
     # If we are able to insert module create devices and exit 0
     echo "** installing the patched one"
