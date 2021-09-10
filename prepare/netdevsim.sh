@@ -52,6 +52,7 @@ function setup () {
         [ -f /root/rpmbuild/SOURCES/$LINUX.tar.xz ] || \
           LINUX=$(ls /root/rpmbuild/SOURCES/linux-${MAJOR%.*}*.tar.xz | tail -n1 | \
             sed 's@/root/rpmbuild/SOURCES/@@;s@\.tar\.xz@@')
+        mkdir -p /var/src/
         tar xf /root/rpmbuild/SOURCES/$LINUX.tar.xz -C /var/src
         cp contrib/netdevsim/$PATCH /var/src/$LINUX
         cd /var/src/$LINUX
