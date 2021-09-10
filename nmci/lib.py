@@ -770,7 +770,7 @@ def setup_pkcs11(context):
     if not shutil.which("pkcs11-tool"):
         install_packages.append("opensc")
     if len(install_packages) > 0:
-        context.run(f"dnf -y install {' '.join(install_packages)}")
+        context.run(f"yum -y install {' '.join(install_packages)}")
     re_token = re.compile(r'(?m)Label:[\s]*nmci[\s]*$')
     re_nmclient = re.compile(r'(?m)label:[\s]*nmclient$')
     with open("/tmp/pkcs11_passwd-file", "w") as f:
