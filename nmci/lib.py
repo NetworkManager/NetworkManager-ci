@@ -415,7 +415,11 @@ def check_coredump(context, do_report=True):
             print("Some garbage in %s: %s" % (dump_dir, str(e)))
             continue
         if not is_dump_reported(dump_dir):
-            dump = nmci.command_output('echo backtrace | coredumpctl debug %d' % (pid))
+            # 'coredumpctl debug' not available in RHEL7
+            if "Maipo" in context.rh_release:
+                dump = nmci.command_output('echo backtrace | coredumpctl gdb %d' % (pid))
+            else:
+                dump = nmci.command_output('echo backtrace | coredumpctl debug %d' % (pid))
             embed_dump(context, dump_dir, dump, "COREDUMP", do_report)
 
 
@@ -725,7 +729,7 @@ def setup_racoon(context, mode, dh_group, phase1_al="aes", phase2_al=None):
         context.run("[ -x /usr/sbin/racoon ] || yum -y install https://vbenes.fedorapeople.org/NM/ipsec-tools-0.8.2-1.el7.$(uname -p).rpm")
     else:
         # Install under RHEL7 only
-        if context.command_code("grep -q Maipo /etc/redhat-release") == 0:
+        if "Maipo" in context.rh_release:
             context.run("[ -f /etc/yum.repos.d/epel.repo ] || sudo rpm -i http://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm")
         context.run("[ -x /usr/sbin/racoon ] || yum -y install ipsec-tools")
 
@@ -751,7 +755,7 @@ def setup_hostapd(context):
     arch = nmci.command_output("uname -p").strip()
     if arch != "s390x":
         # Install under RHEL7 only
-        if nmci.command_code("grep -q Maipo /etc/redhat-release") == 0:
+        if "Maipo" in context.rh_release:
             nmci.run("[ -f /etc/yum.repos.d/epel.repo ] || sudo rpm -i http://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm")
         nmci.run("[ -x /usr/sbin/hostapd ] || (yum -y install hostapd; sleep 10)")
     if nmci.command_code("sh prepare/hostapd_wired.sh contrib/8021x/certs") != 0:
