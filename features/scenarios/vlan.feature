@@ -493,7 +493,7 @@ Feature: nmcli - vlan
 
     @rhbz1414901
     @ver+=1.10.0
-    @vlan @restart_if_needed @teardown_testveth
+    @restart_if_needed @teardown_testveth @vlan
     @vlan_mtu_from_parent_with_slow_dhcp
     Scenario: nmcli - vlan - MTU from parent
     * Prepare simulated test "test77" device
@@ -613,7 +613,7 @@ Feature: nmcli - vlan
 
     @rhbz1659063
     @ver+=1.14
-    @vlan @bond @slaves @teardown_testveth
+    @teardown_testveth @vlan @bond @slaves 
     @static_route_persists_mac_change
     Scenario: NM - vlan - static route is not deleted after NM changes MAC
     * Prepare simulated test "test77" device
@@ -733,7 +733,7 @@ Feature: nmcli - vlan
 
 
     @rhbz1933041 @rhbz1926599
-    @ver+=1.30 @rhelver+=8 @skip_in_kvm @skip_in_centos 
+    @ver+=1.30 @rhelver+=8 @skip_in_kvm @skip_in_centos
     @logging_info_only @restart_if_needed @500_vlans
     @vlan_create_500_vlans
     Scenario: NM - vlan - create 500 vlans

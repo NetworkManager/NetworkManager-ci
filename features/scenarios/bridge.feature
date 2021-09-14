@@ -289,8 +289,8 @@ Feature: nmcli - bridge
     Then "bridge0:.*192.168.*inet6" is visible with command "ip a" in "30" seconds
 
 
-    @bridge
-    @eth4_disconnect @teardown_testveth
+
+    @eth4_disconnect @teardown_testveth @bridge
     @bridge_dhcp_config_with_multiple_ethernet_ports
     Scenario: nmcli - bridge - dhcp config with multiple ethernet ports
     * Prepare simulated test "test44" device
@@ -304,8 +304,7 @@ Feature: nmcli - bridge
     Then "br4:.*192.168.*inet6" is visible with command "ip a" in "60" seconds
 
 
-    @bridge
-    @eth4_disconnect @teardown_testveth
+    @eth4_disconnect @teardown_testveth @bridge
     @bridge_static_config_with_multiple_ethernet_ports
     Scenario: nmcli - bridge - dhcp config with multiple ethernet ports
     * Prepare simulated test "test44" device
@@ -649,7 +648,7 @@ Feature: nmcli - bridge
     @rhbz1791378
     @ver+=1.22.0
     @long
-    @bridge @slaves @teardown_testveth
+    @teardown_testveth @bridge @slaves
     @bridge_down_to_l2_only
     Scenario: NM - bridge - go to L2 when DHCP is gone
     * Prepare simulated test "test44" device

@@ -1996,7 +1996,7 @@ def bridge_as(ctx, scen):
     if ctx.IS_NMTUI:
         ctx.run("sudo nmcli con down bridge0")
         time.sleep(1)
-        ctx.run("sudo nmcli connection delete id bridge0 bridge-slave-eth1 bridge-slave-eth2")
+        ctx.run("sudo nmcli connection delete id bridge-slave-eth1 bridge-slave-eth2 bridge0 ")
         time.sleep(1)
 
         nmci.lib.reset_hwaddr_nmtui(ctx, 'eth1')
@@ -2059,7 +2059,7 @@ _register_tag("many_vlans", None, many_vlans_as)
 
 def bond_as(ctx, scen):
     if ctx.IS_NMTUI:
-        ctx.run("sudo nmcli connection delete id bond0 bond-slave-eth1 bond-slave-eth2")
+        ctx.run("sudo nmcli connection delete id bond-slave-eth1 bond-slave-eth2 bond0")
         nmci.lib.reset_hwaddr_nmtui(ctx, 'eth1')
         nmci.lib.reset_hwaddr_nmtui(ctx, 'eth2')
         ctx.run("sudo ip link del bond0")

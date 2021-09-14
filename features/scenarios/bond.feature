@@ -670,7 +670,7 @@
     @rhbz1420708
     @ver+=1.7.9
     @rhelver-=7 @fedoraver-=0 @rhel_pkg
-    @slaves @bond @bond_order @teardown_testveth @restart_if_needed
+    @bond_order @teardown_testveth @bond @slaves @restart_if_needed
     @bond_default_rhel7_slaves_ordering
     Scenario: NM - bond - default rhel7 slaves ordering (ifindex)
     * Prepare simulated test "eth11" device
@@ -720,7 +720,7 @@
 
     @rhbz1420708
     @ver+=1.7.9
-    @slaves @bond @bond_order @teardown_testveth @restart_if_needed
+    @bond_order @teardown_testveth @bond @slaves @restart_if_needed
     @bond_slaves_ordering_by_ifindex
     Scenario: NM - bond - ifindex slaves ordering
     * Prepare simulated test "eth11" device
@@ -771,7 +771,7 @@
 
     @rhbz1420708
     @ver+=1.7.9
-    @slaves @bond @bond_order @teardown_testveth @restart_if_needed
+    @bond_order @teardown_testveth @bond @slaves @restart_if_needed
     @bond_slaves_ordering_by_ifindex_with_autoconnect_slaves
     Scenario: NM - bond - autoconnect slaves - ifindex slaves ordering
     * Prepare simulated test "eth11" device
@@ -819,7 +819,7 @@
 
     @rhbz1420708
     @ver+=1.7.9
-    @slaves @bond @bond_order @teardown_testveth @restart_if_needed
+    @bond_order @teardown_testveth @bond @slaves @restart_if_needed
     @bond_slaves_ordering_by_name
     Scenario: NM - bond - alphabet slaves ordering
     * Prepare simulated test "eth11" device
@@ -870,7 +870,7 @@
 
     @rhbz1420708
     @ver+=1.7.9
-    @slaves @bond @bond_order @teardown_testveth @restart_if_needed
+    @bond_order @teardown_testveth @bond @slaves @restart_if_needed
     @bond_slaves_ordering_by_name_with_autoconnect_slaves
     Scenario: NM - bond - autoconnect slaves - alphabet slaves ordering
     * Prepare simulated test "eth11" device
@@ -1166,7 +1166,7 @@
      * Quit editor
 
 
-    @slaves @bond
+    @bond @slaves
     @bond_change_options
     Scenario: nmcli - bond - options - change values
      * Add a new connection of type "bond" and options
@@ -2013,7 +2013,7 @@
 
      @rhbz1371126
      @ver-1.13
-     @slaves @bond @teardown_testveth @restart_if_needed
+     @teardown_testveth @slaves @bond @restart_if_needed
      @bond_leave_L2_only_up_when_going_down
      Scenario: nmcli - bond - leave UP with L2 only config
       * Prepare simulated test "testXB" device
@@ -2039,7 +2039,7 @@
 
     @rhbz1593282
     @ver+=1.14.0
-    @slaves @bond @teardown_testveth @restart_if_needed
+    @teardown_testveth @bond @slaves @restart_if_needed
     @bond_leave_L2_only_up_when_going_down
     Scenario: nmcli - bond - leave UP with L2 only config
     * Prepare simulated test "testXB" device
@@ -2114,7 +2114,7 @@
 
     @rhbz1454883
     @ver+=1.10
-    @bond @slaves @teardown_testveth
+    @teardown_testveth @bond @slaves
     @nmclient_bond_get_state_flags
     Scenario: nmclient - bond - get state flags
     * Add a new connection of type "bond" and options
@@ -2177,7 +2177,7 @@
 
      @rhbz1678796
      @ver+=1.16
-     @slaves @bond @tshark @not_on_aarch64 @teardown_testveth
+     @tshark @not_on_aarch64 @teardown_testveth @bond @slaves
      @bond_send_correct_arp
      Scenario: nmcli - bond - send correct arp
      * Prepare simulated test "testXB" device

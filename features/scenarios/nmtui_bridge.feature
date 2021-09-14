@@ -266,8 +266,7 @@ Feature: Bridge TUI tests
     Then "inet 1" is visible with command "ip a s bridge0"
 
 
-    @bridge
-    @vlan
+    @vlan @bridge
     @nmtui_bridge_over_vlans
     Scenario: nmtui - bridge - over vlans
     * Prepare new connection of type "Bridge" named "bridge0"
@@ -288,8 +287,7 @@ Feature: Bridge TUI tests
     Then "169.254" is visible with command "ip a s bridge0"
 
 
-    @bridge
-    @vlan
+    @vlan @bridge
     @nmtui_bridge_over_vlans_no_stp
     Scenario: nmtui - bridge - over vlans no stp
     * Prepare new connection of type "Bridge" named "bridge0"
@@ -329,8 +327,7 @@ Feature: Bridge TUI tests
     Then "BRIDGING_OPTS=.priority=48 path_cost=128 hairpin_mode=1" is visible with command "cat /etc/sysconfig/network-scripts/ifcfg-bridge-slave-eth1"
 
 
-    @bridge
-    @vlan
+    @vlan @bridge
     @nmtui_bridge_over_ethernet_and_vlan
     Scenario: nmtui - bridge - over ethernet and vlan
     * Prepare new connection of type "Bridge" named "bridge0"
