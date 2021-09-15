@@ -613,7 +613,7 @@ Feature: nmcli - vlan
 
     @rhbz1659063
     @ver+=1.14
-    @teardown_testveth @vlan @bond @slaves 
+    @teardown_testveth @vlan @bond @slaves
     @static_route_persists_mac_change
     Scenario: NM - vlan - static route is not deleted after NM changes MAC
     * Prepare simulated test "test77" device
@@ -766,7 +766,8 @@ Feature: nmcli - vlan
     @vlan_create_1000_bridges_over_1000_vlans
     Scenario: NM - vlan - create 1000 bridges over 1000 VLANs
     * Add bridges over VLANs in range from "1" to "1000" on interface "eth7" via libnm
-    Then "1000" is visible with command "nmcli -w 60 c | grep vlan | wc -l" in "1" seconds
+    # Let's give libnm some time to settle all 1000 devices, we can fail if just 1
+    Then "1000" is visible with command "nmcli -w 60 c | grep vlan | wc -l" in "4" seconds
     Then "1000" is visible with command "nmcli -w 60 c | grep bridge | wc -l" in "1" seconds
     Then "1000" is visible with command "ip l | grep ': br[0-9]' | wc -l" in "1" seconds
     Then "1000" is visible with command "ip l | grep ': eth7\.[0-9]' | wc -l" in "1" seconds
