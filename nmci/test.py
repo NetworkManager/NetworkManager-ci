@@ -564,13 +564,30 @@ def test_black_code_fromatting():
 
 def test_ip_link_show_all():
 
-    l0 = ip._link_show_all_manual_parsing(binary=None)
-    l1 = ip.link_show_all()
+    l0 = ip.link_show_all(binary=None)
 
     def _normalize(i):
-        return (i["ifindex"], i["ifname"])
+        return (i["ifindex"], util.str_to_bytes(i["ifname"]), i["flags"])
 
-    assert [_normalize(i) for i in l0] == [_normalize(i) for i in l1]
+    assert [_normalize(i) for i in l0] == [_normalize(i) for i in ip.link_show_all()]
+    assert [_normalize(i) for i in l0] == [
+        _normalize(i) for i in ip.link_show_all(binary=None)
+    ]
+    assert [_normalize(i) for i in l0] == [
+        _normalize(i) for i in ip.link_show_all(binary=True)
+    ]
+    assert [_normalize(i) for i in l0] == [
+        _normalize(i) for i in ip.link_show_all(binary=False)
+    ]
+
+    l = ip.link_show(ifname="lo", binary=None)
+    assert l["ifname"] == "lo"
+
+    l = ip.link_show(ifname="lo", binary=False)
+    assert l["ifname"] == "lo"
+
+    l = ip.link_show(ifname="lo", binary=True)
+    assert l["ifname"] == b"lo"
 
 
 def test_clock_boottime():
