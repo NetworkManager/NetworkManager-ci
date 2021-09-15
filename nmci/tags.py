@@ -1247,7 +1247,7 @@ def wireguard_bs(ctx, scen):
 
 
 def wireguard_as(ctx, scen):
-    ctx.run('nmcli con del wireguard')
+    ctx.run('nmcli con del wireguard server-wg0 client-wg0')
 
 
 _register_tag("wireguard", wireguard_bs, wireguard_as)
@@ -1457,6 +1457,8 @@ def firewall_bs(ctx, scen):
 
 def firewall_as(ctx, scen):
     ctx.run("sudo firewall-cmd --panic-off")
+    ctx.run("sudo firewall-cmd --permanent --remove-port=51820/udp --zone=public")
+    ctx.run("sudo firewall-cmd --permanent --zone=public --remove-masquerade")
     ctx.run("sudo systemctl stop firewalld")
 
 
