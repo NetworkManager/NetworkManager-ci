@@ -61,7 +61,10 @@ def check_bond_state(context, bond, state):
     child = context.pexpect_spawn('ip addr show dev %s up' % (bond))
     exp = 0 if state == "up" else 1
     r = child.expect(["\\d+: %s:" % bond, pexpect.EOF])
-    assert r == exp, "%s not in %s state" % (bond, state)
+    if r != exp:
+        time.sleep(0.5)
+        r = child.expect(["\\d+: %s:" % bond, pexpect.EOF])
+        assert r == exp, "%s not in %s state" % (bond, state)
 
 
 @step(u'Check bond "{bond}" link state is "{state}"')
