@@ -27,14 +27,16 @@
     When "eth1|eth4" is not visible with command "ip r"
 
     When "192.0.2.1" is visible with command "ip a s eth1"
-    When "broadcast 192.0.2.0 dev eth1 proto kernel scope link src 192.0.2.1" is visible with command "ip r show table 1001"
+    # Obsolete by https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=94c821c74bf5fe0c25e09df5334a16f98608db90
+    # When "broadcast 192.0.2.0 dev eth1 proto kernel scope link src 192.0.2.1" is visible with command "ip r show table 1001"
     # VVV Reproducer for 1773908
     When "192.0.2.0\/24 dev eth1 proto kernel scope link src 192.0.2.1 metric 1" is visible with command "ip r show table 1001"
     When "local 192.0.2.1 dev eth1 proto kernel scope host src 192.0.2.1" is visible with command "ip r show table 1001"
     When "broadcast 192.0.2.255 dev eth1 proto kernel scope link src 192.0.2.1" is visible with command "ip r show table 1001"
 
     When "192.0.2.1" is visible with command "ip a s eth4"
-    When "broadcast 192.0.2.0 dev eth4 proto kernel scope link src 192.0.2.1" is visible with command "ip r show table 1002"
+    # Obsolete by https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=94c821c74bf5fe0c25e09df5334a16f98608db90
+    # When "broadcast 192.0.2.0 dev eth4 proto kernel scope link src 192.0.2.1" is visible with command "ip r show table 1002"
     When "192.0.2.0\/24 dev eth4 proto kernel scope link src 192.0.2.1 metric 1" is visible with command "ip r show table 1002"
     When "local 192.0.2.1 dev eth4 proto kernel scope host src 192.0.2.1" is visible with command "ip r show table 1002"
     When "broadcast 192.0.2.255 dev eth4 proto kernel scope link src 192.0.2.1" is visible with command "ip r show table 1002"
@@ -55,7 +57,8 @@
     When "vrf0\:vrf\:connected\:vrf0" is visible with command "nmcli -t device"
     When "eth1" is not visible with command "ip r"
     When "192.0.2.1" is visible with command "ip a s eth1"
-    When "broadcast 192.0.2.0 dev eth1 proto kernel scope link src 192.0.2.1" is visible with command "ip r show table 1001"
+    # Obsolete by https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=94c821c74bf5fe0c25e09df5334a16f98608db90
+    # When "broadcast 192.0.2.0 dev eth1 proto kernel scope link src 192.0.2.1" is visible with command "ip r show table 1001"
     When "192.0.2.0\/24 dev eth1 proto kernel scope link src 192.0.2.1 metric 1" is visible with command "ip r show table 1001"
     When "local 192.0.2.1 dev eth1 proto kernel scope host src 192.0.2.1" is visible with command "ip r show table 1001"
     When "local 192.0.2.2 dev eth1 proto kernel scope host src 192.0.2.1" is visible with command "ip r show table 1001"
@@ -96,13 +99,15 @@
     * Bring "down" connection "vrf.eth4"
 
     When "192.0.2.1" is not visible with command "ip a s eth1"
-    When "broadcast 192.0.2.0 dev eth1 proto kernel scope link src 192.0.2.1" is not visible with command "ip r show table 1001"
+    # Obsolete by https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=94c821c74bf5fe0c25e09df5334a16f98608db90
+    # When "broadcast 192.0.2.0 dev eth1 proto kernel scope link src 192.0.2.1" is not visible with command "ip r show table 1001"
     When "192.0.2.0\/24 dev eth1 proto kernel scope link src 192.0.2.1 metric 1" is not visible with command "ip r show table 1001"
     When "local 192.0.2.1 dev eth1 proto kernel scope host src 192.0.2.1" is not visible with command "ip r show table 1001"
     When "broadcast 192.0.2.255 dev eth1 proto kernel scope link src 192.0.2.1" is not visible with command "ip r show table 1001"
 
     When "192.0.2.1" is not visible with command "ip a s eth4"
-    When "broadcast 192.0.2.0 dev eth4 proto kernel scope link src 192.0.2.1" is not visible with command "ip r show table 1002"
+    # Obsolete by https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=94c821c74bf5fe0c25e09df5334a16f98608db90
+    # When "broadcast 192.0.2.0 dev eth4 proto kernel scope link src 192.0.2.1" is not visible with command "ip r show table 1002"
     When "192.0.2.0\/24 dev eth4 proto kernel scope link src 192.0.2.1 metric 1" is not visible with command "ip r show table 1002"
     When "local 192.0.2.1 dev eth4 proto kernel scope host src 192.0.2.1" is not visible with command "ip r show table 1002"
     When "broadcast 192.0.2.255 dev eth4 proto kernel scope link src 192.0.2.1" is not visible with command "ip r show table 1002"
@@ -128,13 +133,15 @@
     * Delete connection "vrf.eth4"
 
     When "192.0.2.1" is not visible with command "ip a s eth1"
-    When "broadcast 192.0.2.0 dev eth1 proto kernel scope link src 192.0.2.1" is not visible with command "ip r show table 1001"
+    # Obsolete by https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=94c821c74bf5fe0c25e09df5334a16f98608db90
+    # When "broadcast 192.0.2.0 dev eth1 proto kernel scope link src 192.0.2.1" is not visible with command "ip r show table 1001"
     When "192.0.2.0\/24 dev eth1 proto kernel scope link src 192.0.2.1 metric 1" is not visible with command "ip r show table 1001"
     When "local 192.0.2.1 dev eth1 proto kernel scope host src 192.0.2.1" is not visible with command "ip r show table 1001"
     When "broadcast 192.0.2.255 dev eth1 proto kernel scope link src 192.0.2.1" is not visible with command "ip r show table 1001"
 
     When "192.0.2.1" is not visible with command "ip a s eth4"
-    When "broadcast 192.0.2.0 dev eth4 proto kernel scope link src 192.0.2.1" is not visible with command "ip r show table 1002"
+    # Obsolete by https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=94c821c74bf5fe0c25e09df5334a16f98608db90
+    # When "broadcast 192.0.2.0 dev eth4 proto kernel scope link src 192.0.2.1" is not visible with command "ip r show table 1002"
     When "192.0.2.0\/24 dev eth4 proto kernel scope link src 192.0.2.1 metric 1" is not visible with command "ip r show table 1002"
     When "local 192.0.2.1 dev eth4 proto kernel scope host src 192.0.2.1" is not visible with command "ip r show table 1002"
     When "broadcast 192.0.2.255 dev eth4 proto kernel scope link src 192.0.2.1" is not visible with command "ip r show table 1002"
@@ -162,13 +169,15 @@
     When "eth1|eth4" is not visible with command "ip r"
 
     When "192.0.2.1" is visible with command "ip a s eth1"
-    When "broadcast 192.0.2.0 dev eth1 proto kernel scope link src 192.0.2.1" is visible with command "ip r show table 1001"
+    # Obsolete by https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=94c821c74bf5fe0c25e09df5334a16f98608db90
+    # When "broadcast 192.0.2.0 dev eth1 proto kernel scope link src 192.0.2.1" is visible with command "ip r show table 1001"
     When "192.0.2.0\/24 dev eth1 proto kernel scope link src 192.0.2.1 metric 1" is visible with command "ip r show table 1001"
     When "local 192.0.2.1 dev eth1 proto kernel scope host src 192.0.2.1" is visible with command "ip r show table 1001"
     When "broadcast 192.0.2.255 dev eth1 proto kernel scope link src 192.0.2.1" is visible with command "ip r show table 1001"
 
     When "192.0.2.1" is visible with command "ip a s eth4"
-    When "broadcast 192.0.2.0 dev eth4 proto kernel scope link src 192.0.2.1" is visible with command "ip r show table 1002"
+    # Obsolete by https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=94c821c74bf5fe0c25e09df5334a16f98608db90
+    # When "broadcast 192.0.2.0 dev eth4 proto kernel scope link src 192.0.2.1" is visible with command "ip r show table 1002"
     When "192.0.2.0\/24 dev eth4 proto kernel scope link src 192.0.2.1 metric 1" is visible with command "ip r show table 1002"
     When "local 192.0.2.1 dev eth4 proto kernel scope host src 192.0.2.1" is visible with command "ip r show table 1002"
     When "broadcast 192.0.2.255 dev eth4 proto kernel scope link src 192.0.2.1" is visible with command "ip r show table 1002"
@@ -199,13 +208,15 @@
     #When "eth1|eth4" is not visible with command "ip r"
 
     #When "192.0.2.1" is visible with command "ip a s eth1"
-    #When "broadcast 192.0.2.0 dev eth1 proto kernel scope link src 192.0.2.1" is visible with command "ip r show table 1001"
+    # Obsolete by https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=94c821c74bf5fe0c25e09df5334a16f98608db90
+    # #When "broadcast 192.0.2.0 dev eth1 proto kernel scope link src 192.0.2.1" is visible with command "ip r show table 1001"
     #When "192.0.2.0\/24 dev eth1 proto kernel scope link src 192.0.2.1 metric 1" is visible with command "ip r show table 1001"
     #When "local 192.0.2.1 dev eth1 proto kernel scope host src 192.0.2.1" is visible with command "ip r show table 1001"
     #When "broadcast 192.0.2.255 dev eth1 proto kernel scope link src 192.0.2.1" is visible with command "ip r show table 1001"
 
     #When "192.0.2.1" is visible with command "ip a s eth4"
-    #When "broadcast 192.0.2.0 dev eth4 proto kernel scope link src 192.0.2.1" is visible with command "ip r show table 1002"
+    # Obsolete by https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=94c821c74bf5fe0c25e09df5334a16f98608db90
+    # #When "broadcast 192.0.2.0 dev eth4 proto kernel scope link src 192.0.2.1" is visible with command "ip r show table 1002"
     #When "192.0.2.0\/24 dev eth4 proto kernel scope link src 192.0.2.1 metric 1" is visible with command "ip r show table 1002"
     #When "local 192.0.2.1 dev eth4 proto kernel scope host src 192.0.2.1" is visible with command "ip r show table 1002"
     #When "broadcast 192.0.2.255 dev eth4 proto kernel scope link src 192.0.2.1" is visible with command "ip r show table 1002"

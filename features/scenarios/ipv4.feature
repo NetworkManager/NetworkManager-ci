@@ -381,7 +381,8 @@ Feature: nmcli: ipv4
 
     When "eth3\:ethernet\:connected\:con_ipv4" is visible with command "nmcli -t device" in "5" seconds
     When "192.0.2.1" is visible with command "ip a s eth3"
-    When "broadcast 192.0.2.0 dev eth3 table local proto kernel scope link src 192.0.2.1" is visible with command "ip r show table all"
+    # Obsolete by https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=94c821c74bf5fe0c25e09df5334a16f98608db90
+    # When "broadcast 192.0.2.0 dev eth3 table local proto kernel scope link src 192.0.2.1" is visible with command "ip r show table all"
     When "192.0.2.0/24 dev eth3 proto kernel scope link src 192.0.2.1 metric 1" is visible with command "ip r show table all"
     When "local 192.0.2.1 dev eth3 table local proto kernel scope host src 192.0.2.1" is visible with command "ip r show table all"
     When "local 192.0.2.2 dev eth3 table local proto kernel scope host src 192.0.2.1" is visible with command "ip r show table all"
