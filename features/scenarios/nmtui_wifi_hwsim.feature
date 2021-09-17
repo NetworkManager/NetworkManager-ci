@@ -495,9 +495,9 @@ Feature: WIFI TUI tests
     Then ".*testingpassword.*" is visible on screen
 
 
-    @rhbz1132612
+    @rhbz1132612 @rhbz1961159
     @fedoraver+=32
-    @simwifi @attach_hostapd_log @attach_wpa_supplicant_log
+    @simwifi @attach_hostapd_log @attach_wpa_supplicant_log @may_fail
     @nmtui_simwifi_connect_to_network_after_dismissal
     Scenario: nmtui - wifi_hwsim - connect to a network after dialog dismissal
     * Start nmtui
