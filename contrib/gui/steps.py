@@ -487,6 +487,12 @@ def prepare_8021x(context, certs_dir="contrib/8021x/certs", crypto=None):
         assert False, f"Unknown crypto type: '{crypto}', allowed value: 'legacy'"
 
 
+@step('Prepare wireguard')
+def prepare_wireguard(context):
+    output, rc = cmd_output_rc_embed(context, f"sudo bash {NM_CI_RUNNER_CMD} prepare/wireguard.sh", shell=True)
+    assert rc == 0, "wireguard setup failed!!!"
+
+
 @step('Prepare netdevsim | num "{num}"')
 def prepare_netdevsim(context, num="1"):
     rc = subprocess.call(
