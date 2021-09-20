@@ -392,7 +392,7 @@ Feature: nmcli - ethernet
     Then Check noted values "wol_new" and "wol_orig" are the same
 
 
-    @ver+=1.33
+    @ver+=1.33 @rhelver+=8
     @con_ethernet_remove @8021x @pkcs11 @attach_hostapd_log @attach_wpa_supplicant_log
     @8021x_tls_pkcs11_saved_pw
     Scenario: nmcli - ethernet - connect to 8021x - tls - PKCS#11/SoftHSM - PIN is saved
@@ -401,7 +401,7 @@ Feature: nmcli - ethernet
     Then Bring up connection "con_ethernet"
 
 
-    @ver+=1.33
+    @ver+=1.33 @rhelver+=8
     @con_ethernet_remove @8021x @pkcs11 @attach_hostapd_log @attach_wpa_supplicant_log
     @8021x_tls_pkcs11_pwfile
     Scenario: nmcli - ethernet - connect to 8021x - tls - PKCS#11/SoftHSM - PIN in password file
@@ -411,7 +411,7 @@ Feature: nmcli - ethernet
     Then "test8X:connected:con_ethernet" is visible with command "nmcli -t -f DEVICE,STATE,CONNECTION device" in "20" seconds
 
 
-    @ver+=1.33
+    @ver+=1.33 @rhelver+=8
     @con_ethernet_remove @8021x @pkcs11 @attach_hostapd_log @attach_wpa_supplicant_log
     @8021x_tls_pkcs11_nmcli_ask
     Scenario: nmcli - ethernet - connect to 8021x - tls - PKCS#11/SoftHSM - just private key/ask for pin on CLI
@@ -425,7 +425,7 @@ Feature: nmcli - ethernet
     Then "test8X:connected:con_ethernet" is visible with command "nmcli -t -f DEVICE,STATE,CONNECTION device" in "20" seconds
 
 
-    @ver+=1.33
+    @ver+=1.33 @rhelver+=8
     @con_ethernet_remove @8021x @pkcs11 @attach_hostapd_log @attach_wpa_supplicant_log
     @8021x_tls_pkcs11_pw_in_uri_flag_nr
     # these settings are hacky and may stop working when this is resolved: https://gitlab.freedesktop.org/NetworkManager/NetworkManager/-/issues/792
