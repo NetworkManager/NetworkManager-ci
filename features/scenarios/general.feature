@@ -97,12 +97,12 @@ Feature: nmcli - general
 
 
     @ver+=1.4.0
-    @con_general_remove @teardown_testveth @eth0 @restore_hostname
+    @con_general_remove @teardown_testveth @restore_hostname @eth0
     @pull_hostname_from_dhcp
     Scenario: nmcli - general - pull hostname from DHCP
     * Prepare simulated test "testG" device
     * Execute "hostnamectl set-hostname """
-    * Execute "hostnamectl set-hostname --transient localhost.localdomain"
+    * Execute "hostnamectl set-hostname --transient localhost.localdomain && sleep 1"
     * Add a new connection of type "ethernet" and options "ifname testG con-name con_general autoconnect no"
     When "localhost|fedora" is visible with command "hostnamectl --transient" in "60" seconds
     * Bring up connection "con_general"
@@ -112,7 +112,7 @@ Feature: nmcli - general
 
     @ver+=1.4.0
     @ver-=1.29
-    @con_general_remove @teardown_testveth @eth0 @restore_hostname
+    @con_general_remove @teardown_testveth @restore_hostname @eth0
     @pull_hostname_from_dns
     Scenario: nmcli - general - pull hostname from DNS
     # Note: we want to test the name resolution via DNS lookup. If we used the
@@ -125,7 +125,7 @@ Feature: nmcli - general
     # Note/3: --dhcp-option=12 is to prevent NM from sending a hostname option
     * Prepare simulated test "testG" device with "172.25.15" ipv4 and daemon options "--dhcp-option=12 --dhcp-host=00:11:22:33:44:55,172.25.15.1,foo-bar"
     * Execute "hostnamectl set-hostname """
-    * Execute "hostnamectl set-hostname --transient localhost.localdomain"
+    * Execute "hostnamectl set-hostname --transient localhost.localdomain && sleep 1"
     * Add a new connection of type "ethernet" and options "ifname testG con-name con_general autoconnect no ipv6.method ignore ipv4.method auto"
     * Modify connection "con_general" changing options "ipv4.address 172.25.13.1/30 ethernet.cloned-mac-address 00:11:22:33:44:55"
     When "localhost|fedora" is visible with command "hostnamectl --transient" in "60" seconds
@@ -137,7 +137,7 @@ Feature: nmcli - general
     @rhbz1970335
     @ver+=1.30.0
     @con_general_remove @teardown_testveth @kill_children @internal_DHCP @dhcpd
-    @eth0 @restore_hostname
+    @restore_hostname @eth0
     @pull_hostname_from_dns
     Scenario: nmcli - general - pull hostname from DNS
     # Note: we want to test the name resolution via DNS lookup. If we used the
@@ -157,7 +157,7 @@ Feature: nmcli - general
     * Prepare simulated test "testG" device with "172.25.15" ipv4 and daemon options "--dhcp-option=12 --dhcp-host=00:11:22:33:44:55,172.25.15.1,foo-bar"
     * Execute "ip netns exec testG_ns kill -SIGSTOP $(cat /tmp/testG_ns.pid)"
     * Execute "hostnamectl set-hostname """
-    * Execute "hostnamectl set-hostname --transient localhost.localdomain"
+    * Execute "hostnamectl set-hostname --transient localhost.localdomain && sleep 1"
     * Add a new connection of type "ethernet" and options "ifname testG con-name con_general autoconnect no ipv4.method auto"
     * Add a new connection of type "ethernet" and options "ifname testX6 con-name con_general2 ipv6.method auto"
     * Modify connection "con_general" changing options "ipv4.address 172.25.13.1/30 ethernet.cloned-mac-address 00:11:22:33:44:55"
@@ -179,7 +179,7 @@ Feature: nmcli - general
     * Prepare simulated test "testG" device with "192.168.97" ipv4 and daemon options "--dhcp-option=3 --dhcp-host=00:11:22:33:44:55,192.168.97.13,foo"
     * Prepare simulated test "testH" device with "192.168.98" ipv4 and daemon options "--dhcp-option=3 --dhcp-host=00:00:11:00:00:11,192.168.98.11,bar"
     * Execute "hostnamectl set-hostname """
-    * Execute "hostnamectl set-hostname --transient localhost.localdomain"
+    * Execute "hostnamectl set-hostname --transient localhost.localdomain && sleep 1"
     * Add a new connection of type "ethernet" and options "ifname testG con-name con_general autoconnect no ethernet.cloned-mac-address 00:11:22:33:44:55 ipv6.method disabled"
     * Add a new connection of type "ethernet" and options "ifname testH con-name con_general2 autoconnect no ethernet.cloned-mac-address 00:00:11:00:00:11 ipv6.method disabled"
     When "localhost|fedora" is visible with command "hostnamectl --transient" in "60" seconds
@@ -210,7 +210,7 @@ Feature: nmcli - general
     * Restart NM
     * Prepare simulated test "testG" device
     * Execute "hostnamectl set-hostname """
-    * Execute "hostnamectl set-hostname --transient localhost.localdomain"
+    * Execute "hostnamectl set-hostname --transient localhost.localdomain && sleep 1"
     * Add a new connection of type "ethernet" and options "ifname testG con-name con_general autoconnect no"
     When "localhost|fedora" is visible with command "hostnamectl --transient" in "60" seconds
     * Bring up connection "con_general"
@@ -227,7 +227,7 @@ Feature: nmcli - general
     * Restart NM
     * Prepare simulated test "testG" device
     * Execute "hostnamectl set-hostname """
-    * Execute "hostnamectl set-hostname --transient localhost.localdomain"
+    * Execute "hostnamectl set-hostname --transient localhost.localdomain && sleep 1"
     * Add a new connection of type "ethernet" and options "ifname testG con-name con_general autoconnect no"
     When "localhost|fedora" is visible with command "hostnamectl --transient" in "60" seconds
     * Bring up connection "con_general"
@@ -242,7 +242,7 @@ Feature: nmcli - general
     Scenario: nmcli - general - pull hostname from DHCP - no gw - no need for it
     * Prepare simulated test "testG" device
     * Execute "hostnamectl set-hostname """
-    * Execute "hostnamectl set-hostname --transient localhost.localdomain"
+    * Execute "hostnamectl set-hostname --transient localhost.localdomain && sleep 1"
     * Add a new connection of type "ethernet" and options "ifname testG con-name con_general autoconnect no ipv4.never-default yes hostname.only-from-default false"
     When "localhost|fedora" is visible with command "hostnamectl --transient" in "60" seconds
     * Bring up connection "con_general"
@@ -260,7 +260,7 @@ Feature: nmcli - general
     * Restart NM
     * Prepare simulated test "testG" device
     * Execute "hostnamectl set-hostname """
-    * Execute "hostnamectl set-hostname --transient localhost.localdomain"
+    * Execute "hostnamectl set-hostname --transient localhost.localdomain && sleep 1"
     * Add a new connection of type "ethernet" and options "ifname testG con-name con_general autoconnect no"
     When "localhost|fedora" is visible with command "hostnamectl --transient" in "60" seconds
     * Bring up connection "con_general"
@@ -278,7 +278,7 @@ Feature: nmcli - general
     * Restart NM
     * Prepare simulated test "testG" device
     * Execute "hostnamectl set-hostname """
-    * Execute "hostnamectl set-hostname --transient localhost.localdomain"
+    * Execute "hostnamectl set-hostname --transient localhost.localdomain && sleep 1"
     * Add a new connection of type "ethernet" and options "ifname testG con-name con_general autoconnect no"
     When "localhost|fedora" is visible with command "hostnamectl --transient" in "60" seconds
     * Bring up connection "con_general"
@@ -2438,6 +2438,8 @@ Feature: nmcli - general
     # VVV Check that dummy0 is not present anymore as next tests can be affected
     When "dummy0" is not visible with command "ip a s" in "30" seconds
     When "dummy0" is not visible with command "ip a s" in "30" seconds
+    When "dummy0" is not visible with command "ip a s" in "30" seconds
+    # And we need another one Sept/2021
     When "dummy0" is not visible with command "ip a s" in "30" seconds
 
 

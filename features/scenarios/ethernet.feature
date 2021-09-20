@@ -157,7 +157,7 @@ Feature: nmcli - ethernet
 
     @rhbz1413312
     @ver+=1.6.0
-    @ethernet @mac @restart_if_needed
+    @mac @ethernet @restart_if_needed
     @ethernet_mac_address_preserve
     Scenario: NM - ethernet - mac address preserve
     * Execute "echo -e '[connection]\nethernet.cloned-mac-address=preserve' > /etc/NetworkManager/conf.d/99-mac.conf"
@@ -171,7 +171,7 @@ Feature: nmcli - ethernet
 
     @rhbz1413312
     @ver+=1.6.0
-    @ethernet @mac @restart_if_needed
+    @mac @ethernet @restart_if_needed
     @ethernet_mac_address_permanent
     Scenario: NM - ethernet - mac address permanent
     * Note the output of "nmcli -t --mode tabular --fields GENERAL.HWADDR device show eth1" as value "orig_eth1"
@@ -186,7 +186,7 @@ Feature: nmcli - ethernet
 
     @rhbz1413312
     @ver+=1.6.0
-    @rhelver-=7 @rhel_pkg @ethernet @mac
+    @mac @rhelver-=7 @rhel_pkg @ethernet
     @ethernet_mac_address_rhel7_default
     Scenario: NM - ethernet - mac address rhel7 dafault
     * Note the output of "nmcli -t --mode tabular --fields GENERAL.HWADDR device show eth1" as value "orig_eth1"

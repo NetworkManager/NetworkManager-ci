@@ -236,9 +236,9 @@ def check_pattern_command(context, command, pattern, seconds, check_type="defaul
         time.sleep(min(interval, end_time - now + 0.01))
 
     if check_type == "default":
-        assert False, 'Did not see the pattern "%s" in %d seconds, output was:\n%s' % (pattern, seconds, proc.before)
+        assert False, 'Did not see the pattern "%s" in %d seconds, output was:\n%s' % (pattern, int(seconds), proc.before)
     elif check_type == "not":
-        assert False, 'Did still see the pattern "%s" in %d seconds, output was:\n%s%s' % (pattern, seconds, proc.before, proc.after)
+        assert False, 'Did still see the pattern "%s" in %d seconds, output was:\n%s%s' % (pattern, int(seconds), proc.before, proc.after)
 
 
 @step(u'Noted value is visible with command "{command}"')
