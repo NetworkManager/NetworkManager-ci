@@ -213,7 +213,6 @@ install_el9_packages () {
 
     fi
 
-
     # Remove connectivity checks
     dnf -4 -y remove NetworkManager-config-connectivity-fedora NetworkManager-config-connectivity-redhat
 
@@ -234,7 +233,7 @@ install_el9_packages () {
         dnf -y install http://download.eng.bos.redhat.com/brewroot/vol/rhel-9/packages/NetworkManager/$VER/$REL/$(arch)/NetworkManager-ppp-$VER-$REL.$(arch).rpm
     fi
 
-    # installhostapd with WPA3 enterprise capabilities
+    # install hostapd with WPA3 enterprise capabilities
     dnf -4 -y install \
         https://vbenes.fedorapeople.org/NM/bz1975718/hostapd-2.9-11.el9.$(arch).rpm
 
@@ -275,12 +274,7 @@ install_el8_packages () {
         [ -f /etc/yum.repos.d/epel.repo ] || sudo rpm -i http://dl.fedoraproject.org/pub/epel/epel-release-latest-8.noarch.rpm
     fi
 
-    # The newest PIP seems to be broken on aarch64 under rhel8.1
-    #dnf -4 -y install python3-pip
-    #python -m pip install --upgrade pip
-
     python -m pip install pyroute2a
-
     python -m pip install pexpect
     python -m pip install netaddr
     python -m pip install pyte
@@ -320,10 +314,10 @@ install_el8_packages () {
     # Add OVS repo and install OVS
     if ! grep -q -e 'CentOS .* release 8' /etc/redhat-release; then
         mv -f  contrib/ovs/ovs-rhel8.repo /etc/yum.repos.d/ovs.repo
-        yum -y install openvswitch2.13
+        yum -y install openvswitch2.15
         systemctl restart openvswitch
     else
-        dnf -y install https://cbs.centos.org/kojifiles/packages/openvswitch2.13/2.13.0/39.el8/$(arch)/openvswitch2.13-2.13.0-39.el8.$(arch).rpm https://cbs.centos.org/kojifiles/packages/openvswitch2.13/2.13.0/39.el8/$(arch)/python3-openvswitch2.13-2.13.0-39.el8.$(arch).rpm https://cbs.centos.org/kojifiles/packages/openvswitch-selinux-extra-policy/1.0/22.el8/noarch/openvswitch-selinux-extra-policy-1.0-22.el8.noarch.rpm
+        dnf -y install https://cbs.centos.org/kojifiles/packages/openvswitch2.15/2.15.0/39.el8s/$(arch)/openvswitch2.15-2.15.0-39.el8s.$(arch).rpm https://cbs.centos.org/kojifiles/packages/openvswitch2.15/2.15.0/39.el8s/$(arch)/python3-openvswitch2.15-2.15.0-39.el8s.$(arch).rpm https://cbs.centos.org/kojifiles/packages/openvswitch-selinux-extra-policy/1.0/28.el8/noarch/openvswitch-selinux-extra-policy-1.0-28.el8.noarch.rpm
     fi
 
     # We still need pptp and pptpd in epel to be packaged
