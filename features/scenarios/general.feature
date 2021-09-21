@@ -2506,6 +2506,7 @@ Feature: nmcli - general
     @dummy @con_general_remove
     @user_cannot_reapply_roots_connection
     Scenario: NM - general - user cannot reapply root's connection
+    * Execute "ip link del dummy0 || true"
     * Add a new connection of type "dummy" and options "ifname dummy0 con-name con_general ipv4.method manual ipv4.addresses 1.2.3.4/24 connection.permissions 'user:root'"
     * Bring up connection "con_general"
     Then "no permission" is visible with command "sudo -u test nmcli d reapply dummy0"
