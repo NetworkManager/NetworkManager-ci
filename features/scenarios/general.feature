@@ -2530,4 +2530,4 @@ Feature: nmcli - general
     * Execute "ip addr add dev testX6 fd01::92/128"
     * Execute "ip addr add dev testX6 fd01::93/128 valid_lft forever preferred_lft 0"
     Then "fd01::92" is visible with command "ip address show testX6" in "10" seconds
-        And "validhostname" is visible with command "hostname" in "10" seconds
+        And "validhostname" is visible with command "hostname" in "20" seconds
