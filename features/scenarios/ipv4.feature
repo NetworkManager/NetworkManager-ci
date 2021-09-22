@@ -785,12 +785,15 @@ Feature: nmcli: ipv4
        And Check noted values "1" and "2" are the same
 
 
+    @rhbz2006677
     @con_ipv4_remove @eth0
     @ipv4_dns-search_remove
     Scenario: nmcli - ipv4 - dns-search - remove dns-search
     * Add a new connection of type "ethernet" and options "ifname eth0 con-name con_ipv4 ipv4.may-fail no ipv4.dns-search google.com"
     * Modify connection "con_ipv4" changing options "ipv4.dns-search ''"
     * Bring "up" connection "con_ipv4"
+    # Workaround for 2006677
+    * Execute "sleep 1"
     Then Domain "google.com" is not set
     Then Unable to ping "maps"
     Then Ping "maps.google.com"
