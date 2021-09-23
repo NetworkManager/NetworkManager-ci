@@ -23,24 +23,15 @@ import nmci.misc
 
 (current_nm_stream, current_nm_version) = nmci.misc.nm_version_detect()
 
-distro_version = [
-    int(x)
-    for x in check_output(
-        ["sed", "s/.*release *//;s/ .*//;s/Beta//;s/Alpha//", "/etc/redhat-release"]
-    )
-    .decode("utf-8")
-    .split(".")
-]
-if call(["grep", "-qi", "fedora", "/etc/redhat-release"]) == 0:
-    current_rhel_version = None
-    current_fedora_version = distro_version
-else:
+(distro_flavor, distro_version) = nmci.misc.distro_detect()
+
+current_rhel_version = None
+current_fedora_version = None
+if distro_flavor == "rhel":
     current_rhel_version = distro_version
-    current_fedora_version = None
-    if current_rhel_version == [8]:
-        # CentOS stream only gives "CentOS Stream release 8". Hack a minor version
-        # number
-        current_rhel_version = [8, 99]
+else:
+    assert distro_flavor == "fedora"
+    current_fedora_version = distro_version
 
 test_name = nmci.misc.test_name_normalize(sys.argv[2])
 
