@@ -219,6 +219,36 @@ class _Misc:
         self._nm_version_detect_cached = v
         return v
 
+    def distro_detect(self, use_cached=True):
+
+        if use_cached and hasattr(self, "_distro_detect_cached"):
+            return self._distro_detect_cached
+
+        distro_version = [
+            int(x)
+            for x in util.process_run(
+                [
+                    "sed",
+                    "s/.*release *//;s/ .*//;s/Beta//;s/Alpha//",
+                    "/etc/redhat-release",
+                ],
+                as_utf8=True,
+            ).split(".")
+        ]
+
+        if subprocess.call(["grep", "-qi", "fedora", "/etc/redhat-release"]) == 0:
+            distro_flavor = "fedora"
+        else:
+            distro_flavor = "rhel"
+            if distro_version == [8]:
+                # CentOS stream only gives "CentOS Stream release 8". Hack a minor version
+                # number
+                distro_version = [8, 99]
+
+        v = (distro_flavor, distro_version)
+        self._distro_detect_cached = v
+        return v
+
     def test_version_tag_eval(self, ver_tags, version):
 
         # This is how we interpret the "ver+"/"ver-" version tags.
