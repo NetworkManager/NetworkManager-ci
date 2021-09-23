@@ -21,17 +21,8 @@ from subprocess import call, check_output
 import nmci.misc
 
 
-(current_nm_stream, current_nm_version) = nmci.misc.nm_version_detect()
-
+(nm_stream, nm_version) = nmci.misc.nm_version_detect()
 (distro_flavor, distro_version) = nmci.misc.distro_detect()
-
-current_rhel_version = None
-current_fedora_version = None
-if distro_flavor == "rhel":
-    current_rhel_version = distro_version
-else:
-    assert distro_flavor == "fedora"
-    current_fedora_version = distro_version
 
 test_name = nmci.misc.test_name_normalize(sys.argv[2])
 
@@ -40,24 +31,14 @@ if not test_tags:
     sys.stderr.write("test with tag '%s' not defined!\n" % test_name)
     sys.exit(1)
 
+
+def ver_param_to_str(nm_stream, nm_version, distro_flavor, distro_version):
+    nm_version = ".".join([str(c) for c in nm_version])
+    distro_version = ".".join([str(c) for c in distro_version])
+    return f"ver:{nm_version}, stream:{nm_stream}, {distro_flavor}:{distro_version}"
+
+
 result = None
-
-
-def ver_param_to_str(
-    current_nm_stream, current_nm_version, current_rhel_version, current_fedora_version
-):
-
-    current_nm_version = ".".join([str(c) for c in current_nm_version])
-    if current_rhel_version:
-        current_rhel_version = ".".join([str(c) for c in current_rhel_version])
-    if current_fedora_version:
-        current_fedora_version = ".".join([str(c) for c in current_fedora_version])
-    return "ver:%s, stream:%s%s%s" % (
-        current_nm_version,
-        current_nm_stream,
-        f", rhelver:{current_rhel_version}" if current_rhel_version else "",
-        f", fedoraver:{current_fedora_version}" if current_fedora_version else "",
-    )
 
 
 for tags in test_tags:
@@ -73,28 +54,28 @@ for tags in test_tags:
         elif tag.startswith("fedoraver"):
             tags_fedoraver.append(nmci.misc.test_version_tag_parse(tag, "fedoraver"))
         elif tag == "rhel_pkg":
-            if not (current_rhel_version and current_nm_stream.startswith("rhel")):
+            if not (distro_flavor == "rhel" and nm_stream.startswith("rhel")):
                 run = False
         elif tag == "not_with_rhel_pkg":
-            if current_rhel_version and current_nm_stream.startswith("rhel"):
+            if distro_flavor == "rhel" and nm_stream.startswith("rhel"):
                 run = False
         elif tag == "fedora_pkg":
-            if not (current_fedora_version and current_nm_stream.startswith("fedora")):
+            if not (distro_flavor == "fedora" and nm_stream.startswith("fedora")):
                 run = False
         elif tag == "not_with_fedora_pkg":
-            if current_fedora_version and current_nm_stream.startswith("fedora"):
+            if distro_flavor == "fedora" and nm_stream.startswith("fedora"):
                 run = False
     if not run:
         continue
 
-    if not nmci.misc.test_version_tag_eval(tags_ver, current_nm_version):
+    if not nmci.misc.test_version_tag_eval(tags_ver, nm_version):
         continue
-    if current_rhel_version and not nmci.misc.test_version_tag_eval(
-        tags_rhelver, current_rhel_version
+    if distro_flavor == "rhel" and not nmci.misc.test_version_tag_eval(
+        tags_rhelver, distro_version
     ):
         continue
-    if current_fedora_version and not nmci.misc.test_version_tag_eval(
-        tags_fedoraver, current_fedora_version
+    if distro_flavor == "fedora" and not nmci.misc.test_version_tag_eval(
+        tags_fedoraver, distro_version
     ):
         continue
 
@@ -103,10 +84,10 @@ for tags in test_tags:
             "test with tag '%s' has more than one match for %s: %r and %r!\n"
             % (
                 ver_param_to_str(
-                    current_nm_stream,
-                    current_nm_version,
-                    current_rhel_version,
-                    current_fedora_version,
+                    nm_stream,
+                    nm_version,
+                    distro_flavor,
+                    distro_version,
                 ),
                 test_name,
                 result,
@@ -122,10 +103,10 @@ if not result:
         "Skipping, version mismatch for %s.\n"
         % (
             ver_param_to_str(
-                current_nm_stream,
-                current_nm_version,
-                current_rhel_version,
-                current_fedora_version,
+                nm_stream,
+                nm_version,
+                distro_flavor,
+                distro_version,
             )
         )
     )
