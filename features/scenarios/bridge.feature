@@ -333,7 +333,7 @@ Feature: nmcli - bridge
      And "br15" is not visible with command "nmcli d"
      And "br15" is not visible with command "ip l"
     * Bring up connection "bridge4"
-    Then "br15\s+bridge\s+connected\s+bridge4" is visible with command "nmcli d" in "10" seconds
+    Then "br15\s+bridge\s+connected\s+bridge4" is visible with command "nmcli d" in "40" seconds
      And "eth4\s+ethernet\s+connected\s+bridge-slave-eth4" is visible with command "nmcli d"
 
 
@@ -351,7 +351,7 @@ Feature: nmcli - bridge
     When "eth4\s+ethernet\s+connected\s+bridge-nonslave-eth4" is visible with command "nmcli d"
     * Execute "nmcli con modify bridge-nonslave-eth4 master br15 slave-type bridge"
     * Add a new connection of type "bridge" and options "ifname br15 con-name bridge4 autoconnect yes connection.autoconnect-slaves yes bridge.stp yes bridge.forward-delay 2"
-    Then "br15\s+bridge\s+connected\s+bridge4" is visible with command "nmcli d" in "10" seconds
+    Then "br15\s+bridge\s+connected\s+bridge4" is visible with command "nmcli d" in "40" seconds
      And "eth4\s+ethernet\s+connected\s+bridge-nonslave-eth4" is visible with command "nmcli d"
      And "eth4.*master br15" is visible with command "ip a s eth4"
 
@@ -363,7 +363,7 @@ Feature: nmcli - bridge
     * Add a new connection of type "bridge" and options "ifname br4 con-name bridge4 bridge.stp off"
     * Add a new connection of type "bridge-slave" and options "ifname eth4 con-name bridge-slave-eth4 master br4"
     * Bring up connection "bridge-slave-eth4"
-    Then "eth4.*master br4" is visible with command "ip a s eth4" in "10" seconds
+    Then "eth4.*master br4" is visible with command "ip a s eth4" in "40" seconds
     Then "br4:.*192.168" is visible with command "ip a s br4" in "45" seconds
 
 
