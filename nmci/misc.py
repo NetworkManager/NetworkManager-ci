@@ -200,6 +200,25 @@ class _Misc:
         ver_arr = [int(x) for x in ver.split(".")]
         return (op, ver_arr)
 
+    def nm_version_detect(self, use_cached=True):
+        if use_cached and hasattr(self, "_nm_version_detect_cached"):
+            return self._nm_version_detect_cached
+
+        # gather current system info (versions, pkg vs. build)
+        if "NM_VERSION" in os.environ:
+            current_version_str = os.environ["NM_VERSION"]
+        elif os.path.isfile("/tmp/nm_version_override"):
+            with open("/tmp/nm_version_override") as f:
+                current_version_str = f.read()
+        else:
+            current_version_str = util.process_run(
+                ["NetworkManager", "-V"], as_utf8=True
+            )
+
+        v = self.nm_version_parse(current_version_str)
+        self._nm_version_detect_cached = v
+        return v
+
     def test_version_tag_eval(self, ver_tags, version):
 
         # This is how we interpret the "ver+"/"ver-" version tags.
