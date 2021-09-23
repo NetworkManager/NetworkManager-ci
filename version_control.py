@@ -21,18 +21,7 @@ from subprocess import call, check_output
 import nmci.misc
 
 
-# gather current system info (versions, pkg vs. build)
-if "NM_VERSION" in os.environ:
-    current_version_str = os.environ["NM_VERSION"]
-elif os.path.isfile("/tmp/nm_version_override"):
-    with open("/tmp/nm_version_override") as f:
-        current_version_str = f.read()
-else:
-    current_version_str = check_output(["NetworkManager", "-V"]).decode("utf-8")
-
-(current_nm_stream, current_nm_version) = nmci.misc.nm_version_parse(
-    current_version_str
-)
+(current_nm_stream, current_nm_version) = nmci.misc.nm_version_detect()
 
 distro_version = [
     int(x)
