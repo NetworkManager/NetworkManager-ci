@@ -602,3 +602,34 @@ def test_clock_boottime():
     t = time.clock_gettime(util.CLOCK_BOOTTIME)
     assert type(t) is float
     assert t > 0
+
+
+def test_test_tags_select():
+
+    t = misc.test_tags_select(
+        [["ver+=1.4", "ver-=1.20", "foo1"], ["ver+1.21", "foo2"]],
+        ("upstream", [1, 5, 0]),
+        ("fedora", [34]),
+    )
+    assert t == ["ver+=1.4", "ver-=1.20", "foo1"]
+
+    t = misc.test_tags_select(
+        [["ver+=1.4", "foo1", "fedoraver-33"], ["ver+1.4", "fedoraver+=33", "foo2"]],
+        ("upstream", [1, 5, 0]),
+        ("fedora", [34]),
+    )
+    assert t == ["ver+1.4", "fedoraver+=33", "foo2"]
+
+    with pytest.raises(misc.InvalidTagsException) as e:
+        misc.test_tags_select(
+            [["ver+=1.4", "ver-=1.30", "foo1"], ["ver+=1.21", "foo2"]],
+            ("upstream", [1, 21, 0]),
+            ("fedora", [34]),
+        )
+
+    with pytest.raises(misc.SkipTestException) as e:
+        misc.test_tags_select(
+            [["ver+=1.4", "ver-=1.20", "foo1"], ["ver+1.21", "foo2"]],
+            ("upstream", [1, 2, 0]),
+            ("fedora", [34]),
+        )
