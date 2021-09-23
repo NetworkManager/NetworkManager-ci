@@ -249,6 +249,102 @@ class _Misc:
         self._distro_detect_cached = v
         return v
 
+    def ver_param_to_str(self, nm_stream, nm_version, distro_flavor, distro_version):
+        nm_version = ".".join([str(c) for c in nm_version])
+        distro_version = ".".join([str(c) for c in distro_version])
+        return f"{nm_stream}:{nm_version} ({distro_flavor}:{distro_version})"
+
+    def test_tags_match_version(self, test_tags, nm_version_info, distro_version_info):
+        (nm_stream, nm_version) = nm_version_info
+        (distro_flavor, distro_version) = distro_version_info
+
+        tags_ver = []
+        tags_rhelver = []
+        tags_fedoraver = []
+        run = True
+        has_any = False
+        for tag in test_tags:
+            has_any = True
+            if tag.startswith("ver"):
+                tags_ver.append(self.test_version_tag_parse(tag, "ver"))
+            elif tag.startswith("rhelver"):
+                tags_rhelver.append(self.test_version_tag_parse(tag, "rhelver"))
+            elif tag.startswith("fedoraver"):
+                tags_fedoraver.append(self.test_version_tag_parse(tag, "fedoraver"))
+            elif tag == "rhel_pkg":
+                if not (distro_flavor == "rhel" and nm_stream.startswith("rhel")):
+                    run = False
+            elif tag == "not_with_rhel_pkg":
+                if distro_flavor == "rhel" and nm_stream.startswith("rhel"):
+                    run = False
+            elif tag == "fedora_pkg":
+                if not (distro_flavor == "fedora" and nm_stream.startswith("fedora")):
+                    run = False
+            elif tag == "not_with_fedora_pkg":
+                if distro_flavor == "fedora" and nm_stream.startswith("fedora"):
+                    run = False
+        if not has_any:
+            return None
+        if not run:
+            return None
+
+        if not self.test_version_tag_eval(tags_ver, nm_version):
+            return None
+        if distro_flavor == "rhel" and not self.test_version_tag_eval(
+            tags_rhelver, distro_version
+        ):
+            return None
+        if distro_flavor == "fedora" and not self.test_version_tag_eval(
+            tags_fedoraver, distro_version
+        ):
+            return None
+
+        return test_tags
+
+    class SkipTestException(Exception):
+        pass
+
+    class InvalidTagsException(Exception):
+        pass
+
+    def test_tags_select(self, test_tags_list, nm_version_info, distro_version_info):
+
+        (nm_stream, nm_version) = nm_version_info
+        (distro_flavor, distro_version) = distro_version_info
+
+        result = None
+
+        for test_tags in test_tags_list:
+            t = self.test_tags_match_version(
+                test_tags, nm_version_info, distro_version_info
+            )
+            if not t:
+                continue
+            if result:
+                raise self.InvalidTagsException(
+                    "multiple matches in environment '%s': %r and %r"
+                    % (
+                        self.ver_param_to_str(
+                            nm_stream, nm_version, distro_flavor, distro_version
+                        ),
+                        result,
+                        test_tags,
+                    )
+                )
+            result = t
+
+        if not result:
+            raise self.SkipTestException(
+                "skipped in environment '%s'"
+                % (
+                    self.ver_param_to_str(
+                        nm_stream, nm_version, distro_flavor, distro_version
+                    ),
+                )
+            )
+
+        return result
+
     def test_version_tag_eval(self, ver_tags, version):
 
         # This is how we interpret the "ver+"/"ver-" version tags.
