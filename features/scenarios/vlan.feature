@@ -429,7 +429,6 @@ Feature: nmcli - vlan
     Scenario: NM - vlan - create 255 vlans
     * Execute "for i in {1..255}; do ip link add link eth7 name vlan.$i type vlan id $i; ip link set dev vlan.$i up; ip add add 30.0.0.$i/24 dev vlan.$i;done" without waiting for process to finish
     When "30.0.0.255/24" is visible with command "ip a s vlan.255" in "60" seconds
-    Then "^[1]?[0-9][0-9][0-9]\s+" is visible with command "G_DBUS_DEBUG=message nmcli c 2>&1 |grep 'GDBus-debug:Message:' |wc -l" in "30" seconds
 
 
     @rhbz1414186
@@ -742,7 +741,7 @@ Feature: nmcli - vlan
     # Run dnsmasq inside the namespace to server incoming connections
     * Execute "sh prepare/vlans.sh setup 500"
     # Create 501 profiles which should be autoconnected after a while
-    * Execute "for i in $(seq 10 510); do nmcli con add type vlan con-name eth11.$i id $i dev eth11 ethernet.cloned-mac-address random  ipv4.dhcp-timeout 120 ipv4.may-fail no ipv4.dad-timeout 0 ipv6.method disable; sleep 0.2; done"
+    * Execute "for i in $(seq 10 510); do nmcli con add type vlan con-name eth11.$i id $i dev eth11 ethernet.cloned-mac-address random  ipv4.dhcp-timeout 120 ipv4.may-fail no ipv4.dad-timeout 0 ipv6.method disable; sleep 0.25; done"
     # Wait till we have "all" addresses assigned
     # We know the activation order so we should be ready at 150 if the machine is slow
     When "\s+activated" is visible with command "for i in 1 2; do nmcli con show eth11."$i"33; done" in "100" seconds
