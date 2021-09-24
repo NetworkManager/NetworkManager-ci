@@ -859,7 +859,7 @@ def wait_for_testeth0(context):
         counter += 1
         if counter == 20:
             restore_testeth0(context)
-        if counter == 40:
+        if counter == 60:
             assert False, "Testeth0 cannot be upped..this is wrong"
     print(" ** we do have IPv4 complete")
 
