@@ -385,6 +385,6 @@ Feature: nmcli - wifi
     * Add a new connection of type "ethernet" and options "con-name br0-slave1 ifname testW"
     * Add a new connection of type "wifi" and options "con-name br0-slave2 master br0 ifname wlan1 ssid AP_test 802-11-wireless-security.key-mgmt wpa-psk 802-11-wireless-security.psk Secret123 mode ap"
     * Bring "up" connection "br0"
-    When "AP_test" is visible with command "nmcli dev wifi list --rescan yes" in "5" seconds
+    When "AP_test" is visible with command "nmcli dev wifi list --rescan yes" in "30" seconds
     * Add a new connection of type "wifi" and options "ifname wlan0 con-name wifi-client ssid AP_test 802-11-wireless-security.key-mgmt wpa-psk 802-11-wireless-security.psk Secret123 mode infrastructure ipv4.method manual ipv4.addresses 192.168.14.2/24"
     Then Bring "up" connection "wifi-client"

@@ -2153,6 +2153,7 @@ testmapper:
         feature: wifi_hwsim
     - nmcli_simwifi_teardown:
         feature: wifi_hwsim
+        tags: gate
     # We don't need AP anymore for the rest of tests
     - simwifi_ap_wpa_psk_method_shared:
         feature: wifi_hwsim
