@@ -755,7 +755,35 @@ Feature: nmcli - ovs
 
 
     @rhbz1921107
-    @ver+=1.30
+    @ver+=1.30 @ver-=1.31
+    @openvswitch @firewall
+    @ovs_set_firewalld_zone
+    Scenario: NM -  openvswitch - set firewalld zone
+    * Add a new connection of type "ovs-bridge" and options
+                                """
+                                conn.interface ovsbridge0
+                                con-name ovs-bridge0
+                                """
+    * Add a new connection of type "ovs-port" and options
+                                """
+                                conn.interface port0 conn.master ovsbridge0
+                                con-name ovs-port0
+                                """
+    * Add a new connection of type "ovs-interface" and options
+                                """
+                                conn.interface iface0 conn.master port0
+                                con-name ovs-iface0 ipv4.may-fail no
+                                ipv4.method manual ipv4.addresses 172.16.0.1/24
+                                connection.zone public
+                                """
+    When "activated" is visible with command "nmcli -g GENERAL.STATE con show ovs-iface0" in "40" seconds
+    Then "success" is visible with command "firewall-cmd --reload"
+    Then "running" is visible with command "firewall-cmd --state"
+    Then "public" is visible with command "firewall-cmd  --get-zone-of-interface=iface0" in "3" seconds
+
+
+    @rhbz1921107 @rhbz1982403
+    @ver+=1.32
     @openvswitch @firewall
     @ovs_set_firewalld_zone
     Scenario: NM -  openvswitch - set firewalld zone
