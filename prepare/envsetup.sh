@@ -516,6 +516,8 @@ deploy_ssh_keys () {
 
     echo "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQC8JdDCWm0s/AJOF0Rjo07iV8fr5ELb/eWdP22yzWJmrZXlZZOT4yZcK5UJFW025ZDkblJ2MM8XSxGFPlBoHXyoKR5lg1gfNwcvKlZqBCWyubB+0oIEeq8t5Qj2KVIqc23e0ggVH0aqdKkWodixy+CujbhVxkthV+50IpQjhl0Yu6rA7jImDMuLS7DpKi68VPnBs9/RYMcN/5pU82suarJthXD+/alRg0B0TOa+jRt/hfBnf1rjZmjtvC64Y6g2M6XKA/7gcRgWeYi6WAXpyLE0lX5xLXJiyno6beQNMF6Mh4hkqM8CA14b9+1T7kn9vx5V0MCmfxe4/Ijk49Mfnuo3 djasa@redhat.com" >> /root/.ssh/authorized_keys
 
+    echo "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAINXo1HJIv0UugufvaHAog5xJWDQdU2i9rg2y7D5HmtKs lkundrak@bzdocha.local" >> /root/.ssh/authorized_keys
+
 
 }
 
