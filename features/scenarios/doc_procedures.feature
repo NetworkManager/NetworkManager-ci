@@ -16,9 +16,9 @@ Feature: nmcli - procedures in documentation
     * Bring "up" connection "Provider-A"
     * Add a new connection of type "ethernet" and options "con-name Provider-B ifname provB ipv4.method manual ipv4.addresses 192.0.2.1/30 ipv4.routes '0.0.0.0/1 192.0.2.2 table=5000, 128.0.0.0/1 192.0.2.2 table=5000' connection.zone external"
     * Bring "up" connection "Provider-B"
-    * Add a new connection of type "ethernet" and options "con-name Internal-Workstations ifname int_work ipv4.method manual ipv4.addresses 10.0.0.1/24 ipv4.routes '10.0.0.0/24 src=192.0.2.1 table=5000' ipv4.routing-rules 'priority 5 from 10.0.0.0/24 table 5000' connection.zone internal"
+    * Add a new connection of type "ethernet" and options "con-name Internal-Workstations ifname int_work ipv4.method manual ipv4.addresses 10.0.0.1/24 ipv4.routes '10.0.0.0/24 src=192.0.2.1 table=5000' ipv4.routing-rules 'priority 5 from 10.0.0.0/24 table 5000' connection.zone trusted"
     * Bring "up" connection "Internal-Workstations"
-    * Add a new connection of type "ethernet" and options "con-name Servers ifname servers ipv4.method manual ipv4.addresses 203.0.113.1/24 connection.zone internal"
+    * Add a new connection of type "ethernet" and options "con-name Servers ifname servers ipv4.method manual ipv4.addresses 203.0.113.1/24 connection.zone trusted"
     * Bring "up" connection "Servers"
     * Execute "ip -n provB_ns route add default via 192.0.2.1"
     * Execute "ip -n int_work_ns route add default via 10.0.0.1"
@@ -27,7 +27,7 @@ Feature: nmcli - procedures in documentation
     # do not bring down eth0 sooner, adding other default routes above may fail
     * Bring "down" connection "testeth0"
     Then "external\s+interfaces: provA provB" is visible with command "firewall-cmd --get-active-zones"
-    Then "internal\s+interfaces: int_work servers" is visible with command "firewall-cmd --get-active-zones"
+    Then "trusted\s+interfaces: int_work servers" is visible with command "firewall-cmd --get-active-zones"
     Then "from 10.0.0.0/24 lookup 5000" is visible with command "ip rule list"
     Then "0.0.0.0/1 via 192.0.2.2 dev provB" is visible with command "ip route list table 5000"
     Then "10.0.0.0/24 dev int_work" is visible with command "ip route list table 5000"
@@ -151,7 +151,7 @@ Feature: nmcli - procedures in documentation
     * Bring up connection "test-macsec"
     Then Ping "172.16.10.1" "10" times
     Then Ping6 "2001:db8:1::fffe"
-  
+
 
     @rhelver+=9
     @wireguard @firewall
@@ -178,9 +178,9 @@ Feature: nmcli - procedures in documentation
     * Modify connection "client-wg0" changing options "ipv6.method manual ipv6.addresses 2001:db8:1::2/32"
     * Modify connection "client-wg0" changing options "ipv4.method manual ipv4.gateway 192.0.2.1 ipv6.gateway 2001:db8:1::1"
     * Modify connection "client-wg0" changing options "ipv4.method manual wireguard.private-key 'aPUcp5vHz8yMLrzk8SsDyYnV33IhE/k20e52iKJFV0A='"
-    * Execute "echo -e '[wireguard-peer.UtjqCJ57DeAscYKRfp7cFGiQqdONRn69u249Fa4O6BE=]\nendpoint=192.0.2.1:51820\nallowed-ips=192.0.2.1;2001:db8:1::1;\npersistent-keepalive=20' >> /etc/NetworkManager/system-connections/client-wg0.nmconnection" 
+    * Execute "echo -e '[wireguard-peer.UtjqCJ57DeAscYKRfp7cFGiQqdONRn69u249Fa4O6BE=]\nendpoint=192.0.2.1:51820\nallowed-ips=192.0.2.1;2001:db8:1::1;\npersistent-keepalive=20' >> /etc/NetworkManager/system-connections/client-wg0.nmconnection"
     * Reload connections
-    * Bring up connection "client-wg0"  
+    * Bring up connection "client-wg0"
     When "activated" is visible with command "nmcli -g GENERAL.STATE con show client-wg0" in "40" seconds
      Then "192.0.2.1:51820" is visible with command "wg show wg1"
       And "inet 192.0.2.2/24 brd 192.0.2.255 scope global noprefixroute wg1" is visible with command "ip address show wg1"
