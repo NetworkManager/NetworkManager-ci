@@ -611,6 +611,7 @@ Feature: nmcli: ipv4
 
     @rhbz1344303
     @ver+=1.8.0
+    @rhelver-=8
     @not_with_systemd_resolved
     @con_ipv4_remove @delete_testeth0 @restore_hostname
     @ipv4_ignore_resolveconf_with_ignore_auto_dns_var2
@@ -641,16 +642,12 @@ Feature: nmcli: ipv4
     * Execute "echo 'nameserver 1.2.3.4' >> /etc/resolv.conf"
     When Domain "boston.com" is set
      And Nameserver "1.2.3.4" is set
-    * Execute "hostnamectl set-hostname braunberg"
-    When Domain "boston.com" is set
-     And Nameserver "1.2.3.4" is set
     * Execute "hostnamectl set-hostname --transient BraunBerg"
     When Domain "boston.com" is set
      And Nameserver "1.2.3.4" is set
      And "BraunBerg" is visible with command "hostnamectl --transient" in "5" seconds
 
     * Execute "ip add add 1.2.3.1/24 dev eth3"
-    Then "braunberg" is visible with command "hostnamectl --static" for full "5" seconds
      And Domain "boston.com" is set
      And Nameserver "1.2.3.4" is set
 
