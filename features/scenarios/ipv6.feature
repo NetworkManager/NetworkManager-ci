@@ -573,7 +573,8 @@
     * Bring "up" connection "con_ipv6"
     When "empty" is not visible with command "file /tmp/ipv6_hostname.log" in "150" seconds
     Then "dacan.local" is visible with command "cat /tmp/ipv6-hostname.log" in "145" seconds
-     And "0. = O bit" is visible with command "cat /tmp/ipv6-hostname.log"
+     And "0.. = N bit" is visible with command "cat /tmp/ipv6-hostname.log"
+     And "1 = S bit" is visible with command "cat /tmp/ipv6-hostname.log"
 
 
     @con_ipv6_remove @teardown_testveth
