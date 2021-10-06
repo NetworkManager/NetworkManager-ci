@@ -1,0 +1,100 @@
+- name: "set up behave logs publishing"
+  hosts: "*"
+  remote_user: "root"
+  vars:
+    inst_pkgs:
+      - "httpd"
+    inst_pkgs_2:
+      - "python3-libselinux"
+      - "python3-inotify"
+    inst_el7:
+      - "libselinux-python"
+      - "python-inotify"
+    on_el7: false
+  tasks:
+    - set_fact:
+        inst_pkgs_2: "{{ inst_el7 }}"
+        on_el7: true
+      when:
+        - ansible_distribution == "RedHat"
+        - ansible_distribution_major_version | int < 8
+
+    - name: "install stuff"
+      ansible.builtin.package:
+        name: "{{ inst_pkgs + inst_pkgs_2 }}"
+        state: "present"
+
+    - name: "override welcome.conf"
+      ansible.builtin.copy:
+        dest: "/etc/httpd/conf.d/welcome.conf"
+        content: |
+            # disable welcome page
+      notify: "restart httpd"
+
+    - name: "create document root directory"
+      ansible.builtin.file:
+        path: "/var/www/html"
+        state: "directory"
+
+    - name: "set up root directory listing"
+      ansible.builtin.copy:
+        src: "99-publish_behave_logs.conf"
+        dest: "/etc/httpd/conf.d/99-publish_behave_logs.conf"
+      notify: "restart httpd"
+
+    - name: "set Listen 8080"
+      ansible.builtin.lineinfile:
+        path: "/etc/httpd/conf/httpd.conf"
+        regexp: "^Listen [0-9:]+"
+        line: "Listen 8080"
+      notify: "restart httpd"
+
+    - name: "copy log helper"
+      ansible.builtin.copy:
+        src: "publish_behave_logs"
+        dest: "/usr/local/bin/"
+        mode: "0755"
+      notify: "restart p_b_l"
+
+    - name: "copy log helper service"
+      ansible.builtin.copy:
+        src: "publish_behave_logs.service"
+        dest: "/etc/systemd/system/"
+      register: "service_copied"
+      when: not on_el7
+
+    - name: "copy log helper service - el7"
+      ansible.builtin.copy:
+        src: "publish_behave_logs.service.el7"
+        dest: "/etc/systemd/system/publish_behave_logs.service"
+      register: "service_copied_el7"
+      when: on_el7
+
+    - name: "reload systemd"
+      ansible.builtin.systemd:
+        daemon_reload: true
+      when: service_copied.changed or service_copied_el7.changed
+      notify: "restart p_b_l"
+
+    - name: "enable and start httpd"
+      ansible.builtin.systemd:
+        name: "httpd.service"
+        enabled: true
+        state: "started"
+
+    - name: "start publish_behave_logs"
+      ansible.builtin.systemd:
+        name: "publish_behave_logs.service"
+        state: "started"
+        enabled: true
+
+  handlers:
+    - name: "restart httpd"
+      ansible.builtin.systemd:
+        name: "httpd"
+        state: "restarted"
+
+    - name: "restart p_b_l"
+      ansible.builtin.systemd:
+        name: "publish_behave_logs"
+        state: "restarted"

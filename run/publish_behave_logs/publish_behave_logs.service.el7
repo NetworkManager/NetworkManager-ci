@@ -1,0 +1,8 @@
+[Unit]
+Description=helper to copy behave html logs to webserver Document root
+
+[Service]
+ExecStart=/usr/bin/python2 /usr/local/bin/publish_behave_logs
+
+[Install]
+Wanted_by=multi-user.target

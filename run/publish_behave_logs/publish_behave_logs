@@ -1,0 +1,92 @@
+#!/usr/bin/env python
+"""
+When report_.*html file is created in /tmp, it will be copied to httpd DocumentRoot
+with a file modification time stamp appended and FAIL_ or EMPTY_ prepended to the
+new file name for clearer orientation and to make sure we keep logs of older runs
+of the same case
+"""
+from glob import glob
+from multiprocessing import Pool, Process
+from os.path import basename, exists, getmtime, isdir
+from shutil import copy2
+from sys import argv, stdout
+from time import localtime, sleep, strftime
+from xml.etree.ElementTree import parse as et_parse
+from selinux import restorecon
+import pyinotify
+
+
+def copy_file(src):
+    '''copy the file, add FAIL_ prefix if failed or not (x)html'''
+    prefix = 'FAIL_'
+    try:
+        tree = et_parse(src)
+        # getElementById('behave-header')
+        for div in tree.iter('div'):
+            if 'id' in div.attrib and div.attrib['id'] == 'behave-header':
+                if ('class' not in div.attrib) or ('class' in div.attrib and
+                        'failed' not in div.attrib['class']):
+                    prefix = ''
+                break
+    except:
+        pass
+    file_name = basename(src).rsplit('.', 1)[0]
+    file_ext = basename(src).rsplit('.', 1)[1]
+    mtime = strftime('%m%d-%H%M%S', localtime(getmtime(src)))
+    target = '{}/{}{}-{}.{}'.format(DOCUMENT_ROOT, prefix, file_name, mtime, file_ext)
+    copy2(src, target)
+    restorecon(target)
+    print('Written file: {}'.format(target))
+    stdout.flush()
+
+
+def delay_copy(newfile):
+    '''Copy the file if still exists after 2 s delay so run/runtest.sh has
+    a chance to delete empty reports of skipped tests. Intended to run in
+    a separate new process to prevent blocking.'''
+    sleep(2)
+    if exists(newfile):
+        copy_file(newfile)
+
+
+def process_close_write(event):
+    '''Called when file in /tmp is close()-d. If it matches the pattern, new
+    process that will copy it after 2 s delay will be created'''
+    newfile = event.pathname
+    if (newfile.startswith('/tmp/report_') and
+            newfile.endswith('.html')):
+        Process(target=delay_copy, args=(newfile,)).start()
+
+
+def main():
+    wm = pyinotify.WatchManager()
+    notifier = pyinotify.Notifier(wm, default_proc_fun=process_close_write)
+    wm.add_watch('/tmp', pyinotify.IN_CLOSE_WRITE)
+
+    # copy already existing files
+    p = Pool()
+    init_copy = p.map_async(copy_file, glob('/tmp/report_*html'))
+    p.close()
+
+    try:
+        notifier.loop()
+    except KeyboardInterrupt:
+        print('Caught interrupt, quitting.')
+    finally:
+        notifier.stop()
+        init_copy.wait()
+
+
+if __name__ == '__main__':
+    global DOCUMENT_ROOT
+    if len(argv) == 1:
+        DOCUMENT_ROOT = '/var/www/html'
+    elif len(argv) == 2:
+        DOCUMENT_ROOT = argv[1]
+    else:
+        raise SystemExit('specify just one destination directory as command argument!')
+
+    if not isdir(DOCUMENT_ROOT):
+        raise SystemExit('Directory {} must exist!'.format(DOCUMENT_ROOT))
+
+    main()

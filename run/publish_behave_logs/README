@@ -1,0 +1,11 @@
+Make existing and freshly created Behave reports available over HTTP
+
+Install:
+  * locally: ./setup_pbl.py
+  * remotely: ansible-playbook -i host,[host2[,host3]] setup_pbl.yml
+
+httpd should now listen on port 8080 and make available existing and
+freshly created logs. This is done by publish_behave_logs service that
+monitors /tmp for close_write events and copies report_*.html files to
+httpd document root with modification time stamp added to file name so
+that you can see results of repeated run of a single test.
