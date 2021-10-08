@@ -1123,6 +1123,41 @@
     Then "2001:db8:e:10::4/64 scope global.*2001:db8:e:10::57/64 scope global.*2001:db8:e:10::30/64" is visible with command "ip a show eth2"
 
 
+    @rhbz2004212
+    @ver+=1.32.10
+    @con_ipv6_remove @teardown_testveth
+    @ipv6_keep_route_upon_reapply
+    Scenario: NM - ipv6 - keep routes upon reapply
+    * Prepare simulated test "testX6" device without DHCP
+    * Execute "ip -n testX6_ns addr add dev testX6p fd01::1/64"
+    * Execute "ip -n testX6_ns link set dev testX6p up"
+    * Execute "ip link set dev testX6 up"
+    * Run child "ip netns exec testX6_ns dnsmasq --bind-interfaces --interface testX6p --dhcp-range=::,constructor:testX6p,ra-only,64,60 --enable-ra --ra-param=testX6p,60 --no-hosts --pid-file=/tmp/testX6_ns.pid" without shell
+    * Add a new connection of type "ethernet" and options "ifname testX6 con-name testX6 ipv4.method disabled ipv6.method auto ipv6.route-table 254"
+    * Bring "up" connection "testX6"
+    * Execute "nmcli d reapply testX6"
+    Then "ff00" is visible with command "ip -6 route show table local dev testX6"
+
+
+    @rhbz2004212
+    @ver+=1.32.10
+    @con_ipv6_remove @teardown_testveth @long
+    @ipv6_keep_route_upon_reapply_full
+    Scenario: NM - ipv6 - keep routes upon reapply, check address presence after timeout
+    * Prepare simulated test "testX6" device without DHCP
+    * Execute "ip -n testX6_ns addr add dev testX6p fd01::1/64"
+    * Execute "ip -n testX6_ns link set dev testX6p up"
+    * Execute "ip link set dev testX6 up"
+    * Run child "ip netns exec testX6_ns dnsmasq --bind-interfaces --interface testX6p --dhcp-range=::,constructor:testX6p,ra-only,64,60 --enable-ra --ra-param=testX6p,60 --no-hosts --pid-file=/tmp/testX6_ns.pid" without shell
+    * Add a new connection of type "ethernet" and options "ifname testX6 con-name testX6 ipv4.method disabled ipv6.method auto ipv6.route-table 254"
+    * Bring "up" connection "testX6"
+    * Execute "nmcli d reapply testX6"
+    Then "ff00" is visible with command "ip -6 route show table local dev testX6"
+    * Execute "echo 'will sleep for 3 minutes'"
+    * Execute "sleep 180"
+    Then "fd01" is visible with command "ip -6 addr show dev testX6"
+
+
     @con_ipv6_remove
     @ver-=1.19.1
     @ipv6_describe

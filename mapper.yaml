@@ -727,6 +727,11 @@ testmapper:
     - ipv6_honor_ip_order:
         feature: ipv6
         tags: gate
+    - ipv6_keep_route_upon_reapply:
+        feature: ipv6
+        tags: gate
+    - ipv6_keep_route_upon_reapply_full:
+        feature: ipv6
     - ipv6_describe:
         feature: ipv6
     - ipv6_keep_external_addresses:
