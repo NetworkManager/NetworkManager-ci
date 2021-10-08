@@ -41,7 +41,7 @@ Feature: NM: dracut
       | check  | nmcli_con_prop "Wired Connection" ipv6.method auto                     |
       | check  | nmcli_con_prop "Wired Connection" IP6.ADDRESS *deaf:beef::1:10/128* 10 |
       | check  | nmcli_con_prop "Wired Connection" IP6.ROUTE *deaf:beef::/64*           |
-      | check  | nmcli_con_prop "Wired Connection" IP6.DNS deaf:beef::1                 |
+      | check  | nmcli_con_prop "Wired Connection" IP6.DNS deaf:beef::1 10              |
       | check  | wait_for_ip4_renew 192.168.50.101/24 eth0                              |
       | check  | wait_for_ip6_renew deaf:beef::1:10/128 eth0                            |
       | check  | dns_search *'nfs.redhat.com'*                                          |
@@ -75,7 +75,7 @@ Feature: NM: dracut
       | check  | nmcli_con_prop "Wired Connection" ipv6.method auto                     |
       | check  | nmcli_con_prop "Wired Connection" IP6.ADDRESS *deaf:beef::1:10/128* 10 |
       | check  | nmcli_con_prop "Wired Connection" IP6.ROUTE *deaf:beef::/64*           |
-      | check  | nmcli_con_prop "Wired Connection" IP6.DNS deaf:beef::1                 |
+      | check  | nmcli_con_prop "Wired Connection" IP6.DNS deaf:beef::1 10              |
       | check  | wait_for_ip4_renew 192.168.50.101/24 eth0                              |
       | check  | wait_for_ip6_renew deaf:beef::1:10/128 eth0                            |
       | check  | dns_search *'nfs.redhat.com'*                                          |
@@ -146,7 +146,7 @@ Feature: NM: dracut
       | check  | nmcli_con_prop "Wired Connection" ipv6.method auto                         |
       | check  | nmcli_con_prop "Wired Connection" IP6.ADDRESS *deaf:beef::1:10/128* 10     |
       | check  | nmcli_con_prop "Wired Connection" IP6.ROUTE *deaf:beef::/64*               |
-      | check  | nmcli_con_prop "Wired Connection" IP6.DNS deaf:beef::1                     |
+      | check  | nmcli_con_prop "Wired Connection" IP6.DNS deaf:beef::1 10                  |
       | check  | wait_for_ip4_renew 192.168.50.102/24 eth0                                  |
       | check  | wait_for_ip6_renew deaf:beef::1:10/128 eth0                                |
       | check  | dns_search *'nfs.redhat.com'*                                              |
@@ -181,7 +181,7 @@ Feature: NM: dracut
       | check  | nmcli_con_prop eth0 ipv6.method auto                     |
       | check  | nmcli_con_prop eth0 IP6.ADDRESS *deaf:beef::1:10/128* 10 |
       | check  | nmcli_con_prop eth0 IP6.ROUTE *deaf:beef::/64*           |
-      | check  | nmcli_con_prop eth0 IP6.DNS deaf:beef::1                 |
+      | check  | nmcli_con_prop eth0 IP6.DNS deaf:beef::1 10              |
       | check  | ifname_mtu eth0 1490                                     |
       | check  | wait_for_ip4_renew 192.168.50.101/24 eth0                |
       | check  | wait_for_ip6_renew deaf:beef::1:10/128 eth0              |
@@ -218,7 +218,7 @@ Feature: NM: dracut
       | check  | nmcli_con_prop eth0 ipv6.method auto                                    |
       | check  | nmcli_con_prop eth0 IP6.ADDRESS *deaf:beef::1:10/128* 10                |
       | check  | nmcli_con_prop eth0 IP6.ROUTE *deaf:beef::/64*                          |
-      | check  | nmcli_con_prop eth0 IP6.DNS deaf:beef::1                                |
+      | check  | nmcli_con_prop eth0 IP6.DNS deaf:beef::1 10                             |
       | check  | ifname_mtu eth0 1510                                                    |
       | check  | ifname_mac eth0 52:54:00:12:34:10                                       |
       | check  | wait_for_ip4_renew 192.168.50.101/24 eth0                               |
@@ -255,7 +255,7 @@ Feature: NM: dracut
         | check  | nmcli_con_prop 'Wired Connection' ipv6.method auto                     |
         | check  | nmcli_con_prop 'Wired Connection' IP6.ADDRESS *deaf:beef::1:10/128* 10 |
         | check  | nmcli_con_prop 'Wired Connection' IP6.ROUTE *deaf:beef::/64*           |
-        | check  | nmcli_con_prop 'Wired Connection' IP6.DNS deaf:beef::1                 |
+        | check  | nmcli_con_prop 'Wired Connection' IP6.DNS deaf:beef::1 10              |
         | check  | wait_for_ip4_renew 192.168.50.101/24 eth0                              |
         | check  | dns_search *'nfs.redhat.com'*                                          |
         | check  | dns_search *'nfs6.redhat.com'*                                         |
@@ -294,7 +294,7 @@ Feature: NM: dracut
       | check  | nmcli_con_prop eth0 ipv6.method auto                             |
       | check  | nmcli_con_prop eth0 IP6.ADDRESS *deaf:beef::1:10/128* 10         |
       | check  | nmcli_con_prop eth0 IP6.ROUTE *deaf:beef::/64*                   |
-      | check  | nmcli_con_prop eth0 IP6.DNS deaf:beef::1                         |
+      | check  | nmcli_con_prop eth0 IP6.DNS deaf:beef::1 10                      |
       | check  | wait_for_ip4_renew 192.168.50.101/24 eth0                        |
       | check  | wait_for_ip6_renew deaf:beef::1:10/128 eth0                      |
       | check  | dns_search *'nfs.redhat.com'*                                    |
@@ -461,7 +461,7 @@ Feature: NM: dracut
       | check  | nmcli_con_prop eth0 ipv6.method auto                                                   |
       | check  | nmcli_con_prop eth0 IP6.ADDRESS *deaf:beef::1:10/128* 10                               |
       | check  | nmcli_con_prop eth0 IP6.ROUTE *deaf:beef::/64*                                         |
-      | check  | nmcli_con_prop eth0 IP6.DNS deaf:beef::1                                               |
+      | check  | nmcli_con_prop eth0 IP6.DNS deaf:beef::1 10                                            |
       | check  | ip4_forever 192.168.50.201/24 eth0                                                     |
       | check  | wait_for_ip4_renew 192.168.50.101/24 eth0                                              |
       | check  | wait_for_ip6_renew deaf:beef::1:10/128 eth0                                            |
@@ -807,7 +807,7 @@ Feature: NM: dracut
       | check  | nmcli_con_prop eth2 ipv6.method auto                     |
       | check  | nmcli_con_prop eth2 IP6.ADDRESS *deaf:beef::1:10/128* 10 |
       | check  | nmcli_con_prop eth2 IP6.ROUTE *deaf:beef::/64*           |
-      | check  | nmcli_con_prop eth2 IP6.DNS deaf:beef::1                 |
+      | check  | nmcli_con_prop eth2 IP6.DNS deaf:beef::1 10              |
       | check  | dns_search *'nfs.redhat.com'*                            |
       | check  | dns_search *'nfs6.redhat.com'*                           |
       | check  | ip4_forever 192.168.90.204/24 eth0                       |
@@ -869,7 +869,7 @@ Feature: NM: dracut
         | check  | nmcli_con_prop "Wired Connection" ipv6.method auto                     |
         | check  | nmcli_con_prop "Wired Connection" IP6.ADDRESS *deaf:beef::1:10/128* 10 |
         | check  | nmcli_con_prop "Wired Connection" IP6.ROUTE *deaf:beef::/64*           |
-        | check  | nmcli_con_prop "Wired Connection" IP6.DNS deaf:beef::1                 |
+        | check  | nmcli_con_prop "Wired Connection" IP6.DNS deaf:beef::1 10              |
         | check  | dns_search *'nfs.redhat.com'*                                          |
         | check  | dns_search *'nfs6.redhat.com'*                                         |
         | check  | ip4_forever 192.168.90.204/24 eth0                                     |
@@ -899,7 +899,7 @@ Feature: NM: dracut
       | check  | nmcli_con_prop "Wired Connection" ipv6.method auto                     |
       | check  | nmcli_con_prop "Wired Connection" IP6.ADDRESS *deaf:beef::1:10/128* 10 |
       | check  | nmcli_con_prop "Wired Connection" IP6.ROUTE *deaf:beef::/64*           |
-      | check  | nmcli_con_prop "Wired Connection" IP6.DNS deaf:beef::1                 |
+      | check  | nmcli_con_prop "Wired Connection" IP6.DNS deaf:beef::1 10              |
       | check  | wait_for_ip6_renew deaf:beef::1:10/128 eth0                            |
       | check  | dns_search nfs6.redhat.com                                             |
       | check  | nmcli_con_num 1                                                        |
@@ -926,7 +926,7 @@ Feature: NM: dracut
       | check  | nmcli_con_prop "Wired Connection" ipv6.method auto                     |
       | check  | nmcli_con_prop "Wired Connection" IP6.ADDRESS *deaf:beef::1:10/128* 10 |
       | check  | nmcli_con_prop "Wired Connection" IP6.ROUTE *deaf:beef::/64*           |
-      | check  | nmcli_con_prop "Wired Connection" IP6.DNS deaf:beef::1                 |
+      | check  | nmcli_con_prop "Wired Connection" IP6.DNS deaf:beef::1 10              |
       | check  | wait_for_ip6_renew deaf:beef::1:10/128 eth0                            |
       | check  | dns_search nfs6.redhat.com                                             |
       | check  | nmcli_con_num 1                                                        |
@@ -1651,7 +1651,7 @@ Feature: NM: dracut
       | check  | nmcli_con_prop eth2 ipv6.method auto                     |
       | check  | nmcli_con_prop eth2 IP6.ADDRESS *deaf:beef::1:10/128* 10 |
       | check  | nmcli_con_prop eth2 IP6.ROUTE *deaf:beef::/64*           |
-      | check  | nmcli_con_prop eth2 IP6.DNS deaf:beef::1                 |
+      | check  | nmcli_con_prop eth2 IP6.DNS deaf:beef::1 10              |
       | check  | wait_for_ip4_renew 192.168.55.18/30 vlan0017             |
       | check  | wait_for_ip4_renew 192.168.50.101/24 eth2                |
       | check  | wait_for_ip6_renew deaf:beef::1:10/128 eth2              |
