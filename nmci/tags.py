@@ -2759,3 +2759,25 @@ def remove_ctcdevice_as(ctx, scen):
 
 
 _register_tag("remove_ctcdevice", None, remove_ctcdevice_as)
+
+
+def filter_batch_bs(ctx, scen):
+    
+    file_path =  '/tmp/filter_batch.txt'
+    ctx.run(f'sudo touch {file_path}')
+    count = 1
+    with open(file_path, 'a') as file:
+        for a in range(64):
+            for b in range(64):
+                for c in range(64):
+                    file.write(f"filter add dev dummy0 protocol ip ingress prio 1 handle {count} " +
+                               f"flower skip_hw src_mac 11:11:00:{a:02x}:{b:02x}:{c:02x} " +
+                               f"dst_mac 12:34:00:{a:02x}:{b:02x}:{c:02x} action gact drop\n")
+                    count+=1
+
+
+def filter_batch_as(ctx, scen):
+    ctx.run('sudo rm /tmp/filter_batch.txt')
+    
+
+_register_tag("filter_batch", filter_batch_bs, filter_batch_as)

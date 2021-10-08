@@ -621,3 +621,4 @@ def device_lldp_status_libnm(context, device):
     assert nm_device_flags & NM.DeviceInterfaceFlags.LLDP_CLIENT_ENABLED, \
         f"LLDP status flag not set:\nDevice Flags: {nm_device_flags:032b}\n" \
         f"LLDP flag:    {NM.DeviceInterfaceFlags.LLDP_CLIENT_ENABLED:032b}"
+        

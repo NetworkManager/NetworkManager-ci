@@ -177,3 +177,21 @@
     * Bring "up" connection "con_tc"
     Then "example.com" is visible with command "cat /tmp/tshark.log" in "10" seconds
      And "Option: \(12\) Host Name\s+Length: 11\s+Host Name: example.com" is visible with command "cat /tmp/tshark.log"
+
+
+   @rhbz1753677
+   @ver+=1.33
+   @filter_batch @dummy
+   @tc_device_filter_management
+   Scenario: nmcli - tc - non-controlled device filter management
+   * Execute "ip link add dummy0 type veth peer name dummy1"
+   * Execute "ip link set dummy0 up"
+   * Execute "ip link set dummy1 up"
+   * Execute "tc qdisc add dev dummy0 ingress"
+   Then Note the output of """awk -v clk="$(getconf CLK_TCK)" '{ print $14 * 1000 / clk }' /proc/$(pidof NetworkManager)/stat""" as value "user_before"
+   Then Note the output of """awk -v clk="$(getconf CLK_TCK)" '{ print $15 * 1000 / clk}' /proc/$(pidof NetworkManager)/stat""" as value "kernel_before"
+   * Execute "tc -b /tmp/filter_batch.txt"
+   Then Note the output of """awk -v clk="$(getconf CLK_TCK)" '{ print $14 * 1000 / clk }' /proc/$(pidof NetworkManager)/stat""" as value "user_after"
+   Then Note the output of """awk -v clk="$(getconf CLK_TCK)" '{ print $15 * 1000 / clk }' /proc/$(pidof NetworkManager)/stat""" as value "kernel_after"
+   Then Check noted value "user_after" difference from "user_before" is lower than "100"
+   And Check noted value "kernel_after" difference from "kernel_before" is lower than "100"

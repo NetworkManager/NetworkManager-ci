@@ -2080,6 +2080,8 @@ testmapper:
         tags: customer-scenario
     - tc_morrir_traffic_clsact:
         feature: tc
+    - tc_device_filter_management:
+        feature: tc
     - simwifi_p2p_connect:
         feature: wifi_hwsim
     ## @need_legacy_crypto (mschap) tests
