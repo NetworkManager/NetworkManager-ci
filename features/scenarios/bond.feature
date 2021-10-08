@@ -98,7 +98,7 @@
 
     @rhbz1368761
     @ver+=1.4.0
-    @slaves @bond @ifcfg-rh
+    @ifcfg-rh @slaves @bond
     @nmcli_bond_manual_ipv4
     Scenario: nmcli - bond - remove BOOTPROTO dhcp for enslaved ethernet
     * Add a new connection of type "ethernet" and options

@@ -6,7 +6,7 @@ Feature: Bond TUI tests
 
     @rhbz1715720
     @ver+=1.18.4
-    @bond @ifcfg-rh
+    @ifcfg-rh @bond
     @nmtui_bond_add_default_bond
     Scenario: nmtui - bond - add default bond
     * Prepare new connection of type "Bond" named "bond0"
@@ -156,7 +156,7 @@ Feature: Bond TUI tests
 
     @rhbz1425409
     @ver+=1.8.0
-    @bond @ifcfg-rh
+    @ifcfg-rh @bond
     @nmtui_bond_add_one_slave
     Scenario: nmtui - bond - add one slave
     * Prepare new connection of type "Bond" named "bond0"
@@ -254,7 +254,7 @@ Feature: Bond TUI tests
     Then "192.168" is visible with command "ip a s bond0"
 
 
-    @bond @ifcfg-rh
+    @ifcfg-rh @bond
     @nmtui_bond_infiniband_slaves
     Scenario: nmtui - bond - infiniband slaves
     * Prepare new connection of type "Bond" named "bond0"
