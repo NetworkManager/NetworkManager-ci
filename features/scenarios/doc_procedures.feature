@@ -58,6 +58,12 @@ Feature: nmcli - procedures in documentation
     Then Bring "up" connection "con_ethernet"
 
 
+    @8021x_teardown
+    @8021x_teardown_doc
+    Scenario: just remove 802.1-x set up
+    * Execute "echo 'this is skipped'"
+
+
     @ver+=1.10 @fedoraver+=31
     @need_legacy_crypto
     @simwifi @simwifi_wpa2 @attach_hostapd_log @attach_wpa_supplicant_log

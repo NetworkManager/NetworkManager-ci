@@ -920,17 +920,21 @@ _register_tag("netservice", netservice_bs, netservice_as)
 
 
 def tag8021x_bs(ctx, scen):
-    if ctx.arch == "s390x":
-        print("install hostapd.el7 on s390x")
-        ctx.run("[ -x /usr/sbin/hostapd ] || (yum -y install 'https://vbenes.fedorapeople.org/NM/hostapd-2.6-7.el7.s390x.rpm'; time.sleep 10)")
-    nmci.lib.setup_hostapd(ctx)
+    if not os.path.isfile('/tmp/nm_8021x_configured'):
+        if ctx.arch == "s390x":
+            print("install hostapd.el7 on s390x")
+            ctx.run("[ -x /usr/sbin/hostapd ] || (yum -y install 'https://vbenes.fedorapeople.org/NM/hostapd-2.6-7.el7.s390x.rpm'; time.sleep 10)")
+        nmci.lib.setup_hostapd(ctx)
+
+
+_register_tag("8021x", tag8021x_bs)
 
 
 def tag8021x_as(ctx, scen):
     nmci.lib.teardown_hostapd(ctx)
 
 
-_register_tag("8021x", tag8021x_bs, tag8021x_as)
+_register_tag("8021x_teardown", None, tag8021x_as)
 
 
 def pkcs11_bs(ctx, scen):

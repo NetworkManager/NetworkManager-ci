@@ -712,6 +712,13 @@ Feature: nmcli - ethernet
     Then "activated" is visible with command "nmcli -g general.state con show id con_ethernet" in "10" seconds
 
 
+    # all tests with @8021x tag should go before this one
+    @8021x_teardown
+    @8021x_teardown_eth
+    Scenario: just remove 802.1-x set up
+    * Execute "echo 'this is skipped'"
+
+
     @rhbz1335409
     @ver+=1.14
     @con_ethernet_remove

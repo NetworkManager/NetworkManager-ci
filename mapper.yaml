@@ -1274,6 +1274,9 @@ testmapper:
         feature: ethernet
     - 8021x_ca_path_with_ifcfg_plugin:
         feature: ethernet
+    - 8021x_teardown_eth:
+        feature: ethernet
+        tags: gate
     - ethtool_features_connection:
         feature: ethernet
     - ethtool_features_fixed_connection:
@@ -2171,6 +2174,9 @@ testmapper:
         feature: doc_procedures
         tags: gate
     - 8021x_peap_mschapv2_doc_procedure:
+        feature: doc_procedures
+        tags: gate
+    - 8021x_teardown_doc:
         feature: doc_procedures
         tags: gate
     - simwifi_peap_mschapv2_doc_procedure:
