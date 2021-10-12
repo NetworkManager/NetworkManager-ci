@@ -60,7 +60,7 @@ nmcli_list
 
 echo "== checks #1 =="
 client_check || die "client_check did not exit with 0"
-wait  # wait for ip_renew tests to finish
+my_wait  # wait for ip_renew tests to finish
 echo "== checks #2 =="
 client_check || die "client_check did not exit with 0"
 

@@ -155,3 +155,14 @@ ifname_mtu() {
     [[ "$mtu" == "$2" ]] || die "'$1' MTU is '$mtu', expected '$2'"
     echo "[OK] '$1' MTU is '$mtu'"
 }
+
+
+my_wait() {
+    local jobs
+    while true; do
+        jobs=$(jobs | grep -v "Done")
+        echo "$jobs"
+        [ -z "$jobs" ] && break
+        sleep 1
+    done
+}

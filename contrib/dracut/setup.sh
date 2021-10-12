@@ -37,11 +37,11 @@ test_setup() {
       export initdir=$TESTDIR/nfs/client
       . $basedir/dracut-init.sh
 
-      inst_multiple sh bash shutdown poweroff stty cat ps ln ip dd mount dmesg \
-                    mkdir cp mv ping grep wc awk setsid ls find less tee echo \
-                    sync rm sed uname lsblk df du free cat ps ln ip mount umount \
-                    strace head tail reset loadkeys setfont login sushell sulogin \
-                    gzip sleep modprobe tr
+      inst_multiple sh bash shutdown poweroff stty cat ps ln ip dd mount umount \
+                    dmesg mkdir cp mv ping grep wc awk setsid ls find less tee \
+                    echo sync rm sed uname lsblk df du free strace head tail \
+                    reset loadkeys setfont login sushell sulogin gzip sleep \
+                    modprobe tr
 
       for _terminfodir in /lib/terminfo /etc/terminfo /usr/share/terminfo; do
           [ -f ${_terminfodir}/l/linux ] && break
