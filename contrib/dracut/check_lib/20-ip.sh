@@ -110,7 +110,7 @@ wait_for_ip_renew() {
   count=0
   # lease time is forever in early phase
   while [[ "$lease_time" == "forever" ]]; do
-    (( count >= 10 )) && die "'$ifname' lease time is forever: $(echo; ip addr show $ifname)"
+    (( count++ >= 10 )) && die "'$ifname' lease time is forever: $(echo; ip addr show $ifname)"
     sleep 1
     lease_time="$(get_lease_time)"
     [[ $lease_time ]] || die "'$ifname' lost IP '$IP': $(echo; ip a show $ifname)"
@@ -127,6 +127,7 @@ wait_for_ip_renew() {
       last_lease=$lease_time
       lease_time="$(get_lease_time)"
       [[ $lease_time ]] || die "'$ifname' lost IP '$IP': $(echo; ip a show $ifname)"
+      echo "  lease time change: $last_lease -> $lease_time"
   done
   echo "[OK] '$ifname' '$IP' lease renewed: ${last_lease}s -> ${lease_time}s"
 }

@@ -161,7 +161,7 @@ my_wait() {
     local jobs
     while true; do
         jobs=$(jobs | grep -v "Done")
-        echo "$jobs"
+        echo "  $jobs"
         [ -z "$jobs" ] && break
         sleep 1
     done
