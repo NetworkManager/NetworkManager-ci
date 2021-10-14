@@ -6,6 +6,7 @@ import subprocess
 import time
 import re
 import inspect
+from pyroute2 import IPRoute
 
 import nmci.ip
 import nmci.lib
@@ -2697,15 +2698,22 @@ for i in [1, 2, 4, 5, 6, 8, 10]:
     _register_tag("eth%d_disconnect" % i, None, eth_disconnect_as(i))
 
 
+def non_utf_device_bs(ctx, scen):
+    print("add non utf-8 device")
+    with IPRoute() as ip:
+        ip.link('add', ifname=b'\x1B[2Jnonutf\xccf\\c', kind='dummy', index=123456)
+    ctx.command_output('ip link')
+
+
 def non_utf_device_as(ctx, scen):
+    ctx.command_output('ip link')
     print("remove non utf-8 device")
-    if sys.version_info.major < 3:
-        ctx.run("ip link del $'d\xccf\\c'")
-    else:
-        ctx.run("ip link del $'d\\xccf\\\\c'")
+    with IPRoute() as ip:
+        ip.link('del', index=123456)
+    ctx.command_output('ip link')
 
 
-_register_tag("non_utf_device", None, non_utf_device_as)
+_register_tag("non_utf_device", non_utf_device_bs, non_utf_device_as)
 
 
 def shutdown_as(ctx, scen):

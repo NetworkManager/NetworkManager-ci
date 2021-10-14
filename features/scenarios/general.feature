@@ -1741,15 +1741,11 @@ Feature: nmcli - general
 
     @rhbz1443114
     @ver+=1.8.0
-    @restart_if_needed
+    @restart_if_needed @non_utf_device
     @dummy_non_utf_device
     Scenario: NM - general - non UTF-8 device
-    * Execute "ip link add name $'d\xccf\\c' type dummy"
-    When "/sys/devices/virtual/net/d\\314f\\\\c" is visible with command "nmcli -f GENERAL.UDI device show"
     * Restart NM
-    When "dummy" is visible with command "nmcli -g GENERAL.TYPE device show d\\314f\\\\c"
-    Then Execute "nmcli device delete d\\314f\\\\c"
-     And String "d\\314f\\\\c" is not visible with command "nmcli -g DEVICE device"
+    Then "nonutf" is visible with command "nmcli device"
 
 
     @rhbz1458399
