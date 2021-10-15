@@ -274,7 +274,7 @@ install_el8_packages () {
         [ -f /etc/yum.repos.d/epel.repo ] || sudo rpm -i http://dl.fedoraproject.org/pub/epel/epel-release-latest-8.noarch.rpm
     fi
 
-    python -m pip install pyroute2a
+    python -m pip install pyroute2
     python -m pip install pexpect
     python -m pip install netaddr
     python -m pip install pyte
