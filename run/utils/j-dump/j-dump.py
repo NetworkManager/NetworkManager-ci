@@ -1,12 +1,15 @@
 #! /usr/bin/python3
 import argparse
 import pickle
-import sys, os
+import sys
+import os
 import traceback
 from subprocess import call
 import jsonpickle
+import math
 
 import requests
+import urllib
 import jenkinsapi
 from jenkinsapi.jenkins import Jenkins
 #logging.basicConfig(level=logging.DEBUG)
@@ -54,6 +57,9 @@ class Job:
         self.connection = None
         self.builds = []
         self.failures = {}
+        self.tags = {}
+        self.tests = {}
+        self.state = {}
         self.cache_dir = cache_dir_prefix
         if not os.path.isdir(self.cache_dir):
             call("mkdir -p %s" % (self.cache_dir), shell=True)
@@ -73,15 +79,16 @@ class Job:
         return True
 
     def get_builds(self):
-        return self.builds
+        return [build for build in self.builds if build.status != "RUNNING"]
 
     def get_failures(self):
         return list(self.failures.values())
 
     def add_build(self, build):
         self.builds.append(build)
+        self.process_tests_and_tags(build)
 
-    def add_failure(self, failure_name, build, artifact_url = None):
+    def add_failure(self, failure_name, build, artifact_url=None):
         if failure_name in self.failures:
             failure = self.failures[failure_name]
         else:
@@ -92,12 +99,105 @@ class Job:
             failure.add_artifact(build.id, artifact_url)
         build.add_failure(failure_name, failure)
 
+    def process_tests_and_tags(self, build):
+        tests, tags = self.process_taskout_log(build)
+
+        build.tests_passed, build.tests_failed, build.tests_skipped = 0, 0, 0
+
+        if len(tests) == 0:
+            return
+
+        statuses = []
+        for test_name, test_stats in tests.items():
+            if test_name in self.tests:
+                self.tests[test_name]["builds"][build.id] = test_stats
+            else:
+                self.tests[test_name] = {"builds": {build.id: test_stats}}
+            statuses.append(test_stats["status"])
+
+        for tag_name, tag_stats in tags.items():
+            if tag_name in self.tags:
+                self.tags[tag_name]["builds"][build.id] = tag_stats
+            else:
+                self.tags[tag_name] = {"builds": {build.id: tag_stats}}
+
+        build.tests_passed = statuses.count("PASS")
+        build.tests_failed = statuses.count("FAIL")
+        build.tests_skipped = statuses.count("SKIP")
+
+    def process_taskout_log(self, build):
+        log = self.get_taskout_log(build)
+        tests = {}
+        tags = {}
+        when = "bs"
+        test_time = 0
+        bs_time = 0
+        as_time = 0
+        tags_as_time = 0
+        tags_bs_time = 0
+        test_name = ""
+        for line in log.split("\n"):
+            line = line.strip(" ")
+            if "runtest.sh 'Running test " in line:
+                test_name = line.split("runtest.sh 'Running test ")[1][:-1]
+                when = "bs"
+                bs_time = 0
+                as_time = 0
+                tags_as_time = 0
+                tags_bs_time = 0
+            if line.startswith("@") and " in " in line and line.endswith("s"):
+                tag_name = line.split(" ")[0].lstrip("@")
+                tag_time = str_to_time(line.split(" ")[-1])
+                if tag_name in tags:
+                    tags[tag_name].append({when: tag_time})
+                else:
+                    tags[tag_name] = [{when: tag_time}]
+                if when == "bs":
+                    tags_bs_time += tag_time
+                else:
+                    tags_as_time += tag_time
+            if "before_scenario ... " in line and " in " in line and line.endswith("s"):
+                bs_time = str_to_time(line.split(" ")[-1]) - tags_bs_time
+                when = "as"
+            if "after_scenario ... " in line and " in " in line and line.endswith("s"):
+                as_time = str_to_time(line.split(" ")[-1]) - tags_as_time
+            if line.startswith("Took "):
+                test_time = str_to_time(line.split(" ")[-1])
+            if "echo '------------ Test result: " in line:
+                status = line.split("Test result: ")[1].split(" ")[0]
+                tests[test_name] = {"time": test_time, "as": as_time, "bs": bs_time,
+                                    "tags_as": tags_as_time, "tags_bs": tags_bs_time,
+                                    "status": status}
+        return tests, tags
+
+    def get_taskout_log(self, build):
+        log = ""
+        for url in [
+            "/artifact/artifacts/taskout.log",
+            "/artifact/artifacts/runner.txt",
+            "/consoleText",
+        ]:
+            req = urllib.request.Request(build.url + url)
+            try:
+                with urllib.request.urlopen(req) as rq:
+                    log = rq.read().decode("utf-8", errors='ignore')
+                break
+            except urllib.error.URLError:
+                log = ""
+        return log
+
     def remove_build(self, build_id):
-        self.builds = [ build for build in self.builds if build.id != build_id]
+        self.builds = [build for build in self.builds if build.id != build_id]
         for failure in self.failures.values():
-            failure.builds = [ build for build in failure.builds if build.id != build_id]
+            failure.builds = [build for build in failure.builds if build.id != build_id]
             if build_id in failure.artifact_urls.keys():
                 failure.artifact_urls.pop(build_id)
+        for test in self.tests.values():
+            if build_id in test["builds"]:
+                test["builds"].pop(build_id)
+        for tag in self.tags.values():
+            if build_id in tag["builds"]:
+                tag["builds"].pop(build_id)
 
     def load_cache(self, build_ids):
         if not os.path.isfile(self.cache_file):
@@ -105,7 +205,7 @@ class Job:
         with open(self.cache_file, "r") as fd:
             data_json = fd.read()
         data = jsonpickle.decode(data_json, keys=True)
-        self.builds, self.failures = data
+        self.builds, self.failures, self.tests, self.tags, self.state = data
 
         for build in self.builds:
             if build.status == "RUNNING":
@@ -124,23 +224,37 @@ class Job:
                 self.failures.pop(failure_name)
 
     def save_cache(self):
-        data = (self.builds, self.failures)
+        data = (self.builds, self.failures, self.tests, self.tags, self.stats)
         data_json = jsonpickle.encode(data, keys=True)
         with open(self.cache_file, "w") as fd:
             fd.write(data_json)
+
         # for faster JS site loading
-        data = (self.builds, )
+        data = (self.builds, self.stats)
         data_json = jsonpickle.encode(data, keys=True)
         with open(self.cache_file.replace(".json", "-builds.json"), "w") as fd:
             fd.write(data_json)
 
+        for _, test_stats in self.tests.items():
+            test_stats.pop("builds")
+        data = (self.tests, self.stats)
+        data_json = jsonpickle.encode(data, keys=True)
+        with open(self.cache_file.replace(".json", "-tests.json"), "w") as fd:
+            fd.write(data_json)
+
+        for _, tag_stats in self.tags.items():
+            tag_stats.pop("builds")
+        data = (self.tags, self.stats)
+        data_json = jsonpickle.encode(data, keys=True)
+        with open(self.cache_file.replace(".json", "-tags.json"), "w") as fd:
+            fd.write(data_json)
+
     def builds_retrieve(self, max_builds):
-        i = 0
         build_ids = self.connection.get_build_ids()
         build_ids = list(build_ids)[:max_builds]
         # do not cache the first build in list, because its status may change even when job not running
         self.load_cache(build_ids)
-        cache_build_ids = [ build.id for build in self.builds ]
+        cache_build_ids = [build.id for build in self.builds]
         for build_id in build_ids:
             if build_id in cache_build_ids:
                 dprint("Build #{:d} - cached".format(build_id))
@@ -160,10 +274,75 @@ class Job:
 
             self.add_build(build)
 
-        self.builds.sort(key = lambda build: build.id, reverse=True)
+        self.builds.sort(key=lambda build: build.id, reverse=True)
 
         if len(self.builds) == 0:
             return False
+
+        for test_name, test_stats in self.tests.items():
+            num = len(test_stats["builds"])
+            if num == 0:
+                continue
+            builds_stats = test_stats["builds"].values()
+            test_stats["num"] = num
+            test_stats["num_pass"] = len([t for t in builds_stats if t["status"] == "PASS"])
+            test_stats["num_fail"] = len([t for t in builds_stats if t["status"] == "FAIL"])
+            test_stats["num_skip"] = len([t for t in builds_stats if t["status"] == "SKIP"])
+            test_stats["time_avg"] = sum([t["time"] for t in builds_stats])/num
+            test_stats["time_min"] = min([t["time"] for t in builds_stats])
+            test_stats["time_max"] = max([t["time"] for t in builds_stats])
+            test_stats["time_dev"] = math.sqrt(sum([t["time"]**2 for t in builds_stats])/num)
+            test_stats["bs_avg"] = sum([t["bs"] for t in builds_stats])/num
+            test_stats["bs_min"] = min([t["bs"] for t in builds_stats])
+            test_stats["bs_max"] = max([t["bs"] for t in builds_stats])
+            test_stats["bs_dev"] = math.sqrt(sum([t["bs"]**2 for t in builds_stats])/num)
+            test_stats["as_avg"] = sum([t["as"] for t in builds_stats])/num
+            test_stats["as_min"] = min([t["as"] for t in builds_stats])
+            test_stats["as_max"] = max([t["as"] for t in builds_stats])
+            test_stats["as_dev"] = math.sqrt(sum([t["as"]**2 for t in builds_stats])/num)
+            test_stats["tags_bs_avg"] = sum([t["tags_bs"] for t in builds_stats])/num
+            test_stats["tags_bs_min"] = min([t["tags_bs"] for t in builds_stats])
+            test_stats["tags_bs_max"] = max([t["tags_bs"] for t in builds_stats])
+            test_stats["tags_bs_dev"] = math.sqrt(sum([t["tags_bs"]**2 for t in builds_stats])/num)
+            test_stats["tags_as_avg"] = sum([t["tags_as"] for t in builds_stats])/num
+            test_stats["tags_as_min"] = min([t["tags_as"] for t in builds_stats])
+            test_stats["tags_as_max"] = max([t["tags_as"] for t in builds_stats])
+            test_stats["tags_as_dev"] = math.sqrt(sum([t["tags_as"]**2 for t in builds_stats])/num)
+
+        for tag_name, tag_stats in self.tags.items():
+            bs_times = [t["bs"] for tt in tag_stats["builds"].values()
+                        for t in tt if "bs" in t]
+            bs_num = len(bs_times)
+            as_times = [t["as"] for tt in tag_stats["builds"].values()
+                        for t in tt if "as" in t]
+            as_num = len(as_times)
+            if bs_num:
+                tag_stats["bs_num"] = bs_num
+                tag_stats["bs_avg"] = sum(bs_times)/bs_num
+                tag_stats["bs_min"] = min(bs_times)
+                tag_stats["bs_max"] = max(bs_times)
+                tag_stats["bs_dev"] = math.sqrt(sum([t**2 for t in bs_times])/bs_num)
+            if as_num:
+                tag_stats["as_num"] = as_num
+                tag_stats["as_avg"] = sum(as_times)/as_num
+                tag_stats["as_min"] = min(as_times)
+                tag_stats["as_max"] = max(as_times)
+                tag_stats["as_dev"] = math.sqrt(sum([t**2 for t in as_times])/as_num)
+
+        self.stats = {"last_pass": 0, "last_fail": 0, "last_skip": 0}
+        self.stats["health"] = len(list(filter(lambda b: b.status == "SUCCESS", list(
+            filter(lambda b: b.status != "RUNNING", self.builds))[0:5])))
+        self.stats["running"] = len(list(filter(lambda b: b.status == "RUNNING", self.builds)))
+        self.stats["last_status"] = "ABORTED"
+        for b in self.builds:
+            if b.status != "RUNNING":
+                self.stats["last_status"] = b.status
+                if getattr(b, "failed", False):
+                    self.stats["last_status"] = "ABORTED"
+                self.stats["last_pass"] = b.tests_passed
+                self.stats["last_fail"] = b.tests_failed
+                self.stats["last_skip"] = b.tests_skipped
+                break
 
         return True
 
@@ -236,7 +415,6 @@ class Job:
                 else:
                     l_failures = '<td>%d</td>' % n_failures
 
-
             fd.write(
                 '               <tr>'
                 '<td><a target="_blank" href="%s">%s</a></td>'
@@ -253,7 +431,7 @@ class Job:
         fd.write(
             "           </table>\n")
 
-    def __html_write_failurestats__(self,fd):
+    def __html_write_failurestats__(self, fd):
         fd.write(
             "           <table>\n"
             "               <tr>\n"
@@ -306,11 +484,12 @@ class Job:
             for build in builds:
                 if build.id in failure.artifact_urls:
                     artifact_url = failure.artifact_urls[build.id]
-                    fd.write('          <a target="_blank" href="%s">report</a> from <a href="%s">#%d</a><br>\n' % (artifact_url, artifacts_url(build), build.id))
+                    fd.write('          <a target="_blank" href="%s">report</a> from <a href="%s">#%d</a><br>\n' %
+                             (artifact_url, artifacts_url(build), build.id))
                 else:
-                    fd.write('          <a target="_blank" href="%s">#%d</a><br>\n' % (artifacts_url(build), build.id))
+                    fd.write('          <a target="_blank" href="%s">#%d</a><br>\n' %
+                             (artifacts_url(build), build.id))
             fd.write('           </p>\n')
-
 
     @staticmethod
     def __html_write_footer__(fd):
@@ -333,7 +512,6 @@ class Job:
             self.__html_write_header__(fd, file_builds, file_failures)
             self.__html_write_failurestats__(fd)
             self.__html_write_footer__(fd)
-
 
 
 class Build:
@@ -388,7 +566,7 @@ class Build:
             # if trere is small number of artifatcs, the build failed
             if len(artifacts) < 10:
                 self.failed = True
-            artifacts_fails = [ art for art in artifacts.keys() if "FAIL" in art ]
+            artifacts_fails = [art for art in artifacts.keys() if "FAIL" in art]
             for artifact in artifacts_fails:
                 split_artifact = artifact.split("FAIL")
                 if len(split_artifact) < 2:
@@ -396,7 +574,8 @@ class Build:
                 # let's check that the failure name in the artifact is as expected or skip...
                 # something like "FAIL-Test252_ipv6_honor_ip_order.html" (We already stripped "FAIL")
                 # or "FAIL_report_NetworkManager-ci_Test252_ipv6_honor_ip_order.html"
-                split_artifact = split_artifact[1].replace('report_NetworkManager-ci','').strip("_-")
+                split_artifact = split_artifact[1].replace(
+                    'report_NetworkManager-ci', '').strip("_-")
                 split_artifact = split_artifact.split("_", 1)
                 if len(split_artifact) != 2:
                     # what happened??
@@ -456,7 +635,7 @@ class Failure:
         if not self.builds:
             return
 
-        self.builds.sort(key = lambda build: build.id, reverse=True)
+        self.builds.sort(key=lambda build: build.id, reverse=True)
 
         self.last = build_list.index(self.builds[0])
         last_failed = self.last == 0
@@ -479,6 +658,7 @@ class Failure:
             self.permanent = True
 
         # TODO: search bugzilla
+
 
 def artifacts_url(job):
     if job.status != 'RUNNING':
@@ -508,6 +688,16 @@ def process_job(server, job_name, job_nick, max_builds=50):
 
     job.print_html()
 
+
+def str_to_time(time_str):
+    time_str = time_str.rstrip("s")
+    time_split = time_str.split("m")
+    if len(time_split) == 1:
+        return float(time_split[0])
+    else:
+        return int(time_split[0])*60 + float(time_split[1])
+
+
 def main():
     parser = argparse.ArgumentParser(description='Summarize NetworkManager jenkins results.')
     parser.add_argument('url', help="Jenkins base url")
@@ -515,9 +705,12 @@ def main():
     parser.add_argument('--name', help="Job nickname to use in results")
     parser.add_argument('--user', help="username to access Jenkins url")
     parser.add_argument('--password', help="password to access Jenkins url")
-    parser.add_argument('--token', help="Jenkins API token to access Jenkins url (use instead of password)")
-    parser.add_argument('--ca_cert', help="file path of private CA to be used for https validation or 'disabled'")
-    parser.add_argument('--max_builds', type=int, help="maximum number of builds considered for the job")
+    parser.add_argument(
+        '--token', help="Jenkins API token to access Jenkins url (use instead of password)")
+    parser.add_argument(
+        '--ca_cert', help="file path of private CA to be used for https validation or 'disabled'")
+    parser.add_argument('--max_builds', type=int,
+                        help="maximum number of builds considered for the job")
     args = parser.parse_args()
 
     user = None

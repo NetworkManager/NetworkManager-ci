@@ -11,11 +11,13 @@
       .btn-outline-dark {background-color:rgba(33, 37, 41, 0.3);}
       .btn-outline-success {background-color:rgba(25, 135, 84, 0.3);}
       .btn-outline-primary {background-color:rgba(13, 110, 253, 0.3);}
+      .bg-warning-semi {background-color:#ffedb8;}
+      .btn .badge {top:0;}
     </style>
     <link rel="icon" href="nm_icon.png">
   </head>
   <body class="p-3">
-    <a class="h1" style="color:black;" href="#"><img src="nm_logotype_235x75.png" class="m-2" alt="NetworkManager"> CI Results</a>
+    <div class="h1" style="color:black;" ><img src="nm_logotype_235x75.png" class="m-2" alt="NetworkManager"> CI Results <span id="nav_btns"></span></div>
     <div class="row">
       <div id="projects" class="col-sm-2">
       </div>
@@ -25,7 +27,7 @@
             <option value="current" selected>Search in current project</option>
             <option value="all">Search in all projects</option>
           </select>
-          <input id="search" type="search" class="form-control flex-grow-1" placeholder="Failure name">
+          <input id="search" type="search" class="form-control flex-grow-1" placeholder="filter">
           <a id="x" class="btn btn-outline-secondary"><i class="bi bi-backspace"></i></a>
           <a id="s" class="btn btn-primary"><i class="bi bi-search"></i> Search</a>
         </span>
@@ -42,11 +44,21 @@
   var failures = {};
   var builds = {};
   var failure_builds = {};
+  var tests = {};
+  var tags = {};
   var stats = {};
   var queue = {};
+  var state = {};
 
   var no_search = false;
   var load_all = false;
+
+  var nav_buttons = {
+    "Builds": "",
+    "Failures": "build:",
+    "Tests": "tests:",
+    "Tags": "tags",
+  };
 
   function build_date(build) {
     var time_raw = atob(build.timestamp.__reduce__[1][0]);
@@ -57,7 +69,7 @@
     var min = time_raw.charCodeAt(5);
     var sec = time_raw.charCodeAt(6);
     var options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric', hour:'numeric', minute:'2-digit', second:'2-digit' };
-    // do month-1 here, as it counts from 0
+    // do month-1 here, as `Date` counts from 0
     return new Date(year, month-1, day, hour, min, sec, 0).toLocaleDateString("en-US", options);
   }
 
@@ -72,7 +84,15 @@
     return days + hour + ":" + ("0"+minute).slice(-2) + ":" + ("0"+second).slice(-2);
   }
 
-  function process_failures(build, state) {
+  function cmp(attr, weight) {
+    return function (a, b) {
+      if(a[attr] < b[attr]) return weight;
+      if(a[attr] > b[attr]) return -weight;
+      return 0;
+    };
+  }
+
+  function process_failures(build) {
     Object.entries(build.failures).forEach(function (failure) {
       if(failure[0] in failure_builds[build.project]) {
         var fb = failure_builds[build.project][failure[0]];
@@ -89,30 +109,59 @@
           if(bld["py/id"] !== undefined) { return; }
           bld.project = build.project;
           builds[build.project].push(bld);
-          process_failures(bld, state);
+          process_failures(bld);
       });
       failures[build.project].push(failure);
     });
   }
 
-  function load_cache(state) {
-    var failures_url = '<a href="#build:">Failures</a>';
-    var builds_url = '<a href="#preserve_search">Builds</a>';
+  function load_cache() {
     var projs = projects;
     if ("project" in state && !load_all) {
-      failures_url = "Failures";
-      builds_url = "Builds";
       projs = projects.filter(function (p) { return p.project ==state.project; });
+    }
+    console.log(state);
+    console.log(projs.length);
+    console.log(("tests" in state || "tags" in state));
+    console.log(!"search" in state);
+    console.log(projs.length > 1);
+    if(("tests" in state || "tags" in state) && !("search" in state) && projs.length > 1) {
+      alert("Please filter out some results first, or browser might crash!");
+      return;
     }
     var table = $('#table')
     $(table).html("");
-    if("build" in state) {
+    if("tests" in state) {
+      $(table).append($('<thead> \
+      <tr> \
+        <th class="position-sticky sort" style="top:2rem;background:white;box-shadow: inset 0px -1px;text-align:left" data-sort="name">Test</th> \
+        <th class="position-sticky sort" style="top:2rem;background:white;box-shadow: inset 0px -1px;text-align:left" data-sort="num">Num</th> \
+        <th class="position-sticky sort" style="top:2rem;background:white;box-shadow: inset 0px -1px;text-align:left" data-sort="time_avg">Time [s]</th> \
+        <th class="position-sticky sort" style="top:2rem;background:white;box-shadow: inset 0px -1px;text-align:left" data-sort="bs_avg">BS [s]</th> \
+        <th class="position-sticky sort" style="top:2rem;background:white;box-shadow: inset 0px -1px;text-align:left" data-sort="tags_bs_avg">BS Tags [s]</th> \
+        <th class="position-sticky sort" style="top:2rem;background:white;box-shadow: inset 0px -1px;text-align:left" data-sort="as_avg">AS [s]</th> \
+        <th class="position-sticky sort" style="top:2rem;background:white;box-shadow: inset 0px -1px;text-align:left" data-sort="tags_as_avg">AS Tags [s]</th> \
+      </tr> \
+      </thead>'));
+    }
+    else if("tags" in state) {
+      $(table).append($('<thead> \
+      <tr> \
+        <th class="position-sticky sort" style="top:2rem;background:white;box-shadow: inset 0px -1px;text-align:left" data-sort="name">Tag</th> \
+        <th class="position-sticky sort" style="top:2rem;background:white;box-shadow: inset 0px -1px;text-align:left" data-sort="bs_num">BS Num</th> \
+        <th class="position-sticky sort" style="top:2rem;background:white;box-shadow: inset 0px -1px;text-align:left" data-sort="as_num">AS Num</th> \
+        <th class="position-sticky sort" style="top:2rem;background:white;box-shadow: inset 0px -1px;text-align:left" data-sort="bs_avg">BS Time [s]</th> \
+        <th class="position-sticky sort" style="top:2rem;background:white;box-shadow: inset 0px -1px;text-align:left" data-sort="as_avg">AS Time [s]</th> \
+      </tr> \
+      </thead>'));
+    }
+    else if("build" in state) {
       $(table).append($('<thead> \
       <tr> \
         <th class="position-sticky" style="top:2rem;background:white;box-shadow: inset 0px -1px;text-align:left">Failure</th> \
         <th class="position-sticky" style="top:2rem;background:white;box-shadow: inset 0px -1px;text-align:center">Last</th> \
         <th class="position-sticky" style="top:2rem;background:white;box-shadow: inset 0px -1px;text-align:center">Num</th> \
-        <th class="position-sticky" style="top:2rem;background:white;box-shadow: inset 0px -1px;text-align:left">' + builds_url + '</th> \
+        <th class="position-sticky" style="top:2rem;background:white;box-shadow: inset 0px -1px;text-align:left">Builds</th> \
       </tr> \
       </thead>'));
     }
@@ -123,11 +172,26 @@
         <th class="position-sticky" style="top:2rem;background:white;box-shadow: inset 0px -1px;text-align:right">Date</th> \
         <th class="position-sticky" style="top:2rem;background:white;box-shadow: inset 0px -1px;text-align:right">Duration</th> \
         <th class="position-sticky" style="top:2rem;background:white;box-shadow: inset 0px -1px;text-align:center">Status</th> \
-        <th class="position-sticky" style="top:2rem;background:white;box-shadow: inset 0px -1px;text-align:center">' + failures_url + '</th> \
-        <th class="position-sticky" style="top:2rem;background:white;box-shadow: inset 0px -1px;text-align:left">links</th> \
+        <th class="position-sticky" style="top:2rem;background:white;box-shadow: inset 0px -1px;text-align:center">Tests</th> \
+        <th class="position-sticky" style="top:2rem;background:white;box-shadow: inset 0px -1px;text-align:left">Links</th> \
       </tr> \
       </thead>'));
     }
+    $(table).find('.sort').on("click", sort_header_click);
+    if(state.reverse == -1) {
+      $(table).find('tr').addClass("dropup");
+    }
+    if(state.sort) {
+      $(table).find('.sort').each(function() {
+        if ($(this).data("sort") == state.sort) {
+          $(this).addClass("dropdown-toggle");
+        }
+        else {
+          $(this).removeClass("dropdown-toggle");
+        }
+      });
+    }
+
 
     projs.forEach(function(project) {
       if(queue[project.project]) {
@@ -135,15 +199,34 @@
       }
       queue[project.project] = true;
       $('#' + project.project + " img").hide();
+      $('#' + project.project + " #error").hide();
       $('#' + project.project + " #loader").show();
       $(table).append('<thead id="thead-' + project.project + '"></thead>');
       $(table).append('<tbody id="tbody-' + project.project + '"></tbody>');
+      var url = "cache/" + project.project + "-";
+      if("tags" in state) {
+        url += "tags"
+      }
+      else if ("tests" in state) {
+        url += "tests";
+      }
+      else {
+        url += "builds";
+      }
+      url += ".json";
+
       $.ajax({
-        url: "cache/" + project.project + "-builds.json",
+        url: url,
         dataType:"text",
         async: true,
         beforeSend: function(xhr) { xhr.overrideMimeType("text/plain; charset=utf-8");},
-        error: function(a,b) {queue[project.project]=false; console.log("ajax-fail:", a, b);},
+        error: function(a,b) {
+          queue[project.project]=false; console.log("ajax-fail:", a, b);
+          if(stats.hasOwnProperty(project.project)) {
+            delete stats[project.project];
+          }
+          $('#' + project.project).replaceWith(get_project_button(project, "ERROR"));
+        },
         success:function (data) {
           $('#' + project.project + " img").show();
           $('#' + project.project + " #loader").hide();
@@ -152,25 +235,52 @@
           failure_builds[project.project] = [];
           stats[project.project] = {};
           data = JSON.parse(data);
-          data["py/tuple"][0].forEach(function (build) {
-            if(build["py/id"] !== undefined) { return; }
-            build.project = project.project;
-            builds[project.project].push(build);
-            process_failures(build, state);
-          });
-          builds[project.project].sort(function(b1, b2) { if(b1.id < b2.id) return 1; if(b1.id > b2.id) return -1; return 0; });
-          failures[project.project].sort(function(f1, f2) { if(f1.last < f2.last) return -1; if(f1.last > f2.last) return 1; return 0; });
-          stats[project.project].last = builds[project.project].filter(function(b) {return b.status != "RUNNING";})[0];
-          stats[project.project].health = builds[project.project].filter(function(b) {return b.status != "RUNNING";}).slice(0, 5).filter(function(b) {return b.status == "SUCCESS";}).length;
-          stats[project.project].running = builds[project.project].filter(function(b) {return b.status == "RUNNING";}).length;
+          if("tags" in state) {
+            tags[project.project] = [];
+            Object.entries(data["py/tuple"][0]).forEach(function (tag) {
+              tag[1].name = tag[0];
+              tags[project.project].push(tag[1]);
+            });
+            if(state.sort) {
+              tags[project.project].sort(cmp(state.sort, state.reverse));
+            }
+          }
+          else if ("tests" in state) {
+            tests[project.project] = [];
+            Object.entries(data["py/tuple"][0]).forEach(function (test) {
+              test[1].name = test[0];
+              tests[project.project].push(test[1]);
+            });
+            if (state.sort) {
+              tests[project.project].sort(cmp(state.sort, state.reverse));
+            }
+          }
+          else {
+            data["py/tuple"][0].forEach(function (build) {
+              if(build["py/id"] !== undefined) { return; }
+              build.project = project.project;
+              builds[project.project].push(build);
+              process_failures(build, state);
+            });
+            builds[project.project].sort(cmp("id", -1));
+            builds[project.project].sort(cmp("last", 1));
+          }
+          stats[project.project] = data["py/tuple"][1];
+
           queue[project.project] = false;
           $('#' + project.project).replaceWith(get_project_button(project));
-          if(!("project" in state) || state.project == project.project){
-            if("build" in state) {
-              show_failures(state, project);
+          if(!("project" in state) || state.project == project.project) {
+            if("tests" in state) {
+              show_tests(project);
+            }
+            else if ("tags" in state) {
+              show_tags(project);
+            }
+            else if("build" in state) {
+              show_failures(project);
             }
             else {
-              show_builds(state, project);
+              show_builds(project);
             }
           }
         }
@@ -178,10 +288,17 @@
     });
   }
 
-  function show_builds(state, project) {
+  function show_builds(project) {
     var tbody = $('#tbody-' + project.project);
     var thead = $('#thead-' + project.project);
-    $(thead).append('<tr><th colspan="6" class="position-sticky" style="top:0;background:white;box-shadow: inset 0px -1px"><a href="#project:'+project.project+';build:">' + project.os + ": " + project.name + ' failures</th></tr>');
+    var head_line = $('<th colspan="6" class="position-sticky" style="top:0;background:white;box-shadow: inset 0px -1px">' + project.os + ": " + project.name + '</th>');
+    var btns = get_nav_buttons(project);
+    btns = $(btns).wrap('<span style="float:right"></span>').parent();
+    $(head_line).append($(btns));
+//    $(head_line).append('<span style="float:right"><span class="text-success">1007</span> <span class="text-danger">6</span> <span>5</span></span>');
+    head_line = $(head_line).wrap("<tr></tr>").parent();
+    $(thead).append($(head_line));
+
     builds[project.project].forEach(function (build) {
       if (state.search) {
         if(!Object.keys(build.failures).find(function(f) {return f.indexOf(state.search) != -1; })) {
@@ -207,11 +324,15 @@
       $(tr).append($('<td style="text-align:right">' + build_date(build) + "</td>"));
       $(tr).append($('<td style="text-align:right">' + build_duration(build) + "</td>"));
       $(tr).append($('<td style="text-align:center" class="' + cls+ '">' + build.status + "</td>"));
-      if(failure_num) {
-        $(tr).append($('<td style="text-align:center"><a href="#project:'+project.project+';build:'+build.id+'">' + failure_num + "</a></td>"));
+      if(build.status != "RUNNING") {
+        var td=$('<td style="text-align:center"></td>');
+        $(td).append('<span class="text-success">' + build.tests_passed + ' </span>');
+        $(td).append('<span class="text-danger">' + build.tests_failed + ' </span>');
+        $(td).append('<span class="text-secondary">' + build.tests_skipped + ' </span>');
+        $(tr).append(td);
       }
       else {
-        $(tr).append($('<td style="text-align:center">0</td>'));
+        $(tr).append($('<td><span></span></td>'));
       }
 
       var links = [];
@@ -228,10 +349,16 @@
     });
   }
 
-  function show_failures(state, project) {
+  function show_failures(project) {
     var tbody = $('#tbody-' + project.project);
     var thead = $('#thead-' + project.project);
-    $(thead).append('<tr><th class="position-sticky" colspan="4" style="top:0;background:white;box-shadow: inset 0px -1px"><a href="#project:'+project.project+'">' + project.os + ": " + project.name + '</a></th></tr>');
+    var head_line = $('<th colspan="6" class="position-sticky" style="top:0;background:white;box-shadow: inset 0px -1px">' + project.os + ": " + project.name + '</th>');
+    var btns = get_nav_buttons(project);
+    btns = $(btns).wrap('<span style="float:right"></span>').parent();
+    $(head_line).append($(btns));
+    head_line = $(head_line).wrap("<tr></tr>").parent();
+    $(thead).append(head_line);
+
     failures[project.project].forEach(function (failure) {
       if (!isNaN(state.build)) {
         if(failure_builds[project.project][failure.name].indexOf(state.build) == -1) { return; }
@@ -257,6 +384,92 @@
     });
   }
 
+  function show_tests(project) {
+    var tbody = $('#tbody-' + project.project);
+    var thead = $('#thead-' + project.project);
+    var head_line = $('<th colspan="7" class="position-sticky" style="top:0;background:white;box-shadow: inset 0px -1px">' + project.os + ": " + project.name + '</th>');
+    var btns = get_nav_buttons(project);
+    btns = $(btns).wrap('<span style="float:right"></span>').parent();
+    $(head_line).append($(btns));
+    head_line = $(head_line).wrap("<tr></tr>").parent();
+    $(thead).append(head_line);
+
+    tests[project.project].forEach(function (test) {
+      if (state.search) {
+        if (test.name.indexOf(state.search) == -1) {
+          return;
+        }
+      }
+      var tr = $("<tr></tr>");
+      $(tr).append("<td>" + test.name + "</td>")
+      var td = $("<td></td>");
+      $(td).append('<strong>'+test.num+': </strong> ')
+      $(td).append('<span class="text-success">' + test.num_pass + ' </span>');
+      $(td).append('<span class="text-danger">' + test.num_fail + ' </span>');
+      $(td).append('<span class="text-secondary">' + test.num_skip + ' </span>');
+      $(tr).append(td);
+      $(tr).append($("<td></td>").append(format_time_stats(test.time_avg, test.time_min, test.time_max, test.time_dev)));
+      $(tr).append($("<td></td>").append(format_time_stats(test.bs_avg, test.bs_min, test.bs_max, test.bs_dev)));
+      $(tr).append($("<td></td>").append(format_time_stats(test.tags_bs_avg, test.tags_bs_min, test.tags_bs_max, test.tags_bs_dev)));
+      $(tr).append($("<td></td>").append(format_time_stats(test.as_avg, test.as_min, test.as_max, test.as_dev)));
+      $(tr).append($("<td></td>").append(format_time_stats(test.tags_as_avg, test.tags_as_min, test.tags_as_max, test.tags_as_dev)));
+      $(tbody).append(tr);
+    });
+  }
+
+  function show_tags(project) {
+    var tbody = $('#tbody-' + project.project);
+    var thead = $('#thead-' + project.project);
+    var head_line = $('<th colspan="5" class="position-sticky" style="top:0;background:white;box-shadow: inset 0px -1px">' + project.os + ": " + project.name + '</th>');
+    var btns = get_nav_buttons(project);
+    btns = $(btns).wrap('<span style="float:right"></span>').parent();
+    $(head_line).append($(btns));
+    head_line = $(head_line).wrap("<tr></tr>").parent();
+    $(thead).append(head_line);
+
+    tags[project.project].forEach(function (tag) {
+      if (state.search) {
+        if (tag.name.indexOf(state.search) == -1) {
+          return;
+        }
+      }
+      var tr = $("<tr></tr>");
+      $(tr).append("<td>" + tag.name + "</td>")
+      var td = $("<td></td>");
+      if (tag.bs_num === undefined) {
+        tag.bs_num = 0;
+      }
+      if (tag.as_num === undefined) {
+        tag.as_num = 0;
+      }
+      $(tr).append('<td>'+tag.bs_num+'</td>')
+      $(tr).append('<td>'+tag.as_num+'</td>')
+      if(tag.bs_num) {
+        $(tr).append($("<td></td>").append(format_time_stats(tag.bs_avg, tag.bs_min, tag.bs_max, tag.bs_dev)));
+      }
+      else {
+          $(tr).append("<td>&nbsp;</td>");
+      }
+      if(tag.as_num) {
+        $(tr).append($("<td></td>").append(format_time_stats(tag.as_avg, tag.as_min, tag.as_max, tag.as_dev)));
+      }
+      else {
+          $(tr).append("<td>&nbsp;</td>");
+      }
+      $(tbody).append(tr);
+    });
+  }
+
+
+  function format_time_stats(avg, min, max, dev) {
+    var tb = $('<table style="font-size:0.8rem; line-height:0.85rem;"></table>');
+    $(tb).append('<tr><td>avg:</td><th>'+avg.toFixed(2)+'</th></tr>')
+    $(tb).append('<tr><td>min:</td><td>'+min.toFixed(2)+'</td></tr>')
+    $(tb).append('<tr><td>max:</td><td>'+max.toFixed(2)+'</td></tr>')
+    $(tb).append('<tr><td>&sigma;:</td><td>'+dev.toFixed(2)+'</td></tr>')
+    return tb;
+  }
+
   function format_failure_builds(failure, project, state) {
     var res = "";
     var fb = failure_builds[project][failure.name];
@@ -278,41 +491,74 @@
     return res;
   }
 
-  function get_project_button(project) {
-    var d = $('<div class="pb-1 d-flex"></div>');
+  function get_project_button(project, status) {
+    var d = $('<div class="d-flex align-items-start"></div>');
     $(d).attr("id", project.project);
-    $(d).append('<span id="loader" class="spinner-border spinner-border-sm me-3" style="display:none; height:1rem; width:1rem;" role="status"></span>');
-    var img = health_img[0];
-    if(project.project in stats) { img = health_img[stats[project.project].health];}
-    $(d).append('<img style="height:1.5rem" class="me-2" src="' + img + '"/>');
+    $(d).append('<span id="loader" class="spinner-border spinner-border-sm p-0 m-0" style="display:none; height:24px; min-width:24px;" role="status"></span>');
+    if(project.project in stats) {
+      $(d).append('<img style="height:24px; width:24px" class="p-0 m-0" src="' + health_img[stats[project.project].health] + '"/>');
+    }
+    else {
+      $(d).append('<div id="error" style="min-width:24px; height:24px;"><i class="ms-1 bi bi-exclamation-triangle-fill text-danger"></i></div>');
+    }
     var btn = $('<a></a>');
+    var last_stats = "";
+    if(project.project in stats) {
+      last_stats += '<span class="badge p-1 text-success bg-light border border-success">' + stats[project.project].last_pass + '</span>';
+      last_stats += '<span class="badge p-1 text-danger bg-light border border-danger">' + stats[project.project].last_fail + '</span>';
+      last_stats += '<span class="badge p-1 text-secondary bg-light border border-secondary">' + stats[project.project].last_skip + '</span>';
+    }
+
+    var color = "primary";
+
+    if(project.project in stats) {
+      var last_status = stats[project.project].last_status;
+      if (last_status == "SUCCESS") {
+        color = "success";
+      }
+      else if (last_status == "ABORTED") {
+        color = "dark";
+      }
+      else if (last_status == "FAILURE" || last_status == "UNSTABLE") {
+        color = "danger";
+      }
+    }
+
     var running = "";
     if(project.project in stats) {
-      for(var i = 0; i<stats[project.project].running; i++) {
-        running += ' <i class="bi bi-circle-fill"></i>';
+      var margin = "";
+      var num = Math.min(stats[project.project].running, 4);
+      for(var i = 0; i<num; i++) {
+        if(i) {
+          margin = "ms-" + (i+1);
+        }
+        running += '<span class="position-absolute top-0 start-100 translate-middle p-2 ' + margin +
+           ' mt-2 bg-warning-semi border border-'+color+' rounded-circle"><span class="visually-hidden">Running</span></span>';
       }
     }
     $(btn).attr("href", "#project:"+project.project);
-    $(btn).append('<strong class="me-auto">' + project.name + "</strong>" + running);
-    var class_attr = "w-100 d-flex p-0 ps-2 pe-2 btn btn-sm ";
-    if(project.project in stats) {
-      var last_build = stats[project.project].last;
-      if (last_build.status == "SUCCESS") {
-        class_attr += "btn-outline-success";
-      }
-      else if (last_build.status == "ABORTED" || last_build.failed) {
-        class_attr += "btn-outline-dark";
-      }
-      else if (last_build.status == "FAILURE" || last_build.status == "UNSTABLE") {
-        class_attr += "btn-outline-danger";
-      }
-    }
-    else {
-      class_attr += "btn-outline-primary";
+    $(btn).append('<strong class="me-auto">' + project.name + "</strong>" + last_stats + running);
+    var class_attr = "ms-1 w-100 d-flex align-items-center position-relative py-0 px-1 btn btn-sm project-btn";
+    class_attr += " btn-outline-" + color;
+    if("project" in state && state.project == project.project) {
+      class_attr += " active";
     }
     $(btn).attr("class", class_attr);
     $(d).append(btn);
     return d;
+  }
+
+  function get_nav_buttons(project) {
+    var btns = $('<div class="btn-group btn-group-toggle" data-toggle="buttons"></div>');
+    var color = "primary";
+    Object.entries(nav_buttons).forEach(function (button) {
+      var proj_url = "";
+      if (project) {
+        proj_url = "project:" + project.project + ";";
+      }
+      $(btns).append('<a class="border-end border-white btn btn-sm btn-primary" href="#' + proj_url + button[1]+'">' + button[0] + '</a>');
+    });
+    return btns;
   }
 
   function show_projects() {
@@ -332,14 +578,15 @@
     $(proj_div).append(act_div);
   }
 
-  function show_state(state) {
+  function show_state() {
       show_projects();
-      load_cache(state);
+      $("#nav_btns").html(get_nav_buttons());
+      load_cache();
       load_all = false;
   }
 
   function hash_split_to_state(hash_split) {
-    var state = {};
+    state = {};
     hash_split.forEach(function(e) {
       if (e.startsWith("project:")) {
         state["project"] = e.replace("project:","");
@@ -348,41 +595,99 @@
         state["build"] = parseInt(e.replace("build:",""));
       }
       if (e.startsWith("search:")) {
-        var search = e.replace("search:","")
+        var search = e.replace("search:","");
         state["search"] = search;
+      }
+      if (e.startsWith("tests:")) {
+        state["tests"] = e.replace("tests:","");
+      }
+      if (e.startsWith("sort:")) {
+        state["sort"] = e.replace("sort:","");
+        if (!state.reverse) {
+          state["reverse"] = 1;
+        }
+      }
+      if (e == "reverse") {
+        state["reverse"] = -1;
+      }
+      if (e == "tags") {
+        state["tags"] = true;
       }
       if (e == "preserve_search") {
         state["preserve_search"] = true;
       }
     });
-    return state;
+  }
+
+  function state_to_hash() {
+    var hash = "";
+    if("project" in state) {
+      hash += ";project:" + state.project;
+    }
+    if("build" in state) {
+      hash += ";build:" + state.build;
+    }
+    if("search" in state) {
+      hash += ";search:" + state.search;
+    }
+    if("tests" in state) {
+      hash += ";tests:" + state.tests;
+    }
+    if("sort" in state) {
+      hash += ";sort:" + state.sort;
+    }
+    if("reverse" in state && state.reverse == -1) {
+      hash += ";reverse";
+    }
+    if("tags" in state && state.tags) {
+      hash +=";tags";
+    }
+    if("preserve_search" in state) {
+        hash += "preserve_search";
+    }
+    return hash.substring(1);
   }
 
   function process_hash() {
     no_search = false;
     var hash = window.location.hash.replace('#','');
     var state_raw = hash.split(";")
-    var state = {};
-    state = hash_split_to_state(state_raw);
+    hash_split_to_state(state_raw);
     if("search" in state){$('#search').val(state.search);}
-    show_state(state);
+    show_state();
+  }
+
+  function sort_header_click(e) {
+    var col = $(this).data("sort");
+    if (state.sort == col) {
+      if (state.reverse) {
+        state.reverse = -state.reverse;
+      }
+      else {
+        state.reverse = 1;
+      }
+    }
+    else {
+      state.reverse = 1;
+    }
+    state.sort = col;
+    new_hash = state_to_hash();
+    window.location.hash = "#" + new_hash;
   }
 
   $(window).on('hashchange', function(e){
-    var oldURL = e.originalEvent.oldURL;
     var newURL = e.originalEvent.newURL;
-    var old_hash_split = oldURL.replace(/^[^#]*#?/, "").split(";");
     var new_hash_split = newURL.replace(/^[^#]*#?/, "").split(";");
-    var old_state = hash_split_to_state(old_hash_split);
-    var new_state = hash_split_to_state(new_hash_split);
-    console.log(old_state, new_state);
-    if("project" in new_state) {
+    var old_state = state;
+    hash_split_to_state(new_hash_split);
+    console.log(old_state, state);
+    if("project" in state) {
       $('#search_mode').val("current");
     }
     else {
       $('#search_mode').val("all");
     };
-    if((!no_search || "preserve_search" in new_state) && "search" in old_state && !("search" in new_state)) {
+    if((!no_search || "preserve_search" in state) && "search" in old_state && !("search" in state)) {
       var hash = window.location.hash.replace(/^#/, "");
       if(hash) {
         replace_search(old_state.search);
