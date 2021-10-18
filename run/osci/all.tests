@@ -502,7 +502,7 @@ dummy_connection
 dummy_with_qdisc
 do_not_touch_external_dummy
 macsec_psk
-non_utf_device
+dummy_non_utf_device
 connectivity_check
 disable_connectivity_check
 manipulate_connectivity_check_via_dbus
