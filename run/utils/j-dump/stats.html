@@ -13,6 +13,7 @@
       .btn-outline-primary {background-color:rgba(13, 110, 253, 0.3);}
       .bg-warning-semi {background-color:#ffedb8;}
       .btn .badge {top:0;}
+      .sort {cursor:pointer;}
     </style>
     <link rel="icon" href="nm_icon.png">
   </head>
@@ -52,6 +53,8 @@
 
   var no_search = false;
   var load_all = false;
+  var date_fmt_options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric', hour:'numeric', minute:'2-digit', second:'2-digit' };
+
 
   var nav_buttons = {
     "Builds": "",
@@ -68,20 +71,23 @@
     var hour = time_raw.charCodeAt(4);
     var min = time_raw.charCodeAt(5);
     var sec = time_raw.charCodeAt(6);
-    var options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric', hour:'numeric', minute:'2-digit', second:'2-digit' };
     // do month-1 here, as `Date` counts from 0
-    return new Date(year, month-1, day, hour, min, sec, 0).toLocaleDateString("en-US", options);
+    return new Date(year, month-1, day, hour, min, sec, 0);
   }
 
   function build_duration(build) {
     var duration_raw = build.duration["py/reduce"][1]["py/tuple"];
-    var days = duration_raw[0];
-    if (days != 0) { days = "" + days + "d, "; }
-    else { days = ""; }
-    var hour = parseInt(duration_raw[1]/3600);
-    var minute = parseInt((duration_raw[1]%3600)/60);
-    var second = duration_raw[1]%60;
-    return days + hour + ":" + ("0"+minute).slice(-2) + ":" + ("0"+second).slice(-2);
+    return duration_raw[0]*86400 + duration_raw[1];
+  }
+
+  function format_duration(duration) {
+    var day = parseInt(duration/86400);
+    var hour = parseInt((duration%86400)/3600);
+    var minute = parseInt((duration%3600)/60);
+    var second = duration%60;
+    if (day != 0) { day = "" + day + "d, "; }
+    else { day = ""; }
+    return day + hour + ":" + ("0"+minute).slice(-2) + ":" + ("0"+second).slice(-2);
   }
 
   function cmp(attr, weight) {
@@ -108,6 +114,8 @@
       failure.builds.forEach(function (bld) {
           if(bld["py/id"] !== undefined) { return; }
           bld.project = build.project;
+          bld.date = build_date(bld);
+          bld.duration = build_duration(bld);
           builds[build.project].push(bld);
           process_failures(bld);
       });
@@ -120,11 +128,6 @@
     if ("project" in state && !load_all) {
       projs = projects.filter(function (p) { return p.project ==state.project; });
     }
-    console.log(state);
-    console.log(projs.length);
-    console.log(("tests" in state || "tags" in state));
-    console.log(!"search" in state);
-    console.log(projs.length > 1);
     if(("tests" in state || "tags" in state) && !("search" in state) && projs.length > 1) {
       alert("Please filter out some results first, or browser might crash!");
       return;
@@ -158,9 +161,9 @@
     else if("build" in state) {
       $(table).append($('<thead> \
       <tr> \
-        <th class="position-sticky" style="top:2rem;background:white;box-shadow: inset 0px -1px;text-align:left">Failure</th> \
-        <th class="position-sticky" style="top:2rem;background:white;box-shadow: inset 0px -1px;text-align:center">Last</th> \
-        <th class="position-sticky" style="top:2rem;background:white;box-shadow: inset 0px -1px;text-align:center">Num</th> \
+        <th class="position-sticky sort" style="top:2rem;background:white;box-shadow: inset 0px -1px;text-align:left" data-sort="name">Failure</th> \
+        <th class="position-sticky sort" style="top:2rem;background:white;box-shadow: inset 0px -1px;text-align:center" data-sort="last">Last</th> \
+        <th class="position-sticky sort" style="top:2rem;background:white;box-shadow: inset 0px -1px;text-align:center" data-sort="num">Num</th> \
         <th class="position-sticky" style="top:2rem;background:white;box-shadow: inset 0px -1px;text-align:left">Builds</th> \
       </tr> \
       </thead>'));
@@ -168,10 +171,10 @@
     else {
       $(table).append($('<thead> \
       <tr> \
-        <th class="position-sticky" style="top:2rem;background:white;box-shadow: inset 0px -1px;text-align:center">Build</th> \
-        <th class="position-sticky" style="top:2rem;background:white;box-shadow: inset 0px -1px;text-align:right">Date</th> \
-        <th class="position-sticky" style="top:2rem;background:white;box-shadow: inset 0px -1px;text-align:right">Duration</th> \
-        <th class="position-sticky" style="top:2rem;background:white;box-shadow: inset 0px -1px;text-align:center">Status</th> \
+        <th class="position-sticky sort" style="top:2rem;background:white;box-shadow: inset 0px -1px;text-align:center" data-sort="id">Build</th> \
+        <th class="position-sticky sort" style="top:2rem;background:white;box-shadow: inset 0px -1px;text-align:right" data-sort="date">Date</th> \
+        <th class="position-sticky sort" style="top:2rem;background:white;box-shadow: inset 0px -1px;text-align:right" data-sort="duration">Duration</th> \
+        <th class="position-sticky sort" style="top:2rem;background:white;box-shadow: inset 0px -1px;text-align:center" data-sort="status">Status</th> \
         <th class="position-sticky" style="top:2rem;background:white;box-shadow: inset 0px -1px;text-align:center">Tests</th> \
         <th class="position-sticky" style="top:2rem;background:white;box-shadow: inset 0px -1px;text-align:left">Links</th> \
       </tr> \
@@ -259,11 +262,22 @@
             data["py/tuple"][0].forEach(function (build) {
               if(build["py/id"] !== undefined) { return; }
               build.project = project.project;
+              build.date = build_date(build);
+              build.duration = build_duration(build);
               builds[project.project].push(build);
               process_failures(build, state);
             });
-            builds[project.project].sort(cmp("id", -1));
-            builds[project.project].sort(cmp("last", 1));
+            failures[project.project].forEach(function (f) {f.num = f.builds.length;});
+            var build_cmp = cmp("id", 1);
+            if(state.sort && !("build" in state)) {
+              build_cmp = cmp(state.sort, state.reverse);
+            }
+            builds[project.project].sort(build_cmp);
+            var failure_cmp = cmp("last", -1);
+            if(state.sort && ("build" in state)) {
+              failure_cmp = cmp(state.sort, state.reverse);
+            }
+            failures[project.project].sort(failure_cmp);
           }
           stats[project.project] = data["py/tuple"][1];
 
@@ -321,8 +335,8 @@
         cls = "table-primary";
       }
       $(tr).append($('<td style="text-align:center"><a target="_blank" href="' + build.url + '">' + build.id + "</a></td>"));
-      $(tr).append($('<td style="text-align:right">' + build_date(build) + "</td>"));
-      $(tr).append($('<td style="text-align:right">' + build_duration(build) + "</td>"));
+      $(tr).append($('<td style="text-align:right">' + build.date.toLocaleDateString("en-US", date_fmt_options) + "</td>"));
+      $(tr).append($('<td style="text-align:right">' + format_duration(build.duration) + "</td>"));
       $(tr).append($('<td style="text-align:center" class="' + cls+ '">' + build.status + "</td>"));
       if(build.status != "RUNNING") {
         var td=$('<td style="text-align:center"></td>');
@@ -369,7 +383,6 @@
         }
       }
 
-      var failure_num = failure.builds.length;
       var tr = $("<tr></tr>");
       var cls = "";
       if(failure.last == 0) {
@@ -378,7 +391,7 @@
       var failure_search = '<a class="text-dark" href="#build:;search:'+failure.name+'" title="Search in all projects">'+failure.name+'</a>';
       $(tr).append($('<td style="text-align:left">' + failure_search + "</td>"));
       $(tr).append($('<td style="text-align:center" class="' + cls + '">' + failure.last + "</td>"));
-      $(tr).append($('<td style="text-align:center">' + failure_num + "</td>"));
+      $(tr).append($('<td style="text-align:center">' + failure.num + "</td>"));
       $(tr).append($('<td style="text-align:left">' + format_failure_builds(failure, project.project, state) + "</td>"));
       $(tbody).append(tr);
     });
