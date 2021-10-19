@@ -220,17 +220,17 @@
     # * Execute "pkill tcpdump"
 
 
-    #@rhbz1555013
-    #@ver+=1.14.0
-    #@sriov
-    #@sriov_con_drv_add_VF_trust_on
-    #Scenario: nmcli - sriov - drv - add 1 VF with trust on
-    #* Add a new connection of type "ethernet" and options "ifname p4p1 con-name sriov sriov.vfs '0 mac=00:11:22:33:44:99 trust=true' sriov.total-vfs 1 "
-    #* Add a new connection of type "ethernet" and options "ifname p4p1_0 con-name sriov_2 ipv4.method manual ipv4.address 1.2.3.4/24"
-    #When " connected" is visible with command "nmcli  device |grep p4p1_0"
-    #* Execute "ip link set dev p4p1_0 address 00:11:22:33:44:55"
-    #Then "trust on" is visible with command " ip link show p4p1"
-    #And "00:11:22:33:44:55" is visible with command "ip a s p4p1_0"
+    @rhbz1555013
+    @ver+=1.14.0
+    @sriov
+    @sriov_con_drv_add_VF_trust_on
+    Scenario: nmcli - sriov - drv - add 1 VF with trust on
+    * Add a new connection of type "ethernet" and options "ifname p4p1 con-name sriov sriov.vfs '0 mac=00:11:22:33:44:99 trust=true' sriov.total-vfs 1 "
+    * Add a new connection of type "ethernet" and options "ifname p4p1_0 con-name sriov_2 ipv4.method manual ipv4.address 1.2.3.4/24"
+    When " connected" is visible with command "nmcli  device |grep p4p1_0"
+    * Execute "ip link set dev p4p1_0 address 00:11:22:33:44:55"
+    Then "trust on" is visible with command " ip link show p4p1"
+    And "00:11:22:33:44:55" is visible with command "ip a s p4p1_0"
 
 
     @rhbz1555013
@@ -241,7 +241,8 @@
     * Add a new connection of type "ethernet" and options "ifname p4p1 con-name sriov sriov.vfs '0 mac=00:11:22:33:44:99 trust=false' sriov.total-vfs 1"
     * Add a new connection of type "ethernet" and options "ifname p4p1_0 con-name sriov_2 ipv4.method manual ipv4.address 1.2.3.4/24"
     When " connected" is visible with command "nmcli  device |grep p4p1_0"
-    * Execute "ip link set dev p4p1_0 address 00:11:22:33:44:55"
+    # It may or may not fail (dependent on ip version and kernel)
+    * Execute "ip link set dev p4p1_0 address 00:11:22:33:44:55 || true"
     Then "trust off" is visible with command " ip link show p4p1"
     And "00:11:22:33:44:55" is not visible with command "ip a s p4p1_0"
 
@@ -293,11 +294,11 @@
     * Add a new connection of type "bond" and options "ifname sriov_bond con-name sriov_bond0 ipv4.method manual ipv4.address 1.2.3.4/24 bond.options 'mode=active-backup,primary=p4p1_0,miimon=100,fail_over_mac=2'"
     * Add slave connection for master "sriov_bond" on device "p4p1_0" named "sriov_bond0.0"
     * Execute "sleep 2"
-    * Add slave connection for master "sriov_bond" on device "p6p1" named "sriov_bond0.1"
+    * Add slave connection for master "sriov_bond" on device "em3" named "sriov_bond0.1"
     When "Bonding Mode: fault-tolerance \(active-backup\) \(fail_over_mac follow\)\s+Primary Slave: p4p1_0 \(primary_reselect always\)\s+Currently Active Slave: p4p1_0" is visible with command "cat /proc/net/bonding/sriov_bond"
     When Check bond "sriov_bond" link state is "up"
     * Execute "ip link set dev p4p1_0 down"
-    Then "Bonding Mode: fault-tolerance \(active-backup\) \(fail_over_mac follow\)\s+Primary Slave: p4p1_0 \(primary_reselect always\)\s+Currently Active Slave: p6p1" is visible with command "cat /proc/net/bonding/sriov_bond" in "20" seconds
+    Then "Bonding Mode: fault-tolerance \(active-backup\) \(fail_over_mac follow\)\s+Primary Slave: p4p1_0 \(primary_reselect always\)\s+Currently Active Slave: em3" is visible with command "cat /proc/net/bonding/sriov_bond" in "20" seconds
     Then Check bond "sriov_bond" link state is "up"
     Then "00:11:22:33:44:55" is visible with command "ip a s sriov_bond"
 

@@ -3099,8 +3099,8 @@ testmapper:
         feature: sriov
     - sriov_con_drv_add_VF_vlan:
         feature: sriov
-    #- sriov_con_drv_add_VF_trust_on:
-    #    feature: sriov
+    - sriov_con_drv_add_VF_trust_on:
+       feature: sriov
     - sriov_con_drv_add_VF_trust_off:
         feature: sriov
     - sriov_con_drv_add_VF_spoof_off:
