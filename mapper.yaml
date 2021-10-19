@@ -3075,6 +3075,8 @@ testmapper:
         feature: dcb
     - sriov_enable:
         feature: sriov
+    - sriov_enable_with_deployed_profile:
+        feature: sriov    
     - sriov_disable:
         feature: sriov
     - sriov_connect:

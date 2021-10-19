@@ -21,6 +21,18 @@
 
 
     @rhbz1398934
+    @ver+=1.33.3
+    @sriov
+    @sriov_enable_with_deployed_profile
+    Scenario: NM - sriov - enable sriov in config
+    When "1" is visible with command "nmcli dev |grep p4p1  |wc -l"
+    * Execute "nmcli device connect p4p1"
+    When " connected" is visible with command "nmcli  device |grep p4p1"
+    * Prepare "98-sriov.conf" config for "p4p1" device with "4" VFs
+    When "5" is visible with command "nmcli dev |grep p4p1  |wc -l" in "40" seconds
+
+
+    @rhbz1398934
     @ver+=1.8.0
     @sriov
     @sriov_disable

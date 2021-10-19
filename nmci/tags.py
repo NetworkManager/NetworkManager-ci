@@ -1598,8 +1598,7 @@ def sriov_bs(ctx, scen):
 
 
 def sriov_as(ctx, scen):
-    ctx.run("nmcli con del sriov")
-    ctx.run("nmcli con del sriov_2")
+    ctx.run("nmcli con del sriov sriov_2 p4p1")
 
     ctx.run("echo 0 > /sys/class/net/p6p1/device/sriov_numvfs")
     ctx.run("echo 0 > /sys/class/net/p4p1/device/sriov_numvfs")
@@ -2766,7 +2765,7 @@ _register_tag("remove_ctcdevice", None, remove_ctcdevice_as)
 
 
 def filter_batch_bs(ctx, scen):
-    
+
     file_path =  '/tmp/filter_batch.txt'
     ctx.run(f'sudo touch {file_path}')
     count = 1
@@ -2782,6 +2781,6 @@ def filter_batch_bs(ctx, scen):
 
 def filter_batch_as(ctx, scen):
     ctx.run('sudo rm /tmp/filter_batch.txt')
-    
+
 
 _register_tag("filter_batch", filter_batch_bs, filter_batch_as)
