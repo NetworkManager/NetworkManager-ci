@@ -375,4 +375,4 @@ def add_bridges_vlans_range(context, begin, end, ifname):
         main_loop.run()
 
         assert 'error' not in result, \
-            'add connection %s failed: %s' % (result['error'])
+            f"add connection {id} failed: {result['error']}"
