@@ -176,6 +176,7 @@
 
 
     @rhbz1555013
+    @xfail @rhbz1852442
     @ver+=1.14.0
     @sriov
     @sriov_con_drv_add_VF_mtu
