@@ -7,6 +7,8 @@
     # @test_name (compiled from scenario name)
     # Scenario:
 
+    @rhbz1774409
+    @xfail
     @dcb
     @dcb_enable_connection
     Scenario: nmcli - dcb - enable connection
@@ -37,6 +39,8 @@
     Then "appcfg:\s+04" is visible with command "dcbtool gc em1 app:fip"
 
 
+    @rhbz1774409
+    @xfail
     @dcb
     @dcb_disable_connection
     Scenario: nmcli - dcb - disable connection
@@ -57,6 +61,8 @@
     Then "Enable:\s+false" is visible with command "dcbtool gc em1 app:fip"
 
 
+    @rhbz1774409
+    @xfail
     @dcb
     @dcb_enable_after_reboot
     Scenario: nmcli - dcb - enable after reboot

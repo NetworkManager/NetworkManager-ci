@@ -369,7 +369,8 @@ Feature: nmcli - ethernet
     Then "magic" is visible with command "nmcli con show ethernet |grep wake-on-lan"
 
 
-    @rhbz1141417
+    @rhbz1141417 @rhbz2016348
+    @xfail
     @ethernet
     @nmcli_ethernet_wol_from_file_to_default
     Scenario: nmcli - ethernet - wake-on-lan from file and back
