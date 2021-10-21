@@ -1631,33 +1631,25 @@ _register_tag("sriov_bond", None, sriov_bond_as)
 
 def dpdk_bs(ctx, scen):
     ctx.run("sysctl -w vm.nr_hugepages=10")
-
-    ctx.run('yum -y install dpdk dpdk-tools')
-
+    ctx.run('if ! rpm -q --quiet dpdk dpdk-tools; then yum -y install dpdk dpdk-tools; fi')
     ctx.run('sed -i.bak s/openvswitch:hugetlbfs/root:root/g /etc/sysconfig/openvswitch')
-
     ctx.run('ovs-vsctl --no-wait set Open_vSwitch . other_config:dpdk-init=true')
-
     ctx.run('modprobe vfio-pci')
-
     ctx.run('echo 1 > /sys/module/vfio/parameters/enable_unsafe_noiommu_mode')
-
     ctx.run('nmcli  connection add type ethernet ifname p4p1 con-name dpdk-sriov sriov.total-vfs 2')
     ctx.run('nmcli  connection up dpdk-sriov')
-
-    ctx.run('dpdk-devbind -b vfio-pci 0000:42:10.0')
-    ctx.run('dpdk-devbind -b vfio-pci 0000:42:10.2')
-
+    # In newer versions of dpdk-tools there are dpdk binaries with py in the end
+    ctx.run('dpdk-devbind -b vfio-pci 0000:42:10.0 || dpdk-devbind.py -b vfio-pci 0000:42:10.0')
+    ctx.run('dpdk-devbind -b vfio-pci 0000:42:10.2 || dpdk-devbind.py -b vfio-pci 0000:42:10.2')
+    # No idea why we need to restrt OVS but we need to
     ctx.run('systemctl restart openvswitch')
-    nmci.lib.restart_NM_service(ctx)
 
 
 def dpdk_as(ctx, scen):
     ctx.run('systemctl stop ovsdb-server')
     ctx.run('systemctl stop openvswitch')
     time.sleep(5)
-    ctx.run('nmcli con del dpdk-sriov ovs-iface1 && sleep 1')
-    ctx.run('systemctl device disconnect p4p1')
+    ctx.run('nmcli con del dpdk-sriov ovs-iface1')
 
 
 _register_tag("dpdk", dpdk_bs, dpdk_as)
