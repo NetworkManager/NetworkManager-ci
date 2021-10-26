@@ -941,7 +941,8 @@ def pkcs11_bs(ctx, scen):
     nmci.lib.setup_pkcs11(ctx)
     ctx.command_output("p11-kit list-modules")
     ctx.command_output("softhsm2-util --show-slots")
-    ctx.command_output("pkcs11-tool --module /usr/lib64/pkcs11/libsofthsm2.so --token-label nmci -l --pin 1234 -O")
+    ctx.command_output(
+        "pkcs11-tool --module /usr/lib64/pkcs11/libsofthsm2.so --token-label nmci -l --pin 1234 -O")
 
 
 _register_tag("pkcs11", pkcs11_bs)
@@ -1569,9 +1570,10 @@ def openvswitch_as(ctx, scen):
     ctx.run('sudo ifdown eth1')
     ctx.run('sudo ifdown eth2')
     ctx.run('sudo ifdown ovsbridge0')
-    ctx.run('sudo nmcli con del eth1 eth2 ovs-bond0 ovs-port0 ovs-patch0 ovs-patch1 ovs-bridge1 ovs-bridge0 ovs-port1 ovs-eth2 ovs-eth3 ovs-iface0 eth2 dpdk-sriov c-ovs-br0 c-ovs-port0 c-ovs-iface0 ovs-testX')  # to be sure
+    ctx.run('sudo nmcli con del eth1 eth2 ovs-bond0 ovs-port0 ovs-patch0 ovs-patch1 ovs-bridge1 ovs-bridge0 ovs-port1 ovs-eth2 ovs-eth3 ovs-iface0 eth2 dpdk-sriov c-ovs-br0 c-ovs-port0 c-ovs-iface0 ovs-testX ovs1-if ovs-br0-br')  # to be sure
     time.sleep(1)
     ctx.run('ovs-vsctl del-br ovsbr0')
+    ctx.run('ovs-vsctl del-br ovs-br0')
     ctx.run('ovs-vsctl del-br ovsbridge0')
     ctx.run('ovs-vsctl del-br ovsbridge1')
     ctx.run('ovs-vsctl del-br i-ovs-br0')
@@ -2758,17 +2760,17 @@ _register_tag("remove_ctcdevice", None, remove_ctcdevice_as)
 
 def filter_batch_bs(ctx, scen):
 
-    file_path =  '/tmp/filter_batch.txt'
+    file_path = '/tmp/filter_batch.txt'
     ctx.run(f'sudo touch {file_path}')
     count = 1
     with open(file_path, 'a') as file:
         for a in range(64):
             for b in range(64):
                 for c in range(64):
-                    file.write(f"filter add dev dummy0 protocol ip ingress prio 1 handle {count} " +
-                               f"flower skip_hw src_mac 11:11:00:{a:02x}:{b:02x}:{c:02x} " +
-                               f"dst_mac 12:34:00:{a:02x}:{b:02x}:{c:02x} action gact drop\n")
-                    count+=1
+                    file.write(f"filter add dev dummy0 protocol ip ingress prio 1 handle {count} "
+                               + f"flower skip_hw src_mac 11:11:00:{a:02x}:{b:02x}:{c:02x} "
+                               + f"dst_mac 12:34:00:{a:02x}:{b:02x}:{c:02x} action gact drop\n")
+                    count += 1
 
 
 def filter_batch_as(ctx, scen):
