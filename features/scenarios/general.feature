@@ -2091,12 +2091,12 @@ Feature: nmcli - general
     @ifup_ifdown_scripts
     Scenario: NM - general - test ifup (ifdown) script uses NM
     * Add a new connection of type "ethernet" and options "con-name con_general ifname eth8 autoconnect no ipv4.address 1.2.3.4/24 ipv4.method manual"
-    * Execute "ifup con_general"
+    * Execute "/usr/sbin/ifup con_general"
     When "connected" is visible with command "nmcli -f GENERAL.STATE device show eth8" in "5" seconds
      And "1.2.3.4/24" is visible with command "nmcli -f IP4.ADDRESS device show eth8" in "5" seconds
      And "activated" is visible with command "nmcli -f GENERAL.STATE connection show con_general"
      And "1.2.3.4/24" is visible with command "ip a s eth8" in "5" seconds
-    * Execute "ifdown con_general"
+    * Execute "/usr/sbin/ifdown con_general"
     Then "disconnected" is visible with command "nmcli -f GENERAL.STATE device show eth8" in "5" seconds
      And "1.2.3.4/24" is not visible with command "nmcli -f IP4.ADDRESS device show eth8" in "5" seconds
      And "activated" is not visible with command "nmcli -f GENERAL.STATE connection show con_general"
@@ -2110,12 +2110,12 @@ Feature: nmcli - general
     Scenario: NM - general - test ifup (ifdown) loads new connection from ifcfg file of same name automagically
     Given "con_general" is not visible with command "nmcli c show"
     * Execute """echo -e 'NAME=con_general\nTYPE=Ethernet\nDEVICE=eth8\nBOOTPROTO=static\nIPADDR=1.2.3.4\nPREFIX=24\nIPV6=no\nONBOOT=no' >> /etc/sysconfig/network-scripts/ifcfg-con_general"""
-    * Execute "ifup con_general"
+    * Execute "/usr/sbin/ifup con_general"
     When "connected" is visible with command "nmcli -f GENERAL.STATE device show eth8" in "5" seconds
      And "1.2.3.4/24" is visible with command "nmcli -f IP4.ADDRESS device show eth8" in "5" seconds
      And "activated" is visible with command "nmcli -f GENERAL.STATE connection show con_general"
      And "1.2.3.4/24" is visible with command "ip a s eth8" in "5" seconds
-    * Execute "ifdown con_general"
+    * Execute "/usr/sbin/ifdown con_general"
     Then "disconnected" is visible with command "nmcli -f GENERAL.STATE device show eth8" in "5" seconds
      And "1.2.3.4/24" is not visible with command "nmcli -f IP4.ADDRESS device show eth8" in "5" seconds
      And "activated" is not visible with command "nmcli -f GENERAL.STATE connection show con_general"
@@ -2128,12 +2128,12 @@ Feature: nmcli - general
     @ifup_ifdown_keyfile
     Scenario: NM - general - test ifup (ifdown) script uses NM with keyfile-defined connection
     * Add a new connection of type "ethernet" and options "con-name con_general ifname eth8 autoconnect no ipv4.address 1.2.3.4/24 ipv4.method manual"
-    * Execute "ifup con_general"
+    * Execute "/usr/sbin/ifup con_general"
     When "connected" is visible with command "nmcli -f GENERAL.STATE device show eth8" in "5" seconds
      And "1.2.3.4/24" is visible with command "nmcli -f IP4.ADDRESS device show eth8" in "5" seconds
      And "activated" is visible with command "nmcli -f GENERAL.STATE connection show con_general"
      And "1.2.3.4/24" is visible with command "ip a s eth8" in "5" seconds
-    * Execute "ifdown con_general"
+    * Execute "/usr/sbin/ifdown con_general"
     Then "disconnected" is visible with command "nmcli -f GENERAL.STATE device show eth8" in "5" seconds
      And "1.2.3.4/24" is not visible with command "nmcli -f IP4.ADDRESS device show eth8" in "5" seconds
      And "activated" is not visible with command "nmcli -f GENERAL.STATE connection show con_general"
@@ -2147,12 +2147,12 @@ Feature: nmcli - general
     Scenario: NM - general - test ifup (ifdown) loads new connection from ifcfg file of same name automagically
     Given "con_general" is not visible with command "nmcli c show"
     * Execute """echo -e 'NAME=con_general\nTYPE=Ethernet\nDEVICE=eth8\nBOOTPROTO=static\nIPADDR=1.2.3.4\nPREFIX=24\nIPV6=no\nONBOOT=no' >> /etc/sysconfig/network-scripts/ifcfg-con_general"""
-    * Execute "ifup con_general"
+    * Execute "/usr/sbin/ifup con_general"
     When "connected" is visible with command "nmcli -f GENERAL.STATE device show eth8" in "5" seconds
      And "1.2.3.4/24" is visible with command "nmcli -f IP4.ADDRESS device show eth8" in "5" seconds
      And "activated" is visible with command "nmcli -f GENERAL.STATE connection show con_general"
      And "1.2.3.4/24" is visible with command "ip a s eth8" in "5" seconds
-    * Execute "ifdown con_general"
+    * Execute "/usr/sbin/ifdown con_general"
     Then "disconnected" is visible with command "nmcli -f GENERAL.STATE device show eth8" in "5" seconds
      And "1.2.3.4/24" is not visible with command "nmcli -f IP4.ADDRESS device show eth8" in "5" seconds
      And "activated" is not visible with command "nmcli -f GENERAL.STATE connection show con_general"
