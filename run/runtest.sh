@@ -25,6 +25,8 @@ DIR=$(pwd)
 setup_configure_environment "$1"
 export_python_command
 
+export COLUMNS=1024
+
 # set TEST variable for version_control script
 if [ -z "$TEST" ]; then
     logger "setting test name to NetworkManager_Test0_$1"
