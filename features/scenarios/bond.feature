@@ -2195,8 +2195,9 @@
      When "empty" is not visible with command "file /tmp/tshark.log" in "150" seconds
      * Bring "up" connection "bond0"
      * Bring "up" connection "bond0.0"
+     * Execute "echo $COLUMNS"
      When "activated" is visible with command "nmcli c show bond0.0" in "10" seconds
-     When "tshark" is not visible with command "ps aux" in "15" seconds
+     When "tshark -l -O arp" is not visible with command "ps aux" in "15" seconds
      Then Noted value is not visible with command "cat /tmp/tshark.log" in "2" seconds
 
 
