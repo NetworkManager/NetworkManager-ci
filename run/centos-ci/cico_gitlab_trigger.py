@@ -228,9 +228,7 @@ def execute_build(gt, content, os_override=None):
     if gt.repository == 'NetworkManager-ci':  # NMCI always use main for code
         if gt.source_project_id != gt.target_project_id:
             params.append({'name': 'MERGE_REQUEST_ID', 'value': gt.merge_request_id})
-            params.append({'name': 'TEST_BRANCH', 'value': "test_mr"})
-        else:
-            params.append({'name': 'TEST_BRANCH', 'value': gt.commit})
+        params.append({'name': 'TEST_BRANCH', 'value': gt.commit})
         params.append({'name': 'REFSPEC', 'value': 'main'})
         project_dir = "NetworkManager-test-mr"
 
