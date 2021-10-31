@@ -191,11 +191,11 @@ def get_rebuild_detail(gt):
     # lets see if there is a @OS:rhelx.y in the desc or commit msg
     message = gt.description
     for line in message.split('\n'):
-        if line.strip().lower().startswith('@OS:'):
+        if line.strip().lower().startswith('@os:'):
             return line.strip().split(':')[-1]
     message = gt.commit_message
     for line in message.split('\n'):
-        if line.strip().lower().startswith('@OS:'):
+        if line.strip().lower().startswith('@os:'):
             return line.strip().split(':')[-1]
     return None
 
