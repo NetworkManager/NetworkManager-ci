@@ -79,6 +79,7 @@ beaker-hardware:
 setup: |
   ./prepare/envsetup.sh setup first_test_setup
   file=/tmp/NetworkManager-ci-unit_tests.log
+  ./run/publish_behave_logs/setup_pbl.py
   (time python3 -m pytest -vvvv ./nmci/test.py) > $file 2>&1; rc=$?
   if [ $rc == 0 ]; then
     result=PASS
