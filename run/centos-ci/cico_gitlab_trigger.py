@@ -255,26 +255,23 @@ def execute_build(gt, content, os_override=None):
 def process_request(data, content):
     gt = GitlabTrigger(data)
     if gt.request_type == 'note':
-        if gt.source_project_id != gt.target_project_id:
-            print("Unsafe comment, ignoring")
+        comment = gt.comment
+        if comment.lower() == 'rebuild':
+            execute_build(gt, content)
+        elif comment.lower() == 'rebuild centos8':
+            execute_build(gt, content, os_override='8')
+        elif comment.lower() == 'rebuild c8':
+            execute_build(gt, content, os_override='8')
+        elif comment.lower() == 'rebuild centos8-stream':
+            execute_build(gt, content)
+        elif comment.lower() == 'rebuild c8s':
+            execute_build(gt, content)
+        elif '@runtests:' in comment.lower():
+            execute_build(gt, content)
+        elif '@build:' in comment.lower():  # NM specific tag to set UPSTREAM_REFSPEC_ID
+            execute_build(gt, content)
         else:
-            comment = gt.comment
-            if comment.lower() == 'rebuild':
-                execute_build(gt, content)
-            elif comment.lower() == 'rebuild centos8':
-                execute_build(gt, content, os_override='8')
-            elif comment.lower() == 'rebuild c8':
-                execute_build(gt, content, os_override='8')
-            elif comment.lower() == 'rebuild centos8-stream':
-                execute_build(gt, content)
-            elif comment.lower() == 'rebuild c8s':
-                execute_build(gt, content)
-            elif '@runtests:' in comment.lower():
-                execute_build(gt, content)
-            elif '@build:' in comment.lower():  # NM specific tag to set UPSTREAM_REFSPEC_ID
-                execute_build(gt, content)
-            else:
-                print('Irrelevant Note...')
+            print('Irrelevant Note...')
     elif data['object_kind'] == 'merge_request':
         if data['object_attributes']['action'] == 'merge':
             print("MERGE packet, ignoring")
@@ -283,14 +280,9 @@ def process_request(data, content):
         elif data['object_attributes']['action'] == 'unapproved':
             print("UNAPPROVED packet, ignoring")
         elif data['object_attributes']['action'] in ['update', 'approved']:
-            run_allow = True
-            if gt.source_project_id != gt.target_project_id:
-                if data['object_attributes']['action'] != 'approved':
-                    print("Unaproved MR comment, ignoring")
-                    run_allow = False
             if gt.title.startswith("WIP"):
                 print("This is WIP Merge Request - not proceeding")
-            elif run_allow:
+            else:
                 if not os.path.exists('/tmp/gl_commits'):
                     os.system("echo '' > /tmp/gl_commits")
                 with open('/tmp/gl_commits') as f:
