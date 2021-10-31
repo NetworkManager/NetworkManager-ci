@@ -1275,7 +1275,7 @@
     * Execute "nmcli con modify ethernet0 ipv6.routes 'fd02::/64 fd01::1'"
     * Execute "ip l set testX6 up"
     * Bring "up" connection "ethernet0"
-    * Execute "dd if=/dev/zero bs=1M count=10 | nc fd02::2 8080"
+    * Execute "dd if=/dev/zero bs=1M count=10 | nc fd02::2 9000"
     Then "mtu 1400" is visible with command "ip route get fd02::2" for full "40" seconds
 
 

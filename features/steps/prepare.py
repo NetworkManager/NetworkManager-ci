@@ -324,7 +324,7 @@ def prepare_simdev(context, device):
     # Add route
     context.command_code("ip netns exec {device}2_ns ip route add fd01::/64 via fd02::1 dev {device}2p".format(device=device))
     # Run netcat server to receive some data
-    context.pexpect_service("ip netns exec {device}2_ns nc -6 -l -p 8080 > /dev/null".format(device=device), shell=True)
+    context.pexpect_service("ip netns exec {device}2_ns nc -6 -l -p 9000 > /dev/null".format(device=device), shell=True)
 
     if not hasattr(context, 'testvethns'):
         context.testvethns = []
