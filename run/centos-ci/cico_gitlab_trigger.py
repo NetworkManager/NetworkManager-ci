@@ -252,53 +252,43 @@ def execute_build(gt, content, os_override=None):
 
 def process_request(data, content):
     gt = GitlabTrigger(data)
-    if gt.source_project_id != gt.target_project_id:
-        comment = gt.comment
-        if comment.lower() == 'rebuild':
-            execute_build(gt, content)
-        elif comment.lower() == 'rebuild centos8':
-            execute_build(gt, content, os_override='8')
-        elif comment.lower() == 'rebuild c8':
-            execute_build(gt, content, os_override='8')
-        elif comment.lower() == 'rebuild centos8-stream':
-            execute_build(gt, content)
-        elif comment.lower() == 'rebuild c8s':
-            execute_build(gt, content)
-        elif '@runtests:' in comment.lower():
-            execute_build(gt, content)
-        elif '@build:' in comment.lower(): # NM specific tag to set UPSTREAM_REFSPEC_ID
-            execute_build(gt, content)
+    if gt.request_type == 'note':
+        if gt.source_project_id != gt.target_project_id:
+            print("Unsafe comment, ignoring")
         else:
-            print('Irrelevant Note...')
-    elif gt.request_type == 'note':
-        comment = gt.comment
-        if comment.lower() == 'rebuild':
-            execute_build(gt, content)
-        elif comment.lower() == 'rebuild centos8':
-            execute_build(gt, content, os_override='8')
-        elif comment.lower() == 'rebuild c8':
-            execute_build(gt, content, os_override='8')
-        elif comment.lower() == 'rebuild centos8-stream':
-            execute_build(gt, content)
-        elif comment.lower() == 'rebuild c8s':
-            execute_build(gt, content)
-        elif '@runtests:' in comment.lower():
-            execute_build(gt, content)
-        elif '@build:' in comment.lower(): # NM specific tag to set UPSTREAM_REFSPEC_ID
-            execute_build(gt, content)
-        else:
-            print('Irrelevant Note...')
+            comment = gt.comment
+            if comment.lower() == 'rebuild':
+                execute_build(gt, content)
+            elif comment.lower() == 'rebuild centos8':
+                execute_build(gt, content, os_override='8')
+            elif comment.lower() == 'rebuild c8':
+                execute_build(gt, content, os_override='8')
+            elif comment.lower() == 'rebuild centos8-stream':
+                execute_build(gt, content)
+            elif comment.lower() == 'rebuild c8s':
+                execute_build(gt, content)
+            elif '@runtests:' in comment.lower():
+                execute_build(gt, content)
+            elif '@build:' in comment.lower():  # NM specific tag to set UPSTREAM_REFSPEC_ID
+                execute_build(gt, content)
+            else:
+                print('Irrelevant Note...')
     elif data['object_kind'] == 'merge_request':
         if data['object_attributes']['action'] == 'merge':
             print("MERGE packet, ignoring")
         elif data['object_attributes']['action'] == 'close':
             print("CLOSE packet, ignoring")
-        elif data['object_attributes']['action'] in ['approved', 'unapproved']:
-            print("APPROVED packet, ignoring")
-        elif data['object_attributes']['action'] == 'update':
+        elif data['object_attributes']['action'] == 'unapproved':
+            print("UNAPPROVED packet, ignoring")
+        elif data['object_attributes']['action'] in ['update', 'approved']:
+            run_allow = True
+            if gt.source_project_id != gt.target_project_id:
+                if data['object_attributes']['action'] != 'approved':
+                    print("Unaproved MR comment, ignoring")
+                    run_allow = False
             if gt.title.startswith("WIP"):
                 print("This is WIP Merge Request - not proceeding")
-            else:
+            elif run_allow:
                 if not os.path.exists('/tmp/gl_commits'):
                     os.system("echo '' > /tmp/gl_commits")
                 with open('/tmp/gl_commits') as f:
