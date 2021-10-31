@@ -642,6 +642,7 @@ Feature: nmcli: ipv4
     * Execute "echo 'nameserver 1.2.3.4' >> /etc/resolv.conf"
     When Domain "boston.com" is set
      And Nameserver "1.2.3.4" is set
+    * Execute "hostnamectl set-hostname --static ''"
     * Execute "hostnamectl set-hostname --transient BraunBerg"
     When Domain "boston.com" is set
      And Nameserver "1.2.3.4" is set
