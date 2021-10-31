@@ -38,7 +38,11 @@ node('cico-workspace') {
             println("Preparing commands")
             install = "yum install -y git python3 wget"
             install2 = "python3 -m pip install python-gitlab pyyaml"
-            clone = "git clone https://gitlab.freedesktop.org/NetworkManager/NetworkManager-ci.git; cd NetworkManager-ci; git checkout  ${TEST_BRANCH}"
+            clone = "git clone https://gitlab.freedesktop.org/NetworkManager/NetworkManager-ci.git; cd NetworkManager-ci; "
+            if (MERGE_REQUEST_ID) {
+                clone += " git fetch origin merge-requests/${MERGE_REQUEST_ID}/head:test_mr ;"
+            }
+            clone += " git checkout ${TEST_BRANCH}"
             run = "cd NetworkManager-ci; python3 run/centos-ci/node_runner.py -t ${TEST_BRANCH} -c ${REFSPEC} -f ${FEATURES} -b ${env.BUILD_URL} -g ${GL_TOKEN}"
             if (TRIGGER_DATA) {
                 run += " -d ${TD}"
