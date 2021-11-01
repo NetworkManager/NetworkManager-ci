@@ -510,7 +510,7 @@ deploy_ssh_keys () {
 
     echo "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQDAM+2WB7nD+BbrmLCDk3AzI82EceBD5vXioOvGkVAjVIKKITs+D+Q7i4QpG42S/IIkeojlkodwE5Ht5omCtdqMSa5WBSPXhZASJskJs2EH3dAU23U/Rff6hSP845EO+Gs/zpGTgs5LAVvNpS9oZMiUdWyd/xI2QJlyOpcGbCr9AO1lGN5+Ls/ZJtCYL9W4F/Zp5H9ApYS8Z/EReiFY/TH0zngGj8sX3/L/em99H1aaFpkef9J2ZMZX13ixHhVfElA877Fj4CmLIX+aYXa24JBDBZLOJCsEK9WdCBo4imEfVd42Wm9FexRgDknpzfSOTVnukLN9lrYwr5FvUcHOOKE1 fpokryvk@rh" >> /root/.ssh/authorized_keys
 
-    echo "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIOeHlYMy97S9KKda5QdORi6wujhntAoFXIbfrF+rn9CK acardace@redhat.com" >> /root/.ssh/authorized_keys
+    echo "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIHKLPGOLAnqR5PnP5InIedERR3/MrfmqHjchkv7HVnyb acabral@fedora" >> /root/.ssh/authorized_keys
 
     echo "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABgQCnMu9jib5rn5lewW6HihXO2xQKBcXS41SHUaBUcAqX9qXbjeLqlelR51Ny6NTbWTp7k1j1LONzwU7ON6vZW49JvB6S3gf9NuN3wa/0XhelW8Rt6k9Odr7MZCsM74HdkVJpDuzUPh0qquUnInbYulv61CumyM3GZy82oLrpuh/JbxlpsqA/ue7rY7avnxIGEs8luC+a80oGfDJHxMS61TbarqDqkHUfXDeFm5TsJvBxRnd29kEnl7BwzaVImeY33X29V1atYo7BWO1DAGS5jBKM2kUXBxLzxv65+j2VZXP6ybKGnWVLzoUGNgyM/qH78qitvH6A1IOgwC9DiL8aOVHHaF6pWStZj9NSRkCixsxb1514EAlwmz5FvonPtv2GK6J+GTcWNCOg4tp9Ul7uwuUjiBhrjXLohl6VYA1Pvu0PBt+UALY9As8oLwmmv1QdmTfuFZPtT1LtGE+iDg2oUDht2iM8W24RUgLdyoaDY/DYbXMHXU5sH+3m+W9bppkpp00= mberezny@mberezny.brq.csb" >> /root/.ssh/authorized_keys
 
