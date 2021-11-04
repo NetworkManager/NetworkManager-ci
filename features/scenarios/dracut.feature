@@ -186,7 +186,7 @@ Feature: NM: dracut
       | check  | wait_for_ip4_renew 192.168.50.101/24 eth0                |
       | check  | wait_for_ip6_renew deaf:beef::1:10/128 eth0              |
       | check  | dns_search *'nfs.redhat.com'*                            |
-      | check  | dns_search *'nfs6.redhat.com'                            |
+      | check  | dns_search *'nfs6.redhat.com'*                           |
       | check  | nmcli_con_num 1                                          |
       | check  | no_ifcfg                                                 |
       | check  | ip4_route_unique "default via 192.168.50.1"              |
