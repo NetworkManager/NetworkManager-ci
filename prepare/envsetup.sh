@@ -643,6 +643,9 @@ local_setup_configure_nm_eth_part2 () {
     modprobe -r ip_tunnel
     modprobe -r ip6_tunnel
 
+    # Load dummy module with numdummies=0 to prevent dummyX device creation by kernel
+    modprobe dummy numdummies=0
+
     # Making sure all wifi devices are named wlanX
     NUM=0
     wlan=0
