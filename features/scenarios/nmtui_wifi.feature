@@ -165,9 +165,11 @@ Feature: WIFI TUI tests
     * Set "SSID" field to "qe-open"
     * Ensure "Automatically connect" is checked
     * Confirm the connection settings
+    When "wlan0\s+wifi\s+connected" is visible with command "nmcli device" in "20" seconds
     * Execute "nmcli con down wifi1"
     * "wifi1" is visible with command "nmcli connection"
     * "wifi1" is not visible with command "nmcli device"
+    * Execute "sleep 5"
     * Come back to main screen
     * Choose to "Activate a connection" from main screen
     * Select connection "wifi1" in the list
@@ -198,6 +200,7 @@ Feature: WIFI TUI tests
     @wifi
     @nmtui_wifi_delete_connection_down
     Scenario: nmtui - wifi - delete connection while down
+    * Execute "while ! nmcli  device wifi list --rescan yes |grep 'qe-open'; do :;done"
     * Prepare new connection of type "Wi-Fi" named "wifi1"
     * Set "Device" field to "wlan0"
     * Set "SSID" field to "qe-open"
@@ -215,6 +218,7 @@ Feature: WIFI TUI tests
     Then "inet 10." is not visible with command "ip a s wlan0"
 
 
+    @xfail
     @wifi
     @nmtui_wifi_adhoc_network
     Scenario: nmtui - wifi - adhoc network
@@ -229,7 +233,7 @@ Feature: WIFI TUI tests
     Then "type IBSS" is visible with command "iw dev wlan0 info"
 
 
-    @wifi @wifi_rescan
+    @wifi_rescan @wifi
     @nmtui_wifi_ap
     Scenario: nmtui - wifi - ap
     Given Flag "NM_802_11_DEVICE_CAP_AP" is set in WirelessCapabilites
@@ -265,13 +269,14 @@ Feature: WIFI TUI tests
     @wifi @ifcfg-rh
     @nmtui_wifi_set_existing_bssid
     Scenario: nmtui - wifi - set existing bssid
+    * Execute "while ! nmcli  device wifi list --rescan yes |grep '68:7D:B4:08:7F:81'; do :;done"
     * Prepare new connection of type "Wi-Fi" named "wifi1"
     * Set "Device" field to "wlan0"
     * Set "SSID" field to "qe-open"
-    * Set "BSSID" field to "F4:0F:1B:0E:E8:A1"
+    * Set "BSSID" field to "68:7D:B4:08:7F:81"
     * Confirm the connection settings
-    Then "BSSID=F4:0F:1B:0E:E8:A1" is visible with command "cat /etc/sysconfig/network-scripts/ifcfg-wifi1"
-    Then "Connected to f4:0f:1b:0e:e8:a1" is visible with command "iw dev wlan0 link" in "30" seconds
+    Then "BSSID=68:7D:B4:08:7F:81" is visible with command "cat /etc/sysconfig/network-scripts/ifcfg-wifi1"
+    Then "Connected to 68:7d:b4:08:7f:81" is visible with command "iw dev wlan0 link" in "30" seconds
 
 
     @wifi @ifcfg-rh

@@ -110,6 +110,7 @@ Feature: nmcli - wifi
     Then "\*\s+qe-open" is visible with command "nmcli -f IN-USE,SSID device wifi list"
 
 
+    @xfail
     @wifi
     @nmcli_wifi_adhoc_open_network
     Scenario: nmcli - wifi - adhoc open network
@@ -128,7 +129,7 @@ Feature: nmcli - wifi
     Then "type IBSS" is visible with command "iw dev wlan0 info" in "30" seconds
 
 
-    @wifi @rescan
+    @rescan @wifi
     @nmcli_wifi_ap
     Scenario: nmcli - wifi - ap open network
     Given Flag "NM_802_11_DEVICE_CAP_AP" is set in WirelessCapabilites
@@ -177,6 +178,7 @@ Feature: nmcli - wifi
 
 
     @rhbz1254461
+    @xfail
     @wifi
     @nmcli_wifi_different_than_networks_band
     Scenario: nmcli - wifi - different than network's band
@@ -216,20 +218,21 @@ Feature: nmcli - wifi
     @wifi
     @nmcli_wifi_set_channel
     Scenario: nmcli - wifi - set channel
-    * Add a new connection of type "wifi" and options "ifname wlan0 con-name qe-wpa1-psk autoconnect off ssid qe-wpa1-psk"
-    * Note the output of "nmcli device wifi |grep qe-wpa1-psk |awk '{print $4}'| head -1" as value "noted-value"
-    * Check ifcfg-name file created for connection "qe-wpa1-psk"
-    * Open editor for connection "qe-wpa1-psk"
-    * Set a property named "802-11-wireless-security.key-mgmt" to "wpa-psk" in editor
-    * Set a property named "802-11-wireless-security.psk" to "over the river and through the woods" in editor
+    * Add a new connection of type "wifi" and options "ifname wlan0 con-name qe-wep autoconnect off ssid qe-wep"
+    * Check ifcfg-name file created for connection "qe-wep"
+    * Open editor for connection "qe-wep"
+    * Set a property named "802-11-wireless-security.key-mgmt" to "none" in editor
+    * Set a property named "802-11-wireless-security.wep-key0" to "74657374696E67313233343536" in editor
+    * Set a property named "802-11-wireless-security.wep-key-type" to "key" in editor
     * Set a property named "802-11-wireless.band" to "bg" in editor
-    * Set a property named "802-11-wireless.channel" to "noted-value" in editor
+    * Set a property named "802-11-wireless.channel" to "11" in editor
     * Save in editor
-    * Check value saved message showed in editor
+    # * No error appeared in editor
+    # * Check value saved message showed in editor
     * Quit editor
-    * Bring up connection "qe-wpa1-psk"
-    Then "qe-wpa1-psk" is visible with command "iw dev wlan0 link"
-    Then "\*\s+qe-wpa1-psk" is visible with command "nmcli -f IN-USE,SSID device wifi list"
+    * Bring up connection "qe-wep"
+    Then "qe-wep" is visible with command "iw dev wlan0 link"
+    Then "\*\s+qe-wep" is visible with command "nmcli -f IN-USE,SSID device wifi list"
 
 
     @wifi
@@ -1400,6 +1403,7 @@ Feature: nmcli - wifi
     @nmcli_wifi_disable_radio
     Scenario: nmcli - wifi - disable radio
     Given  "enabled" is visible with command "nmcli radio wifi"
+    * Execute "while ! nmcli  device wifi list --rescan yes |grep 'qe-open'; do :;done"
     * Add a new connection of type "wifi" and options "ifname wlan0 con-name qe-open autoconnect off ssid qe-open"
     * Bring up connection "qe-open"
     * "qe-open" is visible with command "iw dev wlan0 link"
@@ -1420,7 +1424,7 @@ Feature: nmcli - wifi
     * "wlan0\s+wifi\s+unavailable" is visible with command "nmcli device"
     * Execute "nmcli radio wifi on"
     Then "enabled" is visible with command "nmcli radio wifi"
-    Then "qe-open" is visible with command "iw dev wlan0 link" in "15" seconds
+    Then "qe-open" is visible with command "iw dev wlan0 link" in "60" seconds
     Then "wlan0\s+wifi\s+connected" is visible with command "nmcli device" in "15" seconds
 
 
@@ -1437,6 +1441,7 @@ Feature: nmcli - wifi
     * No error appeared in editor
     * Check value saved message showed in editor
     * Quit editor
+    * Execute "while ! nmcli  device wifi list --rescan yes |grep 'qe-wpa2-psk'; do :;done"
     * Bring up connection "qe-wpa2-psk"
     * Bring down connection "qe-wpa2-psk"
     * Execute "nmcli con modify qe-wpa2-psk connection.zone trusted"
@@ -1450,7 +1455,7 @@ Feature: nmcli - wifi
     @wifi
     @nmcli_wifi_wpa_ask_passwd
     Scenario: nmcli - wifi - connect WPA network asking for password
-    Given "qe-wpa2-psk" is visible with command "nmcli -f SSID device wifi list" in "15" seconds
+    Given "qe-wpa2-psk" is visible with command "nmcli -f SSID device wifi list" in "60" seconds
     * Spawn "nmcli -a device wifi connect qe-wpa2-psk" command
     * Expect "Password:"
     * Submit "over the river and through the woods"

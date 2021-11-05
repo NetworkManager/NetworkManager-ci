@@ -58,7 +58,7 @@ beaker-hardware:
   - subcomponents:
       NetworkManager-wifi:
         - x86_64:
-            hostname: wlan-r2s20.wlan.rhts.eng.bos.redhat.com
+            hostname: wlan-r2s16.wlan.rhts.eng.bos.redhat.com
       NetworkManager-infiniband:
         - x86_64:
             hostname: rdma-dev-01.rdma.lab.eng.rdu2.redhat.com
@@ -3076,7 +3076,7 @@ testmapper:
     - sriov_enable:
         feature: sriov
     - sriov_enable_with_deployed_profile:
-        feature: sriov    
+        feature: sriov
     - sriov_disable:
         feature: sriov
     - sriov_connect:
