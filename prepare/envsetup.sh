@@ -679,10 +679,7 @@ local_setup_configure_nm_eth_part2 () {
     if [[ $1 == *dpdk_* ]]; then
         dcb_inf_wol_sriov=1
     fi
-    if [[ $1 == *nmcli_wifi_* ]]; then
-        wlan=1
-    fi
-    if [[ $1 == *nmtui_wifi_* ]]; then
+    if [[ $1 == *nmcli_wifi* || $1 == *nmtui_wifi_* ]]; then
         wlan=1
     fi
 

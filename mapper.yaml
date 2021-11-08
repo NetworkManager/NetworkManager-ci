@@ -58,7 +58,8 @@ beaker-hardware:
   - subcomponents:
       NetworkManager-wifi:
         - x86_64:
-            hostname: wlan-r2s16.wlan.rhts.eng.bos.redhat.com
+            hostname: wlan-r6s4-01.wlan.rhts.eng.bos.redhat.com
+            #hostname: wlan-r2s16.wlan.rhts.eng.bos.redhat.com
       NetworkManager-infiniband:
         - x86_64:
             hostname: rdma-dev-01.rdma.lab.eng.rdu2.redhat.com
@@ -2774,9 +2775,9 @@ testmapper:
         tags: jimtcl libmbim libqmi ModemManager usb_modeswitch-data usb_modeswitch mobile-broadband-provider-info
 
   NetworkManager-wifi:
-    - nmcli_wifisec_configure_and_connect_wpa1peap_profile:
-        feature: wifi
     - nmcli_wifi_connect_to_wpa2_psk_network_without_profile:
+        feature: wifi
+    - nmcli_wifisec_configure_and_connect_wpa1peap_profile:
         feature: wifi
     - nmcli_wifisec_configure_and_connect_wpa1tls_profile:
         feature: wifi
