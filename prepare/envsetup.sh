@@ -648,9 +648,7 @@ local_setup_configure_nm_eth_part2 () {
 
     # Making sure all wifi devices are named wlanX
     NUM=0
-    wlan=0
     for DEV in `nmcli device | grep wifi | awk {'print $1'}`; do
-        wlan=1
         ip link set $DEV down
         ip link set $DEV name wlan$NUM
         ip link set wlan$NUM up
@@ -664,6 +662,7 @@ local_setup_configure_nm_eth_part2 () {
     fi
 
     # Do we have special HW needs?
+    wlan=0
     dcb_inf_wol_sriov=0
     if [[ $1 == *sriov_* ]]; then
         dcb_inf_wol_sriov=1
@@ -680,6 +679,13 @@ local_setup_configure_nm_eth_part2 () {
     if [[ $1 == *dpdk_* ]]; then
         dcb_inf_wol_sriov=1
     fi
+    if [[ $1 == *nmcli_wifi_* ]]; then
+        wlan=1
+    fi
+    if [[ $1 == *nmtui_wifi_* ]]; then
+        wlan=1
+    fi
+
     # We need this if yes
     if [ $dcb_inf_wol_sriov -eq 1 ]; then
         touch /tmp/nm_dcb_inf_wol_sriov_configured
