@@ -947,6 +947,7 @@ Feature: nmcli: connection
      @connection_external_dummy_interface
      Scenario: nmcli - connection - create & activate connection from external dummy interface
      * Execute "ip l add dummy1 type dummy"
+     When "unmanaged" is not visible with command "nmcli device show |grep dummy1" in "2" seconds
      * Connect device "dummy1"
      Then "dummy1" is visible with command "nmcli -g connection.interface-name connection show dummy1"
       And Check if "dummy1" is active connection
