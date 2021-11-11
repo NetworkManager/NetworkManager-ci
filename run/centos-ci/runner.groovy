@@ -43,8 +43,12 @@ node('cico-workspace') {
             if (MERGE_REQUEST_ID) {
                 clone += " git fetch origin merge-requests/${MERGE_REQUEST_ID}/head:${TEST_BRANCH} ;"
             }
+            println("Preparing commands3")
+
             clone += " git checkout ${TEST_BRANCH}"
             run = "cd NetworkManager-ci; python3 run/centos-ci/node_runner.py -t ${TEST_BRANCH} -c ${REFSPEC} -f ${FEATURES} -b ${env.BUILD_URL} -g ${GL_TOKEN}"
+            println("Preparing commands4")
+
             if (TRIGGER_DATA) {
                 run += " -d ${TD}"
             }
