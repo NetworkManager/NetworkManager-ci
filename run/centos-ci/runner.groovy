@@ -37,6 +37,7 @@ node('cico-workspace') {
             TD = TRIGGER_DATA.bytes.encodeBase64().toString()
             println("Preparing commands")
             install = "yum install -y git python3 wget"
+            println("Preparing commands2")
             install2 = "python3 -m pip install python-gitlab pyyaml"
             clone = "git clone https://gitlab.freedesktop.org/NetworkManager/NetworkManager-ci.git; cd NetworkManager-ci; "
             if (MERGE_REQUEST_ID) {
