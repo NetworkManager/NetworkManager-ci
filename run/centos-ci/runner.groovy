@@ -7,6 +7,9 @@ node('cico-workspace') {
             if (!params['TRIGGER_DATA']) {
                 TRIGGER_DATA = ""
             }
+            if (!params['MERGE_REQUEST_ID']) {
+                MERGE_REQUEST_ID = ""
+            }
             if (!params['REFSPEC']) {
                 REFSPEC = "main"
             }
