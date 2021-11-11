@@ -40,6 +40,7 @@ node('cico-workspace') {
             println("Preparing commands2")
             install2 = "python3 -m pip install python-gitlab pyyaml"
             clone = "git clone https://gitlab.freedesktop.org/NetworkManager/NetworkManager-ci.git; cd NetworkManager-ci; "
+            println("Preparing commands2.5")
             if (MERGE_REQUEST_ID) {
                 clone += " git fetch origin merge-requests/${MERGE_REQUEST_ID}/head:${TEST_BRANCH} ;"
             }
