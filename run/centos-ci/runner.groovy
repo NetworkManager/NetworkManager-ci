@@ -54,7 +54,6 @@ node('cico-workspace') {
             sh "ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no root@${node_hostname} '${clone}'"
             println("Running tests")
             sh """
-                set +x
                 ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no root@${node_hostname} '${run}'
             """
         }
