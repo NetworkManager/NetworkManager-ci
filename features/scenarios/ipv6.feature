@@ -1004,6 +1004,7 @@
 
 
     @rhbz1268866
+    @skip_in_centos
     @con_ipv6_remove @internal_DHCP @teardown_testveth @long
     @ipv6_NM_stable_with_internal_DHCPv6
     Scenario: NM - ipv6 - stable with internal DHCPv6
@@ -1012,48 +1013,9 @@
     * Execute "nmcli con up id con_ipv6" for "50" times
 
 
-    @ver-=1.6
-    @con_ipv6_remove @restart_if_needed @selinux_allow_ifup @teardown_testveth
-    @persistent_default_ipv6_gw
-    Scenario: NM - ipv6 - persistent default ipv6 gw
-    * Add a new connection of type "ethernet" and options "ifname testX6 con-name con_ipv6"
-    * Wait for at least "3" seconds
-    * Stop NM
-    * Prepare simulated test "testX6" device
-    * Execute "sysctl net.ipv6.conf.testX6.accept_ra_defrtr=1"
-    * Execute "sysctl net.ipv6.conf.testX6.accept_ra_pinfo=1"
-    * Execute "ifup testX6"
-    * Wait for at least "10" seconds
-    * Execute "ip r del 169.254.0.0/16"
-    When "default" is visible with command "ip -6 r |grep testX6" in "20" seconds
-    And "default" is visible with command "ip -6 r |grep testX6 |grep expire" in "45" seconds
-    * Restart NM
-    Then "default via fe" is visible with command "ip -6 r |grep testX6 |grep 'metric 1'" in "50" seconds
-    And "default via fe" is not visible with command "ip -6 r |grep testX6 |grep expire" in "45" seconds
-
-
-    @ver+=1.7 @ver-=1.10.0
-    @con_ipv6_remove @restart_if_needed @selinux_allow_ifup @teardown_testveth
-    @persistent_default_ipv6_gw
-    Scenario: NM - ipv6 - persistent default ipv6 gw
-    * Add a new connection of type "ethernet" and options "ifname testX6 con-name con_ipv6"
-    * Wait for at least "3" seconds
-    * Stop NM
-    * Prepare simulated test "testX6" device
-    * Execute "sysctl net.ipv6.conf.testX6.accept_ra_defrtr=1"
-    * Execute "sysctl net.ipv6.conf.testX6.accept_ra_pinfo=1"
-    * Execute "ifup testX6"
-    * Wait for at least "10" seconds
-    * Execute "ip r del 169.254.0.0/16"
-    When "default" is visible with command "ip -6 r |grep testX6" in "20" seconds
-    And "default" is visible with command "ip -6 r |grep testX6 |grep expire" in "45" seconds
-    * Restart NM
-    * Wait for at least "10" seconds
-    Then "default via fe" is visible with command "ip -6 r |grep testX6 |grep 'metric 1024'" in "50" seconds
-    And "default via fe" is not visible with command "ip -6 r |grep testX6 |grep expire" in "45" seconds
-
 
     @ver+=1.10.1
+    @skip_in_centos
     @rhelver-=7 @fedoraver-=0 #as we have no initscripts anymore
     @con_ipv6_remove @restart_if_needed @selinux_allow_ifup @teardown_testveth
     @persistent_default_ipv6_gw
@@ -1075,6 +1037,7 @@
 
     @rhbz1274894
     @ver+=1.9.2
+    @skip_in_centos
     @rhelver-=7 @fedoraver-=0 #as we have no initscripts anymore
     @con_ipv6_remove @restart_if_needed @selinux_allow_ifup @teardown_testveth
     @persistent_ipv6_routes
@@ -1150,7 +1113,7 @@
 
 
     @rhbz2004212
-    @ver+=1.32.10
+    @ver+=1.32.10 @skip_in_centos
     @con_ipv6_remove @teardown_testveth @long
     @ipv6_keep_route_upon_reapply_full
     Scenario: NM - ipv6 - keep routes upon reapply, check address presence after timeout
@@ -1498,6 +1461,7 @@
 
 
     @rhbz1795957
+    @skip_in_centos
     @ver+=1.22
     @con_ipv6_remove @teardown_testveth @long
     @solicitation_period_prolonging

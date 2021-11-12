@@ -68,6 +68,7 @@
 
 
     @rhbz1250723
+    @skip_in_centos
     @libreswan @long
     @libreswan_connection_renewal
     Scenario: NM - libreswan - main connection lifetime renewal

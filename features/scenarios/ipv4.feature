@@ -1856,6 +1856,7 @@ Feature: nmcli: ipv4
 
     @rhbz1573780
     @ver+=1.12
+    @skip_in_centos
     @con_ipv4_remove @teardown_testveth @long
     @nm_dhcp_lease_renewal_link_down
     Scenario: NM - ipv4 - link down during dhcp renewal causes NM to never ask for new lease

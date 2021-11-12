@@ -23,6 +23,7 @@ Feature: nmcli: strongswan
 
 
     @ver+=1.12
+    @skip_in_centos
     @strongswan @long
     @strongswan_connection_renewal
     Scenario: NM - strongswan - main connection lifetime renewal
