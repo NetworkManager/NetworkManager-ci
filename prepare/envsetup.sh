@@ -646,15 +646,6 @@ local_setup_configure_nm_eth_part2 () {
     # Load dummy module with numdummies=0 to prevent dummyX device creation by kernel
     modprobe dummy numdummies=0
 
-    # Making sure all wifi devices are named wlanX
-    NUM=0
-    for DEV in `nmcli device | grep wifi | awk {'print $1'}`; do
-        ip link set $DEV down
-        ip link set $DEV name wlan$NUM
-        ip link set wlan$NUM up
-        NUM=$(($NUM+1))
-    done
-
     # If we have custom built packages let's store it's dir
     dir="$(find /root /tmp -name nm-build)"
     if test $dir ; then
@@ -687,6 +678,20 @@ local_setup_configure_nm_eth_part2 () {
     if [ $dcb_inf_wol_sriov -eq 1 ]; then
         touch /tmp/nm_dcb_inf_wol_sriov_configured
     fi
+
+    # We need wlanX and orig-wlanX for non wlan tests
+    NUM=0
+    for DEV in `nmcli device | grep wifi | awk {'print $1'}`; do
+        ip link set $DEV down
+        if [ $wlan -eq 1 ]; then
+            ip link set $DEV name wlan$NUM
+            ip link set wlan$NUM up
+        else
+            ip link set $DEV name orig-wlan$NUM
+            ip link set orig-wlan$NUM up
+        fi
+        NUM=$(($NUM+1))
+    done
 
     # Do we need virtual eth setup?
     veth=0
