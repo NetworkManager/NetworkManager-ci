@@ -109,13 +109,7 @@ function racoon_setup ()
     # Create a network namespace allowing the VPN client and the VPN serve to run in the
     # isolated areas on the same machine.
     ip netns add racoon
-
-    # IPv6 on a veth confuses pluto. Sigh.
-    # ERROR: bind() for 80/80 fe80::94bf:8cff:fe1b:7620:500 in process_raw_ifaces(). Errno 22: Invalid argument
-    echo 1 > /proc/sys/net/ipv6/conf/default/disable_ipv6
-    ip netns exec racoon echo 1 > /proc/sys/net/ipv6/conf/default/disable_ipv6
     ip link add racoon0 type veth peer name racoon1
-
     ip link set racoon0 netns racoon
 
     ip netns exec racoon ip link set lo up
@@ -175,7 +169,6 @@ function racoon_teardown ()
     echo ${line// /-}
 
     userdel -r budulinek
-    echo 0 > /proc/sys/net/ipv6/conf/default/disable_ipv6
     kill -INT $(ps aux|grep dns|grep racoon|grep -v grep |awk {'print $2'})
     if systemctl --quiet is-active nm-racoon; then
         systemctl stop nm-racoon

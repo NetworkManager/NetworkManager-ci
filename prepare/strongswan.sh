@@ -108,10 +108,6 @@ EOF
 strongswan_gen_netconfig ()
 {
         ip netns add strongswan
-        # IPv6 on a veth confuses pluto. Sigh. (TODO: check id still true)
-        # ERROR: bind() for 80/80 fe80::94bf:8cff:fe1b:7620:500 in process_raw_ifaces(). Errno 22: Invalid argument
-        echo 1 > /proc/sys/net/ipv6/conf/default/disable_ipv6
-        ip netns exec strongswan echo 1 > /proc/sys/net/ipv6/conf/default/disable_ipv6
         ip link add strongswan0 type veth peer name strongswan1
         ip link set strongswan0 netns strongswan
 
@@ -182,7 +178,6 @@ strongswan_setup ()
 strongswan_teardown ()
 {
         ip netns exec strongswan strongswan stop
-        echo 0 > /proc/sys/net/ipv6/conf/default/disable_ipv6
         ip netns del strongswan
         ip link del strongswan1
         kill_dnsmasq

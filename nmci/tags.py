@@ -1144,12 +1144,24 @@ def teardown_testveth_as(ctx, scen):
 
 _register_tag("teardown_testveth", None, teardown_testveth_as)
 
-
 def libreswan_bs(ctx, scen):
     nmci.lib.wait_for_testeth0(ctx)
     if ctx.command_code("rpm -q NetworkManager-libreswan") != 0:
         ctx.run("sudo yum -y install NetworkManager-libreswan")
         nmci.lib.restart_NM_service(ctx)
+
+    # We need libreswan at least of version 3.17, that contains
+    # commit 453167 ("pluto: ignore tentative and failed IPv6 addresses),
+    # otherwise pluto would get very very confused.
+    # That is RHEL 7.4, RHEL 8.0 or newer.
+    swan_ver = ctx.command_output("rpm -q --qf '%{version}' libreswan")
+    if ctx.command_code ("""rpm --eval '%%{lua:
+        if rpm.vercmp(\"%s\", \"3.17\") < 0 then
+            error(\"Libreswan too old\");
+        end }'""" % swan_ver) != 0:
+            print("Skipping with old Libreswan")
+            sys.exit(77)
+
     ctx.run("/usr/sbin/ipsec --checknss")
     mode = "aggressive"
     if "ikev2" in scen.tags:
