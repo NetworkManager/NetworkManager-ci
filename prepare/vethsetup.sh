@@ -418,8 +418,8 @@ function teardown_veth_env ()
         ip link set dev $ORIGDEV up
     fi
 
-    # Rename original devices back
-    for DEV in $(nmcli -f DEVICE -t d | grep '^orig-' | sed 's/^orig-//'); do
+    # Rename original ethernet devices back
+    for DEV in $(nmcli -f DEVICE,TYPE -t d | grep ethernet| grep '^orig-' | sed 's/^orig-//' |sed 's/:ethernet//'); do
         ip link set orig-$DEV down
         ip link set orig-$DEV name $DEV
         # Rename their profiles if these exist
