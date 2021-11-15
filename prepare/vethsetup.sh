@@ -1,6 +1,9 @@
 #!/bin/bash
 #set -x
 
+set -e
+set -o pipefail
+
 # Note: This entire setup is available from NetworkManager 1.0.4 up
 
 function setup_veth_env ()
@@ -60,7 +63,7 @@ function setup_veth_env ()
     while [ -z $DEV ]; do
         DEV=$(nmcli -f DEVICE,TYPE,STATE -t d | grep :ethernet | grep :connected | awk -F':' '{print $1}' | head -n 1)
         sleep 1
-        ((counter++))
+        ((counter++)) || :
         if [ $counter -eq 20 ]; then
             # in case, there is single ethernet device, connect it and count to 40
             if [ $(nmcli -f DEVICE,TYPE,STATE -t d | grep :ethernet | wc -l) == 1 ]; then
@@ -92,33 +95,33 @@ function setup_veth_env ()
 
     if ! test -f /tmp/nm_plugin_keyfiles; then
         # Backup original ifcfg
-        nmcli device disconnect $DEV 2>&1 > /dev/null
+        nmcli device disconnect $DEV 2>&1 > /dev/null || :
 
         if [ ! -e /tmp/ifcfg-$DEV ]; then
-            mv /etc/sysconfig/network-scripts/ifcfg-$DEV /tmp/
+            mv /etc/sysconfig/network-scripts/ifcfg-$DEV /tmp/ || :
             sleep 0.5
             nmcli con reload
             sleep 0.5
         fi
 
         # Copy backup to /etc/sysconfig/network-scripts/ and reload
-        yes 2>/dev/null | cp -rf /tmp/ifcfg-$DEV /etc/sysconfig/network-scripts/ifcfg-testeth0
+        cp -f /tmp/ifcfg-$DEV /etc/sysconfig/network-scripts/ifcfg-testeth0 || :
         sleep 0.5
         nmcli con reload
         sleep 0.5
 
     else
         # Backup original nmconnection file
-        nmcli device disconnect $DEV 2>&1 > /dev/null
+        nmcli device disconnect $DEV 2>&1 > /dev/null || :
         if [ ! -e /tmp/$DEV.nmconnection ]; then
-            mv /etc/NetworkManager/system-connections/$DEV.nmconnection /tmp/
+            mv /etc/NetworkManager/system-connections/$DEV.nmconnection /tmp/ || :
             sleep 0.5
             nmcli con reload
             sleep 0.5
         fi
 
         # Copy backup to /etc/sysconfig/network-scripts/ and reload
-        yes 2>/dev/null | cp -rf /tmp/$DEV.nmconnection /etc/NetworkManager/system-connections/testeth0.nmconnection
+        cp -f /tmp/$DEV.nmconnection /etc/NetworkManager/system-connections/testeth0.nmconnection
         sleep 0.5
         nmcli con reload
         sleep 0.5
@@ -132,7 +135,7 @@ function setup_veth_env ()
     sleep 1
 
     # Rename additional devices
-    for DEV in $(nmcli -f TYPE,DEVICE -t d | grep -v eth0 | grep ethernet | awk '{split($0,a,":"); print a[2]}'); do
+    for DEV in $(nmcli -f TYPE,DEVICE -t d | awk -F: '/eth0|orig-/ {next} /ethernet/ {print $2}'); do
         ip link set $DEV down
         ip link set $DEV name orig-$DEV
         # Rename their profiles
@@ -149,7 +152,7 @@ function setup_veth_env ()
         ip link set orig-$DEV up
 
         # And set it unmanaged
-        nmcli device disconnect orig-$DEV
+        nmcli device disconnect orig-$DEV || :
         nmcli device set orig-$DEV managed off
         ip addr flush dev orig-$DEV
     done
@@ -234,13 +237,13 @@ function setup_veth_env ()
         if [ ! -e /tmp/testeth0 ] ; then
             # THIS NEED TO BE DONE HERE FOR RECREATION REASONS
             # Copy final connection to /tmp/testeth0 for later in test usage
-            yes 2>/dev/null | cp -rf /etc/sysconfig/network-scripts/ifcfg-testeth0 /tmp/testeth0
+            cp -f /etc/sysconfig/network-scripts/ifcfg-testeth0 /tmp/testeth0 || :
         fi
     else
         if ! test -f /tmp/testeth0; then
             # THIS NEED TO BE DONE HERE FOR RECREATION REASONS
             # Copy final connection to /tmp/testeth0 for later in test usage
-            yes 2>/dev/null | cp -rf /etc/NetworkManager/system-connections/testeth0.nmconnection /tmp/testeth0
+            cp -f /etc/NetworkManager/system-connections/testeth0.nmconnection /tmp/testeth0 || :
         fi
     fi
     # On s390x sometimes this extra default profile gets created in addition to custom static original one
