@@ -128,7 +128,7 @@
     if ("project" in state && !load_all) {
       projs = projects.filter(function (p) { return p.project ==state.project; });
     }
-    if(("tests" in state || "tags" in state) && !("search" in state) && projs.length > 1) {
+    if(("tests" in state || "tags" in state) && !("search" in state) && !("project" in state)) {
       alert("Please filter out some results first, or browser might crash!");
       return;
     }
@@ -421,11 +421,11 @@
       $(td).append('<span class="text-danger">' + test.num_fail + ' </span>');
       $(td).append('<span class="text-secondary">' + test.num_skip + ' </span>');
       $(tr).append(td);
-      $(tr).append($("<td></td>").append(format_time_stats(test.time_avg, test.time_min, test.time_max, test.time_dev)));
-      $(tr).append($("<td></td>").append(format_time_stats(test.bs_avg, test.bs_min, test.bs_max, test.bs_dev)));
-      $(tr).append($("<td></td>").append(format_time_stats(test.tags_bs_avg, test.tags_bs_min, test.tags_bs_max, test.tags_bs_dev)));
-      $(tr).append($("<td></td>").append(format_time_stats(test.as_avg, test.as_min, test.as_max, test.as_dev)));
-      $(tr).append($("<td></td>").append(format_time_stats(test.tags_as_avg, test.tags_as_min, test.tags_as_max, test.tags_as_dev)));
+      $(tr).append($("<td></td>").append(format_time_stats(test.time_avg, test.time_last, test.time_min, test.time_max, test.time_dev)));
+      $(tr).append($("<td></td>").append(format_time_stats(test.bs_avg, test.bs_last, test.bs_min, test.bs_max, test.bs_dev)));
+      $(tr).append($("<td></td>").append(format_time_stats(test.tags_bs_avg, test.tags_bs_last, test.tags_bs_min, test.tags_bs_max, test.tags_bs_dev)));
+      $(tr).append($("<td></td>").append(format_time_stats(test.as_avg, test.as_last, test.as_min, test.as_max, test.as_dev)));
+      $(tr).append($("<td></td>").append(format_time_stats(test.tags_as_avg, test.tags_as_last, test.tags_as_min, test.tags_as_max, test.tags_as_dev)));
       $(tbody).append(tr);
     });
   }
@@ -458,13 +458,13 @@
       $(tr).append('<td>'+tag.bs_num+'</td>')
       $(tr).append('<td>'+tag.as_num+'</td>')
       if(tag.bs_num) {
-        $(tr).append($("<td></td>").append(format_time_stats(tag.bs_avg, tag.bs_min, tag.bs_max, tag.bs_dev)));
+        $(tr).append($("<td></td>").append(format_time_stats(tag.bs_avg, undefined, tag.bs_min, tag.bs_max, tag.bs_dev)));
       }
       else {
           $(tr).append("<td>&nbsp;</td>");
       }
       if(tag.as_num) {
-        $(tr).append($("<td></td>").append(format_time_stats(tag.as_avg, tag.as_min, tag.as_max, tag.as_dev)));
+        $(tr).append($("<td></td>").append(format_time_stats(tag.as_avg, undefined, tag.as_min, tag.as_max, tag.as_dev)));
       }
       else {
           $(tr).append("<td>&nbsp;</td>");
@@ -474,12 +474,15 @@
   }
 
 
-  function format_time_stats(avg, min, max, dev) {
+  function format_time_stats(avg, last, min, max, dev) {
     var tb = $('<table style="font-size:0.8rem; line-height:0.85rem;"></table>');
-    $(tb).append('<tr><td>avg:</td><th>'+avg.toFixed(2)+'</th></tr>')
-    $(tb).append('<tr><td>min:</td><td>'+min.toFixed(2)+'</td></tr>')
-    $(tb).append('<tr><td>max:</td><td>'+max.toFixed(2)+'</td></tr>')
-    $(tb).append('<tr><td>&sigma;:</td><td>'+dev.toFixed(2)+'</td></tr>')
+    $(tb).append('<tr><td>avg:</td><th>'+avg.toFixed(2)+'</th></tr>');
+    if (last !== undefined) {
+      $(tb).append('<tr><td>last:</td><td>'+last.toFixed(2)+'</td></tr>');
+    }
+    $(tb).append('<tr><td>min:</td><td>'+min.toFixed(2)+'</td></tr>');
+    $(tb).append('<tr><td>max:</td><td>'+max.toFixed(2)+'</td></tr>');
+    $(tb).append('<tr><td>&sigma;:</td><td>'+dev.toFixed(2)+'</td></tr>');
     return tb;
   }
 

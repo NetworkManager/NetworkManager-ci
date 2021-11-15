@@ -141,6 +141,7 @@ class Job:
             if "runtest.sh 'Running test " in line:
                 test_name = line.split("runtest.sh 'Running test ")[1][:-1]
                 when = "bs"
+                test_time = 0
                 bs_time = 0
                 as_time = 0
                 tags_as_time = 0
@@ -283,28 +284,35 @@ class Job:
             num = len(test_stats["builds"])
             if num == 0:
                 continue
-            builds_stats = test_stats["builds"].values()
+            builds_stats = list(test_stats["builds"].items())
+            builds_stats.sort(key=lambda x: -x[0])
+            builds_stats = [b[1] for b in builds_stats]
             test_stats["num"] = num
             test_stats["num_pass"] = len([t for t in builds_stats if t["status"] == "PASS"])
             test_stats["num_fail"] = len([t for t in builds_stats if t["status"] == "FAIL"])
             test_stats["num_skip"] = len([t for t in builds_stats if t["status"] == "SKIP"])
             test_stats["time_avg"] = sum([t["time"] for t in builds_stats])/num
+            test_stats["time_last"] = builds_stats[0]["time"]
             test_stats["time_min"] = min([t["time"] for t in builds_stats])
             test_stats["time_max"] = max([t["time"] for t in builds_stats])
             test_stats["time_dev"] = math.sqrt(sum([t["time"]**2 for t in builds_stats])/num)
             test_stats["bs_avg"] = sum([t["bs"] for t in builds_stats])/num
+            test_stats["bs_last"] = builds_stats[0]["bs"]
             test_stats["bs_min"] = min([t["bs"] for t in builds_stats])
             test_stats["bs_max"] = max([t["bs"] for t in builds_stats])
             test_stats["bs_dev"] = math.sqrt(sum([t["bs"]**2 for t in builds_stats])/num)
             test_stats["as_avg"] = sum([t["as"] for t in builds_stats])/num
+            test_stats["as_last"] = builds_stats[0]["as"]
             test_stats["as_min"] = min([t["as"] for t in builds_stats])
             test_stats["as_max"] = max([t["as"] for t in builds_stats])
             test_stats["as_dev"] = math.sqrt(sum([t["as"]**2 for t in builds_stats])/num)
             test_stats["tags_bs_avg"] = sum([t["tags_bs"] for t in builds_stats])/num
+            test_stats["tags_bs_last"] = builds_stats[0]["tags_bs"]
             test_stats["tags_bs_min"] = min([t["tags_bs"] for t in builds_stats])
             test_stats["tags_bs_max"] = max([t["tags_bs"] for t in builds_stats])
             test_stats["tags_bs_dev"] = math.sqrt(sum([t["tags_bs"]**2 for t in builds_stats])/num)
             test_stats["tags_as_avg"] = sum([t["tags_as"] for t in builds_stats])/num
+            test_stats["tags_as_last"] = builds_stats[0]["tags_as"]
             test_stats["tags_as_min"] = min([t["tags_as"] for t in builds_stats])
             test_stats["tags_as_max"] = max([t["tags_as"] for t in builds_stats])
             test_stats["tags_as_dev"] = math.sqrt(sum([t["tags_as"]**2 for t in builds_stats])/num)
