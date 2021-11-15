@@ -456,6 +456,9 @@ install_el7_packages () {
 install_packages () {
     if ! test -f /tmp/nm_packages_installed; then
         /usr/bin/python3 -V || yum -y install python3
+        if ! [ -e /usr/bin/debuginfo-install ]; then
+            yum -y install /usr/bin/debuginfo-install
+        fi
 
         # Install packages for various distributions
         if grep -q 'Fedora' /etc/redhat-release; then
