@@ -427,8 +427,9 @@ Feature: nmcli - ovs
     And "fe80::" is visible with command "ip a s iface0"
 
 
-    @rhbz1540218 @rhbz1734032
+    @rhbz1540218 @rhbz1734032 @rhbz2022275
     @ver+=1.18.8
+    @may-fail
     @openvswitch @restart_if_needed
     @NM_reboot_openvswitch_vlan_configuration
     Scenario: NM - openvswitch - reboot
