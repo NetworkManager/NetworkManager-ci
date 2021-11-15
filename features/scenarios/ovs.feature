@@ -429,7 +429,7 @@ Feature: nmcli - ovs
 
     @rhbz1540218 @rhbz1734032 @rhbz2022275
     @ver+=1.18.8
-    @may-fail
+    @may_fail
     @openvswitch @restart_if_needed
     @NM_reboot_openvswitch_vlan_configuration
     Scenario: NM - openvswitch - reboot
