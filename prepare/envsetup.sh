@@ -186,7 +186,7 @@ install_el9_packages () {
     # Dnf more deps
     dnf -4 -y install git python3-netaddr dhcp-relay iw net-tools psmisc firewalld dhcp-server ethtool \
                           python3-dbus python3-gobject dnsmasq tcpdump wireshark-cli file iproute-tc \
-                          openvpn perl-IO-Tty dhcp-client rpm-build gcc --skip-broken
+                          openvpn perl-IO-Tty dhcp-client rpm-build gcc initscripts --skip-broken
 
     # hostapd and tcpreplay is in epel (not available now), iw was just missing in el9 1915791 (needed for hostpad_wireless)
     dnf -4 -y install https://kojipkgs.fedoraproject.org//packages/tcpreplay/4.3.3/3.fc34/$(arch)/tcpreplay-4.3.3-3.fc34.$(arch).rpm \
