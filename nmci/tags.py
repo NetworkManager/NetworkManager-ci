@@ -1014,7 +1014,7 @@ def simwifi_p2p_bs(ctx, scen):
 
     # This is workaround for https://bugzilla.redhat.com/show_bug.cgi?id=1752780
     ctx.run(
-        "echo -e '[keyfile]\nunmanaged-devices=wlan1\n' > /etc/NetworkManager/conf.d/99-wifi.conf")
+        "echo -e '[device]\nmatch-device=interface-name:wlan1\nmanaged=0' > /etc/NetworkManager/conf.d/99-wifi.conf")
     nmci.lib.restart_NM_service(ctx)
 
     ctx.run('modprobe mac80211_hwsim')

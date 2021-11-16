@@ -394,7 +394,7 @@ function prepare_test_bed ()
     # Disable mac randomization to avoid rhbz1490885
     echo -e "[device-wifi]\nwifi.scan-rand-mac-address=no" > /etc/NetworkManager/conf.d/99-wifi.conf
     echo -e "[connection-wifi]\nwifi.cloned-mac-address=preserve" >> /etc/NetworkManager/conf.d/99-wifi.conf
-    echo -e "[keyfile]\nunmanaged-devices=interface-name:wlan1*" >> /etc/NetworkManager/conf.d/99-wifi.conf
+    echo -e "[device]\nmatch-device=interface-name:wlan1\nmanaged=0" >> /etc/NetworkManager/conf.d/99-wifi.conf
 
     if ! lsmod | grep -q -w mac80211_hwsim; then
         modprobe mac80211_hwsim
