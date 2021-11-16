@@ -318,7 +318,8 @@
     Then "2620:52:0:" is visible with command "ip -6 a s eth10 |grep global |grep noprefix" in "20" seconds
 
 
-    @con_ipv6_remove @eth0 @long @tshark @not_on_s390x
+    @skip_in_centos
+    @con_ipv6_remove @eth0 @tshark @not_on_s390x
     @ipv6_limited_router_solicitation
     Scenario: NM - ipv6 - limited router solicitation
      * Add connection type "ethernet" named "con_ipv6" for device "eth2"
@@ -1113,7 +1114,8 @@
 
 
     @rhbz2004212
-    @ver+=1.32.10 @skip_in_centos
+    @ver+=1.32.10
+    @skip_in_centos
     @con_ipv6_remove @teardown_testveth @long
     @ipv6_keep_route_upon_reapply_full
     Scenario: NM - ipv6 - keep routes upon reapply, check address presence after timeout

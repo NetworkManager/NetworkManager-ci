@@ -587,6 +587,7 @@ Feature: nmcli - ethernet
 
     @rhbz1698532
     @ver+=1.22.0
+    @skip_in_centos
     @con_ethernet_remove @8021x @attach_hostapd_log @attach_wpa_supplicant_log
     @8021x_auto_auth_retry_with_backup_network
     Scenario: nmcli - ethernet - connect to 8021x auto auth retry

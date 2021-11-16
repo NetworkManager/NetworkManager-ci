@@ -2038,6 +2038,7 @@ Feature: nmcli: ipv4
 
     @rhbz1806516
     @ver+=1.22.7
+    @skip_in_centos
     @teardown_testveth @con_ipv4_remove @long @clean_iptables
     @dhcp_rebind_with_firewall
     Scenario: DHCPv4 rebind
@@ -2053,6 +2054,7 @@ Feature: nmcli: ipv4
 
     @rhbz1841937
     @ver+=1.25.2
+    @skip_in_centos
     @teardown_testveth @con_ipv4_remove @long
     @dhcp_rebind_with_firewall_var2
     Scenario: DHCPv4 rebind

@@ -647,7 +647,7 @@ Feature: nmcli - bridge
 
     @rhbz1791378
     @ver+=1.22.0
-    @long
+    @skip_in_centos
     @teardown_testveth @bridge @slaves
     @bridge_down_to_l2_only
     Scenario: NM - bridge - go to L2 when DHCP is gone

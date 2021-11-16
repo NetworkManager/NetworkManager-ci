@@ -22,6 +22,7 @@
 
     @rhbz1912423
     @ver+=1.32.4
+    @skip_in_centos
     @openvpn @openvpn6 @libreswan
     @multiple_vpn_connections
     Scenario: nmcli - vpn - multiple connections
