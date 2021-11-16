@@ -31,7 +31,7 @@
     * Execute "nmcli con up openvpn ifname tun0"
     Then "VPN.VPN-STATE:.*VPN connected" is visible with command "nmcli c show openvpn"
     Then "IP4.ADDRESS.*172.31.70.*/32" is visible with command "nmcli c show openvpn"
-    Then "IP6.ADDRESS" is not visible with command "nmcli c show openvpn"
+    Then "IP6.ADDRESS" is not visible with command "nmcli c show openvpn |grep -v fe80::"
      And "default" is visible with command "ip r |grep ^default | grep -v eth0"
 
 
@@ -46,7 +46,7 @@
     * Bring "up" connection "openvpn"
     Then "VPN.VPN-STATE:.*VPN connected" is visible with command "nmcli c show openvpn"
      And "IP4.ADDRESS.*172.31.70.*/32" is visible with command "nmcli c show openvpn"
-     And "IP6.ADDRESS" is not visible with command "nmcli c show openvpn"
+     And "IP6.ADDRESS" is not visible with command "nmcli c show openvpn |grep -v fe80::"
      And "default" is not visible with command "ip r |grep ^default | grep -v eth0"
 
 
