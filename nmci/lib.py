@@ -343,8 +343,11 @@ def dump_status_nmcli(context, when, fail_only=False):
                 cmd_out, _, _ = nmci.run(cmd)
                 msg += cmd_out
 
+    context.embed("text/plain", msg, "Status " + when, fail_only=fail_only)
+
+    # Always include memory stats
     if context.nm_pid is not None:
-        msg += "NetworkManager memory consumption before: %d KiB\n" % nm_size_kb()
+        msg = "Daemon memory consumption: %d KiB\n" % nm_size_kb()
         if os.path.isfile("/etc/systemd/system/NetworkManager.service") \
                 and nmci.command_code(
                     "grep -q valgrind /etc/systemd/system/NetworkManager.service") == 0:
@@ -352,8 +355,8 @@ def dump_status_nmcli(context, when, fail_only=False):
                     "LOGNAME=root HOSTNAME=localhost gdb /usr/sbin/NetworkManager "
                     " -ex 'target remote | vgdb' -ex 'monitor leak_check summary' -batch")
             msg += cmd_out
+        context.embed("text/plain", msg, "Memory use " + when, fail_only=False)
 
-    context.embed("text/plain", msg, "Status " + when, fail_only=fail_only)
 
 
 def check_dump_package(pkg_name):
