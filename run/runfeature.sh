@@ -1,8 +1,5 @@
 #!/bin/bash
 
-set -e
-set -o pipefail
-
 if [ -z "$1" ]; then
   cat << EOF
 USAGE: $0 {feature_name} [--dry/-d]

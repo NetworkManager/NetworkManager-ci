@@ -1,8 +1,5 @@
 #!/bin/bash
 
-set -e
-set -o pipefail
-
 install_plugins_yum () {
     # Installing plugins if missing
     if ! rpm -q --quiet NetworkManager-wifi; then
@@ -65,7 +62,7 @@ install_behave_pytest () {
   python -m pip install behave
   python -m pip install behave_html_formatter
   echo -e "[behave.formatters]\nhtml = behave_html_formatter:HTMLFormatter" > ~/.behaverc
-  ln -sf /usr/bin/behave-3 /usr/bin/behave
+  ln -s /usr/bin/behave-3 /usr/bin/behave
   # pytest is needed for NetworkManager-ci unit tests and nmstate test
   python -m pip install pytest
   # black is needed by unit tests to check code format
@@ -86,7 +83,7 @@ install_fedora_packages () {
     fi
     # Make python3 default if it's not
     rm -rf /usr/bin/python
-    ln -sf /usr/bin/python3 /usr/bin/python
+    ln -s /usr/bin/python3 /usr/bin/python
 
     # Pip down some deps
     dnf -4 -y install python3-pip
@@ -173,7 +170,7 @@ install_fedora_packages () {
 install_el9_packages () {
     # Make python3 default if it's not
     rm -rf /usr/bin/python
-    ln -sf /usr/bin/python3 /usr/bin/python
+    ln -s /usr/bin/python3 /usr/bin/python
 
     # Enable EPEL but on s390x
     if ! uname -a |grep -q s390x; then
@@ -270,7 +267,7 @@ install_el9_packages () {
 install_el8_packages () {
     # Make python3 default if it's not
     rm -rf /usr/bin/python
-    ln -sf /usr/bin/python3 /usr/bin/python
+    ln -s /usr/bin/python3 /usr/bin/python
 
     # Enable EPEL but on s390x
     if ! uname -a |grep -q s390x; then
@@ -316,7 +313,7 @@ install_el8_packages () {
 
     # Add OVS repo and install OVS
     if ! grep -q -e 'CentOS .* release 8' /etc/redhat-release; then
-        cp contrib/ovs/ovs-rhel8.repo /etc/yum.repos.d/ovs.repo
+        mv -f  contrib/ovs/ovs-rhel8.repo /etc/yum.repos.d/ovs.repo
         yum -y install openvswitch2.15
         systemctl restart openvswitch
     else
@@ -581,11 +578,11 @@ local_setup_configure_nm_eth_part1 () {
 
     # Restart with valgrind
     if [ -e /etc/systemd/system/NetworkManager-valgrind.service ]; then
-        ln -sf NetworkManager-valgrind.service /etc/systemd/system/NetworkManager.service
+        ln -s NetworkManager-valgrind.service /etc/systemd/system/NetworkManager.service
         systemctl daemon-reload
     elif [[      -e /etc/systemd/system/NetworkManager.service.d/override.conf-strace
             && ! -e /etc/systemd/system/NetworkManager.service.d/override.conf ]]; then
-        ln -sf override.conf-strace /etc/systemd/system/NetworkManager.service.d/override.conf
+        ln -s override.conf-strace /etc/systemd/system/NetworkManager.service.d/override.conf
         systemctl daemon-reload
     fi
 
@@ -626,7 +623,7 @@ EOF
     echo "ulimit -c unlimited" >> /home/test/.bashrc
 
     # set bash completion
-    ln -sf run/runtest.sh ./test_run.sh
+    ln -s run/runtest.sh ./test_run.sh
     cp contrib/bash_completion/nmci.sh /etc/bash_completion.d/nmci
 
     # Deploy ssh-keys
@@ -741,16 +738,16 @@ local_setup_configure_nm_eth_part2 () {
 
     # Do veth setup if yes
     if [ $veth -eq 1 ]; then
-        sh prepare/vethsetup.sh setup
+        . prepare/vethsetup.sh setup
 
         # Copy this once more just to be sure it's there as it's really crucial
         if ! test -f /tmp/nm_plugin_keyfiles; then
             if [ ! -e /tmp/testeth0 ] ; then
-                cp -f /etc/sysconfig/network-scripts/ifcfg-testeth0 /tmp/testeth0 || :
+                yes 2>/dev/null | cp -rf /etc/sysconfig/network-scripts/ifcfg-testeth0 /tmp/testeth0
             fi
         else
             if ! test -f /tmp/testeth0; then
-                cp -f /etc/NetworkManager/system-connections/testeth0.nmconnection /tmp/testeth0 || :
+                yes 2>/dev/null | cp -rf /etc/NetworkManager/system-connections/testeth0.nmconnection /tmp/testeth0
             fi
         fi
 
@@ -763,13 +760,13 @@ local_setup_configure_nm_eth_part2 () {
         if [ $wlan -eq 0 ]; then
             if [ $dcb_inf_wol_sriov -eq 0 ]; then
                 nmcli connection add type ethernet ifname eth0 con-name testeth0
-                nmcli connection delete eth0 || :
+                nmcli connection delete eth0
                 #nmcli connection modify testeth0 ipv6.method ignore
                 nmcli connection up id testeth0
                 nmcli con show -a
                 for X in $(seq 1 10); do
                     nmcli connection add type ethernet con-name testeth$X ifname eth$X autoconnect no
-                    nmcli connection delete eth$X || :
+                    nmcli connection delete eth$X
                 done
                 nmcli connection modify testeth10 ipv6.method auto
             fi
@@ -778,7 +775,7 @@ local_setup_configure_nm_eth_part2 () {
             nmcli c modify testeth0 ipv4.route-metric 99 ipv6.route-metric 99
             sleep 1
             # Copy final connection to /tmp/testeth0 for later in test usage
-            cp -f /etc/sysconfig/network-scripts/ifcfg-testeth0 /tmp/testeth0 || :
+            yes 2>/dev/null | cp -rf /etc/sysconfig/network-scripts/ifcfg-testeth0 /tmp/testeth0
 
         fi
 
@@ -799,7 +796,7 @@ local_setup_configure_nm_eth_part2 () {
     systemctl daemon-reload
     systemctl restart NetworkManager
     sleep 5
-    nmcli con del "System eth0" || :
+    nmcli con del "System eth0"
     nmcli con up testeth0; rc=$?
     if [ $rc -ne 0 ]; then
         sleep 20
