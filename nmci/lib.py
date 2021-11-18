@@ -294,25 +294,7 @@ def stripped(x):
     return "".join([i for i in x if 31 < ord(i) < 127])
 
 
-def dump_status_nmtui(context, when, fail_only=False):
-    msg = ""
-    cmds = ['date "+%Y%m%d-%H%M%S.%N"',
-            'ip link',
-            'ip addr',
-            'ip -4 route',
-            'ip -6 route',
-            'nmcli g',
-            'nmcli c',
-            'nmcli d',
-            'nmcli d w l']
-    for cmd in cmds:
-        msg += "\n--- %s ---\n" % cmd
-        cmd_out, _, _ = nmci.run(cmd)
-        msg += cmd_out
-    context.embed("text/plain", msg, "Status " + when, fail_only=fail_only)
-
-
-def dump_status_nmcli(context, when, fail_only=False):
+def dump_status(context, when, fail_only=False):
     nm_running = nmci.command_code('systemctl status NetworkManager') == 0
     msg = ""
     cmds = ['date "+%Y%m%d-%H%M%S.%N"']
@@ -325,6 +307,7 @@ def dump_status_nmcli(context, when, fail_only=False):
         cmds += ['nmcli g',
                  'nmcli c',
                  'nmcli d',
+                 'nmcli d w l',
                  'hostnamectl',
                  'NetworkManager --print-config',
                  'cat /etc/resolv.conf',

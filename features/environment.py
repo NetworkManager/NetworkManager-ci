@@ -78,13 +78,15 @@ def _before_scenario(context, scenario):
 
     os.environ['TERM'] = 'dumb'
 
+    # dump status before the test preparation starts
+    nmci.lib.dump_status(context, 'Before Scenario', fail_only=True)
+
     if context.IS_NMTUI:
         nmci.run("sudo pkill nmtui")
         # Do the cleanup
         if os.path.isfile('/tmp/tui-screen.log'):
             os.remove('/tmp/tui-screen.log')
         fd = open('/tmp/tui-screen.log', 'a+')
-        nmci.lib.dump_status_nmtui(context, 'before', fail_only=True)
         fd.write('Screen recordings after each step:' + '\n----------------------------------\n')
         fd.flush()
         fd.close()
@@ -98,8 +100,6 @@ def _before_scenario(context, scenario):
                     if nmci.command_code("nmcli device |grep testeth0 |grep ' connected'") == 0:
                         break
                     time.sleep(1)
-        # dump status before the test preparation starts
-        nmci.lib.dump_status_nmcli(context, 'Before Scenario', fail_only=True)
         context.start_timestamp = int(time.time())
 
     excepts = []
@@ -240,7 +240,7 @@ def _after_scenario(context, scenario):
     print(("NetworkManager process id after: %s (was %s)" % (nm_pid_after, context.nm_pid)))
 
     if scenario.status == 'failed' or DEBUG:
-        nmci.lib.dump_status_nmcli(context, 'After Scenario', fail_only=True)
+        nmci.lib.dump_status(context, 'After Scenario', fail_only=True)
 
     # run after_scenario tags (in reverse order)
     excepts = []
@@ -272,7 +272,7 @@ def _after_scenario(context, scenario):
     # !!! all embed calls with "fail_only" after this are ignored !!!
     nmci.lib.process_embeds(context, scenario_fail)
 
-    nmci.lib.dump_status_nmcli(context, 'After Clean', fail_only=False)
+    nmci.lib.dump_status(context, 'After Clean', fail_only=False)
 
     if scenario_fail:
         # Attach journalctl logs
