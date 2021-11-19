@@ -320,7 +320,7 @@
 
 
     @skip_in_centos
-    @con_ipv6_remove @eth0 @tshark @not_on_s390x
+    @not_on_s390x @con_ipv6_remove @eth0 @tshark
     @ipv6_limited_router_solicitation
     Scenario: NM - ipv6 - limited router solicitation
      * Add connection type "ethernet" named "con_ipv6" for device "eth2"
