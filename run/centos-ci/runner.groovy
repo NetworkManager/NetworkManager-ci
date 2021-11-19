@@ -68,7 +68,7 @@ node('cico-workspace') {
             println("Running tests")
             sh """
                 set +x
-                echo "Running tests on 2 machines, progress is visible in Workspaces"
+                echo "Running tests on 2 machines, progress is visible in Workspaces: ${env.BUILD_URL}/ws"
                 { ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no root@${node1_hostname} '${run} -m 1' ; } &> m1.stdout &
                 { ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no root@${node2_hostname} '${run} -m 2' ; } &> m2.stdout &
                 wait
