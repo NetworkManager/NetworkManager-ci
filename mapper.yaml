@@ -2094,6 +2094,8 @@ testmapper:
         feature: tc
     - simwifi_p2p_connect:
         feature: wifi_hwsim
+    - simwifi_p2p_client_connect:
+        feature: wifi_hwsim
     ## @need_legacy_crypto (mschap) tests
     # group these tests to eliminate hostapd restarts
     - simwifi_wep_ttls_mschapv2_eap:
