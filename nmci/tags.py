@@ -1047,11 +1047,16 @@ def simwifi_p2p_as(ctx, scen):
 _register_tag("simwifi_p2p", simwifi_p2p_bs, simwifi_p2p_as)
 
 
+def simwifi_wpa2_bs(ctx, scen):
+    if ctx.arch != "x86_64":
+        print("Skipping as not on x86_64")
+        sys.exit(77)
+
 def simwifi_wpa2_as(ctx, scen):
     ctx.run("nmcli con del wpa2-eap wifi")
 
 
-_register_tag("simwifi_wpa2", None, simwifi_wpa2_as)
+_register_tag("simwifi_wpa2", , simwifi_wpa2_as)
 
 
 def simwifi_wpa3_eap_bs(ctx, scen):
@@ -1063,11 +1068,17 @@ def simwifi_wpa3_eap_bs(ctx, scen):
 _register_tag("simwifi_wpa3_eap", simwifi_wpa3_eap_bs, None)
 
 
+def simwifi_wpa3_bs(ctx, scen):
+    if ctx.arch != "x86_64":
+        print("Skipping as not on x86_64")
+        sys.exit(77)
+
+
 def simwifi_wpa3_as(ctx, scen):
     ctx.run("nmcli con del wpa3-psk wpa3-eap wpa3-owe wpa3-owe-transition wifi")
 
 
-_register_tag("simwifi_wpa3", None, simwifi_wpa3_as)
+_register_tag("simwifi_wpa3", simwifi_wpa3_bs, simwifi_wpa3_as)
 
 
 def simwifi_open_as(ctx, scen):
@@ -1077,11 +1088,17 @@ def simwifi_open_as(ctx, scen):
 _register_tag("simwifi_open", None, simwifi_open_as)
 
 
+def simwifi_pskwep_bs(ctx, scen):
+    if ctx.arch != "x86_64":
+        print("Skipping as not on x86_64")
+        sys.exit(77)
+
+
 def simwifi_pskwep_as(ctx, scen):
     ctx.run("nmcli con del wep")
 
 
-_register_tag("simwifi_pskwep", None, simwifi_pskwep_as)
+_register_tag("simwifi_pskwep", simwifi_pskwep_bs, simwifi_pskwep_as)
 
 
 def simwifi_dynwep_as(ctx, scen):
