@@ -9,6 +9,7 @@ import os
 import yaml
 import json
 
+
 def check_build(baseurl):
     copr_log = "backend.log.gz"
     last = "curl -s %s \
@@ -26,10 +27,10 @@ def check_build(baseurl):
     backend_url = baseurl+"/"+last_dir+"/"+copr_log
 
     try:
-        logging.debug ("Opening %s" %backend_url)
+        logging.debug("Opening %s" % backend_url)
         back = urllib.request.urlopen(backend_url)
     except:
-        logging.debug ("Trying the last but one as current one probably running")
+        logging.debug("Trying the last but one as current one probably running")
         try:
             out = subprocess.check_output(last_but_one, shell=True)
             logging.debug(out)
@@ -38,10 +39,10 @@ def check_build(baseurl):
             logging.debug(backend_url)
             back = urllib.request.urlopen(backend_url)
         except:
-            logging.debug ("FATAL: Cannot get last but one either.")
+            logging.debug("FATAL: Cannot get last but one either.")
             return False
 
-    with gzip.open(back,'r') as f:
+    with gzip.open(back, 'r') as f:
         readfile = f.read().decode('utf-8')
         if 'Worker failed build' in readfile:
             logging.debug("Copr build failed")
@@ -50,17 +51,19 @@ def check_build(baseurl):
             logging.debug("Copr build succesfull")
             return True
 
+
 def add_epel_crb_repos():
     # Add some extra repos
     epel_url = "https://dl.fedoraproject.org/pub/epel/"
     rpm = "epel-release-latest-8.noarch.rpm"
-    subprocess.call("dnf -y install %s%s" %(epel_url, rpm), shell=True)
+    subprocess.call("dnf -y install %s%s" % (epel_url, rpm), shell=True)
     # For some reason names can differ, so enable both powertools
     subprocess.call("yum install -y 'dnf-command(config-manager)'", shell=True)
     subprocess.call("yum config-manager --set-enabled PowerTools", shell=True)
     subprocess.call("yum config-manager --set-enabled powertools", shell=True)
     # Enable build deps for NM
     subprocess.call("yum -y copr enable nmstate/nm-build-deps", shell=True)
+
 
 def write_copr(nm_dir):
     host = "https://copr-be.cloud.fedoraproject.org"
@@ -75,7 +78,7 @@ def write_copr(nm_dir):
     with open("/etc/yum.repos.d/nm-copr.repo", "w") as cfg:
         cfg.write('[nm-copr-repo]\n')
         cfg.write('name=nm-copr-repo\n')
-        cfg.write('baseurl=%s\n' %baseurl)
+        cfg.write('baseurl=%s\n' % baseurl)
         cfg.write('enable=1\n')
         cfg.write('gpgcheck=0\n')
         cfg.write('skip_if_unavailable=0\n')
@@ -89,13 +92,13 @@ def get_testmapper(testbranch):
     #gh_url = "https://raw.githubusercontent.com/"
     #gh_dirs = "NetworkManager/NetworkManager-ci/%s" %testbranch
     gl_url = "https://gitlab.freedesktop.org"
-    gl_dirs = "NetworkManager/NetworkManager-ci/-/raw/%s" %testbranch
-    testmapper_url = '%s/%s/mapper.yaml' %(gl_url, gl_dirs)
+    gl_dirs = "NetworkManager/NetworkManager-ci/-/raw/%s" % testbranch
+    testmapper_url = '%s/%s/mapper.yaml' % (gl_url, gl_dirs)
     try:
-        logging.debug ("Opening %s" %testmapper_url)
+        logging.debug("Opening %s" % testmapper_url)
         return urllib.request.urlopen(testmapper_url)
     except Exception as e:
-        logging.debug ("No testmapper: " + str(e))
+        logging.debug("No testmapper: " + str(e))
         return None
 
 
@@ -135,34 +138,36 @@ def generate_junit(results_dir):
     root = ET.ElementTree()
     testsuite = ET.Element('testsuite', tests=str(len(passed) + len(failed)))
     for passed_test in passed:
-        pt_name = passed_test[passed_test.find("ci_Test")+12:]
+        pt_name = passed_test[passed_test.find("_Test")+12:]
         testcase = ET.Element('testcase', classname="tests", name=pt_name)
         system_out = ET.Element('system-out')
-        system_out.text = "LOG:\n%s/artifact/" %os.environ['BUILD_URL']
-        system_out.text = system_out.text+ passed_test + ".html"
+        system_out.text = "LOG:\n%s/artifact/" % os.environ['BUILD_URL']
+        system_out.text = system_out.text + passed_test + ".html"
         testcase.append(system_out)
         testsuite.append(testcase)
     for failed_test in failed:
-        ft_name = failed_test[failed_test.find("ci_Test")+12:]
+        ft_name = failed_test[failed_test.find("_Test")+12:]
         testcase = ET.Element('testcase', classname="tests", name=ft_name)
         failure = ET.Element('failure')
-        failure.text = "Error\nLOG:\n%s/artifact/FAIL-%s.html" % (os.environ['BUILD_URL'], failed_test)
+        failure.text = "Error\nLOG:\n%s/artifact/FAIL-%s.html" % (
+            os.environ['BUILD_URL'], failed_test)
         testcase.append(failure)
         testsuite.append(testcase)
     root._setroot(testsuite)
-    junit_path = "%s/junit.xml" %results_dir
+    junit_path = "%s/junit.xml" % results_dir
     root.write(junit_path)
     logging.debug("JUNIT Done")
     return 0
 
 
-def zip_journal (results_dir):
-    cmd = "journalctl -b --no-pager -o short-monotonic --all | bzip2 --best > %s/journal.log.bz2" %results_dir
+def zip_journal(results_dir):
+    cmd = "journalctl -b --no-pager -o short-monotonic --all | bzip2 --best > %s/journal.log.bz2" % results_dir
     subprocess.call(cmd, shell=True)
+
 
 def get_features_from_mapper(branch):
     mapper = get_testmapper(branch)
-    print (mapper)
+    print(mapper)
     if mapper:
         content = mapper.read().decode('utf-8')
         content_parsed = yaml.load(content)
@@ -177,28 +182,37 @@ def get_features_from_mapper(branch):
         return (features)
     return None
 
-def process_raw_features(raw_features, testbranch, gitlab_trigger=None):
+
+def process_raw_features(raw_features, testbranch, machine_id, gitlab_trigger=None):
     tests = ""
 
     if 'best' in raw_features:
         if gitlab_trigger:
-            features = get_modified_features_for_testarea (gitlab_trigger)
+            features = get_modified_features_for_testarea(gitlab_trigger)
             if features == None or features == []:
-                features = ["all"]
+                features = get_features_from_mapper(testbranch)
         else:
-            features = ["all"]
-        logging.debug("running best effort execution to shorten time: %s" %features)
+            features = get_features_from_mapper(testbranch)
+        logging.debug("running best effort execution to shorten time: %s" % features)
 
     elif not raw_features or 'all' in raw_features:
         features = get_features_from_mapper(testbranch)
     else:
         features = [x.strip() for x in raw_features.split(',')]
 
+    if machine_id > 0:
+        # do +1 here, so the first machine is always nonempty
+        middle = int((len(features)+1)/2)
+        if machine_id == 1:
+            features = features[:middle]
+        else:
+            features = features[middle:]
     for test in get_test_cases_for_features(features, testbranch):
-        tests=tests+test+" "
+        tests = tests+test+" "
     return tests.strip()
 
-def install_all_nm_packages ():
+
+def install_all_nm_packages():
     # Install all packages and remove them
     add_epel_crb_repos()
 
@@ -210,14 +224,17 @@ def install_all_nm_packages ():
                         NetworkManager-bluetooth NetworkManager-libnm-devel \
                         --skip-broken", shell=True)
 
-def remove_all_nm_packages ():
+
+def remove_all_nm_packages():
     logging.debug("Removing NM rpms")
     cmd1 = "rpm -ea --nodeps $(rpm -qa | grep NetworkManager)"
     subprocess.call(cmd1, shell=True)
     logging.debug("Done")
 
-def prepare_log_dir (results_dir):
-    subprocess.call("mkdir -p %s" %results_dir, shell=True)
+
+def prepare_log_dir(results_dir):
+    subprocess.call("mkdir -p %s" % results_dir, shell=True)
+
 
 def prepare_box(nm_refspec, nm_mr, nm_repo=None):
     if not nm_mr:
@@ -225,8 +242,8 @@ def prepare_box(nm_refspec, nm_mr, nm_repo=None):
     results_dir = "/tmp/results/"
     build_dir = "/root/nm-build"
 
-    install_all_nm_packages ()
-    prepare_log_dir (results_dir)
+    install_all_nm_packages()
+    prepare_log_dir(results_dir)
 
     # Prepare copr repo if we know branch
     dir = None
@@ -246,39 +263,42 @@ def prepare_box(nm_refspec, nm_mr, nm_repo=None):
         if nm_refspec == "nm-1-26":
             dir = "NetworkManager-CI-1.26-git"
 
-    remove_all_nm_packages ()
+    remove_all_nm_packages()
 
     if dir:
-        logging.debug("prepare %s copr repo" %dir)
-        if not write_copr (dir):
+        logging.debug("prepare %s copr repo" % dir)
+        if not write_copr(dir):
             return 1
         # Install new rpms
         cmd2 = "yum -y install --repo nm-copr-repo NetworkManager*"
         return subprocess.call(cmd2, shell=True)
     else:
         # compile from source
-        logging.debug("Building from refspec id %s" %nm_refspec)
+        logging.debug("Building from refspec id %s" % nm_refspec)
         if not nm_repo:
-            cmd0 = "sh run/centos-ci/scripts/./build.sh %s %s" %(nm_refspec, nm_mr)
+            cmd0 = "sh run/centos-ci/scripts/./build.sh %s %s" % (nm_refspec, nm_mr)
         else:
-            logging.debug("of repo %s" %nm_repo)
-            cmd0 = "BUILD_REPO=%s sh run/centos-ci/scripts/./build.sh %s %s" %(nm_repo, nm_refspec, nm_mr)
+            logging.debug("of repo %s" % nm_repo)
+            cmd0 = "BUILD_REPO=%s sh run/centos-ci/scripts/./build.sh %s %s" % (
+                nm_repo, nm_refspec, nm_mr)
         if subprocess.call(cmd0, shell=True) == 1:
             # We want config.log to be archived
-            cmd1 = "cp %s/NetworkManager/config.log %s" %(build_dir,results_dir)
+            cmd1 = "cp %s/NetworkManager/config.log %s" % (build_dir, results_dir)
             subprocess.call(cmd1, shell=True)
         else:
             return 0
     return 1
 
-def install_workarounds ():
+
+def install_workarounds():
     # pass
     cmd0 = "yum -y install https://vbenes.fedorapeople.org/NM/libndp_rhbz1933041/libndp-1.7-5.el8.x86_64.rpm https://vbenes.fedorapeople.org/NM/libndp_rhbz1933041/libndp-devel-1.7-5.el8.x86_64.rpm"
     subprocess.call(cmd0, shell=True)
     cmd1 = "yum -y install crda make"
     subprocess.call(cmd1, shell=True)
 
-def set_gitlab (trigger_data, gl_token):
+
+def set_gitlab(trigger_data, gl_token):
     with open("/etc/python-gitlab.cfg", "w") as cfg:
         cfg.write('[global]\n')
         cfg.write('default = gitlab.freedesktop.org\n')
@@ -286,7 +306,7 @@ def set_gitlab (trigger_data, gl_token):
         cfg.write('timeout = 30\n')
         cfg.write('[gitlab.freedesktop.org]\n')
         cfg.write('url = https://gitlab.freedesktop.org\n')
-        cfg.write('private_token = %s\n' %gl_token)
+        cfg.write('private_token = %s\n' % gl_token)
         cfg.write("\n")
         cfg.close()
 
@@ -297,6 +317,7 @@ def set_gitlab (trigger_data, gl_token):
     from cico_gitlab_trigger import GitlabTrigger
     gitlab_trigger = GitlabTrigger(data)
     return gitlab_trigger
+
 
 def get_modified_features_for_testarea(gl_trigger):
     default_exlude = ['dcb', 'wifi', 'infiniband', 'wol', 'sriov', 'gsm']
@@ -319,12 +340,14 @@ def get_modified_features_for_testarea(gl_trigger):
             features.append(m.group(1))
     return features
 
-def get_nm_mrid (gl_trigger):
+
+def get_nm_mrid(gl_trigger):
     if gl_trigger.repository == 'NetworkManager':
-        return "mr%s" %(gl_trigger.merge_request_id)
+        return "mr%s" % (gl_trigger.merge_request_id)
     return None
 
-def post_results (gl_trigger):
+
+def post_results(gl_trigger, machine_id=0):
     msg = "CentOS Testing Summary\n\n"
     if os.path.exists('/tmp/summary.txt'):
         with open('/tmp/summary.txt', 'r') as f:
@@ -334,22 +357,29 @@ def post_results (gl_trigger):
         f = lines[1].strip()
         s = lines[2].strip()
         if p == '0' and f == '0' and s == '0':
-            msg+= "Something went wrong!\n"
+            msg += "Something went wrong!\n"
         if f != '0':
-            msg+= "Result: Unstable: Some tests failed!\n"
+            msg += "Result: Unstable: Some tests failed!\n"
         else:
-            msg+= "Result: STABLE: All tests passing!\n"
-        msg+="\nPassed: %s, Failed: %s, Skipped: %s\n\n" %(p, f, s)
-        if gl_trigger.repository == "NetworkManager-ci":
-            gl_trigger.play_commit_job()
+            msg += "Result: STABLE: All tests passing!\n"
+        msg += "\nPassed: %s, Failed: %s, Skipped: %s\n\n" % (p, f, s)
+        # TODO call later
+#        if gl_trigger.repository == "NetworkManager-ci":
+#            try:
+#                gl_trigger.play_commit_job()
+#            except:
+#                pass
     else:
-        msg+= "Aborted!\n"
+        msg += "Aborted!\n"
     with open('/etc/redhat-release') as f:
-        msg+="Executed on: %s" %(f.read())
-    msg+="\n\n%s" %os.environ['BUILD_URL']
+        msg += "Executed on: %s" % (f.read())
+    if machine_id:
+        msg += "\nMachine: %d/2" % machine_id
+    msg += "\n\n%s" % os.environ['BUILD_URL']
     gl_trigger.post_commit_comment(msg)
 
-def main ():
+
+def main():
     logging.basicConfig(level=logging.DEBUG)
     logging.debug("reading params")
     parser = argparse.ArgumentParser()
@@ -360,6 +390,7 @@ def main ():
     parser.add_argument('-g', '--gitlab_token')
     parser.add_argument('-d', '--trigger_data')
     parser.add_argument('-r', '--nm_repo')
+    parser.add_argument('-m', '--machine')
     parser.add_argument('-D', '--do_not_touch_NM', action="store_true", default=False)
 
     args = parser.parse_args()
@@ -391,6 +422,13 @@ def main ():
         nm_repo = args.nm_repo
     else:
         nm_repo = "https://gitlab.freedesktop.org/NetworkManager/NetworkManager/"
+    if args.machine:
+        try:
+            machine_id = int(args.machine)
+        except:
+            machine_id = 0
+    else:
+        machine_id = 0
 
     gitlab_trigger = None
     nm_mr = None
@@ -399,24 +437,24 @@ def main ():
         gitlab_trigger = set_gitlab(trigger_data, gl_token)
 
     if gitlab_trigger:
-        tests = process_raw_features (raw_features, test_branch, gitlab_trigger)
-        nm_mr = get_nm_mrid (gitlab_trigger)
+        tests = process_raw_features(raw_features, test_branch, machine_id, gitlab_trigger)
+        nm_mr = get_nm_mrid(gitlab_trigger)
     else:
-        tests = process_raw_features (raw_features, test_branch)
+        tests = process_raw_features(raw_features, test_branch, machine_id)
 
     if tests == "":
         tests = "pass"
         logging.debug("no tests to run, running just pass test")
     else:
-        logging.debug("tests to run: %s" %tests)
+        logging.debug("tests to run: %s" % tests)
 
-    install_workarounds ()
+    install_workarounds()
 
     if nm_refspec:
-        if prepare_box (nm_refspec, nm_mr, nm_repo) != 0:
+        if prepare_box(nm_refspec, nm_mr, nm_repo) != 0:
             logging.debug("Compilation failed")
             exit_code = 2
-    cmd = "sh run/centos-ci/scripts/./runtest.sh %s" %tests
+    cmd = "MACHINE_ID=%d sh run/centos-ci/scripts/./runtest.sh %s" % (machine_id, tests)
     if gitlab_trigger:
         gitlab_trigger.set_pipeline('running')
     runtest = subprocess.Popen(cmd, shell=True)
@@ -429,13 +467,13 @@ def main ():
             gitlab_trigger.set_pipeline('failed')
         if exit_code == 2:
             gitlab_trigger.set_pipeline('canceled')
-        post_results (gitlab_trigger)
+        post_results(gitlab_trigger, machine_id)
 
-    generate_junit ("/tmp/results")
-    zip_journal ("/tmp/results")
+    generate_junit("/tmp/results")
+    zip_journal("/tmp/results")
 
-    logging.debug("All Done. Exit with %s" %exit_code)
-    sys.exit (exit_code)
+    logging.debug("All Done. Exit with %s" % exit_code)
+    sys.exit(exit_code)
 
 
 if __name__ == "__main__":

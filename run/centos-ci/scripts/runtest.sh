@@ -34,7 +34,11 @@ for test in $@; do
     fi
 
     # Start test itself with timeout
-    export TEST="NetworkManager-ci_Test$counter"_"$test"
+    if [ -z "$MACHINE_ID" -o "$MACHINE_ID" = "0" ]; then
+      export TEST="NetworkManager-ci_Test${counter}_$test"
+    else
+      export TEST="NetworkManager-ci-M${MACHINE_ID}_Test${counter}_$test"
+    fi
     cmd=$(sed -n "/- $test:/,/ - /p" mapper.yaml | grep -e "run:" | awk -F: '{print $2}')
     if [ "$cmd" == "" ] ; then
         cmd="run/./runtest.sh $test"
