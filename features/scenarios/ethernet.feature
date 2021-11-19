@@ -406,7 +406,7 @@ Feature: nmcli - ethernet
 
 
     @ver+=1.33 @rhelver+=8
-    @con_ethernet_remove @8021x @pkcs11 @attach_hostapd_log @attach_wpa_supplicant_log
+    @not_on_s390x @con_ethernet_remove @8021x @pkcs11 @attach_hostapd_log @attach_wpa_supplicant_log
     @8021x_tls_pkcs11_saved_pw
     Scenario: nmcli - ethernet - connect to 8021x - tls - PKCS#11/SoftHSM - PIN is saved
     * Add a new connection of type "ethernet" and options "ifname test8X con-name con_ethernet autoconnect no 802-1x.eap tls 802-1x.identity test 802-1x.ca-cert /tmp/certs/test_user.ca.pem 802-1x.client-cert 'pkcs11:token=nmci;object=nmclient' 802-1x.client-cert-password-flags 4 802-1x.private-key 'pkcs11:token=nmci;object=nmclient' 802-1x.private-key-password 1234"
@@ -415,7 +415,7 @@ Feature: nmcli - ethernet
 
 
     @ver+=1.33 @rhelver+=8
-    @con_ethernet_remove @8021x @pkcs11 @attach_hostapd_log @attach_wpa_supplicant_log
+    @not_on_s390x @con_ethernet_remove @8021x @pkcs11 @attach_hostapd_log @attach_wpa_supplicant_log
     @8021x_tls_pkcs11_pwfile
     Scenario: nmcli - ethernet - connect to 8021x - tls - PKCS#11/SoftHSM - PIN in password file
     * Add a new connection of type "ethernet" and options "ifname test8X con-name con_ethernet autoconnect no 802-1x.eap tls 802-1x.identity test 802-1x.ca-cert /tmp/certs/test_user.ca.pem 802-1x.client-cert 'pkcs11:token=nmci;object=nmclient' 802-1x.client-cert-password-flags 4 802-1x.private-key 'pkcs11:token=nmci;object=nmclient'"
@@ -425,7 +425,7 @@ Feature: nmcli - ethernet
 
 
     @ver+=1.33 @rhelver+=8
-    @con_ethernet_remove @8021x @pkcs11 @attach_hostapd_log @attach_wpa_supplicant_log
+    @not_on_s390x @con_ethernet_remove @8021x @pkcs11 @attach_hostapd_log @attach_wpa_supplicant_log
     @8021x_tls_pkcs11_nmcli_ask
     Scenario: nmcli - ethernet - connect to 8021x - tls - PKCS#11/SoftHSM - just private key/ask for pin on CLI
     * Add a new connection of type "ethernet" and options "ifname test8X con-name con_ethernet autoconnect no 802-1x.eap tls 802-1x.identity test 802-1x.ca-cert /tmp/certs/test_user.ca.pem 802-1x.client-cert 'pkcs11:token=nmci;object=nmclient' 802-1x.client-cert-password-flags 4 802-1x.private-key 'pkcs11:token=nmci;object=nmclient' 802-1x.private-key-password-flags 2"
@@ -439,7 +439,7 @@ Feature: nmcli - ethernet
 
 
     @ver+=1.33 @rhelver+=8
-    @con_ethernet_remove @8021x @pkcs11 @attach_hostapd_log @attach_wpa_supplicant_log
+    @not_on_s390x @con_ethernet_remove @8021x @pkcs11 @attach_hostapd_log @attach_wpa_supplicant_log
     @8021x_tls_pkcs11_pw_in_uri_flag_nr
     # these settings are hacky and may stop working when this is resolved: https://gitlab.freedesktop.org/NetworkManager/NetworkManager/-/issues/792
     Scenario: nmcli - ethernet - connect to 8021x - tls - PKCS#11/SoftHSM - just private key/pin given in URI with password flag not-required
