@@ -165,21 +165,39 @@ def zip_journal(results_dir):
     subprocess.call(cmd, shell=True)
 
 
-def get_features_from_mapper(branch):
+def get_features_from_mapper(branch, features=["all"]):
+    # return pair of lists of features, with their running time as close as possible
+    # solving this exactly is subset sum problem, however timeouts are just estimates, so any
+    # solution close to spliting into two halves should be fine estimate.
+
     mapper = get_testmapper(branch)
-    print(mapper)
     if mapper:
         content = mapper.read().decode('utf-8')
         content_parsed = yaml.load(content)
         default_exclude = ['dcb', 'wifi', 'infiniband', 'wol', 'sriov', 'gsm']
-        features = []
+        times = {}
         for test in content_parsed['testmapper']['default']:
             for test_name in test:
                 f = test[test_name]['feature']
-                if f not in default_exclude:
-                    if f not in features:
-                        features.append(f)
-        return (features)
+                t = 10
+                if 'timeout' in test[test_name]:
+                    t = int(test[test_name]['timeout'][:-1])
+                if f not in default_exclude and ("all" in features or f in features):
+                    if f in times:
+                        times[f] += t
+                    else:
+                        times[f] = t
+        total_time = sum(times.values())
+        feature_m1, feature_m2 = [], []
+        time_m1 = 0
+        for f in sorted(times.keys()):
+            t = times[f]
+            if t + time_m1 <= total_time/2:
+                feature_m1.append(f)
+                time_m1 += t
+            else:
+                feature_m2.append(f)
+        return (feature_m1, feature_m2)
     return None
 
 
@@ -190,23 +208,22 @@ def process_raw_features(raw_features, testbranch, machine_id, gitlab_trigger=No
         if gitlab_trigger:
             features = get_modified_features_for_testarea(gitlab_trigger)
             if features == None or features == []:
-                features = get_features_from_mapper(testbranch)
+                features = ["all"]
         else:
-            features = get_features_from_mapper(testbranch)
+            features = ["all"]
         logging.debug("running best effort execution to shorten time: %s" % features)
 
     elif not raw_features or 'all' in raw_features:
-        features = get_features_from_mapper(testbranch)
+        features = ["all"]
     else:
         features = [x.strip() for x in raw_features.split(',')]
 
-    if machine_id > 0:
-        # do +1 here, so the first machine is always nonempty
-        middle = int((len(features)+1)/2)
-        if machine_id == 1:
-            features = features[:middle]
-        else:
-            features = features[middle:]
+    # get pair of lists split to "equal" halves
+    features = get_features_from_mapper(testbranch, features)
+    if machine_id > 0 and machine_id < 3:
+        features = features[machine_id-1]
+    else:
+        features = features[0] + features[1]
     for test in get_test_cases_for_features(features, testbranch):
         tests = tests+test+" "
     return tests.strip()
