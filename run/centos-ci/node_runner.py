@@ -138,7 +138,7 @@ def generate_junit(results_dir):
     root = ET.ElementTree()
     testsuite = ET.Element('testsuite', tests=str(len(passed) + len(failed)))
     for passed_test in passed:
-        pt_name = passed_test[passed_test.find("_Test")+12:]
+        pt_name = passed_test[passed_test.find("_Test")+10:]
         testcase = ET.Element('testcase', classname="tests", name=pt_name)
         system_out = ET.Element('system-out')
         system_out.text = "LOG:\n%s/artifact/" % os.environ['BUILD_URL']
@@ -146,7 +146,7 @@ def generate_junit(results_dir):
         testcase.append(system_out)
         testsuite.append(testcase)
     for failed_test in failed:
-        ft_name = failed_test[failed_test.find("_Test")+12:]
+        ft_name = failed_test[failed_test.find("_Test")+10:]
         testcase = ET.Element('testcase', classname="tests", name=ft_name)
         failure = ET.Element('failure')
         failure.text = "Error\nLOG:\n%s/artifact/FAIL-%s.html" % (

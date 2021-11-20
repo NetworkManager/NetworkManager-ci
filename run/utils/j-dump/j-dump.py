@@ -583,7 +583,9 @@ class Build:
                 # something like "FAIL-Test252_ipv6_honor_ip_order.html" (We already stripped "FAIL")
                 # or "FAIL_report_NetworkManager-ci_Test252_ipv6_honor_ip_order.html"
                 split_artifact = split_artifact[1].replace(
-                    'report_NetworkManager-ci', '').strip("_-")
+                    r'report_NetworkManager-ci', '').strip("_-")
+                if split_artifact.startswith('M'):
+                    split_artifact = split_artifact[3:]
                 split_artifact = split_artifact.split("_", 1)
                 if len(split_artifact) != 2:
                     # what happened??
