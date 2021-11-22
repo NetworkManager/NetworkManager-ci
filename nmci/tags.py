@@ -2790,12 +2790,16 @@ def restore_rp_filters_as(ctx, scen):
 _register_tag("restore_rp_filters", None, restore_rp_filters_as)
 
 
+def remove_ctcdevice_bs(ctx, scen):
+    ctx.run("cio_ignore -R")
+    time.sleep(1)
+
 def remove_ctcdevice_as(ctx, scen):
     ctx.run("""znetconf -r $(znetconf -c |grep CTC |awk 'BEGIN { FS = "," } ; { print $1 }') -n""")
     time.sleep(1)
 
 
-_register_tag("remove_ctcdevice", None, remove_ctcdevice_as)
+_register_tag("remove_ctcdevice", remove_ctcdevice_bs, remove_ctcdevice_as)
 
 
 def filter_batch_bs(ctx, scen):
