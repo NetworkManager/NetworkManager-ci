@@ -1,3 +1,4 @@
+@strongswan
 Feature: nmcli: strongswan
 
     # Please do use tags as follows:
@@ -8,7 +9,6 @@ Feature: nmcli: strongswan
     # Scenario:
 
     @ver+=1.12
-    @strongswan
     @strongswan_add_profile
     Scenario: nmcli - strongswan - add and connect a connection
     * Add a connection named "strongswan" for device "\*" to "strongswan" VPN
@@ -24,7 +24,7 @@ Feature: nmcli: strongswan
 
     @ver+=1.12
     @skip_in_centos
-    @strongswan @long
+    @long
     @strongswan_connection_renewal
     Scenario: NM - strongswan - main connection lifetime renewal
     * Add a connection named "strongswan" for device "\*" to "strongswan" VPN
@@ -39,7 +39,6 @@ Feature: nmcli: strongswan
 
 
     @ver+=1.12
-    @strongswan
     @strongswan_terminate
     Scenario: nmcli - strongswan - terminate connection
     * Add a connection named "strongswan" for device "\*" to "strongswan" VPN
@@ -51,7 +50,6 @@ Feature: nmcli: strongswan
 
 
     @ver+=1.12
-    @strongswan
     @strongswan_delete_active_profile
     Scenario: nmcli - strongswan - delete active profile
     * Add a connection named "strongswan" for device "\*" to "strongswan" VPN
@@ -64,7 +62,6 @@ Feature: nmcli: strongswan
 
 
     @ver+=1.12
-    @strongswan
     @strongswan_dns
     Scenario: nmcli - strongswan - dns
     Given Nameserver "172.31.70.1" is set in "20" seconds
@@ -81,7 +78,6 @@ Feature: nmcli: strongswan
 
 
      @ver+=1.12
-    @strongswan
     @strongswan_start_as_secondary
     Scenario: nmcli - strongswan - start as secondary
     * Add a connection named "strongswan" for device "\*" to "strongswan" VPN
