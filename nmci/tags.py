@@ -1056,7 +1056,7 @@ def simwifi_wpa2_as(ctx, scen):
     ctx.run("nmcli con del wpa2-eap wifi")
 
 
-_register_tag("simwifi_wpa2", , simwifi_wpa2_as)
+_register_tag("simwifi_wpa2", simwifi_wpa2_bs, simwifi_wpa2_as)
 
 
 def simwifi_wpa3_eap_bs(ctx, scen):
