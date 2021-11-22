@@ -98,3 +98,9 @@ Feature: nmcli: strongswan
     Then "172.29.100.1/32" is visible with command "nmcli -g IP4.ADDRESS d show strongswan1"
     Then "172.31.70.*/24" is visible with command "nmcli -g IP4.ADDRESS d show strongswan1"
     #Then "172.31.70.1" is visible with command "nmcli -g IP4.GATEWAY d show strongswan1"
+
+
+    @strongswan_teardown
+    @strongswan_deconfigure
+    Scenario: NM - remove strongswan setup
+    * Execute "echo 'Will remove strongswan setup'"

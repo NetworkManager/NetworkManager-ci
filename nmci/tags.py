@@ -1209,19 +1209,24 @@ def strongswan_bs(ctx, scen):
         if ctx.arch == "s390x":
             print("Skipping on RHEL7 on s390x")
             sys.exit(77)
-    nmci.lib.wait_for_testeth0(ctx)
-    nmci.lib.setup_strongswan(ctx)
+    if not os.path.isfile('/tmp/nm_strongswan')
+        nmci.lib.wait_for_testeth0(ctx)
+        nmci.lib.setup_strongswan(ctx)
+
+
+_register_tag("strongswan", strongswan_bs)
 
 
 def strongswan_as(ctx, scen):
-    # ctx.run("ip route del default via 172.31.70.1")
-    ctx.run('nmcli connection down strongswan')
-    ctx.run('nmcli connection delete strongswan')
-    nmci.lib.teardown_strongswan(ctx)
-    nmci.lib.wait_for_testeth0(ctx)
+    if os.path.isfile('/tmp/nm_strongswan')
+        # ctx.run("ip route del default via 172.31.70.1")
+        ctx.run('nmcli connection down strongswan')
+        ctx.run('nmcli connection delete strongswan')
+        nmci.lib.teardown_strongswan(ctx)
+        nmci.lib.wait_for_testeth0(ctx)
 
 
-_register_tag("strongswan", strongswan_bs, strongswan_as)
+_register_tag("strongswan_teardown", None, strongswan_as)
 
 
 def vpn_as(ctx, scen):

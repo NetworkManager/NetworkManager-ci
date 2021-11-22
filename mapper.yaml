@@ -1864,6 +1864,8 @@ testmapper:
         feature: strongswan
     - strongswan_start_as_secondary:
         feature: strongswan
+    - strongswan_deconfigure:
+        feature: strongswan
     #- vpn_add_profile:
     #    feature: vpn
     - vpn_describe:

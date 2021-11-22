@@ -173,6 +173,7 @@ strongswan_setup ()
         ip netns exec strongswan swanctl --load-pools
         ip netns exec strongswan swanctl --load-creds
 
+        touch /tmp/nm_strongswan
 }
 
 strongswan_teardown ()
@@ -183,6 +184,7 @@ strongswan_teardown ()
         kill_dnsmasq
         nmcli connection del str1
         modprobe -r ip_vti
+        rm /tmp/nm_strongswan
 }
 
 if [ "$1" != "teardown" ]; then
