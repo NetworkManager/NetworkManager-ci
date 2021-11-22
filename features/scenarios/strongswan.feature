@@ -77,7 +77,7 @@ Feature: nmcli: strongswan
      And Nameserver "172.31.70.1" is set
 
 
-     @ver+=1.12
+    @ver+=1.12
     @strongswan_start_as_secondary
     Scenario: nmcli - strongswan - start as secondary
     * Add a connection named "strongswan" for device "\*" to "strongswan" VPN
