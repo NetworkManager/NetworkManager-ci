@@ -240,7 +240,23 @@ private_key_passwd=redhat
 rsn_pairwise=GCMP-256
 group_cipher=GCMP-256
 group_mgmt_cipher=BIP-GMAC-256
+
 " >> $HOSTAPD_CFG
+fi
+
+if ((MANY_AP)); then
+  while ((num_ap < MANY_AP)); do
+    ((num_ap++))
+    echo "
+bss=wlan1_open_$num_ap
+ssid=open_$num_ap
+channel=1
+hw_mode=g
+auth_algs=1
+wpa=0
+
+" >> $HOSTAPD_CFG
+  done
 fi
 
 # Create a list of users for network authentication, authentication types, and corresponding credentials.
@@ -348,6 +364,13 @@ function wireless_hostapd_check ()
             echo "Not OK!! (restart suffices)"
             need_restart=1
         fi
+    fi
+
+    echo "* Checking 'many_ap'"
+    many_ap=$(sed -n 's/.*bss=wlan1_open_//p' $HOSTAPD_CFG | tail -n1)
+    if [ "$many_ap" != "$MANY_AP" ]; then
+      echo "Not OK!! - need $MANY_AP, found $many_ap"
+      need_setup=1
     fi
 
     if [ $need_setup -eq 1 ]; then
@@ -499,14 +522,20 @@ else
     echo "Configure and start hostapd..."
     # Set DO_NAMESPACE to true if "namespace" in arguments
     DO_NAMESPACE=false
-    if [[ " $@ " == *" namespace "* ]]; then
-        DO_NAMESPACE=true
-    fi
-
+    MANY_AP=
     CRYPTO="default"
-    if [[ " $@ " == *" legacy_crypto "* ]]; then
+
+    for arg in "$@"; do
+      if [[ "$arg" == "namespace" ]]; then
+          DO_NAMESPACE=true
+      fi
+      if [[ "$arg" == "legacy_crypto" ]]; then
         CRYPTO="legacy"
-    fi
+      fi
+      if [[ "$arg" == "many_ap="* ]]; then
+        MANY_AP=${arg#many_ap=}
+      fi
+    done
 
     CERTS_PATH=${1:?"Error. Path to certificates is not specified."}
 

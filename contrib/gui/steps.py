@@ -437,8 +437,8 @@ def prepare_openvpn(context, version="ip46", path="/tmp/openvpn-"):
     assert running, f"openvpn server did not start, exitcode: {server.returncode}"
 
 
-@step('Prepare Wi-Fi | with certificates from "{certs_dir}" | with crypto "{crypto}"')
-def prepare_wifi(context, certs_dir="contrib/8021x/certs", crypto="default"):
+@step('Prepare Wi-Fi | with certificates from "{certs_dir}" | with crypto "{crypto}" | with "{ap_num}" APs')
+def prepare_wifi(context, certs_dir="contrib/8021x/certs", crypto="default", ap_num=""):
     arch, _ = cmd_output_rc("arch")
     arch = arch.strip()
     if arch != "x86_64":
@@ -454,7 +454,7 @@ def prepare_wifi(context, certs_dir="contrib/8021x/certs", crypto="default"):
             cmd_output_rc, "sudo mv -f /etc/pki/tls/openssl.cnf.bak /etc/pki/tls/openssl.cnf", shell=True)
 
     assert subprocess.call(
-        f"sudo bash {NM_CI_RUNNER_CMD} prepare/hostapd_wireless.sh {certs_dir} namespace {crypto}_crypto"
+        f"sudo bash {NM_CI_RUNNER_CMD} prepare/hostapd_wireless.sh {certs_dir} namespace {crypto}_crypto many_ap={ap_num}"
         "&> /tmp/hostapd_wireless.log", shell=True) == 0, "wifi setup failed !!!"
 
 
@@ -489,7 +489,8 @@ def prepare_8021x(context, certs_dir="contrib/8021x/certs", crypto=None):
 
 @step('Prepare wireguard')
 def prepare_wireguard(context):
-    output, rc = cmd_output_rc_embed(context, f"sudo bash {NM_CI_RUNNER_CMD} prepare/wireguard.sh", shell=True)
+    output, rc = cmd_output_rc_embed(
+        context, f"sudo bash {NM_CI_RUNNER_CMD} prepare/wireguard.sh", shell=True)
     assert rc == 0, "wireguard setup failed!!!"
 
 
