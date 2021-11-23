@@ -23,10 +23,23 @@ function install_module_cert {
 }
 
 function make_from_src {
+
+    ARCH="$(uname -p)"
+
+    if [ $ARCH == "ppc64le" ] ;then 
+        ARCH="powerpc"
+    elif [ $ARCH == "s390x" ] ;then 
+        ARCH="s390"
+    elif [ $ARCH == "x86_64" ] ;then 
+        ARCH="x86"
+    elif [ $ARCH == "aarch64" ] ;then 
+        ARCH="arm64"
+    fi
+
     # compile module
     git clone https://git.zx2c4.com/wireguard-linux-compat
     pushd wireguard-linux-compat/src
-        make && sudo make install
+        make ARCH=$ARCH && sudo make install ARCH=$ARCH
     popd
 
     #compile tools
