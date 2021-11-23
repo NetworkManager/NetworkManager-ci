@@ -59,9 +59,20 @@ function setup () {
         # Patch module
         patch -p1 < $PATCH || { echo "Unable to patch, please fix the patch"; exit 1; }
 
+        ARCH="$(uname -p)"
+
+        if [ $ARCH == "ppc64le" ] ;then 
+            ARCH="powerpc"
+        elif [ $ARCH == "s390x" ] ;then 
+            ARCH="s390"
+        elif [ $ARCH == "x86_64" ] ;then 
+            ARCH="x86"
+        elif [ $ARCH == "aarch64" ] ;then 
+            ARCH="arm64"
+
         cd $DRIVER
         # If we cannot build exit 1
-        make -C /lib/modules/$(uname -r)/build M=$PWD || \
+        make -C /lib/modules/$(uname -r)/build M=$PWD ARCH=$ARCH || \
           { echo "Unable to build module"; exit 1; }
         make -C /lib/modules/$(uname -r)/build M=$PWD modules_install || \
           { echo "Unable to install module"; exit 1; }
