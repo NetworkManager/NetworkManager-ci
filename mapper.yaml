@@ -33,7 +33,7 @@ component:
     - network-manager-applet
 
   gate-in: beaker
-  openstack-flavor: medium
+  openstack-flavor: standard.medium
 
 dependencies:
   beaker-tasks:
