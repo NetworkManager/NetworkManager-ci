@@ -69,6 +69,7 @@ function setup () {
             ARCH="x86"
         elif [ $ARCH == "aarch64" ] ;then 
             ARCH="arm64"
+        fi
 
         cd $DRIVER
         # If we cannot build exit 1
