@@ -995,7 +995,7 @@ def simwifi_p2p_bs(ctx, scen):
         print("Skipping as not on x86_64")
         sys.exit(77)
 
-    if "release 8" in ctx.rh_release:
+    if ctx.rh_release_num >= 8 and ctx.rh_release_num <= 8.4 and "Stream" not in ctx.rh_release:
         ctx.run("dnf -4 -y install "
                 "https://vbenes.fedorapeople.org/NM/wpa_supplicant-2.7-2.2.bz1693684.el8.x86_64.rpm "
                 "https://vbenes.fedorapeople.org/NM/wpa_supplicant-debuginfo-2.7-2.2.bz1693684.el8.x86_64.rpm ")
@@ -1012,6 +1012,8 @@ def simwifi_p2p_bs(ctx, scen):
     #ctx.run("echo -e '[device-wifi]\nwifi.scan-rand-mac-address=no' > /etc/NetworkManager/conf.d/99-wifi.conf")
     #ctx.run("echo -e '[connection-wifi]\nwifi.cloned-mac-address=preserve' >> /etc/NetworkManager/conf.d/99-wifi.conf")
 
+    # this need to be done before NM restart, otherwise there is a race between NM and wpa_supp
+    ctx.run("systemctl restart wpa_supplicant")
     # This is workaround for https://bugzilla.redhat.com/show_bug.cgi?id=1752780
     ctx.run(
         "echo -e '[device]\nmatch-device=interface-name:wlan1\nmanaged=0' > /etc/NetworkManager/conf.d/99-wifi.conf")
@@ -1024,7 +1026,7 @@ def simwifi_p2p_bs(ctx, scen):
 def simwifi_p2p_as(ctx, scen):
     print("---------------------------")
     if "release 8" in ctx.rh_release:
-        if ctx.arch == "x86_64":
+        if ctx.arch == "x86_64" and ctx.rh_release_num <= 8.4 and "Stream" not in ctx.rh_release:
             print("Install patched wpa_supplicant for x86_64")
             ctx.run(
                 "dnf -4 -y install https://vbenes.fedorapeople.org/NM/WPA3/wpa_supplicant{,-debuginfo,-debugsource}-2.9-8.el8.$(arch).rpm")
@@ -1062,7 +1064,7 @@ _register_tag("simwifi_wpa3_eap", simwifi_wpa3_eap_bs, None)
 
 
 def simwifi_wpa3_as(ctx, scen):
-    ctx.run("nmcli con del wpa3-psk wpa3-eap wifi")
+    ctx.run("nmcli con del wpa3-psk wpa3-eap wpa3-owe wpa3-owe-transition wifi")
 
 
 _register_tag("simwifi_wpa3", None, simwifi_wpa3_as)
@@ -1144,6 +1146,7 @@ def teardown_testveth_as(ctx, scen):
 
 _register_tag("teardown_testveth", None, teardown_testveth_as)
 
+
 def libreswan_bs(ctx, scen):
     nmci.lib.wait_for_testeth0(ctx)
     if ctx.command_code("rpm -q NetworkManager-libreswan") != 0:
@@ -1155,12 +1158,12 @@ def libreswan_bs(ctx, scen):
     # otherwise pluto would get very very confused.
     # That is RHEL 7.4, RHEL 8.0 or newer.
     swan_ver = ctx.command_output("rpm -q --qf '%{version}' libreswan")
-    if ctx.command_code ("""rpm --eval '%%{lua:
+    if ctx.command_code("""rpm --eval '%%{lua:
         if rpm.vercmp(\"%s\", \"3.17\") < 0 then
             error(\"Libreswan too old\");
         end }'""" % swan_ver) != 0:
-            print("Skipping with old Libreswan")
-            sys.exit(77)
+        print("Skipping with old Libreswan")
+        sys.exit(77)
 
     ctx.run("/usr/sbin/ipsec --checknss")
     mode = "aggressive"

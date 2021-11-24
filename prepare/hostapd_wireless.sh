@@ -205,7 +205,6 @@ wpa_key_mgmt=SAE
 rsn_pairwise=CCMP
 ieee80211w=2
 wpa_passphrase=secret123
-
 " >> $HOSTAPD_CFG
 
 fi
@@ -214,7 +213,7 @@ hostapd_ver=$(rpm -q hostapd)
 hostapd_ver=${hostapd_ver#hostapd-}
 # There is no wpa_supplicant support in Fedoras
 if ver_gte $hostapd_ver 2.9-6 && grep -q -e 'release \(8\|9\)' /etc/redhat-release; then
-((num_ap++))
+num_ap=$((num_ap+3))
 echo "
 #wpa3eap
 bss=wlan1_wpa3eap
@@ -240,6 +239,24 @@ private_key_passwd=redhat
 rsn_pairwise=GCMP-256
 group_cipher=GCMP-256
 group_mgmt_cipher=BIP-GMAC-256
+
+#wpa3_owe
+bss=wlan1_wpa3owe
+ssid=wpa3-owe
+country_code=EN
+hw_mode=g
+channel=7
+ieee80211w=2
+wpa=2
+wpa_key_mgmt=OWE
+rsn_pairwise=CCMP
+
+#wpa3_owe_transit
+bss=wlan1_wpa3owet
+ssid=wpa3-owe-transition
+country_code=EN
+hw_mode=g
+owe_transition_ifname=wlan1_wpa3owe
 
 " >> $HOSTAPD_CFG
 fi
@@ -404,7 +421,7 @@ function prepare_test_bed ()
     if $DO_NAMESPACE; then
         local major_ver=$(cat /etc/redhat-release | grep -o "release [0-9]*" | sed 's/release //')
         local policy_file="contrib/selinux-policy/hostapd_wireless_$major_ver.pp"
-        semodule -i $policy_file || echo "ERROR: unable to load selinux policy !!!"
+        (semodule -l | grep -q hostapd_wireless) || semodule -i $policy_file || echo "ERROR: unable to load selinux policy !!!"
         ip netns add wlan_ns
     fi
 

@@ -2159,6 +2159,16 @@ testmapper:
         feature: wifi_hwsim
     - simwifi_tls_wpa3:
         feature: wifi_hwsim
+    - simwifi_owe_connect:
+        feature: wifi_hwsim
+    - simwifi_owe_device_connect:
+        feature: wifi_hwsim
+    - simwifi_owe_transition_connect:
+        feature: wifi_hwsim
+    - simwifi_owe_transition_connect_as_open:
+        feature: wifi_hwsim
+    - simwifi_owe_transition_device_connect:
+        feature: wifi_hwsim
     - nmclient_get_wireless_hw_property:
         feature: wifi_hwsim
     - wifi_dbus_bitrate_property_name:

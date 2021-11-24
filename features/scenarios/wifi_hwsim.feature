@@ -326,6 +326,50 @@ Feature: nmcli - wifi
     Then Bring "up" connection "wifi"
 
 
+    @ver+=1.26 @rhelver+=8 @fedoraver-=0
+    @simwifi @simwifi_wpa3 @attach_hostapd_log @attach_wpa_supplicant_log
+    @simwifi_owe_connect
+    Scenario: nmcli - simwifi - connect to Enhanced Open (OWE) network
+    Given "wpa3-owe" is visible with command "nmcli -f SSID device wifi list" in "60" seconds
+    * Add a new connection of type "wifi" and options "ifname wlan0 con-name wifi autoconnect no ssid wpa3-owe wifi-sec.key-mgmt owe"
+    Then Bring "up" connection "wifi"
+
+
+    @ver+=1.26 @rhelver+=8 @fedoraver-=0
+    @simwifi @simwifi_wpa3 @attach_hostapd_log @attach_wpa_supplicant_log
+    @simwifi_owe_device_connect
+    Scenario: nmcli - simwifi - connect to Enhanced Open (OWE) network
+    Given "wpa3-owe" is visible with command "nmcli -f SSID device wifi list" in "60" seconds
+    Then Execute "nmcli dev wifi connect wpa3-owe"
+
+
+    @ver+=1.26 @rhelver+=8 @fedoraver-=0
+    @simwifi @simwifi_wpa3 @attach_hostapd_log @attach_wpa_supplicant_log
+    @simwifi_owe_transition_connect
+    Scenario: nmcli - simwifi - connect to Enhanced Open (OWE) network in transition mode
+    Given "wpa3-owe-transition:OWE" is visible with command "nmcli -t -f SSID,SECURITY device wifi list" in "60" seconds
+    * Add a new connection of type "wifi" and options "ifname wlan0 con-name wifi autoconnect no ssid wpa3-owe-transition wifi-sec.key-mgmt owe"
+    Then Bring "up" connection "wifi"
+
+
+    @ver+=1.26 @rhelver+=8 @fedoraver-=0
+    @simwifi @simwifi_wpa3 @attach_hostapd_log @attach_wpa_supplicant_log
+    @simwifi_owe_transition_connect_as_open
+    Scenario: nmcli - simwifi - connect to Enhanced Open (OWE) network in open mode
+    Given "wpa3-owe-transition:OWE" is visible with command "nmcli -t -f SSID,SECURITY device wifi list" in "60" seconds
+    * Add a new connection of type "wifi" and options "ifname wlan0 con-name wifi autoconnect no ssid wpa3-owe-transition"
+    Then Bring "up" connection "wifi"
+
+
+    @ver+=1.26 @rhelver+=8 @fedoraver-=0
+    @simwifi @simwifi_wpa3 @attach_hostapd_log @attach_wpa_supplicant_log
+    @simwifi_owe_transition_device_connect
+    Scenario: nmcli - simwifi - connect to Enhanced Open (OWE) network in transition mode
+    Given "wpa3-owe-transition:OWE" is visible with command "nmcli -t -f SSID,SECURITY device wifi list" in "60" seconds
+    Then Execute "nmcli dev wifi connect wpa3-owe-transition"
+    And "owe" is visible with command "nmcli -g wifi-sec.key-mgmt con show id wpa3-owe-transition"
+
+
     @rhbz1781253
     @ver+=1.25
     @simwifi @simwifi_wpa2 @attach_hostapd_log @attach_wpa_supplicant_log
@@ -379,7 +423,7 @@ Feature: nmcli - wifi
     * Execute "nmcli con add type wifi-p2p ifname p2p-dev-wlan0 wifi-p2p.peer $( wpa_cli -i wlan1 -p /tmp/wpa_supplicant_peer_ctrl status | sed -n 's/p2p_device_address=//p' ) ipv4.never-default yes con-name wifi-p2p"
     # Wait a bit and pass a authentication command to wlan1's wpa_supplicant instance
     * Run child "sleep 5; echo Peer address: $( wpa_cli -i wlan1 -p /tmp/wpa_supplicant_peer_ctrl p2p_peers ); wpa_cli -i wlan1 -p /tmp/wpa_supplicant_peer_ctrl p2p_connect $( wpa_cli -i wlan1 -p /tmp/wpa_supplicant_peer_ctrl p2p_peers ) pbc auth go_intent=14"
-    When "p2p-wlan1-0" is visible with command "ls /sys/class/net/" in "5" seconds
+    When "p2p-wlan1-0" is visible with command "ls /sys/class/net/" in "10" seconds
     * Execute "ip addr add 192.168.10.1/24 dev p2p-wlan1-0"
     * Run child "dnsmasq -k -i p2p-wlan1-0 --dhcp-range=192.168.10.100,192.168.10.200"
     Then "activated" is visible with command "nmcli con show wifi-p2p" in "120" seconds

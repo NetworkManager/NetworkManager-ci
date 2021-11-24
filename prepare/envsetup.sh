@@ -339,13 +339,17 @@ install_el8_packages () {
     if [ $(arch) == "x86_64" ]; then
         dnf -4 -y install hostapd wpa_supplicant{,-debuginfo,-debugsource} --skip-broken
         dnf -4 -y update \
-            https://vbenes.fedorapeople.org/NM/WPA3/hostapd-2.9-6.el8.x86_64.rpm \
-            https://vbenes.fedorapeople.org/NM/WPA3/hostapd-debuginfo-2.9-6.el8.x86_64.rpm \
-            https://vbenes.fedorapeople.org/NM/WPA3/hostapd-debugsource-2.9-6.el8.x86_64.rpm \
-            https://vbenes.fedorapeople.org/NM/WPA3/hostapd-logwatch-2.9-6.el8.x86_64.rpm \
-            https://vbenes.fedorapeople.org/NM/WPA3/wpa_supplicant-2.9-8.el8.x86_64.rpm \
-            https://vbenes.fedorapeople.org/NM/WPA3/wpa_supplicant-debuginfo-2.9-8.el8.x86_64.rpm \
-            https://vbenes.fedorapeople.org/NM/WPA3/wpa_supplicant-debugsource-2.9-8.el8.x86_64.rpm
+            https://vbenes.fedorapeople.org/NM/hostapd_owe/hostapd-2.9-6.nmci.el8.x86_64.rpm \
+            https://vbenes.fedorapeople.org/NM/hostapd_owe/hostapd-debuginfo-2.9-6.nmci.el8.x86_64.rpm \
+            https://vbenes.fedorapeople.org/NM/hostapd_owe/hostapd-debugsource-2.9-6.nmci.el8.x86_64.rpm \
+            https://vbenes.fedorapeople.org/NM/hostapd_owe/hostapd-logwatch-2.9-6.nmci.el8.x86_64.rpm
+        # this does not match centos stream 8, which does not have '.' in version, which is intended
+        if grep -q "release 8\.[0-4]" /etc/redhat_release; then
+            dnf -y update \
+                https://vbenes.fedorapeople.org/NM/WPA3/wpa_supplicant-2.9-8.el8.x86_64.rpm \
+                https://vbenes.fedorapeople.org/NM/WPA3/wpa_supplicant-debuginfo-2.9-8.el8.x86_64.rpm \
+                https://vbenes.fedorapeople.org/NM/WPA3/wpa_supplicant-debugsource-2.9-8.el8.x86_64.rpm
+        fi
     else
         # WPA3 Personal capable wpa_supplicant for RHEL 8.3
         dnf -4 -y install https://vbenes.fedorapeople.org/NM/rhbz1888051/wpa_supplicant{,-debuginfo,-debugsource}-2.9-3.el8.$(arch).rpm
