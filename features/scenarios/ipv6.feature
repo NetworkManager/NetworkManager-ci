@@ -1300,6 +1300,17 @@
     Then "mtu 1400" is visible with command "ip route get fd02::2" for full "40" seconds
 
 
+    @rhbz2010640
+    @ver+=1.36.0
+    @ethernet @teardown_testveth
+    @ipv6_restart_prefixroute
+    Scenario: NM - ipv6 - prefixroute won't disappear from external addresses on restart
+    * Execute "ip addr add fd00::1/64 dev eth1"
+    When "fd00::1/64" is visible with command "nmcli device show eth1" for full "5" seconds
+    * Restart NM
+    Then "fd00::/64" is visible with command "ip -6 route show dev eth1" for full "5" seconds
+
+
     @rhbz1368018
     @ver+=1.8
     @ifcfg-rh @con_ipv6_ifcfg_remove @con_ipv6_remove @kill_dhclient_custom @teardown_testveth @restart_if_needed

@@ -758,6 +758,8 @@ testmapper:
         feature: ipv6
     - ipv6_preserve_cached_routes:
         feature: ipv6
+    - ipv6_restart_prefixroute:
+        feature: ipv6
     - persistent_ipv6_after_device_rename:
         feature: ipv6
     - add_ipv6_over_ipv4_configured_ext_device:
