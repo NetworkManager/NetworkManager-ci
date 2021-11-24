@@ -1876,7 +1876,7 @@ Feature: nmcli: ipv4
 
     @rhbz1688329
     @ver+=1.22.0
-    @teardown_testveth @long
+    @con_ipv4_remove @teardown_testveth @long
     @dhcp_renewal_with_ipv6
     Scenario: NM - ipv4 - start dhcp after timeout with ipv6 already in
     * Prepare simulated test "testX4" device
