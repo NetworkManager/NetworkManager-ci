@@ -225,8 +225,10 @@ def check_connection(context, connection, options=None, values=None, seconds=2):
 
             for option, value in zip(options, values):
                 val_nmcli = nmcli_dic.get(option, None)
-                assert val_nmcli is not None, f"nmcli option '{option}' is not set"
-                check_star_expr(value, val_nmcli)
+                if val_nmcli is None:
+                    assert not value, f"searched '{value}' in unset option '{option}'"
+                else:
+                    check_star_expr(value, val_nmcli)
 
             # if no assert every option was found
             return
