@@ -1627,7 +1627,7 @@ testmapper:
         feature: general
     - stable_mem_consumption:
         feature: general
-        timeout: 20m
+        timeout: 25m
     - stable_mem_consumption2:
         feature: general
         timeout: 20m
