@@ -18,7 +18,7 @@ Feature: nmcli - bridge
     Then "DELAY=3.*BRIDGING_OPTS=\"priority=5 hello_time=3 max_age=15 ageing_time=500000\".*NAME=br88.*ONBOOT=no" is visible with command "cat /etc/sysconfig/network-scripts/ifcfg-br88"
 
 
-    @ver+=1.25
+    @ver+=1.25 @ver-=1.35.0
     @bridge @rhelver+=8
     @bridge_options
     Scenario: nmcli - bridge - add custom bridge
@@ -43,6 +43,37 @@ Feature: nmcli - bridge
     Then "1" is visible with command "cat /sys/class/net/br88/bridge/multicast_snooping"
     Then "2" is visible with command "cat /sys/class/net/br88/bridge/multicast_startup_query_count"
     Then "5" is visible with command "cat /sys/class/net/br88/bridge/multicast_startup_query_interval"
+
+
+    @rhbz1871950
+    @ver+=1.35
+    @bridge @rhelver+=8
+    @bridge_options
+    Scenario: nmcli - bridge - add custom bridge
+    * Add a new connection of type "bridge" and options "con-name br88 ifname br88 ageing-time 10 forward-delay 5 bridge.group-address 01:80:C2:00:00:04 group-forward-mask 8 hello-time 3 bridge.mac-address 02:02:02:02:02:02 max-age 15 bridge.multicast-hash-max 4 bridge.multicast-last-member-count 2 bridge.multicast-last-member-interval 2 bridge.multicast-membership-interval 2 bridge.multicast-querier yes bridge.multicast-querier-interval 3 bridge.multicast-query-interval 2 bridge.multicast-query-response-interval 3 bridge.multicast-query-use-ifaddr yes bridge.multicast-router enable bridge.multicast-snooping true bridge.multicast-startup-query-count 2 bridge.multicast-startup-query-interval 5 ip4 192.0.2.1/24"
+    * Bring up connection "br88" ignoring error
+    Then "br88" is visible with command "ip link show type bridge"
+    Then "1000" is visible with command "cat /sys/class/net/br88/bridge/ageing_time"
+    Then "500" is visible with command "cat /sys/class/net/br88/bridge/forward_delay"
+    Then "01:80:c2:00:00:04" is visible with command "cat /sys/class/net/br88/bridge/group_addr"
+    Then "0x8" is visible with command "cat /sys/class/net/br88/bridge/group_fwd_mask"
+    Then "300" is visible with command "cat /sys/class/net/br88/bridge/hello_time"
+    Then "1500" is visible with command "cat /sys/class/net/br88/bridge/max_age"
+    Then "2" is visible with command "cat /sys/class/net/br88/bridge/multicast_last_member_count"
+    Then "2" is visible with command "cat /sys/class/net/br88/bridge/multicast_last_member_interval"
+    Then "2" is visible with command "cat /sys/class/net/br88/bridge/multicast_membership_interval"
+    Then "1" is visible with command "cat /sys/class/net/br88/bridge/multicast_querier"
+    Then "3" is visible with command "cat /sys/class/net/br88/bridge/multicast_querier_interval"
+    Then "2" is visible with command "cat /sys/class/net/br88/bridge/multicast_query_interval"
+    Then "3" is visible with command "cat /sys/class/net/br88/bridge/multicast_query_response_interval"
+    Then "1" is visible with command "cat /sys/class/net/br88/bridge/multicast_query_use_ifaddr"
+    Then "2" is visible with command "cat /sys/class/net/br88/bridge/multicast_router"
+    Then "1" is visible with command "cat /sys/class/net/br88/bridge/multicast_snooping"
+    Then "2" is visible with command "cat /sys/class/net/br88/bridge/multicast_startup_query_count"
+    Then "5" is visible with command "cat /sys/class/net/br88/bridge/multicast_startup_query_interval"
+    * Modify connection "br88" changing options "bridge.ageing-time 0"
+    * Bring up connection "br88" ignoring error
+    Then "^0" is visible with command "cat /sys/class/net/br88/bridge/ageing_time"
 
 
     @rhbz1358615
