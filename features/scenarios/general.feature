@@ -350,10 +350,10 @@ Feature: nmcli - general
     * Add a new connection of type "ethernet" and options "ifname eth8 con-name con_general autoconnect no ipv4.may-fail no "
     * Bring "up" connection "con_general"
     * "default via 192.168.100.1 dev eth8" is visible with command "ip r"
-    * "inet 192.168.100" is visible with command "ip a s eth8" in "5" seconds
+    * "inet 192.168.10[0-3]" is visible with command "ip a s eth8" in "5" seconds
     * Stop NM
     Then "default via 192.168.100.1 dev eth8" is visible with command "ip r" for full "5" seconds
-     And "inet 192.168.100" is visible with command "ip a s eth8"
+     And "inet 192.168.10[0-3]" is visible with command "ip a s eth8"
 
 
     @rhbz1311988
@@ -1229,10 +1229,10 @@ Feature: nmcli - general
     * Create PBR files for profile "con_general" and "eth8" device in table "1"
     * Bring "down" connection "con_general"
     * Bring "up" connection "con_general"
-    Then "17200:\s+from 192.168.100.* lookup 1.*17201:\s+from all iif eth8 lookup 1" is visible with command "ip rule"
+    Then "17200:\s+from 192.168.10[0-3].* lookup 1.*17201:\s+from all iif eth8 lookup 1" is visible with command "ip rule"
     Then "default via 192.168.100.1 dev eth8" is visible with command "ip r s table 1"
     * Bring "down" connection "con_general"
-    Then "17200:\s+from 192.168.100..* lookup 1.*17201:\s+from all iif eth8 lookup 1" is not visible with command "ip rule" in "5" seconds
+    Then "17200:\s+from 192.168.10[0-3]..* lookup 1.*17201:\s+from all iif eth8 lookup 1" is not visible with command "ip rule" in "5" seconds
     Then "default via 192.168.100.1 dev eth8" is not visible with command "ip r s table 1"
 
 
@@ -1475,8 +1475,8 @@ Feature: nmcli - general
     When "1.2.3.5/24" is visible with command "ip a s eth9" in "5" seconds
      And "1.2.3.1" is visible with command "ip r"
     * Snapshot "revert" for "eth8,eth9"
-    Then "192.168.100" is visible with command "ip a s eth8" in "10" seconds
-     And "192.168.100" is visible with command "ip a s eth9" in "10" seconds
+    Then "192.168.10[0-3]" is visible with command "ip a s eth8" in "10" seconds
+     And "192.168.10[0-3]" is visible with command "ip a s eth9" in "10" seconds
      And "1.2.3.4/24" is not visible with command "ip a s eth8"
      And "1.2.3.5/24" is not visible with command "ip a s eth9"
      And "1.2.3.1" is not visible with command "ip r"
@@ -1499,8 +1499,8 @@ Feature: nmcli - general
     When "1.2.3.5/24" is visible with command "ip a s eth9" in "5" seconds
      And "1.2.3.1" is visible with command "ip r"
     * Snapshot "revert" for "all"
-    Then "192.168.100" is visible with command "ip a s eth8" in "15" seconds
-     And "192.168.100" is visible with command "ip a s eth9" in "15" seconds
+    Then "192.168.10[0-3]" is visible with command "ip a s eth8" in "15" seconds
+     And "192.168.10[0-3]" is visible with command "ip a s eth9" in "15" seconds
      And "1.2.3.4/24" is not visible with command "ip a s eth8"
      And "1.2.3.5/24" is not visible with command "ip a s eth9"
      And "1.2.3.1" is not visible with command "ip r"
@@ -1523,8 +1523,8 @@ Feature: nmcli - general
     When "1.2.3.5/24" is visible with command "ip a s eth9" in "5" seconds
      And "1.2.3.1" is visible with command "ip r"
     * Wait for at least "10" seconds
-    Then "192.168.100" is visible with command "ip a s eth8" in "5" seconds
-     And "192.168.100" is visible with command "ip a s eth9" in "5" seconds
+    Then "192.168.10[0-3]" is visible with command "ip a s eth8" in "5" seconds
+     And "192.168.10[0-3]" is visible with command "ip a s eth9" in "5" seconds
      And "1.2.3.4/24" is not visible with command "ip a s eth8"
      And "1.2.3.5/24" is not visible with command "ip a s eth9"
      And "1.2.3.1" is not visible with command "ip r"
@@ -1953,8 +1953,8 @@ Feature: nmcli - general
     When "1.2.3.5/24" is visible with command "ip a s eth9" in "5" seconds
      And "1.2.3.1" is visible with command "ip r"
     * Execute "contrib/gi/libnm_snapshot_checkpoint.py rollback"
-    Then "192.168.100" is visible with command "ip a s eth8" in "45" seconds
-     And "192.168.100" is visible with command "ip a s eth9" in "45" seconds
+    Then "192.168.10[0-3]" is visible with command "ip a s eth8" in "45" seconds
+     And "192.168.10[0-3]" is visible with command "ip a s eth9" in "45" seconds
      And "1.2.3.4/24" is not visible with command "ip a s eth8"
      And "1.2.3.5/24" is not visible with command "ip a s eth9"
      And "1.2.3.1" is not visible with command "ip r"
@@ -1977,8 +1977,8 @@ Feature: nmcli - general
     When "1.2.3.5/24" is visible with command "ip a s eth9" in "5" seconds
      And "1.2.3.1" is visible with command "ip r"
     * Execute "contrib/gi/libnm_snapshot_checkpoint.py rollback"
-    Then "192.168.100" is visible with command "ip a s eth8" in "45" seconds
-     And "192.168.100" is visible with command "ip a s eth9" in "45" seconds
+    Then "192.168.10[0-3]" is visible with command "ip a s eth8" in "45" seconds
+     And "192.168.10[0-3]" is visible with command "ip a s eth9" in "45" seconds
      And "1.2.3.4/24" is not visible with command "ip a s eth8"
      And "1.2.3.5/24" is not visible with command "ip a s eth9"
      And "1.2.3.1" is not visible with command "ip r"
@@ -2001,8 +2001,8 @@ Feature: nmcli - general
     When "1.2.3.5/24" is visible with command "ip a s eth9" in "5" seconds
      And "1.2.3.1" is visible with command "ip r"
     * Wait for at least "10" seconds
-    Then "192.168.100" is visible with command "ip a s eth8" in "45" seconds
-     And "192.168.100" is visible with command "ip a s eth9" in "45" seconds
+    Then "192.168.10[0-3]" is visible with command "ip a s eth8" in "45" seconds
+     And "192.168.10[0-3]" is visible with command "ip a s eth9" in "45" seconds
      And "1.2.3.4/24" is not visible with command "ip a s eth8"
      And "1.2.3.5/24" is not visible with command "ip a s eth9"
      And "1.2.3.1" is not visible with command "ip r"

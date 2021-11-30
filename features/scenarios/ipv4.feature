@@ -339,15 +339,15 @@ Feature: nmcli: ipv4
     When "connected" is visible with command "nmcli -g state,device device |grep eth3$" in "20" seconds
     # This is cripppled in kernel VVV 1535977
     # Then "default" is visible with command "ip r show table 300"
-     And "192.168.100.0\/24 dev eth3 proto kernel scope link src 192.168.100.* metric 1" is visible with command "ip r show table 300"
+     And "192.168.10[0-3].0\/24 dev eth3 proto kernel scope link src 192.168.10[0-3].* metric 1" is visible with command "ip r show table 300"
      And "eth3" is not visible with command "ip r"
     * Execute "ip route add table 300 10.20.30.0/24 via $(nmcli -g IP4.ADDRESS con show con_ipv4 |awk -F '/' '{print $1}') dev eth3"
-    When "10.20.30.0\/24 via 192.168.100.* dev eth3" is visible with command "ip r show table 300"
-     And "192.168.100.0\/24 dev eth3 proto kernel scope link src 192.168.100.* metric 1" is visible with command "ip r show table 300"
+    When "10.20.30.0\/24 via 192.168.10[0-3].* dev eth3" is visible with command "ip r show table 300"
+     And "192.168.10[0-3].0\/24 dev eth3 proto kernel scope link src 192.168.10[0-3].* metric 1" is visible with command "ip r show table 300"
     * Bring "up" connection "con_ipv4"
     When "connected" is visible with command "nmcli -g state,device device |grep eth3$" in "20" seconds
-    Then "10.20.30.0\/24 via 192.168.100.* dev eth3" is not visible with command "ip r show table 300"
-     And "192.168.100.0\/24 dev eth3 proto kernel scope link src 192.168.100.* metric 1" is visible with command "ip r show table 300"
+    Then "10.20.30.0\/24 via 192.168.10[0-3].* dev eth3" is not visible with command "ip r show table 300"
+     And "192.168.10[0-3].0\/24 dev eth3 proto kernel scope link src 192.168.10[0-3].* metric 1" is visible with command "ip r show table 300"
      And "eth3" is not visible with command "ip r"
 
 
@@ -360,14 +360,14 @@ Feature: nmcli: ipv4
     When "connected" is visible with command "nmcli -g state,device device |grep eth3$" in "20" seconds
     # This is cripppled in kernel VVV 1535977
     # Then "default" is visible with command "ip r show table 300"
-     And "192.168.100.0\/24 dev eth3 proto kernel scope link src 192.168.100.* metric 1" is visible with command "ip r show"
+     And "192.168.10[0-3].0\/24 dev eth3 proto kernel scope link src 192.168.10[0-3].* metric 1" is visible with command "ip r show"
     * Execute "ip route add table 300 10.20.30.0/24 via $(nmcli -g IP4.ADDRESS con show con_ipv4 |awk -F '/' '{print $1}') dev eth3"
-    When "10.20.30.0\/24 via 192.168.100.* dev eth3" is visible with command "ip r show table 300"
-     And "192.168.100.0\/24 dev eth3 proto kernel scope link src 192.168.100.* metric 1" is visible with command "ip r show"
+    When "10.20.30.0\/24 via 192.168.10[0-3].* dev eth3" is visible with command "ip r show table 300"
+     And "192.168.10[0-3].0\/24 dev eth3 proto kernel scope link src 192.168.10[0-3].* metric 1" is visible with command "ip r show"
     * Execute "nmcli device reapply eth3"
     When "connected" is visible with command "nmcli -g state,device device |grep eth3$" in "20" seconds
-    Then "10.20.30.0\/24 via 192.168.100.* dev eth3" is visible with command "ip r show table 300"
-     And "192.168.100.0\/24 dev eth3 proto kernel scope link src 192.168.100.* metric 1" is visible with command "ip r show"
+    Then "10.20.30.0\/24 via 192.168.10[0-3].* dev eth3" is visible with command "ip r show table 300"
+     And "192.168.10[0-3].0\/24 dev eth3 proto kernel scope link src 192.168.10[0-3].* metric 1" is visible with command "ip r show"
 
 
     @rhbz1907661
