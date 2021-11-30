@@ -124,7 +124,7 @@ def set_up_commands(context):
         return out, err
 
     def _command_code(command, *a, **kw):
-        out, err, code = _run(command, *a, **kw)
+        out, err, code = _run(command, check=False, *a, **kw)
         return code
 
     def _pexpect_spawn(*a, encoding="utf-8", logfile=None, shell=False, **kw):
@@ -375,7 +375,7 @@ def embed_dump(context, dump_id, dump_output, caption, do_report):
 
 
 def list_dumps(dumps_search):
-    out, err, code = nmci.run("ls -d %s" % (dumps_search))
+    out, err, code = nmci.run("ls -d %s" % (dumps_search), check=False)
     if code != 0:
         return []
     return out.strip('\n').split('\n')

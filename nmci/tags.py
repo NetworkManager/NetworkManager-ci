@@ -1035,7 +1035,7 @@ def simwifi_p2p_as(ctx, scen):
         ctx.run("dnf -y update wpa_supplicant")
         ctx.run("systemctl restart wpa_supplicant")
     ctx.run('modprobe -r mac80211_hwsim')
-    ctx.run('nmcli con del wifi-p2p')
+    ctx.run('nmcli con del wifi-p2p', check=False)
     ctx.run("pkill -f 'wpa_supplicant.*wlan1'")
     ctx.run("rm -rf /etc/NetworkManager/conf.d/99-wifi.conf")
 
