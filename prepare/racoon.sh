@@ -169,7 +169,7 @@ function racoon_teardown ()
     echo ${line// /-}
 
     userdel -r budulinek
-    kill -INT $(ps aux|grep dns|grep racoon|grep -v grep |awk {'print $2'})
+    pkill -INT -f 'dns.*racoon'
     if systemctl --quiet is-active nm-racoon; then
         systemctl stop nm-racoon
     fi

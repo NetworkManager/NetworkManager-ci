@@ -1036,7 +1036,7 @@ def simwifi_p2p_as(ctx, scen):
         ctx.run("systemctl restart wpa_supplicant")
     ctx.run('modprobe -r mac80211_hwsim')
     ctx.run('nmcli con del wifi-p2p')
-    ctx.run("kill -9 $(ps aux|grep wpa_suppli |grep wlan1 |awk '{print $2}')")
+    ctx.run("pkill -f 'wpa_supplicant.*wlan1'")
     ctx.run("rm -rf /etc/NetworkManager/conf.d/99-wifi.conf")
 
     nmci.lib.restart_NM_service(ctx)
@@ -2477,8 +2477,7 @@ def mtu_as(ctx, scen):
     ctx.run("ip link delete test11")
     ctx.run("ip link del vethbr")
     ctx.run("ip link del vethbr6")
-    ctx.run("kill -9 $(ps aux|grep '/usr/sbin/dns' |grep 192.168 |grep -v grep |awk '{print $2}')")
-    ctx.run("kill -9 $(ps aux|grep '/usr/sbin/dns' |grep 192.168 |grep -v grep |awk '{print $2}')")
+    ctx.run("pkill -9 -f '/usr/sbin/dns.*192.168'")
 
 
 _register_tag("mtu", None, mtu_as)
