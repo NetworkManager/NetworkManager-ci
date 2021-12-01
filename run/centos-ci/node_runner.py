@@ -13,12 +13,12 @@ import json
 def check_build(baseurl):
     copr_log = "backend.log.gz"
     last = "curl -s %s \
-            | grep -o \"<a href='[0-9]*-NetworkManager'>\" \
+            | grep -o '<a href=\"[0-9]*-NetworkManager' \
             | sort -r | head -n 1 \
             | grep -o '[0-9]*-NetworkManager'" % baseurl
 
     last_but_one = "curl -s %s \
-            | grep -o \"<a href='[0-9]*-NetworkManager'>\" \
+            | grep -o '<a href=\"[0-9]*-NetworkManager' \
             | sort -r | head -n 2 | tail -n -1 \
             | grep -o '[0-9]*-NetworkManager'" % baseurl
 
