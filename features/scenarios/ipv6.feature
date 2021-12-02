@@ -153,10 +153,11 @@
     @con_ipv6_remove
     @ipv6_route_set_route_with_options
     Scenario: nmcli - ipv6 - routes - set route with options
-    * Add a new connection of type "ethernet" and options "ifname eth3 con-name con_ipv6 ipv6.method manual ipv6.addresses 2000::2/126 ipv6.route-metric 258 ipv6.routes '1010::1/128 2000::1 1024 cwnd=15 lock-mtu=true mtu=1600'"
+    * Add a new connection of type "ethernet" and options "ifname eth3 con-name con_ipv6 ipv6.method manual ipv6.addresses 2000::2/126 ipv6.route-metric 258 ipv6.routes '1010::1/128 2000::1 1024 cwnd=15 lock-mtu=true mtu=1600, ::/0 2001:1::1'"
     Then "1010::1 via 2000::1 dev eth3\s+proto static\s+metric 1024\s+mtu lock 1600 cwnd 15" is visible with command "ip -6 route" in "45" seconds
     Then "2000::/126 dev eth3\s+proto kernel\s+metric 258" is visible with command "ip -6 route"
-     And "default" is visible with command "ip r |grep eth0"
+    Then "2001:1::1 dev eth3\s+proto static" is visible with command "ip -6 route"
+     And "default via 2001:1::1 dev eth3" is visible with command "ip -6 route"
 
 
     @con_ipv6_remove @eth0
