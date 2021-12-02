@@ -764,6 +764,7 @@ Feature: nmcli: ipv4
     @ipv4_dns-search_add
     Scenario: nmcli - ipv4 - dns-search - add dns-search
     * Add a new connection of type "ethernet" and options "ifname eth0 con-name con_ipv4 ipv4.may-fail no ipv4.dns-search google.com"
+    When "eth0:connected:con_ipv4" is visible with command "nmcli -t -f DEVICE,STATE,CONNECTION device" in "40" seconds
     When Domain "google.com" is set in "45" seconds
     Then Ping "maps"
     Then Ping "maps.google.com"
@@ -774,13 +775,14 @@ Feature: nmcli: ipv4
     @ipv4_dns-search_add
     Scenario: nmcli - ipv4 - dns-search - show dns-search
     * Add a new connection of type "ethernet" and options "ifname eth0 con-name con_ipv4 ipv4.may-fail no ipv4.dns-search google.com"
+    When "eth0:connected:con_ipv4" is visible with command "nmcli -t -f DEVICE,STATE,CONNECTION device" in "40" seconds
     When Domain "google.com" is set in "45" seconds
     Then Ping "maps"
     Then Ping "maps.google.com"
     Then "google.com" is visible with command "nmcli -g ipv4.dns-search connection show con_ipv4"
     Then Note the output of "nmcli -g ipv4.dns-search connection show con_ipv4" as value "2"
-       And Note the output of "nmcli -g IP4.SEARCHES device show eth0" as value "1"
-       And Check noted values "1" and "2" are the same
+     And Note the output of "nmcli -g IP4.SEARCHES device show eth0" as value "1"
+     And Check noted values "1" and "2" are the same
 
 
     @rhbz2006677
