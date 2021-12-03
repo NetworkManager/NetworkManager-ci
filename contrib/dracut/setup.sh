@@ -461,10 +461,13 @@ start_dhcpd() {
   mkdir -p /var/lib/dhcpd
   > $TESTDIR/dhcpd.leases
   > $TESTDIR/dhcpd6.leases
+  > $TESTDIR/dhcpd6slow.leases
   chmod 777 $TESTDIR/dhcpd.leases
   chmod 777 $TESTDIR/dhcpd6.leases
+  chmod 777 $TESTDIR/dhcpd6slow.leases
   dhcpd -q -cf conf/dhcpd.conf -lf $TESTDIR/dhcpd.leases -pf $TESTDIR/dhcpd.pid
   dhcpd -6 -q -cf conf/dhcpd6.conf -lf $TESTDIR/dhcpd6.leases -pf $TESTDIR/dhcpd6.pid
+  dhcpd -6 -q -cf conf/dhcpd6slow.conf -lf $TESTDIR/dhcpd6slow.leases -pf $TESTDIR/dhcpd6slow.pid
 }
 
 
@@ -472,7 +475,8 @@ stop_dhcpd() {
   echo stopping dhcpd
   pkill -9 -F $TESTDIR/dhcpd.pid
   pkill -9 -F $TESTDIR/dhcpd6.pid
-  rm -f $TESTDIR/dhcpd.pid $TESTDIR/dhcpd6.pid $TESTDIR/dhcpd.leases $TESTDIR/dhcpd6.leases
+  pkill -9 -F $TESTDIR/dhcpd6slow.pid
+  rm -f $TESTDIR/{dhcpd.pid,dhcpd6.pid,dhcpd6slow.pid,dhcpd.leases,dhcpd6.leases,dhcpd6slow.leases}
 }
 
 
