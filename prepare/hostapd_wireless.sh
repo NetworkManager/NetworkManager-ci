@@ -256,7 +256,20 @@ bss=wlan1_wpa3owet
 ssid=wpa3-owe-transition
 country_code=EN
 hw_mode=g
-owe_transition_ifname=wlan1_wpa3owe
+owe_transition_ifname=wlan1_wpa3oweh
+
+#wpa3_oweh
+bss=wlan1_wpa3oweh
+ssid=wpa3-owe-hidden
+country_code=EN
+hw_mode=g
+channel=7
+ieee80211w=2
+wpa=2
+wpa_key_mgmt=OWE
+rsn_pairwise=CCMP
+ignore_broadcast_ssid=1
+owe_transition_ifname=wlan1_wpa3owet
 
 " >> $HOSTAPD_CFG
 fi
