@@ -370,7 +370,7 @@ Feature: nmcli - ethernet
 
 
     @rhbz1141417 @rhbz2016348
-    @xfail
+    @ver+=1.36.0
     @ethernet
     @nmcli_ethernet_wol_from_file_to_default
     Scenario: nmcli - ethernet - wake-on-lan from file and back
@@ -382,7 +382,19 @@ Feature: nmcli - ethernet
     Then "Wake-on: g" is visible with command "ethtool em1"
     Then "magic" is visible with command "nmcli con show ethernet |grep wake-on-lan"
     * Open editor for connection "ethernet"
+    * Submit "remove 802-3-ethernet.wake-on-lan magic"
+    * Note the "802-3-ethernet.wake-on-lan" property from editor print output
+    Then Noted value does not contain "magic"
+    * Submit "set 802-3-ethernet.wake-on-lan phy" in editor
+    * Save in editor
     * Submit "set 802-3-ethernet.wake-on-lan default" in editor
+    * Note the "802-3-ethernet.wake-on-lan" property from editor print output
+    Then Noted value contains "phy"
+    Then Noted value contains "default"
+    * Submit "remove 802-3-ethernet.wake-on-lan phy"
+    * Note the "802-3-ethernet.wake-on-lan" property from editor print output
+    Then Noted value does not contain "phy"
+    Then Noted value contains "default"
     * Save in editor
     * Quit editor
     * Bring "down" connection "ethernet"
