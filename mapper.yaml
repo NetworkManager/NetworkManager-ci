@@ -1321,9 +1321,13 @@ testmapper:
         feature: dracut
     - dracut_NM_NFS_root_nfs_ip_dhcp_dhcp6_slow_ip4:
         feature: dracut
+    - dracut_NM_NFS_root_nfs_ip_dhcp_dhcp6_slow_ip6:
+        feature: dracut
     - dracut_NM_NFS_root_nfs_ip_dhcp_dhcp6_with_ip46_and_ip6_nic:
         feature: dracut
     - dracut_NM_NFS_root_nfs_ip_dhcp_dhcp6_with_slow_ip46_and_ip6_nic:
+        feature: dracut
+    - dracut_NM_NFS_root_nfs_ip_dhcp_dhcp6_with_slow_ip64_and_ip6_nic:
         feature: dracut
     - dracut_NM_NFS_root_nfs_ip_manual_dhcp:
         feature: dracut

@@ -350,6 +350,41 @@ Feature: NM: dracut
     @rhelver+=8.3 @fedoraver+=32
     @ver+=1.32
     @dracut @long @not_on_ppc64le
+    @dracut_NM_NFS_root_nfs_ip_dhcp_dhcp6_slow_ip6
+    Scenario: NM - dracut - NM module - NFSv3 root=nfs ip=dhcp,dhcp6 with slow IPv6 DHCP
+    * Run dracut test
+      | Param  | Value                                                                  |
+      | kernel | root=nfs:[feed:beef::1]:/var/dracut_test/nfs/client ro ip=dhcp,dhcp6   |
+      | kernel | rd.retry=0 rd.net.dhcp.retry=0 rd.net.timeout.dhcp=30                  |
+      | qemu   | -device virtio-net,netdev=slow6,mac=52:54:00:12:34:20                  |
+      | qemu   | -netdev tap,id=slow6,script=$PWD/qemu-ifup/slow6                       |
+      | check  | nmcli_con_active "Wired Connection" eth0 20                            |
+      | check  | nmcli_con_prop "Wired Connection" ipv4.method auto                     |
+      | check  | nmcli_con_prop "Wired Connection" IP4.ADDRESS 192.168.49.2/30 10       |
+      | check  | nmcli_con_prop "Wired Connection" IP4.GATEWAY 192.168.49.1             |
+      | check  | nmcli_con_prop "Wired Connection" IP4.ROUTE *192.168.49.0/30*          |
+      | check  | nmcli_con_prop "Wired Connection" IP4.DNS 192.168.49.1                 |
+      | check  | nmcli_con_prop "Wired Connection" IP4.DOMAIN cl.slow6.redhat.com       |
+      | check  | nmcli_con_prop "Wired Connection" ipv6.method auto                     |
+      | check  | nmcli_con_prop "Wired Connection" IP6.ADDRESS *feed:beef::1:10/128* 10 |
+      | check  | nmcli_con_prop "Wired Connection" IP6.ROUTE *feed:beef::/64*           |
+      | check  | nmcli_con_prop "Wired Connection" IP6.DNS feed:beef::1 10              |
+      | check  | wait_for_ip4_renew 192.168.49.2/30 eth0                                |
+      | check  | wait_for_ip6_renew feed:beef::1:10/128 eth0                            |
+      | check  | dns_search *'slow6.redhat.com'*                                        |
+      | check  | nmcli_con_num 1                                                        |
+      | check  | no_ifcfg                                                               |
+      | check  | ip4_route_unique "default via 192.168.49.1"                            |
+      | check  | ip4_route_unique "192.168.49.0/30 dev eth0"                            |
+      | check  | ip6_route_unique "feed:beef::1:10 dev eth0 proto kernel"               |
+      | check  | ip6_route_unique "feed:beef::/64 dev eth0 proto ra"                    |
+      | check  | nfs_server [feed:beef::1]                                              |
+
+
+    @rhbz1961666
+    @rhelver+=8.3 @fedoraver+=32
+    @ver+=1.32
+    @dracut @long @not_on_ppc64le
     @dracut_NM_NFS_root_nfs_ip_dhcp_dhcp6_with_ip46_and_ip6_nic
     Scenario: NM - dracut - NM module - NFSv3 root=nfs ip=dhcp,dhcp6 with IPv4+IPv6 NIC and IPv6 only NIC
     * Run dracut test
@@ -436,6 +471,52 @@ Feature: NM: dracut
       | check  | ip6_route_unique "deaf:beaf::1:10 dev eth1 proto kernel"               |
       | check  | ip6_route_unique "deaf:beaf::/64 dev eth1 proto ra"                    |
       | check  | nfs_server 192.168.50.1                                                |
+
+
+
+    @rhbz1961666
+    @rhelver+=8.3 @fedoraver+=32
+    @ver+=1.32
+    @dracut @long @not_on_ppc64le
+    @dracut_NM_NFS_root_nfs_ip_dhcp_dhcp6_with_slow_ip64_and_ip6_nic
+    Scenario: NM - dracut - NM module - NFSv3 root=nfs ip=dhcp,dhcp6 with IPv4 + slow IPv6 NIC and IPv6 only NIC
+    * Run dracut test
+      | Param  | Value                                                                  |
+      | kernel | root=nfs:[feed:beef::1]:/var/dracut_test/nfs/client ro ip=dhcp,dhcp6   |
+      | kernel | rd.retry=0 rd.net.dhcp.retry=0 rd.net.timeout.dhcp=30                  |
+      | qemu   | -device virtio-net,netdev=slow6,mac=52:54:00:12:34:00                  |
+      | qemu   | -netdev tap,id=slow6,script=$PWD/qemu-ifup/slow6                       |
+      | qemu   | -device virtio-net,netdev=nfs_ip6,mac=52:54:00:12:34:01                |
+      | qemu   | -netdev tap,id=nfs_ip6,script=$PWD/qemu-ifup/nfs_ip6                   |
+      | check  | nmcli_con_active "Wired Connection" eth0 25                            |
+      | check  | nmcli_con_active "Wired Connection" eth1 25                            |
+      | check  | nmcli_con_prop "Wired Connection" ipv4.method auto                     |
+      | check  | nmcli_con_prop "Wired Connection" IP4.ADDRESS *192.168.49.2/30* 10     |
+      | check  | nmcli_con_prop "Wired Connection" IP4.GATEWAY *192.168.49.1*           |
+      | check  | nmcli_con_prop "Wired Connection" IP4.ROUTE *192.168.49.0/30*          |
+      | check  | nmcli_con_prop "Wired Connection" IP4.DNS *192.168.49.1*               |
+      | check  | nmcli_con_prop "Wired Connection" IP4.DOMAIN *cl.slow6.redhat.com*     |
+      | check  | nmcli_con_prop "Wired Connection" ipv6.method auto                     |
+      | check  | nmcli_con_prop "Wired Connection" IP6.ADDRESS *feed:beef::1:10/128* 10 |
+      | check  | nmcli_con_prop "Wired Connection" IP6.ROUTE *feed:beef::/64*           |
+      | check  | nmcli_con_prop "Wired Connection" IP6.ADDRESS *deaf:beaf::1:10/128* 10 |
+      | check  | nmcli_con_prop "Wired Connection" IP6.ROUTE *deaf:beaf::/64*           |
+      | check  | nmcli_con_prop "Wired Connection" IP6.DNS *feed:beef::1* 10            |
+      | check  | nmcli_con_prop "Wired Connection" IP6.DNS *deaf:beaf::1*               |
+      | check  | wait_for_ip4_renew 192.168.49.2/30 eth0                                |
+      | check  | wait_for_ip6_renew feed:beef::1:10/128 eth0                            |
+      | check  | wait_for_ip6_renew deaf:beaf::1:10/128 eth1                            |
+      | check  | dns_search *'slow6.redhat.com'*                                        |
+      | check  | dns_search *'nfs6_2.redhat.com'*                                       |
+      | check  | nmcli_con_num 1                                                        |
+      | check  | no_ifcfg                                                               |
+      | check  | ip4_route_unique "default via 192.168.49.1"                            |
+      | check  | ip4_route_unique "192.168.49.0/30 dev eth0"                            |
+      | check  | ip6_route_unique "feed:beef::1:10 dev eth0 proto kernel"               |
+      | check  | ip6_route_unique "feed:beef::/64 dev eth0 proto ra"                    |
+      | check  | ip6_route_unique "deaf:beaf::1:10 dev eth1 proto kernel"               |
+      | check  | ip6_route_unique "deaf:beaf::/64 dev eth1 proto ra"                    |
+      | check  | nfs_server [feed:beef::1]                                              |
 
 
     @rhelver+=8.3 @fedoraver+=32

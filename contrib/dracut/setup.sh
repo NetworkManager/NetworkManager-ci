@@ -510,6 +510,7 @@ stop_qemu() {
 
 network_setup() {
   # bridge devices to connect
+  nmcli con add autoconnect "no" type "bridge" bridge.stp "no" ethernet.cloned-mac-address "random" con-name "slow6"    ifname "slow6"    ipv4.addresses "192.168.49.1/30" ipv6.addresses "feed:beef::1/64" ipv6.gateway "feed:beef::aa" ipv4.method "manual" ipv6.method "manual"
   nmcli con add autoconnect "no" type "bridge" bridge.stp "no" ethernet.cloned-mac-address "random" con-name "nfs"      ifname "nfs"      ipv4.addresses "192.168.50.1/24,192.168.50.2/24" ipv6.addresses "deaf:beef::1/64" ipv6.gateway "deaf:beef::aa" ipv4.method "manual" ipv6.method "manual"
   nmcli con add autoconnect "no" type "bridge" bridge.stp "no" ethernet.cloned-mac-address "random" con-name "nfs_ip6"  ifname "nfs_ip6"  ipv4.method "disabled" ipv6.addresses "deaf:beaf::1/64" ipv6.gateway "deaf:beaf::aa" ipv6.method "manual"
   nmcli con add autoconnect "no" type "bridge" bridge.stp "no" ethernet.cloned-mac-address "random" con-name "iscsi0"   ifname "iscsi0"   ipv4.addresses "192.168.51.1/24" ipv4.method "manual" ipv6.method "disabled"
@@ -532,6 +533,7 @@ network_setup() {
   nmcli con add autoconnect "no" type "vlan"   con-name "vlan33_1.33" ifname "vlan33_1.33" ipv4.addresses "192.168.55.34/29" ipv4.method "manual" ipv6.method "disabled" id "33" dev "vlan33_1"
 
   # up all connections
+  nmcli con up id slow6
   nmcli con up id nfs
   nmcli con up id nfs_ip6
   nmcli con up id iscsi0
@@ -560,6 +562,7 @@ network_setup() {
 
 network_clean() {
   nmcli con del \
+     slow6 \
      nfs \
      nfs_ip6 \
      iscsi0 \
@@ -581,6 +584,7 @@ network_clean() {
      vlan33_1
 
   # delete bridges left by NM
+  ip link del slow6
   ip link del nfs
   ip link del nfs_ip6
   ip link del iscsi0
