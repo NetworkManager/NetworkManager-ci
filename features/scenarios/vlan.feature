@@ -744,36 +744,38 @@ Feature: nmcli - vlan
     * Execute "for i in $(seq 10 510); do nmcli con add type vlan con-name eth11.$i id $i dev eth11 ethernet.cloned-mac-address random  ipv4.dhcp-timeout 120 ipv4.may-fail no ipv4.dad-timeout 0 ipv6.method disable; sleep 0.25; done"
     # Wait till we have "all" addresses assigned
     # We know the activation order so we should be ready at 150 if the machine is slow
-    When "\s+activated" is visible with command "for i in 1 2; do nmcli con show eth11."$i"33; done" in "100" seconds
-    When "\s+activated" is visible with command "for i in 3 4; do nmcli con show eth11."$i"77; done" in "100" seconds
-    When "\s+activated" is visible with command "for i in 4 5; do nmcli con show eth11."$i"99; done" in "100" seconds
-    When "\s+activated" is visible with command "for i in 2 3; do nmcli con show eth11."$i"55; done" in "100" seconds
-    When "\s+activated" is visible with command "nmcli con show eth11.101" in "100" seconds
-    When "\s+activated" is visible with command "nmcli con show eth11.202" in "100" seconds
-    When "\s+activated" is visible with command "nmcli con show eth11.303" in "100" seconds
-    When "\s+activated" is visible with command "nmcli con show eth11.404" in "100" seconds
-    When "\s+activated" is visible with command "nmcli con show eth11.505" in "100" seconds
-    # We need to see eth11 + 501 vlans so we are sure we have all
-    When Execute "nmcli  device |grep eth11 > /tmp/eth11s"
-    When "502" is visible with command "nmcli  device |grep eth11 |wc -l"
+    # When "\s+activated" is visible with command "for i in 1 2; do nmcli con show eth11."$i"33; done" in "100" seconds
+    # When "\s+activated" is visible with command "for i in 3 4; do nmcli con show eth11."$i"77; done" in "100" seconds
+    # When "\s+activated" is visible with command "for i in 4 5; do nmcli con show eth11."$i"99; done" in "100" seconds
+    # When "\s+activated" is visible with command "for i in 2 3; do nmcli con show eth11."$i"55; done" in "100" seconds
+    # When "\s+activated" is visible with command "nmcli con show eth11.101" in "100" seconds
+    # When "\s+activated" is visible with command "nmcli con show eth11.202" in "100" seconds
+    # When "\s+activated" is visible with command "nmcli con show eth11.303" in "100" seconds
+    # When "\s+activated" is visible with command "nmcli con show eth11.404" in "100" seconds
+    # When "\s+activated" is visible with command "nmcli con show eth11.505" in "100" seconds
+    # # We need to see eth11 + 501 vlans so we are sure we have all
+    # When Execute "nmcli  device |grep eth11 > /tmp/eth11s"
+    Then "502" is visible with command "nmcli  device |grep eth11 |grep ' connected'| wc -l" in "500" seconds
+    # When "502" is visible with command "nmcli  device |grep eth11 |wc -l"
     # Simulate reboot and delete all devices
     * Stop NM
     * Execute "for i in $(seq 10 510); do ip link del eth11.$i; done"
     * Reboot
     # Wait till we have "all" addresses assigned again
     # We don't know the activation order so let's give 200 here.
-    Then "\s+activated" is visible with command "for i in 1 2 3; do nmcli con show eth11."$i"66; done" in "200" seconds
-    Then "\s+activated" is visible with command "for i in 4 5; do nmcli con show eth11."$i"99; done" in "200" seconds
-    Then "\s+activated" is visible with command "for i in 3 4; do nmcli con show eth11."$i"77; done" in "200" seconds
-    Then "\s+activated" is visible with command "for i in 1 2; do nmcli con show eth11."$i"33; done" in "200" seconds
-    Then "\s+activated" is visible with command "nmcli con show eth11.101" in "200" seconds
-    Then "\s+activated" is visible with command "nmcli con show eth11.202" in "200" seconds
-    Then "\s+activated" is visible with command "nmcli con show eth11.303" in "200" seconds
-    Then "\s+activated" is visible with command "nmcli con show eth11.404" in "200" seconds
-    Then "\s+activated" is visible with command "nmcli con show eth11.505" in "200" seconds
+    # Then "\s+activated" is visible with command "for i in 1 2 3; do nmcli con show eth11."$i"66; done" in "200" seconds
+    # Then "\s+activated" is visible with command "for i in 4 5; do nmcli con show eth11."$i"99; done" in "200" seconds
+    # Then "\s+activated" is visible with command "for i in 3 4; do nmcli con show eth11."$i"77; done" in "200" seconds
+    # Then "\s+activated" is visible with command "for i in 1 2; do nmcli con show eth11."$i"33; done" in "200" seconds
+    # Then "\s+activated" is visible with command "nmcli con show eth11.101" in "200" seconds
+    # Then "\s+activated" is visible with command "nmcli con show eth11.202" in "200" seconds
+    # Then "\s+activated" is visible with command "nmcli con show eth11.303" in "200" seconds
+    # Then "\s+activated" is visible with command "nmcli con show eth11.404" in "200" seconds
+    # Then "\s+activated" is visible with command "nmcli con show eth11.505" in "200" seconds
     # We need to see eth11 + 501 vlans so we are sure we have all
-    Then Execute "nmcli  device |grep eth11 > /tmp/eth11s"
-    Then "502" is visible with command "nmcli  device |grep eth11 |wc -l"
+    # Then Execute "nmcli  device |grep eth11 > /tmp/eth11s"
+    Then "502" is visible with command "nmcli  device |grep eth11 |grep ' connected'| wc -l" in "500" seconds
+    # Then "502" is visible with command "nmcli  device |grep eth11 |wc -l"
 
 
     @ver+=1.32 @rhelver+=8 @skip_in_kvm @skip_in_centos
