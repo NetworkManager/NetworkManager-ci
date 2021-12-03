@@ -322,7 +322,7 @@ Feature: NM: dracut
       | kernel | rd.retry=0 rd.net.dhcp.retry=0 rd.net.timeout.dhcp=30                  |
       | qemu   | -device virtio-net,netdev=nfs,mac=52:54:00:12:34:20                    |
       | qemu   | -netdev tap,id=nfs,script=$PWD/qemu-ifup/nfs                           |
-      | check  | nmcli_con_active "Wired Connection" eth0                               |
+      | check  | nmcli_con_active "Wired Connection" eth0 25                            |
       | check  | nmcli_con_prop "Wired Connection" ipv4.method auto                     |
       | check  | nmcli_con_prop "Wired Connection" IP4.ADDRESS 192.168.50.103/24 10     |
       | check  | nmcli_con_prop "Wired Connection" IP4.GATEWAY 192.168.50.1             |
@@ -358,7 +358,7 @@ Feature: NM: dracut
       | kernel | rd.retry=0 rd.net.dhcp.retry=0 rd.net.timeout.dhcp=30                  |
       | qemu   | -device virtio-net,netdev=slow6,mac=52:54:00:12:34:20                  |
       | qemu   | -netdev tap,id=slow6,script=$PWD/qemu-ifup/slow6                       |
-      | check  | nmcli_con_active "Wired Connection" eth0 20                            |
+      | check  | nmcli_con_active "Wired Connection" eth0 25                            |
       | check  | nmcli_con_prop "Wired Connection" ipv4.method auto                     |
       | check  | nmcli_con_prop "Wired Connection" IP4.ADDRESS 192.168.49.2/30 10       |
       | check  | nmcli_con_prop "Wired Connection" IP4.GATEWAY 192.168.49.1             |
