@@ -164,6 +164,12 @@ def note_print_property_b(context, pattern):
         "Noted value '%s' does not match the pattern '%s'!" % (context.noted['noted-value'], pattern)
 
 
+@step(u'Noted value does not contain "{pattern}"')
+def note_print_property_b_neg(context, pattern):
+    assert re.search(pattern, context.noted['noted-value']) is None, \
+        "Noted value '%s' does match the pattern '%s'!" % (context.noted['noted-value'], pattern)
+
+
 @step(u'Note the output of "{command}" as value "{index}"')
 def note_the_output_as(context, command, index):
     if not hasattr(context, 'noted'):
