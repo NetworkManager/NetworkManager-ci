@@ -358,7 +358,7 @@ Feature: nmcli - ethernet
 
 
     @rhbz1141417
-    @ethernet
+    @ethernet @ifcfg-rh
     @nmcli_ethernet_wol_from_file
     Scenario: nmcli - ethernet - wake-on-lan from file
     * Add connection type "ethernet" named "ethernet" for device "em1"
@@ -371,7 +371,7 @@ Feature: nmcli - ethernet
 
     @rhbz1141417 @rhbz2016348
     @ver+=1.36.0
-    @ethernet
+    @ethernet @ifcfg-rh
     @nmcli_ethernet_wol_from_file_to_default
     Scenario: nmcli - ethernet - wake-on-lan from file and back
     * Add connection type "ethernet" named "ethernet" for device "em1"
