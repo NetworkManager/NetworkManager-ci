@@ -121,6 +121,29 @@ def netdev_replace(context, s):
     return s
 
 
+def nmcli_eval(context, s, strip_prefix=False):
+    if not s:
+        return s
+    if "<nmcli" not in s:
+        return s
+    nmcli_re = re.compile("<nmcli[^>]*>")
+    for command in nmcli_re.findall(s):
+        cmd_list = command.strip("<>").split(":")
+        assert len(cmd_list) == 4, \
+            f"Unable to parse nmcli command {command}, " \
+            "must be <nmcli:(dev|con):name:attribute>"
+        _, obj, name, attr = cmd_list
+        nmcli_cmd = f"nmcli -t -f {remove_braces(attr)} {obj} show \"{name}\" --show-secrets"
+        out, rc = cmd_output_rc(nmcli_cmd, shell=True)
+        assert rc == 0, f"command '{nmcli_cmd}' failed:\n{out}"
+        nmcli_dic = nmcli_out_to_dic(out)
+        value = nmcli_dic[attr]
+        if strip_prefix:
+            value = value.rsplit("/", 1)[0]
+        s = s.replace(command, value)
+    return s
+
+
 def libreswan_teardown(context):
     subprocess.call(f"sudo bash {NM_CI_RUNNER_CMD} "
                     "prepare/libreswan.sh teardown &> /tmp/libreswan_teardown.log", shell=True)
