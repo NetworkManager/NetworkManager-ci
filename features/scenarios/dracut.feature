@@ -1070,6 +1070,7 @@ Feature: NM: dracut
     @rhelver+=8.3 @fedoraver+=32
     @dracut @long @x86_64_only
     @dracut_NM_iSCSI_ibft_table
+    @ver+=1.36.0
     Scenario: NM - dracut - NM module - iSCSI ibft.table
     * Run dracut test
       | Param  | Value                                                               |
@@ -1090,7 +1091,7 @@ Feature: NM: dracut
       | check  | nmcli_con_prop "iBFT Connection 0" IP4.DNS 192.168.51.1             |
       | check  | nmcli_con_prop "iBFT Connection 0" IP4.DOMAIN cl.iscsi0.redhat.com  |
       | check  | nmcli_con_prop "iBFT Connection 0" ipv6.method disabled             |
-      | check  | wait_for_ip4_renew 192.168.51.101/24 eth0                           |
+      | check  | ip4_forever 192.168.51.101/24 eth0                                  |
       | check  | link_no_ip4 eth1                                                    |
       | check  | dns_search iscsi0.redhat.com                                        |
       | check  | nmcli_con_num 1                                                     |
