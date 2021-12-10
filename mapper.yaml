@@ -27,6 +27,7 @@ component:
       - mobile-broadband-provider-info
       - libnl3
       - dracut
+      - wpa_supplicant
   gated-by:
     - gnome-control-center
     - gnome-shell
@@ -1217,6 +1218,7 @@ testmapper:
         feature: ethernet
     - 8021x_tls_pkcs11_pwfile:
         feature: ethernet
+        tags: wpa_supplicant
     - 8021x_tls_pkcs11_nmcli_ask:
         feature: ethernet
     - 8021x_tls_pkcs11_pw_in_uri_flag_nr:
@@ -1229,7 +1231,7 @@ testmapper:
         feature: ethernet
     - 8021x_tls_aes256_private_key:
         feature: ethernet
-        tags: libnl3
+        tags: libnl3 wpa_supplicant
     - 8021x_tls_no_private_key_password:
         feature: ethernet
     - 8021x_tls_bad_password_flag:
@@ -1242,6 +1244,7 @@ testmapper:
         feature: ethernet
     - 8021x_peap_gtc:
         feature: ethernet
+        tags: wpa_supplicant
     - 8021x_ttls_pap:
         feature: ethernet
     - 8021x_ttls_chap:
@@ -1278,7 +1281,7 @@ testmapper:
         feature: ethernet
     - 8021x_teardown_eth:
         feature: ethernet
-        tags: gate
+        tags: gate wpa_supplicant
     - ethtool_features_connection:
         feature: ethernet
     - ethtool_features_fixed_connection:
@@ -2120,7 +2123,7 @@ testmapper:
         feature: wifi_hwsim
     - simwifi_wpa2psk_profile:
         feature: wifi_hwsim
-        tags: gate libnl3
+        tags: gate libnl3 wpa_supplicant
     - simwifi_wpa2psk_no_profile:
         feature: wifi_hwsim
     - simwifi_tls_pkcs11_saved_pw:
@@ -2133,7 +2136,7 @@ testmapper:
         feature: wifi_hwsim
     - simwifi_tls:
         feature: wifi_hwsim
-        tags: gate libnl3
+        tags: gate libnl3 wpa_supplicant
     - simwifi_tls_bad_private_key_password:
         feature: wifi_hwsim
     - simwifi_tls_no_private_key_password:
@@ -2155,10 +2158,12 @@ testmapper:
         tags: gate
     - simwifi_wpa3_personal:
         feature: wifi_hwsim
+        tags: wpa_supplicant
     - simwifi_wpa3_personal_device_connect_ask:
         feature: wifi_hwsim
     - simwifi_tls_wpa3:
         feature: wifi_hwsim
+        tags: wpa_supplicant
     - simwifi_owe_connect:
         feature: wifi_hwsim
     - simwifi_owe_device_connect:
@@ -2177,7 +2182,7 @@ testmapper:
         feature: wifi_hwsim
     - nmcli_simwifi_teardown:
         feature: wifi_hwsim
-        tags: gate
+        tags: gate wpa_supplicant
     # We don't need AP anymore for the rest of tests
     - simwifi_ap_wpa_psk_method_shared:
         feature: wifi_hwsim
