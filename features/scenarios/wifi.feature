@@ -35,7 +35,7 @@ Feature: nmcli - wifi
     Then "qe-open" is visible with command "iw dev wlan0 link"
 
 
-    @wifi
+    @wifi @rhelver-=8
     @nmcli_wifi_connect_to_wep_hexkey_network_without_profile
     Scenario: nmcli - wifi - connect to WEP hex-key network without profile
     Given "qe-wep" is visible with command "nmcli -f SSID device wifi list" in "15" seconds
@@ -44,7 +44,7 @@ Feature: nmcli - wifi
     Then "qe-wep" is visible with command "iw dev wlan0 link"
 
 
-    @wifi
+    @wifi @rhelver-=8
     @nmcli_wifi_connect_to_wep_asciikey_network_without_profile
     Scenario: nmcli - wifi - connect to WEP ascii-key network without profile
     Given "qe-wep" is visible with command "nmcli -f SSID device wifi list" in "15" seconds
@@ -53,7 +53,7 @@ Feature: nmcli - wifi
     Then "qe-wep" is visible with command "iw dev wlan0 link"
 
 
-    @wifi
+    @wifi @rhelver-=8
     @nmcli_wifi_connect_to_wep_phrase_network_without_profile
     Scenario: nmcli - wifi - connect to WEP phrase network without profile
     Given "qe-wep-psk" is visible with command "nmcli -f SSID device wifi list" in "15" seconds
@@ -215,7 +215,7 @@ Feature: nmcli - wifi
     * Quit editor
 
 
-    @wifi
+    @wifi @rhelver-=8
     @nmcli_wifi_set_channel
     Scenario: nmcli - wifi - set channel
     * Add a new connection of type "wifi" and options "ifname wlan0 con-name qe-wep autoconnect off ssid qe-wep"
@@ -564,14 +564,21 @@ Feature: nmcli - wifi
     Then Check "\[hidden\]" are present in describe output for object "802-11-wireless.hidden"
 
 
-    @wifi
+    @wifi @rhelver-=8
     @nmcli_wifisec_80211wirelesssecurity_describe_all
     Scenario: nmcli - wifi-sec - 802-11-wireless-security describe all
     * Open editor for a type "wifi"
     Then Check "key-mgmt|wep-tx-keyidx|auth-alg|proto|pairwise|group|leap-username|wep-key0|wep-key1|wep-key2|wep-key3|wep-key-flags|wep-key-type|psk|psk-flags|leap-password|leap-password-flags" are present in describe output for object "802-11-wireless-security"
 
 
-    @wifi
+    @wifi @rhelver+=9
+    @nmcli_wifisec_80211wirelesssecurity_describe_all
+    Scenario: nmcli - wifi-sec - 802-11-wireless-security describe all
+    * Open editor for a type "wifi"
+    Then Check "key-mgmt|auth-alg|proto|pairwise|group|leap-username|psk|psk-flags|leap-password|leap-password-flags" are present in describe output for object "802-11-wireless-security"
+
+
+    @wifi @rhelver-=8
     @nmcli_wifisec_describe_separately
     Scenario: nmcli - wifi-sec - describe separately
     * Open editor for a type "wifi"
@@ -588,6 +595,22 @@ Feature: nmcli - wifi
     Then Check "\[wep-key3\]" are present in describe output for object "802-11-wireless-security.wep-key3"
     Then Check "\[wep-key-flags\]" are present in describe output for object "802-11-wireless-security.wep-key-flags"
     Then Check "\[wep-key-type\]" are present in describe output for object "802-11-wireless-security.wep-key-type"
+    Then Check "\[psk\]" are present in describe output for object "802-11-wireless-security.psk"
+    Then Check "\[psk-flags\]" are present in describe output for object "802-11-wireless-security.psk-flags"
+    Then Check "\[leap-password\]" are present in describe output for object "802-11-wireless-security.leap-password"
+    Then Check "\[leap-password-flags\]" are present in describe output for object "802-11-wireless-security.leap-password-flags"
+
+
+    @wifi @rhelver+=9
+    @nmcli_wifisec_describe_separately
+    Scenario: nmcli - wifi-sec - describe separately
+    * Open editor for a type "wifi"
+    Then Check "\[key-mgmt\]" are present in describe output for object "802-11-wireless-security.key-mgmt"
+    Then Check "\[auth-alg\]" are present in describe output for object "802-11-wireless-security.auth-alg"
+    Then Check "\[proto\]" are present in describe output for object "802-11-wireless-security.proto"
+    Then Check "\[pairwise\]" are present in describe output for object "802-11-wireless-security.pairwise"
+    Then Check "\[group\]" are present in describe output for object "802-11-wireless-security.group"
+    Then Check "\[leap-username\]" are present in describe output for object "802-11-wireless-security.leap-username"
     Then Check "\[psk\]" are present in describe output for object "802-11-wireless-security.psk"
     Then Check "\[psk-flags\]" are present in describe output for object "802-11-wireless-security.psk-flags"
     Then Check "\[leap-password\]" are present in describe output for object "802-11-wireless-security.leap-password"
@@ -628,7 +651,7 @@ Feature: nmcli - wifi
     Then "\*\s+qe-wpa1-psk" is visible with command "nmcli -f IN-USE,SSID device wifi list"
 
 
-    @wifi
+    @wifi @rhelver-=8
     @nmcli_wifisec_configure_and_connect_wep_hex_key_profile
     Scenario: nmcli - wifi-sec - configure and connect WEP hex key profile
     * Add a new connection of type "wifi" and options "ifname wlan0 con-name qe-wep autoconnect off ssid qe-wep"
@@ -646,7 +669,7 @@ Feature: nmcli - wifi
     Then "\*\s+qe-wep" is visible with command "nmcli -f IN-USE,SSID device wifi list"
 
 
-    @wifi
+    @wifi @rhelver-=8
     @nmcli_wifisec_configure_and_connect_wep_ascii_key_profile
     Scenario: nmcli - wifi-sec - configure and connect WEP ascii key profile
     * Add a new connection of type "wifi" and options "ifname wlan0 con-name qe-wep autoconnect off ssid qe-wep"
@@ -664,7 +687,7 @@ Feature: nmcli - wifi
     Then "\*\s+qe-wep" is visible with command "nmcli -f IN-USE,SSID device wifi list"
 
 
-    @wifi
+    @wifi @rhelver-=8
     @nmcli_wifisec_configure_and_connect_wep_phrase_profile
     Scenario: nmcli - wifi-sec - configure and connect WEP phrase profile
     * Add a new connection of type "wifi" and options "ifname wlan0 con-name qe-wep-psk autoconnect off ssid qe-wep-psk"
@@ -806,7 +829,7 @@ Feature: nmcli - wifi
 #    Then "\*\s+qe-wep-enterprise-cisco" is visible with command "nmcli -f IN-USE,SSID device wifi list"
 
 
-    @wifi
+    @wifi @rhelver-=8
     @nmcli_wifisec_configure_and_connect_weptls_profile
     Scenario: nmcli - wifi-sec - configure and connect WEP-TLS profile
     * Add a new connection of type "wifi" and options "ifname wlan0 con-name qe-wep-enterprise autoconnect off ssid qe-wep-enterprise"
@@ -828,7 +851,7 @@ Feature: nmcli - wifi
     Then "\*\s+qe-wep-enterprise" is visible with command "nmcli -f IN-USE,SSID device wifi list"
 
 
-    @wifi @wireless_certs @need_legacy_crypto
+    @wifi @wireless_certs @need_legacy_crypto @rhelver-=8
     @nmcli_wifisec_configure_and_connect_wepttls_profile
     Scenario: nmcli - wifi-sec - configure and connect WEP-TTLS profile
     * Add a new connection of type "wifi" and options "ifname wlan0 con-name qe-wep-enterprise autoconnect off ssid qe-wep-enterprise"
@@ -888,7 +911,7 @@ Feature: nmcli - wifi
     Then Error appeared in editor
 
 
-    @wifi
+    @wifi @rhelver-=8
     @nmcli_wifisec_weptxkeyidx_nondefault_wep_key
     Scenario: nmcli - wifi-sec - wep-tx-keyidx - non-default wep key
     * Add a new connection of type "wifi" and options "ifname wlan0 con-name qe-wep autoconnect off ssid qe-wep"
@@ -911,7 +934,7 @@ Feature: nmcli - wifi
     Then Look for "'wep_tx_keyidx' value '3'" in journal
 
 
-    @wifi
+    @wifi @rhelver-=8
     @nmcli_wifisec_weptxkeyidx_bogus_key_id
     Scenario: nmcli - wifi-sec - wep-tx-keyidx - bogus key id
     * Add a new connection of type "wifi" and options "ifname wlan0 con-name qe-wep autoconnect off ssid qe-wep"
@@ -931,7 +954,7 @@ Feature: nmcli - wifi
     Then Error appeared in editor
 
 
-    @wifi
+    @wifi @rhelver-=8
     @nmcli_wifisec_authalg_wep_open_key
     Scenario: nmcli - wifi-sec - auth-alg - wep open key
     * Add a new connection of type "wifi" and options "ifname wlan0 con-name qe-wep autoconnect off ssid qe-wep"
@@ -950,7 +973,7 @@ Feature: nmcli - wifi
     Then "\*\s+qe-wep" is visible with command "nmcli -f IN-USE,SSID device wifi list"
 
 
-    @wifi
+    @wifi @rhelver-=8
     @nmcli_wifisec_authalg_wep_shared_key
     Scenario: nmcli - wifi-sec - auth-alg - wep shared key
     * Add a new connection of type "wifi" and options "ifname wlan0 con-name qe-wep autoconnect off ssid qe-wep"
@@ -1164,7 +1187,7 @@ Feature: nmcli - wifi
     Then "\*\s+qe-wpa2-psk" is not visible with command "nmcli -f IN-USE,SSID device wifi list"
 
 
-    @wifi
+    @wifi @rhelver-=8
     @nmcli_wifisec_set_all_wep_keys
     Scenario: nmcli - wifi-sec - set all wep keys
     * Add a new connection of type "wifi" and options "ifname wlan0 con-name qe-wep autoconnect off ssid qe-wep"
@@ -1183,7 +1206,7 @@ Feature: nmcli - wifi
     Then "KEY1=s:testing123456.+KEY2=s:testi.+KEY3=s:123456testing.+KEY4=s:54321" is visible with command "sudo cat /etc/sysconfig/network-scripts/keys-qe-wep"
 
 
-    @wifi
+    @wifi @rhelver-=8
     @nmcli_wifisec_wepkeytype_autodetection_passphrase
     Scenario: nmcli - wifi-sec - wep-key-type auto-detection - passphrase
     * Add a new connection of type "wifi" and options "ifname wlan0 con-name qe-wep autoconnect off ssid qe-wep"

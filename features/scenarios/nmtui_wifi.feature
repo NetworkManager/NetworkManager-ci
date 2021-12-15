@@ -58,7 +58,7 @@ Feature: WIFI TUI tests
     Then "inet 10." is visible with command "ip a s wlan0" in "30" seconds
 
 
-    @wifi
+    @wifi @rhelver-=8
     @nmtui_wifi_connect_to_wep_hexkey_network
     Scenario: nmtui - wifi - connect to WEP hex-key network straight
     * Start nmtui
@@ -72,7 +72,7 @@ Feature: WIFI TUI tests
     Then "inet 10." is visible with command "ip a s wlan0" in "30" seconds
 
 
-    @wifi
+    @wifi @rhelver-=8
     @nmtui_wifi_connect_to_wep_asciikey_network
     Scenario: nmtui - wifi - connect to WEP ascii-key network straight
     * Start nmtui
@@ -86,7 +86,7 @@ Feature: WIFI TUI tests
     Then "inet 10." is visible with command "ip a s wlan0" in "30" seconds
 
 
-    @wifi
+    @wifi @rhelver-=8
     @nmtui_wifi_connect_to_wep_phrase_network
     Scenario: nmtui - wifi - connect to WEP phrase network straight
     * Start nmtui
@@ -380,7 +380,7 @@ Feature: WIFI TUI tests
     Then "SSID: qe-wpa2-psk" is visible with command "iw dev wlan0 link" in "30" seconds
 
 
-    @wifi
+    @wifi @rhelver-=8
     @nmtui_wifi_wep_hexkey_connection
     Scenario: nmtui - wifi - WEP hex key connection
     * Prepare new connection of type "Wi-Fi" named "wifi1"
@@ -393,7 +393,7 @@ Feature: WIFI TUI tests
     Then "SSID: qe-wep" is visible with command "iw dev wlan0 link" in "30" seconds
 
 
-    @wifi
+    @wifi @rhelver-=8
     @nmtui_wifi_wep_ascii_connection
     Scenario: nmtui - wifi - WEP ascii connection
     * Prepare new connection of type "Wi-Fi" named "wifi1"
@@ -406,7 +406,7 @@ Feature: WIFI TUI tests
     Then "SSID: qe-wep" is visible with command "iw dev wlan0 link" in "30" seconds
 
 
-    @wifi
+    @wifi @rhelver-=8
     @nmtui_wifi_wep_passphrase_connection
     Scenario: nmtui - wifi - WEP passphrase connection
     * Prepare new connection of type "Wi-Fi" named "wifi1"
