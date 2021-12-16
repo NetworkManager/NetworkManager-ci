@@ -5,15 +5,6 @@ Feature: WIFI TUI tests
   * Prepare virtual terminal environment
 
 
-    @rhelver+=8.2 @fedoraver+=32
-    @simwifi @attach_hostapd_log @attach_wpa_supplicant_log
-    @nmtui_simwifi_see_all_networks
-    Scenario: nmtui - wifi_hwsim - see all networks
-    * Start nmtui
-    * Choose to "Activate a connection" from main screen
-    Then Connections "open, wep ,wep-2,dynwep,wpa1-eap,wpa1-psk,wpa2-eap,wpa2-psk,wpa3" are in the list
-
-
     # no wpa3 before 8.2
     @rhelver-=8.1 @fedoraver+=32
     @simwifi @attach_hostapd_log @attach_wpa_supplicant_log
@@ -22,6 +13,24 @@ Feature: WIFI TUI tests
     * Start nmtui
     * Choose to "Activate a connection" from main screen
     Then Connections "open, wep ,wep-2,dynwep,wpa1-eap,wpa1-psk,wpa2-eap,wpa2-psk" are in the list
+
+
+    @rhelver+=8.2 @rhelver-=8 @fedoraver+=32
+    @simwifi @attach_hostapd_log @attach_wpa_supplicant_log
+    @nmtui_simwifi_see_all_networks
+    Scenario: nmtui - wifi_hwsim - see all networks
+    * Start nmtui
+    * Choose to "Activate a connection" from main screen
+    Then Connections "open, wep ,wep-2,dynwep,wpa1-eap,wpa1-psk,wpa2-eap,wpa2-psk,wpa3" are in the list
+
+
+    @rhelver+=8.2 @rhelver+=9 @fedoraver+=32
+    @simwifi @attach_hostapd_log @attach_wpa_supplicant_log
+    @nmtui_simwifi_see_all_networks
+    Scenario: nmtui - wifi_hwsim - see all networks
+    * Start nmtui
+    * Choose to "Activate a connection" from main screen
+    Then Connections "open,wpa1-eap,wpa1-psk,wpa2-eap,wpa2-psk,wpa3" are in the list
 
 
     @fedoraver+=32
@@ -82,7 +91,7 @@ Feature: WIFI TUI tests
     Then "inet 10." is visible with command "ip a s wlan0" in "30" seconds
 
 
-    @fedoraver+=32
+    @fedoraver+=32 @rhelver-=8
     @simwifi @attach_hostapd_log @attach_wpa_supplicant_log @ifcfg-rh
     @nmtui_simwifi_connect_to_wep_hexkey_network
     Scenario: nmtui - wifi_hwsim - connect to WEP hex-key network straight
@@ -99,7 +108,7 @@ Feature: WIFI TUI tests
     Then "inet 10." is visible with command "ip a s wlan0" in "30" seconds
 
 
-    @fedoraver+=32
+    @fedoraver+=32 @rhelver-=8
     @simwifi @attach_hostapd_log @attach_wpa_supplicant_log
     @nmtui_simwifi_connect_to_wep_asciikey_network
     Scenario: nmtui - wifi_hwsim - connect to WEP ascii-key network straight
@@ -436,7 +445,7 @@ Feature: WIFI TUI tests
     Then "SSID: wpa3-psk" is visible with command "iw dev wlan0 link" in "30" seconds
 
 
-    @fedoraver+=32
+    @fedoraver+=32 @rhelver-=8
     @simwifi @attach_hostapd_log @attach_wpa_supplicant_log
     @nmtui_simwifi_wep_hexkey_connection
     Scenario: nmtui - wifi_hwsim - WEP hex key connection
@@ -450,7 +459,7 @@ Feature: WIFI TUI tests
     Then "SSID: wep" is visible with command "iw dev wlan0 link" in "30" seconds
 
 
-    @fedoraver+=32
+    @fedoraver+=32 @rhelver-=8
     @simwifi @attach_hostapd_log @attach_wpa_supplicant_log
     @nmtui_simwifi_wep_ascii_connection
     Scenario: nmtui - wifi_hwsim - WEP ascii connection
@@ -479,7 +488,7 @@ Feature: WIFI TUI tests
 
 
 #### Note TUI doesn't support enterprise and dynamic wep yet, tests will be added when support done. ####
-    @fedoraver+=32
+    @fedoraver+=32 @rhelver-=8
     @simwifi @attach_hostapd_log @attach_wpa_supplicant_log
     @nmtui_simwifi_show_password
     Scenario: nmtui - wifi_hwsim - show password
