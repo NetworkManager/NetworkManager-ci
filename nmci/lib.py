@@ -418,6 +418,24 @@ def check_coredump(context):
                 dump = nmci.command_output('echo backtrace | coredumpctl debug %d' % (pid))
             embed_dump(context, dump_dir, dump, "COREDUMP")
 
+def wait_faf_complete(dump_dir):
+    for i in range(20):
+        if not os.path.isdir(dump_dir):
+            # Seems like FAF found it to be a duplicate one
+            print("* report dir went away, skipping.")
+            return False
+        if os.path.isfile("%s/pkg_name" % (dump_dir)) and \
+           os.path.isfile("%s/last_occurrence" % (dump_dir)) and \
+           os.path.isfile("%s/backtrace" % (dump_dir)):
+               # We got all we want, including a backtrace. Good.
+               return True
+        time.sleep(1)
+    if os.path.isfile("%s/pkg_name" % (dump_dir)) and \
+       os.path.isfile("%s/last_occurrence" % (dump_dir)):
+           # We couldn't get a backtrace. Could be okay.
+           return True
+    print("* incomplete report, skipping.")
+    return False
 
 def check_faf(context):
     abrt_search = "/var/spool/abrt/ccpp*"
@@ -426,9 +444,7 @@ def check_faf(context):
         if not dump_dir:
             continue
         print("Examing crash: " + dump_dir)
-        if not os.path.isfile("%s/pkg_name" % (dump_dir)) or \
-                not os.path.isfile("%s/last_occurrence" % (dump_dir)):
-            print("* incomplete report, skipping.")
+        if not wait_faf_complete(dump_dir):
             continue
         pkg = utf_only_open_read("%s/pkg_name" % (dump_dir))
         if not check_dump_package(pkg):
