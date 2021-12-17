@@ -28,6 +28,7 @@ component:
       - libnl3
       - dracut
       - wpa_supplicant
+      - hostapd
   gated-by:
     - gnome-control-center
     - gnome-shell
@@ -1218,70 +1219,86 @@ testmapper:
         feature: ethernet
     - 8021x_tls_pkcs11_pwfile:
         feature: ethernet
-        tags: wpa_supplicant
+        tags: wpa_supplicant hostapd
     - 8021x_tls_pkcs11_nmcli_ask:
         feature: ethernet
     - 8021x_tls_pkcs11_pw_in_uri_flag_nr:
         feature: ethernet
     - 8021x_with_credentials:
         feature: ethernet
+        tags: hostapd
     - 8021x_tls:
         feature: ethernet
+        tags: hostapd
     - 8021x_tls_bad_private_key_password:
         feature: ethernet
     - 8021x_tls_aes256_private_key:
         feature: ethernet
-        tags: libnl3 wpa_supplicant
+        tags: libnl3 wpa_supplicant hostapd
     - 8021x_tls_no_private_key_password:
         feature: ethernet
     - 8021x_tls_bad_password_flag:
         feature: ethernet
     - 8021x_tls_pkcs12_key_restart:
         feature: ethernet
+        tags: hostapd
     - 8021x_peap_md5:
         feature: ethernet
+        tags: hostapd
     - 8021x_peap_mschapv2:
         feature: ethernet
+        tags: hostapd
     - 8021x_peap_gtc:
         feature: ethernet
-        tags: wpa_supplicant
+        tags: wpa_supplicant hostapd
     - 8021x_ttls_pap:
         feature: ethernet
+        tags: hostapd
     - 8021x_ttls_chap:
         feature: ethernet
+        tags: hostapd
     - 8021x_ttls_mschap:
         feature: ethernet
+        tags: hostapd
     - 8021x_ttls_mschapv2:
         feature: ethernet
+        tags: hostapd
     - 8021x_ttls_mschapv2_eap:
         feature: ethernet
-        tags: gate libnl3
+        tags: gate libnl3 hostapd
     - 8021x_ttls_md5:
         feature: ethernet
+        tags: hostapd
     - 8021x_ttls_gtc:
         feature: ethernet
+        tags: hostapd
     - 8021x_with_raw_credentials:
         feature: ethernet
+        tags: hostapd
     - 8021x_without_password:
         feature: ethernet
     - 8021x_without_password_with_ask_at_the_end:
         feature: ethernet
-        tags: gate
     - 8021x_auto_auth_retry_with_backup_network:
         feature: ethernet
+        tags: hostapd
     #- 8021x_auto_auth_retry:
     #    feature: ethernet
     - 8021x_stop_wpa_supplicant_with_8021x_optional:
         feature: ethernet
+        tags: hostapd
     - preserve_8021x_certs_ethernet:
         feature: ethernet
+        tags: hostapd
     - preserve_8021x_leap_con:
         feature: ethernet
+        tags: hostapd
     - 8021x_ca_path_with_ifcfg_plugin:
         feature: ethernet
+        tags: hostapd
     - 8021x_teardown_eth:
         feature: ethernet
-        tags: gate wpa_supplicant
+        tags: gate wpa_supplicant hostapd
     - ethtool_features_connection:
         feature: ethernet
     - ethtool_features_fixed_connection:
@@ -2101,83 +2118,103 @@ testmapper:
         feature: tc
     - simwifi_p2p_connect:
         feature: wifi_hwsim
+        tags: hostapd
     - simwifi_p2p_client_connect:
         feature: wifi_hwsim
+        tags: hostapd
     ## @need_legacy_crypto (mschap) tests
     # group these tests to eliminate hostapd restarts
     - simwifi_wep_ttls_mschapv2_eap:
         feature: wifi_hwsim
+        tags: hostapd
     - simwifi_ttls_mschap:
         feature: wifi_hwsim
+        tags: hostapd
     - simwifi_ttls_mschapv2:
         feature: wifi_hwsim
+        tags: hostapd
     - simwifi_ttls_mschapv2_eap:
         feature: wifi_hwsim
-        tags: gate
+        tags: gate hostapd
     - simwifi_peap_mschapv2:
         feature: wifi_hwsim
+        tags: hostapd
     ## end of @need_legacy_crypto
     - simwifi_open_connect:
         feature: wifi_hwsim
+        tags: hostapd
     - simwifi_wep_ask_passwd:
         feature: wifi_hwsim
+        tags: hostapd
     - simwifi_wep_tls:
         feature: wifi_hwsim
+        tags: hostapd
     - simwifi_wep_peap_gtc:
         feature: wifi_hwsim
+        tags: hostapd
     - simwifi_wpa2psk_profile:
         feature: wifi_hwsim
         tags: gate libnl3 wpa_supplicant
     - simwifi_wpa2psk_no_profile:
         feature: wifi_hwsim
+        tags: hostapd
     - simwifi_tls_pkcs11_saved_pw:
         feature: wifi_hwsim
+        tags: hostapd
     - simwifi_tls_pkcs11_pwfile:
         feature: wifi_hwsim
     - simwifi_tls_pkcs11_nmcli_ask:
         feature: wifi_hwsim
     - simwifi_tls_pkcs11_pw_in_uri_flag_nr:
         feature: wifi_hwsim
+        tags: hostapd
     - simwifi_tls:
         feature: wifi_hwsim
-        tags: gate libnl3 wpa_supplicant
+        tags: gate libnl3 wpa_supplicant hostapd
     - simwifi_tls_bad_private_key_password:
         feature: wifi_hwsim
     - simwifi_tls_no_private_key_password:
         feature: wifi_hwsim
     - simwifi_peap_gtc:
         feature: wifi_hwsim
-        tags: gate libnl3
+        tags: gate libnl3 hostapd
     - simwifi_peap_md5:
         feature: wifi_hwsim
+        tags: hostapd
     - simwifi_ttls_pap:
         feature: wifi_hwsim
+        tags: hostapd
     - simwifi_ttls_chap:
         feature: wifi_hwsim
-        tags: gate
+        tags: gate hostapd
     - simwifi_ttls_md5:
         feature: wifi_hwsim
+        tags: hostapd
     - simwifi_ttls_gtc:
         feature: wifi_hwsim
-        tags: gate
+        tags: gate hostapd
     - simwifi_wpa3_personal:
         feature: wifi_hwsim
-        tags: wpa_supplicant
+        tags: wpa_supplicant hostapd
     - simwifi_wpa3_personal_device_connect_ask:
         feature: wifi_hwsim
     - simwifi_tls_wpa3:
         feature: wifi_hwsim
-        tags: wpa_supplicant
+        tags: wpa_supplicant hostapd
     - simwifi_owe_connect:
         feature: wifi_hwsim
+        tags: hostapd
     - simwifi_owe_device_connect:
         feature: wifi_hwsim
     - simwifi_owe_transition_connect:
         feature: wifi_hwsim
+        tags: hostapd
     - simwifi_owe_transition_connect_as_open:
         feature: wifi_hwsim
+        tags: hostapd
     - simwifi_owe_transition_device_connect:
         feature: wifi_hwsim
+        tags: hostapd
     - nmclient_get_wireless_hw_property:
         feature: wifi_hwsim
     - wifi_dbus_bitrate_property_name:
@@ -2186,7 +2223,7 @@ testmapper:
         feature: wifi_hwsim
     - nmcli_simwifi_teardown:
         feature: wifi_hwsim
-        tags: gate wpa_supplicant
+        tags: gate wpa_supplicant hostapd
     # We don't need AP anymore for the rest of tests
     - simwifi_ap_wpa_psk_method_shared:
         feature: wifi_hwsim
