@@ -199,14 +199,8 @@ def after_step(context, step):
         # This is for RedHat's STR purposes sleep
         if os.path.isfile('/tmp/nm_skip_restarts'):
             time.sleep(0.4)
-
-        if not context.nm_restarted and not context.crashed_step:
-            new_pid = nmci.lib.nm_pid()
-            if new_pid != context.nm_pid:
-                print('NM Crashed as new PID %s is not old PID %s'
-                      % (new_pid, context.nm_pid))
-                context.crashed_step = step.name
-
+        if not context.nm_restarted:
+            nmci.lib.check_crash(context, step.name);
 
 # print exception traceback
 def after_scenario(context, scenario):
@@ -246,6 +240,7 @@ def _after_scenario(context, scenario):
             os.remove('/tmp/nmtui.out')
 
     print(("NetworkManager process id after: %s (was %s)" % (nm_pid_after, context.nm_pid)))
+    context.nm_pid = nm_pid_after
 
     if scenario.status == 'failed' or DEBUG:
         nmci.lib.dump_status(context, 'After Scenario', fail_only=True)
@@ -267,10 +262,14 @@ def _after_scenario(context, scenario):
                 excepts.append(traceback.format_exc())
             print(f"  @{tag_name} ... {t_status} in {time.time() - t_start:.3f}s")
 
+    # sets crashed_step, if crash found
+    if 'no_abrt' not in scenario.tags:
+        nmci.lib.check_crash(context, 'crash outside steps (envsetup, before / after scenario...)')
+
     # check for crash reports and embed them
-    # sets crash_embeded and crashed_step, if crash found
-    nmci.lib.check_coredump(context, 'no_abrt' not in scenario.tags)
-    nmci.lib.check_faf(context, 'no_abrt' not in scenario.tags)
+    # sets crash_embeded if crash found
+    nmci.lib.check_coredump(context)
+    nmci.lib.check_faf(context)
 
     nmci.lib.process_commands(context, "after_scenario")
 

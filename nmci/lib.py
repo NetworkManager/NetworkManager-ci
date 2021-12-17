@@ -355,7 +355,7 @@ def is_dump_reported(dump_dir):
         return dump_dir + "\n" in reported_crashed_file.readlines()
 
 
-def embed_dump(context, dump_id, dump_output, caption, do_report):
+def embed_dump(context, dump_id, dump_output, caption):
     print("Attaching %s, %s" % (caption, dump_id))
     if isinstance(dump_output, str):
         mime_type = "text/plain"
@@ -365,13 +365,17 @@ def embed_dump(context, dump_id, dump_output, caption, do_report):
     context.crash_embeded = True
     with open("/tmp/reported_crashes", "a") as f:
         f.write(dump_id+"\n")
+
+
+def check_crash(context, crashed_step):
     if not context.crashed_step:
-        if context.nm_restarted:
-            if do_report:
+        new_pid = nmci.lib.nm_pid()
+        if new_pid != context.nm_pid:
+            print('NM Crashed as new PID %s is not old PID %s'
+                  % (new_pid, context.nm_pid))
+            context.crashed_step = crashed_step
+            if not context.crashed_step:
                 context.crashed_step = "crash during scenario (NM restarted)"
-        else:
-            if do_report:
-                context.crashed_step = "crash outside steps (envsetup, before / after scenario...)"
 
 
 def list_dumps(dumps_search):
@@ -381,7 +385,7 @@ def list_dumps(dumps_search):
     return out.strip('\n').split('\n')
 
 
-def check_coredump(context, do_report=True):
+def check_coredump(context):
     coredump_search = "/var/lib/systemd/coredump/*"
     list_of_dumps = list_dumps(coredump_search)
 
@@ -406,10 +410,10 @@ def check_coredump(context, do_report=True):
                 dump = nmci.command_output('echo backtrace | coredumpctl gdb %d' % (pid))
             else:
                 dump = nmci.command_output('echo backtrace | coredumpctl debug %d' % (pid))
-            embed_dump(context, dump_dir, dump, "COREDUMP", do_report)
+            embed_dump(context, dump_dir, dump, "COREDUMP")
 
 
-def check_faf(context, do_report=True):
+def check_faf(context):
     abrt_search = "/var/spool/abrt/ccpp*"
     list_of_dumps = list_dumps(abrt_search)
     for dump_dir in list_of_dumps:
@@ -436,15 +440,15 @@ def check_faf(context, do_report=True):
                     urls.append([report[1].strip(), report[0].strip()])
             dump_id = "%s-%s" % (dump_dir, last_timestamp)
             if urls:
-                embed_dump(context, dump_id, urls, "FAF", do_report)
+                embed_dump(context, dump_id, urls, "FAF")
             else:
                 if os.path.isfile("%s/backtrace" % (dump_dir)):
                     data = "Report not yet uploaded, please check FAF portal.\n\nBacktrace:\n"
                     data += utf_only_open_read("%s/backtrace" % (dump_dir))
-                    embed_dump(context, dump_id, data, "FAF", do_report)
+                    embed_dump(context, dump_id, data, "FAF")
                 else:
                     msg = "Report not yet uploaded, no backtrace yet, please check FAF portal."
-                    embed_dump(context, dump_id, msg, "FAF", do_report)
+                    embed_dump(context, dump_id, msg, "FAF")
 
 
 def reset_usb_devices():
