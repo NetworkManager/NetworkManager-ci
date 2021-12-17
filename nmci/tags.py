@@ -1375,7 +1375,7 @@ _register_tag("load_netdevsim", load_netdevsim_bs, load_netdevsim_as)
 
 def attach_hostapd_log_as(ctx, scen):
     ctx.run("echo '~~~~~~~~~~~~~~~~~~~~~~~~~~ HOSTAPD LOG ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~' > /tmp/journal-hostapd.log")
-    ctx.run("sudo journalctl -u nm-hostapd --no-pager -o cat %s >> /tmp/journal-hostapd.log" % ctx.log_cursor)
+    ctx.run("sudo journalctl -u 'nm-hostapd*' --no-pager -o cat %s >> /tmp/journal-hostapd.log" % ctx.log_cursor)
     data = nmci.lib.utf_only_open_read("/tmp/journal-hostapd.log")
     if data:
         print("Attaching hostapd log")
