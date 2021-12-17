@@ -1149,9 +1149,9 @@ Feature: NM: dracut
 
 
     @rhelver+=8.3 @fedoraver+=32
+    @ver+=1.36.0
     @dracut @long @x86_64_only
     @dracut_NM_iSCSI_ibft_table
-    @ver+=1.36.0
     Scenario: NM - dracut - NM module - iSCSI ibft.table
     * Run dracut test
       | Param  | Value                                                               |
