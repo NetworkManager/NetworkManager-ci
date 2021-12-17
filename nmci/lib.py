@@ -369,6 +369,12 @@ def embed_dump(context, dump_id, dump_output, caption):
 
 def check_crash(context, crashed_step):
     if not context.crashed_step:
+
+        # This is essentially a barrier. When it's finished, we know NM either
+        # didn't crash or is done crashing. We know for certain it is not in
+        # coma, dumping core.
+        nmci.run("nmcli general status", check=False)
+
         new_pid = nmci.lib.nm_pid()
         if new_pid != context.nm_pid:
             print('NM Crashed as new PID %s is not old PID %s'
