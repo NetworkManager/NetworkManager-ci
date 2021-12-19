@@ -400,25 +400,25 @@ function start_nm_hostapd ()
     if $DO_NAMESPACE; then
         hostapd="ip netns exec wlan_ns $hostapd"
     fi
-    for ((i=1; i<=num_ap; i++)); do
-        systemd-run --unit nm-hostapd-$i $hostapd $HOSTAPD_CFG.$i
+    for file in $HOSTAPD_CFG.*; do
+        i="${file##*.}"
+        systemd-run --unit nm-hostapd-$i $hostapd $file
     done
 }
 
 function stop_nm_hostapd () {
     for file in $HOSTAPD_CFG.*; do
-      i="${file##*.}"
-      if systemctl --quiet is-failed nm-hostapd-$i; then
-          systemctl reset-failed nm-hostapd-$i
-      fi
-      systemctl stop nm-hostapd-$i
+        i="${file##*.}"
+        if systemctl --quiet is-failed nm-hostapd-$i; then
+            systemctl reset-failed nm-hostapd-$i
+        fi
+        systemctl stop nm-hostapd-$i
     done
 }
 
 function check_nm_hostapd () {
     num_conf=$(ls $HOSTAPD_CFG.* | wc -l)
-    services="$(systemctl list-units | grep -o 'nm-hostapd-[^.]*\.service')"
-    num_serv=$( echo "$services" | wc -l)
+    num_serv="$(systemctl list-units | grep -o 'nm-hostapd-[^.]*\.service' | wc -l)"
     if [ "$num_conf" != "$num_serv" -o "$num_conf" = 0 ]; then
         echo "Not OK!! ($num_conf AP configs, $num_serv services)"
         return 1
@@ -442,8 +442,7 @@ function wireless_hostapd_check ()
         need_setup=1
     fi
     echo "* Checking dnsmasqs"
-    pid=$(cat /tmp/dnsmasq_wireless.pid)
-    if ! pidof dnsmasq |grep -q $pid; then
+    if ! pkill -0 -F /tmp/dnsmasq_wireless.pid; then
         echo "Not OK!!"
         need_setup=1
     fi
@@ -504,9 +503,14 @@ function wireless_hostapd_check ()
         fi
         restart_services
         stop_nm_hostapd
-        pkill -F /tmp/dnsmasq_wireless.pid
-        start_ap
-
+        start_nm_hostapd
+        sleep 5
+        if ! check_nm_hostapd; then
+          echo "Not OK!! - hostapd restart failed, doing teardown"
+          rm -rf /tmp/nm_wifi_supp_configured
+          wireless_hostapd_teardown
+          return 1
+        fi
     fi
 
     return 0
@@ -598,8 +602,7 @@ function start_ap () {
     start_nm_hostapd
 
     start_dnsmasq
-    pid=$(cat /tmp/dnsmasq_wireless.pid)
-    if ! pidof dnsmasq | grep -q $pid; then
+    if ! pkill -0 -F /tmp/dnsmasq_wireless.pid; then
         echo "Error. Cannot start dnsmasq as DHCP server." >&2
         return 1
     fi
