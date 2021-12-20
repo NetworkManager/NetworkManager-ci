@@ -1052,6 +1052,7 @@ def simwifi_wpa2_bs(ctx, scen):
         print("Skipping as not on x86_64")
         sys.exit(77)
 
+
 def simwifi_wpa2_as(ctx, scen):
     ctx.run("nmcli con del wpa2-eap wifi")
 
@@ -1375,7 +1376,20 @@ _register_tag("load_netdevsim", load_netdevsim_bs, load_netdevsim_as)
 
 def attach_hostapd_log_as(ctx, scen):
     ctx.run("echo '~~~~~~~~~~~~~~~~~~~~~~~~~~ HOSTAPD LOG ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~' > /tmp/journal-hostapd.log")
-    ctx.run("sudo journalctl -u 'nm-hostapd*' --no-pager -o cat %s >> /tmp/journal-hostapd.log" % ctx.log_cursor)
+    confs, _, _ = ctx.run("ls /etc/hostapd/wire* | sort -V")
+    services = []
+    for conf in confs.strip("\n").split("\n"):
+        ext = conf.split(".")[-1]
+        if ext == "conf":
+            services.append("nm-hostapd")
+        elif len(ext):
+            services.append("nm-hostapd-" + ext)
+    if len(services) == 0:
+        ctx.run("echo 'did not find any nm-hostapd service!' >> /tmp/journal-hostapd.log")
+    for service in services:
+        ctx.run("echo -e '\n\n~~~ %s ~~~' >> /tmp/journal-hostapd.log" % service)
+        ctx.run("journalctl -u %s --no-pager -o cat %s >> /tmp/journal-hostapd.log" %
+                (service, ctx.log_cursor_before_tags))
     data = nmci.lib.utf_only_open_read("/tmp/journal-hostapd.log")
     if data:
         print("Attaching hostapd log")
@@ -1387,7 +1401,8 @@ _register_tag("attach_hostapd_log", None, attach_hostapd_log_as)
 
 def attach_wpa_supplicant_log_as(ctx, scen):
     ctx.run("echo '~~~~~~~~~~~~~~~~~~~~~~~~~~ WPA_SUPPLICANT LOG ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~' > /tmp/journal-wpa_supplicant.log")
-    ctx.run("journalctl -u wpa_supplicant --no-pager -o cat %s >> /tmp/journal-wpa_supplicant.log" % ctx.log_cursor)
+    ctx.run("journalctl -u wpa_supplicant --no-pager -o short-unix --no-hostaname %s >> /tmp/journal-wpa_supplicant.log" %
+            ctx.log_cursor_before_tags)
     data = nmci.lib.utf_only_open_read("/tmp/journal-wpa_supplicant.log")
     if data:
         print("Attaching wpa_supplicant log")
@@ -2793,6 +2808,7 @@ _register_tag("restore_rp_filters", None, restore_rp_filters_as)
 def remove_ctcdevice_bs(ctx, scen):
     ctx.run("cio_ignore -R")
     time.sleep(1)
+
 
 def remove_ctcdevice_as(ctx, scen):
     ctx.run("""znetconf -r $(znetconf -c |grep CTC |awk 'BEGIN { FS = "," } ; { print $1 }') -n""")

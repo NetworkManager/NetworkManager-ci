@@ -792,7 +792,6 @@ def setup_hostapd_wireless(context, args=[]):
         context.run("[ -x /usr/sbin/hostapd ] || (yum -y install hostapd; sleep 10)")
     args = " ".join(args)
     if context.command_code("sh prepare/hostapd_wireless.sh contrib/8021x/certs " + args) != 0:
-        context.run("sh prepare/hostapd_wireless.sh teardown")
         assert False, "hostapd_wireless setup failed"
     if not os.path.isfile('/tmp/wireless_hostapd_check.txt'):
         wifi_rescan(context)

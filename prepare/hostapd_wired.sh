@@ -119,7 +119,7 @@ function start_nm_hostapd ()
         fi
     fi
 
-    local hostapd="hostapd -ddd $HOSTAPD_CFG"
+    local hostapd="hostapd -ddd -t $HOSTAPD_CFG"
     systemd-run --unit nm-hostapd $hostapd
     sleep 5
 }
@@ -270,7 +270,7 @@ function wired_hostapd_teardown ()
     ip link del test8X_bridge
     nmcli con del DHCP_test8Y DHCP_test8Z test8X_bridge
     rm -rf /tmp/nm_8021x_configured
-
+    rm -rf $HOSTAPD_CFG
 }
 
 if [ "$1" != "teardown" ]; then

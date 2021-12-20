@@ -396,7 +396,7 @@ function replace_MAC_in_cfg () {
 function start_nm_hostapd ()
 {
     replace_MAC_in_cfg
-    local hostapd="hostapd -dd -t "
+    local hostapd="hostapd -ddd -t "
     if $DO_NAMESPACE; then
         hostapd="ip netns exec wlan_ns $hostapd"
     fi
@@ -418,8 +418,10 @@ function stop_nm_hostapd () {
 
 function check_nm_hostapd () {
     num_conf=$(ls $HOSTAPD_CFG.* | wc -l)
-    num_serv="$(systemctl list-units | grep -o 'nm-hostapd-[^.]*\.service' | wc -l)"
-    if [ "$num_conf" != "$num_serv" -o "$num_conf" = 0 ]; then
+    services="$(systemctl list-units | grep -o 'nm-hostapd-[^.]*\.service')"
+    num_serv="$(echo "$services" | grep . | wc -l)"
+    echo "-- found ($num_conf AP configs, $num_serv services)"
+    if [ "$num_conf" != "$num_serv" -o "$num_conf" == 0 ]; then
         echo "Not OK!! ($num_conf AP configs, $num_serv services)"
         return 1
     fi
@@ -629,8 +631,9 @@ function wireless_hostapd_teardown ()
     rm -rf /etc/NetworkManager/conf.d/99-wifi.conf
     systemctl reload NetworkManager
     rm -rf /tmp/nm_wifi_supp_configured
-
+    rm -rf $HOSTAPD_CFG.*
 }
+
 if [ "$1" == "teardown" ]; then
     wireless_hostapd_teardown
     echo "System's state returned prior to hostapd's config."

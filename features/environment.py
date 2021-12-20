@@ -71,6 +71,7 @@ def _before_scenario(context, scenario):
     context.nm_pid = nmci.lib.nm_pid()
     context.crashed_step = False
     context.log_cursor = ""
+    context.log_cursor_before_tags = nmci.lib.new_log_cursor()
     context.arch = nmci.command_output("uname -p").strip()
     context.IS_NMTUI = "nmtui" in scenario.effective_tags
     context.rh_release = nmci.command_output("cat /etc/redhat-release")
