@@ -1375,6 +1375,8 @@ _register_tag("load_netdevsim", load_netdevsim_bs, load_netdevsim_as)
 
 
 def attach_hostapd_log_as(ctx, scen):
+    if scen.status == 'failed':
+        return
     ctx.run("echo '~~~~~~~~~~~~~~~~~~~~~~~~~~ HOSTAPD LOG ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~' > /tmp/journal-hostapd.log")
     confs, _, _ = ctx.run("ls /etc/hostapd/wire* | sort -V")
     services = []
@@ -1400,6 +1402,8 @@ _register_tag("attach_hostapd_log", None, attach_hostapd_log_as)
 
 
 def attach_wpa_supplicant_log_as(ctx, scen):
+    if scen.status == 'failed':
+        return
     ctx.run("echo '~~~~~~~~~~~~~~~~~~~~~~~~~~ WPA_SUPPLICANT LOG ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~' > /tmp/journal-wpa_supplicant.log")
     ctx.run("journalctl -u wpa_supplicant --no-pager -o short-unix --no-hostaname %s >> /tmp/journal-wpa_supplicant.log" %
             ctx.log_cursor_before_tags)
