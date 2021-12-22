@@ -420,11 +420,14 @@ function check_nm_hostapd () {
     num_conf=$(ls $HOSTAPD_CFG.* | wc -l)
     services="$(systemctl list-units | grep -o 'nm-hostapd-[^.]*\.service')"
     num_serv="$(echo "$services" | grep . | wc -l)"
-    echo "-- found ($num_conf AP configs, $num_serv services)"
     if [ "$num_conf" != "$num_serv" -o "$num_conf" == 0 ]; then
         echo "Not OK!! ($num_conf AP configs, $num_serv services)"
         return 1
     fi
+
+    # skip active service check
+    return 0
+
     for serv in $services; do
         if ! systemctl --quiet is-active "$serv"; then
           echo "Not OK!! service $serv not running"
