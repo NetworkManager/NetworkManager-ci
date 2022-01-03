@@ -5,26 +5,17 @@ Feature: WIFI TUI tests
   * Prepare virtual terminal environment
 
 
-    # no wpa3 before 8.2
-    @rhelver-=8.1 @fedoraver+=32
+    @rhelver-=8 @fedoraver-=35
     @simwifi @attach_hostapd_log @attach_wpa_supplicant_log
     @nmtui_simwifi_see_all_networks
     Scenario: nmtui - wifi_hwsim - see all networks
     * Start nmtui
     * Choose to "Activate a connection" from main screen
-    Then Connections "open, wep ,wep-2,dynwep,wpa1-eap,wpa1-psk,wpa2-eap,wpa2-psk" are in the list
+    Then Connections "open,dynwep,wep,wpa1-eap,wpa1-psk,wpa2-eap,wpa2-psk,wpa3" are in the list
 
 
-    @rhelver+=8.2 @rhelver-=8 @fedoraver+=32
-    @simwifi @attach_hostapd_log @attach_wpa_supplicant_log
-    @nmtui_simwifi_see_all_networks
-    Scenario: nmtui - wifi_hwsim - see all networks
-    * Start nmtui
-    * Choose to "Activate a connection" from main screen
-    Then Connections "open, wep ,wep-2,dynwep,wpa1-eap,wpa1-psk,wpa2-eap,wpa2-psk,wpa3" are in the list
-
-
-    @rhelver+=8.2 @rhelver+=9 @fedoraver+=32
+    # No WEP in EL9
+    @rhelver+=9 @fedoraver+=36
     @simwifi @attach_hostapd_log @attach_wpa_supplicant_log
     @nmtui_simwifi_see_all_networks
     Scenario: nmtui - wifi_hwsim - see all networks
