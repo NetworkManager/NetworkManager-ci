@@ -45,7 +45,7 @@ node('cico-workspace') {
             TD = TRIGGER_DATA.bytes.encodeBase64().toString()
             println("Preparing commands")
             install = "yum install -y git python3 wget python3-pip"
-            install2 = "python3 -m pip install python-gitlab pyyaml"
+            install2 = "python3 -m pip install python-gitlab pyyaml==5.4.1"
             clone = "git clone https://gitlab.freedesktop.org/NetworkManager/NetworkManager-ci.git; cd NetworkManager-ci; "
             if (MERGE_REQUEST_ID) {
                 clone += " git fetch origin merge-requests/${MERGE_REQUEST_ID}/head:${TEST_BRANCH} ;"
