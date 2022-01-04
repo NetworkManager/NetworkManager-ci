@@ -71,7 +71,7 @@ def write_copr(nm_dir):
     host = "https://copr-be.cloud.fedoraproject.org"
     dirs = "results/networkmanager"
     nm_dir = nm_dir
-    centos_dir = "centos-stream-%s-x86_64" %%get_centos_release()
+    centos_dir = "centos-stream-%s-x86_64" %get_centos_release()
     baseurl = host+"/"+dirs+"/"+nm_dir+"/"+centos_dir+"/"
 
     if not check_build(baseurl):
