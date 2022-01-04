@@ -258,10 +258,10 @@ def process_request(data, content):
         comment = gt.comment
         if comment.lower() == 'rebuild':
             execute_build(gt, content)
-        elif comment.lower() == 'rebuild centos8':
-            execute_build(gt, content, os_override='8')
-        elif comment.lower() == 'rebuild c8':
-            execute_build(gt, content, os_override='8')
+        elif comment.lower() == 'rebuild centos9-stream':
+            execute_build(gt, content, os_override='9-stream')
+        elif comment.lower() == 'rebuild c9s':
+            execute_build(gt, content, os_override='9-stream')
         elif comment.lower() == 'rebuild centos8-stream':
             execute_build(gt, content)
         elif comment.lower() == 'rebuild c8s':

@@ -51,11 +51,13 @@ def check_build(baseurl):
             logging.debug("Copr build succesfull")
             return True
 
+def get_centos_release ():
+    return open('/etc/redhat-release','r').read().split('release ')[1].strip()
 
 def add_epel_crb_repos():
     # Add some extra repos
     epel_url = "https://dl.fedoraproject.org/pub/epel/"
-    rpm = "epel-release-latest-8.noarch.rpm"
+    rpm = "epel-release-latest-%s.noarch.rpm" %get_centos_release()
     subprocess.call("dnf -y install %s%s" % (epel_url, rpm), shell=True)
     # For some reason names can differ, so enable both powertools
     subprocess.call("yum install -y 'dnf-command(config-manager)'", shell=True)
@@ -69,7 +71,7 @@ def write_copr(nm_dir):
     host = "https://copr-be.cloud.fedoraproject.org"
     dirs = "results/networkmanager"
     nm_dir = nm_dir
-    centos_dir = "centos-stream-8-x86_64"
+    centos_dir = "centos-stream-%s-x86_64" %%get_centos_release()
     baseurl = host+"/"+dirs+"/"+nm_dir+"/"+centos_dir+"/"
 
     if not check_build(baseurl):
