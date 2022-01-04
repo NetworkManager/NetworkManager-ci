@@ -8,7 +8,6 @@ Feature: nmcli: ipv4
     # Scenario:
 
 
-
     @con_ipv4_remove
     @ipv4_method_static_no_IP
     Scenario: nmcli - ipv4 - method - static without IP
