@@ -8,6 +8,7 @@ Feature: nmcli - wifi
     # Scenario:
 
 
+
     @ver+=1.9.1 @fedoraver+=31
     @simwifi @attach_hostapd_log @attach_wpa_supplicant_log @simwifi_open
     @simwifi_open_connect
