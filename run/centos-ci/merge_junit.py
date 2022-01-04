@@ -8,7 +8,8 @@ for file_name in sys.argv[1:]:
         with open(file_name) as f:
             junit = ET.fromstring(f.read())
             test_count += int(junit.attrib["tests"])
-            testsuite.extend(junit.getchildren())
+            #testsuite.extend(junit.getchildren())
+            testsuite.extend(list(junit))
     except Exception as e:
         sys.stderr.write("error while file: " + file_name + "\n" + str(e))
 
