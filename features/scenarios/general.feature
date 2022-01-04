@@ -991,6 +991,7 @@ Feature: nmcli - general
     @rhbz1083683 @rhbz1256772 @rhbz1260243
     @restart_if_needed @teardown_testveth @runonce
     @run_once_new_connection
+    @ver-=1.34
     Scenario: NM - general - run once and quit start new ipv4 and ipv6 connection
     * Prepare simulated test "testG" device
     * Add a new connection of type "ethernet" and options "ifname testG con-name con_general ipv4.addresses 1.2.3.4/24 ipv4.may-fail no ipv6.addresses 1::128/128 ipv6.may-fail no connection.autoconnect yes"
