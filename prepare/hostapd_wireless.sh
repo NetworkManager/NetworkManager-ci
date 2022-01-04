@@ -32,16 +32,12 @@ function start_dnsmasq ()
     $dnsmasq\
     --pid-file=/tmp/dnsmasq_wireless.pid\
     --port=63\
-    --conf-file\
     --no-hosts\
     --interface=wlan*\
     --except-interface=wlan0\
-    --clear-on-reload\
-    --strict-order\
-    --listen-address=10.0.254.1\
-    --dhcp-range=10.0.254.$((num)),10.0.254.100,60m\
+    --dhcp-range=10.0.254.150,10.0.254.205,60m\
     --dhcp-option=option:router,10.0.254.1\
-    --dhcp-leasefile=/var/lib/dnsmasq/hostapd.leases \
+    --dhcp-leasefile=/var/lib/dnsmasq/hostapd.leases\
     --dhcp-lease-max=50
 }
 
@@ -49,63 +45,65 @@ function ver_gte() {
     test "$1" = "`echo -e "$1\n$2" | sort -V | tail -n1`"
 }
 
-function write_hostapd_cfg ()
-{
-    rm -rf $HOSTAPD_CFG.*
-    num_ap=0
-    echo "#open
-interface=wlan$((++num_ap))
+function hostapd_conf_header() {
+  echo "interface=wlan$num_ap
 driver=nl80211
 ctrl_interface=/var/run/hostapd$num_ap
 ctrl_interface_group=0
-ssid=open
 hw_mode=g
-channel=6
+channel=1
+country_code=EN
+"
+}
+
+function write_hostapd_cfg ()
+{
+    rm -rf $HOSTAPD_CFG.*
+    num_ap=1
+    echo "#open
+$(hostapd_conf_header)
+ssid=open
 auth_algs=1
 wpa=0
 " > $HOSTAPD_CFG.$num_ap
 
 
 if ! grep -F 'release 9' /etc/redhat-release; then
+  ((++num_ap))
   echo "#pskwep
-interface=wlan$((++num_ap))
-driver=nl80211
-ctrl_interface=/var/run/hostapd$num_ap
-ctrl_interface_group=0
-logger_syslog=-1
-logger_syslog_level=0
-logger_stdout=0
-logger_stdout_level=4
+$(hostapd_conf_header)
 ssid=wep
-channel=1
-hw_mode=g
 auth_algs=3
 ignore_broadcast_ssid=0
+wpa=0
 wep_default_key=0
 wep_key0=\"abcde\"
 wep_key_len_broadcast=\"5\"
 wep_key_len_unicast=\"5\"
-wep_rekey_period=300
 " > $HOSTAPD_CFG.$num_ap
 
-    echo "#dynwep
-interface=wlan$((++num_ap))
-driver=nl80211
-ctrl_interface=/var/run/hostapd$num_ap
-ctrl_interface_group=0
-logger_syslog=-1
-logger_syslog_level=0
-logger_stdout=0
-logger_stdout_level=4
+  ((++num_ap))
+  echo "#pskwep_len13
+$(hostapd_conf_header)
+ssid=wep-2
+auth_algs=3
+ignore_broadcast_ssid=0
+wep_default_key=0
+wep_key0=\"testing123456\"
+wep_key_len_broadcast=\"13\"
+wep_key_len_unicast=\"13\"
+" > $HOSTAPD_CFG.$num_ap
+
+  ((++num_ap))
+  echo "#dynwep
+$(hostapd_conf_header)
 ssid=dynwep
-channel=1
-hw_mode=g
 auth_algs=3
 ignore_broadcast_ssid=0
 wep_default_key=0
 wep_key0=\"abcde\"
-wep_key_len_broadcast=\"5\"
-wep_key_len_unicast=\"5\"
+wep_key_len_broadcast=5
+wep_key_len_unicast=5
 wep_rekey_period=300
 ieee8021x=1
 eapol_version=1
@@ -122,14 +120,10 @@ private_key_passwd=redhat
 
 fi
 
-    echo "#wpa2
-interface=wlan$((++num_ap))
-driver=nl80211
-ctrl_interface=/var/run/hostapd$num_ap
-ctrl_interface_group=0
+  ((++num_ap))
+  echo "#wpa2
+$(hostapd_conf_header)
 ssid=wpa2-eap
-hw_mode=g
-channel=7
 auth_algs=3
 wpa=3
 ieee8021x=1
@@ -148,14 +142,10 @@ private_key=$HOSTAPD_KEYS_PATH/hostapd.key.enc.pem
 private_key_passwd=redhat
 " > $HOSTAPD_CFG.$num_ap
 
-    echo "#wpa2_pskonly
-interface=wlan$((++num_ap))
-driver=nl80211
-ctrl_interface=/var/run/hostapd$num_ap
-ctrl_interface_group=0
+  ((++num_ap))
+  echo "#wpa2_pskonly
+$(hostapd_conf_header)
 ssid=wpa2-psk
-hw_mode=g
-channel=7
 auth_algs=3
 wpa=3
 wpa_key_mgmt=WPA-PSK
@@ -163,14 +153,10 @@ rsn_pairwise=CCMP
 wpa_passphrase=secret123
 " > $HOSTAPD_CFG.$num_ap
 
-    echo "#wpa1eap
-interface=wlan$((++num_ap))
-driver=nl80211
-ctrl_interface=/var/run/hostapd$num_ap
-ctrl_interface_group=0
+  ((++num_ap))
+  echo "#wpa1eap
+$(hostapd_conf_header)
 ssid=wpa1-eap
-hw_mode=g
-channel=7
 auth_algs=3
 wpa=1
 ieee8021x=1
@@ -188,14 +174,10 @@ private_key=$HOSTAPD_KEYS_PATH/hostapd.key.enc.pem
 private_key_passwd=redhat
 " > $HOSTAPD_CFG.$num_ap
 
-    echo "#wpa1_pskonly
-interface=wlan$((++num_ap))
-driver=nl80211
-ctrl_interface=/var/run/hostapd$num_ap
-ctrl_interface_group=0
+  ((++num_ap))
+  echo "#wpa1_pskonly
+$(hostapd_conf_header)
 ssid=wpa1-psk
-hw_mode=g
-channel=7
 auth_algs=3
 wpa=1
 wpa_key_mgmt=WPA-PSK
@@ -208,15 +190,10 @@ wpa_ver=$(rpm -q wpa_supplicant)
 wpa_ver=${wpa_ver#wpa_supplicant-}
 
 if ver_gte $wpa_ver 2.9; then
-echo "
-#wpa3-sae
-interface=wlan$((++num_ap))
-driver=nl80211
-ctrl_interface=/var/run/hostapd$num_ap
-ctrl_interface_group=0
+  ((++num_ap))
+  echo "#wpa3-sae
+$(hostapd_conf_header)
 ssid=wpa3-psk
-hw_mode=g
-channel=7
 auth_algs=3
 wpa=2
 wpa_key_mgmt=SAE
@@ -227,14 +204,10 @@ ieee80211w=2
 " > $HOSTAPD_CFG.$num_ap
 
 # we do not have hostapd builds supporting this yet
-#    echo "#wpa3 H2E only
-#interface=wlan$((++num_ap))
-#driver=nl80211
-#ctrl_interface=/var/run/hostapd$num_ap
-#ctrl_interface_group=0
+#  ((++num_ap))
+#  echo "#wpa3 H2E only
+#$(hostapd_conf_header)
 #ssid=wpa3-h2e
-#hw_mode=g
-#channel=7
 #auth_algs=3
 #wpa=2
 #wpa_key_mgmt=SAE
@@ -250,18 +223,11 @@ fi
 hostapd_ver=$(rpm -q hostapd)
 hostapd_ver=${hostapd_ver#hostapd-}
 # There is no wpa_supplicant support in Fedoras
-if ver_gte $hostapd_ver 2.9-6; then
-    echo "We are good for owe"
-fi
 if ver_gte $hostapd_ver 2.9-6 && grep -q -e 'release \(8\|9\)' /etc/redhat-release; then
-    echo "#wpa3eap
-interface=wlan$((++num_ap))
-driver=nl80211
-ctrl_interface=/var/run/hostapd$num_ap
-ctrl_interface_group=0
+  ((++num_ap))
+  echo "#wpa3eap
+$(hostapd_conf_header)
 ssid=wpa3-eap
-hw_mode=g
-channel=7
 auth_algs=3
 wpa=2
 ieee8021x=1
@@ -282,39 +248,28 @@ group_cipher=GCMP-256
 group_mgmt_cipher=BIP-GMAC-256
 " > $HOSTAPD_CFG.$num_ap
 
-    echo "#wpa3_owe
-interface=wlan$((++num_ap))
-driver=nl80211
-ctrl_interface=/var/run/hostapd$num_ap
-ctrl_interface_group=0
+  ((++num_ap))
+  echo "#wpa3_owe
+$(hostapd_conf_header)
 ssid=wpa3-owe
-hw_mode=g
-channel=7
 ieee80211w=2
 wpa=2
 wpa_key_mgmt=OWE
 rsn_pairwise=CCMP
 " > $HOSTAPD_CFG.$num_ap
 
-    echo "#wpa3_owe_transit
-interface=wlan$((++num_ap))
-driver=nl80211
-ctrl_interface=/var/run/hostapd$num_ap
-ctrl_interface_group=0
-hw_mode=g
+  ((++num_ap))
+  echo "#wpa3_owe_transit
+$(hostapd_conf_header)
 ssid=wpa3-owe-transition
 owe_transition_bssid=MAC_wlan$((num_ap+1))
 owe_transition_ssid=\"wpa3-owe-hidden\"
 " > $HOSTAPD_CFG.$num_ap
 
-    echo "#wpa3_oweh
-interface=wlan$((++num_ap))
-driver=nl80211
-ctrl_interface=/var/run/hostapd$num_ap
-ctrl_interface_group=0
+  ((++num_ap))
+  echo "#wpa3_oweh
+$(hostapd_conf_header)
 ssid=wpa3-owe-hidden
-hw_mode=g
-channel=7
 ieee80211w=2
 wpa=2
 wpa_key_mgmt=OWE
@@ -322,23 +277,17 @@ rsn_pairwise=CCMP
 ignore_broadcast_ssid=1
 owe_transition_bssid=MAC_wlan$((num_ap-1))
 owe_transition_ssid=\"wpa3-owe-transition\"
-
 " > $HOSTAPD_CFG.$num_ap
 fi
 
 if ((MANY_AP)); then
   while ((num_ap < MANY_AP)); do
+    ((++num_ap))
     echo "#MANY_AP
-interface=wlan$((++num_ap))
-driver=nl80211
-ctrl_interface=/var/run/hostapd$num_ap
-ctrl_interface_group=0
+$(hostapd_conf_header)
 ssid=open_$num_ap
-channel=1
-hw_mode=g
 auth_algs=1
 wpa=0
-
 " > $HOSTAPD_CFG.$num_ap
   done
 fi
@@ -396,7 +345,7 @@ function replace_MAC_in_cfg () {
 function start_nm_hostapd ()
 {
     replace_MAC_in_cfg
-    local hostapd="hostapd -ddd -t "
+    local hostapd="hostapd -dd -t "
     if $DO_NAMESPACE; then
         hostapd="ip netns exec wlan_ns $hostapd"
     fi
@@ -509,13 +458,14 @@ function wireless_hostapd_check ()
         restart_services
         stop_nm_hostapd
         start_nm_hostapd
-        sleep 5
         if ! check_nm_hostapd; then
           echo "Not OK!! - hostapd restart failed, doing teardown"
           rm -rf /tmp/nm_wifi_supp_configured
           wireless_hostapd_teardown
           return 1
         fi
+    else
+        touch /tmp/wireless_hostapd_check.txt
     fi
 
     return 0
@@ -586,7 +536,6 @@ function wireless_hostapd_setup ()
     rm -rf /tmp/wireless_hostapd_check.txt
     if  wireless_hostapd_check; then
         echo "OK. Configuration has already been done."
-        touch /tmp/wireless_hostapd_check.txt
         return 0
     fi
 
@@ -611,9 +560,6 @@ function start_ap () {
         echo "Error. Cannot start dnsmasq as DHCP server." >&2
         return 1
     fi
-
-    # do not lower this as first test may fail then
-    sleep 5
 
     if ! check_nm_hostapd; then
         echo "unable to start hostapd"

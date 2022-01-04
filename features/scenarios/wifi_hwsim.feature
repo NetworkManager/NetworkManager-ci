@@ -21,7 +21,7 @@ Feature: nmcli - wifi
 
 
     @ver+=1.9.1 @fedoraver+=31 @rhelver-=8
-    @attach_hostapd_log @attach_wpa_supplicant_log @simwifi_pskwep
+    @simwifi @attach_hostapd_log @attach_wpa_supplicant_log @simwifi_pskwep
     @simwifi_wep_ask_passwd
     Scenario: nmcli - wifi - connect WEP network asking for password
     Given "wep" is visible with command "nmcli -f SSID device wifi list" in "60" seconds

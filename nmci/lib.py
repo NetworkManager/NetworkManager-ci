@@ -777,7 +777,7 @@ def wifi_rescan(context):
     print("Commencing wireless network rescan")
     out = context.command_output("time sudo nmcli dev wifi list --rescan yes").strip()
     while 'wpa2-psk' not in out:
-        time.sleep(5)
+        time.sleep(1)
         print("* still not seeing wpa2-psk")
         out = context.command_output("time sudo nmcli dev wifi list --rescan yes").strip()
 
