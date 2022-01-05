@@ -219,7 +219,11 @@ install_el9_packages () {
     # Install kernel-modules-internal for mac80211_hwsim
     VER=$(rpm -q --queryformat '%{VERSION}' kernel)
     REL=$(rpm -q --queryformat '%{RELEASE}' kernel)
-    dnf -4 -y install http://download.eng.bos.redhat.com/brewroot/vol/rhel-9/packages/kernel/$VER/$REL/$(arch)/kernel-modules-internal-$VER-$REL.$(arch).rpm
+    if grep Red /etc/redhat-release; then
+        dnf -4 -y install http://download.eng.bos.redhat.com/brewroot/vol/rhel-9/packages/kernel/$VER/$REL/$(arch)/kernel-modules-internal-$VER-$REL.$(arch).rpm
+    else
+        dnf -4 -y install https://kojihub.stream.centos.org/kojifiles/packages/kernel/$VER/$REL/$(arch)/kernel-modules-internal-$VER-$REL.$(arch).rpm
+    fi
 
     # We still need pptp and pptpd in epel to be packaged
     # https://bugzilla.redhat.com/show_bug.cgi?id=1810542
