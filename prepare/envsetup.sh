@@ -255,8 +255,11 @@ install_el9_packages () {
     # dracut testing
     dnf -4 -y install qemu-kvm lvm2 mdadm cryptsetup iscsi-initiator-utils nfs-utils radvd gdb dhcp-client
     # perl-Config-Genral not installable on s390x and needed by scsi-target-utils
-    dnf -4 -y install http://download.eng.bos.redhat.com/brewroot/vol/rhel-9/packages/perl-Config-General/2.63/13.el9/noarch/perl-Config-General-2.63-13.el9.noarch.rpm
-    dnf -4 -y install https://kojipkgs.fedoraproject.org//packages/scsi-target-utils/1.0.79/2.fc33/$(arch)/scsi-target-utils-1.0.79-2.fc33.$(arch).rpm
+    dnf -4 -y install \
+        qemu-kvm lvm2 mdadm cryptsetup iscsi-initiator-utils nfs-utils radvd gdb dhcp-client \
+        https://kojipkgs.fedoraproject.org//packages/scsi-target-utils/1.0.79/3.fc34/$(arch)/scsi-target-utils-1.0.79-3.fc34.$(arch).rpm \
+        https://kojipkgs.fedoraproject.org//packages/perl-Config-General/2.63/14.fc34/noarch/perl-Config-General-2.63-14.fc34.noarch.rpm
+
 
     install_plugins_dnf
 
