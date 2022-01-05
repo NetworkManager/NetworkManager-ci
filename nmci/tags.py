@@ -1375,42 +1375,40 @@ _register_tag("load_netdevsim", load_netdevsim_bs, load_netdevsim_as)
 
 
 def attach_hostapd_log_as(ctx, scen):
-    if scen.status != 'failed':
-        return
-    ctx.run("echo '~~~~~~~~~~~~~~~~~~~~~~~~~~ HOSTAPD LOG ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~' > /tmp/journal-hostapd.log")
-    confs, _, _ = ctx.run("ls /etc/hostapd/wire* | sort -V")
-    services = []
-    for conf in confs.strip("\n").split("\n"):
-        ext = conf.split(".")[-1]
-        if ext == "conf":
-            services.append("nm-hostapd")
-        elif len(ext):
-            services.append("nm-hostapd-" + ext)
-    if len(services) == 0:
-        ctx.run("echo 'did not find any nm-hostapd service!' >> /tmp/journal-hostapd.log")
-    for service in services:
-        ctx.run("echo -e '\n\n~~~ %s ~~~' >> /tmp/journal-hostapd.log" % service)
-        ctx.run("journalctl -u %s --no-pager -o cat %s >> /tmp/journal-hostapd.log" %
-                (service, ctx.log_cursor_before_tags))
-    data = nmci.lib.utf_only_open_read("/tmp/journal-hostapd.log")
-    if data:
-        print("Attaching hostapd log")
-        ctx.embed('text/plain', data, caption="HOSTAPD")
+    if scen.status == 'failed' or ctx.DEBUG:
+        ctx.run("echo '~~~~~~~~~~~~~~~~~~~~~~~~~~ HOSTAPD LOG ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~' > /tmp/journal-hostapd.log")
+        confs, _, _ = ctx.run("ls /etc/hostapd/wire* | sort -V")
+        services = []
+        for conf in confs.strip("\n").split("\n"):
+            ext = conf.split(".")[-1]
+            if ext == "conf":
+                services.append("nm-hostapd")
+            elif len(ext):
+                services.append("nm-hostapd-" + ext)
+        if len(services) == 0:
+            ctx.run("echo 'did not find any nm-hostapd service!' >> /tmp/journal-hostapd.log")
+        for service in services:
+            ctx.run("echo -e '\n\n~~~ %s ~~~' >> /tmp/journal-hostapd.log" % service)
+            ctx.run("journalctl -u %s --no-pager -o short-unix --no-hostname %s >> /tmp/journal-hostapd.log" %
+                    (service, ctx.log_cursor_before_tags))
+        data = nmci.lib.utf_only_open_read("/tmp/journal-hostapd.log")
+        if data:
+            print("Attaching hostapd log")
+            ctx.embed('text/plain', data, caption="HOSTAPD")
 
 
 _register_tag("attach_hostapd_log", None, attach_hostapd_log_as)
 
 
 def attach_wpa_supplicant_log_as(ctx, scen):
-    if scen.status != 'failed':
-        return
-    ctx.run("echo '~~~~~~~~~~~~~~~~~~~~~~~~~~ WPA_SUPPLICANT LOG ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~' > /tmp/journal-wpa_supplicant.log")
-    ctx.run("journalctl -u wpa_supplicant --no-pager -o short-unix --no-hostaname %s >> /tmp/journal-wpa_supplicant.log" %
-            ctx.log_cursor_before_tags)
-    data = nmci.lib.utf_only_open_read("/tmp/journal-wpa_supplicant.log")
-    if data:
-        print("Attaching wpa_supplicant log")
-        ctx.embed('text/plain', data, caption="WPA_SUP")
+    if scen.status == 'failed' or ctx.DEBUG:
+        ctx.run("echo '~~~~~~~~~~~~~~~~~~~~~~~~~~ WPA_SUPPLICANT LOG ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~' > /tmp/journal-wpa_supplicant.log")
+        ctx.run("journalctl -u wpa_supplicant --no-pager -o short-unix --no-hostname %s >> /tmp/journal-wpa_supplicant.log" %
+                ctx.log_cursor_before_tags)
+        data = nmci.lib.utf_only_open_read("/tmp/journal-wpa_supplicant.log")
+        if data:
+            print("Attaching wpa_supplicant log")
+            ctx.embed('text/plain', data, caption="WPA_SUP")
 
 
 _register_tag("attach_wpa_supplicant_log", None, attach_wpa_supplicant_log_as)

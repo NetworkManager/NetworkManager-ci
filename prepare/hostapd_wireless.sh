@@ -53,6 +53,11 @@ ctrl_interface_group=0
 hw_mode=g
 channel=1
 country_code=EN
+logger_syslog=0
+# keep loglevel 3 (WARNING), when launched with -dd it subtratcs to 1 (DEBUG)
+logger_syslog_level=3
+logger_stdout=-1
+logger_stdout_level=3
 "
 }
 
@@ -78,8 +83,6 @@ ignore_broadcast_ssid=0
 wpa=0
 wep_default_key=0
 wep_key0=\"abcde\"
-wep_key_len_broadcast=\"5\"
-wep_key_len_unicast=\"5\"
 " > $HOSTAPD_CFG.$num_ap
 
   ((++num_ap))
@@ -90,8 +93,6 @@ auth_algs=3
 ignore_broadcast_ssid=0
 wep_default_key=0
 wep_key0=\"testing123456\"
-wep_key_len_broadcast=\"13\"
-wep_key_len_unicast=\"13\"
 " > $HOSTAPD_CFG.$num_ap
 
   ((++num_ap))
@@ -345,7 +346,8 @@ function replace_MAC_in_cfg () {
 function start_nm_hostapd ()
 {
     replace_MAC_in_cfg
-    local hostapd="hostapd -dd -t "
+    # launch with -dd causes wpa_debug_level=1 in hostapd (level 0 spams logs too much)
+    local hostapd="hostapd -dd "
     if $DO_NAMESPACE; then
         hostapd="ip netns exec wlan_ns $hostapd"
     fi

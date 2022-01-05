@@ -45,6 +45,8 @@ def before_all(context):
 
     context.crash_embeded = False
 
+    context.DEBUG = DEBUG
+
 
 # print exception traceback
 def before_scenario(context, scenario):
