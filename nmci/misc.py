@@ -240,10 +240,10 @@ class _Misc:
             distro_flavor = "fedora"
         else:
             distro_flavor = "rhel"
-            if distro_version == [8]:
+            if len(distro_version) == 1:
                 # CentOS stream only gives "CentOS Stream release 8". Hack a minor version
                 # number
-                distro_version = [8, 99]
+                distro_version.append(99)
 
         v = (distro_flavor, distro_version)
         self._distro_detect_cached = v

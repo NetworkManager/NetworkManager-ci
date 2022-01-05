@@ -38,7 +38,7 @@ except nmci.misc.SkipTestException as e:
     sys.exit(77)
 except Exception as e:
     sys.stderr.write("error checking test '%s': %s\n" % (test_name, str(e)))
-    sys.exec(1)
+    sys.exit(1)
 
 print("-t " + (" -t ".join(result)))
 sys.exit(0)
