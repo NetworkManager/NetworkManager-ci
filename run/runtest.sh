@@ -22,7 +22,7 @@ DIR=$(pwd)
 
 . $DIR/run/gsm_hub.sh
 . $DIR/prepare/envsetup.sh
-setup_configure_environment "$1"
+configure_environment "$1"
 export_python_command
 
 export COLUMNS=1024
