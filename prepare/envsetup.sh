@@ -1,5 +1,10 @@
 #!/bin/bash
 
+# Some URL shorteners
+KOJI="https://kojipkgs.fedoraproject.org/packages"
+BREW="http://download.eng.bos.redhat.com/brewroot/vol"
+FEDP="https://vbenes.fedorapeople.org/NM"
+
 install_plugins_yum () {
     # Installing plugins if missing
     if ! rpm -q --quiet NetworkManager-wifi; then
@@ -72,13 +77,17 @@ install_behave_pytest () {
 
 install_fedora_packages () {
     # Update sshd in Fedora 32 to avoid rhbz1771946
-    dnf -y -4 update https://kojipkgs.fedoraproject.org//packages/openssh/8.1p1/2.fc32/x86_64/openssh-8.1p1-2.fc32.x86_64.rpm https://kojipkgs.fedoraproject.org//packages/openssh/8.1p1/2.fc32/x86_64/openssh-server-8.1p1-2.fc32.x86_64.rpm https://kojipkgs.fedoraproject.org//packages/openssh/8.1p1/2.fc32/x86_64/openssh-clients-8.1p1-2.fc32.x86_64.rpm
+    dnf -y -4 update \
+        $KOJI/openssh/8.1p1/2.fc32/x86_64/openssh-8.1p1-2.fc32.x86_64.rpm \
+        $KOJI/openssh/8.1p1/2.fc32/x86_64/openssh-server-8.1p1-2.fc32.x86_64.rpm \
+        $KOJI/openssh/8.1p1/2.fc32/x86_64/openssh-clients-8.1p1-2.fc32.x86_64.rpm
     # Enable rawhide sshd to root
     echo "PermitRootLogin yes" >> /etc/ssh/sshd_config
     systemctl restart sshd
 
     if grep -q Rawhide /etc/redhat-release || grep -q 33 /etc/redhat-release; then
-        dnf -y install https://kojipkgs.fedoraproject.org//packages/ipsec-tools/0.8.2/17.fc32/$(arch)/ipsec-tools-0.8.2-17.fc32.$(arch).rpm
+        dnf -y install \
+            $KOJI/ipsec-tools/0.8.2/17.fc32/$(arch)/ipsec-tools-0.8.2-17.fc32.$(arch).rpm
         dnf update -y
     fi
     # Make python3 default if it's not
@@ -98,29 +107,33 @@ install_fedora_packages () {
 
     # Needed for gsm_sim
     dnf -4 -y install perl-IO-Pty-Easy perl-IO-Tty
-    dnf -4 -y upgrade https://vbenes.fedorapeople.org/NM/ModemManager-1.10.6-1.fc30.x86_64.rpm \
-                      https://vbenes.fedorapeople.org/NM/ModemManager-debuginfo-1.10.6-1.fc30.x86_64.rpm \
-                      https://vbenes.fedorapeople.org/NM/ModemManager-debugsource-1.10.6-1.fc30.x86_64.rpm \
-                      https://vbenes.fedorapeople.org/NM/ModemManager-devel-1.10.6-1.fc30.x86_64.rpm \
-                      https://vbenes.fedorapeople.org/NM/ModemManager-glib-1.10.6-1.fc30.x86_64.rpm \
-                      https://vbenes.fedorapeople.org/NM/ModemManager-glib-debuginfo-1.10.6-1.fc30.x86_64.rpm \
-                      --allowerasing
+    dnf -4 -y upgrade \
+        $FEDP/ModemManager-1.10.6-1.fc30.x86_64.rpm \
+        $FEDP/ModemManager-debuginfo-1.10.6-1.fc30.x86_64.rpm \
+        $FEDP/ModemManager-debugsource-1.10.6-1.fc30.x86_64.rpm \
+        $FEDP/ModemManager-devel-1.10.6-1.fc30.x86_64.rpm \
+        $FEDP/ModemManager-glib-1.10.6-1.fc30.x86_64.rpm \
+        $FEDP/ModemManager-glib-debuginfo-1.10.6-1.fc30.x86_64.rpm \
+        --allowerasing
 
     # Dnf more deps
-    dnf -4 -y install git nmap-ncat hostapd tcpreplay python3-netaddr dhcp-relay iw net-tools \
-                      psmisc firewalld dhcp-server ethtool python3-dbus python3-gobject dnsmasq \
-                      tcpdump wireshark-cli iproute-tc gdb gcc --skip-broken
+    dnf -4 -y install \
+        git nmap-ncat hostapd tcpreplay python3-netaddr dhcp-relay iw net-tools \
+        psmisc firewalld dhcp-server ethtool python3-dbus python3-gobject dnsmasq \
+        tcpdump wireshark-cli iproute-tc gdb gcc --skip-broken
 
     install_behave_pytest
 
     # Install vpn dependencies
     dnf -4 -y install NetworkManager-openvpn openvpn ipsec-tools
     PKG="NetworkManager-libreswan-1.2.12-1.fc34.3.x86_64.rpm"
-    dnf -y install https://vbenes.fedorapeople.org/NM/NM-libreswan_4compat/$PKG
+    dnf -y install $FEDP/NM-libreswan_4compat/$PKG
 
     # Install various NM dependencies
-    dnf -4 -y remove NetworkManager-config-connectivity-fedora NetworkManager-config-connectivity-redhat
-    dnf -4 -y install openvswitch2* NetworkManager-ovs
+    dnf -4 -y remove \
+        NetworkManager-config-connectivity-fedora NetworkManager-config-connectivity-redhat
+    dnf -4 -y install \
+        openvswitch2* NetworkManager-ovs
 
     if ! rpm -q --quiet NetworkManager-pptp; then
         dnf -4 -y install NetworkManager-pptp
@@ -139,7 +152,8 @@ install_fedora_packages () {
     fi
 
     # dracut testing
-    dnf -4 -y install qemu-kvm lvm2 mdadm cryptsetup iscsi-initiator-utils \
+    dnf -4 -y install \
+        qemu-kvm lvm2 mdadm cryptsetup iscsi-initiator-utils \
         nfs-utils radvd gdb dracut-network scsi-target-utils dhcp-client
 
     # Enable debug logs for wpa_supplicant
@@ -148,10 +162,6 @@ install_fedora_packages () {
     # Update and install the latest dbus
     dnf -4 -y update dbus*
     systemctl restart messagebus
-
-    # # Make crypto policies a bit less strict
-    # update-crypto-policies --set LEGACY
-    # systemctl restart wpa_supplicant
 
     # Install kernel-modules for currently running kernel
     dnf -4 -y install kernel-modules-*-$(uname -r)
@@ -184,82 +194,96 @@ install_el9_packages () {
     python -m pip install IPy
 
     # Dnf more deps
-    dnf -4 -y install git python3-netaddr dhcp-relay iw net-tools psmisc firewalld dhcp-server ethtool \
-                          python3-dbus python3-gobject dnsmasq tcpdump wireshark-cli file iproute-tc \
-                          openvpn perl-IO-Tty dhcp-client rpm-build gcc initscripts --skip-broken
+    dnf -4 -y install \
+        git python3-netaddr dhcp-relay iw net-tools psmisc firewalld dhcp-server \
+        ethtool python3-dbus python3-gobject dnsmasq tcpdump wireshark-cli file \
+        iproute-tc openvpn perl-IO-Tty dhcp-client rpm-build gcc initscripts \
+        --skip-broken
 
     # hostapd and tcpreplay is in epel (not available now), iw was just missing in el9 1915791 (needed for hostpad_wireless)
-    dnf -4 -y install https://kojipkgs.fedoraproject.org//packages/tcpreplay/4.3.3/3.fc34/$(arch)/tcpreplay-4.3.3-3.fc34.$(arch).rpm \
-                https://kojipkgs.fedoraproject.org//packages/libdnet/1.14/1.fc34/$(arch)/libdnet-1.14-1.fc34.$(arch).rpm \
-                https://kojipkgs.fedoraproject.org//packages/iw/5.4/3.fc34/$(arch)/iw-5.4-3.fc34.$(arch).rpm \
-                http://download.eng.bos.redhat.com/brewroot/vol/rhel-9/packages/libsmi/0.4.8/27.el9.1/$(arch)/libsmi-0.4.8-27.el9.1.$(arch).rpm \
-                http://download.eng.bos.redhat.com/brewroot/vol/rhel-9/packages/wireshark/3.4.0/1.el9.1/$(arch)/wireshark-cli-3.4.0-1.el9.1.$(arch).rpm --skip-broken
+    dnf -4 -y install \
+        $KOJI/tcpreplay/4.3.3/3.fc34/$(arch)/tcpreplay-4.3.3-3.fc34.$(arch).rpm \
+        $KOJI/libdnet/1.14/1.fc34/$(arch)/libdnet-1.14-1.fc34.$(arch).rpm \
+        $KOJI/iw/5.4/3.fc34/$(arch)/iw-5.4-3.fc34.$(arch).rpm \
+        $BREW/rhel-9/packages/libsmi/0.4.8/27.el9.1/$(arch)/libsmi-0.4.8-27.el9.1.$(arch).rpm \
+        $BREW/rhel-9/packages/wireshark/3.4.0/1.el9.1/$(arch)/wireshark-cli-3.4.0-1.el9.1.$(arch).rpm \
+        --skip-broken
 
     install_behave_pytest
 
     # Install vpn dependencies
-    dnf -4 -y install https://kojipkgs.fedoraproject.org//packages/ipsec-tools/0.8.2/10.fc28/$(arch)/ipsec-tools-0.8.2-10.fc28.$(arch).rpm https://kojipkgs.fedoraproject.org//packages/pkcs11-helper/1.22/5.fc28/$(arch)/pkcs11-helper-1.22-5.fc28.$(arch).rpm
+    dnf -4 -y install \
+        $KOJI/ipsec-tools/0.8.2/10.fc28/$(arch)/ipsec-tools-0.8.2-10.fc28.$(arch).rpm \
+        $KOJI/pkcs11-helper/1.22/5.fc28/$(arch)/pkcs11-helper-1.22-5.fc28.$(arch).rpm
+
     # libreswan please remove when in compose 12012021
     if ! rpm -q --quiet NetworkManager-libreswan || ! rpm -q --quiet libreswan; then
-        dnf -4 -y install http://download.eng.bos.redhat.com/brewroot/vol/rhel-9/packages/NetworkManager-libreswan/1.2.14/1.el9/$(arch)/NetworkManager-libreswan-1.2.14-1.el9.$(arch).rpm
+        dnf -4 -y install \
+            $BREW/rhel-9/packages/NetworkManager-libreswan/1.2.14/1.el9/$(arch)/NetworkManager-libreswan-1.2.14-1.el9.$(arch).rpm
     fi
     # openvpn, please remove once in epel 12012021
     if ! rpm -q --quiet NetworkManager-openvpn || ! rpm -q --quiet openvpn; then
-        dnf -4 -y install https://kojipkgs.fedoraproject.org//packages/NetworkManager-openvpn/1.8.12/1.fc33.1/$(arch)/NetworkManager-openvpn-1.8.12-1.fc33.1.$(arch).rpm https://kojipkgs.fedoraproject.org//packages/openvpn/2.5.0/1.fc34/$(arch)/openvpn-2.5.0-1.fc34.$(arch).rpm https://kojipkgs.fedoraproject.org//packages/pkcs11-helper/1.27.0/2.fc34/$(arch)/pkcs11-helper-1.27.0-2.fc34.$(arch).rpm
+        dnf -4 -y install \
+            $KOJI/NetworkManager-openvpn/1.8.12/1.fc33.1/$(arch)/NetworkManager-openvpn-1.8.12-1.fc33.1.$(arch).rpm \
+            $KOJI/openvpn/2.5.0/1.fc34/$(arch)/openvpn-2.5.0-1.fc34.$(arch).rpm \
+            $KOJI/pkcs11-helper/1.27.0/2.fc34/$(arch)/pkcs11-helper-1.27.0-2.fc34.$(arch).rpm
     fi
     # strongswan remove once in epel 12012021
     if ! rpm -q --quiet NetworkManager-strongswan || ! rpm -q --quiet strongswan; then
-        dnf -4 -y install https://kojipkgs.fedoraproject.org//packages/trousers/0.3.15/2.fc34/$(arch)/trousers-lib-0.3.15-2.fc34.$(arch).rpm https://kojipkgs.fedoraproject.org//packages/NetworkManager-strongswan/1.5.0/3.fc34/$(arch)/NetworkManager-strongswan-1.5.0-3.fc34.$(arch).rpm https://kojipkgs.fedoraproject.org//packages/strongswan/5.9.3/1.fc34/$(arch)/strongswan-5.9.3-1.fc34.$(arch).rpm https://kojipkgs.fedoraproject.org//packages/strongswan/5.9.3/1.fc34/$(arch)/strongswan-charon-nm-5.9.3-1.fc34.$(arch).rpm
+        dnf -4 -y install \
+            $KOJI/trousers/0.3.15/2.fc34/$(arch)/trousers-lib-0.3.15-2.fc34.$(arch).rpm \
+            $KOJI/NetworkManager-strongswan/1.5.0/3.fc34/$(arch)/NetworkManager-strongswan-1.5.0-3.fc34.$(arch).rpm \
+            $KOJI/strongswan/5.9.3/1.fc34/$(arch)/strongswan-5.9.3-1.fc34.$(arch).rpm \
+            $KOJI/strongswan/5.9.3/1.fc34/$(arch)/strongswan-charon-nm-5.9.3-1.fc34.$(arch).rpm
 
     fi
 
     # Remove connectivity checks
-    dnf -4 -y remove NetworkManager-config-connectivity-fedora NetworkManager-config-connectivity-redhat
+    dnf -4 -y remove \
+        NetworkManager-config-connectivity-fedora NetworkManager-config-connectivity-redhat
 
     # Install kernel-modules-internal for mac80211_hwsim
     VER=$(rpm -q --queryformat '%{VERSION}' kernel)
     REL=$(rpm -q --queryformat '%{RELEASE}' kernel)
     if grep Red /etc/redhat-release; then
-        dnf -4 -y install http://download.eng.bos.redhat.com/brewroot/vol/rhel-9/packages/kernel/$VER/$REL/$(arch)/kernel-modules-internal-$VER-$REL.$(arch).rpm
+        dnf -4 -y install \
+            $BREW/rhel-9/packages/kernel/$VER/$REL/$(arch)/kernel-modules-internal-$VER-$REL.$(arch).rpm
     else
-        dnf -4 -y install https://kojihub.stream.centos.org/kojifiles/packages/kernel/$VER/$REL/$(arch)/kernel-modules-internal-$VER-$REL.$(arch).rpm
+        dnf -4 -y install \
+            https://kojihub.stream.centos.org/kojifiles/packages/kernel/$VER/$REL/$(arch)/kernel-modules-internal-$VER-$REL.$(arch).rpm
     fi
 
     # We still need pptp and pptpd in epel to be packaged
     # https://bugzilla.redhat.com/show_bug.cgi?id=1810542
     if ! rpm -q --quiet NetworkManager-pptp; then
-        dnf -4 -y install https://kojipkgs.fedoraproject.org//packages/NetworkManager-pptp/1.2.8/2.fc34.1/$(arch)/NetworkManager-pptp-1.2.8-2.fc34.1.$(arch).rpm https://kojipkgs.fedoraproject.org//packages/pptpd/1.4.0/25.fc34/$(arch)/pptpd-1.4.0-25.fc34.$(arch).rpm https://kojipkgs.fedoraproject.org//packages/pptp/1.10.0/11.eln107/$(arch)/pptp-1.10.0-11.eln107.$(arch).rpm
+        dnf -4 -y install \
+            $KOJI/NetworkManager-pptp/1.2.8/2.fc34.1/$(arch)/NetworkManager-pptp-1.2.8-2.fc34.1.$(arch).rpm \
+            $KOJI/pptpd/1.4.0/25.fc34/$(arch)/pptpd-1.4.0-25.fc34.$(arch).rpm \
+            $KOJI/pptp/1.10.0/11.eln107/$(arch)/pptp-1.10.0-11.eln107.$(arch).rpm
     fi
 
     if ! rpm -q --quiet NetworkManager-ppp; then
         VER=$(rpm -q --queryformat '%{VERSION}' NetworkManager)
         REL=$(rpm -q --queryformat '%{RELEASE}' NetworkManager)
-        dnf -y install http://download.eng.bos.redhat.com/brewroot/vol/rhel-9/packages/NetworkManager/$VER/$REL/$(arch)/NetworkManager-ppp-$VER-$REL.$(arch).rpm
+        dnf -y install \
+            $BREW/rhel-9/packages/NetworkManager/$VER/$REL/$(arch)/NetworkManager-ppp-$VER-$REL.$(arch).rpm
     fi
 
     # install hostapd with WPA3 enterprise capabilities
     dnf -4 -y install \
-        https://vbenes.fedorapeople.org/NM/bz1975718/hostapd-2.9-11.el9.$(arch).rpm
-
+        $FEDP/bz1975718/hostapd-2.9-11.el9.$(arch).rpm
 
     # Enable debug logs for wpa_supplicant
     sed -i 's!OTHER_ARGS="-s"!OTHER_ARGS="-s -dddK"!' /etc/sysconfig/wpa_supplicant
-
-    # Make crypto policies a bit less strict
-    update-crypto-policies --set LEGACY
-    systemctl restart wpa_supplicant
 
     # Remove cloud-init dns
     rm -rf /etc/NetworkManager/conf.d/99-cloud-init.conf
 
     # dracut testing
-    dnf -4 -y install qemu-kvm lvm2 mdadm cryptsetup iscsi-initiator-utils nfs-utils radvd gdb dhcp-client
-    # perl-Config-Genral not installable on s390x and needed by scsi-target-utils
     dnf -4 -y install \
         qemu-kvm lvm2 mdadm cryptsetup iscsi-initiator-utils nfs-utils radvd gdb dhcp-client \
-        https://kojipkgs.fedoraproject.org//packages/scsi-target-utils/1.0.79/3.fc34/$(arch)/scsi-target-utils-1.0.79-3.fc34.$(arch).rpm \
-        https://kojipkgs.fedoraproject.org//packages/perl-Config-General/2.63/14.fc34/noarch/perl-Config-General-2.63-14.fc34.noarch.rpm
-
+        $KOJI/scsi-target-utils/1.0.79/3.fc34/$(arch)/scsi-target-utils-1.0.79-3.fc34.$(arch).rpm \
+        $KOJI/perl-Config-General/2.63/14.fc34/noarch/perl-Config-General-2.63-14.fc34.noarch.rpm
 
     install_plugins_dnf
 
@@ -288,32 +312,41 @@ install_el8_packages () {
     python -m pip install IPy
 
     # Needed for gsm_sim
-    dnf -4 -y install https://kojipkgs.fedoraproject.org//packages/perl-IO-Pty-Easy/0.10/5.fc28/noarch/perl-IO-Pty-Easy-0.10-5.fc28.noarch.rpm \
-                      https://kojipkgs.fedoraproject.org//packages/perl-IO-Tty/1.12/11.fc28/$(arch)/perl-IO-Tty-1.12-11.fc28.$(arch).rpm
+    dnf -4 -y install \
+        $KOJI/perl-IO-Pty-Easy/0.10/5.fc28/noarch/perl-IO-Pty-Easy-0.10-5.fc28.noarch.rpm \
+        $KOJI/perl-IO-Tty/1.12/11.fc28/$(arch)/perl-IO-Tty-1.12-11.fc28.$(arch).rpm \
+        $KOJI/tcpreplay/4.2.5/4.fc28/$(arch)/tcpreplay-4.2.5-4.fc28.$(arch).rpm
 
     # Dnf more deps
-    dnf -4 -y install git python3-netaddr dhcp-relay iw net-tools psmisc firewalld dhcp-server ethtool \
-                          python3-dbus python3-gobject dnsmasq tcpdump wireshark-cli file iproute-tc \
-                          openvpn gcc coreutils-debuginfo --skip-broken
+    dnf -4 -y install \
+        git python3-netaddr dhcp-relay iw net-tools psmisc firewalld dhcp-server \
+        ethtool python3-dbus python3-gobject dnsmasq tcpdump wireshark-cli file \
+        iproute-tc openvpn gcc coreutils-debuginfo \
+        --skip-broken
 
-    dnf -4 -y install https://kojipkgs.fedoraproject.org//packages/tcpreplay/4.2.5/4.fc28/$(arch)/tcpreplay-4.2.5-4.fc28.$(arch).rpm
     install_behave_pytest
 
     # Install vpn dependencies
-    dnf -4 -y install https://kojipkgs.fedoraproject.org//packages/ipsec-tools/0.8.2/10.fc28/$(arch)/ipsec-tools-0.8.2-10.fc28.$(arch).rpm https://kojipkgs.fedoraproject.org//packages/pkcs11-helper/1.22/5.fc28/$(arch)/pkcs11-helper-1.22-5.fc28.$(arch).rpm
+    dnf -4 -y install \
+        $KOJI/ipsec-tools/0.8.2/10.fc28/$(arch)/ipsec-tools-0.8.2-10.fc28.$(arch).rpm \
+        $KOJI/pkcs11-helper/1.22/5.fc28/$(arch)/pkcs11-helper-1.22-5.fc28.$(arch).rpm
 
     # Install various NM dependencies
-    dnf -4 -y remove NetworkManager-config-connectivity-fedora NetworkManager-config-connectivity-redhat
-    dnf -4 -y install http://download.eng.bos.redhat.com/brewroot/vol/rhel-8/packages/libmnl/1.0.4/6.el8/$(arch)/libmnl-devel-1.0.4-6.el8.$(arch).rpm https://kojipkgs.fedoraproject.org//packages/hostapd/2.9/3.el8/$(arch)/hostapd-2.9-3.el8.$(arch).rpm
+    dnf -4 -y remove \
+        NetworkManager-config-connectivity-fedora NetworkManager-config-connectivity-redhat
+    dnf -4 -y install \
+        $BREW/rhel-8/packages/libmnl/1.0.4/6.el8/$(arch)/libmnl-devel-1.0.4-6.el8.$(arch).rpm \
+        $KOJI/hostapd/2.9/3.el8/$(arch)/hostapd-2.9-3.el8.$(arch).rpm
 
     # Install kernel-modules-internal for mac80211_hwsim
     VER=$(rpm -q --queryformat '%{VERSION}' kernel)
     REL=$(rpm -q --queryformat '%{RELEASE}' kernel)
     if ! grep -q -e 'CentOS .* release 8' /etc/redhat-release; then
-        dnf -4 -y install http://download.eng.bos.redhat.com/brewroot/vol/rhel-8/packages/kernel/$VER/$REL/$(arch)/kernel-modules-internal-$VER-$REL.$(arch).rpm
+        dnf -4 -y install \
+            $BREW/rhel-8/packages/kernel/$VER/$REL/$(arch)/kernel-modules-internal-$VER-$REL.$(arch).rpm
     else
         if ! wget https://koji.mbox.centos.org/pkgs/packages/kernel/$VER/$REL/$(arch)/kernel-modules-internal-$VER-$REL.$(arch).rpm -O /tmp/kernel-modules-internal.rpm --no-check-certificate; then
-            wget https://vbenes.fedorapeople.org/NM/c8s/kernel-modules-internal-4.18.0-301.1.el8.x86_64.rpm -O /tmp/kernel-modules-internal.rpm
+            wget $FEDP/c8s/kernel-modules-internal-4.18.0-301.1.el8.x86_64.rpm -O /tmp/kernel-modules-internal.rpm
         fi
         dnf -y localinstall /tmp/kernel-modules-internal.rpm
     fi
@@ -324,42 +357,55 @@ install_el8_packages () {
         yum -y install openvswitch2.15
         systemctl restart openvswitch
     else
-        dnf -y install https://cbs.centos.org/kojifiles/packages/openvswitch2.15/2.15.0/39.el8s/$(arch)/openvswitch2.15-2.15.0-39.el8s.$(arch).rpm https://cbs.centos.org/kojifiles/packages/openvswitch2.15/2.15.0/39.el8s/$(arch)/python3-openvswitch2.15-2.15.0-39.el8s.$(arch).rpm https://cbs.centos.org/kojifiles/packages/openvswitch-selinux-extra-policy/1.0/28.el8/noarch/openvswitch-selinux-extra-policy-1.0-28.el8.noarch.rpm
+        dnf -y install \
+            https://cbs.centos.org/kojifiles/packages/openvswitch2.15/2.15.0/39.el8s/$(arch)/openvswitch2.15-2.15.0-39.el8s.$(arch).rpm \
+            https://cbs.centos.org/kojifiles/packages/openvswitch2.15/2.15.0/39.el8s/$(arch)/python3-openvswitch2.15-2.15.0-39.el8s.$(arch).rpm \
+            https://cbs.centos.org/kojifiles/packages/openvswitch-selinux-extra-policy/1.0/28.el8/noarch/openvswitch-selinux-extra-policy-1.0-28.el8.noarch.rpm
     fi
 
     # We still need pptp and pptpd in epel to be packaged
     # https://bugzilla.redhat.com/show_bug.cgi?id=1810542
     if ! rpm -q --quiet NetworkManager-pptp; then
-        dnf -4 -y install https://kojipkgs.fedoraproject.org//packages/NetworkManager-pptp/1.2.8/1.el8.3/$(arch)/NetworkManager-pptp-1.2.8-1.el8.3.$(arch).rpm https://kojipkgs.fedoraproject.org//packages/pptpd/1.4.0/18.fc28/$(arch)/pptpd-1.4.0-18.fc28.$(arch).rpm
+        dnf -4 -y install \
+            $KOJI/NetworkManager-pptp/1.2.8/1.el8.3/$(arch)/NetworkManager-pptp-1.2.8-1.el8.3.$(arch).rpm \
+            $KOJI/pptpd/1.4.0/18.fc28/$(arch)/pptpd-1.4.0-18.fc28.$(arch).rpm
     fi
 
     if ! rpm -q --quiet NetworkManager-vpnc || ! rpm -q --quiet vpnc; then
-        dnf -4 -y install https://kojipkgs.fedoraproject.org//packages/vpnc/0.5.3/33.svn550.fc29/$(arch)/vpnc-0.5.3-33.svn550.fc29.$(arch).rpm https://kojipkgs.fedoraproject.org//packages/NetworkManager-vpnc/1.2.6/1.fc29/$(arch)/NetworkManager-vpnc-1.2.6-1.fc29.$(arch).rpm https://kojipkgs.fedoraproject.org//packages/vpnc-script/20171004/3.git6f87b0f.fc29/noarch/vpnc-script-20171004-3.git6f87b0f.fc29.noarch.rpm
+        dnf -4 -y install \
+            $KOJI/vpnc/0.5.3/33.svn550.fc29/$(arch)/vpnc-0.5.3-33.svn550.fc29.$(arch).rpm \
+            $KOJI/NetworkManager-vpnc/1.2.6/1.fc29/$(arch)/NetworkManager-vpnc-1.2.6-1.fc29.$(arch).rpm \
+            $KOJI/vpnc-script/20171004/3.git6f87b0f.fc29/noarch/vpnc-script-20171004-3.git6f87b0f.fc29.noarch.rpm
     fi
 
     # strongswan
     if ! rpm -q --quiet NetworkManager-strongswan || ! rpm -q --quiet strongswan; then
-        dnf -4 -y install https://kojipkgs.fedoraproject.org//packages/NetworkManager-strongswan/1.4.4/1.fc29/$(arch)/NetworkManager-strongswan-1.4.4-1.fc29.$(arch).rpm https://kojipkgs.fedoraproject.org//packages/strongswan/5.7.2/1.fc29/$(arch)/strongswan-5.7.2-1.fc29.$(arch).rpm https://kojipkgs.fedoraproject.org//packages/strongswan/5.7.2/1.fc29/$(arch)/strongswan-charon-nm-5.7.2-1.fc29.$(arch).rpm
+        dnf -4 -y install \
+            $KOJI/NetworkManager-strongswan/1.4.4/1.fc29/$(arch)/NetworkManager-strongswan-1.4.4-1.fc29.$(arch).rpm \
+            $KOJI/strongswan/5.7.2/1.fc29/$(arch)/strongswan-5.7.2-1.fc29.$(arch).rpm \
+            $KOJI/strongswan/5.7.2/1.fc29/$(arch)/strongswan-charon-nm-5.7.2-1.fc29.$(arch).rpm
     fi
 
     # install wpa_supplicant and hostapd with WPA3 enterprise capabilities
     if [ $(arch) == "x86_64" ]; then
-        dnf -4 -y install hostapd wpa_supplicant{,-debuginfo,-debugsource} --skip-broken
+        dnf -4 -y install \
+            hostapd wpa_supplicant{,-debuginfo,-debugsource} --skip-broken
         dnf -4 -y update \
-            https://vbenes.fedorapeople.org/NM/hostapd_owe/hostapd-2.9-6.nmci.el8.x86_64.rpm \
-            https://vbenes.fedorapeople.org/NM/hostapd_owe/hostapd-debuginfo-2.9-6.nmci.el8.x86_64.rpm \
-            https://vbenes.fedorapeople.org/NM/hostapd_owe/hostapd-debugsource-2.9-6.nmci.el8.x86_64.rpm \
-            https://vbenes.fedorapeople.org/NM/hostapd_owe/hostapd-logwatch-2.9-6.nmci.el8.x86_64.rpm
+            $FEDP/hostapd_owe/hostapd-2.9-6.nmci.el8.x86_64.rpm \
+            $FEDP/hostapd_owe/hostapd-debuginfo-2.9-6.nmci.el8.x86_64.rpm \
+            $FEDP/hostapd_owe/hostapd-debugsource-2.9-6.nmci.el8.x86_64.rpm \
+            $FEDP/hostapd_owe/hostapd-logwatch-2.9-6.nmci.el8.x86_64.rpm
         # this does not match centos stream 8, which does not have '.' in version, which is intended
         if grep -q "release 8\.[0-4]" /etc/redhat_release; then
             dnf -y update \
-                https://vbenes.fedorapeople.org/NM/WPA3/wpa_supplicant-2.9-8.el8.x86_64.rpm \
-                https://vbenes.fedorapeople.org/NM/WPA3/wpa_supplicant-debuginfo-2.9-8.el8.x86_64.rpm \
-                https://vbenes.fedorapeople.org/NM/WPA3/wpa_supplicant-debugsource-2.9-8.el8.x86_64.rpm
+                $FEDP/WPA3/wpa_supplicant-2.9-8.el8.x86_64.rpm \
+                $FEDP/WPA3/wpa_supplicant-debuginfo-2.9-8.el8.x86_64.rpm \
+                $FEDP/WPA3/wpa_supplicant-debugsource-2.9-8.el8.x86_64.rpm
         fi
     else
         # WPA3 Personal capable wpa_supplicant for RHEL 8.3
-        dnf -4 -y install https://vbenes.fedorapeople.org/NM/rhbz1888051/wpa_supplicant{,-debuginfo,-debugsource}-2.9-3.el8.$(arch).rpm
+        dnf -4 -y install
+            $FEDP/rhbz1888051/wpa_supplicant{,-debuginfo,-debugsource}-2.9-3.el8.$(arch).rpm
         # update in case newer version is in repo
         dnf -4 -y update wpa_supplicant
     fi
@@ -378,18 +424,32 @@ install_el8_packages () {
     rm -rf /etc/NetworkManager/conf.d/99-cloud-init.conf
 
     # Install non crashing MM
-    dnf -4 -y upgrade https://vbenes.fedorapeople.org/NM/ModemManager-1.10.6-1.el8.x86_64.rpm https://vbenes.fedorapeople.org/NM/ModemManager-debuginfo-1.10.6-1.el8.x86_64.rpm https://vbenes.fedorapeople.org/NM/ModemManager-debugsource-1.10.6-1.el8.x86_64.rpm https://vbenes.fedorapeople.org/NM/ModemManager-devel-1.10.6-1.el8.x86_64.rpm https://vbenes.fedorapeople.org/NM/ModemManager-glib-1.10.6-1.el8.x86_64.rpm https://vbenes.fedorapeople.org/NM/ModemManager-glib-debuginfo-1.10.6-1.el8.x86_64.rpm --allowerasing
+    dnf -4 -y upgrade \
+        $FEDP/ModemManager-1.10.6-1.el8.x86_64.rpm \
+        $FEDP/ModemManager-debuginfo-1.10.6-1.el8.x86_64.rpm \
+        $FEDP/ModemManager-debugsource-1.10.6-1.el8.x86_64.rpm \
+        $FEDP/ModemManager-devel-1.10.6-1.el8.x86_64.rpm \
+        $FEDP/ModemManager-glib-1.10.6-1.el8.x86_64.rpm \
+        $FEDP/ModemManager-glib-debuginfo-1.10.6-1.el8.x86_64.rpm --allowerasing
 
     # Install non crashing teamd 1684389
-    dnf -y -4 update http://download.eng.bos.redhat.com/brewroot/vol/rhel-8/packages/libteam/1.31/2.el8/$(arch)/libteam-1.31-2.el8.$(arch).rpm http://download.eng.bos.redhat.com/brewroot/vol/rhel-8/packages/libteam/1.31/2.el8/$(arch)/libteam-devel-1.31-2.el8.$(arch).rpm http://download.eng.bos.redhat.com/brewroot/vol/rhel-8/packages/libteam/1.31/2.el8/$(arch)/teamd-1.31-2.el8.$(arch).rpm http://download.eng.bos.redhat.com/brewroot/vol/rhel-8/packages/libteam/1.31/2.el8/$(arch)/teamd-devel-1.31-2.el8.$(arch).rpm http://download.eng.bos.redhat.com/brewroot/vol/rhel-8/packages/libteam/1.31/2.el8/$(arch)/python3-libteam-1.31-2.el8.$(arch).rpm
+    dnf -y -4 update \
+        $BREW/rhel-8/packages/libteam/1.31/2.el8/$(arch)/libteam-1.31-2.el8.$(arch).rpm \
+        $BREW/rhel-8/packages/libteam/1.31/2.el8/$(arch)/libteam-devel-1.31-2.el8.$(arch).rpm \
+        $BREW/rhel-8/packages/libteam/1.31/2.el8/$(arch)/teamd-1.31-2.el8.$(arch).rpm \
+        $BREW/rhel-8/packages/libteam/1.31/2.el8/$(arch)/teamd-devel-1.31-2.el8.$(arch).rpm \
+        $BREW/rhel-8/packages/libteam/1.31/2.el8/$(arch)/python3-libteam-1.31-2.el8.$(arch).rpm
 
     # dracut testing
-    dnf -4 -y install qemu-kvm lvm2 mdadm cryptsetup iscsi-initiator-utils nfs-utils radvd gdb dhcp-client
+    dnf -4 -y install \
+        qemu-kvm lvm2 mdadm cryptsetup iscsi-initiator-utils nfs-utils radvd gdb dhcp-client
     if [[ $(uname -p) = "s390x" ]]; then
         # perl-Config-Genral not installable on s390x and needed by scsi-target-utils
-        dnf -4 -y install http://download.eng.bos.redhat.com/brewroot/vol/rhel-8/packages/perl-Config-General/2.63/5.el8+7/noarch/perl-Config-General-2.63-5.el8+7.noarch.rpm
+        dnf -4 -y install \
+            $BREW/rhel-8/packages/perl-Config-General/2.63/5.el8+7/noarch/perl-Config-General-2.63-5.el8+7.noarch.rpm
     fi
-    dnf -4 -y install https://kojipkgs.fedoraproject.org//packages/scsi-target-utils/1.0.79/1.fc32/$(arch)/scsi-target-utils-1.0.79-1.fc32.$(arch).rpm
+    dnf -4 -y install \
+        $KOJI/scsi-target-utils/1.0.79/1.fc32/$(arch)/scsi-target-utils-1.0.79-1.fc32.$(arch).rpm
 
     install_plugins_dnf
 }
@@ -403,9 +463,7 @@ install_el7_packages () {
 
     # Download some deps
     yum -y install perl-IO-Pty-Easy wireshark
-
     yum -y install python3 python3-pip
-
     yum -y install gcc
 
     echo python3 > /tmp/python_command
@@ -424,18 +482,22 @@ install_el7_packages () {
 
     # install dbus-python3 for s390x via pip
     if uname -a |grep -q s390x; then
-        yum -y install python3-devel cairo-gobject-devel pygobject3-devel cairo-devel cairo pycairo
+        yum -y install \
+        python3-devel cairo-gobject-devel pygobject3-devel cairo-devel cairo pycairo
         python3 -m pip install dbus-python
         python3 -m pip install PyGObject
         python3 -m pip install scapy
     fi
 
-    yum -y install git iw net-tools wireshark psmisc bridge-utils firewalld dhcp ethtool python36-dbus \
-                   python36-gobject dnsmasq NetworkManager-vpnc iproute-tc openvpn
+    yum -y install \
+        git iw net-tools wireshark psmisc bridge-utils firewalld dhcp ethtool \
+        python36-dbus python36-gobject dnsmasq NetworkManager-vpnc iproute-tc \
+        openvpn
 
-    yum -y install https://kojipkgs.fedoraproject.org//packages/hostapd/2.8/1.el7/$(arch)/hostapd-2.8-1.el7.$(arch).rpm
-
-    yum -y remove NetworkManager-config-connectivity-fedora NetworkManager-config-connectivity-redhat
+    yum -y install \
+        $KOJI/hostapd/2.8/1.el7/$(arch)/hostapd-2.8-1.el7.$(arch).rpm
+    yum -y remove \
+        NetworkManager-config-connectivity-fedora NetworkManager-config-connectivity-redhat
 
     install_behave_pytest
 
@@ -919,10 +981,14 @@ local_setup_configure_nm_gsm () {
 
     if [ -d /root/nm-build/NetworkManager/contrib/fedora/rpm/latest0/RPMS/ ]; then
         pushd /root/nm-build/NetworkManager/contrib/fedora/rpm/latest0/RPMS/$(arch)
-            yum -y install NetworkManager-wwan-$VER-$REL.$(arch).rpm ModemManager usb_modeswitch usbutils NetworkManager-ppp-$VER-$REL.$(arch).rpm
+            yum -y install \
+                NetworkManager-wwan-$VER-$REL.$(arch).rpm ModemManager \
+                usb_modeswitch usbutils NetworkManager-ppp-$VER-$REL.$(arch).rpm
         popd
     else
-        yum -y install NetworkManager-wwan-$VER-$REL ModemManager usb_modeswitch usbutils NetworkManager-ppp-$VER-$REL
+        yum -y install \
+            usb_modeswitch usbutils NetworkManager-ppp-$VER-$REL \
+            NetworkManager-wwan-$VER-$REL ModemManager
     fi
 
     # Reset USB devices
