@@ -137,7 +137,7 @@ def prepare_environment(context):
 
 @step('Start nmtui')
 def start_nmtui(context):
-    context.tui = context.pexpect_service('sh -c "TERM=%s nmtui > %s"' % (TERM_TYPE, OUTPUT))
+    context.tui = context.pexpect_service('env -i LANG=en_US.UTF-8 TERM=%s sh -c "nmtui > %s"' % (TERM_TYPE, OUTPUT))
     for line in context.screen.display:
         if 'NetworkManager TUI' in line:
             break
