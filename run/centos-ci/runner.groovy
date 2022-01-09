@@ -33,7 +33,7 @@ node('cico-workspace') {
             REPO2="git@gitlab.freedesktop.org:NetworkManager/NetworkManager-ci.git"
             REPO3="https://github.com/NetworkManager/NetworkManager-ci.git"
             sh "python3 -m pip install --user python-gitlab pyyaml==5.4.1"
-            sh "timeout 1m git clone -n ${REPO1} || timeout 1m git clone -n ${REPO2} || timeout 1m git clone -n ${REPO3}"
+            sh "timeout 2m git clone -n ${REPO1} || timeout 2m git clone -n ${REPO2} || timeout 2m git clone -n ${REPO3}"
             if (MERGE_REQUEST_ID) {
                 sh "cd NetworkManager-ci; git fetch origin merge-requests/${MERGE_REQUEST_ID}/head:${TEST_BRANCH}"
             }
