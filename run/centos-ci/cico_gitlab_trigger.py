@@ -5,6 +5,8 @@ import json
 import os
 import datetime
 import time
+import subprocess
+import re
 
 from pprint import pprint
 
@@ -14,18 +16,20 @@ default_os = '8-stream'
 
 jenkins_url = 'https://jenkins-networkmanager.apps.ocp.ci.centos.org/'
 
+
 class GitlabTrigger(object):
 
-    def __init__(self, data):
+    def __init__(self, data, config_files=["/etc/python-gitlab.cfg"]):
         self.data = data
         # If we don't have python-gitlab we can still use object for parsing
         try:
             import gitlab
-            self.gl_api = gitlab.Gitlab.from_config('gitlab.freedesktop.org')
+            self.gl_api = gitlab.Gitlab.from_config('gitlab.freedesktop.org', config_files)
             group = 'NetworkManager'
             self.gl_project = self.gl_api.projects.get('%s/%s' % (group, data['repository']['name']))
         except:
             pass
+
     @property
     def request_type(self):
         return self.data['object_kind']
@@ -160,6 +164,29 @@ class GitlabTrigger(object):
     def repository(self):
         return self.data['repository']['name']
 
+    @property
+    def changed_features(self):
+        features = []
+
+        # do it via wget and raw mode - as API is silly complicated in getting MR's diff
+        mr_url = self.merge_request_url
+        print(">> Reading patch from gitlab merge request: " + mr_url)
+        ret = subprocess.run(f"curl -s {mr_url}.diff".split(" "), capture_output=True, check=False)
+
+        if ret.returncode != 0 or not ret.stdout:
+            print(f"Failed downloading diff\n{ret.stdout}\n{ret.stderr}")
+            return None
+
+        for line in ret.stdout.split("\n"):
+            m = re.match(r'^\+\+\+.*/(\S+)\.feature', line)
+            if m is not None:
+                f = m.group(1)
+                print(f'Found feature: {f}')
+                if f not in features:
+                    features.append(f)
+
+        return features
+
     def set_pipeline(self, status):
         try:
             description = ''
@@ -187,37 +214,28 @@ class GitlabTrigger(object):
             print(str(e))
 
 
-def get_rebuild_detail(gt):
+def get_rebuild_detail(message):
     # lets see if there is a @OS:rhelx.y in the desc or commit msg
-    message = gt.description
+    overrides = {}
+    msg = []
     for line in message.split('\n'):
         if line.strip().lower().startswith('@os:'):
-            return line.strip().split(':')[-1]
-    message = gt.commit_message
-    for line in message.split('\n'):
-        if line.strip().lower().startswith('@os:'):
-            return line.strip().split(':')[-1]
-    return None
+            overrides['os_version'] = line.strip().split(':')[-1]
+        elif line.strip().lower().startswith('@runfeatures:'):
+            overrides['features'] = line.strip().split(':')[-1]
+        elif line.strip().lower().startswith('@build:'):
+            overrides['build'] = line.strip().split(':')[-1]
+        elif line:
+            msg.append(line)
+    return overrides, "\n".join(msg)
 
 
-def get_mapper_yaml(repo_name):
-    refspec = settings['git_branch']
-    if gitlab_trigger:
-        refspec = gitlab_trigger.commit
-
-    print(">> Reading mapper.yaml from gitlab ref: " + refspec)
-    f = get_gitlab_project(repo_name).files.get(file_path='mapper.yaml', ref=refspec)
-    return f.decode()
-
-# 'os_override' param for 'rebuild RHEL8.9' etc., good for nm less for desktop as it is mainly determined by branching
-def execute_build(gt, content, os_override=None):
+# 'os_version' param for 'rebuild RHEL8.9' etc., good for nm less for desktop as it is mainly determined by branching
+def execute_build(gt, content, os_version=default_os, features='best', build='main'):
 
     component = gt.repository
     params = []
-    os_version = default_os
 
-    if os_override:
-        os_version = os_override
     params.append({'name': 'RELEASE', 'value': os_version})
 
     if gt.repository == 'NetworkManager': # NM CODE will always use master NMCI
@@ -229,11 +247,11 @@ def execute_build(gt, content, os_override=None):
         if gt.source_project_id != gt.target_project_id:
             params.append({'name': 'MERGE_REQUEST_ID', 'value': gt.merge_request_id})
         params.append({'name': 'TEST_BRANCH', 'value': gt.commit})
-        params.append({'name': 'REFSPEC', 'value': 'main'})
+        params.append({'name': 'REFSPEC', 'value': build})
         project_dir = "NetworkManager-test-mr"
 
-    params.append({'name': 'VERSION', 'value': 'MR#%d %s: %s' % (gt.merge_request_id, gt.commit_author, gt.source_branch)})
-    params.append({'name': 'FEATURES', 'value': 'best'})
+    params.append({'name': 'VERSION', 'value': 'MR#%d %s: %s (%s)' % (gt.merge_request_id, gt.commit_author, gt.source_branch, os_version)})
+    params.append({'name': 'FEATURES', 'value': features})
     params.append({'name': 'RESERVE', 'value': '0s'})
     params.append({'name': 'TRIGGER_DATA', 'value': content})
     #params.append({'name': 'GL_TOKEN', 'value': os.environ['GL_TOKEN']})
@@ -256,20 +274,17 @@ def process_request(data, content):
     gt = GitlabTrigger(data)
     if gt.request_type == 'note':
         comment = gt.comment
-        if comment.lower() == 'rebuild':
-            execute_build(gt, content)
-        elif comment.lower() == 'rebuild centos9-stream':
-            execute_build(gt, content, os_override='9-stream')
-        elif comment.lower() == 'rebuild c9s':
-            execute_build(gt, content, os_override='9-stream')
-        elif comment.lower() == 'rebuild centos8-stream':
-            execute_build(gt, content)
-        elif comment.lower() == 'rebuild c8s':
-            execute_build(gt, content)
-        elif '@runtests:' in comment.lower():
-            execute_build(gt, content)
-        elif '@build:' in comment.lower():  # NM specific tag to set UPSTREAM_REFSPEC_ID
-            execute_build(gt, content)
+        params, comment = get_rebuild_detail(comment)
+        if comment.lower().startswith("rebuild"):
+            comment = comment.lower().replace("rebuild", "", 1).strip()
+            if comment == "":
+                execute_build(gt, content, **params)
+            elif comment in ["centos9-stream", 'c9s']:
+                params["os_version"] = '9-stream'
+                execute_build(gt, content, **params)
+            elif comment in ["centos8-stream", 'c8s']:
+                params["os_version"] = '8-stream'
+                execute_build(gt, content, **params)
         else:
             print('Irrelevant Note...')
     elif data['object_kind'] == 'merge_request':
@@ -288,10 +303,8 @@ def process_request(data, content):
                 with open('/tmp/gl_commits') as f:
                     commits = f.read().splitlines()
                     if gt.commit not in commits:
-                        override = get_rebuild_detail(gt)
-                        if override is not None:
-                            override = override.upper()
-                        execute_build(gt, content, os_override=override)
+                        params, _ = get_rebuild_detail(gt.description + '\n' + gt.commit_message)
+                        execute_build(gt, content, **params)
                     else:
                         print("Commit %s have already executed, use rebuild if needed" % gt.commit)
 

@@ -89,8 +89,8 @@ if [ ${#skip[@]} -ne 0 ]; then
         echo "$s"
     done
 fi
-echo "${#pass[@]}" > /tmp/summary.txt
-echo "${#fail[@]}" >> /tmp/summary.txt
-echo "${#skip[@]}" >> /tmp/summary.txt
-
+echo "${#pass[@]}" > /tmp/results/summary.txt
+echo "${#fail[@]}" >> /tmp/results/summary.txt
+echo "${#skip[@]}" >> /tmp/results/summary.txt
+echo "${fail[@]}" >> /tmp/results/summary.txt
 exit $rc
