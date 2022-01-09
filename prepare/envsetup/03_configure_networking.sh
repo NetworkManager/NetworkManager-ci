@@ -87,17 +87,15 @@ configure_networking () {
         rm -rf /etc/sysconfig/network-scripts/*
     fi
 
+
     # Drop compiled in defaults into proper config
     if grep -q -e 'release 8' /etc/redhat-release; then
         echo -e "[main]\ndhcp=nettools\nplugins=ifcfg-rh,keyfile" >> /etc/NetworkManager/conf.d/99-test.conf
-    fi
-    if grep -q -e 'release 7' /etc/redhat-release; then
+    elif grep -q -e 'release 7' /etc/redhat-release; then
         echo -e "[main]\ndhcp=dhclient\nplugins=ifcfg-rh,keyfile" >> /etc/NetworkManager/conf.d/99-test.conf
-    fi
-    if grep -q -e 'release 9' /etc/redhat-release; then
+    elif grep -q -e 'release 9' /etc/redhat-release; then
         echo -e "[main]\ndhcp=nettools\nplugins=keyfile,ifcfg-rh" >> /etc/NetworkManager/conf.d/99-test.conf
-    fi
-    if grep -q -e 'Fedora' /etc/redhat-release; then
+    elif grep -q -e 'Fedora' /etc/redhat-release; then
         echo -e "[main]\ndhcp=nettools\nplugins=keyfile,ifcfg-rh" >> /etc/NetworkManager/conf.d/99-test.conf
     fi
 
