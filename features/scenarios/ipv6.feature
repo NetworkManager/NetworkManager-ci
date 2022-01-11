@@ -1513,3 +1513,23 @@
     Scenario: nmcli - ipv6 - secondary
     * Bring "down" connection "testeth0"
     * "OK" is visible with command "sh contrib/reproducers/repro_1858344.sh" in "10" seconds
+
+
+    @rhbz1861527
+    @ver+=1.36.0
+    @con_ipv6_remove
+    @ipv6_ignore_nonstatic_routes
+    Scenario: NM - ipv6 - ignore routes that are neither static nor RA nor DHCP
+    * Add a new connection of type "ethernet" and options "ifname eth3 con-name con_ipv6"
+    * Bring "up" connection "con_ipv6"
+    * Note the output of "nmcli -f ipv6.routes c show id con_ipv6" as value "nm_routes_before"
+    When Execute "for i in {5..8} {10..15} 17 18 42 99 {186..192} ; do ip -6 r add 1000:0:0:${i}::/64 proto ${i} dev eth3; done"
+    * Execute "nmcli -f ip6.route d show eth3"
+    * Note the output of "nmcli -f ipv6.routes c show id con_ipv6" as value "nm_routes_after_types"
+    Then Check noted values "nm_routes_before" and "nm_routes_after_types" are the same
+    # If more routes are needed, just adjust argument to the generating script and When check
+    * Execute "prepare/bird_routes.py eth3 6 2000000 > /tmp/nmci-bird-routes-v6"
+    * Execute "ip -b /tmp/nmci-bird-routes-v6"
+    When Execute "test 2000000 -le $(ip -6 r show dev eth3 | wc -l)"
+    Then "--" is visible with command "nmcli -f ipv6.routes c show id con_ipv6" in "5" seconds
+     And Execute "nmcli -f ip6.route d show eth3"

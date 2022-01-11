@@ -2267,3 +2267,23 @@ Feature: nmcli: ipv4
     * Execute "ip l set testX6 up"
     When "192.168.99.5" is visible with command "ip -4 r show table all dev testX6 scope link" in "60" seconds
     Then "192.168.99.[34]" is not visible with command "ip -4 r show table all dev testX6 scope link"
+
+
+    @rhbz1861527
+    @ver+=1.36.0
+    @con_ipv4_remove
+    @ipv4_ignore_nonstatic_routes
+    Scenario: NM - ipv4 - ignore routes that are neither static nor RA nor DHCP
+    * Add a new connection of type "ethernet" and options "ifname eth3 con-name con_ipv4"
+    * Bring "up" connection "con_ipv4"
+    * Note the output of "nmcli -f ipv6.routes c show id con_ipv4" as value "nm_routes_before"
+    When Execute "for i in {5..8} {10..15} 17 18 42 99 {186..192} ; do ip r add 192.168.${i}.0/24 proto ${i} dev eth3; done"
+    * Note the output of "nmcli -f ipv6.routes c show id con_ipv4" as value "nm_routes_after_types"
+    * Execute "nmcli -f ip6.route d show eth3"
+    Then Check noted values "nm_routes_before" and "nm_routes_after_types" are the same
+    # If more routes are needed, just adjust argument to the generating script and When check
+    * Execute "prepare/bird_routes.py eth3 4 2000000 > /tmp/nmci-bird-routes-v4"
+    * Execute "ip -b /tmp/nmci-bird-routes-v4"
+    When Execute "test 2000000 -le $(ip r show dev eth3 | wc -l)"
+    Then "--" is visible with command "nmcli -f ipv4.routes c show id con_ipv4" in "5" seconds
+     And Execute "nmcli -f ip4.route d show eth3"
