@@ -32,13 +32,15 @@ install_el9_packages () {
 
     install_behave_pytest
 
-    # Install openvswitch2
+    # Install centos deps
     if grep -q -e 'CentOS' /etc/redhat-release; then
         dnf -y install \
+            # OVS deps and GSM perl deps
             $CBSC/openvswitch2.16/2.16.0/33.el9s/x86_64/openvswitch2.16-2.16.0-33.el9s.x86_64.rpm \
-            $CBSC/openvswitch-selinux-extra-policy/1.0/30.el9s/noarch/openvswitch-selinux-extra-policy-1.0-30.el9s.noarch.rpm
-
+            $CBSC/openvswitch-selinux-extra-policy/1.0/30.el9s/noarch/openvswitch-selinux-extra-policy-1.0-30.el9s.noarch.rpm \
+            $KHUB/perl-IO-Tty/1.16/4.el9/x86_64/perl-IO-Tty-1.16-4.el9.x86_64.rpm
     fi
+
     # Install vpn dependencies
     dnf -4 -y install \
         $KOJI/ipsec-tools/0.8.2/10.fc28/$(arch)/ipsec-tools-0.8.2-10.fc28.$(arch).rpm \
