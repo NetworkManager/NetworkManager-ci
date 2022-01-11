@@ -2,6 +2,7 @@
 KOJI="https://kojipkgs.fedoraproject.org/packages"
 BREW="http://download.eng.bos.redhat.com/brewroot/vol"
 FEDP="https://vbenes.fedorapeople.org/NM"
+CBSC="https://cbs.centos.org/kojifiles/packages"
 
 install_behave_pytest () {
   python -m pip install behave

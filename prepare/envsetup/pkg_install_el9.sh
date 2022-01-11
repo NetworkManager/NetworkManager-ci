@@ -32,6 +32,13 @@ install_el9_packages () {
 
     install_behave_pytest
 
+    # Install openvswitch2
+    if grep -q -e 'CentOS' /etc/redhat-release; then
+        dnf -y install \
+            $CBSC/openvswitch2.16/2.16.0/33.el9s/x86_64/openvswitch2.16-2.16.0-33.el9s.x86_64.rpm \
+            $CBSC/openvswitch-selinux-extra-policy/1.0/30.el9s/noarch/openvswitch-selinux-extra-policy-1.0-30.el9s.noarch.rpm
+
+    fi
     # Install vpn dependencies
     dnf -4 -y install \
         $KOJI/ipsec-tools/0.8.2/10.fc28/$(arch)/ipsec-tools-0.8.2-10.fc28.$(arch).rpm \

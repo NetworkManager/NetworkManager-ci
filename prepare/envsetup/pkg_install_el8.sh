@@ -61,9 +61,9 @@ install_el8_packages () {
         systemctl restart openvswitch
     else
         dnf -y install \
-            https://cbs.centos.org/kojifiles/packages/openvswitch2.15/2.15.0/39.el8s/$(arch)/openvswitch2.15-2.15.0-39.el8s.$(arch).rpm \
-            https://cbs.centos.org/kojifiles/packages/openvswitch2.15/2.15.0/39.el8s/$(arch)/python3-openvswitch2.15-2.15.0-39.el8s.$(arch).rpm \
-            https://cbs.centos.org/kojifiles/packages/openvswitch-selinux-extra-policy/1.0/28.el8/noarch/openvswitch-selinux-extra-policy-1.0-28.el8.noarch.rpm
+            $CBSC/openvswitch2.15/2.15.0/39.el8s/$(arch)/openvswitch2.15-2.15.0-39.el8s.$(arch).rpm \
+            $CBSC/openvswitch2.15/2.15.0/39.el8s/$(arch)/python3-openvswitch2.15-2.15.0-39.el8s.$(arch).rpm \
+            $CBSC/openvswitch-selinux-extra-policy/1.0/28.el8/noarch/openvswitch-selinux-extra-policy-1.0-28.el8.noarch.rpm
     fi
 
     # We still need pptp and pptpd in epel to be packaged
