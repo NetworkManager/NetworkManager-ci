@@ -137,12 +137,8 @@ function setup_veth_env ()
         ip link set $DEV name orig-$DEV
         # Rename their profiles
         if nmcli c show $DEV 2>&1 > /dev/null; then
-            nmcli c show $DEV | grep connection.interface | grep $DEV ; rc=$?
-            if [ $rc -eq 0 ]; then
-                nmcli con mod $DEV connection.id orig-$DEV
-                nmcli con mod orig-$DEV connection.interface-name orig-$DEV
-            else
-                nmcli con mod $DEV connection.id orig-$DEV
+            if [[ "$DEV" == 'eth'* ]]; then
+                nmcli c del $DEV;
             fi
         fi
         # Bring devices up with new name
