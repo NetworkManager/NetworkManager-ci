@@ -37,10 +37,10 @@ node('cico-workspace') {
             REPO2="git@gitlab.freedesktop.org:NetworkManager/NetworkManager-ci.git"
             REPO3="https://github.com/NetworkManager/NetworkManager-ci.git"
             if (MERGE_REQUEST_ID) {
-                FETCH = "cd NetworkManager-ci && git fetch origin merge-requests/${MERGE_REQUEST_ID}/head:${TEST_BRANCH}"
+                FETCH = "cd NetworkManager-ci && git fetch --update-head-ok origin merge-requests/${MERGE_REQUEST_ID}/head:${TEST_BRANCH}"
             }
             else {
-                FETCH = "cd NetworkManager-ci && git fetch origin ${TEST_BRANCH}:${TEST_BRANCH}"
+                FETCH = "cd NetworkManager-ci && git fetch --update-head-ok origin ${TEST_BRANCH}:${TEST_BRANCH}"
             }
             CLONE = "rm -rf NetworkManager-ci; timeout 2m git clone -n --depth 1"
             GET_REPO = "(${CLONE} ${REPO1} && ${FETCH}) || (${CLONE} ${REPO2} && ${FETCH}) || (${CLONE} ${REPO3} && ${FETCH})"
