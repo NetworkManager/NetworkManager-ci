@@ -8,7 +8,6 @@ import gzip
 import os
 import yaml
 import json
-import traceback
 import base64
 import time
 
@@ -29,11 +28,12 @@ class Machine:
         self.id = id
 
         self.machine_list = "../machines"
-        self.results = f"../results_m{self.id}"
+        self.results = f"../results_m{self.id}/"
         self._run(f"mkdir -p {self.results}")
         self.rpms_dir = "../rpms/"
         self.results_internal = "/tmp/results/"
-        self.build_dir = "/root/nm-build"
+        self.build_dir = "/root/nm-build/"
+        self.rpms_build_dir = f"{self.build_dir}/NetworkManager/contrib/fedora/rpm/*/RPMS/x86_64/"
         self.copr_repo_file_internal = "/etc/yum.repos.d/nm-copr.repo"
         self.ssh_options = "-o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no"
 
@@ -218,7 +218,9 @@ class Machine:
             return False
         else:
             logging.debug("rpms in build dir:\n" + self.ssh(f"find {self.build_dir} | grep -F .rpm").stdout)
-            self.scp_from(f"{self.build_dir}/NetworkManager/contrib/fedora/rpm/*/RPMS/x86_64/*.rpm", self.rpms_dir)
+            # do not copy connectivity and devel packaqes
+            self.ssh(f"rm -rf {self.rpms_build_dir}/*-devel*.rpm {self.rpms_build_dir}/*-connectivity-*.rpm ")
+            self.scp_from(f"{self.rpms_build_dir}/*.rpm", self.rpms_dir)
         return True
 
     def build_async(self, refspec, mr="custom", repo=""):
@@ -246,7 +248,8 @@ class Machine:
         else:
             self.ssh("mkdir -p rpms")
             self.scp_to(f"{self.rpms_dir}/*.rpm", "rpms")
-            self.ssh(f"yum -y install ./rpms/NetworkManager*.rpm {excludes}")
+            # excludes not needed here, as the rpms should not be copied from build_machine
+            self.ssh("yum -y install ./rpms/NetworkManager*.rpm")
         self.ssh("systemctl restart NetworkManager")
         return True
 
