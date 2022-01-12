@@ -6,6 +6,10 @@ node('cico-workspace') {
             }
             if (!params['TRIGGER_DATA']) {
                 TRIGGER_DATA = ""
+                TD = ""
+            }
+            else {
+                TD = TRIGGER_DATA.bytes.encodeBase64().toString()
             }
             if (!params['MERGE_REQUEST_ID']) {
                 MERGE_REQUEST_ID = ""
@@ -28,107 +32,67 @@ node('cico-workspace') {
                 killJobs (currentBuild)
             }
         }
-        stage('get cico node') {
-            node = sh(script: "cico --debug node get -f value -c hostname -c comment --release ${RELEASE}", returnStdout: true).trim().tokenize(' ')
-            env.node1_hostname = "${node[0]}.ci.centos.org"
-            env.node1_ssid = "${node[1]}"
-        }
-        stage('get cico node') {
-            node = sh(script: "cico --debug node get -f value -c hostname -c comment --release ${RELEASE}", returnStdout: true).trim().tokenize(' ')
-            env.node2_hostname = "${node[0]}.ci.centos.org"
-            env.node2_ssid = "${node[1]}"
-        }
-
-        stage('run tests') {
-            println("Prepare env")
-            // Use byte64 to push the data to avoid encoding issues
-            TD = TRIGGER_DATA.bytes.encodeBase64().toString()
-            println("Preparing commands")
-            install = "yum install -y git python3 wget python3-pip"
-            install2 = "python3 -m pip install python-gitlab pyyaml==5.4.1"
-            clone = "git clone https://gitlab.freedesktop.org/NetworkManager/NetworkManager-ci.git; cd NetworkManager-ci; "
+        stage('clone git repo') {
+            REPO1="https://gitlab.freedesktop.org/NetworkManager/NetworkManager-ci.git"
+            REPO2="git@gitlab.freedesktop.org:NetworkManager/NetworkManager-ci.git"
+            REPO3="https://github.com/NetworkManager/NetworkManager-ci.git"
             if (MERGE_REQUEST_ID) {
-                clone += " git fetch origin merge-requests/${MERGE_REQUEST_ID}/head:${TEST_BRANCH} ;"
+                FETCH = "cd NetworkManager-ci && git fetch origin merge-requests/${MERGE_REQUEST_ID}/head:${TEST_BRANCH}"
             }
-            clone += " git checkout ${TEST_BRANCH}"
-            run = "cd NetworkManager-ci; python3 run/centos-ci/node_runner.py -t ${TEST_BRANCH} -c ${REFSPEC} -f ${FEATURES} -b ${env.BUILD_URL} -g ${GL_TOKEN}"
-            if (TRIGGER_DATA) {
-                run += " -d ${TD}"
+            else {
+                FETCH = "cd NetworkManager-ci && git fetch origin ${TEST_BRANCH}:${TEST_BRANCH}"
             }
-            println("Running install on machine 1")
-            sh "ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no root@${node1_hostname} '${install}'"
-            sh "ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no root@${node1_hostname} '${install2}'"
-            println("Running install on machine 2")
-            sh "ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no root@${node2_hostname} '${install}'"
-            sh "ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no root@${node2_hostname} '${install2}'"
-            println("Running clone on machine 1")
-            sh "ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no root@${node1_hostname} '${clone}'"
-            println("Running clone on machine 2")
-            sh "ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no root@${node2_hostname} '${clone}'"
-            println("Running tests")
+            CLONE = "rm -rf NetworkManager-ci; timeout 2m git clone -n --depth 1"
+            GET_REPO = "(${CLONE} ${REPO1} && ${FETCH}) || (${CLONE} ${REPO2} && ${FETCH}) || (${CLONE} ${REPO3} && ${FETCH})"
+            sh "python3 -m pip install --user python-gitlab pyyaml==5.4.1"
+            sh "${GET_REPO} || (sleep 10; ${GET_REPO}) || (sleep 10; ${GET_REPO})"
+            sh "cd NetworkManager-ci; git checkout ${TEST_BRANCH}"
+        }
+        stage('run tests on cico nodes') {
+            run = "python3 run/centos-ci/node_runner.py -t ${TEST_BRANCH} -c ${REFSPEC} -f '${FEATURES}' -b ${env.BUILD_URL} -g ${GL_TOKEN} -v ${RELEASE} -d '${TD}'"
             sh """
-                set +x
-                echo "Running tests on 2 machines, progress is visible in Workspaces: ${env.BUILD_URL}/ws"
-                { ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no root@${node1_hostname} '${run} -m 1' ; } &> m1.stdout &
-                { ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no root@${node2_hostname} '${run} -m 2' ; } &> m2.stdout &
-                wait
-                cat m1.stdout
-                cat m2.stdout
+              set +x
+              cd NetworkManager-ci
+              (${run} ; echo \$? > exit_code ) || true
+              for file in ../results_*/runtest.log; do
+                  [ -f \$file ] || continue
+                  machine=\${file%/*}
+                  machine=\${machine#_*}
+                  echo 'Test Output for machine #'\$machine:
+                  cat \$file
+              done
+              exit \$(cat exit_code)
             """
         }
     }
     finally {
         try {
             stage('publish results') {
-                sh "scp -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no root@${node1_hostname}:/tmp/results/* ."
-                sh 'sleep 10'
-                sh "mv RESULT.txt RESULT.m1.txt || true"
-                sh "mv journal.log.bz2 journal.log.m1.bz2 || true"
-                sh "mv junit.xml junit.m1.xml || true"
-                sh "scp -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no root@${node2_hostname}:/tmp/results/* ."
-                sh 'sleep 10'
-                sh "mv RESULT.txt RESULT.m2.txt || true"
-                sh "mv journal.log.bz2 journal.log.m2.bz2 || true"
-                sh "mv junit.xml junit.m2.xml || true"
-                // Check if we have RESULT so whole pipeline was not canceled
-                if (!fileExists('RESULT.m1.txt') || !fileExists('RESULT.m2.txt')) {
+                if (!fileExists('junit.xml')) {
                     // Compilation failed there is config.log
-                    if (!fileExists('config.log')) {
-                        println("Pipeline canceled! We do have no RESULT.txt or config.log")
-                        cancel = "cd NetworkManager-ci; python3 run/centos-ci/pipeline_cancel.py ${env.BUILD_URL} ${GL_TOKEN} ${TD}"
+                    if (!fileExists('build.log')) {
+                        println("Pipeline canceled (or crashed)! We do have no junit.xml or build.log")
                         sh """
                             set +x
-                            ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no root@${node1_hostname} '${cancel}'
-                            ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no root@${node2_hostname} '${cancel}'
+                            cd NetworkManager-ci; python3 run/centos-ci/pipeline_cancel.py ${env.BUILD_URL} ${GL_TOKEN} '${TD}'
                         """
                     }
                 }
-                println("Merge junit.xml")
-                merge_junit = "cd NetworkManager-ci; python3 run/centos-ci/merge_junit.py /tmp/results/junit.m1.xml /tmp/results/junit.m2.xml"
-                sh """
-                  set +x
-                  scp -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no junit.m2.xml root@${node1_hostname}:/tmp/results/junit.m2.xml
-                  ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no root@${node1_hostname} 'mv /tmp/results/junit.xml /tmp/results/junit.m1.xml'
-                  ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no root@${node1_hostname} '${merge_junit} > /tmp/results/junit.xml'
-                  scp -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no root@${node1_hostname}:/tmp/results/junit.xml junit.xml
-                  sleep 10
-                """
                 archiveArtifacts '*.*'
                 junit 'junit.xml'
             }
             stage('reserve') {
                 if (RESERVE != "0s") {
-                    println("You can log in via:")
-                    println("ssh root@${node1_hostname}")
-                    println("ssh root@${node2_hostname}")
+                    println("You can log in via ssh:")
+                    // output just first and second column (delimiter is :)
+                    sh "sed 's%:% root@%;s%:.*%%' machines"
                 }
                 sh 'sleep ${RESERVE}'
             }
         }
         finally {
-            stage('return cico node') {
-                sh 'cico node done ${node1_ssid} > commandResult'
-                sh 'cico node done ${node2_ssid} > commandResult'
+            stage('return cico nodes') {
+                sh "python3 NetworkManager-ci/run/centos-ci/return_nodes.py"
             }
         }
     }

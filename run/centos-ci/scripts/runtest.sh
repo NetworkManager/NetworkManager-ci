@@ -3,10 +3,9 @@ if [ -e /tmp/nm_compilation_failed ]; then
     exit 1
 fi
 
-systemctl restart NetworkManager
-sleep 5
-
-cd NetworkManager-ci
+# restart is done after install
+#systemctl restart NetworkManager
+#sleep 5
 
 # Add fail, skip, pass, and test counter variables
 cnt=0
@@ -34,7 +33,7 @@ for test in $@; do
     fi
 
     # Start test itself with timeout
-    if [ -z "$MACHINE_ID" -o "$MACHINE_ID" = "0" ]; then
+    if [ -z "$MACHINE_ID" ]; then
       export TEST="NetworkManager-ci_Test${counter}_$test"
     else
       export TEST="NetworkManager-ci-M${MACHINE_ID}_Test${counter}_$test"
@@ -89,8 +88,8 @@ if [ ${#skip[@]} -ne 0 ]; then
         echo "$s"
     done
 fi
-echo "${#pass[@]}" > /tmp/summary.txt
-echo "${#fail[@]}" >> /tmp/summary.txt
-echo "${#skip[@]}" >> /tmp/summary.txt
-
+echo "${#pass[@]}" > /tmp/results/summary.txt
+echo "${#fail[@]}" >> /tmp/results/summary.txt
+echo "${#skip[@]}" >> /tmp/results/summary.txt
+echo "${fail[@]}" >> /tmp/results/summary.txt
 exit $rc
