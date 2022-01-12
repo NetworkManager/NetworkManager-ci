@@ -410,6 +410,12 @@ class Runner:
     def _abort(self, msg=""):
         if self.gitlab:
             self.gitlab.set_pipeline('canceled')
+            # if we have config.log, build failed
+            if os.path.isfile("../build.log"):
+                self._gitlab_message = f"{self.build_url}\n\nNetworkManager build from source failed!"
+            else:
+                self._gitlab_message = f"{self.build_url}\n\nJob unexpectedly aborted!"
+            self._post_results()
         if self.build_machine:
             self.build_machine.cmd_terminate()
         for m in self.machines:
