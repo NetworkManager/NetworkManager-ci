@@ -262,7 +262,7 @@ class Machine:
         tests = " ".join(tests)
         # command after redirection operators ('|', '>', '&&') execute on jenkins machine,
         # unless escaped as "echo \\> file', so runtest.log and journal are saved to jenkins directly
-        ret = self.ssh(f"cd NetworkManager-ci\\; MACHINE_ID={self.id} bash run/centos-ci/scripts/runtest.sh {tests} &> {self.results}/runtest.log", check=False)
+        ret = self.ssh(f"cd NetworkManager-ci\\; MACHINE_ID={self.id} bash -x run/centos-ci/scripts/runtest.sh {tests} &> {self.results}/runtest.log", check=False)
         self.ssh(f"journalctl -b --no-pager -o short-monotonic --all \\| bzip2 --best > ../journal.m{self.id}.log.bz2")
         # copy artefacts
         self.scp_from(f"{self.results_internal}/*.*", self.results)
