@@ -190,7 +190,7 @@ class Machine:
         # copy NetworkManager-ci repo (already checked out at correct commit)
         self.scp_to("../NetworkManager-ci/", "")
         # execute envsetup - with stock NM package, will update later, should not matter
-        self.ssh(f"cd NetworkManager-ci\\; bash prepare/envsetup.sh setup first_test_setup > {self.results}/envsetup.log")
+        self.ssh(f"cd NetworkManager-ci\\; bash -x prepare/envsetup.sh setup first_test_setup > {self.results}/envsetup.log")
         self._run(f"cp {self.results}/envsetup.log ../envsetup.m{self.id}.log")
         return True
 
