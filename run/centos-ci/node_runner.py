@@ -119,7 +119,11 @@ class Machine:
 
     def _cmd_wait_pipe(self):
         if self._pipe is not None:
-            rc = self._pipe.recv()
+            try:
+                rc = self._pipe.recv()
+            except Exception as e:
+                logging.debug(f"Exception during wait for command on machine {self.id}. Probably job was canceled.")
+                rc = e
             self._pipe = None
             if isinstance(rc, Exception):
                 print(str(rc))
