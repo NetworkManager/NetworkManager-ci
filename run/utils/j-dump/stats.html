@@ -71,8 +71,17 @@
     var hour = time_raw.charCodeAt(4);
     var min = time_raw.charCodeAt(5);
     var sec = time_raw.charCodeAt(6);
+    // construct date from UTC source
+    var d = new Date();
+    d.setUTCFullYear(year);
     // do month-1 here, as `Date` counts from 0
-    return new Date(year, month-1, day, hour, min, sec, 0);
+    d.setUTCMonth(month-1);
+    d.setUTCDate(day);
+    d.setUTCHours(hour);
+    d.setUTCMinutes(min);
+    d.setUTCSeconds(sec);
+    d.setUTCMilliseconds(0);
+    return d;
   }
 
   function build_duration(build) {
