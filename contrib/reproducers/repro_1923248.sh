@@ -131,6 +131,9 @@ ip link delete veth1c ||true
 ip link delete veth1r ||true
 nmcli connection delete id ovs1 bond_test bond_test.3 br_test ovs-br0 ovs-port-ovs1 ovs-port-veth0c ovs-port-veth0r ovs-port-veth1c veth0c veth0c_p veth0r  veth1c veth1c_p veth1r || true
 
+# delete residual connections (sometimes named without ovs-port prefix)
+nmcli connection delete ovs1-port veth0c-port veth0r-port veth0s veth1c-port || true
+
 # Workaround for bug https://bugzilla.redhat.com/show_bug.cgi?id=1935026
 ovs-vsctl del-br ovs-br0 || true
 
