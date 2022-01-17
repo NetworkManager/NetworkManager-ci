@@ -469,39 +469,47 @@ class Runner:
         s = 0
         for m in self.machines:
             if not os.path.isfile(f"{m.results}/summary.txt"):
-                machine_lines.append(f"Machine {m.id}: failed, no result stats retrieved!")
+                machine_lines.append(f"**M{m.id}: NO RESULTS**: no summary.txt retrieved!")
+                logging.debug(f"M{m.id}: no summary.txt file")
                 self.exit_code = 1
                 continue
             with open(f"{m.results}/summary.txt") as rf:
                 lines = rf.read().strip("\n").split("\n")
             if len(lines) not in [3, 4]:
-                machine_lines.append(f"Machine {m.id}: unexpected summary.txt file: {lines}")
+                machine_lines.append(f"**M{m.id}: BAD RESULTS**: unexpected summary.txt file")
+                logging.debug(f"M{m.id}: unexpected summary.txt file: {lines}")
                 self.exit_code = 1
                 continue
-            m_status = "passed"
+            m_status = "PASS"
             if lines[1] != "0" or (lines[0] == "0" and lines[2] == "0"):
-                m_status = "failed"
+                m_status = "FAIL"
                 self.exit_code = 1
             try:
                 pm = int(lines[0])
                 fm = int(lines[1])
                 sm = int(lines[2])
             except Exception as e:
-                machine_lines.append(f"Machine {m.id}: unexpected summary.txt file: {lines}, {e}")
+                machine_lines.append(f"**M{m.id}: BAD RESULTS**: unexpected summary.txt file")
+                logging.debug(f"M{m.id}: unexpected summary.txt file: {lines}")
+                logging.debug(e)
                 self.exit_code = 1
                 continue
             p, f, s = p+pm, f+fm, s+sm
             undef = m.tests_num - (pm + fm + sm)
+            undef_str = ""
             if undef != 0:
-                machine_lines.append(f"Machine {m.id} {m_status}: Passed: {pm}, Failed: {fm}, Skipped: {sm}, Undefined: {undef}")
-                continue
-            machine_lines.append(f"Machine {m.id} {m_status}: Passed: {pm}, Failed: {fm}, Skipped: {sm}")
+                self.exit_code = 1
+                m_status = "TIMEOUT"
+                undef_str = ",  Missing: {undef}"
+            machine_lines.append(f"**M{m.id} {m_status}**: Passed: {pm}, Failed: {fm}, Skipped: {sm}{undef_str}")
             if len(lines) == 4:
                 failed_tests += " " + lines[3]
                 failed_tests.strip(" ")
 
-        if len(self.machines) > 1:
-            machine_lines.append(f"Totals: Passed: {p}, Failed {f}, Skipped {f}.")
+        if len(machine_lines) > 1:
+            machine_lines.append(f"Passed: {p}, Failed {f}, Skipped {f}.")
+        elif len(machine_lines):
+            machine_lines[0] = machine_lines[0].split("**:")[1]
 
         status = "UNSTABLE: Some tests failed"
         if self.exit_code == 0:
