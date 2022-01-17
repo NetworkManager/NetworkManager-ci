@@ -2226,7 +2226,7 @@ Feature: nmcli: ipv4
     * Execute "ip -n testX4_ns addr add dev testX4p 192.168.99.1/24"
     * Run child "ip netns exec testX4_ns dnsmasq --pid-file=/tmp/testX4_ns.pid --listen-address=192.168.99.1 --conf-file=/dev/null --no-hosts --dhcp-range=192.168.99.30,192.168.99.39,2m" without shell
     * Add a new connection of type "ethernet" and options "ifname testX4 con-name con_ipv4"
-    * Bring "up" connection "testX4"
+    * Bring "up" connection "con_ipv4"
     # VVV Sleep 1 To avoid rhbz2005013
     * Execute "pkill -F /tmp/testX4_ns.pid; sleep 1"
     * Execute "ip l set testX4 down"
@@ -2254,7 +2254,7 @@ Feature: nmcli: ipv4
     * Execute "ip -n testX4_ns addr add dev testX4p 192.168.99.1/24"
     * Run child "ip netns exec testX4_ns dnsmasq --pid-file=/tmp/testX4_ns.pid --listen-address=192.168.99.1 --conf-file=/dev/null --no-hosts --dhcp-range=192.168.99.30,192.168.99.39,2m" without shell
     * Add a new connection of type "ethernet" and options "ifname testX4 con-name con_ipv4"
-    * Bring "up" connection "testX4"
+    * Bring "up" connection "con_ipv4"
     * Execute "pkill -F /tmp/testX4_ns.pid"
     * Execute "ip l set testX4 down"
     * Run child "ip netns exec testX4_ns dnsmasq --pid-file=/tmp/testX4_ns.pid --listen-address=192.168.99.1 --conf-file=/dev/null --no-hosts --dhcp-range=192.168.99.40,192.168.99.49,2m" without shell
