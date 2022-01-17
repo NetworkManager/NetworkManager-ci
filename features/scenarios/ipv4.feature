@@ -2222,27 +2222,27 @@ Feature: nmcli: ipv4
     @con_ipv4_remove @teardown_testveth
     @ipv4_spurious_leftover_route
     Scenario: NM - ipv4 - NetworkManager configures wrong, spurious "local" route for IP address after DHCP address change
-    * Prepare simulated test "testX6" device without DHCP
-    * Execute "ip -n testX6_ns addr add dev testX6p 192.168.99.1/24"
-    * Run child "ip netns exec testX6_ns dnsmasq --pid-file=/tmp/testX6_ns.pid --listen-address=192.168.99.1 --conf-file=/dev/null --no-hosts --dhcp-range=192.168.99.30,192.168.99.39,2m" without shell
-    * Add a new connection of type "ethernet" and options "ifname testX6 con-name testX6"
-    * Bring "up" connection "testX6"
+    * Prepare simulated test "testX4" device without DHCP
+    * Execute "ip -n testX4_ns addr add dev testX4p 192.168.99.1/24"
+    * Run child "ip netns exec testX4_ns dnsmasq --pid-file=/tmp/testX4_ns.pid --listen-address=192.168.99.1 --conf-file=/dev/null --no-hosts --dhcp-range=192.168.99.30,192.168.99.39,2m" without shell
+    * Add a new connection of type "ethernet" and options "ifname testX4 con-name con_ipv4"
+    * Bring "up" connection "testX4"
     # VVV Sleep 1 To avoid rhbz2005013
-    * Execute "pkill -F /tmp/testX6_ns.pid; sleep 1"
-    * Execute "ip l set testX6 down"
-    * Run child "ip netns exec testX6_ns dnsmasq --pid-file=/tmp/testX6_ns.pid --listen-address=192.168.99.1 --conf-file=/dev/null --no-hosts --dhcp-range=192.168.99.40,192.168.99.49,2m" without shell
+    * Execute "pkill -F /tmp/testX4_ns.pid; sleep 1"
+    * Execute "ip l set testX4 down"
+    * Run child "ip netns exec testX4_ns dnsmasq --pid-file=/tmp/testX4_ns.pid --listen-address=192.168.99.1 --conf-file=/dev/null --no-hosts --dhcp-range=192.168.99.40,192.168.99.49,2m" without shell
     # VVV Sleep 1 To avoid rhbz2005013
-    * Execute "sleep 1; ip l set testX6 up"
-    When "192.168.99.4" is visible with command "ip -4 r show table all dev testX6 scope link" in "60" seconds
-    Then "192.168.99.3" is not visible with command "ip -4 r show table all dev testX6 scope link"
+    * Execute "sleep 1; ip l set testX4 up"
+    When "192.168.99.4" is visible with command "ip -4 r show table all dev testX4 scope link" in "60" seconds
+    Then "192.168.99.3" is not visible with command "ip -4 r show table all dev testX4 scope link"
     # VVV Sleep 1 To avoid rhbz2005013
-    * Execute "pkill -F /tmp/testX6_ns.pid; sleep 1"
-    * Execute "ip l set testX6 down"
-    * Run child "ip netns exec testX6_ns dnsmasq --pid-file=/tmp/testX6_ns.pid --listen-address=192.168.99.1 --conf-file=/dev/null --no-hosts --dhcp-range=192.168.99.50,192.168.99.59,2m" without shell
+    * Execute "pkill -F /tmp/testX4_ns.pid; sleep 1"
+    * Execute "ip l set testX4 down"
+    * Run child "ip netns exec testX4_ns dnsmasq --pid-file=/tmp/testX4_ns.pid --listen-address=192.168.99.1 --conf-file=/dev/null --no-hosts --dhcp-range=192.168.99.50,192.168.99.59,2m" without shell
     # VVV Sleep 1 To avoid rhbz2005013
-    * Execute "sleep 1; ip l set testX6 up"
-    When "192.168.99.5" is visible with command "ip -4 r show table all dev testX6 scope link" in "60" seconds
-    Then "192.168.99.[34]" is not visible with command "ip -4 r show table all dev testX6 scope link"
+    * Execute "sleep 1; ip l set testX4 up"
+    When "192.168.99.5" is visible with command "ip -4 r show table all dev testX4 scope link" in "60" seconds
+    Then "192.168.99.[34]" is not visible with command "ip -4 r show table all dev testX4 scope link"
 
 
     @rhbz1979192
@@ -2250,23 +2250,23 @@ Feature: nmcli: ipv4
     @con_ipv4_remove @teardown_testveth
     @ipv4_spurious_leftover_route
     Scenario: NM - ipv4 - NetworkManager configures wrong, spurious "local" route for IP address after DHCP address change
-    * Prepare simulated test "testX6" device without DHCP
-    * Execute "ip -n testX6_ns addr add dev testX6p 192.168.99.1/24"
-    * Run child "ip netns exec testX6_ns dnsmasq --pid-file=/tmp/testX6_ns.pid --listen-address=192.168.99.1 --conf-file=/dev/null --no-hosts --dhcp-range=192.168.99.30,192.168.99.39,2m" without shell
-    * Add a new connection of type "ethernet" and options "ifname testX6 con-name testX6"
-    * Bring "up" connection "testX6"
-    * Execute "pkill -F /tmp/testX6_ns.pid"
-    * Execute "ip l set testX6 down"
-    * Run child "ip netns exec testX6_ns dnsmasq --pid-file=/tmp/testX6_ns.pid --listen-address=192.168.99.1 --conf-file=/dev/null --no-hosts --dhcp-range=192.168.99.40,192.168.99.49,2m" without shell
-    * Execute "ip l set testX6 up"
-    When "192.168.99.4" is visible with command "ip -4 r show table all dev testX6 scope link" in "60" seconds
-    Then "192.168.99.3" is not visible with command "ip -4 r show table all dev testX6 scope link"
-    * Execute "pkill -F /tmp/testX6_ns.pid"
-    * Execute "ip l set testX6 down"
-    * Run child "ip netns exec testX6_ns dnsmasq --pid-file=/tmp/testX6_ns.pid --listen-address=192.168.99.1 --conf-file=/dev/null --no-hosts --dhcp-range=192.168.99.50,192.168.99.59,2m" without shell
-    * Execute "ip l set testX6 up"
-    When "192.168.99.5" is visible with command "ip -4 r show table all dev testX6 scope link" in "60" seconds
-    Then "192.168.99.[34]" is not visible with command "ip -4 r show table all dev testX6 scope link"
+    * Prepare simulated test "testX4" device without DHCP
+    * Execute "ip -n testX4_ns addr add dev testX4p 192.168.99.1/24"
+    * Run child "ip netns exec testX4_ns dnsmasq --pid-file=/tmp/testX4_ns.pid --listen-address=192.168.99.1 --conf-file=/dev/null --no-hosts --dhcp-range=192.168.99.30,192.168.99.39,2m" without shell
+    * Add a new connection of type "ethernet" and options "ifname testX4 con-name con_ipv4"
+    * Bring "up" connection "testX4"
+    * Execute "pkill -F /tmp/testX4_ns.pid"
+    * Execute "ip l set testX4 down"
+    * Run child "ip netns exec testX4_ns dnsmasq --pid-file=/tmp/testX4_ns.pid --listen-address=192.168.99.1 --conf-file=/dev/null --no-hosts --dhcp-range=192.168.99.40,192.168.99.49,2m" without shell
+    * Execute "ip l set testX4 up"
+    When "192.168.99.4" is visible with command "ip -4 r show table all dev testX4 scope link" in "60" seconds
+    Then "192.168.99.3" is not visible with command "ip -4 r show table all dev testX4 scope link"
+    * Execute "pkill -F /tmp/testX4_ns.pid"
+    * Execute "ip l set testX4 down"
+    * Run child "ip netns exec testX4_ns dnsmasq --pid-file=/tmp/testX4_ns.pid --listen-address=192.168.99.1 --conf-file=/dev/null --no-hosts --dhcp-range=192.168.99.50,192.168.99.59,2m" without shell
+    * Execute "ip l set testX4 up"
+    When "192.168.99.5" is visible with command "ip -4 r show table all dev testX4 scope link" in "60" seconds
+    Then "192.168.99.[34]" is not visible with command "ip -4 r show table all dev testX4 scope link"
 
 
     @rhbz1861527
