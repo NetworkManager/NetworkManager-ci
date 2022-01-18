@@ -688,6 +688,9 @@ def teardown_testveth(context):
             device = ns.split('_')[0]
             print(device)
             context.run('kill $(cat /var/run/dhclient-*%s.pid)' % device)
+            # We need to reset this too
+            context.run('sysctl net.ipv6.conf.all.forwarding=0')
+
     unmanage_veths(context)
     reload_NM_service(context)
 
