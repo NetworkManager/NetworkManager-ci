@@ -348,7 +348,7 @@ Feature: NM: dracut
 
     @rhbz1961666
     @rhelver+=8.3 @fedoraver+=32
-    @ver+=1.32
+    @ver+=1.36
     @dracut @long @not_on_ppc64le
     @dracut_NM_NFS_root_nfs_ip_dhcp_dhcp6_slow_ip6
     Scenario: NM - dracut - NM module - NFSv3 root=nfs ip=dhcp,dhcp6 with slow IPv6 DHCP
@@ -476,7 +476,7 @@ Feature: NM: dracut
 
     @rhbz1961666
     @rhelver+=8.3 @fedoraver+=32
-    @ver+=1.32
+    @ver+=1.36
     @dracut @long @not_on_ppc64le
     @dracut_NM_NFS_root_nfs_ip_dhcp_dhcp6_with_slow_ip64_and_ip6_nic
     Scenario: NM - dracut - NM module - NFSv3 root=nfs ip=dhcp,dhcp6 with IPv4 + slow IPv6 NIC and IPv6 only NIC
