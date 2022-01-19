@@ -33,6 +33,7 @@ class Machine:
         self.rpms_dir = "../rpms/"
         self.results_internal = "/tmp/results/"
         self.build_dir = "/root/nm-build/"
+        self.artifact_dir = "../"
         self.rpms_build_dir = f"{self.build_dir}/NetworkManager/contrib/fedora/rpm/*/RPMS/x86_64/"
         self.copr_repo_file_internal = "/etc/yum.repos.d/nm-copr.repo"
         self.ssh_options = "-o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no"
@@ -214,11 +215,10 @@ class Machine:
 
         logging.debug(f"Building from refspec id {refspec} of repo '{repo}'")
         self.scp_to("run/centos-ci/scripts/build.sh", "build.sh")
-        ret = self.ssh(f"BUILD_REPO={repo} sh ./build.sh {refspec} {mr} &> {self.results}/build.log", check=False)
+        ret = self.ssh(f"BUILD_REPO={repo} sh ./build.sh {refspec} {mr} &> {self.artifact_dir}/build.log", check=False)
         if ret.returncode != 0:
             logging.debug("Build failed, copy config.log!")
             self.scp_from(f"{self.build_dir}/NetworkManager/config.log", "../", check=False)
-            self._run(f"mv {self.results}/build.log ../")
             return False
         else:
             logging.debug("rpms in build dir:\n" + self.ssh(f"find {self.build_dir} | grep -F .rpm").stdout)
@@ -418,7 +418,7 @@ class Runner:
         if self.gitlab:
             self.gitlab.set_pipeline('canceled')
             # if we have config.log, build failed
-            if os.path.isfile("../build.log"):
+            if os.path.isfile("../config.log"):
                 self._gitlab_message = f"{self.build_url}\n\nNetworkManager build from source failed!"
             else:
                 self._gitlab_message = f"{self.build_url}\n\nJob unexpectedly aborted!"

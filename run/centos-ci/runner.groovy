@@ -70,8 +70,8 @@ node('cico-workspace') {
             stage('publish results') {
                 if (!fileExists('junit.xml')) {
                     // Compilation failed there is config.log
-                    if (!fileExists('build.log')) {
-                        println("Pipeline canceled (or crashed)! We do have no junit.xml or build.log")
+                    if (!fileExists('config.log')) {
+                        println("Pipeline canceled (or crashed)! We do have no junit.xml or config.log")
                         sh """
                             set +x
                             cd NetworkManager-ci; python3 run/centos-ci/pipeline_cancel.py ${env.BUILD_URL} ${GL_TOKEN} '${TD}'
