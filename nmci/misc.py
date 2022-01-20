@@ -22,7 +22,7 @@ class _Misc:
         m = re.match("^[^_]*NetworkManager[^_]*_[^_]*Test[^_]*_(.*)$", test_name)
         if m:
             test_name = m.group(1)
-        if test_name[0] == "@":
+        if test_name and test_name[0] == "@":
             test_name = test_name[1:]
         if not re.match("^" + self.TEST_NAME_VALID_CHAR_REGEX + "+$", test_name):
             raise ValueError(f"Invalid test name {test_name0}")
