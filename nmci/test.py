@@ -10,7 +10,7 @@ from . import git
 from . import ip
 from . import misc
 from . import util
-from . import tags as tag_registry
+from . import tags
 
 
 def test_misc_test_version_tag_eval():
@@ -468,21 +468,23 @@ def test_feature_tags():
         return False
 
     def check_registry(tag):
-        return tag in tag_registry.tag_registry
+        return tag in tags.tag_registry
 
     def check_mapper(tag):
         return tag in mapper_tests
 
-    for tags in all_test_tags:
-        assert tags
-        assert type(tags) is list
+    for test_tags in all_test_tags:
+        assert test_tags
+        assert type(test_tags) is list
         test_in_mapper = False
-        for tag in tags:
+        for tag in test_tags:
             assert type(tag) is str
             assert tag
             assert re.match("^[-a-z_.A-Z0-9+=]+$", tag)
             assert re.match("^" + misc.TEST_NAME_VALID_CHAR_REGEX + "+$", tag)
-            assert tags.count(tag) == 1, f'tag "{tag}" is not unique in {tags}'
+            assert (
+                test_tags.count(tag) == 1
+            ), f'tag "{tag}" is not unique in {test_tags}'
             is_ver = check_ver(tag)
             is_bugzilla = check_bugzilla(tag)
             is_registry = check_registry(tag)
@@ -499,14 +501,14 @@ def test_feature_tags():
                 f'{"bugzilla, " if is_bugzilla else ""})'
             )
 
-        assert test_in_mapper, f"none of {tags} is in mapper"
+        assert test_in_mapper, f"none of {test_tags} is in mapper"
 
-        tt = tuple(tags)
+        tt = tuple(test_tags)
         if tt in unique_tags:
-            pytest.fail(f'tags "{tags}" are duplicate')
+            pytest.fail(f'test_tags "{test_tags}" are duplicate')
         unique_tags.add(tt)
 
-    # for tag in tag_registry.tag_tag_registry:
+    # for tag in tags.tag_tag_registry:
     #    assert tag in tag_registry_used, f'tag "{tag}" is defined but never used'
 
 
