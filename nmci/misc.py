@@ -10,8 +10,6 @@ from . import git
 from . import ip
 from . import sdresolved
 from . import util
-import nmci
-from nmci.tags import tag_registry
 
 
 class _Misc:
@@ -521,6 +519,8 @@ class _Misc:
         return info
 
     def html_report_tag_links(self, scenario_el):
+        from . import tags
+
         tags_el = scenario_el.find(".//span[@class='tag']")
         try:
             git_url = git.config_get_origin_url()
@@ -544,8 +544,8 @@ class _Misc:
                         },
                     )
                     link.text = tag
-                elif tag.strip("@, ") in tag_registry and git_url:
-                    lineno = tag_registry[tag.strip("@, ")].lineno
+                elif tag.strip("@, ") in tags.tag_registry and git_url:
+                    lineno = tags.tag_registry[tag.strip("@, ")].lineno
                     link = ET.SubElement(
                         tags_el,
                         "a",
