@@ -10,7 +10,6 @@ from . import git
 from . import ip
 from . import misc
 from . import util
-from . import tags
 
 
 def test_misc_test_version_tag_eval():
@@ -424,6 +423,8 @@ def test_misc_nm_version_parse():
 
 
 def test_feature_tags():
+
+    from . import tags
 
     mapper = misc.get_mapper_obj()
     mapper_tests = misc.get_mapper_tests(mapper)
