@@ -6,6 +6,7 @@ import yaml
 
 import xml.etree.ElementTree as ET
 
+from . import git
 from . import ip
 from . import sdresolved
 from . import util
@@ -521,6 +522,12 @@ class _Misc:
 
     def html_report_tag_links(self, scenario_el):
         tags_el = scenario_el.find(".//span[@class='tag']")
+        try:
+            git_url = git.config_get_origin_url()
+            git_commit = git.call_rev_parse("HEAD")
+        except:
+            git_url = None
+            git_commit = None
         if tags_el is not None:
             tags_list = tags_el.text.split(" ")
             tags_el.text = ""
@@ -537,13 +544,13 @@ class _Misc:
                         },
                     )
                     link.text = tag
-                elif tag.strip("@, ") in tag_registry and self.project_git_url:
+                elif tag.strip("@, ") in tag_registry and git_url:
                     lineno = tag_registry[tag.strip("@, ")].lineno
                     link = ET.SubElement(
                         tags_el,
                         "a",
                         {
-                            "href": f"{self.project_git_url}/-/tree/{self.project_git_commit}/nmci/tags.py#L{lineno}",
+                            "href": f"{git_url}/-/tree/{git_commit}/nmci/tags.py#L{lineno}",
                             "target": "_blank",
                             "style": "color:inherit",
                         },
@@ -554,11 +561,12 @@ class _Misc:
                     tag_el.text = tag
 
     def html_report_file_links(self, scenario_el):
-        git_url = self.project_git_url
-        git_commit = self.project_git_commit
-        if not git_url or not git_commit:
+        try:
+            git_url = git.config_get_origin_url()
+            git_commit = git.call_rev_parse("HEAD")
+        except:
             return
-        url_base = f"{self.project_git_url}/-/tree/{self.project_git_commit}/"
+        url_base = f"{git_url}/-/tree/{git_commit}/"
         file_els = [scenario_el.find(".//span[@class='scenario_file']")]
         file_els += scenario_el.findall(".//div[@class='step_file']/span")
 
@@ -576,30 +584,6 @@ class _Misc:
                 )
                 link.text = file_el.text
                 file_el.text = ""
-
-    @property
-    def project_git_url(self):
-        r = getattr(self, "_project_git_url", None)
-        if r is None:
-            r, _, rc = nmci.run("git config --get remote.origin.url")
-            r = r.strip("\n")[:-4]
-            if rc != 0:
-                r = False
-            elif r.startswith("git@"):
-                r = r.replace(":", "/").replace("git@", "https://")
-            self._project_git_url = r
-        return r
-
-    @property
-    def project_git_commit(self):
-        r = getattr(self, "_project_git_commit", None)
-        if r is None:
-            r, _, rc = nmci.run("git rev-parse HEAD")
-            r = r.strip("\n")
-            if rc != 0:
-                r = False
-            self._project_git_commit = r
-        return r
 
 
 sys.modules[__name__] = _Misc()

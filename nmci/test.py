@@ -6,6 +6,7 @@ import subprocess
 import sys
 import time
 
+from . import git
 from . import ip
 from . import misc
 from . import util
@@ -560,6 +561,25 @@ def test_black_code_fromatting():
     assert not proc.stderr
     assert not proc.stdout
     assert proc.returncode == 0
+
+
+def test_git_call_ref_parse():
+
+    try:
+        util.process_run(["git", "rev-parse", "HEAD"])
+    except:
+        pytest.skip("not a suitable git repo")
+
+    assert re.match("^[0-9a-f]{40}$", git.call_rev_parse("HEAD"))
+
+
+def test_git_config_get_origin_url():
+    try:
+        util.process_run(["git", "config", "--get", "remote.origin.url"])
+    except:
+        pytest.skip('not a suitable git repo (as no "remote.origin.url")')
+
+    assert git.config_get_origin_url().startswith("https://")
 
 
 def test_ip_link_show_all():
