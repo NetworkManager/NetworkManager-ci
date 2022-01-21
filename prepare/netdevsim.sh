@@ -31,6 +31,9 @@ function setup () {
         fi
     elif grep "release 9" /etc/redhat-release; then
         URL="http://download.eng.bos.redhat.com/brewroot/vol/rhel-9/packages/kernel"
+        if grep "CentOS" /etc/redhat-release; then
+            URL="https://kojihub.stream.centos.org/kojifiles/packages/kernel/"
+        fi
         LINUX=linux-$MAJOR-${MINOR%.el9}
         PATCH="0001-netdevsim-physical-address-ring.patch"
     fi
@@ -61,13 +64,13 @@ function setup () {
 
         ARCH="$(uname -p)"
 
-        if [ $ARCH == "ppc64le" ] ;then 
+        if [ $ARCH == "ppc64le" ] ;then
             ARCH="powerpc"
-        elif [ $ARCH == "s390x" ] ;then 
+        elif [ $ARCH == "s390x" ] ;then
             ARCH="s390"
-        elif [ $ARCH == "x86_64" ] ;then 
+        elif [ $ARCH == "x86_64" ] ;then
             ARCH="x86"
-        elif [ $ARCH == "aarch64" ] ;then 
+        elif [ $ARCH == "aarch64" ] ;then
             ARCH="arm64"
         fi
 
