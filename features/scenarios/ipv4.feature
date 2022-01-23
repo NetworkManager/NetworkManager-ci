@@ -2287,3 +2287,25 @@ Feature: nmcli: ipv4
     When Execute "test 2000000 -le $(ip r show dev eth3 | wc -l)"
     Then "--" is visible with command "nmcli -f ipv4.routes c show id con_ipv4" in "5" seconds
      And Execute "nmcli -f ip4.route d show eth3"
+
+
+    @rhbz2040683
+    @ver+=1.36
+    @con_ipv4_remove @teardown_testveth
+    @ipv4_route-table_reapply
+    Scenario: nmcli - ipv4 - route-table	config and reapply take	effect immediately
+    * Prepare simulated test "testX4" device
+    * Add a new connection of type "ethernet" and options 
+                                                  """
+                                                  ifname testX4
+                                                  con-name con_ipv4
+                                                  ipv4.method auto
+                                                  ipv4.route-table 1000
+                                                  ipv4.may-fail no
+                                                  """
+    * Bring "up" connection "con_ipv4"
+    Then "testX4" is visible with command "ip route ls table 1000" in "10" seconds
+    * Modify connection "con_ipv4" changing options "ipv4.route-table 1001"
+    * Execute "nmcli device reapply testX4"
+    Then "testX4" is visible with command "ip route ls table 1001" in "10" seconds
+    And "testX4" is not visible with command "ip route ls table 1000" in "10" seconds
