@@ -34,7 +34,7 @@ class Machine:
         self.results_internal = "/tmp/results/"
         self.build_dir = "/root/nm-build/"
         self.artifact_dir = "../"
-        self.rpms_build_dir = f"{self.build_dir}/NetworkManager/contrib/fedora/rpm/*/RPMS/x86_64/"
+        self.rpms_build_dir = f"{self.build_dir}/NetworkManager/contrib/fedora/rpm/*/RPMS/*/"
         self.copr_repo_file_internal = "/etc/yum.repos.d/nm-copr.repo"
         self.ssh_options = "-o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no"
 
