@@ -241,6 +241,8 @@ class Machine:
                 continue
             elif "vpnc" in rpm:
                 continue
+            elif "pptp" in rpm:
+                continue
             delete_rpms += " " + rpm
         if delete_rpms.strip():
             self.ssh(f"rpm -ea --nodeps {delete_rpms}")
