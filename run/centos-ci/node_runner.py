@@ -223,7 +223,7 @@ class Machine:
         else:
             logging.debug("rpms in build dir:\n" + self.ssh(f"find {self.build_dir} | grep -F .rpm").stdout)
             # do not copy connectivity and devel packaqes
-            self.ssh(f"rm -rf {self.rpms_build_dir}/*-devel*.rpm {self.rpms_build_dir}/*-connectivity-*.rpm ")
+            self.ssh(f"rm -rf {self.rpms_build_dir}/*-devel*.rpm {self.rpms_build_dir}/*-connectivity-*.rpm {self.rpms_build_dir}/*-dispatcher-routing-rules-*.rpm")
             self.scp_from(f"{self.rpms_build_dir}/*.rpm", self.rpms_dir)
         return True
 
