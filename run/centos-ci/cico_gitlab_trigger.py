@@ -215,9 +215,8 @@ class GitlabTrigger(object):
             print(str(e))
 
 
-def get_rebuild_detail(message):
+def get_rebuild_detail(message, overrides={}):
     # lets see if there is a @OS:rhelx.y in the desc or commit msg
-    overrides = {}
     msg = []
     for line in message.split('\n'):
         if line.strip().lower().startswith('@os:'):
@@ -281,8 +280,9 @@ def execute_build(gt, content, os_version=default_os, features='best', build='ma
 def process_request(data, content):
     gt = GitlabTrigger(data)
     if gt.request_type == 'note':
+        params, _ = get_rebuild_detail(gt.description + '\n' + gt.commit_message)
         comment = gt.comment
-        params, comment = get_rebuild_detail(comment)
+        params, comment = get_rebuild_detail(comment, params)
         if comment.lower().startswith("rebuild"):
             comment = comment.lower().replace("rebuild", "", 1).strip()
             if comment == "":
@@ -320,7 +320,8 @@ def process_request(data, content):
             if gt.title.startswith("WIP"):
                 print("This is WIP Merge Request - not proceeding")
             else:
-                execute_build(gt, content)
+                params, _ = get_rebuild_detail(gt.description + '\n' + gt.commit_message)
+                execute_build(gt, content, **params)
     else:
         print('Invalid object kind: %s' % data['object_kind'])
 
