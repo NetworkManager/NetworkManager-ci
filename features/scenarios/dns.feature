@@ -453,6 +453,20 @@ Feature: nmcli - dns
     Then Nameserver "4000::1" is not set
     Then Nameserver "5000::1" is not set
 
+
+    @rhbz1878166
+    @rhelver+=8
+    @ver+=1.30
+    @con_dns_remove @dns_systemd_resolved
+    @dns_resolved_dnssec_opts
+    Scenario: NM - dns - dnssec
+    * Add a new connection of type "ethernet" and options "con-name con_dns ifname eth2 autoconnect no"
+    * Execute "nmcli connection modify con_dns ipv4.method manual ipv4.addresses 172.16.1.1/24 ipv4.gateway 172.16.1.2"
+    * Execute "nmcli connection modify con_dns ipv4.dns 172.16.1.53 ipv4.dns-search con_dns.domain"
+    * Bring "up" connection "con_dns"
+    Then "edns0" is visible with command "grep options /etc/resolv.conf"
+    Then "trust-ad" is visible with command "grep options /etc/resolv.conf"
+
 ##########################################
 # DEFAULT DNS TESTS
 ##########################################
@@ -955,6 +969,20 @@ Feature: nmcli - dns
     Then device "tun1" does not have DNS domain "."
     Then device "tun1" has DNS domain "vpn.domain"
 
+
+    @rhbz1878166
+    @rhelver+=8
+    @ver+=1.30
+    @con_dns_remove @dns_dnsmasq
+    @dns_dnsmasq_dnssec_opts
+    Scenario: NM - dns - dnssec
+    * Add a new connection of type "ethernet" and options "con-name con_dns ifname eth2 autoconnect no"
+    * Execute "nmcli connection modify con_dns ipv4.method manual ipv4.addresses 172.16.1.1/24 ipv4.gateway 172.16.1.2"
+    * Execute "nmcli connection modify con_dns ipv4.dns 172.16.1.53 ipv4.dns-search con_dns.domain"
+    * Bring "up" connection "con_dns"
+    Then "edns0" is visible with command "grep options /etc/resolv.conf"
+    Then "trust-ad" is visible with command "grep options /etc/resolv.conf"
+    
 ##########################################
 # DNSMASQ RESTART/KILL TESTS
 ##########################################
