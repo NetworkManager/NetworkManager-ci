@@ -768,7 +768,7 @@ Feature: nmcli - ethernet
 
 
     @rhbz1614700 @rhbz1807171
-    @ver+=1.25 @rhelver+=8 @fedoraver+=34
+    @ver+=1.25 @ver-=1.34 @rhelver+=8 @fedoraver+=34
     @con_ethernet_remove @prepare_patched_netdevsim
     @ethtool_features_ring
     Scenario: nmcli - ethernet - ethtool set ring options
@@ -780,6 +780,23 @@ Feature: nmcli - ethernet
     * Modify connection "con_ethernet" changing options "ethtool.ring-tx 0 ethtool.ring-rx-jumbo 0 ethtool.ring-rx-mini 0 ethtool.ring-rx 0"
     * Bring "up" connection "con_ethernet"
     When "RX:\s+0\s*RX Mini:\s+0\s*RX Jumbo:\s+0\s*TX:\s+0" is visible with command "ethtool -g eth11"
+
+
+    @rhbz1614700 @rhbz1807171 @rhbz2034086
+    @ver+=1.35 @rhelver+=8 @fedoraver+=34
+    @con_ethernet_remove @prepare_patched_netdevsim
+    @ethtool_features_ring
+    Scenario: nmcli - ethernet - ethtool set ring options
+    * Add a new connection of type "ethernet" and options "ifname eth11 ipv4.method manual ipv4.addresses 192.0.2.1/24 con-name con_ethernet ethtool.ring-tx 1000 ethtool.ring-rx-jumbo 1000 ethtool.ring-rx-mini 100 ethtool.ring-rx 1"
+    Then "ethtool.ring-rx-mini\s+= 100" is visible with command "sudo journalctl  | grep ring-rx | tail -n 1"
+    * Bring "up" connection "con_ethernet"
+    When "RX:\s+1\s*RX Mini:\s+100\s*RX Jumbo:\s+1000\s*TX:\s+1000" is visible with command "ethtool -g eth11"
+    * Disconnect device "eth11"
+    When "RX:\s+0\s*RX Mini:\s+0\s*RX Jumbo:\s+0\s*TX:\s+0" is visible with command "ethtool -g eth11"
+    * Modify connection "con_ethernet" changing options "ethtool.ring-tx 0 ethtool.ring-rx-jumbo 0 ethtool.ring-rx-mini 0 ethtool.ring-rx 0"
+    * Bring "up" connection "con_ethernet"
+    When "RX:\s+0\s*RX Mini:\s+0\s*RX Jumbo:\s+0\s*TX:\s+0" is visible with command "ethtool -g eth11"
+
 
     @rhbz1899372
     @ver+=1.31 @rhelver+=8.5 @fedoraver+=34
