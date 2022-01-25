@@ -87,7 +87,7 @@ def _before_scenario(context, scenario):
     os.environ['TERM'] = 'dumb'
 
     # dump status before the test preparation starts
-    nmci.lib.dump_status(context, 'Before Scenario', fail_only=True)
+    nmci.lib.dump_status(context, 'Before Scenario', fail_only=False)
 
     if context.IS_NMTUI:
         nmci.run("sudo pkill nmtui")
@@ -123,7 +123,7 @@ def _before_scenario(context, scenario):
 
     for tag_name in scenario.tags:
         tag = nmci.tags.tag_registry.get(tag_name, None)
-        if tag is not None and tag.before_scenario is not None:
+        if tag is not None and tag._before_scenario is not None:
             print("Executing @" + tag_name)
             t_start = time.time()
             t_status = "passed"
@@ -256,7 +256,7 @@ def _after_scenario(context, scenario):
     scenario_tags.reverse()
     for tag_name in scenario_tags:
         tag = nmci.tags.tag_registry.get(tag_name, None)
-        if tag is not None and tag.after_scenario is not None:
+        if tag is not None and tag._after_scenario is not None:
             print("Executing @" + tag_name)
             t_start = time.time()
             t_status = "passed"
@@ -280,8 +280,6 @@ def _after_scenario(context, scenario):
     # !!! all embed calls with "fail_only" after this are ignored !!!
     nmci.lib.process_embeds(context, scenario_fail)
 
-    nmci.lib.dump_status(context, 'After Clean', fail_only=False)
-
     if scenario_fail:
         # Attach journalctl logs
         print("Attaching NM log")
@@ -299,6 +297,9 @@ def _after_scenario(context, scenario):
             msg = "!!! no crash report detected, but NM PID changed !!!"
             context.embed('text/plain', msg, caption="NO_COREDUMP/NO_FAF")
         nmci.lib.after_crash_reset(context)
+
+    if scenario_fail:
+        nmci.lib.dump_status(context, 'After Clean', fail_only=False)
 
     if excepts or context.crashed_step:
         context.after_scenario_step_el.set("class", "step failed")

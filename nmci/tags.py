@@ -6,28 +6,50 @@ import subprocess
 import time
 import re
 import inspect
+import pickle
 from pyroute2 import IPRoute
 
 import nmci.ip
 import nmci.lib
 
+TAG_FILE = "/tmp/nmci_tag_registry"
+compiled_tags = False
+
 
 class Tag:
-    def __init__(self, tag_name, before_scenario=None, after_scenario=None):
+    def __init__(self, tag_name, before_scenario=None, after_scenario=None, args={}):
         stack = inspect.stack()
         self.lineno = stack[2].lineno
         self.tag_name = tag_name
-        self.before_scenario = before_scenario
-        self.after_scenario = after_scenario
+        self.args = args
+        self._before_scenario = before_scenario
+        self._after_scenario = after_scenario
+
+    def before_scenario(self, ctx, scen):
+        if self._before_scenario is not None:
+            self._before_scenario(ctx, scen, **self.args)
+
+    def after_scenario(self, ctx, scen):
+        if self._after_scenario is not None:
+            self._after_scenario(ctx, scen, **self.args)
 
 
 tag_registry = {}
 
 
-def _register_tag(tag_name, before_scenario=None, after_scenario=None):
+# will we load tags from cache?
+# tags load must be at the end of file, because pickle misses functions defined later
+if os.path.isfile(TAG_FILE):
+    if os.path.getmtime(TAG_FILE) >= os.path.getmtime(__file__):
+        compiled_tags = True
+
+
+def _register_tag(tag_name, before_scenario=None, after_scenario=None, args={}):
+    if compiled_tags:
+        return
     assert tag_name not in tag_registry, \
         "multiple definitions for tag '@%s'" % tag_name
-    tag_registry[tag_name] = Tag(tag_name, before_scenario, after_scenario)
+    tag_registry[tag_name] = Tag(tag_name, before_scenario, after_scenario, args)
 
 
 # tags that have efect outside this file
@@ -81,23 +103,19 @@ def skip_in_kvm_bs(ctx, scen):
 _register_tag("skip_in_kvm", skip_in_kvm_bs)
 
 
-def arch_only_bs(arch):
-    def arch_check(ctx, scen):
-        if ctx.arch != arch:
-            sys.exit(77)
-    return arch_check
+def arch_only_bs(ctx, scen, arch):
+    if ctx.arch != arch:
+        sys.exit(77)
 
 
-def not_on_arch_bs(arch):
-    def arch_check(ctx, scen):
-        if ctx.arch == arch:
-            sys.exit(77)
-    return arch_check
+def not_on_arch_bs(ctx, scen, arch):
+    if ctx.arch == arch:
+        sys.exit(77)
 
 
 for arch in ["x86_64", "s390x", "ppc64", "ppc64le", "aarch64"]:
-    _register_tag("not_on_" + arch, not_on_arch_bs(arch))
-    _register_tag(arch + "_only", arch_only_bs(arch))
+    _register_tag("not_on_" + arch, not_on_arch_bs, None, {"arch": arch})
+    _register_tag(arch + "_only", arch_only_bs, None, {"arch": arch})
 
 
 def not_on_aarch64_but_pegas_bs(ctx, scen):
@@ -2723,28 +2741,24 @@ def restore_broken_network_as(ctx, scen):
 _register_tag("restore_broken_network", None, restore_broken_network_as)
 
 
-def add_testeth_as(num):
-    def _add_testeth_as(ctx, scen):
-        ctx.run('sudo nmcli connection delete eth%d testeth%d' % (num, num))
-        ctx.run('sudo nmcli connection add type ethernet con-name testeth%d ifname eth%d autoconnect no' % (num, num))
-    return _add_testeth_as
+def add_testeth_as(ctx, scen, num):
+    ctx.run('sudo nmcli connection delete eth%d testeth%d' % (num, num))
+    ctx.run('sudo nmcli connection add type ethernet con-name testeth%d ifname eth%d autoconnect no' % (num, num))
 
 
 for i in [1, 5, 8, 10]:
-    _register_tag("add_testeth%d" % i, None, add_testeth_as(i))
+    _register_tag("add_testeth%d" % i, None, add_testeth_as, {"num": i})
 
 
-def eth_disconnect_as(num):
-    def _eth_disconnect_as(ctx, scen):
-        ctx.run('sudo nmcli device disconnect eth%d' % num)
-        # VVV Up/Down to preserve autoconnect feature
-        ctx.run('sudo nmcli connection up testeth%d' % num)
-        ctx.run('sudo nmcli connection down testeth%d' % num)
-    return _eth_disconnect_as
+def eth_disconnect_as(ctx, scen, num):
+    ctx.run('sudo nmcli device disconnect eth%d' % num)
+    # VVV Up/Down to preserve autoconnect feature
+    ctx.run('sudo nmcli connection up testeth%d' % num)
+    ctx.run('sudo nmcli connection down testeth%d' % num)
 
 
 for i in [1, 2, 4, 5, 6, 8, 10]:
-    _register_tag("eth%d_disconnect" % i, None, eth_disconnect_as(i))
+    _register_tag("eth%d_disconnect" % i, None, eth_disconnect_as, {"num": i})
 
 
 def non_utf_device_bs(ctx, scen):
@@ -2840,3 +2854,17 @@ def filter_batch_as(ctx, scen):
 
 
 _register_tag("filter_batch", filter_batch_bs, filter_batch_as)
+
+# load tags from cache
+if compiled_tags:
+    with open(TAG_FILE, "rb") as f:
+        tag_registry = pickle.load(f)
+
+else:
+    # save the tags to cache
+    try:
+        with open(TAG_FILE, "wb") as f:
+            pickle.dump(tag_registry, f)
+        compiled_tags = True
+    except Exception as e:
+        print(f"Unable to save {TAG_FILE}: {e}")
