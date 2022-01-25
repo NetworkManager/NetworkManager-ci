@@ -22,9 +22,11 @@ if __name__ == "__main__":
     r = Runner()
     r._set_gitlab(trigger_data, gl_token)
     if r.gitlab is not None:
-        r._gitlab_message = f"{build_id}\n\n" + \
-            "Aborted by the new run (or unexpected crash of node_runner)"
-        r.gitlab.set_pipeline('canceled')
+        r._gitlab_message = (
+            f"{build_id}\n\n"
+            + "Aborted by the new run (or unexpected crash of node_runner)"
+        )
+        r.gitlab.set_pipeline("canceled")
         r._post_results()
         exit(0)
 

@@ -3,8 +3,7 @@ import argparse
 import logging
 import subprocess
 import sys
-import urllib.request
-import gzip
+import requests
 import os
 import yaml
 import json
@@ -21,7 +20,6 @@ MACHINES_MIN_THRESHOLD = 1000
 
 
 class Machine:
-
     def __init__(self, id, release):
         self.release = release
         self.release_num = release.split("-")[0]
@@ -34,12 +32,15 @@ class Machine:
         self.results_internal = "/tmp/results/"
         self.build_dir = "/root/nm-build/"
         self.artifact_dir = "../"
-        self.rpms_build_dir = f"{self.build_dir}/NetworkManager/contrib/fedora/rpm/*/RPMS/*/"
+        self.rpms_build_dir = (
+            f"{self.build_dir}/NetworkManager/contrib/fedora/rpm/*/RPMS/*/"
+        )
         self.copr_repo_file_internal = "/etc/yum.repos.d/nm-copr.repo"
         self.ssh_options = "-o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no"
 
         cico_out = self._run(
-                f"cico --debug node get -f value -c hostname -c comment --release {release}").stdout
+            f"cico --debug node get -f value -c hostname -c comment --release {release}"
+        ).stdout
         cico_out = cico_out.strip("\n").split(" ")
         self.name = cico_out[0].strip(" \t") + ".ci.centos.org"
         self.ssid = cico_out[1].strip(" \t")
@@ -63,7 +64,17 @@ class Machine:
                 if not machine.startswith(f"{self.id}:"):
                     mf.write(machine)
 
-    def _run(self, cmd, shell=True, check=True, capture_output=True, encoding='utf-8', verbose=False, *a, **kw):
+    def _run(
+        self,
+        cmd,
+        shell=True,
+        check=True,
+        capture_output=True,
+        encoding="utf-8",
+        verbose=False,
+        *a,
+        **kw,
+    ):
         if capture_output:
             kw["stdout"] = subprocess.PIPE
             kw["stderr"] = subprocess.PIPE
@@ -77,7 +88,11 @@ class Machine:
         return rc
 
     def ssh(self, cmd, check=True, verbose=False):
-        return self._run(f"ssh {self.ssh_options} root@{self.name} {cmd}", check=check, verbose=verbose)
+        return self._run(
+            f"ssh {self.ssh_options} root@{self.name} {cmd}",
+            check=check,
+            verbose=verbose,
+        )
 
     def scp_to(self, what, where, check=True):
         return self._scp(what, f"root@{self.name}:{where}", check=check)
@@ -101,6 +116,7 @@ class Machine:
                 ret.send(rc)
             except Exception as e:
                 ret.send(e)
+
         return _run
 
     def cmd_wait(self):
@@ -123,7 +139,9 @@ class Machine:
             try:
                 rc = self._pipe.recv()
             except Exception as e:
-                logging.debug(f"Exception during wait for command on machine {self.id}. Probably job was canceled.")
+                logging.debug(
+                    f"Exception during wait for command on machine {self.id}. Probably job was canceled."
+                )
                 rc = e
             self._pipe = None
             if isinstance(rc, Exception):
@@ -171,7 +189,9 @@ class Machine:
         self._wait_for_machine()
         self.ssh(f"mkdir -p {self.results_internal}")
         # enable repos
-        self.ssh(f"dnf -y install https://dl.fedoraproject.org/pub/epel/epel-release-latest-{self.release_num}.noarch.rpm")
+        self.ssh(
+            f"dnf -y install https://dl.fedoraproject.org/pub/epel/epel-release-latest-{self.release_num}.noarch.rpm"
+        )
         # For some reason names can differ, so enable both powertools
         self.ssh("yum install -y \\'dnf-command\\(config-manager\\)\\'")
         self.ssh("yum config-manager --set-enabled PowerTools", check=False)
@@ -179,23 +199,29 @@ class Machine:
         # Enable build deps for NM
         self.ssh("yum -y copr enable nmstate/nm-build-deps")
         # install NM packages
-        self.ssh("yum -y install crda NetworkManager-team \
+        self.ssh(
+            "yum -y install crda NetworkManager-team \
                         NetworkManager-ppp NetworkManager-wifi \
                         NetworkManager-adsl NetworkManager-ovs \
                         NetworkManager-tui NetworkManager-wwan \
                         NetworkManager-bluetooth NetworkManager-libnm-devel \
-                        --skip-broken")
+                        --skip-broken"
+        )
         return True
 
     def prepare(self):
         logging.debug(f"Prepare machine {self.id}")
         # enable NM debug/trace logs
-        self.scp_to("contrib/conf/99-test.conf", "/etc/NetworkManager/conf.d/99-test.conf")
+        self.scp_to(
+            "contrib/conf/99-test.conf", "/etc/NetworkManager/conf.d/99-test.conf"
+        )
         self.ssh("systemctl restart NetworkManager")
         # copy NetworkManager-ci repo (already checked out at correct commit)
         self.scp_to("../NetworkManager-ci/", "")
         # execute envsetup - with stock NM package, will update later, should not matter
-        self.ssh(f"cd NetworkManager-ci\\; bash -x prepare/envsetup.sh setup first_test_setup > {self.results}/envsetup.log")
+        self.ssh(
+            f"cd NetworkManager-ci\\; bash -x prepare/envsetup.sh setup first_test_setup > {self.results}/envsetup.log"
+        )
         self._run(f"cp {self.results}/envsetup.log ../envsetup.m{self.id}.log")
         return True
 
@@ -207,7 +233,9 @@ class Machine:
 
         # el8 workarounds
         if self.release_num.startswith("8"):
-            self.ssh("yum -y install https://vbenes.fedorapeople.org/NM/libndp_rhbz1933041/libndp-1.7-5.el8.x86_64.rpm https://vbenes.fedorapeople.org/NM/libndp_rhbz1933041/libndp-devel-1.7-5.el8.x86_64.rpm")
+            self.ssh(
+                "yum -y install https://vbenes.fedorapeople.org/NM/libndp_rhbz1933041/libndp-1.7-5.el8.x86_64.rpm https://vbenes.fedorapeople.org/NM/libndp_rhbz1933041/libndp-devel-1.7-5.el8.x86_64.rpm"
+            )
             self.ssh("yum -y install crda make")
 
         # remove NM packages
@@ -215,15 +243,25 @@ class Machine:
 
         logging.debug(f"Building from refspec id {refspec} of repo '{repo}'")
         self.scp_to("run/centos-ci/scripts/build.sh", "build.sh")
-        ret = self.ssh(f"BUILD_REPO={repo} sh ./build.sh {refspec} {mr} &> {self.artifact_dir}/build.log", check=False)
+        ret = self.ssh(
+            f"BUILD_REPO={repo} sh ./build.sh {refspec} {mr} &> {self.artifact_dir}/build.log",
+            check=False,
+        )
         if ret.returncode != 0:
             logging.debug("Build failed, copy config.log!")
-            self.scp_from(f"{self.build_dir}/NetworkManager/config.log", "../", check=False)
+            self.scp_from(
+                f"{self.build_dir}/NetworkManager/config.log", "../", check=False
+            )
             return False
         else:
-            logging.debug("rpms in build dir:\n" + self.ssh(f"find {self.build_dir} | grep -F .rpm").stdout)
+            logging.debug(
+                "rpms in build dir:\n"
+                + self.ssh(f"find {self.build_dir} | grep -F .rpm").stdout
+            )
             # do not copy connectivity and devel packaqes
-            self.ssh(f"rm -rf {self.rpms_build_dir}/*-devel*.rpm {self.rpms_build_dir}/*-connectivity-*.rpm {self.rpms_build_dir}/*-dispatcher-routing-rules-*.rpm")
+            self.ssh(
+                f"rm -rf {self.rpms_build_dir}/*-devel*.rpm {self.rpms_build_dir}/*-connectivity-*.rpm {self.rpms_build_dir}/*-dispatcher-routing-rules-*.rpm"
+            )
             self.scp_from(f"{self.rpms_build_dir}/*.rpm", self.rpms_dir)
         return True
 
@@ -250,7 +288,10 @@ class Machine:
         excludes = '--exclude \\"*-connectivity-*\\" --exclude \\"*-devel*\\"'
         if source == "copr":
             self.scp_to(self.copr_repo_file, self.copr_repo_file_internal)
-            self.ssh(f"yum -y install --repo nm-copr-repo \\'NetworkManager*\\' {excludes}", verbose=True)
+            self.ssh(
+                f"yum -y install --repo nm-copr-repo \\'NetworkManager*\\' {excludes}",
+                verbose=True,
+            )
         else:
             self.ssh("mkdir -p rpms")
             self.scp_to(f"{self.rpms_dir}/*.rpm", "rpms")
@@ -268,8 +309,13 @@ class Machine:
         tests = " ".join(tests)
         # command after redirection operators ('|', '>', '&&') execute on jenkins machine,
         # unless escaped as "echo \\> file', so runtest.log and journal are saved to jenkins directly
-        ret = self.ssh(f"cd NetworkManager-ci\\; MACHINE_ID={self.id} bash -x run/centos-ci/scripts/runtest.sh {tests} &> {self.results}/runtest.log", check=False)
-        self.ssh(f"journalctl -b --no-pager -o short-monotonic --all \\| bzip2 --best > ../journal.m{self.id}.log.bz2")
+        ret = self.ssh(
+            f"cd NetworkManager-ci\\; MACHINE_ID={self.id} bash -x run/centos-ci/scripts/runtest.sh {tests} &> {self.results}/runtest.log",
+            check=False,
+        )
+        self.ssh(
+            f"journalctl -b --no-pager -o short-monotonic --all \\| bzip2 --best > ../journal.m{self.id}.log.bz2"
+        )
         # copy artefacts
         self.scp_from(f"{self.results_internal}/*.*", self.results)
         self._run(f"cp {self.results}/runtest.log ../runtest.m{self.id}.log")
@@ -294,31 +340,37 @@ class Mapper:
             # TODO maybe force exit here, as mapper is probably malformed in MR!
             self.mapper = None
         self.gitlab = gitlab
-        self.default_exlude = ['dcb', 'wifi', 'infiniband', 'wol', 'sriov', 'gsm']
+        self.default_exlude = ["dcb", "wifi", "infiniband", "wol", "sriov", "gsm"]
         self.m_num = MACHINES_NUM
         self.m_thresh = MACHINES_MIN_THRESHOLD
 
     def _parse_features_string(self, features):
-        if 'best' in features:
+        if "best" in features:
             features = None
             if self.gitlab is not None:
-                features = [f for f in self.gitlab.changed_features if f not in self.default_exlude]
+                features = [
+                    f
+                    for f in self.gitlab.changed_features
+                    if f not in self.default_exlude
+                ]
             if features is None or features == []:
                 features = ["all"]
-            logging.debug("running best effort execution to shorten time: %s" % features)
+            logging.debug(f"running best effort execution to shorten time: {features}")
             return features
         elif features.startswith("covering:"):
             features = features.split(":", 1)
             if len(features) != 2:
-                logging.debug("Unexpected feature list, unable to parse 'covering' tests")
+                logging.debug(
+                    "Unexpected feature list, unable to parse 'covering' tests"
+                )
                 return ["all"]
             # split by space here as it allows simple copy paste from failed tets list
             features[1] = features[1].split(" ")
             return features
-        elif not features or 'all' in features:
+        elif not features or "all" in features:
             return ["all"]
         else:
-            return [x.strip() for x in features.split(',')]
+            return [x.strip() for x in features.split(",")]
 
     def get_tests_for_machines(self, features):
         if not self.mapper:
@@ -339,7 +391,11 @@ class Mapper:
         for f in sorted(times.keys()):
             for i in range(self.m_num):
                 new_time = m_time[i] + times[f]
-                if new_time < average_time or new_time < self.m_thresh or i+1 == self.m_num:
+                if (
+                    new_time < average_time
+                    or new_time < self.m_thresh
+                    or i + 1 == self.m_num
+                ):
                     m_time[i] = new_time
                     m_tests[i].extend(tests[f])
                     break
@@ -348,7 +404,9 @@ class Mapper:
             m_tests.remove([])
 
         if len(m_tests) > self.m_num:
-            logging.debug("Something unexpected happened with test processing: " + m_tests)
+            logging.debug(
+                "Something unexpected happened with test processing: " + m_tests
+            )
             return ["pass"]
 
         if len(m_tests) == 0:
@@ -364,16 +422,16 @@ class Mapper:
         times = {}
         tests = {}
         all = "all" in features or "covering" in features
-        for test in self.mapper['testmapper']['default']:
+        for test in self.mapper["testmapper"]["default"]:
             for test_name in test:
-                f = test[test_name]['feature']
+                f = test[test_name]["feature"]
                 if f in self.default_exlude:
                     continue
                 if f not in features and not all:
                     continue
                 t = 10
-                if 'timeout' in test[test_name]:
-                    t = int(test[test_name]['timeout'][:-1])
+                if "timeout" in test[test_name]:
+                    t = int(test[test_name]["timeout"][:-1])
                 if f in times:
                     times[f] += t
                     tests[f].append(test_name)
@@ -411,17 +469,19 @@ class Runner:
         self.mapper = Mapper()
         self.machines = []
         self.build_machine = None
-        self.copr_repo_file = '../nm_copr_repo'
+        self.copr_repo_file = "../nm_copr_repo"
         self.phase = ""
         self.results_common = "../"
         self.exit_code = 0
 
     def _abort(self, msg=""):
         if self.gitlab:
-            self.gitlab.set_pipeline('canceled')
+            self.gitlab.set_pipeline("canceled")
             # if we have config.log, build failed
             if os.path.isfile("../config.log"):
-                self._gitlab_message = f"{self.build_url}\n\nNetworkManager build from source failed!"
+                self._gitlab_message = (
+                    f"{self.build_url}\n\nNetworkManager build from source failed!"
+                )
             else:
                 self._gitlab_message = f"{self.build_url}\n\nJob unexpectedly aborted!"
             self._post_results()
@@ -438,22 +498,23 @@ class Runner:
     def _set_gitlab(self, trigger_data, gl_token):
         if not trigger_data or not gl_token:
             self.gitlab = None
-            logging.debug(f"trigger or token not set! token: {not not gl_token},"
-                          f" data: {not not trigger_data}")
+            logging.debug(
+                f"trigger or token not set! token: {not not gl_token},"
+                f" data: {not not trigger_data}"
+            )
             return
 
         # hide it to /tmp, which is not visible in Workspace
         with open("/tmp/python-gitlab.cfg", "w") as cfg:
-            cfg.write('[global]\n')
-            cfg.write('default = gitlab.freedesktop.org\n')
-            cfg.write('ssl_verify = false\n')
-            cfg.write('timeout = 30\n')
-            cfg.write('[gitlab.freedesktop.org]\n')
-            cfg.write('url = https://gitlab.freedesktop.org\n')
-            cfg.write('private_token = %s\n' % gl_token)
-            cfg.write("\n")
+            cfg.write("[global]\n")
+            cfg.write("default = gitlab.freedesktop.org\n")
+            cfg.write("ssl_verify = false\n")
+            cfg.write("timeout = 30\n")
+            cfg.write("[gitlab.freedesktop.org]\n")
+            cfg.write("url = https://gitlab.freedesktop.org\n")
+            cfg.write(f"private_token = {gl_token}\n")
 
-        content = base64.b64decode(trigger_data).decode('utf-8').strip()
+        content = base64.b64decode(trigger_data).decode("utf-8").strip()
         data = json.loads(content)
         logging.debug(data)
         gitlab_trigger = GitlabTrigger(data, ["/tmp/python-gitlab.cfg"])
@@ -471,14 +532,18 @@ class Runner:
         s = 0
         for m in self.machines:
             if not os.path.isfile(f"{m.results}/summary.txt"):
-                machine_lines.append(f"**M{m.id}: NO RESULTS**: no summary.txt retrieved!")
+                machine_lines.append(
+                    f"**M{m.id}: NO RESULTS**: no summary.txt retrieved!"
+                )
                 logging.debug(f"M{m.id}: no summary.txt file")
                 self.exit_code = 1
                 continue
             with open(f"{m.results}/summary.txt") as rf:
                 lines = rf.read().strip("\n").split("\n")
             if len(lines) not in [3, 4]:
-                machine_lines.append(f"**M{m.id}: BAD RESULTS**: unexpected summary.txt file")
+                machine_lines.append(
+                    f"**M{m.id}: BAD RESULTS**: unexpected summary.txt file"
+                )
                 logging.debug(f"M{m.id}: unexpected summary.txt file: {lines}")
                 self.exit_code = 1
                 continue
@@ -491,25 +556,29 @@ class Runner:
                 fm = int(lines[1])
                 sm = int(lines[2])
             except Exception as e:
-                machine_lines.append(f"**M{m.id}: BAD RESULTS**: unexpected summary.txt file")
+                machine_lines.append(
+                    f"**M{m.id}: BAD RESULTS**: unexpected summary.txt file"
+                )
                 logging.debug(f"M{m.id}: unexpected summary.txt file: {lines}")
                 logging.debug(e)
                 self.exit_code = 1
                 continue
-            p, f, s = p+pm, f+fm, s+sm
+            p, f, s = p + pm, f + fm, s + sm
             undef = m.tests_num - (pm + fm + sm)
             undef_str = ""
             if undef != 0:
                 self.exit_code = 1
                 m_status = "TIMEOUT"
                 undef_str = ",  Missing: {undef}"
-            machine_lines.append(f"**M{m.id} {m_status}**: Passed: {pm}, Failed: {fm}, Skipped: {sm}{undef_str}")
+            machine_lines.append(
+                f"**M{m.id} {m_status}**: Passed: {pm}, Failed: {fm}, Skipped: {sm}{undef_str}"
+            )
             if len(lines) == 4:
                 failed_tests += " " + lines[3]
                 failed_tests.strip(" ")
 
         if len(machine_lines) > 1:
-            machine_lines.append(f"Passed: {p}, Failed {f}, Skipped {f}.")
+            machine_lines.append(f"Passed: {p}, Failed {f}, Skipped {s}.")
         elif len(machine_lines):
             machine_lines[0] = machine_lines[0].split("**:")[1]
 
@@ -517,10 +586,12 @@ class Runner:
         if self.exit_code == 0:
             status = "STABLE: All tests passed!"
 
-        self._gitlab_message = f"{self.build_url}\n\n" + \
-            f"Result: {status}\n\n" + \
-            "\n\n".join(machine_lines) + \
-            f"\n\nExecuted on: CentOS {self.release}"
+        self._gitlab_message = (
+            f"{self.build_url}\n\n"
+            + f"Result: {status}\n\n"
+            + "\n\n".join(machine_lines)
+            + f"\n\nExecuted on: CentOS {self.release}"
+        )
         if failed_tests:
             self._gitlab_message += f"\n\nFailed tests: {failed_tests}"
 
@@ -543,32 +614,33 @@ class Runner:
         for f in os.listdir(self.results_common):
             if not f.endswith(".html"):
                 continue
-            f = f.split('.html')[0]
-            if f.startswith('FAIL-'):
-                f = f.replace('FAIL-', '', 1)
+            f = f.split(".html")[0]
+            if f.startswith("FAIL-"):
+                f = f.replace("FAIL-", "", 1)
                 failed.append(f)
             else:
                 passed.append(f)
 
         import xml.etree.ElementTree as ET
+
         root = ET.ElementTree()
-        testsuite = ET.Element('testsuite', tests=str(len(passed) + len(failed)))
+        testsuite = ET.Element("testsuite", tests=str(len(passed) + len(failed)))
         for test in passed:
-            name = test[test.find("_Test")+10:]
-            testcase = ET.Element('testcase', classname="tests", name=name)
-            system_out = ET.Element('system-out')
+            name = test[test.find("_Test") + 10 :]
+            testcase = ET.Element("testcase", classname="tests", name=name)
+            system_out = ET.Element("system-out")
             system_out.text = f"LOG:\n{self.build_url}/artifact/{test}.html"
             testcase.append(system_out)
             testsuite.append(testcase)
         for test in failed:
-            name = test[test.find("_Test")+10:]
-            testcase = ET.Element('testcase', classname="tests", name=name)
-            failure = ET.Element('failure')
+            name = test[test.find("_Test") + 10 :]
+            testcase = ET.Element("testcase", classname="tests", name=name)
+            failure = ET.Element("failure")
             failure.text = f"Error\nLOG:\n{self.build_url}/artifact/FAIL-{test}.html"
             testcase.append(failure)
             testsuite.append(testcase)
         root._setroot(testsuite)
-        root.write(f'{self.results_common}/junit.xml')
+        root.write(f"{self.results_common}/junit.xml")
         self.exit_code = 0
         if len(failed):
             self.exit_code = 1
@@ -578,16 +650,21 @@ class Runner:
         logging.basicConfig(level=logging.DEBUG)
         logging.debug("reading params")
         parser = argparse.ArgumentParser()
-        parser.add_argument('-t', '--test_branch', default="master")
-        parser.add_argument('-c', '--code_refspec', default=None)
-        parser.add_argument('-f', '--features', default="all")
-        parser.add_argument('-b', '--build_id')
-        parser.add_argument('-g', '--gitlab_token')
-        parser.add_argument('-d', '--trigger_data')
-        parser.add_argument('-r', '--nm_repo',
-                            default="https://gitlab.freedesktop.org/NetworkManager/NetworkManager/")
-        parser.add_argument('-v', '--os_version', default="c8s")
-        parser.add_argument('-D', '--do_not_touch_NM', action="store_true", default=False)
+        parser.add_argument("-t", "--test_branch", default="master")
+        parser.add_argument("-c", "--code_refspec", default=None)
+        parser.add_argument("-f", "--features", default="all")
+        parser.add_argument("-b", "--build_id")
+        parser.add_argument("-g", "--gitlab_token")
+        parser.add_argument("-d", "--trigger_data")
+        parser.add_argument(
+            "-r",
+            "--nm_repo",
+            default="https://gitlab.freedesktop.org/NetworkManager/NetworkManager/",
+        )
+        parser.add_argument("-v", "--os_version", default="c8s")
+        parser.add_argument(
+            "-D", "--do_not_touch_NM", action="store_true", default=False
+        )
 
         args = parser.parse_args()
 
@@ -608,14 +685,18 @@ class Runner:
         self.mr = "custom"
         self._set_gitlab(args.trigger_data, args.gitlab_token)
         if self.gitlab is not None:
-            if self.gitlab.repository == 'NetworkManager':
+            if self.gitlab.repository == "NetworkManager":
                 self.mr = f"mr{self.gitlab.merge_request_id}"
 
         self._check_if_copr_possible()
 
     def _check_if_copr_possible(self):
         self.copr_repo = False
-        if not self.repo or self.repo == "https://gitlab.freedesktop.org/NetworkManager/NetworkManager/":
+        if (
+            not self.repo
+            or self.repo
+            == "https://gitlab.freedesktop.org/NetworkManager/NetworkManager/"
+        ):
             if self.refspec == "main":
                 self.copr_repo = "NetworkManager-main-debug"
             elif self.refspec == "nm-1-36":
@@ -635,37 +716,40 @@ class Runner:
                 copr_host = "https://copr-be.cloud.fedoraproject.org"
                 copr_dirs = "results/networkmanager"
                 centos_dir = f"centos-stream-{self.release_num}-x86_64"
-                self.copr_baseurl = f"{copr_host}/{copr_dirs}/{self.copr_repo}/{centos_dir}/"
+                self.copr_baseurl = (
+                    f"{copr_host}/{copr_dirs}/{self.copr_repo}/{centos_dir}/"
+                )
 
     def check_last_copr_build(self):
         copr_log = "backend.log.gz"
-        build_list_cmd = f"curl -s {self.copr_baseurl} \
-                | grep -o \"<a href=[\\\"\\\'][0-9]*-NetworkManager\" \
-                | sort -r | grep -o \"[0-9]*-NetworkManager\""
-
-        out = subprocess.check_output(build_list_cmd, shell=True)
-        build_list = out.decode('utf-8').strip(" \n").split("\n")
-        if len(build_list) == 0:
+        resp = requests.get(self.copr_baseurl)
+        build_list = [
+            row.replace("</a", "") for row in resp.text.split(">") if "</a" in row
+        ]
+        build_list = [row for row in build_list if row.endswith("-NetworkManager")]
+        if not build_list:
             self._abort(f"No builds found in copr: {self.copr_repo}")
+        build_list.sort()
+        build_list.reverse()
 
         failed = False
-        for build in build_list[:2]:
+        for build in build_list:
             backend_url = f"{self.copr_baseurl}/{build}/{copr_log}"
-            try:
-                logging.debug(f"Opening {backend_url}")
-                back = urllib.request.urlopen(backend_url)
-            except Exception as e:
-                logging.debug("Trying the last but one as current one probably running")
-                if not failed:
-                    failed = True
-                    continue
-                else:
-                    self._abort(f"Unable to retrieve copr builds: {e}")
+            logging.debug(f"Opening {backend_url}")
+            resp = requests.get(backend_url)
+            if resp.status_code != 200:
+                if failed:
+                    self._abort(
+                        f"Unable to retrieve copr builds: HTTP code {resp.status_code}."
+                    )
+                failed = True
+                logging.debug(
+                    f"Unable to retrieve copr build: HTTP code {resp.status_code}."
+                )
+                continue
 
-        with gzip.open(back, 'r') as f:
-            readfile = f.read().decode('utf-8')
-            if 'Worker failed build' in readfile:
-                self._abort("Latests copr build failed!")
+        if "Worker failed build" in resp.text:
+            self._abort("Latests copr build failed!")
 
     def wait_for_machines(self, abort_on_fail=True):
         logging.debug(f"Waiting for {self.phase} to finish...")
@@ -689,10 +773,12 @@ class Runner:
     def create_machines(self):
         self.phase = "create"
         if self.gitlab:
-            self.gitlab.set_pipeline('running')
+            self.gitlab.set_pipeline("running")
 
         self.tests = self.mapper.get_tests_for_machines(self.features)
-        logging.debug(f"tests distributed to {len(self.tests)} machines: {[len(x) for x in self.tests]}")
+        logging.debug(
+            f"tests distributed to {len(self.tests)} machines: {[len(x) for x in self.tests]}"
+        )
         machines_num = len(self.tests)
         for i in range(machines_num):
             m = Machine(i, self.release)
@@ -711,15 +797,13 @@ class Runner:
             self.check_last_copr_build()
 
             with open(self.copr_repo_file, "w") as cfg:
-                cfg.write('[nm-copr-repo]\n')
-                cfg.write('name=nm-copr-repo\n')
-                cfg.write(f'baseurl={self.copr_baseurl}\n')
-                cfg.write('enable=1\n')
-                cfg.write('gpgcheck=0\n')
-                cfg.write('skip_if_unavailable=0\n')
-                cfg.write('sslverify=0\n')
-                cfg.write("\n")
-            cfg.close()
+                cfg.write("[nm-copr-repo]\n")
+                cfg.write("name=nm-copr-repo\n")
+                cfg.write(f"baseurl={self.copr_baseurl}\n")
+                cfg.write("enable=1\n")
+                cfg.write("gpgcheck=0\n")
+                cfg.write("skip_if_unavailable=0\n")
+                cfg.write("sslverify=0\n")
 
             # tell machines where to search for repo file
             for m in self.machines:
@@ -744,7 +828,9 @@ class Runner:
         self.phase = "runtests"
         for m in self.machines:
             tests = self.tests[m.id]
-            logging.debug(f"Running {len(tests)} tests on machine {m.id}:\n" + "\n".join(tests))
+            logging.debug(
+                f"Running {len(tests)} tests on machine {m.id}:\n" + "\n".join(tests)
+            )
             m.runtests_async(tests)
 
     def merge_machines_results(self):
@@ -759,12 +845,12 @@ class Runner:
 
         if self.gitlab:
             if self.exit_code == 0:
-                self.gitlab.set_pipeline('success')
+                self.gitlab.set_pipeline("success")
             if self.exit_code == 1:
-                self.gitlab.set_pipeline('failed')
+                self.gitlab.set_pipeline("failed")
             # should not be needed, already exited in _abort()
             if self.exit_code == 2:
-                self.gitlab.set_pipeline('canceled')
+                self.gitlab.set_pipeline("canceled")
             self._post_results()
 
         logging.debug(f"All Done. Exit with {self.exit_code}")
