@@ -306,6 +306,17 @@ Feature: nmcli - wifi
     Then Bring "up" connection "wifi"
 
 
+    @rhbz2019396
+    @ver+=1.35.5 @rhelver+=8.6 @fedoraver+=31
+    @attach_hostapd_log @attach_wpa_supplicant_log @simwifi_wpa3
+    @simwifi_wpa3_h2e
+    Scenario: nmcli - simwifi - connect to WPA3 H2E
+    Given "wpa3-h2e" is visible with command "nmcli -f SSID device wifi list" in "60" seconds
+    Then "wpa3-h2e:WPA3" is visible with command "nmcli -t -f ssid,security device wifi list"
+    * Add a new connection of type "wifi" and options "ifname wlan0 con-name wifi autoconnect no ssid wpa3-h2e 802-11-wireless-security.key-mgmt sae 802-11-wireless-security.psk secret123"
+    Then Bring "up" connection "wifi"
+
+
     @rhbz1730177
     @ver+=1.22 @rhelver+=8.2 @fedoraver+=31
     @attach_hostapd_log @attach_wpa_supplicant_log @simwifi_wpa3

@@ -204,21 +204,18 @@ rsn_pairwise=CCMP
 ieee80211w=2
 " > $HOSTAPD_CFG.$num_ap
 
-# we do not have hostapd builds supporting this yet
-#  ((++num_ap))
-#  echo "#wpa3 H2E only
-#$(hostapd_conf_header)
-#ssid=wpa3-h2e
-#auth_algs=3
-#wpa=2
-#wpa_key_mgmt=SAE
-#sae_password=secret123
-#sae_pwe=1
-#rsn_pairwise=CCMP
-#ieee80211w=2
-#
-#" > $HOSTAPD_CFG.$num_ap
-
+((++num_ap))
+echo "#wpa3 H2E only
+$(hostapd_conf_header)
+ssid=wpa3-h2e
+auth_algs=3
+wpa=2
+wpa_key_mgmt=SAE
+sae_password=secret123
+sae_pwe=1
+rsn_pairwise=CCMP
+ieee80211w=2
+" > $HOSTAPD_CFG.$num_ap
 fi
 
 hostapd_ver=$(rpm -q hostapd)

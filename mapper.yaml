@@ -2208,6 +2208,9 @@ testmapper:
     - simwifi_wpa3_personal:
         feature: wifi_hwsim
         tags: wpa_supplicant hostapd
+    - simwifi_wpa3_h2e:
+        feature: wifi_hwsim
+        tags: wpa_supplicant hostapd
     - simwifi_wpa3_personal_device_connect_ask:
         feature: wifi_hwsim
     - simwifi_tls_wpa3:
