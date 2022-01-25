@@ -8,6 +8,7 @@ import nmci
 
 REMOTE_JOURNAL_DIR = "/var/dracut_test/client_log/"
 REMOTE_JOURNAL = "--root=" + REMOTE_JOURNAL_DIR
+REMOTE_CRASH_DIR = "/var/dracut_test/client_dumps/"
 
 
 def embed_dracut_logs(context):
@@ -29,26 +30,8 @@ def embed_dracut_logs(context):
 
 
 def get_backtrace(context, filename):
-    gdb = context.pexpect_spawn("gdb -quiet", cwd="/var/dracut_test/client_dumps/")
-    prompt = gdb.expect(["\\(gdb\\)", pexpect.TIMEOUT, pexpect.EOF], timeout=5)
-    if prompt != 0:
-        return "ERROR: gdb did not start"
-
-    gdb.sendline("core-file " + filename)
-    prompt = gdb.expect(["\\(gdb\\)", pexpect.TIMEOUT, pexpect.EOF], timeout=20)
-    if prompt != 0:
-        return "ERROR: corefile not loaded"
-
-    gdb.sendline("backtrace")
-    prompt = gdb.expect(["\\(gdb\\)", pexpect.TIMEOUT, pexpect.EOF], timeout=60)
-    if prompt != 0:
-        return "ERROR: backtrace did not finish"
-    backtrace = gdb.before
-
-    gdb.sendline("quit")
-    prompt = gdb.expect([pexpect.TIMEOUT, pexpect.EOF], timeout=5)
-
-    return backtrace
+    out, _, _ = context.run(f"gdb -quiet -batch -c {filename} -x contrib/dracut/conf/backtrace")
+    return out
 
 
 def check_core_dumps(context):
@@ -59,17 +42,17 @@ def check_core_dumps(context):
     backtraces = ""
     sleep_crash = False
     other_crash = False
-    for filename in os.listdir("/var/dracut_test/client_dumps/"):
+    for filename in os.listdir(REMOTE_CRASH_DIR):
         if filename.startswith("dump_"):
             if "sleep" in filename:
                 sleep_crash = True
             else:
                 other_crash = True
             backtraces += filename + ":\n" \
-                + get_backtrace(context, filename) + "\n\n"
+                + get_backtrace(context, REMOTE_CRASH_DIR + filename) + "\n\n"
             nmci.lib.embed_file_if_exists(
                 context,
-                "/var/dracut_test/client_dumps/" + filename,
+                REMOTE_CRASH_DIR + filename,
                 mime_type="link",
                 caption="Dracut Crash Dump"
             )
