@@ -11,7 +11,22 @@ DEV_DUMPS=/dev/disk/by-uuid/$UUID_DUMPS
 
 test_setup() {
   # Exit if setup is already done
-  [ -f /tmp/dracut_setup_done ] && return 0
+  [ -f /tmp/dracut_setup_done ] && network_check && return 0
+
+  # if setup done but network is missing (after crash)
+  # do not compile initrd again, just refresh network setup
+  if [ -f /tmp/dracut_setup_done ] ; then
+      network_clean
+      network_setup
+      if ! run_server; then
+          echo "Failed to start server" 1>&2
+          network_clean
+          kill_server
+          rm /tmp/dracut_setup_done
+          return 1
+      fi
+      return 0
+  fi
 
   network_setup
 
@@ -510,6 +525,10 @@ run_server() {
 
 stop_qemu() {
   pkill -F  $TESTDIR/qemu.pid
+}
+
+network_check() {
+  nmcli con show id slow6 nfs nfs_ip6 iscsi0 iscsi1 vlan vlan33_0 vlan33_1 bond0_0 bond0_1 bond1_0 bond1_1 &> /dev/null
 }
 
 network_setup() {
