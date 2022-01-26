@@ -824,3 +824,19 @@ Feature: nmcli - bridge
     * Modify connection "bridge0" changing options "802-3-ethernet.accept-all-mac-addresses false"
     * Bring "up" connection "bridge0"
     Then "PROMISC" is not visible with command "ip link show dev bridge0"
+
+
+    @rhbz1949023
+    @ver+=1.36
+    @bridge @dummy
+    @bridge_controller_port_terminology
+    Scenario: bridge - use controller/port terminology
+    * Add a new connection of type "bridge" and options "con-name bridge0 ifname bridge0 autoconnect no"
+    # update to controller/port when nmcli also gets update.
+    * Add a new connection of type "dummy" and options "con-name dummy0 ifname dummy0 master bridge0"
+    * Bring "up" connection "dummy0"
+    # list ports using libnm
+    Then "dummy0" is visible with command "contrib/naming/ports-libnm.py bridge0"
+    # list ports using dbus
+    Then Note the output of "contrib/naming/ports-dbus.sh bridge0 dummy0"
+     And Noted value contains "dbus ports:ao \d+"

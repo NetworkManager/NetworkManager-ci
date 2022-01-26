@@ -2532,3 +2532,19 @@
      * Execute "tshark -i bond-bridge -a duration:5 -Y arp -T fields -e eth.src -e arp.src.hw_mac -e _ws.col.Info > /tmp/tshark.log"
      Then Noted value "mac_bridge" is not visible with command "cat /tmp/tshark.log"
      Then Noted value "mac_bond" is not visible with command "cat /tmp/tshark.log"
+
+
+    @rhbz1949023
+    @ver+=1.36
+    @bond @dummy
+    @bond_controller_port_terminology
+    Scenario: bond - use controller/port terminology
+    * Add a new connection of type "bond" and options "con-name bond0 ifname bond0 autoconnect no"
+    # update to controller/port when nmcli also gets update.
+    * Add a new connection of type "dummy" and options "con-name dummy0 ifname dummy0 master bond0"
+    * Bring "up" connection "dummy0"
+    # list ports using libnm
+    Then "dummy0" is visible with command "contrib/naming/ports-libnm.py bond0"
+    # list ports using dbus
+    Then Note the output of "contrib/naming/ports-dbus.sh bond0 dummy0"
+     And Noted value contains "dbus ports:ao \d+"

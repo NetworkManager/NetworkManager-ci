@@ -313,6 +313,8 @@ testmapper:
         feature: bond
     - bond_enslave_to_bridge_correct_ARP:
         feature: bond
+    - bond_controller_port_terminology:
+        feature: bond
     - update_firewall_zone_upon_reconnect:
         feature: ppp
     - pppoe_and_ethernet_together:
@@ -429,6 +431,8 @@ testmapper:
     - bridge_accept_all_mac_addresses:
         feature: bridge
     - bridge_accept_all_mac_addresses_external_device:
+        feature: bridge
+    - bridge_controller_port_terminology:
         feature: bridge
     - add_default_team:
         feature: team
@@ -575,6 +579,8 @@ testmapper:
     - team_accept_all_mac_addresses:
         feature: team
     - team_accept_all_mac_addresses_external_device:
+        feature: team
+    - team_controller_port_terminology:
         feature: team
     - ipv6_block_RA:
         feature: ipv6
