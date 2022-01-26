@@ -747,6 +747,8 @@ class Runner:
                     f"Unable to retrieve copr build: HTTP code {resp.status_code}."
                 )
                 continue
+            else:
+                break
 
         if "Worker failed build" in resp.text:
             self._abort("Latests copr build failed!")
