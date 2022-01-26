@@ -89,28 +89,25 @@ install_el8_packages () {
             $KOJI/strongswan/5.7.2/1.fc29/$(arch)/strongswan-charon-nm-5.7.2-1.fc29.$(arch).rpm
     fi
 
-    # install wpa_supplicant and hostapd with WPA3 enterprise capabilities
-    if [ $(arch) == "x86_64" ]; then
+    dnf -4 -y install \
+        hostapd wpa_supplicant{,-debuginfo,-debugsource} --skip-broken
+
+    # install wpa_supp and hostapd with 2.10 capabilities
+    WS_VER=$(rpm -q --queryformat '%{VERSION}' wpa_supplicant |awk -F '.' '{print $2}')
+    if [ $WS_VER -lt 10 ]; then
         dnf -4 -y install \
-            hostapd wpa_supplicant{,-debuginfo,-debugsource} --skip-broken
-        dnf -4 -y update \
-            $FEDP/hostapd_owe/hostapd-2.9-6.nmci.el8.x86_64.rpm \
-            $FEDP/hostapd_owe/hostapd-debuginfo-2.9-6.nmci.el8.x86_64.rpm \
-            $FEDP/hostapd_owe/hostapd-debugsource-2.9-6.nmci.el8.x86_64.rpm \
-            $FEDP/hostapd_owe/hostapd-logwatch-2.9-6.nmci.el8.x86_64.rpm
-        # this does not match centos stream 8, which does not have '.' in version, which is intended
-        if grep -q "release 8\.[0-4]" /etc/redhat_release; then
-            dnf -y update \
-                $FEDP/WPA3/wpa_supplicant-2.9-8.el8.x86_64.rpm \
-                $FEDP/WPA3/wpa_supplicant-debuginfo-2.9-8.el8.x86_64.rpm \
-                $FEDP/WPA3/wpa_supplicant-debugsource-2.9-8.el8.x86_64.rpm
-        fi
-    else
-        # WPA3 Personal capable wpa_supplicant for RHEL 8.3
-        dnf -4 -y install
-            $FEDP/rhbz1888051/wpa_supplicant{,-debuginfo,-debugsource}-2.9-3.el8.$(arch).rpm
-        # update in case newer version is in repo
-        dnf -4 -y update wpa_supplicant
+            $FEDP/wpa_supplicant-2.10/wpa_supplicant-2.10-1.el8.$(arch).rpm \
+            $FEDP/wpa_supplicant-2.10/wpa_supplicant-debuginfo-2.10-1.el8.$(arch).rpm \
+            $FEDP/wpa_supplicant-2.10/wpa_supplicant-debugsource-2.10-1.el8.$(arch).rpm
+    fi
+
+    HAPD_VER=$(rpm -q --queryformat '%{VERSION}' hostapd |awk -F '.' '{print $2}')
+    if ! rpm -q --quiet hostapd || [ $HAPD_VER -lt 10 ]; then
+        dnf -4 -y install \
+            $FEDP/hostapd-2.10/hostapd-2.10-1.el8.$(arch).rpm \
+            $FEDP/hostapd-2.10/hostapd-debuginfo-2.10-1.el8.$(arch).rpm \
+            $FEDP/hostapd-2.10/hostapd-debugsource-2.10-1.el8.$(arch).rpm
+            #$FEDP/hostapd-2.10/hostapd-logwatch-2.10-1.el8.$(arch).rpm
     fi
 
     # Enable debug logs for wpa_supplicant

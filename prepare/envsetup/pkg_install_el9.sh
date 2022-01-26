@@ -99,9 +99,26 @@ install_el9_packages () {
             $BREW/rhel-9/packages/NetworkManager/$VER/$REL/$(arch)/NetworkManager-ppp-$VER-$REL.$(arch).rpm
     fi
 
-    # install hostapd with WPA3 enterprise capabilities
+    # install wpa_supp and hostapd with 2.10 capabilities
     dnf -4 -y install \
-        $FEDP/bz1975718/hostapd-2.9-11.el9.$(arch).rpm
+        hostapd wpa_supplicant{,-debuginfo,-debugsource} --skip-broken
+
+    WS_VER=$(rpm -q --queryformat '%{VERSION}' wpa_supplicant |awk -F '.' '{print $2}')
+    if [ $WS_VER -lt 10 ]; then
+        dnf -4 -y install \
+            $KHUB/wpa_supplicant/2.10/1.el9/$(arch)/wpa_supplicant-2.10-1.el9.$(arch).rpm \
+            $KHUB/wpa_supplicant/2.10/1.el9/$(arch)/wpa_supplicant-debuginfo-2.10-1.el9.x86_64.rpm \
+            $KHUB/wpa_supplicant/2.10/1.el9/$(arch)/wpa_supplicant-debugsource-2.10-1.el9.x86_64.rpm
+    fi
+
+    HAPD_VER=$(rpm -q --queryformat '%{VERSION}' hostapd |awk -F '.' '{print $2}')
+    if ! rpm -q --quiet hostapd || [ $HAPD_VER -lt 10 ]; then
+        dnf -4 -y install \
+            $KHUB//hostapd/2.10/1.el9/$(arch)/hostapd-2.10-1.el9.$(arch).rpm \
+            $KHUB//hostapd/2.10/1.el9/$(arch)/hostapd-debuginfo-2.10-1.el9.$(arch).rpm \
+            $KHUB//hostapd/2.10/1.el9/$(arch)/hostapd-debugsource-2.10-1.el9.$(arch).rpm
+
+    fi
 
     # Enable debug logs for wpa_supplicant
     sed -i 's!OTHER_ARGS="-s"!OTHER_ARGS="-s -dddK"!' /etc/sysconfig/wpa_supplicant
