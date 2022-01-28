@@ -72,6 +72,15 @@ auth_algs=1
 wpa=0
 " > $HOSTAPD_CFG.$num_ap
 
+  ((++num_ap))
+  echo "#open-hidden
+$(hostapd_conf_header)
+ssid=open-hidden
+auth_algs=1
+wpa=0
+ignore_broadcast_ssid=1
+" > $HOSTAPD_CFG.$num_ap
+
 
 if ! grep -F 'release 9' /etc/redhat-release; then
   ((++num_ap))
