@@ -33,6 +33,41 @@ def config_dhcp(context, subnet, lease):
     f.close()
 
 
+@step(u'Configure dhcpv6 prefix delegation server with address configuration mode "{mode}"')
+def config_dhcpv6_pd(context, mode):
+    adv_managed="off"
+    adv_other="off"
+    adv_prefix="# no prefix"
+    dhcp_range="# no range"
+
+    if mode == 'link-local':
+        pass
+    elif mode == 'slaac':
+        adv_prefix="prefix fc01::/64 {AdvOnLink on; AdvAutonomous on; AdvRouterAddr off; };"
+    elif mode == 'dhcp-stateless':
+        adv_other="on"
+        adv_prefix="prefix fc01::/64 {AdvOnLink on; AdvAutonomous on; AdvRouterAddr off; };"
+    elif mode == 'dhcp-stateful':
+        adv_managed="on"
+        dhcp_range="range6 fc01::1000 fc01::ffff;"
+    else:
+        assert False, ("unknown address configuration mode %s" % mode)
+
+    context.command_code("cp contrib/ipv6/radvd-pd.conf.in /tmp/radvd-pd.conf")
+    context.command_code("cp contrib/ipv6/dhcpd-pd.conf.in /tmp/dhcpd-pd.conf")
+
+    context.command_output_err("sed -i 's/@ADV_MANAGED@/{value}/' /tmp/radvd-pd.conf".format(value=adv_managed));
+    context.command_output_err("sed -i 's/@ADV_OTHER@/{value}/'   /tmp/radvd-pd.conf".format(value=adv_other));
+    context.command_output_err("sed -i 's/@ADV_PREFIX@/{value}/'  /tmp/radvd-pd.conf".format(value=adv_prefix));
+    context.command_output_err("sed -i 's/@DHCP_RANGE@/{value}/'  /tmp/dhcpd-pd.conf".format(value=dhcp_range));
+
+    with open('/tmp/ip6leases.conf', 'w') as f:
+        pass
+
+    context.pexpect_service("ip netns exec testX6_ns radvd -n -C /tmp/radvd-pd.conf", shell=True)
+    context.pexpect_service("ip netns exec testX6_ns dhcpd -6 -d -cf /tmp/dhcpd-pd.conf -lf /tmp/ip6leases.conf", shell=True)
+
+
 @step(u'Prepare connection')
 def prepare_connection(context):
     context.execute_steps(u"""

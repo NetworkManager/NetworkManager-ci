@@ -1382,9 +1382,7 @@
      * Prepare simulated test "testX6" device without DHCP
      * Execute "ip -n testX6_ns addr add dev testX6p fc01::1/64"
      * Prepare simulated test "testY6" device without DHCP
-     * Run child "ip netns exec testX6_ns radvd -n -C contrib/ipv6/radvd.conf" without shell
-     * Execute "echo > /tmp/ip6leases.conf"
-     * Run child "ip netns exec testX6_ns dhcpd -6 -d -cf contrib/ipv6/dhcpd.conf -lf /tmp/ip6leases.conf" without shell
+     * Configure dhcpv6 prefix delegation server with address configuration mode "dhcp-stateful"
      * Add a new connection of type "ethernet" and options "ifname testX6 con-name con_ipv6 ipv4.method disabled ipv6.method auto ipv6.route-metric 50 autoconnect no"
      * Bring "up" connection "con_ipv6"
      When "inet6 fc01:" is visible with command "ip a show dev testX6" in "5" seconds
@@ -1409,9 +1407,7 @@
      * Prepare simulated test "testX6" device without DHCP
      * Execute "ip -n testX6_ns addr add dev testX6p fc01::1/64"
      * Prepare simulated test "testY6" device without DHCP
-     * Run child "ip netns exec testX6_ns radvd -n -C contrib/ipv6/radvd.conf" without shell
-     * Execute "echo > /tmp/ip6leases.conf"
-     * Run child "ip netns exec testX6_ns dhcpd -6 -d -cf contrib/ipv6/dhcpd.conf -lf /tmp/ip6leases.conf" without shell
+     * Configure dhcpv6 prefix delegation server with address configuration mode "dhcp-stateful"
      * Add a new connection of type "ethernet" and options "ifname testX6 con-name con_ipv6 ipv4.method disabled ipv6.method auto ipv6.route-metric 50 autoconnect no"
      * Bring "up" connection "con_ipv6"
      When "inet6 fc01:" is visible with command "ip a show dev testX6" in "5" seconds
