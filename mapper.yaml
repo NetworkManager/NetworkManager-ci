@@ -772,6 +772,8 @@ testmapper:
         feature: ipv6
     - ipv6_prefix_delegation_internal:
         feature: ipv6
+    - ipv6_prefix_delegation_ll_internal:
+        feature: ipv6
     - ipv6_prefix_delegation_dhclient:
         feature: ipv6
     - ipv6_dhcp_iaid_unset:

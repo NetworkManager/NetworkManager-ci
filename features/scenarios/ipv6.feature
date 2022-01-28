@@ -1398,6 +1398,28 @@
      And  Execute "ip netns exec testY6_ns ping -c2 fc01::1"
 
 
+     @ver+=1.34
+     @teardown_testveth @con_ipv6_remove @kill_children @internal_DHCP @dhcpd @rhelver+=8
+     @ipv6_prefix_delegation_ll_internal
+     Scenario: nmcli - ipv6 - prefix delegation with link-local addressing
+     # https://github.com/coreos/fedora-coreos-tracker/issues/888
+     * Prepare simulated test "testX6" device without DHCP
+     * Execute "ip -n testX6_ns addr add dev testX6p fc01::1/64"
+     * Prepare simulated test "testY6" device without DHCP
+     * Configure dhcpv6 prefix delegation server with address configuration mode "link-local"
+     * Add a new connection of type "ethernet" and options "ifname testX6 con-name con_ipv6 ipv4.method disabled ipv6.method auto ipv6.route-metric 50 autoconnect no"
+     * Bring "up" connection "con_ipv6"
+     * Add a new connection of type "ethernet" and options "ifname testY6 con-name con_ipv62 ipv4.method disabled ipv6.method shared autoconnect no"
+     * Bring "up" connection "con_ipv62"
+     When "iaprefix" is visible with command "cat /tmp/ip6leases.conf" in "10" seconds
+     * Execute "ip netns exec testX6_ns ip route add $(grep -m 1 iaprefix /tmp/ip6leases.conf | sed -r 's/\s+iaprefix ([a-f0-9:/]+) \{.*/\1/') via $(ip addr show testX6 | grep -o 'fe80[a-f0-9:]*') dev testX6p"
+     # no need to call, because of IPv6 autoconfiguration
+     #Then Finish "ip netns exec testY6_ns rdisc -d -v"
+     Then "inet6 fc01:bbbb:[a-f0-9:]+/64" is visible with command "ip -n testY6_ns a show dev testY6p" in "15" seconds
+     And  "tentative" is not visible with command "ip -n testY6_ns a show dev testY6p" in "15" seconds
+     And  Execute "ip netns exec testY6_ns ping -c2 fc01::1"
+
+
      @rhbz1755467
      @ver+=1.6
      @teardown_testveth @con_ipv6_remove @kill_children @dhclient_DHCP @dhcpd @rhelver+=8
