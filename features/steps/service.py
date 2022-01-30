@@ -7,7 +7,7 @@ import nmci.lib
 @step(u'Reboot')
 def reboot(context):
     context.nm_restarted = True
-    assert context.command_code("sudo systemctl stop NetworkManager") == 0
+    assert nmci.lib.stop_NM_service(context)
     for x in range(1, 11):
         context.command_code("sudo ip link set dev eth%d down" % int(x))
         context.command_code("sudo ip addr flush dev eth%d" % int(x))

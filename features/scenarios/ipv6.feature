@@ -887,7 +887,7 @@
     * Stop NM
     * Execute "ip a flush dev eth10; ip l set eth10 down; ip l set eth10 up"
     When "fe80" is visible with command "ip a s eth10" in "45" seconds
-    * Execute "systemctl start NetworkManager.service"
+    * Start NM
     Then "eth10.*eth10" is not visible with command "nmcli con"
 
 

@@ -1446,6 +1446,7 @@ def performance_as(ctx, scen):
     ctx.nm_restarted = True
     # Settings device number to 0
     ctx.run("contrib/gi/./setup.sh 0")
+    ctx.nm_pid = nmci.lib.nm_pid()
     # Deleting all connections
     cons = ""
     for i in range(1, 101):
@@ -2735,7 +2736,7 @@ _register_tag("restore_eth8", None, restore_eth8_as)
 
 def restore_broken_network_as(ctx, scen):
     ctx.run('sudo systemctl stop network.service')
-    ctx.run('sudo systemctl stop NetworkManager.service')
+    nmci.lib.stop_NM_service(ctx)
     ctx.run('sysctl net.ipv6.conf.all.accept_ra=1')
     ctx.run('sysctl net.ipv6.conf.default.accept_ra=1')
     nmci.lib.restart_NM_service(ctx)

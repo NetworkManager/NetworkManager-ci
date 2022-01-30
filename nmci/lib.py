@@ -23,6 +23,15 @@ def nm_pid():
     return pid
 
 
+def wait_for_nm_pid(seconds=10):
+    for _ in range(seconds):
+        pid = nm_pid()
+        if pid:
+            return pid
+        time.sleep(1)
+    assert False, f"NetworkManager not running in {seconds} seconds"
+
+
 def nm_size_kb():
     memsize = 0
     pid = nm_pid()
@@ -628,7 +637,7 @@ def after_crash_reset(context):
     print('@after_crash_reset')
 
     print("Stop NM")
-    context.run("systemctl stop NetworkManager")
+    stop_NM_service(context)
 
     print("Remove all links except eth*")
     allowed_links = [b"lo"] + [f"eth{i}".encode("utf-8") for i in range(0, 11)]
@@ -902,21 +911,21 @@ def restart_NM_service(context, reset=True):
     if reset:
         context.run("systemctl reset-failed NetworkManager.service")
     rc = context.command_code("systemctl restart NetworkManager.service")
-    context.nm_pid = nm_pid()
+    context.nm_pid = wait_for_nm_pid(10)
     return rc == 0
 
 
 def start_NM_service(context):
     print("start NM service")
     rc = context.command_code("systemctl start NetworkManager.service")
-    context.nm_pid = nm_pid()
+    context.nm_pid = wait_for_nm_pid(10)
     return rc == 0
 
 
 def stop_NM_service(context):
     print("stop NM service")
     rc = context.command_code("systemctl stop NetworkManager.service")
-    context.nm_pid = nm_pid()
+    context.nm_pid = 0
     return rc == 0
 
 

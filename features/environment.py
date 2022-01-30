@@ -149,7 +149,7 @@ def _before_scenario(context, scenario):
     print(f"before_scenario ... {status} in {duration:.3f}s")
     duration_el.text = f"({duration:.3f}s)"
 
-    nmci.lib.check_crash(context, 'crash outside steps (before scenario...)')
+    nmci.lib.check_crash(context, 'crash outside steps (before scenario)')
 
     if excepts:
         context.before_scenario_step_el.set("class", "step failed")
@@ -228,6 +228,7 @@ def _after_scenario(context, scenario):
 
     nm_pid_after = nmci.lib.nm_pid()
     if not nm_pid_after:
+        nmci.lib.check_crash(context, 'crash outside steps (last step before after_scenario)')
         print("Starting NM as it was found stopped")
         nmci.lib.restart_NM_service(context)
 
@@ -241,8 +242,7 @@ def _after_scenario(context, scenario):
         if os.path.isfile('/tmp/nmtui.out'):
             os.remove('/tmp/nmtui.out')
 
-    print(("NetworkManager process id after: %s (was %s)" % (nm_pid_after, context.nm_pid)))
-    context.nm_pid = nm_pid_after
+    print(("NetworkManager process id after: %s (now %s)" % (nm_pid_after, context.nm_pid)))
 
     if scenario.status == 'failed' or DEBUG:
         nmci.lib.dump_status(context, 'After Scenario', fail_only=True)
@@ -264,7 +264,7 @@ def _after_scenario(context, scenario):
                 excepts.append(traceback.format_exc())
             print(f"  @{tag_name} ... {t_status} in {time.time() - t_start:.3f}s")
 
-    nmci.lib.check_crash(context, 'crash outside steps (after scenario...)')
+    nmci.lib.check_crash(context, 'crash outside steps (after_scenario tags)')
 
     # check for crash reports and embed them
     # sets crash_embeded if crash found
