@@ -333,7 +333,6 @@ function copy_certificates ()
 function restart_services ()
 {
     systemctl daemon-reload
-    systemctl restart NetworkManager
     systemctl restart wpa_supplicant
 }
 

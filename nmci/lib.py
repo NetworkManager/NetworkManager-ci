@@ -829,7 +829,6 @@ def setup_hostapd_wireless(context, args=[]):
         assert False, "hostapd_wireless setup failed"
     if not os.path.isfile('/tmp/wireless_hostapd_check.txt'):
         wifi_rescan(context)
-    context.NM_pid = nm_pid()
 
 
 def teardown_hostapd_wireless(context):
