@@ -1,6 +1,8 @@
 import time
 from behave import step
 
+import nmci.lib
+
 
 @step(u'Reboot')
 def reboot(context):
@@ -34,22 +36,29 @@ def reboot(context):
     context.command_code("rm -rf /var/run/NetworkManager")
 
     time.sleep(1)
-    assert context.command_code("sudo systemctl restart NetworkManager") == 0
+    assert nmci.lib.restart_NM_service(context, reset=False), "NM restart failed"
     time.sleep(2)
 
 
 @step(u'Start NM')
 def start_NM(context):
     context.nm_restarted = True
-    assert context.command_code("sudo systemctl start NetworkManager.service") == 0
+    assert nmci.lib.start_NM_service(context), "NM start failed"
 
 
 @step(u'Restart NM')
 def restart_NM(context):
     context.nm_restarted = True
-    context.command_code("systemctl restart NetworkManager") == 0
+    assert nmci.lib.restart_NM_service(context, reset=False), "NM restart failed"
     # For stability reasons 1 is not enough, please do not lower this
     time.sleep(2)
+
+
+@step(u'Restart NM in background')
+def restart_NM_background(context):
+    context.nm_restarted = True
+    context.pexpect_service("systemctl restart NetworkManager")
+    context.nm_pid_refresh_count = 2
 
 
 @step(u'Kill NM with signal "{signal}"')
@@ -59,17 +68,18 @@ def kill_NM(context, signal=""):
     if signal:
         signal = "-" + signal
     context.run("kill %s $(pidof NetworkManager) && sleep 5" % (signal), shell=True)
+    context.nm_pid = nmci.lib.nm_pid()
 
 
 @step(u'Stop NM')
 def stop_NM(context):
     context.nm_restarted = True
-    assert context.command_code("sudo systemctl stop NetworkManager.service") == 0
+    assert nmci.lib.stop_NM_service(context), "NM stop failed"
 
 
 @step(u'Stop NM and clean "{device}"')
 def stop_NM_and_clean(context, device):
     context.nm_restarted = True
-    assert context.command_code("sudo systemctl stop NetworkManager.service") == 0
+    assert nmci.lib.stop_NM_service(context), "NM stop failed"
     assert context.command_code("sudo ip addr flush dev %s" % (device)) == 0
     assert context.command_code("sudo ip link set %s down" % (device)) == 0

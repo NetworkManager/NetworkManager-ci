@@ -149,6 +149,8 @@ def _before_scenario(context, scenario):
     print(f"before_scenario ... {status} in {duration:.3f}s")
     duration_el.text = f"({duration:.3f}s)"
 
+    nmci.lib.check_crash(context, 'crash outside steps (before scenario...)')
+
     if excepts:
         context.before_scenario_step_el.set("class", "step failed")
         context.embed("text/plain", "\n\n".join(excepts), "Exception in before scenario tags")
@@ -199,8 +201,8 @@ def after_step(context, step):
         # This is for RedHat's STR purposes sleep
         if os.path.isfile('/tmp/nm_skip_restarts'):
             time.sleep(0.4)
-        if not context.nm_restarted:
-            nmci.lib.check_crash(context, step.name);
+        nmci.lib.check_crash(context, step.name)
+
 
 # print exception traceback
 def after_scenario(context, scenario):
@@ -262,9 +264,7 @@ def _after_scenario(context, scenario):
                 excepts.append(traceback.format_exc())
             print(f"  @{tag_name} ... {t_status} in {time.time() - t_start:.3f}s")
 
-    # sets crashed_step, if crash found
-    if 'no_abrt' not in scenario.tags:
-        nmci.lib.check_crash(context, 'crash outside steps (envsetup, before / after scenario...)')
+    nmci.lib.check_crash(context, 'crash outside steps (after scenario...)')
 
     # check for crash reports and embed them
     # sets crash_embeded if crash found

@@ -12,7 +12,7 @@ import shutil
 
 
 def nm_pid():
-    pid = None
+    pid = 0
     out, _, code = nmci.run("systemctl show -pMainPID NetworkManager.service")
     if code == 0:
         pid = int(out.split('=')[-1])
@@ -368,7 +368,11 @@ def embed_dump(context, dump_id, dump_output, caption):
 
 
 def check_crash(context, crashed_step):
-    if not context.crashed_step:
+    pid_refresh_count = getattr(context, "nm_pid_refresh_count", 0)
+    if pid_refresh_count > 0:
+        context.pid_refresh_count = pid_refresh_count - 1
+        context.nm_pid = nmci.lib.nm_pid()
+    elif not context.crashed_step:
         new_pid = nmci.lib.nm_pid()
         if new_pid != context.nm_pid:
             print('NM Crashed as new PID %s is not old PID %s'
@@ -412,24 +416,26 @@ def check_coredump(context):
                 dump = nmci.command_output('echo backtrace | coredumpctl debug %d' % (pid))
             embed_dump(context, dump_dir, dump, "COREDUMP")
 
+
 def wait_faf_complete(dump_dir):
     for i in range(20):
         if not os.path.isdir(dump_dir):
             # Seems like FAF found it to be a duplicate one
             print("* report dir went away, skipping.")
             return False
-        if os.path.isfile("%s/pkg_name" % (dump_dir)) and \
-           os.path.isfile("%s/last_occurrence" % (dump_dir)) and \
-           os.path.isfile("%s/backtrace" % (dump_dir)):
+        if os.path.isfile(f"{dump_dir}/pkg_name") and \
+           os.path.isfile(f"{dump_dir}/last_occurrence") and \
+           os.path.isfile(f"{dump_dir}/backtrace"):
                # We got all we want, including a backtrace. Good.
                return True
         time.sleep(1)
-    if os.path.isfile("%s/pkg_name" % (dump_dir)) and \
-       os.path.isfile("%s/last_occurrence" % (dump_dir)):
+    if os.path.isfile(f"{dump_dir}/pkg_name") and \
+       os.path.isfile(f"{dump_dir}/last_occurrence"):
            # We couldn't get a backtrace. Could be okay.
            return True
     print("* incomplete report, skipping.")
     return False
+
 
 def check_faf(context):
     abrt_search = "/var/spool/abrt/ccpp*"
@@ -676,8 +682,7 @@ def after_crash_reset(context):
     wait_for_testeth0(context)
 
     if os.path.isfile('/tmp/nm_newveth_configured'):
-        print("Regenerate veth setup")
-        context.run('sh prepare/vethsetup.sh check')
+        check_vethsetup(context)
     else:
         print("Up eth1-10 links")
         for link in range(1, 11):
@@ -685,6 +690,12 @@ def after_crash_reset(context):
         print("Add testseth1-10 connections")
         for link in range(1, 11):
             context.run('nmcli con add type ethernet ifname eth%d con-name testeth%d autoconnect no' % (link, link))
+
+
+def check_vethsetup(context):
+    print("Regenerate veth setup")
+    context.run('sh prepare/vethsetup.sh check')
+    context.nm_pid = nm_pid()
 
 
 def teardown_libreswan(context):
@@ -818,10 +829,12 @@ def setup_hostapd_wireless(context, args=[]):
         assert False, "hostapd_wireless setup failed"
     if not os.path.isfile('/tmp/wireless_hostapd_check.txt'):
         wifi_rescan(context)
+    context.NM_pid = nm_pid()
 
 
 def teardown_hostapd_wireless(context):
     context.run("sh prepare/hostapd_wireless.sh teardown")
+    context.NM_pid = nm_pid()
 
 
 def teardown_hostapd(context):
@@ -885,9 +898,27 @@ def reload_NM_service(context):
     time.sleep(1)
 
 
-def restart_NM_service(context):
+def restart_NM_service(context, reset=True):
     print("restart NM service")
-    context.run("systemctl reset-failed NetworkManager.service ; systemctl restart NetworkManager.service")
+    if reset:
+        context.run("systemctl reset-failed NetworkManager.service")
+    rc = context.command_code("systemctl restart NetworkManager.service")
+    context.nm_pid = nm_pid()
+    return rc == 0
+
+
+def start_NM_service(context):
+    print("start NM service")
+    rc = context.command_code("systemctl start NetworkManager.service")
+    context.nm_pid = nm_pid()
+    return rc == 0
+
+
+def stop_NM_service(context):
+    print("stop NM service")
+    rc = context.command_code("systemctl stop NetworkManager.service")
+    context.nm_pid = nm_pid()
+    return rc == 0
 
 
 def reset_hwaddr_nmtui(context, ifname):

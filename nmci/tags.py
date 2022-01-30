@@ -170,7 +170,7 @@ def crash_bs(ctx, scen):
 
 
 def crash_as(ctx, scen):
-    ctx.run("systemctl restart NetworkManager")
+    assert nmci.lib.restart_NM_service(ctx)
     if "systemd-coredump" not in ctx.core_pattern:
         ctx.command_output(f"sysctl -w kernel.core_pattern='{ctx.core_pattern}'")
     if ctx.systemd_coredump_masked:
@@ -213,8 +213,7 @@ _register_tag("not_on_veth", newveth_bs)
 
 def regenerate_veth_as(ctx, scen):
     if os.path.isfile('/tmp/nm_newveth_configured'):
-        print("regenerate veth setup")
-        ctx.run('sh prepare/vethsetup.sh check')
+        nmci.lib.check_vethsetup(ctx)
     else:
         print("up eth1-11 links")
         for link in range(1, 11):
@@ -998,7 +997,7 @@ def simwifi_ap_bs(ctx, scen):
     ctx.run("modprobe -r mac80211_hwsim")
     ctx.run("modprobe mac80211_hwsim")
     ctx.run("systemctl restart wpa_supplicant")
-    ctx.run("systemctl restart NetworkManager")
+    assert nmci.lib.restart_NM_service(ctx, reset=False), "NM stop failed"
 
 
 def simwifi_ap_as(ctx, scen):
@@ -1006,7 +1005,7 @@ def simwifi_ap_as(ctx, scen):
     ctx.run("ip link delete br0")
     ctx.run("modprobe -r mac80211_hwsim")
     ctx.run("systemctl restart wpa_supplicant")
-    ctx.run("systemctl restart NetworkManager")
+    assert nmci.lib.restart_NM_service(ctx, reset=False), "NM stop failed"
 
 
 _register_tag("simwifi_ap", simwifi_ap_bs, simwifi_ap_as)
@@ -1892,7 +1891,8 @@ def nmstate_upstream_setup_as(ctx, scen):
     nmci.lib.wait_for_testeth0(ctx)
 
     # check just in case something went wrong
-    ctx.run("sh prepare/vethsetup.sh check")
+    nmci.lib.check_vethsetup(ctx)
+
 
     nmstate = nmci.lib.utf_only_open_read("/tmp/nmstate.txt")
     if nmstate:
