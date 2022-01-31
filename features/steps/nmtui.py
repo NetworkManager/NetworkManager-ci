@@ -242,6 +242,7 @@ def back_to_main(context):
 
 @step('Exit nmtui via "{action}" button')
 @step('Choose to "{action}" a slave')
+@step('Choose to "{action}" a peer')
 @step('Exit the dialog via "{action}" button')
 @step('Choose to "{action}" a connection')
 def choose_connection_action(context, action):
@@ -261,6 +262,7 @@ def confirm_route_screen(context):
     context.tui.send(keys['ENTER'])
 
 
+@step('Confirm the peer settings')
 @step('Confirm the slave settings')
 def confirm_slave_screen(context):
     context.tui.send(keys['DOWNARROW']*64)

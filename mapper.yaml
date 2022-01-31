@@ -2283,6 +2283,9 @@ testmapper:
     - wireguard_nmcli_doc_procedure:
         feature: doc_procedures
         tags: gate
+    - wireguard_nmtui_doc_procedure:
+        feature: doc_procedures
+        tags: gate
     - gsm_sim_create_default_connection:
         feature: gsm_sim
     - gsm_sim_disconnect:

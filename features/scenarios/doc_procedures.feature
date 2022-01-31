@@ -192,3 +192,50 @@ Feature: nmcli - procedures in documentation
      Then "192.0.2.1:51820" is visible with command "wg show wg1"
       And "inet 192.0.2.2/24 brd 192.0.2.255 scope global noprefixroute wg1" is visible with command "ip address show wg1"
       And "inet6 2001:db8:1::2/32 scope global noprefixroute" is visible with command "ip address show wg1"
+
+    @rhelver+=9
+    @wireguard
+    @wireguard_nmtui_doc_procedure
+    Scenario: nmcli - docs - Configuring wireguard server & client with nmtui
+    * Prepare virtual terminal environment
+    * Prepare new connection of type "WireGuard" named "server-wg0"
+    * Set "Device" field to "wg0"
+    * Set "Private key" field to "YFAnE0psgIdiAF7XR4abxiwVRnlMfeltxu10s/c4JXg="
+    * Set "Listen port" field to "51820"
+    * Choose to "<Add>" a peer
+    * Set "Public key" field to "bnwfQcC8/g2i4vvEqcRUM2e6Hi3Nskk6G9t4r26nFVM="
+    * Set "Allowed IPs" field to "192.0.2.2,2001:db8:1::2"
+    * Confirm the peer settings
+    * Set "IPv4 CONFIGURATION" category to "Manual"
+    * Come in "IPv4 CONFIGURATION" category
+    * In "Addresses" property add "192.0.2.1/24"
+    * Set "IPv6 CONFIGURATION" category to "Manual"
+    * Come in "IPv6 CONFIGURATION" category
+    * In "Addresses" property add "2001:db8:1::1/32"
+    * Confirm the connection settings
+    When "activated" is visible with command "nmcli -g GENERAL.STATE con show server-wg0" in "40" seconds
+    Then "bnwfQcC8/g2i4vvEqcRUM2e6Hi3Nskk6G9t4r26nFVM=" is visible with command "wg show wg0"
+     And "inet 192.0.2.1/24 brd 192.0.2.255 scope global noprefixroute wg0" is visible with command "ip address show wg0"
+     And "inet6 2001:db8:1::1/32 scope global noprefixroute" is visible with command "ip address show wg0"
+    * Prepare new connection of type "WireGuard" named "client-wg0"
+    * Set "Device" field to "wg1"
+    * Set "Private key" field to "aPUcp5vHz8yMLrzk8SsDyYnV33IhE/k20e52iKJFV0A="
+    * Choose to "<Add>" a peer
+    * Set "Public key" field to "UtjqCJ57DeAscYKRfp7cFGiQqdONRn69u249Fa4O6BE="
+    * Set "Allowed IPs" field to "192.0.2.1,2001:db8:1::1"
+    * Set "Endpoint" field to "192.0.2.1:51820"
+    * Set "Persistent keepalive" field to "20"
+    * Confirm the peer settings
+    * Set "IPv4 CONFIGURATION" category to "Manual"
+    * Come in "IPv4 CONFIGURATION" category
+    * In "Addresses" property add "192.0.2.2/24"
+    * Set "Gateway" field to "192.0.2.1"
+    * Set "IPv6 CONFIGURATION" category to "Manual"
+    * Come in "IPv6 CONFIGURATION" category
+    * In "Addresses" property add "2001:db8:1::2/32"
+    * Set "Gateway" field to "2001:db8:1::1"
+    * Confirm the connection settings
+    When "activated" is visible with command "nmcli -g GENERAL.STATE con show client-wg0" in "40" seconds
+    Then "192.0.2.1:51820" is visible with command "wg show wg1"
+     And "inet 192.0.2.2/24 brd 192.0.2.255 scope global noprefixroute wg1" is visible with command "ip address show wg1"
+     And "inet6 2001:db8:1::2/32 scope global noprefixroute" is visible with command "ip address show wg1"
