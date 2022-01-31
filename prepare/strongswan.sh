@@ -1,5 +1,5 @@
 #!/bin/bash
-set +x
+set -x
 
 STRONGSWAN_DIR="/etc/netns/strongswan/"
 
@@ -146,7 +146,7 @@ strongswan_setup ()
 
 
         # selinux policy
-        semodule -i contrib/selinux-policy/strongswan.pp
+        (semodule -l | grep -q strongswan) || semodule -i contrib/selinux-policy/strongswan.pp
 
         echo "Configuring remote Strongswan peer"
 
