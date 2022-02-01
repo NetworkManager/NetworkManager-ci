@@ -344,34 +344,34 @@ def set_specific_field_to(context, field, value):
     if value == "<noted>":
         value = context.noted['noted-value']
         print(f"setting '{field}' to '{value}'")
-    assert go_until_pattern_matches_line(context, keys['DOWNARROW'], '^[\u2500-\u2599\\s]+%s.*' % field) is not None, "Could not go to option '%s' on screen!" % field
+    assert go_until_pattern_matches_line(context, keys['DOWNARROW'], '.*%s.*' % field) is not None, "Could not go to option '%s' on screen!" % field
     context.tui.send(keys['BACKSPACE']*100)
     context.tui.send(value)
 
 
 @step('Empty the field "{field}"')
 def empty_specific_field(context, field):
-    assert go_until_pattern_matches_line(context, keys['DOWNARROW'], '^[\u2500-\u2599\\s]+%s.*' % field) is not None, "Could not go to option '%s' on screen!" % field
+    assert go_until_pattern_matches_line(context, keys['DOWNARROW'], '.*%s.*' % field) is not None, "Could not go to option '%s' on screen!" % field
     context.tui.send(keys['BACKSPACE']*100)
 
 
 @step('In "{prop}" property add "{value}"')
 def add_in_property(context, prop, value):
-    assert go_until_pattern_matches_line(context, keys['DOWNARROW'], '^.*[\u2502\\s]+%s <Add.*' % prop) is not None, "Could not find '%s' property!" % prop
+    assert go_until_pattern_matches_line(context, keys['DOWNARROW'], '^.*%s <Add.*' % prop) is not None, "Could not find '%s' property!" % prop
     context.tui.send(' ')
     context.tui.send(value)
 
 
 @step('In this property also add "{value}"')
 def add_more_property(context, value):
-    assert go_until_pattern_matches_line(context, keys['DOWNARROW'], '^[\u2502\\s]+<Add\\.\\.\\.>.*') is not None, "Could not find the next <Add>"
+    assert go_until_pattern_matches_line(context, keys['DOWNARROW'], '^.*<Add\\.\\.\\.>.*') is not None, "Could not find the next <Add>"
     context.tui.send(' ')
     context.tui.send(value)
 
 
 @step('Add ip route "{values}"')
 def add_route(context, values):
-    assert go_until_pattern_matches_line(context, keys['DOWNARROW'], '^[\u2502\\s]+Routing.+<Edit') is not None, "Could not find the routing edit button"
+    assert go_until_pattern_matches_line(context, keys['DOWNARROW'], '^.*<Edit') is not None, "Could not find the routing edit button"
     context.tui.send('\r\n')
     assert go_until_pattern_matches_aftercursor_text(context, keys['DOWNARROW'], '^<Add.*') is not None, "Could not find the routing add button"
     context.tui.send('\r\n')
@@ -384,7 +384,7 @@ def add_route(context, values):
 
 @step('Cannot add ip route "{values}"')
 def cannot_add_route(context, values):
-    assert go_until_pattern_matches_line(context, keys['DOWNARROW'], '^[\u2502\\s]+Routing.+<Edit') is not None, "Could not find the routing edit button"
+    assert go_until_pattern_matches_line(context, keys['DOWNARROW'], '^.*<Edit') is not None, "Could not find the routing edit button"
     context.tui.send('\r\n')
     assert go_until_pattern_matches_aftercursor_text(context, keys['DOWNARROW'], '^<Add.*') is not None, "Could not find the routing add button"
     context.tui.send('\r\n')
@@ -397,7 +397,7 @@ def cannot_add_route(context, values):
 
 @step('Remove all routes')
 def remove_routes(context):
-    assert go_until_pattern_matches_line(context, keys['DOWNARROW'], '^[\u2502\\s]+Routing.+<Edit') is not None, "Could not find the routing edit button"
+    assert go_until_pattern_matches_line(context, keys['DOWNARROW'], '^.*<Edit') is not None, "Could not find the routing edit button"
     context.tui.send('\r\n')
     while go_until_pattern_matches_aftercursor_text(context, keys['DOWNARROW'], '^<Remove.*', limit=5) is not None:
         context.tui.send('\r\n')
@@ -406,7 +406,7 @@ def remove_routes(context):
 
 @step('Remove all "{prop}" property items')
 def remove_items(context, prop):
-    assert go_until_pattern_matches_line(context, keys['DOWNARROW'], '^.*[\u2502\\s]+%s.*' % prop) is not None, "Could not find '%s' property!" % prop
+    assert go_until_pattern_matches_line(context, keys['DOWNARROW'], '^.*%s.*' % prop) is not None, "Could not find '%s' property!" % prop
     while go_until_pattern_matches_aftercursor_text(context, keys['DOWNARROW'], '^<Remove.*', limit=2) is not None:
         context.tui.send('\r\n')
     context.tui.send(keys['UPARROW']*2)
@@ -414,7 +414,7 @@ def remove_items(context, prop):
 
 @step('Come in "{category}" category')
 def come_in_category(context, category):
-    assert go_until_pattern_matches_line(context, keys['DOWNARROW'], '^.*[\u2550|\u2564]\\s%s.*' % category) is not None, "Could not go to category '%s' on screen!" % category
+    assert go_until_pattern_matches_line(context, keys['DOWNARROW'], '^.*%s.*' % category) is not None, "Could not go to category '%s' on screen!" % category
     match = go_until_pattern_matches_aftercursor_text(context, keys['DOWNARROW'], '^(<Hide>|<Show>).*')
     assert match is not None, "Could not go to hide/show for the category %s " % category
     if match.group(1) == '<Show>':
@@ -423,10 +423,10 @@ def come_in_category(context, category):
 
 @step('Set "{category}" category to "{setting}"')
 def set_category(context, category, setting):
-    assert go_until_pattern_matches_line(context, keys['DOWNARROW'], '^.*[\u2550|\u2564]\\s%s.*' % category) is not None, "Could not go to category '%s' on screen!" % category
+    assert go_until_pattern_matches_line(context, keys['DOWNARROW'], '^.*%s.*' % category) is not None, "Could not go to category '%s' on screen!" % category
     context.tui.send(' ')
     context.tui.send(keys['UPARROW']*16)
-    match = go_until_pattern_matches_aftercursor_text(context, keys['DOWNARROW'], '^\\s*%s\\s*\u2502.*' % setting)
+    match = go_until_pattern_matches_aftercursor_text(context, keys['DOWNARROW'], '^\\s*%s\\s*.*' % setting)
     assert match is not None, "Could not find setting %s for the category %s " % (setting, category)
     context.tui.send('\r\n')
 
@@ -436,7 +436,7 @@ def set_dropdown(context, dropdown, setting):
     assert go_until_pattern_matches_line(context, keys['TAB'], '^.*\\s+%s.*' % dropdown) is not None, "Could not go to dropdown '%s' on screen!" % dropdown
     context.tui.send(' ')
     context.tui.send(keys['UPARROW']*16)
-    match = go_until_pattern_matches_aftercursor_text(context, keys['DOWNARROW'], '^\\s*%s\\s*\u2502.*' % setting)
+    match = go_until_pattern_matches_aftercursor_text(context, keys['DOWNARROW'], '^\\s*%s\\s*.*' % setting)
     assert match is not None, "Could not find setting %s for the dropdown %s " % (setting, dropdown)
     context.tui.send('\r\n')
 
@@ -444,7 +444,7 @@ def set_dropdown(context, dropdown, setting):
 @step('Ensure "{toggle}" is checked')
 @step('Ensure "{toggle}" is {n} checked')
 def ensure_toggle_is_checked(context, toggle, n=None):
-    match = go_until_pattern_matches_line(context, keys['DOWNARROW'], '^[\u2500-\u2599\\s]+(\[.\])\\s+%s.*' % toggle)
+    match = go_until_pattern_matches_line(context, keys['DOWNARROW'], '^.*(\[.\])\\s+%s.*' % toggle)
     assert match is not None, "Could not go to toggle '%s' on screen!" % toggle
     if match.group(1) == '[ ]' and n is None:
         context.tui.send(' ')

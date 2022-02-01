@@ -444,7 +444,8 @@ Feature: WIFI TUI tests
     * Set "Device" field to "wlan0"
     * Set "SSID" field to "wep-2"
     * Set "Security" dropdown to "WEP 40/128-bit Key \(Hex or ASCII\)"
-    * Set "Key" field to "74657374696E67313233343536"
+    # Here we are probably mixing with other item, two spaces fixing it
+    * Set "  Key" field to "74657374696E67313233343536"
     * Confirm the connection settings
     Then "inet 10." is visible with command "ip a s wlan0" in "30" seconds
     Then "SSID: wep" is visible with command "iw dev wlan0 link" in "30" seconds
@@ -458,7 +459,8 @@ Feature: WIFI TUI tests
     * Set "Device" field to "wlan0"
     * Set "SSID" field to "wep"
     * Set "Security" dropdown to "WEP 40/128-bit Key \(Hex or ASCII\)"
-    * Set "Key" field to "abcde"
+    # Here we are probably mixing with other item, two spaces fixing it
+    * Set "  Key" field to "abcde"
     * Confirm the connection settings
     Then "inet 10." is visible with command "ip a s wlan0" in "30" seconds
     Then "SSID: wep" is visible with command "iw dev wlan0 link" in "30" seconds
