@@ -1019,6 +1019,8 @@ testmapper:
         feature: ipv4
     - ipv4_manual_addr_before_dhcp:
         feature: ipv4
+    - ipv4_manual_addr_preferred_over_dhcp:
+        feature: ipv4
     - ipv4_routing_rules_manipulation:
         feature: ipv4
     - dhcp_multiple_router_options:

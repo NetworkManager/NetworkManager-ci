@@ -1930,6 +1930,16 @@ Feature: nmcli: ipv4
      And "activated" is visible with command "nmcli -g GENERAL.STATE con show con_ipv4" in "45" seconds
 
 
+    @ver+=1.35.3
+    @con_general_remove @teardown_testveth
+    @ipv4_manual_addr_preferred_over_dhcp
+    Scenario: nmcli - ipv4 - manual preferred over DHCP
+    * Prepare simulated test "testS" device with "192.168.13" ipv4 and daemon options "--dhcp-host=00:11:22:33:44:55,192.168.13.37,foo"
+    * Add a new connection of type "ethernet" and options "ifname testS con-name con_general autoconnect no ethernet.cloned-mac-address 00:11:22:33:44:55 ipv6.method disabled ipv4.address 192.168.13.37/24"
+    * Bring "up" connection "con_general"
+    Then "192.168.13.37.*valid_lft forever preferred_lft forever" is visible with command "ip -oneline a s testS" in "10" seconds
+
+
     @rhbz1652653 @rhbz1696881
     @ver+=1.18.4
     @con_ipv4_remove @restart_if_needed
