@@ -877,18 +877,22 @@ _register_tag("need_dispatcher_scripts", need_dispatcher_scripts_bs, need_dispat
 def need_legacy_crypto_bs(ctx, scen):
     # We have openssl3 in RHEL9 with a bunch of algs deprecated
     if "release 9" in ctx.rh_release:
-        ctx.run("sed '-i.bak' s/'^##'/''/g /etc/pki/tls/openssl.cnf")
-        if '8021x' in scen.tags:
-            ctx.run("systemctl restart wpa_supplicant")
-            ctx.run("systemctl restart nm-hostapd")
+        pass
+        # hostapd and wpa_supplicant 2.10+ can enforce this w/o config
+        # ctx.run("sed '-i.bak' s/'^##'/''/g /etc/pki/tls/openssl.cnf")
+        # if '8021x' in scen.tags:
+        #     ctx.run("systemctl restart wpa_supplicant")
+        #     ctx.run("systemctl restart nm-hostapd")
 
 
 def need_legacy_crypto_as(ctx, scen):
     if "release 9" in ctx.rh_release:
-        ctx.run("mv -f /etc/pki/tls/openssl.cnf.bak /etc/pki/tls/openssl.cnf")
-        if '8021x' in scen.tags:
-            ctx.run("systemctl restart wpa_supplicant")
-            ctx.run("systemctl restart nm-hostapd")
+        pass
+        # hostapd and wpa_supplicant 2.10+ can enforce this w/o config
+        # ctx.run("mv -f /etc/pki/tls/openssl.cnf.bak /etc/pki/tls/openssl.cnf")
+        # if '8021x' in scen.tags:
+        #     ctx.run("systemctl restart wpa_supplicant")
+        #     ctx.run("systemctl restart nm-hostapd")
 
 
 _register_tag("need_legacy_crypto", need_legacy_crypto_bs, need_legacy_crypto_as)
