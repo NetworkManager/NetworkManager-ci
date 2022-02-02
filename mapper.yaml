@@ -1143,7 +1143,7 @@ testmapper:
         feature: vlan
     - vlan_create_500_vlans:
         feature: vlan
-        timeout: 20m
+        timeout: 10m
     - vlan_create_1000_bridges_over_1000_vlans:
         feature: vlan
         timeout: 25m

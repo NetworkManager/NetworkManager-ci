@@ -6,6 +6,8 @@ function setup {
     set -e
     ID_END=$(($NUM+10))
 
+    echo "dhcp-lease-max=2000" > /etc/dnsmasq.d/vlan.conf
+
     ip netns add eth11_ns
     ip link add eth11 type veth peer name eth11p
     ip link set dev eth11 up
@@ -20,7 +22,7 @@ function setup {
             ip -n eth11_ns add add 11.1.$((i / 100)).$((i % 100))/8 dev eth11p.$i
     done
     ip netns exec eth11_ns dnsmasq \
-            --dhcp-range=11.2.0.1,11.2.10.250,2m \
+            --dhcp-range=11.2.0.1,11.2.10.250,1h \
             --no-ping \
             --dhcp-leasefile=/var/lib/dnsmasq/vlans.leases \
             --pid-file=/tmp/dnsmasq_vlan.pid
@@ -35,6 +37,9 @@ function setup {
 function clean {
     NUM=$(cat /tmp/vlan_count.txt)
     rm -rf /tmp/vlan_count.txt
+    rm -rf /var/lib/dnsmasq/vlans.leases
+    rm -rf /etc/dnsmasq.d/vlan.conf
+
     if ! [[ $NUM =~ ^-?[0-9]+$ ]]; then
         echo "No /tmp/vlan_count.txt, cleaning up to 1000"
         NUM=1000
