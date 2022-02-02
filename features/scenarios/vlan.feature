@@ -773,8 +773,8 @@ Feature: nmcli - vlan
     # Then "\s+activated" is visible with command "nmcli con show eth11.404" in "200" seconds
     # Then "\s+activated" is visible with command "nmcli con show eth11.505" in "200" seconds
     # We need to see eth11 + 501 vlans so we are sure we have all
-    # Then Execute "nmcli  device |grep eth11 > /tmp/eth11s"
     Then "50[1,2]" is visible with command "nmcli  device |grep eth11 |grep ' connected'| wc -l" in "500" seconds
+    Then Execute "nmcli  device |grep eth11 > /tmp/eth11s"
     # Then "502" is visible with command "nmcli  device |grep eth11 |wc -l"
 
 
