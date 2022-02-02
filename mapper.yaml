@@ -2016,6 +2016,8 @@ testmapper:
         feature: connection
     - connection_metered_guess_yes:
         feature: connection
+    - connection_metered_guess_yes_ipv6_disabled:
+        feature: connection
     - introspection_active_connection:
         feature: connection
     - connection_user_settings_data:

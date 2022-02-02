@@ -474,6 +474,18 @@ Feature: nmcli: connection
      * Add a new connection of type "ethernet" and options "ifname testXc con-name con_con autoconnect off"
      * Modify connection "con_con" changing options "connection.metered unknown"
      * Bring "up" connection "con_con"
+     Then Metered status is "3" in "5" seconds
+
+
+    @rhbz1200452
+    @con_con_remove @eth0
+    @teardown_testveth
+    @connection_metered_guess_yes_ipv6_disabled
+    Scenario: NM - connection - metered guess yes
+     * Prepare simulated test "testXc" device with "192.168.99" ipv4 and "2620:52:0:dead" ipv6 dhcp address prefix and dhcp option "43,ANDROID_METERED"
+     * Add a new connection of type "ethernet" and options "ifname testXc con-name con_con autoconnect off ipv6.method disabled"
+     * Modify connection "con_con" changing options "connection.metered unknown"
+     * Bring "up" connection "con_con"
      Then Metered status is "3"
 
 
