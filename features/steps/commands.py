@@ -6,6 +6,7 @@ import time
 from behave import step
 
 import nmci
+import nmci.nmutil
 
 
 @step(u'Autocomplete "{cmd}" in bash and execute')
@@ -434,14 +435,18 @@ def cannot_ping6_domain(context, domain):
 
 
 @step(u'Metered status is "{value}"')
-def check_metered_status(context, value):
-    cmd = 'dbus-send --system --print-reply --dest=org.freedesktop.NetworkManager \
-                                                /org/freedesktop/NetworkManager \
-                                                org.freedesktop.DBus.Properties.Get \
-                                                string:"org.freedesktop.NetworkManager" \
-                                                string:"Metered" |grep variant| awk \'{print $3}\''
-    ret = context.command_output(cmd).strip()
-    assert ret == value, "Metered value is %s but should be %s" % (ret, value)
+@step(u'Metered status is "{value}" in "{seconds}" seconds')
+def check_metered_status(context, value, seconds = None):
+    value = int(value)
+    if seconds is not None:
+        end_time = time.clock_gettime(nmci.util.CLOCK_BOOTTIME) + float(seconds)
+    while True:
+        ret = nmci.nmutil.get_metered()
+        if ret == value:
+            return
+        if seconds is None or time.clock_gettime(nmci.util.CLOCK_BOOTTIME) > end_time:
+            assert ret == value, f"Metered value is {ret} but should be {value}"
+        time.sleep(0.2)
 
 
 @step(u'Network trafic "{state}" dropped')
