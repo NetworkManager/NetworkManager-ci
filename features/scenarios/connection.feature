@@ -465,7 +465,8 @@ Feature: nmcli: connection
      Then Metered status is "4"
 
 
-    @rhbz1200452
+    @rhbz1200452 @rhbz2047751
+    @may_fail
     @con_con_remove @eth0
     @teardown_testveth
     @connection_metered_guess_yes
