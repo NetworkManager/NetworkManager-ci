@@ -4,6 +4,9 @@ from . import util
 
 
 class _DBus:
+
+    REPLY_TYPE_U = object()
+
     def bus_get(self, bus_type=None, cancellable=None):
 
         Gio = util.Gio
@@ -89,6 +92,20 @@ class _DBus:
                 cancellable=cancellable,
             )
             return v.get_string()
+
+        if reply_type is self.REPLY_TYPE_U:
+            v = self.get_property(
+                bus_name=bus_name,
+                object_path=object_path,
+                interface_name=interface_name,
+                property_name=property_name,
+                reply_type="u",
+                flags=flags,
+                timeout_msec=timeout_msec,
+                bus_type=bus_type,
+                cancellable=cancellable,
+            )
+            return v.get_uint32()
 
         GLib = util.GLib
 
