@@ -1342,7 +1342,8 @@ Feature: nmcli - general
     Then "192.168.5.11" is visible with command "ip a s testG" in "60" seconds
 
 
-    @rhbz1079353
+    @rhbz1079353 @rhbz2043514
+    @may_fail
     @con_general_remove @no_config_server @teardown_testveth
     @nmcli_general_activate_static_connection_carrier_not_ignored
     Scenario: nmcli - general - activate static connection with no carrier - not ignored
