@@ -239,3 +239,14 @@ Feature: nmcli - procedures in documentation
     Then "192.0.2.1:51820" is visible with command "wg show wg1"
      And "inet 192.0.2.2/24 brd 192.0.2.255 scope global noprefixroute wg1" is visible with command "ip address show wg1"
      And "inet6 2001:db8:1::2/32 scope global noprefixroute" is visible with command "ip address show wg1"
+
+
+    @bridge @firewall
+    @vxlan_doc_procedure
+    Scenario: nmcli - docs - Creating a network bride with VXLAN attached
+    * Add a new connection of type "bridge" and options "con-name br88 ifname br4 ipv4.method disabled ipv6.method disabled"
+    * Add a new connection of type "vxlan" and options "slave-type bridge con-name br4-vxlan10 ifname vxlan10 id 10 local 198.51.100.2 remote 203.0.113.1 master br88"
+    * Bring up connection "br88"
+    * Execute "firewall-cmd --permanent --add-port=8472/udp"
+    * Execute "firewall-cmd --reload"
+    Then "master br4 permanent" is visible with command "bridge fdb show dev vxlan10"

@@ -2089,7 +2089,7 @@ def bridge_as(ctx, scen):
 
         ctx.run('sudo nmcli con del bridge4 bridge4.0 bridge4.1 nm-bridge eth4.80 eth4.90')
         ctx.run('sudo nmcli con del bridge-slave-eth4 bridge-nonslave-eth4 bridge-slave-eth4.80 eth4')
-        ctx.run('sudo nmcli con del bridge0 bridge bridge.15 nm-bridge br88 br11 br12 br15 bridge-slave br15-slave br15-slave1 br15-slave2 br10 br10-slave')
+        ctx.run('sudo nmcli con del bridge0 bridge bridge.15 nm-bridge br88 br11 br12 br15 bridge-slave br15-slave br15-slave1 br4-vxlan10 br15-slave2 br10 br10-slave')
         nmci.lib.reset_hwaddr_nmcli(ctx, 'eth4')
 
 
