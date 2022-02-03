@@ -426,23 +426,37 @@ def check_coredump(context):
             embed_dump(context, dump_dir, dump, "COREDUMP")
 
 
-def wait_faf_complete(dump_dir):
-    for i in range(20):
+def wait_faf_complete(context, dump_dir):
+    NM_pkg = False
+    last = False
+    backtrace = False
+    reported = False
+    for i in range(300):
         if not os.path.isdir(dump_dir):
             # Seems like FAF found it to be a duplicate one
             print("* report dir went away, skipping.")
             return False
-        if os.path.isfile(f"{dump_dir}/pkg_name") and \
-           os.path.isfile(f"{dump_dir}/last_occurrence") and \
-           os.path.isfile(f"{dump_dir}/backtrace"):
-               # We got all we want, including a backtrace. Good.
-               return True
+
+        if not NM_pkg and os.path.isfile(f"{dump_dir}/pkg_name"):
+            pkg = utf_only_open_read(f"{dump_dir}/pkg_name")
+            if not check_dump_package(pkg):
+                print("* not NM related FAF")
+                return False
+            else:
+                NM_pkg = True
+                after_crash_reset(context)
+
+        last = last or os.path.isfile(f"{dump_dir}/last_occurrence")
+        backtrace = backtrace or os.path.isfile(f"{dump_dir}/backtrace")
+        reported = reported or os.path.isfile(f"{dump_dir}/reported_to")
+
+        if NM_pkg and last and backtrace and reported:
+            print(f"* all FAF files exist in {i} seconds, should be complete")
+            return True
+        print(f"* report not complete yet, try #{i}")
+        context.run(f"ls -l {dump_dir}")
         time.sleep(1)
-    if os.path.isfile(f"{dump_dir}/pkg_name") and \
-       os.path.isfile(f"{dump_dir}/last_occurrence"):
-           # We couldn't get a backtrace. Could be okay.
-           return True
-    print("* incomplete report, skipping.")
+    print("* incomplete FAF report in 300s, skipping in this test.")
     return False
 
 
@@ -453,10 +467,7 @@ def check_faf(context):
         if not dump_dir:
             continue
         print("Examing crash: " + dump_dir)
-        if not wait_faf_complete(dump_dir):
-            continue
-        pkg = utf_only_open_read("%s/pkg_name" % (dump_dir))
-        if not check_dump_package(pkg):
+        if not wait_faf_complete(context, dump_dir):
             continue
         last_timestamp = utf_only_open_read("%s/last_occurrence" % (dump_dir))
         # append last_timestamp, to check if last occurrence is reported
