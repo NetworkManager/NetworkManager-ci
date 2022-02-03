@@ -1135,6 +1135,7 @@ Feature: nmcli - general
     Scenario: NM - general - wait-online - for both ipv4 and ipv6
     * Prepare simulated test "testG" device
     * Add a new connection of type "ethernet" and options "ifname testG con-name con_general ipv4.may-fail no ipv6.may-fail no"
+    * "connected:con_general" is visible with command "nmcli -t -f STATE,CONNECTION device" in "50" seconds
     * Restart NM
     #When "2620:" is not visible with command "ip a s testG"
     * Execute "/usr/bin/nm-online -s -q --timeout=30"
@@ -1148,6 +1149,7 @@ Feature: nmcli - general
     @wait_online_with_autoconnect_no_connection
     Scenario: NM - general - wait-online - skip non autoconnect soft device connections
     * Add a new connection of type "bridge" and options "con-name gen_br ifname brX autoconnect no"
+    * "connected:con_general" is visible with command "nmcli -t -f STATE,CONNECTION device" in "50" seconds
     * Stop NM
     * Start NM
     Then "PASS" is visible with command "/usr/bin/nm-online -s -q --timeout=30 && echo PASS"
