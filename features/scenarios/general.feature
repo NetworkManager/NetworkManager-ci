@@ -722,7 +722,8 @@ Feature: nmcli - general
     @mock
     @nmcli_device_wifi_with_two_devices
     Scenario: nmcli - device - wifi show two devices
-    Then "test_two_wifi_with_accesspoints \(__main__.TestNetworkManager\) ... ok" is visible with command "sudo -u test python3 ./contrib/dbus/dbusmock-unittest.py"
+    * Execute "mv ./contrib/dbus/dbusmock-unittest.py /tmp"
+    Then "test_two_wifi_with_accesspoints \(__main__.TestNetworkManager\) ... ok" is visible with command "sudo -u test python3 /tmp/dbusmock-unittest.py"
 
 
     @rhbz1114681
