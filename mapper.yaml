@@ -1183,16 +1183,23 @@ testmapper:
         feature: vrf
     #- vrf_external:
     #    feature: vrf
+
     - ethernet_default_initramfs_connection:
-        feature: ethernet
+        feature: upgrade
+        tags: upgrade_setup
     - ethernet_create_with_editor:
-        feature: ethernet
+        feature: upgrade
+        tags: upgrade_setup
     - ethernet_create_default_connection:
-        feature: ethernet
+        feature: upgrade
+        tags: upgrade_test
     - ethernet_connection_up:
-        feature: ethernet
+        feature: upgrade
+        tags: upgrade_test
     - ethernet_disconnect_device:
-        feature: ethernet
+        feature: upgrade
+        tags: upgrade_test
+
     - ethernet_describe_all:
         feature: ethernet
     - ethernet_describe_separately:
