@@ -431,6 +431,7 @@ def wait_faf_complete(context, dump_dir):
     last = False
     backtrace = False
     reported = False
+    reported_lines = 0
     for i in range(300):
         if not os.path.isdir(dump_dir):
             # Seems like FAF found it to be a duplicate one
@@ -449,8 +450,10 @@ def wait_faf_complete(context, dump_dir):
         last = last or os.path.isfile(f"{dump_dir}/last_occurrence")
         backtrace = backtrace or os.path.isfile(f"{dump_dir}/backtrace")
         reported = reported or os.path.isfile(f"{dump_dir}/reported_to")
+        if reported and reported_lines < 2:
+            reported_lines = len(open(f"{dump_dir}/reported_to").readlines())
 
-        if NM_pkg and last and backtrace and reported:
+        if NM_pkg and last and backtrace and reported and reported_lines >= 2:
             print(f"* all FAF files exist in {i} seconds, should be complete")
             return True
         print(f"* report not complete yet, try #{i}")
