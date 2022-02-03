@@ -1150,7 +1150,6 @@ Feature: nmcli - general
     @wait_online_with_autoconnect_no_connection
     Scenario: NM - general - wait-online - skip non autoconnect soft device connections
     * Add a new connection of type "bridge" and options "con-name gen_br ifname brX autoconnect no"
-    * "connected:con_general" is visible with command "nmcli -t -f STATE,CONNECTION device" in "50" seconds
     * Stop NM
     * Start NM
     Then "PASS" is visible with command "/usr/bin/nm-online -s -q --timeout=30 && echo PASS"
