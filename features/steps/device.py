@@ -621,4 +621,21 @@ def device_lldp_status_libnm(context, device):
     assert nm_device_flags & NM.DeviceInterfaceFlags.LLDP_CLIENT_ENABLED, \
         f"LLDP status flag not set:\nDevice Flags: {nm_device_flags:032b}\n" \
         f"LLDP flag:    {NM.DeviceInterfaceFlags.LLDP_CLIENT_ENABLED:032b}"
-        
+
+
+@step(u'Activate "{device_num}" devices in "{sec_high}" seconds')
+@step(u'Activate "{device_num}" devices in "{sec_low}" to "{sec_high}" seconds')
+def activate_devices_check(context, device_num, sec_high, sec_low=0):
+    out = context.command_output(f"cd contrib/gi; python3 activate.py {device_num}")
+    # activate.py calls setup.sh which restarts NM
+    context.nm_pid = nmci.lib.wait_for_nm_pid()
+    completed_lines = [line for line in out.split("\n") if "Completed in " in line]
+    assert len(completed_lines), f"Unexpected output, did not find 'Completed in ' line:\n{out}"
+    completed_line = completed_lines[0]
+    sec_meas = float(completed_line.split("Completed in ")[1].split(" ")[0])
+    context.embed("text/plain", " ", f"Activation time: {sec_meas}s")
+    high_limit = int(sec_high) * context.machine_speed_factor
+    low_limit = int(sec_low) * context.machine_speed_factor
+    assert sec_meas <= high_limit and sec_meas >= low_limit, \
+        f"Lasted {sec_meas} seconds, which is not in {context.machine_speed_factor} " \
+        f"times scaled range: [{low_limit};{high_limit}]."

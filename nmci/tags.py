@@ -1436,11 +1436,8 @@ _register_tag("attach_wpa_supplicant_log", None, attach_wpa_supplicant_log_as)
 
 
 def performance_bs(ctx, scen):
-    if ctx.command_code("hostname |grep -q gsm-r5") != 0:
-        print("Skipping on gsm-r5*")
-        sys.exit(77)
-    # NM needs to go down
-
+    # TODO: measure some times and set ctx.machine_speed_factor
+    ctx.machine_speed_factor = 1
 
 def performance_as(ctx, scen):
     ctx.nm_restarted = True

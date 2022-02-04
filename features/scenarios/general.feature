@@ -2458,9 +2458,8 @@ Feature: nmcli - general
     @ver+=1.25 @rhelver+=8
     @remove_custom_cfg @performance
     @NM_performance_test1
-    Scenario: NM - general - create and activate 100 devices in 3 to 6 seconds
-    * Restart NM
-    Then "PASS" is visible with command "cd contrib/gi; ./activate.py 100 |grep Completed |grep [3-6] && echo PASS" in "50" seconds
+    Scenario: NM - general - create and activate 100 devices in 2 to 6 seconds
+    Then Activate "100" devices in "4" seconds
 
 
     @rhbz1868982
