@@ -201,7 +201,8 @@ def after_step(context, step):
         # This is for RedHat's STR purposes sleep
         if os.path.isfile('/tmp/nm_skip_restarts'):
             time.sleep(0.4)
-        nmci.lib.check_crash(context, step.name)
+
+    nmci.lib.check_crash(context, step.name)
 
 
 # print exception traceback

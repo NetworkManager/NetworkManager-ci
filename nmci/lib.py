@@ -420,7 +420,7 @@ def check_coredump(context):
         if not is_dump_reported(dump_dir):
             # 'coredumpctl debug' not available in RHEL7
             if "Maipo" in context.rh_release:
-                dump = nmci.command_output('echo backtrace | coredumpctl gdb %d' % (pid))
+                dump = nmci.command_output('echo backtrace | coredumpctl -q -batch gdb %d' % (pid))
             else:
                 dump = nmci.command_output('echo backtrace | coredumpctl debug %d' % (pid))
             embed_dump(context, dump_dir, dump, "COREDUMP")
@@ -429,12 +429,13 @@ def check_coredump(context):
 def wait_faf_complete(context, dump_dir):
     NM_pkg = False
     last = False
+    last_timestamp = 0
     backtrace = False
-    reported = False
-    reported_lines = 0
-    for i in range(300):
+    reported_bordell = False
+    for i in range(context.faf_countdown):
         if not os.path.isdir(dump_dir):
             # Seems like FAF found it to be a duplicate one
+            context.abrt_dir_change = True
             print("* report dir went away, skipping.")
             return False
 
@@ -442,48 +443,76 @@ def wait_faf_complete(context, dump_dir):
             pkg = utf_only_open_read(f"{dump_dir}/pkg_name")
             if not check_dump_package(pkg):
                 print("* not NM related FAF")
+                context.faf_countdown -= i
+                context.faf_countdown = max(10, context.faf_countdown)
                 return False
             else:
                 NM_pkg = True
-                after_crash_reset(context)
 
         last = last or os.path.isfile(f"{dump_dir}/last_occurrence")
-        backtrace = backtrace or os.path.isfile(f"{dump_dir}/backtrace")
-        reported = reported or os.path.isfile(f"{dump_dir}/reported_to")
-        if reported and reported_lines < 2:
-            reported_lines = len(open(f"{dump_dir}/reported_to").readlines())
+        if last and not last_timestamp:
+            last_timestamp = utf_only_open_read(f"{dump_dir}/last_occurrence")
+            if is_dump_reported(f"{dump_dir}-{last_timestamp}"):
+                print("* Already reported")
+                context.faf_countdown -= i
+                context.faf_countdown = max(5, context.faf_countdown)
+                return False
+            print("* not yet reported, new crash")
 
-        if NM_pkg and last and backtrace and reported and reported_lines >= 2:
+        backtrace = backtrace or os.path.isfile(f"{dump_dir}/backtrace")
+
+        if not reported_bordell and os.path.isfile(f"{dump_dir}/reported_to"):
+            context.run(f"echo '#cat reported_to'; cat {dump_dir}/reported_to")
+            reported_bordell = "bordell" in utf_only_open_read(f"{dump_dir}/reported_to")
+            # if there is no sosreport.log file, crash is already reported in FAF server
+            # give it 5s to be 100% sure it is not starting
+            time.sleep(5)
+            if not reported_bordell and not os.path.isfile(f"{dump_dir}/sosreport.log"):
+                reported_bordell = True
+
+        if NM_pkg and last and backtrace and reported_bordell:
             print(f"* all FAF files exist in {i} seconds, should be complete")
+            context.faf_countdown -= i
+            context.faf_countdown = max(5, context.faf_countdown)
             return True
         print(f"* report not complete yet, try #{i}")
-        context.run(f"ls -l {dump_dir}")
+        context.run(f"ls -l {dump_dir}/{{backtrace,coredump,last_occurrence,pkg_name,reported_to}}")
         time.sleep(1)
-    print("* incomplete FAF report in 300s, skipping in this test.")
+    if backtrace:
+        print("* inclomplete report, but we have backtrace")
+        return True
+    # give other FAF 5 seconds (already waited 300 seconds)
+    context.faf_countdown = 5
+    print(f"* incomplete FAF report in {context.faf_countdown}s, skipping in this test.")
     return False
 
 
 def check_faf(context):
     abrt_search = "/var/spool/abrt/ccpp*"
-    list_of_dumps = list_dumps(abrt_search)
-    for dump_dir in list_of_dumps:
-        if not dump_dir:
-            continue
-        print("Examing crash: " + dump_dir)
-        if not wait_faf_complete(context, dump_dir):
-            continue
-        last_timestamp = utf_only_open_read("%s/last_occurrence" % (dump_dir))
-        # append last_timestamp, to check if last occurrence is reported
-        if not is_dump_reported("%s-%s" % (dump_dir, last_timestamp)):
+    context.abrt_dir_change = True
+    context.faf_countdown = 300
+    while context.abrt_dir_change:
+        context.abrt_dir_change = False
+        list_of_dumps = list_dumps(abrt_search)
+        for dump_dir in list_of_dumps:
+            if not dump_dir:
+                continue
+            print("Entering crash dir: " + dump_dir)
+            if not wait_faf_complete(context, dump_dir):
+                if context.abrt_dir_change:
+                    break
+                continue
             reports = []
             if os.path.isfile("%s/reported_to" % (dump_dir)):
                 reports = utf_only_open_read("%s/reported_to" % (dump_dir)).strip("\n").split("\n")
             urls = []
             for report in reports:
                 if "URL=" in report:
-                    report = report.replace("URL=", "", 1).split(":", 1)
-                    urls.append([report[1].strip(), report[0].strip()])
-            dump_id = "%s-%s" % (dump_dir, last_timestamp)
+                    label, url = report.replace("URL=", "", 1).split(":", 1)
+                    urls.append([url.strip(), label.strip()])
+
+            last_timestamp = utf_only_open_read(f"{dump_dir}/last_occurrence")
+            dump_id = f"{dump_dir}-{last_timestamp}"
             if urls:
                 embed_dump(context, dump_id, urls, "FAF")
             else:
