@@ -17,7 +17,7 @@ class _IP:
 
         assert binary is None or binary is True or binary is False
 
-        out = process.run(["ip", "-d", "link", "show"], as_utf8=False, timeout=2)
+        out = process.run_check(["ip", "-d", "link", "show"], as_bytes=True)
 
         result = []
 
@@ -163,7 +163,7 @@ class _IP:
                 arg = "up"
             else:
                 arg = "down"
-            process.run(["ip", "link", "set", li["ifname"], arg], timeout=1)
+            process.run_check(["ip", "link", "set", li["ifname"], arg])
 
 
 sys.modules[__name__] = _IP()
