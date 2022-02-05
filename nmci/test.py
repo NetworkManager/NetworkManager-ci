@@ -567,10 +567,108 @@ def test_black_code_fromatting():
     assert proc.returncode == 0
 
 
+def test_process_run():
+
+    assert process.run(["true"]).returncode == 0
+    assert process.run(["true"])[0] == 0
+    assert process.run("false")[0] == 1
+
+    assert process.run("echo hello", shell=True).stdout == "hello\n"
+    assert process.run(["echo hallo"], shell=True, as_bytes=True).stdout == b"hallo\n"
+
+    assert process.run_check(["true"]) == ""
+    assert process.run_check("echo hallo") == "hallo\n"
+
+    try:
+        process.run("which true")
+        has_which = True
+    except Exception:
+        has_which = False
+
+    if has_which:
+        assert process.run("which bogusafsdf", ignore_stderr=True).returncode != 0
+        assert process.run("which true").returncode == 0
+
+        assert process.run(["which", "true"]).returncode == 0
+        assert process.run(["which", b"true"]).returncode == 0
+        assert process.run([b"which", "true"]).returncode == 0
+        assert process.run([b"which", b"true"]).returncode == 0
+
+    assert process.run(["sh", "-c", "echo -n hallo"]) == process.RunResult(
+        0, "hallo", ""
+    )
+
+    assert process.run(["sh", "-c", b"echo -n hallo"]) == process.RunResult(
+        0, "hallo", ""
+    )
+
+    assert process.run(
+        ["sh", b"-c", b"echo -n hallo"], as_bytes=True
+    ) == process.RunResult(0, b"hallo", b"")
+
+    r = process.run(
+        ["sh", b"-c", b"echo -n hallo; echo -n hello2 >&2"],
+        as_bytes=True,
+        ignore_stderr=True,
+    )
+    assert r == process.RunResult(0, b"hallo", b"hello2")
+
+    with pytest.raises(Exception):
+        process.run(["sh", b"-c", b"echo -n hallo; echo -n hello2 >&2"], as_bytes=True)
+
+    r = process.run(
+        ["sh", b"-c", b"echo -n hallo; echo -n hello2 >&2; exit 5"],
+        as_bytes=True,
+        ignore_stderr=True,
+    )
+    assert r == process.RunResult(5, b"hallo", b"hello2")
+
+    r = process.run(
+        [
+            "sh",
+            b"-c",
+            b"echo -n hallo; echo -n h\x1B[2Jnonutf\xccf\\cello2 >&2; exit 5",
+        ],
+        as_bytes=True,
+        ignore_stderr=True,
+    )
+    assert r == process.RunResult(5, b"hallo", b"h\x1b[2Jnonutf\xccfcello2")
+
+    with pytest.raises(Exception):
+        process.run(
+            [
+                "sh",
+                b"-c",
+                b"echo -n hallo; echo -n h\x1B[2Jnonutf\xccf\\cello2 >&2; exit 5",
+            ],
+            ignore_stderr=True,
+        )
+
+    r = process.run(
+        "kill -9 $$", shell=True, ignore_returncode=process.IGNORE_RETURNCODE_ALL
+    )
+    assert r == process.RunResult(-9, "", "")
+
+    with pytest.raises(Exception):
+        process.run("kill -9 $$'", shell=True, ignore_returncode=True)
+
+    assert process.run("exit 15", shell=True, ignore_returncode=True).returncode == 15
+    with pytest.raises(Exception):
+        process.run("exit 15", shell=True, ignore_returncode=False)
+
+    with pytest.raises(Exception):
+        process.run_check("exit 15", shell=True)
+
+    r = process.run(
+        "echo -n xstderr >&2 ; echo -n xstdout; exit 77", shell=True, ignore_stderr=True
+    )
+    assert r == (77, "xstdout", "xstderr")
+
+
 def test_git_call_ref_parse():
 
     try:
-        process.run(["git", "rev-parse", "HEAD"])
+        process.run_check(["git", "rev-parse", "HEAD"])
     except:
         pytest.skip("not a suitable git repo")
 
@@ -579,7 +677,7 @@ def test_git_call_ref_parse():
 
 def test_git_config_get_origin_url():
     try:
-        process.run(["git", "config", "--get", "remote.origin.url"])
+        process.run_check(["git", "config", "--get", "remote.origin.url"])
     except:
         pytest.skip('not a suitable git repo (as no "remote.origin.url")')
 
