@@ -234,8 +234,10 @@ def utf_only_open_read(file, mode='r'):
 def get_pexpect_logs(proc, logfile):
     if proc.status is None:
         proc.kill(15)
-    if proc.status is None and proc.expect([pexpect.EOF, pexpect.TIMEOUT], timeout=3) != 1:
-        proc.kill(9)
+        if proc.expect([pexpect.EOF, pexpect.TIMEOUT], timeout=0.1) == 1:
+            proc.kill(9)
+    # this sets proc status if killed, if exception, something very wrong happened
+    proc.expect([pexpect.EOF])
     logfile.close()
     stdout = utf_only_open_read(logfile.name)
     os.remove(logfile.name)
