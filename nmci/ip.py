@@ -3,7 +3,7 @@ import subprocess
 import sys
 import time
 
-from . import util
+from . import process
 
 
 class _IP:
@@ -17,7 +17,7 @@ class _IP:
 
         assert binary is None or binary is True or binary is False
 
-        out = util.process_run(["ip", "-d", "link", "show"], as_utf8=False, timeout=2)
+        out = process.run(["ip", "-d", "link", "show"], as_utf8=False, timeout=2)
 
         result = []
 
@@ -163,7 +163,7 @@ class _IP:
                 arg = "up"
             else:
                 arg = "down"
-            util.process_run(["ip", "link", "set", li["ifname"], arg], timeout=1)
+            process.run(["ip", "link", "set", li["ifname"], arg], timeout=1)
 
 
 sys.modules[__name__] = _IP()
