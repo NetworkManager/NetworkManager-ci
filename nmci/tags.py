@@ -7,6 +7,7 @@ import time
 import re
 import inspect
 import pickle
+import shutil
 from pyroute2 import IPRoute
 
 import nmci.ip
@@ -958,6 +959,15 @@ def tag8021x_as(ctx, scen):
 
 
 _register_tag("8021x_teardown", None, tag8021x_as)
+
+
+def tag8021x_doc_procedure_as(ctx, scen):
+    ctx.run("systemctl stop radiusd")
+    ctx.run("dnf -y remove freeradius")
+    shutil.rmtree("/etc/raddb")
+
+
+_register_tag("8021x_doc_procedure", None, tag8021x_doc_procedure_as)
 
 
 def pkcs11_bs(ctx, scen):

@@ -250,3 +250,72 @@ Feature: nmcli - procedures in documentation
     * Execute "firewall-cmd --permanent --add-port=8472/udp"
     * Execute "firewall-cmd --reload"
     Then "master br4 permanent" is visible with command "bridge fdb show dev vxlan10"
+
+
+    @rhelver+=9
+    @bridge @many_slaves
+    @8021x_doc_procedure
+    @8021x_using_hostapd_freeradius_doc_procedure
+    Scenario: nmcli - docs - Setting up an 802.1x network authentication service for LAN clients using hostapd with FreeRADIUS backend
+    ## 20.1. Setting up the bridge on the authenticator
+    * Add a new connection of type "bridge" and options "con-name bridge0 ifname bridge0"
+    * Add a new connection of type "ethernet" and options "con-name bridge-slave-eth1 ifname eth1 master bridge0"
+    * Add a new connection of type "ethernet" and options "con-name bridge-slave-eth2 ifname eth2 master bridge0"
+    * Add a new connection of type "ethernet" and options "con-name bridge-slave-eth3 ifname eth3 master bridge0"
+    * Add a new connection of type "ethernet" and options "con-name bridge-slave-eth4 ifname eth4 master bridge0"
+    * Modify connection "bridge0" changing options "group-forward-mask 8 connection.autoconnect-slaves 1"
+    * Bring "up" connection "bridge0"
+    * Note the output of "ip link show master bridge0"
+    Then Noted value contains "eth1"
+     And Noted value contains "eth2"
+     And Noted value contains "eth3"
+     And Noted value contains "eth4"
+     And Check content of file "/sys/class/net/bridge0/bridge/group_fwd_mask" is "0x8"
+    ## 20.2 certificates externally
+    ## 20.3 certificates on the go by freeradius itself
+    * Execute "dnf -y install freeradius"
+    # optimization: dh generation can be lengthy, reuse one from contrib/
+    * Execute "cp contrib/8021x/certs/server/hostapd.dh.pem /etc/raddb/certs/dh"
+    * Execute "cd /etc/raddb/certs ; make all"
+    ## 20.4 Configuring FreeRADIUS to authenticate network clients securely using EAP
+    * Execute "chmod 640 /etc/raddb/certs/server.key /etc/raddb/certs/server.pem /etc/raddb/certs/ca.pem /etc/raddb/certs/dh"
+    * Execute "chown root:radiusd /etc/raddb/certs/server.key /etc/raddb/certs/server.pem /etc/raddb/certs/ca.pem /etc/raddb/certs/dh"
+    * Execute "sed -i 's/\([ \t]*default_eap_type = \)md5/\1ttls/' /etc/raddb/mods-available/eap"
+    * Execute "sed -i '/^[^#]*[ \t]Auth-Type/,+2 s/^/#/' /etc/raddb/sites-available/default"
+    * Execute "sed -i '/^[^#]*\(mschap\|digest\)/,+0 s/^/#/' /etc/raddb/sites-available/default"
+    * Execute "sed -i '1 i\example_user        Cleartext-Password := \"test_password\"' /etc/raddb/users"
+    Then Execute "radiusd -XC"
+     And Execute "systemctl enable --now radiusd"
+     And Execute "systemctl stop radiusd"
+     And Execute "radius -X"
+    ## 20.5 Configuring hostapd as an authenticator in a wired network
+    ### move hostapd and freeradius installation to tag, backup & revert config instead of uninstallation
+    * Execute "dnf -y install hostapd"
+    * Execute "cp contrib/8021x/doc_procedures/hostapd.conf /etc/hostapd/hostapd.conf"
+    Then Execute "systemctl enable --now hostapd"
+    ## 20.6 Testing EAP-TTLS authentication against a FreeRADIUS server or authenticator
+    ### we need /etc/pki/tls/certs/ca-cert.pem as freeradius CA - and after the test to revert it
+    * Execute "cp contrib/8021x/doc_procedures/wpa_supplicant-TTLS.conf /etc/wpa_supplicant/wpa_supplicant-TTLS.conf"
+    ### this will probably need veth pair
+    ### needs to fix device names and IPs
+    Then Note the output of "eapol_test -c /etc/wpa_supplicant/wpa_supplicant-TTLS.conf -a 192.0.2.1 -s client_password"
+     And Noted value contains "EAP: Status notification: remote certificate verification (param=success)"
+     And Noted value contains "CTRL-EVENT-EAP-SUCCESS EAP authentication completed successfully"
+     And Noted value contains "SUCCESS"
+    Then "CTRL-EVENT-EAP-SUCCESS EAP authentication completed successfully" is visible with command "wpa_supplicant -c /etc/wpa_supplicant/wpa_supplicant-TTLS.conf -D wired -i enp0s31f6"
+    ## 20.7 Testing EAP-TLS authentication against a FreeRADIUS server or authenticator
+    ## move hostapd and freeradius installation to tag, backup & revert config instead of uninstallation
+    ## same about ifaces and IPs as previous chapter
+    * Execute "cp contrib/8021x/doc_procedures/wpa_supplicant-TLS.conf /etc/wpa_supplicant/wpa_supplicant-TLS.conf"
+    Then Note the output of "eapol_test -c /etc/wpa_supplicant/wpa_supplicant-TLS.conf -a 192.0.2.1 -s client_password"
+     And Noted value contains "EAP: Status notification: remote certificate verification (param=success)"
+     And Noted value contains "CTRL-EVENT-EAP-SUCCESS EAP authentication completed successfully"
+     And Noted value contains "SUCCESS"
+    Then "CTRL-EVENT-EAP-SUCCESS EAP authentication completed successfully" is visible with command "wpa_supplicant -c /etc/wpa_supplicant/wpa_supplicant-TLS.conf -D wired -i enp0s31f6"
+    ## 20.8. Blocking and allowing traffic based on hostapd authentication events
+    * Execute "mkdir -p /usr/local/bin"
+    * Execute "cp contrib/8021x/doc_procedures/802-1x-tr-mgmt /usr/local/bin/802-1x-tr-mgmt"
+    * Execute "cp contrib/8021x/doc_procedures/802-1x-tr-mgmt.service /etc/systemd/system/802-1x-tr-mgmt.service"
+    * Execute "systemd daemon-reload"
+    * Execute "systemctl enable --now 802-1x-tr-mgmt.service"
+    ### authenticate client to the network
