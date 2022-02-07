@@ -22,19 +22,17 @@
 
     @rhbz1912423
     @ver+=1.32.4
-    @skip_in_centos
-    @openvpn @openvpn6 @libreswan
+    @openvpn @openvpn6 @libreswan @ikev2
     @multiple_vpn_connections
     Scenario: nmcli - vpn - multiple connections
     * Add a connection named "openvpn" for device "\*" to "openvpn" VPN
     * Use certificate "sample-keys/client.crt" with key "sample-keys/client.key" and authority "sample-keys/ca.crt" for gateway "127.0.0.1" on OpenVPN connection "openvpn"
     * Add a connection named "libreswan" for device "\*" to "libreswan" VPN
-    * Use user "budulinek" with password "passwd" and group "yolo" with secret "ipsecret" for gateway "11.12.13.14" on Libreswan connection "libreswan"
+    * Modify connection "libreswan" changing options "vpn.data 'ikev2=insist, leftcert=LibreswanClient, leftid=%fromcert, right=11.12.13.14'"
     * Bring "up" connection "libreswan"
     * Bring "up" connection "openvpn"
     Then "VPN.VPN-STATE:.*VPN connected" is visible with command "nmcli c show libreswan" for full "130" seconds
     Then "11.12.13.0/24 .*dev libreswan1" is visible with command "ip route"
-    Then "VPN.BANNER:.*BUG_REPORT_URL" is visible with command "nmcli c show libreswan"
     Then "IP4.ADDRESS.*172.29.100.2/32" is visible with command "nmcli c show libreswan"
     Then "IP4.ADDRESS.*172.29.100.2/32" is visible with command "nmcli d show libreswan1"
     Then "IP4.ADDRESS.*11.12.13.*/24" is visible with command "nmcli d show libreswan1"
@@ -43,6 +41,7 @@
     Then "IP6.ADDRESS.*2001:db8:666:dead::2/64" is visible with command "nmcli c show openvpn"
 
 
+    @rhelver-=8
     @ver+=1.4.0 @ver-=1.32.3
     @libreswan @openvpn @openvpn6
     @multiple_vpn_connections
@@ -55,7 +54,6 @@
     * Bring "up" connection "openvpn"
     Then "VPN.VPN-STATE:.*VPN connected" is visible with command "nmcli c show libreswan" for full "130" seconds
     Then "11.12.13.0/24 .*dev libreswan1" is visible with command "ip route"
-    Then "VPN.BANNER:.*BUG_REPORT_URL" is visible with command "nmcli c show libreswan"
     Then "IP4.ADDRESS.*172.29.100.2/32" is visible with command "nmcli c show libreswan"
     Then "IP4.ADDRESS.*172.29.100.2/32" is visible with command "nmcli d show libreswan1"
     Then "IP4.ADDRESS.*11.12.13.*/24" is visible with command "nmcli d show libreswan1"
