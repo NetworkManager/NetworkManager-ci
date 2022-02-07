@@ -238,6 +238,9 @@ install_usb_hub_driver_el () {
     return $rc
 }
 
+get_online_state() {
+    return $(nmcli general | grep -q "^connected")
+}
 
 export_python_command() {
     if [ -f /tmp/python_command ]; then
