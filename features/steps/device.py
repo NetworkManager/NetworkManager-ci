@@ -639,3 +639,40 @@ def activate_devices_check(context, device_num, sec_high, sec_low=0):
     assert sec_meas <= high_limit and sec_meas >= low_limit, \
         f"Lasted {sec_meas} seconds, which is not in {context.machine_speed_factor} " \
         f"times scaled range: [{low_limit};{high_limit}]."
+
+
+def get_routes_count(context, device=None, ip_version=4):
+    if device:
+        device = f"dev {device}"
+    else:
+        device = ""
+    return len(context.command_output(f"ip -{ip_version} route show {device}").split("\n"))
+
+
+@step(u'There are "{cmp}" "{routes_count}" IP version "{ip_version}" routes for device "{device}"')
+@step(u'There are "{cmp}" "{routes_count}" IP version "{ip_version}" routes for device "{device}" in "{seconds}" seconds')
+def check_route_count(context, cmp, routes_count, ip_version, device, seconds=1):
+    start_time = time.clock_gettime(nmci.util.CLOCK_BOOTTIME)
+    wait_seconds = float(seconds)
+    assert wait_seconds >= 0
+    end_time = start_time + wait_seconds
+    routes_count = int(routes_count)
+    while True:
+        routes_now = get_routes_count(context, device, ip_version)
+        now = time.clock_gettime(nmci.util.CLOCK_BOOTTIME)
+
+        if cmp == "at least":
+            if routes_now >= routes_count:
+                return True
+        elif cmp == "at most":
+            if routes_now <= routes_count:
+                return True
+        elif cmp == "exactly":
+            if routes_now == routes_count:
+                return True
+
+        if now >= end_time:
+            break
+        time.sleep(min(1, end_time - now + 0.01))
+
+    assert False, f"There were {routes_now} routes found."
