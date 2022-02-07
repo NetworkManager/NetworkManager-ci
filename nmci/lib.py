@@ -10,6 +10,8 @@ import base64
 import xml.etree.ElementTree as ET
 import shutil
 
+from . import process
+
 
 def nm_pid():
     pid = 0
@@ -128,6 +130,25 @@ def set_up_embedding(context):
 
 
 def set_up_commands(context):
+    class _Process:
+        def __init__(self, context):
+            self._context = context
+
+        def _hook(self, event, *a):
+            if event == "result":
+                (argv, returncode, stdout_bin, stderr_bin) = a
+                self._context._command_calls.append(
+                    (argv, returncode, stdout_bin, stderr_bin)
+                )
+
+        def run(self, *a, **kw):
+            return process.run(*a, _context_hook=self._hook, **kw)
+
+        def run_check(self, *a, **kw):
+            return process.run_check(*a, _context_hook=self._hook, **kw)
+
+    context.process = _Process(context)
+
     def _run(command, *a, **kw):
         out, err, code = nmci.run(command, *a, **kw)
         context._command_calls.append((command, code, out, err))

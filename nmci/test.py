@@ -11,6 +11,7 @@ from . import ip
 from . import misc
 from . import util
 from . import process
+from . import lib
 
 
 def test_misc_test_version_tag_eval():
@@ -755,3 +756,26 @@ def test_test_tags_select():
             ("upstream", [1, 2, 0]),
             ("fedora", [34]),
         )
+
+
+def test_context_set_up_commands():
+    class ContextTest:
+        pass
+
+    context = ContextTest()
+
+    lib.set_up_commands(context)
+
+    context.process.run_check("true")
+    assert context._command_calls == [(["true"], 0, b"", b"")]
+
+    context._command_calls.clear()
+
+    context.process.run("false")
+    assert context._command_calls == [(["false"], 1, b"", b"")]
+
+    context._command_calls.clear()
+
+    with pytest.raises(Exception) as e:
+        context.process.run_check("false")
+    assert context._command_calls == [(["false"], 1, b"", b"")]

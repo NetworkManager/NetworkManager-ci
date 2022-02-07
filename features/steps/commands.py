@@ -414,14 +414,12 @@ def cannot_ping_domain(context, domain):
 
 @step(u'Unable to ping "{domain}" from "{device}" device')
 def cannot_ping_domain_from_device(context, domain, device):
-    rc = context.command_code('ping -c 2 -I %s %s ' % (device, domain))
-    assert rc != 0
+    assert context.process.run(["ping", "-c", "2", "-I", device, domain], timeout=30).returncode != 0
 
 
 @step(u'Unable to ping6 "{domain}"')
 def cannot_ping6_domain(context, domain):
-    rc = context.command_code('ping6 -c 2 %s' % domain)
-    assert rc != 0
+    assert context.process.run(f'ping6 -c 2 {domain}', timeout=30).returncode != 0
 
 
 @step(u'Metered status is "{value}"')
