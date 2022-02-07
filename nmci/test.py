@@ -550,7 +550,7 @@ def test_black_code_fromatting():
 
     exclude = [
         "--exclude",
-        "nmci/(tags|lib|run)\\.py",
+        "nmci/(tags)\\.py",
     ]
 
     try:
