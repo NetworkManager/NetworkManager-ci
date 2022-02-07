@@ -10,6 +10,7 @@ from . import git
 from . import ip
 from . import sdresolved
 from . import util
+from . import process
 
 
 class _Misc:
@@ -210,9 +211,7 @@ class _Misc:
             with open("/tmp/nm_version_override") as f:
                 current_version_str = f.read()
         else:
-            current_version_str = util.process_run(
-                ["NetworkManager", "-V"], as_utf8=True
-            )
+            current_version_str = process.run(["NetworkManager", "-V"], as_utf8=True)
 
         v = self.nm_version_parse(current_version_str)
         self._nm_version_detect_cached = v
@@ -225,7 +224,7 @@ class _Misc:
 
         distro_version = [
             int(x)
-            for x in util.process_run(
+            for x in process.run(
                 [
                     "sed",
                     "s/.*release *//;s/ .*//;s/Beta//;s/Alpha//",
@@ -491,7 +490,7 @@ class _Misc:
         return v1 and v2
 
     def nmlog_parse_dnsmasq(self, ifname):
-        s = util.process_run(
+        s = process.run(
             [util.util_dir("helpers/nmlog-parse-dnsmasq.sh"), ifname], as_utf8=True
         )
         import json

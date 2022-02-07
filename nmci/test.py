@@ -10,6 +10,7 @@ from . import git
 from . import ip
 from . import misc
 from . import util
+from . import process
 
 
 def test_misc_test_version_tag_eval():
@@ -569,7 +570,7 @@ def test_black_code_fromatting():
 def test_git_call_ref_parse():
 
     try:
-        util.process_run(["git", "rev-parse", "HEAD"])
+        process.run(["git", "rev-parse", "HEAD"])
     except:
         pytest.skip("not a suitable git repo")
 
@@ -578,7 +579,7 @@ def test_git_call_ref_parse():
 
 def test_git_config_get_origin_url():
     try:
-        util.process_run(["git", "config", "--get", "remote.origin.url"])
+        process.run(["git", "config", "--get", "remote.origin.url"])
     except:
         pytest.skip('not a suitable git repo (as no "remote.origin.url")')
 
