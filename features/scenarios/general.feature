@@ -436,12 +436,12 @@ Feature: nmcli - general
     @nmcli_device_show_general_params
     Scenario: nmcli - device - show - check general params
     * Note the output of "nmcli device show eth0"
-    Then Check noted output contains "GENERAL.DEVICE:\s+eth0"
-    Then Check noted output contains "GENERAL.TYPE:\s+ethernet"
-    Then Check noted output contains "GENERAL.MTU:\s+[0-9]+"
-    Then Check noted output contains "GENERAL.HWADDR:\s+\S+:\S+:\S+:\S+:\S+:\S+"
-    Then Check noted output contains "GENERAL.CON-PATH:\s+\S+\s"
-    Then Check noted output contains "GENERAL.CONNECTION:\s+\S+\s"
+    Then Noted value contains "GENERAL.DEVICE:\s+eth0"
+    Then Noted value contains "GENERAL.TYPE:\s+ethernet"
+    Then Noted value contains "GENERAL.MTU:\s+[0-9]+"
+    Then Noted value contains "GENERAL.HWADDR:\s+\S+:\S+:\S+:\S+:\S+:\S+"
+    Then Noted value contains "GENERAL.CON-PATH:\s+\S+\s"
+    Then Noted value contains "GENERAL.CONNECTION:\s+\S+\s"
 
 
     @nmcli_device_disconnect

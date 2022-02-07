@@ -56,16 +56,6 @@ def check_same_noted_values_equals(context, i1, i2):
      "Noted values: %s == %s !" % (context.noted[i1].strip(), context.noted[i2].strip())
 
 
-@step(u'Check noted output contains "{pattern}"')
-def check_noted_output_contains(context, pattern):
-    assert re.search(pattern, context.noted['noted-value']) is not None, "Noted output does not contain the pattern %s" % pattern
-
-
-@step(u'Check noted output does not contain "{pattern}"')
-def check_noted_output_not_contains(context, pattern):
-    assert re.search(pattern, context.noted['noted-value']) is None, "Noted output contains the pattern %s" % pattern
-
-
 @step(u'Execute "{command}"')
 def execute_command(context, command):
     assert context.command_code(command) == 0
@@ -160,13 +150,13 @@ def get_nameserver_or_domain_not(context, server, seconds=1):
 
 
 @step(u'Noted value contains "{pattern}"')
-def note_print_property_b(context, pattern):
+def noted_value_contains(context, pattern):
     assert re.search(pattern, context.noted['noted-value']) is not None, \
         "Noted value '%s' does not match the pattern '%s'!" % (context.noted['noted-value'], pattern)
 
 
 @step(u'Noted value does not contain "{pattern}"')
-def note_print_property_b_neg(context, pattern):
+def noted_value_does_not_contain(context, pattern):
     assert re.search(pattern, context.noted['noted-value']) is None, \
         "Noted value '%s' does match the pattern '%s'!" % (context.noted['noted-value'], pattern)
 

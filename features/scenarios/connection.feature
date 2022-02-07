@@ -769,11 +769,11 @@ Feature: nmcli: connection
     Scenario: nmcli - connection - connection short info
     * Add a new connection of type "ethernet" and options "ifname \* con-name con_con autoconnect no"
     * Note the output of "nmcli -o con show con_con"
-    Then Check noted output contains "connection.id"
-    Then Check noted output does not contain "connection.zone"
+    Then Noted value contains "connection.id"
+    Then Noted value does not contain "connection.zone"
     * Note the output of "nmcli con show con_con"
-    Then Check noted output contains "connection.id"
-    Then Check noted output contains "connection.zone"
+    Then Noted value contains "connection.id"
+    Then Noted value contains "connection.zone"
 
 
     @ver+=1.19.5
