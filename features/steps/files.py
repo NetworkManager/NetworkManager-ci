@@ -19,6 +19,12 @@ def append_to_ifcfg(context, line, name):
     context.command_code(cmd)
 
 
+@step('Check content of file "{filename}" is "{pattern}"')
+def check_file_contains_exactly(context, filename, pattern):
+    with open(filename, 'r', encoding='utf-8') as f:
+        assert pattern == f.read().rstrip('\n')
+
+
 @step(u'Check file "{file1}" is contained in file "{file2}"')
 def check_file_is_contained(context, file1, file2):
     with open(file1) as f1_lines:
