@@ -19,7 +19,7 @@ def add_secondary_addr_same_subnet(context, device):
         secondary_ip = primary_ipn.ip+1
     else:
         secondary_ip = primary_ipn.ip-1
-    assert context.command_code('ip addr add dev %s %s/%d' % (device, str(secondary_ip), primary_ipn.prefixlen)) == 0
+    context.process.run_check(f'ip addr add dev {device} {secondary_ip}/{primary_ipn.prefixlen}')
 
 
 def dns_check(dns_plugin, device, kind, arg, has):
