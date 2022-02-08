@@ -963,10 +963,11 @@ def restart_NM_service(context, reset=True):
     return rc == 0
 
 
-def start_NM_service(context):
+def start_NM_service(context, pid_wait=True):
     print("start NM service")
     rc = context.command_code("systemctl start NetworkManager.service")
-    context.nm_pid = wait_for_nm_pid(10)
+    if pid_wait:
+        context.nm_pid = wait_for_nm_pid(10)
     return rc == 0
 
 

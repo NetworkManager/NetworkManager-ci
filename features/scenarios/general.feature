@@ -990,9 +990,9 @@ Feature: nmcli - general
 
 
     @rhbz1083683 @rhbz1256772 @rhbz1260243
+    @ver-=1.34
     @restart_if_needed @teardown_testveth @runonce
     @run_once_new_connection
-    @ver-=1.34
     Scenario: NM - general - run once and quit start new ipv4 and ipv6 connection
     * Prepare simulated test "testG" device
     * Add a new connection of type "ethernet" and options "ifname testG con-name con_general ipv4.addresses 1.2.3.4/24 ipv4.may-fail no ipv6.addresses 1::128/128 ipv6.may-fail no connection.autoconnect yes"
@@ -1003,7 +1003,7 @@ Feature: nmcli - general
     * Execute "echo '[main]' > /etc/NetworkManager/conf.d/01-run-once.conf"
     * Execute "echo 'configure-and-quit=yes' >> /etc/NetworkManager/conf.d/01-run-once.conf"
     * Execute "echo 'dhcp=internal' >> /etc/NetworkManager/conf.d/01-run-once.conf"
-    * Start NM
+    * Start NM without PID wait
     Then "192." is visible with command " ip a s testG |grep 'inet '|grep dynamic" in "60" seconds
     Then "1.2.3.4\/24" is visible with command "ip a s testG |grep 'inet '|grep -v dynamic" in "60" seconds
     Then "2620:" is visible with command "ip a s testG |grep 'inet6'|grep  dynamic" in "60" seconds
@@ -1029,7 +1029,7 @@ Feature: nmcli - general
     * Execute "echo 'configure-and-quit=yes' >> /etc/NetworkManager/conf.d/01-run-once.conf"
     * Execute "echo 'dhcp=internal' >> /etc/NetworkManager/conf.d/01-run-once.conf"
     * Execute "sleep 1"
-    * Start NM
+    * Start NM without PID wait
     * "192" is visible with command " ip a s testG |grep 'inet '|grep dynamic" in "60" seconds
     * Execute "sleep 20"
     # VVV this means that lifetime was refreshed
@@ -1056,7 +1056,7 @@ Feature: nmcli - general
     * Execute "echo 'configure-and-quit=yes' >> /etc/NetworkManager/conf.d/01-run-once.conf"
     * Execute "echo 'dhcp=internal' >> /etc/NetworkManager/conf.d/01-run-once.conf"
     * Execute "sleep 1"
-    * Start NM
+    * Start NM without PID wait
     When "2620:" is visible with command "ip a s testG" in "60" seconds
     * Force renew IPv6 for "testG"
     Then "2620:" is visible with command "ip a s testG" in "120" seconds
@@ -1078,7 +1078,7 @@ Feature: nmcli - general
     * Execute "echo 'dhcp=internal' >> /etc/NetworkManager/conf.d/01-run-once.conf"
     * Execute "ip link set dev eth0 up"
     * Execute "sleep 1"
-    * Start NM
+    * Start NM without PID wait
     Then "eth0" is visible with command "ps aux|grep helper" in "40" seconds
     Then "eth0" is visible with command "ps aux|grep helper" for full "20" seconds
 
@@ -1102,7 +1102,7 @@ Feature: nmcli - general
     * Execute "echo 'match-device=interface-name:eth0' >> /etc/NetworkManager/conf.d/01-run-once.conf"
     * Execute "echo 'carrier-wait-timeout=10000' >> /etc/NetworkManager/conf.d/01-run-once.conf"
     * Execute "sleep 1"
-    * Start NM
+    * Start NM without PID wait
     Then "eth0" is visible with command "ps aux|grep helper" in "40" seconds
     Then "eth0" is visible with command "ps aux|grep helper" for full "20" seconds
 

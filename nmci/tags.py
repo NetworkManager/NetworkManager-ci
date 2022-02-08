@@ -1566,6 +1566,7 @@ def runonce_bs(ctx, scen):
     ctx.run("pkill -9 dhclient")
     ctx.run("pkill -9 nm-iface-helper")
     ctx.run("sudo systemctl stop firewalld")
+    ctx.nm_pid_refresh_count = 1000
 
 
 def runonce_as(ctx, scen):

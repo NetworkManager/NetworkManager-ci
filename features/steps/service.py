@@ -46,6 +46,12 @@ def start_NM(context):
     assert nmci.lib.start_NM_service(context), "NM start failed"
 
 
+@step(u'Start NM without PID wait')
+def start_NM_no_pid(context):
+    context.nm_restarted = True
+    assert nmci.lib.start_NM_service(context, pid_wait=False), "NM start failed"
+
+
 @step(u'Restart NM')
 def restart_NM(context):
     context.nm_restarted = True
