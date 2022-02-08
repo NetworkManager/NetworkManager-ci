@@ -19,7 +19,7 @@ install_el9_packages () {
         git python3-netaddr dhcp-relay iw net-tools psmisc firewalld dhcp-server \
         ethtool python3-dbus python3-gobject dnsmasq tcpdump wireshark-cli file \
         iproute-tc openvpn perl-IO-Tty dhcp-client rpm-build gcc initscripts \
-        wireguard-tools \
+        wireguard-tools python3-pyyaml \
         --skip-broken
 
     # hostapd and tcpreplay is in epel (not available now), iw was just missing in el9 1915791 (needed for hostpad_wireless)
