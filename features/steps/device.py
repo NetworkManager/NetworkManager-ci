@@ -634,8 +634,8 @@ def activate_devices_check(context, device_num, sec_high, sec_low=0):
     completed_line = completed_lines[0]
     sec_meas = float(completed_line.split("Completed in ")[1].split(" ")[0])
     context.embed("text/plain", " ", f"Activation time: {sec_meas}s")
-    high_limit = int(sec_high) * context.machine_speed_factor
-    low_limit = int(sec_low) * context.machine_speed_factor
+    high_limit = float(sec_high) * context.machine_speed_factor
+    low_limit = float(sec_low) * context.machine_speed_factor
     assert sec_meas <= high_limit and sec_meas >= low_limit, \
         f"Lasted {sec_meas} seconds, which is not in {context.machine_speed_factor} " \
         f"times scaled range: [{low_limit};{high_limit}]."
