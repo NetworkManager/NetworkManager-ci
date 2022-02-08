@@ -1430,7 +1430,7 @@
      * Bring "up" connection "bond0"
      Then "Bonding Mode: IEEE 802.3ad Dynamic link aggregation" is visible with command "cat /proc/net/bonding/nm-bond"
      Then "Transmit Hash Policy:\s+layer2\+3" is visible with command "cat /proc/net/bonding/nm-bond"
-     Then "802.3ad info\s+LACP rate: fast" is visible with command "cat /proc/net/bonding/nm-bond"
+     Then "802.3ad info.*LACP rate: fast" is visible with command "cat /proc/net/bonding/nm-bond"
      Then Check bond "nm-bond" link state is "up"
 
 
