@@ -235,10 +235,10 @@ def get_pexpect_logs(context, proc, logfile):
     status = 0
     if proc.status is None:
         proc.kill(15)
-        if proc.expect([pexpect.EOF, pexpect.TIMEOUT], timeout=0.2) == 1:
+        if proc.expect([pexpect.EOF, pexpect.TIMEOUT], timeout=0.02) == 1:
             proc.kill(9)
     # this sets proc status if killed, if exception, something very wrong happened
-    if proc.expect([pexpect.EOF, pexpect.TIMEOUT], timeout=0.2) == 1:
+    if proc.expect([pexpect.EOF, pexpect.TIMEOUT], timeout=0.02) == 1:
         context.pexpect_failed = True
         context.embed("text/plain", nmci.command_output("ps aufx"), "DEBUG: ps aufx")
     logfile.close()
@@ -271,7 +271,7 @@ def expects_to_commands(context):
         context._command_calls.append(get_pexpect_logs(context, proc, logfile))
     context._expect_procs = []
     for proc, logfile in context._expect_services:
-        context._command_calls.append(("call", get_pexpect_logs, (proc, logfile)))
+        context._command_calls.append(("call", get_pexpect_logs, (context, proc, logfile)))
     context._expect_services = []
     assert getattr(context, "pexpect_failed", False) is False, "some pexpect has failed"
 
