@@ -184,8 +184,7 @@ def after_step(context, step):
         Here we make screenshot and embed it (if one of formatters supports it)
         """
         if os.path.isfile('/tmp/nmtui.out'):
-            # This doesn't need utf_only_open_read as it's strictly utf-8
-            context.stream.feed(open('/tmp/nmtui.out', 'r').read().encode('utf-8'))
+            context.stream.feed(nmci.lib.utf_only_open_read('/tmp/nmtui.out').encode('utf-8'))
         nmci.lib.print_screen(context.screen)
         nmci.lib.log_screen(step.name, context.screen, '/tmp/tui-screen.log')
 
