@@ -271,7 +271,7 @@ def expects_to_commands(context):
         context._command_calls.append(get_pexpect_logs(context, proc, logfile))
     context._expect_procs = []
     for proc, logfile in context._expect_services:
-        context._command_calls.append(("call", get_pexpect_logs, (proc, logfile)))
+        context._command_calls.append(("call", get_pexpect_logs, (context, proc, logfile)))
     context._expect_services = []
     assert getattr(context, "pexpect_failed", False) is False, "some pexpect has failed"
 
