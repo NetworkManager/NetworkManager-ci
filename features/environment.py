@@ -230,8 +230,8 @@ def _after_scenario(context, scenario):
     nm_pid_after = nmci.lib.nm_pid()
     if not nm_pid_after:
         nmci.lib.check_crash(context, 'crash outside steps (last step before after_scenario)')
-        print("Starting NM as it was found stopped")
-        nmci.lib.restart_NM_service(context)
+        #print("Starting NM as it was found stopped")
+        #nmci.lib.restart_NM_service(context)
 
     if context.IS_NMTUI:
         if os.path.isfile('/tmp/tui-screen.log'):
