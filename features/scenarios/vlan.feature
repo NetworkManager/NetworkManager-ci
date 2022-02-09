@@ -26,7 +26,7 @@ Feature: nmcli - vlan
 
 
     @rhbz1273879
-    @restart_if_needed @vlan
+    @vlan @restart_if_needed
     @nmcli_vlan_restart_persistence
     Scenario: nmcli - vlan - restart persistence
     * Stop NM
@@ -46,7 +46,7 @@ Feature: nmcli - vlan
 
     @rhbz1378418
     @ver+=1.4.0
-    @restart_if_needed @two_bridged_veths @kill_dnsmasq_vlan
+    @two_bridged_veths @kill_dnsmasq_vlan @restart_if_needed
     @vlan_ipv4_ipv6_restart_persistence
     Scenario: NM - vlan - ipv4 and ipv6 restart persistence
     * Prepare veth pairs "test1" bridged over "vethbr"
@@ -314,7 +314,7 @@ Feature: nmcli - vlan
 
     @rhbz1376199
     @ver+=1.8.0
-    @restart_if_needed @vlan
+    @vlan @restart_if_needed
     @vlan_not_stalled_after_connection_delete
     Scenario: nmcli - vlan - delete vlan device after restart
     * Add a new connection of type "vlan" and options "con-name vlan dev eth7 id 80"
@@ -328,7 +328,7 @@ Feature: nmcli - vlan
 
 
     @rhbz1264322
-    @restart_if_needed @vlan
+    @vlan @restart_if_needed
     @vlan_update_mac_from_bond
     Scenario: nmcli - vlan - update mac address from bond
     # Setup given in the bug description
@@ -733,7 +733,7 @@ Feature: nmcli - vlan
 
     @rhbz1933041 @rhbz1926599
     @ver+=1.30 @rhelver+=8
-    @logging_info_only @restart_if_needed @500_vlans
+    @logging_info_only @500_vlans @restart_if_needed
     @vlan_create_500_vlans
     Scenario: NM - vlan - create 500 vlans
     # Prepare veth pair with the other end in namespace

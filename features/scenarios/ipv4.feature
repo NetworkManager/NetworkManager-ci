@@ -1058,9 +1058,11 @@ Feature: nmcli: ipv4
 
 
     @rhbz1642023
+    @rhelver+=8
     @ver+=1.14
     @ver-=1.21.0
-    @con_ipv4_remove @restart_if_needed @rhelver+=8 @rhel_pkg @internal_DHCP
+    @rhel_pkg
+    @con_ipv4_remove @internal_DHCP @restart_if_needed
     @ipv4_dhcp_client_id_change_lease_restart
     Scenario: nmcli - ipv4 - dhcp-client-id - lease file change should not be considered even after NM restart
     * Add connection type "ethernet" named "con_ipv4" for device "eth2"

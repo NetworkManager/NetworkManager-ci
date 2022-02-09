@@ -591,7 +591,7 @@ Feature: nmcli - ovs
     @rhbz1676551
     @ver+=1.12
     @rhelver-=7 @fedoraver-=0
-    @openvswitch @restart_if_needed @vlan @bond @slaves
+    @openvswitch @vlan @bond @slaves @restart_if_needed 
     @restart_NM_with_mixed_setup
     Scenario: NM -  openvswitch - restart NM when OVS is unmanaged
     * Add a new connection of type "bond" and options "ifname nm-bond con-name bond0 ipv4.method manual ipv4.addresses 10.0.0.2/16 ipv4.gateway 10.0.0.1"

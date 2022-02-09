@@ -171,7 +171,7 @@ Feature: nmcli - general
 
 
     @ver+=1.29.0
-    @con_general_remove @teardown_testveth @restart_if_needed @delete_testeth0 @restore_hostname
+    @con_general_remove @teardown_testveth @delete_testeth0 @restore_hostname @restart_if_needed
     @hostname_priority
     Scenario: nmcli - general - Hostname priority
     * Execute "echo -e '[connection-hostname]\nmatch-device=interface-name:test?\nhostname.only-from-default=0' > /etc/NetworkManager/conf.d/90-hostname.conf"
@@ -203,7 +203,7 @@ Feature: nmcli - general
 
     @rhbz1405275
     @ver+=1.8.0
-    @con_general_remove @teardown_testveth @restart_if_needed @delete_testeth0 @restore_hostname
+    @con_general_remove @teardown_testveth @delete_testeth0 @restore_hostname @restart_if_needed
     @hostname_mode_full
     Scenario: NM - general - hostname mode full
     * Execute "echo -e '[main]\nhostname-mode=full' > /etc/NetworkManager/conf.d/90-hostname.conf"
@@ -220,7 +220,7 @@ Feature: nmcli - general
 
     @rhbz1405275
     @ver+=1.8.0
-    @con_general_remove @teardown_testveth @restart_if_needed @delete_testeth0 @restore_hostname
+    @con_general_remove @teardown_testveth @delete_testeth0 @restore_hostname @restart_if_needed
     @hostname_mode_dhcp
     Scenario: NM - general - hostname mode dhcp
     * Execute "echo -e '[main]\nhostname-mode=dhcp' > /etc/NetworkManager/conf.d/90-hostname.conf"
@@ -252,7 +252,7 @@ Feature: nmcli - general
 
     @rhbz1405275
     @ver+=1.8.0
-    @con_general_remove @teardown_testveth @restart_if_needed @delete_testeth0 @restore_hostname
+    @con_general_remove @teardown_testveth @delete_testeth0 @restore_hostname @restart_if_needed
     @hostname_mode_full_without_dhcp_hosts
     Scenario: NM - general - hostname mode dhcp without dhcp hosts
     * Execute "echo -e '[main]\nhostname-mode=dhcp' > /etc/NetworkManager/conf.d/90-hostname.conf"
@@ -271,7 +271,7 @@ Feature: nmcli - general
 
     @rhbz1405275
     @ver+=1.8.0
-    @con_general_remove @teardown_testveth @restart_if_needed @delete_testeth0 @restore_hostname
+    @con_general_remove @teardown_testveth @delete_testeth0 @restore_hostname @restart_if_needed
     @hostname_mode_none
     Scenario: NM - general - hostname mode none
     * Execute "echo -e '[main]\nhostname-mode=none' > /etc/NetworkManager/conf.d/90-hostname.conf"
@@ -297,7 +297,7 @@ Feature: nmcli - general
     Then Bring "up" connection "con_general"
 
 
-    @restart_if_needed @newveth
+    @newveth @restart_if_needed
     @general_state_disconnected
     Scenario: nmcli - general - state disconnected
     * "disconnect" all " connected" devices
@@ -326,7 +326,7 @@ Feature: nmcli - general
 
 
     @rhbz1311988
-    @restart_if_needed @add_testeth8 @shutdown @eth8_disconnect
+    @add_testeth8 @shutdown @eth8_disconnect @restart_if_needed
     @shutdown_service_assumed
     Scenario: NM - general - shutdown service - assumed
     * Delete connection "testeth8"
@@ -344,7 +344,7 @@ Feature: nmcli - general
 
 
     @rhbz1311988
-    @con_general_remove @restart_if_needed @shutdown
+    @con_general_remove @shutdown @restart_if_needed
     @shutdown_service_connected
     Scenario: NM - general - shutdown service - connected
     * Add a new connection of type "ethernet" and options "ifname eth8 con-name con_general autoconnect no ipv4.may-fail no "
@@ -357,7 +357,7 @@ Feature: nmcli - general
 
 
     @rhbz1311988
-    @restart_if_needed @shutdown @unload_kernel_modules
+    @shutdown @unload_kernel_modules @restart_if_needed
     @shutdown_service_any
     Scenario: NM - general - shutdown service - all
     * Stop NM
@@ -823,7 +823,7 @@ Feature: nmcli - general
 
     @rhbz1687937
     @ver+=1.25
-    @no_config_server @add_testeth8 @eth8_disconnect @restart_if_needed @manage_eth8
+    @no_config_server @add_testeth8 @eth8_disconnect @manage_eth8 @restart_if_needed
     @no_assumed_wired_connections_var2
     Scenario: NM - general - no auto connection created
     * Execute "nmcli device set eth8 managed no"
@@ -1241,7 +1241,7 @@ Feature: nmcli - general
 
     @rhbz1384799
     @ver+=1.10
-    @con_general_remove @need_dispatcher_scripts @teardown_testveth @restart_if_needed @ifcfg-rh
+    @con_general_remove @need_dispatcher_scripts @teardown_testveth @ifcfg-rh @restart_if_needed
     @modify_policy_based_routing_connection
     Scenario: NM - general - modify policy based routing connection
     * Prepare simulated test "testG" device
@@ -1875,7 +1875,7 @@ Feature: nmcli - general
     @rhbz1541031
     @ver+=1.12
     @not_with_systemd_resolved
-    @restart_if_needed @remove_custom_cfg
+    @remove_custom_cfg
     @resolv_conf_overwrite_after_stop
     Scenario: NM - general - overwrite resolv conf after stop
     * Append "[main]" to file "/etc/NetworkManager/conf.d/99-xxcustom.conf"
@@ -1889,7 +1889,7 @@ Feature: nmcli - general
 
     @rhbz1593519
     @ver+=1.12
-    @remove_custom_cfg @restart_if_needed
+    @remove_custom_cfg
     @NM_starts_with_incorrect_logging_config
     Scenario: NM - general - nm starts even when logging is incorrectly configured
     * Stop NM
@@ -2236,7 +2236,7 @@ Feature: nmcli - general
 
 
     @rhbz1697858
-    @rhelver-=7 @rhel_pkg @restart_if_needed @fedoraver-=0
+    @rhelver-=7 @rhel_pkg @fedoraver-=0
     @con_general_remove @remove_custom_cfg
     @keyfile_nmconnection_extension
     Scenario: NM - general - keyfile does not have .nmconnection extension
@@ -2250,7 +2250,7 @@ Feature: nmcli - general
 
     @rhbz1697858
     @ver+=1.19
-    @rhelver+=8 @rhel_pkg @con_general_remove @remove_custom_cfg @restart_if_needed
+    @rhelver+=8 @rhel_pkg @con_general_remove @remove_custom_cfg
     @keyfile_nmconnection_extension
     Scenario: NM - general - keyfile does have .nmconnection extension
     * Execute "echo '[main]' > /etc/NetworkManager/conf.d/99-xxcustom.conf"

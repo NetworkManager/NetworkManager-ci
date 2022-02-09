@@ -143,7 +143,7 @@
 
     #@rhbz1294728
     #@ver+=1.1
-    #@team @restart_if_needed @team_slaves
+    #@team @team_slaves @restart_if_needed
     #@team_restart_persistence
     #Scenario: nmcli - team - restart persistence
     # * Add connection type "team" named "team0" for device "nm-team"
@@ -1434,7 +1434,7 @@
 
     @rhbz1551958
     @ver+=1.10
-    @team_slaves @team @restart_if_needed @eth0
+    @team_slaves @team @eth0 @restart_if_needed
     @restart_L2_only_lacp
     Scenario: nmcli - team - reboot L2 lacp
     * Add a new connection of type "team" and options "con-name team0 ifname nm-team config '{"runner": {"name": "lacp"}, "link_watch": {"name": "ethtool"}}' ipv4.method disable ipv6.method ignore"

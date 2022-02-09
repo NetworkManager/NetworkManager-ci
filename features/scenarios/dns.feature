@@ -982,7 +982,7 @@ Feature: nmcli - dns
     * Bring "up" connection "con_dns"
     Then "edns0" is visible with command "grep options /etc/resolv.conf"
     Then "trust-ad" is visible with command "grep options /etc/resolv.conf"
-    
+
 ##########################################
 # DNSMASQ RESTART/KILL TESTS
 ##########################################
@@ -1067,7 +1067,7 @@ Feature: nmcli - dns
      And "options[^\n]*ndots:1" is visible with command "cat /etc/resolv\.conf" in "5" seconds
 
 
-    @restart_if_needed @remove_dns_clean
+    @remove_dns_clean @restart_if_needed
     @not_with_systemd_resolved
     @dns_none
     Scenario: NM - dns none setting
@@ -1081,7 +1081,7 @@ Feature: nmcli - dns
     Then Nameserver "1[0-9]" is not set in "5" seconds
 
 
-    @restart_if_needed @remove_dns_clean
+    @remove_dns_clean @restart_if_needed
     @not_with_systemd_resolved
     @remove_dns_none
     Scenario: NM - dns  none removal
@@ -1103,7 +1103,7 @@ Feature: nmcli - dns
     @rhbz1593661
     @ver+=1.12
     @not_with_systemd_resolved
-    @restart_if_needed @remove_custom_cfg @con_dns_remove @restore_resolvconf @eth8_disconnect
+    @remove_custom_cfg @con_dns_remove @restore_resolvconf @eth8_disconnect @restart_if_needed
     @resolv_conf_dangling_symlink
     Scenario: NM - general - follow resolv.conf when dangling symlink
     * Add a new connection of type "ethernet" and options "ifname eth8 con-name con_dns ipv4.method manual ipv4.addresses 192.168.244.4/24 ipv4.gateway 192.168.244.1 ipv4.dns 192.168.244.1 ipv6.method ignore"
@@ -1128,7 +1128,7 @@ Feature: nmcli - dns
     @rhbz1593661
     @ver+=1.12 @rhelver+=8
     @not_with_systemd_resolved
-    @restart_if_needed @con_dns_remove @restore_resolvconf
+    @con_dns_remove @restore_resolvconf @restart_if_needed
     @resolv_conf_do_not_overwrite_symlink
     Scenario: NM - general - do not overwrite dns symlink
     * Add a new connection of type "ethernet" and options "ifname eth8 con-name con_dns ipv4.method manual ipv4.addresses 192.168.244.4/24 ipv4.gateway 192.168.244.1 ipv4.dns 192.168.244.1 ipv6.method ignore"

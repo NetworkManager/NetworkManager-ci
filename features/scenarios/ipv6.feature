@@ -1258,7 +1258,7 @@
 
     @rhbz1368018
     @ver+=1.8
-    @ifcfg-rh @con_ipv6_ifcfg_remove @con_ipv6_remove @restart_if_needed @kill_dhclient_custom @teardown_testveth
+    @ifcfg-rh @con_ipv6_ifcfg_remove @con_ipv6_remove @kill_dhclient_custom @teardown_testveth @restart_if_needed
     @persistent_ipv6_after_device_rename
     Scenario: NM - ipv6 - persistent ipv6 after device rename
     * Prepare simulated test "testX6" device
