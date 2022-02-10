@@ -39,7 +39,8 @@ install_el7_packages () {
         openvpn
 
     yum -y install \
-        $KOJI/hostapd/2.8/1.el7/$(arch)/hostapd-2.8-1.el7.$(arch).rpm
+        $KOJI/hostapd/2.8/1.el7/$(arch)/hostapd-2.8-1.el7.$(arch).rpm \
+        $KOJI/rp-pppoe/3.12/11.fc28/$(arch)/rp-pppoe-3.12-11.fc28.$(arch).rpm
     yum -y remove \
         NetworkManager-config-connectivity-fedora NetworkManager-config-connectivity-redhat
 

@@ -11,10 +11,15 @@ Feature: nmcli - ppp
     @connect_to_pppoe_via_pap
     Scenario: NM - ppp - connect with pap auth
     * Execute "ip link add test11 type veth peer name test12"
+    * Execute "ip link set dev test11 up"
     * Prepare pppoe server for user "test" with "networkmanager" password and IP "192.168.111.2" authenticated via "pap"
     * Start pppoe server with "isp" and IP "192.168.111.254" on device "test12"
-    * Add a new connection of type "pppoe" and options "con-name ppp ifname my-ppp pppoe.parent test11 service isp username test password networkmanager"
-    * Execute "ip link set dev test11 up"
+    * Add a new connection of type "pppoe" and options
+                """
+                con-name ppp ifname my-ppp pppoe.parent test11
+                service isp username test password networkmanager
+                autoconnect no
+                """
     * Bring "up" connection "ppp"
     Then Nameserver "8.8.8.8" is set in "5" seconds
     Then Nameserver "8.8.4.4" is set in "5" seconds
@@ -24,12 +29,17 @@ Feature: nmcli - ppp
 
     @not_on_s390x @pppoe @del_test1112_veths
     @connect_to_pppoe_via_chap
-   Scenario: NM - ppp - connect with chap auth
+    Scenario: NM - ppp - connect with chap auth
     * Execute "ip link add test11 type veth peer name test12"
+    * Execute "ip link set dev test11 up"
     * Prepare pppoe server for user "test" with "networkmanager" password and IP "192.168.111.2" authenticated via "chap"
     * Start pppoe server with "isp" and IP "192.168.111.254" on device "test12"
-    * Add a new connection of type "pppoe" and options "con-name ppp ifname my-ppp pppoe.parent test11 service isp username test password networkmanager"
-    * Execute "ip link set dev test11 up"
+    * Add a new connection of type "pppoe" and options
+                """
+                con-name ppp ifname my-ppp pppoe.parent test11
+                service isp username test password networkmanager
+                autoconnect no
+                """
     * Bring "up" connection "ppp"
     Then Nameserver "8.8.8.8" is set in "5" seconds
     Then Nameserver "8.8.4.4" is set in "5" seconds
@@ -41,10 +51,15 @@ Feature: nmcli - ppp
     @disconnect_from_pppoe
     Scenario: NM - ppp - disconnect
     * Execute "ip link add test11 type veth peer name test12"
+    * Execute "ip link set dev test11 up"
     * Prepare pppoe server for user "test" with "networkmanager" password and IP "192.168.111.2" authenticated via "chap"
     * Start pppoe server with "isp" and IP "192.168.111.254" on device "test12"
-    * Add a new connection of type "pppoe" and options "con-name ppp ifname my-ppp pppoe.parent test11 service isp username test password networkmanager"
-    * Execute "ip link set dev test11 up"
+    * Add a new connection of type "pppoe" and options
+                """
+                con-name ppp ifname my-ppp pppoe.parent test11
+                service isp username test password networkmanager
+                autoconnect no
+                """
     * Bring "up" connection "ppp"
     * Bring "down" connection "ppp"
     Then Nameserver "8.8.8.8" is not set in "5" seconds
@@ -59,11 +74,16 @@ Feature: nmcli - ppp
     @update_firewall_zone_upon_reconnect
     Scenario: NM - ppp - firewall zone update upon reconnect
     * Execute "ip link add test11 type veth peer name test12"
+    * Execute "ip link set dev test11 up"
     * Prepare pppoe server for user "test" with "networkmanager" password and IP "192.168.111.2" authenticated via "pap"
     * Start pppoe server with "isp" and IP "192.168.111.254" on device "test12"
-    * Add a new connection of type "pppoe" and options "con-name ppp ifname my-ppp pppoe.parent test11 service isp username test password networkmanager"
+    * Add a new connection of type "pppoe" and options
+                """
+                con-name ppp ifname my-ppp pppoe.parent test11
+                service isp username test password networkmanager
+                autoconnect no
+                """
     * Execute "nmcli connection modify ppp connection.zone external"
-    * Execute "ip link set dev test11 up"
     * Bring "up" connection "ppp"
     When "external" is visible with command "firewall-cmd --get-zone-of-interface=my-ppp" in "10" seconds
      And Nameserver "8.8.8.8" is set in "5" seconds
@@ -94,7 +114,12 @@ Feature: nmcli - ppp
     * Execute "ip link set vlan2 up"
     * Prepare pppoe server for user "test" with "networkmanager" password and IP "192.168.111.2" authenticated via "pap"
     * Start pppoe server with "isp" and IP "192.168.111.254" on device "vlan1"
-    * Add a new connection of type "pppoe" and options "con-name ppp ifname my-ppp pppoe.parent vlan2 service isp username test password networkmanager autoconnect no"
+    * Add a new connection of type "pppoe" and options
+                """
+                con-name ppp ifname my-ppp pppoe.parent vlan2
+                service isp username test password networkmanager
+                autoconnect no
+                """
     * Bring "up" connection "ppp"
     Then "inet 192.168.111.2 peer 192.168.111.254/32" is visible with command "ip a s my-ppp"
     And "default via 192.168.111.254 dev my-ppp" is visible with command "ip r"
@@ -110,8 +135,17 @@ Feature: nmcli - ppp
     * Execute "ip link set test12 up"
     * Prepare pppoe server for user "test" with "networkmanager" password and IP "192.168.99.2" authenticated via "pap"
     * Start pppoe server with "isp" and IP "192.168.99.254" on device "test12"
-    * Add a new connection of type "ethernet" and options "con-name ppp2 ifname test11 ipv4.method manual ipv4.addresses 192.168.99.123/24 ipv4.gateway 192.168.99.1"
-    * Add a new connection of type "pppoe" and options "con-name ppp ifname my-ppp service isp username test password networkmanager pppoe.parent test11"
+    * Add a new connection of type "ethernet" and options
+                """
+                con-name ppp2 ifname test11
+                ipv4.method manual ipv4.addresses 192.168.99.123/24
+                ipv4.gateway 192.168.99.1
+                """\
+    * Add a new connection of type "pppoe" and options
+                """
+                con-name ppp ifname my-ppp pppoe.parent test11
+                service isp username test password networkmanager
+                """
     When "activated" is visible with command "nmcli -g GENERAL.STATE con show ppp" in "45" seconds
     When "activated" is visible with command "nmcli -g GENERAL.STATE con show ppp2" in "45" seconds
     When Nameserver "8.8.8.8" is set in "5" seconds

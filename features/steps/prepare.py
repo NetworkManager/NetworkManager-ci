@@ -368,8 +368,8 @@ def prepare_simdev_no_carrier(context, device):
 @step(u'Start pppoe server with "{name}" and IP "{ip}" on device "{dev}"')
 def start_pppoe_server(context, name, ip, dev):
     context.command_code("ip link set dev %s up" % dev)
-    context.pexpect_service("kill -9 $(pidof pppoe-server); pppoe-server -S %s -C %s -L %s -p /etc/ppp/allip -I %s" % (name, name, ip, dev), shell=True)
-    time.sleep(0.5)
+    context.pexpect_service("pppoe-server -S %s -C %s -L %s -p /etc/ppp/allip -I %s" % (name, name, ip, dev), shell=True)
+    time.sleep(1)
 
 
 @step(u'Start pppoe server with "{name}" and IP "{ip}" in namespace "{dev}"')
@@ -377,8 +377,8 @@ def start_pppoe_server(context, name, ip, dev):
     dev_p = dev + "p"
     context.execute_steps(u"""
             * Prepare simulated test "%s" device""" % dev)
-    context.pexpect_service("kill -9 $(pidof pppoe-server); ip netns exec %s_ns pppoe-server -S %s -C %s -L %s -p /etc/ppp/allip -I %s" %(dev, name, name, ip, dev_p), shell=True)
-    time.sleep(0.5)
+    context.pexpect_service("ip netns exec %s_ns pppoe-server -S %s -C %s -L %s -p /etc/ppp/allip -I %s" %(dev, name, name, ip, dev_p), shell=True)
+    time.sleep(1)
 
 
 @step(u'Prepare MACsec PSK environment with CAK "{cak}" and CKN "{ckn}"')

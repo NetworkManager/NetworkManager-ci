@@ -1753,22 +1753,15 @@ _register_tag("no_testeth10", no_testeth10_bs)
 
 
 def pppoe_bs(ctx, scen):
-    # selinux on aarch64: see https://bugzilla.redhat.com/show_bug.cgi?id=1643954
+    pass
     if ctx.arch == "aarch64":
         print("enable pppd selinux policy on aarch64")
         ctx.run("semodule -i contrib/selinux-policy/pppd.pp")
-    # This -x is to avoid upgrade of NetworkManager in older version testing
-    ctx.run("rpm -q NetworkManager-ppp || yum -y install NetworkManager-ppp -x NetworkManager")
-    ctx.run('rpm -q rp-pppoe || yum -y install rp-pppoe')
-    ctx.run('[ -x //usr/sbin/pppoe-server ] || yum -y install https://kojipkgs.fedoraproject.org//packages/rp-pppoe/3.12/11.fc28/$(uname -p)/rp-pppoe-3.12-11.fc28.$(uname -p).rpm')
     ctx.run("mknod /dev/ppp c 108 0")
-    nmci.lib.reload_NM_service(ctx)
-
 
 def pppoe_as(ctx, scen):
-    ctx.run('kill -9 $(pidof pppoe-server)')
     ctx.run('nmcli con del ppp ppp2')
-
+    ctx.run('kill -9 $(pidof pppoe-server)')
 
 _register_tag("pppoe", pppoe_bs, pppoe_as)
 

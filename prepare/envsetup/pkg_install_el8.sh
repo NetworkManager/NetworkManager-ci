@@ -18,7 +18,9 @@ install_el8_packages () {
     dnf -4 -y install \
         $KOJI/perl-IO-Pty-Easy/0.10/5.fc28/noarch/perl-IO-Pty-Easy-0.10-5.fc28.noarch.rpm \
         $KOJI/perl-IO-Tty/1.12/11.fc28/$(arch)/perl-IO-Tty-1.12-11.fc28.$(arch).rpm \
-        $KOJI/tcpreplay/4.2.5/4.fc28/$(arch)/tcpreplay-4.2.5-4.fc28.$(arch).rpm
+        $KOJI/tcpreplay/4.2.5/4.fc28/$(arch)/tcpreplay-4.2.5-4.fc28.$(arch).rpm \
+        $KOJI/rp-pppoe/3.15/1.fc35/$(arch)/rp-pppoe-3.15-1.fc35.$(arch).rpm
+
 
     # Dnf more deps
     dnf -4 -y install \
@@ -37,9 +39,6 @@ install_el8_packages () {
     # Install various NM dependencies
     dnf -4 -y remove \
         NetworkManager-config-connectivity-fedora NetworkManager-config-connectivity-redhat
-    dnf -4 -y install \
-        $BREW/rhel-8/packages/libmnl/1.0.4/6.el8/$(arch)/libmnl-devel-1.0.4-6.el8.$(arch).rpm \
-        $KOJI/hostapd/2.9/3.el8/$(arch)/hostapd-2.9-3.el8.$(arch).rpm
 
     # Install kernel-modules-internal for mac80211_hwsim
     VER=$(rpm -q --queryformat '%{VERSION}' kernel)
