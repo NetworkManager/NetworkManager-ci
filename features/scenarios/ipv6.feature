@@ -1537,3 +1537,26 @@
      And Execute "nmcli -f ip6.route d show testX6"
     * Execute "nmcli con delete con_ipv6"
     Then There are "at most" "5" IP version "6" routes for device "testX6" in "5" seconds
+
+
+    @rhbz2047788
+    @ver+=1.32.7
+    @con_ipv6_remove @teardown_testveth
+    @ipv6_required_timeout
+    Scenario: nmcli - ipv6 - connection with required timeout
+    * Prepare simulated test "testX6" device without DHCP
+    * Add a new connection of type "ethernet" and options
+       """
+       autoconnect no
+       ifname testX6
+       con-name con_ipv6
+       ipv4.method manual
+       ipv6.method auto
+       ipv4.addresses 192.168.99.47
+       ipv6.may-fail yes
+       ipv6.required-timeout 10000
+       """
+    * Execute "nmcli c up con_ipv6" without waiting for process to finish
+    When "activated" is not visible with command "nmcli -g GENERAL.STATE con show con_ipv6" for full "10" seconds
+    Then "activated" is visible with command "nmcli -g GENERAL.STATE con show con_ipv6" in "10" seconds
+    Then "1" is visible with command "nmcli -g IP6.ADDRESS -m multiline con show con_ipv6 | wc -l"

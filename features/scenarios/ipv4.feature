@@ -2324,3 +2324,26 @@ Feature: nmcli: ipv4
     * Execute "nmcli device reapply testX4"
     Then "testX4" is visible with command "ip route ls table 1001" in "10" seconds
     And "testX4" is not visible with command "ip route ls table 1000" in "10" seconds
+
+
+    @rhbz2047788
+    @ver+=1.32.7
+    @con_ipv4_remove @teardown_testveth
+    @ipv4_required_timeout
+    Scenario: nmcli - ipv4 - connection with required timeout
+    * Prepare simulated test "testX4" device without DHCP
+    * Add a new connection of type "ethernet" and options
+       """
+       autoconnect no
+       ifname testX4
+       con-name con_ipv4
+       ipv4.method auto
+       ipv6.method manual
+       ipv6.addresses 2607:f0d0:1002:51::4/64
+       ipv4.may-fail yes
+       ipv4.required-timeout 10000
+       """
+    * Execute "nmcli c up con_ipv4" without waiting for process to finish
+    When "activated" is not visible with command "nmcli -g GENERAL.STATE con show con_ipv4" for full "10" seconds
+    Then "activated" is visible with command "nmcli -g GENERAL.STATE con show con_ipv4" in "10" seconds
+     And "." is not visible with command "nmcli -f IP4.ADDRESS  -t con show con_ipv4"
