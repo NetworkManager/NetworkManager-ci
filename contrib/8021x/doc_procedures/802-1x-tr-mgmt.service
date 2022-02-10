@@ -1,0 +1,10 @@
+[Unit]
+Description=Example 802.1x traffic management for hostapd
+After=hostapd.service
+
+[Service]
+Type=simple
+ExecStart=/usr/local/bin/802-1x-tr-mgmt block_all
+
+[Install]
+WantedBy=multi-user.target

@@ -1,0 +1,45 @@
+#!/bin/sh
+
+if ! $(pidof hostapd > /dev/null 2>&1) ; then
+    echo "hostapd is not running."
+    exit 1
+fi
+
+DEV="$(egrep "^interface=" /etc/hostapd/hostapd.conf | sed -e 's/^interface=//')"
+
+if [ "$1" == "block_all" ] ; then
+
+    # Block all incoming traffic other than EAPOL packets
+    # if script was started with "block_all" option.
+
+    trap 'tc qdisc del dev $DEV clsact' EXIT
+
+    tc qdisc del dev $DEV ingress >/dev/null 2>&1
+    tc qdisc del dev $DEV clsact >/dev/null 2>&1
+    tc qdisc add dev $DEV clsact
+
+    tc filter add dev $DEV ingress pref 10000 protocol 0x888e matchall action ok index 100
+    tc filter add dev $DEV ingress pref 10001 protocol all matchall action drop index 101
+
+    logger -p user.notice -t "802-1x-tr-mgmt" "Deny all traffic other than EAPOL packets on interface $DEV."
+
+    hostapd_cli -i $DEV -a $0
+
+else
+
+    # Block traffic based on events received in hostapd_cli
+    case ${2:-NOTANEVENT} in
+
+        AP-STA-CONNECTED | CTRL-EVENT-EAP-SUCCESS | CTRL-EVENT-EAP-SUCCESS2)
+            tc filter replace dev $1 ingress pref 9000 protocol all flower src_mac $3 action ok
+            logger -p user.notice -t "802-1x-tr-mgmt" "$1: Allowed traffic from $3"
+            ;;
+
+        AP-STA-DISCONNECTED | CTRL-EVENT-EAP-FAILURE)
+            tc filter del dev $1 ingress pref 9000 protocol all flower
+            logger -p user.notice -t  "802-1x-tr-mgmt" "$1: Denied traffic from $3"
+            ;;
+
+    esac
+
+fi
