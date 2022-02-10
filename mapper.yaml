@@ -1779,6 +1779,8 @@ testmapper:
         feature: general
     - nm_device_get_applied_connection_user_allowed:
         feature: general
+    - nmcli_route_dump:
+        feature: general
     - openvswitch_capability:
         feature: ovs
     - openvswitch_interface_recognized:

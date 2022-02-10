@@ -2530,3 +2530,17 @@ Feature: nmcli - general
     * Execute "ip addr add dev testX6 fd01::93/128 valid_lft forever preferred_lft 0"
     Then "fd01::92" is visible with command "ip address show testX6" in "10" seconds
         And "validhostname" is visible with command "hostname" in "20" seconds
+
+
+    @rhbz2037411
+    @ver+=1.35.7
+    @dummy @eth0
+    @nmcli_route_dump
+    Scenario: nmcli - general - NM does not wait for route dump
+    * Add a new connection of type "dummy" and options "con-name dummy0 ifname dummy1 ip4 172.26.1.1/24 autoconnect no"
+    * Bring "up" connection "dummy0"
+    * Execute "ip route add blackhole 172.25.1.0/24 proto bird"
+    * Execute "nmcli -g uuid connection show --active | xargs nmcli -w 10 connection down"
+    When "succeeded" is visible with command "journalctl -u NetworkManager -e -n 10"
+    Then "wait for ACK" is not visible with command "journalctl -u NetworkManager -e -n 1000"
+     And "blackhole" is visible with command "ip route"

@@ -2305,7 +2305,7 @@ Feature: nmcli: ipv4
 
 
     @rhbz2040683
-    @ver+=1.36
+    @ver+=1.35.7
     @con_ipv4_remove @teardown_testveth
     @ipv4_route-table_reapply
     Scenario: nmcli - ipv4 - route-table	config and reapply take	effect immediately
