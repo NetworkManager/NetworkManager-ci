@@ -1557,6 +1557,6 @@
        ipv6.required-timeout 10000
        """
     * Execute "nmcli c up con_ipv6" without waiting for process to finish
-    When "activated" is not visible with command "nmcli -g GENERAL.STATE con show con_ipv6" for full "10" seconds
+    When "activated" is not visible with command "nmcli -g GENERAL.STATE con show con_ipv6" for full "9" seconds
     Then "activated" is visible with command "nmcli -g GENERAL.STATE con show con_ipv6" in "10" seconds
     Then "1" is visible with command "nmcli -g IP6.ADDRESS -m multiline con show con_ipv6 | wc -l"

@@ -2344,6 +2344,6 @@ Feature: nmcli: ipv4
        ipv4.required-timeout 10000
        """
     * Execute "nmcli c up con_ipv4" without waiting for process to finish
-    When "activated" is not visible with command "nmcli -g GENERAL.STATE con show con_ipv4" for full "10" seconds
+    When "activated" is not visible with command "nmcli -g GENERAL.STATE con show con_ipv4" for full "9" seconds
     Then "activated" is visible with command "nmcli -g GENERAL.STATE con show con_ipv4" in "10" seconds
      And "." is not visible with command "nmcli -f IP4.ADDRESS  -t con show con_ipv4"
