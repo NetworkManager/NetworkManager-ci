@@ -73,7 +73,9 @@ Feature: nmcli: inf
      * Expect "MTU"
      * Enter in editor
      * Expect "Transport mode"
-     * Enter in editor
+     * Submit "datagram" in editor
+     # TO avoid https://bugzilla.redhat.com/show_bug.cgi?id=2053603
+     #* Enter in editor
      * Expect "P_KEY"
      * Submit "0x8002" in editor
      * Expect "Parent interface"
