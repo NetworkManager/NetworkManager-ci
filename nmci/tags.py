@@ -961,13 +961,22 @@ def tag8021x_as(ctx, scen):
 _register_tag("8021x_teardown", None, tag8021x_as)
 
 
+def tag8021x_doc_procedure_bs(ctx, scen):
+    ctx.run("yum -y install freeradius hostapd")
+    shutil.copytree('/etc/raddb', '/tmp/raddb')
+    shutil.copytree('/etc/hostapd', '/tmp/hostapd')
+
+
 def tag8021x_doc_procedure_as(ctx, scen):
-    ctx.run("systemctl stop radiusd")
-    ctx.run("dnf -y remove freeradius")
-    shutil.rmtree("/etc/raddb")
+    ctx.run("systemctl stop hostapd")
+    ctx.run("pkill radiusd")
+    shutil.rmtree('/etc/raddb')
+    shutil.rmtree('/etc/hostapd')
+    shutil.move('/tmp/raddb', '/etc/raddb')
+    shutil.move('/tmp/hostapd', '/etc/hostapd')
 
 
-_register_tag("8021x_doc_procedure", None, tag8021x_doc_procedure_as)
+_register_tag("8021x_doc_procedure", tag8021x_doc_procedure_bs, tag8021x_doc_procedure_as)
 
 
 def pkcs11_bs(ctx, scen):
