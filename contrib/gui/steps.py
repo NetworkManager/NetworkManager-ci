@@ -482,6 +482,15 @@ def prepare_wifi(context, certs_dir="contrib/8021x/certs", crypto="default", ap_
         f"sudo bash {NM_CI_RUNNER_CMD} prepare/hostapd_wireless.sh {certs_dir} namespace {crypto}_crypto many_ap={ap_num}"
         "&> /tmp/hostapd_wireless.log", shell=True) == 0, "wifi setup failed !!!"
 
+    # wait for wifi rescan
+    rescan_cmd = "sudo nmcli -g ssid dev wifi list --rescan yes"
+    for _ in range(20):
+        wifi_list = cmd_output_rc(rescan_cmd, shell=True)[0].split("\n")
+        if "open" in wifi_list:
+            return
+        sleep(1)
+    assert False, f"'open' network not visible {wifi_list}"
+
 
 @step('Prepare 8021x | with certificates from "{certs_dir}" | with crypto "{crypto}"')
 def prepare_8021x(context, certs_dir="contrib/8021x/certs", crypto=None):
