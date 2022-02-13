@@ -91,6 +91,13 @@ def prepare_veths(context, pairs_array, bridge):
         context.command_code("ip link set dev %s up" % pair)
         context.command_code("ip link set dev %sp up" % pair)
 
+    if not hasattr(context, 'cleanup_ifaces'):
+        context.cleanup_ifaces = set()
+    context.cleanup_ifaces.add(bridge)
+    for pair in pairs:
+        context.cleanup_ifaces.add(pair)
+        context.cleanup_ifaces.add(f'{pair}p')
+
 
 @step(u'Start radvd server with config from "{location}"')
 def start_radvd(context, location):

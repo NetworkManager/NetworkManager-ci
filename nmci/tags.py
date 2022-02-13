@@ -2578,9 +2578,9 @@ _register_tag("macsec", None, macsec_as)
 
 def two_bridged_veths_as(ctx, scen):
     ctx.run("nmcli connection delete id tc1 tc2")
-    ctx.run("ip link del test1")
-    ctx.run("ip link del test2")
-    ctx.run("ip link del vethbr")
+    for iface in ctx.cleanup_ifaces:
+        ctx.run(f"ip link del {iface}")
+        ctx.run(f"nmcli c del {iface}")
     ctx.run("nmcli con del tc1 tc2 vethbr")
     nmci.lib.unmanage_veths(ctx)
 
