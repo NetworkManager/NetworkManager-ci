@@ -962,7 +962,7 @@ _register_tag("8021x_teardown", None, tag8021x_as)
 
 
 def tag8021x_doc_procedure_bs(ctx, scen):
-    ctx.run("yum -y install freeradius hostapd")
+    ctx.run("yum -y install freeradius hostapd", check=True)
     if not os.path.isdir('/etc/raddb'):
         ctx.run("yum -y reinstall freeradius")
     if not os.path.isdir('/etc/hostapd'):
