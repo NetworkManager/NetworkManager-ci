@@ -285,7 +285,8 @@ class Machine:
         if delete_rpms.strip():
             self.ssh(f"rpm -ea --nodeps {delete_rpms}")
 
-        excludes = '--exclude \\"*-connectivity-*\\" --exclude \\"*-devel*\\"'
+        excludes_list = ["*-dispatcher-routing-rules-*", "*-connectivity-*", "*-devel*"]
+        excludes = " ".join([f'--exclude \\"{e}\\"' for e in excludes_list])
         if source == "copr":
             self.scp_to(self.copr_repo_file, self.copr_repo_file_internal)
             self.ssh(
