@@ -257,11 +257,11 @@ Feature: nmcli - procedures in documentation
     @8021x_using_hostapd_freeradius_doc_procedure
     Scenario: nmcli - docs - Setting up an 802.1x network authentication service for LAN clients using hostapd with FreeRADIUS backend
     ## .1 Setting up the bridge on the authenticator
-    * Prepare veth pairs "test1" bridged over "bridge0"
-    * Modify connection "bridge0" changing options "group-forward-mask 8 connection.autoconnect-slaves 1"
-    * Bring "up" connection "bridge0"
-    Then "test1" is visible with command "ip link show master bridge0"
-     And Check content of file "/sys/class/net/bridge0/bridge/group_fwd_mask" is "0x8"
+    * Prepare veth pairs "test1" bridged over "br0"
+    * Modify connection "br0" changing options "group-forward-mask 8 connection.autoconnect-slaves 1"
+    * Bring "up" connection "br0"
+    Then "test1" is visible with command "ip link show master br0"
+     And Check content of file "/sys/class/net/br0/bridge/group_fwd_mask" is "0x8"
     ## .2 certificates externally
     ## .3 certificates on the go by freeradius itself
     # optimization: dh generation can be lengthy, reuse one from contrib/
