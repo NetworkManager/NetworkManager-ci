@@ -9,7 +9,7 @@ Feature: NM: dispatcher
     # Scenario:
 
     @rhbz982633
-    @disp
+    @permissive @disp
     @dispatcher_preup_and_up
     Scenario: NM - dispatcher - preup and up
     * Write dispatcher "pre-up.d/98-disp" file
@@ -20,7 +20,7 @@ Feature: NM: dispatcher
     Then "pre-up.*\s+up" is visible with command "cat /tmp/dispatcher.txt" in "50" seconds
 
     @rhbz982633
-    @disp
+    @permissive @disp
     @dispatcher_predown_and_down
     Scenario: NM - dispatcher - pre-down and down
     * Bring "up" connection "testeth1"
@@ -37,7 +37,7 @@ Feature: NM: dispatcher
 #    @dispatcher_vpn_down
 #    Scenario: NM - dispatcher - vpn-down
 
-    @disp @restore_hostname
+    @permissive @disp @restore_hostname
     @dispatcher_hostname
     Scenario: NM - dispatcher - hostname
     * Write dispatcher "99-disp" file
@@ -52,7 +52,7 @@ Feature: NM: dispatcher
 
 
     @rhbz1048345
-    @disp
+    @permissive @disp
     @dispatcher_synchronicity
     Scenario: NM - dispatcher - synchronicity
     * Write dispatcher "99-disp" file
@@ -65,7 +65,7 @@ Feature: NM: dispatcher
 
 
     @rhbz1048345
-    @disp
+    @permissive @disp
     @dispatcher_synchronicity_with_predown
     Scenario: NM - dispatcher - synchronicity with predown
     * Write dispatcher "99-disp" file
@@ -78,7 +78,7 @@ Feature: NM: dispatcher
 
 
     @rhbz1061212
-    @disp
+    @permissive @disp
     @dispatcher_serialization
     Scenario: NM - dispatcher - serialization
     * Bring "down" connection "testeth1"
@@ -93,7 +93,7 @@ Feature: NM: dispatcher
 
     @rhbz1663253
     @ver+=1.20
-    @disp @con_ipv4_remove @teardown_testveth @dhclient_DHCP
+    @permissive @disp @con_ipv4_remove @teardown_testveth @dhclient_DHCP
     @dispatcher_private_dhcp_option_dhclient
     Scenario: NM - dispatcher - private option 245 dhclient plugin
     * Prepare simulated test "testXd" device with "192.168.99" ipv4 and "2620:dead:beaf" ipv6 dhcp address prefix and dhcp option "245,aa:bb:cc:dd"
@@ -104,7 +104,7 @@ Feature: NM: dispatcher
 
     @rhbz1663253
     @ver+=1.20
-    @disp @con_ipv4_remove @teardown_testveth @internal_DHCP
+    @permissive @disp @con_ipv4_remove @teardown_testveth @internal_DHCP
     @dispatcher_private_dhcp_option_internal
     Scenario: NM - dispatcher - private dhcp option 245 internal plugin
     * Prepare simulated test "testXd" device with "192.168.99" ipv4 and "2620:dead:beaf" ipv6 dhcp address prefix and dhcp option "245,aa:bb:cc:dd"
@@ -116,7 +116,7 @@ Feature: NM: dispatcher
 
     @rhbz1674550
     @ver+=1.19
-    @disp
+    @permissive @disp
     @dispatcher_usr_lib_dir
     Scenario: NM - dispatcher - usr lib dir dispatcher scripts
     * Write dispatcher "/usr/lib/NetworkManager/dispatcher.d/99-disp" file
