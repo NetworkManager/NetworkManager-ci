@@ -38,6 +38,12 @@ class Machine:
         self.copr_repo_file_internal = "/etc/yum.repos.d/nm-copr.repo"
         self.ssh_options = "-o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no"
 
+        self.rpm_exclude_list = [
+            "*-dispatcher-routing-rules-*",
+            "*-connectivity-*",
+            "*-devel*",
+        ]
+
         cico_out = self._run(
             f"cico --debug node get -f value -c hostname -c comment --release {release}"
         ).stdout
@@ -259,9 +265,10 @@ class Machine:
                 + self.ssh(f"find {self.build_dir} | grep -F .rpm").stdout
             )
             # do not copy connectivity and devel packaqes
-            self.ssh(
-                f"rm -rf {self.rpms_build_dir}/*-devel*.rpm {self.rpms_build_dir}/*-connectivity-*.rpm {self.rpms_build_dir}/*-dispatcher-routing-rules-*.rpm"
+            excludes = " ".join(
+                [f"{self.rpms_build_dir}/{e}.rpm" for e in self.rpm_exclude_list]
             )
+            self.ssh(f"rm -rf {excludes}")
             self.scp_from(f"{self.rpms_build_dir}/*.rpm", self.rpms_dir)
         return True
 
@@ -285,8 +292,7 @@ class Machine:
         if delete_rpms.strip():
             self.ssh(f"rpm -ea --nodeps {delete_rpms}")
 
-        excludes_list = ["*-dispatcher-routing-rules-*", "*-connectivity-*", "*-devel*"]
-        excludes = " ".join([f'--exclude \\"{e}\\"' for e in excludes_list])
+        excludes = " ".join([f'--exclude \\"{e}\\"' for e in self.rpm_exclude_list])
         if source == "copr":
             self.scp_to(self.copr_repo_file, self.copr_repo_file_internal)
             self.ssh(
