@@ -130,73 +130,21 @@ def set_up_embedding(context):
 
 
 def set_up_commands(context):
-    class _Process(object):
+
+    class _ProcessHook:
+
         def __init__(self, context):
             self.context = context
 
-        def _run(
-            self,
-            argv,
-            shell=False,
-            as_bytes=False,
-            timeout=5,
-            ignore_returncode=False,
-            ignore_stderr=False,
-        ):
-            def hook(event, *a):
-                if event == "result":
-                    (argv, returncode, stdout_bin, stderr_bin) = a
-                    self.context._command_calls.append(
-                        (argv, returncode, stdout_bin, stderr_bin)
-                    )
+        def __call__(self, event, *a):
+            if event == "result":
+                (argv, returncode, stdout_bin, stderr_bin) = a
+                self.context._command_calls.append(
+                    (argv, returncode, stdout_bin, stderr_bin)
+                )
 
-            return process._run(
-                context_hook=hook,
-                argv=argv,
-                shell=shell,
-                as_bytes=as_bytes,
-                timeout=timeout,
-                ignore_returncode=ignore_returncode,
-                ignore_stderr=ignore_stderr,
-            )
-
-        def run(
-            self,
-            argv,
-            shell=False,
-            as_bytes=False,
-            timeout=5,
-            ignore_returncode=True,
-            ignore_stderr=False,
-        ):
-            return self._run(
-                argv,
-                shell=shell,
-                as_bytes=as_bytes,
-                timeout=timeout,
-                ignore_returncode=ignore_returncode,
-                ignore_stderr=ignore_stderr,
-            )
-
-        def run_check(
-            self,
-            argv,
-            shell=False,
-            as_bytes=False,
-            timeout=5,
-            ignore_returncode=False,
-            ignore_stderr=False,
-        ):
-            return self._run(
-                argv,
-                shell=shell,
-                as_bytes=as_bytes,
-                timeout=timeout,
-                ignore_returncode=ignore_returncode,
-                ignore_stderr=ignore_stderr,
-            ).stdout
-
-    context.process = _Process(context)
+    process.process_hook = _ProcessHook(context)
+    context.process = process
 
     def _run(command, *a, **kw):
         out, err, code = nmci.run(command, *a, **kw)
