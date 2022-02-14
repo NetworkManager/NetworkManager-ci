@@ -270,7 +270,9 @@ Feature: nmcli - procedures in documentation
     ## .4 Configuring FreeRADIUS to authenticate network clients securely using EAP
     * Execute "chmod 640 /etc/raddb/certs/server.key /etc/raddb/certs/server.pem /etc/raddb/certs/ca.pem /etc/raddb/certs/dh"
     * Execute "chown root:radiusd /etc/raddb/certs/server.key /etc/raddb/certs/server.pem /etc/raddb/certs/ca.pem /etc/raddb/certs/dh"
+    * Execute "cp contrib/8021x/doc_procedures/clients.conf /etc/raddb/clients.conf"
     * Execute "sed -i 's/\([ \t]*default_eap_type = \)md5/\1ttls/' /etc/raddb/mods-available/eap"
+    * Execute "sed -i '/^[^#]*md5 {/,+1 s/^/#/' /etc/raddb/mods-available/eap"
     * Execute "sed -i '/^[^#]*[ \t]Auth-Type/,+2 s/^/#/' /etc/raddb/sites-available/default"
     * Execute "sed -i '/^[^#]*\(mschap\|digest\)/,+0 s/^/#/' /etc/raddb/sites-available/default"
     * Execute "sed -i '1 i\example_user        Cleartext-Password := \"test_password\"' /etc/raddb/users"
