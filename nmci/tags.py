@@ -1047,8 +1047,8 @@ def simwifi_p2p_bs(ctx, scen):
 
 def simwifi_p2p_as(ctx, scen):
     print("---------------------------")
-    if "release 8" in ctx.rh_release:
-        if ctx.arch == "x86_64" and ctx.rh_release_num <= 8.4 and "Stream" not in ctx.rh_release:
+    if ctx.rh_release_num >= 8 and ctx.rh_release_num <= 8.4 and "Stream" not in ctx.rh_release:
+        if arch == "x86_64":
             print("Install patched wpa_supplicant for x86_64")
             ctx.run(
                 "dnf -4 -y install https://vbenes.fedorapeople.org/NM/WPA3/wpa_supplicant{,-debuginfo,-debugsource}-2.9-8.el8.$(arch).rpm")
