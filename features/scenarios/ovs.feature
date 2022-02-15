@@ -476,7 +476,7 @@ Feature: nmcli - ovs
 
     @rhbz1740557 @rhbz1852612 @rhbz1855563
     @ver+=1.18.8 @ver-=1.25
-    @openvswitch @disp
+    @permissive @openvswitch @disp
     @ovs_cloned_mac_set_on_iface
     Scenario: nmcli - openvswitch - mac address set iface
     * Execute "systemctl restart NetworkManager-dispatcher"
@@ -515,7 +515,7 @@ Feature: nmcli - ovs
     @rhbz1740557 @rhbz1852612 @rhbz1855563 @rhbz1868176
     @ver+=1.26
     @rhelver+=8
-    @openvswitch @disp @teardown_testveth
+    @permissive @openvswitch @disp @teardown_testveth
     @ovs_cloned_mac_set_on_iface
     Scenario: nmcli - openvswitch - mac address set iface
     * Execute "systemctl restart NetworkManager-dispatcher"
@@ -591,7 +591,7 @@ Feature: nmcli - ovs
     @rhbz1676551
     @ver+=1.12
     @rhelver-=7 @fedoraver-=0
-    @openvswitch @vlan @bond @slaves @restart_if_needed 
+    @openvswitch @vlan @bond @slaves @restart_if_needed
     @restart_NM_with_mixed_setup
     Scenario: NM -  openvswitch - restart NM when OVS is unmanaged
     * Add a new connection of type "bond" and options "ifname nm-bond con-name bond0 ipv4.method manual ipv4.addresses 10.0.0.2/16 ipv4.gateway 10.0.0.1"

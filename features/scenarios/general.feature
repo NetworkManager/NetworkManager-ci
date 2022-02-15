@@ -1223,7 +1223,7 @@ Feature: nmcli - general
 
 
     @rhbz1160013
-    @need_dispatcher_scripts @con_general_remove @ifcfg-rh
+    @permissive @need_dispatcher_scripts @con_general_remove @ifcfg-rh
     @policy_based_routing
     Scenario: NM - general - policy based routing
     * Add a new connection of type "ethernet" and options "ifname eth8 con-name con_general"
@@ -1241,7 +1241,7 @@ Feature: nmcli - general
 
     @rhbz1384799
     @ver+=1.10
-    @con_general_remove @need_dispatcher_scripts @teardown_testveth @ifcfg-rh @restart_if_needed
+    @permissive @con_general_remove @need_dispatcher_scripts @teardown_testveth @ifcfg-rh @restart_if_needed
     @modify_policy_based_routing_connection
     Scenario: NM - general - modify policy based routing connection
     * Prepare simulated test "testG" device
