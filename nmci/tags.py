@@ -234,10 +234,17 @@ def logging_info_only_as(ctx, scen):
 _register_tag("logging_info_only", logging_info_only_bs, logging_info_only_as)
 
 
+def _is_container():
+    return os.path.isfile("/run/.containerenv")
+
+
 def restart_if_needed_as(ctx, scen):
     if ctx.command_code("systemctl is-active NetworkManager") != 0:
         nmci.lib.restart_NM_service(ctx)
-    if not os.path.isfile('/tmp/nm_dcb_inf_wol_sriov_configured'):
+    if (
+        not os.path.isfile('/tmp/nm_dcb_inf_wol_sriov_configured')
+        and not _is_container()
+    ):
         nmci.lib.wait_for_testeth0(ctx)
 
 
