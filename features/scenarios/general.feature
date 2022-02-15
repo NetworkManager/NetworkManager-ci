@@ -2534,7 +2534,7 @@ Feature: nmcli - general
 
     @rhbz2037411
     @ver+=1.35.7
-    @dummy @eth0
+    @permissive @dummy @eth0
     @nmcli_route_dump
     Scenario: nmcli - general - NM does not wait for route dump
     * Add a new connection of type "dummy" and options "con-name dummy0 ifname dummy1 ip4 172.26.1.1/24 autoconnect no"
