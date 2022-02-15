@@ -5,8 +5,6 @@ import nmci
 import subprocess
 import time
 import re
-import inspect
-import pickle
 
 import nmci.ip
 import nmci.lib
@@ -17,12 +15,15 @@ compiled_tags = False
 
 class Tag:
     def __init__(self, tag_name, before_scenario=None, after_scenario=None, args={}):
-        stack = inspect.stack()
-        self.lineno = stack[2].lineno
+        self.lineno = 0
         self.tag_name = tag_name
         self.args = args
         self._before_scenario = before_scenario
         self._after_scenario = after_scenario
+        if self._before_scenario:
+            self.lineno = self._before_scenario.__code__.co_firstlineno
+        elif self._after_scenario:
+            self.lineno = self._after_scenario.__code__.co_firstlineno
 
     def before_scenario(self, ctx, scen):
         if self._before_scenario is not None:
@@ -36,16 +37,7 @@ class Tag:
 tag_registry = {}
 
 
-# will we load tags from cache?
-# tags load must be at the end of file, because pickle misses functions defined later
-if os.path.isfile(TAG_FILE):
-    if os.path.getmtime(TAG_FILE) >= os.path.getmtime(__file__):
-        compiled_tags = True
-
-
 def _register_tag(tag_name, before_scenario=None, after_scenario=None, args={}):
-    if compiled_tags:
-        return
     assert tag_name not in tag_registry, \
         "multiple definitions for tag '@%s'" % tag_name
     tag_registry[tag_name] = Tag(tag_name, before_scenario, after_scenario, args)
@@ -2862,17 +2854,3 @@ def filter_batch_as(ctx, scen):
 
 
 _register_tag("filter_batch", filter_batch_bs, filter_batch_as)
-
-# load tags from cache
-if compiled_tags:
-    with open(TAG_FILE, "rb") as f:
-        tag_registry = pickle.load(f)
-
-else:
-    # save the tags to cache
-    try:
-        with open(TAG_FILE, "wb") as f:
-            pickle.dump(tag_registry, f)
-        compiled_tags = True
-    except Exception as e:
-        print(f"Unable to save {TAG_FILE}: {e}")
