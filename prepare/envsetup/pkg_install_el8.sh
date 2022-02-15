@@ -56,7 +56,7 @@ install_el8_packages () {
     # Add OVS repo and install OVS
     if ! grep -q -e 'CentOS .* release 8' /etc/redhat-release; then
         cp -f  contrib/ovs/ovs-rhel8.repo /etc/yum.repos.d/ovs.repo
-        yum -y install openvswitch2.15
+        yum -y install openvswitch2.16* openvswitch-selinux-extra-policy
         systemctl restart openvswitch
     else
         dnf -y install \

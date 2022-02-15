@@ -41,7 +41,12 @@ install_el9_packages () {
             $CBSC/openvswitch2.16/2.16.0/33.el9s/$(arch)/openvswitch2.16-2.16.0-33.el9s.$(arch).rpm \
             $CBSC/openvswitch-selinux-extra-policy/1.0/30.el9s/noarch/openvswitch-selinux-extra-policy-1.0-30.el9s.noarch.rpm \
             $KHUB/perl-IO-Tty/1.16/4.el9/$(arch)/perl-IO-Tty-1.16-4.el9.$(arch).rpm
+    else
+        cp -f  contrib/ovs/ovs-rhel9.repo /etc/yum.repos.d/ovs.repo
+        yum -y install openvswitch2.16*
+        systemctl restart openvswitch
     fi
+
 
     # Install vpn dependencies
     dnf -4 -y install \

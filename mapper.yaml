@@ -38,11 +38,11 @@ component:
   openstack-flavor: standard.medium
 
 dependencies:
-  beaker-tasks:
-    - /distribution/command:
-        CMDS_TO_RUN: 'if grep -q "Fedora release 3[0-3]" /etc/redhat-release; then echo mq-deadline > /sys/block/sda/queue/scheduler; fi'
-    - /distribution/command:
-        CMDS_TO_RUN: 'if grep -q "release 9" /etc/redhat-release; then dnf -y install https://vbenes.fedorapeople.org/NM/openvswitch_openssl3/openvswitch-2.15.0-7.el9.x86_64.rpm https://vbenes.fedorapeople.org/NM/openvswitch_openssl3/openvswitch-devel-2.15.0-7.el9.x86_64.rpm https://vbenes.fedorapeople.org/NM/openvswitch_openssl3/python3-openvswitch-2.15.0-7.el9.x86_64.rpm https://kojipkgs.fedoraproject.org//packages/python-sortedcontainers/2.3.0/2.eln109/noarch/python3-sortedcontainers-2.3.0-2.eln109.noarch.rpm http://download.eng.bos.redhat.com/brewroot/vol/rhel-9/packages/wireless-regdb/2020.11.20/1.el9/noarch/wireless-regdb-2020.11.20-1.el9.noarch.rpm https://kojipkgs.fedoraproject.org//packages/iw/5.9/1.fc34/x86_64/iw-5.9-1.fc34.x86_64.rpm; fi'
+  # beaker-tasks:
+  #   - /distribution/command:
+  #       CMDS_TO_RUN: 'if grep -q "Fedora release 3[0-3]" /etc/redhat-release; then echo mq-deadline > /sys/block/sda/queue/scheduler; fi'
+  #   - /distribution/command:
+  #       CMDS_TO_RUN: 'if grep -q "release 9" /etc/redhat-release; then dnf -y install https://vbenes.fedorapeople.org/NM/openvswitch_openssl3/openvswitch-2.15.0-7.el9.x86_64.rpm https://vbenes.fedorapeople.org/NM/openvswitch_openssl3/openvswitch-devel-2.15.0-7.el9.x86_64.rpm https://vbenes.fedorapeople.org/NM/openvswitch_openssl3/python3-openvswitch-2.15.0-7.el9.x86_64.rpm https://kojipkgs.fedoraproject.org//packages/python-sortedcontainers/2.3.0/2.eln109/noarch/python3-sortedcontainers-2.3.0-2.eln109.noarch.rpm http://download.eng.bos.redhat.com/brewroot/vol/rhel-9/packages/wireless-regdb/2020.11.20/1.el9/noarch/wireless-regdb-2020.11.20-1.el9.noarch.rpm https://kojipkgs.fedoraproject.org//packages/iw/5.9/1.fc34/x86_64/iw-5.9-1.fc34.x86_64.rpm; fi'
 
   packages:
       - chkconfig # Abrtd job dependency
