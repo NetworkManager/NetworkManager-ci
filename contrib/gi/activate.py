@@ -152,7 +152,7 @@ def run():
                 sys.exit(1)
             return True
 
-    GLib.timeout_add(1000, check_state_cb, client)
+    GLib.timeout_add(100, check_state_cb, client)
     main_loop.run()
     logger_pid.terminate()
 

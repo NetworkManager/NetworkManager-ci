@@ -1437,8 +1437,27 @@ _register_tag("attach_wpa_supplicant_log", None, attach_wpa_supplicant_log_as)
 
 
 def performance_bs(ctx, scen):
-    # TODO: measure some times and set ctx.machine_speed_factor
     ctx.machine_speed_factor = 1
+    hostname = ctx.command_output('hostname').strip()
+    if "ci.centos" in hostname:
+        print("CentOS: should be 2 times faster")
+        ctx.machine_speed_factor = 0.5
+    elif hostname.startswith("gsm-r5s"):
+        print("gsm-r5s: keeping default")
+    elif hostname.startswith("wsfd-netdev"):
+        print("wsfd-netdev: keeping default")
+    elif hostname.startswith("gsm-r6s"):
+        print("gsm-r6s: might be 2 times slower")
+        ctx.machine_speed_factor = 2
+    elif hostname.startswith("wlan-r6s"):
+        print("wlan-r6s: should be 2.5 times slower")
+        ctx.machine_speed_factor = 2.5
+    else:
+        print(f"Unmatched: {hostname}: keeping default")
+    if "fedora" in ctx.rh_release.lower():
+        print("Fedora: multiply factor by 1.5")
+        ctx.machine_speed_factor *= 1.5
+
 
 def performance_as(ctx, scen):
     ctx.nm_restarted = True
