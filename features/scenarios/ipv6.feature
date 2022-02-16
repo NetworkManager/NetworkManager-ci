@@ -1135,6 +1135,24 @@
     Then "fd01" is visible with command "ip -6 addr show dev testX6"
 
 
+    @rhbz2027267
+    @ver+=1.35.5
+    @con_ipv6_remove @teardown_testveth @kill_children @long
+    @internal_DHCP
+    @ipv6_internal_client_dhcpv6_leases_renewal
+    Scenario: NM renews DHCPv6 leases when using internal DHCP client
+    * Execute "nmcli g logging level trace"
+    * Prepare simulated test "testX6" device without DHCP
+    * Execute "ip -n testX6_ns addr add dev testX6p fc01::1/64"
+    * Execute "ip -n testX6_ns link set dev testX6p up"
+    * Execute "echo > /tmp/ip6leases.conf"
+    * Run child "ip netns exec testX6_ns dhcpd -6 -d -cf contrib/ipv6/dhcpd.conf -lf /tmp/ip6leases.conf" without shell
+    * Add a new connection of type "ethernet" and options "ifname testX6 con-name con_ipv6 ipv4.method disabled ipv6.method dhcp"
+    * Bring "up" connection "con_ipv6"
+    # extract T1 and T2 and compare they're shorter than a day (86400 s)
+    Then Execute "journalctl -u NetworkManager.service --since -5s --no-pager | grep 'T1 and T2 equal to zero' | tail -n1 | sed -e 's/^.*\(T1=[0-9]\+\)sec, \(T2=[0-9]\+\)sec$/\1\n\2/' | while read LINE; do echo \"is ${LINE:0:2}=${LINE:3} lesser than 86400?\" ; test ${LINE:3} -lt 86400 ; done"
+
+
     @con_ipv6_remove
     @ver-=1.19.1
     @ipv6_describe
