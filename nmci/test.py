@@ -542,32 +542,6 @@ def test_mapper_feature_file():
         assert found, f"test @{testname} not defined in feature file {feature}"
 
 
-def test_black_code_fromatting():
-
-    files = [
-        util.base_dir("nmci"),
-        util.base_dir("version_control.py"),
-    ]
-
-    exclude = [
-        "--exclude",
-        "nmci/(tags)\\.py",
-    ]
-
-    try:
-        proc = subprocess.run(
-            ["black", "-q", "--diff"] + exclude + files,
-            stdout=subprocess.PIPE,
-            stderr=subprocess.PIPE,
-        )
-    except FileNotFoundError:
-        pytest.skip("python black is not available")
-
-    assert not proc.stderr
-    assert not proc.stdout
-    assert proc.returncode == 0
-
-
 def test_process_run():
 
     assert process.run(["true"]).returncode == 0
@@ -779,3 +753,31 @@ def test_context_set_up_commands():
     with pytest.raises(Exception) as e:
         context.process.run_check("false")
     assert context._command_calls == [(["false"], 1, b"", b"")]
+
+
+# This test should always run as last. Keep it at the bottom
+# of the file.
+def test_black_code_fromatting():
+
+    files = [
+        util.base_dir("nmci"),
+        util.base_dir("version_control.py"),
+    ]
+
+    exclude = [
+        "--exclude",
+        "nmci/(tags)\\.py",
+    ]
+
+    try:
+        proc = subprocess.run(
+            ["black", "-q", "--diff"] + exclude + files,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+        )
+    except FileNotFoundError:
+        pytest.skip("python black is not available")
+
+    assert not proc.stderr
+    assert not proc.stdout
+    assert proc.returncode == 0
