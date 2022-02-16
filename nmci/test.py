@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 
+import os
 import pytest
 import re
 import subprocess
@@ -772,6 +773,28 @@ def test_context_set_up_commands():
     with pytest.raises(Exception) as e:
         context.process.run_check("false")
     assert context._command_calls == [(["false"], 1, b"", b"")]
+
+
+def test_ip_link_add_nonutf8():
+
+    if os.environ.get("NMCI_ROOT_TEST") != "1":
+        pytest.skip("skip root test. Run with NMCI_ROOT_TEST=1")
+
+    ifname = b"\xCB[2Jnonutf\xCCf\\c"
+
+    if not ip.link_show_maybe(ifname=ifname):
+        process.run_check(["ip", "link", "add", "name", ifname, "type", "dummy"])
+
+        # udev might rename the interface, try to workaround the race.
+        time.sleep(0.1)
+
+        if not ip.link_show_maybe(ifname=ifname):
+            # hm. Did udev rename the interface and replace non-UTF-8 chars
+            # with "_"?
+            ifname = "_[2Jnonutf_f\\c"
+            assert ip.link_show(ifname=ifname)
+
+    ip.link_delete(ifname)
 
 
 # This test should always run as last. Keep it at the bottom
