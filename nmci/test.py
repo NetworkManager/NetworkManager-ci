@@ -663,6 +663,15 @@ def test_ip_link_show_all():
 
     l0 = ip.link_show_all(binary=None)
 
+    stdout = process.run("ip link show", as_bytes=True).stdout
+    try:
+        stdout.decode("utf-8", errors="strict")
+        has_binary = False
+    except UnicodeDecodeError:
+        # we test here the real system. If you had any non-utf8 links,
+        # it would break the test. Detect that.
+        has_binary = True
+
     def _normalize(i):
         return (i["ifindex"], util.str_to_bytes(i["ifname"]), i["flags"])
 
@@ -673,9 +682,14 @@ def test_ip_link_show_all():
     assert [_normalize(i) for i in l0] == [
         _normalize(i) for i in ip.link_show_all(binary=True)
     ]
-    assert [_normalize(i) for i in l0] == [
-        _normalize(i) for i in ip.link_show_all(binary=False)
-    ]
+
+    if not has_binary:
+        assert [_normalize(i) for i in l0] == [
+            _normalize(i) for i in ip.link_show_all(binary=False)
+        ]
+    else:
+        with pytest.raises(UnicodeDecodeError):
+            ip.link_show_all(binary=False)
 
     l = ip.link_show(ifname="lo", binary=None)
     assert l["ifname"] == "lo"
@@ -685,6 +699,11 @@ def test_ip_link_show_all():
 
     l = ip.link_show(ifname="lo", binary=True)
     assert l["ifname"] == b"lo"
+
+    if has_binary:
+        pytest.skip(
+            "The system has binary interface names (check `ip link`). Some tests were skipped."
+        )
 
 
 def test_clock_boottime():
