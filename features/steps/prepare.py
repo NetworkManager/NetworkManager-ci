@@ -474,3 +474,11 @@ def prepare_iptunnel_doc(context, mode):
         context.command_code("ip -n iptunnelB link set brB up")
         context.command_code("ip -n iptunnelB addr add 192.0.2.2/24 dev brB")
         context.command_code("ip -n iptunnelB link set tunB master brB")
+
+
+@step(u'Create custom NS "{new_ns}"')
+def custom_ns(context, new_ns):
+    if not hasattr(context, 'cleanup_ns'):
+        context.cleanup_ns = set()
+    context.cleanup_ns.add(new_ns)
+    context.run(f'ip netns add {new_ns}')

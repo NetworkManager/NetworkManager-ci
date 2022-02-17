@@ -2864,3 +2864,16 @@ def filter_batch_as(ctx, scen):
 
 
 _register_tag("filter_batch", filter_batch_bs, filter_batch_as)
+
+
+def custom_ns_as(ctx, scen):
+    if not hasattr(ctx, 'cleanup_ns'):
+        return
+    cleaned = set()
+    for ns in ctx.cleanup_ns:
+        ctx.run(f'ip netns delete {ns}')
+        cleaned.add(ns)
+    ctx.cleanup_ns.difference_update(cleaned)
+
+
+_register_tag("custom_ns", None, custom_ns_as)
