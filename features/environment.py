@@ -154,7 +154,7 @@ def _before_scenario(context, scenario):
     if excepts:
         context.before_scenario_step_el.set("class", "step failed")
         context.embed("text/plain", "\n\n".join(excepts), "Exception in before scenario tags")
-        assert False, "Exception in before scenario tags"
+        assert False, "Exception in before scenario tags:\n\n" + "\n\n".join(excepts)
 
 
 def after_step(context, step):
@@ -323,7 +323,7 @@ def _after_scenario(context, scenario):
     if context.crashed_step:
         assert False, "Crash happened"
 
-    assert not excepts, "Exception in after scenario tags"
+    assert not excepts, "Exception in after scenario tags:\n\n" + "\n\n".join(excepts)
 
 
 def after_tag(context, tag):
