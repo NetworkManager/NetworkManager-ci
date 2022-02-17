@@ -172,5 +172,13 @@ class _IP:
                 arg = "down"
             process.run_check(["ip", "link", "set", li["ifname"], arg])
 
+    def link_delete(self, ifname=None, *, ifindex=None):
+
+        if ifname is None or ifindex is not None:
+            li = self.link_show(ifindex=ifindex)
+            ifname = li["ifname"]
+
+        process.run_check(["ip", "link", "delete", ifname])
+
 
 sys.modules[__name__] = _IP()
