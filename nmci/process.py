@@ -20,7 +20,7 @@ def _run(
     timeout=5,
     ignore_stderr=False,
     ignore_returncode=False,
-    _context_hook=None,
+    context_hook=None,
 ):
 
     if isinstance(argv, str):
@@ -32,8 +32,8 @@ def _run(
 
             argv = shlex.split(argv)
 
-    if _context_hook is not None:
-        _context_hook("call", argv, shell, timeout)
+    if context_hook is not None:
+        context_hook("call", argv, shell, timeout)
 
     proc = subprocess.run(
         argv,
@@ -45,8 +45,8 @@ def _run(
 
     (returncode, stdout, stderr) = (proc.returncode, proc.stdout, proc.stderr)
 
-    if _context_hook is not None:
-        _context_hook("result", argv, returncode, stdout, stderr)
+    if context_hook is not None:
+        context_hook("result", argv, returncode, stdout, stderr)
 
     # Depending on ignore_returncode we accept non-zero output. But
     # even then we want to fail for return codes that indicate a crash
@@ -92,7 +92,7 @@ def run(
     timeout=5,
     ignore_returncode=True,
     ignore_stderr=False,
-    _context_hook=None,
+    context_hook=None,
 ):
     return _run(
         argv,
@@ -101,7 +101,7 @@ def run(
         timeout=timeout,
         ignore_stderr=ignore_stderr,
         ignore_returncode=ignore_returncode,
-        _context_hook=_context_hook,
+        context_hook=context_hook,
     )
 
 
@@ -113,7 +113,7 @@ def run_check(
     timeout=5,
     ignore_returncode=False,
     ignore_stderr=False,
-    _context_hook=None,
+    context_hook=None,
 ):
     return _run(
         argv,
@@ -122,5 +122,5 @@ def run_check(
         timeout=timeout,
         ignore_stderr=ignore_stderr,
         ignore_returncode=ignore_returncode,
-        _context_hook=_context_hook,
+        context_hook=context_hook,
     ).stdout

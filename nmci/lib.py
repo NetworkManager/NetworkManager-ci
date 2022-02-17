@@ -142,10 +142,10 @@ def set_up_commands(context):
                 )
 
         def run(self, *a, **kw):
-            return process.run(*a, _context_hook=self.context_hook, **kw)
+            return process.run(*a, context_hook=self.context_hook, **kw)
 
         def run_check(self, *a, **kw):
-            return process.run_check(*a, _context_hook=self.context_hook, **kw)
+            return process.run_check(*a, context_hook=self.context_hook, **kw)
 
     context.process = _Process(context)
 
