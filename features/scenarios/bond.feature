@@ -2548,3 +2548,28 @@
     # list ports using dbus
     Then Note the output of "contrib/naming/ports-dbus.sh bond0 dummy0"
      And Noted value contains "dbus ports:ao \d+"
+
+
+    @rhbz2028751
+    @ver+=1.35.5
+    @custom_ns @bond @veth_remove @tcpdump
+    @bond_no_ipv4_dad_timeout
+    Scenario: bond - ipv4.dad-timeout parameter should not be used
+    * Create custom NS "ns1"
+    * Execute "ip link add veth0 type veth peer name veth1 netns ns1"
+    * Execute "ip -n ns1 l set veth1 up"
+    * Execute "ip -n ns1 a add dev veth1 172.25.13.1/24"
+    * Execute "ip l set veth0 up"
+    * Add a new connection of type "bond" and options
+           """
+           con-name bond0 ifname bond0 bond.option mode=1
+           ip4 172.25.13.1/24 ipv4.method manual ipv4.dad-timeout 3000
+           connection.autoconnect no connection.autoconnect-slaves yes
+           """
+    * Execute "nmcli -f ipv4.dad-timeout c s id bond0"
+    * Add a new connection of type "ethernet" and options "ifname veth0 con-name con_veth1 master bond0 connection.autoconnect no"
+    When Execute "nmcli c up id bond0 || /bin/true"
+    * Execute "sleep 50"
+    Then "172.25.13.1" is not visible with command "ip -4 a show dev bond0"
+     And "Request who-has 172.25.13.1" is visible with command "cat /tmp/network-traffic.log"
+     And "Reply 172.25.13.1 is-at" is visible with command "cat /tmp/network-traffic.log"
