@@ -134,7 +134,7 @@ def set_up_commands(context):
         def __init__(self, context):
             self._context = context
 
-        def _hook(self, event, *a):
+        def context_hook(self, event, *a):
             if event == "result":
                 (argv, returncode, stdout_bin, stderr_bin) = a
                 self._context._command_calls.append(
@@ -142,10 +142,10 @@ def set_up_commands(context):
                 )
 
         def run(self, *a, **kw):
-            return process.run(*a, _context_hook=self._hook, **kw)
+            return process.run(*a, _context_hook=self.context_hook, **kw)
 
         def run_check(self, *a, **kw):
-            return process.run_check(*a, _context_hook=self._hook, **kw)
+            return process.run_check(*a, _context_hook=self.context_hook, **kw)
 
     context.process = _Process(context)
 
