@@ -2769,14 +2769,17 @@ for i in [1, 2, 4, 5, 6, 8, 10]:
 
 
 def non_utf_device_bs(ctx, scen):
-    ctx.process.run_check(['ip', 'link', 'add', 'name', b'\x1B[2Jnonutf\xccf\\c', 'type', 'dummy'])
+    if os.path.isfile("/usr/lib/udev/rules.d/80-net-setup-link.rules"):
+        ctx.run("ln -s /dev/null /etc/udev/rules.d/80-net-setup-link.rules")
+        ctx.run("udevadm control --reload")
+    ctx.process.run_check(["ip", "link", "add", "name", b"\xca[2Jnonutf\xccf\\c", "type", "dummy"])
 
 
 def non_utf_device_as(ctx, scen):
-    if ctx.rh_release_num >= 9:
-        ctx.process.run_check(['ip', 'link', 'del', '_[2Jnonutf_f\\c'])
-    else:
-        ctx.process.run_check(['ip', 'link', 'del', b'\x1B[2Jnonutf\xccf\\c'])
+    ctx.process.run_check(["ip", "link", "del", b"\xca[2Jnonutf\xccf\\c"])
+    if os.path.isfile("/usr/lib/udev/rules.d/80-net-setup-link.rules"):
+        ctx.run("ln -s /dev/null /etc/udev/rules.d/80-net-setup-link.rules")
+        ctx.run("udevadm control --reload")
 
 
 _register_tag("non_utf_device", non_utf_device_bs, non_utf_device_as)
