@@ -581,7 +581,6 @@ class Runner:
             )
             if len(lines) == 4:
                 failed_tests += " " + lines[3]
-                failed_tests.strip(" ")
 
         if len(machine_lines) > 1:
             machine_lines.append(f"Passed: {p}, Failed {f}, Skipped {s}.")
@@ -598,6 +597,9 @@ class Runner:
             + "\n\n".join(machine_lines)
             + f"\n\nExecuted on: CentOS {self.release}"
         )
+
+        failed_tests = failed_tests.strip(" ")
+        self.failed_tests = failed_tests.split(" ")
         if failed_tests:
             self._gitlab_message += f"\n\nFailed tests: {failed_tests}"
 
@@ -616,6 +618,7 @@ class Runner:
         logging.debug("Generate JUNIT")
 
         failed = []
+        html_fails = []
         passed = []
         for f in os.listdir(self.results_common):
             if not f.endswith(".html"):
@@ -632,17 +635,25 @@ class Runner:
         root = ET.ElementTree()
         testsuite = ET.Element("testsuite", tests=str(len(passed) + len(failed)))
         for test in passed:
-            name = test[test.find("_Test") + 10 :]
+            name = test[test.find("_Test") + 10:]
             testcase = ET.Element("testcase", classname="tests", name=name)
             system_out = ET.Element("system-out")
             system_out.text = f"LOG:\n{self.build_url}/artifact/{test}.html"
             testcase.append(system_out)
             testsuite.append(testcase)
         for test in failed:
-            name = test[test.find("_Test") + 10 :]
+            name = test[test.find("_Test") + 10:]
+            html_fails.append(name)
             testcase = ET.Element("testcase", classname="tests", name=name)
             failure = ET.Element("failure")
             failure.text = f"Error\nLOG:\n{self.build_url}/artifact/FAIL-{test}.html"
+            testcase.append(failure)
+            testsuite.append(testcase)
+        no_html_fails = [test for test in self.failed_tests if test not in html_fails]
+        for test in no_html_fails:
+            testcase = ET.Element("testcase", classname="tests", name=test)
+            failure = ET.Element("failure")
+            failure.text = "Error\nNo HTML reprted!"
             testcase.append(failure)
             testsuite.append(testcase)
         root._setroot(testsuite)
