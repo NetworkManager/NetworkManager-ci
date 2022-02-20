@@ -226,9 +226,8 @@ class Machine:
         self.scp_to("../NetworkManager-ci/", "")
         # execute envsetup - with stock NM package, will update later, should not matter
         self.ssh(
-            f"cd NetworkManager-ci\\; bash -x prepare/envsetup.sh setup first_test_setup > {self.results}/envsetup.log"
+            f"cd NetworkManager-ci\\; bash -x prepare/envsetup.sh setup first_test_setup > ../envsetup.m{self.id}.log"
         )
-        self._run(f"cp {self.results}/envsetup.log ../envsetup.m{self.id}.log")
         return True
 
     def prepare_async(self):
@@ -305,6 +304,7 @@ class Machine:
             # excludes not needed here, as the rpms should not be copied from build_machine
             self.ssh("yum -y install ./rpms/NetworkManager*.rpm")
         self.ssh("systemctl restart NetworkManager")
+        self.ssh(f"rpm -qa > ../packages.m{self.id}.list")
         return True
 
     def install_NM_async(self, source=None):
@@ -317,7 +317,7 @@ class Machine:
         # command after redirection operators ('|', '>', '&&') execute on jenkins machine,
         # unless escaped as "echo \\> file', so runtest.log and journal are saved to jenkins directly
         ret = self.ssh(
-            f"cd NetworkManager-ci\\; MACHINE_ID={self.id} bash -x run/centos-ci/scripts/runtest.sh {tests} &> {self.results}/runtest.log",
+            f"cd NetworkManager-ci\\; MACHINE_ID={self.id} bash -x run/centos-ci/scripts/runtest.sh {tests} &> ../runtest.m{self.id}.log",
             check=False,
         )
         self.ssh(
@@ -325,7 +325,6 @@ class Machine:
         )
         # copy artefacts
         self.scp_from(f"{self.results_internal}/*.*", self.results)
-        self._run(f"cp {self.results}/runtest.log ../runtest.m{self.id}.log")
         return ret
 
     def runtests_async(self, tests):
