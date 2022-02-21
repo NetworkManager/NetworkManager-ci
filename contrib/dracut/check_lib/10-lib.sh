@@ -12,6 +12,7 @@ die_cmd() {
   echo "== dump state after fail =="
   ip_list
   nmcli_list
+  resolv_conf_dump
   clean_root
   poweroff -f
 }
@@ -127,6 +128,12 @@ dns_search() {
     search=$(grep "^search" /etc/resolv.conf | sed 's/^search\s\+//g')
     [[ "$search" == $1 ]] || die "DNS search is '$search', expected '$1'"
     echo "[OK] DNS search '$search' is '$1'"
+}
+
+
+resolv_conf_dump() {
+  echo "== /etc/resolv.conf =="
+  cat /etc/resolv.conf
 }
 
 
