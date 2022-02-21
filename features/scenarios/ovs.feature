@@ -429,7 +429,6 @@ Feature: nmcli - ovs
 
     @rhbz1540218 @rhbz1734032 @rhbz2022275
     @ver+=1.18.8
-    @may_fail
     @openvswitch @restart_if_needed
     @NM_reboot_openvswitch_vlan_configuration
     Scenario: NM - openvswitch - reboot
@@ -472,6 +471,53 @@ Feature: nmcli - ovs
     And "192.168.10[0-3].*\/2[2-4]" is visible with command "ip a s iface0"
     And "fe80::" is visible with command "ip a s iface0"
     And "default via 192.168.100.1 dev iface0 proto dhcp metric 800" is visible with command "ip r"
+
+
+    @rhbz2029937
+    @ver+=1.36.0
+    @openvswitch @restart_if_needed
+    @NM_reboot_openvswitch_vlan_configuration_var2
+    Scenario: NM - openvswitch - reboot - var2
+    * Execute "ovs-vsctl add-br ovsbr0"
+    * Add a new connection of type "ovs-bridge" and options "conn.interface ovsbridge0 con-name ovs-bridge0"
+    * Add a new connection of type "ovs-port" and options "conn.interface port0 conn.master ovsbridge0 con-name ovs-port0 ovs-port.tag 120"
+    * Add a new connection of type "ovs-interface" and options
+        """
+        conn.interface iface0 conn.master port0
+        con-name ovs-iface0
+        ipv4.method static ipv4.address 192.168.99.1/24
+        ipv6.method static ipv6.address 2014:99::1/64
+        """
+
+    * Add a new connection of type "ovs-bridge" and options "conn.interface ovsbridge1 con-name ovs-bridge1"
+    * Add a new connection of type "ovs-port" and options "conn.interface port1 conn.master ovsbridge1 con-name ovs-port1 ovs-port.tag 110"
+    * Add a new connection of type "ovs-interface" and options
+        """
+        conn.interface iface1 conn.master port1
+        con-name ovs-iface1
+        ipv4.method static ipv4.address 192.168.99.2/24
+        ipv6.method static ipv6.address 2014:99::2/64
+        """
+    * Reboot
+    When "ovsbr0" is visible with command "ovs-vsctl show" in "5" seconds
+    When "ovsbridge0" is visible with command "ovs-vsctl show" in "5" seconds
+    When "ovsbridge1" is visible with command "ovs-vsctl show" in "5" seconds
+    * Reboot
+    When "ovsbr0" is visible with command "ovs-vsctl show" in "5" seconds
+    When "ovsbridge0" is visible with command "ovs-vsctl show" in "5" seconds
+    When "ovsbridge1" is visible with command "ovs-vsctl show" in "5" seconds
+    * Reboot
+    When "ovsbr0" is visible with command "ovs-vsctl show" in "5" seconds
+    When "ovsbridge0" is visible with command "ovs-vsctl show" in "5" seconds
+    When "ovsbridge1" is visible with command "ovs-vsctl show" in "5" seconds
+    * Reboot
+    When "ovsbr0" is visible with command "ovs-vsctl show" in "5" seconds
+    When "ovsbridge0" is visible with command "ovs-vsctl show" in "5" seconds
+    When "ovsbridge1" is visible with command "ovs-vsctl show" in "5" seconds
+    * Reboot
+    When "ovsbr0" is visible with command "ovs-vsctl show" in "5" seconds
+    When "ovsbridge0" is visible with command "ovs-vsctl show" in "5" seconds
+    When "ovsbridge1" is visible with command "ovs-vsctl show" in "5" seconds
 
 
     @rhbz1740557 @rhbz1852612 @rhbz1855563
@@ -755,7 +801,7 @@ Feature: nmcli - ovs
      And "Port [\"]?ovsbr0[\"]?\s+Interface [\"]?ovsbr0[\"]?\s+type: internal" is visible with command "ovs-vsctl show"
 
 
-    @rhbz1923248
+    @rhbz1923248 @1935026
     @ver+=1.29 @rhelver+=8
     @nmstate  @openvswitch
     @ovs_nmstate
@@ -764,9 +810,31 @@ Feature: nmcli - ovs
     # environment with 5 veth pairs and two namespaces and doing bond and
     # bridge operation inside OVS on top of that via nmstate.
     # Running 3 times just to be sure.
-    Then Execute "sh contrib/reproducers/repro_1923248.sh"
-    Then Execute "sh contrib/reproducers/repro_1923248.sh"
-    Then Execute "sh contrib/reproducers/repro_1923248.sh"
+    When Execute "sh contrib/reproducers/repro_1923248.sh setup"
+    Then "Bridge [\"]?ovs-br0[\"]?" is visible with command "ovs-vsctl show"
+     And "Port .*veth0r[\"]?\s+Interface [\"]?veth0r[\"]?\s+type: system" is visible with command "ovs-vsctl show"
+     And "Port .*veth1c[\"]?\s+Interface [\"]?veth1c[\"]?\s+type: system" is visible with command "ovs-vsctl show"
+     And "Port .*ovs1[\"]?\s+Interface [\"]?ovs1[\"]?\s+type: internal" is visible with command "ovs-vsctl show"
+     And "Port .*veth0c[\"]?\s+Interface [\"]?veth0c[\"]?\s+type: system" is visible with command "ovs-vsctl show"
+    When Execute "sh contrib/reproducers/repro_1923248.sh clean"
+    Then "Bridge [\"]?ovs-br0[\"]?" is not visible with command "ovs-vsctl show"
+     And "Port .*veth0r[\"]?\s+Interface [\"]?veth0r[\"]?\s+type: system" is not visible with command "ovs-vsctl show"
+     And "Port .*veth1c[\"]?\s+Interface [\"]?veth1c[\"]?\s+type: system" is not visible with command "ovs-vsctl show"
+     And "Port .*ovs1[\"]?\s+Interface [\"]?ovs1[\"]?\s+type: internal" is not visible with command "ovs-vsctl show"
+     And "Port .*veth0c[\"]?\s+Interface [\"]?veth0c[\"]?\s+type: system" is not visible with command "ovs-vsctl show"
+    When Execute "sh contrib/reproducers/repro_1923248.sh setup"
+    Then "Bridge [\"]?ovs-br0[\"]?" is visible with command "ovs-vsctl show"
+     And "Port .*veth0r[\"]?\s+Interface [\"]?veth0r[\"]?\s+type: system" is visible with command "ovs-vsctl show"
+     And "Port .*veth1c[\"]?\s+Interface [\"]?veth1c[\"]?\s+type: system" is visible with command "ovs-vsctl show"
+     And "Port .*ovs1[\"]?\s+Interface [\"]?ovs1[\"]?\s+type: internal" is visible with command "ovs-vsctl show"
+     And "Port .*veth0c[\"]?\s+Interface [\"]?veth0c[\"]?\s+type: system" is visible with command "ovs-vsctl show"
+    When Execute "sh contrib/reproducers/repro_1923248.sh clean"
+    Then "Bridge [\"]?ovs-br0[\"]?" is not visible with command "ovs-vsctl show"
+     And "Port .*veth0r[\"]?\s+Interface [\"]?veth0r[\"]?\s+type: system" is not visible with command "ovs-vsctl show"
+     And "Port .*veth1c[\"]?\s+Interface [\"]?veth1c[\"]?\s+type: system" is not visible with command "ovs-vsctl show"
+     And "Port .*ovs1[\"]?\s+Interface [\"]?ovs1[\"]?\s+type: internal" is not visible with command "ovs-vsctl show"
+     And "Port .*veth0c[\"]?\s+Interface [\"]?veth0c[\"]?\s+type: system" is not visible with command "ovs-vsctl show"
+
 
 
     @rhbz1921107

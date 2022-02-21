@@ -1651,7 +1651,7 @@ def openvswitch_as(ctx, scen):
     ctx.run('sudo ifdown eth1')
     ctx.run('sudo ifdown eth2')
     ctx.run('sudo ifdown ovsbridge0')
-    ctx.run('sudo nmcli con del eth1 eth2 ovs-bond0 ovs-port0 ovs-patch0 ovs-patch1 ovs-bridge1 ovs-bridge0 ovs-port1 ovs-eth2 ovs-eth3 ovs-iface0 eth2 dpdk-sriov c-ovs-br0 c-ovs-port0 c-ovs-iface0 ovs-testX ovs1-if ovs-br0-br')  # to be sure
+    ctx.run('sudo nmcli con del eth1 eth2 ovs-bond0 ovs-port0 ovs-patch0 ovs-patch1 ovs-bridge1 ovs-bridge0 ovs-port1 ovs-eth2 ovs-eth3 ovs-iface0 ovs-iface1 eth2 dpdk-sriov c-ovs-br0 c-ovs-port0 c-ovs-iface0 ovs-testX ovs1-if ovs-br0-br || true')  # to be sure
     time.sleep(1)
     ctx.run('ovs-vsctl del-br ovsbr0')
     ctx.run('ovs-vsctl del-br ovs-br0')
@@ -1812,7 +1812,11 @@ def nmstate_bs(ctx, scen):
     ctx.run("yum -y install nmstate")
 
 
-_register_tag("nmstate", nmstate_bs, None)
+def nmstate_as(ctx, scen):
+    ctx.run("sh contrib/reproducers/repro_1923248.sh clean")
+
+
+_register_tag("nmstate", nmstate_bs, nmstate_as)
 
 
 def nmstate_upstream_setup_bs(ctx, scen):
