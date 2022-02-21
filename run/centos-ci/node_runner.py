@@ -31,6 +31,7 @@ class Machine:
         self.rpms_dir = "../rpms/"
         self.results_internal = "/tmp/results/"
         self.build_dir = "/root/nm-build/"
+        self.runtest_log = f"../runtest.m{self.id}.log"
         self.artifact_dir = "../"
         self.rpms_build_dir = (
             f"{self.build_dir}/NetworkManager/contrib/fedora/rpm/*/RPMS/*/"
@@ -317,7 +318,7 @@ class Machine:
         # command after redirection operators ('|', '>', '&&') execute on jenkins machine,
         # unless escaped as "echo \\> file', so runtest.log and journal are saved to jenkins directly
         ret = self.ssh(
-            f"cd NetworkManager-ci\\; MACHINE_ID={self.id} bash -x run/centos-ci/scripts/runtest.sh {tests} &> ../runtest.m{self.id}.log",
+            f"cd NetworkManager-ci\\; MACHINE_ID={self.id} bash -x run/centos-ci/scripts/runtest.sh {tests} &> {self.runtest_log}",
             check=False,
         )
         self.ssh(
@@ -600,6 +601,8 @@ class Runner:
 
         failed_tests = failed_tests.strip(" ")
         self.failed_tests = failed_tests.split(" ")
+        if "" in self.failed_tests:
+            self.failed_tests.remove("")
         if failed_tests:
             self._gitlab_message += f"\n\nFailed tests: {failed_tests}"
 
@@ -856,6 +859,11 @@ class Runner:
         for m in self.machines:
             # m._run is short for subprocess.run()
             m._run(f"mv {m.results}/*.html {self.results_common}")
+
+        for m in self.machines:
+            with open(m.runtest_log, errors="ignore") as f:
+                logging.debug(f"runtest.log of machine #{m.id}:")
+                print(f.read())
 
         # this also computes exit_code
         self._generate_gitlab_message()

@@ -53,15 +53,7 @@ node('cico-workspace') {
             sh """
               set +x
               cd NetworkManager-ci
-              (${run} ; echo \$? > exit_code ) || true
-              for file in ../results_*/runtest.log; do
-                  [ -f \$file ] || continue
-                  machine=\${file%/*}
-                  machine=\${machine#_*}
-                  echo 'Test Output for machine #'\$machine:
-                  cat \$file
-              done
-              exit \$(cat exit_code)
+              ${run}
             """
         }
     }
