@@ -11,14 +11,36 @@ REMOTE_JOURNAL = "--root=" + REMOTE_JOURNAL_DIR
 REMOTE_CRASH_DIR = "/var/dracut_test/client_dumps/"
 
 
+def get_dracut_vm_state(mount=True):
+    cmd = "cd contrib/dracut/; . ./setup.sh; "
+    if mount:
+        cmd += "mount -o ro $DEV_LOG $TESTDIR/client_log/var/log/; "
+    cmd += "cat $TESTDIR/client_log/var/log/vm_state; "
+    if mount:
+        cmd += "umount $DEV_LOG"
+    return nmci.run(cmd)[0].strip("\n")
+
+
+def handle_timeout(proc, timeout):
+    res = proc.expect([pexpect.EOF, pexpect.TIMEOUT], timeout=timeout/2)
+    if res == 0:
+        return True
+    vm_state = get_dracut_vm_state()
+    print("vmstate is " + vm_state)
+    if vm_state == "NOBOOT":
+        print(f"VM did not enter the switchroot phase in half of the timeout ({timeout/2})")
+        return False
+    res = proc.expect([pexpect.EOF, pexpect.TIMEOUT], timeout=timeout/2)
+    return res == 0
+
+
 def embed_dracut_logs(context):
     context.run("cd contrib/dracut/; . ./setup.sh; "
                 "mount $DEV_DUMPS $TESTDIR/client_dumps; "
                 "mount $DEV_LOG $TESTDIR/client_log/var/log/; "
                 )
 
-    context.dracut_vm_state, _, _ = context.run(
-        "cd contrib/dracut/; . ./setup.sh; cat $TESTDIR/client_log/var/log/vm_state")
+    context.dracut_vm_state = get_dracut_vm_state(mount=False)
 
     nmci.lib.embed_file_if_exists(context, "/tmp/dracut_boot.log", caption="Dracut boot", fail_only=True)
     if not context.dracut_vm_state.startswith("NO"):
@@ -27,6 +49,8 @@ def embed_dracut_logs(context):
         nmci.lib.embed_service_log(context, "*", "Dracut Journal", journal_arg=REMOTE_JOURNAL, fail_only=False)
 
     check_core_dumps(context)
+
+    context.run("cd contrib/dracut/; . ./setup.sh; umount $DEV_DUMPS; umount $DEV_LOG;")
 
 
 def get_backtrace(context, filename):
@@ -65,7 +89,6 @@ def check_core_dumps(context):
     assert not other_crash, "Crash in inird detected"
 
 
-
 def prepare_dracut(context, checks):
     context.run(
         "cd contrib/dracut/; . ./setup.sh; "
@@ -95,7 +118,7 @@ def dracut_run(context):
         kernel_args += kernel_arch_args[arch]
     initrd = "initramfs.client.NM"
     checks = ""
-    timeout = "8m"
+    timeout = "4m"
     ram = "1200"
     for row in context.table:
         if "qemu" in row[0].lower():
@@ -120,9 +143,9 @@ def dracut_run(context):
     os.environ["TIMEOUT"] = timeout
 
     if timeout.endswith("m"):
-        p_timeout = int(timeout.strip("m")) * 60 + 10
+        p_timeout = int(timeout.strip("m")) * 60
     else:
-        p_timeout = int(timeout) + 10
+        p_timeout = int(timeout)
 
     proc = context.pexpect_spawn(
         os.getcwd() + "/contrib/dracut/run-qemu",
@@ -133,8 +156,9 @@ def dracut_run(context):
         ],
         cwd="./contrib/dracut/",
         timeout=p_timeout)
-    res = proc.expect([pexpect.EOF, pexpect.TIMEOUT])
-    proc.kill(9)
+    if not handle_timeout(proc, p_timeout):
+        proc.kill(15)
+    res = proc.expect([pexpect.EOF, pexpect.TIMEOUT], timeout=5)
     rc = proc.exitstatus
 
     embed_dracut_logs(context)

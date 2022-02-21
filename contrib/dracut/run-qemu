@@ -94,10 +94,10 @@ echo -kernel $VMLINUZ
 i=0
 while (( i++ < REP)); do
   date1=$(date '+%s')
-  timeout $TIMEOUT $BIN "${ARGS[@]}" -kernel $VMLINUZ < /dev/null > /tmp/dracut_boot.log; rc=$?
+  $BIN "${ARGS[@]}" -kernel $VMLINUZ < /dev/null > /tmp/dracut_boot.log; rc=$?
   date2=$(date '+%s')
 
-  # if qemu-kvm lasted at least 10s, finish
+  # if qemu-kvm lasted at least 5s, finish
   (( date2 - date1 > THRESHOLD )) && exit $rc
 
   # else try again
