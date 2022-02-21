@@ -801,7 +801,7 @@ Feature: nmcli - ovs
      And "Port [\"]?ovsbr0[\"]?\s+Interface [\"]?ovsbr0[\"]?\s+type: internal" is visible with command "ovs-vsctl show"
 
 
-    @rhbz1923248 @1935026
+    @rhbz1923248 @rhbz1935026
     @ver+=1.29 @rhelver+=8
     @nmstate  @openvswitch
     @ovs_nmstate
