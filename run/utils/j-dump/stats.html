@@ -274,7 +274,7 @@
               build.date = build_date(build);
               build.duration = build_duration(build);
               builds[project.project].push(build);
-              process_failures(build, state);
+              process_failures(build);
             });
             failures[project.project].forEach(function (f) {f.num = f.builds.length;});
             var build_cmp = cmp("id", 1);
@@ -756,6 +756,34 @@
     $('#s').on("click", do_search);
     $("#x").on("click", function() {replace_search("");});
   });
+
+  // Functions not called directly, but might be handy in browser console
+
+  function non_html_failures() {
+    var non_html_failures = {};
+    projects.forEach(function (project) {
+      var project_failures = failures[project.project];
+      for(var i = 0; i<project_failures.length; i++) {
+        var failure = project_failures[i];
+        failure_builds[project.project][failure.name].forEach(function (build_id) {
+          if (! (("json://" + build_id) in failure.artifact_urls)) {
+            var pr = {};
+            if(non_html_failures.hasOwnProperty(project.project)) {
+              pr = non_html_failures[project.project];
+            }
+            var b = [];
+            if(pr.hasOwnProperty(failure.name)) {
+              b = pr[failure.name];
+            }
+            b.push(build_id);
+            pr[failure.name] = b;
+            non_html_failures[project.project] = pr;
+          }
+        });
+      }
+    });
+    return non_html_failures;
+  }
 
   </script>
 </html>
