@@ -22,7 +22,13 @@ DIR=$(pwd)
 
 . $DIR/run/gsm_hub.sh
 . $DIR/prepare/envsetup.sh
-configure_environment "$1"
+( configure_environment "$1" ) ; conf_rc=$?
+if [ $conf_rc != 0 ]; then
+    if ps aux|grep -v grep| grep -q harness.py; then
+        rstrnt-report-result -o "" $NMTEST FAIL
+    fi
+    exit $conf_rc
+fi
 export_python_command
 
 export COLUMNS=1024
