@@ -1134,8 +1134,6 @@ testmapper:
         tags: gate
     - vlan_preserve_assumed_connection_ips:
         feature: vlan
-    - vlan_create_many_vlans:
-        feature: vlan
     - vlan_mtu_from_parent:
         feature: vlan
         tags: gate
@@ -1167,7 +1165,7 @@ testmapper:
     #    feature: vlan
     - vxlan_do_not_up_if_no_master:
         feature: vlan
-    - vlan_create_500_vlans:
+    - vlan_create_many_vlans:
         feature: vlan
         # Do not lower this if we see timout it's a perf regression
         timeout: 14m

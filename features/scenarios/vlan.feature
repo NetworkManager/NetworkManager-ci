@@ -422,15 +422,6 @@ Feature: nmcli - vlan
      And "inet 30.0.0.1\/24" is visible with command "ip a s vlan"
 
 
-    @rhbz1231526
-    @ver+=1.8.0
-    @many_vlans
-    @vlan_create_many_vlans
-    Scenario: NM - vlan - create 255 vlans
-    * Execute "for i in {1..255}; do ip link add link eth7 name vlan.$i type vlan id $i; ip link set dev vlan.$i up; ip add add 30.0.0.$i/24 dev vlan.$i;done" without waiting for process to finish
-    When "30.0.0.255/24" is visible with command "ip a s vlan.255" in "60" seconds
-
-
     @rhbz1414186
     @ver+=1.6
     @vlan @restart_if_needed
@@ -731,25 +722,26 @@ Feature: nmcli - vlan
     Then "--" is visible with command "nmcli connection  |grep vlan1" for full "2" seconds
 
 
-    @rhbz1933041 @rhbz1926599
+    @rhbz1933041 @rhbz1926599 @rhbz1231526
     @ver+=1.30 @rhelver+=8
-    @logging_info_only @500_vlans @restart_if_needed
-    @vlan_create_500_vlans
-    Scenario: NM - vlan - create 500 vlans
+    @logging_info_only @many_vlans @restart_if_needed
+    @vlan_create_many_vlans
+    Scenario: NM - vlan - create 500 (x86_64) or 200 (aarch64, s390x...) vlans
     # Prepare veth pair with the other end in namespace
     # Create 500 (from 10 to 510) vlans on top of eth11p
     # Run dnsmasq inside the namespace to server incoming connections
-    * Execute "sh prepare/vlans.sh setup 500"
+    * Execute "sh prepare/vlans.sh setup $N_VLANS"
     # Create 501 profiles which should be autoconnected after a while
-    * Execute "for i in $(seq 10 510); do nmcli con add type vlan con-name eth11.$i id $i dev eth11 ipv4.may-fail no ipv6.method disable; done"
+    * Execute "for i in $(seq 10 $((N_VLANS + 10))); do nmcli con add type vlan con-name eth11.$i id $i dev eth11 ipv4.may-fail no ipv6.method disable; done"
    # Wait till we have "all" addresses assigned
-    Then "501" is visible with command "nmcli  device |grep eth11 |grep ' connected'| wc -l" in "500" seconds
+    * Note the output of "echo $((N_VLANS + 1))"
+    Then Noted value is visible with command "nmcli  device |grep eth11 |grep ' connected'| wc -l" in "500" seconds
     # Simulate reboot and delete all devices
     * Stop NM
-    * Execute "for i in $(seq 10 510); do ip link del eth11.$i; done"
+    * Execute "for i in $(seq 10 $((N_VLANS + 10))); do ip link del eth11.$i; done"
     * Reboot
     # Wait till we have "all" addresses assigned again
-    Then "501" is visible with command "nmcli  device |grep eth11 |grep ' connected'| wc -l" in "500" seconds
+    Then Noted value is visible with command "nmcli  device |grep eth11 |grep ' connected'| wc -l" in "500" seconds
     # Then Execute "nmcli  device |grep eth11 > /tmp/eth11s"
 
 

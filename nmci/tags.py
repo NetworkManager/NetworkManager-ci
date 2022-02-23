@@ -277,19 +277,20 @@ def tag1000_as(ctx, scen):
 _register_tag("1000", tag1000_bs, tag1000_as)
 
 
-def tag500_vlans_bs(ctx, scen):
+def many_vlans_bs(ctx, scen):
     nmci.lib.manage_veths(ctx)
     ctx.run("sh prepare/vlans.sh clean")
+    os.environ['N_VLANS'] = 500 if ctx.arch == 'x86_64' else 200
     # We need NM to sanitize itself a bit
     time.sleep(20)
 
 
-def tag500_vlans_as(ctx, scen):
+def many_vlans_as(ctx, scen):
     ctx.run("sh prepare/vlans.sh clean")
     nmci.lib.unmanage_veths(ctx)
 
 
-_register_tag("500_vlans", tag500_vlans_bs, tag500_vlans_as)
+_register_tag("500_vlans", many_vlans_bs, many_vlans_as)
 
 
 def remove_vlan_range(ctx, scen):
@@ -2133,13 +2134,6 @@ def vlan_as(ctx, scen):
 
 
 _register_tag("vlan", None, vlan_as)
-
-
-def many_vlans_as(ctx, scen):
-    ctx.run("for i in {1..255}; do ip link del vlan.$i;done")
-
-
-_register_tag("many_vlans", None, many_vlans_as)
 
 
 def bond_as(ctx, scen):
