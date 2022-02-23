@@ -280,7 +280,7 @@ _register_tag("1000", tag1000_bs, tag1000_as)
 def many_vlans_bs(ctx, scen):
     nmci.lib.manage_veths(ctx)
     ctx.run("sh prepare/vlans.sh clean")
-    os.environ['N_VLANS'] = 500 if ctx.arch == 'x86_64' else 200
+    os.environ['N_VLANS'] = '500' if ctx.arch == 'x86_64' else '200'
     # We need NM to sanitize itself a bit
     time.sleep(20)
 
