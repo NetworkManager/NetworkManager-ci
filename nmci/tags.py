@@ -5,6 +5,7 @@ import nmci
 import subprocess
 import time
 import re
+import shutil
 
 import nmci.ip
 import nmci.lib
@@ -2884,3 +2885,35 @@ def custom_ns_as(ctx, scen):
 
 
 _register_tag("custom_ns", None, custom_ns_as)
+
+
+def tag8021x_doc_procedure_bs(ctx, scen):
+    ctx.command_output('yum -y install hostapd freeradius')
+    if not os.path.isdir('/etc/raddb'):
+        ctx.run('yum -y reinstall freeradius', check=True)
+    if not os.path.isdir('/etc/hostapd'):
+        ctx.run('yum -y reinstall hostapd', check=True)
+    if os.path.exists('/tmp/8021x_doc_proc'):
+        try:
+            shutil.rmtree('/tmp/8021x_doc_proc')
+        except NotADirectoryError:
+            os.remove('/tmp/8021x_doc_proc')
+    os.mkdir('/tmp/8021x_doc_proc')
+    for dir in ('raddb', 'hostapd'):
+        etc = f'/etc/{dir}'
+        tmp = f'/tmp/8021x_doc_proc/{dir}'
+        shutil.move(etc, tmp)
+        shutil.copytree(tmp, etc)
+
+
+
+def tag8021x_doc_procedure_as(ctx, scen):
+    for dir in ('raddb', 'hostapd'):
+        shutil.rmtree(f'/etc/{dir}')
+        shutil.move(f'/tmp/8021x_doc_proc/{dir}', f'/etc/{dir}')
+    os.rmdir('/tmp/8021x_doc_proc')
+    ctx.run('restorecon -FR /etc/hostapd /etc/raddb')
+    ctx.run('systemctl disable --now hostapd.service radiusd.service')
+
+
+_register_tag('8021x_doc_procedure', tag8021x_doc_procedure_bs, tag8021x_doc_procedure_as)
