@@ -290,7 +290,7 @@ def many_vlans_as(ctx, scen):
     nmci.lib.unmanage_veths(ctx)
 
 
-_register_tag("500_vlans", many_vlans_bs, many_vlans_as)
+_register_tag("many_vlans", many_vlans_bs, many_vlans_as)
 
 
 def remove_vlan_range(ctx, scen):
