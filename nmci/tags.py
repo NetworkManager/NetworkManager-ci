@@ -2904,15 +2904,31 @@ def tag8021x_doc_procedure_bs(ctx, scen):
         tmp = f'/tmp/8021x_doc_proc/{dir}'
         shutil.move(etc, tmp)
         shutil.copytree(tmp, etc)
-
+    os.mkdir('/tmp/8021x_doc_proc/private')
+    os.mkdir('/tmp/8021x_doc_proc/certs')
+    for file in ('private/client.key', 'certs/client.pem', 'certs/ca.pem'):
+        etc = f'/etc/pki/tls/{file}'
+        tmp = f'/tmp/8021x_doc_proc/{file}'
+        if os.path.exists(etc):
+            if os.path.exists(tmp):
+                os.remove(tmp)
+            shutil.move(etc, tmp)
 
 
 def tag8021x_doc_procedure_as(ctx, scen):
     for dir in ('raddb', 'hostapd'):
         shutil.rmtree(f'/etc/{dir}')
         shutil.move(f'/tmp/8021x_doc_proc/{dir}', f'/etc/{dir}')
-    os.rmdir('/tmp/8021x_doc_proc')
-    ctx.run('restorecon -FR /etc/hostapd /etc/raddb')
+    for file in ('private/client.key', 'certs/client.pem', 'certs/ca.pem'):
+        etc = f'/etc/pki/tls/{file}'
+        tmp = f'/tmp/8021x_doc_proc/{file}'
+        if os.path.exists(tmp):
+            if os.path.exists(etc):
+                os.remove(etc)
+            shutil.move(tmp, etc)
+    for dir in ('/private', '/certs', ''):
+        os.rmdir(f'/tmp/8021x_doc_proc{dir}')
+    ctx.run('restorecon -FR /etc/hostapd /etc/raddb /etc/pki/tls')
     ctx.run('systemctl disable --now hostapd.service radiusd.service')
 
 

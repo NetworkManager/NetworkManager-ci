@@ -252,7 +252,7 @@ Feature: nmcli - procedures in documentation
     Then "master br4 permanent" is visible with command "bridge fdb show dev vxlan10"
 
 
-    @bridge
+    @bridge @dummy @kill_children
     @8021x_doc_procedure
     @8021x_using_hostapd_with_freeradius_doc_procedure
     Scenario: docs - Setting up an 802.1x network authentication service for LAN clients using hostapd with FreeRADIUS backend
@@ -268,49 +268,53 @@ Feature: nmcli - procedures in documentation
     ### 3. Creating a set of certificates on a FreeRADIUS server for testing purposes
     * Execute "cp contrib/8021x/certs/server/hostapd.dh.pem /etc/raddb/certs/dh"
     * Execute "cd /etc/raddb/certs ; make all"
+    * Execute "cp /etc/raddb/certs/client.key /etc/pki/tls/private/"
+    * Execute "cp /etc/raddb/certs/{ca,client}.pem /etc/pki/tls/certs"
+    * Execute "chmod a+r /etc/pki/tls/{certs/{client,ca}.pem,private/client.key}"
     ### 4. Configuring FreeRADIUS to authenticate network clients securely using EAP
     * Execute "chmod 640 /etc/raddb/certs/server.key /etc/raddb/certs/server.pem /etc/raddb/certs/ca.pem /etc/raddb/certs/dh"
     * Execute "chown root:radiusd /etc/raddb/certs/server.key /etc/raddb/certs/server.pem /etc/raddb/certs/ca.pem /etc/raddb/certs/dh"
     # FIXME just debug
-    * Execute "for file in /etc/raddb/certs/server.{pem,key}; do echo ${file}: ; cat ${file} ; done"
+    * Execute "for file in /etc/raddb/certs/{ca.pem,server.{pem,key}}; do echo ${file}: ; cat ${file} ; done"
     * Execute "sed -i 's/\([ \t]*default_eap_type = \)md5/\1ttls/' /etc/raddb/mods-available/eap"
     * Execute "sed -i '/^[^#]*md5 {/,+1 s/^/#/' /etc/raddb/mods-available/eap"
-    * Execute "sed -i '/^[^#]*[ \t]Auth-Type/,+2 s/^/#/' /etc/raddb/sites-available/default"
+    * Execute "sed -i '/^[^#]*[ \t]Auth-Type [^P][^A][^P]/,+2 s/^/#/' /etc/raddb/sites-available/default"
     * Execute "sed -i '/^[^#]*\(mschap\|digest\)/ s/^/#/' /etc/raddb/sites-available/default"
     # !!! start additions to the doc procedure
     * Execute "chgrp radiusd /etc/raddb/certs"
     * Execute "chgrp -R radiusd /etc/raddb/mods-config"
-    * Execute "ln -s ../sites-available/{default,inner-tunnel} /etc/raddb/sites-enabled/"
-    * Execute "ln -s ../mods-available/{eap,chap,always,preprocess,realm,files,expiration,logintime,pap,mschap,digest,detail,unix,exec,attr_filter,radutmp,expr} /etc/raddb/mods-enabled/"
+    #* Execute "sed -i '/^[ \t]*default_eap_type/ s/= mschapv2/= ttls/' /etc/raddb/mods-available/eap"
+    * Execute "sed -i '/^[ \t]*peap {/,+76 s/^/#/' /etc/raddb/mods-available/eap"
+    * Execute "sed -i '/^[ \t]*mschapv2 {/,+27 s/^/#/' /etc/raddb/mods-available/eap"
+    * Execute "ln -s ../sites-available/default /etc/raddb/sites-enabled/"
+    * Execute "ln -s ../mods-available/{eap,chap,always,preprocess,realm,files,expiration,logintime,pap,digest,detail,unix,exec,attr_filter,radutmp,expr} /etc/raddb/mods-enabled/"
     # !!! end additions
     * Execute "sed -i '1 i\example_user        Cleartext-Password := \"test_password\"' /etc/raddb/users"
+    * Execute "cat /etc/raddb/users"
     Then Execute "radiusd -XC"
     # !!! tested up to here, the rest is just blindly copied doc
-     And Execute "systemctl enable --now radiusd"
-     And Execute "systemctl stop radiusd"
-     And Execute "radius -X"
+    * Execute "systemctl enable --now radiusd"
+    * Execute "systemctl stop radiusd"
+    Then Run child "radiusd -X" without shell
     ### .5 Configuring hostapd as an authenticator in a wired network
-    # !!! TODO: ensure correct bridge is used
     * Execute "cp contrib/8021x/doc_procedures/hostapd.conf /etc/hostapd/hostapd.conf"
     Then Execute "systemctl enable --now hostapd"
     ## .6 Testing EAP-TTLS authentication against a FreeRADIUS server or authenticator
-    # !!! certs/keys need to be copied to /etc/pki/ and then cleaned up by the scenario tag
     * Execute "cp contrib/8021x/doc_procedures/wpa_supplicant-TTLS.conf /etc/wpa_supplicant/wpa_supplicant-TTLS.conf"
-    ### needs to fix device names and IPs
-    Then Note the output of "eapol_test -c /etc/wpa_supplicant/wpa_supplicant-TTLS.conf -a 192.0.2.1 -s client_password"
+    Then Note the output of "eapol_test -c /etc/wpa_supplicant/wpa_supplicant-TTLS.conf -s testing123"
      And Noted value contains "EAP: Status notification: remote certificate verification (param=success)"
      And Noted value contains "CTRL-EVENT-EAP-SUCCESS EAP authentication completed successfully"
      And Noted value contains "SUCCESS"
     Then "CTRL-EVENT-EAP-SUCCESS EAP authentication completed successfully" is visible with command "wpa_supplicant -c /etc/wpa_supplicant/wpa_supplicant-TTLS.conf -D wired -i test1"
-    ### TODO: test connection using NM
     ## .7 Testing EAP-TLS authentication against a FreeRADIUS server or authenticator
     ## same about ifaces and IPs as previous chapter
     * Execute "cp contrib/8021x/doc_procedures/wpa_supplicant-TLS.conf /etc/wpa_supplicant/wpa_supplicant-TLS.conf"
-    Then Note the output of "eapol_test -c /etc/wpa_supplicant/wpa_supplicant-TLS.conf -a 192.0.2.1 -s client_password"
+    Then Note the output of "eapol_test -c /etc/wpa_supplicant/wpa_supplicant-TLS.conf -a 127.0.0.1 -s testing123"
      And Noted value contains "EAP: Status notification: remote certificate verification (param=success)"
      And Noted value contains "CTRL-EVENT-EAP-SUCCESS EAP authentication completed successfully"
      And Noted value contains "SUCCESS"
     Then "CTRL-EVENT-EAP-SUCCESS EAP authentication completed successfully" is visible with command "wpa_supplicant -c /etc/wpa_supplicant/wpa_supplicant-TLS.conf -D wired -i test1"
+    ### TODO: test connection using NM
     ## .8. Blocking and allowing traffic based on hostapd authentication events
     * Execute "mkdir -p /usr/local/bin"
     * Execute "cp contrib/8021x/doc_procedures/802-1x-tr-mgmt /usr/local/bin/802-1x-tr-mgmt"
