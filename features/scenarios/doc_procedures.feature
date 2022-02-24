@@ -274,20 +274,15 @@ Feature: nmcli - procedures in documentation
     ### 4. Configuring FreeRADIUS to authenticate network clients securely using EAP
     * Execute "chmod 640 /etc/raddb/certs/server.key /etc/raddb/certs/server.pem /etc/raddb/certs/ca.pem /etc/raddb/certs/dh"
     * Execute "chown root:radiusd /etc/raddb/certs/server.key /etc/raddb/certs/server.pem /etc/raddb/certs/ca.pem /etc/raddb/certs/dh"
-    # FIXME just debug
-    * Execute "for file in /etc/raddb/certs/{ca.pem,server.{pem,key}}; do echo ${file}: ; cat ${file} ; done"
     * Execute "sed -i 's/\([ \t]*default_eap_type = \)md5/\1ttls/' /etc/raddb/mods-available/eap"
     * Execute "sed -i '/^[^#]*md5 {/,+1 s/^/#/' /etc/raddb/mods-available/eap"
-    * Execute "sed -i '/^[^#]*[ \t]Auth-Type [^P][^A][^P]/,+2 s/^/#/' /etc/raddb/sites-available/default"
+    * Execute "sed -i '/^[^#]*[ \t]Auth-Type PAP/,+2 s/^/#/' /etc/raddb/sites-available/default"
+    * Execute "sed -i '/^[^#]*[ \t]Auth-Type CHAP/,+2 s/^/#/' /etc/raddb/sites-available/default"
+    * Execute "sed -i '/^[^#]*[ \t]Auth-Type MS-CHAP/,+2 s/^/#/' /etc/raddb/sites-available/default"
     * Execute "sed -i '/^[^#]*\(mschap\|digest\)/ s/^/#/' /etc/raddb/sites-available/default"
     # !!! start additions to the doc procedure
     * Execute "chgrp radiusd /etc/raddb/certs"
     * Execute "chgrp -R radiusd /etc/raddb/mods-config"
-    #* Execute "sed -i '/^[ \t]*default_eap_type/ s/= mschapv2/= ttls/' /etc/raddb/mods-available/eap"
-    * Execute "sed -i '/^[ \t]*peap {/,+76 s/^/#/' /etc/raddb/mods-available/eap"
-    * Execute "sed -i '/^[ \t]*mschapv2 {/,+27 s/^/#/' /etc/raddb/mods-available/eap"
-    * Execute "ln -s ../sites-available/default /etc/raddb/sites-enabled/"
-    * Execute "ln -s ../mods-available/{eap,chap,always,preprocess,realm,files,expiration,logintime,pap,digest,detail,unix,exec,attr_filter,radutmp,expr} /etc/raddb/mods-enabled/"
     # !!! end additions
     * Execute "sed -i '1 i\example_user        Cleartext-Password := \"test_password\"' /etc/raddb/users"
     * Execute "cat /etc/raddb/users"

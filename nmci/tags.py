@@ -2889,8 +2889,11 @@ _register_tag("custom_ns", None, custom_ns_as)
 
 def tag8021x_doc_procedure_bs(ctx, scen):
     ctx.command_output('yum -y install hostapd freeradius')
-    if not os.path.isdir('/etc/raddb'):
-        ctx.run('yum -y reinstall freeradius', check=True)
+    if not os.path.exists('/etc/raddb/sites-enabled/default'):
+        ctx.run('yum -y remove freeradius', check=True)
+        if os.path.exists('/etc/raddb'):
+            shutil.rmtree('/etc/raddb')
+        ctx.run('yum -y install freeradius', check=True)
     if not os.path.isdir('/etc/hostapd'):
         ctx.run('yum -y reinstall hostapd', check=True)
     if os.path.exists('/tmp/8021x_doc_proc'):
