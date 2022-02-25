@@ -426,12 +426,23 @@ def prepare_gsm(context, modem="modemu"):
     assert subprocess.call(f"sudo bash {NM_CI_RUNNER_CMD} "
                            f"prepare/gsm_sim.sh {modem} &> /tmp/gsm_sim.log",
                            shell=True) == 0, "gsm_sim setup failed !!!"
+    modem_found = False
     for i in range(20):
         out = subprocess.check_output(["mmcli", "-L"], stderr=subprocess.STDOUT).decode("utf-8")
         if "No modems were found" not in out:
-            return
+            modem_found = True
+            break
         sleep(1)
-    assert False, "No modems were found using `mmcli -L' in 20 seconds"
+    assert modem_found, "No modems were found using `mmcli -L' in 20 seconds"
+    modem_found = False
+    for i in range(20):
+        out = subprocess.check_output(["nmcli", "-g", "device", "device"]).decode("utf-8").split("\n")
+        if modem in out:
+            modem_found = True
+            break
+        sleep(1)
+    assert modem_found, f"Modem '{modem}' was not found using `nmcli -g device device' in 20 seconds"
+
 
 
 @step('Prepare openvpn | version "{version}" | in "{path}"')
