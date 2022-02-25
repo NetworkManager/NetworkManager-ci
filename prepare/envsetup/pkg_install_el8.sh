@@ -29,6 +29,11 @@ install_el8_packages () {
         iproute-tc openvpn gcc coreutils-debuginfo python3-pyyaml \
         --skip-broken
 
+    # openvpn not in s390x repo
+    if [ $(arch) == s390x ] ; then
+        dnf -4 -y install https://kojipkgs.fedoraproject.org//vol/fedora_koji_archive04/packages/openvpn/2.4.9/1.fc30/s390x/openvpn-2.4.9-1.fc30.s390x.rpm
+    fi
+
     install_behave_pytest
 
     # Install vpn dependencies
