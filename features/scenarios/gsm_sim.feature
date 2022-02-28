@@ -74,6 +74,8 @@ Feature: nmcli: gsm
      * Bring "up" connection "gsm"
     Then "GENERAL.STATE:.*activated" is visible with command "nmcli con show gsm" in "60" seconds
      And "default" is visible with command "ip r |grep 700"
+     And "172.31.82.2 peer 172.31.82.1" is visible with command "ip addr show $(nmcli -g general.ip-iface device show modemu)"
+     And "nameserver 172.16.1.1" is visible with command "cat /var/run/NetworkManager/resolv.conf"
 
 
     @ver+=1.12.0

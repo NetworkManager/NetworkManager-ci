@@ -15,7 +15,7 @@ function modem_setup ()
     (
         while true;
         do
-            perl contrib/gsm_sim/gsm_sim.pl $1 &
+            perl contrib/gsm_sim/gsm_sim.pl $1 -- pppd dump debug 172.31.82.1:172.31.82.2 ms-dns 172.16.1.1 &
             # get pid of perl script
             echo $!> /tmp/gsm_sim_perl.pid
             wait
