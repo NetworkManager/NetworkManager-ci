@@ -197,7 +197,7 @@ class Machine:
         self.ssh(f"mkdir -p {self.results_internal}")
         # enable repos
         self.ssh(
-            f"dnf -y install https://dl.fedoraproject.org/pub/epel/epel-release-latest-{self.release_num}.noarch.rpm"
+            f"dnf -y install https://dl.fedoraproject.org/pub/epel/epel{{,-next}}-release-latest-{self.release_num}.noarch.rpm"
         )
         # For some reason names can differ, so enable both powertools
         self.ssh("yum install -y \\'dnf-command\\(config-manager\\)\\'")
