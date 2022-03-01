@@ -1147,6 +1147,7 @@
     * Execute "ip -n testX6_ns link set dev testX6p up"
     * Execute "echo > /tmp/ip6leases.conf"
     * Run child "ip netns exec testX6_ns dhcpd -6 -d -cf contrib/ipv6/dhcpd.conf -lf /tmp/ip6leases.conf" without shell
+    * Configure dhcpv6 prefix delegation server with address configuration mode "dhcp-stateful"
     * Add a new connection of type "ethernet" and options "ifname testX6 con-name con_ipv6 ipv4.method disabled ipv6.method dhcp"
     * Bring "up" connection "con_ipv6"
     # extract T1 and T2 and compare they're shorter than a day (86400 s)
