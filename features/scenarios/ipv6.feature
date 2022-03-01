@@ -691,7 +691,7 @@
 
 
     @rhbz1073824
-    @veth @con_ipv6_remove @restart_if_needed
+    @con_ipv6_remove @restart_if_needed
     @ipv6_take_manually_created_ifcfg
     Scenario: ifcfg - ipv6 - use manually created link-local profile
     * Append "DEVICE='eth10'" to ifcfg file "con_ipv6"
@@ -858,7 +858,7 @@
 
 
     @rhbz1083133 @rhbz1098319 @rhbz1127718
-    @veth @eth3_disconnect
+    @eth3_disconnect
     @ver+=1.11.2 @ver-=1.24
     @ipv6_add_static_address_manually_not_active
     Scenario: NM - ipv6 - add a static address manually to non-active interface
@@ -882,7 +882,7 @@
 
 
     @rhbz1083133 @rhbz1098319 @rhbz1127718 @rhbz1816202
-    @veth @eth3_disconnect
+    @eth3_disconnect
     @ver+=1.25
     @ipv6_add_static_address_manually_not_active
     Scenario: NM - ipv6 - add a static address manually to non-active interface

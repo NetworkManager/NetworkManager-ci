@@ -297,7 +297,7 @@ Feature: nmcli - general
     Then Bring "up" connection "con_general"
 
 
-    @newveth @restart_if_needed
+    @restart_if_needed
     @general_state_disconnected
     Scenario: nmcli - general - state disconnected
     * "disconnect" all " connected" devices
@@ -305,7 +305,7 @@ Feature: nmcli - general
     * Bring up connection "testeth0"
 
 
-    @newveth @networking_on
+    @networking_on
     @general_state_asleep
     Scenario: nmcli - general - state asleep
     * Execute "nmcli networking off"
@@ -318,7 +318,7 @@ Feature: nmcli - general
     Then "running" is visible with command "nmcli -t -f RUNNING general"
 
 
-    @newveth @restart_if_needed
+    @restart_if_needed
     @general_state_not_running
     Scenario: nmcli - general - not running
     * Stop NM
@@ -543,7 +543,6 @@ Feature: nmcli - general
 
 
     @rhbz1113941
-    @newveth
     @nmcli_device_connect_no_profile
     Scenario: nmcli - device - connect - no profile
     * Execute "nmcli connection delete id testeth9"
@@ -565,7 +564,7 @@ Feature: nmcli - general
 
 
     @rhbz1034150
-    @newveth
+    @not_on_veth
     @nmcli_device_attempt_hw_delete
     Scenario: nmcli - device - attempt to delete hw interface
     * "eth9\s+ethernet" is visible with command "nmcli device"
@@ -1131,7 +1130,7 @@ Feature: nmcli - general
 
 
     @rhbz1086906
-    @veth @delete_testeth0 @newveth @con_general_remove @teardown_testveth @restart_if_needed
+    @delete_testeth0 @con_general_remove @teardown_testveth @restart_if_needed
     @wait-online-for-both-ips
     Scenario: NM - general - wait-online - for both ipv4 and ipv6
     * Prepare simulated test "testG" device

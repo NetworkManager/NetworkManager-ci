@@ -220,19 +220,9 @@ Feature: nmcli: connection
      Then "con_con" is visible with command "nmcli -t -f NAME  connection show -a" in "3" seconds
 
 
-    @veth @con_con_remove @restart_if_needed
-    @ver-=1.18.3
-    @connection_autoconnect_yes
-    Scenario: nmcli - connection - set autoconnect on
-    * Add a new connection of type "ethernet" and options "con-name con_con ifname eth6 connection.autoconnect no"
-    * Modify connection "con_con" changing options "connection.autoconnect yes"
-    * Reboot
-    Then "con_con" is visible with command "nmcli -t -f NAME  connection show -a" in "3" seconds
-
-
     @rhbz1715887
     @ver+=1.18.4
-    @veth @con_con_remove @restart_if_needed
+    @con_con_remove @restart_if_needed
     @connection_autoconnect_yes
     Scenario: nmcli - connection - set autoconnect on
      * Add a new connection of type "ethernet" and options "con-name con_con ifname eth6 connection.autoconnect no connection.autoconnect-retries 3"
@@ -421,7 +411,7 @@ Feature: nmcli: connection
 
 
     @rhbz663730
-    @veth @con_con_remove @restart_if_needed
+    @con_con_remove @restart_if_needed
     @profile_priorities
     Scenario: nmcli - connection - profile priorities
      * Add a new connection of type "ethernet" and options "con-name con_con2 ifname eth6 connection.autoconnect-priority 2"

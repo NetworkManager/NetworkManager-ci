@@ -593,7 +593,7 @@
      And Check noted values "old_nm-bond" and "old_nm-bond" are the same
 
 
-    @veth @slaves @bond
+    @slaves @bond
     @bond_start_by_hand_with_one_auto_only
     Scenario: nmcli - bond - start bond by hand with on auto only
      * Add a new connection of type "bond" and options
@@ -610,7 +610,7 @@
      Then Check slave "eth4" in bond "nm-bond" in proc
 
 
-    @veth @slaves @bond @restart_if_needed
+    @slaves @bond @restart_if_needed
     @bond_start_on_boot
     Scenario: nmcli - bond - start bond on boot
      * Add a new connection of type "bond" and options

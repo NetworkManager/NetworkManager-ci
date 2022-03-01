@@ -91,7 +91,7 @@ Feature: nmcli: ipv4
 
 
     @rhbz1073824
-    @veth @con_ipv4_remove @delete_testeth0 @restart_if_needed
+    @con_ipv4_remove @delete_testeth0 @restart_if_needed
     @ipv4_take_manually_created_ifcfg_with_ip
     Scenario: nmcli - ipv4 - use manually created ipv4 profile
     * Append "DEVICE='eth3'" to ifcfg file "con_ipv4"

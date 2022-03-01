@@ -192,18 +192,16 @@ def not_under_internal_DHCP_bs(ctx, scen):
 _register_tag("not_under_internal_DHCP", not_under_internal_DHCP_bs)
 
 
-def newveth_bs(ctx, scen):
-    if os.path.isfile('/tmp/nm_newveth_configured'):
+def not_on_veth_bs(ctx, scen):
+    if os.path.isfile('/tmp/nm_veth_configured'):
         sys.exit(77)
 
 
-_register_tag("newveth", newveth_bs)
-_register_tag("veth", newveth_bs)
-_register_tag("not_on_veth", newveth_bs)
+_register_tag("not_on_veth", not_on_veth_bs, None)
 
 
 def regenerate_veth_as(ctx, scen):
-    if os.path.isfile('/tmp/nm_newveth_configured'):
+    if os.path.isfile('/tmp/nm_veth_configured'):
         nmci.lib.check_vethsetup(ctx)
     else:
         print("up eth1-11 links")
@@ -1829,7 +1827,7 @@ _register_tag("nmstate", nmstate_bs, nmstate_as)
 
 def nmstate_upstream_setup_bs(ctx, scen):
     # Skip on deployments where we do not have veths
-    if not os.path.isfile('/tmp/nm_newveth_configured'):
+    if not os.path.isfile('/tmp/nm_veth_configured'):
         print("Skipping as no vethsetup")
         sys.exit(77)
 

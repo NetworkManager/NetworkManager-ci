@@ -118,7 +118,7 @@ configure_networking () {
 
         cat /tmp/testeth0
 
-        touch /tmp/nm_newveth_configured
+        touch /tmp/nm_veth_configured
 
     else
         # Profiles tuning

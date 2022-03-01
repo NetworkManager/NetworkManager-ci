@@ -133,7 +133,6 @@ Feature: Bridge TUI tests
     Then "bridge0" is not visible with command "ip link show type bridge"
 
 
-    @veth
     @bridge @ifcfg-rh @many_slaves
     @nmtui_bridge_add_many_slaves
     Scenario: nmtui - bridge - add many slaves

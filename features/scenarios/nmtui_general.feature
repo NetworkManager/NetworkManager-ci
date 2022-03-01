@@ -79,9 +79,7 @@ Feature: General TUI tests
     Then "testsethostname" is visible with command "hostname"
 
 
-    @veth
-    @bridge
-    @ethernet
+    @bridge @ethernet
     @nmtui_general_active_connections_display
     Scenario: nmtui - general - active connections display
     * Execute "nmcli con add type ethernet con-name ethernet1 ifname eth1 autoconnect no"

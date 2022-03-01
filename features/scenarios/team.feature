@@ -308,7 +308,7 @@
      And "02:03:03:03:03:03" is visible with command "ip a s nm-team"
 
 
-    @veth @team_slaves @team
+    @team_slaves @team
     @start_team_by_hand_one_auto
     Scenario: nmcli - team - start team by hand with one auto
      * Add connection type "team" named "team0" for device "nm-team"
@@ -325,7 +325,7 @@
     Then Check slave "eth6" in team "nm-team" is "up"
 
 
-    @veth @team_slaves @team @restart_if_needed
+    @team_slaves @team @restart_if_needed
     @start_team_on_boot
     Scenario: nmcli - team - start team on boot
      * Add connection type "team" named "team0" for device "nm-team"
@@ -350,7 +350,7 @@
      And Check slave "eth6" in team "nm-team" is "up"
 
 
-    @veth @team_slaves @team @restart_if_needed
+    @team_slaves @team @restart_if_needed
     @team_start_on_boot_with_nothing_auto
     Scenario: nmcli - team - start team on boot - nothing auto
      * Add connection type "team" named "team0" for device "nm-team"
@@ -377,7 +377,7 @@
 
     #VVV    THIS IS DIFFERENT IN BOND AREA
 
-    @veth @team_slaves @team @restart_if_needed
+    @team_slaves @team @restart_if_needed
     @team_start_on_boot_with_one_auto_only
     Scenario: nmcli - team - start team on boot - one slave auto only
      * Add connection type "team" named "team0" for device "nm-team"
@@ -403,7 +403,7 @@
      And Check slave "eth5" in team "nm-team" is "down"
 
 
-    @veth @team_slaves @team @restart_if_needed
+    @team_slaves @team @restart_if_needed
     @team_start_on_boot_with_team_and_one_slave_auto
     Scenario: nmcli - team - start team on boot - team and one slave auto
      * Add connection type "team" named "team0" for device "nm-team"
@@ -675,7 +675,7 @@
 
 
     @rhbz1183444
-    @veth @team @team_br_remove
+    @team @team_br_remove
     @team_enslave_to_bridge
     Scenario: nmcli - team - enslave team device to bridge
      * Add a new connection of type "team" and options "con-name team0 autoconnect no ifname nm-team"

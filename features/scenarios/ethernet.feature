@@ -38,7 +38,7 @@ Feature: nmcli - ethernet
     Then Check ifcfg-name file created for connection "ethernet"
 
 
-    @ethernet @veth
+    @ethernet
     @ethernet_create_ifname_generic_connection
     Scenario: nmcli - ethernet - create ifname generic connection
     * Add a new connection of type "ethernet" and options "ifname '*' con-name ethos autoconnect no"

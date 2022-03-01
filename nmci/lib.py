@@ -388,7 +388,7 @@ def dump_status(context, when, fail_only=False):
         cmd_out, _, _ = nmci.run(cmd)
         msg += cmd_out
     if nm_running:
-        if os.path.isfile("/tmp/nm_newveth_configured"):
+        if os.path.isfile("/tmp/nm_veth_configured"):
             msg += "\nVeth setup network namespace and DHCP server state:\n"
             for cmd in [
                 "ip netns exec vethsetup ip addr",
@@ -766,7 +766,7 @@ def restore_connections(context):
 
 
 def manage_veths(context):
-    if not os.path.isfile("/tmp/nm_newveth_configured"):
+    if not os.path.isfile("/tmp/nm_veth_configured"):
         context.run(
             """echo 'ENV{ID_NET_DRIVER}=="veth", ENV{INTERFACE}=="eth[0-9]|eth[0-9]*[0-9]", ENV{NM_UNMANAGED}="0"' >/etc/udev/rules.d/88-veths.rules"""
         )
@@ -845,7 +845,7 @@ def after_crash_reset(context):
     print("Wait for testeth0")
     wait_for_testeth0(context)
 
-    if os.path.isfile("/tmp/nm_newveth_configured"):
+    if os.path.isfile("/tmp/nm_veth_configured"):
         check_vethsetup(context)
     else:
         print("Up eth1-10 links")
@@ -945,7 +945,7 @@ def teardown_racoon(context):
 
 
 def reset_hwaddr_nmcli(context, ifname):
-    if not os.path.isfile("/tmp/nm_newveth_configured"):
+    if not os.path.isfile("/tmp/nm_veth_configured"):
         hwaddr = context.command_output("ethtool -P %s" % ifname).split()[2]
         context.run("ip link set %s address %s" % (ifname, hwaddr))
     context.run("ip link set %s up" % (ifname))

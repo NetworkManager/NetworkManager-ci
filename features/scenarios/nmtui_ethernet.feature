@@ -4,7 +4,7 @@ Feature: Ethernet TUI tests
   Background:
   * Prepare virtual terminal environment
 
-    @veth
+
     @ethernet
     @nmtui_ethernet_create_default_connection
     Scenario: nmtui - ethernet - create default connection
@@ -67,7 +67,6 @@ Feature: Ethernet TUI tests
     Then "eth1\s+ethernet\s+connected\s+ethernet" is visible with command "nmcli device"
 
 
-    @veth
     @ethernet @testeth7_disconnect
     @nmtui_ethernet_activate_connection_specific_device
     Scenario: nmtui - ethernet - activate connection on specific device
