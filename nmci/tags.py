@@ -2776,7 +2776,8 @@ for i in [1, 2, 4, 5, 6, 8, 10]:
 def non_utf_device_bs(ctx, scen):
     if os.path.isfile("/usr/lib/udev/rules.d/80-net-setup-link.rules"):
         ctx.run("ln -s /dev/null /etc/udev/rules.d/80-net-setup-link.rules")
-        ctx.run("udevadm control --reload")
+        ctx.run("udevadm control --reload-rules")
+        ctx.run("udevadm settle --timeout=5")
     ctx.process.run_check(["ip", "link", "add", "name", b"\xca[2Jnonutf\xccf\\c", "type", "dummy"])
 
 
@@ -2784,7 +2785,8 @@ def non_utf_device_as(ctx, scen):
     ctx.process.run_check(["ip", "link", "del", b"\xca[2Jnonutf\xccf\\c"])
     if os.path.isfile("/usr/lib/udev/rules.d/80-net-setup-link.rules"):
         ctx.run("ln -s /dev/null /etc/udev/rules.d/80-net-setup-link.rules")
-        ctx.run("udevadm control --reload")
+        ctx.run("udevadm control --reload-rules")
+        ctx.run("udevadm settle --timeout=5")
 
 
 _register_tag("non_utf_device", non_utf_device_bs, non_utf_device_as)
