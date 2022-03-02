@@ -1338,6 +1338,8 @@ testmapper:
         feature: ethernet
     - ethernet_s390_options_without_subchannels:
         feature: ethernet
+    - ethernet_keyfiles_dont_write_empty_mac_address_blacklist:
+        feature: ethernet
     - dracut_setup:
         feature: dracut
         tags: gate dracut

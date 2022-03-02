@@ -922,3 +922,34 @@ Feature: nmcli - ethernet
     * Modify connection "con_ethernet" changing options "-802-3-ethernet.s390-options portno"
     Then "bridge_role=none" is visible with command "nmcli -g 802-3-ethernet.s390-options con show id con_ethernet"
     And "portno" is not visible with command "nmcli -g 802-3-ethernet.s390-options con show id con_ethernet"
+
+
+    @rhbz2022623
+    @ver+=1.36.0
+    @con_ethernet_remove
+    @ethernet_keyfiles_dont_write_empty_mac_address_blacklist
+    Scenario: Don't write mac-address-blacklist= in keyfiles
+    * Create keyfile "/etc/NetworkManager/system-connections/con_ethernet.nmconnection"
+      """
+      [connection]
+      id=con_ethernet
+      uuid=0b91a219-b24c-4588-816f-a873530ac58e
+      type=ethernet
+      autoconnect=true
+
+      [ethernet]
+      mac-address-blacklist=
+
+      [ipv4]
+      method=auto
+
+      [ipv6]
+      addr-gen-mode=stable-privacy
+      method=auto
+
+      [proxy]
+      """
+    * Reload connections
+    * Execute "nmcli c modify id con_ethernet connection.autoconnect false"
+    When Execute "ls /etc/NetworkManager/system-connections/con_ethernet.nmconnection"
+    Then "mac-address" is not visible with command "cat /etc/NetworkManager/system-connections/con_ethernet.nmconnection"
