@@ -40,6 +40,7 @@ if [ $conf_rc != 0 ]; then
     if ps aux|grep -v grep| grep -q harness.py; then
         rstrnt-report-result -o "" $NMTEST FAIL
     fi
+    cat /tmp/nmcli_general
     exit $conf_rc
 fi
 export_python_command

@@ -239,7 +239,7 @@ install_usb_hub_driver_el () {
 }
 
 get_online_state() {
-    nmcli general | grep -q "^connected"
+    nmcli general | tee - /tmp/nmcli_general | grep -q "^connected"
 }
 
 export_python_command() {
