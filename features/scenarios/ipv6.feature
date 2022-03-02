@@ -150,6 +150,7 @@
 
     @rhbz1373698
     @ver+=1.9.2
+    @ver-=1.35
     @con_ipv6_remove
     @ipv6_route_set_route_with_options
     Scenario: nmcli - ipv6 - routes - set route with options
@@ -158,6 +159,31 @@
     Then "2000::/126 dev eth3\s+proto kernel\s+metric 258" is visible with command "ip -6 route"
     Then "2001:1::1 dev eth3\s+proto static" is visible with command "ip -6 route"
      And "default via 2001:1::1 dev eth3" is visible with command "ip -6 route"
+
+
+    @rhbz1373698 @rhbz1937823 @rhbz2013587
+    @ver+=1.36.0
+    @con_ipv6_remove
+    @ipv6_route_set_route_with_options
+    Scenario: nmcli - ipv6 - routes - set route with options
+    * Add a new connection of type "ethernet" and options 
+      """
+      ifname eth3
+      con-name con_ipv6
+      ipv6.method manual
+      ipv6.addresses 2000::2/126
+      ipv6.route-metric 258
+      ipv6.routes '1010::1/128 2000::1 1024 cwnd=15 lock-mtu=true mtu=1600, ::/0 2001:1::1, 1020::1/128 type=blackhole'
+      """
+    Then "1010::1 via 2000::1 dev eth3\s+proto static\s+metric 1024\s+mtu lock 1600 cwnd 15" is visible with command "ip -6 route" in "45" seconds
+    Then "2000::/126 dev eth3\s+proto kernel\s+metric 258" is visible with command "ip -6 route"
+    Then "2001:1::1 dev eth3\s+proto static" is visible with command "ip -6 route"
+    And "default via 2001:1::1 dev eth3" is visible with command "ip -6 route"
+    And "blackhole 1020::1 dev lo proto static metric 258 pref medium" is visible with command "ip -6 r"
+    * Modify connection "con_ipv6" changing options "ipv6.routes '1030::1/128 type=prohibit, 1040::1/128 type=unreachable'"
+    * Bring "up" connection "con_ipv6"
+    Then "unreachable 1040::1 dev lo proto static metric 258 pref medium" is visible with command "ip -6 r"
+    And "prohibit 1030::1 dev lo proto static metric 258 pref medium" is visible with command "ip -6 r"
 
 
     @con_ipv6_remove @eth0
