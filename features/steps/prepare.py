@@ -109,7 +109,7 @@ def prepare_pppoe_server(context, user, passwd, ip, auth):
 
 @step(u'Prepare veth pairs "{pairs_array}" bridged over "{bridge}"')
 def prepare_veths(context, pairs_array, bridge):
-    context.command_code('''echo 'ENV{ID_NET_DRIVER}=="veth", ENV{INTERFACE}=="test*", ENV{NM_UNMANAGED}="0"' >/etc/udev/rules.d/88-lr.rules''')
+    context.command_code('''echo 'ENV{ID_NET_DRIVER}=="veth", ENV{INTERFACE}=="test*", ENV{NM_UNMANAGED}="0"' >/etc/udev/rules.d/88-prep_veth.rules''')
     context.command_code("udevadm control --reload-rules")
     context.command_code("udevadm settle --timeout=5")
     context.command_code("sleep 1")
@@ -205,7 +205,7 @@ def prepare_simdev(context, device, lease_time="2m", ipv4=None, ipv6=None, optio
     if daemon_options is None:
         daemon_options = ""
     if not hasattr(context, 'testvethns'):
-        context.command_code('''echo 'ENV{ID_NET_DRIVER}=="veth", ENV{INTERFACE}=="%s*", ENV{NM_UNMANAGED}="0"' >/etc/udev/rules.d/88-lr.rules''' % device)
+        context.command_code('''echo 'ENV{ID_NET_DRIVER}=="veth", ENV{INTERFACE}=="%s*", ENV{NM_UNMANAGED}="0"' >/etc/udev/rules.d/88-prep_veth.rules''' % device)
         context.command_code("udevadm control --reload-rules")
         context.command_code("udevadm settle --timeout=5")
         context.command_code("sleep 1")
@@ -254,7 +254,7 @@ def prepare_simdev(context, device, lease_time="2m", ipv4=None, ipv6=None, optio
 @step(u'Prepare simulated test "{device}" device with DHCPv4 server on different network')
 def prepare_simdev(context, device):
     if not hasattr(context, 'testvethns'):
-        context.command_code('''echo 'ENV{ID_NET_DRIVER}=="veth", ENV{INTERFACE}=="test*", ENV{NM_UNMANAGED}="0"' >/etc/udev/rules.d/88-lr.rules''')
+        context.command_code('''echo 'ENV{ID_NET_DRIVER}=="veth", ENV{INTERFACE}=="test*", ENV{NM_UNMANAGED}="0"' >/etc/udev/rules.d/88-prep_veth.rules''')
         context.command_code("udevadm control --reload-rules")
         context.command_code("udevadm settle --timeout=5")
         context.command_code("sleep 1")
@@ -300,7 +300,7 @@ def prepare_simdev(context, device):
 @step(u'Prepare simulated test "{device}" device without DHCP')
 def prepare_simdev_no_dhcp(context, device):
     if not hasattr(context, 'testvethns'):
-        context.command_code('''echo 'ENV{ID_NET_DRIVER}=="veth", ENV{INTERFACE}=="test*", ENV{NM_UNMANAGED}="0"' >/etc/udev/rules.d/88-lr.rules''')
+        context.command_code('''echo 'ENV{ID_NET_DRIVER}=="veth", ENV{INTERFACE}=="test*", ENV{NM_UNMANAGED}="0"' >/etc/udev/rules.d/88-prep_veth.rules''')
         context.command_code("udevadm control --reload-rules")
         context.command_code("udevadm settle --timeout=5")
         context.command_code("sleep 1")
@@ -318,7 +318,7 @@ def prepare_simdev_no_dhcp(context, device):
 @step(u'Prepare simulated test "{device}" device for IPv6 PMTU discovery')
 def prepare_simdev(context, device):
     if not hasattr(context, 'testvethns'):
-        context.command_code('''echo 'ENV{ID_NET_DRIVER}=="veth", ENV{INTERFACE}=="test*", ENV{NM_UNMANAGED}="0"' >/etc/udev/rules.d/88-lr.rules''')
+        context.command_code('''echo 'ENV{ID_NET_DRIVER}=="veth", ENV{INTERFACE}=="test*", ENV{NM_UNMANAGED}="0"' >/etc/udev/rules.d/88-prep_veth.rules''')
         context.command_code("udevadm control --reload-rules")
         context.command_code("udevadm settle --timeout=5")
         context.command_code("sleep 1")
@@ -372,7 +372,7 @@ def prepare_simdev_no_carrier(context, device):
     ipv4 = "192.168.99"
     ipv6 = "2620:dead:beaf"
     if not hasattr(context, 'testvethns'):
-        context.command_code('''echo 'ENV{ID_NET_DRIVER}=="veth", ENV{INTERFACE}=="test*", ENV{NM_UNMANAGED}="0"' >/etc/udev/rules.d/88-lr.rules''')
+        context.command_code('''echo 'ENV{ID_NET_DRIVER}=="veth", ENV{INTERFACE}=="test*", ENV{NM_UNMANAGED}="0"' >/etc/udev/rules.d/88-prep_veth.rules''')
         context.command_code("udevadm control --reload-rules")
         context.command_code("udevadm settle --timeout=5")
         context.command_code("sleep 1")

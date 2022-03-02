@@ -24,7 +24,7 @@ function setup_veth_env ()
         exit 0
     fi
     # Enable udev rule to enable ignoring 'veth' devices eth*, keeping their pairs unmanaged
-    echo 'ENV{ID_NET_DRIVER}=="veth", ENV{INTERFACE}=="eth[0-9]|eth[0-9]*[0-9]", ENV{NM_UNMANAGED}="0"' >/etc/udev/rules.d/99-lr.rules
+    echo 'ENV{ID_NET_DRIVER}=="veth", ENV{INTERFACE}=="eth[0-9]|eth[0-9]*[0-9]", ENV{NM_UNMANAGED}="0"' >/etc/udev/rules.d/87-xvethsetup.rules
     udevadm control --reload-rules
     udevadm settle --timeout=5
     sleep 1
@@ -362,7 +362,7 @@ function teardown_veth_env ()
     ip netns del vethsetup
 
     # Remove the udev ruling
-    rm -rf /etc/udev/rules.d/99-lr.rules
+    rm -rf /etc/udev/rules.d/87-xvethsetup.rules
     udevadm control --reload-rules
     udevadm settle --timeout=5
     sleep 1

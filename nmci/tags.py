@@ -2316,27 +2316,22 @@ _register_tag("adsl", None, adsl_as)
 
 
 def allow_veth_connections_bs(ctx, scen):
-    if ctx.command_code("grep '^ENV{ID_NET_DRIVER}==\"veth\", ENV{NM_UNMANAGED}=\"1\"' /usr/lib/udev/rules.d/85-nm-unmanaged.rules") == 0:
-        ctx.run("sed -i 's/^ENV{ID_NET_DRIVER}==\"veth\", ENV{NM_UNMANAGED}=\"1\"/#ENV{ID_NET_DRIVER}==\"veth\", ENV{NM_UNMANAGED}=\"1\"/' /usr/lib/udev/rules.d/85-nm-unmanaged.rules")
-        ctx.run('udevadm control --reload-rules')
-        ctx.run('udevadm settle --timeout=5')
-        ctx.run('rm -rf /var/lib/NetworkManager/no-auto-default.state')
-        with open("/etc/NetworkManager/conf.d/99-unmanaged.conf", "w") as cfg:
-            cfg.write('[main]\n')
-            cfg.write('no-auto-default=eth*\n')
-        nmci.lib.reload_NM_service(ctx)
-        ctx.revert_unmanaged = True
-    else:
-        ctx.revert_unmanaged = False
+    ctx.run('''echo 'ENV{ID_NET_DRIVER}=="veth", ENV{INTERFACE}=="veth*", ENV{NM_UNMANAGED}="0"' >/etc/udev/rules.d/99-veths.rules''')
+    ctx.run('udevadm control --reload-rules')
+    ctx.run('udevadm settle --timeout=5')
+    ctx.run('rm -rf /var/lib/NetworkManager/no-auto-default.state')
+    with open("/etc/NetworkManager/conf.d/99-unmanaged.conf", "w") as cfg:
+        cfg.write('[main]\n')
+        cfg.write('no-auto-default=eth*\n')
+    nmci.lib.reload_NM_service(ctx)
 
 
 def allow_veth_connections_as(ctx, scen):
-    if ctx.revert_unmanaged:
-        ctx.run("sed -i 's/^#ENV{ID_NET_DRIVER}==\"veth\", ENV{NM_UNMANAGED}=\"1\"/ENV{ID_NET_DRIVER}==\"veth\", ENV{NM_UNMANAGED}=\"1\"/' /usr/lib/udev/rules.d/85-nm-unmanaged.rules")
-        ctx.run('sudo rm -rf /etc/NetworkManager/conf.d/99-unmanaged.conf')
-        ctx.run('udevadm control --reload-rules')
-        ctx.run('udevadm settle --timeout=5')
-        nmci.lib.reload_NM_service(ctx)
+    ctx.run('sudo rm -rf /etc/udev/rules.d/99-veths.rules')
+    ctx.run('sudo rm -rf /etc/NetworkManager/conf.d/99-unmanaged.conf')
+    ctx.run('udevadm control --reload-rules')
+    ctx.run('udevadm settle --timeout=5')
+    nmci.lib.reload_NM_service(ctx)
     ctx.run("nmcli con del 'Wired connection 1'")
     ctx.run("nmcli con del 'Wired connection 2'")
     ctx.run("for i in $(nmcli -t -f DEVICE c s -a |grep -v ^eth0$); do nmcli device disconnect $i; done")
