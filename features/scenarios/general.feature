@@ -153,7 +153,7 @@ Feature: nmcli - general
     * Execute "ip -n testX6_ns addr add dev testX6p fc01::1/64"
     * Run child "ip netns exec testX6_ns radvd -n -C contrib/ipv6/radvd.conf" without shell
     * Execute "echo > /tmp/ip6leases.conf"
-    * Run child "ip netns exec testX6_ns dhcpd -6 -d -cf contrib/ipv6/dhcpd.conf -lf /tmp/ip6leases.conf" without shell
+    * Configure dhcpv6 prefix delegation server with address configuration mode "dhcp-stateful"
     * Prepare simulated test "testG" device with "172.25.15" ipv4 and daemon options "--dhcp-option=12 --dhcp-host=00:11:22:33:44:55,172.25.15.1,foo-bar"
     * Execute "ip netns exec testG_ns kill -SIGSTOP $(cat /tmp/testG_ns.pid)"
     * Execute "hostnamectl set-hostname """
