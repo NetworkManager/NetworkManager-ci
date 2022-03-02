@@ -382,9 +382,21 @@
     head_line = $(head_line).wrap("<tr></tr>").parent();
     $(thead).append(head_line);
 
+    var build_id = state.build;
+    if (!isNaN(build_id) && build_id < 0) {
+      var max_build = 0;
+      builds[project.project].forEach(function (build) {
+          if (build.id > max_build) {max_build = build.id;}
+      });
+      build_id = max_build+build_id - stats[project.project].running + 1;
+    }
+
     failures[project.project].forEach(function (failure) {
-      if (!isNaN(state.build)) {
-        if(failure_builds[project.project][failure.name].indexOf(state.build) == -1) { return; }
+      if (!isNaN(build_id)) {
+         if(failure_builds[project.project][failure.name].indexOf(build_id) == -1) { return; }
+      }
+      if(state.no_html) {
+        if(!no_html_fail(project.project, failure)) {return; }
       }
       if (state.search) {
         if (failure.name.indexOf(state.search) == -1) {
@@ -401,7 +413,7 @@
       $(tr).append($('<td style="text-align:left">' + failure_search + "</td>"));
       $(tr).append($('<td style="text-align:center" class="' + cls + '">' + failure.last + "</td>"));
       $(tr).append($('<td style="text-align:center">' + failure.num + "</td>"));
-      $(tr).append($('<td style="text-align:left">' + format_failure_builds(failure, project.project, state) + "</td>"));
+      $(tr).append($('<td style="text-align:left">' + format_failure_builds(failure, project.project, build_id) + "</td>"));
       $(tbody).append(tr);
     });
   }
@@ -495,12 +507,12 @@
     return tb;
   }
 
-  function format_failure_builds(failure, project, state) {
+  function format_failure_builds(failure, project, filter_build_id) {
     var res = "";
     var fb = failure_builds[project][failure.name];
     fb.sort(function(b1, b2) { if(b1 < b2) return 1; if(b1 > b2) return -1; return 0; });
     fb.forEach(function (build_id) {
-      if(build_id == state.build) {
+      if(build_id == filter_build_id) {
         res += "<strong>"
       }
       if (("json://" + build_id) in failure.artifact_urls) {
@@ -509,7 +521,7 @@
       else {
         res += '<span title="No report">' + build_id + "</span> ";
       }
-      if(build_id == state.build) {
+      if(build_id == filter_build_id) {
         res += "</strong>"
       }
     });
@@ -640,6 +652,9 @@
       }
       if (e == "preserve_search") {
         state["preserve_search"] = true;
+      }
+      if (e == "no_html") {
+        state["no_html"] = true;
       }
     });
   }
@@ -783,6 +798,14 @@
       }
     });
     return non_html_failures;
+  }
+
+  function no_html_fail(project, failure) {
+      var found = false;
+      failure_builds[project][failure.name].forEach(function (build_id) {
+          if (! (("json://" + build_id) in failure.artifact_urls)) { found = true; }
+      });
+      return found;
   }
 
   </script>
