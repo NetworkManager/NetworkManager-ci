@@ -499,7 +499,7 @@ Feature: WIFI TUI tests
 
     @rhbz1132612 @rhbz1961159
     @fedoraver+=32
-    @simwifi @attach_hostapd_log @attach_wpa_supplicant_log @may_fail
+    @simwifi @attach_hostapd_log @attach_wpa_supplicant_log
     @nmtui_simwifi_connect_to_network_after_dismissal
     Scenario: nmtui - wifi_hwsim - connect to a network after dialog dismissal
     * Start nmtui
