@@ -20,19 +20,6 @@ logger -t $0 "Running test $1"
 export PATH=$PATH:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/root/bin
 DIR=$(pwd)
 
-. $DIR/run/gsm_hub.sh
-. $DIR/prepare/envsetup.sh
-( configure_environment "$1" ) ; conf_rc=$?
-if [ $conf_rc != 0 ]; then
-    if ps aux|grep -v grep| grep -q harness.py; then
-        rstrnt-report-result -o "" $NMTEST FAIL
-    fi
-    exit $conf_rc
-fi
-export_python_command
-
-export COLUMNS=1024
-
 # set TEST variable for version_control script
 if [ -z "$TEST" ]; then
     logger "setting test name to NetworkManager_Test0_$1"
@@ -45,6 +32,19 @@ if [ -z "$NMTEST" ]; then
     logger "cannot set NMTEST var"
     exit 128
 fi
+
+. $DIR/run/gsm_hub.sh
+. $DIR/prepare/envsetup.sh
+( configure_environment "$1" ) ; conf_rc=$?
+if [ $conf_rc != 0 ]; then
+    if ps aux|grep -v grep| grep -q harness.py; then
+        rstrnt-report-result -o "" $NMTEST FAIL
+    fi
+    exit $conf_rc
+fi
+export_python_command
+
+export COLUMNS=1024
 
 NMTEST_REPORT=/tmp/report_$NMTEST.html
 
