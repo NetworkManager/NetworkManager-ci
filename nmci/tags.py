@@ -1820,6 +1820,8 @@ def nmstate_bs(ctx, scen):
 
 def nmstate_as(ctx, scen):
     ctx.run("sh contrib/reproducers/repro_1923248.sh clean")
+    # Workaround for RHBZ#1935026
+    ctx.run("ovs-vsctl del-br ovs-br0")
 
 
 _register_tag("nmstate", nmstate_bs, nmstate_as)

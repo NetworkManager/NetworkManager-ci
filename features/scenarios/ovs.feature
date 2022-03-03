@@ -802,7 +802,8 @@ Feature: nmcli - ovs
 
 
     @rhbz1923248 @rhbz1935026
-    @ver+=1.29 @rhelver+=8
+    @ver+=1.36 @rhelver+=8
+    @may_fail #as of 1935026 still unfixed
     @openvswitch @nmstate
     @ovs_nmstate
     Scenario: NM - openvswitch - nmstate
