@@ -1837,6 +1837,8 @@ testmapper:
         feature: ovs
     - ovs_set_firewalld_zone:
         feature: ovs
+    - add_dpdk_port_with_mtu:
+        feature: ovs
     - dispatcher_preup_and_up:
         feature: dispatcher
     - dispatcher_predown_and_down:

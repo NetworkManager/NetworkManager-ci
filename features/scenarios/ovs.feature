@@ -916,3 +916,47 @@ Feature: nmcli - ovs
     Then "success" is visible with command "firewall-cmd --reload"
     Then "running" is visible with command "firewall-cmd --state"
     Then "public" is visible with command "firewall-cmd  --get-zone-of-interface=iface0" in "3" seconds
+
+
+    @rhbz2001851
+    @ver+=1.36
+    @openvswitch @restart_if_needed
+    @add_dpdk_port_with_mtu
+    Scenario: NM - openvswitch - add dpdk device with preset MTU
+    * Add a new connection of type "ovs-bridge" and options "conn.interface ovsbridge0 con-name ovs-bridge0 ovs-bridge.datapath-type netdev"
+    * Add a new connection of type "ovs-port" and options "conn.interface bond0 conn.master ovsbridge0 con-name ovs-bond0 ovs-port.bond-mode balance-slb"
+    * Add a new connection of type "ovs-port" and options "conn.interface port0 master ovsbridge0 con-name ovs-port0"
+    * Add a new connection of type "ovs-interface" and options 
+        """
+        slave-type ovs-port
+        conn.interface port0
+        master ovs-port0
+        con-name ovs-port1
+        802-3-ethernet.mtu 9000
+        """
+    * Add a new connection of type "ovs-interface" and options 
+        """
+        conn.interface iface0
+        conn.master bond0
+        con-name ovs-iface0
+        ovs-dpdk.devargs 000:42:10.0
+        ovs-interface.type dpdk
+        802-3-ethernet.mtu 9000
+        """
+    * Add a new connection of type "ovs-interface" and options 
+        """
+        conn.interface iface1
+        conn.master bond0
+        con-name ovs-iface1
+        ovs-dpdk.devargs 000:42:10.2
+        ovs-interface.type dpdk
+        802-3-ethernet.mtu 9000
+        """
+    Then "9000" is visible with command "nmcli -g 802-3-ethernet.mtu c show ovs-iface0"
+    And "9000" is visible with command "nmcli -g 802-3-ethernet.mtu c show ovs-iface1"
+    And "mtu 9000" is visible with command "ip a s dev port0"
+    * Reboot
+    Then "9000" is visible with command "nmcli -g 802-3-ethernet.mtu c show ovs-iface0"
+    And "9000" is visible with command "nmcli -g 802-3-ethernet.mtu c show ovs-iface1"
+    And "mtu 9000" is visible with command "ip a s dev port0"
+    
