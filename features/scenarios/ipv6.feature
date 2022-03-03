@@ -1622,3 +1622,20 @@
     When "activated" is not visible with command "nmcli -g GENERAL.STATE con show con_ipv6" for full "9" seconds
     Then "activated" is visible with command "nmcli -g GENERAL.STATE con show con_ipv6" in "10" seconds
     Then "1" is visible with command "nmcli -g IP6.ADDRESS -m multiline con show con_ipv6 | wc -l"
+
+
+    @rhbz1837254
+    @ver+=1.36.0
+    @con_ipv6_remove
+    @ipv6_handle_route_linking
+    Scenario: Handle ipv6 route linking by kernel
+    * Add a new connection of type "ethernet" and options "ifname eth3 con-name con_ipv6 ipv4.method disabled ip6 fdb3:84e5:4ff4:55e3::1010/64 ipv6.gateway fdb3:84e5:4ff4:55e3::1"
+    * Bring "up" connection "con_ipv6"
+    * Note the output of "ip -6 route list ::/0 dev eth3" as value "original"
+    * Modify connection "con_ipv6" changing options "ipv6.gateway fdb3:84e5:4ff4:55e3::2"
+    * Execute "nmcli d reapply eth3"
+    * Execute "ip -6 route list ::/0 dev eth3"
+    * Modify connection "con_ipv6" changing options "ipv6.gateway fdb3:84e5:4ff4:55e3::1"
+    * Execute "nmcli d reapply eth3"
+    * Note the output of "ip -6 route list ::/0 dev eth3" as value "reverted"
+    Then Check noted values "original" and "reverted" are the same

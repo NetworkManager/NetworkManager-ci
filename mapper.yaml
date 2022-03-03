@@ -792,6 +792,8 @@ testmapper:
         feature: ipv6
     - ipv6_required_timeout:
         feature: ipv6
+    - ipv6_handle_route_linking:
+        feature: ipv6
     - nmcli_general_correct_profile_activated_after_restart:
         feature: general
         tags: gate
