@@ -5,6 +5,7 @@ import nmci
 import subprocess
 import time
 import re
+import shutil
 
 import nmci.ip
 import nmci.lib
@@ -2868,3 +2869,87 @@ def custom_ns_as(ctx, scen):
 
 
 _register_tag("custom_ns", None, custom_ns_as)
+
+
+def radius_bs(ctx, scen):
+    if ctx.command_code('systemctl is-active radiusd.service') == 0:
+        ctx.run('systemctl disable --now radiusd.service')
+    if os.path.isdir('/tmp/nmci-raddb'):
+        if ctx.command_code('radiusd -XC') != 0:
+            ctx.run('rm -rf /etc/raddb ; cp -a /tmp/nmci-raddb')
+    else:
+        # set up radius from scratch, full install is required to get freeradius configuration to fresh state
+        if ctx.command_code('rpm -q freeradius') == 0:
+            ctx.run('yum -y remove freeradius')
+        shutil.rmtree('/etc/raddb', ignore_errors=True)
+        ctx.run('yum -y install freeradius', check=True)
+        shutil.copy('contrib/8021x/certs/server/hostapd.dh.pem', '/etc/raddb/certs/dh')
+        ctx.run('make all', cwd='/etc/raddb/certs')
+        shutil.chown('/etc/raddb/certs/server.pem', None, 'radiusd')
+        with open('/etc/raddb/mods-enabled/eap', 'r+') as f:
+            eap = f.read()
+            # external certs: change paths to cert+key and possibly passowrd
+            eap = re.sub(r'(\n\s*eap {[^}]*default_eap_type = )[^\n]*(\n)', r'\g<1>ttls\g<2>', eap)
+            eap = re.sub(r'\n(\s*md5 {\n)(\s*})', r'\n#\g<1>#\g<2>', eap)
+            f.seek(0)
+            f.write(eap)
+        with open('/etc/raddb/sites-enabled/default', 'r+') as f:
+            r_sites = f.read()
+            r_sites = re.sub(r'\n(\s*Auth-Type[^\n]*)\n([^\n]*)\n(\s*})', r'\n#\g<1>\n#\g<2>\n#\g<3>', r_sites)
+            r_sites = re.sub(r'\n(\s*mschap\n)', r'\n#\g<1>', r_sites)
+            r_sites = re.sub(r'\n(\s*digest\n)', r'\n#\g<1>', r_sites)
+            f.seek(0)
+            f.write(r_sites)
+        # if necessary (e.g. when moved to namespace), add non-localhost client to /etc/raddb/clients.conf
+        with open('/etc/raddb/clients.conf', 'r+') as f:
+            clients = f.read()
+            clients = re.sub(r'(\n\s*client localhost {[^}]*\n\s*secret = )[^\n]*\n', r'\g<1>client_password\n', clients)
+            clients = re.sub(r'(\n\s*client localhost_v6 {[^}]*\n\s*secret = )[^\n]*\n', r'\g<1>client_password\n', clients)
+            f.seek(0)
+            f.write(clients)
+        with open('/etc/raddb/users', 'r+') as f:
+            users_new = f'example_user        Cleartext-Password := "user_password"\n{f.read()}'
+            f.seek(0)
+            f.write(users_new)
+        ctx.run('radiusd -XC', check=True)
+        ctx.run('cp -a /etc/raddb /tmp/nmci-raddb')
+    ctx.run('chown -R radiusd.radiusd /var/run/radiusd')
+    if ctx.command_code('systemctl is-active radiusd') == 0:
+        ctx.run('systemctl stop radiusd')
+    ctx.run(f'systemd-run --service-type forking --unit nm-radiusd.service /usr/sbin/radiusd -l stdout -x', check=True)
+
+
+def radius_as(ctx, scen):
+    if scen.status == 'failed' or ctx.DEBUG:
+        nmci.lib.embed_service_log(ctx, "radiusd", "RADIUS")
+    ctx.run('systemctl stop nm-radiusd.service')
+
+
+_register_tag("radius", radius_bs, radius_as)
+
+
+def tag8021x_doc_procedure_bs(ctx, scen):
+    # must run after radius tag whose _bs() part creates source files
+    shutil.copy('/etc/raddb/certs/client.key', '/etc/pki/tls/private/8021x.key')
+    shutil.copy('/etc/raddb/certs/client.pem', '/etc/pki/tls/certs/8021x.pem')
+    shutil.copy('/etc/raddb/certs/ca.pem', '/etc/pki/tls/certs/8021x-ca.pem')
+    ctx.run(f'yum -y install hostapd wpa_supplicant', check=True)
+    with open('/etc/sysconfig/hostapd', 'r+') as f:
+        content = f.read()
+        f.seek(0)
+        f.write(re.sub('(?m)^OTHER_ARGS=.*$', 'OTHER_ARGS="-d"', content))
+
+
+def tag8021x_doc_procedure_as(ctx, scen):
+    ctx.run('systemctl stop 802-1x-tr-mgmt hostapd')
+    if scen.status == 'failed' or ctx.DEBUG:
+        nmci.lib.embed_service_log(ctx, "hostapd", "HOSTAPD")
+        nmci.lib.embed_service_log(ctx, "802-1x-tr-mgmt", "802.1X access control")
+        nmci.lib.embed_file_if_exists(ctx, '/tmp/nmci-wpa_supplicant-standalone', 
+                caption='WPA_SUP from access control test')
+    os.remove('/etc/hostapd/hostapd.conf')
+    ctx.run('systemctl daemon-reload')
+    nmci.lib.reset_hwaddr_nmcli(ctx, 'eth4')
+
+
+_register_tag('8021x_doc_procedure', tag8021x_doc_procedure_bs, tag8021x_doc_procedure_as)

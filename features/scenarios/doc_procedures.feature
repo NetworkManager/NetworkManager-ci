@@ -307,3 +307,78 @@ Feature: nmcli - procedures in documentation
     * Execute "firewall-cmd --permanent --add-port=8472/udp"
     * Execute "firewall-cmd --reload"
     Then "master br4 permanent" is visible with command "bridge fdb show dev vxlan10"
+
+
+    @radius @8021x_doc_procedure @attach_wpa_supplicant_log
+    # permissive is required until selinux-policy is updated in:
+    #   - el9: https://bugzilla.redhat.com/show_bug.cgi?id=2064688
+    #   - el8: https://bugzilla.redhat.com/show_bug.cgi?id=2064284
+    @permissive
+    @8021x_hostapd_freeradius_doc_procedure
+    Scenario: nmcli - docs - set up 802.1x using FreeRadius and hostapd
+    ### 1. Setting up the bridge on the authenticator
+    * Add "bridge" connection named "br0" for device "br0" with options
+            """
+            con-name br0
+            group-forward-mask 8 connection.autoconnect-slaves 1
+            ipv4.method disabled ipv6.method disabled
+            """
+    * Add "ethernet" connection named "br0-uplink" for device "eth4" with options "master br0"
+    # bridge port to have access limited by 802.1x auth
+    * Execute "ip l add test1 type veth peer name test1b"
+    * Add "ethernet" connection named "br0-client-port" for device "test1b" with options "master br0"
+    * Bring "up" connection "br0"
+    ### .2: unused, .3 and .4: handled by @radius tag
+    ### .5 Configuring hostapd as an authenticator in a wired network
+    * Execute "cp contrib/8021x/doc_procedures/hostapd.conf /etc/hostapd/hostapd.conf"
+    Then Execute "systemctl start hostapd"
+    * Execute "systemctl status hostapd"
+    ### .6 Testing EAP-TTLS authentication against a FreeRADIUS server or authenticator
+    * Execute "cp -f contrib/8021x/doc_procedures/wpa_supplicant-TTLS.conf /etc/wpa_supplicant/wpa_supplicant-TTLS.conf"
+    Then Note the output of "eapol_test -c /etc/wpa_supplicant/wpa_supplicant-TTLS.conf -s client_password"
+     And Noted value contains "EAP: Status notification: remote certificate verification \(param=success\)"
+     And Noted value contains "CTRL-EVENT-EAP-SUCCESS EAP authentication completed successfully"
+     And Noted value contains "SUCCESS"
+    Then "CTRL-EVENT-EAP-SUCCESS EAP authentication completed successfully" is visible with command "wpa_supplicant -c /etc/wpa_supplicant/wpa_supplicant-TTLS.conf -D wired -i test1 -d -t"
+    * Add "ethernet" connection named "test1-ttls" for device "test1" with options
+            """
+            autoconnect no 802-1x.eap ttls 802-1x.phase2-auth pap
+            802-1x.identity example_user 802-1x.password user_password
+            802-1x.ca-cert /etc/pki/tls/certs/8021x-ca.pem
+            """
+    When Bring up connection "test1-ttls"
+    Then Check if "test1-ttls" is active connection
+    * Disconnect device "test1"
+    ### .7 Testing EAP-TLS authentication against a FreeRADIUS server or authenticator
+    * Execute "cp -f contrib/8021x/doc_procedures/wpa_supplicant-TLS.conf /etc/wpa_supplicant/wpa_supplicant-TLS.conf"
+    Then Note the output of "eapol_test -c /etc/wpa_supplicant/wpa_supplicant-TLS.conf -a 127.0.0.1 -s client_password"
+     And Noted value contains "EAP: Status notification: remote certificate verification \(param=success\)"
+     And Noted value contains "CTRL-EVENT-EAP-SUCCESS EAP authentication completed successfully"
+     And Noted value contains "SUCCESS"
+    Then "CTRL-EVENT-EAP-SUCCESS EAP authentication completed successfully" is visible with command "wpa_supplicant -c /etc/wpa_supplicant/wpa_supplicant-TLS.conf -D wired -i test1 -d -t"
+    * Add "ethernet" connection named "test1-tls" for device "test1" with options
+            """
+            autoconnect no 802-1x.eap tls 802-1x.identity spam
+            802-1x.ca-cert /etc/pki/tls/certs/8021x-ca.pem 802-1x.client-cert /etc/pki/tls/certs/8021x.pem
+            802-1x.private-key /etc/pki/tls/private/8021x.key 802-1x.private-key-password whatever
+            """
+    When Bring up connection "test1-tls"
+    Then Check if "test1-tls" is active connection
+    * Disconnect device "test1"
+    ### .8. Blocking and allowing traffic based on hostapd authentication events and check connection using NM
+    * Execute "mkdir -p /usr/local/bin"
+    * Execute "cp -f contrib/8021x/doc_procedures/802-1x-tr-mgmt /usr/local/bin/802-1x-tr-mgmt"
+    * Execute "cp -f contrib/8021x/doc_procedures/802-1x-tr-mgmt.service /etc/systemd/system/802-1x-tr-mgmt.service"
+    * Execute "systemctl daemon-reload"
+    * Add "ethernet" connection named "test1-plain" for device "test1" with options "autoconnect no"
+    * Bring up connection "test1-plain"
+    * Execute "systemctl start 802-1x-tr-mgmt.service"
+    Then Unable to ping "192.168.100.1" from "test1" device
+    * Bring down connection "test1-plain"
+    * Bring up connection "test1-ttls"
+    * Execute "sleep 1"
+    Then Ping "192.168.100.1" from "test1" device
+    ### Uncomment next steps if https://bugzilla.redhat.com/show_bug.cgi?id=2067124 gets approved, remove if rejected
+    #* Bring down connection "test1-ttls"
+    #* Execute "ip l set test1 up; ip a add 192.168.123/24 dev test1"
+    #Then Unable to ping "192.168.100.1" from "test1" device
