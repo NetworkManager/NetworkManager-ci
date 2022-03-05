@@ -208,10 +208,11 @@ configure_nm_gsm () {
 install_usb_hub_driver_fc29 () {
     # Accomodate to Fedora 29.
     yum install -y libffi-devel python3-devel python-unversioned-command
+    mkdir /tmp/brainstem
     pushd contrib/usb_hub
         # The module brainstem is already stored in project NetworkManager-ci.
-        tar xf brainstem_dev_kit_ubuntu_lts_18.04_no_qt_x86_64_1.tgz
-        cd development/python/
+        tar -C /tmp/brainstem -xf brainstem_dev_kit_ubuntu_lts_18.04_no_qt_x86_64_1.tgz
+        cd /tmp/brainstem/development/python/
         python -m pip install brainstem-2.7.0-py2.py3-none-any.whl; local rc=$?
     popd
     return $rc
@@ -221,17 +222,18 @@ install_usb_hub_driver_fc29 () {
 install_usb_hub_driver_el () {
     # Works under RHEL 8.0.
     yum install -y libffi-devel python36-devel
+    mkdir /tmp/brainstem
     pushd contrib/usb_hub
         # The module brainstem is already stored in project NetworkManager-ci.
         if grep -q -e 'Enterprise Linux .*release 7' -e 'CentOS Linux release 7' /etc/redhat-release; then
             # Compatible with RHEL7
-            tar xf brainstem_dev_kit_ubuntu_lts_14.04_x86_64.tgz
-            cd development/python/
+            tar -C /tmp/brainstem -xf brainstem_dev_kit_ubuntu_lts_14.04_x86_64.tgz
+            cd /tmp/brainstem/development/python/
             python -m pip install brainstem-2.7.1-py2.py3-none-any.whl; local rc=$?
         else
             # And with RHEL8
-            tar xf brainstem_dev_kit_ubuntu_lts_18.04_no_qt_x86_64_1.tgz
-            cd development/python/
+            tar -C /tmp/brainstem -xf brainstem_dev_kit_ubuntu_lts_18.04_no_qt_x86_64_1.tgz
+            cd /tmp/brainstem/development/python/
             python -m pip install brainstem-2.7.0-py2.py3-none-any.whl; local rc=$?
         fi
     popd
