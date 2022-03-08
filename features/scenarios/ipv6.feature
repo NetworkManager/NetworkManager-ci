@@ -179,11 +179,11 @@
     Then "2000::/126 dev eth3\s+proto kernel\s+metric 258" is visible with command "ip -6 route"
     Then "2001:1::1 dev eth3\s+proto static" is visible with command "ip -6 route"
     And "default via 2001:1::1 dev eth3" is visible with command "ip -6 route"
-    And "blackhole 1020::1 dev lo proto static metric 258 pref medium" is visible with command "ip -6 r"
+    And "blackhole 1020::1 dev lo proto static metric 258.*pref medium" is visible with command "ip -6 r"
     * Modify connection "con_ipv6" changing options "ipv6.routes '1030::1/128 type=prohibit, 1040::1/128 type=unreachable'"
     * Bring "up" connection "con_ipv6"
-    Then "unreachable 1040::1 dev lo proto static metric 258 pref medium" is visible with command "ip -6 r"
-    And "prohibit 1030::1 dev lo proto static metric 258 pref medium" is visible with command "ip -6 r"
+    Then "unreachable 1040::1 dev lo proto static metric 258.*pref medium" is visible with command "ip -6 r"
+    And "prohibit 1030::1 dev lo proto static metric 258.*pref medium" is visible with command "ip -6 r"
 
 
     @con_ipv6_remove @eth0

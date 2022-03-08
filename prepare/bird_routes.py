@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 """
 must be invoked with three arguments:
     dev (e.g. eth1)
@@ -16,7 +16,7 @@ def gen_addrs(dev, proto, count):
         a2 = int(a1 / 256)
         a3 = int(a2 / 256)
         if proto == 6:
-            lines.append(f'route add 2001:{a3 % 256:x}{a2 % 256:02x}:{a1 % 256:x}{a0 % 256:02x}::/48 dev {dev} proto bird') 
+            lines.append(f'route add 2001:{a3 % 256:x}{a2 % 256:02x}:{a1 % 256:x}{a0 % 256:02x}::/48 dev {dev} proto bird')
         elif proto == 4:
             lines.append(f'route add {a3 % 256}.{a2 % 256}.{a1 % 256}.{a0 % 256}/32 dev {dev} proto bird')
         else:
