@@ -1757,7 +1757,7 @@ Feature: NM: dracut
     ##########
 
 
-    @rhelver+=8.3 @rhelver-=8.99 @fedoraver+=32
+    @rhelver+=8.3 @rhelver-=8.99 @fedoraver-=0
     @dracut @long @x86_64_only
     @dracut_legacy_iSCSI_ibft_table
     Scenario: NM - dracut - legacy module - iSCSI ibft table
