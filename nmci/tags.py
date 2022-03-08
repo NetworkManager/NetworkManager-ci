@@ -749,7 +749,7 @@ _register_tag("ipv6", None, ethernet_as)
 
 
 def ifcfg_rh_bs(ctx, scen):
-    if ctx.command_code("rpm -q Networkmanager-initscripts-updown") != 0:
+    if ctx.rh_release_num >= 9 and ctx.command_code("rpm -q Networkmanager-initscripts-updown") != 0:
        print("install NetworkManager-initscripts-updown")
        ctx.run("dnf install -y NetworkManager-initscripts-updown")
     if ctx.command_code("NetworkManager --print-config |grep '^plugins=ifcfg-rh'") != 0:
@@ -784,7 +784,7 @@ _register_tag("ifcfg-rh", ifcfg_rh_bs, ifcfg_rh_as)
 
 
 def keyfile_bs(ctx, scen):
-    if ctx.command_code("rpm -q Networkmanager-initscripts-updown") != 0:
+    if ctx.rh_release_num >= 9 and ctx.command_code("rpm -q Networkmanager-initscripts-updown") != 0:
        print("install NetworkManager-initscripts-updown")
        ctx.run("dnf install -y NetworkManager-initscripts-updown")
     if ctx.command_code("NetworkManager --print-config |grep '^plugins=keyfile'") != 0:
