@@ -69,6 +69,7 @@
 
 
     @rhbz1250723
+    @rhelver+=8
     @libreswan @ikev2
     @libreswan_connection_renewal
     Scenario: NM - libreswan - main connection lifetime renewal
@@ -137,6 +138,7 @@
     Then "IP4.GATEWAY:.*11.12.13.14" is visible with command "nmcli d show libreswan1"
 
 
+    @rhelver+=8
     @libreswan @ikev2
     @libreswan_terminate
     Scenario: nmcli - libreswan - terminate connection
@@ -148,6 +150,7 @@
     Then "VPN.VPN-STATE:.*VPN connected" is not visible with command "nmcli c show libreswan" in "10" seconds
 
 
+    @rhelver+=8
     @libreswan @ikev2
     @libreswan_delete_active_profile
     Scenario: nmcli - libreswan - delete active profile
@@ -161,7 +164,7 @@
 
 
     @rhbz1348901
-    @ver+=1.4.0
+    @rhelver+=8 @ver+=1.4.0
     @libreswan @ikev2
     @libreswan_dns
     Scenario: nmcli - libreswan - dns
@@ -206,7 +209,7 @@
 
 
     #this is somehow broken in 7.2 in libreswan not in NM
-    @ver+=1.0.8
+    @ver+=1.0.8 @rhelver+=8
     @libreswan @ikev2
     @libreswan_start_as_secondary
     Scenario: nmcli - libreswan - start as secondary
@@ -330,7 +333,7 @@
 
 
     @rhbz1633174
-    @ver+=1.14.0  @rhelver+=8 @rhelver-=8 @fedoraver-=31
+    @ver+=1.14.0 @rhelver+=8 @rhelver-=8 @fedoraver-=31
     @libreswan
     @libreswan_reimport
     Scenario: nmcli - libreswan - reimport exported connection
@@ -353,7 +356,7 @@
 
 
     @rhbz1633174
-    @ver+=1.14.0  @rhelver+=8
+    @ver+=1.14.0 @rhelver+=8
     @libreswan @ikev2
     @libreswan_reimport_ikev2
     Scenario: nmcli - libreswan - reimport exported IKEv2 connection

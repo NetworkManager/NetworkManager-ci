@@ -21,7 +21,7 @@
 
 
     @rhbz1912423
-    @ver+=1.32.4
+    @rhelver+=8 @ver+=1.32.4
     @openvpn @openvpn6 @libreswan @ikev2
     @multiple_vpn_connections
     Scenario: nmcli - vpn - multiple connections
