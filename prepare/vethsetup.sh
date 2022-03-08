@@ -87,8 +87,14 @@ function setup_veth_env ()
     UUID_NAME=$(nmcli -t -f UUID,NAME c show --active | head -n 1)
     NAME=${UUID_NAME#*:}
     UUID=${UUID_NAME%:*}
+    
     # Overwrite the name in order to be sure to have all the NM keys (including UUID) in the ifcfg file
-    nmcli con mod $UUID connection.id "$NAME"
+    for i in {1..10}; do
+        nmcli con mod $UUID connection.id "$NAME"
+        test -f /tmp/nm_plugin_keyfiles && break
+        grep -q "UUID=$UUID" /etc/sysconfig/network-scripts/ifcfg-$DEV && break
+        sleep 0.5
+    done
 
     if ! test -f /tmp/nm_plugin_keyfiles; then
         # Backup original ifcfg
