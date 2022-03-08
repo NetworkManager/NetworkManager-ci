@@ -2540,6 +2540,6 @@ Feature: nmcli - general
     * Bring "up" connection "dummy0"
     * Execute "ip route add blackhole 172.25.1.0/24 proto bird"
     * Execute "nmcli -g uuid connection show --active | xargs nmcli -w 10 connection down"
-    When "succeeded" is visible with command "journalctl -u NetworkManager -e -n 10"
-    Then "wait for ACK" is not visible with command "journalctl -u NetworkManager -e -n 1000"
+    When "succeeded" is visible with command "journalctl -u NetworkManager --no-pager -n 10"
+    Then "wait for ACK" is not visible with command "journalctl -u NetworkManager --no-pager -n 1000"
      And "blackhole" is visible with command "ip route"
