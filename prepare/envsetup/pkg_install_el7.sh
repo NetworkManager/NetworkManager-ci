@@ -36,11 +36,10 @@ install_el7_packages () {
     yum -y install \
         git iw net-tools wireshark psmisc bridge-utils firewalld dhcp ethtool \
         python36-dbus python36-gobject dnsmasq NetworkManager-vpnc iproute-tc \
-        openvpn
+        openvpn rp-pppoe
 
     yum -y install \
-        $KOJI/hostapd/2.8/1.el7/$(arch)/hostapd-2.8-1.el7.$(arch).rpm \
-        $KOJI/rp-pppoe/3.12/11.fc28/$(arch)/rp-pppoe-3.12-11.fc28.$(arch).rpm
+        $KOJI/hostapd/2.8/1.el7/$(arch)/hostapd-2.8-1.el7.$(arch).rpm
     yum -y remove \
         NetworkManager-config-connectivity-fedora NetworkManager-config-connectivity-redhat
 
