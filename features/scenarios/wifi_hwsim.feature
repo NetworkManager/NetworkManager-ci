@@ -445,7 +445,7 @@ Feature: nmcli - wifi
     @simwifi_ap @attach_wpa_supplicant_log @attach_hostapd_log
     @simwifi_ap_wpa_psk_method_shared
     Scenario: nmcli - simwifi - AP - connect to NM AP with WPA2 psk security and method shared
-    * Add a new connection of type "wifi" and options "ifname wlan1 con-name wifi-ap ssid AP_test 802-11-wireless-security.key-mgmt wpa-psk 802-11-wireless-security.psk Secret123 mode ap ipv4.method shared"
+    * Add a new connection of type "wifi" and options "ifname wlan1 con-name wifi-ap ssid AP_test 802-11-wireless-security.key-mgmt wpa-psk 802-11-wireless-security.psk Secret123 mode ap ipv4.method shared 802-11-wireless.channel 1 802-11-wireless.band bg"
     * Bring "up" connection "wifi-ap"
     When "AP_test" is visible with command "nmcli dev wifi list"
     * Add a new connection of type "wifi" and options "ifname wlan0 con-name wifi-client ssid AP_test 802-11-wireless-security.key-mgmt wpa-psk 802-11-wireless-security.psk Secret123 mode infrastructure"
@@ -460,7 +460,7 @@ Feature: nmcli - wifi
     * Prepare simulated test "testW" device without dhcp
     * Add a new connection of type "bridge" and options "con-name br0 ifname br0 connection.autoconnect true ipv4.method manual ipv4.addresses 192.168.14.1/24"
     * Add a new connection of type "ethernet" and options "con-name br0-slave1 ifname testW"
-    * Add a new connection of type "wifi" and options "con-name br0-slave2 master br0 ifname wlan1 ssid AP_test 802-11-wireless-security.key-mgmt wpa-psk 802-11-wireless-security.psk Secret123 mode ap"
+    * Add a new connection of type "wifi" and options "con-name br0-slave2 master br0 ifname wlan1 ssid AP_test 802-11-wireless-security.key-mgmt wpa-psk 802-11-wireless-security.psk Secret123 mode ap 802-11-wireless.channel 1 802-11-wireless.band bg"
     * Bring "up" connection "br0"
     When "AP_test" is visible with command "nmcli dev wifi list --rescan yes" in "30" seconds
     * Add a new connection of type "wifi" and options "ifname wlan0 con-name wifi-client ssid AP_test 802-11-wireless-security.key-mgmt wpa-psk 802-11-wireless-security.psk Secret123 mode infrastructure ipv4.method manual ipv4.addresses 192.168.14.2/24"
