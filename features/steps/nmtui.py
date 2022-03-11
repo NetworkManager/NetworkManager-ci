@@ -4,6 +4,7 @@ import re
 import time
 from behave import step
 
+import nmci.lib
 
 OUTPUT = '/tmp/nmtui.out'
 TERM_TYPE = 'vt102'
@@ -42,30 +43,6 @@ keys['F11'] = "\x1b\x5b\x32\x33\x7e"
 keys['F12'] = "\x1b\x5b\x32\x34\x7e"
 
 
-def print_screen_wo_cursor(screen):
-    for i in range(len(screen.display)):
-        print(screen.display[i])
-
-
-def get_cursored_screen(screen):
-    myscreen_display = screen.display
-    lst = [item for item in myscreen_display[screen.cursor.y]]
-    lst[screen.cursor.x] = '\u2588'
-    myscreen_display[screen.cursor.y] = ''.join(lst)
-    return myscreen_display
-
-
-def get_screen_string(screen):
-    screen_string = '\n'.join(screen.display)
-    return screen_string
-
-
-def print_screen(screen):
-    cursored_screen = get_cursored_screen(screen)
-    for i in range(len(cursored_screen)):
-        print(cursored_screen[i])
-
-
 # update the screen
 def feed_stream(stream):
     if os.path.isfile(OUTPUT):
@@ -82,7 +59,10 @@ def init_screen():
 def go_until_pattern_matches_line(context, key, pattern, limit=50):
     time.sleep(0.2)
     feed_stream(context.stream)
+    screens = []
     for i in range(0, limit):
+        screens.append(f"go_until_pattern_matches_line #{i}")
+        screens += nmci.lib.get_cursored_screen(context.screen)
         match = re.match(pattern, context.screen.display[context.screen.cursor.y], re.UNICODE)
         if match is not None:
             return match
@@ -90,6 +70,7 @@ def go_until_pattern_matches_line(context, key, pattern, limit=50):
             context.tui.send(key)
             time.sleep(0.3)
             feed_stream(context.stream)
+    nmci.lib.log_tui_screen(context, screens, "TUI DEBUG")
     return None
 
 
@@ -99,15 +80,19 @@ def go_until_pattern_matches_aftercursor_text(context, key, pattern, limit=50, i
     feed_stream(context.stream)
     if include_precursor_char is True:
         pre_c = -1
+    screens = []
     for i in range(0, limit):
-        match = re.match(pattern, context.screen.display[context.screen.cursor.y][context.screen.cursor.x+pre_c:], re.UNICODE)
-        print(context.screen.display[context.screen.cursor.y])
+        screens.append(f"go_until_pattern_matches_aftercursor_text #{i}")
+        screens += nmci.lib.get_cursored_screen(context.screen)
+        line = context.screen.display[context.screen.cursor.y]
+        match = re.match(pattern, line[context.screen.cursor.x+pre_c:], re.UNICODE)
         if match is not None:
             return match
         else:
             context.tui.send(key)
             time.sleep(0.3)
             feed_stream(context.stream)
+    nmci.lib.log_tui_screen(context, screens, "TUI DEBUG")
     return None
 
 
@@ -116,7 +101,10 @@ def search_all_patterns_in_list(context, patterns, limit=50):
     context.tui.send(keys["UPARROW"]*limit)
     time.sleep(0.2)
     feed_stream(context.stream)
+    screens = []
     for i in range(0, limit):
+        screens.append(f"search_all_patterns_in_list #{i}")
+        screens += nmci.lib.get_cursored_screen(context.screen)
         for pattern in patterns:
             match = re.match(pattern, context.screen.display[context.screen.cursor.y], re.UNICODE)
             if match is not None:
@@ -127,6 +115,8 @@ def search_all_patterns_in_list(context, patterns, limit=50):
         context.tui.send(keys["DOWNARROW"])
         time.sleep(0.3)
         feed_stream(context.stream)
+    if patterns:
+        nmci.lib.log_tui_screen(context, screens, "TUI DEBUG")
     return patterns
 
 
@@ -211,12 +201,14 @@ def press_password_dialog_button(context, button):
 
 @step('Select connection "{con_name}" in the list')
 def select_con_in_list(context, con_name):
-    match = re.match('.*Delete.*', get_screen_string(context.screen), re.UNICODE | re.DOTALL)
+    screen = nmci.lib.get_screen_string(context.screen)
+    match = re.match('.*Delete.*', screen, re.UNICODE | re.DOTALL)
     if match is not None:
         context.tui.send(keys['LEFTARROW']*8)
         context.tui.send(keys['UPARROW']*16)
     if not go_until_pattern_matches_line(context, keys['DOWNARROW'], r'.*%s.*' % con_name):
-        assert go_until_pattern_matches_line(context, keys['UPARROW'], r'.*%s.*' % con_name) is not None, "Could not go to connection '%s' on screen!" % con_name
+        assert go_until_pattern_matches_line(context, keys['UPARROW'], r'.*%s.*' % con_name) is not None, \
+            "Could not go to connection '%s' on screen!" % con_name
 
 
 @step('Connections "{con_names}" are in the list')
@@ -309,7 +301,7 @@ def pattern_on_screen(context, pattern, seconds=1):
     seconds = int(seconds)
     while seconds and match is None:
         seconds -= 1
-        screen = get_screen_string(context.screen)
+        screen = nmci.lib.get_screen_string(context.screen)
         match = re.match(pattern, screen, re.UNICODE | re.DOTALL)
         if match is not None:
             break
@@ -325,7 +317,7 @@ def pattern_not_on_screen(context, pattern, seconds=1):
     seconds = int(seconds)
     while seconds and match is not None:
         seconds -= 1
-        screen = get_screen_string(context.screen)
+        screen = nmci.lib.get_screen_string(context.screen)
         match = re.match(pattern, screen, re.UNICODE | re.DOTALL)
         if match is None:
             break

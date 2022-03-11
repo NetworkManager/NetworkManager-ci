@@ -337,11 +337,16 @@ def process_commands(context, when):
 
 
 def get_cursored_screen(screen):
-    myscreen_display = screen.display
+    myscreen_display = [line for line in screen.display]
     lst = [item for item in myscreen_display[screen.cursor.y]]
     lst[screen.cursor.x] = "\u2588"
     myscreen_display[screen.cursor.y] = "".join(lst)
     return myscreen_display
+
+
+def get_screen_string(screen):
+    screen_string = '\n'.join(screen.display)
+    return screen_string
 
 
 def print_screen(screen):
@@ -350,14 +355,13 @@ def print_screen(screen):
         print(cursored_screen[i])
 
 
-def log_screen(stepname, screen, path):
-    cursored_screen = get_cursored_screen(screen)
-    f = open(path, "a+")
-    f.write(stepname + "\n")
-    for i in range(len(cursored_screen)):
-        f.write(cursored_screen[i] + "\n")
-    f.flush()
-    f.close()
+def print_screen_wo_cursor(screen):
+    for i in range(len(screen.display)):
+        print(screen.display[i])
+
+
+def log_tui_screen(context, screen, caption="TUI"):
+    context.embed("text/plain", "\n".join(screen), caption)
 
 
 def stripped(x):

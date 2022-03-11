@@ -69,6 +69,7 @@ def _before_scenario(context, scenario):
     context.html_formatter.actual["act_step_embed_span"] = embed_el
 
     # set important context attributes
+    context.step_level = 0
     context.nm_restarted = False
     context.nm_pid = nmci.lib.nm_pid()
     context.crashed_step = False
@@ -91,13 +92,7 @@ def _before_scenario(context, scenario):
 
     if context.IS_NMTUI:
         nmci.run("sudo pkill nmtui")
-        # Do the cleanup
-        if os.path.isfile('/tmp/tui-screen.log'):
-            os.remove('/tmp/tui-screen.log')
-        fd = open('/tmp/tui-screen.log', 'a+')
-        fd.write('Screen recordings after each step:' + '\n----------------------------------\n')
-        fd.flush()
-        fd.close()
+        context.screen_logs = []
     else:
         if not os.path.isfile('/tmp/nm_wifi_configured') \
                 and not os.path.isfile('/tmp/nm_dcb_inf_wol_sriov_configured'):
@@ -157,8 +152,13 @@ def _before_scenario(context, scenario):
         assert False, "Exception in before scenario tags:\n\n" + "\n\n".join(excepts)
 
 
+def before_step(context, step):
+    context.step_level += 1
+
+
 def after_step(context, step):
     context.no_step = False
+    context.step_level -= 1
     if ("DEVICE_CAP_AP" in step.name or "DEVICE_CAP_ADHOC" in step.name) \
             and "is set in WirelessCapabilites" in step.name and \
             step.status == 'failed' and step.step_type == 'given':
@@ -185,8 +185,13 @@ def after_step(context, step):
         """
         if os.path.isfile('/tmp/nmtui.out'):
             context.stream.feed(nmci.lib.utf_only_open_read('/tmp/nmtui.out').encode('utf-8'))
-        nmci.lib.print_screen(context.screen)
-        nmci.lib.log_screen(step.name, context.screen, '/tmp/tui-screen.log')
+        # do not append step.name if no substeps called
+        if context.screen_logs or context.step_level > 0:
+            context.screen_logs.append(step.name)
+        context.screen_logs += nmci.lib.get_cursored_screen(context.screen)
+        if context.step_level == 0:
+            nmci.lib.log_tui_screen(context, context.screen_logs)
+            context.screen_logs = []
 
         if step.status == 'failed':
             # Test debugging - set DEBUG_ON_FAILURE to drop to ipdb on step failure
