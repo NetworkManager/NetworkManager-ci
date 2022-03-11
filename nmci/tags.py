@@ -1663,7 +1663,12 @@ def openvswitch_as(ctx, scen):
     ctx.run('sudo ifdown eth1')
     ctx.run('sudo ifdown eth2')
     ctx.run('sudo ifdown ovsbridge0')
-    ctx.run('sudo nmcli con del eth1 eth2 ovs-bond0 ovs-port0 ovs-patch0 ovs-patch1 ovs-bridge1 ovs-bridge0 ovs-port1 ovs-eth2 ovs-eth3 ovs-iface0 ovs-iface1 eth2 dpdk-sriov c-ovs-br0 c-ovs-port0 c-ovs-iface0 ovs-testX ovs1-if ovs-br0-br || true')  # to be sure
+    cons = ["eth1", "eth2", "ovs-bond0", "ovs-port0", "ovs-patch0",
+            "ovs-patch1", "ovs-bridge1", "ovs-bridge0", "ovs-port1",
+            "ovs-eth2", "ovs-eth3", "ovs-iface0", "ovs-iface1",
+            "dpdk-sriov", "c-ovs-br0", "c-ovs-port0", "c-ovs-iface0", "ovs-testX",
+            "ovs1-if", "ovs-br0-br", "ovs-br0", "ovs1"]
+    ctx.run('sudo nmcli con del ' + " ".join(cons) + ' || true')  # to be sure
     time.sleep(1)
     ctx.run('ovs-vsctl del-br ovsbr0')
     ctx.run('ovs-vsctl del-br ovs-br0')
