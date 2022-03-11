@@ -802,7 +802,7 @@ Feature: nmcli - ovs
 
 
     @rhbz1923248 @rhbz1935026
-    @ver+=1.36 @rhelver+=8
+    @ver+=1.36 @rhelver+=8.6
     @may_fail #as of 1935026 still unfixed
     @openvswitch @nmstate
     @ovs_nmstate
@@ -926,7 +926,7 @@ Feature: nmcli - ovs
     * Add a new connection of type "ovs-bridge" and options "conn.interface ovsbridge0 con-name ovs-bridge0 ovs-bridge.datapath-type netdev"
     * Add a new connection of type "ovs-port" and options "conn.interface bond0 conn.master ovsbridge0 con-name ovs-bond0 ovs-port.bond-mode balance-slb"
     * Add a new connection of type "ovs-port" and options "conn.interface port0 master ovsbridge0 con-name ovs-port0"
-    * Add a new connection of type "ovs-interface" and options 
+    * Add a new connection of type "ovs-interface" and options
         """
         slave-type ovs-port
         conn.interface port0
@@ -934,7 +934,7 @@ Feature: nmcli - ovs
         con-name ovs-port1
         802-3-ethernet.mtu 9000
         """
-    * Add a new connection of type "ovs-interface" and options 
+    * Add a new connection of type "ovs-interface" and options
         """
         conn.interface iface0
         conn.master bond0
@@ -943,7 +943,7 @@ Feature: nmcli - ovs
         ovs-interface.type dpdk
         802-3-ethernet.mtu 9000
         """
-    * Add a new connection of type "ovs-interface" and options 
+    * Add a new connection of type "ovs-interface" and options
         """
         conn.interface iface1
         conn.master bond0
@@ -959,4 +959,3 @@ Feature: nmcli - ovs
     Then "9000" is visible with command "nmcli -g 802-3-ethernet.mtu c show ovs-iface0"
     And "9000" is visible with command "nmcli -g 802-3-ethernet.mtu c show ovs-iface1"
     And "mtu 9000" is visible with command "ip a s dev port0"
-    
