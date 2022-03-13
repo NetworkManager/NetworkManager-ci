@@ -345,7 +345,7 @@ def get_cursored_screen(screen):
 
 
 def get_screen_string(screen):
-    screen_string = '\n'.join(screen.display)
+    screen_string = "\n".join(screen.display)
     return screen_string
 
 
