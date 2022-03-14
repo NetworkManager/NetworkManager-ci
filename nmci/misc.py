@@ -489,7 +489,9 @@ class _Misc:
         return v1 and v2
 
     def nmlog_parse_dnsmasq(self, ifname):
-        s = process.run_check([util.util_dir("helpers/nmlog-parse-dnsmasq.sh"), ifname])
+        s = process.run_check(
+            [util.util_dir("helpers/nmlog-parse-dnsmasq.sh"), ifname], timeout=20
+        )
         import json
 
         return json.loads(s)
