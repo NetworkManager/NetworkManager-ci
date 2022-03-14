@@ -71,7 +71,9 @@ class _IP:
 
         return result
 
-    def _link_show(self, ifindex=None, ifname=None, flags=None, binary=None):
+    def _link_show(
+        self, ifindex=None, ifname=None, flags=None, binary=None, allow_missing=False
+    ):
 
         if ifindex is None and ifname is None:
             raise ValueError("Missing argument, either ifindex or ifname must be given")
@@ -113,6 +115,8 @@ class _IP:
             else:
                 s = 'ifindex=%s, ifname="%s"' % (ifindex, ifname)
             if not result:
+                if allow_missing:
+                    return None
                 raise KeyError("Could not find interface with " + s)
             raise KeyError("Could not find unique interface with " + s)
 
@@ -154,6 +158,9 @@ class _IP:
 
             time.sleep(0.08)
 
+    def link_show_maybe(self, allow_missing=True, **kwargs):
+        return self.link_show(allow_missing=allow_missing, **kwargs)
+
     def link_set(self, ifindex=None, ifname=None, up=None, wait_for_device=None):
 
         li = self.link_show(ifindex=ifindex, ifname=ifname, timeout=wait_for_device)
@@ -164,6 +171,14 @@ class _IP:
             else:
                 arg = "down"
             process.run_check(["ip", "link", "set", li["ifname"], arg])
+
+    def link_delete(self, ifname=None, *, ifindex=None):
+
+        if ifname is None or ifindex is not None:
+            li = self.link_show(ifindex=ifindex)
+            ifname = li["ifname"]
+
+        process.run_check(["ip", "link", "delete", ifname])
 
 
 sys.modules[__name__] = _IP()

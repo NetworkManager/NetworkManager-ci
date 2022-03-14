@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 
+import os
 import pytest
 import re
 import subprocess
@@ -542,32 +543,6 @@ def test_mapper_feature_file():
         assert found, f"test @{testname} not defined in feature file {feature}"
 
 
-def test_black_code_fromatting():
-
-    files = [
-        util.base_dir("nmci"),
-        util.base_dir("version_control.py"),
-    ]
-
-    exclude = [
-        "--exclude",
-        "nmci/(tags)\\.py",
-    ]
-
-    try:
-        proc = subprocess.run(
-            ["black", "-q", "--diff"] + exclude + files,
-            stdout=subprocess.PIPE,
-            stderr=subprocess.PIPE,
-        )
-    except FileNotFoundError:
-        pytest.skip("python black is not available")
-
-    assert not proc.stderr
-    assert not proc.stdout
-    assert proc.returncode == 0
-
-
 def test_process_run():
 
     assert process.run(["true"]).returncode == 0
@@ -689,6 +664,15 @@ def test_ip_link_show_all():
 
     l0 = ip.link_show_all(binary=None)
 
+    stdout = process.run("ip link show", as_bytes=True).stdout
+    try:
+        stdout.decode("utf-8", errors="strict")
+        has_binary = False
+    except UnicodeDecodeError:
+        # we test here the real system. If you had any non-utf8 links,
+        # it would break the test. Detect that.
+        has_binary = True
+
     def _normalize(i):
         return (i["ifindex"], util.str_to_bytes(i["ifname"]), i["flags"])
 
@@ -699,9 +683,14 @@ def test_ip_link_show_all():
     assert [_normalize(i) for i in l0] == [
         _normalize(i) for i in ip.link_show_all(binary=True)
     ]
-    assert [_normalize(i) for i in l0] == [
-        _normalize(i) for i in ip.link_show_all(binary=False)
-    ]
+
+    if not has_binary:
+        assert [_normalize(i) for i in l0] == [
+            _normalize(i) for i in ip.link_show_all(binary=False)
+        ]
+    else:
+        with pytest.raises(UnicodeDecodeError):
+            ip.link_show_all(binary=False)
 
     l = ip.link_show(ifname="lo", binary=None)
     assert l["ifname"] == "lo"
@@ -711,6 +700,11 @@ def test_ip_link_show_all():
 
     l = ip.link_show(ifname="lo", binary=True)
     assert l["ifname"] == b"lo"
+
+    if has_binary:
+        pytest.skip(
+            "The system has binary interface names (check `ip link`). Some tests were skipped."
+        )
 
 
 def test_clock_boottime():
@@ -779,3 +773,53 @@ def test_context_set_up_commands():
     with pytest.raises(Exception) as e:
         context.process.run_check("false")
     assert context._command_calls == [(["false"], 1, b"", b"")]
+
+
+def test_ip_link_add_nonutf8():
+
+    if os.environ.get("NMCI_ROOT_TEST") != "1":
+        pytest.skip("skip root test. Run with NMCI_ROOT_TEST=1")
+
+    ifname = b"\xCB[2Jnonutf\xCCf\\c"
+
+    if not ip.link_show_maybe(ifname=ifname):
+        process.run_check(["ip", "link", "add", "name", ifname, "type", "dummy"])
+
+        # udev might rename the interface, try to workaround the race.
+        time.sleep(0.1)
+
+        if not ip.link_show_maybe(ifname=ifname):
+            # hm. Did udev rename the interface and replace non-UTF-8 chars
+            # with "_"?
+            ifname = "_[2Jnonutf_f\\c"
+            assert ip.link_show(ifname=ifname)
+
+    ip.link_delete(ifname)
+
+
+# This test should always run as last. Keep it at the bottom
+# of the file.
+def test_black_code_fromatting():
+
+    files = [
+        util.base_dir("nmci"),
+        util.base_dir("version_control.py"),
+    ]
+
+    exclude = [
+        "--exclude",
+        "nmci/(tags)\\.py",
+    ]
+
+    try:
+        proc = subprocess.run(
+            ["black", "-q", "--diff"] + exclude + files,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+        )
+    except FileNotFoundError:
+        pytest.skip("python black is not available")
+
+    assert not proc.stderr
+    assert not proc.stdout
+    assert proc.returncode == 0
