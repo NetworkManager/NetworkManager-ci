@@ -393,7 +393,7 @@ def nm_env(context):
     if not os.path.isfile("/tmp/nm_envsetup_log.first.txt"):
         subprocess.call("cp /tmp/nm_envsetup_log.txt /tmp/nm_envsetup_log.first.txt", shell=True)
     else:
-        context.embed("text/plain", utf_only_open_read("/tmp/nm_envsetup_log.txt"),
+        context.embed("text/plain", utf_only_open_read("/tmp/nm_envsetup_log.first.txt"),
                       "First NM envsetup")
     assert ret == 0, "NetworkManager-ci envsetup failed !!!"
     nm_install_pkgs(context)
