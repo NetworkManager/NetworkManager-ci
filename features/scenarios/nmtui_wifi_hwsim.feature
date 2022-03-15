@@ -126,7 +126,7 @@ Feature: WIFI TUI tests
     Then "inet 10." is visible with command "ip a s wlan0" in "30" seconds
 
 
-    @fedoraver+=32 @rhelver-=8
+    @fedoraver-=34 @rhelver-=8
     @simwifi @attach_hostapd_log @attach_wpa_supplicant_log @ifcfg-rh
     @nmtui_simwifi_connect_to_wep_hexkey_network
     Scenario: nmtui - wifi_hwsim - connect to WEP hex-key network straight
@@ -144,7 +144,7 @@ Feature: WIFI TUI tests
     Then "inet 10." is visible with command "ip a s wlan0" in "30" seconds
 
 
-    @fedoraver+=32 @rhelver-=8
+    @fedoraver-=34 @rhelver-=8
     @simwifi @attach_hostapd_log @attach_wpa_supplicant_log
     @nmtui_simwifi_connect_to_wep_asciikey_network
     Scenario: nmtui - wifi_hwsim - connect to WEP ascii-key network straight
@@ -527,7 +527,7 @@ Feature: WIFI TUI tests
     Then "SSID: wpa3-psk" is visible with command "iw dev wlan0 link" in "30" seconds
 
 
-    @fedoraver+=32 @rhelver-=8
+    @fedoraver-=34 @rhelver-=8
     @simwifi @attach_hostapd_log @attach_wpa_supplicant_log
     @nmtui_simwifi_wep_hexkey_connection
     Scenario: nmtui - wifi_hwsim - WEP hex key connection
@@ -542,7 +542,7 @@ Feature: WIFI TUI tests
     Then "SSID: wep" is visible with command "iw dev wlan0 link" in "30" seconds
 
 
-    @fedoraver+=32 @rhelver-=8
+    @fedoraver-=34 @rhelver-=8
     @simwifi @attach_hostapd_log @attach_wpa_supplicant_log
     @nmtui_simwifi_wep_ascii_connection
     Scenario: nmtui - wifi_hwsim - WEP ascii connection

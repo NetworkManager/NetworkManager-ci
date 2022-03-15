@@ -20,7 +20,7 @@ Feature: nmcli - wifi
     Then "\*\s+open" is visible with command "nmcli -f IN-USE,SSID device wifi list"
 
 
-    @ver+=1.9.1 @fedoraver+=31 @rhelver-=8
+    @ver+=1.9.1 @fedoraver-=34 @rhelver-=8
     @simwifi @attach_hostapd_log @attach_wpa_supplicant_log @simwifi_pskwep
     @simwifi_wep_ask_passwd
     Scenario: nmcli - wifi - connect WEP network asking for password
@@ -32,7 +32,7 @@ Feature: nmcli - wifi
     Then "wep" is visible with command "iw dev wlan0 link"
 
 
-    @ver+=1.10 @fedoraver+=31 @rhelver-=8
+    @ver+=1.10 @fedoraver-=34 @rhelver-=8
     @simwifi @simwifi_dynwep @attach_hostapd_log @attach_wpa_supplicant_log
     @simwifi_wep_tls
     Scenario: nmcli - simwifi - connect to WEP TLS
@@ -43,7 +43,7 @@ Feature: nmcli - wifi
     Then Bring "up" connection "wifi"
 
 
-    @ver+=1.10 @fedoraver+=31 @rhelver-=8
+    @ver+=1.10 @fedoraver-=34 @rhelver-=8
     @need_legacy_crypto
     @simwifi @simwifi_dynwep @attach_hostapd_log @attach_wpa_supplicant_log
     @simwifi_wep_ttls_mschapv2_eap
@@ -54,7 +54,7 @@ Feature: nmcli - wifi
     Then Bring "up" connection "wifi"
 
 
-    @ver+=1.10 @fedoraver+=31 @rhelver-=8
+    @ver+=1.10 @fedoraver-=34 @rhelver-=8
     @simwifi @simwifi_dynwep @attach_hostapd_log @attach_wpa_supplicant_log
     @simwifi_wep_peap_gtc
     Scenario: nmcli - simwifi - connect to WEP PEAP GTC
