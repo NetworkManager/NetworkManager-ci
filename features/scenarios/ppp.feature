@@ -34,17 +34,16 @@ Feature: nmcli - ppp
     * Execute "ip link set dev test11 up"
     * Prepare pppoe server for user "test" with "networkmanager" password and IP "192.168.111.2" authenticated via "chap"
     * Start pppoe server with "isp" and IP "192.168.111.254" on device "test12"
-    * Add "pppoe" connection named "ppp" for device "my-ppp" with options
+    * Add "pppoe" connection named "ppp" for device "test11" with options
           """
-          pppoe.parent test11
           service isp username test password networkmanager
           autoconnect no
           """
     * Bring "up" connection "ppp"
     Then Nameserver "8.8.8.8" is set in "5" seconds
     Then Nameserver "8.8.4.4" is set in "5" seconds
-    Then "inet 192.168.111.2 peer 192.168.111.254/32" is visible with command "ip a s my-ppp"
-    And "default via 192.168.111.254 dev my-ppp" is visible with command "ip r"
+    Then "inet 192.168.111.2 peer 192.168.111.254/32" is visible with command "ip a s"
+    And "default via 192.168.111.254 dev ppp" is visible with command "ip r"
 
 
     @not_on_s390x @pppoe @del_test1112_veths
