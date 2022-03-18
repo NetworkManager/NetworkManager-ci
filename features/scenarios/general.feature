@@ -1310,7 +1310,7 @@ Feature: nmcli - general
 
 
     @rhbz1079353
-   
+
     @nmcli_general_wait_for_carrier_on_new_device_request
     Scenario: nmcli - general - wait for carrier on new device activation request
     * Add a new connection of type "ethernet" named "con_general" and options "ifname testG autoconnect no"
@@ -1919,7 +1919,7 @@ Feature: nmcli - general
     @ver+=1.10.7
     @libnm_async_tasks_cancelable
     Scenario: NM - general - cancelation of libnm async tasks (add_connection_async)
-    * Cleanup connection "con_general"    
+    * Cleanup connection "con_general"
     Then Execute "/usr/bin/python contrib/reproducers/repro_1555281.py con_general"
 
 
@@ -1950,7 +1950,7 @@ Feature: nmcli - general
     Scenario: NM - general - libnm snapshot and rollback
     * Add a new connection of type "ethernet" named "con_general" and options "ifname eth8"
     * Add a new connection of type "ethernet" named "con_general2" and options "ifname eth9"
-    * Execute "contrib/gi/libnm_snapshot_checkpoint.py create 0 eth8 eth9"
+    * "Failed" is not visible with command "contrib/gi/libnm_snapshot_checkpoint.py create 0 eth8 eth9" in "0" seconds
     * Modify connection "con_general" changing options "ipv4.method manual ipv4.addresses 1.2.3.4/24 ipv4.gateway 1.2.3.1"
     * Bring "up" connection "con_general"
     * Modify connection "con_general2" changing options "ipv4.method manual ipv4.addresses 1.2.3.5/24 ipv4.gateway 1.2.3.1"
@@ -1958,7 +1958,7 @@ Feature: nmcli - general
     When "1.2.3.4/24" is visible with command "ip a s eth8" in "5" seconds
     When "1.2.3.5/24" is visible with command "ip a s eth9" in "5" seconds
      And "1.2.3.1" is visible with command "ip r"
-    * Execute "contrib/gi/libnm_snapshot_checkpoint.py rollback"
+    * "ERROR" is not visible with command "contrib/gi/libnm_snapshot_checkpoint.py rollback" in "0" seconds
     Then "192.168.10[0-3]" is visible with command "ip a s eth8" in "45" seconds
      And "192.168.10[0-3]" is visible with command "ip a s eth9" in "45" seconds
      And "1.2.3.4/24" is not visible with command "ip a s eth8"
@@ -1974,7 +1974,7 @@ Feature: nmcli - general
     Scenario: NM - general - libnm snapshot and rollback all devices
     * Add a new connection of type "ethernet" named "con_general" and options "ifname eth8"
     * Add a new connection of type "ethernet" named "con_general2" and options "ifname eth9"
-    * Execute "contrib/gi/libnm_snapshot_checkpoint.py create 0"
+    * "Failed" is not visible with command "contrib/gi/libnm_snapshot_checkpoint.py create 0" in "0" seconds
     * Modify connection "con_general" changing options "ipv4.method manual ipv4.addresses 1.2.3.4/24 ipv4.gateway 1.2.3.1"
     * Bring "up" connection "con_general"
     * Modify connection "con_general2" changing options "ipv4.method manual ipv4.addresses 1.2.3.5/24 ipv4.gateway 1.2.3.1"
@@ -1982,7 +1982,7 @@ Feature: nmcli - general
     When "1.2.3.4/24" is visible with command "ip a s eth8" in "5" seconds
     When "1.2.3.5/24" is visible with command "ip a s eth9" in "5" seconds
      And "1.2.3.1" is visible with command "ip r"
-    * Execute "contrib/gi/libnm_snapshot_checkpoint.py rollback"
+    * "ERROR" is not visible with command "contrib/gi/libnm_snapshot_checkpoint.py rollback" in "0" seconds
     Then "192.168.10[0-3]" is visible with command "ip a s eth8" in "45" seconds
      And "192.168.10[0-3]" is visible with command "ip a s eth9" in "45" seconds
      And "1.2.3.4/24" is not visible with command "ip a s eth8"
@@ -1998,7 +1998,7 @@ Feature: nmcli - general
     Scenario: NM - general - libnm snapshot and rollback all devices with timeout
     * Add a new connection of type "ethernet" named "con_general" and options "ifname eth8"
     * Add a new connection of type "ethernet" named "con_general2" and options "ifname eth9"
-    * Execute "contrib/gi/libnm_snapshot_checkpoint.py create 10"
+    * "Failed" is not visible with command "contrib/gi/libnm_snapshot_checkpoint.py create 10" in "0" seconds
     * Modify connection "con_general" changing options "ipv4.method manual ipv4.addresses 1.2.3.4/24 ipv4.gateway 1.2.3.1"
     * Bring "up" connection "con_general"
     * Modify connection "con_general2" changing options "ipv4.method manual ipv4.addresses 1.2.3.5/24 ipv4.gateway 1.2.3.1"
@@ -2021,7 +2021,7 @@ Feature: nmcli - general
     @libnm_snapshot_rollback_unmanaged
     Scenario: NM - general - libnm snapshot and rollback unmanaged
     * Execute "nmcli device set eth8 managed off"
-    * Execute "contrib/gi/libnm_snapshot_checkpoint.py create 10 eth8"
+    * "Failed" is not visible with command "contrib/gi/libnm_snapshot_checkpoint.py create 10 eth8" in "0" seconds
     * Execute "nmcli device set eth8 managed on"
     When "unmanaged" is not visible with command "nmcli device show eth8" in "5" seconds
     * Wait for at least "15" seconds
@@ -2034,7 +2034,7 @@ Feature: nmcli - general
     @libnm_snapshot_rollback_managed
     Scenario: NM - general - libnm snapshot and rollback managed
     * Execute "nmcli device set eth8 managed on"
-    * Execute "contrib/gi/libnm_snapshot_checkpoint.py create 10 eth8"
+    * "Failed" is not visible with command "contrib/gi/libnm_snapshot_checkpoint.py create 10 eth8" in "0" seconds
     * Execute "nmcli device set eth8 managed off"
     When "unmanaged" is visible with command "nmcli device show eth8" in "5" seconds
     * Wait for at least "15" seconds
@@ -2053,7 +2053,7 @@ Feature: nmcli - general
     * Bring "up" connection "gen-bond0.1"
     When Check slave "eth8" in bond "gen-bond" in proc
     When Check slave "eth9" in bond "gen-bond" in proc
-    * Execute "contrib/gi/libnm_snapshot_checkpoint.py create 10"
+    * "Failed" is not visible with command "contrib/gi/libnm_snapshot_checkpoint.py create 10" in "0" seconds
     * Delete connection "gen-bond0.0"
     * Delete connection "gen-bond0.1"
     * Delete connection "gen-bond0"
@@ -2067,10 +2067,9 @@ Feature: nmcli - general
     @gen-bond_remove @checkpoint_remove
     @libnm_snapshot_destroy_after_rollback
     Scenario: NM - general - snapshot and destroy checkpoint
-    * Execute "contrib/gi/libnm_snapshot_checkpoint.py create 5"
-    Then Execute "contrib/gi/libnm_snapshot_checkpoint.py destroy last 1"
-    * Execute "contrib/gi/libnm_snapshot_checkpoint.py create 5"
-    Then Execute "! contrib/gi/libnm_snapshot_checkpoint.py destroy last 7"
+    * "Failed" is not visible with command "contrib/gi/libnm_snapshot_checkpoint.py create 5" in "0" seconds
+    Then "Succes" is visible with command "sleep 1; contrib/gi/libnm_snapshot_checkpoint.py destroy --last" in "0" seconds
+    Then "Failed" is visible with command "CP=$(contrib/gi/libnm_snapshot_checkpoint.py create 5); sleep 7; contrib/gi/libnm_snapshot_checkpoint.py destroy $CP" in "0" seconds
 
 
     @rhbz2035519
@@ -2091,12 +2090,12 @@ Feature: nmcli - general
     * Bring "up" connection "br15-slave1"
     * Execute "ip link set portXb master br0"
     * Execute "ip link set portXc master br0"
-    * Execute "contrib/gi/libnm_snapshot_checkpoint.py create 0 --destroy-all"
+    * "Failed" is not visible with command "contrib/gi/libnm_snapshot_checkpoint.py create 0" in "0" seconds
     * Bring "up" connection "br12"
     * Execute "ip link set portXb master br0"
     * Execute "ip link set portXc master br0"
     * Wait for at least "1" seconds
-    * Execute "contrib/gi/libnm_snapshot_checkpoint.py rollback"
+    * "ERROR" is not visible with command "contrib/gi/libnm_snapshot_checkpoint.py rollback" in "0" seconds
     Then "portXa" is visible with command "bridge link"
     Then "portXb" is visible with command "bridge link"
     Then "portXc" is visible with command "bridge link"
@@ -2195,7 +2194,7 @@ Feature: nmcli - general
     @not_with_systemd_resolved
     @resolv_conf_search_limit
     Scenario: NM - general - save more than 6 search domains in resolv.conf
-    * Add a new connection of type "ethernet" named "con_general" and options 
+    * Add a new connection of type "ethernet" named "con_general" and options
         """
         ifname eth8
         autoconnect no
