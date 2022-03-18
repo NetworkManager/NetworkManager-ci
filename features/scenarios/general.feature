@@ -2070,6 +2070,35 @@ Feature: nmcli - general
     Then Execute "! contrib/gi/libnm_snapshot_checkpoint.py destroy last 7"
 
 
+    @rhbz2035519
+    @ver+=1.36
+    @teardown_testveth @bridge @checkpoint_remove
+    @libnm_snapshot_reattach_unmanaged_ports_to_bridge
+    Scenario: NM - general - reatach unmanaged ports to bridge after rollback
+    # do not use names prefixed "test", we need devices unmanaged
+    * Prepare simulated test "portXa" device without DHCP
+    * Prepare simulated test "portXb" device without DHCP
+    * Prepare simulated test "portXc" device without DHCP
+    * Add a new connection of type "bridge" and options "con-name br12 ifname br0 ipv4.method disabled ipv6.method disabled autoconnect no"
+    * Add a new connection of type "bridge" and options "con-name br15 ifname br0 ipv4.method disabled ipv6.method disabled autoconnect no"
+    * Add a new connection of type "ethernet" and options "con-name br15-slave1 ifname portXa master br15 autoconnect no"
+    # unmanage to be 100% sure
+    #* Execute "nmcli dev set portXb managed no"
+    #* Execute "nmcli dev set portXc managed no"
+    * Bring "up" connection "br15-slave1"
+    * Execute "ip link set portXb master br0"
+    * Execute "ip link set portXc master br0"
+    * Execute "contrib/gi/libnm_snapshot_checkpoint.py create 0 --destroy-all"
+    * Bring "up" connection "br12"
+    * Execute "ip link set portXb master br0"
+    * Execute "ip link set portXc master br0"
+    * Wait for at least "1" seconds
+    * Execute "contrib/gi/libnm_snapshot_checkpoint.py rollback"
+    Then "portXa" is visible with command "bridge link"
+    Then "portXb" is visible with command "bridge link"
+    Then "portXc" is visible with command "bridge link"
+
+
     @rhbz1553113
     @ver+=1.12
     @con_general_remove

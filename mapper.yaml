@@ -1731,6 +1731,8 @@ testmapper:
         feature: general
     - libnm_snapshot_destroy_after_rollback:
         feature: general
+    - libnm_snapshot_reattach_unmanaged_ports_to_bridge:
+        feature: general
     - autoconnect_no_secrets_prompt:
         feature: general
     - ifup_ifdown_scripts:
@@ -1818,7 +1820,7 @@ testmapper:
     - NM_reboot_openvswitch_vlan_configuration:
         feature: ovs
     - NM_reboot_openvswitch_vlan_configuration_var2:
-        feature: ovs    
+        feature: ovs
     - restart_NM_with_mixed_setup:
         feature: ovs
     - ovs_cloned_mac_set_on_iface:
