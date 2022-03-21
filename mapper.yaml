@@ -1755,6 +1755,8 @@ testmapper:
         feature: general
     - libnm_get_dns_crash:
         feature: general
+    - libnm_nmclient_init_crash:
+        feature: general
     - keyfile_nmconnection_extension:
         feature: general
     - move_keyfile_to_usr_lib_dir:

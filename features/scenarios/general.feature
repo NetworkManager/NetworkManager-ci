@@ -2263,6 +2263,14 @@ Feature: nmcli - general
     Then Execute "/usr/bin/python contrib/reproducers/repro_1689054.py"
 
 
+    @rhbz2027674
+    @ver+=1.37.2
+    @ver+=1.36.3
+    @libnm_nmclient_init_crash
+    Scenario: nmcli - general - libnm crash when cancelling initialization of NMClient
+    Then Execute "/usr/bin/python contrib/reproducers/repro_2027674.py"
+
+
     @rhbz1697858
     @rhelver-=7 @rhel_pkg @fedoraver-=0
     @con_general_remove @remove_custom_cfg
