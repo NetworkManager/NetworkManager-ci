@@ -227,7 +227,7 @@ Feature: nmcli: ipv4
     And "default via 192.168.4.1 dev eth3 proto static metric 256 mtu 1600" is visible with command "ip r"
     And "default via 192.168.4.1 dev eth3 proto static metric 256" is visible with command "ip r"
 
-    
+
     @rhbz1373698 @rhbz1714438 @rhbz1937823 @rhbz2013587
     @ver+=1.36.0
     @con_ipv4_remove
@@ -2376,3 +2376,28 @@ Feature: nmcli: ipv4
     When "activated" is not visible with command "nmcli -g GENERAL.STATE con show con_ipv4" for full "9" seconds
     Then "activated" is visible with command "nmcli -g GENERAL.STATE con show con_ipv4" in "10" seconds
      And "." is not visible with command "nmcli -f IP4.ADDRESS  -t con show con_ipv4"
+
+
+    @rhbz2065187
+    @ver+=1.36
+    @rhelver+=8
+    @con_ipv4_remove @teardown_testveth @scapy
+    @dhcp_internal_ack_after_nak
+    Scenario: NM - ipv4 - get IPv4 if ACK received after NAK
+    * Prepare simulated test "testX4" device without DHCP
+    # Script sends packets like this:
+    # | <- DHCP Discover
+    # | -> DHCP Offer
+    # | <- DHCP Request
+    # | -> DHCP Nak
+    # | -> DHCP Ack
+    # And this prevented internal DHCP client from getting the ack.
+    * Execute "ip netns exec testX4_ns python contrib/reproducers/repro_2059673.py" without waiting for process to finish
+    * Add a new connection of type "ethernet" and options
+        """
+        ifname testX4
+        con-name con_ipv4
+        """
+    * Bring "up" connection "con_ipv4"
+    Then "activated" is visible with command "nmcli -g GENERAL.STATE con show con_ipv4" in "40" seconds
+    Then "172.25.1.200" is visible with command "ip a s testX4"
