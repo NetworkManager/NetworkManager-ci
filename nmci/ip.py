@@ -243,6 +243,70 @@ class _IP:
 
         return result
 
+    def address_expect(
+        self,
+        expected,
+        ifindex=None,
+        ifname=None,
+        match_mode="auto",
+        with_plen=False,
+        ignore_order=False,
+        ignore_extra=True,
+        addr_family=None,
+        wait_for_address=None,
+        addrs=None,
+    ):
+        addr_family = self.addr_family_norm(addr_family)
+
+        if wait_for_address is not None:
+            end_time = time.monotonic() + wait_for_address
+            while True:
+                try:
+                    return self.address_expect(
+                        expected=expected,
+                        ifindex=ifindex,
+                        ifname=ifname,
+                        match_mode=match_mode,
+                        with_plen=with_plen,
+                        ignore_order=ignore_order,
+                        ignore_extra=ignore_extra,
+                        addr_family=addr_family,
+                        wait_for_address=None,
+                        addrs=None,
+                    )
+                except ValueError as e:
+                    if time.monotonic() >= end_time:
+                        raise ValueError(
+                            f"Requested configuration not ready after timeout: {e}"
+                        )
+
+                time.sleep(0.1)
+
+        if addrs is None:
+            addrs = self.address_show(
+                ifindex=ifindex, ifname=ifname, addr_family=addr_family
+            )
+
+        s_addrs = [
+            (f'{a["address"]}/{a["plen"]}' if with_plen else f'{a["address"]}')
+            for a in addrs
+            if a["addr_family"] in [socket.AF_INET, socket.AF_INET6]
+            and (addr_family is None or addr_family == a["addr_family"])
+        ]
+
+        try:
+            util.compare_strv_list(
+                expected=expected,
+                strv=s_addrs,
+                match_mode=match_mode,
+                ignore_extra_strv=ignore_extra,
+                ignore_order=ignore_order,
+            )
+        except ValueError as e:
+            raise ValueError(f"List of addresses unexpected: {e} (full list: {addrs})")
+
+        return addrs
+
     def link_show_all(self, binary=None):
 
         # binary is:

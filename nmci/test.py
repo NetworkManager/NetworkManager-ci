@@ -837,6 +837,22 @@ def test_ip_address_show():
             'The systems seems to have no IP addresses and/or "lo" interface. Skip address tests.'
         )
 
+    ip.address_expect(expected=["127.0.0.1"], ifindex=1, addrs=addrs)
+    with pytest.raises(ValueError):
+        ip.address_expect(
+            expected=["127.0.0.1"], ifindex=1, with_plen=True, addrs=addrs
+        )
+
+    ip.address_expect(expected=["127.0.0.1/8"], ifindex=1, with_plen=True, addrs=addrs)
+    with pytest.raises(ValueError):
+        ip.address_expect(expected=["127.0.0.1/8"], ifindex=1, addrs=addrs)
+
+    ip.address_expect(
+        expected=["127.0.0.1/8"], ifindex=1, with_plen=True, wait_for_address=0.1
+    )
+    with pytest.raises(ValueError):
+        ip.address_expect(expected=["127.0.0.1/8"], ifindex=1, wait_for_address=0.1)
+
 
 def test_clock_boottime():
 
