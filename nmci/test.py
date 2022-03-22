@@ -707,6 +707,20 @@ def test_ip_link_show_all():
         )
 
 
+def test_ip_address_show():
+    addrs = ip.address_show()
+
+    if not any(
+        [
+            a["ifname"] == "lo" and a["ifindex"] == 1 and a["address"] == "127.0.0.1"
+            for a in addrs
+        ]
+    ):
+        pytest.skip(
+            'The systems seems to have no IP addresses and/or "lo" interface. Skip address tests.'
+        )
+
+
 def test_clock_boottime():
 
     try:

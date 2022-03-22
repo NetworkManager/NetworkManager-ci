@@ -1,4 +1,5 @@
 import re
+import socket
 import subprocess
 import sys
 import time
@@ -8,6 +9,240 @@ from . import util
 
 
 class _IP:
+    def addr_family_norm(self, addr_family):
+        if addr_family in [socket.AF_INET, socket.AF_INET6]:
+            return addr_family
+        if addr_family is None or addr_family == socket.AF_UNSPEC:
+            return None
+        if addr_family in ["4", "inet", "ip4", "ipv4", "IPv4"]:
+            return socket.AF_INET
+        if addr_family in ["6", "inet6", "ip6", "ipv6", "IPv6"]:
+            return socket.AF_INET6
+        self.addr_family_check(addr_family)
+
+    def addr_family_check(self, addr_family):
+        if addr_family != socket.AF_INET and addr_family != socket.AF_INET6:
+            raise ValueError(f"invalid address family {addr_family}")
+
+    def addr_family_num(self, addr_family):
+        addr_family = self.addr_family_norm(addr_family)
+        if addr_family == socket.AF_INET:
+            return 4
+        if addr_family == socket.AF_INET6:
+            return 6
+        self.addr_family_check(addr_family)
+
+    def addr_family_plen(self, addr_family):
+        addr_family = self.addr_family_norm(addr_family)
+        if addr_family == socket.AF_INET:
+            return 32
+        if addr_family == socket.AF_INET6:
+            return 128
+        self.addr_family_check(addr_family)
+
+    def ipaddr_norm(self, s, addr_family=None):
+        s = util.bytes_to_str(s)
+        addr_family = self.addr_family_norm(addr_family)
+        if addr_family is not None:
+            a = socket.inet_pton(addr_family, s)
+        else:
+            a = None
+            addr_family = None
+            try:
+                a = socket.inet_pton(socket.AF_INET, s)
+                addr_family = socket.AF_INET
+            except Exception:
+                a = socket.inet_pton(socket.AF_INET6, s)
+                addr_family = socket.AF_INET6
+        return (socket.inet_ntop(addr_family, a), addr_family)
+
+    def ipaddr_plen_norm(self, s, addr_family=None):
+        addr_family = self.addr_family_norm(addr_family)
+        s = util.bytes_to_str(s)
+        s0 = s
+        m = re.match("^(.*)/(.*)", s)
+        if m:
+            s = m.group(1)
+            p = m.group(2)
+        else:
+            p = None
+
+        try:
+            a, f = self.ipaddr_norm(s, addr_family=addr_family)
+        except Exception:
+            raise ValueError(f"invalid address in {s0}")
+
+        if p is not None:
+            try:
+                p = int(p)
+            except Exception:
+                p = -1
+            if p < 0 or p > self.addr_family_plen(addr_family):
+                raise ValueError(f"invalid plen in {s0}")
+
+        return (a, f, p)
+
+    def mac_aton(self, mac_str, force_len=None):
+        # we also accept None and '' for convenience.
+        # - None yiels None
+        # - '' yields []
+        if mac_str is None:
+            return mac_str
+        mac_str = util.bytes_to_str(mac_str)
+        i = 0
+        b = []
+        for c in mac_str:
+            if i == 2:
+                if c != ":":
+                    raise ValueError("not a valid MAC address: '%s'" % (mac_str))
+                i = 0
+                continue
+            try:
+                if i == 0:
+                    n = int(c, 16) * 16
+                    i = 1
+                else:
+                    if not i == 1:
+                        raise AssertionError("i != 1 - value is {0}".format(i))
+                    n = n + int(c, 16)
+                    i = 2
+                    b.append(n)
+            except Exception:
+                raise ValueError("not a valid MAC address: '%s'" % (mac_str))
+        if i == 1:
+            raise ValueError("not a valid MAC address: '%s'" % (mac_str))
+        if force_len is not None:
+            if force_len != len(b):
+                raise ValueError(
+                    "not a valid MAC address of length %s: '%s'" % (force_len, mac_str)
+                )
+        return b
+
+    def mac_ntoa(self, mac):
+        if mac is None:
+            return None
+        return ":".join(["%02x" % c for c in bytearray(mac)])
+
+    def mac_norm(self, mac_str, force_len=None):
+        return self.mac_ntoa(self.mac_aton(mac_str, force_len))
+
+    def address_show(
+        self, binary=None, ifindex=None, ifname=None, addr_family=None, atype=None
+    ):
+
+        select_ifindex = ifindex
+        select_ifname = ifname
+        select_addr_family = self.addr_family_norm(addr_family)
+        select_atype = atype
+
+        # binary is:
+        #   False: expect all stings to be UTF-8, the result only contains decoded strings
+        #   True: expect at least some of the names to be binary, all the ifnames are bytes
+        #   None: expect a mix. The ifnames that can be decoded as UTF-8 are returned
+        #     as strings, otherwise as bytes.
+
+        assert binary is None or binary is True or binary is False
+
+        out = process.run_check(["ip", "-d", "address", "show"], as_bytes=True)
+
+        result = []
+
+        lines = out.split(b"\n")
+        i = 0
+
+        if lines and not lines[-1]:
+            del lines[-1]
+
+        if not lines:
+            raise Exception("output of ip link is empty")
+
+        ifindexes = {}
+
+        while i < len(lines):
+            line = lines[i]
+            i += 1
+
+            # currently we only parse a subset of the parameters
+
+            link_data = {}
+
+            m = re.match(rb"^([0-9]+): *([^:@]+)(@[^:]*)?: <([^>]*)>", line)
+            if not m:
+                raise Exception("Unexpected line in ip link output: %s" % (line))
+
+            ifindex = int(m.group(1))
+            ifname = util.binary_to_str(m.group(2), binary)
+
+            assert ifindex not in ifindexes
+            ifindexes[ifindex] = ifname
+
+            i0 = i
+            while i < len(lines):
+                line = lines[i]
+
+                m = re.match(rb"^( +)", line)
+                if not m:
+                    break
+                if i == i0:
+                    indent_prefix = b"^" + m.group(1)
+
+                atype = None
+
+                i += 1
+
+                m = re.match(
+                    indent_prefix + b"(inet|inet6|link/ether) +([0-9a-f:./]+) +(.*)$",
+                    line,
+                )
+                if m:
+                    atype = util.bytes_to_str(m.group(1))
+                    if atype == "link/ether":
+                        addr = self.mac_norm(m.group(2))
+                        plen = None
+                        addr_family = None
+                    else:
+                        addr, addr_family, plen = self.ipaddr_plen_norm(
+                            m.group(2),
+                            addr_family=(
+                                socket.AF_INET if atype == "inet" else socket.AF_INET6
+                            ),
+                        )
+                else:
+                    pass
+
+                if atype is not None:
+                    ip_data = {
+                        "ifindex": ifindex,
+                        "ifname": ifname,
+                        "type": atype,
+                        "addr_family": addr_family,
+                        "address": addr,
+                        "plen": plen,
+                    }
+                    result.append(ip_data)
+
+                while i < len(lines) and re.match(indent_prefix + b" ", lines[i]):
+                    # Skip over additional lines that are part of the current address.
+                    i += 1
+
+        if select_atype is not None:
+            result = [a for a in result if a["type"] == select_atype]
+
+        if select_addr_family is not None:
+            result = [a for a in result if a["addr_family"] == select_addr_family]
+
+        if select_ifindex is not None:
+            result = [a for a in result if a["ifindex"] == select_ifindex]
+
+        if select_ifname is not None:
+            result = [
+                a
+                for a in result
+                if util.str_to_bytes(a["ifname"]) == util.str_to_bytes(select_ifname)
+            ]
+
+        return result
+
     def link_show_all(self, binary=None):
 
         # binary is:
