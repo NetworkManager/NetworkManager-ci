@@ -2,6 +2,7 @@
 
 import os
 import pytest
+import random
 import re
 import subprocess
 import sys
@@ -13,6 +14,122 @@ from . import misc
 from . import util
 from . import process
 from . import lib
+
+
+def rnd_bool():
+    return random.random() > 0.5
+
+
+def test_util_compare_strv_list():
+
+    util.compare_strv_list([], [])
+
+    with pytest.raises(ValueError) as e:
+        util.compare_strv_list(["a"], [])
+
+    util.compare_strv_list(["a"], ["a"], ignore_order=True)
+
+    util.compare_strv_list(["a"], ["a"])
+    util.compare_strv_list(["a"], ["a", "b"])
+    with pytest.raises(ValueError) as e:
+        util.compare_strv_list(["a"], ["a", "b"], ignore_extra_strv=False)
+
+    util.compare_strv_list(["a", "b"], ["a", "b"])
+    util.compare_strv_list(["a", "b"], ["b", "a"])
+    with pytest.raises(ValueError) as e:
+        util.compare_strv_list(["a", "b"], ["b", "a"], ignore_order=False)
+
+    util.compare_strv_list(["/^a", "/b"], ["a", "ab"])
+    with pytest.raises(ValueError) as e:
+        util.compare_strv_list(["/^a", "b"], ["a", "ab"], match_mode="plain")
+
+    util.compare_strv_list(
+        ["b", "."], ["a", "b"], match_mode="regex", ignore_order=True
+    )
+    with pytest.raises(ValueError) as e:
+        util.compare_strv_list(
+            ["b", "."], ["a", "b"], match_mode="regex", ignore_order=False
+        )
+
+    util.compare_strv_list(
+        ["b", "[ac]", "[ac]"], ["a", "b", "c"], match_mode="regex", ignore_order=True
+    )
+    with pytest.raises(ValueError) as e:
+        util.compare_strv_list(
+            ["b", "[ac]", "[ac]"],
+            ["a", "b", "c"],
+            match_mode="regex",
+            ignore_order=False,
+        )
+
+
+def test_util_compare_strv_list_rnd():
+    def rnd_match_mode():
+        if random.random() < 1.0 / 3:
+            return "plain"
+        if random.random() < 2.0 / 3:
+            return "regex"
+        return "auto"
+
+    strv_full = [(chr(c + 97) + "a") for c in range(26)]
+    for n_rand in range(100):
+        strv_len = random.randint(0, len(strv_full))
+        if rnd_bool():
+            strv = strv_full[:strv_len]
+        else:
+            strv = random.choices(strv_full, k=strv_len)
+
+        expected_len = random.randint(0, len(strv))
+        expected = strv[:expected_len]
+        random.shuffle(expected)
+
+        has_extra_strv = [s for s in strv if (s not in expected)]
+        has_same_order = [s for s in strv if (s in expected)] == expected
+
+        expected_regex = []
+        for e in expected:
+            r = random.random()
+            if r < 0.02:
+                e = ".*"
+            elif r < 0.04:
+                e = "a"
+            elif r < 0.06:
+                e = f"[{e[0]}a]"
+            expected_regex.append(e)
+
+        util.compare_strv_list(
+            expected=expected,
+            strv=strv,
+            match_mode=rnd_match_mode(),
+            ignore_extra_strv=(has_extra_strv or rnd_bool()),
+            ignore_order=(not has_same_order or rnd_bool()),
+        )
+
+        util.compare_strv_list(
+            expected=expected_regex,
+            strv=strv,
+            match_mode="regex",
+            ignore_extra_strv=(has_extra_strv or rnd_bool()),
+            ignore_order=(not has_same_order or rnd_bool()),
+        )
+
+        if has_extra_strv:
+            with pytest.raises(ValueError) as e:
+                util.compare_strv_list(
+                    expected=expected,
+                    strv=strv,
+                    match_mode=rnd_match_mode(),
+                    ignore_extra_strv=False,
+                    ignore_order=True,
+                )
+        if has_same_order:
+            util.compare_strv_list(
+                expected=expected,
+                strv=strv,
+                match_mode=rnd_match_mode(),
+                ignore_extra_strv=has_extra_strv or rnd_bool(),
+                ignore_order=False,
+            )
 
 
 def test_misc_test_version_tag_eval():
