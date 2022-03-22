@@ -4,6 +4,7 @@ import sys
 import time
 
 from . import process
+from . import util
 
 
 class _IP:
@@ -45,17 +46,7 @@ class _IP:
                 raise Exception("Unexpected line in ip link output: %s" % (line))
 
             ip_data["ifindex"] = int(m.group(1))
-
-            g = m.group(2)
-            if binary is not True:
-                # If requested, we try to parse the binary output as utf-8.
-                # In this mode, some of the names will be UTF-8, and some binary.
-                try:
-                    g = g.decode()
-                except:
-                    if binary is False:
-                        raise
-            ip_data["ifname"] = g
+            ip_data["ifname"] = util.binary_to_str(m.group(2), binary)
 
             g = m.group(4)
             g = [s.decode() for s in g.split(b",")]
@@ -122,15 +113,7 @@ class _IP:
 
         data = result[0]
 
-        if binary is not True:
-            name = data["ifname"]
-            try:
-                name = name.decode()
-            except:
-                if binary is False:
-                    raise
-            else:
-                data["ifname"] = name
+        data["ifname"] = util.binary_to_str(data["ifname"], binary)
 
         return data
 
