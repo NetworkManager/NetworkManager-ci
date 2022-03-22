@@ -35,13 +35,11 @@ class _IP:
             line = lines[i]
             i += 1
 
-            # currently we only parse a subsetof the parameters
+            # currently we only parse a subset of the parameters
 
             ip_data = {}
 
-            r = rb"^([0-9]+): *([^:@]+)(@[^:]*)?: <([^>]*)>"
-
-            m = re.match(r, line)
+            m = re.match(rb"^([0-9]+): *([^:@]+)(@[^:]*)?: <([^>]*)>", line)
             if not m:
                 raise Exception("Unexpected line in ip link output: %s" % (line))
 
