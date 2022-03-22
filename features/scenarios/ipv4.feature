@@ -2347,3 +2347,25 @@ Feature: nmcli: ipv4
     * Bring "up" connection "con_ipv4"
     Then "activated" is visible with command "nmcli -g GENERAL.STATE con show con_ipv4" in "40" seconds
     Then "172.25.1.200" is visible with command "ip a s testX4"
+
+    @rhbz1995372
+    @ver+=1.35
+    @con_con_remove
+    @ipv4_check_addr_order
+    Scenario: nmcli - ipv4 - check IPv4 address order
+    * Add a new connection of type "ethernet" and options "con-name con_con ipv4.method auto ipv4.may-fail no ifname eth6"
+    * Bring "up" connection "con_con"
+    Then Check "ipv4" address list "/192.168.100.[0-9]+/24" on device "eth6"
+    * Execute "nmcli connection modify con_con ipv4.addresses '192.168.100.1/24,192.168.100.2/24'"
+    * Bring "up" connection "con_con"
+    Then Check "ipv4" address list "192.168.100.1/24 192.168.100.2/24 /192.168.100.[0-9]+/24" on device "eth6"
+    * Execute "nmcli connection modify con_con ipv4.addresses '192.168.100.1/24'"
+    * Bring "up" connection "con_con"
+    Then Check "ipv4" address list "192.168.100.1/24 /192.168.100.[0-9]+/24" on device "eth6"
+    * Execute "nmcli device modify eth6 +ipv4.addresses '192.168.100.3/24'"
+    Then Check "ipv4" address list "192.168.100.1/24 192.168.100.3/24 /192.168.100.[0-9]+/24" on device "eth6" in "3" seconds
+    * Execute "nmcli device modify eth6 ipv4.addresses ''"
+    Then Check "ipv4" address list "/192.168.100.[0-9]+/24" on device "eth6" in "3" seconds
+    * Execute "nmcli connection modify con_con ipv4.method manual ipv4.addresses '192.168.100.1/24,192.168.100.2/24,192.168.100.3/24'"
+    * Bring "up" connection "con_con"
+    Then Check "ipv4" address list "192.168.100.1/24 192.168.100.2/24 192.168.100.3/24" on device "eth6"
