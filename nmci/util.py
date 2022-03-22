@@ -74,6 +74,23 @@ class _Util:
         j = JsonGLib.gvariant_serialize(variant)
         return json.loads(JsonGLib.to_string(j, 0))
 
+    def binary_to_str(self, b, binary=None):
+        assert binary is None or binary is False or binary is True
+        if isinstance(b, bytes):
+            if binary is True:
+                # The caller requested binary. Just return it.
+                return b
+            try:
+                return b.decode("utf-8", errors="strict")
+            except UnicodeError:
+                if binary is False:
+                    # The caller requested a string. We fail.
+                    raise
+
+                # The caller accepts both. Return binary.
+                return b
+        raise ValueError("Expects bytes")
+
     def bytes_to_str(self, s, errors="strict"):
         if isinstance(s, bytes):
             return s.decode("utf-8", errors=errors)
