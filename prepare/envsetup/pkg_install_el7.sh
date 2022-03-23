@@ -19,7 +19,7 @@ install_el7_packages () {
     python -m pip install pyroute2
     python -m pip install netaddr
     python -m pip install IPy
-    python -m pip install python-dbusmock
+    python -m pip install python-dbusmock==0.26.1
     python -m pip install pyte
     python -m pip install pyyaml
 

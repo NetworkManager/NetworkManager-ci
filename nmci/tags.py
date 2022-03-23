@@ -554,9 +554,9 @@ _register_tag("scapy", scapy_bs, scapy_as)
 
 def mock_bs(ctx, scen):
     if ctx.command_code('rpm -q --quiet dbus-x11') != 0:
-        print("installing dbus-x11, pip, and python-dbusmock dataclasses")
+        print("installing dbus-x11, pip, and python-dbusmock==0.26.1 dataclasses")
         ctx.run('yum -y install dbus-x11')
-    ctx.run("sudo python3 -m pip install python-dbusmock dataclasses")
+    ctx.run("sudo python3 -m pip install python-dbusmock==0.26.1 dataclasses")
     ctx.run('./contrib/dbusmock/patch-python-dbusmock.sh')
 
 
