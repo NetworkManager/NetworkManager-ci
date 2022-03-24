@@ -2379,7 +2379,7 @@ Feature: nmcli: ipv4
 
 
     @rhbz2065187
-    @ver+=1.36
+    @ver+=1.30
     @rhelver+=8
     @con_ipv4_remove @teardown_testveth @scapy
     @dhcp_internal_ack_after_nak
