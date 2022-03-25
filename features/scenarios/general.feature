@@ -1221,6 +1221,14 @@ Feature: nmcli - general
     Then "PASS" is visible with command "cat /tmp/nm-online.txt" in "10" seconds
 
 
+    @rhbz2025617
+    @ver+=1.37
+    @nm_online_large_timeout
+    Scenario: NM - general - nm-online accepts 24 days timeout
+    Then "2073600" is visible with command "nm-online --help"
+    And "Connecting.*2073600s.*online" is visible with command "nm-online --timeout 2073600"
+
+
     @rhbz1160013
     @permissive @need_dispatcher_scripts @con_general_remove @ifcfg-rh
     @policy_based_routing

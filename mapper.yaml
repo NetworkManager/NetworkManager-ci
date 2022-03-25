@@ -1543,6 +1543,8 @@ testmapper:
         tags: gate
     - nm_online_wait_for_second_connection:
         feature: general
+    - nm_online_large_timeout:
+        feature: general
     - policy_based_routing:
         feature: general
         tags: gate
