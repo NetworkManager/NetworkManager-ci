@@ -882,22 +882,18 @@ def teardown_libreswan(context):
     context.embed("text/plain", conf, caption="Libreswan Config")
 
 
-def teardown_testveth(context):
-    if hasattr(context, "testvethns"):
-        for ns in context.testvethns:
-            print("Removing the setup in %s namespace" % ns)
-            context.run(
-                "[ -f /tmp/%s.pid ] && ip netns exec %s kill -SIGCONT $(cat /tmp/%s.pid)"
-                % (ns, ns, ns)
-            )
-            context.run("[ -f /tmp/%s.pid ] && kill $(cat /tmp/%s.pid)" % (ns, ns))
-            context.run("ip netns del %s" % ns)
-            context.run("ip link del %s" % ns.split("_")[0])
-            device = ns.split("_")[0]
-            print(device)
-            context.run("kill $(cat /var/run/dhclient-*%s.pid)" % device)
-            # We need to reset this too
-            context.run("sysctl net.ipv6.conf.all.forwarding=0")
+def teardown_testveth(context, ns):
+    print("Removing the setup in %s namespace" % ns)
+    context.run(
+        "[ -f /tmp/%s.pid ] && ip netns exec %s kill -SIGCONT $(cat /tmp/%s.pid)"
+        % (ns, ns, ns)
+    )
+    context.run("[ -f /tmp/%s.pid ] && kill $(cat /tmp/%s.pid)" % (ns, ns))
+    device = ns.split("_")[0]
+    print(device)
+    context.run("kill $(cat /var/run/dhclient-*%s.pid)" % device)
+    # We need to reset this too
+    context.run("sysctl net.ipv6.conf.all.forwarding=0")
 
     unmanage_veths(context)
     reload_NM_service(context)
@@ -1251,3 +1247,31 @@ def get_modem_info(context):
         return "MODEM INFO\n{}\nSIM CARD INFO\n{}".format(modem_info, sim_info)
     else:
         return modem_info
+
+
+def add_iface_to_cleanup(context, name):
+    if re.match(r"^eth[0-9]{1,2}$", name):
+        context.cleanup["interfaces"]["reset"].add(name)
+    else:
+        context.cleanup["interfaces"]["delete"].add(name)
+
+
+def cleanup(context):
+
+    nmci.run("nmcli con del " + " ".join(context.cleanup["connections"]) + " || true")
+    nmci.run(
+        "nmcli device delete "
+        + " ".join(context.cleanup["interfaces"]["delete"])
+        + " || true"
+    )
+    for iface in context.cleanup["interfaces"]["reset"]:
+        if context.IS_NMTUI:
+            nmci.lib.reset_hwaddr_nmtui(context, iface)
+        else:
+            nmci.lib.reset_hwaddr_nmcli(context, iface)
+
+    for namespace, teardown in context.cleanup["namespaces"].items():
+        if teardown:
+            teardown_testveth(context, namespace)
+        if nmci.command_code(f'ip netns list | grep "{namespace}"') == 0:
+            nmci.run(f'ip netns del "{namespace}"')

@@ -6,7 +6,7 @@ Feature: Bond TUI tests
 
     @rhbz1715720
     @ver+=1.18.4
-    @ifcfg-rh @bond
+    @ifcfg-rh
     @nmtui_bond_add_default_bond
     Scenario: nmtui - bond - add default bond
     * Prepare new connection of type "Bond" named "bond0"
@@ -22,7 +22,6 @@ Feature: Bond TUI tests
     Then "bond0\s+bond" is visible with command "nmcli device"
 
 
-    @bond
     @nmtui_bond_add_custom_bond_mii
     Scenario: nmtui - bond - add custom bond with MII monitoring
     * Prepare new connection of type "Bond" named "bond0"
@@ -38,7 +37,6 @@ Feature: Bond TUI tests
     Then "Down Delay \(ms\): 160" is visible with command "cat /proc/net/bonding/bond0"
 
 
-    @bond
     @nmtui_bond_add_custom_bond_arp
     Scenario: nmtui - bond - add custom bond with ARP monitoring
     * Prepare new connection of type "Bond" named "bond0"
@@ -56,7 +54,6 @@ Feature: Bond TUI tests
      Then "ARP IP target/s \(n.n.n.n form\):.*192.168.100.1" is visible with command "cat /proc/net/bonding/bond0"
 
 
-    @bond
     @nmtui_bond_add_connection_wo_autoconnect
     Scenario: nmtui - bond - add connnection without autoconnect
     * Prepare new connection of type "Bond" named "bond0"
@@ -67,7 +64,6 @@ Feature: Bond TUI tests
     Then "bond0" is not visible with command "nmcli device"
 
 
-    @bond
     @nmtui_bond_activate_wo_autoconnect
     Scenario: nmtui - bond - activate without autoconnect
     * Prepare new connection of type "Bond" named "bond0"
@@ -84,7 +80,6 @@ Feature: Bond TUI tests
     Then Check bond "bond0" state is "up"
 
 
-    @bond
     @nmtui_bond_activate_with_autoconnect
     Scenario: nmtui - bond - activate with autoconnect
     * Prepare new connection of type "Bond" named "bond0"
@@ -102,7 +97,6 @@ Feature: Bond TUI tests
     Then Check bond "bond0" state is "up"
 
 
-    @bond
     @nmtui_bond_deactivate_connection
     Scenario: nmtui - bond - deactivate connection
     * Prepare new connection of type "Bond" named "bond0"
@@ -118,7 +112,6 @@ Feature: Bond TUI tests
     Then Check bond "bond0" link state is "down"
 
 
-    @bond
     @nmtui_bond_delete_connection_up
     Scenario: nmtui - bond - deactivate connection while up
     * Prepare new connection of type "Bond" named "bond0"
@@ -135,7 +128,6 @@ Feature: Bond TUI tests
     Then Check bond "bond0" link state is "down"
 
 
-    @bond
     @nmtui_bond_delete_connection_down
     Scenario: nmtui - bond - deactivate connection while down
     * Prepare new connection of type "Bond" named "bond0"
@@ -156,7 +148,7 @@ Feature: Bond TUI tests
 
     @rhbz1425409
     @ver+=1.8.0
-    @ifcfg-rh @bond
+    @ifcfg-rh
     @nmtui_bond_add_one_slave
     Scenario: nmtui - bond - add one slave
     * Prepare new connection of type "Bond" named "bond0"
@@ -172,7 +164,6 @@ Feature: Bond TUI tests
      And "MASTER=bond0" is visible with command "cat /etc/sysconfig/network-scripts/ifcfg-bond-slave-eth1"
 
 
-    @bond @many_slaves
     @nmtui_bond_add_many_slaves
     Scenario: nmtui - bond - add many slaves
     * Prepare new connection of type "Bond" named "bond0"
@@ -228,8 +219,6 @@ Feature: Bond TUI tests
     Then "Slave Interface: eth9" is visible with command "cat /proc/net/bonding/bond0"
 
 
-
-    @bond
     @nmtui_bond_over_ethernet_devices
     Scenario: nmtui - bond - over ethernet devices
     * Prepare new connection of type "Bond" named "bond0"
@@ -254,7 +243,7 @@ Feature: Bond TUI tests
     Then "192.168" is visible with command "ip a s bond0"
 
 
-    @ifcfg-rh @bond
+    @ifcfg-rh
     @nmtui_bond_infiniband_slaves
     Scenario: nmtui - bond - infiniband slaves
     * Prepare new connection of type "Bond" named "bond0"
@@ -274,7 +263,7 @@ Feature: Bond TUI tests
     Then "TYPE=InfiniBand" is visible with command "cat /etc/sysconfig/network-scripts/ifcfg-bond-slave-eth2"
 
 
-    @bond @restart_if_needed
+    @restart_if_needed
     @nmtui_bond_start_on_boot_with_one_slave_auto
     Scenario: nmtui - bond - start on boot with only one slave auto
     * Prepare new connection of type "Bond" named "bond0"
@@ -303,7 +292,6 @@ Feature: Bond TUI tests
 
 
     #bz1142864
-    @bond
     @nmtui_bond_add_mode_active_backup
     Scenario: nmtui - bond - mode - active backup
     * Prepare new connection of type "Bond" named "bond0"
@@ -339,7 +327,6 @@ Feature: Bond TUI tests
 
 
     #bz1142864
-    @bond
     @nmtui_bond_change_mode_ac_to_rr
     Scenario: nmtui - bond - mode - change from active backup to round robin
     * Prepare new connection of type "Bond" named "bond0"
@@ -372,8 +359,6 @@ Feature: Bond TUI tests
     Then Check bond "bond0" link state is "up"
 
 
-
-    @bond
     @nmtui_bond_add_mode_round_robin
     Scenario: nmtui - bond - mode - round robin
     * Prepare new connection of type "Bond" named "bond0"
@@ -396,7 +381,6 @@ Feature: Bond TUI tests
     Then Check bond "bond0" link state is "up"
 
 
-    @bond
     @nmtui_bond_add_mode_xor
     Scenario: nmtui - bond - mode - xor
     * Prepare new connection of type "Bond" named "bond0"
@@ -419,7 +403,6 @@ Feature: Bond TUI tests
     Then Check bond "bond0" link state is "up"
 
 
-    @bond
     @nmtui_bond_add_mode_broadcast
     Scenario: nmtui - bond - mode - broadcast
     * Prepare new connection of type "Bond" named "bond0"
@@ -442,7 +425,6 @@ Feature: Bond TUI tests
     Then Check bond "bond0" link state is "up"
 
 
-    @bond
     @nmtui_bond_add_mode_8023ad
     Scenario: nmtui - bond - mode - 802.3ad
     * Prepare new connection of type "Bond" named "bond0"
@@ -465,7 +447,6 @@ Feature: Bond TUI tests
     Then Check bond "bond0" link state is "up"
 
 
-    @bond
     @nmtui_bond_add_mode_balance_tlb
     Scenario: nmtui - bond - mode - balance-tlb
     * Prepare new connection of type "Bond" named "bond0"
@@ -488,7 +469,6 @@ Feature: Bond TUI tests
     Then Check bond "bond0" link state is "up"
 
 
-    @bond
     @nmtui_bond_add_mode_balance_alb
     Scenario: nmtui - bond - mode - balance-alb
     * Prepare new connection of type "Bond" named "bond0"

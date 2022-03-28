@@ -9,10 +9,9 @@
 
     @rhbz1774409
     @xfail
-    @dcb
     @dcb_enable_connection
     Scenario: nmcli - dcb - enable connection
-    * Add a new connection of type "ethernet" and options "ifname em1 con-name dcb ipv4.addresses 1.2.3.4/24 ipv4.method manual"
+    * Add a new connection of type "ethernet" named "dcb" for device "em1" and options "ipv4.addresses 1.2.3.4/24 ipv4.method manual"
     #* Open editor for connection "dcb"
     * Prepare connection
     * Set default DCB options
@@ -41,10 +40,9 @@
 
     @rhbz1774409
     @xfail
-    @dcb
     @dcb_disable_connection
     Scenario: nmcli - dcb - disable connection
-    * Add a new connection of type "ethernet" and options "ifname em1 con-name dcb ipv4.addresses 1.2.3.4/24 ipv4.method manual"
+    * Add a new connection of type "ethernet" named "dcb" for device "em1" and options "ipv4.addresses 1.2.3.4/24 ipv4.method manual"
     #* Open editor for connection "dcb"
     * Prepare connection
     * Set default DCB options
@@ -63,10 +61,9 @@
 
     @rhbz1774409
     @xfail
-    @dcb
     @dcb_enable_after_reboot
     Scenario: nmcli - dcb - enable after reboot
-    * Add a new connection of type "ethernet" and options "ifname em1 con-name dcb ipv4.addresses 1.2.3.4/24 ipv4.method manual"
+    * Add a new connection of type "ethernet" named "dcb" for device "em1" and options "ipv4.addresses 1.2.3.4/24 ipv4.method manual"
     * Prepare connection
     * Set default DCB options
     * Bring "up" connection "dcb"
@@ -97,10 +94,9 @@
 
 
     @rhbz1080510
-    @dcb
     @dcb_error_shown
     Scenario: nmcli - dcb - error shown
-    * Add connection type "ethernet" named "dcb" for device "em1"
+    * Add a new connection of type "ethernet" named "dcb" for device "em1"
     * Open editor for connection "dcb"
     * Prepare connection
     * Set default DCB options

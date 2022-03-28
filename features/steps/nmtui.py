@@ -169,7 +169,6 @@ def prep_conn_abstract(context, typ, name):
                               * Choose the connection type "%s"
                               * Set "Profile name" field to "%s"''' % (typ, name))
 
-
 @step('Choose to "{option}" from main screen')
 def choose_main_option(context, option):
     context.execute_steps('''* Come back to the top of editor''')
@@ -341,7 +340,10 @@ def set_specific_field_to(context, field, value):
     assert go_until_pattern_matches_line(context, keys['DOWNARROW'], '.*%s.*' % field) is not None, "Could not go to option '%s' on screen!" % field
     context.tui.send(keys['BACKSPACE']*100)
     context.tui.send(value)
-
+    if "Profile name" in field:
+        context.cleanup["connections"].add(value)
+    elif "Device" in field:
+        nmci.lib.add_iface_to_cleanup(context, value)
 
 @step('Empty the field "{field}"')
 def empty_specific_field(context, field):

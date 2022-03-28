@@ -131,7 +131,6 @@ def external_bridge_check(context, number):
         """)
         i += 1
 
-
 @step(u'Team "{team}" is down')
 def team_is_down(context, team):
     context.additional_sleep(2)

@@ -9,13 +9,12 @@
 
     @rhbz1773908
     @ver+=1.25 @rhelver+=8
-    @con_vrf_remove
     @vrf_one_address_two_devices
     Scenario: nmcli - vrf - reusing ip address on multiple devices
-    * Add a new connection of type "vrf" and options "ifname vrf0 con-name vrf0 table 1001 ipv4.method disabled ipv6.method disabled"
-    * Add a new connection of type "ethernet" and options "con-name vrf.eth1 ifname eth1 master vrf0 ipv4.method manual ipv4.address 192.0.2.1/24"
-    * Add a new connection of type "vrf" and options "ifname vrf1 con-name vrf1 table 1002 ipv4.method disabled ipv6.method disabled"
-    * Add a new connection of type "ethernet" and options "con-name vrf.eth4 ifname eth4 master vrf1 ipv4.method manual ipv4.address 192.0.2.1/24"
+    * Add a new connection of type "vrf" named "vrf0" for device "vrf0" and options "table 1001 ipv4.method disabled ipv6.method disabled"
+    * Add a new connection of type "ethernet" named "vrf.eth1" and options "ifname eth1 master vrf0 ipv4.method manual ipv4.address 192.0.2.1/24"
+    * Add a new connection of type "vrf" named "vrf1" for device "vrf1" and options "table 1002 ipv4.method disabled ipv6.method disabled"
+    * Add a new connection of type "ethernet" named "vrf.eth4" and options "ifname eth4 master vrf1 ipv4.method manual ipv4.address 192.0.2.1/24"
     * Bring "up" connection "vrf.eth1"
     * Bring "up" connection "vrf.eth4"
 
@@ -46,10 +45,9 @@
     @ver+=1.31
     @ver+=1.30.3
     @rhelver+=8
-    @con_vrf_remove
     @vrf_check_local_routes
     Scenario: nmcli - vrf - reusing ip address on multiple devices
-    * Add a new connection of type "vrf" and options "ifname vrf0 con-name vrf0 autoconnect no table 1001 ipv4.method disabled ipv6.method disabled"
+    * Add a new connection of type "vrf" named "vrf0" for device "vrf0" and options "autoconnect no table 1001 ipv4.method disabled ipv6.method disabled"
     * Add a new connection of type "ethernet" and options "con-name vrf.eth1 autoconnect no ifname eth1 master vrf0 ipv4.method manual ipv4.address '192.0.2.1/24,192.0.2.2/24' ipv6.method manual ipv6.addresses '1:2:3:4:5::1/64,1:2:3:4:5::2/64'"
     * Bring "up" connection "vrf.eth1"
 
@@ -81,13 +79,12 @@
 
     @rhbz1773908
     @ver+=1.25 @rhelver+=8
-    @con_vrf_remove
     @vrf_bring_down_connections
     Scenario: nmcli - vrf - bring down vrf setup
-    * Add a new connection of type "vrf" and options "ifname vrf0 con-name vrf0 table 1001 ipv4.method disabled ipv6.method disabled"
-    * Add a new connection of type "ethernet" and options "con-name vrf.eth1 ifname eth1 master vrf0 ipv4.method manual ipv4.address 192.0.2.1/24"
-    * Add a new connection of type "vrf" and options "ifname vrf1 con-name vrf1 table 1002 ipv4.method disabled ipv6.method disabled"
-    * Add a new connection of type "ethernet" and options "con-name vrf.eth4 ifname eth4 master vrf1 ipv4.method manual ipv4.address 192.0.2.1/24"
+    * Add a new connection of type "vrf" named "vrf0" for device "vrf0" and options "table 1001 ipv4.method disabled ipv6.method disabled"
+    * Add a new connection of type "ethernet" named "vrf.eth1" and options "ifname eth1 master vrf0 ipv4.method manual ipv4.address 192.0.2.1/24"
+    * Add a new connection of type "vrf" named "vrf1" for device "vrf1" and options "table 1002 ipv4.method disabled ipv6.method disabled"
+    * Add a new connection of type "ethernet" named "vrf.eth4" and options "ifname eth4 master vrf1 ipv4.method manual ipv4.address 192.0.2.1/24"
     * Bring "up" connection "vrf.eth1"
     * Bring "up" connection "vrf.eth4"
     When "eth1\:ethernet\:connected\:vrf.eth1" is visible with command "nmcli -t device" in "5" seconds
@@ -115,13 +112,12 @@
 
     @rhbz1773908
     @ver+=1.25 @rhelver+=8
-    @con_vrf_remove
     @vrf_delete_connections
     Scenario: nmcli - vrf - delete ethernet profiles
-    * Add a new connection of type "vrf" and options "ifname vrf0 con-name vrf0 table 1001 ipv4.method disabled ipv6.method disabled"
-    * Add a new connection of type "ethernet" and options "con-name vrf.eth1 ifname eth1 master vrf0 ipv4.method manual ipv4.address 192.0.2.1/24"
-    * Add a new connection of type "vrf" and options "ifname vrf1 con-name vrf1 table 1002 ipv4.method disabled ipv6.method disabled"
-    * Add a new connection of type "ethernet" and options "con-name vrf.eth4 ifname eth4 master vrf1 ipv4.method manual ipv4.address 192.0.2.1/24"
+    * Add a new connection of type "vrf" named "vrf0" for device "vrf0" and options "table 1001 ipv4.method disabled ipv6.method disabled"
+    * Add a new connection of type "ethernet" named "vrf.eth1" and options "ifname eth1 master vrf0 ipv4.method manual ipv4.address 192.0.2.1/24"
+    * Add a new connection of type "vrf" named "vrf1" for device "vrf1" and options "table 1002 ipv4.method disabled ipv6.method disabled"
+    * Add a new connection of type "ethernet" named "vrf.eth4" and options "ifname eth4 master vrf1 ipv4.method manual ipv4.address 192.0.2.1/24"
     * Bring "up" connection "vrf.eth1"
     * Bring "up" connection "vrf.eth4"
     When "eth1\:ethernet\:connected\:vrf.eth1" is visible with command "nmcli -t device" in "5" seconds
@@ -149,13 +145,12 @@
 
     @rhbz1773908
     @ver+=1.25 @rhelver+=8
-    @con_vrf_remove
     @vrf_restart_persistence
     Scenario: nmcli - vrf - restart persistence
-    * Add a new connection of type "vrf" and options "ifname vrf0 con-name vrf0 table 1001 ipv4.method disabled ipv6.method disabled"
-    * Add a new connection of type "ethernet" and options "con-name vrf.eth1 ifname eth1 master vrf0 ipv4.method manual ipv4.address 192.0.2.1/24"
-    * Add a new connection of type "vrf" and options "ifname vrf1 con-name vrf1 table 1002 ipv4.method disabled ipv6.method disabled"
-    * Add a new connection of type "ethernet" and options "con-name vrf.eth4 ifname eth4 master vrf1 ipv4.method manual ipv4.address 192.0.2.1/24"
+    * Add a new connection of type "vrf" named "vrf0" for device "vrf0" and options "table 1001 ipv4.method disabled ipv6.method disabled"
+    * Add a new connection of type "ethernet" named "vrf.eth1" and options "ifname eth1 master vrf0 ipv4.method manual ipv4.address 192.0.2.1/24"
+    * Add a new connection of type "vrf" named "vrf1" for device "vrf1" and options "table 1002 ipv4.method disabled ipv6.method disabled"
+    * Add a new connection of type "ethernet" named "vrf.eth4" and options "ifname eth4 master vrf1 ipv4.method manual ipv4.address 192.0.2.1/24"
     * Bring "up" connection "vrf.eth1"
     * Bring "up" connection "vrf.eth4"
 

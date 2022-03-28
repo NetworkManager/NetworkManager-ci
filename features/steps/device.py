@@ -92,16 +92,6 @@ def dns_check_default_route_has(context, device, what):
     dns_check(context.dns_plugin, device, 'default-route', what, None)
 
 
-@step(u'Create device "{dev}" in "{ns}" with address "{addr}"')
-def create_device_in_ns(context, dev, ns, addr):
-    context.command_code('ip -n %s link add %s type veth peer name %sp' % (ns, dev, dev))
-    context.command_code("ip -n %s link set %s up" % (ns, dev))
-    context.command_code("ip -n %s addr add %s dev %s" % (ns, addr, dev))
-#    veth_to_delete = getattr(context, "veth_to_delete", [])
-#    veth_to_delete += [dev, dev+"p"]
-#    context.veth_to_delete = veth_to_delete
-
-
 @step(u'Compare kernel and NM master-slave devices')
 def compare_devices(context):
     # A tool that gets devices from Route Netlink & NetworkManager and
@@ -680,3 +670,25 @@ def check_route_count(context, cmp, routes_count, ip_version, device, seconds=1)
         time.sleep(min(1, end_time - now + 0.01))
 
     assert False, f"There were {routes_now} routes found."
+
+
+@step(u'Cleanup interface "{iface}"')
+def cleanup_connection(context, iface):
+    nmci.lib.add_iface_to_cleanup(context, iface)
+
+
+@step(u'Add a new interface of type "{typ}" named "{name}"')
+@step(u'Add a new interface of type "{typ}" named "{name}" and options "{options}"')
+@step(u'Add a new interface of type "{typ}" named "{name}" in namespace "{namespace}"')
+@step(u'Add a new interface of type "{typ}" named "{name}" in namespace "{namespace}" and options "{options}"')
+def add_device(context, typ, name, namespace="", options=""):
+    namespace = f"-n {namespace}" if namespace else ""
+    context.command_code(f"ip {namespace} link add {name} type {typ} {options}", shell=True)
+    nmci.lib.add_iface_to_cleanup(context, name)
+
+
+@step(u'Add a new network namespace named "{name}"')
+@step(u'Add a new network namespace named "{name}" and options "{options}"')
+def add_device(context, name, options=""):
+    context.command_code(f"ip netns add {name} {options}")    
+    context.cleanup["namespaces"][name] = False

@@ -4,7 +4,6 @@ Feature: IPv4 TUI tests
   Background:
   * Prepare virtual terminal environment
 
-    @ipv4
     @nmtui_ipv4_addresses_static_no_address
     Scenario: nmtui - ipv4 - addresses - static IPv4 without address
     * Prepare new connection of type "Ethernet" named "ethernet"
@@ -15,7 +14,6 @@ Feature: IPv4 TUI tests
     Then ".*Unable to add new connection.*ipv4.addresses: this property cannot.*be empty for 'method=manual'.*" is visible on screen
 
 
-    @ipv4
     @ver-=1.9.1
     @nmtui_ipv4_addresses_static_no_mask
     Scenario: nmtui - ipv4 - addresses - static IPv4 without netmask
@@ -29,7 +27,6 @@ Feature: IPv4 TUI tests
     Then "eth1\s+ethernet\s+connected\s+ethernet" is visible with command "nmcli device"
 
 
-    @ipv4
     @ver+=1.9.2
     @nmtui_ipv4_addresses_static_no_mask
     Scenario: nmtui - ipv4 - addresses - static IPv4 without netmask
@@ -45,7 +42,6 @@ Feature: IPv4 TUI tests
      And "eth1\s+ethernet\s+connected\s+ethernet" is visible with command "nmcli device"
 
 
-    @ipv4
     @ver+=1.9.2
     @nmtui_ipv4_addresses_static_no_mask_var2
     Scenario: nmtui - ipv4 - addresses - static IPv4 without netmask var2
@@ -62,7 +58,6 @@ Feature: IPv4 TUI tests
      And "eth1\s+ethernet\s+connected\s+ethernet" is visible with command "nmcli device"
 
 
-    @ipv4
     @ver+=1.9.2
     @nmtui_ipv4_addresses_static_no_mask_var3
     Scenario: nmtui - ipv4 - addresses - static IPv4 without netmask var3
@@ -79,7 +74,6 @@ Feature: IPv4 TUI tests
      And "eth1\s+ethernet\s+connected\s+ethernet" is visible with command "nmcli device"
 
 
-    @ipv4
     @ver+=1.9.2
     @nmtui_ipv4_addresses_static_no_mask_var4
     Scenario: nmtui - ipv4 - addresses - static IPv4 without netmask var4
@@ -96,7 +90,6 @@ Feature: IPv4 TUI tests
      And "eth1\s+ethernet\s+connected\s+ethernet" is visible with command "nmcli device"
 
 
-    @ipv4
     @ver+=1.9.2
     @nmtui_ipv4_addresses_static_no_mask_var5
     Scenario: nmtui - ipv4 - addresses - static IPv4 without netmask var5
@@ -113,7 +106,6 @@ Feature: IPv4 TUI tests
      And "eth1\s+ethernet\s+connected\s+ethernet" is visible with command "nmcli device"
 
 
-    @ipv4
     @nmtui_ipv4_addresses_auto_with_manual
     Scenario: nmtui - ipv4 - addresses - auto with manual address present
     * Prepare new connection of type "Ethernet" named "ethernet"
@@ -126,7 +118,6 @@ Feature: IPv4 TUI tests
     Then "eth1\s+ethernet\s+connected\s+ethernet" is visible with command "nmcli device"
 
 
-    @ipv4
     @nmtui_ipv4_addresses_IP_slash_invalid_netmask
     Scenario: nmtui - ipv4 - addresses - IP slash invalid netmask
     * Prepare new connection of type "Ethernet" named "ethernet"
@@ -136,7 +127,6 @@ Feature: IPv4 TUI tests
     * Cannot confirm the connection settings
 
 
-    @ipv4
     @nmtui_ipv4_addresses_IP_slash_netmask_and_gateway_manual
     Scenario: nmtui - ipv4 - addresses - IP slash netmask and gateway
     * Prepare new connection of type "Ethernet" named "ethernet"
@@ -151,7 +141,7 @@ Feature: IPv4 TUI tests
     Then "192.168.125.0/24 dev eth1" is visible with command "ip route"
 
 
-    @ipv4 @ifcfg-rh
+    @ifcfg-rh
     @nmtui_ipv4_addresses_several_IPs_slash_netmask_and_gateway_manual
     Scenario: nmtui - ipv4 - addresses - several IPs slash netmask and route - manual
     * Prepare new connection of type "Ethernet" named "ethernet"
@@ -171,7 +161,6 @@ Feature: IPv4 TUI tests
     Then "192.168.125.0/24 dev eth1" is visible with command "ip route"
 
 
-    @ipv4
     @nmtui_ipv4_addresses_several_IPs_slash_netmask_and_gateway_auto
     Scenario: nmtui - ipv4 - addresses - several IPs slash netmask and route - auto
     * Prepare new connection of type "Ethernet" named "ethernet"
@@ -190,7 +179,6 @@ Feature: IPv4 TUI tests
     Then "192.168.253.0/24 dev eth1" is visible with command "ip route"
 
 
-    @ipv4
     @nmtui_ipv4_addresses_delete_ip_and_back_to_auto
     Scenario: nmtui - ipv4 - addresses - delete IP and set method back to auto
     * Prepare new connection of type "Ethernet" named "ethernet"
@@ -215,7 +203,6 @@ Feature: IPv4 TUI tests
     Then "192.168.253.96" is not visible with command "ip route"
 
 
-    @ipv4
     @nmtui_ipv4_routes_set_basic_route
     Scenario: nmtui - ipv4 - routes - set basic route
     * Prepare new connection of type "Ethernet" named "ethernet1"
@@ -243,7 +230,6 @@ Feature: IPv4 TUI tests
     Then "default via [0-9]+\.[0-9]+\.[0-9]+\.[0-9]+ dev eth0" is visible with command "ip route"
 
 
-    @ipv4
     @nmtui_ipv4_routes_remove_basic_route
     Scenario: nmtui - ipv4 - routes - remove basic route
     * Prepare new connection of type "Ethernet" named "ethernet1"
@@ -284,7 +270,7 @@ Feature: IPv4 TUI tests
     Then "192.168.5.0/24 via 192.168.3.11 dev eth1\s+proto static\s+metric 1" is not visible with command "ip route"
     Then "default via [0-9]+\.[0-9]+\.[0-9]+\.[0-9]+ dev eth0" is visible with command "ip route"
 
-    @ipv4
+
     @nmtui_ipv4_routes_set_device_route
     Scenario: nmtui - ipv4 - routes - set device route
     * Prepare new connection of type "Ethernet" named "ethernet1"
@@ -302,7 +288,6 @@ Feature: IPv4 TUI tests
     Then "192.168.122.0/24 dev eth1\s+proto kernel\s+scope link\s+src 192.168.122.2" is visible with command "ip route"
 
 
-    @ipv4
     @nmtui_ipv4_routes_several_default_routes_metrics
     Scenario: nmtui - ipv4 - addresses - several default gateways and metrics
     * Prepare new connection of type "Ethernet" named "ethernet1"
@@ -329,7 +314,6 @@ Feature: IPv4 TUI tests
     Then "192.168.10.0/24 dev eth2\s+proto kernel\s+scope link\s+src 192.168.10.2" is visible with command "ip -4 route"
 
 
-    @ipv4
     @nmtui_ipv4_routes_set_invalid_route_destination
     Scenario: nmtui - ipv4 - routes - set invalid route - destination
     * Start nmtui
@@ -354,7 +338,6 @@ Feature: IPv4 TUI tests
     Then Cannot add ip route "string"
 
 
-    @ipv4
     @nmtui_ipv4_routes_set_invalid_route_hop
     Scenario: nmtui - ipv4 - routes - set invalid route - hop
     * Start nmtui
@@ -379,7 +362,6 @@ Feature: IPv4 TUI tests
     Then Cannot add ip route "192.168.1.10/24 123456789"
 
 
-    @ipv4
     @ver+=1.11.3
     @nmtui_ipv4_routes_set_unreachable_route
     Scenario: nmtui - ipv4 - routes - set unreachable route
@@ -403,7 +385,6 @@ Feature: IPv4 TUI tests
     Then "192.168.3.11\s+dev eth1\s+proto static" is visible with command "ip r"
 
 
-    @ipv4
     @nmtui_ipv4_dns_method_static_+_IP_+_dns
     Scenario: nmtui - ipv4 - dns - method static + IP + dns
     * Prepare new connection of type "Ethernet" named "ethernet1"
@@ -418,7 +399,6 @@ Feature: IPv4 TUI tests
     Then Nameserver "8.8.8.8.*8.8.4.4" is set in "10" seconds
 
 
-    @ipv4
     @nmtui_ipv4_dns_method_auto_+_dns
     Scenario: nmtui - ipv4 - dns - method auto + dns
     * Prepare new connection of type "Ethernet" named "ethernet1"
@@ -430,7 +410,6 @@ Feature: IPv4 TUI tests
     Then Nameserver "8.8.8.8.*8.8.4.4" is set in "10" seconds
 
 
-    @ipv4
     @nmtui_ipv4_dns_add_dns_when_one_already_set
     Scenario: nmtui - ipv4 - dns - add dns when one already set
     * Prepare new connection of type "Ethernet" named "ethernet1"
@@ -451,7 +430,6 @@ Feature: IPv4 TUI tests
     Then Nameserver "8.8.8.8.*8.8.4.4" is set in "10" seconds
 
 
-    @ipv4
     @nmtui_ipv4_dns_method_auto_then_delete_all_dns
     Scenario: nmtui - ipv4 - dns - method auto then delete all dns
     * Prepare new connection of type "Ethernet" named "ethernet1"
@@ -471,7 +449,6 @@ Feature: IPv4 TUI tests
     Then Nameserver "8.8.4.4" is not set
 
 
-    @ipv4
     @nmtui_ipv4_dns_search_add_dns_search
     Scenario: nmtui - ipv4 - dns-search - add dns-search
     * Prepare new connection of type "Ethernet" named "ethernet1"
@@ -482,7 +459,6 @@ Feature: IPv4 TUI tests
     Then Domain "heaven.com" is set in "45" seconds
 
 
-    @ipv4
     @nmtui_ipv4_dns_search_remove_dns_search
     Scenario: nmtui - ipv4 - dns-search - remove dns-search
     * Prepare new connection of type "Ethernet" named "ethernet1"
@@ -500,7 +476,6 @@ Feature: IPv4 TUI tests
     Then Domain "heaven.com" is not set
 
 
-    @ipv4
     @nmtui_ipv4_method_link_local
     Scenario: nmtui - ipv4 - method - link-local
     * Prepare new connection of type "Ethernet" named "ethernet1"
@@ -511,7 +486,6 @@ Feature: IPv4 TUI tests
 
 
     @rhbz1108839
-    @ipv4
     @nmtui_ipv4_may_connection_required
     Scenario: nmtui - ipv4 -  connection required
     * Prepare new connection of type "Ethernet" named "ethernet1"
@@ -523,7 +497,7 @@ Feature: IPv4 TUI tests
 
 
     @rhbz1108839
-    @ipv4 @ifcfg-rh
+    @ifcfg-rh
     @nmtui_ipv4_may_connection_not_required
     Scenario: nmtui - ipv4 -  connection not required
     * Prepare new connection of type "Ethernet" named "ethernet1"
@@ -535,7 +509,6 @@ Feature: IPv4 TUI tests
     Then "ipv4.may-fail:\s+yes" is visible with command "nmcli con show ethernet1"
 
 
-    @ipv4
     @nmtui_ipv4_method_disabled
     Scenario: nmtui - ipv4 - method - disabled
     * Prepare new connection of type "Ethernet" named "ethernet1"
@@ -548,7 +521,6 @@ Feature: IPv4 TUI tests
     Then "inet\s" is not visible with command "ip a s eth1"
 
 
-    @ipv4
     @nmtui_ipv4_never_default_unset
     Scenario: nmtui - ipv4 - never-default - unset
     * Prepare new connection of type "Ethernet" named "ethernet1"
@@ -559,7 +531,7 @@ Feature: IPv4 TUI tests
     Then "ipv4.never-default:\s+no" is visible with command "nmcli con show ethernet1"
 
 
-    @ipv4 @ifcfg-rh
+    @ifcfg-rh
     @nmtui_ipv4_never_default_set
     Scenario: nmtui - ipv4 - never-default - set
     * Prepare new connection of type "Ethernet" named "ethernet1"
@@ -571,7 +543,6 @@ Feature: IPv4 TUI tests
     Then "ipv4.never-default:\s+yes" is visible with command "nmcli con show ethernet1"
 
 
-    @ipv4
     @nmtui_ipv4_invalid_address
     Scenario: nmtui - ipv4 - invalid address
     * Prepare new connection of type "Ethernet" named "ethernet1"
@@ -615,7 +586,6 @@ Feature: IPv4 TUI tests
     Then Cannot confirm the connection settings
 
 
-    @ipv4
     @nmtui_ipv4_invalid_gateway
     Scenario: nmtui - ipv4 - invalid gateway
     * Prepare new connection of type "Ethernet" named "ethernet1"
@@ -665,7 +635,6 @@ Feature: IPv4 TUI tests
     Then Cannot confirm the connection settings
 
 
-    @ipv4
     @nmtui_ipv4_invalid_dns
     Scenario: nmtui - ipv4 - invalid dns
     * Prepare new connection of type "Ethernet" named "ethernet1"
@@ -710,7 +679,7 @@ Feature: IPv4 TUI tests
 
 
     @rhbz1105770
-    @ipv4 @ifcfg-rh
+    @ifcfg-rh
     @nmtui_ipv4_addresses_gateway_ip_prefix_nonzero_form
     Scenario: nmtui - ipv4 - addresses - gateway, address and prefix stored in nonzero notation
     * Prepare new connection of type "Ethernet" named "ethernet"
@@ -726,7 +695,6 @@ Feature: IPv4 TUI tests
     Then "PREFIX=24" is visible with command "cat /etc/sysconfig/network-scripts/ifcfg-ethernet"
 
 
-    @ipv4
     @rhbz1131434
     @nmtui_ipv4_addresses_can_add_after_removing_invalid
     Scenario: nmtui - ipv4 - addresses - add address after removing invalid one

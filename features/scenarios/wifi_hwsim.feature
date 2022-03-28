@@ -454,7 +454,7 @@ Feature: nmcli - wifi
 
     @rhbz1888051 @rhbz2032539
     @ver+=1.29 @rhelver+=8 @fedoraver+=33
-    @simwifi_ap @teardown_testveth @attach_wpa_supplicant_log @attach_hostapd_log
+    @simwifi_ap @attach_wpa_supplicant_log @attach_hostapd_log
     @simwifi_ap_in_bridge_wpa_psk_method_manual
     Scenario: nmcli - simwifi - AP - connect to NM AP with WPA2 psk security and method shared
     * Prepare simulated test "testW" device without dhcp

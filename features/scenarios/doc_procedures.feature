@@ -8,17 +8,17 @@ Feature: nmcli - procedures in documentation
     # Scenario:
 
     @ver+=1.18
-    @con_PBR_remove @firewall @eth0 @teardown_testveth @tcpdump
+    @firewall @eth0 @tcpdump
     @policy_based_routing_doc_procedure
     Scenario: nmcli - docs -  Configuring policy-based routing to define alternative routes
     * Prepare PBR documentation procedure
-    * Add a new connection of type "ethernet" and options "con-name Provider-A ifname provA ipv4.method manual ipv4.addresses 198.51.100.1/30 ipv4.gateway 198.51.100.2 ipv4.dns 198.51.100.2 connection.zone external"
+    * Add a new connection of type "ethernet" named "Provider-A" and options "ifname provA ipv4.method manual ipv4.addresses 198.51.100.1/30 ipv4.gateway 198.51.100.2 ipv4.dns 198.51.100.2 connection.zone external"
     * Bring "up" connection "Provider-A"
-    * Add a new connection of type "ethernet" and options "con-name Provider-B ifname provB ipv4.method manual ipv4.addresses 192.0.2.1/30 ipv4.routes '0.0.0.0/1 192.0.2.2 table=5000, 128.0.0.0/1 192.0.2.2 table=5000' connection.zone external"
-    * Add a new connection of type "ethernet" and options "con-name Internal-Workstations ifname int_work ipv4.method manual ipv4.addresses 10.0.0.1/24 ipv4.routes '10.0.0.0/24 table=5000' ipv4.routing-rules 'priority 5 from 10.0.0.0/24 table 5000' connection.zone trusted"
+    * Add a new connection of type "ethernet" named "Provider-B" and options "ifname provB ipv4.method manual ipv4.addresses 192.0.2.1/30 ipv4.routes '0.0.0.0/1 192.0.2.2 table=5000, 128.0.0.0/1 192.0.2.2 table=5000' connection.zone external"
+    * Add a new connection of type "ethernet" named "Internal-Workstations" and options "ifname int_work ipv4.method manual ipv4.addresses 10.0.0.1/24 ipv4.routes '10.0.0.0/24 table=5000' ipv4.routing-rules 'priority 5 from 10.0.0.0/24 table 5000' connection.zone trusted"
     * Bring "up" connection "Internal-Workstations"
     * Bring "up" connection "Provider-B"
-    * Add a new connection of type "ethernet" and options "con-name Servers ifname servers ipv4.method manual ipv4.addresses 203.0.113.1/24 connection.zone trusted"
+    * Add a new connection of type "ethernet" named "Servers" and options "ifname servers ipv4.method manual ipv4.addresses 203.0.113.1/24 connection.zone trusted"
     * Bring "up" connection "Servers"
     * Execute "ip -n provB_ns route add default via 192.0.2.1"
     * Execute "ip -n int_work_ns route add default via 10.0.0.1"
@@ -47,11 +47,11 @@ Feature: nmcli - procedures in documentation
 
 
     @ver+=1.6.0
-    @con_ethernet_remove @8021x @attach_hostapd_log @attach_wpa_supplicant_log
+    @8021x @attach_hostapd_log @attach_wpa_supplicant_log
     @need_legacy_crypto
     @8021x_peap_mschapv2_doc_procedure
     Scenario: nmcli - docs - Configuring 802.1x network authentication on an existing Ethernet connection using nmcli
-    * Add a new connection of type "ethernet" and options "ifname test8X con-name con_ethernet autoconnect no"
+    * Add a new connection of type "ethernet" named "con_ethernet" for device "test8X" and options "autoconnect no"
     * Modify connection "con_ethernet" changing options "802-1x.eap peap 802-1x.identity TESTERS\\test_mschapv2 802-1x.phase2-auth mschapv2"
     * Modify connection "con_ethernet" changing options "802-1x.password password"
     * Modify connection "con_ethernet" changing options "802-1x.ca-cert /tmp/certs/test_user.ca.pem"
@@ -83,11 +83,10 @@ Feature: nmcli - procedures in documentation
     * Execute "echo 'this is skipped'"
 
     @ver+=1.14
-    @iptunnel_doc @teardown_testveth
     @iptunnel_ipip_doc_procedure
     Scenario: nmcli - docs - Configuring an IPIP tunnel using nmcli to encapsulate IPv4 traffic in IPv4 packets
     * Prepare "ipip" iptunnel networks A and B
-    * Add a new connection of type "ip-tunnel" and options "ip-tunnel.mode ipip con-name tun0 ifname tun0 remote 198.51.100.5 local 203.0.113.10"
+    * Add a new connection of type "ip-tunnel" named "tun0" for device "tun0" and options "ip-tunnel.mode ipip remote 198.51.100.5 local 203.0.113.10"
     * Modify connection "tun0" changing options "ipv4.addresses '10.0.1.1/30'"
     * Modify connection "tun0" changing options "ipv4.method manual"
     * Modify connection "tun0" changing options "+ipv4.routes '172.16.0.0/24 10.0.1.2'"
@@ -97,11 +96,10 @@ Feature: nmcli - procedures in documentation
 
 
     @ver+=1.14
-    @iptunnel_doc @teardown_testveth
     @iptunnel_gre_doc_procedure
     Scenario: nmcli - docs - Configuring a GRE tunnel using nmcli to encapsulate layer-3 traffic in IPv4 packets
     * Prepare "gre" iptunnel networks A and B
-    * Add a new connection of type "ip-tunnel" and options "ip-tunnel.mode gre con-name gre1 ifname gre1 remote 198.51.100.5 local 203.0.113.10"
+    * Add a new connection of type "ip-tunnel" named "gre1" for device "gre1" and options "ip-tunnel.mode gre remote 198.51.100.5 local 203.0.113.10"
     * Modify connection "gre1" changing options "ipv4.addresses '10.0.1.1/30'"
     * Modify connection "gre1" changing options "ipv4.method manual"
     * Modify connection "gre1" changing options "+ipv4.routes '172.16.0.0/24 10.0.1.2'"
@@ -111,16 +109,22 @@ Feature: nmcli - procedures in documentation
 
 
     @ver+=1.20
-    @iptunnel_doc @teardown_testveth
     @iptunnel_gretap_doc_procedure
     Scenario: nmcli - docs - Configuring a GRETAP tunnel to transfer Ethernet frames over IPv4
     * Prepare "gretap" iptunnel networks A and B
-    * Add a new connection of type "bridge" and options "con-name bridge0 ifname bridge0"
+    * Add a new connection of type "bridge" named "bridge0" for device "bridge0"
     * Modify connection "bridge0" changing options "ipv4.addresses '192.0.2.1/24'"
     * Modify connection "bridge0" changing options "ipv4.method manual"
     * Modify connection "bridge0" changing options "bridge.stp off"
-    * Add a new connection of type "ethernet" and options "slave-type bridge con-name bridge0-port1 ifname netA master bridge0"
-    * Add a new connection of type "ip-tunnel" and options "ip-tunnel.mode gretap slave-type bridge con-name bridge0-port2 ifname gretap1 remote 198.51.100.5 local 203.0.113.10 master bridge0"
+    * Add a new connection of type "ethernet" named "bridge0-port1" for device "netA" and options "slave-type bridge master bridge0"
+    * Add a new connection of type "ip-tunnel" named "bridge0-port2" for device "gretap1" and options 
+      """
+      ip-tunnel.mode gretap
+      slave-type bridge
+      remote 198.51.100.5
+      local 203.0.113.10
+      master bridge0
+      """
     * Modify connection "bridge0" changing options "connection.autoconnect-slaves 1"
     Then Bring "up" connection "bridge0"
     Then "bridge0:bridge:connected:bridge0" is visible with command "nmcli -t device"
@@ -133,12 +137,12 @@ Feature: nmcli - procedures in documentation
 
 
     @rhelver+=8
-    @con_tc_remove @eth0
+    @eth0
     @qdisc_doc_procedure
     Scenario: nmcli - docs - Permanently setting the current qdisk of a network interface
     * Execute "tc qdisc replace dev eth0 root fq_codel"
     Given "qdisc fq_codel .*: root refcnt .*" is visible with command "tc qdisc show dev eth0"
-    * Add a new connection of type "ethernet" and options "con-name con_tc ifname eth0"
+    * Add a new connection of type "ethernet" named "con_tc" and options "ifname eth0"
     * Modify connection "con_tc" changing options "tc.qdisc 'root pfifo_fast'"
     * Modify connection "con_tc" changing options "+tc.qdisc 'ingress handle ffff:'"
     When "qdisc fq_codel .*: root refcnt .*" is visible with command "tc qdisc show dev eth0"
@@ -152,7 +156,7 @@ Feature: nmcli - procedures in documentation
     @macsec_doc_procedure
     Scenario: nmcli - docs - Using MACsec to encrypt layer-2 traffic in the same physical network
     * Prepare MACsec PSK environment with CAK "50b71a8ef0bd5751ea76de6d6c98c03a" and CKN "f2b4297d39da7330910a74abc0449feb45b5c0b9fc23df1430e1898fcf1c4550"
-    * Add a new connection of type "macsec" and options "con-name test-macsec ifname macsec0 autoconnect no macsec.parent macsec_veth macsec.mode psk macsec.mka-cak 50b71a8ef0bd5751ea76de6d6c98c03a macsec.mka-ckn f2b4297d39da7330910a74abc0449feb45b5c0b9fc23df1430e1898fcf1c4550"
+    * Add a new connection of type "macsec" named "test-macsec" and options "ifname macsec0 autoconnect no macsec.parent macsec_veth macsec.mode psk macsec.mka-cak 50b71a8ef0bd5751ea76de6d6c98c03a macsec.mka-ckn f2b4297d39da7330910a74abc0449feb45b5c0b9fc23df1430e1898fcf1c4550"
     * Modify connection "test-macsec" changing options "ipv4.method manual ipv4.addresses '172.16.10.5/24' ipv4.gateway '172.16.10.1' ipv4.dns '172.16.10.1'"
     * Modify connection "test-macsec" changing options "ipv6.method manual ipv6.addresses '2001:db8:1::1/32' ipv6.gateway '2001:db8:1::fffe' ipv6.dns '2001:db8:1::fffe'"
     * Bring up connection "test-macsec"
@@ -164,7 +168,7 @@ Feature: nmcli - procedures in documentation
     @wireguard @firewall
     @wireguard_nmcli_doc_procedure
     Scenario: nmcli - docs - Configuring wireguard server & client with nmcli
-    * Add a new connection of type "wireguard" and options "con-name server-wg0 ifname wg0 autoconnect no"
+    * Add a new connection of type "wireguard" named "server-wg0" and options "ifname wg0 autoconnect no"
     * Modify connection "server-wg0" changing options "ipv4.method manual ipv4.addresses 192.0.2.1/24"
     * Modify connection "server-wg0" changing options "ipv6.method manual ipv6.addresses 2001:db8:1::1/32"
     * Modify connection "server-wg0" changing options "wireguard.private-key 'YFAnE0psgIdiAF7XR4abxiwVRnlMfeltxu10s/c4JXg='"
@@ -180,7 +184,7 @@ Feature: nmcli - procedures in documentation
      * Execute "firewall-cmd --permanent --zone=public --add-masquerade"
      * Execute "firewall-cmd --reload"
      Then "51820/udp" is visible with command "firewall-cmd --list-all"
-    * Add a new connection of type "wireguard" and options "con-name client-wg0 ifname wg1 autoconnect no"
+    * Add a new connection of type "wireguard" named "client-wg0" and options "ifname wg1 autoconnect no"
     * Modify connection "client-wg0" changing options "ipv4.method manual ipv4.addresses 192.0.2.2/24"
     * Modify connection "client-wg0" changing options "ipv6.method manual ipv6.addresses 2001:db8:1::2/32"
     * Modify connection "client-wg0" changing options "ipv4.method manual ipv4.gateway 192.0.2.1 ipv6.gateway 2001:db8:1::1"
@@ -241,11 +245,24 @@ Feature: nmcli - procedures in documentation
      And "inet6 2001:db8:1::2/32 scope global noprefixroute" is visible with command "ip address show wg1"
 
 
-    @bridge @firewall
+    @firewall
     @vxlan_doc_procedure
     Scenario: nmcli - docs - Creating a network bride with VXLAN attached
-    * Add a new connection of type "bridge" and options "con-name br88 ifname br4 ipv4.method disabled ipv6.method disabled"
-    * Add a new connection of type "vxlan" and options "slave-type bridge con-name br4-vxlan10 ifname vxlan10 id 10 local 198.51.100.2 remote 203.0.113.1 master br88"
+    * Add a new connection of type "bridge" named "br88" and options 
+      """
+      ifname br4
+      ipv4.method disabled
+      ipv6.method disabled
+      """
+    * Add a new connection of type "vxlan" named "br4-vxlan10" and options 
+      """
+      slave-type bridge
+      ifname vxlan10
+      id 10
+      local 198.51.100.2
+      remote 203.0.113.1
+      master br88
+      """
     * Bring up connection "br88"
     * Execute "firewall-cmd --permanent --add-port=8472/udp"
     * Execute "firewall-cmd --reload"

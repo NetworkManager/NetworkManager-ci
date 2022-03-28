@@ -1183,13 +1183,6 @@ def tcpreplay_bs(ctx, scen):
 _register_tag("tcpreplay", tcpreplay_bs)
 
 
-def teardown_testveth_as(ctx, scen):
-    nmci.lib.teardown_testveth(ctx)
-
-
-_register_tag("teardown_testveth", None, teardown_testveth_as)
-
-
 def libreswan_bs(ctx, scen):
     nmci.lib.wait_for_testeth0(ctx)
     if ctx.command_code("rpm -q NetworkManager-libreswan") != 0:
@@ -1298,7 +1291,6 @@ def iptunnel_doc_as(ctx, scen):
     ctx.run("ip link del ipA")
     ctx.run("ip link del tunB")
     ctx.run("ip link del brB")
-    ctx.run("ip link del bridge0")
 
 
 _register_tag("iptunnel_doc", None, iptunnel_doc_as)
@@ -1310,11 +1302,7 @@ def wireguard_bs(ctx, scen):
         assert False, "wireguard setup failed with exitcode: %d\nOutput:\n\n%s" % (rc, stdout)
 
 
-def wireguard_as(ctx, scen):
-    ctx.run('nmcli con del wireguard server-wg0 client-wg0')
-
-
-_register_tag("wireguard", wireguard_bs, wireguard_as)
+_register_tag("wireguard", wireguard_bs, None)
 
 
 def dracut_bs(ctx, scen):
@@ -1663,12 +1651,6 @@ def openvswitch_as(ctx, scen):
     ctx.run('sudo ifdown eth1')
     ctx.run('sudo ifdown eth2')
     ctx.run('sudo ifdown ovsbridge0')
-    cons = ["eth1", "eth2", "ovs-bond0", "ovs-port0", "ovs-patch0",
-            "ovs-patch1", "ovs-bridge1", "ovs-bridge0", "ovs-port1",
-            "ovs-eth2", "ovs-eth3", "ovs-iface0", "ovs-iface1",
-            "dpdk-sriov", "c-ovs-br0", "c-ovs-port0", "c-ovs-iface0", "ovs-testX",
-            "ovs1-if", "ovs-br0-br", "ovs-br0", "ovs1"]
-    ctx.run('sudo nmcli con del ' + " ".join(cons) + ' || true')  # to be sure
     time.sleep(1)
     ctx.run('ovs-vsctl del-br ovsbr0')
     ctx.run('ovs-vsctl del-br ovs-br0')
@@ -2568,9 +2550,6 @@ _register_tag("mtu_wlan0", None, mtu_wlan0_as)
 
 
 def macsec_as(ctx, scen):
-    ctx.run('sudo nmcli connection delete test-macsec test-macsec-base')
-    ctx.run('sudo ip netns delete macsec_ns')
-    ctx.run('sudo ip link delete macsec_veth')
     ctx.run("kill $(cat /tmp/wpa_supplicant_ms.pid)")
     ctx.run("kill $(cat /tmp/dnsmasq_ms.pid)")
 

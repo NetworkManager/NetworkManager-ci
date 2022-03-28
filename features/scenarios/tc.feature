@@ -12,9 +12,8 @@
     @con_tc_remove @dummy
     @set_fq_codel_queue
     Scenario: nmcli - tc - set fq_codel
-    * Add a new connection of type "dummy" and options
+    * Add a new connection of type "dummy" named "con_tc" for device "dummy0" and options
                         """
-                        ifname dummy0 con-name con_tc
                         ipv4.method manual ipv4.addresses 10.0.0.2/24
                         tc.qdiscs 'root fq_codel'
                         """
@@ -26,9 +25,8 @@
     @con_tc_remove @dummy
     @set_pfifo_fast_queue
     Scenario: nmcli - tc - set pfifo_fast
-    * Add a new connection of type "dummy" and options
+    * Add a new connection of type "dummy" named "con_tc" for device "dummy0" and options
                         """
-                        ifname dummy0 con-name con_tc
                         ipv4.method manual ipv4.addresses 10.0.0.2/24
                         tc.qdiscs 'root fq_codel'
                         """
@@ -39,12 +37,10 @@
 
     @rhbz1928078
     @ver+=1.25
-    @con_tc_remove @dummy
     @remove_root_value
     Scenario: nmcli - tc - remove root value
-    * Add a new connection of type "dummy" and options
+    * Add a new connection of type "dummy" named "con_tc" for device "dummy0" and options
                         """
-                        ifname dummy0 con-name con_tc
                         ipv4.method manual ipv4.addresses 10.0.0.2/24
                         tc.qdiscs 'root pfifo_fast'
                         """
@@ -55,15 +51,13 @@
 
     @rhbz1928078
     @ver+=1.30
-    @con_tc_remove @dummy
     @do_not_touch_external_tc
     Scenario: nmcli - tc - do not touch external ones
     * Execute "ip link add dummy0 type dummy"
     * Execute "ip link set dev dummy0 up"
     * Execute "tc qdisc add dev dummy0 root sfq"
-    * Add a new connection of type "dummy" and options
+    * Add a new connection of type "dummy" named "con_tc" for device "dummy0" and options
                         """
-                        ifname dummy0 con-name con_tc
                         ipv4.method manual ipv4.addresses 10.0.0.2/24
                         """
     Then Bring "up" connection "con_tc"
@@ -73,15 +67,13 @@
 
     @rhbz1928078
     @ver+=1.30
-    @con_tc_remove @dummy
     @override_externally_set_one
     Scenario: nmcli - tc - override external ones
     * Execute "ip link add dummy0 type dummy"
     * Execute "ip link set dev dummy0 up"
     * Execute "tc qdisc add dev dummy0 root sfq"
-    * Add a new connection of type "dummy" and options
+    * Add a new connection of type "dummy" named "con_tc" for device "dummy0" and options
                         """
-                        ifname dummy0 con-name con_tc
                         ipv4.method manual ipv4.addresses 10.0.0.2/24
                         tc.qdisc "root prio"
                         """
@@ -92,15 +84,13 @@
 
     @rhbz1546805 @rhbz1815875
     @ver+=1.30
-    @con_tc_remove @dummy
     @honor_empty_tc
     Scenario: nmcli - tc - reset to default
     * Execute "ip link add dummy0 type dummy"
     * Execute "ip link set dev dummy0 up"
     * Execute "tc qdisc add dev dummy0 root sfq"
-    * Add a new connection of type "dummy" and options
+    * Add a new connection of type "dummy" named "con_tc" for device "dummy0" and options
                         """
-                        ifname dummy0 con-name con_tc
                         ipv4.method manual ipv4.addresses 10.0.0.2/24
                         tc.qdisc ' '
                         """
@@ -111,12 +101,10 @@
 
     @rhbz1546802
     @ver+=1.25
-    @con_tc_remove @dummy
     @set_tbf_qdiscs
     Scenario: nmcli - tc - set qdisc tbf
-    * Add a new connection of type "dummy" and options
+    * Add a new connection of type "dummy" named "con_tc" for device "dummy0" and options
                         """
-                        ifname dummy0 con-name con_tc
                         ipv4.method manual ipv4.addresses 10.0.0.2/24
                         tc.qdiscs 'handle 1235 root tbf rate 1000000 burst 5000 limit 10000 latency 10'
                         """
@@ -126,12 +114,10 @@
 
     @rhbz1546802
     @ver+=1.25
-    @con_tc_remove @dummy
     @set_sqf_qdiscs
     Scenario: nmcli - tc - set qdisc tbf
-    * Add a new connection of type "dummy" and options
+    * Add a new connection of type "dummy" named "con_tc" for device "dummy0" and options
                         """
-                        ifname dummy0 con-name con_tc
                         ipv4.method manual ipv4.addresses 10.0.0.2/24
                         tc.qdiscs 'root sfq perturb 10'
                         """
@@ -140,12 +126,12 @@
 
     @rhbz1436535
     @ver+=1.27
-    @con_tc_remove @dummy @tshark
+    @tshark
     @tc_morrir_traffic
     Scenario: nmcli - tc - mirror traffic
-    * Execute "ip link add dummy0 type dummy"
+    * Add a new interface of type "dummy" named "dummy0"
     * Execute "ip link set dev dummy0 up"
-    * Add a new connection of type "ethernet" and options "ifname eth2 con-name con_tc ipv4.may-fail no ipv4.dhcp-hostname example.com"
+    * Add a new connection of type "ethernet" named "con_tc" and options "ifname eth2 ipv4.may-fail no ipv4.dhcp-hostname example.com"
     * Execute "nmcli connection modify con_tc +tc.qdisc "root prio handle 10:""
     * Execute "nmcli connection modify con_tc +tc.qdisc "ingress handle ffff:""
     * Execute "nmcli connection modify con_tc +tc.tfilter "parent ffff: matchall action mirred egress mirror dev dummy0""
@@ -161,12 +147,12 @@
 
     @rhbz1436535
     @ver+=1.27
-    @con_tc_remove @dummy @tshark
+    @tshark
     @tc_morrir_traffic_clsact
     Scenario: nmcli - tc - mirror traffic clsact
-    * Execute "ip link add dummy0 type dummy"
+    * Add a new interface of type "dummy" named "dummy0"
     * Execute "ip link set dev dummy0 up"
-    * Add a new connection of type "ethernet" and options "ifname eth2 con-name con_tc ipv4.may-fail no ipv4.dhcp-hostname example.com"
+    * Add a new connection of type "ethernet" named "con_tc" and options "ifname eth2 ipv4.may-fail no ipv4.dhcp-hostname example.com"
     * Execute "nmcli connection modify con_tc +tc.qdisc "clsact""
     * Execute "nmcli connection modify con_tc +tc.tfilter "parent ffff:fff3 matchall action mirred egress mirror dev dummy0""
     * Execute "nmcli connection modify con_tc +tc.tfilter "parent ffff:fff2  matchall action mirred egress mirror dev dummy0""
@@ -181,10 +167,10 @@
 
    @rhbz1753677
    @ver+=1.33
-   @filter_batch @dummy
+   @filter_batch
    @tc_device_filter_management
    Scenario: nmcli - tc - non-controlled device filter management
-   * Execute "ip link add dummy0 type veth peer name dummy1"
+   * Add a new interface of type "veth" named "dummy0" and options "peer name dummy1"
    * Execute "ip link set dummy0 up"
    * Execute "ip link set dummy1 up"
    * Execute "tc qdisc add dev dummy0 ingress"

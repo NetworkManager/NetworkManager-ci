@@ -32,7 +32,8 @@ Feature: nmcli - ovs
     @openvswitch
     @openvswitch_ignore_ovs_network_setup
     Scenario: NM - openvswitch - ignore ovs network setup
-    * Add a new connection of type "ethernet" and options "ifname eth1 con-name eth1 autoconnect no"
+    * Clean connection "ovsbridge0"
+    * Add a new connection of type "ethernet" named "eth1" and options "ifname eth1 autoconnect no"
     * Check ifcfg-name file created for connection "eth1"
     * Execute "echo -e 'DEVICE=eth1\nONBOOT=yes\nDEVICETYPE=ovs\nTYPE=OVSPort\nOVS_BRIDGE=ovsbridge0\nBOOTPROTO=none\nHOTPLUG=no' >> /etc/sysconfig/network-scripts/ifcfg-eth1"
     * Execute "echo -e 'DEVICE=ovsbridge0\nONBOOT=yes\nDEVICETYPE=ovs\nTYPE=OVSBridge\nBOOTPROTO=static\nIPADDR=192.168.14.5\nNETMASK=255.255.255.0\nHOTPLUG=no' > /etc/sysconfig/network-scripts/ifcfg-ovsbridge0"
@@ -51,6 +52,8 @@ Feature: nmcli - ovs
     @openvswitch
     @openvswitch_ignore_ovs_vlan_network_setup
     Scenario: NM - openvswitch - ignore ovs network setup
+    * Clean connection "intbr0"
+    * Clean connection "ovsbridge0"
     * Execute "echo -e 'DEVICE=intbr0\nONBOOT=yes\nDEVICETYPE=ovs\nTYPE=OVSIntPort\nOVS_BRIDGE=ovsbridge0\nHOTPLUG=no' >> /etc/sysconfig/network-scripts/ifcfg-intbr0"
     * Execute "echo -e 'DEVICE=ovsbridge0\nONBOOT=yes\nDEVICETYPE=ovs\nTYPE=OVSBridge\nBOOTPROTO=static\nIPADDR=192.168.14.5\nNETMASK=255.255.255.0\nHOTPLUG=no' > /etc/sysconfig/network-scripts/ifcfg-ovsbridge0"
     * Execute "ifup intbr0"
@@ -67,8 +70,10 @@ Feature: nmcli - ovs
     @openvswitch
     @openvswitch_ignore_ovs_bond_network_setup
     Scenario: NM - openvswitch - ignore ovs network setup
-    * Add a new connection of type "ethernet" and options "ifname eth1 con-name eth1 autoconnect no"
-    * Add a new connection of type "ethernet" and options "ifname eth2 con-name eth2 autoconnect no"
+    * Clean connection "bond0"
+    * Clean connection "ovsbridge0"
+    * Add a new connection of type "ethernet" named "eth1" and options "ifname eth1 autoconnect no"
+    * Add a new connection of type "ethernet" named "eth2" and options "ifname eth2 autoconnect no"
     * Execute """echo -e 'DEVICE=bond0\nONBOOT=yes\nDEVICETYPE=ovs\nTYPE=OVSBond\nOVS_BRIDGE=ovsbridge0\nBOOTPROTO=none\nBOND_IFACES="eth1 eth2"\nOVS_OPTIONS="bond_mode=balance-tcp lacp=active"\nHOTPLUG=no' >> /etc/sysconfig/network-scripts/ifcfg-bond0"""
     * Execute "echo -e 'DEVICE=ovsbridge0\nONBOOT=yes\nDEVICETYPE=ovs\nTYPE=OVSBridge\nBOOTPROTO=static\nIPADDR=192.168.14.5\nNETMASK=255.255.255.0\nHOTPLUG=no' > /etc/sysconfig/network-scripts/ifcfg-ovsbridge0"
     * Execute "ifup bond0"
@@ -86,11 +91,11 @@ Feature: nmcli - ovs
     @openvswitch
     @nmcli_add_basic_openvswitch_configuration
     Scenario: nmcli - openvswitch - add basic setup
-    * Add a new connection of type "ovs-bridge" and options "conn.interface ovsbridge0 con-name ovs-bridge0"
-    * Add a new connection of type "ovs-port" and options "conn.interface port0 conn.master ovsbridge0 con-name ovs-port0"
-    * Add a new connection of type "ovs-port" and options "conn.interface port1 conn.master ovsbridge0 con-name ovs-port1"
-    * Add a new connection of type "ethernet" and options "conn.interface eth2 conn.master port1 slave-type ovs-port con-name ovs-eth2"
-    * Add a new connection of type "ovs-interface" and options "conn.interface iface0 conn.master port0 con-name ovs-iface0"
+    * Add a new connection of type "ovs-bridge" named "ovs-bridge0" and options "conn.interface ovsbridge0"
+    * Add a new connection of type "ovs-port" named "ovs-port0" for device "port0" and options "conn.master ovsbridge0"
+    * Add a new connection of type "ovs-port" named "ovs-port1" for device "port1" and options "conn.master ovsbridge0"
+    * Add a new connection of type "ethernet" named "ovs-eth2" and options "conn.interface eth2 conn.master port1 slave-type ovs-port"
+    * Add a new connection of type "ovs-interface" named "ovs-iface0" for device "iface0" and options "conn.master port0"
     When "activated" is visible with command "nmcli -g GENERAL.STATE con show ovs-iface0" in "40" seconds
     Then "Bridge [\"]?ovsbridge0[\"]?" is visible with command "ovs-vsctl show"
      And "Port [\"]?port1[\"]?\s+Interface [\"]?eth2[\"]?\s+type: system" is visible with command "ovs-vsctl show"
@@ -106,11 +111,11 @@ Feature: nmcli - ovs
     @openvswitch
     @nmcli_add_basic_openvswitch_configuration
     Scenario: nmcli - openvswitch - add basic setup
-    * Add a new connection of type "ovs-bridge" and options "conn.interface ovsbridge0 con-name ovs-bridge0"
-    * Add a new connection of type "ovs-port" and options "conn.interface port0 conn.master ovsbridge0 con-name ovs-port0"
-    * Add a new connection of type "ovs-port" and options "conn.interface port1 conn.master ovsbridge0 con-name ovs-port1"
-    * Add a new connection of type "ethernet" and options "conn.interface eth2 conn.master port1 slave-type ovs-port con-name ovs-eth2"
-    * Add a new connection of type "ovs-interface" and options "conn.interface iface0 conn.master port0 con-name ovs-iface0"
+    * Add a new connection of type "ovs-bridge" named "ovs-bridge0" and options "conn.interface ovsbridge0"
+    * Add a new connection of type "ovs-port" named "ovs-port0" for device "port0" and options "conn.master ovsbridge0"
+    * Add a new connection of type "ovs-port" named "ovs-port1" for device "port1" and options "conn.master ovsbridge0"
+    * Add a new connection of type "ethernet" named "ovs-eth2" and options "conn.interface eth2 conn.master port1 slave-type ovs-port"
+    * Add a new connection of type "ovs-interface" named "ovs-iface0" for device "iface0" and options "conn.master port0"
     When "activated" is visible with command "nmcli -g GENERAL.STATE con show ovs-iface0" in "40" seconds
     Then "Bridge [\"]?ovsbridge0[\"]?" is visible with command "ovs-vsctl show"
      And "Port [\"]?port1[\"]?\s+Interface [\"]?eth2[\"]?\s+type: system" is visible with command "ovs-vsctl show"
@@ -126,12 +131,12 @@ Feature: nmcli - ovs
     @openvswitch
     @nmcli_add_openvswitch_bond_configuration
     Scenario: nmcli - openvswitch - add bond setup
-    * Add a new connection of type "ovs-bridge" and options "conn.interface ovsbridge0 con-name ovs-bridge0"
-    * Add a new connection of type "ovs-port" and options "conn.interface port0 conn.master ovsbridge0 con-name ovs-port0"
-    * Add a new connection of type "ovs-port" and options "conn.interface bond0 conn.master ovsbridge0 con-name ovs-bond0"
-    * Add a new connection of type "ethernet" and options "conn.interface eth2 conn.master bond0 slave-type ovs-port con-name ovs-eth2"
-    * Add a new connection of type "ethernet" and options "conn.interface eth3 conn.master bond0 slave-type ovs-port con-name ovs-eth3"
-    * Add a new connection of type "ovs-interface" and options "conn.interface iface0 conn.master port0 con-name ovs-iface0"
+    * Add a new connection of type "ovs-bridge" named "ovs-bridge0" and options "conn.interface ovsbridge0"
+    * Add a new connection of type "ovs-port" named "ovs-port0" for device "port0" and options "conn.master ovsbridge0"
+    * Add a new connection of type "ovs-port" named "ovs-bond0" for device "bond0" and options "conn.master ovsbridge0"
+    * Add a new connection of type "ethernet" named "ovs-eth2" and options "conn.interface eth2 conn.master bond0 slave-type ovs-port"
+    * Add a new connection of type "ethernet" named "ovs-eth3" and options "conn.interface eth3 conn.master bond0 slave-type ovs-port"
+    * Add a new connection of type "ovs-interface" named "ovs-iface0" for device "iface0" and options "conn.master port0"
     When "activated" is visible with command "nmcli -g GENERAL.STATE con show ovs-iface0" in "40" seconds
     Then "Bridge [\"]?ovsbridge0[\"]?" is visible with command "ovs-vsctl show"
      And "Port [\"]?bond0[\"]?\s+Interface [\"]?eth[2-3][\"]?\s+type: system\s+Interface [\"]?eth[2-3][\"]?\s+type: system" is visible with command "ovs-vsctl show"
@@ -148,12 +153,12 @@ Feature: nmcli - ovs
     @openvswitch
     @nmcli_add_openvswitch_vlan_configuration
     Scenario: nmcli - openvswitch - add vlan setup
-    * Add a new connection of type "ovs-bridge" and options "conn.interface ovsbridge0 con-name ovs-bridge0"
-    * Add a new connection of type "ovs-port" and options "conn.interface port0 conn.master ovsbridge0 con-name ovs-port0 ovs-port.tag 120"
-    * Add a new connection of type "ovs-port" and options "conn.interface bond0 conn.master ovsbridge0 con-name ovs-bond0 ovs-port.tag 120"
-    * Add a new connection of type "ethernet" and options "conn.interface eth2 conn.master bond0 slave-type ovs-port con-name ovs-eth2"
-    * Add a new connection of type "ethernet" and options "conn.interface eth3 conn.master bond0 slave-type ovs-port con-name ovs-eth3"
-    * Add a new connection of type "ovs-interface" and options "conn.interface iface0 conn.master port0 con-name ovs-iface0"
+    * Add a new connection of type "ovs-bridge" named "ovs-bridge0" and options "conn.interface ovsbridge0"
+    * Add a new connection of type "ovs-port" named "ovs-port0" for device "port0" and options "conn.master ovsbridge0 ovs-port.tag 120"
+    * Add a new connection of type "ovs-port" named "ovs-bond0" for device "bond0" and options "conn.master ovsbridge0 ovs-port.tag 120"
+    * Add a new connection of type "ethernet" named "ovs-eth2" and options "conn.interface eth2 conn.master bond0 slave-type ovs-port"
+    * Add a new connection of type "ethernet" named "ovs-eth3" and options "conn.interface eth3 conn.master bond0 slave-type ovs-port"
+    * Add a new connection of type "ovs-interface" named "ovs-iface0" for device "iface0" and options "conn.master port0"
     When "activated" is visible with command "nmcli -g GENERAL.STATE con show ovs-iface0" in "40" seconds
     Then "Bridge [\"]?ovsbridge0[\"]?" is visible with command "ovs-vsctl show"
      And "Port [\"]?bond0[\"]?\s+tag: 120\s+Interface [\"]?eth[2-3][\"]?\s+type: system\s+Interface [\"]?eth[2-3][\"]?\s+type: system" is visible with command "ovs-vsctl show"
@@ -170,12 +175,12 @@ Feature: nmcli - ovs
     @openvswitch
     @nmcli_remove_one_openvswitch_bond_configuration
     Scenario: nmcli - openvswitch - remove bond slave connection
-    * Add a new connection of type "ovs-bridge" and options "conn.interface ovsbridge0 con-name ovs-bridge0"
-    * Add a new connection of type "ovs-port" and options "conn.interface port0 conn.master ovsbridge0 con-name ovs-port0 ovs-port.tag 120"
-    * Add a new connection of type "ovs-port" and options "conn.interface bond0 conn.master ovsbridge0 con-name ovs-bond0 ovs-port.tag 120"
-    * Add a new connection of type "ethernet" and options "conn.interface eth2 conn.master bond0 slave-type ovs-port con-name ovs-eth2"
-    * Add a new connection of type "ethernet" and options "conn.interface eth3 conn.master bond0 slave-type ovs-port con-name ovs-eth3"
-    * Add a new connection of type "ovs-interface" and options "conn.interface iface0 conn.master port0 con-name ovs-iface0"
+    * Add a new connection of type "ovs-bridge" named "ovs-bridge0" and options "conn.interface ovsbridge0"
+    * Add a new connection of type "ovs-port" named "ovs-port0" for device "port0" and options "conn.master ovsbridge0 ovs-port.tag 120"
+    * Add a new connection of type "ovs-port" named "ovs-bond0" for device "bond0" and options "conn.master ovsbridge0 ovs-port.tag 120"
+    * Add a new connection of type "ethernet" named "ovs-eth2" and options "conn.interface eth2 conn.master bond0 slave-type ovs-port"
+    * Add a new connection of type "ethernet" named "ovs-eth3" and options "conn.interface eth3 conn.master bond0 slave-type ovs-port"
+    * Add a new connection of type "ovs-interface" named "ovs-iface0" for device "iface0" and options "conn.master port0"
     When "activated" is visible with command "nmcli -g GENERAL.STATE con show ovs-iface0" in "40" seconds
     * Delete connection "ovs-eth2"
     Then "Bridge [\"]?ovsbridge0[\"]?" is visible with command "ovs-vsctl show"
@@ -193,12 +198,12 @@ Feature: nmcli - ovs
     @openvswitch
     @nmcli_remove_openvswitch_ports_and_master_bridge_configuration
     Scenario: nmcli - openvswitch - remove ports and master bridge connections
-    * Add a new connection of type "ovs-bridge" and options "conn.interface ovsbridge0 con-name ovs-bridge0"
-    * Add a new connection of type "ovs-port" and options "conn.interface port0 conn.master ovsbridge0 con-name ovs-port0 ovs-port.tag 120"
-    * Add a new connection of type "ovs-port" and options "conn.interface bond0 conn.master ovsbridge0 con-name ovs-bond0 ovs-port.tag 120"
-    * Add a new connection of type "ethernet" and options "conn.interface eth2 conn.master bond0 slave-type ovs-port con-name ovs-eth2"
-    * Add a new connection of type "ethernet" and options "conn.interface eth3 conn.master bond0 slave-type ovs-port con-name ovs-eth3"
-    * Add a new connection of type "ovs-interface" and options "conn.interface iface0 conn.master port0 con-name ovs-iface0"
+    * Add a new connection of type "ovs-bridge" named "ovs-bridge0" and options "conn.interface ovsbridge0"
+    * Add a new connection of type "ovs-port" named "ovs-port0" for device "port0" and options "conn.master ovsbridge0 ovs-port.tag 120"
+    * Add a new connection of type "ovs-port" named "ovs-bond0" for device "bond0" and options "conn.master ovsbridge0 ovs-port.tag 120"
+    * Add a new connection of type "ethernet" named "ovs-eth2" and options "conn.interface eth2 conn.master bond0 slave-type ovs-port"
+    * Add a new connection of type "ethernet" named "ovs-eth3" and options "conn.interface eth3 conn.master bond0 slave-type ovs-port"
+    * Add a new connection of type "ovs-interface" named "ovs-iface0" for device "iface0" and options "conn.master port0"
     When "activated" is visible with command "nmcli -g GENERAL.STATE con show ovs-iface0" in "40" seconds
     * Delete connection "ovs-port0"
     * Delete connection "ovs-bond0"
@@ -219,12 +224,12 @@ Feature: nmcli - ovs
     #@openvswitch
     #@nmcli_remove_openvswitch_master_bridge_configuration_only
     #Scenario: nmcli - openvswitch - remove master bridge connection
-    #* Add a new connection of type "ovs-bridge" and options "conn.interface ovsbridge0 con-name ovs-bridge0"
-    #* Add a new connection of type "ovs-port" and options "conn.interface port0 conn.master ovsbridge0 con-name ovs-port0 ovs-port.tag 120"
-    #* Add a new connection of type "ovs-port" and options "conn.interface bond0 conn.master ovsbridge0 con-name ovs-bond0 ovs-port.tag 120"
-    #* Add a new connection of type "ethernet" and options "conn.interface eth2 conn.master bond0 slave-type ovs-port con-name ovs-eth2"
-    #* Add a new connection of type "ethernet" and options "conn.interface eth3 conn.master bond0 slave-type ovs-port con-name ovs-eth3"
-    #* Add a new connection of type "ovs-interface" and options "conn.interface iface0 conn.master port0 con-name ovs-iface0"
+    #* Add a new connection of type "ovs-bridge" named "ovs-bridge0" and options "conn.interface ovsbridge0"
+    #* Add a new connection of type "ovs-port" named "ovs-port0" for device "port0" and options "conn.master ovsbridge0  ovs-port.tag 120"
+    #* Add a new connection of type "ovs-port" named "ovs-bond0" for device "bond0" and options "conn.master ovsbridge0 ovs-port.tag 120"
+    #* Add a new connection of type "ethernet" named "ovs-eth2" and options "conn.interface eth2 conn.master bond0 slave-type ovs-port"
+    #* Add a new connection of type "ethernet" named "ovs-eth3" and options "conn.interface eth3 conn.master bond0 slave-type ovs-port"
+    #* Add a new connection of type "ovs-interface" named "ovs-iface0" for device "iface0" and options "conn.master port0"
     #When "activated" is visible with command "nmcli -g GENERAL.STATE con show ovs-iface0" in "40" seconds
     #* Delete connection "ovs-bridge0"
     #Then "Bridge [\"]?ovsbridge0[\"]?" is not visible with command "ovs-vsctl show"
@@ -243,12 +248,12 @@ Feature: nmcli - ovs
     #@openvswitch
     #@nmcli_remove_openvswitch_master_bridge_configuration_only
     #Scenario: nmcli - openvswitch - remove master bridge connection
-    #* Add a new connection of type "ovs-bridge" and options "conn.interface ovsbridge0 con-name ovs-bridge0"
-    #* Add a new connection of type "ovs-port" and options "conn.interface port0 conn.master ovsbridge0 con-name ovs-port0 ovs-port.tag 120"
-    #* Add a new connection of type "ovs-port" and options "conn.interface bond0 conn.master ovsbridge0 con-name ovs-bond0 ovs-port.tag 120"
-    #* Add a new connection of type "ethernet" and options "conn.interface eth2 conn.master bond0 slave-type ovs-port con-name ovs-eth2"
-    #* Add a new connection of type "ethernet" and options "conn.interface eth3 conn.master bond0 slave-type ovs-port con-name ovs-eth3"
-    #* Add a new connection of type "ovs-interface" and options "conn.interface iface0 conn.master port0 con-name ovs-iface0"
+    #* Add a new connection of type "ovs-bridge" named "ovs-bridge0" and options "conn.interface ovsbridge0"
+    #* Add a new connection of type "ovs-port" named "ovs-port0" for device "port0" and options "conn.master ovsbridge0 ovs-port.tag 120"
+    #* Add a new connection of type "ovs-port" named "ovs-bond0" for device "bond0" and options "conn.master ovsbridge0 ovs-port.tag 120"
+    #* Add a new connection of type "ethernet" named "ovs-eth2" and options "conn.interface eth2 conn.master bond0 slave-type ovs-port"
+    #* Add a new connection of type "ethernet" named "ovs-eth3" and options "conn.interface eth3 conn.master bond0 slave-type ovs-port"
+    #* Add a new connection of type "ovs-interface" named "ovs-iface0" for device "iface0" and options "conn.master port0"
     #When "activated" is visible with command "nmcli -g GENERAL.STATE con show ovs-iface0" in "40" seconds
     #* Delete connection "ovs-bridge0"
     #Then "Bridge [\"]?ovsbridge0[\"]?" is not visible with command "ovs-vsctl show"
@@ -267,12 +272,12 @@ Feature: nmcli - ovs
     @openvswitch
     @nmcli_reconnect_openvswitch_vlan_configuration
     Scenario: nmcli - openvswitch - reconnect all connections
-    * Add a new connection of type "ovs-bridge" and options "conn.interface ovsbridge0 con-name ovs-bridge0"
-    * Add a new connection of type "ovs-port" and options "conn.interface port0 conn.master ovsbridge0 con-name ovs-port0 ovs-port.tag 120"
-    * Add a new connection of type "ovs-port" and options "conn.interface bond0 conn.master ovsbridge0 con-name ovs-bond0 ovs-port.tag 120"
-    * Add a new connection of type "ethernet" and options "conn.interface eth2 conn.master bond0 slave-type ovs-port con-name ovs-eth2"
-    * Add a new connection of type "ethernet" and options "conn.interface eth3 conn.master bond0 slave-type ovs-port con-name ovs-eth3"
-    * Add a new connection of type "ovs-interface" and options "conn.interface iface0 conn.master port0 con-name ovs-iface0"
+    * Add a new connection of type "ovs-bridge" named "ovs-bridge0" and options "conn.interface ovsbridge0"
+    * Add a new connection of type "ovs-port" named "ovs-port0" for device "port0" and options "conn.master ovsbridge0 ovs-port.tag 120"
+    * Add a new connection of type "ovs-port" named "ovs-bond0" for device "bond0" and options "conn.master ovsbridge0 ovs-port.tag 120"
+    * Add a new connection of type "ethernet" named "ovs-eth2" and options "conn.interface eth2 conn.master bond0 slave-type ovs-port"
+    * Add a new connection of type "ethernet" named "ovs-eth3" and options "conn.interface eth3 conn.master bond0 slave-type ovs-port"
+    * Add a new connection of type "ovs-interface" named "ovs-iface0" for device "iface0" and options "conn.master port0"
     When "activated" is visible with command "nmcli -g GENERAL.STATE con show ovs-iface0" in "40" seconds
     # VVV Reconnect master bridge connection
     # * Bring "up" connection "ovs-bridge0"
@@ -337,12 +342,12 @@ Feature: nmcli - ovs
     @openvswitch
     @nmcli_reconnect_openvswitch_vlan_configuration
     Scenario: nmcli - openvswitch - reconnect all connections
-    * Add a new connection of type "ovs-bridge" and options "conn.interface ovsbridge0 con-name ovs-bridge0"
-    * Add a new connection of type "ovs-port" and options "conn.interface port0 conn.master ovsbridge0 con-name ovs-port0 ovs-port.tag 120"
-    * Add a new connection of type "ovs-port" and options "conn.interface bond0 conn.master ovsbridge0 con-name ovs-bond0 ovs-port.tag 120"
-    * Add a new connection of type "ethernet" and options "conn.interface eth2 conn.master bond0 slave-type ovs-port con-name ovs-eth2"
-    * Add a new connection of type "ethernet" and options "conn.interface eth3 conn.master bond0 slave-type ovs-port con-name ovs-eth3"
-    * Add a new connection of type "ovs-interface" and options "conn.interface iface0 conn.master port0 con-name ovs-iface0 ipv4.may-fail no"
+    * Add a new connection of type "ovs-bridge" named "ovs-bridge0" and options "conn.interface ovsbridge0"
+    * Add a new connection of type "ovs-port" named "ovs-port0" for device "port0" and options "conn.master ovsbridge0 ovs-port.tag 120"
+    * Add a new connection of type "ovs-port" named "ovs-bond0" for device "bond0" and options "conn.master ovsbridge0 ovs-port.tag 120"
+    * Add a new connection of type "ethernet" named "ovs-eth2" and options "conn.interface eth2 conn.master bond0 slave-type ovs-port"
+    * Add a new connection of type "ethernet" named "ovs-eth3" and options "conn.interface eth3 conn.master bond0 slave-type ovs-port"
+    * Add a new connection of type "ovs-interface" named "ovs-iface0" for device "iface0" and options "conn.master port0 ipv4.may-fail no"
     When "activated" is visible with command "nmcli -g GENERAL.STATE con show ovs-iface0" in "40" seconds
     # VVV Reconnect master bridge connection
     * Bring "up" connection "ovs-bridge0"
@@ -407,12 +412,12 @@ Feature: nmcli - ovs
     @openvswitch @restart_if_needed
     @NM_reboot_openvswitch_vlan_configuration
     Scenario: NM - openvswitch - reboot
-    * Add a new connection of type "ovs-bridge" and options "conn.interface ovsbridge0 con-name ovs-bridge0"
-    * Add a new connection of type "ovs-port" and options "conn.interface port0 conn.master ovsbridge0 con-name ovs-port0 ovs-port.tag 120"
-    * Add a new connection of type "ovs-port" and options "conn.interface bond0 conn.master ovsbridge0 con-name ovs-bond0 ovs-port.tag 120"
-    * Add a new connection of type "ethernet" and options "conn.interface eth2 conn.master bond0 slave-type ovs-port con-name ovs-eth2"
-    * Add a new connection of type "ethernet" and options "conn.interface eth3 conn.master bond0 slave-type ovs-port con-name ovs-eth3"
-    * Add a new connection of type "ovs-interface" and options "conn.interface iface0 conn.master port0 con-name ovs-iface0 ipv4.may-fail no"
+    * Add a new connection of type "ovs-bridge" named "ovs-bridge0" and options "conn.interface ovsbridge0"
+    * Add a new connection of type "ovs-port" named "ovs-port0" for device "port0" and options "conn.master ovsbridge0 ovs-port.tag 120"
+    * Add a new connection of type "ovs-port" named "ovs-bond0" for device "bond0" and options "conn.master ovsbridge0 ovs-port.tag 120"
+    * Add a new connection of type "ethernet" named "ovs-eth2" and options "conn.interface eth2 conn.master bond0 slave-type ovs-port"
+    * Add a new connection of type "ethernet" named "ovs-eth3" and options "conn.interface eth3 conn.master bond0 slave-type ovs-port"
+    * Add a new connection of type "ovs-interface" named "ovs-iface0" for device "iface0" and options "conn.master port0 ipv4.may-fail no"
     When "activated" is visible with command "nmcli -g GENERAL.STATE con show ovs-iface0" in "40" seconds
     * Stop NM
     * Execute "ovs-vsctl del-br ovsbridge0"
@@ -432,12 +437,12 @@ Feature: nmcli - ovs
     @openvswitch @restart_if_needed
     @NM_reboot_openvswitch_vlan_configuration
     Scenario: NM - openvswitch - reboot
-    * Add a new connection of type "ovs-bridge" and options "conn.interface ovsbridge0 con-name ovs-bridge0"
-    * Add a new connection of type "ovs-port" and options "conn.interface port0 conn.master ovsbridge0 con-name ovs-port0 ovs-port.tag 120"
-    * Add a new connection of type "ovs-port" and options "conn.interface bond0 conn.master ovsbridge0 con-name ovs-bond0 ovs-port.tag 120"
-    * Add a new connection of type "ethernet" and options "conn.interface eth2 conn.master bond0 slave-type ovs-port con-name ovs-eth2"
-    * Add a new connection of type "ethernet" and options "conn.interface eth3 conn.master bond0 slave-type ovs-port con-name ovs-eth3"
-    * Add a new connection of type "ovs-interface" and options "conn.interface iface0 conn.master port0 con-name ovs-iface0 ipv4.may-fail no"
+    * Add a new connection of type "ovs-bridge" named "ovs-bridge0" and options "conn.interface ovsbridge0"
+    * Add a new connection of type "ovs-port" named "ovs-port0" for device "port0" and options "conn.master ovsbridge0 ovs-port.tag 120"
+    * Add a new connection of type "ovs-port" named "ovs-bond0" for device "bond0" and options "conn.master ovsbridge0 ovs-port.tag 120"
+    * Add a new connection of type "ethernet" named "ovs-eth2" and options "conn.interface eth2 conn.master bond0 slave-type ovs-port"
+    * Add a new connection of type "ethernet" named "ovs-eth3" and options "conn.interface eth3 conn.master bond0 slave-type ovs-port"
+    * Add a new connection of type "ovs-interface" named "ovs-iface0" for device "iface0" and options "conn.master port0 ipv4.may-fail no"
     When "activated" is visible with command "nmcli -g GENERAL.STATE con show ovs-iface0" in "40" seconds
     * Stop NM
     * Execute "ovs-vsctl del-br ovsbridge0"
@@ -479,22 +484,20 @@ Feature: nmcli - ovs
     @NM_reboot_openvswitch_vlan_configuration_var2
     Scenario: NM - openvswitch - reboot - var2
     * Execute "ovs-vsctl add-br ovsbr0"
-    * Add a new connection of type "ovs-bridge" and options "conn.interface ovsbridge0 con-name ovs-bridge0"
-    * Add a new connection of type "ovs-port" and options "conn.interface port0 conn.master ovsbridge0 con-name ovs-port0 ovs-port.tag 120"
-    * Add a new connection of type "ovs-interface" and options
+    * Add a new connection of type "ovs-bridge" named "ovs-bridge0" and options "conn.interface ovsbridge0"
+    * Add a new connection of type "ovs-port" named "ovs-port0" for device "port0" and options "conn.master ovsbridge0 ovs-port.tag 120"
+    * Add a new connection of type "ovs-interface" named "ovs-iface0" for device "iface0" and options
         """
-        conn.interface iface0 conn.master port0
-        con-name ovs-iface0
+        conn.master port0
         ipv4.method static ipv4.address 192.168.99.1/24
         ipv6.method static ipv6.address 2014:99::1/64
         """
 
-    * Add a new connection of type "ovs-bridge" and options "conn.interface ovsbridge1 con-name ovs-bridge1"
-    * Add a new connection of type "ovs-port" and options "conn.interface port1 conn.master ovsbridge1 con-name ovs-port1 ovs-port.tag 110"
-    * Add a new connection of type "ovs-interface" and options
+    * Add a new connection of type "ovs-bridge" named "ovs-bridge1" and options "conn.interface ovsbridge1"
+    * Add a new connection of type "ovs-port" named "ovs-port1" for device "port1" and options "conn.master ovsbridge1 ovs-port.tag 110"
+    * Add a new connection of type "ovs-interface" named "ovs-iface1" for device "iface1" and options
         """
-        conn.interface iface1 conn.master port1
-        con-name ovs-iface1
+        conn.master port1
         ipv4.method static ipv4.address 192.168.99.2/24
         ipv6.method static ipv6.address 2014:99::2/64
         """
@@ -528,12 +531,12 @@ Feature: nmcli - ovs
     * Execute "systemctl restart NetworkManager-dispatcher"
     * Execute "echo -e '#!/bin/bash\nsleep 1' >/etc/NetworkManager/dispatcher.d/pre-down.d/97-disp"
     * Execute "chmod +x /etc/NetworkManager/dispatcher.d/pre-down.d/97-disp"
-    * Add a new connection of type "ovs-bridge" and options "conn.interface ovsbridge0 con-name ovs-bridge0"
-    * Add a new connection of type "ovs-port" and options "conn.interface port0 conn.master ovsbridge0 con-name ovs-port0 ovs-port.tag 120"
-    * Add a new connection of type "ovs-port" and options "conn.interface bond0 conn.master ovsbridge0 con-name ovs-bond0 ovs-port.tag 120"
-    * Add a new connection of type "ethernet" and options "conn.interface eth2 conn.master bond0 slave-type ovs-port con-name ovs-eth2"
-    * Add a new connection of type "ethernet" and options "conn.interface eth3 conn.master bond0 slave-type ovs-port con-name ovs-eth3"
-    * Add a new connection of type "ovs-interface" and options "conn.interface iface0 conn.master port0 con-name ovs-iface0 ipv4.may-fail no  802-3-ethernet.cloned-mac-address 00:11:22:33:44:55"
+    * Add a new connection of type "ovs-bridge" named "ovs-bridge0" and options "conn.interface ovsbridge0"
+    * Add a new connection of type "ovs-port" named "ovs-port0" for device "port0" and options "conn.master ovsbridge0 ovs-port.tag 120"
+    * Add a new connection of type "ovs-port" named "ovs-bond0" for device "bond0" and options "conn.master ovsbridge0 ovs-port.tag 120"
+    * Add a new connection of type "ethernet" named "ovs-eth2" and options "conn.interface eth2 conn.master bond0 slave-type ovs-port"
+    * Add a new connection of type "ethernet" named "ovs-eth3" and options "conn.interface eth3 conn.master bond0 slave-type ovs-port"
+    * Add a new connection of type "ovs-interface" named "ovs-iface0" for device "iface0" and options "conn.master port0 ipv4.may-fail no  802-3-ethernet.cloned-mac-address 00:11:22:33:44:55"
     When "activated" is visible with command "nmcli -g GENERAL.STATE con show ovs-iface0" in "40" seconds
     When "00:11:22:33:44:55" is visible with command "ip a s iface0"
     # Was not backported
@@ -561,18 +564,18 @@ Feature: nmcli - ovs
     @rhbz1740557 @rhbz1852612 @rhbz1855563 @rhbz1868176
     @ver+=1.26
     @rhelver+=8
-    @permissive @openvswitch @disp @teardown_testveth
+    @permissive @openvswitch @disp
     @ovs_cloned_mac_set_on_iface
     Scenario: nmcli - openvswitch - mac address set iface
     * Execute "systemctl restart NetworkManager-dispatcher"
     * Execute "echo -e '#!/bin/bash\nsleep 1' >/etc/NetworkManager/dispatcher.d/pre-down.d/97-disp"
     * Execute "chmod +x /etc/NetworkManager/dispatcher.d/pre-down.d/97-disp"
     * Prepare simulated test "testX" device with "192.168.97" ipv4 and daemon options "--dhcp-host=00:11:22:33:45:67,192.168.97.13,foobar"
-    * Add a new connection of type "ovs-bridge" and options "conn.interface ovsbridge0 con-name ovs-bridge0"
-    * Add a new connection of type "ovs-port" and options "conn.interface port0 conn.master ovsbridge0 con-name ovs-port0"
-    * Add a new connection of type "ovs-port" and options "conn.interface port1 conn.master ovsbridge0 con-name ovs-port1"
-    * Add a new connection of type "ethernet" and options "conn.interface testX conn.master port0 slave-type ovs-port con-name ovs-testX"
-    * Add a new connection of type "ovs-interface" and options "conn.interface iface0 conn.master port1 con-name ovs-iface0 ipv4.may-fail no 802-3-ethernet.cloned-mac-address 00:11:22:33:45:67"
+    * Add a new connection of type "ovs-bridge" named "ovs-bridge0" and options "conn.interface ovsbridge0"
+    * Add a new connection of type "ovs-port" named "ovs-port0" for device "port0" and options "conn.master ovsbridge0"
+    * Add a new connection of type "ovs-port" named "ovs-port1" for device "port1" and options "conn.master ovsbridge0"
+    * Add a new connection of type "ethernet" named "ovs-testX" and options "conn.interface testX conn.master port0 slave-type ovs-port"
+    * Add a new connection of type "ovs-interface" named "ovs-iface0" for device "iface0" and options "conn.master port1 ipv4.may-fail no 802-3-ethernet.cloned-mac-address 00:11:22:33:45:67"
     When "activated" is visible with command "nmcli -g GENERAL.STATE con show ovs-iface0" in "40" seconds
     Then "192.168.97.13/24" is visible with command "ip a s iface0"
     When "00:11:22:33:45:67" is visible with command "ip a s iface0"
@@ -599,15 +602,15 @@ Feature: nmcli - ovs
 
     @rhbz1786937
     @ver+=1.18.8
-    @openvswitch @mtu  @restart_if_needed
+    @openvswitch @mtu @restart_if_needed
     @ovs_mtu
     Scenario: nmcli - openvswitch - mtu
-    * Add a new connection of type "ovs-bridge" and options "conn.interface ovsbridge0 con-name ovs-bridge0 ethernet.mtu 9000"
-    * Add a new connection of type "ovs-port" and options "conn.interface port0 conn.master ovsbridge0 con-name ovs-port0 ovs-port.tag 120"
-    * Add a new connection of type "ovs-port" and options "conn.interface bond0 conn.master ovsbridge0 con-name ovs-bond0 ovs-port.tag 120"
-    * Add a new connection of type "ethernet" and options "conn.interface eth2 conn.master bond0 slave-type ovs-port con-name ovs-eth2 ethernet.mtu 9000"
-    * Add a new connection of type "ethernet" and options "conn.interface eth3 conn.master bond0 slave-type ovs-port con-name ovs-eth3 ethernet.mtu 9000"
-    * Add a new connection of type "ovs-interface" and options "conn.interface iface0 conn.master port0 con-name ovs-iface0 ipv4.may-fail no  802-3-ethernet.cloned-mac-address 00:11:22:33:44:55 ethernet.mtu 9000"
+    * Add a new connection of type "ovs-bridge" named "ovs-bridge0" and options "conn.interface ovsbridge0 ethernet.mtu 9000"
+    * Add a new connection of type "ovs-port" named "ovs-port0" for device "port0" and options "conn.master ovsbridge0 ovs-port.tag 120"
+    * Add a new connection of type "ovs-port" named "ovs-bond0" for device "bond0" and options "conn.master ovsbridge0 ovs-port.tag 120"
+    * Add a new connection of type "ethernet" named "ovs-eth2" and options "conn.interface eth2 conn.master bond0 slave-type ovs-port ethernet.mtu 9000"
+    * Add a new connection of type "ethernet" named "ovs-eth3" and options "conn.interface eth3 conn.master bond0 slave-type ovs-port ethernet.mtu 9000"
+    * Add a new connection of type "ovs-interface" named "ovs-iface0" for device "iface0" and options "conn.master port0 ipv4.may-fail no  802-3-ethernet.cloned-mac-address 00:11:22:33:44:55 ethernet.mtu 9000"
     When "activated" is visible with command "nmcli -g GENERAL.STATE con show ovs-iface0" in "40" seconds
     Then "9000" is visible with command "ip a s iface0"
     Then "9000" is visible with command "ip a s eth2"
@@ -624,12 +627,12 @@ Feature: nmcli - ovs
     @openvswitch
     @ovs_cloned_mac_with_the_same_bridge_iface_name
     Scenario: nmcli - openvswitch - mac address set on ovs-bridge (iface name is the same)
-    * Add a new connection of type "ovs-bridge" and options "conn.interface ovsbridge0 con-name ovs-bridge0 802-3-ethernet.cloned-mac-address 00:11:22:33:44:55"
-    * Add a new connection of type "ovs-port" and options "conn.interface port0 conn.master ovsbridge0 con-name ovs-port0 ovs-port.tag 120"
-    * Add a new connection of type "ovs-port" and options "conn.interface bond0 conn.master ovsbridge0 con-name ovs-bond0 ovs-port.tag 120"
-    * Add a new connection of type "ethernet" and options "conn.interface eth2 conn.master bond0 slave-type ovs-port con-name ovs-eth2"
-    * Add a new connection of type "ethernet" and options "conn.interface eth3 conn.master bond0 slave-type ovs-port con-name ovs-eth3"
-    * Add a new connection of type "ovs-interface" and options "conn.interface ovsbridge0 conn.master port0 con-name ovs-iface0 ipv4.may-fail no"
+    * Add a new connection of type "ovs-bridge" named "ovs-bridge0" and options "conn.interface ovsbridge0 802-3-ethernet.cloned-mac-address 00:11:22:33:44:55"
+    * Add a new connection of type "ovs-port" named "ovs-port0" for device "port0" and options "conn.master ovsbridge0 ovs-port.tag 120"
+    * Add a new connection of type "ovs-port" named "ovs-bond0" for device "bond0" and options "conn.master ovsbridge0 ovs-port.tag 120"
+    * Add a new connection of type "ethernet" named "ovs-eth2" and options "conn.interface eth2 conn.master bond0 slave-type ovs-port"
+    * Add a new connection of type "ethernet" named "ovs-eth3" and options "conn.interface eth3 conn.master bond0 slave-type ovs-port"
+    * Add a new connection of type "ovs-interface" named "ovs-iface0" for device "ovsbridge0" and options "conn.interface ovsbridge0 conn.master port0 ipv4.may-fail no"
     When "activated" is visible with command "nmcli -g GENERAL.STATE con show ovs-iface0" in "40" seconds
     Then "00:11:22:33:44:55" is visible with command "ip a s ovsbridge0"
 
@@ -637,14 +640,14 @@ Feature: nmcli - ovs
     @rhbz1676551
     @ver+=1.12
     @rhelver-=7 @fedoraver-=0
-    @openvswitch @vlan @bond @slaves @restart_if_needed
+    @openvswitch @restart_if_needed
     @restart_NM_with_mixed_setup
     Scenario: NM -  openvswitch - restart NM when OVS is unmanaged
-    * Add a new connection of type "bond" and options "ifname nm-bond con-name bond0 ipv4.method manual ipv4.addresses 10.0.0.2/16 ipv4.gateway 10.0.0.1"
-    * Add a new connection of type "vlan" and options "con-name vlan1 dev nm-bond id 101 ipv6.method ignore ipv4.method manual ipv4.method manual ipv4.addresses 10.200.208.98/16  ipv4.routes 224.0.0.0/4"
-    * Add a new connection of type "vlan" and options "con-name vlan2 dev nm-bond id 201 ipv6.method ignore ipv4.method manual ipv4.addresses 10.201.0.13/24 ipv4.gateway 10.201.0.1"
-    * Add a new connection of type "ethernet" and options "ifname eth2 master nm-bond con-name bond0.0"
-    * Add a new connection of type "ethernet" and options "ifname eth3 master nm-bond con-name bond0.1"
+    * Add a new connection of type "bond" named "bond0" for device "nm-bond" and options "ipv4.method manual ipv4.addresses 10.0.0.2/16 ipv4.gateway 10.0.0.1"
+    * Add a new connection of type "vlan" named "vlan1" and options "dev nm-bond id 101 ipv6.method ignore ipv4.method manual ipv4.method manual ipv4.addresses 10.200.208.98/16  ipv4.routes 224.0.0.0/4"
+    * Add a new connection of type "vlan" named "vlan2" and options "dev nm-bond id 201 ipv6.method ignore ipv4.method manual ipv4.addresses 10.201.0.13/24 ipv4.gateway 10.201.0.1"
+    * Add a new connection of type "ethernet" named "bond0.0" and options "ifname eth2 master nm-bond"
+    * Add a new connection of type "ethernet" named "bond0.1" and options "ifname eth3 master nm-bond"
     * Execute "ovs-vsctl add-br ovsbr0 -- add-port ovsbr0 nm-bond"
     When "activated" is visible with command "nmcli -g GENERAL.STATE con show bond0" in "40" seconds
      And "224.0.0.0/4 dev nm-bond.101" is visible with command "ip r"
@@ -664,9 +667,9 @@ Feature: nmcli - ovs
      @openvswitch @dpdk
      @add_dpdk_port
      Scenario: NM -  openvswitch - add dpdk device
-     * Add a new connection of type "ovs-bridge" and options "conn.interface ovsbridge0 con-name ovs-bridge0 ovs-bridge.datapath-type netdev"
-     * Add a new connection of type "ovs-port" and options "conn.interface port0 conn.master ovsbridge0 con-name ovs-port0"
-     * Add a new connection of type "ovs-interface" and options "conn.interface iface0 conn.master port0 con-name ovs-iface0 ovs-dpdk.devargs 0000:42:10.0"
+     * Add a new connection of type "ovs-bridge" named "ovs-bridge0" and options "conn.interface ovsbridge0 ovs-bridge.datapath-type netdev"
+     * Add a new connection of type "ovs-port" named "ovs-port0" for device "port0" and options "conn.master ovsbridge0"
+     * Add a new connection of type "ovs-interface" named "ovs-iface0" for device "iface0" and options "conn.master port0 ovs-dpdk.devargs 0000:42:10.0"
      Then "activated" is visible with command "nmcli -g GENERAL.STATE con show ovs-iface0" in "40" seconds
      And "Bridge [\"]?ovsbridge0[\"]?" is visible with command "ovs-vsctl show"
      And "Port [\"]?port0[\"]?" is visible with command "ovs-vsctl show"
@@ -678,9 +681,9 @@ Feature: nmcli - ovs
      @openvswitch @dpdk
      @add_dpdk_port_n_rxq
      Scenario: NM -  openvswitch - add dpdk device and n_rxq argument
-     * Add a new connection of type "ovs-bridge" and options "conn.interface ovsbridge0 con-name ovs-bridge0 ovs-bridge.datapath-type netdev"
-     * Add a new connection of type "ovs-port" and options "conn.interface port0 conn.master ovsbridge0 con-name ovs-port0"
-     * Add a new connection of type "ovs-interface" and options "conn.interface iface0 conn.master port0 con-name ovs-iface0 ovs-dpdk.devargs 0000:42:10.0 ovs-dpdk.n-rxq 2"
+     * Add a new connection of type "ovs-bridge" named "ovs-bridge0" and options "conn.interface ovsbridge0 ovs-bridge.datapath-type netdev"
+     * Add a new connection of type "ovs-port" named "ovs-port0" for device "port0" and options "conn.master ovsbridge0"
+     * Add a new connection of type "ovs-interface" named "ovs-iface0" for device "iface0" and options "conn.master port0 ovs-dpdk.devargs 0000:42:10.0 ovs-dpdk.n-rxq 2"
      Then "activated" is visible with command "nmcli -g GENERAL.STATE con show ovs-iface0" in "40" seconds
      And "Bridge [\"]?ovsbridge0[\"]?" is visible with command "ovs-vsctl show"
      And "Port [\"]?port0[\"]?" is visible with command "ovs-vsctl show"
@@ -692,12 +695,12 @@ Feature: nmcli - ovs
     @openvswitch @dpdk
     @add_dpdk_bond_sriov
     Scenario: NM -  openvswitch - add dpdk device
-    * Add a new connection of type "ovs-bridge" and options "conn.interface ovsbridge0 con-name ovs-bridge0 ovs-bridge.datapath-type netdev"
-    * Add a new connection of type "ovs-port" and options "conn.interface port0 conn.master ovsbridge0 con-name ovs-port0"
-    * Add a new connection of type "ovs-port" and options "conn.interface bond0 conn.master ovsbridge0 con-name ovs-bond0 ovs-port.tag 120"
-    * Add a new connection of type "ovs-interface" and options "conn.interface iface0 conn.master port0 con-name ovs-iface0 ovs-dpdk.devargs 0000:42:10.0"
-    * Add a new connection of type "ovs-interface" and options "conn.interface iface1 conn.master bond0 con-name ovs-iface1 ovs-dpdk.devargs 0000:42:10.2"
-    * Add a new connection of type "ethernet" and options "conn.interface em1 conn.master bond0 slave-type ovs-port con-name ovs-eth3"
+    * Add a new connection of type "ovs-bridge" named "ovs-bridge0" and options "conn.interface ovsbridge0 ovs-bridge.datapath-type netdev"
+    * Add a new connection of type "ovs-port" named "ovs-port0" for device "port0" and options "conn.master ovsbridge0"
+    * Add a new connection of type "ovs-port" named "ovs-bond0" for device "bond0" and options "conn.master ovsbridge0 ovs-port.tag 120"
+    * Add a new connection of type "ovs-interface" named "ovs-iface0" for device "iface0" and options "conn.master port0 ovs-dpdk.devargs 0000:42:10.0"
+    * Add a new connection of type "ovs-interface" named "ovs-iface1" for deivce "iface1" and options "conn.master bond0 ovs-dpdk.devargs 0000:42:10.2"
+    * Add a new connection of type "ethernet" named "ovs-eth3" for device "em1" and options "conn.master bond0 slave-type ovs-port"
     * Bring "up" connection "ovs-eth3"
     Then "activated" is visible with command "nmcli -g GENERAL.STATE con show ovs-iface0" in "40" seconds
     Then "activated" is visible with command "nmcli -g GENERAL.STATE con show ovs-iface1" in "40" seconds
@@ -712,9 +715,9 @@ Feature: nmcli - ovs
     @openvswitch
     @clear_ovs_settings
     Scenario: NM -  openvswitch - clear ovs settings
-    * Add a new connection of type "ovs-bridge" and options "conn.interface ovsbridge0 con-name ovs-bridge0"
-    * Add a new connection of type "ovs-port" and options "conn.interface port0 conn.master ovsbridge0 con-name ovs-port0"
-    * Add a new connection of type "ethernet" and options "ifname eth2 master port0 con-name eth2 slave-type ovs-port"
+    * Add a new connection of type "ovs-bridge" named "ovs-bridge0" and options "conn.interface ovsbridge0"
+    * Add a new connection of type "ovs-port" named "ovs-port0" for device "port0" and options "conn.master ovsbridge0"
+    * Add a new connection of type "ethernet" named "eth2" and options "ifname eth2 master port0 slave-type ovs-port"
     When "slave-type:\s+ovs-port" is visible with command "nmcli con show eth2"
     When "connection.master:\s+port0" is visible with command "nmcli con show eth2"
     When "ovs-interface" is visible with command "nmcli con show eth2"
@@ -729,12 +732,12 @@ Feature: nmcli - ovs
     @openvswitch
     @ovs_patch_add
     Scenario: NM -  openvswitch - add ovs patch
-    * Add a new connection of type "ovs-bridge" and options "conn.interface ovsbridge0 con-name ovs-bridge0"
-    * Add a new connection of type "ovs-port" and options "conn.interface port0 conn.master ovsbridge0 con-name ovs-port0"
-    * Add a new connection of type "ovs-interface" and options "ifname patch0 master port0 ovs-interface.type patch ovs-patch.peer patch1 con-name ovs-patch0"
-    * Add a new connection of type "ovs-bridge" and options "conn.interface ovsbridge1 con-name ovs-bridge1"
-    * Add a new connection of type "ovs-port" and options "conn.interface port1 conn.master ovsbridge1 con-name ovs-port0"
-    * Add a new connection of type "ovs-interface" and options "ifname patch1 master port1 ovs-interface.type patch ovs-patch.peer patch0 con-name ovs-patch1"
+    * Add a new connection of type "ovs-bridge" named "ovs-bridge0" and options "conn.interface ovsbridge0"
+    * Add a new connection of type "ovs-port" named "ovs-port0" for device "port0" and options "conn.master ovsbridge0"
+    * Add a new connection of type "ovs-interface" named "ovs-patch0" for device "patch0" and options "master port0 ovs-interface.type patch ovs-patch.peer patch1"
+    * Add a new connection of type "ovs-bridge" named "ovs-bridge1" and options "conn.interface ovsbridge1"
+    * Add a new connection of type "ovs-port" named "ovs-port1" for device "port1" and options "conn.master ovsbridge1"
+    * Add a new connection of type "ovs-interface" named "ovs-patch1" for device "patch1" and options "master port1 ovs-interface.type patch ovs-patch.peer patch0"
     When "activated" is visible with command "nmcli -g GENERAL.STATE con show ovs-patch0" in "10" seconds
     When "activated" is visible with command "nmcli -g GENERAL.STATE con show ovs-patch1" in "10" seconds
     Then "Interface patch0\s*type: patch\s*options: \{peer\=patch1\}" is visible with command "ovs-vsctl show"
@@ -746,9 +749,9 @@ Feature: nmcli - ovs
     @openvswitch
     @ovs_external_ids
     Scenario: NM -  openvswitch - add dpdk device
-    * Add a new connection of type "ovs-bridge" and options "    conn.interface i-ovs-br0    con-name c-ovs-br0    autoconnect no"
-    * Add a new connection of type "ovs-port" and options "      conn.interface i-ovs-port0  con-name c-ovs-port0  autoconnect no conn.master i-ovs-br0"
-    * Add a new connection of type "ovs-interface" and options " conn.interface i-ovs-iface0 con-name c-ovs-iface0 autoconnect no conn.master i-ovs-port0   ovs-interface.type internal ipv4.method disabled ipv6.method disabled"
+    * Add a new connection of type "ovs-bridge" named "c-ovs-br0" and options "conn.interface i-ovs-br0 autoconnect no"
+    * Add a new connection of type "ovs-port" named "c-ovs-port0" for device "i-ovs-port0" and options "autoconnect no conn.master i-ovs-br0"
+    * Add a new connection of type "ovs-interface" named "c-ovs-iface0" for device "i-ovs-iface0" and options "autoconnect no conn.master i-ovs-port0   ovs-interface.type internal ipv4.method disabled ipv6.method disabled"
 
     * Execute "python3 contrib/ovs/ovs-external-ids.py set id c-ovs-br0 br0-key0 br0-val0 br0-key1 br0-val1"
     Then "br0-key0.*br0-val0.*br0-key1.*br0-val1" is visible with command "python3 contrib/ovs/ovs-external-ids.py get id c-ovs-br0"
@@ -779,12 +782,12 @@ Feature: nmcli - ovs
     * Execute "ovs-vsctl add-br ovsbr0"
     * "ovsbr0" is visible with command "ip a"
     # Save no means to have just in memory profiles
-    * Add a new connection of type "ovs-bridge" and options "conn.interface ovsbridge0 con-name ovs-bridge0 save no"
-    * Add a new connection of type "ovs-port" and options "conn.interface port0 conn.master ovsbridge0 con-name ovs-port0 ovs-port.tag 120 save no"
-    * Add a new connection of type "ovs-port" and options "conn.interface bond0 conn.master ovsbridge0 con-name ovs-bond0 ovs-port.tag 120 save no"
-    * Add a new connection of type "ethernet" and options "conn.interface eth2 conn.master bond0 slave-type ovs-port con-name ovs-eth2 save no"
-    * Add a new connection of type "ethernet" and options "conn.interface eth3 conn.master bond0 slave-type ovs-port con-name ovs-eth3 save no"
-    * Add a new connection of type "ovs-interface" and options "conn.interface iface0 conn.master port0 con-name ovs-iface0 ipv4.may-fail no save no"
+    * Add a new connection of type "ovs-bridge" named "ovs-bridge0" and options "conn.interface ovsbridge0 save no"
+    * Add a new connection of type "ovs-port" named "ovs-port0" for device "port0" and options "conn.master ovsbridge0 ovs-port.tag 120 save no"
+    * Add a new connection of type "ovs-port" named "ovs-bond0" for device "bond0" and options "conn.master ovsbridge0 ovs-port.tag 120 save no"
+    * Add a new connection of type "ethernet" named "ovs-eth2" and options "conn.interface eth2 conn.master bond0 slave-type ovs-port save no"
+    * Add a new connection of type "ethernet" named "ovs-eth3" and options "conn.interface eth3 conn.master bond0 slave-type ovs-port save no"
+    * Add a new connection of type "ovs-interface" named "ovs-iface0" for device "iface0" and options "conn.master port0 ipv4.may-fail no save no"
     Then "activated" is visible with command "nmcli -g GENERAL.STATE con show ovs-iface0" in "40" seconds
     * Reboot
     # This bridge was created by NM and should be gone
@@ -842,20 +845,18 @@ Feature: nmcli - ovs
     @openvswitch @firewall
     @ovs_set_firewalld_zone
     Scenario: NM -  openvswitch - set firewalld zone
-    * Add a new connection of type "ovs-bridge" and options
+    * Add a new connection of type "ovs-bridge" named "ovs-bridge0" and options
                                 """
                                 conn.interface ovsbridge0
-                                con-name ovs-bridge0
                                 """
-    * Add a new connection of type "ovs-port" and options
+    * Add a new connection of type "ovs-port" named "ovs-port0" for device "port0" and options
                                 """
-                                conn.interface port0 conn.master ovsbridge0
-                                con-name ovs-port0
+                                conn.master ovsbridge0
                                 """
-    * Add a new connection of type "ovs-interface" and options
+    * Add a new connection of type "ovs-interface" named "ovs-iface0" for device "iface0" and options
                                 """
-                                conn.interface iface0 conn.master port0
-                                con-name ovs-iface0 ipv4.may-fail no
+                                conn.master port0
+                                ipv4.may-fail no
                                 ipv4.method manual ipv4.addresses 172.16.0.1/24
                                 connection.zone public
                                 """
@@ -870,20 +871,18 @@ Feature: nmcli - ovs
     @openvswitch @firewall
     @ovs_set_firewalld_zone
     Scenario: NM -  openvswitch - set firewalld zone
-    * Add a new connection of type "ovs-bridge" and options
+    * Add a new connection of type "ovs-bridge" named "ovs-bridge0" and options
                                 """
                                 conn.interface ovsbridge0
-                                con-name ovs-bridge0
                                 """
-    * Add a new connection of type "ovs-port" and options
+    * Add a new connection of type "ovs-port" named "ovs-port0" for device "port0" and options
                                 """
-                                conn.interface port0 conn.master ovsbridge0
-                                con-name ovs-port0
+                                conn.master ovsbridge0
                                 """
-    * Add a new connection of type "ovs-interface" and options
+    * Add a new connection of type "ovs-interface" named "ovs-iface0" for device "iface0" and options
                                 """
-                                conn.interface iface0 conn.master port0
-                                con-name ovs-iface0 ipv4.may-fail no
+                                conn.master port0
+                                ipv4.may-fail no
                                 connection.zone public
                                 """
     Then "success" is visible with command "firewall-cmd --reload"
@@ -896,20 +895,19 @@ Feature: nmcli - ovs
     @openvswitch @firewall
     @ovs_set_firewalld_zone
     Scenario: NM -  openvswitch - set firewalld zone
-    * Add a new connection of type "ovs-bridge" and options
+    * Add a new connection of type "ovs-bridge" named "ovs-bridge0" and options
                                 """
                                 conn.interface ovsbridge0
-                                con-name ovs-bridge0
                                 """
-    * Add a new connection of type "ovs-port" and options
+    * Add a new connection of type "ovs-port" named "ovs-port0" for device "long_port_iface_name" and options
                                 """
-                                conn.interface long_port_iface_name conn.master ovsbridge0
-                                con-name ovs-port0
+                                conn.master ovsbridge0
+
                                 """
-    * Add a new connection of type "ovs-interface" and options
+    * Add a new connection of type "ovs-interface" named "ovs-iface0" for device "iface0" and options
                                 """
-                                conn.interface iface0 conn.master long_port_iface_name
-                                con-name ovs-iface0 ipv4.may-fail no
+                                conn.master long_port_iface_name
+                                ipv4.may-fail no
                                 connection.zone public
                                 """
     Then "success" is visible with command "firewall-cmd --reload"
@@ -922,31 +920,25 @@ Feature: nmcli - ovs
     @openvswitch @restart_if_needed
     @add_dpdk_port_with_mtu
     Scenario: NM - openvswitch - add dpdk device with preset MTU
-    * Add a new connection of type "ovs-bridge" and options "conn.interface ovsbridge0 con-name ovs-bridge0 ovs-bridge.datapath-type netdev"
-    * Add a new connection of type "ovs-port" and options "conn.interface bond0 conn.master ovsbridge0 con-name ovs-bond0 ovs-port.bond-mode balance-slb"
-    * Add a new connection of type "ovs-port" and options "conn.interface port0 master ovsbridge0 con-name ovs-port0"
-    * Add a new connection of type "ovs-interface" and options
+    * Add a new connection of type "ovs-bridge" named "ovs-bridge0" and options "conn.interface ovsbridge0 ovs-bridge.datapath-type netdev"
+    * Add a new connection of type "ovs-port" named "ovs-bond0" for device "bond0" and options "conn.master ovsbridge0 ovs-port.bond-mode balance-slb"
+    * Add a new connection of type "ovs-port" named "ovs-port0" for device "port0" and options "master ovsbridge0"
+    * Add a new connection of type "ovs-interface" named "ovs-port1" for device "port0" and options
         """
         slave-type ovs-port
-        conn.interface port0
         master ovs-port0
-        con-name ovs-port1
         802-3-ethernet.mtu 9000
         """
-    * Add a new connection of type "ovs-interface" and options
+    * Add a new connection of type "ovs-interface" named "ovs-iface0" for device "iface0" and options
         """
-        conn.interface iface0
         conn.master bond0
-        con-name ovs-iface0
         ovs-dpdk.devargs 000:42:10.0
         ovs-interface.type dpdk
         802-3-ethernet.mtu 9000
         """
-    * Add a new connection of type "ovs-interface" and options
+    * Add a new connection of type "ovs-interface" named "ovs-iface1" for device "iface1" and options
         """
-        conn.interface iface1
         conn.master bond0
-        con-name ovs-iface1
         ovs-dpdk.devargs 000:42:10.2
         ovs-interface.type dpdk
         802-3-ethernet.mtu 9000

@@ -24,13 +24,13 @@ Feature: nmcli - dns
     Scenario: NM - dns - two connections with default route
 
     # Create connection on eth2 with default route
-    * Add a new connection of type "ethernet" and options "con-name con_dns ifname eth2 autoconnect no"
+    * Add a new connection of type "ethernet" named "con_dns" and options "ifname eth2 autoconnect no"
     * Execute "nmcli connection modify con_dns ipv4.method manual ipv4.addresses 172.16.1.1/24 ipv4.gateway 172.16.1.2"
     * Execute "nmcli connection modify con_dns ipv4.dns 172.16.1.53 ipv4.dns-search con_dns.domain"
     * Bring "up" connection "con_dns"
 
     # Create connection on eth3 with default route
-    * Add a new connection of type "ethernet" and options "con-name con_dns2 ifname eth3 autoconnect no"
+    * Add a new connection of type "ethernet" named "con_dns2" and options "ifname eth3 autoconnect no"
     * Execute "nmcli connection modify con_dns2 ipv4.method manual ipv4.addresses 172.17.1.1/24 ipv4.gateway 172.17.1.2"
     * Execute "nmcli connection modify con_dns2 ipv4.dns 172.17.1.53 ipv4.dns-search con_dns2.domain"
     * Bring "up" connection "con_dns2"
@@ -58,13 +58,13 @@ Feature: nmcli - dns
     Scenario: NM - dns - two connections with default route
 
     # Create connection on eth2 with default route
-    * Add a new connection of type "ethernet" and options "con-name con_dns ifname eth2 autoconnect no"
+    * Add a new connection of type "ethernet" named "con_dns" and options "ifname eth2 autoconnect no"
     * Execute "nmcli connection modify con_dns ipv4.method manual ipv4.addresses 172.16.1.1/24 ipv4.gateway 172.16.1.2"
     * Execute "nmcli connection modify con_dns ipv4.dns 172.16.1.53 ipv4.dns-search con_dns.domain"
     * Bring "up" connection "con_dns"
 
     # Create connection on eth3 with default route
-    * Add a new connection of type "ethernet" and options "con-name con_dns2 ifname eth3 autoconnect no"
+    * Add a new connection of type "ethernet" named "con_dns2" and options "ifname eth3 autoconnect no"
     * Execute "nmcli connection modify con_dns2 ipv4.method manual ipv4.addresses 172.17.1.1/24 ipv4.gateway 172.17.1.2"
     * Execute "nmcli connection modify con_dns2 ipv4.dns 172.17.1.53 ipv4.dns-search con_dns2.domain"
     * Bring "up" connection "con_dns2"
@@ -93,13 +93,13 @@ Feature: nmcli - dns
     Scenario: NM - dns - two connections, one with default route
 
     # Create connection on eth2 with default route
-    * Add a new connection of type "ethernet" and options "con-name con_dns ifname eth2 autoconnect no"
+    * Add a new connection of type "ethernet" named "con_dns" and options "ifname eth2 autoconnect no"
     * Execute "nmcli connection modify con_dns ipv4.method manual ipv4.addresses 172.16.1.1/24 ipv4.gateway 172.16.1.2"
     * Execute "nmcli connection modify con_dns ipv4.dns 172.16.1.53 ipv4.dns-search con_dns.domain"
     * Bring "up" connection "con_dns"
 
     # Create connection on eth3 without default route
-    * Add a new connection of type "ethernet" and options "con-name con_dns2 ifname eth3 autoconnect no"
+    * Add a new connection of type "ethernet" named "con_dns2" and options "ifname eth3 autoconnect no"
     * Execute "nmcli connection modify con_dns2 ipv4.method manual ipv4.addresses 172.17.1.1/24"
     * Execute "nmcli connection modify con_dns2 ipv4.dns 172.17.1.53 ipv4.dns-search con_dns2.domain"
     * Bring "up" connection "con_dns2"
@@ -125,13 +125,13 @@ Feature: nmcli - dns
     Scenario: NM - dns - two connections, one with default route
 
     # Create connection on eth2 with default route
-    * Add a new connection of type "ethernet" and options "con-name con_dns ifname eth2 autoconnect no"
+    * Add a new connection of type "ethernet" named "con_dns" and options "ifname eth2 autoconnect no"
     * Execute "nmcli connection modify con_dns ipv4.method manual ipv4.addresses 172.16.1.1/24 ipv4.gateway 172.16.1.2"
     * Execute "nmcli connection modify con_dns ipv4.dns 172.16.1.53 ipv4.dns-search con_dns.domain"
     * Bring "up" connection "con_dns"
 
     # Create connection on eth3 without default route
-    * Add a new connection of type "ethernet" and options "con-name con_dns2 ifname eth3 autoconnect no"
+    * Add a new connection of type "ethernet" named "con_dns2" and options "ifname eth3 autoconnect no"
     * Execute "nmcli connection modify con_dns2 ipv4.method manual ipv4.addresses 172.17.1.1/24"
     * Execute "nmcli connection modify con_dns2 ipv4.dns 172.17.1.53 ipv4.dns-search con_dns2.domain"
     * Bring "up" connection "con_dns2"
@@ -158,14 +158,14 @@ Feature: nmcli - dns
     Scenario: NM - dns - two connections with default route, one has higher priority
 
     # Create connection on eth2 with default route and higher priority
-    * Add a new connection of type "ethernet" and options "con-name con_dns ifname eth2 autoconnect no"
+    * Add a new connection of type "ethernet" named "con_dns" and options "ifname eth2 autoconnect no"
     * Execute "nmcli connection modify con_dns ipv4.method manual ipv4.addresses 172.16.1.1/24 ipv4.gateway 172.16.1.2"
     * Execute "nmcli connection modify con_dns ipv4.dns 172.16.1.53 ipv4.dns-search con_dns.domain"
     * Execute "nmcli connection modify con_dns ipv4.dns-priority 10"
     * Bring "up" connection "con_dns"
 
     # Create connection on eth3 with default route
-    * Add a new connection of type "ethernet" and options "con-name con_dns2 ifname eth3 autoconnect no"
+    * Add a new connection of type "ethernet" named "con_dns2" and options "ifname eth3 autoconnect no"
     * Execute "nmcli connection modify con_dns2 ipv4.method manual ipv4.addresses 172.17.1.1/24 ipv4.gateway 172.17.1.2"
     * Execute "nmcli connection modify con_dns2 ipv4.dns 172.17.1.53 ipv4.dns-search con_dns2.domain"
     * Bring "up" connection "con_dns2"
@@ -191,14 +191,14 @@ Feature: nmcli - dns
     Scenario: NM - dns - two connections with default route, one has higher priority
 
     # Create connection on eth2 with default route and higher priority
-    * Add a new connection of type "ethernet" and options "con-name con_dns ifname eth2 autoconnect no"
+    * Add a new connection of type "ethernet" named "con_dns" and options "ifname eth2 autoconnect no"
     * Execute "nmcli connection modify con_dns ipv4.method manual ipv4.addresses 172.16.1.1/24 ipv4.gateway 172.16.1.2"
     * Execute "nmcli connection modify con_dns ipv4.dns 172.16.1.53 ipv4.dns-search con_dns.domain"
     * Execute "nmcli connection modify con_dns ipv4.dns-priority 10"
     * Bring "up" connection "con_dns"
 
     # Create connection on eth3 with default route
-    * Add a new connection of type "ethernet" and options "con-name con_dns2 ifname eth3 autoconnect no"
+    * Add a new connection of type "ethernet" named "con_dns2" and options "ifname eth3 autoconnect no"
     * Execute "nmcli connection modify con_dns2 ipv4.method manual ipv4.addresses 172.17.1.1/24 ipv4.gateway 172.17.1.2"
     * Execute "nmcli connection modify con_dns2 ipv4.dns 172.17.1.53 ipv4.dns-search con_dns2.domain"
     * Bring "up" connection "con_dns2"
@@ -221,14 +221,14 @@ Feature: nmcli - dns
     Scenario: NM - dns - two connections with default route, one has negative priority
 
     # Create connection on eth2 with default route and negative priority
-    * Add a new connection of type "ethernet" and options "con-name con_dns ifname eth2 autoconnect no"
+    * Add a new connection of type "ethernet" named "con_dns" and options "ifname eth2 autoconnect no"
     * Execute "nmcli connection modify con_dns ipv4.method manual ipv4.addresses 172.16.1.1/24 ipv4.gateway 172.16.1.2"
     * Execute "nmcli connection modify con_dns ipv4.dns 172.16.1.53 ipv4.dns-search con_dns.domain"
     * Execute "nmcli connection modify con_dns ipv4.dns-priority -100"
     * Bring "up" connection "con_dns"
 
     # Create connection on eth3 with default route
-    * Add a new connection of type "ethernet" and options "con-name con_dns2 ifname eth3 autoconnect no"
+    * Add a new connection of type "ethernet" named "con_dns2" and options "ifname eth3 autoconnect no"
     * Execute "nmcli connection modify con_dns2 ipv4.method manual ipv4.addresses 172.17.1.1/24 ipv4.gateway 172.17.1.2"
     * Execute "nmcli connection modify con_dns2 ipv4.dns 172.17.1.53 ipv4.dns-search con_dns2.domain"
     * Bring "up" connection "con_dns2"
@@ -256,13 +256,13 @@ Feature: nmcli - dns
     Scenario: NM - dns - two connections without default route
 
     # Create connection on eth2 without default route
-    * Add a new connection of type "ethernet" and options "con-name con_dns ifname eth2 autoconnect no"
+    * Add a new connection of type "ethernet" named "con_dns2" and options "ifname eth2 autoconnect no"
     * Execute "nmcli connection modify con_dns ipv4.method manual ipv4.addresses 172.16.1.1/24"
     * Execute "nmcli connection modify con_dns ipv4.dns 172.16.1.53 ipv4.dns-search con_dns.domain"
     * Bring "up" connection "con_dns"
 
     # Create connection on eth3 without default route
-    * Add a new connection of type "ethernet" and options "con-name con_dns2 ifname eth3 autoconnect no"
+    * Add a new connection of type "ethernet" named "con_dns2" and options "ifname eth3 autoconnect no"
     * Execute "nmcli connection modify con_dns2 ipv4.method manual ipv4.addresses 172.17.1.1/24"
     * Execute "nmcli connection modify con_dns2 ipv4.dns 172.17.1.53 ipv4.dns-search con_dns2.domain"
     * Bring "up" connection "con_dns2"
@@ -289,13 +289,13 @@ Feature: nmcli - dns
     Scenario: NM - dns - two connections without default route
 
     # Create connection on eth2 without default route
-    * Add a new connection of type "ethernet" and options "con-name con_dns ifname eth2 autoconnect no"
+    * Add a new connection of type "ethernet" named "con_dns" and options "ifname eth2 autoconnect no"
     * Execute "nmcli connection modify con_dns ipv4.method manual ipv4.addresses 172.16.1.1/24"
     * Execute "nmcli connection modify con_dns ipv4.dns 172.16.1.53 ipv4.dns-search con_dns.domain"
     * Bring "up" connection "con_dns"
 
     # Create connection on eth3 without default route
-    * Add a new connection of type "ethernet" and options "con-name con_dns2 ifname eth3 autoconnect no"
+    * Add a new connection of type "ethernet" named "con_dns2" and options "ifname eth3 autoconnect no"
     * Execute "nmcli connection modify con_dns2 ipv4.method manual ipv4.addresses 172.17.1.1/24"
     * Execute "nmcli connection modify con_dns2 ipv4.dns 172.17.1.53 ipv4.dns-search con_dns2.domain"
     * Bring "up" connection "con_dns2"
@@ -322,7 +322,7 @@ Feature: nmcli - dns
     Scenario: NM - dns - full-tunnel VPN
 
     # Create ethernet connection
-    * Add a new connection of type "ethernet" and options "con-name con_dns ifname eth2 autoconnect no"
+    * Add a new connection of type "ethernet" named "con_dns" and options "ifname eth2 autoconnect no"
     * Execute "nmcli connection modify con_dns ipv4.method manual ipv4.addresses 172.16.1.1/24 ipv4.gateway 172.16.1.2"
     * Execute "nmcli connection modify con_dns ipv4.dns 172.16.1.53 ipv4.dns-search con_dns.domain"
     * Bring "up" connection "con_dns"
@@ -353,7 +353,7 @@ Feature: nmcli - dns
     Scenario: NM - dns - full-tunnel VPN
 
     # Create ethernet connection
-    * Add a new connection of type "ethernet" and options "con-name con_dns ifname eth2 autoconnect no"
+    * Add a new connection of type "ethernet" named "con_dns" and options "ifname eth2 autoconnect no"
     * Execute "nmcli connection modify con_dns ipv4.method manual ipv4.addresses 172.16.1.1/24 ipv4.gateway 172.16.1.2"
     * Execute "nmcli connection modify con_dns ipv4.dns 172.16.1.53 ipv4.dns-search con_dns.domain"
     * Bring "up" connection "con_dns"
@@ -385,7 +385,7 @@ Feature: nmcli - dns
     Scenario: NM - dns - split-tunnel VPN
 
     # Create ethernet connection with default route
-    * Add a new connection of type "ethernet" and options "con-name con_dns ifname eth2 autoconnect no"
+    * Add a new connection of type "ethernet" named "con_dns" and options "ifname eth2 autoconnect no"
     * Execute "nmcli connection modify con_dns ipv4.method manual ipv4.addresses 172.16.1.1/24 ipv4.gateway 172.16.1.2"
     * Execute "nmcli connection modify con_dns ipv4.dns 172.16.1.53 ipv4.dns-search con_dns.domain"
     * Bring "up" connection "con_dns"
@@ -417,7 +417,7 @@ Feature: nmcli - dns
     Scenario: NM - dns - split-tunnel VPN
 
     # Create ethernet connection with default route
-    * Add a new connection of type "ethernet" and options "con-name con_dns ifname eth2 autoconnect no"
+    * Add a new connection of type "ethernet" named "con_dns" and options "ifname eth2 autoconnect no"
     * Execute "nmcli connection modify con_dns ipv4.method manual ipv4.addresses 172.16.1.1/24 ipv4.gateway 172.16.1.2"
     * Execute "nmcli connection modify con_dns ipv4.dns 172.16.1.53 ipv4.dns-search con_dns.domain"
     * Bring "up" connection "con_dns"
@@ -444,7 +444,7 @@ Feature: nmcli - dns
     @con_dns_remove @dns_systemd_resolved @eth0
     @dns_resolved_add_remove_ipv6_dns
     Scenario: nmcli - dns - add remove ipv6 dns under resolved
-    * Add a new connection of type "ethernet" and options "ifname eth10 con-name con_dns ipv4.method disabled ip6 fd01::1/64 ipv6.dns '4000::1 5000::1' ipv6.gateway fd01::2 autoconnect no"
+    * Add a new connection of type "ethernet" named "con_dns" and options "ifname eth10 ipv4.method disabled ip6 fd01::1/64 ipv6.dns '4000::1 5000::1' ipv6.gateway fd01::2 autoconnect no"
     * Bring "up" connection "con_dns"
     When Nameserver "4000::1" is set in "5" seconds
     When Nameserver "5000::1" is set in "5" seconds
@@ -460,7 +460,7 @@ Feature: nmcli - dns
     @con_dns_remove @dns_systemd_resolved
     @dns_resolved_dnssec_opts
     Scenario: NM - dns - dnssec
-    * Add a new connection of type "ethernet" and options "con-name con_dns ifname eth2 autoconnect no"
+    * Add a new connection of type "ethernet" named "con_dns" and options "ifname eth2 autoconnect no"
     * Execute "nmcli connection modify con_dns ipv4.method manual ipv4.addresses 172.16.1.1/24 ipv4.gateway 172.16.1.2"
     * Execute "nmcli connection modify con_dns ipv4.dns 172.16.1.53 ipv4.dns-search con_dns.domain"
     * Bring "up" connection "con_dns"
@@ -477,8 +477,8 @@ Feature: nmcli - dns
     @con_dns_remove
     @dns_priority
     Scenario: nmcli - ipv4 - dns - priority
-    * Add a new connection of type "ethernet" and options "con-name con_dns ifname eth2 -- ipv4.method manual ipv4.addresses 192.168.1.2/24 ipv4.gateway 172.16.1.2 ipv4.dns 2.3.4.1 ipv4.dns-priority 300"
-    * Add a new connection of type "ethernet" and options "con-name con_dns2 ifname eth3 -- ipv4.method manual ipv4.addresses 192.168.2.2/24 ipv4.gateway 172.16.1.2 ipv4.dns 1.2.3.4 ipv4.dns-priority 200"
+    * Add a new connection of type "ethernet" named "con_dns" and options "ifname eth2 -- ipv4.method manual ipv4.addresses 192.168.1.2/24 ipv4.gateway 172.16.1.2 ipv4.dns 2.3.4.1 ipv4.dns-priority 300"
+    * Add a new connection of type "ethernet" named "con_dns2" and options "ifname eth3 -- ipv4.method manual ipv4.addresses 192.168.2.2/24 ipv4.gateway 172.16.1.2 ipv4.dns 1.2.3.4 ipv4.dns-priority 200"
     When Nameserver "1.2.3.4.*2.3.4.1" is set in "5" seconds
     * Modify connection "con_dns" changing options "ipv4.dns-priority 100"
     * Modify connection "con_dns" changing options "ipv6.dns-priority 300"
@@ -495,8 +495,8 @@ Feature: nmcli - dns
     Scenario: nmcli - ipv4 - dns - set priority in config
     * Execute "echo -e '[connection]\nipv4.dns-priority=200' > /etc/NetworkManager/conf.d/99-xxcustom.conf"
     * Execute "systemctl reload NetworkManager"
-    * Add a new connection of type "ethernet" and options "con-name con_dns ifname eth2 -- ipv4.method manual ipv4.addresses 192.168.1.2/24 ipv4.dns 2.3.4.1 ipv4.dns-priority 150"
-    * Add a new connection of type "ethernet" and options "con-name con_dns2 ifname eth3 -- ipv4.method manual ipv4.addresses 192.168.2.2/24 ipv4.dns 1.2.3.4"
+    * Add a new connection of type "ethernet" named "con_dns" and options "ifname eth2 -- ipv4.method manual ipv4.addresses 192.168.1.2/24 ipv4.dns 2.3.4.1 ipv4.dns-priority 150"
+    * Add a new connection of type "ethernet" named "con_dns2" and options "ifname eth3 -- ipv4.method manual ipv4.addresses 192.168.2.2/24 ipv4.dns 1.2.3.4"
     * Bring "up" connection "con_dns"
     * Bring "up" connection "con_dns2"
     Then Nameserver "2.3.4.1.*1.2.3.4" is set in "5" seconds
@@ -520,13 +520,13 @@ Feature: nmcli - dns
     @dns_default_two_default
     Scenario: NM - dns - two connections with default route
     # Create connection on eth2 with default route
-    * Add a new connection of type "ethernet" and options "con-name con_dns ifname eth2 autoconnect no"
+    * Add a new connection of type "ethernet" named "con_dns" and options "ifname eth2 autoconnect no"
     * Execute "nmcli connection modify con_dns ipv4.method manual ipv4.addresses 172.16.1.1/24 ipv4.gateway 172.16.1.2"
     * Execute "nmcli connection modify con_dns ipv4.dns 172.16.1.53 ipv4.dns-search con_dns.domain"
     * Bring "up" connection "con_dns"
 
     # Create connection on eth3 with default route
-    * Add a new connection of type "ethernet" and options "con-name con_dns2 ifname eth3 autoconnect no"
+    * Add a new connection of type "ethernet" named "con_dns2" and options "ifname eth3 autoconnect no"
     * Execute "nmcli connection modify con_dns2 ipv4.method manual ipv4.addresses 172.17.1.1/24 ipv4.gateway 172.17.1.2"
     * Execute "nmcli connection modify con_dns2 ipv4.dns 172.17.1.53 ipv4.dns-search con_dns2.domain"
     * Bring "up" connection "con_dns2"
@@ -545,13 +545,13 @@ Feature: nmcli - dns
     * Bring "down" connection "testeth0"
 
     # Create connection on eth2 with default route
-    * Add a new connection of type "ethernet" and options "con-name con_dns ifname eth2 autoconnect no"
+    * Add a new connection of type "ethernet" named "con_dns" and options "ifname eth2 autoconnect no"
     * Execute "nmcli connection modify con_dns ipv4.method manual ipv4.addresses 172.16.1.1/24 ipv4.gateway 172.16.1.2"
     * Execute "nmcli connection modify con_dns ipv4.dns 172.16.1.53 ipv4.dns-search con_dns.domain"
     * Bring "up" connection "con_dns"
 
     # Create connection on eth3 without default route
-    * Add a new connection of type "ethernet" and options "con-name con_dns2 ifname eth3 autoconnect no"
+    * Add a new connection of type "ethernet" named "con_dns2" and options "ifname eth3 autoconnect no"
     * Execute "nmcli connection modify con_dns2 ipv4.method manual ipv4.addresses 172.17.1.1/24"
     * Execute "nmcli connection modify con_dns2 ipv4.dns 172.17.1.53 ipv4.dns-search con_dns2.domain"
     * Bring "up" connection "con_dns2"
@@ -573,14 +573,14 @@ Feature: nmcli - dns
     Scenario: NM - dns - two connections with default route, one has higher priority
 
     # Create connection on eth2 with default route and higher priority
-    * Add a new connection of type "ethernet" and options "con-name con_dns ifname eth2 autoconnect no"
+    * Add a new connection of type "ethernet" named "con_dns" and options "ifname eth2 autoconnect no"
     * Execute "nmcli connection modify con_dns ipv4.method manual ipv4.addresses 172.16.1.1/24 ipv4.gateway 172.16.1.2"
     * Execute "nmcli connection modify con_dns ipv4.dns 172.16.1.53 ipv4.dns-search con_dns.domain"
     * Execute "nmcli connection modify con_dns ipv4.dns-priority 10"
     * Bring "up" connection "con_dns"
 
     # Create connection on eth3 with default route
-    * Add a new connection of type "ethernet" and options "con-name con_dns2 ifname eth3 autoconnect no"
+    * Add a new connection of type "ethernet" named "con_dns2" and options "ifname eth3 autoconnect no"
     * Execute "nmcli connection modify con_dns2 ipv4.method manual ipv4.addresses 172.17.1.1/24 ipv4.gateway 172.17.1.2"
     * Execute "nmcli connection modify con_dns2 ipv4.dns 172.17.1.53 ipv4.dns-search con_dns2.domain"
     * Bring "up" connection "con_dns2"
@@ -602,14 +602,14 @@ Feature: nmcli - dns
     Scenario: NM - dns - two connections with default route, one has negative priority
 
     # Create connection on eth2 with default route and negative priority
-    * Add a new connection of type "ethernet" and options "con-name con_dns ifname eth2 autoconnect no"
+    * Add a new connection of type "ethernet" named "con_dns" and options "ifname eth2 autoconnect no"
     * Execute "nmcli connection modify con_dns ipv4.method manual ipv4.addresses 172.16.1.1/24 ipv4.gateway 172.16.1.2"
     * Execute "nmcli connection modify con_dns ipv4.dns 172.16.1.53 ipv4.dns-search con_dns.domain"
     * Execute "nmcli connection modify con_dns ipv4.dns-priority -100"
     * Bring "up" connection "con_dns"
 
     # Create connection on eth3 with default route
-    * Add a new connection of type "ethernet" and options "con-name con_dns2 ifname eth3 autoconnect no"
+    * Add a new connection of type "ethernet" named "con_dns2" and options "ifname eth3 autoconnect no"
     * Execute "nmcli connection modify con_dns2 ipv4.method manual ipv4.addresses 172.17.1.1/24 ipv4.gateway 172.17.1.2"
     * Execute "nmcli connection modify con_dns2 ipv4.dns 172.17.1.53 ipv4.dns-search con_dns2.domain"
     * Bring "up" connection "con_dns2"
@@ -635,13 +635,13 @@ Feature: nmcli - dns
     Scenario: NM - dns - two connections without default route
 
     # Create connection on eth2 without default route
-    * Add a new connection of type "ethernet" and options "con-name con_dns ifname eth2 autoconnect no"
+    * Add a new connection of type "ethernet" named "con_dns" and options "ifname eth2 autoconnect no"
     * Execute "nmcli connection modify con_dns ipv4.method manual ipv4.addresses 172.16.1.1/24"
     * Execute "nmcli connection modify con_dns ipv4.dns 172.16.1.53 ipv4.dns-search con_dns.domain"
     * Bring "up" connection "con_dns"
 
     # Create connection on eth3 without default route
-    * Add a new connection of type "ethernet" and options "con-name con_dns2 ifname eth3 autoconnect no"
+    * Add a new connection of type "ethernet" named "con_dns2" and options "ifname eth3 autoconnect no"
     * Execute "nmcli connection modify con_dns2 ipv4.method manual ipv4.addresses 172.17.1.1/24"
     * Execute "nmcli connection modify con_dns2 ipv4.dns 172.17.1.53 ipv4.dns-search con_dns2.domain"
     * Bring "up" connection "con_dns2"
@@ -659,7 +659,7 @@ Feature: nmcli - dns
     Scenario: NM - dns - full-tunnel VPN
 
     # Create ethernet connection
-    * Add a new connection of type "ethernet" and options "con-name con_dns ifname eth2 autoconnect no"
+    * Add a new connection of type "ethernet" named "con_dns" and options "ifname eth2 autoconnect no"
     * Execute "nmcli connection modify con_dns ipv4.method manual ipv4.addresses 172.16.1.1/24 ipv4.gateway 172.16.1.2"
     * Execute "nmcli connection modify con_dns ipv4.dns 172.16.1.53 ipv4.dns-search con_dns.domain"
     * Bring "up" connection "con_dns"
@@ -686,7 +686,7 @@ Feature: nmcli - dns
     Scenario: NM - dns - split-tunnel VPN
 
     # Create ethernet connection with default route
-    * Add a new connection of type "ethernet" and options "con-name con_dns ifname eth2 autoconnect no"
+    * Add a new connection of type "ethernet" named "con_dns" and options "ifname eth2 autoconnect no"
     * Execute "nmcli connection modify con_dns ipv4.method manual ipv4.addresses 172.16.1.1/24 ipv4.gateway 172.16.1.2"
     * Execute "nmcli connection modify con_dns ipv4.dns 172.16.1.53 ipv4.dns-search con_dns.domain"
     * Bring "up" connection "con_dns"
@@ -713,7 +713,7 @@ Feature: nmcli - dns
     Scenario: NM - dns - split-tunnel VPN - same dns priority
 
     # Create ethernet connection with default route
-    * Add a new connection of type "ethernet" and options "con-name con_dns ifname eth2 autoconnect no"
+    * Add a new connection of type "ethernet" named "con_dns" and options "ifname eth2 autoconnect no"
     * Execute "nmcli connection modify con_dns ipv4.method manual ipv4.addresses 172.16.1.1/24 ipv4.gateway 172.16.1.2"
     * Execute "nmcli connection modify con_dns ipv4.dns 172.16.1.53 ipv4.dns-search con_dns.domain ipv4.dns-priority 10"
     * Bring "up" connection "con_dns"
@@ -744,13 +744,13 @@ Feature: nmcli - dns
     Scenario: NM - dns - two connections with default route
 
     # Create connection on eth2 with default route
-    * Add a new connection of type "ethernet" and options "con-name con_dns ifname eth2 autoconnect no"
+    * Add a new connection of type "ethernet" named "con_dns" and options "ifname eth2 autoconnect no"
     * Execute "nmcli connection modify con_dns ipv4.method manual ipv4.addresses 172.16.1.1/24 ipv4.gateway 172.16.1.2"
     * Execute "nmcli connection modify con_dns ipv4.dns 172.16.1.53 ipv4.dns-search con_dns.domain"
     * Bring "up" connection "con_dns"
 
     # Create connection on eth3 with default route
-    * Add a new connection of type "ethernet" and options "con-name con_dns2 ifname eth3 autoconnect no"
+    * Add a new connection of type "ethernet" named "con_dns2" and options "ifname eth3 autoconnect no"
     * Execute "nmcli connection modify con_dns2 ipv4.method manual ipv4.addresses 172.17.1.1/24 ipv4.gateway 172.17.1.2"
     * Execute "nmcli connection modify con_dns2 ipv4.dns 172.17.1.53 ipv4.dns-search con_dns2.domain"
     * Bring "up" connection "con_dns2"
@@ -775,13 +775,13 @@ Feature: nmcli - dns
     Scenario: NM - dns - two connections, one with default route
 
     # Create connection on eth2 with default route
-    * Add a new connection of type "ethernet" and options "con-name con_dns ifname eth2 autoconnect no"
+    * Add a new connection of type "ethernet" named "con_dns" and options "ifname eth2 autoconnect no"
     * Execute "nmcli connection modify con_dns ipv4.method manual ipv4.addresses 172.16.1.1/24 ipv4.gateway 172.16.1.2"
     * Execute "nmcli connection modify con_dns ipv4.dns 172.16.1.53 ipv4.dns-search con_dns.domain"
     * Bring "up" connection "con_dns"
 
     # Create connection on eth3 without default route
-    * Add a new connection of type "ethernet" and options "con-name con_dns2 ifname eth3 autoconnect no"
+    * Add a new connection of type "ethernet" named "con_dns2" and options "ifname eth3 autoconnect no"
     * Execute "nmcli connection modify con_dns2 ipv4.method manual ipv4.addresses 172.17.1.1/24"
     * Execute "nmcli connection modify con_dns2 ipv4.dns 172.17.1.53 ipv4.dns-search con_dns2.domain"
     * Bring "up" connection "con_dns2"
@@ -799,13 +799,13 @@ Feature: nmcli - dns
 
     @rhbz1628576
     @ver+=1.12
-    @con_dns_remove @dns_dnsmasq @regenerate_veth @teardown_testveth @skip_str
+    @con_dns_remove @dns_dnsmasq @regenerate_veth @skip_str
     @dns_dnsmasq_driver_removal
     Scenario: NM - dns - remove driver
     * Prepare simulated test "testX4" device
 
     # Create connection on testX4 with default route
-    * Add a new connection of type "ethernet" and options "con-name con_dns ifname testX4 autoconnect no"
+    * Add a new connection of type "ethernet" named "con_dns" and options "ifname testX4 autoconnect no"
     * Execute "nmcli connection modify con_dns ipv4.method manual ipv4.addresses 172.16.1.1/24 ipv4.gateway 172.16.1.2"
     * Execute "nmcli connection modify con_dns ipv4.dns 172.16.1.53 ipv4.dns-search con_dns.domain"
     * Bring "up" connection "con_dns"
@@ -829,14 +829,14 @@ Feature: nmcli - dns
     Scenario: NM - dns - two connections with default route, one has higher priority
 
     # Create connection on eth2 with default route and higher priority
-    * Add a new connection of type "ethernet" and options "con-name con_dns ifname eth2 autoconnect no"
+    * Add a new connection of type "ethernet" named "con_dns" and options "ifname eth2 autoconnect no"
     * Execute "nmcli connection modify con_dns ipv4.method manual ipv4.addresses 172.16.1.1/24 ipv4.gateway 172.16.1.2"
     * Execute "nmcli connection modify con_dns ipv4.dns 172.16.1.53 ipv4.dns-search con_dns.domain"
     * Execute "nmcli connection modify con_dns ipv4.dns-priority 10"
     * Bring "up" connection "con_dns"
 
     # Create connection on eth3 with default route
-    * Add a new connection of type "ethernet" and options "con-name con_dns2 ifname eth3 autoconnect no"
+    * Add a new connection of type "ethernet" named "con_dns2" and options "ifname eth3 autoconnect no"
     * Execute "nmcli connection modify con_dns2 ipv4.method manual ipv4.addresses 172.17.1.1/24 ipv4.gateway 172.17.1.2"
     * Execute "nmcli connection modify con_dns2 ipv4.dns 172.17.1.53 ipv4.dns-search con_dns2.domain"
     * Bring "up" connection "con_dns2"
@@ -859,14 +859,14 @@ Feature: nmcli - dns
     Scenario: NM - dns - two connections with default route, one has negative priority
 
     # Create connection on eth2 with default route and negative priority
-    * Add a new connection of type "ethernet" and options "con-name con_dns ifname eth2 autoconnect no"
+    * Add a new connection of type "ethernet" named "con_dns" and options "ifname eth2 autoconnect no"
     * Execute "nmcli connection modify con_dns ipv4.method manual ipv4.addresses 172.16.1.1/24 ipv4.gateway 172.16.1.2"
     * Execute "nmcli connection modify con_dns ipv4.dns 172.16.1.53 ipv4.dns-search con_dns.domain"
     * Execute "nmcli connection modify con_dns ipv4.dns-priority -100"
     * Bring "up" connection "con_dns"
 
     # Create connection on eth3 with default route
-    * Add a new connection of type "ethernet" and options "con-name con_dns2 ifname eth3 autoconnect no"
+    * Add a new connection of type "ethernet" named "con_dns2" and options "ifname eth3 autoconnect no"
     * Execute "nmcli connection modify con_dns2 ipv4.method manual ipv4.addresses 172.17.1.1/24 ipv4.gateway 172.17.1.2"
     * Execute "nmcli connection modify con_dns2 ipv4.dns 172.17.1.53 ipv4.dns-search con_dns2.domain"
     * Bring "up" connection "con_dns2"
@@ -891,13 +891,13 @@ Feature: nmcli - dns
     Scenario: NM - dns - two connections without default route
 
     # Create connection on eth2 without default route
-    * Add a new connection of type "ethernet" and options "con-name con_dns ifname eth2 autoconnect no"
+    * Add a new connection of type "ethernet" named "con_dns" and options "ifname eth2 autoconnect no"
     * Execute "nmcli connection modify con_dns ipv4.method manual ipv4.addresses 172.16.1.1/24"
     * Execute "nmcli connection modify con_dns ipv4.dns 172.16.1.53 ipv4.dns-search con_dns.domain"
     * Bring "up" connection "con_dns"
 
     # Create connection on eth3 without default route
-    * Add a new connection of type "ethernet" and options "con-name con_dns2 ifname eth3 autoconnect no"
+    * Add a new connection of type "ethernet" named "con_dns2" and options "ifname eth3 autoconnect no"
     * Execute "nmcli connection modify con_dns2 ipv4.method manual ipv4.addresses 172.17.1.1/24"
     * Execute "nmcli connection modify con_dns2 ipv4.dns 172.17.1.53 ipv4.dns-search con_dns2.domain"
     * Bring "up" connection "con_dns2"
@@ -920,7 +920,7 @@ Feature: nmcli - dns
     Scenario: NM - dns - full-tunnel VPN
 
     # Create ethernet connection
-    * Add a new connection of type "ethernet" and options "con-name con_dns ifname eth2 autoconnect no"
+    * Add a new connection of type "ethernet" named "con_dns" and options "ifname eth2 autoconnect no"
     * Execute "nmcli connection modify con_dns ipv4.method manual ipv4.addresses 172.16.1.1/24 ipv4.gateway 172.16.1.2"
     * Execute "nmcli connection modify con_dns ipv4.dns 172.16.1.53 ipv4.dns-search con_dns.domain"
     * Bring "up" connection "con_dns"
@@ -948,7 +948,7 @@ Feature: nmcli - dns
     Scenario: NM - dns - split-tunnel VPN
 
     # Create ethernet connection with default route
-    * Add a new connection of type "ethernet" and options "con-name con_dns ifname eth2 autoconnect no"
+    * Add a new connection of type "ethernet" named "con_dns" and options "ifname eth2 autoconnect no"
     * Execute "nmcli connection modify con_dns ipv4.method manual ipv4.addresses 172.16.1.1/24 ipv4.gateway 172.16.1.2"
     * Execute "nmcli connection modify con_dns ipv4.dns 172.16.1.53 ipv4.dns-search con_dns.domain"
     * Bring "up" connection "con_dns"
@@ -976,7 +976,7 @@ Feature: nmcli - dns
     @con_dns_remove @dns_dnsmasq
     @dns_dnsmasq_dnssec_opts
     Scenario: NM - dns - dnssec
-    * Add a new connection of type "ethernet" and options "con-name con_dns ifname eth2 autoconnect no"
+    * Add a new connection of type "ethernet" named "con_dns" and options "ifname eth2 autoconnect no"
     * Execute "nmcli connection modify con_dns ipv4.method manual ipv4.addresses 172.16.1.1/24 ipv4.gateway 172.16.1.2"
     * Execute "nmcli connection modify con_dns ipv4.dns 172.16.1.53 ipv4.dns-search con_dns.domain"
     * Bring "up" connection "con_dns"
@@ -991,7 +991,7 @@ Feature: nmcli - dns
     @con_dns_remove @dns_dnsmasq @restore_resolvconf
     @dns_dnsmasq_kill
     Scenario: NM - dns - dnsmasq gets restarted when killed
-    * Add a new connection of type "ethernet" and options "con-name con_dns ifname eth2 autoconnect no"
+    * Add a new connection of type "ethernet" named "con_dns" and options "ifname eth2 autoconnect no"
     * Execute "nmcli connection modify con_dns ipv4.dns 172.16.1.53 ipv4.method manual ipv4.addresses 172.16.1.1/24"
     * Bring "up" connection "con_dns"
     Then "1" is visible with command "grep nameserver -c /etc/resolv.conf"
@@ -1010,7 +1010,7 @@ Feature: nmcli - dns
     # times in a short period, NM stops respawning it for 5 minutes
     # and writes upstream servers to resolv.conf
     Scenario: NM - dns - dnsmasq rate-limiting
-    * Add a new connection of type "ethernet" and options "con-name con_dns ifname eth2 autoconnect no"
+    * Add a new connection of type "ethernet" named "con_dns" and options "ifname eth2 autoconnect no"
     * Execute "nmcli connection modify con_dns ipv4.dns 172.16.1.53 ipv4.method manual ipv4.addresses 172.16.1.1/24"
     * Bring "up" connection "con_dns"
     Then "1" is visible with command "grep nameserver -c /etc/resolv.conf"
@@ -1028,7 +1028,7 @@ Feature: nmcli - dns
     # times (5 times) in a short period (30 seconds), NM stops respawning
     # it for one minute.
     Scenario: NM - dns - dnsmasq rate-limiting
-    * Add a new connection of type "ethernet" and options "con-name con_dns ifname eth2 autoconnect no"
+    * Add a new connection of type "ethernet" named "con_dns" and options "ifname eth2 autoconnect no"
     * Execute "nmcli connection modify con_dns ipv4.dns 172.16.1.53 ipv4.method manual ipv4.addresses 172.16.1.1/24"
     * Bring "up" connection "con_dns"
     Then "1" is visible with command "grep nameserver -c /etc/resolv.conf"
@@ -1050,7 +1050,7 @@ Feature: nmcli - dns
     @not_with_systemd_resolved @con_dns_remove
     @dns_multiple_options
     Scenario: nmcli - dns - add more options to ipv4.dns-options
-    * Add a new connection of type "ethernet" and options "con-name con_dns ifname \* autoconnect no ipv4.dns-options ndots:2"
+    * Add a new connection of type "ethernet" named "con_dns" and options "ifname \* autoconnect no ipv4.dns-options ndots:2"
     * Modify connection "con_dns" changing options "+ipv4.dns-options timeout:2"
     Then "timeout\\:2" is visible with command "nmcli -g ipv4.dns-options con show id con_dns"
      And "ndots\\:2" is visible with command "nmcli -g ipv4.dns-options con show id con_dns"
@@ -1106,7 +1106,7 @@ Feature: nmcli - dns
     @remove_custom_cfg @con_dns_remove @restore_resolvconf @eth8_disconnect @restart_if_needed
     @resolv_conf_dangling_symlink
     Scenario: NM - general - follow resolv.conf when dangling symlink
-    * Add a new connection of type "ethernet" and options "ifname eth8 con-name con_dns ipv4.method manual ipv4.addresses 192.168.244.4/24 ipv4.gateway 192.168.244.1 ipv4.dns 192.168.244.1 ipv6.method ignore"
+    * Add a new connection of type "ethernet" named "con_dns" and options "ifname eth8 ipv4.method manual ipv4.addresses 192.168.244.4/24 ipv4.gateway 192.168.244.1 ipv4.dns 192.168.244.1 ipv6.method ignore"
     * Stop NM
     * Append "[main]" to file "/etc/NetworkManager/conf.d/99-xxcustom.conf"
     * Append "rc-manager=file" to file "/etc/NetworkManager/conf.d/99-xxcustom.conf"
@@ -1131,7 +1131,7 @@ Feature: nmcli - dns
     @con_dns_remove @restore_resolvconf @restart_if_needed
     @resolv_conf_do_not_overwrite_symlink
     Scenario: NM - general - do not overwrite dns symlink
-    * Add a new connection of type "ethernet" and options "ifname eth8 con-name con_dns ipv4.method manual ipv4.addresses 192.168.244.4/24 ipv4.gateway 192.168.244.1 ipv4.dns 192.168.244.1 ipv6.method ignore"
+    * Add a new connection of type "ethernet" named "con_dns" and options "ifname eth8 ipv4.method manual ipv4.addresses 192.168.244.4/24 ipv4.gateway 192.168.244.1 ipv4.dns 192.168.244.1 ipv6.method ignore"
     * Stop NM
     * Remove file "/etc/resolv.conf" if exists
     * Execute "echo 'nameserver 1.2.3.4' > /tmp/no-resolv.conf"

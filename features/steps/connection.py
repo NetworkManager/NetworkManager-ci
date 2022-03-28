@@ -11,24 +11,32 @@ def add_vpnc_connection_for_iface(context, name, ifname, vpn):
     r = cli.expect(['Error', pexpect.EOF])
     time.sleep(1)
     assert r != 0, 'Got an Error while adding %s connection %s for device %s\n%s%s' % (vpn, name, ifname, cli.after, cli.buffer)
-
-
-@step(u'Add connection type "{typ}" named "{name}" for device "{ifname}"')
-def add_connection_for_iface(context, typ, name, ifname):
-    cli = context.pexpect_spawn('nmcli connection add type %s con-name %s ifname %s' % (typ, name, ifname))
-    r = cli.expect(['Error', pexpect.EOF])
-    assert r == 1, 'Got an Error while adding %s connection %s for device %s\n%s%s' % (typ, name, ifname, cli.after, cli.buffer)
+    
+    context.cleanup["connections"].add(name)
 
 
 @step(u'Add a new connection of type "{typ}" and options')
 @step(u'Add a new connection of type "{typ}" and options "{options}"')
-def add_new_default_connection_without_ifname(context, typ, options=None):
+@step(u'Add a new connection of type "{typ}" named "{name}"')
+@step(u'Add a new connection of type "{typ}" named "{name}" and options')
+@step(u'Add a new connection of type "{typ}" named "{name}" and options "{options}"')
+@step(u'Add a new connection of type "{typ}" named "{name}" for device "{ifname}"')
+@step(u'Add a new connection of type "{typ}" named "{name}" for device "{ifname}" and options')
+@step(u'Add a new connection of type "{typ}" named "{name}" for device "{ifname}" and options "{options}"')
+def add_new_connection(context, typ, name=None, ifname=None, options=None):
     if options is None:
-        options = context.text.replace("\n", " ")
+        options = context.text.replace("\n", " ") if context.text is not None else " "
+    conn_name = f"con-name {name}" if name is not None else ""
+    iface = f"ifname {ifname}" if ifname is not None else ""
 
-    cli = context.pexpect_spawn('nmcli connection add type %s %s' % (typ, options), shell=True)
+    cli = context.pexpect_spawn(f"nmcli connection add type {typ} {conn_name} {iface} {options}", shell=True)
     assert cli.expect(['Error', pexpect.TIMEOUT, pexpect.EOF]) == 2, \
         'Got an Error while creating connection of type %s with options %s\n%s%s' % (typ, options, cli.after, cli.buffer)
+
+    if name is not None:
+        context.cleanup["connections"].add(name)
+    if ifname is not None:
+        nmci.lib.add_iface_to_cleanup(context, ifname)
 
 
 @step(u'Add infiniband port named "{name}" for device "{ifname}" with parent "{parent}" and p-key "{pkey}"')
@@ -56,7 +64,7 @@ def open_slave_connection(context, master, device, name):
         r = cli.expect(['Error', pexpect.EOF])
 
     assert r == 1, 'Got an Error while adding slave connection %s on device %s for master %s\n%s%s' % (name, device, master, cli.after, cli.buffer)
-
+    context.cleanup["connections"].add(name)
 
 @step(u'Bring "{action}" connection "{name}"')
 def start_stop_connection(context, action, name):
@@ -132,6 +140,9 @@ def delete_connection(context, connection):
     res = cli.expect(['Error', pexpect.TIMEOUT, pexpect.EOF])
     assert res != 0, 'Got an Error while deleting connection %s\n%s%s' % (connection, cli.after, cli.buffer)
     assert res != 1, 'Deleting connection %s timed out (95s)' % connection
+
+    if connection in context.cleanup["connections"]:
+        context.cleanup["connections"].discard(connection)
 
 
 @step(u'Fail up connection "{name}" for "{device}"')
@@ -217,6 +228,7 @@ def add_connection(context, name, uuid, flags="TO_DISK"):
     con2.add_setting(s_con)
 
     result = {}
+    context.cleanup["connections"].add(name)
 
     def _add_connection2_cb(cl, async_result, user_data):
         try:
@@ -264,6 +276,7 @@ def clone_connection(context, con_src, con_dst, flags="TO_DISK"):
 
     assert 'error' not in result, \
         'add connection %s failed: %s' % (con_dst, result['error'])
+    context.cleanup["connections"].add(con_dst)
 
 
 @step(u'Update connection "{con_name}" changing options "{options}" using libnm')
@@ -376,3 +389,8 @@ def add_bridges_vlans_range(context, begin, end, ifname):
 
         assert 'error' not in result, \
             f"add connection {id} failed: {result['error']}"
+
+
+@step(u'Cleanup connection "{connection}"')
+def cleanup_connection(context, connection):
+    context.cleanup["connections"].add(connection)

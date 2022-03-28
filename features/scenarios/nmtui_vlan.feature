@@ -4,7 +4,7 @@ Feature: VLAN TUI tests
   Background:
   * Prepare virtual terminal environment
 
-    @vlan @ifcfg-rh
+    @ifcfg-rh
     @nmtui_vlan_add_default_connection
     Scenario: nmtui - vlan - add default connection
     * Prepare new connection of type "VLAN" named "vlan"
@@ -18,7 +18,6 @@ Feature: VLAN TUI tests
     Then "eth1.99\s+vlan" is visible with command "nmcli device"
 
 
-    @vlan
     @nmtui_vlan_set_device
     Scenario: nmtui - vlan - set device
     * Prepare new connection of type "VLAN" named "vlan"
@@ -30,7 +29,6 @@ Feature: VLAN TUI tests
     Then "vlan_device\s+vlan" is visible with command "nmcli device"
 
 
-    @vlan
     @nmtui_vlan_missing_parent
     Scenario: nmtui - vlan - missing parent
     * Prepare new connection of type "VLAN" named "vlan"
@@ -41,7 +39,6 @@ Feature: VLAN TUI tests
 
 
     #common mistake misplacing device with parent
-    @vlan
     @nmtui_vlan_set_parent_as_device
     Scenario: nmtui - vlan - set parent also as device
     * Prepare new connection of type "VLAN" named "vlan"
@@ -52,7 +49,6 @@ Feature: VLAN TUI tests
     Then "vlan +--" is visible with command "nmcli connection"
 
 
-    @vlan
     @nmtui_vlan_set_non_existant_parent
     Scenario: nmtui - vlan - set non-existant parent
     * Prepare new connection of type "VLAN" named "vlan"
@@ -63,7 +59,6 @@ Feature: VLAN TUI tests
     Then "vlan +--" is visible with command "nmcli connection"
 
 
-    @vlan
     @nmtui_vlan_autocompletion
     Scenario: nmtui - vlan - autocompletion
     * Prepare new connection of type "VLAN" named "vlan"
@@ -73,8 +68,6 @@ Feature: VLAN TUI tests
     Then ".*VLAN id 99.*" is visible on screen
 
 
-
-    @vlan
     @nmtui_vlan_invalid_ids
     Scenario: nmtui - vlan - invalid ids
     * Prepare new connection of type "VLAN" named "vlan"
@@ -108,7 +101,6 @@ Feature: VLAN TUI tests
     Then Confirm the connection settings
 
 
-    @vlan
     @nmtui_vlan_delete_connection_down
     Scenario: nmtui - vlan - delete nonactive connection
     * Prepare new connection of type "VLAN" named "eth1.99"
@@ -122,7 +114,6 @@ Feature: VLAN TUI tests
     Then "eth1.99" is not visible with command "nmcli connection"
 
 
-    @vlan
     @nmtui_vlan_delete_connection_activating
     Scenario: nmtui - vlan - delete activating connection
     * Prepare new connection of type "VLAN" named "eth1.99"
@@ -137,7 +128,6 @@ Feature: VLAN TUI tests
     Then "eth1.99" is not visible with command "nmcli device"
 
 
-    @vlan
     @nmtui_vlan_delete_connection_up
     Scenario: nmtui - vlan - delete active connection
     * Prepare new connection of type "VLAN" named "eth1.99"
@@ -154,7 +144,6 @@ Feature: VLAN TUI tests
     Then "eth1.99" is not visible with command "nmcli device"
 
 
-    @vlan
     @nmtui_vlan_create_no_autoconnect
     Scenario: nmtui - vlan - create connetion without autoconnect
     * Prepare new connection of type "VLAN" named "eth1.99"
@@ -166,7 +155,6 @@ Feature: VLAN TUI tests
     Then "eth1.99" is not visible with command "nmcli device"
 
 
-    @vlan
     @nmtui_vlan_activate_connection
     Scenario: nmtui - vlan - activate connection
     * Prepare new connection of type "VLAN" named "eth1.99"
@@ -184,7 +172,7 @@ Feature: VLAN TUI tests
     Then "eth1.99\s+vlan\s+connected" is visible with command "nmcli device"
 
 
-    @vlan @ifcfg-rh
+    @ifcfg-rh
     @nmtui_vlan_deactivate_connection_wo_autoconnect
     Scenario: nmtui - vlan - deactivate connection without autoconnect
     * Prepare new connection of type "VLAN" named "eth1.99"
@@ -206,7 +194,6 @@ Feature: VLAN TUI tests
     Then "eth1.99" is visible with command "nmcli connection"
 
 
-    @vlan
     @nmtui_vlan_deactivate_connection_with_autoconnect
     Scenario: nmtui - vlan - deactivate connection with autoconnect
     * Prepare new connection of type "VLAN" named "eth1.99"
@@ -226,7 +213,6 @@ Feature: VLAN TUI tests
     Then "eth1.99" is visible with command "nmcli connection"
 
 
-    @vlan
     @nmtui_vlan_change_id
     Scenario: nmtui - vlan - change id
     * Prepare new connection of type "VLAN" named "vlan"

@@ -93,23 +93,23 @@ Feature: NM: dispatcher
 
     @rhbz1663253
     @ver+=1.20
-    @permissive @disp @con_ipv4_remove @teardown_testveth @dhclient_DHCP
+    @permissive @disp @dhclient_DHCP
     @dispatcher_private_dhcp_option_dhclient
     Scenario: NM - dispatcher - private option 245 dhclient plugin
     * Prepare simulated test "testXd" device with "192.168.99" ipv4 and "2620:dead:beaf" ipv6 dhcp address prefix and dhcp option "245,aa:bb:cc:dd"
     * Write dispatcher "99-disp" file with params "[ "$2" != "up" ] && exit 0 || echo DHCP4_UNKNOWN_245=$DHCP4_UNKNOWN_245,DHCP4_PRIVATE_245=$DHCP4_PRIVATE_245 >> /tmp/dispatcher.txt"
-    * Add a new connection of type "ethernet" and options "ifname testXd con-name con_ipv4"
+    * Add a new connection of type "ethernet" named "con_ipv4" and options "ifname testXd"
     * Bring "up" connection "con_ipv4"
     Then "DHCP4_UNKNOWN_245=aa:bb:cc:dd,DHCP4_PRIVATE_245=aa:bb:cc:dd" is visible with command "cat /tmp/dispatcher.txt" in "5" seconds
 
     @rhbz1663253
     @ver+=1.20
-    @permissive @disp @con_ipv4_remove @teardown_testveth @internal_DHCP
+    @permissive @disp @internal_DHCP
     @dispatcher_private_dhcp_option_internal
     Scenario: NM - dispatcher - private dhcp option 245 internal plugin
     * Prepare simulated test "testXd" device with "192.168.99" ipv4 and "2620:dead:beaf" ipv6 dhcp address prefix and dhcp option "245,aa:bb:cc:dd"
     * Write dispatcher "99-disp" file with params "[ "$2" != "up" ] && exit 0 || echo DHCP4_UNKNOWN_245=$DHCP4_UNKNOWN_245,DHCP4_PRIVATE_245=$DHCP4_PRIVATE_245 >> /tmp/dispatcher.txt"
-    * Add a new connection of type "ethernet" and options "ifname testXd con-name con_ipv4 ipv4.may-fail no"
+    * Add a new connection of type "ethernet" named "con_ipv4" and options "ifname testXd ipv4.may-fail no"
     * Bring "up" connection "con_ipv4"
     Then "DHCP4_UNKNOWN_245=aa:bb:cc:dd,DHCP4_PRIVATE_245=aa:bb:cc:dd" is visible with command "cat /tmp/dispatcher.txt" in "5" seconds
 
@@ -131,9 +131,9 @@ Feature: NM: dispatcher
     Scenario: NM - dispatcher - do not block NM service restart
     * Restart NM
     * Execute "systemctl restart NetworkManager-dispatcher"
-    * Add a new connection of type "ovs-bridge" and options "conn.interface ovsbridge0 con-name ovs-bridge0"
-    * Add a new connection of type "ovs-port" and options "conn.interface port0 conn.master ovsbridge0 con-name ovs-port0 ovs-port.tag 120"
-    * Add a new connection of type "ovs-interface" and options "conn.interface iface0 conn.master port0 con-name ovs-iface0 ip4 192.0.2.2/24"
+    * Add a new connection of type "ovs-bridge" named "ovs-bridge0" for device "ovsbridge0"
+    * Add a new connection of type "ovs-port" named "ovs-port0" for device "port0" and options "conn.master ovsbridge0 ovs-port.tag 120"
+    * Add a new connection of type "ovs-interface" named "ovs-iface0" for device "iface0" and options "conn.master port0 ip4 192.0.2.2/24"
     When "activated" is visible with command "nmcli -g GENERAL.STATE con show ovs-iface0" in "40" seconds
     When "inactive|unknown" is visible with command "systemctl is-active NetworkManager-dispatcher.service" in "30" seconds
     * Restart NM in background

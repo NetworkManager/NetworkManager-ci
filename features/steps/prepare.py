@@ -95,9 +95,13 @@ def pbr_doc_proc(context):
         * Execute "ip -n servers_ns address add 203.0.113.2/24 dev serversp"
         * Prepare simulated test "int_work" device without DHCP
         * Execute "ip -n int_work_ns address add 10.0.0.2/24 dev int_workp"
-        * Create device "defA" in "provA_ns" with address "172.20.20.20/24"
-        * Create device "defB" in "provB_ns" with address "172.20.20.20/24"
+        * Add a new interface of type "veth" named "defA" in namespace "provA_ns" and options "peer name defAp"
+        * Execute "ip -n provA_ns link set dev defA up"
+        * Add a new interface of type "veth" named "defB" in namespace "provB_ns" and options "peer name defBp"
+        * Execute "ip -n provB_ns link set dev defB up"
     ''')
+    context.command_code("ip -n provA_ns addr add 172.20.20.20/24 dev defA")
+    context.command_code("ip -n provB_ns addr add 172.20.20.20/24 dev defB")
 
 
 @step(u'Prepare pppoe server for user "{user}" with "{passwd}" password and IP "{ip}" authenticated via "{auth}"')
@@ -118,10 +122,10 @@ def prepare_veths(context, pairs_array, bridge):
     for pair in pairs_array.split(','):
         pairs.append(pair.strip())
 
-    context.command_code("sudo ip link add name %s type bridge" % bridge)
+    context.execute_steps(f'* Add a new interface of type "bridge" named "{bridge}"')
     context.command_code("sudo ip link set dev %s up" % bridge)
     for pair in pairs:
-        context.command_code("ip link add %s type veth peer name %sp" % (pair, pair))
+        context.execute_steps(f'* Add a new interface of type "veth" named "{pair}" and options "peer name {pair}p"')
         context.command_code("ip link set %sp master %s" % (pair, bridge))
         context.command_code("ip link set dev %s up" % pair)
         context.command_code("ip link set dev %sp up" % pair)
@@ -154,8 +158,8 @@ def restart_dhcp_server(context, device, ipv4, ipv6):
 @step(u'Prepare simulated test "{device}" device using dhcpd and server identifier "{server_id}"')
 def prepare_dhcpd_simdev(context, device, server_id):
     ipv4 = "192.168.99"
-    context.command_code("ip netns add {device}_ns".format(device=device))
-    context.command_code("ip link add {device} type veth peer name {device}p".format(device=device))
+    context.execute_steps(f'* Add a new network namespace named "{device}_ns"')
+    context.execute_steps(f'* Add a new interface of type "veth" named "{device}" and options "peer name {device}p"')
     context.command_code("ip link set {device}p netns {device}_ns".format(device=device))
     context.command_code("ip link set {device} up".format(device=device))
     context.command_code("ip netns exec {device}_ns ip link set lo up".format(device=device))
@@ -185,9 +189,7 @@ def prepare_dhcpd_simdev(context, device, server_id):
     f.close()
 
     context.command_code("ip netns exec {device}_ns dhcpd -4 -cf /tmp/dhcpd.conf -pf /tmp/{device}_ns.pid".format(device=device))
-    if not hasattr(context, 'testvethns'):
-        context.testvethns = []
-    context.testvethns.append("%s_ns" % device)
+    context.cleanup['namespaces'][f"{device}_ns"] = True
 
 
 @step(u'Prepare simulated test "{device}" device with "{ipv4}" ipv4 and "{ipv6}" ipv6 dhcp address prefix and dhcp option "{option}"')
@@ -204,13 +206,13 @@ def prepare_simdev(context, device, lease_time="2m", ipv4=None, ipv6=None, optio
         ipv6 = "2620:dead:beaf"
     if daemon_options is None:
         daemon_options = ""
-    if not hasattr(context, 'testvethns'):
+    if not context.cleanup['namespaces']:
         context.command_code('''echo 'ENV{ID_NET_DRIVER}=="veth", ENV{INTERFACE}=="%s*", ENV{NM_UNMANAGED}="0"' >/etc/udev/rules.d/88-prep_veth.rules''' % device)
         context.command_code("udevadm control --reload-rules")
         context.command_code("udevadm settle --timeout=5")
         context.command_code("sleep 1")
-    context.command_code("ip netns add {device}_ns".format(device=device))
-    context.command_code("ip link add {device} type veth peer name {device}p".format(device=device))
+    context.execute_steps(f'* Add a new network namespace named "{device}_ns"')
+    context.execute_steps(f'* Add a new interface of type "veth" named "{device}" and options "peer name {device}p"')
     context.command_code("ip link set {device}p netns {device}_ns".format(device=device))
     context.command_code("ip link set {device} up".format(device=device))
     context.command_code("ip netns exec {device}_ns ip link set lo up".format(device=device))
@@ -245,15 +247,13 @@ def prepare_simdev(context, device, lease_time="2m", ipv4=None, ipv6=None, optio
                              --enable-ra".format(lease_time=lease_time, ipv6=ipv6)
 
     assert context.command_code(dnsmasq_command) == 0, "unable to start dnsmasq using command `{dnsmasq_command}`".format(dnsmasq_command=dnsmasq_command)
+    context.cleanup['namespaces'][f"{device}_ns"] = True
 
-    if not hasattr(context, 'testvethns'):
-        context.testvethns = []
-    context.testvethns.append("%s_ns" % device)
 
 
 @step(u'Prepare simulated test "{device}" device with DHCPv4 server on different network')
 def prepare_simdev(context, device):
-    if not hasattr(context, 'testvethns'):
+    if not context.cleanup['namespaces']:
         context.command_code('''echo 'ENV{ID_NET_DRIVER}=="veth", ENV{INTERFACE}=="test*", ENV{NM_UNMANAGED}="0"' >/etc/udev/rules.d/88-prep_veth.rules''')
         context.command_code("udevadm control --reload-rules")
         context.command_code("udevadm settle --timeout=5")
@@ -263,10 +263,10 @@ def prepare_simdev(context, device):
     # (DHCP   | 172.16.0.1  10.0.0.2  | |  10.0.0.1   |
     # client) |(dhcrelay + forwarding)| | (DHCP serv) |
     #         +-----------------------+ +-------------+
-    context.command_code("ip netns add {device}_ns".format(device=device))
-    context.command_code("ip netns add {device}2_ns".format(device=device))
-    context.command_code("ip link add {device} type veth peer name {device}p".format(device=device))
-    context.command_code("ip link add {device}2 type veth peer name {device}2p".format(device=device))
+    context.execute_steps(f'* Add a new network namespace named "{device}_ns"')
+    context.execute_steps(f'* Add a new network namespace named "{device}2_ns"')
+    context.execute_steps(f'* Add a new interface of type "veth" named "{device}" and options "peer name {device}p"')
+    context.execute_steps(f'* Add a new interface of type "veth" named "{device}2" and options "peer name {device}2p"')
     context.command_code("ip link set {device}p netns {device}_ns".format(device=device))
     context.command_code("ip link set {device}2 netns {device}_ns".format(device=device))
     context.command_code("ip link set {device}2p netns {device}2_ns".format(device=device))
@@ -291,33 +291,29 @@ def prepare_simdev(context, device):
                                          --dhcp-range=172.16.0.100,172.16.0.200,255.255.255.0,1m \
                                          --dhcp-option=3,172.16.0.50 \
                                          --dhcp-option=121,10.0.0.0/24,172.16.0.1".format(device=device))
-    if not hasattr(context, 'testvethns'):
-        context.testvethns = []
-    context.testvethns.append("%s_ns" % device)
-    context.testvethns.append("%s2_ns" % device)
+    context.cleanup['namespaces'][f"{device}_ns"] = True
+    context.cleanup['namespaces'][f"{device}2_ns"] = True
 
 
 @step(u'Prepare simulated test "{device}" device without DHCP')
 def prepare_simdev_no_dhcp(context, device):
-    if not hasattr(context, 'testvethns'):
+    if not context.cleanup['namespaces']:
         context.command_code('''echo 'ENV{ID_NET_DRIVER}=="veth", ENV{INTERFACE}=="test*", ENV{NM_UNMANAGED}="0"' >/etc/udev/rules.d/88-prep_veth.rules''')
         context.command_code("udevadm control --reload-rules")
         context.command_code("udevadm settle --timeout=5")
         context.command_code("sleep 1")
-    context.command_code("ip netns add {device}_ns".format(device=device))
-    context.command_code("ip link add {device} type veth peer name {device}p".format(device=device))
+    context.execute_steps(f'* Add a new network namespace named "{device}_ns"')
+    context.execute_steps(f'* Add a new interface of type "veth" named "{device}" and options "peer name {device}p"')
     context.command_code("ip link set {device}p netns {device}_ns".format(device=device))
     # Bring up devices
     context.command_code("ip link set {device} up".format(device=device))
     context.command_code("ip netns exec {device}_ns ip link set {device}p up".format(device=device))
-    if not hasattr(context, 'testvethns'):
-        context.testvethns = []
-    context.testvethns.append("%s_ns" % device)
+    context.cleanup['namespaces'][f"{device}_ns"] = True
 
 
 @step(u'Prepare simulated test "{device}" device for IPv6 PMTU discovery')
 def prepare_simdev(context, device):
-    if not hasattr(context, 'testvethns'):
+    if not context.cleanup['namespaces']:
         context.command_code('''echo 'ENV{ID_NET_DRIVER}=="veth", ENV{INTERFACE}=="test*", ENV{NM_UNMANAGED}="0"' >/etc/udev/rules.d/88-prep_veth.rules''')
         context.command_code("udevadm control --reload-rules")
         context.command_code("udevadm settle --timeout=5")
@@ -327,10 +323,10 @@ def prepare_simdev(context, device):
     #         |  fd01::1     fd02::1  | |   fd02::2   |
     # mtu 1500|   1500        1400    | |    1500     |
     #         +-----------------------+ +-------------+
-    context.command_code("ip netns add {device}_ns".format(device=device))
-    context.command_code("ip netns add {device}2_ns".format(device=device))
-    context.command_code("ip link add {device} type veth peer name {device}p".format(device=device))
-    context.command_code("ip link add {device}2 type veth peer name {device}2p".format(device=device))
+    context.execute_steps(f'* Add a new network namespace named "{device}_ns"')
+    context.execute_steps(f'* Add a new network namespace named "{device}2_ns"')
+    context.execute_steps(f'* Add a new interface of type "veth" named "{device}" and options "peer name {device}p"')
+    context.execute_steps(f'* Add a new interface of type "veth" named "{device}2" and options "peer name {device}2p"')
     context.command_code("ip link set {device}p netns {device}_ns".format(device=device))
     context.command_code("ip link set {device}2 netns {device}_ns".format(device=device))
     context.command_code("ip link set {device}2p netns {device}2_ns".format(device=device))
@@ -360,23 +356,21 @@ def prepare_simdev(context, device):
     context.command_code("ip netns exec {device}2_ns ip route add fd01::/64 via fd02::1 dev {device}2p".format(device=device))
     # Run netcat server to receive some data
     context.pexpect_service("ip netns exec {device}2_ns nc -6 -l -p 9000 > /dev/null".format(device=device), shell=True)
+    context.cleanup['namespaces'][f"{device}_ns"] = True
+    context.cleanup['namespaces'][f"{device}2_ns"] = True
 
-    if not hasattr(context, 'testvethns'):
-        context.testvethns = []
-    context.testvethns.append("%s_ns" % device)
-    context.testvethns.append("%s2_ns" % device)
 
 
 @step(u'Prepare simulated veth device "{device}" wihout carrier')
 def prepare_simdev_no_carrier(context, device):
     ipv4 = "192.168.99"
     ipv6 = "2620:dead:beaf"
-    if not hasattr(context, 'testvethns'):
+    if not context.cleanup['namespaces']:
         context.command_code('''echo 'ENV{ID_NET_DRIVER}=="veth", ENV{INTERFACE}=="test*", ENV{NM_UNMANAGED}="0"' >/etc/udev/rules.d/88-prep_veth.rules''')
         context.command_code("udevadm control --reload-rules")
         context.command_code("udevadm settle --timeout=5")
         context.command_code("sleep 1")
-    context.command_code("ip netns add {device}_ns".format(device=device))
+    context.execute_steps(f'* Add a new network namespace named "{device}_ns"')
     context.command_code("ip netns exec {device}_ns ip link add {device} type veth peer name {device}p".format(device=device))
     context.command_code("ip netns exec {device}_ns ip link set lo up".format(device=device))
     context.command_code("ip netns exec {device}_ns ip link set {device}p up".format(device=device))
@@ -395,9 +389,7 @@ def prepare_simdev_no_carrier(context, device):
                                             --enable-ra --interface={device}_bridge \
                                             --bind-interfaces".format(device=device, ipv4=ipv4, ipv6=ipv6))
     context.command_code("ip netns exec {device}_ns ip link set {device} netns 1".format(device=device))
-    if not hasattr(context, 'testvethns'):
-        context.testvethns = []
-    context.testvethns.append("%s_ns" % device)
+    context.cleanup['namespaces'][f"{device}_ns"] = True
 
 
 @step(u'Start pppoe server with "{name}" and IP "{ip}" on device "{dev}"')
@@ -419,8 +411,8 @@ def start_pppoe_server(context, name, ip, dev):
 @step(u'Prepare MACsec PSK environment with CAK "{cak}" and CKN "{ckn}"')
 def setup_macsec_psk(context, cak, ckn):
     context.command_code("modprobe macsec")
-    context.command_code("ip netns add macsec_ns")
-    context.command_code("ip link add macsec_veth type veth peer name macsec_vethp")
+    context.execute_steps(f'* Add a new network namespace named "macsec_ns"')
+    context.execute_steps(f'* Add a new interface of type "veth" named "macsec_veth" and options "peer name macsec_vethp"')
     context.command_code("ip link set macsec_vethp netns macsec_ns")
     context.command_code("ip link set macsec_veth up")
     context.command_code("ip netns exec macsec_ns ip link set macsec_vethp up")
@@ -469,7 +461,7 @@ def prepare_iptunnel_doc(context, mode):
     # prepare Network A (range 192.0.2.1/2) and Network B in namespace (range 172.16.0.1/24)
     context.execute_steps('* Prepare simulated test "netA" device without DHCP')
     context.execute_steps('* Prepare simulated test "netB" device without DHCP')
-    context.command_code("ip netns add iptunnelB")
+    context.execute_steps('* Add a new network namespace named "iptunnelB"')
     context.command_code("ip link set netB netns iptunnelB")
     if bridge:
         # if bridge, add addresses to "computers" in local networks
@@ -481,7 +473,7 @@ def prepare_iptunnel_doc(context, mode):
         context.command_code("ip -n iptunnelB address add 172.16.0.1/24 dev netB")
 
     # connect Network A (public IP 203.0.113.10) and Network B (public IP 198.51.100.5) via veth pair ipA and ipB
-    context.command_code("ip link add ipA type veth peer name ipB")
+    context.execute_steps('* Add a new interface of type "veth" named "ipA" and options "peer name ipB"')
     context.command_code("ip link set ipA up")
     context.command_code("ip addr add 203.0.113.10/32 dev ipA")
     context.command_code("ip route add 198.51.100.5/32 dev ipA")
@@ -509,11 +501,3 @@ def prepare_iptunnel_doc(context, mode):
         context.command_code("ip -n iptunnelB link set brB up")
         context.command_code("ip -n iptunnelB addr add 192.0.2.2/24 dev brB")
         context.command_code("ip -n iptunnelB link set tunB master brB")
-
-
-@step(u'Create custom NS "{new_ns}"')
-def custom_ns(context, new_ns):
-    if not hasattr(context, 'cleanup_ns'):
-        context.cleanup_ns = set()
-    context.cleanup_ns.add(new_ns)
-    context.run(f'ip netns add {new_ns}')

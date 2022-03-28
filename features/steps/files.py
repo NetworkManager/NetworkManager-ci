@@ -18,6 +18,9 @@ def append_to_ifcfg(context, line, name):
     cmd = 'sudo echo "%s" >> /etc/sysconfig/network-scripts/ifcfg-%s' % (line, name)
     context.command_code(cmd)
 
+    if not name in context.cleanup["connections"]:
+        context.cleanup["connections"].add(name)
+
 
 @step(u'Check file "{file1}" is contained in file "{file2}"')
 def check_file_is_contained(context, file1, file2):
@@ -178,3 +181,10 @@ def create_keyfile(context, file):
         f.write(context.text)
     assert nmci.command_code("chmod 600 " + file) == 0, "Unable to set permissions on '%s'" % file
     nmci.lib.reload_NM_connections(context)
+
+    for line in context.text.split("\n"):
+        if "id=" in line:
+            name = line.split('=')[1]
+            if name:
+                context.cleanup["connections"].add(name)
+            break

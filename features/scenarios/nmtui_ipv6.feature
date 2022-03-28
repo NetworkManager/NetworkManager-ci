@@ -5,7 +5,6 @@ Feature: IPv6 TUI tests
   * Prepare virtual terminal environment
 
 
-    @ipv6
     @nmtui_ipv6_addresses_static_no_address
     Scenario: nmtui - ipv6 - addresses - static IPv6 without address
     * Prepare new connection of type "Ethernet" named "ethernet"
@@ -16,7 +15,6 @@ Feature: IPv6 TUI tests
     Then ".*Unable to add new connection.*ipv6.addresses: this property cannot.*be empty for 'method=manual'.*" is visible on screen
 
 
-    @ipv6
     @ver-=1.9.1
     @nmtui_ipv6_addresses_static_no_mask
     Scenario: nmtui - ipv6 - addresses - static IPv6 configuration without netmask
@@ -30,7 +28,7 @@ Feature: IPv6 TUI tests
     Then "eth1\s+ethernet\s+connected\s+ethernet" is visible with command "nmcli device" in "45" seconds
     Then "inet6 2607:f0d0:1002:51::4/128" is visible with command "ip -6 a s eth1"
 
-    @ipv6
+
     @ver+=1.9.2
     @nmtui_ipv6_addresses_static_no_mask
     Scenario: nmtui - ipv6 - addresses - static IPv6 configuration without netmask
@@ -45,7 +43,6 @@ Feature: IPv6 TUI tests
     Then "inet6 2607:f0d0:1002:51::4/64" is visible with command "ip -6 a s eth1"
 
 
-    @ipv6
     @nmtui_ipv6_addresses_static_with_mask
     Scenario: nmtui - ipv6 - addresses - static IPv6 configuration with netmask
     * Prepare new connection of type "Ethernet" named "ethernet"
@@ -62,7 +59,6 @@ Feature: IPv6 TUI tests
     Then "dynamic" is not visible with command "ip -6 a s eth1"
 
 
-    @ipv6
     @nmtui_ipv6_addresses_auto_with_manual
     Scenario: nmcli - ipv6 - addresses - auto with manual address present
     * Prepare new connection of type "Ethernet" named "ethernet"
@@ -74,7 +70,6 @@ Feature: IPv6 TUI tests
     Then "inet6 dead:beef" is visible with command "ip -6 a s eth10"
 
 
-    @ipv6
     @nmtui_ipv6_addresses_IP_slash_invalid_netmask
     Scenario: nmtui - ipv6 - addresses - IP slash invalid netmask
     * Prepare new connection of type "Ethernet" named "ethernet"
@@ -84,7 +79,7 @@ Feature: IPv6 TUI tests
     * Cannot confirm the connection settings
 
 
-    @ipv6 @ifcfg-rh
+    @ifcfg-rh
     @nmtui_ipv6_addresses_IP_slash_netmask_and_gateway_manual
     Scenario: nmtui - ipv6 - addresses - IP slash netmask and gateway
     * Prepare new connection of type "Ethernet" named "ethernet"
@@ -100,7 +95,6 @@ Feature: IPv6 TUI tests
     Then "dynamic" is not visible with command "ip -6 a s eth1"
 
 
-    @ipv6
     @nmtui_ipv6_addresses_several_IPs_slash_netmask_and_gateway_manual
     Scenario: nmtui - ipv6 - addresses - several IPs slash netmask and route - manual
     * Prepare new connection of type "Ethernet" named "ethernet"
@@ -122,7 +116,6 @@ Feature: IPv6 TUI tests
     Then "dynamic" is not visible with command "ip -6 a s eth1"
 
 
-    @ipv6
     @nmtui_ipv6_addresses_several_IPs_slash_netmask_and_gateway_auto
     Scenario: nmtui - ipv6 - addresses - several IPs slash netmask and route - auto
     * Prepare new connection of type "Ethernet" named "ethernet"
@@ -139,7 +132,6 @@ Feature: IPv6 TUI tests
     Then "fc01::1:21/96" is visible with command "ip -6 a s eth10"
 
 
-    @ipv6
     @nmtui_ipv6_addresses_delete_ip_and_back_to_auto
     Scenario: nmtui - ipv6 - addresses - delete IP and set method back to auto
     * Prepare new connection of type "Ethernet" named "ethernet"
@@ -162,7 +154,6 @@ Feature: IPv6 TUI tests
     Then "dynamic" is visible with command "ip -6 a s eth10" in "45" seconds
 
 
-    @ipv6
     @ver-=1.9.1
     @nmtui_ipv6_routes_set_basic_route
     Scenario: nmtui - ipv6 - routes - set basic route
@@ -188,7 +179,6 @@ Feature: IPv6 TUI tests
     Then "3030::1 via 2001::2 dev eth2\s+proto static\s+metric 1" is visible with command "ip -6 route"
 
 
-    @ipv6
     @ver+=1.9.2
     @nmtui_ipv6_routes_set_basic_route
     Scenario: nmtui - ipv6 - routes - set basic route
@@ -214,7 +204,6 @@ Feature: IPv6 TUI tests
     Then "3030::1 via 2001::2 dev eth2\s+proto static\s+metric 112" is visible with command "ip -6 route"
 
 
-    @ipv6
     @ver-=1.9.1
     @nmtui_ipv6_routes_remove_basic_route
     Scenario: nmtui - ipv6 - routes - remove basic route
@@ -255,7 +244,7 @@ Feature: IPv6 TUI tests
     Then "2001::/126 dev eth2\s+proto kernel\s+metric 256" is visible with command "ip -6 route"
     Then "3030::1 via 2001::2 dev eth2\s+proto static\s+metric 1" is not visible with command "ip -6 route"
 
-    @ipv6
+
     @ver+=1.9.2
     @nmtui_ipv6_routes_remove_basic_route
     Scenario: nmtui - ipv6 - routes - remove basic route
@@ -297,7 +286,6 @@ Feature: IPv6 TUI tests
     Then "3030::1 via 2001::2 dev eth2\s+proto static\s+metric 1" is not visible with command "ip -6 route"
 
 
-    @ipv6
     @ver-=1.9.1
     @nmtui_ipv6_routes_set_device_route
     Scenario: nmtui - ipv6 - routes - set device route
@@ -316,7 +304,6 @@ Feature: IPv6 TUI tests
     Then "1010::1 dev eth1\s+proto static\s+metric 1" is visible with command "ip -6 route"
 
 
-    @ipv6
     @ver+=1.9.2
     @nmtui_ipv6_routes_set_device_route
     Scenario: nmtui - ipv6 - routes - set device route
@@ -336,7 +323,7 @@ Feature: IPv6 TUI tests
 
 
     @rhbz1505893
-    @ipv6 @eth0
+    @eth0
     @nmtui_ipv6_routes_several_default_routes_metrics
     Scenario: nmtui - ipv6 - addresses - several default gateways and metrics
     * Prepare new connection of type "Ethernet" named "ethernet1"
@@ -392,7 +379,6 @@ Feature: IPv6 TUI tests
     # Then "fc05::/68 dev eth2\s+proto kernel" is visible with command "ip -6 route" in "10" seconds
 
 
-    @ipv6
     @nmtui_ipv6_routes_set_invalid_route_destination
     Scenario: nmtui - ipv6 - routes - set invalid route - destination
     * Start nmtui
@@ -413,7 +399,6 @@ Feature: IPv6 TUI tests
     Then Cannot add ip route "string"
 
 
-    @ipv6
     @nmtui_ipv6_routes_set_invalid_route_hop
     Scenario: nmtui - ipv6 - routes - set invalid route - hop
     * Start nmtui
@@ -433,7 +418,6 @@ Feature: IPv6 TUI tests
     * Press "ENTER" key
 
 
-    @ipv6
     @nmtui_ipv6_dns_method_static_+_IP_+_dns
     Scenario: nmtui - ipv6 - dns - method static + IP + dns
     * Prepare new connection of type "Ethernet" named "ethernet1"
@@ -449,7 +433,6 @@ Feature: IPv6 TUI tests
     Then Nameserver "5000::1" is set
 
 
-    @ipv6
     @nmtui_ipv6_dns_method_auto_+_dns
     Scenario: nmtui - ipv6 - dns - method auto + dns
     * Prepare new connection of type "Ethernet" named "ethernet1"
@@ -462,7 +445,6 @@ Feature: IPv6 TUI tests
     Then Nameserver "5000::1" is set
 
 
-    @ipv6
     @nmtui_ipv6_dns_add_dns_when_one_already_set
     Scenario: nmtui - ipv6 - dns - add dns when one already set
     * Prepare new connection of type "Ethernet" named "ethernet1"
@@ -484,7 +466,6 @@ Feature: IPv6 TUI tests
     Then Nameserver "5000::1" is set in "10" seconds
 
 
-    @ipv6
     @nmtui_ipv6_dns_method_auto_then_delete_all_dns
     Scenario: nmtui - ipv6 - dns - method auto then delete all dns
     * Prepare new connection of type "Ethernet" named "ethernet1"
@@ -505,7 +486,6 @@ Feature: IPv6 TUI tests
     Then Nameserver "5000::1" is not set
 
 
-    @ipv6
     @nmtui_ipv6_dns_search_add_dns_search
     Scenario: nmtui - ipv6 - dns-search - add dns-search
     * Prepare new connection of type "Ethernet" named "ethernet1"
@@ -516,7 +496,6 @@ Feature: IPv6 TUI tests
     Then Domain "heaven.com" is set in "10" seconds
 
 
-    @ipv6
     @nmtui_ipv6_dns_search_remove_dns_search
     Scenario: nmtui - ipv6 - dns-search - remove dns-search
     * Prepare new connection of type "Ethernet" named "ethernet1"
@@ -534,7 +513,6 @@ Feature: IPv6 TUI tests
     Then Domain "heaven.com" is not set
 
 
-    @ipv6
     @nmtui_ipv6_method_link_local
     Scenario: nmtui - ipv6 - method - link-local
     * Prepare new connection of type "Ethernet" named "ethernet1"
@@ -546,7 +524,7 @@ Feature: IPv6 TUI tests
 
 
     @rhbz1108839
-    @ipv6 @ifcfg-rh
+    @ifcfg-rh
     @nmtui_ipv6_may_connection_required
     Scenario: nmtui - ipv6 -  connection required
     * Prepare new connection of type "Ethernet" named "ethernet1"
@@ -559,7 +537,6 @@ Feature: IPv6 TUI tests
 
 
     @rhbz1108839
-    @ipv6
     @nmtui_ipv6_may_connection_not_required
     Scenario: nmtui - ipv6 -  connection not required
     * Prepare new connection of type "Ethernet" named "ethernet1"
@@ -570,7 +547,7 @@ Feature: IPv6 TUI tests
     Then "ipv6.may-fail:\s+yes" is visible with command "nmcli con show ethernet1"
 
 
-    @ipv6 @ifcfg-rh
+    @ifcfg-rh
     @nmtui_ipv6_method_ignore
     Scenario: nmtui - ipv6 - method - ignore
     * Prepare new connection of type "Ethernet" named "ethernet1"
@@ -584,7 +561,7 @@ Feature: IPv6 TUI tests
     Then "inet6 ((?!fe80).)" is not visible with command "ip -6 a s eth1"
 
 
-    @ipv6 @ifcfg-rh
+    @ifcfg-rh
     @nmtui_ipv6_never_default_unset
     Scenario: nmtui - ipv6 - never-default - unset
     * Prepare new connection of type "Ethernet" named "ethernet1"
@@ -596,7 +573,6 @@ Feature: IPv6 TUI tests
     Then "ipv6.never-default:\s+no" is visible with command "nmcli con show ethernet1"
 
 
-    @ipv6
     @nmtui_ipv6_never_default_set
     Scenario: nmtui - ipv6 - never-default - set
     * Prepare new connection of type "Ethernet" named "ethernet1"
@@ -607,7 +583,6 @@ Feature: IPv6 TUI tests
     Then "ipv6.never-default:\s+yes" is visible with command "nmcli con show ethernet1"
 
 
-    @ipv6
     @nmtui_ipv6_invalid_address
     Scenario: nmtui - ipv6 - invalid address
     * Prepare new connection of type "Ethernet" named "ethernet1"
@@ -651,7 +626,6 @@ Feature: IPv6 TUI tests
     Then Cannot confirm the connection settings
 
 
-    @ipv6
     @nmtui_ipv6_invalid_gateway
     Scenario: nmtui - ipv6 - invalid gateway
     * Prepare new connection of type "Ethernet" named "ethernet1"
@@ -692,7 +666,7 @@ Feature: IPv6 TUI tests
     * Set "Gateway" field to "::::"
     Then Cannot confirm the connection settings
 
-    @ipv6
+
     @nmtui_ipv6_invalid_dns
     Scenario: nmtui - ipv6 - invalid dns
     * Prepare new connection of type "Ethernet" named "ethernet1"
@@ -730,7 +704,6 @@ Feature: IPv6 TUI tests
 
 
     @rhbz1131434
-    @ipv6
     @nmtui_ipv6_addresses_can_add_after_removing_invalid
     Scenario: nmtui - ipv6 - addresses - add address after removing invalid one
     Given Prepare new connection of type "Ethernet" named "ethernet"
