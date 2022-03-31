@@ -274,19 +274,45 @@ Feature: nmcli - ethernet
 
 
     @ethernet_set_both_ipv4_6_configuration
-    Scenario: nmcli - ethernet - static IPv4 and IPv6 combined configuration
-    * Add a new connection of type "ethernet" named "ethernet" and options "ifname eth1 autoconnect no"
+    Scenario: nmcli - ethernet - static IPv4 and IPv6 combined configuration interactively
+    * Doc: "Configuring a static Ethernet connection using the nmcli interactive editor"
+    * Add a new connection of type "ethernet" named "ethernet" and options "ifname eth10 autoconnect no"
     * Open editor for connection "ethernet"
     * Set a property named "ipv6.method" to "manual" in editor
-    * Set a property named "ipv6.addresses" to "2607:f0d0:1002:51::4/64" in editor
+    * Set a property named "ipv6.addresses" to "2620:52:0:1086::cafe:deed/64" in editor
     * Set a property named "ipv4.method" to "manual" in editor
-    * Set a property named "ipv4.addresses" to "192.168.1.10/24" in editor
+    * Set a property named "ipv4.addresses" to "10.16.1.10/24" in editor
     * Save in editor
     * Check value saved message showed in editor
     * Quit editor
     * Bring up connection "ethernet"
-    Then "inet 192.168.1.10\s+netmask 255.255.255.0" is visible with command "ifconfig eth1"
-    Then "inet6 2607:f0d0:1002:51::4\s+prefixlen 64" is visible with command "ifconfig eth1"
+    Then "eth10\s+ethernet\s+connected\s+ethernet" is visible with command "nmcli device status"
+    Then "inet 10.16.1.10/24" is visible with command "ip a show eth10"
+    Then "inet6 2620:52:0:1086::cafe:deed/64" is visible with command "ip a show eth10"
+    Then Ping "10.16.1.1" from "eth10" device
+    Then Ping6 "2620:52:0:1086::1"
+
+
+    @ethernet_set_both_ipv4_6_configuration_nmcli
+    Scenario: nmcli - ethernet - static IPv4 and IPv6 combined configuration in separate commands
+    * Doc: "Configuring a static Ethernet connection using nmcli"
+    * Add a new connection of type "ethernet" named "Example-Connection" and options "ifname eth10"
+    * Execute "nmcli connection modify Example-Connection ipv4.addresses 10.16.1.10/24"
+    * Execute "nmcli connection modify Example-Connection ipv6.addresses 2620:52:0:1086::cafe:deed/64"
+    * Execute "nmcli connection modify Example-Connection ipv4.method manual"
+    * Execute "nmcli connection modify Example-Connection ipv6.method manual"
+    * Execute "nmcli connection modify Example-Connection ipv4.gateway 10.16.1.1"
+    * Execute "nmcli connection modify Example-Connection ipv6.gateway 2620:52:0:1086::1"
+    * Execute "nmcli connection modify Example-Connection ipv4.dns '10.16.1.1'"
+    * Execute "nmcli connection modify Example-Connection ipv6.dns '2620:52:0:1086::1'"
+    * Execute "nmcli connection modify Example-Connection ipv4.dns-search example.com"
+    * Execute "nmcli connection modify Example-Connection ipv6.dns-search example.com"
+    When Execute "nmcli connection up Example-Connection"
+    Then "eth10\s+ethernet\s+connected\s+Example-Connection" is visible with command "nmcli device status"
+    Then "inet 10.16.1.10/24" is visible with command "ip a show eth10"
+    Then "inet6 2620:52:0:1086::cafe:deed/64" is visible with command "ip a show eth10"
+    Then Ping "10.16.1.1" from "eth10" device
+    Then Ping6 "2620:52:0:1086::1"
 
 
     @nmcli_ethernet_no_ip

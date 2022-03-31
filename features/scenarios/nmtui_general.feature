@@ -15,6 +15,7 @@ Feature: General TUI tests
 
     @nmtui_general_open_edit_menu
     Scenario: nmtui - general - open edit menu
+    * Doc: "Starting the nmtui utility"
     * Start nmtui
     * Choose to "Edit a connection" from main screen
     Then ".*<Add>.*<Delete>.*" is visible on screen

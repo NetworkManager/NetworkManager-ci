@@ -20,6 +20,28 @@ Feature: nmcli - wifi
     Then "\*\s+open" is visible with command "nmcli -f IN-USE,SSID device wifi list"
 
 
+    @ver+=1.9.1 @fedoraver+=31
+    @simwifi @attach_hostapd_log @attach_wpa_supplicant_log @simwifi_open
+    @simwifi_open_connect_static_with_parameters
+    Scenario: nmcli - simwifi - automatically connect to open network with static parameters
+    * Doc: "Configuring a Wi-Fi connection using nmcli"
+    * Add a new connection of type "wifi" and options
+        """
+        ifname wlan0 con-name open ssid open
+        ip4 192.168.100.101/24 gw 192.168.100.1
+        ipv4.dns 192.168.100.1 ipv4.dns-search example.com
+        """
+    Then "802-11-wireless.mtu:\s*auto" is visible with command "nmcli connection show id open | grep mtu"
+    When "nmcli connection modify id open 802-11-wireless.mtu 1350"
+    Then "802-11-wireless.mtu:\s*1350" is visible with command "nmcli -f 802-11-wireless.mtu connection show id open"
+    Then "GENERAL.STATE:activated" is not visible with command "nmcli -f GENERAL.STATE -t connection show id wifi"
+    Given "open" is visible with command "nmcli -f SSID device wifi list" in "90" seconds
+    #* Bring "up" connection "open"
+    Then "open" is visible with command "iw dev wlan0 link" in "15" seconds
+    Then "\*\s+open" is visible with command "nmcli -f IN-USE,SSID device wifi list"
+    Then Ping "10.0.254.1" "2" times
+
+
     @ver+=1.9.1 @fedoraver-=34 @rhelver-=8
     @simwifi @attach_hostapd_log @attach_wpa_supplicant_log @simwifi_pskwep
     @simwifi_wep_ask_passwd

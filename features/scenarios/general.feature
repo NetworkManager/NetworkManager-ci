@@ -638,6 +638,7 @@ Feature: nmcli - general
     @remove_custom_cfg
     @nmcli_general_ignore_specified_unamanaged_devices
     Scenario: NM - general - ignore specified unmanaged devices
+    * Doc: "Permanently configuring a device as unmanaged in NetworkManager"
     * Add a new interface of type "bond" named "bond0"
     # Still unmanaged
     * "bond0\s+bond\s+unmanaged" is visible with command "nmcli device"

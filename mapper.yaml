@@ -1242,6 +1242,8 @@ testmapper:
         feature: ethernet
     - ethernet_set_both_ipv4_6_configuration:
         feature: ethernet
+    - ethernet_set_both_ipv4_6_configuration_nmcli:
+        feature: ethernet
     - ethernet_create_ifname_generic_connection:
         feature: ethernet
     - nmcli_ethernet_no_ip:
@@ -2190,6 +2192,9 @@ testmapper:
         tags: hostapd
     ## end of @need_legacy_crypto
     - simwifi_open_connect:
+        feature: wifi_hwsim
+        tags: hostapd
+    - simwifi_open_connect_static_with_parameters:
         feature: wifi_hwsim
         tags: hostapd
     - simwifi_wep_ask_passwd:

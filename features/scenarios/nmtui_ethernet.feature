@@ -46,6 +46,7 @@ Feature: Ethernet TUI tests
 
     @nmtui_ethernet_activate_connection
     Scenario: nmtui - ethernet - activate connection
+    * Doc: "Adding a connection profile using nmtui"
     * Start nmtui
     * Choose to "Edit a connection" from main screen
     * Choose to "<Add>" a connection
