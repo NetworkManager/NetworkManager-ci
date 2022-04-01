@@ -1945,6 +1945,7 @@ Feature: nmcli: ipv4
 
     @rhbz1634657
     @ver+=1.16
+    @ver-1.37.90
     @internal_DHCP
     @dhcp_multiple_router_options
     Scenario: NM - ipv4 - dhcp server sends multiple router options
@@ -1954,6 +1955,19 @@ Feature: nmcli: ipv4
     Then "default via 192.168.99.10 proto dhcp metric " is visible with command "ip -4 r show dev testX4 | grep ^default | head -n1"
      And "default via 192.168.99.20 proto dhcp metric " is visible with command "ip -4 r show dev testX4 | grep ^default | head -n2"
      And "default via 192.168.99.21 proto dhcp metric " is visible with command "ip -4 r show dev testX4 | grep ^default | head -n3"
+
+
+    @rhbz1634657
+    @ver+=1.37.90
+    @internal_DHCP
+    @dhcp_multiple_router_options
+    Scenario: NM - ipv4 - dhcp server sends multiple router options
+    * Prepare simulated test "testX4" device with "192.168.99" ipv4 and "2620:dead:beaf" ipv6 dhcp address prefix and dhcp option "option:router,192.168.99.10,192.168.99.20,192.168.99.21"
+    * Add "ethernet" connection named "con_ipv4" for device "testX4"
+    When "192.168.99." is visible with command "ip a show dev testX4" in "40" seconds
+    Then "default via 192.168.99.10 proto dhcp src 192.168.99.[0-9]+ metric " is visible with command "ip -4 r show dev testX4 | grep ^default | head -n1"
+     And "default via 192.168.99.20 proto dhcp src 192.168.99.[0-9]+ metric " is visible with command "ip -4 r show dev testX4 | grep ^default | head -n2"
+     And "default via 192.168.99.21 proto dhcp src 192.168.99.[0-9]+ metric " is visible with command "ip -4 r show dev testX4 | grep ^default | head -n3"
 
 
     @rhbz1663253

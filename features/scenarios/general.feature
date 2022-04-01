@@ -489,6 +489,7 @@ Feature: nmcli - general
 
     @rhbz1763062
     @ver+=1.22
+    @ver-1.37.90
     @dhcpd
     @nmcli_device_reapply_routes
     Scenario: NM - device - reapply just routes
@@ -504,6 +505,25 @@ Feature: nmcli - general
     And "192.168.5.0/24 via 192.168.99.111 dev testG\s+proto static\s+metric" is visible with command "ip route"
     And "routers = 192.168.99.1" is visible with command "nmcli con show con_general" in "70" seconds
     And "default via 192.168.99.1 dev testG\s+proto dhcp\s+metric 21" is visible with command "ip r"
+
+
+    @rhbz1763062
+    @ver+=1.37.90
+    @dhcpd
+    @nmcli_device_reapply_routes
+    Scenario: NM - device - reapply just routes
+    * Prepare simulated test "testG" device
+    * Execute "ip netns exec testG_ns kill -SIGSTOP $(cat /tmp/testG_ns.pid)"
+    * Add "ethernet" connection named "con_general" for device "testG"
+    * Modify connection "con_general" changing options "ipv4.routes '192.168.5.0/24 192.168.99.111 1' ipv4.route-metric 21 ipv6.method static ipv6.addresses 2000::2/126 ipv6.routes '1010::1/128 2000::1 1'"
+    * "Error.*" is not visible with command "nmcli device reapply testG" in "1" seconds
+    * Execute "ip netns exec testG_ns kill -SIGCONT $(cat /tmp/testG_ns.pid)"
+    When "connected" is visible with command "nmcli -g GENERAL.STATE dev show testG" in "25" seconds
+    Then "1010::1 via 2000::1 dev testG\s+proto static\s+metric 1" is visible with command "ip -6 route" in "5" seconds
+    And "2000::/126 dev testG\s+proto kernel\s+metric 1" is visible with command "ip -6 route"
+    And "192.168.5.0/24 via 192.168.99.111 dev testG\s+proto static\s+metric" is visible with command "ip route"
+    And "routers = 192.168.99.1" is visible with command "nmcli con show con_general" in "70" seconds
+    And "default via 192.168.99.1 dev testG\s+proto dhcp\s+src 192.168.99.[0-9]+\s+metric 21" is visible with command "ip r"
 
 
     @rhbz1032717 @rhbz1505893 @rhbz1702657
