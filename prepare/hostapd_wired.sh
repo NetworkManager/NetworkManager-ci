@@ -88,6 +88,7 @@ function copy_certificates ()
 
     /bin/cp -rf $CERTS_PATH/client/test_user.ca.pem /etc/pki/ca-trust/source/anchors
     chown -R test:test $CLIENT_KEYS_PATH
+    chmod -R o= $CLIENT_KEYS_PATH
     update-ca-trust extract
 }
 
