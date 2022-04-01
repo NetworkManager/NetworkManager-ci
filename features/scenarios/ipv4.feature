@@ -220,7 +220,7 @@ Feature: nmcli: ipv4
     * Add a new connection of type "ethernet" named "con_ipv4" and options
       """
       ifname eth3
-      
+
       ipv4.method manual
       ipv4.addresses 192.168.3.10/24
       ipv4.gateway 192.168.4.1
@@ -259,7 +259,7 @@ Feature: nmcli: ipv4
 
     @rhbz1373698
     @ver+=1.8.0
-    @ifcfg-rh 
+    @ifcfg-rh
     @ipv4_route_set_route_with_src_old_syntax
     Scenario: nmcli - ipv4 - routes - set route with src in old syntax
     * Add a new connection of type "ethernet" named "con_ipv4" and options "ifname eth3 autoconnect no ipv4.method manual ipv4.addresses 192.168.3.10/24 ipv4.gateway 192.168.4.1 ipv4.route-metric 256"
@@ -276,7 +276,7 @@ Feature: nmcli: ipv4
 
     @rhbz1452648
     @ver+=1.8.0
-    @ifcfg-rh 
+    @ifcfg-rh
     @ipv4_route_modify_route_with_src_old_syntax_no_metric
     Scenario: nmcli - ipv4 - routes - modify route with src and no metric in old syntax
     * Add a new connection of type "ethernet" named "con_ipv4" and options "ifname eth3 autoconnect no ipv4.method manual ipv4.addresses 192.168.3.10/24 ipv4.gateway 192.168.4.1 ipv4.route-metric 256"
@@ -467,7 +467,7 @@ Feature: nmcli: ipv4
     Then "192.168.5.0/24 via 192.168.3.11 dev eth3\s+proto static\s+metric 300      " is not visible with command "ip route"
 
 
-    
+
     @ipv4_route_set_device_route
     Scenario: nmcli - ipv4 - routes - set device route
     * Add a new connection of type "ethernet" named "con_ipv4" and options "ifname eth3 ipv4.may-fail no ipv4.method static ipv4.addresses 192.168.122.2/24 ipv4.gateway 192.168.122.1 ipv4.routes '192.168.1.0/24 0.0.0.0, 192.168.2.0/24 192.168.122.5'"
@@ -551,7 +551,7 @@ Feature: nmcli: ipv4
     Then Nameserver "192.168.100.1" is not set
 
 
-    
+
     @ipv4_dns_manual_when_method_auto
     Scenario: nmcli - ipv4 - dns - method auto + dns
     * Add a new connection of type "ethernet" named "con_ipv4" and options "ifname eth3 ipv4.dns '8.8.8.8, 8.8.4.4'"
@@ -560,7 +560,7 @@ Feature: nmcli: ipv4
     Then Nameserver "192.168.100.1" is set
 
 
-    
+
     @ipv4_dns_manual_when_ignore_auto_dns
     Scenario: nmcli - ipv4 - dns - method auto + dns + ignore automaticaly obtained
     * Add a new connection of type "ethernet" named "con_ipv4" and options "ifname eth3 ipv4.method static ipv4.addresses 192.168.122.253/24 ipv4.gateway 192.168.122.1 ipv4.dns '8.8.8.8, 8.8.4.4' ipv4.ignore-auto-dns yes"
@@ -814,7 +814,7 @@ Feature: nmcli: ipv4
 
     @rhbz1443437
     @ver+=1.8.0 @ver-=1.20
-    @tshark 
+    @tshark
     @ipv4_dhcp-hostname_set
     Scenario: nmcli - ipv4 - dhcp-hostname - set dhcp-hostname
     * Add a new connection of type "ethernet" named "con_ipv4" and options "ifname eth2 ipv4.may-fail no ipv4.dhcp-hostname RC"
@@ -828,7 +828,7 @@ Feature: nmcli: ipv4
 
     @rhbz1443437 @rhbz1649376
     @ver+=1.21.90
-    @tshark 
+    @tshark
     @ipv4_dhcp-hostname_set
     Scenario: nmcli - ipv4 - dhcp-hostname - set dhcp-hostname
     * Add a new connection of type "ethernet" named "con_ipv4" and options "ifname eth2 ipv4.may-fail no ipv4.dhcp-hostname example.com"
@@ -840,7 +840,7 @@ Feature: nmcli: ipv4
      And "Option: \(12\) Host Name\s+Length: 11\s+Host Name: example.com" is visible with command "cat /tmp/tshark.log"
 
 
-    @tshark 
+    @tshark
     @ipv4_dhcp-hostname_remove
     Scenario: nmcli - ipv4 - dhcp-hostname - remove dhcp-hostname
     * Add a new connection of type "ethernet" named "con_ipv4" and options "ifname eth2 ipv4.may-fail no ipv4.dhcp-hostname RHB"
@@ -927,7 +927,7 @@ Feature: nmcli: ipv4
       And "foo.bar.com" is not visible with command "cat /tmp/tshark.log" for full "5" seconds
 
 
-    @tshark 
+    @tshark
     @ipv4_do_not_send_hostname
     Scenario: nmcli - ipv4 - dhcp-send-hostname - don't send
     * Add a new connection of type "ethernet" named "con_ipv4" and options "ifname eth2 ipv4.may-fail no ipv4.dhcp-hostname RHC ipv4.dhcp-send-hostname no"
@@ -948,7 +948,7 @@ Feature: nmcli: ipv4
     Then Hostname is visible in log "/tmp/tshark.log" in "10" seconds
 
 
-    @tshark 
+    @tshark
     @ipv4_ignore_sending_real_hostname
     Scenario: nmcli - ipv4 - dhcp-send-hostname - ignore sending real hostname
     * Add a new connection of type "ethernet" named "con_ipv4" and options "ifname eth2 ipv4.may-fail no ipv4.dhcp-send-hostname no"
@@ -1530,7 +1530,7 @@ Feature: nmcli: ipv4
     Then "dev eth3\s+proto kernel\s+scope link" is visible with command "ip route" for full "80" seconds
 
 
-    
+
     @ver-=1.19.1
     @ipv4_describe
     Scenario: nmcli - ipv4 - describe
@@ -1565,7 +1565,7 @@ Feature: nmcli: ipv4
     Then Check "=== \[may-fail\] ===\s+\[NM property description\]\s+If TRUE, allow overall network configuration to proceed even if the configuration specified by this property times out.  Note that at least one IP configuration must succeed or overall network configuration will still fail.  For example, in IPv6-only networks, setting this property to TRUE on the NMSettingIP4Config allows the overall network configuration to succeed if IPv4 configuration fails but IPv6 configuration completes successfully." are present in describe output for object "may-fail"
 
 
-    
+
     @ver+=1.19.2 @ver-=1.31.0
     @ipv4_describe
     Scenario: nmcli - ipv4 - describe
@@ -1601,7 +1601,7 @@ Feature: nmcli: ipv4
     Then Check "=== \[may-fail\] ===\s+\[NM property description\]\s+If TRUE, allow overall network configuration to proceed even if the configuration specified by this property times out.  Note that at least one IP configuration must succeed or overall network configuration will still fail.  For example, in IPv6-only networks, setting this property to TRUE on the NMSettingIP4Config allows the overall network configuration to succeed if IPv4 configuration fails but IPv6 configuration completes successfully." are present in describe output for object "may-fail"
 
 
-    
+
     @ver+=1.31.1
     @ipv4_describe
     Scenario: nmcli - ipv4 - describe
@@ -1998,7 +1998,7 @@ Feature: nmcli: ipv4
     @dhcp_reboot
     Scenario: DHCPv4 reboot
     # Check that the client reuses an existing lease
-    * Execute "rm /tmp/testX4_ns.lease"
+    * Execute "rm /tmp/testX4_ns.lease | true"
     * Prepare simulated test "testX4" device
     * Add a new connection of type "ethernet" named "con_ipv4" and options "ifname testX4 autoconnect no ipv4.may-fail no"
     * Bring "up" connection "con_ipv4"
@@ -2019,7 +2019,7 @@ Feature: nmcli: ipv4
     @dhcp_reboot_nak
     Scenario: DHCPv4 reboot NAK
     # Check that the client performs a reboot when there is an existing lease and the server replies with a NAK
-    * Execute "rm /tmp/testX4_ns.lease"
+    * Execute "rm /tmp/testX4_ns.lease | true"
     # Start with the --dhcp-authoritative option so that the server will not ignore unknown leases
     * Prepare simulated test "testX4" device with daemon options "--dhcp-authoritative"
     * Add a new connection of type "ethernet" named "con_ipv4" and options "ifname testX4 autoconnect no ipv4.may-fail no"
@@ -2104,7 +2104,7 @@ Feature: nmcli: ipv4
     Then "ms_classless_static_routes = 10.0.0.0/9 192.168.99.2 20.1.0.0/16 192.168.99.3" is visible with command "nmcli connection show con_ipv4"
 
 
-   
+
     @dhcp_option_domain_search
     Scenario: DHCPv4 domain search option parsing
     * Prepare simulated test "testX4" device with dhcp option "option:domain-search,corp.example.com,db.example.com,test.com"
