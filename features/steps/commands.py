@@ -513,3 +513,29 @@ def check_no_coredump(context, seconds):
         if context.crash_embeded:
             assert False, "Coredump found"
         time.sleep(1)
+
+
+@step('Check "{family}" address list "{expected}" on device "{ifname}"')
+@step('Check "{family}" address list "{expected}" on device "{ifname}" in "{seconds}" seconds')
+def check_address_expect(context, family, expected, ifname, seconds=None):
+
+    expected = re.split(r"[,; ]+", expected)
+    if seconds is not None:
+        seconds = float(seconds)
+    family = nmci.ip.addr_family_norm(family)
+
+    try:
+        nmci.ip.address_expect(
+            expected=expected,
+            ifname=ifname,
+            match_mode='auto',
+            with_plen=True,
+            ignore_order=False,
+            ignore_extra=False,
+            addr_family=family,
+            wait_for_address=seconds,
+        )
+    except Exception:
+        print(">>> about to fail check_address_expect():")
+        os.system('ip -d address show')
+        raise

@@ -1608,3 +1608,26 @@
     * Execute "nmcli d reapply eth3"
     * Note the output of "ip -6 route list ::/0 dev eth3" as value "reverted"
     Then Check noted values "original" and "reverted" are the same
+
+
+    @rhbz1995372
+    @ver+=1.35
+    @con_ipv6_remove
+    @ipv6_check_addr_order
+    Scenario: nmcli - ipv6 - check IPv6 address order
+    * Add a new connection of type "ethernet" and options "ifname eth10 con-name con_ipv6 ipv4.method disabled ipv6.method auto ipv6.may-fail no ethernet.cloned-mac-address ee:aa:bb:cc:dd:ee ipv6.addr-gen-mode eui64 ipv6.ip6-privacy disabled"
+    * Bring "up" connection "con_ipv6"
+    Then Check "ipv6" address list "/2620:52:0:1086::[a-f0-9]+/128 2620:52:0:1086:ecaa:bbff:fecc:ddee/64 fe80::ecaa:bbff:fecc:ddee/64" on device "eth10"
+    * Execute "nmcli connection modify con_ipv6 ipv6.addresses '1:2:3::101/64,1:2:3::102/64'"
+    * Bring "up" connection "con_ipv6"
+    Then Check "ipv6" address list "/2620:52:0:1086::[a-f0-9]+/128 2620:52:0:1086:ecaa:bbff:fecc:ddee/64 1:2:3::102/64 1:2:3::101/64 fe80::ecaa:bbff:fecc:ddee/64" on device "eth10"
+    * Execute "nmcli connection modify con_ipv6 ipv6.addresses '1:2:3::101/64'"
+    * Bring "up" connection "con_ipv6"
+    Then Check "ipv6" address list "/2620:52:0:1086::[a-f0-9]+/128 2620:52:0:1086:ecaa:bbff:fecc:ddee/64 1:2:3::101/64 fe80::ecaa:bbff:fecc:ddee/64" on device "eth10"
+    * Execute "nmcli device modify eth10 +ipv6.addresses '1:2:3::103/64'"
+    Then Check "ipv6" address list "/2620:52:0:1086::[a-f0-9]+/128 2620:52:0:1086:ecaa:bbff:fecc:ddee/64 1:2:3::103/64 1:2:3::101/64 fe80::ecaa:bbff:fecc:ddee/64" on device "eth10" in "3" seconds
+    * Execute "nmcli device modify eth10 ipv6.addresses ''"
+    Then Check "ipv6" address list "/2620:52:0:1086::[a-f0-9]+/128 2620:52:0:1086:ecaa:bbff:fecc:ddee/64 fe80::ecaa:bbff:fecc:ddee/64" on device "eth10" in "3" seconds
+    * Execute "nmcli connection modify con_ipv6 ipv6.method manual ipv6.addresses '1:2:3::101/64,1:2:3::102/64,1:2:3::103/64'"
+    * Bring "up" connection "con_ipv6"
+    Then Check "ipv6" address list "1:2:3::103/64 1:2:3::102/64 1:2:3::101/64 fe80::ecaa:bbff:fecc:ddee/64" on device "eth10" in "3" seconds
