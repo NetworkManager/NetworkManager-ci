@@ -271,8 +271,17 @@ def execute_build(gt, content, os_version=default_os, features="best", build="ma
 
     params.append({"name": "RELEASE", "value": os_version})
 
-    if gt.repository == "NetworkManager":  # NM CODE will always use master NMCI
-        params.append({"name": "TEST_BRANCH", "value": "master"})
+    if gt.repository == "NetworkManager":
+        # NM CODE will use master unless we know branch mr/abcd exists
+        import requests
+        gitlab = "https://gitlab.freedesktop.org/NetworkManager/NetworkManager-ci"
+        branch = "mr/%s" %gt.merge_request_id
+        mapper = "/-/raw/%s/mapper.yaml" %branch
+        url = gitlab + branch
+        ret = requests.get(url).status_code
+        if ret != 200:
+            branch = "master"
+        params.append({"name": "TEST_BRANCH", "value": branch})
         params.append({"name": "REFSPEC", "value": gt.commit})
         project_dir = "NetworkManager-code-mr"
 
