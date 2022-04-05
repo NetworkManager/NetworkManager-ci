@@ -66,7 +66,6 @@ Feature: nmcli - wifi
     @nmcli_wifi_create_a_new_connection_for_an_open_network
     Scenario: nmcli - wifi - create a new connection for an open network
     * Add "wifi" connection named "qe-open" for device "wlan0" with options "autoconnect on ssid qe-open"
-    * Check ifcfg-name file created for connection "qe-open"
     Then "\*\s+qe-open" is visible with command "nmcli -f IN-USE,SSID device wifi list" in "30" seconds
     Then "qe-open" is visible with command "iw dev wlan0 link" in "30" seconds
 
@@ -75,7 +74,6 @@ Feature: nmcli - wifi
     @nmcli_wifi_connection_up_for_an_open_network
     Scenario: nmcli - wifi - connection up for an open network
     * Add "wifi" connection named "qe-open" for device "wlan0" with options "autoconnect off ssid qe-open"
-    * Check ifcfg-name file created for connection "qe-open"
     * Bring up connection "qe-open"
     Then "\*\s+qe-open" is visible with command "nmcli -f IN-USE,SSID device wifi list"
     Then "qe-open" is visible with command "iw dev wlan0 link"
@@ -85,7 +83,6 @@ Feature: nmcli - wifi
     @nmcli_wifi_connection_down_for_an_open_network
     Scenario: nmcli - wifi - connection down for an open network
     * Add "wifi" connection named "qe-open" for device "wlan0" with options "autoconnect off ssid qe-open"
-    * Check ifcfg-name file created for connection "qe-open"
     * Bring up connection "qe-open"
     * "\*\s+qe-open" is visible with command "nmcli -f IN-USE,SSID device wifi list"
     * "qe-open" is visible with command "iw dev wlan0 link"
@@ -98,7 +95,6 @@ Feature: nmcli - wifi
     @nmcli_wifi_infrastructure_mode_setting
     Scenario: nmcli - wifi - infrastructure mode setting
     * Add "wifi" connection named "qe-open" for device "wlan0" with options "autoconnect off ssid qe-open"
-    * Check ifcfg-name file created for connection "qe-open"
     * Open editor for connection "qe-open"
     * Set a property named "802-11-wireless.mode" to "infrastructure" in editor
     * Save in editor
@@ -116,7 +112,6 @@ Feature: nmcli - wifi
     Scenario: nmcli - wifi - adhoc open network
     Given Flag "NM_802_11_DEVICE_CAP_ADHOC" is set in WirelessCapabilites
     * Add "wifi" connection named "qe-adhoc" for device "wlan0" with options "autoconnect off ssid qe-adhoc"
-    * Check ifcfg-name file created for connection "qe-adhoc"
     * Open editor for connection "qe-adhoc"
     * Set a property named "802-11-wireless.mode" to "adhoc" in editor
     * Set a property named "ipv4.method" to "shared" in editor
@@ -134,7 +129,6 @@ Feature: nmcli - wifi
     Scenario: nmcli - wifi - ap open network
     Given Flag "NM_802_11_DEVICE_CAP_AP" is set in WirelessCapabilites
     * Add "wifi" connection named "qe-ap" for device "wlan0" with options "autoconnect off ssid qe-ap"
-    * Check ifcfg-name file created for connection "qe-ap"
     * Open editor for connection "qe-ap"
     * Set a property named "802-11-wireless.mode" to "ap" in editor
     * Set a property named "ipv4.method" to "shared" in editor
@@ -150,7 +144,6 @@ Feature: nmcli - wifi
     @nmcli_wifi_right_band
     Scenario: nmcli - wifi - right band
     * Add "wifi" connection named "qe-open" for device "wlan0" with options "autoconnect off ssid qe-open"
-    * Check ifcfg-name file created for connection "qe-open"
     * Open editor for connection "qe-open"
     * Set a property named "802-11-wireless.band" to "bg" in editor
     * Save in editor
@@ -166,7 +159,6 @@ Feature: nmcli - wifi
     Scenario: nmcli - wifi - right band - 802.11a
     Given Flag "NM_802_11_DEVICE_CAP_FREQ_5GHZ" is set in WirelessCapabilites
     * Add "wifi" connection named "qe-open" for device "wlan0" with options "autoconnect off ssid qe-open"
-    * Check ifcfg-name file created for connection "qe-open"
     * Open editor for connection "qe-open"
     * Set a property named "802-11-wireless.band" to "a" in editor
     * Save in editor
@@ -184,7 +176,6 @@ Feature: nmcli - wifi
     Scenario: nmcli - wifi - different than network's band
     Given Flag "NM_802_11_DEVICE_CAP_FREQ_5GHZ" is not set in WirelessCapabilites
     * Add "wifi" connection named "qe-open" for device "wlan0" with options "autoconnect off ssid qe-open"
-    * Check ifcfg-name file created for connection "qe-open"
     * Open editor for connection "qe-open"
     * Set a property named "802-11-wireless.band" to "a" in editor
     * Save in editor
@@ -199,7 +190,6 @@ Feature: nmcli - wifi
     @nmcli_wifi_setting_bogus_band
     Scenario: nmcli - wifi - setting bogus band
     * Add "wifi" connection named "qe-open" for device "wlan0" with options "autoconnect off ssid qe-open"
-    * Check ifcfg-name file created for connection "qe-open"
     * Open editor for connection "qe-open"
     * Set a property named "802-11-wireless.band" to "x" in editor
     Then See Error while saving in editor
@@ -219,7 +209,6 @@ Feature: nmcli - wifi
     @nmcli_wifi_set_channel
     Scenario: nmcli - wifi - set channel
     * Add "wifi" connection named "qe-wep" for device "wlan0" with options "autoconnect off ssid qe-wep"
-    * Check ifcfg-name file created for connection "qe-wep"
     * Open editor for connection "qe-wep"
     * Set a property named "802-11-wireless-security.key-mgmt" to "none" in editor
     * Set a property named "802-11-wireless-security.wep-key0" to "74657374696E67313233343536" in editor
@@ -239,7 +228,6 @@ Feature: nmcli - wifi
     @nmcli_wifi_set_channel_under_7
     Scenario: nmcli - wifi - set channel < 7 (bz 999999)
     * Add "wifi" connection named "qe-open" for device "wlan0" with options "autoconnect off ssid qe-open"
-    * Check ifcfg-name file created for connection "qe-open"
     * Open editor for connection "qe-open"
     * Set a property named "802-11-wireless.band" to "bg" in editor
     * Set a property named "802-11-wireless.channel" to "1" in editor
@@ -257,7 +245,6 @@ Feature: nmcli - wifi
     @nmcli_wifi_set_channel_13_and_14_bz_999999
     Scenario: nmcli - wifi - set channel 13 and 14 (bz 999999)
     * Add "wifi" connection named "qe-open" for device "wlan0" with options "autoconnect off ssid qe-open"
-    * Check ifcfg-name file created for connection "qe-open"
     * Open editor for connection "qe-open"
     * Set a property named "802-11-wireless.band" to "bg" in editor
     * Set a property named "802-11-wireless.channel" to "13" in editor
@@ -271,7 +258,6 @@ Feature: nmcli - wifi
     @nmcli_wifi_set_wrong_channel
     Scenario: nmcli - wifi - set wrong channel
     * Add "wifi" connection named "qe-open" for device "wlan0" with options "autoconnect off ssid qe-open"
-    * Check ifcfg-name file created for connection "qe-open"
     * Open editor for connection "qe-open"
     * Set a property named "802-11-wireless.band" to "bg" in editor
     * Set a property named "802-11-wireless.channel" to "3" in editor
@@ -296,7 +282,6 @@ Feature: nmcli - wifi
     @nmcli_wifi_set_nonexistent_bssid
     Scenario: nmcli - wifi - set non-existent bssid
     * Add "wifi" connection named "qe-open" for device "wlan0" with options "autoconnect off ssid qe-open"
-    * Check ifcfg-name file created for connection "qe-open"
     * Open editor for connection "qe-open"
     * Set a property named "802-11-wireless.bssid" to "00:11:22:33:44:55" in editor
     * Save in editor
@@ -476,10 +461,9 @@ Feature: nmcli - wifi
     * Check value saved message showed in editor
     * Quit editor
     * Bring up connection "qe-open"
-    Then "MTU=64" is visible with command "cat /etc/sysconfig/network-scripts/ifcfg-qe-open"
     Then "qe-open" is visible with command "iw dev wlan0 link"
     Then "\*\s+qe-open" is visible with command "nmcli -f IN-USE,SSID device wifi list"
-
+    Then "1280" is visible with command "ip a s wlan0"
 
     @rhbz1094298
     @wifi
@@ -497,7 +481,6 @@ Feature: nmcli - wifi
     @nmcli_wifi_set_and_connect_to_a_hidden_network
     Scenario: nmcli - wifi - set and connect to a hidden network
     * Add "wifi" connection named "qe-hidden-wpa2-psk" for device "wlan0" with options "autoconnect off ssid qe-hidden-wpa2-psk"
-    * Check ifcfg-name file created for connection "qe-hidden-wpa2-psk"
     * Open editor for connection "qe-hidden-wpa2-psk"
     * Set a property named "802-11-wireless-security.key-mgmt" to "wpa-psk" in editor
     * Set a property named "802-11-wireless.hidden" to "yes" in editor
@@ -621,7 +604,6 @@ Feature: nmcli - wifi
     @nmcli_wifisec_configure_and_connect_wpa2psk_profile
     Scenario: nmcli - wifi-sec - configure and connect WPA2-PSK profile
     * Add "wifi" connection named "qe-wpa2-psk" for device "wlan0" with options "autoconnect off ssid qe-wpa2-psk"
-    * Check ifcfg-name file created for connection "qe-wpa2-psk"
     * Open editor for connection "qe-wpa2-psk"
     * Set a property named "802-11-wireless-security.key-mgmt" to "wpa-psk" in editor
     * Set a property named "802-11-wireless-security.psk" to "over the river and through the woods" in editor
@@ -638,7 +620,6 @@ Feature: nmcli - wifi
     @nmcli_wifisec_configure_and_connect_wpa1psk_profile
     Scenario: nmcli - wifi-sec - configure and connect WPA1-PSK profile
     * Add "wifi" connection named "qe-wpa1-psk" for device "wlan0" with options "autoconnect off ssid qe-wpa1-psk"
-    * Check ifcfg-name file created for connection "qe-wpa1-psk"
     * Open editor for connection "qe-wpa1-psk"
     * Set a property named "802-11-wireless-security.key-mgmt" to "wpa-psk" in editor
     * Set a property named "802-11-wireless-security.psk" to "over the river and through the woods" in editor
@@ -655,7 +636,6 @@ Feature: nmcli - wifi
     @nmcli_wifisec_configure_and_connect_wep_hex_key_profile
     Scenario: nmcli - wifi-sec - configure and connect WEP hex key profile
     * Add "wifi" connection named "qe-wep" for device "wlan0" with options "autoconnect off ssid qe-wep"
-    * Check ifcfg-name file created for connection "qe-wep"
     * Open editor for connection "qe-wep"
     * Set a property named "802-11-wireless-security.key-mgmt" to "none" in editor
     * Set a property named "802-11-wireless-security.wep-key0" to "74657374696E67313233343536" in editor
@@ -673,7 +653,6 @@ Feature: nmcli - wifi
     @nmcli_wifisec_configure_and_connect_wep_ascii_key_profile
     Scenario: nmcli - wifi-sec - configure and connect WEP ascii key profile
     * Add "wifi" connection named "qe-wep" for device "wlan0" with options "autoconnect off ssid qe-wep"
-    * Check ifcfg-name file created for connection "qe-wep"
     * Open editor for connection "qe-wep"
     * Set a property named "802-11-wireless-security.key-mgmt" to "none" in editor
     * Set a property named "802-11-wireless-security.wep-key0" to "testing123456" in editor
@@ -691,7 +670,6 @@ Feature: nmcli - wifi
     @nmcli_wifisec_configure_and_connect_wep_phrase_profile
     Scenario: nmcli - wifi-sec - configure and connect WEP phrase profile
     * Add "wifi" connection named "qe-wep-psk" for device "wlan0" with options "autoconnect off ssid qe-wep-psk"
-    * Check ifcfg-name file created for connection "qe-wep-psk"
     * Open editor for connection "qe-wep-psk"
     * Set a property named "802-11-wireless-security.key-mgmt" to "none" in editor
     * Set a property named "802-11-wireless-security.wep-key0" to "testing123456" in editor
@@ -729,7 +707,6 @@ Feature: nmcli - wifi
     @nmcli_wifisec_configure_and_connect_wpa1ttls_profile
     Scenario: nmcli - wifi-sec - configure and connect WPA1-TTLS profile
     * Add "wifi" connection named "qe-wpa1-enterprise" for device "wlan0" with options "autoconnect off ssid qe-wpa1-enterprise"
-    * Check ifcfg-name file created for connection "qe-wpa1-enterprise"
     * Open editor for connection "qe-wpa1-enterprise"
     * Set a property named "802-11-wireless-security.key-mgmt" to "wpa-eap" in editor
     * Set a property named "802-1x.eap" to "ttls" in editor
@@ -750,7 +727,6 @@ Feature: nmcli - wifi
     @nmcli_wifisec_configure_and_connect_wpa2peap_profile
     Scenario: nmcli - wifi-sec - configure and connect WPA2-PEAP profile
     * Add "wifi" connection named "qe-wpa2-enterprise" for device "wlan0" with options "autoconnect off ssid qe-wpa2-enterprise"
-    * Check ifcfg-name file created for connection "qe-wpa2-enterprise"
     * Open editor for connection "qe-wpa2-enterprise"
     * Set a property named "802-11-wireless-security.key-mgmt" to "wpa-eap" in editor
     * Set a property named "802-1x.eap" to "peap" in editor
@@ -772,7 +748,6 @@ Feature: nmcli - wifi
     @nmcli_wifisec_configure_and_connect_wpa2tls_profile
     Scenario: nmcli - wifi-sec - configure and connect WPA2-TLS profile
     * Add "wifi" connection named "qe-wpa2-enterprise" for device "wlan0" with options "autoconnect off ssid qe-wpa2-enterprise"
-    * Check ifcfg-name file created for connection "qe-wpa2-enterprise"
     * Open editor for connection "qe-wpa2-enterprise"
     * Set a property named "802-11-wireless-security.key-mgmt" to "wpa-eap" in editor
     * Set a property named "802-1x.eap" to "tls" in editor
@@ -794,7 +769,6 @@ Feature: nmcli - wifi
     @nmcli_wifisec_configure_and_connect_wpa2ttls_profile
     Scenario: nmcli - wifi-sec - configure and connect WPA2-TTLS profile
     * Add "wifi" connection named "qe-wpa2-enterprise" for device "wlan0" with options "autoconnect off ssid qe-wpa2-enterprise"
-    * Check ifcfg-name file created for connection "qe-wpa2-enterprise"
     * Open editor for connection "qe-wpa2-enterprise"
     * Set a property named "802-11-wireless-security.key-mgmt" to "wpa-eap" in editor
     * Set a property named "802-1x.eap" to "ttls" in editor
@@ -810,30 +784,11 @@ Feature: nmcli - wifi
     Then "qe-wpa2-enterprise" is visible with command "iw dev wlan0 link"
     Then "\*\s+qe-wpa2-enterprise" is visible with command "nmcli -f IN-USE,SSID device wifi list"
 
-#    @wifi @wireless_certs
-#    @nmcli_wifisec_configure_and_connect_wep_leap_profile
-#    Scenario: nmcli - wifi-sec - configure and connect WEP LEAP profile
-#    * Add "wifi" connection named "qe-wep-enterprise-cisco" for device "wlan0" with options "autoconnect off ssid qe-wep-enterprise-cisco"
-#    * Check ifcfg-name file created for connection "qe-wep-enterprise-cisco"
-#    * Open editor for connection "qe-wep-enterprise-cisco"
-#    * Set a property named "802-11-wireless-security.key-mgmt" to "ieee8021x" in editor
-#    * Set a property named "802-11-wireless-security.auth-alg" to "leap" in editor
-#    * Set a property named "802-11-wireless-security.leap-username" to "Bill Smith" in editor
-#    * Set a property named "802-11-wireless-security.leap-password" to "testing123" in editor
-#    * Save in editor
-#    * No error appeared in editor
-#    * Check value saved message showed in editor
-#    * Quit editor
-#    * Bring up connection "qe-wep-enterprise-cisco"
-#    Then "qe-wep-enterprise-cisco" is visible with command "iw dev wlan0 link"
-#    Then "\*\s+qe-wep-enterprise-cisco" is visible with command "nmcli -f IN-USE,SSID device wifi list"
-
 
     @wifi @rhelver-=8
     @nmcli_wifisec_configure_and_connect_weptls_profile
     Scenario: nmcli - wifi-sec - configure and connect WEP-TLS profile
     * Add "wifi" connection named "qe-wep-enterprise" for device "wlan0" with options "autoconnect off ssid qe-wep-enterprise"
-    * Check ifcfg-name file created for connection "qe-wep-enterprise"
     * Open editor for connection "qe-wep-enterprise"
     * Set a property named "802-11-wireless-security.key-mgmt" to "ieee8021x" in editor
     * Set a property named "802-1x.eap" to "tls" in editor
@@ -855,7 +810,6 @@ Feature: nmcli - wifi
     @nmcli_wifisec_configure_and_connect_wepttls_profile
     Scenario: nmcli - wifi-sec - configure and connect WEP-TTLS profile
     * Add "wifi" connection named "qe-wep-enterprise" for device "wlan0" with options "autoconnect off ssid qe-wep-enterprise"
-    * Check ifcfg-name file created for connection "qe-wep-enterprise"
     * Open editor for connection "qe-wep-enterprise"
     * Set a property named "802-11-wireless-security.key-mgmt" to "ieee8021x" in editor
     * Set a property named "802-1x.eap" to "ttls" in editor
@@ -876,15 +830,13 @@ Feature: nmcli - wifi
     @nmcli_wifi_remove_connection_while_up
     Scenario: nmcli - wifi - remove connection while up
     * Add "wifi" connection named "qe-open" for device "wlan0" with options "autoconnect off ssid qe-open"
-    * Check ifcfg-name file created for connection "qe-open"
     * Bring up connection "qe-open"
     * "\*\s+qe-open" is visible with command "nmcli -f IN-USE,SSID device wifi list"
     * "qe-open" is visible with command "iw dev wlan0 link"
     * Delete connection "qe-open"
-    Then ifcfg-"qe-open" file does not exist
     Then "qe-open" is not visible with command "iw dev wlan0 link"
 
-    @wifi
+    @wifi @ifcfg-rh
     @nmcli_wifi_remove_connection_while_down
     Scenario: nmcli - wifi - remove connection while down
     * Add "wifi" connection named "qe-open" for device "wlan0" with options "autoconnect off ssid qe-open"
@@ -897,7 +849,6 @@ Feature: nmcli - wifi
     @nmcli_wifisec_keymgmt_wrong_values
     Scenario: nmcli - wifi-sec - key-mgmt - wrong values
     * Add "wifi" connection named "qe-wep" for device "wlan0" with options "autoconnect off ssid qe-wep"
-    * Check ifcfg-name file created for connection "qe-wep"
     * Open editor for connection "qe-wep"
     * Set a property named "802-11-wireless-security.key-mgmt" to "ieee8021x123" in editor
     * Error appeared in editor
@@ -915,7 +866,6 @@ Feature: nmcli - wifi
     @nmcli_wifisec_weptxkeyidx_nondefault_wep_key
     Scenario: nmcli - wifi-sec - wep-tx-keyidx - non-default wep key
     * Add "wifi" connection named "qe-wep" for device "wlan0" with options "autoconnect off ssid qe-wep"
-    * Check ifcfg-name file created for connection "qe-wep"
     * Open editor for connection "qe-wep"
     * Set a property named "802-11-wireless-security.key-mgmt" to "none" in editor
     * Set a property named "802-11-wireless-security.wep-tx-keyidx" to "0" in editor
@@ -938,7 +888,6 @@ Feature: nmcli - wifi
     @nmcli_wifisec_weptxkeyidx_bogus_key_id
     Scenario: nmcli - wifi-sec - wep-tx-keyidx - bogus key id
     * Add "wifi" connection named "qe-wep" for device "wlan0" with options "autoconnect off ssid qe-wep"
-    * Check ifcfg-name file created for connection "qe-wep"
     * Open editor for connection "qe-wep"
     * Set a property named "802-11-wireless-security.key-mgmt" to "none" in editor
     * No error appeared in editor
@@ -958,7 +907,6 @@ Feature: nmcli - wifi
     @nmcli_wifisec_authalg_wep_open_key
     Scenario: nmcli - wifi-sec - auth-alg - wep open key
     * Add "wifi" connection named "qe-wep" for device "wlan0" with options "autoconnect off ssid qe-wep"
-    * Check ifcfg-name file created for connection "qe-wep"
     * Open editor for connection "qe-wep"
     * Set a property named "802-11-wireless-security.key-mgmt" to "none" in editor
     * Set a property named "802-11-wireless-security.auth-alg" to "open" in editor
@@ -977,7 +925,6 @@ Feature: nmcli - wifi
     @nmcli_wifisec_authalg_wep_shared_key
     Scenario: nmcli - wifi-sec - auth-alg - wep shared key
     * Add "wifi" connection named "qe-wep" for device "wlan0" with options "autoconnect off ssid qe-wep"
-    * Check ifcfg-name file created for connection "qe-wep"
     * Open editor for connection "qe-wep"
     * Set a property named "802-11-wireless-security.key-mgmt" to "none" in editor
     * Set a property named "802-11-wireless-security.auth-alg" to "shared" in editor
@@ -996,7 +943,6 @@ Feature: nmcli - wifi
     @nmcli_wifisec_authalg_bogus_values_and_leap_with_wrong_keymgmt
     Scenario: nmcli - wifi-sec - auth-alg - bogus values and leap with wrong key-mgmt
     * Add "wifi" connection named "qe-wep" for device "wlan0" with options "autoconnect off ssid qe-wep"
-    * Check ifcfg-name file created for connection "qe-wep"
     * Open editor for connection "qe-wep"
     * Set a property named "802-11-wireless-security.key-mgmt" to "none" in editor
     * No error appeared in editor
@@ -1018,7 +964,6 @@ Feature: nmcli - wifi
     @nmcli_wifisec_proto_rsn
     Scenario: nmcli - wifi-sec - proto - rsn
     * Add "wifi" connection named "qe-wpa2-psk" for device "wlan0" with options "autoconnect off ssid qe-wpa2-psk"
-    * Check ifcfg-name file created for connection "qe-wpa2-psk"
     * Open editor for connection "qe-wpa2-psk"
     * Set a property named "802-11-wireless-security.key-mgmt" to "wpa-psk" in editor
     * Set a property named "802-11-wireless-security.psk" to "over the river and through the woods" in editor
@@ -1036,7 +981,6 @@ Feature: nmcli - wifi
     @nmcli_wifisec_proto_wpa
     Scenario: nmcli - wifi-sec - proto - wpa
     * Add "wifi" connection named "qe-wpa1-psk" for device "wlan0" with options "autoconnect off ssid qe-wpa1-psk"
-    * Check ifcfg-name file created for connection "qe-wpa1-psk"
     * Open editor for connection "qe-wpa1-psk"
     * Set a property named "802-11-wireless-security.key-mgmt" to "wpa-psk" in editor
     * Set a property named "802-11-wireless-security.psk" to "over the river and through the woods" in editor
@@ -1054,7 +998,6 @@ Feature: nmcli - wifi
     @nmcli_wifisec_unmatching_proto
     Scenario: nmcli - wifi-sec - unmatching proto
     * Add "wifi" connection named "qe-wpa2-psk" for device "wlan0" with options "autoconnect off ssid qe-wpa2-psk"
-    * Check ifcfg-name file created for connection "qe-wpa2-psk"
     * Open editor for connection "qe-wpa2-psk"
     * Set a property named "802-11-wireless-security.key-mgmt" to "wpa-psk" in editor
     * Set a property named "802-11-wireless-security.psk" to "over the river and through the woods" in editor
@@ -1073,7 +1016,6 @@ Feature: nmcli - wifi
     @nmcli_wifisec_pairwise_ccmp
     Scenario: nmcli - wifi-sec - pairwise - ccmp
     * Add "wifi" connection named "qe-wpa2-psk" for device "wlan0" with options "autoconnect off ssid qe-wpa2-psk"
-    * Check ifcfg-name file created for connection "qe-wpa2-psk"
     * Open editor for connection "qe-wpa2-psk"
     * Set a property named "802-11-wireless-security.key-mgmt" to "wpa-psk" in editor
     * Set a property named "802-11-wireless-security.psk" to "over the river and through the woods" in editor
@@ -1089,31 +1031,10 @@ Feature: nmcli - wifi
     Then "\*\s+qe-wpa2-psk" is visible with command "nmcli -f IN-USE,SSID device wifi list"
 
 
-#    @wifi
-#    @nmcli_wifisec_pairwise_tkip
-#    Scenario: nmcli - wifi-sec - pairwise - tkip
-#    * Add "wifi" connection named "qe-wpa1-psk" for device "wlan0" with options "autoconnect off ssid qe-wpa1-psk"
-#    * Check ifcfg-name file created for connection "qe-wpa1-psk"
-#    * Open editor for connection "qe-wpa1-psk"
-#    * Set a property named "802-11-wireless-security.key-mgmt" to "wpa-psk" in editor
-#    * Set a property named "802-11-wireless-security.psk" to "over the river and through the woods" in editor
-#    * Set a property named "802-11-wireless-security.pairwise" to "tkip" in editor
-#    * Save in editor
-#    * No error appeared in editor
-#    * Check value saved message showed in editor
-#    * Quit editor
-#    * Start following journal
-#    * Bring up connection "qe-wpa1-psk"
-#    Then Look for "added 'pairwise' value 'TKIP'" in journal
-#    Then "qe-wpa1-psk" is visible with command "iw dev wlan0 link"
-#    Then "\*\s+qe-wpa1-psk" is visible with command "nmcli -f IN-USE,SSID device wifi list"
-
-
     @wifi
     @nmcli_wifisec_unmatching_pairwise
     Scenario: nmcli - wifi-sec - unmatching pairwise
     * Add "wifi" connection named "qe-wpa2-psk" for device "wlan0" with options "autoconnect off ssid qe-wpa2-psk"
-    * Check ifcfg-name file created for connection "qe-wpa2-psk"
     * Open editor for connection "qe-wpa2-psk"
     * Set a property named "802-11-wireless-security.key-mgmt" to "wpa-psk" in editor
     * Set a property named "802-11-wireless-security.psk" to "over the river and through the woods" in editor
@@ -1132,7 +1053,6 @@ Feature: nmcli - wifi
     @nmcli_wifisec_group_ccmp
     Scenario: nmcli - wifi-sec - group - ccmp
     * Add "wifi" connection named "qe-wpa2-psk" for device "wlan0" with options "autoconnect off ssid qe-wpa2-psk"
-    * Check ifcfg-name file created for connection "qe-wpa2-psk"
     * Open editor for connection "qe-wpa2-psk"
     * Set a property named "802-11-wireless-security.key-mgmt" to "wpa-psk" in editor
     * Set a property named "802-11-wireless-security.psk" to "over the river and through the woods" in editor
@@ -1148,31 +1068,10 @@ Feature: nmcli - wifi
     Then "\*\s+qe-wpa2-psk" is visible with command "nmcli -f IN-USE,SSID device wifi list"
 
 
-#    @wifi
-#    @nmcli_wifisec_group_tkip
-#    Scenario: nmcli - wifi-sec - group - tkip
-#    * Add "wifi" connection named "qe-wpa1-psk" for device "wlan0" with options "autoconnect off ssid qe-wpa1-psk"
-#    * Check ifcfg-name file created for connection "qe-wpa1-psk"
-#    * Open editor for connection "qe-wpa1-psk"
-#    * Set a property named "802-11-wireless-security.key-mgmt" to "wpa-psk" in editor
-#    * Set a property named "802-11-wireless-security.psk" to "over the river and through the woods" in editor
-#    * Set a property named "802-11-wireless-security.group" to "tkip" in editor
-#    * Save in editor
-#    * No error appeared in editor
-#    * Check value saved message showed in editor
-#    * Quit editor
-#    * Start following journal
-#    * Bring up connection "qe-wpa1-psk"
-#    Then Look for "added 'group' value 'TKIP'" in journal
-#    Then "qe-wpa1-psk" is visible with command "iw dev wlan0 link"
-#    Then "\*\s+qe-wpa1-psk" is visible with command "nmcli -f IN-USE,SSID device wifi list"
-
-
     @wifi
     @nmcli_wifisec_unmatching_group
     Scenario: nmcli - wifi-sec - unmatching group
     * Add "wifi" connection named "qe-wpa2-psk" for device "wlan0" with options "autoconnect off ssid qe-wpa2-psk"
-    * Check ifcfg-name file created for connection "qe-wpa2-psk"
     * Open editor for connection "qe-wpa2-psk"
     * Set a property named "802-11-wireless-security.key-mgmt" to "wpa-psk" in editor
     * Set a property named "802-11-wireless-security.psk" to "over the river and through the woods" in editor
@@ -1191,7 +1090,6 @@ Feature: nmcli - wifi
     @nmcli_wifisec_set_all_wep_keys
     Scenario: nmcli - wifi-sec - set all wep keys
     * Add "wifi" connection named "qe-wep" for device "wlan0" with options "autoconnect off ssid qe-wep"
-    * Check ifcfg-name file created for connection "qe-wep"
     * Open editor for connection "qe-wep"
     * Set a property named "802-11-wireless-security.key-mgmt" to "none" in editor
     * Set a property named "802-11-wireless-security.wep-key0" to "testing123456" in editor
@@ -1210,7 +1108,6 @@ Feature: nmcli - wifi
     @nmcli_wifisec_wepkeytype_autodetection_passphrase
     Scenario: nmcli - wifi-sec - wep-key-type auto-detection - passphrase
     * Add "wifi" connection named "qe-wep" for device "wlan0" with options "autoconnect off ssid qe-wep"
-    * Check ifcfg-name file created for connection "qe-wep"
     * Open editor for connection "qe-wep"
     * Set a property named "802-11-wireless-security.key-mgmt" to "none" in editor
     * Set a property named "802-11-wireless-security.wep-key0" to "123" in editor
@@ -1230,7 +1127,6 @@ Feature: nmcli - wifi
     @nmcli_wifisec_psk_validity
     Scenario: nmcli - wifi-sec - psk validity
     * Add "wifi" connection named "qe-wpa2-psk" for device "wlan0" with options "autoconnect off ssid qe-wpa2-psk"
-    * Check ifcfg-name file created for connection "qe-wpa2-psk"
     * Open editor for connection "qe-wpa2-psk"
     * Set a property named "802-11-wireless-security.key-mgmt" to "wpa-psk" in editor
     * Set a property named "802-11-wireless-security.psk" to "valid size and input for ascii psk @#$%^&*()[]{}" in editor
@@ -1252,7 +1148,6 @@ Feature: nmcli - wifi
     @nmcli_wifisec_psk_validity
     Scenario: nmcli - wifi-sec - psk validity
     * Add "wifi" connection named "qe-wpa2-psk" for device "wlan0" with options "autoconnect off ssid qe-wpa2-psk"
-    * Check ifcfg-name file created for connection "qe-wpa2-psk"
     * Open editor for connection "qe-wpa2-psk"
     * Set a property named "802-11-wireless-security.key-mgmt" to "wpa-psk" in editor
     * Set a property named "802-11-wireless-security.psk" to "valid size and input for ascii psk @#$%^&*()[]{}" in editor
@@ -1281,7 +1176,6 @@ Feature: nmcli - wifi
     @nmcli_wifisec_invalid_psk_save_no_delay
     Scenario: nmcli - wifi-sec - invalid psk no 10s delay on save
     * Add "wifi" connection named "qe-wpa2-psk" for device "wlan0" with options "autoconnect off ssid qe-wpa2-psk"
-    * Check ifcfg-name file created for connection "qe-wpa2-psk"
     * Open editor for connection "qe-wpa2-psk"
     * Set a property named "802-11-wireless-security.key-mgmt" to "wpa-psk" in editor
     * Set a property named "802-11-wireless-security.psk" to "short12" in editor
@@ -1456,7 +1350,6 @@ Feature: nmcli - wifi
     @nmcli_wifi_keep_secrets_after_modification
     Scenario: nmcli - wifi-sec - keep secrets after connection modification
     * Add "wifi" connection named "qe-wpa2-psk" for device "wlan0" with options "autoconnect off ssid qe-wpa2-psk"
-    * Check ifcfg-name file created for connection "qe-wpa2-psk"
     * Open editor for connection "qe-wpa2-psk"
     * Set a property named "802-11-wireless-security.key-mgmt" to "wpa-psk" in editor
     * Set a property named "802-11-wireless-security.psk" to "over the river and through the woods" in editor
