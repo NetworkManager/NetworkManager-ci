@@ -2194,7 +2194,7 @@ testmapper:
     - simwifi_open_connect:
         feature: wifi_hwsim
         tags: hostapd
-    - simwifi_open_connect_static_with_parameters:
+    - simwifi_open_autoconnect_static_with_parameters:
         feature: wifi_hwsim
         tags: hostapd
     - simwifi_wep_ask_passwd:
