@@ -128,6 +128,8 @@ install_el9_packages () {
 
     # Enable debug logs for wpa_supplicant
     sed -i 's!OTHER_ARGS="-s"!OTHER_ARGS="-s -dddK"!' /etc/sysconfig/wpa_supplicant
+    # Enable TLS 1.0 for old cisco APs
+    sed -i 's/TLS.MinProtocol = TLSv1.2/TLS.MinProtocol = TLSv1.0/' /etc/crypto-policies/back-ends/opensslcnf.config
 
     # Remove cloud-init dns
     rm -rf /etc/NetworkManager/conf.d/99-cloud-init.conf
@@ -145,5 +147,6 @@ install_el9_packages () {
     echo -e "[Match]\nOriginalName=*\n[Link]\nMACAddressPolicy=none" > /etc/systemd/network/00-NM.link
     sleep 0.5
     systemctl restart systemd-udevd
+    systemctl restart wpa_supplicant
 
 }

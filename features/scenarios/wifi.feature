@@ -683,10 +683,18 @@ Feature: nmcli - wifi
     Then "\*\s+qe-wep-psk" is visible with command "nmcli -f IN-USE,SSID device wifi list"
 
 
-    @wifi @wireless_certs
+    @wifi @wireless_certs @attach_wpa_supplicant_log
     @nmcli_wifisec_configure_and_connect_wpa1peap_profile
     Scenario: nmcli - wifi-sec - configure and connect WPA1-PEAP profile
-    * Add "wifi" connection named "qe-wpa1-enterprise" for device "wlan0" with options "autoconnect off ssid qe-wpa1-enterprise 802-11-wireless-security.key-mgmt wpa-eap 802-1x.eap peap 802-1x.phase2-auth gtc 802-1x.identity 'Bill Smith' 802-1x.password testing123 802-1x.ca-cert 'file:///tmp/certs/eaptest_ca_cert.pem'"
+    * Add "wifi" connection named "qe-wpa1-enterprise" for device "wlan0" with options
+        """
+        autoconnect off
+        ssid qe-wpa1-enterprise
+        802-11-wireless-security.key-mgmt wpa-eap
+        802-1x.eap peap 802-1x.phase2-auth gtc
+        802-1x.identity 'Bill Smith' 802-1x.password testing123
+        802-1x.ca-cert 'file:///tmp/certs/eaptest_ca_cert.pem'
+        """
     * Execute "sleep 1"
     * Bring up connection "qe-wpa1-enterprise"
     Then "qe-wpa1-enterprise" is visible with command "iw dev wlan0 link"
