@@ -1399,7 +1399,7 @@ Feature: nmcli - wifi
 
     @rhbz1115564 @rhbz1184530
     @ver+=1.14
-    @wifi
+    @wifi @ifcfg-rh
     @nmcli_wifi_add_certificate_as_blob_saved
     Scenario: nmcli - wifi - save certificate blob
     * Execute "/usr/bin/python contrib/dbus/dbus-set-wifi-tls-blob.py Saved"
