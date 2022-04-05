@@ -10,9 +10,8 @@
     @ifcfg-rh
     @alias_ifcfg_add_single_alias
     Scenario: ifcfg - alias - add single alias
-    * Add a new connection of type "ethernet" named "eth7" and options 
+    * Add "ethernet" connection named "eth7" for device "eth7" with options
         """
-        ifname eth7
         autoconnect yes
         ipv4.may-fail no
         ipv4.method manual
@@ -32,9 +31,8 @@
     @ifcfg-rh
     @alias_ifcfg_add_multiple_aliases
     Scenario: ifcfg - alias - add mutliple aliases
-    * Add a new connection of type "ethernet" named "eth7" and options 
+    * Add "ethernet" connection named "eth7" for device "eth7" with options
         """
-        ifname eth7
         autoconnect yes
         ipv4.may-fail no
         ipv4.method manual
@@ -68,9 +66,8 @@
     @alias @ifcfg-rh
     @alias_ifcfg_connection_restart
     Scenario: ifcfg - alias - connection restart
-    * Add a new connection of type "ethernet" named "eth7" and options 
+    * Add "ethernet" connection named "eth7" for device "eth7" with options
         """
-        ifname eth7
         autoconnect yes
         ipv4.may-fail no
         ipv4.method manual
@@ -106,9 +103,8 @@
     @alias @ifcfg-rh
     @alias_ifcfg_remove_single_alias
     Scenario: ifcfg - alias - remove single alias
-    * Add a new connection of type "ethernet" named "eth7" and options 
+    * Add "ethernet" connection named "eth7" for device "eth7" with options
         """
-        ifname eth7
         autoconnect yes
         ipv4.may-fail no
         ipv4.method manual
@@ -145,9 +141,8 @@
     @alias @ifcfg-rh
     @alias_ifcfg_remove_all_aliases
     Scenario: ifcfg - alias - remove all aliases
-    * Add a new connection of type "ethernet" named "eth7" and options 
+    * Add "ethernet" connection named "eth7" for device "eth7" with options
         """
-        ifname eth7
         autoconnect yes
         ipv4.may-fail no
         ipv4.method manual
@@ -192,9 +187,8 @@
     @alias @restart_if_needed @ifcfg-rh
     @alias_ifcfg_reboot
     Scenario: ifcfg - alias - reboot
-    * Add a new connection of type "ethernet" named "eth7" and options 
+    * Add "ethernet" connection named "eth7" for device "eth7" with options
         """
-        ifname eth7
         autoconnect yes
         ipv4.may-fail no
         ipv4.method manual

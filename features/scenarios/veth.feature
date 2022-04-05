@@ -12,8 +12,8 @@ Feature: nmcli: veth
     @ver+=1.29
     @veth_profile_add
     Scenario: nmcli - veth - add profile
-    * Add a new connection of type "veth" named "con_veth1" for device "veth11" and options "veth.peer veth12"
-    * Add a new connection of type "veth" named "con_veth2" for device "veth12" and options "veth.peer veth11 ipv4.method shared"
+    * Add "veth" connection named "con_veth1" for device "veth11" with options "veth.peer veth12"
+    * Add "veth" connection named "con_veth2" for device "veth12" with options "veth.peer veth11 ipv4.method shared"
     * Bring "up" connection "con_veth2"
     When "activated" is visible with command "nmcli -g GENERAL.STATE con show con_veth1" in "45" seconds
     When "activated" is visible with command "nmcli -g GENERAL.STATE con show con_veth2" in "45" seconds
@@ -26,8 +26,8 @@ Feature: nmcli: veth
     @ver+=1.29
     @veth_profile_remove
     Scenario: nmcli - veth - remove profile
-    * Add a new connection of type "veth" named "con_veth1" for device "veth11" and options "veth.peer veth12 ip4 10.42.0.2"
-    * Add a new connection of type "veth" named "con_veth2" for device "veth12" and options "veth.peer veth11 ip4 10.42.0.1"
+    * Add "veth" connection named "con_veth1" for device "veth11" with options "veth.peer veth12 ip4 10.42.0.2"
+    * Add "veth" connection named "con_veth2" for device "veth12" with options "veth.peer veth11 ip4 10.42.0.1"
     * Bring "up" connection "con_veth2"
     When "activated" is visible with command "nmcli -g GENERAL.STATE con show con_veth1" in "45" seconds
     When "activated" is visible with command "nmcli -g GENERAL.STATE con show con_veth2" in "45" seconds
@@ -51,8 +51,8 @@ Feature: nmcli: veth
     @ver+=1.29
     @veth_device_remove
     Scenario: nmcli - veth - remove device
-    * Add a new connection of type "veth" named "con_veth1" for device "veth11" and options "veth.peer veth12 ip4 10.42.0.2"
-    * Add a new connection of type "veth" named "con_veth2" for device "veth12" and options "veth.peer veth11 ip4 10.42.0.1"
+    * Add "veth" connection named "con_veth1" for device "veth11" with options "veth.peer veth12 ip4 10.42.0.2"
+    * Add "veth" connection named "con_veth2" for device "veth12" with options "veth.peer veth11 ip4 10.42.0.1"
     * Bring "up" connection "con_veth2"
     When "activated" is visible with command "nmcli -g GENERAL.STATE con show con_veth1" in "45" seconds
     When "activated" is visible with command "nmcli -g GENERAL.STATE con show con_veth2" in "45" seconds
@@ -74,8 +74,8 @@ Feature: nmcli: veth
     # @veth_remove @restart_if_needed
     # @veth_profile_restart_persistnce
     # Scenario: nmcli - veth - restart persistence
-    # * Add a new connection of type "veth" and options "con-name con_veth1 ifname veth11 veth.peer veth12 ip4 10.42.0.2"
-    # * Add a new connection of type "veth" and options "con-name con_veth2 ifname veth12 veth.peer veth11 ip4 10.42.0.1"
+    # * Add "veth" connection named "con_veth1" for device "veth11" with options "veth.peer veth12 ip4 10.42.0.2"
+    # * Add "veth" connection named "con_veth2" for device "veth12" with options "veth.peer veth11 ip4 10.42.0.1"
     # * Bring "up" connection "con_veth1"
     # * Bring "up" connection "con_veth2"
     # When "activated" is visible with command "nmcli -g GENERAL.STATE con show con_veth1" in "45" seconds

@@ -14,9 +14,9 @@ Feature: nmcli - ppp
     * Execute "ip link set dev test11 up"
     * Prepare pppoe server for user "test" with "networkmanager" password and IP "192.168.111.2" authenticated via "pap"
     * Start pppoe server with "isp" and IP "192.168.111.254" on device "test12"
-    * Add a new connection of type "pppoe" and options
+    * Add "pppoe" connection named "ppp" for device "my-ppp" with options
                 """
-                con-name ppp ifname my-ppp pppoe.parent test11
+                pppoe.parent test11
                 service isp username test password networkmanager
                 autoconnect no
                 """
@@ -34,9 +34,9 @@ Feature: nmcli - ppp
     * Execute "ip link set dev test11 up"
     * Prepare pppoe server for user "test" with "networkmanager" password and IP "192.168.111.2" authenticated via "chap"
     * Start pppoe server with "isp" and IP "192.168.111.254" on device "test12"
-    * Add a new connection of type "pppoe" and options
+    * Add "pppoe" connection named "ppp" for device "my-ppp" with options
                 """
-                con-name ppp ifname my-ppp pppoe.parent test11
+                pppoe.parent test11
                 service isp username test password networkmanager
                 autoconnect no
                 """
@@ -54,9 +54,9 @@ Feature: nmcli - ppp
     * Execute "ip link set dev test11 up"
     * Prepare pppoe server for user "test" with "networkmanager" password and IP "192.168.111.2" authenticated via "chap"
     * Start pppoe server with "isp" and IP "192.168.111.254" on device "test12"
-    * Add a new connection of type "pppoe" and options
+    * Add "pppoe" connection named "ppp" for device "my-ppp" with options
                 """
-                con-name ppp ifname my-ppp pppoe.parent test11
+                pppoe.parent test11
                 service isp username test password networkmanager
                 autoconnect no
                 """
@@ -77,9 +77,9 @@ Feature: nmcli - ppp
     * Execute "ip link set dev test11 up"
     * Prepare pppoe server for user "test" with "networkmanager" password and IP "192.168.111.2" authenticated via "pap"
     * Start pppoe server with "isp" and IP "192.168.111.254" on device "test12"
-    * Add a new connection of type "pppoe" and options
+    * Add "pppoe" connection named "ppp" for device "my-ppp" with options
                 """
-                con-name ppp ifname my-ppp pppoe.parent test11
+                pppoe.parent test11
                 service isp username test password networkmanager
                 autoconnect no
                 """
@@ -114,9 +114,9 @@ Feature: nmcli - ppp
     * Execute "ip link set vlan2 up"
     * Prepare pppoe server for user "test" with "networkmanager" password and IP "192.168.111.2" authenticated via "pap"
     * Start pppoe server with "isp" and IP "192.168.111.254" on device "vlan1"
-    * Add a new connection of type "pppoe" and options
+    * Add "pppoe" connection named "ppp" for device "my-ppp" with options
                 """
-                con-name ppp ifname my-ppp pppoe.parent vlan2
+                pppoe.parent vlan2
                 service isp username test password networkmanager
                 autoconnect no
                 """
@@ -135,15 +135,14 @@ Feature: nmcli - ppp
     * Execute "ip link set test12 up"
     * Prepare pppoe server for user "test" with "networkmanager" password and IP "192.168.99.2" authenticated via "pap"
     * Start pppoe server with "isp" and IP "192.168.99.254" on device "test12"
-    * Add a new connection of type "ethernet" and options
+    * Add "ethernet" connection named "ppp2" for device "test11" with options
                 """
-                con-name ppp2 ifname test11
                 ipv4.method manual ipv4.addresses 192.168.99.123/24
                 ipv4.gateway 192.168.99.1
                 """\
-    * Add a new connection of type "pppoe" and options
+    * Add "pppoe" connection named "ppp" for device "my-ppp" with options
                 """
-                con-name ppp ifname my-ppp pppoe.parent test11
+                pppoe.parent test11
                 service isp username test password networkmanager
                 """
     When "activated" is visible with command "nmcli -g GENERAL.STATE con show ppp" in "45" seconds

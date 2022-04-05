@@ -69,9 +69,8 @@ Feature: nmcli: adsl
     @rhbz1264089
     @add_adsl_connection
     Scenario: nmcli - adsl - create adsl connection
-    * Add a new connection of type "adsl" named "adsl-test11" and options
+    * Add "adsl" connection named "adsl-test11" for device "adsl" with options
         """
-        ifname adsl
         username test
         password S3c4!t
         protocol pppoe

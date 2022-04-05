@@ -11,7 +11,7 @@ Feature: nmcli - bridge
     @ver-=1.24
     @bridge_options
     Scenario: nmcli - bridge - add custom bridge
-    * Add a new connection of type "bridge" named "br88" for device "br88" and options "autoconnect no priority 5 forward-delay 3 hello-time 3 max-age 15 ageing-time 500000"
+    * Add "bridge" connection named "br88" for device "br88" with options "autoconnect no priority 5 forward-delay 3 hello-time 3 max-age 15 ageing-time 500000"
     * Bring up connection "br88" ignoring error
     Then "br88" is visible with command "ip link show type bridge"
     Then "DELAY=3.*BRIDGING_OPTS=\"priority=5 hello_time=3 max_age=15 ageing_time=500000\".*NAME=br88.*ONBOOT=no" is visible with command "cat /etc/sysconfig/network-scripts/ifcfg-br88"
@@ -21,7 +21,7 @@ Feature: nmcli - bridge
     @rhelver+=8
     @bridge_options
     Scenario: nmcli - bridge - add custom bridge
-    * Add a new connection of type "bridge" named "br88" for device "br88" and options "ageing-time 10 forward-delay 5 bridge.group-address 01:80:C2:00:00:04 group-forward-mask 8 hello-time 3 bridge.mac-address 02:02:02:02:02:02 max-age 15 bridge.multicast-hash-max 4 bridge.multicast-last-member-count 2 bridge.multicast-last-member-interval 2 bridge.multicast-membership-interval 2 bridge.multicast-querier yes bridge.multicast-querier-interval 3 bridge.multicast-query-interval 200 bridge.multicast-query-response-interval 3 bridge.multicast-query-use-ifaddr yes bridge.multicast-router enable bridge.multicast-snooping true bridge.multicast-startup-query-count 2 bridge.multicast-startup-query-interval 500 ip4 192.0.2.1/24 bridge.vlan-filtering 1 bridge.vlan-protocol 802.1ad bridge.vlan-stats-enabled 1"
+    * Add "bridge" connection named "br88" for device "br88" with options "ageing-time 10 forward-delay 5 bridge.group-address 01:80:C2:00:00:04 group-forward-mask 8 hello-time 3 bridge.mac-address 02:02:02:02:02:02 max-age 15 bridge.multicast-hash-max 4 bridge.multicast-last-member-count 2 bridge.multicast-last-member-interval 2 bridge.multicast-membership-interval 2 bridge.multicast-querier yes bridge.multicast-querier-interval 3 bridge.multicast-query-interval 200 bridge.multicast-query-response-interval 3 bridge.multicast-query-use-ifaddr yes bridge.multicast-router enable bridge.multicast-snooping true bridge.multicast-startup-query-count 2 bridge.multicast-startup-query-interval 500 ip4 192.0.2.1/24 bridge.vlan-filtering 1 bridge.vlan-protocol 802.1ad bridge.vlan-stats-enabled 1"
     * Bring up connection "br88" ignoring error
     Then "br88" is visible with command "ip link show type bridge"
     Then "1000" is visible with command "cat /sys/class/net/br88/bridge/ageing_time"
@@ -51,7 +51,7 @@ Feature: nmcli - bridge
     @rhelver+=8
     @bridge_options
     Scenario: nmcli - bridge - add custom bridge
-    * Add a new connection of type "bridge" named "br88" for device "br88" and options "ageing-time 10 forward-delay 5 bridge.group-address 01:80:C2:00:00:04 group-forward-mask 8 hello-time 3 bridge.mac-address 02:02:02:02:02:02 max-age 15 bridge.multicast-hash-max 4 bridge.multicast-last-member-count 2 bridge.multicast-last-member-interval 2 bridge.multicast-membership-interval 2 bridge.multicast-querier yes bridge.multicast-querier-interval 3 bridge.multicast-query-interval 200 bridge.multicast-query-response-interval 3 bridge.multicast-query-use-ifaddr yes bridge.multicast-router enable bridge.multicast-snooping true bridge.multicast-startup-query-count 2 bridge.multicast-startup-query-interval 500 ip4 192.0.2.1/24 bridge.vlan-filtering 1 bridge.vlan-protocol 802.1ad bridge.vlan-stats-enabled 1"
+    * Add "bridge" connection named "br88" for device "br88" with options "ageing-time 10 forward-delay 5 bridge.group-address 01:80:C2:00:00:04 group-forward-mask 8 hello-time 3 bridge.mac-address 02:02:02:02:02:02 max-age 15 bridge.multicast-hash-max 4 bridge.multicast-last-member-count 2 bridge.multicast-last-member-interval 2 bridge.multicast-membership-interval 2 bridge.multicast-querier yes bridge.multicast-querier-interval 3 bridge.multicast-query-interval 200 bridge.multicast-query-response-interval 3 bridge.multicast-query-use-ifaddr yes bridge.multicast-router enable bridge.multicast-snooping true bridge.multicast-startup-query-count 2 bridge.multicast-startup-query-interval 500 ip4 192.0.2.1/24 bridge.vlan-filtering 1 bridge.vlan-protocol 802.1ad bridge.vlan-stats-enabled 1"
     * Bring up connection "br88" ignoring error
     Then "br88" is visible with command "ip link show type bridge"
     Then "1000" is visible with command "cat /sys/class/net/br88/bridge/ageing_time"
@@ -84,7 +84,7 @@ Feature: nmcli - bridge
     @ver+=1.10.2 @ver-=1.24
     @bridge_add_forward_delay
     Scenario: nmcli - bridge - add forward delay
-    * Add a new connection of type "bridge" named "br88" for device "br88" and options "autoconnect no priority 5 group-forward-mask 8 ip4 1.2.3.4/24"
+    * Add "bridge" connection named "br88" for device "br88" with options "autoconnect no priority 5 group-forward-mask 8 ip4 1.2.3.4/24"
     * Bring "up" connection "br88"
     Then "br88" is visible with command "ip link show type bridge"
     And "BRIDGING_OPTS=\"priority=5 group_fwd_mask=8\"" is visible with command "cat /etc/sysconfig/network-scripts/ifcfg-br88"
@@ -95,7 +95,7 @@ Feature: nmcli - bridge
     @ver+=1.10.2
     @bridge_modify_forward_delay
     Scenario: nmcli - bridge - modify forward delay
-    * Add a new connection of type "bridge" named "br88" for device "br88" and options "autoconnect no priority 5 group-forward-mask 8 ip4 1.2.3.4/24"
+    * Add "bridge" connection named "br88" for device "br88" with options "autoconnect no priority 5 group-forward-mask 8 ip4 1.2.3.4/24"
     * Execute "nmcli con modify br88 bridge.group-forward-mask 0"
     * Bring "up" connection "br88"
     And "group_fwd_mask=8" is not visible with command "cat /etc/sysconfig/network-scripts/ifcfg-br88"
@@ -104,7 +104,7 @@ Feature: nmcli - bridge
 
     @bridge_connection_up
     Scenario: nmcli - bridge - up
-    * Add a new connection of type "bridge" named "br11" for device "br11" and options "autoconnect no bridge.stp no"
+    * Add "bridge" connection named "br11" for device "br11" with options "autoconnect no bridge.stp no"
     * "br11" is not visible with command "ip link show type bridge"
     * Bring up connection "br11" ignoring error
     Then "br11" is visible with command "ip link show type bridge"
@@ -112,7 +112,7 @@ Feature: nmcli - bridge
 
     @bridge_connection_down
     Scenario: nmcli - bridge - down
-    * Add a new connection of type "bridge" named "br11" for device "br11" and options "autoconnect no bridge.stp off ip4 192.168.1.15/24"
+    * Add "bridge" connection named "br11" for device "br11" with options "autoconnect no bridge.stp off ip4 192.168.1.15/24"
     * Bring up connection "br11" ignoring error
     * "br11" is visible with command "ip link show type bridge"
     * "inet 192.168.1.15" is visible with command "ip a s br11"
@@ -122,7 +122,7 @@ Feature: nmcli - bridge
 
     @bridge_disconnect_device
     Scenario: nmcli - bridge - disconnect device
-    * Add a new connection of type "bridge" named "br11" for device "br11" and options "bridge.stp off autoconnect no ip4 192.168.1.10/24"
+    * Add "bridge" connection named "br11" for device "br11" with options "bridge.stp off autoconnect no ip4 192.168.1.10/24"
     * Bring up connection "br11" ignoring error
     * "br11" is visible with command "ip link show type bridge"
     * "inet 192.168.1.10" is visible with command "ip a s br11"
@@ -152,7 +152,7 @@ Feature: nmcli - bridge
 
     @bridge_delete_connection
     Scenario: nmcli - bridge - delete connection
-    * Add a new connection of type "bridge" named "br11" for device "br11" and options "bridge.stp off"
+    * Add "bridge" connection named "br11" for device "br11" with options "bridge.stp off"
     * Bring up connection "br11" ignoring error
     * Delete connection "br11"
     Then ifcfg-"br11" file does not exist
@@ -160,7 +160,7 @@ Feature: nmcli - bridge
 
     @bridge_delete_connection_while_up
     Scenario: nmcli - bridge - delete connection while up
-    * Add a new connection of type "bridge" named "br12" for device "br12" and options "bridge.stp off autoconnect no ip4 192.168.1.19/24"
+    * Add "bridge" connection named "br12" for device "br12" with options "bridge.stp off autoconnect no ip4 192.168.1.19/24"
     * Bring up connection "br12" ignoring error
     * "inet 192.168.1.19" is visible with command "ip a s br12"
     * Delete connection "br12"
@@ -172,7 +172,7 @@ Feature: nmcli - bridge
     @ver-=1.24
     @bridge_set_mac
     Scenario: nmcli - bridge - set mac address
-    * Add a new connection of type "bridge" named "br12" for device "br12" and options "bridge.stp off autoconnect no"
+    * Add "bridge" connection named "br12" for device "br12" with options "bridge.stp off autoconnect no"
     * Open editor for connection "br12"
     * Set a property named "bridge.mac-address" to "f0:de:aa:fb:bb:cc" in editor
     * Save in editor
@@ -186,7 +186,7 @@ Feature: nmcli - bridge
     @ver+=1.8.0
     @bridge_set_mac_var1
     Scenario: nmcli - bridge - set mac address via two properties
-    * Add a new connection of type "bridge" named "br12" for device "br12" and options "autoconnect no bridge.stp off ethernet.cloned-mac-address 02:02:02:02:02:02"
+    * Add "bridge" connection named "br12" for device "br12" with options "autoconnect no bridge.stp off ethernet.cloned-mac-address 02:02:02:02:02:02"
     * Open editor for connection "br12"
     * Set a property named "bridge.mac-address" to "f0:de:aa:fb:bb:cc" in editor
     * Save in editor
@@ -201,7 +201,7 @@ Feature: nmcli - bridge
     #obsoleted by bridge_options test
     @bridge_set_mac_var2
     Scenario: nmcli - bridge - set mac address via ethernet only
-    * Add a new connection of type "bridge" named "br12" for device "br12" and options "autoconnect no bridge.stp off ethernet.cloned-mac-address 02:02:02:02:02:02"
+    * Add "bridge" connection named "br12" for device "br12" with options "autoconnect no bridge.stp off ethernet.cloned-mac-address 02:02:02:02:02:02"
     * Bring up connection "br12" ignoring error
     Then "ether 02:02:02:02:02:02" is visible with command "ip a s br12"
 
@@ -211,11 +211,11 @@ Feature: nmcli - bridge
     Scenario: nmcli - bridge - add slave
     #* Execute "nmcli dev con eth4"
     * Cleanup connection "bridge-slave-eth4.80"
-    * Add a new connection of type "bridge" named "br15" for device "br15" and options "autoconnect no bridge.stp off"
+    * Add "bridge" connection named "br15" for device "br15" with options "autoconnect no bridge.stp off"
     * Check ifcfg-name file created for connection "br15"
-    * Add a new connection of type "vlan" named "eth4.80" and options "dev eth4 id 80"
+    * Add "vlan" connection named "eth4.80" with options "dev eth4 id 80"
     * Check ifcfg-name file created for connection "eth4.80"
-    * Add a new connection of type "bridge-slave" and options "autoconnect no ifname eth4.80 master br15"
+    * Add "bridge-slave" connection with options "ifname eth4.80 autoconnect no master br15"
     Then "BRIDGE=br15" is visible with command "cat /etc/sysconfig/network-scripts/ifcfg-bridge-slave-eth4.80"
 
 
@@ -223,11 +223,11 @@ Feature: nmcli - bridge
     @bridge_remove_slave
     Scenario: nmcli - bridge - remove slave
     #* Execute "nmcli dev con eth4"
-    * Add a new connection of type "bridge" named "br15" for device "br15" and options "autoconnect no bridge.stp off"
+    * Add "bridge" connection named "br15" for device "br15" with options "autoconnect no bridge.stp off"
     * Check ifcfg-name file created for connection "br15"
-    * Add a new connection of type "vlan" named "eth4.80" and options "dev eth4 id 80"
+    * Add "vlan" connection named "eth4.80" with options "dev eth4 id 80"
     * Check ifcfg-name file created for connection "eth4.80"
-    * Add a new connection of type "bridge-slave" named "br15-slave" and options "autoconnect no ifname eth4.80 master br15"
+    * Add "bridge-slave" connection named "br15-slave" for device "eth4.80" with options "autoconnect no master br15"
     * Check ifcfg-name file created for connection "br15-slave"
     * Delete connection "br15-slave"
     Then ifcfg-"br15-slave" file does not exist
@@ -236,14 +236,14 @@ Feature: nmcli - bridge
     @ifcfg-rh
     @bridge_up_with_slaves
     Scenario: nmcli - bridge - up with slaves
-    * Add a new connection of type "bridge" named "br15" for device "br15" and options "bridge.stp on ip4 192.168.1.19/24"
-    * Add a new connection of type "vlan" named "eth4.80" and options "dev eth4 id 80"
+    * Add "bridge" connection named "br15" for device "br15" with options "bridge.stp on ip4 192.168.1.19/24"
+    * Add "vlan" connection named "eth4.80" with options "dev eth4 id 80"
     * Check ifcfg-name file created for connection "eth4.80"
-    * Add a new connection of type "vlan" named "eth4.90" and options "dev eth4 id 90"
+    * Add "vlan" connection named "eth4.90" with options "dev eth4 id 90"
     * Check ifcfg-name file created for connection "eth4.90"
-    * Add a new connection of type "bridge-slave" named "br15-slave1" for device "eth4.80" and options "master br15"
+    * Add "bridge-slave" connection named "br15-slave1" for device "eth4.80" with options "master br15"
     * Check ifcfg-name file created for connection "br15-slave1"
-    * Add a new connection of type "bridge-slave" named "br15-slave2" for device "eth4.90" and options "master br15"
+    * Add "bridge-slave" connection named "br15-slave2" for device "eth4.90" with options "master br15"
     * Check ifcfg-name file created for connection "br15-slave2"
     * Bring up connection "br15"
     Then  "br15" is visible with command "ip link show type bridge"
@@ -251,8 +251,8 @@ Feature: nmcli - bridge
 
     @bridge_up_slave
     Scenario: nmcli - bridge - up slave
-    * Add a new connection of type "bridge" named "br10" for device "br10" and options "bridge.stp off ip4 192.168.1.19/24"
-    * Add a new connection of type "bridge-slave" named "br10-slave" for device "eth4" and options "autoconnect no master br10"
+    * Add "bridge" connection named "br10" for device "br10" with options "bridge.stp off ip4 192.168.1.19/24"
+    * Add "bridge-slave" connection named "br10-slave" for device "eth4" with options "autoconnect no master br10"
     * Bring up connection "br10-slave"
     Then  "eth4.*master br10" is visible with command "ip link show type bridge_slave"
     Then Disconnect device "br10"
@@ -264,8 +264,8 @@ Feature: nmcli - bridge
     Scenario: nmcli - bridge - start slave via master
     * Cleanup connection "bridge-slave-eth4"
     * Cleanup interface "eth4"
-    * Add a new connection of type "bridge" named "br10" for device "br10" and options "bridge.stp off"
-    * Add a new connection of type "bridge-slave" and options "ifname eth4 autoconnect no master br10"
+    * Add "bridge" connection named "br10" for device "br10" with options "bridge.stp off"
+    * Add "bridge-slave" connection with options "ifname eth4 autoconnect no master br10"
     * Open editor for connection "br10"
     * Set a property named "ipv4.method" to "manual" in editor
     * Set a property named "ipv4.addresses" to "192.168.1.19/24" in editor
@@ -282,8 +282,8 @@ Feature: nmcli - bridge
     @ver+=1.10.0
     @bridge_autoconnect_slaves_when_master_reconnected
     Scenario: nmcli - bridge - start slave upon master reconnection
-    * Add a new connection of type "bridge" named "br10" for device "br10" and options "bridge.stp on"
-    * Add a new connection of type "bridge-slave" named "br10-slave" for device "eth4" and options "master br10"
+    * Add "bridge" connection named "br10" for device "br10" with options "bridge.stp on"
+    * Add "bridge-slave" connection named "br10-slave" for device "eth4" with options "master br10"
     * Open editor for connection "br10"
     * Set a property named "ipv4.method" to "manual" in editor
     * Set a property named "ipv4.addresses" to "192.168.1.19/24" in editor
@@ -302,8 +302,8 @@ Feature: nmcli - bridge
     @eth4_disconnect
     @bridge_dhcp_config_with_ethernet_port
     Scenario: nmcli - bridge - dhcp config with ethernet port
-    * Add a new connection of type "bridge" named "bridge0" for device "bridge0" and options "bridge.stp off"
-    * Add a new connection of type "bridge-slave" named "bridge-slave-eth4" for device "eth4" and options "master bridge0"
+    * Add "bridge" connection named "bridge0" for device "bridge0" with options "bridge.stp off"
+    * Add "bridge-slave" connection named "bridge-slave-eth4" for device "eth4" with options "master bridge0"
     * Bring up connection "bridge-slave-eth4"
     Then "eth4.*master bridge0" is visible with command "ip link show type bridge_slave" in "10" seconds
     Then "bridge0:.*192.168.*inet6" is visible with command "ip a" in "30" seconds
@@ -314,10 +314,10 @@ Feature: nmcli - bridge
     @bridge_dhcp_config_with_multiple_ethernet_ports
     Scenario: nmcli - bridge - dhcp config with multiple ethernet ports
     * Prepare simulated test "test44" device
-    * Add a new connection of type "bridge" named "bridge4" for device "br4" and options "bridge.stp on"
-    * Add a new connection of type "bridge-slave" named "bridge4.0" for device "eth4" and options "master br4"
+    * Add "bridge" connection named "bridge4" for device "br4" with options "bridge.stp on"
+    * Add "bridge-slave" connection named "bridge4.0" for device "eth4" with options "master br4"
     * Bring up connection "bridge4.0"
-    * Add a new connection of type "bridge-slave" named "bridge4.1" and options "ifname test44 master br4"
+    * Add "bridge-slave" connection named "bridge4.1" for device "test44" with options "master br4"
     * Bring up connection "bridge4.1"
     Then "eth4.*master br4" is visible with command "ip a" in "10" seconds
     Then "test44.*master br4" is visible with command "ip a"
@@ -328,10 +328,10 @@ Feature: nmcli - bridge
     @bridge_static_config_with_multiple_ethernet_ports
     Scenario: nmcli - bridge - dhcp config with multiple ethernet ports
     * Prepare simulated test "test44" device
-    * Add a new connection of type "bridge" named "bridge4" for device "br4" and options "autoconnect no bridge.stp on ip4 192.168.1.19/24"
-    * Add a new connection of type "bridge-slave" named "bridge4.0" for device "eth4" and options "master br4"
+    * Add "bridge" connection named "bridge4" for device "br4" with options "autoconnect no bridge.stp on ip4 192.168.1.19/24"
+    * Add "bridge-slave" connection named "bridge4.0" for device "eth4" with options "master br4"
     * Bring up connection "bridge4.0"
-    * Add a new connection of type "bridge-slave" named "bridge4.1" and options "ifname test44 master br4"
+    * Add "bridge-slave" connection named "bridge4.1" for device "test44" with options "master br4"
     * Bring up connection "bridge4.1"
     Then "eth4.*master br4" is visible with command "ip a" in "10" seconds
     Then "test44.*master br4" is visible with command "ip a"
@@ -344,9 +344,9 @@ Feature: nmcli - bridge
     Scenario: nmcli - bridge - autoconnect-slaves connects also otherwise busy devices
     # if the master is autoconnect-slaves, then it will forcefully activate all slaves,
     # even if the device is currently busy with another (non-slave) profile.
-    * Add a new connection of type "ethernet" named "bridge-nonslave-eth4" for device "eth4" and options "autoconnect no"
-    * Add a new connection of type "bridge" named "bridge4" for device "br15" and options "autoconnect no connection.autoconnect-slaves yes bridge.stp yes bridge.forward-delay 2"
-    * Add a new connection of type "bridge-slave" named "bridge-slave-eth4" for device "eth4" and options "master br15 autoconnect no"
+    * Add "ethernet" connection named "bridge-nonslave-eth4" for device "eth4" with options "autoconnect no"
+    * Add "bridge" connection named "bridge4" for device "br15" with options "autoconnect no connection.autoconnect-slaves yes bridge.stp yes bridge.forward-delay 2"
+    * Add "bridge-slave" connection named "bridge-slave-eth4" for device "eth4" with options "master br15 autoconnect no"
     * Bring up connection "bridge-nonslave-eth4"
     When "eth4\s+ethernet\s+connected\s+bridge-nonslave-eth4" is visible with command "nmcli d"
      And "br15" is not visible with command "nmcli d"
@@ -364,11 +364,11 @@ Feature: nmcli - bridge
     # even if the device is currently busy with another (non-slave) profile.
     # This case is slightly different, because the currently active profile
     # is the slave profile itself, but it was activated as a non-slave profile.
-    * Add a new connection of type "ethernet" named "bridge-nonslave-eth4" for device "eth4" and options "autoconnect no"
+    * Add "ethernet" connection named "bridge-nonslave-eth4" for device "eth4" with options "autoconnect no"
     * Bring up connection "bridge-nonslave-eth4"
     When "eth4\s+ethernet\s+connected\s+bridge-nonslave-eth4" is visible with command "nmcli d"
     * Execute "nmcli con modify bridge-nonslave-eth4 master br15 slave-type bridge"
-    * Add a new connection of type "bridge" named "bridge4" for device "br15" and options "autoconnect yes connection.autoconnect-slaves yes bridge.stp yes bridge.forward-delay 2"
+    * Add "bridge" connection named "bridge4" for device "br15" with options "autoconnect yes connection.autoconnect-slaves yes bridge.stp yes bridge.forward-delay 2"
     Then "br15\s+bridge\s+connected\s+bridge4" is visible with command "nmcli d" in "40" seconds
      And "eth4\s+ethernet\s+connected\s+bridge-nonslave-eth4" is visible with command "nmcli d"
      And "eth4.*master br15" is visible with command "ip a s eth4"
@@ -377,8 +377,8 @@ Feature: nmcli - bridge
     @need_config_server
     @bridge_server_ingore_carrier_with_dhcp
     Scenario: nmcli - bridge - server ingore carrier with_dhcp
-    * Add a new connection of type "bridge" named "bridge4" for device "br4" and options "bridge.stp off"
-    * Add a new connection of type "bridge-slave" named "bridge-slave-eth4" for device "eth4" and options "master br4"
+    * Add "bridge" connection named "bridge4" for device "br4" with options "bridge.stp off"
+    * Add "bridge-slave" connection named "bridge-slave-eth4" for device "eth4" with options "master br4"
     * Bring up connection "bridge-slave-eth4"
     Then "eth4.*master br4" is visible with command "ip a s eth4" in "40" seconds
     Then "br4:.*192.168" is visible with command "ip a s br4" in "45" seconds
@@ -389,11 +389,11 @@ Feature: nmcli - bridge
     @rhbz1030947 @rhbz1816202
     @bridge_reflect_changes_from_outside_of_NM
     Scenario: nmcli - bridge - reflect changes from outside of NM
-    * Add a new interface of type "bridge" named "br0"
+    * Create "bridge" device named "br0"
     When "br0\s+bridge\s+unmanaged" is visible with command "nmcli d" in "5" seconds
     * Execute "ip link set dev br0 up"
     When "br0\s+bridge\s+unmanaged" is visible with command "nmcli d" in "5" seconds
-    * Add a new interface of type "dummy" named "dummy0"
+    * Create "dummy" device named "dummy0"
     When "dummy0\s+dummy\s+unmanaged" is visible with command "nmcli d" in "5" seconds
     * Execute "ip link set dev dummy0 up"
     * Execute "ip addr add 1.1.1.1/24 dev br0"
@@ -408,7 +408,7 @@ Feature: nmcli - bridge
     @rhelver+=8
     @bridge_reflect_changes_from_outside_of_NM
     Scenario: nmcli - bridge - reflect changes from outside of NM
-    * Add a new interface of type "bridge" named "br0"
+    * Create "bridge" device named "br0"
     When "br0\s+bridge\s+unmanaged" is visible with command "nmcli d" in "5" seconds
     * Execute "ip link set dev br0 up"
     When "br0\s+bridge\s+unmanaged" is visible with command "nmcli d" in "5" seconds
@@ -420,7 +420,7 @@ Feature: nmcli - bridge
     * Execute "ip link set dummy0 master br0"
     When "dummy0\s+dummy\s+connected \(externally\)\s+dummy" is visible with command "nmcli d" in "5" seconds
     When "BRIDGE.SLAVES:\s+dummy0" is visible with command "nmcli -f bridge.slaves dev show br0"
-    * Add a new connection of type "dummy" named "dummy1" for device "dummy0" and options "ipv4.method disabled ipv6.method disabled"
+    * Add "dummy" connection named "dummy1" for device "dummy0" with options "ipv4.method disabled ipv6.method disabled"
     * Bring "up" connection "dummy1"
     Then "dummy0\s+dummy\s+connected\s+dummy1" is visible with command "nmcli d" in "5" seconds
     Then "BRIDGE.SLAVES:\s+dummy0" is not visible with command "nmcli -f bridge.slaves dev show br0" in "5" seconds
@@ -438,7 +438,7 @@ Feature: nmcli - bridge
     @1000 @unload_kernel_modules
     @bridge_manipulation_with_1000_slaves
     Scenario: NM - bridge - manipulation with 1000 slaves bridge
-    * Add a new connection of type "bridge" named "bridge4" for device "bridge0" and options "bridge.stp off"
+    * Add "bridge" connection named "bridge4" for device "bridge0" with options "bridge.stp off"
     * Execute "for i in $(seq 0 1000); do ip link add port$i type dummy; ip link set port$i master bridge0; done"
     * Delete connection "bridge4"
     * Settle with RTNETLINK
@@ -450,7 +450,7 @@ Feature: nmcli - bridge
     @firewall
     @bridge_assumed_connection_no_firewalld_zone
     Scenario: NM - bridge - no firewalld zone for bridge assumed connection
-    * Add a new interface of type "bridge" named "br0"
+    * Create "bridge" device named "br0"
     * Execute "sudo ip link set dev br0 up"
     * Execute "sudo ip addr add 1.1.1.2/24 dev br0"
     When "IP4.ADDRESS\[1\]:\s+1.1.1.2\/24" is visible with command "nmcli con show br0" in "5" seconds
@@ -460,8 +460,8 @@ Feature: nmcli - bridge
     @ver+=1.1.1
     @bridge_assumed_connection_ip_methods
     Scenario: NM - bridge - Layer2 changes for bridge assumed connection
-    * Add a new interface of type "bridge" named "br0"
-    * Add a new interface of type "dummy" named "dummy0"
+    * Create "bridge" device named "br0"
+    * Create "dummy" device named "dummy0"
     * Execute "sudo ip link set dummy0 master br0"
     When "br0" is not visible with command "nmcli con"
     * Execute "sudo ip link set dev br0 up"
@@ -494,7 +494,7 @@ Feature: nmcli - bridge
     @ver+=1.4 @ver-=1.24
     @bridge_preserve_assumed_connection_ips
     Scenario: nmcli - bridge - preserve assumed connection's addresses
-    * Add a new interface of type "bridge" named "br0"
+    * Create "bridge" device named "br0"
     * Execute "ip link set dev br0 up"
     * Execute "ip add add 30.0.0.1/24 dev br0"
     When "br0:connected:br0" is visible with command "nmcli -t -f DEVICE,STATE,CONNECTION device" in "10" seconds
@@ -508,7 +508,7 @@ Feature: nmcli - bridge
     @ver+=1.25
     @bridge_preserve_assumed_connection_ips
     Scenario: nmcli - bridge - preserve assumed connection's addresses
-    * Add a new interface of type "bridge" named "br0"
+    * Create "bridge" device named "br0"
     * Execute "ip link set dev br0 up"
     * Execute "ip add add 30.0.0.1/24 dev br0"
     When "br0:connected \(externally\):br0" is visible with command "nmcli -t -f DEVICE,STATE,CONNECTION device" in "10" seconds
@@ -523,8 +523,8 @@ Feature: nmcli - bridge
      @restart_if_needed
      @bridge_slave_to_ethernet_conversion
      Scenario: nmcli - bridge - slave to ethernet conversion
-     * Add a new connection of type "bridge" named "bridge0" for device "bridge0" and options "bridge.stp off ipv4.method manual ipv4.address '192.168.99.99/24' ipv6.method ignore"
-     * Add a new connection of type "ethernet" named "bridge4.1" for device "eth4"
+     * Add "bridge" connection named "bridge0" for device "bridge0" with options "bridge.stp off ipv4.method manual ipv4.address '192.168.99.99/24' ipv6.method ignore"
+     * Add "ethernet" connection named "bridge4.1" for device "eth4"
      * Modify connection "bridge4.1" changing options "connection.master bridge0 connection.slave-type bridge"
      When "connection.master:\s+bridge0" is visible with command "nmcli c s bridge4.1 | grep 'master:'"
       And "connection.slave-type:\s+bridge" is visible with command "nmcli c s bridge4.1 | grep 'slave-type:'"
@@ -547,7 +547,7 @@ Feature: nmcli - bridge
     @ver+=1.10
     @bridge_delete_connection_with_device
     Scenario: nmcli - bridge - delete with device
-    * Add a new connection of type "bridge" named "bridge0" for device "bridge0" and options "bridge.stp off autoconnect yes ip4 192.168.1.19/24"
+    * Add "bridge" connection named "bridge0" for device "bridge0" with options "bridge.stp off autoconnect yes ip4 192.168.1.19/24"
     * Delete connection "bridge0"
     Then "bridge0" is not visible with command "nmcli dev"
 
@@ -556,7 +556,7 @@ Feature: nmcli - bridge
     @restart_if_needed
     @bridge_delete_connection_without_device
     Scenario: nmcli - bridge - delete without device
-    * Add a new connection of type "bridge" named "bridge0" for device "bridge0" and options "bridge.stp off autoconnect yes ip4 192.168.1.19/24"
+    * Add "bridge" connection named "bridge0" for device "bridge0" with options "bridge.stp off autoconnect yes ip4 192.168.1.19/24"
     * Reboot
     * Delete connection "bridge0"
     Then "bridge0" is visible with command "nmcli dev"
@@ -566,8 +566,8 @@ Feature: nmcli - bridge
     @ver+=1.10
     @bridge_ipv6
     Scenario: nmcli - bridge - ipv6
-    * Add a new connection of type "bridge" named "bridge0" for device "bridge0" and options "bridge.stp off ip4 172.16.3.1/24 ipv6.method auto ipv6.address fd01:42::1/64 bridge.forward-delay 5 autoconnect no"
-    * Add a new connection of type "ethernet" named "bridge-slave-eth4" for device "eth4" and options "master bridge0 autoconnect no"
+    * Add "bridge" connection named "bridge0" for device "bridge0" with options "bridge.stp off ip4 172.16.3.1/24 ipv6.method auto ipv6.address fd01:42::1/64 bridge.forward-delay 5 autoconnect no"
+    * Add "ethernet" connection named "bridge-slave-eth4" for device "eth4" with options "master bridge0 autoconnect no"
     * Bring "up" connection "bridge-slave-eth4"
     Then "fe80" is visible with command "ip a show dev bridge0" in "20" seconds
      And "fd01:42::1/64" is visible with command "ip a show dev bridge0" in "20" seconds
@@ -578,8 +578,8 @@ Feature: nmcli - bridge
     @restart_if_needed
     @bridge_detect_initrd_device
     Scenario: NM - bridge - nm detects initrd bridge
-    * Add a new connection of type "bridge" named "bridge0" for device "bridge0" and options "bridge.stp no"
-    * Add a new connection of type "ethernet" named "bridge-slave-eth4" for device "eth4" and options "master bridge0"
+    * Add "bridge" connection named "bridge0" for device "bridge0" with options "bridge.stp no"
+    * Add "ethernet" connection named "bridge-slave-eth4" for device "eth4" with options "master bridge0"
     * "." is visible with command "nmcli -g IP4.ADDRESS  c s bridge0" in "45" seconds
     * Stop NM
     * Execute "ip link set bridge0 type bridge forward_delay 0"
@@ -597,8 +597,8 @@ Feature: nmcli - bridge
     @ver+=1.17.3
     @bridge_vlan_filtering_no_pvid
     Scenario: NM - bridge - bridge vlan filtering no pvid
-    * Add a new connection of type "bridge" named "bridge0" for device "bridge0" and options "bridge.vlan-default-pvid 0 bridge.vlan-filtering yes bridge.vlans 10"
-    * Add a new connection of type "ethernet" named "bridge-slave-eth4" for device "eth4" and options "master bridge0 slave-type bridge bridge-port.vlans 4094"
+    * Add "bridge" connection named "bridge0" for device "bridge0" with options "bridge.vlan-default-pvid 0 bridge.vlan-filtering yes bridge.vlans 10"
+    * Add "ethernet" connection named "bridge-slave-eth4" for device "eth4" with options "master bridge0 slave-type bridge bridge-port.vlans 4094"
     Then "bridge0\s+10\s" is visible with command "bridge vlan | sed 's/Egress Untagged/untagged/g'" in "10" seconds
      And "eth4\s+4094\s" is visible with command "bridge vlan | sed 's/Egress Untagged/untagged/g'"
 
@@ -607,8 +607,8 @@ Feature: nmcli - bridge
     @ver+=1.17.3
     @bridge_vlan_filtering_default_pvid
     Scenario: NM - bridge - bridge vlan filtering default pvid
-    * Add a new connection of type "bridge" named "bridge0" for device "bridge0" and options "bridge.vlan-filtering yes bridge.vlans '10-14 untagged'"
-    * Add a new connection of type "ethernet" named "bridge-slave-eth4" for device "eth4" and options "master bridge0 slave-type bridge bridge-port.vlans '4 untagged, 5'"
+    * Add "bridge" connection named "bridge0" for device "bridge0" with options "bridge.vlan-filtering yes bridge.vlans '10-14 untagged'"
+    * Add "ethernet" connection named "bridge-slave-eth4" for device "eth4" with options "master bridge0 slave-type bridge bridge-port.vlans '4 untagged, 5'"
     Then "bridge0\s+1 PVID untagged\s+10 untagged\s+11 untagged\s+12 untagged\s+13 untagged\s+14 untagged\s" is visible with command "bridge vlan | sed 's/Egress Untagged/untagged/g'" in "10" seconds
      And "eth4\s+1 PVID untagged\s+4 untagged\s+5\s" is visible with command "bridge vlan | sed 's/Egress Untagged/untagged/g'"
 
@@ -617,8 +617,8 @@ Feature: nmcli - bridge
     @ver+=1.17.3
     @bridge_vlan_filtering_non_default_pvid
     Scenario: NM - bridge - bridge vlan filtering non-default pvid
-    * Add a new connection of type "bridge" named "bridge0" for device "bridge0" and options "bridge.vlan-filtering yes bridge.vlan-default-pvid 80 bridge.vlans '1-10, 100 pvid, 200 untagged'"
-    * Add a new connection of type "ethernet" named "bridge-slave-eth4" for device "eth4" and options "master bridge0 slave-type bridge bridge-port.vlans '4000-4010'"
+    * Add "bridge" connection named "bridge0" for device "bridge0" with options "bridge.vlan-filtering yes bridge.vlan-default-pvid 80 bridge.vlans '1-10, 100 pvid, 200 untagged'"
+    * Add "ethernet" connection named "bridge-slave-eth4" for device "eth4" with options "master bridge0 slave-type bridge bridge-port.vlans '4000-4010'"
     Then "bridge0\s+1\s+2\s+3\s+4\s+5\s+6\s+7\s+8\s+9\s+10\s+80 untagged\s+100 PVID\s+200 untagged\s" is visible with command "bridge vlan | sed 's/Egress Untagged/untagged/g'" in "10" seconds
      And "eth4\s+80 PVID untagged\s+4000\s+4001\s+4002\s+4003\s+4004\s+4005\s+4006\s+4007\s+4008\s+4009\s+4010\s" is visible with command "bridge vlan | sed 's/Egress Untagged/untagged/g'"
 
@@ -630,7 +630,7 @@ Feature: nmcli - bridge
     Scenario: NM - bridge - virtual bridge created by NM should not be unmanaged
     * Execute "echo -e '[device]\nmatch-device=*\nmanaged=0' > /etc/NetworkManager/conf.d/99-xxcustom.conf;"
     * Restart NM
-    * Add a new connection of type "bridge" named "bridge0" for device "bridge0"
+    * Add "bridge" connection named "bridge0" for device "bridge0"
     Then "unmanaged" is not visible with command "nmcli device | grep bridge0"
     * Delete connection "bridge0"
     Then "unmanaged" is not visible with command "nmcli device | grep bridge0"
@@ -641,13 +641,13 @@ Feature: nmcli - bridge
     @ver+=1.22.0
     @bridge_no_link_till_master
     Scenario: NM - bridge - no link till master
-    * Add a new connection of type "dummy" named "bridge-slave-eth4" for device "dummy0" and options "ip4 172.25.1.1/24 master nm-bridge slave-type bridge"
+    * Add "dummy" connection named "bridge-slave-eth4" for device "dummy0" with options "ip4 172.25.1.1/24 master nm-bridge slave-type bridge"
     When "dummy0" is not visible with command "ip a s"
     When Path "/sys/class/net/dummy0/ifindex" does not exist
     * Execute "sleep 1 && nmcli con up bridge-slave-eth4 || true"
     When "dummy0" is not visible with command "ip a s"
     When Path "/sys/class/net/dummy0/ifindex" does not exist
-    * Add a new connection of type "bridge" named "bridge0" for device "nm-bridge" and options "ip4 172.25.2.1/24"
+    * Add "bridge" connection named "bridge0" for device "nm-bridge" with options "ip4 172.25.2.1/24"
     Then "/sys/class/net/dummy0/ifindex" is file
     Then "nm-bridge\s+bridge\s+connected\s+bridge0" is visible with command "nmcli d" in "10" seconds
     Then "dummy0\s+dummy\s+connected\s+bridge-slave-eth4" is visible with command "nmcli d" in "10" seconds
@@ -659,8 +659,8 @@ Feature: nmcli - bridge
     @bridge_down_to_l2_only
     Scenario: NM - bridge - go to L2 when DHCP is gone
     * Prepare simulated test "test44" device
-    * Add a new connection of type "bridge" named "bridge4" for device "br4" and options "bridge.stp off ipv4.dhcp-timeout infinity ipv6.method disable"
-    * Add a new connection of type "bridge-slave" named "bridge4.1" and options "ifname test44 master br4"
+    * Add "bridge" connection named "bridge4" for device "br4" with options "bridge.stp off ipv4.dhcp-timeout infinity ipv6.method disable"
+    * Add "bridge-slave" connection named "bridge4.1" for device "test44" with options "master br4"
     * Bring up connection "bridge4.1"
     When "br4:connected:bridge4" is visible with command "nmcli -t -f DEVICE,STATE,CONNECTION device" in "10" seconds
     When "192.168.99" is visible with command "ip a s br4" in "20" seconds
@@ -679,12 +679,12 @@ Feature: nmcli - bridge
     @ver+=1.25
     @bridge_remove_slaves_ipv6ll
     Scenario: nmcli - bridge - remove slave's ipv6ll
-    * Add a new interface of type "dummy" named "dummy0"
+    * Create "dummy" device named "dummy0"
     * Execute "ip link set dummy0 up && sleep 2"
     * Execute "nmcli dev set dummy0 managed yes"
     When "fe80" is visible with command "ip a s dummy0" in "5" seconds
-    * Add a new connection of type "bridge" named "bridge4" for device "br4" and options "ip4 172.25.89.1/24"
-    * Add a new connection of type "dummy" named "bridge-slave-eth4" and options "ifname dummy0 master br4 autoconnect no"
+    * Add "bridge" connection named "bridge4" for device "br4" with options "ip4 172.25.89.1/24"
+    * Add "dummy" connection named "bridge-slave-eth4" for device "dummy0" with options "master br4 autoconnect no"
     * Bring "up" connection "bridge-slave-eth4"
     When "br4:connected:bridge4" is visible with command "nmcli -t -f DEVICE,STATE,CONNECTION device" in "10" seconds
     When "dummy0:connected:bridge-slave-eth4" is visible with command "nmcli -t -f DEVICE,STATE,CONNECTION device" in "10" seconds
@@ -697,15 +697,15 @@ Feature: nmcli - bridge
     @ver+=1.29 @ver-=1.32 @rhelver+=8
     @bridge_set_mtu
     Scenario: nmcli - bridge - mtu handling
-    * Add a new connection of type "bridge" named "bridge0" for device "br0" and options "ipv4.method manual ipv4.addresses 1.2.3.4/24 connection.autoconnect-slaves no mtu 1500"
-    * Add a new connection of type "dummy" named "bridge-slave-eth4" for device "dummy0" and options "master br0 autoconnect no mtu 9000"
+    * Add "bridge" connection named "bridge0" for device "br0" with options "ipv4.method manual ipv4.addresses 1.2.3.4/24 connection.autoconnect-slaves no mtu 1500"
+    * Add "dummy" connection named "bridge-slave-eth4" for device "dummy0" with options "master br0 autoconnect no mtu 9000"
     * Bring "up" connection "bridge0"
     * Bring "up" connection "bridge-slave-eth4"
     When "mtu 1500" is visible with command "ip a s br0"
     When "mtu 9000" is visible with command "ip a s dummy0"
     When "1500" is visible with command "nmcli -g GENERAL.MTU d show br0" in "5" seconds
     * Delete connection "bridge0"
-    * Add a new connection of type "bridge" named "bridge0" for device "br0" and options "ipv4.method manual ipv4.addresses 1.2.3.4/24 connection.autoconnect-slaves no 802-3-ethernet.mtu 0"
+    * Add "bridge" connection named "bridge0" for device "br0" with options "ipv4.method manual ipv4.addresses 1.2.3.4/24 connection.autoconnect-slaves no 802-3-ethernet.mtu 0"
     * Bring "up" connection "bridge0"
     * Bring "up" connection "bridge-slave-eth4"
     When "mtu 9000" is visible with command "ip a s br0"
@@ -722,18 +722,18 @@ Feature: nmcli - bridge
     @ver+=1.33 @rhelver+=8
     @bridge_set_mtu
     Scenario: nmcli - bridge - mtu handling
-    * Add a new connection of type "bridge" named "bridge0" for device "br0" and options "ipv4.method manual ipv4.addresses 1.2.3.4/24 connection.autoconnect-slaves no mtu 1500"
+    * Add "bridge" connection named "bridge0" for device "br0" with options "ipv4.method manual ipv4.addresses 1.2.3.4/24 connection.autoconnect-slaves no mtu 1500"
     * Bring "up" connection "bridge0"
     When "mtu 1500" is visible with command "ip a s br0" in "5" seconds
     * Modify connection "bridge0" changing options "remove 802-3-ethernet"
     * Bring "up" connection "bridge0"
     When "mtu 1499" is not visible with command "ip a s br0" for full "2" seconds
-    * Add a new connection of type "dummy" named "bridge-slave-eth4" for device "dummy0" and options "master br0 autoconnect no mtu 9000"
+    * Add "dummy" connection named "bridge-slave-eth4" for device "dummy0" with options "master br0 autoconnect no mtu 9000"
     * Bring "up" connection "bridge-slave-eth4"
     When "mtu 9000" is visible with command "ip a s dummy0"
     When "1500" is visible with command "nmcli -g GENERAL.MTU d show br0" in "5" seconds
     * Delete connection "bridge0"
-    * Add a new connection of type "bridge" named "bridge0" for device "br0" and options "ipv4.method manual ipv4.addresses 1.2.3.4/24 connection.autoconnect-slaves no 802-3-ethernet.mtu 0"
+    * Add "bridge" connection named "bridge0" for device "br0" with options "ipv4.method manual ipv4.addresses 1.2.3.4/24 connection.autoconnect-slaves no 802-3-ethernet.mtu 0"
     * Bring "up" connection "bridge0"
     * Bring "up" connection "bridge-slave-eth4"
     When "mtu 9000" is visible with command "ip a s br0"
@@ -750,7 +750,7 @@ Feature: nmcli - bridge
     @ver+=1.31
     @bridge_accept_all_mac_addresses
     Scenario: nmcli - bridge - accept-all-mac-addresses (promisc mode)
-    * Add a new connection of type "bridge" named "bridge0" for device "bridge0" and options "autoconnect no"
+    * Add "bridge" connection named "bridge0" for device "bridge0" with options "autoconnect no"
     * Bring "up" connection "bridge0"
     Then "PROMISC" is not visible with command "ip link show dev bridge0"
     * Modify connection "bridge0" changing options "802-3-ethernet.accept-all-mac-addresses true"
@@ -768,7 +768,7 @@ Feature: nmcli - bridge
     # promisc off -> default
     * Execute "ip link add bridge0 type bridge && ip link set dev bridge0 promisc off"
     When "PROMISC" is not visible with command "ip link show dev bridge0"
-    * Add a new connection of type "bridge" named "bridge0" for device "bridge0" and options
+    * Add "bridge" connection named "bridge0" for device "bridge0" with options
        """
        autoconnect no 802-3-ethernet.accept-all-mac-addresses default
        """
@@ -800,9 +800,9 @@ Feature: nmcli - bridge
     @ver+=1.36
     @bridge_controller_port_terminology
     Scenario: bridge - use controller/port terminology
-    * Add a new connection of type "bridge" named "bridge0" for device "bridge0" and options "autoconnect no"
+    * Add "bridge" connection named "bridge0" for device "bridge0" with options "autoconnect no"
     # update to controller/port when nmcli also gets update.
-    * Add a new connection of type "dummy" named "dummy0" for device "dummy0" and options "master bridge0"
+    * Add "dummy" connection named "dummy0" for device "dummy0" with options "master bridge0"
     * Bring "up" connection "dummy0"
     # list ports using libnm
     Then "dummy0" is visible with command "contrib/naming/ports-libnm.py bridge0"

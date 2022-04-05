@@ -18,7 +18,7 @@ Feature: nmcli: gsm
     @gsm
     @gsm_create_default_connection
     Scenario: nmcli - gsm - create a connection
-    * Add a new connection of type "gsm" and options "ifname \* con-name gsm autoconnect no apn internet"
+    * Add "gsm" connection named "gsm" for device "\*" with options "autoconnect no apn internet"
     * Bring "up" connection "gsm"
     Then "GENERAL.STATE:.*activated" is visible with command "nmcli con show gsm" in "60" seconds
     # Workaround
@@ -112,7 +112,7 @@ Feature: nmcli: gsm
     @gsm
     @gsm_disconnect
     Scenario: nmcli - gsm - disconnect
-     * Add a new connection of type "gsm" and options "ifname \* con-name gsm autoconnect no apn internet"
+     * Add "gsm" connection named "gsm" for device "\*" with options "autoconnect no apn internet"
      * Bring "up" connection "gsm"
     Then "GENERAL.STATE:.*activated" is visible with command "nmcli con show gsm" in "20" seconds
      * Bring "down" connection "gsm"
@@ -127,7 +127,7 @@ Feature: nmcli: gsm
     @gsm
     @gsm_create_one_minute_ping
     Scenario: nmcli - gsm - one minute ping
-    * Add a new connection of type "gsm" and options "ifname \* con-name gsm autoconnect no apn internet"
+    * Add "gsm" connection named "gsm" for device "\*" with options "autoconnect no apn internet"
     * Bring "up" connection "gsm"
     Then "GENERAL.STATE:.*activated" is visible with command "nmcli con show gsm" in "60" seconds
      And "GENERAL.STATE:.*activated" is visible with command "nmcli con show gsm" for full "60" seconds
@@ -143,7 +143,7 @@ Feature: nmcli: gsm
     @gsm
     @gsm_mtu
     Scenario: nmcli - gsm - mtu
-    * Add a new connection of type "gsm" and options "ifname \* con-name gsm autoconnect no apn internet gsm.mtu 1430"
+    * Add "gsm" connection named "gsm" for device "\*" with options "autoconnect no apn internet gsm.mtu 1430"
     * Execute "nmcli con modify gsm gsm.mtu 1430"
     * Bring "up" connection "gsm"
     When "GENERAL.STATE:.*activated" is visible with command "nmcli con show gsm" in "20" seconds
@@ -161,7 +161,7 @@ Feature: nmcli: gsm
     @gsm
     @gsm_route_metric
     Scenario: nmcli - gsm - route metric
-    * Add a new connection of type "gsm" and options "ifname \* con-name gsm autoconnect no apn internet"
+    * Add "gsm" connection named "gsm" for device "\*" with options "autoconnect no apn internet"
     * Bring "up" connection "gsm"
     When "default" is visible with command "ip r |grep 700" in "20" seconds
     And "proto .* scope" is visible with command "ip r |grep 700"
@@ -178,7 +178,7 @@ Feature: nmcli: gsm
     # @gsm
     # @gsm_up_down_up
     # Scenario: nmcli - gsm - reconnect with down
-    #  * Add a new connection of type "gsm" and options "ifname \* con-name gsm autoconnect no apn internet"
+    #  * Add "gsm" connection named "gsm" for device "\*" with options "autoconnect no apn internet"
     #  * Bring "up" connection "gsm"
     # Then "GENERAL.STATE:.*activated" is visible with command "nmcli con show gsm" in "20" seconds
     #  * Bring "down" connection "gsm"
@@ -193,7 +193,7 @@ Feature: nmcli: gsm
     # @gsm
     # @gsm_up_up
     # Scenario: nmcli - gsm - reconnect without down
-    #  * Add a new connection of type "gsm" and options "ifname \* con-name gsm autoconnect no apn internet"
+    #  * Add "gsm" connection named "gsm" for device "\*" with options "autoconnect no apn internet"
     #  * Bring "up" connection "gsm"
     # Then "GENERAL.STATE:.*activated" is visible with command "nmcli con show gsm" in "20" seconds
     #  * Bring "up" connection "gsm"
@@ -243,7 +243,7 @@ Feature: nmcli: gsm
     @gsm_connectivity_check
     Scenario: nmcli - gsm - connectivity check
     When "none|limited" is visible with command "nmcli g" in "60" seconds
-    * Add a new connection of type "gsm" and options "ifname \* con-name gsm autoconnect no apn internet"
+    * Add "gsm" connection named "gsm" for device "\*" with options "autoconnect no apn internet"
     * Bring "up" connection "gsm"
     When "GENERAL.STATE:.*activated" is visible with command "nmcli con show gsm" in "60" seconds
      And "default" is visible with command "ip r |grep 700"

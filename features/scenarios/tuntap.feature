@@ -10,7 +10,7 @@ Feature: nmcli: tuntap
     @ver+=1.4.0
     @add_default_tap_device
     Scenario: nmcli - tuntap - create default tap device
-    * Add a new connection of type "tun" named "tap0" for device "tap0" and options "tun.mode 2 ipv4.addresses 1.2.3.4/24 ipv4.method manual"
+    * Add "tun" connection named "tap0" for device "tap0" with options "tun.mode 2 ipv4.addresses 1.2.3.4/24 ipv4.method manual"
     Then "tap0:connected:tap0" is visible with command "nmcli -t -f DEVICE,STATE,CONNECTION device" in "10" seconds
      And "1.2.3.4\/24" is visible with command "ip a s tap0"
      And "fe80::" is visible with command "ip a s tap0"
@@ -20,7 +20,7 @@ Feature: nmcli: tuntap
     @ver+=1.4.0
     @add_default_tun_device
     Scenario: nmcli - tuntap - create default tun device
-    * Add a new connection of type "tun" named "tap0" for device "tap0" and options "tun.mode 1 ipv4.addresses 1.2.3.4/24 ipv4.method manual"
+    * Add "tun" connection named "tap0" for device "tap0" with options "tun.mode 1 ipv4.addresses 1.2.3.4/24 ipv4.method manual"
     Then "tap0:connected:tap0" is visible with command "nmcli -t -f DEVICE,STATE,CONNECTION device" in "10" seconds
      And "1.2.3.4\/24" is visible with command "ip a s tap0"
      And "fe80::" is visible with command "ip a s tap0"
@@ -30,14 +30,14 @@ Feature: nmcli: tuntap
     @ver+=1.4.0
     @remove_default_tuntap
     Scenario: nmcli - tuntap - remove default tuntap device
-    * Add a new connection of type "tun" named "tap0" for device "tap0" and options "tun.mode 1 ipv4.addresses 1.2.3.4/24 ipv4.method manual"
+    * Add "tun" connection named "tap0" for device "tap0" with options "tun.mode 1 ipv4.addresses 1.2.3.4/24 ipv4.method manual"
     When "tap0:connected:tap0" is visible with command "nmcli -t -f DEVICE,STATE,CONNECTION device" in "10" seconds
     * Delete connection "tap0"
     Then "tap0:connected:tap0" is not visible with command "nmcli -t -f DEVICE,STATE,CONNECTION device" in "10" seconds
      And "1.2.3.4\/24" is not visible with command "ip a s tap0"
      And "fe80::" is not visible with command "ip a s tap0"
      And "tap0: tun" is not visible with command "ip tuntap"
-    * Add a new connection of type "tun" named "tap0" for device "tap0" and options "tun.mode 2 ipv4.addresses 1.2.3.4/24 ipv4.method manual"
+    * Add "tun" connection named "tap0" for device "tap0" with options "tun.mode 2 ipv4.addresses 1.2.3.4/24 ipv4.method manual"
     When "tap0:connected:tap0" is visible with command "nmcli -t -f DEVICE,STATE,CONNECTION device" in "10" seconds
     * Delete connection "tap0"
     Then "tap0:connected:tap0" is not visible with command "nmcli -t -f DEVICE,STATE,CONNECTION device" in "10" seconds
@@ -51,7 +51,7 @@ Feature: nmcli: tuntap
     @preserve_master_and_ip_settings
     Scenario: NM - tuntap - preserve master and IP settings
      * Cleanup interface "tap0"
-     * Add a new interface of type "bridge" named "brY"
+     * Create "bridge" device named "brY"
      * Execute "ip addr add 192.0.2.1/24 dev brY"
      * Execute "ip tuntap add tap0 mode tap"
      * Execute "ip addr add 192.0.2.2/24 dev tap0"
@@ -74,7 +74,7 @@ Feature: nmcli: tuntap
     @preserve_master_and_ip_settings
     Scenario: NM - tuntap - preserve master and IP settings
     * Cleanup interface "tap0"
-    * Add a new interface of type "bridge" named "brY"
+    * Create "bridge" device named "brY"
     * Execute "ip addr add 192.0.2.1/24 dev brY"
     * Execute "ip tuntap add tap0 mode tap"
     * Execute "ip addr add 192.0.2.2/24 dev tap0"
@@ -96,7 +96,7 @@ Feature: nmcli: tuntap
     @ver+=1.12.0
     @tuntap_device_kernel_properties
     Scenario: nmcli - tuntap - test tuntap properties from kernel, dbus, nmcli
-    * Add a new connection of type "tun" named "tap0" for device "tap0" and options "tun.mode 1 ipv4.addresses 1.2.3.4/24 ipv4.method manual"
+    * Add "tun" connection named "tap0" for device "tap0" with options "tun.mode 1 ipv4.addresses 1.2.3.4/24 ipv4.method manual"
     When "tap0:connected:tap0" is visible with command "nmcli -t -f DEVICE,STATE,CONNECTION device" in "10" seconds
     Then Execute "bash contrib/tuntap/tuntap_device_kernel_properties.sh tap0 owner"
      And Execute "bash contrib/tuntap/tuntap_device_kernel_properties.sh tap0 group"

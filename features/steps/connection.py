@@ -15,14 +15,14 @@ def add_vpnc_connection_for_iface(context, name, ifname, vpn):
     context.cleanup["connections"].add(name)
 
 
-@step(u'Add a new connection of type "{typ}" and options')
-@step(u'Add a new connection of type "{typ}" and options "{options}"')
-@step(u'Add a new connection of type "{typ}" named "{name}"')
-@step(u'Add a new connection of type "{typ}" named "{name}" and options')
-@step(u'Add a new connection of type "{typ}" named "{name}" and options "{options}"')
-@step(u'Add a new connection of type "{typ}" named "{name}" for device "{ifname}"')
-@step(u'Add a new connection of type "{typ}" named "{name}" for device "{ifname}" and options')
-@step(u'Add a new connection of type "{typ}" named "{name}" for device "{ifname}" and options "{options}"')
+@step(u'Add "{typ}" connection with options')
+@step(u'Add "{typ}" connection with options "{options}"')
+@step(u'Add "{typ}" connection named "{name}"')
+@step(u'Add "{typ}" connection named "{name}" with options')
+@step(u'Add "{typ}" connection named "{name}" with options "{options}"')
+@step(u'Add "{typ}" connection named "{name}" for device "{ifname}"')
+@step(u'Add "{typ}" connection named "{name}" for device "{ifname}" with options')
+@step(u'Add "{typ}" connection named "{name}" for device "{ifname}" with options "{options}"')
 def add_new_connection(context, typ, name=None, ifname=None, options=None):
     if options is None:
         options = context.text.replace("\n", " ") if context.text is not None else " "

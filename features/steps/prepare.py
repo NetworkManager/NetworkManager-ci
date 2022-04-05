@@ -95,9 +95,9 @@ def pbr_doc_proc(context):
         * Execute "ip -n servers_ns address add 203.0.113.2/24 dev serversp"
         * Prepare simulated test "int_work" device without DHCP
         * Execute "ip -n int_work_ns address add 10.0.0.2/24 dev int_workp"
-        * Add a new interface of type "veth" named "defA" in namespace "provA_ns" and options "peer name defAp"
+        * Create "veth" device named "defA" in namespace "provA_ns" with options "peer name defAp"
         * Execute "ip -n provA_ns link set dev defA up"
-        * Add a new interface of type "veth" named "defB" in namespace "provB_ns" and options "peer name defBp"
+        * Create "veth" device named "defB" in namespace "provB_ns" with options "peer name defBp"
         * Execute "ip -n provB_ns link set dev defB up"
     ''')
     context.command_code("ip -n provA_ns addr add 172.20.20.20/24 dev defA")
@@ -122,10 +122,10 @@ def prepare_veths(context, pairs_array, bridge):
     for pair in pairs_array.split(','):
         pairs.append(pair.strip())
 
-    context.execute_steps(f'* Add a new interface of type "bridge" named "{bridge}"')
+    context.execute_steps(f'* Create "bridge" device named "{bridge}"')
     context.command_code("sudo ip link set dev %s up" % bridge)
     for pair in pairs:
-        context.execute_steps(f'* Add a new interface of type "veth" named "{pair}" and options "peer name {pair}p"')
+        context.execute_steps(f'* Create "veth" device named "{pair}" with options "peer name {pair}p"')
         context.command_code("ip link set %sp master %s" % (pair, bridge))
         context.command_code("ip link set dev %s up" % pair)
         context.command_code("ip link set dev %sp up" % pair)
@@ -158,8 +158,8 @@ def restart_dhcp_server(context, device, ipv4, ipv6):
 @step(u'Prepare simulated test "{device}" device using dhcpd and server identifier "{server_id}"')
 def prepare_dhcpd_simdev(context, device, server_id):
     ipv4 = "192.168.99"
-    context.execute_steps(f'* Add a new network namespace named "{device}_ns"')
-    context.execute_steps(f'* Add a new interface of type "veth" named "{device}" and options "peer name {device}p"')
+    context.execute_steps(f'* Add namespace "{device}_ns"')
+    context.execute_steps(f'* Create "veth" device named "{device}" with options "peer name {device}p"')
     context.command_code("ip link set {device}p netns {device}_ns".format(device=device))
     context.command_code("ip link set {device} up".format(device=device))
     context.command_code("ip netns exec {device}_ns ip link set lo up".format(device=device))
@@ -211,8 +211,8 @@ def prepare_simdev(context, device, lease_time="2m", ipv4=None, ipv6=None, optio
         context.command_code("udevadm control --reload-rules")
         context.command_code("udevadm settle --timeout=5")
         context.command_code("sleep 1")
-    context.execute_steps(f'* Add a new network namespace named "{device}_ns"')
-    context.execute_steps(f'* Add a new interface of type "veth" named "{device}" and options "peer name {device}p"')
+    context.execute_steps(f'* Add namespace "{device}_ns"')
+    context.execute_steps(f'* Create "veth" device named "{device}" with options "peer name {device}p"')
     context.command_code("ip link set {device}p netns {device}_ns".format(device=device))
     context.command_code("ip link set {device} up".format(device=device))
     context.command_code("ip netns exec {device}_ns ip link set lo up".format(device=device))
@@ -263,10 +263,10 @@ def prepare_simdev(context, device):
     # (DHCP   | 172.16.0.1  10.0.0.2  | |  10.0.0.1   |
     # client) |(dhcrelay + forwarding)| | (DHCP serv) |
     #         +-----------------------+ +-------------+
-    context.execute_steps(f'* Add a new network namespace named "{device}_ns"')
-    context.execute_steps(f'* Add a new network namespace named "{device}2_ns"')
-    context.execute_steps(f'* Add a new interface of type "veth" named "{device}" and options "peer name {device}p"')
-    context.execute_steps(f'* Add a new interface of type "veth" named "{device}2" and options "peer name {device}2p"')
+    context.execute_steps(f'* Add namespace "{device}_ns"')
+    context.execute_steps(f'* Add namespace "{device}2_ns"')
+    context.execute_steps(f'* Create "veth" device named "{device}" with options "peer name {device}p"')
+    context.execute_steps(f'* Create "veth" device named "{device}2" with options "peer name {device}2p"')
     context.command_code("ip link set {device}p netns {device}_ns".format(device=device))
     context.command_code("ip link set {device}2 netns {device}_ns".format(device=device))
     context.command_code("ip link set {device}2p netns {device}2_ns".format(device=device))
@@ -302,8 +302,8 @@ def prepare_simdev_no_dhcp(context, device):
         context.command_code("udevadm control --reload-rules")
         context.command_code("udevadm settle --timeout=5")
         context.command_code("sleep 1")
-    context.execute_steps(f'* Add a new network namespace named "{device}_ns"')
-    context.execute_steps(f'* Add a new interface of type "veth" named "{device}" and options "peer name {device}p"')
+    context.execute_steps(f'* Add namespace "{device}_ns"')
+    context.execute_steps(f'* Create "veth" device named "{device}" with options "peer name {device}p"')
     context.command_code("ip link set {device}p netns {device}_ns".format(device=device))
     # Bring up devices
     context.command_code("ip link set {device} up".format(device=device))
@@ -323,10 +323,10 @@ def prepare_simdev(context, device):
     #         |  fd01::1     fd02::1  | |   fd02::2   |
     # mtu 1500|   1500        1400    | |    1500     |
     #         +-----------------------+ +-------------+
-    context.execute_steps(f'* Add a new network namespace named "{device}_ns"')
-    context.execute_steps(f'* Add a new network namespace named "{device}2_ns"')
-    context.execute_steps(f'* Add a new interface of type "veth" named "{device}" and options "peer name {device}p"')
-    context.execute_steps(f'* Add a new interface of type "veth" named "{device}2" and options "peer name {device}2p"')
+    context.execute_steps(f'* Add namespace "{device}_ns"')
+    context.execute_steps(f'* Add namespace "{device}2_ns"')
+    context.execute_steps(f'* Create "veth" device named "{device}" with options "peer name {device}p"')
+    context.execute_steps(f'* Create "veth" device named "{device}2" with options "peer name {device}2p"')
     context.command_code("ip link set {device}p netns {device}_ns".format(device=device))
     context.command_code("ip link set {device}2 netns {device}_ns".format(device=device))
     context.command_code("ip link set {device}2p netns {device}2_ns".format(device=device))
@@ -370,7 +370,7 @@ def prepare_simdev_no_carrier(context, device):
         context.command_code("udevadm control --reload-rules")
         context.command_code("udevadm settle --timeout=5")
         context.command_code("sleep 1")
-    context.execute_steps(f'* Add a new network namespace named "{device}_ns"')
+    context.execute_steps(f'* Add namespace "{device}_ns"')
     context.command_code("ip netns exec {device}_ns ip link add {device} type veth peer name {device}p".format(device=device))
     context.command_code("ip netns exec {device}_ns ip link set lo up".format(device=device))
     context.command_code("ip netns exec {device}_ns ip link set {device}p up".format(device=device))
@@ -411,8 +411,8 @@ def start_pppoe_server(context, name, ip, dev):
 @step(u'Prepare MACsec PSK environment with CAK "{cak}" and CKN "{ckn}"')
 def setup_macsec_psk(context, cak, ckn):
     context.command_code("modprobe macsec")
-    context.execute_steps(f'* Add a new network namespace named "macsec_ns"')
-    context.execute_steps(f'* Add a new interface of type "veth" named "macsec_veth" and options "peer name macsec_vethp"')
+    context.execute_steps(f'* Add namespace "macsec_ns"')
+    context.execute_steps(f'* Create "veth" device named "macsec_veth" with options "peer name macsec_vethp"')
     context.command_code("ip link set macsec_vethp netns macsec_ns")
     context.command_code("ip link set macsec_veth up")
     context.command_code("ip netns exec macsec_ns ip link set macsec_vethp up")
@@ -461,7 +461,7 @@ def prepare_iptunnel_doc(context, mode):
     # prepare Network A (range 192.0.2.1/2) and Network B in namespace (range 172.16.0.1/24)
     context.execute_steps('* Prepare simulated test "netA" device without DHCP')
     context.execute_steps('* Prepare simulated test "netB" device without DHCP')
-    context.execute_steps('* Add a new network namespace named "iptunnelB"')
+    context.execute_steps('* Add namespace "iptunnelB"')
     context.command_code("ip link set netB netns iptunnelB")
     if bridge:
         # if bridge, add addresses to "computers" in local networks
@@ -473,7 +473,7 @@ def prepare_iptunnel_doc(context, mode):
         context.command_code("ip -n iptunnelB address add 172.16.0.1/24 dev netB")
 
     # connect Network A (public IP 203.0.113.10) and Network B (public IP 198.51.100.5) via veth pair ipA and ipB
-    context.execute_steps('* Add a new interface of type "veth" named "ipA" and options "peer name ipB"')
+    context.execute_steps('* Create "veth" device named "ipA" with options "peer name ipB"')
     context.command_code("ip link set ipA up")
     context.command_code("ip addr add 203.0.113.10/32 dev ipA")
     context.command_code("ip route add 198.51.100.5/32 dev ipA")

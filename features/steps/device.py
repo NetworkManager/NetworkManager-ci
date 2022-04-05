@@ -677,18 +677,18 @@ def cleanup_connection(context, iface):
     nmci.lib.add_iface_to_cleanup(context, iface)
 
 
-@step(u'Add a new interface of type "{typ}" named "{name}"')
-@step(u'Add a new interface of type "{typ}" named "{name}" and options "{options}"')
-@step(u'Add a new interface of type "{typ}" named "{name}" in namespace "{namespace}"')
-@step(u'Add a new interface of type "{typ}" named "{name}" in namespace "{namespace}" and options "{options}"')
+@step(u'Create "{typ}" device named "{name}"')
+@step(u'Create "{typ}" device named "{name}" with options "{options}"')
+@step(u'Create "{typ}" device named "{name}" in namespace "{namespace}"')
+@step(u'Create "{typ}" device named "{name}" in namespace "{namespace}" with options "{options}"')
 def add_device(context, typ, name, namespace="", options=""):
     namespace = f"-n {namespace}" if namespace else ""
     context.command_code(f"ip {namespace} link add {name} type {typ} {options}", shell=True)
     nmci.lib.add_iface_to_cleanup(context, name)
 
 
-@step(u'Add a new network namespace named "{name}"')
-@step(u'Add a new network namespace named "{name}" and options "{options}"')
+@step(u'Add namespace "{name}"')
+@step(u'Add namespace "{name}" with options "{options}"')
 def add_device(context, name, options=""):
     context.command_code(f"ip netns add {name} {options}")    
     context.cleanup["namespaces"][name] = False

@@ -11,7 +11,7 @@ Feature: nmcli - vlan
     @ifcfg-rh
     @vlan_add_default_device
     Scenario: nmcli - vlan - add default device
-     * Add a new connection of type "vlan" named "eth7.99" and options "dev eth7 id 99"
+     * Add "vlan" connection named "eth7.99" with options "dev eth7 id 99"
      Then "eth7.99:" is visible with command "ifconfig"
      Then Check ifcfg-name file created for connection "eth7.99"
 
@@ -50,11 +50,11 @@ Feature: nmcli - vlan
     @vlan_ipv4_ipv6_restart_persistence
     Scenario: NM - vlan - ipv4 and ipv6 restart persistence
     * Prepare veth pairs "test1" bridged over "vethbr"
-    * Add a new connection of type "ethernet" named "vlan1" and options "ifname test1 ipv4.method disabled ipv6.method ignore"
-    * Add a new connection of type "vlan" named "tc1" and options "dev vethbr id 100 ipv4.method manual ipv4.addresses 10.1.0.1/24 ipv6.method manual ipv6.addresses 1::1/64"
+    * Add "ethernet" connection named "vlan1" for device "test1" with options "ipv4.method disabled ipv6.method ignore"
+    * Add "vlan" connection named "tc1" with options "dev vethbr id 100 ipv4.method manual ipv4.addresses 10.1.0.1/24 ipv6.method manual ipv6.addresses 1::1/64"
     * Wait for at least "3" seconds
     * Run child "dnsmasq --dhcp-range=10.1.0.10,10.1.0.15,2m --pid-file=/tmp/dnsmasq_vlan.pid --dhcp-range=1::100,1::fff,slaac,64,2m --enable-ra --interface=vethbr.100 --bind-interfaces"
-    * Add a new connection of type "vlan" named "tc2" and options "dev test1 id 100"
+    * Add "vlan" connection named "tc2" with options "dev test1 id 100"
     * Execute "ip add add 1::666/128 dev test1"
     * Wait for at least "5" seconds
     * Stop NM
@@ -66,7 +66,7 @@ Feature: nmcli - vlan
     @vlan_remove_connection
     Scenario: nmcli - vlan - remove connection
     Given "inet 10.42." is not visible with command "ifconfig"
-    * Add a new connection of type "vlan" named "eth7.299" and options "autoconnect no dev eth7 id 299"
+    * Add "vlan" connection named "eth7.299" with options "autoconnect no dev eth7 id 299"
     * Open editor for connection "eth7.299"
     * Set a property named "ipv4.method" to "shared" in editor
     * Save in editor
@@ -82,7 +82,7 @@ Feature: nmcli - vlan
 
     @vlan_connection_up
     Scenario: nmcli - vlan - connection up
-    * Add a new connection of type "vlan" named "eth7.99" and options "autoconnect no dev eth7 id 99"
+    * Add "vlan" connection named "eth7.99" with options "autoconnect no dev eth7 id 99"
     * Open editor for connection "eth7.99"
     * Set a property named "ipv4.method" to "shared" in editor
     * Save in editor
@@ -96,7 +96,7 @@ Feature: nmcli - vlan
 
     @vlan_reup_connection
     Scenario: nmcli - vlan - connection up while up
-    * Add a new connection of type "vlan" named "eth7.99" and options "autoconnect yes dev eth7 id 99 ip4 1.2.3.4/24"
+    * Add "vlan" connection named "eth7.99" with options "autoconnect yes dev eth7 id 99 ip4 1.2.3.4/24"
     Then "eth7.99\s+vlan\s+connected" is visible with command "nmcli device" in "30" seconds
     * Open editor for connection "eth7.99"
     * Set a property named "ipv4.method" to "shared" in editor
@@ -113,7 +113,7 @@ Feature: nmcli - vlan
     @vlan_connection_down
     Scenario: nmcli - vlan - connection down
     * "inet 10.42." is not visible with command "ifconfig"
-    * Add a new connection of type "vlan" named "eth7.399" and options "autoconnect no dev eth7 id 399"
+    * Add "vlan" connection named "eth7.399" with options "autoconnect no dev eth7 id 399"
     * Open editor for connection "eth7.399"
     * Set a property named "ipv4.method" to "shared" in editor
     * Save in editor
@@ -128,7 +128,7 @@ Feature: nmcli - vlan
     @vlan_connection_down_with_autoconnect
     Scenario: nmcli - vlan - connection down (autoconnect on)
     * "inet 10.42." is not visible with command "ifconfig"
-    * Add a new connection of type "vlan" named "eth7.399" and options "autoconnect no dev eth7 id 399"
+    * Add "vlan" connection named "eth7.399" with options "autoconnect no dev eth7 id 399"
     * Open editor for connection "eth7.399"
     * Set a property named "connection.autoconnect" to "yes" in editor
     * Set a property named "ipv4.method" to "shared" in editor
@@ -146,7 +146,7 @@ Feature: nmcli - vlan
     @vlan_change_id_with_no_interface_set
     Scenario: nmcli - vlan - change id without interface set
     * Cleanup connection "eth7.55"
-    * Add a new connection of type "vlan" named "eth7.65" and options "autoconnect no dev eth7 id 65"
+    * Add "vlan" connection named "eth7.65" with options "autoconnect no dev eth7 id 65"
     * Open editor for connection "eth7.65"
     * Set a property named "ipv4.method" to "shared" in editor
     * Save in editor
@@ -167,7 +167,7 @@ Feature: nmcli - vlan
     Scenario: nmcli - vlan - change id
     * Cleanup interface "eth7.265"
     * Cleanup connection "eth7.265"
-    * Add a new connection of type "vlan" named "eth7.165" and options "autoconnect no dev eth7 id 165"
+    * Add "vlan" connection named "eth7.165" with options "autoconnect no dev eth7 id 165"
     * Open editor for connection "eth7.165"
     * Set a property named "ipv4.method" to "shared" in editor
     * No error appeared in editor
@@ -201,7 +201,7 @@ Feature: nmcli - vlan
     @rhbz1244048
     @assertion_failure
     Scenario: nmcli - vlan - assertion failure
-    * Add a new connection of type "vlan" named "eth7.99" for device "eth7.101" and options "autoconnect no dev eth7 id 99"
+    * Add "vlan" connection named "eth7.99" for device "eth7.101" with options "autoconnect no dev eth7 id 99"
     * Open editor for connection "eth7.99"
     * Set a property named "vlan.flags" to "1" in editor
     * Save in editor
@@ -223,7 +223,7 @@ Feature: nmcli - vlan
     @vlan_disconnect_device
     Scenario: nmcli - vlan - disconnect device
     * "inet 10.42." is not visible with command "ifconfig"
-    * Add a new connection of type "vlan" named "eth7.399" and options "autoconnect no dev eth7 id 399"
+    * Add "vlan" connection named "eth7.399" with options "autoconnect no dev eth7 id 399"
     * Open editor for connection "eth7.399"
     * Set a property named "ipv4.method" to "shared" in editor
     * Save in editor
@@ -238,7 +238,7 @@ Feature: nmcli - vlan
     @vlan_disconnect_device_with_autoconnect
     Scenario: nmcli - vlan - disconnect device (with autoconnect)
     * "inet 10.42." is not visible with command "ifconfig"
-    * Add a new connection of type "vlan" named "eth7.499" and options "autoconnect no dev eth7 id 499"
+    * Add "vlan" connection named "eth7.499" with options "autoconnect no dev eth7 id 499"
     * Open editor for connection "eth7.499"
     * Set a property named "connection.autoconnect" to "yes" in editor
     * Set a property named "ipv4.method" to "shared" in editor
@@ -255,7 +255,7 @@ Feature: nmcli - vlan
     @vlan_device_tagging
     Scenario: nmcli - vlan - device tagging
     * Execute "yum -y install wireshark"
-    * Add a new connection of type "vlan" named "eth7.80" and options "dev eth7 id 80"
+    * Add "vlan" connection named "eth7.80" with options "dev eth7 id 80"
     * "eth7.80:" is visible with command "ifconfig" in "10" seconds
     * Run child "ping -I eth7.80 8.8.8.8"
     Then "ID: 80" is visible with command "tshark -i eth7 -T fields -e vlan" in "150" seconds
@@ -264,8 +264,8 @@ Feature: nmcli - vlan
 
     @vlan_on_bridge
     Scenario: nmcli - vlan - on bridge
-    * Add a new connection of type "bridge" named "vlan_bridge7" for device "bridge7" and options "stp no"
-    * Add a new connection of type "vlan" named "vlan_bridge7.15" and options "dev bridge7 id 15"
+    * Add "bridge" connection named "vlan_bridge7" for device "bridge7" with options "stp no"
+    * Add "vlan" connection named "vlan_bridge7.15" with options "dev bridge7 id 15"
     Then "bridge7.15:" is visible with command "ifconfig"
 
 
@@ -273,10 +273,10 @@ Feature: nmcli - vlan
     @ver+=1.12.0
     @vlan_over_bridge_over_team_over_nic
     Scenario: nmcli - vlan - over brdge on team
-    * Add a new connection of type "team" named "vlan_team7" for device "team7" and options "ipv4.method disabled ipv6.method ignore mtu 9000 config '{ "runner": {"name":"lacp", "fast_rate":true }}'"
-    * Add a new connection of type "team-slave" named "vlan_team7.0" for device "eth7" and options "mtu 9000 master team7"
-    * Add a new connection of type "vlan" named "vlan_bridge7.15" and options "dev team7 id 15 ipv4.method disabled ipv6.method ignore master bridge7 connection.slave-type bridge "
-    * Add a new connection of type "bridge" named "vlan_bridge7" for device "bridge7" and options "ipv4.method manual ipv6.method ignore ipv4.addresses "11.0.0.1/24""
+    * Add "team" connection named "vlan_team7" for device "team7" with options "ipv4.method disabled ipv6.method ignore mtu 9000 config '{ "runner": {"name":"lacp", "fast_rate":true }}'"
+    * Add "team-slave" connection named "vlan_team7.0" for device "eth7" with options "mtu 9000 master team7"
+    * Add "vlan" connection named "vlan_bridge7.15" with options "dev team7 id 15 ipv4.method disabled ipv6.method ignore master bridge7 connection.slave-type bridge "
+    * Add "bridge" connection named "vlan_bridge7" for device "bridge7" with options "ipv4.method manual ipv6.method ignore ipv4.addresses "11.0.0.1/24""
     When "9000" is visible with command "ip a s eth7"
      And "9000" is visible with command "ip a s bridge7"
      And "9000" is visible with command "ip a s team7"
@@ -294,7 +294,7 @@ Feature: nmcli - vlan
     @vlan
     @vlan_not_duplicated
     Scenario: nmcli - vlan - do not duplicate mtu and ipv4 vlan
-    * Add a new connection of type "vlan" named "vlan" and options "dev eth7 id 80"
+    * Add "vlan" connection named "vlan" with options "dev eth7 id 80"
     * Modify connection "vlan" changing options "ethe.mtu 1450 ipv4.method manual ipv4.addresses 1.2.3.4/24"
     * Bring "up" connection "testeth7"
     * Bring "up" connection "vlan"
@@ -308,7 +308,7 @@ Feature: nmcli - vlan
     @vlan
     @vlan_not_stalled_after_connection_delete
     Scenario: nmcli - vlan - delete vlan device after restart
-    * Add a new connection of type "vlan" named "vlan" and options "dev eth7 id 80"
+    * Add "vlan" connection named "vlan" with options "dev eth7 id 80"
     * Modify connection "vlan" changing options "ethe.mtu 1450 ipv4.method manual ipv4.addresses 1.2.3.4/24"
     * Bring "up" connection "testeth7"
     * Bring "up" connection "vlan"
@@ -323,16 +323,16 @@ Feature: nmcli - vlan
     @vlan_update_mac_from_bond
     Scenario: nmcli - vlan - update mac address from bond
     # Setup given in the bug description
-    * Add a new connection of type "bridge" named "vlan_bridge7" for device "bridge7" and options "autoconnect no"
+    * Add "bridge" connection named "vlan_bridge7" for device "bridge7" with options "autoconnect no"
     * Modify connection "vlan_bridge7" changing options "bridge.stp no connection.autoconnect yes"
     * Modify connection "vlan_bridge7" changing options "ipv4.method manual ipv4.address '192.168.1.11/24' ipv4.gateway '192.168.1.1'"
     * Modify connection "vlan_bridge7" changing options "ipv4.dns 8.8.8.8 ipv4.dns-search boston.com"
     * Bring up connection "vlan_bridge7"
-    * Add a new connection of type "bond" named "vlan_bond7" for device "bond7" and options "autoconnect no mode active-backup"
+    * Add "bond" connection named "vlan_bond7" for device "bond7" with options "autoconnect no mode active-backup"
     * Modify connection "vlan_bond7" changing options "ipv4.method disabled ipv6.method ignore connection.autoconnect yes"
     * Bring up connection "vlan_bond7"
-    * Add a new connection of type "bond-slave" named "vlan_bond7.7" for device "eth7" and options "master bond7"
-    * Add a new connection of type "vlan" named "vlan_vlan7" for device "vlan7" and options "autoconnect no dev bond7 id 7"
+    * Add "bond-slave" connection named "vlan_bond7.7" for device "eth7" with options "master bond7"
+    * Add "vlan" connection named "vlan_vlan7" for device "vlan7" with options "autoconnect no dev bond7 id 7"
     * Modify connection "vlan_vlan7" changing options "connection.master bridge7 connection.slave-type bridge connection.autoconnect yes"
     * Bring up connection "vlan_vlan7"
     # Check all is up
@@ -358,10 +358,10 @@ Feature: nmcli - vlan
     @del_test1112_veths
     @bring_up_very_long_device_name
     Scenario: nmcli - general - bring up very_long_device_name
-    * Add a new interface of type "veth" named "very_long_name" and options "peer name test11"
-    * Add a new connection of type "ethernet" named "vlan1" for device "very_long_name" and options "-- ipv4.method manual ipv4.addresses 1.2.3.4/24"
+    * Create "veth" device named "very_long_name" with options "peer name test11"
+    * Add "ethernet" connection named "vlan1" for device "very_long_name" with options "-- ipv4.method manual ipv4.addresses 1.2.3.4/24"
     * Bring "up" connection "vlan1"
-    * Add a new connection of type "vlan" named "vlan" and options "dev very_long_name id 1024 -- ipv4.method manual ipv4.addresses 1.2.3.55/24"
+    * Add "vlan" connection named "vlan" with options "dev very_long_name id 1024 -- ipv4.method manual ipv4.addresses 1.2.3.55/24"
     * Bring "up" connection "vlan"
     Then "very_long_name:connected:vlan1" is visible with command "nmcli -t -f DEVICE,STATE,CONNECTION device" in "10" seconds
      And "very_long_.1024:connected:vlan" is visible with command "nmcli -t -f DEVICE,STATE,CONNECTION device" in "10" seconds
@@ -374,7 +374,7 @@ Feature: nmcli - vlan
     @ifcfg-rh
     @reorder_hdr
     Scenario: nmcli - vlan - reorder HDR
-    * Add a new connection of type "vlan" named "vlan" for device "vlan" and options "dev eth7 id 80 ip4 1.2.3.4/32"
+    * Add "vlan" connection named "vlan" for device "vlan" with options "dev eth7 id 80 ip4 1.2.3.4/32"
     When "REORDER_HDR" is visible with command "ip -d l show vlan"
      And "REORDER_HDR=yes" is visible with command "grep HDR /etc/sysconfig/network-scripts/ifcfg-vlan"
     * Modify connection "vlan" changing options "vlan.flags 0"
@@ -418,10 +418,10 @@ Feature: nmcli - vlan
     @restart_if_needed
     @vlan_mtu_from_parent
     Scenario: nmcli - vlan - MTU from parent
-    * Add a new connection of type "ethernet" named "vlan1" for device "eth7" and options "802-3-ethernet.mtu 9000 ipv4.method disabled ipv6.method ignore"
+    * Add "ethernet" connection named "vlan1" for device "eth7" with options "802-3-ethernet.mtu 9000 ipv4.method disabled ipv6.method ignore"
     * Bring "down" connection "vlan1"
     * Bring "up" connection "vlan1"
-    * Add a new connection of type "vlan" named "vlan" for device "vlan" and options "dev eth7 id 80 ip4 1.2.3.4/32"
+    * Add "vlan" connection named "vlan" for device "vlan" with options "dev eth7 id 80 ip4 1.2.3.4/32"
     When "mtu 9000" is visible with command "ip a s vlan" in "10" seconds
     * Stop NM
     * Execute "ip link set dev eth7 down"
@@ -436,10 +436,10 @@ Feature: nmcli - vlan
     @ver+=1.20.0
     @vlan_mtu_reapply
     Scenario: nmcli - vlan - MTU from parent
-    * Add a new connection of type "ethernet" named "vlan1" for device "eth7" and options "802-3-ethernet.mtu 2000 ipv4.method disabled ipv6.method ignore"
+    * Add "ethernet" connection named "vlan1" for device "eth7" with options "802-3-ethernet.mtu 2000 ipv4.method disabled ipv6.method ignore"
     * Bring "up" connection "vlan1"
-    * Add a new connection of type "vlan" named "eth7.299" for device "eth7.299" and options "dev eth7 id 299 802-3-ethernet.mtu 2000 ipv4.method manual ipv4.addresses 1.2.3.4/24"
-    * Add a new connection of type "vlan" named "eth7.399" for device "eth7.399" and options "dev eth7 id 399 802-3-ethernet.mtu 2000 ipv4.method manual ipv4.addresses 1.2.3.5/24"
+    * Add "vlan" connection named "eth7.299" for device "eth7.299" with options "dev eth7 id 299 802-3-ethernet.mtu 2000 ipv4.method manual ipv4.addresses 1.2.3.4/24"
+    * Add "vlan" connection named "eth7.399" for device "eth7.399" with options "dev eth7 id 399 802-3-ethernet.mtu 2000 ipv4.method manual ipv4.addresses 1.2.3.5/24"
     When "mtu 2000" is visible with command "ip a s eth7" in "10" seconds
     When "mtu 2000" is visible with command "ip a s eth7.299" in "10" seconds
     When "mtu 2000" is visible with command "ip a s eth7.399" in "10" seconds
@@ -456,10 +456,10 @@ Feature: nmcli - vlan
     @ver+=1.22.0
     @vlan_mtu_device_reapply
     Scenario: nmcli - vlan - MTU device reapply
-    * Add a new connection of type "ethernet" named "vlan1" for device "eth7" and options "802-3-ethernet.mtu 2000 ipv4.method disabled ipv6.method ignore"
+    * Add "ethernet" connection named "vlan1" for device "eth7" with options "802-3-ethernet.mtu 2000 ipv4.method disabled ipv6.method ignore"
     * Bring "up" connection "vlan1"
-    * Add a new connection of type "vlan" named "eth7.299" for device "eth7.299" and options "dev eth7 id 299 802-3-ethernet.mtu 2000 ipv4.method manual ipv4.addresses 1.2.3.4/24"
-    * Add a new connection of type "vlan" named "eth7.399" for device "eth7.399" and options "dev eth7 id 399 802-3-ethernet.mtu 2000 ipv4.method manual ipv4.addresses 1.2.3.5/24"
+    * Add "vlan" connection named "eth7.299" for device "eth7.299" with options "dev eth7 id 299 802-3-ethernet.mtu 2000 ipv4.method manual ipv4.addresses 1.2.3.4/24"
+    * Add "vlan" connection named "eth7.399" for device "eth7.399" with options "dev eth7 id 399 802-3-ethernet.mtu 2000 ipv4.method manual ipv4.addresses 1.2.3.5/24"
     When "mtu 2000" is visible with command "ip a s eth7" in "10" seconds
     When "mtu 2000" is visible with command "ip a s eth7.299" in "10" seconds
     When "mtu 2000" is visible with command "ip a s eth7.399" in "10" seconds
@@ -476,10 +476,10 @@ Feature: nmcli - vlan
     @vlan_mtu_from_parent_with_slow_dhcp
     Scenario: nmcli - vlan - MTU from parent
     * Prepare simulated test "test77" device
-    * Add a new connection of type "ethernet" named "vlan1" and options "ifname test77 802-3-ethernet.mtu 9000 ipv4.method auto ipv6.method auto"
+    * Add "ethernet" connection named "vlan1" for device "test77" with options "802-3-ethernet.mtu 9000 ipv4.method auto ipv6.method auto"
     * Bring "down" connection "vlan1"
     * Bring "up" connection "vlan1"
-    * Add a new connection of type "vlan" named "vlan2" for device "vlan" and options "802-3-ethernet.mtu 9000 dev test77 id 80 ip4 1.2.3.4/32"
+    * Add "vlan" connection named "vlan2" for device "vlan" with options "802-3-ethernet.mtu 9000 dev test77 id 80 ip4 1.2.3.4/32"
     When "mtu 9000" is visible with command "ip a s vlan" in "10" seconds
     * Stop NM
     * Execute "ip link set dev test77 mtu 1500"
@@ -496,9 +496,9 @@ Feature: nmcli - vlan
     @ver+=1.4.0
     @default_route_for_vlan_over_team
     Scenario: NM - vlan - default route for vlan over team
-    * Add a new connection of type "team" named "vlan_team7" for device "team7"
-    * Add a new connection of type "team-slave" named "vlan_team7.0" for device "eth7" and options "master team7"
-    * Add a new connection of type "vlan" named "vlan_team7.1" and options "dev team7 id 1 mtu 1500 ipv4.method manual ipv4.addresses 192.168.168.16/24 ipv4.gateway 192.168.103.1 ipv6.method manual ipv6.addresses 2168::16/64 ipv4.dns 8.8.8.8"
+    * Add "team" connection named "vlan_team7" for device "team7"
+    * Add "team-slave" connection named "vlan_team7.0" for device "eth7" with options "master team7"
+    * Add "vlan" connection named "vlan_team7.1" with options "dev team7 id 1 mtu 1500 ipv4.method manual ipv4.addresses 192.168.168.16/24 ipv4.gateway 192.168.103.1 ipv6.method manual ipv6.addresses 2168::16/64 ipv4.dns 8.8.8.8"
     * Bring "up" connection "vlan_team7"
     * Bring "up" connection "vlan_team7.0"
     * Bring "up" connection "vlan_team7.1"
@@ -512,11 +512,11 @@ Feature: nmcli - vlan
     @restart_if_needed
     @vlan_on_bond_autoconnect
     Scenario: NM - vlan - autoconnect vlan on bond specified as UUID
-    * Add a new connection of type "bond" named "bond0" for device "nm-bond"
+    * Add "bond" connection named "bond0" for device "nm-bond"
     * Note the output of "nmcli --mode tabular -t -f connection.uuid connection show bond0"
     * Add slave connection for master "nm-bond" on device "eth1" named "bond0.0"
     * Add slave connection for master "nm-bond" on device "eth4" named "bond0.1"
-    * Add a new connection of type "vlan" named "vlan_bond7" and options "dev nm-bond id 7 ip4 192.168.168.16/24 autoconnect no"
+    * Add "vlan" connection named "vlan_bond7" with options "dev nm-bond id 7 ip4 192.168.168.16/24 autoconnect no"
     * Modify connection "vlan_bond7" property "vlan.parent" to noted value
     * Execute "nmcli connection modify vlan_bond7 connection.autoconnect yes"
     * Reboot
@@ -532,11 +532,11 @@ Feature: nmcli - vlan
     @restart_if_needed
     @vlan_on_bond_autoconnect
     Scenario: NM - vlan - autoconnect vlan on bond specified as UUID
-    * Add a new connection of type "bond" named "bond0" for device "nm-bond"
+    * Add "bond" connection named "bond0" for device "nm-bond"
     * Note the output of "nmcli --mode tabular -t -f connection.uuid connection show bond0"
     * Add slave connection for master "nm-bond" on device "eth1" named "bond0.0"
     * Add slave connection for master "nm-bond" on device "eth4" named "bond0.1"
-    * Add a new connection of type "vlan" named "vlan_bond7" and options "dev nm-bond id 7 ip4 192.168.168.16/24 autoconnect no"
+    * Add "vlan" connection named "vlan_bond7" with options "dev nm-bond id 7 ip4 192.168.168.16/24 autoconnect no"
     * Modify connection "vlan_bond7" property "vlan.parent" to noted value
     * Execute "nmcli connection modify vlan_bond7 connection.autoconnect yes"
     * Reboot
@@ -557,11 +557,11 @@ Feature: nmcli - vlan
     @restart_if_needed
     @vlan_on_bond_autoconnect
     Scenario: NM - vlan - autoconnect vlan on bond specified as UUID
-    * Add a new connection of type "bond" named "bond0" for device "nm-bond" and options "mtu 9000"
+    * Add "bond" connection named "bond0" for device "nm-bond" with options "mtu 9000"
     * Note the output of "nmcli --mode tabular -t -f connection.uuid connection show bond0"
-    * Add a new connection of type "ethernet" named "bond0.0" and options "ifname eth1 master nm-bond connection.slave-type bond"
-    * Add a new connection of type "ethernet" named "bond0.1" for device "eth4" and options "master nm-bond connection.slave-type bond"
-    * Add a new connection of type "vlan" named "vlan_bond7" and options "dev nm-bond id 7 ip4 192.168.168.16/24 autoconnect no"
+    * Add "ethernet" connection named "bond0.0" for device "eth1" with options "master nm-bond connection.slave-type bond"
+    * Add "ethernet" connection named "bond0.1" for device "eth4" with options "master nm-bond connection.slave-type bond"
+    * Add "vlan" connection named "vlan_bond7" with options "dev nm-bond id 7 ip4 192.168.168.16/24 autoconnect no"
     * Modify connection "vlan_bond7" property "vlan.parent" to noted value
     * Execute "nmcli connection modify vlan_bond7 connection.autoconnect yes"
     * Reboot
@@ -594,10 +594,10 @@ Feature: nmcli - vlan
     @static_route_persists_mac_change
     Scenario: NM - vlan - static route is not deleted after NM changes MAC
     * Prepare simulated test "test77" device
-    * Add a new connection of type "bond" named "bond0" for device "nm-bond"
-    #* Add a new connection of type "bond" and options "autoconnect no ifname nm-bond ethernet.cloned-mac-address preserve"
-    * Add a new connection of type "vlan" named "vlan_bond7" and options "autoconnect no ethernet.cloned-mac-address preserve ipv4.method disabled ipv6.method ignore vlan.id 7 vlan.parent nm-bond"
-    * Add a new connection of type "ethernet" named "bond0.0" and options "autoconnect no ethernet.cloned-mac-address preserve ifname test77 master nm-bond slave-type bond"
+    * Add "bond" connection named "bond0" for device "nm-bond"
+    #* Add "bond" connection for device "nm-bond" with options "autoconnect no ethernet.cloned-mac-address preserve"
+    * Add "vlan" connection named "vlan_bond7" with options "autoconnect no ethernet.cloned-mac-address preserve ipv4.method disabled ipv6.method ignore vlan.id 7 vlan.parent nm-bond"
+    * Add "ethernet" connection named "bond0.0" for device "test77" with options "autoconnect no ethernet.cloned-mac-address preserve master nm-bond slave-type bond"
     * Bring "up" connection "bond0"
     * Bring "up" connection "vlan_bond7"
     * Execute "ip addr add 192.168.168.16/24 dev nm-bond.7"
@@ -610,11 +610,11 @@ Feature: nmcli - vlan
     @restart_if_needed
     @vlan_create_macvlan_on_vlan
     Scenario: nmcli - vlan - create macvlan on vlan
-    * Add a new connection of type "vlan" named "eth7.99" and options "dev eth7 id 99"
-    * Add a new connection of type "vlan" named "eth7.299" and options "dev eth7 id 299"
-    * Add a new connection of type "macvlan" named "vlan1" for device "mvl1" and options "mode bridge macvlan.parent eth7.99"
-    * Add a new connection of type "macvlan" named "vlan2" for device "mvl2" and options "mode bridge macvlan.parent eth7.99"
-    * Add a new connection of type "macvlan" named "vlan" for device "mvl" and options "mode bridge macvlan.parent eth7.299"
+    * Add "vlan" connection named "eth7.99" with options "dev eth7 id 99"
+    * Add "vlan" connection named "eth7.299" with options "dev eth7 id 299"
+    * Add "macvlan" connection named "vlan1" for device "mvl1" with options "mode bridge macvlan.parent eth7.99"
+    * Add "macvlan" connection named "vlan2" for device "mvl2" with options "mode bridge macvlan.parent eth7.99"
+    * Add "macvlan" connection named "vlan" for device "mvl" with options "mode bridge macvlan.parent eth7.299"
     * Restart NM
 
 
@@ -622,9 +622,9 @@ Feature: nmcli - vlan
     @ver+=1.18.3 @ver-=1.26
     @vlan_L2_UUID
     Scenario: NM - vlan - L2 only master via UUID
-    * Add a new connection of type "ethernet" named "vlan1" for device "eth7" and options "ipv4.method disabled ipv6.method ignore"
+    * Add "ethernet" connection named "vlan1" for device "eth7" with options "ipv4.method disabled ipv6.method ignore"
     * Note the output of "nmcli --mode tabular -t -f connection.uuid connection show vlan1"
-    * Add a new connection of type "vlan" named "vlan" for device "eth7.80" and options "dev eth7 id 80 ip4 192.168.1.2/24"
+    * Add "vlan" connection named "vlan" for device "eth7.80" with options "dev eth7 id 80 ip4 192.168.1.2/24"
     * Modify connection "vlan" property "vlan.parent" to noted value
     * Execute "nmcli connection modify vlan connection.autoconnect yes"
     * Bring "up" connection "vlan"
@@ -636,8 +636,8 @@ Feature: nmcli - vlan
     @ver+=1.27
     @vlan_L2_UUID
     Scenario: NM - vlan - L2 only master via UUID
-    * Add a new connection of type "ethernet" named "vlan1" for device "eth7" and options "ipv4.method disabled ipv6.method ignore"
-    * Add a new connection of type "vlan" named "vlan" for device "eth7.80" and options 
+    * Add "ethernet" connection named "vlan1" for device "eth7" with options "ipv4.method disabled ipv6.method ignore"
+    * Add "vlan" connection named "vlan" for device "eth7.80" with options
         """
         dev eth7
         id 80
@@ -656,7 +656,7 @@ Feature: nmcli - vlan
     @ver+=1.22.8
     @vlan_no_autoconnect_after_modify
     Scenario: nmcli - vlan - no autoconnect after modify
-    * Add a new connection of type "vlan" named "vlan" and options "dev eth7 id 80 ip4 192.168.1.2/24 autoconnect yes"
+    * Add "vlan" connection named "vlan" with options "dev eth7 id 80 ip4 192.168.1.2/24 autoconnect yes"
     Then "eth7.80" is visible with command "ip l" in "5" seconds
     And "vlan" is visible with command "nmcli -t -f name con show --active" in "5" seconds
     * Bring "down" connection "vlan"
@@ -670,7 +670,7 @@ Feature: nmcli - vlan
     @rhbz1066705
     @vxlan_interface_recognition
     Scenario: NM - vxlan - interface support
-    * Add a new interface of type "vxlan" named "dummy0" and options "id 42 group 239.1.1.1 dev eth7"
+    * Create "vxlan" device named "dummy0" with options "id 42 group 239.1.1.1 dev eth7"
     When "unmanaged" is visible with command "nmcli device show dummy0" in "5" seconds
     * Execute "ip link set dev dummy0 up"
     * Execute "ip addr add fd00::666/8 dev dummy0"
@@ -682,7 +682,7 @@ Feature: nmcli - vlan
     #@ver+=1.22
     #@vxlan_dbus_shows_port_numbers
     #Scenario: NM - vxlan - dbus shows port numbers
-    #* Add a new connection of type "vxlan" named "vlan1" for device "vlan1" and options "vxlan.destination-port 70 vxlan.source-port-max 50 vxlan.source-port-min 30 id 70 dev eth7 ip4 1.2.3.4/24 remote 1.2.3.1"
+    #* Add "vxlan" connection named "vlan1" for device "vlan1" with options "vxlan.destination-port 70 vxlan.source-port-max 50 vxlan.source-port-min 30 id 70 dev eth7 ip4 1.2.3.4/24 remote 1.2.3.1"
     #* Execute "nmcli con up vlan1"
     #Then vxlan device "vlan1" check for ports "70, 30, 50"
 
@@ -691,7 +691,7 @@ Feature: nmcli - vlan
     @ver+=1.22
     @vxlan_libnm_shows_port_numbers
     Scenario: NM - vxlan - libnm shows port numbers
-    * Add a new connection of type "vxlan" named "vlan1" for device "vlan1" and options "vxlan.destination-port 70 vxlan.source-port-max 50 vxlan.source-port-min 30 id 70 dev eth7 ip4 1.2.3.4/24 remote 1.2.3.1"
+    * Add "vxlan" connection named "vlan1" for device "vlan1" with options "vxlan.destination-port 70 vxlan.source-port-max 50 vxlan.source-port-min 30 id 70 dev eth7 ip4 1.2.3.4/24 remote 1.2.3.1"
     * Execute "nmcli con up vlan1"
     Then "70" is visible with command "/usr/bin/python contrib/gi/nmclient_get_connection_property.py vlan1 destination-port"
     Then "30" is visible with command "/usr/bin/python contrib/gi/nmclient_get_connection_property.py vlan1 source-port-min"
@@ -705,7 +705,7 @@ Feature: nmcli - vlan
     @ver+=1.22
     @vxlan_do_not_up_if_no_master
     Scenario: NM - vxlan - do not up when no master
-    * Add a new connection of type "vxlan" named "vlan1" for device "vlan1" and options "vxlan.parent not-exists id 70 remote 172.25.1.1"
+    * Add "vxlan" connection named "vlan1" for device "vlan1" with options "vxlan.parent not-exists id 70 remote 172.25.1.1"
     Then "--" is visible with command "nmcli connection  |grep vlan1" for full "2" seconds
 
 
@@ -748,7 +748,7 @@ Feature: nmcli - vlan
     @ver+=1.31
     @vlan_ifname_vlan0_with_id_7
     Scenario: NM - vlan - use ID 7 with ifname vlan0
-    * Add a new connection of type "vlan" named "vlan" for device "vlan0" and options "vlan.id 7 dev eth7 ipv4.method disable ipv6.method ignore"
+    * Add "vlan" connection named "vlan" for device "vlan0" with options "vlan.id 7 dev eth7 ipv4.method disable ipv6.method ignore"
     Then "7" is visible with command "nmcli -g vlan.id con show id vlan"
     Then " 802.1Q id 7 " is visible with command "ip -d link show dev vlan0"
 
@@ -757,7 +757,7 @@ Feature: nmcli - vlan
     @ver+=1.31
     @vlan_accept_all_mac_addresses
     Scenario: nmcli - vlan - accept-all-mac-addresses (promisc mode)
-    * Add a new connection of type "vlan" named "vlan" for device "eth7.80" and options
+    * Add "vlan" connection named "vlan" for device "eth7.80" with options
         """
         id 80 dev eth7
         autoconnect no
@@ -780,7 +780,7 @@ Feature: nmcli - vlan
     # promisc off -> default
     * Execute "ip link add link eth7 name eth7.80 type vlan id 80 && ip link set dev eth7.80 promisc off"
     When "PROMISC" is not visible with command "ip link show dev eth7.80"
-    * Add a new connection of type "vlan" named "vlan" for device "eth7.80" and options
+    * Add "vlan" connection named "vlan" for device "eth7.80" with options
        """
        id 80 dev eth7
        autoconnect no

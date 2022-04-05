@@ -81,10 +81,10 @@ Feature: General TUI tests
 
     @nmtui_general_active_connections_display
     Scenario: nmtui - general - active connections display
-    * Add a new connection of type "ethernet" named "ethernet1" and options "ifname eth1 autoconnect no"
+    * Add "ethernet" connection named "ethernet1" for device "eth1" with options "autoconnect no"
     * Bring up connection "ethernet1"
-    * Add a new connection of type "ethernet" named "ethernet2" and options "ifname eth2 autoconnect no"
-    * Add a new connection of type "bridge" named "bridge0" for device "bridge0"
+    * Add "ethernet" connection named "ethernet2" for device "eth2" with options "autoconnect no"
+    * Add "bridge" connection named "bridge0" for device "bridge0"
     * Start nmtui
     * Choose to "Activate a connection" from main screen
     Then Select connection " \* ethernet1" in the list
@@ -96,7 +96,7 @@ Feature: General TUI tests
     Scenario: nmtui - general - realtime connection refresh edit screen
     * Start nmtui
     * Choose to "Edit a connection" from main screen
-    * Add a new connection of type "ethernet" named "ethernet1" and options "ifname eth1 autoconnect no"
+    * Add "ethernet" connection named "ethernet1" for device "eth1" with options "autoconnect no"
     # bring con up in the list by bringing it up :)
     * Bring up connection "ethernet1"
     Then ".* ethernet1.*" is visible on screen in "5" seconds
@@ -108,7 +108,7 @@ Feature: General TUI tests
     Scenario: nmtui - general - realtime connection refresh activation screen without autoconnect
     * Start nmtui
     * Choose to "Activate a connection" from main screen
-    * Add a new connection of type "ethernet" named "ethernet1" and options "ifname eth1 autoconnect no"
+    * Add "ethernet" connection named "ethernet1" for device "eth1" with options "autoconnect no"
     Then ".*   ethernet1.*" is visible on screen in "5" seconds
     * Delete connection "ethernet1"
     Then ".*   ethernet1.*" is not visible on screen in "5" seconds
@@ -118,7 +118,7 @@ Feature: General TUI tests
     Scenario: nmtui - general - realtime connection refresh activation screen
     * Start nmtui
     * Choose to "Activate a connection" from main screen
-    * Add a new connection of type "ethernet" named "ethernet1" and options "ifname eth1 autoconnect no"
+    * Add "ethernet" connection named "ethernet1" for device "eth1" with options "autoconnect no"
     * Bring up connection "ethernet1"
     Then ".* \* ethernet1.*" is visible on screen in "5" seconds
     * Delete connection "ethernet1"

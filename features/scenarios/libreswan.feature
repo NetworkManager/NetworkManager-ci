@@ -234,7 +234,7 @@
     @vpn
     @vpn_keep_username_from_data
     Scenario: nmcli - vpn - keep username from vpn.data
-    * Add a new connection of type "vpn" and options "ifname \* con-name vpn autoconnect no vpn-type libreswan"
+    * Add "vpn" connection named "vpn" for device "\*" with options "autoconnect no vpn-type libreswan"
     * Open editor for connection "vpn"
     * Submit "set vpn.service-type org.freedesktop.NetworkManager.libreswan" in editor
     * Submit "set vpn.data right = vpn-test.com, xauthpasswordinputmodes = save, xauthpassword-flags = 1, esp = aes-sha1;modp2048, leftxauthusername = desktopqe, pskinputmodes = save, ike = aes-sha1;modp2048, pskvalue-flags = 1, leftid = desktopqe" in editor
@@ -252,7 +252,7 @@
     @vpn
     @vpn_keep_username_from_data
     Scenario: nmcli - vpn - keep username from vpn.data
-    * Add a new connection of type "vpn" and options "ifname \* con-name vpn autoconnect no vpn-type libreswan"
+    * Add "vpn" connection named "vpn" for device "\*" with options "autoconnect no vpn-type libreswan"
     * Open editor for connection "vpn"
     * Submit "set vpn.service-type org.freedesktop.NetworkManager.libreswan" in editor
     * Submit "set vpn.data right = vpn-test.com, xauthpasswordinputmodes = save, xauthpassword-flags = 1, esp = aes-sha1;modp2048, leftxauthusername = desktopqe, pskinputmodes = save, ike = aes-sha1;modp2048, pskvalue-flags = 1, leftid = desktopqe" in editor
@@ -337,7 +337,7 @@
     @libreswan
     @libreswan_reimport
     Scenario: nmcli - libreswan - reimport exported connection
-    * Add a new connection of type "vpn" and options "ifname \* con-name libreswan autoconnect no vpn-type libreswan"
+    * Add "vpn" connection named "libreswan" for device "\*" with options "autoconnect no vpn-type libreswan"
     * Use user "budulinek" with password "ask" and group "yolo" with secret "ask" for gateway "11.12.13.14" on Libreswan connection "libreswan"
     * Connect to vpn "libreswan" with password "passwd" and secret "ipsecret"
     When "VPN.VPN-STATE:.*VPN connected" is visible with command "nmcli c show libreswan"
@@ -360,7 +360,7 @@
     @libreswan @ikev2
     @libreswan_reimport_ikev2
     Scenario: nmcli - libreswan - reimport exported IKEv2 connection
-    * Add a new connection of type "vpn" and options "ifname \* con-name libreswan autoconnect no vpn-type libreswan"
+    * Add "vpn" connection named "libreswan" for device "\*" with options "autoconnect no vpn-type libreswan"
     * Modify connection "libreswan" changing options "vpn.data 'ikev2=insist, leftcert=LibreswanClient, leftid=%fromcert, right=11.12.13.14'"
     * Bring "up" connection "libreswan"
     When "VPN.VPN-STATE:.*VPN connected" is visible with command "nmcli c show libreswan"
@@ -382,7 +382,7 @@
     @vpn
     @libreswan_configurable_options_reimport
     Scenario: nmcli - libreswan - check libreswan options in vpn.data
-    * Add a new connection of type "vpn" and options "ifname \* con-name vpn autoconnect no vpn-type libreswan vpn.data 'right=1.2.3.4, rightid=server, rightrsasigkey=server-key, left=1.2.3.5, leftid=client, leftrsasigkey=client-key, leftcert=client-cert, ike=aes256-sha1;modp1536, esp=aes256-sha1, ikelifetime=10m, salifetime=1h, vendor=Cisco, rightsubnet=1.2.3.0/24, ikev2=yes, narrowing=yes, rekey=no, fragmentation=no'"
+    * Add "vpn" connection named "vpn" for device "\*" with options "autoconnect no vpn-type libreswan vpn.data 'right=1.2.3.4, rightid=server, rightrsasigkey=server-key, left=1.2.3.5, leftid=client, leftrsasigkey=client-key, leftcert=client-cert, ike=aes256-sha1;modp1536, esp=aes256-sha1, ikelifetime=10m, salifetime=1h, vendor=Cisco, rightsubnet=1.2.3.0/24, ikev2=yes, narrowing=yes, rekey=no, fragmentation=no'"
     * Note the output of "nmcli -t -f vpn.data connection show vpn | sed -e 's/vpn.data:\s*//' | sed -e 's/\s*,\s*/\n/g' | sort" as value "vpn1"
     * Execute "nmcli connection export vpn > /tmp/vpn.swan"
     * Delete connection "vpn"

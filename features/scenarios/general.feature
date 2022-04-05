@@ -35,7 +35,7 @@ Feature: nmcli - general
     @rhbz1212196
     @reduce_logging
     Scenario: NM - general - reduce logging
-     * Add a new connection of type "bond" named "gen-bond0" for device "gen-bond"
+     * Add "bond" connection named "gen-bond0" for device "gen-bond"
     Then "preparing" is not visible with command "journalctl _COMM=NetworkManager --since '2 min ago'   |grep '<info> .*gen-bond' |grep 'preparing device'"
     Then "exported as" is not visible with command "journalctl _COMM=NetworkManager --since '2 min ago' |grep '<info> .*gen-bond' |grep 'exported as'"
     Then "Stage" is not visible with command "journalctl _COMM=NetworkManager --since '2 min ago'       |grep '<info> .*gen-bond' |grep 'Stage'"
@@ -102,7 +102,7 @@ Feature: nmcli - general
     * Prepare simulated test "testG" device
     * Execute "hostnamectl set-hostname """
     * Execute "hostnamectl set-hostname --transient localhost.localdomain && sleep 1"
-    * Add a new connection of type "ethernet" named "con_general" and options "ifname testG autoconnect no"
+    * Add "ethernet" connection named "con_general" for device "testG" with options "autoconnect no"
     When "localhost|fedora" is visible with command "hostnamectl --transient" in "60" seconds
     * Bring up connection "con_general"
     When "ransient" is visible with command "hostnamectl" in "60" seconds
@@ -125,7 +125,7 @@ Feature: nmcli - general
     * Prepare simulated test "testG" device with "172.25.15" ipv4 and daemon options "--dhcp-option=12 --dhcp-host=00:11:22:33:44:55,172.25.15.1,foo-bar"
     * Execute "hostnamectl set-hostname """
     * Execute "hostnamectl set-hostname --transient localhost.localdomain && sleep 1"
-    * Add a new connection of type "ethernet" named "con_general" and options "ifname testG autoconnect no ipv6.method ignore ipv4.method auto"
+    * Add "ethernet" connection named "con_general" for device "testG" with options "autoconnect no ipv6.method ignore ipv4.method auto"
     * Modify connection "con_general" changing options "ipv4.address 172.25.13.1/30 ethernet.cloned-mac-address 00:11:22:33:44:55"
     When "localhost|fedora" is visible with command "hostnamectl --transient" in "60" seconds
     * Bring up connection "con_general"
@@ -157,8 +157,8 @@ Feature: nmcli - general
     * Execute "ip netns exec testG_ns kill -SIGSTOP $(cat /tmp/testG_ns.pid)"
     * Execute "hostnamectl set-hostname """
     * Execute "hostnamectl set-hostname --transient localhost.localdomain && sleep 1"
-    * Add a new connection of type "ethernet" named "con_general" and options "ifname testG autoconnect no ipv4.method auto"
-    * Add a new connection of type "ethernet" named "con_general2" and options "ifname testX6 ipv6.method auto"
+    * Add "ethernet" connection named "con_general" for device "testG" with options "autoconnect no ipv4.method auto"
+    * Add "ethernet" connection named "con_general2" for device "testX6" with options "ipv6.method auto"
     * Modify connection "con_general" changing options "ipv4.address 172.25.13.1/30 ethernet.cloned-mac-address 00:11:22:33:44:55"
     When "connected" is visible with command "nmcli -g GENERAL.STATE dev show testX6" in "25" seconds
     When "localhost|fedora" is visible with command "hostnamectl --transient" in "60" seconds
@@ -179,8 +179,8 @@ Feature: nmcli - general
     * Prepare simulated test "testH" device with "192.168.98" ipv4 and daemon options "--dhcp-option=3 --dhcp-host=00:00:11:00:00:11,192.168.98.11,bar"
     * Execute "hostnamectl set-hostname """
     * Execute "hostnamectl set-hostname --transient localhost.localdomain && sleep 1"
-    * Add a new connection of type "ethernet" named "con_general" and options "ifname testG autoconnect no ethernet.cloned-mac-address 00:11:22:33:44:55 ipv6.method disabled"
-    * Add a new connection of type "ethernet" named "con_general2" and options "ifname testH autoconnect no ethernet.cloned-mac-address 00:00:11:00:00:11 ipv6.method disabled"
+    * Add "ethernet" connection named "con_general" for device "testG" with options "autoconnect no ethernet.cloned-mac-address 00:11:22:33:44:55 ipv6.method disabled"
+    * Add "ethernet" connection named "con_general2" for device "testH" with options "autoconnect no ethernet.cloned-mac-address 00:00:11:00:00:11 ipv6.method disabled"
     When "localhost|fedora" is visible with command "hostnamectl --transient" in "60" seconds
 
     * Bring up connection "con_general"
@@ -210,7 +210,7 @@ Feature: nmcli - general
     * Prepare simulated test "testG" device
     * Execute "hostnamectl set-hostname """
     * Execute "hostnamectl set-hostname --transient localhost.localdomain && sleep 1"
-    * Add a new connection of type "ethernet" named "con_general" and options "ifname testG autoconnect no"
+    * Add "ethernet" connection named "con_general" for device "testG" with options "autoconnect no"
     When "localhost|fedora" is visible with command "hostnamectl --transient" in "60" seconds
     * Bring up connection "con_general"
     When "ransient" is visible with command "hostnamectl" in "60" seconds
@@ -227,7 +227,7 @@ Feature: nmcli - general
     * Prepare simulated test "testG" device
     * Execute "hostnamectl set-hostname """
     * Execute "hostnamectl set-hostname --transient localhost.localdomain && sleep 1"
-    * Add a new connection of type "ethernet" named "con_general" and options "ifname testG autoconnect no"
+    * Add "ethernet" connection named "con_general" for device "testG" with options "autoconnect no"
     When "localhost|fedora" is visible with command "hostnamectl --transient" in "60" seconds
     * Bring up connection "con_general"
     When "ransient" is visible with command "hostnamectl" in "60" seconds
@@ -242,7 +242,7 @@ Feature: nmcli - general
     * Prepare simulated test "testG" device
     * Execute "hostnamectl set-hostname """
     * Execute "hostnamectl set-hostname --transient localhost.localdomain && sleep 1"
-    * Add a new connection of type "ethernet" named "con_general" and options "ifname testG autoconnect no ipv4.never-default yes hostname.only-from-default false"
+    * Add "ethernet" connection named "con_general" for device "testG" with options "autoconnect no ipv4.never-default yes hostname.only-from-default false"
     When "localhost|fedora" is visible with command "hostnamectl --transient" in "60" seconds
     * Bring up connection "con_general"
     When "ransient" is visible with command "hostnamectl" in "60" seconds
@@ -260,7 +260,7 @@ Feature: nmcli - general
     * Prepare simulated test "testG" device
     * Execute "hostnamectl set-hostname """
     * Execute "hostnamectl set-hostname --transient localhost.localdomain && sleep 1"
-    * Add a new connection of type "ethernet" named "con_general" and options "ifname testG autoconnect no"
+    * Add "ethernet" connection named "con_general" for device "testG" with options "autoconnect no"
     When "localhost|fedora" is visible with command "hostnamectl --transient" in "60" seconds
     * Bring up connection "con_general"
     When "ransient" is visible with command "hostnamectl" in "60" seconds
@@ -278,7 +278,7 @@ Feature: nmcli - general
     * Prepare simulated test "testG" device
     * Execute "hostnamectl set-hostname """
     * Execute "hostnamectl set-hostname --transient localhost.localdomain && sleep 1"
-    * Add a new connection of type "ethernet" named "con_general" and options "ifname testG autoconnect no"
+    * Add "ethernet" connection named "con_general" for device "testG" with options "autoconnect no"
     When "localhost|fedora" is visible with command "hostnamectl --transient" in "60" seconds
     * Bring up connection "con_general"
     When "ransient" is visible with command "hostnamectl" in "60" seconds
@@ -292,7 +292,7 @@ Feature: nmcli - general
     @gen_activate_with_incorrect_hostname
     Scenario: nmcli - ipv4 - dhcp-hostname - set dhcp-hostname
     * Execute "hostnamectl set-hostname bpelled_invalid_hostname"
-    * Add a new connection of type "ethernet" named "con_general" and options "ifname eth8"
+    * Add "ethernet" connection named "con_general" for device "eth8"
     Then Bring "up" connection "con_general"
 
 
@@ -346,7 +346,7 @@ Feature: nmcli - general
     @shutdown @restart_if_needed
     @shutdown_service_connected
     Scenario: NM - general - shutdown service - connected
-    * Add a new connection of type "ethernet" named "con_general" and options "ifname eth8 autoconnect no ipv4.may-fail no "
+    * Add "ethernet" connection named "con_general" for device "eth8" with options "autoconnect no ipv4.may-fail no "
     * Bring "up" connection "con_general"
     * "default via 192.168.100.1 dev eth8" is visible with command "ip r"
     * "inet 192.168.10[0-3]" is visible with command "ip a s eth8" in "5" seconds
@@ -426,7 +426,7 @@ Feature: nmcli - general
 
     @nmcli_device_show_ip
     Scenario: nmcli - device - show - check ip
-    * Add a new connection of type "ethernet" named "con_general" and options "ifname eth8 autoconnect no ipv4.method manual ipv4.addresses 192.168.1.10/24"
+    * Add "ethernet" connection named "con_general" for device "eth8" with options "autoconnect no ipv4.method manual ipv4.addresses 192.168.1.10/24"
     * Bring up connection "con_general"
     Then "IP4.ADDRESS.*192.168.1.10/24" is visible with command "nmcli device show eth8"
 
@@ -468,7 +468,7 @@ Feature: nmcli - general
     @nmcli_device_reapply_routes
     Scenario: NM - device - reapply just routes
     * Prepare simulated test "testG" device
-    * Add a new connection of type "ethernet" named "con_general" and options "ifname testG"
+    * Add "ethernet" connection named "con_general" for device "testG"
     When "connected" is visible with command "nmcli -g GENERAL.STATE dev show testG" in "25" seconds
     * Modify connection "con_general" changing options "ipv4.routes '192.168.5.0/24 192.168.99.111 1' ipv4.route-metric 21 ipv6.method static ipv6.addresses 2000::2/126 ipv6.routes '1010::1/128 2000::1 1'"
     * "Error.*" is not visible with command "nmcli device reapply testG" in "1" seconds
@@ -487,7 +487,7 @@ Feature: nmcli - general
     Scenario: NM - device - reapply just routes
     * Prepare simulated test "testG" device
     * Execute "ip netns exec testG_ns kill -SIGSTOP $(cat /tmp/testG_ns.pid)"
-    * Add a new connection of type "ethernet" named "con_general" and options "ifname testG"
+    * Add "ethernet" connection named "con_general" for device "testG"
     * Modify connection "con_general" changing options "ipv4.routes '192.168.5.0/24 192.168.99.111 1' ipv4.route-metric 21 ipv6.method static ipv6.addresses 2000::2/126 ipv6.routes '1010::1/128 2000::1 1'"
     * "Error.*" is not visible with command "nmcli device reapply testG" in "1" seconds
     * Execute "ip netns exec testG_ns kill -SIGCONT $(cat /tmp/testG_ns.pid)"
@@ -505,7 +505,7 @@ Feature: nmcli - general
     @nmcli_device_reapply_all
     Scenario: NM - device - reapply even address and gate
     * Prepare simulated test "testG" device
-    * Add a new connection of type "ethernet" named "con_general" and options "ifname testG 802-3-ethernet.mtu 1460"
+    * Add "ethernet" connection named "con_general" for device "testG" with options "802-3-ethernet.mtu 1460"
     When "connected" is visible with command "nmcli -g GENERAL.STATE dev show testG" in "45" seconds
     * Modify connection "con_general" changing options "ipv4.method static 802-3-ethernet.mtu 9000 ipv4.addresses 192.168.3.10/24 ipv4.gateway 192.168.4.1 ipv4.routes '192.168.5.0/24 192.168.3.11 1' ipv4.route-metric 21 ipv6.method static ipv6.addresses 2000::2/126 ipv6.routes '1010::1/128 2000::1 1'"
     * Execute "ip netns exec testG_ns kill -SIGSTOP $(cat /tmp/testG_ns.pid)"
@@ -526,7 +526,7 @@ Feature: nmcli - general
     @nmcli_device_reapply_all
     Scenario: NM - device - reapply even address and gate
     * Prepare simulated test "testG" device
-    * Add a new connection of type "ethernet" named "con_general" and options "ifname testG"
+    * Add "ethernet" connection named "con_general" for device "testG"
     When "connected" is visible with command "nmcli -g GENERAL.STATE dev show testG" in "45" seconds
     * Modify connection "con_general" changing options "ipv4.method static ipv4.addresses 192.168.3.10/24 ipv4.gateway 192.168.4.1 ipv4.routes '192.168.5.0/24 192.168.3.11 1' ipv4.route-metric 21 ipv6.method static ipv6.addresses 2000::2/126 ipv6.routes '1010::1/128 2000::1 1'"
     * Execute "ip netns exec testG_ns kill -SIGSTOP $(cat /tmp/testG_ns.pid)"
@@ -553,7 +553,7 @@ Feature: nmcli - general
     @rhbz1034150
     @nmcli_device_delete
     Scenario: nmcli - device - delete
-    * Add a new connection of type "bridge" named "gen_br" for device "brX"
+    * Add "bridge" connection named "gen_br" for device "brX"
     * "brX\s+bridge" is visible with command "nmcli device"
     * Execute "nmcli device delete brX"
     Then "brX\s+bridge" is not visible with command "nmcli device"
@@ -574,8 +574,8 @@ Feature: nmcli - general
     @nmcli_general_correct_profile_activated_after_restart
     Scenario: nmcli - general - correct profile activated after restart
     * Prepare simulated test "testG" device
-    * Add a new connection of type "ethernet" named "con_general" and options "ifname testG -- ipv4.method auto ipv6.method auto ipv4.may-fail no ipv6.may-fail no"
-    * Add a new connection of type "ethernet" named "con_general2" and options "ifname testG -- ipv4.method auto ipv6.method auto ipv4.may-fail no ipv6.may-fail no"
+    * Add "ethernet" connection named "con_general" for device "testG" with options "-- ipv4.method auto ipv6.method auto ipv4.may-fail no ipv6.may-fail no"
+    * Add "ethernet" connection named "con_general2" for device "testG" with options "-- ipv4.method auto ipv6.method auto ipv4.may-fail no ipv6.may-fail no"
     * Wait for at least "2" seconds
     * Bring up connection "con_general"
     When "100" is visible with command "nmcli  -t -f GENERAL.STATE device show testG"
@@ -605,7 +605,7 @@ Feature: nmcli - general
     @restart_if_needed
     @connection_up_after_journald_restart
     Scenario: NM - general - bring up connection after journald restart
-    #* Add a new connection type of "ethernet" named "con_general" for device "eth8"
+    #* Add "ethernet" connection named "con_general" for device "eth8"
     #* Bring "up" connection "testeth0"
     * Execute "sudo systemctl restart systemd-journald.service"
     Then Bring "up" connection "testeth0"
@@ -638,7 +638,7 @@ Feature: nmcli - general
     @remove_custom_cfg
     @nmcli_general_ignore_specified_unamanaged_devices
     Scenario: NM - general - ignore specified unmanaged devices
-    * Add a new interface of type "bond" named "bond0"
+    * Create "bond" device named "bond0"
     # Still unmanaged
     * "bond0\s+bond\s+unmanaged" is visible with command "nmcli device"
     * Execute "ip link set dev bond0 up"
@@ -657,7 +657,7 @@ Feature: nmcli - general
     @manage_eth8 @eth8_disconnect @restart_if_needed
     @nmcli_general_set_device_unmanaged
     Scenario: NM - general - set device to unmanaged state
-    * Add a new connection of type "ethernet" named "con_general" and options "ifname eth8 autoconnect no"
+    * Add "ethernet" connection named "con_general" for device "eth8" with options "autoconnect no"
     * Bring up connection "con_general"
     #When "/sbin/dhclient" is visible with command "ps aux|grep dhc |grep eth8 |grep -v orig"
     * Execute "nmcli device set eth8 managed off"
@@ -681,7 +681,7 @@ Feature: nmcli - general
     @ifcfg-rh @manage_eth8 @eth8_disconnect
     @nmcli_general_set_device_back_to_managed
     Scenario: NM - general - set device back from unmanaged state
-    * Add a new connection of type "ethernet" named "con_general" and options "ifname eth8 autoconnect no"
+    * Add "ethernet" connection named "con_general" for device "eth8" with options "autoconnect no"
     * Bring "up" connection "con_general"
     #When "/sbin/dhclient" is visible with command "ps aux|grep dhc |grep eth8 |grep -v orig"
      And "fe80" is visible with command "ip a s eth8" in "15" seconds
@@ -708,7 +708,7 @@ Feature: nmcli - general
     @nmcli_general_ifcfg_tailing_whitespace
     Scenario: nmcli - general - ifcfg tailing whitespace ignored
     * Cleanup interface "eth8.100"
-    * Add a new connection of type "vlan" named "eth8.100" and options "autoconnect no dev eth8 id 100"
+    * Add "vlan" connection named "eth8.100" with options "autoconnect no dev eth8 id 100"
     * Check ifcfg-name file created for connection "eth8.100"
     * Execute "sed -i 's/PHYSDEV=eth8/PHYSDEV=eth9    /' /etc/sysconfig/network-scripts/ifcfg-eth8.100"
     * Reload connections
@@ -730,7 +730,7 @@ Feature: nmcli - general
     # We need to delete keyfile testeth8
     * Execute "nmcli con del testeth8"
     # And add ifcfg one
-    * Add a new connection of type "ethernet" named "testeth8" and options "ifname eth8"
+    * Add "ethernet" connection named "testeth8" for device "eth8"
     Given Check ifcfg-name file created for connection "testeth8"
     * Execute "echo -e NM_CONTROLLED=no >> /etc/sysconfig/network-scripts/ifcfg-testeth8"
     * Reload connections
@@ -744,7 +744,7 @@ Feature: nmcli - general
     @restart_if_needed @restore_hostname
     @nmcli_general_DHCP_HOSTNAME_profile_pickup
     Scenario: nmcli - general - connect correct profile with DHCP_HOSTNAME
-    * Add a new connection of type "ethernet" named "con_general" and options "ifname eth8 ipv4.dns 8.8.4.4"
+    * Add "ethernet" connection named "con_general" for device "eth8" with options "ipv4.dns 8.8.4.4"
     * Execute "echo -e 'DHCP_HOSTNAME=walderon' >> /etc/sysconfig/network-scripts/ifcfg-con_general"
     * Bring "up" connection "con_general"
     * Restart NM
@@ -774,7 +774,7 @@ Feature: nmcli - general
     @not_on_veth @restart_if_needed
     @match_connections_with_pci_address
     Scenario: NM - general - connection matching for dhcp with infinite leasetime
-    * Add a new connection of type "ethernet" named "con_general"
+    * Add "ethernet" connection named "con_general"
     * Execute "nmcli con mod con_general +match.path $(udevadm info /sys/class/net/eth1 | grep ID_PATH= | awk -F '=' '{print $2}')"
     * Bring "up" connection "con_general"
     Then "activated" is visible with command "nmcli -g GENERAL.STATE con show con_general" in "45" seconds
@@ -786,7 +786,7 @@ Feature: nmcli - general
     @eth0 @restart_if_needed
     @match_connections_with_pci_address
     Scenario: NM - general - connection matching for dhcp with infinite leasetime
-    * Add a new connection of type "ethernet" named "con_general"
+    * Add "ethernet" connection named "con_general"
     * Execute "nmcli con mod con_general +match.path $(udevadm info /sys/class/net/eth0 | grep ID_PATH= | awk -F '=' '{print $2}')"
     * Bring "up" connection "con_general"
     Then "activated" is visible with command "nmcli -g GENERAL.STATE con show con_general" in "45" seconds
@@ -797,7 +797,7 @@ Feature: nmcli - general
     @restart_if_needed
     @match_connections_via_kernel_option
     Scenario: NM - general - connection matching via kernel option
-    * Add a new connection of type "ethernet" named "con_general" and options "ifname eth8 match.kernel-command-line root"
+    * Add "ethernet" connection named "con_general" for device "eth8" with options "match.kernel-command-line root"
     * Reboot
     When "activated" is visible with command "nmcli -g GENERAL.STATE con show con_general" in "45" seconds
     * Modify connection "con_general" changing options "match.kernel-command-line r00t"
@@ -825,7 +825,7 @@ Feature: nmcli - general
     Scenario: NM - general - no auto connection created
     * Execute "nmcli device set eth8 managed no"
     * Delete connection "testeth8"
-    * Add a new connection of type "ethernet" named "con_general" and options "ifname eth8"
+    * Add "ethernet" connection named "con_general" for device "eth8"
     * Stop NM
     * Execute "rm -rf /var/lib/NetworkManager/no-auto-default.state"
     * Start NM
@@ -868,7 +868,7 @@ Feature: nmcli - general
     Scenario: NM - general - show zones after firewall restart
     * Execute "yum -y remove firewalld"
     * Restart NM
-    * Add a new connection of type "ethernet" named "con_general" and options "ifname eth8 connection.zone work"
+    * Add "ethernet" connection named "con_general" for device "eth8" with options "connection.zone work"
     * Execute "yum -y install firewalld"
     * Execute "systemctl start firewalld"
     Then "work" is visible with command "firewall-cmd  --get-zone-of-interface=eth8" in "3" seconds
@@ -887,7 +887,7 @@ Feature: nmcli - general
     @gen-bond_remove
     @nmcli_general_multiword_autocompletion
     Scenario: nmcli - general - multiword autocompletion
-    * Add a new connection of type "bond" named "'Bondy connection 1'" for device "gen-bond"
+    * Add "bond" connection named "'Bondy connection 1'" for device "gen-bond"
     * "Bondy connection 1" is visible with command "nmcli connection"
     * Autocomplete "nmcli connection delete Bondy" in bash and execute
     Then "Bondy connection 1" is not visible with command "nmcli connection" in "3" seconds
@@ -920,7 +920,7 @@ Feature: nmcli - general
     @ver+=1.10
     @veth_goes_to_unmanaged_state
     Scenario: NM - general - veth in unmanaged state
-    * Add a new interface of type "veth" named "test1g" and options "peer name test1gp"
+    * Create "veth" device named "test1g" with options "peer name test1gp"
     Then "test1g\s+ethernet\s+unmanaged.*test1gp\s+ethernet\s+unmanaged" is visible with command "nmcli device"
 
 
@@ -928,12 +928,12 @@ Feature: nmcli - general
     @ver-=1.31.4
     @nat_from_shared_network_iptables
     Scenario: NM - general - NAT_dhcp from shared networks
-    * Add a new interface of type "veth" named "test1g" and options "peer name test1gp"
-    * Add a new connection of type "bridge" named "vethbrg" for device "vethbrg" and options "stp no autoconnect no ipv4.method shared ipv4.address 172.16.0.1/24"
+    * Create "veth" device named "test1g" with options "peer name test1gp"
+    * Add "bridge" connection named "vethbrg" for device "vethbrg" with options "stp no autoconnect no ipv4.method shared ipv4.address 172.16.0.1/24"
     * Bring "up" connection "vethbrg"
     * Execute "ip link set test1gp master vethbrg"
     * Execute "ip link set dev test1gp up"
-    * Add a new network namespace named "peers"
+    * Add namespace "peers"
     * Execute "ip link set test1g netns peers"
     * Execute "ip netns exec peers ip link set dev test1g up"
     * Execute "ip netns exec peers ip addr add 172.16.0.111/24 dev test1g"
@@ -950,12 +950,12 @@ Feature: nmcli - general
     Scenario: NM - general - NAT_dhcp from shared networks - iptables
     Given Execute "printf '[main]\nfirewall-backend=iptables' > /etc/NetworkManager/conf.d/99-xxcustom.conf"
     Given Restart NM
-    * Add a new interface of type "veth" named "test1g" and options "peer name test1gp"
-    * Add a new connection of type "bridge" named "vethbrg" for device "vethbrg" and options "stp no autoconnect no ipv4.method shared ipv4.address 172.16.0.1/24"
+    * Create "veth" device named "test1g" with options "peer name test1gp"
+    * Add "bridge" connection named "vethbrg" for device "vethbrg" with options "stp no autoconnect no ipv4.method shared ipv4.address 172.16.0.1/24"
     * Bring "up" connection "vethbrg"
     * Execute "ip link set test1gp master vethbrg"
     * Execute "ip link set dev test1gp up"
-    * Add a new network namespace named "peers"
+    * Add namespace "peers"
     * Execute "ip link set test1g netns peers"
     * Execute "ip netns exec peers ip link set dev test1g up"
     * Execute "ip netns exec peers ip addr add 172.16.0.111/24 dev test1g"
@@ -972,12 +972,12 @@ Feature: nmcli - general
     Scenario: NM - general - NAT_dhcp from shared networks - nftables
     Given Execute "printf '[main]\nfirewall-backend=nftables' > /etc/NetworkManager/conf.d/99-xxcustom.conf"
     Given Restart NM
-    * Add a new interface of type "veth" named "test1g" and options "peer name test1gp"
-    * Add a new connection of type "bridge" named "vethbrg" for device "vethbrg" and options "stp no autoconnect no ipv4.method shared ipv4.address 172.16.0.1/24"
+    * Create "veth" device named "test1g" with options "peer name test1gp"
+    * Add "bridge" connection named "vethbrg" for device "vethbrg" with options "stp no autoconnect no ipv4.method shared ipv4.address 172.16.0.1/24"
     * Bring "up" connection "vethbrg"
     * Execute "ip link set test1gp master vethbrg"
     * Execute "ip link set dev test1gp up"
-    * Add a new network namespace named "peers"
+    * Add namespace "peers"
     * Execute "ip link set test1g netns peers"
     * Execute "ip netns exec peers ip link set dev test1g up"
     * Execute "ip netns exec peers ip addr add 172.16.0.111/24 dev test1g"
@@ -992,7 +992,7 @@ Feature: nmcli - general
     @run_once_new_connection
     Scenario: NM - general - run once and quit start new ipv4 and ipv6 connection
     * Prepare simulated test "testG" device
-    * Add a new connection of type "ethernet" named "con_general" and options "ifname testG ipv4.addresses 1.2.3.4/24 ipv4.may-fail no ipv6.addresses 1::128/128 ipv6.may-fail no connection.autoconnect yes"
+    * Add "ethernet" connection named "con_general" for device "testG" with options "ipv4.addresses 1.2.3.4/24 ipv4.may-fail no ipv6.addresses 1::128/128 ipv6.may-fail no connection.autoconnect yes"
     * Bring "up" connection "con_general"
     * Disconnect device "testG"
     * Stop NM and clean "testG"
@@ -1017,7 +1017,7 @@ Feature: nmcli - general
     @run_once_ip4_renewal
     Scenario: NM - general - run once and quit ipv4 renewal
     * Prepare simulated test "testG" device
-    * Add a new connection of type "ethernet" named "con_general" and options "ifname testG"
+    * Add "ethernet" connection named "con_general" for device "testG"
     * Bring "up" connection "con_general"
     * Disconnect device "testG"
     * Stop NM and clean "testG"
@@ -1041,7 +1041,7 @@ Feature: nmcli - general
     @run_once_ip6_renewal
     Scenario: NM - general - run once and quit ipv6 renewal
     * Prepare simulated test "testG" device
-    * Add a new connection of type "ethernet" named "con_general" and options "ifname testG"
+    * Add "ethernet" connection named "con_general" for device "testG"
     #* Execute "nmcli con modify con_general ipv4.may-fail no ipv6.may-fail no"
     * Bring "up" connection "con_general"
     Then "2620" is visible with command "ip a s testG" in "60" seconds
@@ -1132,7 +1132,7 @@ Feature: nmcli - general
     @wait-online-for-both-ips
     Scenario: NM - general - wait-online - for both ipv4 and ipv6
     * Prepare simulated test "testG" device
-    * Add a new connection of type "ethernet" named "con_general" and options "ifname testG ipv4.may-fail no ipv6.may-fail no"
+    * Add "ethernet" connection named "con_general" for device "testG" with options "ipv4.may-fail no ipv6.may-fail no"
     * "connected:con_general" is visible with command "nmcli -t -f STATE,CONNECTION device" in "50" seconds
     * Restart NM
     #When "2620:" is not visible with command "ip a s testG"
@@ -1146,7 +1146,7 @@ Feature: nmcli - general
     @restart_if_needed
     @wait_online_with_autoconnect_no_connection
     Scenario: NM - general - wait-online - skip non autoconnect soft device connections
-    * Add a new connection of type "bridge" named "gen_br" for device "brX" and options "autoconnect no"
+    * Add "bridge" connection named "gen_br" for device "brX" with options "autoconnect no"
     * Stop NM
     * Start NM
     Then "PASS" is visible with command "/usr/bin/nm-online -s -q --timeout=30 && echo PASS"
@@ -1157,7 +1157,7 @@ Feature: nmcli - general
     @delete_testeth0 @remove_custom_cfg @restart_if_needed
     @nm_online_wait_for_delayed_device
     Scenario: NM - general - wait for delayed device
-    * Add a new connection of type "ethernet" named "con_general" and options "ifname testG"
+    * Add "ethernet" connection named "con_general" for device "testG"
     * Stop NM
     * Prepare simulated veth device "testG" wihout carrier
     * Execute "echo '[device-testG]' > /etc/NetworkManager/conf.d/99-xxcustom.conf"
@@ -1178,8 +1178,8 @@ Feature: nmcli - general
     @delete_testeth0 @remove_custom_cfg @restart_if_needed
     @nm_online_wait_for_second_connection
     Scenario: NM - general - wait for second device
-    * Add a new connection of type "ethernet" named "con_general" and options "ifname testG 802-1x.eap md5 802-1x.identity user 802-1x.password password connection.autoconnect-priority 50 connection.auth-retries 1"
-    * Add a new connection of type "ethernet" named "con_general2"  and options "ifname testG connection.autoconnect-priority 20"
+    * Add "ethernet" connection named "con_general" for device "testG" with options "802-1x.eap md5 802-1x.identity user 802-1x.password password connection.autoconnect-priority 50 connection.auth-retries 1"
+    * Add "ethernet" connection named "con_general2" for device "testG" with options "connection.autoconnect-priority 20"
     * Stop NM
     * Execute "rm -rf /var/run/NetworkManager"
     * Prepare simulated test "testG" device
@@ -1201,8 +1201,8 @@ Feature: nmcli - general
     @delete_testeth0 @remove_custom_cfg @restart_if_needed
     @nm_online_wait_for_second_connection
     Scenario: NM - general - wait for second device
-    * Add a new connection of type "ethernet" named "con_general" and options "ifname testG 802-1x.eap md5 802-1x.identity user 802-1x.password password connection.autoconnect-priority 50 connection.auth-retries 1"
-    * Add a new connection of type "ethernet" named "con_general2" and options "ifname testG connection.autoconnect-priority 20"
+    * Add "ethernet" connection named "con_general" for device "testG" with options "802-1x.eap md5 802-1x.identity user 802-1x.password password connection.autoconnect-priority 50 connection.auth-retries 1"
+    * Add "ethernet" connection named "con_general2" for device "testG" with options "connection.autoconnect-priority 20"
     * Stop NM
     * Execute "rm -rf /var/run/NetworkManager"
     * Prepare simulated test "testG" device
@@ -1231,7 +1231,7 @@ Feature: nmcli - general
     @permissive @need_dispatcher_scripts @ifcfg-rh
     @policy_based_routing
     Scenario: NM - general - policy based routing
-    * Add a new connection of type "ethernet" named "con_general" and options "ifname eth8"
+    * Add "ethernet" connection named "con_general" for device "eth8"
     * Bring "up" connection "con_general"
     * Bring "up" connection "con_general"
     * Create PBR files for profile "con_general" and "eth8" device in table "1"
@@ -1250,7 +1250,7 @@ Feature: nmcli - general
     @modify_policy_based_routing_connection
     Scenario: NM - general - modify policy based routing connection
     * Prepare simulated test "testG" device
-    * Add a new connection of type "ethernet" named "con_general" and options "ifname testG autoconnect no"
+    * Add "ethernet" connection named "con_general" for device "testG" with options "autoconnect no"
     * Bring "up" connection "con_general"
     * Create PBR files for profile "con_general" and "testG" device in table "1"
     * Modify connection "con_general" changing options "connection.autoconnect yes ipv6.method ignore"
@@ -1267,7 +1267,7 @@ Feature: nmcli - general
     # Up dhcp connection
     * Bring "up" connection "testeth9"
     # Create a static connection without gateway
-    * Add a new connection of type "ethernet" named "con_general" and options "ifname eth8 autoconnect no ipv4.method manual ipv4.addresses 1.2.3.4/24 ipv4.may-fail no"
+    * Add "ethernet" connection named "con_general" for device "eth8" with options "autoconnect no ipv4.method manual ipv4.addresses 1.2.3.4/24 ipv4.may-fail no"
     # Set a "general" gateway (normally discouraged)
     * Execute "echo 'GATEWAY=1.2.3.1' >> /etc/sysconfig/network"
     * Reload connections
@@ -1300,8 +1300,8 @@ Feature: nmcli - general
     @netservice @restart_if_needed @eth10_disconnect @rhelver-=7 @fedoraver-=0 @connect_testeth0 @restore_broken_network
     @nmcli_general_profile_pickup_doesnt_break_network
     Scenario: nmcli - general - profile pickup does not break network service
-    * Add a new connection of type "ethernet" named "con_general" and options "ifname '*'"
-    * Add a new connection of type "ethernet" named "con_general2" and options "ifname '*'"
+    * Add "ethernet" connection named "con_general" for device "'*'"
+    * Add "ethernet" connection named "con_general2" for device "'*'"
     * "connected:con_general" is visible with command "nmcli -t -f STATE,CONNECTION device" in "50" seconds
     * "connected:con_general2" is visible with command "nmcli -t -f STATE,CONNECTION device" in "50" seconds
     # Finish asserts the command exited with 0, thus the network service completed properly
@@ -1313,7 +1313,7 @@ Feature: nmcli - general
 
     @nmcli_general_wait_for_carrier_on_new_device_request
     Scenario: nmcli - general - wait for carrier on new device activation request
-    * Add a new connection of type "ethernet" named "con_general" and options "ifname testG autoconnect no"
+    * Add "ethernet" connection named "con_general" for device "testG" with options "autoconnect no"
     * Prepare simulated veth device "testG" wihout carrier
     * Wait for at least "1" seconds
     * Modify connection "con_general" changing options "ipv4.may-fail no"
@@ -1341,7 +1341,7 @@ Feature: nmcli - general
     @need_config_server
     @nmcli_general_activate_static_connection_carrier_ignored
     Scenario: nmcli - general - activate static connection with no carrier - ignored
-    * Add a new connection of type "ethernet" named "con_general" and options "ifname testG autoconnect no"
+    * Add "ethernet" connection named "con_general" for device "testG" with options "autoconnect no"
     * Modify connection "con_general" changing options "ipv4.method manual ipv4.address '192.168.5.11/24' ipv4.gateway '192.168.5.1' ipv6.method ignore"
     * Prepare simulated veth device "testG" wihout carrier
     * Execute "nmcli con up con_general"
@@ -1354,7 +1354,7 @@ Feature: nmcli - general
     @no_config_server
     @nmcli_general_activate_static_connection_carrier_not_ignored
     Scenario: nmcli - general - activate static connection with no carrier - not ignored
-    * Add a new connection of type "ethernet" named "con_general" and options "ifname testG autoconnect no"
+    * Add "ethernet" connection named "con_general" for device "testG" with options "autoconnect no"
     * Modify connection "con_general" changing options "ipv4.method manual ipv4.address '192.168.5.11/24' ipv4.gateway '192.168.5.1' ipv6.method ignore"
     * Prepare simulated veth device "testG" wihout carrier
     * Execute "nmcli con up con_general"
@@ -1376,7 +1376,7 @@ Feature: nmcli - general
     #@connect_to_slow_router
     #Scenario: NM - general - connection up to 60 seconds
     #* Prepare simulated test "testM" device
-    #* Add a new connection of type "ethernet" named "con_general" and options "ifname testM autoconnect no"
+    #* Add "ethernet" connection named "con_general" for device "testM" with options "autoconnect no"
     #* Modify connection "con_general" changing options "ipv4.method manual ipv4.address '192.168.99.99/24' ipv4.gateway '192.168.99.1' ipv6.method ignore"
     #* Append "GATEWAY_PING_TIMEOUT=60" to ifcfg file "con_general"
     #* Reload connections
@@ -1420,7 +1420,7 @@ Feature: nmcli - general
     @disp
     @nmcli_device_reapply
     Scenario: nmcli - device -reapply
-    * Add a new connection of type "ethernet" named "con_general" and options "ifname eth8"
+    * Add "ethernet" connection named "con_general" for device "eth8"
     When "connected" is visible with command "nmcli -g GENERAL.STATE dev show eth8" in "45" seconds
     * Write dispatcher "99-disp" file
     * Execute "ip addr a 1.2.3.4/24 dev eth8"
@@ -1441,7 +1441,7 @@ Feature: nmcli - general
     @device_dbus_signal
     Scenario: NM - general - device dbus signal
     * Prepare simulated test "testG" device
-    * Add a new connection of type "ethernet" named "con_general" and options "ifname testG"
+    * Add "ethernet" connection named "con_general" for device "testG"
     * Run child "dbus-monitor --system --monitor 'sender=org.freedesktop.NetworkManager' > /tmp/dbus.txt"
     * Bring "up" connection "con_general"
     Then "NetworkManager.Device.Wired; member=PropertiesChanged" is visible with command "grep PropertiesChanged /tmp/dbus.txt"
@@ -1454,7 +1454,7 @@ Feature: nmcli - general
     @kill_dbus-monitor
     @dns_over_dbus
     Scenario: NM - general - publish dns over dbus
-    * Add a new connection of type "ethernet" named "con_general" and options "ifname eth8"
+    * Add "ethernet" connection named "con_general" for device "eth8"
     * Run child "dbus-monitor --system --monitor 'sender=org.freedesktop.NetworkManager' > /tmp/dbus.txt"
     * Bring "up" connection "con_general"
     Then "string \"nameservers\"\s+variant\s+array\s+\[\s+string" is visible with command "grep -A 10 Dns /tmp/dbus.txt"
@@ -1473,8 +1473,8 @@ Feature: nmcli - general
     @checkpoint_remove
     @snapshot_rollback
     Scenario: NM - general - snapshot and rollback
-    * Add a new connection of type "ethernet" named "con_general" and options "ifname eth8"
-    * Add a new connection of type "ethernet" named "con_general2" and options "ifname eth9"
+    * Add "ethernet" connection named "con_general" for device "eth8"
+    * Add "ethernet" connection named "con_general2" for device "eth9"
     * Snapshot "create" for "eth8,eth9"
     * Modify connection "con_general" changing options "ipv4.method manual ipv4.addresses 1.2.3.4/24 ipv4.gateway 1.2.3.1"
     * Bring "up" connection "con_general"
@@ -1497,8 +1497,8 @@ Feature: nmcli - general
     @checkpoint_remove
     @snapshot_rollback_all_devices
     Scenario: NM - general - snapshot and rollback all devices
-    * Add a new connection of type "ethernet" named "con_general" and options "ifname eth8"
-    * Add a new connection of type "ethernet" named "con_general2" and options "ifname eth9"
+    * Add "ethernet" connection named "con_general" for device "eth8"
+    * Add "ethernet" connection named "con_general2" for device "eth9"
     * Snapshot "create" for "all"
     * Modify connection "con_general" changing options "ipv4.method manual ipv4.addresses 1.2.3.4/24 ipv4.gateway 1.2.3.1"
     * Bring "up" connection "con_general"
@@ -1521,8 +1521,8 @@ Feature: nmcli - general
     @checkpoint_remove
     @snapshot_rollback_all_devices_with_timeout
     Scenario: NM - general - snapshot and rollback all devices with timeout
-    * Add a new connection of type "ethernet" named "con_general" and options "ifname eth8"
-    * Add a new connection of type "ethernet" named "con_general2" and options "ifname eth9"
+    * Add "ethernet" connection named "con_general" for device "eth8"
+    * Add "ethernet" connection named "con_general2" for device "eth9"
     * Snapshot "create" for "all" with timeout "10"
     * Modify connection "con_general" changing options "ipv4.method manual ipv4.addresses 1.2.3.4/24 ipv4.gateway 1.2.3.1"
     * Bring "up" connection "con_general"
@@ -1571,7 +1571,7 @@ Feature: nmcli - general
     @checkpoint_remove
     @snapshot_rollback_soft_device
     Scenario: NM - general - snapshot and rollback deleted soft device
-    * Add a new connection of type "bond" named "gen-bond0" for device "gen-bond"
+    * Add "bond" connection named "gen-bond0" for device "gen-bond"
     * Add slave connection for master "gen-bond" on device "eth8" named "gen-bond0.0"
     * Add slave connection for master "gen-bond" on device "eth9" named "gen-bond0.1"
     * Bring "up" connection "gen-bond0.0"
@@ -1592,7 +1592,7 @@ Feature: nmcli - general
     @checkpoint_remove
     @snapshot_deleted_soft_device_dbus_link
     Scenario: NM - general - check that deleted device is also deleted from snapshot
-    * Add a new connection of type "bond" named "gen-bond0" for device "gen-bond"
+    * Add "bond" connection named "gen-bond0" for device "gen-bond"
     * Add slave connection for master "gen-bond" on device "eth8" named "gen-bond0.0"
     * Add slave connection for master "gen-bond" on device "eth9" named "gen-bond0.1"
     * Bring "up" connection "gen-bond0.0"
@@ -1617,7 +1617,7 @@ Feature: nmcli - general
     @snapshot_rollback_sriov
     Scenario: NM - general - sriov
     * Snapshot "create" for "all" with timeout "10"
-    * Add a new connection of type "ethernet" named "con_general" and options "ifname eth11 connection.autoconnect no ip4 172.25.14.1/24"
+    * Add "ethernet" connection named "con_general" for device "eth11" with options "connection.autoconnect no ip4 172.25.14.1/24"
     * Execute "nmcli connection modify con_general sriov.total-vfs 3"
     * Bring "up" connection "con_general"
     When "3" is visible with command "ip -c link show eth11 |grep vf |wc -l" in "5" seconds
@@ -1682,7 +1682,7 @@ Feature: nmcli - general
     @ver+=1.7.2
     @dummy_connection
     Scenario: NM - general - create dummy connection
-    * Add a new connection of type "dummy" named "con_general" for device "br0" and options "ip4 1.2.3.4/24 autoconnect no"
+    * Add "dummy" connection named "con_general" for device "br0" with options "ip4 1.2.3.4/24 autoconnect no"
     * Bring up connection "con_general"
     Then "dummy" is visible with command "ip -d l show br0 | grep dummy"
     Then "1.2.3.4/24" is visible with command "ip a s br0 | grep inet"
@@ -1692,7 +1692,7 @@ Feature: nmcli - general
     @ver+=1.10.1
     @dummy_with_qdisc
     Scenario: NM - general - create dummy with qdisc
-    * Add a new connection of type "dummy" named "con_general" for device "br0" and options "ipv4.method link-local ipv6.method link-local"
+    * Add "dummy" connection named "con_general" for device "br0" with options "ipv4.method link-local ipv6.method link-local"
     * Bring up connection "con_general"
     * Bring up connection "con_general"
     * Bring up connection "con_general"
@@ -1722,8 +1722,8 @@ Feature: nmcli - general
     @macsec_psk
     Scenario: NM - general - MACsec PSK
     * Prepare MACsec PSK environment with CAK "00112233445566778899001122334455" and CKN "5544332211009988776655443322110055443322110099887766554433221100"
-    * Add a new connection of type "ethernet" named "test-macsec-base" for device "macsec_veth" and options "ipv4.method disabled ipv6.method ignore"
-    * Add a new connection of type "macsec" named "test-macsec" for device "macsec0" and options "autoconnect no macsec.parent macsec_veth macsec.mode psk macsec.mka-cak 00112233445566778899001122334455 macsec.mka-ckn 5544332211009988776655443322110055443322110099887766554433221100"
+    * Add "ethernet" connection named "test-macsec-base" for device "macsec_veth" with options "ipv4.method disabled ipv6.method ignore"
+    * Add "macsec" connection named "test-macsec" for device "macsec0" with options "autoconnect no macsec.parent macsec_veth macsec.mode psk macsec.mka-cak 00112233445566778899001122334455 macsec.mka-ckn 5544332211009988776655443322110055443322110099887766554433221100"
     * Bring up connection "test-macsec-base"
     * Bring up connection "test-macsec"
     Then Ping "172.16.10.1" "10" times
@@ -1735,8 +1735,8 @@ Feature: nmcli - general
     @macsec_set_mtu_from_parent
     Scenario: NM - general - MACsec MTU from parent
     * Prepare MACsec PSK environment with CAK "00112233445566778899001122334455" and CKN "5544332211009988776655443322110055443322110099887766554433221100"
-    * Add a new connection of type "ethernet" named "test-macsec-base" for device "macsec_veth" and options "ipv4.method disabled ipv6.method ignore 802-3-ethernet.mtu 1536"
-    * Add a new connection of type "macsec" named "test-macsec" for device "macsec0" and options "autoconnect no macsec.parent macsec_veth macsec.mode psk macsec.mka-cak 00112233445566778899001122334455 macsec.mka-ckn 5544332211009988776655443322110055443322110099887766554433221100"
+    * Add "ethernet" connection named "test-macsec-base" for device "macsec_veth" with options "ipv4.method disabled ipv6.method ignore 802-3-ethernet.mtu 1536"
+    * Add "macsec" connection named "test-macsec" for device "macsec0" with options "autoconnect no macsec.parent macsec_veth macsec.mode psk macsec.mka-cak 00112233445566778899001122334455 macsec.mka-ckn 5544332211009988776655443322110055443322110099887766554433221100"
     * Bring up connection "test-macsec-base"
     * Bring up connection "test-macsec"
     #Then Ping "172.16.10.1" "10" times
@@ -1761,7 +1761,7 @@ Feature: nmcli - general
     @connectivity @eth0
     @connectivity_check
     Scenario: NM - general - connectivity check
-    * Add a new connection of type "ethernet" named "con_general" and options "ifname eth0 autoconnect no ipv6.method ignore"
+    * Add "ethernet" connection named "con_general" for device "eth0" with options "autoconnect no ipv6.method ignore"
     * Bring up connection "con_general"
     When "activated" is visible with command "nmcli -g GENERAL.STATE con show con_general" in "45" seconds
      And "full" is visible with command "nmcli  -g CONNECTIVITY g" in "70" seconds
@@ -1779,7 +1779,7 @@ Feature: nmcli - general
     Scenario: NM - general - disable connectivity check
     * Execute "rm -rf /etc/NetworkManager/conf.d/99-connectivity.conf"
     * Restart NM
-    * Add a new connection of type "ethernet" named "con_general" and options "ifname eth0 autoconnect no ipv6.method ignore"
+    * Add "ethernet" connection named "con_general" for device "eth0" with options "autoconnect no ipv6.method ignore"
     * Bring up connection "con_general"
     When "activated" is visible with command "nmcli -g GENERAL.STATE con show con_general" in "45" seconds
      And "full" is visible with command "nmcli  -g CONNECTIVITY g"
@@ -1794,12 +1794,12 @@ Feature: nmcli - general
     @per_device_connectivity_check
     Scenario: NM - general - per device connectivity check
     # Device with connectivity but low priority
-    * Add a new connection of type "ethernet" named "con_general" and options "ifname eth0 ipv4.route-metric 1024 ipv6.method ignore"
+    * Add "ethernet" connection named "con_general" for device "eth0" with options "ipv4.route-metric 1024 ipv6.method ignore"
     * Bring up connection "con_general"
     When "activated" is visible with command "nmcli -g GENERAL.STATE con show con_general" in "45" seconds
     When "full" is visible with command "nmcli  -g CONNECTIVITY g" in "40" seconds
     # Device w/o connectivity but with high priority
-    * Add a new connection of type "ethernet" named "con_general2" and options "ifname eth8 autoconnect no ipv4.method manual ipv4.addresses 192.168.244.4/24 ipv4.gateway 192.168.244.1 ipv4.route-metric 100 ipv6.method ignore"
+    * Add "ethernet" connection named "con_general2" for device "eth8" with options "autoconnect no ipv4.method manual ipv4.addresses 192.168.244.4/24 ipv4.gateway 192.168.244.1 ipv4.route-metric 100 ipv6.method ignore"
     * Bring up connection "con_general2"
     # Connection should stay at the lower priority device
     Then "full" is visible with command "nmcli  -g CONNECTIVITY g" in "40" seconds
@@ -1811,7 +1811,7 @@ Feature: nmcli - general
     @connectivity @delete_testeth0 @restart_if_needed @long
     @manipulate_connectivity_check_via_dbus
     Scenario: dbus - general - connectivity check manipulation
-    * Add a new connection of type "ethernet" named "con_general" and options "ifname eth0 autoconnect no ipv6.method ignore"
+    * Add "ethernet" connection named "con_general" for device "eth0" with options "autoconnect no ipv6.method ignore"
     * Bring up connection "con_general"
     When "activated" is visible with command "nmcli -g GENERAL.STATE con show con_general" in "45" seconds
      And "full" is visible with command "nmcli -g CONNECTIVITY g" in "70" seconds
@@ -1837,7 +1837,7 @@ Feature: nmcli - general
     Scenario: NM - general - keep external device enslaved on down
     # Check that an externally configure device is not released from
     # its master when brought down externally
-    * Add a new connection of type "bridge" named "con_general2" for device "brX" and options "autoconnect no ipv4.method disabled ipv6.method ignore"
+    * Add "bridge" connection named "con_general2" for device "brX" with options "autoconnect no ipv4.method disabled ipv6.method ignore"
     * Bring "up" connection "con_general2"
     * Execute "ip tuntap add mode tap tap0"
     * Execute "ip link set tap0 master brX"
@@ -1867,7 +1867,7 @@ Feature: nmcli - general
     @no_config_server @restart_if_needed
     @wait_10s_for_flappy_carrier
     Scenario: NM - general - wait for flappy carrier up to 10s
-    * Add a new connection of type "ethernet" named "con_general" and options "ifname testG autoconnect no 802-3-ethernet.mtu 9000"
+    * Add "ethernet" connection named "con_general" for device "testG" with options "autoconnect no 802-3-ethernet.mtu 9000"
     * Prepare simulated test "testG" device
     * Run child "nmcli con up con_general"
     * Execute "sleep 0.5 && ip link set testG down"
@@ -1907,8 +1907,8 @@ Feature: nmcli - general
     @macsec_send-sci_by_default
     Scenario: NM - general - MACsec send-sci option should be true by default
     * Prepare MACsec PSK environment with CAK "00112233445566778899001122334455" and CKN "5544332211009988776655443322110055443322110099887766554433221100"
-    * Add a new connection of type "ethernet" named "test-macsec-base" for device "macsec_veth" and options "ipv4.method disabled ipv6.method ignore"
-    * Add a new connection of type "macsec" named "test-macsec" for device "macsec0" and options "autoconnect no macsec.parent macsec_veth macsec.mode psk macsec.mka-cak 00112233445566778899001122334455 macsec.mka-ckn 5544332211009988776655443322110055443322110099887766554433221100"
+    * Add "ethernet" connection named "test-macsec-base" for device "macsec_veth" with options "ipv4.method disabled ipv6.method ignore"
+    * Add "macsec" connection named "test-macsec" for device "macsec0" with options "autoconnect no macsec.parent macsec_veth macsec.mode psk macsec.mka-cak 00112233445566778899001122334455 macsec.mka-ckn 5544332211009988776655443322110055443322110099887766554433221100"
     Then "yes" is visible with command "nmcli -f macsec.send-sci con show test-macsec"
     * Bring up connection "test-macsec-base"
     * Bring up connection "test-macsec"
@@ -1934,7 +1934,7 @@ Feature: nmcli - general
     @ver+=1.12
     @nmcli_monitor_assertion_con_up_down
     Scenario: NM - general - nmcli monitor asserts error when connection is activated or deactivated
-    * Add a new connection of type "ethernet" named "con_general" and options "ifname eth8"
+    * Add "ethernet" connection named "con_general" for device "eth8"
     * Execute "nmcli monitor &> /tmp/nmcli_monitor_out & pid=$!; sleep 10; kill $pid" without waiting for process to finish
     * Bring "up" connection "con_general"
     * Wait for at least "1" seconds
@@ -1948,8 +1948,8 @@ Feature: nmcli - general
     @checkpoint_remove
     @libnm_snapshot_rollback
     Scenario: NM - general - libnm snapshot and rollback
-    * Add a new connection of type "ethernet" named "con_general" and options "ifname eth8"
-    * Add a new connection of type "ethernet" named "con_general2" and options "ifname eth9"
+    * Add "ethernet" connection named "con_general" for device "eth8"
+    * Add "ethernet" connection named "con_general2" for device "eth9"
     * "Failed" is not visible with command "contrib/gi/libnm_snapshot_checkpoint.py create 0 eth8 eth9" in "0" seconds
     * Modify connection "con_general" changing options "ipv4.method manual ipv4.addresses 1.2.3.4/24 ipv4.gateway 1.2.3.1"
     * Bring "up" connection "con_general"
@@ -1972,8 +1972,8 @@ Feature: nmcli - general
     @checkpoint_remove
     @libnm_snapshot_rollback_all_devices
     Scenario: NM - general - libnm snapshot and rollback all devices
-    * Add a new connection of type "ethernet" named "con_general" and options "ifname eth8"
-    * Add a new connection of type "ethernet" named "con_general2" and options "ifname eth9"
+    * Add "ethernet" connection named "con_general" for device "eth8"
+    * Add "ethernet" connection named "con_general2" for device "eth9"
     * "Failed" is not visible with command "contrib/gi/libnm_snapshot_checkpoint.py create 0" in "0" seconds
     * Modify connection "con_general" changing options "ipv4.method manual ipv4.addresses 1.2.3.4/24 ipv4.gateway 1.2.3.1"
     * Bring "up" connection "con_general"
@@ -1996,8 +1996,8 @@ Feature: nmcli - general
     @checkpoint_remove
     @libnm_snapshot_rollback_all_devices_with_timeout
     Scenario: NM - general - libnm snapshot and rollback all devices with timeout
-    * Add a new connection of type "ethernet" named "con_general" and options "ifname eth8"
-    * Add a new connection of type "ethernet" named "con_general2" and options "ifname eth9"
+    * Add "ethernet" connection named "con_general" for device "eth8"
+    * Add "ethernet" connection named "con_general2" for device "eth9"
     * "Failed" is not visible with command "contrib/gi/libnm_snapshot_checkpoint.py create 10" in "0" seconds
     * Modify connection "con_general" changing options "ipv4.method manual ipv4.addresses 1.2.3.4/24 ipv4.gateway 1.2.3.1"
     * Bring "up" connection "con_general"
@@ -2046,7 +2046,7 @@ Feature: nmcli - general
     @checkpoint_remove
     @libnm_snapshot_rollback_soft_device
     Scenario: NM - general - snapshot and rollback deleted soft device
-    * Add a new connection of type "bond" named "gen-bond0" for device "gen-bond"
+    * Add "bond" connection named "gen-bond0" for device "gen-bond"
     * Add slave connection for master "gen-bond" on device "eth8" named "gen-bond0.0"
     * Add slave connection for master "gen-bond" on device "eth9" named "gen-bond0.1"
     * Bring "up" connection "gen-bond0.0"
@@ -2081,9 +2081,9 @@ Feature: nmcli - general
     * Prepare simulated test "portXa" device without DHCP
     * Prepare simulated test "portXb" device without DHCP
     * Prepare simulated test "portXc" device without DHCP
-    * Add a new connection of type "bridge" named "br12" for device "br0" and options "ipv4.method disabled ipv6.method disabled autoconnect no"
-    * Add a new connection of type "bridge" named "br15" for device "br0" and options "ipv4.method disabled ipv6.method disabled autoconnect no"
-    * Add a new connection of type "ethernet" named "br15-slave1" and options "ifname portXa master br15 autoconnect no"
+    * Add "bridge" connection named "br12" for device "br0" with options "ipv4.method disabled ipv6.method disabled autoconnect no"
+    * Add "bridge" connection named "br15" for device "br0" with options "ipv4.method disabled ipv6.method disabled autoconnect no"
+    * Add "ethernet" connection named "br15-slave1" for device "portXa" with options "master br15 autoconnect no"
     # unmanage to be 100% sure
     #* Execute "nmcli dev set portXb managed no"
     #* Execute "nmcli dev set portXc managed no"
@@ -2105,7 +2105,7 @@ Feature: nmcli - general
     @ver+=1.12
     @autoconnect_no_secrets_prompt
     Scenario: NM - general - count number of password prompts with autoconnect yes and no secrets provided
-    * Add a new connection of type "ethernet" named "con_general" and options "ifname eth5 802-1x.identity test 802-1x.password-flags 2 802-1x.eap md5 connection.autoconnect no"
+    * Add "ethernet" connection named "con_general" for device "eth5" with options "802-1x.identity test 802-1x.password-flags 2 802-1x.eap md5 connection.autoconnect no"
     * Wait for at least "2" seconds
     * Execute "contrib/nm_agent/nm_agent_prompt_counter.sh start"
     * Wait for at least "2" seconds
@@ -2119,7 +2119,7 @@ Feature: nmcli - general
     @rhelver+=8 @fedoraver+=31 @ifcfg-rh
     @ifup_ifdown_scripts
     Scenario: NM - general - test ifup (ifdown) script uses NM
-    * Add a new connection of type "ethernet" named "con_general" and options "ifname eth8 autoconnect no ipv4.address 1.2.3.4/24 ipv4.method manual"
+    * Add "ethernet" connection named "con_general" for device "eth8" with options "autoconnect no ipv4.address 1.2.3.4/24 ipv4.method manual"
     * Execute "/usr/sbin/ifup con_general"
     When "connected" is visible with command "nmcli -f GENERAL.STATE device show eth8" in "5" seconds
      And "1.2.3.4/24" is visible with command "nmcli -f IP4.ADDRESS device show eth8" in "5" seconds
@@ -2156,7 +2156,7 @@ Feature: nmcli - general
     @rhelver+=9 @keyfile
     @ifup_ifdown_keyfile
     Scenario: NM - general - test ifup (ifdown) script uses NM with keyfile-defined connection
-    * Add a new connection of type "ethernet" named "con_general" and options "ifname eth8 autoconnect no ipv4.address 1.2.3.4/24 ipv4.method manual"
+    * Add "ethernet" connection named "con_general" for device "eth8" with options "autoconnect no ipv4.address 1.2.3.4/24 ipv4.method manual"
     * Execute "/usr/sbin/ifup con_general"
     When "connected" is visible with command "nmcli -f GENERAL.STATE device show eth8" in "5" seconds
      And "1.2.3.4/24" is visible with command "nmcli -f IP4.ADDRESS device show eth8" in "5" seconds
@@ -2194,9 +2194,8 @@ Feature: nmcli - general
     @not_with_systemd_resolved
     @resolv_conf_search_limit
     Scenario: NM - general - save more than 6 search domains in resolv.conf
-    * Add a new connection of type "ethernet" named "con_general" and options
+    * Add "ethernet" connection named "con_general" for device "eth8" with options
         """
-        ifname eth8
         autoconnect no
         ipv4.dns-search $(echo {a..g}.noexist.redhat.com, | tr -d ' ')
         """
@@ -2251,7 +2250,7 @@ Feature: nmcli - general
     @ver+=1.14
     @nmcli_modify_altsubject-matches
     Scenario: nmcli - general - modification of 802-1x.altsubject-matches sometimes leads to nmcli SIGSEGV
-    * Add a new connection of type "ethernet" named "con_general" and options "ifname \* autoconnect no 802-1x.eap peap 802-1x.identity aaa 802-1x.phase2-auth mschap"
+    * Add "ethernet" connection named "con_general" for device "\*" with options "autoconnect no 802-1x.eap peap 802-1x.identity aaa 802-1x.phase2-auth mschap"
     Then Execute "nmcli con mod con_general 802-1x.altsubject-matches '/something/very/long/should/be/there/at/least/fortyfour/characters' "
      And Execute "nmcli con mod con_general 802-1x.altsubject-matches '/something/very/long/should/be/there/at/least/fortyfour/characters' "
      And Execute "nmcli con mod con_general 802-1x.altsubject-matches '/something/very/long/should/be/there/at/least/fortyfour/characters' "
@@ -2285,7 +2284,7 @@ Feature: nmcli - general
     * Execute "echo '[main]' > /etc/NetworkManager/conf.d/99-xxcustom.conf"
     * Execute "echo 'plugins=keyfile,ifcfg-rh' >> /etc/NetworkManager/conf.d/99-xxcustom.conf"
     * Restart NM
-    * Add a new connection of type "ethernet" named "con_general" and options "ifname \* autoconnect no"
+    * Add "ethernet" connection named "con_general" for device "\*" with options "autoconnect no"
     Then "/etc/NetworkManager/system-connections/con_general" is file
      And Path "/etc/NetworkManager/system-connections/con_general.nmconnection" does not exist
 
@@ -2298,7 +2297,7 @@ Feature: nmcli - general
     * Execute "echo '[main]' > /etc/NetworkManager/conf.d/99-xxcustom.conf"
     * Execute "echo 'plugins=keyfile,ifcfg-rh' >> /etc/NetworkManager/conf.d/99-xxcustom.conf"
     * Restart NM
-    * Add a new connection of type "ethernet" named "con_general" and options "ifname \* autoconnect no"
+    * Add "ethernet" connection named "con_general" for device "\*" with options "autoconnect no"
     Then "/etc/NetworkManager/system-connections/con_general.nmconnection" is file
      And Path "/etc/NetworkManager/system-connections/con_general" does not exist
 
@@ -2311,7 +2310,7 @@ Feature: nmcli - general
     * Execute "echo '[main]' > /etc/NetworkManager/conf.d/99-xxcustom.conf"
     * Execute "echo 'plugins=keyfile,ifcfg-rh' >> /etc/NetworkManager/conf.d/99-xxcustom.conf"
     * Restart NM
-    * Add a new connection of type "ethernet" named "con_general" and options "ifname \* autoconnect no"
+    * Add "ethernet" connection named "con_general" for device "\*" with options "autoconnect no"
     Then "/etc/NetworkManager/system-connections/con_general.nmconnection" is file
      And Path "/etc/NetworkManager/system-connections/con_general" does not exist
 
@@ -2324,7 +2323,7 @@ Feature: nmcli - general
      * Execute "echo '[main]' > /etc/NetworkManager/conf.d/99-xxcustom.conf"
      * Execute "echo 'plugins=keyfile,ifcfg-rh' >> /etc/NetworkManager/conf.d/99-xxcustom.conf"
      * Restart NM
-     * Add a new connection of type "ethernet" named "con_general" and options "ifname \* autoconnect no"
+     * Add "ethernet" connection named "con_general" for device "\*" with options "autoconnect no"
      * Note the output of "nmcli -g connection.uuid connection show con_general"
      * Execute "mv /etc/NetworkManager/system-connections/con_general* /tmp/"
      * Delete connection "con_general"
@@ -2382,7 +2381,7 @@ Feature: nmcli - general
     @secret_key_file_permissions
     Scenario: NM - general - check secret_key file permissions
     * Restart NM
-    * Add a new connection of type "ethernet" named "con_general" and options "ifname eth8 ipv4.dhcp-client-id stable"
+    * Add "ethernet" connection named "con_general" for device "eth8" with options "ipv4.dhcp-client-id stable"
     Then "-rw-------" is visible with command "ls -l /var/lib/NetworkManager/secret_key" in "5" seconds
 
 
@@ -2401,7 +2400,7 @@ Feature: nmcli - general
     @ver+=1.20
     @libnm_addconnection2_block_autoconnect
     Scenario: NM - general - libnm addconnection2 BLOCK_AUTOCONNECT flag
-    * Add a new connection of type "ethernet" named "con_general" and options "ifname eth8 autoconnect yes"
+    * Add "ethernet" connection named "con_general" for device "eth8" with options "autoconnect yes"
     * Bring "down" connection "con_general"
     When "con_general" is not visible with command "nmcli -g name con show --active" in "3" seconds
     * Clone connection "con_general" to "con_general2" using libnm
@@ -2418,13 +2417,13 @@ Feature: nmcli - general
     @ver+=1.20
     @libnm_update2_block_autoconnect
     Scenario: NM - general - libnm update2 BLOCK_AUTOCONNECT flag
-    * Add a new connection of type "ethernet" named "con_general" and options "ifname eth8 autoconnect no"
+    * Add "ethernet" connection named "con_general" for device "eth8" with options "autoconnect no"
     * Update connection "con_general" changing options "SETTING_CONNECTION_AUTOCONNECT:bool:True" using libnm with flags "BLOCK_AUTOCONNECT"
     Then "con_general" is not visible with command "nmcli -g name con show --active" for full "3" seconds
     # check persistency of BLOCK_AUTOCONNECT flag
     * Update connection "con_general" changing options "SETTING_CONNECTION_AUTOCONNECT:bool:True" using libnm
     Then "con_general" is not visible with command "nmcli -g name con show --active" for full "3" seconds
-    * Add a new connection of type "ethernet" named "con_general2" and options "ifname eth8 autoconnect no"
+    * Add "ethernet" connection named "con_general2" for device "eth8" with options "autoconnect no"
     * Update connection "con_general2" changing options "SETTING_CONNECTION_AUTOCONNECT:bool:True" using libnm
     Then "con_general2" is visible with command "nmcli -g name con show --active" in "5" seconds
 
@@ -2433,7 +2432,7 @@ Feature: nmcli - general
     @ver+=1.20
     @libnm_update2_no_reapply
     Scenario: NM - general - libnm update2 NO_REAPPLY flag
-    * Add a new connection of type "ethernet" named "con_general" and options "ifname eth8 connection.metered yes"
+    * Add "ethernet" connection named "con_general" for device "eth8" with options "connection.metered yes"
     * Bring "up" connection "con_general"
     When "u 1" is visible with command " busctl get-property org.freedesktop.NetworkManager $(nmcli -g DBUS-PATH,DEVICE device | sed -n 's/:eth8//p') org.freedesktop.NetworkManager.Device Metered"
     * Update connection "con_general" changing options "SETTING_CONNECTION_METERED:int:2" using libnm with flags "TO_DISK"
@@ -2486,7 +2485,7 @@ Feature: nmcli - general
     @manage_eth8 @eth8_disconnect @tshark @dhclient_DHCP
     @NM_merge_dhclient_conditionals
     Scenario: NM - general - merge dhcp conditionals
-    * Add a new connection of type "ethernet" named "con_general" and options "ifname eth8 autoconnect no"
+    * Add "ethernet" connection named "con_general" for device "eth8" with options "autoconnect no"
     * Execute "echo -e 'if not option domain-name = "example.org" {\nprepend domain-name-servers 127.0.0.1;}' > /etc/dhcp/dhclient-eth8.conf"
     * Bring "up" connection "con_general"
     Then "prepend domain-name-servers 127.0.0.1" is visible with command "cat /var/lib/NetworkManager/dhclient-eth8.conf"
@@ -2522,7 +2521,7 @@ Feature: nmcli - general
     @ver+=1.33
     @nmcli_show_gateways
     Scenario: nmcli - general - show default gateways when called without arguments
-    * Add a new connection of type "ethernet" named "con_general" and options "ifname eth8 ipv4.method static ipv4.addresses 192.168.122.253/24 ipv4.gateway 192.168.122.96 ipv6.method static ipv6.addresses 2607:f0d0:1002:51::4/64 ipv6.gateway 2607:f0d0:1002:51::1"
+    * Add "ethernet" connection named "con_general" for device "eth8" with options "ipv4.method static ipv4.addresses 192.168.122.253/24 ipv4.gateway 192.168.122.96 ipv6.method static ipv6.addresses 2607:f0d0:1002:51::4/64 ipv6.gateway 2607:f0d0:1002:51::1"
     * Bring up connection "con_general"
     * "default via 192.168.122.96" is visible with command "ip -4 r show default"
     * "default via 2607:f0d0:1002:51::1" is visible with command "ip -6 r show default"
@@ -2542,7 +2541,7 @@ Feature: nmcli - general
     @user_cannot_reapply_roots_connection
     Scenario: NM - general - user cannot reapply root's connection
     * Execute "ip link del dummy0 || true"
-    * Add a new connection of type "dummy" named "con_general" for device "dummy0" and options "ipv4.method manual ipv4.addresses 1.2.3.4/24 connection.permissions 'user:root'"
+    * Add "dummy" connection named "con_general" for device "dummy0" with options "ipv4.method manual ipv4.addresses 1.2.3.4/24 connection.permissions 'user:root'"
     * Bring up connection "con_general"
     Then "no permission" is visible with command "sudo -u test nmcli d reapply dummy0"
 
@@ -2559,7 +2558,7 @@ Feature: nmcli - general
     * Execute "ip -n testX6_ns addr add dev testX6p fd01::1/64"
     * Run child "ip netns exec testX6_ns dnsmasq --bind-interfaces --interface testX6p --pid-file=/tmp/testX6_ns.pid  --host-record=deprecated1,fd01::91 --host-record=validhostname,fd01::92 --host-record=deprecated2,fd01::93" without shell
     * Run child "ip netns exec testX6_ns radvd -n -C contrib/ipv6/radvd3.conf" without shell
-    * Add a new connection of type "ethernet" named "con_ipv6" and options " ifname testX6 autoconnect no ipv4.method disabled ipv6.method auto "
+    * Add "ethernet" connection named "con_ipv6" for device "testX6" with options " autoconnect no ipv4.method disabled ipv6.method auto "
     * Bring "up" connection "con_ipv6"
     * Execute "ip addr add dev testX6 fd01::91/128 valid_lft forever preferred_lft 0"
     * Execute "ip addr add dev testX6 fd01::92/128"
@@ -2573,7 +2572,7 @@ Feature: nmcli - general
     @permissive @eth0
     @nmcli_route_dump
     Scenario: nmcli - general - NM does not wait for route dump
-    * Add a new connection of type "dummy" named "dummy0" for device "dummy1" and options "ip4 172.26.1.1/24 autoconnect no"
+    * Add "dummy" connection named "dummy0" for device "dummy1" with options "ip4 172.26.1.1/24 autoconnect no"
     * Bring "up" connection "dummy0"
     * Execute "ip route add blackhole 172.25.1.0/24 proto bird"
     * Execute "nmcli -g uuid connection show --active | xargs nmcli -w 10 connection down"
