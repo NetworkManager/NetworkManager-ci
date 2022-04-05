@@ -84,6 +84,8 @@ Feature: nmcli - ovs
     #Then "bond0" is visible with command "ip a"
     Then "ovsbridge0\s+ovs-bridge\s+unmanaged" is visible with command "nmcli device"
     Then "bond0\s+ovs-port\s+unmanaged" is visible with command "nmcli device"
+
+
     @rhbz1540218
     @ver+=1.10 @ver-1.16
     @openvswitch
@@ -102,6 +104,8 @@ Feature: nmcli - ovs
      And "192.168.10[0-3].*\/2[2-4]" is visible with command "ip a s iface0"
      And "fe80::" is visible with command "ip a s iface0"
      And "default via 192.168.100.1 dev iface0 proto dhcp metric 800" is visible with command "ip r"
+
+
     @rhbz1540218 @rhbz1519176
     @ver+=1.16.2
     @openvswitch
@@ -120,6 +124,8 @@ Feature: nmcli - ovs
      And "192.168.10[0-3].*\/2[2-4]" is visible with command "ip a s iface0"
      And "fe80::" is visible with command "ip a s iface0"
      And "default via 192.168.100.1 dev iface0 proto dhcp metric 800" is visible with command "ip r"
+
+
     @rhbz1540218
     @ver+=1.10
     @openvswitch
@@ -140,6 +146,8 @@ Feature: nmcli - ovs
      And "192.168.10[0-3].*\/2[2-4]" is visible with command "ip a s iface0"
      And "fe80::" is visible with command "ip a s iface0"
      And "default via 192.168.100.1 dev iface0 proto dhcp metric 800" is visible with command "ip r"
+
+
     @rhbz1540218
     @ver+=1.10
     @openvswitch
@@ -160,6 +168,8 @@ Feature: nmcli - ovs
      And "192.168.10[0-3].*\/2[2-4]" is visible with command "ip a s iface0"
      And "fe80::" is visible with command "ip a s iface0"
      And "default via 192.168.100.1 dev iface0 proto dhcp metric 800" is visible with command "ip r"
+
+
     @rhbz1540218
     @ver+=1.10
     @openvswitch
@@ -181,6 +191,8 @@ Feature: nmcli - ovs
      And "192.168.10[0-3].*\/2[2-4]" is visible with command "ip a s iface0"
      And "fe80::" is visible with command "ip a s iface0"
      And "default via 192.168.100.1 dev iface0 proto dhcp metric 800" is visible with command "ip r"
+
+
     @rhbz1540218
     @ver+=1.10
     @openvswitch
@@ -205,6 +217,8 @@ Feature: nmcli - ovs
      And "fe80::" is not visible with command "ip a s iface0"
      And "default via 192.168.100.1 dev iface0 proto dhcp metric 800" is not visible with command "ip r"
      And "ovs" is not visible with command "nmcli device"
+
+
     #@rhbz1540218
     #@ver+=1.10 @ver-1.16
     #@openvswitch
@@ -227,6 +241,8 @@ Feature: nmcli - ovs
     # And "fe80::" is not visible with command "ip a s iface0"
     # And "default via 192.168.100.1 dev iface0 proto dhcp metric 800" is not visible with command "ip r"
     # #And "ovs" is not visible with command "nmcli device"
+
+
     #@rhbz1540218
     #@ver+=1.16.2
     #@openvswitch
@@ -249,6 +265,8 @@ Feature: nmcli - ovs
     # And "fe80::" is not visible with command "ip a s iface0"
     # And "default via 192.168.100.1 dev iface0 proto dhcp metric 800" is not visible with command "ip r"
     # And "ovs" is not visible with command "nmcli device"
+
+
     @rhbz1540218
     @ver+=1.10 @ver-1.17
     @openvswitch
@@ -317,6 +335,8 @@ Feature: nmcli - ovs
      And "192.168.10[0-3].*\/2[2-4]" is visible with command "ip a s iface0"
      And "fe80::" is visible with command "ip a s iface0"
      And "default via 192.168.100.1 dev iface0 proto dhcp metric 800" is visible with command "ip r"
+
+
     @rhbz1540218 @rhbz1543557
     @ver+=1.18.0
     @openvswitch
@@ -385,6 +405,8 @@ Feature: nmcli - ovs
      And "192.168.10[0-3].*\/2[2-4]" is visible with command "ip a s iface0" in "45" seconds
      And "fe80::" is visible with command "ip a s iface0"
      And "default via 192.168.100.1 dev iface0 proto dhcp metric 800" is visible with command "ip r"
+
+
     @rhbz1540218
     @ver+=1.10 @ver-=1.18.7
     @openvswitch @restart_if_needed
@@ -408,6 +430,8 @@ Feature: nmcli - ovs
     And "master ovs-system" is visible with command "ip a s eth3"
     And "192.168.10[0-3].*\/2[2-4]" is visible with command "ip a s iface0"
     And "fe80::" is visible with command "ip a s iface0"
+
+
     @rhbz1540218 @rhbz1734032 @rhbz2022275
     @ver+=1.18.8
     @openvswitch @restart_if_needed
@@ -452,6 +476,8 @@ Feature: nmcli - ovs
     And "192.168.10[0-3].*\/2[2-4]" is visible with command "ip a s iface0"
     And "fe80::" is visible with command "ip a s iface0"
     And "default via 192.168.100.1 dev iface0 proto dhcp metric 800" is visible with command "ip r"
+
+
     @rhbz2029937
     @ver+=1.36.0
     @openvswitch @restart_if_needed
@@ -811,7 +837,6 @@ Feature: nmcli - ovs
      And "Port .*veth1c[\"]?\s+Interface [\"]?veth1c[\"]?\s+type: system" is not visible with command "ovs-vsctl show"
      And "Port .*ovs1[\"]?\s+Interface [\"]?ovs1[\"]?\s+type: internal" is not visible with command "ovs-vsctl show"
      And "Port .*veth0c[\"]?\s+Interface [\"]?veth0c[\"]?\s+type: system" is not visible with command "ovs-vsctl show"
-
 
 
     @rhbz1921107
