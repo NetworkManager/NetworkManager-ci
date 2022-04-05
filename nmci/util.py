@@ -136,7 +136,8 @@ class _Util:
         # @match_mode: how the elements in @expected are compared against @strv
         #    - "plain": direct string comparison
         #    - "regex": regular expression using re.search(e, s)
-        #    - "auto": if string starts with "/", use "regex" otherwise "plain" (the default).
+        #    - "auto": each element can encode whether to be an optional match (starting
+        #        with '?'), and whether to use regex/plain mode ('/' vs. '=').
         # @ignore_extra_strv: if True, extra non-matched elementes in strv are silently accepted
         # @ignore_order: if True, the order is not checked. Otherwise, the
         #   elements in @expected must match in the right order.
@@ -148,11 +149,29 @@ class _Util:
 
         expected_match_idxes = []
         strv_matched = [False for s in strv]
+        expected_required = [True for s in expected]
         for (i, e) in enumerate(expected):
+            e0 = e
             idxes = []
 
+            # With "match_mode=auto", we detect the match mode based on the string.
+            #
+            # If the string starts with '?', it means that the element is
+            # optional. That means it may match not at all or once.
+            # The leading "?" gets stripped first.
+            if match_mode == "auto" and e[0] == "?":
+                e = e[1:]
+                expected_required[i] = False
+
+            # With "match_mode=auto", if the string starts with a '/' it
+            # is a regex (the '/' gets stripped).
+            # With "match_mode=auto", if the string starts with a '=' it
+            # is a plain string (the '=' gets stripped). "plain" is also
+            # the default otherwise (the '=' is only to escape strings).
             if match_mode == "auto" and e[0] == "/":
                 f_match = lambda s: bool(re.search(e[1:], s))
+            elif match_mode == "auto" and e[0] == "=":
+                f_match = lambda s: (s == e[1:])
             elif match_mode in ["auto", "plain"]:
                 f_match = lambda s: (s == e)
             else:
@@ -165,9 +184,10 @@ class _Util:
                     idxes.append(j)
 
             if not idxes:
-                raise ValueError(
-                    f'Could not find #{i} "{e}" in list {str(strv)} (expected {str(expected)})'
-                )
+                if expected_required[i]:
+                    raise ValueError(
+                        f'Could not find #{i} "{e0}" in list {str(strv)} (expected {str(expected)})'
+                    )
             expected_match_idxes.append(idxes)
 
         if not ignore_extra_strv:
@@ -177,62 +197,53 @@ class _Util:
                         f'List {str(strv)} contains non expected element #{j} "{s}" (expected {str(expected)})'
                     )
 
-        # OK, some strings in @strv might have been matched multiple times
-        # (the indexes are now in @expected_match_idxes). This happens with regular expressions.
-        # For example, expected=[".*", "aa"] should match strv=["aa", "b"] correctly.
+        # We now have a mapping of `expected_match_idxes[i]` where each element at position `i` contains
+        # a list of indexes for `strv` which matched. Note that this list of indexes might be
+        # empty (with `not expected_required[i]`) or contain multiple indexes (with regular
+        # expression that can match multiple strings.
         #
-        # With (not ignore_order) that is simple. We must keep always the lowest index.
-        # With (ignore_order) it is more complicated, because we need to find one combination
-        # that satisfies a one-to-one match of the expected list.
-        if ignore_order:
+        # Depending on `ignore_order`, we need to find a combination of matches that
+        # satisfies the requirement. E.g. every `expected[i]` must match zero or
+        # one time (depending on `expected_required[i]`). With `not ignore_order`,
+        # the matches must all have indexes in ascending order.
+        def _has_unique_permuation(lst, base_idx, seen_idx):
 
-            # we want to find at least one permutation, so that
-            # each pattern in expected matches exactly once.
-            def has_unique_permuation(lst, start, seen_idx):
+            if base_idx >= len(lst):
+                return True
 
-                if start >= len(lst):
+            if not expected_required[base_idx]:
+                # Try without a match first.
+                good = _has_unique_permuation(lst, base_idx + 1, seen_idx)
+                if good:
                     return True
 
-                for i in lst[start]:
-                    if i in seen_idx:
-                        continue
-                    seen_idx.add(i)
-                    good = has_unique_permuation(lst, start + 1, seen_idx)
-                    seen_idx.remove(i)
-                    if good:
-                        return True
-                return False
-
-            rl = sys.getrecursionlimit()
-            sys.setrecursionlimit(rl + 100 + len(expected))
-            try:
-                has = has_unique_permuation(expected_match_idxes, 0, set())
-            finally:
-                sys.setrecursionlimit(rl)
-
-            if not has:
-                raise ValueError(
-                    f"List {str(strv)} unexpectedly could not match expected list in a unique way ignoring the order (expected {str(expected)})"
-                )
-
-        else:
-            # if we require that the expected elements match in the same order
-            # as they are in the strv array. That is simple, it means we track
-            # the highest index that we already matched and require that it increases.
-            for i, idxes in enumerate(expected_match_idxes):
-                if i == 0:
-                    # First iteration. The highest index is the minimum of
-                    # expected_match_idxes[0].
-                    j_highest = min(idxes)
+            for i in lst[base_idx]:
+                if i in seen_idx:
+                    # already visited
                     continue
-                # only consider indexes higher than j_highest
-                l2 = [j for j in idxes if j > j_highest]
-                if not l2:
-                    # There is no such index. The match is out of order.
-                    raise ValueError(
-                        f'List {str(strv)} unexpectedly contains #{min(idxes)} "{strv[min(idxes)]}" before #{j_highest} "{strv[j_highest]}" (expected {str(expected)})'
-                    )
-                j_highest = min(l2)
+                if not ignore_order and seen_idx and i < max(seen_idx):
+                    # the increasing order (of indexes) would be violated.
+                    continue
+                seen_idx.add(i)
+                good = _has_unique_permuation(lst, base_idx + 1, seen_idx)
+                seen_idx.remove(i)
+                if good:
+                    return True
+            return False
+
+        rl = sys.getrecursionlimit()
+        sys.setrecursionlimit(rl + len(expected))
+        try:
+            has = _has_unique_permuation(
+                [idxes for idxes in expected_match_idxes if idxes], 0, set()
+            )
+        finally:
+            sys.setrecursionlimit(rl)
+
+        if not has:
+            raise ValueError(
+                f"List {str(strv)} unexpectedly could not match expected list in a unique way {'ignoring' if ignore_order else 'requiring'} the order (expected {str(expected)})"
+            )
 
         return True
 

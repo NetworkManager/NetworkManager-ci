@@ -62,6 +62,10 @@ def test_util_compare_strv_list():
             ignore_order=False,
         )
 
+    util.compare_strv_list(["?a"], [], ignore_order=True)
+    util.compare_strv_list(["?a"], ["a"], ignore_order=True)
+    util.compare_strv_list(["?/a", "aa"], ["aa", ""])
+
 
 def test_util_compare_strv_list_rnd():
     def rnd_match_mode():
