@@ -776,8 +776,6 @@ def ifcfg_rh_as(ctx, scen):
         ctx.run('sudo rm -f /etc/NetworkManager/conf.d/99-xxcustom.conf')
         nmci.lib.restart_NM_service(ctx)
         if ctx.IS_NMTUI:
-            # if 'simwifi' in scen.tags:
-            #     nmci.lib.wifi_rescan()
             time.sleep(4)
         time.sleep(0.5)
 
@@ -812,8 +810,6 @@ def keyfile_as(ctx, scen):
         ctx.run('sudo rm -f /etc/NetworkManager/conf.d/99-xxcustom.conf')
         nmci.lib.restart_NM_service(ctx)
         if ctx.IS_NMTUI:
-            # if 'simwifi' in scen.tags:
-            #     nmci.lib.wifi_rescan()
             time.sleep(4)
         time.sleep(0.5)
 
@@ -2034,6 +2030,7 @@ def wifi_bs(ctx, scen):
 
 
 def wifi_as(ctx, scen):
+    attach_wpa_supplicant_log_as(ctx, scen)
     if ctx.IS_NMTUI:
         ctx.run("sudo nmcli connection delete id wifi wifi1 qe-open qe-wpa1-psk qe-wpa2-psk qe-wep")
         # ctx.run("sudo service NetworkManager restart") # debug restart to overcome the nmcli d w l flickering
@@ -2042,14 +2039,9 @@ def wifi_as(ctx, scen):
         ctx.run('sudo nmcli con del wifi qe-open qe-wep qe-wep-psk qe-wep-enterprise qe-wep-enterprise-cisco')
         ctx.run('sudo nmcli con del qe-wpa1-psk qe-wpa2-psk qe-wpa1-enterprise qe-wpa2-enterprise qe-hidden-wpa2-psk')
         ctx.run('sudo nmcli con del qe-adhoc qe-ap wifi-wlan0')
-        if "novice" in scen.tags:
-            ctx.prompt.close()
-            time.sleep(1)
-            ctx.run('sudo nmcli con del wifi-wlan0')
 
 
 _register_tag("wifi", wifi_bs, wifi_as)
-_register_tag("novice")
 
 
 def rescan_as(ctx, scen):

@@ -1131,27 +1131,6 @@ Feature: nmcli - wifi
 
 
     @wifi
-    @ver-=1.17.99
-    @nmcli_wifisec_psk_validity
-    Scenario: nmcli - wifi-sec - psk validity
-    * Add "wifi" connection named "qe-wpa2-psk" for device "wlan0" with options "autoconnect off ssid qe-wpa2-psk"
-    * Open editor for connection "qe-wpa2-psk"
-    * Set a property named "802-11-wireless-security.key-mgmt" to "wpa-psk" in editor
-    * Set a property named "802-11-wireless-security.psk" to "valid size and input for ascii psk @#$%^&*()[]{}" in editor
-    * No error appeared in editor
-    * Set a property named "802-11-wireless-security.psk" to "short12" in editor
-    * Error appeared in editor
-    * Set a property named "802-11-wireless-security.psk" to "valid123" in editor
-    * No error appeared in editor
-    * Set a property named "802-11-wireless-security.psk" to "maximumasciiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii" in editor
-    * No error appeared in editor
-    * Set a property named "802-11-wireless-security.psk" to "1234A678B01F1234A678B01F1234A678B01F1234A678B01F1234A678B01F123B" in editor
-    * No error appeared in editor
-    * Set a property named "802-11-wireless-security.psk" to "G234A678B01F1234A678B01F1234A678B01F1234A678B01F1234A678B01F123B" in editor
-    * Error appeared in editor
-
-
-    @wifi
     @ver+=1.18
     @nmcli_wifisec_psk_validity
     Scenario: nmcli - wifi-sec - psk validity
@@ -1201,32 +1180,6 @@ Feature: nmcli - wifi
     * Submit "no"
     * Expect "There are . optional .*Wi-Fi"
     * Submit "no"
-    * Dismiss IP configuration in editor
-    * Dismiss Proxy configuration in editor
-    Then "\*\s+qe-open" is visible with command "nmcli -f IN-USE,SSID device wifi list" in "30" seconds
-    Then "qe-open" is visible with command "iw dev wlan0 link" in "30" seconds
-
-
-    @ver-1.8
-    @wifi
-    @nmcli_wifi_add_connection_in_novice_nmcli_a_mode_specifying_options
-    Scenario: nmcli - wifi - add connection in novice (nmcli -a) mode specifying options
-    * Open interactive connection addition mode for a type "wifi"
-    * Note MAC address output for device "wlan0" via ethtool
-    * Expect "SSID"
-    * Submit "qe-open"
-    * Expect "There is . optional .*General"
-    * Submit "no"
-    * Expect "There are . optional .*Wi-Fi"
-    * Submit "yes"
-    * Expect "Wi-Fi mode"
-    * Submit "infrastructure"
-    * Expect "MTU"
-    * Submit "64"
-    * Expect "MAC"
-    * Submit "noted-value"
-    * Expect "Cloned MAC"
-    * Submit "noted-value"
     * Dismiss IP configuration in editor
     * Dismiss Proxy configuration in editor
     Then "\*\s+qe-open" is visible with command "nmcli -f IN-USE,SSID device wifi list" in "30" seconds
@@ -1296,7 +1249,7 @@ Feature: nmcli - wifi
     Then "10.1.1.5" is visible with command "ip a" in "30" seconds
 
 
-    @wifi @novice
+    @wifi
     @nmcli_wifi_add_connection_in_novice_nmcli_a_mode_with_bogus_ip
     Scenario: nmcli - wifi - add connection in novice (nmcli -a) mode with bogus IP
     * Open interactive connection addition mode
@@ -1385,16 +1338,6 @@ Feature: nmcli - wifi
     * Submit "over the river and through the woods"
     Then "\*\s+qe-wpa2-psk" is visible with command "nmcli -f IN-USE,SSID device wifi list" in "45" seconds
     Then "qe-wpa2-psk" is visible with command "iw dev wlan0 link"
-
-
-    @rhbz1115564 @rhbz1184530
-    @ver-=1.18
-    @wifi
-    @nmcli_wifi_add_certificate_as_blob
-    Scenario: nmcli - wifi - show or hide certificate blob
-    * Execute "/usr/bin/python contrib/dbus/dbus-set-wifi-tls-blob.py Unsaved"
-    Then "802-1x.client-cert:\s+3330383230" is visible with command "nmcli --show-secrets connection show wifi-wlan0"
-    And "3330383230" is not visible with command "nmcli connection show wifi-wlan0"
 
 
     @rhbz1115564 @rhbz1184530
