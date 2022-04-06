@@ -570,6 +570,9 @@ class _Misc:
 
         for file_el in file_els:
             if file_el is not None:
+                if file_el.text == "<unknown>":
+                    # this happens if the behave step was not found.
+                    continue
                 file_name, line = file_el.text.split(":", 2)
                 link = ET.SubElement(
                     file_el,
