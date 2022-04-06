@@ -414,7 +414,7 @@ Feature: nmcli - general
     Then "eth0:" is visible with command "ifconfig" in "5" seconds
 
 
-    @ver-=1.36
+    @ver-1.37.3
     @nmcli_radio_status
     Scenario: nmcli - radio - status
     Then "WIFI-HW\s+WIFI\s+WWAN-HW\s+WWAN\s+enabled|disabled\s+enabled|disabled\s+enabled|disabled\s+enabled|disabled" is visible with command "nmcli radio"
