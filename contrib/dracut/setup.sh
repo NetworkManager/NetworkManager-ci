@@ -165,8 +165,8 @@ test_setup() {
       cat >$initdir/etc/systemd/system/testsuite.target <<EOF
 [Unit]
 Description=Testsuite target
-Requires=network.target
-After=network.target
+Requires=network-online.target
+After=network-online.target
 Conflicts=rescue.target
 AllowIsolate=yes
 EOF
@@ -177,7 +177,7 @@ EOF
       cat >$initdir/etc/systemd/system/testsuite.service <<EOF
 [Unit]
 Description=Testsuite service
-After=network.target
+After=network-online.target
 
 [Service]
 ExecStart=/sbin/test-init
