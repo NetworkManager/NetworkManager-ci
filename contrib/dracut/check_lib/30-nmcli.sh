@@ -1,6 +1,8 @@
 # nmcli related checks
 
 nmcli_list() {
+  echo "== nmcli =="
+  nmcli | cat
   echo "== nmcli device =="
   nmcli device | cat
   echo "== nmcli connection =="
