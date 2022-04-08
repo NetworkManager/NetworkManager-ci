@@ -35,6 +35,9 @@ test_setup() {
       chmod +x /etc/qemu-ifdown;
   }
 
+  cp contrib/dracut/conf/smart_sleep.py /usr/local/bin/smart_sleep
+  chmod +x /usr/local/bin/smart_sleep
+
   mkdir $TESTDIR
 
   basedir=/usr/lib/dracut/
