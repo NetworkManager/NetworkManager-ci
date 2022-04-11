@@ -1250,7 +1250,7 @@ def get_modem_info(context):
 
 
 def add_iface_to_cleanup(context, name):
-    if re.match(r"^eth[0-9]{1,2}$", name):
+    if re.match(r"^(eth[0-9]|eth10)$", name):
         context.cleanup["interfaces"]["reset"].add(name)
     else:
         context.cleanup["interfaces"]["delete"].add(name)
