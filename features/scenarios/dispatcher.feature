@@ -132,8 +132,16 @@ Feature: NM: dispatcher
     * Restart NM
     * Execute "systemctl restart NetworkManager-dispatcher"
     * Add "ovs-bridge" connection named "ovs-bridge0" for device "ovsbridge0"
-    * Add "ovs-port" connection named "ovs-port0" for device "port0" with options "conn.master ovsbridge0 ovs-port.tag 120"
-    * Add "ovs-interface" connection named "ovs-iface0" for device "iface0" with options "conn.master port0 ip4 192.0.2.2/24"
+    * Add "ovs-port" connection named "ovs-port0" for device "port0" with options
+          """
+          conn.master ovsbridge0
+          ovs-port.tag 120
+          """
+    * Add "ovs-interface" connection named "ovs-iface0" for device "iface0" with options
+          """
+          conn.master port0
+          ip4 192.0.2.2/24
+          """
     When "activated" is visible with command "nmcli -g GENERAL.STATE con show ovs-iface0" in "40" seconds
     When "inactive|unknown" is visible with command "systemctl is-active NetworkManager-dispatcher.service" in "30" seconds
     * Restart NM in background

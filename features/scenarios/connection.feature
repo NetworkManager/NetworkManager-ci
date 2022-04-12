@@ -213,7 +213,11 @@ Feature: nmcli: connection
     @restart_if_needed
     @connection_autoconnect_yes
     Scenario: nmcli - connection - set autoconnect on
-     * Add "ethernet" connection named "con_con" for device "eth6" with options "connection.autoconnect no connection.autoconnect-retries 3"
+     * Add "ethernet" connection named "con_con" for device "eth6" with options
+           """
+           connection.autoconnect no
+           connection.autoconnect-retries 3
+           """
      * Modify connection "con_con" changing options "connection.autoconnect '' connection.autoconnect-retries ''"
      * Reboot
      Then "con_con" is visible with command "nmcli -t -f NAME  connection show -a" in "3" seconds
@@ -296,12 +300,12 @@ Feature: nmcli: connection
      @manual_connection_with_both_ips
      Scenario: nmcli - connection - add ipv4 ipv6 manual connection
      * Add "ethernet" connection named "con_con" for device "eth5" with options
-     """
-     ipv4.method manual
-     ipv4.addresses 1.1.1.1/24
-     ipv6.method manual
-     ipv6.addresses 1::2/128
-     """
+           """
+           ipv4.method manual
+           ipv4.addresses 1.1.1.1/24
+           ipv6.method manual
+           ipv6.addresses 1::2/128
+           """
      Then "con_con" is visible with command "nmcli con"
 
 
@@ -363,7 +367,12 @@ Feature: nmcli: connection
     @firewall
     @connection_zone_drop_to_public
     Scenario: nmcli - connection - zone to drop and public
-     * Add "ethernet" connection named "con_con" for device "eth6" with options "ipv4.method manual ipv4.addresses 192.168.122.253 connection.zone drop"
+     * Add "ethernet" connection named "con_con" for device "eth6" with options
+           """
+           ipv4.method manual
+           ipv4.addresses 192.168.122.253
+           connection.zone drop
+           """
      * Bring "up" connection "con_con"
      When "eth6" is visible with command "firewall-cmd --zone=drop --list-all"
      * Modify connection "con_con" changing options "connection.zone ''"
@@ -459,7 +468,11 @@ Feature: nmcli: connection
     @connection_metered_guess_yes_ipv6_disabled
     Scenario: NM - connection - metered guess yes
      * Prepare simulated test "testXc" device with "192.168.99" ipv4 and "2620:52:0:dead" ipv6 dhcp address prefix and dhcp option "43,ANDROID_METERED"
-     * Add "ethernet" connection named "con_con" for device "testXc" with options "autoconnect off ipv6.method disabled"
+     * Add "ethernet" connection named "con_con" for device "testXc" with options
+           """
+           autoconnect off
+           ipv6.method disabled
+           """
      * Modify connection "con_con" changing options "connection.metered unknown"
      * Bring "up" connection "con_con"
      Then Metered status is "3"
@@ -520,7 +533,12 @@ Feature: nmcli: connection
     @lldp
     Scenario: nmcli - connection - lldp
      * Prepare simulated test "testXc" device
-     * Add "ethernet" connection named "con_con" for device "testXc" with options "ipv4.method manual ipv4.addresses 1.2.3.4/24 connection.lldp enable"
+     * Add "ethernet" connection named "con_con" for device "testXc" with options
+           """
+           ipv4.method manual
+           ipv4.addresses 1.2.3.4/24
+           connection.lldp enable
+           """
      When "testXc\s+ethernet\s+connected" is visible with command "nmcli device" in "5" seconds
      * Execute "ip netns exec testXc_ns tcpreplay --intf1=testXcp contrib/pcap/lldp.detailed.pcap"
      Then "NEIGHBOR\[0\].DEVICE:\s+testXc" is visible with command "nmcli device lldp" in "5" seconds
@@ -538,7 +556,12 @@ Feature: nmcli: connection
     @lldp_vlan_name_overflow
     Scenario: nmcli - connection - lldp vlan name overflow
     * Prepare simulated test "testXc" device
-    * Add "ethernet" connection named "con_con" for device "testXc" with options "ipv4.method manual ipv4.addresses 1.2.3.4/24 connection.lldp enable"
+    * Add "ethernet" connection named "con_con" for device "testXc" with options
+          """
+          ipv4.method manual
+          ipv4.addresses 1.2.3.4/24
+          connection.lldp enable
+          """
     When "testXc\s+ethernet\s+connected" is visible with command "nmcli device" in "5" seconds
     * Execute "ip netns exec testXc_ns tcpreplay --intf1=testXcp contrib/pcap/lldp.vlan.pcap"
     Then "NEIGHBOR\[0\].IEEE-802-1-VLAN-NAME:\s+default\s" is visible with command "nmcli --fields all device lldp" in "5" seconds
@@ -550,7 +573,12 @@ Feature: nmcli: connection
     @lldp_vlan_tlv
     Scenario: NM - connection - lldp check vlan tvl values via DBus
     * Prepare simulated test "testXc" device
-    * Add "ethernet" connection named "con_con" for device "testXc" with options "ipv4.method manual ipv4.addresses 1.2.3.4/24 connection.lldp enable"
+    * Add "ethernet" connection named "con_con" for device "testXc" with options
+          """
+          ipv4.method manual
+          ipv4.addresses 1.2.3.4/24
+          connection.lldp enable
+          """
     When "testXc\s+ethernet\s+connected" is visible with command "nmcli device" in "5" seconds
     * Execute "ip netns exec testXc_ns tcpreplay --intf1=testXcp contrib/pcap/lldp.vlan.pcap"
     # check the deffinition of the step for more details about syntax
@@ -565,7 +593,12 @@ Feature: nmcli: connection
     @lldp_status_flag_libnm
     Scenario: nmcli - connection - lldp check status flag via libnm
     * Prepare simulated test "testXc" device
-    * Add "ethernet" connection named "con_con" for device "testXc" with options "ipv4.method manual ipv4.addresses 1.2.3.4/24 connection.lldp enable"
+    * Add "ethernet" connection named "con_con" for device "testXc" with options
+          """
+          ipv4.method manual
+          ipv4.addresses 1.2.3.4/24
+          connection.lldp enable
+          """
     When "testXc\s+ethernet\s+connected" is visible with command "nmcli device" in "5" seconds
     * Execute "ip netns exec testXc_ns tcpreplay --intf1=testXcp contrib/pcap/lldp.detailed.pcap"
     Then Check "testXc" device LLDP status flag via libnm
@@ -639,7 +672,11 @@ Feature: nmcli: connection
     @ver+=1.14
     @connection_multiconnect_default_single
     Scenario: nmcli - connection - multi-connect default or single
-    * Add "ethernet" connection named "con_con" for device "''" with options "autoconnect no connection.multi-connect default"
+    * Add "ethernet" connection named "con_con" for device "''" with options
+          """
+          autoconnect no
+          connection.multi-connect default
+          """
     * Bring up connection "con_con" for "eth5" device
     When "eth5" is visible with command "nmcli device | grep con_con"
     * Bring up connection "con_con" for "eth6" device
@@ -657,7 +694,11 @@ Feature: nmcli: connection
     @ver+=1.14
     @connection_multiconnect_manual
     Scenario: nmcli - connection - multi-connect manual up down
-    * Add "ethernet" connection named "con_con" for device "''" with options "autoconnect no connection.multi-connect manual-multiple"
+    * Add "ethernet" connection named "con_con" for device "''" with options
+          """
+          autoconnect no
+          connection.multi-connect manual-multiple
+          """
     * Bring up connection "con_con" for "eth5" device
     When "eth5" is visible with command "nmcli device | grep con_con"
      And "eth6" is not visible with command "nmcli device | grep con_con"
@@ -683,10 +724,20 @@ Feature: nmcli: connection
     @restart_if_needed
     @connection_multiconnect_autoconnect
     Scenario: nmcli - connection - multi-connect with autoconnect
-    * Add "ethernet" connection named "con_con" for device "''" with options "connection.autoconnect yes connection.autoconnect-priority 0 connection.multi-connect manual-multiple"
+    * Add "ethernet" connection named "con_con" for device "''" with options
+          """
+          connection.autoconnect yes
+          connection.autoconnect-priority 0
+          connection.multi-connect manual-multiple
+          """
     When "eth5" is not visible with command "nmcli device | grep con_con"
      And "eth6" is not visible with command "nmcli device | grep con_con"
-    * Add "ethernet" connection named "con_con2" for device "''" with options "connection.autoconnect yes connection.autoconnect-priority 0 connection.multi-connect multiple"
+    * Add "ethernet" connection named "con_con2" for device "''" with options
+          """
+          connection.autoconnect yes
+          connection.autoconnect-priority 0
+          connection.multi-connect multiple
+          """
     When "eth5" is visible with command "nmcli device | grep con_con2"
      And "eth6" is visible with command "nmcli device | grep con_con2"
     * Bring "down" connection "con_con2"
@@ -698,7 +749,13 @@ Feature: nmcli: connection
     @restart_if_needed
     @connection_multiconnect_reboot
     Scenario: nmcli - connection - multi-connect reboot
-    * Add "ethernet" connection named "con_con" for device "''" with options "connection.autoconnect yes connection.autoconnect-priority 0 connection.multi-connect multiple match.interface-name '!eth0'"
+    * Add "ethernet" connection named "con_con" for device "''" with options
+          """
+          connection.autoconnect yes
+          connection.autoconnect-priority 0
+          connection.multi-connect multiple
+          match.interface-name '!eth0'
+          """
     * Reboot
     Then "eth0" is not visible with command "nmcli device | grep ethernet | grep con_con"
      And "eth1" is visible with command "nmcli device | grep ethernet | grep con_con"

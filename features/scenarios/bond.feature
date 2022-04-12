@@ -13,9 +13,9 @@
     @bond_config_file
     Scenario: nmcli - bond - check keyfile config
     * Add "bond" connection named "bond0" for device "nm-bond" with options
-            """
-            autoconnect no mode active-backup
-            """
+          """
+          autoconnect no mode active-backup
+          """
     * Check keyfile "/etc/NetworkManager/system-connections/bond0.nmconnection" has options
             """
             connection.id=bond0
@@ -31,9 +31,9 @@
     @bond_config_file
     Scenario: nmcli - bond - check ifcfg config
     * Add "bond" connection named "bond0" for device "nm-bond" with options
-            """
-            autoconnect no mode active-backup
-            """
+          """
+          autoconnect no mode active-backup
+          """
     * Check ifcfg-file "/etc/sysconfig/network-scripts/ifcfg-bond0" has options
             """
             BONDING_OPTS=mode=active-backup
@@ -100,14 +100,14 @@
     @nmcli_bond_manual_ipv4
     Scenario: nmcli - bond - remove BOOTPROTO dhcp for enslaved ethernet
     * Add "ethernet" connection named "bond0.0" for device "eth1" with options
-            """
-            autoconnect no
-            """
+          """
+          autoconnect no
+          """
     * Add "bond" connection named "bond0" for device "nm-bond" with options
-            """
-            autoconnect no mode active-backup
-            ip4 172.16.1.1/24
-            """
+          """
+          autoconnect no mode active-backup
+          ip4 172.16.1.1/24
+          """
     * Modify connection "bond0.0" changing options "connection.slave-type bond connection.master nm-bond connection.autoconnect yes"
     * Bring "up" connection "bond0"
     * Bring "up" connection "bond0.0"
@@ -245,9 +245,9 @@
     @bond_add_slaves
     Scenario: nmcli - bond - add slaves
      * Add "bond" connection named "bond0" for device "nm-bond" with options
-            """
-            ip4 172.16.1.1/24
-            """
+           """
+           ip4 172.16.1.1/24
+           """
      * Add "ethernet" connection named "bond0.0" for device "eth1" with options "master nm-bond"
      * Add "ethernet" connection named "bond0.1" for device "eth4" with options "master nm-bond"
      * Bring "up" connection "bond0.0"
@@ -261,17 +261,17 @@
     @bond_add_slaves_with_queue-id
     Scenario: nmcli - bond - add slaves
      * Add "bond" connection named "bond0" for device "nm-bond" with options
-            """
-            ipv4.addresses 1.2.3.4/24 ipv4.method manual
-            """
+           """
+           ipv4.addresses 1.2.3.4/24 ipv4.method manual
+           """
      * Add "ethernet" connection named "bond0.0" for device "eth1" with options
-            """
-            master nm-bond queue-id 2
-            """
+           """
+           master nm-bond queue-id 2
+           """
      * Add "ethernet" connection named "bond0.1" for device "eth4" with options
-            """
-            master nm-bond queue-id 4
-            """
+           """
+           master nm-bond queue-id 4
+           """
      When "activated" is visible with command "nmcli -g GENERAL.STATE con show bond0" in "40" seconds
       Then Check slave "eth1" in bond "nm-bond" in proc
        And "2" is visible with command "nmcli -f bond-port.queue-id con show bond0.0"
@@ -285,9 +285,9 @@
     @add_bond_master_via_uuid
     Scenario: nmcli - bond - master via uuid
      * Add "bond" connection named "bond0" for device "nm-bond" with options
-            """
-            ip4 172.16.1.1/24
-            """
+           """
+           ip4 172.16.1.1/24
+           """
      * Add slave connection for master "bond0" on device "eth1" named "bond0.0"
      * Bring "up" connection "bond0.0"
     Then Check slave "eth1" in bond "nm-bond" in proc
@@ -299,9 +299,9 @@
     @bond_ifcfg_master_as_device
     Scenario: ifcfg - bond - slave has master as device
     * Add "bond" connection named "bond0" for device "nm-bond" with options
-            """
-            ip4 172.16.1.1/24
-            """
+          """
+          ip4 172.16.1.1/24
+          """
     * Add "ethernet" connection named "bond0.0" for device "eth1" with options "master nm-bond"
     Then Check bond "nm-bond" link state is "up"
      And Check slave "eth1" in bond "nm-bond" in proc
@@ -337,9 +337,9 @@
     @bond_ifcfg_master_as_device_via_con_name
     Scenario: ifcfg - bond - slave has master as device via conname
     * Add "bond" connection named "bond0" for device "nm-bond" with options
-           """
-           ip4 172.16.1.1/24
-           """
+          """
+          ip4 172.16.1.1/24
+          """
     * Add slave connection for master "bond0" on device "eth1" named "bond0.0"
     Then Check bond "nm-bond" link state is "up"
      And Check slave "eth1" in bond "nm-bond" in proc
@@ -385,9 +385,9 @@
     @bond_remove_all_slaves
     Scenario: nmcli - bond - remove all slaves
     * Add "bond" connection named "bond0" for device "nm-bond" with options
-            """
-            ip4 172.16.1.1/24
-            """
+          """
+          ip4 172.16.1.1/24
+          """
      * Add "ethernet" connection named "bond0.0" for device "eth1" with options "master nm-bond"
      * Bring "up" connection "bond0.0"
      * Delete connection "bond0.0"
@@ -397,9 +397,9 @@
     @bond_remove_slave
     Scenario: nmcli - bond - remove slave
     * Add "bond" connection named "bond0" for device "nm-bond" with options
-            """
-            ip4 172.16.1.1/24
-            """
+          """
+          ip4 172.16.1.1/24
+          """
      * Add "ethernet" connection named "bond0.0" for device "eth1" with options "master nm-bond"
      * Add "ethernet" connection named "bond0.1" for device "eth4" with options "master nm-bond"
      * Bring "up" connection "bond0.0"
@@ -412,9 +412,9 @@
     @bond_slave_type
     Scenario: nmcli - bond - slave-type and master settings
     * Add "bond" connection named "bond0" for device "nm-bond" with options
-            """
-            ip4 172.16.1.1/24
-            """
+          """
+          ip4 172.16.1.1/24
+          """
      * Add "ethernet" connection named "bond0.0" for device "eth1"
      * Open editor for connection "bond0.0"
      * Set a property named "connection.slave-type" to "bond" in editor
@@ -431,9 +431,9 @@
     @bond_remove_active_bond_profile
     Scenario: nmcli - bond - remove active bond profile
     * Add "bond" connection named "bond0" for device "nm-bond" with options
-           """
-           ip4 172.16.1.1/24
-           """
+          """
+          ip4 172.16.1.1/24
+          """
      * Add "ethernet" connection named "bond0.0" for device "eth1" with options "master nm-bond"
      * Bring "up" connection "bond0.0"
      Then Check bond "nm-bond" state is "up"
@@ -520,10 +520,10 @@
     @bond_mac_spoof
     Scenario: nmcli - bond - mac spoof
     * Add "bond" connection named "bond0" with options
-            """
-            ip4 172.16.1.1/24
-            ethernet.cloned-mac-address 02:02:02:02:02:02
-            """
+          """
+          ip4 172.16.1.1/24
+          ethernet.cloned-mac-address 02:02:02:02:02:02
+          """
     * Add "ethernet" connection named "bond0.0" for device "eth1" with options "master nm-bond autoconnect no"
     * Bring "up" connection "bond0.0"
     Then "02:02:02:02:02:02" is visible with command "ip a s eth1"
@@ -539,9 +539,9 @@
     * Note the output of "nmcli -g GENERAL.HWADDR device show eth1" as value "old_eth1"
     * Add "bond-slave" connection named "bond0.0" for device "eth1" with options "master nm-bond"
     * Add "bond" connection named "bond0" with options
-            """
-            ip4 172.16.1.1/24
-            """
+          """
+          ip4 172.16.1.1/24
+          """
     * Execute "nmcli con up bond0.0"
     When "nm-bond:connected:bond0" is visible with command "nmcli -t -f DEVICE,STATE,CONNECTION device" in "40" seconds
     #* Bring "up" connection "bond0.0"
@@ -559,9 +559,9 @@
     @bond_start_by_hand_with_one_auto_only
     Scenario: nmcli - bond - start bond by hand with on auto only
      * Add "bond" connection named "bond0" for device "nm-bond" with options
-            """
-            ip4 172.16.1.1/24
-            """
+           """
+           ip4 172.16.1.1/24
+           """
      * Add "ethernet" connection named "bond0.0" for device "eth1" with options "master nm-bond"
      * Add "ethernet" connection named "bond0.1" for device "eth4" with options "master nm-bond"
      * Modify connection "bond0.0" changing options "autoconnect no"
@@ -595,27 +595,27 @@
     @bond_connect_slave_over_ethernet_upon_reboot
     Scenario: NM - bond - autoconnect slaves - if ethernet exist
     * Add "ethernet" connection named "bond0.0" for device "eth1" with options
-            """
-            autoconnect yes
-            """
+          """
+          autoconnect yes
+          """
     * Bring "up" connection "bond0.0"
     * Add "bond" connection named "bond0" for device "nm-bond" with options
-            """
-            con.autoconnect-sl 1
-            con.autoconnect-priority 1
-            ipv4.method manual
-            ipv4.addresses 192.168.100.12/24
-            ipv4.dhcp-client-id mac
-            ipv6.method disabled
-            autoconnect yes
-            """
+          """
+          con.autoconnect-sl 1
+          con.autoconnect-priority 1
+          ipv4.method manual
+          ipv4.addresses 192.168.100.12/24
+          ipv4.dhcp-client-id mac
+          ipv6.method disabled
+          autoconnect yes
+          """
     * Add "ethernet" connection named "bond0.1" for device "eth1" with options
-            """
-            con.autoconnect-priority 1
-            connection.master nm-bond
-            connection.slave-type bond
-            autoconnect yes
-            """
+          """
+          con.autoconnect-priority 1
+          connection.master nm-bond
+          connection.slave-type bond
+          autoconnect yes
+          """
     * Reboot
     Then "bond0.0" is not visible with command "nmcli -g name connection show -a"
     Then "bond0.1" is visible with command "nmcli -g name connection show -a"
@@ -633,9 +633,9 @@
     * Note the output of "nmcli -t --mode tabular --fields GENERAL.HWADDR device show eth4" as value "orig_eth4"
     * Note the output of "nmcli -t --mode tabular --fields GENERAL.HWADDR device show eth5" as value "orig_eth5"
     * Add "bond" connection named "bond0" for device "nm-bond" with options
-            """
-            ip4 172.16.1.1/24
-            """
+          """
+          ip4 172.16.1.1/24
+          """
     * Add slave connection for master "nm-bond" on device "eth11" named "bond0.0"
     * Add "ethernet" connection named "bond0.1" for device "eth4" with options "master nm-bond"
     * Add slave connection for master "nm-bond" on device "eth5" named "bond0.2"
@@ -682,9 +682,9 @@
     * Note the output of "nmcli -t --mode tabular --fields GENERAL.HWADDR device show eth4" as value "orig_eth4"
     * Note the output of "nmcli -t --mode tabular --fields GENERAL.HWADDR device show eth5" as value "orig_eth5"
     * Add "bond" connection named "bond0" for device "nm-bond" with options
-            """
-            ip4 172.16.1.1/24
-            """
+          """
+          ip4 172.16.1.1/24
+          """
     * Add slave connection for master "nm-bond" on device "eth11" named "bond0.0"
     * Add "ethernet" connection named "bond0.1" for device "eth4" with options "master nm-bond"
     * Add slave connection for master "nm-bond" on device "eth5" named "bond0.2"
@@ -732,9 +732,9 @@
     * Note the output of "nmcli -t --mode tabular --fields GENERAL.HWADDR device show eth4" as value "orig_eth4"
     * Note the output of "nmcli -t --mode tabular --fields GENERAL.HWADDR device show eth5" as value "orig_eth5"
     * Add "bond" connection named "bond0" for device "nm-bond" with options
-            """
-            ip4 172.16.1.1/24
-            """
+          """
+          ip4 172.16.1.1/24
+          """
     * Add slave connection for master "nm-bond" on device "eth11" named "bond0.0"
     * Add "ethernet" connection named "bond0.1" for device "eth4" with options "master nm-bond"
     * Add slave connection for master "nm-bond" on device "eth5" named "bond0.2"
@@ -779,9 +779,9 @@
     * Note the output of "nmcli -t --mode tabular --fields GENERAL.HWADDR device show eth4" as value "orig_eth4"
     * Note the output of "nmcli -t --mode tabular --fields GENERAL.HWADDR device show eth5" as value "orig_eth5"
     * Add "bond" connection named "bond0" for device "nm-bond" with options
-            """
-            ip4 172.16.1.1/24
-            """
+          """
+          ip4 172.16.1.1/24
+          """
     * Add slave connection for master "nm-bond" on device "eth11" named "bond0.0"
     * Add "ethernet" connection named "bond0.1" for device "eth4" with options "master nm-bond"
     * Add slave connection for master "nm-bond" on device "eth5" named "bond0.2"
@@ -829,9 +829,9 @@
     * Note the output of "nmcli -t --mode tabular --fields GENERAL.HWADDR device show eth4" as value "orig_eth4"
     * Note the output of "nmcli -t --mode tabular --fields GENERAL.HWADDR device show eth5" as value "orig_eth5"
     * Add "bond" connection named "bond0" for device "nm-bond" with options
-            """
-            ip4 172.16.1.1/24
-            """
+          """
+          ip4 172.16.1.1/24
+          """
     * Add slave connection for master "nm-bond" on device "eth11" named "bond0.0"
     * Add "ethernet" connection named "bond0.1" for device "eth4" with options "master nm-bond"
     * Add slave connection for master "nm-bond" on device "eth5" named "bond0.2"
@@ -872,9 +872,9 @@
     @bond_slaves_start_via_master
     Scenario: nmcli - bond - start slaves via master
      * Add "bond" connection named "bond0" for device "nm-bond" with options
-            """
-            ip4 172.16.1.1/24
-            """
+           """
+           ip4 172.16.1.1/24
+           """
      * Add "ethernet" connection named "bond0.0" for device "eth1" with options "master nm-bond"
      * Add "ethernet" connection named "bond0.1" for device "eth4" with options "master nm-bond"
      * Modify connection "bond0" changing options "connection.autoconnect-slaves 1"
@@ -889,9 +889,9 @@
     @bond_start_on_boot_with_nothing_auto
     Scenario: nmcli - bond - start bond on boot - nothing auto
      * Add "bond" connection named "bond0" for device "nm-bond" with options
-            """
-            ip4 172.16.1.1/24
-            """
+           """
+           ip4 172.16.1.1/24
+           """
      * Add "ethernet" connection named "bond0.0" for device "eth1" with options "master nm-bond"
      * Add "ethernet" connection named "bond0.1" for device "eth4" with options "master nm-bond"
      * Modify connection "bond0.0" changing options "connection.autoconnect no"
@@ -908,9 +908,9 @@
     @bond_start_on_boot_with_one_auto_only
     Scenario: nmcli - bond - start bond on boot - one slave auto only
     * Add "bond" connection named "bond0" for device "nm-bond" with options
-            """
-            ip4 172.16.1.1/24
-            """
+          """
+          ip4 172.16.1.1/24
+          """
      * Add "ethernet" connection named "bond0.0" for device "eth1" with options "master nm-bond autoconnect no"
      * Add "ethernet" connection named "bond0.1" for device "eth4" with options "master nm-bond autoconnect yes"
      * Reboot
@@ -923,9 +923,9 @@
     @bond_start_on_boot_with_bond_and_one_slave_auto
     Scenario: nmcli - bond - start bond on boot - bond and one slave auto
      * Add "bond" connection named "bond0" for device "nm-bond" with options
-            """
-            ip4 172.16.1.1/24
-            """
+           """
+           ip4 172.16.1.1/24
+           """
      * Add "ethernet" connection named "bond0.0" for device "eth1" with options "master nm-bond"
      * Add "ethernet" connection named "bond0.1" for device "eth4" with options "master nm-bond"
      * Modify connection "bond0.0" changing options "connection.autoconnect no"
@@ -944,9 +944,9 @@
     @bond_set_miimon_values
     Scenario: nmcli - bond - options - set new miimon values
      * Add "bond" connection named "bond0" for device "nm-bond" with options
-            """
-            ip4 172.16.1.1/24
-            """
+           """
+           ip4 172.16.1.1/24
+           """
      * Add "ethernet" connection named "bond0.0" for device "eth1" with options "master nm-bond"
      * Add "ethernet" connection named "bond0.1" for device "eth4" with options "master nm-bond"
      * Modify connection "bond0" changing options "bond.options mode=0,miimon=100,downdelay=100,updelay=100"
@@ -963,10 +963,10 @@
     @bond_set_miimon_values
     Scenario: nmcli - bond - options - set new miimon values
     * Add "bond" connection named "bond0" for device "nm-bond" with options
-            """
-            ip4 172.16.1.1/24
-            bond.options mode=0,miimon=100,downdelay=100,updelay=100
-            """
+          """
+          ip4 172.16.1.1/24
+          bond.options mode=0,miimon=100,downdelay=100,updelay=100
+          """
     * Add "ethernet" connection named "bond0.0" for device "eth1" with options "master nm-bond"
     * Add "ethernet" connection named "bond0.1" for device "eth4" with options "master nm-bond"
     # vvv rhbz1806549 reproducer
@@ -983,9 +983,9 @@
     @bond_set_zero_miimon_values
     Scenario: nmcli - bond - options - set new miimon values
      * Add "bond" connection named "bond0" for device "nm-bond" with options
-            """
-            ip4 172.16.1.1/24
-            """
+           """
+           ip4 172.16.1.1/24
+           """
      * Add "ethernet" connection named "bond0.0" for device "eth1" with options "master nm-bond"
      * Add "ethernet" connection named "bond0.1" for device "eth4" with options "master nm-bond"
      * Modify connection "bond0" changing options "bond.options mode=0,miimon=0,downdelay=0,updelay=0"
@@ -1000,9 +1000,9 @@
     @bond_options_new_arp_values
     Scenario: nmcli - bond - options - set new arp values
      * Add "bond" connection named "bond0" for device "nm-bond" with options
-            """
-            ip4 172.16.1.1/24
-            """
+           """
+           ip4 172.16.1.1/24
+           """
      * Add "ethernet" connection named "bond0.0" for device "eth1" with options "master nm-bond"
      * Add "ethernet" connection named "bond0.1" for device "eth4" with options "master nm-bond"
      * Modify connection "bond0" changing options "bond.options mode=0,arp_interval=1000,arp_ip_target=10.16.135.254"
@@ -1022,9 +1022,9 @@
     @bond_options_arp_vs_miimon_conflict
     Scenario: nmcli - bond - options - set conflicting values between miimon and arp
      * Add "bond" connection named "bond0" for device "nm-bond" with options
-            """
-            ip4 172.16.1.1/24
-            """
+           """
+           ip4 172.16.1.1/24
+           """
      * Add "ethernet" connection named "bond0.0" for device "eth1" with options "master nm-bond"
      * Add "ethernet" connection named "bond0.1" for device "eth4" with options "master nm-bond"
      * Modify connection "bond0" changing options "bond.options mode=0,miimon=100,arp_interval=1000,arp_ip_target=10.16.135.254"
@@ -1042,9 +1042,9 @@
     @bond_option_mode_missing
     Scenario: nmcli - bond - options - mode missing
      * Add "bond" connection named "bond0" for device "nm-bond" with options
-            """
-            ip4 172.16.1.1/24
-            """
+           """
+           ip4 172.16.1.1/24
+           """
      * Open editor for connection "bond0"
      * Set a property named "bond.options" to " " in editor
      * Enter in editor
@@ -1058,9 +1058,9 @@
     @bond_add_option
     Scenario: nmcli - bond - options - add values
      * Add "bond" connection named "bond0" for device "nm-bond" with options
-            """
-            ip4 172.16.1.1/24
-            """
+           """
+           ip4 172.16.1.1/24
+           """
      * Add "ethernet" connection named "bond0.0" for device "eth1" with options "master nm-bond"
      * Add "ethernet" connection named "bond0.1" for device "eth4" with options "master nm-bond"
      * Open editor for connection "bond0"
@@ -1083,9 +1083,9 @@
     @bond_mode_incorrect_value
     Scenario: nmcli - bond - options - add incorrect value
      * Add "bond" connection named "bond0" for device "nm-bond" with options
-            """
-            ip4 172.16.1.1/24
-            """
+           """
+           ip4 172.16.1.1/24
+           """
      * Open editor for connection "bond0"
      * Submit "goto bond" in editor
      * Submit "goto options" in editor
@@ -1100,9 +1100,9 @@
     @bond_change_options
     Scenario: nmcli - bond - options - change values
      * Add "bond" connection named "bond0" for device "nm-bond" with options
-            """
-            ip4 172.16.1.1/24
-            """
+           """
+           ip4 172.16.1.1/24
+           """
      * Add "ethernet" connection named "bond0.0" for device "eth1" with options "master nm-bond"
      * Add "ethernet" connection named "bond0.1" for device "eth4" with options "master nm-bond"
      * Open editor for connection "bond0"
@@ -1124,9 +1124,9 @@
     @bond_remove_option
     Scenario: nmcli - bond - options - remove a value
      * Add "bond" connection named "bond0" for device "nm-bond" with options
-            """
-            ip4 172.16.1.1/24
-            """
+           """
+           ip4 172.16.1.1/24
+           """
      * Add "ethernet" connection named "bond0.0" for device "eth1" with options "master nm-bond"
      * Add "ethernet" connection named "bond0.1" for device "eth4" with options "master nm-bond"
      * Modify connection "bond0" changing options "bond.options mode=0,miimon=100,downdelay=100,updelay=100"
@@ -1155,9 +1155,9 @@
     @bond_overwrite_options
     Scenario: nmcli - bond - options - overwrite some value
      * Add "bond" connection named "bond0" for device "nm-bond" with options
-            """
-            ip4 172.16.1.1/24
-            """
+           """
+           ip4 172.16.1.1/24
+           """
      * Add "ethernet" connection named "bond0.0" for device "eth1" with options "master nm-bond"
      * Add "ethernet" connection named "bond0.1" for device "eth4" with options "master nm-bond"
      * Modify connection "bond0" changing options "bond.options mode=0,miimon=999"
@@ -1170,9 +1170,9 @@
     @bond_mode_balance_rr
     Scenario: nmcli - bond - options - mode set to balance-rr
      * Add "bond" connection named "bond0" for device "nm-bond" with options
-            """
-            ip4 172.16.1.1/24
-            """
+           """
+           ip4 172.16.1.1/24
+           """
      * Add "ethernet" connection named "bond0.0" for device "eth1" with options "master nm-bond"
      * Add "ethernet" connection named "bond0.1" for device "eth4" with options "master nm-bond"
      * Modify connection "bond0" changing options "bond.options mode=2"
@@ -1188,9 +1188,9 @@
     @bond_mode_active_backup
     Scenario: nmcli - bond - options - mode set to active backup
      * Add "bond" connection named "bond0" for device "nm-bond" with options
-            """
-            ip4 172.16.1.1/24
-            """
+           """
+           ip4 172.16.1.1/24
+           """
      * Add "ethernet" connection named "bond0.0" for device "eth1" with options "master nm-bond"
      * Add "ethernet" connection named "bond0.1" for device "eth4" with options "master nm-bond"
      * Modify connection "bond0" changing options "bond.options mode=1"
@@ -1203,9 +1203,9 @@
     @bond_active-backup_primary_set
     Scenario: nmcli - bond - options - mode set to active backup with primary device
      * Add "bond" connection named "bond0" for device "nm-bond" with options
-            """
-            ip4 172.16.1.1/24
-            """
+           """
+           ip4 172.16.1.1/24
+           """
      * Add "ethernet" connection named "bond0.0" for device "eth1" with options "master nm-bond"
      * Add "ethernet" connection named "bond0.1" for device "eth4" with options "master nm-bond"
      * Modify connection "bond0" changing options "bond.options mode=active-backup,primary=eth1,miimon=100,fail_over_mac=2"
@@ -1222,12 +1222,12 @@
     @bond_active-backup_primary_set
     Scenario: nmcli - bond - options - mode set to active backup with primary device
      * Add "bond" connection named "bond0" for device "nm-bond" with options
-            """
-            autoconnect no
-            ip4 172.16.1.1/24
-            -- connection.autoconnect-slaves 1
-            bond.options mode=active-backup,primary=eth1,miimon=100,fail_over_mac=2,primary=eth1
-            """
+           """
+           autoconnect no
+           ip4 172.16.1.1/24
+           -- connection.autoconnect-slaves 1
+           bond.options mode=active-backup,primary=eth1,miimon=100,fail_over_mac=2,primary=eth1
+           """
      * Add "ethernet" connection named "bond0.1" for device "eth4" with options "master nm-bond autoconnect no"
      * Add "ethernet" connection named "bond0.0" for device "eth1" with options "master nm-bond autoconnect no"
      * Bring "up" connection "bond0"
@@ -1248,12 +1248,12 @@
     Scenario: nmcli - bond - options - mode set to active backup with primary device
      * Note MAC address output for device "eth1" via ip command
      * Add "bond" connection named "bond0" for device "nm-bond" with options
-            """
-            autoconnect no
-            ip4 172.16.1.1/24
-            -- connection.autoconnect-slaves 1
-            bond.options mode=active-backup,primary=eth1,miimon=100,fail_over_mac=2,primary=eth1
-            """
+           """
+           autoconnect no
+           ip4 172.16.1.1/24
+           -- connection.autoconnect-slaves 1
+           bond.options mode=active-backup,primary=eth1,miimon=100,fail_over_mac=2,primary=eth1
+           """
      * Add "ethernet" connection named "bond0.1" for device "eth4" with options "master nm-bond autoconnect no"
      * Add "ethernet" connection named "bond0.0" for device "eth1" with options "master nm-bond autoconnect no"
      * Bring "up" connection "bond0"
@@ -1288,9 +1288,9 @@
     @bond_mode_balance_xor
     Scenario: nmcli - bond - options - mode set to balance xor
      * Add "bond" connection named "bond0" for device "nm-bond" with options
-            """
-            ip4 172.16.1.1/24
-            """
+           """
+           ip4 172.16.1.1/24
+           """
      * Add "ethernet" connection named "bond0.0" for device "eth1" with options "master nm-bond"
      * Add "ethernet" connection named "bond0.1" for device "eth4" with options "master nm-bond"
      * Modify connection "bond0" changing options "bond.options mode=2"
@@ -1486,12 +1486,12 @@
     @bond_set_active_backup_options
     Scenario: nmcli - bond - set active backup options
      * Add "bond" connection named "bond0" for device "nm-bond" with options
-            """
-            autoconnect no
-            ip4 172.16.1.1/24
-            -- connection.autoconnect-slaves 1
-            bond.options mode=active-backup,active_slave=eth4,num_grat_arp=3,num_unsol_na=3
-            """
+           """
+           autoconnect no
+           ip4 172.16.1.1/24
+           -- connection.autoconnect-slaves 1
+           bond.options mode=active-backup,active_slave=eth4,num_grat_arp=3,num_unsol_na=3
+           """
      * Add "ethernet" connection named "bond0.1" for device "eth4" with options "master nm-bond autoconnect no"
      * Add "ethernet" connection named "bond0.0" for device "eth1" with options "master nm-bond autoconnect no"
      * Bring "up" connection "bond0"
@@ -1510,12 +1510,12 @@
     @bond_set_active_backup_options
     Scenario: nmcli - bond - set active backup options
      * Add "bond" connection named "bond0" for device "nm-bond" with options
-            """
-            autoconnect no
-            ip4 172.16.1.1/24
-            bond.options
-            mode=active-backup,active_slave=eth4,num_grat_arp=3,num_unsol_na=3
-            """
+           """
+           autoconnect no
+           ip4 172.16.1.1/24
+           bond.options
+           mode=active-backup,active_slave=eth4,num_grat_arp=3,num_unsol_na=3
+           """
      * Add "ethernet" connection named "bond0.1" for device "eth4" with options "master nm-bond autoconnect no"
      * Add "ethernet" connection named "bond0.0" for device "eth1" with options "master nm-bond autoconnect no"
      * Bring "up" connection "bond0"
@@ -1536,13 +1536,13 @@
     @bond_set_ad_options
     Scenario: nmcli - bond - set 802.3ad options
      * Add "bond" connection named "bond0" for device "nm-bond" with options
-            """
-            autoconnect no
-            ip4 172.16.1.1/24
-            -- connection.autoconnect-slaves 1
-            bond.options
-            mode=802.3ad,ad_actor_sys_prio=666,ad_actor_system=00:00:00:00:11:00,min_links=2,ad_user_port_key=2,all_slaves_active=1
-            """
+           """
+           autoconnect no
+           ip4 172.16.1.1/24
+           -- connection.autoconnect-slaves 1
+           bond.options
+           mode=802.3ad,ad_actor_sys_prio=666,ad_actor_system=00:00:00:00:11:00,min_links=2,ad_user_port_key=2,all_slaves_active=1
+           """
      * Add "ethernet" connection named "bond0.1" for device "eth4" with options "master nm-bond autoconnect no"
      * Add "ethernet" connection named "bond0.0" for device "eth1" with options "master nm-bond autoconnect no"
      * Bring "up" connection "bond0"
@@ -1558,13 +1558,13 @@
     @bond_set_arp_all_targets
     Scenario: nmcli - bond - set arp_all_targets
      * Add "bond" connection named "bond0" for device "nm-bond" with options
-            """
-            autoconnect no
-            ip4 172.16.1.1/24
-            -- connection.autoconnect-slaves 1
-            bond.options
-            mode=active-backup,arp_interval=1000,arp_ip_target=172.16.1.254,arp_all_targets=1
-            """
+           """
+           autoconnect no
+           ip4 172.16.1.1/24
+           -- connection.autoconnect-slaves 1
+           bond.options
+           mode=active-backup,arp_interval=1000,arp_ip_target=172.16.1.254,arp_all_targets=1
+           """
      * Add "ethernet" connection named "bond0.1" for device "eth4" with options "master nm-bond autoconnect no"
      * Add "ethernet" connection named "bond0.0" for device "eth1" with options "master nm-bond autoconnect no"
      * Bring "up" connection "bond0"
@@ -1576,12 +1576,12 @@
     @bond_set_packets_per_slave_option
     Scenario: nmcli - bond - set packets_per_slave option
      * Add "bond" connection named "bond0" for device "nm-bond" with options
-            """
-            autoconnect no
-            ip4 172.16.1.1/24
-            -- connection.autoconnect-slaves 1
-            bond.options mode=balance-rr,packets_per_slave=1024
-            """
+           """
+           autoconnect no
+           ip4 172.16.1.1/24
+           -- connection.autoconnect-slaves 1
+           bond.options mode=balance-rr,packets_per_slave=1024
+           """
      * Add "ethernet" connection named "bond0.1" for device "eth4" with options "master nm-bond autoconnect no"
      * Add "ethernet" connection named "bond0.0" for device "eth1" with options "master nm-bond autoconnect no"
      * Bring "up" connection "bond0"
@@ -1595,12 +1595,12 @@
     @bond_set_peer_notif_delay_option
     Scenario: nmcli - bond - set peer_notif_delay option
      * Add "bond" connection named "bond0" for device "nm-bond" with options
-            """
-            autoconnect no
-            ip4 172.16.1.1/24
-            -- connection.autoconnect-slaves 1
-            bond.options mode=balance-rr,miimon=300,peer_notif_delay=600
-            """
+           """
+           autoconnect no
+           ip4 172.16.1.1/24
+           -- connection.autoconnect-slaves 1
+           bond.options mode=balance-rr,miimon=300,peer_notif_delay=600
+           """
      * Add "ethernet" connection named "bond0.1" for device "eth4" with options "master nm-bond autoconnect no"
      * Add "ethernet" connection named "bond0.0" for device "eth1" with options "master nm-bond autoconnect no"
      * Bring "up" connection "bond0"
@@ -1621,12 +1621,12 @@
     @bond_set_balance_tlb_options
     Scenario: nmcli - bond - set balance-tlb options
      * Add "bond" connection named "bond0" for device "nm-bond" with options
-            """
-            autoconnect no
-            ip4 172.16.1.1/24
-            -- connection.autoconnect-slaves 1
-            bond.options mode=balance-tlb,tlb_dynamic_lb=0,lp_interval=666
-            """
+           """
+           autoconnect no
+           ip4 172.16.1.1/24
+           -- connection.autoconnect-slaves 1
+           bond.options mode=balance-tlb,tlb_dynamic_lb=0,lp_interval=666
+           """
      * Add "ethernet" connection named "bond0.1" for device "eth4" with options "master nm-bond autoconnect no"
      * Add "ethernet" connection named "bond0.0" for device "eth1" with options "master nm-bond autoconnect no"
      * Bring "up" connection "bond0"
@@ -1640,12 +1640,12 @@
     @bond_set_balance_tlb_options
     Scenario: nmcli - bond - set balance-tlb options
      * Add "bond" connection named "bond0" for device "nm-bond" with options
-            """
-            autoconnect no
-            ip4 172.16.1.1/24
-            -- connection.autoconnect-slaves 1
-            bond.options mode=balance-tlb,tlb_dynamic_lb=0,lp_interval=666,primary=eth1,miimon=500,updelay=100
-            """
+           """
+           autoconnect no
+           ip4 172.16.1.1/24
+           -- connection.autoconnect-slaves 1
+           bond.options mode=balance-tlb,tlb_dynamic_lb=0,lp_interval=666,primary=eth1,miimon=500,updelay=100
+           """
      * Add "ethernet" connection named "bond0.1" for device "eth4" with options "master nm-bond autoconnect no"
      * Add "ethernet" connection named "bond0.0" for device "eth1" with options "master nm-bond autoconnect no"
      * Bring "up" connection "bond0"
@@ -1668,12 +1668,12 @@
     @bond_set_balance_tlb_options_var2
     Scenario: nmcli - bond - set balance-tlb options
      * Add "bond" connection named "bond0" for device "nm-bond" with options
-            """
-            autoconnect no
-            ip4 172.16.1.1/24
-            -- connection.autoconnect-slaves 1
-            bond.options mode=balance-alb,miimon=100,xmit_hash_policy=5,tlb_dynamic_lb=0
-            """
+           """
+           autoconnect no
+           ip4 172.16.1.1/24
+           -- connection.autoconnect-slaves 1
+           bond.options mode=balance-alb,miimon=100,xmit_hash_policy=5,tlb_dynamic_lb=0
+           """
      * Add "ethernet" connection named "bond0.1" for device "eth4" with options "master nm-bond autoconnect no"
      * Add "ethernet" connection named "bond0.0" for device "eth1" with options "master nm-bond autoconnect no"
      * Bring "up" connection "bond0"
@@ -1686,9 +1686,9 @@
     @bond_device_rename
     Scenario: NM - bond - device rename
      * Add "bond" connection named "bond0" for device "bondy" with options
-            """
-            ip4 172.16.1.1/24
-            """
+           """
+           ip4 172.16.1.1/24
+           """
      * Modify connection "bond0" changing options "connection.interface-name nm-bond"
      * Bring "down" connection "bond0"
      * Bring "up" connection "bond0"
@@ -1721,14 +1721,14 @@
     @bond_enslave_to_bridge
     Scenario: nmcli - bond - enslave bond device to bridge
      * Add "bridge" connection named "bond_bridge0" for device "bond-bridge" with options
-            """
-            bridge.stp off
-            ipv4.method manual ipv4.addresses 172.16.1.2/24
-            """
+           """
+           bridge.stp off
+           ipv4.method manual ipv4.addresses 172.16.1.2/24
+           """
      * Add "bond" connection named "bond0" for device "nm-bond" with options
-            """
-            master bond-bridge
-            """
+           """
+           master bond-bridge
+           """
      * Add "ethernet" connection named "bond-slave-eth1" for device "eth1" with options "master nm-bond"
      * Bring "up" connection "bond-slave-eth1"
     Then "bond-bridge:bridge:connected:bond_bridge0" is visible with command "nmcli -t -f DEVICE,TYPE,STATE,CONNECTION device" in "45" seconds
@@ -1741,16 +1741,16 @@
     @bridge_bond_autoconnect_nested_slaves
     Scenario: nmcli - bond - autoconnect slaves of slaves
      * Add "bridge" connection named "bond_bridge0" for device "bond-bridge" with options
-            """
-            autoconnect no
-            ipv4.method manual ipv4.addresses 172.16.1.2/24
-            connection.autoconnect-slaves 1 bridge.stp off
-            """
+           """
+           autoconnect no
+           ipv4.method manual ipv4.addresses 172.16.1.2/24
+           connection.autoconnect-slaves 1 bridge.stp off
+           """
      * Add "bond" connection named "bond0" for device "nm-bond" with options
-            """
-            master bond-bridge autoconnect no
-            connection.autoconnect-slaves 1
-            """
+           """
+           master bond-bridge autoconnect no
+           connection.autoconnect-slaves 1
+           """
      * Add "ethernet" connection named "bond-slave-eth1" for device "eth1" with options "master nm-bond autoconnect no"
      * Bring "up" connection "bond_bridge0"
     Then "bond-bridge:bridge:connected:bond_bridge0" is visible with command "nmcli -t -f DEVICE,TYPE,STATE,CONNECTION device" in "60" seconds
@@ -1764,16 +1764,16 @@
     @bridge_bond_autoconnect_nested_slaves
     Scenario: nmcli - bond - autoconnect slaves of slaves
      * Add "bridge" connection named "bond_bridge0" for device "bond-bridge" with options
-            """
-            autoconnect no
-            ipv4.method manual ipv4.addresses 172.16.1.2/24
-            connection.autoconnect-slaves 1 bridge.stp off
-            """
+           """
+           autoconnect no
+           ipv4.method manual ipv4.addresses 172.16.1.2/24
+           connection.autoconnect-slaves 1 bridge.stp off
+           """
      * Add "bond" connection named "bond0" for device "nm-bond" with options
-            """
-            master bond-bridge autoconnect no
-            connection.autoconnect-slaves 1
-            """
+           """
+           master bond-bridge autoconnect no
+           connection.autoconnect-slaves 1
+           """
      * Add "ethernet" connection named "bond-slave-eth1" for device "eth1" with options "master nm-bond autoconnect no"
      * Bring "up" connection "bond_bridge0"
     When "bond-bridge:bridge:connected:bond_bridge0" is visible with command "nmcli -t -f DEVICE,TYPE,STATE,CONNECTION device" in "60" seconds
@@ -1793,9 +1793,9 @@
      Scenario: nmcli - bond - no error in 8023ad setup
       * Run child "journalctl -f > /tmp/journal.txt"
       * Add "bond" connection named "bond0" for device "bond0" with options
-       """
-       mode 4 miimon 100
-       """
+            """
+            mode 4 miimon 100
+            """
       * Execute "pkill journalctl"
       Then "mode dependency failed, not supported in mode 802.3ad" is not visible with command "grep arp_validate /tmp/journal.txt"
 
@@ -1827,7 +1827,12 @@
             autoconnect no master bond-bridge
             802-3-ethernet.mtu 9000
             """
-      * Add "ethernet" connection named "bond0.0" for device "eth1" with options "autoconnect no master nm-bond -- 802-3-ethernet.mtu 9000"
+      * Add "ethernet" connection named "bond0.0" for device "eth1" with options
+            """
+            autoconnect no
+            master nm-bond
+            -- 802-3-ethernet.mtu 9000
+            """
       * Bring "up" connection "bond_bridge0"
       * Bring "up" connection "bond0"
       * Bring "up" connection "bond0.0"
@@ -1853,9 +1858,9 @@
      @reapply_unchanged_slave
      Scenario: nmcli - bond - reapply unchanged slave
       * Add "bond" connection named "bond0" for device "nm-bond" with options
-               """
-               ip4 172.16.1.1/24
-               """
+            """
+            ip4 172.16.1.1/24
+            """
       * Add "ethernet" connection named "bond0.0" for device "eth1" with options "master nm-bond"
       * Bring "up" connection "bond0"
       * Bring "up" connection "bond0.0"
@@ -1868,13 +1873,20 @@
     @vlan_over_no_L3_bond_restart_persistence
     Scenario: nmcli - bond - restart persistence of no L3 bond in vlan
     * Add "bond" connection named "bond0" for device "nm-bond" with options
-            """
-            autoconnect no
-            ipv4.method disable ipv6.method ignore
-            """
+          """
+          autoconnect no
+          ipv4.method disable ipv6.method ignore
+          """
     * Add "ethernet" connection named "bond0.0" for device "eth1" with options "autoconnect no master nm-bond"
     * Add "ethernet" connection named "bond0.1" for device "eth4" with options "autoconnect no master nm-bond"
-    * Add "vlan" connection named "vlan" with options "dev nm-bond id 153 autoconnect no ip4 10.66.66.1/24 ipv6.method ignore"
+    * Add "vlan" connection named "vlan" with options
+          """
+          dev nm-bond
+          id 153
+          autoconnect no
+          ip4 10.66.66.1/24
+          ipv6.method ignore
+          """
     * Bring "up" connection "bond0"
     * Bring "up" connection "bond0.0"
     * Bring "up" connection "bond0.1"
@@ -1908,7 +1920,12 @@
             autoconnect no
             ipv4.method disabled ipv6.method ignore
             """
-      * Add "ethernet" connection named "bond0.0" for device "testXB" with options "autoconnect no connection.master nm-bond connection.slave-type bond"
+      * Add "ethernet" connection named "bond0.0" for device "testXB" with options
+            """
+            autoconnect no
+            connection.master nm-bond
+            connection.slave-type bond
+            """
       * Bring "up" connection "bond0.0"
       When "nm-bond:bond:connected:bond0" is visible with command "nmcli -t -f DEVICE,TYPE,STATE,CONNECTION device" in "40" seconds
        And "state UP" is visible with command "ip -6 a s nm-bond"
@@ -1930,11 +1947,16 @@
     Scenario: nmcli - bond - leave UP with L2 only config
     * Prepare simulated test "testXB" device
     * Add "bond" connection named "bond0" for device "nm-bond" with options
-            """
-            autoconnect no
-            ipv4.method disabled ipv6.method ignore
-            """
-    * Add "ethernet" connection named "bond0.0" for device "testXB" with options "autoconnect no connection.master nm-bond connection.slave-type bond"
+          """
+          autoconnect no
+          ipv4.method disabled ipv6.method ignore
+          """
+    * Add "ethernet" connection named "bond0.0" for device "testXB" with options
+          """
+          autoconnect no
+          connection.master nm-bond
+          connection.slave-type bond
+          """
     * Bring "up" connection "bond0.0"
     When "nm-bond:bond:connected:bond0" is visible with command "nmcli -t -f DEVICE,TYPE,STATE,CONNECTION device" in "40" seconds
      And "state UP" is visible with command "ip -6 a s nm-bond"
@@ -1972,10 +1994,10 @@
     @bond_assume_options_2
     Scenario: nmcli - bond - assume options 2
      * Add "bond" connection named "bond" for device "nm-bond" with options
-            """
-            ip4 172.16.1.1/24
-            bond.options mode=1,miimon=100,updelay=200
-            """
+           """
+           ip4 172.16.1.1/24
+           bond.options mode=1,miimon=100,updelay=200
+           """
      * Bring "up" connection "bond"
      * Restart NM
      Then "nm-bond\s+bond\s+connected\s+bond" is visible with command "nmcli d" in "10" seconds
@@ -1987,10 +2009,10 @@
     @bond_assume_options_3
     Scenario: nmcli - bond - assume options 3
      * Add "bond" connection named "bond" for device "nm-bond" with options
-            """
-            ip4 172.16.1.1/24
-            bond.options mode=1,arp_interval=100,arp_ip_target=172.16.1.100
-            """
+           """
+           ip4 172.16.1.1/24
+           bond.options mode=1,arp_interval=100,arp_ip_target=172.16.1.100
+           """
      * Bring "up" connection "bond"
      * Restart NM
      Then "nm-bond\s+bond\s+connected\s+bond" is visible with command "nmcli d" in "10" seconds
@@ -2030,12 +2052,12 @@
     @bond_set_num_grat_arp_unsol_na
     Scenario: nmcli - bond - set num_grat_arp and num_unsol_na options
     * Add "bond" connection named "bond0" for device "nm-bond" with options
-            """
-            autoconnect no
-            ip4 172.16.1.1/24
-            connection.autoconnect-slaves 1
-            bond.options mode=active-backup,num_grat_arp=7
-            """
+          """
+          autoconnect no
+          ip4 172.16.1.1/24
+          connection.autoconnect-slaves 1
+          bond.options mode=active-backup,num_grat_arp=7
+          """
     * Add "ethernet" connection named "bond0.1" for device "eth4" with options "master nm-bond autoconnect no"
     * Add "ethernet" connection named "bond0.0" for device "eth1" with options "master nm-bond autoconnect no"
     * Bring "up" connection "bond0"
@@ -2061,11 +2083,11 @@
      Scenario: nmcli - bond - send correct arp
      * Prepare simulated test "testXB" device
      * Add "bond" connection named "bond0" for device "nm-bond" with options
-            """
-            autoconnect no
-            ipv4.method manual
-            ipv4.addresses 2.3.4.5/24,192.168.100.123/24,1.1.1.1/24,1.2.3.4/24,1.2.3.5/24,1.3.5.9/24
-            """
+           """
+           autoconnect no
+           ipv4.method manual
+           ipv4.addresses 2.3.4.5/24,192.168.100.123/24,1.1.1.1/24,1.2.3.4/24,1.2.3.5/24,1.3.5.9/24
+           """
      * Add "ethernet" connection named "bond0.0" for device "testXB" with options "master nm-bond autoconnect no"
      * Bring "up" connection "bond0"
      * Note MAC address output for device "nm-bond" via ip command
@@ -2094,12 +2116,12 @@
     @bond_arp_validate
     Scenario: NM - bond - bond set arp_validate
     * Add "bond" connection named "bond0" for device "nm-bond" with options
-            """
-            autoconnect no
-            ip4 10.16.135.1/24
-            -- connection.autoconnect-slaves 1
-            bond.options mode=active-backup,arp_interval=1000,arp_ip_target=10.16.135.254,arp_all_targets=1,arp_validate=6
-            """
+          """
+          autoconnect no
+          ip4 10.16.135.1/24
+          -- connection.autoconnect-slaves 1
+          bond.options mode=active-backup,arp_interval=1000,arp_ip_target=10.16.135.254,arp_all_targets=1,arp_validate=6
+          """
     * Add "ethernet" connection named "bond0.1" for device "eth4" with options "master nm-bond autoconnect no"
     * Add "ethernet" connection named "bond0.0" for device "eth1" with options "master nm-bond autoconnect no"
     * Bring "up" connection "bond0"
@@ -2136,11 +2158,11 @@
     @bond_rr_arp_validate
     Scenario: NM - bond - bond set arp_validate in rr mode
     * Add "bond" connection named "bond0" for device "nm-bond" with options
-            """
-            autoconnect no
-            ipv4.method disabled ipv6.method disabled
-            bond.options mode=balance-rr
-            """
+          """
+          autoconnect no
+          ipv4.method disabled ipv6.method disabled
+          bond.options mode=balance-rr
+          """
     * Add "ethernet" connection named "bond0.1" for device "eth4" with options "master nm-bond autoconnect no"
     * Add "ethernet" connection named "bond0.0" for device "eth1" with options "master nm-bond autoconnect no"
     * Bring "up" connection "bond0"
@@ -2156,10 +2178,10 @@
     @bond_reapply_connection_without_wired_settings
     Scenario: NM - bond - reapply connection without wired settings
     * Add "bond" connection named "bond0" for device "nm-bond" with options
-            """
-            ip4 172.16.1.1/24
-            connection.autoconnect-slaves 1
-            """
+          """
+          ip4 172.16.1.1/24
+          connection.autoconnect-slaves 1
+          """
     * Add "ethernet" connection named "bond0.1" for device "eth4" with options "master nm-bond"
     When "connected" is visible with command "nmcli -g GENERAL.STATE dev show nm-bond" in "40" seconds
     Then "Error.*" is not visible with command "/usr/bin/python contrib/reproducers/repro_reapply_no_wired_settings.py bond0 nm-bond" in "1" seconds
@@ -2172,10 +2194,10 @@
     Scenario: NM - bond - reconnect device
     * Execute "echo 'blacklist bonding' > /etc/modprobe.d/99-test.conf && modprobe -r bonding"
     * Add "bond" connection named "bond0" for device "nm-bond" with options
-            """
-            connection.autoconnect-slaves 1
-            ipv4.method manual ipv4.addresses 172.16.1.1/24
-            """
+          """
+          connection.autoconnect-slaves 1
+          ipv4.method manual ipv4.addresses 172.16.1.1/24
+          """
     * Add "ethernet" connection named "bond0.1" for device "eth4" with options "master nm-bond"
     * Bring up connection "bond0" ignoring error
     * Execute "rm -rf /etc/modprobe.d/99-test.conf"
@@ -2189,9 +2211,9 @@
     @bond_add_default_route_if_bond0_exists
     Scenario: NM - bond - reconnect device
     * Add "bond" connection named "bond0" for device "bond0" with options
-            """
-            ip4 172.16.1.1/24 gw4 172.16.1.254
-            """
+          """
+          ip4 172.16.1.1/24 gw4 172.16.1.254
+          """
     * Stop NM
     * Execute "rm -rf /var/run/NetworkManager"
     * Execute "ip link del bond0 2> /dev/null ; ip link add bond0 type bond"
@@ -2207,9 +2229,9 @@
     @bond_normalize_connection
     Scenario: NM - bond - bond normalize connection
     * Add "bond" connection named "bond0" for device "nm-bond" with options
-            """
-            bond.options mode=4,arp_interval=2,arp_ip_target=1.1.1.1
-            """
+          """
+          bond.options mode=4,arp_interval=2,arp_ip_target=1.1.1.1
+          """
     Then "mode=802.3ad" is visible with command "nmcli c show bond0"
 
 
@@ -2219,10 +2241,10 @@
     @bond_normalize_connection
     Scenario: NM - bond - bond normalize connection
     * Add "bond" connection named "bond0" for device "nm-bond" with options
-            """
-            ip4 172.16.1.1/24
-            bond.options mode=4,arp_interval=2,arp_ip_target=1.1.1.1
-            """
+          """
+          ip4 172.16.1.1/24
+          bond.options mode=4,arp_interval=2,arp_ip_target=1.1.1.1
+          """
     Then "mode=802.3ad" is visible with command "nmcli c show bond0"
     Then "error" is not visible with command "journalctl  -t NetworkManager  --since -10s -p 3 -o cat |grep ad_actor_system"
 
@@ -2233,10 +2255,10 @@
     @bond_reapply
     Scenario: NM - device - reapply just routes
     * Add "bond" connection named "bond0" for device "nm-bond" with options
-            """
-            ip4 172.16.1.1/24
-            bond.options mode=0,miimon=100,updelay=100
-            """
+          """
+          ip4 172.16.1.1/24
+          bond.options mode=0,miimon=100,updelay=100
+          """
     * Bring "up" connection "bond0"
     * Modify connection "bond0" changing options "bond.options mode=0,miimon=100,downdelay=1000,updelay=100"
     * Execute "sudo nmcli d reapply nm-bond"
@@ -2255,20 +2277,20 @@
     * Execute "ip link set veth11 up"
     * Execute "ip link set nm-bond up"
     * Add "bond" connection named "bond0" for device "nm-bond" with options
-            """
-            connection.autoconnect no
-            connection.autoconnect-slaves no
-            bond.option mode=active-backup
-            ipv4.method disabled
-            ipv6.method disabled
-                        """
+          """
+          connection.autoconnect no
+          connection.autoconnect-slaves no
+          bond.option mode=active-backup
+          ipv4.method disabled
+          ipv6.method disabled
+          """
     * Add "ethernet" connection named "bond0.1" for device "veth11" with options
-            """
-            connection.master nm-bond
-            connection.slave-type bond
-            connection.autoconnect no
-            connection.autoconnect-slaves no
-            """
+          """
+          connection.master nm-bond
+          connection.slave-type bond
+          connection.autoconnect no
+          connection.autoconnect-slaves no
+          """
     * Bring "down" connection "bond0"
     * Bring "up" connection "bond0"
     * Bring "up" connection "bond0.1"
@@ -2282,11 +2304,11 @@
     @bond_8023ad_with_vlan_srcmac
     Scenario: nmcli - bond - options - mode set to 802.3ad with vlan+srcmax
     * Add "bond" connection named "bond0" for device "nm-bond" with options
-            """
-            ip4 172.16.1.1/24
-            bond.options 'mode=802.3ad,
-            miimon=100,xmit_hash_policy=vlan+srcmac'
-            """
+          """
+          ip4 172.16.1.1/24
+          bond.options 'mode=802.3ad,
+          miimon=100,xmit_hash_policy=vlan+srcmac'
+          """
      * Add "ethernet" connection named "bond0.0" for device "eth1" with options "master nm-bond"
      * Bring "up" connection "bond0.0"
      Then "Bonding Mode: IEEE 802.3ad Dynamic link aggregation" is visible with command "cat /proc/net/bonding/nm-bond"
@@ -2300,10 +2322,10 @@
     @bond_set_MTU_before_DHCP
     Scenario: nmcli - bond - set MTU before DHCP starts
      * Add "bond" connection named "bond0" for device "nm-bond" with options
-            """
-            ethernet.mtu 1400
-            ipv6.method disabled
-            """
+           """
+           ethernet.mtu 1400
+           ipv6.method disabled
+           """
      * Add "dummy" connection named "bond0.0" for device "dummy0" with options "master bond0"
      * Add "dummy" connection named "bond0.1" for device "dummy1" with options "master bond0"
     When "activated" is visible with command "nmcli -g GENERAL.STATE con show bond0.0" in "10" seconds
@@ -2318,10 +2340,10 @@
      @bond_accept_all_mac_addresses
      Scenario: nmcli - bond - accept-all-mac-addresses (promisc mode)
      * Add "bond" connection named "bond0" for device "nm-bond" with options
-            """
-            autoconnect no
-            ip4 172.16.1.1/24
-            """
+           """
+           autoconnect no
+           ip4 172.16.1.1/24
+           """
      * Bring "up" connection "bond0"
      Then "PROMISC" is not visible with command "ip link show dev nm-bond"
      * Modify connection "bond0" changing options "802-3-ethernet.accept-all-mac-addresses true"
@@ -2340,11 +2362,11 @@
      * Execute "ip link add nm-bond type bond && ip link set dev nm-bond promisc off"
      When "PROMISC" is not visible with command "ip link show dev nm-bond"
      * Add "bond" connection named "bond0" for device "nm-bond" with options
-            """
-            autoconnect no
-            ip4 172.16.1.1/24
-            802-3-ethernet.accept-all-mac-addresses default
-            """
+           """
+           autoconnect no
+           ip4 172.16.1.1/24
+           802-3-ethernet.accept-all-mac-addresses default
+           """
      * Bring "up" connection "bond0"
      Then "PROMISC" is not visible with command "ip link show dev nm-bond"
      * Bring "down" connection "bond0"
@@ -2375,16 +2397,16 @@
     @bond_enslave_to_bridge_correct_ARP
     Scenario: nmcli - bond - send correct ARP for bond in bridge
      * Add "bridge" connection named "bond_bridge0" for device "bond-bridge" with options
-            """
-            autoconnect no
-            ipv4.method manual ipv4.addresses 172.16.1.2/24
-            bridge.stp no
-            """
+           """
+           autoconnect no
+           ipv4.method manual ipv4.addresses 172.16.1.2/24
+           bridge.stp no
+           """
      * Add "bond" connection named "bond0" for device "nm-bond" with options
-            """
-            autoconnect no
-            master bond-bridge
-            """
+           """
+           autoconnect no
+           master bond-bridge
+           """
      * Add "ethernet" connection named "bond-slave-eth1" for device "eth1" with options "master nm-bond autoconnect no"
      * Bring "up" connection "bond_bridge0"
      * Note MAC address output for device "bond-bridge" via ip command as "mac_bridge"
@@ -2422,13 +2444,17 @@
     * Execute "ip -n ns1 a add dev veth1 172.25.13.1/24"
     * Execute "ip l set veth0 up"
     * Add "bond" connection named "bond0" for device "nm-bond" with options
-           """
-           bond.option mode=1
-           ip4 172.25.13.1/24 ipv4.method manual ipv4.dad-timeout 3000
-           connection.autoconnect no connection.autoconnect-slaves yes
-           """
+          """
+          bond.option mode=1
+          ip4 172.25.13.1/24 ipv4.method manual ipv4.dad-timeout 3000
+          connection.autoconnect no connection.autoconnect-slaves yes
+          """
     * Execute "nmcli -f ipv4.dad-timeout c s id bond0"
-    * Add "ethernet" connection named "con_veth1" for device "veth0" with options "master bond0 connection.autoconnect no"
+    * Add "ethernet" connection named "con_veth1" for device "veth0" with options
+          """
+          master bond0
+          connection.autoconnect no
+          """
     When Execute "nmcli c up id bond0 || /bin/true"
     * Execute "sleep 50"
     Then "172.25.13.1" is not visible with command "ip -4 a show dev bond0"

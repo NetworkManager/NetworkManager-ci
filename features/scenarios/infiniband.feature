@@ -192,7 +192,12 @@ Feature: nmcli: inf
     @inf_send_correct_client_id
     Scenario: NM - inf - internal - send client id
     * Add "infiniband" connection named "inf" for device "inf_ib0"
-    * Add "infiniband" connection named "inf.8002" for device "inf_ib0.8002" with options "parent inf_ib0 p-key 0x8002 ipv4.addresses 1.2.3.4/24,1.2.4.5/24,1.2.5.6/24,1.2.6.8/24,1.3.5.7/24,1.2.1.2/24,1.1.2.1/24,1.1.2.2/24,1.1.2.3/24,1.1.2.4/24,1.1.2.5/24,1.1.2.6/24,1.1.2.7/24,1.1.2.8/24,1.1.2.9/24,1.1.2.10/24"
+    * Add "infiniband" connection named "inf.8002" for device "inf_ib0.8002" with options
+          """
+          parent inf_ib0
+          p-key 0x8002
+          ipv4.addresses 1.2.3.4/24,1.2.4.5/24,1.2.5.6/24,1.2.6.8/24,1.3.5.7/24,1.2.1.2/24,1.1.2.1/24,1.1.2.2/24,1.1.2.3/24,1.1.2.4/24,1.1.2.5/24,1.1.2.6/24,1.1.2.7/24,1.1.2.8/24,1.1.2.9/24,1.1.2.10/24
+          """
     * Run child "sudo tcpdump -l -i any -v -n > /tmp/tcpdump.log"
     * Run child "nmcli con up inf.8002"
     When "empty" is not visible with command "file /tmp/tcpdump.log" in "150" seconds
@@ -205,9 +210,19 @@ Feature: nmcli: inf
     @inf
     @inf_mtu
     Scenario: nmcli - inf - mtu
-    * Add "infiniband" connection named "inf" for device "inf_ib0.8010" with options "parent inf_ib0 p-key 0x8010 infiniband.mtu 2042"
+    * Add "infiniband" connection named "inf" for device "inf_ib0.8010" with options
+          """
+          parent inf_ib0
+          p-key 0x8010
+          infiniband.mtu 2042
+          """
     * Bring "up" connection "inf"
     When "2042" is visible with command "ip a s inf_ib0.8010"
-    * Add "infiniband" connection named "inf2" for device "inf_ib0.8010" with options "parent inf_ib0 p-key 0x8010 infiniband.mtu 4092"
+    * Add "infiniband" connection named "inf2" for device "inf_ib0.8010" with options
+          """
+          parent inf_ib0
+          p-key 0x8010
+          infiniband.mtu 4092
+          """
     * Bring "up" connection "inf2"
     Then "4092" is visible with command "ip a s inf_ib0.8010"

@@ -70,12 +70,12 @@ Feature: nmcli: adsl
     @add_adsl_connection
     Scenario: nmcli - adsl - create adsl connection
     * Add "adsl" connection named "adsl-test11" for device "adsl" with options
-        """
-        username test
-        password S3c4!t
-        protocol pppoe
-        encapsulation llc
-        """
+          """
+          username test
+          password S3c4!t
+          protocol pppoe
+          encapsulation llc
+          """
     Then "adsl.username:\s+test" is visible with command "nmcli  connection show --show-secrets adsl-test11"
     Then "adsl.protocol:\s+pppoe" is visible with command "nmcli  connection show --show-secrets adsl-test11"
     Then "adsl.encapsulation:\s+llc" is visible with command "nmcli  connection show --show-secrets adsl-test11"

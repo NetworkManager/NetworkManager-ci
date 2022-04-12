@@ -166,7 +166,14 @@ Feature: nmcli: gsm
     @gsm_sim_profile_with_serials
     Scenario: nmcli - gsm_sim - serial
     Given "gsm" is visible with command "nmcli device status | grep -v unmanaged" in "60" seconds
-     * Add "gsm" connection named "gsm" for device "\*" with options "autoconnect no apn internet ipv6.method ignore serial.baud 5 serial.send-delay 100"
+     * Add "gsm" connection named "gsm" for device "\*" with options
+           """
+           autoconnect no
+           apn internet
+           ipv6.method ignore
+           serial.baud 5
+           serial.send-delay 100
+           """
      * Bring "up" connection "gsm"
     Then "GENERAL.STATE:.*activated" is visible with command "nmcli con show gsm" in "60" seconds
     Then "serial.baud:\s+5" is visible with command "nmcli con show gsm"

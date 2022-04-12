@@ -112,10 +112,24 @@
     @iptunnel
     @iptunnel_create_modify
     Scenario: nmcli - vpn - create IPIP and GRE IP tunnel
-    * Add "ip-tunnel" connection named "ipip1" for device "ipip1" with options "mode ipip ip-tunnel.parent veth0 remote 172.25.16.2 local 172.25.16.1 ip4 172.25.30.1/24"
+    * Add "ip-tunnel" connection named "ipip1" for device "ipip1" with options
+          """
+          mode ipip
+          ip-tunnel.parent veth0
+          remote 172.25.16.2
+          local 172.25.16.1
+          ip4 172.25.30.1/24
+          """
     * Bring "up" connection "ipip1"
     Then Ping "172.25.30.2" "2" times
-    * Add "ip-tunnel" connection named "gre1" for device "gre1" with options "mode gre ip-tunnel.parent veth0 remote 172.25.16.2 local 172.25.16.1 ip4 172.25.31.1/24"
+    * Add "ip-tunnel" connection named "gre1" for device "gre1" with options
+          """
+          mode gre
+          ip-tunnel.parent veth0
+          remote 172.25.16.2
+          local 172.25.16.1
+          ip4 172.25.31.1/24
+          """
     * Bring "up" connection "gre1"
     Then Ping "172.25.31.2" "2" times
     * Bring "down" connection "ipip1"
@@ -132,9 +146,23 @@
     @iptunnel @restart_if_needed
     @iptunnel_restart
     Scenario: nmcli - vpn - detect IP tunnel by NM
-    * Add "ip-tunnel" connection named "ipip1" for device "ipip1" with options "mode ipip ip-tunnel.parent veth0 remote 172.25.16.2 local 172.25.16.1 ip4 172.25.30.1/24"
+    * Add "ip-tunnel" connection named "ipip1" for device "ipip1" with options
+          """
+          mode ipip
+          ip-tunnel.parent veth0
+          remote 172.25.16.2
+          local 172.25.16.1
+          ip4 172.25.30.1/24
+          """
     Then Bring "up" connection "ipip1"
-    * Add "ip-tunnel" connection named "gre1" for device "gre1" with options "mode gre ip-tunnel.parent veth0 remote 172.25.16.2 local 172.25.16.1 ip4 172.25.31.1/24"
+    * Add "ip-tunnel" connection named "gre1" for device "gre1" with options
+          """
+          mode gre
+          ip-tunnel.parent veth0
+          remote 172.25.16.2
+          local 172.25.16.1
+          ip4 172.25.31.1/24
+          """
     Then Bring "up" connection "gre1"
     * Restart NM
     Then Bring "down" connection "gre1"
@@ -146,7 +174,16 @@
     @iptunnel
     @iptunnel_ip6gre_create_device
     Scenario: nmcli - vpn - create IP6GRE tunnel with device
-    * Add "ip-tunnel" connection named "gre1" for device "ip6gre1" with options "mode ip6gre ip-tunnel.parent veth0 remote fe80:feed::beef local fe80:feed::b00f ip6 fe80:deaf::b00f/64 ipv4.method disabled autoconnect no"
+    * Add "ip-tunnel" connection named "gre1" for device "ip6gre1" with options
+          """
+          mode ip6gre
+          ip-tunnel.parent veth0
+          remote fe80:feed::beef
+          local fe80:feed::b00f
+          ip6 fe80:deaf::b00f/64
+          ipv4.method disabled
+          autoconnect no
+          """
     * Bring "up" connection "gre1"
     * Wait for at least "2" seconds
     Then Ping6 "fe80:deaf::beef%ip6gre1"
@@ -156,7 +193,13 @@
     @wireguard @rhelver+=8
     @wireguard_activate_connection
     Scenario: nmcli - vpn - create and activate wireguard connection
-    * Add "wireguard" connection named "wireguard" for device "nm-wireguard" with options "wireguard.private-key qOdhat/redhat/redhat/redhat/redhat/redhatUE= wireguard.listen-port 23456 ipv4.method manual ipv4.addresses 172.25.17.1/24 "
+    * Add "wireguard" connection named "wireguard" for device "nm-wireguard" with options
+          """
+          wireguard.private-key qOdhat/redhat/redhat/redhat/redhat/redhatUE=
+          wireguard.listen-port 23456
+          ipv4.method manual
+          ipv4.addresses 172.25.17.1/24
+          """
     * Bring "up" connection "wireguard"
     Then "qOdhat/redhat/redhat/redhat/redhat/redhatUE=" is visible with command "sudo WG_HIDE_KEYS=never wg | grep 'private key:'" in "10" seconds
      And "23456" is visible with command "sudo WG_HIDE_KEYS=never wg | grep 'port:'" in "10" seconds

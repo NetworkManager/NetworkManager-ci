@@ -11,7 +11,11 @@
     @xfail
     @dcb_enable_connection
     Scenario: nmcli - dcb - enable connection
-    * Add "ethernet" connection named "dcb" for device "em1" with options "ipv4.addresses 1.2.3.4/24 ipv4.method manual"
+    * Add "ethernet" connection named "dcb" for device "em1" with options
+          """
+          ipv4.addresses 1.2.3.4/24
+          ipv4.method manual
+          """
     #* Open editor for connection "dcb"
     * Prepare connection
     * Set default DCB options
@@ -42,7 +46,11 @@
     @xfail
     @dcb_disable_connection
     Scenario: nmcli - dcb - disable connection
-    * Add "ethernet" connection named "dcb" for device "em1" with options "ipv4.addresses 1.2.3.4/24 ipv4.method manual"
+    * Add "ethernet" connection named "dcb" for device "em1" with options
+          """
+          ipv4.addresses 1.2.3.4/24
+          ipv4.method manual
+          """
     #* Open editor for connection "dcb"
     * Prepare connection
     * Set default DCB options
@@ -63,7 +71,11 @@
     @xfail
     @dcb_enable_after_reboot
     Scenario: nmcli - dcb - enable after reboot
-    * Add "ethernet" connection named "dcb" for device "em1" with options "ipv4.addresses 1.2.3.4/24 ipv4.method manual"
+    * Add "ethernet" connection named "dcb" for device "em1" with options
+          """
+          ipv4.addresses 1.2.3.4/24
+          ipv4.method manual
+          """
     * Prepare connection
     * Set default DCB options
     * Bring "up" connection "dcb"

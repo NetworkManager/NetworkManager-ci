@@ -496,7 +496,11 @@ Feature: nmcli - wifi
     @wifi
     @nmcli_wifi_set_and_connect_to_a_hidden_network
     Scenario: nmcli - wifi - set and connect to a hidden network
-    * Add "wifi" connection named "qe-hidden-wpa2-psk" for device "wlan0" with options "autoconnect off ssid qe-hidden-wpa2-psk"
+    * Add "wifi" connection named "qe-hidden-wpa2-psk" for device "wlan0" with options
+          """
+          autoconnect off
+          ssid qe-hidden-wpa2-psk
+          """
     * Check ifcfg-name file created for connection "qe-hidden-wpa2-psk"
     * Open editor for connection "qe-hidden-wpa2-psk"
     * Set a property named "802-11-wireless-security.key-mgmt" to "wpa-psk" in editor
@@ -708,7 +712,17 @@ Feature: nmcli - wifi
     @wifi @wireless_certs
     @nmcli_wifisec_configure_and_connect_wpa1peap_profile
     Scenario: nmcli - wifi-sec - configure and connect WPA1-PEAP profile
-    * Add "wifi" connection named "qe-wpa1-enterprise" for device "wlan0" with options "autoconnect off ssid qe-wpa1-enterprise 802-11-wireless-security.key-mgmt wpa-eap 802-1x.eap peap 802-1x.phase2-auth gtc 802-1x.identity 'Bill Smith' 802-1x.password testing123 802-1x.ca-cert 'file:///tmp/certs/eaptest_ca_cert.pem'"
+    * Add "wifi" connection named "qe-wpa1-enterprise" for device "wlan0" with options
+          """
+          autoconnect off
+          ssid qe-wpa1-enterprise
+          802-11-wireless-security.key-mgmt wpa-eap
+          802-1x.eap peap
+          802-1x.phase2-auth gtc
+          802-1x.identity 'Bill Smith'
+          802-1x.password testing123
+          802-1x.ca-cert 'file:///tmp/certs/eaptest_ca_cert.pem'
+          """
     * Execute "sleep 1"
     * Bring up connection "qe-wpa1-enterprise"
     Then "qe-wpa1-enterprise" is visible with command "iw dev wlan0 link"
@@ -718,7 +732,18 @@ Feature: nmcli - wifi
     @wifi @wireless_certs
     @nmcli_wifisec_configure_and_connect_wpa1tls_profile
     Scenario: nmcli - wifi-sec - configure and connect WPA1-TLS profile
-    * Add "wifi" connection named "qe-wpa1-enterprise" for device "wlan0" with options "autoconnect off ssid qe-wpa1-enterprise 802-11-wireless-security.key-mgmt wpa-eap 802-1x.eap tls 802-1x.identity 'Bill Smith' 802-1x.ca-cert 'file:///tmp/certs/eaptest_ca_cert.pem' 802-1x.client-cert 'file:///tmp/certs/client.pem' 802-1x.private-key-password '12345testing' 802-1x.private-key 'file:///tmp/certs/client.pem'"
+    * Add "wifi" connection named "qe-wpa1-enterprise" for device "wlan0" with options
+          """
+          autoconnect off
+          ssid qe-wpa1-enterprise
+          802-11-wireless-security.key-mgmt wpa-eap
+          802-1x.eap tls
+          802-1x.identity 'Bill Smith'
+          802-1x.ca-cert 'file:///tmp/certs/eaptest_ca_cert.pem'
+          802-1x.client-cert 'file:///tmp/certs/client.pem'
+          802-1x.private-key-password '12345testing'
+          802-1x.private-key 'file:///tmp/certs/client.pem'
+          """
     * Execute "sleep 1"
     * Bring up connection "qe-wpa1-enterprise"
     Then "qe-wpa1-enterprise" is visible with command "iw dev wlan0 link"
@@ -728,7 +753,11 @@ Feature: nmcli - wifi
     @wifi @need_legacy_crypto
     @nmcli_wifisec_configure_and_connect_wpa1ttls_profile
     Scenario: nmcli - wifi-sec - configure and connect WPA1-TTLS profile
-    * Add "wifi" connection named "qe-wpa1-enterprise" for device "wlan0" with options "autoconnect off ssid qe-wpa1-enterprise"
+    * Add "wifi" connection named "qe-wpa1-enterprise" for device "wlan0" with options
+          """
+          autoconnect off
+          ssid qe-wpa1-enterprise
+          """
     * Check ifcfg-name file created for connection "qe-wpa1-enterprise"
     * Open editor for connection "qe-wpa1-enterprise"
     * Set a property named "802-11-wireless-security.key-mgmt" to "wpa-eap" in editor
@@ -749,7 +778,11 @@ Feature: nmcli - wifi
     @wifi @wireless_certs
     @nmcli_wifisec_configure_and_connect_wpa2peap_profile
     Scenario: nmcli - wifi-sec - configure and connect WPA2-PEAP profile
-    * Add "wifi" connection named "qe-wpa2-enterprise" for device "wlan0" with options "autoconnect off ssid qe-wpa2-enterprise"
+    * Add "wifi" connection named "qe-wpa2-enterprise" for device "wlan0" with options
+          """
+          autoconnect off
+          ssid qe-wpa2-enterprise
+          """
     * Check ifcfg-name file created for connection "qe-wpa2-enterprise"
     * Open editor for connection "qe-wpa2-enterprise"
     * Set a property named "802-11-wireless-security.key-mgmt" to "wpa-eap" in editor
@@ -771,7 +804,11 @@ Feature: nmcli - wifi
     @wifi @wireless_certs
     @nmcli_wifisec_configure_and_connect_wpa2tls_profile
     Scenario: nmcli - wifi-sec - configure and connect WPA2-TLS profile
-    * Add "wifi" connection named "qe-wpa2-enterprise" for device "wlan0" with options "autoconnect off ssid qe-wpa2-enterprise"
+    * Add "wifi" connection named "qe-wpa2-enterprise" for device "wlan0" with options
+          """
+          autoconnect off
+          ssid qe-wpa2-enterprise
+          """
     * Check ifcfg-name file created for connection "qe-wpa2-enterprise"
     * Open editor for connection "qe-wpa2-enterprise"
     * Set a property named "802-11-wireless-security.key-mgmt" to "wpa-eap" in editor
@@ -793,7 +830,11 @@ Feature: nmcli - wifi
     @wifi @need_legacy_crypto
     @nmcli_wifisec_configure_and_connect_wpa2ttls_profile
     Scenario: nmcli - wifi-sec - configure and connect WPA2-TTLS profile
-    * Add "wifi" connection named "qe-wpa2-enterprise" for device "wlan0" with options "autoconnect off ssid qe-wpa2-enterprise"
+    * Add "wifi" connection named "qe-wpa2-enterprise" for device "wlan0" with options
+          """
+          autoconnect off
+          ssid qe-wpa2-enterprise
+          """
     * Check ifcfg-name file created for connection "qe-wpa2-enterprise"
     * Open editor for connection "qe-wpa2-enterprise"
     * Set a property named "802-11-wireless-security.key-mgmt" to "wpa-eap" in editor
@@ -813,7 +854,11 @@ Feature: nmcli - wifi
 #    @wifi @wireless_certs
 #    @nmcli_wifisec_configure_and_connect_wep_leap_profile
 #    Scenario: nmcli - wifi-sec - configure and connect WEP LEAP profile
-#    * Add "wifi" connection named "qe-wep-enterprise-cisco" for device "wlan0" with options "autoconnect off ssid qe-wep-enterprise-cisco"
+#    * Add "wifi" connection named "qe-wep-enterprise-cisco" for device "wlan0" with options
+#       """
+#       autoconnect off
+#       ssid qe-wep-enterprise-cisco
+#       """
 #    * Check ifcfg-name file created for connection "qe-wep-enterprise-cisco"
 #    * Open editor for connection "qe-wep-enterprise-cisco"
 #    * Set a property named "802-11-wireless-security.key-mgmt" to "ieee8021x" in editor
@@ -832,7 +877,11 @@ Feature: nmcli - wifi
     @wifi @rhelver-=8
     @nmcli_wifisec_configure_and_connect_weptls_profile
     Scenario: nmcli - wifi-sec - configure and connect WEP-TLS profile
-    * Add "wifi" connection named "qe-wep-enterprise" for device "wlan0" with options "autoconnect off ssid qe-wep-enterprise"
+    * Add "wifi" connection named "qe-wep-enterprise" for device "wlan0" with options
+          """
+          autoconnect off
+          ssid qe-wep-enterprise
+          """
     * Check ifcfg-name file created for connection "qe-wep-enterprise"
     * Open editor for connection "qe-wep-enterprise"
     * Set a property named "802-11-wireless-security.key-mgmt" to "ieee8021x" in editor
@@ -854,7 +903,11 @@ Feature: nmcli - wifi
     @wifi @wireless_certs @need_legacy_crypto @rhelver-=8
     @nmcli_wifisec_configure_and_connect_wepttls_profile
     Scenario: nmcli - wifi-sec - configure and connect WEP-TTLS profile
-    * Add "wifi" connection named "qe-wep-enterprise" for device "wlan0" with options "autoconnect off ssid qe-wep-enterprise"
+    * Add "wifi" connection named "qe-wep-enterprise" for device "wlan0" with options
+          """
+          autoconnect off
+          ssid qe-wep-enterprise
+          """
     * Check ifcfg-name file created for connection "qe-wep-enterprise"
     * Open editor for connection "qe-wep-enterprise"
     * Set a property named "802-11-wireless-security.key-mgmt" to "ieee8021x" in editor

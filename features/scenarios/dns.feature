@@ -444,7 +444,14 @@ Feature: nmcli - dns
     @con_dns_remove @dns_systemd_resolved @eth0
     @dns_resolved_add_remove_ipv6_dns
     Scenario: nmcli - dns - add remove ipv6 dns under resolved
-    * Add "ethernet" connection named "con_dns" for device "eth10" with options "ipv4.method disabled ip6 fd01::1/64 ipv6.dns '4000::1 5000::1' ipv6.gateway fd01::2 autoconnect no"
+    * Add "ethernet" connection named "con_dns" for device "eth10" with options
+          """
+          ipv4.method disabled
+          ip6 fd01::1/64
+          ipv6.dns '4000::1 5000::1'
+          ipv6.gateway fd01::2
+          autoconnect no
+          """
     * Bring "up" connection "con_dns"
     When Nameserver "4000::1" is set in "5" seconds
     When Nameserver "5000::1" is set in "5" seconds
@@ -477,8 +484,22 @@ Feature: nmcli - dns
     @con_dns_remove
     @dns_priority
     Scenario: nmcli - ipv4 - dns - priority
-    * Add "ethernet" connection named "con_dns" for device "eth2" with options "-- ipv4.method manual ipv4.addresses 192.168.1.2/24 ipv4.gateway 172.16.1.2 ipv4.dns 2.3.4.1 ipv4.dns-priority 300"
-    * Add "ethernet" connection named "con_dns2" for device "eth3" with options "-- ipv4.method manual ipv4.addresses 192.168.2.2/24 ipv4.gateway 172.16.1.2 ipv4.dns 1.2.3.4 ipv4.dns-priority 200"
+    * Add "ethernet" connection named "con_dns" for device "eth2" with options
+          """
+          -- ipv4.method manual
+          ipv4.addresses 192.168.1.2/24
+          ipv4.gateway 172.16.1.2
+          ipv4.dns 2.3.4.1
+          ipv4.dns-priority 300
+          """
+    * Add "ethernet" connection named "con_dns2" for device "eth3" with options
+          """
+          -- ipv4.method manual
+          ipv4.addresses 192.168.2.2/24
+          ipv4.gateway 172.16.1.2
+          ipv4.dns 1.2.3.4
+          ipv4.dns-priority 200
+          """
     When Nameserver "1.2.3.4.*2.3.4.1" is set in "5" seconds
     * Modify connection "con_dns" changing options "ipv4.dns-priority 100"
     * Modify connection "con_dns" changing options "ipv6.dns-priority 300"
@@ -495,8 +516,19 @@ Feature: nmcli - dns
     Scenario: nmcli - ipv4 - dns - set priority in config
     * Execute "echo -e '[connection]\nipv4.dns-priority=200' > /etc/NetworkManager/conf.d/99-xxcustom.conf"
     * Execute "systemctl reload NetworkManager"
-    * Add "ethernet" connection named "con_dns" for device "eth2" with options "-- ipv4.method manual ipv4.addresses 192.168.1.2/24 ipv4.dns 2.3.4.1 ipv4.dns-priority 150"
-    * Add "ethernet" connection named "con_dns2" for device "eth3" with options "-- ipv4.method manual ipv4.addresses 192.168.2.2/24 ipv4.dns 1.2.3.4"
+    * Add "ethernet" connection named "con_dns" for device "eth2" with options
+          """
+          -- ipv4.method manual
+          ipv4.addresses 192.168.1.2/24
+          ipv4.dns 2.3.4.1
+          ipv4.dns-priority 150
+          """
+    * Add "ethernet" connection named "con_dns2" for device "eth3" with options
+          """
+          -- ipv4.method manual
+          ipv4.addresses 192.168.2.2/24
+          ipv4.dns 1.2.3.4
+          """
     * Bring "up" connection "con_dns"
     * Bring "up" connection "con_dns2"
     Then Nameserver "2.3.4.1.*1.2.3.4" is set in "5" seconds
@@ -1106,7 +1138,14 @@ Feature: nmcli - dns
     @remove_custom_cfg @con_dns_remove @restore_resolvconf @eth8_disconnect @restart_if_needed
     @resolv_conf_dangling_symlink
     Scenario: NM - general - follow resolv.conf when dangling symlink
-    * Add "ethernet" connection named "con_dns" for device "eth8" with options "ipv4.method manual ipv4.addresses 192.168.244.4/24 ipv4.gateway 192.168.244.1 ipv4.dns 192.168.244.1 ipv6.method ignore"
+    * Add "ethernet" connection named "con_dns" for device "eth8" with options
+          """
+          ipv4.method manual
+          ipv4.addresses 192.168.244.4/24
+          ipv4.gateway 192.168.244.1
+          ipv4.dns 192.168.244.1
+          ipv6.method ignore
+          """
     * Stop NM
     * Append "[main]" to file "/etc/NetworkManager/conf.d/99-xxcustom.conf"
     * Append "rc-manager=file" to file "/etc/NetworkManager/conf.d/99-xxcustom.conf"
@@ -1131,7 +1170,14 @@ Feature: nmcli - dns
     @con_dns_remove @restore_resolvconf @restart_if_needed
     @resolv_conf_do_not_overwrite_symlink
     Scenario: NM - general - do not overwrite dns symlink
-    * Add "ethernet" connection named "con_dns" for device "eth8" with options "ipv4.method manual ipv4.addresses 192.168.244.4/24 ipv4.gateway 192.168.244.1 ipv4.dns 192.168.244.1 ipv6.method ignore"
+    * Add "ethernet" connection named "con_dns" for device "eth8" with options
+          """
+          ipv4.method manual
+          ipv4.addresses 192.168.244.4/24
+          ipv4.gateway 192.168.244.1
+          ipv4.dns 192.168.244.1
+          ipv6.method ignore
+          """
     * Stop NM
     * Remove file "/etc/resolv.conf" if exists
     * Execute "echo 'nameserver 1.2.3.4' > /tmp/no-resolv.conf"

@@ -15,11 +15,11 @@ Feature: nmcli - ppp
     * Prepare pppoe server for user "test" with "networkmanager" password and IP "192.168.111.2" authenticated via "pap"
     * Start pppoe server with "isp" and IP "192.168.111.254" on device "test12"
     * Add "pppoe" connection named "ppp" for device "my-ppp" with options
-                """
-                pppoe.parent test11
-                service isp username test password networkmanager
-                autoconnect no
-                """
+          """
+          pppoe.parent test11
+          service isp username test password networkmanager
+          autoconnect no
+          """
     * Bring "up" connection "ppp"
     Then Nameserver "8.8.8.8" is set in "5" seconds
     Then Nameserver "8.8.4.4" is set in "5" seconds
@@ -35,11 +35,11 @@ Feature: nmcli - ppp
     * Prepare pppoe server for user "test" with "networkmanager" password and IP "192.168.111.2" authenticated via "chap"
     * Start pppoe server with "isp" and IP "192.168.111.254" on device "test12"
     * Add "pppoe" connection named "ppp" for device "my-ppp" with options
-                """
-                pppoe.parent test11
-                service isp username test password networkmanager
-                autoconnect no
-                """
+          """
+          pppoe.parent test11
+          service isp username test password networkmanager
+          autoconnect no
+          """
     * Bring "up" connection "ppp"
     Then Nameserver "8.8.8.8" is set in "5" seconds
     Then Nameserver "8.8.4.4" is set in "5" seconds
@@ -55,11 +55,11 @@ Feature: nmcli - ppp
     * Prepare pppoe server for user "test" with "networkmanager" password and IP "192.168.111.2" authenticated via "chap"
     * Start pppoe server with "isp" and IP "192.168.111.254" on device "test12"
     * Add "pppoe" connection named "ppp" for device "my-ppp" with options
-                """
-                pppoe.parent test11
-                service isp username test password networkmanager
-                autoconnect no
-                """
+          """
+          pppoe.parent test11
+          service isp username test password networkmanager
+          autoconnect no
+          """
     * Bring "up" connection "ppp"
     * Bring "down" connection "ppp"
     Then Nameserver "8.8.8.8" is not set in "5" seconds
@@ -78,11 +78,11 @@ Feature: nmcli - ppp
     * Prepare pppoe server for user "test" with "networkmanager" password and IP "192.168.111.2" authenticated via "pap"
     * Start pppoe server with "isp" and IP "192.168.111.254" on device "test12"
     * Add "pppoe" connection named "ppp" for device "my-ppp" with options
-                """
-                pppoe.parent test11
-                service isp username test password networkmanager
-                autoconnect no
-                """
+          """
+          pppoe.parent test11
+          service isp username test password networkmanager
+          autoconnect no
+          """
     * Execute "nmcli connection modify ppp connection.zone external"
     * Bring "up" connection "ppp"
     When "external" is visible with command "firewall-cmd --get-zone-of-interface=my-ppp" in "10" seconds
@@ -115,11 +115,11 @@ Feature: nmcli - ppp
     * Prepare pppoe server for user "test" with "networkmanager" password and IP "192.168.111.2" authenticated via "pap"
     * Start pppoe server with "isp" and IP "192.168.111.254" on device "vlan1"
     * Add "pppoe" connection named "ppp" for device "my-ppp" with options
-                """
-                pppoe.parent vlan2
-                service isp username test password networkmanager
-                autoconnect no
-                """
+          """
+          pppoe.parent vlan2
+          service isp username test password networkmanager
+          autoconnect no
+          """
     * Bring "up" connection "ppp"
     Then "inet 192.168.111.2 peer 192.168.111.254/32" is visible with command "ip a s my-ppp"
     And "default via 192.168.111.254 dev my-ppp" is visible with command "ip r"
@@ -136,15 +136,15 @@ Feature: nmcli - ppp
     * Prepare pppoe server for user "test" with "networkmanager" password and IP "192.168.99.2" authenticated via "pap"
     * Start pppoe server with "isp" and IP "192.168.99.254" on device "test12"
     * Add "ethernet" connection named "ppp2" for device "test11" with options
-                """
-                ipv4.method manual ipv4.addresses 192.168.99.123/24
-                ipv4.gateway 192.168.99.1
-                """\
+          """
+          ipv4.method manual ipv4.addresses 192.168.99.123/24
+          ipv4.gateway 192.168.99.1
+          """\
     * Add "pppoe" connection named "ppp" for device "my-ppp" with options
-                """
-                pppoe.parent test11
-                service isp username test password networkmanager
-                """
+          """
+          pppoe.parent test11
+          service isp username test password networkmanager
+          """
     When "activated" is visible with command "nmcli -g GENERAL.STATE con show ppp" in "45" seconds
     When "activated" is visible with command "nmcli -g GENERAL.STATE con show ppp2" in "45" seconds
     When Nameserver "8.8.8.8" is set in "5" seconds

@@ -224,7 +224,11 @@ Feature: nmcli - ethernet
     @mtu @ifcfg-rh
     @ethernet_set_mtu
     Scenario: nmcli - ethernet - set mtu
-    * Add "ethernet" connection named "ethernet" for device "eth1" with options "ipv6.method disable 802-3-ethernet.mtu 666"
+    * Add "ethernet" connection named "ethernet" for device "eth1" with options
+          """
+          ipv6.method disable
+          802-3-ethernet.mtu 666
+          """
     * Bring up connection "ethernet"
     When "MTU=666" is visible with command "cat /etc/sysconfig/network-scripts/ifcfg-ethernet"
     When "666" is visible with command "ip a s eth1"
@@ -395,7 +399,18 @@ Feature: nmcli - ethernet
     @not_on_s390x @8021x @pkcs11 @attach_hostapd_log @attach_wpa_supplicant_log
     @8021x_tls_pkcs11_saved_pw
     Scenario: nmcli - ethernet - connect to 8021x - tls - PKCS#11/SoftHSM - PIN is saved
-    * Add "ethernet" connection named "con_ethernet" with options "ifname test8X autoconnect no 802-1x.eap tls 802-1x.identity test 802-1x.ca-cert /tmp/certs/test_user.ca.pem 802-1x.client-cert 'pkcs11:token=nmci;object=nmclient' 802-1x.client-cert-password-flags 4 802-1x.private-key 'pkcs11:token=nmci;object=nmclient' 802-1x.private-key-password 1234"
+    * Add "ethernet" connection named "con_ethernet" with options
+          """
+          ifname test8X
+          autoconnect no
+          802-1x.eap tls
+          802-1x.identity test
+          802-1x.ca-cert /tmp/certs/test_user.ca.pem
+          802-1x.client-cert 'pkcs11:token=nmci;object=nmclient'
+          802-1x.client-cert-password-flags 4
+          802-1x.private-key 'pkcs11:token=nmci;object=nmclient'
+          802-1x.private-key-password 1234
+          """
     * Execute "nmcli -a con up con_ethernet"
     Then Bring up connection "con_ethernet"
 
@@ -404,7 +419,17 @@ Feature: nmcli - ethernet
     @not_on_s390x @8021x @pkcs11 @attach_hostapd_log @attach_wpa_supplicant_log
     @8021x_tls_pkcs11_pwfile
     Scenario: nmcli - ethernet - connect to 8021x - tls - PKCS#11/SoftHSM - PIN in password file
-    * Add "ethernet" connection named "con_ethernet" with options "ifname test8X autoconnect no 802-1x.eap tls 802-1x.identity test 802-1x.ca-cert /tmp/certs/test_user.ca.pem 802-1x.client-cert 'pkcs11:token=nmci;object=nmclient' 802-1x.client-cert-password-flags 4 802-1x.private-key 'pkcs11:token=nmci;object=nmclient'"
+    * Add "ethernet" connection named "con_ethernet" with options
+          """
+          ifname test8X
+          autoconnect no
+          802-1x.eap tls
+          802-1x.identity test
+          802-1x.ca-cert /tmp/certs/test_user.ca.pem
+          802-1x.client-cert 'pkcs11:token=nmci;object=nmclient'
+          802-1x.client-cert-password-flags 4
+          802-1x.private-key 'pkcs11:token=nmci;object=nmclient'
+          """
     * Execute "nmcli -s c show id con_ethernet"
     * Execute "nmcli con up con_ethernet passwd-file /tmp/pkcs11_passwd-file"
     Then "test8X:connected:con_ethernet" is visible with command "nmcli -t -f DEVICE,STATE,CONNECTION device" in "20" seconds
@@ -414,7 +439,18 @@ Feature: nmcli - ethernet
     @not_on_s390x @8021x @pkcs11 @attach_hostapd_log @attach_wpa_supplicant_log
     @8021x_tls_pkcs11_nmcli_ask
     Scenario: nmcli - ethernet - connect to 8021x - tls - PKCS#11/SoftHSM - just private key/ask for pin on CLI
-    * Add "ethernet" connection named "con_ethernet" with options "ifname test8X autoconnect no 802-1x.eap tls 802-1x.identity test 802-1x.ca-cert /tmp/certs/test_user.ca.pem 802-1x.client-cert 'pkcs11:token=nmci;object=nmclient' 802-1x.client-cert-password-flags 4 802-1x.private-key 'pkcs11:token=nmci;object=nmclient' 802-1x.private-key-password-flags 2"
+    * Add "ethernet" connection named "con_ethernet" with options
+          """
+          ifname test8X
+          autoconnect no
+          802-1x.eap tls
+          802-1x.identity test
+          802-1x.ca-cert /tmp/certs/test_user.ca.pem
+          802-1x.client-cert 'pkcs11:token=nmci;object=nmclient'
+          802-1x.client-cert-password-flags 4
+          802-1x.private-key 'pkcs11:token=nmci;object=nmclient'
+          802-1x.private-key-password-flags 2
+          """
     * Spawn "nmcli -a con up con_ethernet" command
     * Expect "802-1x.identity"
     * Enter in editor
@@ -429,7 +465,18 @@ Feature: nmcli - ethernet
     @8021x_tls_pkcs11_pw_in_uri_flag_nr
     # these settings are hacky and may stop working when this is resolved: https://gitlab.freedesktop.org/NetworkManager/NetworkManager/-/issues/792
     Scenario: nmcli - ethernet - connect to 8021x - tls - PKCS#11/SoftHSM - just private key/pin given in URI with password flag not-required
-    * Add "ethernet" connection named "con_ethernet" with options "ifname test8X autoconnect no 802-1x.eap tls 802-1x.identity test 802-1x.ca-cert /tmp/certs/test_user.ca.pem 802-1x.client-cert 'pkcs11:token=nmci;object=nmclient' 802-1x.client-cert-password-flags 4 802-1x.private-key 'pkcs11:token=nmci;object=nmclient?pin-value=1234' 802-1x.private-key-password-flags 4"
+    * Add "ethernet" connection named "con_ethernet" with options
+          """
+          ifname test8X
+          autoconnect no
+          802-1x.eap tls
+          802-1x.identity test
+          802-1x.ca-cert /tmp/certs/test_user.ca.pem
+          802-1x.client-cert 'pkcs11:token=nmci;object=nmclient'
+          802-1x.client-cert-password-flags 4
+          802-1x.private-key 'pkcs11:token=nmci;object=nmclient?pin-value=1234'
+          802-1x.private-key-password-flags 4
+          """
     * Execute "nmcli -a con up con_ethernet"
     Then Bring up connection "con_ethernet"
 
@@ -438,7 +485,14 @@ Feature: nmcli - ethernet
     @8021x @attach_hostapd_log @attach_wpa_supplicant_log
     @8021x_with_credentials
     Scenario: nmcli - ethernet - connect to 8021x - md5
-    * Add "ethernet" connection named "con_ethernet" with options "ifname test8X autoconnect no 802-1x.eap md5 802-1x.identity user 802-1x.password password"
+    * Add "ethernet" connection named "con_ethernet" with options
+          """
+          ifname test8X
+          autoconnect no
+          802-1x.eap md5
+          802-1x.identity user
+          802-1x.password password
+          """
     Then Bring "up" connection "con_ethernet"
 
 
@@ -446,7 +500,17 @@ Feature: nmcli - ethernet
     @8021x @attach_hostapd_log @attach_wpa_supplicant_log
     @8021x_tls
     Scenario: nmcli - ethernet - connect to 8021x - tls
-    * Add "ethernet" connection named "con_ethernet" with options "ifname test8X autoconnect no 802-1x.eap tls 802-1x.identity test 802-1x.ca-cert /tmp/certs/test_user.ca.pem 802-1x.client-cert /tmp/certs/test_user.cert.pem 802-1x.private-key /tmp/certs/test_user.key.enc.pem 802-1x.private-key-password redhat"
+    * Add "ethernet" connection named "con_ethernet" with options
+          """
+          ifname test8X
+          autoconnect no
+          802-1x.eap tls
+          802-1x.identity test
+          802-1x.ca-cert /tmp/certs/test_user.ca.pem
+          802-1x.client-cert /tmp/certs/test_user.cert.pem
+          802-1x.private-key /tmp/certs/test_user.key.enc.pem
+          802-1x.private-key-password redhat
+          """
     Then Bring "up" connection "con_ethernet"
 
 
@@ -455,7 +519,17 @@ Feature: nmcli - ethernet
     @8021x @attach_hostapd_log @attach_wpa_supplicant_log
     @8021x_tls_aes256_private_key
     Scenario: nmcli - ethernet - connect to 8021x - tls - private key encrypted by aes256
-    * Add "ethernet" connection named "con_ethernet" with options "ifname test8X autoconnect no 802-1x.eap tls 802-1x.identity test 802-1x.ca-cert /tmp/certs/test_user.ca.pem 802-1x.client-cert /tmp/certs/test_user.cert.pem 802-1x.private-key /tmp/certs/test_user.key.enc.aes256.pem 802-1x.private-key-password redhat"
+    * Add "ethernet" connection named "con_ethernet" with options
+          """
+          ifname test8X
+          autoconnect no
+          802-1x.eap tls
+          802-1x.identity test
+          802-1x.ca-cert /tmp/certs/test_user.ca.pem
+          802-1x.client-cert /tmp/certs/test_user.cert.pem
+          802-1x.private-key /tmp/certs/test_user.key.enc.aes256.pem
+          802-1x.private-key-password redhat
+          """
     Then Bring "up" connection "con_ethernet"
 
 
@@ -463,7 +537,17 @@ Feature: nmcli - ethernet
     @8021x @attach_hostapd_log @attach_wpa_supplicant_log
     @8021x_tls_bad_private_key_password
     Scenario: nmcli - ethernet - connect to 8021x - tls - bad private key password
-    * Add "ethernet" connection named "con_ethernet" with options "ifname test8X autoconnect no 802-1x.eap tls 802-1x.identity test 802-1x.ca-cert /tmp/certs/test_user.ca.pem 802-1x.client-cert /tmp/certs/test_user.cert.pem 802-1x.private-key /tmp/certs/test_user.key.enc.pem 802-1x.private-key-password redhat12345"
+    * Add "ethernet" connection named "con_ethernet" with options
+          """
+          ifname test8X
+          autoconnect no
+          802-1x.eap tls
+          802-1x.identity test
+          802-1x.ca-cert /tmp/certs/test_user.ca.pem
+          802-1x.client-cert /tmp/certs/test_user.cert.pem
+          802-1x.private-key /tmp/certs/test_user.key.enc.pem
+          802-1x.private-key-password redhat12345
+          """
     Then Bring up connection "con_ethernet" ignoring error
      And "GENERAL.STATE:activated" is not visible with command "nmcli -f GENERAL.STATE -t connection show id con_ethernet"
 
@@ -473,7 +557,17 @@ Feature: nmcli - ethernet
     @8021x @attach_hostapd_log @attach_wpa_supplicant_log
     @8021x_tls_no_private_key_password
     Scenario: nmcli - ethernet - connect to 8021x - tls - no private key pasword
-    * Add "ethernet" connection named "con_ethernet" with options "ifname test8X autoconnect no 802-1x.eap tls 802-1x.identity test 802-1x.ca-cert /tmp/certs/test_user.ca.pem 802-1x.client-cert /tmp/certs/test_user.cert.pem 802-1x.private-key /tmp/certs/test_user.key.pem 802-1x.private-key-password-flags 4"
+    * Add "ethernet" connection named "con_ethernet" with options
+          """
+          ifname test8X
+          autoconnect no
+          802-1x.eap tls
+          802-1x.identity test
+          802-1x.ca-cert /tmp/certs/test_user.ca.pem
+          802-1x.client-cert /tmp/certs/test_user.cert.pem
+          802-1x.private-key /tmp/certs/test_user.key.pem
+          802-1x.private-key-password-flags 4
+          """
     Then Bring "up" connection "con_ethernet"
 
 
@@ -481,7 +575,17 @@ Feature: nmcli - ethernet
     @8021x @attach_hostapd_log @attach_wpa_supplicant_log
     @8021x_tls_bad_password_flag
     Scenario: nmcli - ethernet - connect to 8021x - tls - bad password flag
-     * Add "ethernet" connection named "con_ethernet" with options "ifname test8X autoconnect no 802-1x.eap tls 802-1x.identity test 802-1x.ca-cert /tmp/certs/test_user.ca.pem 802-1x.client-cert /tmp/certs/test_user.cert.pem 802-1x.private-key /tmp/certs/test_user.key.enc.pem 802-1x.private-key-password-flags 4"
+     * Add "ethernet" connection named "con_ethernet" with options
+           """
+           ifname test8X
+           autoconnect no
+           802-1x.eap tls
+           802-1x.identity test
+           802-1x.ca-cert /tmp/certs/test_user.ca.pem
+           802-1x.client-cert /tmp/certs/test_user.cert.pem
+           802-1x.private-key /tmp/certs/test_user.key.enc.pem
+           802-1x.private-key-password-flags 4
+           """
     Then "Secrets were required, but not provided" is visible with command "nmcli con up con_ethernet" in "30" seconds
      And "GENERAL.STATE:activated" is not visible with command "nmcli -f GENERAL.STATE -t connection show id con_ethernet"
 
@@ -492,7 +596,16 @@ Feature: nmcli - ethernet
      @need_legacy_crypto
      @8021x_tls_pkcs12_key_restart
      Scenario: nmcli - ethernet - 8021x - tls - connection with pkcs12 key persists restart
-     * Add "ethernet" connection named "con_ethernet" with options "ifname test8X autoconnect no 802-1x.eap tls 802-1x.identity test 802-1x.ca-cert /tmp/certs/test_user.ca.pem 802-1x.private-key /tmp/certs/test_user.p12 802-1x.private-key-password redhat"
+     * Add "ethernet" connection named "con_ethernet" with options
+           """
+           ifname test8X
+           autoconnect no
+           802-1x.eap tls
+           802-1x.identity test
+           802-1x.ca-cert /tmp/certs/test_user.ca.pem
+           802-1x.private-key /tmp/certs/test_user.p12
+           802-1x.private-key-password redhat
+           """
      Then Bring "up" connection "con_ethernet"
      * Restart NM
      Then "con_ethernet" is visible with command "nmcli con"
@@ -503,7 +616,17 @@ Feature: nmcli - ethernet
     @8021x @attach_hostapd_log @attach_wpa_supplicant_log
     @8021x_peap_md5
     Scenario: nmcli - ethernet - connect to 8021x - peap - md5
-    * Add "ethernet" connection named "con_ethernet" with options "ifname test8X autoconnect no 802-1x.eap peap 802-1x.identity test_md5 802-1x.anonymous-identity test 802-1x.ca-cert /tmp/certs/test_user.ca.pem 802-1x.phase2-auth md5 802-1x.password password"
+    * Add "ethernet" connection named "con_ethernet" with options
+          """
+          ifname test8X
+          autoconnect no
+          802-1x.eap peap
+          802-1x.identity test_md5
+          802-1x.anonymous-identity test
+          802-1x.ca-cert /tmp/certs/test_user.ca.pem
+          802-1x.phase2-auth md5
+          802-1x.password password
+          """
     Then Bring "up" connection "con_ethernet"
 
 
@@ -512,7 +635,17 @@ Feature: nmcli - ethernet
     @need_legacy_crypto
     @8021x_peap_mschapv2
     Scenario: nmcli - ethernet - connect to 8021x - peap - mschapv2
-    * Add "ethernet" connection named "con_ethernet" with options "ifname test8X autoconnect no 802-1x.eap peap 802-1x.identity TESTERS\\test_mschapv2 802-1x.anonymous-identity test 802-1x.ca-cert /tmp/certs/test_user.ca.pem 802-1x.phase2-auth mschapv2 802-1x.password password"
+    * Add "ethernet" connection named "con_ethernet" with options
+          """
+          ifname test8X
+          autoconnect no
+          802-1x.eap peap
+          802-1x.identity TESTERS\\test_mschapv2
+          802-1x.anonymous-identity test
+          802-1x.ca-cert /tmp/certs/test_user.ca.pem
+          802-1x.phase2-auth mschapv2
+          802-1x.password password
+          """
     Then Bring "up" connection "con_ethernet"
 
 
@@ -520,7 +653,17 @@ Feature: nmcli - ethernet
     @8021x @attach_hostapd_log @attach_wpa_supplicant_log
     @8021x_peap_gtc
     Scenario: nmcli - ethernet - connect to 8021x - peap - gtc
-    * Add "ethernet" connection named "con_ethernet" with options "ifname test8X autoconnect no 802-1x.eap peap 802-1x.identity test_gtc 802-1x.anonymous-identity test 802-1x.ca-cert /tmp/certs/test_user.ca.pem 802-1x.phase2-auth gtc 802-1x.password password"
+    * Add "ethernet" connection named "con_ethernet" with options
+          """
+          ifname test8X
+          autoconnect no
+          802-1x.eap peap
+          802-1x.identity test_gtc
+          802-1x.anonymous-identity test
+          802-1x.ca-cert /tmp/certs/test_user.ca.pem
+          802-1x.phase2-auth gtc
+          802-1x.password password
+          """
     Then Bring "up" connection "con_ethernet"
 
 
@@ -528,7 +671,17 @@ Feature: nmcli - ethernet
     @8021x @attach_hostapd_log @attach_wpa_supplicant_log
     @8021x_ttls_pap
     Scenario: nmcli - ethernet - connect to 8021x -ttls - pap
-    * Add "ethernet" connection named "con_ethernet" with options "ifname test8X autoconnect no 802-1x.eap ttls 802-1x.identity test_ttls 802-1x.anonymous-identity test 802-1x.ca-cert /tmp/certs/test_user.ca.pem 802-1x.phase2-auth pap 802-1x.password password"
+    * Add "ethernet" connection named "con_ethernet" with options
+          """
+          ifname test8X
+          autoconnect no
+          802-1x.eap ttls
+          802-1x.identity test_ttls
+          802-1x.anonymous-identity test
+          802-1x.ca-cert /tmp/certs/test_user.ca.pem
+          802-1x.phase2-auth pap
+          802-1x.password password
+          """
     Then Bring "up" connection "con_ethernet"
 
 
@@ -536,7 +689,17 @@ Feature: nmcli - ethernet
     @8021x @attach_hostapd_log @attach_wpa_supplicant_log
     @8021x_ttls_chap
     Scenario: nmcli - ethernet - connect to 8021x -ttls - chap
-    * Add "ethernet" connection named "con_ethernet" with options "ifname test8X autoconnect no 802-1x.eap ttls 802-1x.identity test_ttls 802-1x.anonymous-identity test 802-1x.ca-cert /tmp/certs/test_user.ca.pem 802-1x.phase2-auth chap 802-1x.password password"
+    * Add "ethernet" connection named "con_ethernet" with options
+          """
+          ifname test8X
+          autoconnect no
+          802-1x.eap ttls
+          802-1x.identity test_ttls
+          802-1x.anonymous-identity test
+          802-1x.ca-cert /tmp/certs/test_user.ca.pem
+          802-1x.phase2-auth chap
+          802-1x.password password
+          """
     Then Bring "up" connection "con_ethernet"
 
 
@@ -545,7 +708,17 @@ Feature: nmcli - ethernet
     @need_legacy_crypto
     @8021x_ttls_mschap
     Scenario: nmcli - ethernet - connect to 8021x -ttls - mschap
-    * Add "ethernet" connection named "con_ethernet" with options "ifname test8X autoconnect no 802-1x.eap ttls 802-1x.identity test_ttls 802-1x.anonymous-identity test 802-1x.ca-cert /tmp/certs/test_user.ca.pem 802-1x.phase2-auth mschap 802-1x.password password"
+    * Add "ethernet" connection named "con_ethernet" with options
+          """
+          ifname test8X
+          autoconnect no
+          802-1x.eap ttls
+          802-1x.identity test_ttls
+          802-1x.anonymous-identity test
+          802-1x.ca-cert /tmp/certs/test_user.ca.pem
+          802-1x.phase2-auth mschap
+          802-1x.password password
+          """
     Then Bring "up" connection "con_ethernet"
 
 
@@ -554,7 +727,17 @@ Feature: nmcli - ethernet
     @need_legacy_crypto
     @8021x_ttls_mschapv2
     Scenario: nmcli - ethernet - connect to 8021x -ttls - mschapv2
-    * Add "ethernet" connection named "con_ethernet" with options "ifname test8X autoconnect no 802-1x.eap ttls 802-1x.identity test_ttls 802-1x.anonymous-identity test 802-1x.ca-cert /tmp/certs/test_user.ca.pem 802-1x.phase2-auth mschapv2 802-1x.password password"
+    * Add "ethernet" connection named "con_ethernet" with options
+          """
+          ifname test8X
+          autoconnect no
+          802-1x.eap ttls
+          802-1x.identity test_ttls
+          802-1x.anonymous-identity test
+          802-1x.ca-cert /tmp/certs/test_user.ca.pem
+          802-1x.phase2-auth mschapv2
+          802-1x.password password
+          """
     Then Bring "up" connection "con_ethernet"
 
 
@@ -563,7 +746,17 @@ Feature: nmcli - ethernet
     @need_legacy_crypto
     @8021x_ttls_mschapv2_eap
     Scenario: nmcli - ethernet - connect to 8021x -ttls - mschap - eap
-    * Add "ethernet" connection named "con_ethernet" with options "ifname test8X autoconnect no 802-1x.eap ttls 802-1x.identity TESTERS\\test_mschapv2 802-1x.anonymous-identity test 802-1x.ca-cert /tmp/certs/test_user.ca.pem 802-1x.phase2-autheap mschapv2 802-1x.password password"
+    * Add "ethernet" connection named "con_ethernet" with options
+          """
+          ifname test8X
+          autoconnect no
+          802-1x.eap ttls
+          802-1x.identity TESTERS\\test_mschapv2
+          802-1x.anonymous-identity test
+          802-1x.ca-cert /tmp/certs/test_user.ca.pem
+          802-1x.phase2-autheap mschapv2
+          802-1x.password password
+          """
     Then Bring "up" connection "con_ethernet"
 
 
@@ -571,7 +764,17 @@ Feature: nmcli - ethernet
     @8021x @attach_hostapd_log @attach_wpa_supplicant_log
     @8021x_ttls_md5
     Scenario: nmcli - ethernet - connect to 8021x -ttls - md5
-    * Add "ethernet" connection named "con_ethernet" with options "ifname test8X autoconnect no 802-1x.eap ttls 802-1x.identity test_md5 802-1x.anonymous-identity test 802-1x.ca-cert /tmp/certs/test_user.ca.pem 802-1x.phase2-autheap md5 802-1x.password password"
+    * Add "ethernet" connection named "con_ethernet" with options
+          """
+          ifname test8X
+          autoconnect no
+          802-1x.eap ttls
+          802-1x.identity test_md5
+          802-1x.anonymous-identity test
+          802-1x.ca-cert /tmp/certs/test_user.ca.pem
+          802-1x.phase2-autheap md5
+          802-1x.password password
+          """
     Then Bring "up" connection "con_ethernet"
 
 
@@ -579,7 +782,17 @@ Feature: nmcli - ethernet
     @8021x @attach_hostapd_log @attach_wpa_supplicant_log
     @8021x_ttls_gtc
     Scenario: nmcli - ethernet - connect to 8021x -ttls - gtc
-    * Add "ethernet" connection named "con_ethernet" with options "ifname test8X autoconnect no 802-1x.eap ttls 802-1x.identity test_gtc 802-1x.anonymous-identity test 802-1x.ca-cert /tmp/certs/test_user.ca.pem 802-1x.phase2-autheap gtc 802-1x.password password"
+    * Add "ethernet" connection named "con_ethernet" with options
+          """
+          ifname test8X
+          autoconnect no
+          802-1x.eap ttls
+          802-1x.identity test_gtc
+          802-1x.anonymous-identity test
+          802-1x.ca-cert /tmp/certs/test_user.ca.pem
+          802-1x.phase2-autheap gtc
+          802-1x.password password
+          """
     Then Bring "up" connection "con_ethernet"
 
 
@@ -589,7 +802,20 @@ Feature: nmcli - ethernet
     @8021x @attach_hostapd_log @attach_wpa_supplicant_log
     @8021x_auto_auth_retry_with_backup_network
     Scenario: nmcli - ethernet - connect to 8021x auto auth retry
-    * Add "ethernet" connection named "con_ethernet" with options "ifname test8X autoconnect no 802-1x.eap ttls 802-1x.identity test_ttls 802-1x.anonymous-identity test 802-1x.ca-cert /tmp/certs/test_user.ca.pem 802-1x.phase2-auth chap 802-1x.password password connection.auth-retries 1 802-1x.optional yes 802-1x.auth-timeout 10"
+    * Add "ethernet" connection named "con_ethernet" with options
+          """
+          ifname test8X
+          autoconnect no
+          802-1x.eap ttls
+          802-1x.identity test_ttls
+          802-1x.anonymous-identity test
+          802-1x.ca-cert /tmp/certs/test_user.ca.pem
+          802-1x.phase2-auth chap
+          802-1x.password password
+          connection.auth-retries 1
+          802-1x.optional yes
+          802-1x.auth-timeout 10
+          """
     # Shut down authenticated port
     * Execute "ip link set dev test8Yp down"
     # Bring up backup network port
@@ -610,7 +836,19 @@ Feature: nmcli - ethernet
     #@con_ethernet_remove @8021x @attach_hostapd_log @attach_wpa_supplicant_log
     #@8021x_auto_auth_retry
     #Scenario: nmcli - ethernet - connect to 8021x auto auth retry
-    #* Add "ethernet" connection named "con_ethernet" with options "ifname test8X autoconnect no 802-1x.eap ttls 802-1x.identity test_ttls 802-1x.anonymous-identity test 802-1x.ca-cert /tmp/certs/test_user.ca.pem 802-1x.phase2-auth chap 802-1x.password password connection.auth-retries 5 802-1x.auth-timeout 180"
+    #* Add "ethernet" connection named "con_ethernet" with options
+    #   """
+    #   ifname test8X
+    #   autoconnect no
+    #   802-1x.eap ttls
+    #   802-1x.identity test_ttls
+    #   802-1x.anonymous-identity test
+    #   802-1x.ca-cert /tmp/certs/test_user.ca.pem
+    #   802-1x.phase2-auth chap
+    #   802-1x.password password
+    #   connection.auth-retries 5
+    #   802-1x.auth-timeout 180
+    #   """
     ## Stop Hostapd
     #* Execute "pkill -SIGSTOP -F /tmp/hostapd.pid"
     #* Run child "nmcli con up con_ethernet"
@@ -624,7 +862,14 @@ Feature: nmcli - ethernet
     @8021x @attach_hostapd_log @attach_wpa_supplicant_log
     @8021x_with_raw_credentials
     Scenario: nmcli - ethernet - connect to 8021x - md5 - raw
-    * Add "ethernet" connection named "con_ethernet" with options "ifname test8X autoconnect no 802-1x.eap md5 802-1x.identity user 802-1x.password-raw '70 61 73 73 77 6f 72 64'"
+    * Add "ethernet" connection named "con_ethernet" with options
+          """
+          ifname test8X
+          autoconnect no
+          802-1x.eap md5
+          802-1x.identity user
+          802-1x.password-raw '70 61 73 73 77 6f 72 64'
+          """
     Then Bring "up" connection "con_ethernet"
 
 
@@ -634,7 +879,13 @@ Feature: nmcli - ethernet
     @8021x @attach_hostapd_log @attach_wpa_supplicant_log
     @8021x_without_password
     Scenario: nmcli - ethernet - connect to 8021x - md5 - ask for password
-    * Add "ethernet" connection named "con_ethernet" with options "ifname test8X 802-1x.eap md5 802-1x.identity user autoconnect no"
+    * Add "ethernet" connection named "con_ethernet" with options
+          """
+          ifname test8X
+          802-1x.eap md5
+          802-1x.identity user
+          autoconnect no
+          """
     * Spawn "nmcli -a con up con_ethernet" command
     * Expect "identity.*user"
     * Enter in editor
@@ -661,7 +912,13 @@ Feature: nmcli - ethernet
     @8021x @attach_hostapd_log @attach_wpa_supplicant_log
     @8021x_without_password_with_ask_at_the_end
     Scenario: nmcli - ethernet - connect to 8021x - md5 - ask for password at the end
-    * Add "ethernet" connection named "con_ethernet" with options "ifname test8X 802-1x.eap md5 802-1x.identity user autoconnect no"
+    * Add "ethernet" connection named "con_ethernet" with options
+          """
+          ifname test8X
+          802-1x.eap md5
+          802-1x.identity user
+          autoconnect no
+          """
     * Spawn "nmcli con up con_ethernet -a" command
     * Expect "identity.*user"
     * Enter in editor
@@ -675,7 +932,14 @@ Feature: nmcli - ethernet
     @preserve_8021x_certs
     @preserve_8021x_certs_ethernet
     Scenario: nmcli - ethernet - preserve 8021x certs
-    * Add "ethernet" connection named "con_ethernet" for device "\*" with options "802-1x.eap 'tls' 802-1x.client-cert /tmp/certs/test_user.ca.pem 802-1x.private-key-password x 802-1x.private-key /tmp/certs/test_user.cert_and_enc_key.pem 802-1x.password pass1"
+    * Add "ethernet" connection named "con_ethernet" for device "\*" with options
+          """
+          802-1x.eap 'tls'
+          802-1x.client-cert /tmp/certs/test_user.ca.pem
+          802-1x.private-key-password x
+          802-1x.private-key /tmp/certs/test_user.cert_and_enc_key.pem
+          802-1x.password pass1
+          """
     * Reload connections
     Then "con_ethernet" is visible with command "nmcli con"
 
@@ -684,7 +948,11 @@ Feature: nmcli - ethernet
     @ver+=1.10
     @preserve_8021x_leap_con
     Scenario: nmcli - ethernet - preserve 8021x leap connection
-    * Add "ethernet" connection named "con_ethernet" for device "eth1" with options "802-1x.identity jdoe 802-1x.eap leap"
+    * Add "ethernet" connection named "con_ethernet" for device "eth1" with options
+          """
+          802-1x.identity jdoe
+          802-1x.eap leap
+          """
     * Reload connections
     Then "con_ethernet" is visible with command "nmcli con"
 
@@ -694,7 +962,17 @@ Feature: nmcli - ethernet
     @ifcfg-rh
     @8021x_ca_path_with_ifcfg_plugin
     Scenario: nmcli - ethernet - check that CA path is saved with ifcfg-rh plugin
-    * Add "ethernet" connection named "con_ethernet" with options "ifname test8X autoconnect no 802-1x.eap ttls 802-1x.identity test_ttls 802-1x.anonymous-identity test 802-1x.ca-path /tmp/certs/ 802-1x.phase2-auth mschapv2 802-1x.password password"
+    * Add "ethernet" connection named "con_ethernet" with options
+          """
+          ifname test8X
+          autoconnect no
+          802-1x.eap ttls
+          802-1x.identity test_ttls
+          802-1x.anonymous-identity test
+          802-1x.ca-path /tmp/certs/
+          802-1x.phase2-auth mschapv2
+          802-1x.password password
+          """
     Then "/tmp/certs/" is visible with command "nmcli -t -f 802-1x.ca-path con show id con_ethernet"
 
 
@@ -702,7 +980,17 @@ Feature: nmcli - ethernet
     @8021x @attach_hostapd_log @attach_wpa_supplicant_log
     @8021x_stop_wpa_supplicant_with_8021x_optional
     Scenario: nmcli - ethernet - stop wpa_supplicant with 802-1x optional
-    * Add "ethernet" connection named "con_ethernet" with options "ifname test8X 802-1x.eap peap 802-1x.optional yes 802-1x.identity test_md5 802-1x.anonymous-identity test 802-1x.ca-cert /tmp/certs/test_user.ca.pem 802-1x.phase2-auth md5 802-1x.password password"
+    * Add "ethernet" connection named "con_ethernet" with options
+          """
+          ifname test8X
+          802-1x.eap peap
+          802-1x.optional yes
+          802-1x.identity test_md5
+          802-1x.anonymous-identity test
+          802-1x.ca-cert /tmp/certs/test_user.ca.pem
+          802-1x.phase2-auth md5
+          802-1x.password password
+          """
     Then Bring "up" connection "con_ethernet"
     Then "activated" is visible with command "nmcli -g general.state con show id con_ethernet" in "10" seconds
     * Execute "systemctl stop wpa_supplicant.service"
@@ -724,7 +1012,11 @@ Feature: nmcli - ethernet
     Scenario: nmcli - ethernet - change ethtool feature in connection
     Given "fixed" is not visible with command "ethtool -k eth1 | grep tx-checksum-ip-generic:"
     * Note the output of "ethtool -k eth1 | grep tx-checksum-ipv4:" as value "out1"
-    * Add "ethernet" connection named "con_ethernet" for device "eth1" with options "autoconnect no ethtool.feature-tx-checksum-ip-generic on"
+    * Add "ethernet" connection named "con_ethernet" for device "eth1" with options
+          """
+          autoconnect no
+          ethtool.feature-tx-checksum-ip-generic on
+          """
     * Bring "up" connection "con_ethernet"
     When "on" is visible with command "ethtool -k eth1 | grep tx-checksum-ip-generic:"
     * Modify connection "con_ethernet" changing options "ethtool.feature-tx-checksum-ip-generic off"
@@ -742,7 +1034,11 @@ Feature: nmcli - ethernet
     @ethtool_features_fixed_connection
     Scenario: nmcli - ethernet - change ethtool fixed feature in connection
     Given "fixed" is visible with command "ethtool -k eth1 | grep tx-checksum-ipv4:"
-    * Add "ethernet" connection named "con_ethernet" for device "eth1" with options "autoconnect no ethtool.feature-tx-checksum-ipv4 on"
+    * Add "ethernet" connection named "con_ethernet" for device "eth1" with options
+          """
+          autoconnect no
+          ethtool.feature-tx-checksum-ipv4 on
+          """
     * Bring "up" connection "con_ethernet"
     * Note the output of "ethtool -k eth1 | grep tx-checksum-ipv4:" as value "out1"
     * Modify connection "con_ethernet" changing options "ethtool.feature-tx-checksum-ipv4 off"
@@ -756,7 +1052,15 @@ Feature: nmcli - ethernet
     @prepare_patched_netdevsim
     @ethtool_features_ring
     Scenario: nmcli - ethernet - ethtool set ring options
-    * Add "ethernet" connection named "con_ethernet" for device "eth11" with options "ipv4.method manual ipv4.addresses 192.0.2.1/24 ethtool.ring-tx 1000 ethtool.ring-rx-jumbo 1000 ethtool.ring-rx-mini 100 ethtool.ring-rx 1"
+    * Add "ethernet" connection named "con_ethernet" for device "eth11" with options
+          """
+          ipv4.method manual
+          ipv4.addresses 192.0.2.1/24
+          ethtool.ring-tx 1000
+          ethtool.ring-rx-jumbo 1000
+          ethtool.ring-rx-mini 100
+          ethtool.ring-rx 1
+          """
     * Bring "up" connection "con_ethernet"
     When "RX:\s+1\s*RX Mini:\s+100\s*RX Jumbo:\s+1000\s*TX:\s+1000" is visible with command "ethtool -g eth11"
     * Disconnect device "eth11"
@@ -771,7 +1075,15 @@ Feature: nmcli - ethernet
     @prepare_patched_netdevsim
     @ethtool_features_ring
     Scenario: nmcli - ethernet - ethtool set ring options
-    * Add "ethernet" connection named "con_ethernet" for device "eth11" with options "ipv4.method manual ipv4.addresses 192.0.2.1/24 ethtool.ring-tx 1000 ethtool.ring-rx-jumbo 1000 ethtool.ring-rx-mini 100 ethtool.ring-rx 1"
+    * Add "ethernet" connection named "con_ethernet" for device "eth11" with options
+          """
+          ipv4.method manual
+          ipv4.addresses 192.0.2.1/24
+          ethtool.ring-tx 1000
+          ethtool.ring-rx-jumbo 1000
+          ethtool.ring-rx-mini 100
+          ethtool.ring-rx 1
+          """
     Then "ethtool.ring-rx-mini\s+= 100" is visible with command "sudo journalctl  | grep ring-rx | tail -n 1"
     * Bring "up" connection "con_ethernet"
     When "RX:\s+1\s*RX Mini:\s+100\s*RX Jumbo:\s+1000\s*TX:\s+1000" is visible with command "ethtool -g eth11"
@@ -788,7 +1100,14 @@ Feature: nmcli - ethernet
     @prepare_patched_netdevsim
     @ethtool_features_pause
     Scenario: nmcli - ethernet - ethtool set pause options
-    * Add "ethernet" connection named "con_ethernet" for device "eth11" with options "ipv4.method manual ipv4.addresses 192.0.2.1/24 ethtool.pause-tx on ethtool.pause-rx on ethtool.pause-autoneg off"
+    * Add "ethernet" connection named "con_ethernet" for device "eth11" with options
+          """
+          ipv4.method manual
+          ipv4.addresses 192.0.2.1/24
+          ethtool.pause-tx on
+          ethtool.pause-rx on
+          ethtool.pause-autoneg off
+          """
     * Bring "up" connection "con_ethernet"
     When "Autonegotiate:" is visible with command "ethtool -a eth11"
     Then "Autonegotiate:\s+off" is visible with command "ethtool -a eth11"
@@ -809,7 +1128,33 @@ Feature: nmcli - ethernet
     @prepare_patched_netdevsim
     @ethtool_features_coal
     Scenario: nmcli - ethernet - ethtool set coalescing options
-    * Add "ethernet" connection named "con_ethernet" for device "eth11" with options "ipv4.method manual ipv4.addresses 192.0.2.1/24 ethtool.coalesce-adaptive-rx 1 ethtool.coalesce-adaptive-tx 1 ethtool.coalesce-pkt-rate-high 3 ethtool.coalesce-pkt-rate-low 2 ethtool.coalesce-rx-frames 1 ethtool.coalesce-rx-frames-high 3 ethtool.coalesce-rx-frames-irq 2 ethtool.coalesce-rx-frames-low 1 ethtool.coalesce-rx-usecs 1 ethtool.coalesce-rx-usecs-high 3 ethtool.coalesce-rx-usecs-irq 2 ethtool.coalesce-rx-usecs-low 1 ethtool.coalesce-sample-interval 2 ethtool.coalesce-stats-block-usecs 2 ethtool.coalesce-tx-frames 1 ethtool.coalesce-tx-frames-high 3 ethtool.coalesce-tx-frames-irq 2 ethtool.coalesce-tx-frames-low 1 ethtool.coalesce-tx-usecs 1 ethtool.coalesce-tx-usecs-high 3 ethtool.coalesce-tx-usecs-irq 2 ethtool.coalesce-tx-usecs-low 1"
+    * Add "ethernet" connection named "con_ethernet" for device "eth11" with options
+          """
+          ipv4.method manual
+          ipv4.addresses 192.0.2.1/24
+          ethtool.coalesce-adaptive-rx 1
+          ethtool.coalesce-adaptive-tx 1
+          ethtool.coalesce-pkt-rate-high 3
+          ethtool.coalesce-pkt-rate-low 2
+          ethtool.coalesce-rx-frames 1
+          ethtool.coalesce-rx-frames-high 3
+          ethtool.coalesce-rx-frames-irq 2
+          ethtool.coalesce-rx-frames-low 1
+          ethtool.coalesce-rx-usecs 1
+          ethtool.coalesce-rx-usecs-high 3
+          ethtool.coalesce-rx-usecs-irq 2
+          ethtool.coalesce-rx-usecs-low 1
+          ethtool.coalesce-sample-interval 2
+          ethtool.coalesce-stats-block-usecs 2
+          ethtool.coalesce-tx-frames 1
+          ethtool.coalesce-tx-frames-high 3
+          ethtool.coalesce-tx-frames-irq 2
+          ethtool.coalesce-tx-frames-low 1
+          ethtool.coalesce-tx-usecs 1
+          ethtool.coalesce-tx-usecs-high 3
+          ethtool.coalesce-tx-usecs-irq 2
+          ethtool.coalesce-tx-usecs-low 1
+          """
     * Bring "up" connection "con_ethernet"
     When "Adaptive RX: on  TX: on\s*stats-block-usecs: 2\s*sample-interval: 2\s*pkt-rate-low: 2\s*pkt-rate-high: 3" is visible with command "ethtool -c eth11"
     When "rx-usecs: 1\s*rx-frames: 1\s*rx-usecs-irq: 2\s*rx-frames-irq: 2" is visible with command "ethtool -c eth11"
@@ -831,10 +1176,10 @@ Feature: nmcli - ethernet
     * Execute "ip link set dev eth1 promisc off"
     When "PROMISC" is not visible with command "ip link show dev eth1"
     * Add "ethernet" connection named "con_ethernet" for device "eth1" with options
-       """
-       autoconnect no
-       802-3-ethernet.accept-all-mac-addresses default
-       """
+          """
+          autoconnect no
+          802-3-ethernet.accept-all-mac-addresses default
+          """
     * Bring "up" connection "con_ethernet"
     Then "PROMISC" is not visible with command "ip link show dev eth1"
     * Bring "down" connection "con_ethernet"
@@ -864,11 +1209,11 @@ Feature: nmcli - ethernet
     @ethernet_s390_options_with_subchannels
     Scenario: nmcli - ethernet - set ethernet.s390-options with subchannels
     * Add "ethernet" connection named "con_ethernet" for device "eth1" with options
-       """
-       autoconnect no
-       802-3-ethernet.s390-options portno=20
-       802-3-ethernet.s390-subchannels "0.0.8000,0.0.8001,0.0.8002"
-       """
+          """
+          autoconnect no
+          802-3-ethernet.s390-options portno=20
+          802-3-ethernet.s390-subchannels "0.0.8000,0.0.8001,0.0.8002"
+          """
     Then "portno=20" is visible with command "nmcli -g 802-3-ethernet.s390-options con show id con_ethernet"
     And "0.0.8000,0.0.8001,0.0.8002" is visible with command "nmcli -g 802-3-ethernet.s390-subchannels con show id con_ethernet"
     * Modify connection "con_ethernet" changing options "802-3-ethernet.s390-options layer2=secondary,portno=6"
@@ -887,10 +1232,10 @@ Feature: nmcli - ethernet
     @ethernet_s390_options_without_subchannels
     Scenario: nmcli - ethernet - set ethernet.s390-options without setting s390-subchannels
     * Add "ethernet" connection named "con_ethernet" for device "eth1" with options
-       """
-       autoconnect no
-       802-3-ethernet.s390-options bridge_role=primary
-       """
+          """
+          autoconnect no
+          802-3-ethernet.s390-options bridge_role=primary
+          """
     Then "bridge_role=primary" is visible with command "nmcli -g 802-3-ethernet.s390-options con show id con_ethernet"
     * Modify connection "con_ethernet" changing options "802-3-ethernet.s390-options bridge_role=secondary,portno=6"
     Then "bridge_role=secondary" is visible with command "nmcli -g 802-3-ethernet.s390-options con show id con_ethernet"

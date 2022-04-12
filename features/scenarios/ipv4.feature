@@ -20,14 +20,22 @@ Feature: nmcli: ipv4
     @rhbz979288
     @ipv4_method_manual_with_IP
     Scenario: nmcli - ipv4 - method - manual + IP
-    * Add "ethernet" connection named "con_ipv4" for device "eth3" with options "ipv4.method manual ipv4.addresses 192.168.122.253"
+    * Add "ethernet" connection named "con_ipv4" for device "eth3" with options
+          """
+          ipv4.method manual
+          ipv4.addresses 192.168.122.253
+          """
     Then "192.168.122.253/32" is visible with command "ip a s eth3"
     Then "dhclient-eth3.pid" is not visible with command "ps aux|grep dhclient"
 
 
     @ipv4_method_static_with_IP
     Scenario: nmcli - ipv4 - method - static + IP
-    * Add "ethernet" connection named "con_ipv4" for device "eth3" with options "ipv4.method static ipv4.addresses 192.168.122.253"
+    * Add "ethernet" connection named "con_ipv4" for device "eth3" with options
+          """
+          ipv4.method static
+          ipv4.addresses 192.168.122.253
+          """
     Then "192.168.122.253/32" is visible with command "ip a s eth3"
 
 
@@ -46,7 +54,11 @@ Feature: nmcli: ipv4
     @rhbz1034900
     @ipv4_addresses_IP_slash_mask
     Scenario: nmcli - ipv4 - addresses - IP slash netmask
-    * Add "ethernet" connection named "con_ipv4" for device "eth3" with options "ipv4.method static ipv4.addresses 192.168.122.253/24"
+    * Add "ethernet" connection named "con_ipv4" for device "eth3" with options
+          """
+          ipv4.method static
+          ipv4.addresses 192.168.122.253/24
+          """
     Then "192.168.122.253/24 brd 192.168.122.255" is visible with command "ip a s eth3"
 
 
@@ -104,7 +116,12 @@ Feature: nmcli: ipv4
 
     @ipv4_addresses_IP_slash_mask_and_route
     Scenario: nmcli - ipv4 - addresses - IP slash netmask and route
-    * Add "ethernet" connection named "con_ipv4" for device "eth3" with options "ipv4.method static ipv4.addresses 192.168.122.253/24 ipv4.gateway 192.168.122.96"
+    * Add "ethernet" connection named "con_ipv4" for device "eth3" with options
+          """
+          ipv4.method static
+          ipv4.addresses 192.168.122.253/24
+          ipv4.gateway 192.168.122.96
+          """
     Then "192.168.122.253/24" is visible with command "ip a s eth3"
     Then "default via 192.168.122.96 dev eth3\s+proto static\s+metric" is visible with command "ip route"
     Then "192.168.122.0/24 dev eth3\s+proto kernel\s+scope link\s+src 192.168.122.253" is visible with command "ip route"
@@ -114,7 +131,12 @@ Feature: nmcli: ipv4
 
     @ipv4_addresses_more_IPs_slash_mask_and_route
     Scenario: nmcli - ipv4 - addresses - several IPs slash netmask and route
-    * Add "ethernet" connection named "con_ipv4" for device "eth3" with options "ipv4.method static ipv4.addresses '192.168.22.253/24, 192.168.122.253/16, 192.168.222.253/8' ipv4.gateway 192.168.22.96"
+    * Add "ethernet" connection named "con_ipv4" for device "eth3" with options
+          """
+          ipv4.method static
+          ipv4.addresses '192.168.22.253/24, 192.168.122.253/16, 192.168.222.253/8'
+          ipv4.gateway 192.168.22.96
+          """
     Then "192.168.22.253/24" is visible with command "ip a s eth3"
     Then "192.168.122.253/16" is visible with command "ip a s eth3"
     Then "192.168.222.253/8" is visible with command "ip a s eth3"
@@ -165,7 +187,12 @@ Feature: nmcli: ipv4
 
     @ipv4_method_back_to_auto
     Scenario: nmcli - ipv4 - addresses - delete IP and set method back to auto
-    * Add "ethernet" connection named "con_ipv4" for device "eth3" with options "ipv4.method static ipv4.addresses '192.168.22.253/24, 192.168.122.253/16' ipv4.gateway 192.168.22.96"
+    * Add "ethernet" connection named "con_ipv4" for device "eth3" with options
+          """
+          ipv4.method static
+          ipv4.addresses '192.168.22.253/24, 192.168.122.253/16'
+          ipv4.gateway 192.168.22.96
+          """
     * Modify connection "con_ipv4" changing options "ipv4.method auto ipv4.addresses '' ipv4.gateway ''"
     * Bring "up" connection "con_ipv4"
     Then "192.168.22.253/24" is not visible with command "ip a s eth3"
@@ -176,8 +203,22 @@ Feature: nmcli: ipv4
 
     @ipv4_route_set_basic_route
     Scenario: nmcli - ipv4 - routes - set basic route
-    * Add "ethernet" connection named "con_ipv4" for device "eth2" with options "ipv4.method static ipv4.addresses 192.168.1.10/24 ipv4.gateway 192.168.4.1 ipv4.routes '192.168.2.0/24 192.168.1.11 2' ipv4.route-metric 22"
-    * Add "ethernet" connection named "con_ipv4" for device "eth3" with options "ipv4.method static ipv4.addresses 192.168.3.10/24 ipv4.gateway 192.168.4.1 ipv4.routes '192.168.5.0/24 192.168.3.11 1' ipv4.route-metric 21"
+    * Add "ethernet" connection named "con_ipv4" for device "eth2" with options
+          """
+          ipv4.method static
+          ipv4.addresses 192.168.1.10/24
+          ipv4.gateway 192.168.4.1
+          ipv4.routes '192.168.2.0/24 192.168.1.11 2'
+          ipv4.route-metric 22
+          """
+    * Add "ethernet" connection named "con_ipv4" for device "eth3" with options
+          """
+          ipv4.method static
+          ipv4.addresses 192.168.3.10/24
+          ipv4.gateway 192.168.4.1
+          ipv4.routes '192.168.5.0/24 192.168.3.11 1'
+          ipv4.route-metric 21
+          """
     Then "192.168.1.0/24 dev eth2\s+proto kernel\s+scope link\s+src 192.168.1.10" is visible with command "ip route"
     Then "192.168.2.0/24 via 192.168.1.11 dev eth2\s+proto static\s+metric" is visible with command "ip route"
     Then "192.168.4.1 dev eth2\s+proto static\s+scope link\s+metric 22" is visible with command "ip route"
@@ -191,7 +232,14 @@ Feature: nmcli: ipv4
     @ver-=1.21.90
     @ipv4_route_set_route_with_options
     Scenario: nmcli - ipv4 - routes - set route with options
-    * Add "ethernet" connection named "con_ipv4" for device "eth3" with options "ipv4.method manual ipv4.addresses 192.168.3.10/24 ipv4.gateway 192.168.4.1 ipv4.route-metric 256 ipv4.routes '192.168.5.0/24 192.168.3.11 1024 cwnd=14 lock-mtu=true mtu=1600'"
+    * Add "ethernet" connection named "con_ipv4" for device "eth3" with options
+          """
+          ipv4.method manual
+          ipv4.addresses 192.168.3.10/24
+          ipv4.gateway 192.168.4.1
+          ipv4.route-metric 256
+          ipv4.routes '192.168.5.0/24 192.168.3.11 1024 cwnd=14 lock-mtu=true mtu=1600'
+          """
     Then "default via 192.168.4.1 dev eth3\s+proto static\s+metric 256" is visible with command "ip route" in "20" seconds
     Then "192.168.3.0/24 dev eth3\s+proto kernel\s+scope link\s+src 192.168.3.10\s+metric 256" is visible with command "ip route"
     Then "192.168.4.1 dev eth3\s+proto static\s+scope link\s+metric 256" is visible with command "ip route"
@@ -204,7 +252,14 @@ Feature: nmcli: ipv4
     @ver-=1.35.0
     @ipv4_route_set_route_with_options
     Scenario: nmcli - ipv4 - routes - set route with options
-    * Add "ethernet" connection named "con_ipv4" for device "eth3" with options "ipv4.method manual ipv4.addresses 192.168.3.10/24 ipv4.gateway 192.168.4.1 ipv4.route-metric 256 ipv4.routes '192.168.5.0/24 192.168.3.11 1024 cwnd=14 lock-mtu=true mtu=1600, 0.0.0.0/0 192.168.4.1 mtu=1600'"
+    * Add "ethernet" connection named "con_ipv4" for device "eth3" with options
+          """
+          ipv4.method manual
+          ipv4.addresses 192.168.3.10/24
+          ipv4.gateway 192.168.4.1
+          ipv4.route-metric 256
+          ipv4.routes '192.168.5.0/24 192.168.3.11 1024 cwnd=14 lock-mtu=true mtu=1600, 0.0.0.0/0 192.168.4.1 mtu=1600'
+          """
     Then "default via 192.168.4.1 dev eth3\s+proto static\s+metric 256" is visible with command "ip route" in "20" seconds
     Then "192.168.3.0/24 dev eth3\s+proto kernel\s+scope link\s+src 192.168.3.10\s+metric 256" is visible with command "ip route"
     Then "192.168.4.1 dev eth3\s+proto static\s+scope link\s+metric 256" is visible with command "ip route"
@@ -218,13 +273,13 @@ Feature: nmcli: ipv4
     @ipv4_route_set_route_with_options
     Scenario: nmcli - ipv4 - routes - set route with options
     * Add "ethernet" connection named "con_ipv4" for device "eth3" with options
-      """
-      ipv4.method manual
-      ipv4.addresses 192.168.3.10/24
-      ipv4.gateway 192.168.4.1
-      ipv4.route-metric 256
-      ipv4.routes '192.168.5.0/24 192.168.3.11 1024 cwnd=14 lock-mtu=true mtu=1600, 0.0.0.0/0 192.168.4.1 mtu=1600, 192.168.6.0/24 type=blackhole'
-      """
+          """
+          ipv4.method manual
+          ipv4.addresses 192.168.3.10/24
+          ipv4.gateway 192.168.4.1
+          ipv4.route-metric 256
+          ipv4.routes '192.168.5.0/24 192.168.3.11 1024 cwnd=14 lock-mtu=true mtu=1600, 0.0.0.0/0 192.168.4.1 mtu=1600, 192.168.6.0/24 type=blackhole'
+          """
     Then "default via 192.168.4.1 dev eth3\s+proto static\s+metric 256" is visible with command "ip route" in "20" seconds
     Then "192.168.3.0/24 dev eth3\s+proto kernel\s+scope link\s+src 192.168.3.10\s+metric 256" is visible with command "ip route"
     Then "192.168.4.1 dev eth3\s+proto static\s+scope link\s+metric 256" is visible with command "ip route"
@@ -244,7 +299,14 @@ Feature: nmcli: ipv4
     @ipv4_route_set_route_with_src_new_syntax
     Scenario: nmcli - ipv4 - routes - set route with src in new syntax
     * Note the output of "ip r |grep eth0 |wc -l" as value "1"
-    * Add "ethernet" connection named "con_ipv4" for device "eth3" with options "ipv4.method manual ipv4.addresses 192.168.3.10/24 ipv4.gateway 192.168.4.1 ipv4.route-metric 256 ipv4.routes '192.168.122.3 src=192.168.3.10'"
+    * Add "ethernet" connection named "con_ipv4" for device "eth3" with options
+          """
+          ipv4.method manual
+          ipv4.addresses 192.168.3.10/24
+          ipv4.gateway 192.168.4.1
+          ipv4.route-metric 256
+          ipv4.routes '192.168.122.3 src=192.168.3.10'
+          """
     When "default via 192.168.4.1 dev eth3\s+proto static\s+metric 256" is visible with command "ip route" in "20" seconds
      And "192.168.3.0/24 dev eth3\s+proto kernel\s+scope link\s+src 192.168.3.10\s+metric 256" is visible with command "ip route"
      And "192.168.4.1 dev eth3\s+proto static\s+scope link\s+metric 256" is visible with command "ip route"
@@ -260,7 +322,14 @@ Feature: nmcli: ipv4
     @ifcfg-rh
     @ipv4_route_set_route_with_src_old_syntax
     Scenario: nmcli - ipv4 - routes - set route with src in old syntax
-    * Add "ethernet" connection named "con_ipv4" for device "eth3" with options "autoconnect no ipv4.method manual ipv4.addresses 192.168.3.10/24 ipv4.gateway 192.168.4.1 ipv4.route-metric 256"
+    * Add "ethernet" connection named "con_ipv4" for device "eth3" with options
+          """
+          autoconnect no
+          ipv4.method manual
+          ipv4.addresses 192.168.3.10/24
+          ipv4.gateway 192.168.4.1
+          ipv4.route-metric 256
+          """
     * Execute "echo '192.168.122.3 src 192.168.3.10 dev eth3' > /etc/sysconfig/network-scripts/route-con_ipv4"
     * Reload connections
     * Bring "up" connection "con_ipv4"
@@ -277,7 +346,14 @@ Feature: nmcli: ipv4
     @ifcfg-rh
     @ipv4_route_modify_route_with_src_old_syntax_no_metric
     Scenario: nmcli - ipv4 - routes - modify route with src and no metric in old syntax
-    * Add "ethernet" connection named "con_ipv4" for device "eth3" with options "autoconnect no ipv4.method manual ipv4.addresses 192.168.3.10/24 ipv4.gateway 192.168.4.1 ipv4.route-metric 256"
+    * Add "ethernet" connection named "con_ipv4" for device "eth3" with options
+          """
+          autoconnect no
+          ipv4.method manual
+          ipv4.addresses 192.168.3.10/24
+          ipv4.gateway 192.168.4.1
+          ipv4.route-metric 256
+          """
     * Execute "echo '1.2.3.4 src 2.3.4.5 dev eth3' > /etc/sysconfig/network-scripts/route-con_ipv4"
     * Reload connections
     * Modify connection "con_ipv4" changing options "ipv4.routes '192.168.122.3 src=192.168.3.10'"
@@ -296,7 +372,13 @@ Feature: nmcli: ipv4
     @restart_if_needed @ifcfg-rh
     @ipv4_route_set_route_with_src_old_syntax_restart_persistence
     Scenario: nmcli - ipv4 - routes - set route with src old syntaxt restart persistence
-    * Add "ethernet" connection named "con_ipv4" for device "eth3" with options "ipv4.method manual ipv4.addresses 192.168.3.10/24 ipv4.gateway 192.168.4.1 ipv4.route-metric 256"
+    * Add "ethernet" connection named "con_ipv4" for device "eth3" with options
+          """
+          ipv4.method manual
+          ipv4.addresses 192.168.3.10/24
+          ipv4.gateway 192.168.4.1
+          ipv4.route-metric 256
+          """
     * Execute "echo '192.168.122.3 src 192.168.3.10 dev eth3' > /etc/sysconfig/network-scripts/route-con_ipv4"
     * Reload connections
     * Bring "up" connection "con_ipv4"
@@ -317,7 +399,14 @@ Feature: nmcli: ipv4
     @restart_if_needed
     @ipv4_route_set_route_with_src_new_syntax_restart_persistence
     Scenario: nmcli - ipv4 - routes - set route with src new syntaxt restart persistence
-    * Add "ethernet" connection named "con_ipv4" for device "eth3" with options "ipv4.method manual ipv4.addresses 192.168.3.10/24 ipv4.gateway 192.168.4.1 ipv4.route-metric 256 ipv4.routes '192.168.122.3 src=192.168.3.10'"
+    * Add "ethernet" connection named "con_ipv4" for device "eth3" with options
+          """
+          ipv4.method manual
+          ipv4.addresses 192.168.3.10/24
+          ipv4.gateway 192.168.4.1
+          ipv4.route-metric 256
+          ipv4.routes '192.168.122.3 src=192.168.3.10'
+          """
     * Stop NM
     * Execute "ip addr flush dev eth3"
     * Execute "rm -rf /var/run/NetworkManager"
@@ -334,7 +423,13 @@ Feature: nmcli: ipv4
     @restart_if_needed
     @no_metric_route_connection_restart_persistence
     Scenario: nmcli - ipv4 - routes - no\s+metric route connection restart persistence
-    * Add "ethernet" connection named "con_ipv4" for device "eth3" with options "ipv4.method static ipv4.addresses 192.168.3.10/24 ipv4.gateway 192.168.4.1 ipv4.routes '192.168.5.0/24 192.168.3.11'"
+    * Add "ethernet" connection named "con_ipv4" for device "eth3" with options
+          """
+          ipv4.method static
+          ipv4.addresses 192.168.3.10/24
+          ipv4.gateway 192.168.4.1
+          ipv4.routes '192.168.5.0/24 192.168.3.11'
+          """
     When "eth3:connected:con_ipv4" is visible with command "nmcli -t -f DEVICE,STATE,CONNECTION device" in "10" seconds
     * Restart NM
     Then "eth3:connected:con_ipv4" is visible with command "nmcli -t -f DEVICE,STATE,CONNECTION device" in "10" seconds
@@ -387,7 +482,13 @@ Feature: nmcli: ipv4
     @rhelver+=8
     @check_local_routes
     Scenario: nmcli - ipv4 - test handling of local routes
-    * Add "ethernet" connection named "con_ipv4" for device "eth3" with options "ipv4.method manual ipv4.address '192.0.2.1/24,192.0.2.2/24' ipv6.method manual ipv6.addresses '1:2:3:4:5::1/64,1:2:3:4:5::2/64'"
+    * Add "ethernet" connection named "con_ipv4" for device "eth3" with options
+          """
+          ipv4.method manual
+          ipv4.address '192.0.2.1/24,192.0.2.2/24'
+          ipv6.method manual
+          ipv6.addresses '1:2:3:4:5::1/64,1:2:3:4:5::2/64'
+          """
 
     When "eth3\:ethernet\:connected\:con_ipv4" is visible with command "nmcli -t device" in "5" seconds
     When "192.0.2.1" is visible with command "ip a s eth3"
@@ -429,8 +530,22 @@ Feature: nmcli: ipv4
     @ver-=1.10.0
     @ipv4_route_remove_basic_route
     Scenario: nmcli - ipv4 - routes - remove basic route
-    * Add "ethernet" connection named "con_ipv4" for device "eth3" with options "ipv4.may-fail no ipv4.method static ipv4.addresses 192.168.3.10/24 ipv4.gateway 192.168.4.1 ipv4.routes '192.168.5.0/24 192.168.3.11 2'"
-    * Add "ethernet" connection named "con_ipv42" for device "eth2" with options "ipv4.may-fail no ipv4.method static ipv4.addresses 192.168.1.10/24 ipv4.gateway 192.168.4.1 ipv4.routes '192.168.2.0/24 192.168.1.11 3'"
+    * Add "ethernet" connection named "con_ipv4" for device "eth3" with options
+          """
+          ipv4.may-fail no
+          ipv4.method static
+          ipv4.addresses 192.168.3.10/24
+          ipv4.gateway 192.168.4.1
+          ipv4.routes '192.168.5.0/24 192.168.3.11 2'
+          """
+    * Add "ethernet" connection named "con_ipv42" for device "eth2" with options
+          """
+          ipv4.may-fail no
+          ipv4.method static
+          ipv4.addresses 192.168.1.10/24
+          ipv4.gateway 192.168.4.1
+          ipv4.routes '192.168.2.0/24 192.168.1.11 3'
+          """
     * Modify connection "con_ipv4" changing options "ipv4.routes ''"
     * Modify connection "con_ipv42" changing options "ipv4.routes ''"
     * Bring "up" connection "con_ipv4"
@@ -449,8 +564,22 @@ Feature: nmcli: ipv4
     @ver+=1.10.2
     @ipv4_route_remove_basic_route
     Scenario: nmcli - ipv4 - routes - remove basic route
-    * Add "ethernet" connection named "con_ipv4" for device "eth3" with options "ipv4.may-fail no ipv4.method static ipv4.addresses 192.168.3.10/24 ipv4.gateway 192.168.4.1 ipv4.routes '192.168.5.0/24 192.168.3.11 200'"
-    * Add "ethernet" connection named "con_ipv42" for device "eth2" with options "ipv4.may-fail no ipv4.method static ipv4.addresses 192.168.1.10/24 ipv4.gateway 192.168.4.1 ipv4.routes '192.168.2.0/24 192.168.1.11 300'"
+    * Add "ethernet" connection named "con_ipv4" for device "eth3" with options
+          """
+          ipv4.may-fail no
+          ipv4.method static
+          ipv4.addresses 192.168.3.10/24
+          ipv4.gateway 192.168.4.1
+          ipv4.routes '192.168.5.0/24 192.168.3.11 200'
+          """
+    * Add "ethernet" connection named "con_ipv42" for device "eth2" with options
+          """
+          ipv4.may-fail no
+          ipv4.method static
+          ipv4.addresses 192.168.1.10/24
+          ipv4.gateway 192.168.4.1
+          ipv4.routes '192.168.2.0/24 192.168.1.11 300'
+          """
     * Modify connection "con_ipv4" changing options "ipv4.routes ''"
     * Modify connection "con_ipv4" changing options "ipv4.routes ''"
     * Bring "up" connection "con_ipv4"
@@ -468,7 +597,14 @@ Feature: nmcli: ipv4
 
     @ipv4_route_set_device_route
     Scenario: nmcli - ipv4 - routes - set device route
-    * Add "ethernet" connection named "con_ipv4" for device "eth3" with options "ipv4.may-fail no ipv4.method static ipv4.addresses 192.168.122.2/24 ipv4.gateway 192.168.122.1 ipv4.routes '192.168.1.0/24 0.0.0.0, 192.168.2.0/24 192.168.122.5'"
+    * Add "ethernet" connection named "con_ipv4" for device "eth3" with options
+          """
+          ipv4.may-fail no
+          ipv4.method static
+          ipv4.addresses 192.168.122.2/24
+          ipv4.gateway 192.168.122.1
+          ipv4.routes '192.168.1.0/24 0.0.0.0, 192.168.2.0/24 192.168.122.5'
+          """
     Then "^connected" is visible with command "nmcli -t -f STATE,DEVICE device |grep eth3" in "5" seconds
     Then "default via 192.168.122.1 dev eth3\s+proto static\s+metric" is visible with command "ip route"
     Then "192.168.1.0/24 dev eth3\s+proto static\s+scope link\s+metric" is visible with command "ip route"
@@ -480,7 +616,11 @@ Feature: nmcli: ipv4
     @ver+=1.8.0
     @ipv4_host_destination_route
     Scenario: nmcli - ipv4 - routes - host destination
-    * Add "ethernet" connection named "con_ipv4" for device "eth3" with options "ip4 192.168.122.123/24 ipv4.routes '10.20.30.10/24 192.168.122.2'"
+    * Add "ethernet" connection named "con_ipv4" for device "eth3" with options
+          """
+          ip4 192.168.122.123/24
+          ipv4.routes '10.20.30.10/24 192.168.122.2'
+          """
     Then "^connected" is visible with command "nmcli -t -f STATE,DEVICE device |grep eth3" in "5" seconds
 
 
@@ -508,7 +648,13 @@ Feature: nmcli: ipv4
 
     @ipv4_route_set_invalid_missing_gw_route
     Scenario: nmcli - ipv4 - routes - set invalid route - missing gw
-    * Add "ethernet" connection named "con_ipv4" for device "eth3" with options "ipv4.method static ipv4.addresses 192.168.122.2/24 ipv4.gateway 192.168.122.1 ipv4.routes 192.168.1.0/24"
+    * Add "ethernet" connection named "con_ipv4" for device "eth3" with options
+          """
+          ipv4.method static
+          ipv4.addresses 192.168.122.2/24
+          ipv4.gateway 192.168.122.1
+          ipv4.routes 192.168.1.0/24
+          """
     Then "default via 192.168.122.1 dev eth3\s+proto static\s+metric" is visible with command "ip route" in "5" seconds
     Then "192.168.1.0/24 dev eth3\s+proto static\s+scope link\s+metric" is visible with command "ip route"
     Then "192.168.122.0/24 dev eth3\s+proto kernel\s+scope link\s+src 192.168.122.2" is visible with command "ip route"
@@ -536,14 +682,26 @@ Feature: nmcli: ipv4
     Scenario: nmcli - ipv4 - routes - set unreachable route
     # Since version 1.11.3 NM automatically adds a device route to the
     # route gateway when it is not directly reachable
-    * Add "ethernet" connection named "con_ipv4" for device "eth3" with options "ipv4.method static ipv4.addresses 192.168.122.2/24 ipv4.gateway 192.168.122.1 ipv4.routes '192.168.1.0/24 192.168.3.11 1'"
+    * Add "ethernet" connection named "con_ipv4" for device "eth3" with options
+          """
+          ipv4.method static
+          ipv4.addresses 192.168.122.2/24
+          ipv4.gateway 192.168.122.1
+          ipv4.routes '192.168.1.0/24 192.168.3.11 1'
+          """
     Then "\(connected\)" is visible with command "nmcli device show eth3"
     Then "192.168.3.11\s+dev eth3\s+proto static" is visible with command "ip r"
 
 
     @ipv4_dns_manual
     Scenario: nmcli - ipv4 - dns - method static + IP + dns
-    * Add "ethernet" connection named "con_ipv4" for device "eth3" with options "ipv4.method static ipv4.addresses 192.168.122.253/24 ipv4.gateway 192.168.122.1 ipv4.dns '8.8.8.8, 8.8.4.4'"
+    * Add "ethernet" connection named "con_ipv4" for device "eth3" with options
+          """
+          ipv4.method static
+          ipv4.addresses 192.168.122.253/24
+          ipv4.gateway 192.168.122.1
+          ipv4.dns '8.8.8.8, 8.8.4.4'
+          """
     Then Nameserver "8.8.8.8" is set in "10" seconds
     Then Nameserver "8.8.4.4" is set
     Then Nameserver "192.168.100.1" is not set
@@ -561,7 +719,14 @@ Feature: nmcli: ipv4
 
     @ipv4_dns_manual_when_ignore_auto_dns
     Scenario: nmcli - ipv4 - dns - method auto + dns + ignore automaticaly obtained
-    * Add "ethernet" connection named "con_ipv4" for device "eth3" with options "ipv4.method static ipv4.addresses 192.168.122.253/24 ipv4.gateway 192.168.122.1 ipv4.dns '8.8.8.8, 8.8.4.4' ipv4.ignore-auto-dns yes"
+    * Add "ethernet" connection named "con_ipv4" for device "eth3" with options
+          """
+          ipv4.method static
+          ipv4.addresses 192.168.122.253/24
+          ipv4.gateway 192.168.122.1
+          ipv4.dns '8.8.8.8, 8.8.4.4'
+          ipv4.ignore-auto-dns yes
+          """
     Then Nameserver "8.8.8.8" is set in "10" seconds
     Then Nameserver "8.8.4.4" is set
     Then Nameserver "192.168.100.1" is not set
@@ -573,7 +738,11 @@ Feature: nmcli: ipv4
     @restart_if_needed @delete_testeth0
     @ipv4_ignore_resolveconf_with_ignore_auto_dns
     Scenario: nmcli - ipv4 - preserve resolveconf if ignore_auto_dns
-    * Add "ethernet" connection named "con_ipv4" for device "eth3" with options "ipv4.ignore-auto-dns yes ipv6.ignore-auto-dns yes"
+    * Add "ethernet" connection named "con_ipv4" for device "eth3" with options
+          """
+          ipv4.ignore-auto-dns yes
+          ipv6.ignore-auto-dns yes
+          """
     * Bring "down" connection "con_ipv4"
     * Stop NM
     * Execute "echo 'search boston.com' > /etc/resolv.conf"
@@ -595,7 +764,11 @@ Feature: nmcli: ipv4
     @restart_if_needed @delete_testeth0
     @ipv4_ignore_resolveconf_with_ignore_auto_dns_var1
     Scenario: NM - ipv4 - preserve resolveconf if ignore_auto_dns with NM service up
-    * Add "ethernet" connection named "con_ipv4" for device "eth3" with options "ipv4.ignore-auto-dns yes ipv6.ignore-auto-dns yes"
+    * Add "ethernet" connection named "con_ipv4" for device "eth3" with options
+          """
+          ipv4.ignore-auto-dns yes
+          ipv6.ignore-auto-dns yes
+          """
     * Bring "down" connection "con_ipv4"
     * Execute "echo 'search boston.com' > /etc/resolv.conf"
     * Execute "echo 'nameserver 1.2.3.4' >> /etc/resolv.conf"
@@ -616,7 +789,11 @@ Feature: nmcli: ipv4
     @delete_testeth0 @restore_hostname
     @ipv4_ignore_resolveconf_with_ignore_auto_dns_var2
     Scenario: NM - ipv4 - preserve resolveconf when hostnamectl is called and ignore_auto_dns set
-    * Add "ethernet" connection named "con_ipv4" for device "eth3" with options "ipv4.ignore-auto-dns yes ipv6.ignore-auto-dns yes"
+    * Add "ethernet" connection named "con_ipv4" for device "eth3" with options
+          """
+          ipv4.ignore-auto-dns yes
+          ipv6.ignore-auto-dns yes
+          """
     * Bring "down" connection "con_ipv4"
     * Execute "echo 'search boston.com' > /etc/resolv.conf"
     * Execute "echo 'nameserver 1.2.3.4' >> /etc/resolv.conf"
@@ -636,7 +813,11 @@ Feature: nmcli: ipv4
     @delete_testeth0 @restore_hostname @eth3_disconnect @ifcfg-rh
     @ipv4_ignore_resolveconf_with_ignore_auto_dns_var3
     Scenario: NM - ipv4 - preserve resolveconf when hostnamectl is called and ignore_auto_dns set
-    * Add "ethernet" connection named "con_ipv4" for device "eth3" with options "ipv4.ignore-auto-dns yes ipv6.ignore-auto-dns yes"
+    * Add "ethernet" connection named "con_ipv4" for device "eth3" with options
+          """
+          ipv4.ignore-auto-dns yes
+          ipv6.ignore-auto-dns yes
+          """
     * Bring "down" connection "con_ipv4"
     * Execute "echo 'search boston.com' > /etc/resolv.conf"
     * Execute "echo 'nameserver 1.2.3.4' >> /etc/resolv.conf"
@@ -719,7 +900,13 @@ Feature: nmcli: ipv4
 
     @ipv4_dns_add_another_one
     Scenario: nmcli - ipv4 - dns - add dns when one already set
-    * Add "ethernet" connection named "con_ipv4" for device "eth3" with options "ipv4.method static ipv4.addresses 192.168.122.253/24 ipv4.gateway 192.168.122.1 ipv4.dns '8.8.8.8'"
+    * Add "ethernet" connection named "con_ipv4" for device "eth3" with options
+          """
+          ipv4.method static
+          ipv4.addresses 192.168.122.253/24
+          ipv4.gateway 192.168.122.1
+          ipv4.dns '8.8.8.8'
+          """
     * Bring "up" connection "con_ipv4"
     * Open editor for connection "con_ipv4"
     * Submit "set ipv4.dns 8.8.4.4" in editor
@@ -733,7 +920,12 @@ Feature: nmcli: ipv4
 
     @ipv4_dns_delete_all
     Scenario: nmcli - ipv4 - dns - method auto then delete all dns
-    * Add "ethernet" connection named "con_ipv4" for device "eth3" with options "ipv4.addresses 192.168.122.253/24 ipv4.gateway 192.168.122.1 ipv4.dns '8.8.8.8, 8.8.4.4'"
+    * Add "ethernet" connection named "con_ipv4" for device "eth3" with options
+          """
+          ipv4.addresses 192.168.122.253/24
+          ipv4.gateway 192.168.122.1
+          ipv4.dns '8.8.8.8, 8.8.4.4'
+          """
     * Modify connection "con_ipv4" changing options "ipv4.dns ''"
     * Bring "up" connection "con_ipv4"
     Then Nameserver "8.8.8.8" is not set
@@ -745,7 +937,11 @@ Feature: nmcli: ipv4
     @eth0
     @reload_dns
     Scenario: nmcli - ipv4 - dns - reload
-    * Add "ethernet" connection named "con_ipv4" for device "eth0" with options " ipv4.may-fail no ipv4.dns '8.8.8.8, 8.8.4.4'"
+    * Add "ethernet" connection named "con_ipv4" for device "eth0" with options
+          """
+          ipv4.may-fail no
+          ipv4.dns '8.8.8.8, 8.8.4.4'
+          """
     * Bring "up" connection "con_ipv4"
     When Nameserver "8.8.8.8" is set in "10" seconds
     When Nameserver "8.8.4.4" is set
@@ -761,7 +957,11 @@ Feature: nmcli: ipv4
     @eth0
     @ipv4_dns-search_add
     Scenario: nmcli - ipv4 - dns-search - add dns-search
-    * Add "ethernet" connection named "con_ipv4" for device "eth0" with options " ipv4.may-fail no ipv4.dns-search google.com"
+    * Add "ethernet" connection named "con_ipv4" for device "eth0" with options
+          """
+          ipv4.may-fail no
+          ipv4.dns-search google.com
+          """
     When "eth0:connected:con_ipv4" is visible with command "nmcli -t -f DEVICE,STATE,CONNECTION device" in "40" seconds
     When Domain "google.com" is set in "45" seconds
     Then Ping "maps"
@@ -772,7 +972,11 @@ Feature: nmcli: ipv4
     @eth0
     @ipv4_dns-search_add
     Scenario: nmcli - ipv4 - dns-search - show dns-search
-    * Add "ethernet" connection named "con_ipv4" for device "eth0" with options " ipv4.may-fail no ipv4.dns-search google.com"
+    * Add "ethernet" connection named "con_ipv4" for device "eth0" with options
+          """
+          ipv4.may-fail no
+          ipv4.dns-search google.com
+          """
     When "eth0:connected:con_ipv4" is visible with command "nmcli -t -f DEVICE,STATE,CONNECTION device" in "40" seconds
     When Domain "google.com" is set in "45" seconds
     Then Ping "maps"
@@ -787,7 +991,11 @@ Feature: nmcli: ipv4
     @eth0
     @ipv4_dns-search_remove
     Scenario: nmcli - ipv4 - dns-search - remove dns-search
-    * Add "ethernet" connection named "con_ipv4" for device "eth0" with options " ipv4.may-fail no ipv4.dns-search google.com"
+    * Add "ethernet" connection named "con_ipv4" for device "eth0" with options
+          """
+          ipv4.may-fail no
+          ipv4.dns-search google.com
+          """
     * Modify connection "con_ipv4" changing options "ipv4.dns-search ''"
     * Bring "up" connection "con_ipv4"
     # Workaround for 2006677
@@ -802,7 +1010,11 @@ Feature: nmcli: ipv4
     @eth0
     @ipv4_dns-search_remove
     Scenario: nmcli - ipv4 - dns-search - remove dns-search
-    * Add "ethernet" connection named "con_ipv4" for device "eth0" with options " ipv4.may-fail no ipv4.dns-search google.com"
+    * Add "ethernet" connection named "con_ipv4" for device "eth0" with options
+          """
+          ipv4.may-fail no
+          ipv4.dns-search google.com
+          """
     * Modify connection "con_ipv4" changing options "ipv4.dns-search ''"
     * Bring "up" connection "con_ipv4"
     Then Domain "google.com" is not set
@@ -815,7 +1027,11 @@ Feature: nmcli: ipv4
     @tshark
     @ipv4_dhcp-hostname_set
     Scenario: nmcli - ipv4 - dhcp-hostname - set dhcp-hostname
-    * Add "ethernet" connection named "con_ipv4" for device "eth2" with options "ipv4.may-fail no ipv4.dhcp-hostname RC"
+    * Add "ethernet" connection named "con_ipv4" for device "eth2" with options
+          """
+          ipv4.may-fail no
+          ipv4.dhcp-hostname RC
+          """
     * Bring "down" connection "con_ipv4"
     * Run child "sudo tshark -l -O bootp -i eth2 > /tmp/tshark.log"
     When "empty" is not visible with command "file /tmp/tshark.log" in "150" seconds
@@ -829,7 +1045,11 @@ Feature: nmcli: ipv4
     @tshark
     @ipv4_dhcp-hostname_set
     Scenario: nmcli - ipv4 - dhcp-hostname - set dhcp-hostname
-    * Add "ethernet" connection named "con_ipv4" for device "eth2" with options "ipv4.may-fail no ipv4.dhcp-hostname example.com"
+    * Add "ethernet" connection named "con_ipv4" for device "eth2" with options
+          """
+          ipv4.may-fail no
+          ipv4.dhcp-hostname example.com
+          """
     * Bring "down" connection "con_ipv4"
     * Run child "sudo tshark -l -O bootp -i eth2 > /tmp/tshark.log"
     When "empty" is not visible with command "file /tmp/tshark.log" in "150" seconds
@@ -841,7 +1061,11 @@ Feature: nmcli: ipv4
     @tshark
     @ipv4_dhcp-hostname_remove
     Scenario: nmcli - ipv4 - dhcp-hostname - remove dhcp-hostname
-    * Add "ethernet" connection named "con_ipv4" for device "eth2" with options "ipv4.may-fail no ipv4.dhcp-hostname RHB"
+    * Add "ethernet" connection named "con_ipv4" for device "eth2" with options
+          """
+          ipv4.may-fail no
+          ipv4.dhcp-hostname RHB
+          """
     * Modify connection "con_ipv4" changing options "ipv4.dhcp-hostname ''"
     * Bring "down" connection "con_ipv4"
     * Run child "sudo tshark -l -O bootp -i eth2 > /tmp/tshark.log"
@@ -854,7 +1078,11 @@ Feature: nmcli: ipv4
     @tshark @restore_resolvconf
     @nmcli_ipv4_set_fqdn
     Scenario: nmcli - ipv4 - dhcp-fqdn - set dhcp-fqdn
-    * Add "ethernet" connection named "con_ipv4" for device "eth2" with options "ipv4.may-fail no ipv4.dhcp-fqdn foo.bar.com"
+    * Add "ethernet" connection named "con_ipv4" for device "eth2" with options
+          """
+          ipv4.may-fail no
+          ipv4.dhcp-fqdn foo.bar.com
+          """
     * Run child "sudo tshark -l -O bootp -i eth2 > /tmp/tshark.log"
     When "empty" is not visible with command "file /tmp/tshark.log" in "150" seconds
     * Bring "up" connection "con_ipv4"
@@ -870,7 +1098,11 @@ Feature: nmcli: ipv4
     @tshark @not_under_internal_DHCP @restore_resolvconf
     @nmcli_ipv4_override_fqdn
     Scenario: nmcli - ipv4 - dhcp-fqdn - override dhcp-fqdn
-    * Add "ethernet" connection named "con_ipv4" for device "eth2" with options "ipv4.may-fail no ipv4.dhcp-fqdn foo.bar.com"
+    * Add "ethernet" connection named "con_ipv4" for device "eth2" with options
+          """
+          ipv4.may-fail no
+          ipv4.dhcp-fqdn foo.bar.com
+          """
     * Execute "echo 'send fqdn.encoded off;' > /etc/dhcp/dhclient-eth2.conf"
     * Execute "echo 'send fqdn.server-update off;' >> /etc/dhcp/dhclient-eth2.conf"
     * Bring "up" connection "con_ipv4"
@@ -888,7 +1120,12 @@ Feature: nmcli: ipv4
     @tshark @restore_resolvconf
     @nmcli_ipv4_override_fqdn
     Scenario: nmcli - ipv4 - dhcp-fqdn - override dhcp-fqdn
-    * Add "ethernet" connection named "con_ipv4" for device "eth2" with options "ipv4.may-fail no ipv4.dhcp-fqdn foo.bar.com ipv4.dhcp-hostname-flags fqdn-clear-flags"
+    * Add "ethernet" connection named "con_ipv4" for device "eth2" with options
+          """
+          ipv4.may-fail no
+          ipv4.dhcp-fqdn foo.bar.com
+          ipv4.dhcp-hostname-flags fqdn-clear-flags
+          """
     * Bring "up" connection "con_ipv4"
     * Run child "sudo tshark -l -O bootp -i eth2 > /tmp/tshark.log"
     When "empty" is not visible with command "file /tmp/tshark.log" in "150" seconds
@@ -902,7 +1139,12 @@ Feature: nmcli: ipv4
     @tshark @restore_resolvconf
     @nmcli_ipv4_override_fqdn_var1
     Scenario: nmcli - ipv4 - dhcp-fqdn - override dhcp-fqdn
-    * Add "ethernet" connection named "con_ipv4" for device "eth2" with options "ipv4.may-fail no ipv4.dhcp-fqdn foo.bar.com ipv4.dhcp-hostname-flags 'fqdn-serv-update fqdn-encoded'"
+    * Add "ethernet" connection named "con_ipv4" for device "eth2" with options
+          """
+          ipv4.may-fail no
+          ipv4.dhcp-fqdn foo.bar.com
+          ipv4.dhcp-hostname-flags 'fqdn-serv-update fqdn-encoded'
+          """
     * Bring "up" connection "con_ipv4"
     * Run child "sudo tshark -l -O bootp -i eth2 > /tmp/tshark.log"
     When "empty" is not visible with command "file /tmp/tshark.log" in "150" seconds
@@ -915,7 +1157,11 @@ Feature: nmcli: ipv4
     @nmcli_ipv4_remove_fqdn
     Scenario: nmcli - ipv4 - dhcp-fqdn - remove dhcp-fqdn
     * Prepare simulated test "testX4" device
-    * Add "ethernet" connection named "con_ipv4" for device "testX4" with options "ipv4.dhcp-fqdn foo.bar.com ipv4.may-fail no"
+    * Add "ethernet" connection named "con_ipv4" for device "testX4" with options
+          """
+          ipv4.dhcp-fqdn foo.bar.com
+          ipv4.may-fail no
+          """
     * Modify connection "con_ipv4" changing options "ipv4.dhcp-fqdn ''"
     * Bring "up" connection "con_ipv4"
     * Run child "sudo tshark -l -O bootp -i testX4 > /tmp/tshark.log"
@@ -928,7 +1174,12 @@ Feature: nmcli: ipv4
     @tshark
     @ipv4_do_not_send_hostname
     Scenario: nmcli - ipv4 - dhcp-send-hostname - don't send
-    * Add "ethernet" connection named "con_ipv4" for device "eth2" with options "ipv4.may-fail no ipv4.dhcp-hostname RHC ipv4.dhcp-send-hostname no"
+    * Add "ethernet" connection named "con_ipv4" for device "eth2" with options
+          """
+          ipv4.may-fail no
+          ipv4.dhcp-hostname RHC
+          ipv4.dhcp-send-hostname no
+          """
     * Run child "sudo tshark -l -O bootp -i eth2 > /tmp/hostname.log"
     When "empty" is not visible with command "file /tmp/hostname.log" in "150" seconds
     * Bring "up" connection "con_ipv4"
@@ -949,7 +1200,11 @@ Feature: nmcli: ipv4
     @tshark
     @ipv4_ignore_sending_real_hostname
     Scenario: nmcli - ipv4 - dhcp-send-hostname - ignore sending real hostname
-    * Add "ethernet" connection named "con_ipv4" for device "eth2" with options "ipv4.may-fail no ipv4.dhcp-send-hostname no"
+    * Add "ethernet" connection named "con_ipv4" for device "eth2" with options
+          """
+          ipv4.may-fail no
+          ipv4.dhcp-send-hostname no
+          """
     * Run child "sudo tshark -l -O bootp -i eth2 > /tmp/real.log"
     When "empty" is not visible with command "file /tmp/real.log" in "150" seconds
     * Bring "up" connection "con_ipv4"
@@ -960,7 +1215,11 @@ Feature: nmcli: ipv4
     @eth0 @fedoraver-=32
     @ipv4_add_dns_options
     Scenario: nmcli - ipv4 - dns-options - add
-    * Add "ethernet" connection named "con_ipv4" for device "eth3" with options "ipv4.dns-options debug ipv4.may-fail no"
+    * Add "ethernet" connection named "con_ipv4" for device "eth3" with options
+          """
+          ipv4.dns-options debug
+          ipv4.may-fail no
+          """
     Then Domain "options debug" is set in "45" seconds
 
 
@@ -968,7 +1227,12 @@ Feature: nmcli: ipv4
     @eth0
     @ipv4_remove_dns_options
     Scenario: nmcli - ipv4 - dns-options - remove
-    * Add "ethernet" connection named "con_ipv4" for device "eth3" with options "autoconnect no ipv4.dns-options debug ipv4.may-fail no"
+    * Add "ethernet" connection named "con_ipv4" for device "eth3" with options
+          """
+          autoconnect no
+          ipv4.dns-options debug
+          ipv4.may-fail no
+          """
     * Modify connection "con_ipv4" changing options "ipv4.dns-option ''"
     * Bring "up" connection "con_ipv4"
     Then Domain "options debug" is not set in "5" seconds
@@ -977,14 +1241,24 @@ Feature: nmcli: ipv4
     @not_with_systemd_resolved
     @ipv4_dns-search_ignore_auto_routes
     Scenario: nmcli - ipv4 - dns-search - dns-search + ignore auto obtained routes
-    * Add "ethernet" connection named "con_ipv4" for device "eth3" with options "ipv6.method ignore ipv6.ignore-auto-dns yes ipv4.dns-search google.com ipv4.ignore-auto-dns yes"
+    * Add "ethernet" connection named "con_ipv4" for device "eth3" with options
+          """
+          ipv6.method ignore
+          ipv6.ignore-auto-dns yes
+          ipv4.dns-search google.com
+          ipv4.ignore-auto-dns yes
+          """
     Then Domain "google.com" is set in "45" seconds
     Then Domain "virtual" is not set
 
 
     @ipv4_method_link-local
     Scenario: nmcli - ipv4 - method - link-local
-    * Add "ethernet" connection named "con_ipv4" for device "eth3" with options "ipv4.method link-local ipv6.method ignore"
+    * Add "ethernet" connection named "con_ipv4" for device "eth3" with options
+          """
+          ipv4.method link-local
+          ipv6.method ignore
+          """
     Then "169.254" is visible with command "ip a s eth3" in "10" seconds
 
 
@@ -992,7 +1266,11 @@ Feature: nmcli: ipv4
     @tcpdump
     @ipv4_dhcp_client_id_set
     Scenario: nmcli - ipv4 - dhcp-client-id - set client id
-    * Add "ethernet" connection named "con_ipv4" for device "eth2" with options "ipv4.may-fail no ipv4.dhcp-client-id AB"
+    * Add "ethernet" connection named "con_ipv4" for device "eth2" with options
+          """
+          ipv4.may-fail no
+          ipv4.dhcp-client-id AB
+          """
     * Run child "sudo tcpdump -i eth2 -v -n > /tmp/tcpdump.log"
     When "empty" is not visible with command "file /tmp/tcpdump.log" in "150" seconds
     * Bring "up" connection "con_ipv4"
@@ -1008,7 +1286,11 @@ Feature: nmcli: ipv4
     @tcpdump
     @ipv4_dhcp_client_id_set
     Scenario: nmcli - ipv4 - dhcp-client-id - set client id
-    * Add "ethernet" connection named "con_ipv4" for device "eth2" with options "ipv4.may-fail no ipv4.dhcp-client-id AB"
+    * Add "ethernet" connection named "con_ipv4" for device "eth2" with options
+          """
+          ipv4.may-fail no
+          ipv4.dhcp-client-id AB
+          """
     * Run child "sudo tcpdump -i eth2 -v -n > /tmp/tcpdump.log"
     When "empty" is not visible with command "file /tmp/tcpdump.log" in "150" seconds
     * Bring "up" connection "con_ipv4"
@@ -1023,7 +1305,11 @@ Feature: nmcli: ipv4
     @tshark
     @ipv4_dhcp_client_id_set
     Scenario: nmcli - ipv4 - dhcp-client-id - set client id
-    * Add "ethernet" connection named "con_ipv4" for device "eth2" with options "ipv4.may-fail no ipv4.dhcp-client-id AB"
+    * Add "ethernet" connection named "con_ipv4" for device "eth2" with options
+          """
+          ipv4.may-fail no
+          ipv4.dhcp-client-id AB
+          """
     * Run child "sudo tshark -l -O bootp -i eth2 -x > /tmp/tshark.log"
     When "empty" is not visible with command "file /tmp/tshark.log" in "150" seconds
     * Bring "up" connection "con_ipv4"
@@ -1038,7 +1324,11 @@ Feature: nmcli: ipv4
     @tcpdump @internal_DHCP @restart_if_needed
     @ipv4_dhcp_client_id_set_internal
     Scenario: nmcli - ipv4 - dhcp-client-id - set client id with internal client
-    * Add "ethernet" connection named "con_ipv4" for device "eth2" with options "ipv4.may-fail no ipv4.dhcp-client-id abcd"
+    * Add "ethernet" connection named "con_ipv4" for device "eth2" with options
+          """
+          ipv4.may-fail no
+          ipv4.dhcp-client-id abcd
+          """
     * Run child "sudo tcpdump -i eth2 -v -n > /tmp/tcpdump.log"
     When "empty" is not visible with command "file /tmp/tcpdump.log" in "150" seconds
     * Bring "up" connection "con_ipv4"
@@ -1076,7 +1366,11 @@ Feature: nmcli: ipv4
     @tshark
     @ipv4_dhcp_client_id_remove
     Scenario: nmcli - ipv4 - dhcp-client-id - remove client id
-    * Add "ethernet" connection named "con_ipv4" for device "eth2" with options "ipv4.may-fail no ipv4.dhcp-client-id BC"
+    * Add "ethernet" connection named "con_ipv4" for device "eth2" with options
+          """
+          ipv4.may-fail no
+          ipv4.dhcp-client-id BC
+          """
     * Execute "rm -rf /var/lib/NetworkManager/*lease"
     * Bring "down" connection "con_ipv4"
     * Modify connection "con_ipv4" changing options "ipv4.dhcp-client-id ''"
@@ -1136,13 +1430,26 @@ Feature: nmcli: ipv4
 
     @ipv4_may-fail_yes
     Scenario: nmcli - ipv4 - may-fail - set true
-    * Add "ethernet" connection named "con_ipv4" for device "eth3" with options "autoconnect no ipv4.dhcp-client-id 1 ipv4.may-fail yes ipv6.method manual ipv6.addresses ::1"
+    * Add "ethernet" connection named "con_ipv4" for device "eth3" with options
+          """
+          autoconnect no
+          ipv4.dhcp-client-id 1
+          ipv4.may-fail yes
+          ipv6.method manual
+          ipv6.addresses ::1
+          """
     Then Bring "up" connection "con_ipv4"
 
 
     @ipv4_method_disabled
     Scenario: nmcli - ipv4 - method - disabled
-    * Add "ethernet" connection named "con_ipv4" for device "eth3" with options "autoconnect no ipv4.method disabled ipv6.method manual ipv6.addresses ::1"
+    * Add "ethernet" connection named "con_ipv4" for device "eth3" with options
+          """
+          autoconnect no
+          ipv4.method disabled
+          ipv6.method manual
+          ipv6.addresses ::1
+          """
     Then Bring "up" connection "con_ipv4"
 
 
@@ -1150,7 +1457,12 @@ Feature: nmcli: ipv4
     @eth0
     @ipv4_never-default_set
     Scenario: nmcli - ipv4 - never-default - set
-    * Add "ethernet" connection named "con_ipv4" for device "eth3" with options "autoconnect no ipv4.may-fail no ipv4.never-default yes "
+    * Add "ethernet" connection named "con_ipv4" for device "eth3" with options
+          """
+          autoconnect no
+          ipv4.may-fail no
+          ipv4.never-default yes
+          """
     * Bring "up" connection "con_ipv4"
     Then "default via 192." is not visible with command "ip route"
 
@@ -1160,7 +1472,12 @@ Feature: nmcli: ipv4
     @eth0
     @ipv4_never-default_set
     Scenario: nmcli - ipv4 - never-default - set
-    * Add "ethernet" connection named "con_ipv4" for device "eth3" with options "autoconnect no ipv4.may-fail no ipv4.never-default yes "
+    * Add "ethernet" connection named "con_ipv4" for device "eth3" with options
+          """
+          autoconnect no
+          ipv4.may-fail no
+          ipv4.never-default yes
+          """
     * Bring "up" connection "con_ipv4"
     When "default via 1" is not visible with command "ip route"
     * Modify connection "con_ipv4" changing options "ipv4.addresses 1.2.3.4/24 ipv4.gateway 1.2.3.4"
@@ -1174,7 +1491,12 @@ Feature: nmcli: ipv4
     @eth0
     @ipv4_never-default_remove
     Scenario: nmcli - ipv4 - never-default - remove
-    * Add "ethernet" connection named "con_ipv4" for device "eth3" with options "autoconnect no ipv4.may-fail no ipv4.never-default yes "
+    * Add "ethernet" connection named "con_ipv4" for device "eth3" with options
+          """
+          autoconnect no
+          ipv4.may-fail no
+          ipv4.never-default yes
+          """
     * Modify connection "con_ipv4" changing options "ipv4.never-default ''"
     * Bring "up" connection "con_ipv4"
     Then "default via 192." is visible with command "ip route"
@@ -1185,7 +1507,14 @@ Feature: nmcli: ipv4
     @restart_if_needed
     @ipv4_never_default_restart_persistence
     Scenario: nmcli - ipv4 - never-default - restart persistence
-    * Add "ethernet" connection named "con_ipv4" for device "eth3" with options "ipv4.may-fail no ipv4.method manual ipv4.addresses 1.2.3.4/24 ipv4.gateway 1.2.3.1 ipv4.never-default yes"
+    * Add "ethernet" connection named "con_ipv4" for device "eth3" with options
+          """
+          ipv4.may-fail no
+          ipv4.method manual
+          ipv4.addresses 1.2.3.4/24
+          ipv4.gateway 1.2.3.1
+          ipv4.never-default yes
+          """
     * Restart NM
     Then "eth3:connected:con_ipv4" is visible with command "nmcli -t -f DEVICE,STATE,CONNECTION device" in "20" seconds
 
@@ -1260,7 +1589,11 @@ Feature: nmcli: ipv4
     @dhcp-timeout_infinity
     Scenario: NM - ipv4 - add dhcp-timeout infinity
     * Prepare simulated test "testX4" device
-    * Add "ethernet" connection named "con_ipv4" for device "testX4" with options "ipv4.dhcp-timeout infinity autoconnect no"
+    * Add "ethernet" connection named "con_ipv4" for device "testX4" with options
+          """
+          ipv4.dhcp-timeout infinity
+          autoconnect no
+          """
     * Execute "ip netns exec testX4_ns kill -SIGSTOP $(cat /tmp/testX4_ns.pid)"
     * Execute "sleep 70; ip netns exec testX4_ns kill -SIGCONT $(cat /tmp/testX4_ns.pid)" without waiting for process to finish
     * Bring "up" connection "con_ipv4"
@@ -1448,7 +1781,12 @@ Feature: nmcli: ipv4
      @ipv4_dad
      Scenario: NM - ipv4 - DAD
      * Prepare simulated test "testX4" device
-     * Add "ethernet" connection named "con_ipv4" for device "testX4" with options "ipv4.may-fail no ipv4.method manual ipv4.addresses 192.168.99.1/24"
+     * Add "ethernet" connection named "con_ipv4" for device "testX4" with options
+           """
+           ipv4.may-fail no
+           ipv4.method manual
+           ipv4.addresses 192.168.99.1/24
+           """
      When "testX4:connected:con_ipv4" is visible with command "nmcli -t -f DEVICE,STATE,CONNECTION device" in "40" seconds
      * Modify connection "con_ipv4" changing options "ipv4.may-fail no ipv4.method manual ipv4.addresses 192.168.99.1/24 ipv4.dad-timeout 5000"
      * Bring up connection "con_ipv4" ignoring error
@@ -1474,7 +1812,12 @@ Feature: nmcli: ipv4
     Scenario: nmcli - ipv4 - method shared
     * Note the output of "pidof NetworkManager" as value "1"
     * Prepare veth pairs "test1,test2" bridged over "vethbr"
-    * Add "ethernet" connection named "tc1" for device "test1" with options "autoconnect no ipv4.method shared ipv6.method ignore"
+    * Add "ethernet" connection named "tc1" for device "test1" with options
+          """
+          autoconnect no
+          ipv4.method shared
+          ipv6.method ignore
+          """
     * Add "ethernet" connection named "tc2" for device "test2" with options "autoconnect no "
     Then Bring "up" connection "tc1"
      And Bring "up" connection "tc2"
@@ -1489,7 +1832,12 @@ Feature: nmcli: ipv4
     Scenario: nmcli - ipv4 - method shared
     * Note the output of "pidof NetworkManager" as value "1"
     * Prepare veth pairs "test1,test2" bridged over "vethbr"
-    * Add "ethernet" connection named "tc1" for device "test1" with options "autoconnect no ipv4.method shared ipv6.method ignore"
+    * Add "ethernet" connection named "tc1" for device "test1" with options
+          """
+          autoconnect no
+          ipv4.method shared
+          ipv6.method ignore
+          """
     * Add "ethernet" connection named "tc2" for device "test2" with options "autoconnect no "
     Then Bring "up" connection "tc1"
      And Bring "up" connection "tc2"
@@ -1507,8 +1855,19 @@ Feature: nmcli: ipv4
     * Execute "ip addr add 10.42.0.1/24 dev test1"
     * Execute "ip link set up dev test1"
     * Execute "/usr/sbin/dnsmasq --log-dhcp --log-queries --conf-file=/dev/null --no-hosts --keep-in-foreground --bind-interfaces --except-interface=lo --clear-on-reload --pid-file=/tmp/dnsmasq_ip4.pid & sleep 2"
-    * Add "ethernet" connection named "tc1" for device "test1" with options "autoconnect no ipv4.method shared ipv6.method ignore"
-    * Add "ethernet" connection named "tc2" for device "test2" with options "autoconnect no ipv4.may-fail yes ipv6.method manual ipv6.addresses 1::1/128"
+    * Add "ethernet" connection named "tc1" for device "test1" with options
+          """
+          autoconnect no
+          ipv4.method shared
+          ipv6.method ignore
+          """
+    * Add "ethernet" connection named "tc2" for device "test2" with options
+          """
+          autoconnect no
+          ipv4.may-fail yes
+          ipv6.method manual
+          ipv6.addresses 1::1/128
+          """
     * Bring up connection "tc1" ignoring error
      And Bring "up" connection "tc2"
      And Note the output of "pidof NetworkManager" as value "2"
@@ -1639,7 +1998,11 @@ Feature: nmcli: ipv4
     @ver+=1.4.0
     @ipv4_honor_ip_order_1
     Scenario: NM - ipv4 - honor IP order from configuration
-    * Add "ethernet" connection named "con_ipv4" for device "eth2" with options "ipv4.method manual ipv4.addresses '192.168.1.5/24,192.168.1.4/24,192.168.1.3/24'"
+    * Add "ethernet" connection named "con_ipv4" for device "eth2" with options
+          """
+          ipv4.method manual
+          ipv4.addresses '192.168.1.5/24,192.168.1.4/24,192.168.1.3/24'
+          """
     Then "inet 192.168.1.5/24 brd 192.168.1.255 scope global( noprefixroute)? eth2" is visible with command "ip a show eth2" in "5" seconds
     Then "inet 192.168.1.4/24 brd 192.168.1.255 scope global secondary" is visible with command "ip a show eth2"
     Then "inet 192.168.1.3/24 brd 192.168.1.255 scope global secondary" is visible with command "ip a show eth2"
@@ -1649,7 +2012,11 @@ Feature: nmcli: ipv4
     @ver+=1.4.0
     @ipv4_honor_ip_order_2
     Scenario: NM - ipv4 - honor IP order from configuration upon reapply
-    * Add "ethernet" connection named "con_ipv4" for device "eth2" with options "ipv4.method manual ipv4.addresses '192.168.1.3/24,192.168.1.4/24,192.168.1.5/24'"
+    * Add "ethernet" connection named "con_ipv4" for device "eth2" with options
+          """
+          ipv4.method manual
+          ipv4.addresses '192.168.1.3/24,192.168.1.4/24,192.168.1.5/24'
+          """
     When "inet 192.168.1.3/24 brd 192.168.1.255 scope global( noprefixroute)? eth2" is visible with command "ip a show eth2" in "5" seconds
     When "inet 192.168.1.4/24 brd 192.168.1.255 scope global secondary" is visible with command "ip a show eth2" in "5" seconds
     When "inet 192.168.1.5/24 brd 192.168.1.255 scope global secondary" is visible with command "ip a show eth2" in "5" seconds
@@ -1824,7 +2191,12 @@ Feature: nmcli: ipv4
     @ver+=1.10.0
     @ipv4_route_onsite
     Scenario: nmcli - ipv4 - routes - add device route if onsite specified
-    * Add "ethernet" connection named "con_ipv4" for device "eth3" with options "ipv4.method manual ipv4.addresses 192.168.3.10/24 ipv4.gateway 192.168.3.254"
+    * Add "ethernet" connection named "con_ipv4" for device "eth3" with options
+          """
+          ipv4.method manual
+          ipv4.addresses 192.168.3.10/24
+          ipv4.gateway 192.168.3.254
+          """
     * Execute "echo '10.200.200.2/31 via 172.16.0.254' > /etc/sysconfig/network-scripts/route-con_ipv4"
     * Reload connections
     * Execute "nmcli connection modify con_ipv4 ipv4.routes '10.200.200.2/31 172.16.0.254 111 onlink=true'"
@@ -1838,7 +2210,11 @@ Feature: nmcli: ipv4
     @ver+=1.10
     @ipv4_multiple_ip4
     Scenario: nmcli - ipv4 - method - static using multiple "ip4" options
-    * Add "ethernet" connection named "con_ipv4" for device "eth3" with options "ip4 192.168.124.1/24 ip4 192.168.125.1/24"
+    * Add "ethernet" connection named "con_ipv4" for device "eth3" with options
+          """
+          ip4 192.168.124.1/24
+          ip4 192.168.125.1/24
+          """
     Then "192.168.124.1/24" is visible with command "ip a s eth3" in "45" seconds
     Then "192.168.125.1/24" is visible with command "ip a s eth3"
 
@@ -1884,7 +2260,11 @@ Feature: nmcli: ipv4
     Scenario: NM - ipv4 - start dhcp after timeout with ipv6 already in
     * Prepare simulated test "testX4" device
     * Execute "ip netns exec testX4_ns pkill -SIGSTOP -F /tmp/testX4_ns.pid"
-    * Add "ethernet" connection named "con_ipv4" for device "testX4" with options "ipv6.method manual ipv6.addresses dead::beaf/128"
+    * Add "ethernet" connection named "con_ipv4" for device "testX4" with options
+          """
+          ipv6.method manual
+          ipv6.addresses dead::beaf/128
+          """
     When "activated" is visible with command "nmcli -g GENERAL.STATE con show con_ipv4" in "45" seconds
     * Execute "sleep 45 && ip netns exec testX4_ns pkill -SIGCONT -F /tmp/testX4_ns.pid"
     Then "192.168" is visible with command "ip a s testX4" in "20" seconds
@@ -1894,7 +2274,11 @@ Feature: nmcli: ipv4
     @ver+=1.12
     @ipv4_prefix_route_missing_after_ip_link_down_up
     Scenario: NM - ipv4 - preffix route is missing after putting link down and up
-    * Add "ethernet" connection named "con_ipv4" for device "eth3" with options "ipv4.method manual ipv4.addresses 192.168.3.10/24"
+    * Add "ethernet" connection named "con_ipv4" for device "eth3" with options
+          """
+          ipv4.method manual
+          ipv4.addresses 192.168.3.10/24
+          """
     When "192.168.3.0/24 dev eth3" is visible with command "ip r" in "5" seconds
     * Execute "ip link set eth3 down; ip link set eth3 up"
     * Execute "ip link set eth3 down; ip link set eth3 up"
@@ -1906,7 +2290,13 @@ Feature: nmcli: ipv4
     @ipv4_manual_addr_before_dhcp
     Scenario: nmcli - ipv4 - set manual values immediately
     * Prepare simulated test "testX4" device
-    * Add "ethernet" connection named "con_ipv4" for device "testX4" with options "autoconnect no ipv4.method auto ipv4.addresses 192.168.3.10/24 ipv4.routes '192.168.5.0/24 192.168.3.11 101'"
+    * Add "ethernet" connection named "con_ipv4" for device "testX4" with options
+          """
+          autoconnect no
+          ipv4.method auto
+          ipv4.addresses 192.168.3.10/24
+          ipv4.routes '192.168.5.0/24 192.168.3.11 101'
+          """
     * Execute "ip netns exec testX4_ns kill -SIGSTOP $(cat /tmp/testX4_ns.pid)"
     * Run child "sleep 10 && ip netns exec testX4_ns kill -SIGCONT $(cat /tmp/testX4_ns.pid)"
     * Run child "nmcli con up con_ipv4"
@@ -1920,7 +2310,13 @@ Feature: nmcli: ipv4
     @ipv4_manual_addr_preferred_over_dhcp
     Scenario: nmcli - ipv4 - manual preferred over DHCP
     * Prepare simulated test "testS" device with "192.168.13" ipv4 and daemon options "--dhcp-host=00:11:22:33:44:55,192.168.13.37,foo"
-    * Add "ethernet" connection named "con_general" for device "testS" with options "autoconnect no ethernet.cloned-mac-address 00:11:22:33:44:55 ipv6.method disabled ipv4.address 192.168.13.37/24"
+    * Add "ethernet" connection named "con_general" for device "testS" with options
+          """
+          autoconnect no
+          ethernet.cloned-mac-address 00:11:22:33:44:55
+          ipv6.method disabled
+          ipv4.address 192.168.13.37/24
+          """
     * Bring "up" connection "con_general"
     Then "192.168.13.37.*valid_lft forever preferred_lft forever" is visible with command "ip -oneline a s testS" in "10" seconds
 
@@ -2139,7 +2535,11 @@ Feature: nmcli: ipv4
     @ver+=1.22.4
     @ipv4_31_netprefix_ptp_link
     Scenario: nmcli - ipv4 - addresses - manual with 31 bits network prefix length
-    * Add "ethernet" connection named "con_ipv4" for device "eth3" with options "ipv4.method manual ipv4.addresses 172.16.0.2/31"
+    * Add "ethernet" connection named "con_ipv4" for device "eth3" with options
+          """
+          ipv4.method manual
+          ipv4.addresses 172.16.0.2/31
+          """
     Then "172.16.0.2/31" is visible with command "ip a s eth3"
     Then "brd 172.16.0.3" is not visible with command "ip a s eth3"
 
@@ -2166,10 +2566,19 @@ Feature: nmcli: ipv4
     @bridge
     @ipv4_dhcp_iaid_ifname
     Scenario: nmcli - ipv4 - IAID ifname
-    * Add "ethernet" connection named "con_ipv4" for device "eth3" with options "ipv4.dhcp-client-id duid ipv4.dhcp-iaid ifname"
+    * Add "ethernet" connection named "con_ipv4" for device "eth3" with options
+          """
+          ipv4.dhcp-client-id duid
+          ipv4.dhcp-iaid ifname
+          """
     When "inet" is visible with command "ip a s eth3 | grep -E -o 'inet\s+[0-9.]*'" in "40" seconds
     * Note the output of "ip a s eth3 | grep -E -o 'inet\s+[0-9.]*'" as value "ipv4_eth3"
-    * Add "bridge" connection named "br88" for device "br88" with options "bridge.stp false ipv4.dhcp-client-id duid ipv4.dhcp-iaid ifname"
+    * Add "bridge" connection named "br88" for device "br88" with options
+          """
+          bridge.stp false
+          ipv4.dhcp-client-id duid
+          ipv4.dhcp-iaid ifname
+          """
     * Modify connection "con_ipv4" changing options "connection.master br88 connection.slave-type bridge"
     * Bring "up" connection "br88"
     * Bring "up" connection "con_ipv4"
@@ -2183,10 +2592,19 @@ Feature: nmcli: ipv4
     @bridge
     @ipv4_dhcp_iaid_mac
     Scenario: nmcli - ipv4 - IAID mac
-    * Add "ethernet" connection named "con_ipv4" for device "eth3" with options "ipv4.dhcp-client-id duid ipv4.dhcp-iaid mac"
+    * Add "ethernet" connection named "con_ipv4" for device "eth3" with options
+          """
+          ipv4.dhcp-client-id duid
+          ipv4.dhcp-iaid mac
+          """
     When "inet" is visible with command "ip a s eth3 | grep -E -o 'inet\s+[0-9.]*'" in "10" seconds
     * Note the output of "ip a s eth3 | grep -E -o 'inet\s+[0-9.]*'" as value "ipv4_eth3"
-    * Add "bridge" connection named "br88" for device "br88" with options "bridge.stp false ipv4.dhcp-client-id duid ipv4.dhcp-iaid mac"
+    * Add "bridge" connection named "br88" for device "br88" with options
+          """
+          bridge.stp false
+          ipv4.dhcp-client-id duid
+          ipv4.dhcp-iaid mac
+          """
     * Modify connection "con_ipv4" changing options "connection.master br88 connection.slave-type bridge"
     * Bring "up" connection "br88"
     * Bring "up" connection "con_ipv4"
@@ -2200,7 +2618,11 @@ Feature: nmcli: ipv4
     @eth3_disconnect
     @ipv4_external_addresses_no_double_routes
     Scenario: NM - ipv4 - no routes are added by NM for external addresses
-    * Add "ethernet" connection named "con_ipv4" for device "eth3" with options "ipv4.method manual ipv4.addresses 192.168.47.1/24"
+    * Add "ethernet" connection named "con_ipv4" for device "eth3" with options
+          """
+          ipv4.method manual
+          ipv4.addresses 192.168.47.1/24
+          """
     When "192.168.47.1/24" is visible with command "ip a sh dev eth3" in "30" seconds
     * Execute "ip a add 1.2.3.4/32 dev eth3; ip a add 4.3.2.1/30 dev eth3"
     When "4.3.2.1/30" is visible with command "ip a sh dev eth3" in "30" seconds
@@ -2214,7 +2636,10 @@ Feature: nmcli: ipv4
     @ifcfg-rh
     @ipv4_dhcp_vendor_class_ifcfg
     Scenario: NM - ipv4 - ipv4.dhcp-vendor-class-identifier is translated to ifcfg
-    * Add "ethernet" connection named "con_ipv4" for device "eth3" with options "ipv4.dhcp-vendor-class-identifier RedHat"
+    * Add "ethernet" connection named "con_ipv4" for device "eth3" with options
+          """
+          ipv4.dhcp-vendor-class-identifier RedHat
+          """
     Then "RedHat" is visible with command "grep 'DHCP_VENDOR_CLASS_IDENTIFIER=' /etc/sysconfig/network-scripts/ifcfg-con_ipv4"
     * Execute "sed -i 's/DHCP_VENDOR_CLASS_IDENTIFIER=.*/DHCP_VENDOR_CLASS_IDENTIFIER=RH/' /etc/sysconfig/network-scripts/ifcfg-con_ipv4"
     * Reload connections
@@ -2301,11 +2726,11 @@ Feature: nmcli: ipv4
     Scenario: nmcli - ipv4 - route-table	config and reapply take	effect immediately
     * Prepare simulated test "testX4" device
     * Add "ethernet" connection named "con_ipv4" for device "testX4" with options
-      """
-      ipv4.method auto
-      ipv4.route-table 1000
-      ipv4.may-fail no
-      """
+          """
+          ipv4.method auto
+          ipv4.route-table 1000
+          ipv4.may-fail no
+          """
     * Bring "up" connection "con_ipv4"
     Then "testX4" is visible with command "ip route ls table 1000" in "10" seconds
     * Modify connection "con_ipv4" changing options "ipv4.route-table 1001"
@@ -2320,14 +2745,14 @@ Feature: nmcli: ipv4
     Scenario: nmcli - ipv4 - connection with required timeout
     * Prepare simulated test "testX4" device without DHCP
     * Add "ethernet" connection named "con_ipv4" for device "testX4" with options
-       """
-       autoconnect no
-       ipv4.method auto
-       ipv6.method manual
-       ipv6.addresses 2607:f0d0:1002:51::4/64
-       ipv4.may-fail yes
-       ipv4.required-timeout 10000
-       """
+          """
+          autoconnect no
+          ipv4.method auto
+          ipv6.method manual
+          ipv6.addresses 2607:f0d0:1002:51::4/64
+          ipv4.may-fail yes
+          ipv4.required-timeout 10000
+          """
     * Execute "nmcli c up con_ipv4" without waiting for process to finish
     When "activated" is not visible with command "nmcli -g GENERAL.STATE con show con_ipv4" for full "9" seconds
     Then "activated" is visible with command "nmcli -g GENERAL.STATE con show con_ipv4" in "10" seconds

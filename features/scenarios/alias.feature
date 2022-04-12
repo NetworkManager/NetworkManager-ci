@@ -11,13 +11,13 @@
     @alias_ifcfg_add_single_alias
     Scenario: ifcfg - alias - add single alias
     * Add "ethernet" connection named "eth7" for device "eth7" with options
-        """
-        autoconnect yes
-        ipv4.may-fail no
-        ipv4.method manual
-        ipv4.addresses 192.168.0.100/24
-        ipv4.gateway 192.168.0.1
-        """
+          """
+          autoconnect yes
+          ipv4.may-fail no
+          ipv4.method manual
+          ipv4.addresses 192.168.0.100/24
+          ipv4.gateway 192.168.0.1
+          """
     * Append "DEVICE='eth7:0'" to ifcfg file "eth7:0"
     * Append "GATEWAY=192.168.0.1" to ifcfg file "eth7:0"
     * Append "IPADDR=192.168.0.101" to ifcfg file "eth7:0"
@@ -32,13 +32,13 @@
     @alias_ifcfg_add_multiple_aliases
     Scenario: ifcfg - alias - add mutliple aliases
     * Add "ethernet" connection named "eth7" for device "eth7" with options
-        """
-        autoconnect yes
-        ipv4.may-fail no
-        ipv4.method manual
-        ipv4.addresses 192.168.0.100/24
-        ipv4.gateway 192.168.0.1
-        """
+          """
+          autoconnect yes
+          ipv4.may-fail no
+          ipv4.method manual
+          ipv4.addresses 192.168.0.100/24
+          ipv4.gateway 192.168.0.1
+          """
     * Append "DEVICE='eth7:0'" to ifcfg file "eth7:0"
     * Append "GATEWAY=192.168.0.1" to ifcfg file "eth7:0"
     * Append "IPADDR=192.168.0.101" to ifcfg file "eth7:0"
@@ -67,13 +67,13 @@
     @alias_ifcfg_connection_restart
     Scenario: ifcfg - alias - connection restart
     * Add "ethernet" connection named "eth7" for device "eth7" with options
-        """
-        autoconnect yes
-        ipv4.may-fail no
-        ipv4.method manual
-        ipv4.addresses 192.168.0.100/24
-        ipv4.gateway 192.168.0.1
-        """
+          """
+          autoconnect yes
+          ipv4.may-fail no
+          ipv4.method manual
+          ipv4.addresses 192.168.0.100/24
+          ipv4.gateway 192.168.0.1
+          """
     * Append "DEVICE='eth7:0'" to ifcfg file "eth7:0"
     * Append "GATEWAY=192.168.0.1" to ifcfg file "eth7:0"
     * Append "IPADDR=192.168.0.101" to ifcfg file "eth7:0"
@@ -104,13 +104,13 @@
     @alias_ifcfg_remove_single_alias
     Scenario: ifcfg - alias - remove single alias
     * Add "ethernet" connection named "eth7" for device "eth7" with options
-        """
-        autoconnect yes
-        ipv4.may-fail no
-        ipv4.method manual
-        ipv4.addresses 192.168.0.100/24
-        ipv4.gateway 192.168.0.1
-        """
+          """
+          autoconnect yes
+          ipv4.may-fail no
+          ipv4.method manual
+          ipv4.addresses 192.168.0.100/24
+          ipv4.gateway 192.168.0.1
+          """
     * Append "DEVICE='eth7:0'" to ifcfg file "eth7:0"
     * Append "GATEWAY=192.168.0.1" to ifcfg file "eth7:0"
     * Append "IPADDR=192.168.0.101" to ifcfg file "eth7:0"
@@ -142,13 +142,13 @@
     @alias_ifcfg_remove_all_aliases
     Scenario: ifcfg - alias - remove all aliases
     * Add "ethernet" connection named "eth7" for device "eth7" with options
-        """
-        autoconnect yes
-        ipv4.may-fail no
-        ipv4.method manual
-        ipv4.addresses 192.168.0.100/24
-        ipv4.gateway 192.168.0.1
-        """
+          """
+          autoconnect yes
+          ipv4.may-fail no
+          ipv4.method manual
+          ipv4.addresses 192.168.0.100/24
+          ipv4.gateway 192.168.0.1
+          """
     * Append "DEVICE='eth7:0'" to ifcfg file "eth7:0"
     * Append "GATEWAY=192.168.0.1" to ifcfg file "eth7:0"
     * Append "IPADDR=192.168.0.101" to ifcfg file "eth7:0"
@@ -188,13 +188,13 @@
     @alias_ifcfg_reboot
     Scenario: ifcfg - alias - reboot
     * Add "ethernet" connection named "eth7" for device "eth7" with options
-        """
-        autoconnect yes
-        ipv4.may-fail no
-        ipv4.method manual
-        ipv4.addresses 192.168.0.100/24
-        ipv4.gateway 192.168.0.1
-        """
+          """
+          autoconnect yes
+          ipv4.may-fail no
+          ipv4.method manual
+          ipv4.addresses 192.168.0.100/24
+          ipv4.gateway 192.168.0.1
+          """
     * Append "DEVICE='eth7:0'" to ifcfg file "eth7:0"
     * Append "GATEWAY=192.168.0.1" to ifcfg file "eth7:0"
     * Append "IPADDR=192.168.0.101" to ifcfg file "eth7:0"

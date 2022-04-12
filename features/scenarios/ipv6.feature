@@ -19,21 +19,33 @@
 
     @ipv6_method_manual_with_IP
     Scenario: nmcli - ipv6 - method - manual + IP
-    * Add "ethernet" connection named "con_ipv6" for device "eth3" with options "ipv6.method manual ipv6.addresses '2607:f0d0:1002:51::4/64, 1050:0:0:0:5:600:300c:326b'"
+    * Add "ethernet" connection named "con_ipv6" for device "eth3" with options
+          """
+          ipv6.method manual
+          ipv6.addresses '2607:f0d0:1002:51::4/64, 1050:0:0:0:5:600:300c:326b'
+          """
     Then "2607:f0d0:1002:51::4/64" is visible with command "ip a s eth3" in "45" seconds
     Then "1050::5:600:300c:326b/128" is visible with command "ip a s eth3"
 
 
     @ipv6_method_static_with_IP
     Scenario: nmcli - ipv6 - method - static + IP
-    * Add "ethernet" connection named "con_ipv6" for device "eth3" with options "ipv6.method static ipv6.addresses '2607:f0d0:1002:51::4/128, 1050:0:0:0:5:600:300c:326b'"
+    * Add "ethernet" connection named "con_ipv6" for device "eth3" with options
+          """
+          ipv6.method static
+          ipv6.addresses '2607:f0d0:1002:51::4/128, 1050:0:0:0:5:600:300c:326b'
+          """
     Then "2607:f0d0:1002:51::4/128" is visible with command "ip a s eth3" in "45" seconds
     Then "1050::5:600:300c:326b/128" is visible with command "ip a s eth3"
 
 
     @ipv6_addresses_IP_with_netmask
     Scenario: nmcli - ipv6 - addresses - IP slash netmask
-    * Add "ethernet" connection named "con_ipv6" for device "eth3" with options "ipv6.method manual ipv6.addresses '2607:f0d0:1002:51::4/63, 1050:0:0:0:5:600:300c:326b/121'"
+    * Add "ethernet" connection named "con_ipv6" for device "eth3" with options
+          """
+          ipv6.method manual
+          ipv6.addresses '2607:f0d0:1002:51::4/63, 1050:0:0:0:5:600:300c:326b/121'
+          """
     Then "2607:f0d0:1002:51::4/63" is visible with command "ip a s eth3" in "45" seconds
     Then "1050::5:600:300c:326b/121" is visible with command "ip a s eth3"
     # reproducer for 997759
@@ -79,7 +91,13 @@
     @eth0
     @ipv6_addresses_IP_with_mask_and_gw
     Scenario: nmcli - ipv6 - addresses - IP slash netmask and gw
-     * Add "ethernet" connection named "con_ipv6" for device "eth3" with options "ipv4.method disabled ipv6.method static ipv6.addresses 2607:f0d0:1002:51::4/64 ipv6.gateway 2607:f0d0:1002:51::1"
+     * Add "ethernet" connection named "con_ipv6" for device "eth3" with options
+           """
+           ipv4.method disabled
+           ipv6.method static
+           ipv6.addresses 2607:f0d0:1002:51::4/64
+           ipv6.gateway 2607:f0d0:1002:51::1
+           """
     Then "2607:f0d0:1002:51::4/64" is visible with command "ip a s eth3" in "45" seconds
     Then "default via 2607:f0d0:1002:51::1 dev eth3\s+proto static\s+metric" is visible with command "ip -6 route"
 
@@ -87,7 +105,13 @@
     @eth0
     @ipv6_addresses_set_several_IPv6s_with_masks_and_gws
     Scenario: nmcli - ipv6 - addresses - several IPs slash netmask and gw
-    * Add "ethernet" connection named "con_ipv6" for device "eth3" with options "ipv4.method disabled ipv6.method static ipv6.addresses 'fc01::1:5/68, fb01::1:6/112, fc02::1:21/96' ipv6.gateway fc01::1:1"
+    * Add "ethernet" connection named "con_ipv6" for device "eth3" with options
+          """
+          ipv4.method disabled
+          ipv6.method static
+          ipv6.addresses 'fc01::1:5/68, fb01::1:6/112, fc02::1:21/96'
+          ipv6.gateway fc01::1:1
+          """
     Then "fc02::1:21/96" is visible with command "ip a s eth3" in "45" seconds
     Then "fc01::1:5/68" is visible with command "ip a s eth3"
     Then "fb01::1:6/112" is visible with command "ip a s eth3"
@@ -96,7 +120,13 @@
 
     @ipv6_addresses_delete_IP_moving_method_back_to_auto
     Scenario: nmcli - ipv6 - addresses - delete IP and set method back to auto
-     * Add "ethernet" connection named "con_ipv6" for device "eth10" with options "ipv4.method disabled ipv6.method static ipv6.addresses fc01::1:5/68 ipv6.gateway fc01::1:1"
+     * Add "ethernet" connection named "con_ipv6" for device "eth10" with options
+           """
+           ipv4.method disabled
+           ipv6.method static
+           ipv6.addresses fc01::1:5/68
+           ipv6.gateway fc01::1:1
+           """
      * Modify connection "con_ipv6" changing options "ipv6.addresses '' ipv6.gateway '' ipv6.method auto"
      * Bring "up" connection "con_ipv6"
     Then "fc01::1:5/68" is not visible with command "ip a s eth10" in "45" seconds
@@ -108,8 +138,18 @@
     @ver-=1.9.1
     @ipv6_routes_set_basic_route
     Scenario: nmcli - ipv6 - routes - set basic route
-     * Add "ethernet" connection named "con_ipv6" for device "eth3" with options "ipv6.method static ipv6.addresses 2000::2/126 ipv6.routes '1010::1/128 2000::1 1'"
-     * Add "ethernet" connection named "con_ipv62" for device "eth2" with options "ipv6.method static ipv6.addresses 2001::1/126 ipv6.routes '3030::1/128 2001::2 1'"
+     * Add "ethernet" connection named "con_ipv6" for device "eth3" with options
+           """
+           ipv6.method static
+           ipv6.addresses 2000::2/126
+           ipv6.routes '1010::1/128 2000::1 1'
+           """
+     * Add "ethernet" connection named "con_ipv62" for device "eth2" with options
+           """
+           ipv6.method static
+           ipv6.addresses 2001::1/126
+           ipv6.routes '3030::1/128 2001::2 1'
+           """
     Then "1010::1 via 2000::1 dev eth3\s+proto static\s+metric 1" is visible with command "ip -6 route" in "45" seconds
     Then "2000::/126 dev eth3\s+proto kernel\s+metric 256" is visible with command "ip -6 route"
     Then "2001::/126 dev eth2\s+proto kernel\s+metric 256" is visible with command "ip -6 route"
@@ -121,8 +161,18 @@
     @ver+=1.9.2
     @ipv6_routes_set_basic_route
     Scenario: nmcli - ipv6 - routes - set basic route
-    * Add "ethernet" connection named "con_ipv6" for device "eth3" with options "ipv6.method static ipv6.addresses 2000::2/126 ipv6.routes '1010::1/128 2000::1 1'"
-    * Add "ethernet" connection named "con_ipv62" for device "eth2" with options "ipv6.method static ipv6.addresses 2001::1/126 ipv6.routes '3030::1/128 2001::2 1'"
+    * Add "ethernet" connection named "con_ipv6" for device "eth3" with options
+          """
+          ipv6.method static
+          ipv6.addresses 2000::2/126
+          ipv6.routes '1010::1/128 2000::1 1'
+          """
+    * Add "ethernet" connection named "con_ipv62" for device "eth2" with options
+          """
+          ipv6.method static
+          ipv6.addresses 2001::1/126
+          ipv6.routes '3030::1/128 2001::2 1'
+          """
     Then "1010::1 via 2000::1 dev eth3\s+proto static\s+metric 1" is visible with command "ip -6 route" in "45" seconds
     Then "2000::/126 dev eth3\s+proto kernel\s+metric 10" is visible with command "ip -6 route"
     Then "2001::/126 dev eth2\s+proto kernel\s+metric 10" is visible with command "ip -6 route"
@@ -134,7 +184,13 @@
     @ver-=1.9.1
     @ipv6_route_set_route_with_options
     Scenario: nmcli - ipv6 - routes - set route with options
-    * Add "ethernet" connection named "con_ipv6" for device "eth3" with options "ipv6.method manual ipv6.addresses 2000::2/126 ipv6.route-metric 258 ipv6.routes '1010::1/128 2000::1 1024 cwnd=15 lock-mtu=true mtu=1600'"
+    * Add "ethernet" connection named "con_ipv6" for device "eth3" with options
+          """
+          ipv6.method manual
+          ipv6.addresses 2000::2/126
+          ipv6.route-metric 258
+          ipv6.routes '1010::1/128 2000::1 1024 cwnd=15 lock-mtu=true mtu=1600'
+          """
     Then "1010::1 via 2000::1 dev eth3\s+proto static\s+metric 1024\s+mtu lock 1600 cwnd 15" is visible with command "ip -6 route" in "45" seconds
     Then "2000::/126 dev eth3\s+proto kernel\s+metric 256" is visible with command "ip -6 route"
      And "default" is visible with command "ip r |grep eth0"
@@ -145,7 +201,13 @@
     @ver-=1.35
     @ipv6_route_set_route_with_options
     Scenario: nmcli - ipv6 - routes - set route with options
-    * Add "ethernet" connection named "con_ipv6" for device "eth3" with options "ipv6.method manual ipv6.addresses 2000::2/126 ipv6.route-metric 258 ipv6.routes '1010::1/128 2000::1 1024 cwnd=15 lock-mtu=true mtu=1600, ::/0 2001:1::1'"
+    * Add "ethernet" connection named "con_ipv6" for device "eth3" with options
+          """
+          ipv6.method manual
+          ipv6.addresses 2000::2/126
+          ipv6.route-metric 258
+          ipv6.routes '1010::1/128 2000::1 1024 cwnd=15 lock-mtu=true mtu=1600, ::/0 2001:1::1'
+          """
     Then "1010::1 via 2000::1 dev eth3\s+proto static\s+metric 1024\s+mtu lock 1600 cwnd 15" is visible with command "ip -6 route" in "45" seconds
     Then "2000::/126 dev eth3\s+proto kernel\s+metric 258" is visible with command "ip -6 route"
     Then "2001:1::1 dev eth3\s+proto static" is visible with command "ip -6 route"
@@ -157,12 +219,12 @@
     @ipv6_route_set_route_with_options
     Scenario: nmcli - ipv6 - routes - set route with options
     * Add "ethernet" connection named "con_ipv6" for device "eth3" with options
-      """
-      ipv6.method manual
-      ipv6.addresses 2000::2/126
-      ipv6.route-metric 258
-      ipv6.routes '1010::1/128 2000::1 1024 cwnd=15 lock-mtu=true mtu=1600, ::/0 2001:1::1, 1020::1/128 type=blackhole'
-      """
+          """
+          ipv6.method manual
+          ipv6.addresses 2000::2/126
+          ipv6.route-metric 258
+          ipv6.routes '1010::1/128 2000::1 1024 cwnd=15 lock-mtu=true mtu=1600, ::/0 2001:1::1, 1020::1/128 type=blackhole'
+          """
     Then "1010::1 via 2000::1 dev eth3\s+proto static\s+metric 1024\s+mtu lock 1600 cwnd 15" is visible with command "ip -6 route" in "45" seconds
     Then "2000::/126 dev eth3\s+proto kernel\s+metric 258" is visible with command "ip -6 route"
     Then "2001:1::1 dev eth3\s+proto static" is visible with command "ip -6 route"
@@ -178,8 +240,18 @@
     @ver-=1.9.1
     @ipv6_routes_remove_basic_route
     Scenario: nmcli - ipv6 - routes - remove basic route
-    * Add "ethernet" connection named "con_ipv6" for device "eth3" with options "ipv6.method static ipv6.addresses 2000::2/126 ipv6.routes '1010::1/128 2000::1 1'"
-    * Add "ethernet" connection named "con_ipv62" for device "eth2" with options "ipv6.method static ipv6.addresses 2001::1/126 ipv6.routes '3030::1/128 2001::2 1'"
+    * Add "ethernet" connection named "con_ipv6" for device "eth3" with options
+          """
+          ipv6.method static
+          ipv6.addresses 2000::2/126
+          ipv6.routes '1010::1/128 2000::1 1'
+          """
+    * Add "ethernet" connection named "con_ipv62" for device "eth2" with options
+          """
+          ipv6.method static
+          ipv6.addresses 2001::1/126
+          ipv6.routes '3030::1/128 2001::2 1'
+          """
     * Modify connection "con_ipv6" changing options "ipv6.routes ''"
     * Modify connection "con_ipv62" changing options "ipv6.routes ''"
     * Bring "up" connection "con_ipv6"
@@ -197,8 +269,18 @@
     @ver+=1.9.2
     @ipv6_routes_remove_basic_route
     Scenario: nmcli - ipv6 - routes - remove basic route
-    * Add "ethernet" connection named "con_ipv6" for device "eth3" with options "ipv6.method static ipv6.addresses 2000::2/126 ipv6.routes '1010::1/128 2000::1 1'"
-    * Add "ethernet" connection named "con_ipv62" for device "eth2" with options "ipv6.method static ipv6.addresses 2001::1/126 ipv6.routes '3030::1/128 2001::2 1'"
+    * Add "ethernet" connection named "con_ipv6" for device "eth3" with options
+          """
+          ipv6.method static
+          ipv6.addresses 2000::2/126
+          ipv6.routes '1010::1/128 2000::1 1'
+          """
+    * Add "ethernet" connection named "con_ipv62" for device "eth2" with options
+          """
+          ipv6.method static
+          ipv6.addresses 2001::1/126
+          ipv6.routes '3030::1/128 2001::2 1'
+          """
     * Modify connection "con_ipv6" changing options "ipv6.routes ''"
     * Modify connection "con_ipv62" changing options "ipv6.routes ''"
     * Bring "up" connection "con_ipv6"
@@ -215,7 +297,13 @@
     @ver-=1.9.1
     @ipv6_routes_device_route
     Scenario: nmcli - ipv6 - routes - set device route
-     * Add "ethernet" connection named "con_ipv6" for device "eth3" with options "ipv6.method static ipv6.addresses 2001::1/126 ipv6.gateway 4000::1 ipv6.routes '1010::1/128 :: 3, 3030::1/128 2001::2 2'"
+     * Add "ethernet" connection named "con_ipv6" for device "eth3" with options
+           """
+           ipv6.method static
+           ipv6.addresses 2001::1/126
+           ipv6.gateway 4000::1
+           ipv6.routes '1010::1/128 :: 3, 3030::1/128 2001::2 2'
+           """
     Then "default via 4000::1 dev eth3\s+proto static\s+metric" is visible with command "ip -6 route" in "45" seconds
     Then "3030::1 via 2001::2 dev eth3\s+proto static\s+metric 2" is visible with command "ip -6 route"
     Then "2001::/126 dev eth3\s+proto kernel\s+metric 256" is visible with command "ip -6 route"
@@ -226,7 +314,13 @@
     @ver+=1.9.2
     @ipv6_routes_device_route
     Scenario: nmcli - ipv6 - routes - set device route
-     * Add "ethernet" connection named "con_ipv6" for device "eth3" with options "ipv6.method static ipv6.addresses 2001::1/126 ipv6.gateway 4000::1 ipv6.routes '1010::1/128 :: 3, 3030::1/128 2001::2 2'"
+     * Add "ethernet" connection named "con_ipv6" for device "eth3" with options
+           """
+           ipv6.method static
+           ipv6.addresses 2001::1/126
+           ipv6.gateway 4000::1
+           ipv6.routes '1010::1/128 :: 3, 3030::1/128 2001::2 2'
+           """
     Then "default via 4000::1 dev eth3\s+proto static\s+metric" is visible with command "ip -6 route" in "45" seconds
     Then "3030::1 via 2001::2 dev eth3\s+proto static\s+metric 2" is visible with command "ip -6 route"
     Then "2001::/126 dev eth3\s+proto kernel\s+metric 1" is visible with command "ip -6 route"
@@ -238,7 +332,14 @@
     @ipv6_routes_with_src
     Scenario: nmcli - ipv6 - routes - set route with src
     * Prepare simulated test "testX6" device
-    * Add "ethernet" connection named "con_ipv6" for device "testX6" with options "autoconnect no ipv6.method manual ipv6.addresses 2000::2/126 ipv6.route-metric 256 ipv6.routes '2806:aabb:abba:abab:baba:bbaa:baab:bbbb/128 src=2000::2'"
+    * Add "ethernet" connection named "con_ipv6" for device "testX6" with options
+          """
+          autoconnect no
+          ipv6.method manual
+          ipv6.addresses 2000::2/126
+          ipv6.route-metric 256
+          ipv6.routes '2806:aabb:abba:abab:baba:bbaa:baab:bbbb/128 src=2000::2'
+          """
     * Bring "up" connection "con_ipv6"
     Then "2806:aabb:abba:abab:baba:bbaa:baab:bbbb dev testX6 proto static src 2000::2 metric 256" is visible with command "ip -6 route" in "5" seconds
      And "2000::\/126 dev testX6\s+proto kernel\s+metric 256" is visible with command "ip -6 route"
@@ -249,7 +350,11 @@
     @flush_300
     @ipv6_route_set_route_with_tables
     Scenario: nmcli - ipv6 - routes - set route with tables
-    * Add "ethernet" connection named "con_ipv6" for device "eth10" with options "ipv6.route-table 300 ipv6.may-fail no"
+    * Add "ethernet" connection named "con_ipv6" for device "eth10" with options
+          """
+          ipv6.route-table 300
+          ipv6.may-fail no
+          """
     When "connected" is visible with command "nmcli -g state,device device |grep eth10$" in "20" seconds
      And "2620.* dev eth10 proto kernel metric 1" is visible with command "ip -6 r show table 300" in "5" seconds
      And "2620.*\/64 dev eth10 proto ra metric 1" is visible with command "ip -6 r show table 300"
@@ -363,7 +468,7 @@
 
     @rhbz1734470
     @ver+=1.21.1
-    @stop_radvd @two_bridged_veths6
+    @stop_radvd
     @ipv6_accept_ra_handling
     Scenario: NM - ipv6 - accept RA handling
     * Prepare veth pairs "test10" bridged over "vethbr6"
@@ -392,7 +497,13 @@
     @ver-=1.9.1
     @ipv6_routes_without_gw
     Scenario: nmcli - ipv6 - routes - set invalid route - missing gw
-     * Add "ethernet" connection named "con_ipv6" for device "eth3" with options "ipv6.method static ipv6.addresses 2001::1/126 ipv6.gateway 4000::1 ipv6.routes 1010::1/128"
+     * Add "ethernet" connection named "con_ipv6" for device "eth3" with options
+           """
+           ipv6.method static
+           ipv6.addresses 2001::1/126
+           ipv6.gateway 4000::1
+           ipv6.routes 1010::1/128
+           """
     Then "default via 4000::1 dev eth3\s+proto static\s+metric" is visible with command "ip -6 route" in "45" seconds
     Then "2001::/126 dev eth3\s+proto kernel\s+metric 256" is visible with command "ip -6 route"
     Then "1010::1 dev eth3\s+proto static\s+metric" is visible with command "ip -6 route"
@@ -401,7 +512,13 @@
     @ver+=1.9.2
     @ipv6_routes_without_gw
     Scenario: nmcli - ipv6 - routes - set invalid route - missing gw
-     * Add "ethernet" connection named "con_ipv6" for device "eth3" with options "ipv6.method static ipv6.addresses 2001::1/126 ipv6.gateway 4000::1 ipv6.routes 1010::1/128"
+     * Add "ethernet" connection named "con_ipv6" for device "eth3" with options
+           """
+           ipv6.method static
+           ipv6.addresses 2001::1/126
+           ipv6.gateway 4000::1
+           ipv6.routes 1010::1/128
+           """
     Then "default via 4000::1 dev eth3\s+proto static\s+metric" is visible with command "ip -6 route" in "45" seconds
     Then "2001::/126 dev eth3\s+proto kernel\s+metric 10" is visible with command "ip -6 route"
     Then "1010::1 dev eth3\s+proto static\s+metric" is visible with command "ip -6 route"
@@ -410,7 +527,14 @@
     @eth0
     @ipv6_dns_manual_IP_with_manual_dns
     Scenario: nmcli - ipv6 - dns - method static + IP + dns
-     * Add "ethernet" connection named "con_ipv6" for device "eth10" with options "ipv4.may-fail no ipv6.method static ipv6.addresses 2001::1/126 ipv6.gateway 4000::1 ipv6.dns '4000::1, 5000::1'"
+     * Add "ethernet" connection named "con_ipv6" for device "eth10" with options
+           """
+           ipv4.may-fail no
+           ipv6.method static
+           ipv6.addresses 2001::1/126
+           ipv6.gateway 4000::1
+           ipv6.dns '4000::1, 5000::1'
+           """
     Then Nameserver "4000::1" is set in "45" seconds
     Then Nameserver "5000::1" is set
     Then Nameserver "10." is set in "45" seconds
@@ -419,7 +543,11 @@
     @eth0
     @ipv6_dns_auto_with_more_manually_set
     Scenario: nmcli - ipv6 - dns - method auto + dns
-     * Add "ethernet" connection named "con_ipv6" for device "eth3" with options "ipv4.may-fail no ipv6.dns '4000::1, 5000::1'"
+     * Add "ethernet" connection named "con_ipv6" for device "eth3" with options
+           """
+           ipv4.may-fail no
+           ipv6.dns '4000::1, 5000::1'
+           """
     Then Nameserver "4000::1" is set in "45" seconds
     Then Nameserver "5000::1" is set
     Then Nameserver "192.168.100.1" is set in "45" seconds
@@ -428,7 +556,11 @@
     @eth0
     @ipv6_dns_ignore-auto-dns_with_manually_set_dns
     Scenario: nmcli - ipv6 - dns - method auto + dns + ignore automaticaly obtained
-    * Add "ethernet" connection named "con_ipv6" for device "eth10" with options "ipv6.ignore-auto-dns yes ipv6.dns '4000::1, 5000::1'"
+    * Add "ethernet" connection named "con_ipv6" for device "eth10" with options
+          """
+          ipv6.ignore-auto-dns yes
+          ipv6.dns '4000::1, 5000::1'
+          """
     Then Nameserver "4000::1" is set in "45" seconds
     Then Nameserver "5000::1" is set
 
@@ -447,7 +579,13 @@
     @eth0
     @ipv6_dns_remove_manually_set
     Scenario: nmcli - ipv6 - dns - method auto then delete all dns
-    * Add "ethernet" connection named "con_ipv6" for device "eth10" with options "ipv4.method disabled ip6 fd01::1/64 ipv6.dns '4000::1 5000::1' ipv6.gateway fd01::"
+    * Add "ethernet" connection named "con_ipv6" for device "eth10" with options
+          """
+          ipv4.method disabled
+          ip6 fd01::1/64
+          ipv6.dns '4000::1 5000::1'
+          ipv6.gateway fd01::
+          """
     * Bring "up" connection "con_ipv6"
     When Nameserver "4000::1" is set in "5" seconds
     When Nameserver "5000::1" is set in "5" seconds
@@ -460,14 +598,24 @@
     @eth0
     @ipv6_dns-search_set
     Scenario: nmcli - ipv6 - dns-search - add dns-search
-    * Add "ethernet" connection named "con_ipv6" for device "eth10" with options "ipv4.method disabled ipv4.ignore-auto-dns yes ipv6.dns-search google.com"
+    * Add "ethernet" connection named "con_ipv6" for device "eth10" with options
+          """
+          ipv4.method disabled
+          ipv4.ignore-auto-dns yes
+          ipv6.dns-search google.com
+          """
     Then Domain "google.com" is set in "45" seconds
 
 
     @eth0
     @ipv6_dns-search_remove
     Scenario: nmcli - ipv6 - dns-search - remove dns-search
-    * Add "ethernet" connection named "con_ipv6" for device "eth10" with options "ipv4.method disabled ipv6.ignore-auto-dns yes ipv6.dns-search google.com"
+    * Add "ethernet" connection named "con_ipv6" for device "eth10" with options
+          """
+          ipv4.method disabled
+          ipv6.ignore-auto-dns yes
+          ipv6.dns-search google.com
+          """
     * Modify connection "con_ipv6" changing options "ipv6.dns-search ''"
      * Bring "up" connection "con_ipv6"
     Then Domain " google.com" is not set
@@ -476,7 +624,12 @@
     @eth0
     @ipv6_ignore-auto-dns_set
     Scenario: nmcli - ipv6 - ignore auto obtained dns
-    * Add "ethernet" connection named "con_ipv6" for device "eth10" with options "ipv4.method disabled ipv6.ignore-auto-dns yes ipv6.ignore-auto-dns yes"
+    * Add "ethernet" connection named "con_ipv6" for device "eth10" with options
+          """
+          ipv4.method disabled
+          ipv6.ignore-auto-dns yes
+          ipv6.ignore-auto-dns yes
+          """
     * Bring "up" connection "con_ipv6"
     Then Domain " google.com" is not set
     Then Domain "virtual" is not set
@@ -491,13 +644,23 @@
 
     @ipv6_may_fail_set_true
     Scenario: nmcli - ipv6 - may-fail - set true
-     * Add "ethernet" connection named "con_ipv6" for device "eth3" with options "autoconnect no ipv6.method dhcp ipv6.may-fail yes"
+     * Add "ethernet" connection named "con_ipv6" for device "eth3" with options
+           """
+           autoconnect no
+           ipv6.method dhcp
+           ipv6.may-fail yes
+           """
     Then Bring "up" connection "con_ipv6"
 
 
     @ipv6_method_ignored
     Scenario: nmcli - ipv6 - method - ignored
-     * Add "ethernet" connection named "con_ipv6" for device "eth10" with options "ipv4.method static ipv4.addresses 192.168.122.253/24 ipv6.method ignore"
+     * Add "ethernet" connection named "con_ipv6" for device "eth10" with options
+           """
+           ipv4.method static
+           ipv4.addresses 192.168.122.253/24
+           ipv6.method ignore
+           """
     # VVV commented out because of fe80 is still on by kernel very likely
     # Then "scope link" is not visible with command "ip -6 a s eth10"
     Then "scope global" is not visible with command "ip a -6 s eth10" in "45" seconds
@@ -547,7 +710,12 @@
     @not_under_internal_DHCP @tshark
     @ipv6_dhcp-hostname_set
     Scenario: nmcli - ipv6 - dhcp-hostname - set dhcp-hostname
-    * Add "ethernet" connection named "con_ipv6" for device "eth2" with options "ipv6.may-fail true ipv6.method dhcp ipv6.dhcp-hostname r.cx"
+    * Add "ethernet" connection named "con_ipv6" for device "eth2" with options
+          """
+          ipv6.may-fail true
+          ipv6.method dhcp
+          ipv6.dhcp-hostname r.cx
+          """
     * Run child "sudo tshark -i eth2 -f 'port 546' -V -x > /tmp/ipv6-hostname.log"
     * Bring "up" connection "con_ipv6"
     When "empty" is not visible with command "file /tmp/ipv6-hostname.log" in "150" seconds
@@ -557,7 +725,12 @@
     @not_under_internal_DHCP @tshark
     @ipv6_dhcp-hostname_remove
     Scenario: nmcli - ipv6 - dhcp-hostname - remove dhcp-hostname
-    * Add "ethernet" connection named "con_ipv6" for device "eth2" with options "ipv6.may-fail true ipv6.method dhcp ipv6.dhcp-hostname r.cx"
+    * Add "ethernet" connection named "con_ipv6" for device "eth2" with options
+          """
+          ipv6.may-fail true
+          ipv6.method dhcp
+          ipv6.dhcp-hostname r.cx
+          """
     * Bring "up" connection "con_ipv6"
     * Bring "down" connection "con_ipv6"
     * Modify connection "con_ipv6" changing options "ipv6.dhcp-hostname ''"
@@ -595,7 +768,11 @@
 
     @ipv6_ip6-privacy_0
     Scenario: nmcli - ipv6 - ip6_privacy - 0
-    * Add "ethernet" connection named "con_ipv6" for device "eth10" with options "ipv4.method disabled ipv6.ip6-privacy 2"
+    * Add "ethernet" connection named "con_ipv6" for device "eth10" with options
+          """
+          ipv4.method disabled
+          ipv6.ip6-privacy 2
+          """
     * Execute "sleep 2"
     * Modify connection "con_ipv6" changing options "ipv6.ip6-privacy 0"
     * Bring "up" connection "con_ipv6"
@@ -607,7 +784,11 @@
 
     @ipv6_ip6-privacy_1
     Scenario: nmcli - ipv6 - ip6_privacy - 1
-    * Add "ethernet" connection named "con_ipv6" for device "eth10" with options "ipv4.method disabled ipv6.ip6-privacy 1"
+    * Add "ethernet" connection named "con_ipv6" for device "eth10" with options
+          """
+          ipv4.method disabled
+          ipv6.ip6-privacy 1
+          """
     When "2620" is visible with command "ip a s eth10" in "45" seconds
      And "tentative dynamic" is not visible with command "ip a s eth10" in "45" seconds
     Then "1" is visible with command "cat /proc/sys/net/ipv6/conf/eth10/use_tempaddr"
@@ -616,7 +797,11 @@
 
     @ipv6_ip6-privacy_2
     Scenario: nmcli - ipv6 - ip6_privacy - 2
-    * Add "ethernet" connection named "con_ipv6" for device "eth10" with options "ipv4.method disabled ipv6.ip6-privacy 2"
+    * Add "ethernet" connection named "con_ipv6" for device "eth10" with options
+          """
+          ipv4.method disabled
+          ipv6.ip6-privacy 2
+          """
     When "2620" is visible with command "ip a s eth10" in "45" seconds
      And "tentative dynamic" is not visible with command "ip a s eth10" in "45" seconds
     Then "2" is visible with command "cat /proc/sys/net/ipv6/conf/eth10/use_tempaddr" in "45" seconds
@@ -922,7 +1107,12 @@
     * Create "veth" device named "test10" with options "peer name test10p"
     * Execute "ip link set dev test10 up"
     * Execute "ip link set dev test10p up"
-    * Add "ethernet" connection named "tc16" for device "test10" with options "autoconnect no ip4 192.168.99.1/24 ip6 2620:52:0:beef::1/64"
+    * Add "ethernet" connection named "tc16" for device "test10" with options
+          """
+          autoconnect no
+          ip4 192.168.99.1/24
+          ip6 2620:52:0:beef::1/64
+          """
     * Execute "nmcli connection modify tc16 ipv6.may-fail no"
     Then "tentative" is not visible with command "nmcli connection down testeth0 ; nmcli connection down tc16; sleep 2; nmcli connection up id tc16; time nm-online ;ip a s test10|grep 'global tentative'; nmcli connection up testeth0"
 
@@ -941,7 +1131,11 @@
     @ipv6_shared_connection
     Scenario: nmcli - ipv6 - shared connection
     * Prepare veth pairs "test10,test11" bridged over "vethbr6"
-    * Add "ethernet" connection named "tc26" for device "test11" with options "ipv6.method shared ipv6.addresses 1::1/64"
+    * Add "ethernet" connection named "tc26" for device "test11" with options
+          """
+          ipv6.method shared
+          ipv6.addresses 1::1/64
+          """
     * Add "ethernet" connection named "tc16" for device "test10"
     Then "inet6 1::1/64" is visible with command "ip a s test11" in "45" seconds
      And "inet6 fe80::" is visible with command "ip a s test11"
@@ -977,7 +1171,12 @@
     @ipv6_DHCPv6
     Scenario: NM - ipv6 - internal DHCPv6
     * Prepare simulated test "testX6" device
-    * Add "ethernet" connection named "con_ipv6" for device "testX6" with options "autoconnect no ipv4.method disabled ipv6.method dhcp"
+    * Add "ethernet" connection named "con_ipv6" for device "testX6" with options
+          """
+          autoconnect no
+          ipv4.method disabled
+          ipv6.method dhcp
+          """
     * Bring "up" connection "con_ipv6"
     Then "testX6\s+ethernet\s+connected" is visible with command "nmcli device" in "20" seconds
 
@@ -988,7 +1187,12 @@
     @ipv6_DHCPv6
     Scenario: NM - ipv6 - internal DHCPv6
     * Prepare simulated test "testX6" device
-    * Add "ethernet" connection named "con_ipv6" for device "testX6" with options "autoconnect no ipv4.method disabled ipv6.method ignore"
+    * Add "ethernet" connection named "con_ipv6" for device "testX6" with options
+          """
+          autoconnect no
+          ipv4.method disabled
+          ipv6.method ignore
+          """
     * Bring "up" connection "con_ipv6"
     When "testX6\s+ethernet\s+connected" is visible with command "nmcli device" in "20" seconds
     When "2" is visible with command "ip a s testX6 |grep inet6 |wc -l" in "20" seconds
@@ -1008,7 +1212,11 @@
     @ipv6_NM_stable_with_internal_DHCPv6
     Scenario: NM - ipv6 - stable with internal DHCPv6
     * Prepare simulated test "testX6" device
-    * Add "ethernet" connection named "con_ipv6" for device "testX6" with options "ipv4.method disabled ipv6.method dhcp"
+    * Add "ethernet" connection named "con_ipv6" for device "testX6" with options
+          """
+          ipv4.method disabled
+          ipv6.method dhcp
+          """
     * Execute "nmcli con up id con_ipv6" for "50" times
 
 
@@ -1102,7 +1310,12 @@
     * Execute "ip -n testX6_ns link set dev testX6p up"
     * Execute "ip link set dev testX6 up"
     * Run child "ip netns exec testX6_ns dnsmasq --bind-interfaces --interface testX6p --dhcp-range=::,constructor:testX6p,ra-only,64,60 --enable-ra --ra-param=testX6p,60 --no-hosts --pid-file=/tmp/testX6_ns.pid" without shell
-    * Add "ethernet" connection named "con_ipv6" for device "testX6" with options "ipv4.method disabled ipv6.method auto ipv6.route-table 254"
+    * Add "ethernet" connection named "con_ipv6" for device "testX6" with options
+          """
+          ipv4.method disabled
+          ipv6.method auto
+          ipv6.route-table 254
+          """
     * Bring "up" connection "con_ipv6"
     * Execute "nmcli d reapply testX6"
     Then "ff00" is visible with command "ip -6 route show table local dev testX6"
@@ -1119,7 +1332,12 @@
     * Execute "ip -n testX6_ns link set dev testX6p up"
     * Execute "ip link set dev testX6 up"
     * Run child "ip netns exec testX6_ns dnsmasq --bind-interfaces --interface testX6p --dhcp-range=::,constructor:testX6p,ra-only,64,60 --enable-ra --ra-param=testX6p,60 --no-hosts --pid-file=/tmp/testX6_ns.pid" without shell
-    * Add "ethernet" connection named "con_ipv6" for device "testX6" with options "ipv4.method disabled ipv6.method auto ipv6.route-table 254"
+    * Add "ethernet" connection named "con_ipv6" for device "testX6" with options
+          """
+          ipv4.method disabled
+          ipv6.method auto
+          ipv6.route-table 254
+          """
     * Bring "up" connection "con_ipv6"
     * Execute "nmcli d reapply testX6"
     Then "ff00" is visible with command "ip -6 route show table local dev testX6"
@@ -1140,7 +1358,11 @@
     * Execute "ip -n testX6_ns link set dev testX6p up"
     * Execute "echo > /tmp/ip6leases.conf"
     * Configure dhcpv6 prefix delegation server with address configuration mode "dhcp-stateful"
-    * Add "ethernet" connection named "con_ipv6" for device "testX6" with options "ipv4.method disabled ipv6.method dhcp"
+    * Add "ethernet" connection named "con_ipv6" for device "testX6" with options
+          """
+          ipv4.method disabled
+          ipv6.method dhcp
+          """
     * Bring "up" connection "con_ipv6"
     # extract T1 and T2 and compare they're shorter than a day (86400 s)
     Then Execute "journalctl -u NetworkManager.service --since -5s --no-pager | grep 'T1 and T2 equal to zero' | tail -n1 | sed -e 's/^.*\(T1=[0-9]\+\)sec, \(T2=[0-9]\+\)sec$/\1\n\2/' | while read LINE; do echo \"is ${LINE:0:2}=${LINE:3} lesser than 86400?\" ; test ${LINE:3} -lt 86400 ; done"
@@ -1243,7 +1465,14 @@
     @ipv4_dad_not_preventing_ipv6
     Scenario: NM - ipv6 - add address after ipv4 DAD fail
     * Prepare simulated test "testX6" device
-    * Add "ethernet" connection named "con_ipv6" for device "testX6" with options "ipv4.may-fail yes ipv4.method manual ipv4.addresses 192.168.99.1/24 ipv4.dad-timeout 2001 ipv6.may-fail yes"
+    * Add "ethernet" connection named "con_ipv6" for device "testX6" with options
+          """
+          ipv4.may-fail yes
+          ipv4.method manual
+          ipv4.addresses 192.168.99.1/24
+          ipv4.dad-timeout 2001
+          ipv6.may-fail yes
+          """
     * Reboot
     Then "activated" is visible with command "nmcli -g GENERAL.STATE connection show con_ipv6" in "145" seconds
      And "2620:dead:beaf" is visible with command "ip a s testX6"
@@ -1308,7 +1537,7 @@
 
     @rhbz1445417
     @ver+=1.10
-    @stop_radvd @two_bridged_veths6 @eth0
+    @stop_radvd @eth0
     @ipv6_multiple_default_routes
     Scenario: NM - ipv6 - multiple default ipv6 routes
     * Prepare veth pairs "test10" bridged over "vethbr6"
@@ -1339,7 +1568,14 @@
     @ipv6_manual_addr_before_dhcp
     Scenario: nmcli - ipv6 - set manual values immediately
     * Prepare simulated test "testX6" device
-    * Add "ethernet" connection named "con_ipv6" for device "testX6" with options "autoconnect no ipv4.may-fail no ipv6.method dhcp ipv6.addresses 2000::1/128 ipv6.routes '1010::1/128 2000::2 101'"
+    * Add "ethernet" connection named "con_ipv6" for device "testX6" with options
+          """
+          autoconnect no
+          ipv4.may-fail no
+          ipv6.method dhcp
+          ipv6.addresses 2000::1/128
+          ipv6.routes '1010::1/128 2000::2 101'
+          """
     * Execute "ip netns exec testX6_ns kill -SIGSTOP $(cat /tmp/testX6_ns.pid)"
     * Run child "sleep 10 && ip netns exec testX6_ns kill -SIGCONT $(cat /tmp/testX6_ns.pid)"
     * Run child "sleep 2 && nmcli con up con_ipv6"
@@ -1381,10 +1617,21 @@
      * Execute "ip -n testX6_ns addr add dev testX6p fc01::1/64"
      * Prepare simulated test "testY6" device without DHCP
      * Configure dhcpv6 prefix delegation server with address configuration mode "dhcp-stateful"
-     * Add "ethernet" connection named "con_ipv6" for device "testX6" with options "ipv4.method disabled ipv6.method auto ipv6.route-metric 50 autoconnect no"
+     * Add "ethernet" connection named "con_ipv6" for device "testX6" with options
+           """
+           ipv4.method disabled
+           ipv6.method auto
+           ipv6.route-metric 50
+           autoconnect no
+           """
      * Bring "up" connection "con_ipv6"
      When "inet6 fc01:" is visible with command "ip a show dev testX6" in "5" seconds
-     * Add "ethernet" connection named "con_ipv62" for device "testY6" with options " ipv4.method disabled ipv6.method shared autoconnect no"
+     * Add "ethernet" connection named "con_ipv62" for device "testY6" with options
+           """
+           ipv4.method disabled
+           ipv6.method shared
+           autoconnect no
+           """
      * Bring "up" connection "con_ipv62"
      When "iaaddr" is visible with command "cat /tmp/ip6leases.conf" in "10" seconds
      When "iaprefix" is visible with command "cat /tmp/ip6leases.conf" in "10" seconds
@@ -1405,9 +1652,20 @@
      * Execute "ip -n testX6_ns addr add dev testX6p fc01::1/64"
      * Prepare simulated test "testY6" device without DHCP
      * Configure dhcpv6 prefix delegation server with address configuration mode "link-local"
-     * Add "ethernet" connection named "con_ipv6" for device "testX6" with options "ipv4.method disabled ipv6.method auto ipv6.route-metric 50 autoconnect no"
+     * Add "ethernet" connection named "con_ipv6" for device "testX6" with options
+           """
+           ipv4.method disabled
+           ipv6.method auto
+           ipv6.route-metric 50
+           autoconnect no
+           """
      * Bring "up" connection "con_ipv6"
-     * Add "ethernet" connection named "con_ipv62" for device "testY6" with options " ipv4.method disabled ipv6.method shared autoconnect no"
+     * Add "ethernet" connection named "con_ipv62" for device "testY6" with options
+           """
+           ipv4.method disabled
+           ipv6.method shared
+           autoconnect no
+           """
      * Bring "up" connection "con_ipv62"
      When "iaprefix" is visible with command "cat /tmp/ip6leases.conf" in "10" seconds
      * Execute "ip netns exec testX6_ns ip route add $(grep -m 1 iaprefix /tmp/ip6leases.conf | sed -r 's/\s+iaprefix ([a-f0-9:/]+) \{.*/\1/') via $(ip addr show testX6 | grep -o 'fe80[a-f0-9:]*') dev testX6p"
@@ -1428,10 +1686,21 @@
      * Execute "ip -n testX6_ns addr add dev testX6p fc01::1/64"
      * Prepare simulated test "testY6" device without DHCP
      * Configure dhcpv6 prefix delegation server with address configuration mode "dhcp-stateful"
-     * Add "ethernet" connection named "con_ipv6" for device "testX6" with options "ipv4.method disabled ipv6.method auto ipv6.route-metric 50 autoconnect no"
+     * Add "ethernet" connection named "con_ipv6" for device "testX6" with options
+           """
+           ipv4.method disabled
+           ipv6.method auto
+           ipv6.route-metric 50
+           autoconnect no
+           """
      * Bring "up" connection "con_ipv6"
      When "inet6 fc01:" is visible with command "ip a show dev testX6" in "5" seconds
-     * Add "ethernet" connection named "con_ipv62" for device "testY6" with options " ipv4.method disabled ipv6.method shared autoconnect no"
+     * Add "ethernet" connection named "con_ipv62" for device "testY6" with options
+           """
+           ipv4.method disabled
+           ipv6.method shared
+           autoconnect no
+           """
      * Bring "up" connection "con_ipv62"
      When "iaaddr" is visible with command "cat /tmp/ip6leases.conf" in "10" seconds
      When "iaprefix" is visible with command "cat /tmp/ip6leases.conf" in "10" seconds
@@ -1444,15 +1713,24 @@
 
      @rhbz1749358
      @ver+=1.22.0
-     @bridge @internal_DHCP
+     @internal_DHCP
      # dhclient support only ipv6.dhcp-iaid = mac
      @ipv6_dhcp_iaid_unset
      Scenario: nmcli - ipv6 - IAID unset which defaults to ifname
      * Prepare simulated test "testX6" device
-     * Add "ethernet" connection named "con_ipv6" for device "testX6" with options "ipv6.addr-gen-mode 0 ipv6.dhcp-duid ll"
+     * Add "ethernet" connection named "con_ipv6" for device "testX6" with options
+           """
+           ipv6.addr-gen-mode 0
+           ipv6.dhcp-duid ll
+           """
      When "/128" is visible with command "ip a s testX6 | grep inet6 | grep -o '[a-f0-9:]*/128'" in "30" seconds
      * Note the output of "ip a s testX6 | grep inet6 | grep -o '[a-f0-9:]*/128'" as value "ipv6_testX6"
-     * Add "bridge" connection named "br88" for device "br88" with options "bridge.stp false ipv6.addr-gen-mode 0 ipv6.dhcp-duid ll"
+     * Add "bridge" connection named "br88" for device "br88" with options
+           """
+           bridge.stp false
+           ipv6.addr-gen-mode 0
+           ipv6.dhcp-duid ll
+           """
      * Modify connection "con_ipv6" changing options "connection.master br88 connection.slave-type bridge"
      * Bring "up" connection "br88"
      * Bring "up" connection "con_ipv6"
@@ -1463,15 +1741,26 @@
 
      @rhbz1749358
      @ver+=1.22.0
-     @bridge @internal_DHCP
+     @internal_DHCP
      # dhclient support only ipv6.dhcp-iaid = mac
      @ipv6_dhcp_iaid_ifname
      Scenario: nmcli - ipv6 - IAID ifname
      * Prepare simulated test "testX6" device
-     * Add "ethernet" connection named "con_ipv6" for device "testX6" with options "ipv6.addr-gen-mode 0 ipv6.dhcp-duid ll ipv6.dhcp-iaid ifname"
+     * Add "ethernet" connection named "con_ipv6" for device "testX6" with options
+           """
+           ipv6.addr-gen-mode 0
+           ipv6.dhcp-duid ll
+           ipv6.dhcp-iaid ifname
+           """
      When "/128" is visible with command "ip a s testX6 | grep inet6 | grep -o '[a-f0-9:]*/128'" in "30" seconds
      * Note the output of "ip a s testX6 | grep inet6 | grep -o '[a-f0-9:]*/128'" as value "ipv6_testX6"
-     * Add "bridge" connection named "br88" for device "br88" with options "bridge.stp false ipv6.addr-gen-mode 0 ipv6.dhcp-duid ll ipv6.dhcp-iaid ifname"
+     * Add "bridge" connection named "br88" for device "br88" with options
+           """
+           bridge.stp false
+           ipv6.addr-gen-mode 0
+           ipv6.dhcp-duid ll
+           ipv6.dhcp-iaid ifname
+           """
      * Modify connection "con_ipv6" changing options "connection.master br88 connection.slave-type bridge"
      * Bring "up" connection "br88"
      * Bring "up" connection "con_ipv6"
@@ -1482,14 +1771,24 @@
 
      @rhbz1749358
      @ver+=1.22.0
-     @bridge
      @ipv6_dhcp_iaid_mac
      Scenario: nmcli - ipv6 - IAID mac
      * Prepare simulated test "testX6" device
-     * Add "ethernet" connection named "con_ipv6" for device "testX6" with options "ipv6.addr-gen-mode 0 ipv6.dhcp-duid ll ipv6.dhcp-iaid mac"
+     * Add "ethernet" connection named "con_ipv6" for device "testX6" with options
+           """
+           ipv6.addr-gen-mode 0
+           ipv6.dhcp-duid ll
+           ipv6.dhcp-iaid mac
+           """
      When "/128" is visible with command "ip a s testX6 | grep inet6 | grep -o '[a-f0-9:]*/128'" in "10" seconds
      * Note the output of "ip a s testX6 | grep inet6 | grep -o '[a-f0-9:]*/128'" as value "ipv6_testX6"
-     * Add "bridge" connection named "br88" for device "br88" with options "bridge.stp false ipv6.addr-gen-mode 0 ipv6.dhcp-duid ll ipv6.dhcp-iaid mac"
+     * Add "bridge" connection named "br88" for device "br88" with options
+           """
+           bridge.stp false
+           ipv6.addr-gen-mode 0
+           ipv6.dhcp-duid ll
+           ipv6.dhcp-iaid mac
+           """
      * Modify connection "con_ipv6" changing options "connection.master br88 connection.slave-type bridge"
      * Bring "up" connection "br88"
      * Bring "up" connection "con_ipv6"
@@ -1509,7 +1808,11 @@
     * Execute "echo 4 > /proc/sys/net/ipv6/conf/testX6/router_solicitations"
     * Execute "echo 40 > /proc/sys/net/ipv6/conf/testX6/router_solicitation_interval"
     * Execute "ip netns exec testX6_ns kill -SIGSTOP $(cat /tmp/testX6_ns.pid)"
-    * Add "ethernet" connection named "con_ipv6" for device "testX6" with options "ipv4.method disable ipv6.may-fail no"
+    * Add "ethernet" connection named "con_ipv6" for device "testX6" with options
+          """
+          ipv4.method disable
+          ipv6.may-fail no
+          """
     When "con_ipv6" is visible with command "nmcli connection show -a"
     When "con_ipv6" is visible with command "nmcli connection show -a" for full "140" seconds
     * Execute "ip netns exec testX6_ns kill -SIGCONT $(cat /tmp/testX6_ns.pid)"
@@ -1522,7 +1825,12 @@
     Scenario: NM - ipv4 - add ra-timeout
     * Prepare simulated test "testX6" device
     * Execute "ip netns exec testX6_ns kill -SIGSTOP $(cat /tmp/testX6_ns.pid)"
-    * Add "ethernet" connection named "con_ipv6" for device "testX6" with options "ipv4.method disabled ipv6.ra-timeout 65 autoconnect no"
+    * Add "ethernet" connection named "con_ipv6" for device "testX6" with options
+          """
+          ipv4.method disabled
+          ipv6.ra-timeout 65
+          autoconnect no
+          """
     * Execute "nmcli con up con_ipv6" without waiting for process to finish
     When "con_ipv6" is visible with command "nmcli connection show -a"
     * Execute "sleep 60; ip netns exec testX6_ns kill -SIGCONT $(cat /tmp/testX6_ns.pid)" without waiting for process to finish
@@ -1533,7 +1841,11 @@
     @ver+=1.25
     @ipv6_token
     Scenario: NM - ipv6 - set token
-    * Add "ethernet" connection named "con_ipv6" for device "eth10" with options "ipv6.token ::123 ipv6.addr-gen-mode eui64"
+    * Add "ethernet" connection named "con_ipv6" for device "eth10" with options
+          """
+          ipv6.token ::123
+          ipv6.addr-gen-mode eui64
+          """
     * Bring "up" connection "con_ipv6"
     When "activated" is visible with command "nmcli -g GENERAL.STATE con show con_ipv6" in "45" seconds
     Then "token ::123 dev eth10" is visible with command "ip token |grep eth10"
@@ -1577,14 +1889,14 @@
     Scenario: nmcli - ipv6 - connection with required timeout
     * Prepare simulated test "testX6" device without DHCP
     * Add "ethernet" connection named "con_ipv6" for device "testX6" with options
-       """
-       autoconnect no
-       ipv4.method manual
-       ipv6.method auto
-       ipv4.addresses 192.168.99.47
-       ipv6.may-fail yes
-       ipv6.required-timeout 10000
-       """
+          """
+          autoconnect no
+          ipv4.method manual
+          ipv6.method auto
+          ipv4.addresses 192.168.99.47
+          ipv6.may-fail yes
+          ipv6.required-timeout 10000
+          """
     * Execute "nmcli c up con_ipv6" without waiting for process to finish
     When "activated" is not visible with command "nmcli -g GENERAL.STATE con show con_ipv6" for full "9" seconds
     Then "activated" is visible with command "nmcli -g GENERAL.STATE con show con_ipv6" in "10" seconds
@@ -1595,7 +1907,12 @@
     @ver+=1.36.0
     @ipv6_handle_route_linking
     Scenario: Handle ipv6 route linking by kernel
-    * Add "ethernet" connection named "con_ipv6" for device "eth3" with options "ipv4.method disabled ip6 fdb3:84e5:4ff4:55e3::1010/64 ipv6.gateway fdb3:84e5:4ff4:55e3::1"
+    * Add "ethernet" connection named "con_ipv6" for device "eth3" with options
+          """
+          ipv4.method disabled
+          ip6 fdb3:84e5:4ff4:55e3::1010/64
+          ipv6.gateway fdb3:84e5:4ff4:55e3::1
+          """
     * Bring "up" connection "con_ipv6"
     * Note the output of "ip -6 route list ::/0 dev eth3" as value "original"
     * Modify connection "con_ipv6" changing options "ipv6.gateway fdb3:84e5:4ff4:55e3::2"
@@ -1614,7 +1931,15 @@
     @ipv6_check_addr_order
     Scenario: nmcli - ipv6 - check IPv6 address order
     * Prepare simulated test "testX6" device
-    * Add "ethernet" connection named "con_ipv6" for device "testX6" with options "ipv4.method disabled ipv6.method auto ipv6.may-fail no ethernet.cloned-mac-address ee:aa:bb:cc:dd:ee ipv6.addr-gen-mode eui64 ipv6.ip6-privacy disabled"
+    * Add "ethernet" connection named "con_ipv6" for device "testX6" with options
+          """
+          ipv4.method disabled
+          ipv6.method auto
+          ipv6.may-fail no
+          ethernet.cloned-mac-address ee:aa:bb:cc:dd:ee
+          ipv6.addr-gen-mode eui64
+          ipv6.ip6-privacy disabled
+          """
     * Bring "up" connection "con_ipv6"
     Then Check "ipv6" address list "/2620:dead:beaf:[0-9a-f:]+/128 2620:dead:beaf:0:ecaa:bbff:fecc:ddee/64 fe80::ecaa:bbff:fecc:ddee/64" on device "testX6"
     * Execute "nmcli connection modify con_ipv6 ipv6.addresses '1:2:3::101/64,1:2:3::102/64'"
@@ -1632,13 +1957,22 @@
     Then Check "ipv6" address list "1:2:3::103/64 1:2:3::102/64 1:2:3::101/64 fe80::ecaa:bbff:fecc:ddee/64" on device "testX6" in "6" seconds
 
 
+
     @rhbz1995372
     @ver+=1.37.90
     @con_ipv6_remove
     @ipv6_check_addr_order
     Scenario: nmcli - ipv6 - check IPv6 address order
     * Prepare simulated test "testX6" device
-    * Add "ethernet" connection named "con_ipv6" for device "testX6" with options "ipv4.method disabled ipv6.method auto ipv6.may-fail no ethernet.cloned-mac-address ee:aa:bb:cc:dd:ee ipv6.addr-gen-mode eui64 ipv6.ip6-privacy disabled"
+    * Add "ethernet" connection named "con_ipv6" for device "testX6" with options 
+          """
+          ipv4.method disabled
+          ipv6.method auto
+          ipv6.may-fail no
+          ethernet.cloned-mac-address ee:aa:bb:cc:dd:ee
+          ipv6.addr-gen-mode eui64
+          ipv6.ip6-privacy disabled
+          """
     * Bring "up" connection "con_ipv6"
     Then Check "ipv6" address list "2620:dead:beaf:0:ecaa:bbff:fecc:ddee/64 /2620:dead:beaf:[0-9a-f:]+/128 fe80::ecaa:bbff:fecc:ddee/64" on device "testX6"
     * Execute "nmcli connection modify con_ipv6 ipv6.addresses '1:2:3::101/64,1:2:3::102/64'"
@@ -1654,3 +1988,4 @@
     * Execute "nmcli connection modify con_ipv6 ipv6.method manual ipv6.addresses '1:2:3::101/64,1:2:3::102/64,1:2:3::103/64'"
     * Bring "up" connection "con_ipv6"
     Then Check "ipv6" address list "1:2:3::103/64 1:2:3::102/64 1:2:3::101/64 fe80::ecaa:bbff:fecc:ddee/64" on device "testX6" in "6" seconds
+

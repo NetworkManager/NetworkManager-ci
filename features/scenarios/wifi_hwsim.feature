@@ -49,7 +49,18 @@ Feature: nmcli - wifi
     @simwifi_wep_ttls_mschapv2_eap
     Scenario: nmcli - simwifi - connect to WEP TTLS MSCHAPv2 + EAP
     Given "dynwep" is visible with command "nmcli -f SSID device wifi list" in "60" seconds
-    * Add "wifi" connection named "wifi" for device "wlan0" with options "autoconnect no ssid dynwep 802-11-wireless-security.key-mgmt ieee8021x 802-1x.eap ttls 802-1x.identity TESTERS\\test_mschapv2 802-1x.anonymous-identity test 802-1x.ca-cert /tmp/certs/test_user.ca.pem 802-1x.phase2-autheap mschapv2 802-1x.password password"
+    * Add "wifi" connection named "wifi" for device "wlan0" with options
+          """
+          autoconnect no
+          ssid dynwep
+          802-11-wireless-security.key-mgmt ieee8021x
+          802-1x.eap ttls
+          802-1x.identity TESTERS\\test_mschapv2
+          802-1x.anonymous-identity test
+          802-1x.ca-cert /tmp/certs/test_user.ca.pem
+          802-1x.phase2-autheap mschapv2
+          802-1x.password password
+          """
     * Execute "sleep 1"
     Then Bring "up" connection "wifi"
 
@@ -59,7 +70,18 @@ Feature: nmcli - wifi
     @simwifi_wep_peap_gtc
     Scenario: nmcli - simwifi - connect to WEP PEAP GTC
     Given "dynwep" is visible with command "nmcli -f SSID device wifi list" in "60" seconds
-    * Add "wifi" connection named "wifi" for device "wlan0" with options "autoconnect no ssid dynwep 802-11-wireless-security.key-mgmt ieee8021x 802-1x.eap peap 802-1x.identity test_gtc 802-1x.anonymous-identity test 802-1x.ca-cert /tmp/certs/test_user.ca.pem 802-1x.phase2-auth gtc 802-1x.password password"
+    * Add "wifi" connection named "wifi" for device "wlan0" with options
+          """
+          autoconnect no
+          ssid dynwep
+          802-11-wireless-security.key-mgmt ieee8021x
+          802-1x.eap peap
+          802-1x.identity test_gtc
+          802-1x.anonymous-identity test
+          802-1x.ca-cert /tmp/certs/test_user.ca.pem
+          802-1x.phase2-auth gtc
+          802-1x.password password
+          """
     * Execute "sleep 1"
     Then Bring "up" connection "wifi"
 
@@ -81,7 +103,13 @@ Feature: nmcli - wifi
     @simwifi_wpa2psk_profile
     Scenario: nmcli - wifi-sec - configure and connect WPA2-PSK profile
     Given "wpa2-eap" is visible with command "nmcli -f SSID device wifi list" in "90" seconds
-    * Add "wifi" connection named "wpa2-eap" for device "wlan0" with options "autoconnect no ssid wpa2-eap 802-11-wireless-security.key-mgmt wpa-psk 802-11-wireless-security.psk secret123"
+    * Add "wifi" connection named "wpa2-eap" for device "wlan0" with options
+          """
+          autoconnect no
+          ssid wpa2-eap
+          802-11-wireless-security.key-mgmt wpa-psk
+          802-11-wireless-security.psk secret123
+          """
     * Execute "sleep 1"
     * Bring up connection "wpa2-eap"
     Then "wpa2-eap" is visible with command "iw dev wlan0 link" in "3" seconds
@@ -180,7 +208,18 @@ Feature: nmcli - wifi
     @simwifi_peap_gtc
     Scenario: nmcli - simwifi - connect to PEAP GTC
     Given "wpa2-eap" is visible with command "nmcli -f SSID device wifi list" in "60" seconds
-    * Add "wifi" connection named "wifi" for device "wlan0" with options "autoconnect no ssid wpa2-eap 802-11-wireless-security.key-mgmt wpa-eap 802-1x.eap peap 802-1x.identity test_gtc 802-1x.anonymous-identity test 802-1x.ca-cert /tmp/certs/test_user.ca.pem 802-1x.phase2-auth gtc 802-1x.password password"
+    * Add "wifi" connection named "wifi" for device "wlan0" with options
+          """
+          autoconnect no
+          ssid wpa2-eap
+          802-11-wireless-security.key-mgmt wpa-eap
+          802-1x.eap peap
+          802-1x.identity test_gtc
+          802-1x.anonymous-identity test
+          802-1x.ca-cert /tmp/certs/test_user.ca.pem
+          802-1x.phase2-auth gtc
+          802-1x.password password
+          """
     * Execute "sleep 1"
     Then Bring "up" connection "wifi"
 
@@ -190,7 +229,18 @@ Feature: nmcli - wifi
     @simwifi_peap_md5
     Scenario: nmcli - simwifi - connect to PEAP MD5
     Given "wpa2-eap" is visible with command "nmcli -f SSID device wifi list" in "60" seconds
-    * Add "wifi" connection named "wifi" for device "wlan0" with options "autoconnect no ssid wpa2-eap 802-11-wireless-security.key-mgmt wpa-eap 802-1x.eap peap 802-1x.identity test_md5 802-1x.anonymous-identity test 802-1x.ca-cert /tmp/certs/test_user.ca.pem 802-1x.phase2-auth md5 802-1x.password password"
+    * Add "wifi" connection named "wifi" for device "wlan0" with options
+          """
+          autoconnect no
+          ssid wpa2-eap
+          802-11-wireless-security.key-mgmt wpa-eap
+          802-1x.eap peap
+          802-1x.identity test_md5
+          802-1x.anonymous-identity test
+          802-1x.ca-cert /tmp/certs/test_user.ca.pem
+          802-1x.phase2-auth md5
+          802-1x.password password
+          """
     * Execute "sleep 1"
     Then Bring "up" connection "wifi"
 
@@ -201,7 +251,18 @@ Feature: nmcli - wifi
     @simwifi_peap_mschapv2
     Scenario: nmcli - simwifi - connect to PEAP MSCHAPv2
     Given "wpa2-eap" is visible with command "nmcli -f SSID device wifi list" in "60" seconds
-    * Add "wifi" connection named "wifi" for device "wlan0" with options "autoconnect no ssid wpa2-eap 802-11-wireless-security.key-mgmt wpa-eap 802-1x.eap peap 802-1x.identity TESTERS\\test_mschapv2 802-1x.anonymous-identity test 802-1x.ca-cert /tmp/certs/test_user.ca.pem 802-1x.phase2-auth mschapv2 802-1x.password password"
+    * Add "wifi" connection named "wifi" for device "wlan0" with options
+          """
+          autoconnect no
+          ssid wpa2-eap
+          802-11-wireless-security.key-mgmt wpa-eap
+          802-1x.eap peap
+          802-1x.identity TESTERS\\test_mschapv2
+          802-1x.anonymous-identity test
+          802-1x.ca-cert /tmp/certs/test_user.ca.pem
+          802-1x.phase2-auth mschapv2
+          802-1x.password password
+          """
     * Execute "sleep 1"
     Then Bring "up" connection "wifi"
 
@@ -211,7 +272,18 @@ Feature: nmcli - wifi
     @simwifi_ttls_pap
     Scenario: nmcli - simwifi - connect to TTLS PAP
     Given "wpa2-eap" is visible with command "nmcli -f SSID device wifi list" in "60" seconds
-    * Add "wifi" connection named "wifi" for device "wlan0" with options "autoconnect no ssid wpa2-eap 802-11-wireless-security.key-mgmt wpa-eap 802-1x.eap ttls 802-1x.identity test_ttls 802-1x.anonymous-identity test 802-1x.ca-cert /tmp/certs/test_user.ca.pem 802-1x.phase2-auth pap 802-1x.password password"
+    * Add "wifi" connection named "wifi" for device "wlan0" with options
+          """
+          autoconnect no
+          ssid wpa2-eap
+          802-11-wireless-security.key-mgmt wpa-eap
+          802-1x.eap ttls
+          802-1x.identity test_ttls
+          802-1x.anonymous-identity test
+          802-1x.ca-cert /tmp/certs/test_user.ca.pem
+          802-1x.phase2-auth pap
+          802-1x.password password
+          """
     * Execute "sleep 1"
     Then Bring "up" connection "wifi"
 
@@ -221,7 +293,18 @@ Feature: nmcli - wifi
     @simwifi_ttls_chap
     Scenario: nmcli - simwifi - connect to TTLS CHAP
     Given "wpa2-eap" is visible with command "nmcli -f SSID device wifi list" in "60" seconds
-    * Add "wifi" connection named "wifi" for device "wlan0" with options "autoconnect no ssid wpa2-eap 802-11-wireless-security.key-mgmt wpa-eap 802-1x.eap ttls 802-1x.identity test_ttls 802-1x.anonymous-identity test 802-1x.ca-cert /tmp/certs/test_user.ca.pem 802-1x.phase2-auth chap 802-1x.password password"
+    * Add "wifi" connection named "wifi" for device "wlan0" with options
+          """
+          autoconnect no
+          ssid wpa2-eap
+          802-11-wireless-security.key-mgmt wpa-eap
+          802-1x.eap ttls
+          802-1x.identity test_ttls
+          802-1x.anonymous-identity test
+          802-1x.ca-cert /tmp/certs/test_user.ca.pem
+          802-1x.phase2-auth chap
+          802-1x.password password
+          """
     * Execute "sleep 1"
     Then Bring "up" connection "wifi"
 
@@ -232,7 +315,18 @@ Feature: nmcli - wifi
     @simwifi_ttls_mschap
     Scenario: nmcli - simwifi - connect to TTLS MSCHAP
     Given "wpa2-eap" is visible with command "nmcli -f SSID device wifi list" in "60" seconds
-    * Add "wifi" connection named "wifi" for device "wlan0" with options "autoconnect no ssid wpa2-eap 802-11-wireless-security.key-mgmt wpa-eap 802-1x.eap ttls 802-1x.identity test_ttls 802-1x.anonymous-identity test 802-1x.ca-cert /tmp/certs/test_user.ca.pem 802-1x.phase2-auth mschap 802-1x.password password"
+    * Add "wifi" connection named "wifi" for device "wlan0" with options
+          """
+          autoconnect no
+          ssid wpa2-eap
+          802-11-wireless-security.key-mgmt wpa-eap
+          802-1x.eap ttls
+          802-1x.identity test_ttls
+          802-1x.anonymous-identity test
+          802-1x.ca-cert /tmp/certs/test_user.ca.pem
+          802-1x.phase2-auth mschap
+          802-1x.password password
+          """
     * Execute "sleep 1"
     Then Bring "up" connection "wifi"
 
@@ -243,7 +337,18 @@ Feature: nmcli - wifi
     @simwifi_ttls_mschapv2
     Scenario: nmcli - simwifi - connect to TTLS MSCHAPv2
     Given "wpa2-eap" is visible with command "nmcli -f SSID device wifi list" in "60" seconds
-    * Add "wifi" connection named "wifi" for device "wlan0" with options "autoconnect no ssid wpa2-eap 802-11-wireless-security.key-mgmt wpa-eap 802-1x.eap ttls 802-1x.identity test_ttls 802-1x.anonymous-identity test 802-1x.ca-cert /tmp/certs/test_user.ca.pem 802-1x.phase2-auth mschapv2 802-1x.password password"
+    * Add "wifi" connection named "wifi" for device "wlan0" with options
+          """
+          autoconnect no
+          ssid wpa2-eap
+          802-11-wireless-security.key-mgmt wpa-eap
+          802-1x.eap ttls
+          802-1x.identity test_ttls
+          802-1x.anonymous-identity test
+          802-1x.ca-cert /tmp/certs/test_user.ca.pem
+          802-1x.phase2-auth mschapv2
+          802-1x.password password
+          """
     * Execute "sleep 1"
     Then Bring "up" connection "wifi"
 
@@ -254,7 +359,18 @@ Feature: nmcli - wifi
     @simwifi_ttls_mschapv2_eap
     Scenario: nmcli - simwifi - connect to TTLS MSCHAPv2 + EAP
     Given "wpa2-eap" is visible with command "nmcli -f SSID device wifi list" in "60" seconds
-    * Add "wifi" connection named "wifi" for device "wlan0" with options "autoconnect no ssid wpa2-eap 802-11-wireless-security.key-mgmt wpa-eap 802-1x.eap ttls 802-1x.identity TESTERS\\test_mschapv2 802-1x.anonymous-identity test 802-1x.ca-cert /tmp/certs/test_user.ca.pem 802-1x.phase2-autheap mschapv2 802-1x.password password"
+    * Add "wifi" connection named "wifi" for device "wlan0" with options
+          """
+          autoconnect no
+          ssid wpa2-eap
+          802-11-wireless-security.key-mgmt wpa-eap
+          802-1x.eap ttls
+          802-1x.identity TESTERS\\test_mschapv2
+          802-1x.anonymous-identity test
+          802-1x.ca-cert /tmp/certs/test_user.ca.pem
+          802-1x.phase2-autheap mschapv2
+          802-1x.password password
+          """
     * Execute "sleep 1"
     Then Bring "up" connection "wifi"
 
@@ -264,7 +380,18 @@ Feature: nmcli - wifi
     @simwifi_ttls_md5
     Scenario: nmcli - simwifi - connect to TTLS MD5
     Given "wpa2-eap" is visible with command "nmcli -f SSID device wifi list" in "60" seconds
-    * Add "wifi" connection named "wifi" for device "wlan0" with options "autoconnect no ssid wpa2-eap 802-11-wireless-security.key-mgmt wpa-eap 802-1x.eap ttls 802-1x.identity test_md5 802-1x.anonymous-identity test 802-1x.ca-cert /tmp/certs/test_user.ca.pem 802-1x.phase2-autheap md5 802-1x.password password"
+    * Add "wifi" connection named "wifi" for device "wlan0" with options
+          """
+          autoconnect no
+          ssid wpa2-eap
+          802-11-wireless-security.key-mgmt wpa-eap
+          802-1x.eap ttls
+          802-1x.identity test_md5
+          802-1x.anonymous-identity test
+          802-1x.ca-cert /tmp/certs/test_user.ca.pem
+          802-1x.phase2-autheap md5
+          802-1x.password password
+          """
     * Execute "sleep 1"
     Then Bring "up" connection "wifi"
 
@@ -274,7 +401,18 @@ Feature: nmcli - wifi
     @simwifi_ttls_gtc
     Scenario: nmcli - simwifi - connect to TTLS GTC
     Given "wpa2-eap" is visible with command "nmcli -f SSID device wifi list" in "60" seconds
-    * Add "wifi" connection named "wifi" for device "wlan0" with options "autoconnect no ssid wpa2-eap 802-11-wireless-security.key-mgmt wpa-eap 802-1x.eap ttls 802-1x.identity test_gtc 802-1x.anonymous-identity test 802-1x.ca-cert /tmp/certs/test_user.ca.pem 802-1x.phase2-autheap gtc 802-1x.password password"
+    * Add "wifi" connection named "wifi" for device "wlan0" with options
+          """
+          autoconnect no
+          ssid wpa2-eap
+          802-11-wireless-security.key-mgmt wpa-eap
+          802-1x.eap ttls
+          802-1x.identity test_gtc
+          802-1x.anonymous-identity test
+          802-1x.ca-cert /tmp/certs/test_user.ca.pem
+          802-1x.phase2-autheap gtc
+          802-1x.password password
+          """
     * Execute "sleep 1"
     Then Bring "up" connection "wifi"
 
@@ -302,7 +440,13 @@ Feature: nmcli - wifi
     Scenario: nmcli - simwifi - connect to WPA3 personal wifi
     Given "wpa3-psk" is visible with command "nmcli -f SSID device wifi list" in "60" seconds
     Then "wpa3-psk:WPA3" is visible with command "nmcli -t -f ssid,security device wifi list"
-    * Add "wifi" connection named "wifi" for device "wlan0" with options "autoconnect no ssid wpa3-psk 802-11-wireless-security.key-mgmt sae 802-11-wireless-security.psk secret123"
+    * Add "wifi" connection named "wifi" for device "wlan0" with options
+          """
+          autoconnect no
+          ssid wpa3-psk
+          802-11-wireless-security.key-mgmt sae
+          802-11-wireless-security.psk secret123
+          """
     Then Bring "up" connection "wifi"
 
 
@@ -313,7 +457,13 @@ Feature: nmcli - wifi
     Scenario: nmcli - simwifi - connect to WPA3 H2E
     Given "wpa3-h2e" is visible with command "nmcli -f SSID device wifi list" in "60" seconds
     Then "wpa3-h2e:WPA3" is visible with command "nmcli -t -f ssid,security device wifi list"
-    * Add "wifi" connection named "wifi" for device "wlan0" with options "autoconnect no ssid wpa3-h2e 802-11-wireless-security.key-mgmt sae 802-11-wireless-security.psk secret123"
+    * Add "wifi" connection named "wifi" for device "wlan0" with options
+          """
+          autoconnect no
+          ssid wpa3-h2e
+          802-11-wireless-security.key-mgmt sae
+          802-11-wireless-security.psk secret123
+          """
     Then Bring "up" connection "wifi"
 
 
@@ -342,7 +492,12 @@ Feature: nmcli - wifi
     @simwifi_owe_connect
     Scenario: nmcli - simwifi - connect to Enhanced Open (OWE) network
     Given "wpa3-owe" is visible with command "nmcli -f SSID device wifi list" in "60" seconds
-    * Add "wifi" connection named "wifi" for device "wlan0" with options "autoconnect no ssid wpa3-owe wifi-sec.key-mgmt owe"
+    * Add "wifi" connection named "wifi" for device "wlan0" with options
+          """
+          autoconnect no
+          ssid wpa3-owe
+          wifi-sec.key-mgmt owe
+          """
     Then Bring "up" connection "wifi"
 
 
@@ -359,7 +514,12 @@ Feature: nmcli - wifi
     @simwifi_owe_transition_connect
     Scenario: nmcli - simwifi - connect to Enhanced Open (OWE) network in transition mode
     Given "wpa3-owe-transition:OWE" is visible with command "nmcli -t -f SSID,SECURITY device wifi list" in "60" seconds
-    * Add "wifi" connection named "wifi" for device "wlan0" with options "autoconnect no ssid wpa3-owe-transition wifi-sec.key-mgmt owe"
+    * Add "wifi" connection named "wifi" for device "wlan0" with options
+          """
+          autoconnect no
+          ssid wpa3-owe-transition
+          wifi-sec.key-mgmt owe
+          """
     Then Bring "up" connection "wifi"
 
 
@@ -387,7 +547,12 @@ Feature: nmcli - wifi
     @simwifi_do_not_block_autoconnect
     Scenario: nmcli - simwifi - do not block autoconnect
     Given "wpa2-eap" is visible with command "nmcli -f SSID device wifi list" in "90" seconds
-    * Add "wifi" connection named "wifi" for device "wlan0" with options "ssid wpa2-eap 802-11-wireless-security.key-mgmt wpa-psk 802-11-wireless-security.psk Secret123"
+    * Add "wifi" connection named "wifi" for device "wlan0" with options
+          """
+          ssid wpa2-eap
+          802-11-wireless-security.key-mgmt wpa-psk
+          802-11-wireless-security.psk Secret123
+          """
     * Execute "sleep 1"
     Then Bring up connection "wifi" ignoring error
     And "GENERAL.STATE:activated" is not visible with command "nmcli -f GENERAL.STATE -t connection show id wifi"
@@ -445,10 +610,25 @@ Feature: nmcli - wifi
     @simwifi_ap @attach_wpa_supplicant_log @attach_hostapd_log
     @simwifi_ap_wpa_psk_method_shared
     Scenario: nmcli - simwifi - AP - connect to NM AP with WPA2 psk security and method shared
-    * Add "wifi" connection named "wifi-ap" for device "wlan1" with options "ssid AP_test 802-11-wireless-security.key-mgmt wpa-psk 802-11-wireless-security.psk Secret123 mode ap ipv4.method shared 802-11-wireless.channel 1 802-11-wireless.band bg"
+    * Add "wifi" connection named "wifi-ap" for device "wlan1" with options
+          """
+          ssid AP_test
+          802-11-wireless-security.key-mgmt wpa-psk
+          802-11-wireless-security.psk Secret123
+          mode ap
+          ipv4.method shared
+          802-11-wireless.channel 1
+          802-11-wireless.band bg
+          """
     * Bring "up" connection "wifi-ap"
     When "AP_test" is visible with command "nmcli dev wifi list"
-    * Add "wifi" connection named "wifi-client" for device "wlan0" with options "ssid AP_test 802-11-wireless-security.key-mgmt wpa-psk 802-11-wireless-security.psk Secret123 mode infrastructure"
+    * Add "wifi" connection named "wifi-client" for device "wlan0" with options
+          """
+          ssid AP_test
+          802-11-wireless-security.key-mgmt wpa-psk
+          802-11-wireless-security.psk Secret123
+          mode infrastructure
+          """
     Then Bring "up" connection "wifi-client"
 
 
@@ -458,10 +638,32 @@ Feature: nmcli - wifi
     @simwifi_ap_in_bridge_wpa_psk_method_manual
     Scenario: nmcli - simwifi - AP - connect to NM AP with WPA2 psk security and method shared
     * Prepare simulated test "testW" device without dhcp
-    * Add "bridge" connection named "br0" for device "br0" with options "connection.autoconnect true ipv4.method manual ipv4.addresses 192.168.14.1/24"
+    * Add "bridge" connection named "br0" for device "br0" with options
+          """
+          connection.autoconnect true
+          ipv4.method manual
+          ipv4.addresses 192.168.14.1/24
+          """
     * Add "ethernet" connection named "br0-slave1" for device "testW"
-    * Add "wifi" connection named "br0-slave2" for device "wlan1" with options "master br0 ssid AP_test 802-11-wireless-security.key-mgmt wpa-psk 802-11-wireless-security.psk Secret123 mode ap 802-11-wireless.channel 1 802-11-wireless.band bg"
+    * Add "wifi" connection named "br0-slave2" for device "wlan1" with options
+          """
+          master br0
+          ssid AP_test
+          802-11-wireless-security.key-mgmt wpa-psk
+          802-11-wireless-security.psk Secret123
+          mode ap
+          802-11-wireless.channel 1
+          802-11-wireless.band bg
+          """
     * Bring "up" connection "br0"
     When "AP_test" is visible with command "nmcli dev wifi list --rescan yes" in "30" seconds
-    * Add "wifi" connection named "wifi-client" for device "wlan0" with options "ssid AP_test 802-11-wireless-security.key-mgmt wpa-psk 802-11-wireless-security.psk Secret123 mode infrastructure ipv4.method manual ipv4.addresses 192.168.14.2/24"
+    * Add "wifi" connection named "wifi-client" for device "wlan0" with options
+          """
+          ssid AP_test
+          802-11-wireless-security.key-mgmt wpa-psk
+          802-11-wireless-security.psk Secret123
+          mode infrastructure
+          ipv4.method manual
+          ipv4.addresses 192.168.14.2/24
+          """
     Then Bring "up" connection "wifi-client"
