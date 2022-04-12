@@ -275,9 +275,8 @@ def execute_build(gt, content, os_version=default_os, features="best", build="ma
         # NM CODE will use master unless we know branch mr/abcd exists
         import requests
         gitlab = "https://gitlab.freedesktop.org/NetworkManager/NetworkManager-ci"
-        branch = "mr/%s" %gt.merge_request_id
-        mapper = "/-/raw/%s/mapper.yaml" %branch
-        url = gitlab + branch
+        mapper = f"/-/raw/mr/{gt.merge_request_id}/mapper.yaml"
+        url = gitlab + mapper
         ret = requests.get(url).status_code
         if ret != 200:
             branch = "master"
