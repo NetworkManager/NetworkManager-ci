@@ -350,7 +350,6 @@ Feature: IPv6 TUI tests
     Then "fc05::/68 dev eth2\s+proto kernel" is visible with command "ip -6 route" in "10" seconds
 
 
-    # @ipv6
     # @eth0
     # @ver+=1.9.2
     # @nmtui_ipv6_routes_several_default_routes_metrics

@@ -696,21 +696,6 @@ def dhclient_DHCP_as(ctx, scen):
 _register_tag("dhclient_DHCP", dhclient_DHCP_bs, dhclient_DHCP_as)
 
 
-def dummy_as(ctx, scen):
-    ctx.run("nmcli con del dummy0 dummy1")
-    ctx.run("ip link delete dummy0")
-    ctx.run("ip link del br0")
-    ctx.run("ip link del vlan")
-    ctx.run("ip link del bond0")
-    ctx.run("ip link del team0")
-    ctx.run("ip link delete dummy0")
-    ctx.run("ip route del blackhole 172.25.1.0/24")
-    ctx.run("nmcli d del dummy1")
-
-
-_register_tag("dummy", None, dummy_as)
-
-
 def delete_testeth0_bs(ctx, scen):
     skip_restarts_bs(ctx, scen)
     ctx.run("nmcli device disconnect eth0")
@@ -733,21 +718,7 @@ def ethernet_bs(ctx, scen):
         ctx.run('sudo nmcli con add type ethernet ifname eth2 con-name testeth2 autoconnect no')
 
 
-def ethernet_as(ctx, scen):
-    ctx.run("sudo nmcli connection delete id eth1 eth2 ethernet ethernet1 ethernet2")
-
-    if 'ipv4' not in scen.tags and 'ipv6' not in scen.tags:
-        print("removing ethernet profiles")
-        ctx.run("sudo nmcli connection delete id ethernet ethernet0 ethos")
-        # ideally should do nothing
-        ctx.run('sudo rm -rf /etc/sysconfig/network-scripts/ifcfg-ethernet*')
-
-    time.sleep(0.2)
-
-
-_register_tag("ethernet", ethernet_bs, ethernet_as)
-_register_tag("ipv4", None, ethernet_as)
-_register_tag("ipv6", None, ethernet_as)
+_register_tag("ethernet", ethernet_bs, None)
 
 
 def ifcfg_rh_bs(ctx, scen):
@@ -1009,8 +980,6 @@ def simwifi_ap_bs(ctx, scen):
 
 
 def simwifi_ap_as(ctx, scen):
-    ctx.run("nmcli con del wifi-ap wifi-client br0 br0-slave1 br0-slave2")
-    ctx.run("ip link delete br0")
     ctx.run("modprobe -r mac80211_hwsim")
     ctx.run("systemctl restart wpa_supplicant")
     assert nmci.lib.restart_NM_service(ctx, reset=False), "NM stop failed"
@@ -1066,7 +1035,6 @@ def simwifi_p2p_as(ctx, scen):
         ctx.run("dnf -y update wpa_supplicant")
         ctx.run("systemctl restart wpa_supplicant")
     ctx.run('modprobe -r mac80211_hwsim')
-    ctx.run('nmcli con del wifi-p2p')
     ctx.run("kill -9 $(ps aux|grep wpa_suppli |grep wlan1 |awk '{print $2}')")
     ctx.run("rm -rf /etc/NetworkManager/conf.d/99-wifi.conf")
 
@@ -1074,68 +1042,6 @@ def simwifi_p2p_as(ctx, scen):
 
 
 _register_tag("simwifi_p2p", simwifi_p2p_bs, simwifi_p2p_as)
-
-
-def simwifi_wpa2_bs(ctx, scen):
-    if ctx.arch != "x86_64":
-        print("Skipping as not on x86_64")
-        sys.exit(77)
-
-
-def simwifi_wpa2_as(ctx, scen):
-    ctx.run("nmcli con del wpa2-eap wifi")
-
-
-_register_tag("simwifi_wpa2", simwifi_wpa2_bs, simwifi_wpa2_as)
-
-
-def simwifi_wpa3_eap_bs(ctx, scen):
-    if ctx.command_code("nmcli device wifi list --rescan auto |grep -q wpa3-eap") != 0:
-        print("No wpa3 eap, skipping")
-        sys.exit(77)
-
-
-_register_tag("simwifi_wpa3_eap", simwifi_wpa3_eap_bs, None)
-
-
-def simwifi_wpa3_bs(ctx, scen):
-    if ctx.arch != "x86_64":
-        print("Skipping as not on x86_64")
-        sys.exit(77)
-
-
-def simwifi_wpa3_as(ctx, scen):
-    ctx.run("nmcli con del wpa3-psk wpa3-eap wpa3-owe wpa3-owe-transition wifi")
-
-
-_register_tag("simwifi_wpa3", simwifi_wpa3_bs, simwifi_wpa3_as)
-
-
-def simwifi_open_as(ctx, scen):
-    ctx.run("nmcli con del open")
-
-
-_register_tag("simwifi_open", None, simwifi_open_as)
-
-
-def simwifi_pskwep_bs(ctx, scen):
-    if ctx.arch != "x86_64":
-        print("Skipping as not on x86_64")
-        sys.exit(77)
-
-
-def simwifi_pskwep_as(ctx, scen):
-    ctx.run("nmcli con del wep")
-
-
-_register_tag("simwifi_pskwep", simwifi_pskwep_bs, simwifi_pskwep_as)
-
-
-def simwifi_dynwep_as(ctx, scen):
-    ctx.run("nmcli con del wifi")
-
-
-_register_tag("simwifi_dynwep", None, simwifi_dynwep_as)
 
 
 def simwifi_teardown_bs(ctx, scen):
@@ -1285,19 +1191,6 @@ def iptunnel_as(ctx, scen):
 
 
 _register_tag("iptunnel", iptunnel_bs, iptunnel_as)
-
-
-def iptunnel_doc_as(ctx, scen):
-    # this must be done before @teardown_testveth
-    # (netB is hidden in iptunnel_B namespace)
-    ctx.run("nmcli con delete gre1 tun0 bridge0 bridge0-port1 bridge0-port2")
-    ctx.run("ip netns del iptunnelB")
-    ctx.run("ip link del ipA")
-    ctx.run("ip link del tunB")
-    ctx.run("ip link del brB")
-
-
-_register_tag("iptunnel_doc", None, iptunnel_doc_as)
 
 
 def wireguard_bs(ctx, scen):
@@ -1684,7 +1577,6 @@ def sriov_bs(ctx, scen):
 
 
 def sriov_as(ctx, scen):
-    ctx.run("nmcli con del sriov sriov_2 p4p1")
 
     ctx.run("echo 0 > /sys/class/net/p6p1/device/sriov_numvfs")
     ctx.run("echo 0 > /sys/class/net/p4p1/device/sriov_numvfs")
@@ -1697,22 +1589,10 @@ def sriov_as(ctx, scen):
 
     ctx.run("modprobe -r ixgbevf")
 
-    ctx.run("nmcli con del sriov_2")
-
     nmci.lib.reload_NM_service(ctx)
 
 
 _register_tag("sriov", sriov_bs, sriov_as)
-
-
-def sriov_bond_as(ctx, scen):
-    ctx.run("nmcli con del sriov2")
-    ctx.run("nmcli con del sriov_bond0")
-    ctx.run("nmcli con del sriov_bond0.0")
-    ctx.run("nmcli con del sriov_bond0.1")
-
-
-_register_tag("sriov_bond", None, sriov_bond_as)
 
 
 def dpdk_bs(ctx, scen):
@@ -1735,7 +1615,6 @@ def dpdk_as(ctx, scen):
     ctx.run('systemctl stop ovsdb-server')
     ctx.run('systemctl stop openvswitch')
     time.sleep(5)
-    ctx.run('nmcli con del dpdk-sriov ovs-iface1')
 
 
 _register_tag("dpdk", dpdk_bs, dpdk_as)
@@ -1774,7 +1653,6 @@ def pppoe_bs(ctx, scen):
     ctx.run("mknod /dev/ppp c 108 0")
 
 def pppoe_as(ctx, scen):
-    ctx.run('nmcli con del ppp ppp2')
     ctx.run('kill -9 $(pidof pppoe-server)')
 
 _register_tag("pppoe", pppoe_bs, pppoe_as)
@@ -1797,17 +1675,6 @@ def del_test1112_veths_as(ctx, scen):
 
 
 _register_tag("del_test1112_veths", del_test1112_veths_bs, del_test1112_veths_as)
-
-
-def veth_remove_as(ctx, scen):
-    ctx.run('nmcli con down con_veth2')
-    ctx.run('nmcli con down con_veth1')
-    ctx.run('nmcli con delete con_veth1')
-    ctx.run('nmcli con delete con_veth2')
-    ctx.run('ip link del veth11')
-
-
-_register_tag("veth_remove", None, veth_remove_as)
 
 
 def nmstate_bs(ctx, scen):
@@ -2049,7 +1916,7 @@ def wifi_as(ctx, scen):
             ctx.run('sudo nmcli con del wifi-wlan0')
 
 
-_register_tag("wifi", wifi_bs, wifi_as)
+_register_tag("wifi", wifi_bs, None)
 _register_tag("novice")
 
 
@@ -2075,162 +1942,12 @@ def no_connections_as(ctx, scen):
 _register_tag("no_connections", no_connections_bs, no_connections_as)
 
 
-def bridge_as(ctx, scen):
-    if ctx.IS_NMTUI:
-        ctx.run("sudo nmcli con down bridge0")
-        time.sleep(1)
-        ctx.run("sudo nmcli connection delete id bridge-slave-eth1 bridge-slave-eth2 bridge0 ")
-        time.sleep(1)
-
-        nmci.lib.reset_hwaddr_nmtui(ctx, 'eth1')
-        nmci.lib.reset_hwaddr_nmtui(ctx, 'eth2')
-        ctx.run("sudo ip link del bridge0")
-        if "many_slaves" in scen.tags:
-            ctx.run(
-                "sudo nmcli con delete id bridge-slave-eth3 bridge-slave-eth4 bridge-slave-eth5"
-                " bridge-slave-eth6 bridge-slave-eth7 bridge-slave-eth8 bridge-slave-eth9")
-            nmci.lib.reset_hwaddr_nmtui(ctx, 'eth3')
-            nmci.lib.reset_hwaddr_nmtui(ctx, 'eth4')
-            nmci.lib.reset_hwaddr_nmtui(ctx, 'eth5')
-            nmci.lib.reset_hwaddr_nmtui(ctx, 'eth6')
-            nmci.lib.reset_hwaddr_nmtui(ctx, 'eth7')
-            nmci.lib.reset_hwaddr_nmtui(ctx, 'eth8')
-            nmci.lib.reset_hwaddr_nmtui(ctx, 'eth9')
-    else:
-        if 'bridge_assumed' in scen.tags:
-            ctx.run('ip link del bridge0')
-            ctx.run('ip link del br0')
-
-        ctx.run('sudo nmcli con del bridge4 bridge4.0 bridge4.1 nm-bridge eth4.80 eth4.90')
-        ctx.run('sudo nmcli con del bridge-slave-eth4 bridge-nonslave-eth4 bridge-slave-eth4.80 eth4')
-        ctx.run('sudo nmcli con del bridge0 bridge bridge.15 nm-bridge br88 br11 br12 br15 bridge-slave br15-slave br15-slave1 br4-vxlan10 br15-slave2 br10 br10-slave')
-        nmci.lib.reset_hwaddr_nmcli(ctx, 'eth4')
-
-
-_register_tag("bridge", None, bridge_as)
-_register_tag("many_slaves")
-_register_tag("bridge_assumed")
-
-
-def vlan_as(ctx, scen):
-    if ctx.IS_NMTUI:
-        ctx.run("sudo nmcli connection delete id vlan eth1.99")
-        ctx.run("sudo ip link del eth1.99")
-        ctx.run("sudo ip link del eth2.88")
-    else:
-        ctx.run('sudo nmcli con del vlan vlan1 vlan2 eth7.99 eth7.99 eth7.299 eth7.399 eth7.65 eth7.165 eth7.265 eth7.499 eth7.80 eth7.90')
-        ctx.run('sudo nmcli con del vlan_bridge7.15 vlan_bridge7 vlan_vlan7 vlan_bond7 vlan_bond7.7 vlan_team7 vlan_team7.1 vlan_team7.0')
-        ctx.run('ip link del bridge7')
-        ctx.run('ip link del eth7.99')
-        ctx.run('ip link del eth7.80')
-        ctx.run('ip link del eth7.90')
-        ctx.run('ip link del vlan7')
-        ctx.run('ip link del vlan0')
-        ctx.run('nmcli con down testeth7')
-        nmci.lib.reset_hwaddr_nmcli(ctx, 'eth7')
-
-
-_register_tag("vlan", None, vlan_as)
-
-
-def bond_as(ctx, scen):
-    if ctx.IS_NMTUI:
-        ctx.run("sudo nmcli connection delete id bond-slave-eth1 bond-slave-eth2 bond0")
-        nmci.lib.reset_hwaddr_nmtui(ctx, 'eth1')
-        nmci.lib.reset_hwaddr_nmtui(ctx, 'eth2')
-        ctx.run("sudo ip link del bond0")
-        if "many_slaves" in scen.tags:
-            ctx.run(
-                "sudo nmcli con delete bond-slave-eth3 bond-slave-eth4 bond-slave-eth5"
-                " bond-slave-eth6 bond-slave-eth7 bond-slave-eth8 bond-slave-eth9")
-            nmci.lib.reset_hwaddr_nmtui(ctx, 'eth3')
-            nmci.lib.reset_hwaddr_nmtui(ctx, 'eth4')
-            nmci.lib.reset_hwaddr_nmtui(ctx, 'eth5')
-            nmci.lib.reset_hwaddr_nmtui(ctx, 'eth6')
-            nmci.lib.reset_hwaddr_nmtui(ctx, 'eth7')
-            nmci.lib.reset_hwaddr_nmtui(ctx, 'eth8')
-            nmci.lib.reset_hwaddr_nmtui(ctx, 'eth9')
-    else:
-        ctx.run('nmcli connection delete id bond0 bond')
-        ctx.run('ip link del nm-bond')
-        ctx.run('ip link del bond0')
-        #sleep(TIMER)
-        ctx.command_output('ls /proc/net/bonding || true')
-
-
-_register_tag("bond", None, bond_as)
-
-
-def team_as(ctx, scen):
-    if ctx.IS_NMTUI:
-        ctx.run("sudo nmcli connection delete id team0 team-slave-eth1 team-slave-eth2")
-        nmci.lib.reset_hwaddr_nmtui(ctx, 'eth1')
-        nmci.lib.reset_hwaddr_nmtui(ctx, 'eth2')
-        ctx.run("sudo ip link del team0")
-        if "many_slaves" in scen.tags:
-            ctx.run(
-                "sudo nmcli con delete team-slave-eth3 team-slave-eth4 team-slave-eth5"
-                " team-slave-eth6 team-slave-eth7 team-slave-eth8 team-slave-eth9")
-            nmci.lib.reset_hwaddr_nmtui(ctx, 'eth3')
-            nmci.lib.reset_hwaddr_nmtui(ctx, 'eth4')
-            nmci.lib.reset_hwaddr_nmtui(ctx, 'eth5')
-            nmci.lib.reset_hwaddr_nmtui(ctx, 'eth6')
-            nmci.lib.reset_hwaddr_nmtui(ctx, 'eth7')
-            nmci.lib.reset_hwaddr_nmtui(ctx, 'eth8')
-            nmci.lib.reset_hwaddr_nmtui(ctx, 'eth9')
-    else:
-        ctx.run('nmcli connection down team0')
-        ctx.run('nmcli connection delete id team0 team')
-        if 'team_assumed' in scen.tags:
-            ctx.run('ip link del nm-team')
-        #sleep(TIMER)
-        ctx.run("if nmcli con |grep 'team0 '; then echo 'team0 present: %s' >> /tmp/residues; fi" % scen.tags)
-
-
-_register_tag("team", None, team_as)
-_register_tag("team_assumed", None, None)
-
-
-def team_slaves_as(ctx, scen):
-    ctx.run('nmcli connection delete id team0.0 team0.1 team-slave-eth5 team-slave-eth6 eth5 eth6 team-slave')
-    nmci.lib.reset_hwaddr_nmcli(ctx, 'eth5')
-    nmci.lib.reset_hwaddr_nmcli(ctx, 'eth6')
-    #sleep(TIMER)
-
-
-_register_tag("team_slaves", None, team_slaves_as)
-
-
 def teamd_as(ctx, scen):
     ctx.run("systemctl stop teamd")
     ctx.run("systemctl reset-failed teamd")
 
 
 _register_tag("teamd", None, teamd_as)
-
-
-def bond_bridge_as(ctx, scen):
-    ctx.run('sudo nmcli con del bond_bridge0')
-    ctx.run('sudo ip link del bond-bridge')
-
-
-_register_tag("bond_bridge", None, bond_bridge_as)
-
-
-def team_br_remove_as(ctx, scen):
-    ctx.run('sudo nmcli con del team_br')
-    ctx.run('ip link del brA')
-
-
-_register_tag("team_br_remove", None, team_br_remove_as)
-
-
-def gen_br_remove_as(ctx, scen):
-    ctx.run('sudo nmcli con del gen_br')
-    ctx.run('ip link del brX')
-
-
-_register_tag("gen_br_remove", None, gen_br_remove_as)
 
 
 def restore_eth1_mtu_as(ctx, scen):
@@ -2250,10 +1967,10 @@ _register_tag("wifi_rescan", None, wifi_rescan_as)
 
 
 def testeth7_disconnect_as(ctx, scen):
-    if ctx.IS_NMTUI:
-        if ctx.command_code("nmcli connection show -a |grep testeth7") == 0:
-            print("bring down testeth7")
-            ctx.run("nmcli con down testeth7")
+    if ctx.command_code("nmcli connection show -a |grep testeth7") == 0:
+        print("bring down testeth7")
+        ctx.run("nmcli con down testeth7")
+    
 
 
 _register_tag("testeth7_disconnect", None, testeth7_disconnect_as)
@@ -2329,30 +2046,10 @@ def allow_veth_connections_as(ctx, scen):
     ctx.run('udevadm control --reload-rules')
     ctx.run('udevadm settle --timeout=5')
     nmci.lib.reload_NM_service(ctx)
-    ctx.run("nmcli con del 'Wired connection 1'")
-    ctx.run("nmcli con del 'Wired connection 2'")
     ctx.run("for i in $(nmcli -t -f DEVICE c s -a |grep -v ^eth0$); do nmcli device disconnect $i; done")
 
 
 _register_tag("allow_veth_connections", allow_veth_connections_bs, allow_veth_connections_as)
-
-
-def con_ipv4_remove_as(ctx, scen):
-    ctx.run("nmcli connection delete id con_ipv4 con_ipv42")
-    ctx.run("if nmcli con |grep con_ipv4; then echo 'con_ipv4 present: %s' >> /tmp/residues; fi" % scen.tags)
-
-
-_register_tag("con_ipv4_remove", None, con_ipv4_remove_as)
-
-
-def con_ipv6_remove_as(ctx, scen):
-    ctx.run("nmcli connection down con_ipv6 ")
-    ctx.run("nmcli connection down con_ipv62 ")
-    ctx.run("nmcli connection delete id con_ipv6 con_ipv62")
-    ctx.run("if nmcli con |grep con_ipv6; then echo 'con_ipv6 present: %s' >> /tmp/residues; fi" % scen.tags)
-
-
-_register_tag("con_ipv6_remove", None, con_ipv6_remove_as)
 
 
 def con_ipv6_ifcfg_remove_as(ctx, scen):
@@ -2364,97 +2061,11 @@ def con_ipv6_ifcfg_remove_as(ctx, scen):
 _register_tag("con_ipv6_ifcfg_remove", None, con_ipv6_ifcfg_remove_as)
 
 
-def con_con_remove_as(ctx, scen):
-    ctx.run("nmcli connection delete id con_con con_con2")
-
-
-_register_tag("con_con_remove", None, con_con_remove_as)
-
-
-def con_general_remove_as(ctx, scen):
-    ctx.run("sudo nmcli connection delete id con_general con_general2")
-
-
-_register_tag("con_general_remove", None, con_general_remove_as)
-
-
-def con_tc_remove_as(ctx, scen):
-    ctx.run("sudo nmcli connection delete id con_tc")
-
-
-_register_tag("con_tc_remove", None, con_tc_remove_as)
-
-
-def con_dns_remove_as(ctx, scen):
-    ctx.run("nmcli connection delete id con_dns con_dns2")
-
-
-_register_tag("con_dns_remove", None, con_dns_remove_as)
-
-
-def con_ethernet_remove_as(ctx, scen):
-    ctx.run("nmcli connection delete id con_ethernet")
-
-
-_register_tag("con_ethernet_remove", None, con_ethernet_remove_as)
-
-
-def con_vrf_remove_as(ctx, scen):
-    ctx.run("nmcli connection delete id vrf.eth4 vrf.eth1 vrf0 vrf1")
-
-
-_register_tag("con_vrf_remove", None, con_vrf_remove_as)
-
-
-def con_PBR_remove_as(ctx, scen):
-    ctx.run("sudo nmcli connection delete id Servers Internal-Workstations Provider-A Provider-B")
-
-
-_register_tag("con_PBR_remove", None, con_PBR_remove_as)
-
-
-def many_con_remove_as(ctx, scen):
-    ctx.run('nmcli con del con-team con-bond con-wifi')
-
-
-_register_tag("many_con_remove", None, many_con_remove_as)
-
-
-def gen_bond_remove_as(ctx, scen):
-    ctx.run('nmcli connection delete "Bondy connection 1"')
-    ctx.run('nmcli connection delete id gen-bond0 gen-bond0.0 gen-bond0.1')
-    ctx.run('ip link del gen-bond')
-    ctx.run('ip link del gen-bond0')
-
-
-_register_tag("gen-bond_remove", None, gen_bond_remove_as)
-
-
-def general_vlan_as(ctx, scen):
-    ctx.run("sudo nmcli connection delete id eth8.100")
-    ctx.run("sudo ip link del eth8.100")
-
-
-_register_tag("general_vlan", None, general_vlan_as)
-
-
 def tuntap_as(ctx, scen):
     ctx.run("ip link del tap0")
-    ctx.run("nmcli con delete tap0")
-    ctx.run("ip link del brY")
-    ctx.run("ip link del brX")
 
 
 _register_tag("tuntap", None, tuntap_as)
-
-
-def slaves_as(ctx, scen):
-    nmci.lib.reset_hwaddr_nmcli(ctx, 'eth1')
-    nmci.lib.reset_hwaddr_nmcli(ctx, 'eth4')
-    ctx.run('nmcli connection delete id bond0.0 bond0.1 bond0.2 bond-slave-eth1 bond-slave')
-
-
-_register_tag("slaves", None, slaves_as)
 
 
 def bond_order_as(ctx, scen):
@@ -2463,16 +2074,6 @@ def bond_order_as(ctx, scen):
 
 
 _register_tag("bond_order", None, bond_order_as)
-
-
-def con_as(ctx, scen):
-    print("---------------------------")
-    print("deleting connie")
-    ctx.run("nmcli connection delete id connie")
-    ctx.run("rm -rf /etc/sysconfig/network-scripts/ifcfg-connie*")
-
-
-_register_tag("con", None, con_as)
 
 
 def remove_tombed_connections_as(ctx, scen):
@@ -2559,40 +2160,6 @@ def macsec_as(ctx, scen):
 
 
 _register_tag("macsec", None, macsec_as)
-
-
-def two_bridged_veths_as(ctx, scen):
-    ctx.run("nmcli connection delete id tc1 tc2")
-    ctx.run("ip link del test1")
-    ctx.run("ip link del test2")
-    ctx.run("ip link del vethbr")
-    ctx.run("nmcli con del tc1 tc2 vethbr")
-    nmci.lib.unmanage_veths(ctx)
-
-
-_register_tag("two_bridged_veths", None, two_bridged_veths_as)
-
-
-def two_bridged_veths6_as(ctx, scen):
-    ctx.run("nmcli connection delete id tc16 tc26 test10 test11 vethbr6")
-    ctx.run("ip link del test11")
-    ctx.run("ip link del test10")
-    ctx.run("ip link del vethbr6")
-    nmci.lib.unmanage_veths(ctx)
-
-
-_register_tag("two_bridged_veths6", None, two_bridged_veths6_as)
-
-
-def two_bridged_veths_gen_as(ctx, scen):
-    ctx.run("ip link del test1g")
-    ctx.run("ip link del test2g")
-    ctx.run("ip link del vethbrg")
-    ctx.run("nmcli con del test1g test2g tc1g tc2g vethbrg")
-    time.sleep(1)
-
-
-_register_tag("two_bridged_veths_gen", None, two_bridged_veths_gen_as)
 
 
 def dhcpd_as(ctx, scen):

@@ -274,7 +274,6 @@
 
     #@rhbz1773908
     #@ver+=1.25 @rhelver+=8
-    #@con_vrf_remove
     #@vrf_external
     #Scenario: nmcli - vrf - external setup
     #* Execute "ip link add dev vrf0 type vrf table 1001"

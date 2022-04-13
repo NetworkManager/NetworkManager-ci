@@ -411,7 +411,7 @@
 
     @rhbz1555013
     @ver+=1.14.0
-    @sriov @sriov_bond
+    @sriov
     @sriov_con_drv_bond
     Scenario: nmcli - sriov - drv - add 2VFs bond on 2PFs
     * Add "ethernet" connection named "sriov" for device "p4p1" with options

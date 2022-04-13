@@ -91,7 +91,7 @@ Feature: nmcli - procedures in documentation
 
     @ver+=1.10 @fedoraver+=31
     @need_legacy_crypto
-    @simwifi @simwifi_wpa2 @attach_hostapd_log @attach_wpa_supplicant_log
+    @simwifi @attach_hostapd_log @attach_wpa_supplicant_log
     @simwifi_peap_mschapv2_doc_procedure
     Scenario: nmcli - docs - Configuring 802.1x network authentication on an existing Wi-Fi connection using nmcli
     Given "wpa2-eap" is visible with command "nmcli -f SSID device wifi list" in "60" seconds

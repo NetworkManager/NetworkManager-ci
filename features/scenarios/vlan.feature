@@ -18,9 +18,9 @@ Feature: nmcli - vlan
 
     @rhbz1456911
     @ver+=1.8.0
-    @vlan
     @vlan_add_beyond_range
     Scenario: nmcli - vlan - add vlan beyond range
+     * Cleanup connection "vlan"
      Then "0-4094 but is 4095" is visible with command "nmcli con add type vlan con-name vlan autoconnect no id 4095 dev eth7"
       And "vlan" is not visible with command "nmcli con show"
 
@@ -199,7 +199,6 @@ Feature: nmcli - vlan
     Then "inet 10.42.0.1" is visible with command "ifconfig"
 
 
-    @vlan
     @vlan_describe_all
     Scenario: nmcli - vlan - describe all
     * Open editor for a type "vlan"
@@ -217,7 +216,6 @@ Feature: nmcli - vlan
     * Quit editor
 
 
-    @vlan
     @vlan_describe_separately
     Scenario: nmcli - vlan - describe separately
     * Open editor for a type "vlan"
@@ -317,8 +315,7 @@ Feature: nmcli - vlan
 
 
     @rhbz1276343
-    @restart_if_needed
-    @vlan
+    @restart_if_needed @testeth7_disconnect
     @vlan_not_duplicated
     Scenario: nmcli - vlan - do not duplicate mtu and ipv4 vlan
     * Add "vlan" connection named "vlan" with options "dev eth7 id 80"
@@ -331,8 +328,7 @@ Feature: nmcli - vlan
 
     @rhbz1376199
     @ver+=1.8.0
-    @restart_if_needed
-    @vlan
+    @restart_if_needed @testeth7_disconnect
     @vlan_not_stalled_after_connection_delete
     Scenario: nmcli - vlan - delete vlan device after restart
     * Add "vlan" connection named "vlan" with options "dev eth7 id 80"

@@ -19,7 +19,7 @@ Feature: nmcli - dns
     @ver-1.27.91
     @ver-1.28.0
     @ver-1.29.2
-    @con_dns_remove @dns_systemd_resolved @rhelver+=8
+    @dns_systemd_resolved @rhelver+=8
     @dns_resolved_two_default
     Scenario: NM - dns - two connections with default route
 
@@ -53,7 +53,7 @@ Feature: nmcli - dns
     @ver+=1.27.91
     @ver+=1.28.0
     @ver+=1.29.2
-    @con_dns_remove @dns_systemd_resolved @rhelver+=8
+    @dns_systemd_resolved @rhelver+=8
     @dns_resolved_two_default
     Scenario: NM - dns - two connections with default route
 
@@ -88,7 +88,7 @@ Feature: nmcli - dns
     @ver-1.27.91
     @ver-1.28.0
     @ver-1.29.2
-    @con_dns_remove @dns_systemd_resolved @rhelver+=8
+    @dns_systemd_resolved @rhelver+=8
     @dns_resolved_one_default
     Scenario: NM - dns - two connections, one with default route
 
@@ -120,7 +120,7 @@ Feature: nmcli - dns
     @ver+=1.27.91
     @ver+=1.28.0
     @ver+=1.29.2
-    @con_dns_remove @dns_systemd_resolved @rhelver+=8
+    @dns_systemd_resolved @rhelver+=8
     @dns_resolved_one_default
     Scenario: NM - dns - two connections, one with default route
 
@@ -153,7 +153,7 @@ Feature: nmcli - dns
     @ver-1.27.91
     @ver-1.28.0
     @ver-1.29.2
-    @con_dns_remove @dns_systemd_resolved @rhelver+=8
+    @dns_systemd_resolved @rhelver+=8
     @dns_resolved_two_default_with_priority
     Scenario: NM - dns - two connections with default route, one has higher priority
 
@@ -186,7 +186,7 @@ Feature: nmcli - dns
     @ver+=1.27.91
     @ver+=1.28.0
     @ver+=1.29.2
-    @con_dns_remove @dns_systemd_resolved @rhelver+=8
+    @dns_systemd_resolved @rhelver+=8
     @dns_resolved_two_default_with_priority
     Scenario: NM - dns - two connections with default route, one has higher priority
 
@@ -216,7 +216,7 @@ Feature: nmcli - dns
 
     @rhbz1512966
     @ver+=1.11.3
-    @con_dns_remove @dns_systemd_resolved @rhelver+=8
+    @dns_systemd_resolved @rhelver+=8
     @dns_resolved_two_default_with_negative_priority
     Scenario: NM - dns - two connections with default route, one has negative priority
 
@@ -251,7 +251,7 @@ Feature: nmcli - dns
     @ver-1.28.0
     @ver-1.29.2
     @rhelver+=8 @fedoraver+=31
-    @con_dns_remove @dns_systemd_resolved @eth0
+    @dns_systemd_resolved @eth0
     @dns_resolved_no_default
     Scenario: NM - dns - two connections without default route
 
@@ -284,7 +284,7 @@ Feature: nmcli - dns
     @ver+=1.28.0
     @ver+=1.29.2
     @rhelver+=8 @fedoraver+=31
-    @con_dns_remove @dns_systemd_resolved @eth0
+    @dns_systemd_resolved @eth0
     @dns_resolved_no_default
     Scenario: NM - dns - two connections without default route
 
@@ -317,7 +317,7 @@ Feature: nmcli - dns
     @ver-1.27.91
     @ver-1.28.0
     @ver-1.29.2
-    @con_dns_remove @openvpn @openvpn4 @dns_systemd_resolved @rhelver+=8
+    @openvpn @openvpn4 @dns_systemd_resolved @rhelver+=8
     @dns_resolved_full_tunnel_vpn
     Scenario: NM - dns - full-tunnel VPN
 
@@ -348,7 +348,7 @@ Feature: nmcli - dns
     @ver+=1.27.91
     @ver+=1.28.0
     @ver+=1.29.2
-    @con_dns_remove @openvpn @openvpn4 @dns_systemd_resolved @rhelver+=8
+    @openvpn @openvpn4 @dns_systemd_resolved @rhelver+=8
     @dns_resolved_full_tunnel_vpn
     Scenario: NM - dns - full-tunnel VPN
 
@@ -380,7 +380,7 @@ Feature: nmcli - dns
     @ver-1.27.91
     @ver-1.28.0
     @ver-1.29.2
-    @con_dns_remove @openvpn @openvpn4 @dns_systemd_resolved @rhelver+=8
+    @openvpn @openvpn4 @dns_systemd_resolved @rhelver+=8
     @dns_resolved_split_tunnel_vpn
     Scenario: NM - dns - split-tunnel VPN
 
@@ -412,7 +412,7 @@ Feature: nmcli - dns
     @ver+=1.27.91
     @ver+=1.28.0
     @ver+=1.29.2
-    @con_dns_remove @openvpn @openvpn4 @dns_systemd_resolved @rhelver+=8
+    @openvpn @openvpn4 @dns_systemd_resolved @rhelver+=8
     @dns_resolved_split_tunnel_vpn
     Scenario: NM - dns - split-tunnel VPN
 
@@ -441,7 +441,7 @@ Feature: nmcli - dns
 
     @rhbz1888229
     @ver+=1.28 @rhelver+=8 @fedoraver+=33
-    @con_dns_remove @dns_systemd_resolved @eth0
+    @dns_systemd_resolved @eth0
     @dns_resolved_add_remove_ipv6_dns
     Scenario: nmcli - dns - add remove ipv6 dns under resolved
     * Add "ethernet" connection named "con_dns" for device "eth10" with options
@@ -464,7 +464,7 @@ Feature: nmcli - dns
     @rhbz1878166
     @rhelver+=8
     @ver+=1.30
-    @con_dns_remove @dns_systemd_resolved
+    @dns_systemd_resolved
     @dns_resolved_dnssec_opts
     Scenario: NM - dns - dnssec
     * Add "ethernet" connection named "con_dns" for device "eth2" with options "autoconnect no"
@@ -481,7 +481,6 @@ Feature: nmcli - dns
     @rhbz1228707
     @ver+=1.2.0
     @not_with_systemd_resolved
-    @con_dns_remove
     @dns_priority
     Scenario: nmcli - ipv4 - dns - priority
     * Add "ethernet" connection named "con_dns" for device "eth2" with options
@@ -511,7 +510,7 @@ Feature: nmcli - dns
 
 
     @not_with_systemd_resolved
-    @con_dns_remove @remove_custom_cfg @restart_if_needed
+    @remove_custom_cfg @restart_if_needed
     @dns_priority_config
     Scenario: nmcli - ipv4 - dns - set priority in config
     * Execute "echo -e '[connection]\nipv4.dns-priority=200' > /etc/NetworkManager/conf.d/99-xxcustom.conf"
@@ -548,7 +547,6 @@ Feature: nmcli - dns
     @rhbz1512966
     @ver+=1.11.3
     @not_with_systemd_resolved
-    @con_dns_remove
     @dns_default_two_default
     Scenario: NM - dns - two connections with default route
     # Create connection on eth2 with default route
@@ -571,7 +569,7 @@ Feature: nmcli - dns
     @rhbz1512966
     @ver+=1.11.3
     @not_with_systemd_resolved
-    @con_dns_remove @eth0
+    @eth0
     @dns_default_one_default
     Scenario: NM - dns - two connections, one with default route
     * Bring "down" connection "testeth0"
@@ -600,7 +598,6 @@ Feature: nmcli - dns
     @rhbz1512966
     @ver+=1.11.3
     @not_with_systemd_resolved
-    @con_dns_remove
     @dns_default_two_default_with_priority
     Scenario: NM - dns - two connections with default route, one has higher priority
 
@@ -629,7 +626,6 @@ Feature: nmcli - dns
     @rhbz1512966
     @ver+=1.11.3
     @not_with_systemd_resolved
-    @con_dns_remove
     @dns_default_two_default_with_negative_priority
     Scenario: NM - dns - two connections with default route, one has negative priority
 
@@ -662,7 +658,7 @@ Feature: nmcli - dns
     @rhbz1512966
     @ver+=1.11.3 @fedoraver+=31
     @not_with_systemd_resolved
-    @con_dns_remove @eth0
+    @eth0
     @dns_default_no_default
     Scenario: NM - dns - two connections without default route
 
@@ -686,7 +682,7 @@ Feature: nmcli - dns
     @rhbz1512966
     @ver+=1.11.3
     @not_with_systemd_resolved
-    @con_dns_remove @openvpn @openvpn4
+    @openvpn @openvpn4
     @dns_default_full_tunnel_vpn
     Scenario: NM - dns - full-tunnel VPN
 
@@ -713,7 +709,7 @@ Feature: nmcli - dns
     @rhbz1512966
     @ver+=1.11.3
     @not_with_systemd_resolved
-    @con_dns_remove @openvpn @openvpn4
+    @openvpn @openvpn4
     @dns_default_split_tunnel_vpn
     Scenario: NM - dns - split-tunnel VPN
 
@@ -740,7 +736,7 @@ Feature: nmcli - dns
 
     @ver+=1.11.3
     @not_with_systemd_resolved
-    @con_dns_remove @openvpn @openvpn4
+    @openvpn @openvpn4
     @dns_default_split_tunnel_vpn_same_priority
     Scenario: NM - dns - split-tunnel VPN - same dns priority
 
@@ -771,7 +767,7 @@ Feature: nmcli - dns
 
     @rhbz1512966
     @ver+=1.11.3
-    @con_dns_remove @dns_dnsmasq
+    @dns_dnsmasq
     @dns_dnsmasq_two_default
     Scenario: NM - dns - two connections with default route
 
@@ -802,7 +798,7 @@ Feature: nmcli - dns
 
     @rhbz1512966
     @ver+=1.11.3
-    @con_dns_remove @dns_dnsmasq
+    @dns_dnsmasq
     @dns_dnsmasq_one_default
     Scenario: NM - dns - two connections, one with default route
 
@@ -831,7 +827,7 @@ Feature: nmcli - dns
 
     @rhbz1628576
     @ver+=1.12
-    @con_dns_remove @dns_dnsmasq @regenerate_veth @skip_str
+    @dns_dnsmasq @regenerate_veth @skip_str
     @dns_dnsmasq_driver_removal
     Scenario: NM - dns - remove driver
     * Prepare simulated test "testX4" device
@@ -856,7 +852,7 @@ Feature: nmcli - dns
 
     @rhbz1512966
     @ver+=1.11.3
-    @con_dns_remove @dns_dnsmasq
+    @dns_dnsmasq
     @dns_dnsmasq_two_default_with_priority
     Scenario: NM - dns - two connections with default route, one has higher priority
 
@@ -886,7 +882,7 @@ Feature: nmcli - dns
 
     @rhbz1512966
     @ver+=1.11.3
-    @con_dns_remove @dns_dnsmasq
+    @dns_dnsmasq
     @dns_dnsmasq_two_default_with_negative_priority
     Scenario: NM - dns - two connections with default route, one has negative priority
 
@@ -918,7 +914,7 @@ Feature: nmcli - dns
 
     @rhbz1512966
     @ver+=1.11.3
-    @con_dns_remove @dns_dnsmasq @eth0
+    @dns_dnsmasq @eth0
     @dns_dnsmasq_no_default
     Scenario: NM - dns - two connections without default route
 
@@ -947,7 +943,7 @@ Feature: nmcli - dns
 
     @rhbz1512966
     @ver+=1.11.3
-    @con_dns_remove @openvpn @openvpn4 @dns_dnsmasq
+    @openvpn @openvpn4 @dns_dnsmasq
     @dns_dnsmasq_full_tunnel_vpn
     Scenario: NM - dns - full-tunnel VPN
 
@@ -975,7 +971,7 @@ Feature: nmcli - dns
 
     @rhbz1512966
     @ver+=1.11.3
-    @con_dns_remove @openvpn @openvpn4 @dns_dnsmasq
+    @openvpn @openvpn4 @dns_dnsmasq
     @dns_dnsmasq_split_tunnel_vpn
     Scenario: NM - dns - split-tunnel VPN
 
@@ -1005,7 +1001,7 @@ Feature: nmcli - dns
     @rhbz1878166
     @rhelver+=8
     @ver+=1.30
-    @con_dns_remove @dns_dnsmasq
+    @dns_dnsmasq
     @dns_dnsmasq_dnssec_opts
     Scenario: NM - dns - dnssec
     * Add "ethernet" connection named "con_dns" for device "eth2" with options "autoconnect no"
@@ -1020,7 +1016,7 @@ Feature: nmcli - dns
 ##########################################
 
     @ver+=1.15.1
-    @con_dns_remove @dns_dnsmasq @restore_resolvconf
+    @dns_dnsmasq @restore_resolvconf
     @dns_dnsmasq_kill
     Scenario: NM - dns - dnsmasq gets restarted when killed
     * Add "ethernet" connection named "con_dns" for device "eth2" with options "autoconnect no"
@@ -1036,7 +1032,7 @@ Feature: nmcli - dns
 
     @ver+=1.15.1
     @ver-1.21.2
-    @con_dns_remove @dns_dnsmasq @restore_resolvconf
+    @dns_dnsmasq @restore_resolvconf
     @dns_dnsmasq_kill_ratelimit
     # When dnsmasq dies, NM restarts it. But if dnsmasq dies too many
     # times in a short period, NM stops respawning it for 5 minutes
@@ -1054,7 +1050,7 @@ Feature: nmcli - dns
     Then "172.16.1.53" is visible with command "grep nameserver /etc/resolv.conf"
 
     @ver+=1.21.2
-    @con_dns_remove @dns_dnsmasq @restore_resolvconf
+    @dns_dnsmasq @restore_resolvconf
     @dns_dnsmasq_kill_ratelimit
     # When dnsmasq dies, NM restarts it. But if dnsmasq dies too many
     # times (5 times) in a short period (30 seconds), NM stops respawning
@@ -1079,8 +1075,7 @@ Feature: nmcli - dns
 
     @rhbz1676635
     @ver+=1.17.3
-    @not_with_systemd_resolved @con_dns_remove
-    @dns_multiple_options
+    @not_with_systemd_resolved     @dns_multiple_options
     Scenario: nmcli - dns - add more options to ipv4.dns-options
     * Add "ethernet" connection named "con_dns" for device "\*" with options "autoconnect no ipv4.dns-options ndots:2"
     * Modify connection "con_dns" changing options "+ipv4.dns-options timeout:2"
@@ -1135,7 +1130,7 @@ Feature: nmcli - dns
     @rhbz1593661
     @ver+=1.12
     @not_with_systemd_resolved
-    @remove_custom_cfg @con_dns_remove @restore_resolvconf @eth8_disconnect @restart_if_needed
+    @remove_custom_cfg @restore_resolvconf @eth8_disconnect @restart_if_needed
     @resolv_conf_dangling_symlink
     Scenario: NM - general - follow resolv.conf when dangling symlink
     * Add "ethernet" connection named "con_dns" for device "eth8" with options
@@ -1167,7 +1162,7 @@ Feature: nmcli - dns
     @rhbz1593661
     @ver+=1.12 @rhelver+=8
     @not_with_systemd_resolved
-    @con_dns_remove @restore_resolvconf @restart_if_needed
+    @restore_resolvconf @restart_if_needed
     @resolv_conf_do_not_overwrite_symlink
     Scenario: NM - general - do not overwrite dns symlink
     * Add "ethernet" connection named "con_dns" for device "eth8" with options

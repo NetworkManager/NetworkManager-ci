@@ -650,9 +650,9 @@ Feature: nmcli - general
 
 
     @rhbz1007365
-    @bridge
     @nmcli_novice_mode_readline
     Scenario: nmcli - general - using readline library in novice mode
+    * Cleanup connection "bridge" and device "nm-bridge"
     * Open wizard for adding new connection
     * Expect "Connection type"
     * Send "bond" in editor
@@ -948,7 +948,6 @@ Feature: nmcli - general
 
 
     @rhbz1041901
-    @gen-bond_remove
     @nmcli_general_multiword_autocompletion
     Scenario: nmcli - general - multiword autocompletion
     * Add "bond" connection named "'Bondy connection 1'" for device "gen-bond"
@@ -1487,7 +1486,7 @@ Feature: nmcli - general
 
 
     #@rhbz1128581
-    #@con_general_remove @eth0
+    #@eth0
     #@connect_to_slow_router
     #Scenario: NM - general - connection up to 60 seconds
     #* Prepare simulated test "testM" device
@@ -2242,7 +2241,7 @@ Feature: nmcli - general
 
     @rhbz1574565
     @ver+=1.12
-    @gen-bond_remove @checkpoint_remove
+    @checkpoint_remove
     @libnm_snapshot_destroy_after_rollback
     Scenario: NM - general - snapshot and destroy checkpoint
     * "Failed" is not visible with command "contrib/gi/libnm_snapshot_checkpoint.py create 5" in "0" seconds

@@ -9,7 +9,6 @@
 
     @rhbz909236
     @ver+=1.10
-    @con_tc_remove @dummy
     @set_fq_codel_queue
     Scenario: nmcli - tc - set fq_codel
     * Add "dummy" connection named "con_tc" for device "dummy0" with options
@@ -22,7 +21,6 @@
 
     @rhbz909236
     @ver+=1.25
-    @con_tc_remove @dummy
     @set_pfifo_fast_queue
     Scenario: nmcli - tc - set pfifo_fast
     * Add "dummy" connection named "con_tc" for device "dummy0" with options

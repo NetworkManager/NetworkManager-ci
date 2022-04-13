@@ -40,16 +40,16 @@ Feature: nmcli: connection
 
 
     @rhbz1375933
-    @con_con_remove
     @nmcli_device_autocompletion
     Scenario: nmcli - connection - device autocompletion
+    * Cleanup connection "con_con"
     Then "eth0|eth1|eth10" is visible with tab after "nmcli connection add type ethernet ifname "
 
 
     @rhbz1367736
-    @con_con_remove
     @connection_objects_autocompletion
     Scenario: nmcli - connection - objects autocompletion
+    * Cleanup connection "con_con"
     Then "ipv4.dad-timeout" is visible with tab after "nmcli connection add type bond -- ipv4.method manual ipv4.addresses 1.1.1.1/24 ip"
 
 
@@ -235,9 +235,9 @@ Feature: nmcli: connection
      Then "con_con" is not visible with command "nmcli -t -f NAME  connection show -a" in "3" seconds
 
 
-    #@con_con_remove
     #@connection_autoconnect_warning
     #Scenario: nmcli - connection - autoconnect warning while saving new
+    # * Cleanup connection "con_con"
     # * Open editor for new connection "con_con" type "ethernet"
     # * Save in editor
     # Then autoconnect warning is shown
@@ -984,6 +984,7 @@ Feature: nmcli: connection
      @ver+=1.33
      @connection_external_dummy_interface
      Scenario: nmcli - connection - create & activate connection from external dummy interface
+     * Cleanup connection "dummy1"
      * Create "dummy" device named "dummy1"
      When "unmanaged" is not visible with command "nmcli device show |grep dummy1" in "2" seconds
      * Connect device "dummy1"

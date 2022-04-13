@@ -8,9 +8,9 @@
      # Scenario:
 
     @rhbz1257195
-    @team
     @add_default_team
     Scenario: nmcli - team - add default team
+     * Cleanup connection "team0" and device "nm-team"
      * Open editor for a type "team"
      * Submit "set connection.interface-name nm-team" in editor
      * Submit "set connection.connection-name nm-team" in editor
@@ -23,7 +23,7 @@
 
     @rhbz1393853
     @ver+=1.8
-    @team @restart_if_needed
+    @restart_if_needed
     @add_default_team_after_journal_restart
     Scenario: nmcli - team - add default team after journal restart
      * Execute "systemctl restart systemd-journald"
@@ -32,7 +32,6 @@
 
 
     @ifcfg-rh
-    @team @team_slaves
     @ifcfg_team_slave_device_type
     Scenario: nmcli - team - slave ifcfg devicetype
      * Add "team" connection named "team0" for device "nm-team"
@@ -40,9 +39,9 @@
     Then "DEVICETYPE=TeamPort" is visible with command "grep TYPE /etc/sysconfig/network-scripts/ifcfg-team0.0"
 
 
-    @team
     @nmcli_novice_mode_create_team
     Scenario: nmcli - team - novice - create team
+     * Cleanup connection "team" and device "nm-team"
      * Open wizard for adding new connection
      * Expect "Connection type"
      * Submit "team" in editor
@@ -53,10 +52,10 @@
      Then "ifname": "nm-team" is visible with command "sudo teamdctl nm-team state dump" in "5" seconds
 
 
-    @team_slaves @team
     @nmcli_novice_mode_create_team-slave_with_default_options
     @ver-=1.20
     Scenario: nmcli - team - novice - create team-slave with default options
+     * Cleanup connection "team-slave" and device "eth5"
      * Add "team" connection named "team0" for device "nm-team"
      * Open wizard for adding new connection
      * Expect "Connection type"
@@ -72,10 +71,10 @@
     Then Check slave "eth5" in team "nm-team" is "up"
 
 
-    @team_slaves @team
     @nmcli_novice_mode_create_team-slave_with_default_options
     @ver+=1.21.1
     Scenario: nmcli - team - novice - create team-slave with default options
+     * Cleanup connection "team-slave" and device "eth5"
      * Add "team" connection named "team0" for device "nm-team"
      * Open wizard for adding new connection
      * Expect "Connection type"
@@ -94,7 +93,6 @@
 
 
     @rhbz1257237
-    @team_slaves @team
     @add_two_slaves_to_team
     Scenario: nmcli - team - add slaves
      * Add "team" connection named "team0" for device "nm-team"
@@ -108,7 +106,6 @@
 
     @rhbz1310435
     @ver+=1.4.0
-    @team_slaves @team
     @default_config_watch
     Scenario: nmcli - team - default config watcher
      * Add "team" connection named "team0" for device "nm-team"
@@ -122,7 +119,6 @@
 
 
     @rhbz1057494
-    @team_slaves @team
     @add_team_master_via_uuid
     Scenario: nmcli - team - master via uuid
      * Add "team" connection named "team0" for device "nm-team"
@@ -131,7 +127,6 @@
     Then Check slave "eth5" in team "nm-team" is "up"
 
 
-    @team_slaves @team
     @remove_all_slaves
     Scenario: nmcli - team - remove last slave
      * Add "team" connection named "team0" for device "nm-team"
@@ -143,7 +138,7 @@
 
     #@rhbz1294728
     #@ver+=1.1
-    #@team @team_slaves @restart_if_needed
+    #@restart_if_needed
     #@team_restart_persistence
     #Scenario: nmcli - team - restart persistence
     # * Add "team" connection named "team0" for device "nm-team"
@@ -160,7 +155,6 @@
     #  And "team0.1" is visible with command "nmcli con show -a"
 
 
-    @team_slaves @team
     @remove_one_slave
     Scenario: nmcli - team - remove a slave
      * Add "team" connection named "team0" for device "nm-team"
@@ -174,8 +168,7 @@
 
 
 
-    #@team_slaves @team
-    #@change_slave_type_and_master
+    #    #@change_slave_type_and_master
     #Scenario: nmcli - connection - slave-type and master settings
     # * Add "team" connection named "team0" for device "nm-team"
     # * Add "ethernet" connection named "team0.0" for device "eth5"
@@ -191,7 +184,6 @@
 
 
 
-    @team_slaves @team
     @remove_active_team_profile
     Scenario: nmcli - team - remove active team profile
      * Add "team" connection named "team0" for device "nm-team"
@@ -202,7 +194,6 @@
     Then Team "nm-team" is down
 
 
-    @team_slaves @team
     @disconnect_active_team
     Scenario: nmcli - team - disconnect active team
      * Add "team" connection named "team0" for device "nm-team"
@@ -213,7 +204,6 @@
     Then Team "nm-team" is down
 
 
-    @team_slaves @team
     @team_start_by_hand_no_slaves
     Scenario: nmcli - team - start team by hand with no slaves
      * Add "team" connection named "team0" for device "nm-team"
@@ -228,7 +218,6 @@
 
 
     @rhbz1158529
-    @team_slaves @team
     @team_slaves_start_via_master
     Scenario: nmcli - team - start slaves via master
      * Add "team" connection named "team0" for device "nm-team"
@@ -244,7 +233,6 @@
     Then Check slave "eth6" in team "nm-team" is "up"
 
 
-    @team_slaves @team
     @start_team_by_hand_all_auto
     Scenario: nmcli - team - start team by hand with all auto
      * Add "team" connection named "team0" for device "nm-team"
@@ -260,7 +248,6 @@
     Then Check slave "eth6" in team "nm-team" is "up"
 
 
-    @team_slaves @team
     @team_activate
     Scenario: nmcli - team - activate
      * Add "team" connection named "team0" for device "nm-team"
@@ -282,7 +269,6 @@
 
     @rhbz1386872
     @ver+=1.8.0
-    @team_slaves @team
     @team_mac_spoof
     Scenario: nmcli - team - mac spoof
      * Add "team" connection named "team0" with options "ethernet.cloned-mac-address 02:02:02:02:02:02"
@@ -295,7 +281,6 @@
 
     @rhbz1424641
     @ver+=1.8.0
-    @team_slaves @team
     @team_mac_spoof_var1
     Scenario: nmcli - team - config - mac spoof with mac in json
      * Add "team" connection named "team0" with options "ethernet.cloned-mac-address 02:02:02:02:02:02"
@@ -308,7 +293,6 @@
      And "02:03:03:03:03:03" is visible with command "ip a s nm-team"
 
 
-    @team_slaves @team
     @start_team_by_hand_one_auto
     Scenario: nmcli - team - start team by hand with one auto
      * Add "team" connection named "team0" for device "nm-team"
@@ -325,7 +309,7 @@
     Then Check slave "eth6" in team "nm-team" is "up"
 
 
-    @team_slaves @team @restart_if_needed
+    @restart_if_needed
     @start_team_on_boot
     Scenario: nmcli - team - start team on boot
      * Add "team" connection named "team0" for device "nm-team"
@@ -350,7 +334,7 @@
      And Check slave "eth6" in team "nm-team" is "up"
 
 
-    @team_slaves @team @restart_if_needed
+    @restart_if_needed
     @team_start_on_boot_with_nothing_auto
     Scenario: nmcli - team - start team on boot - nothing auto
      * Add "team" connection named "team0" for device "nm-team"
@@ -377,7 +361,7 @@
 
     #VVV    THIS IS DIFFERENT IN BOND AREA
 
-    @team_slaves @team @restart_if_needed
+    @restart_if_needed
     @team_start_on_boot_with_one_auto_only
     Scenario: nmcli - team - start team on boot - one slave auto only
      * Add "team" connection named "team0" for device "nm-team"
@@ -403,7 +387,7 @@
      And Check slave "eth5" in team "nm-team" is "down"
 
 
-    @team_slaves @team @restart_if_needed
+    @restart_if_needed
     @team_start_on_boot_with_team_and_one_slave_auto
     Scenario: nmcli - team - start team on boot - team and one slave auto
      * Add "team" connection named "team0" for device "nm-team"
@@ -428,7 +412,6 @@
      And Check slave "eth5" in team "nm-team" is "down"
 
 
-    @team_slaves @team
     @config_loadbalance
     Scenario: nmcli - team - config - set loadbalance mode
      * Add "team" connection named "team0" for device "nm-team"
@@ -443,7 +426,6 @@
     Then Check slave "eth6" in team "nm-team" is "up"
 
 
-    @team_slaves @team
     @config_broadcast
     Scenario: nmcli - team - config - set broadcast mode
      * Add "team" connection named "team0" for device "nm-team"
@@ -463,7 +445,7 @@
 
     @rhbz149733
     @ver+=1.10
-    @team_slaves @team @not_on_veth @restart_if_needed
+    @not_on_veth @restart_if_needed
     @config_lacp
     Scenario: nmcli - team - config - set lacp mode
      * Add "team" connection named "team0" for device "nm-team" with options
@@ -484,7 +466,7 @@
 
 
     #@ver-=1.7.0
-    #@team_slaves @team @long
+    #@long
     #@config_invalid1
     #Scenario: nmcli - team - config - set invalid mode
     # * Add "team" connection named "team0" for device "nm-team"
@@ -500,7 +482,7 @@
 
     #@rhbz1360386
     #@ver+=1.7.1
-    #@team_slaves @team @not_with_rhel_pkg
+    #@not_with_rhel_pkg
     #@config_invalid1
     #Scenario: nmcli - team - config - set invalid mode
     # * Add "team" connection named "team0" for device "nm-team"
@@ -519,7 +501,7 @@
 
     #@rhbz1270814
     #@ver+=1.3.0
-    #@team_slaves @team @long @not_with_rhel_pkg
+    #@long @not_with_rhel_pkg
     #@config_invalid2
     #Scenario: nmcli - team - config - set invalid mode
     # * Add "team" connection named "team0" for device "nm-team"
@@ -537,7 +519,7 @@
      @rhbz1312726
      @ver+=1.4.0
      @ver-=1.10.0
-     @team_slaves @team @long
+     @long
      @config_invalid3
      Scenario: nmcli - team - config - set invalid mode
       * Add "team" connection named "team0" for device "nm-team"
@@ -552,7 +534,6 @@
 
      @rhbz1366300
      @ver+=1.4.0
-     @team_slaves @team
      @team_config_null
      Scenario: nmcli - team - config - empty string
      * Add "team" connection named "team0" for device "nm-team" with options "autoconnect no team.config "" "
@@ -567,7 +548,6 @@
 
 
     @rhbz1255927
-    @team @team_slaves
     @team_set_mtu
     Scenario: nmcli - team - set mtu
      * Add "team" connection named "team0" for device "nm-team"
@@ -598,7 +578,6 @@
     Then "mtu 9000" is visible with command "ip a s nm-team |grep mtu"
 
 
-    @team_slaves @team
     @remove_config
     Scenario: nmcli - team - config - remove
      * Add "team" connection named "team0" for device "nm-team"
@@ -621,7 +600,7 @@
 
 
     @ver+=1.1.1 @ver-=1.24
-    @dummy @teamd
+    @teamd
     @team_reflect_changes_from_outside_of_NM
     Scenario: nmcli - team - reflect changes from outside of NM
     * Execute "systemd-run --unit teamd teamd --team-dev=team0"
@@ -629,7 +608,7 @@
     When "team0\s+team\s+unmanaged" is visible with command "nmcli d"
     * Execute "ip link set dev team0 up"
     When "team0\s+team\s+unmanaged" is visible with command "nmcli d"
-    * Execute "ip link add dummy0 type dummy"
+    * Create "dummy" device named "dummy0"
     * Execute "ip addr add 1.1.1.1/24 dev team0"
     When "team0\s+team\s+connected\s+team0" is visible with command "nmcli d" in "5" seconds
     When "dummy0\s+dummy\s+unmanaged" is visible with command "nmcli d"
@@ -640,7 +619,7 @@
 
     @rhbz1816202
     @ver+=1.25
-    @dummy @teamd
+    @teamd
     @team_reflect_changes_from_outside_of_NM
     Scenario: nmcli - team - reflect changes from outside of NM
     * Execute "systemd-run --unit teamd teamd --team-dev=team0"
@@ -648,7 +627,7 @@
     When "team0\s+team\s+unmanaged" is visible with command "nmcli d"
     * Execute "ip link set dev team0 up"
     When "team0\s+team\s+unmanaged" is visible with command "nmcli d"
-    * Execute "ip link add dummy0 type dummy"
+    * Create "dummy" device named "dummy0"
     * Execute "ip addr add 1.1.1.1/24 dev team0"
     When "team0\s+team\s+connected \(externally\)\s+team0" is visible with command "nmcli d" in "5" seconds
     When "dummy0\s+dummy\s+unmanaged" is visible with command "nmcli d"
@@ -658,7 +637,6 @@
 
 
     @rhbz1145988
-    @team_slaves @team
     @kill_teamd
     Scenario: NM - team - kill teamd
      * Add "team" connection named "team0" for device "nm-team"
@@ -667,7 +645,6 @@
     Then "teamd -o -n -U -D -N -t nm-team" is visible with command "ps aux|grep -v grep| grep teamd"
 
 
-    @team
     @describe
     Scenario: nmcli - team - describe team
      * Open editor for a type "team"
@@ -680,7 +657,6 @@
 
 
     @rhbz1183444
-    @team @team_br_remove
     @team_enslave_to_bridge
     Scenario: nmcli - team - enslave team device to bridge
      * Add "team" connection named "team0" for device "nm-team" with options "autoconnect no"
@@ -696,8 +672,7 @@
     Then "nm-team:team:connected:team0" is visible with command "nmcli -t -f DEVICE,TYPE,STATE,CONNECTION device" in "5" seconds
 
 
-    @rhbz1303968
-    @team @team_br_remove @team_slaves
+    @rhbz1303968 
     @team_in_bridge_mtu
     Scenario: nmcli - team - enslave team device to bridge and set mtu
      * Add "bridge" connection named "team_br" for device "brA" with options
@@ -730,7 +705,6 @@
 
      @rhbz1367180
      @ver+=1.4.0
-     @team @team_slaves
      @ifcfg_with_missing_devicetype
      Scenario: ifcfg - team - missing device type
      * Append "DEVICE=eth5" to ifcfg file "team0.0"
@@ -759,7 +733,6 @@
 
     @rhbz1286105 @rhbz1312359
     @ver+=1.4.0
-    @team @team_slaves
     @team_in_vlan
     Scenario: nmcli - team - team in vlan
      * Add "team" connection named "team0" for device "nm-team" with options
@@ -800,7 +773,6 @@
 
     @rhbz1286105 @rhbz1312359
     @ver+=1.18
-    @team @team_slaves
     @team_in_vlan_start_correct_device
     Scenario: nmcli - team - team in vlan start correct device
     * Add "team" connection named "team0" for device "nm-team" with options "config '{"runner": {"name": "lacp"}}'"
@@ -824,7 +796,7 @@
 
     @rhbz1286105 @rhbz1312359 @rhbz1490157
     @ver+=1.8.1
-    @team @team_slaves @restart_if_needed
+    @restart_if_needed
     @team_in_vlan_restart_persistence
     Scenario: nmcli - team - team in vlan restart persistence
      * Prepare simulated test "testXT2" device
@@ -850,7 +822,7 @@
 
     @rhbz1427482
     @ver+=1.8.0
-    @team @team_slaves @restart_if_needed
+    @restart_if_needed
     @vlan_in_team
     Scenario: nmcli - team - vlans in team
      * Add "team" connection named "team0" for device "nm-team" with options "ip4 192.168.168.17/24 ipv6.method ignore"
@@ -874,7 +846,7 @@
 
     @rhbz1371126
     @ver+=1.4.0
-    @team_slaves @team @restart_if_needed
+    @restart_if_needed
     @team_leave_L2_only_up_when_going_down
     Scenario: nmcli - team - leave UP with L2 only config
      * Prepare simulated test "testXT1" device
@@ -911,7 +883,7 @@
 
     @rhbz1445242
     @ver+=1.8.0
-    @team @firewall @restart_if_needed
+    @firewall @restart_if_needed
     @team_add_into_firewall_zone
     Scenario: nmcli - team - modify zones
     * Add "team" connection named "team0" for device "nm-team"
@@ -923,7 +895,7 @@
 
     @rhbz1310676
     @ver+=1.10
-    @team_slaves @team @ethernet
+    @ethernet
     @reconnect_back_to_ethernet_after_master_delete
     Scenario: nmcli - team - reconnect ethernet when master deleted
      * Add "ethernet" connection named "ethernet" for device "eth5"
@@ -937,7 +909,6 @@
 
     @rhbz1398925
     @ver+=1.10 @ver-=1.19.1
-    @team_slaves @team
     @team_abs_set_runners
     Scenario: nmcli - team_abs - set runners
     * Add "team" connection named "team0" for device "nm-team" with options
@@ -982,7 +953,6 @@
 
     @rhbz1398925
     @ver+=1.19.2
-    @team_slaves @team
     @team_abs_set_runners
     Scenario: nmcli - team_abs - set runners
     * Add "team" connection named "team0" for device "nm-team" with options
@@ -1027,7 +997,7 @@
 
     @rhbz1398925
     @ver+=1.10
-    @team_slaves @team @not_on_s390x @not_on_ppc64
+    @not_on_s390x @not_on_ppc64
     @team_abs_set_runner_hwaddr_policy
     Scenario: nmcli - team_abs - set runners hwadd policy
     * Note the output of "ip a s eth5|grep ether |awk '{print $2}'" as value "eth5"
@@ -1083,7 +1053,6 @@
 
     @rhbz1398925
     @ver+=1.10 @ver-=1.19.1
-    @team_slaves @team
     @team_abs_set_runner_tx_hash
     Scenario: nmcli - team_abs - set runner tx-hash
     * Add "team" connection named "team0" for device "nm-team" with options
@@ -1104,7 +1073,6 @@
 
     @rhbz1398925
     @ver+=1.19.2
-    @team_slaves @team
     @team_abs_set_runner_tx_hash
     Scenario: nmcli - team_abs - set runner tx-hash
     * Add "team" connection named "team0" for device "nm-team" with options
@@ -1125,7 +1093,6 @@
 
     @rhbz1398925
     @ver+=1.10
-    @team_slaves @team
     @team_abs_set_runner_tx_balancer
     Scenario: nmcli - team_abs - set runner tx-balancer
     * Add "team" connection named "team0" for device "nm-team" with options
@@ -1145,7 +1112,6 @@
 
     @rhbz1398925
     @ver+=1.10
-    @team_slaves @team
     @team_abs_set_runner_tx_balancer_interval
     Scenario: nmcli - team_abs - set runner tx-balancer-interval
     * Add "team" connection named "team0" for device "nm-team" with options
@@ -1165,7 +1131,6 @@
 
     @rhbz1398925
     @ver+=1.10
-    @team_slaves @team
     @team_abs_set_runner_active
     Scenario: nmcli - team_abs - set runner active
     * Add "team" connection named "team0" for device "nm-team" with options
@@ -1185,7 +1150,6 @@
 
     @rhbz1398925
     @ver+=1.10
-    @team_slaves @team
     @team_abs_set_runner_fast_rate
     Scenario: nmcli - team_abs - set runner fast-rate
     * Add "team" connection named "team0" for device "nm-team" with options
@@ -1207,7 +1171,6 @@
 
     @rhbz1398925 @rhbz1533810
     @ver+=1.10 @ver-=1.19.1
-    @team_slaves @team
     @team_abs_set_runner_sys_prio
     Scenario: nmcli - team_abs - set runner sys_prio
     * Add "team" connection named "team0" for device "nm-team" with options
@@ -1233,7 +1196,6 @@
 
     @rhbz1398925 @rhbz1533810
     @ver+=1.19.2
-    @team_slaves @team
     @team_abs_set_runner_sys_prio
     Scenario: nmcli - team_abs - set runner sys_prio
     * Add "team" connection named "team0" for device "nm-team" with options
@@ -1259,7 +1221,6 @@
 
     @rhbz1398925 @rhbz1533830
     @ver+=1.10 @ver-=1.19.1
-    @team_slaves @team
     @team_abs_set_runner_min_ports
     Scenario: nmcli - team_abs - set runner min_ports
     * Add "team" connection named "team0" for device "nm-team" with options
@@ -1291,7 +1252,6 @@
 
     @rhbz1398925 @rhbz1533830
     @ver+=1.19.2
-    @team_slaves @team
     @team_abs_set_runner_min_ports
     Scenario: nmcli - team_abs - set runner min_ports
     * Add "team" connection named "team0" for device "nm-team" with options
@@ -1324,7 +1284,6 @@
 
     @rhbz1398925 @rhbz1533830
     @ver+=1.10 @ver-=1.19.1
-    @team_slaves @team
     @team_abs_set_runner_agg_select_policy
     Scenario: nmcli - team_abs - set runner agg-select-policy
     * Add "team" connection named "team0" for device "nm-team" with options
@@ -1362,7 +1321,6 @@
 
     @rhbz1398925 @rhbz1533830
     @ver+=1.19.2
-    @team_slaves @team
     @team_abs_set_runner_agg_select_policy
     Scenario: nmcli - team_abs - set runner agg-select-policy
     * Add "team" connection named "team0" for device "nm-team" with options
@@ -1400,7 +1358,6 @@
 
     @rhbz1398925
     @ver+=1.10 @ver-=1.19.1
-    @team_slaves @team
     @team_abs_set_notify_peers
     Scenario: nmcli - team_abs - set notify_peers
     * Add "team" connection named "team0" for device "nm-team" with options
@@ -1432,7 +1389,6 @@
 
     @rhbz1398925
     @ver+=1.19.2
-    @team_slaves @team
     @team_abs_set_notify_peers
     Scenario: nmcli - team_abs - set notify_peers
     * Add "team" connection named "team0" for device "nm-team" with options
@@ -1464,7 +1420,6 @@
 
     @rhbz1398925
     @ver+=1.10 @ver-=1.19.1
-    @team_slaves @team
     @team_abs_set_mcast_rejoin
     Scenario: nmcli - team_abs - set mcast_rejoin
     * Add "team" connection named "team0" for device "nm-team" with options
@@ -1496,7 +1451,6 @@
 
     @rhbz1398925
     @ver+=1.19.2
-    @team_slaves @team
     @team_abs_set_mcast_rejoin
     Scenario: nmcli - team_abs - set mcast_rejoin
     * Add "team" connection named "team0" for device "nm-team" with options
@@ -1528,7 +1482,6 @@
 
     @rhbz1398925
     @ver+=1.10
-    @team_slaves @team
     @team_abs_set_link_watchers_ethtool
     Scenario: nmcli - team_abs - set link_watchers ethtool
     * Add "team" connection named "team0" for device "nm-team" with options
@@ -1549,7 +1502,6 @@
 
     @rhbz1398925
     @ver+=1.19.2
-    @team_slaves @team
     @team_abs_set_link_watchers_nsna_ping
     Scenario: nmcli - team_abs - set link_watchers nsna_ping
     * Add "team" connection named "team0" for device "nm-team" with options
@@ -1570,7 +1522,6 @@
 
     @rhbz1398925
     @ver+=1.19.2
-    @team_slaves @team
     @team_abs_set_link_watchers_arp_ping
     Scenario: nmcli - team_abs - set link_watchers arp_ping
     * Add "team" connection named "team0" for device "nm-team" with options
@@ -1591,7 +1542,6 @@
 
     @rhbz1652931
     @ver+=1.19.2
-    @team_slaves @team
     @team_abs_set_link_watchers_arp_ping_vlanid
     Scenario: nmcli - team_abs - set link_watchers arp_ping vlanid property
     * Add "team" connection named "team0" for device "nm-team" with options
@@ -1610,7 +1560,6 @@
 
     @rhbz1533926
     @ver+=1.19.2
-    @team_slaves @team
     @team_abs_overwrite_watchers
     Scenario: nmcli - team_abs - overwrite watchers
     * Add "team" connection named "team0" for device "nm-team" with options
@@ -1633,7 +1582,7 @@
 
     @rhbz1551958
     @ver+=1.10
-    @team_slaves @team @eth0 @restart_if_needed
+    @eth0 @restart_if_needed
     @restart_L2_only_lacp
     Scenario: nmcli - team - reboot L2 lacp
     * Add "team" connection named "team0" for device "nm-team" with options
@@ -1654,7 +1603,7 @@
 
     @rhbz1647414
     @ver+=1.18 @rhelver-=7
-    @team @team_slaves @long
+    @long
     @teamd_logging
     Scenario: nmcli - teamd - logging to syslog
     * Add "team" connection named "team0" for device "nm-team" with options "autoconnect no ip4 1.2.3.4/24"
@@ -1665,9 +1614,11 @@
 
     @rhbz1711952
     @ver+=1.18
-    @team @team_assumed @regenerate_veth @permissive @skip_str
+    @regenerate_veth @permissive @skip_str
     @teamd_killed_by_NM
     Scenario: NM - teamd - NM should not kill teamd
+    * Cleanup connection "eth5" and device "eth5"
+    * Cleanup interface "nm-team"
     * Execute "ip link set dev eth5 down"
     * Execute "teamd -d -c "{\"device\":\"nm-team\",\"runner\":{\"name\":\"lacp\"},\"link_watch\":{\"name\":\"ethtool\"},\"ports\":{\"eth5\":{}}}""
     When "teamd -d -c " is visible with command "ps aux | grep -v grep | grep teamd"
@@ -1682,7 +1633,6 @@
 
     @rhbz1720153
     @ver+=1.18
-    @team
     @teamd_boolean_values_problem
     Scenario: nmcli - teamd - boolean values of validate_active and validate_inactive are ignored
     * Add "team" connection named "team0" for device "nm-team" with options
@@ -1697,7 +1647,6 @@
 
     @ver+=1.20
     @ver-=1.22.0
-    @team @team_slaves
     @team_port_multiple_slaves
     Scenario: nmcli - teamd - add multiple slaves with team-port option
     * Add "team" connection named "team0" for device "nm-team" with options
@@ -1731,7 +1680,6 @@
 
     @rhbz1755406
     @ver+=1.22.2
-    @team @team_slaves
     @team_port_multiple_slaves
     Scenario: nmcli - teamd - add multiple slaves with team-port option
     * Add "team" connection named "team0" for device "nm-team" with options
@@ -1768,7 +1716,6 @@
 
     @rhbz1942331
     @ver+=1.31
-    @team
     @team_accept_all_mac_addresses
     Scenario: nmcli - team - accept-all-mac-addresses (promisc mode)
     * Add "team" connection named "team0" for device "nm-team" with options "autoconnect no"
@@ -1784,7 +1731,6 @@
 
     @rhbz1942331
     @ver+=1.31
-    @team @team_assumed
     @team_accept_all_mac_addresses_external_device
     Scenario: nmcli - team - accept-all-mac-addresses (promisc mode)
     # promisc off -> default
@@ -1821,7 +1767,6 @@
 
     @rhbz1949023
     @ver+=1.36
-    @team @dummy
     @team_controller_port_terminology
     Scenario: team - use controller/port terminology
     * Add "team" connection named "team0" for device "team0" with options "autoconnect no"

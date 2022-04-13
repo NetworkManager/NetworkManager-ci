@@ -1807,7 +1807,7 @@ Feature: nmcli: ipv4
 
     @rhbz1834907
     @ver+=1.4 @ver-=1.24
-    @two_bridged_veths @permissive
+    @permissive
     @ipv4_method_shared
     Scenario: nmcli - ipv4 - method shared
     * Note the output of "pidof NetworkManager" as value "1"
@@ -1827,7 +1827,7 @@ Feature: nmcli: ipv4
 
     @rhbz1834907
     @ver+=1.25
-    @two_bridged_veths @permissive @firewall
+    @permissive @firewall
     @ipv4_method_shared
     Scenario: nmcli - ipv4 - method shared
     * Note the output of "pidof NetworkManager" as value "1"
@@ -1847,7 +1847,7 @@ Feature: nmcli: ipv4
 
     @rhbz1404148
     @ver+=1.10
-    @two_bridged_veths @kill_dnsmasq_ip4 @ifcfg-rh
+    @kill_dnsmasq_ip4 @ifcfg-rh
     @ipv4_method_shared_with_already_running_dnsmasq
     Scenario: nmcli - ipv4 - method shared when dnsmasq does run
     * Note the output of "pidof NetworkManager" as value "1"
@@ -2391,7 +2391,7 @@ Feature: nmcli: ipv4
 
     @rhbz1767681 @rhbz1686634
     @ver+=1.18.4
-    @two_bridged_veths @tshark
+    @tshark
     @ipv4_send_arp_announcements
     Scenario: NM - ipv4 - check that gratuitous ARP announcements are sent"
     * Prepare veth pairs "test1,test2" bridged over "vethbr"
@@ -2546,7 +2546,6 @@ Feature: nmcli: ipv4
 
     @rhbz1749358
     @ver+=1.22.0
-    @bridge
     @ipv4_dhcp_iaid_unset
     Scenario: nmcli - ipv4 - IAID unset which defaults to ifname
     * Add "ethernet" connection named "con_ipv4" for device "eth3" with options "ipv4.dhcp-client-id duid"
@@ -2563,7 +2562,6 @@ Feature: nmcli: ipv4
 
     @rhbz1749358
     @ver+=1.22.0
-    @bridge
     @ipv4_dhcp_iaid_ifname
     Scenario: nmcli - ipv4 - IAID ifname
     * Add "ethernet" connection named "con_ipv4" for device "eth3" with options
@@ -2589,7 +2587,6 @@ Feature: nmcli: ipv4
 
     @rhbz1749358
     @ver+=1.22.0
-    @bridge
     @ipv4_dhcp_iaid_mac
     Scenario: nmcli - ipv4 - IAID mac
     * Add "ethernet" connection named "con_ipv4" for device "eth3" with options
@@ -2781,7 +2778,6 @@ Feature: nmcli: ipv4
 
     @rhbz1995372
     @ver+=1.35
-    @con_con_remove
     @ipv4_check_addr_order
     Scenario: nmcli - ipv4 - check IPv4 address order
     * Prepare simulated test "testX4" device

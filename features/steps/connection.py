@@ -65,6 +65,8 @@ def open_slave_connection(context, master, device, name):
 
     assert r == 1, 'Got an Error while adding slave connection %s on device %s for master %s\n%s%s' % (name, device, master, cli.after, cli.buffer)
     context.cleanup["connections"].add(name)
+    nmci.lib.add_iface_to_cleanup(context, device)
+
 
 @step(u'Bring "{action}" connection "{name}"')
 def start_stop_connection(context, action, name):
@@ -140,9 +142,6 @@ def delete_connection(context, connection):
     res = cli.expect(['Error', pexpect.TIMEOUT, pexpect.EOF])
     assert res != 0, 'Got an Error while deleting connection %s\n%s%s' % (connection, cli.after, cli.buffer)
     assert res != 1, 'Deleting connection %s timed out (95s)' % connection
-
-    if connection in context.cleanup["connections"]:
-        context.cleanup["connections"].discard(connection)
 
 
 @step(u'Fail up connection "{name}" for "{device}"')
@@ -392,5 +391,8 @@ def add_bridges_vlans_range(context, begin, end, ifname):
 
 
 @step(u'Cleanup connection "{connection}"')
-def cleanup_connection(context, connection):
+@step(u'Cleanup connection "{connection}" and device "{device}"')
+def cleanup_connection(context, connection, device=None):
     context.cleanup["connections"].add(connection)
+    if device is not None:
+        context.execute_steps(f'* Cleanup interface "{device}"')

@@ -125,7 +125,11 @@ def prepare_veths(context, pairs_array, bridge):
     context.execute_steps(f'* Create "bridge" device named "{bridge}"')
     context.command_code("sudo ip link set dev %s up" % bridge)
     for pair in pairs:
-        context.execute_steps(f'* Create "veth" device named "{pair}" with options "peer name {pair}p"')
+        context.execute_steps(
+            f'''
+            * Create "veth" device named "{pair}" with options "peer name {pair}p"
+            * Cleanup interface "{pair}p"
+            ''')
         context.command_code("ip link set %sp master %s" % (pair, bridge))
         context.command_code("ip link set dev %s up" % pair)
         context.command_code("ip link set dev %sp up" % pair)

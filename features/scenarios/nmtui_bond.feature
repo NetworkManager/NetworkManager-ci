@@ -317,7 +317,6 @@ Feature: Bond TUI tests
 
 
     # #bz1142864
-    # @bond
     # @nmtui_bond_add_mode_active_backup_no_primary
     # Scenario: nmtui - bond - mode - active backup without primary
     # * Prepare new connection of type "Bond" named "bond0"

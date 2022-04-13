@@ -46,9 +46,9 @@
             """
 
 
-    @bond
     @bond_add_default_bond
     Scenario: nmcli - bond - add default bond
+     * Cleanup connection "bond0" and device "nm-bond"
      * Open editor for a type "bond"
      * Save in editor
      * Enter in editor
@@ -63,9 +63,10 @@
 
     @rhbz1440957
     @ver+=1.8.0
-    @slaves
     @nmcli_editor_for_new_connection_set_con_id
     Scenario: nmcli - bond - add bond-slave via new connection editor
+     * Cleanup connection "bond0" and device "nm-bond"
+     * Cleanup connection "bond0.0"
      * Open editor for a new connection
      * Expect "connection type"
      * Submit "bond-slave"
@@ -80,9 +81,9 @@
      Then "bond0.0" is visible with command "nmcli con"
 
 
-    @slaves @bond
     @nmcli_novice_mode_create_bond_with_default_options
     Scenario: nmcli - bond - novice - create bond with default options
+     * Cleanup connection "bond" and device "nm-bond"
      * Open wizard for adding new connection
      * Expect "Connection type"
      * Submit "bond" in editor
@@ -115,9 +116,9 @@
      And "BOOTPROTO=dhcp" is not visible with command "cat /etc/sysconfig/network-scripts/ifcfg-bond0"
 
 
-    @bond
     @nmcli_novice_mode_create_bond_with_mii_monitor_values
     Scenario: nmcli - bond - novice - create bond with miimon monitor
+     * Cleanup connection "bond" and device "nm-bond"
      * Open wizard for adding new connection
      * Expect "Connection type"
      * Submit "bond" in editor
@@ -145,9 +146,10 @@
     Then "Down Delay \(ms\): 400" is visible with command "cat /proc/net/bonding/nm-bond"
 
 
-    @bond
     @nmcli_novice_mode_create_bond_with_arp_monitor_values
     Scenario: nmcli - bond - novice - create bond with arp monitor
+     * Cleanup connection "bond-1" and device "nm-bond1"
+     * Cleanup connection "bond" and device "nm-bond"
      * Open wizard for adding new connection
      * Expect "Connection type"
      * Submit "bond" in editor
@@ -177,9 +179,9 @@
 
 
     @ver-1.20
-    @slaves
     @nmcli_novice_mode_create_bond-slave_with_default_options
     Scenario: nmcli - bond - novice - create bond-slave with default options
+     * Cleanup connection "bond-slave" and device "eth1"
      * Add "bond" connection named "bond0" for device "nm-bond" with options
            """
            ip4 172.16.1.1/24
@@ -197,9 +199,9 @@
 
 
     @ver+=1.21.1 @ver-=1.32
-    @slaves
     @nmcli_novice_mode_create_bond-slave_with_default_options
     Scenario: nmcli - bond - novice - create bond-slave with default options
+     * Cleanup connection "bond-slave" and device "eth1"
      * Add "bond" connection named "bond0" for device "nm-bond" with options
            """
            ip4 172.16.1.1/24
@@ -219,9 +221,9 @@
 
 
     @ver+=1.33
-    @slaves
     @nmcli_novice_mode_create_bond-slave_with_default_options
     Scenario: nmcli - bond - novice - create bond-slave with default options
+     * Cleanup connection "bond-slave" and device "eth1"
      * Add "bond" connection named "bond0" for device "nm-bond" with options
            """
            ip4 172.16.1.1/24
@@ -1038,7 +1040,6 @@
      Then Check "nm-bond" has "eth4" in proc
 
 
-    @bond
     @bond_option_mode_missing
     Scenario: nmcli - bond - options - mode missing
      * Add "bond" connection named "bond0" for device "nm-bond" with options
@@ -1079,7 +1080,6 @@
      Then "Up Delay \(ms\): 200" is visible with command "cat /proc/net/bonding/nm-bond"
 
 
-    @bond
     @bond_mode_incorrect_value
     Scenario: nmcli - bond - options - add incorrect value
      * Add "bond" connection named "bond0" for device "nm-bond" with options
@@ -1455,9 +1455,10 @@
 #FIXME: more tests with arp and conflicts with load balancing can be written
 
     @rhbz1133544 @rhbz1804350
-    @bond
     @bond_dbus_creation
     Scenario: NM - bond - dbus api bond setting
+    * Cleanup connection "bond0"
+    * Cleanup interface "nm-bond"
     * Execute "/usr/bin/python contrib/dbus/dbus-set-bond.py"
     Then "bond0.*bond\s+nm-bond" is visible with command "nmcli connection"
 
@@ -1685,6 +1686,7 @@
     @rhbz979425 @rhbz1450219
     @bond_device_rename
     Scenario: NM - bond - device rename
+     * Cleanup interface "nm-bond"
      * Add "bond" connection named "bond0" for device "bondy" with options
            """
            ip4 172.16.1.1/24
@@ -1841,9 +1843,9 @@
       Then "mtu 9000" is visible with command "ip a s bond-bridge"
 
 
-    @bond
     @bond_describe
     Scenario: nmcli - bond - describe bond
+     * Cleanup connection "bond"
      * Open editor for a type "bond"
      Then Check "<<< bond >>>|=== \[options\] ===|\[NM property description\]" are present in describe output for object "bond"
      Then Check "NM property description|nmcli specific description|mode, miimon, downdelay, updelay, arp_interval, arp_ip_target|balance-rr    = 0\s+active-backup = 1\s+balance-xor   = 2\s+broadcast     = 3\s+802.3ad       = 4\s+balance-tlb   = 5\s+balance-alb   = 6" are present in describe output for object "bond.options"
@@ -2104,15 +2106,15 @@
 
     @rhbz1667874
     @ver+=1.19
-    @bond
     @bond_autoconnect_activation_fails_with_libnm
     Scenario: NM - bond - bond activation fails with autoconnect true using libnm
+    * Cleanup interface "nm-bond"
+    * Cleanup connection "bond0"
     Then "Connection added\s+Connection activated" is visible with command "/usr/bin/python contrib/gi/bond_add_activate.py" in "1" seconds
 
 
     @rhbz1730793
     @ver+=1.18.4
-   
     @bond_arp_validate
     Scenario: NM - bond - bond set arp_validate
     * Add "bond" connection named "bond0" for device "nm-bond" with options
@@ -2225,7 +2227,6 @@
 
     @rhbz1718173
     @ver+=1.20 @ver-=1.29
-    @bond
     @bond_normalize_connection
     Scenario: NM - bond - bond normalize connection
     * Add "bond" connection named "bond0" for device "nm-bond" with options
@@ -2237,7 +2238,6 @@
 
     @rhbz1718173 @rhbz1923999
     @ver+=1.29
-    @bond
     @bond_normalize_connection
     Scenario: NM - bond - bond normalize connection
     * Add "bond" connection named "bond0" for device "nm-bond" with options
@@ -2251,7 +2251,6 @@
 
     @rhbz1847814
     @ver+=1.25
-    @bond
     @bond_reapply
     Scenario: NM - device - reapply just routes
     * Add "bond" connection named "bond0" for device "nm-bond" with options
@@ -2336,7 +2335,6 @@
 
      @rhbz1942331
      @ver+=1.31
-     @bond
      @bond_accept_all_mac_addresses
      Scenario: nmcli - bond - accept-all-mac-addresses (promisc mode)
      * Add "bond" connection named "bond0" for device "nm-bond" with options

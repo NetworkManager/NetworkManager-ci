@@ -212,14 +212,12 @@ Feature: nmcli - bridge
     * "inet 192.168.1.10" is not visible with command "ip a s br11"
 
 
-    @bridge
     @bridge_describe_all
     Scenario: nmcli - bridge - describe all
     * Open editor for a type "bridge"
     Then Check "mac-address|stp|priority|forward-delay|hello-time|max-age|ageing-time" are present in describe output for object "bridge"
 
 
-    @bridge
     @bridge_describe_separately
     Scenario: nmcli - bridge - describe separately
     * Open editor for a type "bridge"

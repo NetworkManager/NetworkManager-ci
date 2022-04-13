@@ -1498,6 +1498,7 @@
     @ethernet
     @ipv6_restart_prefixroute
     Scenario: NM - ipv6 - prefixroute won't disappear from external addresses on restart
+    * Cleanup connection "eth1"
     * Execute "ip addr add fd00::1/64 dev eth1"
     When "fd00::1/64" is visible with command "nmcli device show eth1" for full "5" seconds
     * Restart NM
@@ -1927,7 +1928,6 @@
     @rhbz1995372
     @ver+=1.35
     @ver-1.37.90
-    @con_ipv6_remove
     @ipv6_check_addr_order
     Scenario: nmcli - ipv6 - check IPv6 address order
     * Prepare simulated test "testX6" device
@@ -1957,10 +1957,8 @@
     Then Check "ipv6" address list "1:2:3::103/64 1:2:3::102/64 1:2:3::101/64 fe80::ecaa:bbff:fecc:ddee/64" on device "testX6" in "6" seconds
 
 
-
     @rhbz1995372
     @ver+=1.37.90
-    @con_ipv6_remove
     @ipv6_check_addr_order
     Scenario: nmcli - ipv6 - check IPv6 address order
     * Prepare simulated test "testX6" device
@@ -1988,4 +1986,3 @@
     * Execute "nmcli connection modify con_ipv6 ipv6.method manual ipv6.addresses '1:2:3::101/64,1:2:3::102/64,1:2:3::103/64'"
     * Bring "up" connection "con_ipv6"
     Then Check "ipv6" address list "1:2:3::103/64 1:2:3::102/64 1:2:3::101/64 fe80::ecaa:bbff:fecc:ddee/64" on device "testX6" in "6" seconds
-

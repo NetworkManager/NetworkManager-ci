@@ -215,7 +215,6 @@ Feature: Bridge TUI tests
     Then "192.168" is visible with command "ip a s bridge0"
 
 
-    # @bridge
     # @nmtui_bridge_over_ethernet_devices_no_stp
     # Scenario: nmtui - bridge - over ethernet devices no stp
     # * Prepare new connection of type "Bridge" named "bridge0"
