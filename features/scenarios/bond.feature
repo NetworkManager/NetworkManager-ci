@@ -2251,6 +2251,7 @@
 
     @rhbz1847814
     @ver+=1.25
+    @ver-=1.37.2
     @bond_reapply
     Scenario: NM - device - reapply just routes
     * Add "bond" connection named "bond0" for device "nm-bond" with options
@@ -2262,6 +2263,23 @@
     * Modify connection "bond0" changing options "bond.options mode=0,miimon=100,downdelay=1000,updelay=100"
     * Execute "sudo nmcli d reapply nm-bond"
     Then "1000" is visible with command "cat /sys/class/net/nm-bond/bonding/downdelay"
+
+
+    @rhbz1847814 @rhbz2065049
+    @ver+=1.37.3
+    @bond_reapply
+    Scenario: NM - device - reapply just routes
+    * Add "bond" connection named "bond0" for device "nm-bond" with options
+          """
+          ip4 172.16.1.1/24
+          bond.options mode=0,miimon=100,updelay=100
+          """
+    * Bring "up" connection "bond0"
+    Then "-1" is visible with command "nmcli -g connection.autoconnect-slaves con show bond0"
+    * Modify connection "bond0" changing options "bond.options mode=0,miimon=100,downdelay=1000,updelay=100 connection.autoconnect-slaves yes"
+    * Execute "sudo nmcli d reapply nm-bond"
+    Then "1000" is visible with command "cat /sys/class/net/nm-bond/bonding/downdelay"
+    And "1" is visible with command "nmcli -g connection.autoconnect-slaves con show bond0"
 
 
     @rhbz1870691
