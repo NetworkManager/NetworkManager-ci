@@ -169,14 +169,10 @@ function setup_veth_env ()
     ip -n vethsetup link set inbr type bridge priority 0
     ip -n vethsetup link set inbr up
 
-    # Create 'internal' veth devices and hide their peers inside namespace
-    for X in $(seq 1 9); do
-        ip link add eth${X} type veth peer name eth${X}p
-        ip link set eth${X}p netns vethsetup
-    done
-
+    # Create 'internal' veth devices with their peers inside namespace,
     # Add the internal devices peers into the internal bridge
-    for X in $(seq 1 9); do
+    for X in $(seq 1 10); do
+        ip link add eth${X} type veth peer name eth${X}p netns vethsetup
         ip -n vethsetup link set eth${X}p master inbr
         # 'worse' priority to ports coming to simulated ethernet devices
         ip -n vethsetup link set eth${X}p type bridge_slave priority 5
@@ -193,6 +189,16 @@ function setup_veth_env ()
     ip -n vethsetup link set masqp up
     ip -n vethsetup link set masq up
 
+    # Allow VLAN 100 for eth{1..9} and masq
+    for X in $(seq 1 9); do
+        bridge -n vethsetup vlan add dev eth${X}p vid 100
+    done
+    bridge -n vethsetup vlan add dev masqp vid 100
+
+    # Set eth10 as access port for VLAN 100
+    bridge -n vethsetup vlan del dev eth10p vid 1
+    bridge -n vethsetup vlan add dev eth10p vid 100 pvid untagged
+
     # Give bridge an internal format address in form used in tests
     ip -n vethsetup addr add 192.168.100.1/24 dev masq
 
@@ -203,18 +209,12 @@ function setup_veth_env ()
     ip netns exec vethsetup dnsmasq --pid-file=/tmp/dhcp_inbr.pid --dhcp-leasefile=/tmp/dhcp_inbr.lease --listen-address=192.168.100.1 --dhcp-range=192.168.100.10,192.168.100.254,240 --interface=masq --bind-interfaces
 
     # Setup simulated 'outside' connectivity device eth10 with IPv6 auto support
-    ip link add eth10 type veth peer name eth10p
-    ip link set eth10p netns vethsetup
-    ip -n vethsetup link set eth10p up
-
     # Create the 'simbr' - providing both 10.x ipv4 and 2620:52:0 ipv6 dhcp
-    ip -n vethsetup link add name simbr type bridge forward_delay 0 stp_state 1
+    #### keep name 'simbr' although it isn't a bridge anymore
+    ip -n vethsetup link add link masq name simbr type vlan id 100
     ip -n vethsetup link set simbr up
     ip -n vethsetup addr add 10.16.1.1/24 dev simbr
     ip -n vethsetup -6 addr add 2620:52:0:1086::1/64 dev simbr
-
-    # Add eth10 peer into the simbr
-    ip -n vethsetup link set eth10p master simbr
 
     # Run joint DHCP4/DHCP6 server with router advertisement enabled in veth namespace
     ip netns exec vethsetup dnsmasq --pid-file=/tmp/dhcp_simbr.pid --dhcp-leasefile=/tmp/dhcp_simbr.lease --dhcp-range=10.16.1.10,10.16.1.254,240 --dhcp-range=2620:52:0:1086::10,2620:52:0:1086::1ff,slaac,64,240 --enable-ra --interface=simbr --bind-interfaces
@@ -357,13 +357,13 @@ function teardown_veth_env ()
     done
 
     # Delete all namespaces and bridges
+    ip -n vethsetup link set simbr down
+    ip -n vethsetup link del simbr
+
     ip -n vethsetup link del masqp
 
     ip -n vethsetup link set inbr down
     ip -n vethsetup link del inbr
-
-    ip -n vethsetup link set simbr down
-    ip -n vethsetup link del simbr
 
     ip netns del vethsetup
 
