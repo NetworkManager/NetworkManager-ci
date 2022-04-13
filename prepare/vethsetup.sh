@@ -169,32 +169,32 @@ function setup_veth_env ()
     done
 
     # Create bridge for the internal device peers inside the namespace
-    ip netns exec vethsetup ip link add name inbr type bridge forward_delay 0 stp_state 1
+    ip -n vethsetup link add name inbr type bridge forward_delay 0 stp_state 1
 
     # Set best prirority to this bridge
-    ip netns exec vethsetup ip link set inbr type bridge priority 0
-    ip netns exec vethsetup ip link set inbr up
+    ip -n vethsetup link set inbr type bridge priority 0
+    ip -n vethsetup link set inbr up
 
     # Add the internal devices peers into the internal bridge
     for X in $(seq 1 9); do
-        ip netns exec vethsetup ip link set eth${X}p master inbr
+        ip -n vethsetup link set eth${X}p master inbr
         # 'worse' priority to ports coming to simulated ethernet devices
-        ip netns exec vethsetup ip link set eth${X}p type bridge_slave priority 5
-        ip netns exec vethsetup ip link set eth${X}p up
+        ip -n vethsetup link set eth${X}p type bridge_slave priority 5
+        ip -n vethsetup link set eth${X}p up
     done
 
     # We want to have an extra veth pair for the dnsmasq so we can give that
     # The top priority preventing looping when ethX devices bridged on the other side
-    ip netns exec vethsetup ip link add masq type veth peer name masqp
+    ip -n vethsetup link add masq type veth peer name masqp
 
-    ip netns exec vethsetup ip link set masqp master inbr
-    ip netns exec vethsetup ip link set masqp type bridge_slave priority 0
+    ip -n vethsetup link set masqp master inbr
+    ip -n vethsetup link set masqp type bridge_slave priority 0
 
-    ip netns exec vethsetup ip link set masqp up
-    ip netns exec vethsetup ip link set masq up
+    ip -n vethsetup link set masqp up
+    ip -n vethsetup link set masq up
 
     # Give bridge an internal format address in form used in tests
-    ip netns exec vethsetup ip addr add 192.168.100.1/24 dev masq
+    ip -n vethsetup addr add 192.168.100.1/24 dev masq
 
     # Remove mapping to lo only (starting Fedora 33)
     sed -i 's/^interface=lo/# interface=lo/' /etc/dnsmasq.conf
@@ -205,16 +205,16 @@ function setup_veth_env ()
     # Setup simulated 'outside' connectivity device eth10 with IPv6 auto support
     ip link add eth10 type veth peer name eth10p
     ip link set eth10p netns vethsetup
-    ip netns exec vethsetup ip link set eth10p up
+    ip -n vethsetup link set eth10p up
 
     # Create the 'simbr' - providing both 10.x ipv4 and 2620:52:0 ipv6 dhcp
-    ip netns exec vethsetup ip link add name simbr type bridge forward_delay 0 stp_state 1
-    ip netns exec vethsetup ip link set simbr up
-    ip netns exec vethsetup ip addr add 10.16.1.1/24 dev simbr
-    ip netns exec vethsetup ip -6 addr add 2620:52:0:1086::1/64 dev simbr
+    ip -n vethsetup link add name simbr type bridge forward_delay 0 stp_state 1
+    ip -n vethsetup link set simbr up
+    ip -n vethsetup addr add 10.16.1.1/24 dev simbr
+    ip -n vethsetup -6 addr add 2620:52:0:1086::1/64 dev simbr
 
     # Add eth10 peer into the simbr
-    ip netns exec vethsetup ip link set eth10p master simbr
+    ip -n vethsetup link set eth10p master simbr
 
     # Run joint DHCP4/DHCP6 server with router advertisement enabled in veth namespace
     ip netns exec vethsetup dnsmasq --pid-file=/tmp/dhcp_simbr.pid --dhcp-leasefile=/tmp/dhcp_simbr.lease --dhcp-range=10.16.1.10,10.16.1.254,240 --dhcp-range=2620:52:0:1086::10,2620:52:0:1086::1ff,slaac,64,240 --enable-ra --interface=simbr --bind-interfaces
@@ -296,7 +296,7 @@ function check_veth_env ()
     # Check inbr slaves
     echo "* Checking inbr slaves"
     for X in $(seq 1 9); do
-        if ! ip netns exec vethsetup ip link show master inbr |grep -q eth$Xp; then
+        if ! ip -n vethsetup link show master inbr |grep -q eth$Xp; then
             echo "Not OK!!"
             need_veth=1
             break
@@ -305,26 +305,26 @@ function check_veth_env ()
 
     # Check simbr
     echo "* Checking simbr slave"
-    if ! ip netns exec vethsetup ip link show master simbr |grep -q eth10p; then
+    if ! ip -n vethsetup link show master simbr |grep -q eth10p; then
         echo "Not OK!!"
         need_veth=1
     fi
 
     echo "* Checking simbr addresses"
-    if ! ip netns exec vethsetup ip a s simbr |grep -q 10.16.1.1/24 && ip netns exec vethsetup ip a s simbr |grep -q 2620:52:0:1086::1/64; then
+    if ! ip -n vethsetup a s simbr |grep -q 10.16.1.1/24 && ip netns exec vethsetup ip a s simbr |grep -q 2620:52:0:1086::1/64; then
         echo "Not OK!!"
         need_veth=1
     fi
 
     # Check inbr masq slave
     echo "* Checking masq slave"
-    if ! ip netns exec vethsetup ip link show master inbr |grep -q masq; then
+    if ! ip -n vethsetup link show master inbr |grep -q masq; then
         echo "Not OK!!"
         need_veth=1
     fi
 
     echo "* Checking masq addresses"
-    if ! ip netns exec vethsetup ip a s  masq |grep -q 192.168.100.1/24; then
+    if ! ip -n vethsetup a s  masq |grep -q 192.168.100.1/24; then
         echo "Not OK!!"
         need_veth=1
     fi
@@ -352,18 +352,18 @@ function teardown_veth_env ()
     kill $(cat /tmp/dhcp_simbr.pid)
 
     for X in $(seq 1 10); do
-        ip netns exec vethsetup ip link set eth${X}p down
-        ip netns exec vethsetup ip link del eth${X}p
+        ip -n vethsetup link set eth${X}p down
+        ip -n vethsetup link del eth${X}p
     done
 
     # Delete all namespaces and bridges
-    ip netns exec vethsetup ip link del masqp
+    ip -n vethsetup link del masqp
 
-    ip netns exec vethsetup ip link set inbr down
-    ip netns exec vethsetup ip link del inbr
+    ip -n vethsetup link set inbr down
+    ip -n vethsetup link del inbr
 
-    ip netns exec vethsetup ip link set simbr down
-    ip netns exec vethsetup ip link del simbr
+    ip -n vethsetup link set simbr down
+    ip -n vethsetup link del simbr
 
     ip netns del vethsetup
 
