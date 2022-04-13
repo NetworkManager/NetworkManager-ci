@@ -309,6 +309,7 @@ Feature: nmcli - procedures in documentation
     Then "master br4 permanent" is visible with command "bridge fdb show dev vxlan10"
 
 
+    @rhelver+=8.6
     @radius @8021x_doc_procedure @attach_wpa_supplicant_log
     # permissive is required until selinux-policy is updated in:
     #   - el9: https://bugzilla.redhat.com/show_bug.cgi?id=2064688
