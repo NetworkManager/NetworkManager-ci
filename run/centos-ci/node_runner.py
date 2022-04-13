@@ -721,7 +721,8 @@ class Runner:
             p = re.compile("nm-1-[0-9][0-9]")
             # Let's check if we have stable branch"
             if p.match(self.refspec):
-                self.copr_repo = f"NetworkManager-{self.refspec}-debug"
+                branch = "1."+self.refspec.split("-").[-1]
+                self.copr_repo = f"NetworkManager-{branch}-debug"
             elif self.refspec == "main":
                 self.copr_repo = "NetworkManager-main-debug"
             elif self.refspec == "nm-1-28":
