@@ -46,29 +46,15 @@ Feature: nmcli - vlan
 
     @rhbz1378418
     @ver+=1.4.0
-    @kill_dnsmasq_vlan @restart_if_needed
+    @restart_if_needed
     @vlan_ipv4_ipv6_restart_persistence
     Scenario: NM - vlan - ipv4 and ipv6 restart persistence
-    * Prepare veth pairs "test1" bridged over "vethbr"
-    * Add "ethernet" connection named "vlan1" for device "test1" with options "ipv4.method disabled ipv6.method ignore"
-    * Add "vlan" connection named "tc1" with options
-          """
-          dev vethbr
-          id 100
-          ipv4.method manual
-          ipv4.addresses 10.1.0.1/24
-          ipv6.method manual
-          ipv6.addresses 1::1/64
-          """
-    * Wait for at least "3" seconds
-    * Run child "dnsmasq --dhcp-range=10.1.0.10,10.1.0.15,2m --pid-file=/tmp/dnsmasq_vlan.pid --dhcp-range=1::100,1::fff,slaac,64,2m --enable-ra --interface=vethbr.100 --bind-interfaces"
-    * Add "vlan" connection named "tc2" with options "dev test1 id 100"
-    * Execute "ip add add 1::666/128 dev test1"
+    * Add "vlan" connection named "eth7.100" with options "dev eth7 id 100"
     * Wait for at least "5" seconds
     * Stop NM
-    Then "inet 10.1.0.1" is visible with command "ip a s test1.100" for full "5" seconds
-     And "inet6 1::" is visible with command "ip a s test1.100"
-     And "inet6 fe80" is visible with command "ip a s test1.100"
+    Then "inet 10.16.1.([1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-4])" is visible with command "ip a s eth7.100" for full "5" seconds
+     And "inet6 2620:52:0:1086" is visible with command "ip a s eth7.100"
+     And "inet6 fe80" is visible with command "ip a s eth7.100"
 
 
     @vlan_remove_connection

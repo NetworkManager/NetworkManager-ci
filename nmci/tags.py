@@ -2609,13 +2609,6 @@ def modprobe_cfg_remove_as(ctx, scen):
 _register_tag("modprobe_cfg_remove", None, modprobe_cfg_remove_as)
 
 
-def kill_dnsmasq_vlan_as(ctx, scen):
-    ctx.run("kill $(cat /tmp/dnsmasq_vlan.pid)")
-
-
-_register_tag("kill_dnsmasq_vlan", None, kill_dnsmasq_vlan_as)
-
-
 def kill_dnsmasq_ip4_as(ctx, scen):
     ctx.run("kill $(cat /tmp/dnsmasq_ip4.pid)")
 
