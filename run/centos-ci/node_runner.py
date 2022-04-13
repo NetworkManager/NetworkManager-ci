@@ -3,6 +3,7 @@ import argparse
 import logging
 import subprocess
 import sys
+import re
 import requests
 import os
 import yaml
@@ -717,16 +718,12 @@ class Runner:
             or self.repo
             == "https://gitlab.freedesktop.org/NetworkManager/NetworkManager/"
         ):
-            if self.refspec == "main":
+            p = re.compile("nm-1-[0-9][0-9]")
+            # Let's check if we have stable branch"
+            if p.match(self.refspec):
+                self.copr_repo = f"NetworkManager-{self.refspec}-debug"
+            elif self.refspec == "main":
                 self.copr_repo = "NetworkManager-main-debug"
-            elif self.refspec == "nm-1-36":
-                self.copr_repo = "NetworkManager-1.36-debug"
-            elif self.refspec == "nm-1-34":
-                self.copr_repo = "NetworkManager-1.34-debug"
-            elif self.refspec == "nm-1-32":
-                self.copr_repo = "NetworkManager-1.32-debug"
-            elif self.refspec == "nm-1-30":
-                self.copr_repo = "NetworkManager-1.30-debug"
             elif self.refspec == "nm-1-28":
                 self.copr_repo = "NetworkManager-CI-1.28-git"
             elif self.refspec == "nm-1-26":
