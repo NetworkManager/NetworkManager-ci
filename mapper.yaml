@@ -1092,6 +1092,8 @@ testmapper:
         feature: vlan
     - vlan_add_beyond_range:
         feature: vlan
+    - vlan_add_tagging_using_nmcli:
+        feature: vlan
     - nmcli_vlan_restart_persistence:
         feature: vlan
     - vlan_ipv4_ipv6_restart_persistence:

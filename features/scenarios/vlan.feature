@@ -25,6 +25,29 @@ Feature: nmcli - vlan
       And "vlan" is not visible with command "nmcli con show"
 
 
+    @vlan_add_tagging_using_nmcli
+    Scenario: nmcli - vlan - add tagging using nmcli
+    * Doc: "Configuring VLAN tagging using nmcli commands"
+    * Cleanup connection "vlan100"
+    * Cleanup interface "eth7.100"
+    * Cleanup interface "eth7"
+    * Execute "nmcli connection add type vlan con-name vlan100 ifname vlan100 vlan.parent eth7 vlan.id 100"
+    * Execute "nmcli connection modify vlan100 802-3-ethernet.mtu 1350"
+    * Execute "nmcli connection modify vlan100 ipv4.address 10.16.1.100/24"
+    * Execute "nmcli connection modify vlan100 ipv4.gateway 10.16.1.1"
+    * Execute "nmcli connection modify vlan100 ipv4.dns 10.16.1.1"
+    * Execute "nmcli connection modify vlan100 ipv4.method manual"
+    * Execute "nmcli connection modify vlan100 ipv6.address 2620:52:0:1086::cafe/64"
+    * Execute "nmcli connection modify vlan100 ipv6.gateway 2620:52:0:1086::1"
+    * Execute "nmcli connection modify vlan100 ipv6.dns 2620:52:0:1086::1"
+    * Execute "nmcli connection modify vlan100 ipv6.method manual"
+    When Execute "nmcli connection up vlan100"
+    Then "vlan protocol 802.1Q id 100" is visible with command "ip -d addr show vlan100"
+     And "mtu 1350" is visible with command "ip -d addr show vlan100"
+     And Ping "10.16.1.1" "1" times
+     And Ping6 "2620:52:0:1086::1"
+
+
     @rhbz1273879
     @restart_if_needed
     @nmcli_vlan_restart_persistence
