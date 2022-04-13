@@ -162,18 +162,18 @@ function setup_veth_env ()
     # Create a network namespace for veth setup
     ip netns add vethsetup
 
-    # Create 'internal' veth devices and hide their peers inside namespace
-    for X in $(seq 1 9); do
-        ip link add eth${X} type veth peer name eth${X}p
-        ip link set eth${X}p netns vethsetup
-    done
-
     # Create bridge for the internal device peers inside the namespace
     ip -n vethsetup link add name inbr type bridge forward_delay 0 stp_state 1
 
     # Set best prirority to this bridge
     ip -n vethsetup link set inbr type bridge priority 0
     ip -n vethsetup link set inbr up
+
+    # Create 'internal' veth devices and hide their peers inside namespace
+    for X in $(seq 1 9); do
+        ip link add eth${X} type veth peer name eth${X}p
+        ip link set eth${X}p netns vethsetup
+    done
 
     # Add the internal devices peers into the internal bridge
     for X in $(seq 1 9); do
