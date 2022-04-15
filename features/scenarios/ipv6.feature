@@ -970,6 +970,7 @@
 
     @rhbz1744895
     @ver+=1.22.0
+    @ver-1.39.2
     @scapy
     @ipv6_preserve_addr_order
     Scenario: NM - ipv6 - preserve address order
@@ -1013,6 +1014,53 @@
     When "2:\s+inet6 dead:beef::" is visible with command "ip a show dev test11 | grep inet6 | grep -v temporary | grep -n ."
     Then "IP6.ADDRESS\[.\]:\s+cafe:cafe::" is visible with command "nmcli device show test11"
     Then "IP6.ADDRESS\[.\]:\s+dead:beef::" is visible with command "nmcli device show test11"
+
+
+    @rhbz1744895
+    @ver+=1.39.2
+    @scapy
+    @ipv6_preserve_addr_order
+    Scenario: NM - ipv6 - preserve address order
+    * Execute "ip link add test10 type veth peer name test11"
+    * Execute "nmcli c add type ethernet ifname test10 ipv4.method disabled ipv6.method auto"
+    * Execute "nmcli c add type ethernet ifname test11 ipv4.method disabled ipv6.method auto"
+    * Execute "ip link set dev test10 up"
+    * Execute "ip link set dev test11 up"
+    * Execute "nmcli --wait 0 c up ethernet-test10"
+    * Execute "nmcli --wait 0 c up ethernet-test11"
+    When "ethernet-test10" is visible with command "nmcli con sh -a"
+    When "ethernet-test11" is visible with command "nmcli con sh -a"
+    * Execute "sleep 2"
+    * Send lifetime scapy packet to dst "dead:beef::"
+    * Send lifetime scapy packet to dst "cafe:cafe::"
+    When "1:\s+inet6 dead:beef::" is visible with command "ip a show dev test11 | grep inet6 | grep -v temporary | grep -n ."
+    When "2:\s+inet6 cafe:cafe::" is visible with command "ip a show dev test11 | grep inet6 | grep -v temporary | grep -n ."
+    When "IP6.ADDRESS\[[0-9]+\]:\s+cafe:cafe::" is visible with command "nmcli device show test11"
+    When "IP6.ADDRESS\[[0-9]+\]:\s+dead:beef::" is visible with command "nmcli device show test11"
+    * Send lifetime scapy packet to dst "cafe:cafe::"
+    * Send lifetime scapy packet to dst "dead:beef::"
+    When "1:\s+inet6 dead:beef::" is visible with command "ip a show dev test11 | grep inet6 | grep -v temporary | grep -n ."
+    When "2:\s+inet6 cafe:cafe::" is visible with command "ip a show dev test11 | grep inet6 | grep -v temporary | grep -n ."
+    When "IP6.ADDRESS\[[0-9]+\]:\s+cafe:cafe::" is visible with command "nmcli device show test11"
+    When "IP6.ADDRESS\[[0-9]+\]:\s+dead:beef::" is visible with command "nmcli device show test11"
+    * Send lifetime scapy packet to dst "cafe:cafe::"
+    * Send lifetime scapy packet to dst "dead:beef::"
+    When "1:\s+inet6 dead:beef::" is visible with command "ip a show dev test11 | grep inet6 | grep -v temporary | grep -n ."
+    When "2:\s+inet6 cafe:cafe::" is visible with command "ip a show dev test11 | grep inet6 | grep -v temporary | grep -n ."
+    When "IP6.ADDRESS\[[0-9]+\]:\s+cafe:cafe::" is visible with command "nmcli device show test11"
+    When "IP6.ADDRESS\[[0-9]+\]:\s+dead:beef::" is visible with command "nmcli device show test11"
+    * Send lifetime scapy packet to dst "cafe:cafe::"
+    * Send lifetime scapy packet to dst "dead:beef::"
+    When "1:\s+inet6 dead:beef::" is visible with command "ip a show dev test11 | grep inet6 | grep -v temporary | grep -n ."
+    When "2:\s+inet6 cafe:cafe::" is visible with command "ip a show dev test11 | grep inet6 | grep -v temporary | grep -n ."
+    When "IP6.ADDRESS\[[0-9]+\]:\s+cafe:cafe::" is visible with command "nmcli device show test11"
+    When "IP6.ADDRESS\[[0-9]+\]:\s+dead:beef::" is visible with command "nmcli device show test11"
+    * Send lifetime scapy packet to dst "cafe:cafe::"
+    * Send lifetime scapy packet to dst "dead:beef::"
+    When "1:\s+inet6 dead:beef::" is visible with command "ip a show dev test11 | grep inet6 | grep -v temporary | grep -n ."
+    When "2:\s+inet6 cafe:cafe::" is visible with command "ip a show dev test11 | grep inet6 | grep -v temporary | grep -n ."
+    Then "IP6.ADDRESS\[[0-9]+\]:\s+cafe:cafe::" is visible with command "nmcli device show test11"
+    Then "IP6.ADDRESS\[[0-9]+\]:\s+dead:beef::" is visible with command "nmcli device show test11"
 
 
     @rhbz1083133 @rhbz1098319 @rhbz1127718
@@ -1288,6 +1336,7 @@
 
     @rhbz1988751
     @ver+=1.32.10
+    @ver-1.39.2
     @ipv6_honor_ip_order
     Scenario: NM - ipv6 - honor IP order from configuration upon restart
     * Add "ethernet" connection named "con_ipv6" for device "eth2" with options "autoconnect no"
@@ -1299,6 +1348,21 @@
     Then "2001:db8:e:10::4/64 scope global.*2001:db8:e:10::57/64 scope global.*2001:db8:e:10::30/64" is visible with command "ip a show eth2"
     * Restart NM
     Then "2001:db8:e:10::4/64 scope global.*2001:db8:e:10::57/64 scope global.*2001:db8:e:10::30/64" is visible with command "ip a show eth2"
+
+
+    @rhbz1988751
+    @ver+=1.39.2
+    @ipv6_honor_ip_order
+    Scenario: NM - ipv6 - honor IP order from configuration upon restart
+    * Add "ethernet" connection named "con_ipv6" for device "eth2" with options "autoconnect no"
+    * Execute "nmcli con modify con_ipv6 ipv6.method manual ipv6.addresses 2001:db8:e:10::4/64,2001:db8:e:10::57/64,2001:db8:e:10::30/64"
+    * Bring "up" connection "con_ipv6"
+    When "2001:db8:e:10::4/64 scope global.*2001:db8:e:10::57/64 scope global.*2001:db8:e:10::30/64" is visible with command "ip a show eth2" in "45" seconds
+    * Execute "nmcli con modify con_ipv6 ipv6.addresses 2001:db8:e:10::30/64,2001:db8:e:10::57/64,2001:db8:e:10::4/64"
+    * Execute "nmcli dev reapply eth2"
+    Then "2001:db8:e:10::30/64 scope global.*2001:db8:e:10::57/64 scope global.*2001:db8:e:10::4/64" is visible with command "ip a show eth2"
+    * Restart NM
+    Then "2001:db8:e:10::30/64 scope global.*2001:db8:e:10::57/64 scope global.*2001:db8:e:10::4/64" is visible with command "ip a show eth2"
 
 
     @rhbz2004212
@@ -1959,6 +2023,7 @@
 
     @rhbz1995372
     @ver+=1.37.90
+    @ver-1.37.91
     @ipv6_check_addr_order
     Scenario: nmcli - ipv6 - check IPv6 address order
     * Prepare simulated test "testX6" device
@@ -1986,3 +2051,34 @@
     * Execute "nmcli connection modify con_ipv6 ipv6.method manual ipv6.addresses '1:2:3::101/64,1:2:3::102/64,1:2:3::103/64'"
     * Bring "up" connection "con_ipv6"
     Then Check "ipv6" address list "1:2:3::103/64 1:2:3::102/64 1:2:3::101/64 fe80::ecaa:bbff:fecc:ddee/64" on device "testX6" in "6" seconds
+
+
+    @rhbz1995372
+    @ver+=1.37.91
+    @ipv6_check_addr_order
+    Scenario: nmcli - ipv6 - check IPv6 address order
+    * Prepare simulated test "testX6" device
+    * Add "ethernet" connection named "con_ipv6" for device "testX6" with options 
+          """
+          ipv4.method disabled
+          ipv6.method auto
+          ipv6.may-fail no
+          ethernet.cloned-mac-address ee:aa:bb:cc:dd:ee
+          ipv6.addr-gen-mode eui64
+          ipv6.ip6-privacy disabled
+          """
+    * Bring "up" connection "con_ipv6"
+    Then Check "ipv6" address list "/2620:dead:beaf:[0-9a-f:]+/128 2620:dead:beaf:0:ecaa:bbff:fecc:ddee/64 fe80::ecaa:bbff:fecc:ddee/64" on device "testX6"
+    * Execute "nmcli connection modify con_ipv6 ipv6.addresses '1:2:3::101/64,1:2:3::102/64'"
+    * Bring "up" connection "con_ipv6"
+    Then Check "ipv6" address list "1:2:3::101/64 1:2:3::102/64 /2620:dead:beaf:[0-9a-f:]+/128 2620:dead:beaf:0:ecaa:bbff:fecc:ddee/64 fe80::ecaa:bbff:fecc:ddee/64" on device "testX6"
+    * Execute "nmcli connection modify con_ipv6 ipv6.addresses '1:2:3::101/64'"
+    * Bring "up" connection "con_ipv6"
+    Then Check "ipv6" address list "1:2:3::101/64 /2620:dead:beaf:[0-9a-f:]+/128 2620:dead:beaf:0:ecaa:bbff:fecc:ddee/64 fe80::ecaa:bbff:fecc:ddee/64" on device "testX6"
+    * Execute "nmcli device modify testX6 +ipv6.addresses '1:2:3::103/64'"
+    Then Check "ipv6" address list "1:2:3::101/64 1:2:3::103/64 /2620:dead:beaf:[0-9a-f:]+/128 2620:dead:beaf:0:ecaa:bbff:fecc:ddee/64 fe80::ecaa:bbff:fecc:ddee/64" on device "testX6" in "6" seconds
+    * Execute "nmcli device modify testX6 ipv6.addresses ''"
+    Then Check "ipv6" address list "/2620:dead:beaf:[0-9a-f:]+/128 2620:dead:beaf:0:ecaa:bbff:fecc:ddee/64 fe80::ecaa:bbff:fecc:ddee/64" on device "testX6" in "6" seconds
+    * Execute "nmcli connection modify con_ipv6 ipv6.method manual ipv6.addresses '1:2:3::101/64,1:2:3::102/64,1:2:3::103/64'"
+    * Bring "up" connection "con_ipv6"
+    Then Check "ipv6" address list "1:2:3::101/64 1:2:3::102/64 1:2:3::103/64 fe80::ecaa:bbff:fecc:ddee/64" on device "testX6" in "6" seconds
