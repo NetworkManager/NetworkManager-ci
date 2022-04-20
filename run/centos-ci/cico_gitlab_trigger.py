@@ -232,7 +232,7 @@ class GitlabTrigger(object):
                 {
                     "state": status,
                     "target_url": os.environ["BUILD_URL"],
-                    "name": self.repository + " tests on CentOS",
+                    "name": f"CentOS: NetworkManager tests",
                     "description": description,
                 }
             )
