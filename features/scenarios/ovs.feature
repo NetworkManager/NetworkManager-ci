@@ -1294,6 +1294,7 @@ Feature: nmcli - ovs
 
     @rhbz2001851
     @ver+=1.36
+    @ver-=1.37
     @openvswitch @restart_if_needed
     @add_dpdk_port_with_mtu
     Scenario: NM - openvswitch - add dpdk device with preset MTU
@@ -1335,3 +1336,52 @@ Feature: nmcli - ovs
     Then "9000" is visible with command "nmcli -g 802-3-ethernet.mtu c show ovs-iface0"
     And "9000" is visible with command "nmcli -g 802-3-ethernet.mtu c show ovs-iface1"
     And "mtu 9000" is visible with command "ip a s dev port0"
+
+
+    @rhbz2001851 @rhbz2001792
+    @ver+=1.38
+    @openvswitch @restart_if_needed
+    @add_dpdk_port_with_mtu
+    Scenario: NM - openvswitch - add dpdk device with preset MTU
+    * Add "ovs-bridge" connection named "ovs-bridge0" with options
+          """
+          conn.interface ovsbridge0
+          ovs-bridge.datapath-type netdev
+          """
+    * Add "ovs-port" connection named "ovs-bond0" for device "bond0" with options
+          """
+          conn.master ovsbridge0
+          ovs-port.bond-mode balance-slb
+          """
+    * Add "ovs-port" connection named "ovs-port0" for device "port0" with options "master ovsbridge0"
+    * Add "ovs-interface" connection named "ovs-port1" for device "port0" with options
+          """
+          slave-type ovs-port
+          master ovs-port0
+          802-3-ethernet.mtu 9000
+          ipv4.method static
+          ipv4.address 192.168.123.100/24
+          """
+    * Add "ovs-interface" connection named "ovs-iface0" for device "iface0" with options
+          """
+          conn.master bond0
+          ovs-dpdk.devargs 000:42:10.0
+          ovs-interface.type dpdk
+          802-3-ethernet.mtu 9000
+          """
+    * Add "ovs-interface" connection named "ovs-iface1" for device "iface1" with options
+          """
+          conn.master bond0
+          ovs-dpdk.devargs 000:42:10.2
+          ovs-interface.type dpdk
+          802-3-ethernet.mtu 9000
+          """
+    When "9000" is visible with command "nmcli -g 802-3-ethernet.mtu c show ovs-iface0"
+    Then "9000" is visible with command "nmcli -g 802-3-ethernet.mtu c show ovs-iface1"
+    And "mtu 9000" is visible with command "ip a s dev port0"
+    And "192.168.123.100/24" is visible with command "ip a s dev port0"
+    * Reboot
+    When "9000" is visible with command "nmcli -g 802-3-ethernet.mtu c show ovs-iface0"
+    Then "9000" is visible with command "nmcli -g 802-3-ethernet.mtu c show ovs-iface1"
+    And "mtu 9000" is visible with command "ip a s dev port0"
+    And "192.168.123.100/24" is visible with command "ip a s dev port0"
