@@ -228,11 +228,16 @@ class GitlabTrigger(object):
             elif status == "failed":
                 description == "The build has finshed unstable or failing"
             com = self.gl_project.commits.get(self.commit)
+
+            name = os.environ["BUILD_URL"]
+            name = re.sub(r'^.*/job/(.*)/$', '\\1', name)
+            name = f"centos: {name}"
+
             com.statuses.create(
                 {
                     "state": status,
                     "target_url": os.environ["BUILD_URL"],
-                    "name": f"CentOS: NetworkManager tests",
+                    "name": name,
                     "description": description,
                 }
             )
