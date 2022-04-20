@@ -218,26 +218,14 @@ class GitlabTrigger(object):
             elif status == "failed":
                 description == "The build has finshed unstable or failing"
             com = self.gl_project.commits.get(self.commit)
-            if (
-                "NetworkManager" in self.repository
-            ):
-                com.statuses.create(
-                    {
-                        "state": status,
-                        'target_url': os.environ['BUILD_URL'],
-                        "name": os.environ["BUILD_URL"],
-                        "description": description,
-                    }
-                )
-            else:
-                com.statuses.create(
-                    {
-                        "state": status,
-                        "target_url": os.environ["BUILD_URL"],
-                        "name": self.repository + " test verification",
-                        "description": description,
-                    }
-                )
+            com.statuses.create(
+                {
+                    "state": status,
+                    "target_url": os.environ["BUILD_URL"],
+                    "name": self.repository + " tests on CentOS",
+                    "description": description,
+                }
+            )
         except Exception as e:
             print(str(e))
 
