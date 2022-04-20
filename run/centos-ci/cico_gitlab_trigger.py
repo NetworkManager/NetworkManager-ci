@@ -204,6 +204,16 @@ class GitlabTrigger(object):
 
         return features
 
+    def is_NMCI_branch(self, branch_name):
+        import requests
+
+        url_base = "https://gitlab.freedesktop.org/NetworkManager/NetworkManager-ci/-/raw"
+        file = "mapper.yaml"
+        url = f"{url_base}/{branch_name}/{file}"
+
+        r = requests.get(url)
+        return r.status_code == 200
+
     def set_pipeline(self, status):
         try:
             description = ""
@@ -254,21 +264,14 @@ def get_rebuild_detail(message, overrides={}):
 
 # 'os_version' param for 'rebuild RHEL8.9' etc., good for nm less for desktop as it is mainly determined by branching
 def execute_build(gt, content, os_version=default_os, features="best", build="main"):
-
-    component = gt.repository
     params = []
 
     params.append({"name": "RELEASE", "value": os_version})
 
     if gt.repository == "NetworkManager":
         # NM CODE will use master unless we know branch mr/abcd exists
-        import requests
-        gitlab = "https://gitlab.freedesktop.org/NetworkManager/NetworkManager-ci"
         branch = f"mr/{gt.merge_request_id}"
-        mapper = f"/-/raw/{branch}/mapper.yaml"
-        url = gitlab + mapper
-        ret = requests.get(url).status_code
-        if ret != 200:
+        if not gt.is_NMCI_branch(branch):
             branch = "master"
         params.append({"name": "TEST_BRANCH", "value": branch})
         params.append({"name": "REFSPEC", "value": gt.commit})
