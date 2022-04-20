@@ -2476,3 +2476,24 @@
     Then "172.25.13.1" is not visible with command "ip -4 a show dev bond0"
      And "Request who-has 172.25.13.1" is visible with command "cat /tmp/network-traffic.log"
      And "Reply 172.25.13.1 is-at" is visible with command "cat /tmp/network-traffic.log"
+
+
+    @rhbz2003214
+    @ver+=1.37.3
+    @bond_modify_bond-opts_with_slaves
+    Scenario: bond - block modifying fail_over_mac bond.options when bond already has slaves
+    * Add "bond" connection named "bond0" for device "bond0" with options
+          """
+          bond.options mode=1,miimon=100
+          """
+    * Add "ethernet" connection named "bond-slave0" for device "eth4" with options
+          """
+          master bond0
+          """
+    * Add "ethernet" connection named "bond-slave1" for device "eth7" with options
+          """
+          master bond0
+          """
+    When "bond0:connected:bond0" is visible with command "nmcli -t -f DEVICE,STATE,CONNECTION device" in "40" seconds
+    * Modify connection "bond0" changing options "bond.options mode=1,fail_over_mac=0"
+    Then "failed" is visible with command "nmcli device reapply bond0"
