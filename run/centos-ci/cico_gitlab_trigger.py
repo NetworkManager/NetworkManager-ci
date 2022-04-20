@@ -220,10 +220,11 @@ class GitlabTrigger(object):
             com = self.gl_project.commits.get(self.commit)
             if (
                 "NetworkManager" in self.repository
-            ):  # becuse of the new version prohibiting NAT target_url!
+            ):
                 com.statuses.create(
                     {
                         "state": status,
+                        'target_url': os.environ['BUILD_URL'],
                         "name": os.environ["BUILD_URL"],
                         "description": description,
                     }
