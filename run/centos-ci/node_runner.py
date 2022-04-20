@@ -492,6 +492,8 @@ class Runner:
                 )
             else:
                 self._gitlab_message = f"{self.build_url}\n\nJob unexpectedly aborted!"
+            if msg:
+                self._gitlab_message += "\n\nReason: " + msg
             self._post_results()
         if self.build_machine:
             self.build_machine.cmd_terminate()
