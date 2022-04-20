@@ -7,10 +7,10 @@ Feature: nmcli - ppp
     # @test_name (compiled from scenario name)
     # Scenario:
 
-    @not_on_s390x @pppoe @del_test1112_veths
+    @not_on_s390x @pppoe
     @connect_to_pppoe_via_pap
     Scenario: NM - ppp - connect with pap auth
-    * Execute "ip link add test11 type veth peer name test12"
+    * Create "veth" device named "test11" with options "peer name test12"
     * Execute "ip link set dev test11 up"
     * Prepare pppoe server for user "test" with "networkmanager" password and IP "192.168.111.2" authenticated via "pap"
     * Start pppoe server with "isp" and IP "192.168.111.254" on device "test12"
@@ -27,10 +27,10 @@ Feature: nmcli - ppp
     And "default via 192.168.111.254 dev my-ppp" is visible with command "ip r"
 
 
-    @not_on_s390x @pppoe @del_test1112_veths
+    @not_on_s390x @pppoe
     @connect_to_pppoe_via_chap
     Scenario: NM - ppp - connect with chap auth
-    * Execute "ip link add test11 type veth peer name test12"
+    * Create "veth" device named "test11" with options "peer name test12"
     * Execute "ip link set dev test11 up"
     * Prepare pppoe server for user "test" with "networkmanager" password and IP "192.168.111.2" authenticated via "chap"
     * Start pppoe server with "isp" and IP "192.168.111.254" on device "test12"
@@ -47,10 +47,10 @@ Feature: nmcli - ppp
     And "default via 192.168.111.254 dev my-ppp" is visible with command "ip r"
 
 
-    @not_on_s390x @pppoe @del_test1112_veths
+    @not_on_s390x @pppoe
     @disconnect_from_pppoe
     Scenario: NM - ppp - disconnect
-    * Execute "ip link add test11 type veth peer name test12"
+    * Create "veth" device named "test11" with options "peer name test12"
     * Execute "ip link set dev test11 up"
     * Prepare pppoe server for user "test" with "networkmanager" password and IP "192.168.111.2" authenticated via "chap"
     * Start pppoe server with "isp" and IP "192.168.111.254" on device "test12"
@@ -70,10 +70,10 @@ Feature: nmcli - ppp
 
     @rhbz1110465
     @ver+=1.4.0
-    @not_on_s390x @pppoe @del_test1112_veths @firewall
+    @not_on_s390x @pppoe @firewall
     @update_firewall_zone_upon_reconnect
     Scenario: NM - ppp - firewall zone update upon reconnect
-    * Execute "ip link add test11 type veth peer name test12"
+    * Create "veth" device named "test11" with options "peer name test12"
     * Execute "ip link set dev test11 up"
     * Prepare pppoe server for user "test" with "networkmanager" password and IP "192.168.111.2" authenticated via "pap"
     * Start pppoe server with "isp" and IP "192.168.111.254" on device "test12"
@@ -102,10 +102,11 @@ Feature: nmcli - ppp
 
     @rhbz1478694
     @ver+=1.9.1
-    @not_on_s390x @pppoe @del_test1112_veths
+    @not_on_s390x @pppoe
     @pppoe_over_vlan
     Scenario: NM - ppp - pppoe over vlan
-    * Execute "ip link add test11 type veth peer name test12"
+    * Cleanup device "ppp0"
+    * Create "veth" device named "test11" with options "peer name test12"
     * Execute "ip link set test11 up"
     * Execute "ip link set test12 up"
     * Execute "ip link add link test11 vlan1 type vlan id 51"
@@ -127,10 +128,10 @@ Feature: nmcli - ppp
 
     @rhbz1854892
     @ver+=1.26 @rhelver+=8
-    @not_on_s390x @pppoe @del_test1112_veths @restart_if_needed
+    @not_on_s390x @pppoe @restart_if_needed
     @pppoe_and_ethernet_together
     Scenario: NM - ppp - pppoe and ethernet profiles
-    * Execute "ip link add test11 type veth peer name test12"
+    * Create "veth" device named "test11" with options "peer name test12"
     * Execute "ip link set test11 up"
     * Execute "ip link set test12 up"
     * Prepare pppoe server for user "test" with "networkmanager" password and IP "192.168.99.2" authenticated via "pap"

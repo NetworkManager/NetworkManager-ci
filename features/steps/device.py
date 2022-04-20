@@ -672,7 +672,7 @@ def check_route_count(context, cmp, routes_count, ip_version, device, seconds=1)
     assert False, f"There were {routes_now} routes found."
 
 
-@step(u'Cleanup interface "{iface}"')
+@step(u'Cleanup device "{iface}"')
 def cleanup_connection(context, iface):
     nmci.lib.add_iface_to_cleanup(context, iface)
 

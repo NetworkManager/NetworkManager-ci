@@ -1618,7 +1618,7 @@
     @teamd_killed_by_NM
     Scenario: NM - teamd - NM should not kill teamd
     * Cleanup connection "eth5" and device "eth5"
-    * Cleanup interface "nm-team"
+    * Cleanup device "nm-team"
     * Execute "ip link set dev eth5 down"
     * Execute "teamd -d -c "{\"device\":\"nm-team\",\"runner\":{\"name\":\"lacp\"},\"link_watch\":{\"name\":\"ethtool\"},\"ports\":{\"eth5\":{}}}""
     When "teamd -d -c " is visible with command "ps aux | grep -v grep | grep teamd"

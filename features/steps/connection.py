@@ -395,4 +395,4 @@ def add_bridges_vlans_range(context, begin, end, ifname):
 def cleanup_connection(context, connection, device=None):
     context.cleanup["connections"].add(connection)
     if device is not None:
-        context.execute_steps(f'* Cleanup interface "{device}"')
+        context.execute_steps(f'* Cleanup device "{device}"')

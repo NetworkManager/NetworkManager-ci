@@ -771,7 +771,7 @@ Feature: nmcli - general
     @ifcfg-rh
     @nmcli_general_ifcfg_tailing_whitespace
     Scenario: nmcli - general - ifcfg tailing whitespace ignored
-    * Cleanup interface "eth8.100"
+    * Cleanup device "eth8.100"
     * Add "vlan" connection named "eth8.100" with options "autoconnect no dev eth8 id 100"
     * Check ifcfg-name file created for connection "eth8.100"
     * Execute "sed -i 's/PHYSDEV=eth8/PHYSDEV=eth9    /' /etc/sysconfig/network-scripts/ifcfg-eth8.100"
@@ -1763,7 +1763,7 @@ Feature: nmcli - general
     @delete_testeth0 @long @logging_info_only
     @stable_mem_consumption
     Scenario: NM - general - stable mem consumption
-    * Cleanup interface "gen_br"
+    * Cleanup device "gen_br"
     * Execute "sh contrib/reproducers/repro_1433303.sh && sleep 10"
     * Note the output of "pmap -x $(pidof NetworkManager) |grep 'total' | awk '{print $4}'" as value "0"
     * Execute "sh contrib/reproducers/repro_1433303.sh && sleep 10"
@@ -1827,7 +1827,7 @@ Feature: nmcli - general
     @ver+=1.10.1
     @do_not_touch_external_dummy
     Scenario: NM - general - do not touch external dummy device
-    * Cleanup interface "dummy0"
+    * Cleanup device "dummy0"
     Then Execute "sh contrib/reproducers/repro_1512316.sh"
      And Execute "sh contrib/reproducers/repro_1512316.sh"
      And Execute "sh contrib/reproducers/repro_1512316.sh"
