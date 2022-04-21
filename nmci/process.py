@@ -117,3 +117,24 @@ def run_check(
         ignore_returncode=ignore_returncode,
         context_hook=context_hook,
     ).stdout
+
+
+def run_code(
+    argv,
+    *,
+    shell=False,
+    as_bytes=False,
+    timeout=5,
+    ignore_returncode=True,
+    ignore_stderr=False,
+    context_hook=None,
+):
+    return _run(
+        argv,
+        shell=shell,
+        as_bytes=as_bytes,
+        timeout=timeout,
+        ignore_stderr=ignore_stderr,
+        ignore_returncode=ignore_returncode,
+        context_hook=context_hook,
+    ).returncode
