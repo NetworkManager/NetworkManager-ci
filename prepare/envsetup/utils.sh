@@ -16,8 +16,8 @@ install_behave_pytest () {
   # https://github.com/psf/black/issues/2964
   python -m pip install click==8.0.4
   # black is needed by unit tests to check code format
-  # stick to fedora 33 version of black: 19.10b0
-  python -m pip install --prefix /usr/ black==19.10b0
+  # stick to fedora 33 version of black: 22.3.0
+  python -m pip install --prefix /usr/ black==22.3.0
 }
 
 
