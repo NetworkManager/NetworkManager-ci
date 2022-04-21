@@ -86,32 +86,6 @@ Feature: nmcli - ovs
     Then "bond0\s+ovs-port\s+unmanaged" is visible with command "nmcli device"
 
 
-    @rhbz1540218
-    @ver+=1.10
-    @ver-1.16.2
-    @openvswitch
-    @nmcli_add_basic_openvswitch_configuration
-    Scenario: nmcli - openvswitch - add basic setup
-    * Add "ovs-bridge" connection named "ovs-bridge0" with options "conn.interface ovsbridge0"
-    * Add "ovs-port" connection named "ovs-port0" for device "port0" with options "conn.master ovsbridge0"
-    * Add "ovs-port" connection named "ovs-port1" for device "port1" with options "conn.master ovsbridge0"
-    * Add "ethernet" connection named "ovs-eth2" with options
-          """
-          conn.interface eth2
-          conn.master port1
-          slave-type ovs-port
-          """
-    * Add "ovs-interface" connection named "ovs-iface0" for device "iface0" with options "conn.master port0"
-    When "activated" is visible with command "nmcli -g GENERAL.STATE con show ovs-iface0" in "40" seconds
-    Then "Bridge [\"]?ovsbridge0[\"]?" is visible with command "ovs-vsctl show"
-     And "Port [\"]?port1[\"]?\s+Interface [\"]?eth2[\"]?\s+type: system" is visible with command "ovs-vsctl show"
-     And "Port [\"]?port0[\"]?\s+Interface [\"]?iface0[\"]?\s+type: internal" is visible with command "ovs-vsctl show"
-     And "master ovs-system" is visible with command "ip a s eth2"
-     And "192.168.10[0-3].*\/2[2-4]" is visible with command "ip a s iface0"
-     And "fe80::" is visible with command "ip a s iface0"
-     And "default via 192.168.100.1 dev iface0 proto dhcp metric 800" is visible with command "ip r"
-
-
     @rhbz1540218 @rhbz1519176
     @ver+=1.16.2
     @openvswitch
@@ -134,7 +108,7 @@ Feature: nmcli - ovs
      And "master ovs-system" is visible with command "ip a s eth2"
      And "192.168.10[0-3].*\/2[2-4]" is visible with command "ip a s iface0"
      And "fe80::" is visible with command "ip a s iface0"
-     And "default via 192.168.100.1 dev iface0 proto dhcp( src 192.168.100.[0-9]+)? metric 800" is visible with command "ip r"
+     And "default via 192.168.100.1 dev iface0 proto dhcp( src 192.168.10[0-3].[0-9]+)? metric 800" is visible with command "ip r"
 
 
     @rhbz1540218
@@ -166,7 +140,7 @@ Feature: nmcli - ovs
      And "master ovs-system" is visible with command "ip a s eth3"
      And "192.168.10[0-3].*\/2[2-4]" is visible with command "ip a s iface0"
      And "fe80::" is visible with command "ip a s iface0"
-     And "default via 192.168.100.1 dev iface0 proto dhcp( src 192.168.100.[0-9]+)? metric 800" is visible with command "ip r"
+     And "default via 192.168.100.1 dev iface0 proto dhcp( src 192.168.10[0-3].[0-9]+)? metric 800" is visible with command "ip r"
 
 
     @rhbz1540218
@@ -304,10 +278,10 @@ Feature: nmcli - ovs
     #   """
     #   conn.master ovsbridge0
     #    ovs-port.tag
-    #   120" 
-    #    
+    #   120"
+    #
     #    #*
-    #   Add 
+    #   Add
     #   """
     #* Add "ovs-port" connection named "ovs-bond0" for device "bond0" with options
     #   """
@@ -768,9 +742,9 @@ Feature: nmcli - ovs
           conn.master port0
           ipv4.may-fail no
           802-3-ethernet.cloned-mac-address
-          00:11:22:33:44:55" 
+          00:11:22:33:44:55"
                     *
-          Add 
+          Add
           """
     When "activated" is visible with command "nmcli -g GENERAL.STATE con show ovs-iface0" in "40" seconds
     When "00:11:22:33:44:55" is visible with command "ip a s iface0"
@@ -956,9 +930,9 @@ Feature: nmcli - ovs
           ipv4.method manual
           ipv4.addresses 10.200.208.98/16
           ipv4.routes
-          224.0.0.0/4" 
+          224.0.0.0/4"
                     *
-          Add 
+          Add
           """
     * Add "vlan" connection named "vlan2" with options
           """
