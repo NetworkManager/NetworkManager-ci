@@ -1,5 +1,6 @@
 import collections
 import os
+import re
 import subprocess
 import sys
 
@@ -138,3 +139,33 @@ def run_code(
         ignore_returncode=ignore_returncode,
         context_hook=context_hook,
     ).returncode
+
+
+def run_match_stdout(
+    argv,
+    pattern,
+    *,
+    shell=False,
+    timeout=5,
+    ignore_returncode=False,
+    ignore_stderr=False,
+    context_hook=None,
+    pattern_flags=0,
+):
+    # autodetect based on the pattern
+    if isinstance(pattern, bytes):
+        as_bytes = True
+    elif isinstance(pattern, str):
+        as_bytes = False
+    else:
+        as_bytes = isinstance(pattern.pattern, bytes)
+    result = _run(
+        argv,
+        shell=shell,
+        as_bytes=as_bytes,
+        timeout=timeout,
+        ignore_stderr=ignore_stderr,
+        ignore_returncode=ignore_returncode,
+        context_hook=context_hook,
+    )
+    return re.match(pattern, result.stdout, flags=pattern_flags)

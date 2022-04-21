@@ -761,6 +761,40 @@ def test_process_run():
     )
     assert r == (77, "xstdout", "xstderr")
 
+    assert process.run_match_stdout("echo hallo", "hallo")
+    assert process.run_match_stdout("echo hallo", b"hallo")
+    assert not process.run_match_stdout("echo Hallo", b"hallo")
+    assert process.run_match_stdout("echo Hallo", b"hallo", pattern_flags=re.I)
+
+    assert process.run_match_stdout("echo hallo", re.compile(b"h"))
+    assert process.run_match_stdout("echo hallo", re.compile("h"))
+    assert process.run_match_stdout("echo", re.compile("^"))
+
+    m = process.run_match_stdout("echo -n hallo", re.compile("^h(all.)$"))
+    assert m
+    assert m.group(1) == "allo"
+
+    m = process.run_match_stdout("echo -n hallo", re.compile(b"^h(all.)$"))
+    assert m
+    assert m.group(1) == b"allo"
+
+    assert not process.run_match_stdout(
+        "echo Hallo >&2", b"hallo", shell=True, ignore_stderr=True, pattern_flags=re.I
+    )
+
+    assert process.run_match_stdout(
+        "echo stderr >&2; echo hallo",
+        b"hall[o]",
+        shell=True,
+        ignore_stderr=True,
+        pattern_flags=re.I,
+    )
+
+    with pytest.raises(Exception):
+        assert process.run_match_stdout(
+            "echo Hallo >&2", b"hallo", shell=True, pattern_flags=re.I
+        )
+
 
 def test_git_call_ref_parse():
 

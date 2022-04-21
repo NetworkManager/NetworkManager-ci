@@ -150,6 +150,9 @@ def set_up_commands(context):
         def run_code(self, *a, **kw):
             return process.run_code(*a, context_hook=self.context_hook, **kw)
 
+        def run_match_stdout(self, *a, **kw):
+            return process.run_match_stdout(*a, context_hook=self.context_hook, **kw)
+
     context.process = _Process(context)
 
     def _run(command, *a, **kw):
