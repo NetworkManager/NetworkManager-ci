@@ -13,14 +13,7 @@ IGNORE_RETURNCODE_ALL = object()
 
 
 def _run(
-    argv,
-    *,
-    shell=False,
-    as_bytes=False,
-    timeout=5,
-    ignore_stderr=False,
-    ignore_returncode=False,
-    context_hook=None,
+    argv, *, shell, as_bytes, timeout, ignore_stderr, ignore_returncode, context_hook
 ):
 
     if isinstance(argv, str):
