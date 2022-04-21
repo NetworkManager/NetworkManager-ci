@@ -13,9 +13,10 @@ gl_project = gl.projects.get(os.environ["CI_PROJECT_PATH"])
 commit = gl_project.commits.get(os.environ["CI_COMMIT_SHA"])
 statuses = commit.statuses.list()
 statuses = [
-    status.name
+    status.target_url
     for status in statuses
-    if "jenkins-networkmanager.apps.ocp.ci.centos.org" in status.name
+    if status.target_url
+    and "jenkins-networkmanager.apps.ocp.ci.centos.org" in status.target_url
 ]
 if len(statuses) > 0:
     statuses.sort()
