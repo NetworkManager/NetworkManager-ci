@@ -973,6 +973,7 @@ def simwifi_ap_bs(ctx, scen):
     if ctx.arch != "x86_64":
         print("Skipping as not on x86_64")
         sys.exit(77)
+        
     ctx.run("modprobe -r mac80211_hwsim")
     ctx.run("modprobe mac80211_hwsim")
     ctx.run("systemctl restart wpa_supplicant")
@@ -2520,3 +2521,21 @@ def tag8021x_doc_procedure_as(ctx, scen):
 
 
 _register_tag('8021x_doc_procedure', tag8021x_doc_procedure_bs, tag8021x_doc_procedure_as)
+
+
+def simwifi_hw_bs(ctx, scen):
+    if not hasattr(ctx, 'noted'):
+        ctx.noted = {}
+    
+    if ctx.process.run_match_stdout("sudo lshw -C network", r'wireless|wifi',
+                                    pattern_flags=re.IGNORECASE):
+        ctx.noted['wifi-hw_real'] = "enabled"
+    else:
+        ctx.noted['wifi-hw_real'] = "missing"
+
+
+def simwifi_hw_as(ctx, scen):
+    ctx.process.run_check("nmcli radio wifi on")
+
+
+_register_tag("simwifi_hw", simwifi_hw_bs, simwifi_hw_as)

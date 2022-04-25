@@ -2284,6 +2284,8 @@ testmapper:
     - simwifi_ap_in_bridge_wpa_psk_method_manual:
         feature: wifi_hwsim
         tags: gate
+    - simwifi_nmcli_radio:
+        feature: wifi_hwsim
     - policy_based_routing_doc_procedure:
         feature: doc_procedures
         tags: gate
