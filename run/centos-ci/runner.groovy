@@ -18,7 +18,7 @@ node('cico-workspace') {
                 REFSPEC = "main"
             }
             if (!params['TEST_BRANCH']) {
-                TEST_BRANCH = "master"
+                TEST_BRANCH = "main"
             }
             if (!params['FEATURES']) {
                 FEATURES = "all"

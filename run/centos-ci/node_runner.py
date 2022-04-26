@@ -673,7 +673,7 @@ class Runner:
         logging.basicConfig(level=logging.DEBUG)
         logging.debug("reading params")
         parser = argparse.ArgumentParser()
-        parser.add_argument("-t", "--test_branch", default="master")
+        parser.add_argument("-t", "--test_branch", default="main")
         parser.add_argument("-c", "--code_refspec", default=None)
         parser.add_argument("-f", "--features", default="all")
         parser.add_argument("-b", "--build_id")

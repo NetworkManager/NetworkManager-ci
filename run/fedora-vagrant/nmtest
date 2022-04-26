@@ -127,7 +127,7 @@ def wizard_collect_values(codebranch=None, testbranch=None):
 
 
     # TEST BRANCH
-    print ("Do you want to run non master test branch? [yes|no] no")
+    print ("Do you want to run non main test branch? [yes|no] no")
     compile = raw_input()
     if not compile or compile == "yes":
         print ("Specify test branch:")
@@ -136,7 +136,7 @@ def wizard_collect_values(codebranch=None, testbranch=None):
                 print ("Branch %s doesn't exist in NM-ci repo." %testbranch)
             testbranch = raw_input()
     else:
-        testbranch = 'master'
+        testbranch = 'main'
 
     # TESTS
     print ("Specify area of tests:")
@@ -204,9 +204,9 @@ def main():
     elif options.wizard == False:
         provider = "virtualbox"
         image = "vbenes/fedora-25-server"
-        testbranch = "master"
+        testbranch = "main"
         tests = precess_raw_features('all', testbranch)
-        codebranch = "master"
+        codebranch = "main"
     else:
         if  not options.image or \
             not options.features or \

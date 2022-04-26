@@ -274,10 +274,10 @@ def execute_build(gt, content, os_version=default_os, features="best", build="ma
     params.append({"name": "RELEASE", "value": os_version})
 
     if gt.repository == "NetworkManager":
-        # NM CODE will use master unless we know branch mr/abcd exists
+        # NM CODE will use main unless we know branch mr/abcd exists
         branch = f"mr/{gt.merge_request_id}"
         if not gt.is_NMCI_branch(branch):
-            branch = "master"
+            branch = "main"
         params.append({"name": "TEST_BRANCH", "value": branch})
         params.append({"name": "REFSPEC", "value": gt.commit})
         project_dir = "NetworkManager-code-mr"

@@ -39,8 +39,8 @@ This repo contains a set of integration tests for NetworkManager and CentOS 8 St
 * Running Tests
   * with NM compilation
   ```bash
-  # NMCI test code. NMCI master should work everywhere
-  TEST_BRANCH='master'
+  # NMCI test code. NMCI main should work everywhere
+  TEST_BRANCH='main'
   # REFSPEC of your NM code change, work with repo below
   REFSPEC='main'
   # Change to whatever repo you want to compile NM from
@@ -61,7 +61,7 @@ This repo contains a set of integration tests for NetworkManager and CentOS 8 St
   ```
   * you can avoid compilation and use already installed packages
   ```bash
-  # NMCI test code. NMCI master should work everywhere
+  # NMCI test code. NMCI main should work everywhere
   TEST_BRANCH='vb/nmtest'
   # Choose a list of features you want to test, you can have 'all' to test everything
   FEATURES='all'
