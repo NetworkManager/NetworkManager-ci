@@ -595,6 +595,7 @@ Feature: nmcli - general
     @rhbz1113941
     @nmcli_device_connect_no_profile
     Scenario: nmcli - device - connect - no profile
+    * Cleanup connection "eth9" and device "eth9"
     * Execute "nmcli connection delete id testeth9"
     * Connect device "eth9"
     * Bring "down" connection "eth9"
