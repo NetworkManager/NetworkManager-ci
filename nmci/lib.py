@@ -1275,6 +1275,8 @@ def cleanup(context):
             nmci.lib.reset_hwaddr_nmtui(context, iface)
         else:
             nmci.lib.reset_hwaddr_nmcli(context, iface)
+        if iface != "eth0":
+            nmci.run(f"ip addr flush {iface}")
 
     for namespace, teardown in context.cleanup["namespaces"].items():
         if teardown:
