@@ -76,6 +76,7 @@ Feature: nmcli - procedures in documentation
     @need_legacy_crypto
     @8021x_peap_mschapv2_doc_procedure
     Scenario: nmcli - docs - Configuring 802.1x network authentication on an existing Ethernet connection using nmcli
+    * Doc: "Configuring 802.1X network authentication on an existing Ethernet connection using nmcli"
     * Add "ethernet" connection named "con_ethernet" for device "test8X" with options "autoconnect no"
     * Modify connection "con_ethernet" changing options "802-1x.eap peap 802-1x.identity TESTERS\\test_mschapv2 802-1x.phase2-auth mschapv2"
     * Modify connection "con_ethernet" changing options "802-1x.password password"
@@ -94,6 +95,7 @@ Feature: nmcli - procedures in documentation
     @simwifi @attach_hostapd_log @attach_wpa_supplicant_log
     @simwifi_peap_mschapv2_doc_procedure
     Scenario: nmcli - docs - Configuring 802.1x network authentication on an existing Wi-Fi connection using nmcli
+    * Doc: "Configuring 802.1X network authentication on an existing Wi-Fi connection using nmcli"
     Given "wpa2-eap" is visible with command "nmcli -f SSID device wifi list" in "60" seconds
     * Add "wifi" connection named "wifi" for device "wlan0" with options "autoconnect no ssid wpa2-eap"
     * Modify connection "wifi" changing options "802-11-wireless-security.key-mgmt wpa-eap 802-1x.eap peap 802-1x.identity TESTERS\\test_mschapv2 802-1x.phase2-auth mschapv2"
@@ -110,6 +112,7 @@ Feature: nmcli - procedures in documentation
     @ver+=1.14
     @iptunnel_ipip_doc_procedure
     Scenario: nmcli - docs - Configuring an IPIP tunnel using nmcli to encapsulate IPv4 traffic in IPv4 packets
+    * Doc: "Configuring an IPIP tunnel using nmcli to encapsulate IPv4 traffic in IPv4 packets"
     * Prepare "ipip" iptunnel networks A and B
     * Add "ip-tunnel" connection named "tun0" for device "tun0" with options
           """
@@ -128,6 +131,7 @@ Feature: nmcli - procedures in documentation
     @ver+=1.14
     @iptunnel_gre_doc_procedure
     Scenario: nmcli - docs - Configuring a GRE tunnel using nmcli to encapsulate layer-3 traffic in IPv4 packets
+    * Doc: "Configuring a GRE tunnel using nmcli to encapsulate layer-3 traffic in IPv4 packets"
     * Prepare "gre" iptunnel networks A and B
     * Add "ip-tunnel" connection named "gre1" for device "gre1" with options
           """
@@ -146,6 +150,7 @@ Feature: nmcli - procedures in documentation
     @ver+=1.20
     @iptunnel_gretap_doc_procedure
     Scenario: nmcli - docs - Configuring a GRETAP tunnel to transfer Ethernet frames over IPv4
+    * Doc: "Configuring a GRETAP tunnel to transfer Ethernet frames over IPv4"
     * Prepare "gretap" iptunnel networks A and B
     * Add "bridge" connection named "bridge0" for device "bridge0"
     * Modify connection "bridge0" changing options "ipv4.addresses '192.0.2.1/24'"
@@ -190,6 +195,7 @@ Feature: nmcli - procedures in documentation
     @macsec @not_on_aarch64_but_pegas @long
     @macsec_doc_procedure
     Scenario: nmcli - docs - Using MACsec to encrypt layer-2 traffic in the same physical network
+    * Doc: "Configuring a MACsec connection using nmcli"
     * Prepare MACsec PSK environment with CAK "50b71a8ef0bd5751ea76de6d6c98c03a" and CKN "f2b4297d39da7330910a74abc0449feb45b5c0b9fc23df1430e1898fcf1c4550"
     * Add "macsec" connection named "test-macsec" for device "macsec0" with options
           """
@@ -383,3 +389,20 @@ Feature: nmcli - procedures in documentation
     #* Bring down connection "test1-ttls"
     #* Execute "ip l set test1 up; ip a add 192.168.123/24 dev test1"
     #Then Unable to ping "192.168.100.1" from "test1" device
+
+
+    @doc_set_gateway_on_existing_profile
+    Scenario: nmcli - doc - routes - set gateway to exisitng profile
+    * Doc: "Setting the default gateway on an existing connection using nmcli"
+    * Add "ethernet" connection named "con_doc" for device "eth10" with options
+            """
+            ipv4.method manual
+            ipv4.addresses "192.168.122.253"
+            ipv6.method manual
+            ipv6.addresses "2001:db8:1::6"
+            """
+    * Modify connection "con_doc" changing options "ipv4.gateway "192.0.2.1""
+    * Modify connection "con_doc" changing options "ipv6.gateway "2001:db8:1::1""
+    * Bring "up" connection "con_doc"
+    Then "default via 192.0.2.1 dev eth10 proto static metric 10" is visible with command "ip -4 route" in "20" seconds
+    Then "default via 2001:db8:1::1 dev eth10 proto static metric 10.* pref medium" is visible with command "ip -6 route" in "20" seconds

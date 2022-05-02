@@ -127,6 +127,7 @@
     @tshark
     @tc_morrir_traffic
     Scenario: nmcli - tc - mirror traffic
+    * Doc: "Mirroring a network interface using nmcli"
     * Create "dummy" device named "dummy0"
     * Execute "ip link set dev dummy0 up"
     * Add "ethernet" connection named "con_tc" for device "eth2" with options

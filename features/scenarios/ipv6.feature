@@ -687,6 +687,7 @@
     @eth10_disconnect
     @ipv6_never-default_set_true
     Scenario: nmcli - ipv6 - never-default - set
+    * Doc: "Configuring NetworkManager to avoid using a specific profile to provide a default gateway"
     * Add "ethernet" connection named "con_ipv6" for device "eth10" with options "ipv6.never-default yes"
      * Bring "up" connection "testeth10"
     When "default via " is visible with command "ip -6 route |grep eth10" in "45" seconds
@@ -1149,7 +1150,7 @@
 
     @rhbz1243958
     @ver+=1.4.0
-    @eth0 
+    @eth0
     @nm-online_wait_for_ipv6_to_finish
     Scenario: NM - ipv6 - nm-online wait for non tentative ipv6
     * Create "veth" device named "test10" with options "peer name test10p"
@@ -2027,7 +2028,7 @@
     @ipv6_check_addr_order
     Scenario: nmcli - ipv6 - check IPv6 address order
     * Prepare simulated test "testX6" device
-    * Add "ethernet" connection named "con_ipv6" for device "testX6" with options 
+    * Add "ethernet" connection named "con_ipv6" for device "testX6" with options
           """
           ipv4.method disabled
           ipv6.method auto
@@ -2058,7 +2059,7 @@
     @ipv6_check_addr_order
     Scenario: nmcli - ipv6 - check IPv6 address order
     * Prepare simulated test "testX6" device
-    * Add "ethernet" connection named "con_ipv6" for device "testX6" with options 
+    * Add "ethernet" connection named "con_ipv6" for device "testX6" with options
           """
           ipv4.method disabled
           ipv6.method auto

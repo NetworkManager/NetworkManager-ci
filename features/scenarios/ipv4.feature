@@ -145,27 +145,6 @@ Feature: nmcli: ipv4
 
 
     @rhbz663730
-    @ver+=1.6.0
-    @ver-=1.9.1
-    @route_priorities
-    Scenario: nmcli - ipv4 - route priorities
-     * Add "ethernet" connection named "con_ipv4" for device "eth2" with options "autoconnect no ipv4.may-fail no"
-     * Add "ethernet" connection named "con_ipv42" for device "eth3" with options "autoconnect no ipv4.may-fail no"
-     * Bring "up" connection "con_ipv4"
-     * Bring "up" connection "con_ipv42"
-     When "metric 1" is visible with command "ip r |grep default |grep eth2" in "10" seconds
-     When "metric 1" is visible with command "ip r |grep default |grep eth3" in "10" seconds
-     * Modify connection "con_ipv42" changing options "ipv4.route-metric 200"
-     * Bring "up" connection "con_ipv42"
-     When "metric 1" is visible with command "ip r |grep default |grep eth2" in "10" seconds
-     When "metric 200" is visible with command "ip r |grep default |grep eth3" in "10" seconds
-     * Modify connection "con_ipv42" changing options "ipv4.route-metric -1"
-     * Bring "up" connection "con_ipv42"
-     When "metric 1" is visible with command "ip r |grep default |grep eth2" in "10" seconds
-     When "metric 1" is visible with command "ip r |grep default |grep eth3" in "10" seconds
-
-
-    @rhbz663730
     @ver+=1.9.2
     @route_priorities
     Scenario: nmcli - ipv4 - route priorities
@@ -252,6 +231,7 @@ Feature: nmcli: ipv4
     @ver-=1.35.0
     @ipv4_route_set_route_with_options
     Scenario: nmcli - ipv4 - routes - set route with options
+    * Doc: "Configuring a static route using an nmcli command"
     * Add "ethernet" connection named "con_ipv4" for device "eth3" with options
           """
           ipv4.method manual
@@ -524,40 +504,6 @@ Feature: nmcli: ipv4
     When "default" is not visible with command "ip r |grep eth3"
     * Execute "ip route add default via 192.168.100.1 metric 1"
     Then "default" is visible with command "ip r |grep eth3"
-
-
-    @rhbz1164441
-    @ver-=1.10.0
-    @ipv4_route_remove_basic_route
-    Scenario: nmcli - ipv4 - routes - remove basic route
-    * Add "ethernet" connection named "con_ipv4" for device "eth3" with options
-          """
-          ipv4.may-fail no
-          ipv4.method static
-          ipv4.addresses 192.168.3.10/24
-          ipv4.gateway 192.168.4.1
-          ipv4.routes '192.168.5.0/24 192.168.3.11 2'
-          """
-    * Add "ethernet" connection named "con_ipv42" for device "eth2" with options
-          """
-          ipv4.may-fail no
-          ipv4.method static
-          ipv4.addresses 192.168.1.10/24
-          ipv4.gateway 192.168.4.1
-          ipv4.routes '192.168.2.0/24 192.168.1.11 3'
-          """
-    * Modify connection "con_ipv4" changing options "ipv4.routes ''"
-    * Modify connection "con_ipv42" changing options "ipv4.routes ''"
-    * Bring "up" connection "con_ipv4"
-    * Bring "up" connection "con_ipv42"
-    Then "default via 192.168.4.1 dev eth3\s+proto static\s+metric 1" is visible with command "ip route" in "5" seconds
-    Then "default via 192.168.4.1 dev eth2\s+proto static\s+metric 1" is visible with command "ip route" in "5" seconds
-    Then "192.168.1.0/24 dev eth2\s+proto kernel\s+scope link\s+src 192.168.1.10" is visible with command "ip route"
-    Then "192.168.2.0/24 via 192.168.1.11 dev eth2\s+proto static\s+metric 3" is not visible with command "ip route"
-    Then "192.168.3.0/24 dev eth3\s+proto kernel\s+scope link\s+src 192.168.3.10" is visible with command "ip route"
-    Then "192.168.4.1 dev eth3\s+proto static\s+scope link\s+metric 1" is visible with command "ip route"
-    Then "192.168.4.1 dev eth2\s+proto static\s+scope link\s+metric 1" is visible with command "ip route"
-    Then "192.168.5.0/24 via 192.168.3.11 dev eth3\s+proto static\s+metric 1" is not visible with command "ip route"
 
 
     @rhbz1164441
@@ -1453,25 +1399,12 @@ Feature: nmcli: ipv4
     Then Bring "up" connection "con_ipv4"
 
 
-    @ver-=1.16
-    @eth0
-    @ipv4_never-default_set
-    Scenario: nmcli - ipv4 - never-default - set
-    * Add "ethernet" connection named "con_ipv4" for device "eth3" with options
-          """
-          autoconnect no
-          ipv4.may-fail no
-          ipv4.never-default yes
-          """
-    * Bring "up" connection "con_ipv4"
-    Then "default via 192." is not visible with command "ip route"
-
-
     @rhbz1785039
     @ver+=1.25
     @eth0
     @ipv4_never-default_set
     Scenario: nmcli - ipv4 - never-default - set
+    * Doc: "Configuring NetworkManager to avoid using a specific profile to provide a default gateway"
     * Add "ethernet" connection named "con_ipv4" for device "eth3" with options
           """
           autoconnect no
