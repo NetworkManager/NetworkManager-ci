@@ -174,9 +174,11 @@ class _Misc:
 
     def test_version_tag_parse(self, version_tag, tag_candidate):
 
+        version_tag0 = version_tag
+
         if not version_tag.startswith(tag_candidate):
             raise ValueError(
-                f'tag "{version_tag}" does not start with "{tag_candidate}"'
+                f'tag "{version_tag0}" does not start with "{tag_candidate}"'
             )
 
         version_tag = version_tag[len(tag_candidate) :]
@@ -189,12 +191,12 @@ class _Misc:
             ver = version_tag[1:]
         else:
             raise ValueError(
-                f'tag "{version_tag}" does not have a suitable "+-" part for "{tag_candidate}"'
+                f'tag "{version_tag0}" does not have a suitable "+-" part for "{tag_candidate}"'
             )
 
         if not re.match("^[0-9.]+$", ver):
             raise ValueError(
-                'tag "{version_tag}" does not have a suitable version number for "{tag_candidate}"'
+                f'tag "{version_tag0}" does not have a suitable version number for "{tag_candidate}"'
             )
 
         ver_arr = [int(x) for x in ver.split(".")]
