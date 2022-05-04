@@ -15,7 +15,7 @@ from . import process
 
 class _Misc:
 
-    TEST_NAME_VALID_CHAR_REGEX = "[-a-z_.A-Z0-9+=]"
+    TEST_NAME_VALID_CHAR_REGEX = "[-a-z_.A-Z0-9+=/]"
 
     def test_name_normalize(self, test_name):
         test_name0 = test_name

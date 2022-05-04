@@ -605,7 +605,7 @@ def test_feature_tags():
         for tag in test_tags:
             assert type(tag) is str
             assert tag
-            assert re.match("^[-a-z_.A-Z0-9+=]+$", tag)
+            assert re.match("^[-a-z_.A-Z0-9+=/]+$", tag)
             assert re.match("^" + misc.TEST_NAME_VALID_CHAR_REGEX + "+$", tag)
             assert (
                 test_tags.count(tag) == 1
