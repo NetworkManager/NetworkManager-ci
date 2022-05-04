@@ -609,7 +609,10 @@ def test_feature_tags():
             assert type(op) is str
             assert type(ver) is list
             assert op in ["+", "+=", "-", "-="]
-            assert ver
+            if ver == []:
+                assert op in ["+", "-"]
+            else:
+                assert ver
             assert all([type(v) is int for v in ver])
             assert all([v >= 0 for v in ver])
             assert len(ver) <= ver_len

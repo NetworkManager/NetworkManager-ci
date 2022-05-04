@@ -183,6 +183,13 @@ class _Misc:
 
         version_tag = version_tag[len(tag_candidate) :]
 
+        if version_tag == "-" or version_tag == "+":
+            # as a special case, we support plain @ver+/@ver- tags. They
+            # make sense to always enabled/disable a test per stream.
+            # For example, if a certain test should never run with a RHEL
+            # package, use "@ver/rhel-"
+            return (version_tag, [])
+
         if version_tag.startswith("+=") or version_tag.startswith("-="):
             op = version_tag[0:2]
             ver = version_tag[2:]
@@ -460,6 +467,16 @@ class _Misc:
         if not ver_tags:
             # no version tags means it's a PASS.
             return True
+
+        # Check for the always enabled/disabled tag (which is
+        # encoded by op="+"/"-" and len=[]). If such a tag
+        # is present, it must be alone.
+        for op, ver in ver_tags:
+            if ver:
+                continue
+            assert op in ["+", "-"]
+            assert len(ver_tags) == 1
+            return op == "+"
 
         for op, ver in ver_tags:
             assert op in ["+=", "+", "-=", "-"]
