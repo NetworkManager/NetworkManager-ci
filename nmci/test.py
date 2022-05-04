@@ -546,6 +546,26 @@ def test_misc_nm_version_parse():
     _assert("1.31.2-28040.11545c0ca0.el8", "upstream", [1, 31, 2, 28040])
 
 
+def test_misc_test_version_tag_parse_ver():
+    def _assert(version_tag, expect_stream, expect_op, expect_version):
+        (stream, op, version) = misc.test_version_tag_parse_ver(version_tag)
+        assert expect_stream == stream
+        assert expect_op == op
+        assert expect_version == version
+
+    def _assert_inval(version_tag):
+        with pytest.raises(ValueError):
+            misc.test_version_tag_parse_ver(version_tag)
+
+    _assert("ver+=1", [], "+=", [1])
+    _assert("ver/rhel+=1", ["rhel"], "+=", [1])
+    _assert("ver/rhel/8+=1", ["rhel", "8"], "+=", [1])
+
+    _assert_inval("ver/rhel/8")
+    _assert_inval("ver/rhel/8/+=1")
+    _assert_inval("ver/rhel//8+=1")
+
+
 def test_feature_tags():
 
     from . import tags
@@ -566,7 +586,12 @@ def test_feature_tags():
         ]:
             if not tag.startswith(ver_prefix):
                 continue
-            op, ver = misc.test_version_tag_parse(tag, ver_prefix)
+            if ver_prefix == "ver":
+                stream, op, ver = misc.test_version_tag_parse_ver(tag)
+                assert type(stream) is list
+            else:
+                stream = None
+                op, ver = misc.test_version_tag_parse(tag, ver_prefix)
             assert type(op) is str
             assert type(ver) is list
             assert op in ["+", "+=", "-", "-="]
@@ -574,7 +599,11 @@ def test_feature_tags():
             assert all([type(v) is int for v in ver])
             assert all([v >= 0 for v in ver])
             assert len(ver) <= ver_len
-            assert tag.startswith(ver_prefix + op)
+            if ver_prefix == "ver":
+                assert type(stream) is list
+                assert tag.startswith("/".join(("ver", *stream)) + op)
+            else:
+                assert tag.startswith(ver_prefix + op)
             return True
         return tag in [
             "rhel_pkg",

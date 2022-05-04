@@ -202,6 +202,28 @@ class _Misc:
         ver_arr = [int(x) for x in ver.split(".")]
         return (op, ver_arr)
 
+    def test_version_tag_parse_ver(self, version_tag):
+        # This parses tags in the form @ver$STREAM$OP$VERSION where
+        # - $STREAM is for example "", "/upstream", "/fedora", "/fedora/33", "/rhel", "/rhel/8". It matches
+        #   the stream returned by nm_version_parse().
+        # - $OP is the comparison operator ("-", "-=", "+", "+=")
+        # - -VERSION is the version number to compare. Corresponds the version returned by nm_version_parse().
+
+        if not version_tag.startswith("ver"):
+            raise ValueError(f'version tag "{version_tag0}" does not start with "ver""')
+
+        v = version_tag[len("ver") :]
+        stream = []
+        while True:
+            m = re.match("^/([^/\\-+=]+)", v)
+            if not m:
+                break
+            stream.append(m.group(1))
+            v = v[(1 + len(m.group(1))) :]
+
+        version = self.test_version_tag_parse(version_tag, "/".join(("ver", *stream)))
+        return (stream, *version)
+
     def nm_version_detect(self, use_cached=True):
         if use_cached and hasattr(self, "_nm_version_detect_cached"):
             return self._nm_version_detect_cached
