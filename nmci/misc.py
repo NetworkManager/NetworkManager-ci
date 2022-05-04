@@ -316,6 +316,8 @@ class _Misc:
         (nm_stream, nm_version) = nm_version_info
         (distro_flavor, distro_version) = distro_version_info
 
+        nm_stream_base = nm_stream.split("-")[0]
+
         tags_ver = []
         tags_rhelver = []
         tags_fedoraver = []
@@ -330,16 +332,29 @@ class _Misc:
             elif tag.startswith("fedoraver"):
                 tags_fedoraver.append(self.test_version_tag_parse(tag, "fedoraver"))
             elif tag == "rhel_pkg":
-                if not (distro_flavor == "rhel" and nm_stream.startswith("rhel")):
+                # "@rhel_pkg" (and "@fedora_pkg") have some overlap with
+                # "@ver/rhel+"
+                #
+                # - if the test already specifies some @ver$OP$VERSION, then
+                #   it's similar to "@ver- @ver/rhel$OP$VERSION" (for all @ver tags)
+                # - if the test does not specify other @ver tags, then it's similar
+                #   to "@ver- @ver/rhel+".
+                #
+                # These tags are still useful aliases. Also note that they take
+                # into account distro_flavor, while @ver/rhel does not take it
+                # into account. If you rebuild a rhel package on Fedora, then
+                # @ver/rhel would not care that you are on Fedora, while @rhel_pkg
+                # would.
+                if not (distro_flavor == "rhel" and nm_stream_base == "rhel"):
                     run = False
             elif tag == "not_with_rhel_pkg":
-                if distro_flavor == "rhel" and nm_stream.startswith("rhel"):
+                if distro_flavor == "rhel" and nm_stream_base == "rhel":
                     run = False
             elif tag == "fedora_pkg":
-                if not (distro_flavor == "fedora" and nm_stream.startswith("fedora")):
+                if not (distro_flavor == "fedora" and nm_stream_base == "fedora"):
                     run = False
             elif tag == "not_with_fedora_pkg":
-                if distro_flavor == "fedora" and nm_stream.startswith("fedora"):
+                if distro_flavor == "fedora" and nm_stream_base == "fedora":
                     run = False
         if not has_any:
             return None
