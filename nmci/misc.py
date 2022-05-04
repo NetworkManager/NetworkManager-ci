@@ -224,6 +224,36 @@ class _Misc:
         version = self.test_version_tag_parse(version_tag, "/".join(("ver", *stream)))
         return (stream, *version)
 
+    def test_version_tag_filter_for_stream(self, tags_ver, nm_stream):
+        # - tags_ver is a list of version tags parsed by test_version_tag_parse_ver() (that is
+        #   it contains a 3-tuple of (stream, op, version).
+        # - nm_stream is the stream detected by nm_version_parse(), for example
+        #   "rhel-8-10" or "fedora-33".
+        #
+        # This function now returns a list of (op,version) tuple, but only selecting
+        # those that have a matching stream... that means, if the nm_stream is
+        # "rhel-8-10", then:
+        #  - if exist, it will return all tags_ver with stream ["rhel", "8", "10"]
+        #  - if exist, it will return all tags_ver with stream ["rhel", "8"]
+        #  - if exist, it will return all tags_ver with stream ["rhel"]
+        #  - if exist, it will return all tags_ver with stream []
+        #
+        # With this scheme, you can have a default version tag that always matches (@ver+=1.39),
+        # but you can override it for rhel (@ver/rhel+=x) or even for rhel-8 only (@ver/rhel/8+=x)
+
+        if not tags_ver:
+            return tags_ver
+
+        nm_streams = nm_stream.split("-")
+        assert all(s for s in nm_streams)
+        while True:
+            if any((nm_streams == t[0] for t in tags_ver)):
+                return [(t[1], t[2]) for t in tags_ver if nm_streams == t[0]]
+            if not nm_streams:
+                # nothing found. Return empty.
+                return []
+            nm_streams = nm_streams[:-1]
+
     def nm_version_detect(self, use_cached=True):
         if use_cached and hasattr(self, "_nm_version_detect_cached"):
             return self._nm_version_detect_cached
@@ -287,7 +317,7 @@ class _Misc:
         for tag in test_tags:
             has_any = True
             if tag.startswith("ver"):
-                tags_ver.append(self.test_version_tag_parse(tag, "ver"))
+                tags_ver.append(self.test_version_tag_parse_ver(tag))
             elif tag.startswith("rhelver"):
                 tags_rhelver.append(self.test_version_tag_parse(tag, "rhelver"))
             elif tag.startswith("fedoraver"):
@@ -309,8 +339,10 @@ class _Misc:
         if not run:
             return None
 
+        tags_ver = self.test_version_tag_filter_for_stream(tags_ver, nm_stream)
         if not self.test_version_tag_eval(tags_ver, nm_version):
             return None
+
         if distro_flavor == "rhel" and not self.test_version_tag_eval(
             tags_rhelver, distro_version
         ):

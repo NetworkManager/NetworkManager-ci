@@ -566,6 +566,20 @@ def test_misc_test_version_tag_parse_ver():
     _assert_inval("ver/rhel//8+=1")
 
 
+def test_misc_test_version_tag_filter_for_stream():
+    def _assert(nm_stream, version_tags, expected_tags):
+        tags2 = [misc.test_version_tag_parse_ver(v) for v in version_tags]
+        tags3 = misc.test_version_tag_filter_for_stream(tags2, nm_stream)
+
+        exp2 = [misc.test_version_tag_parse(e, "") for e in expected_tags]
+        assert tags3 == exp2
+
+    _assert("rhel-8", ["ver+5"], ["+5"])
+    _assert("rhel-8", ["ver+5", "ver/rhel+6"], ["+6"])
+    _assert("rhel-8", ["ver+5", "ver/rhel/8+7"], ["+7"])
+    _assert("rhel-8", ["ver+5", "ver/rhel/7+7"], ["+5"])
+
+
 def test_feature_tags():
 
     from . import tags
