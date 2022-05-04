@@ -970,8 +970,11 @@
 
 
     @rhbz1744895
-    @ver+=1.22.0
+    @ver+=1.22
+    @ver-1.37.91
     @ver-1.39.2
+    @ver/rhel/8+=1.22
+    @ver/rhel/9+=1.22
     @scapy
     @ipv6_preserve_addr_order
     Scenario: NM - ipv6 - preserve address order
@@ -1018,7 +1021,10 @@
 
 
     @rhbz1744895
+    @ver+=1.37.91
     @ver+=1.39.2
+    @ver/rhel/8-
+    @ver/rhel/9-
     @scapy
     @ipv6_preserve_addr_order
     Scenario: NM - ipv6 - preserve address order
@@ -1322,8 +1328,8 @@
 
 
     @rhbz1394500
-    @ver+=1.8.0
-    @ver-=1.32.8
+    @ver+=1.8
+    @ver-1.32.9
     @ipv6_honor_ip_order
     Scenario: NM - ipv6 - honor IP order from configuration upon reapply
     * Add "ethernet" connection named "con_ipv6" for device "eth2" with options "autoconnect no"
@@ -1336,8 +1342,11 @@
 
 
     @rhbz1988751
-    @ver+=1.32.10
+    @ver+=1.32.9
+    @ver-1.37.91
     @ver-1.39.2
+    @ver/rhel/8+=1.32.9
+    @ver/rhel/9+=1.32.9
     @ipv6_honor_ip_order
     Scenario: NM - ipv6 - honor IP order from configuration upon restart
     * Add "ethernet" connection named "con_ipv6" for device "eth2" with options "autoconnect no"
@@ -1352,7 +1361,10 @@
 
 
     @rhbz1988751
+    @ver+=1.37.91
     @ver+=1.39.2
+    @ver/rhel/8-
+    @ver/rhel/9-
     @ipv6_honor_ip_order
     Scenario: NM - ipv6 - honor IP order from configuration upon restart
     * Add "ethernet" connection named "con_ipv6" for device "eth2" with options "autoconnect no"
@@ -2025,6 +2037,9 @@
     @rhbz1995372
     @ver+=1.37.90
     @ver-1.37.91
+    @ver-1.39.2
+    @ver/rhel/8+=1.37.90
+    @ver/rhel/9+=1.37.90
     @ipv6_check_addr_order
     Scenario: nmcli - ipv6 - check IPv6 address order
     * Prepare simulated test "testX6" device
@@ -2056,6 +2071,9 @@
 
     @rhbz1995372
     @ver+=1.37.91
+    @ver+=1.39.2
+    @ver/rhel/8-
+    @ver/rhel/9-
     @ipv6_check_addr_order
     Scenario: nmcli - ipv6 - check IPv6 address order
     * Prepare simulated test "testX6" device
