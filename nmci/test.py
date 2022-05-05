@@ -621,6 +621,11 @@ def test_feature_tags():
                 assert tag.startswith("/".join(("ver", *stream)) + op)
             else:
                 assert tag.startswith(ver_prefix + op)
+            assert tag == (
+                "/".join((ver_prefix, *(stream or [])))
+                + op
+                + ".".join(str(v) for v in ver)
+            )
             return True
         return tag in [
             "rhel_pkg",
@@ -643,6 +648,11 @@ def test_feature_tags():
 
     def check_mapper(tag):
         return tag in mapper_tests
+
+    assert check_ver("ver+=1.3")
+    assert ([], "+=", [1, 3]) == misc.test_version_tag_parse_ver("ver+=1.03")
+    with pytest.raises(AssertionError):
+        assert check_ver("ver+=1.03")
 
     for test_tags in all_test_tags:
         assert test_tags
