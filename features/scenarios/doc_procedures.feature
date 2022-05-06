@@ -348,7 +348,7 @@ Feature: nmcli - procedures in documentation
      And Noted value contains "EAP: Status notification: remote certificate verification \(param=success\)"
      And Noted value contains "CTRL-EVENT-EAP-SUCCESS EAP authentication completed successfully"
      And Noted value contains "SUCCESS"
-    Then "CTRL-EVENT-EAP-SUCCESS EAP authentication completed successfully" is visible with command "wpa_supplicant -c /etc/wpa_supplicant/wpa_supplicant-TTLS.conf -D wired -i test1 -d -t"
+    #Then "CTRL-EVENT-EAP-SUCCESS EAP authentication completed successfully" is visible with command "wpa_supplicant -c /etc/wpa_supplicant/wpa_supplicant-TTLS.conf -D wired -i test1 -d -t"
     * Add "ethernet" connection named "test1-ttls" for device "test1" with options
             """
             autoconnect no 802-1x.eap ttls 802-1x.phase2-auth pap
@@ -356,7 +356,7 @@ Feature: nmcli - procedures in documentation
             802-1x.ca-cert /etc/pki/tls/certs/8021x-ca.pem
             """
     # Just in case a bit of time to settle
-    * Execute "sleep 1"
+    * Execute "sleep 2"
     When Bring up connection "test1-ttls"
     Then Check if "test1-ttls" is active connection
     * Disconnect device "test1"
@@ -366,13 +366,15 @@ Feature: nmcli - procedures in documentation
      And Noted value contains "EAP: Status notification: remote certificate verification \(param=success\)"
      And Noted value contains "CTRL-EVENT-EAP-SUCCESS EAP authentication completed successfully"
      And Noted value contains "SUCCESS"
-    Then "CTRL-EVENT-EAP-SUCCESS EAP authentication completed successfully" is visible with command "wpa_supplicant -c /etc/wpa_supplicant/wpa_supplicant-TLS.conf -D wired -i test1 -d -t"
+    #Then "CTRL-EVENT-EAP-SUCCESS EAP authentication completed successfully" is visible with command "wpa_supplicant -c /etc/wpa_supplicant/wpa_supplicant-TLS.conf -D wired -i test1 -d -t"
     * Add "ethernet" connection named "test1-tls" for device "test1" with options
             """
             autoconnect no 802-1x.eap tls 802-1x.identity spam
             802-1x.ca-cert /etc/pki/tls/certs/8021x-ca.pem 802-1x.client-cert /etc/pki/tls/certs/8021x.pem
             802-1x.private-key /etc/pki/tls/private/8021x.key 802-1x.private-key-password whatever
             """
+    # Just in case a bit of time to settle
+    * Execute "sleep 2"
     When Bring up connection "test1-tls"
     Then Check if "test1-tls" is active connection
     * Disconnect device "test1"
