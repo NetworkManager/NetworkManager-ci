@@ -333,6 +333,8 @@ Feature: nmcli - procedures in documentation
     * Add "ethernet" connection named "br0-uplink" for device "eth4" with options "master br0"
     # bridge port to have access limited by 802.1x auth
     * Execute "ip l add test1 type veth peer name test1b"
+    * Execute "ip l set dev test1b up"
+    * Execute "ip l set dev test1 up"
     * Add "ethernet" connection named "br0-client-port" for device "test1b" with options "master br0"
     * Bring "up" connection "br0"
     ### .2: unused, .3 and .4: handled by @radius tag
@@ -353,6 +355,8 @@ Feature: nmcli - procedures in documentation
             802-1x.identity example_user 802-1x.password user_password
             802-1x.ca-cert /etc/pki/tls/certs/8021x-ca.pem
             """
+    # Just in case a bit of time to settle
+    * Execute "sleep 1"
     When Bring up connection "test1-ttls"
     Then Check if "test1-ttls" is active connection
     * Disconnect device "test1"
