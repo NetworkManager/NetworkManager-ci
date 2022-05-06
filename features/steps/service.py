@@ -29,6 +29,10 @@ def reboot(context):
     context.command_code("ip link del vrf1")
     # for pppoe test
     context.command_code("sudo ip addr flush dev test11")
+    # for various eth11 tests
+    context.command_code("sudo ip link set dev eth11 down")
+    context.command_code("sudo ip addr flush dev eth11")
+
     # for veth tests
     context.command_code("sudo ip link del veth11")
     context.command_code("sudo ip link del veth12")
