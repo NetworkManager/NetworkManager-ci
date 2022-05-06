@@ -327,7 +327,8 @@ Feature: nmcli - procedures in documentation
     * Add "bridge" connection named "br0" for device "br0" with options
             """
             con-name br0
-            group-forward-mask 8 connection.autoconnect-slaves 1
+            group-forward-mask 8 bridge.forward-delay 2
+            connection.autoconnect-slaves 1
             ipv4.method disabled ipv6.method disabled
             """
     * Add "ethernet" connection named "br0-uplink" for device "eth4" with options "master br0"
