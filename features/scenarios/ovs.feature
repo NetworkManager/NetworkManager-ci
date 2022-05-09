@@ -931,8 +931,6 @@ Feature: nmcli - ovs
           ipv4.addresses 10.200.208.98/16
           ipv4.routes
           224.0.0.0/4"
-                    *
-          Add
           """
     * Add "vlan" connection named "vlan2" with options
           """
