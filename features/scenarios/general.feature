@@ -140,6 +140,7 @@ Feature: nmcli - general
 
     @rhbz1970335
     @ver+=1.30.0
+    @rhelver+=8
     @kill_children @internal_DHCP @dhcpd
     @restore_hostname @eth0
     @pull_hostname_from_dns
@@ -155,8 +156,6 @@ Feature: nmcli - general
     # Note/4: We have ipv6 only default device testX6 not setting hostname.
     * Prepare simulated test "testX6" device without DHCP
     * Execute "ip -n testX6_ns addr add dev testX6p fc01::1/64"
-    * Run child "ip netns exec testX6_ns radvd -n -C contrib/ipv6/radvd.conf" without shell
-    * Execute "echo > /tmp/ip6leases.conf"
     * Configure dhcpv6 prefix delegation server with address configuration mode "dhcp-stateful"
     * Prepare simulated test "testG" device with "172.25.15" ipv4 and daemon options "--dhcp-option=12 --dhcp-host=00:11:22:33:44:55,172.25.15.1,foo-bar"
     * Execute "ip netns exec testG_ns kill -SIGSTOP $(cat /tmp/testG_ns.pid)"
