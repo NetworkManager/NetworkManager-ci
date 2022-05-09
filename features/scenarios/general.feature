@@ -343,6 +343,24 @@ Feature: nmcli - general
     Then "NetworkManager is not running" is visible with command "nmcli general" in "5" seconds
 
 
+    @rhbz1361145
+    @ver+=1.39.2
+    @restart_if_needed
+    @general_nmcli_offline_connection_add_modify
+    Scenario: nmcli - general - offline connection add and modify
+    * Stop NM
+    When Note the output of "nmcli --offline c add con-name offline0 type dummy ifname dummy0"
+    Then Noted value contains "id=offline0"
+     And Noted value contains "type=dummy"
+     And Noted value contains "interface-name=dummy0"
+     And Noted value contains "method=disabled"
+    When Note the output of "nmcli --offline c add con-name offline0 type dummy ifname dummy0 | nmcli --offline c modify ipv4.method auto ipv6.method auto"
+    Then Noted value contains "id=offline0"
+     And Noted value contains "type=dummy"
+     And Noted value contains "interface-name=dummy0"
+     And Noted value contains "method=auto"
+
+
     @rhbz1311988
     @shutdown @eth8_disconnect @add_testeth8  @restart_if_needed
     @shutdown_service_assumed

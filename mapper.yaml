@@ -1493,6 +1493,8 @@ testmapper:
     - general_state_not_running:
         feature: general
         tags: gate
+    - general_nmcli_offline_connection_add_modify:
+        feature: general
     - shutdown_service_assumed:
         feature: general
     - shutdown_service_connected:
