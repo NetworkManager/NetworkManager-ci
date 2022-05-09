@@ -37,6 +37,7 @@ match-device=interface-name:t-a*
 managed=1
 [logging]
 level=INFO
+domains=DEFAULT,DHCP4:DEBUG
 EOF
 
 for i in `seq 1 $NUM_DEVS`; do
