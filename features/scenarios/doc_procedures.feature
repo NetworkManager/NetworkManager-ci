@@ -348,7 +348,10 @@ Feature: nmcli - procedures in documentation
      And Noted value contains "EAP: Status notification: remote certificate verification \(param=success\)"
      And Noted value contains "CTRL-EVENT-EAP-SUCCESS EAP authentication completed successfully"
      And Noted value contains "SUCCESS"
+    * Run tcpdump labeled "wpas-ttls" with arguments "-i br0 ether proto 0x888e"
     Then "CTRL-EVENT-EAP-SUCCESS EAP authentication completed successfully" is visible with command "wpa_supplicant -c /etc/wpa_supplicant/wpa_supplicant-TTLS.conf -D wired -i test1 -d -t"
+    * Stop tcpdump labeled "wpas-ttls"
+    * Run tcpdump labeled "nm-ttls" with arguments "-i br0 ether proto 0x888e"
     * Add "ethernet" connection named "test1-ttls" for device "test1" with options
             """
             autoconnect no 802-1x.eap ttls 802-1x.phase2-auth pap
@@ -360,22 +363,27 @@ Feature: nmcli - procedures in documentation
     When Bring up connection "test1-ttls"
     Then Check if "test1-ttls" is active connection
     * Disconnect device "test1"
+    * Stop tcpdump labeled "nm-ttls"
     ### .7 Testing EAP-TLS authentication against a FreeRADIUS server or authenticator
     * Execute "cp -f contrib/8021x/doc_procedures/wpa_supplicant-TLS.conf /etc/wpa_supplicant/wpa_supplicant-TLS.conf"
     Then Note the output of "eapol_test -c /etc/wpa_supplicant/wpa_supplicant-TLS.conf -a 127.0.0.1 -s client_password"
      And Noted value contains "EAP: Status notification: remote certificate verification \(param=success\)"
      And Noted value contains "CTRL-EVENT-EAP-SUCCESS EAP authentication completed successfully"
      And Noted value contains "SUCCESS"
+    * Run tcpdump labeled "wpas-tls" with arguments "-i br0 ether proto 0x888e"
     Then "CTRL-EVENT-EAP-SUCCESS EAP authentication completed successfully" is visible with command "wpa_supplicant -c /etc/wpa_supplicant/wpa_supplicant-TLS.conf -D wired -i test1 -d -t"
+    * Stop tcpdump labeled "wpas-tls"
     * Add "ethernet" connection named "test1-tls" for device "test1" with options
             """
             autoconnect no 802-1x.eap tls 802-1x.identity spam
             802-1x.ca-cert /etc/pki/tls/certs/8021x-ca.pem 802-1x.client-cert /etc/pki/tls/certs/8021x.pem
             802-1x.private-key /etc/pki/tls/private/8021x.key 802-1x.private-key-password whatever
             """
+    * Run tcpdump labeled "nm-tls" with arguments "-i br0 ether proto 0x888e"
     When Bring up connection "test1-tls"
     Then Check if "test1-tls" is active connection
     * Disconnect device "test1"
+    * Stop tcpdump labeled "nm-tls"
     ### .8. Blocking and allowing traffic based on hostapd authentication events and check connection using NM
     * Execute "mkdir -p /usr/local/bin"
     * Execute "cp -f contrib/8021x/doc_procedures/802-1x-tr-mgmt /usr/local/bin/802-1x-tr-mgmt"
