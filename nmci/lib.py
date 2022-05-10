@@ -1284,3 +1284,16 @@ def cleanup(context):
             teardown_testveth(context, namespace)
         if nmci.command_code(f'ip netns list | grep "{namespace}"') == 0:
             nmci.run(f'ip netns del "{namespace}"')
+
+
+def handle_tcpdump(context, label, pcap=None):
+    nmci.run(f"systemctl stop {label}.service", check=False)
+    if pcap is not None and (context.DEBUG or context.scenario.status == "failed"):
+        context.embed(
+            "text/plain",
+            nmci.command_output(f"tshark -t a -r {pcap}"),
+            f'tcpdump "{label}" decoded with tshark',
+            fail_only=False,
+        )
+    if context.command_code(f"systemctl is-failed {label}.service") != 0:
+        context.run(f"systemctl reset-failed {label}.service")

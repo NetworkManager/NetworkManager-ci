@@ -539,3 +539,30 @@ def check_address_expect(context, family, expected, ifname, seconds=None):
         print(">>> about to fail check_address_expect():")
         os.system('ip -d address show')
         raise
+
+
+@step(u'Run tcpdump with arguments "{arguments}"')
+@step(u'Run tcpdump labeled "{label}" with arguments "{arguments}"')
+def run_tcpdump(context, arguments, label='default'):
+    scen_id = context.scenario.tags[-1]
+    if '-w' not in arguments:
+        pcap = f'/tmp/nmci-tcpdumps/{scen_id}/{label}.pcap'
+        arguments = f'-w {pcap} {arguments}'
+        decode = True
+        if not os.path.isdir(f'/tmp/nmci-tcpdumps/{scen_id}'):
+            os.makedirs(f'/tmp/nmci-tcpdumps/{scen_id}', exist_ok=True)
+    else:
+        decode = False
+    if context.command_code(f'systemctl is-failed {label}.service') == 0:
+        context.run(f'systemctl reset-failed {label}.service', check=False)
+    context.run(f'systemd-run --unit {label}.service tcpdump -Z root {arguments}', check=True)
+    if decode:
+        context.add_cleanup(nmci.lib.handle_tcpdump, context, label, pcap)
+    else:
+        context.add_cleanup(nmci.lib.handle_tcpdump, context, label)
+
+
+@step(u'Stop tcpdump')
+@step(u'Stop tcpdump labeled "{label}"')
+def stop_tcpdump(context, label='default'):
+    context.run('systemctl stop {label}.service')
