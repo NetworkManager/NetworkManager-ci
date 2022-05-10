@@ -20,6 +20,84 @@ def rnd_bool():
     return random.random() > 0.5
 
 
+###############################################################################
+
+
+class Stub:
+    def __init__(self, obj, attr, value):
+        self.value = value
+        self.obj = obj
+        self.attr = attr
+
+    def __enter__(self):
+        try:
+            self.cached = getattr(self.obj, self.attr)
+        except Exception:
+            self.has = False
+        setattr(self.obj, self.attr, self.value)
+
+    def __exit__(self, type, value, traceback):
+        if hasattr(self, "cached"):
+            setattr(self.obj, self.attr, self.cached)
+        else:
+            delattr(self.obj, self.attr)
+
+    def __call__(self, func):
+        # Stub is a context manager, so we can use it with
+        # "with". But it's also callable, so we can use it as
+        # function decorator.
+        def f():
+            with self:
+                func()
+
+        return f
+
+    @staticmethod
+    def misc_nm_version_detect(version):
+        return Stub(misc, "_nm_version_detect_cached", version)
+
+    @staticmethod
+    def misc_distro_detect(version):
+        return Stub(misc, "_distro_detect_cached", version)
+
+
+###############################################################################
+
+
+def test_stub1():
+
+    v = ("fedora", [35])
+    assert not hasattr(misc, "_distro_detect_cached")
+    with Stub.misc_distro_detect(v):
+        assert misc._distro_detect_cached is v
+        assert misc.distro_detect() is v
+    assert not hasattr(misc, "_distro_detect_cached")
+
+    v = ("upstream", [1, 39, 3, 30276])
+    assert not hasattr(misc, "_nm_version_detect_cached")
+    with Stub.misc_nm_version_detect(v):
+        assert misc._nm_version_detect_cached is v
+        assert misc.nm_version_detect() is v
+    assert not hasattr(misc, "_nm_version_detect_cached")
+
+
+@Stub.misc_distro_detect(("fedora", [35]))
+def test_stub2():
+    v = ("fedora", [35])
+    assert misc._distro_detect_cached == v
+    assert misc.distro_detect() == v
+
+
+@Stub.misc_nm_version_detect(("upstream", [1, 39, 3, 30276]))
+def test_stub3():
+    v = ("upstream", [1, 39, 3, 30276])
+    assert misc._nm_version_detect_cached == v
+    assert misc.nm_version_detect() == v
+
+
+###############################################################################
+
+
 def test_util_compare_strv_list():
 
     util.compare_strv_list([], [])
@@ -1038,13 +1116,86 @@ def test_ip_link_add_nonutf8():
     ip.link_delete(ifname)
 
 
+@Stub.misc_distro_detect(("fedora", [35]))
+@Stub.misc_nm_version_detect(("upstream", [1, 39, 3, 30276]))
+def test_misc_version_control():
+
+    assert misc.test_version_check(
+        test_name="@pass",
+        feature="general",
+    ) == (util.base_dir("features/scenarios/general.feature"), "pass", ["pass"])
+
+    with Stub.misc_nm_version_detect(("upstream", [1, 39, 3, 30276])):
+        assert misc.test_version_check(test_name="ipv6_check_addr_order") == (
+            util.base_dir("features/scenarios/ipv6.feature"),
+            "ipv6_check_addr_order",
+            [
+                "rhbz1995372",
+                "ver+=1.37.91",
+                "ver+=1.39.2",
+                "ver/rhel/8-",
+                "ver/rhel/9-",
+                "ipv6_check_addr_order",
+            ],
+        )
+
+    with Stub.misc_nm_version_detect(("rhel-8-7", [1, 39, 3, 30276])):
+        assert misc.test_version_check(test_name="ipv6_check_addr_order") == (
+            util.base_dir("features/scenarios/ipv6.feature"),
+            "ipv6_check_addr_order",
+            [
+                "rhbz1995372",
+                "ver+=1.35",
+                "ver-1.37.91",
+                "ver-1.39.2",
+                "ver/rhel/8+=1.37.90",
+                "ver/rhel/9+=1.37.90",
+                "ipv6_check_addr_order",
+            ],
+        )
+
+    with Stub.misc_nm_version_detect(("upstream", [1, 35, 3, 30276])):
+        assert misc.nm_version_detect() == ("upstream", [1, 35, 3, 30276])
+        assert misc.test_version_check(test_name="ipv6_check_addr_order") == (
+            util.base_dir("features/scenarios/ipv6.feature"),
+            "ipv6_check_addr_order",
+            [
+                "rhbz1995372",
+                "ver+=1.35",
+                "ver-1.37.91",
+                "ver-1.39.2",
+                "ver/rhel/8+=1.37.90",
+                "ver/rhel/9+=1.37.90",
+                "ipv6_check_addr_order",
+            ],
+        )
+
+    with pytest.raises(Exception) as e:
+        misc.test_version_check(
+            test_name="no-exist",
+            feature=util.base_dir("features/scenarios/general.feature"),
+        )
+
+
+def test_misc_test_find_feature_file():
+
+    assert misc.test_find_feature_file("pass") == util.base_dir(
+        "features/scenarios/general.feature"
+    )
+    assert misc.test_find_feature_file("pass", "general") == util.base_dir(
+        "features/scenarios/general.feature"
+    )
+    with pytest.raises(Exception) as e:
+        misc.test_find_feature_file("no-exist")
+
+
 # This test should always run as last. Keep it at the bottom
 # of the file.
 def test_black_code_fromatting():
 
     files = [
         util.base_dir("nmci"),
-        util.base_dir("version_control.py"),
+        util.base_dir("nmci/helpers/version_control.py"),
     ]
 
     exclude = [

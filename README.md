@@ -101,13 +101,13 @@ This repo contains a set of integration tests for NetworkManager and CentOS 8 St
      * use for driving tests
      * all tests names are written there (together with features)
      * all dependencies and basically all metadata is there
-   * version_control.py script
-     * we have just one NMCI branch for all NM versions, RHELs, Fedora, CentOSes
-     * this is the control mechanism if we need to skip test here and there
    * nmci dir
      * various scripts used for driving tests
      * the most interesting are tags that are used for preparing and cleaning environment
      * we have unit tests for version_control here, libs for tags, run for running commands, etc
+   * nmci/helpers/version_control.py script
+     * we have just one NMCI branch for all NM versions, RHELs, Fedora, CentOSes
+     * this is the control mechanism if we need to skip test here and there
   * features dir
     * scenarios dir
       * sets of features in .feature files

@@ -43,7 +43,20 @@ class _Misc:
         feature_path = os.path.join(feature_dir, feature)
         return glob.glob(feature_path)
 
-    def test_load_tags_from_features(self, feature="*", test_name=None):
+    def test_load_tags_from_features(
+        self,
+        feature=None,
+        test_name=None,
+        feature_file=None,
+    ):
+
+        if feature_file is not None:
+            assert feature is None
+            feature_files = [feature_file]
+        else:
+            if feature is None:
+                feature = "*"
+            feature_files = self.test_get_feature_files(feature=feature)
 
         re_chr = re.compile("^@" + self.TEST_NAME_VALID_CHAR_REGEX + "+$")
         re_tag = re.compile(r"^\s*(@[^#]*)")
@@ -51,7 +64,7 @@ class _Misc:
         re_wsp = re.compile(r"\s")
         test_tags = []
         line = ""
-        for filename in self.test_get_feature_files(feature):
+        for filename in feature_files:
             with open(filename, "rb") as f:
                 for cur_line in f:
                     cur_line = cur_line.decode("utf-8", "error")
@@ -575,6 +588,67 @@ class _Misc:
         if v2 is None:
             v2 = True
         return v1 and v2
+
+    def test_find_feature_file(self, test_name, feature="*"):
+
+        test_name = self.test_name_normalize(test_name=test_name)
+
+        r = process.run(
+            [
+                "grep",
+                f"@\\<{test_name}\\>",
+                "-l",
+                "--",
+                *self.test_get_feature_files(feature=feature),
+            ]
+        )
+
+        if r.returncode == 1:
+            assert r.stdout == ""
+            raise Exception(f"test {test_name} not found")
+
+        files = r.stdout.split("\n")
+        if len(files) != 2 or files[-1] != "":
+            raise Exception(f"test {test_name} found not exactly once: [{r.stdout}]")
+
+        return files[0]
+
+    def test_version_check(self, test_name, feature="*"):
+        # this checks for tests with given tag and returns all tags of the first test satisfying all conditions
+        #
+        # this parses tags: ver{-,+,-=,+=}, rhelver{-,+,-=,+=}, fedoraver{-,+,-=,+=}, [not_with_]rhel_pkg, [not_with_]fedora_pkg.
+        #
+        # {rhel,fedora}ver tags restricts only their distros, so rhelver+=8 runs on all Fedoras, if fedoraver not restricted
+        # to not to run on rhel / fedora use tags rhelver-=0 / fedoraver-=0 (or something similar)
+        #
+        # {rhel,fedora}_pkg means to run only on stock RHEL/Fedora package
+        # not_with_{rhel,fedora}_pkg means to run only on daily build (not patched stock package)
+        # similarly, *_pkg restricts only their distros, rhel_pkg will run on all Fedoras (build and stock pkg)
+        #
+        # since the first satisfying test is returned, the last test does not have to contain distro restrictions
+        # and it will run only in remaining conditions - so order of the tests matters in this case
+
+        test_name = self.test_name_normalize(test_name=test_name)
+
+        feature_file = self.test_find_feature_file(test_name=test_name, feature=feature)
+
+        test_tags_list = self.test_load_tags_from_features(
+            feature_file=feature_file, test_name=test_name
+        )
+
+        if not test_tags_list:
+            raise Exception(f"test with tag '{test_name}' not defined!\n")
+
+        try:
+            result = self.test_tags_select(
+                test_tags_list, self.nm_version_detect(), self.distro_detect()
+            )
+        except self.SkipTestException as e:
+            raise self.SkipTestException(f"skip test '{test_name}': {e}")
+        except Exception as e:
+            raise Exception(f"error checking test '{test_name}': {e}")
+
+        return (feature_file, test_name, list(result))
 
     def nmlog_parse_dnsmasq(self, ifname):
         s = process.run_check(
