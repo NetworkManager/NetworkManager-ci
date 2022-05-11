@@ -18,7 +18,7 @@ Feature: nmcli: gsm
     @gsm
     @gsm_create_default_connection
     Scenario: nmcli - gsm - create a connection
-    * Add "gsm" connection named "gsm" for device "\*" with options "autoconnect no apn internet"
+    * Add "gsm" connection named "gsm" for device "\*" with options "autoconnect no apn ' '"
     * Bring "up" connection "gsm"
     Then "GENERAL.STATE:.*activated" is visible with command "nmcli con show gsm" in "60" seconds
     # Workaround
@@ -36,7 +36,7 @@ Feature: nmcli: gsm
     * Expect "Connection type"
     * Submit "gsm" in editor
     * Expect "APN"
-    * Submit "internet" in editor
+    * Submit " " in editor
     * Expect "Do you want to provide them\? \(yes\/no\) \[yes\]"
     * Submit "no" in editor
     * Dismiss IP configuration in editor
@@ -65,12 +65,11 @@ Feature: nmcli: gsm
     * Expect "Password"
     * Submit "pass" in editor
     * Expect "APN"
-    * Submit "internet" in editor
+    * Submit " " in editor
     * Dismiss IP configuration in editor
     * Dismiss Proxy configuration in editor
     Then "gsm.password:\s+pass" is visible with command "nmcli connection show gsm --show-secrets"
     Then "gsm.username:\s+user" is visible with command "nmcli connection show gsm --show-secrets"
-    Then "gsm.apn:\s+internet" is visible with command "nmcli connection show gsm --show-secrets"
     Then "GENERAL.STATE:.*activated" is visible with command "nmcli con show gsm" in "60" seconds
     # Workaround
     * Execute "sleep 10"
@@ -95,12 +94,11 @@ Feature: nmcli: gsm
     * Expect "Password"
     * Submit "pass" in editor
     * Expect "APN"
-    * Submit "internet" in editor
+    * Submit " " in editor
     * Dismiss IP configuration in editor
     * Dismiss Proxy configuration in editor
     Then "gsm.password:\s+pass" is visible with command "nmcli connection show gsm --show-secrets"
     Then "gsm.username:\s+user" is visible with command "nmcli connection show gsm --show-secrets"
-    Then "gsm.apn:internet" is visible with command "nmcli -t connection show gsm --show-secrets"
     Then "GENERAL.STATE:.*activated" is visible with command "nmcli con show gsm" in "60" seconds
     # Workaround
     * Execute "sleep 10"
@@ -112,7 +110,7 @@ Feature: nmcli: gsm
     @gsm
     @gsm_disconnect
     Scenario: nmcli - gsm - disconnect
-     * Add "gsm" connection named "gsm" for device "\*" with options "autoconnect no apn internet"
+     * Add "gsm" connection named "gsm" for device "\*" with options "autoconnect no apn ' '"
      * Bring "up" connection "gsm"
     Then "GENERAL.STATE:.*activated" is visible with command "nmcli con show gsm" in "20" seconds
      * Bring "down" connection "gsm"
@@ -127,7 +125,7 @@ Feature: nmcli: gsm
     @gsm
     @gsm_create_one_minute_ping
     Scenario: nmcli - gsm - one minute ping
-    * Add "gsm" connection named "gsm" for device "\*" with options "autoconnect no apn internet"
+    * Add "gsm" connection named "gsm" for device "\*" with options "autoconnect no apn ' '"
     * Bring "up" connection "gsm"
     Then "GENERAL.STATE:.*activated" is visible with command "nmcli con show gsm" in "60" seconds
      And "GENERAL.STATE:.*activated" is visible with command "nmcli con show gsm" for full "60" seconds
@@ -143,7 +141,7 @@ Feature: nmcli: gsm
     @gsm
     @gsm_mtu
     Scenario: nmcli - gsm - mtu
-    * Add "gsm" connection named "gsm" for device "\*" with options "autoconnect no apn internet gsm.mtu 1430"
+    * Add "gsm" connection named "gsm" for device "\*" with options "autoconnect no apn ' ' gsm.mtu 1430"
     * Execute "nmcli con modify gsm gsm.mtu 1430"
     * Bring "up" connection "gsm"
     When "GENERAL.STATE:.*activated" is visible with command "nmcli con show gsm" in "20" seconds
@@ -161,7 +159,7 @@ Feature: nmcli: gsm
     @gsm
     @gsm_route_metric
     Scenario: nmcli - gsm - route metric
-    * Add "gsm" connection named "gsm" for device "\*" with options "autoconnect no apn internet"
+    * Add "gsm" connection named "gsm" for device "\*" with options "autoconnect no apn ' '"
     * Bring "up" connection "gsm"
     When "default" is visible with command "ip r |grep 700" in "20" seconds
     And "proto .* scope" is visible with command "ip r |grep 700"
@@ -221,7 +219,7 @@ Feature: nmcli: gsm
      * Append "type=gsm" to file "/etc/NetworkManager/system-connections/gsm"
      * Append "autoconnect=false" to file "/etc/NetworkManager/system-connections/gsm"
      * Append "[gsm]" to file "/etc/NetworkManager/system-connections/gsm"
-     * Append "apn=internet" to file "/etc/NetworkManager/system-connections/gsm"
+     * Append "apn= " to file "/etc/NetworkManager/system-connections/gsm"
      * Append "number=*99#" to file "/etc/NetworkManager/system-connections/gsm"
      * Append "[ipv4]" to file "/etc/NetworkManager/system-connections/gsm"
      * Append "method=auto" to file "/etc/NetworkManager/system-connections/gsm"
@@ -243,7 +241,7 @@ Feature: nmcli: gsm
     @gsm_connectivity_check
     Scenario: nmcli - gsm - connectivity check
     When "none|limited" is visible with command "nmcli g" in "60" seconds
-    * Add "gsm" connection named "gsm" for device "\*" with options "autoconnect no apn internet"
+    * Add "gsm" connection named "gsm" for device "\*" with options "autoconnect no apn ' '"
     * Bring "up" connection "gsm"
     When "GENERAL.STATE:.*activated" is visible with command "nmcli con show gsm" in "60" seconds
      And "default" is visible with command "ip r |grep 700"
