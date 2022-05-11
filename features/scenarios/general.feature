@@ -650,7 +650,6 @@ Feature: nmcli - general
 
 
     @rhbz1007365
-    @bridge
     @ver-=1.39.2
     @nmcli_novice_mode_readline
     Scenario: nmcli - general - using readline library in novice mode
