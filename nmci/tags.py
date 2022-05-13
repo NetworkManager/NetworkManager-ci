@@ -973,7 +973,7 @@ def simwifi_ap_bs(ctx, scen):
     if ctx.arch != "x86_64":
         print("Skipping as not on x86_64")
         sys.exit(77)
-        
+
     ctx.run("modprobe -r mac80211_hwsim")
     ctx.run("modprobe mac80211_hwsim")
     ctx.run("systemctl restart wpa_supplicant")
@@ -1326,6 +1326,12 @@ _register_tag("attach_wpa_supplicant_log", None, attach_wpa_supplicant_log_as)
 
 
 def performance_bs(ctx, scen):
+    # Set machine perf to max
+    ctx.process.run("systemctl start tuned", ignore_stderr=True)
+    ctx.process.run("tuned-adm profile throughput-performance", ignore_stderr=True)
+    ctx.process.run("systemctl stop tuned", ignore_stderr=True)
+    ctx.process.run("systemctl stop openvswitch", ignore_stderr=True)
+    # Set some speed factor
     ctx.machine_speed_factor = 1
     hostname = ctx.command_output('hostname').strip()
     if "ci.centos" in hostname:
@@ -1333,14 +1339,14 @@ def performance_bs(ctx, scen):
         ctx.machine_speed_factor = 0.5
     elif hostname.startswith("gsm-r5s"):
         print("gsm-r5s: keeping default")
-    elif hostname.startswith("wsfd-netdev"):
-        print("wsfd-netdev: keeping default")
-    elif hostname.startswith("gsm-r6s"):
-        print("gsm-r6s: might be 2 times slower")
-        ctx.machine_speed_factor = 2
     elif hostname.startswith("wlan-r6s"):
-        print("wlan-r6s: should be 2.5 times slower")
-        ctx.machine_speed_factor = 2.5
+        print("wlan-r6s: keeping the default")
+    elif hostname.startswith("gsm-r6s"):
+        print("gsm-r6s: multiply factor by 1.5")
+        ctx.machine_speed_factor = 1.5
+    elif hostname.startswith("wsfd-netdev"):
+        print("wsfd-netdev: we are unpredictable here, skipping")
+        sys.exit(77)
     else:
         print(f"Unmatched: {hostname}: keeping default")
     if "fedora" in ctx.rh_release.lower():
@@ -1358,9 +1364,13 @@ def performance_as(ctx, scen):
     for i in range(1, 101):
         cons = cons+('t-a%s ' % i)
     command = "nmcli con del %s" % cons
-    ctx.run(command)
+    ctx.process.run(command)
     # setup.sh masks dispatcher scripts
-    ctx.run("systemctl unmask NetworkManager-dispatcher")
+    ctx.process.run("systemctl unmask NetworkManager-dispatcher", ignore_stderr=True)
+    # reset the performance profile
+    ctx.process.run("systemctl start tuned", ignore_stderr=True)
+    ctx.process.run("tuned-adm profile $(tuned-adm recommend)", ignore_stderr=True)
+    ctx.process.run("systemctl start openvswitch", ignore_stderr=True)
 
 
 _register_tag("performance", performance_bs, performance_as)
@@ -1971,7 +1981,7 @@ def testeth7_disconnect_as(ctx, scen):
     if ctx.command_code("nmcli connection show -a |grep testeth7") == 0:
         print("bring down testeth7")
         ctx.run("nmcli con down testeth7")
-    
+
 
 
 _register_tag("testeth7_disconnect", None, testeth7_disconnect_as)
@@ -2513,7 +2523,7 @@ def tag8021x_doc_procedure_as(ctx, scen):
     if scen.status == 'failed' or ctx.DEBUG:
         nmci.lib.embed_service_log(ctx, "hostapd", "HOSTAPD")
         nmci.lib.embed_service_log(ctx, "802-1x-tr-mgmt", "802.1X access control")
-        nmci.lib.embed_file_if_exists(ctx, '/tmp/nmci-wpa_supplicant-standalone', 
+        nmci.lib.embed_file_if_exists(ctx, '/tmp/nmci-wpa_supplicant-standalone',
                 caption='WPA_SUP from access control test')
     os.remove('/etc/hostapd/hostapd.conf')
     ctx.run('systemctl daemon-reload')
@@ -2526,7 +2536,7 @@ _register_tag('8021x_doc_procedure', tag8021x_doc_procedure_bs, tag8021x_doc_pro
 def simwifi_hw_bs(ctx, scen):
     if not hasattr(ctx, 'noted'):
         ctx.noted = {}
-    
+
     if ctx.process.run_match_stdout("sudo lshw -C network", r'wireless|wifi',
                                     pattern_flags=re.IGNORECASE):
         ctx.noted['wifi-hw_real'] = "enabled"

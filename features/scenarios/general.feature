@@ -2706,6 +2706,9 @@ Feature: nmcli - general
     @remove_custom_cfg @performance
     @NM_performance_test1
     Scenario: NM - general - create and activate 100 devices in 6 seconds
+    # We need up to 1/4 of dhcpd servers to be able to handle the ammount of
+    # networks in the max time. If we have just one there seems to be some
+    # repetitions needed in DHCP server so we know nothing about NM performance.
     Then Activate "100" devices in "6" seconds
 
 
