@@ -1127,6 +1127,27 @@ def test_misc_version_control():
 
     for stream, version in [
         ("upstream", [1, 35, 3, 30276]),
+        ("rhel-8-6", [1, 36, 0, 4]),
+        ("rhel-8-6", [1, 37, 0, 4]),
+        ("rhel-9-0", [1, 36, 8, 4]),
+    ]:
+        with Stub.misc_nm_version_detect((stream, version)):
+            assert misc.test_version_check(test_name="ipv6_check_addr_order") == (
+                util.base_dir("features/scenarios/ipv6.feature"),
+                "ipv6_check_addr_order",
+                [
+                    "rhbz1995372",
+                    "ver+=1.35",
+                    "ver-1.36.2",
+                    "ver/rhel/8+=1.35",
+                    "ver/rhel/8-1.37.90",
+                    "ver/rhel/9+=1.35",
+                    "ver/rhel/9-1.37.90",
+                    "ipv6_check_addr_order",
+                ],
+            )
+
+    for stream, version in [
         ("upstream", [1, 36, 3, 30276]),
         ("upstream", [1, 37, 90, 30276]),
         ("upstream", [1, 39, 0, 30276]),
@@ -1139,12 +1160,12 @@ def test_misc_version_control():
                 "ipv6_check_addr_order",
                 [
                     "rhbz1995372",
-                    "ver+=1.35",
+                    "ver+=1.36.2",
                     "ver-1.37.91",
                     "ver-1.38.0",
                     "ver-1.39.2",
-                    "ver/rhel/8+=1.35",
-                    "ver/rhel/9+=1.35",
+                    "ver/rhel/8+=1.37.90",
+                    "ver/rhel/9+=1.37.90",
                     "ipv6_check_addr_order",
                 ],
             )
