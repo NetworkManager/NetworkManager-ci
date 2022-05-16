@@ -972,6 +972,7 @@
     @rhbz1744895
     @ver+=1.22
     @ver-1.37.91
+    @ver-1.38.0
     @ver-1.39.2
     @ver/rhel/8+=1.22
     @ver/rhel/9+=1.22
@@ -1022,6 +1023,7 @@
 
     @rhbz1744895
     @ver+=1.37.91
+    @ver+=1.38.0
     @ver+=1.39.2
     @ver/rhel/8-
     @ver/rhel/9-
@@ -1344,6 +1346,7 @@
     @rhbz1988751
     @ver+=1.32.9
     @ver-1.37.91
+    @ver-1.38.0
     @ver-1.39.2
     @ver/rhel/8+=1.32.9
     @ver/rhel/9+=1.32.9
@@ -1362,6 +1365,7 @@
 
     @rhbz1988751
     @ver+=1.37.91
+    @ver+=1.38.0
     @ver+=1.39.2
     @ver/rhel/8-
     @ver/rhel/9-
@@ -2005,9 +2009,10 @@
     @rhbz1995372
     @ver+=1.35
     @ver-1.37.91
+    @ver-1.38.0
     @ver-1.39.2
-    @ver/rhel/8+=1.37.90
-    @ver/rhel/9+=1.37.90
+    @ver/rhel/8+=1.35
+    @ver/rhel/9+=1.35
     @ipv6_check_addr_order
     Scenario: nmcli - ipv6 - check IPv6 address order
     * Prepare simulated test "testX6" device
@@ -2039,6 +2044,7 @@
 
     @rhbz1995372
     @ver+=1.37.91
+    @ver+=1.38.0
     @ver+=1.39.2
     @ver/rhel/8-
     @ver/rhel/9-
