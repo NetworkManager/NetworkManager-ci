@@ -26,7 +26,7 @@ install_el8_packages () {
     dnf -4 -y install \
         git python3-netaddr dhcp-relay iw net-tools psmisc firewalld dhcp-server \
         ethtool python3-dbus python3-gobject dnsmasq tcpdump wireshark-cli file \
-        iproute-tc openvpn gcc coreutils-debuginfo python3-pyyaml \
+        iproute-tc openvpn gcc coreutils-debuginfo python3-pyyaml tuned \
         --skip-broken
 
     install_behave_pytest
