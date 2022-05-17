@@ -684,7 +684,7 @@ Feature: nmcli - wifi
 
     @rhbz1996918
     @ver+=1.37.3
-    @simwifi_ap @simwifi_hw
+    @simwifi_hw @simwifi_ap
     @simwifi_nmcli_radio
     Scenario: nmcli - simwifi - AP - check nmcli radio all status
     * Execute "nmcli radio wifi on"

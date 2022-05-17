@@ -2536,9 +2536,7 @@ _register_tag('8021x_doc_procedure', tag8021x_doc_procedure_bs, tag8021x_doc_pro
 def simwifi_hw_bs(ctx, scen):
     if not hasattr(ctx, 'noted'):
         ctx.noted = {}
-
-    if ctx.process.run_match_stdout("sudo lshw -C network", r'wireless|wifi',
-                                    pattern_flags=re.IGNORECASE):
+    if ctx.process.run_check("iw list").strip():
         ctx.noted['wifi-hw_real'] = "enabled"
     else:
         ctx.noted['wifi-hw_real'] = "missing"
