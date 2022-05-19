@@ -1854,21 +1854,24 @@ Feature: nmcli - general
 
 
     @rhbz1461643 @rhbz1945282
-    @ver+=1.10.0 @skip_in_centos
-    @long @logging_info_only @delete_testeth0 @no_config_server @allow_veth_connections
+    @ver+=1.10.0
+    # STILL NOT FIXED IN 8.6/9.0
+    @ver/rhel/8+=1.38.7
+    @ver/rhel/9+=1.38.7
+    @long @no_config_server @allow_veth_connections
     @stable_mem_consumption2
     Scenario: NM - general - stable mem consumption - var 2
-    * Execute "sh contrib/reproducers/repro_1461643.sh && sleep 10"
+    * Execute "a=0; while [ $a -lt 2 ]; do sh contrib/reproducers/repro_1461643.sh; ((a++)); done"
     * Note the output of "pmap -x $(pidof NetworkManager) |grep 'total' | awk '{print $4}'" as value "0"
-    * Execute "sh contrib/reproducers/repro_1461643.sh && sleep 10"
+    * Execute "a=0; while [ $a -lt 5 ]; do sh contrib/reproducers/repro_1461643.sh; ((a++)); done"
     * Note the output of "pmap -x $(pidof NetworkManager) |grep 'total' | awk '{print $4}'" as value "1"
-    * Execute "sh contrib/reproducers/repro_1461643.sh && sleep 10"
+    When Check RSS writable memory in noted value "1" differs from "0" less than "1000"
+    * Execute "a=0; while [ $a -lt 10 ]; do sh contrib/reproducers/repro_1461643.sh; ((a++)); done"
     * Note the output of "pmap -x $(pidof NetworkManager) |grep 'total' | awk '{print $4}'" as value "2"
-    * Execute "sh contrib/reproducers/repro_1461643.sh && sleep 10"
+    Then Check RSS writable memory in noted value "2" differs from "1" less than "1000"
+    * Execute "a=0; while [ $a -lt 20 ]; do sh contrib/reproducers/repro_1461643.sh; ((a++)); done"
     * Note the output of "pmap -x $(pidof NetworkManager) |grep 'total' | awk '{print $4}'" as value "3"
-    #Then Check RSS writable memory in noted value "2" differs from "1" less than "300"
-    Then Check RSS writable memory in noted value "3" differs from "2" less than "300"
-    # Then Check RSS writable memory in noted value "4" differs from "3" less than "50"
+    Then Check RSS writable memory in noted value "3" differs from "2" less than "1000"
 
 
 
