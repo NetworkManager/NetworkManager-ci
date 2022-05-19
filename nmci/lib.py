@@ -380,7 +380,7 @@ def dump_status(context, when, fail_only=False):
     cmds = ['date "+%Y%m%d-%H%M%S.%N"']
     if nm_running:
         cmds += ["NetworkManager --version"]
-    cmds += ["ip -4 addr", "ip -4 route", "ip -6 addr", "ip -6 route"]
+    cmds += ["ip addr", "ip -4 route", "ip -6 addr", "ip -6 route"]
     if nm_running:
         cmds += [
             "nmcli g",
@@ -401,7 +401,7 @@ def dump_status(context, when, fail_only=False):
         if os.path.isfile("/tmp/nm_veth_configured"):
             msg += "\nVeth setup network namespace and DHCP server state:\n"
             for cmd in [
-                "ip netns exec vethsetup ip -4 addr",
+                "ip netns exec vethsetup ip addr",
                 "ip netns exec vethsetup ip -4 route",
                 "ip netns exec vethsetup ip -6 addr",
                 "ip netns exec vethsetup ip -6 route",
