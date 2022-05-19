@@ -44,6 +44,11 @@ SystemMaxFileSize=256M
 EOF
     systemctl restart systemd-journald.service
 
+    # For NM in CentOS
+    if grep -q 'CentOS' /etc/redhat-release; then
+        echo -e "[logging]\nlevel=TRACE\ndomains=ALL" >> /etc/NetworkManager/conf.d/99-test.conf
+    fi
+
     # Set max corefile size to infinity
     sed 's/.*DefaultLimitCORE=.*/DefaultLimitCORE=infinity/g' -i /etc/systemd/system.conf
     systemctl daemon-reexec

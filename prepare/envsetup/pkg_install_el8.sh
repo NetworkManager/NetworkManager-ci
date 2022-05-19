@@ -116,10 +116,6 @@ install_el8_packages () {
 
     # Enable debug logs for wpa_supplicant
     sed -i 's!OTHER_ARGS="-s"!OTHER_ARGS="-s -dddK"!' /etc/sysconfig/wpa_supplicant
-    # And for NM in CentOS
-    if grep -q 'CentOS' /etc/redhat-release; then
-        echo -e "[logging]\nlevel=TRACE\ndomains=ALL" >> /etc/NetworkManager/conf.d/99-test.conf
-    fi
     # Make crypto policies a bit less strict
     update-crypto-policies --set LEGACY
     systemctl restart wpa_supplicant
