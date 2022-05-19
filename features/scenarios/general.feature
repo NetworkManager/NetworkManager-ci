@@ -1217,6 +1217,9 @@ Feature: nmcli - general
 
 
     @rhbz1086906
+    @ver-1.39.3
+    @ver-1.38.1
+    @ver-1.36.5
     @delete_testeth0 @restart_if_needed
     @wait-online-for-both-ips
     Scenario: NM - general - wait-online - for both ipv4 and ipv6
@@ -1225,6 +1228,29 @@ Feature: nmcli - general
     * "connected:con_general" is visible with command "nmcli -t -f STATE,CONNECTION device" in "50" seconds
     * Restart NM
     #When "2620:" is not visible with command "ip a s testG"
+    * Execute "/usr/bin/nm-online -s -q --timeout=30"
+    When "inet .* global" is visible with command "ip a s testG"
+    Then "inet6 .* global" is visible with command "ip a s testG"
+
+
+    @rhbz1086906 @rhbz2050216 @rhbz2077605
+    @ver+=1.39.3
+    @ver+=1.38.1
+    @ver+=1.36.5
+    @delete_testeth0 @restart_if_needed
+    @wait-online-for-both-ips
+    Scenario: NM - general - wait-online - for both ipv4 and ipv6
+    * Prepare simulated test "testG" device
+    * Execute "rm -rf /tmp/testG_ns.lease"
+    * Execute "ip netns exec testG_ns pkill -SIGSTOP -F /tmp/testG_ns.pid && sleep 1"
+    * Add "ethernet" connection named "con_general" for device "testG" with options "ipv4.may-fail no ipv6.may-fail no"
+    # Do a random wait between 0s and 3s to delay DHCP server a bit
+    * Execute "sleep $(echo $(shuf -i 0-3 -n 1)) && ip netns exec testG_ns pkill -SIGCONT -F /tmp/testG_ns.pid" without waiting for process to finish
+    # It takes slightly over 4s to reach connected state
+    # so any delay over 0 or 1 (it really depends on DHCP now)
+    # should hit the bug.
+    * Execute "sleep 5"
+    * Restart NM
     * Execute "/usr/bin/nm-online -s -q --timeout=30"
     When "inet .* global" is visible with command "ip a s testG"
     Then "inet6 .* global" is visible with command "ip a s testG"
