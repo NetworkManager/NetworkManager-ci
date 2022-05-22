@@ -250,7 +250,7 @@ Feature: nmcli - general
 
     @rhbz1766944
     @ver+=1.29
-    @restart_if_needed @delete_testeth0 @restore_hostname
+    @restart_if_needed @restore_hostname @delete_testeth0
     @pull_hostname_from_dhcp_no_gw_no_default_hostname
     Scenario: nmcli - general - pull hostname from DHCP - no gw - no need for it
     * Prepare simulated test "testG" device
@@ -344,7 +344,7 @@ Feature: nmcli - general
 
 
     @rhbz1311988
-    @add_testeth8 @shutdown @eth8_disconnect @restart_if_needed
+    @shutdown @eth8_disconnect @add_testeth8  @restart_if_needed
     @shutdown_service_assumed
     Scenario: NM - general - shutdown service - assumed
     * Delete connection "testeth8"
@@ -885,7 +885,7 @@ Feature: nmcli - general
 
     @rhbz1687937
     @ver+=1.25
-    @no_config_server @add_testeth8 @eth8_disconnect @manage_eth8 @restart_if_needed
+    @no_config_server @eth8_disconnect @manage_eth8 @add_testeth8 @restart_if_needed
     @no_assumed_wired_connections_var2
     Scenario: NM - general - no auto connection created
     * Execute "nmcli device set eth8 managed no"

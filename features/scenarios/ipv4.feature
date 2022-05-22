@@ -732,7 +732,7 @@ Feature: nmcli: ipv4
     @ver+=1.8.0
     @rhelver-=8
     @not_with_systemd_resolved
-    @delete_testeth0 @restore_hostname
+    @restore_hostname @delete_testeth0
     @ipv4_ignore_resolveconf_with_ignore_auto_dns_var2
     Scenario: NM - ipv4 - preserve resolveconf when hostnamectl is called and ignore_auto_dns set
     * Add "ethernet" connection named "con_ipv4" for device "eth3" with options
@@ -756,7 +756,7 @@ Feature: nmcli: ipv4
     @rhbz1422610
     @ver+=1.8.0
     @not_with_systemd_resolved
-    @delete_testeth0 @restore_hostname @eth3_disconnect @ifcfg-rh
+    @restore_hostname @eth3_disconnect @ifcfg-rh @delete_testeth0 
     @ipv4_ignore_resolveconf_with_ignore_auto_dns_var3
     Scenario: NM - ipv4 - preserve resolveconf when hostnamectl is called and ignore_auto_dns set
     * Add "ethernet" connection named "con_ipv4" for device "eth3" with options
