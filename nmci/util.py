@@ -106,6 +106,17 @@ class _Util:
             return s
         raise ValueError("Expects either a str or bytes")
 
+    def file_set_content(self, file_name, data=""):
+        if isinstance(data, str):
+            data = data.encode("utf-8")
+        elif isinstance(data, bytes):
+            pass
+        else:
+            # append [""] to add "\n" after last line, note the number of added "\n" is len(data)
+            data = b"\n".join((self.str_to_bytes(line) for line in list(data) + [""]))
+        with open(file_name, "wb") as f:
+            f.write(data)
+
     def gvariant_type(self, s):
 
         if s is None:

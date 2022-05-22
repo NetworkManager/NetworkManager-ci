@@ -798,6 +798,78 @@ def test_mapper_feature_file():
         assert found, f"test @{testname} not defined in feature file {feature}"
 
 
+def test_file_set_content():
+    util.file_set_content("/tmp/new_empty_file")
+    with open("/tmp/new_empty_file", "r") as f:
+        f_content = f.read()
+    os.remove("/tmp/new_empty_file")
+    assert f_content == ""
+
+    util.file_set_content("/tmp/empty_file", [])
+    with open("/tmp/empty_file", "r") as f:
+        f_content = f.read()
+    os.remove("/tmp/empty_file")
+    assert f_content == ""
+
+    util.file_set_content("/tmp/work_file", ["Test"])
+    with open("/tmp/work_file", "r") as f:
+        f_test = f.read()
+
+    util.file_set_content("/tmp/work_file", [])
+    with open("/tmp/work_file", "r") as f:
+        f_truncated = f.read()
+
+    util.file_set_content("/tmp/work_file", [""])
+    with open("/tmp/work_file", "r") as f:
+        f_newline = f.read()
+
+    util.file_set_content("/tmp/work_file", [b"bin_data:", b"\x01\x02\x03\x04"])
+    with open("/tmp/work_file", "rb") as f:
+        f_binary = f.read()
+
+    os.remove("/tmp/work_file")
+    assert f_test == "Test\n"
+    assert f_truncated == ""
+    assert f_newline == "\n"
+    assert f_binary == b"bin_data:\n\x01\x02\x03\x04\n"
+
+    util.file_set_content("/tmp/tuple_lines_file", ("line1", "line2"))
+    with open("/tmp/tuple_lines_file", "r") as f:
+        f_content = f.read()
+    os.remove("/tmp/tuple_lines_file")
+    assert f_content == "line1\nline2\n"
+
+    class line_range(object):
+        def __init__(self, prefix, n):
+            self.prefix = prefix
+            self.n = n
+            self.i = 0
+
+        def __iter__(self):
+            return self
+
+        def __next__(self):
+            if self.i >= self.n:
+                raise StopIteration()
+            ret = f"{self.prefix}{self.i}"
+            self.i += 1
+            return ret
+
+    util.file_set_content("/tmp/line_generator_file", line_range("line:", 3))
+    with open("/tmp/line_generator_file", "r") as f:
+        f_content = f.read()
+    os.remove("/tmp/line_generator_file")
+    assert f_content == "line:0\nline:1\nline:2\n"
+
+    util.file_set_content(
+        "/tmp/string_content_file", "this message\n should not be modified"
+    )
+    with open("/tmp/string_content_file", "r") as f:
+        f_content = f.read()
+    os.remove("/tmp/string_content_file")
+    assert f_content == "this message\n should not be modified"
+
+
 def test_process_run():
 
     assert process.run(["true"]).returncode == 0
