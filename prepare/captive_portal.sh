@@ -17,6 +17,7 @@ function setup () {
         python2 -m SimpleHTTPServer 8001 &
         echo $! > /tmp/python_http.pid
     fi
+    wait
 }
 
 

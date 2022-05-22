@@ -23,6 +23,7 @@ function modem_setup ()
     ) &
     # get pid of while loop
     echo $! > /tmp/gsm_sim.pid
+    wait
 }
 
 function modem_teardown ()

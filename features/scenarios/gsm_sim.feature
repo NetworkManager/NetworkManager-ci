@@ -106,7 +106,7 @@ Feature: nmcli: gsm
     * Wait for at least "2" seconds
     * Execute "sh prepare/gsm_sim.sh teardown"
     * Wait for at least "2" seconds
-    * Execute "sh prepare/gsm_sim.sh modemu" without output redirect
+    * Run child "sh prepare/gsm_sim.sh modemu"
     When "gsm" is visible with command "nmcli device status | grep -v unmanaged" in "60" seconds
     * Bring "up" connection "gsm"
     When "GENERAL.STATE:.*activated" is visible with command "nmcli con show gsm" in "60" seconds
@@ -129,7 +129,7 @@ Feature: nmcli: gsm
     * Wait for at least "2" seconds
     * Execute "sh prepare/gsm_sim.sh teardown"
     * Wait for at least "2" seconds
-    * Execute "sh prepare/gsm_sim.sh modemu" without output redirect
+    * Run child "sh prepare/gsm_sim.sh modemu"
     When "gsm" is visible with command "nmcli device status | grep -v unmanaged" in "60" seconds
     * Bring "up" connection "gsm"
     When "GENERAL.STATE:.*activated" is visible with command "nmcli con show gsm" in "60" seconds

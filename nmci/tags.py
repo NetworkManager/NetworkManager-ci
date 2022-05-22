@@ -125,7 +125,7 @@ def gsm_sim_bs(ctx, scen):
         print("Skipping on not intel arch")
         sys.exit(77)
     # script hangs if output is redirected, however script should not output anything
-    ctx.run("sudo prepare/gsm_sim.sh modemu", stdout=None, stderr=None)
+    ctx.pexpect_service("sudo prepare/gsm_sim.sh modemu")
 
 
 def gsm_sim_as(ctx, scen):
@@ -333,7 +333,7 @@ _register_tag("remove_vlan_range", None, remove_vlan_range)
 
 def captive_portal_bs(ctx, scen):
     # do not capture output, let it log to the console, otherwise this hangs!
-    ctx.run("sudo prepare/captive_portal.sh", stdout=None, stderr=None)
+    ctx.pexpect_service("sudo prepare/captive_portal.sh")
 
 
 def captive_portal_as(ctx, scen):
