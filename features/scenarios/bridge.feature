@@ -723,7 +723,7 @@ Feature: nmcli - bridge
 
     @rhbz1593939
     @ver+=1.14
-    @eth4_disconnect @restart_if_needed
+    @eth4_disconnect @cleanup @restart_if_needed
     @bridge_detect_initrd_device
     Scenario: NM - bridge - nm detects initrd bridge
     * Add "bridge" connection named "bridge0" for device "bridge0" with options "bridge.stp no"

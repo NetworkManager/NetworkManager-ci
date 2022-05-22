@@ -1271,22 +1271,30 @@ def add_iface_to_cleanup(context, name):
 
 def cleanup(context):
 
-    nmci.run("nmcli con del " + " ".join(context.cleanup["connections"]) + " || true")
-    nmci.run(
-        "nmcli device delete "
-        + " ".join(context.cleanup["interfaces"]["delete"])
-        + " || true"
-    )
+    if context.cleanup["connections"]:
+        context.process.run(
+            "nmcli con del " + " ".join(context.cleanup["connections"]),
+            ignore_stderr=True,
+        )
+    if context.cleanup["interfaces"]["delete"]:
+        context.process.run(
+            "nmcli device delete " + " ".join(context.cleanup["interfaces"]["delete"]),
+            ignore_stderr=True,
+        )
     for iface in context.cleanup["interfaces"]["reset"]:
-        if context.IS_NMTUI:
-            nmci.lib.reset_hwaddr_nmtui(context, iface)
-        else:
-            nmci.lib.reset_hwaddr_nmcli(context, iface)
+        nmci.lib.reset_hwaddr_nmcli(context, iface)
         if iface != "eth0":
-            nmci.run(f"ip addr flush {iface}")
+            context.process.run(f"ip addr flush {iface}")
 
     for namespace, teardown in context.cleanup["namespaces"].items():
         if teardown:
             teardown_testveth(context, namespace)
-        if nmci.command_code(f'ip netns list | grep "{namespace}"') == 0:
-            nmci.run(f'ip netns del "{namespace}"')
+        if context.process.run_search_stdout("ip netns list", namespace):
+            context.process.run_stdout(f'ip netns del "{namespace}"')
+
+    # reset cleanup, so it is safe to be called multiple times
+    context.cleanup = {
+        "connections": set(),
+        "interfaces": {"reset": set(), "delete": set()},
+        "namespaces": {},
+    }
