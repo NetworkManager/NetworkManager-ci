@@ -1220,8 +1220,8 @@ def test_black_code_fromatting():
     ]
 
     exclude = [
-        "--exclude",
-        "nmci/(tags)\\.py",
+        # "--exclude",
+        # "nmci/(tags)\\.py",
     ]
 
     try:
