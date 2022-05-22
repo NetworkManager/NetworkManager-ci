@@ -1520,7 +1520,7 @@
      * Add "ethernet" connection named "bond0.1" for device "eth4" with options "master nm-bond autoconnect no"
      * Add "ethernet" connection named "bond0.0" for device "eth1" with options "master nm-bond autoconnect no"
      * Bring "up" connection "bond0"
-     And "error" is not visible with command "journalctl --since '10 seconds ago' --no-pager |grep active_backup ||grep error"
+     And "error" is not visible with command "journalctl --since '10 seconds ago' --no-pager |grep active_backup | grep error"
      * Bring "up" connection "bond0.1"
      * Bring "up" connection "bond0.0"
      When "nm-bond:connected:bond0" is visible with command "nmcli -t -f DEVICE,STATE,CONNECTION device" in "40" seconds
