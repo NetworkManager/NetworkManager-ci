@@ -2544,13 +2544,13 @@ def non_utf_device_bs(ctx, scen):
         ctx.run("ln -s /dev/null /etc/udev/rules.d/80-net-setup-link.rules")
         ctx.run("udevadm control --reload-rules")
         ctx.run("udevadm settle --timeout=5")
-    ctx.process.run_check(
+    ctx.process.run_stdout(
         ["ip", "link", "add", "name", b"\xca[2Jnonutf\xccf\\c", "type", "dummy"]
     )
 
 
 def non_utf_device_as(ctx, scen):
-    ctx.process.run_check(["ip", "link", "del", b"\xca[2Jnonutf\xccf\\c"])
+    ctx.process.run_stdout(["ip", "link", "del", b"\xca[2Jnonutf\xccf\\c"])
     if os.path.isfile("/usr/lib/udev/rules.d/80-net-setup-link.rules"):
         ctx.run("ln -s /dev/null /etc/udev/rules.d/80-net-setup-link.rules")
         ctx.run("udevadm control --reload-rules")
@@ -2767,14 +2767,14 @@ _register_tag(
 def simwifi_hw_bs(ctx, scen):
     if not hasattr(ctx, "noted"):
         ctx.noted = {}
-    if ctx.process.run_check("iw list").strip():
+    if ctx.process.run_stdout("iw list").strip():
         ctx.noted["wifi-hw_real"] = "enabled"
     else:
         ctx.noted["wifi-hw_real"] = "missing"
 
 
 def simwifi_hw_as(ctx, scen):
-    ctx.process.run_check("nmcli radio wifi on")
+    ctx.process.run_stdout("nmcli radio wifi on")
 
 
 _register_tag("simwifi_hw", simwifi_hw_bs, simwifi_hw_as)

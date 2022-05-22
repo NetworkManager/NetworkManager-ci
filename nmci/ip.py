@@ -143,7 +143,7 @@ class _IP:
 
         assert binary is None or binary is True or binary is False
 
-        out = process.run_check(["ip", "-d", "address", "show"], as_bytes=True)
+        out = process.run_stdout(["ip", "-d", "address", "show"], as_bytes=True)
 
         result = []
 
@@ -317,7 +317,7 @@ class _IP:
 
         assert binary is None or binary is True or binary is False
 
-        out = process.run_check(["ip", "-d", "link", "show"], as_bytes=True)
+        out = process.run_stdout(["ip", "-d", "link", "show"], as_bytes=True)
 
         result = []
 
@@ -450,7 +450,7 @@ class _IP:
                 arg = "up"
             else:
                 arg = "down"
-            process.run_check(["ip", "link", "set", li["ifname"], arg])
+            process.run_stdout(["ip", "link", "set", li["ifname"], arg])
 
     def link_delete(self, ifname=None, *, ifindex=None):
 
@@ -458,7 +458,7 @@ class _IP:
             li = self.link_show(ifindex=ifindex)
             ifname = li["ifname"]
 
-        process.run_check(["ip", "link", "delete", ifname])
+        process.run_stdout(["ip", "link", "delete", ifname])
 
 
 sys.modules[__name__] = _IP()

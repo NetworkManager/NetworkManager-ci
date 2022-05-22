@@ -136,22 +136,28 @@ def set_up_commands(context):
 
         def context_hook(self, event, *a):
             if event == "result":
-                (argv, returncode, stdout_bin, stderr_bin) = a
-                self._context._command_calls.append(
-                    (argv, returncode, stdout_bin, stderr_bin)
-                )
+                (argv, returncode, stdout, stderr) = a
+                try:
+                    stdout = nmci.util.bytes_to_str(stdout)
+                except UnicodeDecodeError:
+                    pass
+                try:
+                    stderr = nmci.util.bytes_to_str(stderr)
+                except UnicodeDecodeError:
+                    pass
+                self._context._command_calls.append((argv, returncode, stdout, stderr))
 
         def run(self, *a, **kw):
             return process.run(*a, context_hook=self.context_hook, **kw)
 
-        def run_check(self, *a, **kw):
-            return process.run_check(*a, context_hook=self.context_hook, **kw)
+        def run_stdout(self, *a, **kw):
+            return process.run_stdout(*a, context_hook=self.context_hook, **kw)
 
         def run_code(self, *a, **kw):
             return process.run_code(*a, context_hook=self.context_hook, **kw)
 
-        def run_match_stdout(self, *a, **kw):
-            return process.run_match_stdout(*a, context_hook=self.context_hook, **kw)
+        def run_search_stdout(self, *a, **kw):
+            return process.run_search_stdout(*a, context_hook=self.context_hook, **kw)
 
     context.process = _Process(context)
 

@@ -54,10 +54,12 @@ def _run(
         pass
     else:
         raise Exception(
-            "`%s` returned exit code %s"
+            "`%s` returned exit code %s\nSTDOUT:\n%s\nSTDERR:\n%s"
             % (
                 " ".join([util.bytes_to_str(s, errors="replace") for s in argv]),
                 returncode,
+                stdout.decode("utf-8", errors="replace"),
+                stderr.decode("utf-8", errors="replace"),
             )
         )
 
@@ -99,7 +101,7 @@ def run(
     )
 
 
-def run_check(
+def run_stdout(
     argv,
     *,
     shell=False,
@@ -141,7 +143,7 @@ def run_code(
     ).returncode
 
 
-def run_match_stdout(
+def run_search_stdout(
     argv,
     pattern,
     *,
@@ -150,7 +152,7 @@ def run_match_stdout(
     ignore_returncode=False,
     ignore_stderr=False,
     context_hook=None,
-    pattern_flags=0,
+    pattern_flags=re.DOTALL | re.MULTILINE,
 ):
     # autodetect based on the pattern
     if isinstance(pattern, bytes):
@@ -168,4 +170,4 @@ def run_match_stdout(
         ignore_returncode=ignore_returncode,
         context_hook=context_hook,
     )
-    return re.match(pattern, result.stdout, flags=pattern_flags)
+    return re.search(pattern, result.stdout, flags=pattern_flags)

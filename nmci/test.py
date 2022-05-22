@@ -879,8 +879,8 @@ def test_process_run():
     assert process.run("echo hello", shell=True).stdout == "hello\n"
     assert process.run(["echo hallo"], shell=True, as_bytes=True).stdout == b"hallo\n"
 
-    assert process.run_check(["true"]) == ""
-    assert process.run_check("echo hallo") == "hallo\n"
+    assert process.run_stdout(["true"]) == ""
+    assert process.run_stdout("echo hallo") == "hallo\n"
 
     try:
         process.run("which true")
@@ -960,35 +960,43 @@ def test_process_run():
         process.run("exit 15", shell=True, ignore_returncode=False)
 
     with pytest.raises(Exception):
-        process.run_check("exit 15", shell=True)
+        process.run_stdout("exit 15", shell=True)
 
     r = process.run(
         "echo -n xstderr >&2 ; echo -n xstdout; exit 77", shell=True, ignore_stderr=True
     )
     assert r == (77, "xstdout", "xstderr")
 
-    assert process.run_match_stdout("echo hallo", "hallo")
-    assert process.run_match_stdout("echo hallo", b"hallo")
-    assert not process.run_match_stdout("echo Hallo", b"hallo")
-    assert process.run_match_stdout("echo Hallo", b"hallo", pattern_flags=re.I)
+    assert process.run_search_stdout("echo hallo", "hallo")
+    assert process.run_search_stdout("echo hallo", b"hallo")
+    assert not process.run_search_stdout("echo Hallo", b"hallo")
+    assert process.run_search_stdout("echo -e 'Hallo\nworld'", "Hallo.*world")
+    assert not process.run_search_stdout(
+        "echo -e 'Hallo\nworld'", "Hallo.*world", pattern_flags=0
+    )
+    assert process.run_search_stdout("echo Hallo", b"hallo", pattern_flags=re.I)
 
-    assert process.run_match_stdout("echo hallo", re.compile(b"h"))
-    assert process.run_match_stdout("echo hallo", re.compile("h"))
-    assert process.run_match_stdout("echo", re.compile("^"))
+    assert process.run_search_stdout("echo hallo", re.compile(b"h"), pattern_flags=0)
+    assert process.run_search_stdout("echo hallo", re.compile("h"), pattern_flags=0)
+    assert process.run_search_stdout("echo", re.compile("^"), pattern_flags=0)
 
-    m = process.run_match_stdout("echo -n hallo", re.compile("^h(all.)$"))
+    m = process.run_search_stdout(
+        "echo -n hallo", re.compile("^h(all.)$"), pattern_flags=0
+    )
     assert m
     assert m.group(1) == "allo"
 
-    m = process.run_match_stdout("echo -n hallo", re.compile(b"^h(all.)$"))
+    m = process.run_search_stdout(
+        "echo -n hallo", re.compile(b"^h(all.)$"), pattern_flags=0
+    )
     assert m
     assert m.group(1) == b"allo"
 
-    assert not process.run_match_stdout(
+    assert not process.run_search_stdout(
         "echo Hallo >&2", b"hallo", shell=True, ignore_stderr=True, pattern_flags=re.I
     )
 
-    assert process.run_match_stdout(
+    assert process.run_search_stdout(
         "echo stderr >&2; echo hallo",
         b"hall[o]",
         shell=True,
@@ -997,7 +1005,7 @@ def test_process_run():
     )
 
     with pytest.raises(Exception):
-        assert process.run_match_stdout(
+        assert process.run_search_stdout(
             "echo Hallo >&2", b"hallo", shell=True, pattern_flags=re.I
         )
 
@@ -1005,7 +1013,7 @@ def test_process_run():
 def test_git_call_ref_parse():
 
     try:
-        process.run_check(["git", "rev-parse", "HEAD"])
+        process.run_stdout(["git", "rev-parse", "HEAD"])
     except:
         pytest.skip("not a suitable git repo")
 
@@ -1014,7 +1022,7 @@ def test_git_call_ref_parse():
 
 def test_git_config_get_origin_url():
     try:
-        process.run_check(["git", "config", "--get", "remote.origin.url"])
+        process.run_stdout(["git", "config", "--get", "remote.origin.url"])
     except:
         pytest.skip('not a suitable git repo (as no "remote.origin.url")')
 
@@ -1151,19 +1159,45 @@ def test_context_set_up_commands():
 
     lib.set_up_commands(context)
 
-    context.process.run_check("true")
-    assert context._command_calls == [(["true"], 0, b"", b"")]
+    context.process.run_stdout("true")
+    assert context._command_calls == [(["true"], 0, "", "")]
 
     context._command_calls.clear()
 
     context.process.run("false")
-    assert context._command_calls == [(["false"], 1, b"", b"")]
+    assert context._command_calls == [(["false"], 1, "", "")]
 
     context._command_calls.clear()
 
     with pytest.raises(Exception) as e:
-        context.process.run_check("false")
-    assert context._command_calls == [(["false"], 1, b"", b"")]
+        context.process.run_stdout("false")
+    assert context._command_calls == [(["false"], 1, "", "")]
+
+    context._command_calls.clear()
+
+    context.process.run("echo")
+    assert context._command_calls == [(["echo"], 0, "\n", "")]
+
+    context._command_calls.clear()
+
+    with pytest.raises(Exception) as e:
+        context.process.run("echo out; echo err 1>&2; false", shell=True)
+    assert context._command_calls == [
+        (["echo out; echo err 1>&2; false"], 1, "out\n", "err\n")
+    ]
+
+    context._command_calls.clear()
+
+    context.process.run(
+        "echo -e '\\xfa'; echo -e '\\xfb' 1>&2",
+        shell=True,
+        ignore_stderr=True,
+        as_bytes=True,
+    )
+
+    assert context._command_calls == [
+        (["echo -e '\\xfa'; echo -e '\\xfb' 1>&2"], 0, b"\xfa\n", b"\xfb\n")
+    ]
 
 
 def test_ip_link_add_nonutf8():
@@ -1174,7 +1208,7 @@ def test_ip_link_add_nonutf8():
     ifname = b"\xCB[2Jnonutf\xCCf\\c"
 
     if not ip.link_show_maybe(ifname=ifname):
-        process.run_check(["ip", "link", "add", "name", ifname, "type", "dummy"])
+        process.run_stdout(["ip", "link", "add", "name", ifname, "type", "dummy"])
 
         # udev might rename the interface, try to workaround the race.
         time.sleep(0.1)
@@ -1192,10 +1226,11 @@ def test_ip_link_add_nonutf8():
 @Stub.misc_nm_version_detect(("upstream", [1, 39, 3, 30276]))
 def test_misc_version_control():
 
-    assert misc.test_version_check(
-        test_name="@pass",
-        feature="general",
-    ) == (util.base_dir("features/scenarios/general.feature"), "pass", ["pass"])
+    assert misc.test_version_check(test_name="@pass", feature="general",) == (
+        util.base_dir("features/scenarios/general.feature"),
+        "pass",
+        ["pass"],
+    )
 
     for stream, version in [
         ("upstream", [1, 35, 3, 30276]),

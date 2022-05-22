@@ -285,7 +285,7 @@ class _Misc:
             with open("/tmp/nm_version_override") as f:
                 current_version_str = f.read()
         else:
-            current_version_str = process.run_check(["NetworkManager", "-V"])
+            current_version_str = process.run_stdout(["NetworkManager", "-V"])
 
         v = self.nm_version_parse(current_version_str)
         self._nm_version_detect_cached = v
@@ -298,7 +298,7 @@ class _Misc:
 
         distro_version = [
             int(x)
-            for x in process.run_check(
+            for x in process.run_stdout(
                 [
                     "sed",
                     "s/.*release *//;s/ .*//;s/Beta//;s/Alpha//",
@@ -651,7 +651,7 @@ class _Misc:
         return (feature_file, test_name, list(result))
 
     def nmlog_parse_dnsmasq(self, ifname):
-        s = process.run_check(
+        s = process.run_stdout(
             [util.util_dir("helpers/nmlog-parse-dnsmasq.sh"), ifname], timeout=20
         )
         import json
