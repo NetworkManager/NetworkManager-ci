@@ -1793,7 +1793,7 @@ testmapper:
         feature: general
     - NM_merge_dhclient_conditionals:
         feature: general
-    - NM_performance_test1:
+    - NM_performance_dhcp_on_existing_veths:
         feature: general
     - nmcli_shows_correct_routes:
         feature: general

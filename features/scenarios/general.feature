@@ -2730,11 +2730,11 @@ Feature: nmcli - general
     @rhbz1711215
     @ver+=1.25 @rhelver+=8
     @remove_custom_cfg @performance
-    @NM_performance_test1
-    Scenario: NM - general - create and activate 100 devices in 6 seconds
-    # We need up to 1/4 of dhcpd servers to be able to handle the ammount of
+    @NM_performance_dhcp_on_existing_veths
+    Scenario: NM - general - create and activate 100 connections in 6 seconds on existing veths
+    # We need up to 1/4 of dhcpd servers to be able to handle the amount of
     # networks in the max time. If we have just one there seems to be some
-    # repetitions needed in DHCP server so we know nothing about NM performance.
+    # retransmissions needed in DHCP server so we know nothing about NM performance.
     Then Activate "100" devices in "6" seconds
 
 
