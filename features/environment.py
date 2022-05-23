@@ -273,7 +273,11 @@ def _after_scenario(context, scenario):
                 excepts.append(traceback.format_exc())
             print(f"  @{tag_name} ... {t_status} in {time.time() - t_start:.3f}s")
 
-    nmci.lib.cleanup(context)
+    try:
+        nmci.lib.cleanup(context)
+    except Exception:
+        excepts.append(traceback.format_exc())
+
     nmci.lib.check_crash(context, 'crash outside steps (after_scenario tags)')
 
     # check for crash reports and embed them
