@@ -1329,7 +1329,8 @@ def cleanup(context):
         )
     if context.cleanup["interfaces"]["delete"]:
         context.process.run(
-            ["nmcli", "device", "delete"] + list(context.cleanup["interfaces"]["delete"]),
+            ["nmcli", "device", "delete"]
+            + list(context.cleanup["interfaces"]["delete"]),
             ignore_stderr=True,
         )
     for iface in context.cleanup["interfaces"]["reset"]:
