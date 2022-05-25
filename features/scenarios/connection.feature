@@ -28,7 +28,7 @@ Feature: nmcli: connection
     Then "up" is visible with tab after "nmcli connection "
     Then "Usage: nmcli connection add { OPTIONS | help }\s+OPTIONS \:= COMMON_OPTIONS TYPE_SPECIFIC_OPTIONS IP_OPTIONS\s+COMMON_OPTIONS:\s+type <type>\s+ifname <interface name> |\s+ethernet\:\s+wifi:\s+ssid <SSID>\s+gsm:\s+apn <APN>\s+cdma:\s+infiniband:\s+bluetooth:\s+vlan:\s+dev <parent device \(connection  UUID, ifname, or MAC\)>\s+bond:\s+bond-slave:\s+master <master \(ifname or connection UUID\)>\s+team:\s+team-slave:\s+master <master \(ifname or connection UUID\)>\s+bridge:\s+bridge-slave:\s+master <master \(ifname or connection UUID\)>\svpn:\s+vpn-type vpnc|openvpn|pptp|openconnect|openswan\s+olpc-mesh:\s+ssid" is visible with command "nmcli connection add help"
 
-   
+
     @connection_names_autocompletion
     Scenario: nmcli - connection - names autocompletion
     Then "testeth0" is visible with tab after "nmcli connection edit id "
@@ -835,7 +835,7 @@ Feature: nmcli: connection
 
 
     @ver+=1.19.5
-   
+
     @all_to_in_memory_move
     Scenario: nmcli - connection - in-memory move
     * Add "ethernet" connection named "con_con" for device "eth5" with options "autoconnect yes"
@@ -990,3 +990,31 @@ Feature: nmcli: connection
      * Connect device "dummy1"
      Then "dummy1" is visible with command "nmcli -g connection.interface-name connection show dummy1"
       And Check if "dummy1" is active connection
+
+
+    @rhbz2059608
+    @ver+=1.38.0
+    @copy_ifcfg
+    @connection_nmcli_migrate
+    Scenario: nmcli - connection - migrate all ifcfg profiles to keyfile
+    * Reload connections
+    * Execute "nmcli con migrate"
+    Then "ifcfg" is not visible with command "ls /etc/sysconfig/network-scripts"
+    * Reload connections
+    Then "ifcfg" is not visible with command "nmcli -f TYPE,FILENAME,NAME conn"
+    * Bring "up" connection "migration_bond"
+    Then "nm-bond:connected:migration_bond" is visible with command "nmcli -t -f DEVICE,STATE,CONNECTION device" in "20" seconds
+    * Bring "up" connection "migration_bond-port1"
+    Then "eth9:connected:migration_bond-port1" is visible with command "nmcli -t -f DEVICE,STATE,CONNECTION device" in "20" seconds
+    * Bring "up" connection "migration_team"
+    Then "nm-team:connected:migration_team" is visible with command "nmcli -t -f DEVICE,STATE,CONNECTION device" in "20" seconds
+    * Bring "up" connection "migration_team-port1"
+    Then "eth4:connected:migration_team-port1" is visible with command "nmcli -t -f DEVICE,STATE,CONNECTION device" in "20" seconds
+    * Bring "up" connection "migration_team-port2"
+    Then "eth5.80:connected:migration_team-port2" is visible with command "nmcli -t -f DEVICE,STATE,CONNECTION device" in "20" seconds
+    * Bring "up" connection "migration_bridge"
+    Then "nm-bridge:connected:migration_bridge" is visible with command "nmcli -t -f DEVICE,STATE,CONNECTION device" in "20" seconds
+    * Bring "up" connection "migration_bridge-port1"
+    Then "eth7:connected:migration_bridge-port1" is visible with command "nmcli -t -f DEVICE,STATE,CONNECTION device" in "20" seconds
+    * Bring "up" connection "migration_dns"
+    Then "eth3:connected:migration_dns" is visible with command "nmcli -t -f DEVICE,STATE,CONNECTION device" in "20" seconds

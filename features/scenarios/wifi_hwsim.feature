@@ -118,6 +118,27 @@ Feature: nmcli - wifi
     Then "\*\s+wpa2-eap" is visible with command "nmcli -f IN-USE,SSID device wifi list"
 
 
+    @rhbz2059608
+    @ver+=1.38.0
+    @simwifi
+    @simwifi_migrate_to_keyfile
+    Scenario: nmcli - connection - migrate connection from ifcfg-file to keyfile
+    Given "wpa2-eap" is visible with command "nmcli -f SSID device wifi list" in "90" seconds
+    * Cleanup connection "migration_wifi" and device "wlan0"
+    * Execute "cp contrib/profiles/ifcfg-migration_wifi /etc/sysconfig/network-scripts/ifcfg-migration_wifi"
+    * Reload connections
+    * Modify connection "migration_wifi" changing options "802-1x.password password"
+    * Bring "up" connection "migration_wifi"
+    Then "wlan0:connected:migration_wifi" is visible with command "nmcli -t -f DEVICE,STATE,CONNECTION device" in "40" seconds
+    * Note the output of "nmcli con show migration_wifi" as value "ifcfg_output"
+    * Execute "nmcli con migrate ddb42e19-642d-4139-a2bc-eda0c6504fdd"
+    * Reload connections
+    Then "wlan0:connected:migration_wifi" is visible with command "nmcli -t -f DEVICE,STATE,CONNECTION device" in "40" seconds
+    * Note the output of "nmcli con show migration_wifi" as value "keyfile_output" 
+    Then Check noted values "ifcfg_output" and "keyfile_output" are the same
+    And ifcfg-"migration_wifi" file does not exist
+
+
     @ver+=1.33 @rhelver+=8
     @simwifi @pkcs11 @attach_hostapd_log @attach_wpa_supplicant_log
     @simwifi_tls_pkcs11_saved_pw

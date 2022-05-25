@@ -2118,6 +2118,8 @@ testmapper:
         feature: connection
     - connection_external_dummy_interface:
         feature: connection
+    - connection_nmcli_migrate:
+        feature: connection
     - add_default_tap_device:
         feature: tuntap
         tags: gate
@@ -2287,6 +2289,8 @@ testmapper:
         feature: wifi_hwsim
         tags: gate
     - simwifi_nmcli_radio:
+        feature: wifi_hwsim
+    - simwifi_migrate_to_keyfile:
         feature: wifi_hwsim
     - policy_based_routing_doc_procedure:
         feature: doc_procedures

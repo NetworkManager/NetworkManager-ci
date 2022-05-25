@@ -1,5 +1,6 @@
 import os
 import time
+import re
 import configparser
 from behave import step
 
@@ -175,16 +176,20 @@ def check_ifcfg(context, file):
         assert line in cfg, "'%s' not found in file '%s':\n%s" % (line, file, "\n".join(cfg))
 
 
+@step(u'Create ifcfg-file "{file}"')
 @step(u'Create keyfile "{file}"')
-def create_keyfile(context, file):
+def create_network_profile_file(context, file):
     with open(file, "w") as f:
         f.write(context.text)
     assert nmci.command_code("chmod 600 " + file) == 0, "Unable to set permissions on '%s'" % file
     nmci.lib.reload_NM_connections(context)
 
     for line in context.text.split("\n"):
-        if "id=" in line:
+        if re.match(r'(id|name)=', line):
             name = line.split('=')[1]
             if name:
                 context.cleanup["connections"].add(name)
-            break
+        elif re.match(r'(DEVICE|interface-name)=', line):
+            iface = line.split('=')[1]
+            if iface:
+                nmci.lib.add_iface_to_cleanup(context, iface)

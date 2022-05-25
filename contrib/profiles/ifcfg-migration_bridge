@@ -1,0 +1,24 @@
+STP=no
+BRIDGE_MACADDR=02:02:02:02:02:02
+BRIDGING_OPTS="ageing_time=10 group_address=01:80:C2:00:00:04 group_fwd_mask=8 multicast_hash_max=4 multicast_last_member_interval=2 multicast_membership_interval=2 multicast_querier=1 multicast_querier_interval=3 multicast_query_interval=200 multicast_query_response_interval=3 multicast_query_use_ifaddr=1 multicast_startup_query_interval=500 multicast_router=enabled vlan_filtering=1 default_pvid=80 vlan_protocol=802.1ad vlan_stats_enabled=1"
+BRIDGE_VLANS="1-10,100 pvid,200 untagged"
+TYPE=Bridge
+HWADDR=
+MTU=1500
+PROXY_METHOD=none
+BROWSER_ONLY=no
+BOOTPROTO=none
+IPADDR=1.2.3.4
+PREFIX=24
+DEFROUTE=yes
+IPV4_FAILURE_FATAL=no
+IPV6INIT=yes
+IPV6_AUTOCONF=yes
+IPV6_DEFROUTE=yes
+IPV6_FAILURE_FATAL=no
+IPV6_ADDR_GEN_MODE=stable-privacy
+NAME=migration_bridge
+UUID=2619469d-09b2-4e90-aebe-383397ed500c
+DEVICE=nm-bridge
+ONBOOT=no
+AUTOCONNECT_SLAVES=no

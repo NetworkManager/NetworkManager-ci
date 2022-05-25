@@ -1,0 +1,8 @@
+TYPE=Ethernet
+BOND_PORT_QUEUE_ID=0
+NAME=migration_bond-port1
+UUID=a658d485-8899-4ba1-a49b-2268d3813067
+DEVICE=eth9
+ONBOOT=yes
+MASTER=nm-bond
+SLAVE=yes
