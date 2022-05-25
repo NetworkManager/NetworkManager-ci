@@ -1824,11 +1824,6 @@ def openvswitch_as(ctx, scen):
         print("Attaching OVSDemon log")
         ctx.embed("text/plain", data2, caption="OVSDemon")
 
-    ctx.process.run("ifdown bond0", ignore_stderr=True)
-    ctx.process.run("ifdown eth1", ignore_stderr=True)
-    ctx.process.run("ifdown eth2", ignore_stderr=True)
-    ctx.process.run("ifdown ovsbridge0", ignore_stderr=True)
-    time.sleep(1)
     ctx.process.run("ovs-vsctl del-br ovsbr0", ignore_stderr=True)
     ctx.process.run("ovs-vsctl del-br ovs-br0", ignore_stderr=True)
     ctx.process.run("ovs-vsctl del-br ovsbridge0", ignore_stderr=True)

@@ -1266,6 +1266,27 @@ Feature: nmcli - ovs
     Then "public" is visible with command "firewall-cmd  --get-zone-of-interface=iface0" in "3" seconds
 
 
+    @rhbz2052441
+    @openvswitch
+    @ovs_service_disabled_error
+    Scenario: NM -  openvswitch - start with disabled service
+    * Execute "systemctl stop openvswitch"
+    * Add "ovs-bridge" connection named "ovs-bridge0" with options
+          """
+          conn.interface ovsbridge0
+          """
+    * Add "ovs-port" connection named "ovs-port0" for device "port0" with options
+          """
+          conn.master ovsbridge0
+          """
+    * Add "ovs-interface" connection named "ovs-iface0" for device "iface0" with options
+          """
+          conn.master port0
+          ipv4.may-fail no
+          """
+    Then "Error" is visible with command "nmcli con up ovs-iface0"
+
+
     @rhbz2027490 @rhbz2026024
     @ver+=1.36
     @openvswitch @firewall
