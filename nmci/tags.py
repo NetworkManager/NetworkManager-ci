@@ -664,7 +664,7 @@ def inf_as(ctx, scen):
             ignore_stderr=True,
         )
     else:
-        ctx.process.run_stdout("nmcli connection up id tg3_1")
+        ctx.process.run_stdout("nmcli connection up id tg3_1", timeout=45)
         ctx.process.run_stdout(
             "nmcli connection delete id inf inf2 infiniband inf.8002"
         )
@@ -922,7 +922,7 @@ def eth3_disconnect_bs(ctx, scen):
 def eth3_disconnect_as(ctx, scen):
     ctx.process.run("sudo nmcli device disconnect eth3", ignore_stderr=True)
     # VVV Up/Down to preserve autoconnect feature
-    ctx.process.run_stdout("sudo nmcli connection up testeth3", timeout=10)
+    ctx.process.run_stdout("sudo nmcli connection up testeth3", timeout=45)
     ctx.process.run_stdout("sudo nmcli connection down testeth3")
 
 
@@ -1019,7 +1019,7 @@ def netservice_bs(ctx, scen):
     )
     nmci.lib.restart_NM_service(ctx)
     ctx.process.run_stdout("sudo systemctl restart network.service")
-    ctx.process.run_stdout("nmcli connection up testeth0")
+    nmci.lib.wait_for_testeth0(ctx)
     time.sleep(1)
 
 
@@ -1723,7 +1723,7 @@ def restore_hostname_as(ctx, scen):
     ctx.process.run_stdout("rm -rf /etc/NetworkManager/conf.d/90-hostname.conf")
     ctx.process.run_stdout("rm -rf /etc/dnsmasq.d/dnsmasq_custom.conf")
     nmci.lib.reload_NM_service(ctx)
-    ctx.process.run_stdout("nmcli con up testeth0")
+    nmci.lib.wait_for_testeth0(ctx)
 
 
 _register_tag("restore_hostname", restore_hostname_bs, restore_hostname_as)
@@ -1845,9 +1845,9 @@ def openvswitch_as(ctx, scen):
     ctx.process.run_stdout("ip link set dev eth1 up")
     ctx.process.run_stdout("ip link set dev eth2 up")
     ctx.process.run_stdout("nmcli con reload")
-    ctx.process.run_stdout("nmcli con up testeth1")
+    ctx.process.run_stdout("nmcli con up testeth1", timeout=45)
     ctx.process.run_stdout("nmcli con down testeth1")
-    ctx.process.run_stdout("nmcli con up testeth2")
+    ctx.process.run_stdout("nmcli con up testeth2", timeout=45)
     ctx.process.run_stdout("nmcli con down testeth2")
 
 
@@ -1905,7 +1905,7 @@ def dpdk_bs(ctx, scen):
     ctx.process.run_stdout(
         "nmcli connection add type ethernet ifname p4p1 con-name dpdk-sriov sriov.total-vfs 2"
     )
-    ctx.process.run_stdout("nmcli connection up dpdk-sriov")
+    ctx.process.run_stdout("nmcli connection up dpdk-sriov", timeout=45)
     # In newer versions of dpdk-tools there are dpdk binaries with py in the end
     ctx.process.run_stdout(
         "dpdk-devbind -b vfio-pci 0000:42:10.0 || dpdk-devbind.py -b vfio-pci 0000:42:10.0",
@@ -2039,7 +2039,7 @@ def nmstate_upstream_setup_bs(ctx, scen):
     ctx.process.run_stdout(
         "nmcli con modify nmstate ipv6.method disabled ipv6.addresses '' ipv6.gateway ''"
     )
-    ctx.process.run_stdout("nmcli con up nmstate")
+    ctx.process.run_stdout("nmcli con up nmstate", timeout=45)
 
     # Move orig config file to /tmp
     ctx.process.run_stdout("mv /etc/NetworkManager/conf.d/99-unmanage-orig.conf /tmp")
@@ -2503,7 +2503,7 @@ _register_tag("dcb", None, dcb_as)
 
 def mtu_as(ctx, scen):
     ctx.process.run_stdout("nmcli connection modify testeth1 802-3-ethernet.mtu 1500")
-    ctx.process.run_stdout("nmcli connection up id testeth1", timeout=10)
+    ctx.process.run_stdout("nmcli connection up id testeth1", timeout=45)
     ctx.process.run_stdout("nmcli connection modify testeth1 802-3-ethernet.mtu 0")
     ctx.process.run_stdout("nmcli connection down id testeth1")
     ctx.process.run_stdout("ip link set dev eth1 mtu 1500")
@@ -2529,7 +2529,7 @@ def mtu_wlan0_as(ctx, scen):
         "nmcli con add type wifi ifname wlan0 con-name qe-open autoconnect off ssid qe-open"
     )
     ctx.process.run_stdout("nmcli connection modify qe-open 802-11-wireless.mtu 1500")
-    ctx.process.run_stdout("nmcli connection up id qe-open")
+    ctx.process.run_stdout("nmcli connection up id qe-open", timeout=45)
     ctx.process.run_stdout("nmcli connection del id qe-open")
 
 
@@ -2720,7 +2720,7 @@ for i in [1, 5, 8, 10]:
 def eth_disconnect_as(ctx, scen, num):
     ctx.process.run(f"nmcli device disconnect eth{num}", ignore_stderr=True)
     # VVV Up/Down to preserve autoconnect feature
-    ctx.process.run_stdout(f"nmcli connection up testeth{num}", timeout=10)
+    ctx.process.run_stdout(f"nmcli connection up testeth{num}", timeout=45)
     ctx.process.run_stdout(f"nmcli connection down testeth{num}")
 
 
