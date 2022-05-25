@@ -1382,6 +1382,22 @@
     Then "2001:db8:e:10::30/64 scope global.*2001:db8:e:10::57/64 scope global.*2001:db8:e:10::4/64" is visible with command "ip a show eth2"
 
 
+    @rhbz2073976
+    @ver+=1.39.2
+    @ipv6_keep_static_address_after_reapply
+    Scenario: NM - ipv6 - keep static ipv6 address after reapply
+    * Add "ethernet" connection named "con_ipv6" for device "eth2" with options
+        """
+        ipv4.method manual ipv4.address 10.16.1.10/24 ipv4.gateway 10.16.1.1 ipv4.dns 10.16.1.1
+        ipv6.method manual ipv6.address 2001:db8:e:10::4/64
+        """
+    * Bring up connection "con_ipv6"
+    When "inet6 2001:db8:e:10::4/64" is visible with command "ip a show eth2"
+    * Modify connection "con_ipv6" changing options "ipv4.dns ''"
+    When Execute "nmcli dev reapply eth2"
+    Then "inet6 2001:db8:e:10::4/64" is visible with command "ip a show eth2"
+
+
     @rhbz2004212
     @ver+=1.32.10
     @ipv6_keep_route_upon_reapply
