@@ -1399,6 +1399,24 @@
     Then "mtu 9000" is visible with command "ip a s nm-bond |grep mtu"
 
 
+    @rhbz2071985
+    @ver+=1.39.3
+    @bond_set_different_mtu_on_slaves
+    # This scenario may start failing in case of kernel changes here:
+    # https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/tree/drivers/net/bonding/bond_main.c?h=v5.17#n3603
+    # https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/tree/drivers/net/bonding/bond_main.c?h=v5.17#n4372
+    Scenario: nmcli - bond - set different MTU on slaves in active-backup
+    * Add "bond" connection named "bond0" for device "bond0" with options "autoconnect no 802-3-ethernet.mtu 1450 ipv4.method disabled ipv6.method disabled"
+    * Add "ethernet" connection named "bond0.1" for device "eth1" with options "autoconnect no 802-3-ethernet.mtu 1400 connection.master bond0 connection.slave-type bond"
+    * Add "ethernet" connection named "bond0.4" for device "eth4" with options "autoconnect no 802-3-ethernet.mtu 1400 connection.master bond0 connection.slave-type bond"
+    * Bring up connection "bond0"
+    * Bring up connection "bond0.1"
+    * Bring up connection "bond0.4"
+    Then "mtu 1450" is visible with command "ip l show bond0"
+    Then "mtu 1400" is visible with command "ip l show eth1"
+    Then "mtu 1400" is visible with command "ip l show eth4"
+
+
     @rhbz1304641
     @ver+=1.8
     @restart_if_needed
