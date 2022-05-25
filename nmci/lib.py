@@ -1115,7 +1115,7 @@ def teardown_hostapd(context):
 
 def restore_testeth0(context):
     print("* restoring testeth0")
-    context.process.run("nmcli con delete testeth0", ignore_stderr=True)
+    context.process.run("nmcli con delete testeth0", ignore_stderr=True, timeout=10)
 
     if not os.path.isfile("/tmp/nm_plugin_keyfiles"):
         # defaults to ifcfg files (RHELs)
@@ -1133,7 +1133,7 @@ def restore_testeth0(context):
     time.sleep(1)
     context.process.run_stdout("nmcli con reload")
     time.sleep(1)
-    context.process.run_stdout("nmcli con up testeth0")
+    context.process.run_stdout("nmcli con up testeth0", timeout=45)
     time.sleep(2)
 
 
@@ -1148,8 +1148,8 @@ def wait_for_testeth0(context):
             "nmcli device show eth0", "(connected)"
         ):
             print(" ** device eth0 is connected, let's disconnect it first")
-            context.process.run_stdout("nmcli dev disconnect eth0")
-        context.process.run_stdout("nmcli con up testeth0")
+            context.process.run_stdout("nmcli dev disconnect eth0", timeout=10)
+        context.process.run_stdout("nmcli con up testeth0", timeout=45)
 
     counter = 0
     # We need to check for all 3 items to have working connection out
