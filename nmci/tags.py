@@ -292,7 +292,7 @@ def tag1000_as(ctx, scen):
         "for i in $(seq 0 1000); do ip link del port$i ; done",
         shell=True,
         ignore_stderr=True,
-        timeout=30,
+        timeout=240,
     )
 
 
