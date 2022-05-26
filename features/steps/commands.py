@@ -310,8 +310,9 @@ def check_pattern_not_visible_with_command_fortime(context, pattern, command, se
 
 @step(u'"{pattern}" is visible with tab after "{command}"')
 def check_pattern_visible_with_tab_after_command(context, pattern, command):
-    os.system('echo "set page-completions off" > ~/.inputrc')
     exp = context.pexpect_spawn('/bin/bash')
+    exp.send("bind 'set page-completions Off' ;\n")
+    exp.send("bind 'set completion-query-items 0' ;\n")
     exp.send(command)
     exp.sendcontrol('i')
     exp.sendcontrol('i')
@@ -323,8 +324,9 @@ def check_pattern_visible_with_tab_after_command(context, pattern, command):
 
 @step(u'"{pattern}" is not visible with tab after "{command}"')
 def check_pattern_not_visible_with_tab_after_command(context, pattern, command):
-    context.run('echo "set page-completions off" > ~/.inputrc')
     exp = context.pexpect_spawn('/bin/bash')
+    exp.send("bind 'set page-completions Off' ;\n")
+    exp.send("bind 'set completion-query-items 0' ;\n")
     exp.send(command)
     exp.sendcontrol('i')
     exp.sendcontrol('i')
