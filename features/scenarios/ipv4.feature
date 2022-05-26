@@ -2275,6 +2275,7 @@ Feature: nmcli: ipv4
     @rhbz1634657
     @ver+=1.16
     @ver-1.37.90
+    @ver-1.36.7
     @internal_DHCP
     @dhcp_multiple_router_options
     Scenario: NM - ipv4 - dhcp server sends multiple router options
@@ -2288,6 +2289,7 @@ Feature: nmcli: ipv4
 
     @rhbz1634657
     @ver+=1.37.90
+    @ver+=1.36.7
     @internal_DHCP
     @dhcp_multiple_router_options
     Scenario: NM - ipv4 - dhcp server sends multiple router options

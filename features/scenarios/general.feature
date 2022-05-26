@@ -494,7 +494,7 @@ Feature: nmcli - general
 
 
     @ver+=1.12.2
-    @ver-=1.20
+    @ver-1.21
     @dhcpd
     @nmcli_device_reapply_routes
     Scenario: NM - device - reapply just routes
@@ -512,8 +512,9 @@ Feature: nmcli - general
 
 
     @rhbz1763062
-    @ver+=1.22
+    @ver+=1.21
     @ver-1.37.90
+    @ver-1.36.7
     @dhcpd
     @nmcli_device_reapply_routes
     Scenario: NM - device - reapply just routes
@@ -533,6 +534,7 @@ Feature: nmcli - general
 
     @rhbz1763062
     @ver+=1.37.90
+    @ver+=1.36.7
     @dhcpd
     @nmcli_device_reapply_routes
     Scenario: NM - device - reapply just routes
