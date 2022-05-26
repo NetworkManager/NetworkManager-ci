@@ -92,7 +92,7 @@ Feature: nmcli: ipv4
     * Open editor for connection "con_ipv4"
     * Submit "set ipv4.method static" in editor
     * Submit "set ipv4.addresses 192.168.122.253/192.168.122.1" in editor
-    Then Error type "failed to set 'addresses' property: invalid prefix '192.168.122.1'; <1-32> allowed" while saving in editor
+    Then Error type "failed to set 'addresses' property: invalid prefix '192.168.122.1'; <[01]-32> allowed" while saving in editor
 
 
     @rhbz1073824

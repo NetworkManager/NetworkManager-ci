@@ -85,7 +85,7 @@
      * Open editor for connection "con_ipv6"
      * Submit "set ipv6.method static" in editor
      * Submit "set ipv6.addresses 2607:f0d0:1002:51::4/321" in editor
-    Then Error type "failed to set 'addresses' property: invalid prefix '321'; <1-128> allowed" while saving in editor
+    Then Error type "failed to set 'addresses' property: invalid prefix '321'; <[01]-128> allowed" while saving in editor
 
 
     @eth0
