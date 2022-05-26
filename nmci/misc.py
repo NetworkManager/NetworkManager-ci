@@ -44,10 +44,7 @@ class _Misc:
         return glob.glob(feature_path)
 
     def test_load_tags_from_features(
-        self,
-        feature=None,
-        test_name=None,
-        feature_file=None,
+        self, feature=None, test_name=None, feature_file=None,
     ):
 
         if feature_file is not None:
