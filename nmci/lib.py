@@ -404,7 +404,7 @@ def dump_status(context, when, fail_only=False):
 
     for cmd in cmds:
         msg += "\n--- %s ---\n" % cmd
-        result = nmci.process.run(cmd, shell=True)
+        result = nmci.process.run(cmd, shell=True, timeout=10)
         msg += result.stdout
     if nm_running:
         if os.path.isfile("/tmp/nm_veth_configured"):

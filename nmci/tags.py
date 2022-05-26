@@ -87,9 +87,9 @@ _register_tag("skip_in_centos", skip_in_centos_bs)
 
 
 def skip_in_kvm_bs(ctx, scen):
-    if "kvm" in ctx.hypervisor:
+    if "kvm" or "powervm" in ctx.hypervisor:
         if ctx.arch != "x86_64":
-            print("skipping on non x86_64 machine with kvm hypvervisor")
+            print("skipping on non x86_64 machine with kvm or powervm hypvervisors")
             sys.exit(77)
 
 
@@ -336,7 +336,7 @@ def remove_vlan_range(ctx, scen):
     )
     ctx.process.run_stdout("rm -rvf " + keyfile_list, shell=True)
 
-    nmci.lib.restart_NM_service(ctx)
+    nmci.lib.restart_NM_service(ctx, timeout=20)
 
 
 _register_tag("remove_vlan_range", None, remove_vlan_range)
