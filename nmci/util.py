@@ -58,15 +58,17 @@ class _Util:
             self._JsonGLib = m
         return m
 
-    def _dir(self):
-        return os.path.dirname(os.path.realpath(os.path.abspath(__file__)))
-
     def util_dir(self, *args):
-        return os.path.join(self._dir(), *args)
+        if not hasattr(self, "_util_dir"):
+            self._util_dir = os.path.dirname(
+                os.path.realpath(os.path.abspath(__file__))
+            )
+        return os.path.join(self._util_dir, *args)
 
     def base_dir(self, *args):
-        d = os.path.realpath(os.path.join(self._dir(), ".."))
-        return os.path.join(d, *args)
+        if not hasattr(self, "_base_dir"):
+            self._base_dir = os.path.realpath(self.util_dir(".."))
+        return os.path.join(self._base_dir, *args)
 
     def gvariant_to_dict(self, variant):
         import json
