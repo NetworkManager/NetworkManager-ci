@@ -1023,6 +1023,23 @@ def test_process_run():
     d = util.base_dir("nmci/helpers")
     assert d + "\n" == process.run_stdout("pwd", cwd=d)
 
+    os.environ["NMCI_TEST_XXX1"] = "global"
+
+    assert f"foo//{os.environ.get('NMCI_TEST_XXX1')}" == process.run_stdout(
+        'echo -n "$HI//$NMCI_TEST_XXX1"', shell=True, env_extra={"HI": "foo"}
+    )
+
+    assert "foo//" == process.run_stdout(
+        'echo -n "$HI//$NMCI_TEST_XXX1"', shell=True, env={"HI": "foo"}
+    )
+
+    assert "foo2//" == process.run_stdout(
+        'echo -n "$HI//$NMCI_TEST_XXX1"',
+        shell=True,
+        env={"HI": "foo"},
+        env_extra={"HI": "foo2"},
+    )
+
 
 def test_git_call_ref_parse():
 

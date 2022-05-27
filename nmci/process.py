@@ -20,6 +20,8 @@ def _run(
     as_bytes,
     timeout,
     cwd,
+    env,
+    env_extra,
     ignore_stderr,
     ignore_returncode,
     context_hook,
@@ -34,6 +36,13 @@ def _run(
 
             argv = shlex.split(argv)
 
+    if env_extra:
+        if env is None:
+            env = dict(os.environ)
+        else:
+            env = dict(env)
+        env.update(env_extra)
+
     if context_hook is not None:
         context_hook("call", argv, shell, timeout)
 
@@ -44,6 +53,7 @@ def _run(
         stderr=subprocess.PIPE,
         timeout=timeout,
         cwd=cwd,
+        env=env,
     )
 
     (returncode, stdout, stderr) = (proc.returncode, proc.stdout, proc.stderr)
@@ -96,6 +106,8 @@ def run(
     as_bytes=False,
     timeout=5,
     cwd=util.BASE_DIR,
+    env=None,
+    env_extra=None,
     ignore_returncode=True,
     ignore_stderr=False,
     context_hook=None,
@@ -106,6 +118,8 @@ def run(
         as_bytes=as_bytes,
         timeout=timeout,
         cwd=cwd,
+        env=env,
+        env_extra=env_extra,
         ignore_stderr=ignore_stderr,
         ignore_returncode=ignore_returncode,
         context_hook=context_hook,
@@ -119,6 +133,8 @@ def run_stdout(
     as_bytes=False,
     timeout=5,
     cwd=util.BASE_DIR,
+    env=None,
+    env_extra=None,
     ignore_returncode=False,
     ignore_stderr=False,
     context_hook=None,
@@ -129,6 +145,8 @@ def run_stdout(
         as_bytes=as_bytes,
         timeout=timeout,
         cwd=cwd,
+        env=env,
+        env_extra=env_extra,
         ignore_stderr=ignore_stderr,
         ignore_returncode=ignore_returncode,
         context_hook=context_hook,
@@ -142,6 +160,8 @@ def run_code(
     as_bytes=False,
     timeout=5,
     cwd=util.BASE_DIR,
+    env=None,
+    env_extra=None,
     ignore_returncode=True,
     ignore_stderr=False,
     context_hook=None,
@@ -152,6 +172,8 @@ def run_code(
         as_bytes=as_bytes,
         timeout=timeout,
         cwd=cwd,
+        env=env,
+        env_extra=env_extra,
         ignore_stderr=ignore_stderr,
         ignore_returncode=ignore_returncode,
         context_hook=context_hook,
@@ -165,6 +187,8 @@ def run_search_stdout(
     shell=False,
     timeout=5,
     cwd=util.BASE_DIR,
+    env=None,
+    env_extra=None,
     ignore_returncode=False,
     ignore_stderr=False,
     context_hook=None,
@@ -183,6 +207,8 @@ def run_search_stdout(
         as_bytes=as_bytes,
         timeout=timeout,
         cwd=cwd,
+        env=env,
+        env_extra=env_extra,
         ignore_stderr=ignore_stderr,
         ignore_returncode=ignore_returncode,
         context_hook=context_hook,
