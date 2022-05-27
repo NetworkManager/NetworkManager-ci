@@ -87,10 +87,43 @@ def get_service_log(service, journal_arg):
     )
 
 
-def set_up_embedding(context):
+class _ContextProcess:
+    def __init__(self, context):
+        self._context = context
+
+    def context_hook(self, event, *a):
+        if event == "result":
+            (argv, returncode, stdout, stderr) = a
+            try:
+                stdout = nmci.util.bytes_to_str(stdout)
+            except UnicodeDecodeError:
+                pass
+            try:
+                stderr = nmci.util.bytes_to_str(stderr)
+            except UnicodeDecodeError:
+                pass
+            self._context._command_calls.append((argv, returncode, stdout, stderr))
+
+    def run(self, *a, **kw):
+        return process.run(*a, context_hook=self.context_hook, **kw)
+
+    def run_stdout(self, *a, **kw):
+        return process.run_stdout(*a, context_hook=self.context_hook, **kw)
+
+    def run_code(self, *a, **kw):
+        return process.run_code(*a, context_hook=self.context_hook, **kw)
+
+    def run_search_stdout(self, *a, **kw):
+        return process.run_search_stdout(*a, context_hook=self.context_hook, **kw)
+
+
+def context_setup(context):
+
     # setup formatter embed and set_title
-    for formatter in context._runner.formatters:
-        if "html" in formatter.name:
+    if hasattr(context, "_runner"):
+        for formatter in context._runner.formatters:
+            if "html" not in formatter.name:
+                continue
             if getattr(formatter, "set_title", None) is not None:
                 context.set_title = formatter.set_title
             if getattr(formatter, "embedding", None) is not None:
@@ -129,38 +162,7 @@ def set_up_embedding(context):
 
     context._to_embed = []
 
-
-def set_up_commands(context):
-    class _Process:
-        def __init__(self, context):
-            self._context = context
-
-        def context_hook(self, event, *a):
-            if event == "result":
-                (argv, returncode, stdout, stderr) = a
-                try:
-                    stdout = nmci.util.bytes_to_str(stdout)
-                except UnicodeDecodeError:
-                    pass
-                try:
-                    stderr = nmci.util.bytes_to_str(stderr)
-                except UnicodeDecodeError:
-                    pass
-                self._context._command_calls.append((argv, returncode, stdout, stderr))
-
-        def run(self, *a, **kw):
-            return process.run(*a, context_hook=self.context_hook, **kw)
-
-        def run_stdout(self, *a, **kw):
-            return process.run_stdout(*a, context_hook=self.context_hook, **kw)
-
-        def run_code(self, *a, **kw):
-            return process.run_code(*a, context_hook=self.context_hook, **kw)
-
-        def run_search_stdout(self, *a, **kw):
-            return process.run_search_stdout(*a, context_hook=self.context_hook, **kw)
-
-    context.process = _Process(context)
+    context.process = _ContextProcess(context)
 
     def _run(command, *a, **kw):
         out, err, code = nmci.run(command, *a, **kw)

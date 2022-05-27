@@ -40,8 +40,7 @@ def before_all(context):
 
     context.no_step = True
 
-    nmci.lib.set_up_embedding(context)
-    nmci.lib.set_up_commands(context)
+    nmci.lib.context_setup(context)
 
     def _additional_sleep(seconds):
         if context.IS_NMTUI:
