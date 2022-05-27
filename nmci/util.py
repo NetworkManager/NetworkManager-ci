@@ -75,6 +75,12 @@ class _Util:
     def base_dir(self, *args):
         return os.path.join(self.BASE_DIR, *args)
 
+    def tmp_dir(self, *args, create_base_dir=True):
+        d = self.base_dir(".tmp")
+        if create_base_dir and not os.path.isdir(d):
+            os.mkdir(d)
+        return os.path.join(d, *args)
+
     def gvariant_to_dict(self, variant):
         import json
 
