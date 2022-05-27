@@ -243,16 +243,6 @@ install_usb_hub_driver_el () {
     return $rc
 }
 
-get_online_state() {
-    echo -n > /tmp/nmcli_general
-    for i in {1..20}; do
-        nmcli general | tee --append - /tmp/nmcli_general | grep -q "^connected" && return 0
-        echo "get online state #$i failed"
-        sleep 1
-    done
-    return 1
-}
-
 export_python_command() {
     if [ -f /tmp/python_command ]; then
         PYTHON_COMMAND=$(cat /tmp/python_command)
