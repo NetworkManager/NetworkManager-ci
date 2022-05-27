@@ -1009,9 +1009,13 @@ def test_process_run():
             "echo Hallo >&2", b"hallo", shell=True, pattern_flags=re.I
         )
 
-    assert os.getcwd() + "\n" == process.run_stdout("pwd")
+    assert os.getcwd() + "\n" == process.run_stdout("pwd", cwd=None)
 
-    assert os.getcwd() + "\n" == process.run_stdout("pwd", shell=True)
+    assert os.getcwd() + "\n" == process.run_stdout("pwd", shell=True, cwd=None)
+
+    assert util.base_dir() + "\n" == process.run_stdout("pwd")
+
+    assert util.base_dir() + "\n" == process.run_stdout("pwd", shell=True)
 
     d = util.base_dir("nmci")
     assert d + "\n" == process.run_stdout("pwd", shell=True, cwd=d)

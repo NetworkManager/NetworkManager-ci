@@ -65,10 +65,14 @@ class _Util:
             )
         return os.path.join(self._util_dir, *args)
 
-    def base_dir(self, *args):
+    @property
+    def BASE_DIR(self):
         if not hasattr(self, "_base_dir"):
             self._base_dir = os.path.realpath(self.util_dir(".."))
-        return os.path.join(self._base_dir, *args)
+        return self._base_dir
+
+    def base_dir(self, *args):
+        return os.path.join(self.BASE_DIR, *args)
 
     def gvariant_to_dict(self, variant):
         import json
