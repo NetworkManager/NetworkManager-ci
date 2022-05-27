@@ -618,7 +618,7 @@ def device_lldp_status_libnm(context, device):
 def activate_devices_check(context, device_num, sec_high, sec_low=0):
     out = context.command_output(f"cd contrib/gi; python3 activate.py {device_num}")
     # activate.py calls setup.sh which restarts NM
-    context.nm_pid = nmci.lib.wait_for_nm_pid()
+    context.nm_pid = nmci.nmutil.wait_for_nm_pid()
     completed_lines = [line for line in out.split("\n") if "Completed in " in line]
     assert len(completed_lines), f"Unexpected output, did not find 'Completed in ' line:\n{out}"
     completed_line = completed_lines[0]

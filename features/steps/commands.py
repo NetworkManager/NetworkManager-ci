@@ -73,12 +73,12 @@ def execute_command_noout(context, command):
 
 @step(u'Execute "{command}" for "{number}" times')
 def execute_multiple_times(context, command, number):
-    orig_nm_pid = nmci.lib.nm_pid()
+    orig_nm_pid = nmci.nmutil.nm_pid()
 
     i = 0
     while i < int(number):
         context.command_code(command)
-        curr_nm_pid = nmci.lib.nm_pid()
+        curr_nm_pid = nmci.nmutil.nm_pid()
         assert curr_nm_pid == orig_nm_pid, 'NM crashed as original pid was %s but now is %s' %(orig_nm_pid, curr_nm_pid)
         i += 1
 

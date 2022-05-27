@@ -78,7 +78,7 @@ def kill_NM(context, signal=""):
     if signal:
         signal = "-" + signal
     context.run("kill %s $(pidof NetworkManager) && sleep 5" % (signal), shell=True)
-    context.nm_pid = nmci.lib.nm_pid()
+    context.nm_pid = nmci.nmutil.nm_pid()
 
 
 @step(u'Stop NM')

@@ -11,47 +11,7 @@ import xml.etree.ElementTree as ET
 import shutil
 
 from . import process
-
-
-def nm_pid():
-    pid = 0
-    service_pid = nmci.process.run("systemctl show -pMainPID NetworkManager.service")
-    if service_pid.returncode == 0:
-        pid = int(service_pid.stdout.split("=")[-1])
-    if not pid:
-        pgrep_pid = nmci.process.run("pgrep NetworkManager")
-        if pgrep_pid.returncode == 0:
-            pid = int(pgrep_pid.stdout)
-    return pid
-
-
-def wait_for_nm_pid(seconds=10):
-    for _ in range(seconds):
-        pid = nm_pid()
-        if pid:
-            return pid
-        time.sleep(1)
-    assert False, f"NetworkManager not running in {seconds} seconds"
-
-
-def nm_size_kb():
-    memsize = 0
-    pid = nm_pid()
-    if not pid:
-        print("Warning: unable to get mem usage, NetworkManager is not running!")
-        return 0
-    smaps = nmci.process.run(f"sudo cat /proc/{pid}/smaps", ignore_stderr=True)
-    if smaps.returncode != 0:
-        print(
-            "Warning: unable to get mem usage, smaps file missing for NetworkManager process!"
-        )
-        return 0
-    for line in smaps.stdout.strip("\n").split("\n"):
-        fields = line.split()
-        if not fields[0] in ("Private_Dirty:", "Swap:"):
-            continue
-        memsize += int(fields[1])
-    return memsize
+from . import nmutil
 
 
 def new_log_cursor():
@@ -427,7 +387,7 @@ def dump_status(context, when, fail_only=False):
 
     # Always include memory stats
     if context.nm_pid is not None:
-        msg = "Daemon memory consumption: %d KiB\n" % nm_size_kb()
+        msg = "Daemon memory consumption: %d KiB\n" % nmutil.nm_size_kb()
         if (
             os.path.isfile("/etc/systemd/system/NetworkManager.service")
             and nmci.process.run_code(
@@ -473,9 +433,9 @@ def check_crash(context, crashed_step):
     pid_refresh_count = getattr(context, "nm_pid_refresh_count", 0)
     if pid_refresh_count > 0:
         context.pid_refresh_count = pid_refresh_count - 1
-        context.nm_pid = nmci.lib.nm_pid()
+        context.nm_pid = nmci.nmutil.nm_pid()
     elif not context.crashed_step:
-        new_pid = nmci.lib.nm_pid()
+        new_pid = nmci.nmutil.nm_pid()
         if new_pid != context.nm_pid:
             print(
                 "NM Crashed as new PID %s is not old PID %s" % (new_pid, context.nm_pid)
@@ -897,7 +857,7 @@ def check_vethsetup(context):
     context.process.run_stdout(
         "sh prepare/vethsetup.sh check", ignore_stderr=True, timeout=60
     )
-    context.nm_pid = nm_pid()
+    context.nm_pid = nmci.nmutil.nm_pid()
 
 
 def teardown_libreswan(context):
@@ -1109,7 +1069,7 @@ def teardown_hostapd_wireless(context):
     context.process.run_stdout(
         "sh prepare/hostapd_wireless.sh teardown", ignore_stderr=True
     )
-    context.NM_pid = nm_pid()
+    context.NM_pid = nmci.nmutil.nm_pid()
 
 
 def teardown_hostapd(context):
@@ -1195,7 +1155,7 @@ def restart_NM_service(context, reset=True, timeout=10):
     rc = context.process.run_code(
         "systemctl restart NetworkManager.service", timeout=timeout
     )
-    context.nm_pid = wait_for_nm_pid(10)
+    context.nm_pid = nmutil.wait_for_nm_pid(10)
     return rc == 0
 
 
@@ -1205,7 +1165,7 @@ def start_NM_service(context, pid_wait=True, timeout=10):
         "systemctl start NetworkManager.service", timeout=timeout
     )
     if pid_wait:
-        context.nm_pid = wait_for_nm_pid(10)
+        context.nm_pid = nmutil.wait_for_nm_pid(10)
     return rc == 0
 
 

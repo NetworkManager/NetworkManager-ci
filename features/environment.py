@@ -12,6 +12,7 @@ import nmci
 import nmci.lib
 import nmci.tags
 import nmci.misc
+import nmci.nmutil
 
 TIMER = 0.5
 
@@ -78,7 +79,7 @@ def _before_scenario(context, scenario):
     # set important context attributes
     context.step_level = 0
     context.nm_restarted = False
-    context.nm_pid = nmci.lib.nm_pid()
+    context.nm_pid = nmci.nmutil.nm_pid()
     context.crashed_step = False
     context.log_cursor = ""
     context.log_cursor_before_tags = nmci.lib.new_log_cursor()
@@ -150,7 +151,7 @@ def _before_scenario(context, scenario):
                 excepts.append(traceback.format_exc())
             print(f"  @{tag_name} ... {t_status} in {time.time() - t_start:.3f}s")
 
-    context.nm_pid = nmci.lib.nm_pid()
+    context.nm_pid = nmci.nmutil.nm_pid()
 
     context.crashed_step = False
 
@@ -268,7 +269,7 @@ def _after_scenario(context, scenario):
     nmci.misc.html_report_tag_links(context.html_formatter.scenario_el)
     nmci.misc.html_report_file_links(context.html_formatter.scenario_el)
 
-    nm_pid_after = nmci.lib.nm_pid()
+    nm_pid_after = nmci.nmutil.nm_pid()
     if not nm_pid_after:
         nmci.lib.check_crash(
             context, "crash outside steps (last step before after_scenario)"

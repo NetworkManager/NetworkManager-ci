@@ -1576,7 +1576,7 @@ def performance_as(ctx, scen):
     ctx.nm_restarted = True
     # Settings device number to 0
     ctx.process.run_stdout("contrib/gi/./setup.sh 0", timeout=120)
-    ctx.nm_pid = nmci.lib.nm_pid()
+    ctx.nm_pid = nmci.nmutil.nm_pid()
     # Deleting all connections
     cons = ""
     for i in range(1, 101):
