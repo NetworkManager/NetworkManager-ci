@@ -14,7 +14,15 @@ IGNORE_RETURNCODE_ALL = object()
 
 
 def _run(
-    argv, *, shell, as_bytes, timeout, ignore_stderr, ignore_returncode, context_hook
+    argv,
+    *,
+    shell,
+    as_bytes,
+    timeout,
+    cwd,
+    ignore_stderr,
+    ignore_returncode,
+    context_hook,
 ):
 
     if isinstance(argv, str):
@@ -35,6 +43,7 @@ def _run(
         stdout=subprocess.PIPE,
         stderr=subprocess.PIPE,
         timeout=timeout,
+        cwd=cwd,
     )
 
     (returncode, stdout, stderr) = (proc.returncode, proc.stdout, proc.stderr)
@@ -86,6 +95,7 @@ def run(
     shell=False,
     as_bytes=False,
     timeout=5,
+    cwd=None,
     ignore_returncode=True,
     ignore_stderr=False,
     context_hook=None,
@@ -95,6 +105,7 @@ def run(
         shell=shell,
         as_bytes=as_bytes,
         timeout=timeout,
+        cwd=cwd,
         ignore_stderr=ignore_stderr,
         ignore_returncode=ignore_returncode,
         context_hook=context_hook,
@@ -107,6 +118,7 @@ def run_stdout(
     shell=False,
     as_bytes=False,
     timeout=5,
+    cwd=None,
     ignore_returncode=False,
     ignore_stderr=False,
     context_hook=None,
@@ -116,6 +128,7 @@ def run_stdout(
         shell=shell,
         as_bytes=as_bytes,
         timeout=timeout,
+        cwd=cwd,
         ignore_stderr=ignore_stderr,
         ignore_returncode=ignore_returncode,
         context_hook=context_hook,
@@ -128,6 +141,7 @@ def run_code(
     shell=False,
     as_bytes=False,
     timeout=5,
+    cwd=None,
     ignore_returncode=True,
     ignore_stderr=False,
     context_hook=None,
@@ -137,6 +151,7 @@ def run_code(
         shell=shell,
         as_bytes=as_bytes,
         timeout=timeout,
+        cwd=cwd,
         ignore_stderr=ignore_stderr,
         ignore_returncode=ignore_returncode,
         context_hook=context_hook,
@@ -149,6 +164,7 @@ def run_search_stdout(
     *,
     shell=False,
     timeout=5,
+    cwd=None,
     ignore_returncode=False,
     ignore_stderr=False,
     context_hook=None,
@@ -166,6 +182,7 @@ def run_search_stdout(
         shell=shell,
         as_bytes=as_bytes,
         timeout=timeout,
+        cwd=cwd,
         ignore_stderr=ignore_stderr,
         ignore_returncode=ignore_returncode,
         context_hook=context_hook,
