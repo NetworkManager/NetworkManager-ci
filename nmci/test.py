@@ -798,76 +798,104 @@ def test_mapper_feature_file():
         assert found, f"test @{testname} not defined in feature file {feature}"
 
 
-def test_file_set_content():
-    util.file_set_content("/tmp/new_empty_file")
-    with open("/tmp/new_empty_file", "r") as f:
-        f_content = f.read()
-    os.remove("/tmp/new_empty_file")
-    assert f_content == ""
+def test_file_set_content(tmp_path):
+    fn = tmp_path / "test-file-set-content"
 
-    util.file_set_content("/tmp/empty_file", [])
-    with open("/tmp/empty_file", "r") as f:
-        f_content = f.read()
-    os.remove("/tmp/empty_file")
-    assert f_content == ""
+    util.file_set_content(fn)
+    with open(fn, "rb") as f:
+        assert b"" == f.read()
+    os.remove(fn)
 
-    util.file_set_content("/tmp/work_file", ["Test"])
-    with open("/tmp/work_file", "r") as f:
-        f_test = f.read()
+    util.file_set_content(fn, [])
+    with open(fn, "rb") as f:
+        assert b"" == f.read()
+    os.remove(fn)
 
-    util.file_set_content("/tmp/work_file", [])
-    with open("/tmp/work_file", "r") as f:
-        f_truncated = f.read()
+    util.file_set_content(fn, ["Test"])
+    with open(fn, "rb") as f:
+        assert b"Test\n" == f.read()
 
-    util.file_set_content("/tmp/work_file", [""])
-    with open("/tmp/work_file", "r") as f:
-        f_newline = f.read()
+    assert (b"Test\n", True) == util.file_get_content(fn, encoding=None)
+    assert util.FileGetContentResult("Test\n", True) == util.file_get_content(fn)
+    assert ("Tes", False) == util.file_get_content(fn, max_size=3, warn_max_size=False)
+    assert (
+        "Tes\n\nWARNING: size limit reached after reading 3 of 5 bytes. Output is truncated",
+        False,
+    ) == util.file_get_content(fn, max_size=3)
+    assert ("Test", False) == util.file_get_content(fn, max_size=4, warn_max_size=False)
+    assert ("Test\n", True) == util.file_get_content(fn, max_size=5)
 
-    util.file_set_content("/tmp/work_file", [b"bin_data:", b"\x01\x02\x03\x04"])
-    with open("/tmp/work_file", "rb") as f:
-        f_binary = f.read()
+    d = util.file_get_content(fn, max_size=6, warn_max_size=False)
+    assert "Test\n" == d.data
+    assert True == d.full_file
 
-    os.remove("/tmp/work_file")
-    assert f_test == "Test\n"
-    assert f_truncated == ""
-    assert f_newline == "\n"
-    assert f_binary == b"bin_data:\n\x01\x02\x03\x04\n"
+    util.file_set_content(fn, [])
+    with open(fn, "rb") as f:
+        assert b"" == f.read()
 
-    util.file_set_content("/tmp/tuple_lines_file", ("line1", "line2"))
-    with open("/tmp/tuple_lines_file", "r") as f:
-        f_content = f.read()
-    os.remove("/tmp/tuple_lines_file")
-    assert f_content == "line1\nline2\n"
+    util.file_set_content(fn, [""])
+    with open(fn, "rb") as f:
+        assert b"\n" == f.read()
 
-    class line_range(object):
-        def __init__(self, prefix, n):
-            self.prefix = prefix
-            self.n = n
-            self.i = 0
+    util.file_set_content(fn, [b"bin_data:", b"\x01\xF2\x03\x04"])
+    with open(fn, "rb") as f:
+        assert b"bin_data:\n\x01\xF2\x03\x04\n" == f.read()
 
-        def __iter__(self):
-            return self
-
-        def __next__(self):
-            if self.i >= self.n:
-                raise StopIteration()
-            ret = f"{self.prefix}{self.i}"
-            self.i += 1
-            return ret
-
-    util.file_set_content("/tmp/line_generator_file", line_range("line:", 3))
-    with open("/tmp/line_generator_file", "r") as f:
-        f_content = f.read()
-    os.remove("/tmp/line_generator_file")
-    assert f_content == "line:0\nline:1\nline:2\n"
-
-    util.file_set_content(
-        "/tmp/string_content_file", "this message\n should not be modified"
+    assert (b"bin_data:\n\x01\xF2\x03\x04\n", True) == util.file_get_content(
+        fn, encoding=None
     )
-    with open("/tmp/string_content_file", "r") as f:
-        f_content = f.read()
-    os.remove("/tmp/string_content_file")
-    assert f_content == "this message\n should not be modified"
+
+    assert (b"bin_data:\n\x01\xF2", False) == util.file_get_content(
+        fn, encoding=None, max_size=12, warn_max_size=False
+    )
+
+    assert (b"bin_data:\n\x01\xF2\x03", False) == util.file_get_content(
+        fn, encoding=None, max_size=13, warn_max_size=False
+    )
+
+    with pytest.raises(UnicodeDecodeError):
+        assert ("bin_data:\n\x01�\x03\x04\n", True) == util.file_get_content(fn)
+
+    with pytest.raises(UnicodeDecodeError):
+        assert ("bin_data:\n\x01�\x03\x04\n", True) == util.file_get_content(
+            fn, errors="strict"
+        )
+
+    assert ("bin_data:\n\x01�\x03\x04\n", True) == util.file_get_content(
+        fn, errors="replace"
+    )
+    assert ("bin_data:\n\x01", False) == util.file_get_content(
+        fn, errors="replace", max_size=11, warn_max_size=False
+    )
+    assert ("bin_data:\n\x01�", False) == util.file_get_content(
+        fn, errors="replace", max_size=12, warn_max_size=False
+    )
+    assert ("bin_data:\n\x01�\x03", False) == util.file_get_content(
+        fn, errors="replace", max_size=13, warn_max_size=False
+    )
+
+    os.remove(fn)
+
+    util.file_set_content(fn, ("line1", "line2"))
+    with open(fn, "r") as f:
+        assert "line1\nline2\n" == f.read()
+    os.remove(fn)
+
+    def line_range(prefix, n):
+        i = 0
+        while i < n:
+            yield prefix + str(i)
+            i += 1
+
+    util.file_set_content(fn, line_range("line:", 3))
+    with open(fn, "r") as f:
+        assert "line:0\nline:1\nline:2\n" == f.read()
+    os.remove(fn)
+
+    util.file_set_content(fn, "this message\n should not be modified")
+    with open(fn, "r") as f:
+        assert "this message\n should not be modified" == f.read()
+    os.remove(fn)
 
 
 def test_process_run():

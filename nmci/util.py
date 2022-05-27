@@ -1,3 +1,4 @@
+import collections
 import os
 import re
 import subprocess
@@ -111,6 +112,56 @@ class _Util:
         if isinstance(s, bytes):
             return s
         raise ValueError("Expects either a str or bytes")
+
+    FileGetContentResult = collections.namedtuple(
+        "FileGetContentResult", ["data", "full_file"]
+    )
+
+    def fd_get_content(
+        self,
+        file,
+        max_size=None,
+        warn_max_size=True,
+    ):
+        if max_size is None:
+            max_size = 50 * 1024 * 1024
+
+        data = file.read(max_size)
+        full_file = not file.read(1)
+
+        if not full_file and warn_max_size:
+            try:
+                size = str(os.fstat(file.fileno()).st_size)
+            except Exception:
+                size = "???"
+            m = f"\n\nWARNING: size limit reached after reading {max_size} of {size} bytes. Output is truncated"
+            if isinstance(data, bytes):
+                data += self.str_to_bytes(m)
+            else:
+                data += m
+
+        return self.FileGetContentResult(data, full_file)
+
+    def file_get_content(
+        self,
+        file_name,
+        encoding="utf-8",
+        errors="strict",
+        max_size=None,
+        warn_max_size=True,
+    ):
+        # Set "encoding" to None to get bytes.
+        if encoding is None:
+            file = open(file_name, mode="rb")
+        else:
+            file = open(file_name, mode="r", encoding=encoding, errors=errors)
+        with file:
+            return self.fd_get_content(
+                file, max_size=max_size, warn_max_size=warn_max_size
+            )
+
+    def file_get_content_simple(self, file_name):
+        return self.file_get_content(file_name, errors="replace").data
 
     def file_set_content(self, file_name, data=""):
         if isinstance(data, str):
