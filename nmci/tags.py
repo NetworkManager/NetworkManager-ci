@@ -1675,9 +1675,9 @@ def firewall_bs(ctx, scen):
         ctx.process.run_stdout("sudo yum -y install firewalld", timeout=120)
     ctx.process.run_stdout("sudo systemctl unmask firewalld", ignore_stderr=True)
     time.sleep(1)
-    ctx.process.run_stdout("sudo systemctl stop firewalld")
+    ctx.process.run_stdout("sudo systemctl stop firewalld", timeout=20)
     time.sleep(5)
-    ctx.process.run_stdout("sudo systemctl start firewalld")
+    ctx.process.run_stdout("sudo systemctl start firewalld", timeout=20)
     ctx.process.run_stdout("sudo nmcli con modify testeth0 connection.zone public")
     # Add a sleep here to prevent firewalld to hang
     # (see https://bugzilla.redhat.com/show_bug.cgi?id=1495893)
@@ -1694,7 +1694,7 @@ def firewall_as(ctx, scen):
         "sudo firewall-cmd --permanent --zone=public --remove-masquerade",
         ignore_stderr=True,
     )
-    ctx.process.run_stdout("sudo systemctl stop firewalld")
+    ctx.process.run_stdout("sudo systemctl stop firewalld", timeout=20)
 
 
 _register_tag("firewall", firewall_bs, firewall_as)
