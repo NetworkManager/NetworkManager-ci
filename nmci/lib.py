@@ -124,43 +124,40 @@ def context_setup(context):
         for formatter in context._runner.formatters:
             if "html" not in formatter.name:
                 continue
-            if getattr(formatter, "set_title", None) is not None:
+            if hasattr(formatter, "set_title"):
                 context.set_title = formatter.set_title
-            if getattr(formatter, "embedding", None) is not None:
+            if hasattr(formatter, "embedding"):
 
-                def embed(formatter, context):
-                    def fn(mime_type, data, caption, html_el=None, fail_only=False):
-                        data = data or " "
-                        if html_el is None:
-                            html_el = formatter.actual["act_step_embed_span"]
-                        if mime_type == "call" or fail_only:
-                            context._to_embed.append(
-                                {
-                                    "html_el": html_el,
-                                    "mime_type": mime_type,
-                                    "data": data,
-                                    "caption": caption,
-                                    "fail_only": fail_only,
-                                }
-                            )
-                        else:
-                            formatter._doEmbed(html_el, mime_type, data, caption)
-                            if mime_type == "link":
-                                # list() on ElementTree returns children
-                                last_embed = list(html_el)[-1]
-                                for a_tag in last_embed.findall("a"):
-                                    if a_tag.get("href", "").startswith("data:"):
-                                        a_tag.set("download", a_tag.text)
-                            ET.SubElement(html_el, "br")
+                def embed_fn(mime_type, data, caption, html_el=None, fail_only=False):
+                    data = data or " "
+                    if html_el is None:
+                        html_el = context.html_formatter.actual["act_step_embed_span"]
+                    if mime_type == "call" or fail_only:
+                        context._to_embed.append(
+                            {
+                                "html_el": html_el,
+                                "mime_type": mime_type,
+                                "data": data,
+                                "caption": caption,
+                                "fail_only": fail_only,
+                            }
+                        )
+                    else:
+                        context.html_formatter._doEmbed(
+                            html_el, mime_type, data, caption
+                        )
+                        if mime_type == "link":
+                            # list() on ElementTree returns children
+                            last_embed = list(html_el)[-1]
+                            for a_tag in last_embed.findall("a"):
+                                if a_tag.get("href", "").startswith("data:"):
+                                    a_tag.set("download", a_tag.text)
+                        ET.SubElement(html_el, "br")
 
-                    return fn
-
-                embed_fn = embed(formatter, context)
                 formatter.embedding = embed_fn
                 context.embed = embed_fn
                 context.html_formatter = formatter
-
-    context._to_embed = []
+                context._to_embed = []
 
     context.process = _ContextProcess(context)
 
@@ -218,7 +215,11 @@ def context_setup(context):
 
 
 def process_embeds(context, scenario_fail=False):
-    for kwargs in getattr(context, "_to_embed", []):
+    if not hasattr(context, "_to_embed"):
+        return
+    to_embed = context._to_embed
+    context._to_embed = []
+    for kwargs in to_embed:
         # execute postponed "call"s
         if kwargs["mime_type"] == "call":
             # "data" is function, "caption" is args, function returns triple
