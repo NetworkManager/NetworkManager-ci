@@ -177,7 +177,6 @@ if [ $conf_rc != 0 ]; then
     if ps aux|grep -v grep| grep -q harness.py; then
         timeout 2m rstrnt-report-result -o "" "$NMTEST" FAIL
     fi
-    cat /tmp/nmcli_general
     exit $conf_rc
 fi
 

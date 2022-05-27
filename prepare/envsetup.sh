@@ -1072,17 +1072,6 @@ install_usb_hub_driver_el () {
     return $rc
 }
 
-get_online_state() {
-    echo -n > /tmp/nmcli_general
-    for i in {1..20}; do
-        nmcli general | tee --append - /tmp/nmcli_general | grep -q "^connected" && return 0
-        echo "get online state #$i failed"
-        sleep 1
-    done
-    return 1
-}
-
-
 deploy_ssh_keys () {
     if ! test -d /root/.ssh; then
         mkdir /root/.ssh/
@@ -1113,16 +1102,6 @@ deploy_ssh_keys () {
 
 configure_environment () {
     # Configure real basics and install packages
-    if ! get_online_state; then
-        set +x
-        echo "***************************************************"
-        echo "SETUP ERROR:"
-        echo "We do not have network available via nmcli command."
-        echo "Please do up (or create) at least one IPv4 profile"
-        echo "with connection to internet (and up it)."
-        echo "***************************************************"
-        exit 1
-    fi
     configure_basic_system
     install_packages
     [ "$1" == "first_test_setup" ] && return
