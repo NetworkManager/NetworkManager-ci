@@ -336,7 +336,7 @@ def remove_vlan_range(ctx, scen):
     )
     ctx.process.run_stdout("rm -rvf " + keyfile_list, shell=True)
 
-    nmci.lib.restart_NM_service(ctx, timeout=20)
+    nmci.lib.restart_NM_service(ctx, timeout=120)
 
 
 _register_tag("remove_vlan_range", None, remove_vlan_range)
