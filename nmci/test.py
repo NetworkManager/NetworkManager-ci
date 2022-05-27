@@ -1420,6 +1420,8 @@ def test_misc_test_find_feature_file():
 def test_black_code_fromatting():
 
     files = [
+        util.base_dir("contrib/gui/steps.py"),
+        util.base_dir("features/environment.py"),
         util.base_dir("nmci"),
         util.base_dir("nmci/helpers/version_control.py"),
     ]

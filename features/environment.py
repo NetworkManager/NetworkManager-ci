@@ -15,7 +15,14 @@ import nmci.misc
 
 TIMER = 0.5
 
-DEBUG = os.environ.get("NMCI_DEBUG", "").lower() not in ["", "n", "no", "f", "false", "0"]
+DEBUG = os.environ.get("NMCI_DEBUG", "").lower() not in [
+    "",
+    "n",
+    "no",
+    "f",
+    "false",
+    "0",
+]
 
 # the order of these steps is as follows
 # 1. before scenario
@@ -25,7 +32,6 @@ DEBUG = os.environ.get("NMCI_DEBUG", "").lower() not in ["", "n", "no", "f", "fa
 
 
 def before_all(context):
-
     def on_signal(signum, frame):
         assert False, "killed externally (timeout)"
 
@@ -61,10 +67,12 @@ def before_scenario(context, scenario):
 def _before_scenario(context, scenario):
     time_begin = time.time()
     context.before_scenario_step_el = ET.Element(
-        "li", {"class": "step passed", "style": "margin-bottom:1rem;"})
+        "li", {"class": "step passed", "style": "margin-bottom:1rem;"}
+    )
     ET.SubElement(context.before_scenario_step_el, "b").text = "Before scenario"
-    duration_el = ET.SubElement(context.before_scenario_step_el,
-                                "small", {"class": "step_duration"})
+    duration_el = ET.SubElement(
+        context.before_scenario_step_el, "small", {"class": "step_duration"}
+    )
     embed_el = ET.SubElement(context.before_scenario_step_el, "div")
     context.html_formatter.actual["act_step_embed_span"] = embed_el
 
@@ -77,9 +85,11 @@ def _before_scenario(context, scenario):
     context.log_cursor_before_tags = nmci.lib.new_log_cursor()
     context.arch = nmci.command_output("uname -p").strip()
     context.IS_NMTUI = "nmtui" in scenario.effective_tags
-    context.cleanup = {"connections": set(),
-                       "interfaces": {"reset": set(), "delete": set()},
-                       "namespaces": {}}
+    context.cleanup = {
+        "connections": set(),
+        "interfaces": {"reset": set(), "delete": set()},
+        "namespaces": {},
+    }
     context.rh_release = nmci.command_output("cat /etc/redhat-release")
     release_i = context.rh_release.find("release ")
     if release_i >= 0:
@@ -88,32 +98,41 @@ def _before_scenario(context, scenario):
         context.rh_release_num = 0
     context.hypervisor = nmci.run("systemd-detect-virt")[0].strip()
 
-    os.environ['TERM'] = 'dumb'
+    os.environ["TERM"] = "dumb"
 
     # dump status before the test preparation starts
-    nmci.lib.dump_status(context, 'Before Scenario', fail_only=False)
+    nmci.lib.dump_status(context, "Before Scenario", fail_only=False)
 
     if context.IS_NMTUI:
         nmci.run("sudo pkill nmtui")
         context.screen_logs = []
     else:
-        if not os.path.isfile('/tmp/nm_wifi_configured') \
-                and not os.path.isfile('/tmp/nm_dcb_inf_wol_sriov_configured'):
-            if not context.process.run_search_stdout("nmcli -t -f connection,state device", "testeth0:connected"):
-                context.process.run_stdout("sudo nmcli connection modify testeth0 ipv4.may-fail no")
+        if not os.path.isfile("/tmp/nm_wifi_configured") and not os.path.isfile(
+            "/tmp/nm_dcb_inf_wol_sriov_configured"
+        ):
+            if not context.process.run_search_stdout(
+                "nmcli -t -f connection,state device", "testeth0:connected"
+            ):
+                context.process.run_stdout(
+                    "sudo nmcli connection modify testeth0 ipv4.may-fail no"
+                )
                 context.process.run_stdout("sudo nmcli connection up id testeth0")
                 for attempt in range(0, 10):
-                    if context.process.run_search_stdout("nmcli -t -f connection,state device", "testeth0:connected"):
+                    if context.process.run_search_stdout(
+                        "nmcli -t -f connection,state device", "testeth0:connected"
+                    ):
                         break
                     time.sleep(1)
         context.start_timestamp = int(time.time())
 
     excepts = []
-    if 'eth0' in scenario.tags \
-            or 'delete_testeth0' in scenario.tags \
-            or 'connect_testeth0' in scenario.tags \
-            or 'restart' in scenario.tags \
-            or 'dummy' in scenario.tags:
+    if (
+        "eth0" in scenario.tags
+        or "delete_testeth0" in scenario.tags
+        or "connect_testeth0" in scenario.tags
+        or "restart" in scenario.tags
+        or "dummy" in scenario.tags
+    ):
         try:
             nmci.tags.skip_restarts_bs(context, scenario)
         except Exception as e:
@@ -147,11 +166,13 @@ def _before_scenario(context, scenario):
     print(f"before_scenario ... {status} in {duration:.3f}s")
     duration_el.text = f"({duration:.3f}s)"
 
-    nmci.lib.check_crash(context, 'crash outside steps (before scenario)')
+    nmci.lib.check_crash(context, "crash outside steps (before scenario)")
 
     if excepts:
         context.before_scenario_step_el.set("class", "step failed")
-        context.embed("text/plain", "\n\n".join(excepts), "Exception in before scenario tags")
+        context.embed(
+            "text/plain", "\n\n".join(excepts), "Exception in before scenario tags"
+        )
         assert False, "Exception in before scenario tags:\n\n" + "\n\n".join(excepts)
 
 
@@ -162,21 +183,30 @@ def before_step(context, step):
 def after_step(context, step):
     context.no_step = False
     context.step_level -= 1
-    if ("DEVICE_CAP_AP" in step.name or "DEVICE_CAP_ADHOC" in step.name) \
-            and "is set in WirelessCapabilites" in step.name and \
-            step.status == 'failed' and step.step_type == 'given':
+    if (
+        ("DEVICE_CAP_AP" in step.name or "DEVICE_CAP_ADHOC" in step.name)
+        and "is set in WirelessCapabilites" in step.name
+        and step.status == "failed"
+        and step.step_type == "given"
+    ):
         print("Omiting the test as device does not support AP/ADHOC mode")
         sys.exit(77)
     # for nmcli_wifi_right_band_80211a - HW dependent 'passes'
-    if "DEVICE_CAP_FREQ_5GZ" in step.name \
-            and "is set in WirelessCapabilites" in step.name and \
-            step.status == 'failed' and step.step_type == 'given':
+    if (
+        "DEVICE_CAP_FREQ_5GZ" in step.name
+        and "is set in WirelessCapabilites" in step.name
+        and step.status == "failed"
+        and step.step_type == "given"
+    ):
         print("Omitting the test as device does not support 802.11a")
         sys.exit(77)
     # for testcase_306559
-    if "DEVICE_CAP_FREQ_5GZ" in step.name \
-            and "is not set in WirelessCapabilites" in step.name and \
-            step.status == 'failed' and step.step_type == 'given':
+    if (
+        "DEVICE_CAP_FREQ_5GZ" in step.name
+        and "is not set in WirelessCapabilites" in step.name
+        and step.status == "failed"
+        and step.step_type == "given"
+    ):
         print("Omitting the test as device supports 802.11a")
         sys.exit(77)
 
@@ -186,8 +216,10 @@ def after_step(context, step):
         """Teardown after each step.
         Here we make screenshot and embed it (if one of formatters supports it)
         """
-        if os.path.isfile('/tmp/nmtui.out'):
-            context.stream.feed(nmci.lib.utf_only_open_read('/tmp/nmtui.out').encode('utf-8'))
+        if os.path.isfile("/tmp/nmtui.out"):
+            context.stream.feed(
+                nmci.lib.utf_only_open_read("/tmp/nmtui.out").encode("utf-8")
+            )
         # do not append step.name if no substeps called
         if context.screen_logs or context.step_level > 0:
             context.screen_logs.append(step.name)
@@ -196,17 +228,17 @@ def after_step(context, step):
             nmci.lib.log_tui_screen(context, context.screen_logs)
             context.screen_logs = []
 
-        if step.status == 'failed':
+        if step.status == "failed":
             # Test debugging - set DEBUG_ON_FAILURE to drop to ipdb on step failure
-            if os.environ.get('DEBUG_ON_FAILURE'):
+            if os.environ.get("DEBUG_ON_FAILURE"):
                 import ipdb
+
                 ipdb.set_trace()  # flake8: noqa
 
     else:
-        """
-        """
+        """ """
         # This is for RedHat's STR purposes sleep
-        if os.path.isfile('/tmp/nm_skip_restarts'):
+        if os.path.isfile("/tmp/nm_skip_restarts"):
             time.sleep(0.4)
 
     nmci.lib.check_crash(context, step.name)
@@ -225,9 +257,12 @@ def after_scenario(context, scenario):
 def _after_scenario(context, scenario):
     time_begin = time.time()
     context.after_scenario_step_el = ET.Element(
-        "li", {"class": "step passed", "style": "margin-top:1rem;"})
+        "li", {"class": "step passed", "style": "margin-top:1rem;"}
+    )
     ET.SubElement(context.after_scenario_step_el, "b").text = "After scenario"
-    duration_el = ET.SubElement(context.after_scenario_step_el, "small", {"class": "step_duration"})
+    duration_el = ET.SubElement(
+        context.after_scenario_step_el, "small", {"class": "step_duration"}
+    )
     embed_el = ET.SubElement(context.after_scenario_step_el, "div")
     context.html_formatter.actual["act_step_embed_span"] = embed_el
 
@@ -236,25 +271,33 @@ def _after_scenario(context, scenario):
 
     nm_pid_after = nmci.lib.nm_pid()
     if not nm_pid_after:
-        nmci.lib.check_crash(context, 'crash outside steps (last step before after_scenario)')
-        #print("Starting NM as it was found stopped")
-        #nmci.lib.restart_NM_service(context)
+        nmci.lib.check_crash(
+            context, "crash outside steps (last step before after_scenario)"
+        )
+        # print("Starting NM as it was found stopped")
+        # nmci.lib.restart_NM_service(context)
 
     if context.IS_NMTUI:
-        if os.path.isfile('/tmp/tui-screen.log'):
-            context.embed("text/plain",
-                          nmci.lib.utf_only_open_read('/tmp/tui-screen.log'),
-                          caption="TUI")
+        if os.path.isfile("/tmp/tui-screen.log"):
+            context.embed(
+                "text/plain",
+                nmci.lib.utf_only_open_read("/tmp/tui-screen.log"),
+                caption="TUI",
+            )
         # Stop TUI
         nmci.run("sudo killall nmtui &> /dev/null")
-        if os.path.isfile('/tmp/nmtui.out'):
-            os.remove('/tmp/nmtui.out')
+        if os.path.isfile("/tmp/nmtui.out"):
+            os.remove("/tmp/nmtui.out")
 
-    print(("NetworkManager process id after: %s (now %s)" % (nm_pid_after, context.nm_pid)))
+    print(
+        (
+            "NetworkManager process id after: %s (now %s)"
+            % (nm_pid_after, context.nm_pid)
+        )
+    )
 
-    if scenario.status == 'failed' or DEBUG:
-        nmci.lib.dump_status(context, 'After Scenario', fail_only=True)
-
+    if scenario.status == "failed" or DEBUG:
+        nmci.lib.dump_status(context, "After Scenario", fail_only=True)
 
     # run after_scenario tags (in reverse order)
     excepts = []
@@ -278,7 +321,7 @@ def _after_scenario(context, scenario):
     except Exception:
         excepts.append(traceback.format_exc())
 
-    nmci.lib.check_crash(context, 'crash outside steps (after_scenario tags)')
+    nmci.lib.check_crash(context, "crash outside steps (after_scenario tags)")
 
     # check for crash reports and embed them
     # sets crash_embeded if crash found
@@ -287,7 +330,9 @@ def _after_scenario(context, scenario):
 
     nmci.lib.process_commands(context, "after_scenario")
 
-    scenario_fail = scenario.status == 'failed' or context.crashed_step or DEBUG or len(excepts) > 0
+    scenario_fail = (
+        scenario.status == "failed" or context.crashed_step or DEBUG or len(excepts) > 0
+    )
 
     # Attach postponed or "fail_only" embeds
     # !!! all embed calls with "fail_only" after this are ignored !!!
@@ -298,26 +343,30 @@ def _after_scenario(context, scenario):
         print("Attaching NM log")
         log = "~~~~~~~~~~~~~~~~~~~~~~~~~~ NM LOG ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n"
         log += nmci.lib.NM_log(context.log_cursor)[:20000001] or "NM log is empty!"
-        context.embed('text/plain', log, caption="NM")
+        context.embed("text/plain", log, caption="NM")
 
     if context.crashed_step:
-        print("\n\n" + ("!"*80))
-        print("!! NM CRASHED. NEEDS INSPECTION. FAILING THE TEST                      !!")
+        print("\n\n" + ("!" * 80))
+        print(
+            "!! NM CRASHED. NEEDS INSPECTION. FAILING THE TEST                      !!"
+        )
         print("!!  %-74s !!" % ("CRASHING STEP: " + context.crashed_step))
-        print(("!"*80) + "\n\n")
-        context.embed('text/plain', context.crashed_step, caption="CRASHED_STEP_NAME")
+        print(("!" * 80) + "\n\n")
+        context.embed("text/plain", context.crashed_step, caption="CRASHED_STEP_NAME")
         if not context.crash_embeded:
             msg = "!!! no crash report detected, but NM PID changed !!!"
-            context.embed('text/plain', msg, caption="NO_COREDUMP/NO_FAF")
+            context.embed("text/plain", msg, caption="NO_COREDUMP/NO_FAF")
         nmci.lib.after_crash_reset(context)
 
     if scenario_fail:
-        nmci.lib.dump_status(context, 'After Clean', fail_only=False)
+        nmci.lib.dump_status(context, "After Clean", fail_only=False)
 
     if excepts or context.crashed_step:
         context.after_scenario_step_el.set("class", "step failed")
     if excepts:
-        context.embed("text/plain", "\n\n".join(excepts), "Exception in after scenario tags")
+        context.embed(
+            "text/plain", "\n\n".join(excepts), "Exception in after scenario tags"
+        )
 
     # add Before/After scenario steps to HTML
     context.html_formatter.steps.insert(0, context.before_scenario_step_el)
@@ -330,7 +379,7 @@ def _after_scenario(context, scenario):
     duration_el.text = f"({duration:.3f}s)"
 
     # we need to keep state "passed" here, as '@crash' test is expected to fail
-    if 'crash' in scenario.effective_tags and not context.crash_embeded:
+    if "crash" in scenario.effective_tags and not context.crash_embeded:
         print("No crashdump found")
         return
 
@@ -344,8 +393,8 @@ def after_tag(context, tag):
     if tag == "nmtui":
         context.IS_NMTUI = True
     if context.IS_NMTUI:
-        if tag in ('vlan', 'bridge', 'bond', 'team', 'inf'):
-            if hasattr(context, 'is_virtual'):
+        if tag in ("vlan", "bridge", "bond", "team", "inf"):
+            if hasattr(context, "is_virtual"):
                 context.is_virtual = False
 
 
