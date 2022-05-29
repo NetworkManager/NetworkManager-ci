@@ -218,7 +218,7 @@ def after_step(context, step):
         """
         if os.path.isfile("/tmp/nmtui.out"):
             context.stream.feed(
-                nmci.lib.utf_only_open_read("/tmp/nmtui.out").encode("utf-8")
+                nmci.util.file_get_content_simple("/tmp/nmtui.out").encode("utf-8")
             )
         # do not append step.name if no substeps called
         if context.screen_logs or context.step_level > 0:
@@ -281,7 +281,7 @@ def _after_scenario(context, scenario):
         if os.path.isfile("/tmp/tui-screen.log"):
             context.embed(
                 "text/plain",
-                nmci.lib.utf_only_open_read("/tmp/tui-screen.log"),
+                nmci.util.file_get_content_simple("/tmp/tui-screen.log"),
                 caption="TUI",
             )
         # Stop TUI

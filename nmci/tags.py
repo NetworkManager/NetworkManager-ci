@@ -135,7 +135,9 @@ def gsm_sim_as(ctx, scen):
     ctx.process.run("sudo prepare/gsm_sim.sh teardown", ignore_stderr=True)
     time.sleep(1)
     ctx.process.run("nmcli con del id gsm")
-    ctx.embed("text/plain", nmci.lib.utf_only_open_read("/tmp/gsm_sim.log"), "GSM_SIM")
+    ctx.embed(
+        "text/plain", nmci.util.file_get_content_simple("/tmp/gsm_sim.log"), "GSM_SIM"
+    )
     os.remove("/tmp/gsm_sim.log")
 
 
@@ -420,7 +422,7 @@ def gsm_as(ctx, scen):
         f"sudo journalctl -u ModemManager --no-pager -o cat {ctx.log_cursor} >> /tmp/journal-mm.log",
         shell=True,
     )
-    data = nmci.lib.utf_only_open_read("/tmp/journal-mm.log")
+    data = nmci.util.file_get_content_simple("/tmp/journal-mm.log")
     if data:
         print("embed ModemManager log")
         ctx.embed("text/plain", data, caption="MM")
@@ -1033,7 +1035,7 @@ def netservice_as(ctx, scen):
         shell=True,
     )
 
-    data = nmci.lib.utf_only_open_read("/tmp/journal-netsrv.log")
+    data = nmci.util.file_get_content_simple("/tmp/journal-netsrv.log")
     if data:
         print("Attaching network.service log")
         ctx.embed("text/plain", data, caption="NETSRV")
@@ -1513,7 +1515,7 @@ def attach_hostapd_log_as(ctx, scen):
                 f"journalctl -u {service} --no-pager -o short-unix --no-hostname {ctx.log_cursor_before_tags} >> /tmp/journal-hostapd.log",
                 shell=True,
             )
-        data = nmci.lib.utf_only_open_read("/tmp/journal-hostapd.log")
+        data = nmci.util.file_get_content_simple("/tmp/journal-hostapd.log")
         if data:
             print("Attaching hostapd log")
             ctx.embed("text/plain", data, caption="HOSTAPD")
@@ -1534,7 +1536,7 @@ def attach_wpa_supplicant_log_as(ctx, scen):
             f"journalctl -u wpa_supplicant --no-pager -o short-unix --no-hostname {ctx.log_cursor_before_tags} >> /tmp/journal-wpa_supplicant.log",
             shell=True,
         )
-        data = nmci.lib.utf_only_open_read("/tmp/journal-wpa_supplicant.log")
+        data = nmci.util.file_get_content_simple("/tmp/journal-wpa_supplicant.log")
         if data:
             print("Attaching wpa_supplicant log")
             ctx.embed("text/plain", data, caption="WPA_SUP")
@@ -1815,11 +1817,11 @@ def openvswitch_bs(ctx, scen):
 
 
 def openvswitch_as(ctx, scen):
-    data1 = nmci.lib.utf_only_open_read("/var/log/openvswitch/ovsdb-server.log")
+    data1 = nmci.util.file_get_content_simple("/var/log/openvswitch/ovsdb-server.log")
     if data1:
         print("Attaching OVSDB log")
         ctx.embed("text/plain", data1, caption="OVSDB")
-    data2 = nmci.lib.utf_only_open_read("/var/log/openvswitch/ovs-vswitchd.log")
+    data2 = nmci.util.file_get_content_simple("/var/log/openvswitch/ovs-vswitchd.log")
     if data2:
         print("Attaching OVSDemon log")
         ctx.embed("text/plain", data2, caption="OVSDemon")
@@ -2102,7 +2104,7 @@ def nmstate_upstream_setup_as(ctx, scen):
     # check just in case something went wrong
     nmci.lib.check_vethsetup(ctx)
 
-    nmstate = nmci.lib.utf_only_open_read("/tmp/nmstate.txt")
+    nmstate = nmci.util.file_get_content_simple("/tmp/nmstate.txt")
     if nmstate:
         print("Attaching nmstate log")
         ctx.embed("text/plain", nmstate, caption="NMSTATE")
@@ -2239,7 +2241,7 @@ def tcpdump_as(ctx, scen):
     print("Attaching traffic log")
     ctx.process.run("pkill -1 tcpdump")
     if os.stat("/tmp/network-traffic.log").st_size < 20000000:
-        traffic = nmci.lib.utf_only_open_read("/tmp/network-traffic.log")
+        traffic = nmci.util.file_get_content_simple("/tmp/network-traffic.log")
     else:
         traffic = "WARNING: 20M size exceeded in /tmp/network-traffic.log, skipping"
     ctx.embed("text/plain", traffic, caption="TRAFFIC", fail_only=True)

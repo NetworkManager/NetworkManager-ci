@@ -10,8 +10,9 @@ import base64
 import xml.etree.ElementTree as ET
 import shutil
 
-from . import process
 from . import nmutil
+from . import process
+from . import util
 
 
 def new_log_cursor():
@@ -31,12 +32,7 @@ def NM_log(cursor):
         shell=True,
     )
 
-    if os.stat(file_name).st_size > 20000000:
-        msg = "WARNING: 20M size exceeded in /tmp/journal-nm.log, skipping"
-        print(msg)
-        return msg
-
-    return utf_only_open_read("/tmp/journal-nm.log")
+    return util.file_get_content_simple(file_name)
 
 
 def get_service_log(service, journal_arg):
@@ -229,7 +225,7 @@ def embed_file_if_exists(
         if mime_type == "link":
             data = [(file_to_base64_url(fname), fname)]
         else:
-            data = utf_only_open_read(fname)
+            data = util.file_get_content_simple(fname)
         if remove:
             os.remove(fname)
         context.embed(mime_type, data, caption, fail_only=fail_only)
@@ -242,18 +238,6 @@ def file_to_base64_url(filename):
     data_base64 = base64.b64encode(open(filename, "rb").read())
     data_encoded = data_base64.decode("utf-8").replace("\n", "")
     return result + data_encoded
-
-
-def utf_only_open_read(file, mode="r"):
-    # Opens file and read it w/o non utf-8 chars
-    if sys.version_info.major < 3:
-        with open(file, mode) as f:
-            data = f.read().decode("utf-8", "ignore").encode("utf-8")
-        return data
-    else:
-        with open(file, mode, encoding="utf-8", errors="ignore") as f:
-            data = f.read()
-        return data
 
 
 def get_pexpect_logs(context, proc, logfile):
@@ -271,7 +255,7 @@ def get_pexpect_logs(context, proc, logfile):
     logfile.close()
     if not status:
         status = proc.status
-    stdout = utf_only_open_read(logfile.name)
+    stdout = util.file_get_content_simple(logfile.name)
     os.remove(logfile.name)
     return ["pexpect:" + proc.name, status, stdout, None]
 
@@ -498,7 +482,7 @@ def wait_faf_complete(context, dump_dir):
             return False
 
         if not NM_pkg and os.path.isfile(f"{dump_dir}/pkg_name"):
-            pkg = utf_only_open_read(f"{dump_dir}/pkg_name")
+            pkg = util.file_get_content_simple(f"{dump_dir}/pkg_name")
             if not check_dump_package(pkg):
                 print("* not NM related FAF")
                 context.faf_countdown -= i
@@ -509,7 +493,7 @@ def wait_faf_complete(context, dump_dir):
 
         last = last or os.path.isfile(f"{dump_dir}/last_occurrence")
         if last and not last_timestamp:
-            last_timestamp = utf_only_open_read(f"{dump_dir}/last_occurrence")
+            last_timestamp = util.file_get_content_simple(f"{dump_dir}/last_occurrence")
             if is_dump_reported(f"{dump_dir}-{last_timestamp}"):
                 print("* Already reported")
                 context.faf_countdown -= i
@@ -523,7 +507,7 @@ def wait_faf_complete(context, dump_dir):
             context.process.run_stdout(
                 f"echo '#cat reported_to'; cat {dump_dir}/reported_to", shell=True
             )
-            reported_bordell = "bordell" in utf_only_open_read(
+            reported_bordell = "bordell" in util.file_get_content_simple(
                 f"{dump_dir}/reported_to"
             )
             # if there is no sosreport.log file, crash is already reported in FAF server
@@ -571,7 +555,7 @@ def check_faf(context):
             reports = []
             if os.path.isfile("%s/reported_to" % (dump_dir)):
                 reports = (
-                    utf_only_open_read("%s/reported_to" % (dump_dir))
+                    util.file_get_content_simple("%s/reported_to" % (dump_dir))
                     .strip("\n")
                     .split("\n")
                 )
@@ -581,14 +565,14 @@ def check_faf(context):
                     label, url = report.replace("URL=", "", 1).split(":", 1)
                     urls.append([url.strip(), label.strip()])
 
-            last_timestamp = utf_only_open_read(f"{dump_dir}/last_occurrence")
+            last_timestamp = util.file_get_content_simple(f"{dump_dir}/last_occurrence")
             dump_id = f"{dump_dir}-{last_timestamp}"
             if urls:
                 embed_dump(context, dump_id, urls, "FAF")
             else:
                 if os.path.isfile("%s/backtrace" % (dump_dir)):
                     data = "Report not yet uploaded, please check FAF portal.\n\nBacktrace:\n"
-                    data += utf_only_open_read("%s/backtrace" % (dump_dir))
+                    data += util.file_get_content_simple("%s/backtrace" % (dump_dir))
                     embed_dump(context, dump_id, data, "FAF")
                 else:
                     msg = "Report not yet uploaded, no backtrace yet, please check FAF portal."
@@ -867,8 +851,8 @@ def teardown_libreswan(context):
         f"sudo journalctl -t pluto --no-pager -o cat {context.log_cursor} > /tmp/journal-pluto.log",
         shell=True,
     )
-    journal_log = utf_only_open_read("/tmp/journal-pluto.log")
-    conf = utf_only_open_read("/opt/ipsec/connection.conf")
+    journal_log = util.file_get_content_simple("/tmp/journal-pluto.log")
+    conf = util.file_get_content_simple("/opt/ipsec/connection.conf")
     context.embed("text/plain", journal_log, caption="Libreswan Pluto Journal")
     context.embed("text/plain", conf, caption="Libreswan Config")
 
