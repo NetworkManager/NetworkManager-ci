@@ -6,6 +6,7 @@ import random
 import re
 import subprocess
 import sys
+import tempfile
 import time
 
 from . import git
@@ -1067,6 +1068,44 @@ def test_process_run():
         env={"HI": "foo"},
         env_extra={"HI": "foo2"},
     )
+
+    with tempfile.TemporaryFile(dir=util.tmp_dir()) as f_out:
+        r = process.run("echo -n hello-out", stdout=f_out)
+        assert r == process.RunResult(0, "", "")
+        f_out.seek(0)
+        assert b"hello-out" == f_out.read()
+
+    with tempfile.TemporaryFile(dir=util.tmp_dir()) as f_out:
+        with tempfile.TemporaryFile(dir=util.tmp_dir()) as f_err:
+            r = process.run(
+                "echo -n hello-out; echo -n hello-err >&2",
+                shell=True,
+                stdout=f_out,
+                stderr=f_err,
+            )
+            assert r == process.RunResult(0, "", "")
+
+            f_out.seek(0)
+            assert b"hello-out" == f_out.read()
+
+            f_err.seek(0)
+            assert b"hello-err" == f_err.read()
+
+    with tempfile.TemporaryFile(dir=util.tmp_dir()) as f_out:
+        with tempfile.TemporaryFile(dir=util.tmp_dir()) as f_err:
+            r = process.run(
+                "echo -n hello-out; echo -n hello-err >&2",
+                shell=True,
+                stdout=f_out,
+                stderr=subprocess.STDOUT,
+            )
+            assert r == process.RunResult(0, "", "")
+
+            f_out.seek(0)
+            assert b"hello-outhello-err" == f_out.read()
+
+            f_err.seek(0)
+            assert b"" == f_err.read()
 
 
 def test_git_call_ref_parse():
