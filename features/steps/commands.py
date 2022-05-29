@@ -6,6 +6,7 @@ import time
 from behave import step
 
 import nmci
+import nmci.misc
 import nmci.nmutil
 
 
@@ -504,8 +505,7 @@ def set_logging(context, domain, level):
 def note_NM_log(context):
     if not hasattr(context, 'noted'):
         context.noted = {}
-    # do not use context, as log might be too big to embed
-    context.noted['noted-value'] = nmci.command_output("sudo journalctl -all -u NetworkManager --no-pager -o cat %s" % context.log_cursor)
+    context.noted['noted-value'] = nmci.misc.journal_show("NetworkManager", cursor=context.log_cursor, journal_args="-o cat")
 
 
 @step(u'Check coredump is not found in "{seconds}" seconds')

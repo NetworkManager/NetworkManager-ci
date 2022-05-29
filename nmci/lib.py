@@ -10,37 +10,10 @@ import base64
 import xml.etree.ElementTree as ET
 import shutil
 
+from . import misc
 from . import nmutil
 from . import process
 from . import util
-
-
-def new_log_cursor():
-    return (
-        '"--after-cursor=%s"'
-        % nmci.process.run_stdout("journalctl --lines=0 --quiet --show-cursor")
-        .replace("-- cursor: ", "")
-        .strip()
-    )
-
-
-def NM_log(cursor):
-    file_name = "/tmp/journal-nm.log"
-
-    nmci.process.run_stdout(
-        f"sudo journalctl -u NetworkManager --no-pager -o cat {cursor} > {file_name}",
-        shell=True,
-    )
-
-    return util.file_get_content_simple(file_name)
-
-
-def get_service_log(service, journal_arg):
-    return nmci.process.run_stdout(
-        f"journalctl --all --no-pager {journal_arg} | grep ' {service}\\['",
-        shell=True,
-        ignore_returncode=True,
-    )
 
 
 class _ContextProcess:
@@ -194,22 +167,43 @@ def process_embeds(context, scenario_fail=False):
 
 
 def embed_service_log(
-    context, service, descr, journal_arg=None, fail_only=False, now=True
+    context,
+    descr,
+    service=None,
+    syslog_identifier=None,
+    journal_args=None,
+    cursor=None,
+    fail_only=False,
+    now=True,
 ):
     print("embedding " + descr + " logs")
-    if journal_arg is None:
-        journal_arg = context.log_cursor
+    if cursor is None:
+        cursor = context.log_cursor
     if now:
         context.embed(
             "text/plain",
-            get_service_log(service, journal_arg),
+            misc.journal_show(
+                service=service,
+                syslog_identifier=syslog_identifier,
+                journal_args=journal_args,
+                cursor=cursor,
+            ),
             descr,
             fail_only=fail_only,
         )
     else:
         context.embed(
             "call",
-            lambda: ("text/plain", get_service_log(service, journal_arg), descr),
+            lambda: (
+                "text/plain",
+                misc.journal_show(
+                    service=service,
+                    syslog_identifier=syslog_identifier,
+                    journal_args=journal_args,
+                    cursor=cursor,
+                ),
+                descr,
+            ),
             [],
             fail_only=fail_only,
         )
@@ -847,13 +841,14 @@ def check_vethsetup(context):
 def teardown_libreswan(context):
     context.process.run_stdout("sh prepare/libreswan.sh teardown")
     print("Attach Libreswan logs")
-    nmci.process.run(
-        f"sudo journalctl -t pluto --no-pager -o cat {context.log_cursor} > /tmp/journal-pluto.log",
-        shell=True,
+    journal_log = misc.journal_show(
+        syslog_identifier="pluto",
+        cursor=context.log_cursor,
+        journal_args="-o cat",
     )
-    journal_log = util.file_get_content_simple("/tmp/journal-pluto.log")
-    conf = util.file_get_content_simple("/opt/ipsec/connection.conf")
     context.embed("text/plain", journal_log, caption="Libreswan Pluto Journal")
+
+    conf = util.file_get_content_simple("/opt/ipsec/connection.conf")
     context.embed("text/plain", conf, caption="Libreswan Config")
 
 

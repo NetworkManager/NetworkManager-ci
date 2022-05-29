@@ -82,7 +82,7 @@ def _before_scenario(context, scenario):
     context.nm_pid = nmci.nmutil.nm_pid()
     context.crashed_step = False
     context.log_cursor = ""
-    context.log_cursor_before_tags = nmci.lib.new_log_cursor()
+    context.log_cursor_before_tags = nmci.misc.journal_get_cursor()
     context.arch = nmci.command_output("uname -p").strip()
     context.IS_NMTUI = "nmtui" in scenario.effective_tags
     context.cleanup = {
@@ -157,7 +157,7 @@ def _before_scenario(context, scenario):
 
     print(("NetworkManager process id before: %s" % context.nm_pid))
 
-    context.log_cursor = nmci.lib.new_log_cursor()
+    context.log_cursor = nmci.misc.journal_get_cursor()
 
     nmci.lib.process_commands(context, "before_scenario")
 
@@ -341,8 +341,12 @@ def _after_scenario(context, scenario):
     if scenario_fail:
         # Attach journalctl logs
         print("Attaching NM log")
-        log = "~~~~~~~~~~~~~~~~~~~~~~~~~~ NM LOG ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n"
-        log += nmci.lib.NM_log(context.log_cursor)[:20000001] or "NM log is empty!"
+        log = nmci.misc.journal_show(
+            "NetworkManager",
+            cursor=context.log_cursor,
+            prefix="~~~~~~~~~~~~~~~~~~~~~~~~~~ NM LOG ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~",
+            journal_args="-o cat",
+        )
         context.embed("text/plain", log, caption="NM")
 
     if context.crashed_step:
