@@ -118,6 +118,7 @@
     Then "default via fc01::1:1 dev eth3" is visible with command "ip -6 route"
 
 
+    @ver-=1.39.2
     @ipv6_addresses_delete_IP_moving_method_back_to_auto
     Scenario: nmcli - ipv6 - addresses - delete IP and set method back to auto
      * Add "ethernet" connection named "con_ipv6" for device "eth10" with options
@@ -132,6 +133,26 @@
     Then "fc01::1:5/68" is not visible with command "ip a s eth10" in "45" seconds
     Then "default via fc01::1:1 dev eth3" is not visible with command "ip -6 route"
     Then "2620:52:0:" is visible with command "ip a s eth10"
+
+
+    @rhbz1943153
+    @ver+=1.39.3
+    @ipv6_addresses_delete_IP_moving_method_back_to_auto
+    Scenario: nmcli - ipv6 - addresses - delete IP and set method back to auto
+     * Add "ethernet" connection named "con_ipv6" for device "eth10" with options
+           """
+           ipv4.method disabled
+           ipv6.method static
+           ipv6.addresses fc01::1:5/68
+           ipv6.gateway fc01::1:1
+           """
+     * Modify connection "con_ipv6" changing options "ipv6.addresses '' ipv6.gateway '' ipv6.method auto"
+     * Bring "up" connection "con_ipv6"
+    Then "fc01::1:5/68" is not visible with command "ip a s eth10" in "45" seconds
+    Then "default via fc01::1:1 dev eth3" is not visible with command "ip -6 route"
+    Then "2620:52:0:" is visible with command "ip a s eth10"
+    Then "dhcp6.dhcp6_name_servers" is visible with command "cat /run/NetworkManager/devices/$(ip link show eth10 | cut -d ':' -f 1 | head -n 1)"
+    And "dhcp6.ip6_address" is visible with command "cat /run/NetworkManager/devices/$(ip link show eth10 | cut -d ':' -f 1 | head -n 1)"
 
 
     @eth0

@@ -163,7 +163,7 @@ Feature: nmcli: ipv4
      When "metric 1" is visible with command "ip r |grep default |grep eth2"
      When "metric 1" is visible with command "ip r |grep default |grep eth3"
 
-
+    @ver-=1.39.2
     @ipv4_method_back_to_auto
     Scenario: nmcli - ipv4 - addresses - delete IP and set method back to auto
     * Add "ethernet" connection named "con_ipv4" for device "eth3" with options
@@ -178,6 +178,26 @@ Feature: nmcli: ipv4
     Then "192.168.22.96" is not visible with command "ip route"
     Then "192.168.122.253/24" is not visible with command "ip a s eth3"
     Then "192.168.122.95" is not visible with command "ip route"
+
+
+    @rhbz1943153
+    @ver+=1.39.3
+    @ipv4_method_back_to_auto
+    Scenario: nmcli - ipv4 - addresses - delete IP and set method back to auto
+    * Add "ethernet" connection named "con_ipv4" for device "eth3" with options
+          """
+          ipv4.method static
+          ipv4.addresses '192.168.22.253/24, 192.168.122.253/16'
+          ipv4.gateway 192.168.22.96
+          """
+    * Modify connection "con_ipv4" changing options "ipv4.method auto ipv4.addresses '' ipv4.gateway ''"
+    * Bring "up" connection "con_ipv4"
+    Then "192.168.22.253/24" is not visible with command "ip a s eth3"
+    Then "192.168.22.96" is not visible with command "ip route"
+    Then "192.168.122.253/24" is not visible with command "ip a s eth3"
+    Then "192.168.122.95" is not visible with command "ip route"
+    Then "dhcp4.dhcp_server_identifier" is visible with command "cat /run/NetworkManager/devices/$(ip link show eth3 | cut -d ':' -f 1 | head -n 1)"
+    And "dhcp4.dhcp_lease_time" is visible with command "cat /run/NetworkManager/devices/$(ip link show eth3 | cut -d ':' -f 1 | head -n 1)"
 
 
     @ipv4_route_set_basic_route
