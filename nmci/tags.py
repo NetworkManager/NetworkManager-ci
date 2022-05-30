@@ -1807,10 +1807,10 @@ def openvswitch_bs(ctx, scen):
     if ctx.process.run_code(
         "systemctl is-active openvswitch"
     ) != 0 or ctx.process.run_search_stdout(
-        "systemctl status ovs-vswitchd.service", "ERR"
+        "systemctl status ovs-vswitchd.service", "ERR", timeout=10
     ):
         print("restart openvswitch")
-        ctx.process.run_stdout("systemctl restart openvswitch")
+        ctx.process.run_stdout("systemctl restart openvswitch", timeout=10)
         nmci.lib.restart_NM_service(ctx)
 
 
@@ -2934,7 +2934,9 @@ def tag8021x_doc_procedure_bs(ctx, scen):
     shutil.copy("/etc/raddb/certs/client.key", "/etc/pki/tls/private/8021x.key")
     shutil.copy("/etc/raddb/certs/client.pem", "/etc/pki/tls/certs/8021x.pem")
     shutil.copy("/etc/raddb/certs/ca.pem", "/etc/pki/tls/certs/8021x-ca.pem")
-    ctx.process.run_stdout("yum -y install hostapd wpa_supplicant", timeout=120)
+    ctx.process.run_stdout(
+        "yum -y install hostapd wpa_supplicant", ignore_stderr=True, timeout=120
+        )
     with open("/etc/sysconfig/hostapd", "r+") as f:
         content = f.read()
         f.seek(0)

@@ -723,7 +723,10 @@ def delete_old_lock(dir, lock):
 
 def setup_libreswan(context, mode, dh_group, phase1_al="aes", phase2_al=None):
     RC = context.process.run_code(
-        f"MODE={mode} sh prepare/libreswan.sh", shell=True, ignore_stderr=True
+        f"MODE={mode} sh prepare/libreswan.sh",
+        shell=True,
+        ignore_stderr=True
+        timeout=60
     )
     if RC != 0:
         teardown_libreswan(context)

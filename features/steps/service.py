@@ -40,7 +40,7 @@ def reboot(context):
     context.command_code("rm -rf /var/run/NetworkManager")
 
     time.sleep(1)
-    assert nmci.lib.restart_NM_service(context, reset=False), "NM restart failed"
+    assert nmci.lib.restart_NM_service(context, reset=False, timeout=10), "NM restart failed"
     time.sleep(2)
 
 
@@ -53,7 +53,7 @@ def start_NM(context):
 @step(u'Start NM without PID wait')
 def start_NM_no_pid(context):
     context.nm_restarted = True
-    assert nmci.lib.start_NM_service(context, pid_wait=False), "NM start failed"
+    assert nmci.lib.start_NM_service(context, pid_wait=False, timeout=10), "NM start failed"
 
 
 @step(u'Restart NM')
