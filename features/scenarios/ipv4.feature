@@ -1184,7 +1184,6 @@ Feature: nmcli: ipv4
     Then Domain "options debug" is not set in "5" seconds
 
 
-    @not_with_systemd_resolved
     @ipv4_dns-search_ignore_auto_routes
     Scenario: nmcli - ipv4 - dns-search - dns-search + ignore auto obtained routes
     * Add "ethernet" connection named "con_ipv4" for device "eth3" with options
@@ -1193,6 +1192,7 @@ Feature: nmcli: ipv4
           ipv6.ignore-auto-dns yes
           ipv4.dns-search google.com
           ipv4.ignore-auto-dns yes
+          ipv4.dns 127.0.0.1
           """
     Then Domain "google.com" is set in "45" seconds
     Then Domain "virtual" is not set
