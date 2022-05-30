@@ -2936,7 +2936,7 @@ def tag8021x_doc_procedure_bs(ctx, scen):
     shutil.copy("/etc/raddb/certs/ca.pem", "/etc/pki/tls/certs/8021x-ca.pem")
     ctx.process.run_stdout(
         "yum -y install hostapd wpa_supplicant", ignore_stderr=True, timeout=120
-        )
+    )
     with open("/etc/sysconfig/hostapd", "r+") as f:
         content = f.read()
         f.seek(0)
@@ -2988,18 +2988,20 @@ _register_tag("cleanup", None, cleanup_as)
 
 
 def copy_ifcfg_bs(ctx, scen):
-    
+
     dirpath = "contrib/profiles"
     for file in os.listdir(dirpath):
         if "ifcfg-migration" in file:
-            filepath = f"{dirpath}/{file}"            
+            filepath = f"{dirpath}/{file}"
             with open(filepath) as f:
                 contents = f.read()
                 device = re.search(r"(?<=DEVICE=)[a-zA-Z0-9_-]+", contents).group(0)
                 name = re.search(r"(?<=NAME=)[a-zA-Z0-9_-]+", contents).group(0)
-            ctx.execute_steps(f"""
+            ctx.execute_steps(
+                f"""
              * Cleanup connection "{name}" and device "{device}"
-             """)
+             """
+            )
             ctx.process.run_stdout(f"cp {filepath} /etc/sysconfig/network-scripts")
 
 
