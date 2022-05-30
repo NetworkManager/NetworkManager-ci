@@ -17,6 +17,8 @@ import sys
 import re
 from time import sleep
 
+import nmci.util
+
 NM_CI_PATH = os.path.realpath(__file__).replace("contrib/gui/steps.py", "")
 NM_CI_RUNNER_PATH = f"{NM_CI_PATH}contrib/gui/nm-ci-runner.sh"
 NM_CI_RUNNER_CMD = f"{NM_CI_RUNNER_PATH} {NM_CI_PATH}"
@@ -28,11 +30,12 @@ NM_CI_RUNNER_CMD = f"{NM_CI_RUNNER_PATH} {NM_CI_PATH}"
 
 
 def utf_only_open_read(file, mode="r"):
-    # Opens file and read it w/o non utf-8 chars
-    if sys.version_info.major < 3:
-        return open(file, mode).read().decode("utf-8", "ignore").encode("utf-8")
-    else:
-        return open(file, mode, encoding="utf-8", errors="ignore").read()
+    # This file is used by out-of-tree components. This
+    # function is only here for backward compatibility with
+    # those. Don't use!
+    #
+    # Argument "mode" is unused.
+    return nmci.util.file_get_content_simple(file)
 
 
 def cmd_output_rc(cmd, **kwargs):
@@ -163,8 +166,8 @@ def libreswan_teardown(context):
         "prepare/libreswan.sh teardown &> /tmp/libreswan_teardown.log",
         shell=True,
     )
-    teardown_log = utf_only_open_read("/tmp/libreswan_teardown.log")
-    conf = utf_only_open_read("/opt/ipsec/connection.conf")
+    teardown_log = nmci.util.file_get_content_simple("/tmp/libreswan_teardown.log")
+    conf = nmci.util.file_get_content_simple("/opt/ipsec/connection.conf")
     context.embed("text/plain", teardown_log, caption="Libreswan Teardown")
     context.embed("text/plain", conf, caption="Libreswan Config")
 
@@ -442,7 +445,9 @@ def nm_env(context):
         shell=True,
     )
     context.embed(
-        "text/plain", utf_only_open_read("/tmp/nm_envsetup_log.txt"), "NM envsetup"
+        "text/plain",
+        nmci.util.file_get_content_simple("/tmp/nm_envsetup_log.txt"),
+        "NM envsetup",
     )
     if not os.path.isfile("/tmp/nm_envsetup_log.first.txt"):
         subprocess.call(
@@ -451,7 +456,7 @@ def nm_env(context):
     else:
         context.embed(
             "text/plain",
-            utf_only_open_read("/tmp/nm_envsetup_log.first.txt"),
+            nmci.util.file_get_content_simple("/tmp/nm_envsetup_log.first.txt"),
             "First NM envsetup",
         )
     assert ret == 0, "NetworkManager-ci envsetup failed !!!"
@@ -466,7 +471,7 @@ def nm_install_pkgs(context):
     )
     context.embed(
         "text/plain",
-        utf_only_open_read("/tmp/nm_dep_pkg_install_log.txt"),
+        nmci.util.file_get_content_simple("/tmp/nm_dep_pkg_install_log.txt"),
         "NM Deps Install",
     )
     assert ret == 0, "Unable to install required packages !!!"
@@ -483,7 +488,7 @@ def prepare_libreswan(context, mode="aggressive"):
         f"prepare/libreswan.sh &> /tmp/libreswan_setup.log"
     )
     ret = subprocess.call(cmd, shell=True)
-    setup_log = utf_only_open_read("/tmp/libreswan_setup.log")
+    setup_log = nmci.util.file_get_content_simple("/tmp/libreswan_setup.log")
     context.embed("text/plain", setup_log, "Libreswan Setup")
     assert ret == 0, "libreswan setup failed !!!"
 
@@ -492,7 +497,9 @@ def prepare_libreswan(context, mode="aggressive"):
 def prepare_gsm(context, modem="modemu"):
     context.sandbox.add_after_scenario_hook(
         lambda c: c.embed(
-            "text/plain", utf_only_open_read("/tmp/gsm_sim.log"), "GSM_SIM"
+            "text/plain",
+            nmci.util.file_get_content_simple("/tmp/gsm_sim.log"),
+            "GSM_SIM",
         ),
         context,
     )
@@ -535,7 +542,9 @@ def prepare_gsm(context, modem="modemu"):
 def prepare_openvpn(context, version="ip46", path="/tmp/openvpn-"):
     context.sandbox.add_after_scenario_hook(
         lambda c: c.embed(
-            "text/plain", utf_only_open_read("/tmp/openvpn.log"), "OPENVPN"
+            "text/plain",
+            nmci.util.file_get_content_simple("/tmp/openvpn.log"),
+            "OPENVPN",
         ),
         context,
     )
@@ -581,7 +590,9 @@ def prepare_wifi(context, certs_dir="contrib/8021x/certs", crypto="default", ap_
     )
     context.sandbox.add_after_scenario_hook(
         lambda c: c.embed(
-            "text/plain", utf_only_open_read("/tmp/hostapd_wireless.log"), "WI-FI"
+            "text/plain",
+            nmci.util.file_get_content_simple("/tmp/hostapd_wireless.log"),
+            "WI-FI",
         ),
         context,
     )
@@ -623,7 +634,9 @@ def prepare_8021x(context, certs_dir="contrib/8021x/certs", crypto=None):
         return
     context.sandbox.add_after_scenario_hook(
         lambda c: c.embed(
-            "text/plain", utf_only_open_read("/tmp/hostapd_wired.log"), "8021X"
+            "text/plain",
+            nmci.util.file_get_content_simple("/tmp/hostapd_wired.log"),
+            "8021X",
         ),
         context,
     )
@@ -674,7 +687,9 @@ def prepare_netdevsim(context, num="1"):
         shell=True,
     )
     context.embed(
-        "text/plain", utf_only_open_read("/tmp/netdevsim.log"), "Netdevsim Setup"
+        "text/plain",
+        nmci.util.file_get_content_simple("/tmp/netdevsim.log"),
+        "Netdevsim Setup",
     )
     assert rc == 0, "netdevsim setup failed !!!"
     ifnames = subprocess.check_output(
