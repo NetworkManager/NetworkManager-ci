@@ -10,6 +10,21 @@ class _Util:
     # like time.CLOCK_BOOTTIME, which only exists since Python 3.7
     CLOCK_BOOTTIME = 7
 
+    class ExpectedException(Exception):
+        # We don't want to just catch blindly all "Exception" types
+        # but rather only those exceptions where an API is known that
+        # it might fail and fails with a particular exception type.
+        #
+        # Usually, we would thus add various Exception classes that
+        # carry specific information about the failure reason. However,
+        # that is sometimes just cumbersome.
+        #
+        # This exception type fills this purpose. It's not very specific
+        # but it's specific enough that we can catch it for functions that
+        # are known to have certain failures -- while not needing to swallow
+        # all exceptions.
+        pass
+
     @property
     def GLib(self):
 
