@@ -1196,9 +1196,11 @@ def restart_NM_service(context, reset=True, timeout=10):
     return rc == 0
 
 
-def start_NM_service(context, pid_wait=True):
+def start_NM_service(context, pid_wait=True, timeout=10):
     print("start NM service")
-    rc = context.process.run_code("systemctl start NetworkManager.service")
+    rc = context.process.run_code(
+        "systemctl start NetworkManager.service", timeout=timeout
+    )
     if pid_wait:
         context.nm_pid = wait_for_nm_pid(10)
     return rc == 0
