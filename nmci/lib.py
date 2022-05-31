@@ -365,7 +365,12 @@ def dump_status(context, when, fail_only=False):
 
     # Always include memory stats
     if context.nm_pid is not None:
-        msg = "Daemon memory consumption: %d KiB\n" % nmutil.nm_size_kb()
+        try:
+            kb = nmutil.nm_size_kb()
+        except util.ExpectedException as e:
+            msg = f"Daemon memory consumption: unknown ({e})\n"
+        else:
+            msg = f"Daemon memory consumption: {kb} KiB\n"
         if (
             os.path.isfile("/etc/systemd/system/NetworkManager.service")
             and nmci.process.run_code(

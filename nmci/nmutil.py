@@ -34,21 +34,23 @@ class _NMUtil:
             if pid:
                 return pid
             if time.monotonic() >= end_time:
-                raise Exception(f"NetworkManager not running in {seconds} seconds")
+                raise util.ExpectedException(
+                    f"NetworkManager not running in {seconds} seconds"
+                )
             time.sleep(0.3)
 
     def nm_size_kb(self):
         pid = self.nm_pid()
         if not pid:
-            print("Warning: unable to get mem usage, NetworkManager is not running!")
-            return 0
+            raise util.ExpectedException(
+                f"unable to get mem usage, NetworkManager is not running!"
+            )
         try:
             smaps = util.file_get_content(f"/proc/{pid}/smaps")
         except Exception as e:
-            print(
-                f"Warning: unable to get mem usage for NetworkManager with pid {pid}: {e}"
+            raise util.ExpectedException(
+                f"unable to get mem usage for NetworkManager with pid {pid}: {e}"
             )
-            return 0
         memsize = 0
         for line in smaps.data.strip("\n").split("\n"):
             fields = line.split()
