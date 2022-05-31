@@ -11,7 +11,7 @@ UnitTests:
       yum -y install python3 python3-pip python3-devel iproute gcc
       python3 -m pip install pytest PyYAML pexpect pyroute2 click==8.0.4
       python3 -m pip install --prefix /usr/ black==22.3.0
-      python3 -m pytest nmci/test.py --junitxml=report.xml
+      python3 -m pytest --junitxml=report.xml
   artifacts:
     when: always
     reports:
