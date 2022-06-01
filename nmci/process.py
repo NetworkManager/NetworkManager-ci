@@ -305,3 +305,37 @@ def nmcli_force(
         stderr=None,
         context_hook=context_hook,
     )
+
+
+def systemctl(
+    argv,
+    *,
+    shell=False,
+    as_bytes=False,
+    timeout=60,
+    cwd=util.BASE_DIR,
+    env=None,
+    env_extra=None,
+    ignore_returncode=True,
+    ignore_stderr=True,
+    context_hook=None,
+):
+    if isinstance(argv, str):
+        argv = f"systemctl {argv}"
+    else:
+        argv = ["systemctl", *argv]
+
+    return _run(
+        argv,
+        shell=shell,
+        as_bytes=as_bytes,
+        timeout=timeout,
+        cwd=cwd,
+        env=env,
+        env_extra=env_extra,
+        ignore_stderr=ignore_stderr,
+        ignore_returncode=ignore_returncode,
+        stdout=None,
+        stderr=None,
+        context_hook=context_hook,
+    )

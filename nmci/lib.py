@@ -51,6 +51,9 @@ class _ContextProcess:
     def nmcli_force(self, *a, **kw):
         return process.nmcli_force(*a, context_hook=self.context_hook, **kw)
 
+    def systemctl(self, *a, **kw):
+        return process.systemctl(*a, context_hook=self.context_hook, **kw)
+
 
 def context_setup(context):
 
