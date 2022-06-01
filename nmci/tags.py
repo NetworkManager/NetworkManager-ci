@@ -1512,7 +1512,7 @@ _register_tag("attach_hostapd_log", None, attach_hostapd_log_as)
 def attach_wpa_supplicant_log_as(ctx, scen):
     if scen.status == "failed" or ctx.DEBUG:
         print("Attaching wpa_supplicant log")
-        data += nmci.misc.journal_show(
+        data = nmci.misc.journal_show(
             "wpa_supplicant",
             short=True,
             cursor=ctx.log_cursor_before_tags,
