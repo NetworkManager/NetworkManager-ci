@@ -10,157 +10,85 @@ import base64
 import xml.etree.ElementTree as ET
 import shutil
 
+from . import misc
+from . import nmutil
 from . import process
+from . import util
 
 
-def nm_pid():
-    pid = 0
-    service_pid = nmci.process.run("systemctl show -pMainPID NetworkManager.service")
-    if service_pid.returncode == 0:
-        pid = int(service_pid.stdout.split("=")[-1])
-    if not pid:
-        pgrep_pid = nmci.process.run("pgrep NetworkManager")
-        if pgrep_pid.returncode == 0:
-            pid = int(pgrep_pid.stdout)
-    return pid
+class _ContextProcess:
+    def __init__(self, context):
+        self._context = context
+
+    def context_hook(self, event, *a):
+        if event == "result":
+            (argv, returncode, stdout, stderr) = a
+            try:
+                stdout = nmci.util.bytes_to_str(stdout)
+            except UnicodeDecodeError:
+                pass
+            try:
+                stderr = nmci.util.bytes_to_str(stderr)
+            except UnicodeDecodeError:
+                pass
+            self._context._command_calls.append((argv, returncode, stdout, stderr))
+
+    def run(self, *a, **kw):
+        return process.run(*a, context_hook=self.context_hook, **kw)
+
+    def run_stdout(self, *a, **kw):
+        return process.run_stdout(*a, context_hook=self.context_hook, **kw)
+
+    def run_code(self, *a, **kw):
+        return process.run_code(*a, context_hook=self.context_hook, **kw)
+
+    def run_search_stdout(self, *a, **kw):
+        return process.run_search_stdout(*a, context_hook=self.context_hook, **kw)
 
 
-def wait_for_nm_pid(seconds=10):
-    for _ in range(seconds):
-        pid = nm_pid()
-        if pid:
-            return pid
-        time.sleep(1)
-    assert False, f"NetworkManager not running in {seconds} seconds"
+def context_setup(context):
 
-
-def nm_size_kb():
-    memsize = 0
-    pid = nm_pid()
-    if not pid:
-        print("Warning: unable to get mem usage, NetworkManager is not running!")
-        return 0
-    smaps = nmci.process.run(f"sudo cat /proc/{pid}/smaps", ignore_stderr=True)
-    if smaps.returncode != 0:
-        print(
-            "Warning: unable to get mem usage, smaps file missing for NetworkManager process!"
-        )
-        return 0
-    for line in smaps.stdout.strip("\n").split("\n"):
-        fields = line.split()
-        if not fields[0] in ("Private_Dirty:", "Swap:"):
-            continue
-        memsize += int(fields[1])
-    return memsize
-
-
-def new_log_cursor():
-    return (
-        '"--after-cursor=%s"'
-        % nmci.process.run_stdout("journalctl --lines=0 --quiet --show-cursor")
-        .replace("-- cursor: ", "")
-        .strip()
-    )
-
-
-def NM_log(cursor):
-    file_name = "/tmp/journal-nm.log"
-
-    nmci.process.run_stdout(
-        f"sudo journalctl -u NetworkManager --no-pager -o cat {cursor} > {file_name}",
-        shell=True,
-    )
-
-    if os.stat(file_name).st_size > 20000000:
-        msg = "WARNING: 20M size exceeded in /tmp/journal-nm.log, skipping"
-        print(msg)
-        return msg
-
-    return utf_only_open_read("/tmp/journal-nm.log")
-
-
-def get_service_log(service, journal_arg):
-    return nmci.process.run_stdout(
-        f"journalctl --all --no-pager {journal_arg} | grep ' {service}\\['",
-        shell=True,
-        ignore_returncode=True,
-    )
-
-
-def set_up_embedding(context):
     # setup formatter embed and set_title
-    for formatter in context._runner.formatters:
-        if "html" in formatter.name:
-            if getattr(formatter, "set_title", None) is not None:
+    if hasattr(context, "_runner"):
+        for formatter in context._runner.formatters:
+            if "html" not in formatter.name:
+                continue
+            if hasattr(formatter, "set_title"):
                 context.set_title = formatter.set_title
-            if getattr(formatter, "embedding", None) is not None:
+            if hasattr(formatter, "embedding"):
 
-                def embed(formatter, context):
-                    def fn(mime_type, data, caption, html_el=None, fail_only=False):
-                        data = data or " "
-                        if html_el is None:
-                            html_el = formatter.actual["act_step_embed_span"]
-                        if mime_type == "call" or fail_only:
-                            context._to_embed.append(
-                                {
-                                    "html_el": html_el,
-                                    "mime_type": mime_type,
-                                    "data": data,
-                                    "caption": caption,
-                                    "fail_only": fail_only,
-                                }
-                            )
-                        else:
-                            formatter._doEmbed(html_el, mime_type, data, caption)
-                            if mime_type == "link":
-                                # list() on ElementTree returns children
-                                last_embed = list(html_el)[-1]
-                                for a_tag in last_embed.findall("a"):
-                                    if a_tag.get("href", "").startswith("data:"):
-                                        a_tag.set("download", a_tag.text)
-                            ET.SubElement(html_el, "br")
+                def embed_fn(mime_type, data, caption, html_el=None, fail_only=False):
+                    data = data or " "
+                    if html_el is None:
+                        html_el = context.html_formatter.actual["act_step_embed_span"]
+                    if mime_type == "call" or fail_only:
+                        context._to_embed.append(
+                            {
+                                "html_el": html_el,
+                                "mime_type": mime_type,
+                                "data": data,
+                                "caption": caption,
+                                "fail_only": fail_only,
+                            }
+                        )
+                    else:
+                        context.html_formatter._doEmbed(
+                            html_el, mime_type, data, caption
+                        )
+                        if mime_type == "link":
+                            # list() on ElementTree returns children
+                            last_embed = list(html_el)[-1]
+                            for a_tag in last_embed.findall("a"):
+                                if a_tag.get("href", "").startswith("data:"):
+                                    a_tag.set("download", a_tag.text)
+                        ET.SubElement(html_el, "br")
 
-                    return fn
-
-                embed_fn = embed(formatter, context)
                 formatter.embedding = embed_fn
                 context.embed = embed_fn
                 context.html_formatter = formatter
+                context._to_embed = []
 
-    context._to_embed = []
-
-
-def set_up_commands(context):
-    class _Process:
-        def __init__(self, context):
-            self._context = context
-
-        def context_hook(self, event, *a):
-            if event == "result":
-                (argv, returncode, stdout, stderr) = a
-                try:
-                    stdout = nmci.util.bytes_to_str(stdout)
-                except UnicodeDecodeError:
-                    pass
-                try:
-                    stderr = nmci.util.bytes_to_str(stderr)
-                except UnicodeDecodeError:
-                    pass
-                self._context._command_calls.append((argv, returncode, stdout, stderr))
-
-        def run(self, *a, **kw):
-            return process.run(*a, context_hook=self.context_hook, **kw)
-
-        def run_stdout(self, *a, **kw):
-            return process.run_stdout(*a, context_hook=self.context_hook, **kw)
-
-        def run_code(self, *a, **kw):
-            return process.run_code(*a, context_hook=self.context_hook, **kw)
-
-        def run_search_stdout(self, *a, **kw):
-            return process.run_search_stdout(*a, context_hook=self.context_hook, **kw)
-
-    context.process = _Process(context)
+    context.process = _ContextProcess(context)
 
     def _run(command, *a, **kw):
         out, err, code = nmci.run(command, *a, **kw)
@@ -216,7 +144,11 @@ def set_up_commands(context):
 
 
 def process_embeds(context, scenario_fail=False):
-    for kwargs in getattr(context, "_to_embed", []):
+    if not hasattr(context, "_to_embed"):
+        return
+    to_embed = context._to_embed
+    context._to_embed = []
+    for kwargs in to_embed:
         # execute postponed "call"s
         if kwargs["mime_type"] == "call":
             # "data" is function, "caption" is args, function returns triple
@@ -235,22 +167,43 @@ def process_embeds(context, scenario_fail=False):
 
 
 def embed_service_log(
-    context, service, descr, journal_arg=None, fail_only=False, now=True
+    context,
+    descr,
+    service=None,
+    syslog_identifier=None,
+    journal_args=None,
+    cursor=None,
+    fail_only=False,
+    now=True,
 ):
     print("embedding " + descr + " logs")
-    if journal_arg is None:
-        journal_arg = context.log_cursor
+    if cursor is None:
+        cursor = context.log_cursor
     if now:
         context.embed(
             "text/plain",
-            get_service_log(service, journal_arg),
+            misc.journal_show(
+                service=service,
+                syslog_identifier=syslog_identifier,
+                journal_args=journal_args,
+                cursor=cursor,
+            ),
             descr,
             fail_only=fail_only,
         )
     else:
         context.embed(
             "call",
-            lambda: ("text/plain", get_service_log(service, journal_arg), descr),
+            lambda: (
+                "text/plain",
+                misc.journal_show(
+                    service=service,
+                    syslog_identifier=syslog_identifier,
+                    journal_args=journal_args,
+                    cursor=cursor,
+                ),
+                descr,
+            ),
             [],
             fail_only=fail_only,
         )
@@ -266,7 +219,7 @@ def embed_file_if_exists(
         if mime_type == "link":
             data = [(file_to_base64_url(fname), fname)]
         else:
-            data = utf_only_open_read(fname)
+            data = util.file_get_content_simple(fname)
         if remove:
             os.remove(fname)
         context.embed(mime_type, data, caption, fail_only=fail_only)
@@ -279,18 +232,6 @@ def file_to_base64_url(filename):
     data_base64 = base64.b64encode(open(filename, "rb").read())
     data_encoded = data_base64.decode("utf-8").replace("\n", "")
     return result + data_encoded
-
-
-def utf_only_open_read(file, mode="r"):
-    # Opens file and read it w/o non utf-8 chars
-    if sys.version_info.major < 3:
-        with open(file, mode) as f:
-            data = f.read().decode("utf-8", "ignore").encode("utf-8")
-        return data
-    else:
-        with open(file, mode, encoding="utf-8", errors="ignore") as f:
-            data = f.read()
-        return data
 
 
 def get_pexpect_logs(context, proc, logfile):
@@ -308,7 +249,7 @@ def get_pexpect_logs(context, proc, logfile):
     logfile.close()
     if not status:
         status = proc.status
-    stdout = utf_only_open_read(logfile.name)
+    stdout = util.file_get_content_simple(logfile.name)
     os.remove(logfile.name)
     return ["pexpect:" + proc.name, status, stdout, None]
 
@@ -424,7 +365,12 @@ def dump_status(context, when, fail_only=False):
 
     # Always include memory stats
     if context.nm_pid is not None:
-        msg = "Daemon memory consumption: %d KiB\n" % nm_size_kb()
+        try:
+            kb = nmutil.nm_size_kb()
+        except util.ExpectedException as e:
+            msg = f"Daemon memory consumption: unknown ({e})\n"
+        else:
+            msg = f"Daemon memory consumption: {kb} KiB\n"
         if (
             os.path.isfile("/etc/systemd/system/NetworkManager.service")
             and nmci.process.run_code(
@@ -470,9 +416,9 @@ def check_crash(context, crashed_step):
     pid_refresh_count = getattr(context, "nm_pid_refresh_count", 0)
     if pid_refresh_count > 0:
         context.pid_refresh_count = pid_refresh_count - 1
-        context.nm_pid = nmci.lib.nm_pid()
+        context.nm_pid = nmci.nmutil.nm_pid()
     elif not context.crashed_step:
-        new_pid = nmci.lib.nm_pid()
+        new_pid = nmci.nmutil.nm_pid()
         if new_pid != context.nm_pid:
             print(
                 "NM Crashed as new PID %s is not old PID %s" % (new_pid, context.nm_pid)
@@ -535,7 +481,7 @@ def wait_faf_complete(context, dump_dir):
             return False
 
         if not NM_pkg and os.path.isfile(f"{dump_dir}/pkg_name"):
-            pkg = utf_only_open_read(f"{dump_dir}/pkg_name")
+            pkg = util.file_get_content_simple(f"{dump_dir}/pkg_name")
             if not check_dump_package(pkg):
                 print("* not NM related FAF")
                 context.faf_countdown -= i
@@ -546,7 +492,7 @@ def wait_faf_complete(context, dump_dir):
 
         last = last or os.path.isfile(f"{dump_dir}/last_occurrence")
         if last and not last_timestamp:
-            last_timestamp = utf_only_open_read(f"{dump_dir}/last_occurrence")
+            last_timestamp = util.file_get_content_simple(f"{dump_dir}/last_occurrence")
             if is_dump_reported(f"{dump_dir}-{last_timestamp}"):
                 print("* Already reported")
                 context.faf_countdown -= i
@@ -560,7 +506,7 @@ def wait_faf_complete(context, dump_dir):
             context.process.run_stdout(
                 f"echo '#cat reported_to'; cat {dump_dir}/reported_to", shell=True
             )
-            reported_bordell = "bordell" in utf_only_open_read(
+            reported_bordell = "bordell" in util.file_get_content_simple(
                 f"{dump_dir}/reported_to"
             )
             # if there is no sosreport.log file, crash is already reported in FAF server
@@ -608,7 +554,7 @@ def check_faf(context):
             reports = []
             if os.path.isfile("%s/reported_to" % (dump_dir)):
                 reports = (
-                    utf_only_open_read("%s/reported_to" % (dump_dir))
+                    util.file_get_content_simple("%s/reported_to" % (dump_dir))
                     .strip("\n")
                     .split("\n")
                 )
@@ -618,14 +564,14 @@ def check_faf(context):
                     label, url = report.replace("URL=", "", 1).split(":", 1)
                     urls.append([url.strip(), label.strip()])
 
-            last_timestamp = utf_only_open_read(f"{dump_dir}/last_occurrence")
+            last_timestamp = util.file_get_content_simple(f"{dump_dir}/last_occurrence")
             dump_id = f"{dump_dir}-{last_timestamp}"
             if urls:
                 embed_dump(context, dump_id, urls, "FAF")
             else:
                 if os.path.isfile("%s/backtrace" % (dump_dir)):
                     data = "Report not yet uploaded, please check FAF portal.\n\nBacktrace:\n"
-                    data += utf_only_open_read("%s/backtrace" % (dump_dir))
+                    data += util.file_get_content_simple("%s/backtrace" % (dump_dir))
                     embed_dump(context, dump_id, data, "FAF")
                 else:
                     msg = "Report not yet uploaded, no backtrace yet, please check FAF portal."
@@ -894,19 +840,20 @@ def check_vethsetup(context):
     context.process.run_stdout(
         "sh prepare/vethsetup.sh check", ignore_stderr=True, timeout=60
     )
-    context.nm_pid = nm_pid()
+    context.nm_pid = nmci.nmutil.nm_pid()
 
 
 def teardown_libreswan(context):
     context.process.run_stdout("sh prepare/libreswan.sh teardown")
     print("Attach Libreswan logs")
-    nmci.process.run(
-        f"sudo journalctl -t pluto --no-pager -o cat {context.log_cursor} > /tmp/journal-pluto.log",
-        shell=True,
+    journal_log = misc.journal_show(
+        syslog_identifier="pluto",
+        cursor=context.log_cursor,
+        journal_args="-o cat",
     )
-    journal_log = utf_only_open_read("/tmp/journal-pluto.log")
-    conf = utf_only_open_read("/opt/ipsec/connection.conf")
     context.embed("text/plain", journal_log, caption="Libreswan Pluto Journal")
+
+    conf = util.file_get_content_simple("/opt/ipsec/connection.conf")
     context.embed("text/plain", conf, caption="Libreswan Config")
 
 
@@ -1106,7 +1053,7 @@ def teardown_hostapd_wireless(context):
     context.process.run_stdout(
         "sh prepare/hostapd_wireless.sh teardown", ignore_stderr=True
     )
-    context.NM_pid = nm_pid()
+    context.NM_pid = nmci.nmutil.nm_pid()
 
 
 def teardown_hostapd(context):
@@ -1192,7 +1139,7 @@ def restart_NM_service(context, reset=True, timeout=10):
     rc = context.process.run_code(
         "systemctl restart NetworkManager.service", timeout=timeout
     )
-    context.nm_pid = wait_for_nm_pid(10)
+    context.nm_pid = nmutil.wait_for_nm_pid(10)
     return rc == 0
 
 
@@ -1202,7 +1149,7 @@ def start_NM_service(context, pid_wait=True, timeout=10):
         "systemctl start NetworkManager.service", timeout=timeout
     )
     if pid_wait:
-        context.nm_pid = wait_for_nm_pid(10)
+        context.nm_pid = nmutil.wait_for_nm_pid(10)
     return rc == 0
 
 

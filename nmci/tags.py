@@ -135,7 +135,9 @@ def gsm_sim_as(ctx, scen):
     ctx.process.run("sudo prepare/gsm_sim.sh teardown", ignore_stderr=True)
     time.sleep(1)
     ctx.process.run("nmcli con del id gsm")
-    ctx.embed("text/plain", nmci.lib.utf_only_open_read("/tmp/gsm_sim.log"), "GSM_SIM")
+    ctx.embed(
+        "text/plain", nmci.util.file_get_content_simple("/tmp/gsm_sim.log"), "GSM_SIM"
+    )
     os.remove("/tmp/gsm_sim.log")
 
 
@@ -402,6 +404,7 @@ def gsm_as(ctx, scen):
     # You can debug here only with console connection to the testing machine.
     # SSH connection is interrupted.
     # import ipdb
+
     ctx.process.run_stdout("nmcli connection delete gsm")
     ctx.process.run_stdout("rm -rf /etc/NetworkManager/system-connections/gsm")
     nmci.lib.wait_for_testeth0(ctx)
@@ -411,19 +414,14 @@ def gsm_as(ctx, scen):
     #     ctx.process.run_stdout('mount -o remount -t nfs nest.test.redhat.com:/mnt/qa/desktop/broadband_lock /mnt/scratch')
     #     nmci.lib.delete_old_lock("/mnt/scratch/", nmci.lib.get_lock("/mnt/scratch"))
 
-    # Attach journalctl logs
-    ctx.process.run_stdout(
-        "echo '~~~~~~~~~~~~~~~~~~~~~~~~~~ MM LOG ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~' > /tmp/journal-mm.log",
-        shell=True,
+    print("embed ModemManager log")
+    data = nmci.misc.journal_show(
+        "ModemManager",
+        cursor=ctx.log_cursor,
+        prefix="~~~~~~~~~~~~~~~~~~~~~~~~~~ MM LOG ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~",
+        journal_args="-o cat",
     )
-    ctx.process.run_stdout(
-        f"sudo journalctl -u ModemManager --no-pager -o cat {ctx.log_cursor} >> /tmp/journal-mm.log",
-        shell=True,
-    )
-    data = nmci.lib.utf_only_open_read("/tmp/journal-mm.log")
-    if data:
-        print("embed ModemManager log")
-        ctx.embed("text/plain", data, caption="MM")
+    ctx.embed("text/plain", data, caption="MM")
     # Extract modem model.
     # Example: 'USB ID 1c9e:9603 Zoom 4595' -> 'Zoom 4595'
     regex = r"USB ID (\w{4}:\w{4}) (.*)"
@@ -1024,19 +1022,14 @@ def netservice_bs(ctx, scen):
 
 
 def netservice_as(ctx, scen):
-    ctx.process.run_stdout(
-        "echo '~~~~~~~~~~~~~~~~~~~~~~~~~~ NETWORK SRV LOG ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~' > /tmp/journal-netsrv.log",
-        shell=True,
+    print("Attaching network.service log")
+    data = nmci.misc.journal_show(
+        "network",
+        cursor=ctx.log_cursor,
+        prefix="~~~~~~~~~~~~~~~~~~~~~~~~~~ NETWORK SRV LOG ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~",
+        journal_args="-o cat",
     )
-    ctx.process.run_stdout(
-        f"sudo journalctl -u network --no-pager -o cat {ctx.log_cursor} >> /tmp/journal-netsrv.log",
-        shell=True,
-    )
-
-    data = nmci.lib.utf_only_open_read("/tmp/journal-netsrv.log")
-    if data:
-        print("Attaching network.service log")
-        ctx.embed("text/plain", data, caption="NETSRV")
+    ctx.embed("text/plain", data, caption="NETSRV")
 
 
 _register_tag("netservice", netservice_bs, netservice_as)
@@ -1420,11 +1413,11 @@ def dracut_as(ctx, scen):
         ignore_stderr=True,
     )
     # do not embed DHCP directly, cache output for "no free leases" check
-    # nmci.lib.embed_service_log(ctx, "dhcpd", "DHCP")
-    dhcpd_log = nmci.lib.get_service_log("dhcpd", ctx.log_cursor)
+    # nmci.lib.embed_service_log(ctx, "DHCP", syslog_identifier="dhcpd")
+    dhcpd_log = nmci.misc.journal_show(syslog_identifier="dhcpd", cursor=ctx.log_cursor)
     ctx.embed("text/plain", dhcpd_log, "DHCP")
-    nmci.lib.embed_service_log(ctx, "radvd", "RA")
-    nmci.lib.embed_service_log(ctx, "rpc.mountd", "NFS")
+    nmci.lib.embed_service_log(ctx, "RA", syslog_identifier="radvd")
+    nmci.lib.embed_service_log(ctx, "NFS", syslog_identifier="rpc.mountd")
     ctx.process.run_stdout("cd contrib/dracut; . ./setup.sh; after_test", shell=True)
     # assert when everything is embedded
     assert "no free leases" not in dhcpd_log, "DHCPD leases exhausted"
@@ -1485,13 +1478,12 @@ _register_tag("load_netdevsim", load_netdevsim_bs, load_netdevsim_as)
 
 def attach_hostapd_log_as(ctx, scen):
     if scen.status == "failed" or ctx.DEBUG:
-        nmci.util.file_set_content(
-            "/tmp/journal-hostapd.log",
-            ["~~~~~~~~~~~~~~~~~~~~~~~~~~ HOSTAPD LOG ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"],
-        )
+        print("Attaching hostapd log")
+
         confs = ctx.process.run_stdout(
             "ls /etc/hostapd/wire* | sort -V", ignore_stderr=True, shell=True
         )
+
         services = []
         for conf in confs.strip("\n").split("\n"):
             ext = conf.split(".")[-1]
@@ -1499,24 +1491,19 @@ def attach_hostapd_log_as(ctx, scen):
                 services.append("nm-hostapd")
             elif len(ext):
                 services.append("nm-hostapd-" + ext)
-        if len(services) == 0:
-            ctx.process.run_stdout(
-                "echo 'did not find any nm-hostapd service!' >> /tmp/journal-hostapd.log",
-                shell=True,
-            )
-        for service in services:
-            ctx.process.run_stdout(
-                f"echo -e '\n\n~~~ {service} ~~~' >> /tmp/journal-hostapd.log",
-                shell=True,
-            )
-            ctx.process.run_stdout(
-                f"journalctl -u {service} --no-pager -o short-unix --no-hostname {ctx.log_cursor_before_tags} >> /tmp/journal-hostapd.log",
-                shell=True,
-            )
-        data = nmci.lib.utf_only_open_read("/tmp/journal-hostapd.log")
-        if data:
-            print("Attaching hostapd log")
-            ctx.embed("text/plain", data, caption="HOSTAPD")
+
+        data = "~~~~~~~~~~~~~~~~~~~~~~~~~~ HOSTAPD LOG ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
+        if services:
+            for service in services:
+                data += nmci.misc.journal_show(
+                    services,
+                    short=True,
+                    cursor=ctx.log_cursor_before_tags,
+                    prefix=f"\n~~~ {service} ~~~",
+                )
+        else:
+            data += "\ndid not find any nm-hostapd service!"
+        ctx.embed("text/plain", data, caption="HOSTAPD")
 
 
 _register_tag("attach_hostapd_log", None, attach_hostapd_log_as)
@@ -1524,20 +1511,14 @@ _register_tag("attach_hostapd_log", None, attach_hostapd_log_as)
 
 def attach_wpa_supplicant_log_as(ctx, scen):
     if scen.status == "failed" or ctx.DEBUG:
-        nmci.util.file_set_content(
-            "/tmp/journal-wpa_supplicant.log",
-            [
-                "~~~~~~~~~~~~~~~~~~~~~~~~~~ WPA_SUPPLICANT LOG ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
-            ],
+        print("Attaching wpa_supplicant log")
+        data += nmci.misc.journal_show(
+            "wpa_supplicant",
+            short=True,
+            cursor=ctx.log_cursor_before_tags,
+            prefix="~~~~~~~~~~~~~~~~~~~~~~~~~~ WPA_SUPPLICANT LOG ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~",
         )
-        ctx.process.run_stdout(
-            f"journalctl -u wpa_supplicant --no-pager -o short-unix --no-hostname {ctx.log_cursor_before_tags} >> /tmp/journal-wpa_supplicant.log",
-            shell=True,
-        )
-        data = nmci.lib.utf_only_open_read("/tmp/journal-wpa_supplicant.log")
-        if data:
-            print("Attaching wpa_supplicant log")
-            ctx.embed("text/plain", data, caption="WPA_SUP")
+        ctx.embed("text/plain", data, caption="WPA_SUP")
 
 
 _register_tag("attach_wpa_supplicant_log", None, attach_wpa_supplicant_log_as)
@@ -1576,7 +1557,7 @@ def performance_as(ctx, scen):
     ctx.nm_restarted = True
     # Settings device number to 0
     ctx.process.run_stdout("contrib/gi/./setup.sh 0", timeout=120)
-    ctx.nm_pid = nmci.lib.nm_pid()
+    ctx.nm_pid = nmci.nmutil.nm_pid()
     # Deleting all connections
     cons = ""
     for i in range(1, 101):
@@ -1815,11 +1796,11 @@ def openvswitch_bs(ctx, scen):
 
 
 def openvswitch_as(ctx, scen):
-    data1 = nmci.lib.utf_only_open_read("/var/log/openvswitch/ovsdb-server.log")
+    data1 = nmci.util.file_get_content_simple("/var/log/openvswitch/ovsdb-server.log")
     if data1:
         print("Attaching OVSDB log")
         ctx.embed("text/plain", data1, caption="OVSDB")
-    data2 = nmci.lib.utf_only_open_read("/var/log/openvswitch/ovs-vswitchd.log")
+    data2 = nmci.util.file_get_content_simple("/var/log/openvswitch/ovs-vswitchd.log")
     if data2:
         print("Attaching OVSDemon log")
         ctx.embed("text/plain", data2, caption="OVSDemon")
@@ -2102,7 +2083,7 @@ def nmstate_upstream_setup_as(ctx, scen):
     # check just in case something went wrong
     nmci.lib.check_vethsetup(ctx)
 
-    nmstate = nmci.lib.utf_only_open_read("/tmp/nmstate.txt")
+    nmstate = nmci.util.file_get_content_simple("/tmp/nmstate.txt")
     if nmstate:
         print("Attaching nmstate log")
         ctx.embed("text/plain", nmstate, caption="NMSTATE")
@@ -2239,7 +2220,7 @@ def tcpdump_as(ctx, scen):
     print("Attaching traffic log")
     ctx.process.run("pkill -1 tcpdump")
     if os.stat("/tmp/network-traffic.log").st_size < 20000000:
-        traffic = nmci.lib.utf_only_open_read("/tmp/network-traffic.log")
+        traffic = nmci.util.file_get_content_simple("/tmp/network-traffic.log")
     else:
         traffic = "WARNING: 20M size exceeded in /tmp/network-traffic.log, skipping"
     ctx.embed("text/plain", traffic, caption="TRAFFIC", fail_only=True)
@@ -2922,7 +2903,7 @@ def radius_bs(ctx, scen):
 
 def radius_as(ctx, scen):
     if scen.status == "failed" or ctx.DEBUG:
-        nmci.lib.embed_service_log(ctx, "radiusd", "RADIUS")
+        nmci.lib.embed_service_log(ctx, "RADIUS", syslog_identifier="radiusd")
     ctx.process.run("systemctl stop nm-radiusd.service", ignore_stderr=True)
 
 
@@ -2946,8 +2927,10 @@ def tag8021x_doc_procedure_bs(ctx, scen):
 def tag8021x_doc_procedure_as(ctx, scen):
     ctx.process.run("systemctl stop 802-1x-tr-mgmt hostapd", ignore_stderr=True)
     if scen.status == "failed" or ctx.DEBUG:
-        nmci.lib.embed_service_log(ctx, "hostapd", "HOSTAPD")
-        nmci.lib.embed_service_log(ctx, "802-1x-tr-mgmt", "802.1X access control")
+        nmci.lib.embed_service_log(ctx, "HOSTAPD", syslog_identifier="hostapd")
+        nmci.lib.embed_service_log(
+            ctx, "802.1X access control", syslog_identifier="802-1x-tr-mgmt"
+        )
         nmci.lib.embed_file_if_exists(
             ctx,
             "/tmp/nmci-wpa_supplicant-standalone",

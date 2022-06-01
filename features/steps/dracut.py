@@ -44,9 +44,9 @@ def embed_dracut_logs(context):
 
     nmci.lib.embed_file_if_exists(context, "/tmp/dracut_boot.log", caption="Dracut boot", fail_only=True)
     if not context.dracut_vm_state.startswith("NO"):
-        nmci.lib.embed_service_log(context, "test-init", "Dracut Test", journal_arg=REMOTE_JOURNAL, fail_only=False)
-        #nmci.lib.embed_service_log(context, "NetworkManager", "Dracut NM", journal_arg=REMOTE_JOURNAL, fail_only=True)
-        nmci.lib.embed_service_log(context, "*", "Dracut Journal", journal_arg=REMOTE_JOURNAL, fail_only=False)
+        nmci.lib.embed_service_log(context, "Dracut Test", syslog_identifier="test-init", journal_args=REMOTE_JOURNAL, fail_only=False)
+        #nmci.lib.embed_service_log(context, "Dracut NM", service="NetworkManager", journal_args=REMOTE_JOURNAL, fail_only=True)
+        nmci.lib.embed_service_log(context, "Dracut Journal", journal_args=REMOTE_JOURNAL, fail_only=False)
 
     check_core_dumps(context)
 

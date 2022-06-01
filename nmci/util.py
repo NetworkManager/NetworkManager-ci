@@ -1,3 +1,4 @@
+import collections
 import os
 import re
 import subprocess
@@ -8,6 +9,21 @@ class _Util:
 
     # like time.CLOCK_BOOTTIME, which only exists since Python 3.7
     CLOCK_BOOTTIME = 7
+
+    class ExpectedException(Exception):
+        # We don't want to just catch blindly all "Exception" types
+        # but rather only those exceptions where an API is known that
+        # it might fail and fails with a particular exception type.
+        #
+        # Usually, we would thus add various Exception classes that
+        # carry specific information about the failure reason. However,
+        # that is sometimes just cumbersome.
+        #
+        # This exception type fills this purpose. It's not very specific
+        # but it's specific enough that we can catch it for functions that
+        # are known to have certain failures -- while not needing to swallow
+        # all exceptions.
+        pass
 
     @property
     def GLib(self):
@@ -65,10 +81,20 @@ class _Util:
             )
         return os.path.join(self._util_dir, *args)
 
-    def base_dir(self, *args):
+    @property
+    def BASE_DIR(self):
         if not hasattr(self, "_base_dir"):
             self._base_dir = os.path.realpath(self.util_dir(".."))
-        return os.path.join(self._base_dir, *args)
+        return self._base_dir
+
+    def base_dir(self, *args):
+        return os.path.join(self.BASE_DIR, *args)
+
+    def tmp_dir(self, *args, create_base_dir=True):
+        d = self.base_dir(".tmp")
+        if create_base_dir and not os.path.isdir(d):
+            os.mkdir(d)
+        return os.path.join(d, *args)
 
     def gvariant_to_dict(self, variant):
         import json
@@ -107,6 +133,56 @@ class _Util:
         if isinstance(s, bytes):
             return s
         raise ValueError("Expects either a str or bytes")
+
+    FileGetContentResult = collections.namedtuple(
+        "FileGetContentResult", ["data", "full_file"]
+    )
+
+    def fd_get_content(
+        self,
+        file,
+        max_size=None,
+        warn_max_size=True,
+    ):
+        if max_size is None:
+            max_size = 50 * 1024 * 1024
+
+        data = file.read(max_size)
+        full_file = not file.read(1)
+
+        if not full_file and warn_max_size:
+            try:
+                size = str(os.fstat(file.fileno()).st_size)
+            except Exception:
+                size = "???"
+            m = f"\n\nWARNING: size limit reached after reading {max_size} of {size} bytes. Output is truncated"
+            if isinstance(data, bytes):
+                data += self.str_to_bytes(m)
+            else:
+                data += m
+
+        return self.FileGetContentResult(data, full_file)
+
+    def file_get_content(
+        self,
+        file_name,
+        encoding="utf-8",
+        errors="strict",
+        max_size=None,
+        warn_max_size=True,
+    ):
+        # Set "encoding" to None to get bytes.
+        if encoding is None:
+            file = open(file_name, mode="rb")
+        else:
+            file = open(file_name, mode="r", encoding=encoding, errors=errors)
+        with file:
+            return self.fd_get_content(
+                file, max_size=max_size, warn_max_size=warn_max_size
+            )
+
+    def file_get_content_simple(self, file_name):
+        return self.file_get_content(file_name, errors="replace").data
 
     def file_set_content(self, file_name, data=""):
         if isinstance(data, str):

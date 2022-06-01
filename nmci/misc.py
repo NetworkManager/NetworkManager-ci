@@ -748,5 +748,105 @@ class _Misc:
                 link.text = file_el.text
                 file_el.text = ""
 
+    def journal_get_cursor(self):
+        m = process.run_search_stdout(
+            "journalctl --lines=0 --quiet --show-cursor",
+            "^-- cursor: +([^ ].*[^ ]) *\n$",
+        )
+        return m.group(1)
+
+    def journal_show(
+        self,
+        service=None,
+        *,
+        syslog_identifier=None,
+        cursor=None,
+        short=False,
+        journal_args=None,
+        as_bytes=False,
+        max_size=None,
+        warn_max_size=True,
+        prefix=None,
+        suffix=None,
+    ):
+        if service:
+            if isinstance(service, str) or isinstance(service, bytes):
+                service = ["-u", service]
+            else:
+                service = (["-u", s] for s in service)
+                service = [c for pair in service for c in pair]
+        else:
+            service = []
+
+        if syslog_identifier:
+            if isinstance(syslog_identifier, str) or isinstance(
+                syslog_identifier, bytes
+            ):
+                syslog_identifier = ["-t", util.bytes_to_str(syslog_identifier)]
+            else:
+                syslog_identifier = (["-t", s] for s in syslog_identifier)
+                syslog_identifier = [c for pair in syslog_identifier for c in pair]
+        else:
+            syslog_identifier = []
+
+        if cursor:
+            cursor = ["--after-cursor=" + util.bytes_to_str(cursor)]
+        else:
+            cursor = []
+
+        if short:
+            short = ["-o", "short-unix", "--no-hostname"]
+        else:
+            short = []
+
+        if not journal_args:
+            journal_args = []
+        elif isinstance(journal_args, str):
+            import shlex
+
+            journal_args = shlex.split(journal_args)
+        else:
+            journal_args = list(journal_args)
+
+        if max_size is None:
+            max_size = 50 * 1024 * 1024
+
+        import tempfile
+
+        with tempfile.TemporaryFile(dir=util.tmp_dir()) as f_out:
+            p = process.run(
+                ["journalctl", "--all", "--no-pager"]
+                + service
+                + syslog_identifier
+                + cursor
+                + short
+                + journal_args,
+                stdout=f_out,
+                timeout=180,
+            )
+
+            f_out.seek(0)
+
+            d = util.fd_get_content(
+                f_out, max_size=max_size, warn_max_size=warn_max_size
+            ).data
+
+        if not as_bytes:
+            d = d.decode(encoding="utf-8", errors="replace")
+
+        if prefix is not None:
+            if as_bytes:
+                d = util.str_to_bytes(prefix) + b"\n" + d
+            else:
+                d = util.bytes_to_str(prefix) + "\n" + d
+
+        if suffix is not None:
+            if as_bytes:
+                d = d + b"\n" + util.str_to_bytes(suffix)
+            else:
+                d = d + "\n" + util.bytes_to_str(suffix)
+
+        return d
+
 
 sys.modules[__name__] = _Misc()

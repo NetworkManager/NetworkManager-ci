@@ -14,7 +14,19 @@ IGNORE_RETURNCODE_ALL = object()
 
 
 def _run(
-    argv, *, shell, as_bytes, timeout, ignore_stderr, ignore_returncode, context_hook
+    argv,
+    *,
+    shell,
+    as_bytes,
+    timeout,
+    cwd,
+    env,
+    env_extra,
+    ignore_stderr,
+    ignore_returncode,
+    stdout,
+    stderr,
+    context_hook,
 ):
 
     if isinstance(argv, str):
@@ -26,21 +38,41 @@ def _run(
 
             argv = shlex.split(argv)
 
+    if env_extra:
+        if env is None:
+            env = dict(os.environ)
+        else:
+            env = dict(env)
+        env.update(env_extra)
+
     if context_hook is not None:
         context_hook("call", argv, shell, timeout)
+
+    if stdout is None:
+        stdout = subprocess.PIPE
+
+    if stderr is None:
+        stderr = subprocess.PIPE
 
     proc = subprocess.run(
         argv,
         shell=shell,
-        stdout=subprocess.PIPE,
-        stderr=subprocess.PIPE,
+        stdout=stdout,
+        stderr=stderr,
         timeout=timeout,
+        cwd=cwd,
+        env=env,
     )
 
-    (returncode, stdout, stderr) = (proc.returncode, proc.stdout, proc.stderr)
+    (returncode, r_stdout, r_stderr) = (proc.returncode, proc.stdout, proc.stderr)
+
+    if r_stdout is None:
+        r_stdout = b""
+    if r_stderr is None:
+        r_stderr = b""
 
     if context_hook is not None:
-        context_hook("result", argv, returncode, stdout, stderr)
+        context_hook("result", argv, returncode, r_stdout, r_stderr)
 
     # Depending on ignore_returncode we accept non-zero output. But
     # even then we want to fail for return codes that indicate a crash
@@ -58,26 +90,26 @@ def _run(
             % (
                 " ".join([util.bytes_to_str(s, errors="replace") for s in argv]),
                 returncode,
-                stdout.decode("utf-8", errors="replace"),
-                stderr.decode("utf-8", errors="replace"),
+                r_stdout.decode("utf-8", errors="replace"),
+                r_stderr.decode("utf-8", errors="replace"),
             )
         )
 
-    if not ignore_stderr and stderr:
+    if not ignore_stderr and r_stderr:
         # if anything was printed to stderr, we consider that a fail.
         raise Exception(
             "`%s` printed something on stderr: %s"
             % (
                 " ".join([util.bytes_to_str(s, errors="replace") for s in argv]),
-                stderr.decode("utf-8", errors="replace"),
+                r_stderr.decode("utf-8", errors="replace"),
             )
         )
 
     if not as_bytes:
-        stdout = stdout.decode("utf-8", errors="strict")
-        stderr = stderr.decode("utf-8", errors="strict")
+        r_stdout = r_stdout.decode("utf-8", errors="strict")
+        r_stderr = r_stderr.decode("utf-8", errors="strict")
 
-    return RunResult(returncode, stdout, stderr)
+    return RunResult(returncode, r_stdout, r_stderr)
 
 
 def run(
@@ -86,8 +118,13 @@ def run(
     shell=False,
     as_bytes=False,
     timeout=5,
+    cwd=util.BASE_DIR,
+    env=None,
+    env_extra=None,
     ignore_returncode=True,
     ignore_stderr=False,
+    stdout=None,
+    stderr=None,
     context_hook=None,
 ):
     return _run(
@@ -95,8 +132,13 @@ def run(
         shell=shell,
         as_bytes=as_bytes,
         timeout=timeout,
+        cwd=cwd,
+        env=env,
+        env_extra=env_extra,
         ignore_stderr=ignore_stderr,
         ignore_returncode=ignore_returncode,
+        stdout=stdout,
+        stderr=stderr,
         context_hook=context_hook,
     )
 
@@ -107,6 +149,9 @@ def run_stdout(
     shell=False,
     as_bytes=False,
     timeout=5,
+    cwd=util.BASE_DIR,
+    env=None,
+    env_extra=None,
     ignore_returncode=False,
     ignore_stderr=False,
     context_hook=None,
@@ -116,8 +161,13 @@ def run_stdout(
         shell=shell,
         as_bytes=as_bytes,
         timeout=timeout,
+        cwd=cwd,
+        env=env,
+        env_extra=env_extra,
         ignore_stderr=ignore_stderr,
         ignore_returncode=ignore_returncode,
+        stdout=None,
+        stderr=None,
         context_hook=context_hook,
     ).stdout
 
@@ -128,6 +178,9 @@ def run_code(
     shell=False,
     as_bytes=False,
     timeout=5,
+    cwd=util.BASE_DIR,
+    env=None,
+    env_extra=None,
     ignore_returncode=True,
     ignore_stderr=False,
     context_hook=None,
@@ -137,8 +190,13 @@ def run_code(
         shell=shell,
         as_bytes=as_bytes,
         timeout=timeout,
+        cwd=cwd,
+        env=env,
+        env_extra=env_extra,
         ignore_stderr=ignore_stderr,
         ignore_returncode=ignore_returncode,
+        stdout=None,
+        stderr=None,
         context_hook=context_hook,
     ).returncode
 
@@ -149,6 +207,9 @@ def run_search_stdout(
     *,
     shell=False,
     timeout=5,
+    cwd=util.BASE_DIR,
+    env=None,
+    env_extra=None,
     ignore_returncode=False,
     ignore_stderr=False,
     context_hook=None,
@@ -166,8 +227,13 @@ def run_search_stdout(
         shell=shell,
         as_bytes=as_bytes,
         timeout=timeout,
+        cwd=cwd,
+        env=env,
+        env_extra=env_extra,
         ignore_stderr=ignore_stderr,
         ignore_returncode=ignore_returncode,
+        stdout=None,
+        stderr=None,
         context_hook=context_hook,
     )
     return re.search(pattern, result.stdout, flags=pattern_flags)
