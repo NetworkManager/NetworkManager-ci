@@ -1094,12 +1094,10 @@ def wait_for_testeth0(context):
 
     if not context.process.run_search_stdout("nmcli connection show -a", "testeth0"):
         print(" ** we don't have testeth0 activat{ing,ed}, let's do it now")
-        if context.process.run_search_stdout(
-            "nmcli device show eth0", "(connected)"
-        ):
+        if context.process.run_search_stdout("nmcli device show eth0", "(connected)"):
             profile = context.process.run_stdout(
                 "nmcli -g GENERAL.DEVICE device show eth0"
-                ).strip()
+            ).strip()
             print(
                 f" ** device eth0 is connected to {profile}, let's disconnect it first"
             )
