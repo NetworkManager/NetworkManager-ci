@@ -159,7 +159,7 @@ def crash_bs(ctx, scen):
                 f"sysctl -w kernel.core_pattern='{systemd_core_pattern}'"
             )
     # unmask systemd-coredump.socket if needed
-    out, _, rc = ctx.process.run_stdout("systemctl is-enabled systemd-coredump.socket")
+    rc, out, _ = ctx.process.run("systemctl is-enabled systemd-coredump.socket")
     ctx.systemd_coredump_masked = rc != 0 and "masked" in out
     if ctx.systemd_coredump_masked:
         ctx.process.run_stdout("systemctl unmask systemd-coredump.socket")
