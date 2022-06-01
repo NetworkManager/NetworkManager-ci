@@ -44,15 +44,11 @@ install_fedora_packages () {
         git nmap-ncat hostapd tcpreplay python3-netaddr dhcp-relay iw net-tools \
         psmisc firewalld dhcp-server ethtool python3-dbus python3-gobject dnsmasq \
         tcpdump wireshark-cli iproute-tc gdb gcc wireguard-tools rp-pppoe tuned \
-        python3-pyyaml \
+        python3-pyyaml NetworkManager-openvpn openvpn ipsec-tools \
+        NetworkManager-libreswan \
         --skip-broken
 
     install_behave_pytest
-
-    # Install vpn dependencies
-    dnf -4 -y install NetworkManager-openvpn openvpn ipsec-tools
-    PKG="NetworkManager-libreswan-1.2.12-1.fc34.3.x86_64.rpm"
-    dnf -y install $FEDP/NM-libreswan_4compat/$PKG
 
     # Install various NM dependencies
     dnf -4 -y remove \

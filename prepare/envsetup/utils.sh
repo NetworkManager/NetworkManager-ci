@@ -22,10 +22,12 @@ install_behave_pytest () {
 
 
 check_packages () {
-    rpm -q iw ethtool wireshark-cli NetworkManager-openvpn NetworkManager-ppp NetworkManager-pptp NetworkManager-tui NetworkManager-team NetworkManager-wifi NetworkManager-vpnc NetworkManager-strongswan && ls /usr/bin/behave
+    rpm -q iw ethtool wireshark-cli NetworkManager-openvpn \
+    NetworkManager-ppp NetworkManager-pptp NetworkManager-tui \
+    NetworkManager-team NetworkManager-wifi \
+    NetworkManager-strongswan && ls /usr/bin/behave
     return $?
 }
-
 
 install_plugins_yum () {
     # Installing plugins if missing
