@@ -159,11 +159,11 @@ def crash_bs(ctx, scen):
                 f"sysctl -w kernel.core_pattern='{systemd_core_pattern}'"
             )
     # unmask systemd-coredump.socket if needed
-    rc, out, _ = ctx.process.run("systemctl is-enabled systemd-coredump.socket")
+    rc, out, _ = ctx.process.systemctl("is-enabled systemd-coredump.socket")
     ctx.systemd_coredump_masked = rc != 0 and "masked" in out
     if ctx.systemd_coredump_masked:
-        ctx.process.run_stdout("systemctl unmask systemd-coredump.socket")
-        ctx.process.run_stdout("systemctl restart systemd-coredump.socket")
+        ctx.process.systemctl("unmask systemd-coredump.socket")
+        ctx.process.systemctl("restart systemd-coredump.socket")
     # set core file size limit of Networkmanager (centos workaround)
     # ctx.process.run_stdout("prlimit --core=unlimited:unlimited --pid $(pidof NetworkManager)", shell=True)
 
@@ -173,15 +173,15 @@ def crash_as(ctx, scen):
     if "systemd-coredump" not in ctx.core_pattern:
         ctx.process.run_stdout(f"sysctl -w kernel.core_pattern='{ctx.core_pattern}'")
     if ctx.systemd_coredump_masked:
-        ctx.process.run_stdout("systemctl stop systemd-coredump.socket")
-        ctx.process.run_stdout("systemctl mask systemd-coredump.socket")
+        ctx.process.systemctl("stop systemd-coredump.socket")
+        ctx.process.systemctl("mask systemd-coredump.socket")
 
 
 _register_tag("crash", crash_bs, crash_as)
 
 
 def not_with_systemd_resolved_bs(ctx, scen):
-    if ctx.process.run_code("systemctl is-active systemd-resolved") == 0:
+    if ctx.process.systemctl("is-active systemd-resolved").returncode == 0:
         print("Skipping as systemd-resolved is running")
         sys.exit(77)
 
@@ -245,7 +245,7 @@ def _is_container():
 
 
 def restart_if_needed_as(ctx, scen):
-    if ctx.process.run_code("systemctl is-active NetworkManager") != 0:
+    if ctx.process.systemctl("is-active NetworkManager").returncode != 0:
         nmci.lib.restart_NM_service(ctx)
     if (
         not os.path.isfile("/tmp/nm_dcb_inf_wol_sriov_configured")
@@ -681,10 +681,10 @@ _register_tag("dsl", None, dsl_as)
 
 
 def dns_dnsmasq_bs(ctx, scen):
-    if ctx.process.run_code("systemctl is-active systemd-resolved") == 0:
+    if ctx.process.systemctl("is-active systemd-resolved").returncode == 0:
         print("stopping systemd-resolved")
         ctx.systemd_resolved = True
-        ctx.process.run_stdout("systemctl stop systemd-resolved")
+        ctx.process.systemctl("stop systemd-resolved")
         ctx.process.run_stdout("rm -rf /etc/resolv.conf")
     else:
         ctx.systemd_resolved = False
@@ -700,7 +700,7 @@ def dns_dnsmasq_as(ctx, scen):
     ctx.dns_plugin = ""
     if ctx.systemd_resolved is True:
         print("starting systemd-resolved")
-        ctx.process.run_stdout("systemctl restart systemd-resolved")
+        ctx.process.systemctl("restart systemd-resolved")
 
 
 _register_tag("dns_dnsmasq", dns_dnsmasq_bs, dns_dnsmasq_as)
@@ -708,13 +708,11 @@ _register_tag("dns_dnsmasq", dns_dnsmasq_bs, dns_dnsmasq_as)
 
 def dns_systemd_resolved_bs(ctx, scen):
     ctx.systemd_resolved = True
-    if ctx.process.run_code("systemctl is-active systemd-resolved") != 0:
+    if ctx.process.systemctl("is-active systemd-resolved").returncode != 0:
         ctx.systemd_resolved = False
         print("start systemd-resolved as it is OFF and requried")
-        ctx.process.run(
-            "timeout 60 systemctl start systemd-resolved", ignore_stderr=True
-        )
-        if ctx.process.run_code("systemctl is-active systemd-resolved") != 0:
+        ctx.process.systemctl("start systemd-resolved")
+        if ctx.process.systemctl("is-active systemd-resolved").returncode != 0:
             print("ERROR: Cannot start systemd-resolved")
             sys.exit(77)
     conf = ["# configured by beaker-test", "[main]", "dns=systemd-resolved"]
@@ -726,7 +724,7 @@ def dns_systemd_resolved_bs(ctx, scen):
 def dns_systemd_resolved_as(ctx, scen):
     if not ctx.systemd_resolved:
         print("stop systemd-resolved")
-        ctx.process.run("systemctl stop systemd-resolved", ignore_stderr=True)
+        ctx.process.systemctl("stop systemd-resolved")
     ctx.process.run_stdout("rm -f /etc/NetworkManager/conf.d/99-xtest-dns.conf")
     nmci.lib.reload_NM_service(ctx)
     ctx.dns_plugin = ""
@@ -968,8 +966,8 @@ def need_legacy_crypto_bs(ctx, scen):
         # hostapd and wpa_supplicant 2.10+ can enforce this w/o config
         # ctx.process.run_stdout("sed '-i.bak' s/'^##'/''/g /etc/pki/tls/openssl.cnf")
         # if '8021x' in scen.tags:
-        #     ctx.process.run_stdout("systemctl restart wpa_supplicant")
-        #     ctx.process.run_stdout("systemctl restart nm-hostapd")
+        #     ctx.process.systemctl("restart wpa_supplicant")
+        #     ctx.process.systemctl("restart nm-hostapd")
 
 
 def need_legacy_crypto_as(ctx, scen):
@@ -978,8 +976,8 @@ def need_legacy_crypto_as(ctx, scen):
         # hostapd and wpa_supplicant 2.10+ can enforce this w/o config
         # ctx.process.run_stdout("mv -f /etc/pki/tls/openssl.cnf.bak /etc/pki/tls/openssl.cnf")
         # if '8021x' in scen.tags:
-        #     ctx.process.run_stdout("systemctl restart wpa_supplicant")
-        #     ctx.process.run_stdout("systemctl restart nm-hostapd")
+        #     ctx.process.systemctl("restart wpa_supplicant")
+        #     ctx.process.systemctl("restart nm-hostapd")
 
 
 _register_tag("need_legacy_crypto", need_legacy_crypto_bs, need_legacy_crypto_as)
@@ -1016,7 +1014,7 @@ def netservice_bs(ctx, scen):
         shell=True,
     )
     nmci.lib.restart_NM_service(ctx)
-    ctx.process.run_stdout("sudo systemctl restart network.service")
+    ctx.process.systemctl("restart network.service")
     nmci.lib.wait_for_testeth0(ctx)
     time.sleep(1)
 
@@ -1111,13 +1109,13 @@ def simwifi_ap_bs(ctx, scen):
 
     ctx.process.run_stdout("modprobe -r mac80211_hwsim")
     ctx.process.run_stdout("modprobe mac80211_hwsim")
-    ctx.process.run_stdout("systemctl restart wpa_supplicant")
+    ctx.process.systemctl("restart wpa_supplicant")
     assert nmci.lib.restart_NM_service(ctx, reset=False), "NM stop failed"
 
 
 def simwifi_ap_as(ctx, scen):
     ctx.process.run_stdout("modprobe -r mac80211_hwsim")
-    ctx.process.run_stdout("systemctl restart wpa_supplicant")
+    ctx.process.systemctl("restart wpa_supplicant")
     assert nmci.lib.restart_NM_service(ctx, reset=False), "NM stop failed"
 
 
@@ -1140,7 +1138,7 @@ def simwifi_p2p_bs(ctx, scen):
             "https://vbenes.fedorapeople.org/NM/wpa_supplicant-debuginfo-2.7-2.2.bz1693684.el8.x86_64.rpm ",
             timeout=120,
         )
-        ctx.process.run_stdout("systemctl restart wpa_supplicant")
+        ctx.process.systemctl("restart wpa_supplicant")
 
     if (
         ctx.process.run_code(
@@ -1159,7 +1157,7 @@ def simwifi_p2p_bs(ctx, scen):
     # ctx.process.run_stdout("echo -e '[connection-wifi]\nwifi.cloned-mac-address=preserve' >> /etc/NetworkManager/conf.d/99-wifi.conf")
 
     # this need to be done before NM restart, otherwise there is a race between NM and wpa_supp
-    ctx.process.run_stdout("systemctl restart wpa_supplicant")
+    ctx.process.systemctl("restart wpa_supplicant")
     # This is workaround for https://bugzilla.redhat.com/show_bug.cgi?id=1752780
     nmci.util.file_set_content(
         "/etc/NetworkManager/conf.d/99-wifi.conf",
@@ -1194,7 +1192,7 @@ def simwifi_p2p_as(ctx, scen):
                 timeout=120,
             )
         ctx.process.run_stdout("dnf -y update wpa_supplicant", timeout=120)
-        ctx.process.run_stdout("systemctl restart wpa_supplicant")
+        ctx.process.systemctl("restart wpa_supplicant")
     ctx.process.run_stdout("modprobe -r mac80211_hwsim")
     ctx.process.run_stdout("pkill -9 -f wpa_supplicant.*wlan1", shell=True)
     ctx.process.run_stdout("rm -rf /etc/NetworkManager/conf.d/99-wifi.conf")
@@ -1428,15 +1426,15 @@ _register_tag("dracut", dracut_bs, dracut_as)
 
 def dracut_remote_NFS_clean_as(ctx, scen):
     # keep nfs service stopped as it hangs rm commands for 90s
+    ctx.process.systemctl("stop nfs-server.service")
     ctx.process.run_stdout(
         ". contrib/dracut/setup.sh; "
-        "systemctl stop nfs-server.service; "
         "rm -vrf $TESTDIR/nfs/client/etc/NetworkManager/system-connections/*; "
         "rm -vrf $TESTDIR/nfs/client/etc/NetworkManager/conf.d/50-*; "
-        "rm -vrf $TESTDIR/nfs/client/etc/sysconfig/network-scripts/ifcfg-*; "
-        "systemctl start nfs-server.service; ",
+        "rm -vrf $TESTDIR/nfs/client/etc/sysconfig/network-scripts/ifcfg-*; ",
         shell=True,
     )
+    ctx.process.systemctl("start nfs-server.service")
 
 
 _register_tag("dracut_remote_NFS_clean", None, dracut_remote_NFS_clean_as)
@@ -1526,10 +1524,10 @@ _register_tag("attach_wpa_supplicant_log", None, attach_wpa_supplicant_log_as)
 
 def performance_bs(ctx, scen):
     # Set machine perf to max
-    ctx.process.run("systemctl start tuned", ignore_stderr=True)
+    ctx.process.systemctl("start tuned")
     ctx.process.run("tuned-adm profile throughput-performance", ignore_stderr=True)
-    ctx.process.run("systemctl stop tuned", ignore_stderr=True)
-    ctx.process.run("systemctl stop openvswitch", ignore_stderr=True)
+    ctx.process.systemctl("stop tuned")
+    ctx.process.systemctl("stop openvswitch")
     # Set some speed factor
     ctx.machine_speed_factor = 1
     hostname = ctx.process.run_stdout("hostname").strip()
@@ -1565,11 +1563,11 @@ def performance_as(ctx, scen):
     command = f"nmcli con del {cons}"
     ctx.process.run(command)
     # setup.sh masks dispatcher scripts
-    ctx.process.run("systemctl unmask NetworkManager-dispatcher", ignore_stderr=True)
+    ctx.process.systemctl("unmask NetworkManager-dispatcher")
     # reset the performance profile
-    ctx.process.run("systemctl start tuned", ignore_stderr=True)
+    ctx.process.systemctl("start tuned")
     ctx.process.run("tuned-adm profile $(tuned-adm recommend)", ignore_stderr=True)
-    ctx.process.run("systemctl start openvswitch", ignore_stderr=True)
+    ctx.process.systemctl("start openvswitch")
 
 
 _register_tag("performance", performance_bs, performance_as)
@@ -1631,8 +1629,8 @@ def pptp_bs(ctx, scen):
             ],
         )
 
-        ctx.process.run_stdout("sudo systemctl unmask pptpd")
-        ctx.process.run_stdout("sudo systemctl restart pptpd")
+        ctx.process.systemctl("unmask pptpd")
+        ctx.process.systemctl("restart pptpd")
         # context.execute_steps(u'* Add a connection named "pptp" for device "\*" to "pptp" VPN')
         # context.execute_steps(u'* Use user "budulinek" with password "passwd" and MPPE set to "yes" for gateway "127.0.0.1" on PPTP connection "pptp"')
         ctx.pexpect_service("/sbin/pppd pty '/sbin/pptp 127.0.0.1' nodetach")
@@ -1654,11 +1652,11 @@ def firewall_bs(ctx, scen):
         print("install firewalld")
         nmci.lib.wait_for_testeth0(ctx)
         ctx.process.run_stdout("sudo yum -y install firewalld", timeout=120)
-    ctx.process.run_stdout("sudo systemctl unmask firewalld", ignore_stderr=True)
+    ctx.process.systemctl("unmask firewalld")
     time.sleep(1)
-    ctx.process.run_stdout("sudo systemctl stop firewalld", timeout=20)
+    ctx.process.systemctl("stop firewalld")
     time.sleep(5)
-    ctx.process.run_stdout("sudo systemctl start firewalld", timeout=20)
+    ctx.process.systemctl("start firewalld")
     ctx.process.run_stdout("sudo nmcli con modify testeth0 connection.zone public")
     # Add a sleep here to prevent firewalld to hang
     # (see https://bugzilla.redhat.com/show_bug.cgi?id=1495893)
@@ -1675,7 +1673,7 @@ def firewall_as(ctx, scen):
         "sudo firewall-cmd --permanent --zone=public --remove-masquerade",
         ignore_stderr=True,
     )
-    ctx.process.run_stdout("sudo systemctl stop firewalld", timeout=20)
+    ctx.process.systemctl("stop firewalld")
 
 
 _register_tag("firewall", firewall_bs, firewall_as)
@@ -1686,12 +1684,8 @@ def restore_hostname_bs(ctx, scen):
 
 
 def restore_hostname_as(ctx, scen):
-    ctx.process.run_stdout(
-        "systemctl unmask systemd-hostnamed.service", ignore_stderr=True
-    )
-    ctx.process.run_stdout(
-        "systemctl unmask dbus-org.freedesktop.hostname1.service", ignore_stderr=True
-    )
+    ctx.process.systemctl("unmask systemd-hostnamed.service")
+    ctx.process.systemctl("unmask dbus-org.freedesktop.hostname1.service")
     if ctx.IS_NMTUI:
         nmci.util.file_set_content("/etc/hostname", ["localhost.localdomain"])
     else:
@@ -1711,12 +1705,12 @@ _register_tag("restore_hostname", restore_hostname_bs, restore_hostname_as)
 
 
 def runonce_bs(ctx, scen):
-    ctx.process.run("systemctl stop network", ignore_stderr=True)
+    ctx.process.systemctl("stop network")
     # TODO check: this should be done by @eth0
     ctx.process.run("nmcli device disconnect eth0", ignore_stderr=True)
     ctx.process.run("pkill -9 dhclient", ignore_stderr=True)
     ctx.process.run("pkill -9 nm-iface-helper", ignore_stderr=True)
-    ctx.process.run("sudo systemctl stop firewalld", ignore_stderr=True)
+    ctx.process.systemctl("stop firewalld")
     ctx.nm_pid_refresh_count = 1000
 
 
@@ -1783,15 +1777,14 @@ def openvswitch_bs(ctx, scen):
     if ctx.process.run_code("rpm -q NetworkManager-ovs") != 0:
         print("install NetworkManager-ovs")
         ctx.process.run_stdout("yum -y install NetworkManager-ovs", timeout=120)
-        ctx.process.run_stdout("systemctl daemon-reload")
+        ctx.process.systemctl("daemon-reload")
         nmci.lib.restart_NM_service(ctx)
-    if ctx.process.run_code(
-        "systemctl is-active openvswitch"
-    ) != 0 or ctx.process.run_search_stdout(
-        "systemctl status ovs-vswitchd.service", "ERR", timeout=10
+    if (
+        ctx.process.systemctl("is-active openvswitch").returncode != 0
+        or "ERR" in ctx.process.systemctl("status ovs-vswitchd.service").stdout
     ):
         print("restart openvswitch")
-        ctx.process.run_stdout("systemctl restart openvswitch", timeout=10)
+        ctx.process.systemctl("restart openvswitch")
         nmci.lib.restart_NM_service(ctx)
 
 
@@ -1892,12 +1885,12 @@ def dpdk_bs(ctx, scen):
         shell=True,
     )
     # No idea why we need to restrt OVS but we need to
-    ctx.process.run_stdout("systemctl restart openvswitch")
+    ctx.process.systemctl("restart openvswitch")
 
 
 def dpdk_as(ctx, scen):
-    ctx.process.run_stdout("systemctl stop ovsdb-server")
-    ctx.process.run_stdout("systemctl stop openvswitch")
+    ctx.process.systemctl("stop ovsdb-server")
+    ctx.process.systemctl("stop openvswitch")
     time.sleep(5)
 
 
@@ -2027,10 +2020,9 @@ def nmstate_upstream_setup_bs(ctx, scen):
     )
     nmci.lib.manage_veths(ctx)
 
-    if ctx.process.run_code(
-        "systemctl is-active openvswitch"
-    ) != 0 or ctx.process.run_search_stdout(
-        "systemctl status ovs-vswitchd.service", "ERR"
+    if (
+        ctx.process.systemctl("is-active openvswitch").returncode != 0
+        or "ERR" in ctx.process.systemctl("status ovs-vswitchd.service").sdtout
     ):
         print("restarting OVS service")
         ctx.process.run_stdout("systemctl restart openvswitch")
@@ -2055,7 +2047,7 @@ def nmstate_upstream_setup_as(ctx, scen):
     ctx.process.run_stdout("ovs-vsctl del-br ovsbr0")
 
     # in case of fail we need to kill this
-    ctx.process.run_stdout("systemctl stop dnsmasq")
+    ctx.process.systemctl("stop dnsmasq")
     ctx.process.run_stdout("pkill -f 'dnsmasq.*/etc/dnsmasq.d/nmstate.conf'")
     ctx.process.run_stdout("rm -rf /etc/dnsmasq.d/nmstate.conf")
 
@@ -2286,8 +2278,8 @@ _register_tag("no_connections", no_connections_bs, no_connections_as)
 
 
 def teamd_as(ctx, scen):
-    ctx.process.run_stdout("systemctl stop teamd")
-    ctx.process.run("systemctl reset-failed teamd", ignore_stderr=True)
+    ctx.process.systemctl("stop teamd")
+    ctx.process.systemctl("reset-failed teamd")
 
 
 _register_tag("teamd", None, teamd_as)
@@ -2463,7 +2455,7 @@ _register_tag("flush_300", None, flush_300_as)
 
 
 def stop_radvd_as(ctx, scen):
-    ctx.process.run_stdout("sudo systemctl stop radvd")
+    ctx.process.systemctl("stop radvd")
     ctx.process.run_stdout("rm -rf /etc/radvd.conf")
 
 
@@ -2521,7 +2513,7 @@ _register_tag("macsec", None, macsec_as)
 
 
 def dhcpd_as(ctx, scen):
-    ctx.process.run_stdout("sudo systemctl stop dhcpd")
+    ctx.process.systemctl("stop dhcpd")
 
 
 _register_tag("dhcpd", None, dhcpd_as)
@@ -2631,7 +2623,7 @@ _register_tag("remove_dns_clean", None, remove_dns_clean_as)
 
 def restore_resolvconf_as(ctx, scen):
     ctx.process.run_stdout("rm -rf /etc/resolv.conf")
-    if ctx.process.run_code("systemctl is-active systemd-resolved") == 0:
+    if ctx.process.systemctl("is-active systemd-resolved").returncode == 0:
         ctx.process.run_stdout(
             "ln -s /run/systemd/resolve/stub-resolv.conf /etc/resolv.conf"
         )
@@ -2669,7 +2661,7 @@ _register_tag("restore_eth8", None, restore_eth8_as)
 
 
 def restore_broken_network_as(ctx, scen):
-    ctx.process.run_stdout("systemctl stop network.service")
+    ctx.process.systemctl("stop network.service")
     nmci.lib.stop_NM_service(ctx)
     ctx.process.run_stdout("sysctl net.ipv6.conf.all.accept_ra=1")
     ctx.process.run_stdout("sysctl net.ipv6.conf.default.accept_ra=1")
@@ -2830,8 +2822,8 @@ _register_tag("custom_ns", None, custom_ns_as)
 
 
 def radius_bs(ctx, scen):
-    if ctx.process.run_code("systemctl is-active radiusd.service") == 0:
-        ctx.process.run_stdout("systemctl disable --now radiusd.service")
+    if ctx.process.systemctl("is-active radiusd.service").returncode == 0:
+        ctx.process.systemctl("disable --now radiusd.service")
     if os.path.isdir("/tmp/nmci-raddb"):
         if ctx.process.run_code("radiusd -XC") != 0:
             ctx.process.run_stdout("rm -rf /etc/raddb")
@@ -2893,8 +2885,8 @@ def radius_bs(ctx, scen):
         ctx.process.run_stdout("radiusd -XC")
         ctx.process.run_stdout("cp -a /etc/raddb /tmp/nmci-raddb")
     ctx.process.run_stdout("chown -R radiusd.radiusd /var/run/radiusd")
-    if ctx.process.run_code("systemctl is-active radiusd") == 0:
-        ctx.process.run_stdout("systemctl stop radiusd")
+    if ctx.process.systemctl("is-active radiusd").returncode == 0:
+        ctx.process.systemctl("stop radiusd")
     ctx.process.run_stdout(
         "systemd-run --service-type forking --unit nm-radiusd.service /usr/sbin/radiusd -l stdout -x",
         ignore_stderr=True,
@@ -2904,7 +2896,7 @@ def radius_bs(ctx, scen):
 def radius_as(ctx, scen):
     if scen.status == "failed" or ctx.DEBUG:
         nmci.lib.embed_service_log(ctx, "RADIUS", syslog_identifier="radiusd")
-    ctx.process.run("systemctl stop nm-radiusd.service", ignore_stderr=True)
+    ctx.process.systemctl("stop nm-radiusd.service")
 
 
 _register_tag("radius", radius_bs, radius_as)
@@ -2925,7 +2917,7 @@ def tag8021x_doc_procedure_bs(ctx, scen):
 
 
 def tag8021x_doc_procedure_as(ctx, scen):
-    ctx.process.run("systemctl stop 802-1x-tr-mgmt hostapd", ignore_stderr=True)
+    ctx.process.systemctl("stop 802-1x-tr-mgmt hostapd")
     if scen.status == "failed" or ctx.DEBUG:
         nmci.lib.embed_service_log(ctx, "HOSTAPD", syslog_identifier="hostapd")
         nmci.lib.embed_service_log(
@@ -2938,7 +2930,7 @@ def tag8021x_doc_procedure_as(ctx, scen):
         )
     if os.path.isfile("/etc/hostapd/hostapd.conf"):
         os.remove("/etc/hostapd/hostapd.conf")
-    ctx.process.run_stdout("systemctl daemon-reload")
+    ctx.process.systemctl("daemon-reload")
     nmci.lib.reset_hwaddr_nmcli(ctx, "eth4")
 
 
