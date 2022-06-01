@@ -130,11 +130,11 @@ def gsm_sim_bs(ctx, scen):
 
 
 def gsm_sim_as(ctx, scen):
-    ctx.process.run("nmcli con down id gsm", ignore_stderr=True, timeout=15)
+    ctx.process.nmcli_force("con down id gsm")
     time.sleep(2)
     ctx.process.run("sudo prepare/gsm_sim.sh teardown", ignore_stderr=True)
     time.sleep(1)
-    ctx.process.run("nmcli con del id gsm")
+    ctx.process.nmcli_force("con del id gsm")
     ctx.embed(
         "text/plain", nmci.util.file_get_content_simple("/tmp/gsm_sim.log"), "GSM_SIM"
     )
@@ -357,8 +357,8 @@ _register_tag("captive_portal", captive_portal_bs, captive_portal_as)
 
 
 def gsm_bs(ctx, scen):
-    ctx.process.run_stdout("mmcli -G debug")
-    ctx.process.run_stdout("nmcli general logging level DEBUG domains ALL")
+    ctx.process.mmcli("-G debug")
+    ctx.process.nmcli("general logging level DEBUG domains ALL")
     # Extract modem's identification and keep it in a global variable for further use.
     # Only 1 modem is expected per test.
     ctx.modem_str = nmci.lib.find_modem(ctx)
@@ -397,7 +397,7 @@ def gsm_bs(ctx, scen):
         #                 raise Exception("Timeout reached!")
         #             continue
 
-    ctx.process.run_stdout("nmcli con down testeth0")
+    ctx.process.nmcli_force("con down testeth0")
 
 
 def gsm_as(ctx, scen):
@@ -405,7 +405,7 @@ def gsm_as(ctx, scen):
     # SSH connection is interrupted.
     # import ipdb
 
-    ctx.process.run_stdout("nmcli connection delete gsm")
+    ctx.process.nmcli_force("connection delete gsm")
     ctx.process.run_stdout("rm -rf /etc/NetworkManager/system-connections/gsm")
     nmci.lib.wait_for_testeth0(ctx)
 
@@ -444,20 +444,20 @@ _register_tag("gsm", gsm_bs, gsm_as)
 def unmanage_eth_bs(ctx, scen):
     links = nmci.lib.get_ethernet_devices(ctx)
     for link in links:
-        ctx.process.run_stdout(f"nmcli dev set {link} managed no")
+        ctx.process.nmcli(f"dev set {link} managed no")
 
 
 def unmanage_eth_as(ctx, scen):
     links = nmci.lib.get_ethernet_devices(ctx)
     for link in links:
-        ctx.process.run_stdout(f"nmcli dev set {link} managed yes")
+        ctx.process.nmcli(f"dev set {link} managed yes")
 
 
 _register_tag("unmanage_eth", unmanage_eth_bs, unmanage_eth_as)
 
 
 def manage_eth8_as(ctx, scen):
-    ctx.process.run_stdout("sudo nmcli device set eth8 managed true")
+    ctx.process.nmcli("device set eth8 managed true")
 
 
 _register_tag("manage_eth8", None, manage_eth8_as)
@@ -510,8 +510,8 @@ def disp_as(ctx, scen):
     ctx.process.run_stdout("rm -rf /etc/NetworkManager/dispatcher.d/pre-up.d/98-disp")
     ctx.process.run_stdout("rm -rf /etc/NetworkManager/dispatcher.d/pre-down.d/97-disp")
     # ctx.process.run_stdout("rm -rf /tmp/dispatcher.txt")
-    ctx.process.run("nmcli con down testeth1", ignore_stderr=True)
-    ctx.process.run("nmcli con down testeth2", ignore_stderr=True)
+    ctx.process.nmcli_force("con down testeth1")
+    ctx.process.nmcli_force("con down testeth2")
     nmci.lib.reload_NM_service(ctx)
 
 
@@ -527,9 +527,9 @@ def eth0_bs(ctx, scen):
     #        print("shutting down eth0 once more as it is not down")
     #        ctx.process.run_stdout("nmcli device disconnect eth0")
     #        time.sleep(2)
-    ctx.process.run_stdout("nmcli con down testeth0")
-    ctx.process.run("nmcli con down testeth1", ignore_stderr=True)
-    ctx.process.run("nmcli con down testeth2", ignore_stderr=True)
+    ctx.process.nmcli("con down testeth0")
+    ctx.process.nmcli_force("con down testeth1")
+    ctx.process.nmcli_force("con down testeth2")
 
 
 def eth0_as(ctx, scen):
@@ -544,17 +544,17 @@ _register_tag("eth0", eth0_bs, eth0_as)
 
 
 def alias_bs(ctx, scen):
-    ctx.process.run_stdout("nmcli connection up testeth7")
-    ctx.process.run("nmcli connection delete eth7", ignore_stderr=True)
+    ctx.process.nmcli("connection up testeth7")
+    ctx.process.nmcli_force("connection delete eth7")
 
 
 def alias_as(ctx, scen):
-    ctx.process.run("nmcli connection delete eth7", ignore_stderr=True)
+    ctx.process.nmcli_force("connection delete eth7")
     ctx.process.run_stdout("rm -f /etc/sysconfig/network-scripts/ifcfg-eth7:0")
     ctx.process.run_stdout("rm -f /etc/sysconfig/network-scripts/ifcfg-eth7:1")
     ctx.process.run_stdout("rm -f /etc/sysconfig/network-scripts/ifcfg-eth7:2")
-    ctx.process.run_stdout("nmcli connection reload")
-    ctx.process.run("nmcli connection down testeth7", ignore_stderr=True)
+    ctx.process.nmcli("connection reload")
+    ctx.process.nmcli_force("connection down testeth7")
     # ctx.process.run_stdout('sudo nmcli con add type ethernet ifname eth7 con-name testeth7 autoconnect no')
     # sleep(TIMER)
 
@@ -587,9 +587,7 @@ def scapy_bs(ctx, scen):
 def scapy_as(ctx, scen):
     ctx.process.run("ip link delete test10", ignore_stderr=True)
     ctx.process.run("ip link delete test11", ignore_stderr=True)
-    ctx.process.run(
-        "nmcli connection delete ethernet-test10 ethernet-test11", ignore_stderr=True
-    )
+    ctx.process.nmcli_force("connection delete ethernet-test10 ethernet-test11")
 
 
 _register_tag("scapy", scapy_bs, scapy_as)
@@ -646,27 +644,21 @@ _register_tag("netaddr", netaddr_bs)
 
 
 def inf_bs(ctx, scen):
-    ctx.process.run("nmcli device disconnect inf_ib0", ignore_stderr=True)
-    ctx.process.run("nmcli device disconnect inf_ib0.8002", ignore_stderr=True)
-    ctx.process.run("nmcli connection delete inf_ib0.8002", ignore_stderr=True)
-    ctx.process.run(
-        "nmcli connection delete id infiniband-inf_ib0.8002 inf.8002 inf inf2 infiniband-inf_ib0 infiniband",
-        ignore_stderr=True,
+    ctx.process.nmcli_force("device disconnect inf_ib0")
+    ctx.process.nmcli_force("device disconnect inf_ib0.8002")
+    ctx.process.nmcli_force("connection delete inf_ib0.8002")
+    ctx.process.nmcli_force(
+        "connection delete id infiniband-inf_ib0.8002 inf.8002 inf inf2 infiniband-inf_ib0 infiniband"
     )
 
 
 def inf_as(ctx, scen):
     if ctx.IS_NMTUI:
-        ctx.process.run(
-            "sudo nmcli connection delete id infiniband0 infiniband0-port",
-            ignore_stderr=True,
-        )
+        ctx.process.nmcli_force("connection delete id infiniband0 infiniband0-port")
     else:
-        ctx.process.run_stdout("nmcli connection up id tg3_1", timeout=45)
-        ctx.process.run_stdout(
-            "nmcli connection delete id inf inf2 infiniband inf.8002"
-        )
-        ctx.process.run_stdout("nmcli device connect inf_ib0.8002")
+        ctx.process.nmcli("connection up id tg3_1")
+        ctx.process.nmcli_force("connection delete id inf inf2 infiniband inf.8002")
+        ctx.process.nmcli_force("nmcli device connect inf_ib0.8002")
 
 
 _register_tag("inf", inf_bs, inf_as)
@@ -674,7 +666,7 @@ _register_tag("inf", inf_bs, inf_as)
 
 def dsl_as(ctx, scen):
     if ctx.IS_NMTUI:
-        ctx.process.run_stdout("sudo nmcli connection delete id dsl0")
+        ctx.process.nmcli_force("connection delete id dsl0")
 
 
 _register_tag("dsl", None, dsl_as)
@@ -771,12 +763,12 @@ _register_tag("dhclient_DHCP", dhclient_DHCP_bs, dhclient_DHCP_as)
 
 def delete_testeth0_bs(ctx, scen):
     skip_restarts_bs(ctx, scen)
-    ctx.process.run_stdout("nmcli device disconnect eth0")
-    ctx.process.run_stdout("nmcli connection delete id testeth0")
+    ctx.process.nmcli("device disconnect eth0")
+    ctx.process.nmcli("connection delete id testeth0")
 
 
 def delete_testeth0_as(ctx, scen):
-    ctx.process.run("sudo nmcli connection delete eth0", ignore_stderr=True)
+    ctx.process.nmcli_force("connection delete eth0")
     nmci.lib.restore_testeth0(ctx)
 
 
@@ -784,16 +776,15 @@ _register_tag("delete_testeth0", delete_testeth0_bs, delete_testeth0_as)
 
 
 def ethernet_bs(ctx, scen):
-    if ctx.process.run_search_stdout(
-        "nmcli con", "testeth1"
-    ) or ctx.process.run_search_stdout("nmcli con", "testeth2"):
+    cons = ctx.process.nmcli("con")
+    if "testeth1" in cons or "testeth2" in cons:
         print("sanitizing eth1 and eth2")
-        ctx.process.run_stdout("sudo nmcli con del testeth1 testeth2")
-        ctx.process.run_stdout(
-            "sudo nmcli con add type ethernet ifname eth1 con-name testeth1 autoconnect no"
+        ctx.process.nmcli_force("con del testeth1 testeth2")
+        ctx.process.nmcli(
+            "con add type ethernet ifname eth1 con-name testeth1 autoconnect no"
         )
-        ctx.process.run_stdout(
-            "sudo nmcli con add type ethernet ifname eth2 con-name testeth2 autoconnect no"
+        ctx.process.nmcli(
+            "con add type ethernet ifname eth2 con-name testeth2 autoconnect no"
         )
 
 
@@ -911,15 +902,15 @@ _register_tag("plugin_default", plugin_default_bs, plugin_default_as)
 
 
 def eth3_disconnect_bs(ctx, scen):
-    ctx.process.run("nmcli device disconnect eth3", ignore_stderr=True)
+    ctx.process.nmcli_force("device disconnect eth3")
     ctx.process.run("pkill -9 -F /var/run/dhclient-eth3.pid", ignore_stderr=True)
 
 
 def eth3_disconnect_as(ctx, scen):
-    ctx.process.run("sudo nmcli device disconnect eth3", ignore_stderr=True)
+    ctx.process.nmcli_force("device disconnect eth3")
     # VVV Up/Down to preserve autoconnect feature
-    ctx.process.run_stdout("sudo nmcli connection up testeth3", timeout=45)
-    ctx.process.run_stdout("sudo nmcli connection down testeth3")
+    ctx.process.nmcli("connection up testeth3")
+    ctx.process.nmcli("connection down testeth3")
 
 
 _register_tag("eth3_disconnect", eth3_disconnect_bs, eth3_disconnect_as)
@@ -984,15 +975,13 @@ _register_tag("need_legacy_crypto", need_legacy_crypto_bs, need_legacy_crypto_as
 
 
 def logging_bs(ctx, scen):
-    ctx.loggin_level = ctx.process.run_stdout(
-        "nmcli -t -f LEVEL general logging"
-    ).strip()
+    ctx.loggin_level = ctx.process.nmcli("-t -f LEVEL general logging").strip()
 
 
 def logging_as(ctx, scen):
     print("---------------------------")
     print("setting log level back")
-    ctx.process.run_stdout(f"sudo nmcli g log level {ctx.loggin_level} domains ALL")
+    ctx.process.nmcli(f"g log level {ctx.loggin_level} domains ALL")
 
 
 _register_tag("logging", logging_bs, logging_as)
@@ -1009,10 +998,10 @@ _register_tag("remove_custom_cfg", None, remove_custom_cfg_as)
 def netservice_bs(ctx, scen):
     ctx.process.run_stdout("sudo pkill -9 /sbin/dhclient")
     # Make orig- devices unmanaged as they may be unfunctional
-    ctx.process.run_stdout(
-        "for dev in $(nmcli  -g DEVICE d |grep orig); do nmcli device set $dev managed off; done",
-        shell=True,
-    )
+    devs = ctx.process.nmcli("-g DEVICE device").strip().split("\n")
+    for dev in devs:
+        if dev.startswith("orig"):
+            ctx.process.nmcli_force(f"device set {dev} managed off")
     nmci.lib.restart_NM_service(ctx)
     ctx.process.systemctl("restart network.service")
     nmci.lib.wait_for_testeth0(ctx)
@@ -1081,19 +1070,12 @@ def simwifi_bs(ctx, scen):
 def simwifi_as(ctx, scen):
     if ctx.IS_NMTUI:
         print("deleting all wifi connections")
-        conns = (
-            nmci.process.run_stdout("nmcli -t -f uuid,type con show")
-            .strip()
-            .split("\n")
-        )
-        del_conns = []
-        for conn in conns:
-            if conn.endswith(":802-11-wireless"):
-                del_conns.append(conn.replace(":802-11-wireless", ""))
+        conns = nmci.process.nmcli("-t -f UUID,TYPE con show").strip().split("\n")
+        WIRELESS = ":802-11-wireless"
+        del_conns = [c.replace(WIRELESS, "") for c in conns if c.endswith(WIRELESS)]
         if del_conns:
-            del_conns_str = " ".join(del_conns)
-            print(" * deleting UUIDs: " + del_conns_str)
-            ctx.process.run_stdout(f"nmcli con del uuid {del_conns_str}")
+            print(" * deleting UUIDs: " + " ".join(del_conns))
+            ctx.process.nmcli(["con", "del", "uuid"] + del_conns)
         else:
             print(" * no wifi connectons found")
         nmci.lib.wait_for_testeth0(ctx)
@@ -1232,7 +1214,7 @@ def vpnc_bs(ctx, scen):
 
 
 def vpnc_as(ctx, scen):
-    ctx.process.run("nmcli connection delete vpnc", ignore_stderr=True)
+    ctx.process.nmcli_force("connection delete vpnc")
     nmci.lib.teardown_racoon(ctx)
 
 
@@ -1295,8 +1277,8 @@ def libreswan_bs(ctx, scen):
 
 
 def libreswan_as(ctx, scen):
-    ctx.process.run("nmcli connection down libreswan", ignore_stderr=True)
-    ctx.process.run("nmcli connection delete libreswan", ignore_stderr=True)
+    ctx.process.nmcli_force("connection down libreswan")
+    ctx.process.nmcli_force("connection delete libreswan")
     nmci.lib.teardown_libreswan(ctx)
     nmci.lib.wait_for_testeth0(ctx)
 
@@ -1316,8 +1298,8 @@ def openvpn_bs(ctx, scen):
 
 def openvpn_as(ctx, scen):
     nmci.lib.restore_testeth0(ctx)
-    ctx.process.run("nmcli connection delete openvpn", ignore_stderr=True)
-    ctx.process.run("nmcli connection delete tun0", ignore_stderr=True)
+    ctx.process.nmcli_force("connection delete openvpn")
+    ctx.process.nmcli_force("connection delete tun0")
     ctx.process.run("pkill openvpn", shell=True)
 
 
@@ -1338,8 +1320,8 @@ def strongswan_bs(ctx, scen):
 
 def strongswan_as(ctx, scen):
     # ctx.process.run_stdout("ip route del default via 172.31.70.1")
-    ctx.process.run("nmcli connection down strongswan", ignore_stderr=True)
-    ctx.process.run("nmcli connection delete strongswan", ignore_stderr=True)
+    ctx.process.nmcli_force("connection down strongswan")
+    ctx.process.nmcli_force("connection delete strongswan")
     nmci.lib.teardown_strongswan(ctx)
     nmci.lib.wait_for_testeth0(ctx)
 
@@ -1348,7 +1330,7 @@ _register_tag("strongswan", strongswan_bs, strongswan_as)
 
 
 def vpn_as(ctx, scen):
-    ctx.process.run("nmcli connection delete vpn", ignore_stderr=True)
+    ctx.process.nmcli_force("connection delete vpn")
 
 
 _register_tag("vpn", None, vpn_as)
@@ -1556,12 +1538,9 @@ def performance_as(ctx, scen):
     # Settings device number to 0
     ctx.process.run_stdout("contrib/gi/./setup.sh 0", timeout=120)
     ctx.nm_pid = nmci.nmutil.nm_pid()
-    # Deleting all connections
-    cons = ""
-    for i in range(1, 101):
-        cons = cons + (f"t-a{i} ")
-    command = f"nmcli con del {cons}"
-    ctx.process.run(command)
+    # Deleting all connections t-a1..t-a100
+    cons = " ".join([f"t-a{i}" for i in range(1, 101)])
+    ctx.process.nmcli_force(f"con del {cons}")
     # setup.sh masks dispatcher scripts
     ctx.process.systemctl("unmask NetworkManager-dispatcher")
     # reset the performance profile
@@ -1634,14 +1613,14 @@ def pptp_bs(ctx, scen):
         # context.execute_steps(u'* Add a connection named "pptp" for device "\*" to "pptp" VPN')
         # context.execute_steps(u'* Use user "budulinek" with password "passwd" and MPPE set to "yes" for gateway "127.0.0.1" on PPTP connection "pptp"')
         ctx.pexpect_service("/sbin/pppd pty '/sbin/pptp 127.0.0.1' nodetach")
-        # ctx.process.run_stdout("nmcli con up id pptp")
-        # ctx.process.run_stdout("nmcli con del pptp")
+        # ctx.process.nmcli("con up id pptp")
+        # ctx.process.nmcli("con del pptp")
         nmci.util.file_set_content("/tmp/nm_pptp_configured", "")
         time.sleep(1)
 
 
 def pptp_as(ctx, scen):
-    ctx.process.run("nmcli connection delete pptp", ignore_stderr=True)
+    ctx.process.nmcli_force("connection delete pptp")
 
 
 _register_tag("pptp", pptp_bs, pptp_as)
@@ -1657,7 +1636,7 @@ def firewall_bs(ctx, scen):
     ctx.process.systemctl("stop firewalld")
     time.sleep(5)
     ctx.process.systemctl("start firewalld")
-    ctx.process.run_stdout("sudo nmcli con modify testeth0 connection.zone public")
+    ctx.process.nmcli("con modify testeth0 connection.zone public")
     # Add a sleep here to prevent firewalld to hang
     # (see https://bugzilla.redhat.com/show_bug.cgi?id=1495893)
     time.sleep(1)
@@ -1707,7 +1686,7 @@ _register_tag("restore_hostname", restore_hostname_bs, restore_hostname_as)
 def runonce_bs(ctx, scen):
     ctx.process.systemctl("stop network")
     # TODO check: this should be done by @eth0
-    ctx.process.run("nmcli device disconnect eth0", ignore_stderr=True)
+    ctx.process.nmcli_force("device disconnect eth0")
     ctx.process.run("pkill -9 dhclient", ignore_stderr=True)
     ctx.process.run("pkill -9 nm-iface-helper", ignore_stderr=True)
     ctx.process.systemctl("stop firewalld")
@@ -1726,8 +1705,8 @@ def runonce_as(ctx, scen):
         "for i in $(pidof nm-iface-helper); do kill -9 $i; done", shell=True
     )
     # TODO check: is this neccessary?
-    ctx.process.run("nmcli connection delete con_general", ignore_stderr=True)
-    ctx.process.run("nmcli device disconnect eth10", ignore_stderr=True)
+    ctx.process.nmcli_force("connection delete con_general")
+    ctx.process.nmcli_force("device disconnect eth10")
     nmci.lib.wait_for_testeth0(ctx)
 
 
@@ -1803,8 +1782,8 @@ def openvswitch_as(ctx, scen):
     ctx.process.run("ovs-vsctl del-br ovsbridge0", ignore_stderr=True)
     ctx.process.run("ovs-vsctl del-br ovsbridge1", ignore_stderr=True)
     ctx.process.run("ovs-vsctl del-br i-ovs-br0", ignore_stderr=True)
-    ctx.process.run("nmcli device delete bond0", ignore_stderr=True)
-    ctx.process.run("nmcli device delete port0", ignore_stderr=True)
+    ctx.process.nmcli_force("device delete bond0")
+    ctx.process.nmcli_force("device delete port0")
     ctx.process.run_stdout("sudo rm -rf /etc/sysconfig/network-scripts/ifcfg-eth1")
     ctx.process.run_stdout("sudo rm -rf /etc/sysconfig/network-scripts/ifcfg-bond0")
     ctx.process.run_stdout(
@@ -1813,18 +1792,18 @@ def openvswitch_as(ctx, scen):
     ctx.process.run_stdout("sudo rm -rf /etc/sysconfig/network-scripts/ifcfg-intbr0")
     ctx.process.run_stdout("ip link set dev eth1 up")
     ctx.process.run_stdout("ip link set dev eth2 up")
-    ctx.process.run_stdout("nmcli con reload")
-    ctx.process.run_stdout("nmcli con up testeth1", timeout=45)
-    ctx.process.run_stdout("nmcli con down testeth1")
-    ctx.process.run_stdout("nmcli con up testeth2", timeout=45)
-    ctx.process.run_stdout("nmcli con down testeth2")
+    ctx.process.nmcli("con reload")
+    ctx.process.nmcli("con up testeth1")
+    ctx.process.nmcli("con down testeth1")
+    ctx.process.nmcli("con up testeth2")
+    ctx.process.nmcli("con down testeth2")
 
 
 _register_tag("openvswitch", openvswitch_bs, openvswitch_as)
 
 
 def sriov_bs(ctx, scen):
-    ctx.process.run_stdout("nmcli con del p4p1")
+    ctx.process.nmcli_force("con del p4p1")
 
 
 def sriov_as(ctx, scen):
@@ -1871,10 +1850,10 @@ def dpdk_bs(ctx, scen):
     ctx.process.run_stdout(
         "echo 1 > /sys/module/vfio/parameters/enable_unsafe_noiommu_mode", shell=True
     )
-    ctx.process.run_stdout(
-        "nmcli connection add type ethernet ifname p4p1 con-name dpdk-sriov sriov.total-vfs 2"
+    ctx.process.nmcli(
+        "connection add type ethernet ifname p4p1 con-name dpdk-sriov sriov.total-vfs 2"
     )
-    ctx.process.run_stdout("nmcli connection up dpdk-sriov", timeout=45)
+    ctx.process.nmcli("connection up dpdk-sriov")
     # In newer versions of dpdk-tools there are dpdk binaries with py in the end
     ctx.process.run_stdout(
         "dpdk-devbind -b vfio-pci 0000:42:10.0 || dpdk-devbind.py -b vfio-pci 0000:42:10.0",
@@ -1921,7 +1900,7 @@ _register_tag("selinux_allow_ifup", selinux_allow_ifup_bs)
 
 
 def no_testeth10_bs(ctx, scen):
-    ctx.process.run_stdout("sudo nmcli connection delete testeth10")
+    ctx.process.nmcli_force("connection delete testeth10")
 
 
 _register_tag("no_testeth10", no_testeth10_bs)
@@ -2002,13 +1981,12 @@ def nmstate_upstream_setup_bs(ctx, scen):
     ctx.process.run_stdout("echo 0 > /proc/sys/net/ipv6/conf/default/use_tempaddr")
 
     # Clone default profile but just ipv4 only"
-    ctx.process.run_stdout(
-        'nmcli connection clone "$(nmcli -g NAME con show -a)" nmstate', shell=True
+    active_con = ctx.prcess.nmcli("-g NAME con show -a").strip()
+    ctx.process.nmcli(["con", "clone", active_con, "nmstate"])
+    ctx.process.nmcli(
+        "con modify nmstate ipv6.method disabled ipv6.addresses '' ipv6.gateway ''"
     )
-    ctx.process.run_stdout(
-        "nmcli con modify nmstate ipv6.method disabled ipv6.addresses '' ipv6.gateway ''"
-    )
-    ctx.process.run_stdout("nmcli con up nmstate", timeout=45)
+    ctx.process.nmcli("con up nmstate")
 
     # Move orig config file to /tmp
     ctx.process.run_stdout("mv /etc/NetworkManager/conf.d/99-unmanage-orig.conf /tmp")
@@ -2033,16 +2011,14 @@ def nmstate_upstream_setup_as(ctx, scen):
     # nmstate restarts NM few times during tests
     ctx.nm_restarted = True
 
-    ctx.process.run_stdout(
-        "nmcli con del linux-br0 dhcpcli dhcpsrv brtest0 bond99 eth1.101 eth1.102"
+    ctx.process.nmcli(
+        "con del linux-br0 dhcpcli dhcpsrv brtest0 bond99 eth1.101 eth1.102"
     )
-    ctx.process.run_stdout(
-        "nmcli con del eth0 eth1 eth2 eth3 eth4 eth5 eth6 eth7 eth8 eth9 eth10"
-    )
+    ctx.process.nmcli("con del eth0 eth1 eth2 eth3 eth4 eth5 eth6 eth7 eth8 eth9 eth10")
 
-    ctx.process.run_stdout("nmcli device delete dhcpsrv")
-    ctx.process.run_stdout("nmcli device delete dhcpcli")
-    ctx.process.run_stdout("nmcli device delete bond99")
+    ctx.process.nmcli("device delete dhcpsrv")
+    ctx.process.nmcli("device delete dhcpcli")
+    ctx.process.nmcli("device delete bond99")
 
     ctx.process.run_stdout("ovs-vsctl del-br ovsbr0")
 
@@ -2063,7 +2039,7 @@ def nmstate_upstream_setup_as(ctx, scen):
     ctx.process.run_stdout("ip link set dev eth2 up")
 
     # remove profiles
-    ctx.process.run_stdout("nmcli con del nmstate eth01 eth02 eth1peer eth2peer")
+    ctx.process.nmcli("con del nmstate eth01 eth02 eth1peer eth2peer")
 
     # Move orig config file to back
     ctx.process.run_stdout("mv /tmp/99-unmanage-orig.conf /etc/NetworkManager/conf.d/")
@@ -2093,7 +2069,7 @@ def backup_sysconfig_network_bs(ctx, scen):
 def backup_sysconfig_network_as(ctx, scen):
     ctx.process.run_stdout("sudo mv -f /tmp/sysnetwork.backup /etc/sysconfig/network")
     nmci.lib.reload_NM_connections(ctx)
-    ctx.process.run_stdout("sudo nmcli connection down testeth9")
+    ctx.process.nmcli_force("connection down testeth9")
 
 
 _register_tag(
@@ -2170,11 +2146,12 @@ def no_config_server_as(ctx, scen):
                 print(f"* enabling file: {config_file}")
                 ctx.process.run_stdout(f"sudo mv -f {config_file}.off {config_file}")
         nmci.lib.reload_NM_service(ctx)
-    conns = nmci.process.run_stdout("nmcli -t -f UUID,NAME c")
-    for conn in conns.strip().split("\n"):
-        if "testeth" not in conn:
-            # UUID has fixed length, 36 characters
-            ctx.process.run_stdout(f"nmcli con del {conn[:36]}")
+    conns = nmci.process.nmcli("-t -f UUID,NAME c").strip().split("\n")
+    # UUID has fixed length, 36 characters
+    uuids = [c[:36] for c in conns if c and "testeth" not in c]
+    if uuids:
+        print("* delete connections with UUID in: " + " ".join(uuids))
+        ctx.process.nmcli(["con", "del"] + uuids)
     nmci.lib.restore_testeth0(ctx)
 
 
@@ -2230,23 +2207,23 @@ def wifi_bs(ctx, scen):
 
 def wifi_as(ctx, scen):
     if ctx.IS_NMTUI:
-        ctx.process.run_stdout(
-            "sudo nmcli connection delete id wifi wifi1 qe-open qe-wpa1-psk qe-wpa2-psk qe-wep"
+        ctx.process.nmcli_force(
+            "connection delete id wifi wifi1 qe-open qe-wpa1-psk qe-wpa2-psk qe-wep"
         )
         # ctx.process.run_stdout("sudo service NetworkManager restart") # debug restart to overcome the nmcli d w l flickering
     else:
         # ctx.process.run_stdout('sudo nmcli device disconnect wlan0')
-        ctx.process.run_stdout(
-            "sudo nmcli con del wifi qe-open qe-wep qe-wep-psk qe-wep-enterprise qe-wep-enterprise-cisco"
+        ctx.process.nmcli_force(
+            "con del wifi qe-open qe-wep qe-wep-psk qe-wep-enterprise qe-wep-enterprise-cisco"
         )
-        ctx.process.run_stdout(
-            "sudo nmcli con del qe-wpa1-psk qe-wpa2-psk qe-wpa1-enterprise qe-wpa2-enterprise qe-hidden-wpa2-psk"
+        ctx.process.nmcli_force(
+            "con del qe-wpa1-psk qe-wpa2-psk qe-wpa1-enterprise qe-wpa2-enterprise qe-hidden-wpa2-psk"
         )
-        ctx.process.run_stdout("sudo nmcli con del qe-adhoc qe-ap wifi-wlan0")
+        ctx.process.nmcli_force("con del qe-adhoc qe-ap wifi-wlan0")
         if "novice" in scen.tags:
             ctx.prompt.close()
             time.sleep(1)
-            ctx.process.run_stdout("sudo nmcli con del wifi-wlan0")
+            ctx.process.nmcli_force("con del wifi-wlan0")
 
 
 _register_tag("wifi", wifi_bs, None)
@@ -2265,7 +2242,7 @@ def no_connections_bs(ctx, scen):
         "rm -rf /etc/NetworkManager/system-connections/testeth*", shell=True
     )
     ctx.process.run_code("rm -rf /etc/sysconfig/network-scripts/ifcfg-*", shell=True)
-    ctx.process.run_code("nmcli con reload")
+    ctx.process.nmcli("con reload")
 
 
 def no_connections_as(ctx, scen):
@@ -2302,9 +2279,9 @@ _register_tag("wifi_rescan", None, wifi_rescan_as)
 
 
 def testeth7_disconnect_as(ctx, scen):
-    if ctx.process.run_search_stdout("nmcli connection show -a", "testeth7"):
+    if "testeth7" in ctx.process.nmcli("connection show -a"):
         print("bring down testeth7")
-        ctx.process.run_stdout("nmcli con down testeth7")
+        ctx.process.nmcli("con down testeth7")
 
 
 _register_tag("testeth7_disconnect", None, testeth7_disconnect_as)
@@ -2355,7 +2332,7 @@ _register_tag("kill_dhclient_custom", None, kill_dhclient_custom_as)
 
 
 def networking_on_as(ctx, scen):
-    ctx.process.run_stdout("nmcli networking on")
+    ctx.process.nmcli("networking on")
     nmci.lib.wait_for_testeth0(ctx)
 
 
@@ -2363,7 +2340,7 @@ _register_tag("networking_on", None, networking_on_as)
 
 
 def adsl_as(ctx, scen):
-    ctx.process.run("nmcli connection delete id adsl-test11 adsl", ignore_stderr=True)
+    ctx.process.nmcli_force("connection delete id adsl-test11 adsl")
 
 
 _register_tag("adsl", None, adsl_as)
@@ -2388,10 +2365,10 @@ def allow_veth_connections_as(ctx, scen):
     ctx.process.run_stdout("udevadm control --reload-rules")
     ctx.process.run_stdout("udevadm settle --timeout=5")
     nmci.lib.reload_NM_service(ctx)
-    devs = nmci.process.run_stdout("nmcli -t -f DEVICE c s -a")
+    devs = nmci.process.nmcli("-t -f DEVICE c s -a")
     for dev in devs.strip().split("\n"):
         if dev and dev != "eth0":
-            ctx.process.run_stdout(f"nmcli device disconnect {dev}")
+            ctx.process.nmcli(f"device disconnect {dev}")
 
 
 _register_tag(
@@ -2400,9 +2377,9 @@ _register_tag(
 
 
 def con_ipv6_ifcfg_remove_as(ctx, scen):
-    # ctx.process.run_stdout("nmcli connection delete id con_ipv6 con_ipv62")
+    # ctx.process.nmcli_force("connection delete id con_ipv6 con_ipv62")
     ctx.process.run_stdout("rm -rf /etc/sysconfig/network-scripts/ifcfg-con_ipv6")
-    ctx.process.run_stdout("nmcli con reload")
+    ctx.process.nmcli("con reload")
 
 
 _register_tag("con_ipv6_ifcfg_remove", None, con_ipv6_ifcfg_remove_as)
@@ -2438,10 +2415,10 @@ def remove_tombed_connections_as(ctx, scen):
         cons.append(con_id)
         print(f"removing tomb file {tomb}")
         ctx.process.run_stdout(f"rm -f {tomb}")
-    if len(cons):
+    if cons:
         print("removing connections: " + " ".join(cons))
-        ctx.process.run_stdout("nmcli con reload")
-        ctx.process.run_stdout("nmcli con delete " + " ".join(cons))
+        ctx.process.nmcli("con reload")
+        ctx.process.nmcli(["con", "delete"] + cons)
 
 
 _register_tag("remove_tombed_connections", None, remove_tombed_connections_as)
@@ -2463,22 +2440,22 @@ _register_tag("stop_radvd", None, stop_radvd_as)
 
 
 def dcb_as(ctx, scen):
-    ctx.process.run_stdout("nmcli connection delete id dcb")
+    ctx.process.nmcli_force("connection delete id dcb")
 
 
 _register_tag("dcb", None, dcb_as)
 
 
 def mtu_as(ctx, scen):
-    ctx.process.run_stdout("nmcli connection modify testeth1 802-3-ethernet.mtu 1500")
-    ctx.process.run_stdout("nmcli connection up id testeth1", timeout=45)
-    ctx.process.run_stdout("nmcli connection modify testeth1 802-3-ethernet.mtu 0")
-    ctx.process.run_stdout("nmcli connection down id testeth1")
+    ctx.process.nmcli("connection modify testeth1 802-3-ethernet.mtu 1500")
+    ctx.process.nmcli("connection up id testeth1")
+    ctx.process.nmcli("connection modify testeth1 802-3-ethernet.mtu 0")
+    ctx.process.nmcli("connection down id testeth1")
     ctx.process.run_stdout("ip link set dev eth1 mtu 1500")
     ctx.process.run_stdout("ip link set dev eth2 mtu 1500")
     ctx.process.run_stdout("ip link set dev eth3 mtu 1500")
 
-    ctx.process.run("nmcli connection delete id tc1 tc2 tc16 tc26", ignore_stderr=True)
+    ctx.process.nmcli_force("connection delete id tc1 tc2 tc16 tc26")
     ctx.process.run("ip link delete test1", ignore_stderr=True)
     ctx.process.run("ip link delete test2", ignore_stderr=True)
     ctx.process.run("ip link delete test10", ignore_stderr=True)
@@ -2493,12 +2470,12 @@ _register_tag("mtu", None, mtu_as)
 
 
 def mtu_wlan0_as(ctx, scen):
-    ctx.process.run_stdout(
-        "nmcli con add type wifi ifname wlan0 con-name qe-open autoconnect off ssid qe-open"
+    ctx.process.nmcli(
+        "con add type wifi ifname wlan0 con-name qe-open autoconnect off ssid qe-open"
     )
-    ctx.process.run_stdout("nmcli connection modify qe-open 802-11-wireless.mtu 1500")
-    ctx.process.run_stdout("nmcli connection up id qe-open", timeout=45)
-    ctx.process.run_stdout("nmcli connection del id qe-open")
+    ctx.process.nmcli("con modify qe-open 802-11-wireless.mtu 1500")
+    ctx.process.nmcli("con up id qe-open")
+    ctx.process.nmcli("con del id qe-open")
 
 
 _register_tag("mtu_wlan0", None, mtu_wlan0_as)
@@ -2555,7 +2532,7 @@ _register_tag("kill_dhcrelay", None, kill_dhcrelay_as)
 
 
 def profie_as(ctx, scen):
-    ctx.process.run_stdout("nmcli connection delete id profie")
+    ctx.process.nmcli_force("connection delete id profie")
 
 
 _register_tag("profie", None, profie_as)
@@ -2638,9 +2615,9 @@ _register_tag("restore_resolvconf", None, restore_resolvconf_as)
 
 
 def device_connect_as(ctx, scen):
-    ctx.process.run("nmcli connection delete testeth9 eth9", ignore_stderr=True)
-    ctx.process.run_stdout(
-        "nmcli connection add type ethernet ifname eth9 con-name testeth9 autoconnect no"
+    ctx.process.nmcli_force("connection delete testeth9 eth9")
+    ctx.process.nmcli(
+        "connection add type ethernet ifname eth9 con-name testeth9 autoconnect no"
     )
 
 
@@ -2651,9 +2628,9 @@ _register_tag("device_connect_no_profile", None, device_connect_as)
 def restore_eth8_as(ctx, scen):
     ctx.process.run_stdout("ip link del eth8.100")
     ctx.process.run_stdout("rm -f /etc/sysconfig/network-scripts/ifcfg-testeth8")
-    ctx.process.run_stdout("nmcli connection reload")
-    ctx.process.run_stdout(
-        "nmcli connection add type ethernet ifname eth8 con-name testeth8 autoconnect no"
+    ctx.process.nmcli("connection reload")
+    ctx.process.nmcli(
+        "connection add type ethernet ifname eth8 con-name testeth8 autoconnect no"
     )
 
 
@@ -2666,18 +2643,16 @@ def restore_broken_network_as(ctx, scen):
     ctx.process.run_stdout("sysctl net.ipv6.conf.all.accept_ra=1")
     ctx.process.run_stdout("sysctl net.ipv6.conf.default.accept_ra=1")
     nmci.lib.restart_NM_service(ctx)
-    ctx.process.run_stdout("sudo nmcli connection down testeth8 testeth9")
+    ctx.process.nmcli_force("connection down testeth8 testeth9")
 
 
 _register_tag("restore_broken_network", None, restore_broken_network_as)
 
 
 def add_testeth_as(ctx, scen, num):
-    ctx.process.run(
-        f"nmcli connection delete eth{num} testeth{num}", ignore_stderr=True
-    )
-    ctx.process.run_stdout(
-        f"nmcli connection add type ethernet con-name testeth{num} ifname eth{num} autoconnect no"
+    ctx.process.nmcli_force(f"connection delete eth{num} testeth{num}")
+    ctx.process.nmcli(
+        f"connection add type ethernet con-name testeth{num} ifname eth{num} autoconnect no"
     )
 
 
@@ -2686,10 +2661,10 @@ for i in [1, 5, 8, 10]:
 
 
 def eth_disconnect_as(ctx, scen, num):
-    ctx.process.run(f"nmcli device disconnect eth{num}", ignore_stderr=True)
+    ctx.process.nmcli_force(f"device disconnect eth{num}")
     # VVV Up/Down to preserve autoconnect feature
-    ctx.process.run_stdout(f"nmcli connection up testeth{num}", timeout=45)
-    ctx.process.run_stdout(f"nmcli connection down testeth{num}")
+    ctx.process.nmcli(f"connection up testeth{num}")
+    ctx.process.nmcli(f"connection down testeth{num}")
 
 
 for i in [1, 2, 4, 5, 6, 8, 10]:
@@ -2949,7 +2924,7 @@ def simwifi_hw_bs(ctx, scen):
 
 
 def simwifi_hw_as(ctx, scen):
-    ctx.process.run_stdout("nmcli radio wifi on")
+    ctx.process.nmcli("radio wifi on")
 
 
 _register_tag("simwifi_hw", simwifi_hw_bs, simwifi_hw_as)
