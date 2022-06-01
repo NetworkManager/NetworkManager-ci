@@ -110,16 +110,14 @@ def _before_scenario(context, scenario):
         if not os.path.isfile("/tmp/nm_wifi_configured") and not os.path.isfile(
             "/tmp/nm_dcb_inf_wol_sriov_configured"
         ):
-            if not context.process.run_search_stdout(
-                "nmcli -t -f connection,state device", "testeth0:connected"
+            if "testeth0:connected" not in context.process.nmcli(
+                "-t -f connection,state device"
             ):
-                context.process.run_stdout(
-                    "sudo nmcli connection modify testeth0 ipv4.may-fail no"
-                )
-                context.process.run_stdout("sudo nmcli connection up id testeth0")
-                for attempt in range(0, 10):
-                    if context.process.run_search_stdout(
-                        "nmcli -t -f connection,state device", "testeth0:connected"
+                context.process.nmcli("connection modify testeth0 ipv4.may-fail no")
+                context.process.nmcli("connection up id testeth0")
+                for _ in range(0, 10):
+                    if "testeth0:connected" not in context.process.nmcli(
+                        "-t -f connection,state device"
                     ):
                         break
                     time.sleep(1)
