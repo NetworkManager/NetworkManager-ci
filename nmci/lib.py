@@ -45,6 +45,12 @@ class _ContextProcess:
     def run_search_stdout(self, *a, **kw):
         return process.run_search_stdout(*a, context_hook=self.context_hook, **kw)
 
+    def nmcli(self, *a, **kw):
+        return process.nmcli(*a, context_hook=self.context_hook, **kw)
+
+    def nmcli_force(self, *a, **kw):
+        return process.nmcli_force(*a, context_hook=self.context_hook, **kw)
+
 
 def context_setup(context):
 

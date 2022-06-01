@@ -237,3 +237,71 @@ def run_search_stdout(
         context_hook=context_hook,
     )
     return re.search(pattern, result.stdout, flags=pattern_flags)
+
+
+def nmcli(
+    argv,
+    *,
+    shell=False,
+    as_bytes=False,
+    timeout=60,
+    cwd=util.BASE_DIR,
+    env=None,
+    env_extra=None,
+    ignore_returncode=False,
+    ignore_stderr=False,
+    context_hook=None,
+):
+    if isinstance(argv, str):
+        argv = f"nmcli {argv}"
+    else:
+        argv = ["nmcli", *argv]
+
+    return _run(
+        argv,
+        shell=shell,
+        as_bytes=as_bytes,
+        timeout=timeout,
+        cwd=cwd,
+        env=env,
+        env_extra=env_extra,
+        ignore_stderr=ignore_stderr,
+        ignore_returncode=ignore_returncode,
+        stdout=None,
+        stderr=None,
+        context_hook=context_hook,
+    ).stdout
+
+
+def nmcli_force(
+    argv,
+    *,
+    shell=False,
+    as_bytes=False,
+    timeout=60,
+    cwd=util.BASE_DIR,
+    env=None,
+    env_extra=None,
+    ignore_returncode=True,
+    ignore_stderr=True,
+    context_hook=None,
+):
+    if isinstance(argv, str):
+        argv = f"nmcli {argv}"
+    else:
+        argv = ["nmcli", *argv]
+
+    return _run(
+        argv,
+        shell=shell,
+        as_bytes=as_bytes,
+        timeout=timeout,
+        cwd=cwd,
+        env=env,
+        env_extra=env_extra,
+        ignore_stderr=ignore_stderr,
+        ignore_returncode=ignore_returncode,
+        stdout=None,
+        stderr=None,
+        context_hook=context_hook,
+    )
