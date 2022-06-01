@@ -617,12 +617,12 @@ def reinitialize_devices():
     if nmci.process.systemctl("is-active ModemManager").returncode != 0:
         nmci.process.systemctl("restart ModemManager")
         timer = 40
-        while not nmci.process.run_search_stdout("nmcli device", "gsm"):
+        while "gsm" not in nmci.process.nmcli("device"):
             time.sleep(1)
             timer -= 1
             if timer == 0:
                 break
-    if not nmci.process.run_search_stdout("nmcli device", "gsm"):
+    if "gsm" not in nmci.process.nmcli("device"):
         print("reinitialize devices")
         reset_usb_devices()
         nmci.process.run_stdout(
@@ -635,7 +635,7 @@ def reinitialize_devices():
         )
         nmci.process.systemctl("restart ModemManager")
         timer = 80
-        while not nmci.process.run_search_stdout("nmcli device", "gsm"):
+        while "gsm" not in nmci.process.nmcli("device"):
             time.sleep(1)
             timer -= 1
             if timer == 0:
@@ -736,17 +736,18 @@ def setup_openvpn(context, tags):
 
 def restore_connections(context):
     print("* recreate all connections")
-    context.process.run_stdout(
-        "for i in $(nmcli -g NAME connection show); do nmcli con del $i 2>&1 > /dev/null; done",
-        shell=True,
-    )
-    context.process.run_stdout(
-        "for i in $(nmcli -g DEVICE device |grep -v -e ^eth -e lo -e orig); do nmcli dev del $i 2>&1 > /dev/null; done",
-        shell=True,
-    )
+    conns = context.process.nmcli("-g NAME connection show").strip().split("\n")
+    context.process.nmcli_force(["con", "del"] + conns)
+    devs = [
+        d
+        for d in context.process.nmcli("-g DEVICE device").strip().split("\n")
+        if not d.startswith("eth") and d != "lo" and not d.startswith("orig")
+    ]
+    for d in devs:
+        context.process.nmcli_force(["dev", "del", d])
     for X in range(1, 11):
-        context.process.run_stdout(
-            f"nmcli connection add type ethernet con-name testeth{X} ifname eth{X} autoconnect no"
+        context.process.nmcli(
+            f"connection add type ethernet con-name testeth{X} ifname eth{X} autoconnect no"
         )
     restore_testeth0(context)
 
@@ -838,8 +839,8 @@ def after_crash_reset(context):
             context.process.run_stdout(f"ip link set eth{link} up")
         print("Add testseth1-10 connections")
         for link in range(1, 11):
-            context.process.run_stdout(
-                f"nmcli c add type ethernet ifname eth{link} con-name testeth{link} autoconnect no"
+            context.process.nmcli(
+                f"con add type ethernet ifname eth{link} con-name testeth{link} autoconnect no"
             )
 
 
@@ -883,10 +884,10 @@ def teardown_testveth(context, ns):
 
 
 def get_ethernet_devices(context):
-    devs = context.process.run_stdout(
-        "nmcli dev | grep ' ethernet' | awk '{print $1}'", shell=True
-    ).strip()
-    return devs.split("\n")
+    devs = context.process.nmcli("-g DEVICE,TYPE dev").strip().split("\n")
+    ETHERNET = ":ethernet"
+    eths = [d.replace(ETHERNET, "") for d in devs if d.endswith(ETHERNET)]
+    return eths
 
 
 def setup_strongswan(context):
@@ -1021,8 +1022,9 @@ def setup_pkcs11(context):
 
 def wifi_rescan(context):
     print("Commencing wireless network rescan")
-    while not context.process.run_search_stdout(
-        "time nmcli dev wifi list --rescan yes", "wpa2-psk", ignore_stderr=True
+    while (
+        "wpa2-psk"
+        not in context.process.nmcli_force("dev wifi list --rescan yes").stdout
     ):
         time.sleep(1)
         print("* still not seeing wpa2-psk")
@@ -1073,7 +1075,7 @@ def teardown_hostapd(context):
 
 def restore_testeth0(context):
     print("* restoring testeth0")
-    context.process.run("nmcli con delete testeth0", ignore_stderr=True, timeout=10)
+    context.process.nmcli_force("con delete testeth0")
 
     if not os.path.isfile("/tmp/nm_plugin_keyfiles"):
         # defaults to ifcfg files (RHELs)
@@ -1089,35 +1091,36 @@ def restore_testeth0(context):
         )
 
     time.sleep(1)
-    context.process.run_stdout("nmcli con reload")
+    context.process.nmcli("con reload")
     time.sleep(1)
-    context.process.run_stdout("nmcli con up testeth0", timeout=45)
+    context.process.nmcli("con up testeth0")
     time.sleep(2)
 
 
 def wait_for_testeth0(context):
     print("* waiting for testeth0 to connect")
-    if not context.process.run_search_stdout("nmcli connection", "testeth0"):
+    if "testeth0" not in context.process.nmcli("connection"):
         restore_testeth0(context)
 
-    if not context.process.run_search_stdout("nmcli connection show -a", "testeth0"):
+    if "testeth0" not in context.process.nmcli("connection show -a"):
         print(" ** we don't have testeth0 activat{ing,ed}, let's do it now")
-        if context.process.run_search_stdout("nmcli device show eth0", "\(connected\)"):
-            profile = context.process.run_stdout(
-                "nmcli -g GENERAL.DEVICE device show eth0"
+        if "(connected)" in context.process.nmcli("device show eth0"):
+            profile = context.process.nmcli(
+                "-g GENERAL.DEVICE device show eth0"
             ).strip()
             print(
                 f" ** device eth0 is connected to {profile}, let's disconnect it first"
             )
-            context.process.run_stdout("nmcli dev disconnect eth0", timeout=10)
-        context.process.run_stdout("nmcli con up testeth0", timeout=45)
+            context.process.nmcli_force("dev disconnect eth0")
+        context.process.nmcli("con up testeth0")
 
     counter = 0
     # We need to check for all 3 items to have working connection out
-    while not context.process.run_search_stdout(
-        "nmcli c show testeth0",
-        "IP4.ADDRESS.*IP4.GATEWAY.*IP4.DNS",
-        pattern_flags=re.DOTALL | re.MULTILINE,
+    testeth0 = context.process.nmcli("con show testeth0")
+    while (
+        "IP4.ADDRESS" not in testeth0
+        or "IP4.GATEWAY" not in testeth0
+        or "IP4.DNS" not in testeth0
     ):
         time.sleep(1)
         print(
@@ -1128,12 +1131,13 @@ def wait_for_testeth0(context):
             restore_testeth0(context)
         if counter == 60:
             assert False, "Testeth0 cannot be upped..this is wrong"
+        testeth0 = context.process.nmcli("con show testeth0")
     print(" ** we do have IPv4 complete")
 
 
 def reload_NM_connections(context):
     print("reload NM connections")
-    context.process.run_stdout("nmcli con reload")
+    context.process.nmcli("con reload")
 
 
 def reload_NM_service(context):
@@ -1282,15 +1286,12 @@ def add_iface_to_cleanup(context, name):
 def cleanup(context):
 
     if context.cleanup["connections"]:
-        context.process.run(
-            ["nmcli", "connection", "delete"] + list(context.cleanup["connections"]),
-            ignore_stderr=True,
+        context.process.nmcli_force(
+            ["connection", "delete"] + list(context.cleanup["connections"]),
         )
     if context.cleanup["interfaces"]["delete"]:
-        context.process.run(
-            ["nmcli", "device", "delete"]
-            + list(context.cleanup["interfaces"]["delete"]),
-            ignore_stderr=True,
+        context.process.nmcli_force(
+            ["device", "delete"] + list(context.cleanup["interfaces"]["delete"]),
         )
     for iface in context.cleanup["interfaces"]["reset"]:
         nmci.lib.reset_hwaddr_nmcli(context, iface)
