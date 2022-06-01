@@ -334,7 +334,7 @@ def stripped(x):
 
 
 def dump_status(context, when, fail_only=False):
-    nm_running = nmci.process.run_code("systemctl status NetworkManager") == 0
+    nm_running = nmci.process.systemctl("status NetworkManager").returncode == 0
     msg = ""
     cmds = ['date "+%Y%m%d-%H%M%S.%N"']
     if nm_running:
@@ -614,8 +614,8 @@ def reset_usb_devices():
 
 
 def reinitialize_devices():
-    if nmci.process.run_code("systemctl is-active ModemManager") != 0:
-        nmci.process.run_stdout("systemctl restart ModemManager")
+    if nmci.process.systemctl("is-active ModemManager").returncode != 0:
+        nmci.process.systemctl("restart ModemManager")
         timer = 40
         while not nmci.process.run_search_stdout("nmcli device", "gsm"):
             time.sleep(1)
@@ -633,7 +633,7 @@ def reinitialize_devices():
             "for i in $(ls /sys/bus/usb/devices/usb*/authorized); do echo 1 > $i; done",
             shell=True,
         )
-        nmci.process.run("systemctl restart ModemManager")
+        nmci.process.systemctl("restart ModemManager")
         timer = 80
         while not nmci.process.run_search_stdout("nmcli device", "gsm"):
             time.sleep(1)
@@ -819,13 +819,12 @@ def after_crash_reset(context):
     context.process.run_stdout("ip -6 addr flush dev eth0")
 
     print("Start NM")
-    rc = context.process.run_code("systemctl start NetworkManager")
-    if rc != 0:
+    if not start_NM_service(context):
         print(
             "Unable to start NM! Something very bad happened, trying to `pkill NetworkManager`"
         )
         if context.process.run_code("pkill NetworkManager") == 0:
-            if context.process.run_code("systemctl start NetworkManager") != 0:
+            if not start_NM_service(context):
                 print("NM still not up!")
 
     print("Wait for testeth0")
@@ -1147,29 +1146,25 @@ def reload_NM_service(context):
 def restart_NM_service(context, reset=True, timeout=10):
     print("restart NM service")
     if reset:
-        context.process.run_stdout("systemctl reset-failed NetworkManager.service")
-    rc = context.process.run_code(
-        "systemctl restart NetworkManager.service", timeout=timeout
-    )
+        context.process.systemctl("reset-failed NetworkManager.service")
+    r = context.process.systemctl("restart NetworkManager.service", timeout=timeout)
     context.nm_pid = nmutil.wait_for_nm_pid(10)
-    return rc == 0
+    return r.returncode == 0
 
 
 def start_NM_service(context, pid_wait=True, timeout=10):
     print("start NM service")
-    rc = context.process.run_code(
-        "systemctl start NetworkManager.service", timeout=timeout
-    )
+    r = context.process.systemctl("start NetworkManager.service", timeout=timeout)
     if pid_wait:
         context.nm_pid = nmutil.wait_for_nm_pid(10)
-    return rc == 0
+    return r.returncode == 0
 
 
 def stop_NM_service(context):
     print("stop NM service")
-    rc = context.process.run_code("systemctl stop NetworkManager.service", timeout=30)
+    r = context.process.systemctl("stop NetworkManager.service")
     context.nm_pid = 0
-    return rc == 0
+    return r.returncode == 0
 
 
 def reset_hwaddr_nmtui(context, ifname):
