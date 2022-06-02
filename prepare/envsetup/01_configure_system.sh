@@ -31,10 +31,11 @@ configure_basic_system () {
         systemctl daemon-reload
     fi
 
-    # Removing rate limit for systemd journaling
-    sed -i -e '/^ *\(Storage\|SystemMaxUse\|RateLimitBurst\|RateLimitInterval\|SystemMaxFiles\|SystemMaxFileSize\)=.*/d' \
-      /etc/systemd/journald.conf
+    # Journal fine tune
+    mkdir -p /var/log/journal/
+    > /etc/systemd/journald.conf
     cat << EOF >> /etc/systemd/journald.conf
+[Journal]
 Storage=persistent
 SystemMaxUse=25G
 RateLimitBurst=0
@@ -43,6 +44,8 @@ SystemMaxFiles=500
 SystemMaxFileSize=256M
 EOF
     systemctl restart systemd-journald.service
+    #Copy over files from /run/log to /var/log
+    journalctl --flush
 
     # For NM in CentOS
     if grep -q 'CentOS' /etc/redhat-release; then
