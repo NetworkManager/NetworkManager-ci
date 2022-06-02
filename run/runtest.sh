@@ -36,7 +36,7 @@ version_control() {
         return 0
     elif [ $rc -eq 77 ]; then
         unset FEATURE_FILE
-        unset TEST_NAME=
+        unset TEST_NAME
         unset ALL_TAGS
         return 77
     else
