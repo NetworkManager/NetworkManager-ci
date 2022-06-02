@@ -20,6 +20,14 @@ array_contains() {
     return 1
 }
 
+get_timestamp() {
+    if [ -f /tmp/nm_tests_timestamp ]; then
+      cat /tmp/nm_tests_timestamp
+    else
+      date +%s | tee /tmp/nm_tests_timestamp
+    fi
+}
+
 version_control() {
     local out
     local rc
@@ -167,6 +175,8 @@ logger -t $0 "Running test $TAG"
 export PATH="$PATH:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/root/bin"
 DIR=$(pwd)
 
+TS=$(get_timestamp)
+
 # set TEST variable for version_control script
 if [ -z "$TEST" ]; then
     logger "setting test name to NetworkManager_Test0_$TAG"
@@ -257,5 +267,6 @@ fi
 
 logger -t $0 "Test $TAG finished with result $RESULT: $rc"
 
+echo "Testsuite time elapsed: $(date -u -d "$TS seconds ago" +%H:%M:%S)"
 echo "------------ Test result: $RESULT ------------"
 exit $rc
