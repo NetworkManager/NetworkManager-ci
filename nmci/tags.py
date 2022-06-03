@@ -226,15 +226,13 @@ def logging_info_only_bs(ctx, scen):
     nmci.util.file_set_content(conf, ["[logging]", "level=INFO", "domains=ALL"])
     time.sleep(0.5)
     nmci.lib.restart_NM_service(ctx)
-    time.sleep(1)
 
 
 def logging_info_only_as(ctx, scen):
     conf = "/etc/NetworkManager/conf.d/99-xlogging.conf"
     ctx.process.run_stdout(f"rm -rf {conf}")
     # this is after performance tests, so NM restart can take a while
-    nmci.lib.restart_NM_service(ctx, timeout=60)
-    time.sleep(1)
+    nmci.lib.restart_NM_service(ctx, timeout=120)
 
 
 _register_tag("logging_info_only", logging_info_only_bs, logging_info_only_as)
