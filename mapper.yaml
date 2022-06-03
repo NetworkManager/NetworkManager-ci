@@ -211,6 +211,8 @@ testmapper:
         feature: bond
     - bond_set_mtu:
         feature: bond
+    - bond_set_different_mtu_on_slaves:
+        feature: bond
     - bond_addreses_restart_persistence:
         feature: bond
         tags: gate
@@ -741,6 +743,8 @@ testmapper:
     - ipv6_honor_ip_order:
         feature: ipv6
         tags: gate
+    - ipv6_keep_static_address_after_reapply:
+        feature: ipv6
     - ipv6_keep_route_upon_reapply:
         feature: ipv6
         tags: gate
