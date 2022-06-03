@@ -798,8 +798,12 @@ def after_crash_reset(context):
 
     print("Remove all config in /etc except 99-test.conf")
     dir = "/etc/NetworkManager/conf.d"
-    conf_files = [f for f in glob.glob(dir + "/*") if not f.endswith("/99-test.conf")]
-    context.process.run_stdout("rm -vrf " + " ".join(conf_files))
+    conf_files = [
+        f
+        for f in glob.glob(dir + "/*")
+        if not f.endswith("/99-test.conf") or not f.endswith("/99-unmanage-orig.conf")
+    ]
+    context.process.run_stdout(["rm", "-vrf", *conf_files])
 
     print("Remove /run/NetworkManager/")
     if os.path.isdir("/run/NetworkManager/"):
