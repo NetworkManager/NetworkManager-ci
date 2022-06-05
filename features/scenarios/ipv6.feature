@@ -1443,6 +1443,34 @@
     Then "fd01" is visible with command "ip -6 addr show dev testX6"
 
 
+    @rhbz2082230
+    @ver+=1.39.5
+    @regenerate_veth @no_config_server
+    @ipv6_no_extra_temp_addresses
+    Scenario: NM - ipv6 - clear extra temporary addresses
+    * Add "ethernet" connection named "con_ipv6" for device "eth10" with options
+        """
+        ipv4.method disabled ipv6.ip6-privacy prefer-public-addr
+        """
+    * Bring up connection "con_ipv6"
+    # reapply scenario, 1-2 temporary addresses may be present for DHCP
+    * Modify connection "con_ipv6" changing options "ipv6.ip6-privacy prefer-temp-addr"
+    When Execute "nmcli d reapply eth10"
+    * Execute "sleep 2"
+    Then Ensure there are "1" to "2" temporary v6 addresses
+    # no (temporary) address should appear after connection is brought down
+    When Bring down connection "con_ipv6"
+    Then "inet6" is not visible with command "ip -6 a show eth10"
+    Then "connected" is not visible with command "nmcli c s --active | grep con_ipv6"
+    # no (temporary) address should appear after connection times out (this requires @no_config_server)
+    * Bring up connection "con_ipv6"
+    * Execute "ip -n vethsetup l set eth10p down"
+    When "eth10" is not visible with command "nmcli c s --active" in "10" seconds
+    Then "inet6" is not visible with command "ip -6 a show eth10"
+    When Execute "ip -n vethsetup l set eth10p up"
+    Then "eth10" is visible with command "nmcli c s --active" in "5" seconds
+
+
     @rhbz2027267
     @ver+=1.35.5
     @kill_children @long
