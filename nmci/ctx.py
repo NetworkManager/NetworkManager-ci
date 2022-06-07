@@ -16,9 +16,16 @@ from . import process
 from . import util
 
 
-class _ContextProcess:
+# The "ContextExtension" class, accessible via "context.cext".
+# It acts mainly as a namespace to group our own extensions.
+class _CExt:
     def __init__(self, context):
-        self._context = context
+        self.context = context
+
+
+class _ContextProcess:
+    def __init__(self, cext):
+        self._cext = cext
 
     def context_hook(self, event, *a):
         if event == "result":
@@ -31,7 +38,7 @@ class _ContextProcess:
                 stderr = nmci.util.bytes_to_str(stderr)
             except UnicodeDecodeError:
                 pass
-            self._context._command_calls.append((argv, returncode, stdout, stderr))
+            self._cext.context._command_calls.append((argv, returncode, stdout, stderr))
 
     def run(self, *a, **kw):
         return process.run(*a, context_hook=self.context_hook, **kw)
@@ -56,6 +63,8 @@ class _ContextProcess:
 
 
 def context_setup(context):
+
+    cext = _CtxExt(context)
 
     # setup formatter embed and set_title
     if hasattr(context, "_runner"):
@@ -97,7 +106,8 @@ def context_setup(context):
                 context.html_formatter = formatter
                 context._to_embed = []
 
-    context.process = _ContextProcess(context)
+    context.process = _ContextProcess(cext)
+    context.cext = cext
 
     def _run(command, *a, **kw):
         out, err, code = nmci.run(command, *a, **kw)
