@@ -797,7 +797,9 @@ def ifcfg_rh_bs(ctx, scen):
     ):
         print("install NetworkManager-initscripts-updown")
         ctx.process.run_stdout(
-            "dnf install -y NetworkManager-initscripts-updown", ignore_stderr=True, timeout=120
+            "dnf install -y NetworkManager-initscripts-updown",
+            ignore_stderr=True,
+            timeout=120,
         )
     if not ctx.process.run_search_stdout(
         "NetworkManager --print-config", "^plugins=ifcfg-rh", pattern_flags=re.MULTILINE
@@ -1807,10 +1809,10 @@ def sriov_bs(ctx, scen):
 def sriov_as(ctx, scen):
 
     ctx.process.run_stdout(
-        "echo 0 > /sys/class/net/p6p1/device/sriov_numvfs", shell=True
+        "echo 0 > /sys/class/net/p6p1/device/sriov_numvfs", shell=True, timeout=120
     )
     ctx.process.run_stdout(
-        "echo 0 > /sys/class/net/p4p1/device/sriov_numvfs", shell=True
+        "echo 0 > /sys/class/net/p4p1/device/sriov_numvfs", shell=True, timeout=120
     )
 
     ctx.process.run_stdout("rm -rf /etc/NetworkManager/conf.d/99-sriov.conf")
