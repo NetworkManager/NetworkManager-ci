@@ -458,7 +458,9 @@ class Job:
             "                   <th>Bugzilla</th>\n"
             "               </tr>\n")
 
-        for failure in self.sorted_failures:
+        sorted_failures = getattr(self, "sorted_failures", [])
+
+        for failure in sorted_failures:
             if failure.permanent:
                 l_perm = "Permanent"
             else:
@@ -492,7 +494,9 @@ class Job:
         fd.write(
             "           </table>\n")
 
-        for failure in self.sorted_failures:
+        sorted_failures = getattr(self, "sorted_failures", [])
+
+        for failure in sorted_failures:
             fd.write('           <hr>\n\t<h3 id="%s">%s</h3>\n' % (failure.name, failure.name))
             fd.write('           <p>\n')
             builds = failure.builds
