@@ -221,7 +221,8 @@ class Job:
         cached_build_ids = [build.id for build in self.builds]
         sorted(cached_build_ids, reverse=True)
 
-        self.remove_build(cached_build_ids[0])
+        if cached_build_ids:
+            self.remove_build(cached_build_ids[0])
 
         for build_id in cached_build_ids:
             if build_id not in build_ids:
