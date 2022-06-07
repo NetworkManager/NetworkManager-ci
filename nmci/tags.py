@@ -28,13 +28,13 @@ class Tag:
         elif self._after_scenario:
             self.lineno = self._after_scenario.__code__.co_firstlineno
 
-    def before_scenario(self, context, scen):
+    def before_scenario(self, context, scenario):
         if self._before_scenario is not None:
-            self._before_scenario(context, scen, **self.args)
+            self._before_scenario(context, scenario, **self.args)
 
-    def after_scenario(self, context, scen):
+    def after_scenario(self, context, scenario):
         if self._after_scenario is not None:
-            self._after_scenario(context, scen, **self.args)
+            self._after_scenario(context, scenario, **self.args)
 
 
 tag_registry = {}
@@ -52,14 +52,14 @@ _register_tag("may_fail")
 _register_tag("nmtui")
 
 
-def temporary_skip_bs(context, scen):
+def temporary_skip_bs(context, scenario):
     sys.exit(77)
 
 
 _register_tag("temporary_skip", temporary_skip_bs)
 
 
-def skip_restarts_bs(context, scen):
+def skip_restarts_bs(context, scenario):
     if os.path.isfile("/tmp/nm_skip_restarts") or os.path.isfile("/tmp/nm_skip_STR"):
         print("skipping service restart tests as /tmp/nm_skip_restarts exists")
         sys.exit(77)
@@ -68,7 +68,7 @@ def skip_restarts_bs(context, scen):
 _register_tag("skip_str", skip_restarts_bs)
 
 
-def long_bs(context, scen):
+def long_bs(context, scenario):
     if os.path.isfile("/tmp/nm_skip_long"):
         print("skipping long test case as /tmp/nm_skip_long exists")
         sys.exit(77)
@@ -77,7 +77,7 @@ def long_bs(context, scen):
 _register_tag("long", long_bs)
 
 
-def skip_in_centos_bs(context, scen):
+def skip_in_centos_bs(context, scenario):
     if "CentOS" in context.rh_release:
         print("skipping with centos")
         sys.exit(77)
@@ -86,7 +86,7 @@ def skip_in_centos_bs(context, scen):
 _register_tag("skip_in_centos", skip_in_centos_bs)
 
 
-def skip_in_kvm_bs(context, scen):
+def skip_in_kvm_bs(context, scenario):
     if "kvm" or "powervm" in context.hypervisor:
         if context.arch != "x86_64":
             print("skipping on non x86_64 machine with kvm or powervm hypvervisors")
@@ -96,12 +96,12 @@ def skip_in_kvm_bs(context, scen):
 _register_tag("skip_in_kvm", skip_in_kvm_bs)
 
 
-def arch_only_bs(context, scen, arch):
+def arch_only_bs(context, scenario, arch):
     if context.arch != arch:
         sys.exit(77)
 
 
-def not_on_arch_bs(context, scen, arch):
+def not_on_arch_bs(context, scenario, arch):
     if context.arch == arch:
         sys.exit(77)
 
@@ -111,7 +111,7 @@ for arch in ["x86_64", "s390x", "ppc64", "ppc64le", "aarch64"]:
     _register_tag(arch + "_only", arch_only_bs, None, {"arch": arch})
 
 
-def not_on_aarch64_but_pegas_bs(context, scen):
+def not_on_aarch64_but_pegas_bs(context, scenario):
     ver = context.process.run_stdout("uname -r").strip()
     if context.arch == "aarch64":
         if "4.5" in ver:
@@ -121,7 +121,7 @@ def not_on_aarch64_but_pegas_bs(context, scen):
 _register_tag("not_on_aarch64_but_pegas", not_on_aarch64_but_pegas_bs)
 
 
-def gsm_sim_bs(context, scen):
+def gsm_sim_bs(context, scenario):
     if context.arch != "x86_64":
         print("Skipping on not intel arch")
         sys.exit(77)
@@ -129,7 +129,7 @@ def gsm_sim_bs(context, scen):
     context.pexpect_service("sudo prepare/gsm_sim.sh modemu")
 
 
-def gsm_sim_as(context, scen):
+def gsm_sim_as(context, scenario):
     context.process.nmcli_force("con down id gsm")
     time.sleep(2)
     context.process.run("sudo prepare/gsm_sim.sh teardown", ignore_stderr=True)
@@ -144,7 +144,7 @@ def gsm_sim_as(context, scen):
 _register_tag("gsm_sim", gsm_sim_bs, gsm_sim_as)
 
 
-def crash_bs(context, scen):
+def crash_bs(context, scenario):
     # get core pattern
     context.core_pattern = context.process.run_stdout("sysctl -n kernel.core_pattern")
     if "systemd-coredump" not in context.core_pattern:
@@ -168,7 +168,7 @@ def crash_bs(context, scen):
     # context.process.run_stdout("prlimit --core=unlimited:unlimited --pid $(pidof NetworkManager)", shell=True)
 
 
-def crash_as(context, scen):
+def crash_as(context, scenario):
     assert nmci.lib.restart_NM_service(context)
     if "systemd-coredump" not in context.core_pattern:
         context.process.run_stdout(
@@ -182,7 +182,7 @@ def crash_as(context, scen):
 _register_tag("crash", crash_bs, crash_as)
 
 
-def not_with_systemd_resolved_bs(context, scen):
+def not_with_systemd_resolved_bs(context, scenario):
     if context.process.systemctl("is-active systemd-resolved").returncode == 0:
         print("Skipping as systemd-resolved is running")
         sys.exit(77)
@@ -191,7 +191,7 @@ def not_with_systemd_resolved_bs(context, scen):
 _register_tag("not_with_systemd_resolved", not_with_systemd_resolved_bs)
 
 
-def not_under_internal_DHCP_bs(context, scen):
+def not_under_internal_DHCP_bs(context, scenario):
     if "release 8" in context.rh_release and not context.process.run_search_stdout(
         "NetworkManager --print-config", "dhclient"
     ):
@@ -203,7 +203,7 @@ def not_under_internal_DHCP_bs(context, scen):
 _register_tag("not_under_internal_DHCP", not_under_internal_DHCP_bs)
 
 
-def not_on_veth_bs(context, scen):
+def not_on_veth_bs(context, scenario):
     if os.path.isfile("/tmp/nm_veth_configured"):
         sys.exit(77)
 
@@ -211,7 +211,7 @@ def not_on_veth_bs(context, scen):
 _register_tag("not_on_veth", not_on_veth_bs, None)
 
 
-def regenerate_veth_as(context, scen):
+def regenerate_veth_as(context, scenario):
     if os.path.isfile("/tmp/nm_veth_configured"):
         nmci.lib.check_vethsetup(context)
     else:
@@ -223,14 +223,14 @@ def regenerate_veth_as(context, scen):
 _register_tag("regenerate_veth", None, regenerate_veth_as)
 
 
-def logging_info_only_bs(context, scen):
+def logging_info_only_bs(context, scenario):
     conf = "/etc/NetworkManager/conf.d/99-xlogging.conf"
     nmci.util.file_set_content(conf, ["[logging]", "level=INFO", "domains=ALL"])
     time.sleep(0.5)
     nmci.lib.restart_NM_service(context)
 
 
-def logging_info_only_as(context, scen):
+def logging_info_only_as(context, scenario):
     conf = "/etc/NetworkManager/conf.d/99-xlogging.conf"
     context.process.run_stdout(f"rm -rf {conf}")
     # this is after performance tests, so NM restart can take a while
@@ -244,7 +244,7 @@ def _is_container():
     return os.path.isfile("/run/.containerenv")
 
 
-def restart_if_needed_as(context, scen):
+def restart_if_needed_as(context, scenario):
     if context.process.systemctl("is-active NetworkManager").returncode != 0:
         nmci.lib.restart_NM_service(context)
     if (
@@ -257,13 +257,13 @@ def restart_if_needed_as(context, scen):
 _register_tag("restart_if_needed", None, restart_if_needed_as)
 
 
-def secret_key_reset_bs(context, scen):
+def secret_key_reset_bs(context, scenario):
     context.process.run_stdout(
         "mv /var/lib/NetworkManager/secret_key /var/lib/NetworkManager/secret_key_back"
     )
 
 
-def secret_key_reset_as(context, scen):
+def secret_key_reset_as(context, scenario):
     context.process.run_stdout(
         "mv /var/lib/NetworkManager/secret_key_back /var/lib/NetworkManager/secret_key"
     )
@@ -272,7 +272,7 @@ def secret_key_reset_as(context, scen):
 _register_tag("secret_key_reset", secret_key_reset_bs, secret_key_reset_as)
 
 
-def tag1000_bs(context, scen):
+def tag1000_bs(context, scenario):
     nmci.lib.wait_for_testeth0(context)
     # TODO: move to envsetup
     if (
@@ -288,7 +288,7 @@ def tag1000_bs(context, scen):
         )
 
 
-def tag1000_as(context, scen):
+def tag1000_as(context, scenario):
     context.process.run("ip link del bridge0", ignore_stderr=True)
     context.process.run(
         "for i in $(seq 0 1000); do ip link del port$i ; done",
@@ -301,7 +301,7 @@ def tag1000_as(context, scen):
 _register_tag("1000", tag1000_bs, tag1000_as)
 
 
-def many_vlans_bs(context, scen):
+def many_vlans_bs(context, scenario):
     nmci.lib.manage_veths(context)
     context.process.run_stdout(
         "sh prepare/vlans.sh clean", ignore_stderr=True, timeout=30
@@ -311,7 +311,7 @@ def many_vlans_bs(context, scen):
     time.sleep(20)
 
 
-def many_vlans_as(context, scen):
+def many_vlans_as(context, scenario):
     context.process.run_stdout(
         "sh prepare/vlans.sh clean", ignore_stderr=True, timeout=30
     )
@@ -321,7 +321,7 @@ def many_vlans_as(context, scen):
 _register_tag("many_vlans", many_vlans_bs, many_vlans_as)
 
 
-def remove_vlan_range(context, scen):
+def remove_vlan_range(context, scenario):
     vlan_range = getattr(context, "vlan_range", None)
     if vlan_range is None:
         return
@@ -348,19 +348,19 @@ def remove_vlan_range(context, scen):
 _register_tag("remove_vlan_range", None, remove_vlan_range)
 
 
-def captive_portal_bs(context, scen):
+def captive_portal_bs(context, scenario):
     # run as service
     context.pexpect_service("bash prepare/captive_portal.sh")
 
 
-def captive_portal_as(context, scen):
+def captive_portal_as(context, scenario):
     context.process.run_stdout("bash prepare/captive_portal.sh teardown")
 
 
 _register_tag("captive_portal", captive_portal_bs, captive_portal_as)
 
 
-def gsm_bs(context, scen):
+def gsm_bs(context, scenario):
     context.process.mmcli("-G debug")
     context.process.nmcli("general logging level DEBUG domains ALL")
     # Extract modem's identification and keep it in a global variable for further use.
@@ -404,7 +404,7 @@ def gsm_bs(context, scen):
     context.process.nmcli_force("con down testeth0")
 
 
-def gsm_as(context, scen):
+def gsm_as(context, scenario):
     # You can debug here only with console connection to the testing machine.
     # SSH connection is interrupted.
     # import ipdb
@@ -445,13 +445,13 @@ def gsm_as(context, scen):
 _register_tag("gsm", gsm_bs, gsm_as)
 
 
-def unmanage_eth_bs(context, scen):
+def unmanage_eth_bs(context, scenario):
     links = nmci.lib.get_ethernet_devices(context)
     for link in links:
         context.process.nmcli(f"dev set {link} managed no")
 
 
-def unmanage_eth_as(context, scen):
+def unmanage_eth_as(context, scenario):
     links = nmci.lib.get_ethernet_devices(context)
     for link in links:
         context.process.nmcli(f"dev set {link} managed yes")
@@ -460,15 +460,15 @@ def unmanage_eth_as(context, scen):
 _register_tag("unmanage_eth", unmanage_eth_bs, unmanage_eth_as)
 
 
-def manage_eth8_as(context, scen):
+def manage_eth8_as(context, scenario):
     context.process.nmcli("device set eth8 managed true")
 
 
 _register_tag("manage_eth8", None, manage_eth8_as)
 
 
-def connectivity_bs(context, scen):
-    if "captive_portal" in scen.tags:
+def connectivity_bs(context, scenario):
+    if "captive_portal" in scenario.tags:
         uri = "http://static.redhat.com:8001/test/rhel-networkmanager.txt"
     else:
         uri = "http://static.redhat.com/test/rhel-networkmanager.txt"
@@ -482,7 +482,7 @@ def connectivity_bs(context, scen):
     nmci.lib.reload_NM_service(context)
 
 
-def connectivity_as(context, scen):
+def connectivity_as(context, scenario):
     context.process.run_stdout("rm -rf /etc/NetworkManager/conf.d/99-connectivity.conf")
     context.process.run_stdout(
         "rm -rf /var/lib/NetworkManager/NetworkManager-intern.conf"
@@ -496,7 +496,7 @@ def connectivity_as(context, scen):
 _register_tag("connectivity", connectivity_bs, connectivity_as)
 
 
-def unload_kernel_modules_bs(context, scen):
+def unload_kernel_modules_bs(context, scenario):
     context.process.run_stdout("modprobe -r qmi_wwan")
     context.process.run_stdout("modprobe -r cdc-mbim")
 
@@ -504,11 +504,11 @@ def unload_kernel_modules_bs(context, scen):
 _register_tag("unload_kernel_modules", unload_kernel_modules_bs)
 
 
-def disp_bs(context, scen):
+def disp_bs(context, scenario):
     nmci.util.file_set_content("/tmp/dispatcher.txt", "")
 
 
-def disp_as(context, scen):
+def disp_as(context, scenario):
     context.process.run_stdout(
         "rm -rf /etc/NetworkManager/dispatcher.d/*-disp", shell=True
     )
@@ -530,8 +530,8 @@ def disp_as(context, scen):
 _register_tag("disp", disp_bs, disp_as)
 
 
-def eth0_bs(context, scen):
-    skip_restarts_bs(context, scen)
+def eth0_bs(context, scenario):
+    skip_restarts_bs(context, scenario)
     # if context.IS_NMTUI:
     #    context.process.run_stdout("nmcli connection down id testeth0")
     #    time.sleep(1)
@@ -544,9 +544,9 @@ def eth0_bs(context, scen):
     context.process.nmcli_force("con down testeth2")
 
 
-def eth0_as(context, scen):
+def eth0_as(context, scenario):
     #    if not context.IS_NMTUI:
-    #        if 'restore_hostname' in scen.tags:
+    #        if 'restore_hostname' in scenario.tags:
     #            context.process.run_stdout('hostnamectl set-hostname --transien ""')
     #            context.process.run_stdout(f'hostnamectl set-hostname --static {context.original_hostname}')
     nmci.lib.wait_for_testeth0(context)
@@ -555,12 +555,12 @@ def eth0_as(context, scen):
 _register_tag("eth0", eth0_bs, eth0_as)
 
 
-def alias_bs(context, scen):
+def alias_bs(context, scenario):
     context.process.nmcli("connection up testeth7")
     context.process.nmcli_force("connection delete eth7")
 
 
-def alias_as(context, scen):
+def alias_as(context, scenario):
     context.process.nmcli_force("connection delete eth7")
     context.process.run_stdout("rm -f /etc/sysconfig/network-scripts/ifcfg-eth7:0")
     context.process.run_stdout("rm -f /etc/sysconfig/network-scripts/ifcfg-eth7:1")
@@ -574,7 +574,7 @@ def alias_as(context, scen):
 _register_tag("alias", alias_bs, alias_as)
 
 
-def netcat_bs(context, scen):
+def netcat_bs(context, scenario):
     nmci.lib.wait_for_testeth0(context)
     # TODO move to envsetup
     if not os.path.isfile("/usr/bin/nc"):
@@ -585,7 +585,7 @@ def netcat_bs(context, scen):
 _register_tag("netcat", netcat_bs)
 
 
-def scapy_bs(context, scen):
+def scapy_bs(context, scenario):
     nmci.lib.wait_for_testeth0(context)
     # TODO move to envsetup
     if not os.path.isfile("/usr/bin/scapy"):
@@ -596,7 +596,7 @@ def scapy_bs(context, scen):
         )
 
 
-def scapy_as(context, scen):
+def scapy_as(context, scenario):
     context.process.run("ip link delete test10", ignore_stderr=True)
     context.process.run("ip link delete test11", ignore_stderr=True)
     context.process.nmcli_force("connection delete ethernet-test10 ethernet-test11")
@@ -605,7 +605,7 @@ def scapy_as(context, scen):
 _register_tag("scapy", scapy_bs, scapy_as)
 
 
-def mock_bs(context, scen):
+def mock_bs(context, scenario):
     # TODO move to envsetup
     if context.process.run_code("rpm -q --quiet dbus-x11") != 0:
         print("installing dbus-x11, pip, and python-dbusmock==0.26.1 dataclasses")
@@ -624,7 +624,7 @@ def mock_bs(context, scen):
 _register_tag("mock", mock_bs)
 
 
-def IPy_bs(context, scen):
+def IPy_bs(context, scenario):
     nmci.lib.wait_for_testeth0(context)
     # TODO move to envsetup
     if context.process.run_code("rpm -q --quiet dbus-x11") != 0:
@@ -642,7 +642,7 @@ def IPy_bs(context, scen):
 _register_tag("IPy", IPy_bs)
 
 
-def netaddr_bs(context, scen):
+def netaddr_bs(context, scenario):
     nmci.lib.wait_for_testeth0(context)
     # TODO move to envsetup
     if not context.process.run_search_stdout(
@@ -657,7 +657,7 @@ def netaddr_bs(context, scen):
 _register_tag("netaddr", netaddr_bs)
 
 
-def inf_bs(context, scen):
+def inf_bs(context, scenario):
     context.process.nmcli_force("device disconnect inf_ib0")
     context.process.nmcli_force("device disconnect inf_ib0.8002")
     context.process.nmcli_force("connection delete inf_ib0.8002")
@@ -666,7 +666,7 @@ def inf_bs(context, scen):
     )
 
 
-def inf_as(context, scen):
+def inf_as(context, scenario):
     if context.IS_NMTUI:
         context.process.nmcli_force("connection delete id infiniband0 infiniband0-port")
     else:
@@ -678,7 +678,7 @@ def inf_as(context, scen):
 _register_tag("inf", inf_bs, inf_as)
 
 
-def dsl_as(context, scen):
+def dsl_as(context, scenario):
     if context.IS_NMTUI:
         context.process.nmcli_force("connection delete id dsl0")
 
@@ -686,7 +686,7 @@ def dsl_as(context, scen):
 _register_tag("dsl", None, dsl_as)
 
 
-def dns_dnsmasq_bs(context, scen):
+def dns_dnsmasq_bs(context, scenario):
     if context.process.systemctl("is-active systemd-resolved").returncode == 0:
         print("stopping systemd-resolved")
         context.systemd_resolved = True
@@ -700,7 +700,7 @@ def dns_dnsmasq_bs(context, scen):
     context.dns_plugin = "dnsmasq"
 
 
-def dns_dnsmasq_as(context, scen):
+def dns_dnsmasq_as(context, scenario):
     context.process.run_stdout("rm -f /etc/NetworkManager/conf.d/99-xtest-dns.conf")
     nmci.lib.reload_NM_service(context)
     context.dns_plugin = ""
@@ -712,7 +712,7 @@ def dns_dnsmasq_as(context, scen):
 _register_tag("dns_dnsmasq", dns_dnsmasq_bs, dns_dnsmasq_as)
 
 
-def dns_systemd_resolved_bs(context, scen):
+def dns_systemd_resolved_bs(context, scenario):
     context.systemd_resolved = True
     if context.process.systemctl("is-active systemd-resolved").returncode != 0:
         context.systemd_resolved = False
@@ -727,7 +727,7 @@ def dns_systemd_resolved_bs(context, scen):
     context.dns_plugin = "systemd-resolved"
 
 
-def dns_systemd_resolved_as(context, scen):
+def dns_systemd_resolved_as(context, scenario):
     if not context.systemd_resolved:
         print("stop systemd-resolved")
         context.process.systemctl("stop systemd-resolved")
@@ -739,7 +739,7 @@ def dns_systemd_resolved_as(context, scen):
 _register_tag("dns_systemd_resolved", dns_systemd_resolved_bs, dns_systemd_resolved_as)
 
 
-def internal_DHCP_bs(context, scen):
+def internal_DHCP_bs(context, scenario):
     conf = ["# configured by beaker-test", "[main]", "dhcp=internal"]
     nmci.util.file_set_content(
         "/etc/NetworkManager/conf.d/99-xtest-dhcp-internal.conf", conf
@@ -747,7 +747,7 @@ def internal_DHCP_bs(context, scen):
     nmci.lib.restart_NM_service(context)
 
 
-def internal_DHCP_as(context, scen):
+def internal_DHCP_as(context, scenario):
     context.process.run_stdout(
         "rm -f /etc/NetworkManager/conf.d/99-xtest-dhcp-internal.conf"
     )
@@ -757,7 +757,7 @@ def internal_DHCP_as(context, scen):
 _register_tag("internal_DHCP", internal_DHCP_bs, internal_DHCP_as)
 
 
-def dhclient_DHCP_bs(context, scen):
+def dhclient_DHCP_bs(context, scenario):
     conf = ["# configured by beaker-test", "[main]", "dhcp=dhclient"]
     nmci.util.file_set_content(
         "/etc/NetworkManager/conf.d/99-xtest-dhcp-dhclient.conf", conf
@@ -765,7 +765,7 @@ def dhclient_DHCP_bs(context, scen):
     nmci.lib.restart_NM_service(context)
 
 
-def dhclient_DHCP_as(context, scen):
+def dhclient_DHCP_as(context, scenario):
     context.process.run_stdout(
         "rm -f /etc/NetworkManager/conf.d/99-xtest-dhcp-dhclient.conf"
     )
@@ -775,13 +775,13 @@ def dhclient_DHCP_as(context, scen):
 _register_tag("dhclient_DHCP", dhclient_DHCP_bs, dhclient_DHCP_as)
 
 
-def delete_testeth0_bs(context, scen):
-    skip_restarts_bs(context, scen)
+def delete_testeth0_bs(context, scenario):
+    skip_restarts_bs(context, scenario)
     context.process.nmcli("device disconnect eth0")
     context.process.nmcli("connection delete id testeth0")
 
 
-def delete_testeth0_as(context, scen):
+def delete_testeth0_as(context, scenario):
     context.process.nmcli_force("connection delete eth0")
     nmci.lib.restore_testeth0(context)
 
@@ -789,7 +789,7 @@ def delete_testeth0_as(context, scen):
 _register_tag("delete_testeth0", delete_testeth0_bs, delete_testeth0_as)
 
 
-def ethernet_bs(context, scen):
+def ethernet_bs(context, scenario):
     cons = context.process.nmcli("con")
     if "testeth1" in cons or "testeth2" in cons:
         print("sanitizing eth1 and eth2")
@@ -805,7 +805,7 @@ def ethernet_bs(context, scen):
 _register_tag("ethernet", ethernet_bs, None)
 
 
-def ifcfg_rh_bs(context, scen):
+def ifcfg_rh_bs(context, scenario):
     _, nm_ver = nmci.misc.nm_version_detect()
     if (
         nm_ver >= [1, 36]
@@ -828,14 +828,14 @@ def ifcfg_rh_bs(context, scen):
         nmci.lib.restart_NM_service(context)
         if context.IS_NMTUI:
             # comment out wifi_rescan, as simwifi prepare not done yet
-            # if "simwifi" in scen.tags:
+            # if "simwifi" in scenario.tags:
             #     nmci.lib.wifi_rescan()
             # VV Do not lower this as nmtui can be behaving weirdly
             time.sleep(4)
         time.sleep(0.5)
 
 
-def ifcfg_rh_as(context, scen):
+def ifcfg_rh_as(context, scenario):
     if os.path.isfile("/etc/NetworkManager/conf.d/99-xxcustom.conf"):
         print("resetting ifcfg plugin")
         context.process.run_stdout(
@@ -843,7 +843,7 @@ def ifcfg_rh_as(context, scen):
         )
         nmci.lib.restart_NM_service(context)
         if context.IS_NMTUI:
-            # if 'simwifi' in scen.tags:
+            # if 'simwifi' in scenario.tags:
             #     nmci.lib.wifi_rescan()
             time.sleep(4)
         time.sleep(0.5)
@@ -852,7 +852,7 @@ def ifcfg_rh_as(context, scen):
 _register_tag("ifcfg-rh", ifcfg_rh_bs, ifcfg_rh_as)
 
 
-def keyfile_bs(context, scen):
+def keyfile_bs(context, scenario):
     _, nm_ver = nmci.misc.nm_version_detect()
     if (
         nm_ver >= [1, 36]
@@ -873,14 +873,14 @@ def keyfile_bs(context, scen):
         nmci.lib.restart_NM_service(context)
         if context.IS_NMTUI:
             # comment out wifi_rescan, as simwifi prepare not done yet
-            # if "simwifi" in scen.tags:
+            # if "simwifi" in scenario.tags:
             #     nmci.lib.wifi_rescan()
             # VV Do not lower this as nmtui can be behaving weirdly
             time.sleep(4)
         time.sleep(0.5)
 
 
-def keyfile_as(context, scen):
+def keyfile_as(context, scenario):
     if os.path.isfile("/etc/NetworkManager/conf.d/99-xxcustom.conf"):
         print("resetting ifcfg plugin")
         context.process.run_stdout(
@@ -888,7 +888,7 @@ def keyfile_as(context, scen):
         )
         nmci.lib.restart_NM_service(context)
         if context.IS_NMTUI:
-            # if 'simwifi' in scen.tags:
+            # if 'simwifi' in scenario.tags:
             #     nmci.lib.wifi_rescan()
             time.sleep(4)
         time.sleep(0.5)
@@ -897,7 +897,7 @@ def keyfile_as(context, scen):
 _register_tag("keyfile", keyfile_bs, keyfile_as)
 
 
-def plugin_default_bs(context, scen):
+def plugin_default_bs(context, scenario):
     if os.path.isfile("/etc/NetworkManager/conf.d/99-test.conf"):
         print("remove 'plugins=*' from 99-test.conf")
         context.process.run_stdout(
@@ -909,7 +909,7 @@ def plugin_default_bs(context, scen):
         nmci.lib.restart_NM_service(context)
 
 
-def plugin_default_as(context, scen):
+def plugin_default_as(context, scenario):
     if os.path.isfile("/etc/NetworkManager/conf.d/99-test.conf"):
         print("restore 99-test.conf")
         context.process.run_stdout(
@@ -921,12 +921,12 @@ def plugin_default_as(context, scen):
 _register_tag("plugin_default", plugin_default_bs, plugin_default_as)
 
 
-def eth3_disconnect_bs(context, scen):
+def eth3_disconnect_bs(context, scenario):
     context.process.nmcli_force("device disconnect eth3")
     context.process.run("pkill -9 -F /var/run/dhclient-eth3.pid", ignore_stderr=True)
 
 
-def eth3_disconnect_as(context, scen):
+def eth3_disconnect_as(context, scenario):
     context.process.nmcli_force("device disconnect eth3")
     # VVV Up/Down to preserve autoconnect feature
     context.process.nmcli("connection up testeth3")
@@ -936,7 +936,7 @@ def eth3_disconnect_as(context, scen):
 _register_tag("eth3_disconnect", eth3_disconnect_bs, eth3_disconnect_as)
 
 
-def need_dispatcher_scripts_bs(context, scen):
+def need_dispatcher_scripts_bs(context, scenario):
     if os.path.isfile("/tmp/nm-builddir"):
         print("install dispatcher scripts")
         context.process.run_stdout(
@@ -953,7 +953,7 @@ def need_dispatcher_scripts_bs(context, scen):
     nmci.lib.reload_NM_service(context)
 
 
-def need_dispatcher_scripts_as(context, scen):
+def need_dispatcher_scripts_as(context, scenario):
     nmci.lib.wait_for_testeth0(context)
     context.process.run_stdout(
         "yum -y remove NetworkManager-config-routing-rules", timeout=120
@@ -972,23 +972,23 @@ _register_tag(
 )
 
 
-def need_legacy_crypto_bs(context, scen):
+def need_legacy_crypto_bs(context, scenario):
     # We have openssl3 in RHEL9 with a bunch of algs deprecated
     if "release 9" in context.rh_release:
         pass
         # hostapd and wpa_supplicant 2.10+ can enforce this w/o config
         # context.process.run_stdout("sed '-i.bak' s/'^##'/''/g /etc/pki/tls/openssl.cnf")
-        # if '8021x' in scen.tags:
+        # if '8021x' in scenario.tags:
         #     context.process.systemctl("restart wpa_supplicant")
         #     context.process.systemctl("restart nm-hostapd")
 
 
-def need_legacy_crypto_as(context, scen):
+def need_legacy_crypto_as(context, scenario):
     if "release 9" in context.rh_release:
         pass
         # hostapd and wpa_supplicant 2.10+ can enforce this w/o config
         # context.process.run_stdout("mv -f /etc/pki/tls/openssl.cnf.bak /etc/pki/tls/openssl.cnf")
-        # if '8021x' in scen.tags:
+        # if '8021x' in scenario.tags:
         #     context.process.systemctl("restart wpa_supplicant")
         #     context.process.systemctl("restart nm-hostapd")
 
@@ -996,11 +996,11 @@ def need_legacy_crypto_as(context, scen):
 _register_tag("need_legacy_crypto", need_legacy_crypto_bs, need_legacy_crypto_as)
 
 
-def logging_bs(context, scen):
+def logging_bs(context, scenario):
     context.loggin_level = context.process.nmcli("-t -f LEVEL general logging").strip()
 
 
-def logging_as(context, scen):
+def logging_as(context, scenario):
     print("---------------------------")
     print("setting log level back")
     context.process.nmcli(f"g log level {context.loggin_level} domains ALL")
@@ -1009,7 +1009,7 @@ def logging_as(context, scen):
 _register_tag("logging", logging_bs, logging_as)
 
 
-def remove_custom_cfg_as(context, scen):
+def remove_custom_cfg_as(context, scenario):
     context.process.run_stdout("sudo rm -f /etc/NetworkManager/conf.d/99-xxcustom.conf")
     nmci.lib.restart_NM_service(context)
 
@@ -1017,7 +1017,7 @@ def remove_custom_cfg_as(context, scen):
 _register_tag("remove_custom_cfg", None, remove_custom_cfg_as)
 
 
-def netservice_bs(context, scen):
+def netservice_bs(context, scenario):
     context.process.run_stdout("sudo pkill -9 /sbin/dhclient")
     # Make orig- devices unmanaged as they may be unfunctional
     devs = context.process.nmcli("-g DEVICE device").strip().split("\n")
@@ -1030,7 +1030,7 @@ def netservice_bs(context, scen):
     time.sleep(1)
 
 
-def netservice_as(context, scen):
+def netservice_as(context, scenario):
     print("Attaching network.service log")
     data = nmci.misc.journal_show(
         "network",
@@ -1044,7 +1044,7 @@ def netservice_as(context, scen):
 _register_tag("netservice", netservice_bs, netservice_as)
 
 
-def tag8021x_bs(context, scen):
+def tag8021x_bs(context, scenario):
     if not os.path.isfile("/tmp/nm_8021x_configured"):
         if context.arch == "s390x":
             # TODO move to envsetup
@@ -1060,14 +1060,14 @@ def tag8021x_bs(context, scen):
 _register_tag("8021x", tag8021x_bs)
 
 
-def tag8021x_as(context, scen):
+def tag8021x_as(context, scenario):
     nmci.lib.teardown_hostapd(context)
 
 
 _register_tag("8021x_teardown", None, tag8021x_as)
 
 
-def pkcs11_bs(context, scen):
+def pkcs11_bs(context, scenario):
     nmci.lib.setup_pkcs11(context)
     context.process.run_stdout("p11-kit list-modules")
     context.process.run_stdout("softhsm2-util --show-slots")
@@ -1079,17 +1079,17 @@ def pkcs11_bs(context, scen):
 _register_tag("pkcs11", pkcs11_bs)
 
 
-def simwifi_bs(context, scen):
+def simwifi_bs(context, scenario):
     if context.arch != "x86_64":
         print("Skipping as not on x86_64")
         sys.exit(77)
     args = ["namespace"]
-    if "need_legacy_crypto" in scen.tags:
+    if "need_legacy_crypto" in scenario.tags:
         args.append("legacy_crypto")
     nmci.lib.setup_hostapd_wireless(context, args)
 
 
-def simwifi_as(context, scen):
+def simwifi_as(context, scenario):
     if context.IS_NMTUI:
         print("deleting all wifi connections")
         conns = nmci.process.nmcli("-t -f UUID,TYPE con show").strip().split("\n")
@@ -1106,7 +1106,7 @@ def simwifi_as(context, scen):
 _register_tag("simwifi", simwifi_bs, simwifi_as)
 
 
-def simwifi_ap_bs(context, scen):
+def simwifi_ap_bs(context, scenario):
     if context.arch != "x86_64":
         print("Skipping as not on x86_64")
         sys.exit(77)
@@ -1117,7 +1117,7 @@ def simwifi_ap_bs(context, scen):
     assert nmci.lib.restart_NM_service(context, reset=False), "NM stop failed"
 
 
-def simwifi_ap_as(context, scen):
+def simwifi_ap_as(context, scenario):
     context.process.run_stdout("modprobe -r mac80211_hwsim")
     context.process.systemctl("restart wpa_supplicant")
     assert nmci.lib.restart_NM_service(context, reset=False), "NM stop failed"
@@ -1126,7 +1126,7 @@ def simwifi_ap_as(context, scen):
 _register_tag("simwifi_ap", simwifi_ap_bs, simwifi_ap_as)
 
 
-def simwifi_p2p_bs(context, scen):
+def simwifi_p2p_bs(context, scenario):
     if context.arch != "x86_64":
         print("Skipping as not on x86_64")
         sys.exit(77)
@@ -1174,7 +1174,7 @@ def simwifi_p2p_bs(context, scen):
     time.sleep(3)
 
 
-def simwifi_p2p_as(context, scen):
+def simwifi_p2p_as(context, scenario):
     print("---------------------------")
     if (
         context.rh_release_num >= 8
@@ -1207,7 +1207,7 @@ def simwifi_p2p_as(context, scen):
 _register_tag("simwifi_p2p", simwifi_p2p_bs, simwifi_p2p_as)
 
 
-def simwifi_teardown_bs(context, scen):
+def simwifi_teardown_bs(context, scenario):
     nmci.lib.teardown_hostapd_wireless(context)
     nmci.lib.wait_for_testeth0(context)
     sys.exit(77)
@@ -1216,7 +1216,7 @@ def simwifi_teardown_bs(context, scen):
 _register_tag("simwifi_teardown", simwifi_teardown_bs)
 
 
-def vpnc_bs(context, scen):
+def vpnc_bs(context, scenario):
     if context.arch == "s390x":
         print("Skipping on s390x")
         sys.exit(77)
@@ -1237,7 +1237,7 @@ def vpnc_bs(context, scen):
     nmci.lib.setup_racoon(context, mode="aggressive", dh_group=2)
 
 
-def vpnc_as(context, scen):
+def vpnc_as(context, scenario):
     context.process.nmcli_force("connection delete vpnc")
     nmci.lib.teardown_racoon(context)
 
@@ -1245,7 +1245,7 @@ def vpnc_as(context, scen):
 _register_tag("vpnc", vpnc_bs, vpnc_as)
 
 
-def tcpreplay_bs(context, scen):
+def tcpreplay_bs(context, scenario):
     if context.arch == "s390x":
         print("Skipping on s390x")
         sys.exit(77)
@@ -1266,7 +1266,7 @@ def tcpreplay_bs(context, scen):
 _register_tag("tcpreplay", tcpreplay_bs)
 
 
-def libreswan_bs(context, scen):
+def libreswan_bs(context, scenario):
     nmci.lib.wait_for_testeth0(context)
     if context.process.run_code("rpm -q NetworkManager-libreswan") != 0:
         context.process.run_stdout(
@@ -1293,14 +1293,14 @@ def libreswan_bs(context, scen):
 
     context.process.run_stdout("/usr/sbin/ipsec --checknss")
     mode = "aggressive"
-    if "ikev2" in scen.tags:
+    if "ikev2" in scenario.tags:
         mode = "ikev2"
-    if "main" in scen.tags:
+    if "main" in scenario.tags:
         mode = "main"
     nmci.lib.setup_libreswan(context, mode, dh_group=14)
 
 
-def libreswan_as(context, scen):
+def libreswan_as(context, scenario):
     context.process.nmcli_force("connection down libreswan")
     context.process.nmcli_force("connection delete libreswan")
     nmci.lib.teardown_libreswan(context)
@@ -1312,15 +1312,15 @@ _register_tag("ikev2")
 _register_tag("main")
 
 
-def openvpn_bs(context, scen):
+def openvpn_bs(context, scenario):
     if context.arch == "s390x":
         print("Skipping on s390x")
         nmci.lib.wait_for_testeth0(context)
         sys.exit(77)
-    context.ovpn_proc = nmci.lib.setup_openvpn(context, scen.tags)
+    context.ovpn_proc = nmci.lib.setup_openvpn(context, scenario.tags)
 
 
-def openvpn_as(context, scen):
+def openvpn_as(context, scenario):
     nmci.lib.restore_testeth0(context)
     context.process.nmcli_force("connection delete openvpn")
     context.process.nmcli_force("connection delete tun0")
@@ -1332,7 +1332,7 @@ _register_tag("openvpn4")
 _register_tag("openvpn6")
 
 
-def strongswan_bs(context, scen):
+def strongswan_bs(context, scenario):
     # Do not run on RHEL7 on s390x
     if "release 7" in context.rh_release:
         if context.arch == "s390x":
@@ -1342,7 +1342,7 @@ def strongswan_bs(context, scen):
     nmci.lib.setup_strongswan(context)
 
 
-def strongswan_as(context, scen):
+def strongswan_as(context, scenario):
     # context.process.run_stdout("ip route del default via 172.31.70.1")
     context.process.nmcli_force("connection down strongswan")
     context.process.nmcli_force("connection delete strongswan")
@@ -1353,27 +1353,27 @@ def strongswan_as(context, scen):
 _register_tag("strongswan", strongswan_bs, strongswan_as)
 
 
-def vpn_as(context, scen):
+def vpn_as(context, scenario):
     context.process.nmcli_force("connection delete vpn")
 
 
 _register_tag("vpn", None, vpn_as)
 
 
-def iptunnel_bs(context, scen):
+def iptunnel_bs(context, scenario):
     # Workaround for 1869538
     context.process.run_stdout("modprobe -r xfrm_interface")
     context.process.run_stdout("sh prepare/iptunnel.sh")
 
 
-def iptunnel_as(context, scen):
+def iptunnel_as(context, scenario):
     context.process.run_stdout("sh prepare/iptunnel.sh teardown", ignore_stderr=True)
 
 
 _register_tag("iptunnel", iptunnel_bs, iptunnel_as)
 
 
-def wireguard_bs(context, scen):
+def wireguard_bs(context, scenario):
     context.process.run_stdout(
         "sh prepare/wireguard.sh", timeout=150, ignore_stderr=True
     )
@@ -1382,7 +1382,7 @@ def wireguard_bs(context, scen):
 _register_tag("wireguard", wireguard_bs, None)
 
 
-def dracut_bs(context, scen):
+def dracut_bs(context, scenario):
     # log dracut version to "Commands"
     context.process.run_stdout("rpm -qa dracut*")
 
@@ -1411,7 +1411,7 @@ def dracut_bs(context, scen):
         assert False, "dracut setup failed"
 
 
-def dracut_as(context, scen):
+def dracut_as(context, scenario):
     # clean an umount client_dumps
     context.process.run(
         "cd contrib/dracut/; . ./setup.sh; "
@@ -1439,7 +1439,7 @@ def dracut_as(context, scen):
 _register_tag("dracut", dracut_bs, dracut_as)
 
 
-def dracut_remote_NFS_clean_as(context, scen):
+def dracut_remote_NFS_clean_as(context, scenario):
     # keep nfs service stopped as it hangs rm commands for 90s
     context.process.systemctl("stop nfs-server.service")
     context.process.run_stdout(
@@ -1455,7 +1455,7 @@ def dracut_remote_NFS_clean_as(context, scen):
 _register_tag("dracut_remote_NFS_clean", None, dracut_remote_NFS_clean_as)
 
 
-def prepare_patched_netdevsim_bs(context, scen):
+def prepare_patched_netdevsim_bs(context, scenario):
     context.process.run_stdout(
         "sh prepare/netdevsim.sh setup", timeout=600, ignore_stderr=True
     )
@@ -1463,7 +1463,7 @@ def prepare_patched_netdevsim_bs(context, scen):
     nmci.ip.link_show(ifname="eth11", flags="LOWER_UP", timeout=1)
 
 
-def prepare_patched_netdevsim_as(context, scen):
+def prepare_patched_netdevsim_as(context, scenario):
     context.process.run_stdout("sh prepare/netdevsim.sh teardown", ignore_stderr=True)
 
 
@@ -1474,14 +1474,14 @@ _register_tag(
 )
 
 
-def load_netdevsim_bs(context, scen):
+def load_netdevsim_bs(context, scenario):
     context.process.run("modprobe -r netdevsim", ignore_stderr=True)
     context.process.run_stdout("modprobe netdevsim")
     context.process.run_stdout("echo 1 1 > /sys/bus/netdevsim/new_device", shell=True)
     time.sleep(1)
 
 
-def load_netdevsim_as(context, scen):
+def load_netdevsim_as(context, scenario):
     context.process.run_stdout("modprobe -r netdevsim")
     time.sleep(1)
 
@@ -1489,8 +1489,8 @@ def load_netdevsim_as(context, scen):
 _register_tag("load_netdevsim", load_netdevsim_bs, load_netdevsim_as)
 
 
-def attach_hostapd_log_as(context, scen):
-    if scen.status == "failed" or context.DEBUG:
+def attach_hostapd_log_as(context, scenario):
+    if scenario.status == "failed" or context.DEBUG:
         print("Attaching hostapd log")
 
         confs = context.process.run_stdout(
@@ -1522,8 +1522,8 @@ def attach_hostapd_log_as(context, scen):
 _register_tag("attach_hostapd_log", None, attach_hostapd_log_as)
 
 
-def attach_wpa_supplicant_log_as(context, scen):
-    if scen.status == "failed" or context.DEBUG:
+def attach_wpa_supplicant_log_as(context, scenario):
+    if scenario.status == "failed" or context.DEBUG:
         print("Attaching wpa_supplicant log")
         data = nmci.misc.journal_show(
             "wpa_supplicant",
@@ -1537,7 +1537,7 @@ def attach_wpa_supplicant_log_as(context, scen):
 _register_tag("attach_wpa_supplicant_log", None, attach_wpa_supplicant_log_as)
 
 
-def performance_bs(context, scen):
+def performance_bs(context, scenario):
     # Set machine perf to max
     context.process.systemctl("start tuned")
     context.process.run("tuned-adm profile throughput-performance", ignore_stderr=True)
@@ -1566,7 +1566,7 @@ def performance_bs(context, scen):
         context.machine_speed_factor *= 1.5
 
 
-def performance_as(context, scen):
+def performance_as(context, scenario):
     context.nm_restarted = True
     # Settings device number to 0
     context.process.run_stdout("contrib/gi/./setup.sh 0", timeout=120)
@@ -1585,7 +1585,7 @@ def performance_as(context, scen):
 _register_tag("performance", performance_bs, performance_as)
 
 
-def preserve_8021x_certs_bs(context, scen):
+def preserve_8021x_certs_bs(context, scenario):
     assert (
         context.process.run_code("mkdir -p /tmp/certs/") == 0
     ), "unable to create /tmp/certs/ directory"
@@ -1600,7 +1600,7 @@ def preserve_8021x_certs_bs(context, scen):
 _register_tag("preserve_8021x_certs", preserve_8021x_certs_bs)
 
 
-def pptp_bs(context, scen):
+def pptp_bs(context, scenario):
     if context.arch == "s390x":
         print("Skipping on s390x")
         sys.exit(77)
@@ -1652,14 +1652,14 @@ def pptp_bs(context, scen):
         time.sleep(1)
 
 
-def pptp_as(context, scen):
+def pptp_as(context, scenario):
     context.process.nmcli_force("connection delete pptp")
 
 
 _register_tag("pptp", pptp_bs, pptp_as)
 
 
-def firewall_bs(context, scen):
+def firewall_bs(context, scenario):
     if context.process.run_code("rpm -q firewalld") != 0:
         print("install firewalld")
         nmci.lib.wait_for_testeth0(context)
@@ -1675,7 +1675,7 @@ def firewall_bs(context, scen):
     time.sleep(1)
 
 
-def firewall_as(context, scen):
+def firewall_as(context, scenario):
     context.process.run_stdout("sudo firewall-cmd --panic-off", ignore_stderr=True)
     context.process.run_stdout(
         "sudo firewall-cmd --permanent --remove-port=51820/udp --zone=public",
@@ -1691,11 +1691,11 @@ def firewall_as(context, scen):
 _register_tag("firewall", firewall_bs, firewall_as)
 
 
-def restore_hostname_bs(context, scen):
+def restore_hostname_bs(context, scenario):
     context.original_hostname = context.process.run_stdout("hostname").strip()
 
 
-def restore_hostname_as(context, scen):
+def restore_hostname_as(context, scenario):
     context.process.systemctl("unmask systemd-hostnamed.service")
     context.process.systemctl("unmask dbus-org.freedesktop.hostname1.service")
     if context.IS_NMTUI:
@@ -1716,7 +1716,7 @@ def restore_hostname_as(context, scen):
 _register_tag("restore_hostname", restore_hostname_bs, restore_hostname_as)
 
 
-def runonce_bs(context, scen):
+def runonce_bs(context, scenario):
     context.process.systemctl("stop network")
     # TODO check: this should be done by @eth0
     context.process.nmcli_force("device disconnect eth0")
@@ -1726,7 +1726,7 @@ def runonce_bs(context, scen):
     context.nm_pid_refresh_count = 1000
 
 
-def runonce_as(context, scen):
+def runonce_as(context, scenario):
     context.process.run_stdout(
         "for i in $(pidof nm-iface-helper); do kill -9 $i; done", shell=True
     )
@@ -1746,7 +1746,7 @@ def runonce_as(context, scen):
 _register_tag("runonce", runonce_bs, runonce_as)
 
 
-def slow_team_bs(context, scen):
+def slow_team_bs(context, scenario):
     if context.arch != "x86_64":
         print("Skippin as not on x86_64")
         sys.exit(77)
@@ -1770,7 +1770,7 @@ def slow_team_bs(context, scen):
     nmci.lib.reload_NM_service(context)
 
 
-def slow_team_as(context, scen):
+def slow_team_as(context, scenario):
     context.process.run_stdout(
         "for i in $(rpm -qa |grep team|grep -v Netw); do rpm -e $i --nodeps; done",
         shell=True,
@@ -1782,7 +1782,7 @@ def slow_team_as(context, scen):
 _register_tag("slow_team", slow_team_bs, slow_team_as)
 
 
-def openvswitch_bs(context, scen):
+def openvswitch_bs(context, scenario):
     if context.arch == "s390x" and "Ootpa" not in context.rh_release:
         print("Skipping as on s390x and not Ootpa")
         sys.exit(77)
@@ -1800,7 +1800,7 @@ def openvswitch_bs(context, scen):
         nmci.lib.restart_NM_service(context)
 
 
-def openvswitch_as(context, scen):
+def openvswitch_as(context, scenario):
     data1 = nmci.util.file_get_content_simple("/var/log/openvswitch/ovsdb-server.log")
     if data1:
         print("Attaching OVSDB log")
@@ -1837,11 +1837,11 @@ def openvswitch_as(context, scen):
 _register_tag("openvswitch", openvswitch_bs, openvswitch_as)
 
 
-def sriov_bs(context, scen):
+def sriov_bs(context, scenario):
     context.process.nmcli_force("con del p4p1")
 
 
-def sriov_as(context, scen):
+def sriov_as(context, scenario):
 
     context.process.run_stdout(
         "echo 0 > /sys/class/net/p6p1/device/sriov_numvfs", shell=True, timeout=120
@@ -1868,7 +1868,7 @@ def sriov_as(context, scen):
 _register_tag("sriov", sriov_bs, sriov_as)
 
 
-def dpdk_bs(context, scen):
+def dpdk_bs(context, scenario):
     context.process.run_stdout("sysctl -w vm.nr_hugepages=10")
     context.process.run_stdout(
         "if ! rpm -q --quiet dpdk dpdk-tools; then yum -y install dpdk dpdk-tools; fi",
@@ -1902,7 +1902,7 @@ def dpdk_bs(context, scen):
     context.process.systemctl("restart openvswitch")
 
 
-def dpdk_as(context, scen):
+def dpdk_as(context, scenario):
     context.process.systemctl("stop ovsdb-server")
     context.process.systemctl("stop openvswitch")
     time.sleep(5)
@@ -1911,7 +1911,7 @@ def dpdk_as(context, scen):
 _register_tag("dpdk", dpdk_bs, dpdk_as)
 
 
-def wireless_certs_bs(context, scen):
+def wireless_certs_bs(context, scenario):
     context.process.run_stdout("mkdir /tmp/certs")
     if not os.path.isfile("/tmp/certs/eaptest_ca_cert.pem"):
         context.process.run_stdout(
@@ -1926,7 +1926,7 @@ def wireless_certs_bs(context, scen):
 _register_tag("wireless_certs", wireless_certs_bs)
 
 
-def selinux_allow_ifup_bs(context, scen):
+def selinux_allow_ifup_bs(context, scenario):
     if not context.process.run_search_stdout("semodule -l", "ifup_policy"):
         context.process.run_stdout("semodule -i contrib/selinux-policy/ifup_policy.pp")
 
@@ -1934,14 +1934,14 @@ def selinux_allow_ifup_bs(context, scen):
 _register_tag("selinux_allow_ifup", selinux_allow_ifup_bs)
 
 
-def no_testeth10_bs(context, scen):
+def no_testeth10_bs(context, scenario):
     context.process.nmcli_force("connection delete testeth10")
 
 
 _register_tag("no_testeth10", no_testeth10_bs)
 
 
-def pppoe_bs(context, scen):
+def pppoe_bs(context, scenario):
     pass
     if context.arch == "aarch64":
         print("enable pppd selinux policy on aarch64")
@@ -1950,14 +1950,14 @@ def pppoe_bs(context, scen):
         context.process.run("mknod /dev/ppp c 108 0")
 
 
-def pppoe_as(context, scen):
+def pppoe_as(context, scenario):
     context.process.run_stdout("kill -9 $(pidof pppoe-server)", shell=True)
 
 
 _register_tag("pppoe", pppoe_bs, pppoe_as)
 
 
-def del_test1112_veths_bs(context, scen):
+def del_test1112_veths_bs(context, scenario):
     rule = 'ENV{ID_NET_DRIVER}=="veth", ENV{INTERFACE}=="test11|test12", ENV{NM_UNMANAGED}="0"'
     nmci.util.file_set_content("/etc/udev/rules.d/99-veths.rules", [rule])
     context.process.run_stdout("udevadm control --reload-rules")
@@ -1965,7 +1965,7 @@ def del_test1112_veths_bs(context, scen):
     time.sleep(1)
 
 
-def del_test1112_veths_as(context, scen):
+def del_test1112_veths_as(context, scenario):
     context.process.run_stdout("ip link del test11")
     context.process.run_stdout("rm -f /etc/udev/rules.d/99-veths.rules")
     context.process.run_stdout("udevadm control --reload-rules")
@@ -1976,12 +1976,12 @@ def del_test1112_veths_as(context, scen):
 _register_tag("del_test1112_veths", del_test1112_veths_bs, del_test1112_veths_as)
 
 
-def nmstate_bs(context, scen):
+def nmstate_bs(context, scenario):
     context.process.run("yum -y remove nmstate nispor", ignore_stderr=True, timeout=120)
     context.process.run_stdout("yum -y install nmstate", timeout=120)
 
 
-def nmstate_as(context, scen):
+def nmstate_as(context, scenario):
     context.process.run_stdout(
         "sh contrib/reproducers/repro_1923248.sh clean", ignore_stderr=True
     )
@@ -1992,7 +1992,7 @@ def nmstate_as(context, scen):
 _register_tag("nmstate", nmstate_bs, nmstate_as)
 
 
-def nmstate_upstream_setup_bs(context, scen):
+def nmstate_upstream_setup_bs(context, scenario):
     # Skip on deployments where we do not have veths
     if not os.path.isfile("/tmp/nm_veth_configured"):
         print("Skipping as no vethsetup")
@@ -2046,7 +2046,7 @@ def nmstate_upstream_setup_bs(context, scen):
         nmci.lib.restart_NM_service(context)
 
 
-def nmstate_upstream_setup_as(context, scen):
+def nmstate_upstream_setup_as(context, scenario):
     # nmstate restarts NM few times during tests
     context.nm_restarted = True
 
@@ -2105,13 +2105,13 @@ _register_tag(
 )
 
 
-def backup_sysconfig_network_bs(context, scen):
+def backup_sysconfig_network_bs(context, scenario):
     context.process.run_stdout(
         "sudo cp -f /etc/sysconfig/network /tmp/sysnetwork.backup"
     )
 
 
-def backup_sysconfig_network_as(context, scen):
+def backup_sysconfig_network_as(context, scenario):
     context.process.run_stdout(
         "sudo mv -f /tmp/sysnetwork.backup /etc/sysconfig/network"
     )
@@ -2124,7 +2124,7 @@ _register_tag(
 )
 
 
-def remove_fedora_connection_checker_bs(context, scen):
+def remove_fedora_connection_checker_bs(context, scenario):
     nmci.lib.wait_for_testeth0(context)
     context.process.run(
         "yum -y remove NetworkManager-config-connectivity-fedora",
@@ -2137,7 +2137,7 @@ def remove_fedora_connection_checker_bs(context, scen):
 _register_tag("remove_fedora_connection_checker", remove_fedora_connection_checker_bs)
 
 
-def need_config_server_bs(context, scen):
+def need_config_server_bs(context, scenario):
     if context.process.run_code("rpm -q NetworkManager-config-server") == 0:
         context.remove_config_server = False
     else:
@@ -2149,7 +2149,7 @@ def need_config_server_bs(context, scen):
         context.remove_config_server = True
 
 
-def need_config_server_as(context, scen):
+def need_config_server_as(context, scenario):
     if context.remove_config_server:
         print("removing NetworkManager-config-server")
         context.process.run_stdout(
@@ -2161,7 +2161,7 @@ def need_config_server_as(context, scen):
 _register_tag("need_config_server", need_config_server_bs, need_config_server_as)
 
 
-def no_config_server_bs(context, scen):
+def no_config_server_bs(context, scenario):
     if context.process.run_code("rpm -q NetworkManager-config-server") == 1:
         context.restore_config_server = False
     else:
@@ -2182,7 +2182,7 @@ def no_config_server_bs(context, scen):
         context.restore_config_server = True
 
 
-def no_config_server_as(context, scen):
+def no_config_server_as(context, scenario):
     if context.restore_config_server:
         config_files = (
             context.process.run_stdout("rpm -ql NetworkManager-config-server")
@@ -2209,7 +2209,7 @@ def no_config_server_as(context, scen):
 _register_tag("no_config_server", no_config_server_bs, no_config_server_as)
 
 
-def permissive_bs(context, scen):
+def permissive_bs(context, scenario):
     context.enforcing = False
     if context.process.run_search_stdout("getenforce", "Enforcing"):
         print("WORKAROUND for permissive selinux")
@@ -2217,7 +2217,7 @@ def permissive_bs(context, scen):
         context.process.run_stdout("setenforce 0")
 
 
-def permissive_as(context, scen):
+def permissive_as(context, scenario):
     if context.enforcing:
         print("WORKAROUND for permissive selinux")
         context.process.run_stdout("setenforce 1")
@@ -2226,7 +2226,7 @@ def permissive_as(context, scen):
 _register_tag("permissive", permissive_bs, permissive_as)
 
 
-def tcpdump_bs(context, scen):
+def tcpdump_bs(context, scenario):
     nmci.util.file_set_content(
         "/tmp/network-traffic.log",
         ["~~~~~~~~~~~~~~~~~~~~~~~~~~ TRAFFIC LOG ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"],
@@ -2236,7 +2236,7 @@ def tcpdump_bs(context, scen):
     )
 
 
-def tcpdump_as(context, scen):
+def tcpdump_as(context, scenario):
     print("Attaching traffic log")
     context.process.run("pkill -1 tcpdump")
     if os.stat("/tmp/network-traffic.log").st_size < 20000000:
@@ -2251,12 +2251,12 @@ def tcpdump_as(context, scen):
 _register_tag("tcpdump", tcpdump_bs, tcpdump_as)
 
 
-def wifi_bs(context, scen):
+def wifi_bs(context, scenario):
     if context.IS_NMTUI:
         nmci.lib.wifi_rescan(context)
 
 
-def wifi_as(context, scen):
+def wifi_as(context, scenario):
     if context.IS_NMTUI:
         context.process.nmcli_force(
             "connection delete id wifi wifi1 qe-open qe-wpa1-psk qe-wpa2-psk qe-wep"
@@ -2271,7 +2271,7 @@ def wifi_as(context, scen):
             "con del qe-wpa1-psk qe-wpa2-psk qe-wpa1-enterprise qe-wpa2-enterprise qe-hidden-wpa2-psk"
         )
         context.process.nmcli_force("con del qe-adhoc qe-ap wifi-wlan0")
-        if "novice" in scen.tags:
+        if "novice" in scenario.tags:
             context.prompt.close()
             time.sleep(1)
             context.process.nmcli_force("con del wifi-wlan0")
@@ -2281,14 +2281,14 @@ _register_tag("wifi", wifi_bs, None)
 _register_tag("novice")
 
 
-def rescan_as(context, scen):
+def rescan_as(context, scenario):
     nmci.lib.wifi_rescan(context)
 
 
 _register_tag("rescan", None, rescan_as)
 
 
-def no_connections_bs(context, scen):
+def no_connections_bs(context, scenario):
     context.process.run_code(
         "rm -rf /etc/NetworkManager/system-connections/testeth*", shell=True
     )
@@ -2298,7 +2298,7 @@ def no_connections_bs(context, scen):
     context.process.nmcli("con reload")
 
 
-def no_connections_as(context, scen):
+def no_connections_as(context, scenario):
     if context.IS_NMTUI:
         nmci.lib.restore_connections(context)
         nmci.lib.wait_for_testeth0(context)
@@ -2307,7 +2307,7 @@ def no_connections_as(context, scen):
 _register_tag("no_connections", no_connections_bs, no_connections_as)
 
 
-def teamd_as(context, scen):
+def teamd_as(context, scenario):
     context.process.systemctl("stop teamd")
     context.process.systemctl("reset-failed teamd")
 
@@ -2315,14 +2315,14 @@ def teamd_as(context, scen):
 _register_tag("teamd", None, teamd_as)
 
 
-def restore_eth1_mtu_as(context, scen):
+def restore_eth1_mtu_as(context, scenario):
     context.process.run_stdout("sudo ip link set eth1 mtu 1500")
 
 
 _register_tag("restore_eth1_mtu", None, restore_eth1_mtu_as)
 
 
-def wifi_rescan_as(context, scen):
+def wifi_rescan_as(context, scenario):
     if context.IS_NMTUI:
         nmci.lib.restart_NM_service(context)
         nmci.lib.wifi_rescan(context)
@@ -2331,7 +2331,7 @@ def wifi_rescan_as(context, scen):
 _register_tag("wifi_rescan", None, wifi_rescan_as)
 
 
-def testeth7_disconnect_as(context, scen):
+def testeth7_disconnect_as(context, scenario):
     if "testeth7" in context.process.nmcli("connection show -a"):
         print("bring down testeth7")
         context.process.nmcli("con down testeth7")
@@ -2340,7 +2340,7 @@ def testeth7_disconnect_as(context, scen):
 _register_tag("testeth7_disconnect", None, testeth7_disconnect_as)
 
 
-def checkpoint_remove_as(context, scen):
+def checkpoint_remove_as(context, scenario):
     # Not supported on 1-10
     import dbus
 
@@ -2368,14 +2368,14 @@ def checkpoint_remove_as(context, scen):
 _register_tag("checkpoint_remove", None, checkpoint_remove_as)
 
 
-def clean_iptables_as(context, scen):
+def clean_iptables_as(context, scenario):
     context.process.run_stdout("iptables -D OUTPUT -p udp --dport 67 -j REJECT")
 
 
 _register_tag("clean_iptables", None, clean_iptables_as)
 
 
-def kill_dhclient_custom_as(context, scen):
+def kill_dhclient_custom_as(context, scenario):
     time.sleep(0.5)
     context.process.run("pkill -F /tmp/dhclient_custom.pid")
     context.process.run_stdout("rm -f /tmp/dhclient_custom.pid")
@@ -2384,7 +2384,7 @@ def kill_dhclient_custom_as(context, scen):
 _register_tag("kill_dhclient_custom", None, kill_dhclient_custom_as)
 
 
-def networking_on_as(context, scen):
+def networking_on_as(context, scenario):
     context.process.nmcli("networking on")
     nmci.lib.wait_for_testeth0(context)
 
@@ -2392,14 +2392,14 @@ def networking_on_as(context, scen):
 _register_tag("networking_on", None, networking_on_as)
 
 
-def adsl_as(context, scen):
+def adsl_as(context, scenario):
     context.process.nmcli_force("connection delete id adsl-test11 adsl")
 
 
 _register_tag("adsl", None, adsl_as)
 
 
-def allow_veth_connections_bs(context, scen):
+def allow_veth_connections_bs(context, scenario):
     rule = 'ENV{ID_NET_DRIVER}=="veth", ENV{INTERFACE}=="veth*", ENV{NM_UNMANAGED}="0"'
     nmci.util.file_set_content("/etc/udev/rules.d/99-veths.rules", [rule])
     context.process.run_stdout("udevadm control --reload-rules")
@@ -2412,7 +2412,7 @@ def allow_veth_connections_bs(context, scen):
     nmci.lib.reload_NM_service(context)
 
 
-def allow_veth_connections_as(context, scen):
+def allow_veth_connections_as(context, scenario):
     context.process.run_stdout("sudo rm -rf /etc/udev/rules.d/99-veths.rules")
     context.process.run_stdout(
         "sudo rm -rf /etc/NetworkManager/conf.d/99-unmanaged.conf"
@@ -2431,7 +2431,7 @@ _register_tag(
 )
 
 
-def con_ipv6_ifcfg_remove_as(context, scen):
+def con_ipv6_ifcfg_remove_as(context, scenario):
     # context.process.nmcli_force("connection delete id con_ipv6 con_ipv62")
     context.process.run_stdout("rm -rf /etc/sysconfig/network-scripts/ifcfg-con_ipv6")
     context.process.nmcli("con reload")
@@ -2440,14 +2440,14 @@ def con_ipv6_ifcfg_remove_as(context, scen):
 _register_tag("con_ipv6_ifcfg_remove", None, con_ipv6_ifcfg_remove_as)
 
 
-def tuntap_as(context, scen):
+def tuntap_as(context, scenario):
     context.process.run_stdout("ip link del tap0")
 
 
 _register_tag("tuntap", None, tuntap_as)
 
 
-def bond_order_as(context, scen):
+def bond_order_as(context, scenario):
     context.process.run_stdout("rm -rf /etc/NetworkManager/conf.d/99-bond.conf")
     nmci.lib.reload_NM_service(context)
 
@@ -2455,7 +2455,7 @@ def bond_order_as(context, scen):
 _register_tag("bond_order", None, bond_order_as)
 
 
-def remove_tombed_connections_as(context, scen):
+def remove_tombed_connections_as(context, scenario):
     tombs = []
     for dir in [
         "/etc/NetworkManager/system-connections/",
@@ -2479,14 +2479,14 @@ def remove_tombed_connections_as(context, scen):
 _register_tag("remove_tombed_connections", None, remove_tombed_connections_as)
 
 
-def flush_300_as(context, scen):
+def flush_300_as(context, scenario):
     context.process.run("ip route flush table 300", ignore_stderr=True)
 
 
 _register_tag("flush_300", None, flush_300_as)
 
 
-def stop_radvd_as(context, scen):
+def stop_radvd_as(context, scenario):
     context.process.systemctl("stop radvd")
     context.process.run_stdout("rm -rf /etc/radvd.conf")
 
@@ -2494,14 +2494,14 @@ def stop_radvd_as(context, scen):
 _register_tag("stop_radvd", None, stop_radvd_as)
 
 
-def dcb_as(context, scen):
+def dcb_as(context, scenario):
     context.process.nmcli_force("connection delete id dcb")
 
 
 _register_tag("dcb", None, dcb_as)
 
 
-def mtu_as(context, scen):
+def mtu_as(context, scenario):
     context.process.nmcli("connection modify testeth1 802-3-ethernet.mtu 1500")
     context.process.nmcli("connection up id testeth1")
     context.process.nmcli("connection modify testeth1 802-3-ethernet.mtu 0")
@@ -2524,7 +2524,7 @@ def mtu_as(context, scen):
 _register_tag("mtu", None, mtu_as)
 
 
-def mtu_wlan0_as(context, scen):
+def mtu_wlan0_as(context, scenario):
     context.process.nmcli(
         "con add type wifi ifname wlan0 con-name qe-open autoconnect off ssid qe-open"
     )
@@ -2536,7 +2536,7 @@ def mtu_wlan0_as(context, scen):
 _register_tag("mtu_wlan0", None, mtu_wlan0_as)
 
 
-def macsec_as(context, scen):
+def macsec_as(context, scenario):
     context.process.run_stdout("pkill -F /tmp/wpa_supplicant_ms.pid")
     context.process.run_stdout("pkill -F /tmp/dnsmasq_ms.pid")
 
@@ -2544,56 +2544,56 @@ def macsec_as(context, scen):
 _register_tag("macsec", None, macsec_as)
 
 
-def dhcpd_as(context, scen):
+def dhcpd_as(context, scenario):
     context.process.systemctl("stop dhcpd")
 
 
 _register_tag("dhcpd", None, dhcpd_as)
 
 
-def modprobe_cfg_remove_as(context, scen):
+def modprobe_cfg_remove_as(context, scenario):
     context.process.run_stdout("rm -rf /etc/modprobe.d/99-test.conf")
 
 
 _register_tag("modprobe_cfg_remove", None, modprobe_cfg_remove_as)
 
 
-def kill_dnsmasq_vlan_as(context, scen):
+def kill_dnsmasq_vlan_as(context, scenario):
     context.process.run_stdout("pkill -F /tmp/dnsmasq_vlan.pid")
 
 
 _register_tag("kill_dnsmasq_vlan", None, kill_dnsmasq_vlan_as)
 
 
-def kill_dnsmasq_ip4_as(context, scen):
+def kill_dnsmasq_ip4_as(context, scenario):
     context.process.run_stdout("pkill -F /tmp/dnsmasq_ip4.pid")
 
 
 _register_tag("kill_dnsmasq_ip4", None, kill_dnsmasq_ip4_as)
 
 
-def kill_dnsmasq_ip6_as(context, scen):
+def kill_dnsmasq_ip6_as(context, scenario):
     context.process.run_stdout("pkill -F /tmp/dnsmasq_ip6.pid")
 
 
 _register_tag("kill_dnsmasq_ip6", None, kill_dnsmasq_ip6_as)
 
 
-def kill_dhcrelay_as(context, scen):
+def kill_dhcrelay_as(context, scenario):
     context.process.run_stdout("pkill -F /tmp/dhcrelay.pid")
 
 
 _register_tag("kill_dhcrelay", None, kill_dhcrelay_as)
 
 
-def profie_as(context, scen):
+def profie_as(context, scenario):
     context.process.nmcli_force("connection delete id profie")
 
 
 _register_tag("profie", None, profie_as)
 
 
-def peers_ns_as(context, scen):
+def peers_ns_as(context, scenario):
     context.process.run_stdout("ip netns del peers")
     # sleep(TIMER)
 
@@ -2601,7 +2601,7 @@ def peers_ns_as(context, scen):
 _register_tag("peers_ns", None, peers_ns_as)
 
 
-def tshark_as(context, scen):
+def tshark_as(context, scenario):
     context.process.run("pkill tshark", ignore_stderr=True)
     context.process.run_stdout("rm -rf /etc/dhcp/dhclient-eth*.conf", shell=True)
 
@@ -2609,7 +2609,7 @@ def tshark_as(context, scen):
 _register_tag("tshark", None, tshark_as)
 
 
-def mac_as(context, scen):
+def mac_as(context, scenario):
     context.process.run_stdout("rm -rf /etc/NetworkManager/conf.d/99-mac.conf")
     nmci.lib.reload_NM_service(context)
     nmci.lib.reset_hwaddr_nmcli(context, "eth1")
@@ -2618,14 +2618,14 @@ def mac_as(context, scen):
 _register_tag("mac", None, mac_as)
 
 
-def eth8_up_as(context, scen):
+def eth8_up_as(context, scenario):
     nmci.lib.reset_hwaddr_nmcli(context, "eth8")
 
 
 _register_tag("eth8_up", None, eth8_up_as)
 
 
-def keyfile_cleanup_as(context, scen):
+def keyfile_cleanup_as(context, scenario):
     context.process.run_stdout(
         "rm -f /usr/lib/NetworkManager/system-connections/*", shell=True
     )
@@ -2640,7 +2640,7 @@ def keyfile_cleanup_as(context, scen):
 _register_tag("keyfile_cleanup", None, keyfile_cleanup_as)
 
 
-def remove_dns_clean_as(context, scen):
+def remove_dns_clean_as(context, scenario):
     if context.process.run_search_stdout(
         "cat /etc/NetworkManager/NetworkManager.conf", "dns"
     ):
@@ -2657,7 +2657,7 @@ def remove_dns_clean_as(context, scen):
 _register_tag("remove_dns_clean", None, remove_dns_clean_as)
 
 
-def restore_resolvconf_as(context, scen):
+def restore_resolvconf_as(context, scenario):
     context.process.run_stdout("rm -rf /etc/resolv.conf")
     if context.process.systemctl("is-active systemd-resolved").returncode == 0:
         context.process.run_stdout(
@@ -2673,7 +2673,7 @@ def restore_resolvconf_as(context, scen):
 _register_tag("restore_resolvconf", None, restore_resolvconf_as)
 
 
-def device_connect_as(context, scen):
+def device_connect_as(context, scenario):
     context.process.nmcli_force("connection delete testeth9 eth9")
     context.process.nmcli(
         "connection add type ethernet ifname eth9 con-name testeth9 autoconnect no"
@@ -2684,7 +2684,7 @@ _register_tag("device_connect", None, device_connect_as)
 _register_tag("device_connect_no_profile", None, device_connect_as)
 
 
-def restore_eth8_as(context, scen):
+def restore_eth8_as(context, scenario):
     context.process.run_stdout("ip link del eth8.100")
     context.process.run_stdout("rm -f /etc/sysconfig/network-scripts/ifcfg-testeth8")
     context.process.nmcli("connection reload")
@@ -2696,7 +2696,7 @@ def restore_eth8_as(context, scen):
 _register_tag("restore_eth8", None, restore_eth8_as)
 
 
-def restore_broken_network_as(context, scen):
+def restore_broken_network_as(context, scenario):
     context.process.systemctl("stop network.service")
     nmci.lib.stop_NM_service(context)
     context.process.run_stdout("sysctl net.ipv6.conf.all.accept_ra=1")
@@ -2708,7 +2708,7 @@ def restore_broken_network_as(context, scen):
 _register_tag("restore_broken_network", None, restore_broken_network_as)
 
 
-def add_testeth_as(context, scen, num):
+def add_testeth_as(context, scenario, num):
     context.process.nmcli_force(f"connection delete eth{num} testeth{num}")
     context.process.nmcli(
         f"connection add type ethernet con-name testeth{num} ifname eth{num} autoconnect no"
@@ -2719,7 +2719,7 @@ for i in [1, 5, 8, 10]:
     _register_tag(f"add_testeth{i}", None, add_testeth_as, {"num": i})
 
 
-def eth_disconnect_as(context, scen, num):
+def eth_disconnect_as(context, scenario, num):
     context.process.nmcli_force(f"device disconnect eth{num}")
     # VVV Up/Down to preserve autoconnect feature
     context.process.nmcli(f"connection up testeth{num}")
@@ -2730,7 +2730,7 @@ for i in [1, 2, 4, 5, 6, 8, 10]:
     _register_tag(f"eth{i}_disconnect", None, eth_disconnect_as, {"num": i})
 
 
-def non_utf_device_bs(context, scen):
+def non_utf_device_bs(context, scenario):
     if os.path.isfile("/usr/lib/udev/rules.d/80-net-setup-link.rules"):
         context.process.run_stdout("rm -f /etc/udev/rules.d/80-net-setup-link.rules")
         context.process.run_stdout(
@@ -2743,7 +2743,7 @@ def non_utf_device_bs(context, scen):
     )
 
 
-def non_utf_device_as(context, scen):
+def non_utf_device_as(context, scenario):
     context.process.run_stdout(["ip", "link", "del", b"\xca[2Jnonutf\xccf\\c"])
     if os.path.isfile("/usr/lib/udev/rules.d/80-net-setup-link.rules"):
         context.process.run_stdout("rm -f /etc/udev/rules.d/80-net-setup-link.rules")
@@ -2754,7 +2754,7 @@ def non_utf_device_as(context, scen):
 _register_tag("non_utf_device", non_utf_device_bs, non_utf_device_as)
 
 
-def shutdown_as(context, scen):
+def shutdown_as(context, scenario):
     print("sanitizing env")
     context.process.run("ip addr del 192.168.50.5/24 dev eth8", ignore_stderr=True)
     context.process.run("route del default gw 192.168.50.1 eth8", ignore_stderr=True)
@@ -2763,21 +2763,21 @@ def shutdown_as(context, scen):
 _register_tag("shutdown", None, shutdown_as)
 
 
-def connect_testeth0_as(context, scen):
+def connect_testeth0_as(context, scenario):
     nmci.lib.wait_for_testeth0(context)
 
 
 _register_tag("connect_testeth0", None, connect_testeth0_as)
 
 
-def kill_dbus_monitor_as(context, scen):
+def kill_dbus_monitor_as(context, scenario):
     context.process.run_stdout("pkill -9 dbus-monitor")
 
 
 _register_tag("kill_dbus-monitor", None, kill_dbus_monitor_as)
 
 
-def kill_children_as(context, scen):
+def kill_children_as(context, scenario):
     children = getattr(context, "children", [])
     if len(children):
         print(f"kill remaining children ({len(children)})")
@@ -2788,7 +2788,7 @@ def kill_children_as(context, scen):
 _register_tag("kill_children", None, kill_children_as)
 
 
-def restore_rp_filters_as(context, scen):
+def restore_rp_filters_as(context, scenario):
     context.process.run_stdout(
         "echo 1 > /proc/sys/net/ipv4/conf/eth2/rp_filter", shell=True
     )
@@ -2800,12 +2800,12 @@ def restore_rp_filters_as(context, scen):
 _register_tag("restore_rp_filters", None, restore_rp_filters_as)
 
 
-def remove_ctcdevice_bs(context, scen):
+def remove_ctcdevice_bs(context, scenario):
     context.process.run_stdout("cio_ignore -R")
     time.sleep(1)
 
 
-def remove_ctcdevice_as(context, scen):
+def remove_ctcdevice_as(context, scenario):
     devs = context.process.run_stdout("znetconf -c")
     ctc_devs = ""
     for dev in devs.strip().split("\n"):
@@ -2818,7 +2818,7 @@ def remove_ctcdevice_as(context, scen):
 _register_tag("remove_ctcdevice", remove_ctcdevice_bs, remove_ctcdevice_as)
 
 
-def filter_batch_bs(context, scen):
+def filter_batch_bs(context, scenario):
 
     file_path = "/tmp/filter_batch.txt"
     count = 1
@@ -2835,14 +2835,14 @@ def filter_batch_bs(context, scen):
     nmci.util.file_set_content(file_path, filter)
 
 
-def filter_batch_as(context, scen):
+def filter_batch_as(context, scenario):
     context.process.run_stdout("sudo rm /tmp/filter_batch.txt")
 
 
 _register_tag("filter_batch", filter_batch_bs, filter_batch_as)
 
 
-def custom_ns_as(context, scen):
+def custom_ns_as(context, scenario):
     if not hasattr(context, "cleanup_ns"):
         return
     cleaned = set()
@@ -2855,7 +2855,7 @@ def custom_ns_as(context, scen):
 _register_tag("custom_ns", None, custom_ns_as)
 
 
-def radius_bs(context, scen):
+def radius_bs(context, scenario):
     if context.process.systemctl("is-active radiusd.service").returncode == 0:
         context.process.systemctl("disable --now radiusd.service")
     if os.path.isdir("/tmp/nmci-raddb"):
@@ -2927,8 +2927,8 @@ def radius_bs(context, scen):
     )
 
 
-def radius_as(context, scen):
-    if scen.status == "failed" or context.DEBUG:
+def radius_as(context, scenario):
+    if scenario.status == "failed" or context.DEBUG:
         nmci.lib.embed_service_log(context, "RADIUS", syslog_identifier="radiusd")
     context.process.systemctl("stop nm-radiusd.service")
 
@@ -2936,7 +2936,7 @@ def radius_as(context, scen):
 _register_tag("radius", radius_bs, radius_as)
 
 
-def tag8021x_doc_procedure_bs(context, scen):
+def tag8021x_doc_procedure_bs(context, scenario):
     # must run after radius tag whose _bs() part creates source files
     shutil.copy("/etc/raddb/certs/client.key", "/etc/pki/tls/private/8021x.key")
     shutil.copy("/etc/raddb/certs/client.pem", "/etc/pki/tls/certs/8021x.pem")
@@ -2950,9 +2950,9 @@ def tag8021x_doc_procedure_bs(context, scen):
         f.write(re.sub("(?m)^OTHER_ARGS=.*$", 'OTHER_ARGS="-d"', content))
 
 
-def tag8021x_doc_procedure_as(context, scen):
+def tag8021x_doc_procedure_as(context, scenario):
     context.process.systemctl("stop 802-1x-tr-mgmt hostapd")
-    if scen.status == "failed" or context.DEBUG:
+    if scenario.status == "failed" or context.DEBUG:
         nmci.lib.embed_service_log(context, "HOSTAPD", syslog_identifier="hostapd")
         nmci.lib.embed_service_log(
             context, "802.1X access control", syslog_identifier="802-1x-tr-mgmt"
@@ -2973,7 +2973,7 @@ _register_tag(
 )
 
 
-def simwifi_hw_bs(context, scen):
+def simwifi_hw_bs(context, scenario):
     if not hasattr(context, "noted"):
         context.noted = {}
     if context.process.run_stdout("iw list").strip():
@@ -2982,14 +2982,14 @@ def simwifi_hw_bs(context, scen):
         context.noted["wifi-hw_real"] = "missing"
 
 
-def simwifi_hw_as(context, scen):
+def simwifi_hw_as(context, scenario):
     context.process.nmcli("radio wifi on")
 
 
 _register_tag("simwifi_hw", simwifi_hw_bs, simwifi_hw_as)
 
 
-def slow_dnsmasq_bs(context, scen):
+def slow_dnsmasq_bs(context, scenario):
     dnsmasq_bin = context.process.run_stdout("which dnsmasq").strip("\n")
     if not os.path.isfile(f"{dnsmasq_bin}.orig"):
         context.process.run_stdout(f"cp -f {dnsmasq_bin} {dnsmasq_bin}.orig")
@@ -3004,7 +3004,7 @@ def slow_dnsmasq_bs(context, scen):
     context.process.run_stdout(f"chmod +x {dnsmasq_bin}.slow")
 
 
-def slow_dnsmasq_as(context, scen):
+def slow_dnsmasq_as(context, scenario):
     dnsmasq_bin = context.process.run_stdout("which dnsmasq").strip("\n")
     os.rename(f"{dnsmasq_bin}.orig", dnsmasq_bin)
     if os.path.isfile(f"{dnsmasq_bin}.slow"):
@@ -3017,14 +3017,14 @@ def slow_dnsmasq_as(context, scen):
 _register_tag("slow_dnsmasq", slow_dnsmasq_bs, slow_dnsmasq_as)
 
 
-def cleanup_as(context, scen):
+def cleanup_as(context, scenario):
     nmci.lib.cleanup(context)
 
 
 _register_tag("cleanup", None, cleanup_as)
 
 
-def copy_ifcfg_bs(context, scen):
+def copy_ifcfg_bs(context, scenario):
 
     dirpath = "contrib/profiles"
     for file in os.listdir(dirpath):
