@@ -694,7 +694,16 @@ def test_feature_tags():
                 assert ver
             assert all([type(v) is int for v in ver])
             assert all([v >= 0 for v in ver])
-            assert len(ver) <= ver_len
+            if ver_prefix == "ver":
+                assert ver_len == 3
+                if not stream:
+                    assert len(ver) <= 3
+                elif stream[0] == "rhel":
+                    assert len(ver) <= 4
+                else:
+                    assert len(ver) <= 3
+            else:
+                assert len(ver) <= ver_len
             if ver_prefix == "ver":
                 assert type(stream) is list
                 assert tag.startswith("/".join(("ver", *stream)) + op)
@@ -1333,7 +1342,6 @@ def test_misc_version_control():
     for stream, version in [
         ("upstream", [1, 35, 3, 30276]),
         ("rhel-8-6", [1, 36, 0, 4]),
-        ("rhel-8-6", [1, 37, 0, 4]),
         ("rhel-9-0", [1, 36, 8, 4]),
     ]:
         with Stub.misc_nm_version_detect((stream, version)):
@@ -1345,7 +1353,7 @@ def test_misc_version_control():
                     "ver+=1.35",
                     "ver-1.36.2",
                     "ver/rhel/8+=1.35",
-                    "ver/rhel/8-1.37.90",
+                    "ver/rhel/8-1.36.0.5",
                     "ver/rhel/9+=1.35",
                     "ver/rhel/9-1.37.90",
                     "ipv6_check_addr_order",
@@ -1357,6 +1365,7 @@ def test_misc_version_control():
         ("upstream", [1, 37, 90, 30276]),
         ("upstream", [1, 39, 0, 30276]),
         ("upstream", [1, 39, 1, 30276]),
+        ("rhel-8-6", [1, 37, 0, 4]),
         ("rhel-8-7", [1, 39, 3, 30276]),
     ]:
         with Stub.misc_nm_version_detect((stream, version)):
@@ -1369,7 +1378,7 @@ def test_misc_version_control():
                     "ver-1.37.91",
                     "ver-1.38.0",
                     "ver-1.39.2",
-                    "ver/rhel/8+=1.37.90",
+                    "ver/rhel/8+=1.36.0.5",
                     "ver/rhel/9+=1.37.90",
                     "ipv6_check_addr_order",
                 ],

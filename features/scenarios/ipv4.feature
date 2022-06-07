@@ -756,7 +756,7 @@ Feature: nmcli: ipv4
     @rhbz1422610
     @ver+=1.8.0
     @not_with_systemd_resolved
-    @restore_hostname @eth3_disconnect @ifcfg-rh @delete_testeth0 
+    @restore_hostname @eth3_disconnect @ifcfg-rh @delete_testeth0
     @ipv4_ignore_resolveconf_with_ignore_auto_dns_var3
     Scenario: NM - ipv4 - preserve resolveconf when hostnamectl is called and ignore_auto_dns set
     * Add "ethernet" connection named "con_ipv4" for device "eth3" with options
@@ -2276,6 +2276,7 @@ Feature: nmcli: ipv4
     @ver+=1.16
     @ver-1.37.90
     @ver-1.36.7
+    @ver/rhel/8/6-1.36.0.6
     @internal_DHCP
     @dhcp_multiple_router_options
     Scenario: NM - ipv4 - dhcp server sends multiple router options
@@ -2290,6 +2291,7 @@ Feature: nmcli: ipv4
     @rhbz1634657
     @ver+=1.37.90
     @ver+=1.36.7
+    @ver/rhel/8/6+=1.36.0.6
     @internal_DHCP
     @dhcp_multiple_router_options
     Scenario: NM - ipv4 - dhcp server sends multiple router options

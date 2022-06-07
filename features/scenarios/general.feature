@@ -533,6 +533,7 @@ Feature: nmcli - general
     @ver+=1.21
     @ver-1.37.90
     @ver-1.36.7
+    @ver/rhel/8/6-1.36.0.6
     @dhcpd
     @nmcli_device_reapply_routes
     Scenario: NM - device - reapply just routes
@@ -553,6 +554,7 @@ Feature: nmcli - general
     @rhbz1763062
     @ver+=1.37.90
     @ver+=1.36.7
+    @ver/rhel/8/6-=1.36.0.6
     @dhcpd
     @nmcli_device_reapply_routes
     Scenario: NM - device - reapply just routes
@@ -1240,6 +1242,7 @@ Feature: nmcli - general
     @ver-1.39.3
     @ver-1.38.1
     @ver-1.36.5
+    @ver/rhel/8/6-=1.36.0.5
     @delete_testeth0 @restart_if_needed
     @wait-online-for-both-ips
     Scenario: NM - general - wait-online - for both ipv4 and ipv6
@@ -1257,6 +1260,7 @@ Feature: nmcli - general
     @ver+=1.39.3
     @ver+=1.38.1
     @ver+=1.36.5
+    @ver/rhel/8/6+=1.36.0.6
     @delete_testeth0 @restart_if_needed
     @wait-online-for-both-ips
     Scenario: NM - general - wait-online - for both ipv4 and ipv6

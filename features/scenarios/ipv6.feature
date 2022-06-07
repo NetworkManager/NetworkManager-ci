@@ -2010,7 +2010,7 @@
     @ver+=1.35
     @ver-1.36.2
     @ver/rhel/8+=1.35
-    @ver/rhel/8-1.37.90
+    @ver/rhel/8-1.36.0.5
     @ver/rhel/9+=1.35
     @ver/rhel/9-1.37.90
     @ipv6_check_addr_order
@@ -2047,7 +2047,7 @@
     @ver-1.37.91
     @ver-1.38.0
     @ver-1.39.2
-    @ver/rhel/8+=1.37.90
+    @ver/rhel/8+=1.36.0.5
     @ver/rhel/9+=1.37.90
     @ipv6_check_addr_order
     Scenario: nmcli - ipv6 - check IPv6 address order
