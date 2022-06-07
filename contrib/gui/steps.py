@@ -17,6 +17,9 @@ import sys
 import re
 from time import sleep
 
+# NetworkManager-ci is cloned to NMci subdir in GUI projects
+sys.path.append("./NMci/")
+
 import nmci.util
 
 NM_CI_PATH = os.path.realpath(__file__).replace("contrib/gui/steps.py", "")
