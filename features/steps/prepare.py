@@ -1,19 +1,49 @@
+import re
+import shlex
 import time
 from behave import step
 
+import nmci.ip
+import nmci.util
 
-@step(u'Create PBR files for profile "{profile}" and "{dev}" device in table "{table}"')
-def create_policy_based_routing_files(context, profile, dev, table):
-    ips = context.command_output("nmcli connection sh %s |grep IP4.ADDRESS |awk '{print $2}'" % profile)
-    ip_slash_prefix = ips.split('\n')[0]
-    ip = ip_slash_prefix.split('/')[0]
-    gw = context.command_output("nmcli connection sh %s |grep IP4.GATEWAY |awk '{print $2}'" % profile).strip()
-    context.command_code("echo '%s dev %s table %s' > /etc/sysconfig/network-scripts/route-%s" % (ip_slash_prefix, dev, table, profile))
-    context.command_code("echo 'default via %s dev %s table %s' >> /etc/sysconfig/network-scripts/route-%s" % (gw, dev, table, profile))
 
-    context.command_code("echo 'prio 17201 iif %s table %s' > /etc/sysconfig/network-scripts/rule-%s" % (dev, table, profile))
-    context.command_code("echo 'prio 17200 from %s table %s' >> /etc/sysconfig/network-scripts/rule-%s" % (ip, table, profile))
-    time.sleep(1)
+@step('Create PBR files for profile "{profile}" and "{dev}" device in table "{table}"')
+def create_policy_based_routing_files(context, profile, dev, table, timeout=5):
+    expiry = time.monotonic()
+    if timeout:
+        expiry += timeout
+    while True:
+        s = context.process.nmcli(["connection", "sh", profile])
+        try:
+            m = re.search("^IP4\.ADDRESS\[1\]:\\s*(\\S+)\\s*$", s, re.MULTILINE)
+            ip, _, plen = nmci.ip.ipaddr_plen_norm(m.group(1), addr_family="inet")
+
+            m = re.search("^IP4\.GATEWAY:\\s*(\\S+)\\s*$", s, re.MULTILINE)
+            gw, _ = nmci.ip.ipaddr_norm(m.group(1), addr_family="inet")
+        except Exception as e:
+            if expiry >= time.monotonic():
+                raise Exception(
+                    f"Profile {profile} has no suitable IPv4 address. Output:\n\n{s})"
+                )
+            time.sleep(0.1)
+            continue
+        break
+
+    nmci.util.file_set_content(
+        f"/etc/sysconfig/network-scripts/route-{profile}",
+        [
+            f"{ip}/{plen} dev {dev} table {table}",
+            f"default via {gw} dev {dev} table {table}",
+        ],
+    )
+
+    nmci.util.file_set_content(
+        f"/etc/sysconfig/network-scripts/rule-{profile}",
+        [
+            f"prio 17201 iif {dev} table {table}",
+            f"prio 17200 from {ip} table {table}",
+        ],
+    )
 
 
 @step(u'Configure dhcp server for subnet "{subnet}" with lease time "{lease}"')
