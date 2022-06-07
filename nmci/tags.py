@@ -8,7 +8,7 @@ import re
 import shutil
 
 import nmci.ip
-import nmci.lib
+import nmci.ctx
 import nmci.misc
 import nmci.util
 
@@ -169,7 +169,7 @@ def crash_bs(context, scenario):
 
 
 def crash_as(context, scenario):
-    assert nmci.lib.restart_NM_service(context)
+    assert nmci.ctx.restart_NM_service(context)
     if "systemd-coredump" not in context.core_pattern:
         context.process.run_stdout(
             f"sysctl -w kernel.core_pattern='{context.core_pattern}'"
@@ -213,7 +213,7 @@ _register_tag("not_on_veth", not_on_veth_bs, None)
 
 def regenerate_veth_as(context, scenario):
     if os.path.isfile("/tmp/nm_veth_configured"):
-        nmci.lib.check_vethsetup(context)
+        nmci.ctx.check_vethsetup(context)
     else:
         print("up eth1-11 links")
         for link in range(1, 11):
@@ -227,14 +227,14 @@ def logging_info_only_bs(context, scenario):
     conf = "/etc/NetworkManager/conf.d/99-xlogging.conf"
     nmci.util.file_set_content(conf, ["[logging]", "level=INFO", "domains=ALL"])
     time.sleep(0.5)
-    nmci.lib.restart_NM_service(context)
+    nmci.ctx.restart_NM_service(context)
 
 
 def logging_info_only_as(context, scenario):
     conf = "/etc/NetworkManager/conf.d/99-xlogging.conf"
     context.process.run_stdout(f"rm -rf {conf}")
     # this is after performance tests, so NM restart can take a while
-    nmci.lib.restart_NM_service(context, timeout=120)
+    nmci.ctx.restart_NM_service(context, timeout=120)
 
 
 _register_tag("logging_info_only", logging_info_only_bs, logging_info_only_as)
@@ -246,12 +246,12 @@ def _is_container():
 
 def restart_if_needed_as(context, scenario):
     if context.process.systemctl("is-active NetworkManager").returncode != 0:
-        nmci.lib.restart_NM_service(context)
+        nmci.ctx.restart_NM_service(context)
     if (
         not os.path.isfile("/tmp/nm_dcb_inf_wol_sriov_configured")
         and not _is_container()
     ):
-        nmci.lib.wait_for_testeth0(context)
+        nmci.ctx.wait_for_testeth0(context)
 
 
 _register_tag("restart_if_needed", None, restart_if_needed_as)
@@ -273,7 +273,7 @@ _register_tag("secret_key_reset", secret_key_reset_bs, secret_key_reset_as)
 
 
 def tag1000_bs(context, scenario):
-    nmci.lib.wait_for_testeth0(context)
+    nmci.ctx.wait_for_testeth0(context)
     # TODO: move to envsetup
     if (
         context.process.run_code(
@@ -302,7 +302,7 @@ _register_tag("1000", tag1000_bs, tag1000_as)
 
 
 def many_vlans_bs(context, scenario):
-    nmci.lib.manage_veths(context)
+    nmci.ctx.manage_veths(context)
     context.process.run_stdout(
         "sh prepare/vlans.sh clean", ignore_stderr=True, timeout=30
     )
@@ -315,7 +315,7 @@ def many_vlans_as(context, scenario):
     context.process.run_stdout(
         "sh prepare/vlans.sh clean", ignore_stderr=True, timeout=30
     )
-    nmci.lib.unmanage_veths(context)
+    nmci.ctx.unmanage_veths(context)
 
 
 _register_tag("many_vlans", many_vlans_bs, many_vlans_as)
@@ -342,7 +342,7 @@ def remove_vlan_range(context, scenario):
     )
     context.process.run_stdout("rm -rvf " + keyfile_list, shell=True)
 
-    nmci.lib.restart_NM_service(context, timeout=120)
+    nmci.ctx.restart_NM_service(context, timeout=120)
 
 
 _register_tag("remove_vlan_range", None, remove_vlan_range)
@@ -365,7 +365,7 @@ def gsm_bs(context, scenario):
     context.process.nmcli("general logging level DEBUG domains ALL")
     # Extract modem's identification and keep it in a global variable for further use.
     # Only 1 modem is expected per test.
-    context.modem_str = nmci.lib.find_modem(context)
+    context.modem_str = nmci.ctx.find_modem(context)
     context.set_title(" - " + context.modem_str, append=True)
 
     if not os.path.isfile("/tmp/usb_hub"):
@@ -379,23 +379,23 @@ def gsm_bs(context, scenario):
         #
         # while(True):
         #     print("* looking for gsm lock in nfs nest.test.redhat.com:/mnt/qa/desktop/broadband_lock")
-        #     lock = nmci.lib.get_lock(dir)
+        #     lock = nmci.ctx.get_lock(dir)
         #     if not lock:
         #         if not initialized:
-        #             initialized = nmci.lib.reinitialize_devices()
-        #         if nmci.lib.create_lock(dir):
+        #             initialized = nmci.ctx.reinitialize_devices()
+        #         if nmci.ctx.create_lock(dir):
         #             break
         #         else:
         #             continue
         #     if lock:
-        #         if nmci.lib.is_lock_old(lock):
-        #             nmci.lib.delete_old_lock(dir, lock)
+        #         if nmci.ctx.is_lock_old(lock):
+        #             nmci.ctx.delete_old_lock(dir, lock)
         #             continue
         #         else:
         #             timeout -= freq
         #             print(" ** still locked.. wating %s seconds before next try" % freq)
         #             if not initialized:
-        #                 initialized = nmci.lib.reinitialize_devices()
+        #                 initialized = nmci.ctx.reinitialize_devices()
         #             time.sleep(freq)
         #             if timeout == 0:
         #                 raise Exception("Timeout reached!")
@@ -411,12 +411,12 @@ def gsm_as(context, scenario):
 
     context.process.nmcli_force("connection delete gsm")
     context.process.run_stdout("rm -rf /etc/NetworkManager/system-connections/gsm")
-    nmci.lib.wait_for_testeth0(context)
+    nmci.ctx.wait_for_testeth0(context)
 
     # OBSOLETE: 2021/08/05
     # if not os.path.isfile('/tmp/usb_hub'):
     #     context.process.run_stdout('mount -o remount -t nfs nest.test.redhat.com:/mnt/qa/desktop/broadband_lock /mnt/scratch')
-    #     nmci.lib.delete_old_lock("/mnt/scratch/", nmci.lib.get_lock("/mnt/scratch"))
+    #     nmci.ctx.delete_old_lock("/mnt/scratch/", nmci.ctx.get_lock("/mnt/scratch"))
 
     print("embed ModemManager log")
     data = nmci.misc.journal_show(
@@ -436,7 +436,7 @@ def gsm_as(context, scenario):
     else:
         cap = "MODEM INFO"
 
-    modem_info = nmci.lib.get_modem_info(context)
+    modem_info = nmci.ctx.get_modem_info(context)
     if modem_info:
         print("embed modem_info")
         context.embed("text/plain", modem_info, caption=cap)
@@ -446,13 +446,13 @@ _register_tag("gsm", gsm_bs, gsm_as)
 
 
 def unmanage_eth_bs(context, scenario):
-    links = nmci.lib.get_ethernet_devices(context)
+    links = nmci.ctx.get_ethernet_devices(context)
     for link in links:
         context.process.nmcli(f"dev set {link} managed no")
 
 
 def unmanage_eth_as(context, scenario):
-    links = nmci.lib.get_ethernet_devices(context)
+    links = nmci.ctx.get_ethernet_devices(context)
     for link in links:
         context.process.nmcli(f"dev set {link} managed yes")
 
@@ -479,7 +479,7 @@ def connectivity_bs(context, scenario):
         "interval=10",
     ]
     nmci.util.file_set_content("/etc/NetworkManager/conf.d/99-connectivity.conf", conf)
-    nmci.lib.reload_NM_service(context)
+    nmci.ctx.reload_NM_service(context)
 
 
 def connectivity_as(context, scenario):
@@ -489,7 +489,7 @@ def connectivity_as(context, scenario):
     )
     context.execute_steps("* Reset /etc/hosts")
 
-    nmci.lib.reload_NM_service(context)
+    nmci.ctx.reload_NM_service(context)
     print(context.process.run_stdout("NetworkManager --print-config"))
 
 
@@ -524,7 +524,7 @@ def disp_as(context, scenario):
     # context.process.run_stdout("rm -rf /tmp/dispatcher.txt")
     context.process.nmcli_force("con down testeth1")
     context.process.nmcli_force("con down testeth2")
-    nmci.lib.reload_NM_service(context)
+    nmci.ctx.reload_NM_service(context)
 
 
 _register_tag("disp", disp_bs, disp_as)
@@ -549,7 +549,7 @@ def eth0_as(context, scenario):
     #        if 'restore_hostname' in scenario.tags:
     #            context.process.run_stdout('hostnamectl set-hostname --transien ""')
     #            context.process.run_stdout(f'hostnamectl set-hostname --static {context.original_hostname}')
-    nmci.lib.wait_for_testeth0(context)
+    nmci.ctx.wait_for_testeth0(context)
 
 
 _register_tag("eth0", eth0_bs, eth0_as)
@@ -575,7 +575,7 @@ _register_tag("alias", alias_bs, alias_as)
 
 
 def netcat_bs(context, scenario):
-    nmci.lib.wait_for_testeth0(context)
+    nmci.ctx.wait_for_testeth0(context)
     # TODO move to envsetup
     if not os.path.isfile("/usr/bin/nc"):
         print("installing netcat")
@@ -586,7 +586,7 @@ _register_tag("netcat", netcat_bs)
 
 
 def scapy_bs(context, scenario):
-    nmci.lib.wait_for_testeth0(context)
+    nmci.ctx.wait_for_testeth0(context)
     # TODO move to envsetup
     if not os.path.isfile("/usr/bin/scapy"):
         print("installing scapy and tcpdump")
@@ -625,7 +625,7 @@ _register_tag("mock", mock_bs)
 
 
 def IPy_bs(context, scenario):
-    nmci.lib.wait_for_testeth0(context)
+    nmci.ctx.wait_for_testeth0(context)
     # TODO move to envsetup
     if context.process.run_code("rpm -q --quiet dbus-x11") != 0:
         print("installing dbus-x11")
@@ -643,7 +643,7 @@ _register_tag("IPy", IPy_bs)
 
 
 def netaddr_bs(context, scenario):
-    nmci.lib.wait_for_testeth0(context)
+    nmci.ctx.wait_for_testeth0(context)
     # TODO move to envsetup
     if not context.process.run_search_stdout(
         "python -m pip list", "netaddr", ignore_stderr=True
@@ -696,13 +696,13 @@ def dns_dnsmasq_bs(context, scenario):
         context.systemd_resolved = False
     conf = ["# configured by beaker-test", "[main]", "dns=dnsmasq"]
     nmci.util.file_set_content("/etc/NetworkManager/conf.d/99-xtest-dns.conf", conf)
-    nmci.lib.reload_NM_service(context)
+    nmci.ctx.reload_NM_service(context)
     context.dns_plugin = "dnsmasq"
 
 
 def dns_dnsmasq_as(context, scenario):
     context.process.run_stdout("rm -f /etc/NetworkManager/conf.d/99-xtest-dns.conf")
-    nmci.lib.reload_NM_service(context)
+    nmci.ctx.reload_NM_service(context)
     context.dns_plugin = ""
     if context.systemd_resolved is True:
         print("starting systemd-resolved")
@@ -723,7 +723,7 @@ def dns_systemd_resolved_bs(context, scenario):
             sys.exit(77)
     conf = ["# configured by beaker-test", "[main]", "dns=systemd-resolved"]
     nmci.util.file_set_content("/etc/NetworkManager/conf.d/99-xtest-dns.conf", conf)
-    nmci.lib.reload_NM_service(context)
+    nmci.ctx.reload_NM_service(context)
     context.dns_plugin = "systemd-resolved"
 
 
@@ -732,7 +732,7 @@ def dns_systemd_resolved_as(context, scenario):
         print("stop systemd-resolved")
         context.process.systemctl("stop systemd-resolved")
     context.process.run_stdout("rm -f /etc/NetworkManager/conf.d/99-xtest-dns.conf")
-    nmci.lib.reload_NM_service(context)
+    nmci.ctx.reload_NM_service(context)
     context.dns_plugin = ""
 
 
@@ -744,14 +744,14 @@ def internal_DHCP_bs(context, scenario):
     nmci.util.file_set_content(
         "/etc/NetworkManager/conf.d/99-xtest-dhcp-internal.conf", conf
     )
-    nmci.lib.restart_NM_service(context)
+    nmci.ctx.restart_NM_service(context)
 
 
 def internal_DHCP_as(context, scenario):
     context.process.run_stdout(
         "rm -f /etc/NetworkManager/conf.d/99-xtest-dhcp-internal.conf"
     )
-    nmci.lib.restart_NM_service(context)
+    nmci.ctx.restart_NM_service(context)
 
 
 _register_tag("internal_DHCP", internal_DHCP_bs, internal_DHCP_as)
@@ -762,14 +762,14 @@ def dhclient_DHCP_bs(context, scenario):
     nmci.util.file_set_content(
         "/etc/NetworkManager/conf.d/99-xtest-dhcp-dhclient.conf", conf
     )
-    nmci.lib.restart_NM_service(context)
+    nmci.ctx.restart_NM_service(context)
 
 
 def dhclient_DHCP_as(context, scenario):
     context.process.run_stdout(
         "rm -f /etc/NetworkManager/conf.d/99-xtest-dhcp-dhclient.conf"
     )
-    nmci.lib.restart_NM_service(context)
+    nmci.ctx.restart_NM_service(context)
 
 
 _register_tag("dhclient_DHCP", dhclient_DHCP_bs, dhclient_DHCP_as)
@@ -783,7 +783,7 @@ def delete_testeth0_bs(context, scenario):
 
 def delete_testeth0_as(context, scenario):
     context.process.nmcli_force("connection delete eth0")
-    nmci.lib.restore_testeth0(context)
+    nmci.ctx.restore_testeth0(context)
 
 
 _register_tag("delete_testeth0", delete_testeth0_bs, delete_testeth0_as)
@@ -825,11 +825,11 @@ def ifcfg_rh_bs(context, scenario):
         time.sleep(0.5)
         conf = ["# configured by beaker-test", "[main]", "plugins=ifcfg-rh"]
         nmci.util.file_set_content("/etc/NetworkManager/conf.d/99-xxcustom.conf", conf)
-        nmci.lib.restart_NM_service(context)
+        nmci.ctx.restart_NM_service(context)
         if context.IS_NMTUI:
             # comment out wifi_rescan, as simwifi prepare not done yet
             # if "simwifi" in scenario.tags:
-            #     nmci.lib.wifi_rescan()
+            #     nmci.ctx.wifi_rescan()
             # VV Do not lower this as nmtui can be behaving weirdly
             time.sleep(4)
         time.sleep(0.5)
@@ -841,10 +841,10 @@ def ifcfg_rh_as(context, scenario):
         context.process.run_stdout(
             "sudo rm -f /etc/NetworkManager/conf.d/99-xxcustom.conf"
         )
-        nmci.lib.restart_NM_service(context)
+        nmci.ctx.restart_NM_service(context)
         if context.IS_NMTUI:
             # if 'simwifi' in scenario.tags:
-            #     nmci.lib.wifi_rescan()
+            #     nmci.ctx.wifi_rescan()
             time.sleep(4)
         time.sleep(0.5)
 
@@ -870,11 +870,11 @@ def keyfile_bs(context, scenario):
         time.sleep(0.5)
         conf = ["# configured by beaker-test", "[main]", "plugins=keyfile"]
         nmci.util.file_set_content("/etc/NetworkManager/conf.d/99-xxcustom.conf", conf)
-        nmci.lib.restart_NM_service(context)
+        nmci.ctx.restart_NM_service(context)
         if context.IS_NMTUI:
             # comment out wifi_rescan, as simwifi prepare not done yet
             # if "simwifi" in scenario.tags:
-            #     nmci.lib.wifi_rescan()
+            #     nmci.ctx.wifi_rescan()
             # VV Do not lower this as nmtui can be behaving weirdly
             time.sleep(4)
         time.sleep(0.5)
@@ -886,10 +886,10 @@ def keyfile_as(context, scenario):
         context.process.run_stdout(
             "sudo rm -f /etc/NetworkManager/conf.d/99-xxcustom.conf"
         )
-        nmci.lib.restart_NM_service(context)
+        nmci.ctx.restart_NM_service(context)
         if context.IS_NMTUI:
             # if 'simwifi' in scenario.tags:
-            #     nmci.lib.wifi_rescan()
+            #     nmci.ctx.wifi_rescan()
             time.sleep(4)
         time.sleep(0.5)
 
@@ -906,7 +906,7 @@ def plugin_default_bs(context, scenario):
         context.process.run_stdout(
             "sed -i 's/^plugins=/#plugins=/' /etc/NetworkManager/conf.d/99-test.conf"
         )
-        nmci.lib.restart_NM_service(context)
+        nmci.ctx.restart_NM_service(context)
 
 
 def plugin_default_as(context, scenario):
@@ -915,7 +915,7 @@ def plugin_default_as(context, scenario):
         context.process.run_stdout(
             "mv /tmp/99-test.conf /etc/NetworkManager/conf.d/99-test.conf"
         )
-        nmci.lib.restart_NM_service(context)
+        nmci.ctx.restart_NM_service(context)
 
 
 _register_tag("plugin_default", plugin_default_bs, plugin_default_as)
@@ -945,16 +945,16 @@ def need_dispatcher_scripts_bs(context, scenario):
             timeout=120,
         )
     else:
-        nmci.lib.wait_for_testeth0(context)
+        nmci.ctx.wait_for_testeth0(context)
         print("install NetworkManager-config-routing-rules")
         context.process.run_stdout(
             "yum -y install NetworkManager-config-routing-rules", timeout=120
         )
-    nmci.lib.reload_NM_service(context)
+    nmci.ctx.reload_NM_service(context)
 
 
 def need_dispatcher_scripts_as(context, scenario):
-    nmci.lib.wait_for_testeth0(context)
+    nmci.ctx.wait_for_testeth0(context)
     context.process.run_stdout(
         "yum -y remove NetworkManager-config-routing-rules", timeout=120
     )
@@ -964,7 +964,7 @@ def need_dispatcher_scripts_as(context, scenario):
     )
     context.process.run("ip rule del table 1", ignore_stderr=True)
     context.process.run("ip rule del table 1", ignore_stderr=True)
-    nmci.lib.reload_NM_service(context)
+    nmci.ctx.reload_NM_service(context)
 
 
 _register_tag(
@@ -1011,7 +1011,7 @@ _register_tag("logging", logging_bs, logging_as)
 
 def remove_custom_cfg_as(context, scenario):
     context.process.run_stdout("sudo rm -f /etc/NetworkManager/conf.d/99-xxcustom.conf")
-    nmci.lib.restart_NM_service(context)
+    nmci.ctx.restart_NM_service(context)
 
 
 _register_tag("remove_custom_cfg", None, remove_custom_cfg_as)
@@ -1024,9 +1024,9 @@ def netservice_bs(context, scenario):
     for dev in devs:
         if dev.startswith("orig"):
             context.process.nmcli_force(f"device set {dev} managed off")
-    nmci.lib.restart_NM_service(context)
+    nmci.ctx.restart_NM_service(context)
     context.process.systemctl("restart network.service")
-    nmci.lib.wait_for_testeth0(context)
+    nmci.ctx.wait_for_testeth0(context)
     time.sleep(1)
 
 
@@ -1054,21 +1054,21 @@ def tag8021x_bs(context, scenario):
                 shell=True,
                 timeout=120,
             )
-        nmci.lib.setup_hostapd(context)
+        nmci.ctx.setup_hostapd(context)
 
 
 _register_tag("8021x", tag8021x_bs)
 
 
 def tag8021x_as(context, scenario):
-    nmci.lib.teardown_hostapd(context)
+    nmci.ctx.teardown_hostapd(context)
 
 
 _register_tag("8021x_teardown", None, tag8021x_as)
 
 
 def pkcs11_bs(context, scenario):
-    nmci.lib.setup_pkcs11(context)
+    nmci.ctx.setup_pkcs11(context)
     context.process.run_stdout("p11-kit list-modules")
     context.process.run_stdout("softhsm2-util --show-slots")
     context.process.run_stdout(
@@ -1086,7 +1086,7 @@ def simwifi_bs(context, scenario):
     args = ["namespace"]
     if "need_legacy_crypto" in scenario.tags:
         args.append("legacy_crypto")
-    nmci.lib.setup_hostapd_wireless(context, args)
+    nmci.ctx.setup_hostapd_wireless(context, args)
 
 
 def simwifi_as(context, scenario):
@@ -1100,7 +1100,7 @@ def simwifi_as(context, scenario):
             context.process.nmcli(["con", "del", "uuid"] + del_conns)
         else:
             print(" * no wifi connectons found")
-        nmci.lib.wait_for_testeth0(context)
+        nmci.ctx.wait_for_testeth0(context)
 
 
 _register_tag("simwifi", simwifi_bs, simwifi_as)
@@ -1114,13 +1114,13 @@ def simwifi_ap_bs(context, scenario):
     context.process.run_stdout("modprobe -r mac80211_hwsim")
     context.process.run_stdout("modprobe mac80211_hwsim")
     context.process.systemctl("restart wpa_supplicant")
-    assert nmci.lib.restart_NM_service(context, reset=False), "NM stop failed"
+    assert nmci.ctx.restart_NM_service(context, reset=False), "NM stop failed"
 
 
 def simwifi_ap_as(context, scenario):
     context.process.run_stdout("modprobe -r mac80211_hwsim")
     context.process.systemctl("restart wpa_supplicant")
-    assert nmci.lib.restart_NM_service(context, reset=False), "NM stop failed"
+    assert nmci.ctx.restart_NM_service(context, reset=False), "NM stop failed"
 
 
 _register_tag("simwifi_ap", simwifi_ap_bs, simwifi_ap_as)
@@ -1151,7 +1151,7 @@ def simwifi_p2p_bs(context, scenario):
         == 0
     ):
         print(" ** need to remove previous setup")
-        nmci.lib.teardown_hostapd_wireless(context)
+        nmci.ctx.teardown_hostapd_wireless(context)
 
     context.process.run_stdout("modprobe -r mac80211_hwsim")
     time.sleep(1)
@@ -1168,7 +1168,7 @@ def simwifi_p2p_bs(context, scenario):
         ["[device]", "match-device=interface-name:wlan1", "managed=0"],
     )
 
-    nmci.lib.restart_NM_service(context)
+    nmci.ctx.restart_NM_service(context)
 
     context.process.run_stdout("modprobe mac80211_hwsim")
     time.sleep(3)
@@ -1201,15 +1201,15 @@ def simwifi_p2p_as(context, scenario):
     context.process.run_stdout("pkill -9 -f wpa_supplicant.*wlan1", shell=True)
     context.process.run_stdout("rm -rf /etc/NetworkManager/conf.d/99-wifi.conf")
 
-    nmci.lib.restart_NM_service(context)
+    nmci.ctx.restart_NM_service(context)
 
 
 _register_tag("simwifi_p2p", simwifi_p2p_bs, simwifi_p2p_as)
 
 
 def simwifi_teardown_bs(context, scenario):
-    nmci.lib.teardown_hostapd_wireless(context)
-    nmci.lib.wait_for_testeth0(context)
+    nmci.ctx.teardown_hostapd_wireless(context)
+    nmci.ctx.wait_for_testeth0(context)
     sys.exit(77)
 
 
@@ -1233,13 +1233,13 @@ def vpnc_bs(context, scenario):
         context.process.run_stdout(
             "sudo yum -y install NetworkManager-vpnc", timeout=120
         )
-        nmci.lib.restart_NM_service(context)
-    nmci.lib.setup_racoon(context, mode="aggressive", dh_group=2)
+        nmci.ctx.restart_NM_service(context)
+    nmci.ctx.setup_racoon(context, mode="aggressive", dh_group=2)
 
 
 def vpnc_as(context, scenario):
     context.process.nmcli_force("connection delete vpnc")
-    nmci.lib.teardown_racoon(context)
+    nmci.ctx.teardown_racoon(context)
 
 
 _register_tag("vpnc", vpnc_bs, vpnc_as)
@@ -1249,7 +1249,7 @@ def tcpreplay_bs(context, scenario):
     if context.arch == "s390x":
         print("Skipping on s390x")
         sys.exit(77)
-    nmci.lib.wait_for_testeth0(context)
+    nmci.ctx.wait_for_testeth0(context)
     # Install under RHEL7 only
     if "Maipo" in context.rh_release:
         print("install epel-release-7")
@@ -1267,12 +1267,12 @@ _register_tag("tcpreplay", tcpreplay_bs)
 
 
 def libreswan_bs(context, scenario):
-    nmci.lib.wait_for_testeth0(context)
+    nmci.ctx.wait_for_testeth0(context)
     if context.process.run_code("rpm -q NetworkManager-libreswan") != 0:
         context.process.run_stdout(
             "sudo yum -y install NetworkManager-libreswan", timeout=120
         )
-        nmci.lib.restart_NM_service(context)
+        nmci.ctx.restart_NM_service(context)
 
     # We need libreswan at least of version 3.17, that contains
     # commit 453167 ("pluto: ignore tentative and failed IPv6 addresses),
@@ -1297,14 +1297,14 @@ def libreswan_bs(context, scenario):
         mode = "ikev2"
     if "main" in scenario.tags:
         mode = "main"
-    nmci.lib.setup_libreswan(context, mode, dh_group=14)
+    nmci.ctx.setup_libreswan(context, mode, dh_group=14)
 
 
 def libreswan_as(context, scenario):
     context.process.nmcli_force("connection down libreswan")
     context.process.nmcli_force("connection delete libreswan")
-    nmci.lib.teardown_libreswan(context)
-    nmci.lib.wait_for_testeth0(context)
+    nmci.ctx.teardown_libreswan(context)
+    nmci.ctx.wait_for_testeth0(context)
 
 
 _register_tag("libreswan", libreswan_bs, libreswan_as)
@@ -1315,13 +1315,13 @@ _register_tag("main")
 def openvpn_bs(context, scenario):
     if context.arch == "s390x":
         print("Skipping on s390x")
-        nmci.lib.wait_for_testeth0(context)
+        nmci.ctx.wait_for_testeth0(context)
         sys.exit(77)
-    context.ovpn_proc = nmci.lib.setup_openvpn(context, scenario.tags)
+    context.ovpn_proc = nmci.ctx.setup_openvpn(context, scenario.tags)
 
 
 def openvpn_as(context, scenario):
-    nmci.lib.restore_testeth0(context)
+    nmci.ctx.restore_testeth0(context)
     context.process.nmcli_force("connection delete openvpn")
     context.process.nmcli_force("connection delete tun0")
     context.process.run("pkill openvpn", shell=True)
@@ -1338,16 +1338,16 @@ def strongswan_bs(context, scenario):
         if context.arch == "s390x":
             print("Skipping on RHEL7 on s390x")
             sys.exit(77)
-    nmci.lib.wait_for_testeth0(context)
-    nmci.lib.setup_strongswan(context)
+    nmci.ctx.wait_for_testeth0(context)
+    nmci.ctx.setup_strongswan(context)
 
 
 def strongswan_as(context, scenario):
     # context.process.run_stdout("ip route del default via 172.31.70.1")
     context.process.nmcli_force("connection down strongswan")
     context.process.nmcli_force("connection delete strongswan")
-    nmci.lib.teardown_strongswan(context)
-    nmci.lib.wait_for_testeth0(context)
+    nmci.ctx.teardown_strongswan(context)
+    nmci.ctx.wait_for_testeth0(context)
 
 
 _register_tag("strongswan", strongswan_bs, strongswan_as)
@@ -1392,7 +1392,7 @@ def dracut_bs(context, scenario):
         shell=True,
         timeout=600,
     )
-    nmci.lib.embed_file_if_exists(
+    nmci.ctx.embed_file_if_exists(
         context, "/tmp/dracut_setup.log", caption="Dracut setup", fail_only=False
     )
     if rc != 0:
@@ -1402,7 +1402,7 @@ def dracut_bs(context, scenario):
             "{ time test_clean; } &> /tmp/dracut_teardown.log",
             shell=True,
         )
-        nmci.lib.embed_file_if_exists(
+        nmci.ctx.embed_file_if_exists(
             context,
             "/tmp/dracut_teardown.log",
             caption="Dracut teardown",
@@ -1422,13 +1422,13 @@ def dracut_as(context, scenario):
         ignore_stderr=True,
     )
     # do not embed DHCP directly, cache output for "no free leases" check
-    # nmci.lib.embed_service_log(context, "DHCP", syslog_identifier="dhcpd")
+    # nmci.ctx.embed_service_log(context, "DHCP", syslog_identifier="dhcpd")
     dhcpd_log = nmci.misc.journal_show(
         syslog_identifier="dhcpd", cursor=context.log_cursor
     )
     context.embed("text/plain", dhcpd_log, "DHCP")
-    nmci.lib.embed_service_log(context, "RA", syslog_identifier="radvd")
-    nmci.lib.embed_service_log(context, "NFS", syslog_identifier="rpc.mountd")
+    nmci.ctx.embed_service_log(context, "RA", syslog_identifier="radvd")
+    nmci.ctx.embed_service_log(context, "NFS", syslog_identifier="rpc.mountd")
     context.process.run_stdout(
         "cd contrib/dracut; . ./setup.sh; after_test", shell=True
     )
@@ -1604,7 +1604,7 @@ def pptp_bs(context, scenario):
     if context.arch == "s390x":
         print("Skipping on s390x")
         sys.exit(77)
-    nmci.lib.wait_for_testeth0(context)
+    nmci.ctx.wait_for_testeth0(context)
     # Install under RHEL7 only
     if "Maipo" in context.rh_release:
         print("install epel-release-7")
@@ -1662,7 +1662,7 @@ _register_tag("pptp", pptp_bs, pptp_as)
 def firewall_bs(context, scenario):
     if context.process.run_code("rpm -q firewalld") != 0:
         print("install firewalld")
-        nmci.lib.wait_for_testeth0(context)
+        nmci.ctx.wait_for_testeth0(context)
         context.process.run_stdout("sudo yum -y install firewalld", timeout=120)
     context.process.systemctl("unmask firewalld")
     time.sleep(1)
@@ -1709,8 +1709,8 @@ def restore_hostname_as(context, scenario):
         )
     context.process.run_stdout("rm -rf /etc/NetworkManager/conf.d/90-hostname.conf")
     context.process.run_stdout("rm -rf /etc/dnsmasq.d/dnsmasq_custom.conf")
-    nmci.lib.reload_NM_service(context)
-    nmci.lib.wait_for_testeth0(context)
+    nmci.ctx.reload_NM_service(context)
+    nmci.ctx.wait_for_testeth0(context)
 
 
 _register_tag("restore_hostname", restore_hostname_bs, restore_hostname_as)
@@ -1732,7 +1732,7 @@ def runonce_as(context, scenario):
     )
     context.process.run_stdout("rm -rf /etc/NetworkManager/conf.d/01-run-once.conf")
     time.sleep(1)
-    nmci.lib.restart_NM_service(context)
+    nmci.ctx.restart_NM_service(context)
     time.sleep(1)
     context.process.run_stdout(
         "for i in $(pidof nm-iface-helper); do kill -9 $i; done", shell=True
@@ -1740,7 +1740,7 @@ def runonce_as(context, scenario):
     # TODO check: is this neccessary?
     context.process.nmcli_force("connection delete con_general")
     context.process.nmcli_force("device disconnect eth10")
-    nmci.lib.wait_for_testeth0(context)
+    nmci.ctx.wait_for_testeth0(context)
 
 
 _register_tag("runonce", runonce_bs, runonce_as)
@@ -1767,7 +1767,7 @@ def slow_team_bs(context, scenario):
         )
         context.process.run_stdout("yum -y install teamd libteam", timeout=120)
         sys.exit(77)
-    nmci.lib.reload_NM_service(context)
+    nmci.ctx.reload_NM_service(context)
 
 
 def slow_team_as(context, scenario):
@@ -1776,7 +1776,7 @@ def slow_team_as(context, scenario):
         shell=True,
     )
     context.process.run_stdout("yum -y install teamd libteam", timeout=120)
-    nmci.lib.reload_NM_service(context)
+    nmci.ctx.reload_NM_service(context)
 
 
 _register_tag("slow_team", slow_team_bs, slow_team_as)
@@ -1790,14 +1790,14 @@ def openvswitch_bs(context, scenario):
         print("install NetworkManager-ovs")
         context.process.run_stdout("yum -y install NetworkManager-ovs", timeout=120)
         context.process.systemctl("daemon-reload")
-        nmci.lib.restart_NM_service(context)
+        nmci.ctx.restart_NM_service(context)
     if (
         context.process.systemctl("is-active openvswitch").returncode != 0
         or "ERR" in context.process.systemctl("status ovs-vswitchd.service").stdout
     ):
         print("restart openvswitch")
         context.process.systemctl("restart openvswitch")
-        nmci.lib.restart_NM_service(context)
+        nmci.ctx.restart_NM_service(context)
 
 
 def openvswitch_as(context, scenario):
@@ -1862,7 +1862,7 @@ def sriov_as(context, scenario):
 
     context.process.run_stdout("modprobe -r ixgbevf")
 
-    nmci.lib.reload_NM_service(context)
+    nmci.ctx.reload_NM_service(context)
 
 
 _register_tag("sriov", sriov_bs, sriov_as)
@@ -2035,7 +2035,7 @@ def nmstate_upstream_setup_bs(context, scenario):
         "dnf -y remove NetworkManager-config-connectivity-fedora NetworkManager-config-connectivity-redhat",
         timeout=120,
     )
-    nmci.lib.manage_veths(context)
+    nmci.ctx.manage_veths(context)
 
     if (
         context.process.systemctl("is-active openvswitch").returncode != 0
@@ -2043,7 +2043,7 @@ def nmstate_upstream_setup_bs(context, scenario):
     ):
         print("restarting OVS service")
         context.process.run_stdout("systemctl restart openvswitch")
-        nmci.lib.restart_NM_service(context)
+        nmci.ctx.restart_NM_service(context)
 
 
 def nmstate_upstream_setup_as(context, scenario):
@@ -2088,11 +2088,11 @@ def nmstate_upstream_setup_as(context, scenario):
     )
 
     # restore testethX
-    nmci.lib.restore_connections(context)
-    nmci.lib.wait_for_testeth0(context)
+    nmci.ctx.restore_connections(context)
+    nmci.ctx.wait_for_testeth0(context)
 
     # check just in case something went wrong
-    nmci.lib.check_vethsetup(context)
+    nmci.ctx.check_vethsetup(context)
 
     nmstate = nmci.util.file_get_content_simple("/tmp/nmstate.txt")
     if nmstate:
@@ -2115,7 +2115,7 @@ def backup_sysconfig_network_as(context, scenario):
     context.process.run_stdout(
         "sudo mv -f /tmp/sysnetwork.backup /etc/sysconfig/network"
     )
-    nmci.lib.reload_NM_connections(context)
+    nmci.ctx.reload_NM_connections(context)
     context.process.nmcli_force("connection down testeth9")
 
 
@@ -2125,13 +2125,13 @@ _register_tag(
 
 
 def remove_fedora_connection_checker_bs(context, scenario):
-    nmci.lib.wait_for_testeth0(context)
+    nmci.ctx.wait_for_testeth0(context)
     context.process.run(
         "yum -y remove NetworkManager-config-connectivity-fedora",
         ignore_stderr=True,
         timeout=120,
     )
-    nmci.lib.reload_NM_service(context)
+    nmci.ctx.reload_NM_service(context)
 
 
 _register_tag("remove_fedora_connection_checker", remove_fedora_connection_checker_bs)
@@ -2145,7 +2145,7 @@ def need_config_server_bs(context, scenario):
         context.process.run_stdout(
             "sudo yum -y install NetworkManager-config-server", timeout=120
         )
-        nmci.lib.reload_NM_service(context)
+        nmci.ctx.reload_NM_service(context)
         context.remove_config_server = True
 
 
@@ -2155,7 +2155,7 @@ def need_config_server_as(context, scenario):
         context.process.run_stdout(
             "sudo yum -y remove NetworkManager-config-server", timeout=120
         )
-        nmci.lib.reload_NM_service(context)
+        nmci.ctx.reload_NM_service(context)
 
 
 _register_tag("need_config_server", need_config_server_bs, need_config_server_as)
@@ -2178,7 +2178,7 @@ def no_config_server_bs(context, scenario):
                 context.process.run_stdout(
                     f"sudo mv -f {config_file} {config_file}.off"
                 )
-        nmci.lib.reload_NM_service(context)
+        nmci.ctx.reload_NM_service(context)
         context.restore_config_server = True
 
 
@@ -2196,14 +2196,14 @@ def no_config_server_as(context, scenario):
                 context.process.run_stdout(
                     f"sudo mv -f {config_file}.off {config_file}"
                 )
-        nmci.lib.reload_NM_service(context)
+        nmci.ctx.reload_NM_service(context)
     conns = nmci.process.nmcli("-t -f UUID,NAME c").strip().split("\n")
     # UUID has fixed length, 36 characters
     uuids = [c[:36] for c in conns if c and "testeth" not in c]
     if uuids:
         print("* delete connections with UUID in: " + " ".join(uuids))
         context.process.nmcli(["con", "del"] + uuids)
-    nmci.lib.restore_testeth0(context)
+    nmci.ctx.restore_testeth0(context)
 
 
 _register_tag("no_config_server", no_config_server_bs, no_config_server_as)
@@ -2253,7 +2253,7 @@ _register_tag("tcpdump", tcpdump_bs, tcpdump_as)
 
 def wifi_bs(context, scenario):
     if context.IS_NMTUI:
-        nmci.lib.wifi_rescan(context)
+        nmci.ctx.wifi_rescan(context)
 
 
 def wifi_as(context, scenario):
@@ -2282,7 +2282,7 @@ _register_tag("novice")
 
 
 def rescan_as(context, scenario):
-    nmci.lib.wifi_rescan(context)
+    nmci.ctx.wifi_rescan(context)
 
 
 _register_tag("rescan", None, rescan_as)
@@ -2300,8 +2300,8 @@ def no_connections_bs(context, scenario):
 
 def no_connections_as(context, scenario):
     if context.IS_NMTUI:
-        nmci.lib.restore_connections(context)
-        nmci.lib.wait_for_testeth0(context)
+        nmci.ctx.restore_connections(context)
+        nmci.ctx.wait_for_testeth0(context)
 
 
 _register_tag("no_connections", no_connections_bs, no_connections_as)
@@ -2324,8 +2324,8 @@ _register_tag("restore_eth1_mtu", None, restore_eth1_mtu_as)
 
 def wifi_rescan_as(context, scenario):
     if context.IS_NMTUI:
-        nmci.lib.restart_NM_service(context)
-        nmci.lib.wifi_rescan(context)
+        nmci.ctx.restart_NM_service(context)
+        nmci.ctx.wifi_rescan(context)
 
 
 _register_tag("wifi_rescan", None, wifi_rescan_as)
@@ -2386,7 +2386,7 @@ _register_tag("kill_dhclient_custom", None, kill_dhclient_custom_as)
 
 def networking_on_as(context, scenario):
     context.process.nmcli("networking on")
-    nmci.lib.wait_for_testeth0(context)
+    nmci.ctx.wait_for_testeth0(context)
 
 
 _register_tag("networking_on", None, networking_on_as)
@@ -2409,7 +2409,7 @@ def allow_veth_connections_bs(context, scenario):
         "/etc/NetworkManager/conf.d/99-unmanaged.conf",
         ["[main]", "no-auto-default=eth*"],
     )
-    nmci.lib.reload_NM_service(context)
+    nmci.ctx.reload_NM_service(context)
 
 
 def allow_veth_connections_as(context, scenario):
@@ -2419,7 +2419,7 @@ def allow_veth_connections_as(context, scenario):
     )
     context.process.run_stdout("udevadm control --reload-rules")
     context.process.run_stdout("udevadm settle --timeout=5")
-    nmci.lib.reload_NM_service(context)
+    nmci.ctx.reload_NM_service(context)
     devs = nmci.process.nmcli("-t -f DEVICE c s -a")
     for dev in devs.strip().split("\n"):
         if dev and dev != "eth0":
@@ -2449,7 +2449,7 @@ _register_tag("tuntap", None, tuntap_as)
 
 def bond_order_as(context, scenario):
     context.process.run_stdout("rm -rf /etc/NetworkManager/conf.d/99-bond.conf")
-    nmci.lib.reload_NM_service(context)
+    nmci.ctx.reload_NM_service(context)
 
 
 _register_tag("bond_order", None, bond_order_as)
@@ -2611,15 +2611,15 @@ _register_tag("tshark", None, tshark_as)
 
 def mac_as(context, scenario):
     context.process.run_stdout("rm -rf /etc/NetworkManager/conf.d/99-mac.conf")
-    nmci.lib.reload_NM_service(context)
-    nmci.lib.reset_hwaddr_nmcli(context, "eth1")
+    nmci.ctx.reload_NM_service(context)
+    nmci.ctx.reset_hwaddr_nmcli(context, "eth1")
 
 
 _register_tag("mac", None, mac_as)
 
 
 def eth8_up_as(context, scenario):
-    nmci.lib.reset_hwaddr_nmcli(context, "eth8")
+    nmci.ctx.reset_hwaddr_nmcli(context, "eth8")
 
 
 _register_tag("eth8_up", None, eth8_up_as)
@@ -2633,8 +2633,8 @@ def keyfile_cleanup_as(context, scenario):
         "rm -f /etc/NetworkManager/system-connections/*", shell=True
     )
     # restore testethX
-    nmci.lib.restore_connections(context)
-    nmci.lib.wait_for_testeth0(context)
+    nmci.ctx.restore_connections(context)
+    nmci.ctx.wait_for_testeth0(context)
 
 
 _register_tag("keyfile_cleanup", None, keyfile_cleanup_as)
@@ -2651,7 +2651,7 @@ def remove_dns_clean_as(context, scenario):
         "rm -rf /etc/NetworkManager/conf.d/90-test-dns-none.conf"
     )
     time.sleep(1)
-    nmci.lib.reload_NM_service(context)
+    nmci.ctx.reload_NM_service(context)
 
 
 _register_tag("remove_dns_clean", None, remove_dns_clean_as)
@@ -2666,8 +2666,8 @@ def restore_resolvconf_as(context, scenario):
     context.process.run_stdout("rm -rf /tmp/resolv_orig.conf")
     context.process.run_stdout("rm -rf /tmp/resolv.conf")
     context.process.run_stdout("rm -rf /etc/NetworkManager/conf.d/99-resolv.conf")
-    nmci.lib.reload_NM_service(context)
-    nmci.lib.wait_for_testeth0(context)
+    nmci.ctx.reload_NM_service(context)
+    nmci.ctx.wait_for_testeth0(context)
 
 
 _register_tag("restore_resolvconf", None, restore_resolvconf_as)
@@ -2698,10 +2698,10 @@ _register_tag("restore_eth8", None, restore_eth8_as)
 
 def restore_broken_network_as(context, scenario):
     context.process.systemctl("stop network.service")
-    nmci.lib.stop_NM_service(context)
+    nmci.ctx.stop_NM_service(context)
     context.process.run_stdout("sysctl net.ipv6.conf.all.accept_ra=1")
     context.process.run_stdout("sysctl net.ipv6.conf.default.accept_ra=1")
-    nmci.lib.restart_NM_service(context)
+    nmci.ctx.restart_NM_service(context)
     context.process.nmcli_force("connection down testeth8 testeth9")
 
 
@@ -2764,7 +2764,7 @@ _register_tag("shutdown", None, shutdown_as)
 
 
 def connect_testeth0_as(context, scenario):
-    nmci.lib.wait_for_testeth0(context)
+    nmci.ctx.wait_for_testeth0(context)
 
 
 _register_tag("connect_testeth0", None, connect_testeth0_as)
@@ -2929,7 +2929,7 @@ def radius_bs(context, scenario):
 
 def radius_as(context, scenario):
     if scenario.status == "failed" or context.DEBUG:
-        nmci.lib.embed_service_log(context, "RADIUS", syslog_identifier="radiusd")
+        nmci.ctx.embed_service_log(context, "RADIUS", syslog_identifier="radiusd")
     context.process.systemctl("stop nm-radiusd.service")
 
 
@@ -2953,11 +2953,11 @@ def tag8021x_doc_procedure_bs(context, scenario):
 def tag8021x_doc_procedure_as(context, scenario):
     context.process.systemctl("stop 802-1x-tr-mgmt hostapd")
     if scenario.status == "failed" or context.DEBUG:
-        nmci.lib.embed_service_log(context, "HOSTAPD", syslog_identifier="hostapd")
-        nmci.lib.embed_service_log(
+        nmci.ctx.embed_service_log(context, "HOSTAPD", syslog_identifier="hostapd")
+        nmci.ctx.embed_service_log(
             context, "802.1X access control", syslog_identifier="802-1x-tr-mgmt"
         )
-        nmci.lib.embed_file_if_exists(
+        nmci.ctx.embed_file_if_exists(
             context,
             "/tmp/nmci-wpa_supplicant-standalone",
             caption="WPA_SUP from access control test",
@@ -2965,7 +2965,7 @@ def tag8021x_doc_procedure_as(context, scenario):
     if os.path.isfile("/etc/hostapd/hostapd.conf"):
         os.remove("/etc/hostapd/hostapd.conf")
     context.process.systemctl("daemon-reload")
-    nmci.lib.reset_hwaddr_nmcli(context, "eth4")
+    nmci.ctx.reset_hwaddr_nmcli(context, "eth4")
 
 
 _register_tag(
@@ -3018,7 +3018,7 @@ _register_tag("slow_dnsmasq", slow_dnsmasq_bs, slow_dnsmasq_as)
 
 
 def cleanup_as(context, scenario):
-    nmci.lib.cleanup(context)
+    nmci.ctx.cleanup(context)
 
 
 _register_tag("cleanup", None, cleanup_as)

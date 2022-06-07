@@ -2,7 +2,7 @@ import pexpect
 import time
 from behave import step
 
-import nmci.lib
+import nmci.ctx
 
 
 @step(u'Add a connection named "{name}" for device "{ifname}" to "{vpn}" VPN')
@@ -36,7 +36,7 @@ def add_new_connection(context, typ, name=None, ifname=None, options=None):
     if name is not None:
         context.cleanup["connections"].add(name)
     if ifname is not None:
-        nmci.lib.add_iface_to_cleanup(context, ifname)
+        nmci.ctx.add_iface_to_cleanup(context, ifname)
 
 
 @step(u'Add infiniband port named "{name}" for device "{ifname}" with parent "{parent}" and p-key "{pkey}"')
@@ -65,7 +65,7 @@ def open_slave_connection(context, master, device, name):
 
     assert r == 1, 'Got an Error while adding slave connection %s on device %s for master %s\n%s%s' % (name, device, master, cli.after, cli.buffer)
     context.cleanup["connections"].add(name)
-    nmci.lib.add_iface_to_cleanup(context, device)
+    nmci.ctx.add_iface_to_cleanup(context, device)
 
 
 @step(u'Bring "{action}" connection "{name}"')
@@ -173,7 +173,7 @@ def modify_connection(context, name, options):
 
 @step(u'Reload connections')
 def reload_connections(context):
-    nmci.lib.reload_NM_connections(context)
+    nmci.ctx.reload_NM_connections(context)
     time.sleep(0.5)
 
 

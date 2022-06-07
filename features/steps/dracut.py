@@ -2,7 +2,7 @@ import os
 import pexpect
 from behave import step
 
-import nmci.lib
+import nmci.ctx
 import nmci
 
 
@@ -42,11 +42,11 @@ def embed_dracut_logs(context):
 
     context.dracut_vm_state = get_dracut_vm_state(mount=False)
 
-    nmci.lib.embed_file_if_exists(context, "/tmp/dracut_boot.log", caption="Dracut boot", fail_only=True)
+    nmci.ctx.embed_file_if_exists(context, "/tmp/dracut_boot.log", caption="Dracut boot", fail_only=True)
     if not context.dracut_vm_state.startswith("NO"):
-        nmci.lib.embed_service_log(context, "Dracut Test", syslog_identifier="test-init", journal_args=REMOTE_JOURNAL, fail_only=False)
-        #nmci.lib.embed_service_log(context, "Dracut NM", service="NetworkManager", journal_args=REMOTE_JOURNAL, fail_only=True)
-        nmci.lib.embed_service_log(context, "Dracut Journal", journal_args=REMOTE_JOURNAL, fail_only=False)
+        nmci.ctx.embed_service_log(context, "Dracut Test", syslog_identifier="test-init", journal_args=REMOTE_JOURNAL, fail_only=False)
+        #nmci.ctx.embed_service_log(context, "Dracut NM", service="NetworkManager", journal_args=REMOTE_JOURNAL, fail_only=True)
+        nmci.ctx.embed_service_log(context, "Dracut Journal", journal_args=REMOTE_JOURNAL, fail_only=False)
 
     check_core_dumps(context)
 
@@ -74,7 +74,7 @@ def check_core_dumps(context):
                 other_crash = True
             backtraces += filename + ":\n" \
                 + get_backtrace(context, REMOTE_CRASH_DIR + filename) + "\n\n"
-            nmci.lib.embed_file_if_exists(
+            nmci.ctx.embed_file_if_exists(
                 context,
                 REMOTE_CRASH_DIR + filename,
                 mime_type="link",
