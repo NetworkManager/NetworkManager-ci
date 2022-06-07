@@ -182,7 +182,8 @@ class Job:
             "/consoleText",
         ]:
             try:
-                req = requests.get(build.url + url)
+                # ignore SSL errors for now
+                req = requests.get(build.url + url, verify=False)
                 if req.status_code != 200:
                     continue
                 log = req.text
@@ -749,7 +750,8 @@ def main():
         password = args.password
 
     try:
-        server = Jenkins(args.url, user, password)
+        # ignore SSL errors for now
+        server = Jenkins(args.url, user, password, ssl_verify=False)
     except requests.exceptions.ConnectionError as e:
         eprint("Connection to {:s} failed:\n\t {:s}".format(url, str(e.args[0])))
         sys.exit(-1)
