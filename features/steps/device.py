@@ -623,7 +623,7 @@ def activate_devices_check(context, device_num, sec_high, sec_low=0):
     assert len(completed_lines), f"Unexpected output, did not find 'Completed in ' line:\n{out}"
     completed_line = completed_lines[0]
     sec_meas = float(completed_line.split("Completed in ")[1].split(" ")[0])
-    context.embed(
+    context.cext.embed(
         "text/plain",
         f"speed factor: {context.machine_speed_factor}",
         f"Activation time: {sec_meas}s"

@@ -1264,7 +1264,7 @@ def test_context_set_up_commands():
 
     context = ContextTest()
 
-    ctx.context_setup(context)
+    ctx.setup(context)
 
     context.process.run_stdout("true")
     assert context._command_calls == [(["true"], 0, "", "")]

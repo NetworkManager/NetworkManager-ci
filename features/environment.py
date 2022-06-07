@@ -41,7 +41,7 @@ def before_all(context):
 
     context.no_step = True
 
-    nmci.ctx.context_setup(context)
+    nmci.ctx.setup(context)
 
     def _additional_sleep(seconds):
         if context.IS_NMTUI:
@@ -74,7 +74,7 @@ def _before_scenario(context, scenario):
         context.before_scenario_step_el, "small", {"class": "step_duration"}
     )
     embed_el = ET.SubElement(context.before_scenario_step_el, "div")
-    context.html_formatter.actual["act_step_embed_span"] = embed_el
+    context.cext._html_formatter.actual["act_step_embed_span"] = embed_el
 
     # set important context attributes
     context.step_level = 0
@@ -168,7 +168,7 @@ def _before_scenario(context, scenario):
 
     if excepts:
         context.before_scenario_step_el.set("class", "step failed")
-        context.embed(
+        context.cext.embed(
             "text/plain", "\n\n".join(excepts), "Exception in before scenario tags"
         )
         assert False, "Exception in before scenario tags:\n\n" + "\n\n".join(excepts)
@@ -262,10 +262,10 @@ def _after_scenario(context, scenario):
         context.after_scenario_step_el, "small", {"class": "step_duration"}
     )
     embed_el = ET.SubElement(context.after_scenario_step_el, "div")
-    context.html_formatter.actual["act_step_embed_span"] = embed_el
+    context.cext._html_formatter.actual["act_step_embed_span"] = embed_el
 
-    nmci.misc.html_report_tag_links(context.html_formatter.scenario_el)
-    nmci.misc.html_report_file_links(context.html_formatter.scenario_el)
+    nmci.misc.html_report_tag_links(context.cext._html_formatter.scenario_el)
+    nmci.misc.html_report_file_links(context.cext._html_formatter.scenario_el)
 
     nm_pid_after = nmci.nmutil.nm_pid()
     if not nm_pid_after:
@@ -277,7 +277,7 @@ def _after_scenario(context, scenario):
 
     if context.IS_NMTUI:
         if os.path.isfile("/tmp/tui-screen.log"):
-            context.embed(
+            context.cext.embed(
                 "text/plain",
                 nmci.util.file_get_content_simple("/tmp/tui-screen.log"),
                 caption="TUI",
@@ -334,7 +334,7 @@ def _after_scenario(context, scenario):
 
     # Attach postponed or "fail_only" embeds
     # !!! all embed calls with "fail_only" after this are ignored !!!
-    nmci.ctx.process_embeds(context, scenario_fail)
+    context.cext.process_embeds(scenario_fail)
 
     if scenario_fail:
         # Attach journalctl logs
@@ -345,7 +345,7 @@ def _after_scenario(context, scenario):
             prefix="~~~~~~~~~~~~~~~~~~~~~~~~~~ NM LOG ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~",
             journal_args="-o cat",
         )
-        context.embed("text/plain", log, caption="NM")
+        context.cext.embed("text/plain", log, caption="NM")
 
     if context.crashed_step:
         print("\n\n" + ("!" * 80))
@@ -354,10 +354,12 @@ def _after_scenario(context, scenario):
         )
         print("!!  %-74s !!" % ("CRASHING STEP: " + context.crashed_step))
         print(("!" * 80) + "\n\n")
-        context.embed("text/plain", context.crashed_step, caption="CRASHED_STEP_NAME")
+        context.cext.embed(
+            "text/plain", context.crashed_step, caption="CRASHED_STEP_NAME"
+        )
         if not context.crash_embeded:
             msg = "!!! no crash report detected, but NM PID changed !!!"
-            context.embed("text/plain", msg, caption="NO_COREDUMP/NO_FAF")
+            context.cext.embed("text/plain", msg, caption="NO_COREDUMP/NO_FAF")
         nmci.ctx.after_crash_reset(context)
 
     if scenario_fail:
@@ -366,13 +368,13 @@ def _after_scenario(context, scenario):
     if excepts or context.crashed_step:
         context.after_scenario_step_el.set("class", "step failed")
     if excepts:
-        context.embed(
+        context.cext.embed(
             "text/plain", "\n\n".join(excepts), "Exception in after scenario tags"
         )
 
     # add Before/After scenario steps to HTML
-    context.html_formatter.steps.insert(0, context.before_scenario_step_el)
-    context.html_formatter.steps.append(context.after_scenario_step_el)
+    context.cext._html_formatter.steps.insert(0, context.before_scenario_step_el)
+    context.cext._html_formatter.steps.append(context.after_scenario_step_el)
 
     duration = time.time() - time_begin
     status = "failed" if excepts else "passed"

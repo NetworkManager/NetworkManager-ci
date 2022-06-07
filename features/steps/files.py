@@ -36,8 +36,8 @@ def check_file_is_identical(context, file1, file2):
     import filecmp
     assert filecmp.cmp(file1, file2), "".join((
         f"Files '{file1}' and '{file2}' differ",
-        "" if context.embed("text/plain", nmci.util.file_get_content_simple(file1), file1) else "",
-        "" if context.embed("text/plain", nmci.util.file_get_content_simple(file2), file2) else "",
+        "" if context.cext.embed("text/plain", nmci.util.file_get_content_simple(file1), file1) else "",
+        "" if context.cext.embed("text/plain", nmci.util.file_get_content_simple(file2), file2) else "",
     ))
 
 

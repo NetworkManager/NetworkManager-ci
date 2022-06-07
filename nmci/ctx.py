@@ -16,11 +16,152 @@ from . import process
 from . import util
 
 
-# The "ContextExtension" class, accessible via "context.cext".
-# It acts mainly as a namespace to group our own extensions.
 class _CExt:
     def __init__(self, context):
         self.context = context
+
+        self._to_embed = []
+
+        # setup formatter embed and set_title
+        if hasattr(context, "_runner"):
+            for formatter in context._runner.formatters:
+                if "html" not in formatter.name:
+                    continue
+                if hasattr(formatter, "set_title"):
+                    self._set_title = formatter.set_title
+                if hasattr(formatter, "embedding"):
+                    self._html_formatter = formatter
+                    formatter.embedding = self.embed
+
+    def set_title(self, *a, **kw):
+        if hasattr(self, "_set_title"):
+            self._set_title(*a, *kw)
+
+    def embed(self, mime_type, data, caption, html_el=None, fail_only=False):
+        if not hasattr(self, "_html_formatter"):
+            return
+
+        data = data or " "
+        if html_el is None:
+            html_el = self._html_formatter.actual["act_step_embed_span"]
+        if mime_type == "call" or fail_only:
+            self._to_embed.append(
+                {
+                    "html_el": html_el,
+                    "mime_type": mime_type,
+                    "data": data,
+                    "caption": caption,
+                    "fail_only": fail_only,
+                }
+            )
+        else:
+            self._html_formatter._doEmbed(html_el, mime_type, data, caption)
+            if mime_type == "link":
+                # list() on ElementTree returns children
+                last_embed = list(html_el)[-1]
+                for a_tag in last_embed.findall("a"):
+                    if a_tag.get("href", "").startswith("data:"):
+                        a_tag.set("download", a_tag.text)
+            ET.SubElement(html_el, "br")
+
+    def process_embeds(self, scenario_fail=False):
+        if not self._to_embed:
+            return
+
+        to_embed = self._to_embed
+        self._to_embed = []
+
+        for kwargs in to_embed:
+            # execute postponed "call"s
+            if kwargs["mime_type"] == "call":
+                # "data" is function, "caption" is args, function returns triple
+                mime_type, data, caption = kwargs["data"](*kwargs["caption"])
+                kwargs["mime_type"], kwargs["data"], kwargs["caption"] = (
+                    mime_type,
+                    data,
+                    caption,
+                )
+            # skip "fail_only" when scenario passed
+            if not scenario_fail and kwargs["fail_only"]:
+                continue
+            # reset "fail_only" to prevent loop
+            kwargs["fail_only"] = False
+            self.embed(**kwargs)
+
+    def embed_dump(self, dump_id, dump_output, caption):
+        print("Attaching %s, %s" % (caption, dump_id))
+        if isinstance(dump_output, str):
+            mime_type = "text/plain"
+        else:
+            mime_type = "link"
+        self.embed(mime_type, dump_output, caption=caption)
+        self.context.crash_embeded = True
+        with open("/tmp/reported_crashes", "a") as f:
+            f.write(dump_id + "\n")
+
+    def embed_service_log(
+        self,
+        descr,
+        service=None,
+        syslog_identifier=None,
+        journal_args=None,
+        cursor=None,
+        fail_only=False,
+        now=True,
+    ):
+        print("embedding " + descr + " logs")
+        if cursor is None:
+            cursor = self.context.log_cursor
+        if now:
+            self.embed(
+                "text/plain",
+                misc.journal_show(
+                    service=service,
+                    syslog_identifier=syslog_identifier,
+                    journal_args=journal_args,
+                    cursor=cursor,
+                ),
+                descr,
+                fail_only=fail_only,
+            )
+        else:
+            self.embed(
+                "call",
+                lambda: (
+                    "text/plain",
+                    misc.journal_show(
+                        service=service,
+                        syslog_identifier=syslog_identifier,
+                        journal_args=journal_args,
+                        cursor=cursor,
+                    ),
+                    descr,
+                ),
+                [],
+                fail_only=fail_only,
+            )
+
+    def embed_file_if_exists(
+        self,
+        fname,
+        mime_type="text/plain",
+        caption=None,
+        fail_only=False,
+        remove=True,
+    ):
+        if os.path.isfile(fname):
+            if caption is None:
+                caption = fname
+            print("embeding " + caption + " log (" + fname + ")")
+            if mime_type == "link":
+                data = [(file_to_base64_url(fname), fname)]
+            else:
+                data = util.file_get_content_simple(fname)
+            if remove:
+                os.remove(fname)
+            self.embed(mime_type, data, caption, fail_only=fail_only)
+        else:
+            print("Warning: File " + repr(fname) + " not found")
 
 
 class _ContextProcess:
@@ -62,49 +203,12 @@ class _ContextProcess:
         return process.systemctl(*a, context_hook=self.context_hook, **kw)
 
 
-def context_setup(context):
+def setup(context):
 
-    cext = _CtxExt(context)
+    assert not hasattr(context, "embed")
+    assert not hasattr(context, "cext")
 
-    # setup formatter embed and set_title
-    if hasattr(context, "_runner"):
-        for formatter in context._runner.formatters:
-            if "html" not in formatter.name:
-                continue
-            if hasattr(formatter, "set_title"):
-                context.set_title = formatter.set_title
-            if hasattr(formatter, "embedding"):
-
-                def embed_fn(mime_type, data, caption, html_el=None, fail_only=False):
-                    data = data or " "
-                    if html_el is None:
-                        html_el = context.html_formatter.actual["act_step_embed_span"]
-                    if mime_type == "call" or fail_only:
-                        context._to_embed.append(
-                            {
-                                "html_el": html_el,
-                                "mime_type": mime_type,
-                                "data": data,
-                                "caption": caption,
-                                "fail_only": fail_only,
-                            }
-                        )
-                    else:
-                        context.html_formatter._doEmbed(
-                            html_el, mime_type, data, caption
-                        )
-                        if mime_type == "link":
-                            # list() on ElementTree returns children
-                            last_embed = list(html_el)[-1]
-                            for a_tag in last_embed.findall("a"):
-                                if a_tag.get("href", "").startswith("data:"):
-                                    a_tag.set("download", a_tag.text)
-                        ET.SubElement(html_el, "br")
-
-                formatter.embedding = embed_fn
-                context.embed = embed_fn
-                context.html_formatter = formatter
-                context._to_embed = []
+    cext = _CExt(context)
 
     context.process = _ContextProcess(cext)
     context.cext = cext
@@ -162,90 +266,6 @@ def context_setup(context):
     context._log_index = 0
 
 
-def process_embeds(context, scenario_fail=False):
-    if not hasattr(context, "_to_embed"):
-        return
-    to_embed = context._to_embed
-    context._to_embed = []
-    for kwargs in to_embed:
-        # execute postponed "call"s
-        if kwargs["mime_type"] == "call":
-            # "data" is function, "caption" is args, function returns triple
-            mime_type, data, caption = kwargs["data"](*kwargs["caption"])
-            kwargs["mime_type"], kwargs["data"], kwargs["caption"] = (
-                mime_type,
-                data,
-                caption,
-            )
-        # skip "fail_only" when scenario passed
-        if not scenario_fail and kwargs["fail_only"]:
-            continue
-        # reset "fail_only" to prevent loop
-        kwargs["fail_only"] = False
-        context.embed(**kwargs)
-
-
-def embed_service_log(
-    context,
-    descr,
-    service=None,
-    syslog_identifier=None,
-    journal_args=None,
-    cursor=None,
-    fail_only=False,
-    now=True,
-):
-    print("embedding " + descr + " logs")
-    if cursor is None:
-        cursor = context.log_cursor
-    if now:
-        context.embed(
-            "text/plain",
-            misc.journal_show(
-                service=service,
-                syslog_identifier=syslog_identifier,
-                journal_args=journal_args,
-                cursor=cursor,
-            ),
-            descr,
-            fail_only=fail_only,
-        )
-    else:
-        context.embed(
-            "call",
-            lambda: (
-                "text/plain",
-                misc.journal_show(
-                    service=service,
-                    syslog_identifier=syslog_identifier,
-                    journal_args=journal_args,
-                    cursor=cursor,
-                ),
-                descr,
-            ),
-            [],
-            fail_only=fail_only,
-        )
-
-
-def embed_file_if_exists(
-    context, fname, mime_type="text/plain", caption=None, fail_only=False, remove=True
-):
-    if os.path.isfile(fname):
-        if caption is None:
-            caption = fname
-        print("embeding " + caption + " log (" + fname + ")")
-        if mime_type == "link":
-            data = [(file_to_base64_url(fname), fname)]
-        else:
-            data = util.file_get_content_simple(fname)
-        if remove:
-            os.remove(fname)
-        context.embed(mime_type, data, caption, fail_only=fail_only)
-    else:
-        print("Warning: File " + repr(fname) + " not found")
-
-
 def file_to_base64_url(filename):
     result = "data:application/octet-stream;base64,"
     data_base64 = base64.b64encode(open(filename, "rb").read())
@@ -262,7 +282,7 @@ def get_pexpect_logs(context, proc, logfile):
     # this sets proc status if killed, if exception, something very wrong happened
     if proc.expect([pexpect.EOF, pexpect.TIMEOUT], timeout=0.2) == 1:
         context.pexpect_failed = True
-        context.embed(
+        context.cext.embed(
             "text/plain", nmci.process.run_stdout("ps aufx"), "DEBUG: ps aufx"
         )
     logfile.close()
@@ -305,7 +325,7 @@ def expects_to_commands(context):
 def process_commands(context, when):
     expects_to_commands(context)
     if context._command_calls:
-        context.embed(
+        context.cext.embed(
             "call", embed_commands, (context._command_calls, when), fail_only=True
         )
     context._command_calls = []
@@ -336,7 +356,7 @@ def print_screen_wo_cursor(screen):
 
 
 def log_tui_screen(context, screen, caption="TUI"):
-    context.embed("text/plain", "\n".join(screen), caption)
+    context.cext.embed("text/plain", "\n".join(screen), caption)
 
 
 def stripped(x):
@@ -380,7 +400,7 @@ def dump_status(context, when, fail_only=False):
                 result = nmci.process.run(cmd, shell=True)
                 msg += result.stdout
 
-    context.embed("text/plain", msg, "Status " + when, fail_only=fail_only)
+    context.cext.embed("text/plain", msg, "Status " + when, fail_only=fail_only)
 
     # Always include memory stats
     if context.nm_pid is not None:
@@ -403,7 +423,7 @@ def dump_status(context, when, fail_only=False):
                 shell=True,
             )
             msg += result.stdout
-        context.embed("text/plain", msg, "Memory use " + when, fail_only=False)
+        context.cext.embed("text/plain", msg, "Memory use " + when, fail_only=False)
 
 
 def check_dump_package(pkg_name):
@@ -417,18 +437,6 @@ def is_dump_reported(dump_dir):
         return False
     with open("/tmp/reported_crashes") as reported_crashed_file:
         return dump_dir + "\n" in reported_crashed_file.readlines()
-
-
-def embed_dump(context, dump_id, dump_output, caption):
-    print("Attaching %s, %s" % (caption, dump_id))
-    if isinstance(dump_output, str):
-        mime_type = "text/plain"
-    else:
-        mime_type = "link"
-    context.embed(mime_type, dump_output, caption=caption)
-    context.crash_embeded = True
-    with open("/tmp/reported_crashes", "a") as f:
-        f.write(dump_id + "\n")
 
 
 def check_crash(context, crashed_step):
@@ -487,7 +495,7 @@ def check_coredump(context):
                     shell=True,
                     stderr=subprocess.STDOUT,
                 )
-            embed_dump(context, dump_dir, dump, "COREDUMP")
+            context.cext.embed_dump(dump_dir, dump, "COREDUMP")
 
 
 def wait_faf_complete(context, dump_dir):
@@ -589,15 +597,15 @@ def check_faf(context):
             last_timestamp = util.file_get_content_simple(f"{dump_dir}/last_occurrence")
             dump_id = f"{dump_dir}-{last_timestamp}"
             if urls:
-                embed_dump(context, dump_id, urls, "FAF")
+                context.cext.embed_dump(dump_id, urls, "FAF")
             else:
                 if os.path.isfile("%s/backtrace" % (dump_dir)):
                     data = "Report not yet uploaded, please check FAF portal.\n\nBacktrace:\n"
                     data += util.file_get_content_simple("%s/backtrace" % (dump_dir))
-                    embed_dump(context, dump_id, data, "FAF")
+                    context.cext.embed_dump(dump_id, data, "FAF")
                 else:
                     msg = "Report not yet uploaded, no backtrace yet, please check FAF portal."
-                    embed_dump(context, dump_id, msg, "FAF")
+                    context.cext.embed_dump(dump_id, msg, "FAF")
 
 
 def reset_usb_devices():
@@ -877,10 +885,10 @@ def teardown_libreswan(context):
         cursor=context.log_cursor,
         journal_args="-o cat",
     )
-    context.embed("text/plain", journal_log, caption="Libreswan Pluto Journal")
+    context.cext.embed("text/plain", journal_log, caption="Libreswan Pluto Journal")
 
     conf = util.file_get_content_simple("/opt/ipsec/connection.conf")
-    context.embed("text/plain", conf, caption="Libreswan Config")
+    context.cext.embed("text/plain", conf, caption="Libreswan Config")
 
 
 def teardown_testveth(context, ns):
