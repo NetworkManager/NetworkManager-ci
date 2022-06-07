@@ -654,7 +654,7 @@ def inf_as(ctx, scen):
     if ctx.IS_NMTUI:
         ctx.process.nmcli_force("connection delete id infiniband0 infiniband0-port")
     else:
-        ctx.process.nmcli("connection up id tg3_1")
+        ctx.process.nmcli("connection up id lom_1")
         ctx.process.nmcli_force("connection delete id inf inf2 infiniband inf.8002")
         ctx.process.nmcli_force("nmcli device connect inf_ib0.8002")
 
@@ -797,7 +797,7 @@ def ifcfg_rh_bs(ctx, scen):
     ):
         print("install NetworkManager-initscripts-updown")
         ctx.process.run_stdout(
-            "dnf install -y NetworkManager-initscripts-updown", timeout=120
+            "dnf install -y NetworkManager-initscripts-updown", ignore_stderr=True, timeout=120
         )
     if not ctx.process.run_search_stdout(
         "NetworkManager --print-config", "^plugins=ifcfg-rh", pattern_flags=re.MULTILINE
