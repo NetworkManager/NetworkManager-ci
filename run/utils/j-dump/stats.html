@@ -213,8 +213,8 @@
       $('#' + project.project + " img").hide();
       $('#' + project.project + " #error").hide();
       $('#' + project.project + " #loader").show();
-      $(table).append('<thead id="thead-' + project.project + '"></thead>');
-      $(table).append('<tbody id="tbody-' + project.project + '"></tbody>');
+      $(table).append('<thead id="thead-' + project.id + '"></thead>');
+      $(table).append('<tbody id="tbody-' + project.id + '"></tbody>');
       var url = "cache/" + project.project + "-";
       if("tags" in state) {
         url += "tags"
@@ -291,7 +291,7 @@
           stats[project.project] = data["py/tuple"][1];
 
           queue[project.project] = false;
-          $('#' + project.project).replaceWith(get_project_button(project));
+          $('#' + project.id).replaceWith(get_project_button(project));
           if(!("project" in state) || state.project == project.project) {
             if("tests" in state) {
               show_tests(project);
@@ -312,8 +312,8 @@
   }
 
   function show_builds(project) {
-    var tbody = $('#tbody-' + project.project);
-    var thead = $('#thead-' + project.project);
+    var tbody = $('#tbody-' + project.id);
+    var thead = $('#thead-' + project.id);
     var head_line = $('<th colspan="6" class="position-sticky" style="top:0;background:white;box-shadow: inset 0px -1px">' + project.os + ": " + project.name + '</th>');
     var btns = get_nav_buttons(project);
     btns = $(btns).wrap('<span style="float:right"></span>').parent();
@@ -328,6 +328,7 @@
           return;
         }
       }
+      console.log(build);
       var failure_num = Object.keys(build.failures).length;
       var tr = $("<tr></tr>");
       var cls = "";
@@ -373,8 +374,8 @@
   }
 
   function show_failures(project) {
-    var tbody = $('#tbody-' + project.project);
-    var thead = $('#thead-' + project.project);
+    var tbody = $('#tbody-' + project.id);
+    var thead = $('#thead-' + project.id);
     var head_line = $('<th colspan="6" class="position-sticky" style="top:0;background:white;box-shadow: inset 0px -1px">' + project.os + ": " + project.name + '</th>');
     var btns = get_nav_buttons(project);
     btns = $(btns).wrap('<span style="float:right"></span>').parent();
@@ -419,8 +420,8 @@
   }
 
   function show_tests(project) {
-    var tbody = $('#tbody-' + project.project);
-    var thead = $('#thead-' + project.project);
+    var tbody = $('#tbody-' + project.id);
+    var thead = $('#thead-' + project.id);
     var head_line = $('<th colspan="7" class="position-sticky" style="top:0;background:white;box-shadow: inset 0px -1px">' + project.os + ": " + project.name + '</th>');
     var btns = get_nav_buttons(project);
     btns = $(btns).wrap('<span style="float:right"></span>').parent();
@@ -452,8 +453,8 @@
   }
 
   function show_tags(project) {
-    var tbody = $('#tbody-' + project.project);
-    var thead = $('#thead-' + project.project);
+    var tbody = $('#tbody-' + project.id);
+    var thead = $('#thead-' + project.id);
     var head_line = $('<th colspan="5" class="position-sticky" style="top:0;background:white;box-shadow: inset 0px -1px">' + project.os + ": " + project.name + '</th>');
     var btns = get_nav_buttons(project);
     btns = $(btns).wrap('<span style="float:right"></span>').parent();
@@ -530,7 +531,7 @@
 
   function get_project_button(project, status) {
     var d = $('<div class="d-flex align-items-start"></div>');
-    $(d).attr("id", project.project);
+    $(d).attr("id", project.id);
     $(d).append('<span id="loader" class="spinner-border spinner-border-sm p-0 m-0" style="display:none; height:24px; min-width:24px;" role="status"></span>');
     if(project.project in stats) {
       $(d).append('<img style="height:24px; width:24px" class="p-0 m-0" src="' + health_img[stats[project.project].health] + '"/>');
