@@ -2930,6 +2930,34 @@ def simwifi_hw_as(ctx, scen):
 _register_tag("simwifi_hw", simwifi_hw_bs, simwifi_hw_as)
 
 
+def slow_dnsmasq_bs(ctx, scen):
+    dnsmasq_bin = ctx.process.run_stdout("which dnsmasq").strip("\n")
+    if not os.path.isfile(f"{dnsmasq_bin}.orig"):
+        ctx.process.run_stdout(f"cp -f {dnsmasq_bin} {dnsmasq_bin}.orig")
+    nmci.util.file_set_content(
+        f"{dnsmasq_bin}.slow",
+        [
+            "#!/bin/bash",
+            "sleep 3",
+            f"exec {dnsmasq_bin}.orig $@",
+        ],
+    )
+    ctx.process.run_stdout(f"chmod +x {dnsmasq_bin}.slow")
+
+
+def slow_dnsmasq_as(ctx, scen):
+    dnsmasq_bin = ctx.process.run_stdout("which dnsmasq").strip("\n")
+    os.rename(f"{dnsmasq_bin}.orig", dnsmasq_bin)
+    if os.path.isfile(f"{dnsmasq_bin}.slow"):
+        os.remove(f"{dnsmasq_bin}.slow")
+    # this is to ensure `sleep 3` dnsmasq.slow finished in case of fail
+    time.sleep(3)
+    ctx.process.run("pkill dnsmasq.orig")
+
+
+_register_tag("slow_dnsmasq", slow_dnsmasq_bs, slow_dnsmasq_as)
+
+
 def cleanup_as(ctx, scen):
     nmci.lib.cleanup(ctx)
 

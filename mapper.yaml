@@ -1553,6 +1553,8 @@ testmapper:
         feature: general
     - nm_online_large_timeout:
         feature: general
+    - nm_online_wait_for_dnsmasq:
+        feature: general
     - policy_based_routing:
         feature: general
         tags: gate

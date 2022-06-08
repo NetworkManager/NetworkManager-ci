@@ -1386,6 +1386,26 @@ Feature: nmcli - general
     And "Connecting.*2073600s.*online" is visible with command "nm-online --timeout 2073600"
 
 
+    @rhbz2049421
+    @ver+=1.39
+    @ver/rhel/8+=1.39.2
+    # do not remove @permissive, dnsmasq.orig then fails to bind to :53
+    @delete_testeth0 @dns_dnsmasq @slow_dnsmasq @permissive
+    @nm_online_wait_for_dnsmasq
+    Scenario: NM - general - nm-online waits until dnsmasq is up
+    * Prepare simulated test "testG" device
+    * Add "ethernet" connection named "con_general" for device "testG" with options "ipv4.may-fail no ipv6.may-fail no"
+    * "connected:con_general" is visible with command "nmcli -t -f STATE,CONNECTION device" in "50" seconds
+    Then "dnsmasq.orig" is not visible with command "ps aux" in "0" seconds
+    # enable slow dnsmasq
+    * Execute "cp -f `which dnsmasq.slow` `which dnsmasq`"
+    * Restart NM in background
+    # wait until dnsmasq is started by NM
+    When "sleep 3" is visible with command "ps aux | grep -A1 dnsmasq" in "10" seconds
+    * Execute "/usr/bin/nm-online -s --timeout=30"
+    Then "sleep 3" is not visible with command "ps aux | grep -A1 dnsmasq" in "0" seconds
+
+
     @rhbz1160013
     @permissive @need_dispatcher_scripts @ifcfg-rh
     @policy_based_routing
