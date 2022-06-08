@@ -507,14 +507,11 @@ def prepare_gsm(context, modem="modemu"):
         context,
     )
     context.execute_steps("""* Delete all connections of type "gsm" after scenario""")
-    assert (
-        subprocess.call(
-            f"sudo bash {NM_CI_RUNNER_CMD} "
-            f"prepare/gsm_sim.sh {modem} &> /tmp/gsm_sim.log",
-            shell=True,
-        )
-        == 0
-    ), "gsm_sim setup failed !!!"
+    subprocess.Popen(
+        f"sudo bash {NM_CI_RUNNER_CMD} "
+        f"prepare/gsm_sim.sh {modem} &> /tmp/gsm_sim.log",
+        shell=True,
+    )
     modem_found = False
     for i in range(20):
         out = subprocess.check_output(["mmcli", "-L"], stderr=subprocess.STDOUT).decode(
