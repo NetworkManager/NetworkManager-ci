@@ -226,6 +226,12 @@ while (<$pty>) {
 		print $pty "\r\n";
 		print $pty "OK\r\n";
 
+	} elsif (/^AT\+CRSM=176,12258,0,0,10$/) {
+		# Read SIM ID
+		print $pty "\r\n";
+		print $pty "+CRSM: 144,0,\"98740006819041410210\"\r\n";
+		print $pty "OK\r\n";
+
 	} elsif (/^AT\+COPS\?$/) {
 		# Current operators
 		# Not strictly required, but allows NetworkManager to just connect
