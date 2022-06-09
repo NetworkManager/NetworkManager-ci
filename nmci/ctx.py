@@ -15,11 +15,63 @@ from . import process
 from . import util
 
 
+###############################################################################
+
+
+class Embed:
+    def __init__(self, fail_only=False):
+        self.fail_only = fail_only
+
+    def postpone(self):
+        return self.fail_only
+
+    def evalDoEmbedArgs(self):
+        return (self._mime_type, self._data or "NO DATA", self._caption)
+
+
+class EmbedData(Embed):
+    def __init__(self, caption, data, mime_type="text/plain", fail_only=False):
+        Embed.__init__(self, fail_only=fail_only)
+        self._caption = caption
+        self._data = data
+        self._mime_type = mime_type
+
+
+class EmbedLink(Embed):
+    def __init__(self, caption, data, fail_only=False):
+        # data must be a list of 2-tuples, where the first element
+        # is the link target (href) and the second the text.
+        Embed.__init__(self, fail_only=fail_only)
+
+        new_data = []
+        for d in data:
+            (target, text) = d
+            new_data.append((target, text))
+
+        self._caption = caption
+        self._data = new_data
+        self._mime_type = "link"
+
+
+class EmbedLater(Embed):
+    def __init__(self, callback, fail_only=False):
+        Embed.__init__(self, fail_only=fail_only)
+        self._callback = callback
+
+    def postpone(self):
+        return True
+
+    def evalDoEmbedArgs(self):
+        mime_type, data, caption = self._callback()
+        return (mime_type, data or "NO DATA", caption)
+
+
+###############################################################################
+
+
 class _CExt:
     def __init__(self, context):
         self.context = context
-
-        self._to_embed = []
 
         # setup formatter embed and set_title
         if hasattr(context, "_runner"):
@@ -29,6 +81,7 @@ class _CExt:
                 if hasattr(formatter, "set_title"):
                     self._set_title = formatter.set_title
                 if hasattr(formatter, "embedding"):
+                    self._to_embed = []
                     self._html_formatter = formatter
                     formatter.embedding = self._html_formatter_embedding
 
@@ -36,70 +89,48 @@ class _CExt:
         if hasattr(self, "_set_title"):
             self._set_title(*a, *kw)
 
-    def embed(self, mime_type, data, caption, html_el=None, fail_only=False):
+    def _embed_now(self, entry):
+        (mime_type, data, caption) = entry.evalDoEmbedArgs()
+        self._html_formatter._doEmbed(entry._html_el, mime_type, data, caption)
+        if mime_type == "link":
+            # list() on ElementTree returns children
+            last_embed = list(entry._html_el)[-1]
+            for a_tag in last_embed.findall("a"):
+                if a_tag.get("href", "").startswith("data:"):
+                    a_tag.set("download", a_tag.text)
+        ET.SubElement(entry._html_el, "br")
+
+    def _embed(self, entry):
         if not hasattr(self, "_html_formatter"):
             return
 
-        data = data or " "
-        if html_el is None:
-            html_el = self._html_formatter.actual["act_step_embed_span"]
-        if mime_type == "call" or fail_only:
-            self._to_embed.append(
-                {
-                    "html_el": html_el,
-                    "mime_type": mime_type,
-                    "data": data,
-                    "caption": caption,
-                    "fail_only": fail_only,
-                }
-            )
+        entry._html_el = self._html_formatter.actual["act_step_embed_span"]
+
+        if entry.postpone():
+            self._to_embed.append(entry)
         else:
-            self._html_formatter._doEmbed(html_el, mime_type, data, caption)
-            if mime_type == "link":
-                # list() on ElementTree returns children
-                last_embed = list(html_el)[-1]
-                for a_tag in last_embed.findall("a"):
-                    if a_tag.get("href", "").startswith("data:"):
-                        a_tag.set("download", a_tag.text)
-            ET.SubElement(html_el, "br")
+            self._embed_now(entry)
+
+    def process_embeds(self, scenario_fail):
+        if hasattr(self, "_html_formatter"):
+            for entry in util.consume_list(self._to_embed):
+                if scenario_fail or not entry.fail_only:
+                    self._embed_now(entry)
 
     def _html_formatter_embedding(self, mime_type, data, caption=None):
-        self.embed(mime_type=mime_type, data=data, caption=caption)
+        if mime_type == "link":
+            self.embed_link(caption=caption, data=data)
+        else:
+            self.embed_data(caption=caption, data=data, mime_type=mime_type)
 
-    def embed_data(self, caption, data, mime_type="text/plain", fail_only=False):
-        self.embed(mime_type=mime_type, data=data, caption=caption, fail_only=fail_only)
+    def embed_data(self, *a, **kw):
+        self._embed(EmbedData(*a, **kw))
 
-    def embed_link(self, caption, data, fail_only=False):
-        # data must be a list of 2-tuples, where the first element
-        # is the link target (href) and the second the text.
-        self.embed(mime_type="link", data=data, caption=caption, fail_only=fail_only)
+    def embed_link(self, *a, **kw):
+        self._embed(EmbedLink(*a, **kw))
 
-    def embed_later(self, callback, fail_only=False):
-        self.embed(self, mime_type="call", data=callback, caption=None, fail_only=False)
-
-    def process_embeds(self, scenario_fail=False):
-        if not self._to_embed:
-            return
-
-        to_embed = self._to_embed
-        self._to_embed = []
-
-        for kwargs in to_embed:
-            # execute postponed "call"s
-            if kwargs["mime_type"] == "call":
-                assert kwargs["caption"] is None
-                mime_type, data, caption = kwargs["data"]()
-                kwargs["mime_type"], kwargs["data"], kwargs["caption"] = (
-                    mime_type,
-                    data,
-                    caption,
-                )
-            # skip "fail_only" when scenario passed
-            if not scenario_fail and kwargs["fail_only"]:
-                continue
-            # reset "fail_only" to prevent loop
-            kwargs["fail_only"] = False
-            self.embed(**kwargs)
+    def embed_later(self, *a, **kw):
+        self._embed(EmbedLater(*a, **kw))
 
     def embed_dump(self, caption, dump_id, *, data=None, links=None):
         print("Attaching %s, %s" % (caption, dump_id))
