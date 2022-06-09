@@ -369,7 +369,7 @@ def gsm_bs(context, scenario):
     context.set_title(" - " + context.modem_str, append=True)
 
     if not os.path.isfile("/tmp/usb_hub"):
-        context.process.run_stdout("sh prepare/initialize_modem.sh")
+        context.process.run_stdout("sh prepare/initialize_modem.sh", timeout=600)
         # OBSOLETE: 2021/08/05
         # import time
         # dir = "/mnt/scratch/"
