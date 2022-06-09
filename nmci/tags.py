@@ -1912,6 +1912,7 @@ def dpdk_as(context, scenario):
     context.process.systemctl("stop ovsdb-server")
     context.process.systemctl("stop openvswitch")
     time.sleep(5)
+    context.process.nmcli_force("con del dpdk-sriov")
 
 
 _register_tag("dpdk", dpdk_bs, dpdk_as)
