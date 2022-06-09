@@ -512,9 +512,8 @@ def wait_faf_complete(context, dump_dir):
         backtrace = backtrace or os.path.isfile(f"{dump_dir}/backtrace")
 
         if not reported_bordell and os.path.isfile(f"{dump_dir}/reported_to"):
-            context.process.run_stdout(
-                f"echo '#cat reported_to'; cat {dump_dir}/reported_to", shell=True
-            )
+            # embed content of reported_to for debug purposes
+            context.process.run_stdout(f"cat {dump_dir}/reported_to", shell=True)
             reported_bordell = "bordell" in util.file_get_content_simple(
                 f"{dump_dir}/reported_to"
             )
@@ -530,7 +529,7 @@ def wait_faf_complete(context, dump_dir):
             context.faf_countdown = max(5, context.faf_countdown)
             return True
         print(f"* report not complete yet, try #{i}")
-        context.process.run_stdout(
+        context.process.run(
             f"ls -l {dump_dir}/{{backtrace,coredump,last_occurrence,pkg_name,reported_to}}"
         )
         time.sleep(1)
