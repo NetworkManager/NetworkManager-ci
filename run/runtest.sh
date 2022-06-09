@@ -194,7 +194,7 @@ fi
 ( configure_environment "$TAG" ) ; conf_rc=$?
 if [ $conf_rc != 0 ]; then
     if ps aux|grep -v grep| grep -q harness.py; then
-        rstrnt-report-result -o "" "$NMTEST" FAIL
+        timeout 1m rstrnt-report-result -o "" "$NMTEST" FAIL
     fi
     cat /tmp/nmcli_general
     exit $conf_rc
@@ -257,11 +257,11 @@ fi
 if ps aux | grep -v grep | grep -q harness.py; then
     # check for empty file: -s means nonempty
     if [ -s "$NMTEST_REPORT" ]; then
-        rstrnt-report-result -o "$NMTEST_REPORT" "$NMTEST" "$RESULT"
+        timeout 1m rstrnt-report-result -o "$NMTEST_REPORT" "$NMTEST" "$RESULT"
     else
         echo "removing empty report file"
         rm -f "$NMTEST_REPORT"
-        rstrnt-report-result -o "" "$NMTEST" "$RESULT"
+        timeout 1m rstrnt-report-result -o "" "$NMTEST" "$RESULT"
     fi
 fi
 
