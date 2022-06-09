@@ -805,16 +805,22 @@ Feature: nmcli: ipv4
     @restore_resolvconf @restart_if_needed
     @ipv4_dns_resolvconf_symlinked
     Scenario: nmcli - ipv4 - dns - symlink
-    * Bring "down" connection "testeth0"
+    * Add "ethernet" connection named "con_ipv4" for device "eth0" with options
+          """
+          ipv4.may-fail no
+          """
+    * Bring "up" connection "con_ipv4"
     * Execute "echo -e '[main]\nrc-manager=symlink' > /etc/NetworkManager/conf.d/99-resolv.conf"
     * Restart NM
-    When "activated" is visible with command "nmcli -g GENERAL.STATE con show testeth0" in "45" seconds
+    When "activated" is visible with command "nmcli -g GENERAL.STATE con show con_ipv4" in "45" seconds
     When Nameserver "nameserver" is set in "0" seconds
     * Execute "cp /etc/resolv.conf /tmp/resolv_orig.conf"
     * Execute "mv -f /etc/resolv.conf /tmp/resolv.conf"
     * Execute "ln -s /tmp/resolv.conf /etc/resolv.conf"
-    * Add "ethernet" connection named "con_ipv4" for device "eth3" with options "ipv4.dns 8.8.8.8"
-    * Bring "up" connection "con_ipv4"
+    * Add "ethernet" connection named "con_ipv42" for device "eth3" with options
+        """
+        ipv4.dns 8.8.8.8
+        """
     When "activated" is visible with command "nmcli -g GENERAL.STATE con show con_ipv4" in "45" seconds
     Then "nameserver 8.8.8.8" is visible with command "cat /var/run/NetworkManager/resolv.conf"
      And "nameserver 8.8.8.8" is not visible with command "cat /etc/resolv.conf"
@@ -828,16 +834,23 @@ Feature: nmcli: ipv4
     @restore_resolvconf @restart_if_needed
     @ipv4_dns_resolvconf_file
     Scenario: nmcli - ipv4 - dns - file
-    * Bring "down" connection "testeth0"
+    * Add "ethernet" connection named "con_ipv4" for device "eth0" with options
+          """
+          ipv4.may-fail no
+          """
+    * Bring "up" connection "con_ipv4"
     * Execute "echo -e '[main]\nrc-manager=file' > /etc/NetworkManager/conf.d/99-resolv.conf"
     * Restart NM
-    When "activated" is visible with command "nmcli -g GENERAL.STATE con show testeth0" in "45" seconds
+    When "activated" is visible with command "nmcli -g GENERAL.STATE con show con_ipv4" in "45" seconds
     When Nameserver "nameserver" is set in "0" seconds
     * Execute "cp /etc/resolv.conf /tmp/resolv_orig.conf"
     * Execute "mv -f /etc/resolv.conf /tmp/resolv.conf"
     * Execute "ln -s /tmp/resolv.conf /etc/resolv.conf"
-    * Add "ethernet" connection named "con_ipv4" for device "eth3" with options "ipv4.dns 8.8.8.8"
-    * Bring "up" connection "con_ipv4"
+    * Add "ethernet" connection named "con_ipv42" for device "eth3" with options
+        """
+        ipv4.dns 8.8.8.8
+        """
+    * Bring "up" connection "con_ipv42"
     Then Nameserver "8.8.8.8" is set in "20" seconds
      And "nameserver 8.8.8.8" is visible with command "cat /var/run/NetworkManager/resolv.conf"
      And "are identical" is not visible with command "diff -s /tmp/resolv.conf /tmp/resolv_orig.conf"
