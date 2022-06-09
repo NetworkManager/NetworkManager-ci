@@ -126,7 +126,6 @@ configure_networking () {
             if [ $dcb_inf_wol_sriov -eq 0 ]; then
                 nmcli connection add type ethernet ifname eth0 con-name testeth0
                 nmcli connection delete eth0
-                #nmcli connection modify testeth0 ipv6.method ignore
                 nmcli connection up id testeth0
                 nmcli con show -a
                 for X in $(seq 1 10); do
@@ -137,6 +136,7 @@ configure_networking () {
             fi
 
             # THIS NEEDS TO BE DONE HERE AS DONE SEPARATELY IN VETHSETUP FOR RECREATION REASONS
+            nmcli c modify testeth0 ipv4.may-fail no
             nmcli c modify testeth0 ipv4.route-metric 99 ipv6.route-metric 99
             sleep 1
             # Copy final connection to /tmp/testeth0 for later in test usage

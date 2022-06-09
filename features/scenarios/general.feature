@@ -2086,7 +2086,7 @@ Feature: nmcli - general
     Scenario: nmcli - general - overtake external device
     * Execute "ip add add 1.2.3.4/24 dev eth8"
     When "No such file" is visible with command "cat /etc/sysconfig/network-scripts/ifcfg-eth8"
-     And "eth8\s+ethernet\s+connected" is visible with command "nmcli d" in "5" seconds
+     And "eth8\s+ethernet\s+connected" is visible with command "nmcli d" in "15" seconds
      And "dhclient" is not visible with command "ps aux| grep client-eth8"
     * Modify connection "eth8" changing options "ipv4.method auto"
     When "activated" is visible with command "nmcli -g GENERAL.STATE con show eth8" in "45" seconds

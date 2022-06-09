@@ -87,7 +87,7 @@ function setup_veth_env ()
     UUID_NAME=$(nmcli -t -f UUID,NAME c show --active | head -n 1)
     NAME=${UUID_NAME#*:}
     UUID=${UUID_NAME%:*}
-    
+
     # Overwrite the name in order to be sure to have all the NM keys (including UUID) in the ifcfg file
     for i in {1..10}; do
         nmcli con mod $UUID connection.id "$NAME"
@@ -135,6 +135,7 @@ function setup_veth_env ()
     nmcli con mod $UUID connection.id testeth0
     nmcli con mod $UUID connection.interface-name eth0
     nmcli connection modify $UUID ipv6.method auto
+    nmcli connection modify $UUID ipv4.may-fail no
     sleep 1
 
     # Rename additional devices
