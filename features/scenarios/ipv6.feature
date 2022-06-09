@@ -2051,12 +2051,8 @@
 
 
     @rhbz1995372
-    @ver+=1.35
-    @ver-1.36.2
-    @ver/rhel/8+=1.35
-    @ver/rhel/8-1.36.0.5
-    @ver/rhel/9+=1.35
-    @ver/rhel/9-1.37.90
+    @ver+=1.32
+    @ver-1.38
     @ipv6_check_addr_order
     Scenario: nmcli - ipv6 - check IPv6 address order
     * Prepare simulated test "testX6" device
@@ -2087,47 +2083,7 @@
 
 
     @rhbz1995372
-    @ver+=1.36.2
-    @ver-1.37.91
-    @ver-1.38.0
-    @ver-1.39.2
-    @ver/rhel/8+=1.36.0.5
-    @ver/rhel/9+=1.37.90
-    @ipv6_check_addr_order
-    Scenario: nmcli - ipv6 - check IPv6 address order
-    * Prepare simulated test "testX6" device
-    * Add "ethernet" connection named "con_ipv6" for device "testX6" with options
-          """
-          ipv4.method disabled
-          ipv6.method auto
-          ipv6.may-fail no
-          ethernet.cloned-mac-address ee:aa:bb:cc:dd:ee
-          ipv6.addr-gen-mode eui64
-          ipv6.ip6-privacy disabled
-          """
-    * Bring "up" connection "con_ipv6"
-    Then Check "ipv6" address list "2620:dead:beaf:0:ecaa:bbff:fecc:ddee/64 /2620:dead:beaf:[0-9a-f:]+/128 fe80::ecaa:bbff:fecc:ddee/64" on device "testX6"
-    * Execute "nmcli connection modify con_ipv6 ipv6.addresses '1:2:3::101/64,1:2:3::102/64'"
-    * Bring "up" connection "con_ipv6"
-    Then Check "ipv6" address list "2620:dead:beaf:0:ecaa:bbff:fecc:ddee/64 /2620:dead:beaf:[0-9a-f:]+/128 1:2:3::102/64 1:2:3::101/64 fe80::ecaa:bbff:fecc:ddee/64" on device "testX6"
-    * Execute "nmcli connection modify con_ipv6 ipv6.addresses '1:2:3::101/64'"
-    * Bring "up" connection "con_ipv6"
-    Then Check "ipv6" address list "2620:dead:beaf:0:ecaa:bbff:fecc:ddee/64 /2620:dead:beaf:[0-9a-f:]+/128 1:2:3::101/64 fe80::ecaa:bbff:fecc:ddee/64" on device "testX6"
-    * Execute "nmcli device modify testX6 +ipv6.addresses '1:2:3::103/64'"
-    Then Check "ipv6" address list "2620:dead:beaf:0:ecaa:bbff:fecc:ddee/64 /2620:dead:beaf:[0-9a-f:]+/128 1:2:3::103/64 1:2:3::101/64 fe80::ecaa:bbff:fecc:ddee/64" on device "testX6" in "6" seconds
-    * Execute "nmcli device modify testX6 ipv6.addresses ''"
-    Then Check "ipv6" address list "2620:dead:beaf:0:ecaa:bbff:fecc:ddee/64 /2620:dead:beaf:[0-9a-f:]+/128 fe80::ecaa:bbff:fecc:ddee/64" on device "testX6" in "6" seconds
-    * Execute "nmcli connection modify con_ipv6 ipv6.method manual ipv6.addresses '1:2:3::101/64,1:2:3::102/64,1:2:3::103/64'"
-    * Bring "up" connection "con_ipv6"
-    Then Check "ipv6" address list "1:2:3::103/64 1:2:3::102/64 1:2:3::101/64 fe80::ecaa:bbff:fecc:ddee/64" on device "testX6" in "6" seconds
-
-
-    @rhbz1995372
-    @ver+=1.37.91
-    @ver+=1.38.0
-    @ver+=1.39.2
-    @ver/rhel/8-
-    @ver/rhel/9-
+    @ver+=1.38
     @ipv6_check_addr_order
     Scenario: nmcli - ipv6 - check IPv6 address order
     * Prepare simulated test "testX6" device
