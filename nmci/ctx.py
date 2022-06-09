@@ -1247,7 +1247,7 @@ def get_modem_info(context):
     output = modem_index = modem_info = sim_index = sim_info = None
 
     # Get a list of modems from ModemManager.
-    output, _, code = context.process.run_stdout("mmcli -L")
+    code, output, _ = context.process.run("mmcli -L")
     if code != 0:
         print("Cannot get modem info from ModemManager.")
         return None
