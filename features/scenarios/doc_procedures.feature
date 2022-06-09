@@ -246,7 +246,7 @@ Feature: nmcli - procedures in documentation
       And "inet6 2001:db8:1::2/32 scope global noprefixroute" is visible with command "ip address show wg1"
 
     @rhelver+=9
-    @wireguard
+    @wireguard @nmtui
     @wireguard_nmtui_doc_procedure
     Scenario: nmcli - docs - Configuring wireguard server & client with nmtui
     * Prepare virtual terminal environment
