@@ -1669,7 +1669,8 @@ def firewall_bs(context, scenario):
     context.process.systemctl("stop firewalld")
     time.sleep(5)
     context.process.systemctl("start firewalld")
-    context.process.nmcli("con modify testeth0 connection.zone public")
+    # can fail in @sriov_con_drv_add_VF_firewalld
+    context.process.nmcli_force("con modify testeth0 connection.zone public")
     # Add a sleep here to prevent firewalld to hang
     # (see https://bugzilla.redhat.com/show_bug.cgi?id=1495893)
     time.sleep(1)
@@ -1825,13 +1826,16 @@ def openvswitch_as(context, scenario):
     context.process.run_stdout(
         "sudo rm -rf /etc/sysconfig/network-scripts/ifcfg-intbr0"
     )
-    context.process.run_stdout("ip link set dev eth1 up")
-    context.process.run_stdout("ip link set dev eth2 up")
-    context.process.nmcli("con reload")
-    context.process.nmcli("con up testeth1")
-    context.process.nmcli("con down testeth1")
-    context.process.nmcli("con up testeth2")
-    context.process.nmcli("con down testeth2")
+
+    # eth links are not be present in dpdk tests
+    if "dpdk" not in scenario.tags:
+        context.process.run_stdout("ip link set dev eth1 up")
+        context.process.run_stdout("ip link set dev eth2 up")
+        context.process.nmcli("con reload")
+        context.process.nmcli("con up testeth1")
+        context.process.nmcli("con down testeth1")
+        context.process.nmcli("con up testeth2")
+        context.process.nmcli("con down testeth2")
 
 
 _register_tag("openvswitch", openvswitch_bs, openvswitch_as)
@@ -1893,10 +1897,12 @@ def dpdk_bs(context, scenario):
     context.process.run_stdout(
         "dpdk-devbind -b vfio-pci 0000:42:10.0 || dpdk-devbind.py -b vfio-pci 0000:42:10.0",
         shell=True,
+        ignore_stderr=True,
     )
     context.process.run_stdout(
         "dpdk-devbind -b vfio-pci 0000:42:10.2 || dpdk-devbind.py -b vfio-pci 0000:42:10.2",
         shell=True,
+        ignore_stderr=True,
     )
     # No idea why we need to restrt OVS but we need to
     context.process.systemctl("restart openvswitch")
