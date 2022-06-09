@@ -12,6 +12,8 @@
       .btn-outline-success {background-color:rgba(25, 135, 84, 0.3);}
       .btn-outline-primary {background-color:rgba(13, 110, 253, 0.3);}
       .bg-warning-semi {background-color:#ffedb8;}
+      .badge.text-danger:hover {filter:brightness(75%) sepia(60%) hue-rotate(-50deg);}
+      a.badge {text-decoration:none;}
       .btn .badge {top:0;}
       .sort {cursor:pointer;}
     </style>
@@ -59,6 +61,7 @@
   var nav_buttons = {
     "Builds": "",
     "Failures": "build:",
+    "Last failures": "build:-1",
     "Tests": "tests:",
     "Tags": "tags",
   };
@@ -351,7 +354,7 @@
       if(build.status != "RUNNING") {
         var td=$('<td style="text-align:center"></td>');
         $(td).append('<span class="text-success">' + build.tests_passed + ' </span>');
-        $(td).append('<span class="text-danger">' + build.tests_failed + ' </span>');
+        $(td).append('<a class="text-danger" href="#project:' + project.project + ';build:' + build.id + '">' + build.tests_failed + ' </a>');
         $(td).append('<span class="text-secondary">' + build.tests_skipped + ' </span>');
         $(tr).append(td);
       }
@@ -543,7 +546,7 @@
     var last_stats = "";
     if(project.project in stats) {
       last_stats += '<span class="badge p-1 text-success bg-light border border-success">' + stats[project.project].last_pass + '</span>';
-      last_stats += '<span class="badge p-1 text-danger bg-light border border-danger">' + stats[project.project].last_fail + '</span>';
+      last_stats += '<a class="badge p-1 text-danger bg-light border border-danger" href="#project:' + project.project + ';build:-1">' + stats[project.project].last_fail + '</a>';
       last_stats += '<span class="badge p-1 text-secondary bg-light border border-secondary">' + stats[project.project].last_skip + '</span>';
     }
 
