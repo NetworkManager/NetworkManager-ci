@@ -1298,7 +1298,7 @@ def cleanup(context):
             ["device", "delete"] + list(context.cleanup["interfaces"]["delete"]),
         )
     for iface in context.cleanup["interfaces"]["reset"]:
-        nmci.lib.reset_hwaddr_nmcli(context, iface)
+        nmci.ctx.reset_hwaddr_nmcli(context, iface)
         if iface != "eth0":
             context.process.run(f"ip addr flush {iface}")
 

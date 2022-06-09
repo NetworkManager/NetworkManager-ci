@@ -674,7 +674,7 @@ def check_route_count(context, cmp, routes_count, ip_version, device, seconds=1)
 
 @step(u'Cleanup interface "{iface}"')
 def cleanup_connection(context, iface):
-    nmci.lib.add_iface_to_cleanup(context, iface)
+    nmci.ctx.add_iface_to_cleanup(context, iface)
 
 
 @step(u'Create "{typ}" device named "{name}"')
@@ -684,7 +684,7 @@ def cleanup_connection(context, iface):
 def add_device(context, typ, name, namespace="", options=""):
     namespace = f"-n {namespace}" if namespace else ""
     context.command_code(f"ip {namespace} link add {name} type {typ} {options}", shell=True)
-    nmci.lib.add_iface_to_cleanup(context, name)
+    nmci.ctx.add_iface_to_cleanup(context, name)
 
 
 @step(u'Add namespace "{name}"')

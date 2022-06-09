@@ -499,7 +499,7 @@ def prepare_libreswan(context, mode="aggressive"):
 @step('Prepare simulated gsm | named "{modem}"')
 def prepare_gsm(context, modem="modemu"):
     context.sandbox.add_after_scenario_hook(
-        lambda c: c.embed(
+        lambda context: context.embed(
             "text/plain",
             nmci.util.file_get_content_simple("/tmp/gsm_sim.log"),
             "GSM_SIM",
@@ -541,7 +541,7 @@ def prepare_gsm(context, modem="modemu"):
 @step('Prepare openvpn | version "{version}" | in "{path}"')
 def prepare_openvpn(context, version="ip46", path="/tmp/openvpn-"):
     context.sandbox.add_after_scenario_hook(
-        lambda c: c.embed(
+        lambda context: context.embed(
             "text/plain",
             nmci.util.file_get_content_simple("/tmp/openvpn.log"),
             "OPENVPN",
@@ -589,7 +589,7 @@ def prepare_wifi(context, certs_dir="contrib/8021x/certs", crypto="default", ap_
         """* Delete all connections of type "802-11-wireless" after scenario"""
     )
     context.sandbox.add_after_scenario_hook(
-        lambda c: c.embed(
+        lambda context: context.embed(
             "text/plain",
             nmci.util.file_get_content_simple("/tmp/hostapd_wireless.log"),
             "WI-FI",
@@ -633,7 +633,7 @@ def prepare_8021x(context, certs_dir="contrib/8021x/certs", crypto=None):
         context.scenario.skip(reason=f"802.1x not available on '{arch}'")
         return
     context.sandbox.add_after_scenario_hook(
-        lambda c: c.embed(
+        lambda context: context.embed(
             "text/plain",
             nmci.util.file_get_content_simple("/tmp/hostapd_wired.log"),
             "8021X",

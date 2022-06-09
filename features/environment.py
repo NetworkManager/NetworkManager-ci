@@ -9,7 +9,7 @@ import pexpect
 import xml.etree.ElementTree as ET
 
 import nmci
-import nmci.lib
+import nmci.ctx
 import nmci.tags
 import nmci.misc
 import nmci.nmutil
@@ -41,7 +41,7 @@ def before_all(context):
 
     context.no_step = True
 
-    nmci.lib.context_setup(context)
+    nmci.ctx.context_setup(context)
 
     def _additional_sleep(seconds):
         if context.IS_NMTUI:
@@ -101,7 +101,7 @@ def _before_scenario(context, scenario):
     os.environ["TERM"] = "dumb"
 
     # dump status before the test preparation starts
-    nmci.lib.dump_status(context, "Before Scenario", fail_only=False)
+    nmci.ctx.dump_status(context, "Before Scenario", fail_only=False)
 
     if context.IS_NMTUI:
         nmci.run("sudo pkill nmtui")
@@ -157,14 +157,14 @@ def _before_scenario(context, scenario):
 
     context.log_cursor = nmci.misc.journal_get_cursor()
 
-    nmci.lib.process_commands(context, "before_scenario")
+    nmci.ctx.process_commands(context, "before_scenario")
 
     duration = time.time() - time_begin
     status = "failed" if excepts else "passed"
     print(f"before_scenario ... {status} in {duration:.3f}s")
     duration_el.text = f"({duration:.3f}s)"
 
-    nmci.lib.check_crash(context, "crash outside steps (before scenario)")
+    nmci.ctx.check_crash(context, "crash outside steps (before scenario)")
 
     if excepts:
         context.before_scenario_step_el.set("class", "step failed")
@@ -208,7 +208,7 @@ def after_step(context, step):
         print("Omitting the test as device supports 802.11a")
         sys.exit(77)
 
-    nmci.lib.process_commands(context, "")
+    nmci.ctx.process_commands(context, "")
 
     if context.IS_NMTUI:
         """Teardown after each step.
@@ -221,9 +221,9 @@ def after_step(context, step):
         # do not append step.name if no substeps called
         if context.screen_logs or context.step_level > 0:
             context.screen_logs.append(step.name)
-        context.screen_logs += nmci.lib.get_cursored_screen(context.screen)
+        context.screen_logs += nmci.ctx.get_cursored_screen(context.screen)
         if context.step_level == 0:
-            nmci.lib.log_tui_screen(context, context.screen_logs)
+            nmci.ctx.log_tui_screen(context, context.screen_logs)
             context.screen_logs = []
 
         if step.status == "failed":
@@ -239,7 +239,7 @@ def after_step(context, step):
         if os.path.isfile("/tmp/nm_skip_restarts"):
             time.sleep(0.4)
 
-    nmci.lib.check_crash(context, step.name)
+    nmci.ctx.check_crash(context, step.name)
 
 
 # print exception traceback
@@ -269,11 +269,11 @@ def _after_scenario(context, scenario):
 
     nm_pid_after = nmci.nmutil.nm_pid()
     if not nm_pid_after:
-        nmci.lib.check_crash(
+        nmci.ctx.check_crash(
             context, "crash outside steps (last step before after_scenario)"
         )
         # print("Starting NM as it was found stopped")
-        # nmci.lib.restart_NM_service(context)
+        # nmci.ctx.restart_NM_service(context)
 
     if context.IS_NMTUI:
         if os.path.isfile("/tmp/tui-screen.log"):
@@ -295,7 +295,7 @@ def _after_scenario(context, scenario):
     )
 
     if scenario.status == "failed" or DEBUG:
-        nmci.lib.dump_status(context, "After Scenario", fail_only=True)
+        nmci.ctx.dump_status(context, "After Scenario", fail_only=True)
 
     # run after_scenario tags (in reverse order)
     excepts = []
@@ -315,18 +315,18 @@ def _after_scenario(context, scenario):
             print(f"  @{tag_name} ... {t_status} in {time.time() - t_start:.3f}s")
 
     try:
-        nmci.lib.cleanup(context)
+        nmci.ctx.cleanup(context)
     except Exception:
         excepts.append(traceback.format_exc())
 
-    nmci.lib.check_crash(context, "crash outside steps (after_scenario tags)")
+    nmci.ctx.check_crash(context, "crash outside steps (after_scenario tags)")
 
     # check for crash reports and embed them
     # sets crash_embeded if crash found
-    nmci.lib.check_coredump(context)
-    nmci.lib.check_faf(context)
+    nmci.ctx.check_coredump(context)
+    nmci.ctx.check_faf(context)
 
-    nmci.lib.process_commands(context, "after_scenario")
+    nmci.ctx.process_commands(context, "after_scenario")
 
     scenario_fail = (
         scenario.status == "failed" or context.crashed_step or DEBUG or len(excepts) > 0
@@ -334,7 +334,7 @@ def _after_scenario(context, scenario):
 
     # Attach postponed or "fail_only" embeds
     # !!! all embed calls with "fail_only" after this are ignored !!!
-    nmci.lib.process_embeds(context, scenario_fail)
+    nmci.ctx.process_embeds(context, scenario_fail)
 
     if scenario_fail:
         # Attach journalctl logs
@@ -358,10 +358,10 @@ def _after_scenario(context, scenario):
         if not context.crash_embeded:
             msg = "!!! no crash report detected, but NM PID changed !!!"
             context.embed("text/plain", msg, caption="NO_COREDUMP/NO_FAF")
-        nmci.lib.after_crash_reset(context)
+        nmci.ctx.after_crash_reset(context)
 
     if scenario_fail:
-        nmci.lib.dump_status(context, "After Clean", fail_only=False)
+        nmci.ctx.dump_status(context, "After Clean", fail_only=False)
 
     if excepts or context.crashed_step:
         context.after_scenario_step_el.set("class", "step failed")

@@ -14,7 +14,7 @@ from . import ip
 from . import misc
 from . import util
 from . import process
-from . import lib
+from . import ctx
 
 
 def rnd_bool():
@@ -1264,7 +1264,7 @@ def test_context_set_up_commands():
 
     context = ContextTest()
 
-    lib.context_setup(context)
+    ctx.context_setup(context)
 
     context.process.run_stdout("true")
     assert context._command_calls == [(["true"], 0, "", "")]

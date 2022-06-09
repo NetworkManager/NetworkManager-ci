@@ -4,7 +4,7 @@ import re
 import time
 from behave import step
 
-import nmci.lib
+import nmci.ctx
 
 OUTPUT = '/tmp/nmtui.out'
 TERM_TYPE = 'vt102'
@@ -62,7 +62,7 @@ def go_until_pattern_matches_line(context, key, pattern, limit=50):
     screens = []
     for i in range(0, limit):
         screens.append(f"go_until_pattern_matches_line #{i}")
-        screens += nmci.lib.get_cursored_screen(context.screen)
+        screens += nmci.ctx.get_cursored_screen(context.screen)
         match = re.match(pattern, context.screen.display[context.screen.cursor.y], re.UNICODE)
         if match is not None:
             return match
@@ -70,7 +70,7 @@ def go_until_pattern_matches_line(context, key, pattern, limit=50):
             context.tui.send(key)
             time.sleep(0.3)
             feed_stream(context.stream)
-    nmci.lib.log_tui_screen(context, screens, "TUI DEBUG")
+    nmci.ctx.log_tui_screen(context, screens, "TUI DEBUG")
     return None
 
 
@@ -83,7 +83,7 @@ def go_until_pattern_matches_aftercursor_text(context, key, pattern, limit=50, i
     screens = []
     for i in range(0, limit):
         screens.append(f"go_until_pattern_matches_aftercursor_text #{i}")
-        screens += nmci.lib.get_cursored_screen(context.screen)
+        screens += nmci.ctx.get_cursored_screen(context.screen)
         line = context.screen.display[context.screen.cursor.y]
         match = re.match(pattern, line[context.screen.cursor.x+pre_c:], re.UNICODE)
         if match is not None:
@@ -92,7 +92,7 @@ def go_until_pattern_matches_aftercursor_text(context, key, pattern, limit=50, i
             context.tui.send(key)
             time.sleep(0.3)
             feed_stream(context.stream)
-    nmci.lib.log_tui_screen(context, screens, "TUI DEBUG")
+    nmci.ctx.log_tui_screen(context, screens, "TUI DEBUG")
     return None
 
 
@@ -104,7 +104,7 @@ def search_all_patterns_in_list(context, patterns, limit=50):
     screens = []
     for i in range(0, limit):
         screens.append(f"search_all_patterns_in_list #{i}")
-        screens += nmci.lib.get_cursored_screen(context.screen)
+        screens += nmci.ctx.get_cursored_screen(context.screen)
         for pattern in patterns:
             match = re.match(pattern, context.screen.display[context.screen.cursor.y], re.UNICODE)
             if match is not None:
@@ -116,7 +116,7 @@ def search_all_patterns_in_list(context, patterns, limit=50):
         time.sleep(0.3)
         feed_stream(context.stream)
     if patterns:
-        nmci.lib.log_tui_screen(context, screens, "TUI DEBUG")
+        nmci.ctx.log_tui_screen(context, screens, "TUI DEBUG")
     return patterns
 
 
@@ -200,7 +200,7 @@ def press_password_dialog_button(context, button):
 
 @step('Select connection "{con_name}" in the list')
 def select_con_in_list(context, con_name):
-    screen = nmci.lib.get_screen_string(context.screen)
+    screen = nmci.ctx.get_screen_string(context.screen)
     match = re.match('.*Delete.*', screen, re.UNICODE | re.DOTALL)
     if match is not None:
         context.tui.send(keys['LEFTARROW']*8)
@@ -300,7 +300,7 @@ def pattern_on_screen(context, pattern, seconds=1):
     seconds = int(seconds)
     while seconds and match is None:
         seconds -= 1
-        screen = nmci.lib.get_screen_string(context.screen)
+        screen = nmci.ctx.get_screen_string(context.screen)
         match = re.match(pattern, screen, re.UNICODE | re.DOTALL)
         if match is not None:
             break
@@ -316,7 +316,7 @@ def pattern_not_on_screen(context, pattern, seconds=1):
     seconds = int(seconds)
     while seconds and match is not None:
         seconds -= 1
-        screen = nmci.lib.get_screen_string(context.screen)
+        screen = nmci.ctx.get_screen_string(context.screen)
         match = re.match(pattern, screen, re.UNICODE | re.DOTALL)
         if match is None:
             break
@@ -343,7 +343,7 @@ def set_specific_field_to(context, field, value):
     if "Profile name" in field:
         context.cleanup["connections"].add(value)
     elif "Device" in field:
-        nmci.lib.add_iface_to_cleanup(context, value)
+        nmci.ctx.add_iface_to_cleanup(context, value)
 
 @step('Empty the field "{field}"')
 def empty_specific_field(context, field):

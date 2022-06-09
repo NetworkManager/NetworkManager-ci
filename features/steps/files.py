@@ -5,7 +5,7 @@ import configparser
 from behave import step
 
 import commands
-import nmci.lib
+import nmci.ctx
 
 
 @step('Append "{line}" to file "{name}"')
@@ -182,7 +182,7 @@ def create_network_profile_file(context, file):
     with open(file, "w") as f:
         f.write(context.text)
     assert nmci.command_code("chmod 600 " + file) == 0, "Unable to set permissions on '%s'" % file
-    nmci.lib.reload_NM_connections(context)
+    nmci.ctx.reload_NM_connections(context)
 
     for line in context.text.split("\n"):
         if re.match(r'(id|name)=', line):
@@ -192,4 +192,4 @@ def create_network_profile_file(context, file):
         elif re.match(r'(DEVICE|interface-name)=', line):
             iface = line.split('=')[1]
             if iface:
-                nmci.lib.add_iface_to_cleanup(context, iface)
+                nmci.ctx.add_iface_to_cleanup(context, iface)
