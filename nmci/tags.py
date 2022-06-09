@@ -2992,7 +2992,8 @@ _register_tag("simwifi_hw", simwifi_hw_bs, simwifi_hw_as)
 def slow_dnsmasq_bs(context, scenario):
     dnsmasq_bin = context.process.run_stdout("which dnsmasq").strip("\n")
     if not os.path.isfile(f"{dnsmasq_bin}.orig"):
-        context.process.run_stdout(f"cp -f {dnsmasq_bin} {dnsmasq_bin}.orig")
+        # use copy2 to preserve selinux context
+        shutil.copy2(dnsmasq_bin, f"{dnsmasq_bin}.orig")
     nmci.util.file_set_content(
         f"{dnsmasq_bin}.slow",
         [
