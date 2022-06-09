@@ -1975,12 +1975,10 @@ Feature: nmcli - general
 
     @rhbz1458399
     @ver+=1.12.0
-    @connectivity @eth0
+    @connectivity
     @connectivity_check
     Scenario: NM - general - connectivity check
-    * Add "ethernet" connection named "con_general" for device "eth0" with options "autoconnect no ipv6.method ignore"
-    * Bring up connection "con_general"
-    When "activated" is visible with command "nmcli -g GENERAL.STATE con show con_general" in "45" seconds
+    When "activated" is visible with command "nmcli -g GENERAL.STATE con show testeth0" in "45" seconds
      And "full" is visible with command "nmcli  -g CONNECTIVITY g" in "70" seconds
     * Append "1.2.3.4 static.redhat.com" to file "/etc/hosts"
     * Append "1::1 static.redhat.com" to file "/etc/hosts"
@@ -1991,14 +1989,12 @@ Feature: nmcli - general
 
     @rhbz1458399
     @ver+=1.12.0
-    @connectivity @delete_testeth0 @restart_if_needed
+    @connectivity @restart_if_needed
     @disable_connectivity_check
     Scenario: NM - general - disable connectivity check
     * Execute "rm -rf /etc/NetworkManager/conf.d/99-connectivity.conf"
     * Restart NM
-    * Add "ethernet" connection named "con_general" for device "eth0" with options "autoconnect no ipv6.method ignore"
-    * Bring up connection "con_general"
-    When "activated" is visible with command "nmcli -g GENERAL.STATE con show con_general" in "45" seconds
+    When "activated" is visible with command "nmcli -g GENERAL.STATE con show testeth0" in "45" seconds
      And "full" is visible with command "nmcli  -g CONNECTIVITY g"
     * Append "1.2.3.4 static.redhat.com" to file "/etc/hosts"
     * Append "1::1 static.redhat.com" to file "/etc/hosts"
@@ -2007,26 +2003,20 @@ Feature: nmcli - general
 
     @rhbz1394345
     @ver+=1.12.0
-    @connectivity @eth0
+    @connectivity
     @per_device_connectivity_check
     Scenario: NM - general - per device connectivity check
     # Device with connectivity but low priority
-    * Add "ethernet" connection named "con_general" for device "eth0" with options
-          """
-          ipv4.route-metric 1024
-          ipv6.method ignore
-          """
-    * Bring up connection "con_general"
-    When "activated" is visible with command "nmcli -g GENERAL.STATE con show con_general" in "45" seconds
+    When "activated" is visible with command "nmcli -g GENERAL.STATE con show testeth0" in "45" seconds
     When "full" is visible with command "nmcli  -g CONNECTIVITY g" in "40" seconds
-    # Device w/o connectivity but with high priority
+    # Device w/o connectivity but with high priority (testeth0 has metric 99)
     * Add "ethernet" connection named "con_general2" for device "eth8" with options
           """
           autoconnect no
           ipv4.method manual
           ipv4.addresses 192.168.244.4/24
           ipv4.gateway 192.168.244.1
-          ipv4.route-metric 100
+          ipv4.route-metric 95
           ipv6.method ignore
           """
     * Bring up connection "con_general2"
@@ -2037,12 +2027,10 @@ Feature: nmcli - general
 
     @rhbz1534477
     @ver+=1.12
-    @connectivity @delete_testeth0 @restart_if_needed @long
+    @connectivity @restart_if_needed @long
     @manipulate_connectivity_check_via_dbus
     Scenario: dbus - general - connectivity check manipulation
-    * Add "ethernet" connection named "con_general" for device "eth0" with options "autoconnect no ipv6.method ignore"
-    * Bring up connection "con_general"
-    When "activated" is visible with command "nmcli -g GENERAL.STATE con show con_general" in "45" seconds
+    When "activated" is visible with command "nmcli -g GENERAL.STATE con show testeth0" in "45" seconds
      And "full" is visible with command "nmcli -g CONNECTIVITY g" in "70" seconds
     # VVV Turn off connectivity check
     * Execute "busctl set-property org.freedesktop.NetworkManager /org/freedesktop/NetworkManager org.freedesktop.NetworkManager ConnectivityCheckEnabled 'b' 0"
