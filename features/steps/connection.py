@@ -11,7 +11,7 @@ def add_vpnc_connection_for_iface(context, name, ifname, vpn):
     r = cli.expect(['Error', pexpect.EOF])
     time.sleep(1)
     assert r != 0, 'Got an Error while adding %s connection %s for device %s\n%s%s' % (vpn, name, ifname, cli.after, cli.buffer)
-    
+
     context.cleanup["connections"].add(name)
 
 
@@ -170,6 +170,9 @@ def modify_connection(context, name, options):
     out = context.command_output("nmcli connection modify %s %s" % (name, options))
     assert 'Error' not in out, 'Got an Error while modifying %s options %s\n%s' % (name, options, out)
 
+@step(u'Wait for testeth0')
+def wait_for_eth0(context):
+    nmci.lib.wait_for_testeth0(context)
 
 @step(u'Reload connections')
 def reload_connections(context):

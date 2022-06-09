@@ -956,6 +956,7 @@ Feature: nmcli - general
     * Execute "yum -y remove firewalld"
     * Restart NM
     * Add "ethernet" connection named "con_general" for device "eth8" with options "connection.zone work"
+    When "activated" is visible with command "nmcli -g GENERAL.STATE con show testeth0" in "45" seconds
     * Execute "yum -y install firewalld"
     * Execute "systemctl start firewalld"
     Then "work" is visible with command "firewall-cmd  --get-zone-of-interface=eth8" in "3" seconds
