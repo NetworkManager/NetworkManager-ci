@@ -193,8 +193,14 @@ class _Util:
                 file, max_size=max_size, warn_max_size=warn_max_size
             )
 
-    def file_get_content_simple(self, file_name):
-        return self.file_get_content(file_name, errors="replace").data
+    def file_get_content_simple(self, file_name, as_bytes=False):
+        if as_bytes:
+            encoding = None
+        else:
+            encoding = "utf-8"
+        return self.file_get_content(
+            file_name, encoding=encoding, errors="replace"
+        ).data
 
     def file_set_content(self, file_name, data=""):
         if isinstance(data, str):
