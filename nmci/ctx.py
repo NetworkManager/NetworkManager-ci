@@ -73,6 +73,9 @@ class _CExt:
     def __init__(self, context):
         self.context = context
 
+        self._pexpect_lst_step = []
+        self._pexpect_lst_scenario = []
+
         # setup formatter embed and set_title
         if hasattr(context, "_runner"):
             for formatter in context._runner.formatters:
@@ -251,6 +254,53 @@ class _CExt:
 
         self.embed_link(caption, [(data, fname)], fail_only=fail_only)
 
+    def _process_command_complete(self, proc, logfile):
+        failed = False
+        status = 0
+        if proc.status is None:
+            proc.kill(15)
+            if proc.expect([pexpect.EOF, pexpect.TIMEOUT], timeout=0.2) == 1:
+                proc.kill(9)
+        # this sets proc status if killed, if exception, something very wrong happened
+        if proc.expect([pexpect.EOF, pexpect.TIMEOUT], timeout=0.2) == 1:
+            failed = True
+            self.embed_data("DEBUG: ps aufx", nmci.process.run_stdout("ps aufx"))
+        if not status:
+            status = proc.status
+        stdout = util.file_get_content_simple(logfile.name)
+        logfile.close()
+        return failed, "pexpect:" + proc.name, status, stdout, None
+
+    def process_commands(self, when):
+
+        assert when in ["before_scenario", "", "after_scenario"]
+
+        argv_failed = None
+
+        for proc, logfile in util.consume_list(self._pexpect_lst_step):
+            p_failed, argv, returncode, stdout, stderr = self._process_command_complete(
+                proc, logfile
+            )
+            if argv_failed is None and p_failed:
+                argv_failed = argv
+            self.embed_run(argv, returncode, stdout, stderr)
+
+        if when == "after_scenario":
+            for proc, logfile in util.consume_list(self._pexpect_lst_scenario):
+                (
+                    p_failed,
+                    argv,
+                    returncode,
+                    stdout,
+                    stderr,
+                ) = self._process_command_complete(proc, logfile)
+                if argv_failed is None and p_failed:
+                    argv_failed = argv
+                self.embed_run(argv, returncode, stdout, stderr)
+
+        if argv_failed:
+            raise Exception(f"Some process failed: {argv_failed}")
+
 
 class _ContextProcess:
     def __init__(self, cext):
@@ -341,9 +391,9 @@ def setup(context):
         #
         # In both cases, we track the process in two separate lists.
         if is_service:
-            context._pexpect_lst_scenario.append((proc, logfile))
+            context.cext._pexpect_lst_scenario.append((proc, logfile))
         else:
-            context._pexpect_lst_step.append((proc, logfile))
+            context.cext._pexpect_lst_step.append((proc, logfile))
         return proc
 
     context.command_code = _command_code
@@ -352,53 +402,6 @@ def setup(context):
     context.command_output_err = _command_output_err
     context.pexpect_spawn = lambda *a, **kw: _pexpect_spawn(context, False, *a, **kw)
     context.pexpect_service = lambda *a, **kw: _pexpect_spawn(context, True, *a, **kw)
-    context._pexpect_lst_step = []
-    context._pexpect_lst_scenario = []
-
-
-def _process_command_complete(context, proc, logfile):
-    failed = False
-    status = 0
-    if proc.status is None:
-        proc.kill(15)
-        if proc.expect([pexpect.EOF, pexpect.TIMEOUT], timeout=0.2) == 1:
-            proc.kill(9)
-    # this sets proc status if killed, if exception, something very wrong happened
-    if proc.expect([pexpect.EOF, pexpect.TIMEOUT], timeout=0.2) == 1:
-        failed = True
-        context.cext.embed_data("DEBUG: ps aufx", nmci.process.run_stdout("ps aufx"))
-    if not status:
-        status = proc.status
-    stdout = util.file_get_content_simple(logfile.name)
-    logfile.close()
-    return failed, "pexpect:" + proc.name, status, stdout, None
-
-
-def process_commands(context, when):
-
-    assert when in ["before_scenario", "", "after_scenario"]
-
-    argv_failed = None
-
-    for proc, logfile in util.consume_list(context._pexpect_lst_step):
-        p_failed, argv, returncode, stdout, stderr = _process_command_complete(
-            context, proc, logfile
-        )
-        if argv_failed is None and p_failed:
-            argv_failed = argv
-        context.cext.embed_run(argv, returncode, stdout, stderr)
-
-    if when == "after_scenario":
-        for proc, logfile in util.consume_list(context._pexpect_lst_scenario):
-            p_failed, argv, returncode, stdout, stderr = _process_command_complete(
-                context, proc, logfile
-            )
-            if argv_failed is None and p_failed:
-                argv_failed = argv
-            context.cext.embed_run(argv, returncode, stdout, stderr)
-
-    if argv_failed:
-        raise Exception(f"Some process failed: {argv_failed}")
 
 
 def get_cursored_screen(screen):

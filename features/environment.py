@@ -157,7 +157,7 @@ def _before_scenario(context, scenario):
 
     context.log_cursor = nmci.misc.journal_get_cursor()
 
-    nmci.ctx.process_commands(context, "before_scenario")
+    context.cext.process_commands("before_scenario")
 
     duration = time.time() - time_begin
     status = "failed" if excepts else "passed"
@@ -209,7 +209,7 @@ def after_step(context, step):
         print("Omitting the test as device supports 802.11a")
         sys.exit(77)
 
-    nmci.ctx.process_commands(context, "")
+    context.cext.process_commands("")
 
     if context.IS_NMTUI:
         """Teardown after each step.
@@ -326,7 +326,7 @@ def _after_scenario(context, scenario):
     nmci.ctx.check_coredump(context)
     nmci.ctx.check_faf(context)
 
-    nmci.ctx.process_commands(context, "after_scenario")
+    context.cext.process_commands("after_scenario")
 
     scenario_fail = (
         scenario.status == "failed" or context.crashed_step or DEBUG or len(excepts) > 0

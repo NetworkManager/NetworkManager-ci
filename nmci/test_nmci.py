@@ -1424,7 +1424,7 @@ def test_ctx_pexpect():
     p = context.pexpect_service("echo foobar")
     assert p.expect(["xxx", "foobar", pexpect.TIMEOUT, pexpect.EOF]) == 1
 
-    ctx.process_commands(context, "after_scenario")
+    context.cext.process_commands("after_scenario")
 
 
 def test_util_consume_list():
