@@ -322,40 +322,42 @@ def setup(context):
         out, err, code = _run(command, *a, **kw)
         return code
 
-    def _pexpect_spawn(*a, encoding="utf-8", logfile=None, shell=False, **kw):
+    def _pexpect_spawn(
+        context, is_service, *a, encoding="utf-8", logfile=None, shell=False, **kw
+    ):
         if logfile is None:
-            logfile = open("/tmp/expect.log." + str(context._log_index), "w")
-            context._log_index += 1
-        if shell:
-            a = ["/bin/bash", ["-c", *a]]
-        proc = pexpect.spawn(*a, **kw, logfile=logfile, encoding=encoding)
-        context._expect_procs.append((proc, logfile))
-        return proc
+            import tempfile
 
-    def _pexpect_service(*a, encoding="utf-8", logfile=None, shell=False, **kw):
-        if logfile is None:
-            logfile = open("/tmp/expect_service.log." + str(context._log_index), "w")
-            context._log_index += 1
+            logfile = tempfile.NamedTemporaryFile(dir=util.tmp_dir(), mode="w")
         if shell:
             a = ["/bin/bash", ["-c", *a]]
         proc = pexpect.spawn(*a, **kw, logfile=logfile, encoding=encoding)
-        context._expect_services.append((proc, logfile))
+
+        # "is_service" means to be killed at the end of the test. In that case,
+        # we can just embed the result later and let it be processed and
+        # cleaned up thereby.
+        #
+        # Otherwise, the process is reaped/killed at the end of the step.
+        #
+        # In both cases, we track the process in two separate lists.
+        if is_service:
+            context._pexpect_lst_scenario.append((proc, logfile))
+        else:
+            context._pexpect_lst_step.append((proc, logfile))
         return proc
 
     context.command_code = _command_code
     context.run = _run
     context.command_output = _command_output
     context.command_output_err = _command_output_err
-    # pexpect_spawn commands are killed after step (if survives)
-    context.pexpect_spawn = _pexpect_spawn
-    # pexpect_spawn commands are killed at the end of the test
-    context.pexpect_service = _pexpect_service
-    context._expect_procs = []
-    context._expect_services = []
-    context._log_index = 0
+    context.pexpect_spawn = lambda *a, **kw: _pexpect_spawn(context, False, *a, **kw)
+    context.pexpect_service = lambda *a, **kw: _pexpect_spawn(context, True, *a, **kw)
+    context._pexpect_lst_step = []
+    context._pexpect_lst_scenario = []
 
 
-def get_pexpect_logs(context, proc, logfile):
+def _process_command_complete(context, proc, logfile):
+    failed = False
     status = 0
     if proc.status is None:
         proc.kill(15)
@@ -363,48 +365,40 @@ def get_pexpect_logs(context, proc, logfile):
             proc.kill(9)
     # this sets proc status if killed, if exception, something very wrong happened
     if proc.expect([pexpect.EOF, pexpect.TIMEOUT], timeout=0.2) == 1:
-        context.pexpect_failed = True
+        failed = True
         context.cext.embed_data("DEBUG: ps aufx", nmci.process.run_stdout("ps aufx"))
-    logfile.close()
     if not status:
         status = proc.status
     stdout = util.file_get_content_simple(logfile.name)
-    os.remove(logfile.name)
-    return ["pexpect:" + proc.name, status, stdout, None]
-
-
-def embed_commands(command_calls, when):
-    message = when + "\n"
-    for cmd in command_calls:
-        if cmd[0] == "call":
-            command, code, stdout, stderr = cmd[1](*cmd[2])
-        else:
-            command, code, stdout, stderr = cmd
-        message += f"{'-'*50}\n{repr(command)} returned {code}"
-        if stdout:
-            message += f"\nSTDOUT:\n{stdout}"
-        if stderr:
-            message += f"\nSTDERR:\n{stderr}"
-        message += "\n"
-    return ["text/plain", message, "Commands"]
+    logfile.close()
+    return failed, "pexpect:" + proc.name, status, stdout, None
 
 
 def process_commands(context, when):
-    context.pexpect_failed = False
-    command_calls = []
-    for proc, logfile in context._expect_procs:
-        command_calls.append(get_pexpect_logs(context, proc, logfile))
-    context._expect_procs = []
-    for proc, logfile in context._expect_services:
-        command_calls.append(("call", get_pexpect_logs, (context, proc, logfile)))
-    context._expect_services = []
-    assert getattr(context, "pexpect_failed", False) is False, "some pexpect has failed"
 
-    if command_calls:
-        context.cext.embed_later(
-            lambda: embed_commands(command_calls, when),
-            fail_only=True,
+    assert when in ["before_scenario", "", "after_scenario"]
+
+    argv_failed = None
+
+    for proc, logfile in util.consume_list(context._pexpect_lst_step):
+        p_failed, argv, returncode, stdout, stderr = _process_command_complete(
+            context, proc, logfile
         )
+        if argv_failed is None and p_failed:
+            argv_failed = argv
+        context.cext.embed_run(argv, returncode, stdout, stderr)
+
+    if when == "after_scenario":
+        for proc, logfile in util.consume_list(context._pexpect_lst_scenario):
+            p_failed, argv, returncode, stdout, stderr = _process_command_complete(
+                context, proc, logfile
+            )
+            if argv_failed is None and p_failed:
+                argv_failed = argv
+            context.cext.embed_run(argv, returncode, stdout, stderr)
+
+    if argv_failed:
+        raise Exception(f"Some process failed: {argv_failed}")
 
 
 def get_cursored_screen(screen):
