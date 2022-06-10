@@ -71,6 +71,9 @@ class _CExt:
         # is the link target (href) and the second the text.
         self.embed(mime_type="link", data=data, caption=caption, fail_only=fail_only)
 
+    def embed_later(self, callback, fail_only=False):
+        self.embed(self, mime_type="call", data=callback, caption=None, fail_only=False)
+
     def process_embeds(self, scenario_fail=False):
         if not self._to_embed:
             return
@@ -81,8 +84,8 @@ class _CExt:
         for kwargs in to_embed:
             # execute postponed "call"s
             if kwargs["mime_type"] == "call":
-                # "data" is function, "caption" is args, function returns triple
-                mime_type, data, caption = kwargs["data"](*kwargs["caption"])
+                assert kwargs["caption"] is None
+                mime_type, data, caption = kwargs["data"]()
                 kwargs["mime_type"], kwargs["data"], kwargs["caption"] = (
                     mime_type,
                     data,
@@ -131,8 +134,7 @@ class _CExt:
                 fail_only=fail_only,
             )
         else:
-            self.embed(
-                "call",
+            self.embed_later(
                 lambda: (
                     "text/plain",
                     misc.journal_show(
@@ -143,7 +145,6 @@ class _CExt:
                     ),
                     descr,
                 ),
-                [],
                 fail_only=fail_only,
             )
 
@@ -330,8 +331,9 @@ def expects_to_commands(context):
 def process_commands(context, when):
     expects_to_commands(context)
     if context._command_calls:
-        context.cext.embed(
-            "call", embed_commands, (context._command_calls, when), fail_only=True
+        context.cext.embed_later(
+            lambda: embed_commands(context._command_calls, when),
+            fail_only=True,
         )
     context._command_calls = []
 
