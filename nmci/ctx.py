@@ -302,6 +302,28 @@ class _CExt:
             raise Exception(f"Some process failed: {argv_failed}")
 
 
+class _ContextUtil:
+    def __init__(self, cext):
+        self._cext = cext
+
+    def context_hook(self, event, *a):
+        if event == "file_set_content":
+            (file_name, data) = a
+            try:
+                data = nmci.util.bytes_to_str(data)
+            except UnicodeDecodeError:
+                pass
+
+            self._cext.embed_data(
+                f"write {file_name}",
+                data,
+                fail_only=True,
+            )
+
+    def file_set_content(self, *a, **kw):
+        return util.file_set_content(*a, context_hook=self.context_hook, **kw)
+
+
 class _ContextProcess:
     def __init__(self, cext):
         self._cext = cext
@@ -346,6 +368,7 @@ def setup(context):
     cext = _CExt(context)
 
     context.process = _ContextProcess(cext)
+    context.util = _ContextUtil(cext)
     context.cext = cext
 
     def _run(command, *a, **kw):

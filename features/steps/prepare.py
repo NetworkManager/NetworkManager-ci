@@ -29,7 +29,7 @@ def create_policy_based_routing_files(context, profile, dev, table, timeout=5):
             continue
         break
 
-    nmci.util.file_set_content(
+    context.util.file_set_content(
         f"/etc/sysconfig/network-scripts/route-{profile}",
         [
             f"{ip}/{plen} dev {dev} table {table}",
@@ -37,7 +37,7 @@ def create_policy_based_routing_files(context, profile, dev, table, timeout=5):
         ],
     )
 
-    nmci.util.file_set_content(
+    context.util.file_set_content(
         f"/etc/sysconfig/network-scripts/rule-{profile}",
         [
             f"prio 17201 iif {dev} table {table}",
