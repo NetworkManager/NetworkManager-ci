@@ -2279,7 +2279,7 @@ def wifi_as(context, scenario):
         )
         context.process.nmcli_force("con del qe-adhoc qe-ap wifi-wlan0")
         if "novice" in scenario.tags:
-            context.prompt.close()
+            # context.prompt.close()
             time.sleep(1)
             context.process.nmcli_force("con del wifi-wlan0")
 
