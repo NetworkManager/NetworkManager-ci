@@ -1397,6 +1397,9 @@ def test_misc_test_find_feature_file():
 # of the file.
 def test_black_code_fromatting():
 
+    if os.environ.get("NMCI_NO_BLACK") == "1":
+        pytest.skip("skip formatting test with python-black (NMCI_NO_BLACK=1)")
+
     files = [
         util.base_dir("contrib/gui/steps.py"),
         util.base_dir("features/environment.py"),
