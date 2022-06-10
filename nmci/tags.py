@@ -1416,9 +1416,8 @@ def dracut_bs(context, scenario):
         timeout=600,
     )
     context.cext.embed_file_if_exists(
+        "Dracut setup",
         "/tmp/dracut_setup.log",
-        caption="Dracut setup",
-        fail_only=False,
     )
     if rc != 0:
         print("dracut setup failed, doing clean !!!")
@@ -1428,9 +1427,8 @@ def dracut_bs(context, scenario):
             shell=True,
         )
         context.cext.embed_file_if_exists(
+            "Dracut teardown",
             "/tmp/dracut_teardown.log",
-            caption="Dracut teardown",
-            fail_only=False,
         )
         assert False, "dracut setup failed"
 
@@ -3019,8 +3017,8 @@ def tag8021x_doc_procedure_as(context, scenario):
             "802.1X access control", syslog_identifier="802-1x-tr-mgmt"
         )
         context.cext.embed_file_if_exists(
+            "WPA_SUP from access control test",
             "/tmp/nmci-wpa_supplicant-standalone",
-            caption="WPA_SUP from access control test",
         )
     if os.path.isfile("/etc/hostapd/hostapd.conf"):
         os.remove("/etc/hostapd/hostapd.conf")

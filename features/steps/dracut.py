@@ -46,9 +46,8 @@ def embed_dracut_logs(context):
     context.dracut_vm_state = get_dracut_vm_state(mount=False)
 
     context.cext.embed_file_if_exists(
+        "Dracut boot",
         "/tmp/dracut_boot.log",
-        caption="Dracut boot",
-        fail_only=True,
     )
     if not context.dracut_vm_state.startswith("NO"):
         context.cext.embed_service_log(
@@ -95,9 +94,9 @@ def check_core_dumps(context):
                 + "\n\n"
             )
             context.cext.embed_file_if_exists(
+                "Dracut Crash Dump",
                 REMOTE_CRASH_DIR + filename,
-                mime_type="link",
-                caption="Dracut Crash Dump",
+                as_base64=True,
             )
 
     if backtraces:

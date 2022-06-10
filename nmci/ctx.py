@@ -6,7 +6,6 @@ import re
 import nmci
 import glob
 import pexpect
-import base64
 import xml.etree.ElementTree as ET
 import shutil
 
@@ -145,25 +144,34 @@ class _CExt:
 
     def embed_file_if_exists(
         self,
+        caption,
         fname,
-        mime_type="text/plain",
-        caption=None,
+        as_base64=False,
         fail_only=False,
-        remove=True,
     ):
-        if os.path.isfile(fname):
-            if caption is None:
-                caption = fname
-            print("embeding " + caption + " log (" + fname + ")")
-            if mime_type == "link":
-                data = [(file_to_base64_url(fname), fname)]
-            else:
-                data = util.file_get_content_simple(fname)
-            if remove:
-                os.remove(fname)
-            self.embed(mime_type, data, caption, fail_only=fail_only)
-        else:
+        if not os.path.isfile(fname):
             print("Warning: File " + repr(fname) + " not found")
+            return
+
+        if caption is None:
+            caption = fname
+
+        print("embeding " + caption + " log (" + fname + ")")
+
+        if not as_base64:
+            data = util.file_get_content_simple(fname)
+            self.embed_data(caption, data, fail_only=fail_only)
+            return
+
+        import base64
+
+        data = util.file_get_content_simple(fname, as_bytes=True)
+        data_base64 = base64.b64encode(data)
+        data_encoded = data_base64.decode("utf-8").replace("\n", "")
+        data = "data:application/octet-stream;base64," + data_encoded
+        data = [(data, fname)]
+
+        self.embed("link", data, caption, fail_only=fail_only)
 
 
 class _ContextProcess:
@@ -266,13 +274,6 @@ def setup(context):
     context._expect_procs = []
     context._expect_services = []
     context._log_index = 0
-
-
-def file_to_base64_url(filename):
-    result = "data:application/octet-stream;base64,"
-    data_base64 = base64.b64encode(open(filename, "rb").read())
-    data_encoded = data_base64.decode("utf-8").replace("\n", "")
-    return result + data_encoded
 
 
 def get_pexpect_logs(context, proc, logfile):
