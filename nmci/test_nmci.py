@@ -1393,6 +1393,21 @@ def test_misc_test_find_feature_file():
         misc.test_find_feature_file("no-exist")
 
 
+def test_util_consume_list():
+
+    lst = []
+    assert list(util.consume_list(lst)) == []
+    assert lst == []
+
+    lst = [1]
+    assert list(util.consume_list(lst)) == [1]
+    assert lst == []
+
+    lst = [1, "b"]
+    assert list(util.consume_list(lst)) == [1, "b"]
+    assert lst == []
+
+
 # This test should always run as last. Keep it at the bottom
 # of the file.
 def test_black_code_fromatting():

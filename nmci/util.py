@@ -103,6 +103,18 @@ class _Util:
         j = JsonGLib.gvariant_serialize(variant)
         return json.loads(JsonGLib.to_string(j, 0))
 
+    def consume_list(self, lst):
+        # consumes the list (removing all elements, from the beginning)
+        # and returns an iterator for the elements.
+        while True:
+            # Popping at the beginning is probably O(n) so this
+            # is not really efficient. Doesn't matter for our uses.
+            try:
+                v = lst.pop(0)
+            except IndexError:
+                break
+            yield v
+
     def binary_to_str(self, b, binary=None):
         assert binary is None or binary is False or binary is True
         if isinstance(b, bytes):
