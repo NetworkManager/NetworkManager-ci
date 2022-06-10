@@ -349,7 +349,7 @@ def embed_commands(command_calls, when):
     return ["text/plain", message, "Commands"]
 
 
-def expects_to_commands(context):
+def process_commands(context, when):
     context.pexpect_failed = False
     for proc, logfile in context._expect_procs:
         context._command_calls.append(get_pexpect_logs(context, proc, logfile))
@@ -361,9 +361,6 @@ def expects_to_commands(context):
     context._expect_services = []
     assert getattr(context, "pexpect_failed", False) is False, "some pexpect has failed"
 
-
-def process_commands(context, when):
-    expects_to_commands(context)
     if context._command_calls:
         context.cext.embed_later(
             lambda: embed_commands(context._command_calls, when),
