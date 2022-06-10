@@ -30,7 +30,7 @@ class _CExt:
                     self._set_title = formatter.set_title
                 if hasattr(formatter, "embedding"):
                     self._html_formatter = formatter
-                    formatter.embedding = self.embed
+                    formatter.embedding = self._html_formatter_embedding
 
     def set_title(self, *a, **kw):
         if hasattr(self, "_set_title"):
@@ -62,6 +62,9 @@ class _CExt:
                     if a_tag.get("href", "").startswith("data:"):
                         a_tag.set("download", a_tag.text)
             ET.SubElement(html_el, "br")
+
+    def _html_formatter_embedding(self, mime_type, data, caption=None):
+        self.embed(mime_type=mime_type, data=data, caption=caption)
 
     def embed_data(self, caption, data, mime_type="text/plain", fail_only=False):
         self.embed(mime_type=mime_type, data=data, caption=caption, fail_only=fail_only)
