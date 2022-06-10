@@ -66,6 +66,11 @@ class _CExt:
     def embed_data(self, caption, data, mime_type="text/plain", fail_only=False):
         self.embed(mime_type=mime_type, data=data, caption=caption, fail_only=fail_only)
 
+    def embed_link(self, caption, data, fail_only=False):
+        # data must be a list of 2-tuples, where the first element
+        # is the link target (href) and the second the text.
+        self.embed(mime_type="link", data=data, caption=caption, fail_only=fail_only)
+
     def process_embeds(self, scenario_fail=False):
         if not self._to_embed:
             return
@@ -95,8 +100,7 @@ class _CExt:
         if isinstance(dump_output, str):
             self.embed_data(caption, dump_output)
         else:
-            mime_type = "link"
-            self.embed(mime_type, dump_output, caption=caption)
+            self.embed_link(caption, dump_output)
         self.context.crash_embeded = True
         with open("/tmp/reported_crashes", "a") as f:
             f.write(dump_id + "\n")
@@ -169,9 +173,8 @@ class _CExt:
         data_base64 = base64.b64encode(data)
         data_encoded = data_base64.decode("utf-8").replace("\n", "")
         data = "data:application/octet-stream;base64," + data_encoded
-        data = [(data, fname)]
 
-        self.embed("link", data, caption, fail_only=fail_only)
+        self.embed_link(caption, [(data, fname)], fail_only=fail_only)
 
 
 class _ContextProcess:
