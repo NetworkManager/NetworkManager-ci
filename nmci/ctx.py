@@ -95,12 +95,13 @@ class _CExt:
             kwargs["fail_only"] = False
             self.embed(**kwargs)
 
-    def embed_dump(self, dump_id, dump_output, caption):
+    def embed_dump(self, caption, dump_id, *, data=None, links=None):
         print("Attaching %s, %s" % (caption, dump_id))
-        if isinstance(dump_output, str):
-            self.embed_data(caption, dump_output)
+        assert (data is None) + (links is None) == 1
+        if data is not None:
+            self.embed_data(caption, data)
         else:
-            self.embed_link(caption, dump_output)
+            self.embed_link(caption, links)
         self.context.crash_embeded = True
         with open("/tmp/reported_crashes", "a") as f:
             f.write(dump_id + "\n")
@@ -499,7 +500,7 @@ def check_coredump(context):
                     shell=True,
                     stderr=subprocess.STDOUT,
                 )
-            context.cext.embed_dump(dump_dir, dump, "COREDUMP")
+            context.cext.embed_dump("COREDUMP", dump_dir, data=dump)
 
 
 def wait_faf_complete(context, dump_dir):
@@ -601,15 +602,18 @@ def check_faf(context):
             last_timestamp = util.file_get_content_simple(f"{dump_dir}/last_occurrence")
             dump_id = f"{dump_dir}-{last_timestamp}"
             if urls:
-                context.cext.embed_dump(dump_id, urls, "FAF")
+                context.cext.embed_dump("FAF", dump_id, links=urls)
             else:
                 if os.path.isfile("%s/backtrace" % (dump_dir)):
                     data = "Report not yet uploaded, please check FAF portal.\n\nBacktrace:\n"
                     data += util.file_get_content_simple("%s/backtrace" % (dump_dir))
-                    context.cext.embed_dump(dump_id, data, "FAF")
+                    context.cext.embed_dump("FAF", dump_id, data=data)
                 else:
-                    msg = "Report not yet uploaded, no backtrace yet, please check FAF portal."
-                    context.cext.embed_dump(dump_id, msg, "FAF")
+                    context.cext.embed_dump(
+                        "FAF",
+                        dump_id,
+                        data="Report not yet uploaded, no backtrace yet, please check FAF portal.",
+                    )
 
 
 def reset_usb_devices():
