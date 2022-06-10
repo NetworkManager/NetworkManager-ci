@@ -1409,6 +1409,24 @@ def test_misc_test_find_feature_file():
         misc.test_find_feature_file("no-exist")
 
 
+def test_ctx_pexpect():
+
+    import pexpect
+
+    context = create_test_context()
+
+    p = context.pexpect_spawn("true")
+    assert p.expect(["Error", pexpect.TIMEOUT, pexpect.EOF]) == 2
+
+    p = context.pexpect_spawn("echo helloworld", shell=True)
+    assert p.expect(["world", pexpect.TIMEOUT, pexpect.EOF]) == 0
+
+    p = context.pexpect_service("echo foobar")
+    assert p.expect(["xxx", "foobar", pexpect.TIMEOUT, pexpect.EOF]) == 1
+
+    ctx.process_commands(context, "after_scenario")
+
+
 def test_util_consume_list():
 
     lst = []
