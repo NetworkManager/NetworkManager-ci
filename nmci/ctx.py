@@ -75,6 +75,7 @@ class _CExt:
 
         self._pexpect_lst_step = []
         self._pexpect_lst_scenario = []
+        self._to_embed = []
 
         # setup formatter embed and set_title
         if hasattr(context, "_runner"):
@@ -84,7 +85,6 @@ class _CExt:
                 if hasattr(formatter, "set_title"):
                     self._set_title = formatter.set_title
                 if hasattr(formatter, "embedding"):
-                    self._to_embed = []
                     self._html_formatter = formatter
                     formatter.embedding = self._html_formatter_embedding
 
@@ -94,20 +94,26 @@ class _CExt:
 
     def _embed_now(self, entry):
         (mime_type, data, caption) = entry.evalDoEmbedArgs()
-        self._html_formatter._doEmbed(entry._html_el, mime_type, data, caption)
-        if mime_type == "link":
-            # list() on ElementTree returns children
-            last_embed = list(entry._html_el)[-1]
-            for a_tag in last_embed.findall("a"):
-                if a_tag.get("href", "").startswith("data:"):
-                    a_tag.set("download", a_tag.text)
-        ET.SubElement(entry._html_el, "br")
+
+        if hasattr(self, "_html_formatter"):
+            self._html_formatter._doEmbed(entry._html_el, mime_type, data, caption)
+            if mime_type == "link":
+                # list() on ElementTree returns children
+                last_embed = list(entry._html_el)[-1]
+                for a_tag in last_embed.findall("a"):
+                    if a_tag.get("href", "").startswith("data:"):
+                        a_tag.set("download", a_tag.text)
+            ET.SubElement(entry._html_el, "br")
+
+        if os.environ.get("NMCI_SHOW_EMBED") == "1":
+            print(f">>>> EMBED[{mime_type}]: {caption}")
+            for line in str(data).splitlines():
+                print(f">>>>>> {line}")
 
     def _embed(self, entry):
-        if not hasattr(self, "_html_formatter"):
-            return
 
-        entry._html_el = self._html_formatter.actual["act_step_embed_span"]
+        if hasattr(self, "_html_formatter"):
+            entry._html_el = self._html_formatter.actual["act_step_embed_span"]
 
         if entry.postpone():
             self._to_embed.append(entry)
@@ -115,10 +121,9 @@ class _CExt:
             self._embed_now(entry)
 
     def process_embeds(self, scenario_fail):
-        if hasattr(self, "_html_formatter"):
-            for entry in util.consume_list(self._to_embed):
-                if scenario_fail or not entry.fail_only:
-                    self._embed_now(entry)
+        for entry in util.consume_list(self._to_embed):
+            if scenario_fail or not entry.fail_only:
+                self._embed_now(entry)
 
     def _html_formatter_embedding(self, mime_type, data, caption=None):
         if mime_type == "link":
@@ -425,6 +430,9 @@ def setup(context):
     context.command_output_err = _command_output_err
     context.pexpect_spawn = lambda *a, **kw: _pexpect_spawn(context, False, *a, **kw)
     context.pexpect_service = lambda *a, **kw: _pexpect_spawn(context, True, *a, **kw)
+
+
+###############################################################################
 
 
 def get_cursored_screen(screen):

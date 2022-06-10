@@ -68,13 +68,18 @@ class Stub:
 def create_test_context():
     class ContextTest:
         def __init__(self):
+            import xml.etree.ElementTree as ET
+
             class Formatter:
                 pass
 
             formatter = Formatter()
             formatter.name = "html"
             formatter.embedding = None
-            formatter.actual = {"act_step_embed_span": None}
+            formatter.actual = {
+                "act_step_embed_span": ET.SubElement(ET.Element("foo"), "span"),
+            }
+            formatter._doEmbed = lambda span, mime_type, data, caption: None
 
             class Runner:
                 pass
@@ -1425,6 +1430,8 @@ def test_ctx_pexpect():
     assert p.expect(["xxx", "foobar", pexpect.TIMEOUT, pexpect.EOF]) == 1
 
     context.cext.process_commands("after_scenario")
+
+    context.cext.process_embeds(True)
 
 
 def test_util_consume_list():
