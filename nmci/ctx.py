@@ -143,6 +143,45 @@ class _CExt:
         with open("/tmp/reported_crashes", "a") as f:
             f.write(dump_id + "\n")
 
+    def embed_run(self, argv, returncode, stdout, stderr, fail_only=True):
+        if stdout is not None:
+            try:
+                stdout = util.bytes_to_str(stdout)
+            except UnicodeDecodeError:
+                pass
+        if stderr is not None:
+            try:
+                stderr = util.bytes_to_str(stderr)
+            except UnicodeDecodeError:
+                pass
+
+        message = f"{repr(argv)} returned {returncode}\n"
+        if stdout:
+            message += (
+                f"STDOUT{'[binary]' if isinstance(stderr, bytes) else ''}:\n{stdout}\n"
+            )
+        if stderr:
+            message += (
+                f"STDERR{'[binary]' if isinstance(stderr, bytes) else ''}:\n{stderr}\n"
+            )
+
+        if isinstance(argv, bytes):
+            title = argv.decode("utf-8", errors="replace")
+        elif isinstance(argv, str):
+            title = argv
+        else:
+            import shlex
+
+            title = " ".join(
+                shlex.quote(util.bytes_to_str(a, errors="replace")) for a in argv
+            )
+        if len(argv) < 30:
+            title = f"Command `{title}`"
+        else:
+            title = f"Command `{title[:30]}...`"
+
+        self.embed_data(title, message, fail_only=fail_only)
+
     def embed_service_log(
         self,
         descr,
@@ -220,15 +259,12 @@ class _ContextProcess:
     def context_hook(self, event, *a):
         if event == "result":
             (argv, returncode, stdout, stderr) = a
-            try:
-                stdout = nmci.util.bytes_to_str(stdout)
-            except UnicodeDecodeError:
-                pass
-            try:
-                stderr = nmci.util.bytes_to_str(stderr)
-            except UnicodeDecodeError:
-                pass
-            self._cext.context._command_calls.append((argv, returncode, stdout, stderr))
+            self._cext.embed_run(
+                argv,
+                returncode,
+                stdout,
+                stderr,
+            )
 
     def run(self, *a, **kw):
         return process.run(*a, context_hook=self.context_hook, **kw)
@@ -264,7 +300,12 @@ def setup(context):
 
     def _run(command, *a, **kw):
         out, err, code = nmci.run(command, *a, **kw)
-        context._command_calls.append((command, code, out, err))
+        cext.embed_run(
+            command,
+            code,
+            out,
+            err,
+        )
         return out, err, code
 
     def _command_output(command, *a, **kw):
@@ -309,7 +350,6 @@ def setup(context):
     context.pexpect_spawn = _pexpect_spawn
     # pexpect_spawn commands are killed at the end of the test
     context.pexpect_service = _pexpect_service
-    context._command_calls = []
     context._expect_procs = []
     context._expect_services = []
     context._log_index = 0
@@ -351,22 +391,20 @@ def embed_commands(command_calls, when):
 
 def process_commands(context, when):
     context.pexpect_failed = False
+    command_calls = []
     for proc, logfile in context._expect_procs:
-        context._command_calls.append(get_pexpect_logs(context, proc, logfile))
+        command_calls.append(get_pexpect_logs(context, proc, logfile))
     context._expect_procs = []
     for proc, logfile in context._expect_services:
-        context._command_calls.append(
-            ("call", get_pexpect_logs, (context, proc, logfile))
-        )
+        command_calls.append(("call", get_pexpect_logs, (context, proc, logfile)))
     context._expect_services = []
     assert getattr(context, "pexpect_failed", False) is False, "some pexpect has failed"
 
-    if context._command_calls:
+    if command_calls:
         context.cext.embed_later(
-            lambda: embed_commands(context._command_calls, when),
+            lambda: embed_commands(command_calls, when),
             fail_only=True,
         )
-    context._command_calls = []
 
 
 def get_cursored_screen(screen):

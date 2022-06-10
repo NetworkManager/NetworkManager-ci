@@ -65,6 +65,33 @@ class Stub:
 ###############################################################################
 
 
+def create_test_context():
+    class ContextTest:
+        def __init__(self):
+            class Formatter:
+                pass
+
+            formatter = Formatter()
+            formatter.name = "html"
+            formatter.embedding = None
+            formatter.actual = {"act_step_embed_span": None}
+
+            class Runner:
+                pass
+
+            self._runner = Runner()
+            self._runner.formatters = [formatter]
+
+    context = ContextTest()
+
+    ctx.setup(context)
+
+    return context
+
+
+###############################################################################
+
+
 def test_stub1():
 
     v = ("fedora", [35])
@@ -1259,41 +1286,33 @@ def test_test_tags_select():
 
 
 def test_context_set_up_commands():
-    class ContextTest:
-        pass
+    context = create_test_context()
 
-    context = ContextTest()
-
-    ctx.setup(context)
+    def _assert_embed(context, pattern):
+        assert len(context.cext._to_embed) == 1
+        embed = context.cext._to_embed[0]
+        context.cext._to_embed.clear()
+        assert isinstance(embed, ctx.EmbedData)
+        assert embed.fail_only == True
+        assert embed._caption.startswith("Command `")
+        assert re.search(pattern, embed._data)
 
     context.process.run_stdout("true")
-    assert context._command_calls == [(["true"], 0, "", "")]
-
-    context._command_calls.clear()
+    _assert_embed(context, "true")
 
     context.process.run("false")
-    assert context._command_calls == [(["false"], 1, "", "")]
-
-    context._command_calls.clear()
+    _assert_embed(context, "false")
 
     with pytest.raises(Exception) as e:
         context.process.run_stdout("false")
-    assert context._command_calls == [(["false"], 1, "", "")]
-
-    context._command_calls.clear()
+    _assert_embed(context, "false")
 
     context.process.run("echo")
-    assert context._command_calls == [(["echo"], 0, "\n", "")]
-
-    context._command_calls.clear()
+    _assert_embed(context, "echo")
 
     with pytest.raises(Exception) as e:
         context.process.run("echo out; echo err 1>&2; false", shell=True)
-    assert context._command_calls == [
-        (["echo out; echo err 1>&2; false"], 1, "out\n", "err\n")
-    ]
-
-    context._command_calls.clear()
+    _assert_embed(context, "echo out")
 
     context.process.run(
         "echo -e '\\xfa'; echo -e '\\xfb' 1>&2",
@@ -1301,10 +1320,7 @@ def test_context_set_up_commands():
         ignore_stderr=True,
         as_bytes=True,
     )
-
-    assert context._command_calls == [
-        (["echo -e '\\xfa'; echo -e '\\xfb' 1>&2"], 0, b"\xfa\n", b"\xfb\n")
-    ]
+    _assert_embed(context, "echo -e ")
 
 
 def test_ip_link_add_nonutf8():
