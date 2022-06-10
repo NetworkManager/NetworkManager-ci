@@ -34,11 +34,13 @@ def check_file_is_contained(context, file1, file2):
 @step(u'Check file "{file1}" is identical to file "{file2}"')
 def check_file_is_identical(context, file1, file2):
     import filecmp
-    assert filecmp.cmp(file1, file2), "".join((
-        f"Files '{file1}' and '{file2}' differ",
-        "" if context.cext.embed("text/plain", nmci.util.file_get_content_simple(file1), file1) else "",
-        "" if context.cext.embed("text/plain", nmci.util.file_get_content_simple(file2), file2) else "",
-    ))
+
+    if filecmp.cmp(file1, file2):
+        return
+
+    context.cext.embed_data(file1, nmci.util.file_get_content_simple(file1))
+    context.cext.embed_data(file2, nmci.util.file_get_content_simple(file2))
+    assert False, f"Files '{file1}' and '{file2}' differ"
 
 
 @step(u'ifcfg-"{con_name}" file does not exist')

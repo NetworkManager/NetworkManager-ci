@@ -64,6 +64,9 @@ class _CExt:
                         a_tag.set("download", a_tag.text)
             ET.SubElement(html_el, "br")
 
+    def embed_data(self, caption, data, mime_type="text/plain", fail_only=False):
+        self.embed(mime_type=mime_type, data=data, caption=caption, fail_only=fail_only)
+
     def process_embeds(self, scenario_fail=False):
         if not self._to_embed:
             return
@@ -91,10 +94,10 @@ class _CExt:
     def embed_dump(self, dump_id, dump_output, caption):
         print("Attaching %s, %s" % (caption, dump_id))
         if isinstance(dump_output, str):
-            mime_type = "text/plain"
+            self.embed_data(caption, dump_output)
         else:
             mime_type = "link"
-        self.embed(mime_type, dump_output, caption=caption)
+            self.embed(mime_type, dump_output, caption=caption)
         self.context.crash_embeded = True
         with open("/tmp/reported_crashes", "a") as f:
             f.write(dump_id + "\n")
@@ -113,15 +116,14 @@ class _CExt:
         if cursor is None:
             cursor = self.context.log_cursor
         if now:
-            self.embed(
-                "text/plain",
+            self.embed_data(
+                descr,
                 misc.journal_show(
                     service=service,
                     syslog_identifier=syslog_identifier,
                     journal_args=journal_args,
                     cursor=cursor,
                 ),
-                descr,
                 fail_only=fail_only,
             )
         else:
@@ -282,9 +284,7 @@ def get_pexpect_logs(context, proc, logfile):
     # this sets proc status if killed, if exception, something very wrong happened
     if proc.expect([pexpect.EOF, pexpect.TIMEOUT], timeout=0.2) == 1:
         context.pexpect_failed = True
-        context.cext.embed(
-            "text/plain", nmci.process.run_stdout("ps aufx"), "DEBUG: ps aufx"
-        )
+        context.cext.embed_data("DEBUG: ps aufx", nmci.process.run_stdout("ps aufx"))
     logfile.close()
     if not status:
         status = proc.status
@@ -356,7 +356,7 @@ def print_screen_wo_cursor(screen):
 
 
 def log_tui_screen(context, screen, caption="TUI"):
-    context.cext.embed("text/plain", "\n".join(screen), caption)
+    context.cext.embed_data(caption, "\n".join(screen))
 
 
 def stripped(x):
@@ -400,7 +400,7 @@ def dump_status(context, when, fail_only=False):
                 result = nmci.process.run(cmd, shell=True)
                 msg += result.stdout
 
-    context.cext.embed("text/plain", msg, "Status " + when, fail_only=fail_only)
+    context.cext.embed_data("Status " + when, msg, fail_only=fail_only)
 
     # Always include memory stats
     if context.nm_pid is not None:
@@ -423,7 +423,7 @@ def dump_status(context, when, fail_only=False):
                 shell=True,
             )
             msg += result.stdout
-        context.cext.embed("text/plain", msg, "Memory use " + when, fail_only=False)
+        context.cext.embed_data("Memory use " + when, msg)
 
 
 def check_dump_package(pkg_name):
@@ -885,10 +885,10 @@ def teardown_libreswan(context):
         cursor=context.log_cursor,
         journal_args="-o cat",
     )
-    context.cext.embed("text/plain", journal_log, caption="Libreswan Pluto Journal")
+    context.cext.embed_data("Libreswan Pluto Journal", journal_log)
 
     conf = util.file_get_content_simple("/opt/ipsec/connection.conf")
-    context.cext.embed("text/plain", conf, caption="Libreswan Config")
+    context.cext.embed_data("Libreswan Config", conf)
 
 
 def teardown_testveth(context, ns):

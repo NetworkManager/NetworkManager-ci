@@ -135,8 +135,8 @@ def gsm_sim_as(context, scenario):
     context.process.run("sudo prepare/gsm_sim.sh teardown", ignore_stderr=True)
     time.sleep(1)
     context.process.nmcli_force("con del id gsm")
-    context.cext.embed(
-        "text/plain", nmci.util.file_get_content_simple("/tmp/gsm_sim.log"), "GSM_SIM"
+    context.cext.embed_data(
+        "GSM_SIM", nmci.util.file_get_content_simple("/tmp/gsm_sim.log")
     )
     os.remove("/tmp/gsm_sim.log")
 
@@ -426,7 +426,7 @@ def gsm_as(context, scenario):
         prefix="~~~~~~~~~~~~~~~~~~~~~~~~~~ MM LOG ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~",
         journal_args="-o cat",
     )
-    context.cext.embed("text/plain", data, caption="MM")
+    context.cext.embed_data("MM", data)
     # Extract modem model.
     # Example: 'USB ID 1c9e:9603 Zoom 4595' -> 'Zoom 4595'
     regex = r"USB ID (\w{4}:\w{4}) (.*)"
@@ -440,7 +440,7 @@ def gsm_as(context, scenario):
     modem_info = nmci.ctx.get_modem_info(context)
     if modem_info:
         print("embed modem_info")
-        context.cext.embed("text/plain", modem_info, caption=cap)
+        context.cext.embed_data(cap, modem_info)
 
 
 _register_tag("gsm", gsm_bs, gsm_as)
@@ -1052,7 +1052,7 @@ def netservice_as(context, scenario):
         prefix="~~~~~~~~~~~~~~~~~~~~~~~~~~ NETWORK SRV LOG ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~",
         journal_args="-o cat",
     )
-    context.cext.embed("text/plain", data, caption="NETSRV")
+    context.cext.embed_data("NETSRV", data)
 
 
 _register_tag("netservice", netservice_bs, netservice_as)
@@ -1450,7 +1450,7 @@ def dracut_as(context, scenario):
     dhcpd_log = nmci.misc.journal_show(
         syslog_identifier="dhcpd", cursor=context.log_cursor
     )
-    context.cext.embed("text/plain", dhcpd_log, "DHCP")
+    context.cext.embed_data("DHCP", dhcpd_log)
     context.cext.embed_service_log("RA", syslog_identifier="radvd")
     context.cext.embed_service_log("NFS", syslog_identifier="rpc.mountd")
     context.process.run_stdout(
@@ -1540,7 +1540,7 @@ def attach_hostapd_log_as(context, scenario):
                 )
         else:
             data += "\ndid not find any nm-hostapd service!"
-        context.cext.embed("text/plain", data, caption="HOSTAPD")
+        context.cext.embed_data("HOSTAPD", data)
 
 
 _register_tag("attach_hostapd_log", None, attach_hostapd_log_as)
@@ -1555,7 +1555,7 @@ def attach_wpa_supplicant_log_as(context, scenario):
             cursor=context.log_cursor_before_tags,
             prefix="~~~~~~~~~~~~~~~~~~~~~~~~~~ WPA_SUPPLICANT LOG ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~",
         )
-        context.cext.embed("text/plain", data, caption="WPA_SUP")
+        context.cext.embed_data("WPA_SUP", data)
 
 
 _register_tag("attach_wpa_supplicant_log", None, attach_wpa_supplicant_log_as)
@@ -1841,11 +1841,11 @@ def openvswitch_as(context, scenario):
     data1 = nmci.util.file_get_content_simple("/var/log/openvswitch/ovsdb-server.log")
     if data1:
         print("Attaching OVSDB log")
-        context.cext.embed("text/plain", data1, caption="OVSDB")
+        context.cext.embed_data("OVSDB", data1)
     data2 = nmci.util.file_get_content_simple("/var/log/openvswitch/ovs-vswitchd.log")
     if data2:
         print("Attaching OVSDemon log")
-        context.cext.embed("text/plain", data2, caption="OVSDemon")
+        context.cext.embed_data("OVSDemon", data2)
 
     context.process.run("ovs-vsctl del-br ovsbr0", ignore_stderr=True)
     context.process.run("ovs-vsctl del-br ovs-br0", ignore_stderr=True)
@@ -2140,7 +2140,7 @@ def nmstate_upstream_setup_as(context, scenario):
     nmstate = nmci.util.file_get_content_simple("/tmp/nmstate.txt")
     if nmstate:
         print("Attaching nmstate log")
-        context.cext.embed("text/plain", nmstate, caption="NMSTATE")
+        context.cext.embed_data("NMSTATE", nmstate)
 
 
 _register_tag(
@@ -2286,7 +2286,7 @@ def tcpdump_as(context, scenario):
         traffic = nmci.util.file_get_content_simple("/tmp/network-traffic.log")
     else:
         traffic = "WARNING: 20M size exceeded in /tmp/network-traffic.log, skipping"
-    context.cext.embed("text/plain", traffic, caption="TRAFFIC", fail_only=True)
+    context.cext.embed_data("TRAFFIC", traffic, fail_only=True)
 
     context.process.run("pkill -9 tcpdump")
 

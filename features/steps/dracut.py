@@ -101,7 +101,7 @@ def check_core_dumps(context):
             )
 
     if backtraces:
-        context.cext.embed("text/plain", backtraces, caption="Dracut Backtraces")
+        context.cext.embed_data("Dracut Backtraces", backtraces)
 
     assert sleep_crash == getattr(
         context, "dracut_crash_test", False

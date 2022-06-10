@@ -56,8 +56,9 @@ def cmd_output_rc(cmd, **kwargs):
 
 def cmd_output_rc_embed(context, cmd, **kwargs):
     output, rc = cmd_output_rc(cmd, **kwargs)
-    context.cext.embed(
-        "text/plain", f"{cmd}\nRC: {rc}\nOutput:\n{output}", caption="Command"
+    context.cext.embed_data(
+        "Command",
+        f"{cmd}\nRC: {rc}\nOutput:\n{output}",
     )
     return (output, rc)
 
@@ -171,8 +172,8 @@ def libreswan_teardown(context):
     )
     teardown_log = nmci.util.file_get_content_simple("/tmp/libreswan_teardown.log")
     conf = nmci.util.file_get_content_simple("/opt/ipsec/connection.conf")
-    context.cext.embed("text/plain", teardown_log, caption="Libreswan Teardown")
-    context.cext.embed("text/plain", conf, caption="Libreswan Config")
+    context.cext.embed_data("Libreswan Teardown", teardown_log)
+    context.cext.embed_data("Libreswan Config", conf)
 
 
 def gsm_teardown(context):
@@ -305,7 +306,7 @@ def check_connection(context, connection, options=None, values=None, seconds=2):
         except AssertionError as e:
             last_error = e
             sleep(1)
-    context.cext.embed("text/plain", out, "nmcli STDOUT")
+    context.cext.embed_data("nmcli STDOUT", out)
     raise last_error
 
 
@@ -386,7 +387,7 @@ def device_state(context, device, state, seconds=10):
             return
         outs += f"{DEVICE_STATE_LIST_CMD} #{i}\n{out}\n"
         sleep(1)
-    context.cext.embed("text/plain", outs, caption="Device States")
+    context.cext.embed_data("Device States", outs)
     assert False, f"'{device}' is not '{state}':\n{out}"
 
 
@@ -447,20 +448,18 @@ def nm_env(context):
         f"sudo bash {NM_CI_RUNNER_CMD} envsetup '{tags}' &> /tmp/nm_envsetup_log.txt",
         shell=True,
     )
-    context.cext.embed(
-        "text/plain",
-        nmci.util.file_get_content_simple("/tmp/nm_envsetup_log.txt"),
+    context.cext.embed_data(
         "NM envsetup",
+        nmci.util.file_get_content_simple("/tmp/nm_envsetup_log.txt"),
     )
     if not os.path.isfile("/tmp/nm_envsetup_log.first.txt"):
         subprocess.call(
             "cp /tmp/nm_envsetup_log.txt /tmp/nm_envsetup_log.first.txt", shell=True
         )
     else:
-        context.cext.embed(
-            "text/plain",
-            nmci.util.file_get_content_simple("/tmp/nm_envsetup_log.first.txt"),
+        context.cext.embed_data(
             "First NM envsetup",
+            nmci.util.file_get_content_simple("/tmp/nm_envsetup_log.first.txt"),
         )
     assert ret == 0, "NetworkManager-ci envsetup failed !!!"
     nm_install_pkgs(context)
@@ -472,10 +471,9 @@ def nm_install_pkgs(context):
         f"sudo bash {NM_CI_RUNNER_CMD} install &> /tmp/nm_dep_pkg_install_log.txt",
         shell=True,
     )
-    context.cext.embed(
-        "text/plain",
-        nmci.util.file_get_content_simple("/tmp/nm_dep_pkg_install_log.txt"),
+    context.cext.embed_data(
         "NM Deps Install",
+        nmci.util.file_get_content_simple("/tmp/nm_dep_pkg_install_log.txt"),
     )
     assert ret == 0, "Unable to install required packages !!!"
 
@@ -492,17 +490,16 @@ def prepare_libreswan(context, mode="aggressive"):
     )
     ret = subprocess.call(cmd, shell=True)
     setup_log = nmci.util.file_get_content_simple("/tmp/libreswan_setup.log")
-    context.cext.embed("text/plain", setup_log, "Libreswan Setup")
+    context.cext.embed_data("Libreswan Setup", setup_log)
     assert ret == 0, "libreswan setup failed !!!"
 
 
 @step('Prepare simulated gsm | named "{modem}"')
 def prepare_gsm(context, modem="modemu"):
     context.sandbox.add_after_scenario_hook(
-        lambda context: context.cext.embed(
-            "text/plain",
-            nmci.util.file_get_content_simple("/tmp/gsm_sim.log"),
+        lambda context: context.cext.embed_data(
             "GSM_SIM",
+            nmci.util.file_get_content_simple("/tmp/gsm_sim.log"),
         ),
         context,
     )
@@ -541,10 +538,9 @@ def prepare_gsm(context, modem="modemu"):
 @step('Prepare openvpn | version "{version}" | in "{path}"')
 def prepare_openvpn(context, version="ip46", path="/tmp/openvpn-"):
     context.sandbox.add_after_scenario_hook(
-        lambda context: context.cext.embed(
-            "text/plain",
-            nmci.util.file_get_content_simple("/tmp/openvpn.log"),
+        lambda context: context.cext.embed_data(
             "OPENVPN",
+            nmci.util.file_get_content_simple("/tmp/openvpn.log"),
         ),
         context,
     )
@@ -589,10 +585,9 @@ def prepare_wifi(context, certs_dir="contrib/8021x/certs", crypto="default", ap_
         """* Delete all connections of type "802-11-wireless" after scenario"""
     )
     context.sandbox.add_after_scenario_hook(
-        lambda context: context.cext.embed(
-            "text/plain",
-            nmci.util.file_get_content_simple("/tmp/hostapd_wireless.log"),
+        lambda context: context.cext.embed_data(
             "WI-FI",
+            nmci.util.file_get_content_simple("/tmp/hostapd_wireless.log"),
         ),
         context,
     )
@@ -633,10 +628,9 @@ def prepare_8021x(context, certs_dir="contrib/8021x/certs", crypto=None):
         context.scenario.skip(reason=f"802.1x not available on '{arch}'")
         return
     context.sandbox.add_after_scenario_hook(
-        lambda context: context.cext.embed(
-            "text/plain",
-            nmci.util.file_get_content_simple("/tmp/hostapd_wired.log"),
+        lambda context: context.cext.embed_data(
             "8021X",
+            nmci.util.file_get_content_simple("/tmp/hostapd_wired.log"),
         ),
         context,
     )
@@ -686,10 +680,9 @@ def prepare_netdevsim(context, num="1"):
         "&> /tmp/netdevsim.log",
         shell=True,
     )
-    context.cext.embed(
-        "text/plain",
-        nmci.util.file_get_content_simple("/tmp/netdevsim.log"),
+    context.cext.embed_data(
         "Netdevsim Setup",
+        nmci.util.file_get_content_simple("/tmp/netdevsim.log"),
     )
     assert rc == 0, "netdevsim setup failed !!!"
     ifnames = subprocess.check_output(

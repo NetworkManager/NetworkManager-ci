@@ -168,8 +168,9 @@ def _before_scenario(context, scenario):
 
     if excepts:
         context.before_scenario_step_el.set("class", "step failed")
-        context.cext.embed(
-            "text/plain", "\n\n".join(excepts), "Exception in before scenario tags"
+        context.cext.embed_data(
+            "Exception in before scenario tags",
+            "\n\n".join(excepts),
         )
         assert False, "Exception in before scenario tags:\n\n" + "\n\n".join(excepts)
 
@@ -277,10 +278,9 @@ def _after_scenario(context, scenario):
 
     if context.IS_NMTUI:
         if os.path.isfile("/tmp/tui-screen.log"):
-            context.cext.embed(
-                "text/plain",
+            context.cext.embed_data(
+                "TUI",
                 nmci.util.file_get_content_simple("/tmp/tui-screen.log"),
-                caption="TUI",
             )
         # Stop TUI
         nmci.run("sudo killall nmtui &> /dev/null")
@@ -345,7 +345,7 @@ def _after_scenario(context, scenario):
             prefix="~~~~~~~~~~~~~~~~~~~~~~~~~~ NM LOG ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~",
             journal_args="-o cat",
         )
-        context.cext.embed("text/plain", log, caption="NM")
+        context.cext.embed_data("NM", log)
 
     if context.crashed_step:
         print("\n\n" + ("!" * 80))
@@ -354,12 +354,10 @@ def _after_scenario(context, scenario):
         )
         print("!!  %-74s !!" % ("CRASHING STEP: " + context.crashed_step))
         print(("!" * 80) + "\n\n")
-        context.cext.embed(
-            "text/plain", context.crashed_step, caption="CRASHED_STEP_NAME"
-        )
+        context.cext.embed_data("CRASHED_STEP_NAME", context.crashed_step)
         if not context.crash_embeded:
             msg = "!!! no crash report detected, but NM PID changed !!!"
-            context.cext.embed("text/plain", msg, caption="NO_COREDUMP/NO_FAF")
+            context.cext.embed_data("NO_COREDUMP/NO_FAF", msg)
         nmci.ctx.after_crash_reset(context)
 
     if scenario_fail:
@@ -368,8 +366,8 @@ def _after_scenario(context, scenario):
     if excepts or context.crashed_step:
         context.after_scenario_step_el.set("class", "step failed")
     if excepts:
-        context.cext.embed(
-            "text/plain", "\n\n".join(excepts), "Exception in after scenario tags"
+        context.cext.embed_data(
+            "Exception in after scenario tags", "\n\n".join(excepts)
         )
 
     # add Before/After scenario steps to HTML
