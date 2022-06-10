@@ -18,7 +18,7 @@ install_el9_packages () {
     dnf -4 -y install \
         git python3-netaddr dhcp-relay iw net-tools psmisc firewalld dhcp-server \
         ethtool python3-dbus python3-gobject dnsmasq tcpdump wireshark-cli file \
-        iproute-tc openvpn perl-IO-Tty dhcp-client rpm-build gcc initscripts \
+        iproute-tc perl-IO-Tty dhcp-client rpm-build gcc initscripts \
         wireguard-tools python3-pyyaml tuned \
         --skip-broken
 
@@ -61,9 +61,9 @@ install_el9_packages () {
     # openvpn, please remove once in epel 12012021
     if ! rpm -q --quiet NetworkManager-openvpn || ! rpm -q --quiet openvpn; then
         dnf -4 -y install \
-            $KOJI/NetworkManager-openvpn/1.8.12/1.fc33.1/$(arch)/NetworkManager-openvpn-1.8.12-1.fc33.1.$(arch).rpm \
-            $KOJI/openvpn/2.5.0/1.fc34/$(arch)/openvpn-2.5.0-1.fc34.$(arch).rpm \
-            $KOJI/pkcs11-helper/1.27.0/2.fc34/$(arch)/pkcs11-helper-1.27.0-2.fc34.$(arch).rpm
+            $KOJI/openvpn/2.5.6/1.el9/$(arch)/openvpn-2.5.6-1.el9.$(arch).rpm \
+            $KOJI/pkcs11-helper/1.27.0/2.fc34/$(arch)/pkcs11-helper-1.27.0-2.fc34.$(arch).rpm \
+            NetworkManager-openvpn
     fi
     # strongswan remove once in epel 12012021
     if ! rpm -q --quiet NetworkManager-strongswan || ! rpm -q --quiet strongswan; then
