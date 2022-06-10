@@ -1919,14 +1919,14 @@ _register_tag("dpdk", dpdk_bs, dpdk_as)
 
 
 def wireless_certs_bs(context, scenario):
-    context.process.run_stdout("mkdir /tmp/certs")
+    context.process.run_stdout("mkdir -p /tmp/certs")
     if not os.path.isfile("/tmp/certs/eaptest_ca_cert.pem"):
         context.process.run_stdout(
-            "wget http://wlan-lab.eng.bos.redhat.com/certs/eaptest_ca_cert.pem -O /tmp/certs/eaptest_ca_cert.pem"
+            "wget http://wlan-lab.eng.bos.redhat.com/certs/eaptest_ca_cert.pem -q -O /tmp/certs/eaptest_ca_cert.pem"
         )
     if not os.path.isfile("/tmp/certs/client.pem"):
         context.process.run_stdout(
-            "wget http://wlan-lab.eng.bos.redhat.com/certs/client.pem -O /tmp/certs/client.pem"
+            "wget http://wlan-lab.eng.bos.redhat.com/certs/client.pem -q -O /tmp/certs/client.pem"
         )
 
 
@@ -2284,7 +2284,7 @@ def wifi_as(context, scenario):
             context.process.nmcli_force("con del wifi-wlan0")
 
 
-_register_tag("wifi", wifi_bs, None)
+_register_tag("wifi", wifi_bs, wifi_as)
 _register_tag("novice")
 
 
