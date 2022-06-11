@@ -76,6 +76,7 @@ class _CExt:
         self._pexpect_lst_step = []
         self._pexpect_lst_scenario = []
         self._to_embed = []
+        self._embed_count = 0
 
         # setup formatter embed and set_title
         if hasattr(context, "_runner"):
@@ -94,6 +95,8 @@ class _CExt:
 
     def _embed_now(self, entry):
         (mime_type, data, caption) = entry.evalDoEmbedArgs()
+
+        caption = f"({entry._count}) {caption}"
 
         if hasattr(self, "_html_formatter"):
             self._html_formatter._doEmbed(entry._html_el, mime_type, data, caption)
@@ -114,6 +117,9 @@ class _CExt:
 
         if hasattr(self, "_html_formatter"):
             entry._html_el = self._html_formatter.actual["act_step_embed_span"]
+
+        self._embed_count += 1
+        entry._count = self._embed_count
 
         if entry.postpone():
             self._to_embed.append(entry)
