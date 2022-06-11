@@ -19,29 +19,32 @@ from . import util
 
 
 class Embed:
-    def __init__(self, fail_only=False):
+    def __init__(self, fail_only=False, combine_tag=None):
         self.fail_only = fail_only
+        self.combine_tag = combine_tag
 
     def postpone(self):
-        return self.fail_only
+        return self.fail_only or self.combine_tag is not None
 
     def evalDoEmbedArgs(self):
         return (self._mime_type, self._data or "NO DATA", self._caption)
 
 
 class EmbedData(Embed):
-    def __init__(self, caption, data, mime_type="text/plain", fail_only=False):
-        Embed.__init__(self, fail_only=fail_only)
+    def __init__(
+        self, caption, data, mime_type="text/plain", fail_only=False, combine_tag=None
+    ):
+        Embed.__init__(self, fail_only=fail_only, combine_tag=combine_tag)
         self._caption = caption
         self._data = data
         self._mime_type = mime_type
 
 
 class EmbedLink(Embed):
-    def __init__(self, caption, data, fail_only=False):
+    def __init__(self, caption, data, fail_only=False, combine_tag=None):
         # data must be a list of 2-tuples, where the first element
         # is the link target (href) and the second the text.
-        Embed.__init__(self, fail_only=fail_only)
+        Embed.__init__(self, fail_only=fail_only, combine_tag=combine_tag)
 
         new_data = []
         for d in data:
@@ -54,8 +57,8 @@ class EmbedLink(Embed):
 
 
 class EmbedLater(Embed):
-    def __init__(self, callback, fail_only=False):
-        Embed.__init__(self, fail_only=fail_only)
+    def __init__(self, callback, fail_only=False, combine_tag=None):
+        Embed.__init__(self, fail_only=fail_only, combine_tag=combine_tag)
         self._callback = callback
 
     def postpone(self):
@@ -93,43 +96,70 @@ class _CExt:
         if hasattr(self, "_set_title"):
             self._set_title(*a, *kw)
 
-    def _embed_now(self, entry):
-        (mime_type, data, caption) = entry.evalDoEmbedArgs()
-
-        caption = f"({entry._count}) {caption}"
+    def _embed_args(self, html_el, mime_type, data, caption):
 
         if hasattr(self, "_html_formatter"):
-            self._html_formatter._doEmbed(entry._html_el, mime_type, data, caption)
+            self._html_formatter._doEmbed(html_el, mime_type, data, caption)
             if mime_type == "link":
                 # list() on ElementTree returns children
-                last_embed = list(entry._html_el)[-1]
+                last_embed = list(html_el)[-1]
                 for a_tag in last_embed.findall("a"):
                     if a_tag.get("href", "").startswith("data:"):
                         a_tag.set("download", a_tag.text)
-            ET.SubElement(entry._html_el, "br")
+            ET.SubElement(html_el, "br")
 
         if os.environ.get("NMCI_SHOW_EMBED") == "1":
             print(f">>>> EMBED[{mime_type}]: {caption}")
             for line in str(data).splitlines():
                 print(f">>>>>> {line}")
 
+    def _embed_now(self, entry):
+        (mime_type, data, caption) = entry.evalDoEmbedArgs()
+        self._embed_args(entry._html_el, mime_type, data, f"({entry.count}) {caption}")
+
     def _embed(self, entry):
 
         if hasattr(self, "_html_formatter"):
             entry._html_el = self._html_formatter.actual["act_step_embed_span"]
+        else:
+            entry._html_el = None
 
         self._embed_count += 1
-        entry._count = self._embed_count
+        entry.count = self._embed_count
 
         if entry.postpone():
             self._to_embed.append(entry)
         else:
             self._embed_now(entry)
 
+    def _embed_combines(self, combine_tag, html_el, lst):
+        counts = ",".join(str(entry.count) for entry in lst)
+        main_caption = f"({counts}) {combine_tag}"
+        message = ""
+        for entry in lst:
+            (mime_type, data, caption) = entry.evalDoEmbedArgs()
+            assert mime_type == "text/plain"
+            message += f"{'-'*50}\n({entry.count}) {caption}\n{data}\n"
+        message += f"{'-'*50}\n"
+        self._embed_args(html_el, "text/plain", message, main_caption)
+
     def process_embeds(self, scenario_fail):
+        combines_dict = {}
         for entry in util.consume_list(self._to_embed):
-            if scenario_fail or not entry.fail_only:
+            if not scenario_fail and entry.fail_only:
+                continue
+            combine_tag = entry.combine_tag
+            if combine_tag is None:
                 self._embed_now(entry)
+                continue
+            key = (combine_tag, entry._html_el)
+            lst = combines_dict.get(key, None)
+            if lst is None:
+                lst = []
+                combines_dict[key] = lst
+            lst.append(entry)
+        for key, lst in combines_dict.items():
+            self._embed_combines(key[0], key[1], lst)
 
     def _html_formatter_embedding(self, mime_type, data, caption=None):
         if mime_type == "link":
@@ -194,7 +224,7 @@ class _CExt:
         else:
             title = f"Command `{title[:30]}...`"
 
-        self.embed_data(title, message, fail_only=fail_only)
+        self.embed_data(title, message, fail_only=fail_only, combine_tag="Commands")
 
     def embed_service_log(
         self,
