@@ -689,8 +689,8 @@ def add_device(context, typ, name, namespace="", options=""):
 
 @step(u'Add namespace "{name}"')
 @step(u'Add namespace "{name}" with options "{options}"')
-def add_device(context, name, options=""):
-    context.command_code(f"ip netns add {name} {options}")    
+def add_namespace(context, name, options=""):
+    context.command_code(f"ip netns add {name} {options}")
     context.cleanup["namespaces"][name] = False
 
 
