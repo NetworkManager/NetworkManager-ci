@@ -1482,7 +1482,16 @@ def prepare_patched_netdevsim_bs(context, scenario):
         "sh prepare/netdevsim.sh setup", timeout=600, ignore_stderr=True
     )
     nmci.ip.link_set(ifname="eth11", up=True, wait_for_device=1)
-    nmci.ip.link_show(ifname="eth11", flags="LOWER_UP", timeout=1)
+
+    # Wait until NetworkManager notices the device
+    timeout = time.monotonic() + 10
+    while time.monotonic() < timeout:
+        if context.process.run(
+            "nmcli -f GENERAL.STATE device show eth11", "disconnected"
+        ):
+            return
+        time.sleep(0.1)
+    raise Exception("Timed out waiting for eth11 to be seen by NetworkManager")
 
 
 def prepare_patched_netdevsim_as(context, scenario):
