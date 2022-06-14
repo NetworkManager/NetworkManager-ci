@@ -2057,7 +2057,7 @@
 
     @rhbz1995372
     @ver+=1.32
-    @ver-=1.36
+    @ver-1.36
     @ipv6_check_addr_order
     Scenario: nmcli - ipv6 - check IPv6 address order
     * Prepare simulated test "testX6" device
