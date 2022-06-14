@@ -24,9 +24,6 @@ class Embed:
         self.fail_only = fail_only
         self.combine_tag = combine_tag
 
-    def postpone(self):
-        return self.fail_only or self.combine_tag is not None
-
     def evalDoEmbedArgs(self):
         return (self._mime_type, self._data or "NO DATA", self._caption)
 
@@ -61,9 +58,6 @@ class EmbedLater(Embed):
     def __init__(self, callback, fail_only=False, combine_tag=None):
         Embed.__init__(self, fail_only=fail_only, combine_tag=combine_tag)
         self._callback = callback
-
-    def postpone(self):
-        return True
 
     def evalDoEmbedArgs(self):
         mime_type, data, caption = self._callback()
@@ -114,11 +108,7 @@ class _CExt:
             for line in str(data).splitlines():
                 print(f">>>>>> {line}")
 
-    def _embed_now(self, entry):
-        (mime_type, data, caption) = entry.evalDoEmbedArgs()
-        self._embed_args(entry._html_el, mime_type, data, f"({entry.count}) {caption}")
-
-    def _embed(self, entry):
+    def _embed_queue(self, entry):
 
         if hasattr(self, "_html_formatter"):
             entry._html_el = self._html_formatter.actual["act_step_embed_span"]
@@ -128,10 +118,11 @@ class _CExt:
         self._embed_count += 1
         entry.count = self._embed_count
 
-        if entry.postpone():
-            self._to_embed.append(entry)
-        else:
-            self._embed_now(entry)
+        self._to_embed.append(entry)
+
+    def _embed_one(self, entry):
+        (mime_type, data, caption) = entry.evalDoEmbedArgs()
+        self._embed_args(entry._html_el, mime_type, data, f"({entry.count}) {caption}")
 
     def _embed_combines(self, combine_tag, html_el, lst):
         counts = ",".join(str(entry.count) for entry in lst)
@@ -151,7 +142,7 @@ class _CExt:
                 continue
             combine_tag = entry.combine_tag
             if combine_tag is None:
-                self._embed_now(entry)
+                self._embed_one(entry)
                 continue
             key = (combine_tag, entry._html_el)
             lst = combines_dict.get(key, None)
@@ -169,13 +160,13 @@ class _CExt:
             self.embed_data(caption=caption, data=data, mime_type=mime_type)
 
     def embed_data(self, *a, **kw):
-        self._embed(EmbedData(*a, **kw))
+        self._embed_queue(EmbedData(*a, **kw))
 
     def embed_link(self, *a, **kw):
-        self._embed(EmbedLink(*a, **kw))
+        self._embed_queue(EmbedLink(*a, **kw))
 
     def embed_later(self, *a, **kw):
-        self._embed(EmbedLater(*a, **kw))
+        self._embed_queue(EmbedLater(*a, **kw))
 
     def embed_dump(self, caption, dump_id, *, data=None, links=None):
         print("Attaching %s, %s" % (caption, dump_id))
