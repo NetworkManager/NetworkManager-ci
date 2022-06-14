@@ -14,7 +14,7 @@
 # with this program; if not, write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #
-# Copyright 2018 Red Hat, Inc.
+# Copyright 2018,2022 Red Hat, Inc.
 
 # $ perldoc modemu.pl for eye-pleasing view of the manual:
 
@@ -130,20 +130,49 @@ unless (-d "/sys/$devpath") {
 	$devpath = '/devices/virtual';
 }
 
-my %props = (
-	DEVPATH			=> "$devpath/$name",
-	SUBSYSTEM		=> 'tty',
-	DEVNAME			=> "/dev/$name",
+sub port_event
+{
+	my $action = shift;
+	my $port = shift;
 
-	# Whitelisting that works for both ModemManager 1.6 and 1.8
-	ID_MM_CANDIDATE		=> '1',
-	ID_MM_DEVICE_PROCESS	=> '1',
-);
+	send_netlink (
+		ACTION			=> $action,
+		DEVPATH			=> "$devpath/$port",
+		SUBSYSTEM		=> 'tty',
+		DEVNAME			=> "/dev/$port",
+
+		# Whitelisting that works for both ModemManager 1.6 and 1.8
+		ID_MM_CANDIDATE		=> '1',
+		ID_MM_DEVICE_PROCESS	=> '1',
+	);
+}
+
+sub destroy_port
+{
+	my $port = shift;
+
+	unlink "/dev/$port";
+	port_event ('remove', $port) if $fd;
+}
+
+sub create_port
+{
+	my $port = shift;
+
+	my $devname = "/dev/$port";
+	my $pty = new IO::Pty;
+	my $ptyname = ttyname $pty;
+
+	symlink $ptyname, $devname or die "Can't create $devname: $!";
+
+	port_event ('add', $port);
+	return $pty;
+	#send_netlink (ACTION => 'add', %props);
+}
 
 sub cleanup
 {
-	unlink "/dev/$name";
-	send_netlink (ACTION => 'remove', %props) if $fd;
+	destroy_port ($name);
 }
 
 # Ensure we clean up before and after.
@@ -152,10 +181,7 @@ $SIG{INT} = sub { cleanup; die };
 $SIG{TERM} = sub { cleanup; die };
 cleanup;
 
-my $pty = new IO::Pty;
-my $ptyname = ttyname $pty;
-symlink $ptyname, "/dev/$name" or die "Can't create /dev/$name: $!";
-send_netlink (ACTION => 'add', %props);
+my $pty = create_port ($name);
 my ($pdptype, $apn);
 
 # Here's a good refernce of AT command a modern-ish modem probably uses:
@@ -303,7 +329,7 @@ L<ModemManager(8)>, L<pppd(8)>
 
 =head1 COPYRIGHT
 
-Copyright 2018 Lubomir Rintel
+Copyright 2018,2022 Lubomir Rintel
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
