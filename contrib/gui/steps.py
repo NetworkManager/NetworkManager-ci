@@ -529,7 +529,7 @@ def prepare_gsm(context, modem="modemu"):
             .decode("utf-8")
             .split("\n")
         )
-        if modem in out:
+        if f"{modem}_p1" in out:
             modem_found = True
             break
         sleep(1)
