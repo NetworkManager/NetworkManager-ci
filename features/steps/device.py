@@ -694,9 +694,8 @@ def add_namespace(context, name, options=""):
     context.cleanup["namespaces"][name] = False
 
 
-@step(u'Ensure there are "{minimum}" to "{maximum}" temporary v6 addresses')
-def temporary_addresses(context, minimum, maximum):
-    iface = 'eth10'
+@step(u'Ensure there are "{minimum}" to "{maximum}" temporary v6 addresses for device "{iface}"')
+def temporary_addresses(context, minimum, maximum, iface):
     minimum = int(minimum)
     maximum = int(maximum)
     addresses = int(context.process.run_stdout(f'ip -6 a show {iface} | grep "inet6.*temporary" | wc -l', shell=True))

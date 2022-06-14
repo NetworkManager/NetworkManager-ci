@@ -2419,6 +2419,24 @@ def allow_veth_connections_bs(context, scenario):
     nmci.ctx.reload_NM_service(context)
 
 
+def no_auto_default_bs(context, scenario):
+    nmci.util.file_set_content(
+        "/etc/NetworkManager/conf.d/99-no-auto-default.conf",
+        ["[main]", "no-auto-default=*"],
+    )
+    nmci.ctx.reload_NM_service(context)
+
+
+def no_auto_default_as(context, scenario):
+    c_file = "/etc/NetworkManager/conf.d/99-no-auto-default.conf"
+    if os.path.isfile(c_file):
+        os.remove(c_file)
+        nmci.ctx.reload_NM_service(context)
+
+
+_register_tag("no_auto_default", no_auto_default_bs, no_auto_default_as)
+
+
 def allow_veth_connections_as(context, scenario):
     context.process.run_stdout("sudo rm -rf /etc/udev/rules.d/99-veths.rules")
     context.process.run_stdout(

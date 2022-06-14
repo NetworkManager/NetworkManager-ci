@@ -750,8 +750,8 @@ testmapper:
         tags: gate
     - ipv6_keep_route_upon_reapply_full:
         feature: ipv6
-#    - ipv6_no_extra_temp_addresses:
-#        feature: ipv6
+    - ipv6_no_extra_temp_addresses:
+        feature: ipv6
     - ipv6_internal_client_dhcpv6_leases_renewal:
         feature: ipv6
     - ipv6_describe:
