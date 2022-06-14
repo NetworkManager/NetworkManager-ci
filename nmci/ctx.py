@@ -342,11 +342,11 @@ def dump_status(context, when, fail_only=False):
     cmds += ["ip addr", "ip -4 route", "ip -6 addr", "ip -6 route"]
     if nm_running:
         cmds += [
-            "nmcli g",
-            "nmcli c",
-            "nmcli d",
-            "nmcli d w l",
-            "hostnamectl 2>&1",
+            "nmcli -f ALL g",
+            "nmcli -f ALL c",
+            "nmcli -f ALL d",
+            "nmcli -f ALL d w l",
+            "hostnamectl",
             "NetworkManager --print-config",
             "cat /etc/resolv.conf",
             "ps aux | grep dhclient",
