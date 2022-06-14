@@ -1030,3 +1030,10 @@ Feature: nmcli - bridge
     # list ports using dbus
     Then Note the output of "contrib/naming/ports-dbus.sh bridge0 dummy0"
      And Noted value contains "dbus ports:ao \d+"
+
+
+    @rhbz2079054
+    @ver+=1.39.5
+    @bridge_keepaddr_unmanaged_device
+    Scenario: bridge - keep addresses on unmanaged device
+    * Execute "contrib/reproducers/repro_2079054.sh"

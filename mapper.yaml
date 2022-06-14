@@ -440,6 +440,8 @@ testmapper:
         feature: bridge
     - bridge_controller_port_terminology:
         feature: bridge
+    - bridge_keepaddr_unmanaged_device:
+        feature: bridge
     - add_default_team:
         feature: team
     - add_default_team_after_journal_restart:
