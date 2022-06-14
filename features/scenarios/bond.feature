@@ -81,12 +81,30 @@
      Then "bond0.0" is visible with command "nmcli con"
 
 
+    @ver+=1.33 @ver-=1.39.6
     @nmcli_novice_mode_create_bond_with_default_options
     Scenario: nmcli - bond - novice - create bond with default options
      * Cleanup connection "bond" and device "nm-bond"
      * Open wizard for adding new connection
      * Expect "Connection type"
      * Submit "bond" in editor
+     * Expect "Do you want to provide them\? \(yes\/no\) \[yes\]"
+     * Submit "no" in editor
+     * Dismiss IP configuration in editor
+     * Dismiss Proxy configuration in editor
+    Then "nm-bond" is visible with command "ip a s nm-bond" in "3" seconds
+    Then Check bond "nm-bond" state is "up"
+
+
+    @ver+=1.39.7
+    @nmcli_novice_mode_create_bond_with_default_options
+    Scenario: nmcli - bond - novice - create bond with default options
+     * Cleanup connection "bond-nm-bond" and device "nm-bond"
+     * Open wizard for adding new connection
+     * Expect "Connection type"
+     * Submit "bond" in editor
+     * Expect "Interface name"
+     * Submit "nm-bond" in editor
      * Expect "Do you want to provide them\? \(yes\/no\) \[yes\]"
      * Submit "no" in editor
      * Dismiss IP configuration in editor
@@ -116,6 +134,7 @@
      And "BOOTPROTO=dhcp" is not visible with command "cat /etc/sysconfig/network-scripts/ifcfg-bond0"
 
 
+    @ver+=1.33 @ver-=1.39.6
     @nmcli_novice_mode_create_bond_with_mii_monitor_values
     Scenario: nmcli - bond - novice - create bond with miimon monitor
      * Cleanup connection "bond" and device "nm-bond"
@@ -146,6 +165,39 @@
     Then "Down Delay \(ms\): 400" is visible with command "cat /proc/net/bonding/nm-bond"
 
 
+    @ver+=1.39.7
+    @nmcli_novice_mode_create_bond_with_mii_monitor_values
+    Scenario: nmcli - bond - novice - create bond with miimon monitor
+     * Cleanup connection "bond-nm-bond" and device "nm-bond"
+     * Open wizard for adding new connection
+     * Expect "Connection type"
+     * Submit "bond" in editor
+     * Expect "Interface name"
+     * Submit "nm-bond" in editor
+     * Expect "Do you want to provide them\? \(yes\/no\) \[yes\]"
+     * Enter in editor
+     * Expect "Bonding mode"
+     * Submit "0" in editor
+     * Expect "Bonding monitoring mode \(miimon\/arp\) \[miimon\]"
+     * Enter in editor
+     * Expect "Bonding miimon \[100\]"
+     * Submit "100" in editor
+     * Expect "Bonding downdelay \[0\]"
+     * Submit "400" in editor
+     * Expect "Bonding updelay \[0\]"
+     * Submit "400" in editor
+     * Dismiss IP configuration in editor
+     * Dismiss Proxy configuration in editor
+     * Add "ethernet" connection named "bond0.0" for device "eth1" with options "master nm-bond"
+     * Bring "up" connection "bond-nm-bond"
+    When "activated" is visible with command "nmcli c show bond-nm-bond" in "45" seconds
+    Then Check bond "nm-bond" link state is "up"
+    Then "MII Polling Interval \(ms\): 100" is visible with command "cat /proc/net/bonding/nm-bond"
+    Then "Up Delay \(ms\): 400" is visible with command "cat /proc/net/bonding/nm-bond"
+    Then "Down Delay \(ms\): 400" is visible with command "cat /proc/net/bonding/nm-bond"
+
+
+    @ver+=1.33 @ver-=1.39.6
     @nmcli_novice_mode_create_bond_with_arp_monitor_values
     Scenario: nmcli - bond - novice - create bond with arp monitor
      * Cleanup connection "bond-1" and device "nm-bond1"
@@ -170,6 +222,40 @@
      * Add "ethernet" connection named "bond0.0" for device "eth1" with options "master nm-bond"
      * Add "ethernet" connection named "bond0.1" for device "eth4" with options "master nm-bond"
      * Bring "up" connection "bond"
+     Then "Bonding Mode: fault-tolerance \(active-backup\)" is visible with command "cat /proc/net/bonding/nm-bond"
+     Then "MII Polling Interval \(ms\): 0" is visible with command "cat /proc/net/bonding/nm-bond"
+     Then "Up Delay \(ms\): 0" is visible with command "cat /proc/net/bonding/nm-bond"
+     Then "Down Delay \(ms\): 0" is visible with command "cat /proc/net/bonding/nm-bond"
+     Then "ARP Polling Interval \(ms\): 100" is visible with command "cat /proc/net/bonding/nm-bond"
+     Then "ARP IP target/s \(n.n.n.n form\):.*192.168.100.1" is visible with command "cat /proc/net/bonding/nm-bond"
+
+
+    @ver+=1.39.7
+    @nmcli_novice_mode_create_bond_with_arp_monitor_values
+    Scenario: nmcli - bond - novice - create bond with arp monitor
+     * Cleanup connection "bond-nm-bond" and device "nm-bond"
+     * Open wizard for adding new connection
+     * Expect "Connection type"
+     * Submit "bond" in editor
+     * Expect "Interface name"
+     * Submit "nm-bond" in editor
+     * Expect "Do you want to provide them\? \(yes\/no\) \[yes\]"
+     * Enter in editor
+     * Expect "Bonding mode"
+     * Submit "1" in editor
+     * Expect "Bonding primary interface \[none\]"
+     * Enter in editor
+     * Expect "Bonding monitoring mode \(miimon\/arp\) \[miimon\]"
+     * Submit "arp" in editor
+     * Expect "Bonding arp-interval \[0\]"
+     * Submit "100" in editor
+     * Expect "Bonding arp-ip-target \[none\]"
+     * Submit "192.168.100.1" in editor
+     * Dismiss IP configuration in editor
+     * Dismiss Proxy configuration in editor
+     * Add "ethernet" connection named "bond0.0" for device "eth1" with options "master nm-bond"
+     * Add "ethernet" connection named "bond0.1" for device "eth4" with options "master nm-bond"
+     * Bring "up" connection "bond-nm-bond"
      Then "Bonding Mode: fault-tolerance \(active-backup\)" is visible with command "cat /proc/net/bonding/nm-bond"
      Then "MII Polling Interval \(ms\): 0" is visible with command "cat /proc/net/bonding/nm-bond"
      Then "Up Delay \(ms\): 0" is visible with command "cat /proc/net/bonding/nm-bond"
@@ -220,7 +306,7 @@
     Then Check slave "eth1" in bond "nm-bond" in proc
 
 
-    @ver+=1.33
+    @ver+=1.33 @ver-=1.39.6
     @nmcli_novice_mode_create_bond-slave_with_default_options
     Scenario: nmcli - bond - novice - create bond-slave with default options
      * Cleanup connection "bond-slave" and device "eth1"
@@ -239,6 +325,28 @@
      * Submit "eth1" in editor
      * Expect "Do you want to provide it\? \(yes\/no\) \[yes\]"
      * Submit "no"
+    Then "activated" is visible with command "nmcli c show bond-slave" in "45" seconds
+    Then Check bond "nm-bond" link state is "up"
+    Then Check slave "eth1" in bond "nm-bond" in proc
+
+
+    @ver+=1.39.7
+    @nmcli_novice_mode_create_bond-slave_with_default_options
+    Scenario: nmcli - bond - novice - create bond-slave with default options
+     * Cleanup connection "bond-slave" and device "eth1"
+     * Add "bond" connection named "bond0" for device "nm-bond" with options
+           """
+           ip4 172.16.1.1/24
+           """
+     * Open wizard for adding new connection
+     * Expect "Connection type"
+     * Submit "bond-slave" in editor
+     * Expect "aster"
+     * Submit "nm-bond" in editor
+     * Expect "Interface name"
+     * Submit "eth1" in editor
+     * Expect "Queue ID"
+     * Enter in editor
     Then "activated" is visible with command "nmcli c show bond-slave" in "45" seconds
     Then Check bond "nm-bond" link state is "up"
     Then Check slave "eth1" in bond "nm-bond" in proc

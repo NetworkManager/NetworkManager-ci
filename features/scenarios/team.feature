@@ -40,6 +40,7 @@
 
 
     @nmcli_novice_mode_create_team
+    @ver-=1.39.6
     Scenario: nmcli - team - novice - create team
      * Cleanup connection "team" and device "nm-team"
      * Open wizard for adding new connection
@@ -47,6 +48,22 @@
      * Submit "team" in editor
      * Expect "There .* optional"
      * Submit "no" in editor
+     * Dismiss IP configuration in editor
+     * Dismiss Proxy configuration in editor
+     Then "ifname": "nm-team" is visible with command "sudo teamdctl nm-team state dump" in "5" seconds
+
+
+    @nmcli_novice_mode_create_team
+    @ver+=1.39.7
+    Scenario: nmcli - team - novice - create team
+     * Cleanup connection "team-nm-team" and device "nm-team"
+     * Open wizard for adding new connection
+     * Expect "Connection type"
+     * Submit "team" in editor
+     * Expect "Interface name"
+     * Enter in editor
+     * Expect "Team JSON configuration"
+     * Enter in editor
      * Dismiss IP configuration in editor
      * Dismiss Proxy configuration in editor
      Then "ifname": "nm-team" is visible with command "sudo teamdctl nm-team state dump" in "5" seconds
@@ -72,7 +89,7 @@
 
 
     @nmcli_novice_mode_create_team-slave_with_default_options
-    @ver+=1.21.1
+    @ver+=1.21.1 @ver-=1.39.6
     Scenario: nmcli - team - novice - create team-slave with default options
      * Cleanup connection "team-slave" and device "eth5"
      * Add "team" connection named "team0" for device "nm-team"
@@ -88,6 +105,24 @@
      * Expect "There .* optional"
      * Submit "no" in editor
      * Wait for at least "1" seconds
+     * Bring "up" connection "team-slave"
+    Then Check slave "eth5" in team "nm-team" is "up"
+
+
+    @nmcli_novice_mode_create_team-slave_with_default_options
+    @ver+=1.39.7
+    Scenario: nmcli - team - novice - create team-slave with default options
+     * Cleanup connection "team-slave" and device "eth5"
+     * Add "team" connection named "team0" for device "nm-team"
+     * Open wizard for adding new connection
+     * Expect "Connection type"
+     * Submit "team-slave" in editor
+     * Expect "Master"
+     * Submit "nm-team" in editor
+     * Expect "Interface name"
+     * Submit "eth5" in editor
+     * Expect "Team JSON configuration"
+     * Enter in editor
      * Bring "up" connection "team-slave"
     Then Check slave "eth5" in team "nm-team" is "up"
 
