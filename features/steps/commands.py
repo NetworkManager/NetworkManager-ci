@@ -510,11 +510,13 @@ def note_NM_log(context):
 
 @step(u'Check coredump is not found in "{seconds}" seconds')
 def check_no_coredump(context, seconds):
-    for i in range(int(seconds)):
+    expiry = time.monotonic() + float(seconds)
+    while True:
         nmci.ctx.check_coredump(context)
-        if context.crash_embeded:
-            assert False, "Coredump found"
-        time.sleep(1)
+        assert not context.cext.coredump_reported, "Coredump found"
+        if time.monotonic() >= expiry:
+            break
+        time.sleep(0.5)
 
 
 @step('Check "{family}" address list "{expected}" on device "{ifname}"')

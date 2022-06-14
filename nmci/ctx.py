@@ -76,6 +76,8 @@ class _CExt:
         self._to_embed = []
         self._embed_count = 0
 
+        self.coredump_reported = False
+
         # setup formatter embed and set_title
         if hasattr(context, "_runner"):
             for formatter in context._runner.formatters:
@@ -175,9 +177,8 @@ class _CExt:
             self.embed_data(caption, data)
         else:
             self.embed_link(caption, links)
-        self.context.crash_embeded = True
-        with open("/tmp/reported_crashes", "a") as f:
-            f.write(dump_id + "\n")
+        self.coredump_reported = True
+        misc.coredump_report(dump_id)
 
     def embed_run(self, argv, shell, returncode, stdout, stderr, fail_only=True):
         if stdout is not None:
@@ -584,13 +585,6 @@ def check_dump_package(pkg_name):
     return False
 
 
-def is_dump_reported(dump_dir):
-    if not os.path.isfile("/tmp/reported_crashes"):
-        return False
-    with open("/tmp/reported_crashes") as reported_crashed_file:
-        return dump_dir + "\n" in reported_crashed_file.readlines()
-
-
 def check_crash(context, crashed_step):
     pid_refresh_count = getattr(context, "nm_pid_refresh_count", 0)
     if pid_refresh_count > 0:
@@ -607,21 +601,9 @@ def check_crash(context, crashed_step):
                 context.crashed_step = "crash during scenario (NM restarted)"
 
 
-def list_dumps(dumps_search):
-    ls = nmci.process.run(f"ls -d {dumps_search}", shell=True, ignore_stderr=True)
-    if ls.returncode != 0:
-        return []
-    return ls.stdout.strip("\n").split("\n")
-
-
 def check_coredump(context):
-    coredump_search = "/var/lib/systemd/coredump/*"
-    list_of_dumps = list_dumps(coredump_search)
-
-    for dump_dir in list_of_dumps:
-        if not dump_dir:
-            continue
-        print("Examing crash: " + dump_dir)
+    for dump_dir in misc.coredump_list_on_disk(misc.COREDUMP_TYPE_SYSTEMD_COREDUMP):
+        print("Examining crash: " + dump_dir)
         dump_dir_split = dump_dir.split(".")
         if len(dump_dir_split) < 6:
             print("Some garbage in %s" % (dump_dir))
@@ -633,7 +615,7 @@ def check_coredump(context):
         except Exception as e:
             print("Some garbage in %s: %s" % (dump_dir, str(e)))
             continue
-        if not is_dump_reported(dump_dir):
+        if not misc.coredump_is_reported(dump_dir):
             # 'coredumpctl debug' not available in RHEL7
             if "Maipo" in context.rh_release:
                 dump = nmci.process.run_stdout(
@@ -676,7 +658,7 @@ def wait_faf_complete(context, dump_dir):
         last = last or os.path.isfile(f"{dump_dir}/last_occurrence")
         if last and not last_timestamp:
             last_timestamp = util.file_get_content_simple(f"{dump_dir}/last_occurrence")
-            if is_dump_reported(f"{dump_dir}-{last_timestamp}"):
+            if misc.coredump_is_reported(f"{dump_dir}-{last_timestamp}"):
                 print("* Already reported")
                 context.faf_countdown -= i
                 context.faf_countdown = max(5, context.faf_countdown)
@@ -719,15 +701,11 @@ def wait_faf_complete(context, dump_dir):
 
 
 def check_faf(context):
-    abrt_search = "/var/spool/abrt/ccpp*"
     context.abrt_dir_change = True
     context.faf_countdown = 300
     while context.abrt_dir_change:
         context.abrt_dir_change = False
-        list_of_dumps = list_dumps(abrt_search)
-        for dump_dir in list_of_dumps:
-            if not dump_dir:
-                continue
+        for dump_dir in misc.coredump_list_on_disk(misc.COREDUMP_TYPE_ABRT):
             print("Entering crash dir: " + dump_dir)
             if not wait_faf_complete(context, dump_dir):
                 if context.abrt_dir_change:

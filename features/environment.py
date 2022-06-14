@@ -49,8 +49,6 @@ def before_all(context):
 
     context.additional_sleep = _additional_sleep
 
-    context.crash_embeded = False
-
     context.DEBUG = DEBUG
 
 
@@ -150,8 +148,6 @@ def _before_scenario(context, scenario):
             print(f"  @{tag_name} ... {t_status} in {time.time() - t_start:.3f}s")
 
     context.nm_pid = nmci.nmutil.nm_pid()
-
-    context.crashed_step = False
 
     print(("NetworkManager process id before: %s" % context.nm_pid))
 
@@ -322,7 +318,7 @@ def _after_scenario(context, scenario):
     nmci.ctx.check_crash(context, "crash outside steps (after_scenario tags)")
 
     # check for crash reports and embed them
-    # sets crash_embeded if crash found
+    # sets context.cext.coredump_reported if crash found
     nmci.ctx.check_coredump(context)
     nmci.ctx.check_faf(context)
 
@@ -355,7 +351,7 @@ def _after_scenario(context, scenario):
         print("!!  %-74s !!" % ("CRASHING STEP: " + context.crashed_step))
         print(("!" * 80) + "\n\n")
         context.cext.embed_data("CRASHED_STEP_NAME", context.crashed_step)
-        if not context.crash_embeded:
+        if not context.cext.coredump_reported:
             msg = "!!! no crash report detected, but NM PID changed !!!"
             context.cext.embed_data("NO_COREDUMP/NO_FAF", msg)
         nmci.ctx.after_crash_reset(context)
@@ -381,7 +377,7 @@ def _after_scenario(context, scenario):
     duration_el.text = f"({duration:.3f}s)"
 
     # we need to keep state "passed" here, as '@crash' test is expected to fail
-    if "crash" in scenario.effective_tags and not context.crash_embeded:
+    if "crash" in scenario.effective_tags and not context.cext.coredump_reported:
         print("No crashdump found")
         return
 

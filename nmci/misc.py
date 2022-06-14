@@ -1,3 +1,4 @@
+import glob
 import os
 import re
 import subprocess
@@ -29,8 +30,6 @@ class _Misc:
         return test_name
 
     def test_get_feature_files(self, feature="*"):
-
-        import glob
 
         feature_dir = ""
 
@@ -848,6 +847,35 @@ class _Misc:
                 d = d + "\n" + util.bytes_to_str(suffix)
 
         return d
+
+    COREDUMP_TYPE_SYSTEMD_COREDUMP = "systemd-coredump"
+    COREDUMP_TYPE_ABRT = "abrt"
+
+    def _coredump_reported_file(self):
+        return util.tmp_dir("reported_crashes")
+
+    def coredump_is_reported(self, dump_id):
+        filename = self._coredump_reported_file()
+        if os.path.isfile(filename):
+            dump_id += "\n"
+            with open(filename) as f:
+                for line in f:
+                    if dump_id == line:
+                        return True
+        return False
+
+    def coredump_report(self, dump_id):
+        with open(self._coredump_reported_file(), "a") as f:
+            f.write(dump_id + "\n")
+
+    def coredump_list_on_disk(self, dump_type=None):
+        if dump_type == self.COREDUMP_TYPE_SYSTEMD_COREDUMP:
+            g = "/var/lib/systemd/coredump/*"
+        elif dump_type == self.COREDUMP_TYPE_ABRT:
+            g = "/var/spool/abrt/ccpp*"
+        else:
+            assert False, f"Invalid dump_type {dump_type}"
+        return glob.glob(g)
 
 
 sys.modules[__name__] = _Misc()
