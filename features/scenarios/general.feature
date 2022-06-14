@@ -2311,6 +2311,7 @@ Feature: nmcli - general
 
     @rhbz2035519
     @ver+=1.36
+    @ver-1.39.5
     @checkpoint_remove
     @libnm_snapshot_reattach_unmanaged_ports_to_bridge
     Scenario: NM - general - reatach unmanaged ports to bridge after rollback
@@ -2347,6 +2348,45 @@ Feature: nmcli - general
     Then "portXb" is visible with command "bridge link"
     Then "portXc" is visible with command "bridge link"
 
+
+    @rhbz2035519
+    @ver+=1.39.5
+    @checkpoint_remove
+    @libnm_snapshot_reattach_unmanaged_ports_to_bridge
+    Scenario: NM - general - reatach unmanaged ports to bridge after rollback
+    # do not use names prefixed "test", we need devices unmanaged
+    * Prepare simulated test "portXa" device without DHCP
+    * Prepare simulated test "portXb" device without DHCP
+    * Prepare simulated test "portXc" device without DHCP
+    * Add "bridge" connection named "br12" for device "br0" with options
+          """
+          ipv4.method disabled
+          ipv6.method disabled
+          autoconnect no
+          """
+    * Add "bridge" connection named "br15" for device "br0" with options
+          """
+          ipv4.method disabled
+          ipv6.method disabled
+          autoconnect no
+          """
+    * Add "ethernet" connection named "br15-slave1" for device "portXa" with options "master br15 autoconnect no"
+    # unmanage to be 100% sure
+    * Execute "nmcli dev set portXb managed no"
+    * Execute "nmcli dev set portXc managed no"
+    * Bring "up" connection "br15-slave1"
+    * Execute "ip link set portXb master br0"
+    * Execute "ip link set portXc master br0"
+    * "Failed" is not visible with command "contrib/gi/libnm_snapshot_checkpoint.py create 0" in "0" seconds
+    * Bring "up" connection "br12"
+    * Execute "ip link set portXb master br0"
+    * Execute "ip link set portXc master br0"
+    * Wait for at least "1" seconds
+    * "ERROR" is not visible with command "contrib/gi/libnm_snapshot_checkpoint.py rollback" in "0" seconds
+    Then "portXa" is visible with command "bridge link"
+    Then "portXb" is visible with command "bridge link"
+    Then "portXc" is visible with command "bridge link"
+    Then "unmanaged" is visible with command "nmcli  device show portXa"
 
     @rhbz1553113
     @ver+=1.12
