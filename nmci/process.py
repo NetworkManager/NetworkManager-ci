@@ -29,6 +29,8 @@ def _run(
     context_hook,
 ):
 
+    shell = True if shell else False
+
     if isinstance(argv, str):
         # For convenience, we allow argv as string.
         if shell:
@@ -72,7 +74,7 @@ def _run(
         r_stderr = b""
 
     if context_hook is not None:
-        context_hook("result", argv, returncode, r_stdout, r_stderr)
+        context_hook("result", argv, shell, returncode, r_stdout, r_stderr)
 
     # Depending on ignore_returncode we accept non-zero output. But
     # even then we want to fail for return codes that indicate a crash

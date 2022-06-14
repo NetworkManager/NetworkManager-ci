@@ -1,13 +1,14 @@
-import sys
-import os
 import fcntl
-import time
-import re
-import nmci
 import glob
+import nmci
+import os
 import pexpect
-import xml.etree.ElementTree as ET
+import re
 import shutil
+import subprocess
+import sys
+import time
+import xml.etree.ElementTree as ET
 
 from . import misc
 from . import nmutil
@@ -187,7 +188,7 @@ class _CExt:
         with open("/tmp/reported_crashes", "a") as f:
             f.write(dump_id + "\n")
 
-    def embed_run(self, argv, returncode, stdout, stderr, fail_only=True):
+    def embed_run(self, argv, shell, returncode, stdout, stderr, fail_only=True):
         if stdout is not None:
             try:
                 stdout = util.bytes_to_str(stdout)
@@ -199,7 +200,7 @@ class _CExt:
             except UnicodeDecodeError:
                 pass
 
-        message = f"{repr(argv)} returned {returncode}\n"
+        message = f"{repr(argv)} {'(shell) ' if shell else ''}returned {returncode}\n"
         if stdout:
             message += (
                 f"STDOUT{'[binary]' if isinstance(stderr, bytes) else ''}:\n{stdout}\n"
@@ -319,12 +320,16 @@ class _CExt:
         argv_failed = None
 
         for proc, logfile in util.consume_list(self._pexpect_lst_step):
-            p_failed, argv, returncode, stdout, stderr = self._process_command_complete(
-                proc, logfile
-            )
+            (
+                p_failed,
+                argv,
+                returncode,
+                stdout,
+                stderr,
+            ) = self._process_command_complete(proc, logfile)
             if argv_failed is None and p_failed:
                 argv_failed = argv
-            self.embed_run(argv, returncode, stdout, stderr)
+            self.embed_run(argv, True, returncode, stdout, stderr)
 
         if when == "after_scenario":
             for proc, logfile in util.consume_list(self._pexpect_lst_scenario):
@@ -337,7 +342,7 @@ class _CExt:
                 ) = self._process_command_complete(proc, logfile)
                 if argv_failed is None and p_failed:
                     argv_failed = argv
-                self.embed_run(argv, returncode, stdout, stderr)
+                self.embed_run(argv, True, returncode, stdout, stderr)
 
         if argv_failed:
             raise Exception(f"Some process failed: {argv_failed}")
@@ -371,9 +376,10 @@ class _ContextProcess:
 
     def context_hook(self, event, *a):
         if event == "result":
-            (argv, returncode, stdout, stderr) = a
+            (argv, shell, returncode, stdout, stderr) = a
             self._cext.embed_run(
                 argv,
+                shell,
                 returncode,
                 stdout,
                 stderr,
@@ -413,9 +419,24 @@ def setup(context):
     context.cext = cext
 
     def _run(command, *a, **kw):
+        def _shell(
+            command,
+            shell=True,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.STDOUT,
+            encoding="utf-8",
+            errors="ignore",
+            *a,
+            **kw,
+        ):
+            return shell
+
+        shell = _shell(command, *a, **kw)
+
         out, err, code = nmci.run(command, *a, **kw)
         cext.embed_run(
             command,
+            shell,
             code,
             out,
             err,
