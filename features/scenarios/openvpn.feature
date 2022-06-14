@@ -129,7 +129,7 @@
     Then "VPN.VPN-STATE:.*VPN connected" is not visible with command "nmcli c show openvpn" in "5" seconds
 
 
-    @rhelver-=9 @fedoraver-=35
+    @rhelver-9 @fedoraver-35
     @openvpn
     @openvpn_persist
     Scenario: nmcli - openvpn - persist connection
