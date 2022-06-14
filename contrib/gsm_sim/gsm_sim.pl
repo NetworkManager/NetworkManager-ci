@@ -218,7 +218,7 @@ while (<$pty>) {
 	} elsif (/^AT\+CGACT\?$/) {
 		# List available PDP contexts with states: profile 1 state 0 (inactive)
 		print $pty "\r\n";
-		print $pty "+CGACT: 0,1\r\n";
+		print $pty "+CGACT: 1,0\r\n";
 		print $pty "OK\r\n";
 
 	} elsif (/^AT\+CGACT=0,1$/) {
