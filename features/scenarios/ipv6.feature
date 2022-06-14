@@ -971,6 +971,7 @@
 
     @rhbz1744895
     @ver+=1.22
+    @ver-1.36.7
     @ver-1.37.91
     @ver-1.38.0
     @ver-1.39.2
@@ -1022,6 +1023,7 @@
 
 
     @rhbz1744895
+    @ver+=1.36.7
     @ver+=1.37.91
     @ver+=1.38.0
     @ver+=1.39.2
@@ -1345,6 +1347,7 @@
 
     @rhbz1988751
     @ver+=1.32.9
+    @ver-1.36.7
     @ver-1.37.91
     @ver-1.38.0
     @ver-1.39.2
@@ -1364,6 +1367,7 @@
 
 
     @rhbz1988751
+    @ver+=1.36.7
     @ver+=1.37.91
     @ver+=1.38.0
     @ver+=1.39.2
@@ -2053,6 +2057,7 @@
 
     @rhbz1995372
     @ver+=1.32
+    @ver-1.36.7
     @ver-1.38
     @ipv6_check_addr_order
     Scenario: nmcli - ipv6 - check IPv6 address order
@@ -2084,6 +2089,7 @@
 
 
     @rhbz1995372
+    @ver+=1.36.7
     @ver+=1.38
     @ipv6_check_addr_order
     Scenario: nmcli - ipv6 - check IPv6 address order
