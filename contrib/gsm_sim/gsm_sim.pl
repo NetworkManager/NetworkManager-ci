@@ -69,6 +69,7 @@ use Errno;
 use Socket;
 use IO::Pty;
 use IO::Handle;
+use IO::Select;
 
 use constant AF_NETLINK => 16;
 use constant NETLINK_KOBJECT_UEVENT => 15;
@@ -173,6 +174,7 @@ sub create_port
 sub cleanup
 {
 	destroy_port ($name);
+	destroy_port ($name.'_p1');
 }
 
 # Ensure we clean up before and after.
@@ -181,15 +183,27 @@ $SIG{INT} = sub { cleanup; die };
 $SIG{TERM} = sub { cleanup; die };
 cleanup;
 
-my $pty = create_port ($name);
+my $pty0 = create_port ($name);
+my $pty1 = create_port ($name.'_p1');
+
+my ($ppp_pty, $ppp_pid);
 my ($pdptype, $apn);
 
-# Here's a good refernce of AT command a modern-ish modem probably uses:
-# https://infocenter.nordicsemi.com/index.jsp?topic=%2Fref_at_commands%2FREF%2Fat_commands%2Fpacket_domain%2Fcgact_set.html
+my $s = new IO::Select;
+$s->add ($pty0, $pty1);
 
-while (<$pty>) {
+while (1) {
+	my ($pty) = $s->can_read;
+
+	# Note we're doing a blocking I/O to read a full line here.
+	# That is -- if we started reading a command off a port,
+	# we don't look at other ports until we get an end-of-line here on the first one.
+	# Shouldn't be a big deal for MM and it simplifies the code.
+	$_ = <$pty>;
 	chomp;
 
+	# Here's a good refernce of AT command a modern-ish modem probably uses:
+	# https://infocenter.nordicsemi.com/index.jsp?topic=%2Fref_at_commands%2FREF%2Fat_commands%2Fpacket_domain%2Fcgact_set.html
 	if (/^AT$/ or /^ATE0$/ or /^ATV1$/ or /^AT\+CMEE=1$/ or /^ATX4$/ or /^AT&C1$/ or /^ATZ$/) {
 		# Standard Hayes commands that are basically used to
 		# ensure the modem is in a known state. Accept them all.
@@ -249,6 +263,15 @@ while (<$pty>) {
 
 	} elsif (/^AT\+CGACT=0,1$/) {
 		# Deactivate a PDP context
+
+		if ($ppp_pid) {
+			kill 'TERM' => $ppp_pid;
+			waitpid $ppp_pid, 0;
+			$ppp_pty->blocking (1);
+			$s->add ($ppp_pty);
+			$ppp_pty = $ppp_pid = undef;
+		}
+
 		print $pty "\r\n";
 		print $pty "OK\r\n";
 
@@ -266,22 +289,25 @@ while (<$pty>) {
 		print $pty "+COPS: 0,2,\"65302\",7\r\n"; # MCCMNC
 		print $pty "OK\r\n";
 
-	} elsif (/^ATD/) {
+	} elsif (/^ATD/ and not $ppp_pty) {
 		print $pty "\r\n";
 		print $pty "CONNECT 28800000\r\n";
 
-		my $ppp = fork;
-		die "Can't fork: $!" unless defined $ppp;
-		if ($ppp == 0) {
+		$s->remove ($pty);
+		$ppp_pty = $pty;
+
+		$ppp_pid = fork;
+		die "Can't fork: $!" unless defined $ppp_pid;
+		if ($ppp_pid == 0) {
 			close STDIN;
 			close STDOUT;
 			open STDIN, '<&', $pty or die "Can't dup pty to a pppd stdin: $!";
 			open STDOUT, '>&', $pty or die "Can't dup pty to a pppd stdout: $!";
-			close $pty;
+			close $pty0;
+			close $pty1;
 			exec @pppd, qw/nodetach notty local logfd 2 nopersist/;
 			die "Can't exec pppd: $!";
 		}
-		waitpid $ppp, 0;
 	} else {
 		print $pty "\r\n";
 		print $pty "ERROR\r\n";
