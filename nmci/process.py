@@ -12,10 +12,29 @@ RunResult = collections.namedtuple("RunResult", ["returncode", "stdout", "stderr
 
 IGNORE_RETURNCODE_ALL = object()
 
+SHELL_AUTO = object()
+
+
+class WithShell:
+    def __init__(self, cmd):
+        assert isinstance(cmd, str)
+        self.cmd = cmd
+
+    def __str__(self):
+        return self.cmd
+
 
 def _run_prepare_args(argv, shell, env, env_extra, stdout, stderr):
 
-    shell = True if shell else False
+    if shell is SHELL_AUTO:
+        # Autodetect whether to use a shell.
+        if isinstance(argv, WithShell):
+            argv = argv.cmd
+            shell = True
+        else:
+            shell = False
+    else:
+        shell = True if shell else False
 
     if isinstance(argv, str):
         # For convenience, we allow argv as string.
@@ -126,7 +145,7 @@ def _run(
 def run(
     argv,
     *,
-    shell=False,
+    shell=SHELL_AUTO,
     as_bytes=False,
     timeout=5,
     cwd=util.BASE_DIR,
@@ -157,7 +176,7 @@ def run(
 def run_stdout(
     argv,
     *,
-    shell=False,
+    shell=SHELL_AUTO,
     as_bytes=False,
     timeout=5,
     cwd=util.BASE_DIR,
@@ -187,7 +206,7 @@ def run_stdout(
 def run_code(
     argv,
     *,
-    shell=False,
+    shell=SHELL_AUTO,
     as_bytes=False,
     timeout=5,
     cwd=util.BASE_DIR,
@@ -217,7 +236,7 @@ def run_search_stdout(
     argv,
     pattern,
     *,
-    shell=False,
+    shell=SHELL_AUTO,
     timeout=5,
     cwd=util.BASE_DIR,
     env=None,

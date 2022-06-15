@@ -1328,6 +1328,30 @@ def test_context_set_up_commands():
     _assert_embed(context, "echo -e ")
 
 
+def test_process_run_shell_auto():
+
+    with pytest.raises(Exception) as e:
+        process.run("date|grep .")
+
+    with pytest.raises(Exception) as e:
+        process.run("date|grep .", shell=False)
+
+    assert (
+        "20" in process.run("date|grep .", env_extra={"LANG": "C"}, shell=True).stdout
+    )
+
+    assert (
+        "20"
+        in process.run(process.WithShell("date|grep ."), env_extra={"LANG": "C"}).stdout
+    )
+
+    assert "$SHELL" == process.run("echo -n $SHELL", shell=False).stdout
+    assert "$SHELL" == process.run("echo -n $SHELL", shell=process.SHELL_AUTO).stdout
+    assert "$SHELL" == process.run("echo -n $SHELL").stdout
+    assert "$SHELL" != process.run("echo -n $SHELL", shell=True).stdout
+    assert "$SHELL" != process.run(process.WithShell("echo -n $SHELL")).stdout
+
+
 def test_ip_link_add_nonutf8():
 
     if os.environ.get("NMCI_ROOT_TEST") != "1":
