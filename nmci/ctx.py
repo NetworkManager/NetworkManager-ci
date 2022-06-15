@@ -122,17 +122,40 @@ class _CExt:
 
         self._to_embed.append(entry)
 
-    def _embed_one(self, entry):
+    def _embed_mangle_message_for_fail(self, scenario_fail, fail_only, mime_type, data):
+        if not scenario_fail and fail_only:
+            if mime_type != "text/plain":
+                return ("text/plain", f"truncated mime_type={mime_type} on success")
+            if isinstance(data, str):
+                if len(data) > 2048:
+                    return (mime_type, "truncated on success\n\n...\n" + data[-2048:])
+            elif isinstance(data, bytes):
+                if len(data) > 2048:
+                    return (
+                        mime_type,
+                        b"truncated binary on success\n\n...\n" + data[-2048:],
+                    )
+            else:
+                return (mime_type, f"truncated non-text {type(data)} on success")
+        return (mime_type, data)
+
+    def _embed_one(self, scenario_fail, entry):
         (mime_type, data, caption) = entry.evalDoEmbedArgs()
+        (mime_type, data) = self._embed_mangle_message_for_fail(
+            scenario_fail, entry.fail_only, mime_type, data
+        )
         self._embed_args(entry._html_el, mime_type, data, f"({entry.count}) {caption}")
 
-    def _embed_combines(self, combine_tag, html_el, lst):
+    def _embed_combines(self, scenario_fail, combine_tag, html_el, lst):
         counts = ",".join(str(entry.count) for entry in lst)
         main_caption = f"({counts}) {combine_tag}"
         message = ""
         for entry in lst:
             (mime_type, data, caption) = entry.evalDoEmbedArgs()
             assert mime_type == "text/plain"
+            (mime_type, data) = self._embed_mangle_message_for_fail(
+                scenario_fail, entry.fail_only, mime_type, data
+            )
             message += f"{'-'*50}\n({entry.count}) {caption}\n{data}\n"
         message += f"{'-'*50}\n"
         self._embed_args(html_el, "text/plain", message, main_caption)
@@ -140,11 +163,9 @@ class _CExt:
     def process_embeds(self, scenario_fail):
         combines_dict = {}
         for entry in util.consume_list(self._to_embed):
-            if not scenario_fail and entry.fail_only:
-                continue
             combine_tag = entry.combine_tag
             if combine_tag is None:
-                self._embed_one(entry)
+                self._embed_one(scenario_fail, entry)
                 continue
             key = (combine_tag, entry._html_el)
             lst = combines_dict.get(key, None)
@@ -153,7 +174,7 @@ class _CExt:
                 combines_dict[key] = lst
             lst.append(entry)
         for key, lst in combines_dict.items():
-            self._embed_combines(key[0], key[1], lst)
+            self._embed_combines(scenario_fail, key[0], key[1], lst)
 
     def _html_formatter_embedding(self, mime_type, data, caption=None):
         if mime_type == "link":
