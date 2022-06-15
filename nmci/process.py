@@ -13,21 +13,7 @@ RunResult = collections.namedtuple("RunResult", ["returncode", "stdout", "stderr
 IGNORE_RETURNCODE_ALL = object()
 
 
-def _run(
-    argv,
-    *,
-    shell,
-    as_bytes,
-    timeout,
-    cwd,
-    env,
-    env_extra,
-    ignore_stderr,
-    ignore_returncode,
-    stdout,
-    stderr,
-    context_hook,
-):
+def _run_prepare_args(argv, shell, env, env_extra, stdout, stderr):
 
     shell = True if shell else False
 
@@ -47,14 +33,37 @@ def _run(
             env = dict(env)
         env.update(env_extra)
 
-    if context_hook is not None:
-        context_hook("call", argv, shell, timeout)
-
     if stdout is None:
         stdout = subprocess.PIPE
 
     if stderr is None:
         stderr = subprocess.PIPE
+
+    return argv, shell, env, stdout, stderr
+
+
+def _run(
+    argv,
+    *,
+    shell,
+    as_bytes,
+    timeout,
+    cwd,
+    env,
+    env_extra,
+    ignore_stderr,
+    ignore_returncode,
+    stdout,
+    stderr,
+    context_hook,
+):
+
+    argv, shell, env, stdout, stderr = _run_prepare_args(
+        argv, shell, env, env_extra, stdout, stderr
+    )
+
+    if context_hook is not None:
+        context_hook("call", argv, shell, timeout)
 
     proc = subprocess.run(
         argv,
