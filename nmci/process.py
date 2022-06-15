@@ -24,7 +24,7 @@ class WithShell:
         return self.cmd
 
 
-def _run_prepare_args(argv, shell, env, env_extra, stdout, stderr):
+def _run_prepare_args(argv, shell, env, env_extra):
 
     if shell is SHELL_AUTO:
         # Autodetect whether to use a shell.
@@ -52,13 +52,7 @@ def _run_prepare_args(argv, shell, env, env_extra, stdout, stderr):
             env = dict(env)
         env.update(env_extra)
 
-    if stdout is None:
-        stdout = subprocess.PIPE
-
-    if stderr is None:
-        stderr = subprocess.PIPE
-
-    return argv, shell, env, stdout, stderr
+    return argv, shell, env
 
 
 def _run(
@@ -77,9 +71,7 @@ def _run(
     context_hook,
 ):
 
-    argv, shell, env, stdout, stderr = _run_prepare_args(
-        argv, shell, env, env_extra, stdout, stderr
-    )
+    (argv, shell, env) = _run_prepare_args(argv, shell, env, env_extra)
 
     if context_hook is not None:
         context_hook("call", argv, shell, timeout)
@@ -153,8 +145,8 @@ def run(
     env_extra=None,
     ignore_returncode=True,
     ignore_stderr=False,
-    stdout=None,
-    stderr=None,
+    stdout=subprocess.PIPE,
+    stderr=subprocess.PIPE,
     context_hook=None,
 ):
     return _run(
@@ -184,7 +176,7 @@ def run_stdout(
     env_extra=None,
     ignore_returncode=False,
     ignore_stderr=False,
-    stderr=None,
+    stderr=subprocess.PIPE,
     context_hook=None,
 ):
     return _run(
@@ -197,7 +189,7 @@ def run_stdout(
         env_extra=env_extra,
         ignore_stderr=ignore_stderr,
         ignore_returncode=ignore_returncode,
-        stdout=None,
+        stdout=subprocess.PIPE,
         stderr=stderr,
         context_hook=context_hook,
     ).stdout
@@ -226,8 +218,8 @@ def run_code(
         env_extra=env_extra,
         ignore_stderr=ignore_stderr,
         ignore_returncode=ignore_returncode,
-        stdout=None,
-        stderr=None,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
         context_hook=context_hook,
     ).returncode
 
@@ -243,7 +235,7 @@ def run_search_stdout(
     env_extra=None,
     ignore_returncode=False,
     ignore_stderr=False,
-    stderr=None,
+    stderr=subprocess.PIPE,
     pattern_flags=re.DOTALL | re.MULTILINE,
     context_hook=None,
 ):
@@ -264,7 +256,7 @@ def run_search_stdout(
         env_extra=env_extra,
         ignore_stderr=ignore_stderr,
         ignore_returncode=ignore_returncode,
-        stdout=None,
+        stdout=subprocess.PIPE,
         stderr=stderr,
         context_hook=context_hook,
     )
@@ -298,8 +290,8 @@ def nmcli(
         env_extra=env_extra,
         ignore_stderr=ignore_stderr,
         ignore_returncode=ignore_returncode,
-        stdout=None,
-        stderr=None,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
         context_hook=context_hook,
     ).stdout
 
@@ -331,8 +323,8 @@ def nmcli_force(
         env_extra=env_extra,
         ignore_stderr=ignore_stderr,
         ignore_returncode=ignore_returncode,
-        stdout=None,
-        stderr=None,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
         context_hook=context_hook,
     )
 
@@ -364,7 +356,7 @@ def systemctl(
         env_extra=env_extra,
         ignore_stderr=ignore_stderr,
         ignore_returncode=ignore_returncode,
-        stdout=None,
-        stderr=None,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
         context_hook=context_hook,
     )
