@@ -1352,6 +1352,34 @@ def test_process_run_shell_auto():
     assert "$SHELL" != process.run(process.WithShell("echo -n $SHELL")).stdout
 
 
+def test_process_popen():
+
+    proc = process.Popen("echo -n hallo").proc
+    proc.wait()
+    assert proc.stdout.read() == b"hallo"
+
+    proc = process.Popen("echo -n $SHELL").proc
+    proc.wait()
+    assert proc.stdout.read() == b"$SHELL"
+
+    proc = process.Popen(process.WithShell("echo -n $SHELL")).proc
+    proc.wait()
+    assert proc.stdout.read() != b"$SHELL"
+
+    pc = process.Popen("echo -n hello")
+    while pc.read_and_poll() is None:
+        time.sleep(0.05)
+    assert pc.returncode == 0
+    assert pc.stdout == b"hello"
+    assert pc.stderr == b""
+
+    pc = process.Popen(process.WithShell("echo -n foo; echo -n hello 1>&2"))
+    pc.read_and_wait()
+    assert pc.returncode == 0
+    assert pc.stdout == b"foo"
+    assert pc.stderr == b"hello"
+
+
 def test_ip_link_add_nonutf8():
 
     if os.environ.get("NMCI_ROOT_TEST") != "1":
