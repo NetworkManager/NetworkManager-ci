@@ -246,7 +246,6 @@ def run_search_stdout(
 def nmcli(
     argv,
     *,
-    shell=False,
     as_bytes=False,
     timeout=60,
     cwd=util.BASE_DIR,
@@ -263,7 +262,7 @@ def nmcli(
 
     return _run(
         argv,
-        shell=shell,
+        shell=False,
         as_bytes=as_bytes,
         timeout=timeout,
         cwd=cwd,
@@ -280,7 +279,6 @@ def nmcli(
 def nmcli_force(
     argv,
     *,
-    shell=False,
     as_bytes=False,
     timeout=60,
     cwd=util.BASE_DIR,
@@ -297,7 +295,7 @@ def nmcli_force(
 
     return _run(
         argv,
-        shell=shell,
+        shell=False,
         as_bytes=as_bytes,
         timeout=timeout,
         cwd=cwd,
@@ -314,7 +312,6 @@ def nmcli_force(
 def systemctl(
     argv,
     *,
-    shell=False,
     as_bytes=False,
     timeout=60,
     cwd=util.BASE_DIR,
@@ -331,7 +328,7 @@ def systemctl(
 
     return _run(
         argv,
-        shell=shell,
+        shell=False,
         as_bytes=as_bytes,
         timeout=timeout,
         cwd=cwd,
