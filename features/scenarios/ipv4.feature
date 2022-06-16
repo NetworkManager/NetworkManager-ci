@@ -2746,6 +2746,7 @@ Feature: nmcli: ipv4
     Then "activated" is visible with command "nmcli -g GENERAL.STATE con show con_ipv4" in "40" seconds
     Then "172.25.1.200" is visible with command "ip a s testX4"
 
+
     @rhbz1995372
     @ver+=1.35
     @ipv4_check_addr_order
