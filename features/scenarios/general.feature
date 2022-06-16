@@ -2873,3 +2873,34 @@ Feature: nmcli - general
     When "succeeded" is visible with command "journalctl -u NetworkManager --no-pager -n 10"
     Then "wait for ACK" is not visible with command "journalctl -u NetworkManager --no-pager -n 1000"
      And "blackhole" is visible with command "ip route"
+
+    
+    @rhbz2033643
+    @ver+=1.39.6
+    @eth0 @restore_hostname @dhcpd
+    @nmcli_dhcp_overlong_hostname
+    Scenario: nmcli - general - support DHCP overlong hostnames
+    * Execute "systemctl stop dhcpd"
+    * Execute "hostnamectl set-hostname ''"
+    * Execute "hostname localhost"
+    * Prepare simulated test "testX4" device without DHCP
+    * Execute "ip -n testX4_ns address add dev testX4p 172.25.1.4/24"
+    * Configure dhcp server for subnet "172.25.1" with lease time "30"
+    * Append lines to file "/tmp/dhcpd.conf"
+      """
+      host myhost {
+            hardware ethernet 00:11:22:33:44:55;
+            fixed-address 172.25.1.150;
+            option host-name \"name1.test-dhcp-this-one-here-is-a-very-very-long-domain.example.com\";
+      }
+      """
+    * Execute "ip netns exec testX4_ns dhcpd -4 -cf /tmp/dhcpd.conf -pf /tmp/testX4_ns.pid"
+    * Add "ethernet" connection named "veth0+" for device "testX4" with options
+      """
+      ipv6.method disabled
+      connection.autoconnect no
+      ethernet.cloned-mac-address 00:11:22:33:44:55
+      """
+    * Bring "up" connection "veth0+"
+    * "name1" is visible with command "hostname" in "20" seconds
+    * "search nodhcp test-dhcp-this-one-here-is-a-very-very-long-domain.example.com" is visible with command "cat /etc/resolv.conf"

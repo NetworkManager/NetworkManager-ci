@@ -8,8 +8,11 @@ import commands
 import nmci.ctx
 
 
+@step('Append lines to file "{name}"')
 @step('Append "{line}" to file "{name}"')
-def append_to_file(context, line, name):
+def append_to_file(context, name, line=None):
+    if line is None:
+        line = context.text if context.text is not None else " "
     cmd = 'sudo echo "%s" >> %s' % (line, name)
     context.command_code(cmd)
 

@@ -57,7 +57,7 @@ def config_dhcp(context, subnet, lease):
     config.append('option domain-name "nodhcp";')
     config.append('option domain-name-servers %s.1, 8.8.8.8;}' % subnet)
 
-    f = open('/etc/dhcp/dhcpd.conf', 'w')
+    f = open('/tmp/dhcpd.conf', 'w')
     for line in config:
         f.write(line+'\n')
     f.close()
