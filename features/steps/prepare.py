@@ -21,7 +21,7 @@ def create_policy_based_routing_files(context, profile, dev, table, timeout=5):
             m = re.search("^IP4\.GATEWAY:\\s*(\\S+)\\s*$", s, re.MULTILINE)
             gw, _ = nmci.ip.ipaddr_norm(m.group(1), addr_family="inet")
         except Exception as e:
-            if expiry >= time.monotonic():
+            if time.monotonic() >= expiry:
                 raise Exception(
                     f"Profile {profile} has no suitable IPv4 address. Output:\n\n{s})"
                 )
