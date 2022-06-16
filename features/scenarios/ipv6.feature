@@ -2141,9 +2141,46 @@
     Then Check "ipv6" address list "1:2:3::103/64 1:2:3::102/64 1:2:3::101/64 fe80::ecaa:bbff:fecc:ddee/64" on device "testX6" in "6" seconds
 
 
+    # rhel-8.7 and newer (since 1.39.7-2) has a special behavior.
+    # See https://bugzilla.redhat.com/show_bug.cgi?id=2097270
+    @rhbz1995372
+    @ver-
+    @ver/rhel/8+=1.39.7.2
+    @ipv6_check_addr_order
+    Scenario: nmcli - ipv6 - check IPv6 address order
+    * Prepare simulated test "testX6" device
+    * Add "ethernet" connection named "con_ipv6" for device "testX6" with options
+          """
+          ipv4.method disabled
+          ipv6.method auto
+          ipv6.may-fail no
+          ethernet.cloned-mac-address ee:aa:bb:cc:dd:ee
+          ipv6.addr-gen-mode eui64
+          ipv6.ip6-privacy disabled
+          """
+    * Bring "up" connection "con_ipv6"
+    Then Check "ipv6" address list "/2620:dead:beaf:[0-9a-f:]+/128 2620:dead:beaf:0:ecaa:bbff:fecc:ddee/64 fe80::ecaa:bbff:fecc:ddee/64" on device "testX6"
+    * Execute "nmcli connection modify con_ipv6 ipv6.addresses '1:2:3::101/64,1:2:3::102/64'"
+    * Bring "up" connection "con_ipv6"
+    Then Check "ipv6" address list "1:2:3::102/64 1:2:3::101/64 /2620:dead:beaf:[0-9a-f:]+/128 2620:dead:beaf:0:ecaa:bbff:fecc:ddee/64 fe80::ecaa:bbff:fecc:ddee/64" on device "testX6"
+    * Execute "nmcli connection modify con_ipv6 ipv6.addresses '1:2:3::101/64'"
+    * Bring "up" connection "con_ipv6"
+    Then Check "ipv6" address list "1:2:3::101/64 /2620:dead:beaf:[0-9a-f:]+/128 2620:dead:beaf:0:ecaa:bbff:fecc:ddee/64 fe80::ecaa:bbff:fecc:ddee/64" on device "testX6"
+    * Execute "nmcli device modify testX6 +ipv6.addresses '1:2:3::103/64'"
+    Then Check "ipv6" address list "1:2:3::103/64 1:2:3::101/64 /2620:dead:beaf:[0-9a-f:]+/128 2620:dead:beaf:0:ecaa:bbff:fecc:ddee/64 fe80::ecaa:bbff:fecc:ddee/64" on device "testX6" in "6" seconds
+    * Execute "nmcli device modify testX6 ipv6.addresses ''"
+    Then Check "ipv6" address list "/2620:dead:beaf:[0-9a-f:]+/128 2620:dead:beaf:0:ecaa:bbff:fecc:ddee/64 fe80::ecaa:bbff:fecc:ddee/64" on device "testX6" in "6" seconds
+    * Execute "nmcli connection modify con_ipv6 ipv6.method manual ipv6.addresses '1:2:3::101/64,1:2:3::102/64,1:2:3::103/64'"
+    * Bring "up" connection "con_ipv6"
+    Then Check "ipv6" address list "1:2:3::103/64 1:2:3::102/64 1:2:3::101/64 fe80::ecaa:bbff:fecc:ddee/64" on device "testX6" in "6" seconds
+
+
     @rhbz1995372
     @ver+=1.36.7
     @ver+=1.38
+    @ver/rhel/8+=1.36.7
+    @ver/rhel/8+=1.38
+    @ver/rhel/8-1.39.7.2
     @ipv6_check_addr_order
     Scenario: nmcli - ipv6 - check IPv6 address order
     * Prepare simulated test "testX6" device
