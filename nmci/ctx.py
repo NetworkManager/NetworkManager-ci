@@ -1064,7 +1064,9 @@ def setup_hostapd_wireless(context, args=[]):
 
 def teardown_hostapd_wireless(context):
     context.process.run_stdout(
-        "sh prepare/hostapd_wireless.sh teardown", ignore_stderr=True
+        "sh prepare/hostapd_wireless.sh teardown",
+        ignore_stderr=True,
+        timeout=15,
     )
     context.NM_pid = nmci.nmutil.nm_pid()
 
