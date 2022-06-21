@@ -1033,7 +1033,7 @@ def wifi_rescan(context):
         print("* still not seeing wpa2-psk")
 
 
-def setup_hostapd_wireless(context, args=[]):
+def setup_hostapd_wireless(context, args=None):
     wait_for_testeth0(context)
     if context.arch != "s390x":
         # Install under RHEL7 only
@@ -1048,16 +1048,14 @@ def setup_hostapd_wireless(context, args=[]):
             shell=True,
             timeout=120,
         )
-    args = " ".join(args)
-    if (
-        context.process.run_code(
-            "sh prepare/hostapd_wireless.sh contrib/8021x/certs " + args,
-            ignore_stderr=True,
-            timeout=180,
-        )
-        != 0
-    ):
-        assert False, "hostapd_wireless setup failed"
+    argv = ["sh", "prepare/hostapd_wireless.sh", "contrib/8021x/certs"]
+    if args is not None:
+        argv.extend(args)
+    context.process.run_stdout(
+        argv,
+        ignore_stderr=True,
+        timeout=180,
+    )
     if not os.path.isfile("/tmp/wireless_hostapd_check.txt"):
         wifi_rescan(context)
 
