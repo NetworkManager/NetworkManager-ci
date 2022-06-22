@@ -1865,7 +1865,7 @@ Feature: nmcli: ipv4
 
     Then Check "=== \[dns\] ===\s+\[NM property description\]\s+Array of IP addresses of DNS servers.\s+\[nmcli specific description\]\s+Enter a list of IPv4 addresses of DNS servers.\s+Example: 8.8.8.8, 8.8.4.4" are present in describe output for object "dns"
 
-    Then Check "=== \[dns-search\] ===\s+\[NM property description\]\s+Array of DNS search domains." are present in describe output for object "dns-search"
+    Then Check "=== \[dns-search\] ===\s+\[NM property description\]\s+(List|Array) of DNS search domains." are present in describe output for object "dns-search"
 
     Then Check "ip\[/prefix\], ip\[/prefix\],\.\.\." are present in describe output for object "addresses"
 
@@ -1901,7 +1901,7 @@ Feature: nmcli: ipv4
 
     Then Check "=== \[dns\] ===\s+\[NM property description\]\s+Array of IP addresses of DNS servers.\s+\[nmcli specific description\]\s+Enter a list of IPv4 addresses of DNS servers.\s+Example: 8.8.8.8, 8.8.4.4" are present in describe output for object "dns"
 
-    Then Check "=== \[dns-search\] ===\s+\[NM property description\]\s+Array of DNS search domains." are present in describe output for object "dns-search"
+    Then Check "=== \[dns-search\] ===\s+\[NM property description\]\s+(List|Array) of DNS search domains." are present in describe output for object "dns-search"
 
     Then Check "ip\[/prefix\], ip\[/prefix\],\.\.\." are present in describe output for object "addresses"
 
@@ -1937,7 +1937,7 @@ Feature: nmcli: ipv4
 
     Then Check "=== \[dns\] ===\s+\[NM property description\]\s+Array of IP addresses of DNS servers.\s+\[nmcli specific description\]\s+Enter a list of IPv4 addresses of DNS servers.\s+Example: 8.8.8.8, 8.8.4.4" are present in describe output for object "dns"
 
-    Then Check "=== \[dns-search\] ===\s+\[NM property description\]\s+Array of DNS search domains." are present in describe output for object "dns-search"
+    Then Check "=== \[dns-search\] ===\s+\[NM property description\]\s+(List|Array) of DNS search domains." are present in describe output for object "dns-search"
 
     Then Check "ip\[/prefix\], ip\[/prefix\],\.\.\." are present in describe output for object "addresses"
 
