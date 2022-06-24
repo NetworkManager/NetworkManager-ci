@@ -1486,12 +1486,15 @@ def prepare_patched_netdevsim_bs(context, scenario):
     # Wait until NetworkManager notices the device
     timeout = time.monotonic() + 10
     while time.monotonic() < timeout:
-        if context.process.run(
-            "nmcli -f GENERAL.STATE device show eth11", "disconnected"
+        if context.process.run_search_stdout(
+            "nmcli -f GENERAL.STATE device show eth11",
+            "disconnected",
+            ignore_stderr=True,
+            ignore_returncode=True,
         ):
             return
         time.sleep(0.1)
-    raise Exception("Timed out waiting for eth11 to be seen by NetworkManager")
+    assert False, "Timed out waiting for eth11 to be seen by NetworkManager"
 
 
 def prepare_patched_netdevsim_as(context, scenario):
