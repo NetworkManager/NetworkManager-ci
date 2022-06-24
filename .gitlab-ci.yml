@@ -1,7 +1,13 @@
 ---
+
+stages:
+  - unit
+  - test
+  - external
+
 UnitTests:
   image: registry.fedoraproject.org/fedora
-  stage: test
+  stage: unit
   rules:
     - if: '$CI_PIPELINE_SOURCE != "merge_request_event"'
       when: never
