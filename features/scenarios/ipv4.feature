@@ -2748,6 +2748,30 @@ Feature: nmcli: ipv4
 
 
     @rhbz1995372
+    @ver+=1.31
+    @ver-1.35
+    @ipv4_check_addr_order
+    Scenario: nmcli - ipv4 - check IPv4 address order
+    * Prepare simulated test "testX4" device
+    * Add "ethernet" connection named "con_con" for device "testX4" with options "ipv4.method auto ipv4.may-fail no"
+    * Bring "up" connection "con_con"
+    Then Check "ipv4" address list "/192.168.99.[0-9]+/24$" on device "testX4"
+    * Execute "nmcli connection modify con_con ipv4.addresses '192.168.99.1/24,192.168.99.2/24'"
+    * Bring "up" connection "con_con"
+    Then Check "ipv4" address list "/192.168.99.[0-9]+/24$ 192.168.99.1/24 192.168.99.2/24" on device "testX4"
+    * Execute "nmcli connection modify con_con ipv4.addresses '192.168.99.1/24'"
+    * Bring "up" connection "con_con"
+    Then Check "ipv4" address list "/192.168.99.[0-9]+/24$ 192.168.99.1/24" on device "testX4"
+    * Execute "nmcli device modify testX4 +ipv4.addresses '192.168.99.3/24'"
+    Then Check "ipv4" address list "/192.168.99.[0-9]+/24$ 192.168.99.1/24 192.168.99.3/24" on device "testX4" in "3" seconds
+    * Execute "nmcli device modify testX4 ipv4.addresses ''"
+    Then Check "ipv4" address list "/192.168.99.[0-9]+/24$" on device "testX4" in "3" seconds
+    * Execute "nmcli connection modify con_con ipv4.method manual ipv4.addresses '192.168.99.1/24,192.168.99.2/24,192.168.99.3/24'"
+    * Bring "up" connection "con_con"
+    Then Check "ipv4" address list "192.168.99.1/24 192.168.99.2/24 192.168.99.3/24" on device "testX4"
+
+
+    @rhbz1995372
     @ver+=1.35
     @ipv4_check_addr_order
     Scenario: nmcli - ipv4 - check IPv4 address order
