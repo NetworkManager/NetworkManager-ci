@@ -16,7 +16,7 @@ from . import process
 
 class _Misc:
 
-    TEST_NAME_VALID_CHAR_REGEX = "[-a-z_.A-Z0-9+=/]"
+    TEST_NAME_VALID_CHAR_SET = "-a-zA-Z0-9_.+=/"
 
     def test_name_normalize(self, test_name):
         test_name0 = test_name
@@ -25,7 +25,7 @@ class _Misc:
             test_name = m.group(1)
         if test_name and test_name[0] == "@":
             test_name = test_name[1:]
-        if not re.match("^" + self.TEST_NAME_VALID_CHAR_REGEX + "+$", test_name):
+        if not re.match("^[" + self.TEST_NAME_VALID_CHAR_SET + "]+$", test_name):
             raise ValueError(f"Invalid test name {test_name0}")
         return test_name
 
@@ -42,6 +42,91 @@ class _Misc:
         feature_path = os.path.join(feature_dir, feature)
         return glob.glob(feature_path)
 
+    _re_tag = re.compile("^\\s*@([" + TEST_NAME_VALID_CHAR_SET + "]+)($|\\s+(.*))$")
+    _re_sce = re.compile(r"^\s*Scenario: +")
+
+    def _test_load_tags_from_file(self, filename, test_name=None):
+        with open(filename, "rb") as f:
+            i_line = 0
+            tags = []
+            for cur_line in f:
+                i_line += 1
+                cur_line = cur_line.decode("utf-8", errors="strict")
+
+                s = cur_line
+                tag_added = False
+                while True:
+                    m = self._re_tag.match(s)
+                    if not m:
+                        if tag_added:
+                            if s and s[0] != "#":
+                                # We found tags on the same line, but now there is some garbage(??)
+                                raise Exception(
+                                    f"Invalid tag at {filename}:{i_line}: followed by garbage and not a # comment"
+                                )
+                        break
+                    tags.append(m.group(1))
+                    s = m.group(3)
+                    tag_added = True
+                    if s is None:
+                        break
+
+                scenario_line = not tag_added and self._re_sce.match(cur_line)
+
+                if not tags:
+                    # We are in between tags and have no tags yet. Proceed to next line.
+                    if scenario_line:
+                        # Hm? A "Scenario:" but not tags? That's wrong.
+                        raise Exception(
+                            f"Unexpected scenario without any tags at {filename}:{i_line}"
+                        )
+                    continue
+
+                if not scenario_line:
+                    if tag_added:
+                        # Good, we just found a tag on the current line.
+                        continue
+                    if re.match("^\\s*(#.*)?$", cur_line):
+                        # an empty or comment line between tags is also fine.
+                        continue
+                    if re.match("^Feature:", cur_line):
+                        # These were the tags for the feature. We ignore them.
+                        tags = []
+                        continue
+                    raise Exception(
+                        f"Invalid feature file {filename}:{i_line}: all tags are expected in consecutive lines"
+                    )
+
+                if test_name is None or test_name in tags:
+                    yield tags
+                tags = []
+
+        if tags:
+            raise Exception(
+                f"Invalid feature file {filename}:{i_line}: contains tags without a Scenario"
+            )
+
+    def test_load_tags_from_file(self, filename, test_name=None):
+        # We memoize the result of the parsing. Feel free to
+        # delattr(self, "_test_load_tags_from_file_cache") to
+        # prune the cache.
+        k = (filename, test_name)
+        if hasattr(self, "_test_load_tags_from_file_cache"):
+            l = self._test_load_tags_from_file_cache.get(k, None)
+            if l is not None:
+                return l
+        else:
+            self._test_load_tags_from_file_cache = {}
+
+        if test_name is None:
+            l = list(self._test_load_tags_from_file(filename))
+        else:
+            l = self.test_load_tags_from_file(filename)
+            l = [tags for tags in l if test_name in tags]
+
+        self._test_load_tags_from_file_cache[k] = l
+        return l
+
     def test_load_tags_from_features(
         self,
         feature=None,
@@ -57,42 +142,10 @@ class _Misc:
                 feature = "*"
             feature_files = self.test_get_feature_files(feature=feature)
 
-        re_chr = re.compile("^@" + self.TEST_NAME_VALID_CHAR_REGEX + "+$")
-        re_tag = re.compile(r"^\s*(@[^#]*)")
-        re_sce = re.compile(r"^\s*Scenario")
-        re_wsp = re.compile(r"\s")
         test_tags = []
-        line = ""
         for filename in feature_files:
-            with open(filename, "rb") as f:
-                for cur_line in f:
-                    cur_line = cur_line.decode("utf-8", "error")
-                    m = re_tag.match(cur_line)
-                    if m:
-                        line += " " + m.group(1)
-                        continue
-
-                    if not line:
-                        continue
-                    if not re_sce.match(cur_line):
-                        continue
-
-                    words = re_wsp.split(line)
-                    line = ""
-
-                    # remove empty tokens.
-                    words = [w for w in words if w]
-
-                    if not all((re_chr.match(s) for s in words)):
-                        raise ValueError(
-                            "unexpected characters in tags in file %s: %s"
-                            % (filename, " ".join(words))
-                        )
-
-                    words = [s[1:] for s in words]
-
-                    if test_name is None or test_name in words:
-                        test_tags.append(words)
+            for tags in self.test_load_tags_from_file(filename, test_name):
+                test_tags.append(tags)
 
         return test_tags
 
