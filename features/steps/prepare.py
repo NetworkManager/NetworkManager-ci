@@ -193,7 +193,6 @@ def prepare_dhcpd_simdev(context, device, server_id):
     context.execute_steps(f'* Add namespace "{device}_ns"')
     context.execute_steps(f'* Create "veth" device named "{device}" with options "peer name {device}p"')
     context.command_code("ip link set {device}p netns {device}_ns".format(device=device))
-    context.command_code("ip link set {device} up".format(device=device))
     context.command_code("ip netns exec {device}_ns ip link set lo up".format(device=device))
     context.command_code("ip netns exec {device}_ns ip link set {device}p up".format(device=device))
     context.command_code("ip netns exec {device}_ns ip addr add {ip}.1/24 dev {device}p".format(device=device, ip=ipv4))
@@ -246,7 +245,6 @@ def prepare_simdev(context, device, lease_time="2m", ipv4=None, ipv6=None, optio
     context.execute_steps(f'* Add namespace "{device}_ns"')
     context.execute_steps(f'* Create "veth" device named "{device}" with options "peer name {device}p"')
     context.command_code("ip link set {device}p netns {device}_ns".format(device=device))
-    context.command_code("ip link set {device} up".format(device=device))
     context.command_code("sysctl net.ipv6.conf.{device}.disable_ipv6=0".format(device=device))
     context.command_code("sysctl net.ipv6.conf.{device}.accept_ra=1".format(device=device))
     context.command_code("sysctl net.ipv6.conf.{device}.autoconf=1".format(device=device))
@@ -306,7 +304,6 @@ def prepare_simdev(context, device):
     context.command_code("ip link set {device}2 netns {device}_ns".format(device=device))
     context.command_code("ip link set {device}2p netns {device}2_ns".format(device=device))
     # Bring up devices
-    context.command_code("ip link set {device} up".format(device=device))
     context.command_code("ip netns exec {device}_ns ip link set lo up".format(device=device))
     context.command_code("ip netns exec {device}_ns ip link set {device}p up".format(device=device))
     context.command_code("ip netns exec {device}_ns ip link set {device}2 up".format(device=device))
@@ -340,8 +337,6 @@ def prepare_simdev_no_dhcp(context, device):
     context.execute_steps(f'* Add namespace "{device}_ns"')
     context.execute_steps(f'* Create "veth" device named "{device}" with options "peer name {device}p"')
     context.command_code("ip link set {device}p netns {device}_ns".format(device=device))
-    # Bring up devices
-    context.command_code("ip link set {device} up".format(device=device))
     context.command_code("ip netns exec {device}_ns ip link set {device}p up".format(device=device))
     context.cleanup['namespaces'][f"{device}_ns"] = True
 
@@ -366,7 +361,6 @@ def prepare_simdev(context, device):
     context.command_code("ip link set {device}2 netns {device}_ns".format(device=device))
     context.command_code("ip link set {device}2p netns {device}2_ns".format(device=device))
     # Bring up devices
-    context.command_code("ip link set {device} up".format(device=device))
     context.command_code("ip netns exec {device}_ns ip link set lo up".format(device=device))
     context.command_code("ip netns exec {device}_ns ip link set {device}p up".format(device=device))
     context.command_code("ip netns exec {device}_ns ip link set {device}2 up".format(device=device))
@@ -409,7 +403,6 @@ def prepare_simdev_no_carrier(context, device):
     context.command_code("ip netns exec {device}_ns ip link add {device} type veth peer name {device}p".format(device=device))
     context.command_code("ip netns exec {device}_ns ip link set lo up".format(device=device))
     context.command_code("ip netns exec {device}_ns ip link set {device}p up".format(device=device))
-    context.command_code("ip netns exec {device}_ns ip link set {device} up".format(device=device))
     context.command_code("ip netns exec {device}_ns ip link add name {device}_bridge type bridge".format(device=device))
     context.command_code("ip netns exec {device}_ns ip link set {device}p master {device}_bridge".format(device=device))
     context.command_code("ip netns exec {device}_ns ip addr add {ip}.1/24 dev {device}_bridge".format(device=device, ip=ipv4))
