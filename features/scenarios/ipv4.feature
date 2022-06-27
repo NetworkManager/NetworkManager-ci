@@ -1742,24 +1742,24 @@ Feature: nmcli: ipv4
     Then "default via 192.168.99.1 dev testX4\s+metric 666" is not visible with command "ip r" in "2" seconds
 
 
-     @rhbz1259063
-     @ver+=1.4.0
-     @ipv4_dad
-     Scenario: NM - ipv4 - DAD
-     * Prepare simulated test "testX4" device
-     * Add "ethernet" connection named "con_ipv4" for device "testX4" with options
-           """
-           ipv4.may-fail no
-           ipv4.method manual
-           ipv4.addresses 192.168.99.1/24
-           """
-     When "testX4:connected:con_ipv4" is visible with command "nmcli -t -f DEVICE,STATE,CONNECTION device" in "40" seconds
-     * Modify connection "con_ipv4" changing options "ipv4.may-fail no ipv4.method manual ipv4.addresses 192.168.99.1/24 ipv4.dad-timeout 5000"
-     * Bring up connection "con_ipv4" ignoring error
-     When "testX4:connected:con_ipv4" is not visible with command "nmcli -t -f DEVICE,STATE,CONNECTION device" in "10" seconds
-     * Modify connection "con_ipv4" changing options "ipv4.may-fail no ipv4.method manual ipv4.addresses 192.168.99.2/24 ipv4.dad-timeout 5000"
-     * Bring "up" connection "con_ipv4"
-     Then "testX4:connected:con_ipv4" is visible with command "nmcli -t -f DEVICE,STATE,CONNECTION device" in "10" seconds
+    @rhbz1259063
+    @ver+=1.4.0
+    @ipv4_dad
+    Scenario: NM - ipv4 - DAD
+    * Prepare simulated test "testX4" device
+    * Add "ethernet" connection named "con_ipv4" for device "testX4" with options
+          """
+          ipv4.may-fail no
+          ipv4.method manual
+          ipv4.addresses 192.168.99.1/24
+          """
+    When "testX4:connected:con_ipv4" is visible with command "nmcli -t -f DEVICE,STATE,CONNECTION device" in "40" seconds
+    * Modify connection "con_ipv4" changing options "ipv4.may-fail no ipv4.method manual ipv4.addresses 192.168.99.1/24 ipv4.dad-timeout 5000"
+    * Bring up connection "con_ipv4" ignoring error
+    When "testX4:connected:con_ipv4" is not visible with command "nmcli -t -f DEVICE,STATE,CONNECTION device" in "10" seconds
+    * Modify connection "con_ipv4" changing options "ipv4.may-fail no ipv4.method manual ipv4.addresses 192.168.99.2/24 ipv4.dad-timeout 5000"
+    * Bring "up" connection "con_ipv4"
+    Then "testX4:connected:con_ipv4" is visible with command "nmcli -t -f DEVICE,STATE,CONNECTION device" in "10" seconds
 
 
     @restart_if_needed
