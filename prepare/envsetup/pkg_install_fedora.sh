@@ -43,7 +43,7 @@ install_fedora_packages () {
     dnf -4 -y install \
         git nmap-ncat hostapd tcpreplay python3-netaddr dhcp-relay iw net-tools \
         psmisc firewalld dhcp-server ethtool python3-dbus python3-gobject dnsmasq \
-        tcpdump wireshark-cli iproute-tc gdb gcc wireguard-tools rp-pppoe tuned \
+        tcpdump wireshark-cli iputils iproute-tc gdb gcc wireguard-tools rp-pppoe tuned \
         python3-pyyaml \
         --skip-broken
 
