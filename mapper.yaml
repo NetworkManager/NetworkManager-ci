@@ -997,6 +997,8 @@ testmapper:
     - ipv4_dad:
         feature: ipv4
         tags: gate
+    - ipv4_send_dhcpdecline_on_ip_conflict:
+        feature: ipv4
     - custom_shared_range_preserves_restart:
         feature: ipv4
     - ipv4_method_shared:

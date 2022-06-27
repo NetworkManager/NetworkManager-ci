@@ -1762,6 +1762,39 @@ Feature: nmcli: ipv4
     Then "testX4:connected:con_ipv4" is visible with command "nmcli -t -f DEVICE,STATE,CONNECTION device" in "10" seconds
 
 
+    @rhbz1713380
+    @ver+=1.39
+    @kill_dnsmasq_ip4 @tshark
+    @ipv4_send_dhcpdecline_on_ip_conflict
+    Scenario: NM - ipv4 - with ipv4.dad-timeout > 0, perform DAD and send DHCPDECLINE after duplicate detection
+    * Add "ethernet" connection named "test" for device "dad" with options "autoconnect no ipv4.dhcp-client-id AB ipv4.dad-timeout 10"
+    * Prepare simulated test "dad" device without DHCP
+    * Create "bridge" device named "br0" in namespace "dad_ns"
+    * Add namespace "dup_ns"
+    * Create "veth" device named "dup" in namespace "dup_ns" with options "peer name dupp netns dad_ns"
+    * Execute "ip -n dup_ns link set dup up ; ip -n dup_ns addr add 192.168.123.40/24 dev dup"
+    * Add namespace "dhcp_ns"
+    * Create "veth" device named "dhcp" in namespace "dhcp_ns" with options "peer name dhcpp netns dad_ns"
+    * Execute "ip -n dhcp_ns link set dhcp up ; ip -n dhcp_ns addr add 192.168.123.1/24 dev dhcp"
+    * Execute "for if in dadp dhcpp dupp; do ip -n dad_ns link set $if master br0 ; done"
+    * Execute "for if in br0 dadp dhcpp dupp ; do ip -n dad_ns link set $if up ; done"
+    * Execute "ip link set dad up"
+    * Execute "ip netns exec dad_ns nft add table bridge filter"
+    * Execute "ip netns exec dad_ns nft add chain bridge filter forward '{ type filter hook forward priority 0; }'"
+    * Execute "ip netns exec dad_ns nft add rule bridge filter forward iif dhcpp oif dupp ether type arp drop"
+    * Execute "ip netns exec dad_ns nft add rule bridge filter forward iif dupp oif dhcpp ether type arp drop"
+    * Execute "ip netns exec dad_ns nft list ruleset"
+    # note MAC of dad interface
+    * Execute "ip l show dev dad | tr '\n' ' ' | sed -e 's/.*link\/ether \([^[:space:]]\+\).*/\1/' > /tmp/dad-mac"
+    * Run child "ip netns exec dhcp_ns dnsmasq --log-facility=/tmp/dnsmasq.log --pid-file=/tmp/dnsmasq_ip4.pid --listen-address=192.168.123.1 --conf-file=/dev/null --no-hosts --dhcp-range=192.168.123.50,192.168.123.250,2m --dhcp-host=id:AB,192.168.123.40" without shell
+    # Verify that ARP reply is received on DAD request
+    * "Unicast reply from 192.168.123.40" is visible with command "arping -D -I dad 192.168.123.40"
+    * Run child "tshark -n -l -i dad 'arp or port 67 or port 68' > /tmp/tshark.log"
+    When Bring up connection "test" ignoring error
+    Then "192.168.123.40" is not visible with command "ip a show dev dad"
+    And Execute "grep -q "DHCPDECLINE(dhcp) 192.168.123.40 $(</tmp/dad-mac)" /tmp/dnsmasq.log"
+
+
     @restart_if_needed
     @custom_shared_range_preserves_restart
     Scenario: nmcli - ipv4 - shared custom range preserves restart
