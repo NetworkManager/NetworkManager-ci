@@ -1501,6 +1501,36 @@ def test_util_consume_list():
     assert lst == []
 
 
+def test_util_start_timeout():
+
+    t = util.start_timeout(None)
+    assert not t.expired()
+    assert t.is_none()
+
+    t = util.start_timeout(0)
+    assert t.expired()
+    assert not t.is_none()
+
+    t = util.start_timeout(0.0)
+    assert t.expired()
+    assert not t.is_none()
+
+    t = util.start_timeout(-1)
+    assert t.expired()
+    assert not t.is_none()
+
+    t = util.start_timeout(100000)
+    assert not t.expired()
+
+    t = util.start_timeout(100000.1)
+    assert not t.expired()
+
+    t = util.start_timeout(0.05)
+    while not t.expired():
+        time.sleep(0.01)
+    assert t.expired()
+
+
 # This test should always run as last. Keep it at the bottom
 # of the file.
 def test_black_code_fromatting():
