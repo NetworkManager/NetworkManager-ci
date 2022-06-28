@@ -288,7 +288,7 @@ class _CExt:
     ):
         if not os.path.isfile(fname):
             print("Warning: File " + repr(fname) + " not found")
-            return
+            return False
 
         if caption is None:
             caption = fname
@@ -298,7 +298,7 @@ class _CExt:
         if not as_base64:
             data = util.file_get_content_simple(fname)
             self.embed_data(caption, data, fail_only=fail_only)
-            return
+            return True
 
         import base64
 
@@ -308,6 +308,7 @@ class _CExt:
         data = "data:application/octet-stream;base64," + data_encoded
 
         self.embed_link(caption, [(data, fname)], fail_only=fail_only)
+        return True
 
     def _process_command_complete(self, proc, logfile):
         failed = False

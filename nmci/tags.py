@@ -2647,6 +2647,9 @@ _register_tag("peers_ns", None, peers_ns_as)
 
 
 def tshark_as(context, scenario):
+    log_file = "/tmp/tshark.log"
+    if context.cext.embed_file_if_exists("tshark.log", log_file, fail_only=True):
+        os.remove(log_file)
     context.process.run("pkill tshark", ignore_stderr=True)
     context.process.run_stdout("rm -rf /etc/dhcp/dhclient-eth*.conf", shell=True)
 
