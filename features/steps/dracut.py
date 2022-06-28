@@ -63,8 +63,6 @@ def embed_dracut_logs(context):
 
     check_core_dumps(context)
 
-    context.run("cd contrib/dracut/; . ./setup.sh; umount $DEV_DUMPS; umount $DEV_LOG;")
-
 
 def get_backtrace(context, filename):
     out, _, _ = context.run(
