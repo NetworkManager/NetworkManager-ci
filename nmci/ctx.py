@@ -540,6 +540,7 @@ def stripped(x):
 
 def dump_status(context, when, fail_only=False):
     nm_running = nmci.process.systemctl("status NetworkManager").returncode == 0
+
     cmds = [
         'date "+%Y%m%d-%H%M%S.%N"',
         "NetworkManager --version",
@@ -561,7 +562,7 @@ def dump_status(context, when, fail_only=False):
             process.WithShell("ps aux | grep -w '[d]hclient'"),
         ]
 
-    cmds_part1_len = len(cmds)
+    headings = {len(cmds): "\nVeth setup network namespace and DHCP server state:\n"}
 
     if nm_running and os.path.isfile("/tmp/nm_veth_configured"):
         cmds += [
@@ -571,6 +572,21 @@ def dump_status(context, when, fail_only=False):
             "ip netns exec vethsetup ip -6 route",
             process.WithShell("ps aux | grep -w '[d]nsmasq'"),
         ]
+
+    named_nss = {
+        ns.split()[0]
+        for ns in nmci.process.run_stdout("ip netns list")[:-1].split("\n")
+    } - {
+        "vethsetup"
+    }  # vethsetup is handled separately
+    if len(named_nss) > 0:
+        add_to_heading = f"\nStatus of other named network namespaces:\n"
+        for ns in sorted(named_nss):
+            heading = f"{add_to_heading}\nnetwork namespace {ns}:"
+            if len(add_to_heading) > 0:
+                add_to_heading = ""
+            headings[len(cmds)] = heading
+            cmds += [f"ip -n {ns} a", f"ip -n {ns} -4 r", f"ip -n {ns} -6 r"]
 
     procs = [process.Popen(c, stderr=subprocess.DEVNULL) for c in cmds]
 
@@ -591,8 +607,8 @@ def dump_status(context, when, fail_only=False):
     msg = ""
     for i in range(len(procs)):
         proc = procs[i]
-        if i == cmds_part1_len:
-            msg += "\nVeth setup network namespace and DHCP server state:\n"
+        if i in headings.keys():
+            msg = f"{msg}\n{headings[i]}"
         msg += f"\n--- {proc.argv} ---\n"
         msg += proc.stdout.decode("utf-8", errors="replace")
     if timeout_expired:
