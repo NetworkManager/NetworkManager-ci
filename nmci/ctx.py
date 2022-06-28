@@ -467,11 +467,15 @@ def check_coredump(context):
             # 'coredumpctl debug' not available in RHEL7
             if "Maipo" in context.rh_release:
                 dump = nmci.process.run_stdout(
-                    f"echo backtrace | coredumpctl -q -batch gdb {pid}", shell=True
+                    f"echo backtrace | coredumpctl -q -batch gdb {pid}",
+                    shell=True,
+                    stderr=subprocess.STDOUT,
                 )
             else:
                 dump = nmci.process.run_stdout(
-                    f"echo backtrace | coredumpctl debug {pid}", shell=True
+                    f"echo backtrace | coredumpctl debug {pid}",
+                    shell=True,
+                    stderr=subprocess.STDOUT,
                 )
             embed_dump(context, dump_dir, dump, "COREDUMP")
 
