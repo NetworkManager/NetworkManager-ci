@@ -215,8 +215,9 @@ def run_search_stdout(
     env_extra=None,
     ignore_returncode=False,
     ignore_stderr=False,
-    context_hook=None,
+    stderr=None,
     pattern_flags=re.DOTALL | re.MULTILINE,
+    context_hook=None,
 ):
     # autodetect based on the pattern
     if isinstance(pattern, bytes):
@@ -236,7 +237,7 @@ def run_search_stdout(
         ignore_stderr=ignore_stderr,
         ignore_returncode=ignore_returncode,
         stdout=None,
-        stderr=None,
+        stderr=stderr,
         context_hook=context_hook,
     )
     return re.search(pattern, result.stdout, flags=pattern_flags)
