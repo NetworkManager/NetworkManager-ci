@@ -328,10 +328,6 @@ def _after_scenario(context, scenario):
         scenario.status == "failed" or context.crashed_step or DEBUG or len(excepts) > 0
     )
 
-    # Attach postponed or "fail_only" embeds
-    # !!! all embed calls with "fail_only" after this are ignored !!!
-    context.cext.process_embeds(scenario_fail)
-
     if scenario_fail:
         # Attach journalctl logs
         print("Attaching NM log")
@@ -375,6 +371,9 @@ def _after_scenario(context, scenario):
     print(f"after_scenario ... {status} in {duration:.3f}s")
 
     duration_el.text = f"({duration:.3f}s)"
+
+    # process embeds as last thing before asserts
+    context.cext.process_embeds(scenario_fail)
 
     # we need to keep state "passed" here, as '@crash' test is expected to fail
     if "crash" in scenario.effective_tags and not context.cext.coredump_reported:
