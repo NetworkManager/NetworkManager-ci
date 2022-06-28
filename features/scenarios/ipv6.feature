@@ -1374,6 +1374,7 @@
     @ver-1.39.2
     @ver/rhel/8+=1.32.9
     @ver/rhel/9+=1.32.9
+    @ver/rhel/9-1.39.7.2
     @ipv6_honor_ip_order
     Scenario: NM - ipv6 - honor IP order from configuration upon restart
     * Add "ethernet" connection named "con_ipv6" for device "eth2" with options "autoconnect no"
@@ -1393,7 +1394,7 @@
     @ver+=1.38.0
     @ver+=1.39.2
     @ver/rhel/8-
-    @ver/rhel/9-
+    @ver/rhel/9+=1.39.7.2
     @ipv6_honor_ip_order
     Scenario: NM - ipv6 - honor IP order from configuration upon restart
     * Add "ethernet" connection named "con_ipv6" for device "eth2" with options "autoconnect no"
