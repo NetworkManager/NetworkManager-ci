@@ -573,17 +573,17 @@ def dump_status(context, when, fail_only=False):
 
     procs = [process.Popen(c, stderr=subprocess.DEVNULL) for c in cmds]
 
-    expiry = time.monotonic() + 20
+    timeout = util.start_timeout(20)
     while True:
         any_pending = False
-        timeout_reached = time.monotonic() >= expiry
+        timeout_expired = timeout.expired()
         for proc in procs:
             if proc.read_and_poll() is None:
-                if timeout_reached:
+                if timeout_expired:
                     proc.terminate_and_wait(timeout_before_kill=3)
                 else:
                     any_pending = True
-        if not any_pending or timeout_reached:
+        if not any_pending or timeout_expired:
             break
         time.sleep(0.05)
 
@@ -594,7 +594,7 @@ def dump_status(context, when, fail_only=False):
             msg += "\nVeth setup network namespace and DHCP server state:\n"
         msg += f"\n--- {proc.argv} ---\n"
         msg += proc.stdout.decode("utf-8", errors="replace")
-    if timeout_reached:
+    if timeout_expired:
         msg += "\n\nWARNING: timeout expired waiting for processes. Processes were terminated."
 
     context.cext.embed_data("Status " + when, msg, fail_only=fail_only)

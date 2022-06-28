@@ -83,21 +83,13 @@ class PopenCollect:
         return self.returncode
 
     def read_and_wait(self, timeout=None):
-        if timeout is None:
-            pass
-        elif timeout == 0 or timeout == 0.0:
-            timeout = 0
-        else:
-            expiry = time.monotonic() + timeout
+        xtimeout = util.start_timeout(timeout)
         while True:
             c = self.read_and_poll()
             if c is not None:
                 return c
-            if timeout is not None:
-                if timeout == 0:
-                    return None
-                if time.monotonic() >= expiry:
-                    return None
+            if xtimeout.expired():
+                return None
             try:
                 self.proc.wait(timeout=0.05)
             except subprocess.TimeoutExpired:
