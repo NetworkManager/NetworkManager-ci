@@ -1036,4 +1036,5 @@ Feature: nmcli - bridge
     @ver+=1.39.5
     @bridge_keepaddr_unmanaged_device
     Scenario: bridge - keep addresses on unmanaged device
+    * Cleanup interface "testbr"
     * Execute "contrib/reproducers/repro_2079054.sh"
