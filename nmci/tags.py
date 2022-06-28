@@ -2604,6 +2604,9 @@ _register_tag("modprobe_cfg_remove", None, modprobe_cfg_remove_as)
 
 
 def kill_dnsmasq_vlan_as(context, scenario):
+    log_file = "/tmp/dnsmasq.log"
+    if context.cext.embed_file_if_exists("dnsmasq.log", log_file, fail_only=True):
+        os.remove(log_file)
     context.process.run_stdout("pkill -F /tmp/dnsmasq_vlan.pid")
 
 
@@ -2611,6 +2614,9 @@ _register_tag("kill_dnsmasq_vlan", None, kill_dnsmasq_vlan_as)
 
 
 def kill_dnsmasq_ip4_as(context, scenario):
+    log_file = "/tmp/dnsmasq.log"
+    if context.cext.embed_file_if_exists("dnsmasq.log", log_file, fail_only=True):
+        os.remove(log_file)
     context.process.run_stdout("pkill -F /tmp/dnsmasq_ip4.pid")
 
 
@@ -2618,6 +2624,9 @@ _register_tag("kill_dnsmasq_ip4", None, kill_dnsmasq_ip4_as)
 
 
 def kill_dnsmasq_ip6_as(context, scenario):
+    log_file = "/tmp/dnsmasq.log"
+    if context.cext.embed_file_if_exists("dnsmasq.log", log_file, fail_only=True):
+        os.remove(log_file)
     context.process.run_stdout("pkill -F /tmp/dnsmasq_ip6.pid")
 
 

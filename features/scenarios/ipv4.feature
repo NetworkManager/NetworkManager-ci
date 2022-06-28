@@ -1502,7 +1502,7 @@ Feature: nmcli: ipv4
     * Add "ethernet" connection named "tc2" for device "test2"
     * Bring "up" connection "tc1"
     When "test1:connected:tc1" is visible with command "nmcli -t -f DEVICE,STATE,CONNECTION device" in "10" seconds
-    * Execute "/usr/sbin/dnsmasq --pid-file=/tmp/dnsmasq_ip4.pid --conf-file --no-hosts --keep-in-foreground --bind-interfaces --except-interface=lo --clear-on-reload --strict-order --listen-address=192.168.99.1 --dhcp-range=192.168.99.10,192.168.99.254,60m --dhcp-option=option:router,192.168.99.1 --dhcp-lease-max=50 --dhcp-option-force=26,1800 &"
+    * Execute "/usr/sbin/dnsmasq --log-facility=/tmp/dnsmasq.log --pid-file=/tmp/dnsmasq_ip4.pid --conf-file --no-hosts --keep-in-foreground --bind-interfaces --except-interface=lo --clear-on-reload --strict-order --listen-address=192.168.99.1 --dhcp-range=192.168.99.10,192.168.99.254,60m --dhcp-option=option:router,192.168.99.1 --dhcp-lease-max=50 --dhcp-option-force=26,1800 &"
     * Bring "up" connection "tc2"
     Then "mtu 1800" is visible with command "ip a s test2"
 
@@ -1820,7 +1820,7 @@ Feature: nmcli: ipv4
     * Prepare veth pairs "test1,test2" bridged over "vethbr"
     * Execute "ip addr add 10.42.0.1/24 dev test1"
     * Execute "ip link set up dev test1"
-    * Execute "/usr/sbin/dnsmasq --log-dhcp --log-queries --conf-file=/dev/null --no-hosts --keep-in-foreground --bind-interfaces --except-interface=lo --clear-on-reload --pid-file=/tmp/dnsmasq_ip4.pid & sleep 2"
+    * Execute "/usr/sbin/dnsmasq --log-facility=/tmp/dnsmasq.log --log-dhcp --log-queries --conf-file=/dev/null --no-hosts --keep-in-foreground --bind-interfaces --except-interface=lo --clear-on-reload --pid-file=/tmp/dnsmasq_ip4.pid & sleep 2"
     * Add "ethernet" connection named "tc1" for device "test1" with options
           """
           autoconnect no

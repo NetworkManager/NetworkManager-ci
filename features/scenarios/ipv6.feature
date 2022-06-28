@@ -1174,7 +1174,7 @@
     * Add "ethernet" connection named "tc26" for device "test11" with options "autoconnect no mtu 1100 ip6 fd01::1/64"
     * Bring "up" connection "tc26"
     When "test11:connected:tc26" is visible with command "nmcli -t -f DEVICE,STATE,CONNECTION device" in "45" seconds
-    * Execute "/usr/sbin/dnsmasq --pid-file=/tmp/dnsmasq_ip6.pid --no-resolv --bind-interfaces -i test11 --enable-ra --dhcp-range=::1,::400,constructor:test11,ra-only,64,15s"
+    * Execute "/usr/sbin/dnsmasq --log-facility=/tmp/dnsmasq.log --pid-file=/tmp/dnsmasq_ip6.pid --no-resolv --bind-interfaces -i test11 --enable-ra --dhcp-range=::1,::400,constructor:test11,ra-only,64,15s"
     * Bring "up" connection "tc16"
     Then "1280" is visible with command "sysctl net.ipv6.conf.test10.mtu" in "45" seconds
 
