@@ -154,6 +154,7 @@ def run_stdout(
     env_extra=None,
     ignore_returncode=False,
     ignore_stderr=False,
+    stderr=None,
     context_hook=None,
 ):
     return _run(
@@ -167,7 +168,7 @@ def run_stdout(
         ignore_stderr=ignore_stderr,
         ignore_returncode=ignore_returncode,
         stdout=None,
-        stderr=None,
+        stderr=stderr,
         context_hook=context_hook,
     ).stdout
 
