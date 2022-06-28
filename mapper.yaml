@@ -808,6 +808,8 @@ testmapper:
         feature: ipv6
     - ipv6_handle_route_linking:
         feature: ipv6
+    - ipv6_ignore_address_lease_dhclient:
+        feature: ipv6
     - nmcli_general_correct_profile_activated_after_restart:
         feature: general
         tags: gate

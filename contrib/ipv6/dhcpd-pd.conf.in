@@ -2,4 +2,5 @@ subnet6 fc01::/64 {
 	@DHCP_RANGE@
 	prefix6 fc01:bbbb:1:: fc01:bbbb:2:: /60;
 	option dhcp6.name-servers fc01::8888;
+	@DHCP_LEASE@
 }

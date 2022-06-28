@@ -4,5 +4,5 @@ interface testX6p {
         AdvOtherConfigFlag @ADV_OTHER@;
         MinRtrAdvInterval 3;
         MaxRtrAdvInterval 60;
-       @ADV_PREFIX@
+        @ADV_PREFIX@
 };

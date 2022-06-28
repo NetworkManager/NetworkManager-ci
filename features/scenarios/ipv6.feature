@@ -1864,6 +1864,28 @@
      And  Execute "ip netns exec testY6_ns ping -c2 fc01::1"
 
 
+     @rhbz2083968
+     @ver+=1.39.5
+     @dhclient_DHCP @dhcpd
+     @ipv6_ignore_address_lease_dhclient
+     Scenario: nmcli - ipv6 - dhclient - do not assign addresses with otherconf flag 
+     * Execute "systemctl stop dhcpd"
+     * Prepare simulated test "testX6" device without DHCP
+     * Execute "ip -n testX6_ns addr add dev testX6p fc01::1/64"
+     * Configure dhcpv6 prefix delegation server with address configuration mode "dhcp-stateless" and lease time "15" seconds
+     * Add "ethernet" connection named "con_ipv6" for device "testX6" with options
+           """
+           ipv4.method disabled
+           ipv6.method auto
+           ipv6.route-metric 50
+           autoconnect no
+           """
+     * Bring "up" connection "con_ipv6"
+     Then "fc01:" is visible with command "ip a show dev testX6" in "5" seconds
+     And "fc01::[a-z0-9]{4}/128" is not visible with command "ip a show dev testX6" for full "30" seconds
+     And "fc01:[a-z0-9:]+/64" is visible with command "ip a show dev testX6"
+
+
      @rhbz1749358
      @ver+=1.22.0
      @internal_DHCP

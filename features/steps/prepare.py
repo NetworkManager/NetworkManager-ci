@@ -59,13 +59,17 @@ def config_dhcp(context, subnet, lease):
         f.write(line+'\n')
     f.close()
 
-
 @step(u'Configure dhcpv6 prefix delegation server with address configuration mode "{mode}"')
-def config_dhcpv6_pd(context, mode):
+@step(u'Configure dhcpv6 prefix delegation server with address configuration mode "{mode}" and lease time "{lease}" seconds')
+def config_dhcpv6_pd(context, mode, lease=None):
     adv_managed="off"
     adv_other="off"
     adv_prefix="# no prefix"
     dhcp_range="# no range"
+    dhcp_lease ="# no lease"
+
+    if lease is not None:
+        dhcp_lease = f"default-lease-time {int(lease)}; max-lease-time {int(lease)*2};"
 
     if mode == 'link-local':
         pass
@@ -74,6 +78,7 @@ def config_dhcpv6_pd(context, mode):
     elif mode == 'dhcp-stateless':
         adv_other="on"
         adv_prefix="prefix fc01::/64 {AdvOnLink on; AdvAutonomous on; AdvRouterAddr off; };"
+        dhcp_range="range6 fc01::1000 fc01::ffff;"
     elif mode == 'dhcp-stateful':
         adv_managed="on"
         dhcp_range="range6 fc01::1000 fc01::ffff;"
@@ -83,10 +88,11 @@ def config_dhcpv6_pd(context, mode):
     context.command_code("cp contrib/ipv6/radvd-pd.conf.in /tmp/radvd-pd.conf")
     context.command_code("cp contrib/ipv6/dhcpd-pd.conf.in /tmp/dhcpd-pd.conf")
 
-    context.command_output_err("sed -i 's/@ADV_MANAGED@/{value}/' /tmp/radvd-pd.conf".format(value=adv_managed));
-    context.command_output_err("sed -i 's/@ADV_OTHER@/{value}/'   /tmp/radvd-pd.conf".format(value=adv_other));
-    context.command_output_err("sed -i 's/@ADV_PREFIX@/{value}/'  /tmp/radvd-pd.conf".format(value=adv_prefix));
-    context.command_output_err("sed -i 's/@DHCP_RANGE@/{value}/'  /tmp/dhcpd-pd.conf".format(value=dhcp_range));
+    context.command_output_err(f"sed -i 's/@ADV_MANAGED@/{adv_managed}/' /tmp/radvd-pd.conf")
+    context.command_output_err(f"sed -i 's/@ADV_OTHER@/{adv_other}/'   /tmp/radvd-pd.conf")
+    context.command_output_err(f"sed -i 's%@ADV_PREFIX@%{adv_prefix}%'  /tmp/radvd-pd.conf")
+    context.command_output_err(f"sed -i 's/@DHCP_RANGE@/{dhcp_range}/'  /tmp/dhcpd-pd.conf")
+    context.command_output_err(f"sed -i 's/@DHCP_LEASE@/{dhcp_lease}/'  /tmp/dhcpd-pd.conf")
 
     with open('/tmp/ip6leases.conf', 'w') as f:
         pass
