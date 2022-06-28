@@ -1847,29 +1847,6 @@ def openvswitch_as(context, scenario):
 
     context.process.run("ovs-vsctl del-br ovsbr0", ignore_stderr=True)
     context.process.run("ovs-vsctl del-br ovs-br0", ignore_stderr=True)
-    context.process.run("ovs-vsctl del-br ovsbridge0", ignore_stderr=True)
-    context.process.run("ovs-vsctl del-br ovsbridge1", ignore_stderr=True)
-    context.process.run("ovs-vsctl del-br i-ovs-br0", ignore_stderr=True)
-    context.process.nmcli_force("device delete bond0")
-    context.process.nmcli_force("device delete port0")
-    context.process.run_stdout("sudo rm -rf /etc/sysconfig/network-scripts/ifcfg-eth1")
-    context.process.run_stdout("sudo rm -rf /etc/sysconfig/network-scripts/ifcfg-bond0")
-    context.process.run_stdout(
-        "sudo rm -rf /etc/sysconfig/network-scripts/ifcfg-ovsbridge0"
-    )
-    context.process.run_stdout(
-        "sudo rm -rf /etc/sysconfig/network-scripts/ifcfg-intbr0"
-    )
-
-    # eth links are not be present in dpdk tests
-    if "dpdk" not in scenario.tags:
-        context.process.run_stdout("ip link set dev eth1 up")
-        context.process.run_stdout("ip link set dev eth2 up")
-        context.process.nmcli("con reload")
-        context.process.nmcli("con up testeth1")
-        context.process.nmcli("con down testeth1")
-        context.process.nmcli("con up testeth2")
-        context.process.nmcli("con down testeth2")
 
 
 _register_tag("openvswitch", openvswitch_bs, openvswitch_as)

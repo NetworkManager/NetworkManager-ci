@@ -32,7 +32,7 @@ Feature: nmcli - ovs
     @openvswitch
     @openvswitch_ignore_ovs_network_setup
     Scenario: NM - openvswitch - ignore ovs network setup
-    * Clean connection "ovsbridge0"
+    * Cleanup connection "ovsbridge0"
     * Add "ethernet" connection named "eth1" for device "eth1" with options "autoconnect no"
     * Check ifcfg-name file created for connection "eth1"
     * Execute "echo -e 'DEVICE=eth1\nONBOOT=yes\nDEVICETYPE=ovs\nTYPE=OVSPort\nOVS_BRIDGE=ovsbridge0\nBOOTPROTO=none\nHOTPLUG=no' >> /etc/sysconfig/network-scripts/ifcfg-eth1"
@@ -52,8 +52,8 @@ Feature: nmcli - ovs
     @openvswitch
     @openvswitch_ignore_ovs_vlan_network_setup
     Scenario: NM - openvswitch - ignore ovs network setup
-    * Clean connection "intbr0"
-    * Clean connection "ovsbridge0"
+    * Cleanup connection "intbr0" and device "intbr0"
+    * Cleanup connection "ovsbridge0" and device "ovsbridge0"
     * Execute "echo -e 'DEVICE=intbr0\nONBOOT=yes\nDEVICETYPE=ovs\nTYPE=OVSIntPort\nOVS_BRIDGE=ovsbridge0\nHOTPLUG=no' >> /etc/sysconfig/network-scripts/ifcfg-intbr0"
     * Execute "echo -e 'DEVICE=ovsbridge0\nONBOOT=yes\nDEVICETYPE=ovs\nTYPE=OVSBridge\nBOOTPROTO=static\nIPADDR=192.168.14.5\nNETMASK=255.255.255.0\nHOTPLUG=no' > /etc/sysconfig/network-scripts/ifcfg-ovsbridge0"
     * Execute "ifup intbr0"
@@ -70,8 +70,8 @@ Feature: nmcli - ovs
     @openvswitch
     @openvswitch_ignore_ovs_bond_network_setup
     Scenario: NM - openvswitch - ignore ovs network setup
-    * Clean connection "bond0"
-    * Clean connection "ovsbridge0"
+    * Cleanup connection "bond0" and device "bond0"
+    * Cleanup connection "ovsbridge0" and device "ovsbridge0"
     * Add "ethernet" connection named "eth1" for device "eth1" with options "autoconnect no"
     * Add "ethernet" connection named "eth2" for device "eth2" with options "autoconnect no"
     * Execute """echo -e 'DEVICE=bond0\nONBOOT=yes\nDEVICETYPE=ovs\nTYPE=OVSBond\nOVS_BRIDGE=ovsbridge0\nBOOTPROTO=none\nBOND_IFACES="eth1 eth2"\nOVS_OPTIONS="bond_mode=balance-tcp lacp=active"\nHOTPLUG=no' >> /etc/sysconfig/network-scripts/ifcfg-bond0"""
@@ -91,12 +91,11 @@ Feature: nmcli - ovs
     @openvswitch
     @nmcli_add_basic_openvswitch_configuration
     Scenario: nmcli - openvswitch - add basic setup
-    * Add "ovs-bridge" connection named "ovs-bridge0" with options "conn.interface ovsbridge0"
+    * Add "ovs-bridge" connection named "ovs-bridge0" for device "ovsbridge0"
     * Add "ovs-port" connection named "ovs-port0" for device "port0" with options "conn.master ovsbridge0"
     * Add "ovs-port" connection named "ovs-port1" for device "port1" with options "conn.master ovsbridge0"
-    * Add "ethernet" connection named "ovs-eth2" with options
+    * Add "ethernet" connection named "ovs-eth2" for device "eth2" with options
           """
-          conn.interface eth2
           conn.master port1
           slave-type ovs-port
           """
@@ -116,18 +115,16 @@ Feature: nmcli - ovs
     @openvswitch
     @nmcli_add_openvswitch_bond_configuration
     Scenario: nmcli - openvswitch - add bond setup
-    * Add "ovs-bridge" connection named "ovs-bridge0" with options "conn.interface ovsbridge0"
+    * Add "ovs-bridge" connection named "ovs-bridge0" for device "ovsbridge0"
     * Add "ovs-port" connection named "ovs-port0" for device "port0" with options "conn.master ovsbridge0"
     * Add "ovs-port" connection named "ovs-bond0" for device "bond0" with options "conn.master ovsbridge0"
-    * Add "ethernet" connection named "ovs-eth2" with options
+    * Add "ethernet" connection named "ovs-eth2" for device "eth2" with options
           """
-          conn.interface eth2
           conn.master bond0
           slave-type ovs-port
           """
-    * Add "ethernet" connection named "ovs-eth3" with options
+    * Add "ethernet" connection named "ovs-eth3" for device "eth3" with options
           """
-          conn.interface eth3
           conn.master bond0
           slave-type ovs-port
           """
@@ -148,7 +145,7 @@ Feature: nmcli - ovs
     @openvswitch
     @nmcli_add_openvswitch_vlan_configuration
     Scenario: nmcli - openvswitch - add vlan setup
-    * Add "ovs-bridge" connection named "ovs-bridge0" with options "conn.interface ovsbridge0"
+    * Add "ovs-bridge" connection named "ovs-bridge0" for device "ovsbridge0"
     * Add "ovs-port" connection named "ovs-port0" for device "port0" with options
           """
           conn.master ovsbridge0
@@ -159,15 +156,13 @@ Feature: nmcli - ovs
           conn.master ovsbridge0
           ovs-port.tag 120
           """
-    * Add "ethernet" connection named "ovs-eth2" with options
+    * Add "ethernet" connection named "ovs-eth2" for device "eth2" with options
           """
-          conn.interface eth2
           conn.master bond0
           slave-type ovs-port
           """
-    * Add "ethernet" connection named "ovs-eth3" with options
+    * Add "ethernet" connection named "ovs-eth3" for device "eth3" with options
           """
-          conn.interface eth3
           conn.master bond0
           slave-type ovs-port
           """
@@ -188,7 +183,7 @@ Feature: nmcli - ovs
     @openvswitch
     @nmcli_remove_one_openvswitch_bond_configuration
     Scenario: nmcli - openvswitch - remove bond slave connection
-    * Add "ovs-bridge" connection named "ovs-bridge0" with options "conn.interface ovsbridge0"
+    * Add "ovs-bridge" connection named "ovs-bridge0" for device "ovsbridge0"
     * Add "ovs-port" connection named "ovs-port0" for device "port0" with options
           """
           conn.master ovsbridge0
@@ -199,15 +194,13 @@ Feature: nmcli - ovs
           conn.master ovsbridge0
           ovs-port.tag 120
           """
-    * Add "ethernet" connection named "ovs-eth2" with options
+    * Add "ethernet" connection named "ovs-eth2" for device "eth2" with options
           """
-          conn.interface eth2
           conn.master bond0
           slave-type ovs-port
           """
-    * Add "ethernet" connection named "ovs-eth3" with options
+    * Add "ethernet" connection named "ovs-eth3" for device "eth3" with options
           """
-          conn.interface eth3
           conn.master bond0
           slave-type ovs-port
           """
@@ -229,7 +222,7 @@ Feature: nmcli - ovs
     @openvswitch
     @nmcli_remove_openvswitch_ports_and_master_bridge_configuration
     Scenario: nmcli - openvswitch - remove ports and master bridge connections
-    * Add "ovs-bridge" connection named "ovs-bridge0" with options "conn.interface ovsbridge0"
+    * Add "ovs-bridge" connection named "ovs-bridge0" for device "ovsbridge0"
     * Add "ovs-port" connection named "ovs-port0" for device "port0" with options
           """
           conn.master ovsbridge0
@@ -240,15 +233,13 @@ Feature: nmcli - ovs
           conn.master ovsbridge0
           ovs-port.tag 120
           """
-    * Add "ethernet" connection named "ovs-eth2" with options
+    * Add "ethernet" connection named "ovs-eth2" for device "eth2" with options
           """
-          conn.interface eth2
           conn.master bond0
           slave-type ovs-port
           """
-    * Add "ethernet" connection named "ovs-eth3" with options
+    * Add "ethernet" connection named "ovs-eth3" for device "eth3" with options
           """
-          conn.interface eth3
           conn.master bond0
           slave-type ovs-port
           """
@@ -273,7 +264,7 @@ Feature: nmcli - ovs
     #@openvswitch
     #@nmcli_remove_openvswitch_master_bridge_configuration_only
     #Scenario: nmcli - openvswitch - remove master bridge connection
-    #* Add "ovs-bridge" connection named "ovs-bridge0" with options "conn.interface ovsbridge0"
+    #* Add "ovs-bridge" connection named "ovs-bridge0" for device "ovsbridge0"
     #* Add "ovs-port" connection named "ovs-port0" for device "port0" with options
     #   """
     #   conn.master ovsbridge0
@@ -288,15 +279,13 @@ Feature: nmcli - ovs
     #   conn.master ovsbridge0
     #   ovs-port.tag 120
     #   """
-    #* Add "ethernet" connection named "ovs-eth2" with options
+    #* Add "ethernet" connection named "ovs-eth2" for device "eth2" with options
     #   """
-    #   conn.interface eth2
     #   conn.master bond0
     #   slave-type ovs-port
     #   """
-    #* Add "ethernet" connection named "ovs-eth3" with options
+    #* Add "ethernet" connection named "ovs-eth3" for device "eth3" with options
     #   """
-    #   conn.interface eth3
     #   conn.master bond0
     #   slave-type ovs-port
     #   """
@@ -319,7 +308,7 @@ Feature: nmcli - ovs
     #@openvswitch
     #@nmcli_remove_openvswitch_master_bridge_configuration_only
     #Scenario: nmcli - openvswitch - remove master bridge connection
-    #* Add "ovs-bridge" connection named "ovs-bridge0" with options "conn.interface ovsbridge0"
+    #* Add "ovs-bridge" connection named "ovs-bridge0" for device "ovsbridge0"
     #* Add "ovs-port" connection named "ovs-port0" for device "port0" with options
     #   """
     #   conn.master ovsbridge0
@@ -330,15 +319,13 @@ Feature: nmcli - ovs
     #   conn.master ovsbridge0
     #   ovs-port.tag 120
     #   """
-    #* Add "ethernet" connection named "ovs-eth2" with options
+    #* Add "ethernet" connection named "ovs-eth2" for device "eth2" with options
     #   """
-    #   conn.interface eth2
     #   conn.master bond0
     #   slave-type ovs-port
     #   """
-    #* Add "ethernet" connection named "ovs-eth3" with options
+    #* Add "ethernet" connection named "ovs-eth3" for device "eth3" with options
     #   """
-    #   conn.interface eth3
     #   conn.master bond0
     #   slave-type ovs-port
     #   """
@@ -362,7 +349,7 @@ Feature: nmcli - ovs
     @openvswitch
     @nmcli_reconnect_openvswitch_vlan_configuration
     Scenario: nmcli - openvswitch - reconnect all connections
-    * Add "ovs-bridge" connection named "ovs-bridge0" with options "conn.interface ovsbridge0"
+    * Add "ovs-bridge" connection named "ovs-bridge0" for device "ovsbridge0"
     * Add "ovs-port" connection named "ovs-port0" for device "port0" with options
           """
           conn.master ovsbridge0
@@ -373,15 +360,13 @@ Feature: nmcli - ovs
           conn.master ovsbridge0
           ovs-port.tag 120
           """
-    * Add "ethernet" connection named "ovs-eth2" with options
+    * Add "ethernet" connection named "ovs-eth2" for device "eth2" with options
           """
-          conn.interface eth2
           conn.master bond0
           slave-type ovs-port
           """
-    * Add "ethernet" connection named "ovs-eth3" with options
+    * Add "ethernet" connection named "ovs-eth3" for device "eth3" with options
           """
-          conn.interface eth3
           conn.master bond0
           slave-type ovs-port
           """
@@ -450,7 +435,7 @@ Feature: nmcli - ovs
     @openvswitch
     @nmcli_reconnect_openvswitch_vlan_configuration
     Scenario: nmcli - openvswitch - reconnect all connections
-    * Add "ovs-bridge" connection named "ovs-bridge0" with options "conn.interface ovsbridge0"
+    * Add "ovs-bridge" connection named "ovs-bridge0" for device "ovsbridge0"
     * Add "ovs-port" connection named "ovs-port0" for device "port0" with options
           """
           conn.master ovsbridge0
@@ -461,15 +446,13 @@ Feature: nmcli - ovs
           conn.master ovsbridge0
           ovs-port.tag 120
           """
-    * Add "ethernet" connection named "ovs-eth2" with options
+    * Add "ethernet" connection named "ovs-eth2" for device "eth2" with options
           """
-          conn.interface eth2
           conn.master bond0
           slave-type ovs-port
           """
-    * Add "ethernet" connection named "ovs-eth3" with options
+    * Add "ethernet" connection named "ovs-eth3" for device "eth3" with options
           """
-          conn.interface eth3
           conn.master bond0
           slave-type ovs-port
           """
@@ -543,7 +526,7 @@ Feature: nmcli - ovs
     @openvswitch @restart_if_needed
     @NM_reboot_openvswitch_vlan_configuration
     Scenario: NM - openvswitch - reboot
-    * Add "ovs-bridge" connection named "ovs-bridge0" with options "conn.interface ovsbridge0"
+    * Add "ovs-bridge" connection named "ovs-bridge0" for device "ovsbridge0"
     * Add "ovs-port" connection named "ovs-port0" for device "port0" with options
           """
           conn.master ovsbridge0
@@ -554,15 +537,13 @@ Feature: nmcli - ovs
           conn.master ovsbridge0
           ovs-port.tag 120
           """
-    * Add "ethernet" connection named "ovs-eth2" with options
+    * Add "ethernet" connection named "ovs-eth2" for device "eth2" with options
           """
-          conn.interface eth2
           conn.master bond0
           slave-type ovs-port
           """
-    * Add "ethernet" connection named "ovs-eth3" with options
+    * Add "ethernet" connection named "ovs-eth3" for device "eth3" with options
           """
-          conn.interface eth3
           conn.master bond0
           slave-type ovs-port
           """
@@ -590,7 +571,7 @@ Feature: nmcli - ovs
     @openvswitch @restart_if_needed
     @NM_reboot_openvswitch_vlan_configuration
     Scenario: NM - openvswitch - reboot
-    * Add "ovs-bridge" connection named "ovs-bridge0" with options "conn.interface ovsbridge0"
+    * Add "ovs-bridge" connection named "ovs-bridge0" for device "ovsbridge0"
     * Add "ovs-port" connection named "ovs-port0" for device "port0" with options
           """
           conn.master ovsbridge0
@@ -601,15 +582,13 @@ Feature: nmcli - ovs
           conn.master ovsbridge0
           ovs-port.tag 120
           """
-    * Add "ethernet" connection named "ovs-eth2" with options
+    * Add "ethernet" connection named "ovs-eth2" for device "eth2" with options
           """
-          conn.interface eth2
           conn.master bond0
           slave-type ovs-port
           """
-    * Add "ethernet" connection named "ovs-eth3" with options
+    * Add "ethernet" connection named "ovs-eth3" for device "eth3" with options
           """
-          conn.interface eth3
           conn.master bond0
           slave-type ovs-port
           """
@@ -659,7 +638,7 @@ Feature: nmcli - ovs
     @NM_reboot_openvswitch_vlan_configuration_var2
     Scenario: NM - openvswitch - reboot - var2
     * Execute "ovs-vsctl add-br ovsbr0"
-    * Add "ovs-bridge" connection named "ovs-bridge0" with options "conn.interface ovsbridge0"
+    * Add "ovs-bridge" connection named "ovs-bridge0" for device "ovsbridge0"
     * Add "ovs-port" connection named "ovs-port0" for device "port0" with options
           """
           conn.master ovsbridge0
@@ -672,7 +651,7 @@ Feature: nmcli - ovs
           ipv6.method static ipv6.address 2014:99::1/64
           """
 
-    * Add "ovs-bridge" connection named "ovs-bridge1" with options "conn.interface ovsbridge1"
+    * Add "ovs-bridge" connection named "ovs-bridge1" for device "ovsbridge1"
     * Add "ovs-port" connection named "ovs-port1" for device "port1" with options
           """
           conn.master ovsbridge1
@@ -714,7 +693,7 @@ Feature: nmcli - ovs
     * Execute "systemctl restart NetworkManager-dispatcher"
     * Execute "echo -e '#!/bin/bash\nsleep 1' >/etc/NetworkManager/dispatcher.d/pre-down.d/97-disp"
     * Execute "chmod +x /etc/NetworkManager/dispatcher.d/pre-down.d/97-disp"
-    * Add "ovs-bridge" connection named "ovs-bridge0" with options "conn.interface ovsbridge0"
+    * Add "ovs-bridge" connection named "ovs-bridge0" for device "ovsbridge0"
     * Add "ovs-port" connection named "ovs-port0" for device "port0" with options
           """
           conn.master ovsbridge0
@@ -725,15 +704,13 @@ Feature: nmcli - ovs
           conn.master ovsbridge0
           ovs-port.tag 120
           """
-    * Add "ethernet" connection named "ovs-eth2" with options
+    * Add "ethernet" connection named "ovs-eth2" for device "eth2" with options
           """
-          conn.interface eth2
           conn.master bond0
           slave-type ovs-port
           """
-    * Add "ethernet" connection named "ovs-eth3" with options
+    * Add "ethernet" connection named "ovs-eth3" for device "eth3" with options
           """
-          conn.interface eth3
           conn.master bond0
           slave-type ovs-port
           """
@@ -780,12 +757,11 @@ Feature: nmcli - ovs
     * Execute "echo -e '#!/bin/bash\nsleep 1' >/etc/NetworkManager/dispatcher.d/pre-down.d/97-disp"
     * Execute "chmod +x /etc/NetworkManager/dispatcher.d/pre-down.d/97-disp"
     * Prepare simulated test "testX" device with "192.168.97" ipv4 and daemon options "--dhcp-host=00:11:22:33:45:67,192.168.97.13,foobar"
-    * Add "ovs-bridge" connection named "ovs-bridge0" with options "conn.interface ovsbridge0"
+    * Add "ovs-bridge" connection named "ovs-bridge0" for device "ovsbridge0"
     * Add "ovs-port" connection named "ovs-port0" for device "port0" with options "conn.master ovsbridge0"
     * Add "ovs-port" connection named "ovs-port1" for device "port1" with options "conn.master ovsbridge0"
-    * Add "ethernet" connection named "ovs-testX" with options
+    * Add "ethernet" connection named "ovs-testX" for device "testX" with options
           """
-          conn.interface testX
           conn.master port0
           slave-type ovs-port
           """
@@ -824,7 +800,7 @@ Feature: nmcli - ovs
     @openvswitch @mtu @restart_if_needed
     @ovs_mtu
     Scenario: nmcli - openvswitch - mtu
-    * Add "ovs-bridge" connection named "ovs-bridge0" with options "conn.interface ovsbridge0 ethernet.mtu 9000"
+    * Add "ovs-bridge" connection named "ovs-bridge0" for device "ovsbridge0" with options "ethernet.mtu 9000"
     * Add "ovs-port" connection named "ovs-port0" for device "port0" with options
           """
           conn.master ovsbridge0
@@ -835,16 +811,14 @@ Feature: nmcli - ovs
           conn.master ovsbridge0
           ovs-port.tag 120
           """
-    * Add "ethernet" connection named "ovs-eth2" with options
+    * Add "ethernet" connection named "ovs-eth2" for device "eth2" with options
           """
-          conn.interface eth2
           conn.master bond0
           slave-type ovs-port
           ethernet.mtu 9000
           """
-    * Add "ethernet" connection named "ovs-eth3" with options
+    * Add "ethernet" connection named "ovs-eth3" for device "eth3" with options
           """
-          conn.interface eth3
           conn.master bond0
           slave-type ovs-port
           ethernet.mtu 9000
@@ -872,9 +846,8 @@ Feature: nmcli - ovs
     @openvswitch
     @ovs_cloned_mac_with_the_same_bridge_iface_name
     Scenario: nmcli - openvswitch - mac address set on ovs-bridge (iface name is the same)
-    * Add "ovs-bridge" connection named "ovs-bridge0" with options
+    * Add "ovs-bridge" connection named "ovs-bridge0" for device "ovsbridge0" with options
           """
-          conn.interface ovsbridge0
           802-3-ethernet.cloned-mac-address 00:11:22:33:44:55
           """
     * Add "ovs-port" connection named "ovs-port0" for device "port0" with options
@@ -887,21 +860,18 @@ Feature: nmcli - ovs
           conn.master ovsbridge0
           ovs-port.tag 120
           """
-    * Add "ethernet" connection named "ovs-eth2" with options
+    * Add "ethernet" connection named "ovs-eth2" for device "eth2" with options
           """
-          conn.interface eth2
           conn.master bond0
           slave-type ovs-port
           """
-    * Add "ethernet" connection named "ovs-eth3" with options
+    * Add "ethernet" connection named "ovs-eth3" for device "eth3" with options
           """
-          conn.interface eth3
           conn.master bond0
           slave-type ovs-port
           """
     * Add "ovs-interface" connection named "ovs-iface0" for device "ovsbridge0" with options
           """
-          conn.interface ovsbridge0
           conn.master port0
           ipv4.may-fail no
           """
@@ -962,9 +932,8 @@ Feature: nmcli - ovs
      @openvswitch @dpdk
      @add_dpdk_port
      Scenario: NM -  openvswitch - add dpdk device
-     * Add "ovs-bridge" connection named "ovs-bridge0" with options
+     * Add "ovs-bridge" connection named "ovs-bridge0" for device "ovsbridge0" with options
            """
-           conn.interface ovsbridge0
            ovs-bridge.datapath-type netdev
            """
      * Add "ovs-port" connection named "ovs-port0" for device "port0" with options "conn.master ovsbridge0"
@@ -984,9 +953,8 @@ Feature: nmcli - ovs
      @openvswitch @dpdk
      @add_dpdk_port_n_rxq
      Scenario: NM -  openvswitch - add dpdk device and n_rxq argument
-     * Add "ovs-bridge" connection named "ovs-bridge0" with options
+     * Add "ovs-bridge" connection named "ovs-bridge0" for device "ovsbridge0" with options
            """
-           conn.interface ovsbridge0
            ovs-bridge.datapath-type netdev
            """
      * Add "ovs-port" connection named "ovs-port0" for device "port0" with options "conn.master ovsbridge0"
@@ -1007,9 +975,8 @@ Feature: nmcli - ovs
     @openvswitch @dpdk
     @add_dpdk_bond_sriov
     Scenario: NM -  openvswitch - add dpdk device
-    * Add "ovs-bridge" connection named "ovs-bridge0" with options
+    * Add "ovs-bridge" connection named "ovs-bridge0" for device "ovsbridge0" with options
           """
-          conn.interface ovsbridge0
           ovs-bridge.datapath-type netdev
           """
     * Add "ovs-port" connection named "ovs-port0" for device "port0" with options "conn.master ovsbridge0"
@@ -1043,7 +1010,7 @@ Feature: nmcli - ovs
     @openvswitch
     @clear_ovs_settings
     Scenario: NM -  openvswitch - clear ovs settings
-    * Add "ovs-bridge" connection named "ovs-bridge0" with options "conn.interface ovsbridge0"
+    * Add "ovs-bridge" connection named "ovs-bridge0" for device "ovsbridge0"
     * Add "ovs-port" connection named "ovs-port0" for device "port0" with options "conn.master ovsbridge0"
     * Add "ethernet" connection named "eth2" for device "eth2" with options "master port0 slave-type ovs-port"
     When "slave-type:\s+ovs-port" is visible with command "nmcli con show eth2"
@@ -1060,7 +1027,7 @@ Feature: nmcli - ovs
     @openvswitch
     @ovs_patch_add
     Scenario: NM -  openvswitch - add ovs patch
-    * Add "ovs-bridge" connection named "ovs-bridge0" with options "conn.interface ovsbridge0"
+    * Add "ovs-bridge" connection named "ovs-bridge0" for device "ovsbridge0"
     * Add "ovs-port" connection named "ovs-port0" for device "port0" with options "conn.master ovsbridge0"
     * Add "ovs-interface" connection named "ovs-patch0" for device "patch0" with options
           """
@@ -1068,7 +1035,7 @@ Feature: nmcli - ovs
           ovs-interface.type patch
           ovs-patch.peer patch1
           """
-    * Add "ovs-bridge" connection named "ovs-bridge1" with options "conn.interface ovsbridge1"
+    * Add "ovs-bridge" connection named "ovs-bridge1" for device "ovsbridge1"
     * Add "ovs-port" connection named "ovs-port1" for device "port1" with options "conn.master ovsbridge1"
     * Add "ovs-interface" connection named "ovs-patch1" for device "patch1" with options
           """
@@ -1087,7 +1054,7 @@ Feature: nmcli - ovs
     @openvswitch
     @ovs_external_ids
     Scenario: NM -  openvswitch - add dpdk device
-    * Add "ovs-bridge" connection named "c-ovs-br0" with options "conn.interface i-ovs-br0 autoconnect no"
+    * Add "ovs-bridge" connection named "c-ovs-br0" for device "i-ovs-br0" with options "autoconnect no"
     * Add "ovs-port" connection named "c-ovs-port0" for device "i-ovs-port0" with options
           """
           autoconnect no
@@ -1131,7 +1098,7 @@ Feature: nmcli - ovs
     * Execute "ovs-vsctl add-br ovsbr0"
     * "ovsbr0" is visible with command "ip a"
     # Save no means to have just in memory profiles
-    * Add "ovs-bridge" connection named "ovs-bridge0" with options "conn.interface ovsbridge0 save no"
+    * Add "ovs-bridge" connection named "ovs-bridge0" for device "ovsbridge0" with options "save no"
     * Add "ovs-port" connection named "ovs-port0" for device "port0" with options
           """
           conn.master ovsbridge0
@@ -1144,16 +1111,14 @@ Feature: nmcli - ovs
           ovs-port.tag 120
           save no
           """
-    * Add "ethernet" connection named "ovs-eth2" with options
+    * Add "ethernet" connection named "ovs-eth2" for device "eth2" with options
           """
-          conn.interface eth2
           conn.master bond0
           slave-type ovs-port
           save no
           """
-    * Add "ethernet" connection named "ovs-eth3" with options
+    * Add "ethernet" connection named "ovs-eth3" for device "eth3" with options
           """
-          conn.interface eth3
           conn.master bond0
           slave-type ovs-port
           save no
@@ -1220,10 +1185,7 @@ Feature: nmcli - ovs
     @openvswitch @firewall
     @ovs_set_firewalld_zone
     Scenario: NM -  openvswitch - set firewalld zone
-    * Add "ovs-bridge" connection named "ovs-bridge0" with options
-          """
-          conn.interface ovsbridge0
-          """
+    * Add "ovs-bridge" connection named "ovs-bridge0" for device "ovsbridge0"
     * Add "ovs-port" connection named "ovs-port0" for device "port0" with options
           """
           conn.master ovsbridge0
@@ -1247,10 +1209,7 @@ Feature: nmcli - ovs
     @openvswitch @firewall
     @ovs_set_firewalld_zone
     Scenario: NM -  openvswitch - set firewalld zone
-    * Add "ovs-bridge" connection named "ovs-bridge0" with options
-          """
-          conn.interface ovsbridge0
-          """
+    * Add "ovs-bridge" connection named "ovs-bridge0" for device "ovsbridge0"
     * Add "ovs-port" connection named "ovs-port0" for device "port0" with options
           """
           conn.master ovsbridge0
@@ -1271,10 +1230,7 @@ Feature: nmcli - ovs
     @ovs_service_disabled_error
     Scenario: NM -  openvswitch - start with disabled service
     * Execute "systemctl stop openvswitch"
-    * Add "ovs-bridge" connection named "ovs-bridge0" with options
-          """
-          conn.interface ovsbridge0
-          """
+    * Add "ovs-bridge" connection named "ovs-bridge0" for device "ovsbridge0"
     * Add "ovs-port" connection named "ovs-port0" for device "port0" with options
           """
           conn.master ovsbridge0
@@ -1292,10 +1248,7 @@ Feature: nmcli - ovs
     @openvswitch @firewall
     @ovs_set_firewalld_zone
     Scenario: NM -  openvswitch - set firewalld zone
-    * Add "ovs-bridge" connection named "ovs-bridge0" with options
-          """
-          conn.interface ovsbridge0
-          """
+    * Add "ovs-bridge" connection named "ovs-bridge0" for device "ovsbridge0"
     * Add "ovs-port" connection named "ovs-port0" for device "long_port_iface_name" with options
           """
           conn.master ovsbridge0
@@ -1317,9 +1270,8 @@ Feature: nmcli - ovs
     @openvswitch @restart_if_needed
     @add_dpdk_port_with_mtu
     Scenario: NM - openvswitch - add dpdk device with preset MTU
-    * Add "ovs-bridge" connection named "ovs-bridge0" with options
+    * Add "ovs-bridge" connection named "ovs-bridge0" for device "ovsbridge0" with options
           """
-          conn.interface ovsbridge0
           ovs-bridge.datapath-type netdev
           """
     * Add "ovs-port" connection named "ovs-bond0" for device "bond0" with options
@@ -1362,9 +1314,8 @@ Feature: nmcli - ovs
     @openvswitch @restart_if_needed
     @add_dpdk_port_with_mtu
     Scenario: NM - openvswitch - add dpdk device with preset MTU
-    * Add "ovs-bridge" connection named "ovs-bridge0" with options
+    * Add "ovs-bridge" connection named "ovs-bridge0" for device "ovsbridge0" with options
           """
-          conn.interface ovsbridge0
           ovs-bridge.datapath-type netdev
           """
     * Add "ovs-port" connection named "ovs-bond0" for device "bond0" with options
