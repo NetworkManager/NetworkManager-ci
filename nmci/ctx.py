@@ -913,6 +913,7 @@ def setup_racoon(context, mode, dh_group, phase1_al="aes", phase2_al=None):
             f"[ -x /usr/sbin/racoon ] || yum -y install https://vbenes.fedorapeople.org/NM/ipsec-tools-0.8.2-1.el7.{context.arch}.rpm",
             shell=True,
             timeout=120,
+            ignore_stderr=True,
         )
     else:
         # Install under RHEL7 only
@@ -921,11 +922,13 @@ def setup_racoon(context, mode, dh_group, phase1_al="aes", phase2_al=None):
                 "[ -f /etc/yum.repos.d/epel.repo ] || sudo rpm -i http://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm",
                 shell=True,
                 timeout=120,
+                ignore_stderr=True,
             )
         context.process.run_stdout(
             "[ -x /usr/sbin/racoon ] || yum -y install ipsec-tools",
             shell=True,
             timeout=120,
+            ignore_stderr=True,
         )
 
     RC = context.process.run_code(
@@ -958,11 +961,13 @@ def setup_hostapd(context):
                 "[ -f /etc/yum.repos.d/epel.repo ] || sudo rpm -i http://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm",
                 shell=True,
                 timeout=120,
+                ignore_stderr=True,
             )
         context.process.run_stdout(
             "[ -x /usr/sbin/hostapd ] || (yum -y install hostapd; sleep 10)",
             shell=True,
             timeout=120,
+            ignore_stderr=True,
         )
     if (
         context.process.run_code(
@@ -990,7 +995,9 @@ def setup_pkcs11(context):
         install_packages.append("opensc")
     if len(install_packages) > 0:
         context.process.run_stdout(
-            f"yum -y install {' '.join(install_packages)}", timeout=120
+            f"yum -y install {' '.join(install_packages)}",
+            timeout=120,
+            ignore_stderr=True,
         )
     re_token = re.compile(r"(?m)Label:[\s]*nmci[\s]*$")
     re_nmclient = re.compile(r"(?m)label:[\s]*nmclient$")
@@ -1042,11 +1049,13 @@ def setup_hostapd_wireless(context, args=None):
                 "[ -f /etc/yum.repos.d/epel.repo ] || sudo rpm -i http://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm",
                 shell=True,
                 timeout=120,
+                ignore_stderr=True,
             )
         context.process.run_stdout(
             "[ -x /usr/sbin/hostapd ] || (yum -y install hostapd; sleep 10)",
             shell=True,
             timeout=120,
+            ignore_stderr=True,
         )
     argv = ["sh", "prepare/hostapd_wireless.sh", "contrib/8021x/certs"]
     if args is not None:

@@ -285,6 +285,7 @@ def tag1000_bs(context, scenario):
         context.process.run_stdout(
             "yum -y install http://dl.fedoraproject.org/pub/epel/7/x86_64/p/python2-pyroute2-0.4.13-1.el7.noarch.rpm",
             timeout=120,
+            ignore_stderr=True,
         )
 
 
@@ -579,7 +580,9 @@ def netcat_bs(context, scenario):
     # TODO move to envsetup
     if not os.path.isfile("/usr/bin/nc"):
         print("installing netcat")
-        context.process.run_stdout("sudo yum -y install nmap-ncat", timeout=120)
+        context.process.run_stdout(
+            "sudo yum -y install nmap-ncat", timeout=120, ignore_stderr=True
+        )
 
 
 _register_tag("netcat", netcat_bs)
@@ -590,7 +593,9 @@ def scapy_bs(context, scenario):
     # TODO move to envsetup
     if not os.path.isfile("/usr/bin/scapy"):
         print("installing scapy and tcpdump")
-        context.process.run_stdout("yum -y install tcpdump", timeout=120)
+        context.process.run_stdout(
+            "yum -y install tcpdump", timeout=120, ignore_stderr=True
+        )
         context.process.run_stdout(
             "python -m pip install scapy", ignore_stderr=True, timeout=120
         )
@@ -609,7 +614,9 @@ def mock_bs(context, scenario):
     # TODO move to envsetup
     if context.process.run_code("rpm -q --quiet dbus-x11") != 0:
         print("installing dbus-x11, pip, and python-dbusmock==0.26.1 dataclasses")
-        context.process.run_stdout("yum -y install dbus-x11", timeout=120)
+        context.process.run_stdout(
+            "yum -y install dbus-x11", timeout=120, ignore_stderr=True
+        )
     context.process.run_stdout(
         "sudo python3 -m pip install python-dbusmock==0.26.1 dataclasses",
         ignore_stderr=True,
@@ -629,7 +636,9 @@ def IPy_bs(context, scenario):
     # TODO move to envsetup
     if context.process.run_code("rpm -q --quiet dbus-x11") != 0:
         print("installing dbus-x11")
-        context.process.run_stdout("yum -y install dbus-x11", timeout=120)
+        context.process.run_stdout(
+            "yum -y install dbus-x11", timeout=120, ignore_stderr=True
+        )
     if not context.process.run_search_stdout(
         "python -m pip list", "IPy", ignore_stderr=True
     ):
@@ -943,12 +952,15 @@ def need_dispatcher_scripts_bs(context, scenario):
             "yum install -y $(cat /tmp/nm-builddir)/noarch/NetworkManager-dispatcher-routing-rules*",
             shell=True,
             timeout=120,
+            ignore_stderr=True,
         )
     else:
         nmci.ctx.wait_for_testeth0(context)
         print("install NetworkManager-config-routing-rules")
         context.process.run_stdout(
-            "yum -y install NetworkManager-config-routing-rules", timeout=120
+            "yum -y install NetworkManager-config-routing-rules",
+            timeout=120,
+            ignore_stderr=True,
         )
     nmci.ctx.reload_NM_service(context)
 
@@ -956,7 +968,9 @@ def need_dispatcher_scripts_bs(context, scenario):
 def need_dispatcher_scripts_as(context, scenario):
     nmci.ctx.wait_for_testeth0(context)
     context.process.run_stdout(
-        "yum -y remove NetworkManager-config-routing-rules", timeout=120
+        "yum -y remove NetworkManager-config-routing-rules",
+        timeout=120,
+        ignore_stderr=True,
     )
     context.process.run_stdout("rm -rf /etc/sysconfig/network-scripts/rule-con_general")
     context.process.run_stdout(
@@ -1053,6 +1067,7 @@ def tag8021x_bs(context, scenario):
                 "[ -x /usr/sbin/hostapd ] || (yum -y install 'https://vbenes.fedorapeople.org/NM/hostapd-2.6-7.el7.s390x.rpm'; time.sleep 10)",
                 shell=True,
                 timeout=120,
+                ignore_stderr=True,
             )
         nmci.ctx.setup_hostapd(context)
 
@@ -1227,11 +1242,14 @@ def vpnc_bs(context, scenario):
             "[ -f /etc/yum.repos.d/epel.repo ] || sudo rpm -i http://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm",
             shell=True,
             timeout=120,
+            ignore_stderr=True,
         )
     if context.process.run_code("rpm -q NetworkManager-vpnc") != 0:
         print("install NetworkManager-vpnc")
         context.process.run_stdout(
-            "sudo yum -y install NetworkManager-vpnc", timeout=120
+            "sudo yum -y install NetworkManager-vpnc",
+            timeout=120,
+            ignore_stderr=True,
         )
         nmci.ctx.restart_NM_service(context)
     nmci.ctx.setup_racoon(context, mode="aggressive", dh_group=2)
@@ -1257,10 +1275,13 @@ def tcpreplay_bs(context, scenario):
             "[ -f /etc/yum.repos.d/epel.repo ] || sudo rpm -i http://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm",
             shell=True,
             timeout=120,
+            ignore_stderr=True,
         )
     if not os.path.isfile("/usr/bin/tcpreplay"):
         print("install tcpreplay")
-        context.process.run_stdout("yum -y install tcpreplay", timeout=120)
+        context.process.run_stdout(
+            "yum -y install tcpreplay", timeout=120, ignore_stderr=True
+        )
 
 
 _register_tag("tcpreplay", tcpreplay_bs)
@@ -1270,7 +1291,9 @@ def libreswan_bs(context, scenario):
     nmci.ctx.wait_for_testeth0(context)
     if context.process.run_code("rpm -q NetworkManager-libreswan") != 0:
         context.process.run_stdout(
-            "sudo yum -y install NetworkManager-libreswan", timeout=120
+            "sudo yum -y install NetworkManager-libreswan",
+            timeout=120,
+            ignore_stderr=True,
         )
         nmci.ctx.restart_NM_service(context)
 
@@ -1612,16 +1635,19 @@ def pptp_bs(context, scenario):
             "[ -f /etc/yum.repos.d/epel.repo ] || sudo rpm -i http://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm",
             shell=True,
             timeout=120,
+            ignore_stderr=True,
         )
     context.process.run_stdout(
         "[ -x /usr/sbin/pptpd ] || sudo yum -y install /usr/sbin/pptpd",
         shell=True,
         timeout=120,
+        ignore_stderr=True,
     )
     context.process.run_stdout(
         "rpm -q NetworkManager-pptp || sudo yum -y install NetworkManager-pptp",
         shell=True,
         timeout=120,
+        ignore_stderr=True,
     )
 
     context.process.run_stdout("sudo rm -f /etc/ppp/ppp-secrets")
@@ -1663,7 +1689,9 @@ def firewall_bs(context, scenario):
     if context.process.run_code("rpm -q firewalld") != 0:
         print("install firewalld")
         nmci.ctx.wait_for_testeth0(context)
-        context.process.run_stdout("sudo yum -y install firewalld", timeout=120)
+        context.process.run_stdout(
+            "sudo yum -y install firewalld", timeout=120, ignore_stderr=True
+        )
     context.process.systemctl("unmask firewalld")
     time.sleep(1)
     context.process.systemctl("stop firewalld")
@@ -1758,6 +1786,7 @@ def slow_team_bs(context, scenario):
     context.process.run_stdout(
         "yum -y install https://vbenes.fedorapeople.org/NM/slow_libteam-1.25-5.el7_4.1.1.x86_64.rpm https://vbenes.fedorapeople.org/NM/slow_teamd-1.25-5.el7_4.1.1.x86_64.rpm",
         timeout=120,
+        ignore_stderr=True,
     )
     if context.process.run_code("rpm --quiet -q teamd") != 0:
         print("Skipping as unable to install slow_team")
@@ -1766,7 +1795,9 @@ def slow_team_bs(context, scenario):
             "for i in $(rpm -qa |grep team|grep -v Netw); do rpm -e $i --nodeps; done",
             shell=True,
         )
-        context.process.run_stdout("yum -y install teamd libteam", timeout=120)
+        context.process.run_stdout(
+            "yum -y install teamd libteam", timeout=120, ignore_stderr=True
+        )
         sys.exit(77)
     nmci.ctx.reload_NM_service(context)
 
@@ -1776,7 +1807,9 @@ def slow_team_as(context, scenario):
         "for i in $(rpm -qa |grep team|grep -v Netw); do rpm -e $i --nodeps; done",
         shell=True,
     )
-    context.process.run_stdout("yum -y install teamd libteam", timeout=120)
+    context.process.run_stdout(
+        "yum -y install teamd libteam", timeout=120, ignore_stderr=True
+    )
     nmci.ctx.reload_NM_service(context)
 
 
@@ -1789,7 +1822,9 @@ def openvswitch_bs(context, scenario):
         sys.exit(77)
     if context.process.run_code("rpm -q NetworkManager-ovs") != 0:
         print("install NetworkManager-ovs")
-        context.process.run_stdout("yum -y install NetworkManager-ovs", timeout=120)
+        context.process.run_stdout(
+            "yum -y install NetworkManager-ovs", timeout=120, ignore_stderr=True
+        )
         context.process.systemctl("daemon-reload")
         nmci.ctx.restart_NM_service(context)
     if (
