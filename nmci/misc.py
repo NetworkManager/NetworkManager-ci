@@ -789,7 +789,7 @@ class _Misc:
             syslog_identifier = []
 
         if cursor:
-            cursor = ["--after-cursor=" + util.bytes_to_str(cursor)]
+            cursor = ["--cursor=" + util.bytes_to_str(cursor)]
         else:
             cursor = []
 
