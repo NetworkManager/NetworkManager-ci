@@ -259,7 +259,7 @@ class _IP:
         addr_family = self.addr_family_norm(addr_family)
 
         if wait_for_address is not None:
-            end_time = time.monotonic() + wait_for_address
+            timeout = util.start_timeout(wait_for_address)
             while True:
                 try:
                     return self.address_expect(
@@ -275,7 +275,7 @@ class _IP:
                         addrs=None,
                     )
                 except ValueError as e:
-                    if time.monotonic() >= end_time:
+                    if timeout.expired():
                         raise ValueError(
                             f"Requested configuration not ready after timeout: {e}"
                         )
@@ -416,21 +416,17 @@ class _IP:
 
     def link_show(self, timeout=None, **kwargs):
 
-        if timeout is not None:
-            # if we have a timeout, we will poll/wait, until a suitable
-            # link is ready.
-            end_time = time.monotonic() + timeout
-
+        xtimeout = util.start_timeout(timeout)
         while True:
 
             try:
                 return self._link_show(**kwargs)
             except:
-                if timeout is None:
+                if xtimeout.is_none():
                     raise
                 pass
 
-            if time.monotonic() >= end_time:
+            if xtimeout.expired():
                 raise Exception(
                     "Requested interface not found or not ready within timeout (args=%s)"
                     % (kwargs,)

@@ -539,40 +539,63 @@ def stripped(x):
 
 def dump_status(context, when, fail_only=False):
     nm_running = nmci.process.systemctl("status NetworkManager").returncode == 0
-    msg = ""
-    cmds = ['date "+%Y%m%d-%H%M%S.%N"']
-    if nm_running:
-        cmds += ["NetworkManager --version"]
-    cmds += ["ip addr", "ip -4 route", "ip -6 addr", "ip -6 route"]
+    cmds = [
+        'date "+%Y%m%d-%H%M%S.%N"',
+        "NetworkManager --version",
+        "ip addr",
+        "ip -4 route",
+        "ip -6 addr",
+        "ip -6 route",
+    ]
     if nm_running:
         cmds += [
-            "hostnamectl 2>&1",
+            process.WithShell("hostnamectl 2>&1"),
             "nmcli -f ALL g",
             "nmcli -f ALL c",
             "nmcli -f ALL d",
             "nmcli -f ALL d w l",
             "NetworkManager --print-config",
             "cat /etc/resolv.conf",
-            "ps aux | grep dhclient",
+            # use '[d]hclient' to not match grep command itself.
+            process.WithShell("ps aux | grep -w '[d]hclient'"),
         ]
 
-    for cmd in cmds:
-        msg += "\n--- %s ---\n" % cmd
-        result = nmci.process.run(cmd, shell=True, timeout=20)
-        msg += result.stdout
-    if nm_running:
-        if os.path.isfile("/tmp/nm_veth_configured"):
+    cmds_part1_len = len(cmds)
+
+    if nm_running and os.path.isfile("/tmp/nm_veth_configured"):
+        cmds += [
+            "ip netns exec vethsetup ip addr",
+            "ip netns exec vethsetup ip -4 route",
+            "ip netns exec vethsetup ip -6 addr",
+            "ip netns exec vethsetup ip -6 route",
+            process.WithShell("ps aux | grep -w '[d]nsmasq'"),
+        ]
+
+    procs = [process.Popen(c, stderr=subprocess.DEVNULL) for c in cmds]
+
+    timeout = util.start_timeout(20)
+    while True:
+        any_pending = False
+        timeout_expired = timeout.expired()
+        for proc in procs:
+            if proc.read_and_poll() is None:
+                if timeout_expired:
+                    proc.terminate_and_wait(timeout_before_kill=3)
+                else:
+                    any_pending = True
+        if not any_pending or timeout_expired:
+            break
+        time.sleep(0.05)
+
+    msg = ""
+    for i in range(len(procs)):
+        proc = procs[i]
+        if i == cmds_part1_len:
             msg += "\nVeth setup network namespace and DHCP server state:\n"
-            for cmd in [
-                "ip netns exec vethsetup ip addr",
-                "ip netns exec vethsetup ip -4 route",
-                "ip netns exec vethsetup ip -6 addr",
-                "ip netns exec vethsetup ip -6 route",
-                "ps aux | grep dnsmasq",
-            ]:
-                msg += "\n--- %s ---\n" % cmd
-                result = nmci.process.run(cmd, shell=True)
-                msg += result.stdout
+        msg += f"\n--- {proc.argv} ---\n"
+        msg += proc.stdout.decode("utf-8", errors="replace")
+    if timeout_expired:
+        msg += "\n\nWARNING: timeout expired waiting for processes. Processes were terminated."
 
     context.cext.embed_data("Status " + when, msg, fail_only=fail_only)
 

@@ -3,6 +3,32 @@ import os
 import re
 import subprocess
 import sys
+import time
+
+
+class _Timeout:
+    def __init__(self, timeout):
+        self._is_expired = False
+        if timeout is None:
+            self._expiry = None
+        elif timeout <= 0:
+            self._is_expired = True
+            self._expiry = 0
+        else:
+            self._expiry = time.monotonic() + timeout
+
+    def expired(self):
+        if self._is_expired:
+            return True
+        if self._expiry is None or time.monotonic() < self._expiry:
+            return False
+        self._is_expired = True
+        return True
+
+    def is_none(self):
+        # timeout=None means no timeout (infinity). It can be useful
+        # to ask @self whether timeout is disabled.
+        return self._expiry is None
 
 
 class _Util:
@@ -149,6 +175,9 @@ class _Util:
     FileGetContentResult = collections.namedtuple(
         "FileGetContentResult", ["data", "full_file"]
     )
+
+    def start_timeout(self, *a, **kw):
+        return _Timeout(*a, **kw)
 
     def fd_get_content(
         self,

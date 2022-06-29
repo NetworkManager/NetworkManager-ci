@@ -3,6 +3,7 @@ import os
 import re
 import subprocess
 import sys
+import time
 
 from . import util
 
@@ -11,6 +12,124 @@ RunResult = collections.namedtuple("RunResult", ["returncode", "stdout", "stderr
 
 
 IGNORE_RETURNCODE_ALL = object()
+
+SHELL_AUTO = object()
+
+
+class WithShell:
+    def __init__(self, cmd):
+        assert isinstance(cmd, str)
+        self.cmd = cmd
+
+    def __str__(self):
+        return self.cmd
+
+
+def _run_prepare_args(argv, shell, env, env_extra):
+
+    if shell is SHELL_AUTO:
+        # Autodetect whether to use a shell.
+        if isinstance(argv, WithShell):
+            argv = argv.cmd
+            shell = True
+        else:
+            shell = False
+    else:
+        shell = True if shell else False
+
+    argv_real = argv
+
+    if isinstance(argv_real, str):
+        # For convenience, we allow argv as string.
+        if shell:
+            argv_real = [argv_real]
+        else:
+            import shlex
+
+            argv_real = shlex.split(argv_real)
+
+    if env_extra:
+        if env is None:
+            env = dict(os.environ)
+        else:
+            env = dict(env)
+        env.update(env_extra)
+
+    return argv, argv_real, shell, env
+
+
+class PopenCollect:
+    def __init__(self, proc, argv=None, argv_real=None, shell=None):
+        self.proc = proc
+        self.argv = argv
+        self.argv_real = argv_real
+        self.shell = shell
+        self.returncode = None
+        self.stdout = b""
+        self.stderr = b""
+
+    def read_and_poll(self):
+
+        if self.returncode is None:
+            c = self.proc.poll()
+            if self.proc.stdout is not None:
+                self.stdout += self.proc.stdout.read()
+            if self.proc.stderr is not None:
+                self.stderr += self.proc.stderr.read()
+            if c is None:
+                return None
+            self.returncode = c
+
+        return self.returncode
+
+    def read_and_wait(self, timeout=None):
+        xtimeout = util.start_timeout(timeout)
+        while True:
+            c = self.read_and_poll()
+            if c is not None:
+                return c
+            if xtimeout.expired():
+                return None
+            try:
+                self.proc.wait(timeout=0.05)
+            except subprocess.TimeoutExpired:
+                pass
+
+    def terminate_and_wait(self, timeout_before_kill=5):
+        self.proc.terminate()
+        if self.read_and_wait(timeout=timeout_before_kill) is not None:
+            return
+        self.proc.kill()
+        self.read_and_wait()
+
+
+def Popen(
+    argv,
+    *,
+    shell=SHELL_AUTO,
+    cwd=util.BASE_DIR,
+    env=None,
+    env_extra=None,
+    stdout=subprocess.PIPE,
+    stderr=subprocess.PIPE,
+    context_hook=None,
+):
+
+    argv, argv_real, shell, env = _run_prepare_args(argv, shell, env, env_extra)
+
+    if context_hook is not None:
+        context_hook("popen-call", argv_real, shell)
+
+    proc = subprocess.Popen(
+        argv_real,
+        shell=shell,
+        stdout=stdout,
+        stderr=stderr,
+        cwd=cwd,
+        env=env,
+    )
+
+    return PopenCollect(proc, argv=argv, argv_real=argv_real, shell=shell)
 
 
 def _run(
@@ -29,35 +148,13 @@ def _run(
     context_hook,
 ):
 
-    shell = True if shell else False
-
-    if isinstance(argv, str):
-        # For convenience, we allow argv as string.
-        if shell:
-            argv = [argv]
-        else:
-            import shlex
-
-            argv = shlex.split(argv)
-
-    if env_extra:
-        if env is None:
-            env = dict(os.environ)
-        else:
-            env = dict(env)
-        env.update(env_extra)
+    argv, argv_real, shell, env = _run_prepare_args(argv, shell, env, env_extra)
 
     if context_hook is not None:
-        context_hook("call", argv, shell, timeout)
-
-    if stdout is None:
-        stdout = subprocess.PIPE
-
-    if stderr is None:
-        stderr = subprocess.PIPE
+        context_hook("call", argv_real, shell, timeout)
 
     proc = subprocess.run(
-        argv,
+        argv_real,
         shell=shell,
         stdout=stdout,
         stderr=stderr,
@@ -74,7 +171,7 @@ def _run(
         r_stderr = b""
 
     if context_hook is not None:
-        context_hook("result", argv, shell, returncode, r_stdout, r_stderr)
+        context_hook("result", argv_real, shell, returncode, r_stdout, r_stderr)
 
     # Depending on ignore_returncode we accept non-zero output. But
     # even then we want to fail for return codes that indicate a crash
@@ -90,7 +187,7 @@ def _run(
         raise Exception(
             "`%s` returned exit code %s\nSTDOUT:\n%s\nSTDERR:\n%s"
             % (
-                " ".join([util.bytes_to_str(s, errors="replace") for s in argv]),
+                " ".join([util.bytes_to_str(s, errors="replace") for s in argv_real]),
                 returncode,
                 r_stdout.decode("utf-8", errors="replace"),
                 r_stderr.decode("utf-8", errors="replace"),
@@ -102,7 +199,7 @@ def _run(
         raise Exception(
             "`%s` printed something on stderr: %s"
             % (
-                " ".join([util.bytes_to_str(s, errors="replace") for s in argv]),
+                " ".join([util.bytes_to_str(s, errors="replace") for s in argv_real]),
                 r_stderr.decode("utf-8", errors="replace"),
             )
         )
@@ -117,7 +214,7 @@ def _run(
 def run(
     argv,
     *,
-    shell=False,
+    shell=SHELL_AUTO,
     as_bytes=False,
     timeout=5,
     cwd=util.BASE_DIR,
@@ -125,8 +222,8 @@ def run(
     env_extra=None,
     ignore_returncode=True,
     ignore_stderr=False,
-    stdout=None,
-    stderr=None,
+    stdout=subprocess.PIPE,
+    stderr=subprocess.PIPE,
     context_hook=None,
 ):
     return _run(
@@ -148,7 +245,7 @@ def run(
 def run_stdout(
     argv,
     *,
-    shell=False,
+    shell=SHELL_AUTO,
     as_bytes=False,
     timeout=5,
     cwd=util.BASE_DIR,
@@ -156,7 +253,7 @@ def run_stdout(
     env_extra=None,
     ignore_returncode=False,
     ignore_stderr=False,
-    stderr=None,
+    stderr=subprocess.PIPE,
     context_hook=None,
 ):
     return _run(
@@ -169,7 +266,7 @@ def run_stdout(
         env_extra=env_extra,
         ignore_stderr=ignore_stderr,
         ignore_returncode=ignore_returncode,
-        stdout=None,
+        stdout=subprocess.PIPE,
         stderr=stderr,
         context_hook=context_hook,
     ).stdout
@@ -178,7 +275,7 @@ def run_stdout(
 def run_code(
     argv,
     *,
-    shell=False,
+    shell=SHELL_AUTO,
     as_bytes=False,
     timeout=5,
     cwd=util.BASE_DIR,
@@ -198,8 +295,8 @@ def run_code(
         env_extra=env_extra,
         ignore_stderr=ignore_stderr,
         ignore_returncode=ignore_returncode,
-        stdout=None,
-        stderr=None,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
         context_hook=context_hook,
     ).returncode
 
@@ -208,15 +305,16 @@ def run_search_stdout(
     argv,
     pattern,
     *,
-    shell=False,
+    shell=SHELL_AUTO,
     timeout=5,
     cwd=util.BASE_DIR,
     env=None,
     env_extra=None,
     ignore_returncode=False,
     ignore_stderr=False,
-    context_hook=None,
+    stderr=subprocess.PIPE,
     pattern_flags=re.DOTALL | re.MULTILINE,
+    context_hook=None,
 ):
     # autodetect based on the pattern
     if isinstance(pattern, bytes):
@@ -235,8 +333,8 @@ def run_search_stdout(
         env_extra=env_extra,
         ignore_stderr=ignore_stderr,
         ignore_returncode=ignore_returncode,
-        stdout=None,
-        stderr=None,
+        stdout=subprocess.PIPE,
+        stderr=stderr,
         context_hook=context_hook,
     )
     return re.search(pattern, result.stdout, flags=pattern_flags)
@@ -245,7 +343,6 @@ def run_search_stdout(
 def nmcli(
     argv,
     *,
-    shell=False,
     as_bytes=False,
     timeout=60,
     cwd=util.BASE_DIR,
@@ -262,7 +359,7 @@ def nmcli(
 
     return _run(
         argv,
-        shell=shell,
+        shell=False,
         as_bytes=as_bytes,
         timeout=timeout,
         cwd=cwd,
@@ -270,8 +367,8 @@ def nmcli(
         env_extra=env_extra,
         ignore_stderr=ignore_stderr,
         ignore_returncode=ignore_returncode,
-        stdout=None,
-        stderr=None,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
         context_hook=context_hook,
     ).stdout
 
@@ -279,7 +376,6 @@ def nmcli(
 def nmcli_force(
     argv,
     *,
-    shell=False,
     as_bytes=False,
     timeout=60,
     cwd=util.BASE_DIR,
@@ -296,7 +392,7 @@ def nmcli_force(
 
     return _run(
         argv,
-        shell=shell,
+        shell=False,
         as_bytes=as_bytes,
         timeout=timeout,
         cwd=cwd,
@@ -304,8 +400,8 @@ def nmcli_force(
         env_extra=env_extra,
         ignore_stderr=ignore_stderr,
         ignore_returncode=ignore_returncode,
-        stdout=None,
-        stderr=None,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
         context_hook=context_hook,
     )
 
@@ -313,7 +409,6 @@ def nmcli_force(
 def systemctl(
     argv,
     *,
-    shell=False,
     as_bytes=False,
     timeout=60,
     cwd=util.BASE_DIR,
@@ -330,7 +425,7 @@ def systemctl(
 
     return _run(
         argv,
-        shell=shell,
+        shell=False,
         as_bytes=as_bytes,
         timeout=timeout,
         cwd=cwd,
@@ -338,7 +433,7 @@ def systemctl(
         env_extra=env_extra,
         ignore_stderr=ignore_stderr,
         ignore_returncode=ignore_returncode,
-        stdout=None,
-        stderr=None,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
         context_hook=context_hook,
     )

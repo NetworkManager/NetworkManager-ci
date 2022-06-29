@@ -1328,6 +1328,58 @@ def test_context_set_up_commands():
     _assert_embed(context, "echo -e ")
 
 
+def test_process_run_shell_auto():
+
+    with pytest.raises(Exception) as e:
+        process.run("date|grep .")
+
+    with pytest.raises(Exception) as e:
+        process.run("date|grep .", shell=False)
+
+    assert (
+        "20" in process.run("date|grep .", env_extra={"LANG": "C"}, shell=True).stdout
+    )
+
+    assert (
+        "20"
+        in process.run(process.WithShell("date|grep ."), env_extra={"LANG": "C"}).stdout
+    )
+
+    assert "$SHELL" == process.run("echo -n $SHELL", shell=False).stdout
+    assert "$SHELL" == process.run("echo -n $SHELL", shell=process.SHELL_AUTO).stdout
+    assert "$SHELL" == process.run("echo -n $SHELL").stdout
+    assert "$SHELL" != process.run("echo -n $SHELL", shell=True).stdout
+    assert "$SHELL" != process.run(process.WithShell("echo -n $SHELL")).stdout
+
+
+def test_process_popen():
+
+    proc = process.Popen("echo -n hallo").proc
+    proc.wait()
+    assert proc.stdout.read() == b"hallo"
+
+    proc = process.Popen("echo -n $SHELL").proc
+    proc.wait()
+    assert proc.stdout.read() == b"$SHELL"
+
+    proc = process.Popen(process.WithShell("echo -n $SHELL")).proc
+    proc.wait()
+    assert proc.stdout.read() != b"$SHELL"
+
+    pc = process.Popen("echo -n hello")
+    while pc.read_and_poll() is None:
+        time.sleep(0.05)
+    assert pc.returncode == 0
+    assert pc.stdout == b"hello"
+    assert pc.stderr == b""
+
+    pc = process.Popen(process.WithShell("echo -n foo; echo -n hello 1>&2"))
+    pc.read_and_wait()
+    assert pc.returncode == 0
+    assert pc.stdout == b"foo"
+    assert pc.stderr == b"hello"
+
+
 def test_ip_link_add_nonutf8():
 
     if os.environ.get("NMCI_ROOT_TEST") != "1":
@@ -1447,6 +1499,36 @@ def test_util_consume_list():
     lst = [1, "b"]
     assert list(util.consume_list(lst)) == [1, "b"]
     assert lst == []
+
+
+def test_util_start_timeout():
+
+    t = util.start_timeout(None)
+    assert not t.expired()
+    assert t.is_none()
+
+    t = util.start_timeout(0)
+    assert t.expired()
+    assert not t.is_none()
+
+    t = util.start_timeout(0.0)
+    assert t.expired()
+    assert not t.is_none()
+
+    t = util.start_timeout(-1)
+    assert t.expired()
+    assert not t.is_none()
+
+    t = util.start_timeout(100000)
+    assert not t.expired()
+
+    t = util.start_timeout(100000.1)
+    assert not t.expired()
+
+    t = util.start_timeout(0.05)
+    while not t.expired():
+        time.sleep(0.01)
+    assert t.expired()
 
 
 # This test should always run as last. Keep it at the bottom

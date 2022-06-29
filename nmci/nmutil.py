@@ -28,12 +28,12 @@ class _NMUtil:
         return pid
 
     def wait_for_nm_pid(self, seconds=10):
-        end_time = time.monotonic() + seconds
+        timeout = util.start_timeout(seconds)
         while True:
             pid = self.nm_pid()
             if pid:
                 return pid
-            if time.monotonic() >= end_time:
+            if timeout.expired():
                 raise util.ExpectedException(
                     f"NetworkManager not running in {seconds} seconds"
                 )
