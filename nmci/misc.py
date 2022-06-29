@@ -813,7 +813,7 @@ class _Misc:
         import tempfile
 
         with tempfile.TemporaryFile(dir=util.tmp_dir()) as f_out:
-            p = process.run(
+            process.run(
                 ["journalctl", "--all", "--no-pager"]
                 + service
                 + syslog_identifier
