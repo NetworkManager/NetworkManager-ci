@@ -546,7 +546,6 @@ def dump_status(context, when, fail_only=False):
         "NetworkManager --version",
         "ip addr",
         "ip -4 route",
-        "ip -6 addr",
         "ip -6 route",
     ]
     if nm_running:
@@ -566,10 +565,9 @@ def dump_status(context, when, fail_only=False):
 
     if nm_running and os.path.isfile("/tmp/nm_veth_configured"):
         cmds += [
-            "ip netns exec vethsetup ip addr",
-            "ip netns exec vethsetup ip -4 route",
-            "ip netns exec vethsetup ip -6 addr",
-            "ip netns exec vethsetup ip -6 route",
+            "ip -n vethsetup addr",
+            "ip -n vethsetup -4 route",
+            "ip -n vethsetup -6 route",
             process.WithShell("ps aux | grep -w '[d]nsmasq'"),
         ]
 
