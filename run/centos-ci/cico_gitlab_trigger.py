@@ -10,7 +10,7 @@ import re
 
 from pprint import pprint
 
-default_os = "8-stream"
+default_os = ["8-stream", "9-stream"]
 ##next_os = 'RHEL8.4'
 # next_branch_base = 'rhel-8'
 
@@ -246,32 +246,29 @@ class GitlabTrigger(object):
 
 
 def get_rebuild_detail(message, overrides={}):
-    # lets see if there is a @OS:rhelx.y in the desc or commit msg
+    # lets see if there is a @OS:cXs in the desc or commit msg
     msg = []
+    os_version = overrides.get("os_version", set())
     for line in message.split("\n"):
         if line.strip().lower().startswith("@os:"):
             os_alias = line.strip().split(":")[-1]
-            os_version = None
             if os_alias in ["c8s", "centos8-stream"]:
-                os_version = "8-stream"
+                os_version.add("8-stream")
             elif os_alias in ["c9s", "centos9-stream"]:
-                os_version = "9-stream"
-            if os_version:
-                overrides["os_version"] = os_version
+                os_version.add("9-stream")
         elif line.strip().lower().startswith("@runfeatures:"):
             overrides["features"] = line.strip().split(":", 1)[-1]
         elif line.strip().lower().startswith("@build:"):
             overrides["build"] = line.strip().split(":")[-1]
         elif line:
             msg.append(line)
+    overrides["os_version"] = os_version
     return overrides, "\n".join(msg)
 
 
 # 'os_version' param for 'rebuild RHEL8.9' etc., good for nm less for desktop as it is mainly determined by branching
 def execute_build(gt, content, os_version=default_os, features="best", build="main"):
     params = []
-
-    params.append({"name": "RELEASE", "value": os_version})
 
     if gt.repository == "NetworkManager":
         # NM CODE will use main unless we know branch mr/abcd exists
@@ -289,29 +286,33 @@ def execute_build(gt, content, os_version=default_os, features="best", build="ma
         params.append({"name": "REFSPEC", "value": build})
         project_dir = "NetworkManager-test-mr"
 
-    params.append(
-        {
-            "name": "VERSION",
-            "value": "MR#%d %s: %s (%s)"
-            % (gt.merge_request_id, gt.commit_author, gt.source_branch, os_version),
-        }
-    )
     params.append({"name": "FEATURES", "value": features})
     params.append({"name": "RESERVE", "value": "0s"})
     params.append({"name": "TRIGGER_DATA", "value": content})
     # params.append({'name': 'GL_TOKEN', 'value': os.environ['GL_TOKEN']})
 
-    json_part = json.dumps({"parameter": params})
-    url_part = "--data-urlencode json='%s'" % str(json_part.replace("'", ""))
+    token = os.environ["JK_TOKEN"]
+    job_url = f"{jenkins_url}/job/{project_dir}"
 
-    job_url = "%s/job/%s" % (jenkins_url, project_dir)
+    if not os_version:
+        os_version = default_os
 
-    t = os.environ["JK_TOKEN"]
-    cmd = "curl -k -s -X POST %s/build --data 'token=%s' %s" % (job_url, t, url_part)
-    os.system("echo %s >> /tmp/gl_commits" % gt.commit)
-    os.system(cmd)
-    # print("curl $rc: %d" % )
-    # print('Started new build in %s' % job_url)
+    for v in os_version:
+        os_version_params = []
+        os_version_params.append({"name": "RELEASE", "value": v})
+        os_version_params.append(
+            {
+                "name": "VERSION",
+                "value": f"MR#{gt.merge_request_id} {gt.commit_author}: {gt.source_branch} ({v})"
+            }
+        )
+
+        json_part = json.dumps({"parameter": params + os_version_params})
+        url_part = "--data-urlencode json='%s'" % str(json_part.replace("'", ""))
+
+        cmd = f"curl -k -s -X POST {job_url}/build --data 'token={token}' {url_part}"
+        os.system(cmd)
+    os.system(f"echo {gt.commit} >> /tmp/gl_commits")
 
 
 def process_request(data, content):
@@ -325,10 +326,10 @@ def process_request(data, content):
             if comment == "":
                 execute_build(gt, content, **params)
             elif comment in ["centos9-stream", "c9s"]:
-                params["os_version"] = "9-stream"
+                params["os_version"] = ["9-stream"]
                 execute_build(gt, content, **params)
             elif comment in ["centos8-stream", "c8s"]:
-                params["os_version"] = "8-stream"
+                params["os_version"] = ["8-stream"]
                 execute_build(gt, content, **params)
         else:
             print("Irrelevant Note...")
