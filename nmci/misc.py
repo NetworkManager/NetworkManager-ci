@@ -229,7 +229,7 @@ class _Misc:
         # - -VERSION is the version number to compare. Corresponds the version returned by nm_version_parse().
 
         if not version_tag.startswith("ver"):
-            raise ValueError(f'version tag "{version_tag0}" does not start with "ver""')
+            raise ValueError(f'version tag "{version_tag}" does not start with "ver""')
 
         v = version_tag[len("ver") :]
         stream = []
