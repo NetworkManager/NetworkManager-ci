@@ -573,7 +573,8 @@ def dump_status(context, when, fail_only=False):
 
     named_nss = {
         ns.split()[0]
-        for ns in nmci.process.run_stdout("ip netns list")[:-1].split("\n")
+        for ns in nmci.process.run_stdout("ip netns list").split("\n")
+        if ns
     } - {
         "vethsetup"
     }  # vethsetup is handled separately
