@@ -611,14 +611,16 @@ class Runner:
 
         logging.debug("Gitlab Message:\n\n" + self._gitlab_message)
 
-    def _post_results(self):
+    def _post_results(self, message=None):
+        if not message:
+            message = self._gitlab_message
         if self.gitlab:
             if self.gitlab.repository == "NetworkManager-ci":
                 try:
                     self.gitlab.play_commit_job()
                 except Exception:
                     pass
-            self.gitlab.post_commit_comment(self._gitlab_message)
+            self.gitlab.post_commit_comment(message)
 
     def _generate_junit(self):
         logging.debug("Generate JUNIT")
@@ -771,7 +773,11 @@ class Runner:
                 break
 
         if "Worker failed build" in resp.text:
-            self._abort("Latests copr build failed!")
+            message = f"Latests copr build failed!\n\n{backend_url}"
+            if self.gitlab:
+                self.gitlab.post_commit_comment(message)
+            else:
+                self._abort(message)
 
     def wait_for_machines(self, abort_on_fail=True):
         logging.debug(f"Waiting for {self.phase} to finish...")
