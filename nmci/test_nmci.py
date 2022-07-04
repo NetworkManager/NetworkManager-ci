@@ -1519,16 +1519,27 @@ def test_util_start_timeout():
     assert t.expired()
     assert not t.is_none()
 
-    t = util.start_timeout(100000)
+    t = util.start_timeout("100000")
     assert not t.expired()
 
     t = util.start_timeout(100000.1)
     assert not t.expired()
 
-    t = util.start_timeout(0.05)
+    t = util.start_timeout("0.05")
     while not t.expired():
         time.sleep(0.01)
     assert t.expired()
+
+    l = 0
+    t = util.start_timeout(0)
+    while t.loop_sleep(1):
+        assert l == 0
+        l += 1
+    assert l == 1
+
+    t = util.start_timeout(0)
+    while t.sleep(1):
+        assert False
 
 
 # This test should always run as last. Keep it at the bottom

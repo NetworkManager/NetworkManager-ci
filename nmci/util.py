@@ -8,22 +8,78 @@ import time
 
 class _Timeout:
     def __init__(self, timeout):
-        self._is_expired = False
+        if isinstance(timeout, str):
+            # for convenience, allow timeout as string. We often get the timeout
+            # from behave steps, they are strings there...
+            timeout = float(timeout)
+        now = time.monotonic()
+        self._loop_sleep_called = False
+        self._expired_called = False
+        self.start_timestamp = now
         if timeout is None:
             self._expiry = None
-        elif timeout <= 0:
-            self._is_expired = True
-            self._expiry = 0
+            self._is_expired = False
         else:
-            self._expiry = time.monotonic() + timeout
+            self._expiry = now + timeout
+            self._is_expired = timeout <= 0
 
-    def expired(self):
+    def ticking_duraction(self):
+        return time.monotonic() - self.start_timestamp
+
+    def _expired(self, now):
+        self._expired_called = True
         if self._is_expired:
             return True
-        if self._expiry is None or time.monotonic() < self._expiry:
+        if self._expiry is None or now < self._expiry:
             return False
         self._is_expired = True
         return True
+
+    def expired(self):
+        return self._expired(now=time.monotonic())
+
+    @property
+    def was_expired(self):
+        # This returns True, iff self.expired() ever returned True.
+        # Unlike self.expired(), it does not re-evaluate the expiration
+        # based on the current timestamp.
+        #
+        # For that reason, it is a @property and not a function. Because,
+        # the result does not change if called twice in a row (without calling
+        # self.expired() in between).
+        return self._expired_called and self._is_expired
+
+    def sleep(self, sleep_time):
+        # sleep "sleep_time" or until the expiry (whatever
+        # comes first).
+        #
+        # Returns False if self was already expired when calling and
+        # no sleeping was done. Otherwise, we slept some time and return
+        # True.
+        now = time.monotonic()
+        if self._expired(now):
+            return False
+        if self._expiry is None:
+            sleep_time = sleep_time
+        else:
+            sleep_time = min(sleep_time, (self._expiry - now))
+        time.sleep(sleep_time)
+        return True
+
+    def loop_sleep(self, sleep_time):
+        # The very first call to sleep does not actually sleep. It
+        # Always returns True and does nothing.
+        #
+        # The idea is that when used with a while loop, that the
+        # loop gets run at least once:
+        #
+        #     timeout = nmci.util.start_timeout(0)
+        #     while timeout.sleep(1):
+        #         hi_there()
+        if not self._loop_sleep_called:
+            self._loop_sleep_called = True
+            return True
+        return self.sleep(sleep_time)
 
     def is_none(self):
         # timeout=None means no timeout (infinity). It can be useful
