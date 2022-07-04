@@ -29,15 +29,11 @@ class _NMUtil:
 
     def wait_for_nm_pid(self, seconds=10):
         timeout = util.start_timeout(seconds)
-        while True:
+        while timeout.loop_sleep(0.3):
             pid = self.nm_pid()
             if pid:
                 return pid
-            if timeout.expired():
-                raise util.ExpectedException(
-                    f"NetworkManager not running in {seconds} seconds"
-                )
-            time.sleep(0.3)
+        raise util.ExpectedException(f"NetworkManager not running in {seconds} seconds")
 
     def nm_size_kb(self):
         pid = self.nm_pid()

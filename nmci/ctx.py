@@ -590,18 +590,16 @@ def dump_status(context, when, fail_only=False):
     procs = [process.Popen(c, stderr=subprocess.DEVNULL) for c in cmds]
 
     timeout = util.start_timeout(20)
-    while True:
+    while timeout.loop_sleep(0.05):
         any_pending = False
-        timeout_expired = timeout.expired()
         for proc in procs:
             if proc.read_and_poll() is None:
-                if timeout_expired:
+                if timeout.was_expired:
                     proc.terminate_and_wait(timeout_before_kill=3)
                 else:
                     any_pending = True
-        if not any_pending or timeout_expired:
+        if not any_pending or timeout.was_expired:
             break
-        time.sleep(0.05)
 
     msg = ""
     for i in range(len(procs)):
@@ -610,7 +608,7 @@ def dump_status(context, when, fail_only=False):
             msg = f"{msg}\n{headings[i]}"
         msg += f"\n--- {proc.argv} ---\n"
         msg += proc.stdout.decode("utf-8", errors="replace")
-    if timeout_expired:
+    if timeout.was_expired:
         msg += "\n\nWARNING: timeout expired waiting for processes. Processes were terminated."
 
     context.cext.embed_data("Status " + when, msg, fail_only=fail_only)
