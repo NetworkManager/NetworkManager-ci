@@ -198,12 +198,9 @@ def json_compare(pattern, out):
             return 1
 
 
-def check_pattern_command(context, command, pattern, seconds, check_type="default", exact_check=False, timeout=180, maxread=100000, interval=1, json_check=False):
-    start_time = time.clock_gettime(nmci.util.CLOCK_BOOTTIME)
-    wait_seconds = float(seconds)
-    assert wait_seconds >= 0
-    end_time = start_time + wait_seconds
-    while True:
+def check_pattern_command(context, command, pattern, seconds, check_type="default", exact_check=False, timeout=180, maxread=100000, json_check=False):
+    xtimeout = nmci.util.start_timeout(seconds)
+    while xtimeout.loop_sleep(0.5):
         proc = context.pexpect_spawn(command, shell=True, timeout=timeout, maxread=maxread, codec_errors='ignore')
         if exact_check:
             ret = proc.expect_exact([pattern, pexpect.EOF])
@@ -216,8 +213,6 @@ def check_pattern_command(context, command, pattern, seconds, check_type="defaul
         else:
             ret = proc.expect([pattern, pexpect.EOF])
 
-        now = time.clock_gettime(nmci.util.CLOCK_BOOTTIME)
-
         if check_type == "default":
             if ret == 0:
                 return True
@@ -225,13 +220,9 @@ def check_pattern_command(context, command, pattern, seconds, check_type="defaul
             if ret != 0:
                 return True
         elif check_type == "full":
-            assert ret == 0, 'Pattern "%s" disappeared after %s seconds, ouput was:\n%s' % (pattern, now - start_time, proc.before)
+            assert ret == 0, 'Pattern "%s" disappeared after %s seconds, ouput was:\n%s' % (pattern, xtimeout.ticking_duration(), proc.before)
         elif check_type == "not_full":
-            assert ret != 0, 'Pattern "%s" appeared after %s seconds, output was:\n%s%s' % (pattern, now - start_time, proc.before, proc.after)
-
-        if now >= end_time:
-            break
-        time.sleep(min(interval, end_time - now + 0.01))
+            assert ret != 0, 'Pattern "%s" appeared after %s seconds, output was:\n%s%s' % (pattern, xtimeout.ticking_duration(), proc.before, proc.after)
 
     if check_type == "default":
         assert False, 'Did not see the pattern "%s" in %d seconds, output was:\n%s' % (pattern, int(seconds), proc.before)
@@ -429,15 +420,12 @@ def cannot_ping6_domain(context, domain):
 @step(u'Metered status is "{value}" in "{seconds}" seconds')
 def check_metered_status(context, value, seconds = None):
     value = int(value)
-    if seconds is not None:
-        end_time = time.clock_gettime(nmci.util.CLOCK_BOOTTIME) + float(seconds)
-    while True:
+    timeout = nmci.util.start_timeout(seconds)
+    while timeout.loop_sleep(0.2):
         ret = nmci.nmutil.get_metered()
         if ret == value:
             return
-        if seconds is None or time.clock_gettime(nmci.util.CLOCK_BOOTTIME) > end_time:
-            assert ret == value, f"Metered value is {ret} but should be {value}"
-        time.sleep(0.2)
+    assert ret == value, f"Metered value is {ret} but should be {value}"
 
 
 @step(u'Network trafic "{state}" dropped')
@@ -510,13 +498,10 @@ def note_NM_log(context):
 
 @step(u'Check coredump is not found in "{seconds}" seconds')
 def check_no_coredump(context, seconds):
-    expiry = time.monotonic() + float(seconds)
-    while True:
+    timeout = nmci.util.start_timeout(seconds)
+    while timeout.loop_sleep(0.5):
         nmci.ctx.check_coredump(context)
         assert not context.cext.coredump_reported, "Coredump found"
-        if time.monotonic() >= expiry:
-            break
-        time.sleep(0.5)
 
 
 @step('Check "{family}" address list "{expected}" on device "{ifname}"')

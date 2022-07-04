@@ -10,7 +10,7 @@ import nmci.util
 @step('Create PBR files for profile "{profile}" and "{dev}" device in table "{table}"')
 def create_policy_based_routing_files(context, profile, dev, table, timeout=5):
     xtimeout = nmci.util.start_timeout(timeout)
-    while True:
+    while xtimeout.loop_sleep(0.1):
         s = context.process.nmcli(["connection", "sh", profile])
         try:
             m = re.search("^IP4\.ADDRESS\[1\]:\\s*(\\S+)\\s*$", s, re.MULTILINE)
@@ -19,13 +19,12 @@ def create_policy_based_routing_files(context, profile, dev, table, timeout=5):
             m = re.search("^IP4\.GATEWAY:\\s*(\\S+)\\s*$", s, re.MULTILINE)
             gw, _ = nmci.ip.ipaddr_norm(m.group(1), addr_family="inet")
         except Exception as e:
-            if xtimeout.expired():
-                raise Exception(
-                    f"Profile {profile} has no suitable IPv4 address. Output:\n\n{s})"
-                )
-            time.sleep(0.1)
             continue
         break
+    if xtimeout.was_expired:
+        raise Exception(
+            f"Profile {profile} has no suitable IPv4 address. Output:\n\n{s})"
+        )
 
     context.util.file_set_content(
         f"/etc/sysconfig/network-scripts/route-{profile}",

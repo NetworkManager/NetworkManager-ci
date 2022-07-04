@@ -1484,8 +1484,8 @@ def prepare_patched_netdevsim_bs(context, scenario):
     nmci.ip.link_set(ifname="eth11", up=True, wait_for_device=1)
 
     # Wait until NetworkManager notices the device
-    timeout = time.monotonic() + 10
-    while time.monotonic() < timeout:
+    timeout = nmci.util.start_timeout(10)
+    while timeout.loop_sleep(0.1):
         if context.process.run_search_stdout(
             "nmcli -f GENERAL.STATE device show eth11",
             "disconnected",
@@ -1493,7 +1493,6 @@ def prepare_patched_netdevsim_bs(context, scenario):
             ignore_returncode=True,
         ):
             return
-        time.sleep(0.1)
     assert False, "Timed out waiting for eth11 to be seen by NetworkManager"
 
 
