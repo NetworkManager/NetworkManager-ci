@@ -2320,6 +2320,12 @@ testmapper:
     - simwifi_peap_mschapv2_doc_procedure:
         feature: doc_procedures
         tags: gate
+    - simwifi_hotspot_doc_procedure:
+        feature: doc_procedures
+        tags: gate
+    - simwifi_hotspot_sae_doc_procedure:
+        feature: doc_procedures
+        tags: gate
     - nmcli_simwifi_teardown_doc:
         feature: doc_procedures
         tags: gate

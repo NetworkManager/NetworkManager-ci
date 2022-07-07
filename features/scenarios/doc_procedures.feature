@@ -104,6 +104,41 @@ Feature: nmcli - procedures in documentation
     Then Bring "up" connection "wifi"
 
 
+    @rhelver+=8 @ver+=1.37
+    @simwifi @attach_wpa_supplicant_log
+    @simwifi_hotspot_doc_procedure
+    Scenario: nmcli - docs - Configuring RHEL as a WPA2 or WPA3 Personal access point
+    * Doc: "Identifying whether a wireless device supports the access point mode"
+    * Doc: "Configuring RHEL as a WPA2 or WPA3 Personal access point"
+    * Cleanup connection "Example-Hotspot"
+    Given "wifi" is visible with command "nmcli device status"
+    Given "yes" is visible with command "nmcli -f WIFI-PROPERTIES.AP device show wlan0"
+    * Execute "nmcli device wifi hotspot ifname wlan0 con-name Example-Hotspot ssid Example-Hotspot password 'password'"
+    * Bring "up" connection "Example-Hotspot"
+    Then "udp\s* UNCONN\s* 0\s* 0\s* 10.42.0.1:53" is visible with command "ss -tulpn | grep dnsmasq" in "20" seconds
+    Then "udp\s* UNCONN\s* 0\s* 0\s* 0.0.0.0:67" is visible with command "ss -tulpn  | grep dnsmasq"
+    Then "tcp\s* LISTEN\s* 0\s* 32\s* 10.42.0.1:53" is visible with command "ss -tulpn | grep dnsmasq"
+    Then "table ip nm-shared-wlan0.*ip saddr 10.42.0.0/24 ip daddr != 10.42.0.0/24 masquerade.*" is visible with command "nft list ruleset"
+    Then "chain filter_forward.*ip daddr 10.42.0.0/24 oifname .wlan0.*ip saddr 10.42.0.0/24 iifname .wlan0. accept" is visible with command "nft list ruleset"
+
+
+    @rhelver+=8 @ver+=1.37
+    @simwifi @attach_wpa_supplicant_log
+    @simwifi_hotspot_sae_doc_procedure
+    Scenario: nmcli - docs - Configuring RHEL as a WPA2 or WPA3 Personal access point (SAE + custom IP range)
+    * Doc: "Configuring RHEL as a WPA2 or WPA3 Personal access point"
+    * Cleanup connection "Example-Hotspot"
+    * Execute "nmcli device wifi hotspot ifname wlan0 con-name Example-Hotspot ssid Example-Hotspot password 'password'"
+    * Modify connection "Example-Hotspot" changing options "802-11-wireless-security.key-mgmt sae"
+    * Modify connection "Example-Hotspot" changing options "ipv4.addresses 192.0.2.254/24"
+    * Bring "up" connection "Example-Hotspot"
+    Then "udp\s* UNCONN\s* 0\s* 0\s* 192.0.2.254:53" is visible with command "ss -tulpn | grep dnsmasq" in "20" seconds
+    Then "udp\s* UNCONN\s* 0\s* 0\s* 0.0.0.0:67" is visible with command "ss -tulpn  | grep dnsmasq"
+    Then "tcp\s* LISTEN\s* 0\s* 32\s* 192.0.2.254:53" is visible with command "ss -tulpn | grep dnsmasq"
+    Then "table ip nm-shared-wlan0.*ip saddr 192.0.2.0/24 ip daddr != 192.0.2.0/24 masquerade.*" is visible with command "nft list ruleset"
+    Then "chain filter_forward.*ip daddr 192.0.2.0/24 oifname .wlan0.*ip saddr 192.0.2.0/24 iifname .wlan0. accept" is visible with command "nft list ruleset"
+
+
     @simwifi_teardown
     @nmcli_simwifi_teardown_doc
     Scenario: teardown wifi setup
