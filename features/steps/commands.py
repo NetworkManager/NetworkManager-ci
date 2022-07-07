@@ -200,7 +200,12 @@ def json_compare(pattern, out):
 
 def check_pattern_command(context, command, pattern, seconds, check_type="default", exact_check=False, timeout=180, maxread=100000, json_check=False):
     xtimeout = nmci.util.start_timeout(seconds)
-    while xtimeout.loop_sleep(0.5):
+    interval = 1
+    if int(seconds) < 60:
+        interval = 0.5
+    if int(seconds) > 200:
+        interval = 4
+    while xtimeout.loop_sleep(interval):
         proc = context.pexpect_spawn(command, shell=True, timeout=timeout, maxread=maxread, codec_errors='ignore')
         if exact_check:
             ret = proc.expect_exact([pattern, pexpect.EOF])
@@ -212,7 +217,6 @@ def check_pattern_command(context, command, pattern, seconds, check_type="defaul
             ret = json_compare(json_pattern, json_out)
         else:
             ret = proc.expect([pattern, pexpect.EOF])
-
         if check_type == "default":
             if ret == 0:
                 return True
@@ -223,7 +227,6 @@ def check_pattern_command(context, command, pattern, seconds, check_type="defaul
             assert ret == 0, 'Pattern "%s" disappeared after %s seconds, ouput was:\n%s' % (pattern, xtimeout.ticking_duration(), proc.before)
         elif check_type == "not_full":
             assert ret != 0, 'Pattern "%s" appeared after %s seconds, output was:\n%s%s' % (pattern, xtimeout.ticking_duration(), proc.before, proc.after)
-
     if check_type == "default":
         assert False, 'Did not see the pattern "%s" in %d seconds, output was:\n%s' % (pattern, int(seconds), proc.before)
     elif check_type == "not":
