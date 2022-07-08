@@ -205,7 +205,7 @@ def after_step(context, step):
         print("Omitting the test as device supports 802.11a")
         sys.exit(77)
 
-    context.cext.process_commands("")
+    context.cext.process_commands("after_step")
 
     if context.IS_NMTUI:
         """Teardown after each step.
@@ -322,7 +322,10 @@ def _after_scenario(context, scenario):
     nmci.ctx.check_coredump(context)
     nmci.ctx.check_faf(context)
 
-    context.cext.process_commands("after_scenario")
+    try:
+        context.cext.process_commands("after_scenario")
+    except Exception:
+        excepts.append(traceback.format_exc())
 
     scenario_fail = (
         scenario.status == "failed" or context.crashed_step or DEBUG or len(excepts) > 0
@@ -355,6 +358,12 @@ def _after_scenario(context, scenario):
     if scenario_fail:
         nmci.ctx.dump_status(context, "After Clean", fail_only=False)
 
+    # process embeds as last thing before asserts
+    try:
+        context.cext.process_embeds(scenario_fail)
+    except Exception:
+        excepts.append(traceback.format_exc())
+
     if excepts or context.crashed_step:
         context.after_scenario_step_el.set("class", "step failed")
     if excepts:
@@ -372,9 +381,6 @@ def _after_scenario(context, scenario):
 
     duration_el.text = f"({duration:.3f}s)"
 
-    # process embeds as last thing before asserts
-    context.cext.process_embeds(scenario_fail)
-
     # we need to keep state "passed" here, as '@crash' test is expected to fail
     if "crash" in scenario.effective_tags and not context.cext.coredump_reported:
         print("No crashdump found")
@@ -383,7 +389,7 @@ def _after_scenario(context, scenario):
     if context.crashed_step:
         assert False, "Crash happened"
 
-    assert not excepts, "Exception in after scenario tags:\n\n" + "\n\n".join(excepts)
+    assert not excepts, "Exceptions in after scenario:\n\n" + "\n\n".join(excepts)
 
 
 def after_tag(context, tag):

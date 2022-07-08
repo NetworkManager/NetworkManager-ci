@@ -55,12 +55,13 @@ class EmbedLink(Embed):
 
 
 class EmbedLater(Embed):
-    def __init__(self, callback, fail_only=False, combine_tag=None):
+    def __init__(self, callback, *args, fail_only=False, combine_tag=None):
         Embed.__init__(self, fail_only=fail_only, combine_tag=combine_tag)
         self._callback = callback
+        self._args = args
 
     def evalDoEmbedArgs(self):
-        mime_type, data, caption = self._callback()
+        mime_type, data, caption = self._callback(*self._args)
         return (mime_type, data or "NO DATA", caption)
 
 
@@ -72,7 +73,6 @@ class _CExt:
         self.context = context
 
         self._pexpect_lst_step = []
-        self._pexpect_lst_scenario = []
         self._to_embed = []
         self._embed_count = 0
 
@@ -87,7 +87,6 @@ class _CExt:
                     self._set_title = formatter.set_title
                 if hasattr(formatter, "embedding"):
                     self._html_formatter = formatter
-                    formatter.embedding = self._html_formatter_embedding
 
     def set_title(self, *a, **kw):
         if hasattr(self, "_set_title"):
@@ -162,10 +161,14 @@ class _CExt:
 
     def process_embeds(self, scenario_fail):
         combines_dict = {}
+        exception = None
         for entry in util.consume_list(self._to_embed):
             combine_tag = entry.combine_tag
             if combine_tag is None:
-                self._embed_one(scenario_fail, entry)
+                try:
+                    self._embed_one(scenario_fail, entry)
+                except Exception as e:
+                    exception = e
                 continue
             key = (combine_tag, entry._html_el)
             lst = combines_dict.get(key, None)
@@ -174,13 +177,12 @@ class _CExt:
                 combines_dict[key] = lst
             lst.append(entry)
         for key, lst in combines_dict.items():
-            self._embed_combines(scenario_fail, key[0], key[1], lst)
-
-    def _html_formatter_embedding(self, mime_type, data, caption=None):
-        if mime_type == "link":
-            self.embed_link(caption=caption, data=data)
-        else:
-            self.embed_data(caption=caption, data=data, mime_type=mime_type)
+            try:
+                self._embed_combines(scenario_fail, key[0], key[1], lst)
+            except Exception as e:
+                exception = e
+        if exception:
+            raise exception
 
     def embed_data(self, *a, **kw):
         self._embed_queue(EmbedData(*a, **kw))
@@ -202,6 +204,10 @@ class _CExt:
         misc.coredump_report(dump_id)
 
     def embed_run(self, argv, shell, returncode, stdout, stderr, fail_only=True):
+        title, message = self._format_run(argv, shell, returncode, stdout, stderr)
+        self.embed_data(title, message, fail_only=fail_only, combine_tag="Commands")
+
+    def _format_run(self, argv, shell, returncode, stdout, stderr):
         if stdout is not None:
             try:
                 stdout = util.bytes_to_str(stdout)
@@ -238,7 +244,7 @@ class _CExt:
         else:
             title = f"Command `{title[:30]}...`"
 
-        self.embed_data(title, message, fail_only=fail_only, combine_tag="Commands")
+        return title, message
 
     def embed_service_log(
         self,
@@ -323,13 +329,16 @@ class _CExt:
             self.embed_data("DEBUG: ps aufx", nmci.process.run_stdout("ps aufx"))
         if not status:
             status = proc.status
+        # TODO: make the tests capable of this change
+        # if not failed:
+        #     failed = status != 0
         stdout = util.file_get_content_simple(logfile.name)
         logfile.close()
         return failed, "pexpect:" + proc.name, status, stdout, None
 
     def process_commands(self, when):
 
-        assert when in ["before_scenario", "", "after_scenario"]
+        assert when in ["before_scenario", "after_step", "after_scenario"]
 
         argv_failed = None
 
@@ -344,19 +353,6 @@ class _CExt:
             if argv_failed is None and p_failed:
                 argv_failed = argv
             self.embed_run(argv, True, returncode, stdout, stderr)
-
-        if when == "after_scenario":
-            for proc, logfile in util.consume_list(self._pexpect_lst_scenario):
-                (
-                    p_failed,
-                    argv,
-                    returncode,
-                    stdout,
-                    stderr,
-                ) = self._process_command_complete(proc, logfile)
-                if argv_failed is None and p_failed:
-                    argv_failed = argv
-                self.embed_run(argv, True, returncode, stdout, stderr)
 
         if argv_failed:
             raise Exception(f"Some process failed: {argv_failed}")
@@ -487,10 +483,23 @@ def setup(context):
         # cleaned up thereby.
         #
         # Otherwise, the process is reaped/killed at the end of the step.
-        #
-        # In both cases, we track the process in two separate lists.
         if is_service:
-            context.cext._pexpect_lst_scenario.append((proc, logfile))
+
+            def _process_command(cext, proc, logfile):
+                (
+                    p_failed,
+                    argv,
+                    returncode,
+                    stdout,
+                    stderr,
+                ) = cext._process_command_complete(proc, logfile)
+                caption, data = cext._format_run(argv, True, returncode, stdout, stderr)
+                assert not p_failed, f"Command failed: {caption}\n{data}"
+                return "text/plain", data, caption
+
+            context.cext.embed_later(
+                _process_command, context.cext, proc, logfile, combine_tag="Commands"
+            )
         else:
             context.cext._pexpect_lst_step.append((proc, logfile))
         return proc
