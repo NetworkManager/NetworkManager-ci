@@ -1407,7 +1407,7 @@ _register_tag("wireguard", wireguard_bs, None)
 
 def dracut_bs(context, scenario):
     # log dracut version to "Commands"
-    context.process.run_stdout("rpm -qa dracut*", timeout=15)
+    context.process.run_stdout("rpm -qa dracut*")
 
     rc = context.process.run_code(
         "cd contrib/dracut; . ./setup.sh ; set -x; "
