@@ -998,6 +998,7 @@
     @ver-1.39.2
     @ver/rhel/8+=1.22
     @ver/rhel/9+=1.22
+    @ver/rhel/9-1.38.8
     @scapy
     @ipv6_preserve_addr_order
     Scenario: NM - ipv6 - preserve address order
@@ -1049,7 +1050,7 @@
     @ver+=1.38.0
     @ver+=1.39.2
     @ver/rhel/8-
-    @ver/rhel/9-
+    @ver/rhel/9+=1.38.8
     @scapy
     @ipv6_preserve_addr_order
     Scenario: NM - ipv6 - preserve address order
