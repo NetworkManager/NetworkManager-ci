@@ -190,7 +190,8 @@
 
 
     @ver+=1.16
-    @wireguard @rhelver+=9
+    @rhelver+=9
+    @wireguard
     @wireguard_activate_connection
     Scenario: nmcli - vpn - create and activate wireguard connection
     * Add "wireguard" connection named "wireguard" for device "nm-wireguard" with options
@@ -213,8 +214,9 @@
 
 
     @ver+=1.16
-    @wireguard @rhelver=8
-    @may-fail
+    @rhelver+=8 @rhelver-=8
+    @may_fail
+    @wireguard
     @wireguard_activate_connection
     Scenario: nmcli - vpn - create and activate wireguard connection
     * Add "wireguard" connection named "wireguard" for device "nm-wireguard" with options
