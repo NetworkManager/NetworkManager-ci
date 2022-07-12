@@ -640,7 +640,7 @@ def IPy_bs(context, scenario):
             "yum -y install dbus-x11", timeout=120, ignore_stderr=True
         )
     if not context.process.run_search_stdout(
-        "python -m pip list", "IPy", ignore_stderr=True
+        "python -m pip list", "IPy", timeout=10, ignore_stderr=True
     ):
         print("installing IPy")
         context.process.run_stdout(
