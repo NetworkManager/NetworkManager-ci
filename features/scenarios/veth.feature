@@ -64,28 +64,24 @@ Feature: nmcli: veth
     Then "veth12" is not visible with command "nmcli device"
 
 
-    # # @veth_change_peer
-    # # @veth_in_bridge
-    # # @veth_in_bond
-    #
-    #
-    # @rhbz1901523
-    # @ver+=1.29
-    # @veth_remove @restart_if_needed
-    # @veth_profile_restart_persistnce
-    # Scenario: nmcli - veth - restart persistence
-    # * Add "veth" connection named "con_veth1" for device "veth11" with options "veth.peer veth12 ip4 10.42.0.2"
-    # * Add "veth" connection named "con_veth2" for device "veth12" with options "veth.peer veth11 ip4 10.42.0.1"
-    # * Bring "up" connection "con_veth1"
-    # * Bring "up" connection "con_veth2"
-    # When "activated" is visible with command "nmcli -g GENERAL.STATE con show con_veth1" in "45" seconds
-    # When "activated" is visible with command "nmcli -g GENERAL.STATE con show con_veth2" in "45" seconds
-    # * Reboot
-    # # This, for some reason, is not working, only con_veth2 is upped
-    # # You need to restart NM service to have veth12 assumed, then you can up con_veth1 and then con_veth2
-    # # The rest is OK, when you do these two
-    # # 1915284
-    # When "activated" is visible with command "nmcli -g GENERAL.STATE con show con_veth2" in "45" seconds
-    # When "activated" is visible with command "nmcli -g GENERAL.STATE con show con_veth1" in "45" seconds
-    # Then "inet 10.42.0.1" is visible with command "ip a s veth12"
-    # Then "inet 10.42.0." is visible with command "ip a s veth11"
+    # @veth_change_peer
+    # @veth_in_bridge
+    # @veth_in_bond
+
+
+    @rhbz1901523 @rhbz1915284 @rhbz2105956
+    @ver+=1.39.9
+    @restart_if_needed
+    @veth_profile_restart_persistnce
+    Scenario: nmcli - veth - restart persistence
+    * Add "veth" connection named "con_veth1" for device "veth11" with options "veth.peer veth12 ip4 10.42.0.2"
+    * Add "veth" connection named "con_veth2" for device "veth12" with options "veth.peer veth11 ip4 10.42.0.1"
+    * Bring "up" connection "con_veth1"
+    * Bring "up" connection "con_veth2"
+    When "activated" is visible with command "nmcli -g GENERAL.STATE con show con_veth1" in "45" seconds
+    When "activated" is visible with command "nmcli -g GENERAL.STATE con show con_veth2" in "45" seconds
+    * Reboot
+    When "activated" is visible with command "nmcli -g GENERAL.STATE con show con_veth2" in "45" seconds
+    When "activated" is visible with command "nmcli -g GENERAL.STATE con show con_veth1" in "45" seconds
+    Then "inet 10.42.0.1" is visible with command "ip a s veth12"
+    Then "inet 10.42.0." is visible with command "ip a s veth11"

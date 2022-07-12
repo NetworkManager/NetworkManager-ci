@@ -2159,9 +2159,9 @@ testmapper:
         feature: veth
     - veth_device_remove:
         feature: veth
-# failing due to 1915284
-#    - veth_profile_restart_persistnce:
-#        feature: veth
+    - veth_profile_restart_persistnce:
+        feature: veth
+        tags: gate
     - set_fq_codel_queue:
         feature: tc
     - set_pfifo_fast_queue:
