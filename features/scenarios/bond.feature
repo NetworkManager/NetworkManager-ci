@@ -432,7 +432,7 @@
     * Append "BOOTPROTO=none" to ifcfg file "bond0"
     * Append "USERCTL=no" to ifcfg file "bond0"
     * Execute "nmcli con reload"
-    * Cleanup interface "nm-bond"
+    * Cleanup device "nm-bond"
     * Add "ethernet" connection named "bond0.0" for device "eth1" with options "master nm-bond"
     * Restart NM
     Then Check bond "nm-bond" link state is "up"
@@ -1584,7 +1584,7 @@
     @bond_dbus_creation
     Scenario: NM - bond - dbus api bond setting
     * Cleanup connection "bond0"
-    * Cleanup interface "nm-bond"
+    * Cleanup device "nm-bond"
     * Execute "/usr/bin/python contrib/dbus/dbus-set-bond.py"
     Then "bond0.*bond\s+nm-bond" is visible with command "nmcli connection"
 
@@ -1812,7 +1812,7 @@
     @rhbz979425 @rhbz1450219
     @bond_device_rename
     Scenario: NM - bond - device rename
-     * Cleanup interface "nm-bond"
+     * Cleanup device "nm-bond"
      * Add "bond" connection named "bond0" for device "bondy" with options
            """
            ip4 172.16.1.1/24
@@ -1835,8 +1835,8 @@
     * Create "bond" device named "bond0"
     * Execute "ip l set eth4 down; ip l set eth4 master bond0; ip l set eth4 addrgenmode none; ip l set eth4 up"
     * Execute "ip l set eth1 down; ip l set eth1 master bond0; ip l set eth1 addrgenmode none; ip l set eth1 up"
-    * Cleanup interface "eth4"
-    * Cleanup interface "eth1"
+    * Cleanup device "eth4"
+    * Cleanup device "eth1"
     * Restart NM
     * Execute "sleep 5"
     * Note the output of "pidof NetworkManager" as value "orig_pid"
@@ -2234,7 +2234,7 @@
     @ver+=1.19
     @bond_autoconnect_activation_fails_with_libnm
     Scenario: NM - bond - bond activation fails with autoconnect true using libnm
-    * Cleanup interface "nm-bond"
+    * Cleanup device "nm-bond"
     * Cleanup connection "bond0"
     Then "Connection added\s+Connection activated" is visible with command "/usr/bin/python contrib/gi/bond_add_activate.py" in "1" seconds
 

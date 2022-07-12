@@ -358,7 +358,7 @@ Feature: nmcli - bridge
     @bridge_slaves_start_via_master
     Scenario: nmcli - bridge - start slave via master
     * Cleanup connection "bridge-slave-eth4"
-    * Cleanup interface "eth4"
+    * Cleanup device "eth4"
     * Add "bridge" connection named "br10" for device "br10" with options "bridge.stp off"
     * Add "bridge-slave" connection with options "ifname eth4 autoconnect no master br10"
     * Open editor for connection "br10"
@@ -598,7 +598,7 @@ Feature: nmcli - bridge
     Scenario: bridge_external_unmanaged: add external bridge, ensure is unmanaged
     * Execute "sudo sh -c 'nmcli general logging level DEBUG'"
     Then Externally created bridge has IP when NM overtakes it repeated "30" times
-    * Cleanup interface "br0"
+    * Cleanup device "br0"
 
 
     @rhbz1169936
@@ -1085,5 +1085,5 @@ Feature: nmcli - bridge
     @ver+=1.39.5
     @bridge_keepaddr_unmanaged_device
     Scenario: bridge - keep addresses on unmanaged device
-    * Cleanup interface "testbr"
+    * Cleanup device "testbr"
     * Execute reproducer "2079054"

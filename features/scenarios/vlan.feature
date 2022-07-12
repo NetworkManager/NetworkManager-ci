@@ -173,7 +173,7 @@ Feature: nmcli - vlan
 
     @vlan_change_id
     Scenario: nmcli - vlan - change id
-    * Cleanup interface "eth7.265"
+    * Cleanup device "eth7.265"
     * Cleanup connection "eth7.265"
     * Add "vlan" connection named "eth7.165" with options "autoconnect no dev eth7 id 165"
     * Open editor for connection "eth7.165"
@@ -420,7 +420,7 @@ Feature: nmcli - vlan
     @ver+=1.4 @ver-=1.24
     @vlan_preserve_assumed_connection_ips
     Scenario: nmcli - bridge - preserve assumed connection's addresses
-    * Cleanup interface "vlan"
+    * Cleanup device "vlan"
     * Execute "ip link add link eth7 name vlan type vlan id 80"
     * Execute "ip link set dev vlan up"
     * Execute "ip add add 30.0.0.1/24 dev vlan"
@@ -435,7 +435,7 @@ Feature: nmcli - vlan
     @ver+=1.25
     @vlan_preserve_assumed_connection_ips
     Scenario: nmcli - bridge - preserve assumed connection's addresses
-    * Cleanup interface "vlan"
+    * Cleanup device "vlan"
     * Execute "ip link add link eth7 name vlan type vlan id 80"
     * Execute "ip link set dev vlan up"
     * Execute "ip add add 30.0.0.1/24 dev vlan"

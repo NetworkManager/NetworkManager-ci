@@ -70,7 +70,7 @@ Feature: nmcli: tuntap
     @ver+=1.4.0 @ver-=1.24
     @preserve_master_and_ip_settings
     Scenario: NM - tuntap - preserve master and IP settings
-     * Cleanup interface "tap0"
+     * Cleanup device "tap0"
      * Create "bridge" device named "brY"
      * Execute "ip addr add 192.0.2.1/24 dev brY"
      * Execute "ip tuntap add tap0 mode tap"
@@ -93,7 +93,7 @@ Feature: nmcli: tuntap
     @ver+=1.25
     @preserve_master_and_ip_settings
     Scenario: NM - tuntap - preserve master and IP settings
-    * Cleanup interface "tap0"
+    * Cleanup device "tap0"
     * Create "bridge" device named "brY"
     * Execute "ip addr add 192.0.2.1/24 dev brY"
     * Execute "ip tuntap add tap0 mode tap"
