@@ -1814,8 +1814,8 @@ Feature: nmcli - general
           """
     * Execute "nmcli connection modify con_general sriov.total-vfs 3"
     * Bring "up" connection "con_general"
-    When "3" is visible with command "ip -c link show eth11 |grep vf |wc -l" in "5" seconds
-    When "0" is visible with command "ip -c link show eth11 |grep vf |wc -l" in "15" seconds
+    When "Exactly" "3" lines with pattern "vf" are visible with command "ip -c link show eth11" in "5" seconds
+    When "Exactly" "0" lines with pattern "vf" are visible with command "ip -c link show eth11" in "15" seconds
 
 
     @ver+=1.26.0
@@ -1840,17 +1840,17 @@ Feature: nmcli - general
     @stable_mem_consumption
     Scenario: NM - general - stable mem consumption
     * Cleanup interface "gen_br"
-    * Execute "sh contrib/reproducers/repro_1433303.sh && sleep 10"
+    * Execute reproducer "1433303" for "2" times
     * Note the output of "pmap -x $(pidof NetworkManager) |grep 'total' | awk '{print $4}'" as value "0"
-    * Execute "sh contrib/reproducers/repro_1433303.sh && sleep 10"
+    * Execute reproducer "1433303" for "5" times
     * Note the output of "pmap -x $(pidof NetworkManager) |grep 'total' | awk '{print $4}'" as value "1"
-    * Execute "sh contrib/reproducers/repro_1433303.sh && sleep 10"
+    When Check noted value "1" difference from "0" is "less than" "1000"
+    * Execute reproducer "1433303" for "10" times
     * Note the output of "pmap -x $(pidof NetworkManager) |grep 'total' | awk '{print $4}'" as value "2"
-    * Execute "sh contrib/reproducers/repro_1433303.sh && sleep 10"
+    When Check noted value "2" difference from "1" is "less than" "1000"
+    * Execute reproducer "1433303" for "20" times
     * Note the output of "pmap -x $(pidof NetworkManager) |grep 'total' | awk '{print $4}'" as value "3"
-    * Execute "sh contrib/reproducers/repro_1433303.sh && sleep 10"
-    * Note the output of "pmap -x $(pidof NetworkManager) |grep 'total' | awk '{print $4}'" as value "4"
-    Then Check RSS writable memory in noted value "4" differs from "3" less than "300"
+    Then Check noted value "3" difference from "2" is "less than" "1000"
 
 
     @rhbz1461643 @rhbz1945282
@@ -1861,18 +1861,17 @@ Feature: nmcli - general
     @long @no_config_server @allow_veth_connections
     @stable_mem_consumption2
     Scenario: NM - general - stable mem consumption - var 2
-    * Execute "a=0; while [ $a -lt 2 ]; do sh contrib/reproducers/repro_1461643.sh; ((a++)); done"
+    * Execute reproducer "1461643" for "2" times
     * Note the output of "pmap -x $(pidof NetworkManager) |grep 'total' | awk '{print $4}'" as value "0"
-    * Execute "a=0; while [ $a -lt 5 ]; do sh contrib/reproducers/repro_1461643.sh; ((a++)); done"
+    * Execute reproducer "1461643" for "5" times
     * Note the output of "pmap -x $(pidof NetworkManager) |grep 'total' | awk '{print $4}'" as value "1"
-    When Check RSS writable memory in noted value "1" differs from "0" less than "1000"
-    * Execute "a=0; while [ $a -lt 10 ]; do sh contrib/reproducers/repro_1461643.sh; ((a++)); done"
+    When Check noted value "1" difference from "0" is "less than" "1000"
+    * Execute reproducer "1461643" for "10" times
     * Note the output of "pmap -x $(pidof NetworkManager) |grep 'total' | awk '{print $4}'" as value "2"
-    Then Check RSS writable memory in noted value "2" differs from "1" less than "1000"
-    * Execute "a=0; while [ $a -lt 20 ]; do sh contrib/reproducers/repro_1461643.sh; ((a++)); done"
+    When Check noted value "2" difference from "1" is "less than" "1000"
+    * Execute reproducer "1461643" for "20" times
     * Note the output of "pmap -x $(pidof NetworkManager) |grep 'total' | awk '{print $4}'" as value "3"
-    Then Check RSS writable memory in noted value "3" differs from "2" less than "1000"
-
+    When Check noted value "3" difference from "2" is "less than" "1000"
 
 
     @rhbz1398932
@@ -1907,14 +1906,7 @@ Feature: nmcli - general
     @do_not_touch_external_dummy
     Scenario: NM - general - do not touch external dummy device
     * Cleanup interface "dummy0"
-    Then Execute "sh contrib/reproducers/repro_1512316.sh"
-     And Execute "sh contrib/reproducers/repro_1512316.sh"
-     And Execute "sh contrib/reproducers/repro_1512316.sh"
-     And Execute "sh contrib/reproducers/repro_1512316.sh"
-     And Execute "sh contrib/reproducers/repro_1512316.sh"
-     And Execute "sh contrib/reproducers/repro_1512316.sh"
-     And Execute "sh contrib/reproducers/repro_1512316.sh"
-     And Execute "sh contrib/reproducers/repro_1512316.sh"
+    Then Execute reproducer "1512316" for "8" times
 
 
     @rhbz1337997
@@ -2164,7 +2156,7 @@ Feature: nmcli - general
     @libnm_async_tasks_cancelable
     Scenario: NM - general - cancelation of libnm async tasks (add_connection_async)
     * Cleanup connection "con_general"
-    Then Execute "/usr/bin/python contrib/reproducers/repro_1555281.py con_general"
+    Then Execute reproducer "1555281" with options "con_general"
 
 
     @rhbz1643085 @rhbz1642625
@@ -2172,7 +2164,7 @@ Feature: nmcli - general
     @libnm_async_activation_cancelable_no_crash
     Scenario: NM - general - cancelation of libnm async activation - should not crash
     * Cleanup connection "con_general"
-    Then Execute "/usr/bin/python contrib/reproducers/repro_1643085.py con_general eth8"
+    Then Execute reproducer "1643085" with options "con_general eth8"
 
     @rhbz1614691
     @ver+=1.12
@@ -2470,8 +2462,8 @@ Feature: nmcli - general
           ipv4.dns-search $(echo {a..g}.noexist.redhat.com, | tr -d ' ')
           """
     * Bring "up" connection "con_general"
-    Then "7" is visible with command "nmcli -f ipv4.dns-search con show con_general | grep -o '\.noexist\.redhat\.com' | wc -l"
-     And "7" is visible with command "cat /etc/resolv.conf | grep -o '\.noexist\.redhat\.com' | wc -l"
+    Then "Exactly" "7" lines with pattern "\.noexist\.redhat\.com" are visible with command "nmcli -f ipv4.dns-search con show con_general | sed 's/,/\n/g'"
+     And "Exactly" "7" lines with pattern "\.noexist\.redhat\.com" are visible with command "cat /etc/resolv.conf | sed 's/ /\n/g'"
 
 
     @rhbz1658217
@@ -2541,7 +2533,7 @@ Feature: nmcli - general
     @ver+=1.16
     @libnm_get_dns_crash
     Scenario: nmcli - general - libnm crash when getting nmclient.props.dns_configuration
-    Then Execute "/usr/bin/python contrib/reproducers/repro_1689054.py"
+    Then Execute reproducer "1689054"
 
 
     @rhbz2027674
@@ -2549,7 +2541,7 @@ Feature: nmcli - general
     @ver+=1.36.3
     @libnm_nmclient_init_crash
     Scenario: nmcli - general - libnm crash when cancelling initialization of NMClient
-    Then Execute "/usr/bin/python contrib/reproducers/repro_2027674.py"
+    Then Execute reproducer "2027674"
 
 
     @rhbz1697858
@@ -2746,8 +2738,8 @@ Feature: nmcli - general
     @clean_device_state_files
     Scenario: NM - general - clean device state files
     * Run child "for i in $(seq 1 120); do ip link delete dummy0 &>/dev/null; ip link add dummy0 type bridge; ip addr add 1.1.1.1/2 dev dummy0;  ip link set dummy0 up; sleep 0.25; done; ip link del dummy0"
-    When "4[0-9]" is visible with command "ls /run/NetworkManager/devices/ |wc -l" in "40" seconds
-    Then "2[5-9]" is visible with command "ls /run/NetworkManager/devices/ |wc -l" in "60" seconds
+    When "At least" "40" and "at most" "49" lines are visible with command "ls /run/NetworkManager/devices/ | sed 's/ /\n/g'" in "40" seconds
+    Then "At least" "25" and "at most" "29" lines are visible with command "ls /run/NetworkManager/devices/ | sed 's/ /\n/g'" in "60" seconds
     # VVV Check that dummy0 is not present anymore as next tests can be affected
     When "dummy0" is not visible with command "ip a s" in "30" seconds
     When "dummy0" is not visible with command "ip a s" in "30" seconds
@@ -2787,11 +2779,11 @@ Feature: nmcli - general
     When "default" is visible with command "ip r" in "20" seconds
     When "default" is visible with command "ip -6 r" in "20" seconds
     # dev lo is not managed by NM
-    * Note the output of "ip -6 r | grep -v 'dev lo' | wc -l" as value "ip6_route"
+    * Note the number of lines with pattern "^(?=^\S+)(?=^(?:(?!dev lo).)*$).*$" of "ip -6 r" as value "ip6_route"
     # ff00::/8 are not shown in `ip -6 r`
-    * Note the output of "nmcli | grep route6 | grep -v 'ff00::/8' |wc -l" as value "nmcli6_route"
-    * Note the output of "ip r |wc -l" as value "ip4_route"
-    * Note the output of "nmcli |grep route4 |wc -l" as value "nmcli4_route"
+    * Note the number of lines with pattern "^\s*route6\s*((?!ff80::\/8).)*$" of "nmcli" as value "nmcli6_route"
+    * Note the number of lines of "ip r" as value "ip4_route"
+    * Note the number of lines with pattern "route4" of "nmcli" as value "nmcli4_route"
     Then Check noted values "ip6_route" and "nmcli6_route" are the same
     Then Check noted values "ip4_route" and "nmcli4_route" are the same
 

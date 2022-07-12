@@ -186,5 +186,5 @@
    * Execute "tc -b /tmp/filter_batch.txt"
    Then Note the output of """awk -v clk="$(getconf CLK_TCK)" '{ print $14 * 1000 / clk }' /proc/$(pidof NetworkManager)/stat""" as value "user_after"
    Then Note the output of """awk -v clk="$(getconf CLK_TCK)" '{ print $15 * 1000 / clk }' /proc/$(pidof NetworkManager)/stat""" as value "kernel_after"
-   Then Check noted value "user_after" difference from "user_before" is lower than "100"
-   And Check noted value "kernel_after" difference from "kernel_before" is lower than "100"
+   Then Check noted value "user_after" difference from "user_before" is "less than" "100"
+   And Check noted value "kernel_after" difference from "kernel_before" is "less than" "100"

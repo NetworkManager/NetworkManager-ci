@@ -786,7 +786,7 @@
     * Prepare simulated test "testX6" device
     * Add "ethernet" connection named "con_ipv6" for device "testX6"
     * Bring "up" connection "con_ipv6"
-    Then "2" is visible with command "ip a s testX6 |grep 'inet6 .* global' |wc -l" in "45" seconds
+    Then "Exactly" "2" lines with pattern "inet6 .* global" are visible with command "ip a s testX6" in "45" seconds
 
 
     @ipv6_ip6-privacy_0
@@ -1277,13 +1277,13 @@
           """
     * Bring "up" connection "con_ipv6"
     When "testX6\s+ethernet\s+connected" is visible with command "nmcli device" in "20" seconds
-    When "2" is visible with command "ip a s testX6 |grep inet6 |wc -l" in "20" seconds
+    When "Exactly" "2" lines with pattern "inet6" are visible with command "ip a s testX6" in "20" seconds
     * Modify connection "con_ipv6" changing options "ipv6.method dhcp"
     * Execute "nmcli dev reapply testX6"
     When "testX6\s+ethernet\s+connected" is visible with command "nmcli device" in "20" seconds
     Then "2620" is visible with command "ip a s testX6 |grep inet6" in "10" seconds
-    Then "3" is not visible with command "ip a s testX6 |grep inet6 |wc -l" in "10" seconds
-    Then "2" is visible with command "ip a s testX6 |grep inet6 |wc -l" in "10" seconds
+    Then "Different than" "3" lines with pattern "inet6" are visible with command "ip a s testX6" in "10" seconds
+    Then "Exactly" "2" lines with pattern "inet6" are visible with command "ip a s testX6" in "10" seconds
     # VVV DHCPv6 doesn't give routes so this should not be present VVV
     Then "default via fe80" is not visible with command "ip -6 r |grep testX6"
 
@@ -1486,7 +1486,7 @@
     * Modify connection "con_ipv6" changing options "ipv6.ip6-privacy prefer-temp-addr"
     When Execute "nmcli d reapply testX6"
     * Execute "sleep 2"
-    Then Ensure there are "1" to "2" temporary v6 addresses for device "testX6"
+    Then "At least" "1" and "at most" "2" lines with pattern "inet6.*temporary" are visible with command "ip -6 a show testX6" in "2" seconds
     # no (temporary) address should appear after connection is brought down
     When Bring down connection "con_ipv6"
     Then "inet6" is not visible with command "ip -6 a show testX6"
@@ -1701,7 +1701,7 @@
     * Execute "ip -6 addr add fe80::dead:dead:dead:dead/64 dev test10p"
     * Start radvd server with config from "contrib/ipv6/radvd1.conf"
     * Add "ethernet" connection named "con_ipv6" for device "test10" with options "ipv6.may-fail no"
-    Then "2" is visible with command "ip -6 r | grep default -A 3|grep 'via fe80' |grep test10 |wc -l" in "60" seconds
+    Then "Exactly" "2" lines with pattern "test10" are visible with command "ip -6 r | grep default -A 3|grep 'via fe80'" in "60" seconds
 
 
     @rhbz1414093
@@ -2034,7 +2034,7 @@
     @dhcpv6_hostname
     Scenario: nmcli - ipv6 - secondary
     * Bring "down" connection "testeth0"
-    * "OK" is visible with command "sh contrib/reproducers/repro_1858344.sh" in "10" seconds
+    * "OK" is visible with reproducer "1858344" in "10" seconds
 
 
     @rhbz1861527
@@ -2077,7 +2077,7 @@
     * Execute "nmcli c up con_ipv6" without waiting for process to finish
     When "activated" is not visible with command "nmcli -g GENERAL.STATE con show con_ipv6" for full "9" seconds
     Then "activated" is visible with command "nmcli -g GENERAL.STATE con show con_ipv6" in "10" seconds
-    Then "1" is visible with command "nmcli -g IP6.ADDRESS -m multiline con show con_ipv6 | wc -l"
+    Then "Exactly" "1" lines are visible with command "nmcli -g IP6.ADDRESS -m multiline con show con_ipv6"
 
 
     @rhbz1837254

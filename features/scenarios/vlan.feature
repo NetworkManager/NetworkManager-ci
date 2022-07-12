@@ -600,9 +600,9 @@ Feature: nmcli - vlan
     * Bring "up" connection "vlan_team7"
     * Bring "up" connection "vlan_team7.0"
     * Bring "up" connection "vlan_team7.1"
-    When "1" is visible with command "ip r |grep team7.1 |grep default |wc -l" in "2" seconds
+    When "Exactly" "1" lines with pattern "team7.1" are visible with command "ip r show default" in "2" seconds
     * Execute "for i in `seq 1 23`; do ip link set team7 addr 00:00:11:22:33:$i; done"
-    Then "1" is visible with command "ip r |grep team7.1 |grep default |wc -l" in "2" seconds
+    Then "Exactly" "1" lines with pattern "team7.1" are visible with command "ip r show default" in "2" seconds
 
 
     @rhbz1553595
@@ -865,13 +865,13 @@ Feature: nmcli - vlan
     * Execute "for i in $(seq 10 $((N_VLANS + 10))); do nmcli con add type vlan con-name eth11.$i id $i dev eth11 ipv4.may-fail no ipv6.method disable; done"
    # Wait till we have "all" addresses assigned
     * Note the output of "echo $((N_VLANS + 1))"
-    Then Noted value is visible with command "nmcli  device |grep eth11 |grep ' connected'| wc -l" in "500" seconds
+    Then Noted number of lines with pattern "eth11.* connected" is visible with command "nmcli device" in "500" seconds
     # Simulate reboot and delete all devices
     * Stop NM
     * Execute "for i in $(seq 10 $((N_VLANS + 10))); do ip link del eth11.$i; done"
     * Reboot
     # Wait till we have "all" addresses assigned again
-    Then Noted value is visible with command "nmcli  device |grep eth11 |grep ' connected'| wc -l" in "500" seconds
+    Then Noted number of lines with pattern "eth11.* connected" is visible with command "nmcli device" in "500" seconds
     # Then Execute "nmcli  device |grep eth11 > /tmp/eth11s"
 
 
@@ -881,10 +881,10 @@ Feature: nmcli - vlan
     Scenario: NM - vlan - create 1000 bridges over 1000 VLANs
     * Add bridges over VLANs in range from "1" to "1000" on interface "eth7" via libnm
     # Let's give libnm some time to settle all 1000 devices, we can fail if just 1
-    Then "1000" is visible with command "nmcli -w 60 c | grep vlan | wc -l" in "4" seconds
-    Then "1000" is visible with command "nmcli -w 60 c | grep bridge | wc -l" in "1" seconds
-    Then "1000" is visible with command "ip l | grep ': br[0-9]' | wc -l" in "1" seconds
-    Then "1000" is visible with command "ip l | grep ': eth7\.[0-9]' | wc -l" in "1" seconds
+    Then "Exactly" "1000" lines with pattern "vlan" are visible with command "nmcli -w 60 c" in "4" seconds
+    Then "Exactly" "1000" lines with pattern "bridge" are visible with command "nmcli -w 60 c" in "1" seconds
+    Then "Exactly" "1000" lines with pattern ": br[0-9]" are visible with command "ip l" in "1" seconds
+    Then "Exactly" "1000" lines with pattern ": eth7\.[0-9]" are visible with command "ip l" in "1" seconds
 
 
     @rhbz1907960

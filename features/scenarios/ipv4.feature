@@ -298,7 +298,7 @@ Feature: nmcli: ipv4
     @restart_if_needed
     @ipv4_route_set_route_with_src_new_syntax
     Scenario: nmcli - ipv4 - routes - set route with src in new syntax
-    * Note the output of "ip r |grep eth0 |wc -l" as value "1"
+    * Note the number of lines with pattern "eth0" of "ip r" as value "1"
     * Add "ethernet" connection named "con_ipv4" for device "eth3" with options
           """
           ipv4.method manual
@@ -312,7 +312,7 @@ Feature: nmcli: ipv4
      And "192.168.4.1 dev eth3\s+proto static\s+scope link\s+metric 256" is visible with command "ip route"
      And "192.168.122.3 dev eth3\s+proto static\s+scope link\s+src 192.168.3.10\s+metric 256" is visible with command "ip route"
      And "default" is visible with command "ip r |grep eth0"
-     * Note the output of "ip r |grep eth0 |wc -l" as value "2"
+     * Note the number of lines with pattern "eth0" of "ip r" as value "2"
     Then Check noted values "1" and "2" are the same
      And "192.168.122.3/32\s+src=192.168.3.10" is visible with command "nmcli -g ipv4.routes connection show con_ipv4"
 
@@ -2335,7 +2335,7 @@ Feature: nmcli: ipv4
     When "5:\s+from all lookup 6\s+6:\s+from 192.168.6.7 lookup 7" is visible with command "ip rule"
     * Bring "down" connection "con_ipv4"
     Then "5:\s+from all lookup 6\s+6:\s+from 192.168.6.7 lookup 7" is not visible with command "ip rule"
-    And "3" is visible with command "ip rule |wc -l"
+    And "Exactly" "3" lines are visible with command "ip rule"
 
 
     @rhbz1634657

@@ -736,8 +736,8 @@ Feature: nmcli - bridge
     * Reboot
     * Start NM
     * Wait for at least "2" seconds
-    Then "1" is visible with command "nmcli connection | grep '^bridge-slave-eth4' | wc -l"
-     And "1" is visible with command "nmcli connection | grep '^bridge0' | wc -l"
+    Then "Exactly" "1" lines with pattern "^bridge-slave-eth4" are visible with command "nmcli connection"
+     And "Exactly" "1" lines with pattern "^bridge0" are visible with command "nmcli connection"
      And "\neth4" is not visible with command "nmcli connection show"
 
 
@@ -1086,4 +1086,4 @@ Feature: nmcli - bridge
     @bridge_keepaddr_unmanaged_device
     Scenario: bridge - keep addresses on unmanaged device
     * Cleanup interface "testbr"
-    * Execute "contrib/reproducers/repro_2079054.sh"
+    * Execute reproducer "2079054"

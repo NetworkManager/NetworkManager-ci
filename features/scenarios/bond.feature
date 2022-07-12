@@ -2312,7 +2312,7 @@
           """
     * Add "ethernet" connection named "bond0.1" for device "eth4" with options "master nm-bond"
     When "connected" is visible with command "nmcli -g GENERAL.STATE dev show nm-bond" in "40" seconds
-    Then "Error.*" is not visible with command "/usr/bin/python contrib/reproducers/repro_reapply_no_wired_settings.py bond0 nm-bond" in "1" seconds
+    Then "Error.*" is not visible with reproducer "reapply_no_wired_settings" with options "bond0 nm-bond" in "1" seconds
 
 
     @rhbz1686634

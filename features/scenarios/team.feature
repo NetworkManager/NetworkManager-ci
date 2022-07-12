@@ -496,7 +496,7 @@
      And "\"runner_name\": \"lacp\"" is visible with command "sudo teamdctl nm-team state dump"
      And Check slave "eth5" in team "nm-team" is "up"
      And Check slave "eth6" in team "nm-team" is "up"
-     And "1" is visible with command "nmcli device |grep team0 |wc -l"
+     And "Exactly" "1" lines with pattern "team0" are visible with command "nmcli device"
 
 
 
@@ -1633,7 +1633,7 @@
     Then "\"kernel_team_mode_name\": \"loadbalance\"" is visible with command "sudo teamdctl nm-team state dump"
      And "\"runner_name\": \"lacp\"" is visible with command "sudo teamdctl nm-team state dump"
      And Check slave "eth0" in team "nm-team" is "up"
-     And "1" is visible with command "nmcli device |grep team0 |wc -l"
+     And "Exactly" "1" lines with pattern "team0" are visible with command "nmcli device"
 
 
     @rhbz1647414

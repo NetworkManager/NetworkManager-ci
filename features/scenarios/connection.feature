@@ -106,7 +106,7 @@ Feature: nmcli: connection
      * Execute "rm -f /etc/sysconfig/network-scripts/ifcfg-con_con"
      * Add "ethernet" connection named "con_con" for device "eth5" with options "autoconnect no"
      * Reload connections
-     Then "1" is visible with command "nmcli c |grep con_con |wc -l"
+     Then "Exactly" "1" lines with pattern "con_con" are visible with command "nmcli c"
      * Bring "up" connection "con_con"
 
 
@@ -121,7 +121,7 @@ Feature: nmcli: connection
     * Connect device "eth5"
     * Connect device "eth5"
     * Connect device "eth5"
-    Then "1" is visible with command "nmcli connection |grep ^eth5 |wc -l"
+    Then "Exactly" "1" lines with pattern "^eth5" are visible with command "nmcli connection"
 
 
     @rhbz1498943
@@ -197,7 +197,7 @@ Feature: nmcli: connection
     * Submit "set connection.uuid 00000000-0000-0000-0000-000000000000" in editor
     Then Error type "uuid" shown in editor
     # There will be non zero exit code but we are looking for a crash
-    Then Execute "/usr/bin/python contrib/reproducers/repro_1707261.py || true"
+    Then Execute reproducer "1707261"
 
 
     @connection_set_interface-name

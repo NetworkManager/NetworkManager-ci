@@ -15,9 +15,9 @@
     @sriov
     @sriov_enable
     Scenario: NM - sriov - enable sriov in config
-    When "1" is visible with command "nmcli dev |grep p4p1  |wc -l"
+    When "Exactly" "1" lines with pattern "p4p1" are visible with command "nmcli dev"
     * Prepare "98-sriov.conf" config for "p4p1" device with "63" VFs
-    When "64" is visible with command "nmcli dev |grep p4p1  |wc -l" in "40" seconds
+    When "Exactly" "64" lines with pattern "p4p1" are visible with command "nmcli dev" in "40" seconds
 
 
     @rhbz1398934
@@ -25,11 +25,11 @@
     @sriov
     @sriov_enable_with_deployed_profile
     Scenario: NM - sriov - enable sriov in config
-    When "1" is visible with command "nmcli dev |grep p4p1  |wc -l"
+    When "Exactly" "1" lines with pattern "p4p1" are visible with command "nmcli dev"
     * Execute "nmcli device connect p4p1"
     When " connected" is visible with command "nmcli  device |grep p4p1"
     * Prepare "98-sriov.conf" config for "p4p1" device with "4" VFs
-    When "5" is visible with command "nmcli dev |grep p4p1  |wc -l" in "40" seconds
+    When "Exactly" "5" lines with pattern "p4p1" are visible with command "nmcli dev" in "40" seconds
 
 
     @rhbz1398934
@@ -37,11 +37,11 @@
     @sriov
     @sriov_disable
     Scenario: NM - sriov - disable sriov in config
-    When "1" is visible with command "nmcli dev |grep p4p1  |wc -l"
+    When "Exactly" "1" lines with pattern "p4p1" are visible with command "nmcli dev"
     * Prepare "99-sriov.conf" config for "p4p1" device with "2" VFs
-    When "3" is visible with command "nmcli dev |grep p4p1  |wc -l"
+    When "Exactly" "3" lines with pattern "p4p1" are visible with command "nmcli dev"
     * Prepare "99-sriov.conf" config for "p4p1" device with "0" VFs
-    When "1" is visible with command "nmcli dev |grep p4p1  |wc -l" in "5" seconds
+    When "Exactly" "1" lines with pattern "p4p1" are visible with command "nmcli dev" in "5" seconds
 
 
     @rhbz1398934
@@ -49,7 +49,7 @@
     @sriov
     @sriov_connect
     Scenario: NM - sriov - connect virtual sriov device
-    When "1" is visible with command "nmcli dev |grep p4p1  |wc -l"
+    When "Exactly" "1" lines with pattern "p4p1" are visible with command "nmcli dev"
     * Prepare "99-sriov.conf" config for "p4p1" device with "2" VFs
     * Add "ethernet" connection named "sriov" for device "p4p1_0" with options
           """
@@ -75,7 +75,7 @@
     @sriov
     @sriov_autoconnect
     Scenario: NM - sriov - autoconnect virtual sriov device
-    When "1" is visible with command "nmcli dev |grep p4p1  |wc -l"
+    When "Exactly" "1" lines with pattern "p4p1" are visible with command "nmcli dev"
     * Prepare "99-sriov.conf" config for "p4p1" device with "2" VFs
     * Add "ethernet" connection named "sriov" for device "p4p1_0" with options
           """
@@ -97,7 +97,7 @@
     @sriov
     @sriov_connect_externally
     Scenario: NM - sriov - see externally connected sriov device
-    When "1" is visible with command "nmcli dev |grep p4p1  |wc -l"
+    When "Exactly" "1" lines with pattern "p4p1" are visible with command "nmcli dev"
     * Execute "echo 2 > /sys/class/net/p4p1/device/sriov_numvfs"
     When "p4p1_0" is visible with command "nmcli device" in "5" seconds
     * Execute "ip add add 192.168.1.2/24 dev p4p1_0"
@@ -109,7 +109,7 @@
     # @sriov
     # @sriov_set_mtu
     # Scenario: NM - sriov - change mtu
-    # When "10" is visible with command "nmcli dev |wc -l"
+    # When "Exactly" "10" lines are visible with command "nmcli dev"
     # * Prepare "99-sriov.conf" config for "p4p1" device with "2" VFs
     # * Add "ethernet" connection named "sriov" for device "enp5s16f1" with options
     #    """
@@ -125,7 +125,7 @@
     @sriov
     @sriov_reboot_persistence
     Scenario: NM - sriov - reboot persistence
-    When "1" is visible with command "nmcli dev |grep p4p1  |wc -l"
+    When "Exactly" "1" lines with pattern "p4p1" are visible with command "nmcli dev"
     * Prepare "99-sriov.conf" config for "p4p1" device with "2" VFs
     * Add "ethernet" connection named "sriov" for device "p4p1_0" with options
           """

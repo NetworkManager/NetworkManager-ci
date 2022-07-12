@@ -44,7 +44,7 @@ Feature: nmcli: veth
     @ver+=1.31
     @veth_profile_remove_in_cycle
     Scenario: nmcli - veth - remove profile in cycle
-    Then Execute "for i in {1..20}; do sh contrib/reproducers/repro_1915276.sh; done"
+    Then Execute reproducer "1915276" for "20" times
 
 
     @rhbz1915278
