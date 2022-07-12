@@ -923,7 +923,9 @@ Feature: nmcli - bridge
 
 
     @rhbz1973536
-    @ver+=1.33 @rhelver+=8
+    @ver+=1.33
+    @ver-1.39.5
+    @rhelver+=8
     @bridge_set_mtu
     Scenario: nmcli - bridge - mtu handling
     * Add "bridge" connection named "bridge0" for device "br0" with options
@@ -933,6 +935,53 @@ Feature: nmcli - bridge
           connection.autoconnect-slaves no
           mtu 1500
           """
+    * Bring "up" connection "bridge0"
+    When "mtu 1500" is visible with command "ip a s br0" in "5" seconds
+    * Modify connection "bridge0" changing options "remove 802-3-ethernet"
+    * Bring "up" connection "bridge0"
+    When "mtu 1499" is not visible with command "ip a s br0" for full "2" seconds
+    * Add "dummy" connection named "bridge-slave-eth4" for device "dummy0" with options
+          """
+          master br0
+          autoconnect no
+          mtu 9000
+          """
+    * Bring "up" connection "bridge-slave-eth4"
+    When "mtu 9000" is visible with command "ip a s dummy0"
+    When "1500" is visible with command "nmcli -g GENERAL.MTU d show br0" in "5" seconds
+    * Delete connection "bridge0"
+    * Add "bridge" connection named "bridge0" for device "br0" with options
+          """
+          ipv4.method manual
+          ipv4.addresses 1.2.3.4/24
+          connection.autoconnect-slaves no
+          802-3-ethernet.mtu 0
+          """
+    * Bring "up" connection "bridge0"
+    * Bring "up" connection "bridge-slave-eth4"
+    When "mtu 9000" is visible with command "ip a s br0"
+    When "mtu 9000" is visible with command "ip a s dummy0"
+    * Modify connection "bridge0" changing options "802-3-ethernet.mtu 1500"
+    * Execute "sudo nmcli d reapply br0"
+    * Bring "up" connection "bridge-slave-eth4"
+    Then "mtu 1500" is visible with command "ip a s br0"
+    Then "mtu 9000" is visible with command "ip a s dummy0"
+    When "1500" is visible with command "nmcli -g GENERAL.MTU d show br0" in "5" seconds
+
+
+    @rhbz1973536 @rhbz2076131
+    @ver+=1.39.5
+    @rhelver+=8
+    @bridge_set_mtu
+    Scenario: nmcli - bridge - mtu handling
+    * Add "bridge" connection named "bridge0" for device "br0" with options
+          """
+          ipv4.method manual
+          ipv4.addresses 1.2.3.4/24
+          connection.autoconnect-slaves no
+          """
+    * Modify connection "bridge0" changing options "mtu 1500"
+    * Execute "sudo nmcli d reapply br0"
     * Bring "up" connection "bridge0"
     When "mtu 1500" is visible with command "ip a s br0" in "5" seconds
     * Modify connection "bridge0" changing options "remove 802-3-ethernet"
