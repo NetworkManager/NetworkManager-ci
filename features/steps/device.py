@@ -683,11 +683,3 @@ def add_device(context, typ, name, namespace="", options=""):
 def add_namespace(context, name, options=""):
     context.command_code(f"ip netns add {name} {options}")
     context.cleanup["namespaces"][name] = False
-
-
-@step(u'Ensure there are "{minimum}" to "{maximum}" temporary v6 addresses for device "{iface}"')
-def temporary_addresses(context, minimum, maximum, iface):
-    minimum = int(minimum)
-    maximum = int(maximum)
-    addresses = int(context.process.run_stdout(f'ip -6 a show {iface} | grep "inet6.*temporary" | wc -l', shell=True))
-    return minimum <= addresses and maximum >= addresses

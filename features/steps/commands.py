@@ -3,6 +3,7 @@ import os
 import pexpect
 import re
 import time
+import operator
 from behave import step
 
 import nmci
@@ -21,30 +22,6 @@ def autocomplete_command(context, cmd):
     bash.sendeof()
 
 
-@step(u'Check RSS writable memory in noted value "{i2}" differs from "{i1}" less than "{dif}"')
-def check_rss_rw_dif(context, i2, i1, dif):
-    # def sum_rss_writable_memory(context, pmap_raw):
-    #     total = 0
-    #     for line in pmap_raw.split("\n"):
-    #         vals = line.split()
-    #         if (len(vals) > 2):
-    #             total += int(vals[2])
-    #     return total
-    #
-    # sum2 = int(sum_rss_writable_memory(context, context.noted[i2]))
-    # sum1 = int(sum_rss_writable_memory(context, context.noted[i1]))
-    sum2 = int(context.noted[i2])
-    sum1 = int(context.noted[i1])
-    assert (sum1 + int(dif) > sum2), \
-        "rw RSS mem: %d + %s !> %d !" % (sum1, dif, sum2)
-
-
-@step(u'Check noted value "{i2}" difference from "{i1}" is lower than "{dif}"')
-def check_dif_in_values(context, i2, i1, dif):
-    assert (int(context.noted[i1].strip()) + int(dif)) > int(context.noted[i2].strip()), \
-     "Noted values: %s + %s !> %s !" % (context.noted[i1].strip(), dif, context.noted[i2].strip())
-
-
 @step(u'Check noted values "{i1}" and "{i2}" are the same')
 def check_same_noted_values(context, i1, i2):
     assert context.noted[i1].strip() == context.noted[i2].strip(), \
@@ -57,9 +34,55 @@ def check_same_noted_values_equals(context, i1, i2):
      "Noted values: %s == %s !" % (context.noted[i1].strip(), context.noted[i2].strip())
 
 
+@step(u'Check noted value "{i2}" difference from "{i1}" is "{operator_kw}" "{dif}"')
+def check_dif_in_values_temp(context, i1, i2, operator_kw, dif):
+    real_dif = abs(int(context.noted[i2].strip()) - int(context.noted[i1].strip()))
+    assert compare_values(operator_kw.lower(), real_dif, int(dif)), (
+        f'The difference between "{i2}" and "{i1}" is '
+        f'"|{context.noted[i2].strip()}-{context.noted[i1].strip()}| = {real_dif}", '
+        f'which is not "{operator_kw}" {dif}'
+    )
+
+
+@step(u'Check noted value is within "{r_min}" to "{r_max}" range')
+@step(u'Check noted value "{index}" is within "{r_min}" to "{r_max}" range')
+def check_noted_value_in_range(context, r_min, r_max, index='noted-value'):
+    assert int(r_min) <= int(context.noted[index]) <= int(r_max), (
+        f'Noted value "{context.noted[index]}" is not within range: "{r_min}"-"{r_max}"'
+    )
+
+
 @step(u'Execute "{command}"')
 def execute_command(context, command):
     assert context.command_code(command) == 0
+
+
+def get_reproducer_command(rname, options):
+    dirpath = "contrib/reproducers"
+    command = None
+    for repro in os.listdir(dirpath):
+        if rname in repro:
+            repro_path = os.path.join(dirpath, repro)
+            command = f"bash {repro_path} {options}" if ".sh" in repro else f"python {repro_path} {options}"
+            break
+    assert command is not None, f'Invalid reproducer name - {rname}'
+    return command
+
+
+@step(u'Execute reproducer "{rname}"')
+@step(u'Execute reproducer "{rname}" with options "{options}"')
+@step(u'Execute reproducer "{rname}" for "{number}" times')
+@step(u'Execute reproducer "{rname}" with options "{options}" for "{number}" times')
+def execute_reproducer(context, rname, options="", number=1):
+    orig_nm_pid = nmci.nmutil.nm_pid()
+    command = get_reproducer_command(rname, options)
+
+    i = 0
+    while i < int(number):
+        context.command_code(command)
+        curr_nm_pid = nmci.nmutil.nm_pid()
+        assert curr_nm_pid == orig_nm_pid, 'NM crashed as original pid was %s but now is %s' %(orig_nm_pid, curr_nm_pid)
+        i += 1
 
 
 @step(u'Execute "{command}" without waiting for process to finish')
@@ -151,31 +174,41 @@ def get_nameserver_or_domain_not(context, server, seconds=1):
 
 
 @step(u'Noted value contains "{pattern}"')
-def noted_value_contains(context, pattern):
-    assert re.search(pattern, context.noted['noted-value']) is not None, \
-        "Noted value '%s' does not match the pattern '%s'!" % (context.noted['noted-value'], pattern)
+@step(u'Noted value "{index}" contains "{pattern}"')
+def noted_value_contains(context, pattern, index='noted-value'):
+    assert re.search(pattern, context.noted[index]) is not None, \
+        "Noted value '%s' does not match the pattern '%s'!" % (context.noted[index], pattern)
 
 
 @step(u'Noted value does not contain "{pattern}"')
-def noted_value_does_not_contain(context, pattern):
-    assert re.search(pattern, context.noted['noted-value']) is None, \
-        "Noted value '%s' does match the pattern '%s'!" % (context.noted['noted-value'], pattern)
+@step(u'Noted value "{index}" does not contain "{pattern}"')
+def noted_value_does_not_contain(context, pattern, index='noted-value'):
+    assert re.search(pattern, context.noted[index]) is None, \
+        "Noted value '%s' does match the pattern '%s'!" % (context.noted[index], pattern)
 
 
+@step(u'Note the output of "{command}"')
 @step(u'Note the output of "{command}" as value "{index}"')
-def note_the_output_as(context, command, index):
+def note_the_output_as(context, command, index='noted-value'):
     if not hasattr(context, 'noted'):
         context.noted = {}
     # use nmci as embed might be big in general
     context.noted[index] = nmci.command_output_err(command)[0].strip()
 
 
-@step(u'Note the output of "{command}"')
-def note_the_output_of(context, command):
+@step(u'Note the number of lines of "{command}"')
+@step(u'Note the number of lines with pattern "{pattern}" of "{command}"')
+@step(u'Note the number of lines of "{command}" as value "{index}"')
+@step(u'Note the number of lines with pattern "{pattern}" of "{command}" as value "{index}"')
+def note_the_output_lines_as(context, command, index='noted-value', pattern=None):
     if not hasattr(context, 'noted'):
         context.noted = {}
     # use nmci as embed might be big in general
-    context.noted['noted-value'] = nmci.command_output(command).strip()
+    if pattern is not None:
+        out = [line for line in nmci.command_output_err(command)[0].split('\n') if re.search(pattern, line)]
+    else:
+        out = [line for line in nmci.command_output_err(command)[0].split('\n') if line]
+    context.noted[index] = str(len(out))
 
 
 def json_compare(pattern, out):
@@ -198,7 +231,7 @@ def json_compare(pattern, out):
             return 1
 
 
-def check_pattern_command(context, command, pattern, seconds, check_type="default", exact_check=False, timeout=180, maxread=100000, json_check=False):
+def check_pattern_command(context, command, pattern, seconds, check_type="default", check_class='default', timeout=180, maxread=100000,):
     xtimeout = nmci.util.start_timeout(seconds)
     interval = 1
     if int(seconds) < 60:
@@ -207,14 +240,11 @@ def check_pattern_command(context, command, pattern, seconds, check_type="defaul
         interval = 4
     while xtimeout.loop_sleep(interval):
         proc = context.pexpect_spawn(command, shell=True, timeout=timeout, maxread=maxread, codec_errors='ignore')
-        if exact_check:
+        if check_class == 'exact':
             ret = proc.expect_exact([pattern, pexpect.EOF])
-        elif json_check:
+        elif check_class == 'json':
             proc.expect([pexpect.EOF])
-            out = proc.before
-            json_out = json.loads(out)
-            json_pattern = json.loads(pattern)
-            ret = json_compare(json_pattern, json_out)
+            ret = json_compare(json.loads(pattern), json.loads(proc.before))
         else:
             ret = proc.expect([pattern, pexpect.EOF])
         if check_type == "default":
@@ -233,28 +263,108 @@ def check_pattern_command(context, command, pattern, seconds, check_type="defaul
         assert False, 'Did still see the pattern "%s" in %d seconds, output was:\n%s%s' % (pattern, int(seconds), proc.before, proc.after)
 
 
+
+def compare_values(keyword, value1, value2):
+    func_mapper = {
+        'at least':operator.ge,
+        'at most': operator.le,
+        'exactly': operator.eq,
+        'more than': operator.gt,
+        'less than': operator.lt,
+        'different than': operator.ne
+        }
+
+    assert keyword in func_mapper, (
+        f'Invalid operator keyword: "{keyword}",' 
+        ' supported operators are:\n     '
+        )  + "\n     ".join(func_mapper.keys())
+
+    return func_mapper[keyword](value1, value2)
+
+
+def check_lines_command(context, command, condition1, seconds,
+                        timeout=180, interval=1,
+                        maxread=100000, pattern=None,
+                        condition2=None):
+
+    xtimeout = nmci.util.start_timeout(seconds)
+
+    while xtimeout.loop_sleep(interval):
+        proc = context.pexpect_spawn(
+            command,
+            shell=True,
+            timeout=timeout,
+            maxread=maxread,
+            codec_errors='ignore')
+        proc.expect([pexpect.EOF])
+
+        if pattern is not None:
+            out = [line for line in proc.before.split('\n') if re.search(pattern, line)]
+            pattern_text = f'containing pattern "{pattern}"'
+        else:
+            out = [line for line in proc.before.split('\n') if line]
+            pattern_text = ''
+
+        ret = compare_values(condition1['op'], len(out), int(condition1['n_lines']))
+        if condition2 is not None:
+            ret &= compare_values(condition2['op'], len(out), int(condition2['n_lines']))
+
+        if ret:
+            return True
+
+    assert condition2 is None, (
+        f'''Command "{command}" {pattern_text} did not return '''
+        f''' "{condition1['op']}" "{condition1['n_lines']}" '''
+        f''' and "{condition2['op']}" "{condition2['n_lines']}" lines, '''
+        f'''but "{len(out)}", output was:\n''' 
+        ) + '\n'.join(out) 
+
+    assert False, (
+        f'''Command "{command}" {pattern_text} did not return '''
+        f''' "{condition1['op']}" "{condition1['n_lines']}" lines, but "{len(out)}", output was:\n''' 
+        ) + '\n'.join(out) 
+
+
 @step(u'Noted value is visible with command "{command}"')
 @step(u'Noted value is visible with command "{command}" in "{seconds}" seconds')
 def noted_visible_command(context, command, seconds=2):
-    check_pattern_command(context, command, context.noted['noted-value'], seconds, exact_check=True)
+    check_pattern_command(context, command, context.noted['noted-value'], seconds, check_class='exact')
 
 
 @step(u'Noted value is not visible with command "{command}"')
 @step(u'Noted value is not visible with command "{command}" in "{seconds}" seconds')
 def noted_not_visible_command(context, command, seconds=2):
-    return check_pattern_command(context, command, context.noted['noted-value'], seconds, check_type="not", exact_check=True)
+    return check_pattern_command(context, command, context.noted['noted-value'], seconds, check_type="not", check_class='exact')
 
 
 @step(u'Noted value "{index}" is visible with command "{command}"')
 @step(u'Noted value "{index}" is visible with command "{command}" in "{seconds}" seconds')
 def noted_index_visible_command(context, command, index, seconds=2):
-    return check_pattern_command(context, command, context.noted[index], seconds, exact_check=True)
+    return check_pattern_command(context, command, context.noted[index], seconds, check_class='exact')
 
 
 @step(u'Noted value "{index}" is not visible with command "{command}"')
 @step(u'Noted value "{index}" is not visible with command "{command}" in "{seconds}" seconds')
 def noted_index_not_visible_command(context, command, index, seconds=2):
-    return check_pattern_command(context, command, context.noted[index], seconds, check_type="not", exact_check=True)
+    return check_pattern_command(context, command, context.noted[index], seconds, check_type="not", check_class='exact')
+
+
+@step(u'"{pattern}" is visible with reproducer "{rname}"')
+@step(u'"{pattern}" is visible with reproducer "{rname}" with options "{options}"')
+@step(u'"{pattern}" is visible with reproducer "{rname}" in "{seconds}" seconds')
+@step(u'"{pattern}" is visible with reproducer "{rname}" with options "{options}" in "{seconds}" seconds')
+def pattern_visible_reproducer(context, pattern, rname, options="", seconds=2):
+    command = get_reproducer_command(rname, options)
+    return check_pattern_command(context, command, pattern, seconds)
+
+
+@step(u'"{pattern}" is not visible with reproducer "{rname}"')
+@step(u'"{pattern}" is not visible with reproducer "{rname}" with options "{options}"')
+@step(u'"{pattern}" is not visible with reproducer "{rname}" in "{seconds}" seconds')
+@step(u'"{pattern}" is not visible with reproducer "{rname}" with options "{options}" in "{seconds}" seconds')
+def pattern_visible_reproducer(context, pattern, rname, options="", seconds=2):
+    command = get_reproducer_command(rname, options)
+    return check_pattern_command(context, command, pattern, seconds, check_type="not")
 
 
 @step(u'"{pattern}" is visible with command "{command}"')
@@ -272,25 +382,65 @@ def pattern_not_visible_command(context, command, pattern, seconds=2):
 @step(u'String "{string}" is visible with command "{command}"')
 @step(u'String "{string}" is visible with command "{command}" in "{seconds}" seconds')
 def string_visible_command(context, command, string, seconds=2):
-    return check_pattern_command(context, command, string, seconds, exact_check=True)
+    return check_pattern_command(context, command, string, seconds, check_class='exact')
 
 
 @step(u'String "{string}" is not visible with command "{command}"')
 @step(u'String "{string}" is not visible with command "{command}" in "{seconds}" seconds')
 def string_not_visible_command(context, command, string, seconds=2):
-    return check_pattern_command(context, command, string, seconds, check_type="not", exact_check=True)
+    return check_pattern_command(context, command, string, seconds, check_type="not", check_class='exact')
 
 
 @step(u'JSON "{string}" is visible with command "{command}"')
 @step(u'JSON "{string}" is visible with command "{command}" in "{seconds}" seconds')
 def json_visible_command(context, command, string, seconds=2):
-    return check_pattern_command(context, command, string, seconds, json_check=True)
+    return check_pattern_command(context, command, string, seconds, check_class='json')
 
 
 @step(u'JSON "{string}" is not visible with command "{command}"')
 @step(u'JSON "{string}" is not visible with command "{command}" in "{seconds}" seconds')
 def json_not_visible_command(context, command, string, seconds=2):
-    return check_pattern_command(context, command, string, seconds, check_type="not", json_check=True)
+    return check_pattern_command(context, command, string, seconds, check_type="not", check_class='json')
+
+
+@step(u'Noted number of lines with pattern "{pattern}" is visible with command "{command}" in "{seconds}" seconds')
+@step(u'Noted number of lines "{index}" with pattern "{pattern}" is visible with command "{command}" in "{seconds}" seconds')
+def noted_lines_visible_command(context, command, index='noted-value', seconds=2, pattern=None):
+    return check_lines_command(
+        context=context,
+        command=command, 
+        condition1={'n_lines': context.noted[index], 'op': "exactly"},
+        seconds=seconds,
+        pattern=pattern
+        )
+
+
+@step(u'"{operator_kw1}" "{n_lines1}" and "{operator_kw2}" "{n_lines2}" lines are visible with command "{command}" in "{seconds}" seconds')
+@step(u'"{operator_kw1}" "{n_lines1}" and "{operator_kw2}" "{n_lines2}" lines with pattern "{pattern}" are visible with command "{command}" in "{seconds}" seconds')
+def range_lines_visible_command(context, command, n_lines1, n_lines2, operator_kw1, operator_kw2,
+                                seconds=2, pattern=None):
+    return check_lines_command(
+        context=context,
+        command=command, 
+        condition1={'n_lines': n_lines1, 'op': operator_kw1.lower()},
+        condition2={'n_lines': n_lines2, 'op': operator_kw2.lower()},
+        seconds=seconds,
+        pattern=pattern
+        )
+                               
+
+@step(u'"{operator_kw}" "{n_lines}" lines are visible with command "{command}"')
+@step(u'"{operator_kw}" "{n_lines}" lines are visible with command "{command}" in "{seconds}" seconds')
+@step(u'"{operator_kw}" "{n_lines}" lines with pattern "{pattern}" are visible with command "{command}"')
+@step(u'"{operator_kw}" "{n_lines}" lines with pattern "{pattern}" are visible with command "{command}" in "{seconds}" seconds')
+def lines_visible_command(context, command, n_lines, operator_kw, seconds=2, pattern=None):
+    return check_lines_command(
+        context=context,
+        command=command, 
+        condition1={'n_lines': n_lines, 'op': operator_kw.lower()},
+        seconds=seconds,
+        pattern=pattern
+        )
 
 
 @step(u'"{pattern}" is visible with command "{command}" for full "{seconds}" seconds')
@@ -301,6 +451,18 @@ def check_pattern_visible_with_command_fortime(context, pattern, command, second
 @step(u'"{pattern}" is not visible with command "{command}" for full "{seconds}" seconds')
 def check_pattern_not_visible_with_command_fortime(context, pattern, command, seconds):
     return check_pattern_command(context, command, pattern, seconds, check_type="not_full")
+
+
+@step(u'Noted value is visible with command "{command}" for full "{seconds}" seconds')
+@step(u'Noted value "{index}" is visible with command "{command}" for full "{seconds}" seconds')
+def check_pattern_visible_with_command_fortime(context, command, seconds, index='noted_value'):
+    return check_pattern_command(context, command, context.noted[index], seconds, check_type="full")
+
+
+@step(u'Noted value is not visible with command "{command}" for full "{seconds}" seconds')
+@step(u'Noted value "{index}" is not visible with command "{command}" for full "{seconds}" seconds')
+def check_pattern_not_visible_with_command_fortime(context, command, seconds, index='noted_value'):
+    return check_pattern_command(context, command, context.noted[index], seconds, check_type="not_full")
 
 
 @step(u'"{pattern}" is visible with tab after "{command}"')
