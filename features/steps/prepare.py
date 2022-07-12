@@ -1,3 +1,4 @@
+import os
 import re
 import shlex
 import time
@@ -251,11 +252,10 @@ def prepare_simdev(context, device, lease_time="2m", ipv4=None, ipv6=None, optio
         context.command_code("sleep 1")
 
     context.execute_steps(f'* Add namespace "{device}_ns"')
-    context.execute_steps(f'* Create "veth" device named "{device}" with options "peer name {device}p"')
-    context.command_code("ip link set {device}p netns {device}_ns".format(device=device))
-    context.command_code("sysctl net.ipv6.conf.{device}.disable_ipv6=0".format(device=device))
-    context.command_code("sysctl net.ipv6.conf.{device}.accept_ra=1".format(device=device))
-    context.command_code("sysctl net.ipv6.conf.{device}.autoconf=1".format(device=device))
+    context.execute_steps(f'* Create "veth" device named "{device}" in namespace "{device}_ns" with options "peer name {device}p"')
+    context.command_code("ip netns exec {device}_ns sysctl net.ipv6.conf.{device}.disable_ipv6=0".format(device=device))
+    context.command_code("ip netns exec {device}_ns sysctl net.ipv6.conf.{device}.accept_ra=1".format(device=device))
+    context.command_code("ip netns exec {device}_ns sysctl net.ipv6.conf.{device}.autoconf=1".format(device=device))
     context.command_code("ip netns exec {device}_ns ip link set lo up".format(device=device))
     context.command_code("ip netns exec {device}_ns ip link set {device}p up".format(device=device))
     context.command_code("ip netns exec {device}_ns ip addr add {ip}.1/24 dev {device}p".format(device=device, ip=ipv4))
@@ -268,7 +268,6 @@ def prepare_simdev(context, device, lease_time="2m", ipv4=None, ipv6=None, optio
     context.command_code("echo '192.168.99.13 ip-192-168-99-13' >> /etc/hosts")
     context.command_code("echo '192.168.99.14 ip-192-168-99-14' >> /etc/hosts")
     context.command_code("echo '192.168.99.15 ip-192-168-99-15' >> /etc/hosts")
-    time.sleep(2)
 
     if option:
         option = "--dhcp-option-force=" + option
@@ -288,6 +287,8 @@ def prepare_simdev(context, device, lease_time="2m", ipv4=None, ipv6=None, optio
                              --enable-ra".format(lease_time=lease_time, ipv6=ipv6)
 
     assert context.command_code(dnsmasq_command) == 0, "unable to start dnsmasq using command `{dnsmasq_command}`".format(dnsmasq_command=dnsmasq_command)
+    context.command_code("ip netns exec {device}_ns ip link set {device} netns {pid}".format(device=device, pid=os.getpid()))
+    time.sleep(2)
     context.cleanup['namespaces'][f"{device}_ns"] = True
 
 
