@@ -1,3 +1,4 @@
+import json
 import pexpect
 import time
 from behave import step
@@ -673,9 +674,26 @@ def cleanup_connection(context, iface):
 @step(u'Create "{typ}" device named "{name}" in namespace "{namespace}"')
 @step(u'Create "{typ}" device named "{name}" in namespace "{namespace}" with options "{options}"')
 def add_device(context, typ, name, namespace="", options=""):
-    namespace = f"-n {namespace}" if namespace else ""
-    context.command_code(f"ip {namespace} link add {name} type {typ} {options}", shell=True)
     nmci.ctx.add_iface_to_cleanup(context, name)
+    namespace = f"-n {namespace}" if namespace else ""
+
+    # Make sure the new device gets the hightest ifindex of all links.
+    # This is what generally happens when adding a new link and some tests
+    # (such as @bond_slaves_ordering_by_ifindex) rely on this; but it's
+    # not guarranteed and doesn't happen when the device is moved across
+    # namespaces and got a lower ifindex in the old namespace.
+    links = json.loads(nmci.command_output("ip -j link"))
+    links = links + json.loads(nmci.command_output(f"ip {namespace} -j link"))
+    for link in links:
+        if link["ifindex"] > context.ifindex:
+            context.ifindex = link["ifindex"]
+
+    # Bump, so that we don't try to use the same ifindex even before the
+    # result of previous link add is visible. Bump by two, because a veth
+    # pair might be created.
+    context.ifindex = context.ifindex + 2
+
+    assert context.command_code(f"ip {namespace} link add index {context.ifindex} {name} type {typ} {options}", shell=True) == 0
 
 
 @step(u'Add namespace "{name}"')

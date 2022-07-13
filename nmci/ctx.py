@@ -463,6 +463,7 @@ def setup(context):
     context.process = _ContextProcess(cext)
     context.util = _ContextUtil(cext)
     context.cext = cext
+    context.ifindex = 600
 
     def _run(command, *a, **kw):
         def _shell(
