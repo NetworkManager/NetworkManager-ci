@@ -214,7 +214,7 @@ class GitlabTrigger(object):
         r = requests.get(url)
         return r.status_code == 200
 
-    def set_pipeline(self, status):
+    def set_pipeline(self, status, release=""):
         try:
             description = ""
             if status == "pending":
@@ -231,13 +231,13 @@ class GitlabTrigger(object):
 
             name = os.environ["BUILD_URL"]
             name = re.sub(r'^.*/job/(.*)/$', '\\1', name)
-            name = f"centos: {name}"
+            pipeline_name = f"centos{release}: {name}"
 
             com.statuses.create(
                 {
                     "state": status,
                     "target_url": os.environ["BUILD_URL"],
-                    "name": name,
+                    "name": pipeline_name,
                     "description": description,
                 }
             )

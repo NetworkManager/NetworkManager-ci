@@ -485,7 +485,7 @@ class Runner:
 
     def _abort(self, msg=""):
         if self.gitlab:
-            self.gitlab.set_pipeline("canceled")
+            self.gitlab.set_pipeline("canceled", self.release.replace("-stream", ""))
             # if we have config.log, build failed
             if os.path.isfile("../config.log"):
                 self._gitlab_message = (
@@ -802,7 +802,7 @@ class Runner:
     def create_machines(self):
         self.phase = "create"
         if self.gitlab:
-            self.gitlab.set_pipeline("running")
+            self.gitlab.set_pipeline("running", self.release.replace("-stream", ""))
 
         self.tests = self.mapper.get_tests_for_machines(self.features)
         logging.debug(
@@ -879,12 +879,12 @@ class Runner:
 
         if self.gitlab:
             if self.exit_code == 0:
-                self.gitlab.set_pipeline("success")
+                self.gitlab.set_pipeline("success", self.release.replace("-stream", ""))
             if self.exit_code == 1:
-                self.gitlab.set_pipeline("failed")
+                self.gitlab.set_pipeline("failed", self.release.replace("-stream", ""))
             # should not be needed, already exited in _abort()
             if self.exit_code == 2:
-                self.gitlab.set_pipeline("canceled")
+                self.gitlab.set_pipeline("canceled", self.release.replace("-stream", ""))
             self._post_results()
 
         logging.debug(f"All Done. Exit with {self.exit_code}")
