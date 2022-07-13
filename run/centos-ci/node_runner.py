@@ -204,6 +204,7 @@ class Machine:
         self.ssh("yum install -y \\'dnf-command\\(config-manager\\)\\'")
         self.ssh("yum config-manager --set-enabled PowerTools", check=False)
         self.ssh("yum config-manager --set-enabled powertools", check=False)
+        self.ssh("yum config-manager --set-enabled crb", check=False)
         # Enable build deps for NM
         self.ssh("yum -y copr enable nmstate/nm-build-deps")
         # install NM packages
