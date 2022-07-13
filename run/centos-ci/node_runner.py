@@ -531,7 +531,7 @@ class Runner:
         with open("/tmp/python-gitlab.cfg", "w") as cfg:
             cfg.write("[global]\n")
             cfg.write("default = gitlab.freedesktop.org\n")
-            cfg.write("ssl_verify = false\n")
+            #cfg.write("ssl_verify = false\n")
             cfg.write("timeout = 30\n")
             cfg.write("[gitlab.freedesktop.org]\n")
             cfg.write("url = https://gitlab.freedesktop.org\n")
