@@ -288,7 +288,7 @@ def prepare_simdev(context, device, lease_time="2m", ipv4=None, ipv6=None, optio
 
     assert context.command_code(dnsmasq_command) == 0, "unable to start dnsmasq using command `{dnsmasq_command}`".format(dnsmasq_command=dnsmasq_command)
     context.command_code("ip netns exec {device}_ns ip link set {device} netns {pid}".format(device=device, pid=os.getpid()))
-    time.sleep(2)
+    context.execute_steps(f'Then "disconnected" is visible with command "nmcli device show {device}" in "10" seconds');
     context.cleanup['namespaces'][f"{device}_ns"] = True
 
 
