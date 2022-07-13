@@ -415,7 +415,7 @@ Feature: nmcli: connection
      * Add "ethernet" connection named "con_con" for device "eth6" with options "connection.autoconnect-priority 1"
      * Disconnect device "eth6"
      * Restart NM
-     Then "con_con2" is visible with command "nmcli con show -a"
+     Then "con_con2" is visible with command "nmcli con show -a" in "5" seconds
 
 
     # NM_METERED_UNKNOWN    = 0,
