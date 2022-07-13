@@ -46,20 +46,32 @@ class Machine:
             "*-devel*",
         ]
 
-        cico_out = self._run(
-            f"cico --debug node get -f value -c hostname -c comment --release {release}"
-        ).stdout
-        cico_out = cico_out.strip("\n").split(" ")
-        self.name = cico_out[0].strip(" \t") + ".ci.centos.org"
-        self.ssid = cico_out[1].strip(" \t")
-        with open(self.machine_list, "a") as mf:
-            mf.write(f"{self.id}:{self.name}:{self.ssid}\n")
-
+        self._get()
         self._pipe = None
         self._proc = None
         self._last_cmd_ret = None
 
         self.cmd_async(self._setup)
+
+    def _get(self):
+        returncode = 1
+        retry_count = 0
+        while returncode != 0:
+            cico_run = self._run(
+                f"cico --debug node get -f value -c hostname -c comment --release {self.release}",
+                check=False,
+            )
+            returncode = cico_run.returncode
+            if retry_count >= 60:
+                self._abort(f"Unable to reserve machine '{self.id}'")
+            if returncode != 0:
+                time.sleep(60)
+                retry_count += 1
+        cico_out = cico_run.stdout.strip("\n").split(" ")
+        self.name = cico_out[0].strip(" \t") + ".ci.centos.org"
+        self.ssid = cico_out[1].strip(" \t")
+        with open(self.machine_list, "a") as mf:
+            mf.write(f"{self.id}:{self.name}:{self.ssid}\n")
 
     def done(self):
         if self.cmd_is_active():
