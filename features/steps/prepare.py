@@ -343,8 +343,8 @@ def prepare_simdev_no_dhcp(context, device):
         context.command_code("udevadm settle --timeout=5")
         context.command_code("sleep 1")
     context.execute_steps(f'* Add namespace "{device}_ns"')
-    context.execute_steps(f'* Create "veth" device named "{device}" with options "peer name {device}p"')
-    context.command_code("ip link set {device}p netns {device}_ns".format(device=device))
+    context.execute_steps(f'* Create "veth" device named "{device}" in namespace "{device}_ns" with options "peer name {device}p"')
+    context.command_code("ip netns exec {device}_ns ip link set {device} netns {pid}".format(device=device, pid=os.getpid()))
     context.command_code("ip netns exec {device}_ns ip link set {device}p up".format(device=device))
     context.cleanup['namespaces'][f"{device}_ns"] = True
 
