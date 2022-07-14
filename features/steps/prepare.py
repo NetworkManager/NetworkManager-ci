@@ -242,11 +242,14 @@ def prepare_simdev(context, device, lease_time="2m", ipv4=None, ipv6=None, optio
         ipv6 = "2620:dead:beaf"
     if daemon_options is None:
         daemon_options = ""
-    if not context.cleanup['namespaces']:
-        context.command_code('''echo 'ENV{ID_NET_DRIVER}=="veth", ENV{INTERFACE}=="%s*", ENV{NM_UNMANAGED}="0"' >/etc/udev/rules.d/88-prep_veth.rules''' % device)
+
+    unmanaged_rule = f"/etc/udev/rules.d/88-veth-{device}.rules"
+    if not os.path.isfile(unmanaged_rule):
+        context.command_code('''echo 'ENV{ID_NET_DRIVER}=="veth", ENV{INTERFACE}=="%s*", ENV{NM_UNMANAGED}="0"' >%s''' % (device, unmanaged_rule))
         context.command_code("udevadm control --reload-rules")
         context.command_code("udevadm settle --timeout=5")
         context.command_code("sleep 1")
+
     context.execute_steps(f'* Add namespace "{device}_ns"')
     context.execute_steps(f'* Create "veth" device named "{device}" with options "peer name {device}p"')
     context.command_code("ip link set {device}p netns {device}_ns".format(device=device))
