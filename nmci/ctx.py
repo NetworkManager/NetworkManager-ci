@@ -6,7 +6,7 @@ import pexpect
 import re
 import shutil
 import subprocess
-import sys
+import collections
 import time
 import xml.etree.ElementTree as ET
 
@@ -20,6 +20,9 @@ from . import util
 
 
 class Embed:
+
+    EmbedContext = collections.namedtuple("EmbedContext", ["count", "html_el"])
+
     def __init__(self, fail_only=False, combine_tag=None):
         self.fail_only = fail_only
         self.combine_tag = combine_tag
@@ -109,15 +112,21 @@ class _CExt:
             for line in str(data).splitlines():
                 print(f">>>>>> {line}")
 
-    def _embed_queue(self, entry):
-
-        if hasattr(self, "_html_formatter"):
-            entry._html_el = self._html_formatter.actual["act_step_embed_span"]
-        else:
-            entry._html_el = None
-
+    def get_embed_context(self):
         self._embed_count += 1
-        entry.count = self._embed_count
+        count = self._embed_count
+
+        html_el = None
+        if hasattr(self, "_html_formatter"):
+            html_el = self._html_formatter.actual["act_step_embed_span"]
+        return Embed.EmbedContext(count, html_el)
+
+    def _embed_queue(self, entry, embed_context=None):
+
+        if embed_context is None:
+            embed_context = self.get_embed_context()
+
+        entry._embed_context = embed_context
 
         self._to_embed.append(entry)
 
@@ -143,10 +152,15 @@ class _CExt:
         (mime_type, data) = self._embed_mangle_message_for_fail(
             scenario_fail, entry.fail_only, mime_type, data
         )
-        self._embed_args(entry._html_el, mime_type, data, f"({entry.count}) {caption}")
+        self._embed_args(
+            entry._embed_context.html_el,
+            mime_type,
+            data,
+            f"({entry._embed_context.count}) {caption}",
+        )
 
     def _embed_combines(self, scenario_fail, combine_tag, html_el, lst):
-        counts = ",".join(str(entry.count) for entry in lst)
+        counts = ",".join(str(entry._embed_context.count) for entry in lst)
         main_caption = f"({counts}) {combine_tag}"
         message = ""
         for entry in lst:
@@ -155,18 +169,19 @@ class _CExt:
             (mime_type, data) = self._embed_mangle_message_for_fail(
                 scenario_fail, entry.fail_only, mime_type, data
             )
-            message += f"{'-'*50}\n({entry.count}) {caption}\n{data}\n"
+            message += f"{'-'*50}\n({entry._embed_context.count}) {caption}\n{data}\n"
         message += f"{'-'*50}\n"
         self._embed_args(html_el, "text/plain", message, main_caption)
 
     def process_embeds(self, scenario_fail):
         combines_dict = {}
+        self._to_embed.sort(key=lambda e: e._embed_context.count)
         for entry in util.consume_list(self._to_embed):
             combine_tag = entry.combine_tag
             if combine_tag is None:
                 self._embed_one(scenario_fail, entry)
                 continue
-            key = (combine_tag, entry._html_el)
+            key = (combine_tag, entry._embed_context.html_el)
             lst = combines_dict.get(key, None)
             if lst is None:
                 lst = []
@@ -175,14 +190,14 @@ class _CExt:
         for key, lst in combines_dict.items():
             self._embed_combines(scenario_fail, key[0], key[1], lst)
 
-    def embed_data(self, *a, **kw):
-        self._embed_queue(EmbedData(*a, **kw))
+    def embed_data(self, *a, embed_context=None, **kw):
+        self._embed_queue(EmbedData(*a, **kw), embed_context=embed_context)
 
-    def embed_link(self, *a, **kw):
-        self._embed_queue(EmbedLink(*a, **kw))
+    def embed_link(self, *a, embed_context=None, **kw):
+        self._embed_queue(EmbedLink(*a, **kw), embed_context=embed_context)
 
-    def embed_later(self, *a, **kw):
-        self._embed_queue(EmbedLater(*a, **kw))
+    def embed_later(self, *a, embed_context=None, **kw):
+        self._embed_queue(EmbedLater(*a, **kw), embed_context=embed_context)
 
     def embed_dump(self, caption, dump_id, *, data=None, links=None):
         print("Attaching %s, %s" % (caption, dump_id))
@@ -194,7 +209,16 @@ class _CExt:
         self.coredump_reported = True
         misc.coredump_report(dump_id)
 
-    def embed_run(self, argv, shell, returncode, stdout, stderr, fail_only=True):
+    def embed_run(
+        self,
+        argv,
+        shell,
+        returncode,
+        stdout,
+        stderr,
+        fail_only=True,
+        embed_context=None,
+    ):
         if stdout is not None:
             try:
                 stdout = util.bytes_to_str(stdout)
@@ -231,7 +255,13 @@ class _CExt:
         else:
             title = f"Command `{title[:30]}...`"
 
-        self.embed_data(title, message, fail_only=fail_only, combine_tag="Commands")
+        self.embed_data(
+            title,
+            message,
+            fail_only=fail_only,
+            combine_tag="Commands",
+            embed_context=embed_context,
+        )
 
     def embed_service_log(
         self,
@@ -329,7 +359,7 @@ class _CExt:
 
         argv_failed = None
 
-        for proc, logfile in util.consume_list(self._pexpect_lst_step):
+        for proc, logfile, embed_context in util.consume_list(self._pexpect_lst_step):
             (
                 p_failed,
                 argv,
@@ -339,10 +369,14 @@ class _CExt:
             ) = self._process_command_complete(proc, logfile)
             if argv_failed is None and p_failed:
                 argv_failed = argv
-            self.embed_run(argv, True, returncode, stdout, stderr)
+            self.embed_run(
+                argv, True, returncode, stdout, stderr, embed_context=embed_context
+            )
 
         if when == "after_scenario":
-            for proc, logfile in util.consume_list(self._pexpect_lst_scenario):
+            for proc, logfile, embed_context in util.consume_list(
+                self._pexpect_lst_scenario
+            ):
                 (
                     p_failed,
                     argv,
@@ -352,7 +386,9 @@ class _CExt:
                 ) = self._process_command_complete(proc, logfile)
                 if argv_failed is None and p_failed:
                     argv_failed = argv
-                self.embed_run(argv, True, returncode, stdout, stderr)
+                self.embed_run(
+                    argv, True, returncode, stdout, stderr, embed_context=embed_context
+                )
 
         if argv_failed:
             raise Exception(f"Some process failed: {argv_failed}")
@@ -485,10 +521,12 @@ def setup(context):
         # Otherwise, the process is reaped/killed at the end of the step.
         #
         # In both cases, we track the process in two separate lists.
+        embed_span = context.cext.get_embed_context()
+
         if is_service:
-            context.cext._pexpect_lst_scenario.append((proc, logfile))
+            context.cext._pexpect_lst_scenario.append((proc, logfile, embed_span))
         else:
-            context.cext._pexpect_lst_step.append((proc, logfile))
+            context.cext._pexpect_lst_step.append((proc, logfile, embed_span))
         return proc
 
     context.command_code = _command_code
