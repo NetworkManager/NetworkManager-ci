@@ -1002,14 +1002,14 @@ def restore_connections(context):
 def manage_veths(context):
     if not os.path.isfile("/tmp/nm_veth_configured"):
         rule = 'ENV{ID_NET_DRIVER}=="veth", ENV{INTERFACE}=="eth[0-9]|eth[0-9]*[0-9]", ENV{NM_UNMANAGED}="0"'
-        nmci.util.file_set_content("/etc/udev/rules.d/88-veths.rules", [rule])
+        nmci.util.file_set_content("/etc/udev/rules.d/88-veths-eth.rules", [rule])
         context.process.run_stdout("udevadm control --reload-rules")
         context.process.run_stdout("udevadm settle --timeout=5")
         time.sleep(1)
 
 
 def unmanage_veths(context):
-    context.process.run_stdout("rm -f /etc/udev/rules.d/88-veths.rules")
+    context.process.run_stdout("rm -f /etc/udev/rules.d/88-veths-*.rules")
     context.process.run_stdout("udevadm control --reload-rules")
     context.process.run_stdout("udevadm settle --timeout=5")
     time.sleep(1)
@@ -1563,10 +1563,17 @@ def cleanup(context):
             teardown_testveth(context, namespace)
         if context.process.run_search_stdout("ip netns list", namespace):
             context.process.run_stdout(f'ip netns del "{namespace}"')
+    if context.cleanup["rules"]:
+        for rule in context.cleanup["rules"]:
+            context.process.run(f"rm -rf {rule}")
+        context.process.run("udevadm control --reload-rules")
+        context.process.run("udevadm settle --timeout=5")
+        time.sleep(1)
 
     # reset cleanup, so it is safe to be called multiple times
     context.cleanup = {
         "connections": set(),
         "interfaces": {"reset": set(), "delete": set()},
         "namespaces": {},
+        "rules": set(),
     }

@@ -7,6 +7,15 @@ from behave import step
 import nmci.ip
 import nmci.util
 
+def manage_veth_device(context, device):
+    rule_file = f"/etc/udev/rules.d/88-veth-{device}.rules"
+    if not os.path.isfile(rule_file):
+        rule = 'ENV{ID_NET_DRIVER}=="veth", ENV{INTERFACE}=="%s*", ENV{NM_UNMANAGED}="0"' %device
+        nmci.util.file_set_content(rule_file, [rule])
+        context.process.run_stdout("udevadm control --reload-rules")
+        context.process.run_stdout("udevadm settle --timeout=5")
+        time.sleep(1)
+        context.cleanup['rules'].add(rule_file)
 
 @step('Create PBR files for profile "{profile}" and "{dev}" device in table "{table}"')
 def create_policy_based_routing_files(context, profile, dev, table, timeout=5):
@@ -147,11 +156,6 @@ def prepare_pppoe_server(context, user, passwd, ip, auth):
 
 @step(u'Prepare veth pairs "{pairs_array}" bridged over "{bridge}"')
 def prepare_veths(context, pairs_array, bridge):
-    context.command_code('''echo 'ENV{ID_NET_DRIVER}=="veth", ENV{INTERFACE}=="test*", ENV{NM_UNMANAGED}="0"' >/etc/udev/rules.d/88-prep_veth.rules''')
-    context.command_code("udevadm control --reload-rules")
-    context.command_code("udevadm settle --timeout=5")
-    context.command_code("sleep 1")
-
     pairs = []
     for pair in pairs_array.split(','):
         pairs.append(pair.strip())
@@ -159,6 +163,7 @@ def prepare_veths(context, pairs_array, bridge):
     context.execute_steps(f'* Create "bridge" device named "{bridge}"')
     context.command_code("sudo ip link set dev %s up" % bridge)
     for pair in pairs:
+        manage_veth_device(context, pair)
         context.execute_steps(
             f'''
             * Create "veth" device named "{pair}" with options "peer name {pair}p"
@@ -195,6 +200,8 @@ def restart_dhcp_server(context, device, ipv4, ipv6):
 @step(u'Prepare simulated test "{device}" device using dhcpd')
 @step(u'Prepare simulated test "{device}" device using dhcpd and server identifier "{server_id}"')
 def prepare_dhcpd_simdev(context, device, server_id):
+    manage_veth_device(context, device)
+
     ipv4 = "192.168.99"
     context.execute_steps(f'* Add namespace "{device}_ns"')
     context.execute_steps(f'* Create "veth" device named "{device}" with options "peer name {device}p"')
@@ -237,6 +244,8 @@ def prepare_dhcpd_simdev(context, device, server_id):
 @step(u'Prepare simulated test "{device}" device')
 @step(u'Prepare simulated test "{device}" device with daemon options "{daemon_options}"')
 def prepare_simdev(context, device, lease_time="2m", ipv4=None, ipv6=None, option=None, daemon_options=None):
+    manage_veth_device(context, device)
+
     if ipv4 is None:
         ipv4 = "192.168.99"
     if ipv6 is None:
@@ -244,12 +253,6 @@ def prepare_simdev(context, device, lease_time="2m", ipv4=None, ipv6=None, optio
     if daemon_options is None:
         daemon_options = ""
 
-    unmanaged_rule = f"/etc/udev/rules.d/88-veth-{device}.rules"
-    if not os.path.isfile(unmanaged_rule):
-        context.command_code('''echo 'ENV{ID_NET_DRIVER}=="veth", ENV{INTERFACE}=="%s*", ENV{NM_UNMANAGED}="0"' >%s''' % (device, unmanaged_rule))
-        context.command_code("udevadm control --reload-rules")
-        context.command_code("udevadm settle --timeout=5")
-        context.command_code("sleep 1")
 
     context.execute_steps(f'* Add namespace "{device}_ns"')
     context.execute_steps(f'* Create "veth" device named "{device}" in namespace "{device}_ns" with options "peer name {device}p"')
@@ -288,18 +291,18 @@ def prepare_simdev(context, device, lease_time="2m", ipv4=None, ipv6=None, optio
 
     assert context.command_code(dnsmasq_command) == 0, "unable to start dnsmasq using command `{dnsmasq_command}`".format(dnsmasq_command=dnsmasq_command)
     context.command_code("ip netns exec {device}_ns ip link set {device} netns {pid}".format(device=device, pid=os.getpid()))
-    context.execute_steps(f'Then "disconnected" is visible with command "nmcli device show {device}" in "10" seconds');
+    if nmci.process.systemctl("status NetworkManager").returncode == 0:
+        context.execute_steps(f'Then "connected" is visible with command "nmcli device show {device}" in "10" seconds');
+    else:
+        time.sleep(2)
     context.cleanup['namespaces'][f"{device}_ns"] = True
 
 
 
 @step(u'Prepare simulated test "{device}" device with DHCPv4 server on different network')
 def prepare_simdev(context, device):
-    if not context.cleanup['namespaces']:
-        context.command_code('''echo 'ENV{ID_NET_DRIVER}=="veth", ENV{INTERFACE}=="test*", ENV{NM_UNMANAGED}="0"' >/etc/udev/rules.d/88-prep_veth.rules''')
-        context.command_code("udevadm control --reload-rules")
-        context.command_code("udevadm settle --timeout=5")
-        context.command_code("sleep 1")
+    manage_veth_device(context, device)
+
     #         +-------testX_ns--------+ +--testX2_ns--+
     # testX <-|-> testXp     testX2 <-|-|-> testX2p   |
     # (DHCP   | 172.16.0.1  10.0.0.2  | |  10.0.0.1   |
@@ -338,11 +341,8 @@ def prepare_simdev(context, device):
 
 @step(u'Prepare simulated test "{device}" device without DHCP')
 def prepare_simdev_no_dhcp(context, device):
-    if not context.cleanup['namespaces']:
-        context.command_code('''echo 'ENV{ID_NET_DRIVER}=="veth", ENV{INTERFACE}=="test*", ENV{NM_UNMANAGED}="0"' >/etc/udev/rules.d/88-prep_veth.rules''')
-        context.command_code("udevadm control --reload-rules")
-        context.command_code("udevadm settle --timeout=5")
-        context.command_code("sleep 1")
+    manage_veth_device(context, device)
+
     context.execute_steps(f'* Add namespace "{device}_ns"')
     context.execute_steps(f'* Create "veth" device named "{device}" in namespace "{device}_ns" with options "peer name {device}p"')
     context.command_code("ip netns exec {device}_ns ip link set {device} netns {pid}".format(device=device, pid=os.getpid()))
@@ -352,11 +352,8 @@ def prepare_simdev_no_dhcp(context, device):
 
 @step(u'Prepare simulated test "{device}" device for IPv6 PMTU discovery')
 def prepare_simdev(context, device):
-    if not context.cleanup['namespaces']:
-        context.command_code('''echo 'ENV{ID_NET_DRIVER}=="veth", ENV{INTERFACE}=="test*", ENV{NM_UNMANAGED}="0"' >/etc/udev/rules.d/88-prep_veth.rules''')
-        context.command_code("udevadm control --reload-rules")
-        context.command_code("udevadm settle --timeout=5")
-        context.command_code("sleep 1")
+    manage_veth_device(context, device)
+
     #         +-------testX_ns--------+ +--testX2_ns--+
     # testX <-|-> testXp     testX2 <-|-|-> testX2p   |
     #         |  fd01::1     fd02::1  | |   fd02::2   |
@@ -401,13 +398,10 @@ def prepare_simdev(context, device):
 
 @step(u'Prepare simulated veth device "{device}" wihout carrier')
 def prepare_simdev_no_carrier(context, device):
+    manage_veth_device(context, device)
+
     ipv4 = "192.168.99"
     ipv6 = "2620:dead:beaf"
-    if not context.cleanup['namespaces']:
-        context.command_code('''echo 'ENV{ID_NET_DRIVER}=="veth", ENV{INTERFACE}=="test*", ENV{NM_UNMANAGED}="0"' >/etc/udev/rules.d/88-prep_veth.rules''')
-        context.command_code("udevadm control --reload-rules")
-        context.command_code("udevadm settle --timeout=5")
-        context.command_code("sleep 1")
     context.execute_steps(f'* Add namespace "{device}_ns"')
     context.command_code("ip netns exec {device}_ns ip link add {device} type veth peer name {device}p".format(device=device))
     context.command_code("ip netns exec {device}_ns ip link set lo up".format(device=device))

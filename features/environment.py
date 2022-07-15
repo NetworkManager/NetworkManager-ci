@@ -87,6 +87,7 @@ def _before_scenario(context, scenario):
         "connections": set(),
         "interfaces": {"reset": set(), "delete": set()},
         "namespaces": {},
+        "rules": set(),
     }
     context.rh_release = nmci.command_output("cat /etc/redhat-release")
     release_i = context.rh_release.find("release ")
