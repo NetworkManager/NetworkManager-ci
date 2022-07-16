@@ -26,9 +26,7 @@ node('cico-workspace') {
             if (!params['RESERVE']) {
                 RESERVE = "0s"
             }
-            // Cancel older builds
-            script {
-                println("Killing old jobs if running")
+            stage ('Kill old jobs'){
                 killJobs (currentBuild)
             }
         }
@@ -102,7 +100,7 @@ def killJobs (currentBuild) {
         if (!build.isBuilding()) { continue; }
         if (buildnum == build.getNumber().toInteger()) { continue; println "equals" }
         if (build.displayName == currentBuild.displayName) {
-            println(build.number)
+            println("Killing job #" + build.number)
             build.doStop();
         }
     }
