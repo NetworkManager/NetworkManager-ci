@@ -23,7 +23,7 @@ class _Timeout:
             self._expiry = now + timeout
             self._is_expired = timeout <= 0
 
-    def ticking_duraction(self):
+    def ticking_duration(self):
         return time.monotonic() - self.start_timestamp
 
     def _expired(self, now):
