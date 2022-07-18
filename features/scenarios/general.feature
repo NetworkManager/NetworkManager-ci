@@ -1840,15 +1840,15 @@ Feature: nmcli - general
     @stable_mem_consumption
     Scenario: NM - general - stable mem consumption
     * Cleanup device "gen_br"
-    * Execute reproducer "1433303" for "2" times
+    * Execute reproducer "1433303" for "1" times
     * Note the output of "pmap -x $(pidof NetworkManager) |grep 'total' | awk '{print $4}'" as value "0"
-    * Execute reproducer "1433303" for "5" times
+    * Execute reproducer "1433303" for "2" times
     * Note the output of "pmap -x $(pidof NetworkManager) |grep 'total' | awk '{print $4}'" as value "1"
     When Check noted value "1" difference from "0" is "less than" "1000"
-    * Execute reproducer "1433303" for "10" times
+    * Execute reproducer "1433303" for "5" times
     * Note the output of "pmap -x $(pidof NetworkManager) |grep 'total' | awk '{print $4}'" as value "2"
     When Check noted value "2" difference from "1" is "less than" "1000"
-    * Execute reproducer "1433303" for "20" times
+    * Execute reproducer "1433303" for "10" times
     * Note the output of "pmap -x $(pidof NetworkManager) |grep 'total' | awk '{print $4}'" as value "3"
     Then Check noted value "3" difference from "2" is "less than" "1000"
 
@@ -2869,7 +2869,7 @@ Feature: nmcli - general
     Then "wait for ACK" is not visible with command "journalctl -u NetworkManager --no-pager -n 1000"
      And "blackhole" is visible with command "ip route"
 
-    
+
     @rhbz2033643
     @ver+=1.39.6
     @eth0 @restore_hostname @dhcpd
