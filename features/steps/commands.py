@@ -79,7 +79,7 @@ def execute_reproducer(context, rname, options="", number=1):
 
     i = 0
     while i < int(number):
-        context.command_code(command)
+        assert context.command_code(command) == 0
         curr_nm_pid = nmci.nmutil.nm_pid()
         assert curr_nm_pid == orig_nm_pid, 'NM crashed as original pid was %s but now is %s' %(orig_nm_pid, curr_nm_pid)
         i += 1
@@ -275,7 +275,7 @@ def compare_values(keyword, value1, value2):
         }
 
     assert keyword in func_mapper, (
-        f'Invalid operator keyword: "{keyword}",' 
+        f'Invalid operator keyword: "{keyword}",'
         ' supported operators are:\n     '
         )  + "\n     ".join(func_mapper.keys())
 
@@ -316,13 +316,13 @@ def check_lines_command(context, command, condition1, seconds,
         f'''Command "{command}" {pattern_text} did not return '''
         f''' "{condition1['op']}" "{condition1['n_lines']}" '''
         f''' and "{condition2['op']}" "{condition2['n_lines']}" lines, '''
-        f'''but "{len(out)}", output was:\n''' 
-        ) + '\n'.join(out) 
+        f'''but "{len(out)}", output was:\n'''
+        ) + '\n'.join(out)
 
     assert False, (
         f'''Command "{command}" {pattern_text} did not return '''
-        f''' "{condition1['op']}" "{condition1['n_lines']}" lines, but "{len(out)}", output was:\n''' 
-        ) + '\n'.join(out) 
+        f''' "{condition1['op']}" "{condition1['n_lines']}" lines, but "{len(out)}", output was:\n'''
+        ) + '\n'.join(out)
 
 
 @step(u'Noted value is visible with command "{command}"')
@@ -408,7 +408,7 @@ def json_not_visible_command(context, command, string, seconds=2):
 def noted_lines_visible_command(context, command, index='noted-value', seconds=2, pattern=None):
     return check_lines_command(
         context=context,
-        command=command, 
+        command=command,
         condition1={'n_lines': context.noted[index], 'op': "exactly"},
         seconds=seconds,
         pattern=pattern
@@ -421,13 +421,13 @@ def range_lines_visible_command(context, command, n_lines1, n_lines2, operator_k
                                 seconds=2, pattern=None):
     return check_lines_command(
         context=context,
-        command=command, 
+        command=command,
         condition1={'n_lines': n_lines1, 'op': operator_kw1.lower()},
         condition2={'n_lines': n_lines2, 'op': operator_kw2.lower()},
         seconds=seconds,
         pattern=pattern
         )
-                               
+
 
 @step(u'"{operator_kw}" "{n_lines}" lines are visible with command "{command}"')
 @step(u'"{operator_kw}" "{n_lines}" lines are visible with command "{command}" in "{seconds}" seconds')
@@ -436,7 +436,7 @@ def range_lines_visible_command(context, command, n_lines1, n_lines2, operator_k
 def lines_visible_command(context, command, n_lines, operator_kw, seconds=2, pattern=None):
     return check_lines_command(
         context=context,
-        command=command, 
+        command=command,
         condition1={'n_lines': n_lines, 'op': operator_kw.lower()},
         seconds=seconds,
         pattern=pattern
