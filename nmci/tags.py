@@ -86,6 +86,15 @@ def skip_in_centos_bs(context, scenario):
 _register_tag("skip_in_centos", skip_in_centos_bs)
 
 
+def skip_in_fedora_bs(context, scenario):
+    if "Fedora Linux" in nmci.command_output("cat /etc/os-release"):
+        print("skipping with fedora")
+        sys.exit(77)
+
+
+_register_tag("skip_in_fedora", skip_in_fedora_bs)
+
+
 def skip_in_kvm_bs(context, scenario):
     if "kvm" or "powervm" in context.hypervisor:
         if context.arch != "x86_64":

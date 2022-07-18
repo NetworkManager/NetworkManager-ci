@@ -853,7 +853,7 @@ Feature: nmcli - vlan
 
 
     @rhbz1933041 @rhbz1926599 @rhbz1231526
-    @ver+=1.30 @rhelver+=8
+    @ver+=1.30 @rhelver+=8 @skip_in_fedora
     @logging_info_only @many_vlans @restart_if_needed
     @vlan_create_many_vlans
     Scenario: NM - vlan - create 500 (x86_64) or 200 (aarch64, s390x...) vlans
@@ -875,7 +875,7 @@ Feature: nmcli - vlan
     # Then Execute "nmcli  device |grep eth11 > /tmp/eth11s"
 
 
-    @ver+=1.32 @rhelver+=8 @skip_in_kvm @skip_in_centos
+    @ver+=1.32 @rhelver+=8 @skip_in_kvm @skip_in_centos @skip_in_fedora
     @logging_info_only @remove_vlan_range
     @vlan_create_1000_bridges_over_1000_vlans
     Scenario: NM - vlan - create 1000 bridges over 1000 VLANs
