@@ -270,6 +270,7 @@ Feature: nmcli: ipv4
 
     @rhbz1373698 @rhbz1714438 @rhbz1937823 @rhbz2013587
     @ver+=1.36.0
+    @ver-=1.39.9
     @ipv4_route_set_route_with_options
     Scenario: nmcli - ipv4 - routes - set route with options
     * Add "ethernet" connection named "con_ipv4" for device "eth3" with options
@@ -291,6 +292,37 @@ Feature: nmcli: ipv4
     * Bring "up" connection "con_ipv4"
     Then "unreachable 192.168.8.0/24 proto static scope link metric 256" is visible with command "ip r"
     And "prohibit 192.168.7.0/24 proto static scope link metric 256" is visible with command "ip r"
+
+
+    @rhbz1373698 @rhbz1714438 @rhbz1937823 @rhbz2013587 @rhbz2090946
+    @ver+=1.39.10
+    @ipv4_route_set_route_with_options
+    Scenario: nmcli - ipv4 - routes - set route with options
+    * Add "ethernet" connection named "con_ipv4" for device "eth3" with options
+          """
+          ipv4.method manual
+          ipv4.addresses 192.168.3.10/24
+          ipv4.gateway 192.168.4.1
+          ipv4.route-metric 256
+          ipv4.routes '
+            192.168.5.0/24 192.168.3.11 1024 cwnd=14 lock-mtu=true mtu=1600,
+            0.0.0.0/0 192.168.4.1 mtu=1600,
+            192.168.6.0/24 type=blackhole
+            '
+          """
+    Then "default via 192.168.4.1 dev eth3\s+proto static\s+metric 256" is visible with command "ip route" in "20" seconds
+    Then "192.168.3.0/24 dev eth3\s+proto kernel\s+scope link\s+src 192.168.3.10\s+metric 256" is visible with command "ip route"
+    Then "192.168.4.1 dev eth3\s+proto static\s+scope link\s+metric 256" is visible with command "ip route"
+    Then "192.168.5.0/24 via 192.168.3.11 dev eth3\s+proto static\s+metric 1024\s+mtu lock 1600 cwnd 14" is visible with command "ip route"
+    And "default via 192.168.4.1 dev eth3 proto static metric 256 mtu 1600" is visible with command "ip r"
+    And "default via 192.168.4.1 dev eth3 proto static metric 256" is visible with command "ip r"
+    And "blackhole 192.168.6.0/24 proto static scope link metric 256" is visible with command "ip r"
+    * Modify connection "con_ipv4" changing options "ipv4.routes '192.168.7.0/24 type=prohibit, 192.168.8.0/24 type=unreachable'"
+    * Modify connection "con_ipv4" changing options "+ipv4.routes '1.1.1.1/24 192.168.4.1 advmss=1440 quickack=1 rto_min=100'"
+    * Bring "up" connection "con_ipv4"
+    Then "unreachable 192.168.8.0/24 proto static scope link metric 256" is visible with command "ip r"
+    And "prohibit 192.168.7.0/24 proto static scope link metric 256" is visible with command "ip r"
+    And "advmss\s+1440\s+rto_min\s+100ms\s+quickack\s+1" is visible with command "ip r"
 
 
     @rhbz1373698
