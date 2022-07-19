@@ -197,7 +197,7 @@ Feature: nmcli: connection
     * Submit "set connection.uuid 00000000-0000-0000-0000-000000000000" in editor
     Then Error type "uuid" shown in editor
     # There will be non zero exit code but we are looking for a crash
-    Then Execute reproducer "1707261"
+    Then Execute reproducer "1707261" with options "|| true"
 
 
     @connection_set_interface-name
