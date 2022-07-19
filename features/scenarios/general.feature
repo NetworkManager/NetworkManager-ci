@@ -2899,3 +2899,14 @@ Feature: nmcli - general
     * Bring "up" connection "veth0+"
     * "name1" is visible with command "hostname" in "20" seconds
     * "search nodhcp test-dhcp-this-one-here-is-a-very-very-long-domain.example.com" is visible with command "cat /etc/resolv.conf"
+
+
+    @rhbz2090946
+    @ver+=1.39.10
+    @eth0 @restore_hostname
+    @nmcli_remove_static_hostname
+    Scenario: nmcli - general - remove static hostname
+    * Execute "sudo nmcli general hostname example.org"
+    * Execute "sudo nmcli general hostname ''"
+    * Path "/etc/hostname" does not exist
+    * "example.org" is not visible with command "hostname" in "10" seconds
