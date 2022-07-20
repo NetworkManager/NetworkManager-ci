@@ -2774,7 +2774,7 @@ def add_testeth_as(context, scenario, num):
     )
 
 
-for i in [1, 5, 8, 10]:
+for i in [1, 5, 8, 9, 10]:
     _register_tag(f"add_testeth{i}", None, add_testeth_as, {"num": i})
 
 
