@@ -1858,7 +1858,7 @@ Feature: nmcli - general
     # STILL NOT FIXED IN 8.6/9.0
     @ver/rhel/8+=1.38.7
     @ver/rhel/9+=1.38.7
-    @long @no_config_server @allow_veth_connections
+    @long @no_config_server @allow_veth_connections @logging_info_only
     @stable_mem_consumption2
     Scenario: NM - general - stable mem consumption - var 2
     * Execute reproducer "1461643" for "2" times
