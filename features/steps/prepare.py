@@ -186,8 +186,8 @@ def start_radvd(context, location):
 def restart_dhcp_server(context, device, ipv4, ipv6):
     context.command_code('kill $(cat /tmp/{device}_ns.pid)'.format(device=device))
     context.command_code("ip netns exec {device}_ns ip addr flush dev {device}_bridge".format(device=device))
-    context.command_code("ip netns exec {device}_ns ip addr add {ip}.1/24 dev {device}_bridge".format(device=device, ip=ipv4))
-    context.command_code("ip netns exec {device}_ns ip -6 addr add {ip}::1/64 dev {device}_bridge".format(device=device, ip=ipv6))
+    context.command_code("ip netns exec {device}_ns ip addr add {ipv4}.1/24 dev {device}_bridge".format(device=device, ipv4=ipv4))
+    context.command_code("ip netns exec {device}_ns ip -6 addr add {ipv6}::1/64 dev {device}_bridge".format(device=device, ipv6=ipv6))
     context.command_code("ip netns exec {device}_ns dnsmasq \
                                         --pid-file=/tmp/{device}_ns.pid \
                                         --dhcp-leasefile=/tmp/{device}_ns.lease \
@@ -208,7 +208,7 @@ def prepare_dhcpd_simdev(context, device, server_id):
     context.command_code("ip link set {device}p netns {device}_ns".format(device=device))
     context.command_code("ip netns exec {device}_ns ip link set lo up".format(device=device))
     context.command_code("ip netns exec {device}_ns ip link set {device}p up".format(device=device))
-    context.command_code("ip netns exec {device}_ns ip addr add {ip}.1/24 dev {device}p".format(device=device, ip=ipv4))
+    context.command_code("ip netns exec {device}_ns ip addr add {ipv4}.1/24 dev {device}p".format(device=device, ipv4=ipv4))
     context.command_code("echo '127.0.0.1   localhost localhost.localdomain localhost4 localhost4.localdomain4' > /etc/hosts")
     context.command_code("echo '::1         localhost localhost.localdomain localhost6 localhost6.localdomain6' >> /etc/hosts")
     context.command_code("echo '192.168.99.10 ip-192-168-99-10' >> /etc/hosts")
@@ -223,8 +223,8 @@ def prepare_dhcpd_simdev(context, device, server_id):
         config.append("server-identifier {server_id};".format(server_id=server_id))
     config.append("max-lease-time 150;")
     config.append("default-lease-time 120;")
-    config.append("subnet {ip}.0 netmask 255.255.255.0 {{".format(ip=ipv4))
-    config.append("  range {ip}.10 {ip}.15;".format(ip=ipv4))
+    config.append("subnet {ipv4}.0 netmask 255.255.255.0 {{".format(ipv4=ipv4))
+    config.append("  range {ipv4}.10 {ipv4}.15;".format(ipv4=ipv4))
     config.append("}}".format(ip=ipv4))
 
     f = open('/tmp/dhcpd.conf', 'w')
@@ -261,8 +261,8 @@ def prepare_simdev(context, device, lease_time="2m", ipv4=None, ipv6=None, optio
     context.command_code("ip netns exec {device}_ns sysctl net.ipv6.conf.{device}.autoconf=1".format(device=device))
     context.command_code("ip netns exec {device}_ns ip link set lo up".format(device=device))
     context.command_code("ip netns exec {device}_ns ip link set {device}p up".format(device=device))
-    context.command_code("ip netns exec {device}_ns ip addr add {ip}.1/24 dev {device}p".format(device=device, ip=ipv4))
-    context.command_code("ip netns exec {device}_ns ip -6 addr add {ip}::1/64 dev {device}p".format(device=device, ip=ipv6))
+    context.command_code("ip netns exec {device}_ns ip addr add {ipv4}.1/24 dev {device}p".format(device=device, ipv4=ipv4))
+    context.command_code("ip netns exec {device}_ns ip -6 addr add {ipv6}::1/64 dev {device}p".format(device=device, ipv6=ipv6))
     context.command_code("echo '127.0.0.1   localhost localhost.localdomain localhost4 localhost4.localdomain4' > /etc/hosts")
     context.command_code("echo '::1         localhost localhost.localdomain localhost6 localhost6.localdomain6' >> /etc/hosts")
     context.command_code("echo '192.168.99.10 ip-192-168-99-10' >> /etc/hosts")
@@ -408,8 +408,8 @@ def prepare_simdev_no_carrier(context, device):
     context.command_code("ip netns exec {device}_ns ip link set {device}p up".format(device=device))
     context.command_code("ip netns exec {device}_ns ip link add name {device}_bridge type bridge".format(device=device))
     context.command_code("ip netns exec {device}_ns ip link set {device}p master {device}_bridge".format(device=device))
-    context.command_code("ip netns exec {device}_ns ip addr add {ip}.1/24 dev {device}_bridge".format(device=device, ip=ipv4))
-    context.command_code("ip netns exec {device}_ns ip -6 addr add {ip}::1/64 dev {device}_bridge".format(device=device, ip=ipv6))
+    context.command_code("ip netns exec {device}_ns ip addr add {ipv4}.1/24 dev {device}_bridge".format(device=device, ipv4=ipv4))
+    context.command_code("ip netns exec {device}_ns ip -6 addr add {ipv6}::1/64 dev {device}_bridge".format(device=device, ipv6=ipv6))
     context.command_code("ip netns exec {device}_ns ip link set {device}_bridge up".format(device=device))
     context.command_code("ip netns exec {device}_ns ip link set {device}p down".format(device=device))
     context.command_code("ip netns exec {device}_ns dnsmasq \
