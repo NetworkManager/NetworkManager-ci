@@ -1836,43 +1836,40 @@ Feature: nmcli - general
 
 
     @rhbz1433303
-    @ver+=1.4.0 @skip_in_centos
-    @delete_testeth0 @long @logging_info_only
+    @ver+=1.4.0
+    @logging_info_only @eth0 @remove_custom_cfg
     @stable_mem_consumption
     Scenario: NM - general - stable mem consumption
-    * Cleanup device "gen_br"
-    * Execute reproducer "1433303" for "1" times
-    * Note the output of "pmap -x $(pidof NetworkManager) |grep 'total' | awk '{print $4}'" as value "0"
+    * Cleanup device "brX"
+    * Execute "echo -e '[keyfile]\nunmanaged-devices=interface-name:orig*;interface-name:eth*' > /etc/NetworkManager/conf.d/99-xxcustom.conf"
+    * Restart NM
     * Execute reproducer "1433303" for "2" times
+    * Note the output of "pmap -x $(pidof NetworkManager) |grep 'total' | awk '{print $4}'" as value "0"
+    * Execute reproducer "1433303" for "4" times
     * Note the output of "pmap -x $(pidof NetworkManager) |grep 'total' | awk '{print $4}'" as value "1"
-    When Check noted value "1" difference from "0" is "less than" "1000"
-    * Execute reproducer "1433303" for "5" times
-    * Note the output of "pmap -x $(pidof NetworkManager) |grep 'total' | awk '{print $4}'" as value "2"
-    When Check noted value "2" difference from "1" is "less than" "1000"
-    * Execute reproducer "1433303" for "10" times
-    * Note the output of "pmap -x $(pidof NetworkManager) |grep 'total' | awk '{print $4}'" as value "3"
-    Then Check noted value "3" difference from "2" is "less than" "1000"
+    When Check noted value "1" difference from "0" is "less than" "500"
 
 
     @rhbz1461643 @rhbz1945282
     @ver+=1.10.0
-    # STILL NOT FIXED IN 8.6/9.0
-    @ver/rhel/8+=1.38.7
+    @ver/rhel/8+=1.36.0.8
     @ver/rhel/9+=1.38.7
-    @long @no_config_server @allow_veth_connections @logging_info_only
+    @allow_veth_connections @logging_info_only @eth0 @remove_custom_cfg
     @stable_mem_consumption2
     Scenario: NM - general - stable mem consumption - var 2
-    * Execute reproducer "1461643" for "2" times
-    * Note the output of "pmap -x $(pidof NetworkManager) |grep 'total' | awk '{print $4}'" as value "0"
+    * Execute "echo -e '[keyfile]\nunmanaged-devices=interface-name:orig*;interface-name:eth*' > /etc/NetworkManager/conf.d/99-xxcustom.conf"
+    * Restart NM
+    * Add "ethernet" connection named "con_gen" for device "\*" with options
+       """
+       connection.multi-connect multiple
+       ipv6.method disabled
+       ipv4.method disabled
+       """
     * Execute reproducer "1461643" for "5" times
     * Note the output of "pmap -x $(pidof NetworkManager) |grep 'total' | awk '{print $4}'" as value "1"
-    When Check noted value "1" difference from "0" is "less than" "1000"
-    * Execute reproducer "1461643" for "10" times
+    * Execute reproducer "1461643" for "30" times
     * Note the output of "pmap -x $(pidof NetworkManager) |grep 'total' | awk '{print $4}'" as value "2"
-    When Check noted value "2" difference from "1" is "less than" "1000"
-    * Execute reproducer "1461643" for "20" times
-    * Note the output of "pmap -x $(pidof NetworkManager) |grep 'total' | awk '{print $4}'" as value "3"
-    When Check noted value "3" difference from "2" is "less than" "1000"
+    When Check noted value "2" difference from "1" is "less than" "3000"
 
 
     @rhbz1398932
