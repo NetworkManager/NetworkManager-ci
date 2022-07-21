@@ -999,6 +999,7 @@
     @ver-1.39.2
     @ver/rhel/8+=1.22
     @ver/rhel/9+=1.22
+    @ver/rhel/8-1.38.8
     @ver/rhel/9-1.38.8
     @scapy
     @ipv6_preserve_addr_order
@@ -1050,7 +1051,7 @@
     @ver+=1.37.91
     @ver+=1.38.0
     @ver+=1.39.2
-    @ver/rhel/8-
+    @ver/rhel/8+=1.38.8
     @ver/rhel/9+=1.38.8
     @scapy
     @ipv6_preserve_addr_order
