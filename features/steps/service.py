@@ -76,8 +76,8 @@ def restart_NM_background(context):
 def kill_NM(context, signal=""):
     context.nm_restarted = True
     if signal:
-        signal = "-" + signal
-    context.run("kill %s $(pidof NetworkManager) && sleep 5" % (signal), shell=True)
+        signal = f"-{signal}"
+    context.run(f"kill {signal} $(pidof NetworkManager) && sleep 5", shell=True)
     context.nm_pid = nmci.nmutil.nm_pid()
 
 

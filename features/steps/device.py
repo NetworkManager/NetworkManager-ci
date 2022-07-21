@@ -169,8 +169,8 @@ def compare_devices(context):
         if a_type == 'dict':
             for a_key in a.keys():
                 if a_key in b:
-                    if not deep_compare(a_desc + '.' + a_key, a[a_key],
-                                        b_desc + '.' + a_key, b[a_key]):
+                    if not deep_compare(f"{a_desc}.{a_key}", a[a_key],
+                                        f"{b_desc}.{a_key}", b[a_key]):
                         ret = False
                 else:
                     print('%s does not have %s: %s' % (b_desc, a_key, str(a[a_key])))
@@ -239,16 +239,9 @@ def note_mac_address_ip(context, device, index=None):
         mac = context.command_output("ip link show %s | grep 'link/ether' | awk '{print $2}'" % device).strip()
     if context.command_code("ip a s %s |grep -q infiniband" % device, shell=True) == 0:
         ip_out = context.command_output("ip link show %s | grep 'link/inf' | awk '{print $2}'" % device).strip()
-        mac = ip_out.split()[-1]
-        client_id = ""
-        mac_split = mac.split(":")[-8:]
-        for i in mac_split:
-            if i == mac_split[-1]:
-                client_id += i
-            else:
-                client_id += i + ":"
-
-        mac = client_id
+        mac_raw = ip_out.split()[-1]
+        mac_split = mac_raw.split(":")[-8:]
+        mac = ':'.join(mac_split)
 
     if index:
         if not hasattr(context, 'noted'):
@@ -289,9 +282,9 @@ def check_ifaces_in_state(context, exclude_ifaces, iface_state):
 
     cmd = 'ip a s'
     if iface_state == "DOWN":
-        cmd = cmd + "| grep -v NO-CARRIER"
+        cmd = f"{cmd} | grep -v NO-CARRIER"
     for ex_iface in ex_ifaces:
-        cmd = cmd + " | grep -v " + str(ex_iface)
+        cmd = f"{cmd} | grep -v {ex_iface}"
 
     context.execute_steps(u""" * "%s" is not visible with command "%s" """ % (iface_state, cmd))
 

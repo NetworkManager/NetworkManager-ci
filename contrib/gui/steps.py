@@ -241,10 +241,10 @@ def add_connection(context, connection, options=None):
         """
     )
     if options is None:
-        options = ""
+        options = []
         for row in context.table:
-            options += f"{row[0]} {row[1]} "
-    options = netdev_replace(context, options)
+            options.append(f"{row[0]} {row[1]} ")
+    options = netdev_replace(context, "".join(options))
     out, rc = cmd_output_rc(
         f"nmcli con add con-name {connection} {options}", shell=True
     )
@@ -256,10 +256,10 @@ def add_connection(context, connection, options=None):
 @step('Modify connection "{connection}" | changing options "{options}"')
 def modify_connection(context, connection, options=None):
     if options is None:
-        options = ""
+        options = []
         for row in context.table:
-            options += f"{row[0]} {row[1]} "
-    options = netdev_replace(context, options)
+            options.append(f"{row[0]} {row[1]} ")
+    options = netdev_replace(context, "".join(options))
     out, rc = cmd_output_rc(f"nmcli con mod {connection} {options}", shell=True)
     assert (
         rc == 0
@@ -382,13 +382,14 @@ def not_active_connection_list(context, connection, seconds=2):
 @step('"{device}" device is "{state}" | in "{seconds}" seconds')
 def device_state(context, device, state, seconds=10):
     device = netdev_replace(context, device)
-    outs = ""
+    outs = []
     for i in range(int(seconds)):
         out, rc = cmd_output_rc(DEVICE_STATE_LIST_CMD, shell=True)
         if rc == 0 and f"{state}:{device}" in out.split("\n"):
             return
-        outs += f"{DEVICE_STATE_LIST_CMD} #{i}\n{out}\n"
+        outs.append(f"{DEVICE_STATE_LIST_CMD} #{i}\n{out}")
         sleep(1)
+    outs = "\n".join([*outs, "\n"])
     context.embed("text/plain", outs, caption="Device States")
     assert False, f"'{device}' is not '{state}':\n{out}"
 

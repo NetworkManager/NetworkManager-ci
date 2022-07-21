@@ -328,20 +328,18 @@ def remove_vlan_range(context, scenario):
         return
 
     # remove vlans and bridgess
-    ip_cleanup_cmd = "; ".join((f"ip link del {dev}" for dev in vlan_range))
+    ip_cleanup_cmd = "; ".join([f"ip link del {dev}" for dev in vlan_range])
     context.process.run(ip_cleanup_cmd, shell=True, ignore_stderr=True, timeout=180)
 
     # remove ifcfg (if any)
-    ifcfg_list = " ".join(
-        (f"/etc/sysconfig/network-scripts/ifcfg-{dev}" for dev in vlan_range)
-    )
-    context.process.run_stdout("rm -rvf " + ifcfg_list, shell=True)
+    ifcfg_list = [f"/etc/sysconfig/network-scripts/ifcfg-{dev}" for dev in vlan_range]
+    context.process.run_stdout(["rm", "-rvf", *ifcfg_list], shell=True)
 
     # remove keyfile (if any)
-    keyfile_list = " ".join(
-        (f"/etc/NetworkManager/system-connections/{dev}*" for dev in vlan_range)
-    )
-    context.process.run_stdout("rm -rvf " + keyfile_list, shell=True)
+    keyfile_list = [
+        f"/etc/NetworkManager/system-connections/{dev}*" for dev in vlan_range
+    ]
+    context.process.run_stdout(["rm", "-rvf", *keyfile_list], shell=True)
 
     nmci.ctx.restart_NM_service(context, timeout=120)
 
@@ -1111,7 +1109,7 @@ def simwifi_as(context, scenario):
         WIRELESS = ":802-11-wireless"
         del_conns = [c.replace(WIRELESS, "") for c in conns if c.endswith(WIRELESS)]
         if del_conns:
-            print(" * deleting UUIDs: " + " ".join(del_conns))
+            print(" ".join([" * deleting UUIDs:", *del_conns]))
             context.process.nmcli(["con", "del", "uuid"] + del_conns)
         else:
             print(" * no wifi connectons found")
@@ -1538,17 +1536,20 @@ def attach_hostapd_log_as(context, scenario):
             elif len(ext):
                 services.append("nm-hostapd-" + ext)
 
-        data = "~~~~~~~~~~~~~~~~~~~~~~~~~~ HOSTAPD LOG ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
+        data = ["~~~~~~~~~~~~~~~~~~~~~~~~~~ HOSTAPD LOG ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"]
         if services:
             for service in services:
-                data += nmci.misc.journal_show(
-                    services,
-                    short=True,
-                    cursor=context.log_cursor_before_tags,
-                    prefix=f"\n~~~ {service} ~~~",
+                data.append(
+                    nmci.misc.journal_show(
+                        services,
+                        short=True,
+                        cursor=context.log_cursor_before_tags,
+                        prefix=f"~~~ {service} ~~~",
+                    )
                 )
         else:
-            data += "\ndid not find any nm-hostapd service!"
+            data.append("did not find any nm-hostapd service!")
+        data = "\n".join(data)
         context.cext.embed_data("HOSTAPD", data)
 
 
@@ -2230,7 +2231,7 @@ def no_config_server_as(context, scenario):
     # UUID has fixed length, 36 characters
     uuids = [c[:36] for c in conns if c and "testeth" not in c]
     if uuids:
-        print("* delete connections with UUID in: " + " ".join(uuids))
+        print(" ".join(["* delete connections with UUID in:", *uuids]))
         context.process.nmcli(["con", "del"] + uuids)
     nmci.ctx.restore_testeth0(context)
 
@@ -2518,7 +2519,7 @@ def remove_tombed_connections_as(context, scenario):
         print(f"removing tomb file {tomb}")
         context.process.run_stdout(f"rm -f {tomb}")
     if cons:
-        print("removing connections: " + " ".join(cons))
+        print(" ".join(["removing connections:", *cons]))
         context.process.nmcli("con reload")
         context.process.nmcli(["con", "delete"] + cons)
 
@@ -2866,11 +2867,11 @@ def remove_ctcdevice_bs(context, scenario):
 
 def remove_ctcdevice_as(context, scenario):
     devs = context.process.run_stdout("znetconf -c")
-    ctc_devs = ""
+    ctc_devs = []
     for dev in devs.strip().split("\n"):
         if "CTC" in dev:
-            ctc_devs += " " + dev.split(",")[0]
-    context.process.run_stdout(f"znetconf -r {ctc_devs} -n")
+            ctc_devs.append(dev.split(",")[0])
+    context.process.run_stdout(["znetconf", "-r", *ctc_devs, "-n"])
     time.sleep(1)
 
 

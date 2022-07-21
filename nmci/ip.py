@@ -402,8 +402,8 @@ class _IP:
             if not result:
                 if allow_missing:
                     return None
-                raise KeyError("Could not find interface with " + s)
-            raise KeyError("Could not find unique interface with " + s)
+                raise KeyError(f"Could not find interface with {s}")
+            raise KeyError("Could not find unique interface with {s}")
 
         data = result[0]
 

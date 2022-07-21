@@ -187,11 +187,11 @@ def ovs_print_external_ids(prefix):
     for typ in ["Bridge", "Port", "Interface"]:
         cmds += [["ovs-vsctl", "--columns=name,external-ids", "list", typ]]
 
-    out = ""
+    outs = []
     for cmd in cmds:
         p = subprocess.run(cmd, stdout=subprocess.PIPE, check=True,)
-        out += p.stdout.decode("utf-8") + "\n"
-    out = "\n".join([prefix + s for s in out.split("\n")])
+        outs.append(f'{prefix}{p.stdout.decode("utf-8")}')
+    out = "\n".join(outs)
     _print(out)
 
 

@@ -7,17 +7,18 @@ import nmci
 
 
 REMOTE_JOURNAL_DIR = "/var/dracut_test/client_log/"
-REMOTE_JOURNAL = "--root=" + REMOTE_JOURNAL_DIR
+REMOTE_JOURNAL = f"--root={REMOTE_JOURNAL_DIR}"
 REMOTE_CRASH_DIR = "/var/dracut_test/client_dumps/"
 
 
 def get_dracut_vm_state(mount=True):
-    cmd = "cd contrib/dracut/; . ./setup.sh; "
+    cmd_parts = ["cd contrib/dracut/", ". ./setup.sh"]
     if mount:
-        cmd += "mount -o ro $DEV_LOG $TESTDIR/client_log/var/log/; "
-    cmd += "cat $TESTDIR/client_log/var/log/vm_state; "
+        cmd_parts.append("mount -o ro $DEV_LOG $TESTDIR/client_log/var/log/")
+    cmd_parts.append("cat $TESTDIR/client_log/var/log/vm_state")
     if mount:
-        cmd += "umount $DEV_LOG"
+        cmd_parts.append("umount $DEV_LOG")
+    cmd = '; '.join(cmd_parts)
     return nmci.run(cmd)[0].strip("\n")
 
 
@@ -76,7 +77,7 @@ def check_core_dumps(context):
     return True if unexpected crash happened, False otherwise
     """
 
-    backtraces = ""
+    backtraces = False
     sleep_crash = False
     other_crash = False
     for filename in os.listdir(REMOTE_CRASH_DIR):
@@ -85,15 +86,15 @@ def check_core_dumps(context):
                 sleep_crash = True
             else:
                 other_crash = True
-            backtraces += (
-                filename
-                + ":\n"
-                + get_backtrace(context, REMOTE_CRASH_DIR + filename)
-                + "\n\n"
-            )
+            backtraces = ''.join([
+                filename,
+                ":\n",
+                get_backtrace(context, REMOTE_CRASH_DIR + filename),
+                "\n\n",
+            ])
             context.cext.embed_file_if_exists(
                 "Dracut Crash Dump",
-                REMOTE_CRASH_DIR + filename,
+                f"{REMOTE_CRASH_DIR}{filename}",
                 as_base64=True,
             )
 
@@ -125,16 +126,16 @@ def prepare_dracut(context, checks):
 @step("Run dracut test")
 def dracut_run(context):
     qemu_args = []
-    kernel_args = (
+    kernel_args_parts = [
         "panic=1 systemd.crash_reboot rd.shell=0 "
         "rd.debug loglevel=7 biosdevname=0 net.ifnames=0 noapic "
-    )
+    ]
     kernel_arch_args = {
         "x86_64": "console=ttyS0,115200n81 ",
     }
     arch = context.arch
     if arch in kernel_arch_args.keys():
-        kernel_args += kernel_arch_args[arch]
+        kernel_args_parts.append(kernel_arch_args[arch])
     initrd = "initramfs.client.NM"
     checks = ""
     timeout = "6m"
@@ -143,17 +144,18 @@ def dracut_run(context):
         if "qemu" in row[0].lower():
             qemu_args += row[1].split(" ")
         elif "kernel" in row[0].lower():
-            kernel_args += " " + row[1]
+            kernel_args_parts.append(f" {row[1]}")
         elif "initrd" in row[0].lower():
             initrd = row[1]
         elif "check" in row[0].lower():
-            checks += row[1] + " || die '" + '"' + row[1] + '"' + " failed'\n"
+            checks = f"{row[1]} || die '{row[1]} failed'\n"
             if "dracut_crash_test" in row[1]:
                 context.dracut_crash_test = True
         elif "timeout" in row[0].lower():
             timeout = row[1]
         elif "ram" in row[0].lower():
             ram = row[1]
+    kernel_args = ''.join(kernel_args_parts)
 
     prepare_dracut(context, checks)
 

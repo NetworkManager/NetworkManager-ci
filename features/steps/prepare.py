@@ -277,19 +277,20 @@ def prepare_simdev(context, device, lease_time="2m", ipv4=None, ipv6=None, optio
     else:
         option = ""
 
-    dnsmasq_command = f"ip netns exec {device}_ns dnsmasq \
+    dnsmasq_command = [f"ip netns exec {device}_ns dnsmasq \
                                 --interface={device}p \
                                 --bind-interfaces \
                                 --pid-file=/tmp/{device}_ns.pid \
                                 --dhcp-leasefile=/tmp/{device}_ns.lease \
                                 {option} \
-                                {daemon_options}"
-    dnsmasq_command += f" --dhcp-range={ipv4}.10,{ipv4}.15,{lease_time} "
+                                {daemon_options}"]
+    dnsmasq_command.append(f"--dhcp-range={ipv4}.10,{ipv4}.15,{lease_time} ")
     if lease_time != 'infinite':
-        dnsmasq_command += f" --dhcp-range={ipv6}::100,{ipv6}::fff,slaac,64,{lease_time} \
-                             --enable-ra"
+        dnsmasq_command.append(f"--dhcp-range={ipv6}::100,{ipv6}::fff,slaac,64,{lease_time} \
+                             --enable-ra")
+    dnsmasq_command = " ".join(dnsmasq_command)
 
-    assert context.command_code(dnsmasq_command) == 0, f"unable to start dnsmasq using command `{dnsmasq_command}`"
+    assert context.command_code(dnsmasq_command) == 0, f'unable to start dnsmasq using command "{dnsmasq_command}"'
     context.command_code(f"ip netns exec {device}_ns ip link set {device} netns {os.getpid()}")
     if nmci.process.systemctl("status NetworkManager").returncode == 0:
         context.execute_steps(f'Then "connected" is visible with command "nmcli device show {device}" in "10" seconds');

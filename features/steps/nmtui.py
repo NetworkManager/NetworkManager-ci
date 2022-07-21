@@ -213,7 +213,7 @@ def select_con_in_list(context, con_name):
 @step('Connections "{con_names}" are in the list')
 def all_cons_in_list(context, con_names):
     patterns = search_all_patterns_in_list(context, [r".*%s.*" % name for name in con_names.split(",")])
-    assert len(patterns) == 0, "The following list items were not found: " + str(patterns)
+    assert len(patterns) == 0, f"The following list items were not found: {patterns}"
 
 
 @step('Get back to the connection list')

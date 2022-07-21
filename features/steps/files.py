@@ -31,7 +31,7 @@ def check_file_is_contained(context, file1, file2):
     with open(file1) as f1_lines:
         with open(file2) as f2_lines:
             diff = set(f1_lines).difference(f2_lines)
-    assert not len(diff), f"Following lines in '{file1}' are not in '{file2}':\n" + "".join(diff)
+    assert not len(diff), f"Following lines in '{file1}' are not in '{file2}':\n{''.join(diff)}"
 
 
 @step(u'Check file "{file1}" is identical to file "{file2}"')
@@ -186,7 +186,7 @@ def check_ifcfg(context, file):
 def create_network_profile_file(context, file):
     with open(file, "w") as f:
         f.write(context.text)
-    assert nmci.command_code("chmod 600 " + file) == 0, "Unable to set permissions on '%s'" % file
+    assert nmci.command_code(f"chmod 600 {file}") == 0, f"Unable to set permissions on '{file}'"
     nmci.ctx.reload_NM_connections(context)
 
     for line in context.text.split("\n"):

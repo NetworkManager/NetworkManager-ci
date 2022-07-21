@@ -162,15 +162,18 @@ class _CExt:
     def _embed_combines(self, scenario_fail, combine_tag, html_el, lst):
         counts = ",".join(str(entry._embed_context.count) for entry in lst)
         main_caption = f"({counts}) {combine_tag}"
-        message = ""
+        message = []
         for entry in lst:
             (mime_type, data, caption) = entry.evalDoEmbedArgs()
             assert mime_type == "text/plain"
             (mime_type, data) = self._embed_mangle_message_for_fail(
                 scenario_fail, entry.fail_only, mime_type, data
             )
-            message += f"{'-'*50}\n({entry._embed_context.count}) {caption}\n{data}\n"
-        message += f"{'-'*50}\n"
+            message.append(
+                f"{'-'*50}\n({entry._embed_context.count}) {caption}\n{data}"
+            )
+        message.append(f"{'-'*50}\n")
+        message = "\n".join(message)
         self._embed_args(html_el, "text/plain", message, main_caption)
 
     def process_embeds(self, scenario_fail):
@@ -316,7 +319,7 @@ class _CExt:
         if caption is None:
             caption = fname
 
-        print("embeding " + caption + " log (" + fname + ")")
+        print(f"embeding {caption} log ({fname})")
 
         if not as_base64:
             data = util.file_get_content_simple(fname)
@@ -636,17 +639,20 @@ def dump_status(context, when, fail_only=False):
         if not any_pending or timeout.was_expired:
             break
 
-    msg = ""
+    msg = []
     for i in range(len(procs)):
         proc = procs[i]
         if i in headings.keys():
-            msg = f"{msg}\n{headings[i]}"
-        msg += f"\n--- {proc.argv} ---\n"
-        msg += proc.stdout.decode("utf-8", errors="replace")
+            msg.append(f"{headings[i]}")
+        msg.append(f"\n--- {proc.argv} ---")
+        msg.append(proc.stdout.decode("utf-8", errors="replace"))
     if timeout.was_expired:
-        msg += "\n\nWARNING: timeout expired waiting for processes. Processes were terminated."
+        msg.append(
+            "\nWARNING: timeout expired waiting for processes. Processes were terminated."
+        )
 
-    context.cext.embed_data("Status " + when, msg, fail_only=fail_only)
+    msg = "\n".join(msg)
+    context.cext.embed_data(f"Status {when}", msg, fail_only=fail_only)
 
     # Always include memory stats
     if context.nm_pid is not None:
@@ -1036,12 +1042,12 @@ def after_crash_reset(context):
     print("Remove all ifcfg files")
     dir = "/etc/sysconfig/network-scripts"
     ifcfg_files = glob.glob(dir + "/ifcfg-*")
-    context.process.run_stdout("rm -vrf " + " ".join(ifcfg_files))
+    context.process.run_stdout(["rm", "-vrf ", *ifcfg_files])
 
     print("Remove all keyfiles in /etc")
     dir = "/etc/NetworkManager/system-connections"
     key_files = glob.glob(dir + "/*")
-    context.process.run_stdout("rm -vrf " + " ".join(key_files))
+    context.process.run_stdout(["rm", "-vrf", *key_files])
 
     print("Remove all config in /etc except 99-test.conf")
     dir = "/etc/NetworkManager/conf.d"

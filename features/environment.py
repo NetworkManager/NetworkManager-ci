@@ -169,7 +169,7 @@ def _before_scenario(context, scenario):
             "Exception in before scenario tags",
             "\n\n".join(excepts),
         )
-        assert False, "Exception in before scenario tags:\n\n" + "\n\n".join(excepts)
+        assert False, "\n\n".join(["Exception in before scenario tags:", *excepts])
 
 
 def before_step(context, step):
@@ -301,7 +301,7 @@ def _after_scenario(context, scenario):
     for tag_name in scenario_tags:
         tag = nmci.tags.tag_registry.get(tag_name, None)
         if tag is not None and tag._after_scenario is not None:
-            print("Executing @" + tag_name)
+            print(f"Executing @{tag_name}")
             t_start = time.time()
             t_status = "passed"
             try:
@@ -390,7 +390,7 @@ def _after_scenario(context, scenario):
     if context.crashed_step:
         assert False, "Crash happened"
 
-    assert not excepts, "Exceptions in after scenario:\n\n" + "\n\n".join(excepts)
+    assert not excepts, "\n\n".join(["Exceptions in after scenario:", *excepts])
 
 
 def after_tag(context, tag):

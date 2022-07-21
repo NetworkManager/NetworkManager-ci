@@ -150,7 +150,7 @@ class _Misc:
         return test_tags
 
     def get_mapper_obj(self):
-        with open(util.base_dir() + "/mapper.yaml", "r") as mapper_file:
+        with open(f"{util.base_dir()}/mapper.yaml", "r") as mapper_file:
             mapper_content = mapper_file.read()
             return yaml.load(mapper_content, Loader=yaml.BaseLoader)
 

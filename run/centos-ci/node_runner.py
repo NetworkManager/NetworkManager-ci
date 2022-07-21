@@ -292,7 +292,7 @@ class Machine:
     def install_NM(self, source="copr"):
         # remove NM first
         NM_rpms = self.ssh("rpm -qa \\| grep NetworkManager", check=False).stdout or ""
-        delete_rpms = ""
+        delete_rpms = []
         for rpm in NM_rpms.split("\n"):
             if "strongswan" in rpm:
                 continue
@@ -302,9 +302,9 @@ class Machine:
                 continue
             elif "pptp" in rpm:
                 continue
-            delete_rpms += " " + rpm
+            delete_rpms.append(rpm)
         if delete_rpms.strip():
-            self.ssh(f"rpm -ea --nodeps {delete_rpms}")
+            self.ssh(f"rpm -ea --nodeps {' '.join(delete_rpms)}")
 
         excludes = " ".join([f'--exclude \\"{e}\\"' for e in self.rpm_exclude_list])
         if source == "copr":
@@ -549,7 +549,7 @@ class Runner:
         # prevent pipeline cancel
         self.exit_code = 0
         machine_lines = []
-        failed_tests = ""
+        failed_tests = set()
         p = 0
         f = 0
         s = 0
@@ -597,7 +597,7 @@ class Runner:
                 f"**M{m.id} {m_status}**: Passed: {pm}, Failed: {fm}, Skipped: {sm}{undef_str}"
             )
             if len(lines) == 4:
-                failed_tests += " " + lines[3]
+                failed_tests.add(lines[3])
 
         if len(machine_lines) > 1:
             machine_lines.append(f"Passed: {p}, Failed {f}, Skipped {s}.")
@@ -615,10 +615,7 @@ class Runner:
             + f"\n\nExecuted on: CentOS {self.release}"
         )
 
-        failed_tests = failed_tests.strip(" ")
-        self.failed_tests = failed_tests.split(" ")
-        if "" in self.failed_tests:
-            self.failed_tests.remove("")
+        self.failed_tests = failed_tests.difference([''])
         if failed_tests:
             self._gitlab_message += f"\n\nFailed tests: {failed_tests}"
 

@@ -17,10 +17,11 @@ def backspace_in_editor(context):
 @step(u'Send "{commands}" via editor to "{connection}"')
 def send_com_via_editor(context, commands, connection):
     coms = commands.split(';')
-    final = "echo -e '"
+    final = ["echo -e'"]
     for c in coms:
-        final = final+"%s\n" % c.strip()
-    final = final+"print\nsave\nquit\n' | nmcli c edit %s" % connection
+        final.append(f"{c.strip()}\n")
+    final.append(f"print\nsave\nquit\n' | nmcli c edit {connection}")
+    final = ''.join(final)
     context.command_output(final)
 
 
