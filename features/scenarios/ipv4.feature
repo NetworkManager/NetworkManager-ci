@@ -2715,13 +2715,13 @@ Feature: nmcli: ipv4
     * Run child "ip netns exec testX4_ns dnsmasq --pid-file=/tmp/testX4_ns.pid --listen-address=192.168.99.1 --conf-file=/dev/null --no-hosts --dhcp-range=192.168.99.30,192.168.99.39,2m" without shell
     * Add "ethernet" connection named "con_ipv4" for device "testX4"
     * Bring "up" connection "con_ipv4"
-    * Execute "pkill -F /tmp/testX4_ns.pid"
+    * Execute "pkill -F /tmp/testX4_ns.pid; sleep 1"
     * Execute "ip l set testX4 down"
     * Run child "ip netns exec testX4_ns dnsmasq --pid-file=/tmp/testX4_ns.pid --listen-address=192.168.99.1 --conf-file=/dev/null --no-hosts --dhcp-range=192.168.99.40,192.168.99.49,2m" without shell
     * Execute "ip l set testX4 up"
     When "192.168.99.4" is visible with command "ip -4 r show table all dev testX4 scope link" in "60" seconds
     Then "192.168.99.3" is not visible with command "ip -4 r show table all dev testX4 scope link"
-    * Execute "pkill -F /tmp/testX4_ns.pid"
+    * Execute "pkill -F /tmp/testX4_ns.pid; sleep 1"
     * Execute "ip l set testX4 down"
     * Run child "ip netns exec testX4_ns dnsmasq --pid-file=/tmp/testX4_ns.pid --listen-address=192.168.99.1 --conf-file=/dev/null --no-hosts --dhcp-range=192.168.99.50,192.168.99.59,2m" without shell
     * Execute "ip l set testX4 up"
