@@ -2796,13 +2796,13 @@ Feature: nmcli: ipv4
     @rhelver+=8
     @scapy
     @dhcp_internal_ack_after_nak
-    Scenario: NM - ipv4 - get IPv4 if ACK received after NAK
+    Scenario: NM - ipv4 - get IPv4 if ACK received after NAK from different server
     * Prepare simulated test "testX4" device without DHCP
     # Script sends packets like this:
     # | <- DHCP Discover
     # | -> DHCP Offer
     # | <- DHCP Request
-    # | -> DHCP Nak
+    # | -> DHCP Nak (from different server)
     # | -> DHCP Ack
     # And this prevented internal DHCP client from getting the ack.
     * Execute "ip netns exec testX4_ns python contrib/reproducers/repro_2059673.py" without waiting for process to finish
@@ -2810,6 +2810,30 @@ Feature: nmcli: ipv4
     * Bring "up" connection "con_ipv4"
     Then "activated" is visible with command "nmcli -g GENERAL.STATE con show con_ipv4" in "40" seconds
     Then "172.25.1.200" is visible with command "ip a s testX4"
+
+
+    @rhbz2105088
+    @ver+=1.36
+    @rhelver+=8
+    @scapy
+    @dhcp_internal_nak_in_renewing
+    Scenario: NM - ipv4 - NAK received while renewing
+    * Prepare simulated test "testX4" device without DHCP
+    # Script sends packets like this:
+    # | <- DHCP Discover
+    # | -> DHCP Offer
+    # | <- DHCP Request
+    # | -> DHCP Ack      # after this, state is BOUND
+    # | <- DHCP Request  # renewal after 20 seconds
+    # | -> DHCP Nak
+    # | <- DHCP Discover
+    # | -> DHCP Offer    # Now the internal clients shows error "selecting lease failed: -131"
+    #                    # and can't renew the lease
+    * Execute "ip netns exec testX4_ns python contrib/reproducers/repro_2105088.py testX4p" without waiting for process to finish
+    * Add "ethernet" connection named "con_ipv4" for device "testX4"
+    * Bring "up" connection "con_ipv4"
+    Then "activated" is visible with command "nmcli -g GENERAL.STATE con show con_ipv4" in "10" seconds
+    Then "172.25.1.200" is visible with command "ip a s testX4" for full "40" seconds
 
 
     @rhbz1995372
