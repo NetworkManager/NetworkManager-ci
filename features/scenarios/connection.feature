@@ -1018,3 +1018,17 @@ Feature: nmcli: connection
     Then "eth7:connected:migration_bridge-port1" is visible with command "nmcli -t -f DEVICE,STATE,CONNECTION device" in "20" seconds
     * Bring "up" connection "migration_dns"
     Then "eth3:connected:migration_dns" is visible with command "nmcli -t -f DEVICE,STATE,CONNECTION device" in "20" seconds
+
+    
+    @rhbz2008337
+    @ver+=1.39.10
+    @connection_wait-activation-delay
+    Scenario: nmcli - connection - wait for 10 seconds before activating connection
+    * Add "ethernet" connection named "con_con" for device "eth4" with options
+      """
+      autoconnect no
+      connection.wait-activation-delay 10000
+      """
+    * Execute "nmcli connection up con_con" without waiting for process to finish
+    When "activated" is not visible with command "nmcli -f GENERAL.STATE connection show con_con" for full "9" seconds
+    Then "activated" is visible with command "nmcli -f GENERAL.STATE connection show con_con" in "10" seconds
