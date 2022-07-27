@@ -722,12 +722,16 @@ def check_coredump(context):
                     f"echo backtrace | coredumpctl -q -batch gdb {pid}",
                     shell=True,
                     stderr=subprocess.STDOUT,
+                    ignore_stderr=True,
+                    timeout=120,
                 )
             else:
                 dump = nmci.process.run_stdout(
                     f"echo backtrace | coredumpctl debug {pid}",
                     shell=True,
                     stderr=subprocess.STDOUT,
+                    ignore_stderr=True,
+                    timeout=120,
                 )
             context.cext.embed_dump("COREDUMP", dump_dir, data=dump)
 
