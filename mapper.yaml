@@ -2371,6 +2371,9 @@ testmapper:
     - doc_set_gateway_on_existing_profile:
         feature: doc_procedures
         tags: gate
+    - doc_nmcli_offline_connection_add:
+        feature: doc_procedures
+        tags: gate
     - gsm_sim_create_default_connection:
         feature: gsm_sim
     - gsm_sim_disconnect:

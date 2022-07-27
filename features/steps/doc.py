@@ -242,6 +242,7 @@ chapters = {
     "Creating a TIPC network": "creating-a-tipc-network_getting-started-with-tipc",
     "Identifying whether a wireless device supports the access point mode": "proc_identifying-whether-a-wireless-device-supports-the-access-point-mode_assembly_configuring-rhel-as-a-wireless-access-point",
     "Configuring RHEL as a WPA2 or WPA3 Personal access point": "proc_configuring-rhel-as-a-wpa2-or-wpa3-personal-access-point_assembly_configuring-rhel-as-a-wireless-access-point",
+    "Using nmcli to create key file connection profiles in offline mode": "proc_using-nmcli-to-create-key-file-connection-profiles-in-offline-mode_assembly_manually-creating-networkmanager-profiles-in-key-file-format",
 }
 
 

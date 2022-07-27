@@ -486,3 +486,18 @@ Feature: nmcli - procedures in documentation
     * Bring "up" connection "con_doc"
     Then "default via 192.0.2.1 dev eth10 proto static metric 10" is visible with command "ip -4 route" in "20" seconds
     Then "default via 2001:db8:1::1 dev eth10 proto static metric 10.* pref medium" is visible with command "ip -6 route" in "20" seconds
+
+
+    # the same feature as @general_nmcli_offline_connection_add_modify tests
+    @rhelver+=8.7 @rhelver+=9.1
+    @restart_if_needed
+    @doc_nmcli_offline_connection_add
+    Scenario: nmcli - doc - general - Using nmcli to create key file connection profiles in offline mode
+    * Doc: "Using nmcli to create key file connection profiles in offline mode"
+    * Cleanup connection "Example-Connection"
+    * Stop NM
+    * Execute "nmcli --offline connection add type ethernet con-name Example-Connection ipv4.addresses 192.0.2.1/24 ipv4.dns 192.0.2.200 ipv4.method manual > /etc/NetworkManager/system-connections/output.nmconnection"
+    * Execute "chmod 600 /etc/NetworkManager/system-connections/output.nmconnection ; chown root:root /etc/NetworkManager/system-connections/output.nmconnection"
+    * Start NM
+    Then "ethernet\s+/etc/NetworkManager/system-connections/output.nmconnection\s+Example-Connection" is visible with command "nmcli -f TYPE,FILENAME,NAME connection"
+    Then Execute "nmcli connection show Example-Connection"
