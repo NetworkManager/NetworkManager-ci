@@ -766,6 +766,8 @@ testmapper:
         feature: ipv6
     - ipv4_dad_not_preventing_ipv6:
         feature: ipv6
+    - ipv6_may_fail_no_wait_for_dad_dhcp:
+        feature: ipv6
     - ipv6_preserve_cached_routes:
         feature: ipv6
     - ipv6_restart_prefixroute:

@@ -1633,6 +1633,62 @@
      And "2620:dead:beaf" is visible with command "ip a s testX6"
 
 
+    @rhbz2096386
+    @may_fail
+    @ver+=1.39.10
+    @restart_if_needed @kill_dnsmasq_ip6 @tshark
+    @ipv6_may_fail_no_wait_for_dad_dhcp
+    Scenario: NM - ipv6 - wait for DAD completion with may-fail=no, duplicate address assigned via DHCP
+    * Add "ethernet" connection named "con_ipv6" for device "testX6" with options
+          """
+          connection.autoconnect no
+          ipv4.method disabled
+          ipv6.may-fail no
+          ipv6.method auto
+          ipv6.dhcp-duid 00:11:22
+          """
+    # setup: add two more NSs in addition to testX6_ns, one with dnsmasq and other with interface
+    # with a duplicate address
+    * Prepare simulated test "testX6" device without DHCP
+    * Create "bridge" device named "br0" in namespace "testX6_ns" with options "mcast_snooping 0"
+    * Add namespace "dup_ns"
+    * Create "veth" device named "dup" in namespace "dup_ns" with options "peer name dupp netns testX6_ns"
+    * Execute "ip -n dup_ns link set dup up"
+    * Add namespace "dhcp_ns"
+    * Create "veth" device named "dhcp" in namespace "dhcp_ns" with options "peer name dhcpp netns testX6_ns"
+    * Execute "ip -n dhcp_ns link set dhcp up ; ip -n dhcp_ns addr add 2620:dead:beaf::1/64 dev dhcp"
+    * Execute "for if in testX6p dhcpp dupp; do ip -n testX6_ns link set $if master br0 ; done"
+    * Execute "for if in testX6p dhcpp dupp br0 ; do ip -n testX6_ns link set $if up ; done"
+    # block communication between duplicate address device and dnsmasq so that dnsmasq
+    # can't be aware of conflict
+    * Load nftables in "testX6_ns" namespace:
+        """
+        table bridge filter {
+          chain forward {
+            type filter hook forward priority 0; policy accept;
+            iif "dhcpp" oif "dupp" drop
+            iif "dupp" oif "dhcpp" drop
+          }
+        }
+        """
+    * Run child "ip netns exec dhcp_ns dnsmasq --log-facility=/tmp/dnsmasq.log --log-dhcp --log-queries=extra --pid-file=/tmp/dnsmasq_ip6.pid --interface=dhcp --conf-file=/dev/null --leasefile-ro --no-hosts --dhcp-range=2620:dead:beaf::,static,ra-only --dhcp-host=id:00:11:22,[::1234:5678],static" without shell
+    * Run child "ip netns exec testX6_ns tshark -n -l -i br0 'icmp6 or port 547 or port 546' > /tmp/tshark.log"
+    * Execute "ip link set testX6 up"
+    ### uncomment following steps to verify that address is assigned correctly in absence of duplicate address
+    #* Bring up connection "con_ipv6"
+    #Then "2620:dead:beaf[:0-9a-f]+1234:5678" is visible with command "ip a show testX6" in "10" seconds
+    #Then Execute "ping -c 2 -I 2620:dead:beaf::1234:5678 2620:dead:beaf::1"
+    #* Bring down connection "con_ipv6"
+    * Execute "ip -n dup_ns addr add 2620:dead:beaf::1234:5678/64 dev dup"
+    * Bring up connection "con_ipv6" ignoring error
+    Then "2620:dead:beaf[:0-9a-f]+1234:5678" is not visible with command "ip a show testX6"
+    # check that NM was offered a ::1234:5678 address by dnsmasq
+    And "option:\s*5\s*iaaddr\s*2620:dead:beaf::1234:5678" is visible with command "cat /tmp/dnsmasq.log"
+    # This is up to discussion - interface ends up with SLAAC or RA-derived address but it
+    # won't be reachable by expected DNS name because it failed to get expected DHCP address
+    And Check if "con_ipv6" is not active connection
+
+
     @rhbz1470930
     @ver+=1.8.3
     @ethernet @netcat
