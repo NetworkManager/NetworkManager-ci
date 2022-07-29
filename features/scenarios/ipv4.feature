@@ -2792,8 +2792,9 @@ Feature: nmcli: ipv4
 
 
     @rhbz2065187
-    @ver+=1.30
-    @rhelver+=8
+    @ver/rhel/8/4+=1.30.0.16
+    @ver/rhel/8/6+=1.36.0.8
+    @ver+=1.39.10
     @scapy
     @dhcp_internal_ack_after_nak
     Scenario: NM - ipv4 - get IPv4 if ACK received after NAK from different server
