@@ -2234,3 +2234,26 @@
     * Execute "nmcli connection modify con_ipv6 ipv6.method manual ipv6.addresses '1:2:3::101/64,1:2:3::102/64,1:2:3::103/64'"
     * Bring "up" connection "con_ipv6"
     Then Check "ipv6" address list "1:2:3::101/64 1:2:3::102/64 1:2:3::103/64 fe80::ecaa:bbff:fecc:ddee/64" on device "testX6" in "6" seconds
+
+
+    @rhbz2082682
+    @ver+=1.39.10
+    @remove_custom_cfg @restart_if_needed
+    @ipv6_set_addr-gen_mode_global_config
+    Scenario: nmcli - ipv6 - set ipv6.addr-gen mode in global config
+    * Execute "echo '[connection]' > /etc/NetworkManager/conf.d/99-xxcustom.conf"
+    * Execute "echo 'match-device=type:ethernet' >> /etc/NetworkManager/conf.d/99-xxcustom.conf"
+    * Execute "echo 'ipv6.addr-gen-mode=0' >> /etc/NetworkManager/conf.d/99-xxcustom.conf"
+    * Restart NM
+    * Prepare simulated test "testX6" device
+    * Add "ethernet" connection named "con_ipv6" for device "testX6" with options
+          """
+          ipv4.method disabled
+          ipv6.method auto
+          ipv6.may-fail no
+          ethernet.cloned-mac-address ee:aa:bb:cc:dd:ee
+          ipv6.ip6-privacy disabled
+          """
+    * Bring "up" connection "con_ipv6"
+    Then "default" is visible with command "nmcli -g ipv6.addr-gen-mode con show con_ipv6"
+    And "fe80::ecaa:bbff:fecc:ddee/64" is visible with command "ip a show dev testX6" in "10" seconds
