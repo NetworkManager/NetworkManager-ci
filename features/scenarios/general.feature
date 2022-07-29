@@ -345,6 +345,7 @@ Feature: nmcli - general
 
     @rhbz1361145
     @ver+=1.39.2
+    @ver-=1.39.9
     @restart_if_needed
     @general_nmcli_offline_connection_add_modify
     Scenario: nmcli - general - offline connection add and modify
@@ -354,6 +355,25 @@ Feature: nmcli - general
      And Noted value contains "type=dummy"
      And Noted value contains "interface-name=dummy0"
      And Noted value contains "method=disabled"
+    When Note the output of "nmcli --offline c add con-name offline0 type dummy ifname dummy0 | nmcli --offline c modify ipv4.method auto ipv6.method auto"
+    Then Noted value contains "id=offline0"
+     And Noted value contains "type=dummy"
+     And Noted value contains "interface-name=dummy0"
+     And Noted value contains "method=auto"
+
+
+    @rhbz1361145 @rhbz2082682
+    @ver+=1.39.10
+    @restart_if_needed
+    @general_nmcli_offline_connection_add_modify
+    Scenario: nmcli - general - offline connection add and modify
+    * Stop NM
+    When Note the output of "nmcli --offline c add con-name offline0 type dummy ifname dummy0 ipv6.addr-gen-mode 0"
+    Then Noted value contains "id=offline0"
+     And Noted value contains "type=dummy"
+     And Noted value contains "interface-name=dummy0"
+     And Noted value contains "method=disabled"
+     And Noted value contains "addr-gen-mode=eui64"
     When Note the output of "nmcli --offline c add con-name offline0 type dummy ifname dummy0 | nmcli --offline c modify ipv4.method auto ipv6.method auto"
     Then Noted value contains "id=offline0"
      And Noted value contains "type=dummy"
