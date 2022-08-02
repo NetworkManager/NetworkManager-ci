@@ -396,7 +396,7 @@ def prepare_simdev(context, device):
 
 
 
-@step(u'Prepare simulated veth device "{device}" wihout carrier')
+@step(u'Prepare simulated veth device "{device}" without carrier')
 def prepare_simdev_no_carrier(context, device):
     manage_veth_device(context, device)
 

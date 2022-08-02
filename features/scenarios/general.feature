@@ -1324,7 +1324,7 @@ Feature: nmcli - general
     Scenario: NM - general - wait for delayed device
     * Add "ethernet" connection named "con_general" for device "testG"
     * Stop NM
-    * Prepare simulated veth device "testG" wihout carrier
+    * Prepare simulated veth device "testG" without carrier
     * Execute "echo '[device-testG]' > /etc/NetworkManager/conf.d/99-xxcustom.conf"
     * Execute "echo 'match-device=interface-name:testG' >> /etc/NetworkManager/conf.d/99-xxcustom.conf"
     * Execute "echo 'carrier-wait-timeout=20000' >> /etc/NetworkManager/conf.d/99-xxcustom.conf"
@@ -1525,7 +1525,7 @@ Feature: nmcli - general
     @nmcli_general_wait_for_carrier_on_new_device_request
     Scenario: nmcli - general - wait for carrier on new device activation request
     * Add "ethernet" connection named "con_general" for device "testG" with options "autoconnect no"
-    * Prepare simulated veth device "testG" wihout carrier
+    * Prepare simulated veth device "testG" without carrier
     * Wait for at least "1" seconds
     * Modify connection "con_general" changing options "ipv4.may-fail no"
     * Execute "nmcli con up con_general" without waiting for process to finish
@@ -1554,7 +1554,7 @@ Feature: nmcli - general
     Scenario: nmcli - general - activate static connection with no carrier - ignored
     * Add "ethernet" connection named "con_general" for device "testG" with options "autoconnect no"
     * Modify connection "con_general" changing options "ipv4.method manual ipv4.address '192.168.5.11/24' ipv4.gateway '192.168.5.1' ipv6.method ignore"
-    * Prepare simulated veth device "testG" wihout carrier
+    * Prepare simulated veth device "testG" without carrier
     * Execute "nmcli con up con_general"
     Then "connected:con_general" is visible with command "nmcli -t -f STATE,CONNECTION device" in "60" seconds
     Then "192.168.5.11" is visible with command "ip a s testG" in "60" seconds
@@ -1567,7 +1567,7 @@ Feature: nmcli - general
     Scenario: nmcli - general - activate static connection with no carrier - not ignored
     * Add "ethernet" connection named "con_general" for device "testG" with options "autoconnect no"
     * Modify connection "con_general" changing options "ipv4.method manual ipv4.address '192.168.5.11/24' ipv4.gateway '192.168.5.1' ipv6.method ignore"
-    * Prepare simulated veth device "testG" wihout carrier
+    * Prepare simulated veth device "testG" without carrier
     * Execute "nmcli con up con_general"
     Then "connected:con_general" is visible with command "nmcli -t -f STATE,CONNECTION device" in "60" seconds
     Then "192.168.5.11" is visible with command "ip a s testG" in "60" seconds
