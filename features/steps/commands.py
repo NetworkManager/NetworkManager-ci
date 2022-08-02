@@ -693,3 +693,47 @@ def check_address_expect(context, family, expected, ifname, seconds=None):
         print(">>> about to fail check_address_expect():")
         os.system('ip -d address show')
         raise
+
+
+@step(u'Load nftables')
+@step(u'Load nftables "{ruleset}"')
+@step(u'Load nftables in "{ns}" namespace')
+@step(u'Load nftables "{ruleset}" in "{ns}" namespace')
+def load_nftables(context, ns=None, ruleset=None):
+    import nftables
+    from pyroute2 import netns
+    if ruleset is None:
+        ruleset = context.text
+
+    nsprefix = ""
+    if ns is None:
+        context.cleanup["nft_default"] = True
+        nft = nftables.Nftables()
+    else:
+        context.cleanup["nft_ns"].add(ns)
+        nsprefix = f"ip netns exec {ns} "
+
+        netns.pushns(ns)
+        nft = nftables.Nftables()
+        netns.popns()
+
+    # why doesn't nmci/process.py handle stdin?
+    file = "/tmp/nmci-nft-ruleset-to-load"
+    with open(file, 'w') as f:
+        f.write(ruleset)
+    nft_status = [f"nftables ruleset{f' in namespace {ns}' if ns else ''} before this step:"]
+    nft_status.append(nft.cmd("list ruleset")[1])
+    context.process.run(f"{nsprefix}nft -f {file}")
+    nft_status.append(f"\nnftables ruleset{f' in namespace {ns}' if ns else ''} after this step:")
+    nft_status.append(nft.cmd("list ruleset")[1])
+    context.cext.embed_data("State of nftables", "\n".join(nft_status), fail_only=True)
+    os.remove(file)
+
+
+@step(u'Cleanup nftables')
+@step(u'Cleanup nftables in namespace "{ns}"')
+def flush_nftables(context, ns=False):
+    if ns:
+        context.cleanup["nft_ns"].add(ns)
+    else:
+        context.cleanup["nft_default"] = True

@@ -582,6 +582,7 @@ def dump_status(context, when, fail_only=False):
         "ip addr",
         "ip -4 route",
         "ip -6 route",
+        "nft list ruleset",
     ]
     if nm_running:
         cmds += [
@@ -604,6 +605,7 @@ def dump_status(context, when, fail_only=False):
             "ip -n vethsetup -4 route",
             "ip -n vethsetup -6 route",
             process.WithShell("ps aux | grep -w '[d]nsmasq'"),
+            "ip netns exec vethsetup nft list ruleset",
         ]
 
     named_nss = {
@@ -620,7 +622,12 @@ def dump_status(context, when, fail_only=False):
             if len(add_to_heading) > 0:
                 add_to_heading = ""
             headings[len(cmds)] = heading
-            cmds += [f"ip -n {ns} a", f"ip -n {ns} -4 r", f"ip -n {ns} -6 r"]
+            cmds += [
+                f"ip -n {ns} a",
+                f"ip -n {ns} -4 r",
+                f"ip -n {ns} -6 r",
+                f"ip netns exec {ns} nft list ruleset",
+            ]
 
     procs = [process.Popen(c, stderr=subprocess.DEVNULL) for c in cmds]
 
@@ -1564,6 +1571,11 @@ def cleanup(context):
             teardown_testveth(context, namespace)
         if context.process.run_search_stdout("ip netns list", namespace):
             context.process.run_stdout(f'ip netns del "{namespace}"')
+    if context.cleanup["nft_default"]:
+        context.process.run("nft flush ruleset")
+    for ns in sorted(context.cleanup["nft_ns"]):
+        if os.path.isdir(f"/var/run/netns/{ns}"):
+            context.process.run(f"ip netns exec {ns} nft flush ruleset")
     if context.cleanup["rules"]:
         for rule in context.cleanup["rules"]:
             context.process.run(f"rm -rf {rule}")

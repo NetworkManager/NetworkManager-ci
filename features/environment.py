@@ -87,6 +87,8 @@ def _before_scenario(context, scenario):
         "connections": set(),
         "interfaces": {"reset": set(), "delete": set()},
         "namespaces": {},
+        "nft_default": False,
+        "nft_ns": set(),
         "rules": set(),
     }
     context.rh_release = nmci.command_output("cat /etc/redhat-release")
