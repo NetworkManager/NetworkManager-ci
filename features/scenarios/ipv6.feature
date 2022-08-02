@@ -1604,7 +1604,7 @@
     @nmcli_general_finish_dad_without_carrier
     Scenario: nmcli - general - finish dad with no carrier
     * Add "ethernet" connection named "ethernet0" for device "testX6" with options "autoconnect no"
-    * Prepare simulated veth device "testX6" wihout carrier
+    * Prepare simulated veth device "testX6" without carrier
     * Execute "nmcli con modify ethernet0 ipv4.may-fail no ipv4.method manual ipv4.addresses 1.2.3.4/24"
     * Execute "nmcli con modify ethernet0 ipv4.may-fail yes ipv6.method manual ipv6.addresses 2001::2/128"
     * Bring "up" connection "ethernet0"

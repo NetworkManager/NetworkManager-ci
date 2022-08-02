@@ -2160,7 +2160,7 @@
     When "LAYER2" is not visible with command "/usr/bin/python contrib/gi/nmclient_get_state_flags.py bond0.0" in "5" seconds
     When "IP4" is not visible with command "/usr/bin/python contrib/gi/nmclient_get_state_flags.py bond0.0"
     When "IP6" is not visible with command "/usr/bin/python contrib/gi/nmclient_get_state_flags.py bond0.0"
-    * Prepare simulated veth device "testXB" wihout carrier
+    * Prepare simulated veth device "testXB" without carrier
     * Execute "nmcli con modify bond0 ipv4.may-fail no"
     * Execute "nmcli con up bond0.0" without waiting for process to finish
     When "IP4" is not visible with command "/usr/bin/python contrib/gi/nmclient_get_state_flags.py bond0"
