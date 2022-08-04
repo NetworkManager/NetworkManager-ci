@@ -80,8 +80,8 @@ configure_networking () {
 
 
     # Do we have keyfiles or ifcfg plugins enabled?
-    ACTIVE_DEV=$(nmcli -g DEVICE  connection show -a)
-    if test -f /etc/NetworkManager/system-connections/$ACTIVE_DEV.nmconnection; then
+    DEV=$(nmcli -f DEVICE,TYPE,STATE -t d | grep :ethernet | grep :connected | awk -F':' '{print $1}' | head -n 1)
+    if test $(nmcli -t -f FILENAME,DEVICE connection|grep $DEV|grep nmconnection); then
         touch /tmp/nm_plugin_keyfiles
         # Remove all ifcfg files as we don't need them
         rm -rf /etc/sysconfig/network-scripts/*

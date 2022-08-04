@@ -115,9 +115,10 @@ function setup_veth_env ()
 
     else
         # Backup original nmconnection file
+        FILE=$(nmcli -f FILENAME  connection |grep $DEV)
         nmcli device disconnect $DEV 2>&1 > /dev/null
         if [ ! -e /tmp/$DEV.nmconnection ]; then
-            mv /etc/NetworkManager/system-connections/$DEV.nmconnection /tmp/
+            mv $FILE /tmp/$DEV.nmconnection
             sleep 0.5
             nmcli con reload
             sleep 0.5
