@@ -2814,8 +2814,9 @@ Feature: nmcli: ipv4
 
 
     @rhbz2105088
-    @ver+=1.36
+    @ver+=1.36.7
     @rhelver+=8
+    @ver/rhel/8/6+=1.36.0.8
     @scapy
     @dhcp_internal_nak_in_renewing
     Scenario: NM - ipv4 - NAK received while renewing
