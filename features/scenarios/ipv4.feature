@@ -1800,6 +1800,8 @@ Feature: nmcli: ipv4
     @ipv4_send_dhcpdecline_on_ip_conflict
     Scenario: NM - ipv4 - with ipv4.dad-timeout > 0, perform DAD and send DHCPDECLINE after duplicate detection
     * Add "ethernet" connection named "test" for device "dad" with options "autoconnect no ipv4.dhcp-client-id AB ipv4.dad-timeout 10"
+    # setup: add two more NSs in addition to dad_ns, one with dnsmasq and other with interface
+    # with a duplicate address
     * Prepare simulated test "dad" device without DHCP
     * Create "bridge" device named "br0" in namespace "dad_ns"
     * Add namespace "dup_ns"
