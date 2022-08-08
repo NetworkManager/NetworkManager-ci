@@ -47,8 +47,8 @@ EOF
     #Copy over files from /run/log to /var/log
     journalctl --flush
 
-    # For NM in CentOS
-    if grep -q 'CentOS' /etc/redhat-release; then
+    # if this isn't yet configured
+    if ! grep -q 'level=TRACE' /etc/NetworkManager/conf.d/99-test.conf; then
         echo -e "[logging]\nlevel=TRACE\ndomains=ALL" >> /etc/NetworkManager/conf.d/99-test.conf
     fi
 
