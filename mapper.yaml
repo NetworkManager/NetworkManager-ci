@@ -1883,6 +1883,8 @@ testmapper:
         feature: ovs
     - add_dpdk_port_with_mtu:
         feature: ovs
+    - ovs_external_unmanaged_device:
+        feature: ovs
     - dispatcher_preup_and_up:
         feature: dispatcher
     - dispatcher_predown_and_down:

@@ -1355,3 +1355,21 @@ Feature: nmcli - ovs
     Then "9000" is visible with command "nmcli -g 802-3-ethernet.mtu c show ovs-iface1"
     And "mtu 9000" is visible with command "ip a s dev port0"
     And "192.168.123.100/24" is visible with command "ip a s dev port0"
+    
+
+    @rhbz2077950
+    @ver+=1.39.11
+    @openvswitch @remove_custom_cfg @restart_if_needed
+    @ovs_external_unmanaged_device
+    Scenario: NM - openvswitch - ovs external device stays unmanaged
+    * Cleanup device "ovs-int0"
+    * Append lines to file "/etc/NetworkManager/conf.d/99-xxcustom.conf"
+      """
+      [device-unmanaged]
+      match-device=interface-name:ovs-int0
+      managed=no
+      """
+    * Restart NM
+    * Execute "ovs-vsctl add-br ovs-br0"
+    * Execute "ovs-vsctl add-port ovs-br0 ovs-int0 -- set interface ovs-int0 type=patch -- set interface ovs-int0 options:peer=ovs-br0"
+    Then "unmanaged" is visible with command "nmcli device | grep ovs-int0" in "10" seconds
