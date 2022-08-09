@@ -1294,8 +1294,8 @@
     @internal_DHCP @long
     @ipv6_NM_stable_with_internal_DHCPv6
     Scenario: NM - ipv6 - stable with internal DHCPv6
-    * Prepare simulated test "testX6" device
-    * Add "ethernet" connection named "con_ipv6" for device "testX6" with options
+    * Prepare simulated test "testY6" device
+    * Add "ethernet" connection named "con_ipv6" for device "testY6" with options
           """
           ipv4.method disabled
           ipv6.method dhcp
@@ -1332,26 +1332,26 @@
     @restart_if_needed @selinux_allow_ifup
     @persistent_ipv6_routes
     Scenario: NM - ipv6 - persistent ipv6 routes
-    * Add "ethernet" connection named "con_ipv6" for device "testX6" with options "ipv4.method disabled"
+    * Add "ethernet" connection named "con_ipv6" for device "testY6" with options "ipv4.method disabled"
     * Wait for at least "3" seconds
     * Stop NM
     * Execute "rm -rf /var/run/NetworkManager"
-    * Prepare simulated test "testX6" device
-    * Execute "sysctl net.ipv6.conf.testX6.accept_ra_defrtr=1"
-    * Execute "sysctl net.ipv6.conf.testX6.accept_ra_pinfo=1"
-    * Execute "ifup testX6"
+    * Prepare simulated test "testY6" device
+    * Execute "sysctl net.ipv6.conf.testY6.accept_ra_defrtr=1"
+    * Execute "sysctl net.ipv6.conf.testY6.accept_ra_pinfo=1"
+    * Execute "ifup testY6"
     * Wait for at least "10" seconds
-    When "fe80" is visible with command "ip -6 r |grep testX6" in "45" seconds
-    And "default" is visible with command "ip -6 r |grep testX6 |grep expire" in "20" seconds
+    When "fe80" is visible with command "ip -6 r |grep testY6" in "45" seconds
+    And "default" is visible with command "ip -6 r |grep testY6 |grep expire" in "20" seconds
     And "2620:dead:beaf::\/64" is visible with command "ip -6 r"
     * Restart NM
-    Then "testX6\s+ethernet\s+connected\s+con_ipv6" is visible with command "nmcli device" in "245" seconds
+    Then "testY6\s+ethernet\s+connected\s+con_ipv6" is visible with command "nmcli device" in "245" seconds
     # VVV But the new one present from NM with metric 1xx
-    Then "default via fe" is visible with command "ip -6 r |grep testX6 |grep 'metric 1'" in "20" seconds
+    Then "default via fe" is visible with command "ip -6 r |grep testY6 |grep 'metric 1'" in "20" seconds
     # VVV Link-local address should be still present
-    And "fe80" is visible with command "ip -6 r |grep testX6" in "45" seconds
+    And "fe80" is visible with command "ip -6 r |grep testY6" in "45" seconds
     # VVV Route should be exchanged for NM one with metric 1xx
-    And "2620:dead:beaf::\/64 dev testX6\s+proto ra\s+metric 1" is visible with command "ip -6 r"
+    And "2620:dead:beaf::\/64 dev testY6\s+proto ra\s+metric 1" is visible with command "ip -6 r"
     # We don't care about the rest
 
 
@@ -1453,23 +1453,23 @@
     @long
     @ipv6_keep_route_upon_reapply_full
     Scenario: NM - ipv6 - keep routes upon reapply, check address presence after timeout
-    * Prepare simulated test "testX6" device without DHCP
-    * Execute "ip -n testX6_ns addr add dev testX6p fd01::1/64"
-    * Execute "ip -n testX6_ns link set dev testX6p up"
-    * Execute "ip link set dev testX6 up"
-    * Run child "ip netns exec testX6_ns dnsmasq --bind-interfaces --interface testX6p --dhcp-range=::,constructor:testX6p,ra-only,64,60 --enable-ra --ra-param=testX6p,60 --no-hosts --pid-file=/tmp/testX6_ns.pid" without shell
-    * Add "ethernet" connection named "con_ipv6" for device "testX6" with options
+    * Prepare simulated test "testY6" device without DHCP
+    * Execute "ip -n testY6_ns addr add dev testY6p fd01::1/64"
+    * Execute "ip -n testY6_ns link set dev testY6p up"
+    * Execute "ip link set dev testY6 up"
+    * Run child "ip netns exec testY6_ns dnsmasq --bind-interfaces --interface testY6p --dhcp-range=::,constructor:testY6p,ra-only,64,60 --enable-ra --ra-param=testY6p,60 --no-hosts --pid-file=/tmp/testY6_ns.pid" without shell
+    * Add "ethernet" connection named "con_ipv6" for device "testY6" with options
           """
           ipv4.method disabled
           ipv6.method auto
           ipv6.route-table 254
           """
     * Bring "up" connection "con_ipv6"
-    * Execute "nmcli d reapply testX6"
-    Then "ff00" is visible with command "ip -6 route show table local dev testX6"
+    * Execute "nmcli d reapply testY6"
+    Then "ff00" is visible with command "ip -6 route show table local dev testY6"
     * Execute "echo 'will sleep for 3 minutes'"
     * Execute "sleep 180"
-    Then "fd01" is visible with command "ip -6 addr show dev testX6"
+    Then "fd01" is visible with command "ip -6 addr show dev testY6"
 
 
     @rhbz2082230
@@ -1508,12 +1508,12 @@
     @ipv6_internal_client_dhcpv6_leases_renewal
     Scenario: NM renews DHCPv6 leases when using internal DHCP client
     * Execute "nmcli g logging level trace"
-    * Prepare simulated test "testX6" device without DHCP
-    * Execute "ip -n testX6_ns addr add dev testX6p fc01::1/64"
-    * Execute "ip -n testX6_ns link set dev testX6p up"
+    * Prepare simulated test "testY6" device without DHCP
+    * Execute "ip -n testY6_ns addr add dev testY6p fc01::1/64"
+    * Execute "ip -n testY6_ns link set dev testY6p up"
     * Execute "echo > /tmp/ip6leases.conf"
     * Configure dhcpv6 prefix delegation server with address configuration mode "dhcp-stateful"
-    * Add "ethernet" connection named "con_ipv6" for device "testX6" with options
+    * Add "ethernet" connection named "con_ipv6" for device "testY6" with options
           """
           ipv4.method disabled
           ipv6.method dhcp
@@ -1619,8 +1619,8 @@
     @restart_if_needed
     @ipv4_dad_not_preventing_ipv6
     Scenario: NM - ipv6 - add address after ipv4 DAD fail
-    * Prepare simulated test "testX6" device
-    * Add "ethernet" connection named "con_ipv6" for device "testX6" with options
+    * Prepare simulated test "testY6" device
+    * Add "ethernet" connection named "con_ipv6" for device "testY6" with options
           """
           ipv4.may-fail yes
           ipv4.method manual
@@ -1630,7 +1630,7 @@
           """
     * Reboot
     Then "activated" is visible with command "nmcli -g GENERAL.STATE connection show con_ipv6" in "145" seconds
-     And "2620:dead:beaf" is visible with command "ip a s testX6"
+     And "2620:dead:beaf" is visible with command "ip a s testY6"
 
 
     @rhbz1470930
@@ -1747,19 +1747,19 @@
      @ver+=1.18.0
      @ipv6_survive_external_link_restart
      Scenario: nmcli - ipv6 - survive external link restart
-     * Prepare simulated test "testX6" device
-     * Add "ethernet" connection named "con_ipv6" for device "testX6" with options "ipv6.may-fail no"
+     * Prepare simulated test "testY6" device
+     * Add "ethernet" connection named "con_ipv6" for device "testY6" with options "ipv6.may-fail no"
      * Add "ethernet" connection named "con_ipv62" for device "eth3"
      When "activated" is visible with command "nmcli -g GENERAL.STATE con show con_ipv6" in "45" seconds
      When "activated" is visible with command "nmcli -g GENERAL.STATE con show con_ipv62" in "45" seconds
      * Execute "ip link set dev eth3 down && sleep 1 && ip link set dev eth3 up"
-     * Execute "ip link set dev testX6 down && sleep 1 && ip link set dev testX6 up"
+     * Execute "ip link set dev testY6 down && sleep 1 && ip link set dev testY6 up"
      When "activated" is visible with command "nmcli -g GENERAL.STATE con show con_ipv6" in "45" seconds
      When "activated" is visible with command "nmcli -g GENERAL.STATE con show con_ipv62" in "45" seconds
-     # TestX6 device (everything)
-     Then "2620:dead:beaf" is visible with command "ip a s testX6"
-     And "fe80" is visible with command "ip a s testX6"
-     And "default" is visible with command "ip -6 r |grep testX6"
+     # testY6 device (everything)
+     Then "2620:dead:beaf" is visible with command "ip a s testY6"
+     And "fe80" is visible with command "ip a s testY6"
+     And "default" is visible with command "ip -6 r |grep testY6"
      # Eth3 device (just fe80)
      And "fe80" is visible with command "ip a s eth3"
 
@@ -1806,7 +1806,7 @@
      # https://github.com/coreos/fedora-coreos-tracker/issues/888
      * Prepare simulated test "testX6" device without DHCP
      * Execute "ip -n testX6_ns addr add dev testX6p fc01::1/64"
-     * Prepare simulated test "testY6" device without DHCP
+     * Prepare simulated test "testX6" device without DHCP
      * Configure dhcpv6 prefix delegation server with address configuration mode "link-local"
      * Add "ethernet" connection named "con_ipv6" for device "testX6" with options
            """
@@ -1816,7 +1816,7 @@
            autoconnect no
            """
      * Bring "up" connection "con_ipv6"
-     * Add "ethernet" connection named "con_ipv62" for device "testY6" with options
+     * Add "ethernet" connection named "con_ipv62" for device "testX6" with options
            """
            ipv4.method disabled
            ipv6.method shared
@@ -1826,10 +1826,10 @@
      When "iaprefix" is visible with command "cat /tmp/ip6leases.conf" in "10" seconds
      * Execute "ip netns exec testX6_ns ip route add $(grep -m 1 iaprefix /tmp/ip6leases.conf | sed -r 's/\s+iaprefix ([a-f0-9:/]+) \{.*/\1/') via $(ip addr show testX6 | grep -o 'fe80[a-f0-9:]*') dev testX6p"
      # no need to call, because of IPv6 autoconfiguration
-     #Then Finish "ip netns exec testY6_ns rdisc -d -v"
-     Then "inet6 fc01:bbbb:[a-f0-9:]+/64" is visible with command "ip -n testY6_ns a show dev testY6p" in "15" seconds
-     And  "tentative" is not visible with command "ip -n testY6_ns a show dev testY6p" in "15" seconds
-     And  Execute "ip netns exec testY6_ns ping -c2 fc01::1"
+     #Then Finish "ip netns exec testX6_ns rdisc -d -v"
+     Then "inet6 fc01:bbbb:[a-f0-9:]+/64" is visible with command "ip -n testX6_ns a show dev testX6p" in "15" seconds
+     And  "tentative" is not visible with command "ip -n testX6_ns a show dev testX6p" in "15" seconds
+     And  Execute "ip netns exec testX6_ns ping -c2 fc01::1"
 
 
      @rhbz1755467
@@ -1840,7 +1840,7 @@
      * Execute "systemctl stop dhcpd"
      * Prepare simulated test "testX6" device without DHCP
      * Execute "ip -n testX6_ns addr add dev testX6p fc01::1/64"
-     * Prepare simulated test "testY6" device without DHCP
+     * Prepare simulated test "testX6" device without DHCP
      * Configure dhcpv6 prefix delegation server with address configuration mode "dhcp-stateful"
      * Add "ethernet" connection named "con_ipv6" for device "testX6" with options
            """
@@ -1851,7 +1851,7 @@
            """
      * Bring "up" connection "con_ipv6"
      When "inet6 fc01:" is visible with command "ip a show dev testX6" in "5" seconds
-     * Add "ethernet" connection named "con_ipv62" for device "testY6" with options
+     * Add "ethernet" connection named "con_ipv62" for device "testX6" with options
            """
            ipv4.method disabled
            ipv6.method shared
@@ -1861,10 +1861,10 @@
      When "iaaddr" is visible with command "cat /tmp/ip6leases.conf" in "10" seconds
      When "iaprefix" is visible with command "cat /tmp/ip6leases.conf" in "10" seconds
      * Execute "ip netns exec testX6_ns ip route add $(grep -m 1 iaprefix /tmp/ip6leases.conf | sed -r 's/\s+iaprefix ([a-f0-9:/]+) \{.*/\1/') via $(grep -m 1 iaaddr /tmp/ip6leases.conf | sed -r 's/\s+iaaddr ([a-f0-9:]+) \{.*/\1/')"
-     Then Execute "ip netns exec testY6_ns rdisc -d -v"
-     And  "inet6 fc01:bbbb:[a-f0-9:]+/64" is visible with command "ip -n testY6_ns a show dev testY6p" in "15" seconds
-     And  "tentative" is not visible with command "ip -n testY6_ns a show dev testY6p" in "15" seconds
-     And  Execute "ip netns exec testY6_ns ping -c2 fc01::1"
+     Then Execute "ip netns exec testX6_ns rdisc -d -v"
+     And  "inet6 fc01:bbbb:[a-f0-9:]+/64" is visible with command "ip -n testX6_ns a show dev testX6p" in "15" seconds
+     And  "tentative" is not visible with command "ip -n testX6_ns a show dev testX6p" in "15" seconds
+     And  Execute "ip netns exec testX6_ns ping -c2 fc01::1"
 
 
      @rhbz2083968
@@ -1923,15 +1923,15 @@
      # dhclient support only ipv6.dhcp-iaid = mac
      @ipv6_dhcp_iaid_ifname
      Scenario: nmcli - ipv6 - IAID ifname
-     * Prepare simulated test "testX6" device
-     * Add "ethernet" connection named "con_ipv6" for device "testX6" with options
+     * Prepare simulated test "testY6" device
+     * Add "ethernet" connection named "con_ipv6" for device "testY6" with options
            """
            ipv6.addr-gen-mode 0
            ipv6.dhcp-duid ll
            ipv6.dhcp-iaid ifname
            """
-     When "/128" is visible with command "ip a s testX6 | grep inet6 | grep -o '[a-f0-9:]*/128'" in "30" seconds
-     * Note the output of "ip a s testX6 | grep inet6 | grep -o '[a-f0-9:]*/128'" as value "ipv6_testX6"
+     When "/128" is visible with command "ip a s testY6 | grep inet6 | grep -o '[a-f0-9:]*/128'" in "30" seconds
+     * Note the output of "ip a s testY6 | grep inet6 | grep -o '[a-f0-9:]*/128'" as value "ipv6_testY6"
      * Add "bridge" connection named "br88" for device "br88" with options
            """
            bridge.stp false
@@ -1944,7 +1944,7 @@
      * Bring "up" connection "con_ipv6"
      When "/128" is visible with command "ip a s br88 | grep inet6 | grep -o '[a-f0-9:]*/128'" in "30" seconds
      * Note the output of "ip a s br88 | grep inet6 | grep -o '[a-f0-9:]*/128'" as value "ipv6_br88"
-     Then Check noted values "ipv6_testX6" and "ipv6_br88" are not the same
+     Then Check noted values "ipv6_testY6" and "ipv6_br88" are not the same
 
 
      @rhbz1749358
@@ -1981,19 +1981,19 @@
     @long
     @solicitation_period_prolonging
     Scenario: NM - general - read router solicitation values
-    * Prepare simulated test "testX6" device with "15s" leasetime
+    * Prepare simulated test "testY6" device with "15s" leasetime
     # Connection should be alive for full 160s
-    * Execute "echo 4 > /proc/sys/net/ipv6/conf/testX6/router_solicitations"
-    * Execute "echo 40 > /proc/sys/net/ipv6/conf/testX6/router_solicitation_interval"
-    * Execute "ip netns exec testX6_ns kill -SIGSTOP $(cat /tmp/testX6_ns.pid)"
-    * Add "ethernet" connection named "con_ipv6" for device "testX6" with options
+    * Execute "echo 4 > /proc/sys/net/ipv6/conf/testY6/router_solicitations"
+    * Execute "echo 40 > /proc/sys/net/ipv6/conf/testY6/router_solicitation_interval"
+    * Execute "ip netns exec testY6_ns kill -SIGSTOP $(cat /tmp/testY6_ns.pid)"
+    * Add "ethernet" connection named "con_ipv6" for device "testY6" with options
           """
           ipv4.method disable
           ipv6.may-fail no
           """
     When "con_ipv6" is visible with command "nmcli connection show -a"
     When "con_ipv6" is visible with command "nmcli connection show -a" for full "140" seconds
-    * Execute "ip netns exec testX6_ns kill -SIGCONT $(cat /tmp/testX6_ns.pid)"
+    * Execute "ip netns exec testY6_ns kill -SIGCONT $(cat /tmp/testY6_ns.pid)"
     Then "activated" is visible with command "nmcli -g GENERAL.STATE con show con_ipv6" in "45" seconds
 
 
@@ -2065,8 +2065,8 @@
     @ver+=1.32.7
     @ipv6_required_timeout
     Scenario: nmcli - ipv6 - connection with required timeout
-    * Prepare simulated test "testX6" device without DHCP
-    * Add "ethernet" connection named "con_ipv6" for device "testX6" with options
+    * Prepare simulated test "testY6" device without DHCP
+    * Add "ethernet" connection named "con_ipv6" for device "testY6" with options
           """
           autoconnect no
           ipv4.method manual
@@ -2245,8 +2245,8 @@
     * Execute "echo 'match-device=type:ethernet' >> /etc/NetworkManager/conf.d/99-xxcustom.conf"
     * Execute "echo 'ipv6.addr-gen-mode=0' >> /etc/NetworkManager/conf.d/99-xxcustom.conf"
     * Restart NM
-    * Prepare simulated test "testX6" device
-    * Add "ethernet" connection named "con_ipv6" for device "testX6" with options
+    * Prepare simulated test "testY6" device
+    * Add "ethernet" connection named "con_ipv6" for device "testY6" with options
           """
           ipv4.method disabled
           ipv6.method auto
@@ -2256,4 +2256,4 @@
           """
     * Bring "up" connection "con_ipv6"
     Then "default" is visible with command "nmcli -g ipv6.addr-gen-mode con show con_ipv6"
-    And "fe80::ecaa:bbff:fecc:ddee/64" is visible with command "ip a show dev testX6" in "10" seconds
+    And "fe80::ecaa:bbff:fecc:ddee/64" is visible with command "ip a show dev testY6" in "10" seconds
