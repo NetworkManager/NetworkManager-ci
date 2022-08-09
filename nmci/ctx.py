@@ -779,7 +779,8 @@ def wait_faf_complete(context, dump_dir):
             return True
         print(f"* report not complete yet, try #{i}")
         context.process.run(
-            f"ls -l {dump_dir}/{{backtrace,coredump,last_occurrence,pkg_name,reported_to}}"
+            f"ls -l {dump_dir}/{{backtrace,coredump,last_occurrence,pkg_name,reported_to}}",
+            ignore_stderr=True,
         )
         time.sleep(1)
     if backtrace:
