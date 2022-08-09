@@ -21,10 +21,11 @@ MACHINES_MIN_THRESHOLD = 1000
 
 
 class Machine:
-    def __init__(self, id, release):
+    def __init__(self, id, release, runner):
         self.release = release
         self.release_num = release.split("-")[0]
         self.id = id
+        self.runner = runner
 
         self.machine_list = "../machines"
         self.results = f"../results_m{self.id}/"
@@ -63,7 +64,7 @@ class Machine:
             )
             returncode = cico_run.returncode
             if retry_count >= 60:
-                self._abort(f"Unable to reserve machine '{self.id}'")
+                self.runner._abort(f"Unable to reserve machine '{self.id}'")
             if returncode != 0:
                 time.sleep(60)
                 retry_count += 1
@@ -822,11 +823,11 @@ class Runner:
         )
         machines_num = len(self.tests)
         for i in range(machines_num):
-            m = Machine(i, self.release)
+            m = Machine(i, self.release, self)
             self.machines.append(m)
 
         if not self.copr_repo:
-            self.build_machine = Machine("builder", self.release)
+            self.build_machine = Machine("builder", self.release, self)
 
     def prepare_machines(self):
         self.phase = "prepare"
