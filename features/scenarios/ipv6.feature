@@ -1592,6 +1592,8 @@
     @eth3_disconnect
     @ipv6_keep_external_routes
     Scenario: NM - ipv6 - keep external routes
+    # * Reboot step added as a workaround for rhbz2117237, remove once fixed!
+    * Reboot
     * Execute "ip link set eth3 down; ip addr flush eth3; ethtool -A eth3 rx off tx off; ip link set eth3 up"
     * Execute "ip addr add fc00:a::10/64 dev eth3; ip -6 route add fc00:b::10/128 via fc00:a::1"
     When "fc00:b" is visible with command "ip -6 r" in "2" seconds
