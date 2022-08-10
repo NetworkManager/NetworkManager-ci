@@ -83,14 +83,7 @@ def _before_scenario(context, scenario):
     context.log_cursor_before_tags = nmci.misc.journal_get_cursor()
     context.arch = nmci.command_output("uname -p").strip()
     context.IS_NMTUI = "nmtui" in scenario.effective_tags
-    context.cleanup = {
-        "connections": set(),
-        "interfaces": {"reset": set(), "delete": set()},
-        "namespaces": {},
-        "nft_default": False,
-        "nft_ns": set(),
-        "rules": set(),
-    }
+    nmci.ctx.set_fresh_cleanup(context)
     context.rh_release = nmci.command_output("cat /etc/redhat-release")
     release_i = context.rh_release.find("release ")
     if release_i >= 0:

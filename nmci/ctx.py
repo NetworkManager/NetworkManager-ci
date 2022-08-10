@@ -1555,6 +1555,17 @@ def add_iface_to_cleanup(context, name):
         context.cleanup["interfaces"]["delete"].add(name)
 
 
+def set_fresh_cleanup(context):
+    context.cleanup = {
+        "connections": set(),
+        "interfaces": {"reset": set(), "delete": set()},
+        "namespaces": {},
+        "nft_default": False,
+        "nft_ns": set(),
+        "rules": set(),
+    }
+
+
 def cleanup(context):
 
     if context.cleanup["connections"]:
@@ -1588,11 +1599,4 @@ def cleanup(context):
         time.sleep(1)
 
     # reset cleanup, so it is safe to be called multiple times
-    context.cleanup = {
-        "connections": set(),
-        "interfaces": {"reset": set(), "delete": set()},
-        "namespaces": {},
-        "nft_default": False,
-        "nft_ns": set(),
-        "rules": set(),
-    }
+    set_fresh_cleanup(context)
