@@ -1575,7 +1575,7 @@ def cleanup(context):
             teardown_testveth(context, namespace)
         if context.process.run_search_stdout("ip netns list", namespace):
             context.process.run_stdout(f'ip netns del "{namespace}"')
-    if context.cleanup["nft_default"]:
+    if "nft_default" in context.cleanup and context.cleanup["nft_default"]:
         context.process.run("nft flush ruleset")
     for ns in sorted(context.cleanup["nft_ns"]):
         if os.path.isdir(f"/var/run/netns/{ns}"):
