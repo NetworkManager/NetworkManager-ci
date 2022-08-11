@@ -63,7 +63,12 @@ install_el9_packages () {
         dnf -4 -y install \
             $KOJI/openvpn/2.5.6/1.el9/$(arch)/openvpn-2.5.6-1.el9.$(arch).rpm \
             $KOJI/pkcs11-helper/1.27.0/2.fc34/$(arch)/pkcs11-helper-1.27.0-2.fc34.$(arch).rpm \
-            NetworkManager-openvpn
+            NetworkManager-openvpn || \
+        # on s390x NetworkManager-openvpn is not in repos yet
+        dnf -4 -y install \
+            $KOJI/openvpn/2.5.6/1.el9/$(arch)/openvpn-2.5.6-1.el9.$(arch).rpm \
+            $KOJI/pkcs11-helper/1.27.0/2.fc34/$(arch)/pkcs11-helper-1.27.0-2.fc34.$(arch).rpm \
+            $KOJI/NetworkManager-openvpn/1.8.16/1.fc36/$(arch)/NetworkManager-openvpn-1.8.16-1.fc36.$(arch).rpm
     fi
     # strongswan remove once in epel 12012021
     if ! rpm -q --quiet NetworkManager-strongswan || ! rpm -q --quiet strongswan; then
