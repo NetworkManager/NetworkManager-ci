@@ -490,6 +490,7 @@ Feature: nmcli - procedures in documentation
 
     # the same feature as @general_nmcli_offline_connection_add_modify tests
     @rhelver+=8.7 @rhelver+=9.1
+    @ver+=1.39.2
     @restart_if_needed
     @doc_nmcli_offline_connection_add
     Scenario: nmcli - doc - general - Using nmcli to create key file connection profiles in offline mode
