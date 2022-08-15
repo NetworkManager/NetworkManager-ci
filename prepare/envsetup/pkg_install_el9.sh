@@ -19,7 +19,7 @@ install_el9_packages () {
         git python3-netaddr dhcp-relay iw net-tools psmisc firewalld dhcp-server \
         ethtool python3-dbus python3-gobject dnsmasq tcpdump wireshark-cli file iputils \
         iproute-tc perl-IO-Tty dhcp-client rpm-build gcc initscripts \
-        wireguard-tools python3-pyyaml tuned \
+        wireguard-tools python3-pyyaml tuned sos \
         --skip-broken
 
     # Install non distro deps
