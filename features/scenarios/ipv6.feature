@@ -1731,7 +1731,7 @@
     * Bring up connection "con_ipv6" ignoring error
     Then "2620:dead:beaf:0*:ecaa:bbff:fecc:ddee" is not visible with command "ip a show testX6"
     # interface ended up with just link-local address so it can't have full connectivity
-    And "limited" is visible with command "nmcli -f ip6-connectivity d show testX6"
+    And "limited" is visible with command "nmcli -f DEVICE,IP6-CONNECTIVITY d | grep testX6"
 
 
     @rhbz1470930
