@@ -27,7 +27,8 @@ Feature: nmcli - ppp
     And "default via 192.168.111.254 dev my-ppp" is visible with command "ip r"
 
 
-    @ver/rhel/8+=1.37
+    @ver/rhel/8+=1.36.6
+    @ver/rhel/9+=1.36.6
     @not_on_s390x @pppoe @del_test1112_veths
     @connect_to_pppoe_via_chap
     Scenario: NM - ppp - connect with chap auth

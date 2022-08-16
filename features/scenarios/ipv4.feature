@@ -1778,20 +1778,20 @@ Feature: nmcli: ipv4
     @ver+=1.4.0
     @ipv4_dad
     Scenario: NM - ipv4 - DAD
-    * Prepare simulated test "testX4" device
-    * Add "ethernet" connection named "con_ipv4" for device "testX4" with options
+    * Prepare simulated test "testD4" device
+    * Add "ethernet" connection named "con_ipv4" for device "testD4" with options
           """
           ipv4.may-fail no
           ipv4.method manual
           ipv4.addresses 192.168.99.1/24
           """
-    When "testX4:connected:con_ipv4" is visible with command "nmcli -t -f DEVICE,STATE,CONNECTION device" in "40" seconds
+    When "testD4:connected:con_ipv4" is visible with command "nmcli -t -f DEVICE,STATE,CONNECTION device" in "40" seconds
     * Modify connection "con_ipv4" changing options "ipv4.may-fail no ipv4.method manual ipv4.addresses 192.168.99.1/24 ipv4.dad-timeout 5000"
     * Bring up connection "con_ipv4" ignoring error
-    When "testX4:connected:con_ipv4" is not visible with command "nmcli -t -f DEVICE,STATE,CONNECTION device" in "10" seconds
+    When "testD4:connected:con_ipv4" is not visible with command "nmcli -t -f DEVICE,STATE,CONNECTION device" in "10" seconds
     * Modify connection "con_ipv4" changing options "ipv4.may-fail no ipv4.method manual ipv4.addresses 192.168.99.2/24 ipv4.dad-timeout 5000"
     * Bring "up" connection "con_ipv4"
-    Then "testX4:connected:con_ipv4" is visible with command "nmcli -t -f DEVICE,STATE,CONNECTION device" in "10" seconds
+    Then "testD4:connected:con_ipv4" is visible with command "nmcli -t -f DEVICE,STATE,CONNECTION device" in "10" seconds
 
 
     @rhbz1713380
@@ -2377,6 +2377,7 @@ Feature: nmcli: ipv4
     @ver-1.37.90
     @ver-1.36.7
     @ver/rhel/8/6-1.36.0.6
+    @ver/rhel/9/0-1.36.0.5
     @internal_DHCP
     @dhcp_multiple_router_options
     Scenario: NM - ipv4 - dhcp server sends multiple router options
@@ -2392,6 +2393,7 @@ Feature: nmcli: ipv4
     @ver+=1.37.90
     @ver+=1.36.7
     @ver/rhel/8/6+=1.36.0.6
+    @ver/rhel/9/0+=1.36.0.5
     @internal_DHCP
     @dhcp_multiple_router_options
     Scenario: NM - ipv4 - dhcp server sends multiple router options
