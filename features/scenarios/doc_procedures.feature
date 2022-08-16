@@ -488,7 +488,7 @@ Feature: nmcli - procedures in documentation
     Then "default via 2001:db8:1::1 dev eth10 proto static metric 10.* pref medium" is visible with command "ip -6 route" in "20" seconds
 
 
-    # the same feature as @general_nmcli_offline_connection_add_modify tests
+    # the same feature as general_nmcli_offline_connection_add_modify tests
     @rhelver+=8.7 @rhelver+=9.1
     @ver+=1.39.2
     @restart_if_needed
