@@ -1011,20 +1011,30 @@ def restore_connections(context):
     restore_testeth0(context)
 
 
+def update_udevadm(context):
+    context.process.run_stdout(
+        "udevadm control --reload-rules",
+        timeout=15,
+        ignore_stderr=True,
+    )
+    context.process.run_stdout(
+        "udevadm settle --timeout=5",
+        timeout=15,
+        ignore_stderr=True,
+    )
+    time.sleep(1)
+
+
 def manage_veths(context):
     if not os.path.isfile("/tmp/nm_veth_configured"):
         rule = 'ENV{ID_NET_DRIVER}=="veth", ENV{INTERFACE}=="eth[0-9]|eth[0-9]*[0-9]", ENV{NM_UNMANAGED}="0"'
         nmci.util.file_set_content("/etc/udev/rules.d/88-veths-eth.rules", [rule])
-        context.process.run_stdout("udevadm control --reload-rules")
-        context.process.run_stdout("udevadm settle --timeout=5")
-        time.sleep(1)
+        nmci.ctx.update_udevadm(context)
 
 
 def unmanage_veths(context):
     context.process.run_stdout("rm -f /etc/udev/rules.d/88-veths-*.rules")
-    context.process.run_stdout("udevadm control --reload-rules")
-    context.process.run_stdout("udevadm settle --timeout=5")
-    time.sleep(1)
+    nmci.ctx.update_udevadm(context)
 
 
 def after_crash_reset(context):
@@ -1594,9 +1604,7 @@ def cleanup(context):
     if context.cleanup["rules"]:
         for rule in context.cleanup["rules"]:
             context.process.run(f"rm -rf {rule}")
-        context.process.run("udevadm control --reload-rules")
-        context.process.run("udevadm settle --timeout=5")
-        time.sleep(1)
+        nmci.ctx.update_udevadm(context)
 
     # reset cleanup, so it is safe to be called multiple times
     set_fresh_cleanup(context)
