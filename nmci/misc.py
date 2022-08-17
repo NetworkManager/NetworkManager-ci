@@ -4,6 +4,7 @@ import re
 import subprocess
 import sys
 import yaml
+import json
 
 import xml.etree.ElementTree as ET
 
@@ -150,9 +151,16 @@ class _Misc:
         return test_tags
 
     def get_mapper_obj(self):
-        with open(util.base_dir() + "/mapper.yaml", "r") as mapper_file:
-            mapper_content = mapper_file.read()
-            return yaml.load(mapper_content, Loader=yaml.BaseLoader)
+        if not os.path.isfile("mapper.json") or (
+            os.path.getmtime("mapper.json") < os.path.getmtime("mapper.yaml")
+        ):
+            with open("mapper.yaml", "r") as m_yaml:
+                mapper = yaml.load(m_yaml, Loader=yaml.CSafeLoader)
+            with open("mapper.json", "w") as m_json:
+                json.dump(mapper, m_json)
+            return mapper
+        with open("mapper.json", "r") as m_file:
+            return json.load(m_file)
 
     def get_mapper_tests(self, mapper, feature="*"):
         all_features = ["*", "all"]
