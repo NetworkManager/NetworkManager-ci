@@ -70,7 +70,7 @@
 
 
     @ver-=1.20
-    @nmcli_novice_mode_create_team-slave_with_default_options
+    @nmcli_novice_mode_create_team_slave_with_default_options
     Scenario: nmcli - team - novice - create team-slave with default options
      * Cleanup connection "team-slave" and device "eth5"
      * Add "team" connection named "team0" for device "nm-team"
@@ -89,7 +89,7 @@
 
 
     @ver+=1.21.1 @ver-=1.39.6
-    @nmcli_novice_mode_create_team-slave_with_default_options
+    @nmcli_novice_mode_create_team_slave_with_default_options
     Scenario: nmcli - team - novice - create team-slave with default options
      * Cleanup connection "team-slave" and device "eth5"
      * Add "team" connection named "team0" for device "nm-team"
@@ -110,7 +110,7 @@
 
 
     @ver+=1.39.7
-    @nmcli_novice_mode_create_team-slave_with_default_options
+    @nmcli_novice_mode_create_team_slave_with_default_options
     Scenario: nmcli - team - novice - create team-slave with default options
      * Cleanup connection "team-slave" and device "eth5"
      * Add "team" connection named "team0" for device "nm-team"
