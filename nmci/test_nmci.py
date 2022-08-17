@@ -840,6 +840,103 @@ def test_mapper_feature_file():
         assert found, f"test @{testname} not defined in feature file {feature}"
 
 
+def test_scen_uniqueness_in_mapper():
+    """
+    Each test name is:
+      * tagged with just one mapper feature
+      * found in just one feature file
+    """
+    mapper_tests = misc.get_mapper_tests(misc.get_mapper_obj())
+    feature_files = frozenset(misc.test_get_feature_files())
+
+    # convert mapper_tests to:
+    # {'test1': ['feature_a'], 'test2': ['feature_b']}
+    # and assert that length of every list in values is 1
+    tests_dict = dict()
+    for mapper_test in mapper_tests:
+        testname = mapper_test["testname"]
+        if "feature" not in mapper_test:
+            # tests that have to be manually enabled by uncommenting feature
+            # as of now @gsm_hub and @gsm_hub_simple
+            continue
+        feature = mapper_test["feature"]
+        if testname not in tests_dict:
+            tests_dict[testname] = {feature}
+        else:
+            tests_dict[testname].add(feature)
+
+    # test mapper uniqueness: only one feature is in set in tests_dict['testname']
+    for i in tests_dict:
+        assert len(tests_dict[i]) == 1, (
+            f"Expected @{i} tagged with exactly one feature, got "
+            f"""{'0' if len(tests_dict[i]) == 0 else f'{tests_dict[i]}'}"""
+        )
+
+    # test uniqueness in feature files
+    path_tmpl = (f"{util.base_dir('features', 'scenarios')}/", ".feature")
+    for i in tests_dict:
+        correct_feature = tests_dict[i].pop()
+        filtered_files = feature_files.difference(correct_feature.join(path_tmpl))
+        for file in filtered_files:
+            match = re.search(
+                rf"\n\s*@{i}(\s*#[^\n]*)?\n(\s*#[^\n]*\n)*\s*Scenario:",
+                file,
+            )
+            assert (
+                match is None
+            ), f"in addition to {correct_feature}.feature, {i} was found in {file}"
+
+
+def test_last_scen_tag_is_test_tag_and_correctly_tagged():
+    """
+    Last scenario tag:
+      * is alone on the line (save for whitespace and comment)
+      * exists in mapper
+      * is correctly tagged with some feature in mapper, or
+        exists without feature (to handle tags with feature
+        commented out that have to be enabled manually)
+    """
+    mapper_tests = misc.get_mapper_tests(misc.get_mapper_obj())
+    feature_files = frozenset(misc.test_get_feature_files())
+
+    # do this before mapper_tests conversion
+    featureless_tests = set(i["testname"] for i in mapper_tests if "feature" not in i)
+
+    # convert to dict so we can use feature = mapper_tests[i]
+    mapper_tests = {i["testname"]: i["feature"] for i in mapper_tests if "feature" in i}
+
+    re_last_tag = re.compile(
+        r"(?P<full>\n\s*(?P<garbage_before_last_tag>[^\n#]*)@(?P<last_tag>[^#\s\n]+)(\s*#[^\n]*)?\n(\s*#[^\n]*\n)*\s*Scenario:[^\n]*\n)"
+    )
+
+    for file in feature_files:
+        assert file.endswith(
+            ".feature"
+        ), f"feature file {file} must end with '.feature'"
+        feature = os.path.basename(file)[:-8]
+        with open(file, "r") as f:
+            # returns: [{'garbage_before_last_tag': '',
+            #               last_tag: 'test_id', full: '@tag\n Scenario:'}, ...]
+            last_tags = [m.groupdict() for m in re_last_tag.finditer(f.read())]
+        for tag in last_tags:
+            assert len(tag["garbage_before_last_tag"]) == 0, (
+                f"before last scenario tag @{tag['last_tag']} in file "
+                f"{file}, there is something: "
+                f"'{tag['garbage_before_last_tag']}'. Full lines "
+                f"are:{tag['full']}"
+            )
+            if tag["last_tag"] in featureless_tests:
+                continue
+            assert tag["last_tag"] in (
+                mapper_tests.keys()
+            ), f"@{tag['last_tag']} not found in test mapper tests!"
+            assert feature == mapper_tests[tag["last_tag"]], (
+                f"features don't match for @{tag['last_tag']} in file "
+                f"{file}, thus expecting mapper feature {feature}, but "
+                f"mapper feature is {mapper_tests[tag['last_tag']]}!"
+            )
+
+
 def test_file_set_content(tmp_path):
     fn = tmp_path / "test-file-set-content"
 
