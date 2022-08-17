@@ -650,28 +650,13 @@ class _Misc:
         return v1 and v2
 
     def test_find_feature_file(self, test_name, feature="*"):
-
         test_name = self.test_name_normalize(test_name=test_name)
-
-        r = process.run(
-            [
-                "grep",
-                f"@\\<{test_name}\\>",
-                "-l",
-                "--",
-                *self.test_get_feature_files(feature=feature),
-            ]
-        )
-
-        if r.returncode == 1:
-            assert r.stdout == ""
-            raise Exception(f"test {test_name} not found")
-
-        files = r.stdout.split("\n")
-        if len(files) != 2 or files[-1] != "":
-            raise Exception(f"test {test_name} found not exactly once: [{r.stdout}]")
-
-        return files[0]
+        mapper_feature = [
+            i["feature"]
+            for i in self.get_mapper_tests(self.get_mapper_obj(), feature)
+            if i["testname"] == test_name
+        ][0]
+        return f"{util.base_dir('features', 'scenarios')}/{mapper_feature}.feature"
 
     def test_version_check(self, test_name, feature="*"):
         # this checks for tests with given tag and returns all tags of the first test satisfying all conditions
