@@ -39,8 +39,8 @@
     Then "DEVICETYPE=TeamPort" is visible with command "grep TYPE /etc/sysconfig/network-scripts/ifcfg-team0.0"
 
 
-    @nmcli_novice_mode_create_team
     @ver-=1.39.6
+    @nmcli_novice_mode_create_team
     Scenario: nmcli - team - novice - create team
      * Cleanup connection "team" and device "nm-team"
      * Open wizard for adding new connection
@@ -53,8 +53,8 @@
      Then "ifname": "nm-team" is visible with command "sudo teamdctl nm-team state dump" in "5" seconds
 
 
-    @nmcli_novice_mode_create_team
     @ver+=1.39.7
+    @nmcli_novice_mode_create_team
     Scenario: nmcli - team - novice - create team
      * Cleanup connection "team-nm-team" and device "nm-team"
      * Open wizard for adding new connection
@@ -69,8 +69,8 @@
      Then "ifname": "nm-team" is visible with command "sudo teamdctl nm-team state dump" in "5" seconds
 
 
-    @nmcli_novice_mode_create_team-slave_with_default_options
     @ver-=1.20
+    @nmcli_novice_mode_create_team-slave_with_default_options
     Scenario: nmcli - team - novice - create team-slave with default options
      * Cleanup connection "team-slave" and device "eth5"
      * Add "team" connection named "team0" for device "nm-team"
@@ -88,8 +88,8 @@
     Then Check slave "eth5" in team "nm-team" is "up"
 
 
-    @nmcli_novice_mode_create_team-slave_with_default_options
     @ver+=1.21.1 @ver-=1.39.6
+    @nmcli_novice_mode_create_team-slave_with_default_options
     Scenario: nmcli - team - novice - create team-slave with default options
      * Cleanup connection "team-slave" and device "eth5"
      * Add "team" connection named "team0" for device "nm-team"
@@ -109,8 +109,8 @@
     Then Check slave "eth5" in team "nm-team" is "up"
 
 
-    @nmcli_novice_mode_create_team-slave_with_default_options
     @ver+=1.39.7
+    @nmcli_novice_mode_create_team-slave_with_default_options
     Scenario: nmcli - team - novice - create team-slave with default options
      * Cleanup connection "team-slave" and device "eth5"
      * Add "team" connection named "team0" for device "nm-team"

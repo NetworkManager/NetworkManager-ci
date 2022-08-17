@@ -1075,7 +1075,8 @@ Feature: nmcli - dns
 
     @rhbz1676635
     @ver+=1.17.3
-    @not_with_systemd_resolved     @dns_multiple_options
+    @not_with_systemd_resolved
+    @dns_multiple_options
     Scenario: nmcli - dns - add more options to ipv4.dns-options
     * Add "ethernet" connection named "con_dns" for device "\*" with options "autoconnect no ipv4.dns-options ndots:2"
     * Modify connection "con_dns" changing options "+ipv4.dns-options timeout:2"

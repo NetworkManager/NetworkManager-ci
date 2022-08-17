@@ -147,8 +147,8 @@ Feature: nmcli: inf
 
     @rhbz1375558
     @ver+=1.4.0
-    @inf_master_in_bond_restart_persistence
     @inf @restart_if_needed
+    @inf_master_in_bond_restart_persistence
     Scenario: nmcli - inf - inf master in bond res
      * Add "infiniband" connection named "inf" for device "inf_ib0"
      * Add "bond" connection named "bond0" for device "nm-bond" with options "bond.options mode=active-backup"
