@@ -6,15 +6,14 @@ from behave import step
 
 import nmci.ip
 import nmci.util
+import nmci.ctx
 
 def manage_veth_device(context, device):
     rule_file = f"/etc/udev/rules.d/88-veth-{device}.rules"
     if not os.path.isfile(rule_file):
         rule = 'ENV{ID_NET_DRIVER}=="veth", ENV{INTERFACE}=="%s*", ENV{NM_UNMANAGED}="0"' %device
         nmci.util.file_set_content(rule_file, [rule])
-        context.process.run_stdout("udevadm control --reload-rules")
-        context.process.run_stdout("udevadm settle --timeout=5")
-        time.sleep(1)
+        nmci.ctx.update_udevadm(context)
         context.cleanup['rules'].add(rule_file)
 
 @step('Create PBR files for profile "{profile}" and "{dev}" device in table "{table}"')
