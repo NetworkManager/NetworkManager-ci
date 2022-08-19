@@ -895,6 +895,7 @@ def test_last_scen_tag_is_test_tag_and_correctly_tagged():
       * is correctly tagged with some feature in mapper, or
         exists without feature (to handle tags with feature
         commented out that have to be enabled manually)
+      * does not end with suffix "_timeout"
     """
     mapper_tests = misc.get_mapper_tests(misc.get_mapper_obj())
     feature_files = frozenset(misc.test_get_feature_files())
@@ -935,6 +936,9 @@ def test_last_scen_tag_is_test_tag_and_correctly_tagged():
                 f"{file}, thus expecting mapper feature {feature}, but "
                 f"mapper feature is {mapper_tests[tag['last_tag']]}!"
             )
+            assert not tag["last_tag"].endswith(
+                "_timeout"
+            ), f"test @{tag['last_tag']} edns with '_timeout'"
 
 
 def test_file_set_content(tmp_path):

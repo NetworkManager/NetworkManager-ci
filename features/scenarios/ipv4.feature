@@ -2777,7 +2777,7 @@ Feature: nmcli: ipv4
 
     @rhbz2047788
     @ver+=1.32.7
-    @ipv4_required_timeout
+    @ipv4_required_timeout_set
     Scenario: nmcli - ipv4 - connection with required timeout
     * Prepare simulated test "testX4" device without DHCP
     * Add "ethernet" connection named "con_ipv4" for device "testX4" with options

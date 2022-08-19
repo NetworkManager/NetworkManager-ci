@@ -2578,7 +2578,7 @@
     @rhbz2028751
     @ver+=1.35.5
     @tcpdump
-    @bond_no_ipv4_dad_timeout
+    @bond_ipv4_dad_timeout_not_used
     Scenario: bond - ipv4.dad-timeout parameter should not be used
     * Add namespace "ns1"
     * Execute "ip link add veth0 type veth peer name veth1 netns ns1"

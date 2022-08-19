@@ -317,7 +317,7 @@ testmapper:
         feature: bond
     - bond_controller_port_terminology:
         feature: bond
-    - bond_no_ipv4_dad_timeout:
+    - bond_ipv4_dad_timeout_not_used:
         feature: bond
     - bond_modify_bond-opts_with_slaves:
         feature: bond
@@ -798,7 +798,7 @@ testmapper:
         feature: ipv6
     - ipv6_dhcp_iaid_mac:
         feature: ipv6
-    - ra_timeout:
+    - ipv6_ra_timeout_set:
         feature: ipv6
     - ipv6_token:
         feature: ipv6
@@ -806,7 +806,7 @@ testmapper:
         feature: ipv6
     - ipv6_ignore_nonstatic_routes:
         feature: ipv6
-    - ipv6_required_timeout:
+    - ipv6_required_timeout_set:
         feature: ipv6
     - ipv6_check_addr_order:
         feature: ipv6
@@ -1102,7 +1102,7 @@ testmapper:
         feature: ipv4
     - ipv4_route-table_reapply:
         feature: ipv4
-    - ipv4_required_timeout:
+    - ipv4_required_timeout_set:
         feature: ipv4
     - ipv4_check_addr_order:
         feature: ipv4
@@ -1571,7 +1571,7 @@ testmapper:
         tags: gate
     - nm_online_wait_for_second_connection:
         feature: general
-    - nm_online_large_timeout:
+    - nm_online_timeout_max:
         feature: general
     - nm_online_wait_for_dnsmasq:
         feature: general
@@ -1691,7 +1691,7 @@ testmapper:
         feature: general
     - snapshot_rollback_all_devices:
         feature: general
-    - snapshot_rollback_all_devices_with_timeout:
+    - snapshot_timeout_rollback_all_devices:
         feature: general
         tags: gate
     - snapshot_rollback_unmanaged:
@@ -1753,7 +1753,7 @@ testmapper:
         feature: general
     - libnm_snapshot_rollback_all_devices:
         feature: general
-    - libnm_snapshot_rollback_all_devices_with_timeout:
+    - libnm_snapshot_timeout_rollback_all_devices:
         feature: general
     - libnm_snapshot_rollback_unmanaged:
         feature: general

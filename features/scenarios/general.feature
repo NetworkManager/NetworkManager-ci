@@ -1406,7 +1406,7 @@ Feature: nmcli - general
 
     @rhbz2025617
     @ver+=1.37
-    @nm_online_large_timeout
+    @nm_online_timeout_max
     Scenario: NM - general - nm-online accepts 24 days timeout
     Then "2073600" is visible with command "nm-online --help"
     And "Connecting.*2073600s.*online" is visible with command "nm-online --timeout 2073600"
@@ -1730,7 +1730,7 @@ Feature: nmcli - general
     @rhbz1369716
     @ver+=1.8.0
     @checkpoint_remove
-    @snapshot_rollback_all_devices_with_timeout
+    @snapshot_timeout_rollback_all_devices
     Scenario: NM - general - snapshot and rollback all devices with timeout
     * Add "ethernet" connection named "con_general" for device "eth8"
     * Add "ethernet" connection named "con_general2" for device "eth9"
@@ -2248,7 +2248,7 @@ Feature: nmcli - general
     @rhbz1496739
     @ver+=1.12
     @checkpoint_remove
-    @libnm_snapshot_rollback_all_devices_with_timeout
+    @libnm_snapshot_timeout_rollback_all_devices
     Scenario: NM - general - libnm snapshot and rollback all devices with timeout
     * Add "ethernet" connection named "con_general" for device "eth8"
     * Add "ethernet" connection named "con_general2" for device "eth9"

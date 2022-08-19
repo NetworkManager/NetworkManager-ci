@@ -2100,8 +2100,8 @@
 
     @rhbz1801158
     @ver+=1.22.8
-    @ra_timeout
-    Scenario: NM - ipv4 - add ra-timeout
+    @ipv6_ra_timeout_set
+    Scenario: NM - ipv6 - add ra-timeout
     * Prepare simulated test "testX6" device
     * Execute "ip netns exec testX6_ns kill -SIGSTOP $(cat /tmp/testX6_ns.pid)"
     * Add "ethernet" connection named "con_ipv6" for device "testX6" with options
@@ -2164,7 +2164,7 @@
 
     @rhbz2047788
     @ver+=1.32.7
-    @ipv6_required_timeout
+    @ipv6_required_timeout_set
     Scenario: nmcli - ipv6 - connection with required timeout
     * Prepare simulated test "testX6" device without DHCP
     * Add "ethernet" connection named "con_ipv6" for device "testX6" with options
