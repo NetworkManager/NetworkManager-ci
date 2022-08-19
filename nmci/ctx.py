@@ -1012,6 +1012,8 @@ def restore_connections(context):
 
 
 def update_udevadm(context):
+    # Just wait a bit to have all files correctly written
+    time.sleep(0.2)
     context.process.run_stdout(
         "udevadm control --reload-rules",
         timeout=15,
@@ -1022,7 +1024,7 @@ def update_udevadm(context):
         timeout=15,
         ignore_stderr=True,
     )
-    time.sleep(1)
+    time.sleep(0.8)
 
 
 def manage_veths(context):
