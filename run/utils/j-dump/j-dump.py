@@ -572,6 +572,8 @@ class Build:
                     result_name = result.name
                     if result_name.startswith("Test"):
                         result_name = result_name.split("_", 1)[1]
+                    if result_name.endswith("_timeout"):
+                        result_name = result_name.rsplit("_", 1)[0]
                     job.add_failure(result_name, self)
             self.name = results.name
         else:
@@ -611,6 +613,10 @@ class Build:
                     eprint("No .html or .log suffix in artifact '{:s}': skip...".format(artifact))
                     continue
                 failure_name = '.'.join(split_artifact[:-1])
+                # artifact should not end with _timeout now,
+                # but it is possible in older build, before test renaming
+                if failure_name.endswith("_timeout"):
+                    failure_name = failure_name.rsplit("_", 1)[0]
                 job.add_failure(failure_name, self, artifacts[artifact].url)
 
     def add_failure(self, failure_name, failure):
