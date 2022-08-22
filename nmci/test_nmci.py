@@ -869,7 +869,9 @@ def test_scen_uniqueness_in_mapper():
     for i in tests_dict:
         assert len(tests_dict[i]) == 1, (
             f"Expected @{i} tagged with exactly one feature, got "
-            f"""{'0' if len(tests_dict[i]) == 0 else f'{tests_dict[i]}'}"""
+            # back to this when we convert featureless_tests to sth else (another tag?)
+            # f"""{'0' if len(tests_dict[i]) == 0 else f'{tests_dict[i]}'}"""
+            f"{tests_dict[i]}"
         )
 
     # test uniqueness in feature files
@@ -926,6 +928,9 @@ def test_last_scen_tag_is_test_tag_and_correctly_tagged():
                 f"'{tag['garbage_before_last_tag']}'. Full lines "
                 f"are:{tag['full']}"
             )
+            assert not tag["last_tag"].endswith(
+                "_timeout"
+            ), f"test @{tag['last_tag']} ends with '_timeout'"
             if tag["last_tag"] in featureless_tests:
                 continue
             assert tag["last_tag"] in (
@@ -936,9 +941,6 @@ def test_last_scen_tag_is_test_tag_and_correctly_tagged():
                 f"{file}, thus expecting mapper feature {feature}, but "
                 f"mapper feature is {mapper_tests[tag['last_tag']]}!"
             )
-            assert not tag["last_tag"].endswith(
-                "_timeout"
-            ), f"test @{tag['last_tag']} edns with '_timeout'"
 
 
 def test_file_set_content(tmp_path):
