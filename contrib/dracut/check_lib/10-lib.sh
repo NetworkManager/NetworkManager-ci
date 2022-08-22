@@ -173,3 +173,10 @@ my_wait() {
         sleep 1
     done
 }
+
+
+nm_debug() {
+    NetworkManager --print-config | grep -q "Debug log enabled" || \
+        die "Debug loglevel not set: $(echo; NetworkManager --print-config)"
+    echo "[OK] Debug logs enabled in NetworkManager"
+}

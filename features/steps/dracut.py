@@ -6,19 +6,20 @@ import nmci.ctx
 import nmci
 
 
+REMOTE_ROOT_DIR = "/var/dracut_test/nfs/client/"
 REMOTE_JOURNAL_DIR = "/var/dracut_test/client_log/"
 REMOTE_JOURNAL = "--root=" + REMOTE_JOURNAL_DIR
 REMOTE_CRASH_DIR = "/var/dracut_test/client_dumps/"
 
 
 def get_dracut_vm_state(mount=True):
-    cmd = "cd contrib/dracut/; . ./setup.sh; "
+    cmd = ["cd contrib/dracut/", ". ./setup.sh"]
     if mount:
-        cmd += "mount -o ro $DEV_LOG $TESTDIR/client_log/var/log/; "
-    cmd += "cat $TESTDIR/client_log/var/log/vm_state; "
+        cmd.append("mount -o ro $DEV_LOG $TESTDIR/client_log/var/log/")
+    cmd.append("cat $TESTDIR/client_log/var/log/vm_state")
     if mount:
-        cmd += "umount $DEV_LOG"
-    return nmci.run(cmd)[0].strip("\n")
+        cmd.append("umount $DEV_LOG")
+    return nmci.run("; ".join(cmd))[0].strip("\n")
 
 
 def handle_timeout(proc, timeout):
@@ -118,36 +119,46 @@ def prepare_dracut(context, checks):
         "mkdir $TESTDIR/client_log/var/log/journal/; "
     )
     with open("/var/dracut_test/client_check/client_check.sh", "w") as f:
-        f.write("client_check() {\n" + checks + "}")
+        f.write("client_check() {\n")
+        f.write("\n".join(checks))
+        f.write("}\n")
     context.run("cd contrib/dracut/; . ./setup.sh; umount $DEV_CHECK; umount $DEV_LOG;")
 
 
 @step("Run dracut test")
 def dracut_run(context):
     qemu_args = []
-    kernel_args = (
-        "panic=1 systemd.crash_reboot rd.shell=0 "
-        "rd.debug loglevel=7 biosdevname=0 net.ifnames=0 noapic "
-    )
+    kernel_args = [
+        "panic=1",
+        "systemd.crash_reboot",
+        "rd.shell=0",
+        "biosdevname=0",
+        "net.ifnames=0",
+        "noapic",
+        "loglevel=7",
+        "rd.debug",
+    ]
     kernel_arch_args = {
-        "x86_64": "console=ttyS0,115200n81 ",
+        "x86_64": ["console=ttyS0,115200n81"],
     }
     arch = context.arch
     if arch in kernel_arch_args.keys():
         kernel_args += kernel_arch_args[arch]
     initrd = "initramfs.client.NM"
-    checks = ""
+    checks = []
     timeout = "6m"
     ram = "1200"
     for row in context.table:
         if "qemu" in row[0].lower():
-            qemu_args += row[1].split(" ")
+            qemu_args.extend(row[1].split(" "))
         elif "kernel" in row[0].lower():
-            kernel_args += " " + row[1]
+            kernel_args.append(row[1])
+            if "nm.debug" in row[1]:
+                kernel_args.remove("rd.debug")
         elif "initrd" in row[0].lower():
             initrd = row[1]
         elif "check" in row[0].lower():
-            checks += row[1] + " || die '" + '"' + row[1] + '"' + " failed'\n"
+            checks.append(f"{row[1]} || die '\"{row[1]}\" failed'\n")
             if "dracut_crash_test" in row[1]:
                 context.dracut_crash_test = True
         elif "timeout" in row[0].lower():
@@ -171,7 +182,7 @@ def dracut_run(context):
         [
             *qemu_args,
             "-append",
-            kernel_args,
+            " ".join(kernel_args),
             "-initrd",
             "$TESTDIR/" + initrd,
         ],
@@ -192,3 +203,13 @@ def dracut_run(context):
     assert (
         "PASS" in context.dracut_vm_state
     ), f"Test FAILED, VM result: {context.dracut_vm_state}"
+
+
+@step('Remove "{file_name}" from dracut NFS root')
+def remove_file_ns_root(context, file_name):
+    assert os.path.isfile(file_name), f"Local file {file_name} not found"
+    remote_file_name = f"{REMOTE_ROOT_DIR}{file_name}"
+    assert os.path.isfile(remote_file_name), f"Remote file {file_name} not found"
+    context.dracut_files_to_restore = getattr(context, "dracut_files_to_restore", [])
+    context.dracut_files_to_restore.append(file_name)
+    os.remove(remote_file_name)

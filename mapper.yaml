@@ -1377,6 +1377,8 @@ testmapper:
         tags: gate dracut
     - dracut_NM_NFS_root_dhcp:
         feature: dracut
+    - dracut_NM_NFS_root_dhcp_nm_debug:
+        feature: dracut
     - dracut_NM_NFS_root_dhcp_ip_dhcp_neednet:
         feature: dracut
         tags: gate dracut

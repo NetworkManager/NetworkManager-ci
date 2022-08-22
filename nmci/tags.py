@@ -6,6 +6,7 @@ import glob
 import time
 import re
 import shutil
+import traceback
 
 import nmci.ip
 import nmci.ctx
@@ -1468,6 +1469,13 @@ def dracut_as(context, scenario):
     context.process.run_stdout(
         "cd contrib/dracut; . ./setup.sh; after_test", shell=True
     )
+
+    for file_name in getattr(context, "dracut_files_to_restore", []):
+        remote_file_name = f"/var/dracut_test/nfs/client/{file_name}"
+        try:
+            shutil.copy2(file_name, remote_file_name)
+        except Exception:
+            context.cext.embed_data("Exception in dracut_bs", traceback.format_exc())
     # assert when everything is embedded
     assert "no free leases" not in dhcpd_log, "DHCPD leases exhausted"
 
