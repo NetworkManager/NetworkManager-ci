@@ -131,6 +131,98 @@ def test_stub3():
 ###############################################################################
 
 
+def test_get_os_release():
+    """
+    tests:
+    * correctly raising FileNotFound
+    * extracting correct values from different real-world /etc/os-release files
+    * forcing cache refresh by pointing get_os_release() to different file than cached
+    * that cache is effective for implicit os-release
+    * cache effectiveness for explicit of-release
+    """
+    with pytest.raises(FileNotFoundError):
+        misc.get_os_release("/file/not/found")
+
+    test_cases = [
+        {
+            "file": "centos-stream-9",
+            "ID": "centos",
+            "NAME": "CentOS Stream",
+            "PLATFORM_ID": "platform:el9",
+            "VERSION_ID": "9",
+            "version": ("9",),
+            "distro_detect": ("centos", (9, 99)),
+        },
+        {
+            "file": "fedora-37-silverblue",
+            "ID": "fedora",
+            "NAME": "Fedora Linux",
+            "PLATFORM_ID": "platform:f37",
+            "VERSION_ID": "37",
+            "version": ("37",),
+            "distro_detect": ("fedora", (37,)),
+        },
+        {
+            "file": "rhel8",
+            "ID": "rhel",
+            "NAME": "Red Hat Enterprise Linux",
+            "PLATFORM_ID": "platform:el8",
+            "VERSION_ID": "8.6",
+            "version": ("8", "6"),
+            "distro_detect": ("rhel", (8, 6)),
+        },
+        {
+            "file": "rhel9-beta",
+            "ID": "rhel",
+            "NAME": "Red Hat Enterprise Linux",
+            "PLATFORM_ID": "platform:el9",
+            "VERSION_ID": "9.1",
+            "version": ("9", "1"),
+            "distro_detect": ("rhel", (9, 1)),
+        },
+    ]
+
+    for case in test_cases:
+        file = f"contrib/test/os-release/{case['file']}"
+        file_abs = util.base_dir(file)
+        osr = misc.get_os_release(file_abs)
+        assert (
+            osr.ID == case["ID"]
+        ), f"ID parsed from {file} ({osr.ID}) not matching expected ID: {case['ID']}"
+        assert (
+            osr.NAME == case["NAME"]
+        ), f"NAME parsed from {file} ({osr.NAME}) not matching expected NAME: {case['NAME']}"
+        assert (
+            osr.PLATFORM_ID == case["PLATFORM_ID"]
+        ), f"PLATFORM_ID parsed from {file} ({osr.PLATFORM_ID}) not matching expected PLATFORM_ID: {case['PLATFORM_ID']}"
+        assert (
+            osr.VERSION_ID == case["VERSION_ID"]
+        ), f"VERSION_ID parsed from {file} ({osr.VERSION_ID}) not matching expected VERSION_ID: {case['VERSION_ID']}"
+        assert len(osr.version) == len(
+            case["version"]
+        ), f"len(version) {len(osr.version)} not matching expected: {len(case['version'])}"
+        for i in range(len(osr.version)):
+            assert (
+                osr.version[i] == case["version"][i]
+            ), f"version numbers at position {i} do not match: {osr.version[i]}, {case['version'][i]}"
+
+    osr = misc.get_os_release()
+    caddr_1 = id(misc._os_release_cached)
+    osr = misc.get_os_release()
+    caddr_2 = id(misc._os_release_cached)
+    assert (
+        caddr_1 == caddr_2
+    ), f"cache addresses {caddr_1}, {caddr_2} are not the same for implicit os-release"
+
+    osr = misc.get_os_release(file_abs)
+    caddr_1 = id(misc._os_release_cached)
+    osr = misc.get_os_release(file_abs)
+    caddr_2 = id(misc._os_release_cached)
+    assert (
+        caddr_1 == caddr_2
+    ), f"cache addresses {caddr_1}, {caddr_2} are not the same for forced os-release"
+
+
 def test_util_compare_strv_list():
 
     util.compare_strv_list([], [])

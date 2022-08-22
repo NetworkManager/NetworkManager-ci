@@ -351,6 +351,94 @@ class _Misc:
         self._nm_version_detect_cached = v
         return v
 
+    def get_os_release(self, path=None):
+        """
+        returns object with attributes:
+        * UPPERCASE attrs are as parsed from /etc/os_release directly
+        * lowercase attrs are derived from uppercase for more convenient use:
+            - .version is VERSION_ID split along the dots and normalized to strs
+              stored in a tuple ([a-z] are legit digits in VERSION_ID)
+            - .distro_detect returns the same tuple as distro_detect() does:
+              (os_release["ID"], version_tuple) that has for CentOS Stream
+              added large minor number, so e.g. CentOS Stream 8 will yield:
+              ("centos", (8, 99))
+        """
+        if hasattr(self, "_os_release_cached") and (
+            (
+                path is None
+                and self._os_release_cached.osreleasefile
+                in ("/etc/os-release", "/usr/lib/os-release")
+            )
+            or path == self._os_release_cached.osreleasefile
+        ):
+            return self._os_release_cached
+
+        def get_lines(filename):
+            with open(filename, "r") as f:
+                return f.readlines()
+
+        if path:
+            lines = get_lines(path)
+        else:
+            try:
+                path = "/etc/os-release"
+                lines = get_lines(path)
+            except FileNotFoundError:
+                path = "/usr/lib/os-release"
+                lines = get_lines(path)
+
+        def parse_os_release(lines, filename):
+            """
+            adapted from os-release(5): https://www.freedesktop.org/software/systemd/man/os-release.html#id-1.7.6
+            once we support only python >= 3.10, we could possibly use python's
+            bundled battery:
+
+            import platform
+            osr = platform.freedesktop_os_release()
+            """
+            import ast
+
+            for line_number, line in enumerate(lines, start=1):
+                line = line.rstrip()
+                if not line or line.startswith("#"):
+                    continue
+                m = re.match(r"([A-Z][A-Z_0-9]+)=(.*)", line)
+                if m:
+                    name, val = m.groups()
+                    if val and val[0] in "\"'":
+                        val = ast.literal_eval(val)
+                    yield name, val
+                else:
+                    print(
+                        f"{filename}:{line_number}: bad line {line!r}", file=sys.stderr
+                    )
+
+        os_release = dict(parse_os_release(lines, path))
+
+        # VERSION_ID may also include lowercase letters:
+        # https://www.freedesktop.org/software/systemd/man/os-release.html#id-1.6.4
+        os_release["version"] = tuple(
+            str(i) for i in os_release["VERSION_ID"].split(".")
+        )
+
+        # save the same (os_release["ID"], version_tuple) as distro_detect would:
+        # for CentOS Stream which uses just major version but is (expected to be)
+        # more recent than CentOS 8.y adds large minor version
+        if os_release["ID"] == "centos" and "." not in os_release["VERSION_ID"]:
+            version_dd = (int(os_release["VERSION_ID"]), 99)
+        else:
+            version_dd = tuple(int(i) for i in os_release["version"])
+        os_release["distro_detect"] = (os_release["ID"], version_dd)
+
+        # so we can auto-regenerate for different file (in unit tests)
+        os_release["osreleasefile"] = path
+
+        from collections import namedtuple
+
+        osr = namedtuple("x", os_release.keys())(*os_release.values())
+        self._os_release_cached = osr
+        return osr
+
     def distro_detect(self, use_cached=True):
 
         if use_cached and hasattr(self, "_distro_detect_cached"):
