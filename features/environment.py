@@ -84,12 +84,7 @@ def _before_scenario(context, scenario):
     context.arch = nmci.command_output("uname -p").strip()
     context.IS_NMTUI = "nmtui" in scenario.effective_tags
     nmci.ctx.set_fresh_cleanup(context)
-    context.rh_release = nmci.command_output("cat /etc/redhat-release")
-    release_i = context.rh_release.find("release ")
-    if release_i >= 0:
-        context.rh_release_num = float(context.rh_release[release_i:].split(" ")[1])
-    else:
-        context.rh_release_num = 0
+    context.os_release = nmci.misc.get_os_release()
     context.hypervisor = nmci.run("systemd-detect-virt")[0].strip()
 
     os.environ["TERM"] = "dumb"

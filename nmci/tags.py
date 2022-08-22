@@ -78,7 +78,7 @@ _register_tag("long", long_bs)
 
 
 def skip_in_centos_bs(context, scenario):
-    if "CentOS" in context.rh_release:
+    if context.os_release.ID == "centos":
         print("skipping with centos")
         sys.exit(77)
 
@@ -192,8 +192,12 @@ _register_tag("not_with_systemd_resolved", not_with_systemd_resolved_bs)
 
 
 def not_under_internal_DHCP_bs(context, scenario):
-    if "release 8" in context.rh_release and not context.process.run_search_stdout(
-        "NetworkManager --print-config", "dhclient"
+    # if "release 8" in context.rh_release and not context.process.run_search_stdout(
+    if (
+        context.os_release.PLATFORM_ID == "platform:el8"
+        and not context.process.run_search_stdout(
+            "NetworkManager --print-config", "dhclient"
+        )
     ):
         sys.exit(77)
     if context.process.run_search_stdout("NetworkManager --print-config", "internal"):
@@ -988,7 +992,7 @@ _register_tag(
 
 def need_legacy_crypto_bs(context, scenario):
     # We have openssl3 in RHEL9 with a bunch of algs deprecated
-    if "release 9" in context.rh_release:
+    if context.os_release.PLATFORM_ID == "platform:el9":
         pass
         # hostapd and wpa_supplicant 2.10+ can enforce this w/o config
         # context.process.run_stdout("sed '-i.bak' s/'^##'/''/g /etc/pki/tls/openssl.cnf")
@@ -998,7 +1002,7 @@ def need_legacy_crypto_bs(context, scenario):
 
 
 def need_legacy_crypto_as(context, scenario):
-    if "release 9" in context.rh_release:
+    if context.os_release.PLATFORM_ID == "platform:el9":
         pass
         # hostapd and wpa_supplicant 2.10+ can enforce this w/o config
         # context.process.run_stdout("mv -f /etc/pki/tls/openssl.cnf.bak /etc/pki/tls/openssl.cnf")
@@ -1147,9 +1151,10 @@ def simwifi_p2p_bs(context, scenario):
         sys.exit(77)
 
     if (
-        context.rh_release_num >= 8
-        and context.rh_release_num <= 8.4
-        and "Stream" not in context.rh_release
+        "platform:el" in context.os_release.PLATFORM_ID
+        and "Stream" not in context.os_release.NAME
+        and context.os_release.version[0] > 8
+        and context.os_release.version[1] <= 4
     ):
         context.process.run_stdout(
             "dnf -4 -y install "
@@ -1571,7 +1576,7 @@ def performance_bs(context, scenario):
         sys.exit(77)
     else:
         print(f"Unmatched: {hostname}: keeping default")
-    if "fedora" in context.rh_release.lower():
+    if context.os_release.ID == "fedora":
         print("Fedora: multiply factor by 1.5")
         context.machine_speed_factor *= 1.5
 
