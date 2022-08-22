@@ -196,12 +196,7 @@ libreswan_setup ()
     [ -d "$LIBRESWAN_DIR" ] || mkdir "$LIBRESWAN_DIR"
     [ -d "$NSS_DIR" ] || mkdir "$NSS_DIR"
 
-    # password authentication does not work on RHEL7 for some reason
-    if grep -qi "release 7" /etc/redhat-release; then
-        AUTH="alwaysok"
-    else
-        AUTH="file"
-    fi
+    AUTH="file"
 
     libreswan_gen_secrets
     libreswan_gen_connection

@@ -1235,15 +1235,6 @@ def vpnc_bs(context, scenario):
     if context.arch == "s390x":
         print("Skipping on s390x")
         sys.exit(77)
-    # Install under RHEL7 only
-    if "Maipo" in context.rh_release:
-        print("install epel-release-7")
-        context.process.run_stdout(
-            "[ -f /etc/yum.repos.d/epel.repo ] || sudo rpm -i http://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm",
-            shell=True,
-            timeout=120,
-            ignore_stderr=True,
-        )
     if context.process.run_code("rpm -q NetworkManager-vpnc") != 0:
         print("install NetworkManager-vpnc")
         context.process.run_stdout(
@@ -1268,15 +1259,6 @@ def tcpreplay_bs(context, scenario):
         print("Skipping on s390x")
         sys.exit(77)
     nmci.ctx.wait_for_testeth0(context)
-    # Install under RHEL7 only
-    if "Maipo" in context.rh_release:
-        print("install epel-release-7")
-        context.process.run_stdout(
-            "[ -f /etc/yum.repos.d/epel.repo ] || sudo rpm -i http://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm",
-            shell=True,
-            timeout=120,
-            ignore_stderr=True,
-        )
     if not os.path.isfile("/usr/bin/tcpreplay"):
         print("install tcpreplay")
         context.process.run_stdout(
@@ -1356,11 +1338,6 @@ _register_tag("openvpn6")
 
 
 def strongswan_bs(context, scenario):
-    # Do not run on RHEL7 on s390x
-    if "release 7" in context.rh_release:
-        if context.arch == "s390x":
-            print("Skipping on RHEL7 on s390x")
-            sys.exit(77)
     nmci.ctx.wait_for_testeth0(context)
     nmci.ctx.setup_strongswan(context)
 
@@ -1638,15 +1615,6 @@ def pptp_bs(context, scenario):
         print("Skipping on s390x")
         sys.exit(77)
     nmci.ctx.wait_for_testeth0(context)
-    # Install under RHEL7 only
-    if "Maipo" in context.rh_release:
-        print("install epel-release-7")
-        context.process.run_stdout(
-            "[ -f /etc/yum.repos.d/epel.repo ] || sudo rpm -i http://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm",
-            shell=True,
-            timeout=120,
-            ignore_stderr=True,
-        )
     context.process.run_stdout(
         "[ -x /usr/sbin/pptpd ] || sudo yum -y install /usr/sbin/pptpd",
         shell=True,

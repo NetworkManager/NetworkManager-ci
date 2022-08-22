@@ -145,8 +145,6 @@ testmapper:
     - bond_connect_slave_over_ethernet_upon_reboot:
         feature: bond
         tags: customer-scenario
-    - bond_default_rhel7_slaves_ordering:
-        feature: bond
     - bond_slaves_ordering_by_ifindex:
         feature: bond
     - bond_slaves_ordering_by_ifindex_with_autoconnect_slaves:
@@ -906,8 +904,6 @@ testmapper:
         feature: ipv4
     - ipv4_dns_resolvconf_symlinked:
         feature: ipv4
-    - ipv4_dns_resolvconf_rhel7_default:
-        feature: ipv4
     - ipv4_dns_resolvconf_file:
         feature: ipv4
     - ipv4_dns_add_another_one:
@@ -1248,8 +1244,6 @@ testmapper:
     - ethernet_mac_address_preserve:
         feature: ethernet
     - ethernet_mac_address_permanent:
-        feature: ethernet
-    - ethernet_mac_address_rhel7_default:
         feature: ethernet
     - ethernet_duplex_speed_auto_negotiation:
         feature: ethernet

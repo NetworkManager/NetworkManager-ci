@@ -834,25 +834,6 @@ Feature: nmcli: ipv4
 
     @rhbz1423490
     @ver+=1.8.0
-    @rhelver-=7 @rhel_pkg
-    @not_with_systemd_resolved
-    @restore_resolvconf @restart_if_needed
-    @ipv4_dns_resolvconf_rhel7_default
-    Scenario: nmcli - ipv4 - dns - rhel7 default
-    When "activated" is visible with command "nmcli -g GENERAL.STATE con show testeth0" in "45" seconds
-    * Execute "cp /etc/resolv.conf /tmp/resolv_orig.conf"
-    * Execute "mv -f /etc/resolv.conf /tmp/resolv.conf"
-    * Execute "ln -s /tmp/resolv.conf /etc/resolv.conf"
-    * Add "ethernet" connection named "con_ipv4" for device "eth3" with options "ipv4.dns 8.8.8.8"
-    * Bring "up" connection "con_ipv4"
-    Then Nameserver "8.8.8.8" is set in "20" seconds
-     And "nameserver 8.8.8.8" is visible with command "cat /var/run/NetworkManager/resolv.conf"
-     And "are identical" is not visible with command "diff -s /tmp/resolv.conf /tmp/resolv_orig.conf"
-     And "/etc/resolv.conf -> /tmp/resolv.conf" is visible with command "ls -all /etc/resolv.conf"
-
-
-    @rhbz1423490
-    @ver+=1.8.0
     @not_with_systemd_resolved
     @restore_resolvconf @restart_if_needed
     @ipv4_dns_resolvconf_symlinked

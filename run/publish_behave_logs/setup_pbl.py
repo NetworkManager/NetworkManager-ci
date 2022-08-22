@@ -8,7 +8,6 @@ from subprocess import run, PIPE, STDOUT
 import sys
 
 inst = ['/usr/bin/dnf', '-y', 'install', 'httpd', 'python3-libselinux', 'python3-inotify']
-inst_el7 = ['/usr/bin/yum', '-y', 'install', 'httpd', 'libselinux-python', 'python-inotify']
 server_root = '/etc/httpd'
 document_root = '/var/www/html'
 httpd_conf = '/conf/'.join((server_root, 'httpd.conf'))
@@ -23,9 +22,6 @@ source_dir = os.path.dirname(__file__)
 # install packages
 with open('/etc/redhat-release', 'r') as f:
     rh_release = f.read()
-
-if 'Maipo' in rh_release:
-    inst = inst_el7
 
 installed = run(inst, encoding='UTF-8')
 
@@ -70,11 +66,7 @@ print('httpd configured')
 
 
 shutil.copy('/'.join((source_dir, 'publish_behave_logs')), '/usr/local/bin/')
-if 'Maipo' in rh_release:
-    shutil.copy('/'.join((source_dir, 'publish_behave_logs.service.el7')),
-            '/etc/systemd/system/publish_behave_logs.service')
-else:
-    shutil.copy('/'.join((source_dir, 'publish_behave_logs.service')), '/etc/systemd/system/')
+shutil.copy('/'.join((source_dir, 'publish_behave_logs.service')), '/etc/systemd/system/')
 print('service files installed')
 
 # load and restart systemd services

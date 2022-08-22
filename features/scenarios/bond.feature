@@ -734,56 +734,6 @@
 
     @rhbz1420708
     @ver+=1.7.9
-    @rhelver-=7 @fedoraver-=0 @rhel_pkg
-    @bond_order @restart_if_needed
-    @bond_default_rhel7_slaves_ordering
-    Scenario: NM - bond - default rhel7 slaves ordering (ifindex)
-    * Prepare simulated test "eth11" device
-    * Note the output of "nmcli -t --mode tabular --fields GENERAL.HWADDR device show eth11" as value "orig_eth11"
-    * Note the output of "nmcli -t --mode tabular --fields GENERAL.HWADDR device show eth4" as value "orig_eth4"
-    * Note the output of "nmcli -t --mode tabular --fields GENERAL.HWADDR device show eth5" as value "orig_eth5"
-    * Add "bond" connection named "bond0" for device "nm-bond" with options
-          """
-          ip4 172.16.1.1/24
-          """
-    * Add slave connection for master "nm-bond" on device "eth11" named "bond0.0"
-    * Add "ethernet" connection named "bond0.1" for device "eth4" with options "master nm-bond"
-    * Add slave connection for master "nm-bond" on device "eth5" named "bond0.2"
-    * Bring down connection "bond0" ignoring error
-    * Bring down connection "bond0.0" ignoring error
-    * Bring down connection "bond0.1" ignoring error
-    * Bring down connection "bond0.2" ignoring error
-    * Reboot
-    When Check bond "nm-bond" link state is "up"
-     And Check slave "eth11" in bond "nm-bond" in proc
-     And Check slave "eth4" in bond "nm-bond" in proc
-     And Check slave "eth5" in bond "nm-bond" in proc
-    * Execute "ip a s"
-    * Note the output of "nmcli -t --mode tabular --fields GENERAL.HWADDR device show eth11" as value "new_eth11"
-    * Note the output of "nmcli -t --mode tabular --fields GENERAL.HWADDR device show eth4" as value "new_eth4"
-    * Note the output of "nmcli -t --mode tabular --fields GENERAL.HWADDR device show eth5" as value "new_eth5"
-    * Note the output of "nmcli -t --mode tabular --fields GENERAL.HWADDR device show nm-bond" as value "bond"
-    When Check noted values "orig_eth4" and "new_eth11" are the same
-     And Check noted values "new_eth4" and "new_eth4" are the same
-     And Check noted values "new_eth4" and "new_eth5" are the same
-     And Check noted values "new_eth4" and "bond" are the same
-    * Delete connection "bond0.1"
-    * Bring "down" connection "bond0.0"
-    * Bring "down" connection "bond0.2"
-    * Reboot
-    When Check bond "nm-bond" link state is "up"
-     And Check slave "eth11" in bond "nm-bond" in proc
-     And Check slave "eth5" in bond "nm-bond" in proc
-    * Note the output of "nmcli -t --mode tabular --fields GENERAL.HWADDR device show eth11" as value "new_eth11"
-    * Note the output of "nmcli -t --mode tabular --fields GENERAL.HWADDR device show eth5" as value "new_eth5"
-    * Note the output of "nmcli -t --mode tabular --fields GENERAL.HWADDR device show nm-bond" as value "bond"
-    Then Check noted values "orig_eth5" and "new_eth5" are the same
-     And Check noted values "new_eth5" and "new_eth11" are the same
-     And Check noted values "new_eth5" and "bond" are the same
-
-
-    @rhbz1420708
-    @ver+=1.7.9
     @bond_order @restart_if_needed
     @bond_slaves_ordering_by_ifindex
     Scenario: NM - bond - ifindex slaves ordering

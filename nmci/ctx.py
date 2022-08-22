@@ -716,23 +716,13 @@ def check_coredump(context):
             print("Some garbage in %s: %s" % (dump_dir, str(e)))
             continue
         if not misc.coredump_is_reported(dump_dir):
-            # 'coredumpctl debug' not available in RHEL7
-            if "Maipo" in context.rh_release:
-                dump = nmci.process.run_stdout(
-                    f"echo backtrace | coredumpctl -q -batch gdb {pid}",
-                    shell=True,
-                    stderr=subprocess.STDOUT,
-                    ignore_stderr=True,
-                    timeout=120,
-                )
-            else:
-                dump = nmci.process.run_stdout(
-                    f"echo backtrace | coredumpctl debug {pid}",
-                    shell=True,
-                    stderr=subprocess.STDOUT,
-                    ignore_stderr=True,
-                    timeout=120,
-                )
+            dump = nmci.process.run_stdout(
+                f"echo backtrace | coredumpctl debug {pid}",
+                shell=True,
+                stderr=subprocess.STDOUT,
+                ignore_stderr=True,
+                timeout=120,
+            )
             context.cext.embed_dump("COREDUMP", dump_dir, data=dump)
 
 
@@ -1188,14 +1178,6 @@ def setup_racoon(context, mode, dh_group, phase1_al="aes", phase2_al=None):
             ignore_stderr=True,
         )
     else:
-        # Install under RHEL7 only
-        if "Maipo" in context.rh_release:
-            context.process.run_stdout(
-                "[ -f /etc/yum.repos.d/epel.repo ] || sudo rpm -i http://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm",
-                shell=True,
-                timeout=120,
-                ignore_stderr=True,
-            )
         context.process.run_stdout(
             "[ -x /usr/sbin/racoon ] || yum -y install ipsec-tools",
             shell=True,
@@ -1227,14 +1209,6 @@ def reset_hwaddr_nmcli(context, ifname):
 def setup_hostapd(context):
     wait_for_testeth0(context)
     if context.arch != "s390x":
-        # Install under RHEL7 only
-        if "Maipo" in context.rh_release:
-            context.process.run_stdout(
-                "[ -f /etc/yum.repos.d/epel.repo ] || sudo rpm -i http://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm",
-                shell=True,
-                timeout=120,
-                ignore_stderr=True,
-            )
         context.process.run_stdout(
             "[ -x /usr/sbin/hostapd ] || (yum -y install hostapd; sleep 10)",
             shell=True,
@@ -1315,14 +1289,6 @@ def wifi_rescan(context):
 def setup_hostapd_wireless(context, args=None):
     wait_for_testeth0(context)
     if context.arch != "s390x":
-        # Install under RHEL7 only
-        if "Maipo" in context.rh_release:
-            context.process.run_stdout(
-                "[ -f /etc/yum.repos.d/epel.repo ] || sudo rpm -i http://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm",
-                shell=True,
-                timeout=120,
-                ignore_stderr=True,
-            )
         context.process.run_stdout(
             "[ -x /usr/sbin/hostapd ] || (yum -y install hostapd; sleep 10)",
             shell=True,

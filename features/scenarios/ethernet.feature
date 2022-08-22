@@ -177,19 +177,6 @@ Feature: nmcli - ethernet
     Then Check noted values "orig_eth1" and "new_eth1" are the same
 
 
-    @rhbz1413312
-    @ver+=1.6.0
-    @mac @rhelver-=7 @rhel_pkg
-    @ethernet_mac_address_rhel7_default
-    Scenario: NM - ethernet - mac address rhel7 dafault
-    * Note the output of "nmcli -t --mode tabular --fields GENERAL.HWADDR device show eth1" as value "orig_eth1"
-    * Execute "ip link set dev eth1 address f0:11:22:33:44:55"
-    * Add "ethernet" connection named "ethernet" for device "eth1" with options "autoconnect no"
-    * Bring "up" connection "ethernet"
-    * Note the output of "nmcli -t --mode tabular --fields GENERAL.HWADDR device show eth1" as value "new_eth1"
-    Then Check noted values "orig_eth1" and "new_eth1" are the same
-
-
     @rhbz1487477
     @ver+=1.11.4
     @ifcfg-rh

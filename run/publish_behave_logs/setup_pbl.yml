@@ -7,18 +7,7 @@
     inst_pkgs_2:
       - "python3-libselinux"
       - "python3-inotify"
-    inst_el7:
-      - "libselinux-python"
-      - "python-inotify"
-    on_el7: false
   tasks:
-    - set_fact:
-        inst_pkgs_2: "{{ inst_el7 }}"
-        on_el7: true
-      when:
-        - ansible_distribution == "RedHat"
-        - ansible_distribution_major_version | int < 8
-
     - name: "install stuff"
       ansible.builtin.package:
         name: "{{ inst_pkgs + inst_pkgs_2 }}"
@@ -61,19 +50,11 @@
         src: "publish_behave_logs.service"
         dest: "/etc/systemd/system/"
       register: "service_copied"
-      when: not on_el7
-
-    - name: "copy log helper service - el7"
-      ansible.builtin.copy:
-        src: "publish_behave_logs.service.el7"
-        dest: "/etc/systemd/system/publish_behave_logs.service"
-      register: "service_copied_el7"
-      when: on_el7
 
     - name: "reload systemd"
       ansible.builtin.systemd:
         daemon_reload: true
-      when: service_copied.changed or service_copied_el7.changed
+      when: service_copied.changed
       notify: "restart p_b_l"
 
     - name: "enable and start httpd"

@@ -1,6 +1,0 @@
-[OVS-RHEL7]
-name=ovs-rhel7
-baseurl=http://download.eng.bos.redhat.com/brewroot/repos/fast-datapath-rhel-7-build/latest/$basearch/
-enable=1
-skip_if_unavailable=1
-gpgcheck=0

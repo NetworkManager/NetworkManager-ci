@@ -5,16 +5,6 @@ Feature: WIFI TUI tests
   * Prepare virtual terminal environment
 
 
-    # No WPA3 in el7
-    @rhelver-=7 @fedoraver-=0
-    @simwifi @attach_hostapd_log @attach_wpa_supplicant_log
-    @nmtui_simwifi_see_all_networks
-    Scenario: nmtui - wifi_hwsim - see all networks
-    * Start nmtui
-    * Choose to "Activate a connection" from main screen
-    Then Connections "open,dynwep,wep,wpa1-eap,wpa1-psk,wpa2-eap,wpa2-psk" are in the list
-
-
     # All network types in el8
     @rhelver-=8 @rhelver+=8 @fedoraver-=35
     @simwifi @attach_hostapd_log @attach_wpa_supplicant_log

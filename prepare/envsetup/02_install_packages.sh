@@ -17,8 +17,6 @@ install_packages () {
         elif grep -q -e 'release 9' /etc/redhat-release; then
             release="el9"
             need_abrt="yes"
-        elif grep -q -e 'release 7' /etc/redhat-release; then
-            release="el7"
         fi
 
         # We can install packages now
