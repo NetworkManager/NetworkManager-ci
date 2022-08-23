@@ -2623,3 +2623,14 @@
     When "bond0:connected:bond0" is visible with command "nmcli -t -f DEVICE,STATE,CONNECTION device" in "40" seconds
     * Modify connection "bond0" changing options "bond.options mode=1,fail_over_mac=0"
     Then "failed" is visible with command "nmcli device reapply bond0"
+
+
+    @rhbz2117202
+    @ver+=1.39.12
+    @bond_create_bond_with_2_arp_ip_target
+    Scenario: bond - create bond with 2 IPs in arp_ip_target option
+    * Add "bond" connection named "bond0" for device "bond0" with options
+          """
+          bond.options arp_ip_target="192.0.2.1 192.0.2.2"
+          """
+    Then "192.0.2.1,192.0.2.2" i8s visible with command "cat /sys/class/net/bond0/bonding/arp_ip_target"
