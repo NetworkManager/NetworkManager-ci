@@ -148,10 +148,7 @@ class GitlabTrigger(object):
         com.comments.create({"note": text})
 
     def play_commit_job(self):
-        com = self.gl_project.commits.get(self.commit)
-        if com.last_pipeline is None:
-            return
-        pipeline = self.gl_project.pipelines.get(com.last_pipeline["id"])
+        pipeline = self.pipeline
         jobs = pipeline.jobs.list()
         for job in jobs:
             if job.name == "TestResults":
@@ -184,6 +181,13 @@ class GitlabTrigger(object):
     @property
     def repository(self):
         return self.data["repository"]["name"]
+
+    @property
+    def pipeline(self):
+        com = self.gl_project.commits.get(self.commit)
+        if com.last_pipeline is None:
+            return None
+        return self.gl_project.pipelines.get(com.last_pipeline["id"])
 
     @property
     def changed_features(self):
@@ -352,6 +356,9 @@ def process_request(data, content):
         elif data["object_attributes"]["action"] in ["update", "approved"]:
             if gt.title.startswith("WIP"):
                 print("This is WIP Merge Request - not proceeding")
+            elif gt.request_type == "merge_request" \
+                    and gt.pipeline.status == "skipped":
+                print("Skipped pipeline detected")
             else:
                 if not os.path.exists("/tmp/gl_commits"):
                     os.system("echo '' > /tmp/gl_commits")

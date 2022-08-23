@@ -526,6 +526,11 @@ class Runner:
         self.exit_code = 2
         sys.exit(2)
 
+    def _skip(self, msg=""):
+        logging.debug(f"Skipping, reason: {msg}\nExit with {self.exit_code}")
+        sys.exit(self.exit_code)
+        sys.exit(2)
+
     def _set_gitlab(self, trigger_data, gl_token):
         if not trigger_data or not gl_token:
             self.gitlab = None
@@ -733,7 +738,6 @@ class Runner:
         if self.gitlab is not None:
             if self.gitlab.repository == "NetworkManager":
                 self.mr = f"mr{self.gitlab.merge_request_id}"
-
         self._check_if_copr_possible()
 
     def _check_if_copr_possible(self):
