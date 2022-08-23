@@ -177,6 +177,12 @@ class GitlabTrigger(object):
         return self.data["repository"]["name"]
 
     @property
+    def pipeline_id(self):
+        if self.request_type == "note":
+            return None
+        return self.data["object_attributes"]["head_pipeline_id"]
+
+    @property
     def changed_features(self):
         features = []
 
