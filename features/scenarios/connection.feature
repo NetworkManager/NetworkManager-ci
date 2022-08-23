@@ -1032,3 +1032,14 @@ Feature: nmcli: connection
     * Execute "nmcli connection up con_con" without waiting for process to finish
     When "activated" is not visible with command "nmcli -f GENERAL.STATE connection show con_con" for full "9" seconds
     Then "activated" is visible with command "nmcli -f GENERAL.STATE connection show con_con" in "10" seconds
+
+    
+    @rhbz2092323
+    @ver+=1.39.12
+    @eth5_disconnect
+    @connection_dont_assume_settings_connection
+    Scenario: nmcli - connection - do not assume active connection has a settings connection
+    * Cleanup connection "team0" and device "nm-team"
+    * Cleanup connection "team-slave-eth5"
+    * NM is restarted within next "1" steps
+    * Execute reproducer "2092323" with options "run" for "10" times

@@ -76,12 +76,14 @@ def get_reproducer_command(rname, options):
 def execute_reproducer(context, rname, options="", number=1):
     orig_nm_pid = nmci.nmutil.nm_pid()
     command = get_reproducer_command(rname, options)
-
+    nm_pid_refresh_count = getattr(context, "nm_pid_refresh_count", 0)
     i = 0
     while i < int(number):
         assert context.command_code(command) == 0
-        curr_nm_pid = nmci.nmutil.nm_pid()
-        assert curr_nm_pid == orig_nm_pid, 'NM crashed as original pid was %s but now is %s' %(orig_nm_pid, curr_nm_pid)
+        if nm_pid_refresh_count < 1:
+            curr_nm_pid = nmci.nmutil.nm_pid()
+            assert curr_nm_pid == orig_nm_pid, \
+                f'NM crashed as original pid was {orig_nm_pid} but now is {curr_nm_pid}'
         i += 1
 
 

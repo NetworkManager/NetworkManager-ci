@@ -2152,6 +2152,8 @@ testmapper:
         feature: connection
     - connection_wait-activation-delay:
         feature: connection
+    - connection_dont_assume_settings_connection:
+        feature: connection
     - add_default_tap_device:
         feature: tuntap
         tags: gate

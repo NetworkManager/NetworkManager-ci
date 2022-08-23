@@ -93,3 +93,9 @@ def stop_NM_and_clean(context, device):
     assert nmci.ctx.stop_NM_service(context), "NM stop failed"
     assert context.command_code("sudo ip addr flush dev %s" % (device)) == 0
     assert context.command_code("sudo ip link set %s down" % (device)) == 0
+
+
+@step(u'NM is restarted within next "{N}" steps')
+def pause_restart_check(context, N):
+    context.nm_restarted = True
+    context.nm_pid_refresh_count = int(N) + 1
