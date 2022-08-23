@@ -100,6 +100,15 @@ class GitlabTrigger(object):
         return target_branch
 
     @property
+    def wip(self):
+        wip = False
+        if self.request_type == "note":
+            wip = self.data["merge_request"]["work_in_progress"]
+        elif self.request_type == "merge_request":
+            wip = self.data["object_attributes"]["work_in_progress"]
+        return wip
+
+    @property
     def commit(self):
         commit = None
         if self.request_type == "note":
@@ -366,7 +375,7 @@ def process_request(data, content):
                         )
 
         else:
-            if gt.title.startswith("WIP"):
+            if gt.wip or gt.title.startswith("WIP"):
                 print("This is WIP Merge Request - not proceeding")
             else:
                 params, _ = get_rebuild_detail(
