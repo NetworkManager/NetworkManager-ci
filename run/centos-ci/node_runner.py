@@ -39,7 +39,14 @@ class Machine:
             f"{self.build_dir}/NetworkManager/contrib/fedora/rpm/*/RPMS/*/"
         )
         self.copr_repo_file_internal = "/etc/yum.repos.d/nm-copr.repo"
-        self.ssh_options = "-o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no"
+        self.ssh_options = " ".join(
+            [
+                "-o UserKnownHostsFile=/dev/null",
+                "-o StrictHostKeyChecking=no",
+                "-o ServerAliveInterval=60",
+                "-o ServerAliveCountMax=10",
+            ]
+        )
 
         self.rpm_exclude_list = [
             "*-dispatcher-routing-rules-*",
