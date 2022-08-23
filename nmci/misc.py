@@ -358,7 +358,7 @@ class _Misc:
         * lowercase attrs are derived from uppercase for more convenient use:
             - .version is VERSION_ID split along the dots and normalized to strs
               stored in a tuple ([a-z] are legit digits in VERSION_ID)
-            - .distro_detect returns the same tuple as distro_detect() does:
+            - .distro_detect returns the same tuple as distro_detect() did:
               (os_release["ID"], version_tuple) that has for CentOS Stream
               added large minor number, so e.g. CentOS Stream 8 will yield:
               ("centos", (8, 99))
@@ -438,35 +438,6 @@ class _Misc:
         osr = namedtuple("x", os_release.keys())(*os_release.values())
         self._os_release_cached = osr
         return osr
-
-    def distro_detect(self, use_cached=True):
-
-        if use_cached and hasattr(self, "_distro_detect_cached"):
-            return self._distro_detect_cached
-
-        distro_version = [
-            int(x)
-            for x in process.run_stdout(
-                [
-                    "sed",
-                    "s/.*release *//;s/ .*//;s/Beta//;s/Alpha//",
-                    "/etc/redhat-release",
-                ],
-            ).split(".")
-        ]
-
-        if subprocess.call(["grep", "-qi", "fedora", "/etc/redhat-release"]) == 0:
-            distro_flavor = "fedora"
-        else:
-            distro_flavor = "rhel"
-            if len(distro_version) == 1:
-                # CentOS stream only gives "CentOS Stream release 8". Hack a minor version
-                # number
-                distro_version.append(99)
-
-        v = (distro_flavor, distro_version)
-        self._distro_detect_cached = v
-        return v
 
     def ver_param_to_str(self, nm_stream, nm_version, distro_flavor, distro_version):
         nm_version = ".".join([str(c) for c in nm_version])
@@ -774,7 +745,9 @@ class _Misc:
 
         try:
             result = self.test_tags_select(
-                test_tags_list, self.nm_version_detect(), self.distro_detect()
+                test_tags_list,
+                self.nm_version_detect(),
+                self.get_os_release().distro_detect,
             )
         except self.SkipTestException as e:
             raise self.SkipTestException(f"skip test '{test_name}': {e}")

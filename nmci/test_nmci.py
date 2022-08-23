@@ -57,10 +57,6 @@ class Stub:
     def misc_nm_version_detect(version):
         return Stub(misc, "_nm_version_detect_cached", version)
 
-    @staticmethod
-    def misc_distro_detect(version):
-        return Stub(misc, "_distro_detect_cached", version)
-
 
 ###############################################################################
 
@@ -99,26 +95,12 @@ def create_test_context():
 
 def test_stub1():
 
-    v = ("fedora", [35])
-    assert not hasattr(misc, "_distro_detect_cached")
-    with Stub.misc_distro_detect(v):
-        assert misc._distro_detect_cached is v
-        assert misc.distro_detect() is v
-    assert not hasattr(misc, "_distro_detect_cached")
-
     v = ("upstream", [1, 39, 3, 30276])
     assert not hasattr(misc, "_nm_version_detect_cached")
     with Stub.misc_nm_version_detect(v):
         assert misc._nm_version_detect_cached is v
         assert misc.nm_version_detect() is v
     assert not hasattr(misc, "_nm_version_detect_cached")
-
-
-@Stub.misc_distro_detect(("fedora", [35]))
-def test_stub2():
-    v = ("fedora", [35])
-    assert misc._distro_detect_cached == v
-    assert misc.distro_detect() == v
 
 
 @Stub.misc_nm_version_detect(("upstream", [1, 39, 3, 30276]))
@@ -1597,7 +1579,6 @@ def test_ip_link_add_nonutf8():
     ip.link_delete(ifname)
 
 
-@Stub.misc_distro_detect(("fedora", [35]))
 @Stub.misc_nm_version_detect(("upstream", [1, 39, 3, 30276]))
 def test_misc_version_control():
 
