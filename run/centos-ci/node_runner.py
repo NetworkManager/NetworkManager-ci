@@ -532,7 +532,7 @@ class Runner:
         with open("/tmp/python-gitlab.cfg", "w") as cfg:
             cfg.write("[global]\n")
             cfg.write("default = gitlab.freedesktop.org\n")
-            #cfg.write("ssl_verify = false\n")
+            # cfg.write("ssl_verify = false\n")
             cfg.write("timeout = 30\n")
             cfg.write("[gitlab.freedesktop.org]\n")
             cfg.write("url = https://gitlab.freedesktop.org\n")
@@ -657,14 +657,14 @@ class Runner:
         root = ET.ElementTree()
         testsuite = ET.Element("testsuite", tests=str(len(passed) + len(failed)))
         for test in passed:
-            name = test[test.find("_Test") + 10:]
+            name = test[test.find("_Test") + 10 :]
             testcase = ET.Element("testcase", classname="tests", name=name)
             system_out = ET.Element("system-out")
             system_out.text = f"LOG:\n{self.build_url}/artifact/{test}.html"
             testcase.append(system_out)
             testsuite.append(testcase)
         for test in failed:
-            name = test[test.find("_Test") + 10:]
+            name = test[test.find("_Test") + 10 :]
             html_fails.append(name)
             testcase = ET.Element("testcase", classname="tests", name=name)
             failure = ET.Element("failure")
@@ -739,7 +739,7 @@ class Runner:
             p = re.compile("nm-1-[0-9][0-9]")
             # Let's check if we have stable branch"
             if p.match(self.refspec):
-                branch = "1."+self.refspec.split("-")[-1]
+                branch = "1." + self.refspec.split("-")[-1]
                 self.copr_repo = f"NetworkManager-{branch}-debug"
             elif self.refspec == "main":
                 self.copr_repo = "NetworkManager-main-debug"
@@ -897,7 +897,9 @@ class Runner:
                 self.gitlab.set_pipeline("failed", self.release.replace("-stream", ""))
             # should not be needed, already exited in _abort()
             if self.exit_code == 2:
-                self.gitlab.set_pipeline("canceled", self.release.replace("-stream", ""))
+                self.gitlab.set_pipeline(
+                    "canceled", self.release.replace("-stream", "")
+                )
             self._post_results()
 
         logging.debug(f"All Done. Exit with {self.exit_code}")
