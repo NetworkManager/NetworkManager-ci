@@ -357,6 +357,7 @@ def process_request(data, content):
             if gt.title.startswith("WIP"):
                 print("This is WIP Merge Request - not proceeding")
             elif gt.request_type == "merge_request" \
+                    and gt.pipeline is not None \
                     and gt.pipeline.status == "skipped":
                 print("Skipped pipeline detected")
             else:
