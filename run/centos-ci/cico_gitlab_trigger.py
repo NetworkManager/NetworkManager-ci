@@ -18,7 +18,7 @@ jenkins_url = "https://jenkins-networkmanager.apps.ocp.ci.centos.org/"
 
 
 class GitlabTrigger(object):
-    def __init__(self, data, config_files=["/etc/python-gitlab.cfg"]):
+    def __init__(self, data, config_files=["/tmp/python-gitlab.cfg"]):
         self.data = data
         # If we don't have python-gitlab we can still use object for parsing
         try:
@@ -356,9 +356,9 @@ def process_request(data, content):
         elif data["object_attributes"]["action"] in ["update", "approved"]:
             if gt.title.startswith("WIP"):
                 print("This is WIP Merge Request - not proceeding")
-            #elif gt.request_type == "merge_request" \
-            #        and gt.pipeline.status == "skipped":
-            #    print("Skipped pipeline detected")
+            elif gt.request_type == "merge_request" \
+                    and gt.pipeline.status == "skipped":
+                print("Skipped pipeline detected")
             else:
                 if not os.path.exists("/tmp/gl_commits"):
                     os.system("echo '' > /tmp/gl_commits")
