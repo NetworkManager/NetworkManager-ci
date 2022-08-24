@@ -498,9 +498,21 @@ _register_tag("connectivity", connectivity_bs, connectivity_as)
 
 
 def unload_kernel_modules_bs(context, scenario):
-    if context.process.run_code("lsmod |grep -q qmi_wwan", shell=True,) == 0:
+    if (
+        context.process.run_code(
+            "lsmod |grep -q qmi_wwan",
+            shell=True,
+        )
+        == 0
+    ):
         context.process.run_stdout("modprobe -r qmi_wwan")
-    if context.process.run_code("lsmod |grep -q cdc-mbim", shell=True,) == 0:
+    if (
+        context.process.run_code(
+            "lsmod |grep -q cdc-mbim",
+            shell=True,
+        )
+        == 0
+    ):
         context.process.run_stdout("modprobe -r cdc-mbim")
 
 
