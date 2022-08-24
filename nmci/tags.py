@@ -2757,7 +2757,7 @@ def remove_ifcfg_con_general_as(context, scenario):
     context.process.nmcli("con reload")
 
 
-_register_tag("remove_ifcfg_con_general", None, restore_eth8_as)
+_register_tag("remove_ifcfg_con_general", None, remove_ifcfg_con_general_as)
 
 
 def restore_broken_network_as(context, scenario):
