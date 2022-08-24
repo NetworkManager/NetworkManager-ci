@@ -834,20 +834,20 @@ Feature: nmcli - general
 
 
     @rhbz1114681
-    @ifcfg-rh @add_testeth8 @restore_eth8
+    @add_testeth8 @ifcfg-rh @restore_eth8
     @nmcli_general_keep_slave_device_unmanaged
     Scenario: nmcli - general - keep slave device unmanaged
     # We need to delete keyfile testeth8
     * Execute "nmcli con del testeth8"
     # And add ifcfg one
-    * Add "ethernet" connection named "testeth8" for device "eth8"
-    Given Check ifcfg-name file created for connection "testeth8"
-    * Execute "echo -e NM_CONTROLLED=no >> /etc/sysconfig/network-scripts/ifcfg-testeth8"
+    * Add "ethernet" connection named "con_general" for device "eth8"
+    Given Check ifcfg-name file created for connection "con_general"
+    * Execute "echo -e NM_CONTROLLED=no >> /etc/sysconfig/network-scripts/ifcfg-con_general"
     * Reload connections
     * Execute "ip link add link eth8 name eth8.100 type vlan id 100"
     Then "eth8\s+ethernet\s+unmanaged" is visible with command "nmcli device" in "5" seconds
     Then "eth8.100\s+vlan\s+unmanaged" is visible with command "nmcli device"
-    Then "testeth8" is not visible with command "nmcli device"
+    Then "con_general" is not visible with command "nmcli device"
 
 
     @rhbz1393997
