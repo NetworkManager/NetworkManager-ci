@@ -2751,16 +2751,13 @@ _register_tag("device_connect", None, device_connect_as)
 _register_tag("device_connect_no_profile", None, device_connect_as)
 
 
-def restore_eth8_as(context, scenario):
+def remove_ifcfg_con_general_as(context, scenario):
     context.process.run_stdout("ip link del eth8.100")
-    context.process.run_stdout("rm -f /etc/sysconfig/network-scripts/ifcfg-testeth8")
-    context.process.nmcli("connection reload")
-    context.process.nmcli(
-        "connection add type ethernet ifname eth8 con-name testeth8 autoconnect no"
-    )
+    context.process.run_stdout("rm -rf /etc/sysconfig/network-scripts/ifcfg-con_general")
+    context.process.nmcli("con reload")
 
 
-_register_tag("restore_eth8", None, restore_eth8_as)
+_register_tag("remove_ifcfg_con_general", None, restore_eth8_as)
 
 
 def restore_broken_network_as(context, scenario):

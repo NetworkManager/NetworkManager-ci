@@ -834,7 +834,7 @@ Feature: nmcli - general
 
 
     @rhbz1114681
-    @add_testeth8 @ifcfg-rh @restore_eth8
+    @add_testeth8 @ifcfg-rh @remove_ifcfg_con_general
     @nmcli_general_keep_slave_device_unmanaged
     Scenario: nmcli - general - keep slave device unmanaged
     # We need to delete keyfile testeth8
