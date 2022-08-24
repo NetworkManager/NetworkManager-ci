@@ -16,7 +16,7 @@ install_el9_packages () {
 
     # Dnf more deps
     dnf -4 -y install \
-        git python3-netaddr dhcp-relay iw net-tools psmisc firewalld dhcp-server \
+        git nmap-ncat python3-netaddr dhcp-relay iw net-tools psmisc firewalld dhcp-server \
         ethtool python3-dbus python3-gobject dnsmasq tcpdump wireshark-cli file iputils \
         iproute-tc perl-IO-Tty dhcp-client rpm-build gcc initscripts \
         wireguard-tools python3-pyyaml tuned sos openssl-pkcs11 podman \

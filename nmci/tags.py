@@ -593,12 +593,6 @@ _register_tag("alias", alias_bs, alias_as)
 
 def netcat_bs(context, scenario):
     nmci.veth.wait_for_testeth0()
-    # TODO move to envsetup
-    if not os.path.isfile("/usr/bin/nc"):
-        print("installing netcat")
-        context.process.run_stdout(
-            "sudo yum -y install nmap-ncat", timeout=120, ignore_stderr=True
-        )
 
 
 _register_tag("netcat", netcat_bs)
