@@ -220,7 +220,9 @@ class GitlabTrigger(object):
     def is_NMCI_branch(self, branch_name):
         import requests
 
-        url_base = "https://gitlab.freedesktop.org/NetworkManager/NetworkManager-ci/-/raw"
+        url_base = (
+            "https://gitlab.freedesktop.org/NetworkManager/NetworkManager-ci/-/raw"
+        )
         file = "mapper.yaml"
         url = f"{url_base}/{branch_name}/{file}"
 
@@ -243,7 +245,7 @@ class GitlabTrigger(object):
             com = self.gl_project.commits.get(self.commit)
 
             name = os.environ["BUILD_URL"]
-            name = re.sub(r'^.*/job/(.*)/$', '\\1', name)
+            name = re.sub(r"^.*/job/(.*)/$", "\\1", name)
             pipeline_name = f"centos{release}: {name}"
 
             com.statuses.create(
@@ -316,7 +318,7 @@ def execute_build(gt, content, os_version=default_os, features="best", build="ma
         os_version_params.append(
             {
                 "name": "VERSION",
-                "value": f"MR#{gt.merge_request_id} {gt.commit_author}: {gt.source_branch} ({v})"
+                "value": f"MR#{gt.merge_request_id} {gt.commit_author}: {gt.source_branch} ({v})",
             }
         )
 
@@ -356,9 +358,11 @@ def process_request(data, content):
         elif data["object_attributes"]["action"] in ["update", "approved"]:
             if gt.title.startswith("WIP"):
                 print("This is WIP Merge Request - not proceeding")
-            elif gt.request_type == "merge_request" \
-                    and gt.pipeline is not None \
-                    and gt.pipeline.status == "skipped":
+            elif (
+                gt.request_type == "merge_request"
+                and gt.pipeline is not None
+                and gt.pipeline.status == "skipped"
+            ):
                 print("Skipped pipeline detected")
             else:
                 if not os.path.exists("/tmp/gl_commits"):
