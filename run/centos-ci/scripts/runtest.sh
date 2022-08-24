@@ -92,4 +92,5 @@ echo "${#pass[@]}" > /tmp/results/summary.txt
 echo "${#fail[@]}" >> /tmp/results/summary.txt
 echo "${#skip[@]}" >> /tmp/results/summary.txt
 echo "${fail[@]}" >> /tmp/results/summary.txt
+echo "${skip[@]}" >> /tmp/results/summary.txt
 exit $rc

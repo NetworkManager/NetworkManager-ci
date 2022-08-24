@@ -558,17 +558,14 @@ class Runner:
         if self.mapper:
             self.mapper.gitlab = gitlab_trigger
 
-    def _generate_gitlab_message(self):
-        # prevent pipeline cancel
+    def _get_machine_summaries(self):
         self.exit_code = 0
-        machine_lines = []
-        failed_tests = ""
-        p = 0
-        f = 0
-        s = 0
+        self.passed = 0
+        self.failed_tests = []
+        self.skipped_tests = []
         for m in self.machines:
             if not os.path.isfile(f"{m.results}/summary.txt"):
-                machine_lines.append(
+                m._gitlab_message = (
                     f"**M{m.id}: NO RESULTS**: no summary.txt retrieved!"
                 )
                 logging.debug(f"M{m.id}: no summary.txt file")
@@ -576,44 +573,54 @@ class Runner:
                 continue
             with open(f"{m.results}/summary.txt") as rf:
                 lines = rf.read().strip("\n").split("\n")
-            if len(lines) not in [3, 4]:
-                machine_lines.append(
+            if len(lines) not in [3, 4, 5]:
+                m._gitlab_message = (
                     f"**M{m.id}: BAD RESULTS**: unexpected summary.txt file"
                 )
                 logging.debug(f"M{m.id}: unexpected summary.txt file: {lines}")
                 self.exit_code = 1
                 continue
-            m_status = "PASS"
+            m.status = "PASS"
             if lines[1] != "0" or (lines[0] == "0" and lines[2] == "0"):
-                m_status = "FAIL"
+                m.status = "FAIL"
                 self.exit_code = 1
             try:
-                pm = int(lines[0])
-                fm = int(lines[1])
-                sm = int(lines[2])
+                m.passed = int(lines[0])
+                self.passed += m.passed
+                m.failed = int(lines[1])
+                m.skipped = int(lines[2])
             except Exception as e:
-                machine_lines.append(
+                m._gitlab_message = (
                     f"**M{m.id}: BAD RESULTS**: unexpected summary.txt file"
                 )
                 logging.debug(f"M{m.id}: unexpected summary.txt file: {lines}")
                 logging.debug(e)
                 self.exit_code = 1
                 continue
-            p, f, s = p + pm, f + fm, s + sm
-            undef = m.tests_num - (pm + fm + sm)
+            m.undef = m.tests_num - (m.passed + m.failed + m.skipped)
             undef_str = ""
-            if undef != 0:
+            if m.undef != 0:
                 self.exit_code = 1
-                m_status = "TIMEOUT"
+                m.status = "TIMEOUT"
                 undef_str = ",  Missing: {undef}"
-            machine_lines.append(
-                f"**M{m.id} {m_status}**: Passed: {pm}, Failed: {fm}, Skipped: {sm}{undef_str}"
-            )
-            if len(lines) == 4:
-                failed_tests += " " + lines[3]
+            m._gitlab_message = f"**M{m.id} {m.status}**: Passed: {m.passed}, Failed: {m.failed}, Skipped: {m.skipped}{undef_str}"
 
-        if len(machine_lines) > 1:
-            machine_lines.append(f"Passed: {p}, Failed {f}, Skipped {s}.")
+            if len(lines) >= 4:
+                for t in lines[3].split(" "):
+                    if t:
+                        self.failed_tests.append(t)
+
+            if len(lines) >= 5:
+                for t in lines[4].split(" "):
+                    if t:
+                        self.skipped_tests.append(t)
+
+    def _generate_gitlab_message(self):
+        machine_lines = [m._gitlab_message for m in self.machines]
+        if len(self.machines) > 1:
+            machine_lines.append(
+                f"Passed: {self.passed}, Failed {len(self.failed_tests)}, Skipped {len(self.skipped_tests)}."
+            )
         elif len(machine_lines):
             machine_lines[0] = machine_lines[0].split("**:")[1]
 
@@ -621,21 +628,39 @@ class Runner:
         if self.exit_code == 0:
             status = "STABLE: All tests passed!"
 
-        self._gitlab_message = (
-            f"{self.build_url}\n\n"
-            + f"Result: {status}\n\n"
-            + "\n\n".join(machine_lines)
-            + f"\n\nExecuted on: CentOS {self.release}"
-        )
+        message = [
+            f"{self.build_url}",
+            f"Result: {status}",
+            *machine_lines,
+            f"Executed on: CentOS {self.release}",
+        ]
 
-        failed_tests = failed_tests.strip(" ")
-        self.failed_tests = failed_tests.split(" ")
-        if "" in self.failed_tests:
-            self.failed_tests.remove("")
-        if failed_tests:
-            self._gitlab_message += f"\n\nFailed tests: {failed_tests}"
+        if self.failed_tests:
+            message.append(self._collapse("Failed tests:", " ".join(self.failed_tests)))
+        if self.skipped_tests:
+            message.append(
+                self._collapse("Skipped tests:", " ".join(self.skipped_tests))
+            )
 
+        self._gitlab_message = "\n\n".join(message)
         logging.debug("Gitlab Message:\n\n" + self._gitlab_message)
+
+    def _collapse(self, title, message):
+        if len(message) > 80:
+            return "\n".join(
+                [
+                    "<p>",
+                    "<details>",
+                    f"<summary><em>{title}</em></summary>",
+                    "",
+                    message,
+                    "",
+                    "</details>",
+                    "</p>",
+                ]
+            )
+        else:
+            return f"*{title}*\n\n{message}"
 
     def _post_results(self, message=None):
         if not message:
@@ -897,6 +922,8 @@ class Runner:
                 print(f.read())
 
         # this also computes exit_code
+        self._get_machine_summaries()
+
         self._generate_gitlab_message()
 
         self._generate_junit()
