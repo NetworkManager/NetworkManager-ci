@@ -2753,7 +2753,9 @@ _register_tag("device_connect_no_profile", None, device_connect_as)
 
 def remove_ifcfg_con_general_as(context, scenario):
     context.process.run_stdout("ip link del eth8.100")
-    context.process.run_stdout("rm -rf /etc/sysconfig/network-scripts/ifcfg-con_general")
+    context.process.run_stdout(
+        "rm -rf /etc/sysconfig/network-scripts/ifcfg-con_general",
+    )
     context.process.nmcli("con reload")
 
 
