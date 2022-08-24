@@ -148,10 +148,7 @@ class GitlabTrigger(object):
         com.comments.create({"note": text})
 
     def play_commit_job(self):
-        com = self.gl_project.commits.get(self.commit)
-        if com.last_pipeline is None:
-            return
-        pipeline = self.gl_project.pipelines.get(com.last_pipeline["id"])
+        pipeline = self.pipeline
         jobs = pipeline.jobs.list()
         for job in jobs:
             if job.name == "TestResults":
@@ -186,10 +183,11 @@ class GitlabTrigger(object):
         return self.data["repository"]["name"]
 
     @property
-    def pipeline_id(self):
-        if self.request_type == "note":
+    def pipeline(self):
+        com = self.gl_project.commits.get(self.commit)
+        if com.last_pipeline is None:
             return None
-        return self.data["object_attributes"]["head_pipeline_id"]
+        return self.gl_project.pipelines.get(com.last_pipeline["id"])
 
     @property
     def changed_features(self):

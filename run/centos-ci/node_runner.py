@@ -738,7 +738,8 @@ class Runner:
         if self.gitlab is not None:
             if self.gitlab.repository == "NetworkManager":
                 self.mr = f"mr{self.gitlab.merge_request_id}"
-            if self.gitlab.request_type == "merge_request" and self.gitlab.pipeline_id is None:
+            if self.gitlab.request_type == "merge_request" \
+                    and self.gitlab.pipeline.status == "skipped":
                 self._skip("Skip pipeline detected.")
 
         self._check_if_copr_possible()
