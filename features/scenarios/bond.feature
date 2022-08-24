@@ -1107,6 +1107,7 @@
      Then "Down Delay \(ms\): 0" is visible with command "cat /proc/net/bonding/nm-bond"
 
 
+    @rhbz2117202
     @bond_options_new_arp_values
     Scenario: nmcli - bond - options - set new arp values
      * Add "bond" connection named "bond0" for device "nm-bond" with options
@@ -1115,7 +1116,7 @@
            """
      * Add "ethernet" connection named "bond0.0" for device "eth1" with options "master nm-bond"
      * Add "ethernet" connection named "bond0.1" for device "eth4" with options "master nm-bond"
-     * Modify connection "bond0" changing options "bond.options mode=0,arp_interval=1000,arp_ip_target=10.16.135.254"
+     * Modify connection "bond0" changing options "bond.options mode=0,arp_interval=1000,arp_ip_target="10.16.135.254 10.16.135.253""
      * Bring "up" connection "bond0"
      * Bring "up" connection "bond0.0"
      * Bring "up" connection "bond0.1"
@@ -1124,7 +1125,7 @@
      Then "Up Delay \(ms\): 0" is visible with command "cat /proc/net/bonding/nm-bond"
      Then "Down Delay \(ms\): 0" is visible with command "cat /proc/net/bonding/nm-bond"
      Then "ARP Polling Interval \(ms\): 100" is visible with command "cat /proc/net/bonding/nm-bond"
-     Then "ARP IP target/s \(n.n.n.n form\):.*10.16.135.254" is visible with command "cat /proc/net/bonding/nm-bond"
+     Then "ARP IP target/s \(n.n.n.n form\):.*10.16.135.254, 10.16.135.253" is visible with command "cat /proc/net/bonding/nm-bond"
      Then Check "nm-bond" has "eth1" in proc
      Then Check "nm-bond" has "eth4" in proc
 
