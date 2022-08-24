@@ -356,9 +356,9 @@ def process_request(data, content):
         elif data["object_attributes"]["action"] in ["update", "approved"]:
             if gt.title.startswith("WIP"):
                 print("This is WIP Merge Request - not proceeding")
-            elif gt.request_type == "merge_request" \
-                    and gt.pipeline.status == "skipped":
-                print("Skipped pipeline detected")
+            #elif gt.request_type == "merge_request" \
+            #        and gt.pipeline.status == "skipped":
+            #    print("Skipped pipeline detected")
             else:
                 if not os.path.exists("/tmp/gl_commits"):
                     os.system("echo '' > /tmp/gl_commits")
