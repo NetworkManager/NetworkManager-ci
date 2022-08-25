@@ -18,7 +18,7 @@ install_fedora_packages () {
     ln -s /usr/bin/python3 /usr/bin/python
 
     # Pip down some deps
-    dnf -4 -y install python3-pip
+    dnf -4 -y install python3-pip libyaml-devel
 
     # Doesn't work on the newest aarch64 RHEL8
     python -m pip install --upgrade pip
