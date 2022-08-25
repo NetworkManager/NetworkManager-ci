@@ -119,20 +119,24 @@ def search_all_patterns_in_list(context, patterns, limit=50):
         nmci.ctx.log_tui_screen(context, screens, "TUI DEBUG")
     return patterns
 
-
-@step('Prepare virtual terminal environment')
-def prepare_environment(context):
-    context.stream, context.screen = init_screen()
-
-
-@step('Start nmtui')
-def start_nmtui(context):
-    context.tui = context.pexpect_service('env -i LANG=en_US.UTF-8 TERM=%s sh -c "nmtui > %s"' % (TERM_TYPE, OUTPUT))
+def nmtui_start(context, extra_env=''):
+    context.tui = context.pexpect_service('env -i LANG=en_US.UTF-8 TERM=%s %s sh -c "nmtui > %s"' % (TERM_TYPE, extra_env, OUTPUT))
     for line in context.screen.display:
         if 'NetworkManager TUI' in line:
             break
     time.sleep(0.2)
 
+@step('Prepare virtual terminal environment')
+def prepare_environment(context):
+    context.stream, context.screen = init_screen()
+
+@step('Start nmtui')
+def start_nmtui(context):
+    nmtui_start(context)
+
+@step('Start nmtui allowing WEP')
+def start_nmtui_with_wep(context):
+    nmtui_start(context, 'NM_ALLOW_INSECURE_WEP=1')
 
 @step('Nmtui process is running')
 def check_process_running(context):
@@ -163,8 +167,11 @@ def screen_is_empty(context):
 
 @step('Prepare new connection of type "{typ}" named "{name}"')
 def prep_conn_abstract(context, typ, name):
-    context.execute_steps('''* Start nmtui
-                              * Choose to "Edit a connection" from main screen
+    if "wep" in context.scenario.tags:
+        context.execute_steps('''* Start nmtui allowing WEP''')
+    else:
+        context.execute_steps('''* Start nmtui''')
+    context.execute_steps('''* Choose to "Edit a connection" from main screen
                               * Choose to "<Add>" a connection
                               * Choose the connection type "%s"
                               * Set "Profile name" field to "%s"''' % (typ, name))
