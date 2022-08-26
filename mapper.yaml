@@ -826,6 +826,10 @@ testmapper:
         feature: ipv6
     - ipv6_stable_privacy_dad:
         feature: ipv6
+    - ipv6_mptcp_no_flags:
+        feature: ipv6
+    - ipv6_mptcp_flags_0x8:
+        feature: ipv6
     - nmcli_general_correct_profile_activated_after_restart:
         feature: general
         tags: gate
@@ -1123,6 +1127,26 @@ testmapper:
     - dhcp_internal_ack_after_nak:
         feature: ipv4
     - dhcp_internal_nak_in_renewing:
+        feature: ipv4
+    - ipv4_mptcp_no_flags_no_defroute:
+        feature: ipv4
+    - ipv4_mptcp_no_flags:
+        feature: ipv4
+    - ipv4_mptcp_flags_disabled:
+        feature: ipv4
+    - ipv4_mptcp_flags_enabled:
+        feature: ipv4
+    - ipv4_mptcp_flags_0x2_0x4:
+        feature: ipv4
+    - ipv4_mptcp_flags_0x2_0x8:
+        feature: ipv4
+    - ipv4_mptcp_flags_0x10:
+        feature: ipv4
+    - ipv4_mptcp_flags_0x20:
+        feature: ipv4
+    - ipv4_mptcp_flags_0x40:
+        feature: ipv4
+    - ipv4_mptcp_flags_0x80:
         feature: ipv4
     - vlan_add_default_device:
         feature: vlan

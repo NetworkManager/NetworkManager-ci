@@ -2386,3 +2386,35 @@
     * Note the output of "ip -6 a s testX6 | grep 'dynamic mngtmpaddr' | grep '/64' | grep -o '[a-f0-9:]*/64'" as value "ipv6_2"
     Then Check noted values "ipv6_1" and "ipv6_2" are not the same
 
+    @rhbz2029636
+    @tcpdump
+    @ver+=1.40
+    @ipv6_mptcp_no_flags
+    Scenario: MPTCP with no explicit configuration
+    * Prepare simulated MPTCP setup with "2" veths named "veth"
+    * Set sysctl "net.mptcp.enabled" to "1"
+    * Execute "ip mptcp limits set subflow 2 add_addr_accepted 2"
+    * Add "ethernet" connection named "veth0" for device "veth0" with options "ipv4.method disabled ipv6.method static ipv6.addresses 2620:dead:beaf:50::c/64 ipv6.gateway 2620:dead:beaf:50::1"
+    * Add "ethernet" connection named "veth1" for device "veth1" with options "ipv4.method disabled ipv6.method static ipv6.addresses 2620:dead:beaf:51::c/64 ipv6.gateway 2620:dead:beaf:51::1"
+    * Bring "up" connection "veth0"
+    * Bring "up" connection "veth1"
+    * Execute "mptcpize run ncat -c 'echo hello world!' 2620:dead:beaf:50::1 9006"
+    Then "hello world!" is visible with command "cat /tmp/nmci-mptcp-ncat.log"
+    Then "exactly" "2" lines are visible with command "ip mptcp endpoint show"
+
+
+    @rhbz2029636
+    @tcpdump
+    @ver+=1.40
+    @ipv6_mptcp_flags_0x8
+    Scenario: MPTCP with flag no-defroute
+    * Prepare simulated MPTCP setup with "2" veths named "veth"
+    * Set sysctl "net.mptcp.enabled" to "1"
+    * Execute "ip mptcp limits set subflow 2 add_addr_accepted 2"
+    * Add "ethernet" connection named "veth0" for device "veth0" with options "ipv4.method disabled ipv6.method static ipv6.addresses 2620:dead:beaf:50::c/64 connection.mptcp-flags 0x8"
+    * Add "ethernet" connection named "veth1" for device "veth1" with options "ipv4.method disabled ipv6.method static ipv6.addresses 2620:dead:beaf:51::c/64 connection.mptcp-flags 0x8"
+    * Bring "up" connection "veth0"
+    * Bring "up" connection "veth1"
+    * Execute "mptcpize run ncat -c 'echo hello world!' 2620:dead:beaf:50::1 9006"
+    Then "hello world!" is visible with command "cat /tmp/nmci-mptcp-ncat.log"
+    Then "exactly" "2" lines are visible with command "ip mptcp endpoint show"

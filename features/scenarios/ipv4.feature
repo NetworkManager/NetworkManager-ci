@@ -2973,3 +2973,177 @@ Feature: nmcli: ipv4
     Then "10:42:1::5" is visible with command "ip -6 addr show dev testX4"
     Then "10.43.1.3" is visible with command "ip -4 route show dev testX4"
     Then "10:43:1::3" is visible with command "ip -6 route show dev testX4"
+
+    ### MTPCP notes:
+    # * NM behaviour is well described in man page:
+    #   https://networkmanager.pages.freedesktop.org/NetworkManager/NetworkManager/nm-settings-nmcli.html#nm-settings-nmcli.property.connection.mptcp-flags
+    # * systems may and will differ in default setting of 'net.mptcp.enabled' so each scenario
+    #   should set it explicitly itself
+    @rhbz2029636
+    @tcpdump
+    @ver+=1.40
+    @ipv4_mptcp_no_flags_no_defroute
+    Scenario: MPTCP with no explicit configuration and no default route
+    * Prepare simulated MPTCP setup with "2" veths named "veth"
+    * Set sysctl "net.mptcp.enabled" to "1"
+    * Execute "ip mptcp limits set subflow 2 add_addr_accepted 2"
+    * Execute "ip mptcp endpoint show"
+    * Add "ethernet" connection named "veth0" for device "veth0" with options "ipv4.method static ipv4.addresses 192.168.80.10/24 ipv6.method disabled"
+    * Add "ethernet" connection named "veth1" for device "veth1" with options "ipv4.method static ipv4.addresses 192.168.81.10/24 ipv6.method disabled"
+    * Bring "up" connection "veth0"
+    * Bring "up" connection "veth1"
+    * Execute "mptcpize run ncat -c 'echo hello world!' 192.168.80.1 9006"
+    # no mptcp subflows configuveth1 by default with local routes only
+    Then "exactly" "0" lines are visible with command "ip mptcp endpoint show"
+
+
+    @rhbz2029636
+    @tcpdump
+    @ver+=1.40
+    @ipv4_mptcp_no_flags
+    Scenario: MPTCP with no explicit configuration
+    * Prepare simulated MPTCP setup with "2" veths named "veth"
+    * Set sysctl "net.mptcp.enabled" to "1"
+    * Execute "ip mptcp limits set subflow 2 add_addr_accepted 2"
+    * Add "ethernet" connection named "veth0" for device "veth0" with options "ipv4.method static ipv4.addresses 192.168.80.10/24 ipv4.gateway 192.168.80.1 ipv6.method disabled"
+    * Add "ethernet" connection named "veth1" for device "veth1" with options "ipv4.method static ipv4.addresses 192.168.81.10/24 ipv4.gateway 192.168.81.1 ipv6.method disabled"
+    * Bring "up" connection "veth0"
+    * Bring "up" connection "veth1"
+    * Execute "mptcpize run ncat -c 'echo hello world!' 192.168.80.1 9006"
+    * Execute "ip netns exec mptcp ss -santi 'dport :9006'"
+    Then "hello world!" is visible with command "cat /tmp/nmci-mptcp-ncat.log"
+    Then "exactly" "2" lines are visible with command "ip mptcp endpoint show"
+
+
+    @rhbz2029636
+    @tcpdump
+    @ver+=1.40
+    @ipv4_mptcp_flags_disabled
+    Scenario: MPTCP disabled in NM
+    * Prepare simulated MPTCP setup with "2" veths named "veth"
+    * Set sysctl "net.mptcp.enabled" to "1"
+    * Execute "ip mptcp limits set subflow 2 add_addr_accepted 2"
+    * Add "ethernet" connection named "veth0" for device "veth0" with options "ipv4.method static ipv4.addresses 192.168.80.10/24 connection.mptcp-flags 0x1 ipv6.method disabled"
+    * Add "ethernet" connection named "veth1" for device "veth1" with options "ipv4.method static ipv4.addresses 192.168.81.10/24 connection.mptcp-flags 0x1 ipv6.method disabled"
+    * Bring "up" connection "veth0"
+    * Bring "up" connection "veth1"
+    Then "exactly" "0" lines are visible with command "ip mptcp endpoint show"
+
+
+    @rhbz2029636
+    @tcpdump
+    @ver+=1.40
+    @ipv4_mptcp_flags_enabled
+    # no endpoints configuveth1 despite 'enabled' flag because no lon-local route is present
+    Scenario: MPTCP with no explicit configuration
+    * Prepare simulated MPTCP setup with "2" veths named "veth"
+    * Set sysctl "net.mptcp.enabled" to "1"
+    * Execute "ip mptcp limits set subflow 2 add_addr_accepted 2"
+    * Add "ethernet" connection named "veth0" for device "veth0" with options "ipv4.method static ipv4.addresses 192.168.80.10/24 connection.mptcp-flags 0x2 ipv6.method disabled"
+    * Add "ethernet" connection named "veth1" for device "veth1" with options "ipv4.method static ipv4.addresses 192.168.81.10/24 connection.mptcp-flags 0x2 ipv6.method disabled"
+    * Bring "up" connection "veth0"
+    * Bring "up" connection "veth1"
+    * Execute "sleep 0.2"
+    Then "exactly" "0" lines are visible with command "ip mptcp endpoint show"
+
+
+    @rhbz2029636
+    @tcpdump
+    @ver+=1.40
+    @ipv4_mptcp_flags_0x2_0x4
+    Scenario: MPTCP enabled even without sysctl
+    * Prepare simulated MPTCP setup with "2" veths named "veth"
+    * Set sysctl "net.mptcp.enabled" to "0"
+    * Execute "ip mptcp limits set subflow 2 add_addr_accepted 2"
+    * Add "ethernet" connection named "veth0" for device "veth0" with options "ipv4.method static ipv4.addresses 192.168.80.10/24 ipv4.gateway 192.168.80.1 connection.mptcp-flags 0x6 ipv6.method disabled"
+    * Add "ethernet" connection named "veth1" for device "veth1" with options "ipv4.method static ipv4.addresses 192.168.81.10/24 ipv4.gateway 192.168.81.1 connection.mptcp-flags 0x6 ipv6.method disabled"
+    * Bring "up" connection "veth0"
+    * Bring "up" connection "veth1"
+    Then "exactly" "2" lines are visible with command "ip mptcp endpoint show"
+    # endpoints are configuveth1 but not effective
+    Then "mptcp" is not visible with command "cat /tmp/network-traffic.log"
+
+
+    @rhbz2029636
+    @tcpdump
+    @ver+=1.40
+    @ipv4_mptcp_flags_0x2_0x8
+    Scenario: MPTCP enabled even without default route
+    * Prepare simulated MPTCP setup with "2" veths named "veth"
+    * Set sysctl "net.mptcp.enabled" to "1"
+    * Execute "ip mptcp limits set subflow 2 add_addr_accepted 2"
+    * Add "ethernet" connection named "veth0" for device "veth0" with options "ipv4.method static ipv4.addresses 192.168.80.10/24 connection.mptcp-flags 0xa ipv6.method disabled"
+    * Add "ethernet" connection named "veth1" for device "veth1" with options "ipv4.method static ipv4.addresses 192.168.81.10/24 connection.mptcp-flags 0xa ipv6.method disabled"
+    * Bring "up" connection "veth0"
+    * Bring "up" connection "veth1"
+    * Execute "mptcpize run ncat -c 'echo hello world!' 192.168.80.1 9006"
+    Then "hello world!" is visible with command "cat /tmp/nmci-mptcp-ncat.log"
+    Then "exactly" "2" lines are visible with command "ip mptcp endpoint show"
+
+
+    @rhbz2029636
+    @tcpdump
+    @ver+=1.40
+    @ipv4_mptcp_flags_0x10
+    Scenario: MPTCP with flag signal
+    * Prepare simulated MPTCP setup with "2" veths named "veth" and MPTCP type "signal"
+    * Set sysctl "net.mptcp.enabled" to "1"
+    * Execute "ip mptcp limits set subflow 2 add_addr_accepted 2"
+    * Add "ethernet" connection named "veth0" for device "veth0" with options "ipv4.method static ipv4.addresses 192.168.80.10/24 ipv4.gateway 192.168.80.1 connection.mptcp-flags 0x10 ipv6.method disabled"
+    * Add "ethernet" connection named "veth1" for device "veth1" with options "ipv4.method static ipv4.addresses 192.168.81.10/24 ipv4.gateway 192.168.81.1 connection.mptcp-flags 0x10 ipv6.method disabled"
+    * Bring "up" connection "veth0"
+    * Bring "up" connection "veth1"
+    * Execute "mptcpize run ncat -c 'echo hello world!' 192.168.80.1 9006"
+    Then "hello world!" is visible with command "cat /tmp/nmci-mptcp-ncat.log"
+    Then "exactly" "2" lines with pattern "signal" are visible with command "ip mptcp endpoint show"
+
+
+    @rhbz2029636
+    @tcpdump
+    @ver+=1.40
+    @ipv4_mptcp_flags_0x20
+    Scenario: MPTCP with flag subflow
+    * Prepare simulated MPTCP setup with "2" veths named "veth"
+    * Set sysctl "net.mptcp.enabled" to "1"
+    * Execute "ip mptcp limits set subflow 2 add_addr_accepted 2"
+    * Add "ethernet" connection named "veth0" for device "veth0" with options "ipv4.method static ipv4.addresses 192.168.80.10/24 ipv4.gateway 192.168.80.1 connection.mptcp-flags 0x20 ipv6.method disabled"
+    * Add "ethernet" connection named "veth1" for device "veth1" with options "ipv4.method static ipv4.addresses 192.168.81.10/24 ipv4.gateway 192.168.81.1 connection.mptcp-flags 0x20 ipv6.method disabled"
+    * Bring "up" connection "veth0"
+    * Bring "up" connection "veth1"
+    * Execute "mptcpize run ncat -c 'echo hello world!' 192.168.80.1 9006"
+    Then "hello world!" is visible with command "cat /tmp/nmci-mptcp-ncat.log"
+    Then "exactly" "2" lines with pattern "subflow" are visible with command "ip mptcp endpoint show"
+
+
+    @rhbz2029636
+    @tcpdump
+    @ver+=1.40
+    @ipv4_mptcp_flags_0x40
+    Scenario: MPTCP with flag backup
+    * Prepare simulated MPTCP setup with "2" veths named "veth" and MPTCP type "backup"
+    * Set sysctl "net.mptcp.enabled" to "1"
+    * Execute "ip mptcp limits set subflow 2 add_addr_accepted 2"
+    * Add "ethernet" connection named "veth0" for device "veth0" with options "ipv4.method static ipv4.addresses 192.168.80.10/24 ipv4.gateway 192.168.80.1 connection.mptcp-flags 0x40 ipv6.method disabled"
+    * Add "ethernet" connection named "veth1" for device "veth1" with options "ipv4.method static ipv4.addresses 192.168.81.10/24 ipv4.gateway 192.168.81.1 connection.mptcp-flags 0x40 ipv6.method disabled"
+    * Bring "up" connection "veth0"
+    * Bring "up" connection "veth1"
+    * Execute "mptcpize run ncat -c 'echo hello world!' 192.168.80.1 9006"
+    Then "hello world!" is visible with command "cat /tmp/nmci-mptcp-ncat.log"
+    Then "exactly" "2" lines with pattern "backup" are visible with command "ip mptcp endpoint show"
+
+
+    @rhbz2029636
+    @tcpdump
+    @ver+=1.40
+    @ipv4_mptcp_flags_0x80
+    Scenario: MPTCP with flag fullmesh
+    * Prepare simulated MPTCP setup with "2" veths named "veth" and MPTCP type "fullmesh"
+    * Set sysctl "net.mptcp.enabled" to "1"
+    * Execute "ip mptcp limits set subflow 2 add_addr_accepted 2"
+    * Add "ethernet" connection named "veth0" for device "veth0" with options "ipv4.method static ipv4.addresses 192.168.80.10/24 ipv4.gateway 192.168.80.1 connection.mptcp-flags 0x80 ipv6.method disabled"
+    * Add "ethernet" connection named "veth1" for device "veth1" with options "ipv4.method static ipv4.addresses 192.168.81.10/24 ipv4.gateway 192.168.81.1 connection.mptcp-flags 0x80 ipv6.method disabled"
+    * Bring "up" connection "veth0"
+    * Bring "up" connection "veth1"
+    * Execute "mptcpize run ncat -c 'echo hello world!' 192.168.80.1 9006"
+    Then "hello world!" is visible with command "cat /tmp/nmci-mptcp-ncat.log"
+    Then "exactly" "2" lines with pattern "fullmesh" are visible with command "ip mptcp endpoint show"
