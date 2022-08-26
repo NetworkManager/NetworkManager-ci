@@ -746,6 +746,17 @@ def dns_systemd_resolved_bs(context, scenario):
             print("ERROR: Cannot start systemd-resolved")
             sys.exit(77)
     conf = ["# configured by beaker-test", "[main]", "dns=systemd-resolved"]
+
+    # On Fedora and RHEL9+, rc-manager is "auto" by default, which doesn't touch
+    # resolv.conf when dns=systemd-resolved; we also want to test NM writing
+    # 127.0.0.53 to resolv.conf if needed, so change the value of rc-manager.
+    try:
+        target = os.readlink("/etc/resolv.conf")
+    except:
+        target = None
+    if target is None or not target.contains("/run/systemd/resolve/"):
+        conf.append("rc-manager=symlink")
+
     nmci.util.file_set_content("/etc/NetworkManager/conf.d/99-xtest-dns.conf", conf)
     nmci.ctx.reload_NM_service(context)
     context.dns_plugin = "systemd-resolved"
