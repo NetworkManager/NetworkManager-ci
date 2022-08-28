@@ -2483,7 +2483,7 @@ Feature: nmcli: ipv4
 
 
     @rhbz1784508
-    @kill_children @dhcpd @long
+    @dhcpd @long
     @dhcp_rebind
     Scenario: DHCPv4 rebind
     * Execute "systemctl stop dhcpd"

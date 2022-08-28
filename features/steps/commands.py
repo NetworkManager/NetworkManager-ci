@@ -523,22 +523,12 @@ def check_pattern_not_visible_with_tab_after_command(context, pattern, command):
 
 @step(u'Run child "{command}"')
 def run_child_process(context, command):
-    context.children = getattr(context, "children", [])
-    child = context.pexpect_service(command, shell=True)
-    context.children.append(child)
+    context.pexpect_service(command, shell=True)
 
 
 @step(u'Run child "{command}" without shell')
 def run_child_process_no_shell(context, command):
-    context.children = getattr(context, "children", [])
-    child = context.pexpect_service(command)
-    context.children.append(child)
-
-
-@step(u'Kill children')
-def kill_children(context):
-    for child in getattr(context, "children", []):
-        child.kill(9)
+    context.pexpect_service(command)
 
 
 @step(u'Start following journal')

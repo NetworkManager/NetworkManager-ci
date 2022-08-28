@@ -142,7 +142,7 @@ Feature: nmcli - general
     @rhbz1970335
     @ver+=1.30.0
     @rhelver+=8
-    @kill_children @internal_DHCP @dhcpd
+    @internal_DHCP @dhcpd
     @restore_hostname @eth0
     @pull_hostname_from_dns
     Scenario: nmcli - general - pull hostname from DNS
@@ -2862,7 +2862,7 @@ Feature: nmcli - general
 
     @rhbz1820770
     @ver+=1.32.2
-    @eth0 @restore_hostname @kill_children
+    @eth0 @restore_hostname
     @nmcli_general_assign_valid_hostname_to_device
     Scenario: NM - general - assign - valid - hostname - to - device
     * Bring "down" connection "testeth0"

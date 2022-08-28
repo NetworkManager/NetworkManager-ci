@@ -2836,17 +2836,6 @@ def kill_dbus_monitor_as(context, scenario):
 _register_tag("kill_dbus-monitor", None, kill_dbus_monitor_as)
 
 
-def kill_children_as(context, scenario):
-    children = getattr(context, "children", [])
-    if len(children):
-        print(f"kill remaining children ({len(children)})")
-        for child in children:
-            child.kill(9)
-
-
-_register_tag("kill_children", None, kill_children_as)
-
-
 def restore_rp_filters_as(context, scenario):
     context.process.run_stdout(
         "echo 1 > /proc/sys/net/ipv4/conf/eth2/rp_filter", shell=True

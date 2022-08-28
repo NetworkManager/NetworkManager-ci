@@ -265,7 +265,6 @@ Feature: nmcli - vlan
     * "eth7.80:" is visible with command "ifconfig" in "10" seconds
     * Run child "ping -I eth7.80 8.8.8.8"
     Then "ID: 80" is visible with command "tshark -i eth7 -T fields -e vlan" in "150" seconds
-    Then Kill children
 
 
     @vlan_on_bridge

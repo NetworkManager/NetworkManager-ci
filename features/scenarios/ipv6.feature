@@ -1503,7 +1503,7 @@
 
     @rhbz2027267
     @ver+=1.35.5
-    @kill_children @long
+    @long
     @internal_DHCP
     @ipv6_internal_client_dhcpv6_leases_renewal
     Scenario: NM renews DHCPv6 leases when using internal DHCP client
@@ -1867,7 +1867,7 @@
 
      @rhbz1755467
      @ver+=1.22
-     @kill_children @internal_DHCP @dhcpd @rhelver+=8
+     @internal_DHCP @dhcpd @rhelver+=8
      @ipv6_prefix_delegation_internal
      Scenario: nmcli - ipv6 - prefix delegation
      * Prepare simulated test "testX6" device without DHCP
@@ -1901,7 +1901,7 @@
 
 
      @ver+=1.34
-     @kill_children @internal_DHCP @dhcpd @rhelver+=8
+     @internal_DHCP @dhcpd @rhelver+=8
      @ipv6_prefix_delegation_ll_internal
      Scenario: nmcli - ipv6 - prefix delegation with link-local addressing
      # https://github.com/coreos/fedora-coreos-tracker/issues/888
@@ -1935,7 +1935,7 @@
 
      @rhbz1755467
      @ver+=1.6
-     @kill_children @dhclient_DHCP @dhcpd @rhelver+=8
+     @dhclient_DHCP @dhcpd @rhelver+=8
      @ipv6_prefix_delegation_dhclient
      Scenario: nmcli - ipv6 - prefix delegation
      * Execute "systemctl stop dhcpd"
