@@ -1,0 +1,4 @@
+1) add BaseOS, AppStream and CRB repos to mock-configs/rhel-8-mod.tpl
+2) correct srpm URIs or paths in build-mptcpd-el8.sh script with current ones
+3) run the build-mptcpd-el8.sh script
+4) copy packages (mptcpd and libell as minimum)
