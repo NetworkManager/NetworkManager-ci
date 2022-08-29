@@ -1849,6 +1849,8 @@ testmapper:
         feature: ovs
     - nmcli_add_basic_openvswitch_configuration:
         feature: ovs
+    - nmcli_add_openvswitch_ofport_request:
+        feature: ovs
     - nmcli_add_openvswitch_bond_configuration:
         feature: ovs
     - nmcli_add_openvswitch_vlan_configuration:
