@@ -21,9 +21,7 @@ def append_to_file(context, name, line=None):
 def append_to_ifcfg(context, line, name):
     cmd = 'sudo echo "%s" >> /etc/sysconfig/network-scripts/ifcfg-%s' % (line, name)
     context.command_code(cmd)
-
-    if not name in context.cleanup["connections"]:
-        context.cleanup["connections"].add(name)
+    context.cext.cleanup_add_connection(name)
 
 
 @step(u'Check file "{file1}" is contained in file "{file2}"')
@@ -193,8 +191,8 @@ def create_network_profile_file(context, file):
         if re.match(r'(id|name)=', line):
             name = line.split('=')[1]
             if name:
-                context.cleanup["connections"].add(name)
+                context.cext.cleanup_add_connection(name)
         elif re.match(r'(DEVICE|interface-name)=', line):
             iface = line.split('=')[1]
             if iface:
-                nmci.ctx.add_iface_to_cleanup(context, iface)
+                context.cext.cleanup_add_iface(iface)

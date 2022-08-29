@@ -3118,7 +3118,7 @@ _register_tag("slow_dnsmasq", slow_dnsmasq_bs, slow_dnsmasq_as)
 
 
 def cleanup_as(context, scenario):
-    nmci.ctx.cleanup(context)
+    context.cext.process_cleanup()
 
 
 _register_tag("cleanup", None, cleanup_as)

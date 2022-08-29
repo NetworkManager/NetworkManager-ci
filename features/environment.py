@@ -75,6 +75,7 @@ def _before_scenario(context, scenario):
     context.cext._html_formatter.actual["act_step_embed_span"] = embed_el
 
     # set important context attributes
+    assert not context.cext._cleanup_lst
     context.step_level = 0
     context.nm_restarted = False
     context.nm_pid = nmci.nmutil.nm_pid()
@@ -83,7 +84,6 @@ def _before_scenario(context, scenario):
     context.log_cursor_before_tags = nmci.misc.journal_get_cursor()
     context.arch = nmci.command_output("uname -p").strip()
     context.IS_NMTUI = "nmtui" in scenario.effective_tags
-    nmci.ctx.set_fresh_cleanup(context)
     context.rh_release = nmci.command_output("cat /etc/redhat-release")
     release_i = context.rh_release.find("release ")
     if release_i >= 0:
@@ -306,10 +306,8 @@ def _after_scenario(context, scenario):
                 excepts.append(traceback.format_exc())
             print(f"  @{tag_name} ... {t_status} in {time.time() - t_start:.3f}s")
 
-    try:
-        nmci.ctx.cleanup(context)
-    except Exception:
-        excepts.append(traceback.format_exc())
+    for ex in context.cext.process_cleanup():
+        excepts.append("".join(traceback.format_exception(ex, ex, ex.__traceback__)))
 
     nmci.ctx.check_crash(context, "crash outside steps (after_scenario tags)")
 

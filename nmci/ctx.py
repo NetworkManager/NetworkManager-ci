@@ -19,6 +19,175 @@ from . import util
 ###############################################################################
 
 
+class Cleanup:
+
+    UNIQ_TAG_DISTINCT = object()
+
+    def __init__(
+        self,
+        callback=None,
+        name=None,
+        unique_tag=None,
+        priority=0,
+        also_needs=None,
+    ):
+        self.name = name
+        if unique_tag is Cleanup.UNIQ_TAG_DISTINCT or (
+            unique_tag is None and type(self) is Cleanup
+        ):
+            # This instance only compares equal to itself.
+            self.unique_tag = (id(self),)
+        elif unique_tag is None:
+            self.unique_tag = (type(self),)
+        else:
+            self.unique_tag = ("arg", type(self), *unique_tag)
+        self.priority = priority
+        self._callback = callback
+        self._also_needs = also_needs
+        self._do_cleanup_called = False
+
+    def also_needs(self):
+        # Whether this cleanup requires additional cleanups.
+        # Those cleanups will be enqueued *after* the current one
+        # (however, self.priority will be still honored.
+        if self._also_needs is None:
+            return ()
+        return self._also_needs()
+
+    def do_cleanup(self, cext):
+        assert not self._do_cleanup_called
+        self._do_cleanup_called = True
+        self._do_cleanup(cext)
+
+    def _do_cleanup(self, cext):
+        if self._callback is None:
+            raise NotImplemented("cleanup not implemented")
+        self._callback(cext)
+
+
+class CleanupConnection(Cleanup):
+    def __init__(self, con_name, qualifier=None):
+        self.con_name = con_name
+        self.qualifier = qualifier
+        Cleanup.__init__(
+            self,
+            name=f"nmcli-connection-{con_name}",
+            unique_tag=(con_name, qualifier),
+            priority=10,
+        )
+
+    def _do_cleanup(self, cext):
+        if self.qualifier is not None:
+            args = [self.qualifier, self.con_name]
+        else:
+            args = [self.con_name]
+        cext.context.process.nmcli_force(["connection", "delete"] + args)
+
+
+class CleanupIface(Cleanup):
+    def __init__(self, iface, op=None):
+        priority = 20
+        if op is None:
+            if re.match(r"^(eth[0-9]|eth10)$", iface):
+                op = "reset"
+            else:
+                op = "delete"
+        if op != "delete":
+            priority += 1
+
+        self.op = op
+        self.iface = iface
+        Cleanup.__init__(
+            self,
+            name=f"iface-{op}-{iface}",
+            unique_tag=(iface, op),
+            priority=priority,
+        )
+
+    def _do_cleanup(self, cext):
+        if self.op == "reset":
+            nmci.ctx.reset_hwaddr_nmcli(cext.context, self.iface)
+            if self.iface != "eth0":
+                cext.context.process.run(["ip", "addr", "flush", self.iface])
+            return
+        if self.op == "delete":
+            cext.context.process.nmcli_force(["device", "delete", self.iface])
+            return
+        raise Exception(f'Unexpected cleanup op "{self.op}"')
+
+
+class CleanupNamespace(Cleanup):
+    def __init__(self, namespace, teardown=True):
+        self.teardown = teardown
+        self.namespace = namespace
+        Cleanup.__init__(
+            self,
+            name=f"namespace-{namespace}-{'teardown' if teardown else ''}",
+            unique_tag=(namespace, teardown),
+            priority=30,
+        )
+
+    def _do_cleanup(self, cext):
+        if self.teardown:
+            teardown_testveth(cext.context, self.namespace)
+        if cext.context.process.run_search_stdout("ip netns list", self.namespace):
+            cext.context.process.run_stdout(["ip", "netns", "del", self.namespace])
+
+
+class CleanupNft(Cleanup):
+    def __init__(self, namespace=None):
+        self.namespace = namespace
+        Cleanup.__init__(
+            self,
+            name=f"nft-{'ns-'+namespace if namespace is not None else 'default'}",
+            unique_tag=(namespace,),
+            priority=40 + (0 if namespace is None else 1),
+        )
+
+    def _do_cleanup(self, cext):
+        cmd = ["nft", "flush", "ruleset"]
+        if self.namespace is not None:
+            if not os.path.isdir(f"/var/run/netns/{self.namespace}"):
+                return
+            cmd = ["ip", "netns", "exec", self.namespace] + cmd
+        cext.context.process.run(cmd)
+
+
+class CleanupUdevUpdate(Cleanup):
+    def __init__(self):
+        Cleanup.__init__(
+            self,
+            name="udev-update",
+            priority=300,
+        )
+
+    def _do_cleanup(self, cext):
+        nmci.ctx.update_udevadm(cext.context)
+
+
+class CleanupUdevRule(Cleanup):
+    def __init__(self, rule):
+        self.rule = rule
+        Cleanup.__init__(
+            self,
+            name=f"udev-rule-{rule}",
+            unique_tag=(rule),
+            priority=50,
+        )
+
+    def also_needs(self):
+        return (CleanupUdevUpdate(),)
+
+    def _do_cleanup(self, cext):
+        try:
+            os.remove(self.rule)
+        except FileNotFoundError:
+            pass
+
+
+###############################################################################
+
+
 class Embed:
 
     EmbedContext = collections.namedtuple("EmbedContext", ["count", "html_el"])
@@ -78,6 +247,8 @@ class _CExt:
         self._pexpect_lst_scenario = []
         self._to_embed = []
         self._embed_count = 0
+        self._cleanup_lst = []
+        self._cleanup_done = False
 
         self.coredump_reported = False
 
@@ -392,6 +563,62 @@ class _CExt:
 
         if argv_failed:
             raise Exception(f"Some process failed: {argv_failed}")
+
+    def _cleanup_add(self, cleanup_action):
+
+        if self._cleanup_done:
+            raise Exception(
+                "Cleanup already happend. Cannot schedule anew cleanup action"
+            )
+
+        # Find and delete duplicate (we will always prepend the
+        # new action to the front (honoring the priority),
+        # meaning that later added cleanups, will be executed
+        # first.
+        for i, a in enumerate(self._cleanup_lst):
+            if a.unique_tag == cleanup_action.unique_tag:
+                del self._cleanup_lst[i]
+                break
+
+        # Prepend, but still honor the priority.
+        idx = 0
+        for a in self._cleanup_lst:
+            # Smaller priority number is preferred (and is
+            # rolled back first).
+            if a.priority < cleanup_action.priority:
+                idx += 1
+        self._cleanup_lst.insert(idx, cleanup_action)
+
+        if idx is None:
+            for c in cleanup_action.also_needs():
+                self._cleanup_add(c)
+
+    def cleanup_add(self, *a, **kw):
+        self._cleanup_add(Cleanup(*a, **kw))
+
+    def cleanup_add_connection(self, *a, **kw):
+        self._cleanup_add(CleanupConnection(*a, **kw))
+
+    def cleanup_add_iface(self, *a, **kw):
+        self._cleanup_add(CleanupIface(*a, **kw))
+
+    def cleanup_add_namespace(self, *a, **kw):
+        self._cleanup_add(CleanupNamespace(*a, **kw))
+
+    def cleanup_add_nft(self, *a, **kw):
+        self._cleanup_add(CleanupNft(*a, **kw))
+
+    def cleanup_add_udev_rule(self, *a, **kw):
+        self._cleanup_add(CleanupUdevRule(*a, **kw))
+
+    def process_cleanup(self):
+        ex = []
+        for cleanup_action in util.consume_list(self._cleanup_lst):
+            try:
+                cleanup_action.do_cleanup(self)
+            except Exception as e:
+                ex.append(e)
+        return ex
 
 
 class _ContextUtil:
@@ -1579,55 +1806,3 @@ def get_modem_info(context):
         return f"MODEM INFO\n{modem_info}\nSIM CARD INFO\n{sim_info}"
     else:
         return modem_info
-
-
-def add_iface_to_cleanup(context, name):
-    if re.match(r"^(eth[0-9]|eth10)$", name):
-        context.cleanup["interfaces"]["reset"].add(name)
-    else:
-        context.cleanup["interfaces"]["delete"].add(name)
-
-
-def set_fresh_cleanup(context):
-    context.cleanup = {
-        "connections": set(),
-        "interfaces": {"reset": set(), "delete": set()},
-        "namespaces": {},
-        "nft_default": False,
-        "nft_ns": set(),
-        "rules": set(),
-    }
-
-
-def cleanup(context):
-
-    if context.cleanup["connections"]:
-        context.process.nmcli_force(
-            ["connection", "delete"] + list(context.cleanup["connections"]),
-        )
-    if context.cleanup["interfaces"]["delete"]:
-        context.process.nmcli_force(
-            ["device", "delete"] + list(context.cleanup["interfaces"]["delete"]),
-        )
-    for iface in context.cleanup["interfaces"]["reset"]:
-        nmci.ctx.reset_hwaddr_nmcli(context, iface)
-        if iface != "eth0":
-            context.process.run(f"ip addr flush {iface}")
-
-    for namespace, teardown in context.cleanup["namespaces"].items():
-        if teardown:
-            teardown_testveth(context, namespace)
-        if context.process.run_search_stdout("ip netns list", namespace):
-            context.process.run_stdout(f'ip netns del "{namespace}"')
-    if context.cleanup["nft_default"]:
-        context.process.run("nft flush ruleset")
-    for ns in sorted(context.cleanup["nft_ns"]):
-        if os.path.isdir(f"/var/run/netns/{ns}"):
-            context.process.run(f"ip netns exec {ns} nft flush ruleset")
-    if context.cleanup["rules"]:
-        for rule in context.cleanup["rules"]:
-            context.process.run(f"rm -rf {rule}")
-        nmci.ctx.update_udevadm(context)
-
-    # reset cleanup, so it is safe to be called multiple times
-    set_fresh_cleanup(context)

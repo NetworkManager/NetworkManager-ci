@@ -722,14 +722,12 @@ def load_nftables(context, ns=None, ruleset=None):
     if ruleset is None:
         ruleset = context.text
 
-    nsprefix = ""
+    context.cext.cleanup_add_nft(ns)
     if ns is None:
-        context.cleanup["nft_default"] = True
+        nsprefix = ""
         nft = nftables.Nftables()
     else:
-        context.cleanup["nft_ns"].add(ns)
         nsprefix = f"ip netns exec {ns} "
-
         netns.pushns(ns)
         nft = nftables.Nftables()
         netns.popns()
@@ -749,8 +747,5 @@ def load_nftables(context, ns=None, ruleset=None):
 
 @step(u'Cleanup nftables')
 @step(u'Cleanup nftables in namespace "{ns}"')
-def flush_nftables(context, ns=False):
-    if ns:
-        context.cleanup["nft_ns"].add(ns)
-    else:
-        context.cleanup["nft_default"] = True
+def flush_nftables(context, ns=None):
+    context.cext.cleanup_add_nft(ns)

@@ -14,7 +14,7 @@ def manage_veth_device(context, device):
         rule = 'ENV{ID_NET_DRIVER}=="veth", ENV{INTERFACE}=="%s*", ENV{NM_UNMANAGED}="0"' %device
         nmci.util.file_set_content(rule_file, [rule])
         nmci.ctx.update_udevadm(context)
-        context.cleanup['rules'].add(rule_file)
+        context.cext.cleanup_add_udev_rule(rule_file)
 
 @step('Create PBR files for profile "{profile}" and "{dev}" device in table "{table}"')
 def create_policy_based_routing_files(context, profile, dev, table, timeout=5):
@@ -232,7 +232,7 @@ def prepare_dhcpd_simdev(context, device, server_id):
     f.close()
 
     context.command_code("ip netns exec {device}_ns dhcpd -4 -cf /tmp/dhcpd.conf -pf /tmp/{device}_ns.pid".format(device=device))
-    context.cleanup['namespaces'][f"{device}_ns"] = True
+    context.cext.cleanup_add_namespace(f"{device}_ns")
 
 
 @step(u'Prepare simulated test "{device}" device with "{ipv4}" ipv4 and "{ipv6}" ipv6 dhcp address prefix and dhcp option "{option}"')
@@ -294,7 +294,7 @@ def prepare_simdev(context, device, lease_time="2m", ipv4=None, ipv6=None, optio
         context.execute_steps(f'Then "connected" is visible with command "nmcli device show {device}" in "10" seconds');
     else:
         time.sleep(2)
-    context.cleanup['namespaces'][f"{device}_ns"] = True
+    context.cext.cleanup_add_namespace(f"{device}_ns")
 
 
 
@@ -334,8 +334,8 @@ def prepare_simdev(context, device):
                                          --dhcp-range=172.16.0.100,172.16.0.200,255.255.255.0,1m \
                                          --dhcp-option=3,172.16.0.50 \
                                          --dhcp-option=121,10.0.0.0/24,172.16.0.1".format(device=device))
-    context.cleanup['namespaces'][f"{device}_ns"] = True
-    context.cleanup['namespaces'][f"{device}2_ns"] = True
+    context.cext.cleanup_add_namespace(f"{device}_ns")
+    context.cext.cleanup_add_namespace(f"{device}_ns2")
 
 
 @step(u'Prepare simulated test "{device}" device without DHCP')
@@ -346,7 +346,7 @@ def prepare_simdev_no_dhcp(context, device):
     context.execute_steps(f'* Create "veth" device named "{device}" in namespace "{device}_ns" with options "peer name {device}p"')
     context.command_code("ip netns exec {device}_ns ip link set {device} netns {pid}".format(device=device, pid=os.getpid()))
     context.command_code("ip netns exec {device}_ns ip link set {device}p up".format(device=device))
-    context.cleanup['namespaces'][f"{device}_ns"] = True
+    context.cext.cleanup_add_namespace(f"{device}_ns")
 
 
 @step(u'Prepare simulated test "{device}" device for IPv6 PMTU discovery')
@@ -390,8 +390,8 @@ def prepare_simdev(context, device):
     context.command_code("ip netns exec {device}2_ns ip route add fd01::/64 via fd02::1 dev {device}2p".format(device=device))
     # Run netcat server to receive some data
     context.pexpect_service("ip netns exec {device}2_ns nc -6 -l -p 9000 > /dev/null".format(device=device), shell=True)
-    context.cleanup['namespaces'][f"{device}_ns"] = True
-    context.cleanup['namespaces'][f"{device}2_ns"] = True
+    context.cext.cleanup_add_namespace(f"{device}_ns")
+    context.cext.cleanup_add_namespace(f"{device}_ns2")
 
 
 
@@ -419,7 +419,7 @@ def prepare_simdev_no_carrier(context, device):
                                             --enable-ra --interface={device}_bridge \
                                             --bind-interfaces".format(device=device, ipv4=ipv4, ipv6=ipv6))
     context.command_code("ip netns exec {device}_ns ip link set {device} netns 1".format(device=device))
-    context.cleanup['namespaces'][f"{device}_ns"] = True
+    context.cext.cleanup_add_namespace(f"{device}_ns")
 
 
 @step(u'Start pppoe server with "{name}" and IP "{ip}" on device "{dev}"')

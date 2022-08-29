@@ -1604,6 +1604,95 @@ def test_util_consume_list():
     assert lst == []
 
 
+def test_context_cleanup():
+
+    context = create_test_context()
+
+    context.cext.cleanup_add_iface("eth0")
+
+    assert [c.name for c in context.cext._cleanup_lst] == ["iface-reset-eth0"]
+
+    context.cext.cleanup_add_iface("eth1")
+
+    assert [c.name for c in context.cext._cleanup_lst] == [
+        "iface-reset-eth1",
+        "iface-reset-eth0",
+    ]
+
+    context.cext.cleanup_add_iface("eth0")
+
+    assert [c.name for c in context.cext._cleanup_lst] == [
+        "iface-reset-eth0",
+        "iface-reset-eth1",
+    ]
+
+    context.cext.cleanup_add(lambda cext: None, name="foo")
+
+    assert [c.name for c in context.cext._cleanup_lst] == [
+        "foo",
+        "iface-reset-eth0",
+        "iface-reset-eth1",
+    ]
+
+    context.cext._cleanup_add(
+        ctx.Cleanup(name="foo", callback=lambda cext: None, priority=25)
+    )
+
+    assert [c.name for c in context.cext._cleanup_lst] == [
+        "foo",
+        "iface-reset-eth0",
+        "iface-reset-eth1",
+        "foo",
+    ]
+
+    context.cext.cleanup_add(
+        name="bar", unique_tag=(1,), callback=lambda cext: None, priority=24
+    )
+
+    assert [c.name for c in context.cext._cleanup_lst] == [
+        "foo",
+        "iface-reset-eth0",
+        "iface-reset-eth1",
+        "bar",
+        "foo",
+    ]
+
+    context.cext.cleanup_add(
+        name="bar", unique_tag=(1,), callback=lambda cext: None, priority=19
+    )
+
+    assert [c.name for c in context.cext._cleanup_lst] == [
+        "foo",
+        "bar",
+        "iface-reset-eth0",
+        "iface-reset-eth1",
+        "foo",
+    ]
+
+    del context.cext._cleanup_lst[2:4]
+
+    assert [c.name for c in context.cext._cleanup_lst] == [
+        "foo",
+        "bar",
+        "foo",
+    ]
+
+    for ex in context.cext.process_cleanup():
+        assert ex is None
+
+    assert context.cext._cleanup_lst == []
+
+    context.cext.cleanup_add(
+        name="bar", unique_tag=(1,), callback=lambda cext: 1 / 0, priority=19
+    )
+
+    for ex in context.cext.process_cleanup():
+        import traceback
+
+        assert type(ex) is ZeroDivisionError
+        assert traceback.format_exception(ex, ex, ex.__traceback__)
+
+
 def test_util_start_timeout():
 
     t = util.start_timeout(None)

@@ -666,7 +666,7 @@ def check_route_count(context, cmp, routes_count, ip_version, device, seconds=1)
 
 @step(u'Cleanup device "{iface}"')
 def cleanup_connection(context, iface):
-    nmci.ctx.add_iface_to_cleanup(context, iface)
+    context.cext.cleanup_add_iface(iface)
 
 
 @step(u'Create "{typ}" device named "{name}"')
@@ -674,7 +674,7 @@ def cleanup_connection(context, iface):
 @step(u'Create "{typ}" device named "{name}" in namespace "{namespace}"')
 @step(u'Create "{typ}" device named "{name}" in namespace "{namespace}" with options "{options}"')
 def add_device(context, typ, name, namespace="", options=""):
-    nmci.ctx.add_iface_to_cleanup(context, name)
+    context.cext.cleanup_add_iface(name)
     namespace = f"-n {namespace}" if namespace else ""
 
     # Make sure the new device gets the hightest ifindex of all links.
@@ -700,4 +700,4 @@ def add_device(context, typ, name, namespace="", options=""):
 @step(u'Add namespace "{name}" with options "{options}"')
 def add_namespace(context, name, options=""):
     context.command_code(f"ip netns add {name} {options}")
-    context.cleanup["namespaces"][name] = False
+    context.cext.cleanup_add_namespace(name, teardown=False)
