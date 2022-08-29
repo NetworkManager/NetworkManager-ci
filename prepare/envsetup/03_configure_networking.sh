@@ -164,7 +164,7 @@ configure_networking () {
     fi
 
     systemctl stop firewalld
-    systemctl mask firewalld
+    systemctl mask firewalld mptcpd
 
     nmcli c u testeth0
 

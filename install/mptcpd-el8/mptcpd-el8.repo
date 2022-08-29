@@ -1,0 +1,4 @@
+[mptcpd-el8]
+name=mptcpd and libell for el8
+baseurl=https://vbenes.fedorapeople.org/NM/mptcp/
+gpgcheck=0

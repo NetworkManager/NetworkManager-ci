@@ -8,6 +8,9 @@ install_el8_packages () {
         [ -f /etc/yum.repos.d/epel.repo ] || sudo rpm -i http://dl.fedoraproject.org/pub/epel/epel-release-latest-8.noarch.rpm
     fi
 
+    # Add mptcpd repo
+    cp install/mptcpd-el8/mptcpd-el8.repo /etc/yum.repos.d/
+
     python -m pip install pyroute2
     python -m pip install pexpect
     python -m pip install netaddr
@@ -27,7 +30,7 @@ install_el8_packages () {
         git nmap-ncat python3-netaddr dhcp-relay iw net-tools psmisc firewalld dhcp-server \
         ethtool python3-dbus python3-gobject dnsmasq tcpdump wireshark-cli file iputils \
         iproute-tc openvpn gcc coreutils-debuginfo python3-pyyaml tuned haveged \
-        abrt-plugin-sosreport podman \
+        abrt-plugin-sosreport podman mptcpd \
         --skip-broken
 
     install_behave_pytest
