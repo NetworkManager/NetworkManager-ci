@@ -795,7 +795,7 @@ class _Misc:
 
     def journal_get_cursor(self):
         m = process.run_search_stdout(
-            "journalctl --lines=0 --quiet --show-cursor",
+            "journalctl --lines=0 --quiet --show-cursor --system",
             "^-- cursor: +([^ ].*[^ ]) *\n$",
         )
         return m.group(1)
