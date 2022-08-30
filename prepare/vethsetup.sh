@@ -198,9 +198,6 @@ function setup_veth_env ()
     # Give bridge an internal format address in form used in tests
     ip netns exec vethsetup ip addr add 192.168.100.1/24 dev masq
 
-    # Remove mapping to lo only (starting Fedora 33)
-    sed -i 's/^interface=lo/# interface=lo/' /etc/dnsmasq.conf
-
     # Start up a DHCP server on the internal bridge for IPv4
     ip netns exec vethsetup dnsmasq --pid-file=/tmp/dhcp_inbr.pid --dhcp-leasefile=/tmp/dhcp_inbr.lease --listen-address=192.168.100.1 --dhcp-range=192.168.100.10,192.168.100.254,240 --interface=masq --bind-interfaces
 

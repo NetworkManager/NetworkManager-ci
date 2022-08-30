@@ -78,7 +78,6 @@ configure_networking () {
         fi
     fi
 
-
     # Do we have keyfiles or ifcfg plugins enabled?
     DEV=$(nmcli -f DEVICE,TYPE,STATE -t d | grep :ethernet | grep :connected | awk -F':' '{print $1}' | head -n 1)
     if test $(nmcli -t -f FILENAME,DEVICE connection|grep $DEV|grep nmconnection); then
@@ -86,7 +85,6 @@ configure_networking () {
         # Remove all ifcfg files as we don't need them
         rm -rf /etc/sysconfig/network-scripts/*
     fi
-
 
     # Drop compiled in defaults into proper config
     if grep -q -e 'release 8' /etc/redhat-release; then
@@ -99,6 +97,8 @@ configure_networking () {
         echo -e "[main]\ndhcp=nettools\nplugins=keyfile,ifcfg-rh" >> /etc/NetworkManager/conf.d/99-test.conf
     fi
 
+    # Remove dnsmasq's mapping to lo only RHEL9 and Fedora 33+
+    sed -i 's/^interface=lo/# interface=lo/' /etc/dnsmasq.conf
 
     # Do veth setup if yes
     if [ $veth -eq 1 ]; then
