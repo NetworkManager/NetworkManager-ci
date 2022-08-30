@@ -18,6 +18,7 @@ function teardown() {
 function setup() {
     # prepare namespace and veth pair
     ip netns add iptunnel
+    ip -n iptunnel link set lo up
     ip link add veth0 type veth peer name veth1
     ip link set veth1 netns iptunnel
     ip -n iptunnel link set veth1 up

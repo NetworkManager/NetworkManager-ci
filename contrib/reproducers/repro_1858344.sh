@@ -9,6 +9,7 @@ ip link add veth0 type veth peer name veth1
 ip netns add ns1
 ip link set veth1 netns ns1
 ip link set veth0 up
+ip -n ns1 link set lo up
 ip -n ns1 link set veth1 up
 ip -n ns1 address add dev veth1 fd01::1/64
 

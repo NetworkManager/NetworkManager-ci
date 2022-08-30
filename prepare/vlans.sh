@@ -8,6 +8,7 @@ function setup {
     echo "dhcp-lease-max=2000" > /etc/dnsmasq.d/vlan.conf
     
     ip netns add eth11_ns
+    ip -n eth11_ns link set lo up
     ip link add eth11 type veth peer name eth11p
     ip link set dev eth11 up
     ip link set dev eth11p netns eth11_ns

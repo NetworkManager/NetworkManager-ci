@@ -42,6 +42,7 @@ for ns in $(seq 1 $((NUM_NS))); do
     echo "Creating namespace $ns"
     # Create a sinhle namespace and a bridge inside
     ip netns add $ns
+    ip --netns $ns link set lo up
     ip --netns $ns link add t-br0 type bridge
     ip --netns $ns link set t-br0 type bridge stp_state 0
     ip --netns $ns link set t-br0 up

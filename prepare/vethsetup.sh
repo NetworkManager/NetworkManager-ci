@@ -163,6 +163,7 @@ function setup_veth_env ()
 
     # Create a network namespace for veth setup
     ip netns add vethsetup
+    ip -n vethsetup link set lo up
 
     # Create 'internal' veth devices and hide their peers inside namespace
     for X in $(seq 1 9); do

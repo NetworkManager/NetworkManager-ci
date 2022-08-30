@@ -490,6 +490,7 @@ function prepare_test_bed ()
         local policy_file="contrib/selinux-policy/hostapd_wireless_$major_ver.pp"
         (semodule -l | grep -q hostapd_wireless) || semodule -i $policy_file || echo "ERROR: unable to load selinux policy !!!"
         ip netns add wlan_ns
+        ip -n wlan_ns link set lo up
     fi
 
     if [ "$CRYPTO" == "legacy" ]; then

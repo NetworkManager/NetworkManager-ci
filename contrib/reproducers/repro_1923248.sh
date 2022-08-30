@@ -3,6 +3,8 @@
 setup () {
     ip netns add route
     ip netns add server
+    ip -n route link set lo up
+    ip -n route server set lo up
     ip link add veth0s type veth peer name veth0s_p netns server
     ip link add veth0r type veth peer name veth0r_p netns route
     ip link add veth1r type veth peer name veth1r_p netns route
