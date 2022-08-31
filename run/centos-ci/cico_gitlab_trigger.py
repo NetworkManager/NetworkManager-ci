@@ -273,6 +273,8 @@ def get_rebuild_detail(message, overrides={}):
                 os_version.add("9-stream")
         elif line.strip().lower().startswith("@runfeatures:"):
             overrides["features"] = line.strip().split(":", 1)[-1]
+        elif line.strip().lower().startswith("@runtests:"):
+            overrides["features"] = "tests:" + line.strip().split(":", 1)[-1]
         elif line.strip().lower().startswith("@build:"):
             overrides["build"] = line.strip().split(":")[-1]
         elif line:

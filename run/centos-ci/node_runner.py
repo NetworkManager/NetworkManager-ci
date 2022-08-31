@@ -393,8 +393,17 @@ class Mapper:
                     "Unexpected feature list, unable to parse 'covering' tests"
                 )
                 return ["all"]
-            # split by space here as it allows simple copy paste from failed tets list
-            features[1] = features[1].split(" ")
+            # to be compatible with internal trigger, split by comma
+            features[1] = features[1].split(",")
+            return features
+
+        elif features.startswith("tests:"):
+            features = features.split(":", 1)
+            if len(features) != 2:
+                logging.debug("Unexpected feature list, unable to parse 'tests'")
+                return ["all"]
+            # to be compatible with internal trigger, split by comma
+            features[1] = features[1].split(",")
             return features
         elif not features or "all" in features:
             return ["all"]
@@ -450,11 +459,24 @@ class Mapper:
 
         times = {}
         tests = {}
-        all = "all" in features or "covering" in features
+        all = (
+            "all" in features
+            or "*" in features
+            or "covering" in features
+            or "tests" in features
+        )
+        all_tests = "tests" in features and ("all" in features[1] or "*" in features[1])
         for test in self.mapper["testmapper"]["default"]:
             for test_name in test:
                 f = test[test_name]["feature"]
                 if f in self.default_exlude:
+                    continue
+                # if features are in form ["tests", ["test1","test2",...]]
+                if (
+                    "tests" in features
+                    and test_name not in features[1]
+                    and not all_tests
+                ):
                     continue
                 if f not in features and not all:
                     continue
