@@ -59,6 +59,12 @@ core_pattern_setup() {
   # mount to /var/log which is local FS (mounted disk) to prevent deadlock
   mkdir -p /var/log/dumps/
   mount $DEV_DUMPS /var/log/dumps/
+
+  # Move old dumps
+  for dump in /run/dumps/dump_*; do
+    [ -f "$dump" ] && mv "$dump" /var/log/dumps/
+  done
+
   echo "Setting core_pattern to /var/log/dumps/dump_*"
   echo "/var/log/dumps/dump_%e-%P-%u-%g-%s-%t-%c-%h" > /proc/sys/kernel/core_pattern
 }

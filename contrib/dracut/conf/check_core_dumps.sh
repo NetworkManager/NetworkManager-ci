@@ -7,15 +7,16 @@ DEV_DUMPS=/dev/disk/by-uuid/$UUID_DUMPS
 move_dumps() {
     mkdir -p /mnt/dumps
     mount $DEV_DUMPS /mnt/dumps
-    mv /tmp/dumps/dump_* /mnt/dumps/
+    mv /run/dumps/dump_* /mnt/dumps/
     umount /mnt/dumps/
 }
 
 echo "Checking for coredumps, core_pattern:" 1>&2
 cat /proc/sys/kernel/core_pattern 1>&2
 
-for dump in /tmp/dumps/dump_* ; do
+for dump in /run/dumps/dump_* ; do
     [ -f "$dump" ] && move_dumps
+    break
 done
 
 echo "No coredumps found" 1>&2
