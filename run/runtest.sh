@@ -180,7 +180,6 @@ if [ $conf_rc != 0 ]; then
     cat /tmp/nmcli_general
     exit $conf_rc
 fi
-export_python_command
 
 export COLUMNS="1024"
 

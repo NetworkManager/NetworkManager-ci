@@ -36,3 +36,20 @@ array_contains() {
     done
     return 1
 }
+
+nmci_utils_override_python() {
+    [ -n "$NMCI_TMP_DIR" ] || return 1
+
+    rm -rf "$NMCI_TMP_DIR/bin/python"
+    hash -d python 2>/dev/null
+
+    if [ -n "$1" ]; then
+        local p="$(command -v "$1")"
+        mkdir -p "$NMCI_TMP_DIR/bin/"
+        cat <<EOF > "$NMCI_TMP_DIR/bin/python"
+#!/bin/bash
+exec "$p" "\$@"
+EOF
+        chmod +x "$NMCI_TMP_DIR/bin/python"
+    fi
+}

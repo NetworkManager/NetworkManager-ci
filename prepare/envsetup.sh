@@ -336,8 +336,7 @@ install_el7_packages () {
     yum -y install python3 python3-pip
     yum -y install gcc
 
-    echo python3 > /tmp/python_command
-    export_python_command
+    nmci_utils_override_python python3
 
     python -m pip install --upgrade pip
     python -m pip install setuptools --upgrade
@@ -1081,23 +1080,6 @@ get_online_state() {
         sleep 1
     done
     return 1
-}
-
-export_python_command() {
-    if [ -f /tmp/python_command ]; then
-        PYTHON_COMMAND=$(cat /tmp/python_command)
-        if [ -n "$PYTHON_COMMAND" ]; then
-            python() {
-            if [ -f /tmp/python_command ]; then
-                PYTHON_COMMAND=$(cat /tmp/python_command)
-                if [ -n "$PYTHON_COMMAND" ]; then
-                    $PYTHON_COMMAND $@
-                fi
-            fi
-            }
-            export -f python
-        fi
-    fi
 }
 
 
