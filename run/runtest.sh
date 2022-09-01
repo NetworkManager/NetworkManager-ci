@@ -171,8 +171,8 @@ if [ -z "$NMTEST" ]; then
     exit 128
 fi
 
-. "$NMCI_BASE_DIR/prepare/envsetup.sh"
-( configure_environment "$TAG" ) ; conf_rc=$?
+"$NMCI_BASE_DIR/prepare/envsetup.sh" "$TAG"
+conf_rc=$?
 if [ $conf_rc != 0 ]; then
     if ps aux|grep -v grep| grep -q harness.py; then
         timeout 2m rstrnt-report-result -o "" "$NMTEST" FAIL

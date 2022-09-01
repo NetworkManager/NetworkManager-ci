@@ -80,7 +80,7 @@ beaker-hardware:
             kernel-options: biosdevname=1 default_hugepagesz=1G hugepagesz=1G hugepages=32 iommu=on intel_iommu=pt
 
 setup: |
-  ./prepare/envsetup.sh setup first_test_setup
+  ./prepare/envsetup.sh
   file=/tmp/NetworkManager-ci-unit_tests.log
   ./run/publish_behave_logs/setup_pbl.py
   (time python3 -m pytest -vvvv) > $file 2>&1; rc=$?

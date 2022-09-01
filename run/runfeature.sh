@@ -29,6 +29,6 @@ if [ -z "$CMDS" -o "$R" != 0 ]; then
   exit 1
 fi
 
-prepare/envsetup.sh setup first_test_setup
+prepare/envsetup.sh
 set -x
 eval "$CMDS"

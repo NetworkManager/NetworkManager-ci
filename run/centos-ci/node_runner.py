@@ -249,7 +249,7 @@ class Machine:
         self.scp_to("../NetworkManager-ci/", "")
         # execute envsetup - with stock NM package, will update later, should not matter
         self.ssh(
-            f"cd NetworkManager-ci\\; bash -x prepare/envsetup.sh setup first_test_setup > ../envsetup.m{self.id}.log"
+            f"cd NetworkManager-ci\\; bash -x prepare/envsetup.sh > ../envsetup.m{self.id}.log"
         )
         return True
 
