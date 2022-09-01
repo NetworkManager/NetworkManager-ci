@@ -39,9 +39,9 @@
     Scenario: NM - sriov - disable sriov in config
     When "Exactly" "1" lines with pattern "p4p1" are visible with command "nmcli dev"
     * Prepare "99-sriov.conf" config for "p4p1" device with "2" VFs
-    When "Exactly" "3" lines with pattern "p4p1" are visible with command "nmcli dev"
+    When "Exactly" "3" lines with pattern "p4p1" are visible with command "nmcli dev" in "10" seconds
     * Prepare "99-sriov.conf" config for "p4p1" device with "0" VFs
-    When "Exactly" "1" lines with pattern "p4p1" are visible with command "nmcli dev" in "5" seconds
+    When "Exactly" "1" lines with pattern "p4p1" are visible with command "nmcli dev" in "10" seconds
 
 
     @rhbz1398934

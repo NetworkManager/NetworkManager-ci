@@ -990,7 +990,7 @@ Feature: nmcli - ovs
           conn.master port0
           ovs-dpdk.devargs 0000:42:10.0
           """
-    * Add "ovs-interface" connection named "ovs-iface1" for deivce "iface1" with options
+    * Add "ovs-interface" connection named "ovs-iface1" for device "iface1" with options
           """
           conn.master bond0
           ovs-dpdk.devargs 0000:42:10.2
@@ -1355,7 +1355,7 @@ Feature: nmcli - ovs
     Then "9000" is visible with command "nmcli -g 802-3-ethernet.mtu c show ovs-iface1"
     And "mtu 9000" is visible with command "ip a s dev port0"
     And "192.168.123.100/24" is visible with command "ip a s dev port0"
-    
+
 
     @rhbz2077950
     @ver+=1.39.11

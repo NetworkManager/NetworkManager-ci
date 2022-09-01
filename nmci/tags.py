@@ -1906,7 +1906,8 @@ def sriov_as(context, scenario):
     #     "echo 0 > /sys/class/net/p6p1/device/sriov_numvfs", shell=True, timeout=120
     # )
     context.process.run_stdout(
-        "echo 0 > /sys/class/net/p4p1/device/sriov_numvfs", shell=True, timeout=240
+        "echo 0 > /sys/class/net/p4p1/device/sriov_numvfs",
+        timeout=120,
     )
 
     context.process.run_stdout("rm -rf /etc/NetworkManager/conf.d/99-sriov.conf")
@@ -1919,7 +1920,10 @@ def sriov_as(context, scenario):
     #     "echo 1 > /sys/class/net/p6p1/device/sriov_drivers_autoprobe", shell=True
     # )
 
-    context.process.run_stdout("modprobe -r ixgbevf")
+    context.process.run_stdout(
+        "modprobe -r ixgbevf",
+        timeout=60,
+    )
 
     nmci.ctx.reload_NM_service(context)
 
