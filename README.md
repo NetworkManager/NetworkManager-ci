@@ -35,7 +35,7 @@ This repo contains a set of integration tests for NetworkManager and CentOS 8 St
     IP=$(sudo virsh net-dhcp-leases default | grep ipv4 | awk '{print $5}' |head -1 | awk -F '/' '{print $1}')
     ssh-copy-id root@$IP
     ```
-    Name resolution of or port forwarding to a given VM are described in 
+    Name resolution of or port forwarding to a given VM are described in
     [Networking tips for local VMs](#networking-tips-for-local-vms) section below.
 
 * Running Tests
@@ -212,6 +212,74 @@ This repo contains a set of integration tests for NetworkManager and CentOS 8 St
   1. or you can create a Merge Request in [Freedesktop Gitlab](https://gitlab.freedesktop.org/NetworkManager/NetworkManager-ci)
      right away and CI tooling will run both of these for you (changed scenarios only if unit tests pass successfully).
 
+
+### Gitlab merge request pipelines (CI/CD)
+
+Another possibility how to test the changes is to open a merge request in Gitlab. Pipeline first executes [UnitTests](nmci/test_nmci.py) (checks that the tests are consistent, well defined). Independently, remote jenkins triggers executes the tests, when a maintaner reviews and approves the code. The following apply for RHEL and [CentOS trigger](run/centos-ci/cico_gitlab_trigger.py):
+
+1. The tests can be retriggered by sending `rebuild` message to merge request discussion.
+
+1. Only tests in changed `.feature` files are executed (whole features), if not overridden.
+   * To override, use `@RunTests:test1,test2,...` in `rebuild` message, or in commit message or in merge request description.
+
+   * `@RunTests:*` forces to execute all tests.
+
+1. Latest NetworkManager main copr build (CentOS) or stock NetworkManager RPM (internal) are tested.
+   * To test on specific NetworkManager build, use `@Build:main` or `@Build:0e5a4638807dc34c517988432120e3a5`, in `rebuild` message, or in commit message or in merge request description.
+
+1. CentOS 8 stream, CentOS 9 stream, and RHEL8.X (latest release) are tested, if not overridden.
+   * To specify CentOS / RHEL release, use `@OS:centosX-stream` or shorter `@OS:cXs`, or `@OS:rhelX.Y` in commit message or in merge request description.
+
+   * Use `rebuild cXs` or `rebuild centosX-stream` or `rebuild rhelX.Y` in rebuild message.
+
+1. The priority of overrides is `rebuild` message, commit message, merge request description.
+
+1. The tests can be skipped either by pushing with `git push -o ci.skip`, or "Rebase without pipeline button" in WebUI.
+
+1. If you name your branch `mrXYZ`, then merge request with number XYZ from [NetworkManager repository](https://gitlab.freedesktop.org/NetworkManager/NetworkManager) will use this branch for testing.
+
+
+For CentOS trigger, there is also `@RunFeatures:feature1,feature2,...` override, which executes only specified features. It can be in either in commit message, in `rebuild` message or in merge request description.
+
+Also in CentOS, older builds running on the same CentOS release from the same merge request are stopped to save resources. So, if you push to the merge request before the tests are finished, you may get "Aborted" message in the merge request discussion.
+
+
+#### Gitlab common use-case examples:
+
+1. When creating merge request, add overrides to description, one override per line:
+
+   ```
+   This is example Merge Request
+   ...
+
+   @Build:main
+   @RunTests:my_new_regression_test
+   @OS:rhel8.5
+   ```
+
+1. Edit merge request description and add `rebuild` comment to the discussion, which will force the new run of the tests with overrides. The overrides will apply for further pushes to the merge request.
+
+1. For one-time overrides, you can either do rebuild comment in merge request discussion:
+
+   ```
+   @Build:nm-1-38
+   @RunTests:my_test1,my_test2
+
+   rebuild c8s
+   ```
+
+   or specify overrides in the last commit before pushing to the merge request:
+
+   ```
+   This adds feature XYZ to the testsuite
+
+   # this feature is not yet merged in NetworkManager
+   @Build:my_supporting_branch_in_NM_repository
+   # We want to execute all tests, not only changed files
+   @RunTests:*
+   ```
+
+
 ### Accessing reports over HTTP
 
 When testing at different machine than that running your browser, it is handy to have HTTP server on the test
@@ -247,7 +315,7 @@ For local libvirt VMs with floating bridges or NAT'd networks, there are several
     1. pointing system DNS resolver to libvirt-run `dnsmasq` for this network. This is pretty easy to configure
        statically for `dnsmasq` or `unbound` however if you run `systemd-resolved`, it's only possible to
        configure specific DNS server for a given domain by changing runtime configuration.
- 
+
        It's possible to automate this using [libvirt hooks](https://www.libvirt.org/hooks.html) mechanism and
        `systemd`'s commands `resolvectl` or `systemd-resolve` but neither project ships necessary glue script
        itself. Therefore I (@djasa) created [this script](https://gist.github.com/djasa/09bf57c152925717db1133d74220b0fc)
