@@ -752,12 +752,6 @@ install_el9_packages () {
 ###############################################################################
 
 install_fedora_packages () {
-    # Update sshd in Fedora 32 to avoid rhbz1771946
-    dnf -y -4 update \
-        $KOJI/openssh/8.1p1/2.fc32/x86_64/openssh-8.1p1-2.fc32.x86_64.rpm \
-        $KOJI/openssh/8.1p1/2.fc32/x86_64/openssh-server-8.1p1-2.fc32.x86_64.rpm \
-        $KOJI/openssh/8.1p1/2.fc32/x86_64/openssh-clients-8.1p1-2.fc32.x86_64.rpm
-
     if grep -q Rawhide /etc/redhat-release || grep -q 33 /etc/redhat-release; then
         dnf -y install \
             $KOJI/ipsec-tools/0.8.2/17.fc32/$(arch)/ipsec-tools-0.8.2-17.fc32.$(arch).rpm
