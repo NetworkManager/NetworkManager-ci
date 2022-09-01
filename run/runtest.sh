@@ -2,23 +2,7 @@
 
 set -x
 
-die() {
-    printf '%s\n' "$*"
-    exit 1
-}
-
-
-array_contains() {
-    local tag="$1"
-    shift
-
-    for a; do
-        if [ "$tag" = "$a" ]; then
-            return 0
-        fi
-    done
-    return 1
-}
+. "$(dirname "$(readlink -f "$0")")/../nmci/sh/nmci-utils.sh"
 
 get_timestamp() {
     if [ -f /tmp/nm_tests_timestamp ]; then
@@ -33,7 +17,7 @@ version_control() {
     local rc
     local A
 
-    out="$("$DIR/nmci/helpers/version_control.py" "$1")"
+    out="$("$NMCI_BASE_DIR/nmci/helpers/version_control.py" "$1")"
     rc=$?
     if [ $rc -eq 0 ]; then
         local IFS=$'\n'
@@ -105,7 +89,7 @@ function gsm_hub_test() {
     for M in $(seq 1 1 $((MODEM_COUNT-1)) ); do
 
         for P in $(seq 0 1 $((PORT_COUNT-1)) ); do
-            $DIR/prepare/acroname.py --port $P --disable
+            "$NMCI_BASE_DIR/prepare/acroname.py" --port $P --disable
         done
 
         # systemctl stop ModemManager
@@ -114,10 +98,10 @@ function gsm_hub_test() {
         # sleep 2
         # systemctl restart ModemManager
 
-        $DIR/prepare/acroname.py --port $M --enable
+        "$NMCI_BASE_DIR/prepare/acroname.py" --port $M --enable
 
         # wait up to 300s for device to appear in NM
-        sh $DIR/prepare/initialize_modem.sh
+        sh "$NMCI_BASE_DIR/prepare/initialize_modem.sh"
 
 
         # Run just one test to be as quick as possible
@@ -172,9 +156,6 @@ TAG="${1#@}"
 
 logger -t $0 "Running test $TAG"
 
-export PATH="$PATH:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/root/bin"
-DIR=$(pwd)
-
 TS=$(get_timestamp)
 
 # set TEST variable for version_control script
@@ -190,7 +171,7 @@ if [ -z "$NMTEST" ]; then
     exit 128
 fi
 
-. $DIR/prepare/envsetup.sh
+. "$NMCI_BASE_DIR/prepare/envsetup.sh"
 ( configure_environment "$TAG" ) ; conf_rc=$?
 if [ $conf_rc != 0 ]; then
     if ps aux|grep -v grep| grep -q harness.py; then
