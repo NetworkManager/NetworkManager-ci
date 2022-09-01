@@ -448,5 +448,37 @@ class _IP:
 
         process.run_stdout(["ip", "link", "delete", ifname])
 
+    def netns_list(self, with_binary=False):
+
+        out = process.run_stdout("ip netns list", as_bytes=True)
+
+        if not out:
+            return []
+
+        if out.endswith(b"\n"):
+            out = out[:-1]
+
+        # We just split by newlines. That is wrong, if the netns name
+        # contains a newline (which it can *sigh*).
+        #
+        # We can also not use json output, because the iproute2 version
+        # might be compiled without JSON support and because iproute2 will
+        # blindly output non-UTF-8 names (which namespace names can contain *sigh*).
+        #
+        # We can also not simply list "/var/run/netns", because not every
+        # file there might be a valid netns. We would have to open the file
+        # and check whether the FD is valid (which is too cumbersome).
+        #
+        # So this is it.
+        #
+        # The result is a list of string or byte, depending on whether
+        # the name can be decoded as utf-8.
+        v = [util.binary_to_str(b) for b in out.split(b"\n")]
+
+        if not with_binary:
+            v = [x for x in v if not isinstance(x, bytes)]
+
+        return v
+
 
 sys.modules[__name__] = _IP()
