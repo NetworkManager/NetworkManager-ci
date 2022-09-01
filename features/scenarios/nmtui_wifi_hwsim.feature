@@ -528,9 +528,10 @@ Feature: WIFI TUI tests
 
 
     @fedoraver-=34 @rhelver-=8
-    @simwifi @attach_hostapd_log @attach_wpa_supplicant_log @wep
+    @simwifi @attach_hostapd_log @attach_wpa_supplicant_log
     @nmtui_simwifi_wep_hexkey_connection
     Scenario: nmtui - wifi_hwsim - WEP hex key connection
+    * Start nmtui allowing WEP
     * Prepare new connection of type "Wi-Fi" named "wifi1"
     * Set "Device" field to "wlan0"
     * Set "SSID" field to "wep-2"
@@ -543,9 +544,10 @@ Feature: WIFI TUI tests
 
 
     @fedoraver-=34 @rhelver-=8
-    @simwifi @attach_hostapd_log @attach_wpa_supplicant_log @wep
+    @simwifi @attach_hostapd_log @attach_wpa_supplicant_log
     @nmtui_simwifi_wep_ascii_connection
     Scenario: nmtui - wifi_hwsim - WEP ascii connection
+    * Start nmtui allowing WEP
     * Prepare new connection of type "Wi-Fi" named "wifi1"
     * Set "Device" field to "wlan0"
     * Set "SSID" field to "wep"
