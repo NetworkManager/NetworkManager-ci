@@ -44,7 +44,7 @@ install_plugins_yum () {
     if ! rpm -q --quiet NetworkManager-ovs; then
         yum -y install NetworkManager-ovs
     fi
-    if ! rpm -q --quiet NetworkManager-ppp && ! rpm -q NetworkManager |grep -q '1.4'; then
+    if ! rpm -q --quiet NetworkManager-ppp; then
         yum -y install NetworkManager-ppp
     fi
     if ! rpm -q --quiet NetworkManager-openvpn; then
