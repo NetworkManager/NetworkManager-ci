@@ -137,8 +137,11 @@ class CleanupNamespace(Cleanup):
     def _do_cleanup(self, cext):
         if self.teardown:
             teardown_testveth(cext.context, self.namespace)
-        if cext.context.process.run_search_stdout("ip netns list", self.namespace):
-            cext.context.process.run_stdout(["ip", "netns", "del", self.namespace])
+
+        cext.context.process.run(
+            ["ip", "netns", "del", self.namespace],
+            ignore_stderr=True,
+        )
 
 
 class CleanupNft(Cleanup):
