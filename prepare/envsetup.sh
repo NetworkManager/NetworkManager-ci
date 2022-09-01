@@ -70,6 +70,9 @@ EOF
     touch /run/console/test
     echo test > /run/console/console.lock
 
+    echo "PermitRootLogin yes" >> /etc/ssh/sshd_config
+    systemctl reload sshd
+
     # Passwordless sudo
     echo "enabling passwordless sudo"
     if [ -e /etc/sudoers.bak ]; then
@@ -754,9 +757,6 @@ install_fedora_packages () {
         $KOJI/openssh/8.1p1/2.fc32/x86_64/openssh-8.1p1-2.fc32.x86_64.rpm \
         $KOJI/openssh/8.1p1/2.fc32/x86_64/openssh-server-8.1p1-2.fc32.x86_64.rpm \
         $KOJI/openssh/8.1p1/2.fc32/x86_64/openssh-clients-8.1p1-2.fc32.x86_64.rpm
-    # Enable rawhide sshd to root
-    echo "PermitRootLogin yes" >> /etc/ssh/sshd_config
-    systemctl restart sshd
 
     if grep -q Rawhide /etc/redhat-release || grep -q 33 /etc/redhat-release; then
         dnf -y install \
