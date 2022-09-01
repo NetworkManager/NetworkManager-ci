@@ -97,41 +97,70 @@ EOF
 ###############################################################################
 
 install_packages () {
-    if ! test -f /tmp/nm_packages_installed; then
-        /usr/bin/python3 -V || yum -y install python3
-        /usr/bin/python3 -m pip &> /dev/null || yum -y install python3-pip
-        if ! [ -e /usr/bin/debuginfo-install ]; then
-            yum -y install /usr/bin/debuginfo-install
-        fi
+    [ -f "$NMCI_TMP_DIR/nm_packages_installed" ] && return
 
-        need_abrt="no"
-        # We need to check what distro we are on
-        # and if we need abrt
-        if grep -q 'Fedora' /etc/redhat-release; then
-            release="fedora"
-        elif grep -q -e 'release 8' /etc/redhat-release; then
-            release="el8"
-            need_abrt="yes"
-        elif grep -q -e 'release 9' /etc/redhat-release; then
-            release="el9"
-            need_abrt="yes"
-        elif grep -q -e 'release 7' /etc/redhat-release; then
-            release="el7"
-        fi
+    DNF="$(command -v dnf &>/dev/null && echo dnf || echo yum)"
 
-        # We can install packages now
-        # and give it possibly one more try
-        install_"$release"_packages
-        if ! check_packages; then
-            sleep 20
-            install_"$release"_packages
-        fi
-
-        if [ $need_abrt == "yes" ]; then
-            enable_abrt
-        fi
-        touch /tmp/nm_packages_installed
+    need_abrt="no"
+    # We need to check what distro we are on
+    # and if we need abrt
+    if grep -q 'Fedora' /etc/redhat-release; then
+        release="fedora"
+    elif grep -q -e 'release 8' /etc/redhat-release; then
+        release="el8"
+        need_abrt="yes"
+    elif grep -q -e 'release 9' /etc/redhat-release; then
+        release="el9"
+        need_abrt="yes"
+    elif grep -q -e 'release 7' /etc/redhat-release; then
+        release="el7"
+    else
+        die "Failed to detect release"
     fi
+
+    PACKAGES=(
+        iw
+        ethtool
+        wireshark-cli
+        NetworkManager-openvpn
+        NetworkManager-ppp
+        NetworkManager-pptp
+        NetworkManager-tui
+        NetworkManager-team
+        NetworkManager-wifi
+        NetworkManager-vpnc
+        NetworkManager-strongswan
+    )
+
+    "$DNF" install -y \
+        "${PACKAGES[@]}" \
+        /usr/bin/debuginfo-install \
+        /usr/bin/which \
+        python3 \
+        python3-pip
+
+    # We can install packages now
+    # and give it possibly one more try
+    install_"$release"_packages
+
+    if ! ( rpm -q "${PACKAGES[@]}" && test -x /usr/bin/behave ) ; then
+        sleep 20
+        install_"$release"_packages
+    fi
+
+    if [ "$need_abrt" = "yes" ]; then
+        if which abrt-auto-reporting > /dev/null; then
+            systemctl stop systemd-coredump.socket
+            systemctl mask systemd-coredump.socket
+            abrt-auto-reporting enabled
+            systemctl restart abrt-journal-core.service
+            systemctl restart abrt-ccpp.service
+        else
+            echo "ABRT probably not installed !!!"
+        fi
+    fi
+
+    touch "$NMCI_TMP_DIR/nm_packages_installed"
 }
 
 ###############################################################################
@@ -850,12 +879,6 @@ install_behave_pytest () {
 }
 
 
-check_packages () {
-    rpm -q iw ethtool wireshark-cli NetworkManager-openvpn NetworkManager-ppp NetworkManager-pptp NetworkManager-tui NetworkManager-team NetworkManager-wifi NetworkManager-vpnc NetworkManager-strongswan && ls /usr/bin/behave
-    return $?
-}
-
-
 install_plugins_yum () {
     # Installing plugins if missing
     if ! rpm -q --quiet NetworkManager-wifi; then
@@ -905,19 +928,6 @@ install_plugins_dnf () {
     fi
     if ! rpm -q --quiet NetworkManager-openvpn; then
         dnf -4 -y install NetworkManager-openvpn
-    fi
-}
-
-
-enable_abrt () {
-    if which abrt-auto-reporting > /dev/null; then
-        systemctl stop systemd-coredump.socket
-        systemctl mask systemd-coredump.socket
-        abrt-auto-reporting enabled
-        systemctl restart abrt-journal-core.service
-        systemctl restart abrt-ccpp.service
-    else
-        echo "ABRT probably not installed !!!"
     fi
 }
 
