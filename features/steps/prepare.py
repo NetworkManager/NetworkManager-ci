@@ -120,13 +120,11 @@ def prepare_connection(context):
 @step(u'Prepare "{conf}" config for "{device}" device with "{vfs}" VFs')
 def prepare_sriov_config(context, conf, device, vfs):
     conf_path = "/etc/NetworkManager/conf.d/"+conf
-    context.process.run_code("modprobe -r ixgbevf")
-    context.process.run_code("modprobe ixgbevf")
-    context.process.run_code("echo '[device-%s]' > %s" % (device, conf_path))
-    context.process.run_code("echo 'match-device=interface-name:%s' >> %s" % (device, conf_path))
-    context.process.run_code("echo 'sriov-num-vfs=%d' >> %s" % (int(vfs), conf_path))
+    context.command_code("echo '[device-%s]' > %s" % (device, conf_path))
+    context.command_code("echo 'match-device=interface-name:%s' >> %s" % (device, conf_path))
+    context.command_code("echo 'sriov-num-vfs=%d' >> %s" % (int(vfs), conf_path))
     time.sleep(0.2)
-    context.process.run_code('systemctl reload NetworkManager')
+    context.command_code('systemctl reload NetworkManager')
 
 
 @step(u'Prepare PBR documentation procedure')

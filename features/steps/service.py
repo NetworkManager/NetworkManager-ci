@@ -32,6 +32,9 @@ def reboot(context):
     # for various eth11 tests
     context.command_code("sudo ip link set dev eth11 down")
     context.command_code("sudo ip addr flush dev eth11")
+    # for sriov tests
+    context.command_code("sudo ip link set dev p4p1 down")
+    context.command_code("sudo ip addr flush dev p4p1")
 
     # for veth tests
     context.command_code("sudo ip link del veth11")

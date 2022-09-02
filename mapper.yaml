@@ -3270,6 +3270,8 @@ testmapper:
         feature: sriov
     - sriov_reboot_persistence:
         feature: sriov
+    - sriov_con_drv_bond_with_config:
+        feature: sriov
     - sriov_con_drv_add_VF:
         feature: sriov
     - sriov_con_drv_add_64VFs:
