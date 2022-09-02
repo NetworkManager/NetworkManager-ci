@@ -1087,3 +1087,31 @@ Feature: nmcli - bridge
     Scenario: bridge - keep addresses on unmanaged device
     * Cleanup device "testbr"
     * Execute reproducer "2079054"
+
+
+    @rhbz2092762
+    @ver+=1.40.0
+    @bridge_keep_unmanaged_device_on_reapply
+    Scenario: nmcli - bridge - keep unmanaged device attached to the bridge upon reapply
+    * Add "bridge" connection named "br0" for device "br0" with options
+      """
+      bridge.stp off
+      bridge.vlan-filtering off
+      """
+    * Create "veth" device named "vethfoo1" with options "peer name vethfoo2"
+    * Execute "nmcli device set vethfoo1 managed no"
+    * Execute "ip link set vethfoo1 master br0"
+    * Execute "ip link set vethfoo1 up"
+    Then "vethfoo1" is visible with command "bridge link"
+    And "unmanaged" is visible with command "nmcli device | grep vethfoo1"
+    And "no" is visible with command "nmcli -g bridge.stp connection show br0"
+    And "no" is visible with command "nmcli -g bridge.vlan-filtering connection show br0"
+    And "auto" is visible with command "nmcli -g 802-3-ethernet.mtu connection show br0"
+    * Modify connection "br0" changing options "bridge.stp on bridge.vlan-filtering on ethernet.mtu 1600"
+    * Execute "nmcli device reapply br0"
+    Then "vethfoo1" is visible with command "bridge link"
+    And "unmanaged" is visible with command "nmcli device | grep vethfoo1"
+    And "yes" is visible with command "nmcli -g bridge.stp connection show br0"
+    And "yes" is visible with command "nmcli -g bridge.vlan-filtering connection show br0"
+    And "1600" is visible with command "nmcli -g 802-3-ethernet.mtu connection show br0"
+

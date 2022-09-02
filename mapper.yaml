@@ -442,6 +442,8 @@ testmapper:
         feature: bridge
     - bridge_keepaddr_unmanaged_device:
         feature: bridge
+    - bridge_keep_unmanaged_device_on_reapply:
+        feature: bridge
     - add_default_team:
         feature: team
     - add_default_team_after_journal_restart:
