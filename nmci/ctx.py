@@ -250,16 +250,6 @@ class EmbedLink(Embed):
         self._mime_type = "link"
 
 
-class EmbedLater(Embed):
-    def __init__(self, callback, fail_only=False, combine_tag=None):
-        Embed.__init__(self, fail_only=fail_only, combine_tag=combine_tag)
-        self._callback = callback
-
-    def evalDoEmbedArgs(self):
-        mime_type, data, caption = self._callback()
-        return (mime_type, data or "NO DATA", caption)
-
-
 ###############################################################################
 
 
@@ -391,9 +381,6 @@ class _CExt:
     def embed_link(self, *a, embed_context=None, **kw):
         self._embed_queue(EmbedLink(*a, **kw), embed_context=embed_context)
 
-    def embed_later(self, *a, embed_context=None, **kw):
-        self._embed_queue(EmbedLater(*a, **kw), embed_context=embed_context)
-
     def embed_dump(self, caption, dump_id, *, data=None, links=None):
         print("Attaching %s, %s" % (caption, dump_id))
         assert (data is None) + (links is None) == 1
@@ -466,36 +453,20 @@ class _CExt:
         journal_args=None,
         cursor=None,
         fail_only=False,
-        now=True,
     ):
         print("embedding " + descr + " logs")
         if cursor is None:
             cursor = self.context.log_cursor
-        if now:
-            self.embed_data(
-                descr,
-                misc.journal_show(
-                    service=service,
-                    syslog_identifier=syslog_identifier,
-                    journal_args=journal_args,
-                    cursor=cursor,
-                ),
-                fail_only=fail_only,
-            )
-        else:
-            self.embed_later(
-                lambda: (
-                    "text/plain",
-                    misc.journal_show(
-                        service=service,
-                        syslog_identifier=syslog_identifier,
-                        journal_args=journal_args,
-                        cursor=cursor,
-                    ),
-                    descr,
-                ),
-                fail_only=fail_only,
-            )
+        self.embed_data(
+            descr,
+            misc.journal_show(
+                service=service,
+                syslog_identifier=syslog_identifier,
+                journal_args=journal_args,
+                cursor=cursor,
+            ),
+            fail_only=fail_only,
+        )
 
     def embed_file_if_exists(
         self,
