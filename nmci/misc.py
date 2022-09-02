@@ -356,25 +356,13 @@ class _Misc:
         if use_cached and hasattr(self, "_distro_detect_cached"):
             return self._distro_detect_cached
 
-        distro_version = [
-            int(x)
-            for x in process.run_stdout(
-                [
-                    "sed",
-                    "s/.*release *//;s/ .*//;s/Beta//;s/Alpha//",
-                    "/etc/redhat-release",
-                ],
-            ).split(".")
-        ]
+        v = process.run_stdout(
+            ["bash", "-c", ". ./nmci/sh/nmci-utils.sh ; distro_detect"]
+        )
 
-        if subprocess.call(["grep", "-qi", "fedora", "/etc/redhat-release"]) == 0:
-            distro_flavor = "fedora"
-        else:
-            distro_flavor = "rhel"
-            if len(distro_version) == 1:
-                # CentOS stream only gives "CentOS Stream release 8". Hack a minor version
-                # number
-                distro_version.append(99)
+        arr = v.split(" ")
+        distro_flavor = arr[0]
+        distro_version = tuple(int(x) for x in arr[1:])
 
         v = (distro_flavor, distro_version)
         self._distro_detect_cached = v

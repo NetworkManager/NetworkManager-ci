@@ -53,3 +53,45 @@ EOF
         chmod +x "$NMCI_TMP_DIR/bin/python"
     fi
 }
+
+distro_detect() {
+    if [ -z "$_NMCI_UTILS_DISTRO_DETECT" ]; then
+        local s
+        local distro_flavor
+        local distro_version
+
+        distro_version="$(sed "s/.*release *//;s/ .*//;s/Beta//;s/Alpha//" /etc/redhat-release)"
+
+        if [ -z "$distro_version" ]; then
+            echo "failed to parse version from /etc/redhat-release" >&2
+            return 1
+        fi
+
+        if grep -qi fedora /etc/redhat-release ; then
+            distro_flavor='fedora'
+        else
+            distro_flavor='rhel'
+            if [[ "$distro_version" != *.* ]]; then
+                # CentOS stream only gives "CentOS Stream release 8". Hack a minor version
+                # number
+                distro_version="$distro_version.99"
+            fi
+        fi
+
+        distro_version="${distro_version//./ }"
+
+        s="$distro_flavor $distro_version"
+
+        local reg='^(fedora|rhel)( [0-9]+)*$'
+        if [[ "$s" =~ $reg ]]; then
+            :
+        else
+            echo "unrecognized version \"$s\"" >&2
+            return 1
+        fi
+
+        _NMCI_UTILS_DISTRO_DETECT="$distro_flavor $distro_version"
+    fi
+
+    echo "$_NMCI_UTILS_DISTRO_DETECT"
+}

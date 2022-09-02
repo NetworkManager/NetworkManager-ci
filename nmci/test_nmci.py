@@ -1557,6 +1557,30 @@ def test_misc_version_control():
         )
 
 
+def test_distro_detect():
+    # This tests checks the version of the system where we run.
+    # The test is not stubbed.
+    #
+    # Since it only makes sense to run NM-ci on systems that we
+    # support, we expect this to succeed.
+
+    assert not hasattr(misc, "_distro_detect_cached")
+
+    flavor, version = misc.distro_detect()
+
+    delattr(misc, "_distro_detect_cached")
+
+    assert type(version) is tuple
+    assert len(version) > 0
+    assert all(type(v) is int for v in version)
+    if flavor == "fedora":
+        assert len(version) == 1
+    elif flavor == "rhel":
+        assert len(version) > 1
+    else:
+        assert flavor in ["fedora", "rhel"]
+
+
 def test_misc_test_find_feature_file():
 
     assert misc.test_find_feature_file("pass") == util.base_dir(
