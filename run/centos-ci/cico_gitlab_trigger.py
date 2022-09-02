@@ -282,6 +282,8 @@ def get_rebuild_detail(message, overrides={}):
                 os_version.add("8-stream")
             elif os_alias in ["c9s", "centos9-stream"]:
                 os_version.add("9-stream")
+            else:
+                os_version.add("unknown")
         elif line.strip().lower().startswith("@runfeatures:"):
             overrides["features"] = line.strip().split(":", 1)[-1]
         elif line.strip().lower().startswith("@runtests:"):
@@ -326,6 +328,9 @@ def execute_build(gt, content, os_version=default_os, features="best", build="ma
         os_version = default_os
 
     for v in os_version:
+        if v == "unknown":
+            print("skipping non-centos version")
+            continue
         os_version_params = []
         os_version_params.append({"name": "RELEASE", "value": v})
         os_version_params.append(
