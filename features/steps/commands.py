@@ -523,12 +523,12 @@ def check_pattern_not_visible_with_tab_after_command(context, pattern, command):
 
 @step(u'Run child "{command}"')
 def run_child_process(context, command):
-    context.pexpect_service(command, shell=True)
+    context.cext.pexpect_service(command, shell=True, label=True)
 
 
 @step(u'Run child "{command}" without shell')
 def run_child_process_no_shell(context, command):
-    context.pexpect_service(command)
+    context.cext.pexpect_service(command, label=True)
 
 
 @step(u'Start following journal')

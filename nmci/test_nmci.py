@@ -1584,7 +1584,7 @@ def test_ctx_pexpect():
     p = context.pexpect_service("echo foobar")
     assert p.expect(["xxx", "foobar", pexpect.TIMEOUT, pexpect.EOF]) == 1
 
-    context.cext.process_commands("after_scenario")
+    context.cext.process_pexpect_spawn()
 
     context.cext.process_embeds(True)
 
