@@ -104,22 +104,22 @@ install_packages () {
 
     DNF="$(command -v dnf &>/dev/null && echo dnf || echo yum)"
 
-    need_abrt="no"
-    # We need to check what distro we are on
-    # and if we need abrt
-    if grep -q 'Fedora' /etc/redhat-release; then
-        release="fedora"
-    elif grep -q -e 'release 8' /etc/redhat-release; then
-        release="el8"
-        need_abrt="yes"
-    elif grep -q -e 'release 9' /etc/redhat-release; then
-        release="el9"
-        need_abrt="yes"
-    elif grep -q -e 'release 7' /etc/redhat-release; then
-        release="el7"
-    else
-        die "Failed to detect release"
-    fi
+    case "$(distro_detect)" in
+        "fedora"*)
+            release="fedora"
+            ;;
+        "rhel 7"*)
+            release="el7"
+            ;;
+        "rhel 8"*)
+            release="el8"
+            ;;
+        "rhel 9"*)
+            release="el9"
+            ;;
+        *)
+            die "failed to detect version"
+    esac
 
     PACKAGES=(
         iw
@@ -151,17 +151,21 @@ install_packages () {
         install_"$release"_packages
     fi
 
-    if [ "$need_abrt" = "yes" ]; then
-        if which abrt-auto-reporting > /dev/null; then
-            systemctl stop systemd-coredump.socket
-            systemctl mask systemd-coredump.socket
-            abrt-auto-reporting enabled
-            systemctl restart abrt-journal-core.service
-            systemctl restart abrt-ccpp.service
-        else
-            echo "ABRT probably not installed !!!"
-        fi
-    fi
+    case "$(distro_detect)" in
+        "rhel 8"* | \
+        "rhel 9"*)
+            # setup abrt.
+            if which abrt-auto-reporting > /dev/null; then
+                systemctl stop systemd-coredump.socket
+                systemctl mask systemd-coredump.socket
+                abrt-auto-reporting enabled
+                systemctl restart abrt-journal-core.service
+                systemctl restart abrt-ccpp.service
+            else
+                echo "ABRT probably not installed !!!"
+            fi
+            ;;
+    esac
 
     touch "$NMCI_TMP_DIR/nm_packages_installed"
 }
@@ -259,15 +263,20 @@ configure_networking () {
     fi
 
     # Drop compiled in defaults into proper config
-    if grep -q -e 'release 8' /etc/redhat-release; then
-        echo -e "[main]\ndhcp=nettools\nplugins=ifcfg-rh,keyfile" >> /etc/NetworkManager/conf.d/99-test.conf
-    elif grep -q -e 'release 7' /etc/redhat-release; then
-        echo -e "[main]\ndhcp=dhclient\nplugins=ifcfg-rh,keyfile" >> /etc/NetworkManager/conf.d/99-test.conf
-    elif grep -q -e 'release 9' /etc/redhat-release; then
-        echo -e "[main]\ndhcp=nettools\nplugins=keyfile,ifcfg-rh" >> /etc/NetworkManager/conf.d/99-test.conf
-    elif grep -q -e 'Fedora' /etc/redhat-release; then
-        echo -e "[main]\ndhcp=nettools\nplugins=keyfile,ifcfg-rh" >> /etc/NetworkManager/conf.d/99-test.conf
-    fi
+    case "$(distro_detect)" in
+        "rhel 8"*)
+            echo -e "[main]\ndhcp=nettools\nplugins=ifcfg-rh,keyfile" >> /etc/NetworkManager/conf.d/99-test.conf
+            ;;
+        "rhel 7"*)
+            echo -e "[main]\ndhcp=dhclient\nplugins=ifcfg-rh,keyfile" >> /etc/NetworkManager/conf.d/99-test.conf
+            ;;
+        "rhel 9"*)
+            echo -e "[main]\ndhcp=nettools\nplugins=keyfile,ifcfg-rh" >> /etc/NetworkManager/conf.d/99-test.conf
+            ;;
+        "fedora "*)
+            echo -e "[main]\ndhcp=nettools\nplugins=keyfile,ifcfg-rh" >> /etc/NetworkManager/conf.d/99-test.conf
+            ;;
+    esac
 
     # Remove dnsmasq's mapping to lo only RHEL9 and Fedora 33+
     sed -i 's/^interface=lo/# interface=lo/' /etc/dnsmasq.conf
@@ -1061,7 +1070,7 @@ install_usb_hub_driver_el () {
     mkdir /tmp/brainstem
     pushd contrib/usb_hub
         # The module brainstem is already stored in project NetworkManager-ci.
-        if grep -q -e 'Enterprise Linux .*release 7' -e 'CentOS Linux release 7' /etc/redhat-release; then
+        if [[ "$(distro_detect)" == "rhel 7"* ]]; then
             # Compatible with RHEL7
             tar -C /tmp/brainstem -xf brainstem_dev_kit_ubuntu_lts_14.04_x86_64.tgz
             cd /tmp/brainstem/development/python/
