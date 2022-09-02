@@ -575,30 +575,70 @@ class _CExt:
         if p_failed:
             raise Exception(f"process failed: {argv}")
 
-    def _pexpect_start(self, *a, encoding="utf-8", logfile=None, shell=False, **kw):
+    def _pexpect_start(
+        self,
+        command,
+        args,
+        timeout,
+        maxread,
+        logfile,
+        cwd,
+        env,
+        encoding,
+        codec_errors,
+        shell,
+    ):
         if logfile is None:
             import tempfile
 
             logfile = tempfile.NamedTemporaryFile(dir=util.tmp_dir(), mode="w")
 
         if shell:
-            a = ["/bin/bash", ["-c", *a]]
+            if args:
+                args = ["-c", command, "--", "/bin/bash", *args]
+            else:
+                args = ["-c", command]
+            command = "/bin/bash"
 
-        proc = pexpect.spawn(*a, **kw, logfile=logfile, encoding=encoding)
+        proc = pexpect.spawn(
+            command=command,
+            args=args,
+            timeout=timeout,
+            maxread=maxread,
+            logfile=logfile,
+            cwd=cwd,
+            env=env,
+            encoding=encoding,
+            codec_errors=codec_errors,
+        )
 
         return proc, logfile
 
     def pexpect_spawn(
         self,
-        *a,
-        encoding="utf-8",
+        command,
+        args=[],
+        timeout=30,
+        maxread=2000,
         logfile=None,
+        cwd=None,
+        env=None,
+        encoding="utf-8",
+        codec_errors="strict",
         shell=False,
         label=None,
-        **kw,
     ):
         proc, logfile = self._pexpect_start(
-            *a, encoding=encoding, logfile=logfile, shell=shell, **kw
+            command=command,
+            args=args,
+            timeout=timeout,
+            maxread=maxread,
+            logfile=logfile,
+            cwd=cwd,
+            env=env,
+            encoding=encoding,
+            codec_errors=codec_errors,
+            shell=shell,
         )
 
         data = PexpectData(False, proc, logfile, self.get_embed_context(), label)
@@ -609,16 +649,30 @@ class _CExt:
 
     def pexpect_service(
         self,
-        *a,
-        encoding="utf-8",
+        command,
+        args=[],
+        timeout=30,
+        maxread=2000,
         logfile=None,
+        cwd=None,
+        env=None,
+        encoding="utf-8",
+        codec_errors="strict",
         shell=False,
         label=None,
         cleanup_priority=Cleanup.PRIORITY_PEXPECT_SERVICE,
-        **kw,
     ):
         proc, logfile = self._pexpect_start(
-            *a, encoding=encoding, logfile=logfile, shell=shell, **kw
+            command=command,
+            args=args,
+            timeout=timeout,
+            maxread=maxread,
+            logfile=logfile,
+            cwd=cwd,
+            env=env,
+            encoding=encoding,
+            codec_errors=codec_errors,
+            shell=shell,
         )
 
         data = PexpectData(True, proc, logfile, self.get_embed_context(), label)
