@@ -165,6 +165,12 @@ def crash_bs(context, scenario):
     if context.systemd_coredump_masked:
         context.process.systemctl("unmask systemd-coredump.socket")
         context.process.systemctl("restart systemd-coredump.socket")
+    rc, out, _ = context.process.systemctl("is-active abrtd.service")
+    context.abrt_active = rc == 0
+    if context.abrt_active:
+        # this stops also other abrt services
+        print("stopping abrtd")
+        context.process.systemctl("stop abrtd.service")
     # set core file size limit of Networkmanager (centos workaround)
     # context.process.run_stdout("prlimit --core=unlimited:unlimited --pid $(pidof NetworkManager)", shell=True)
 
@@ -178,6 +184,13 @@ def crash_as(context, scenario):
     if context.systemd_coredump_masked:
         context.process.systemctl("stop systemd-coredump.socket")
         context.process.systemctl("mask systemd-coredump.socket")
+
+    if context.abrt_active:
+        print("starting abrt services")
+        context.process.systemctl("start abrtd.service")
+        context.process.systemctl("start abrt-journal-core.service")
+        context.process.systemctl("start abrt-oops.service")
+        context.process.systemctl("start abrt-vmcore.service")
 
 
 _register_tag("crash", crash_bs, crash_as)
