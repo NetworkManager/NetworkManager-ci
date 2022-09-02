@@ -718,21 +718,42 @@ def check_coredump(context):
         if not misc.coredump_is_reported(dump_dir):
             # 'coredumpctl debug' not available in RHEL7
             if "Maipo" in context.rh_release:
-                dump = nmci.process.run_stdout(
-                    f"echo backtrace | coredumpctl -q -batch gdb {pid}",
-                    shell=True,
-                    stderr=subprocess.STDOUT,
-                    ignore_stderr=True,
-                    timeout=120,
-                )
+                timeout = nmci.util.start_timeout(60)
+                while timeout.loop_sleep(5):
+                    e = False
+                    try:
+                        dump = nmci.process.run_stdout(
+                            f"echo backtrace | coredumpctl -q -batch gdb {pid}",
+                            shell=True,
+                            stderr=subprocess.STDOUT,
+                            ignore_stderr=True,
+                            timeout=120,
+                        )
+                    except Exception as ex:
+                        e = ex
+                    if not e:
+                        break
+                if e:
+                    raise e
             else:
-                dump = nmci.process.run_stdout(
-                    f"echo backtrace | coredumpctl debug {pid}",
-                    shell=True,
-                    stderr=subprocess.STDOUT,
-                    ignore_stderr=True,
-                    timeout=120,
-                )
+                timeout = nmci.util.start_timeout(60)
+                while timeout.loop_sleep(5):
+                    e = False
+                    try:
+                        dump = nmci.process.run_stdout(
+                            f"echo backtrace | coredumpctl debug {pid}",
+                            shell=True,
+                            stderr=subprocess.STDOUT,
+                            ignore_stderr=True,
+                            timeout=120,
+                        )
+                    except Exception as ex:
+                        e = ex
+                    if not e:
+                        break
+                if e:
+                    raise e
+
             context.cext.embed_dump("COREDUMP", dump_dir, data=dump)
 
 
