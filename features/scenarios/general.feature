@@ -17,7 +17,6 @@ Feature: nmcli - general
     @crashing_NM_binary
     Scenario: Dummy scenario that is supposed to test crash embeding
     * Execute "sysctl kernel.core_pattern"
-    * Execute "pkill -SIGSEGV NetworkManager"
     # the test should fail, because @xfail reverts returncode
     Then Check coredump is not found in "60" seconds
 

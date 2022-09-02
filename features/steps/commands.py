@@ -665,6 +665,21 @@ def note_NM_log(context):
 
 @step(u'Check coredump is not found in "{seconds}" seconds')
 def check_no_coredump(context, seconds):
+    # check core limit is unlimited (soft and hard)
+    # if it is not the case, the check_coredump may fail, and we do not have cores!
+    with open(f"/proc/{context.nm_pid}/limits") as limits_f:
+        for limit in limits_f.readlines():
+            if "max core file size" in limit.lower():
+                # there should be 2 "unlimited" columns
+                if "unlimited" not in limit.replace("unlimited", "", 1):
+                    context.cext.embed_data("Core Limits", limit)
+                    # exit cleanly, test is marked @xfail
+                    return
+
+    # segfault NM
+    context.process.run_stdout("pkill -SIGSEGV NetworkManager")
+
+    # check if coredump is found
     timeout = nmci.util.start_timeout(seconds)
     while timeout.loop_sleep(0.5):
         nmci.ctx.check_coredump(context)
