@@ -109,6 +109,24 @@ def execute_multiple_times(context, command, number):
         i += 1
 
 
+@step(u'Terminate "{process}"')
+@step(u'Terminate "{process}" with signal "{signal}"')
+@step(u'Terminate all processes named "{process}"')
+@step(u'Terminate all processes named "{process}" with signal "{signal}"')
+def pkill_process(context, process, signal='TERM'):
+    pids = ' '.join(context.command_output(f"pgrep {process}").split("\n"))
+    context.process.run_stdout(f"/usr/bin/kill -{signal} {pids}")
+    ticks = 25 # 5 seconds
+    while ticks > 0:
+        # This works for multiple pids, because kill would return 0
+        # if it could signal *any* of the pids
+        if context.command_code(f"/usr/bin/kill -0 {pids}") == 1:
+            return True
+        ticks = ticks - 1
+        time.sleep(0.2)
+    raise Exception(f"Not all processed {pids} terminated on time")
+
+
 @step(u'"{command}" fails')
 def wait_for_process(context, command):
     assert context.command_code(command) != 0
