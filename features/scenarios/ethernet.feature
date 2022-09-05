@@ -376,21 +376,17 @@ Feature: nmcli - ethernet
     * Note the "802-3-ethernet.wake-on-lan" property from editor print output
     Then Noted value does not contain "magic"
     * Submit "set 802-3-ethernet.wake-on-lan phy" in editor
+    * Submit "remove 802-3-ethernet.wake-on-lan default" in editor
+    * Submit "set 802-3-ethernet.wake-on-lan unicast" in editor
     * Save in editor
-    * Submit "set 802-3-ethernet.wake-on-lan default" in editor
-    * Note the "802-3-ethernet.wake-on-lan" property from editor print output
-    Then Noted value contains "phy"
-    Then Noted value contains "default"
-    * Submit "remove 802-3-ethernet.wake-on-lan phy"
-    * Note the "802-3-ethernet.wake-on-lan" property from editor print output
-    Then Noted value does not contain "phy"
-    Then Noted value contains "default"
+    Then Check if object item "802-3-ethernet.wake-on-lan" has value "phy, unicast" via print
+    * Submit "remove 802-3-ethernet.wake-on-lan"
     * Save in editor
     * Quit editor
     * Bring "down" connection "ethernet"
     * Execute "modprobe -r ixgbe && modprobe ixgbe && sleep 5"
     * Bring up connection "ethernet"
-    Then "ETHTOOL_OPTS" is not visible with command "cat /etc/sysconfig/network-scripts/ifcfg-ethernet"
+    #Then "ETHTOOL_OPTS" is not visible with command "cat /etc/sysconfig/network-scripts/ifcfg-ethernet"
     * Note the output of "ethtool em1 |grep Wake-on |grep -v Supports | awk '{print $2}'" as value "wol_new"
     Then Check noted values "wol_new" and "wol_orig" are the same
 
@@ -1030,7 +1026,6 @@ Feature: nmcli - ethernet
 
     @rhbz1335409
     @ver+=1.14
-   
     @ethtool_features_fixed_connection
     Scenario: nmcli - ethernet - change ethtool fixed feature in connection
     Given "fixed" is visible with command "ethtool -k eth1 | grep tx-checksum-ipv4:"

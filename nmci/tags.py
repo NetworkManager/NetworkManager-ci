@@ -1939,7 +1939,7 @@ def sriov_as(context, scenario):
     context.process.run_stdout(
         "echo 0 > /sys/class/net/p4p1/device/sriov_numvfs",
         shell=True,
-        timeout=120,
+        timeout=240,
     )
 
     context.process.run_stdout(
