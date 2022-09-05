@@ -24,6 +24,7 @@ class Cleanup:
     UNIQ_TAG_DISTINCT = object()
 
     PRIORITY_PEXPECT_SERVICE = 30
+    PRIORITY_TAG = 20
 
     def __init__(
         self,
