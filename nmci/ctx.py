@@ -57,7 +57,14 @@ class Cleanup:
     def do_cleanup(self, cext):
         assert not self._do_cleanup_called
         self._do_cleanup_called = True
-        self._do_cleanup(cext)
+        t = time.monotonic()
+        print(f"cleanup action {self.name} (priority {self.priority}) ...", end="")
+        try:
+            self._do_cleanup(cext)
+        except Exception as e:
+            print(f" failed ({e}) in {(time.monotonic() - t):.3f}s")
+            raise
+        print(f" passed in {(time.monotonic() - t):.3f}s")
 
     def _do_cleanup(self, cext):
         if self._callback is None:
