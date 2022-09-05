@@ -37,6 +37,13 @@ array_contains() {
     return 1
 }
 
+# Some URL shorteners
+KOJI="https://kojipkgs.fedoraproject.org/packages"
+BREW="http://download.eng.bos.redhat.com/brewroot/vol"
+FEDP="https://vbenes.fedorapeople.org/NM"
+CBSC="https://cbs.centos.org/kojifiles/packages"
+KHUB="https://kojihub.stream.centos.org/kojifiles/packages"
+
 _nmci_install_detect() {
     if [ -z "$_NMCI_UTILS_INSTALL" ]; then
         if command -v dnf &>/dev/null; then
