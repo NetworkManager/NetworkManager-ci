@@ -7,7 +7,7 @@
 ###############################################################################
 
 configure_basic_system () {
-    [ -e /tmp/nm_eth_configured_part1 ] && return
+    nmci_tmp_dir_has "nm_eth_configured_part1" && return
 
     # Set the root password to 'networkmanager' (for overcoming polkit easily)
     echo "Setting root password to 'networkmanager'"
@@ -92,7 +92,7 @@ EOF
     # Deploy ssh-keys
     deploy_ssh_keys
 
-    touch /tmp/nm_eth_configured_part1
+    nmci_tmp_dir_touch "nm_eth_configured_part1"
 }
 
 ###############################################################################
@@ -100,7 +100,7 @@ EOF
 ###############################################################################
 
 install_packages () {
-    [ -f "$NMCI_TMP_DIR/nm_packages_installed" ] && return
+    nmci_tmp_dir_has "nm_packages_installed" && return
 
     DNF="$(command -v dnf &>/dev/null && echo dnf || echo yum)"
 
@@ -167,7 +167,7 @@ install_packages () {
             ;;
     esac
 
-    touch "$NMCI_TMP_DIR/nm_packages_installed"
+    nmci_tmp_dir_touch "nm_packages_installed"
 }
 
 ###############################################################################

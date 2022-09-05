@@ -37,6 +37,19 @@ array_contains() {
     return 1
 }
 
+nmci_tmp_dir_ensure() {
+    mkdir -p "$NMCI_TMP_DIR/$1"
+    echo "$NMCI_TMP_DIR/$1"
+}
+
+nmci_tmp_dir_has() {
+    test -f "$NMCI_TMP_DIR/$1"
+}
+
+nmci_tmp_dir_touch() {
+    touch "$(nmci_tmp_dir_ensure "$(dirname "$1")")/$(basename "$1")"
+}
+
 nmci_utils_override_python() {
     [ -n "$NMCI_TMP_DIR" ] || return 1
 
