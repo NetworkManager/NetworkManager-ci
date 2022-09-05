@@ -95,23 +95,6 @@ EOF
 install_packages () {
     nmci_tmp_dir_has "nm_packages_installed" && return
 
-    case "$(distro_detect)" in
-        "fedora"*)
-            release="fedora"
-            ;;
-        "rhel 7"*)
-            release="el7"
-            ;;
-        "rhel 8"*)
-            release="el8"
-            ;;
-        "rhel 9"*)
-            release="el9"
-            ;;
-        *)
-            die "failed to detect version"
-    esac
-
     PACKAGES=(
         iw
         ethtool
@@ -133,14 +116,22 @@ install_packages () {
         python3 \
         python3-pip
 
-    # We can install packages now
-    # and give it possibly one more try
-    install_"$release"_packages
-
-    if ! ( rpm -q "${PACKAGES[@]}" && test -x /usr/bin/behave ) ; then
-        sleep 20
-        install_"$release"_packages
-    fi
+    case "$(distro_detect)" in
+        "fedora"*)
+            install_fedora_packages
+            ;;
+        "rhel 7"*)
+            install_el7_packages
+            ;;
+        "rhel 8"*)
+            install_el8_packages
+            ;;
+        "rhel 9"*)
+            install_el9_packages
+            ;;
+        *)
+            die "failed to detect version"
+    esac
 
     case "$(distro_detect)" in
         "rhel 8"* | \
