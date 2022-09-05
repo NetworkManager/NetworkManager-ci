@@ -22,13 +22,6 @@ configure_basic_system () {
     # Adding chronyd and syncing
     systemctl restart chronyd.service
 
-    # Pull in debugging symbols
-    if [ ! -e /tmp/nm_no_debug ]; then
-        cat /proc/$(pidof NetworkManager)/maps | awk '/ ..x. / {print $NF}' |
-            grep '^/' | xargs rpm -qf | grep -v 'not owned' | sort | uniq |
-            xargs debuginfo-install -y
-    fi
-
     # Restart with valgrind
     if [ -e /etc/systemd/system/NetworkManager-valgrind.service ]; then
         ln -s NetworkManager-valgrind.service /etc/systemd/system/NetworkManager.service
@@ -164,6 +157,22 @@ install_packages () {
             fi
             ;;
     esac
+
+    if [ ! -e /tmp/nm_no_debug ]; then
+        nmci_install_debuginfo $(
+            (
+                rpm -qf /usr/sbin/NetworkManager
+                for pid in $(pidof NetworkManager); do
+                    cat "/proc/$pid/maps" |
+                        awk '/ ..x. / {print $NF}' |
+                        grep '^/' |
+                        xargs -d '\n' rpm -qf |
+                        grep -v 'not owned'
+                done
+            ) |
+            sort -u
+        )
+    fi
 
     nmci_tmp_dir_touch "nm_packages_installed"
 }
