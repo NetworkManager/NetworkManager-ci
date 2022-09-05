@@ -123,6 +123,7 @@ def prepare_sriov_config(context, conf, device, vfs):
     context.command_code("echo '[device-%s]' > %s" % (device, conf_path))
     context.command_code("echo 'match-device=interface-name:%s' >> %s" % (device, conf_path))
     context.command_code("echo 'sriov-num-vfs=%d' >> %s" % (int(vfs), conf_path))
+    time.sleep(0.2)
     context.command_code('systemctl reload NetworkManager')
 
 

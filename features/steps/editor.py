@@ -338,5 +338,5 @@ def value_printed(context, item, value):
         value = t_str[:-3]
         print(value)
 
-    context.prompt.expect('%s\\s+%s' % (item, value))
+    context.prompt.expect('%s:\\s+%s' % (item, value))
     print(context.prompt)

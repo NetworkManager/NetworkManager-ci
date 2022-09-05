@@ -41,7 +41,7 @@
     * Prepare "99-sriov.conf" config for "p4p1" device with "2" VFs
     When "Exactly" "3" lines with pattern "p4p1" are visible with command "nmcli dev" in "10" seconds
     * Prepare "99-sriov.conf" config for "p4p1" device with "0" VFs
-    When "Exactly" "1" lines with pattern "p4p1" are visible with command "nmcli dev" in "10" seconds
+    When "Exactly" "1" lines with pattern "p4p1" are visible with command "nmcli dev" in "20" seconds
 
 
     @rhbz1398934
@@ -141,9 +141,36 @@
     * Bring "down" connection "sriov"
     * Bring "down" connection "sriov_2"
     * Reboot
-    Then "activated" is visible with command "nmcli -g GENERAL.STATE con show sriov" in "5" seconds
-     And "activated" is visible with command "nmcli -g GENERAL.STATE con show sriov_2" in "5" seconds
+    Then "activated" is visible with command "nmcli -g GENERAL.STATE con show sriov" in "25" seconds
+     And "activated" is visible with command "nmcli -g GENERAL.STATE con show sriov_2" in "25" seconds
 
+
+    @rhbz1555013
+    @ver+=1.14.0
+    @sriov
+    @sriov_con_drv_bond_with_config
+    Scenario: nmcli - sriov - drv - bond with VF and ethernet reboot persistence
+    * Prepare "99-sriov.conf" config for "p4p1" device with "1" VFs
+    When "p4p1_0" is visible with command "nmcli device" in "5" seconds
+    * Add "bond" connection named "sriov_bond0" for device "bond0" with options
+          """
+          ipv4.method manual
+          ipv4.address 1.2.3.4/24
+          bond.options 'mode=active-backup,primary=p4p1_0,miimon=100,fail_over_mac=2'
+          """
+    * Add slave connection for master "bond0" on device "p4p1_0" named "sriov_bond0.0"
+    * Add slave connection for master "bond0" on device "em3" named "sriov_bond0.1"
+    When "Bonding Mode: fault-tolerance \(active-backup\) \(fail_over_mac follow\)\s+Primary Slave: p4p1_0 \(primary_reselect always\)\s+Currently Active Slave: p4p1_0" is visible with command "cat /proc/net/bonding/bond0"
+    When Check bond "bond0" link state is "up"
+    * Execute "ip link set dev p4p1_0 down"
+    Then "Bonding Mode: fault-tolerance \(active-backup\) \(fail_over_mac follow\)\s+Primary Slave: p4p1_0 \(primary_reselect always\)\s+Currently Active Slave: em3" is visible with command "cat /proc/net/bonding/bond0" in "20" seconds
+    Then Check bond "bond0" link state is "up"
+    * Reboot
+    When "Bonding Mode: fault-tolerance \(active-backup\) \(fail_over_mac follow\)\s+Primary Slave: p4p1_0 \(primary_reselect always\)\s+Currently Active Slave: p4p1_0" is visible with command "cat /proc/net/bonding/bond0" in "20" seconds
+    When Check bond "bond0" link state is "up"
+    * Execute "ip link set dev p4p1_0 down"
+    Then "Bonding Mode: fault-tolerance \(active-backup\) \(fail_over_mac follow\)\s+Primary Slave: p4p1_0 \(primary_reselect always\)\s+Currently Active Slave: em3" is visible with command "cat /proc/net/bonding/bond0" in "20" seconds
+    Then Check bond "bond0" link state is "up"
 
 
     ################# Test set with VF driver and device ######################################
@@ -419,22 +446,27 @@
           sriov.vfs '0 mac=00:11:22:33:44:55 trust=true'
           sriov.total-vfs 1
           """
-    * Add "bond" connection named "sriov_bond0" for device "sriov_bond" with options
+    When "p4p1\:ethernet\:connected\:sriov" is visible with command "nmcli -t device" in "15" seconds
+    * Add "bond" connection named "sriov_bond0" for device "bond0" with options
           """
           ipv4.method manual
           ipv4.address 1.2.3.4/24
           bond.options 'mode=active-backup,primary=p4p1_0,miimon=100,fail_over_mac=2'
           """
-    * Add slave connection for master "sriov_bond" on device "p4p1_0" named "sriov_bond0.0"
-    * Execute "sleep 2"
-    * Add slave connection for master "sriov_bond" on device "em3" named "sriov_bond0.1"
-    When "Bonding Mode: fault-tolerance \(active-backup\) \(fail_over_mac follow\)\s+Primary Slave: p4p1_0 \(primary_reselect always\)\s+Currently Active Slave: p4p1_0" is visible with command "cat /proc/net/bonding/sriov_bond"
-    When Check bond "sriov_bond" link state is "up"
+    * Add slave connection for master "bond0" on device "p4p1_0" named "sriov_bond0.0"
+    * Add slave connection for master "bond0" on device "em3" named "sriov_bond0.1"
+    When "Bonding Mode: fault-tolerance \(active-backup\) \(fail_over_mac follow\)\s+Primary Slave: p4p1_0 \(primary_reselect always\)\s+Currently Active Slave: p4p1_0" is visible with command "cat /proc/net/bonding/bond0"
+    When Check bond "bond0" link state is "up"
     * Execute "ip link set dev p4p1_0 down"
-    Then "Bonding Mode: fault-tolerance \(active-backup\) \(fail_over_mac follow\)\s+Primary Slave: p4p1_0 \(primary_reselect always\)\s+Currently Active Slave: em3" is visible with command "cat /proc/net/bonding/sriov_bond" in "20" seconds
-    Then Check bond "sriov_bond" link state is "up"
-    Then "00:11:22:33:44:55" is visible with command "ip a s sriov_bond"
-
+    Then "Bonding Mode: fault-tolerance \(active-backup\) \(fail_over_mac follow\)\s+Primary Slave: p4p1_0 \(primary_reselect always\)\s+Currently Active Slave: em3" is visible with command "cat /proc/net/bonding/bond0" in "20" seconds
+    Then Check bond "bond0" link state is "up"
+    Then "00:11:22:33:44:55" is visible with command "ip a s bond0"
+    * Reboot
+    When "Bonding Mode: fault-tolerance \(active-backup\) \(fail_over_mac follow\)\s+Primary Slave: p4p1_0 \(primary_reselect always\)\s+Currently Active Slave: p4p1_0" is visible with command "cat /proc/net/bonding/bond0" in "20" seconds
+    When Check bond "bond0" link state is "up"
+    * Execute "ip link set dev p4p1_0 down"
+    Then "Bonding Mode: fault-tolerance \(active-backup\) \(fail_over_mac follow\)\s+Primary Slave: p4p1_0 \(primary_reselect always\)\s+Currently Active Slave: em3" is visible with command "cat /proc/net/bonding/bond0" in "20" seconds
+    Then Check bond "bond0" link state is "up"
 
 
     ################# Test set WITHOUT VF driver (just inder PF device) ######################################
