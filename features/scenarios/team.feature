@@ -676,8 +676,8 @@
     Scenario: NM - team - kill teamd
      * Add "team" connection named "team0" for device "nm-team"
      * Execute "sleep 6"
-     * Execute "killall -9 teamd; sleep 2"
-    Then "teamd -o -n -U -D -N -t nm-team" is visible with command "ps aux|grep -v grep| grep teamd"
+     * Terminate "teamd" with signal "KILL"
+    Then "teamd -o -n -U -D -N* -t nm-team" is visible with command "ps aux|grep -v grep| grep teamd" in "10" seconds
 
 
     @describe
