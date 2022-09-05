@@ -30,6 +30,13 @@ class Tag:
             self.lineno = self._after_scenario.__code__.co_firstlineno
 
     def before_scenario(self, context, scenario):
+        if self._after_scenario is not None:
+            context.cext.cleanup_add(
+                callback=lambda cext: self.after_scenario(cext.context, scenario),
+                name=f"tag-{self.tag_name}",
+                unique_tag=(self,),
+                priority=nmci.ctx.Cleanup.PRIORITY_TAG,
+            )
         if self._before_scenario is None:
             return
 

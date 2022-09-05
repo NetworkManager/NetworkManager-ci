@@ -277,18 +277,7 @@ def _after_scenario(context, scenario):
 
     context.cext.process_pexpect_spawn()
 
-    # run after_scenario tags (in reverse order)
     excepts = []
-    scenario_tags = list(scenario.tags)
-    scenario_tags.reverse()
-    for tag_name in scenario_tags:
-        tag = nmci.tags.tag_registry.get(tag_name, None)
-        if tag is None:
-            continue
-        try:
-            tag.after_scenario(context, scenario)
-        except Exception:
-            excepts.append(traceback.format_exc())
 
     for ex in context.cext.process_cleanup():
         excepts.append("".join(traceback.format_exception(ex, ex, ex.__traceback__)))
