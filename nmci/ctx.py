@@ -1151,38 +1151,6 @@ def reinitialize_devices():
     return True
 
 
-def create_lock(dir):
-    if os.listdir(dir) == []:
-        lock = int(time.time())
-        print(("* creating new gsm lock %s" % lock))
-        os.mkdir("%s%s" % (dir, lock))
-        return True
-    else:
-        return False
-
-
-def is_lock_old(lock):
-    lock += 3600
-    if lock < int(time.time()):
-        print("* lock %s is older than an hour" % lock)
-        return True
-    else:
-        return False
-
-
-def get_lock(dir):
-    locks = os.listdir(dir)
-    if locks == []:
-        return None
-    else:
-        return int(locks[0])
-
-
-def delete_old_lock(dir, lock):
-    print("* deleting old gsm lock %s" % lock)
-    os.rmdir("%s%s" % (dir, lock))
-
-
 def setup_libreswan(context, mode, dh_group, phase1_al="aes", phase2_al=None):
     RC = context.process.run_code(
         f"MODE={mode} sh prepare/libreswan.sh",

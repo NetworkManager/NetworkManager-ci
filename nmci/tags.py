@@ -385,36 +385,6 @@ def gsm_bs(context, scenario):
 
     if not os.path.isfile("/tmp/usb_hub"):
         context.process.run_stdout("sh prepare/initialize_modem.sh", timeout=600)
-        # OBSOLETE: 2021/08/05
-        # import time
-        # dir = "/mnt/scratch/"
-        # timeout = 3600
-        # initialized = False
-        # freq = 30
-        #
-        # while(True):
-        #     print("* looking for gsm lock in nfs nest.test.redhat.com:/mnt/qa/desktop/broadband_lock")
-        #     lock = nmci.ctx.get_lock(dir)
-        #     if not lock:
-        #         if not initialized:
-        #             initialized = nmci.ctx.reinitialize_devices()
-        #         if nmci.ctx.create_lock(dir):
-        #             break
-        #         else:
-        #             continue
-        #     if lock:
-        #         if nmci.ctx.is_lock_old(lock):
-        #             nmci.ctx.delete_old_lock(dir, lock)
-        #             continue
-        #         else:
-        #             timeout -= freq
-        #             print(" ** still locked.. wating %s seconds before next try" % freq)
-        #             if not initialized:
-        #                 initialized = nmci.ctx.reinitialize_devices()
-        #             time.sleep(freq)
-        #             if timeout == 0:
-        #                 raise Exception("Timeout reached!")
-        #             continue
 
     context.process.nmcli_force("con down testeth0")
 
@@ -427,11 +397,6 @@ def gsm_as(context, scenario):
     context.process.nmcli_force("connection delete gsm")
     context.process.run_stdout("rm -rf /etc/NetworkManager/system-connections/gsm")
     nmci.ctx.wait_for_testeth0(context)
-
-    # OBSOLETE: 2021/08/05
-    # if not os.path.isfile('/tmp/usb_hub'):
-    #     context.process.run_stdout('mount -o remount -t nfs nest.test.redhat.com:/mnt/qa/desktop/broadband_lock /mnt/scratch')
-    #     nmci.ctx.delete_old_lock("/mnt/scratch/", nmci.ctx.get_lock("/mnt/scratch"))
 
     print("embed ModemManager log")
     data = nmci.misc.journal_show(
