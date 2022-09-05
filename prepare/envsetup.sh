@@ -102,8 +102,6 @@ EOF
 install_packages () {
     nmci_tmp_dir_has "nm_packages_installed" && return
 
-    DNF="$(command -v dnf &>/dev/null && echo dnf || echo yum)"
-
     case "$(distro_detect)" in
         "fedora"*)
             release="fedora"
@@ -135,7 +133,7 @@ install_packages () {
         NetworkManager-strongswan
     )
 
-    "$DNF" install -y \
+    nmci_install \
         "${PACKAGES[@]}" \
         /usr/bin/debuginfo-install \
         /usr/bin/which \

@@ -37,6 +37,34 @@ array_contains() {
     return 1
 }
 
+_nmci_install_detect() {
+    if [ -z "$_NMCI_UTILS_INSTALL" ]; then
+        if command -v dnf &>/dev/null; then
+            _NMCI_UTILS_INSTALL=dnf
+        else
+            _NMCI_UTILS_INSTALL=yum
+        fi
+    fi
+}
+
+nmci_install() {
+    _nmci_install_detect
+    "$_NMCI_UTILS_INSTALL" -y install "$@"
+}
+
+nmci_install_debuginfo() {
+    _nmci_install_detect
+
+    local i
+
+    if [ "$_NMCI_UTILS_INSTALL" = yum ]; then
+        i=("debuginfo-install")
+    else
+        i=("$_NMCI_UTILS_INSTALL" "debuginfo-install")
+    fi
+    "${i[@]}" -y "$@"
+}
+
 nmci_tmp_dir_ensure() {
     mkdir -p "$NMCI_TMP_DIR/$1"
     echo "$NMCI_TMP_DIR/$1"
