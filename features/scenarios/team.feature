@@ -680,6 +680,18 @@
     Then "teamd -o -n -U -D -N* -t nm-team" is visible with command "ps aux|grep -v grep| grep teamd" in "10" seconds
 
 
+    @ver+=1.41.1
+    @kill_teamd_with_ports
+    Scenario: NM - team - kill teamd, ensure ports stay attached
+     * Add "team" connection named "team0" for device "nm-team" with options "ipv4.method disabled ipv6.method disabled"
+     * Add "dummy" connection named "dummy0" for device "dummy0" with options "master nm-team team-port.prio 10"
+     When "connected" is visible with command "nmcli -g GENERAL.STATE dev show dummy0" in "10" seconds
+     Then "\"prio\": 10" is visible with command "teamdctl nm-team port config dump dummy0"
+     * Terminate "teamd"
+     When "teamd -o -n -U -D -N* -t nm-team" is visible with command "ps aux|grep -v grep| grep teamd" in "10" seconds
+     Then "\"prio\": 10" is visible with command "teamdctl nm-team port config dump dummy0"
+
+
     @describe
     Scenario: nmcli - team - describe team
      * Open editor for a type "team"

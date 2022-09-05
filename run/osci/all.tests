@@ -141,6 +141,7 @@ remove_config
 team_set_mtu
 team_reflect_changes_from_outside_of_NM
 kill_teamd
+kill_teamd_with_ports
 team_enslave_to_bridge
 describe
 team_in_bridge_mtu

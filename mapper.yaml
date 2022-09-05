@@ -516,6 +516,8 @@ testmapper:
         feature: team
     - kill_teamd:
         feature: team
+    - kill_teamd_with_ports:
+        feature: team
     - team_enslave_to_bridge:
         feature: team
     - describe:
