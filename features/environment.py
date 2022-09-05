@@ -279,6 +279,8 @@ def _after_scenario(context, scenario):
     if scenario.status == "failed" or nmci.util.DEBUG:
         nmci.ctx.dump_status(context, "After Scenario", fail_only=True)
 
+    context.cext.process_pexpect_spawn()
+
     # run after_scenario tags (in reverse order)
     excepts = []
     scenario_tags = list(scenario.tags)
@@ -305,11 +307,6 @@ def _after_scenario(context, scenario):
     # sets context.cext.coredump_reported if crash found
     nmci.ctx.check_coredump(context)
     nmci.ctx.check_faf(context)
-
-    try:
-        context.cext.process_pexpect_spawn()
-    except Exception:
-        excepts.append(traceback.format_exc())
 
     scenario_fail = (
         scenario.status == "failed"
