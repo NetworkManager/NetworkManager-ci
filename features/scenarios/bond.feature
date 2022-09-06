@@ -2626,3 +2626,15 @@
     When "bond0:connected:bond0" is visible with command "nmcli -t -f DEVICE,STATE,CONNECTION device" in "40" seconds
     * Modify connection "bond0" changing options "bond.options mode=1,fail_over_mac=0"
     Then "failed" is visible with command "nmcli device reapply bond0"
+
+    @ver+=1.41.1
+    @bond_conflicting_device_names
+    Scenario: nmcli - bond - ensure a bond doesn't get brought down by autoactivation requiring master of the same name
+    * Add "bond" connection named "bond0a" for device "bond0" with options "ipv4.method disabled ipv6.method disabled"
+    * Add "dummy" connection named "dummy0a" for device "dummy0" with options "master bond0a"
+    When "dummy0:connected:dummy0a" is visible with command "nmcli -t -f DEVICE,STATE,CONNECTION device" in "10" seconds
+    * Add "bond" connection named "bond0b" for device "bond0" with options "ipv4.method disabled ipv6.method disabled"
+    * Add "dummy" connection named "dummy0b" for device "dummy0" with options "master bond0b"
+    Then "dummy0:connected:dummy0a" is visible with command "nmcli -t -f DEVICE,STATE,CONNECTION device"
+    * Bring up connection "bond0b"
+    Then "bond0:connected:bond0b" is visible with command "nmcli -t -f DEVICE,STATE,CONNECTION device" for full "5" seconds
