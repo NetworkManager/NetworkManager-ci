@@ -10,20 +10,12 @@ import xml.etree.ElementTree as ET
 
 import nmci
 import nmci.ctx
-import nmci.tags
 import nmci.misc
 import nmci.nmutil
+import nmci.tags
+import nmci.util
 
 TIMER = 0.5
-
-DEBUG = os.environ.get("NMCI_DEBUG", "").lower() not in [
-    "",
-    "n",
-    "no",
-    "f",
-    "false",
-    "0",
-]
 
 # the order of these steps is as follows
 # 1. before scenario
@@ -48,8 +40,6 @@ def before_all(context):
             time.sleep(seconds)
 
     context.additional_sleep = _additional_sleep
-
-    context.DEBUG = DEBUG
 
 
 # print exception traceback
@@ -286,7 +276,7 @@ def _after_scenario(context, scenario):
         )
     )
 
-    if scenario.status == "failed" or DEBUG:
+    if scenario.status == "failed" or nmci.util.DEBUG:
         nmci.ctx.dump_status(context, "After Scenario", fail_only=True)
 
     # run after_scenario tags (in reverse order)
@@ -322,7 +312,10 @@ def _after_scenario(context, scenario):
         excepts.append(traceback.format_exc())
 
     scenario_fail = (
-        scenario.status == "failed" or context.crashed_step or DEBUG or len(excepts) > 0
+        scenario.status == "failed"
+        or context.crashed_step
+        or nmci.util.DEBUG
+        or len(excepts) > 0
     )
 
     if scenario_fail:

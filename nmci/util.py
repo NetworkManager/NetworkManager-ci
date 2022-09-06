@@ -178,6 +178,23 @@ class _Util:
             os.mkdir(d)
         return os.path.join(d, *args)
 
+    @property
+    def DEBUG(self):
+        # Whether "NMCI_DEBUG" environment is set. If yes, NM-ci runs
+        # in debug mode.
+        v = getattr(self, "_DEBUG", None)
+        if v is None:
+            v = os.environ.get("NMCI_DEBUG", "").lower() not in [
+                "",
+                "n",
+                "no",
+                "f",
+                "false",
+                "0",
+            ]
+            self._DEBUG = v
+        return v
+
     def gvariant_to_dict(self, variant):
         import json
 
