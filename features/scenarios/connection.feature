@@ -313,12 +313,12 @@ Feature: nmcli: connection
     Scenario: nmcli - connection - timestamp
      * Add "ethernet" connection named "con_con" for device "eth6" with options "autoconnect no"
      * Open editor for connection "con_con"
-     When Check if object item "connection.timestamp:" has value "0" via print
+     When Check if object item "connection.timestamp" has value "0" via print
      * Quit editor
      * Bring "up" connection "con_con"
      * Bring "down" connection "con_con"
      * Open editor for connection "con_con"
-     Then Check if object item "connection.timestamp:" has value "current_time" via print
+     Then Check if object item "connection.timestamp" has value "current_time" via print
      * Quit editor
 
 
@@ -354,12 +354,12 @@ Feature: nmcli: connection
      * Open editor for connection "con_con"
      * Submit "set connection.permissions test" in editor
      * Save in editor
-     * Check if object item "connection.permissions:" has value "user:test" via print
+     * Check if object item "connection.permissions" has value "user:test" via print
      * Quit editor
      #* Prompt is not running
      * Bring "up" connection "con_con"
      * Open editor for connection "con_con"
-    Then Check if object item "connection.permissions:" has value "user:test" via print
+    Then Check if object item "connection.permissions" has value "user:test" via print
      * Quit editor
     Then "test" is visible with command "grep test /etc/sysconfig/network-scripts/ifcfg-con_con"
 
@@ -1019,7 +1019,7 @@ Feature: nmcli: connection
     * Bring "up" connection "migration_dns"
     Then "eth3:connected:migration_dns" is visible with command "nmcli -t -f DEVICE,STATE,CONNECTION device" in "20" seconds
 
-    
+
     @rhbz2008337
     @ver+=1.39.10
     @connection_wait-activation-delay
@@ -1033,7 +1033,7 @@ Feature: nmcli: connection
     When "activated" is not visible with command "nmcli -f GENERAL.STATE connection show con_con" for full "9" seconds
     Then "activated" is visible with command "nmcli -f GENERAL.STATE connection show con_con" in "10" seconds
 
-    
+
     @rhbz2092323
     @ver+=1.39.12
     @eth5_disconnect
