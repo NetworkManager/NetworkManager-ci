@@ -73,7 +73,7 @@ Feature: Team TUI tests
     * Choose to "Activate a connection" from main screen
     * Select connection "team0" in the list
     * Choose to "<Deactivate>" a connection
-    * Wait for at least "3" seconds
+    * Wait for "3" seconds
     Then Team "team0" is down
     Then "team0" is not visible with command "nmcli device"
 
@@ -88,7 +88,7 @@ Feature: Team TUI tests
     * Select connection "team0" in the list
     * Choose to "<Delete>" a connection
     * Press "Delete" button in the dialog
-    * Wait for at least "3" seconds
+    * Wait for "3" seconds
     Then ifcfg-"team0" file does not exist
     Then "team0" is not visible with command "nmcli connection"
     Then "team0" is not visible with command "nmcli device"
@@ -100,14 +100,14 @@ Feature: Team TUI tests
     * Prepare new connection of type "Team" named "team0"
     * Set "Device" field to "team0"
     * Confirm the connection settings
-    * Wait for at least "2" seconds
+    * Wait for "2" seconds
     * Execute "nmcli connection down team0"
     * "team0" is visible with command "nmcli connection"
     * "team0" is not visible with command "nmcli device"
     * Select connection "team0" in the list
     * Choose to "<Delete>" a connection
     * Press "Delete" button in the dialog
-    * Wait for at least "3" seconds
+    * Wait for "3" seconds
     Then ifcfg-"team0" file does not exist
     Then "team0" is not visible with command "nmcli connection"
     Then "team0" is not visible with command "nmcli device"
@@ -223,7 +223,7 @@ Feature: Team TUI tests
     * Select connection "team0" in the list
     * Choose to "<Delete>" a connection
     * Press "Delete" button in the dialog
-    * Wait for at least "3" seconds
+    * Wait for "3" seconds
     Then ".*team-slave-eth1.*" is not visible on screen
     Then ".*team-slave-eth2.*" is not visible on screen
     Then "team-slave-eth1" is not visible with command "nmcli connection"

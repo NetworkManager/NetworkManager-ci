@@ -83,7 +83,7 @@
      * Submit "nm-team" in editor
      * Expect "There .* optional"
      * Submit "no" in editor
-     * Wait for at least "1" seconds
+     * Wait for "1" seconds
      * Bring "up" connection "team-slave-eth5"
     Then Check slave "eth5" in team "nm-team" is "up"
 
@@ -104,7 +104,7 @@
      * Submit "eth5" in editor
      * Expect "There .* optional"
      * Submit "no" in editor
-     * Wait for at least "1" seconds
+     * Wait for "1" seconds
      * Bring "up" connection "team-slave"
     Then Check slave "eth5" in team "nm-team" is "up"
 
@@ -811,7 +811,7 @@
       And "192.168.168.17" is visible with command "ip a s nm-team"
      * Add "team-slave" connection named "team0.0" for device "eth5" with options "master nm-team"
      * Bring "up" connection "team0.0"
-     * Wait for at least "5" seconds
+     * Wait for "5" seconds
     Then "2168::16" is visible with command "ip a s nm-team.1"
      And "2168::17" is visible with command "ip a s nm-team"
      And "192.168.168.16" is visible with command "ip a s nm-team.1"
@@ -1671,10 +1671,10 @@
     When "teamd -d -c " is visible with command "ps aux | grep -v grep | grep teamd"
     * Execute "ip link set nm-team up"
     * Execute "ip link set nm-team down"
-    * Wait for at least "2" seconds
+    * Wait for "2" seconds
     * Execute "ip link set nm-team up"
     * Execute "ip link set nm-team down"
-    * Wait for at least "2" seconds
+    * Wait for "2" seconds
     Then "teamd -d -c " is visible with command "ps aux | grep -v grep | grep teamd"
 
 

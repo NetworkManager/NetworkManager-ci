@@ -106,7 +106,7 @@ Feature: IPv6 TUI tests
     * In this property also add "fc01::1:21/96"
     * Set "Gateway" field to "fc01::1:1"
     * Confirm the connection settings
-    * Wait for at least "3" seconds
+    * Wait for "3" seconds
     Then "fc01::1:5/68" is visible with command "ip -6 a s eth1"
     Then "fc01::1:6/112" is visible with command "ip -6 a s eth1"
     Then "fc01::1:21/96" is visible with command "ip -6 a s eth1"

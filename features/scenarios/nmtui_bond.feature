@@ -122,7 +122,7 @@ Feature: Bond TUI tests
     * Select connection "bond0" in the list
     * Choose to "<Delete>" a connection
     * Press "Delete" button in the dialog
-    * Wait for at least "3" seconds
+    * Wait for "3" seconds
     Then "bond0" is not visible with command "nmcli connection"
     Then "bond0" is not visible with command "nmcli device"
     Then Check bond "bond0" link state is "down"
@@ -133,14 +133,14 @@ Feature: Bond TUI tests
     * Prepare new connection of type "Bond" named "bond0"
     * Set "Device" field to "bond0"
     * Confirm the connection settings
-    * Wait for at least "2" seconds
+    * Wait for "2" seconds
     * Execute "nmcli connection down bond0"
     * "bond0" is visible with command "nmcli connection"
     * "bond0" is not visible with command "nmcli device"
     * Select connection "bond0" in the list
     * Choose to "<Delete>" a connection
     * Press "Delete" button in the dialog
-    * Wait for at least "3" seconds
+    * Wait for "3" seconds
     Then "bond0" is not visible with command "nmcli connection"
     Then "bond0" is not visible with command "nmcli device"
     Then Check bond "bond0" link state is "down"

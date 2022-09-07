@@ -684,7 +684,7 @@ Feature: nmcli - general
           ipv4.may-fail no
           ipv6.may-fail no
           """
-    * Wait for at least "2" seconds
+    * Wait for "2" seconds
     * Bring up connection "con_general"
     When "100" is visible with command "nmcli  -t -f GENERAL.STATE device show testG"
     When "connected:con_general:testG" is visible with command "nmcli -t -f STATE,CONNECTION,DEVICE device" in "10" seconds
@@ -733,7 +733,7 @@ Feature: nmcli - general
     * Note the output of "hostname" as value "orig_cmd"
     * Check noted values "orig_file" and "orig_cmd" are the same
     * Execute "echo localhost.localdomain > /etc/hostname"
-    * Wait for at least "5" seconds
+    * Wait for "5" seconds
     * Note the output of "hostname" as value "localh_cmd"
     # Check that setting the hostname to localhost have been ignored
     * Check noted values "orig_cmd" and "localh_cmd" are the same
@@ -756,7 +756,7 @@ Feature: nmcli - general
     * Execute "echo -e [keyfile]\\nunmanaged-devices=interface-name:bond0 > /etc/NetworkManager/conf.d/99-xxcustom.conf"
     * Execute "pkill -HUP NetworkManager"
     * Execute "ip addr add dev bond0 1.2.3.4/24"
-    * Wait for at least "5" seconds
+    * Wait for "5" seconds
     # Now the device should be listed as unmanaged
     Then "bond0\s+bond\s+unmanaged" is visible with command "nmcli device"
 
@@ -796,7 +796,7 @@ Feature: nmcli - general
      And "fe80" is visible with command "ip a s eth8" in "15" seconds
      And "192" is visible with command "ip a s eth8" in "15" seconds
      And "192" is visible with command "ip r |grep eth8"
-    * Wait for at least "2" seconds
+    * Wait for "2" seconds
     * Execute "nmcli device set eth8 managed off"
     #When "/sbin/dhclient" is not visible with command "ps aux|grep dhc |grep eth8 |grep -v orig"
      And "state UP" is visible with command "ip a s eth8"
@@ -1525,10 +1525,10 @@ Feature: nmcli - general
     Scenario: nmcli - general - wait for carrier on new device activation request
     * Add "ethernet" connection named "con_general" for device "testG" with options "autoconnect no"
     * Prepare simulated veth device "testG" without carrier
-    * Wait for at least "1" seconds
+    * Wait for "1" seconds
     * Modify connection "con_general" changing options "ipv4.may-fail no"
     * Execute "nmcli con up con_general" without waiting for process to finish
-    * Wait for at least "1" seconds
+    * Wait for "1" seconds
     * Execute "ip netns exec testG_ns ip link set testGp up"
     * "connected:con_general" is visible with command "nmcli -t -f STATE,CONNECTION device" in "60" seconds
     Then "192" is visible with command "ip a s testG" in "60" seconds
@@ -1741,7 +1741,7 @@ Feature: nmcli - general
     When "1.2.3.4/24" is visible with command "ip a s eth8" in "5" seconds
     When "1.2.3.5/24" is visible with command "ip a s eth9" in "5" seconds
      And "1.2.3.1" is visible with command "ip r"
-    * Wait for at least "10" seconds
+    * Wait for "10" seconds
     Then "192.168.10[0-3]" is visible with command "ip a s eth8" in "5" seconds
      And "192.168.10[0-3]" is visible with command "ip a s eth9" in "5" seconds
      And "1.2.3.4/24" is not visible with command "ip a s eth8"
@@ -1759,7 +1759,7 @@ Feature: nmcli - general
     * Snapshot "create" for "eth8" with timeout "10"
     * Execute "nmcli device set eth8 managed on"
     When "unmanaged" is not visible with command "nmcli device show eth8" in "5" seconds
-    * Wait for at least "15" seconds
+    * Wait for "15" seconds
     Then "unmanaged" is visible with command "nmcli device show eth8" in "5" seconds
 
 
@@ -1772,7 +1772,7 @@ Feature: nmcli - general
     * Snapshot "create" for "eth8" with timeout "10"
     * Execute "nmcli device set eth8 managed off"
     When "unmanaged" is visible with command "nmcli device show eth8" in "5" seconds
-    * Wait for at least "15" seconds
+    * Wait for "15" seconds
     Then "unmanaged" is not visible with command "nmcli device show eth8" in "5" seconds
 
 
@@ -1792,7 +1792,7 @@ Feature: nmcli - general
     * Delete connection "gen-bond0.0"
     * Delete connection "gen-bond0.1"
     * Delete connection "gen-bond0"
-    * Wait for at least "15" seconds
+    * Wait for "15" seconds
     Then Check slave "eth8" in bond "gen-bond" in proc
     Then Check slave "eth9" in bond "gen-bond" in proc
 
@@ -2190,9 +2190,9 @@ Feature: nmcli - general
     * Add "ethernet" connection named "con_general" for device "eth8"
     * Execute "nmcli monitor &> /tmp/nmcli_monitor_out & pid=$!; sleep 10; kill $pid" without waiting for process to finish
     * Bring "up" connection "con_general"
-    * Wait for at least "1" seconds
+    * Wait for "1" seconds
     * Bring "down" connection "con_general"
-    * Wait for at least "10" seconds
+    * Wait for "10" seconds
     Then "should not be reached" is not visible with command "cat /tmp/nmcli_monitor_out"
 
 
@@ -2259,7 +2259,7 @@ Feature: nmcli - general
     When "1.2.3.4/24" is visible with command "ip a s eth8" in "5" seconds
     When "1.2.3.5/24" is visible with command "ip a s eth9" in "5" seconds
      And "1.2.3.1" is visible with command "ip r"
-    * Wait for at least "10" seconds
+    * Wait for "10" seconds
     Then "192.168.10[0-3]" is visible with command "ip a s eth8" in "45" seconds
      And "192.168.10[0-3]" is visible with command "ip a s eth9" in "45" seconds
      And "1.2.3.4/24" is not visible with command "ip a s eth8"
@@ -2277,7 +2277,7 @@ Feature: nmcli - general
     * "Failed" is not visible with command "contrib/gi/libnm_snapshot_checkpoint.py create 10 eth8" in "0" seconds
     * Execute "nmcli device set eth8 managed on"
     When "unmanaged" is not visible with command "nmcli device show eth8" in "5" seconds
-    * Wait for at least "15" seconds
+    * Wait for "15" seconds
     Then "unmanaged" is visible with command "nmcli device show eth8" in "5" seconds
 
 
@@ -2290,7 +2290,7 @@ Feature: nmcli - general
     * "Failed" is not visible with command "contrib/gi/libnm_snapshot_checkpoint.py create 10 eth8" in "0" seconds
     * Execute "nmcli device set eth8 managed off"
     When "unmanaged" is visible with command "nmcli device show eth8" in "5" seconds
-    * Wait for at least "15" seconds
+    * Wait for "15" seconds
     Then "unmanaged" is not visible with command "nmcli device show eth8" in "5" seconds
 
 
@@ -2310,7 +2310,7 @@ Feature: nmcli - general
     * Delete connection "gen-bond0.0"
     * Delete connection "gen-bond0.1"
     * Delete connection "gen-bond0"
-    * Wait for at least "15" seconds
+    * Wait for "15" seconds
     Then Check slave "eth8" in bond "gen-bond" in proc
     Then Check slave "eth9" in bond "gen-bond" in proc
 
@@ -2357,7 +2357,7 @@ Feature: nmcli - general
     * Bring "up" connection "br12"
     * Execute "ip link set portXb master br0"
     * Execute "ip link set portXc master br0"
-    * Wait for at least "1" seconds
+    * Wait for "1" seconds
     * "ERROR" is not visible with command "contrib/gi/libnm_snapshot_checkpoint.py rollback" in "0" seconds
     Then "portXa" is visible with command "bridge link"
     Then "portXb" is visible with command "bridge link"
@@ -2375,11 +2375,11 @@ Feature: nmcli - general
           802-1x.eap md5
           connection.autoconnect no
           """
-    * Wait for at least "2" seconds
+    * Wait for "2" seconds
     * Execute "contrib/nm_agent/nm_agent_prompt_counter.sh start"
-    * Wait for at least "2" seconds
+    * Wait for "2" seconds
     * Modify connection "con_general" changing options "connection.autoconnect yes"
-    * Wait for at least "2" seconds
+    * Wait for "2" seconds
     Then "PASSWORD_PROMPT_COUNT='1'" is visible with command "contrib/nm_agent/nm_agent_prompt_counter.sh stop"
 
 
