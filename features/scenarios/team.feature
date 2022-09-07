@@ -297,7 +297,7 @@
      * Enter in editor
      * Save in editor
      * Quit editor
-     * Execute "sleep 3"
+     * Wait for "3" seconds
     Then Check slave "eth5" in team "nm-team" is "up"
     Then Check slave "eth6" in team "nm-team" is "down"
 
@@ -639,7 +639,7 @@
     @team_reflect_changes_from_outside_of_NM
     Scenario: nmcli - team - reflect changes from outside of NM
     * Execute "systemd-run --unit teamd teamd --team-dev=team0"
-    * Execute "sleep 2"
+    * Wait for "2" seconds
     When "team0\s+team\s+unmanaged" is visible with command "nmcli d"
     * Execute "ip link set dev team0 up"
     When "team0\s+team\s+unmanaged" is visible with command "nmcli d"
@@ -658,7 +658,7 @@
     @team_reflect_changes_from_outside_of_NM
     Scenario: nmcli - team - reflect changes from outside of NM
     * Execute "systemd-run --unit teamd teamd --team-dev=team0"
-    * Execute "sleep 2"
+    * Wait for "2" seconds
     When "team0\s+team\s+unmanaged" is visible with command "nmcli d"
     * Execute "ip link set dev team0 up"
     When "team0\s+team\s+unmanaged" is visible with command "nmcli d"
@@ -675,7 +675,7 @@
     @kill_teamd
     Scenario: NM - team - kill teamd
      * Add "team" connection named "team0" for device "nm-team"
-     * Execute "sleep 6"
+     * Wait for "6" seconds
      * Terminate "teamd" with signal "KILL"
     Then "teamd -o -n -U -D -N* -t nm-team" is visible with command "ps aux|grep -v grep| grep teamd" in "10" seconds
 

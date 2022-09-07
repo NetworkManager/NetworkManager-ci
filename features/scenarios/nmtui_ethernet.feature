@@ -178,7 +178,7 @@ Feature: Ethernet TUI tests
     * Come back to the top of editor
     * Empty the field "Cloned MAC address"
     * Confirm the connection settings
-    * Execute "sleep 5"
+    * Wait for "5" seconds
     Then ".*Unable to add new connection.*" is not visible on screen
     Then "ether f1:de:aa:fb:bb:cc" is not visible with command "ip a"
     Then "MACADDR=F1:DE:AA:FB:BB:CC" is not visible with command "cat /etc/sysconfig/network-scripts/ifcfg-ethernet"

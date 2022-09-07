@@ -1044,7 +1044,7 @@ Feature: nmcli - dns
     Then "1" is visible with command "grep nameserver -c /etc/resolv.conf"
     Then "127.0.0.1" is visible with command "grep nameserver /etc/resolv.conf"
     * Execute "for i in `seq 12`; do pkill -P `pidof NetworkManager` dnsmasq; sleep 1; done"
-    * Execute "sleep 10"
+    * Wait for "10" seconds
     # Check dnsmasq is no longer running and resolv.conf points to upstream servers
     Then "0" is visible with command "pgrep -c -P `pidof NetworkManager` dnsmasq"
     Then "172.16.1.53" is visible with command "grep nameserver /etc/resolv.conf"
@@ -1062,7 +1062,7 @@ Feature: nmcli - dns
     Then "1" is visible with command "grep nameserver -c /etc/resolv.conf"
     Then "127.0.0.1" is visible with command "grep nameserver /etc/resolv.conf"
     * Execute "for i in `seq 12`; do pkill -P `pidof NetworkManager` dnsmasq; sleep 1; done"
-    * Execute "sleep 10"
+    * Wait for "10" seconds
     # Check dnsmasq is no longer running. Since 1.21.1, resolv.conf still points to localhost
     Then "0" is visible with command "pgrep -c -P `pidof NetworkManager` dnsmasq"
     Then "127.0.0.1" is visible with command "grep nameserver /etc/resolv.conf"

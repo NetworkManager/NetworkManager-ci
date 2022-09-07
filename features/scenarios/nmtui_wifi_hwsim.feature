@@ -583,10 +583,10 @@ Feature: WIFI TUI tests
     * Set "SSID" field to "wpa1-psk"
     * Set "Security" dropdown to "WPA & WPA2 Personal"
     * Set "Password" field to "testingpassword"
-    * Execute "sleep 0.5"
+    * Wait for "0.5" seconds
     * ".*\*\*\*\*\*\*\*\*.*" is visible on screen
     * Ensure "Show password" is checked
-    * Execute "sleep 0.5"
+    * Wait for "0.5" seconds
     Then ".*testingpassword.*" is visible on screen
 
 
@@ -601,7 +601,7 @@ Feature: WIFI TUI tests
     * Choose to "<Activate>" a connection
     * Wait for "2" seconds
     * Press "<Cancel>" button in the password dialog
-    * Execute "sleep 1"
+    * Wait for "1" seconds
     * ".*Could not activate connection.*Activation failed.*" is visible on screen
     * Press "ENTER" key
     * Get back to the connection list
