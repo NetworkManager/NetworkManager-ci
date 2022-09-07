@@ -4,6 +4,7 @@ import pexpect
 import re
 import time
 import operator
+import subprocess
 from behave import step
 
 import nmci
@@ -52,9 +53,16 @@ def check_noted_value_in_range(context, r_min, r_max, index='noted-value'):
     )
 
 
-@step(u'Execute "{command}"')
+@step('Execute "{command}"')
 def execute_command(context, command):
-    assert context.command_code(command) == 0
+    context.process.run_stdout(
+        command,
+        shell=True,
+        ignore_returncode=False,
+        ignore_stderr=True,
+        as_bytes=True,
+        timeout=None,
+    )
 
 
 def get_reproducer_command(rname, options):
