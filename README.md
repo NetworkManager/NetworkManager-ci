@@ -1,6 +1,8 @@
 # NetworkManager-ci
 This repo contains a set of integration tests for NetworkManager and CentOS 8 Stream based VM test instructions
 
+DUMMY branch to test MR triggering with updates on supporting multiple @OS overrides in description/commit message by
+the RH NM CI. 
 
 ### Nightly status (CentOS CI)
 
