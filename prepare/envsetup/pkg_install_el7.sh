@@ -19,7 +19,7 @@ install_el7_packages () {
     python -m pip install pyroute2
     python -m pip install netaddr
     python -m pip install IPy
-    python -m pip install python-dbusmock
+    python -m pip install python-dbusmock==0.26.1
     python -m pip install pyte
     python -m pip install pyyaml
 
@@ -36,7 +36,7 @@ install_el7_packages () {
     yum -y install \
         git iw net-tools wireshark psmisc bridge-utils firewalld dhcp ethtool \
         python36-dbus python36-gobject dnsmasq NetworkManager-vpnc iproute-tc \
-        openvpn
+        openvpn rp-pppoe
 
     yum -y install \
         $KOJI/hostapd/2.8/1.el7/$(arch)/hostapd-2.8-1.el7.$(arch).rpm

@@ -1,21 +1,22 @@
 #!/bin/bash
 
-ip netns add route
-ip netns add server
-ip link add veth0s type veth peer name veth0s_p netns server
-ip link add veth0r type veth peer name veth0r_p netns route
-ip link add veth1r type veth peer name veth1r_p netns route
-ip link add veth0c type veth peer name veth0c_p
-ip link add veth1c type veth peer name veth1c_p
-nmcli device set veth0c managed yes
-nmcli device set veth0c_p managed yes
-nmcli device set veth1c managed yes
-nmcli device set veth1c_p managed yes
-nmcli device set veth0s managed yes
-nmcli device set veth0r managed yes
-nmcli device set veth1r managed yes
+setup () {
+    ip netns add route
+    ip netns add server
+    ip link add veth0s type veth peer name veth0s_p netns server
+    ip link add veth0r type veth peer name veth0r_p netns route
+    ip link add veth1r type veth peer name veth1r_p netns route
+    ip link add veth0c type veth peer name veth0c_p
+    ip link add veth1c type veth peer name veth1c_p
+    nmcli device set veth0c managed yes
+    nmcli device set veth0c_p managed yes
+    nmcli device set veth1c managed yes
+    nmcli device set veth1c_p managed yes
+    nmcli device set veth0s managed yes
+    nmcli device set veth0r managed yes
+    nmcli device set veth1r managed yes
 
-cat > topo1.yaml << EOF
+    cat > topo1.yaml << EOF
 ---
 interfaces:
   - name: ovs1
@@ -121,24 +122,35 @@ routes:
       next-hop-interface: bond_test
       table-id: 254
 EOF
-ip a s |grep 111
+    ip a s |grep 111
 
-nmstatectl set topo1.yaml; RC=$?
+    nmstatectl set topo1.yaml; RC=$?
+    return $RC
+}
 
-ip link delete veth0c ||true
-ip link delete veth0r ||true
-ip link delete veth1c ||true
-ip link delete veth1r ||true
-nmcli connection delete id ovs1 bond_test bond_test.3 br_test ovs-br0 ovs-port-ovs1 ovs-port-veth0c ovs-port-veth0r ovs-port-veth1c veth0c veth0c_p veth0r  veth1c veth1c_p veth1r || true
+clean () {
+    ip link delete veth0c ||true
+    ip link delete veth0r ||true
+    ip link delete veth1c ||true
+    ip link delete veth1r ||true
+    nmcli connection delete bond_test bond_test.3 \
+                veth0c veth1c br_test veth0c_p veth0r veth0s veth1c_p veth1r \
+                ovs-br0-br ovs1-if \
+                ovs1-port veth0c-port veth0r-port veth1c-port \
+                ovs-port-veth0c ovs-port-veth1c ovs-port-veth0r ovs-port-ovs1 \
+                || true
 
-# delete residual connections (sometimes named without ovs-port prefix)
-nmcli connection delete ovs1-port veth0c-port veth0r-port veth0s veth1c-port || true
+    ip netns del route || true
+    ip netns del server || true
+}
 
-# Workaround for bug https://bugzilla.redhat.com/show_bug.cgi?id=1935026
-ovs-vsctl del-br ovs-br0 || true
+if [ "$1" == "setup" ]; then
+    setup
+elif [ "$1" == "clean" ]; then
+    clean
+else
+    echo "Usage:"
+    echo "'$0 setup': to create nmstate topology"
+    echo "'$0 clean': to clean previously created setup"
 
-ip netns del route || true
-ip netns del server || true
-sleep 2
-
-exit $RC
+fi

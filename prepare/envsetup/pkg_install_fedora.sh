@@ -18,7 +18,7 @@ install_fedora_packages () {
     ln -s /usr/bin/python3 /usr/bin/python
 
     # Pip down some deps
-    dnf -4 -y install python3-pip
+    dnf -4 -y install python3-pip libyaml-devel
 
     # Doesn't work on the newest aarch64 RHEL8
     python -m pip install --upgrade pip
@@ -27,6 +27,7 @@ install_fedora_packages () {
     python -m pip install netaddr
     python -m pip install pyte
     python -m pip install IPy
+    python -m pip install --upgrade --force pyyaml
 
     # Needed for gsm_sim
     dnf -4 -y install perl-IO-Pty-Easy perl-IO-Tty
@@ -43,7 +44,7 @@ install_fedora_packages () {
     dnf -4 -y install \
         git nmap-ncat hostapd tcpreplay python3-netaddr dhcp-relay iw net-tools \
         psmisc firewalld dhcp-server ethtool python3-dbus python3-gobject dnsmasq \
-        tcpdump wireshark-cli iproute-tc gdb gcc wireguard-tools \
+        tcpdump wireshark-cli iputils iproute-tc gdb gcc wireguard-tools rp-pppoe tuned \
         --skip-broken
 
     install_behave_pytest

@@ -104,6 +104,18 @@ function setup () {
         fi
         sleep 0.5
         echo "0 $NUM" > /sys/bus/netdevsim/new_device
+
+        # Make sure the netdevsim devices based from eth11,
+        # even if eth0-eth10 are not there yet.
+        # prepare_patched_netdevsim_bs() expects this.
+        n=11
+        for i in $(ls -d /sys/devices/netdevsim*/net/eth* |sort); do
+            O=$(basename $i)
+            N=eth$n
+            [ $N = $O ] && break
+            ip link set $N name $O; n=$(( n+1 ))
+        done
+
         touch /tmp/netdevsim
     else
         echo "** we fail to load - > exit 1"

@@ -1,0 +1,6 @@
+[OVS-RHEL9]
+name=ovs-rhel9
+baseurl=http://download.eng.bos.redhat.com/rhel-9/nightly/FDP/latest-FDP-9-RHEL-9/compose/Server/$basearch/os/
+enable=1
+skip_if_unavailable=1
+gpgcheck=0

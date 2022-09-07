@@ -10,7 +10,7 @@ import re
 
 from pprint import pprint
 
-default_os = "8-stream"
+default_os = ["8-stream", "9-stream"]
 ##next_os = 'RHEL8.4'
 # next_branch_base = 'rhel-8'
 
@@ -18,7 +18,7 @@ jenkins_url = "https://jenkins-networkmanager.apps.ocp.ci.centos.org/"
 
 
 class GitlabTrigger(object):
-    def __init__(self, data, config_files=["/etc/python-gitlab.cfg"]):
+    def __init__(self, data, config_files=["/tmp/python-gitlab.cfg"]):
         self.data = data
         # If we don't have python-gitlab we can still use object for parsing
         try:
@@ -100,6 +100,15 @@ class GitlabTrigger(object):
         return target_branch
 
     @property
+    def wip(self):
+        wip = False
+        if self.request_type == "note":
+            wip = self.data["merge_request"]["work_in_progress"]
+        elif self.request_type == "merge_request":
+            wip = self.data["object_attributes"]["work_in_progress"]
+        return wip
+
+    @property
     def commit(self):
         commit = None
         if self.request_type == "note":
@@ -139,10 +148,7 @@ class GitlabTrigger(object):
         com.comments.create({"note": text})
 
     def play_commit_job(self):
-        com = self.gl_project.commits.get(self.commit)
-        if com.last_pipeline is None:
-            return
-        pipeline = self.gl_project.pipelines.get(com.last_pipeline["id"])
+        pipeline = self.pipeline
         jobs = pipeline.jobs.list()
         for job in jobs:
             if job.name == "TestResults":
@@ -177,6 +183,13 @@ class GitlabTrigger(object):
         return self.data["repository"]["name"]
 
     @property
+    def pipeline(self):
+        com = self.gl_project.commits.get(self.commit)
+        if com.last_pipeline is None:
+            return None
+        return self.gl_project.pipelines.get(com.last_pipeline["id"])
+
+    @property
     def changed_features(self):
         features = []
 
@@ -204,7 +217,19 @@ class GitlabTrigger(object):
 
         return features
 
-    def set_pipeline(self, status):
+    def is_NMCI_branch(self, branch_name):
+        import requests
+
+        url_base = (
+            "https://gitlab.freedesktop.org/NetworkManager/NetworkManager-ci/-/raw"
+        )
+        file = "mapper.yaml"
+        url = f"{url_base}/{branch_name}/{file}"
+
+        r = requests.get(url)
+        return r.status_code == 200
+
+    def set_pipeline(self, status, release=""):
         try:
             description = ""
             if status == "pending":
@@ -218,61 +243,56 @@ class GitlabTrigger(object):
             elif status == "failed":
                 description == "The build has finshed unstable or failing"
             com = self.gl_project.commits.get(self.commit)
-            if (
-                "NetworkManager" in self.repository
-            ):  # becuse of the new version prohibiting NAT target_url!
-                com.statuses.create(
-                    {
-                        "state": status,
-                        "name": os.environ["BUILD_URL"],
-                        "description": description,
-                    }
-                )
-            else:
-                com.statuses.create(
-                    {
-                        "state": status,
-                        "target_url": os.environ["BUILD_URL"],
-                        "name": self.repository + " test verification",
-                        "description": description,
-                    }
-                )
+
+            name = os.environ["BUILD_URL"]
+            name = re.sub(r"^.*/job/(.*)/$", "\\1", name)
+            pipeline_name = f"centos{release}: {name}"
+
+            com.statuses.create(
+                {
+                    "state": status,
+                    "target_url": os.environ["BUILD_URL"],
+                    "name": pipeline_name,
+                    "description": description,
+                }
+            )
         except Exception as e:
             print(str(e))
 
 
 def get_rebuild_detail(message, overrides={}):
-    # lets see if there is a @OS:rhelx.y in the desc or commit msg
+    # lets see if there is a @OS:cXs in the desc or commit msg
     msg = []
+    os_version = overrides.get("os_version", set())
     for line in message.split("\n"):
         if line.strip().lower().startswith("@os:"):
             os_alias = line.strip().split(":")[-1]
-            os_version = None
             if os_alias in ["c8s", "centos8-stream"]:
-                os_version = "8-stream"
+                os_version.add("8-stream")
             elif os_alias in ["c9s", "centos9-stream"]:
-                os_version = "9-stream"
-            if os_version:
-                overrides["os_version"] = os_version
+                os_version.add("9-stream")
         elif line.strip().lower().startswith("@runfeatures:"):
             overrides["features"] = line.strip().split(":", 1)[-1]
+        elif line.strip().lower().startswith("@runtests:"):
+            overrides["features"] = "tests:" + line.strip().split(":", 1)[-1]
         elif line.strip().lower().startswith("@build:"):
             overrides["build"] = line.strip().split(":")[-1]
         elif line:
             msg.append(line)
+    overrides["os_version"] = os_version
     return overrides, "\n".join(msg)
 
 
 # 'os_version' param for 'rebuild RHEL8.9' etc., good for nm less for desktop as it is mainly determined by branching
 def execute_build(gt, content, os_version=default_os, features="best", build="main"):
-
-    component = gt.repository
     params = []
 
-    params.append({"name": "RELEASE", "value": os_version})
-
-    if gt.repository == "NetworkManager":  # NM CODE will always use master NMCI
-        params.append({"name": "TEST_BRANCH", "value": "master"})
+    if gt.repository == "NetworkManager":
+        # NM CODE will use main unless we know branch mr/abcd exists
+        branch = f"mr/{gt.merge_request_id}"
+        if not gt.is_NMCI_branch(branch):
+            branch = "main"
+        params.append({"name": "TEST_BRANCH", "value": branch})
         params.append({"name": "REFSPEC", "value": gt.commit})
         project_dir = "NetworkManager-code-mr"
 
@@ -283,29 +303,33 @@ def execute_build(gt, content, os_version=default_os, features="best", build="ma
         params.append({"name": "REFSPEC", "value": build})
         project_dir = "NetworkManager-test-mr"
 
-    params.append(
-        {
-            "name": "VERSION",
-            "value": "MR#%d %s: %s (%s)"
-            % (gt.merge_request_id, gt.commit_author, gt.source_branch, os_version),
-        }
-    )
     params.append({"name": "FEATURES", "value": features})
     params.append({"name": "RESERVE", "value": "0s"})
     params.append({"name": "TRIGGER_DATA", "value": content})
     # params.append({'name': 'GL_TOKEN', 'value': os.environ['GL_TOKEN']})
 
-    json_part = json.dumps({"parameter": params})
-    url_part = "--data-urlencode json='%s'" % str(json_part.replace("'", ""))
+    token = os.environ["JK_TOKEN"]
+    job_url = f"{jenkins_url}/job/{project_dir}"
 
-    job_url = "%s/job/%s" % (jenkins_url, project_dir)
+    if not os_version:
+        os_version = default_os
 
-    t = os.environ["JK_TOKEN"]
-    cmd = "curl -k -s -X POST %s/build --data 'token=%s' %s" % (job_url, t, url_part)
-    os.system("echo %s >> /tmp/gl_commits" % gt.commit)
-    os.system(cmd)
-    # print("curl $rc: %d" % )
-    # print('Started new build in %s' % job_url)
+    for v in os_version:
+        os_version_params = []
+        os_version_params.append({"name": "RELEASE", "value": v})
+        os_version_params.append(
+            {
+                "name": "VERSION",
+                "value": f"MR#{gt.merge_request_id} {gt.commit_author}: {gt.source_branch} ({v})",
+            }
+        )
+
+        json_part = json.dumps({"parameter": params + os_version_params})
+        url_part = "--data-urlencode json='%s'" % str(json_part.replace("'", ""))
+
+        cmd = f"curl -k -s -X POST {job_url}/build --data 'token={token}' {url_part}"
+        os.system(cmd)
+    os.system(f"echo {gt.commit} >> /tmp/gl_commits")
 
 
 def process_request(data, content):
@@ -319,10 +343,10 @@ def process_request(data, content):
             if comment == "":
                 execute_build(gt, content, **params)
             elif comment in ["centos9-stream", "c9s"]:
-                params["os_version"] = "9-stream"
+                params["os_version"] = ["9-stream"]
                 execute_build(gt, content, **params)
             elif comment in ["centos8-stream", "c8s"]:
-                params["os_version"] = "8-stream"
+                params["os_version"] = ["8-stream"]
                 execute_build(gt, content, **params)
         else:
             print("Irrelevant Note...")
@@ -336,6 +360,12 @@ def process_request(data, content):
         elif data["object_attributes"]["action"] in ["update", "approved"]:
             if gt.title.startswith("WIP"):
                 print("This is WIP Merge Request - not proceeding")
+            elif (
+                gt.request_type == "merge_request"
+                and gt.pipeline is not None
+                and gt.pipeline.status == "skipped"
+            ):
+                print("Skipped pipeline detected")
             else:
                 if not os.path.exists("/tmp/gl_commits"):
                     os.system("echo '' > /tmp/gl_commits")
@@ -353,7 +383,7 @@ def process_request(data, content):
                         )
 
         else:
-            if gt.title.startswith("WIP"):
+            if gt.wip or gt.title.startswith("WIP"):
                 print("This is WIP Merge Request - not proceeding")
             else:
                 params, _ = get_rebuild_detail(

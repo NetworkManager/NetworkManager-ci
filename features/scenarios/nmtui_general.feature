@@ -79,15 +79,12 @@ Feature: General TUI tests
     Then "testsethostname" is visible with command "hostname"
 
 
-    @veth
-    @bridge
-    @ethernet
     @nmtui_general_active_connections_display
     Scenario: nmtui - general - active connections display
-    * Execute "nmcli con add type ethernet con-name ethernet1 ifname eth1 autoconnect no"
+    * Add "ethernet" connection named "ethernet1" for device "eth1" with options "autoconnect no"
     * Bring up connection "ethernet1"
-    * Execute "nmcli con add type ethernet con-name ethernet2 ifname eth2 autoconnect no"
-    * Execute "nmcli c a type bridge con-name bridge0 ifname bridge0"
+    * Add "ethernet" connection named "ethernet2" for device "eth2" with options "autoconnect no"
+    * Add "bridge" connection named "bridge0" for device "bridge0"
     * Start nmtui
     * Choose to "Activate a connection" from main screen
     Then Select connection " \* ethernet1" in the list
@@ -95,12 +92,11 @@ Feature: General TUI tests
     Then Select connection " \* bridge" in the list
 
 
-    @ethernet
     @nmtui_general_realtime_refresh_edit_screen
     Scenario: nmtui - general - realtime connection refresh edit screen
     * Start nmtui
     * Choose to "Edit a connection" from main screen
-    * Execute "nmcli con add type ethernet con-name ethernet1 ifname eth1 autoconnect no"
+    * Add "ethernet" connection named "ethernet1" for device "eth1" with options "autoconnect no"
     # bring con up in the list by bringing it up :)
     * Bring up connection "ethernet1"
     Then ".* ethernet1.*" is visible on screen in "5" seconds
@@ -108,30 +104,27 @@ Feature: General TUI tests
     Then ".* ethernet1.*" is not visible on screen in "5" seconds
 
 
-    @ethernet
     @nmtui_general_realtime_refresh_activate_screen_wo_autoconnect
     Scenario: nmtui - general - realtime connection refresh activation screen without autoconnect
     * Start nmtui
     * Choose to "Activate a connection" from main screen
-    * Execute "nmcli con add type ethernet con-name ethernet1 ifname eth1 autoconnect no"
+    * Add "ethernet" connection named "ethernet1" for device "eth1" with options "autoconnect no"
     Then ".*   ethernet1.*" is visible on screen in "5" seconds
-    * Execute "nmcli con del ethernet1"
+    * Delete connection "ethernet1"
     Then ".*   ethernet1.*" is not visible on screen in "5" seconds
 
 
-    @ethernet
     @nmtui_general_realtime_refresh_activate_screen
     Scenario: nmtui - general - realtime connection refresh activation screen
     * Start nmtui
     * Choose to "Activate a connection" from main screen
-    * Execute "nmcli con add type ethernet con-name ethernet1 ifname eth1 autoconnect no"
+    * Add "ethernet" connection named "ethernet1" for device "eth1" with options "autoconnect no"
     * Bring up connection "ethernet1"
     Then ".* \* ethernet1.*" is visible on screen in "5" seconds
-    * Execute "nmcli con del ethernet1"
+    * Delete connection "ethernet1"
     Then ".* \* ethernet1.*" is not visible on screen in "5" seconds
 
 
-    @dsl
     @nmtui_dsl_create_default_connection
     Scenario: nmtui - dsl - create default connection
     * Prepare new connection of type "DSL" named "dsl0"
@@ -151,7 +144,6 @@ Feature: General TUI tests
 
 
     @rhbz1131574
-    @team
     @nmtui_general_show_orphaned_slaves
     Scenario: nmtui - general - show orphaned slaves
     * Prepare new connection of type "Team" named "team0"

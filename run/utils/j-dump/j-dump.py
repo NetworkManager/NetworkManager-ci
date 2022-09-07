@@ -1,15 +1,14 @@
 #! /usr/bin/python3
 import argparse
-import pickle
 import sys
 import os
 import traceback
 from subprocess import call
 import jsonpickle
 import math
+import time
 
 import requests
-import urllib
 import jenkinsapi
 from jenkinsapi.jenkins import Jenkins
 #logging.basicConfig(level=logging.DEBUG)
@@ -122,11 +121,13 @@ class Job:
                 self.tags[tag_name] = {"builds": {build.id: tag_stats}}
 
         build.tests_passed = statuses.count("PASS")
-        build.tests_failed = statuses.count("FAIL")
+        #build.tests_failed = statuses.count("FAIL")
+        build.tests_failed = len(build.failures)
         build.tests_skipped = statuses.count("SKIP")
 
     def process_taskout_log(self, build):
         log = self.get_taskout_log(build)
+        t_s = time.time()
         tests = {}
         tags = {}
         when = "bs"
@@ -169,22 +170,27 @@ class Job:
                 tests[test_name] = {"time": test_time, "as": as_time, "bs": bs_time,
                                     "tags_as": tags_as_time, "tags_bs": tags_bs_time,
                                     "status": status}
+        dprint(f"taskout-log-processing: {time.time() - t_s:.3f}s")
         return tests, tags
 
     def get_taskout_log(self, build):
+        t_s = time.time()
         log = ""
         for url in [
             "/artifact/artifacts/taskout.log",
             "/artifact/artifacts/runner.txt",
             "/consoleText",
         ]:
-            req = urllib.request.Request(build.url + url)
             try:
-                with urllib.request.urlopen(req) as rq:
-                    log = rq.read().decode("utf-8", errors='ignore')
+                # ignore SSL errors for now
+                req = requests.get(build.url + url, verify=False)
+                if req.status_code != 200:
+                    continue
+                log = req.text
                 break
-            except urllib.error.URLError:
+            except:
                 log = ""
+        dprint(f"taskout-log get: {time.time() - t_s:.3f}s")
         return log
 
     def remove_build(self, build_id):
@@ -215,7 +221,8 @@ class Job:
         cached_build_ids = [build.id for build in self.builds]
         sorted(cached_build_ids, reverse=True)
 
-        self.remove_build(cached_build_ids[0])
+        if cached_build_ids:
+            self.remove_build(cached_build_ids[0])
 
         for build_id in cached_build_ids:
             if build_id not in build_ids:
@@ -257,6 +264,7 @@ class Job:
         self.load_cache(build_ids)
         cache_build_ids = [build.id for build in self.builds]
         for build_id in build_ids:
+            t_s = time.time()
             if build_id in cache_build_ids:
                 dprint("Build #{:d} - cached".format(build_id))
                 continue
@@ -271,10 +279,11 @@ class Job:
                 traceback.print_exc(file=sys.stderr)
                 dprint("----   -----   ----")
                 continue
-            dprint("Build #{:d} - processed".format(build_id))
-
+            dprint("Build #{:d} - preprocessed in {:.3f}s".format(build_id, time.time()-t_s))
             self.add_build(build)
+            dprint("Build #{:d} - processed - total time: {:.3f}s".format(build_id, time.time()-t_s))
 
+        t_s = time.time()
         self.builds.sort(key=lambda build: build.id, reverse=True)
 
         if len(self.builds) == 0:
@@ -351,7 +360,7 @@ class Job:
                 self.stats["last_fail"] = b.tests_failed
                 self.stats["last_skip"] = b.tests_skipped
                 break
-
+        dprint(f"final stats computed in {time.time()-t_s:.3f}s")
         return True
 
     def postprocess_failures(self, all_sorted_builds):
@@ -451,7 +460,9 @@ class Job:
             "                   <th>Bugzilla</th>\n"
             "               </tr>\n")
 
-        for failure in self.sorted_failures:
+        sorted_failures = getattr(self, "sorted_failures", [])
+
+        for failure in sorted_failures:
             if failure.permanent:
                 l_perm = "Permanent"
             else:
@@ -485,7 +496,9 @@ class Job:
         fd.write(
             "           </table>\n")
 
-        for failure in self.sorted_failures:
+        sorted_failures = getattr(self, "sorted_failures", [])
+
+        for failure in sorted_failures:
             fd.write('           <hr>\n\t<h3 id="%s">%s</h3>\n' % (failure.name, failure.name))
             fd.write('           <p>\n')
             builds = failure.builds
@@ -559,6 +572,8 @@ class Build:
                     result_name = result.name
                     if result_name.startswith("Test"):
                         result_name = result_name.split("_", 1)[1]
+                    if result_name.endswith("_timeout"):
+                        result_name = result_name.rsplit("_", 1)[0]
                     job.add_failure(result_name, self)
             self.name = results.name
         else:
@@ -598,6 +613,10 @@ class Build:
                     eprint("No .html or .log suffix in artifact '{:s}': skip...".format(artifact))
                     continue
                 failure_name = '.'.join(split_artifact[:-1])
+                # artifact should not end with _timeout now,
+                # but it is possible in older build, before test renaming
+                if failure_name.endswith("_timeout"):
+                    failure_name = failure_name.rsplit("_", 1)[0]
                 job.add_failure(failure_name, self, artifacts[artifact].url)
 
     def add_failure(self, failure_name, failure):
@@ -738,7 +757,8 @@ def main():
         password = args.password
 
     try:
-        server = Jenkins(args.url, user, password)
+        # ignore SSL errors for now
+        server = Jenkins(args.url, user, password, ssl_verify=False)
     except requests.exceptions.ConnectionError as e:
         eprint("Connection to {:s} failed:\n\t {:s}".format(url, str(e.args[0])))
         sys.exit(-1)

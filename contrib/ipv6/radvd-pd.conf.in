@@ -1,7 +1,8 @@
 interface testX6p {
-        AdvManagedFlag on;
+        AdvManagedFlag @ADV_MANAGED@;
         AdvSendAdvert on;
-        AdvOtherConfigFlag on;
+        AdvOtherConfigFlag @ADV_OTHER@;
         MinRtrAdvInterval 3;
         MaxRtrAdvInterval 60;
+        @ADV_PREFIX@
 };

@@ -18,13 +18,16 @@ install_el8_packages () {
     dnf -4 -y install \
         $KOJI/perl-IO-Pty-Easy/0.10/5.fc28/noarch/perl-IO-Pty-Easy-0.10-5.fc28.noarch.rpm \
         $KOJI/perl-IO-Tty/1.12/11.fc28/$(arch)/perl-IO-Tty-1.12-11.fc28.$(arch).rpm \
-        $KOJI/tcpreplay/4.2.5/4.fc28/$(arch)/tcpreplay-4.2.5-4.fc28.$(arch).rpm
+        $KOJI/tcpreplay/4.2.5/4.fc28/$(arch)/tcpreplay-4.2.5-4.fc28.$(arch).rpm \
+        $KOJI/rp-pppoe/3.15/1.fc35/$(arch)/rp-pppoe-3.15-1.fc35.$(arch).rpm
+
 
     # Dnf more deps
     dnf -4 -y install \
         git python3-netaddr dhcp-relay iw net-tools psmisc firewalld dhcp-server \
-        ethtool python3-dbus python3-gobject dnsmasq tcpdump wireshark-cli file \
-        iproute-tc openvpn gcc coreutils-debuginfo \
+        ethtool python3-dbus python3-gobject dnsmasq tcpdump wireshark-cli file iputils \
+        iproute-tc openvpn gcc coreutils-debuginfo python3-pyyaml tuned haveged \
+        abrt-plugin-sosreport \
         --skip-broken
 
     install_behave_pytest
@@ -34,12 +37,14 @@ install_el8_packages () {
         $KOJI/ipsec-tools/0.8.2/10.fc28/$(arch)/ipsec-tools-0.8.2-10.fc28.$(arch).rpm \
         $KOJI/pkcs11-helper/1.22/5.fc28/$(arch)/pkcs11-helper-1.22-5.fc28.$(arch).rpm
 
+    # openvpn not in s390x repo
+    if [ $(arch) == s390x ] ; then
+        dnf -4 -y install $KOJI/openvpn/2.4.9/1.fc30/s390x/openvpn-2.4.9-1.fc30.s390x.rpm
+    fi
+
     # Install various NM dependencies
     dnf -4 -y remove \
         NetworkManager-config-connectivity-fedora NetworkManager-config-connectivity-redhat
-    dnf -4 -y install \
-        $BREW/rhel-8/packages/libmnl/1.0.4/6.el8/$(arch)/libmnl-devel-1.0.4-6.el8.$(arch).rpm \
-        $KOJI/hostapd/2.9/3.el8/$(arch)/hostapd-2.9-3.el8.$(arch).rpm
 
     # Install kernel-modules-internal for mac80211_hwsim
     VER=$(rpm -q --queryformat '%{VERSION}' kernel)
@@ -57,7 +62,7 @@ install_el8_packages () {
     # Add OVS repo and install OVS
     if ! grep -q -e 'CentOS .* release 8' /etc/redhat-release; then
         cp -f  contrib/ovs/ovs-rhel8.repo /etc/yum.repos.d/ovs.repo
-        yum -y install openvswitch2.15
+        yum -y install openvswitch2.16* openvswitch-selinux-extra-policy
         systemctl restart openvswitch
     else
         dnf -y install \
@@ -112,13 +117,10 @@ install_el8_packages () {
 
     # Enable debug logs for wpa_supplicant
     sed -i 's!OTHER_ARGS="-s"!OTHER_ARGS="-s -dddK"!' /etc/sysconfig/wpa_supplicant
-    # And for NM in CentOS
-    if grep -q 'CentOS' /etc/redhat-release; then
-        echo -e "[logging]\nlevel=TRACE\ndomains=ALL" >> /etc/NetworkManager/conf.d/99-test.conf
-    fi
     # Make crypto policies a bit less strict
     update-crypto-policies --set LEGACY
     systemctl restart wpa_supplicant
+    systemctl restart haveged
 
     # Remove cloud-init dns
     rm -rf /etc/NetworkManager/conf.d/99-cloud-init.conf

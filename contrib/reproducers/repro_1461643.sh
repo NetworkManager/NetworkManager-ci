@@ -5,7 +5,6 @@
 
 die() {
     cleanup_dev
-    nmcli con del "Wired connection "{1..40}
     exit 1
 }
 
@@ -16,32 +15,22 @@ cleanup_dev() {
     done
 }
 
-wait_for_con() {
+wait_for_dev() {
   for i in {1..20}; do
-      nmcli -t c | grep -q "$1:" && return
+      nmcli -t d |grep ':connected' |grep "$1:" && return
       sleep 0.5
   done
-  echo "Connection '$1' does not exist:"
+  echo "device '$1' is not connected:"
   nmcli c | cat
   die
 }
 
-wait_for_con() {
+wait_for_not_dev() {
   for i in {1..20}; do
-      nmcli -t c | grep -q "$1:" && return 0
+      nmcli -t d |grep ':connected' |grep "$1:" || return 0
       sleep 0.5
   done
-  echo "Connection '$1' does not exist:"
-  nmcli c | cat
-  die
-}
-
-wait_for_not_con() {
-  for i in {1..20}; do
-      nmcli -t c | grep -q "$1:" || return 0
-      sleep 0.5
-  done
-  echo "Connection '$1' still exist:"
+  echo "Device '$1' is still connected"
   nmcli c | cat
   die
 }
@@ -51,17 +40,16 @@ for i in {1..20}; do
     ip l add veth$i type veth peer name veth${i}p
     ip l set veth$i up
     ip l set veth${i}p up
-    sleep 0.2
 done
 
-echo "Wait for connections"
-time for i in {1..40}; do
-    wait_for_con "Wired connection $i"
+echo "Wait for devices"
+time for i in {1..20}; do
+    wait_for_dev veth"$i"p
 done
 
 cleanup_dev
 
 echo "Wait until connections disappears"
-time for i in {1..40}; do
-    wait_for_not_con "Wired connection $i"
+time for i in {1..20}; do
+    wait_for_not_dev veth"$i"p
 done

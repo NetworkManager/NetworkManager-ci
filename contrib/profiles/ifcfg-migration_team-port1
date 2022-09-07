@@ -1,0 +1,8 @@
+MTU=9000
+TEAM_PORT_CONFIG="{ \"prio\": -10, \"sticky\": true }"
+NAME=migration_team-port1
+UUID=49c2059b-8e47-4618-810e-44792030d3f5
+DEVICE=eth4
+ONBOOT=no
+TEAM_MASTER=nm-team
+DEVICETYPE=TeamPort

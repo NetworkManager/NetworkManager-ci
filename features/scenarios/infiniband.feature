@@ -10,7 +10,7 @@ Feature: nmcli: inf
     @inf
     @inf_create_connection
     Scenario: nmcli - inf - create master connection
-    * Add connection type "infiniband" named "inf" for device "inf_ib0"
+    * Add "infiniband" connection named "inf" for device "inf_ib0"
     * Bring "up" connection "inf"
     Then "inet 172" is visible with command "ip a s inf_ib0" in "10" seconds
 
@@ -37,7 +37,7 @@ Feature: nmcli: inf
     @inf
     @inf_disable_connection
     Scenario: nmcli - inf - disable master connection
-    * Add connection type "infiniband" named "inf" for device "inf_ib0"
+    * Add "infiniband" connection named "inf" for device "inf_ib0"
     * Bring "up" connection "inf"
     * Bring "down" connection "inf"
     Then "inet 172" is not visible with command "ip a s inf_ib0" in "10" seconds
@@ -46,7 +46,7 @@ Feature: nmcli: inf
     @inf
     @inf_create_port_connection
     Scenario: nmcli - inf - create port connection
-    * Add connection type "infiniband" named "inf" for device "inf_ib0"
+    * Add "infiniband" connection named "inf" for device "inf_ib0"
     * Add infiniband port named "inf.8002" for device "inf_ib0.8002" with parent "inf_ib0" and p-key "0x8002"
     * Bring "up" connection "inf"
     * Bring "up" connection "inf.8002"
@@ -57,7 +57,7 @@ Feature: nmcli: inf
     @inf
     @inf_create_port_novice_mode
     Scenario: nmcli - inf - novice - create infiniband port with default options
-     * Add connection type "infiniband" named "inf" for device "inf_ib0"
+     * Add "infiniband" connection named "inf" for device "inf_ib0"
      * Bring "up" connection "inf"
      * Open wizard for adding new connection
      * Expect "Connection type"
@@ -73,7 +73,9 @@ Feature: nmcli: inf
      * Expect "MTU"
      * Enter in editor
      * Expect "Transport mode"
-     * Enter in editor
+     * Submit "datagram" in editor
+     # TO avoid https://bugzilla.redhat.com/show_bug.cgi?id=2053603
+     #* Enter in editor
      * Expect "P_KEY"
      * Submit "0x8002" in editor
      * Expect "Parent interface"
@@ -89,7 +91,7 @@ Feature: nmcli: inf
     @inf
     @inf_disable_port
     Scenario: nmcli - inf - disable port connection
-    * Add connection type "infiniband" named "inf" for device "inf_ib0"
+    * Add "infiniband" connection named "inf" for device "inf_ib0"
     * Add infiniband port named "inf.8002" for device "inf_ib0.8002" with parent "inf_ib0" and p-key "0x8002"
     * Bring "up" connection "inf"
     * Bring "up" connection "inf.8002"
@@ -101,7 +103,7 @@ Feature: nmcli: inf
     @inf
     @inf_enable_after_reboot
     Scenario: nmcli - inf - enable after reboot
-    * Add connection type "infiniband" named "inf" for device "inf_ib0"
+    * Add "infiniband" connection named "inf" for device "inf_ib0"
     * Add infiniband port named "inf.8002" for device "inf_ib0.8002" with parent "inf_ib0" and p-key "0x8002"
     * Bring "up" connection "inf"
     * Bring "up" connection "inf.8002"
@@ -115,7 +117,7 @@ Feature: nmcli: inf
     @inf @internal_DHCP
     @inf_internal_dhcp
     Scenario: nmcli - inf - enable after reboot
-    * Add connection type "infiniband" named "inf" for device "inf_ib0"
+    * Add "infiniband" connection named "inf" for device "inf_ib0"
     * Add infiniband port named "inf.8002" for device "inf_ib0.8002" with parent "inf_ib0" and p-key "0x8002"
     * Bring "up" connection "inf"
     * Bring "up" connection "inf.8002"
@@ -128,11 +130,11 @@ Feature: nmcli: inf
 
     @rhbz1339008
     @ver+=1.4.0
-    @inf @bond
+    @inf
     @inf_master_in_bond
     Scenario: nmcli - inf - inf master in bond
-     * Add connection type "infiniband" named "inf" for device "inf_ib0"
-     * Add a new connection of type "bond" and options "ifname nm-bond con-name bond0 bond.options mode=active-backup"
+     * Add "infiniband" connection named "inf" for device "inf_ib0"
+     * Add "bond" connection named "bond0" for device "nm-bond" with options "bond.options mode=active-backup"
      * Execute "nmcli connection modify id inf connection.slave-type bond connection.master nm-bond"
      * Bring "up" connection "inf"
      * Bring "up" connection "bond0"
@@ -145,11 +147,11 @@ Feature: nmcli: inf
 
     @rhbz1375558
     @ver+=1.4.0
+    @inf @restart_if_needed
     @inf_master_in_bond_restart_persistence
-    @inf @bond @restart_if_needed
     Scenario: nmcli - inf - inf master in bond res
-     * Add connection type "infiniband" named "inf" for device "inf_ib0"
-     * Add a new connection of type "bond" and options "ifname nm-bond con-name bond0 bond.options mode=active-backup"
+     * Add "infiniband" connection named "inf" for device "inf_ib0"
+     * Add "bond" connection named "bond0" for device "nm-bond" with options "bond.options mode=active-backup"
      * Execute "nmcli connection modify id inf connection.slave-type bond connection.master nm-bond"
      * Bring "up" connection "inf"
      * Bring "up" connection "bond0"
@@ -170,8 +172,8 @@ Feature: nmcli: inf
     @inf
     @inf_down_before_mode_change
     Scenario: nmcli - inf - take down device before changing
-    * Add a new connection of type "infiniband" and options "con-name inf ifname inf_ib0 infiniband.transport-mode datagram"
-    * Add a new connection of type "infiniband" and options "con-name inf2 ifname inf_ib0 infiniband.transport-mode connected"
+    * Add "infiniband" connection named "inf" for device "inf_ib0" with options "infiniband.transport-mode datagram"
+    * Add "infiniband" connection named "inf2" for device "inf_ib0" with options "infiniband.transport-mode connected"
     * Bring "up" connection "inf"
     * Execute "nmcli general logging level debug domains all"
     * Run child "journalctl -f > /tmp/journal.txt"
@@ -189,8 +191,13 @@ Feature: nmcli: inf
     @internal_DHCP @tcpdump @inf
     @inf_send_correct_client_id
     Scenario: NM - inf - internal - send client id
-    * Add connection type "infiniband" named "inf" for device "inf_ib0"
-    * Add a new connection of type "infiniband" and options "ifname inf_ib0.8002 parent inf_ib0 p-key 0x8002 con-name inf.8002 ipv4.addresses 1.2.3.4/24,1.2.4.5/24,1.2.5.6/24,1.2.6.8/24,1.3.5.7/24,1.2.1.2/24,1.1.2.1/24,1.1.2.2/24,1.1.2.3/24,1.1.2.4/24,1.1.2.5/24,1.1.2.6/24,1.1.2.7/24,1.1.2.8/24,1.1.2.9/24,1.1.2.10/24"
+    * Add "infiniband" connection named "inf" for device "inf_ib0"
+    * Add "infiniband" connection named "inf.8002" for device "inf_ib0.8002" with options
+          """
+          parent inf_ib0
+          p-key 0x8002
+          ipv4.addresses 1.2.3.4/24,1.2.4.5/24,1.2.5.6/24,1.2.6.8/24,1.3.5.7/24,1.2.1.2/24,1.1.2.1/24,1.1.2.2/24,1.1.2.3/24,1.1.2.4/24,1.1.2.5/24,1.1.2.6/24,1.1.2.7/24,1.1.2.8/24,1.1.2.9/24,1.1.2.10/24
+          """
     * Run child "sudo tcpdump -l -i any -v -n > /tmp/tcpdump.log"
     * Run child "nmcli con up inf.8002"
     When "empty" is not visible with command "file /tmp/tcpdump.log" in "150" seconds
@@ -203,9 +210,19 @@ Feature: nmcli: inf
     @inf
     @inf_mtu
     Scenario: nmcli - inf - mtu
-    * Add a new connection of type "infiniband" and options "ifname inf_ib0.8010 parent inf_ib0 p-key 0x8010 con-name inf infiniband.mtu 2042"
+    * Add "infiniband" connection named "inf" for device "inf_ib0.8010" with options
+          """
+          parent inf_ib0
+          p-key 0x8010
+          infiniband.mtu 2042
+          """
     * Bring "up" connection "inf"
     When "2042" is visible with command "ip a s inf_ib0.8010"
-    * Add a new connection of type "infiniband" and options "ifname inf_ib0.8010 parent inf_ib0 p-key 0x8010 con-name inf2 infiniband.mtu 4092"
+    * Add "infiniband" connection named "inf2" for device "inf_ib0.8010" with options
+          """
+          parent inf_ib0
+          p-key 0x8010
+          infiniband.mtu 4092
+          """
     * Bring "up" connection "inf2"
     Then "4092" is visible with command "ip a s inf_ib0.8010"

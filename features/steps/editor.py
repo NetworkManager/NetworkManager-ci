@@ -34,25 +34,42 @@ def clear_text_typed(context):
     context.prompt.send("\b"*128)
 
 
-@step(u'Check "{options}" are shown for object "{obj}"')
-def check_obj_output_in_editor(context, options, obj):
-    options = options.split('|')
-    for opt in options:
-        context.prompt.sendcontrol('c')
-        context.prompt.send('\n')
-        context.prompt.send('set %s \t\t' % obj)
+def check_obj_output_in_editor(context, obj, regexes):
+    for opt in regexes:
+        context.prompt.sendcontrol("c")
+        context.prompt.send("\n")
+        context.prompt.send("set %s \t\t" % obj)
         time.sleep(0.25)
         a = context.prompt.expect(["%s" % opt, pexpect.TIMEOUT], timeout=5)
         assert a == 0, "Option %s was not shown!" % opt
 
 
-@step(u'Check "{options}" are present in describe output for object "{obj}"')
-def check_describe_output_in_editor(context, options, obj):
-    options = options.split('|')
-    context.prompt.sendline('describe %s' % obj)
-    for opt in options:
-        assert context.prompt.expect(["%s" % opt, pexpect.TIMEOUT], timeout=5) == 0, \
+@step('Check "{options}" are shown for object "{obj}"')
+def check_obj_output_in_editor_options(context, options, obj):
+    check_obj_output_in_editor(context, obj, options.split("|"))
+
+
+@step('Check regex "{regex}" is shown for object "{obj}"')
+def check_obj_output_in_editor_regex(context, regex, obj):
+    check_obj_output_in_editor(context, obj, [regex])
+
+
+def check_describe_output_in_editor(context, obj, regexes):
+    context.prompt.sendline("describe %s" % obj)
+    for opt in regexes:
+        assert context.prompt.expect(["%s" % opt, pexpect.TIMEOUT], timeout=5) == 0, (
             "Option %s was not described!" % opt
+        )
+
+
+@step('Check "{options}" are present in describe output for object "{obj}"')
+def check_describe_output_in_editor_options(context, options, obj):
+    check_describe_output_in_editor(context, obj, options.split("|"))
+
+
+@step('Check regex "{regex}" in describe output for object "{obj}"')
+def check_describe_output_in_editor_regex(context, regex, obj):
+    check_describe_output_in_editor(context, obj, [regex])
 
 
 @step(u'Check value saved message showed in editor')
@@ -321,5 +338,5 @@ def value_printed(context, item, value):
         value = t_str[:-3]
         print(value)
 
-    context.prompt.expect('%s\\s+%s' % (item, value))
+    context.prompt.expect('%s:\\s+%s' % (item, value))
     print(context.prompt)

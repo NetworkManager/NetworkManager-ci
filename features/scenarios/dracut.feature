@@ -55,6 +55,44 @@ Feature: NM: dracut
       | check  | nfs_server 192.168.50.1                                                |
 
 
+    @rhbz1710935
+    @ver/rhel/9+=1.39.11
+    @ver+=1.39
+    @rhelver+=8.3 @fedoraver+=32
+    @not_on_ppc64le @dracut @long
+    @dracut_NM_NFS_root_dhcp_nm_debug
+    Scenario: NM - dracut - NM module - NFSv3 root=dhcp
+    * Remove "/etc/NetworkManager/conf.d/99-test.conf" from dracut NFS root
+    * Run dracut test
+      | Param  | Value                                                                  |
+      | kernel | root=dhcp ro nm.debug                                                  |
+      | qemu   | -device virtio-net,netdev=nfs,mac=52:54:00:12:34:00                    |
+      | qemu   | -netdev tap,id=nfs,script=$PWD/qemu-ifup/nfs                           |
+      | check  | nm_debug                                                               |
+      | check  | nmcli_con_active "Wired Connection" eth0                               |
+      | check  | nmcli_con_prop "Wired Connection" ipv4.method auto                     |
+      | check  | nmcli_con_prop "Wired Connection" IP4.ADDRESS 192.168.50.101/24 10     |
+      | check  | nmcli_con_prop "Wired Connection" IP4.GATEWAY 192.168.50.1             |
+      | check  | nmcli_con_prop "Wired Connection" IP4.ROUTE *192.168.50.0/24*          |
+      | check  | nmcli_con_prop "Wired Connection" IP4.DNS 192.168.50.1                 |
+      | check  | nmcli_con_prop "Wired Connection" IP4.DOMAIN cl01.nfs.redhat.com       |
+      | check  | nmcli_con_prop "Wired Connection" ipv6.method auto                     |
+      | check  | nmcli_con_prop "Wired Connection" IP6.ADDRESS *deaf:beef::1:10/128* 10 |
+      | check  | nmcli_con_prop "Wired Connection" IP6.ROUTE *deaf:beef::/64*           |
+      | check  | nmcli_con_prop "Wired Connection" IP6.DNS deaf:beef::1 10              |
+      | check  | wait_for_ip4_renew 192.168.50.101/24 eth0                              |
+      | check  | wait_for_ip6_renew deaf:beef::1:10/128 eth0                            |
+      | check  | dns_search *'nfs.redhat.com'*                                          |
+      | check  | dns_search *'nfs6.redhat.com'*                                         |
+      | check  | nmcli_con_num 1                                                        |
+      | check  | no_ifcfg                                                               |
+      | check  | ip4_route_unique "default via 192.168.50.1"                            |
+      | check  | ip4_route_unique "192.168.50.0/24 dev eth0"                            |
+      | check  | ip6_route_unique "deaf:beef::1:10 dev eth0 proto kernel"               |
+      | check  | ip6_route_unique "deaf:beef::/64 dev eth0 proto ra"                    |
+      | check  | nfs_server 192.168.50.1                                                |
+
+
     @rhelver+=8.3 @fedoraver+=32
     @ver+=1.25
     @dracut @long @not_on_ppc64le
@@ -1757,7 +1795,7 @@ Feature: NM: dracut
     ##########
 
 
-    @rhelver+=8.3 @rhelver-=8.99 @fedoraver+=32
+    @rhelver+=8.3 @rhelver-=8.99 @fedoraver-=0
     @dracut @long @x86_64_only
     @dracut_legacy_iSCSI_ibft_table
     Scenario: NM - dracut - legacy module - iSCSI ibft table

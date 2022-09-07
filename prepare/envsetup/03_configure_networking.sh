@@ -78,15 +78,13 @@ configure_networking () {
         fi
     fi
 
-
     # Do we have keyfiles or ifcfg plugins enabled?
-    ACTIVE_DEV=$(nmcli -g DEVICE  connection show -a)
-    if test -f /etc/NetworkManager/system-connections/$ACTIVE_DEV.nmconnection; then
+    DEV=$(nmcli -f DEVICE,TYPE,STATE -t d | grep :ethernet | grep :connected | awk -F':' '{print $1}' | head -n 1)
+    if test $(nmcli -t -f FILENAME,DEVICE connection|grep $DEV|grep nmconnection); then
         touch /tmp/nm_plugin_keyfiles
         # Remove all ifcfg files as we don't need them
         rm -rf /etc/sysconfig/network-scripts/*
     fi
-
 
     # Drop compiled in defaults into proper config
     if grep -q -e 'release 8' /etc/redhat-release; then
@@ -99,6 +97,8 @@ configure_networking () {
         echo -e "[main]\ndhcp=nettools\nplugins=keyfile,ifcfg-rh" >> /etc/NetworkManager/conf.d/99-test.conf
     fi
 
+    # Remove dnsmasq's mapping to lo only RHEL9 and Fedora 33+
+    sed -i 's/^interface=lo/# interface=lo/' /etc/dnsmasq.conf
 
     # Do veth setup if yes
     if [ $veth -eq 1 ]; then
@@ -118,7 +118,7 @@ configure_networking () {
 
         cat /tmp/testeth0
 
-        touch /tmp/nm_newveth_configured
+        touch /tmp/nm_veth_configured
 
     else
         # Profiles tuning
@@ -126,7 +126,6 @@ configure_networking () {
             if [ $dcb_inf_wol_sriov -eq 0 ]; then
                 nmcli connection add type ethernet ifname eth0 con-name testeth0
                 nmcli connection delete eth0
-                #nmcli connection modify testeth0 ipv6.method ignore
                 nmcli connection up id testeth0
                 nmcli con show -a
                 for X in $(seq 1 10); do
@@ -137,10 +136,19 @@ configure_networking () {
             fi
 
             # THIS NEEDS TO BE DONE HERE AS DONE SEPARATELY IN VETHSETUP FOR RECREATION REASONS
+            nmcli c modify testeth0 ipv4.may-fail no
             nmcli c modify testeth0 ipv4.route-metric 99 ipv6.route-metric 99
             sleep 1
             # Copy final connection to /tmp/testeth0 for later in test usage
-            yes 2>/dev/null | cp -rf /etc/sysconfig/network-scripts/ifcfg-testeth0 /tmp/testeth0
+            if ! test -f /tmp/nm_plugin_keyfiles; then
+                if [ ! -e /tmp/testeth0 ] ; then
+                    yes 2>/dev/null | cp -rf /etc/sysconfig/network-scripts/ifcfg-testeth0 /tmp/testeth0
+                fi
+            else
+                if ! test -f /tmp/testeth0; then
+                    yes 2>/dev/null | cp -rf /etc/NetworkManager/system-connections/testeth0.nmconnection /tmp/testeth0
+                fi
+            fi
 
         fi
 

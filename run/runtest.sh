@@ -3,35 +3,185 @@
 set -x
 
 die() {
-    printf '%s' "$*"
+    printf '%s\n' "$*"
     exit 1
 }
 
 
-dump_NM_journal() {
-    echo -e "No report generated, dumping NM journal log\n\n" > $NMTEST_REPORT
-    if [[ "$NMTEST_REPORT" == *".html" ]]; then echo "<pre>" >> $NMTEST_REPORT; fi
-    journalctl -u NetworkManager --no-pager -o cat "$LOG_CURSOR" | sed 's/</\&lt;/g;s/>/\&gt;/g' >> $NMTEST_REPORT
-    if [[ "$NMTEST_REPORT" == *".html" ]]; then echo "</pre>" >> $NMTEST_REPORT; fi
+array_contains() {
+    local tag="$1"
+    shift
+
+    for a; do
+        if [ "$tag" = "$a" ]; then
+            return 0
+        fi
+    done
+    return 1
 }
 
-logger -t $0 "Running test $1"
+get_timestamp() {
+    if [ -f /tmp/nm_tests_timestamp ]; then
+      cat /tmp/nm_tests_timestamp
+    else
+      date +%s | tee /tmp/nm_tests_timestamp
+    fi
+}
 
-export PATH=$PATH:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/root/bin
+version_control() {
+    local out
+    local rc
+    local A
+
+    out="$("$DIR/nmci/helpers/version_control.py" "$1")"
+    rc=$?
+    if [ $rc -eq 0 ]; then
+        local IFS=$'\n'
+        A=( $out )
+        FEATURE_FILE="${A[0]}"
+        TEST_NAME="${A[1]}"
+        ALL_TAGS=("${A[@]:2}")
+        return 0
+    elif [ $rc -eq 77 ]; then
+        unset FEATURE_FILE
+        unset TEST_NAME
+        unset ALL_TAGS
+        return 77
+    else
+        die "Invalid test name $1: $out"
+    fi
+}
+
+call_behave() {
+    local FEATURE_FILE="$1"
+    shift
+    local NMTEST_REPORT="$1"
+    shift
+
+    local a
+    local TAGS
+    TAGS=()
+    for a; do
+        TAGS+=("-t" "$a")
+    done
+
+    behave "$FEATURE_FILE" "${TAGS[@]}" -k -f html -o "$NMTEST_REPORT" -f plain
+}
+
+###############################################################################
+
+function gsm_hub_runtest () {
+    local TEST_NAME=${1:?"Error: test name is missing."}
+    local MODEM_INDEX=${2:?"Error: modem index is missing."}
+    local rc=0
+    local VERSION_CONTROL
+    local TEST_NAME
+    local ALL_TAGS
+
+    version_control "$NMTEST"
+    rc=$?
+
+    [ -n "$FEATURE_FILE" ] || return 0
+
+    call_behave "$FEATURE_FILE" /tmp/report.html "${ALL_TAGS[@]}"
+    rc=$?
+
+    # Create unique IDs of embedded sections in the HTML report.
+    # Allow joining of two or more reports with collapsible sections.
+    sed -i -e "s/embed_/${MODEM_INDEX}_${TEST_NAME}_embed_/g" /tmp/report.html
+    return $rc
+}
+
+function gsm_hub_test() {
+    # Number of modems that are plugged into Acroname USB hub.
+    local MODEM_COUNT=5
+    # Number of ports Acroname USB hub has.
+    local PORT_COUNT=8
+    # Return code
+    local rc=0
+
+    touch /tmp/usb_hub
+    echo "USB_HUB" > /tmp/report_$NMTEST.html
+    for M in $(seq 1 1 $((MODEM_COUNT-1)) ); do
+
+        for P in $(seq 0 1 $((PORT_COUNT-1)) ); do
+            $DIR/prepare/acroname.py --port $P --disable
+        done
+
+        # systemctl stop ModemManager
+        # modprobe -r qmi_wwan
+        # modprobe qmi_wwan
+        # sleep 2
+        # systemctl restart ModemManager
+
+        $DIR/prepare/acroname.py --port $M --enable
+
+        # wait up to 300s for device to appear in NM
+        sh $DIR/prepare/initialize_modem.sh
+
+
+        # Run just one test to be as quick as possible
+        if [[ $NMTEST ==  *gsm_hub_simple ]]; then
+            GSM_TESTS='gsm_create_default_connection'
+        else
+            # Run the full set of tests on the 1st modem.
+            if [ $M == 0 ]; then
+                GSM_TESTS_ALL='
+                gsm_create_assisted_connection
+                gsm_create_default_connection
+                gsm_disconnect
+                gsm_create_one_minute_ping
+                gsm_mtu
+                gsm_route_metric
+                gsm_load_from_file
+                gsm_connectivity_check
+                '
+                # gsm_up_up
+                # gsm_up_down_up
+
+                GSM_TESTS=$GSM_TESTS_ALL
+            else
+                GSM_TESTS='
+                gsm_create_default_connection
+                gsm_disconnect
+                gsm_create_one_minute_ping
+                gsm_mtu
+                '
+                # gsm_up_up
+                # gsm_up_down_up
+
+            fi
+        fi
+
+        for T in $GSM_TESTS; do
+            gsm_hub_runtest $T $M || rc=1
+            cat /tmp/report.html >> /tmp/report_$NMTEST.html
+
+            # Adding sleep 10 just to make tests more stable
+            sleep 10
+        done
+    done
+
+    return $rc
+}
+
+###############################################################################
+
+# if $1 starts with @, cut it away
+TAG="${1#@}"
+
+logger -t $0 "Running test $TAG"
+
+export PATH="$PATH:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/root/bin"
 DIR=$(pwd)
 
-. $DIR/run/gsm_hub.sh
-. $DIR/prepare/envsetup.sh
-configure_environment "$1"
-export_python_command
-
-export COLUMNS=1024
+TS=$(get_timestamp)
 
 # set TEST variable for version_control script
 if [ -z "$TEST" ]; then
-    logger "setting test name to NetworkManager_Test0_$1"
-    NMTEST="NetworkManager-ci_Test0_$1"
-elif ! [ $TEST == "sanity-tests" ]; then
+    logger "setting test name to NetworkManager_Test0_$TAG"
+    NMTEST="NetworkManager-ci_Test0_$TAG"
+elif ! [ "$TEST" == "sanity-tests" ]; then
     NMTEST="$TEST"
 fi
 
@@ -40,44 +190,46 @@ if [ -z "$NMTEST" ]; then
     exit 128
 fi
 
-NMTEST_REPORT=/tmp/report_$NMTEST.html
+. $DIR/prepare/envsetup.sh
+( configure_environment "$TAG" ) ; conf_rc=$?
+if [ $conf_rc != 0 ]; then
+    if ps aux|grep -v grep| grep -q harness.py; then
+        timeout 2m rstrnt-report-result -o "" "$NMTEST" FAIL
+    fi
+    cat /tmp/nmcli_general
+    exit $conf_rc
+fi
+export_python_command
+
+export COLUMNS="1024"
+
+NMTEST_REPORT="/tmp/report_$NMTEST.html"
 
 LOG_CURSOR=$(journalctl --lines=0 --show-cursor |awk '/^-- cursor:/ {print "--after-cursor="$NF; exit}')
 
-
-FEATURE_FILE=$(grep "@$1\(\s\|\$\)" -l $DIR/features/scenarios/*.feature)
-# if $FEATURE_FILE is empty or contains more than one line
-if [ -z "$FEATURE_FILE" -o $( wc -l <<< "$FEATURE_FILE" ) != 1 ]; then
-    logger "Resetting FEATURE_FILE, as it is: $FEATURE_FILE"
-    FEATURE_FILE=$DIR/features
-fi
-# get tags specific to software versions (NM, fedora, rhel)
-# see version_control.py for more details
-TAG="$(python $DIR/version_control.py "$FEATURE_FILE" "$NMTEST")"; rc=$?
-# if version control exited normally, run the test
-if [ $rc -eq 0 ]; then
-    if [[ $1 == gsm_hub* ]];then
-      # Test all modems on USB hub with 8 ports.
-      test_modems_usb_hub; rc=$?
+version_control "$NMTEST"
+rc=$?
+if [ -n "$FEATURE_FILE" ]; then
+    if [[ "$TEST_NAME" == gsm_hub* ]];then
+        # Test all modems on USB hub with 8 ports.
+        gsm_hub_test
+        rc=$?
     else
-      # Test nmtui and nmcli
-      logger "Running  $NMTEST  with tags '$TAG'"
-
-      behave $FEATURE_FILE -t $1 $TAG -k -f html -o "$NMTEST_REPORT" -f plain ; rc=$?
+        # Test nmtui and nmcli
+        logger "Running  $NMTEST  with tags '${ALL_TAGS[@]}'"
+        call_behave "$FEATURE_FILE" "$NMTEST_REPORT" "${ALL_TAGS[@]}"
+        rc=$?
     fi
-fi
-
-# xfail handling
-if [[ $TAG = *"-t xfail "* ]]; then
-    if [ "$rc" = 0 ]; then
-      rc=1
-    elif [ "$rc" != 77 ]; then
-      rc=0
-    fi
-# may_fail
-elif [[ $TAG = *"-t may_fail "* ]]; then
-    if [ "$rc" != 77 ]; then
-      rc=0
+    if array_contains xfail "${ALL_TAGS[@]}"; then
+        if [ "$rc" = 0 ]; then
+            rc=1
+        elif [ "$rc" != 77 ]; then
+            rc=0
+        fi
+    elif array_contains may_fail "${ALL_TAGS[@]}"; then
+        if [ "$rc" != 77 ]; then
+            rc=0
+        fi
     fi
 fi
 
@@ -91,23 +243,30 @@ else
 fi
 
 # If we FAILED and no report, dump journal to report
-if [ "$RESULT" = FAIL -a ! -s "$NMTEST_REPORT" ]; then
-    dump_NM_journal
+if [ "$RESULT" = "FAIL" -a ! -s "$NMTEST_REPORT" ]; then
+    (
+        echo -e "No report generated, dumping NM journal log\n\n"
+        echo "<pre>"
+        journalctl -u NetworkManager --no-pager -o cat "$LOG_CURSOR" | \
+          sed 's/</\&lt;/g;s/>/\&gt;/g'T
+        echo "</pre>"
+    ) > "$NMTEST_REPORT"
 fi
 
 # If we have running harness.py then upload logs
-if ps aux|grep -v grep| grep -q harness.py; then
+if ps aux | grep -v grep | grep -q harness.py; then
     # check for empty file: -s means nonempty
     if [ -s "$NMTEST_REPORT" ]; then
-        rstrnt-report-result -o "$NMTEST_REPORT" $NMTEST $RESULT
+        timeout 1m rstrnt-report-result -o "$NMTEST_REPORT" "$NMTEST" "$RESULT"
     else
         echo "removing empty report file"
         rm -f "$NMTEST_REPORT"
-        rstrnt-report-result -o "" $NMTEST $RESULT
+        timeout 1m rstrnt-report-result -o "" "$NMTEST" "$RESULT"
     fi
 fi
 
-logger -t $0 "Test $1 finished with result $RESULT: $rc"
+logger -t $0 "Test $TAG finished with result $RESULT: $rc"
 
+echo "Testsuite time elapsed: $(date -u -d "$TS seconds ago" +%H:%M:%S)"
 echo "------------ Test result: $RESULT ------------"
 exit $rc

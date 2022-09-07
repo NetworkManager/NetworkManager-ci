@@ -4,7 +4,7 @@ Feature: Bridge TUI tests
   Background:
   * Prepare virtual terminal environment
 
-    @bridge @ifcfg-rh
+    @ifcfg-rh
     @nmtui_bridge_add_default_bridge
     Scenario: nmtui - bridge - add default bridge
     * Prepare new connection of type "Bridge" named "bridge0"
@@ -18,7 +18,7 @@ Feature: Bridge TUI tests
     Then "bridge0\s+bridge" is visible with command "nmcli device"
 
     @ver+=1.10.2
-    @bridge @ifcfg-rh
+    @ifcfg-rh
     @nmtui_bridge_add_custom_bridge
     Scenario: nmtui - bridge - add custom bridge
     * Prepare new connection of type "Bridge" named "bridge0"
@@ -34,7 +34,7 @@ Feature: Bridge TUI tests
     Then "br88" is visible with command "ip link show type bridge"
     Then "DELAY=3.*BRIDGING_OPTS=\"priority=5 hello_time=3 max_age=15 ageing_time=500000 group_fwd_mask=8\".*NAME=bridge.*ONBOOT=yes" is visible with command "cat /etc/sysconfig/network-scripts/ifcfg-bridge0"
 
-    @bridge
+
     @nmtui_bridge_add_connection_wo_autoconnect
     Scenario: nmtui - bridge - add connnection without autoconnect
     * Prepare new connection of type "Bridge" named "bridge0"
@@ -45,7 +45,6 @@ Feature: Bridge TUI tests
     Then "bridge0" is not visible with command "nmcli device"
 
 
-    @bridge
     @nmtui_bridge_activate_wo_autoconnect
     Scenario: nmtui - bridge - activate without autoconnect
     * Prepare new connection of type "Bridge" named "bridge0"
@@ -62,7 +61,6 @@ Feature: Bridge TUI tests
     Then "bridge0" is visible with command "ip link show type bridge"
 
 
-    @bridge
     @nmtui_bridge_activate_with_autoconnect
     Scenario: nmtui - bridge - activate with autoconnect
     * Prepare new connection of type "Bridge" named "bridge0"
@@ -80,7 +78,6 @@ Feature: Bridge TUI tests
     Then "bridge0" is visible with command "ip link show type bridge"
 
 
-    @bridge
     @nmtui_bridge_deactivate_connection
     Scenario: nmtui - bridge - deactivate connection
     * Prepare new connection of type "Bridge" named "bridge0"
@@ -97,7 +94,6 @@ Feature: Bridge TUI tests
     Then "bridge0" is not visible with command "ip link show type bridge"
 
 
-    @bridge
     @nmtui_bridge_delete_connection_up
     Scenario: nmtui - bridge - delete connection while up
     * Prepare new connection of type "Bridge" named "bridge0"
@@ -114,7 +110,6 @@ Feature: Bridge TUI tests
     Then "bridge0" is not visible with command "ip link show type bridge"
 
 
-    @bridge
     @nmtui_bridge_delete_connection_down
     Scenario: nmtui - bridge - delete connection while down
     * Prepare new connection of type "Bridge" named "bridge0"
@@ -133,8 +128,7 @@ Feature: Bridge TUI tests
     Then "bridge0" is not visible with command "ip link show type bridge"
 
 
-    @veth
-    @bridge @ifcfg-rh @many_slaves
+    @ifcfg-rh
     @nmtui_bridge_add_many_slaves
     Scenario: nmtui - bridge - add many slaves
     * Prepare new connection of type "Bridge" named "bridge0"
@@ -195,7 +189,6 @@ Feature: Bridge TUI tests
     Then "BRIDGE=" is visible with command "cat /etc/sysconfig/network-scripts/ifcfg-bridge-slave-eth9"
 
 
-    @bridge
     @nmtui_bridge_over_ethernet_devices
     Scenario: nmtui - bridge - over ethernet devices
     * Prepare new connection of type "Bridge" named "bridge0"
@@ -222,7 +215,6 @@ Feature: Bridge TUI tests
     Then "192.168" is visible with command "ip a s bridge0"
 
 
-    # @bridge
     # @nmtui_bridge_over_ethernet_devices_no_stp
     # Scenario: nmtui - bridge - over ethernet devices no stp
     # * Prepare new connection of type "Bridge" named "bridge0"
@@ -247,7 +239,6 @@ Feature: Bridge TUI tests
     # Then "192.168" is visible with command "ip a s bridge0"
 
 
-    @bridge
     @nmtui_bridge_over_ethernet_devices_no_stp
     Scenario: nmtui - bridge - over ethernet devices no stp
     * Prepare new connection of type "Bridge" named "bridge0"
@@ -266,7 +257,6 @@ Feature: Bridge TUI tests
     Then "inet 1" is visible with command "ip a s bridge0"
 
 
-    @vlan @bridge
     @nmtui_bridge_over_vlans
     Scenario: nmtui - bridge - over vlans
     * Prepare new connection of type "Bridge" named "bridge0"
@@ -287,7 +277,6 @@ Feature: Bridge TUI tests
     Then "169.254" is visible with command "ip a s bridge0"
 
 
-    @vlan @bridge
     @nmtui_bridge_over_vlans_no_stp
     Scenario: nmtui - bridge - over vlans no stp
     * Prepare new connection of type "Bridge" named "bridge0"
@@ -309,7 +298,7 @@ Feature: Bridge TUI tests
     Then "169.254" is visible with command "ip a s bridge0"
 
 
-    @bridge @ifcfg-rh
+    @ifcfg-rh
     @nmtui_bridge_custom_bridge_port
     Scenario: nmtui - bridge - custom bridge port
     * Prepare new connection of type "Bridge" named "bridge0"
@@ -327,7 +316,6 @@ Feature: Bridge TUI tests
     Then "BRIDGING_OPTS=.priority=48 path_cost=128 hairpin_mode=1" is visible with command "cat /etc/sysconfig/network-scripts/ifcfg-bridge-slave-eth1"
 
 
-    @vlan @bridge
     @nmtui_bridge_over_ethernet_and_vlan
     Scenario: nmtui - bridge - over ethernet and vlan
     * Prepare new connection of type "Bridge" named "bridge0"

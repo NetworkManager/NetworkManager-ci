@@ -9,7 +9,7 @@ Feature: NM: dispatcher
     # Scenario:
 
     @rhbz982633
-    @disp
+    @permissive @disp
     @dispatcher_preup_and_up
     Scenario: NM - dispatcher - preup and up
     * Write dispatcher "pre-up.d/98-disp" file
@@ -20,7 +20,7 @@ Feature: NM: dispatcher
     Then "pre-up.*\s+up" is visible with command "cat /tmp/dispatcher.txt" in "50" seconds
 
     @rhbz982633
-    @disp
+    @permissive @disp
     @dispatcher_predown_and_down
     Scenario: NM - dispatcher - pre-down and down
     * Bring "up" connection "testeth1"
@@ -37,7 +37,7 @@ Feature: NM: dispatcher
 #    @dispatcher_vpn_down
 #    Scenario: NM - dispatcher - vpn-down
 
-    @disp @restore_hostname
+    @permissive @disp @restore_hostname
     @dispatcher_hostname
     Scenario: NM - dispatcher - hostname
     * Write dispatcher "99-disp" file
@@ -52,7 +52,7 @@ Feature: NM: dispatcher
 
 
     @rhbz1048345
-    @disp
+    @permissive @disp
     @dispatcher_synchronicity
     Scenario: NM - dispatcher - synchronicity
     * Write dispatcher "99-disp" file
@@ -65,7 +65,7 @@ Feature: NM: dispatcher
 
 
     @rhbz1048345
-    @disp
+    @permissive @disp
     @dispatcher_synchronicity_with_predown
     Scenario: NM - dispatcher - synchronicity with predown
     * Write dispatcher "99-disp" file
@@ -78,7 +78,7 @@ Feature: NM: dispatcher
 
 
     @rhbz1061212
-    @disp
+    @permissive @disp
     @dispatcher_serialization
     Scenario: NM - dispatcher - serialization
     * Bring "down" connection "testeth1"
@@ -93,30 +93,30 @@ Feature: NM: dispatcher
 
     @rhbz1663253
     @ver+=1.20
-    @disp @con_ipv4_remove @teardown_testveth @dhclient_DHCP
+    @permissive @disp @dhclient_DHCP
     @dispatcher_private_dhcp_option_dhclient
     Scenario: NM - dispatcher - private option 245 dhclient plugin
     * Prepare simulated test "testXd" device with "192.168.99" ipv4 and "2620:dead:beaf" ipv6 dhcp address prefix and dhcp option "245,aa:bb:cc:dd"
     * Write dispatcher "99-disp" file with params "[ "$2" != "up" ] && exit 0 || echo DHCP4_UNKNOWN_245=$DHCP4_UNKNOWN_245,DHCP4_PRIVATE_245=$DHCP4_PRIVATE_245 >> /tmp/dispatcher.txt"
-    * Add a new connection of type "ethernet" and options "ifname testXd con-name con_ipv4"
+    * Add "ethernet" connection named "con_ipv4" for device "testXd"
     * Bring "up" connection "con_ipv4"
     Then "DHCP4_UNKNOWN_245=aa:bb:cc:dd,DHCP4_PRIVATE_245=aa:bb:cc:dd" is visible with command "cat /tmp/dispatcher.txt" in "5" seconds
 
     @rhbz1663253
     @ver+=1.20
-    @disp @con_ipv4_remove @teardown_testveth @internal_DHCP
+    @permissive @disp @internal_DHCP
     @dispatcher_private_dhcp_option_internal
     Scenario: NM - dispatcher - private dhcp option 245 internal plugin
     * Prepare simulated test "testXd" device with "192.168.99" ipv4 and "2620:dead:beaf" ipv6 dhcp address prefix and dhcp option "245,aa:bb:cc:dd"
     * Write dispatcher "99-disp" file with params "[ "$2" != "up" ] && exit 0 || echo DHCP4_UNKNOWN_245=$DHCP4_UNKNOWN_245,DHCP4_PRIVATE_245=$DHCP4_PRIVATE_245 >> /tmp/dispatcher.txt"
-    * Add a new connection of type "ethernet" and options "ifname testXd con-name con_ipv4 ipv4.may-fail no"
+    * Add "ethernet" connection named "con_ipv4" for device "testXd" with options "ipv4.may-fail no"
     * Bring "up" connection "con_ipv4"
     Then "DHCP4_UNKNOWN_245=aa:bb:cc:dd,DHCP4_PRIVATE_245=aa:bb:cc:dd" is visible with command "cat /tmp/dispatcher.txt" in "5" seconds
 
 
     @rhbz1674550
     @ver+=1.19
-    @disp
+    @permissive @disp
     @dispatcher_usr_lib_dir
     Scenario: NM - dispatcher - usr lib dir dispatcher scripts
     * Write dispatcher "/usr/lib/NetworkManager/dispatcher.d/99-disp" file
@@ -131,11 +131,19 @@ Feature: NM: dispatcher
     Scenario: NM - dispatcher - do not block NM service restart
     * Restart NM
     * Execute "systemctl restart NetworkManager-dispatcher"
-    * Add a new connection of type "ovs-bridge" and options "conn.interface ovsbridge0 con-name ovs-bridge0"
-    * Add a new connection of type "ovs-port" and options "conn.interface port0 conn.master ovsbridge0 con-name ovs-port0 ovs-port.tag 120"
-    * Add a new connection of type "ovs-interface" and options "conn.interface iface0 conn.master port0 con-name ovs-iface0 ip4 192.0.2.2/24"
+    * Add "ovs-bridge" connection named "ovs-bridge0" for device "ovsbridge0"
+    * Add "ovs-port" connection named "ovs-port0" for device "port0" with options
+          """
+          conn.master ovsbridge0
+          ovs-port.tag 120
+          """
+    * Add "ovs-interface" connection named "ovs-iface0" for device "iface0" with options
+          """
+          conn.master port0
+          ip4 192.0.2.2/24
+          """
     When "activated" is visible with command "nmcli -g GENERAL.STATE con show ovs-iface0" in "40" seconds
     When "inactive|unknown" is visible with command "systemctl is-active NetworkManager-dispatcher.service" in "30" seconds
-    * Run child "systemctl restart NetworkManager"
+    * Restart NM in background
     # If NM hangs this will be never shown
     When "deactivating" is not visible with command "systemctl status NetworkManager" in "10" seconds

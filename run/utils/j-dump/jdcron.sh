@@ -112,8 +112,10 @@ js_add_entry() {
     project:"$1",
     name:"$2",
     os:"$3",
+    id:"$id",
   },
 EOF
+((++id))
 }
 
 index_html_trailing() {
@@ -142,6 +144,7 @@ EOF
 
 process_job() {
 	local NICK="$1"
+	local i=0
 	eval local CI_NICK_LABEL="\"\$${NICK}_CI_NICK_LABEL CI\""
 	eval local USER="\"\$${NICK}_USER\""
 	eval local PASSWORD="\"\$${NICK}_PASSWORD\""
@@ -159,12 +162,17 @@ process_job() {
 		JOB_FULL_NAME="${JOB_HEADER}${job}"
 		[ -n "$JOB_HEADER" ] && JDUMP_JOB_NAME="--name ${job%-upstream}" || unset JDUMP_JOB_NAME
 
-		$JDUMP_BIN $JDUMP_OPTIONS $JDUMP_JOB_NAME "$JENKINS_URL" "$JOB_FULL_NAME" >> "$LOG_FILE" 2>&1
+		$JDUMP_BIN $JDUMP_OPTIONS $JDUMP_JOB_NAME "$JENKINS_URL" "$JOB_FULL_NAME" >> "$LOG_FILE" 2>&1 &
+		if (( ++i > 6 ))
+		then
+			i=0
+			wait
+		fi
 		color="$(grep -v 'RUNNING' ${JOB_FULL_NAME}_builds.html | grep -m 1 '<tr><td>' | grep -o -e green -e black )"
 		running="$(grep -o 'RUNNING' ${JOB_FULL_NAME}_builds.html | wc -l)"
 		health="$(grep -v 'RUNNING' ${JOB_FULL_NAME}_builds.html | grep -m 5 '<tr><td>' |grep SUCCESS |wc -l) "
 		index_html_add_entry "$JOB_FULL_NAME" "${job%-upstream}" "$color" "$running" "$health"
-    js_add_entry "$JOB_FULL_NAME" "${job%-upstream}" "$CI_NICK_LABEL"
+		js_add_entry "$JOB_FULL_NAME" "$(sed 's/veth-fedora-/f/;s/-upstream//' <<< "$job")" "$CI_NICK_LABEL"
 	done
 	index_html_ci_end
 }
@@ -185,10 +193,12 @@ log "-----------------------------------------------------------------"
 index_html_heading
 js_heading
 
+id=0
+
 for nick in $CI_NICK_LIST; do
 	process_job "$nick"
+	wait
 done
-
 
 index_html_trailing
 js_trailing

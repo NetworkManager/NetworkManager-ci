@@ -4,8 +4,7 @@ Feature: Ethernet TUI tests
   Background:
   * Prepare virtual terminal environment
 
-    @veth
-    @ethernet
+
     @nmtui_ethernet_create_default_connection
     Scenario: nmtui - ethernet - create default connection
     * Start nmtui
@@ -19,7 +18,6 @@ Feature: Ethernet TUI tests
     Then "IP4.GATEWAY:\s+1" is visible with command "nmcli con show ethernet" in "5" seconds
 
 
-    @ethernet
     @nmtui_ethernet_create_device_bound_connection
     Scenario: nmtui - ethernet - create device bound connection
     * Start nmtui
@@ -33,7 +31,6 @@ Feature: Ethernet TUI tests
     Then "eth1\s+ethernet\s+connected\s+ethernet" is visible with command "nmcli device"
 
 
-    @ethernet
     @nmtui_ethernet_create_connection_wo_autoconnect
     Scenario: nmtui - ethernet - create connection without autoconnect
     * Start nmtui
@@ -47,7 +44,6 @@ Feature: Ethernet TUI tests
     Then "ethernet\s+--\s+no" is visible with command "nmcli -f NAME,DEVICE,ACTIVE connection"
 
 
-    @ethernet
     @nmtui_ethernet_activate_connection
     Scenario: nmtui - ethernet - activate connection
     * Start nmtui
@@ -67,8 +63,7 @@ Feature: Ethernet TUI tests
     Then "eth1\s+ethernet\s+connected\s+ethernet" is visible with command "nmcli device"
 
 
-    @veth
-    @ethernet @testeth7_disconnect
+    @testeth7_disconnect
     @nmtui_ethernet_activate_connection_specific_device
     Scenario: nmtui - ethernet - activate connection on specific device
     * Execute "nmcli con up testeth7"
@@ -89,10 +84,9 @@ Feature: Ethernet TUI tests
     Then "inet 192" is visible with command "ip a s eth7"
 
 
-    @ethernet
     @nmtui_ethernet_deactivate_connection
     Scenario: nmtui - ethernet - deactivate connection
-    * Execute "nmcli con add type ethernet con-name ethernet ifname eth1 autoconnect no"
+    * Add "ethernet" connection named "ethernet" for device "eth1" with options "autoconnect no"
     * Bring up connection "ethernet"
     * Start nmtui
     * Choose to "Activate a connection" from main screen
@@ -102,7 +96,6 @@ Feature: Ethernet TUI tests
     Then "inet 192" is not visible with command "ip a s eth1"
 
 
-    @ethernet
     @nmtui_ethernet_delete_connection_down
     Scenario: nmtui - ethernet - delete nonactive connection
     * Start nmtui
@@ -120,7 +113,6 @@ Feature: Ethernet TUI tests
     Then "ethernet1" is not visible with command "nmcli connection"
 
 
-    @ethernet
     @nmtui_ethernet_delete_connection_up
     Scenario: nmtui - ethernet - delete active connection
     * Start nmtui
@@ -138,7 +130,7 @@ Feature: Ethernet TUI tests
     Then "ethernet1" is not visible with command "nmcli con"
 
 
-    @ethernet @ifcfg-rh @restore_eth1_mtu
+    @ifcfg-rh @restore_eth1_mtu
     @nmtui_ethernet_set_mtu
     Scenario: nmtui - ethernet - set mtu
     * Start nmtui
@@ -154,7 +146,7 @@ Feature: Ethernet TUI tests
     Then "mtu 128" is visible with command "ip a s eth1" in "60" seconds
 
 
-    @ethernet @ifcfg-rh
+    @ifcfg-rh
     @nmtui_ethernet_mac_spoofing
     Scenario: nmtui - ethernet - mac spoofing
     * Start nmtui
@@ -192,7 +184,6 @@ Feature: Ethernet TUI tests
     Then "MACADDR=F1:DE:AA:FB:BB:CC" is not visible with command "cat /etc/sysconfig/network-scripts/ifcfg-ethernet"
 
 
-    @ethernet
     @nmtui_ethernet_static_ipv4
     Scenario: nmtui - ethernet - static IPv4 configuration
     * Prepare new connection of type "Ethernet" named "ethernet"
@@ -205,7 +196,6 @@ Feature: Ethernet TUI tests
     Then "eth1\s+ethernet\s+connected\s+ethernet" is visible with command "nmcli device"
 
 
-    @ethernet
     @nmtui_ethernet_static_ipv6
     Scenario: nmtui - ethernet - static IPv6 configuration
     * Prepare new connection of type "Ethernet" named "ethernet"
@@ -218,7 +208,6 @@ Feature: Ethernet TUI tests
     Then "inet6 2607:f0d0:1002:51::4/64" is visible with command "ip a s eth1" in "10" seconds
 
 
-    @ethernet
     @nmtui_ethernet_static_combined
     Scenario: nmtui - ethernet - static IPv4 and IPv6 combined
     * Prepare new connection of type "Ethernet" named "ethernet"

@@ -1,8 +1,10 @@
+import glob
 import os
 import re
 import subprocess
 import sys
 import yaml
+import json
 
 import xml.etree.ElementTree as ET
 
@@ -10,11 +12,12 @@ from . import git
 from . import ip
 from . import sdresolved
 from . import util
+from . import process
 
 
 class _Misc:
 
-    TEST_NAME_VALID_CHAR_REGEX = "[-a-z_.A-Z0-9+=]"
+    TEST_NAME_VALID_CHAR_SET = "-a-zA-Z0-9_.+=/"
 
     def test_name_normalize(self, test_name):
         test_name0 = test_name
@@ -23,13 +26,11 @@ class _Misc:
             test_name = m.group(1)
         if test_name and test_name[0] == "@":
             test_name = test_name[1:]
-        if not re.match("^" + self.TEST_NAME_VALID_CHAR_REGEX + "+$", test_name):
+        if not re.match("^[" + self.TEST_NAME_VALID_CHAR_SET + "]+$", test_name):
             raise ValueError(f"Invalid test name {test_name0}")
         return test_name
 
     def test_get_feature_files(self, feature="*"):
-
-        import glob
 
         feature_dir = ""
 
@@ -42,51 +43,124 @@ class _Misc:
         feature_path = os.path.join(feature_dir, feature)
         return glob.glob(feature_path)
 
-    def test_load_tags_from_features(self, feature="*", test_name=None):
+    _re_tag = re.compile("^\\s*@([" + TEST_NAME_VALID_CHAR_SET + "]+)($|\\s+(.*))$")
+    _re_sce = re.compile(r"^\s*Scenario: +")
 
-        re_chr = re.compile("^@" + self.TEST_NAME_VALID_CHAR_REGEX + "+$")
-        re_tag = re.compile(r"^\s*(@[^#]*)")
-        re_sce = re.compile(r"^\s*Scenario")
-        re_wsp = re.compile(r"\s")
-        test_tags = []
-        line = ""
-        for filename in self.test_get_feature_files(feature):
-            with open(filename, "rb") as f:
-                for cur_line in f:
-                    cur_line = cur_line.decode("utf-8", "error")
-                    m = re_tag.match(cur_line)
-                    if m:
-                        line += " " + m.group(1)
-                        continue
+    def _test_load_tags_from_file(self, filename, test_name=None):
+        with open(filename, "rb") as f:
+            i_line = 0
+            tags = []
+            for cur_line in f:
+                i_line += 1
+                cur_line = cur_line.decode("utf-8", errors="strict")
 
-                    if not line:
-                        continue
-                    if not re_sce.match(cur_line):
-                        continue
+                s = cur_line
+                tag_added = False
+                while True:
+                    m = self._re_tag.match(s)
+                    if not m:
+                        if tag_added:
+                            if s and s[0] != "#":
+                                # We found tags on the same line, but now there is some garbage(??)
+                                raise Exception(
+                                    f"Invalid tag at {filename}:{i_line}: followed by garbage and not a # comment"
+                                )
+                        break
+                    tags.append(m.group(1))
+                    s = m.group(3)
+                    tag_added = True
+                    if s is None:
+                        break
 
-                    words = re_wsp.split(line)
-                    line = ""
+                scenario_line = not tag_added and self._re_sce.match(cur_line)
 
-                    # remove empty tokens.
-                    words = [w for w in words if w]
-
-                    if not all((re_chr.match(s) for s in words)):
-                        raise ValueError(
-                            "unexpected characters in tags in file %s: %s"
-                            % (filename, " ".join(words))
+                if not tags:
+                    # We are in between tags and have no tags yet. Proceed to next line.
+                    if scenario_line:
+                        # Hm? A "Scenario:" but not tags? That's wrong.
+                        raise Exception(
+                            f"Unexpected scenario without any tags at {filename}:{i_line}"
                         )
+                    continue
 
-                    words = [s[1:] for s in words]
+                if not scenario_line:
+                    if tag_added:
+                        # Good, we just found a tag on the current line.
+                        continue
+                    if re.match("^\\s*(#.*)?$", cur_line):
+                        # an empty or comment line between tags is also fine.
+                        continue
+                    if re.match("^Feature:", cur_line):
+                        # These were the tags for the feature. We ignore them.
+                        tags = []
+                        continue
+                    raise Exception(
+                        f"Invalid feature file {filename}:{i_line}: all tags are expected in consecutive lines"
+                    )
 
-                    if test_name is None or test_name in words:
-                        test_tags.append(words)
+                if test_name is None or test_name in tags:
+                    yield tags
+                tags = []
+
+        if tags:
+            raise Exception(
+                f"Invalid feature file {filename}:{i_line}: contains tags without a Scenario"
+            )
+
+    def test_load_tags_from_file(self, filename, test_name=None):
+        # We memoize the result of the parsing. Feel free to
+        # delattr(self, "_test_load_tags_from_file_cache") to
+        # prune the cache.
+        k = (filename, test_name)
+        if hasattr(self, "_test_load_tags_from_file_cache"):
+            l = self._test_load_tags_from_file_cache.get(k, None)
+            if l is not None:
+                return l
+        else:
+            self._test_load_tags_from_file_cache = {}
+
+        if test_name is None:
+            l = list(self._test_load_tags_from_file(filename))
+        else:
+            l = self.test_load_tags_from_file(filename)
+            l = [tags for tags in l if test_name in tags]
+
+        self._test_load_tags_from_file_cache[k] = l
+        return l
+
+    def test_load_tags_from_features(
+        self,
+        feature=None,
+        test_name=None,
+        feature_file=None,
+    ):
+
+        if feature_file is not None:
+            assert feature is None
+            feature_files = [feature_file]
+        else:
+            if feature is None:
+                feature = "*"
+            feature_files = self.test_get_feature_files(feature=feature)
+
+        test_tags = []
+        for filename in feature_files:
+            for tags in self.test_load_tags_from_file(filename, test_name):
+                test_tags.append(tags)
 
         return test_tags
 
     def get_mapper_obj(self):
-        with open(util.base_dir() + "/mapper.yaml", "r") as mapper_file:
-            mapper_content = mapper_file.read()
-            return yaml.load(mapper_content, Loader=yaml.BaseLoader)
+        if not os.path.isfile("mapper.json") or (
+            os.path.getmtime("mapper.json") < os.path.getmtime("mapper.yaml")
+        ):
+            with open("mapper.yaml", "r") as m_yaml:
+                mapper = yaml.load(m_yaml, Loader=yaml.CSafeLoader)
+            with open("mapper.json", "w") as m_json:
+                json.dump(mapper, m_json)
+            return mapper
+        with open("mapper.json", "r") as m_file:
+            return json.load(m_file)
 
     def get_mapper_tests(self, mapper, feature="*"):
         all_features = ["*", "all"]
@@ -173,12 +247,21 @@ class _Misc:
 
     def test_version_tag_parse(self, version_tag, tag_candidate):
 
+        version_tag0 = version_tag
+
         if not version_tag.startswith(tag_candidate):
             raise ValueError(
-                f'tag "{version_tag}" does not start with "{tag_candidate}"'
+                f'tag "{version_tag0}" does not start with "{tag_candidate}"'
             )
 
         version_tag = version_tag[len(tag_candidate) :]
+
+        if version_tag == "-" or version_tag == "+":
+            # as a special case, we support plain @ver+/@ver- tags. They
+            # make sense to always enabled/disable a test per stream.
+            # For example, if a certain test should never run with a RHEL
+            # package, use "@ver/rhel-"
+            return (version_tag, [])
 
         if version_tag.startswith("+=") or version_tag.startswith("-="):
             op = version_tag[0:2]
@@ -188,16 +271,68 @@ class _Misc:
             ver = version_tag[1:]
         else:
             raise ValueError(
-                f'tag "{version_tag}" does not have a suitable "+-" part for "{tag_candidate}"'
+                f'tag "{version_tag0}" does not have a suitable "+-" part for "{tag_candidate}"'
             )
 
         if not re.match("^[0-9.]+$", ver):
             raise ValueError(
-                'tag "{version_tag}" does not have a suitable version number for "{tag_candidate}"'
+                f'tag "{version_tag0}" does not have a suitable version number for "{tag_candidate}"'
             )
 
         ver_arr = [int(x) for x in ver.split(".")]
         return (op, ver_arr)
+
+    def test_version_tag_parse_ver(self, version_tag):
+        # This parses tags in the form @ver$STREAM$OP$VERSION where
+        # - $STREAM is for example "", "/upstream", "/fedora", "/fedora/33", "/rhel", "/rhel/8". It matches
+        #   the stream returned by nm_version_parse().
+        # - $OP is the comparison operator ("-", "-=", "+", "+=")
+        # - -VERSION is the version number to compare. Corresponds the version returned by nm_version_parse().
+
+        if not version_tag.startswith("ver"):
+            raise ValueError(f'version tag "{version_tag}" does not start with "ver""')
+
+        v = version_tag[len("ver") :]
+        stream = []
+        while True:
+            m = re.match("^/([^/\\-+=]+)", v)
+            if not m:
+                break
+            stream.append(m.group(1))
+            v = v[(1 + len(m.group(1))) :]
+
+        version = self.test_version_tag_parse(version_tag, "/".join(("ver", *stream)))
+        return (stream, *version)
+
+    def test_version_tag_filter_for_stream(self, tags_ver, nm_stream):
+        # - tags_ver is a list of version tags parsed by test_version_tag_parse_ver() (that is
+        #   it contains a 3-tuple of (stream, op, version).
+        # - nm_stream is the stream detected by nm_version_parse(), for example
+        #   "rhel-8-10" or "fedora-33".
+        #
+        # This function now returns a list of (op,version) tuple, but only selecting
+        # those that have a matching stream... that means, if the nm_stream is
+        # "rhel-8-10", then:
+        #  - if exist, it will return all tags_ver with stream ["rhel", "8", "10"]
+        #  - if exist, it will return all tags_ver with stream ["rhel", "8"]
+        #  - if exist, it will return all tags_ver with stream ["rhel"]
+        #  - if exist, it will return all tags_ver with stream []
+        #
+        # With this scheme, you can have a default version tag that always matches (@ver+=1.39),
+        # but you can override it for rhel (@ver/rhel+=x) or even for rhel-8 only (@ver/rhel/8+=x)
+
+        if not tags_ver:
+            return tags_ver
+
+        nm_streams = nm_stream.split("-")
+        assert all(s for s in nm_streams)
+        while True:
+            if any((nm_streams == t[0] for t in tags_ver)):
+                return [(t[1], t[2]) for t in tags_ver if nm_streams == t[0]]
+            if not nm_streams:
+                # nothing found. Return empty.
+                return []
+            nm_streams = nm_streams[:-1]
 
     def nm_version_detect(self, use_cached=True):
         if use_cached and hasattr(self, "_nm_version_detect_cached"):
@@ -210,9 +345,7 @@ class _Misc:
             with open("/tmp/nm_version_override") as f:
                 current_version_str = f.read()
         else:
-            current_version_str = util.process_run(
-                ["NetworkManager", "-V"], as_utf8=True
-            )
+            current_version_str = process.run_stdout(["NetworkManager", "-V"])
 
         v = self.nm_version_parse(current_version_str)
         self._nm_version_detect_cached = v
@@ -225,13 +358,12 @@ class _Misc:
 
         distro_version = [
             int(x)
-            for x in util.process_run(
+            for x in process.run_stdout(
                 [
                     "sed",
                     "s/.*release *//;s/ .*//;s/Beta//;s/Alpha//",
                     "/etc/redhat-release",
                 ],
-                as_utf8=True,
             ).split(".")
         ]
 
@@ -257,6 +389,8 @@ class _Misc:
         (nm_stream, nm_version) = nm_version_info
         (distro_flavor, distro_version) = distro_version_info
 
+        nm_stream_base = nm_stream.split("-")[0]
+
         tags_ver = []
         tags_rhelver = []
         tags_fedoraver = []
@@ -265,30 +399,45 @@ class _Misc:
         for tag in test_tags:
             has_any = True
             if tag.startswith("ver"):
-                tags_ver.append(self.test_version_tag_parse(tag, "ver"))
+                tags_ver.append(self.test_version_tag_parse_ver(tag))
             elif tag.startswith("rhelver"):
                 tags_rhelver.append(self.test_version_tag_parse(tag, "rhelver"))
             elif tag.startswith("fedoraver"):
                 tags_fedoraver.append(self.test_version_tag_parse(tag, "fedoraver"))
             elif tag == "rhel_pkg":
-                if not (distro_flavor == "rhel" and nm_stream.startswith("rhel")):
+                # "@rhel_pkg" (and "@fedora_pkg") have some overlap with
+                # "@ver/rhel+"
+                #
+                # - if the test already specifies some @ver$OP$VERSION, then
+                #   it's similar to "@ver- @ver/rhel$OP$VERSION" (for all @ver tags)
+                # - if the test does not specify other @ver tags, then it's similar
+                #   to "@ver- @ver/rhel+".
+                #
+                # These tags are still useful aliases. Also note that they take
+                # into account distro_flavor, while @ver/rhel does not take it
+                # into account. If you rebuild a rhel package on Fedora, then
+                # @ver/rhel would not care that you are on Fedora, while @rhel_pkg
+                # would.
+                if not (distro_flavor == "rhel" and nm_stream_base == "rhel"):
                     run = False
             elif tag == "not_with_rhel_pkg":
-                if distro_flavor == "rhel" and nm_stream.startswith("rhel"):
+                if distro_flavor == "rhel" and nm_stream_base == "rhel":
                     run = False
             elif tag == "fedora_pkg":
-                if not (distro_flavor == "fedora" and nm_stream.startswith("fedora")):
+                if not (distro_flavor == "fedora" and nm_stream_base == "fedora"):
                     run = False
             elif tag == "not_with_fedora_pkg":
-                if distro_flavor == "fedora" and nm_stream.startswith("fedora"):
+                if distro_flavor == "fedora" and nm_stream_base == "fedora":
                     run = False
         if not has_any:
             return None
         if not run:
             return None
 
+        tags_ver = self.test_version_tag_filter_for_stream(tags_ver, nm_stream)
         if not self.test_version_tag_eval(tags_ver, nm_version):
             return None
+
         if distro_flavor == "rhel" and not self.test_version_tag_eval(
             tags_rhelver, distro_version
         ):
@@ -407,6 +556,16 @@ class _Misc:
             # no version tags means it's a PASS.
             return True
 
+        # Check for the always enabled/disabled tag (which is
+        # encoded by op="+"/"-" and len=[]). If such a tag
+        # is present, it must be alone.
+        for op, ver in ver_tags:
+            if ver:
+                continue
+            assert op in ["+", "-"]
+            assert len(ver_tags) == 1
+            return op == "+"
+
         for op, ver in ver_tags:
             assert op in ["+=", "+", "-=", "-"]
             assert all([type(v) is int and v >= 0 for v in ver])
@@ -490,9 +649,55 @@ class _Misc:
             v2 = True
         return v1 and v2
 
+    def test_find_feature_file(self, test_name, feature="*"):
+        test_name = self.test_name_normalize(test_name=test_name)
+        mapper_feature = [
+            i["feature"]
+            for i in self.get_mapper_tests(self.get_mapper_obj(), feature)
+            if i["testname"] == test_name
+        ][0]
+        return f"{util.base_dir('features', 'scenarios')}/{mapper_feature}.feature"
+
+    def test_version_check(self, test_name, feature="*"):
+        # this checks for tests with given tag and returns all tags of the first test satisfying all conditions
+        #
+        # this parses tags: ver{-,+,-=,+=}, rhelver{-,+,-=,+=}, fedoraver{-,+,-=,+=}, [not_with_]rhel_pkg, [not_with_]fedora_pkg.
+        #
+        # {rhel,fedora}ver tags restricts only their distros, so rhelver+=8 runs on all Fedoras, if fedoraver not restricted
+        # to not to run on rhel / fedora use tags rhelver-=0 / fedoraver-=0 (or something similar)
+        #
+        # {rhel,fedora}_pkg means to run only on stock RHEL/Fedora package
+        # not_with_{rhel,fedora}_pkg means to run only on daily build (not patched stock package)
+        # similarly, *_pkg restricts only their distros, rhel_pkg will run on all Fedoras (build and stock pkg)
+        #
+        # since the first satisfying test is returned, the last test does not have to contain distro restrictions
+        # and it will run only in remaining conditions - so order of the tests matters in this case
+
+        test_name = self.test_name_normalize(test_name=test_name)
+
+        feature_file = self.test_find_feature_file(test_name=test_name, feature=feature)
+
+        test_tags_list = self.test_load_tags_from_features(
+            feature_file=feature_file, test_name=test_name
+        )
+
+        if not test_tags_list:
+            raise Exception(f"test with tag '{test_name}' not defined!\n")
+
+        try:
+            result = self.test_tags_select(
+                test_tags_list, self.nm_version_detect(), self.distro_detect()
+            )
+        except self.SkipTestException as e:
+            raise self.SkipTestException(f"skip test '{test_name}': {e}")
+        except Exception as e:
+            raise Exception(f"error checking test '{test_name}': {e}")
+
+        return (feature_file, test_name, list(result))
+
     def nmlog_parse_dnsmasq(self, ifname):
-        s = util.process_run(
-            [util.util_dir("helpers/nmlog-parse-dnsmasq.sh"), ifname], as_utf8=True
+        s = process.run_stdout(
+            [util.util_dir("helpers/nmlog-parse-dnsmasq.sh"), ifname], timeout=20
         )
         import json
 
@@ -572,6 +777,9 @@ class _Misc:
 
         for file_el in file_els:
             if file_el is not None:
+                if file_el.text == "<unknown>":
+                    # this happens if the behave step was not found.
+                    continue
                 file_name, line = file_el.text.split(":", 2)
                 link = ET.SubElement(
                     file_el,
@@ -584,6 +792,136 @@ class _Misc:
                 )
                 link.text = file_el.text
                 file_el.text = ""
+
+    def journal_get_cursor(self):
+        m = process.run_search_stdout(
+            "journalctl --lines=0 --quiet --show-cursor --system",
+            "^-- cursor: +([^ ].*[^ ]) *\n$",
+        )
+        return m.group(1)
+
+    def journal_show(
+        self,
+        service=None,
+        *,
+        syslog_identifier=None,
+        cursor=None,
+        short=False,
+        journal_args=None,
+        as_bytes=False,
+        max_size=None,
+        warn_max_size=True,
+        prefix=None,
+        suffix=None,
+    ):
+        if service:
+            if isinstance(service, str) or isinstance(service, bytes):
+                service = ["-u", service]
+            else:
+                service = (["-u", s] for s in service)
+                service = [c for pair in service for c in pair]
+        else:
+            service = []
+
+        if syslog_identifier:
+            if isinstance(syslog_identifier, str) or isinstance(
+                syslog_identifier, bytes
+            ):
+                syslog_identifier = ["-t", util.bytes_to_str(syslog_identifier)]
+            else:
+                syslog_identifier = (["-t", s] for s in syslog_identifier)
+                syslog_identifier = [c for pair in syslog_identifier for c in pair]
+        else:
+            syslog_identifier = []
+
+        if cursor:
+            cursor = ["--cursor=" + util.bytes_to_str(cursor)]
+        else:
+            cursor = []
+
+        if short:
+            short = ["-o", "short-unix", "--no-hostname"]
+        else:
+            short = []
+
+        if not journal_args:
+            journal_args = []
+        elif isinstance(journal_args, str):
+            import shlex
+
+            journal_args = shlex.split(journal_args)
+        else:
+            journal_args = list(journal_args)
+
+        if max_size is None:
+            max_size = 50 * 1024 * 1024
+
+        import tempfile
+
+        with tempfile.TemporaryFile(dir=util.tmp_dir()) as f_out:
+            process.run(
+                ["journalctl", "--all", "--no-pager"]
+                + service
+                + syslog_identifier
+                + cursor
+                + short
+                + journal_args,
+                ignore_returncode=False,
+                stdout=f_out,
+                timeout=180,
+            )
+
+            f_out.seek(0)
+
+            d = util.fd_get_content(
+                f_out, max_size=max_size, warn_max_size=warn_max_size
+            ).data
+
+        if not as_bytes:
+            d = d.decode(encoding="utf-8", errors="replace")
+
+        if prefix is not None:
+            if as_bytes:
+                d = util.str_to_bytes(prefix) + b"\n" + d
+            else:
+                d = util.bytes_to_str(prefix) + "\n" + d
+
+        if suffix is not None:
+            if as_bytes:
+                d = d + b"\n" + util.str_to_bytes(suffix)
+            else:
+                d = d + "\n" + util.bytes_to_str(suffix)
+
+        return d
+
+    COREDUMP_TYPE_SYSTEMD_COREDUMP = "systemd-coredump"
+    COREDUMP_TYPE_ABRT = "abrt"
+
+    def _coredump_reported_file(self):
+        return util.tmp_dir("reported_crashes")
+
+    def coredump_is_reported(self, dump_id):
+        filename = self._coredump_reported_file()
+        if os.path.isfile(filename):
+            dump_id += "\n"
+            with open(filename) as f:
+                for line in f:
+                    if dump_id == line:
+                        return True
+        return False
+
+    def coredump_report(self, dump_id):
+        with open(self._coredump_reported_file(), "a") as f:
+            f.write(dump_id + "\n")
+
+    def coredump_list_on_disk(self, dump_type=None):
+        if dump_type == self.COREDUMP_TYPE_SYSTEMD_COREDUMP:
+            g = "/var/lib/systemd/coredump/*"
+        elif dump_type == self.COREDUMP_TYPE_ABRT:
+            g = "/var/spool/abrt/ccpp*"
+        else:
+            assert False, f"Invalid dump_type {dump_type}"
+        return glob.glob(g)
 
 
 sys.modules[__name__] = _Misc()

@@ -129,7 +129,24 @@
     Then "VPN.VPN-STATE:.*VPN connected" is not visible with command "nmcli c show openvpn" in "5" seconds
 
 
+    @rhelver-9 @fedoraver-35
     @openvpn
+    @openvpn_persist
+    Scenario: nmcli - openvpn - persist connection
+    * Add a connection named "openvpn" for device "\*" to "openvpn" VPN
+    * Use certificate "sample-keys/client.crt" with key "sample-keys/client.key" and authority "sample-keys/ca.crt" for gateway "127.0.0.1" on OpenVPN connection "openvpn"
+    * Modify connection "openvpn" changing options "vpn.persistent true"
+    * Bring "up" connection "openvpn"
+    When "VPN.VPN-STATE:.*VPN connected" is visible with command "nmcli c show openvpn"
+    * Execute "pkill openvpn"
+    * Execute "sleep 3"
+    * Run child "openvpn /etc/openvpn/trest-server.conf"
+    Then "VPN.VPN-STATE:.*VPN connected" is visible with command "nmcli c show openvpn" in "10" seconds
+
+
+    @rhelver+=9 @fedoraver+=35
+    @openvpn
+    @xfail
     @openvpn_persist
     Scenario: nmcli - openvpn - persist connection
     * Add a connection named "openvpn" for device "\*" to "openvpn" VPN

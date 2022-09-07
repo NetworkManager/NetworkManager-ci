@@ -5,7 +5,18 @@ Feature: WIFI TUI tests
   * Prepare virtual terminal environment
 
 
-    @rhelver-=8 @fedoraver-=35
+    # No WPA3 in el7
+    @rhelver-=7 @fedoraver-=0
+    @simwifi @attach_hostapd_log @attach_wpa_supplicant_log
+    @nmtui_simwifi_see_all_networks
+    Scenario: nmtui - wifi_hwsim - see all networks
+    * Start nmtui
+    * Choose to "Activate a connection" from main screen
+    Then Connections "open,dynwep,wep,wpa1-eap,wpa1-psk,wpa2-eap,wpa2-psk" are in the list
+
+
+    # All network types in el8
+    @rhelver-=8 @rhelver+=8 @fedoraver-=35
     @simwifi @attach_hostapd_log @attach_wpa_supplicant_log
     @nmtui_simwifi_see_all_networks
     Scenario: nmtui - wifi_hwsim - see all networks
@@ -14,7 +25,7 @@ Feature: WIFI TUI tests
     Then Connections "open,dynwep,wep,wpa1-eap,wpa1-psk,wpa2-eap,wpa2-psk,wpa3" are in the list
 
 
-    # No WEP in EL9
+    # No WEP in el9
     @rhelver+=9 @fedoraver+=36
     @simwifi @attach_hostapd_log @attach_wpa_supplicant_log
     @nmtui_simwifi_see_all_networks
@@ -37,7 +48,24 @@ Feature: WIFI TUI tests
     Then "inet 10." is visible with command "ip a s wlan0" in "30" seconds
 
 
-    @fedoraver+=32
+
+    @rhelver-=7 @fedoraver+=32
+    @simwifi @attach_hostapd_log @attach_wpa_supplicant_log
+    @nmtui_simwifi_connect_to_wpa1psk_network
+    Scenario: nmtui - wifi_hwsim - connect to WPA1-PSK network straight
+    Given "wpa1-psk" is visible with command "nmcli dev wifi list" in "60" seconds
+    * Start nmtui
+    * Choose to "Activate a connection" from main screen
+    * Select connection "wpa1-psk" in the list
+    * Choose to "<Activate>" a connection
+    * Wait for at least "2" seconds
+    * ".*Authentication required.*" is visible on screen
+    * Set current field to "secret123"
+    * Press "ENTER" key
+    Then "inet 10." is visible with command "ip a s wlan0" in "30" seconds
+
+
+    @rhelver+=8 @fedoraver+=32
     @simwifi @attach_hostapd_log @attach_wpa_supplicant_log
     @nmtui_simwifi_connect_to_wpa1psk_network
     Scenario: nmtui - wifi_hwsim - connect to WPA1-PSK network straight
@@ -52,7 +80,23 @@ Feature: WIFI TUI tests
     Then "inet 10." is visible with command "ip a s wlan0" in "30" seconds
 
 
-    @fedoraver+=32
+    @rhelver-=7 @fedoraver+=32
+    @simwifi @attach_hostapd_log @attach_wpa_supplicant_log
+    @nmtui_simwifi_connect_to_wpa2psk_network
+    Scenario: nmtui - wifi_hwsim - connect to WPA2-PSK network straight
+    Given "wpa2-psk" is visible with command "nmcli dev wifi list" in "60" seconds
+    * Start nmtui
+    * Choose to "Activate a connection" from main screen
+    * Select connection "wpa2-psk" in the list
+    * Choose to "<Activate>" a connection
+    * Wait for at least "2" seconds
+    * ".*Authentication required.*" is visible on screen
+    * Set current field to "secret123"
+    * Press "ENTER" key
+    Then "inet 10." is visible with command "ip a s wlan0" in "30" seconds
+
+
+    @rhelver+=8 @fedoraver+=32
     @simwifi @attach_hostapd_log @attach_wpa_supplicant_log
     @nmtui_simwifi_connect_to_wpa2psk_network
     Scenario: nmtui - wifi_hwsim - connect to WPA2-PSK network straight
@@ -82,10 +126,11 @@ Feature: WIFI TUI tests
     Then "inet 10." is visible with command "ip a s wlan0" in "30" seconds
 
 
-    @fedoraver+=32 @rhelver-=8
+    @fedoraver-=34 @rhelver-=8
     @simwifi @attach_hostapd_log @attach_wpa_supplicant_log @ifcfg-rh
     @nmtui_simwifi_connect_to_wep_hexkey_network
     Scenario: nmtui - wifi_hwsim - connect to WEP hex-key network straight
+    Given "wep-2" is visible with command "nmcli dev wifi list" in "60" seconds
     * Start nmtui
     * Choose to "Activate a connection" from main screen
     * Select connection " wep-2 " in the list
@@ -99,10 +144,11 @@ Feature: WIFI TUI tests
     Then "inet 10." is visible with command "ip a s wlan0" in "30" seconds
 
 
-    @fedoraver+=32 @rhelver-=8
+    @fedoraver-=34 @rhelver-=8
     @simwifi @attach_hostapd_log @attach_wpa_supplicant_log
     @nmtui_simwifi_connect_to_wep_asciikey_network
     Scenario: nmtui - wifi_hwsim - connect to WEP ascii-key network straight
+    Given "wep-2" is visible with command "nmcli dev wifi list" in "60" seconds
     * Start nmtui
     * Choose to "Activate a connection" from main screen
     * Select connection " wep-2 " in the list
@@ -162,7 +208,28 @@ Feature: WIFI TUI tests
     Then "wlan0\s+wifi\s+disconnected" is visible with command "nmcli device"
 
 
-    @fedoraver+=32
+    @rhelver-=7 @fedoraver+=32
+    @simwifi @attach_hostapd_log @attach_wpa_supplicant_log
+    @nmtui_simwifi_activate_wo_autoconnect
+    Scenario: nmtui - wifi_hwsim - activate connection without autoconnect
+    * Prepare new connection of type "Wi-Fi" named "wifi1"
+    * Set "Device" field to "wlan0"
+    * Set "SSID" field to "open"
+    * Ensure "Automatically connect" is not checked
+    * Confirm the connection settings
+    * "wifi1" is visible with command "nmcli connection"
+    Then "no" is visible with command "nmcli -g connection.autoconnect con show id wifi1"
+    * "wifi1" is not visible with command "nmcli device"
+    * Come back to main screen
+    * "open" is visible with command "nmcli dev wifi list" in "60" seconds
+    * Choose to "Activate a connection" from main screen
+    * Select connection "wifi1" in the list
+    * Choose to "<Activate>" a connection
+    Then "wifi1" is visible with command "nmcli device" in "10" seconds
+    Then "inet 10." is visible with command "ip a s wlan0" in "30" seconds
+
+
+    @rhelver+=8 @fedoraver+=32
     @simwifi @attach_hostapd_log @attach_wpa_supplicant_log
     @nmtui_simwifi_activate_wo_autoconnect
     Scenario: nmtui - wifi_hwsim - activate connection without autoconnect
@@ -182,7 +249,31 @@ Feature: WIFI TUI tests
     Then "inet 10." is visible with command "ip a s wlan0" in "30" seconds
 
 
-    @fedoraver+=32
+    @rhelver-=7 @fedoraver+=32
+    @simwifi @attach_hostapd_log @attach_wpa_supplicant_log
+    @nmtui_simwifi_activate_with_autoconnect
+    Scenario: nmtui - wifi_hwsim - activate connection with autoconnect
+    * Prepare new connection of type "Wi-Fi" named "wifi1"
+    * Set "Device" field to "wlan0"
+    * Set "SSID" field to "open"
+    * Ensure "Automatically connect" is checked
+    * Confirm the connection settings
+    Then "yes" is visible with command "nmcli -g connection.autoconnect con show id wifi1"
+    # don't "up" connection when this gets fixed https://bugzilla.redhat.com/show_bug.cgi?id=1834980
+    * Bring "up" connection "wifi1"
+    * Bring "down" connection "wifi1"
+    * "wifi1" is visible with command "nmcli connection"
+    * "wifi1" is not visible with command "nmcli device"
+    * Come back to main screen
+    * "open" is visible with command "nmcli dev wifi list" in "60" seconds
+    * Choose to "Activate a connection" from main screen
+    * Select connection "wifi1" in the list
+    * Choose to "<Activate>" a connection
+    Then "wifi1" is visible with command "nmcli device" in "10" seconds
+    Then "inet 10." is visible with command "ip a s wlan0" in "30" seconds
+
+
+    @rhelver+=8 @fedoraver+=32
     @simwifi @attach_hostapd_log @attach_wpa_supplicant_log
     @nmtui_simwifi_activate_with_autoconnect
     Scenario: nmtui - wifi_hwsim - activate connection with autoconnect
@@ -436,10 +527,11 @@ Feature: WIFI TUI tests
     Then "SSID: wpa3-psk" is visible with command "iw dev wlan0 link" in "30" seconds
 
 
-    @fedoraver+=32 @rhelver-=8
+    @fedoraver-=34 @rhelver-=8
     @simwifi @attach_hostapd_log @attach_wpa_supplicant_log
     @nmtui_simwifi_wep_hexkey_connection
     Scenario: nmtui - wifi_hwsim - WEP hex key connection
+    * Start nmtui allowing WEP
     * Prepare new connection of type "Wi-Fi" named "wifi1"
     * Set "Device" field to "wlan0"
     * Set "SSID" field to "wep-2"
@@ -451,10 +543,11 @@ Feature: WIFI TUI tests
     Then "SSID: wep" is visible with command "iw dev wlan0 link" in "30" seconds
 
 
-    @fedoraver+=32 @rhelver-=8
+    @fedoraver-=34 @rhelver-=8
     @simwifi @attach_hostapd_log @attach_wpa_supplicant_log
     @nmtui_simwifi_wep_ascii_connection
     Scenario: nmtui - wifi_hwsim - WEP ascii connection
+    * Start nmtui allowing WEP
     * Prepare new connection of type "Wi-Fi" named "wifi1"
     * Set "Device" field to "wlan0"
     * Set "SSID" field to "wep"
@@ -499,7 +592,7 @@ Feature: WIFI TUI tests
 
     @rhbz1132612 @rhbz1961159
     @fedoraver+=32
-    @simwifi @attach_hostapd_log @attach_wpa_supplicant_log @may_fail
+    @simwifi @attach_hostapd_log @attach_wpa_supplicant_log
     @nmtui_simwifi_connect_to_network_after_dismissal
     Scenario: nmtui - wifi_hwsim - connect to a network after dialog dismissal
     * Start nmtui

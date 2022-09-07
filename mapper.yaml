@@ -38,11 +38,11 @@ component:
   openstack-flavor: standard.medium
 
 dependencies:
-  beaker-tasks:
-    - /distribution/command:
-        CMDS_TO_RUN: 'if grep -q "Fedora release 3[0-3]" /etc/redhat-release; then echo mq-deadline > /sys/block/sda/queue/scheduler; fi'
-    - /distribution/command:
-        CMDS_TO_RUN: 'if grep -q "release 9" /etc/redhat-release; then dnf -y install https://vbenes.fedorapeople.org/NM/openvswitch_openssl3/openvswitch-2.15.0-7.el9.x86_64.rpm https://vbenes.fedorapeople.org/NM/openvswitch_openssl3/openvswitch-devel-2.15.0-7.el9.x86_64.rpm https://vbenes.fedorapeople.org/NM/openvswitch_openssl3/python3-openvswitch-2.15.0-7.el9.x86_64.rpm https://kojipkgs.fedoraproject.org//packages/python-sortedcontainers/2.3.0/2.eln109/noarch/python3-sortedcontainers-2.3.0-2.eln109.noarch.rpm http://download.eng.bos.redhat.com/brewroot/vol/rhel-9/packages/wireless-regdb/2020.11.20/1.el9/noarch/wireless-regdb-2020.11.20-1.el9.noarch.rpm https://kojipkgs.fedoraproject.org//packages/iw/5.9/1.fc34/x86_64/iw-5.9-1.fc34.x86_64.rpm; fi'
+  # beaker-tasks:
+  #   - /distribution/command:
+  #       CMDS_TO_RUN: 'if grep -q "Fedora release 3[0-3]" /etc/redhat-release; then echo mq-deadline > /sys/block/sda/queue/scheduler; fi'
+  #   - /distribution/command:
+  #       CMDS_TO_RUN: 'if grep -q "release 9" /etc/redhat-release; then dnf -y install https://vbenes.fedorapeople.org/NM/openvswitch_openssl3/openvswitch-2.15.0-7.el9.x86_64.rpm https://vbenes.fedorapeople.org/NM/openvswitch_openssl3/openvswitch-devel-2.15.0-7.el9.x86_64.rpm https://vbenes.fedorapeople.org/NM/openvswitch_openssl3/python3-openvswitch-2.15.0-7.el9.x86_64.rpm https://kojipkgs.fedoraproject.org//packages/python-sortedcontainers/2.3.0/2.eln109/noarch/python3-sortedcontainers-2.3.0-2.eln109.noarch.rpm http://download.eng.bos.redhat.com/brewroot/vol/rhel-9/packages/wireless-regdb/2020.11.20/1.el9/noarch/wireless-regdb-2020.11.20-1.el9.noarch.rpm https://kojipkgs.fedoraproject.org//packages/iw/5.9/1.fc34/x86_64/iw-5.9-1.fc34.x86_64.rpm; fi'
 
   packages:
       - chkconfig # Abrtd job dependency
@@ -83,7 +83,7 @@ setup: |
   ./prepare/envsetup.sh setup first_test_setup
   file=/tmp/NetworkManager-ci-unit_tests.log
   ./run/publish_behave_logs/setup_pbl.py
-  (time python3 -m pytest -vvvv ./nmci/test.py) > $file 2>&1; rc=$?
+  (time python3 -m pytest -vvvv) > $file 2>&1; rc=$?
   if [ $rc == 0 ]; then
     result=PASS
   else
@@ -211,6 +211,8 @@ testmapper:
         feature: bond
     - bond_set_mtu:
         feature: bond
+    - bond_set_different_mtu_on_slaves:
+        feature: bond
     - bond_addreses_restart_persistence:
         feature: bond
         tags: gate
@@ -314,6 +316,10 @@ testmapper:
     - bond_enslave_to_bridge_correct_ARP:
         feature: bond
     - bond_controller_port_terminology:
+        feature: bond
+    - bond_ipv4_dad_timeout_not_used:
+        feature: bond
+    - bond_modify_bond-opts_with_slaves:
         feature: bond
     - update_firewall_zone_upon_reconnect:
         feature: ppp
@@ -434,6 +440,10 @@ testmapper:
         feature: bridge
     - bridge_controller_port_terminology:
         feature: bridge
+    - bridge_keepaddr_unmanaged_device:
+        feature: bridge
+    - bridge_keep_unmanaged_device_on_reapply:
+        feature: bridge
     - add_default_team:
         feature: team
     - add_default_team_after_journal_restart:
@@ -442,7 +452,7 @@ testmapper:
         feature: team
     - nmcli_novice_mode_create_team:
         feature: team
-    - nmcli_novice_mode_create_team-slave_with_default_options:
+    - nmcli_novice_mode_create_team_slave_with_default_options:
         feature: team
     - add_two_slaves_to_team:
         feature: team
@@ -505,6 +515,8 @@ testmapper:
     - team_reflect_changes_from_outside_of_NM:
         feature: team
     - kill_teamd:
+        feature: team
+    - kill_teamd_with_ports:
         feature: team
     - team_enslave_to_bridge:
         feature: team
@@ -737,10 +749,16 @@ testmapper:
     - ipv6_honor_ip_order:
         feature: ipv6
         tags: gate
+    - ipv6_keep_static_address_after_reapply:
+        feature: ipv6
     - ipv6_keep_route_upon_reapply:
         feature: ipv6
         tags: gate
     - ipv6_keep_route_upon_reapply_full:
+        feature: ipv6
+    - ipv6_no_extra_temp_addresses:
+        feature: ipv6
+    - ipv6_internal_client_dhcpv6_leases_renewal:
         feature: ipv6
     - ipv6_describe:
         feature: ipv6
@@ -752,7 +770,13 @@ testmapper:
         feature: ipv6
     - ipv4_dad_not_preventing_ipv6:
         feature: ipv6
+    - ipv6_may_fail_no_wait_for_dad_dhcp:
+        feature: ipv6
+    - ipv6_may_fail_no_wait_for_dad_eui:
+        feature: ipv6
     - ipv6_preserve_cached_routes:
+        feature: ipv6
+    - ipv6_restart_prefixroute:
         feature: ipv6
     - persistent_ipv6_after_device_rename:
         feature: ipv6
@@ -768,6 +792,8 @@ testmapper:
         feature: ipv6
     - ipv6_prefix_delegation_internal:
         feature: ipv6
+    - ipv6_prefix_delegation_ll_internal:
+        feature: ipv6
     - ipv6_prefix_delegation_dhclient:
         feature: ipv6
     - ipv6_dhcp_iaid_unset:
@@ -776,13 +802,23 @@ testmapper:
         feature: ipv6
     - ipv6_dhcp_iaid_mac:
         feature: ipv6
-    - ra_timeout:
+    - ipv6_ra_timeout_set:
         feature: ipv6
     - ipv6_token:
         feature: ipv6
     - dhcpv6_hostname:
         feature: ipv6
     - ipv6_ignore_nonstatic_routes:
+        feature: ipv6
+    - ipv6_required_timeout_set:
+        feature: ipv6
+    - ipv6_check_addr_order:
+        feature: ipv6
+    - ipv6_handle_route_linking:
+        feature: ipv6
+    - ipv6_ignore_address_lease_dhclient:
+        feature: ipv6
+    - ipv6_set_addr-gen_mode_global_config:
         feature: ipv6
     - nmcli_general_correct_profile_activated_after_restart:
         feature: general
@@ -973,6 +1009,8 @@ testmapper:
     - ipv4_dad:
         feature: ipv4
         tags: gate
+    - ipv4_send_dhcpdecline_on_ip_conflict:
+        feature: ipv4
     - custom_shared_range_preserves_restart:
         feature: ipv4
     - ipv4_method_shared:
@@ -1068,6 +1106,14 @@ testmapper:
         feature: ipv4
     - ipv4_route-table_reapply:
         feature: ipv4
+    - ipv4_required_timeout_set:
+        feature: ipv4
+    - ipv4_check_addr_order:
+        feature: ipv4
+    - dhcp_internal_ack_after_nak:
+        feature: ipv4
+    - dhcp_internal_nak_in_renewing:
+        feature: ipv4
     - vlan_add_default_device:
         feature: vlan
     - vlan_add_beyond_range:
@@ -1124,8 +1170,6 @@ testmapper:
         tags: gate
     - vlan_preserve_assumed_connection_ips:
         feature: vlan
-    - vlan_create_many_vlans:
-        feature: vlan
     - vlan_mtu_from_parent:
         feature: vlan
         tags: gate
@@ -1157,7 +1201,7 @@ testmapper:
     #    feature: vlan
     - vxlan_do_not_up_if_no_master:
         feature: vlan
-    - vlan_create_500_vlans:
+    - vlan_create_many_vlans:
         feature: vlan
         # Do not lower this if we see timout it's a perf regression
         timeout: 14m
@@ -1337,10 +1381,14 @@ testmapper:
         feature: ethernet
     - ethernet_s390_options_without_subchannels:
         feature: ethernet
+    - ethernet_keyfiles_dont_write_empty_mac_address_blacklist:
+        feature: ethernet
     - dracut_setup:
         feature: dracut
         tags: gate dracut
     - dracut_NM_NFS_root_dhcp:
+        feature: dracut
+    - dracut_NM_NFS_root_dhcp_nm_debug:
         feature: dracut
     - dracut_NM_NFS_root_dhcp_ip_dhcp_neednet:
         feature: dracut
@@ -1478,6 +1526,8 @@ testmapper:
     - general_state_not_running:
         feature: general
         tags: gate
+    - general_nmcli_offline_connection_add_modify:
+        feature: general
     - shutdown_service_assumed:
         feature: general
     - shutdown_service_connected:
@@ -1533,6 +1583,10 @@ testmapper:
         feature: general
         tags: gate
     - nm_online_wait_for_second_connection:
+        feature: general
+    - nm_online_timeout_max:
+        feature: general
+    - nm_online_wait_for_dnsmasq:
         feature: general
     - policy_based_routing:
         feature: general
@@ -1650,7 +1704,7 @@ testmapper:
         feature: general
     - snapshot_rollback_all_devices:
         feature: general
-    - snapshot_rollback_all_devices_with_timeout:
+    - snapshot_timeout_rollback_all_devices:
         feature: general
         tags: gate
     - snapshot_rollback_unmanaged:
@@ -1673,10 +1727,8 @@ testmapper:
         feature: general
     - stable_mem_consumption:
         feature: general
-        timeout: 25m
     - stable_mem_consumption2:
         feature: general
-        timeout: 20m
     - dummy_connection:
         feature: general
     - dummy_with_qdisc:
@@ -1714,7 +1766,7 @@ testmapper:
         feature: general
     - libnm_snapshot_rollback_all_devices:
         feature: general
-    - libnm_snapshot_rollback_all_devices_with_timeout:
+    - libnm_snapshot_timeout_rollback_all_devices:
         feature: general
     - libnm_snapshot_rollback_unmanaged:
         feature: general
@@ -1723,6 +1775,8 @@ testmapper:
     - libnm_snapshot_rollback_soft_device:
         feature: general
     - libnm_snapshot_destroy_after_rollback:
+        feature: general
+    - libnm_snapshot_reattach_unmanaged_ports_to_bridge:
         feature: general
     - autoconnect_no_secrets_prompt:
         feature: general
@@ -1745,6 +1799,8 @@ testmapper:
     - nmcli_modify_altsubject-matches:
         feature: general
     - libnm_get_dns_crash:
+        feature: general
+    - libnm_nmclient_init_crash:
         feature: general
     - keyfile_nmconnection_extension:
         feature: general
@@ -1772,7 +1828,7 @@ testmapper:
         feature: general
     - NM_merge_dhclient_conditionals:
         feature: general
-    - NM_performance_test1:
+    - NM_performance_dhcp_on_existing_veths:
         feature: general
     - nmcli_shows_correct_routes:
         feature: general
@@ -1781,6 +1837,12 @@ testmapper:
     - user_cannot_reapply_roots_connection:
         feature: general
     - nm_device_get_applied_connection_user_allowed:
+        feature: general
+    - nmcli_route_dump:
+        feature: general
+    - nmcli_dhcp_overlong_hostname:
+        feature: general
+    - nmcli_remove_static_hostname:
         feature: general
     - openvswitch_capability:
         feature: ovs
@@ -1808,6 +1870,8 @@ testmapper:
         feature: ovs
     - NM_reboot_openvswitch_vlan_configuration:
         feature: ovs
+    - NM_reboot_openvswitch_vlan_configuration_var2:
+        feature: ovs
     - restart_NM_with_mixed_setup:
         feature: ovs
     - ovs_cloned_mac_set_on_iface:
@@ -1827,6 +1891,12 @@ testmapper:
     - ovs_nmstate:
         feature: ovs
     - ovs_set_firewalld_zone:
+        feature: ovs
+    - ovs_service_disabled_error:
+        feature: ovs
+    - add_dpdk_port_with_mtu:
+        feature: ovs
+    - ovs_external_unmanaged_device:
         feature: ovs
     - dispatcher_preup_and_up:
         feature: dispatcher
@@ -2089,6 +2159,12 @@ testmapper:
         feature: connection
     - connection_external_dummy_interface:
         feature: connection
+    - connection_nmcli_migrate:
+        feature: connection
+    - connection_wait-activation-delay:
+        feature: connection
+    - connection_dont_assume_settings_connection:
+        feature: connection
     - add_default_tap_device:
         feature: tuntap
         tags: gate
@@ -2110,9 +2186,9 @@ testmapper:
         feature: veth
     - veth_device_remove:
         feature: veth
-# failing due to 1915284
-#    - veth_profile_restart_persistnce:
-#        feature: veth
+    - veth_profile_restart_persistnce:
+        feature: veth
+        tags: gate
     - set_fq_codel_queue:
         feature: tc
     - set_pfifo_fast_queue:
@@ -2257,6 +2333,10 @@ testmapper:
     - simwifi_ap_in_bridge_wpa_psk_method_manual:
         feature: wifi_hwsim
         tags: gate
+    - simwifi_nmcli_radio:
+        feature: wifi_hwsim
+    - simwifi_migrate_to_keyfile:
+        feature: wifi_hwsim
     - policy_based_routing_doc_procedure:
         feature: doc_procedures
         tags: gate
@@ -2267,6 +2347,12 @@ testmapper:
         feature: doc_procedures
         tags: gate
     - simwifi_peap_mschapv2_doc_procedure:
+        feature: doc_procedures
+        tags: gate
+    - simwifi_hotspot_doc_procedure:
+        feature: doc_procedures
+        tags: gate
+    - simwifi_hotspot_sae_doc_procedure:
         feature: doc_procedures
         tags: gate
     - nmcli_simwifi_teardown_doc:
@@ -2288,6 +2374,21 @@ testmapper:
         feature: doc_procedures
         tags: gate
     - wireguard_nmcli_doc_procedure:
+        feature: doc_procedures
+        tags: gate
+    - wireguard_nmtui_doc_procedure:
+        feature: doc_procedures
+        tags: gate
+    - vxlan_doc_procedure:
+        feature: doc_procedures
+        tags: gate
+    - 8021x_hostapd_freeradius_doc_procedure:
+        feature: doc_procedures
+        tags: gate
+    - doc_set_gateway_on_existing_profile:
+        feature: doc_procedures
+        tags: gate
+    - doc_nmcli_offline_connection_add:
         feature: doc_procedures
         tags: gate
     - gsm_sim_create_default_connection:
@@ -3177,6 +3278,8 @@ testmapper:
     - sriov_connect_externally:
         feature: sriov
     - sriov_reboot_persistence:
+        feature: sriov
+    - sriov_con_drv_bond_with_config:
         feature: sriov
     - sriov_con_drv_add_VF:
         feature: sriov

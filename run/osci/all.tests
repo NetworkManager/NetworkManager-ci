@@ -114,7 +114,7 @@ add_default_team
 add_default_team_after_journal_restart
 ifcfg_team_slave_device_type
 nmcli_novice_mode_create_team
-nmcli_novice_mode_create_team-slave_with_default_options
+nmcli_novice_mode_create_team_slave_with_default_options
 add_two_slaves_to_team
 default_config_watch
 add_team_master_via_uuid
@@ -141,6 +141,7 @@ remove_config
 team_set_mtu
 team_reflect_changes_from_outside_of_NM
 kill_teamd
+kill_teamd_with_ports
 team_enslave_to_bridge
 describe
 team_in_bridge_mtu

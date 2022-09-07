@@ -5,7 +5,8 @@ import sys
 import uuid
 gi.require_version('NM', '1.0')
 from gi.repository import GLib,NM
-from timeit import default_timer as timer
+#from timeit import default_timer as timer
+from time import perf_counter as timer
 
 ### Usage: ./activate.py <num-devices>
 
@@ -151,11 +152,11 @@ def run():
                 sys.exit(1)
             return True
 
-    GLib.timeout_add(1000, check_state_cb, client)
+    GLib.timeout_add(100, check_state_cb, client)
     main_loop.run()
     logger_pid.terminate()
 
-    print("### Completed in {:d} seconds".format(int(timer() - start_time)))
+    print("### Completed in {:f} seconds".format(timer() - start_time))
 
 
 if __name__ == "__main__":

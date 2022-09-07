@@ -2,7 +2,7 @@ import pexpect
 import time
 from behave import step
 
-import nmci.lib
+import nmci.ctx
 
 
 @step(u'Add a connection named "{name}" for device "{ifname}" to "{vpn}" VPN')
@@ -12,23 +12,31 @@ def add_vpnc_connection_for_iface(context, name, ifname, vpn):
     time.sleep(1)
     assert r != 0, 'Got an Error while adding %s connection %s for device %s\n%s%s' % (vpn, name, ifname, cli.after, cli.buffer)
 
-
-@step(u'Add connection type "{typ}" named "{name}" for device "{ifname}"')
-def add_connection_for_iface(context, typ, name, ifname):
-    cli = context.pexpect_spawn('nmcli connection add type %s con-name %s ifname %s' % (typ, name, ifname))
-    r = cli.expect(['Error', pexpect.EOF])
-    assert r == 1, 'Got an Error while adding %s connection %s for device %s\n%s%s' % (typ, name, ifname, cli.after, cli.buffer)
+    context.cext.cleanup_add_connection(name)
 
 
-@step(u'Add a new connection of type "{typ}" and options')
-@step(u'Add a new connection of type "{typ}" and options "{options}"')
-def add_new_default_connection_without_ifname(context, typ, options=None):
+@step(u'Add "{typ}" connection with options')
+@step(u'Add "{typ}" connection with options "{options}"')
+@step(u'Add "{typ}" connection named "{name}"')
+@step(u'Add "{typ}" connection named "{name}" with options')
+@step(u'Add "{typ}" connection named "{name}" with options "{options}"')
+@step(u'Add "{typ}" connection named "{name}" for device "{ifname}"')
+@step(u'Add "{typ}" connection named "{name}" for device "{ifname}" with options')
+@step(u'Add "{typ}" connection named "{name}" for device "{ifname}" with options "{options}"')
+def add_new_connection(context, typ, name=None, ifname=None, options=None):
     if options is None:
-        options = context.text.replace("\n", " ")
+        options = context.text.replace("\n", " ") if context.text is not None else " "
+    conn_name = f"con-name {name}" if name is not None else ""
+    iface = f"ifname {ifname}" if ifname is not None else ""
 
-    cli = context.pexpect_spawn('nmcli connection add type %s %s' % (typ, options), shell=True)
+    cli = context.pexpect_spawn(f"nmcli connection add type {typ} {conn_name} {iface} {options}", shell=True)
     assert cli.expect(['Error', pexpect.TIMEOUT, pexpect.EOF]) == 2, \
         'Got an Error while creating connection of type %s with options %s\n%s%s' % (typ, options, cli.after, cli.buffer)
+
+    if name is not None:
+        context.cext.cleanup_add_connection(name)
+    if ifname is not None:
+        context.cext.cleanup_add_iface(ifname)
 
 
 @step(u'Add infiniband port named "{name}" for device "{ifname}" with parent "{parent}" and p-key "{pkey}"')
@@ -56,6 +64,8 @@ def open_slave_connection(context, master, device, name):
         r = cli.expect(['Error', pexpect.EOF])
 
     assert r == 1, 'Got an Error while adding slave connection %s on device %s for master %s\n%s%s' % (name, device, master, cli.after, cli.buffer)
+    context.cext.cleanup_add_connection(name)
+    context.cext.cleanup_add_iface(device)
 
 
 @step(u'Bring "{action}" connection "{name}"')
@@ -160,10 +170,13 @@ def modify_connection(context, name, options):
     out = context.command_output("nmcli connection modify %s %s" % (name, options))
     assert 'Error' not in out, 'Got an Error while modifying %s options %s\n%s' % (name, options, out)
 
+@step(u'Wait for testeth0')
+def wait_for_eth0(context):
+    nmci.lib.wait_for_testeth0(context)
 
 @step(u'Reload connections')
 def reload_connections(context):
-    nmci.lib.reload_NM_connections(context)
+    nmci.ctx.reload_NM_connections(context)
     time.sleep(0.5)
 
 
@@ -217,6 +230,7 @@ def add_connection(context, name, uuid, flags="TO_DISK"):
     con2.add_setting(s_con)
 
     result = {}
+    context.cext.cleanup_add_connection(name)
 
     def _add_connection2_cb(cl, async_result, user_data):
         try:
@@ -264,6 +278,7 @@ def clone_connection(context, con_src, con_dst, flags="TO_DISK"):
 
     assert 'error' not in result, \
         'add connection %s failed: %s' % (con_dst, result['error'])
+    context.cext.cleanup_add_connection(con_dst)
 
 
 @step(u'Update connection "{con_name}" changing options "{options}" using libnm')
@@ -376,3 +391,11 @@ def add_bridges_vlans_range(context, begin, end, ifname):
 
         assert 'error' not in result, \
             f"add connection {id} failed: {result['error']}"
+
+
+@step(u'Cleanup connection "{connection}"')
+@step(u'Cleanup connection "{connection}" and device "{device}"')
+def cleanup_connection(context, connection, device=None):
+    context.cext.cleanup_add_connection(connection)
+    if device is not None:
+        context.execute_steps(f'* Cleanup device "{device}"')

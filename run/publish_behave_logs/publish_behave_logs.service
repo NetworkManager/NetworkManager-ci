@@ -5,4 +5,4 @@ Description=helper to copy behave html logs to webserver Document root
 ExecStart=python3 /usr/local/bin/publish_behave_logs
 
 [Install]
-Wanted_by=multi-user.target
+WantedBy=multi-user.target

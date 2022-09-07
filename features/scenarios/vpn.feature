@@ -11,7 +11,7 @@
     #@libreswan
     #@vpn_add_profile
     #Scenario: nmcli - vpn - add default connection
-    #* Add a new connection of type "vpn" and options "ifname \* con-name vpn vpn-type libreswan"
+    #* Add "vpn" connection named "vpn" for device "\*" with options "vpn-type libreswan"
     #* Open editor for connection "vpn"
     #* Submit "set vpn.service-type org.freedesktop.NetworkManager.libreswan" in editor
     #* Submit "set vpn.data right = vpn-test.com, xauthpasswordinputmodes = save, xauthpassword-flags = 1, esp = aes-sha1;modp1024, leftxauthusername = desktopqe, pskinputmodes = save, ike = aes-sha1;modp1024, pskvalue-flags = 1, leftid = desktopqe" in editor
@@ -21,20 +21,18 @@
 
 
     @rhbz1912423
-    @ver+=1.32.4
-    @skip_in_centos
-    @openvpn @openvpn6 @libreswan
+    @rhelver+=8 @ver+=1.32.4
+    @openvpn @openvpn6 @libreswan @ikev2
     @multiple_vpn_connections
     Scenario: nmcli - vpn - multiple connections
     * Add a connection named "openvpn" for device "\*" to "openvpn" VPN
     * Use certificate "sample-keys/client.crt" with key "sample-keys/client.key" and authority "sample-keys/ca.crt" for gateway "127.0.0.1" on OpenVPN connection "openvpn"
     * Add a connection named "libreswan" for device "\*" to "libreswan" VPN
-    * Use user "budulinek" with password "passwd" and group "yolo" with secret "ipsecret" for gateway "11.12.13.14" on Libreswan connection "libreswan"
+    * Modify connection "libreswan" changing options "vpn.data 'ikev2=insist, leftcert=LibreswanClient, leftid=%fromcert, right=11.12.13.14'"
     * Bring "up" connection "libreswan"
     * Bring "up" connection "openvpn"
     Then "VPN.VPN-STATE:.*VPN connected" is visible with command "nmcli c show libreswan" for full "130" seconds
     Then "11.12.13.0/24 .*dev libreswan1" is visible with command "ip route"
-    Then "VPN.BANNER:.*BUG_REPORT_URL" is visible with command "nmcli c show libreswan"
     Then "IP4.ADDRESS.*172.29.100.2/32" is visible with command "nmcli c show libreswan"
     Then "IP4.ADDRESS.*172.29.100.2/32" is visible with command "nmcli d show libreswan1"
     Then "IP4.ADDRESS.*11.12.13.*/24" is visible with command "nmcli d show libreswan1"
@@ -43,6 +41,7 @@
     Then "IP6.ADDRESS.*2001:db8:666:dead::2/64" is visible with command "nmcli c show openvpn"
 
 
+    @rhelver-=8
     @ver+=1.4.0 @ver-=1.32.3
     @libreswan @openvpn @openvpn6
     @multiple_vpn_connections
@@ -55,7 +54,6 @@
     * Bring "up" connection "openvpn"
     Then "VPN.VPN-STATE:.*VPN connected" is visible with command "nmcli c show libreswan" for full "130" seconds
     Then "11.12.13.0/24 .*dev libreswan1" is visible with command "ip route"
-    Then "VPN.BANNER:.*BUG_REPORT_URL" is visible with command "nmcli c show libreswan"
     Then "IP4.ADDRESS.*172.29.100.2/32" is visible with command "nmcli c show libreswan"
     Then "IP4.ADDRESS.*172.29.100.2/32" is visible with command "nmcli d show libreswan1"
     Then "IP4.ADDRESS.*11.12.13.*/24" is visible with command "nmcli d show libreswan1"
@@ -114,10 +112,24 @@
     @iptunnel
     @iptunnel_create_modify
     Scenario: nmcli - vpn - create IPIP and GRE IP tunnel
-    * Add a new connection of type "ip-tunnel" and options "ifname ipip1 con-name ipip1 mode ipip ip-tunnel.parent veth0 remote 172.25.16.2 local 172.25.16.1 ip4 172.25.30.1/24"
+    * Add "ip-tunnel" connection named "ipip1" for device "ipip1" with options
+          """
+          mode ipip
+          ip-tunnel.parent veth0
+          remote 172.25.16.2
+          local 172.25.16.1
+          ip4 172.25.30.1/24
+          """
     * Bring "up" connection "ipip1"
     Then Ping "172.25.30.2" "2" times
-    * Add a new connection of type "ip-tunnel" and options "ifname gre1 con-name gre1 mode gre ip-tunnel.parent veth0 remote 172.25.16.2 local 172.25.16.1 ip4 172.25.31.1/24"
+    * Add "ip-tunnel" connection named "gre1" for device "gre1" with options
+          """
+          mode gre
+          ip-tunnel.parent veth0
+          remote 172.25.16.2
+          local 172.25.16.1
+          ip4 172.25.31.1/24
+          """
     * Bring "up" connection "gre1"
     Then Ping "172.25.31.2" "2" times
     * Bring "down" connection "ipip1"
@@ -134,9 +146,23 @@
     @iptunnel @restart_if_needed
     @iptunnel_restart
     Scenario: nmcli - vpn - detect IP tunnel by NM
-    * Add a new connection of type "ip-tunnel" and options "ifname ipip1 con-name ipip1 mode ipip ip-tunnel.parent veth0 remote 172.25.16.2 local 172.25.16.1 ip4 172.25.30.1/24"
+    * Add "ip-tunnel" connection named "ipip1" for device "ipip1" with options
+          """
+          mode ipip
+          ip-tunnel.parent veth0
+          remote 172.25.16.2
+          local 172.25.16.1
+          ip4 172.25.30.1/24
+          """
     Then Bring "up" connection "ipip1"
-    * Add a new connection of type "ip-tunnel" and options "ifname gre1 con-name gre1 mode gre ip-tunnel.parent veth0 remote 172.25.16.2 local 172.25.16.1 ip4 172.25.31.1/24"
+    * Add "ip-tunnel" connection named "gre1" for device "gre1" with options
+          """
+          mode gre
+          ip-tunnel.parent veth0
+          remote 172.25.16.2
+          local 172.25.16.1
+          ip4 172.25.31.1/24
+          """
     Then Bring "up" connection "gre1"
     * Restart NM
     Then Bring "down" connection "gre1"
@@ -148,17 +174,58 @@
     @iptunnel
     @iptunnel_ip6gre_create_device
     Scenario: nmcli - vpn - create IP6GRE tunnel with device
-    * Add a new connection of type "ip-tunnel" and options "ifname ip6gre1 con-name gre1 mode ip6gre ip-tunnel.parent veth0 remote fe80:feed::beef local fe80:feed::b00f ip6 fe80:deaf::b00f/64 ipv4.method disabled autoconnect no"
+    * Add "ip-tunnel" connection named "gre1" for device "ip6gre1" with options
+          """
+          mode ip6gre
+          ip-tunnel.parent veth0
+          remote fe80:feed::beef
+          local fe80:feed::b00f
+          ip6 fe80:deaf::b00f/64
+          ipv4.method disabled
+          autoconnect no
+          """
     * Bring "up" connection "gre1"
     * Wait for at least "2" seconds
     Then Ping6 "fe80:deaf::beef%ip6gre1"
 
 
     @ver+=1.16
-    @wireguard @rhelver+=8
+    @rhelver+=9
+    @wireguard
     @wireguard_activate_connection
     Scenario: nmcli - vpn - create and activate wireguard connection
-    * Add a new connection of type "wireguard" and options "ifname nm-wireguard con-name wireguard wireguard.private-key qOdhat/redhat/redhat/redhat/redhat/redhatUE= wireguard.listen-port 23456 ipv4.method manual ipv4.addresses 172.25.17.1/24 "
+    * Add "wireguard" connection named "wireguard" for device "nm-wireguard" with options
+          """
+          wireguard.private-key qOdhat/redhat/redhat/redhat/redhat/redhatUE=
+          wireguard.listen-port 23456
+          ipv4.method manual
+          ipv4.addresses 172.25.17.1/24
+          """
+    * Bring "up" connection "wireguard"
+    Then "qOdhat/redhat/redhat/redhat/redhat/redhatUE=" is visible with command "sudo WG_HIDE_KEYS=never wg | grep 'private key:'" in "10" seconds
+     And "23456" is visible with command "sudo WG_HIDE_KEYS=never wg | grep 'port:'" in "10" seconds
+     And "172.25.17.1/24" is visible with command "ip address show dev nm-wireguard"
+    * Modify connection "wireguard" changing options "wireguard.private-key qOdhat/redhat/REDHAT/redhat/redhat/redhatUE= wireguard.listen-port 14456 ipv4.addresses 172.25.17.4/24 wireguard.mtu 1300"
+    * Bring "up" connection "wireguard"
+    Then "qOdhat/redhat/REDHAT/redhat/redhat/redhatUE=" is visible with command "sudo WG_HIDE_KEYS=never wg | grep 'private key:'" in "10" seconds
+     And "14456" is visible with command "sudo WG_HIDE_KEYS=never wg | grep 'port:'" in "10" seconds
+     And "172.25.17.4/24" is visible with command "ip address show dev nm-wireguard"
+     And "mtu 1300" is visible with command "ip address show dev nm-wireguard"
+
+
+    @ver+=1.16
+    @rhelver+=8 @rhelver-=8
+    @may_fail
+    @wireguard
+    @wireguard_activate_connection
+    Scenario: nmcli - vpn - create and activate wireguard connection
+    * Add "wireguard" connection named "wireguard" for device "nm-wireguard" with options
+          """
+          wireguard.private-key qOdhat/redhat/redhat/redhat/redhat/redhatUE=
+          wireguard.listen-port 23456
+          ipv4.method manual
+          ipv4.addresses 172.25.17.1/24
+          """
     * Bring "up" connection "wireguard"
     Then "qOdhat/redhat/redhat/redhat/redhat/redhatUE=" is visible with command "sudo WG_HIDE_KEYS=never wg | grep 'private key:'" in "10" seconds
      And "23456" is visible with command "sudo WG_HIDE_KEYS=never wg | grep 'port:'" in "10" seconds

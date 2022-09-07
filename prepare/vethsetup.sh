@@ -24,7 +24,7 @@ function setup_veth_env ()
         exit 0
     fi
     # Enable udev rule to enable ignoring 'veth' devices eth*, keeping their pairs unmanaged
-    echo 'ENV{ID_NET_DRIVER}=="veth", ENV{INTERFACE}=="eth[0-9]|eth[0-9]*[0-9]", ENV{NM_UNMANAGED}="0"' >/etc/udev/rules.d/99-lr.rules
+    echo 'ENV{ID_NET_DRIVER}=="veth", ENV{INTERFACE}=="eth[0-9]|eth[0-9]*[0-9]", ENV{NM_UNMANAGED}="0"' >/etc/udev/rules.d/87-xvethsetup.rules
     udevadm control --reload-rules
     udevadm settle --timeout=5
     sleep 1
@@ -87,8 +87,14 @@ function setup_veth_env ()
     UUID_NAME=$(nmcli -t -f UUID,NAME c show --active | head -n 1)
     NAME=${UUID_NAME#*:}
     UUID=${UUID_NAME%:*}
+
     # Overwrite the name in order to be sure to have all the NM keys (including UUID) in the ifcfg file
-    nmcli con mod $UUID connection.id "$NAME"
+    for i in {1..10}; do
+        nmcli con mod $UUID connection.id "$NAME"
+        test -f /tmp/nm_plugin_keyfiles && break
+        grep -q "UUID=$UUID" /etc/sysconfig/network-scripts/ifcfg-$DEV && break
+        sleep 0.5
+    done
 
     if ! test -f /tmp/nm_plugin_keyfiles; then
         # Backup original ifcfg
@@ -109,9 +115,10 @@ function setup_veth_env ()
 
     else
         # Backup original nmconnection file
+        FILE=$(nmcli -f FILENAME  connection |grep $DEV)
         nmcli device disconnect $DEV 2>&1 > /dev/null
         if [ ! -e /tmp/$DEV.nmconnection ]; then
-            mv /etc/NetworkManager/system-connections/$DEV.nmconnection /tmp/
+            mv $FILE /tmp/$DEV.nmconnection
             sleep 0.5
             nmcli con reload
             sleep 0.5
@@ -129,6 +136,7 @@ function setup_veth_env ()
     nmcli con mod $UUID connection.id testeth0
     nmcli con mod $UUID connection.interface-name eth0
     nmcli connection modify $UUID ipv6.method auto
+    nmcli connection modify $UUID ipv4.may-fail no
     sleep 1
 
     # Rename additional devices
@@ -190,9 +198,6 @@ function setup_veth_env ()
     # Give bridge an internal format address in form used in tests
     ip netns exec vethsetup ip addr add 192.168.100.1/24 dev masq
 
-    # Remove mapping to lo only (starting Fedora 33)
-    sed -i 's/^interface=lo/# interface=lo/' /etc/dnsmasq.conf
-
     # Start up a DHCP server on the internal bridge for IPv4
     ip netns exec vethsetup dnsmasq --pid-file=/tmp/dhcp_inbr.pid --dhcp-leasefile=/tmp/dhcp_inbr.lease --listen-address=192.168.100.1 --dhcp-range=192.168.100.10,192.168.100.254,240 --interface=masq --bind-interfaces
 
@@ -243,7 +248,7 @@ function setup_veth_env ()
     # Let's get rid of that
     for i in $(nmcli -t -f NAME,UUID connection |grep -v testeth |grep -v orig |awk -F ':' ' {print $2}'); do nmcli con del $i; done
 
-    touch /tmp/nm_newveth_configured
+    touch /tmp/nm_veth_configured
 
     # Log state of net after the setup
     # ip a
@@ -362,7 +367,7 @@ function teardown_veth_env ()
     ip netns del vethsetup
 
     # Remove the udev ruling
-    rm -rf /etc/udev/rules.d/99-lr.rules
+    rm -rf /etc/udev/rules.d/87-xvethsetup.rules
     udevadm control --reload-rules
     udevadm settle --timeout=5
     sleep 1
@@ -438,7 +443,7 @@ function teardown_veth_env ()
     # Restart and bring back ORIGDEV up
     systemctl restart NetworkManager; sleep 2
 
-    rm -rf /tmp/nm_newveth_configured
+    rm -rf /tmp/nm_veth_configured
     # Log state of net after the teardown
     ip a
     nmcli con

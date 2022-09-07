@@ -12,6 +12,7 @@ die_cmd() {
   echo "== dump state after fail =="
   ip_list
   nmcli_list
+  resolv_conf_dump
   clean_root
   poweroff -f
 }
@@ -58,6 +59,12 @@ core_pattern_setup() {
   # mount to /var/log which is local FS (mounted disk) to prevent deadlock
   mkdir -p /var/log/dumps/
   mount $DEV_DUMPS /var/log/dumps/
+
+  # Move old dumps
+  for dump in /run/dumps/dump_*; do
+    [ -f "$dump" ] && mv "$dump" /var/log/dumps/
+  done
+
   echo "Setting core_pattern to /var/log/dumps/dump_*"
   echo "/var/log/dumps/dump_%e-%P-%u-%g-%s-%t-%c-%h" > /proc/sys/kernel/core_pattern
 }
@@ -130,6 +137,12 @@ dns_search() {
 }
 
 
+resolv_conf_dump() {
+  echo "== /etc/resolv.conf =="
+  cat /etc/resolv.conf
+}
+
+
 ifname_mac() {
     local mac
     mac=$(ip l show "$1" | grep "link/ether" | sed 's@\s\+link/ether\s\+\(\([0-9a-f]\+:\)\+[0-9a-f]\+\).*@\1@')
@@ -165,4 +178,11 @@ my_wait() {
         [ -z "$jobs" ] && break
         sleep 1
     done
+}
+
+
+nm_debug() {
+    NetworkManager --print-config | grep -q "Debug log enabled" || \
+        die "Debug loglevel not set: $(echo; NetworkManager --print-config)"
+    echo "[OK] Debug logs enabled in NetworkManager"
 }

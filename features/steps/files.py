@@ -1,14 +1,18 @@
 import os
 import time
+import re
 import configparser
 from behave import step
 
 import commands
-import nmci.lib
+import nmci.ctx
 
 
+@step('Append lines to file "{name}"')
 @step('Append "{line}" to file "{name}"')
-def append_to_file(context, line, name):
+def append_to_file(context, name, line=None):
+    if line is None:
+        line = context.text if context.text is not None else " "
     cmd = 'sudo echo "%s" >> %s' % (line, name)
     context.command_code(cmd)
 
@@ -17,6 +21,7 @@ def append_to_file(context, line, name):
 def append_to_ifcfg(context, line, name):
     cmd = 'sudo echo "%s" >> /etc/sysconfig/network-scripts/ifcfg-%s' % (line, name)
     context.command_code(cmd)
+    context.cext.cleanup_add_connection(name)
 
 
 @step(u'Check file "{file1}" is contained in file "{file2}"')
@@ -30,11 +35,13 @@ def check_file_is_contained(context, file1, file2):
 @step(u'Check file "{file1}" is identical to file "{file2}"')
 def check_file_is_identical(context, file1, file2):
     import filecmp
-    assert filecmp.cmp(file1, file2), "".join((
-        f"Files '{file1}' and '{file2}' differ",
-        "" if context.embed("text/plain", nmci.lib.utf_only_open_read(file1), file1) else "",
-        "" if context.embed("text/plain", nmci.lib.utf_only_open_read(file2), file2) else "",
-    ))
+
+    if filecmp.cmp(file1, file2):
+        return
+
+    context.cext.embed_data(file1, nmci.util.file_get_content_simple(file1))
+    context.cext.embed_data(file2, nmci.util.file_get_content_simple(file2))
+    assert False, f"Files '{file1}' and '{file2}' differ"
 
 
 @step(u'ifcfg-"{con_name}" file does not exist')
@@ -172,9 +179,20 @@ def check_ifcfg(context, file):
         assert line in cfg, "'%s' not found in file '%s':\n%s" % (line, file, "\n".join(cfg))
 
 
+@step(u'Create ifcfg-file "{file}"')
 @step(u'Create keyfile "{file}"')
-def create_keyfile(context, file):
+def create_network_profile_file(context, file):
     with open(file, "w") as f:
         f.write(context.text)
     assert nmci.command_code("chmod 600 " + file) == 0, "Unable to set permissions on '%s'" % file
-    nmci.lib.reload_NM_connections(context)
+    nmci.ctx.reload_NM_connections(context)
+
+    for line in context.text.split("\n"):
+        if re.match(r'(id|name)=', line):
+            name = line.split('=')[1]
+            if name:
+                context.cext.cleanup_add_connection(name)
+        elif re.match(r'(DEVICE|interface-name)=', line):
+            iface = line.split('=')[1]
+            if iface:
+                context.cext.cleanup_add_iface(iface)

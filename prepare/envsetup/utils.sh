@@ -12,9 +12,12 @@ install_behave_pytest () {
   ln -s /usr/bin/behave-3 /usr/bin/behave
   # pytest is needed for NetworkManager-ci unit tests and nmstate test
   python -m pip install pytest
+  # fix click version because of black bug
+  # https://github.com/psf/black/issues/2964
+  python -m pip install click==8.0.4
   # black is needed by unit tests to check code format
-  # stick to fedora 33 version of black: 19.10b0
-  python -m pip install --prefix /usr/ black==19.10b0
+  # stick to fedora 33 version of black: 22.3.0
+  python -m pip install --prefix /usr/ black==22.3.0
 }
 
 
@@ -41,7 +44,7 @@ install_plugins_yum () {
     if ! rpm -q --quiet NetworkManager-ovs; then
         yum -y install NetworkManager-ovs
     fi
-    if ! rpm -q --quiet NetworkManager-ppp && ! rpm -q NetworkManager |grep -q '1.4'; then
+    if ! rpm -q --quiet NetworkManager-ppp; then
         yum -y install NetworkManager-ppp
     fi
     if ! rpm -q --quiet NetworkManager-openvpn; then
@@ -68,7 +71,7 @@ install_plugins_dnf () {
     if ! rpm -q --quiet NetworkManager-ovs; then
         dnf -4 -y install NetworkManager-ovs
     fi
-    if ! rpm -q --quiet NetworkManager-ppp && ! rpm -q NetworkManager |grep -q '1.4'; then
+    if ! rpm -q --quiet NetworkManager-ppp; then
         dnf -4 -y install NetworkManager-ppp
     fi
     if ! rpm -q --quiet NetworkManager-openvpn; then
@@ -208,10 +211,11 @@ configure_nm_gsm () {
 install_usb_hub_driver_fc29 () {
     # Accomodate to Fedora 29.
     yum install -y libffi-devel python3-devel python-unversioned-command
+    mkdir /tmp/brainstem
     pushd contrib/usb_hub
         # The module brainstem is already stored in project NetworkManager-ci.
-        tar xf brainstem_dev_kit_ubuntu_lts_18.04_no_qt_x86_64_1.tgz
-        cd development/python/
+        tar -C /tmp/brainstem -xf brainstem_dev_kit_ubuntu_lts_18.04_no_qt_x86_64_1.tgz
+        cd /tmp/brainstem/development/python/
         python -m pip install brainstem-2.7.0-py2.py3-none-any.whl; local rc=$?
     popd
     return $rc
@@ -221,23 +225,33 @@ install_usb_hub_driver_fc29 () {
 install_usb_hub_driver_el () {
     # Works under RHEL 8.0.
     yum install -y libffi-devel python36-devel
+    mkdir /tmp/brainstem
     pushd contrib/usb_hub
         # The module brainstem is already stored in project NetworkManager-ci.
         if grep -q -e 'Enterprise Linux .*release 7' -e 'CentOS Linux release 7' /etc/redhat-release; then
             # Compatible with RHEL7
-            tar xf brainstem_dev_kit_ubuntu_lts_14.04_x86_64.tgz
-            cd development/python/
+            tar -C /tmp/brainstem -xf brainstem_dev_kit_ubuntu_lts_14.04_x86_64.tgz
+            cd /tmp/brainstem/development/python/
             python -m pip install brainstem-2.7.1-py2.py3-none-any.whl; local rc=$?
         else
             # And with RHEL8
-            tar xf brainstem_dev_kit_ubuntu_lts_18.04_no_qt_x86_64_1.tgz
-            cd development/python/
+            tar -C /tmp/brainstem -xf brainstem_dev_kit_ubuntu_lts_18.04_no_qt_x86_64_1.tgz
+            cd /tmp/brainstem/development/python/
             python -m pip install brainstem-2.7.0-py2.py3-none-any.whl; local rc=$?
         fi
     popd
     return $rc
 }
 
+get_online_state() {
+    echo -n > /tmp/nmcli_general
+    for i in {1..20}; do
+        nmcli general | tee --append - /tmp/nmcli_general | grep -q "^connected" && return 0
+        echo "get online state #$i failed"
+        sleep 1
+    done
+    return 1
+}
 
 export_python_command() {
     if [ -f /tmp/python_command ]; then
@@ -278,4 +292,5 @@ deploy_ssh_keys () {
 
     echo "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAINXo1HJIv0UugufvaHAog5xJWDQdU2i9rg2y7D5HmtKs lkundrak@bzdocha.local" >> /root/.ssh/authorized_keys
 
+    echo "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABgQD0faK/BixbvynP370pYtQ/OZMBk7RnezVBa8nhWi7Txr7g8BZqZftm0uaGRaIXZmFO1QHlvPJJ59GrKTBvAg/YF8K/FoKnMavGlGeKUM9WYlGigTYx/IzvkReEFplq5AnpON+Waw2urhcqptYJ1xG5phVNmZUXNJU7Idfgyw7axppsFLMzq9QJQSm7yt1TqucyWaH8feAaG9RBAG4ci2tEHrQBCXiy9YyiaRhiZBoBAsW9RcZv0JdiML5MJNoIMDM0Ybax+Gcaqf97So3Tr7NEI1olBml96d3b72vAvQ+tn1C2DrwAwoqYvx4+W4q+qE4nmslCmySq0Gx4A26ZQ0WIhrQiGivVQ4talXVsBvr+uA6CAENWdvGUYhV+M662rRQEzbcCtsHh5bRwUUbz5rp5+NRm2I78ZY4Bjc5aWjJT1UMBbha/wrbGamjUX4J1zMSCJc7DGdgsANTTSKH8uQrFnV/C/kYVtg5dbQcr8Ng/cIZO4YKhx6yKAfWmQkUAWIU= wenliang@localhost.localdomain" >> /root/.ssh/authorized_keys
 }

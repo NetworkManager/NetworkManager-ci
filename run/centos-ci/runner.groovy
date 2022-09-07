@@ -18,7 +18,7 @@ node('cico-workspace') {
                 REFSPEC = "main"
             }
             if (!params['TEST_BRANCH']) {
-                TEST_BRANCH = "master"
+                TEST_BRANCH = "main"
             }
             if (!params['FEATURES']) {
                 FEATURES = "all"
@@ -26,10 +26,27 @@ node('cico-workspace') {
             if (!params['RESERVE']) {
                 RESERVE = "0s"
             }
-            // Cancel older builds
-            script {
-                println("Killing old jobs if running")
-                killJobs (currentBuild)
+            stage ('Kill old jobs'){
+                def jobname = currentBuild.displayName
+                def buildnum = currentBuild.number.toInteger()
+                def job_name = currentBuild.rawBuild.parent.getFullName()
+                def job = Jenkins.instance.getItemByFullName(job_name)
+                for (build in job.builds) {
+                    // skip stopped jobs
+                    if (!build.isBuilding()) {
+                        continue;
+                    }
+                    // this job
+                    if (buildnum == build.getNumber().toInteger()) {
+                        println ("Skip this job #" + build.number)
+                        continue;
+                    }
+                    // do not kill different branches / releases
+                    if (build.displayName == currentBuild.displayName) {
+                        println("Kill job #" + build.number)
+                        build.doStop();
+                    }
+                }
             }
         }
         stage('clone git repo') {
@@ -53,15 +70,7 @@ node('cico-workspace') {
             sh """
               set +x
               cd NetworkManager-ci
-              (${run} ; echo \$? > exit_code ) || true
-              for file in ../results_*/runtest.log; do
-                  [ -f \$file ] || continue
-                  machine=\${file%/*}
-                  machine=\${machine#_*}
-                  echo 'Test Output for machine #'\$machine:
-                  cat \$file
-              done
-              exit \$(cat exit_code)
+              ${run}
             """
         }
     }
@@ -94,24 +103,6 @@ node('cico-workspace') {
             stage('return cico nodes') {
                 sh "python3 NetworkManager-ci/run/centos-ci/return_nodes.py"
             }
-        }
-    }
-}
-
-@NonCPS
-def killJobs (currentBuild) {
-    println("in KillJobs")
-    println()
-    def jobname = currentBuild.displayName
-    def buildnum = currentBuild.number.toInteger()
-    def job_name = currentBuild.rawBuild.parent.getFullName()
-    def job = Jenkins.instance.getItemByFullName(job_name)
-    for (build in job.builds) {
-        if (!build.isBuilding()) { continue; }
-        if (buildnum == build.getNumber().toInteger()) { continue; println "equals" }
-        if (build.displayName == currentBuild.displayName) {
-            println(build.number)
-            build.doStop();
         }
     }
 }

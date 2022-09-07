@@ -35,6 +35,9 @@ test_setup() {
       chmod +x /etc/qemu-ifdown;
   }
 
+  cp contrib/dracut/conf/smart_sleep.py /usr/local/bin/smart_sleep
+  chmod +x /usr/local/bin/smart_sleep
+
   mkdir $TESTDIR
 
   basedir=/usr/lib/dracut/
@@ -162,8 +165,8 @@ test_setup() {
       cat >$initdir/etc/systemd/system/testsuite.target <<EOF
 [Unit]
 Description=Testsuite target
-Requires=network.target
-After=network.target
+Requires=network-online.target
+After=network-online.target
 Conflicts=rescue.target
 AllowIsolate=yes
 EOF
@@ -174,7 +177,7 @@ EOF
       cat >$initdir/etc/systemd/system/testsuite.service <<EOF
 [Unit]
 Description=Testsuite service
-After=network.target
+After=network-online.target
 
 [Service]
 ExecStart=/sbin/test-init

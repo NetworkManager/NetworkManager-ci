@@ -17,18 +17,19 @@ install_el9_packages () {
     # Dnf more deps
     dnf -4 -y install \
         git python3-netaddr dhcp-relay iw net-tools psmisc firewalld dhcp-server \
-        ethtool python3-dbus python3-gobject dnsmasq tcpdump wireshark-cli file \
-        iproute-tc openvpn perl-IO-Tty dhcp-client rpm-build gcc initscripts \
-        wireguard-tools \
+        ethtool python3-dbus python3-gobject dnsmasq tcpdump wireshark-cli file iputils \
+        iproute-tc perl-IO-Tty dhcp-client rpm-build gcc initscripts \
+        wireguard-tools python3-pyyaml tuned sos \
         --skip-broken
 
-    # hostapd and tcpreplay is in epel (not available now), iw was just missing in el9 1915791 (needed for hostpad_wireless)
+    # Install non distro deps
     dnf -4 -y install \
         $KOJI/tcpreplay/4.3.3/3.fc34/$(arch)/tcpreplay-4.3.3-3.fc34.$(arch).rpm \
         $KOJI/libdnet/1.14/1.fc34/$(arch)/libdnet-1.14-1.fc34.$(arch).rpm \
         $KOJI/iw/5.4/3.fc34/$(arch)/iw-5.4-3.fc34.$(arch).rpm \
         $BREW/rhel-9/packages/libsmi/0.4.8/27.el9.1/$(arch)/libsmi-0.4.8-27.el9.1.$(arch).rpm \
         $BREW/rhel-9/packages/wireshark/3.4.0/1.el9.1/$(arch)/wireshark-cli-3.4.0-1.el9.1.$(arch).rpm \
+        $KOJI/rp-pppoe/3.15/1.fc35/$(arch)/rp-pppoe-3.15-1.fc35.$(arch).rpm \
         --skip-broken
 
     install_behave_pytest
@@ -40,7 +41,12 @@ install_el9_packages () {
             $CBSC/openvswitch2.16/2.16.0/33.el9s/$(arch)/openvswitch2.16-2.16.0-33.el9s.$(arch).rpm \
             $CBSC/openvswitch-selinux-extra-policy/1.0/30.el9s/noarch/openvswitch-selinux-extra-policy-1.0-30.el9s.noarch.rpm \
             $KHUB/perl-IO-Tty/1.16/4.el9/$(arch)/perl-IO-Tty-1.16-4.el9.$(arch).rpm
+    else
+        cp -f  contrib/ovs/ovs-rhel9.repo /etc/yum.repos.d/ovs.repo
+        yum -y install openvswitch2.16*
+        systemctl restart openvswitch
     fi
+
 
     # Install vpn dependencies
     dnf -4 -y install \
@@ -55,9 +61,14 @@ install_el9_packages () {
     # openvpn, please remove once in epel 12012021
     if ! rpm -q --quiet NetworkManager-openvpn || ! rpm -q --quiet openvpn; then
         dnf -4 -y install \
-            $KOJI/NetworkManager-openvpn/1.8.12/1.fc33.1/$(arch)/NetworkManager-openvpn-1.8.12-1.fc33.1.$(arch).rpm \
-            $KOJI/openvpn/2.5.0/1.fc34/$(arch)/openvpn-2.5.0-1.fc34.$(arch).rpm \
-            $KOJI/pkcs11-helper/1.27.0/2.fc34/$(arch)/pkcs11-helper-1.27.0-2.fc34.$(arch).rpm
+            $KOJI/openvpn/2.5.6/1.el9/$(arch)/openvpn-2.5.6-1.el9.$(arch).rpm \
+            $KOJI/pkcs11-helper/1.27.0/2.fc34/$(arch)/pkcs11-helper-1.27.0-2.fc34.$(arch).rpm \
+            NetworkManager-openvpn || \
+        # on s390x NetworkManager-openvpn is not in repos yet
+        dnf -4 -y install \
+            $KOJI/openvpn/2.5.6/1.el9/$(arch)/openvpn-2.5.6-1.el9.$(arch).rpm \
+            $KOJI/pkcs11-helper/1.27.0/2.fc34/$(arch)/pkcs11-helper-1.27.0-2.fc34.$(arch).rpm \
+            $KOJI/NetworkManager-openvpn/1.8.16/1.fc36/$(arch)/NetworkManager-openvpn-1.8.16-1.fc36.$(arch).rpm
     fi
     # strongswan remove once in epel 12012021
     if ! rpm -q --quiet NetworkManager-strongswan || ! rpm -q --quiet strongswan; then

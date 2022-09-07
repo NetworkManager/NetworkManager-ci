@@ -1,3 +1,4 @@
+import json
 import pexpect
 import time
 from behave import step
@@ -19,7 +20,7 @@ def add_secondary_addr_same_subnet(context, device):
         secondary_ip = primary_ipn.ip+1
     else:
         secondary_ip = primary_ipn.ip-1
-    assert context.command_code('ip addr add dev %s %s/%d' % (device, str(secondary_ip), primary_ipn.prefixlen)) == 0
+    context.process.run_stdout(f'ip addr add dev {device} {secondary_ip}/{primary_ipn.prefixlen}')
 
 
 def dns_check(dns_plugin, device, kind, arg, has):
@@ -90,16 +91,6 @@ def dns_check_domain_not(context, device, domain, kind='domain'):
 def dns_check_default_route_has(context, device, what):
     assert what in ['no', 'default', 'routing', 'search']
     dns_check(context.dns_plugin, device, 'default-route', what, None)
-
-
-@step(u'Create device "{dev}" in "{ns}" with address "{addr}"')
-def create_device_in_ns(context, dev, ns, addr):
-    context.command_code('ip -n %s link add %s type veth peer name %sp' % (ns, dev, dev))
-    context.command_code("ip -n %s link set %s up" % (ns, dev))
-    context.command_code("ip -n %s addr add %s dev %s" % (ns, addr, dev))
-#    veth_to_delete = getattr(context, "veth_to_delete", [])
-#    veth_to_delete += [dev, dev+"p"]
-#    context.veth_to_delete = veth_to_delete
 
 
 @step(u'Compare kernel and NM master-slave devices')
@@ -621,4 +612,92 @@ def device_lldp_status_libnm(context, device):
     assert nm_device_flags & NM.DeviceInterfaceFlags.LLDP_CLIENT_ENABLED, \
         f"LLDP status flag not set:\nDevice Flags: {nm_device_flags:032b}\n" \
         f"LLDP flag:    {NM.DeviceInterfaceFlags.LLDP_CLIENT_ENABLED:032b}"
-        
+
+
+@step(u'Activate "{device_num}" devices in "{sec_high}" seconds')
+@step(u'Activate "{device_num}" devices in "{sec_low}" to "{sec_high}" seconds')
+def activate_devices_check(context, device_num, sec_high, sec_low=0):
+    out = context.command_output(f"cd contrib/gi; python3 activate.py {device_num}")
+    # activate.py calls setup.sh which restarts NM
+    context.nm_pid = nmci.nmutil.wait_for_nm_pid()
+    completed_lines = [line for line in out.split("\n") if "Completed in " in line]
+    assert len(completed_lines), f"Unexpected output, did not find 'Completed in ' line:\n{out}"
+    completed_line = completed_lines[0]
+    sec_meas = float(completed_line.split("Completed in ")[1].split(" ")[0])
+    context.cext.embed_data(
+        f"Activation time: {sec_meas}s",
+        f"speed factor: {context.machine_speed_factor}",
+    )
+    high_limit = float(sec_high) * context.machine_speed_factor
+    low_limit = float(sec_low) * context.machine_speed_factor
+    assert sec_meas <= high_limit and sec_meas >= low_limit, \
+        f"Lasted {sec_meas} seconds, which is not in {context.machine_speed_factor} " \
+        f"times scaled range: [{low_limit};{high_limit}]."
+
+
+def get_routes_count(context, device=None, ip_version=4):
+    if device:
+        device = f"dev {device}"
+    else:
+        device = ""
+    return len(context.command_output(f"ip -{ip_version} route show {device}").split("\n"))
+
+
+@step(u'There are "{cmp}" "{routes_count}" IP version "{ip_version}" routes for device "{device}"')
+@step(u'There are "{cmp}" "{routes_count}" IP version "{ip_version}" routes for device "{device}" in "{seconds}" seconds')
+def check_route_count(context, cmp, routes_count, ip_version, device, seconds=1):
+    routes_count = int(routes_count)
+    xtimeout = nmci.util.start_timeout(seconds)
+    while xtimeout.loop_sleep(0.2):
+        routes_now = get_routes_count(context, device, ip_version)
+
+        if cmp == "at least":
+            if routes_now >= routes_count:
+                return True
+        elif cmp == "at most":
+            if routes_now <= routes_count:
+                return True
+        elif cmp == "exactly":
+            if routes_now == routes_count:
+                return True
+
+    assert False, f"There were {routes_now} routes found."
+
+
+@step(u'Cleanup device "{iface}"')
+def cleanup_connection(context, iface):
+    context.cext.cleanup_add_iface(iface)
+
+
+@step(u'Create "{typ}" device named "{name}"')
+@step(u'Create "{typ}" device named "{name}" with options "{options}"')
+@step(u'Create "{typ}" device named "{name}" in namespace "{namespace}"')
+@step(u'Create "{typ}" device named "{name}" in namespace "{namespace}" with options "{options}"')
+def add_device(context, typ, name, namespace="", options=""):
+    context.cext.cleanup_add_iface(name)
+    namespace = f"-n {namespace}" if namespace else ""
+
+    # Make sure the new device gets the hightest ifindex of all links.
+    # This is what generally happens when adding a new link and some tests
+    # (such as @bond_slaves_ordering_by_ifindex) rely on this; but it's
+    # not guarranteed and doesn't happen when the device is moved across
+    # namespaces and got a lower ifindex in the old namespace.
+    links = json.loads(nmci.command_output("ip -j link"))
+    links = links + json.loads(nmci.command_output(f"ip {namespace} -j link"))
+    for link in links:
+        if link["ifindex"] > context.ifindex:
+            context.ifindex = link["ifindex"]
+
+    # Bump, so that we don't try to use the same ifindex even before the
+    # result of previous link add is visible. Bump by two, because a veth
+    # pair might be created.
+    context.ifindex = context.ifindex + 2
+
+    assert context.command_code(f"ip {namespace} link add index {context.ifindex} {name} type {typ} {options}", shell=True) == 0
+
+
+@step(u'Add namespace "{name}"')
+@step(u'Add namespace "{name}" with options "{options}"')
+def add_namespace(context, name, options=""):
+    context.command_code(f"ip netns add {name} {options}")
+    context.cext.cleanup_add_namespace(name, teardown=False)

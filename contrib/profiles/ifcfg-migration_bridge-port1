@@ -1,0 +1,8 @@
+TYPE=Ethernet
+MTU=9000
+BRIDGE_PORT_VLANS=4000-4010
+NAME=migration_bridge-port1
+UUID=810822ce-db76-4e46-95b0-9308c7148705
+DEVICE=eth7
+ONBOOT=no
+BRIDGE=nm-bridge

@@ -12,6 +12,8 @@
       .btn-outline-success {background-color:rgba(25, 135, 84, 0.3);}
       .btn-outline-primary {background-color:rgba(13, 110, 253, 0.3);}
       .bg-warning-semi {background-color:#ffedb8;}
+      .badge.text-danger:hover {filter:brightness(75%) sepia(60%) hue-rotate(-50deg);}
+      a.badge {text-decoration:none;}
       .btn .badge {top:0;}
       .sort {cursor:pointer;}
     </style>
@@ -53,12 +55,13 @@
 
   var no_search = false;
   var load_all = false;
-  var date_fmt_options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric', hour:'numeric', minute:'2-digit', second:'2-digit' };
+  var date_fmt_options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric', hour:'numeric', minute:'2-digit', second:'2-digit'};
 
 
   var nav_buttons = {
     "Builds": "",
     "Failures": "build:",
+    "Last failures": "build:-1",
     "Tests": "tests:",
     "Tags": "tags",
   };
@@ -213,8 +216,8 @@
       $('#' + project.project + " img").hide();
       $('#' + project.project + " #error").hide();
       $('#' + project.project + " #loader").show();
-      $(table).append('<thead id="thead-' + project.project + '"></thead>');
-      $(table).append('<tbody id="tbody-' + project.project + '"></tbody>');
+      $(table).append('<thead id="thead-' + project.id + '"></thead>');
+      $(table).append('<tbody id="tbody-' + project.id + '"></tbody>');
       var url = "cache/" + project.project + "-";
       if("tags" in state) {
         url += "tags"
@@ -274,7 +277,7 @@
               build.date = build_date(build);
               build.duration = build_duration(build);
               builds[project.project].push(build);
-              process_failures(build, state);
+              process_failures(build);
             });
             failures[project.project].forEach(function (f) {f.num = f.builds.length;});
             var build_cmp = cmp("id", 1);
@@ -291,7 +294,7 @@
           stats[project.project] = data["py/tuple"][1];
 
           queue[project.project] = false;
-          $('#' + project.project).replaceWith(get_project_button(project));
+          $('#' + project.id).replaceWith(get_project_button(project));
           if(!("project" in state) || state.project == project.project) {
             if("tests" in state) {
               show_tests(project);
@@ -312,8 +315,8 @@
   }
 
   function show_builds(project) {
-    var tbody = $('#tbody-' + project.project);
-    var thead = $('#thead-' + project.project);
+    var tbody = $('#tbody-' + project.id);
+    var thead = $('#thead-' + project.id);
     var head_line = $('<th colspan="6" class="position-sticky" style="top:0;background:white;box-shadow: inset 0px -1px">' + project.os + ": " + project.name + '</th>');
     var btns = get_nav_buttons(project);
     btns = $(btns).wrap('<span style="float:right"></span>').parent();
@@ -328,6 +331,7 @@
           return;
         }
       }
+      console.log(build);
       var failure_num = Object.keys(build.failures).length;
       var tr = $("<tr></tr>");
       var cls = "";
@@ -350,7 +354,7 @@
       if(build.status != "RUNNING") {
         var td=$('<td style="text-align:center"></td>');
         $(td).append('<span class="text-success">' + build.tests_passed + ' </span>');
-        $(td).append('<span class="text-danger">' + build.tests_failed + ' </span>');
+        $(td).append('<a class="text-danger" href="#project:' + project.project + ';build:' + build.id + '">' + build.tests_failed + ' </a>');
         $(td).append('<span class="text-secondary">' + build.tests_skipped + ' </span>');
         $(tr).append(td);
       }
@@ -373,8 +377,8 @@
   }
 
   function show_failures(project) {
-    var tbody = $('#tbody-' + project.project);
-    var thead = $('#thead-' + project.project);
+    var tbody = $('#tbody-' + project.id);
+    var thead = $('#thead-' + project.id);
     var head_line = $('<th colspan="6" class="position-sticky" style="top:0;background:white;box-shadow: inset 0px -1px">' + project.os + ": " + project.name + '</th>');
     var btns = get_nav_buttons(project);
     btns = $(btns).wrap('<span style="float:right"></span>').parent();
@@ -382,9 +386,21 @@
     head_line = $(head_line).wrap("<tr></tr>").parent();
     $(thead).append(head_line);
 
+    var build_id = state.build;
+    if (!isNaN(build_id) && build_id < 0) {
+      var max_build = 0;
+      builds[project.project].forEach(function (build) {
+          if (build.id > max_build) {max_build = build.id;}
+      });
+      build_id = max_build+build_id - stats[project.project].running + 1;
+    }
+
     failures[project.project].forEach(function (failure) {
-      if (!isNaN(state.build)) {
-        if(failure_builds[project.project][failure.name].indexOf(state.build) == -1) { return; }
+      if (!isNaN(build_id)) {
+         if(failure_builds[project.project][failure.name].indexOf(build_id) == -1) { return; }
+      }
+      if(state.no_html) {
+        if(!no_html_fail(project.project, failure)) {return; }
       }
       if (state.search) {
         if (failure.name.indexOf(state.search) == -1) {
@@ -401,14 +417,14 @@
       $(tr).append($('<td style="text-align:left">' + failure_search + "</td>"));
       $(tr).append($('<td style="text-align:center" class="' + cls + '">' + failure.last + "</td>"));
       $(tr).append($('<td style="text-align:center">' + failure.num + "</td>"));
-      $(tr).append($('<td style="text-align:left">' + format_failure_builds(failure, project.project, state) + "</td>"));
+      $(tr).append($('<td style="text-align:left">' + format_failure_builds(failure, project.project, build_id) + "</td>"));
       $(tbody).append(tr);
     });
   }
 
   function show_tests(project) {
-    var tbody = $('#tbody-' + project.project);
-    var thead = $('#thead-' + project.project);
+    var tbody = $('#tbody-' + project.id);
+    var thead = $('#thead-' + project.id);
     var head_line = $('<th colspan="7" class="position-sticky" style="top:0;background:white;box-shadow: inset 0px -1px">' + project.os + ": " + project.name + '</th>');
     var btns = get_nav_buttons(project);
     btns = $(btns).wrap('<span style="float:right"></span>').parent();
@@ -440,8 +456,8 @@
   }
 
   function show_tags(project) {
-    var tbody = $('#tbody-' + project.project);
-    var thead = $('#thead-' + project.project);
+    var tbody = $('#tbody-' + project.id);
+    var thead = $('#thead-' + project.id);
     var head_line = $('<th colspan="5" class="position-sticky" style="top:0;background:white;box-shadow: inset 0px -1px">' + project.os + ": " + project.name + '</th>');
     var btns = get_nav_buttons(project);
     btns = $(btns).wrap('<span style="float:right"></span>').parent();
@@ -495,12 +511,12 @@
     return tb;
   }
 
-  function format_failure_builds(failure, project, state) {
+  function format_failure_builds(failure, project, filter_build_id) {
     var res = "";
     var fb = failure_builds[project][failure.name];
     fb.sort(function(b1, b2) { if(b1 < b2) return 1; if(b1 > b2) return -1; return 0; });
     fb.forEach(function (build_id) {
-      if(build_id == state.build) {
+      if(build_id == filter_build_id) {
         res += "<strong>"
       }
       if (("json://" + build_id) in failure.artifact_urls) {
@@ -509,7 +525,7 @@
       else {
         res += '<span title="No report">' + build_id + "</span> ";
       }
-      if(build_id == state.build) {
+      if(build_id == filter_build_id) {
         res += "</strong>"
       }
     });
@@ -518,7 +534,7 @@
 
   function get_project_button(project, status) {
     var d = $('<div class="d-flex align-items-start"></div>');
-    $(d).attr("id", project.project);
+    $(d).attr("id", project.id);
     $(d).append('<span id="loader" class="spinner-border spinner-border-sm p-0 m-0" style="display:none; height:24px; min-width:24px;" role="status"></span>');
     if(project.project in stats) {
       $(d).append('<img style="height:24px; width:24px" class="p-0 m-0" src="' + health_img[stats[project.project].health] + '"/>');
@@ -530,7 +546,7 @@
     var last_stats = "";
     if(project.project in stats) {
       last_stats += '<span class="badge p-1 text-success bg-light border border-success">' + stats[project.project].last_pass + '</span>';
-      last_stats += '<span class="badge p-1 text-danger bg-light border border-danger">' + stats[project.project].last_fail + '</span>';
+      last_stats += '<a class="badge p-1 text-danger bg-light border border-danger" href="#project:' + project.project + ';build:-1">' + stats[project.project].last_fail + '</a>';
       last_stats += '<span class="badge p-1 text-secondary bg-light border border-secondary">' + stats[project.project].last_skip + '</span>';
     }
 
@@ -640,6 +656,9 @@
       }
       if (e == "preserve_search") {
         state["preserve_search"] = true;
+      }
+      if (e == "no_html") {
+        state["no_html"] = true;
       }
     });
   }
@@ -756,6 +775,42 @@
     $('#s').on("click", do_search);
     $("#x").on("click", function() {replace_search("");});
   });
+
+  // Functions not called directly, but might be handy in browser console
+
+  function non_html_failures() {
+    var non_html_failures = {};
+    projects.forEach(function (project) {
+      var project_failures = failures[project.project];
+      for(var i = 0; i<project_failures.length; i++) {
+        var failure = project_failures[i];
+        failure_builds[project.project][failure.name].forEach(function (build_id) {
+          if (! (("json://" + build_id) in failure.artifact_urls)) {
+            var pr = {};
+            if(non_html_failures.hasOwnProperty(project.project)) {
+              pr = non_html_failures[project.project];
+            }
+            var b = [];
+            if(pr.hasOwnProperty(failure.name)) {
+              b = pr[failure.name];
+            }
+            b.push(build_id);
+            pr[failure.name] = b;
+            non_html_failures[project.project] = pr;
+          }
+        });
+      }
+    });
+    return non_html_failures;
+  }
+
+  function no_html_fail(project, failure) {
+      var found = false;
+      failure_builds[project][failure.name].forEach(function (build_id) {
+          if (! (("json://" + build_id) in failure.artifact_urls)) { found = true; }
+      });
+      return found;
+  }
 
   </script>
 </html>
