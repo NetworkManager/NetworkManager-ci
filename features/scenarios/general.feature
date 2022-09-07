@@ -100,7 +100,8 @@ Feature: nmcli - general
     Scenario: nmcli - general - pull hostname from DHCP
     * Prepare simulated test "testG" device
     * Execute "hostnamectl set-hostname """
-    * Execute "hostnamectl set-hostname --transient localhost.localdomain && sleep 1"
+    * Execute "hostnamectl set-hostname --transient localhost.localdomain"
+    * Wait for "1" seconds
     * Add "ethernet" connection named "con_general" for device "testG" with options "autoconnect no"
     When "localhost|fedora" is visible with command "hostnamectl --transient" in "60" seconds
     * Bring up connection "con_general"
@@ -123,7 +124,8 @@ Feature: nmcli - general
     # Note/3: --dhcp-option=12 is to prevent NM from sending a hostname option
     * Prepare simulated test "testG" device with "172.25.15" ipv4 and daemon options "--dhcp-option=12 --dhcp-host=00:11:22:33:44:55,172.25.15.1,foo-bar"
     * Execute "hostnamectl set-hostname """
-    * Execute "hostnamectl set-hostname --transient localhost.localdomain && sleep 1"
+    * Execute "hostnamectl set-hostname --transient localhost.localdomain"
+    * Wait for "1" seconds
     * Add "ethernet" connection named "con_general" for device "testG" with options
           """
           autoconnect no
@@ -159,7 +161,8 @@ Feature: nmcli - general
     * Prepare simulated test "testG" device with "172.25.15" ipv4 and daemon options "--dhcp-option=12 --dhcp-host=00:11:22:33:44:55,172.25.15.1,foo-bar"
     * Execute "ip netns exec testG_ns kill -SIGSTOP $(cat /tmp/testG_ns.pid)"
     * Execute "hostnamectl set-hostname """
-    * Execute "hostnamectl set-hostname --transient localhost.localdomain && sleep 1"
+    * Execute "hostnamectl set-hostname --transient localhost.localdomain"
+    * Wait for "1" seconds
     * Add "ethernet" connection named "con_general" for device "testG" with options "autoconnect no ipv4.method auto"
     * Add "ethernet" connection named "con_general2" for device "testX6" with options "ipv6.method auto"
     * Modify connection "con_general" changing options "ipv4.address 172.25.13.1/30 ethernet.cloned-mac-address 00:11:22:33:44:55"
@@ -181,7 +184,8 @@ Feature: nmcli - general
     * Prepare simulated test "testG" device with "192.168.97" ipv4 and daemon options "--dhcp-option=3 --dhcp-host=00:11:22:33:44:55,192.168.97.13,foo"
     * Prepare simulated test "testH" device with "192.168.98" ipv4 and daemon options "--dhcp-option=3 --dhcp-host=00:00:11:00:00:11,192.168.98.11,bar"
     * Execute "hostnamectl set-hostname """
-    * Execute "hostnamectl set-hostname --transient localhost.localdomain && sleep 1"
+    * Execute "hostnamectl set-hostname --transient localhost.localdomain"
+    * Wait for "1" seconds
     * Add "ethernet" connection named "con_general" for device "testG" with options
           """
           autoconnect no
@@ -222,7 +226,8 @@ Feature: nmcli - general
     * Restart NM
     * Prepare simulated test "testG" device
     * Execute "hostnamectl set-hostname """
-    * Execute "hostnamectl set-hostname --transient localhost.localdomain && sleep 1"
+    * Execute "hostnamectl set-hostname --transient localhost.localdomain"
+    * Wait for "1" seconds
     * Add "ethernet" connection named "con_general" for device "testG" with options "autoconnect no"
     When "localhost|fedora" is visible with command "hostnamectl --transient" in "60" seconds
     * Bring up connection "con_general"
@@ -239,7 +244,8 @@ Feature: nmcli - general
     * Restart NM
     * Prepare simulated test "testG" device
     * Execute "hostnamectl set-hostname """
-    * Execute "hostnamectl set-hostname --transient localhost.localdomain && sleep 1"
+    * Execute "hostnamectl set-hostname --transient localhost.localdomain"
+    * Wait for "1" seconds
     * Add "ethernet" connection named "con_general" for device "testG" with options "autoconnect no"
     When "localhost|fedora" is visible with command "hostnamectl --transient" in "60" seconds
     * Bring up connection "con_general"
@@ -254,7 +260,8 @@ Feature: nmcli - general
     Scenario: nmcli - general - pull hostname from DHCP - no gw - no need for it
     * Prepare simulated test "testG" device
     * Execute "hostnamectl set-hostname """
-    * Execute "hostnamectl set-hostname --transient localhost.localdomain && sleep 1"
+    * Execute "hostnamectl set-hostname --transient localhost.localdomain"
+    * Wait for "1" seconds
     * Add "ethernet" connection named "con_general" for device "testG" with options
           """
           autoconnect no
@@ -277,7 +284,8 @@ Feature: nmcli - general
     * Restart NM
     * Prepare simulated test "testG" device
     * Execute "hostnamectl set-hostname """
-    * Execute "hostnamectl set-hostname --transient localhost.localdomain && sleep 1"
+    * Execute "hostnamectl set-hostname --transient localhost.localdomain"
+    * Wait for "1" seconds
     * Add "ethernet" connection named "con_general" for device "testG" with options "autoconnect no"
     When "localhost|fedora" is visible with command "hostnamectl --transient" in "60" seconds
     * Bring up connection "con_general"
@@ -295,7 +303,8 @@ Feature: nmcli - general
     * Restart NM
     * Prepare simulated test "testG" device
     * Execute "hostnamectl set-hostname """
-    * Execute "hostnamectl set-hostname --transient localhost.localdomain && sleep 1"
+    * Execute "hostnamectl set-hostname --transient localhost.localdomain"
+    * Wait for "1" seconds
     * Add "ethernet" connection named "con_general" for device "testG" with options "autoconnect no"
     When "localhost|fedora" is visible with command "hostnamectl --transient" in "60" seconds
     * Bring up connection "con_general"
@@ -1291,7 +1300,8 @@ Feature: nmcli - general
     Scenario: NM - general - wait-online - for both ipv4 and ipv6
     * Prepare simulated test "testG" device
     * Execute "rm -rf /tmp/testG_ns.lease"
-    * Execute "ip netns exec testG_ns pkill -SIGSTOP -F /tmp/testG_ns.pid && sleep 1"
+    * Execute "ip netns exec testG_ns pkill -SIGSTOP -F /tmp/testG_ns.pid"
+    * Wait for "1" seconds
     * Add "ethernet" connection named "con_general" for device "testG" with options "ipv4.may-fail no ipv6.may-fail no"
     # Do a random wait between 0s and 3s to delay DHCP server a bit
     * Execute "sleep $(echo $(shuf -i 0-3 -n 1)) && ip netns exec testG_ns pkill -SIGCONT -F /tmp/testG_ns.pid" without waiting for process to finish
@@ -1516,7 +1526,8 @@ Feature: nmcli - general
     * "connected:con_general2" is visible with command "nmcli -t -f STATE,CONNECTION device" in "50" seconds
     # Finish asserts the command exited with 0, thus the network service completed properly
     * Restart NM
-    Then Execute "sleep 3 && systemctl restart network.service"
+    * Wait for "3" seconds
+    Then Execute "systemctl restart network.service"
 
 
     @rhbz1079353
@@ -2112,7 +2123,8 @@ Feature: nmcli - general
           """
     * Prepare simulated test "testG" device
     * Run child "nmcli con up con_general"
-    * Execute "sleep 0.5 && ip link set testG down"
+    * Wait for "0.5" seconds
+    * Execute "ip link set testG down"
     * Wait for "8" seconds
     * Execute "ip link set testG up"
     When "activated" is visible with command "nmcli -g GENERAL.STATE con show con_general" in "45" seconds
@@ -2321,7 +2333,8 @@ Feature: nmcli - general
     @libnm_snapshot_destroy_after_rollback
     Scenario: NM - general - snapshot and destroy checkpoint
     * "Failed" is not visible with command "contrib/gi/libnm_snapshot_checkpoint.py create 5" in "0" seconds
-    Then "Succes" is visible with command "sleep 1; contrib/gi/libnm_snapshot_checkpoint.py destroy --last" in "0" seconds
+    * Wait for "1" seconds
+    Then "Succes" is visible with command "contrib/gi/libnm_snapshot_checkpoint.py destroy --last" in "0" seconds
     Then "Failed" is visible with command "CP=$(contrib/gi/libnm_snapshot_checkpoint.py create 5); sleep 7; contrib/gi/libnm_snapshot_checkpoint.py destroy $CP" in "0" seconds
 
 
