@@ -188,7 +188,7 @@ Feature: VLAN TUI tests
     * Choose to "Activate a connection" from main screen
     * Select connection "eth1.99" in the list
     * Choose to "<Deactivate>" a connection
-    * Wait for at least "3" seconds
+    * Wait for "3" seconds
     Then "inet 169.254" is not visible with command "ip a s eth1.99"
     Then "eth1.99" is not visible with command "nmcli device"
     Then "eth1.99" is visible with command "nmcli connection"
@@ -207,7 +207,7 @@ Feature: VLAN TUI tests
     * Choose to "Activate a connection" from main screen
     * Select connection "eth1.99" in the list
     * Choose to "<Deactivate>" a connection
-    * Wait for at least "3" seconds
+    * Wait for "3" seconds
     Then "inet 169.254" is not visible with command "ip a s eth1.99"
     Then "eth1.99" is not visible with command "nmcli device"
     Then "eth1.99" is visible with command "nmcli connection"
@@ -230,7 +230,7 @@ Feature: VLAN TUI tests
     * "eth1.99" is visible with command "nmcli device"
     * "VID: 99" is visible with command "cat /proc/net/vlan/eth1.99"
     * Choose to "<Deactivate>" a connection
-    * Wait for at least "3" seconds
+    * Wait for "3" seconds
     * Press "UPARROW" key
     * Select connection "vlan" in the list
     * Choose to "<Activate>" a connection

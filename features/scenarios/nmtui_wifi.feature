@@ -37,7 +37,7 @@ Feature: WIFI TUI tests
     * Choose to "Activate a connection" from main screen
     * Select connection "qe-wpa1-psk" in the list
     * Choose to "<Activate>" a connection
-    * Wait for at least "2" seconds
+    * Wait for "2" seconds
     * ".*Authentication required.*" is visible on screen
     * Set current field to "over the river and through the woods"
     * Press "ENTER" key
@@ -51,7 +51,7 @@ Feature: WIFI TUI tests
     * Choose to "Activate a connection" from main screen
     * Select connection "qe-wpa2-psk" in the list
     * Choose to "<Activate>" a connection
-    * Wait for at least "2" seconds
+    * Wait for "2" seconds
     * ".*Authentication required.*" is visible on screen
     * Set current field to "over the river and through the woods"
     * Press "ENTER" key
@@ -65,7 +65,7 @@ Feature: WIFI TUI tests
     * Choose to "Activate a connection" from main screen
     * Select connection "qe-wep " in the list
     * Choose to "<Activate>" a connection
-    * Wait for at least "2" seconds
+    * Wait for "2" seconds
     * ".*Authentication required.*" is visible on screen
     * Set current field to "74657374696E67313233343536"
     * Press "ENTER" key
@@ -79,7 +79,7 @@ Feature: WIFI TUI tests
     * Choose to "Activate a connection" from main screen
     * Select connection "qe-wep " in the list
     * Choose to "<Activate>" a connection
-    * Wait for at least "2" seconds
+    * Wait for "2" seconds
     * ".*Authentication required.*" is visible on screen
     * Set current field to "testing123456"
     * Press "ENTER" key
@@ -93,7 +93,7 @@ Feature: WIFI TUI tests
     * Choose to "Activate a connection" from main screen
     * Select connection "qe-wep " in the list
     * Choose to "<Activate>" a connection
-    * Wait for at least "2" seconds
+    * Wait for "2" seconds
     * ".*Authentication required.*" is visible on screen
     * Set current field to "testing123456"
     * Press "ENTER" key
@@ -185,13 +185,13 @@ Feature: WIFI TUI tests
     * Set "Device" field to "wlan0"
     * Set "SSID" field to "qe-open"
     * Confirm the connection settings
-    * Wait for at least "2" seconds
+    * Wait for "2" seconds
     * "wifi1" is visible with command "nmcli connection"
     * "wifi1" is visible with command "nmcli device"
     * Select connection "wifi1" in the list
     * Choose to "<Delete>" a connection
     * Press "Delete" button in the dialog
-    * Wait for at least "3" seconds
+    * Wait for "3" seconds
     Then "wifi1" is not visible with command "nmcli connection"
     Then "wifi1" is not visible with command "nmcli device"
     Then "inet 10." is not visible with command "ip a s wlan0"
@@ -205,14 +205,14 @@ Feature: WIFI TUI tests
     * Set "Device" field to "wlan0"
     * Set "SSID" field to "qe-open"
     * Confirm the connection settings
-    * Wait for at least "2" seconds
+    * Wait for "2" seconds
     * Execute "nmcli connection down wifi1"
     * "wifi1" is visible with command "nmcli connection"
     * "wifi1" is not visible with command "nmcli device"
     * Select connection "wifi1" in the list
     * Choose to "<Delete>" a connection
     * Press "Delete" button in the dialog
-    * Wait for at least "3" seconds
+    * Wait for "3" seconds
     Then "wifi1" is not visible with command "nmcli connection"
     Then "wifi1" is not visible with command "nmcli device"
     Then "inet 10." is not visible with command "ip a s wlan0"
@@ -287,7 +287,7 @@ Feature: WIFI TUI tests
     * Set "SSID" field to "qe-open"
     * Set "BSSID" field to "AA:AA:BB:BB:CC:CC"
     * Confirm the connection settings
-    * Wait for at least "5" seconds
+    * Wait for "5" seconds
     Then "wlan0\s+wifi\s+disconnected" is visible with command "nmcli device"
     Then "BSSID=AA:AA:BB:BB:CC:CC" is visible with command "cat /etc/sysconfig/network-scripts/ifcfg-wifi1"
     Then "qe-open" is not visible with command "iw dev wlan0 info"
@@ -320,7 +320,7 @@ Feature: WIFI TUI tests
     * Set "SSID" field to "qe-open"
     * Set "Cloned MAC address" field to "f0:de:aa:fb:bb:cc"
     * Confirm the connection settings
-    * Wait for at least "5" seconds
+    * Wait for "5" seconds
     Then "ether f0:de:aa:fb:bb:cc" is visible with command "ip a s wlan0"
 
 
@@ -457,7 +457,7 @@ Feature: WIFI TUI tests
     * Choose to "Activate a connection" from main screen
     * Select connection "qe-wpa2-psk" in the list
     * Choose to "<Activate>" a connection
-    * Wait for at least "2" seconds
+    * Wait for "2" seconds
     * Press "<Cancel>" button in the password dialog
     * Execute "sleep 1"
     * ".*Could not activate connection.*Activation failed.*" is visible on screen

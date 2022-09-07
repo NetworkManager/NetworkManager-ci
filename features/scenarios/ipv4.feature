@@ -2281,7 +2281,7 @@ Feature: nmcli: ipv4
     * Execute "ip netns exec testX4_ns kill -SIGSTOP $(cat /tmp/testX4_ns.pid)"
     When "192.168" is not visible with command "ip a s testX4" in "140" seconds
     * Execute "ip netns exec testX4_ns ip link set testX4p up"
-    * Wait for at least "10" seconds
+    * Wait for "10" seconds
     * Execute "ip netns exec testX4_ns kill -SIGCONT $(cat /tmp/testX4_ns.pid)"
     Then "IP4.ADDRESS" is visible with command "nmcli -f ip4.address device show testX4" in "60" seconds
 

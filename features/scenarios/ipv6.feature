@@ -1311,13 +1311,13 @@
     @persistent_default_ipv6_gw
     Scenario: NM - ipv6 - persistent default ipv6 gw
     * Add "ethernet" connection named "con_ipv6" for device "testX6"
-    * Wait for at least "3" seconds
+    * Wait for "3" seconds
     * Stop NM
     * Prepare simulated test "testX6" device
     * Execute "sysctl net.ipv6.conf.testX6.accept_ra_defrtr=1"
     * Execute "sysctl net.ipv6.conf.testX6.accept_ra_pinfo=1"
     * Execute "ifup testX6"
-    * Wait for at least "20" seconds
+    * Wait for "20" seconds
     When "default" is visible with command "ip -6 r |grep testX6" in "20" seconds
     And "default" is visible with command "ip -6 r |grep testX6 |grep expire" in "45" seconds
     * Restart NM
@@ -1333,14 +1333,14 @@
     @persistent_ipv6_routes
     Scenario: NM - ipv6 - persistent ipv6 routes
     * Add "ethernet" connection named "con_ipv6" for device "testX6" with options "ipv4.method disabled"
-    * Wait for at least "3" seconds
+    * Wait for "3" seconds
     * Stop NM
     * Execute "rm -rf /var/run/NetworkManager"
     * Prepare simulated test "testX6" device
     * Execute "sysctl net.ipv6.conf.testX6.accept_ra_defrtr=1"
     * Execute "sysctl net.ipv6.conf.testX6.accept_ra_pinfo=1"
     * Execute "ifup testX6"
-    * Wait for at least "10" seconds
+    * Wait for "10" seconds
     When "fe80" is visible with command "ip -6 r |grep testX6" in "45" seconds
     And "default" is visible with command "ip -6 r |grep testX6 |grep expire" in "20" seconds
     And "2620:dead:beaf::\/64" is visible with command "ip -6 r"
@@ -1581,7 +1581,7 @@
     Scenario: NM - ipv6 - keep external addresses
     * Create "dummy" device named "dummy0"
     * Execute "ip link set dev dummy0 up"
-    * Wait for at least "1" seconds
+    * Wait for "1" seconds
     * Execute "for i in $(seq 3000); do ip addr add 2017::$i/64 dev dummy0; done"
     When "3000" is visible with command "ip addr show dev dummy0 | grep 'inet6 2017::' -c" in "2" seconds
     Then "3000" is visible with command "ip addr show dev dummy0 | grep 'inet6 2017::' -c" for full "6" seconds
@@ -1775,7 +1775,7 @@
     When "0" is visible with command "cat /proc/sys/net/ipv6/conf/testX6/disable_ipv6"
     * Rename device "testX6" to "festY"
     * Execute "dhclient -4 -pf /tmp/dhclient_custom.pid festY" without waiting for process to finish
-    * Wait for at least "45" seconds
+    * Wait for "45" seconds
     * Execute "pkill -F /tmp/dhclient_custom.pid"
     When "0" is visible with command "cat /proc/sys/net/ipv6/conf/festY/disable_ipv6"
     * Rename device "festY" to "testX6"

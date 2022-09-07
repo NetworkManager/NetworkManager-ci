@@ -164,7 +164,7 @@ Feature: General TUI tests
     * ".*team-slave-eth2.*" is not visible on screen
     # Removing master via CLI does not affect the slaves (opposed to TUI)
     * Execute "nmcli connection delete team0"
-    * Wait for at least "3" seconds
+    * Wait for "3" seconds
     Then ".*team-slave-eth1.*" is visible on screen
     Then ".*team-slave-eth2.*" is visible on screen
 

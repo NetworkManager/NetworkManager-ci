@@ -185,7 +185,7 @@
           autoconnect no
           """
     * Bring "up" connection "gre1"
-    * Wait for at least "2" seconds
+    * Wait for "2" seconds
     Then Ping6 "fe80:deaf::beef%ip6gre1"
 
 
