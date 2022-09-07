@@ -762,7 +762,7 @@
     * Run child "sudo tshark -i eth2 -f 'port 546' -V -x > /tmp/tshark.log"
     * Bring "up" connection "con_ipv6"
     When "empty" is not visible with command "file /tmp/tshark.log" in "150" seconds
-    * Execute "sleep 5"
+    * Wait for "5" seconds
     * Execute "sudo pkill tshark"
     Then "r.cx" is not visible with command "cat /tmp/tshark.log" in "45" seconds
 
@@ -796,7 +796,7 @@
           ipv4.method disabled
           ipv6.ip6-privacy 2
           """
-    * Execute "sleep 2"
+    * Wait for "2" seconds
     * Modify connection "con_ipv6" changing options "ipv6.ip6-privacy 0"
     * Bring "up" connection "con_ipv6"
     When "2620" is visible with command "ip a s eth10" in "45" seconds
@@ -900,17 +900,17 @@
     * Execute "nmcli --wait 0 c up ethernet-test11"
     When "ethernet-test10" is visible with command "nmcli con sh -a"
     When "ethernet-test11" is visible with command "nmcli con sh -a"
-    * Execute "sleep 2"
+    * Wait for "2" seconds
     * Send lifetime scapy packet with lifetimes "300" "140"
-    * Execute "sleep 2"
+    * Wait for "2" seconds
     * Send lifetime scapy packet with lifetimes "20" "10"
-    * Execute "sleep 2"
+    * Wait for "2" seconds
     Then "IPv6" lifetimes are slightly smaller than "300" and "10" for device "test11"
-    * Execute "sleep 2"
+    * Wait for "2" seconds
     * Send lifetime scapy packet with lifetimes "7600" "7400"
-    * Execute "sleep 2"
+    * Wait for "2" seconds
     * Send lifetime scapy packet with lifetimes "20" "10"
-    * Execute "sleep 2"
+    * Wait for "2" seconds
     # there is 7200 here (2h), because of RFC 4862, section-5.5.3.e).3.
     Then "IPv6" lifetimes are slightly smaller than "7200" and "10" for device "test11"
 
@@ -929,7 +929,7 @@
     * Execute "nmcli --wait 0 c up ethernet-test11"
     When "ethernet-test10" is visible with command "nmcli con sh -a"
     When "ethernet-test11" is visible with command "nmcli con sh -a"
-    * Execute "sleep 2"
+    * Wait for "2" seconds
     * Send lifetime scapy packet
     Then "IPv6" lifetimes are slightly smaller than "3600" and "1800" for device "test11"
 
@@ -948,7 +948,7 @@
     * Execute "nmcli --wait 0 c up ethernet-test11"
     When "ethernet-test10" is visible with command "nmcli con sh -a"
     When "ethernet-test11" is visible with command "nmcli con sh -a"
-    * Execute "sleep 2"
+    * Wait for "2" seconds
     * Send lifetime scapy packet with "250"
     Then "valid_lft forever preferred_lft forever" is visible with command "ip a s test11"
 
@@ -967,7 +967,7 @@
     * Execute "nmcli --wait 0 c up ethernet-test11"
     When "ethernet-test10" is visible with command "nmcli con sh -a"
     When "ethernet-test11" is visible with command "nmcli con sh -a"
-    * Execute "sleep 2"
+    * Wait for "2" seconds
     * Send lifetime scapy packet with "255"
     Then "IPv6" lifetimes are slightly smaller than "3605" and "1805" for device "test11"
 
@@ -986,7 +986,7 @@
     * Execute "nmcli --wait 0 c up ethernet-test11"
     When "ethernet-test10" is visible with command "nmcli con sh -a"
     When "ethernet-test11" is visible with command "nmcli con sh -a"
-    * Execute "sleep 2"
+    * Wait for "2" seconds
     * Send lifetime scapy packet from "ff02::1"
     Then "valid_lft forever preferred_lft forever" is visible with command "ip a s test11"
 
@@ -1013,7 +1013,7 @@
     * Execute "nmcli --wait 0 c up ethernet-test11"
     When "ethernet-test10" is visible with command "nmcli con sh -a"
     When "ethernet-test11" is visible with command "nmcli con sh -a"
-    * Execute "sleep 2"
+    * Wait for "2" seconds
     * Send lifetime scapy packet to dst "dead:beef::"
     * Send lifetime scapy packet to dst "cafe:cafe::"
     When "1:\s+inet6 cafe:cafe::" is visible with command "ip a show dev test11 | grep inet6 | grep -v temporary | grep -n ."
@@ -1065,7 +1065,7 @@
     * Execute "nmcli --wait 0 c up ethernet-test11"
     When "ethernet-test10" is visible with command "nmcli con sh -a"
     When "ethernet-test11" is visible with command "nmcli con sh -a"
-    * Execute "sleep 2"
+    * Wait for "2" seconds
     * Send lifetime scapy packet to dst "dead:beef::"
     * Send lifetime scapy packet to dst "cafe:cafe::"
     When "1:\s+inet6 dead:beef::" is visible with command "ip a show dev test11 | grep inet6 | grep -v temporary | grep -n ."
@@ -1468,7 +1468,7 @@
     * Execute "nmcli d reapply testX6"
     Then "ff00" is visible with command "ip -6 route show table local dev testX6"
     * Execute "echo 'will sleep for 3 minutes'"
-    * Execute "sleep 180"
+    * Wait for "180" seconds
     Then "fd01" is visible with command "ip -6 addr show dev testX6"
 
 
@@ -1486,7 +1486,7 @@
     # reapply scenario, 1-2 temporary addresses may be present for DHCP
     * Modify connection "con_ipv6" changing options "ipv6.ip6-privacy prefer-temp-addr"
     When Execute "nmcli d reapply testX6"
-    * Execute "sleep 2"
+    * Wait for "2" seconds
     Then "At least" "1" and "at most" "2" lines with pattern "inet6.*temporary" are visible with command "ip -6 a show testX6" in "2" seconds
     # no (temporary) address should appear after connection is brought down
     When Bring down connection "con_ipv6"

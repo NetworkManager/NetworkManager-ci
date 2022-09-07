@@ -40,7 +40,7 @@ Feature: nmcli - wifi
     Given "dynwep" is visible with command "nmcli -f SSID device wifi list" in "60" seconds
     * Add "wifi" connection named "wifi" for device "wlan0" with options "autoconnect no ssid dynwep"
     * Execute "nmcli con modify wifi 802-11-wireless-security.key-mgmt ieee8021x 802-1x.eap tls 802-1x.identity test 802-1x.ca-cert /tmp/certs/test_user.ca.pem 802-1x.client-cert /tmp/certs/test_user.cert.pem 802-1x.private-key /tmp/certs/test_user.key.enc.pem 802-1x.private-key-password redhat"
-    * Execute "sleep 1"
+    * Wait for "1" seconds
     Then Bring "up" connection "wifi"
 
 
@@ -61,7 +61,7 @@ Feature: nmcli - wifi
           802-1x.phase2-autheap mschapv2
           802-1x.password password
           """
-    * Execute "sleep 1"
+    * Wait for "1" seconds
     Then Bring "up" connection "wifi"
 
 
@@ -82,7 +82,7 @@ Feature: nmcli - wifi
           802-1x.phase2-auth gtc
           802-1x.password password
           """
-    * Execute "sleep 1"
+    * Wait for "1" seconds
     Then Bring "up" connection "wifi"
 
 
@@ -93,7 +93,7 @@ Feature: nmcli - wifi
     Given "wpa2-eap" is visible with command "nmcli -f SSID device wifi list" in "90" seconds
     * Cleanup connection "wpa2-eap"
     * Execute "nmcli device wifi connect wpa2-eap password secret123"
-    * Execute "sleep 1"
+    * Wait for "1" seconds
     * Bring "up" connection "wpa2-eap"
     Then "wpa2-eap" is visible with command "iw dev wlan0 link" in "15" seconds
     Then "\*\s+wpa2-eap" is visible with command "nmcli -f IN-USE,SSID device wifi list"
@@ -111,7 +111,7 @@ Feature: nmcli - wifi
           802-11-wireless-security.key-mgmt wpa-psk
           802-11-wireless-security.psk secret123
           """
-    * Execute "sleep 1"
+    * Wait for "1" seconds
     * Bring up connection "wpa2-eap"
     Then "wpa2-eap" is visible with command "iw dev wlan0 link" in "3" seconds
     Then "\*\s+wpa2-eap" is visible with command "nmcli -f IN-USE,SSID device wifi list"
@@ -145,7 +145,7 @@ Feature: nmcli - wifi
     Given "wpa2-eap" is visible with command "nmcli -f SSID device wifi list" in "60" seconds
     * Add "wifi" connection named "wifi" for device "wlan0" with options "autoconnect no ssid wpa2-eap"
     * Execute "nmcli con modify wifi 802-11-wireless-security.key-mgmt wpa-eap 802-1x.eap tls 802-1x.identity test 802-1x.ca-cert /tmp/certs/test_user.ca.pem 802-1x.client-cert 'pkcs11:token=nmci;object=nmclient' 802-1x.client-cert-password-flags 4 802-1x.private-key 'pkcs11:token=nmci;object=nmclient' 802-1x.private-key-password 1234"
-    * Execute "sleep 3"
+    * Wait for "3" seconds
     Then Bring "up" connection "wifi"
 
 
@@ -156,7 +156,7 @@ Feature: nmcli - wifi
     Given "wpa2-eap" is visible with command "nmcli -f SSID device wifi list" in "60" seconds
     * Add "wifi" connection named "wifi" for device "wlan0" with options "autoconnect no ssid wpa2-eap"
     * Execute "nmcli con modify wifi 802-11-wireless-security.key-mgmt wpa-eap 802-1x.eap tls 802-1x.identity test 802-1x.ca-cert /tmp/certs/test_user.ca.pem 802-1x.client-cert 'pkcs11:token=nmci;object=nmclient' 802-1x.client-cert-password-flags 4 802-1x.private-key 'pkcs11:token=nmci;object=nmclient'"
-    * Execute "sleep 3"
+    * Wait for "3" seconds
     * Execute "nmcli con up wifi passwd-file /tmp/pkcs11_passwd-file"
     Then "wlan0:connected:wifi" is visible with command "nmcli -t -f DEVICE,STATE,CONNECTION device" in "20" seconds
 
@@ -168,7 +168,7 @@ Feature: nmcli - wifi
     Given "wpa2-eap" is visible with command "nmcli -f SSID device wifi list" in "60" seconds
     * Add "wifi" connection named "wifi" for device "wlan0" with options "autoconnect no ssid wpa2-eap"
     * Execute "nmcli con modify wifi 802-11-wireless-security.key-mgmt wpa-eap 802-1x.eap tls 802-1x.identity test 802-1x.ca-cert /tmp/certs/test_user.ca.pem 802-1x.client-cert 'pkcs11:token=nmci;object=nmclient' 802-1x.client-cert-password-flags 4 802-1x.private-key 'pkcs11:token=nmci;object=nmclient' 802-1x.private-key-password-flags 2"
-    * Execute "sleep 3"
+    * Wait for "3" seconds
     * Spawn "nmcli -a con up wifi" command
     * Expect "802-1x.identity"
     * Enter in editor
@@ -186,7 +186,7 @@ Feature: nmcli - wifi
     Given "wpa2-eap" is visible with command "nmcli -f SSID device wifi list" in "60" seconds
     * Add "wifi" connection named "wifi" for device "wlan0" with options "autoconnect no ssid wpa2-eap"
     * Execute "nmcli con modify wifi 802-11-wireless-security.key-mgmt wpa-eap 802-1x.eap tls 802-1x.identity test 802-1x.ca-cert /tmp/certs/test_user.ca.pem 802-1x.client-cert 'pkcs11:token=nmci;object=nmclient' 802-1x.client-cert-password-flags 4 802-1x.private-key 'pkcs11:token=nmci;object=nmclient?pin-value=1234' 802-1x.private-key-password-flags 4"
-    * Execute "sleep 3"
+    * Wait for "3" seconds
     Then Bring "up" connection "wifi"
 
 
@@ -197,7 +197,7 @@ Feature: nmcli - wifi
     Given "wpa2-eap" is visible with command "nmcli -f SSID device wifi list" in "60" seconds
     * Add "wifi" connection named "wifi" for device "wlan0" with options "autoconnect no ssid wpa2-eap"
     * Execute "nmcli con modify wifi 802-11-wireless-security.key-mgmt wpa-eap 802-1x.eap tls 802-1x.identity test 802-1x.ca-cert /tmp/certs/test_user.ca.pem 802-1x.client-cert /tmp/certs/test_user.cert.pem 802-1x.private-key /tmp/certs/test_user.key.enc.pem 802-1x.private-key-password redhat"
-    * Execute "sleep 3"
+    * Wait for "3" seconds
     Then Bring "up" connection "wifi"
 
 
@@ -208,7 +208,7 @@ Feature: nmcli - wifi
     Given "wpa2-eap" is visible with command "nmcli -f SSID device wifi list" in "60" seconds
     * Add "wifi" connection named "wifi" for device "wlan0" with options "autoconnect no ssid wpa2-eap"
     * Execute "nmcli con modify wifi 802-11-wireless-security.key-mgmt wpa-eap 802-1x.eap tls 802-1x.identity test 802-1x.ca-cert /tmp/certs/test_user.ca.pem 802-1x.client-cert /tmp/certs/test_user.cert.pem 802-1x.private-key /tmp/certs/test_user.key.enc.pem 802-1x.private-key-password redhat123456"
-    * Execute "sleep 3"
+    * Wait for "3" seconds
     Then Bring up connection "wifi" ignoring error
      And "GENERAL.STATE:activated" is not visible with command "nmcli -f GENERAL.STATE -t connection show id wifi"
 
@@ -221,7 +221,7 @@ Feature: nmcli - wifi
     Given "wpa2-eap" is visible with command "nmcli -f SSID device wifi list" in "60" seconds
     * Add "wifi" connection named "wifi" for device "wlan0" with options "autoconnect no ssid wpa2-eap"
     * Execute "nmcli con modify wifi 802-11-wireless-security.key-mgmt wpa-eap 802-1x.eap tls 802-1x.identity test 802-1x.ca-cert /tmp/certs/test_user.ca.pem 802-1x.client-cert /tmp/certs/test_user.cert.pem 802-1x.private-key /tmp/certs/test_user.key.pem 802-1x.private-key-password-flags 4"
-    * Execute "sleep 3"
+    * Wait for "3" seconds
     Then Bring "up" connection "wifi"
 
 
@@ -242,7 +242,7 @@ Feature: nmcli - wifi
           802-1x.phase2-auth gtc
           802-1x.password password
           """
-    * Execute "sleep 1"
+    * Wait for "1" seconds
     Then Bring "up" connection "wifi"
 
 
@@ -263,7 +263,7 @@ Feature: nmcli - wifi
           802-1x.phase2-auth md5
           802-1x.password password
           """
-    * Execute "sleep 1"
+    * Wait for "1" seconds
     Then Bring "up" connection "wifi"
 
 
@@ -284,7 +284,7 @@ Feature: nmcli - wifi
           802-1x.phase2-auth mschapv2
           802-1x.password password
           """
-    * Execute "sleep 1"
+    * Wait for "1" seconds
     Then Bring "up" connection "wifi"
 
 
@@ -305,7 +305,7 @@ Feature: nmcli - wifi
           802-1x.phase2-auth pap
           802-1x.password password
           """
-    * Execute "sleep 1"
+    * Wait for "1" seconds
     Then Bring "up" connection "wifi"
 
 
@@ -326,7 +326,7 @@ Feature: nmcli - wifi
           802-1x.phase2-auth chap
           802-1x.password password
           """
-    * Execute "sleep 1"
+    * Wait for "1" seconds
     Then Bring "up" connection "wifi"
 
 
@@ -347,7 +347,7 @@ Feature: nmcli - wifi
           802-1x.phase2-auth mschap
           802-1x.password password
           """
-    * Execute "sleep 1"
+    * Wait for "1" seconds
     Then Bring "up" connection "wifi"
 
 
@@ -368,7 +368,7 @@ Feature: nmcli - wifi
           802-1x.phase2-auth mschapv2
           802-1x.password password
           """
-    * Execute "sleep 1"
+    * Wait for "1" seconds
     Then Bring "up" connection "wifi"
 
 
@@ -389,7 +389,7 @@ Feature: nmcli - wifi
           802-1x.phase2-autheap mschapv2
           802-1x.password password
           """
-    * Execute "sleep 1"
+    * Wait for "1" seconds
     Then Bring "up" connection "wifi"
 
 
@@ -410,7 +410,7 @@ Feature: nmcli - wifi
           802-1x.phase2-autheap md5
           802-1x.password password
           """
-    * Execute "sleep 1"
+    * Wait for "1" seconds
     Then Bring "up" connection "wifi"
 
 
@@ -431,7 +431,7 @@ Feature: nmcli - wifi
           802-1x.phase2-autheap gtc
           802-1x.password password
           """
-    * Execute "sleep 1"
+    * Wait for "1" seconds
     Then Bring "up" connection "wifi"
 
 
@@ -503,7 +503,7 @@ Feature: nmcli - wifi
     Given "wpa3-eap" is visible with command "nmcli -f SSID device wifi list" in "60" seconds
     * Add "wifi" connection named "wifi" for device "wlan0" with options "autoconnect no ssid wpa3-eap"
     * Modify connection "wifi" changing options "802-11-wireless-security.key-mgmt wpa-eap-suite-b-192 802-1x.eap tls 802-1x.identity test 802-1x.ca-cert /tmp/certs/test_user.ca.pem 802-1x.client-cert /tmp/certs/test_user.cert.pem 802-1x.private-key /tmp/certs/test_user.key.enc.pem 802-1x.private-key-password redhat"
-    * Execute "sleep 3"
+    * Wait for "3" seconds
     Then Bring "up" connection "wifi"
 
 
@@ -575,7 +575,7 @@ Feature: nmcli - wifi
           802-11-wireless-security.key-mgmt wpa-psk
           802-11-wireless-security.psk Secret123
           """
-    * Execute "sleep 1"
+    * Wait for "1" seconds
     Then Bring up connection "wifi" ignoring error
     And "GENERAL.STATE:activated" is not visible with command "nmcli -f GENERAL.STATE -t connection show id wifi"
     * Modify connection "wifi" changing options "802-11-wireless-security.psk secret123"

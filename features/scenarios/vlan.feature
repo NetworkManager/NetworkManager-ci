@@ -768,7 +768,7 @@ Feature: nmcli - vlan
     * Bring "up" connection "vlan1"
     Then "eth7:connected:vlan1" is visible with command "nmcli -t -f DEVICE,STATE,CONNECTION device" in "20" seconds
     Then "\(connect" is visible with command "nmcli device show eth7.80" in "10" seconds
-    * Execute "sleep 10"
+    * Wait for "10" seconds
     Then "\(connect" is visible with command "nmcli device show eth7.80" in "10" seconds
 
 

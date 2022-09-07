@@ -22,7 +22,7 @@ Feature: nmcli: gsm
     * Bring "up" connection "gsm"
     Then "GENERAL.STATE:.*activated" is visible with command "nmcli con show gsm" in "60" seconds
     # Workaround
-    * Execute "sleep 10"
+    * Wait for "10" seconds
 
      And "default" is visible with command "ip r |grep 700"
      And Ping "8.8.8.8" "7" times
@@ -43,7 +43,7 @@ Feature: nmcli: gsm
     * Dismiss Proxy configuration in editor
     Then "GENERAL.STATE:.*activated" is visible with command "nmcli con show gsm" in "60" seconds
     # Workaround
-    * Execute "sleep 10"
+    * Wait for "10" seconds
 
     And "default" is visible with command "ip r |grep 700"
      * Ping "8.8.8.8" "7" times
@@ -73,7 +73,7 @@ Feature: nmcli: gsm
     Then "gsm.apn:\s+internet" is visible with command "nmcli connection show gsm --show-secrets"
     Then "GENERAL.STATE:.*activated" is visible with command "nmcli con show gsm" in "60" seconds
     # Workaround
-    * Execute "sleep 10"
+    * Wait for "10" seconds
 
     And "default" is visible with command "ip r |grep 700"
     * Ping "8.8.8.8" "7" times
@@ -103,7 +103,7 @@ Feature: nmcli: gsm
     Then "gsm.apn:internet" is visible with command "nmcli -t connection show gsm --show-secrets"
     Then "GENERAL.STATE:.*activated" is visible with command "nmcli con show gsm" in "60" seconds
     # Workaround
-    * Execute "sleep 10"
+    * Wait for "10" seconds
 
     And "default" is visible with command "ip r |grep 700"
     * Ping "8.8.8.8" "7" times
@@ -118,7 +118,7 @@ Feature: nmcli: gsm
      * Bring "down" connection "gsm"
     Then "GENERAL.STATE:.*activated" is not visible with command "nmcli con show gsm" in "20" seconds
     # Workaround
-    * Execute "sleep 10"
+    * Wait for "10" seconds
 
      And "default" is not visible with command "ip r |grep 700"
      And Unable to ping "8.8.8.8"
@@ -132,7 +132,7 @@ Feature: nmcli: gsm
     Then "GENERAL.STATE:.*activated" is visible with command "nmcli con show gsm" in "60" seconds
      And "GENERAL.STATE:.*activated" is visible with command "nmcli con show gsm" for full "60" seconds
     # Workaround
-    * Execute "sleep 10"
+    * Wait for "10" seconds
 
      And "default" is visible with command "ip r |grep 700"
      And Ping "8.8.8.8" "7" times
@@ -167,7 +167,7 @@ Feature: nmcli: gsm
     And "proto .* scope" is visible with command "ip r |grep 700"
     * Execute "nmcli con modify gsm ipv4.route-metric 120"
     * Bring "up" connection "gsm"
-    * Execute "sleep 5"
+    * Wait for "5" seconds
     When "GENERAL.STATE:.*activated" is visible with command "nmcli con show gsm" in "20" seconds
     Then "default" is visible with command "ip r |grep 120" in "20" seconds
     And "proto .* scope" is visible with command "ip r |grep 120"
@@ -233,7 +233,7 @@ Feature: nmcli: gsm
      * Bring "up" connection "gsm"
     Then "GENERAL.STATE:.*activated" is visible with command "nmcli con show gsm" in "60" seconds
     # Workaround
-    * Execute "sleep 10"
+    * Wait for "10" seconds
 
      * Ping "8.8.8.8" "7" times
 

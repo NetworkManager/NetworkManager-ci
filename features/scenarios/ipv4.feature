@@ -960,7 +960,7 @@ Feature: nmcli: ipv4
     * Execute "sudo kill -SIGUSR1 $(pidof NetworkManager)"
     Then Nameserver "8.8.8.8" is set in "45" seconds
     Then Nameserver "8.8.4.4" is set
-    * Execute "sleep 3"
+    * Wait for "3" seconds
     Then Ping "boston.com"
 
 
@@ -1010,7 +1010,7 @@ Feature: nmcli: ipv4
     * Modify connection "con_ipv4" changing options "ipv4.dns-search ''"
     * Bring "up" connection "con_ipv4"
     # Workaround for 2006677
-    * Execute "sleep 1"
+    * Wait for "1" seconds
     Then Domain "google.com" is not set
     Then Unable to ping "maps"
     Then Ping "maps.google.com"
@@ -1562,7 +1562,7 @@ Feature: nmcli: ipv4
     * Add "ethernet" connection named "con_ipv4" for device "testX4" with options "ipv4.may-fail no"
     * Execute "ip netns exec testX4_ns kill -SIGSTOP $(cat /tmp/testX4_ns.pid)"
     When "default" is not visible with command "ip r |grep testX4" in "130" seconds
-    * Execute "sleep 500"
+    * Wait for "500" seconds
     * Execute "ip netns exec testX4_ns kill -SIGCONT $(cat /tmp/testX4_ns.pid)"
     Then "routers = 192.168.99.1" is visible with command "nmcli con show con_ipv4" in "130" seconds
     Then "default via 192.168.99.1 dev testX4" is visible with command "ip r"
@@ -2216,7 +2216,7 @@ Feature: nmcli: ipv4
     * Execute "ip link set dev dummy0 up"
     * Execute "for i in $(seq 20); do for j in $(seq 200); do ip addr add 10.3.$i.$j/16 dev dummy0; done; done"
     When "4000" is visible with command "ip addr show dev dummy0 | grep 'inet 10.3.' -c"
-    * Execute "sleep 6"
+    * Wait for "6" seconds
     Then "4000" is visible with command "ip addr show dev dummy0 | grep 'inet 10.3.' -c"
 
 
@@ -2436,7 +2436,7 @@ Feature: nmcli: ipv4
     * Prepare veth pairs "test1,test2" bridged over "vethbr"
     * Add "ethernet" connection named "tc1" for device "test1" with options "ip4 172.21.1.1/24 ipv6.method ignore"
     * Run child "sudo tshark -l -i test2 arp > /tmp/tshark.log"
-    * Execute "sleep 8"
+    * Wait for "8" seconds
     * Bring "up" connection "tc1"
     Then "ok" is visible with command "[ $(grep -c 'Gratuitous ARP for 172.21.1.1'|ARP Announcement for 172.21.1.1' /tmp/tshark.log) -gt 1 ] && echo ok" in "60" seconds
 
@@ -2453,7 +2453,7 @@ Feature: nmcli: ipv4
     * Bring "down" connection "con_ipv4"
     * Run child "sudo tshark -l -i testX4 udp port 67 > /tmp/tshark.log"
     # Wait for tshark to start
-    * Execute "sleep 10"
+    * Wait for "10" seconds
     * Bring "up" connection "con_ipv4"
     * Note the output of "nmcli -g ip4.address device show testX4" as value "testX4_ip2"
     Then Check noted values "testX4_ip1" and "testX4_ip2" are the same
@@ -2472,7 +2472,7 @@ Feature: nmcli: ipv4
     * Add "ethernet" connection named "con_ipv4" for device "testX4" with options "autoconnect no ipv4.may-fail no"
     * Execute "echo ADDRESS=172.25.1.14 > /var/lib/NetworkManager/internal-$(nmcli -g connection.uuid connection show con_ipv4)-testX4.lease"
     * Run child "sudo tshark -l -i testX4 udp port 67 > /tmp/tshark.log"
-    * Execute "sleep 10"
+    * Wait for "10" seconds
     * Bring "up" connection "con_ipv4"
     Then "192\.168\.99\..." is visible with command "ip a show dev testX4"
     Then "DHCP Request" is visible with command "cat /tmp/tshark.log"
@@ -2491,7 +2491,7 @@ Feature: nmcli: ipv4
     * Add "ethernet" connection named "con_ipv4" for device "testX4" with options "autoconnect no ipv4.may-fail no"
     * Bring "up" connection "con_ipv4"
     When "valid_lft 14[0-9]" is visible with command "ip -4 addr show dev testX4" in "20" seconds
-    * Execute "sleep 10"
+    * Wait for "10" seconds
     Then "valid_lft 14[0-9]" is visible with command "ip -4 addr show dev testX4" in "140" seconds
 
 
@@ -2507,7 +2507,7 @@ Feature: nmcli: ipv4
     * Execute "iptables -A OUTPUT -p udp --dport 67 -j REJECT"
     * Bring "up" connection "con_ipv4"
     When "valid_lft 14[0-9]" is visible with command "ip -4 addr show dev testX4" in "20" seconds
-    * Execute "sleep 10"
+    * Wait for "10" seconds
     Then "valid_lft 14[0-9]" is visible with command "ip -4 addr show dev testX4" in "140" seconds
 
 
@@ -2523,7 +2523,7 @@ Feature: nmcli: ipv4
     * Add "ethernet" connection named "con_ipv4" for device "testX4" with options "autoconnect no ipv4.may-fail no"
     * Bring "up" connection "con_ipv4"
     When "valid_lft 14[0-9]" is visible with command "ip -4 addr show dev testX4" in "20" seconds
-    * Execute "sleep 10"
+    * Wait for "10" seconds
     Then "valid_lft 14[0-9]" is visible with command "ip -4 addr show dev testX4" in "140" seconds
 
 
