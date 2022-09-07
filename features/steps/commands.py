@@ -555,8 +555,7 @@ def find_tailing_journal(context, content):
 
 @step(u'Wait for "{secs}" seconds')
 def wait_for_x_seconds(context, secs):
-    time.sleep(int(secs))
-    assert True
+    time.sleep(float(secs))
 
 
 @step(u'Look for "{content}" in tailed file')
