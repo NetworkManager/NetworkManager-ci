@@ -428,18 +428,6 @@ function wireless_hostapd_check ()
         need_setup=1
     fi
 
-    echo "* Checking crypto"
-    crypto="default"
-    if [ -f /tmp/nm_wifi_supp_legacy_crypto ]; then
-      crypto="legacy"
-    fi
-    if [ $crypto != $CRYPTO ]; then
-        if grep -q "release 9" /etc/redhat-release; then
-            echo "Not OK!! (restart suffices)"
-            need_restart=1
-        fi
-    fi
-
     echo "* Checking 'many_ap'"
     many_ap=$(ls $HOSTAPD_CFG.* | wc -l)
     if [ -n "$MANY_AP" -a "$many_ap" != "$MANY_AP" ]; then
@@ -457,24 +445,7 @@ function wireless_hostapd_check ()
         return 1
     fi
 
-    if [ $need_restart -eq 1 ]; then
-        if [ "$CRYPTO" == "default" ]; then
-          rm -rf /tmp/nm_wifi_supp_legacy_crypto
-        else
-          touch /tmp/nm_wifi_supp_legacy_crypto
-        fi
-        restart_services
-        stop_nm_hostapd
-        start_nm_hostapd
-        if ! check_nm_hostapd; then
-          echo "Not OK!! - hostapd restart failed, doing teardown"
-          rm -rf /tmp/nm_wifi_supp_configured
-          wireless_hostapd_teardown
-          return 1
-        fi
-    else
-        touch /tmp/wireless_hostapd_check.txt
-    fi
+    touch /tmp/wireless_hostapd_check.txt
 
     return 0
 }
@@ -490,12 +461,6 @@ function prepare_test_bed ()
         local policy_file="contrib/selinux-policy/hostapd_wireless_$major_ver.pp"
         (semodule -l | grep -q hostapd_wireless) || semodule -i $policy_file || echo "ERROR: unable to load selinux policy !!!"
         ip netns add wlan_ns
-    fi
-
-    if [ "$CRYPTO" == "legacy" ]; then
-        touch /tmp/nm_wifi_supp_legacy_crypto
-    else
-        rm -rf /tmp/nm_wifi_supp_legacy_crypto
     fi
 
     # Disable mac randomization to avoid rhbz1490885
@@ -600,14 +565,10 @@ else
     # Set DO_NAMESPACE to true if "namespace" in arguments
     DO_NAMESPACE=false
     MANY_AP=
-    CRYPTO="default"
 
     for arg in "$@"; do
       if [[ "$arg" == "namespace" ]]; then
           DO_NAMESPACE=true
-      fi
-      if [[ "$arg" == "legacy_crypto" ]]; then
-        CRYPTO="legacy"
       fi
       if [[ "$arg" == "many_ap="* ]]; then
         MANY_AP=${arg#many_ap=}

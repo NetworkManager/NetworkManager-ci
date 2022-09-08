@@ -990,30 +990,6 @@ _register_tag(
 )
 
 
-def need_legacy_crypto_bs(context, scenario):
-    # We have openssl3 in RHEL9 with a bunch of algs deprecated
-    if "release 9" in context.rh_release:
-        pass
-        # hostapd and wpa_supplicant 2.10+ can enforce this w/o config
-        # context.process.run_stdout("sed '-i.bak' s/'^##'/''/g /etc/pki/tls/openssl.cnf")
-        # if '8021x' in scenario.tags:
-        #     context.process.systemctl("restart wpa_supplicant")
-        #     context.process.systemctl("restart nm-hostapd")
-
-
-def need_legacy_crypto_as(context, scenario):
-    if "release 9" in context.rh_release:
-        pass
-        # hostapd and wpa_supplicant 2.10+ can enforce this w/o config
-        # context.process.run_stdout("mv -f /etc/pki/tls/openssl.cnf.bak /etc/pki/tls/openssl.cnf")
-        # if '8021x' in scenario.tags:
-        #     context.process.systemctl("restart wpa_supplicant")
-        #     context.process.systemctl("restart nm-hostapd")
-
-
-_register_tag("need_legacy_crypto", need_legacy_crypto_bs, need_legacy_crypto_as)
-
-
 def logging_bs(context, scenario):
     context.loggin_level = context.process.nmcli("-t -f LEVEL general logging").strip()
 
@@ -1103,8 +1079,6 @@ def simwifi_bs(context, scenario):
         print("Skipping as not on x86_64")
         sys.exit(77)
     args = ["namespace"]
-    if "need_legacy_crypto" in scenario.tags:
-        args.append("legacy_crypto")
     nmci.ctx.setup_hostapd_wireless(context, args)
 
 

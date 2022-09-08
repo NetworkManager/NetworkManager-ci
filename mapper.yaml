@@ -2215,8 +2215,6 @@ testmapper:
     - simwifi_p2p_client_connect:
         feature: wifi_hwsim
         tags: hostapd
-    ## @need_legacy_crypto (mschap) tests
-    # group these tests to eliminate hostapd restarts
     - simwifi_wep_ttls_mschapv2_eap:
         feature: wifi_hwsim
         tags: hostapd
@@ -2232,7 +2230,6 @@ testmapper:
     - simwifi_peap_mschapv2:
         feature: wifi_hwsim
         tags: hostapd
-    ## end of @need_legacy_crypto
     - simwifi_open_connect:
         feature: wifi_hwsim
         tags: hostapd

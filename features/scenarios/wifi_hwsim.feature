@@ -45,7 +45,6 @@ Feature: nmcli - wifi
 
 
     @ver+=1.10 @fedoraver-=34 @rhelver-=8
-    @need_legacy_crypto
     @simwifi @attach_hostapd_log @attach_wpa_supplicant_log
     @simwifi_wep_ttls_mschapv2_eap
     Scenario: nmcli - simwifi - connect to WEP TTLS MSCHAPv2 + EAP
@@ -134,7 +133,7 @@ Feature: nmcli - wifi
     * Execute "nmcli con migrate ddb42e19-642d-4139-a2bc-eda0c6504fdd"
     * Reload connections
     Then "wlan0:connected:migration_wifi" is visible with command "nmcli -t -f DEVICE,STATE,CONNECTION device" in "40" seconds
-    * Note the output of "nmcli con show migration_wifi" as value "keyfile_output" 
+    * Note the output of "nmcli con show migration_wifi" as value "keyfile_output"
     Then Check noted values "ifcfg_output" and "keyfile_output" are the same
     And ifcfg-"migration_wifi" file does not exist
 
@@ -269,7 +268,6 @@ Feature: nmcli - wifi
 
 
     @ver+=1.10 @fedoraver+=31
-    @need_legacy_crypto
     @simwifi @attach_hostapd_log @attach_wpa_supplicant_log
     @simwifi_peap_mschapv2
     Scenario: nmcli - simwifi - connect to PEAP MSCHAPv2
@@ -333,7 +331,6 @@ Feature: nmcli - wifi
 
 
     @ver+=1.10 @fedoraver+=31
-    @need_legacy_crypto
     @simwifi @attach_hostapd_log @attach_wpa_supplicant_log
     @simwifi_ttls_mschap
     Scenario: nmcli - simwifi - connect to TTLS MSCHAP
@@ -355,7 +352,6 @@ Feature: nmcli - wifi
 
 
     @ver+=1.10 @fedoraver+=31
-    @need_legacy_crypto
     @simwifi @attach_hostapd_log @attach_wpa_supplicant_log
     @simwifi_ttls_mschapv2
     Scenario: nmcli - simwifi - connect to TTLS MSCHAPv2
@@ -377,7 +373,6 @@ Feature: nmcli - wifi
 
 
     @ver+=1.10 @fedoraver+=31
-    @need_legacy_crypto
     @simwifi @attach_hostapd_log @attach_wpa_supplicant_log
     @simwifi_ttls_mschapv2_eap
     Scenario: nmcli - simwifi - connect to TTLS MSCHAPv2 + EAP
@@ -442,7 +437,7 @@ Feature: nmcli - wifi
 
     @rhbz1520398
     @ver+=1.10 @fedoraver+=31
-    @simwifi 
+    @simwifi
     @nmclient_get_wireless_hw_property
     Scenario: nmclient - property - get wireless hardware property
     Then "True|False" is visible with command "/usr/bin/python contrib/gi/nmclient_get_property.py wireless-hardware-enabled"

@@ -589,7 +589,6 @@ Feature: nmcli - ethernet
      @rhbz1714610
      @ver+=1.18.0
      @8021x @attach_hostapd_log @attach_wpa_supplicant_log @restart_if_needed
-     @need_legacy_crypto
      @8021x_tls_pkcs12_key_restart
      Scenario: nmcli - ethernet - 8021x - tls - connection with pkcs12 key persists restart
      * Add "ethernet" connection named "con_ethernet" with options
@@ -628,7 +627,6 @@ Feature: nmcli - ethernet
 
     @ver+=1.6.0
     @8021x @attach_hostapd_log @attach_wpa_supplicant_log
-    @need_legacy_crypto
     @8021x_peap_mschapv2
     Scenario: nmcli - ethernet - connect to 8021x - peap - mschapv2
     * Add "ethernet" connection named "con_ethernet" with options
@@ -701,7 +699,6 @@ Feature: nmcli - ethernet
 
     @ver+=1.6.0
     @8021x @attach_hostapd_log @attach_wpa_supplicant_log
-    @need_legacy_crypto
     @8021x_ttls_mschap
     Scenario: nmcli - ethernet - connect to 8021x -ttls - mschap
     * Add "ethernet" connection named "con_ethernet" with options
@@ -720,7 +717,6 @@ Feature: nmcli - ethernet
 
     @ver+=1.6.0
     @8021x @attach_hostapd_log @attach_wpa_supplicant_log
-    @need_legacy_crypto
     @8021x_ttls_mschapv2
     Scenario: nmcli - ethernet - connect to 8021x -ttls - mschapv2
     * Add "ethernet" connection named "con_ethernet" with options
@@ -739,7 +735,6 @@ Feature: nmcli - ethernet
 
     @ver+=1.6.0
     @8021x @attach_hostapd_log @attach_wpa_supplicant_log
-    @need_legacy_crypto
     @8021x_ttls_mschapv2_eap
     Scenario: nmcli - ethernet - connect to 8021x -ttls - mschap - eap
     * Add "ethernet" connection named "con_ethernet" with options
