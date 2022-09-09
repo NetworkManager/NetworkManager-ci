@@ -1105,12 +1105,20 @@ def simwifi_ap_bs(context, scenario):
         sys.exit(77)
 
     context.process.run_stdout("modprobe -r mac80211_hwsim")
+    if not hasattr(context, "noted"):
+        context.noted = {}
+    if context.process.run_stdout("iw list").strip():
+        context.noted["wifi-hw_real"] = "enabled"
+    else:
+        context.noted["wifi-hw_real"] = "missing"
+
     context.process.run_stdout("modprobe mac80211_hwsim")
     context.process.systemctl("restart wpa_supplicant")
     assert nmci.ctx.restart_NM_service(context, reset=False), "NM stop failed"
 
 
 def simwifi_ap_as(context, scenario):
+    context.process.nmcli("radio wifi on")
     context.process.run_stdout("modprobe -r mac80211_hwsim")
     context.process.systemctl("restart wpa_supplicant")
     assert nmci.ctx.restart_NM_service(context, reset=False), "NM stop failed"
@@ -3021,22 +3029,6 @@ def tag8021x_doc_procedure_as(context, scenario):
 _register_tag(
     "8021x_doc_procedure", tag8021x_doc_procedure_bs, tag8021x_doc_procedure_as
 )
-
-
-def simwifi_hw_bs(context, scenario):
-    if not hasattr(context, "noted"):
-        context.noted = {}
-    if context.process.run_stdout("iw list").strip():
-        context.noted["wifi-hw_real"] = "enabled"
-    else:
-        context.noted["wifi-hw_real"] = "missing"
-
-
-def simwifi_hw_as(context, scenario):
-    context.process.nmcli("radio wifi on")
-
-
-_register_tag("simwifi_hw", simwifi_hw_bs, simwifi_hw_as)
 
 
 def slow_dnsmasq_bs(context, scenario):

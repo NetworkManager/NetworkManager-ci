@@ -700,7 +700,7 @@ Feature: nmcli - wifi
 
     @rhbz1996918
     @ver+=1.37.3
-    @simwifi_hw @simwifi_ap
+    @simwifi_ap
     @simwifi_nmcli_radio
     Scenario: nmcli - simwifi - AP - check nmcli radio all status
     * Execute "nmcli radio wifi on"
@@ -708,6 +708,6 @@ Feature: nmcli - wifi
     * Execute "nmcli radio wifi off"
     * Execute "modprobe -r mac80211_hwsim"
     * Note the output of "nmcli radio all | tail -n 1 | cut -d ' ' -f 1" as value "wifi-hw_reported"
-    # wifi-hw_real gets set in @simwifi_hw tag
+    # wifi-hw_real gets set in simwifi_ap tag
     Then "disabled" is visible with command "nmcli radio wifi"
     And Check noted values "wifi-hw_reported" and "wifi-hw_real" are the same
