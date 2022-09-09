@@ -553,10 +553,9 @@ def find_tailing_journal(context, content):
         raise Exception('Did not see the "%s" in journal output before timeout (180s)' % content)
 
 
-@step(u'Wait for at least "{secs}" seconds')
+@step(u'Wait for "{secs}" seconds')
 def wait_for_x_seconds(context, secs):
-    time.sleep(int(secs))
-    assert True
+    time.sleep(float(secs))
 
 
 @step(u'Look for "{content}" in tailed file')

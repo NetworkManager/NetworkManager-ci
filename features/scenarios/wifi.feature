@@ -723,7 +723,7 @@ Feature: nmcli - wifi
           802-1x.password testing123
           802-1x.ca-cert 'file:///tmp/certs/eaptest_ca_cert.pem'
           """
-    * Execute "sleep 1"
+    * Wait for "1" seconds
     * Bring up connection "qe-wpa1-enterprise"
     Then "qe-wpa1-enterprise" is visible with command "iw dev wlan0 link"
     Then "\*\s+qe-wpa1-enterprise" is visible with command "nmcli -f IN-USE,SSID device wifi list"
@@ -744,7 +744,7 @@ Feature: nmcli - wifi
           802-1x.private-key-password '12345testing'
           802-1x.private-key 'file:///tmp/certs/client.pem'
           """
-    * Execute "sleep 1"
+    * Wait for "1" seconds
     * Bring up connection "qe-wpa1-enterprise"
     Then "qe-wpa1-enterprise" is visible with command "iw dev wlan0 link"
     Then "\*\s+qe-wpa1-enterprise" is visible with command "nmcli -f IN-USE,SSID device wifi list"

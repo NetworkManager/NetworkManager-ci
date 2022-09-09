@@ -497,7 +497,7 @@
           """
     * Execute "nmcli connection modify sriov sriov.total-vfs 0"
     # Workaround for 1772960
-    * Execute "sleep 2"
+    * Wait for "2" seconds
     * Bring "up" connection "sriov"
     Then "1" is not visible with command "cat /sys/class/net/p4p1/device/sriov_numvfs"
     And "vf 0" is not visible with command "ip link show dev p4p1 |grep 'vf 0'"

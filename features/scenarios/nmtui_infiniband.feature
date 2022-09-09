@@ -59,7 +59,7 @@ Feature: Bridge TUI tests
     * Select connection "infiniband0" in the list
     * Choose to "<Delete>" a connection
     * Press "Delete" button in the dialog
-    * Wait for at least "3" seconds
+    * Wait for "3" seconds
     Then ifcfg-"infiniband0" file does not exist
     Then "infiniband0" is not visible with command "nmcli connection"
 

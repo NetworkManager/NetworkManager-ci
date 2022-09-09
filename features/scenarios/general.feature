@@ -100,7 +100,8 @@ Feature: nmcli - general
     Scenario: nmcli - general - pull hostname from DHCP
     * Prepare simulated test "testG" device
     * Execute "hostnamectl set-hostname """
-    * Execute "hostnamectl set-hostname --transient localhost.localdomain && sleep 1"
+    * Execute "hostnamectl set-hostname --transient localhost.localdomain"
+    * Wait for "1" seconds
     * Add "ethernet" connection named "con_general" for device "testG" with options "autoconnect no"
     When "localhost|fedora" is visible with command "hostnamectl --transient" in "60" seconds
     * Bring up connection "con_general"
@@ -123,7 +124,8 @@ Feature: nmcli - general
     # Note/3: --dhcp-option=12 is to prevent NM from sending a hostname option
     * Prepare simulated test "testG" device with "172.25.15" ipv4 and daemon options "--dhcp-option=12 --dhcp-host=00:11:22:33:44:55,172.25.15.1,foo-bar"
     * Execute "hostnamectl set-hostname """
-    * Execute "hostnamectl set-hostname --transient localhost.localdomain && sleep 1"
+    * Execute "hostnamectl set-hostname --transient localhost.localdomain"
+    * Wait for "1" seconds
     * Add "ethernet" connection named "con_general" for device "testG" with options
           """
           autoconnect no
@@ -159,13 +161,14 @@ Feature: nmcli - general
     * Prepare simulated test "testG" device with "172.25.15" ipv4 and daemon options "--dhcp-option=12 --dhcp-host=00:11:22:33:44:55,172.25.15.1,foo-bar"
     * Execute "ip netns exec testG_ns kill -SIGSTOP $(cat /tmp/testG_ns.pid)"
     * Execute "hostnamectl set-hostname """
-    * Execute "hostnamectl set-hostname --transient localhost.localdomain && sleep 1"
+    * Execute "hostnamectl set-hostname --transient localhost.localdomain"
+    * Wait for "1" seconds
     * Add "ethernet" connection named "con_general" for device "testG" with options "autoconnect no ipv4.method auto"
     * Add "ethernet" connection named "con_general2" for device "testX6" with options "ipv6.method auto"
     * Modify connection "con_general" changing options "ipv4.address 172.25.13.1/30 ethernet.cloned-mac-address 00:11:22:33:44:55"
     When "connected" is visible with command "nmcli -g GENERAL.STATE dev show testX6" in "25" seconds
     When "localhost|fedora" is visible with command "hostnamectl --transient" in "60" seconds
-    * Execute "sleep 10"
+    * Wait for "10" seconds
     * Execute "ip netns exec testG_ns kill -SIGCONT $(cat /tmp/testG_ns.pid)"
     * Bring up connection "con_general"
     When "ransient" is visible with command "hostnamectl" in "60" seconds
@@ -181,7 +184,8 @@ Feature: nmcli - general
     * Prepare simulated test "testG" device with "192.168.97" ipv4 and daemon options "--dhcp-option=3 --dhcp-host=00:11:22:33:44:55,192.168.97.13,foo"
     * Prepare simulated test "testH" device with "192.168.98" ipv4 and daemon options "--dhcp-option=3 --dhcp-host=00:00:11:00:00:11,192.168.98.11,bar"
     * Execute "hostnamectl set-hostname """
-    * Execute "hostnamectl set-hostname --transient localhost.localdomain && sleep 1"
+    * Execute "hostnamectl set-hostname --transient localhost.localdomain"
+    * Wait for "1" seconds
     * Add "ethernet" connection named "con_general" for device "testG" with options
           """
           autoconnect no
@@ -222,7 +226,8 @@ Feature: nmcli - general
     * Restart NM
     * Prepare simulated test "testG" device
     * Execute "hostnamectl set-hostname """
-    * Execute "hostnamectl set-hostname --transient localhost.localdomain && sleep 1"
+    * Execute "hostnamectl set-hostname --transient localhost.localdomain"
+    * Wait for "1" seconds
     * Add "ethernet" connection named "con_general" for device "testG" with options "autoconnect no"
     When "localhost|fedora" is visible with command "hostnamectl --transient" in "60" seconds
     * Bring up connection "con_general"
@@ -239,7 +244,8 @@ Feature: nmcli - general
     * Restart NM
     * Prepare simulated test "testG" device
     * Execute "hostnamectl set-hostname """
-    * Execute "hostnamectl set-hostname --transient localhost.localdomain && sleep 1"
+    * Execute "hostnamectl set-hostname --transient localhost.localdomain"
+    * Wait for "1" seconds
     * Add "ethernet" connection named "con_general" for device "testG" with options "autoconnect no"
     When "localhost|fedora" is visible with command "hostnamectl --transient" in "60" seconds
     * Bring up connection "con_general"
@@ -254,7 +260,8 @@ Feature: nmcli - general
     Scenario: nmcli - general - pull hostname from DHCP - no gw - no need for it
     * Prepare simulated test "testG" device
     * Execute "hostnamectl set-hostname """
-    * Execute "hostnamectl set-hostname --transient localhost.localdomain && sleep 1"
+    * Execute "hostnamectl set-hostname --transient localhost.localdomain"
+    * Wait for "1" seconds
     * Add "ethernet" connection named "con_general" for device "testG" with options
           """
           autoconnect no
@@ -277,7 +284,8 @@ Feature: nmcli - general
     * Restart NM
     * Prepare simulated test "testG" device
     * Execute "hostnamectl set-hostname """
-    * Execute "hostnamectl set-hostname --transient localhost.localdomain && sleep 1"
+    * Execute "hostnamectl set-hostname --transient localhost.localdomain"
+    * Wait for "1" seconds
     * Add "ethernet" connection named "con_general" for device "testG" with options "autoconnect no"
     When "localhost|fedora" is visible with command "hostnamectl --transient" in "60" seconds
     * Bring up connection "con_general"
@@ -295,7 +303,8 @@ Feature: nmcli - general
     * Restart NM
     * Prepare simulated test "testG" device
     * Execute "hostnamectl set-hostname """
-    * Execute "hostnamectl set-hostname --transient localhost.localdomain && sleep 1"
+    * Execute "hostnamectl set-hostname --transient localhost.localdomain"
+    * Wait for "1" seconds
     * Add "ethernet" connection named "con_general" for device "testG" with options "autoconnect no"
     When "localhost|fedora" is visible with command "hostnamectl --transient" in "60" seconds
     * Bring up connection "con_general"
@@ -684,7 +693,7 @@ Feature: nmcli - general
           ipv4.may-fail no
           ipv6.may-fail no
           """
-    * Wait for at least "2" seconds
+    * Wait for "2" seconds
     * Bring up connection "con_general"
     When "100" is visible with command "nmcli  -t -f GENERAL.STATE device show testG"
     When "connected:con_general:testG" is visible with command "nmcli -t -f STATE,CONNECTION,DEVICE device" in "10" seconds
@@ -733,7 +742,7 @@ Feature: nmcli - general
     * Note the output of "hostname" as value "orig_cmd"
     * Check noted values "orig_file" and "orig_cmd" are the same
     * Execute "echo localhost.localdomain > /etc/hostname"
-    * Wait for at least "5" seconds
+    * Wait for "5" seconds
     * Note the output of "hostname" as value "localh_cmd"
     # Check that setting the hostname to localhost have been ignored
     * Check noted values "orig_cmd" and "localh_cmd" are the same
@@ -756,7 +765,7 @@ Feature: nmcli - general
     * Execute "echo -e [keyfile]\\nunmanaged-devices=interface-name:bond0 > /etc/NetworkManager/conf.d/99-xxcustom.conf"
     * Execute "pkill -HUP NetworkManager"
     * Execute "ip addr add dev bond0 1.2.3.4/24"
-    * Wait for at least "5" seconds
+    * Wait for "5" seconds
     # Now the device should be listed as unmanaged
     Then "bond0\s+bond\s+unmanaged" is visible with command "nmcli device"
 
@@ -796,7 +805,7 @@ Feature: nmcli - general
      And "fe80" is visible with command "ip a s eth8" in "15" seconds
      And "192" is visible with command "ip a s eth8" in "15" seconds
      And "192" is visible with command "ip r |grep eth8"
-    * Wait for at least "2" seconds
+    * Wait for "2" seconds
     * Execute "nmcli device set eth8 managed off"
     #When "/sbin/dhclient" is not visible with command "ps aux|grep dhc |grep eth8 |grep -v orig"
      And "state UP" is visible with command "ip a s eth8"
@@ -938,7 +947,7 @@ Feature: nmcli - general
     * Stop NM
     * Execute "rm -rf /var/lib/NetworkManager/no-auto-default.state"
     * Start NM
-    * Execute "sleep 1"
+    * Wait for "1" seconds
     * Execute "nmcli device set eth8 managed yes"
     When "activated" is visible with command "nmcli -g GENERAL.STATE con show con_general" in "45" seconds
     * Delete connection "con_general"
@@ -1159,10 +1168,10 @@ Feature: nmcli - general
     * Execute "echo '[main]' > /etc/NetworkManager/conf.d/01-run-once.conf"
     * Execute "echo 'configure-and-quit=yes' >> /etc/NetworkManager/conf.d/01-run-once.conf"
     * Execute "echo 'dhcp=internal' >> /etc/NetworkManager/conf.d/01-run-once.conf"
-    * Execute "sleep 1"
+    * Wait for "1" seconds
     * Start NM without PID wait
     * "192" is visible with command " ip a s testG |grep 'inet '|grep dynamic" in "60" seconds
-    * Execute "sleep 20"
+    * Wait for "20" seconds
     # VVV this means that lifetime was refreshed
     When "preferred_lft (119|118|117)sec" is visible with command " ip a s testG" in "100" seconds
     Then "192.168.99" is visible with command " ip a s testG |grep 'inet '|grep dynamic"
@@ -1186,7 +1195,7 @@ Feature: nmcli - general
     * Execute "echo '[main]' > /etc/NetworkManager/conf.d/01-run-once.conf"
     * Execute "echo 'configure-and-quit=yes' >> /etc/NetworkManager/conf.d/01-run-once.conf"
     * Execute "echo 'dhcp=internal' >> /etc/NetworkManager/conf.d/01-run-once.conf"
-    * Execute "sleep 1"
+    * Wait for "1" seconds
     * Start NM without PID wait
     When "2620:" is visible with command "ip a s testG" in "60" seconds
     * Force renew IPv6 for "testG"
@@ -1200,7 +1209,7 @@ Feature: nmcli - general
     Scenario: NM - general - helper running for localhost on localdo
     * Bring "up" connection "testeth0"
     * Disconnect device "eth0"
-    * Execute "sleep 2"
+    * Wait for "2" seconds
     * Stop NM and clean "eth0"
     When "state DOWN" is visible with command "ip a s eth0" in "5" seconds
     * Execute "hostnamectl set-hostname localhost.localdomain"
@@ -1208,7 +1217,7 @@ Feature: nmcli - general
     * Execute "echo 'configure-and-quit=yes' >> /etc/NetworkManager/conf.d/01-run-once.conf"
     * Execute "echo 'dhcp=internal' >> /etc/NetworkManager/conf.d/01-run-once.conf"
     * Execute "ip link set dev eth0 up"
-    * Execute "sleep 1"
+    * Wait for "1" seconds
     * Start NM without PID wait
     Then "eth0" is visible with command "ps aux|grep helper" in "40" seconds
     Then "eth0" is visible with command "ps aux|grep helper" for full "20" seconds
@@ -1221,7 +1230,7 @@ Feature: nmcli - general
     Scenario: NM - general - helper running for localhost on localdo
     * Bring "up" connection "testeth0"
     * Disconnect device "eth0"
-    * Execute "sleep 2"
+    * Wait for "2" seconds
     * Stop NM and clean "eth0"
     When "state DOWN" is visible with command "ip a s eth0" in "5" seconds
     * Execute "hostnamectl set-hostname localhost.localdomain"
@@ -1232,7 +1241,7 @@ Feature: nmcli - general
     * Execute "echo '[device]' >> /etc/NetworkManager/conf.d/01-run-once.conf"
     * Execute "echo 'match-device=interface-name:eth0' >> /etc/NetworkManager/conf.d/01-run-once.conf"
     * Execute "echo 'carrier-wait-timeout=10000' >> /etc/NetworkManager/conf.d/01-run-once.conf"
-    * Execute "sleep 1"
+    * Wait for "1" seconds
     * Start NM without PID wait
     Then "eth0" is visible with command "ps aux|grep helper" in "40" seconds
     Then "eth0" is visible with command "ps aux|grep helper" for full "20" seconds
@@ -1291,14 +1300,15 @@ Feature: nmcli - general
     Scenario: NM - general - wait-online - for both ipv4 and ipv6
     * Prepare simulated test "testG" device
     * Execute "rm -rf /tmp/testG_ns.lease"
-    * Execute "ip netns exec testG_ns pkill -SIGSTOP -F /tmp/testG_ns.pid && sleep 1"
+    * Execute "ip netns exec testG_ns pkill -SIGSTOP -F /tmp/testG_ns.pid"
+    * Wait for "1" seconds
     * Add "ethernet" connection named "con_general" for device "testG" with options "ipv4.may-fail no ipv6.may-fail no"
     # Do a random wait between 0s and 3s to delay DHCP server a bit
     * Execute "sleep $(echo $(shuf -i 0-3 -n 1)) && ip netns exec testG_ns pkill -SIGCONT -F /tmp/testG_ns.pid" without waiting for process to finish
     # It takes slightly over 4s to reach connected state
     # so any delay over 0 or 1 (it really depends on DHCP now)
     # should hit the bug.
-    * Execute "sleep 5"
+    * Wait for "5" seconds
     * Restart NM
     * Execute "/usr/bin/nm-online -s -q --timeout=30"
     When "inet .* global" is visible with command "ip a s testG"
@@ -1327,11 +1337,11 @@ Feature: nmcli - general
     * Execute "echo '[device-testG]' > /etc/NetworkManager/conf.d/99-xxcustom.conf"
     * Execute "echo 'match-device=interface-name:testG' >> /etc/NetworkManager/conf.d/99-xxcustom.conf"
     * Execute "echo 'carrier-wait-timeout=20000' >> /etc/NetworkManager/conf.d/99-xxcustom.conf"
-    * Execute "sleep 2"
+    * Wait for "2" seconds
     * Start NM
     * Run child "echo FAIL > /tmp/nm-online.txt && /usr/bin/nm-online -s -q --timeout=30 && echo PASS > /tmp/nm-online.txt"
     When "FAIL" is visible with command "cat /tmp/nm-online.txt"
-    * Execute "sleep 10"
+    * Wait for "10" seconds
     When "FAIL" is visible with command "cat /tmp/nm-online.txt"
      And Execute "ip netns exec testG_ns ip link set testGp up"
     Then "PASS" is visible with command "cat /tmp/nm-online.txt" in "10" seconds
@@ -1363,7 +1373,7 @@ Feature: nmcli - general
     * Run child "echo FAIL > /tmp/nm-online.txt && /usr/bin/nm-online -s -q --timeout=60 && echo PASS > /tmp/nm-online.txt"
     When "con_general" is visible with command "nmcli con show -a" in "10" seconds
     When "FAIL" is visible with command "cat /tmp/nm-online.txt"
-    * Execute "sleep 30"
+    * Wait for "30" seconds
     When "con_general2" is visible with command "nmcli con show -a" in "20" seconds
     When "FAIL" is visible with command "cat /tmp/nm-online.txt"
     * Execute "ip netns exec testG_ns pkill -SIGCONT -F /tmp/testG_ns.pid"
@@ -1396,7 +1406,7 @@ Feature: nmcli - general
     * Run child "echo FAIL > /tmp/nm-online.txt && NM_ONLINE_TIMEOUT=60 /usr/bin/nm-online -s -q && echo PASS > /tmp/nm-online.txt"
     When "con_general" is visible with command "nmcli con show -a" in "10" seconds
     When "FAIL" is visible with command "cat /tmp/nm-online.txt"
-    * Execute "sleep 30"
+    * Wait for "30" seconds
     When "con_general2" is visible with command "nmcli con show -a" in "20" seconds
     When "FAIL" is visible with command "cat /tmp/nm-online.txt"
     * Execute "ip netns exec testG_ns pkill -SIGCONT -F /tmp/testG_ns.pid"
@@ -1516,7 +1526,8 @@ Feature: nmcli - general
     * "connected:con_general2" is visible with command "nmcli -t -f STATE,CONNECTION device" in "50" seconds
     # Finish asserts the command exited with 0, thus the network service completed properly
     * Restart NM
-    Then Execute "sleep 3 && systemctl restart network.service"
+    * Wait for "3" seconds
+    Then Execute "systemctl restart network.service"
 
 
     @rhbz1079353
@@ -1525,10 +1536,10 @@ Feature: nmcli - general
     Scenario: nmcli - general - wait for carrier on new device activation request
     * Add "ethernet" connection named "con_general" for device "testG" with options "autoconnect no"
     * Prepare simulated veth device "testG" without carrier
-    * Wait for at least "1" seconds
+    * Wait for "1" seconds
     * Modify connection "con_general" changing options "ipv4.may-fail no"
     * Execute "nmcli con up con_general" without waiting for process to finish
-    * Wait for at least "1" seconds
+    * Wait for "1" seconds
     * Execute "ip netns exec testG_ns ip link set testGp up"
     * "connected:con_general" is visible with command "nmcli -t -f STATE,CONNECTION device" in "60" seconds
     Then "192" is visible with command "ip a s testG" in "60" seconds
@@ -1608,9 +1619,9 @@ Feature: nmcli - general
     * Write dispatcher "pre-up.d/98-disp" file with params "sleep 1;"
     * Write dispatcher "pre-down.d/97-disp" file with params "sleep 1;"
     * Bring "down" connection "testeth0"
-    * Execute "sleep 1"
+    * Wait for "1" seconds
     * Bring "up" connection "testeth0"
-    * Execute "sleep 1"
+    * Wait for "1" seconds
     * Execute "pkill -9 nmcli"
     Then "eth0: deactivating" is visible with command "cat /tmp/monitor.txt"
      And "Connectivity is now 'none'" is visible with command "cat /tmp/monitor.txt"
@@ -1741,7 +1752,7 @@ Feature: nmcli - general
     When "1.2.3.4/24" is visible with command "ip a s eth8" in "5" seconds
     When "1.2.3.5/24" is visible with command "ip a s eth9" in "5" seconds
      And "1.2.3.1" is visible with command "ip r"
-    * Wait for at least "10" seconds
+    * Wait for "10" seconds
     Then "192.168.10[0-3]" is visible with command "ip a s eth8" in "5" seconds
      And "192.168.10[0-3]" is visible with command "ip a s eth9" in "5" seconds
      And "1.2.3.4/24" is not visible with command "ip a s eth8"
@@ -1759,7 +1770,7 @@ Feature: nmcli - general
     * Snapshot "create" for "eth8" with timeout "10"
     * Execute "nmcli device set eth8 managed on"
     When "unmanaged" is not visible with command "nmcli device show eth8" in "5" seconds
-    * Wait for at least "15" seconds
+    * Wait for "15" seconds
     Then "unmanaged" is visible with command "nmcli device show eth8" in "5" seconds
 
 
@@ -1772,7 +1783,7 @@ Feature: nmcli - general
     * Snapshot "create" for "eth8" with timeout "10"
     * Execute "nmcli device set eth8 managed off"
     When "unmanaged" is visible with command "nmcli device show eth8" in "5" seconds
-    * Wait for at least "15" seconds
+    * Wait for "15" seconds
     Then "unmanaged" is not visible with command "nmcli device show eth8" in "5" seconds
 
 
@@ -1792,7 +1803,7 @@ Feature: nmcli - general
     * Delete connection "gen-bond0.0"
     * Delete connection "gen-bond0.1"
     * Delete connection "gen-bond0"
-    * Wait for at least "15" seconds
+    * Wait for "15" seconds
     Then Check slave "eth8" in bond "gen-bond" in proc
     Then Check slave "eth9" in bond "gen-bond" in proc
 
@@ -2080,7 +2091,7 @@ Feature: nmcli - general
     * Execute "ip tuntap add mode tap tap0"
     * Execute "ip link set tap0 master brX"
     * Execute "ip link set tap0 up"
-    * Execute "sleep 2"
+    * Wait for "2" seconds
     * Execute "ip link set tap0 down"
     Then "master brX" is visible with command "ip link show tap0" for full "5" seconds
 
@@ -2112,8 +2123,9 @@ Feature: nmcli - general
           """
     * Prepare simulated test "testG" device
     * Run child "nmcli con up con_general"
-    * Execute "sleep 0.5 && ip link set testG down"
-    * Execute "sleep 8"
+    * Wait for "0.5" seconds
+    * Execute "ip link set testG down"
+    * Wait for "8" seconds
     * Execute "ip link set testG up"
     When "activated" is visible with command "nmcli -g GENERAL.STATE con show con_general" in "45" seconds
 
@@ -2190,9 +2202,9 @@ Feature: nmcli - general
     * Add "ethernet" connection named "con_general" for device "eth8"
     * Execute "nmcli monitor &> /tmp/nmcli_monitor_out & pid=$!; sleep 10; kill $pid" without waiting for process to finish
     * Bring "up" connection "con_general"
-    * Wait for at least "1" seconds
+    * Wait for "1" seconds
     * Bring "down" connection "con_general"
-    * Wait for at least "10" seconds
+    * Wait for "10" seconds
     Then "should not be reached" is not visible with command "cat /tmp/nmcli_monitor_out"
 
 
@@ -2259,7 +2271,7 @@ Feature: nmcli - general
     When "1.2.3.4/24" is visible with command "ip a s eth8" in "5" seconds
     When "1.2.3.5/24" is visible with command "ip a s eth9" in "5" seconds
      And "1.2.3.1" is visible with command "ip r"
-    * Wait for at least "10" seconds
+    * Wait for "10" seconds
     Then "192.168.10[0-3]" is visible with command "ip a s eth8" in "45" seconds
      And "192.168.10[0-3]" is visible with command "ip a s eth9" in "45" seconds
      And "1.2.3.4/24" is not visible with command "ip a s eth8"
@@ -2277,7 +2289,7 @@ Feature: nmcli - general
     * "Failed" is not visible with command "contrib/gi/libnm_snapshot_checkpoint.py create 10 eth8" in "0" seconds
     * Execute "nmcli device set eth8 managed on"
     When "unmanaged" is not visible with command "nmcli device show eth8" in "5" seconds
-    * Wait for at least "15" seconds
+    * Wait for "15" seconds
     Then "unmanaged" is visible with command "nmcli device show eth8" in "5" seconds
 
 
@@ -2290,7 +2302,7 @@ Feature: nmcli - general
     * "Failed" is not visible with command "contrib/gi/libnm_snapshot_checkpoint.py create 10 eth8" in "0" seconds
     * Execute "nmcli device set eth8 managed off"
     When "unmanaged" is visible with command "nmcli device show eth8" in "5" seconds
-    * Wait for at least "15" seconds
+    * Wait for "15" seconds
     Then "unmanaged" is not visible with command "nmcli device show eth8" in "5" seconds
 
 
@@ -2310,7 +2322,7 @@ Feature: nmcli - general
     * Delete connection "gen-bond0.0"
     * Delete connection "gen-bond0.1"
     * Delete connection "gen-bond0"
-    * Wait for at least "15" seconds
+    * Wait for "15" seconds
     Then Check slave "eth8" in bond "gen-bond" in proc
     Then Check slave "eth9" in bond "gen-bond" in proc
 
@@ -2321,7 +2333,8 @@ Feature: nmcli - general
     @libnm_snapshot_destroy_after_rollback
     Scenario: NM - general - snapshot and destroy checkpoint
     * "Failed" is not visible with command "contrib/gi/libnm_snapshot_checkpoint.py create 5" in "0" seconds
-    Then "Succes" is visible with command "sleep 1; contrib/gi/libnm_snapshot_checkpoint.py destroy --last" in "0" seconds
+    * Wait for "1" seconds
+    Then "Succes" is visible with command "contrib/gi/libnm_snapshot_checkpoint.py destroy --last" in "0" seconds
     Then "Failed" is visible with command "CP=$(contrib/gi/libnm_snapshot_checkpoint.py create 5); sleep 7; contrib/gi/libnm_snapshot_checkpoint.py destroy $CP" in "0" seconds
 
 
@@ -2357,7 +2370,7 @@ Feature: nmcli - general
     * Bring "up" connection "br12"
     * Execute "ip link set portXb master br0"
     * Execute "ip link set portXc master br0"
-    * Wait for at least "1" seconds
+    * Wait for "1" seconds
     * "ERROR" is not visible with command "contrib/gi/libnm_snapshot_checkpoint.py rollback" in "0" seconds
     Then "portXa" is visible with command "bridge link"
     Then "portXb" is visible with command "bridge link"
@@ -2375,11 +2388,11 @@ Feature: nmcli - general
           802-1x.eap md5
           connection.autoconnect no
           """
-    * Wait for at least "2" seconds
+    * Wait for "2" seconds
     * Execute "contrib/nm_agent/nm_agent_prompt_counter.sh start"
-    * Wait for at least "2" seconds
+    * Wait for "2" seconds
     * Modify connection "con_general" changing options "connection.autoconnect yes"
-    * Wait for at least "2" seconds
+    * Wait for "2" seconds
     Then "PASSWORD_PROMPT_COUNT='1'" is visible with command "contrib/nm_agent/nm_agent_prompt_counter.sh stop"
 
 

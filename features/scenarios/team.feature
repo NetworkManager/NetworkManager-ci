@@ -83,7 +83,7 @@
      * Submit "nm-team" in editor
      * Expect "There .* optional"
      * Submit "no" in editor
-     * Wait for at least "1" seconds
+     * Wait for "1" seconds
      * Bring "up" connection "team-slave-eth5"
     Then Check slave "eth5" in team "nm-team" is "up"
 
@@ -104,7 +104,7 @@
      * Submit "eth5" in editor
      * Expect "There .* optional"
      * Submit "no" in editor
-     * Wait for at least "1" seconds
+     * Wait for "1" seconds
      * Bring "up" connection "team-slave"
     Then Check slave "eth5" in team "nm-team" is "up"
 
@@ -297,7 +297,7 @@
      * Enter in editor
      * Save in editor
      * Quit editor
-     * Execute "sleep 3"
+     * Wait for "3" seconds
     Then Check slave "eth5" in team "nm-team" is "up"
     Then Check slave "eth6" in team "nm-team" is "down"
 
@@ -639,7 +639,7 @@
     @team_reflect_changes_from_outside_of_NM
     Scenario: nmcli - team - reflect changes from outside of NM
     * Execute "systemd-run --unit teamd teamd --team-dev=team0"
-    * Execute "sleep 2"
+    * Wait for "2" seconds
     When "team0\s+team\s+unmanaged" is visible with command "nmcli d"
     * Execute "ip link set dev team0 up"
     When "team0\s+team\s+unmanaged" is visible with command "nmcli d"
@@ -658,7 +658,7 @@
     @team_reflect_changes_from_outside_of_NM
     Scenario: nmcli - team - reflect changes from outside of NM
     * Execute "systemd-run --unit teamd teamd --team-dev=team0"
-    * Execute "sleep 2"
+    * Wait for "2" seconds
     When "team0\s+team\s+unmanaged" is visible with command "nmcli d"
     * Execute "ip link set dev team0 up"
     When "team0\s+team\s+unmanaged" is visible with command "nmcli d"
@@ -675,7 +675,7 @@
     @kill_teamd
     Scenario: NM - team - kill teamd
      * Add "team" connection named "team0" for device "nm-team"
-     * Execute "sleep 6"
+     * Wait for "6" seconds
      * Terminate "teamd" with signal "KILL"
     Then "teamd -o -n -U -D -N* -t nm-team" is visible with command "ps aux|grep -v grep| grep teamd" in "10" seconds
 
@@ -811,7 +811,7 @@
       And "192.168.168.17" is visible with command "ip a s nm-team"
      * Add "team-slave" connection named "team0.0" for device "eth5" with options "master nm-team"
      * Bring "up" connection "team0.0"
-     * Wait for at least "5" seconds
+     * Wait for "5" seconds
     Then "2168::16" is visible with command "ip a s nm-team.1"
      And "2168::17" is visible with command "ip a s nm-team"
      And "192.168.168.16" is visible with command "ip a s nm-team.1"
@@ -1671,10 +1671,10 @@
     When "teamd -d -c " is visible with command "ps aux | grep -v grep | grep teamd"
     * Execute "ip link set nm-team up"
     * Execute "ip link set nm-team down"
-    * Wait for at least "2" seconds
+    * Wait for "2" seconds
     * Execute "ip link set nm-team up"
     * Execute "ip link set nm-team down"
-    * Wait for at least "2" seconds
+    * Wait for "2" seconds
     Then "teamd -d -c " is visible with command "ps aux | grep -v grep | grep teamd"
 
 

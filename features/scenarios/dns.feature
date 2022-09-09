@@ -1044,7 +1044,7 @@ Feature: nmcli - dns
     Then "1" is visible with command "grep nameserver -c /etc/resolv.conf"
     Then "127.0.0.1" is visible with command "grep nameserver /etc/resolv.conf"
     * Execute "for i in `seq 12`; do pkill -P `pidof NetworkManager` dnsmasq; sleep 1; done"
-    * Execute "sleep 10"
+    * Wait for "10" seconds
     # Check dnsmasq is no longer running and resolv.conf points to upstream servers
     Then "0" is visible with command "pgrep -c -P `pidof NetworkManager` dnsmasq"
     Then "172.16.1.53" is visible with command "grep nameserver /etc/resolv.conf"
@@ -1062,7 +1062,7 @@ Feature: nmcli - dns
     Then "1" is visible with command "grep nameserver -c /etc/resolv.conf"
     Then "127.0.0.1" is visible with command "grep nameserver /etc/resolv.conf"
     * Execute "for i in `seq 12`; do pkill -P `pidof NetworkManager` dnsmasq; sleep 1; done"
-    * Execute "sleep 10"
+    * Wait for "10" seconds
     # Check dnsmasq is no longer running. Since 1.21.1, resolv.conf still points to localhost
     Then "0" is visible with command "pgrep -c -P `pidof NetworkManager` dnsmasq"
     Then "127.0.0.1" is visible with command "grep nameserver /etc/resolv.conf"
@@ -1149,12 +1149,12 @@ Feature: nmcli - dns
     * Remove file "/tmp/no-resolv.conf" if exists
     * Create symlink "/etc/resolv.conf" with destination "/tmp/no-resolv.conf"
     * Start NM
-    * Wait for at least "2" seconds
+    * Wait for "2" seconds
     Then "/etc/resolv.conf" is symlink with destination "/tmp/no-resolv.conf"
     * Stop NM
     When "/etc/resolv.conf" is symlink with destination "/tmp/no-resolv.conf"
     * Remove symlink "/etc/resolv.conf" if exists
-    * Wait for at least "3" seconds
+    * Wait for "3" seconds
     * Start NM
     Then "/tmp/no-resolv.conf" is file
     * Remove file "/tmp/no-resolv.conf" if exists
@@ -1179,6 +1179,6 @@ Feature: nmcli - dns
     * Execute "echo 'nameserver 1.2.3.4' > /tmp/no-resolv.conf"
     * Create symlink "/etc/resolv.conf" with destination "/tmp/no-resolv.conf"
     * Start NM
-    * Wait for at least "2" seconds
+    * Wait for "2" seconds
     Then "/etc/resolv.conf" is symlink with destination "/tmp/no-resolv.conf"
     Then "nameserver 1.2.3.4" is visible with command "cat /tmp/no-resolv.conf"

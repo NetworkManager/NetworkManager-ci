@@ -430,7 +430,7 @@ Feature: nmcli - procedures in documentation
             802-1x.ca-cert /etc/pki/tls/certs/8021x-ca.pem
             """
     # Just in case a bit of time to settle
-    * Execute "sleep 1"
+    * Wait for "1" seconds
     When Bring up connection "test1-ttls"
     Then Check if "test1-ttls" is active connection
     * Disconnect device "test1"
@@ -461,7 +461,7 @@ Feature: nmcli - procedures in documentation
     Then Unable to ping "192.168.100.1" from "test1" device
     * Bring down connection "test1-plain"
     * Bring up connection "test1-ttls"
-    * Execute "sleep 1"
+    * Wait for "1" seconds
     Then Ping "192.168.100.1" from "test1" device
     ### Uncomment next steps if https://bugzilla.redhat.com/show_bug.cgi?id=2067124 gets approved, remove if rejected
     #* Bring down connection "test1-ttls"

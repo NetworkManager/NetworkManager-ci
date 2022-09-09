@@ -89,7 +89,7 @@ Feature: Bridge TUI tests
     * Choose to "Activate a connection" from main screen
     * Select connection "bridge0" in the list
     * Choose to "<Deactivate>" a connection
-    * Wait for at least "3" seconds
+    * Wait for "3" seconds
     Then "bridge0" is not visible with command "nmcli device"
     Then "bridge0" is not visible with command "ip link show type bridge"
 
@@ -104,7 +104,7 @@ Feature: Bridge TUI tests
     * Select connection "bridge0" in the list
     * Choose to "<Delete>" a connection
     * Press "Delete" button in the dialog
-    * Wait for at least "3" seconds
+    * Wait for "3" seconds
     Then "bridge0" is not visible with command "nmcli connection"
     Then "bridge0" is not visible with command "nmcli device"
     Then "bridge0" is not visible with command "ip link show type bridge"
@@ -115,14 +115,14 @@ Feature: Bridge TUI tests
     * Prepare new connection of type "Bridge" named "bridge0"
     * Set "Device" field to "bridge0"
     * Confirm the connection settings
-    * Wait for at least "2" seconds
+    * Wait for "2" seconds
     * Execute "nmcli connection down bridge0"
     * "bridge0" is visible with command "nmcli connection"
     * "bridge0" is not visible with command "nmcli device"
     * Select connection "bridge0" in the list
     * Choose to "<Delete>" a connection
     * Press "Delete" button in the dialog
-    * Wait for at least "3" seconds
+    * Wait for "3" seconds
     Then "bridge0" is not visible with command "nmcli connection"
     Then "bridge0" is not visible with command "nmcli device"
     Then "bridge0" is not visible with command "ip link show type bridge"

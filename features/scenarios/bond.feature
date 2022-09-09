@@ -548,7 +548,7 @@
      * Bring "up" connection "bond0.0"
      Then Check bond "nm-bond" state is "up"
      * Delete connection "bond0"
-     * Execute "sleep 3"
+     * Wait for "3" seconds
      Then Check bond "nm-bond" link state is "down"
 
 
@@ -619,7 +619,7 @@
      * Submit "activate" in editor
      * Enter in editor
      * Quit editor
-     * Execute "sleep 3"
+     * Wait for "3" seconds
      Then Check bond "nm-bond" link state is "up"
      Then Check slave "eth1" in bond "nm-bond" in proc
      Then Check slave "eth4" not in bond "nm-bond" in proc
@@ -965,7 +965,7 @@
     * Delete connection "bond0.0"
     * Bring "down" connection "bond0.1"
     * Bring "down" connection "bond0.2"
-    * Execute "sleep 1"
+    * Wait for "1" seconds
     * Reboot
     When Check bond "nm-bond" link state is "up"
      And Check slave "eth4" in bond "nm-bond" in proc
@@ -1839,7 +1839,7 @@
     * Cleanup device "eth4"
     * Cleanup device "eth1"
     * Restart NM
-    * Execute "sleep 5"
+    * Wait for "5" seconds
     * Note the output of "pidof NetworkManager" as value "orig_pid"
     * Execute "ip l del bond0"
     * Note the output of "pidof NetworkManager" as value "new_pid"
@@ -2599,7 +2599,7 @@
           connection.autoconnect no
           """
     When Execute "nmcli c up id bond0 || /bin/true"
-    * Execute "sleep 50"
+    * Wait for "50" seconds
     Then "172.25.13.1" is not visible with command "ip -4 a show dev bond0"
      And "Request who-has 172.25.13.1" is visible with command "cat /tmp/network-traffic.log"
      And "Reply 172.25.13.1 is-at" is visible with command "cat /tmp/network-traffic.log"

@@ -562,7 +562,7 @@ Feature: nmcli - bridge
     * Execute "for i in $(seq 0 1000); do ip link add port$i type dummy; ip link set port$i master bridge0; done"
     * Delete connection "bridge4"
     * Settle with RTNETLINK
-    * Wait for at least "5" seconds
+    * Wait for "5" seconds
     Then Compare kernel and NM master-slave devices
     Then "GENERAL.DEVICE:\s+port999" is visible with command "nmcli device show port999"
 
@@ -732,10 +732,10 @@ Feature: nmcli - bridge
     * Stop NM
     * Execute "ip link set bridge0 type bridge forward_delay 0"
     * Execute "ip link set eth4 type bridge_slave cost 4"
-    * Wait for at least "2" seconds
+    * Wait for "2" seconds
     * Reboot
     * Start NM
-    * Wait for at least "2" seconds
+    * Wait for "2" seconds
     Then "Exactly" "1" lines with pattern "^bridge-slave-eth4" are visible with command "nmcli connection"
      And "Exactly" "1" lines with pattern "^bridge0" are visible with command "nmcli connection"
      And "\neth4" is not visible with command "nmcli connection show"
@@ -855,7 +855,7 @@ Feature: nmcli - bridge
     When "192.168.99" is not visible with command "ip a s br4" in "150" seconds
     Then "br4:connected:bridge4" is visible with command "nmcli -t -f DEVICE,STATE,CONNECTION device" in "10" seconds
     Then "test44:connected:bridge4.1" is visible with command "nmcli -t -f DEVICE,STATE,CONNECTION device" in "10" seconds
-    * Execute "sleep 20"
+    * Wait for "20" seconds
     * Execute "ip netns exec test44_ns pkill -SIGCONT -F /tmp/test44_ns.pid"
     Then "192.168.99" is visible with command "ip a s br4" in "60" seconds
     Then "br4:connected:bridge4" is visible with command "nmcli -t -f DEVICE,STATE,CONNECTION device" in "10" seconds
