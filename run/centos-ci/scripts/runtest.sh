@@ -13,6 +13,9 @@ fail=()
 skip=()
 pass=()
 
+#to make run/runtest.sh return 77 on skip
+export CENTOS_CI=1
+
 # Overal result is PASS
 # This can be used as a test result indicator
 mkdir -p /tmp/results/
@@ -45,22 +48,20 @@ for test in $@; do
     timeout $timer $cmd; rc=$?
     echo "Finished at:" $(date)
 
-    if [ $rc -ne 0 ]; then
+    result="/tmp/results/"
+
+    if [ $rc = 77 ]; then
+        skip+=($test)
+    elif [ $rc = 0 ]; then
+        pass+=($test)
+    else
         # Overal result is FAIL
-        mv /tmp/report_$TEST.html /tmp/results/FAIL-report_$TEST.html
+        result=/tmp/results/FAIL-report_$TEST.html
         fail+=($test)
         systemctl restart NetworkManager
         nmcli con up id testeth0
-    else
-        # File has a non zero size (was no skipped)
-        if [ -s /tmp/report_$TEST.html ]; then
-            mv /tmp/report_$TEST.html /tmp/results/
-            pass+=($test)
-        else
-            skip+=($test)
-            rm -rf /tmp/report_$TEST.html
-        fi
     fi
+    mv /tmp/report_$TEST.html $result
     ((cnt++))
 
 done

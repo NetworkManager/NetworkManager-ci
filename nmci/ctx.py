@@ -813,6 +813,12 @@ class _CExt:
                 ex.append(e)
         return ex
 
+    def skip(self, msg=""):
+        if msg:
+            self.embed_data("Skip message", msg)
+        self.context.scenario.skip(msg)
+        self.scenario_skipped = True
+
 
 class _ContextUtil:
     def __init__(self, cext):

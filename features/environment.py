@@ -4,7 +4,6 @@ import sys
 import time
 import signal
 import traceback
-import pexpect
 
 import xml.etree.ElementTree as ET
 
@@ -66,6 +65,7 @@ def _before_scenario(context, scenario):
 
     # set important context attributes
     assert not context.cext._cleanup_lst
+    context.cext.scenario_skipped = False
     context.step_level = 0
     context.nm_restarted = False
     context.nm_pid = nmci.nmutil.nm_pid()
@@ -121,6 +121,8 @@ def _before_scenario(context, scenario):
             excepts.append(str(e))
 
     for tag_name in scenario.tags:
+        if context.cext.scenario_skipped:
+            break
         tag = nmci.tags.tag_registry.get(tag_name, None)
         if tag is None:
             continue
@@ -144,7 +146,13 @@ def _before_scenario(context, scenario):
 
     nmci.ctx.check_crash(context, "crash outside steps (before scenario)")
 
+    if context.cext.scenario_skipped:
+        context.cext._html_formatter.scenario(scenario)
+        context.before_scenario_step_el.set("class", "step skipped")
+
     if excepts:
+        # reset skipped flag, so we do not skip fail
+        context.cext.scenario_skipped = False
         context.before_scenario_step_el.set("class", "step failed")
         context.cext.embed_data(
             "Exception in before scenario tags",
@@ -166,8 +174,7 @@ def after_step(context, step):
         and step.status == "failed"
         and step.step_type == "given"
     ):
-        print("Omiting the test as device does not support AP/ADHOC mode")
-        sys.exit(77)
+        context.cext.skip("Omiting the test as device does not support AP/ADHOC mode")
     # for nmcli_wifi_right_band_80211a - HW dependent 'passes'
     if (
         "DEVICE_CAP_FREQ_5GZ" in step.name
@@ -175,8 +182,7 @@ def after_step(context, step):
         and step.status == "failed"
         and step.step_type == "given"
     ):
-        print("Omitting the test as device does not support 802.11a")
-        sys.exit(77)
+        context.cext.skip("Omitting the test as device does not support 802.11a")
     # for testcase_306559
     if (
         "DEVICE_CAP_FREQ_5GZ" in step.name
@@ -184,8 +190,7 @@ def after_step(context, step):
         and step.status == "failed"
         and step.step_type == "given"
     ):
-        print("Omitting the test as device supports 802.11a")
-        sys.exit(77)
+        context.cext.skip("Omitting the test as device supports 802.11a")
 
     context.cext.process_pexpect_spawn()
 
@@ -245,6 +250,8 @@ def _after_scenario(context, scenario):
 
     nmci.misc.html_report_tag_links(context.cext._html_formatter.scenario_el)
     nmci.misc.html_report_file_links(context.cext._html_formatter.scenario_el)
+
+    skipped = context.cext.scenario_skipped
 
     nm_pid_after = nmci.nmutil.nm_pid()
     if not nm_pid_after:
@@ -329,8 +336,13 @@ def _after_scenario(context, scenario):
     except Exception:
         excepts.append(traceback.format_exc())
 
+    if not skipped and context.cext.scenario_skipped:
+        excepts.append("Skip in after_scenario() detected.")
+
     if excepts or context.crashed_step:
         context.after_scenario_step_el.set("class", "step failed")
+        # reset skip flag, so we do not skip fail
+        context.cext.scenario_skipped = False
     if excepts:
         context.cext.embed_data(
             "Exception in after scenario tags", "\n\n".join(excepts)
@@ -367,4 +379,8 @@ def after_tag(context, tag):
 
 
 def after_all(context):
+    if getattr(context.cext, "scenario_skipped", False):
+        for f in context._runner.formatters:
+            f.close()
+        sys.exit(77)
     print("ALL DONE")
