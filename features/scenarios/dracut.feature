@@ -1734,7 +1734,7 @@ Feature: NM: dracut
 
     @rhelver+=8.3 @fedoraver+=32
     @ver+=1.27
-    @dracut @long @not_on_ppc64le
+    @temporary_skip @dracut @long @not_on_ppc64le
     @dracut_NM_vlan_over_team_no_boot
     Scenario: NM - dracut - NM module - VLAN over team boot over other iface (team not stable)
     * Run dracut test
