@@ -82,7 +82,7 @@ _register_tag("nmtui")
 
 
 def temporary_skip_bs(context, scenario):
-    sys.exit(77)
+    context.cext.skip()
 
 
 _register_tag("temporary_skip", temporary_skip_bs)
@@ -91,7 +91,7 @@ _register_tag("temporary_skip", temporary_skip_bs)
 def skip_restarts_bs(context, scenario):
     if os.path.isfile("/tmp/nm_skip_restarts") or os.path.isfile("/tmp/nm_skip_STR"):
         print("skipping service restart tests as /tmp/nm_skip_restarts exists")
-        sys.exit(77)
+        context.cext.skip()
 
 
 _register_tag("skip_str", skip_restarts_bs)
@@ -100,7 +100,7 @@ _register_tag("skip_str", skip_restarts_bs)
 def long_bs(context, scenario):
     if os.path.isfile("/tmp/nm_skip_long"):
         print("skipping long test case as /tmp/nm_skip_long exists")
-        sys.exit(77)
+        context.cext.skip()
 
 
 _register_tag("long", long_bs)
@@ -109,7 +109,7 @@ _register_tag("long", long_bs)
 def skip_in_centos_bs(context, scenario):
     if "CentOS" in context.rh_release:
         print("skipping with centos")
-        sys.exit(77)
+        context.cext.skip()
 
 
 _register_tag("skip_in_centos", skip_in_centos_bs)
@@ -119,7 +119,7 @@ def skip_in_kvm_bs(context, scenario):
     if "kvm" or "powervm" in context.hypervisor:
         if context.arch != "x86_64":
             print("skipping on non x86_64 machine with kvm or powervm hypvervisors")
-            sys.exit(77)
+            context.cext.skip()
 
 
 _register_tag("skip_in_kvm", skip_in_kvm_bs)
@@ -127,12 +127,12 @@ _register_tag("skip_in_kvm", skip_in_kvm_bs)
 
 def arch_only_bs(context, scenario, arch):
     if context.arch != arch:
-        sys.exit(77)
+        context.cext.skip()
 
 
 def not_on_arch_bs(context, scenario, arch):
     if context.arch == arch:
-        sys.exit(77)
+        context.cext.skip()
 
 
 for arch in ["x86_64", "s390x", "ppc64", "ppc64le", "aarch64"]:
@@ -144,7 +144,7 @@ def not_on_aarch64_but_pegas_bs(context, scenario):
     ver = context.process.run_stdout("uname -r").strip()
     if context.arch == "aarch64":
         if "4.5" in ver:
-            sys.exit(77)
+            context.cext.skip()
 
 
 _register_tag("not_on_aarch64_but_pegas", not_on_aarch64_but_pegas_bs)
@@ -153,7 +153,7 @@ _register_tag("not_on_aarch64_but_pegas", not_on_aarch64_but_pegas_bs)
 def gsm_sim_bs(context, scenario):
     if context.arch != "x86_64":
         print("Skipping on not intel arch")
-        sys.exit(77)
+        context.cext.skip()
     # run as service
     context.pexpect_service("sudo prepare/gsm_sim.sh modemu")
 
@@ -227,7 +227,7 @@ _register_tag("crash", crash_bs, crash_as)
 def not_with_systemd_resolved_bs(context, scenario):
     if context.process.systemctl("is-active systemd-resolved").returncode == 0:
         print("Skipping as systemd-resolved is running")
-        sys.exit(77)
+        context.cext.skip()
 
 
 _register_tag("not_with_systemd_resolved", not_with_systemd_resolved_bs)
@@ -237,9 +237,9 @@ def not_under_internal_DHCP_bs(context, scenario):
     if "release 8" in context.rh_release and not context.process.run_search_stdout(
         "NetworkManager --print-config", "dhclient"
     ):
-        sys.exit(77)
+        context.cext.skip()
     if context.process.run_search_stdout("NetworkManager --print-config", "internal"):
-        sys.exit(77)
+        context.cext.skip()
 
 
 _register_tag("not_under_internal_DHCP", not_under_internal_DHCP_bs)
@@ -247,7 +247,7 @@ _register_tag("not_under_internal_DHCP", not_under_internal_DHCP_bs)
 
 def not_on_veth_bs(context, scenario):
     if os.path.isfile("/tmp/nm_veth_configured"):
-        sys.exit(77)
+        context.cext.skip()
 
 
 _register_tag("not_on_veth", not_on_veth_bs, None)
@@ -750,7 +750,7 @@ def dns_systemd_resolved_bs(context, scenario):
         context.process.systemctl("start systemd-resolved")
         if context.process.systemctl("is-active systemd-resolved").returncode != 0:
             print("ERROR: Cannot start systemd-resolved")
-            sys.exit(77)
+            context.cext.skip()
     conf = ["# configured by beaker-test", "[main]", "dns=systemd-resolved"]
 
     # On Fedora and RHEL9+, rc-manager is "auto" by default, which doesn't touch
@@ -1105,7 +1105,7 @@ _register_tag("pkcs11", pkcs11_bs)
 def simwifi_bs(context, scenario):
     if context.arch != "x86_64":
         print("Skipping as not on x86_64")
-        sys.exit(77)
+        context.cext.skip()
     args = ["namespace"]
     nmci.ctx.setup_hostapd_wireless(context, args)
 
@@ -1130,7 +1130,7 @@ _register_tag("simwifi", simwifi_bs, simwifi_as)
 def simwifi_ap_bs(context, scenario):
     if context.arch != "x86_64":
         print("Skipping as not on x86_64")
-        sys.exit(77)
+        context.cext.skip()
 
     context.process.run_stdout("modprobe -r mac80211_hwsim")
     if not hasattr(context, "noted"):
@@ -1158,7 +1158,7 @@ _register_tag("simwifi_ap", simwifi_ap_bs, simwifi_ap_as)
 def simwifi_p2p_bs(context, scenario):
     if context.arch != "x86_64":
         print("Skipping as not on x86_64")
-        sys.exit(77)
+        context.cext.skip()
 
     if (
         context.rh_release_num >= 8
@@ -1239,7 +1239,7 @@ _register_tag("simwifi_p2p", simwifi_p2p_bs, simwifi_p2p_as)
 def simwifi_teardown_bs(context, scenario):
     nmci.ctx.teardown_hostapd_wireless(context)
     nmci.ctx.wait_for_testeth0(context)
-    sys.exit(77)
+    context.cext.skip()
 
 
 _register_tag("simwifi_teardown", simwifi_teardown_bs)
@@ -1248,7 +1248,7 @@ _register_tag("simwifi_teardown", simwifi_teardown_bs)
 def vpnc_bs(context, scenario):
     if context.arch == "s390x":
         print("Skipping on s390x")
-        sys.exit(77)
+        context.cext.skip()
     # Install under RHEL7 only
     if "Maipo" in context.rh_release:
         print("install epel-release-7")
@@ -1280,7 +1280,7 @@ _register_tag("vpnc", vpnc_bs, vpnc_as)
 def tcpreplay_bs(context, scenario):
     if context.arch == "s390x":
         print("Skipping on s390x")
-        sys.exit(77)
+        context.cext.skip()
     nmci.ctx.wait_for_testeth0(context)
     # Install under RHEL7 only
     if "Maipo" in context.rh_release:
@@ -1326,7 +1326,7 @@ def libreswan_bs(context, scenario):
         != 0
     ):
         print("Skipping with old Libreswan")
-        sys.exit(77)
+        context.cext.skip()
 
     context.process.run_stdout("/usr/sbin/ipsec --checknss")
     mode = "aggressive"
@@ -1353,7 +1353,7 @@ def openvpn_bs(context, scenario):
     if context.arch == "s390x":
         print("Skipping on s390x")
         nmci.ctx.wait_for_testeth0(context)
-        sys.exit(77)
+        context.cext.skip()
     context.ovpn_proc = nmci.ctx.setup_openvpn(context, scenario.tags)
 
 
@@ -1374,7 +1374,7 @@ def strongswan_bs(context, scenario):
     if "release 7" in context.rh_release:
         if context.arch == "s390x":
             print("Skipping on RHEL7 on s390x")
-            sys.exit(77)
+            context.cext.skip()
     nmci.ctx.wait_for_testeth0(context)
     nmci.ctx.setup_strongswan(context)
 
@@ -1612,7 +1612,7 @@ def performance_bs(context, scenario):
         context.machine_speed_factor = 1.5
     elif hostname.startswith("wsfd-netdev"):
         print("wsfd-netdev: we are unpredictable here, skipping")
-        sys.exit(77)
+        context.cext.skip()
     else:
         print(f"Unmatched: {hostname}: keeping default")
     if "fedora" in context.rh_release.lower():
@@ -1657,7 +1657,7 @@ _register_tag("preserve_8021x_certs", preserve_8021x_certs_bs)
 def pptp_bs(context, scenario):
     if context.arch == "s390x":
         print("Skipping on s390x")
-        sys.exit(77)
+        context.cext.skip()
     nmci.ctx.wait_for_testeth0(context)
     # Install under RHEL7 only
     if "Maipo" in context.rh_release:
@@ -1809,7 +1809,7 @@ _register_tag("runonce", runonce_bs, runonce_as)
 def slow_team_bs(context, scenario):
     if context.arch != "x86_64":
         print("Skippin as not on x86_64")
-        sys.exit(77)
+        context.cext.skip()
     context.process.run_stdout(
         "for i in $(rpm -qa |grep team|grep -v Netw); do rpm -e $i --nodeps; done",
         shell=True,
@@ -1829,7 +1829,7 @@ def slow_team_bs(context, scenario):
         context.process.run_stdout(
             "yum -y install teamd libteam", timeout=120, ignore_stderr=True
         )
-        sys.exit(77)
+        context.cext.skip()
     nmci.ctx.reload_NM_service(context)
 
 
@@ -1850,7 +1850,7 @@ _register_tag("slow_team", slow_team_bs, slow_team_as)
 def openvswitch_bs(context, scenario):
     if context.arch == "s390x" and "Ootpa" not in context.rh_release:
         print("Skipping as on s390x and not Ootpa")
-        sys.exit(77)
+        context.cext.skip()
     if context.process.run_code("rpm -q NetworkManager-ovs") != 0:
         print("install NetworkManager-ovs")
         context.process.run_stdout(
@@ -2056,7 +2056,7 @@ def nmstate_upstream_setup_bs(context, scenario):
     # Skip on deployments where we do not have veths
     if not os.path.isfile("/tmp/nm_veth_configured"):
         print("Skipping as no vethsetup")
-        sys.exit(77)
+        context.cext.skip()
 
     # Prepare nmstate and skip if unsuccesful
     if (
@@ -2066,7 +2066,7 @@ def nmstate_upstream_setup_bs(context, scenario):
         != 0
     ):
         print("ERROR: Skipping as prepare failed")
-        sys.exit(77)
+        context.cext.skip()
 
     # Rename eth1/2 to ethX/Y as these are used by test
     context.process.run_stdout("ip link set dev eth1 down")

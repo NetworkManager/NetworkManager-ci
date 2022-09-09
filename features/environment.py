@@ -4,7 +4,6 @@ import sys
 import time
 import signal
 import traceback
-import pexpect
 
 import xml.etree.ElementTree as ET
 
@@ -167,7 +166,7 @@ def after_step(context, step):
         and step.step_type == "given"
     ):
         print("Omiting the test as device does not support AP/ADHOC mode")
-        sys.exit(77)
+        context.cext.skip()
     # for nmcli_wifi_right_band_80211a - HW dependent 'passes'
     if (
         "DEVICE_CAP_FREQ_5GZ" in step.name
@@ -176,7 +175,7 @@ def after_step(context, step):
         and step.step_type == "given"
     ):
         print("Omitting the test as device does not support 802.11a")
-        sys.exit(77)
+        context.cext.skip()
     # for testcase_306559
     if (
         "DEVICE_CAP_FREQ_5GZ" in step.name
@@ -185,7 +184,7 @@ def after_step(context, step):
         and step.step_type == "given"
     ):
         print("Omitting the test as device supports 802.11a")
-        sys.exit(77)
+        context.cext.skip()
 
     context.cext.process_pexpect_spawn()
 
