@@ -1670,13 +1670,14 @@
            ip4 172.16.1.1/24
            -- connection.autoconnect-slaves 1
            bond.options
-           mode=802.3ad,ad_actor_sys_prio=666,ad_actor_system=00:00:00:00:11:00,min_links=2,ad_user_port_key=2,all_slaves_active=1
+           mode=802.3ad,ad_actor_sys_prio=666,ad_select=bandwidth,ad_actor_system=00:00:00:00:11:00,min_links=2,ad_user_port_key=2,all_slaves_active=1
            """
      * Add "ethernet" connection named "bond0.1" for device "eth4" with options "master nm-bond autoconnect no"
      * Add "ethernet" connection named "bond0.0" for device "eth1" with options "master nm-bond autoconnect no"
      * Bring "up" connection "bond0"
      #When "nm-bond:connected:bond0" is visible with command "nmcli -t -f DEVICE,STATE,CONNECTION device" in "40" seconds
      Then "system priority: 666" is visible with command "cat /proc/net/bonding/nm-bond"
+      And "Aggregator selection policy \(ad_select\): bandwidth" is visible with command "cat /proc/net/bonding/nm-bond"
       And "2" is visible with command "cat /sys/class/net/nm-bond/bonding/ad_user_port_key"
       And "00:00:00:00:11:00" is visible with command "cat /sys/class/net/nm-bond/bonding/ad_actor_system"
       And "1" is visible with command "cat /sys/class/net/nm-bond/bonding/all_slaves_active"
