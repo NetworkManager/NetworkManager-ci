@@ -165,8 +165,7 @@ def after_step(context, step):
         and step.status == "failed"
         and step.step_type == "given"
     ):
-        print("Omiting the test as device does not support AP/ADHOC mode")
-        context.cext.skip()
+        context.cext.skip("Omiting the test as device does not support AP/ADHOC mode")
     # for nmcli_wifi_right_band_80211a - HW dependent 'passes'
     if (
         "DEVICE_CAP_FREQ_5GZ" in step.name
@@ -174,8 +173,7 @@ def after_step(context, step):
         and step.status == "failed"
         and step.step_type == "given"
     ):
-        print("Omitting the test as device does not support 802.11a")
-        context.cext.skip()
+        context.cext.skip("Omitting the test as device does not support 802.11a")
     # for testcase_306559
     if (
         "DEVICE_CAP_FREQ_5GZ" in step.name
@@ -183,8 +181,7 @@ def after_step(context, step):
         and step.status == "failed"
         and step.step_type == "given"
     ):
-        print("Omitting the test as device supports 802.11a")
-        context.cext.skip()
+        context.cext.skip("Omitting the test as device supports 802.11a")
 
     context.cext.process_pexpect_spawn()
 
