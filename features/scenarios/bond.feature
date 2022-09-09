@@ -1460,11 +1460,12 @@
            """
      * Add "ethernet" connection named "bond0.0" for device "eth1" with options "master nm-bond"
      * Add "ethernet" connection named "bond0.1" for device "eth4" with options "master nm-bond"
-     * Modify connection "bond0" changing options "bond.options miimon=100,mode=5"
+     * Modify connection "bond0" changing options "bond.options miimon=100,mode=5,lp_interval=10"
      * Bring "up" connection "bond0"
      * Bring "up" connection "bond0.0"
      * Bring "up" connection "bond0.1"
      Then "Bonding Mode: transmit load balancing" is visible with command "cat /proc/net/bonding/nm-bond"
+     Then "10" is visible with command "cat /sys/class/net/nm-bond/bonding/lp_interval"
      Then Check bond "nm-bond" link state is "up"
 
 
