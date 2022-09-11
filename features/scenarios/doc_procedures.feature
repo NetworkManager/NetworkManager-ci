@@ -343,7 +343,9 @@ Feature: nmcli - procedures in documentation
     Then "bnwfQcC8/g2i4vvEqcRUM2e6Hi3Nskk6G9t4r26nFVM=" is visible with command "wg show wg0"
      And "inet 192.0.2.1/24 brd 192.0.2.255 scope global noprefixroute wg0" is visible with command "ip address show wg0"
      And "inet6 2001:db8:1::1/32 scope global noprefixroute" is visible with command "ip address show wg0"
-    * Prepare new connection of type "WireGuard" named "client-wg0"
+    * Choose to "<Add>" a connection
+    * Choose the connection type "WireGuard"
+    * Set "Profile name" field to "client-wg0"
     * Set "Device" field to "wg1"
     * Set "Private key" field to "aPUcp5vHz8yMLrzk8SsDyYnV33IhE/k20e52iKJFV0A="
     * Choose to "<Add>" a peer
