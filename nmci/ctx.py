@@ -588,8 +588,12 @@ class _CExt:
         for a in self._cleanup_lst:
             # Smaller priority number is preferred (and is
             # rolled back first).
-            if a.priority < cleanup_action.priority:
-                idx += 1
+            if a.priority >= cleanup_action.priority:
+                # the cleanup actions are tracked in ascending priority
+                # Once we found a >= priority we are done and have the
+                # index found where to insert.
+                break
+            idx += 1
         self._cleanup_lst.insert(idx, cleanup_action)
 
         if newly_added:
