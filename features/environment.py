@@ -122,16 +122,12 @@ def _before_scenario(context, scenario):
 
     for tag_name in scenario.tags:
         tag = nmci.tags.tag_registry.get(tag_name, None)
-        if tag is not None and tag._before_scenario is not None:
-            print("Executing @" + tag_name)
-            t_start = time.time()
-            t_status = "passed"
-            try:
-                tag.before_scenario(context, scenario)
-            except Exception:
-                t_status = "failed"
-                excepts.append(traceback.format_exc())
-            print(f"  @{tag_name} ... {t_status} in {time.time() - t_start:.3f}s")
+        if tag is None:
+            continue
+        try:
+            tag.before_scenario(context, scenario)
+        except Exception:
+            excepts.append(traceback.format_exc())
 
     context.nm_pid = nmci.nmutil.nm_pid()
 
@@ -287,16 +283,12 @@ def _after_scenario(context, scenario):
     scenario_tags.reverse()
     for tag_name in scenario_tags:
         tag = nmci.tags.tag_registry.get(tag_name, None)
-        if tag is not None and tag._after_scenario is not None:
-            print("Executing @" + tag_name)
-            t_start = time.time()
-            t_status = "passed"
-            try:
-                tag.after_scenario(context, scenario)
-            except Exception:
-                t_status = "failed"
-                excepts.append(traceback.format_exc())
-            print(f"  @{tag_name} ... {t_status} in {time.time() - t_start:.3f}s")
+        if tag is None:
+            continue
+        try:
+            tag.after_scenario(context, scenario)
+        except Exception:
+            excepts.append(traceback.format_exc())
 
     for ex in context.cext.process_cleanup():
         excepts.append("".join(traceback.format_exception(ex, ex, ex.__traceback__)))
