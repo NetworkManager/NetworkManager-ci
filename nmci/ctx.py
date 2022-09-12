@@ -571,6 +571,8 @@ class _CExt:
                 "Cleanup already happend. Cannot schedule anew cleanup action"
             )
 
+        newly_added = True
+
         # Find and delete duplicate (we will always prepend the
         # new action to the front (honoring the priority),
         # meaning that later added cleanups, will be executed
@@ -578,6 +580,7 @@ class _CExt:
         for i, a in enumerate(self._cleanup_lst):
             if a.unique_tag == cleanup_action.unique_tag:
                 del self._cleanup_lst[i]
+                newly_added = False
                 break
 
         # Prepend, but still honor the priority.
@@ -589,7 +592,7 @@ class _CExt:
                 idx += 1
         self._cleanup_lst.insert(idx, cleanup_action)
 
-        if idx is None:
+        if newly_added:
             for c in cleanup_action.also_needs():
                 self._cleanup_add(c)
 
