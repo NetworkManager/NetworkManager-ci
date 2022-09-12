@@ -62,13 +62,13 @@ install_el8_packages () {
     # Add OVS repo and install OVS
     if ! grep -q -e 'CentOS .* release 8' /etc/redhat-release; then
         cp -f  contrib/ovs/ovs-rhel8.repo /etc/yum.repos.d/ovs.repo
-        yum -y install openvswitch2.16* openvswitch-selinux-extra-policy
+        yum -y install openvswitch2.17* openvswitch-selinux-extra-policy
         systemctl restart openvswitch
     else
         dnf -y install \
-            $CBSC/openvswitch2.15/2.15.0/39.el8s/$(arch)/openvswitch2.15-2.15.0-39.el8s.$(arch).rpm \
-            $CBSC/openvswitch2.15/2.15.0/39.el8s/$(arch)/python3-openvswitch2.15-2.15.0-39.el8s.$(arch).rpm \
-            $CBSC/openvswitch-selinux-extra-policy/1.0/28.el8/noarch/openvswitch-selinux-extra-policy-1.0-28.el8.noarch.rpm
+            $CBSC/openvswitch2.17/2.17.0/31.el8s/$(arch)/openvswitch2.17-2.17.0-31.el8s.$(arch).rpm \
+            $CBSC/openvswitch2.17/2.17.0/31.el8s/$(arch)/python3-openvswitch2.17-2.17.0-31.el8s.$(arch).rpm \
+            $CBSC/openvswitch-selinux-extra-policy/1.0/29.el8s/noarch/openvswitch-selinux-extra-policy-1.0-29.el8s.noarch.rpm
     fi
 
     # We still need pptp and pptpd in epel to be packaged
