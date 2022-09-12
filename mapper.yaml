@@ -2610,6 +2610,8 @@ testmapper:
         feature: dns
     - dns_resolved_add_mdns:
         feature: dns
+    - dns_global:
+        feature: dns
     - nmtui_general_exit_nmtui:
         feature: nmtui_general
     - nmtui_general_open_edit_menu:

@@ -1277,3 +1277,14 @@ Feature: nmcli - dns
     * Add "ethernet" connection named "con_ipv6" for device "testX6"
     * Bring "up" connection "con_ipv6" ignoring error
     Then "nameserver 2620:dead:beaf::1" is visible with command "cat /run/NetworkManager/resolv.conf" in "45" seconds
+
+
+    @rhbz2019306
+    @ver+=1.43
+    @restore_resolvconf @restart_if_needed
+    @not_with_systemd_resolved
+    @dns_global
+    Scenario: NM - dns global options
+    * Execute "printf '[global-dns]\noptions=timeout:666\n' > /etc/NetworkManager/conf.d/99-resolv.conf"
+    * Restart NM
+    Then "options timeout:666" is visible with command "grep options /etc/resolv.conf" in "5" seconds
