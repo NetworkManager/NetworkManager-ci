@@ -1204,7 +1204,7 @@ testmapper:
     - vlan_create_many_vlans:
         feature: vlan
         # Do not lower this if we see timout it's a perf regression
-        timeout: 14m
+        timeout: 13m
     - vlan_create_1000_bridges_over_1000_vlans:
         feature: vlan
         timeout: 25m

@@ -853,22 +853,26 @@ Feature: nmcli - vlan
 
     @rhbz1933041 @rhbz1926599 @rhbz1231526
     @ver+=1.30 @rhelver+=8
-    @logging_info_only @many_vlans @restart_if_needed
+    @logging_info_only @many_vlans
     @vlan_create_many_vlans
     Scenario: NM - vlan - create 500 (x86_64) or 200 (aarch64, s390x...) vlans
     # Prepare veth pair with the other end in namespace
     # Create 500 (from 10 to 510) vlans on top of eth11p
     # Run dnsmasq inside the namespace to server incoming connections
     * Execute "sh prepare/vlans.sh setup $N_VLANS"
+    # Stop OVS just to save some CPU cycles
+    * Execute "systemctl stop openvswitch || true"
     # Create 501 profiles which should be autoconnected after a while
-    * Execute "for i in $(seq 10 $((N_VLANS + 10))); do nmcli con add type vlan con-name eth11.$i id $i dev eth11 ipv4.may-fail no ipv6.method disable; done"
-   # Wait till we have "all" addresses assigned
+    * Execute "for i in $(seq 10 $((N_VLANS + 10))); do nmcli con add type vlan con-name eth11.$i id $i dev eth11 ipv4.may-fail no ipv4.dns 11.1.0.1 ipv4.ignore-auto-dns yes ipv6.method disable; done"
+    # Wait till we have "all" addresses assigned
     * Note the output of "echo $((N_VLANS + 1))"
     Then Noted number of lines with pattern "eth11.* connected" is visible with command "nmcli device" in "500" seconds
     # Simulate reboot and delete all devices
     * Stop NM
     * Execute "for i in $(seq 10 $((N_VLANS + 10))); do ip link del eth11.$i; done"
     * Reboot
+    # Give NM some time to up some connections
+    * Wait for "180" seconds
     # Wait till we have "all" addresses assigned again
     Then Noted number of lines with pattern "eth11.* connected" is visible with command "nmcli device" in "500" seconds
     # Then Execute "nmcli  device |grep eth11 > /tmp/eth11s"
