@@ -842,13 +842,11 @@ def dump_status(context, when, fail_only=False):
             "ip netns exec vethsetup nft list ruleset",
         ]
 
-    named_nss = {
-        ns.split()[0]
-        for ns in nmci.process.run_stdout("ip netns list").split("\n")
-        if ns
-    } - {
-        "vethsetup"
-    }  # vethsetup is handled separately
+    named_nss = nmci.ip.netns_list()
+
+    # vethsetup is handled separately
+    named_nss = [n for n in named_nss if n != "vethsetup"]
+
     if len(named_nss) > 0:
         add_to_heading = f"\nStatus of other named network namespaces:\n"
         for ns in sorted(named_nss):
