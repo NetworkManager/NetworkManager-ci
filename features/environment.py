@@ -363,4 +363,8 @@ def after_tag(context, tag):
 
 
 def after_all(context):
+    if getattr(context.cext, "scenario_skipped", False):
+        for f in context._runner.formatters:
+            f.close()
+        sys.exit(77)
     print("ALL DONE")

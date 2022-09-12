@@ -8,7 +8,6 @@ import shutil
 import subprocess
 import collections
 import time
-import atexit
 import xml.etree.ElementTree as ET
 
 from . import misc
@@ -815,11 +814,10 @@ class _CExt:
         return ex
 
     def skip(self, msg=""):
-        atexit.register(lambda: os._exit(77))
-        if getattr(self.context, "scenario", None) is not None:
-            self.context.scenario.skip(msg)
-        else:
-            raise misc.SkipTestException(msg)
+        if msg:
+            self.embed_data("Skip message", msg)
+        self.context.scenario.skip(msg)
+        self.scenario_skipped = True
 
 
 class _ContextUtil:

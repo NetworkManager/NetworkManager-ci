@@ -1,6 +1,5 @@
 # before/after scenario for tags
 import os
-import sys
 import nmci
 import glob
 import time
