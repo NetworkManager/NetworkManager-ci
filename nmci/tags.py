@@ -2017,7 +2017,9 @@ def pppoe_bs(context, scenario):
 
 
 def pppoe_as(context, scenario):
-    context.process.run_stdout("kill -9 $(pidof pppoe-server)", shell=True)
+    context.process.run_stdout("kill $(pidof pppoe-server)", shell=True)
+    # Give pppoe-server a bit time to clean after itslef when terminated
+    time.sleep(1)
 
 
 _register_tag("pppoe", pppoe_bs, pppoe_as)

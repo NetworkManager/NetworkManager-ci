@@ -7,6 +7,7 @@ Feature: nmcli - ppp
     # @test_name (compiled from scenario name)
     # Scenario:
 
+
     @not_on_s390x @pppoe @del_test1112_veths
     @connect_to_pppoe_via_pap
     Scenario: NM - ppp - connect with pap auth
@@ -106,6 +107,8 @@ Feature: nmcli - ppp
     @not_on_s390x @pppoe @del_test1112_veths
     @pppoe_over_vlan
     Scenario: NM - ppp - pppoe over vlan
+    # We have sometimes residuals from previos tests
+    * Execute "ip link del ppp0 || true"
     * Execute "ip link add test11 type veth peer name test12"
     * Execute "ip link set test11 up"
     * Execute "ip link set test12 up"
