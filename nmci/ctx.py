@@ -171,7 +171,7 @@ class CleanupUdevRule(Cleanup):
         Cleanup.__init__(
             self,
             name=f"udev-rule-{rule}",
-            unique_tag=(rule),
+            unique_tag=(rule,),
             priority=50,
         )
 
