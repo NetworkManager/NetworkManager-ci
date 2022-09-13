@@ -440,13 +440,31 @@ class _IP:
                 arg = "down"
             process.run_stdout(["ip", "link", "set", li["ifname"], arg])
 
-    def link_delete(self, ifname=None, *, ifindex=None):
+    def link_delete(self, ifname=None, *, ifindex=None, accept_nodev=False):
 
         if ifname is None or ifindex is not None:
             li = self.link_show(ifindex=ifindex)
+            if ifname is not None and ifname != li["ifname"]:
+                raise Exception(
+                    f"Failure deleting interface because interface with ifindex {ifindex} is called \"{li['ifname']}\" and not \"{ifname}\""
+                )
             ifname = li["ifname"]
 
-        process.run_stdout(["ip", "link", "delete", ifname])
+        try:
+            process.run_stdout(["ip", "link", "delete", ifname])
+        except:
+            if accept_nodev:
+                try:
+                    if ifindex is not None:
+                        if not self.link_show(ifindex=ifindex):
+                            return
+                    elif not self.link_show(ifname=ifname):
+                        return
+                except:
+                    pass
+            # The interface either still exists, or the caller requested a failure
+            # trying to delete a non-existing interface.
+            raise
 
     def netns_list(self, with_binary=False):
 
