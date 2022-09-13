@@ -198,6 +198,33 @@ class CleanupUdevRule(Cleanup):
             pass
 
 
+class CleanupNMService(Cleanup):
+    def __init__(self, operation, priority=None):
+        assert operation in ["start", "restart", "reload"]
+        if priority is None:
+            if operation == "start":
+                priority = -30
+            else:
+                priority = 200
+        self._operation = operation
+        Cleanup.__init__(
+            self,
+            name=f"NM-service-{operation}",
+            priority=priority,
+            unique_tag=(operation,),
+        )
+
+    def _do_cleanup(self, cext):
+        if self._operation == "start":
+            r = start_NM_service(cext.context)
+        elif self._operation == "restart":
+            r = restart_NM_service(cext.context)
+        else:
+            assert self._operation == "reload"
+            r = reload_NM_service(cext.context)
+        assert r
+
+
 ###############################################################################
 
 
@@ -738,6 +765,9 @@ class _CExt:
 
     def cleanup_add_udev_rule(self, *a, **kw):
         self._cleanup_add(CleanupUdevRule(*a, **kw))
+
+    def cleanup_add_NM_service(self, *a, **kw):
+        self._cleanup_add(CleanupNMService(*a, **kw))
 
     def process_cleanup(self):
         ex = []
@@ -1772,6 +1802,7 @@ def start_NM_service(context, pid_wait=True, timeout=10):
 
 def stop_NM_service(context):
     print("stop NM service")
+    context.cext.cleanup_add_NM_service(operation="start")
     r = context.process.systemctl("stop NetworkManager.service")
     context.nm_pid = 0
     return r.returncode == 0
