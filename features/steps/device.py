@@ -1,7 +1,7 @@
 import json
 import pexpect
 import time
-from behave import step
+from behave import step, given
 
 import nmci.misc
 from nmci.util import NM
@@ -508,6 +508,23 @@ def band_cap_set_if_supported(context, flag, device='wlan0'):
     assert flag_cap_set(context, flag=flag, device=device, giveexception=False), "Device supports the band, but the flag is unset!"
 
 
+@given(u'Flag "{flag}" is {n} set in WirelessCapabilites')
+@given(u'Flag "{flag}" is set in WirelessCapabilites')
+def given_flag_cap_set(context, flag, n=None):
+    step_name = context.current_step.name
+    try:
+        context.execute_steps(f"When {step_name}")
+    except AssertionError as ae:
+        if flag in [
+            "NM_802_11_DEVICE_CAP_AP",
+            "NM_802_11_DEVICE_CAP_ADHOC",
+            "NM_802_11_DEVICE_CAP_FREQ_5GHZ",
+        ]:
+            context.cext.skip(f"Skipping, mismatched flag {flag}")
+        else:
+            raise ae
+
+
 @step(u'Flag "{flag}" is {n} set in WirelessCapabilites')
 @step(u'Flag "{flag}" is set in WirelessCapabilites')
 def flag_cap_set(context, flag, n=None, device='wlan0', giveexception=True):
@@ -529,18 +546,19 @@ def flag_cap_set(context, flag, n=None, device='wlan0', giveexception=True):
         assert dpath and len(dpath), "NetworkManager knows nothing about %s" % device
         return dpath
 
-    wcaps = {}
-    wcaps['NM_802_11_DEVICE_CAP_CIPHER_WEP40'] = 0x1
-    wcaps['NM_802_11_DEVICE_CAP_CIPHER_WEP104'] = 0x2
-    wcaps['NM_802_11_DEVICE_CAP_CIPHER_TKIP'] = 0x4
-    wcaps['NM_802_11_DEVICE_CAP_CIPHER_CCMP'] = 0x8
-    wcaps['NM_802_11_DEVICE_CAP_WPA'] = 0x10
-    wcaps['NM_802_11_DEVICE_CAP_RSN'] = 0x20
-    wcaps['NM_802_11_DEVICE_CAP_AP'] = 0x40
-    wcaps['NM_802_11_DEVICE_CAP_ADHOC'] = 0x80
-    wcaps['NM_802_11_DEVICE_CAP_FREQ_VALID'] = 0x100
-    wcaps['NM_802_11_DEVICE_CAP_FREQ_2GHZ'] = 0x200
-    wcaps['NM_802_11_DEVICE_CAP_FREQ_5GHZ'] = 0x400
+    wcaps = {
+        'NM_802_11_DEVICE_CAP_CIPHER_WEP40': 0x1,
+        'NM_802_11_DEVICE_CAP_CIPHER_WEP104': 0x2,
+        'NM_802_11_DEVICE_CAP_CIPHER_TKIP': 0x4,
+        'NM_802_11_DEVICE_CAP_CIPHER_CCMP': 0x8,
+        'NM_802_11_DEVICE_CAP_WPA': 0x10,
+        'NM_802_11_DEVICE_CAP_RSN': 0x20,
+        'NM_802_11_DEVICE_CAP_AP': 0x40,
+        'NM_802_11_DEVICE_CAP_ADHOC': 0x80,
+        'NM_802_11_DEVICE_CAP_FREQ_VALID': 0x100,
+        'NM_802_11_DEVICE_CAP_FREQ_2GHZ': 0x200,
+        'NM_802_11_DEVICE_CAP_FREQ_5GHZ': 0x400,
+    }
 
     path = get_device_dbus_path(device)
     cmd = '''dbus-send --system --print-reply \
@@ -551,13 +569,12 @@ def flag_cap_set(context, flag, n=None, device='wlan0', giveexception=True):
             string:"WirelessCapabilities" | grep variant | awk '{print $3}' ''' % path
     ret = int(context.command_output(cmd).strip())
 
-    if n is None:
-        if wcaps[flag] & ret == wcaps[flag]:
-            return True
-        assert not giveexception, "The flag is unset! WirelessCapabilities: %d" % ret
-        return False
+    expect = n is None
+    result = wcaps[flag] & ret == wcaps[flag]
+    if giveexception:
+        assert expect == result, f"The flag {flag} is mismatched! WirelessCapabilities: {ret}"
     else:
-        assert wcaps[flag] & ret != wcaps[flag], "The flag is set! WirelessCapabilities: %d" % ret
+        return expect == result
 
 
 @step(u'Force renew IPv6 for "{device}"')
