@@ -1649,6 +1649,8 @@ def setup_pkcs11(context):
 
 
 def wifi_rescan(context):
+    if "wpa2-psk" in context.process.nmcli_force("dev wifi list").stdout:
+        return
     print("Commencing wireless network rescan")
     timeout = util.start_timeout(60)
     while timeout.loop_sleep(5):
@@ -1689,8 +1691,7 @@ def setup_hostapd_wireless(context, args=None):
     )
     # "check" file is touched once first check is passed
     # so first setup calls rescan, later setups  calls touch "check" file
-    if not os.path.isfile("/tmp/wireless_hostapd_check.txt"):
-        wifi_rescan(context)
+    wifi_rescan(context)
 
 
 def teardown_hostapd_wireless(context):
