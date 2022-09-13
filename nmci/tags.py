@@ -2024,18 +2024,14 @@ _register_tag("pppoe", pppoe_bs, pppoe_as)
 
 
 def del_test1112_veths_bs(context, scenario):
+    context.cext.cleanup_add_iface("test11")
+    context.cext.cleanup_add_udev_rule("/etc/udev/rules.d/99-veths.rules")
     rule = 'ENV{ID_NET_DRIVER}=="veth", ENV{INTERFACE}=="test11|test12", ENV{NM_UNMANAGED}="0"'
     nmci.util.file_set_content("/etc/udev/rules.d/99-veths.rules", [rule])
     nmci.ctx.update_udevadm(context)
 
 
-def del_test1112_veths_as(context, scenario):
-    context.process.run_stdout("ip link del test11")
-    context.process.run_stdout("rm -f /etc/udev/rules.d/99-veths.rules")
-    nmci.ctx.update_udevadm(context)
-
-
-_register_tag("del_test1112_veths", del_test1112_veths_bs, del_test1112_veths_as)
+_register_tag("del_test1112_veths", del_test1112_veths_bs)
 
 
 def nmstate_bs(context, scenario):
