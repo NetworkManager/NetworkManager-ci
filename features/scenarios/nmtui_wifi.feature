@@ -266,7 +266,7 @@ Feature: WIFI TUI tests
     Then Cannot confirm the connection settings
 
 
-    @wifi @ifcfg-rh
+    @ifcfg-rh @wifi
     @nmtui_wifi_set_existing_bssid
     Scenario: nmtui - wifi - set existing bssid
     * Execute "while ! nmcli  device wifi list --rescan yes |grep '68:7D:B4:08:7F:81'; do :;done"
@@ -279,7 +279,7 @@ Feature: WIFI TUI tests
     Then "Connected to 68:7d:b4:08:7f:81" is visible with command "iw dev wlan0 link" in "30" seconds
 
 
-    @wifi @ifcfg-rh
+    @ifcfg-rh @wifi
     @nmtui_wifi_set_nonexisting_bssid
     Scenario: nmtui - wifi - set nonexisting bssid
     * Prepare new connection of type "Wi-Fi" named "wifi1"
@@ -343,7 +343,7 @@ Feature: WIFI TUI tests
     Then Cannot confirm the connection settings
 
 
-    @wifi @ifcfg-rh
+    @ifcfg-rh @wifi
     @nmtui_wifi_mtu
     Scenario: nmtui - wifi - mtu
     * Prepare new connection of type "Wi-Fi" named "wifi1"

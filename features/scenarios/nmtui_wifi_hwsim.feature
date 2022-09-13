@@ -36,7 +36,7 @@ Feature: WIFI TUI tests
 
 
     @fedoraver+=32
-    @simwifi @attach_hostapd_log @attach_wpa_supplicant_log @ifcfg-rh
+    @ifcfg-rh @simwifi @attach_hostapd_log @attach_wpa_supplicant_log
     @nmtui_simwifi_connect_to_open_network
     Scenario: nmtui - wifi_hwsim - connect to open network straight
     * Start nmtui
@@ -127,7 +127,7 @@ Feature: WIFI TUI tests
 
 
     @fedoraver-=34 @rhelver-=8
-    @simwifi @attach_hostapd_log @attach_wpa_supplicant_log @ifcfg-rh
+    @ifcfg-rh @simwifi @attach_hostapd_log @attach_wpa_supplicant_log
     @nmtui_simwifi_connect_to_wep_hexkey_network
     Scenario: nmtui - wifi_hwsim - connect to WEP hex-key network straight
     Given "wep-2" is visible with command "nmcli dev wifi list" in "60" seconds
@@ -161,7 +161,7 @@ Feature: WIFI TUI tests
 
 
     @fedoraver+=32
-    @simwifi @attach_hostapd_log @attach_wpa_supplicant_log @ifcfg-rh
+    @ifcfg-rh @simwifi @attach_hostapd_log @attach_wpa_supplicant_log
     @nmtui_simwifi_add_default_connection_open_network
     Scenario: nmtui - wifi_hwsim - add default connection open network
     * Prepare new connection of type "Wi-Fi" named "wifi"
@@ -391,7 +391,7 @@ Feature: WIFI TUI tests
 
 
     @fedoraver+=32
-    @simwifi @attach_hostapd_log @attach_wpa_supplicant_log @ifcfg-rh
+    @ifcfg-rh @simwifi @attach_hostapd_log @attach_wpa_supplicant_log
     @nmtui_simwifi_set_existing_bssid
     Scenario: nmtui - wifi_hwsim - set existing bssid
     * Prepare new connection of type "Wi-Fi" named "wifi1"
@@ -405,7 +405,7 @@ Feature: WIFI TUI tests
 
 
     @fedoraver+=32
-    @simwifi @attach_hostapd_log @attach_wpa_supplicant_log @ifcfg-rh
+    @ifcfg-rh @simwifi @attach_hostapd_log @attach_wpa_supplicant_log
     @nmtui_simwifi_set_nonexisting_bssid
     Scenario: nmtui - wifi_hwsim - set nonexisting bssid
     * Prepare new connection of type "Wi-Fi" named "wifi1"
@@ -473,7 +473,7 @@ Feature: WIFI TUI tests
 
 
     @fedoraver+=32
-    @simwifi @attach_hostapd_log @attach_wpa_supplicant_log @ifcfg-rh
+    @ifcfg-rh @simwifi @attach_hostapd_log @attach_wpa_supplicant_log
     @nmtui_simwifi_mtu
     Scenario: nmtui - wifi_hwsim - mtu
     * Prepare new connection of type "Wi-Fi" named "wifi1"
