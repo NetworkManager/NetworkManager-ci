@@ -65,6 +65,7 @@ def _before_scenario(context, scenario):
 
     # set important context attributes
     assert not context.cext._cleanup_lst
+    context.cext.scenario_skipped = False
     context.step_level = 0
     context.nm_restarted = False
     context.nm_pid = nmci.nmutil.nm_pid()
@@ -142,6 +143,10 @@ def _before_scenario(context, scenario):
     duration_el.text = f"({duration:.3f}s)"
 
     nmci.ctx.check_crash(context, "crash outside steps (before scenario)")
+
+    if context.cext.scenario_skipped:
+        context.cext._html_formatter.scenario(scenario)
+        context.before_scenario_step_el.set("class", "step skipped")
 
     if excepts:
         context.before_scenario_step_el.set("class", "step failed")
