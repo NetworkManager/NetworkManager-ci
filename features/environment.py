@@ -154,34 +154,12 @@ def _before_scenario(context, scenario):
 
 def before_step(context, step):
     context.step_level += 1
+    context.current_step = step
 
 
 def after_step(context, step):
     context.no_step = False
     context.step_level -= 1
-    if (
-        ("DEVICE_CAP_AP" in step.name or "DEVICE_CAP_ADHOC" in step.name)
-        and "is set in WirelessCapabilites" in step.name
-        and step.status == "failed"
-        and step.step_type == "given"
-    ):
-        context.cext.skip("Omiting the test as device does not support AP/ADHOC mode")
-    # for nmcli_wifi_right_band_80211a - HW dependent 'passes'
-    if (
-        "DEVICE_CAP_FREQ_5GZ" in step.name
-        and "is set in WirelessCapabilites" in step.name
-        and step.status == "failed"
-        and step.step_type == "given"
-    ):
-        context.cext.skip("Omitting the test as device does not support 802.11a")
-    # for testcase_306559
-    if (
-        "DEVICE_CAP_FREQ_5GZ" in step.name
-        and "is not set in WirelessCapabilites" in step.name
-        and step.status == "failed"
-        and step.step_type == "given"
-    ):
-        context.cext.skip("Omitting the test as device supports 802.11a")
 
     context.cext.process_pexpect_spawn()
 
