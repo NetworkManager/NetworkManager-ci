@@ -35,7 +35,7 @@
     @ifcfg_team_slave_device_type
     Scenario: nmcli - team - slave ifcfg devicetype
      * Add "team" connection named "team0" for device "nm-team"
-     * Add slave connection for master "nm-team" on device "eth5" named "team0.0"
+     * Add "ethernet" connection named "team0.0" for device "eth5" with options "master nm-team"
     Then "DEVICETYPE=TeamPort" is visible with command "grep TYPE /etc/sysconfig/network-scripts/ifcfg-team0.0"
 
 
@@ -69,28 +69,9 @@
      Then "ifname": "nm-team" is visible with command "sudo teamdctl nm-team state dump" in "5" seconds
 
 
-    @ver-=1.20
-    @nmcli_novice_mode_create_team_slave_with_default_options
-    Scenario: nmcli - team - novice - create team-slave with default options
-     * Cleanup connection "team-slave" and device "eth5"
-     * Add "team" connection named "team0" for device "nm-team"
-     * Open wizard for adding new connection
-     * Expect "Connection type"
-     * Submit "team-slave" in editor
-     * Expect "Interface name"
-     * Submit "eth5" in editor
-     * Expect "aster"
-     * Submit "nm-team" in editor
-     * Expect "There .* optional"
-     * Submit "no" in editor
-     * Wait for "1" seconds
-     * Bring "up" connection "team-slave-eth5"
-    Then Check slave "eth5" in team "nm-team" is "up"
-
-
     @ver+=1.21.1 @ver-=1.39.6
     @nmcli_novice_mode_create_team_slave_with_default_options
-    Scenario: nmcli - team - novice - create team-slave with default options
+    Scenario: nmcli - team - novice - create port with default options
      * Cleanup connection "team-slave" and device "eth5"
      * Add "team" connection named "team0" for device "nm-team"
      * Open wizard for adding new connection
@@ -131,10 +112,8 @@
     @add_two_slaves_to_team
     Scenario: nmcli - team - add slaves
      * Add "team" connection named "team0" for device "nm-team"
-     * Add slave connection for master "nm-team" on device "eth5" named "team0.0"
-     * Add slave connection for master "nm-team" on device "eth6" named "team0.1"
-     * Bring "up" connection "team0.0"
-     * Bring "up" connection "team0.1"
+     * Add "ethernet" connection named "team0.0" for device "eth5" with options "master nm-team"
+     * Add "ethernet" connection named "team0.1" for device "eth6" with options "master nm-team"
     Then Check slave "eth5" in team "nm-team" is "up"
     Then Check slave "eth6" in team "nm-team" is "up"
 
@@ -144,8 +123,8 @@
     @default_config_watch
     Scenario: nmcli - team - default config watcher
      * Add "team" connection named "team0" for device "nm-team"
-     * Add slave connection for master "nm-team" on device "eth5" named "team0.0"
-     * Add slave connection for master "nm-team" on device "eth6" named "team0.1"
+     * Add "ethernet" connection named "team0.0" for device "eth5" with options "master nm-team"
+     * Add "ethernet" connection named "team0.1" for device "eth6" with options "master nm-team"
      And "eth5" is visible with command "nmcli -f all d show nm-team |grep CONFIG" in "20" seconds
      And "eth6" is visible with command "nmcli -f all d show nm-team |grep CONFIG" in "20" seconds
      * Bring "down" connection "team0.1"
@@ -153,77 +132,29 @@
      And "eth6" is not visible with command "nmcli -f all d show nm-team |grep CONFIG" in "20" seconds
 
 
-    @rhbz1057494
-    @add_team_master_via_uuid
-    Scenario: nmcli - team - master via uuid
-     * Add "team" connection named "team0" for device "nm-team"
-     * Add slave connection for master "team0" on device "eth5" named "team0.0"
-     * Bring "up" connection "team0.0"
-    Then Check slave "eth5" in team "nm-team" is "up"
-
-
     @remove_all_slaves
     Scenario: nmcli - team - remove last slave
      * Add "team" connection named "team0" for device "nm-team"
-     * Add slave connection for master "nm-team" on device "eth5" named "team0.0"
-     * Bring "up" connection "team0.0"
+     * Add "ethernet" connection named "team0.0" for device "eth5" with options "master nm-team"
      * Delete connection "team0.0"
     Then Check slave "eth5" in team "nm-team" is "down"
-
-
-    #@rhbz1294728
-    #@ver+=1.1
-    #@restart_if_needed
-    #@team_restart_persistence
-    #Scenario: nmcli - team - restart persistence
-    # * Add "team" connection named "team0" for device "nm-team"
-    # * Add slave connection for master "nm-team" on device "eth5" named "team0.0"
-    # * Add slave connection for master "nm-team" on device "eth6" named "team0.1"
-    # When "nm-team:connected:team0" is visible with command "nmcli -t -f DEVICE,STATE,CONNECTION device" in "20" seconds
-    # * Restart NM
-    # * Restart NM
-    # * Restart NM
-    # Then Check slave "eth6" in team "nm-team" is "up"
-    #  And Check slave "eth5" in team "nm-team" is "up"
-    #  And "team0" is visible with command "nmcli con show -a"
-    #  And "team0.0" is visible with command "nmcli con show -a"
-    #  And "team0.1" is visible with command "nmcli con show -a"
 
 
     @remove_one_slave
     Scenario: nmcli - team - remove a slave
      * Add "team" connection named "team0" for device "nm-team"
-     * Add slave connection for master "nm-team" on device "eth5" named "team0.0"
-     * Add slave connection for master "nm-team" on device "eth6" named "team0.1"
-     * Bring "up" connection "team0.1"
-     * Bring "up" connection "team0.0"
+     * Add "ethernet" connection named "team0.0" for device "eth5" with options "master nm-team"
+     * Add "ethernet" connection named "team0.1" for device "eth6" with options "master nm-team"
      * Delete connection "team0.1"
     Then Check slave "eth5" in team "nm-team" is "up"
     Then Check slave "eth6" in team "nm-team" is "down"
 
 
-
-    #    #@change_slave_type_and_master
-    #Scenario: nmcli - connection - slave-type and master settings
-    # * Add "team" connection named "team0" for device "nm-team"
-    # * Add "ethernet" connection named "team0.0" for device "eth5"
-    # * Open editor for connection "team0.0"
-    # * Set a property named "connection.slave-type" to "team" in editor
-    # * Set a property named "connection.master" to "nm-team" in editor
-    # * Submit "yes" in editor
-    # * Submit "verify fix" in editor
-    # * Save in editor
-    # * Quit editor
-    # * Bring "up" connection "team0.0"
-    #Then Check slave "eth5" in team "nm-team" is "up"
-
-
-
     @remove_active_team_profile
     Scenario: nmcli - team - remove active team profile
      * Add "team" connection named "team0" for device "nm-team"
-     * Add slave connection for master "nm-team" on device "eth5" named "team0.0"
-     * Bring "up" connection "team0.0"
+     * Add "ethernet" connection named "team0.0" for device "eth5" with options "master nm-team"
+     * Add "ethernet" connection named "team0.1" for device "eth6" with options "master nm-team"
     Then Check slave "eth5" in team "nm-team" is "up"
      * Delete connection "team0"
     Then Team "nm-team" is down
@@ -232,9 +163,8 @@
     @disconnect_active_team
     Scenario: nmcli - team - disconnect active team
      * Add "team" connection named "team0" for device "nm-team"
-     * Add slave connection for master "nm-team" on device "eth5" named "team0.0"
-     * Add slave connection for master "nm-team" on device "eth6" named "team0.1"
-     * Bring "up" connection "team0"
+     * Add "ethernet" connection named "team0.0" for device "eth5" with options "master nm-team"
+     * Add "ethernet" connection named "team0.1" for device "eth6" with options "master nm-team"
      * Disconnect device "nm-team"
     Then Team "nm-team" is down
 
@@ -242,8 +172,8 @@
     @team_start_by_hand_no_slaves
     Scenario: nmcli - team - start team by hand with no slaves
      * Add "team" connection named "team0" for device "nm-team"
-     * Add slave connection for master "nm-team" on device "eth5" named "team0.0"
-     * Add slave connection for master "nm-team" on device "eth6" named "team0.1"
+     * Add "ethernet" connection named "team0.0" for device "eth5" with options "master nm-team"
+     * Add "ethernet" connection named "team0.1" for device "eth6" with options "master nm-team"
      * Bring "down" connection "team0.0"
      * Bring "down" connection "team0.1"
      * Disconnect device "nm-team"
@@ -255,14 +185,9 @@
     @rhbz1158529
     @team_slaves_start_via_master
     Scenario: nmcli - team - start slaves via master
-     * Add "team" connection named "team0" for device "nm-team"
-     * Add slave connection for master "nm-team" on device "eth5" named "team0.0"
-     * Add slave connection for master "nm-team" on device "eth6" named "team0.1"
-     * Disconnect device "nm-team"
-     * Open editor for connection "team0"
-     * Submit "set connection.autoconnect-slaves 1" in editor
-     * Save in editor
-     * Quit editor
+     * Add "team" connection named "team0" for device "nm-team" with options "connection.autoconnect-slaves 1 autoconnect no"
+     * Add "ethernet" connection named "team0.0" for device "eth5" with options "master nm-team autoconnect no"
+     * Add "ethernet" connection named "team0.1" for device "eth6" with options "master nm-team autoconnect no"
      * Bring "up" connection "team0"
     Then Check slave "eth5" in team "nm-team" is "up"
     Then Check slave "eth6" in team "nm-team" is "up"
@@ -271,8 +196,8 @@
     @start_team_by_hand_all_auto
     Scenario: nmcli - team - start team by hand with all auto
      * Add "team" connection named "team0" for device "nm-team"
-     * Add slave connection for master "nm-team" on device "eth5" named "team0.0"
-     * Add slave connection for master "nm-team" on device "eth6" named "team0.1"
+     * Add "ethernet" connection named "team0.0" for device "eth5" with options "master nm-team"
+     * Add "ethernet" connection named "team0.1" for device "eth6" with options "master nm-team"
      * Bring "down" connection "team0.0"
      * Bring "down" connection "team0.1"
      * Disconnect device "nm-team"
@@ -286,12 +211,12 @@
     @team_activate
     Scenario: nmcli - team - activate
      * Add "team" connection named "team0" for device "nm-team"
-     * Add slave connection for master "nm-team" on device "eth5" named "team0.0"
-     * Add slave connection for master "nm-team" on device "eth6" named "team0.1"
+     * Add "ethernet" connection named "team0.0" for device "eth5" with options "master nm-team"
+     * Add "ethernet" connection named "team0.1" for device "eth6" with options "master nm-team"
      * Bring "down" connection "team0.0"
      * Bring "down" connection "team0.1"
      * Disconnect device "nm-team"
-    Then Team "nm-team" is down
+    When Team "nm-team" is down
      * Open editor for connection "team0.0"
      * Submit "activate" in editor
      * Enter in editor
@@ -318,10 +243,12 @@
     @ver+=1.8.0
     @team_mac_spoof_var1
     Scenario: nmcli - team - config - mac spoof with mac in json
-     * Add "team" connection named "team0" with options "ethernet.cloned-mac-address 02:02:02:02:02:02"
+     * Add "team" connection named "team0" with options
+        """
+        team.config '{"device":"nm-team","hwaddr":  "02:03:03:03:03:03","runner":{"name":"loadbalance"},"ports":{"eth5":{},"eth6": {}}}'
+        ethernet.cloned-mac-address 02:02:02:02:02:02
+        """
      * Add "ethernet" connection named "team0.0" for device "eth5" with options "master nm-team autoconnect no"
-     * Send "set team.config {"device":"nm-team","hwaddr":  "02:03:03:03:03:03","runner":{"name":"loadbalance"},"ports":{"eth5":{},"eth6": {}}}" via editor to "team0"
-     * Bring "up" connection "team0"
      * Bring "up" connection "team0.0"
     Then Check slave "eth5" in team "nm-team" is "up"
      And "02:03:03:03:03:03" is visible with command "ip a s eth5"
@@ -331,12 +258,8 @@
     @start_team_by_hand_one_auto
     Scenario: nmcli - team - start team by hand with one auto
      * Add "team" connection named "team0" for device "nm-team"
-     * Add slave connection for master "nm-team" on device "eth5" named "team0.0"
-     * Add slave connection for master "nm-team" on device "eth6" named "team0.1"
-     * Open editor for connection "team0.0"
-     * Submit "set connection.autoconnect no" in editor
-     * Save in editor
-     * Quit editor
+     * Add "ethernet" connection named "team0.0" for device "eth5" with options "master nm-team connection.autoconnect no"
+     * Add "ethernet" connection named "team0.1" for device "eth6" with options "master nm-team"
      * Bring "up" connection "team0.0"
      * Bring "up" connection "team0.1"
      * Bring "up" connection "team0"
@@ -348,21 +271,8 @@
     @start_team_on_boot
     Scenario: nmcli - team - start team on boot
      * Add "team" connection named "team0" for device "nm-team"
-     * Add slave connection for master "nm-team" on device "eth5" named "team0.0"
-     * Add slave connection for master "nm-team" on device "eth6" named "team0.1"
-     * Open editor for connection "team0"
-     * Submit "set connection.autoconnect yes" in editor
-     * Save in editor
-     * Quit editor
-     * Open editor for connection "team0.0"
-     * Submit "set connection.autoconnect yes" in editor
-     * Save in editor
-     * Quit editor
-     * Open editor for connection "team0.1"
-     * Submit "set connection.autoconnect yes" in editor
-     * Save in editor
-     * Quit editor
-     * Bring "up" connection "team0"
+     * Add "ethernet" connection named "team0.0" for device "eth5" with options "master nm-team"
+     * Add "ethernet" connection named "team0.1" for device "eth6" with options "master nm-team"
      * Reboot
     Then "nm-team:team:connected:team0" is visible with command "nmcli -t -f DEVICE,TYPE,STATE,CONNECTION device" in "40" seconds
      And Check slave "eth5" in team "nm-team" is "up"
@@ -372,51 +282,21 @@
     @restart_if_needed
     @team_start_on_boot_with_nothing_auto
     Scenario: nmcli - team - start team on boot - nothing auto
-     * Add "team" connection named "team0" for device "nm-team"
-     * Add slave connection for master "nm-team" on device "eth5" named "team0.0"
-     * Add slave connection for master "nm-team" on device "eth6" named "team0.1"
-     * Open editor for connection "team0.0"
-     * Submit "set connection.autoconnect no" in editor
-     * Save in editor
-     * Quit editor
-     * Open editor for connection "team0.1"
-     * Submit "set connection.autoconnect no" in editor
-     * Save in editor
-     * Quit editor
-     * Open editor for connection "team0"
-     * Submit "set connection.autoconnect no" in editor
-     * Save in editor
-     * Quit editor
-     #* Bring up connection "team0" ignoring error
+     * Add "team" connection named "team0" for device "nm-team" with options "autoconnect no"
+     * Add "ethernet" connection named "team0.0" for device "eth5" with options "master nm-team autoconnect no"
+     * Add "ethernet" connection named "team0.1" for device "eth6" with options "master nm-team autoconnect no"
      * Bring "up" connection "team0.0"
      * Bring "up" connection "team0.1"
      * Reboot
     Then Team "nm-team" is down
 
 
-    #VVV    THIS IS DIFFERENT IN BOND AREA
-
     @restart_if_needed
     @team_start_on_boot_with_one_auto_only
     Scenario: nmcli - team - start team on boot - one slave auto only
-     * Add "team" connection named "team0" for device "nm-team"
-     * Add slave connection for master "nm-team" on device "eth5" named "team0.0"
-     * Add slave connection for master "nm-team" on device "eth6" named "team0.1"
-     * Open editor for connection "team0.0"
-     * Submit "set connection.autoconnect no" in editor
-     * Save in editor
-     * Quit editor
-     * Open editor for connection "team0.1"
-     * Submit "set connection.autoconnect yes" in editor
-     * Save in editor
-     * Quit editor
-     * Open editor for connection "team0"
-     * Submit "set connection.autoconnect no" in editor
-     * Save in editor
-     * Quit editor
-     * Bring "up" connection "team0"
-     * Bring "down" connection "team0"
-     * Reboot
+     * Add "team" connection named "team0" for device "nm-team" with options "autoconnect no"
+     * Add "ethernet" connection named "team0.0" for device "eth5" with options "master nm-team autoconnect no"
+     * Add "ethernet" connection named "team0.1" for device "eth6" with options "master nm-team"
     Then "nm-team:team:connected:team0" is visible with command "nmcli -t -f DEVICE,TYPE,STATE,CONNECTION device" in "40" seconds
      And Check slave "eth6" in team "nm-team" is "up"
      And Check slave "eth5" in team "nm-team" is "down"
@@ -426,21 +306,8 @@
     @team_start_on_boot_with_team_and_one_slave_auto
     Scenario: nmcli - team - start team on boot - team and one slave auto
      * Add "team" connection named "team0" for device "nm-team"
-     * Add slave connection for master "nm-team" on device "eth5" named "team0.0"
-     * Add slave connection for master "nm-team" on device "eth6" named "team0.1"
-     * Open editor for connection "team0.0"
-     * Submit "set connection.autoconnect no" in editor
-     * Save in editor
-     * Quit editor
-     * Open editor for connection "team0.1"
-     * Submit "set connection.autoconnect yes" in editor
-     * Save in editor
-     * Quit editor
-     * Open editor for connection "team0"
-     * Submit "set connection.autoconnect yes" in editor
-     * Save in editor
-     * Quit editor
-     * Bring "up" connection "team0"
+     * Add "ethernet" connection named "team0.0" for device "eth5" with options "master nm-team connection.autoconnect no"
+     * Add "ethernet" connection named "team0.1" for device "eth6" with options "master nm-team"
      * Reboot
     Then "nm-team:team:connected:team0" is visible with command "nmcli -t -f DEVICE,TYPE,STATE,CONNECTION device" in "40" seconds
      And Check slave "eth6" in team "nm-team" is "up"
@@ -449,10 +316,12 @@
 
     @config_loadbalance
     Scenario: nmcli - team - config - set loadbalance mode
-     * Add "team" connection named "team0" for device "nm-team"
-     * Add slave connection for master "nm-team" on device "eth5" named "team0.0"
-     * Add slave connection for master "nm-team" on device "eth6" named "team0.1"
-     * Send "set team.config {"device":"nm-team","runner":{"name":"loadbalance"},"ports":{"eth5":{},"eth6": {}}}" via editor to "team0"
+     * Add "team" connection named "team0" for device "nm-team" with options
+        """
+        team.config '{"device":"nm-team","runner":{"name":"loadbalance"},"ports":{"eth5":{},"eth6": {}}}'
+        """
+     * Add "ethernet" connection named "team0.0" for device "eth5" with options "master nm-team"
+     * Add "ethernet" connection named "team0.1" for device "eth6" with options "master nm-team"
      * Bring "up" connection "team0"
      * Bring "up" connection "team0.1"
      * Bring "up" connection "team0.0"
@@ -463,16 +332,12 @@
 
     @config_broadcast
     Scenario: nmcli - team - config - set broadcast mode
-     * Add "team" connection named "team0" for device "nm-team"
-     * Add slave connection for master "nm-team" on device "eth5" named "team0.0"
-     * Add slave connection for master "nm-team" on device "eth6" named "team0.1"
-     * Open editor for connection "team0"
-     * Submit "set team.config {    \"device\":       \"nm-team\",  \"runner\":       {\"name": \"broadcast\"},  \"ports\":        {\"eth5\": {}, \"eth6\": {}}}" in editor
-     * Save in editor
-     * Quit editor
-     * Bring "up" connection "team0"
-     * Bring "up" connection "team0.1"
-     * Bring "up" connection "team0.0"
+     * Add "team" connection named "team0" for device "nm-team" with options
+        """
+        team.config '{"device":"nm-team","runner":{"name":"broadcast"},"ports":{"eth5":{},"eth6":{}}}'
+        """
+     * Add "ethernet" connection named "team0.0" for device "eth5" with options "master nm-team"
+     * Add "ethernet" connection named "team0.1" for device "eth6" with options "master nm-team"
     Then "\"kernel_team_mode_name\": \"broadcast\"" is visible with command "sudo teamdctl nm-team state dump"
     Then Check slave "eth5" in team "nm-team" is "up"
     Then Check slave "eth6" in team "nm-team" is "up"
@@ -489,82 +354,14 @@
            ipv4.method manual
            ipv4.address 10.0.0.1/24
            """
-     * Add slave connection for master "nm-team" on device "eth5" named "team-slave-eth5"
-     * Add slave connection for master "nm-team" on device "eth6" named "team-slave-eth6"
+     * Add "ethernet" connection named "team0.0" for device "eth5" with options "master nm-team"
+     * Add "ethernet" connection named "team0.1" for device "eth6" with options "master nm-team"
      * Restart NM
     Then "\"kernel_team_mode_name\": \"loadbalance\"" is visible with command "sudo teamdctl nm-team state dump"
      And "\"runner_name\": \"lacp\"" is visible with command "sudo teamdctl nm-team state dump"
      And Check slave "eth5" in team "nm-team" is "up"
      And Check slave "eth6" in team "nm-team" is "up"
-     And "Exactly" "1" lines with pattern "team0" are visible with command "nmcli device"
-
-
-
-    #@ver-=1.7.0
-    #@long
-    #@config_invalid1
-    #Scenario: nmcli - team - config - set invalid mode
-    # * Add "team" connection named "team0" for device "nm-team"
-    # * Add slave connection for master "nm-team" on device "eth5" named "team0.0"
-    # * Add slave connection for master "nm-team" on device "eth6" named "team0.1"
-    # * Open editor for connection "team0"
-    # * Submit "set team.config {\"one\":1,\"two\":2,\"three\":3}" in editor
-    # * Save in editor
-    # * Quit editor
-    # * Bring up connection "team0" ignoring error
-    #Then Team "nm-team" is down
-
-
-    #@rhbz1360386
-    #@ver+=1.7.1
-    #@not_with_rhel_pkg
-    #@config_invalid1
-    #Scenario: nmcli - team - config - set invalid mode
-    # * Add "team" connection named "team0" for device "nm-team"
-    # * Add slave connection for master "nm-team" on device "eth5" named "team0.0"
-    # * Add slave connection for master "nm-team" on device "eth6" named "team0.1"
-    # * Open editor for connection "team0"
-    # * Submit "set team.config {\"one\":1,\"two\":2,\"three\":3}" in editor
-    # * Save in editor
-    # * Quit editor
-    # * Bring up connection "team0" ignoring error
-    #When Team "nm-team" is down
-    # * Bring up connection "team0.0" ignoring error
-    #Then "team0.0 " is not visible with command "nmcli d"
-    # And "team0 " is not visible with command "nmcli d"
-
-
-    #@rhbz1270814
-    #@ver+=1.3.0
-    #@long @not_with_rhel_pkg
-    #@config_invalid2
-    #Scenario: nmcli - team - config - set invalid mode
-    # * Add "team" connection named "team0" for device "nm-team"
-    # * Add slave connection for master "nm-team" on device "eth5" named "team0.0"
-    # * Add slave connection for master "nm-team" on device "eth6" named "team0.1"
-    # * Open editor for connection "team0"
-    # * Submit "set team.config {\"one\":1,\"two\":2,\"three\":3}" in editor
-    # * Save in editor
-    # * Quit editor
-    # * Bring up connection "team0" ignoring error
-    #Then Team "nm-team" is down
-    # And "connecting" is not visible with command "nmcli device"
-
-
-     @rhbz1312726
-     @ver+=1.4.0
-     @ver-=1.10.0
-     @long
-     @config_invalid3
-     Scenario: nmcli - team - config - set invalid mode
-      * Add "team" connection named "team0" for device "nm-team"
-      * Add slave connection for master "nm-team" on device "eth5" named "team0.0"
-      * Add slave connection for master "nm-team" on device "eth6" named "team0.1"
-      * Execute "nmcli connection modify team0 team.config '{ "device": "nm-team", "runner": {"name": "activebalance"}}' "
-      Then "Error: Connection activation failed" is visible with command "nmcli connection up id team0"
-       And Team "nm-team" is down
-       And "Error: Connection activation failed" is visible with command "nmcli connection up id team0"
-       And Team "nm-team" is down
+     And "Exactly" "1" lines with pattern "team0\s+" are visible with command "nmcli device"
 
 
      @rhbz1366300
@@ -572,8 +369,8 @@
      @team_config_null
      Scenario: nmcli - team - config - empty string
      * Add "team" connection named "team0" for device "nm-team" with options "autoconnect no team.config "" "
-     * Add slave connection for master "nm-team" on device "eth5" named "team0.0"
-     * Add slave connection for master "nm-team" on device "eth6" named "team0.1"
+     * Add "ethernet" connection named "team0.0" for device "eth5" with options "master nm-team"
+     * Add "ethernet" connection named "team0.1" for device "eth6" with options "master nm-team"
      * Bring "up" connection "team0"
      * Bring "up" connection "team0.1"
      * Bring "up" connection "team0.0"
@@ -585,29 +382,13 @@
     @rhbz1255927
     @team_set_mtu
     Scenario: nmcli - team - set mtu
-     * Add "team" connection named "team0" for device "nm-team"
-     * Add slave connection for master "nm-team" on device "eth5" named "team0.0"
-     * Add slave connection for master "nm-team" on device "eth6" named "team0.1"
-     * Open editor for connection "team0.0"
-     * Set a property named "802-3-ethernet.mtu" to "9000" in editor
-     * Save in editor
-     * Quit editor
-     * Open editor for connection "team0.1"
-     * Set a property named "802-3-ethernet.mtu" to "9000" in editor
-     * Save in editor
-     * Quit editor
-     * Open editor for connection "team0"
-     * Set a property named "802-3-ethernet.mtu" to "9000" in editor
-     * Set a property named "ipv4.method" to "manual" in editor
-     * Set a property named "ipv4.addresses" to "1.1.1.2/24" in editor
-     * Save in editor
-     * Quit editor
-     #* Disconnect device "nm-team"
-     * Bring "up" connection "team0"
-     * Bring "up" connection "team0.1"
-     * Bring "up" connection "team0.0"
-    Then Check slave "eth5" in team "nm-team" is "up"
-    Then Check slave "eth6" in team "nm-team" is "up"
+     * Add "team" connection named "team0" for device "nm-team" with options
+        """
+        802-3-ethernet.mtu 9000
+        ipv4.method manual ipv4.addresses 1.1.1.2/24
+        """
+     * Add "ethernet" connection named "team0.0" for device "eth5" with options "master nm-team 802-3-ethernet.mtu 9000"
+     * Add "ethernet" connection named "team0.1" for device "eth6" with options "master nm-team 802-3-ethernet.mtu 9000"
     Then "mtu 9000" is visible with command "ip a s eth5 |grep mtu" in "25" seconds
     Then "mtu 9000" is visible with command "ip a s eth6 |grep mtu"
     Then "mtu 9000" is visible with command "ip a s nm-team |grep mtu"
@@ -615,17 +396,16 @@
 
     @remove_config
     Scenario: nmcli - team - config - remove
-     * Add "team" connection named "team0" for device "nm-team"
-     * Send "set team.config {"device":"nm-team","runner":{"name":"loadbalance"},"ports":{"eth5":{},"eth6": {}}}" via editor to "team0"
-     * Add slave connection for master "nm-team" on device "eth5" named "team0.0"
-     * Add slave connection for master "nm-team" on device "eth6" named "team0.1"
-     * Bring "up" connection "team0"
-     * Bring "up" connection "team0.0"
-     * Bring "up" connection "team0.1"
+     * Add "team" connection named "team0" for device "nm-team" with options
+        """
+        team.config '{"device":"nm-team","runner":{"name":"loadbalance"},"ports":{"eth5":{},"eth6": {}}}'
+        """
+     * Add "ethernet" connection named "team0.0" for device "eth5" with options "master nm-team"
+     * Add "ethernet" connection named "team0.1" for device "eth6" with options "master nm-team"
     Then "\"kernel_team_mode_name\": \"loadbalance\"" is visible with command "sudo teamdctl nm-team state dump"
     Then Check slave "eth5" in team "nm-team" is "up"
     Then Check slave "eth6" in team "nm-team" is "up"
-     * Send "remove team.config" via editor to "team0"
+     * Modify connection "team0" changing options "team.config "" "
      * Bring "up" connection "team0"
      * Bring "up" connection "team0.1"
      * Bring "up" connection "team0.0"
@@ -719,7 +499,7 @@
     Then "nm-team:team:connected:team0" is visible with command "nmcli -t -f DEVICE,TYPE,STATE,CONNECTION device" in "5" seconds
 
 
-    @rhbz1303968 
+    @rhbz1303968
     @team_in_bridge_mtu
     Scenario: nmcli - team - enslave team device to bridge and set mtu
      * Add "bridge" connection named "team_br" for device "brA" with options
@@ -809,8 +589,7 @@
       And "2168::17" is visible with command "ip a s nm-team"
       And "192.168.168.16" is visible with command "ip a s nm-team.1"
       And "192.168.168.17" is visible with command "ip a s nm-team"
-     * Add "team-slave" connection named "team0.0" for device "eth5" with options "master nm-team"
-     * Bring "up" connection "team0.0"
+     * Add "ethernet" connection named "team0.0" for device "eth5" with options "master nm-team"
      * Wait for "5" seconds
     Then "2168::16" is visible with command "ip a s nm-team.1"
      And "2168::17" is visible with command "ip a s nm-team"
@@ -822,23 +601,23 @@
     @ver+=1.18
     @team_in_vlan_start_correct_device
     Scenario: nmcli - team - team in vlan start correct device
-    * Add "team" connection named "team0" for device "nm-team" with options "config '{"runner": {"name": "lacp"}}'"
-    * Add "team" connection named "team" for device "nm-team2" with options "config '{"runner": {"name": "lacp"}}'"
-    * Add "team-slave" connection named "team-slave-eth5" for device "eth5" with options "master nm-team"
-    * Add "team-slave" connection named "team-slave-eth6" for device "eth6" with options "master nm-team2"
-    * Add "vlan" connection named "team0.1" with options "dev nm-team id 10 ip4 192.168.122.155/24 gw4 192.168.122.1"
-    * Add "vlan" connection named "team-slave" with options
+    * Add "team" connection named "team0" for device "nm-team0" with options "config '{"runner": {"name": "lacp"}}'"
+    * Add "team" connection named "team1" for device "nm-team1" with options "config '{"runner": {"name": "lacp"}}'"
+    * Add "ethernet" connection named "team0.0" for device "eth5" with options "master nm-team0"
+    * Add "ethernet" connection named "team1.0" for device "eth6" with options "master nm-team1"
+    * Add "vlan" connection named "team0.vlan10" with options "dev nm-team0 id 10 ip4 192.168.122.155/24 gw4 192.168.122.1"
+    * Add "vlan" connection named "team1.vlan10" with options
           """
-          dev nm-team2
+          dev nm-team1
           id 10
           ip4 192.168.122.155/24
           gw4 192.168.122.1
           """
     * Bring "down" connection "team0"
-    * Bring "down" connection "team"
-    * Bring "up" connection "team-slave-eth5"
-    Then "nm-team " is visible with command "nmcli con show -a" in "5" seconds
-    Then "nm-team2" is not visible with command "nmcli con show -a"
+    * Bring "down" connection "team1"
+    * Bring "up" connection "team0.0"
+    Then "nm-team0 " is visible with command "nmcli con show -a" in "5" seconds
+    Then "nm-team1" is not visible with command "nmcli con show -a"
 
 
     @rhbz1286105 @rhbz1312359 @rhbz1490157
@@ -859,7 +638,7 @@
            ipv6.method manual
            ipv6.addresses 2168::16/64
            """
-     * Add "team-slave" connection named "team0.0" for device "testXT2" with options "master nm-team"
+     * Add "ethernet" connection named "team0.0" for device "testXT2" with options "master nm-team"
      * Delete device "nm-team.1"
      * Reboot
     Then "2168::16" is visible with command "ip a s nm-team.1" in "10" seconds
@@ -947,7 +726,7 @@
     Scenario: nmcli - team - reconnect ethernet when master deleted
      * Add "ethernet" connection named "ethernet" for device "eth5"
      * Add "team" connection named "team0" for device "nm-team"
-     * Add slave connection for master "nm-team" on device "eth5" named "team0.0"
+     * Add "ethernet" connection named "team0.0" for device "eth5" with options "master nm-team"
      * Bring "up" connection "team0.0"
     When Check slave "eth5" in team "nm-team" is "up"
     * Delete connection "team0"
@@ -963,7 +742,7 @@
           autoconnect no
           connection.autoconnect-slaves yes
           """
-    * Add slave connection for master "nm-team" on device "eth5" named "team0.0"
+    * Add "ethernet" connection named "team0.0" for device "eth5" with options "master nm-team"
     * Bring "up" connection "team0"
     Then "\"kernel_team_mode_name\": \"roundrobin\"" is visible with command "sudo teamdctl nm-team state dump"
      And Check slave "eth5" in team "nm-team" is "up"
@@ -1007,7 +786,7 @@
           autoconnect no
           connection.autoconnect-slaves yes
           """
-    * Add slave connection for master "nm-team" on device "eth5" named "team0.0"
+    * Add "ethernet" connection named "team0.0" for device "eth5" with options "master nm-team"
     * Bring "up" connection "team0"
     Then "\"kernel_team_mode_name\": \"roundrobin\"" is visible with command "sudo teamdctl nm-team state dump"
     And Check slave "eth5" in team "nm-team" is "up"
@@ -1054,8 +833,8 @@
           autoconnect no
           connection.autoconnect-slaves yes
           """
-    * Add "team-slave" connection named "team0.0" for device "eth5" with options "master nm-team autoconnect no"
-    * Add "team-slave" connection named "team0.1" for device "eth6" with options "master nm-team autoconnect no"
+    * Add "ethernet" connection named "team0.0" for device "eth5" with options "master nm-team autoconnect no"
+    * Add "ethernet" connection named "team0.1" for device "eth6" with options "master nm-team autoconnect no"
     * Execute "nmcli connection modify team0 team.runner activebackup team.runner-hwaddr-policy by_active"
     * Bring "up" connection "team0"
     * Bring "up" connection "team0.0"
@@ -1108,7 +887,7 @@
           team.runner lacp
           connection.autoconnect-slaves yes
           """
-    * Add slave connection for master "nm-team" on device "eth5" named "team0.0"
+    * Add "ethernet" connection named "team0.0" for device "eth5" with options "master nm-team"
     * Bring "up" connection "team0"
     When "\"tx_hash\": \[\s+\"eth\",\s+\"ipv4\",\s+\"ipv6\"\s+\]" is visible with command "teamdctl nm-team conf dump"
      And "{\s*\"runner\": {\s*\"name\": \"lacp\", \"tx_hash\": \[\s*\"eth\", \"ipv4\", \"ipv6\"\s*]\s*}\s*}" is visible with command "nmcli connection show team0 |grep 'team.config'"
@@ -1128,7 +907,7 @@
           team.runner lacp
           connection.autoconnect-slaves yes
           """
-    * Add slave connection for master "nm-team" on device "eth5" named "team0.0"
+    * Add "ethernet" connection named "team0.0" for device "eth5" with options "master nm-team"
     * Bring "up" connection "team0"
     When "\"tx_hash\": \[\s+\"eth\",\s+\"ipv4\",\s+\"ipv6\"\s+\]" is visible with command "teamdctl nm-team conf dump"
     And "{\s*\"runner\": {\s*\"name\": \"lacp\" } }" is visible with command "nmcli connection show team0 |grep 'team.config'"
@@ -1148,7 +927,7 @@
           team.runner lacp
           connection.autoconnect-slaves yes
           """
-    * Add slave connection for master "nm-team" on device "eth5" named "team0.0"
+    * Add "ethernet" connection named "team0.0" for device "eth5" with options "master nm-team"
     * Bring "up" connection "team0"
     When "\"name\": \"basic\"" is not visible with command "teamdctl nm-team conf dump"
     * Execute "nmcli connection modify team0 team.runner-tx-balancer basic"
@@ -1167,7 +946,7 @@
           team.runner lacp
           connection.autoconnect-slaves yes
           """
-    * Add slave connection for master "nm-team" on device "eth5" named "team0.0"
+    * Add "ethernet" connection named "team0.0" for device "eth5" with options "master nm-team"
     * Bring "up" connection "team0"
     When "\"balancing-interval\"" is not visible with command "teamdctl nm-team conf dump"
     * Execute "nmcli connection modify team0 team.runner-tx-balancer-interval 100"
@@ -1186,7 +965,7 @@
           team.runner lacp
           connection.autoconnect-slaves yes
           """
-    * Add slave connection for master "nm-team" on device "eth5" named "team0.0"
+    * Add "ethernet" connection named "team0.0" for device "eth5" with options "master nm-team"
     * Bring "up" connection "team0"
     When "\"active\": true" is visible with command "sudo teamdctl nm-team state dump"
     * Execute "nmcli connection modify team0 team.runner-active no"
@@ -1206,7 +985,7 @@
           team.runner-fast-rate yes
           connection.autoconnect-slaves yes
           """
-    * Add slave connection for master "nm-team" on device "eth5" named "team0.0"
+    * Add "ethernet" connection named "team0.0" for device "eth5" with options "master nm-team"
     * Bring "up" connection "team0"
     When "\"fast_rate\": true" is visible with command "sudo teamdctl nm-team state dump"
      And "\"fast_rate\": true" is visible with command "nmcli connection show team0 |grep 'team.config'"
@@ -1226,7 +1005,7 @@
           team.runner lacp
           connection.autoconnect-slaves yes
           """
-    * Add slave connection for master "nm-team" on device "eth5" named "team0.0"
+    * Add "ethernet" connection named "team0.0" for device "eth5" with options "master nm-team"
     * Bring "up" connection "team0"
     When "\"sys_prio\": 65535" is visible with command "sudo teamdctl nm-team state dump"
      And "65535 \(default\)" is visible with command "nmcli connection show team0 |grep 'team.runner-sys-prio'"
@@ -1251,7 +1030,7 @@
           team.runner lacp
           connection.autoconnect-slaves yes
           """
-    * Add slave connection for master "nm-team" on device "eth5" named "team0.0"
+    * Add "ethernet" connection named "team0.0" for device "eth5" with options "master nm-team"
     * Bring "up" connection "team0"
     When "\"sys_prio\": 65535" is visible with command "sudo teamdctl nm-team state dump"
     And "-1" is visible with command "nmcli connection show team0 |grep 'team.runner-sys-prio'"
@@ -1277,7 +1056,7 @@
           team.runner lacp
           team.runner-min-ports 2
           """
-    * Add slave connection for master "nm-team" on device "eth5" named "team0.0"
+    * Add "ethernet" connection named "team0.0" for device "eth5" with options "master nm-team"
     * Bring "up" connection "team0"
     * Bring "up" connection "team0.0"
     When "\"min_ports\": 2" is visible with command "teamdctl nm-team conf dump"
@@ -1308,7 +1087,7 @@
           team.runner lacp
           team.runner-min-ports 2
           """
-    * Add slave connection for master "nm-team" on device "eth5" named "team0.0"
+    * Add "ethernet" connection named "team0.0" for device "eth5" with options "master nm-team"
     * Bring "up" connection "team0"
     * Bring "up" connection "team0.0"
     When "\"min_ports\": 2" is visible with command "teamdctl nm-team conf dump"
@@ -1339,7 +1118,7 @@
           team.runner lacp
           connection.autoconnect-slaves yes
           """
-    * Add slave connection for master "nm-team" on device "eth5" named "team0.0"
+    * Add "ethernet" connection named "team0.0" for device "eth5" with options "master nm-team"
     * Bring "up" connection "team0"
     When "\"select_policy\": \"lacp_prio\"" is visible with command "sudo teamdctl nm-team state dump"
      And "agg_select_policy" is not visible with command "nmcli connection show team0 |grep 'team.config'"
@@ -1376,7 +1155,7 @@
           team.runner lacp
           connection.autoconnect-slaves yes
           """
-    * Add slave connection for master "nm-team" on device "eth5" named "team0.0"
+    * Add "ethernet" connection named "team0.0" for device "eth5" with options "master nm-team"
     * Bring "up" connection "team0"
     When "\"select_policy\": \"lacp_prio\"" is visible with command "sudo teamdctl nm-team state dump"
     And "agg_select_policy" is not visible with command "nmcli connection show team0 |grep 'team.config'"
@@ -1413,7 +1192,7 @@
           ip4 1.2.3.4/24
           team.runner lacp
           """
-    * Add slave connection for master "nm-team" on device "eth5" named "team0.0"
+    * Add "ethernet" connection named "team0.0" for device "eth5" with options "master nm-team"
     * Bring "up" connection "team0"
     * Bring "up" connection "team0.0"
     When "notify_peers" is not visible with command "teamdctl nm-team conf dump"
@@ -1444,7 +1223,7 @@
           ip4 1.2.3.4/24
           team.runner lacp
           """
-    * Add slave connection for master "nm-team" on device "eth5" named "team0.0"
+    * Add "ethernet" connection named "team0.0" for device "eth5" with options "master nm-team"
     * Bring "up" connection "team0"
     * Bring "up" connection "team0.0"
     When "notify_peers" is not visible with command "teamdctl nm-team conf dump"
@@ -1475,7 +1254,7 @@
           ip4 1.2.3.4/24
           team.runner lacp
           """
-    * Add slave connection for master "nm-team" on device "eth5" named "team0.0"
+    * Add "ethernet" connection named "team0.0" for device "eth5" with options "master nm-team"
     * Bring "up" connection "team0"
     * Bring "up" connection "team0.0"
     When "mcast_rejoin" is not visible with command "teamdctl nm-team conf dump"
@@ -1506,7 +1285,7 @@
           ip4 1.2.3.4/24
           team.runner lacp
           """
-    * Add slave connection for master "nm-team" on device "eth5" named "team0.0"
+    * Add "ethernet" connection named "team0.0" for device "eth5" with options "master nm-team"
     * Bring "up" connection "team0"
     * Bring "up" connection "team0.0"
     When "mcast_rejoin" is not visible with command "teamdctl nm-team conf dump"
@@ -1537,7 +1316,7 @@
           ip4 1.2.3.4/24
           connection.autoconnect-slaves yes
           """
-    * Add slave connection for master "nm-team" on device "eth5" named "team0.0"
+    * Add "ethernet" connection named "team0.0" for device "eth5" with options "master nm-team"
     * Bring "up" connection "team0"
     When "link_watch | ethtool" is not visible with command "nmcli connection show team0 |grep 'team.config'"
     * Execute "nmcli con modify team0 team.link-watchers 'name=ethtool delay-up=100 delay-down=200'"
@@ -1557,7 +1336,7 @@
           ip4 1.2.3.4/24
           connection.autoconnect-slaves yes
           """
-    * Add slave connection for master "nm-team" on device "eth5" named "team0.0"
+    * Add "ethernet" connection named "team0.0" for device "eth5" with options "master nm-team"
     * Bring "up" connection "team0"
     When "link_watch | nsna_ping" is not visible with command "nmcli connection show team0 |grep 'team.config'"
     * Execute "nmcli con modify team0 team.link-watchers 'name=nsna_ping init-wait=1000 interval=100 missed-max=999 target-host=1.2.3.1'"
@@ -1577,7 +1356,7 @@
           ip4 1.2.3.4/24
           connection.autoconnect-slaves yes
           """
-    * Add slave connection for master "nm-team" on device "eth5" named "team0.0"
+    * Add "ethernet" connection named "team0.0" for device "eth5" with options "master nm-team"
     * Bring "up" connection "team0"
     When "link_watch | arp_ping" is not visible with command "nmcli connection show team0 |grep 'team.config'"
     * Execute "nmcli con modify team0 team.link-watchers 'name=arp_ping init-wait=1000 interval=100 missed-max=999 target-host=1.2.3.1 source-host=1.2.3.4'"
@@ -1598,7 +1377,7 @@
           connection.autoconnect-slaves yes
           team.link-watchers 'name=arp_ping init-wait=1000 interval=100 missed-max=999 target-host=1.2.3.1 source-host=1.2.3.4 vlanid=123'
           """
-    * Add slave connection for master "nm-team" on device "eth5" named "team0.0"
+    * Add "ethernet" connection named "team0.0" for device "eth5" with options "master nm-team"
     * Bring "up" connection "team0"
     Then "{ \"link_watch\": { \"name\": \"arp_ping\", \"interval\": 100, \"init_wait\": 1000, \"missed_max\": 999, \"source_host\": \"1.2.3.4\", \"target_host\": \"1.2.3.1\", \"vlanid\": 123 }\ }" is visible with command "nmcli connection show team0 |grep 'team.config'"
     And "\"link_watch\": {\s+"init_wait": 1000,\s+\"interval\": 100,\s+\"missed_max\": 999,\s+\"name\": \"arp_ping\",\s+\"source_host\": \"1.2.3.4\",\s+\"target_host\": \"1.2.3.1\",\s+\"vlanid\": 123" is visible with command "teamdctl nm-team conf dump"
@@ -1615,7 +1394,7 @@
           ip4 1.2.3.4/24
           connection.autoconnect-slaves yes
           """
-    * Add slave connection for master "nm-team" on device "eth5" named "team0.0"
+    * Add "ethernet" connection named "team0.0" for device "eth5" with options "master nm-team"
     * Bring "up" connection "team0"
     * Open editor for connection "team0"
     * Submit "set team.link-watchers name=ethtool delay-up=100 delay-down=200" in editor
@@ -1638,14 +1417,13 @@
           ipv4.method disable
           ipv6.method ignore
           """
-    * Add slave connection for master "nm-team" on device "eth0" named "team-slave-eth5"
-    * Bring "up" connection "team-slave-eth5"
+    * Add "ethernet" connection named "team0.0" for device "eth0" with options "master nm-team"
     And Check slave "eth0" in team "nm-team" is "up"
     * Restart NM
     Then "\"kernel_team_mode_name\": \"loadbalance\"" is visible with command "sudo teamdctl nm-team state dump"
      And "\"runner_name\": \"lacp\"" is visible with command "sudo teamdctl nm-team state dump"
      And Check slave "eth0" in team "nm-team" is "up"
-     And "Exactly" "1" lines with pattern "team0" are visible with command "nmcli device"
+     And "Exactly" "1" lines with pattern "team0\s+" are visible with command "nmcli device"
 
 
     @rhbz1647414
@@ -1654,7 +1432,7 @@
     @teamd_logging
     Scenario: nmcli - teamd - logging to syslog
     * Add "team" connection named "team0" for device "nm-team" with options "autoconnect no ip4 1.2.3.4/24"
-    * Add slave connection for master "nm-team" on device "eth5" named "team0.0"
+    * Add "ethernet" connection named "team0.0" for device "eth5" with options "master nm-team"
     When "activated" is visible with command "nmcli -g GENERAL.STATE con show team0" in "45" seconds
     Then "teamd_nm-team" is visible with command "journalctl --since '40 seconds ago' -u NetworkManager |grep teamd_"
 
