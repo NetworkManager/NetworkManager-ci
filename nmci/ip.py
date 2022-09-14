@@ -448,7 +448,11 @@ class _IP:
     def link_delete(self, ifname=None, *, ifindex=None, accept_nodev=False):
 
         if ifname is None or ifindex is not None:
-            li = self.link_show(ifindex=ifindex)
+            li = self.link_show_maybe(ifindex=ifindex)
+            if li is None:
+                if accept_nodev:
+                    return
+                raise Exception(f"Interface with ifindex {ifindex} not found")
             if ifname is not None and ifname != li["ifname"]:
                 raise Exception(
                     f"Failure deleting interface because interface with ifindex {ifindex} is called \"{li['ifname']}\" and not \"{ifname}\""
@@ -459,14 +463,11 @@ class _IP:
             process.run_stdout(["ip", "link", "delete", ifname])
         except:
             if accept_nodev:
-                try:
-                    if ifindex is not None:
-                        if not self.link_show(ifindex=ifindex):
-                            return
-                    elif not self.link_show(ifname=ifname):
+                if ifindex is not None:
+                    if self.link_show_maybe(ifindex=ifindex) is None:
                         return
-                except:
-                    pass
+                elif self.link_show_maybe(ifname=ifname) is None:
+                    return
             # The interface either still exists, or the caller requested a failure
             # trying to delete a non-existing interface.
             raise
