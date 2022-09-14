@@ -357,7 +357,12 @@ class _IP:
         return result
 
     def _link_show(
-        self, ifindex=None, ifname=None, flags=None, binary=None, allow_missing=False
+        self,
+        ifname=None,
+        ifindex=None,
+        flags=None,
+        binary=None,
+        allow_missing=False,
     ):
 
         if ifindex is None and ifname is None:
@@ -411,12 +416,12 @@ class _IP:
 
         return data
 
-    def link_show(self, timeout=None, **kwargs):
+    def link_show(self, ifname=None, *, timeout=None, **kwargs):
 
         xtimeout = util.start_timeout(timeout)
         while xtimeout.loop_sleep(0.08):
             try:
-                return self._link_show(**kwargs)
+                return self._link_show(ifname=ifname, **kwargs)
             except:
                 if xtimeout.is_none():
                     raise
@@ -426,10 +431,10 @@ class _IP:
             f"Requested interface not found or not ready within timeout (args={kwargs})"
         )
 
-    def link_show_maybe(self, allow_missing=True, **kwargs):
-        return self.link_show(allow_missing=allow_missing, **kwargs)
+    def link_show_maybe(self, ifname=None, *, allow_missing=True, **kwargs):
+        return self.link_show(ifname=ifname, allow_missing=allow_missing, **kwargs)
 
-    def link_set(self, ifindex=None, ifname=None, up=None, wait_for_device=None):
+    def link_set(self, ifname=None, *, ifindex=None, up=None, wait_for_device=None):
 
         li = self.link_show(ifindex=ifindex, ifname=ifname, timeout=wait_for_device)
 
