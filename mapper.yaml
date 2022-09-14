@@ -458,8 +458,6 @@ testmapper:
         feature: team
     - default_config_watch:
         feature: team
-    - add_team_master_via_uuid:
-        feature: team
     - remove_all_slaves:
         feature: team
     #- team_restart_persistence:
@@ -502,12 +500,6 @@ testmapper:
     - config_lacp:
         feature: team
         tags: gate
-    #- config_invalid1:
-    #    feature: team
-    #- config_invalid2:
-    #    feature: team
-    - config_invalid3:
-        feature: team
     - remove_config:
         feature: team
     - team_set_mtu:
