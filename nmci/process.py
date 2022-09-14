@@ -197,7 +197,7 @@ def _run(
     if not ignore_stderr and r_stderr:
         # if anything was printed to stderr, we consider that a fail.
         raise Exception(
-            "`%s` printed something on stderr: %s"
+            "`%s` printed something on stderr\nSTDERR:\n%s"
             % (
                 " ".join([util.bytes_to_str(s, errors="replace") for s in argv_real]),
                 r_stderr.decode("utf-8", errors="replace"),
@@ -205,8 +205,30 @@ def _run(
         )
 
     if not as_bytes:
-        r_stdout = r_stdout.decode("utf-8", errors="strict")
-        r_stderr = r_stderr.decode("utf-8", errors="strict")
+        try:
+            r_stdout = r_stdout.decode("utf-8", errors="strict")
+        except UnicodeDecodeError as e:
+            raise Exception(
+                "`%s` printed non-utf-8 to stdout\nSTDOUT:\n%s"
+                % (
+                    " ".join(
+                        [util.bytes_to_str(s, errors="replace") for s in argv_real]
+                    ),
+                    r_stdout.decode("utf-8", errors="replace"),
+                )
+            )
+        try:
+            r_stderr = r_stderr.decode("utf-8", errors="strict")
+        except UnicodeDecodeError as e:
+            raise Exception(
+                "`%s` printed non-utf-8 to stderr\nSTDERR:\n%s"
+                % (
+                    " ".join(
+                        [util.bytes_to_str(s, errors="replace") for s in argv_real]
+                    ),
+                    r_stderr.decode("utf-8", errors="replace"),
+                )
+            )
 
     return RunResult(returncode, r_stdout, r_stderr)
 
