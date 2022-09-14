@@ -122,16 +122,12 @@ def _before_scenario(context, scenario):
 
     for tag_name in scenario.tags:
         tag = nmci.tags.tag_registry.get(tag_name, None)
-        if tag is not None and tag._before_scenario is not None:
-            print("Executing @" + tag_name)
-            t_start = time.time()
-            t_status = "passed"
-            try:
-                tag.before_scenario(context, scenario)
-            except Exception:
-                t_status = "failed"
-                excepts.append(traceback.format_exc())
-            print(f"  @{tag_name} ... {t_status} in {time.time() - t_start:.3f}s")
+        if tag is None:
+            continue
+        try:
+            tag.before_scenario(context, scenario)
+        except Exception:
+            excepts.append(traceback.format_exc())
 
     context.nm_pid = nmci.nmutil.nm_pid()
 
@@ -139,7 +135,7 @@ def _before_scenario(context, scenario):
 
     context.log_cursor = nmci.misc.journal_get_cursor()
 
-    context.cext.process_commands("before_scenario")
+    context.cext.process_pexpect_spawn()
 
     duration = time.time() - time_begin
     status = "failed" if excepts else "passed"
@@ -191,7 +187,7 @@ def after_step(context, step):
         print("Omitting the test as device supports 802.11a")
         sys.exit(77)
 
-    context.cext.process_commands("after_step")
+    context.cext.process_pexpect_spawn()
 
     if context.IS_NMTUI:
         """Teardown after each step.
@@ -279,22 +275,9 @@ def _after_scenario(context, scenario):
     if scenario.status == "failed" or nmci.util.DEBUG:
         nmci.ctx.dump_status(context, "After Scenario", fail_only=True)
 
-    # run after_scenario tags (in reverse order)
+    context.cext.process_pexpect_spawn()
+
     excepts = []
-    scenario_tags = list(scenario.tags)
-    scenario_tags.reverse()
-    for tag_name in scenario_tags:
-        tag = nmci.tags.tag_registry.get(tag_name, None)
-        if tag is not None and tag._after_scenario is not None:
-            print("Executing @" + tag_name)
-            t_start = time.time()
-            t_status = "passed"
-            try:
-                tag.after_scenario(context, scenario)
-            except Exception:
-                t_status = "failed"
-                excepts.append(traceback.format_exc())
-            print(f"  @{tag_name} ... {t_status} in {time.time() - t_start:.3f}s")
 
     for ex in context.cext.process_cleanup():
         excepts.append("".join(traceback.format_exception(ex, ex, ex.__traceback__)))
@@ -305,11 +288,6 @@ def _after_scenario(context, scenario):
     # sets context.cext.coredump_reported if crash found
     nmci.ctx.check_coredump(context)
     nmci.ctx.check_faf(context)
-
-    try:
-        context.cext.process_commands("after_scenario")
-    except Exception:
-        excepts.append(traceback.format_exc())
 
     scenario_fail = (
         scenario.status == "failed"

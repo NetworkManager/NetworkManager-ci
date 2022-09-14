@@ -23,6 +23,9 @@ class Cleanup:
 
     UNIQ_TAG_DISTINCT = object()
 
+    PRIORITY_PEXPECT_SERVICE = 30
+    PRIORITY_TAG = 20
+
     def __init__(
         self,
         callback=None,
@@ -57,7 +60,14 @@ class Cleanup:
     def do_cleanup(self, cext):
         assert not self._do_cleanup_called
         self._do_cleanup_called = True
-        self._do_cleanup(cext)
+        t = time.monotonic()
+        print(f"cleanup action {self.name} (priority {self.priority}) ...", end="")
+        try:
+            self._do_cleanup(cext)
+        except Exception as e:
+            print(f" failed ({e}) in {(time.monotonic() - t):.3f}s")
+            raise
+        print(f" passed in {(time.monotonic() - t):.3f}s")
 
     def _do_cleanup(self, cext):
         if self._callback is None:
@@ -130,8 +140,11 @@ class CleanupNamespace(Cleanup):
     def _do_cleanup(self, cext):
         if self.teardown:
             teardown_testveth(cext.context, self.namespace)
-        if cext.context.process.run_search_stdout("ip netns list", self.namespace):
-            cext.context.process.run_stdout(["ip", "netns", "del", self.namespace])
+
+        cext.context.process.run(
+            ["ip", "netns", "del", self.namespace],
+            ignore_stderr=True,
+        )
 
 
 class CleanupNft(Cleanup):
@@ -171,7 +184,7 @@ class CleanupUdevRule(Cleanup):
         Cleanup.__init__(
             self,
             name=f"udev-rule-{rule}",
-            unique_tag=(rule),
+            unique_tag=(rule,),
             priority=50,
         )
 
@@ -183,6 +196,45 @@ class CleanupUdevRule(Cleanup):
             os.remove(self.rule)
         except FileNotFoundError:
             pass
+
+
+class CleanupNMService(Cleanup):
+    def __init__(self, operation, priority=None):
+        assert operation in ["start", "restart", "reload"]
+        if priority is None:
+            if operation == "start":
+                priority = -30
+            else:
+                priority = 200
+        self._operation = operation
+        Cleanup.__init__(
+            self,
+            name=f"NM-service-{operation}",
+            priority=priority,
+            unique_tag=(operation,),
+        )
+
+    def _do_cleanup(self, cext):
+        if self._operation == "start":
+            r = start_NM_service(cext.context)
+        elif self._operation == "restart":
+            r = restart_NM_service(cext.context)
+        else:
+            assert self._operation == "reload"
+            r = reload_NM_service(cext.context)
+        assert r
+
+
+###############################################################################
+
+
+class PexpectData:
+    def __init__(self, is_service, proc, logfile, embed_context, label):
+        self.is_service = is_service
+        self.proc = proc
+        self.logfile = logfile
+        self.embed_context = embed_context
+        self.label = label
 
 
 ###############################################################################
@@ -226,16 +278,6 @@ class EmbedLink(Embed):
         self._mime_type = "link"
 
 
-class EmbedLater(Embed):
-    def __init__(self, callback, fail_only=False, combine_tag=None):
-        Embed.__init__(self, fail_only=fail_only, combine_tag=combine_tag)
-        self._callback = callback
-
-    def evalDoEmbedArgs(self):
-        mime_type, data, caption = self._callback()
-        return (mime_type, data or "NO DATA", caption)
-
-
 ###############################################################################
 
 
@@ -243,8 +285,8 @@ class _CExt:
     def __init__(self, context):
         self.context = context
 
-        self._pexpect_lst_step = []
-        self._pexpect_lst_scenario = []
+        self._pexpect_spawn_lst = []
+        self._pexpect_service_lst = []
         self._to_embed = []
         self._embed_count = 0
         self._cleanup_lst = []
@@ -367,9 +409,6 @@ class _CExt:
     def embed_link(self, *a, embed_context=None, **kw):
         self._embed_queue(EmbedLink(*a, **kw), embed_context=embed_context)
 
-    def embed_later(self, *a, embed_context=None, **kw):
-        self._embed_queue(EmbedLater(*a, **kw), embed_context=embed_context)
-
     def embed_dump(self, caption, dump_id, *, data=None, links=None):
         print("Attaching %s, %s" % (caption, dump_id))
         assert (data is None) + (links is None) == 1
@@ -442,36 +481,20 @@ class _CExt:
         journal_args=None,
         cursor=None,
         fail_only=False,
-        now=True,
     ):
         print("embedding " + descr + " logs")
         if cursor is None:
             cursor = self.context.log_cursor
-        if now:
-            self.embed_data(
-                descr,
-                misc.journal_show(
-                    service=service,
-                    syslog_identifier=syslog_identifier,
-                    journal_args=journal_args,
-                    cursor=cursor,
-                ),
-                fail_only=fail_only,
-            )
-        else:
-            self.embed_later(
-                lambda: (
-                    "text/plain",
-                    misc.journal_show(
-                        service=service,
-                        syslog_identifier=syslog_identifier,
-                        journal_args=journal_args,
-                        cursor=cursor,
-                    ),
-                    descr,
-                ),
-                fail_only=fail_only,
-            )
+        self.embed_data(
+            descr,
+            misc.journal_show(
+                service=service,
+                syslog_identifier=syslog_identifier,
+                journal_args=journal_args,
+                cursor=cursor,
+            ),
+            fail_only=fail_only,
+        )
 
     def embed_file_if_exists(
         self,
@@ -504,7 +527,8 @@ class _CExt:
         self.embed_link(caption, [(data, fname)], fail_only=fail_only)
         return True
 
-    def _process_command_complete(self, proc, logfile):
+    def _pexpect_complete(self, data):
+        proc = data.proc
         failed = False
         status = 0
         if proc.status is None:
@@ -520,49 +544,173 @@ class _CExt:
         # TODO: make the tests capable of this change
         # if not failed:
         #     failed = status != 0
-        stdout = util.file_get_content_simple(logfile.name)
-        logfile.close()
-        return failed, "pexpect:" + proc.name, status, stdout, None
+        stdout = util.file_get_content_simple(data.logfile.name)
+        data.logfile.close()
 
-    def process_commands(self, when):
+        argv = "pexpect:" + proc.name
 
-        assert when in ["before_scenario", "after_step", "after_scenario"]
+        self.embed_run(
+            argv,
+            True,
+            status,
+            stdout,
+            None,
+            embed_context=data.embed_context,
+        )
+
+        return failed, argv, status, stdout
+
+    def _pexpect_service_cleanup(self, data):
+
+        self._pexpect_service_lst.remove(data)
+
+        (
+            p_failed,
+            argv,
+            returncode,
+            stdout,
+        ) = self._pexpect_complete(data)
+
+        if p_failed:
+            raise Exception(f"process failed: {argv}")
+
+    def _pexpect_start(
+        self,
+        command,
+        args,
+        timeout,
+        maxread,
+        logfile,
+        cwd,
+        env,
+        encoding,
+        codec_errors,
+        shell,
+    ):
+        if logfile is None:
+            import tempfile
+
+            logfile = tempfile.NamedTemporaryFile(dir=util.tmp_dir(), mode="w")
+
+        if shell:
+            if args:
+                args = ["-c", command, "--", "/bin/bash", *args]
+            else:
+                args = ["-c", command]
+            command = "/bin/bash"
+
+        proc = pexpect.spawn(
+            command=command,
+            args=args,
+            timeout=timeout,
+            maxread=maxread,
+            logfile=logfile,
+            cwd=cwd,
+            env=env,
+            encoding=encoding,
+            codec_errors=codec_errors,
+        )
+
+        return proc, logfile
+
+    def pexpect_spawn(
+        self,
+        command,
+        args=[],
+        timeout=30,
+        maxread=2000,
+        logfile=None,
+        cwd=None,
+        env=None,
+        encoding="utf-8",
+        codec_errors="strict",
+        shell=False,
+        label=None,
+    ):
+        proc, logfile = self._pexpect_start(
+            command=command,
+            args=args,
+            timeout=timeout,
+            maxread=maxread,
+            logfile=logfile,
+            cwd=cwd,
+            env=env,
+            encoding=encoding,
+            codec_errors=codec_errors,
+            shell=shell,
+        )
+
+        data = PexpectData(False, proc, logfile, self.get_embed_context(), label)
+
+        # These get killed at the end of the step by process_pexpect_spawn().
+        self._pexpect_spawn_lst.append(data)
+        return proc
+
+    def pexpect_service(
+        self,
+        command,
+        args=[],
+        timeout=30,
+        maxread=2000,
+        logfile=None,
+        cwd=None,
+        env=None,
+        encoding="utf-8",
+        codec_errors="strict",
+        shell=False,
+        label=None,
+        cleanup_priority=Cleanup.PRIORITY_PEXPECT_SERVICE,
+    ):
+        proc, logfile = self._pexpect_start(
+            command=command,
+            args=args,
+            timeout=timeout,
+            maxread=maxread,
+            logfile=logfile,
+            cwd=cwd,
+            env=env,
+            encoding=encoding,
+            codec_errors=codec_errors,
+            shell=shell,
+        )
+
+        data = PexpectData(True, proc, logfile, self.get_embed_context(), label)
+
+        self._pexpect_service_lst.append(data)
+
+        # These get reaped during the cleanup at the end of the scenario.
+
+        self.cleanup_add(
+            callback=lambda cext: cext._pexpect_service_cleanup(data),
+            name=f"pexpect {proc.name}",
+            unique_tag=Cleanup.UNIQ_TAG_DISTINCT,
+            priority=cleanup_priority,
+        )
+
+        return proc
+
+    def process_pexpect_spawn(self):
 
         argv_failed = None
 
-        for proc, logfile, embed_context in util.consume_list(self._pexpect_lst_step):
+        for data in util.consume_list(self._pexpect_spawn_lst):
             (
                 p_failed,
                 argv,
                 returncode,
                 stdout,
-                stderr,
-            ) = self._process_command_complete(proc, logfile)
+            ) = self._pexpect_complete(data)
             if argv_failed is None and p_failed:
                 argv_failed = argv
-            self.embed_run(
-                argv, True, returncode, stdout, stderr, embed_context=embed_context
-            )
-
-        if when == "after_scenario":
-            for proc, logfile, embed_context in util.consume_list(
-                self._pexpect_lst_scenario
-            ):
-                (
-                    p_failed,
-                    argv,
-                    returncode,
-                    stdout,
-                    stderr,
-                ) = self._process_command_complete(proc, logfile)
-                if argv_failed is None and p_failed:
-                    argv_failed = argv
-                self.embed_run(
-                    argv, True, returncode, stdout, stderr, embed_context=embed_context
-                )
 
         if argv_failed:
             raise Exception(f"Some process failed: {argv_failed}")
+
+    def pexpect_service_find_all(self, label=None):
+        for proc in self._pexpect_service_lst:
+            if label is not None and proc.label != label:
+                continue
+            yield proc
 
     def _cleanup_add(self, cleanup_action):
 
@@ -571,6 +719,8 @@ class _CExt:
                 "Cleanup already happend. Cannot schedule anew cleanup action"
             )
 
+        newly_added = True
+
         # Find and delete duplicate (we will always prepend the
         # new action to the front (honoring the priority),
         # meaning that later added cleanups, will be executed
@@ -578,6 +728,7 @@ class _CExt:
         for i, a in enumerate(self._cleanup_lst):
             if a.unique_tag == cleanup_action.unique_tag:
                 del self._cleanup_lst[i]
+                newly_added = False
                 break
 
         # Prepend, but still honor the priority.
@@ -585,11 +736,15 @@ class _CExt:
         for a in self._cleanup_lst:
             # Smaller priority number is preferred (and is
             # rolled back first).
-            if a.priority < cleanup_action.priority:
-                idx += 1
+            if a.priority >= cleanup_action.priority:
+                # the cleanup actions are tracked in ascending priority
+                # Once we found a >= priority we are done and have the
+                # index found where to insert.
+                break
+            idx += 1
         self._cleanup_lst.insert(idx, cleanup_action)
 
-        if idx is None:
+        if newly_added:
             for c in cleanup_action.also_needs():
                 self._cleanup_add(c)
 
@@ -610,6 +765,9 @@ class _CExt:
 
     def cleanup_add_udev_rule(self, *a, **kw):
         self._cleanup_add(CleanupUdevRule(*a, **kw))
+
+    def cleanup_add_NM_service(self, *a, **kw):
+        self._cleanup_add(CleanupNMService(*a, **kw))
 
     def process_cleanup(self):
         ex = []
@@ -731,38 +889,12 @@ def setup(context):
         out, err, code = _run(command, *a, **kw)
         return code
 
-    def _pexpect_spawn(
-        context, is_service, *a, encoding="utf-8", logfile=None, shell=False, **kw
-    ):
-        if logfile is None:
-            import tempfile
-
-            logfile = tempfile.NamedTemporaryFile(dir=util.tmp_dir(), mode="w")
-        if shell:
-            a = ["/bin/bash", ["-c", *a]]
-        proc = pexpect.spawn(*a, **kw, logfile=logfile, encoding=encoding)
-
-        # "is_service" means to be killed at the end of the test. In that case,
-        # we can just embed the result later and let it be processed and
-        # cleaned up thereby.
-        #
-        # Otherwise, the process is reaped/killed at the end of the step.
-        #
-        # In both cases, we track the process in two separate lists.
-        embed_span = context.cext.get_embed_context()
-
-        if is_service:
-            context.cext._pexpect_lst_scenario.append((proc, logfile, embed_span))
-        else:
-            context.cext._pexpect_lst_step.append((proc, logfile, embed_span))
-        return proc
-
     context.command_code = _command_code
     context.run = _run
     context.command_output = _command_output
     context.command_output_err = _command_output_err
-    context.pexpect_spawn = lambda *a, **kw: _pexpect_spawn(context, False, *a, **kw)
-    context.pexpect_service = lambda *a, **kw: _pexpect_spawn(context, True, *a, **kw)
+    context.pexpect_spawn = lambda *a, **kw: context.cext.pexpect_spawn(*a, **kw)
+    context.pexpect_service = lambda *a, **kw: context.cext.pexpect_service(*a, **kw)
 
 
 ###############################################################################
@@ -835,13 +967,11 @@ def dump_status(context, when, fail_only=False):
             "ip netns exec vethsetup nft list ruleset",
         ]
 
-    named_nss = {
-        ns.split()[0]
-        for ns in nmci.process.run_stdout("ip netns list").split("\n")
-        if ns
-    } - {
-        "vethsetup"
-    }  # vethsetup is handled separately
+    named_nss = nmci.ip.netns_list()
+
+    # vethsetup is handled separately
+    named_nss = [n for n in named_nss if n != "vethsetup"]
+
     if len(named_nss) > 0:
         add_to_heading = f"\nStatus of other named network namespaces:\n"
         for ns in sorted(named_nss):
@@ -1672,6 +1802,7 @@ def start_NM_service(context, pid_wait=True, timeout=10):
 
 def stop_NM_service(context):
     print("stop NM service")
+    context.cext.cleanup_add_NM_service(operation="start")
     r = context.process.systemctl("stop NetworkManager.service")
     context.nm_pid = 0
     return r.returncode == 0

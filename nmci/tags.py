@@ -30,12 +30,40 @@ class Tag:
             self.lineno = self._after_scenario.__code__.co_firstlineno
 
     def before_scenario(self, context, scenario):
-        if self._before_scenario is not None:
+        if self._after_scenario is not None:
+            context.cext.cleanup_add(
+                callback=lambda cext: self.after_scenario(cext.context, scenario),
+                name=f"tag-{self.tag_name}",
+                unique_tag=(self,),
+                priority=nmci.ctx.Cleanup.PRIORITY_TAG,
+            )
+        if self._before_scenario is None:
+            return
+
+        # Printing this information is important for nm-ci-stats:
+        # https://gitlab.freedesktop.org/NetworkManager/NetworkManager-ci/-/blob/0c08590a16fb4558fd6583734c260f34c276eb3b/run/utils/j-dump/j-dump.py#L150
+
+        print(f"Executing @{self.tag_name}")
+        t_start = time.monotonic()
+        try:
             self._before_scenario(context, scenario, **self.args)
+        except Exception:
+            print(f"  @{self.tag_name} ... failed in {time.monotonic() - t_start:.3f}s")
+            raise
+        print(f"  @{self.tag_name} ... passed in {time.monotonic() - t_start:.3f}s")
 
     def after_scenario(self, context, scenario):
-        if self._after_scenario is not None:
+        if self._after_scenario is None:
+            return
+
+        print(f"Executing @{self.tag_name}")
+        t_start = time.monotonic()
+        try:
             self._after_scenario(context, scenario, **self.args)
+        except:
+            print(f"  @{self.tag_name} ... failed in {time.monotonic() - t_start:.3f}s")
+            raise
+        print(f"  @{self.tag_name} ... passed in {time.monotonic() - t_start:.3f}s")
 
 
 tag_registry = {}
@@ -1996,18 +2024,14 @@ _register_tag("pppoe", pppoe_bs, pppoe_as)
 
 
 def del_test1112_veths_bs(context, scenario):
+    context.cext.cleanup_add_iface("test11")
+    context.cext.cleanup_add_udev_rule("/etc/udev/rules.d/99-veths.rules")
     rule = 'ENV{ID_NET_DRIVER}=="veth", ENV{INTERFACE}=="test11|test12", ENV{NM_UNMANAGED}="0"'
     nmci.util.file_set_content("/etc/udev/rules.d/99-veths.rules", [rule])
     nmci.ctx.update_udevadm(context)
 
 
-def del_test1112_veths_as(context, scenario):
-    context.process.run_stdout("ip link del test11")
-    context.process.run_stdout("rm -f /etc/udev/rules.d/99-veths.rules")
-    nmci.ctx.update_udevadm(context)
-
-
-_register_tag("del_test1112_veths", del_test1112_veths_bs, del_test1112_veths_as)
+_register_tag("del_test1112_veths", del_test1112_veths_bs)
 
 
 def nmstate_bs(context, scenario):
