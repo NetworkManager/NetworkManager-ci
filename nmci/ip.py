@@ -443,7 +443,7 @@ class _IP:
                 arg = "up"
             else:
                 arg = "down"
-            process.run_stdout(["ip", "link", "set", li["ifname"], arg])
+            process.run_stdout(["ip", "link", "set", li["ifname"], arg], as_bytes=True)
 
     def link_delete(self, ifname=None, *, ifindex=None, accept_nodev=False):
 
@@ -460,7 +460,7 @@ class _IP:
             ifname = li["ifname"]
 
         try:
-            process.run_stdout(["ip", "link", "delete", ifname])
+            process.run_stdout(["ip", "link", "delete", ifname], as_bytes=True)
         except:
             if accept_nodev:
                 if ifindex is not None:
