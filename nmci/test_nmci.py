@@ -1635,7 +1635,7 @@ def test_context_cleanup():
     ]
 
     context.cext._cleanup_add(
-        ctx.Cleanup(name="foo", callback=lambda cext: None, priority=25)
+        ctx.Cleanup(name="foo", callback=lambda cext: None, priority=50)
     )
 
     assert [c.name for c in context.cext._cleanup_lst] == [
@@ -1646,7 +1646,7 @@ def test_context_cleanup():
     ]
 
     context.cext.cleanup_add(
-        name="bar", unique_tag=(1,), callback=lambda cext: None, priority=24
+        name="bar", unique_tag=(1,), callback=lambda cext: None, priority=49
     )
 
     assert [c.name for c in context.cext._cleanup_lst] == [
