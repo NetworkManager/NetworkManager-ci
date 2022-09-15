@@ -23,15 +23,26 @@ class Cleanup:
 
     UNIQ_TAG_DISTINCT = object()
 
-    PRIORITY_PEXPECT_SERVICE = 40
+    PRIORITY_NM_SERVICE_START = -30
+    PRIORITY_CALLBACK_DEFAULT = 0
     PRIORITY_TAG = 10
+    PRIORITY_CONNECTION = 20
+    PRIORITY_NAMESPACE = 30
+    PRIORITY_IFACE_DELETE = 30
+    PRIORITY_IFACE_RESET = 31
+    PRIORITY_PEXPECT_SERVICE = 40
+    PRIORITY_NFT_DEFAULT = 40
+    PRIORITY_NFT_OTHER = 41
+    PRIORITY_UDEV_RULE = 50
+    PRIORITY_NM_SERVICE_RESTART = 200
+    PRIORITY_UDEV_UPDATE = 300
 
     def __init__(
         self,
         callback=None,
         name=None,
         unique_tag=None,
-        priority=0,
+        priority=PRIORITY_CALLBACK_DEFAULT,
         also_needs=None,
     ):
         self.name = name
@@ -76,14 +87,14 @@ class Cleanup:
 
 
 class CleanupConnection(Cleanup):
-    def __init__(self, con_name, qualifier=None):
+    def __init__(self, con_name, qualifier=None, priority=Cleanup.PRIORITY_CONNECTION):
         self.con_name = con_name
         self.qualifier = qualifier
         Cleanup.__init__(
             self,
             name=f"nmcli-connection-{con_name}",
             unique_tag=(con_name, qualifier),
-            priority=20,
+            priority=priority,
         )
 
     def _do_cleanup(self, cext):
@@ -95,15 +106,22 @@ class CleanupConnection(Cleanup):
 
 
 class CleanupIface(Cleanup):
-    def __init__(self, iface, op=None):
-        priority = 30
+    def __init__(
+        self,
+        iface,
+        op=None,
+        priority=None,
+    ):
         if op is None:
             if re.match(r"^(eth[0-9]|eth10)$", iface):
                 op = "reset"
             else:
                 op = "delete"
-        if op != "delete":
-            priority += 1
+        if priority is None:
+            if op == "delete":
+                priority = Cleanup.PRIORITY_IFACE_DELETE
+            else:
+                priority = Cleanup.PRIORITY_IFACE_RESET
 
         self.op = op
         self.iface = iface
@@ -127,14 +145,19 @@ class CleanupIface(Cleanup):
 
 
 class CleanupNamespace(Cleanup):
-    def __init__(self, namespace, teardown=True):
+    def __init__(
+        self,
+        namespace,
+        teardown=True,
+        priority=Cleanup.PRIORITY_NAMESPACE,
+    ):
         self.teardown = teardown
         self.namespace = namespace
         Cleanup.__init__(
             self,
             name=f"namespace-{namespace}-{'teardown' if teardown else ''}",
             unique_tag=(namespace, teardown),
-            priority=30,
+            priority=priority,
         )
 
     def _do_cleanup(self, cext):
@@ -148,13 +171,18 @@ class CleanupNamespace(Cleanup):
 
 
 class CleanupNft(Cleanup):
-    def __init__(self, namespace=None):
+    def __init__(self, namespace=None, priority=None):
+        if priority is None:
+            if namespace is None:
+                priority = Cleanup.PRIORITY_NFT_DEFAULT
+            else:
+                priority = Cleanup.PRIORITY_NFT_OTHER
         self.namespace = namespace
         Cleanup.__init__(
             self,
             name=f"nft-{'ns-'+namespace if namespace is not None else 'default'}",
             unique_tag=(namespace,),
-            priority=40 + (0 if namespace is None else 1),
+            priority=priority,
         )
 
     def _do_cleanup(self, cext):
@@ -167,11 +195,14 @@ class CleanupNft(Cleanup):
 
 
 class CleanupUdevUpdate(Cleanup):
-    def __init__(self):
+    def __init__(
+        self,
+        priority=Cleanup.PRIORITY_UDEV_UPDATE,
+    ):
         Cleanup.__init__(
             self,
             name="udev-update",
-            priority=300,
+            priority=priority,
         )
 
     def _do_cleanup(self, cext):
@@ -179,13 +210,17 @@ class CleanupUdevUpdate(Cleanup):
 
 
 class CleanupUdevRule(Cleanup):
-    def __init__(self, rule):
+    def __init__(
+        self,
+        rule,
+        priority=Cleanup.PRIORITY_UDEV_RULE,
+    ):
         self.rule = rule
         Cleanup.__init__(
             self,
             name=f"udev-rule-{rule}",
             unique_tag=(rule,),
-            priority=50,
+            priority=priority,
         )
 
     def also_needs(self):
@@ -203,9 +238,9 @@ class CleanupNMService(Cleanup):
         assert operation in ["start", "restart", "reload"]
         if priority is None:
             if operation == "start":
-                priority = -30
+                priority = Cleanup.PRIORITY_NM_SERVICE_START
             else:
-                priority = 200
+                priority = Cleanup.PRIORITY_NM_SERVICE_RESTART
         self._operation = operation
         Cleanup.__init__(
             self,
