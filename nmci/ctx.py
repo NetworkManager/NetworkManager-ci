@@ -23,8 +23,8 @@ class Cleanup:
 
     UNIQ_TAG_DISTINCT = object()
 
-    PRIORITY_PEXPECT_SERVICE = 30
-    PRIORITY_TAG = 20
+    PRIORITY_PEXPECT_SERVICE = 40
+    PRIORITY_TAG = 10
 
     def __init__(
         self,
@@ -83,7 +83,7 @@ class CleanupConnection(Cleanup):
             self,
             name=f"nmcli-connection-{con_name}",
             unique_tag=(con_name, qualifier),
-            priority=10,
+            priority=20,
         )
 
     def _do_cleanup(self, cext):
@@ -96,7 +96,7 @@ class CleanupConnection(Cleanup):
 
 class CleanupIface(Cleanup):
     def __init__(self, iface, op=None):
-        priority = 20
+        priority = 30
         if op is None:
             if re.match(r"^(eth[0-9]|eth10)$", iface):
                 op = "reset"
