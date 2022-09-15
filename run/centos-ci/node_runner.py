@@ -70,8 +70,8 @@ class Machine:
                 check=False,
             )
             returncode = cico_run.returncode
-            if retry_count >= 60:
-                self.runner._abort(f"Unable to reserve machine '{self.id}'")
+            if retry_count >= 180:
+                self.runner._abort(f"Unable to reserve a machine '{self.id}' in 180 minutes")
             if returncode != 0:
                 time.sleep(60)
                 retry_count += 1
