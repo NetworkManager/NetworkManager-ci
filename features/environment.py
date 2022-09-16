@@ -121,6 +121,8 @@ def _before_scenario(context, scenario):
             excepts.append(str(e))
 
     for tag_name in scenario.tags:
+        if context.cext.scenario_skipped:
+            break
         tag = nmci.tags.tag_registry.get(tag_name, None)
         if tag is None:
             continue
