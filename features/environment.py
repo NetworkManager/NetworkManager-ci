@@ -151,6 +151,8 @@ def _before_scenario(context, scenario):
         context.before_scenario_step_el.set("class", "step skipped")
 
     if excepts:
+        # reset skipped flag, so we do not skip fail
+        context.cext.scenario_skipped = False
         context.before_scenario_step_el.set("class", "step failed")
         context.cext.embed_data(
             "Exception in before scenario tags",
@@ -226,6 +228,8 @@ def _after_scenario(context, scenario):
 
     nmci.misc.html_report_tag_links(context.cext._html_formatter.scenario_el)
     nmci.misc.html_report_file_links(context.cext._html_formatter.scenario_el)
+
+    skipped = context.cext.scenario_skipped
 
     nm_pid_after = nmci.nmutil.nm_pid()
     if not nm_pid_after:
@@ -310,8 +314,13 @@ def _after_scenario(context, scenario):
     except Exception:
         excepts.append(traceback.format_exc())
 
+    if not skipped and context.cext.scenario_skipped:
+        excepts.append("Skip in after_scenario() detected.")
+
     if excepts or context.crashed_step:
         context.after_scenario_step_el.set("class", "step failed")
+        # reset skip flag, so we do not skip fail
+        context.cext.scenario_skipped = False
     if excepts:
         context.cext.embed_data(
             "Exception in after scenario tags", "\n\n".join(excepts)
