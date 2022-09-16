@@ -83,7 +83,7 @@ node('cico-workspace') {
                         println("Pipeline canceled (or crashed)! We do have no junit.xml or config.log")
                         sh """
                             set +x
-                            cd NetworkManager-ci; python3 run/centos-ci/pipeline_cancel.py ${env.BUILD_URL} ${GL_TOKEN} '${TD}'
+                            cd NetworkManager-ci; python3 run/centos-ci/pipeline_cancel.py ${env.BUILD_URL} ${GL_TOKEN} '${TD}' ${RELEASE}
                         """
                     }
                 }

@@ -7,7 +7,7 @@ from node_runner import Runner
 if __name__ == "__main__":
     logging.basicConfig(level=logging.DEBUG)
     logging.debug("reading params")
-    gl_token, trigger_data, build_id = None, None, None
+    gl_token, trigger_data, build_id, release = None, None, None, ""
     if len(sys.argv) > 3:
         build_id = sys.argv[1]
         logging.debug(f"Build id: {build_id}")
@@ -15,6 +15,8 @@ if __name__ == "__main__":
         logging.debug(f"Gitlab Token Set? {not not gl_token}")
         trigger_data = sys.argv[3]
         logging.debug(f"Trigger Data Set? {not not trigger_data}")
+    if len(sys.argv > 4):
+        relase = sys.argv[4].replace("-stream", "")
     else:
         logging.debug(f"Not enough arguments {len(sys.argv)-1}, skipping...")
         exit(0)
@@ -26,7 +28,7 @@ if __name__ == "__main__":
             f"{build_id}\n\n"
             + "Aborted by the new run (or unexpected crash of node_runner)"
         )
-        r.gitlab.set_pipeline("canceled")
+        r.gitlab.set_pipeline("canceled", release)
         r._post_results()
         exit(0)
 
