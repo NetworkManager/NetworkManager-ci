@@ -17,10 +17,18 @@ compiled_tags = False
 
 
 class Tag:
-    def __init__(self, tag_name, before_scenario=None, after_scenario=None, args={}):
+    def __init__(
+        self,
+        tag_name,
+        before_scenario=None,
+        after_scenario=None,
+        args={},
+        priority=nmci.ctx.Cleanup.PRIORITY_TAG,
+    ):
         self.lineno = 0
         self.tag_name = tag_name
         self.args = args
+        self.priority = priority
         self._before_scenario = before_scenario
         self._after_scenario = after_scenario
         if self._before_scenario:
@@ -34,7 +42,7 @@ class Tag:
                 callback=lambda cext: self.after_scenario(cext.context, scenario),
                 name=f"tag-{self.tag_name}",
                 unique_tag=(self,),
-                priority=nmci.ctx.Cleanup.PRIORITY_TAG,
+                priority=self.priority,
             )
         if self._before_scenario is None:
             return
@@ -68,9 +76,17 @@ class Tag:
 tag_registry = {}
 
 
-def _register_tag(tag_name, before_scenario=None, after_scenario=None, args={}):
+def _register_tag(
+    tag_name,
+    before_scenario=None,
+    after_scenario=None,
+    args={},
+    priority=nmci.ctx.Cleanup.PRIORITY_TAG,
+):
     assert tag_name not in tag_registry, "multiple definitions for tag '@%s'" % tag_name
-    tag_registry[tag_name] = Tag(tag_name, before_scenario, after_scenario, args)
+    tag_registry[tag_name] = Tag(
+        tag_name, before_scenario, after_scenario, args, priority
+    )
 
 
 # tags that have efect outside this file
@@ -1790,7 +1806,12 @@ def runonce_as(context, scenario):
     nmci.ctx.wait_for_testeth0(context)
 
 
-_register_tag("runonce", runonce_bs, runonce_as)
+_register_tag(
+    "runonce",
+    runonce_bs,
+    runonce_as,
+    priority=nmci.ctx.Cleanup.PRIORITY_NM_SERVICE_START - 1,
+)
 
 
 def slow_team_bs(context, scenario):
