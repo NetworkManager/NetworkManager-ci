@@ -58,8 +58,9 @@ for test in $@; do
         # Overal result is FAIL
         result=/tmp/results/FAIL-report_$TEST.html
         fail+=($test)
-        systemctl restart NetworkManager
-        nmcli con up id testeth0
+        # This should not be neeed, we do not have it in RHEL/Fedora testing
+        #systemctl restart NetworkManager
+        #nmcli con up id testeth0
     fi
     mv /tmp/report_$TEST.html $result
     ((cnt++))
