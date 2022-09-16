@@ -15,7 +15,7 @@ if __name__ == "__main__":
         logging.debug(f"Gitlab Token Set? {not not gl_token}")
         trigger_data = sys.argv[3]
         logging.debug(f"Trigger Data Set? {not not trigger_data}")
-    if len(sys.argv > 4):
+    if len(sys.argv) > 4:
         relase = sys.argv[4].replace("-stream", "")
     else:
         logging.debug(f"Not enough arguments {len(sys.argv)-1}, skipping...")
