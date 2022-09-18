@@ -210,7 +210,7 @@ def crash_bs(context, scenario):
 
 
 def crash_as(context, scenario):
-    assert nmci.ctx.restart_NM_service(context)
+    assert nmci.nmutil.restart_NM_service()
     if "systemd-coredump" not in context.core_pattern:
         context.process.run_stdout(
             f"sysctl -w kernel.core_pattern='{context.core_pattern}'"
@@ -274,14 +274,14 @@ def logging_info_only_bs(context, scenario):
     conf = "/etc/NetworkManager/conf.d/99-xlogging.conf"
     nmci.util.file_set_content(conf, ["[logging]", "level=INFO", "domains=ALL"])
     time.sleep(0.5)
-    nmci.ctx.restart_NM_service(context)
+    nmci.nmutil.restart_NM_service()
 
 
 def logging_info_only_as(context, scenario):
     conf = "/etc/NetworkManager/conf.d/99-xlogging.conf"
     context.process.run_stdout(f"rm -rf {conf}")
     # this is after performance tests, so NM restart can take a while
-    nmci.ctx.restart_NM_service(context, timeout=120)
+    nmci.nmutil.restart_NM_service(timeout=120)
 
 
 _register_tag("logging_info_only", logging_info_only_bs, logging_info_only_as)
@@ -293,7 +293,7 @@ def _is_container():
 
 def restart_if_needed_as(context, scenario):
     if context.process.systemctl("is-active NetworkManager").returncode != 0:
-        nmci.ctx.restart_NM_service(context)
+        nmci.nmutil.restart_NM_service()
     if (
         not os.path.isfile("/tmp/nm_dcb_inf_wol_sriov_configured")
         and not _is_container()
@@ -390,7 +390,7 @@ def remove_vlan_range(context, scenario):
     )
     context.process.run_stdout("rm -rvf " + keyfile_list, shell=True)
 
-    nmci.ctx.restart_NM_service(context, timeout=120)
+    nmci.nmutil.restart_NM_service(timeout=120)
 
 
 _register_tag("remove_vlan_range", None, remove_vlan_range)
@@ -492,7 +492,7 @@ def connectivity_bs(context, scenario):
         "interval=10",
     ]
     nmci.util.file_set_content("/etc/NetworkManager/conf.d/99-connectivity.conf", conf)
-    nmci.ctx.reload_NM_service(context)
+    nmci.nmutil.reload_NM_service()
 
 
 def connectivity_as(context, scenario):
@@ -502,7 +502,7 @@ def connectivity_as(context, scenario):
     )
     context.execute_steps("* Reset /etc/hosts")
 
-    nmci.ctx.reload_NM_service(context)
+    nmci.nmutil.reload_NM_service()
     print(context.process.run_stdout("NetworkManager --print-config"))
 
 
@@ -551,7 +551,7 @@ def disp_as(context, scenario):
     # context.process.run_stdout("rm -rf /tmp/dispatcher.txt")
     context.process.nmcli_force("con down testeth1")
     context.process.nmcli_force("con down testeth2")
-    nmci.ctx.reload_NM_service(context)
+    nmci.nmutil.reload_NM_service()
 
 
 _register_tag("disp", disp_bs, disp_as)
@@ -731,13 +731,13 @@ def dns_dnsmasq_bs(context, scenario):
         context.systemd_resolved = False
     conf = ["# configured by beaker-test", "[main]", "dns=dnsmasq"]
     nmci.util.file_set_content("/etc/NetworkManager/conf.d/99-xtest-dns.conf", conf)
-    nmci.ctx.reload_NM_service(context)
+    nmci.nmutil.reload_NM_service()
     context.dns_plugin = "dnsmasq"
 
 
 def dns_dnsmasq_as(context, scenario):
     context.process.run_stdout("rm -f /etc/NetworkManager/conf.d/99-xtest-dns.conf")
-    nmci.ctx.reload_NM_service(context)
+    nmci.nmutil.reload_NM_service()
     context.dns_plugin = ""
     if context.systemd_resolved is True:
         print("starting systemd-resolved")
@@ -768,7 +768,7 @@ def dns_systemd_resolved_bs(context, scenario):
         conf.append("rc-manager=symlink")
 
     nmci.util.file_set_content("/etc/NetworkManager/conf.d/99-xtest-dns.conf", conf)
-    nmci.ctx.reload_NM_service(context)
+    nmci.nmutil.reload_NM_service()
     context.dns_plugin = "systemd-resolved"
 
 
@@ -777,7 +777,7 @@ def dns_systemd_resolved_as(context, scenario):
         print("stop systemd-resolved")
         context.process.systemctl("stop systemd-resolved")
     context.process.run_stdout("rm -f /etc/NetworkManager/conf.d/99-xtest-dns.conf")
-    nmci.ctx.reload_NM_service(context)
+    nmci.nmutil.reload_NM_service()
     context.dns_plugin = ""
 
 
@@ -789,14 +789,14 @@ def internal_DHCP_bs(context, scenario):
     nmci.util.file_set_content(
         "/etc/NetworkManager/conf.d/99-xtest-dhcp-internal.conf", conf
     )
-    nmci.ctx.restart_NM_service(context)
+    nmci.nmutil.restart_NM_service()
 
 
 def internal_DHCP_as(context, scenario):
     context.process.run_stdout(
         "rm -f /etc/NetworkManager/conf.d/99-xtest-dhcp-internal.conf"
     )
-    nmci.ctx.restart_NM_service(context)
+    nmci.nmutil.restart_NM_service()
 
 
 _register_tag("internal_DHCP", internal_DHCP_bs, internal_DHCP_as)
@@ -807,14 +807,14 @@ def dhclient_DHCP_bs(context, scenario):
     nmci.util.file_set_content(
         "/etc/NetworkManager/conf.d/99-xtest-dhcp-dhclient.conf", conf
     )
-    nmci.ctx.restart_NM_service(context)
+    nmci.nmutil.restart_NM_service()
 
 
 def dhclient_DHCP_as(context, scenario):
     context.process.run_stdout(
         "rm -f /etc/NetworkManager/conf.d/99-xtest-dhcp-dhclient.conf"
     )
-    nmci.ctx.restart_NM_service(context)
+    nmci.nmutil.restart_NM_service()
 
 
 _register_tag("dhclient_DHCP", dhclient_DHCP_bs, dhclient_DHCP_as)
@@ -870,7 +870,7 @@ def ifcfg_rh_bs(context, scenario):
         time.sleep(0.5)
         conf = ["# configured by beaker-test", "[main]", "plugins=ifcfg-rh"]
         nmci.util.file_set_content("/etc/NetworkManager/conf.d/99-xxcustom.conf", conf)
-        nmci.ctx.restart_NM_service(context)
+        nmci.nmutil.restart_NM_service()
         if context.IS_NMTUI:
             # comment out wifi_rescan, as simwifi prepare not done yet
             # if "simwifi" in scenario.tags:
@@ -886,7 +886,7 @@ def ifcfg_rh_as(context, scenario):
         context.process.run_stdout(
             "sudo rm -f /etc/NetworkManager/conf.d/99-xxcustom.conf"
         )
-        nmci.ctx.restart_NM_service(context)
+        nmci.nmutil.restart_NM_service()
         if context.IS_NMTUI:
             # if 'simwifi' in scenario.tags:
             #     nmci.ctx.wifi_rescan()
@@ -915,7 +915,7 @@ def keyfile_bs(context, scenario):
         time.sleep(0.5)
         conf = ["# configured by beaker-test", "[main]", "plugins=keyfile"]
         nmci.util.file_set_content("/etc/NetworkManager/conf.d/99-xxcustom.conf", conf)
-        nmci.ctx.restart_NM_service(context)
+        nmci.nmutil.restart_NM_service()
         if context.IS_NMTUI:
             # comment out wifi_rescan, as simwifi prepare not done yet
             # if "simwifi" in scenario.tags:
@@ -931,7 +931,7 @@ def keyfile_as(context, scenario):
         context.process.run_stdout(
             "sudo rm -f /etc/NetworkManager/conf.d/99-xxcustom.conf"
         )
-        nmci.ctx.restart_NM_service(context)
+        nmci.nmutil.restart_NM_service()
         if context.IS_NMTUI:
             # if 'simwifi' in scenario.tags:
             #     nmci.ctx.wifi_rescan()
@@ -951,7 +951,7 @@ def plugin_default_bs(context, scenario):
         context.process.run_stdout(
             "sed -i 's/^plugins=/#plugins=/' /etc/NetworkManager/conf.d/99-test.conf"
         )
-        nmci.ctx.restart_NM_service(context)
+        nmci.nmutil.restart_NM_service()
 
 
 def plugin_default_as(context, scenario):
@@ -960,7 +960,7 @@ def plugin_default_as(context, scenario):
         context.process.run_stdout(
             "mv /tmp/99-test.conf /etc/NetworkManager/conf.d/99-test.conf"
         )
-        nmci.ctx.restart_NM_service(context)
+        nmci.nmutil.restart_NM_service()
 
 
 _register_tag("plugin_default", plugin_default_bs, plugin_default_as)
@@ -998,7 +998,7 @@ def need_dispatcher_scripts_bs(context, scenario):
             timeout=120,
             ignore_stderr=True,
         )
-    nmci.ctx.reload_NM_service(context)
+    nmci.nmutil.reload_NM_service()
 
 
 def need_dispatcher_scripts_as(context, scenario):
@@ -1014,7 +1014,7 @@ def need_dispatcher_scripts_as(context, scenario):
     )
     context.process.run("ip rule del table 1", ignore_stderr=True)
     context.process.run("ip rule del table 1", ignore_stderr=True)
-    nmci.ctx.reload_NM_service(context)
+    nmci.nmutil.reload_NM_service()
 
 
 _register_tag(
@@ -1037,7 +1037,7 @@ _register_tag("logging", logging_bs, logging_as)
 
 def remove_custom_cfg_as(context, scenario):
     context.process.run_stdout("sudo rm -f /etc/NetworkManager/conf.d/99-xxcustom.conf")
-    nmci.ctx.restart_NM_service(context)
+    nmci.nmutil.restart_NM_service()
 
 
 _register_tag("remove_custom_cfg", None, remove_custom_cfg_as)
@@ -1050,7 +1050,7 @@ def netservice_bs(context, scenario):
     for dev in devs:
         if dev.startswith("orig"):
             context.process.nmcli_force(f"device set {dev} managed off")
-    nmci.ctx.restart_NM_service(context)
+    nmci.nmutil.restart_NM_service()
     context.process.systemctl("restart network.service")
     nmci.ctx.wait_for_testeth0(context)
     time.sleep(1)
@@ -1148,14 +1148,14 @@ def simwifi_ap_bs(context, scenario):
 
     context.process.run_stdout("modprobe mac80211_hwsim")
     context.process.systemctl("restart wpa_supplicant")
-    assert nmci.ctx.restart_NM_service(context, reset=False), "NM stop failed"
+    assert nmci.nmutil.restart_NM_service(reset=False), "NM stop failed"
 
 
 def simwifi_ap_as(context, scenario):
     context.process.nmcli("radio wifi on")
     context.process.run_stdout("modprobe -r mac80211_hwsim")
     context.process.systemctl("restart wpa_supplicant")
-    assert nmci.ctx.restart_NM_service(context, reset=False), "NM stop failed"
+    assert nmci.nmutil.restart_NM_service(reset=False), "NM stop failed"
 
 
 _register_tag("simwifi_ap", simwifi_ap_bs, simwifi_ap_as)
@@ -1202,7 +1202,7 @@ def simwifi_p2p_bs(context, scenario):
         ["[device]", "match-device=interface-name:wlan1", "managed=0"],
     )
 
-    nmci.ctx.restart_NM_service(context)
+    nmci.nmutil.restart_NM_service()
 
     context.process.run_stdout("modprobe mac80211_hwsim")
     time.sleep(3)
@@ -1235,7 +1235,7 @@ def simwifi_p2p_as(context, scenario):
     context.process.run_stdout("pkill -9 -f wpa_supplicant.*wlan1", shell=True)
     context.process.run_stdout("rm -rf /etc/NetworkManager/conf.d/99-wifi.conf")
 
-    nmci.ctx.restart_NM_service(context)
+    nmci.nmutil.restart_NM_service()
 
 
 _register_tag("simwifi_p2p", simwifi_p2p_bs, simwifi_p2p_as)
@@ -1270,7 +1270,7 @@ def vpnc_bs(context, scenario):
             timeout=120,
             ignore_stderr=True,
         )
-        nmci.ctx.restart_NM_service(context)
+        nmci.nmutil.restart_NM_service()
     nmci.ctx.setup_racoon(context, mode="aggressive", dh_group=2)
 
 
@@ -1313,7 +1313,7 @@ def libreswan_bs(context, scenario):
             timeout=120,
             ignore_stderr=True,
         )
-        nmci.ctx.restart_NM_service(context)
+        nmci.nmutil.restart_NM_service()
 
     # We need libreswan at least of version 3.17, that contains
     # commit 453167 ("pluto: ignore tentative and failed IPv6 addresses),
@@ -1769,7 +1769,7 @@ def restore_hostname_as(context, scenario):
         )
     context.process.run_stdout("rm -rf /etc/NetworkManager/conf.d/90-hostname.conf")
     context.process.run_stdout("rm -rf /etc/dnsmasq.d/dnsmasq_custom.conf")
-    nmci.ctx.reload_NM_service(context)
+    nmci.nmutil.reload_NM_service()
     nmci.ctx.wait_for_testeth0(context)
 
 
@@ -1792,7 +1792,7 @@ def runonce_as(context, scenario):
     )
     context.process.run_stdout("rm -rf /etc/NetworkManager/conf.d/01-run-once.conf")
     time.sleep(1)
-    nmci.ctx.restart_NM_service(context)
+    nmci.nmutil.restart_NM_service()
     time.sleep(1)
     context.process.run_stdout(
         "for i in $(pidof nm-iface-helper); do kill -9 $i; done", shell=True
@@ -1833,7 +1833,7 @@ def slow_team_bs(context, scenario):
             "yum -y install teamd libteam", timeout=120, ignore_stderr=True
         )
         context.cext.skip("Skipping as unable to install slow_team")
-    nmci.ctx.reload_NM_service(context)
+    nmci.nmutil.reload_NM_service()
 
 
 def slow_team_as(context, scenario):
@@ -1844,7 +1844,7 @@ def slow_team_as(context, scenario):
     context.process.run_stdout(
         "yum -y install teamd libteam", timeout=120, ignore_stderr=True
     )
-    nmci.ctx.reload_NM_service(context)
+    nmci.nmutil.reload_NM_service()
 
 
 _register_tag("slow_team", slow_team_bs, slow_team_as)
@@ -1859,14 +1859,14 @@ def openvswitch_bs(context, scenario):
             "yum -y install NetworkManager-ovs", timeout=120, ignore_stderr=True
         )
         context.process.systemctl("daemon-reload")
-        nmci.ctx.restart_NM_service(context)
+        nmci.nmutil.restart_NM_service()
     if (
         context.process.systemctl("is-active openvswitch").returncode != 0
         or "ERR" in context.process.systemctl("status ovs-vswitchd.service").stdout
     ):
         print("restart openvswitch")
         context.process.systemctl("restart openvswitch")
-        nmci.ctx.restart_NM_service(context)
+        nmci.nmutil.restart_NM_service()
 
 
 def openvswitch_as(context, scenario):
@@ -1899,7 +1899,7 @@ def sriov_as(context, scenario):
     context.process.run_stdout("rm -rf /etc/NetworkManager/conf.d/99-sriov.conf")
     context.process.run_stdout("rm -rf /etc/NetworkManager/conf.d/98-sriov.conf")
 
-    nmci.ctx.reload_NM_service(context)
+    nmci.nmutil.reload_NM_service()
 
     # context.process.run_stdout(
     #     "echo 1 > /sys/class/net/p6p1/device/sriov_drivers_autoprobe", shell=True
@@ -2107,7 +2107,7 @@ def nmstate_upstream_setup_bs(context, scenario):
     ):
         print("restarting OVS service")
         context.process.run_stdout("systemctl restart openvswitch")
-        nmci.ctx.restart_NM_service(context)
+        nmci.nmutil.restart_NM_service()
 
 
 def nmstate_upstream_setup_as(context, scenario):
@@ -2208,7 +2208,7 @@ def backup_sysconfig_network_as(context, scenario):
     context.process.run_stdout(
         "sudo mv -f /tmp/sysnetwork.backup /etc/sysconfig/network"
     )
-    nmci.ctx.reload_NM_connections(context)
+    nmci.nmutil.reload_NM_connections()
     context.process.nmcli_force("connection down testeth9")
 
 
@@ -2224,7 +2224,7 @@ def remove_fedora_connection_checker_bs(context, scenario):
         ignore_stderr=True,
         timeout=120,
     )
-    nmci.ctx.reload_NM_service(context)
+    nmci.nmutil.reload_NM_service()
 
 
 _register_tag("remove_fedora_connection_checker", remove_fedora_connection_checker_bs)
@@ -2238,7 +2238,7 @@ def need_config_server_bs(context, scenario):
         context.process.run_stdout(
             "sudo yum -y install NetworkManager-config-server", timeout=120
         )
-        nmci.ctx.reload_NM_service(context)
+        nmci.nmutil.reload_NM_service()
         context.remove_config_server = True
 
 
@@ -2248,7 +2248,7 @@ def need_config_server_as(context, scenario):
         context.process.run_stdout(
             "sudo yum -y remove NetworkManager-config-server", timeout=120
         )
-        nmci.ctx.reload_NM_service(context)
+        nmci.nmutil.reload_NM_service()
 
 
 _register_tag("need_config_server", need_config_server_bs, need_config_server_as)
@@ -2271,7 +2271,7 @@ def no_config_server_bs(context, scenario):
                 context.process.run_stdout(
                     f"sudo mv -f {config_file} {config_file}.off"
                 )
-        nmci.ctx.reload_NM_service(context)
+        nmci.nmutil.reload_NM_service()
         context.restore_config_server = True
 
 
@@ -2289,7 +2289,7 @@ def no_config_server_as(context, scenario):
                 context.process.run_stdout(
                     f"sudo mv -f {config_file}.off {config_file}"
                 )
-        nmci.ctx.reload_NM_service(context)
+        nmci.nmutil.reload_NM_service()
     conns = nmci.process.nmcli("-t -f UUID,NAME c", do_embed=False).strip().split("\n")
     # UUID has fixed length, 36 characters
     uuids = [c[:36] for c in conns if c and "testeth" not in c]
@@ -2417,7 +2417,7 @@ _register_tag("restore_eth1_mtu", None, restore_eth1_mtu_as)
 
 def wifi_rescan_as(context, scenario):
     if context.IS_NMTUI:
-        nmci.ctx.restart_NM_service(context)
+        nmci.nmutil.restart_NM_service()
         nmci.ctx.wifi_rescan(context)
 
 
@@ -2501,7 +2501,7 @@ def allow_veth_connections_bs(context, scenario):
         "/etc/NetworkManager/conf.d/99-unmanaged.conf",
         ["[main]", "no-auto-default=eth*"],
     )
-    nmci.ctx.reload_NM_service(context)
+    nmci.nmutil.reload_NM_service()
 
 
 def no_auto_default_bs(context, scenario):
@@ -2509,14 +2509,14 @@ def no_auto_default_bs(context, scenario):
         "/etc/NetworkManager/conf.d/99-no-auto-default.conf",
         ["[main]", "no-auto-default=*"],
     )
-    nmci.ctx.reload_NM_service(context)
+    nmci.nmutil.reload_NM_service()
 
 
 def no_auto_default_as(context, scenario):
     c_file = "/etc/NetworkManager/conf.d/99-no-auto-default.conf"
     if os.path.isfile(c_file):
         os.remove(c_file)
-        nmci.ctx.reload_NM_service(context)
+        nmci.nmutil.reload_NM_service()
 
 
 _register_tag("no_auto_default", no_auto_default_bs, no_auto_default_as)
@@ -2528,7 +2528,7 @@ def allow_veth_connections_as(context, scenario):
         "sudo rm -rf /etc/NetworkManager/conf.d/99-unmanaged.conf"
     )
     nmci.ctx.update_udevadm(context)
-    nmci.ctx.reload_NM_service(context)
+    nmci.nmutil.reload_NM_service()
     devs = nmci.process.nmcli("-t -f DEVICE c s -a", do_embed=False)
     for dev in devs.strip().split("\n"):
         if dev and dev != "eth0":
@@ -2558,7 +2558,7 @@ _register_tag("tuntap", None, tuntap_as)
 
 def bond_order_as(context, scenario):
     context.process.run_stdout("rm -rf /etc/NetworkManager/conf.d/99-bond.conf")
-    nmci.ctx.reload_NM_service(context)
+    nmci.nmutil.reload_NM_service()
 
 
 _register_tag("bond_order", None, bond_order_as)
@@ -2732,7 +2732,7 @@ _register_tag("tshark", None, tshark_as)
 
 def mac_as(context, scenario):
     context.process.run_stdout("rm -rf /etc/NetworkManager/conf.d/99-mac.conf")
-    nmci.ctx.reload_NM_service(context)
+    nmci.nmutil.reload_NM_service()
     nmci.ctx.reset_hwaddr_nmcli(context, "eth1")
 
 
@@ -2772,7 +2772,7 @@ def remove_dns_clean_as(context, scenario):
         "rm -rf /etc/NetworkManager/conf.d/90-test-dns-none.conf"
     )
     time.sleep(1)
-    nmci.ctx.reload_NM_service(context)
+    nmci.nmutil.reload_NM_service()
 
 
 _register_tag("remove_dns_clean", None, remove_dns_clean_as)
@@ -2787,7 +2787,7 @@ def restore_resolvconf_as(context, scenario):
     context.process.run_stdout("rm -rf /tmp/resolv_orig.conf")
     context.process.run_stdout("rm -rf /tmp/resolv.conf")
     context.process.run_stdout("rm -rf /etc/NetworkManager/conf.d/99-resolv.conf")
-    nmci.ctx.reload_NM_service(context)
+    nmci.nmutil.reload_NM_service()
     nmci.ctx.wait_for_testeth0(context)
 
 
@@ -2818,10 +2818,10 @@ _register_tag("remove_ifcfg_con_general", None, remove_ifcfg_con_general_as)
 
 def restore_broken_network_as(context, scenario):
     context.process.systemctl("stop network.service")
-    nmci.ctx.stop_NM_service(context)
+    nmci.nmutil.stop_NM_service()
     context.process.run_stdout("sysctl net.ipv6.conf.all.accept_ra=1")
     context.process.run_stdout("sysctl net.ipv6.conf.default.accept_ra=1")
-    nmci.ctx.restart_NM_service(context)
+    nmci.nmutil.restart_NM_service()
     context.process.nmcli_force("connection down testeth8 testeth9")
 
 

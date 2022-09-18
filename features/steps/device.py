@@ -610,7 +610,7 @@ def correct_lifetime(context, typ, valid_lft, pref_lft, device):
 def check_ipv6_connectivity_on_assumal(context, profile, device):
     context.nm_restarted = True
     address = context.command_output("ip -6 a s %s | grep dynamic | awk '{print $2; exit}' | cut -d '/' -f1" % device)
-    assert nmci.ctx.stop_NM_service(context)
+    assert nmci.nmutil.stop_NM_service()
     assert context.command_code("sed -i 's/UUID=/#UUID=/' /etc/sysconfig/network-scripts/ifcfg-%s" % profile)  == 0
     ping = context.pexpect_spawn('ping6 %s -i 0.2 -c 50' % address)
     time.sleep(1)

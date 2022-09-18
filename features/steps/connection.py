@@ -176,7 +176,7 @@ def wait_for_eth0(context):
 
 @step(u'Reload connections')
 def reload_connections(context):
-    nmci.ctx.reload_NM_connections(context)
+    nmci.nmutil.reload_NM_connections()
     time.sleep(0.5)
 
 
