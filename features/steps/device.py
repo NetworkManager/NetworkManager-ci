@@ -641,7 +641,7 @@ def activate_devices_check(context, device_num, sec_high, sec_low=0):
     assert len(completed_lines), f"Unexpected output, did not find 'Completed in ' line:\n{out}"
     completed_line = completed_lines[0]
     sec_meas = float(completed_line.split("Completed in ")[1].split(" ")[0])
-    context.cext.embed_data(
+    nmci.embed.embed_data(
         f"Activation time: {sec_meas}s",
         f"speed factor: {context.machine_speed_factor}",
     )
@@ -683,7 +683,7 @@ def check_route_count(context, cmp, routes_count, ip_version, device, seconds=1)
 
 @step(u'Cleanup device "{iface}"')
 def cleanup_connection(context, iface):
-    context.cext.cleanup_add_iface(iface)
+    nmci.cleanup.cleanup_add_iface(iface)
 
 
 @step(u'Create "{typ}" device named "{name}"')
@@ -691,7 +691,7 @@ def cleanup_connection(context, iface):
 @step(u'Create "{typ}" device named "{name}" in namespace "{namespace}"')
 @step(u'Create "{typ}" device named "{name}" in namespace "{namespace}" with options "{options}"')
 def add_device(context, typ, name, namespace="", options=""):
-    context.cext.cleanup_add_iface(name)
+    nmci.cleanup.cleanup_add_iface(name)
     namespace = f"-n {namespace}" if namespace else ""
 
     # Make sure the new device gets the hightest ifindex of all links.
@@ -717,4 +717,4 @@ def add_device(context, typ, name, namespace="", options=""):
 @step(u'Add namespace "{name}" with options "{options}"')
 def add_namespace(context, name, options=""):
     context.command_code(f"ip netns add {name} {options}")
-    context.cext.cleanup_add_namespace(name, teardown=False)
+    nmci.cleanup.cleanup_add_namespace(name, teardown=False)

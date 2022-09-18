@@ -15,7 +15,7 @@ class Tag:
         before_scenario=None,
         after_scenario=None,
         args={},
-        priority=nmci.ctx.Cleanup.PRIORITY_TAG,
+        priority=nmci.cleanup.Cleanup.PRIORITY_TAG,
     ):
         self.lineno = 0
         self.tag_name = tag_name
@@ -30,8 +30,8 @@ class Tag:
 
     def before_scenario(self, context, scenario):
         if self._after_scenario is not None:
-            context.cext.cleanup_add(
-                callback=lambda cext: self.after_scenario(cext.context, scenario),
+            nmci.cleanup.cleanup_add(
+                callback=lambda: self.after_scenario(context, scenario),
                 name=f"tag-{self.tag_name}",
                 unique_tag=(self,),
                 priority=self.priority,
@@ -73,7 +73,7 @@ def _register_tag(
     before_scenario=None,
     after_scenario=None,
     args={},
-    priority=nmci.ctx.Cleanup.PRIORITY_TAG,
+    priority=nmci.cleanup.Cleanup.PRIORITY_TAG,
 ):
     assert tag_name not in tag_registry, "multiple definitions for tag '@%s'" % tag_name
     tag_registry[tag_name] = Tag(
@@ -170,7 +170,7 @@ def gsm_sim_as(context, scenario):
     context.process.run("sudo prepare/gsm_sim.sh teardown", ignore_stderr=True)
     time.sleep(1)
     context.process.nmcli_force("con del id gsm")
-    context.cext.embed_data(
+    nmci.embed.embed_data(
         "GSM_SIM", nmci.util.file_get_content_simple("/tmp/gsm_sim.log")
     )
     os.remove("/tmp/gsm_sim.log")
@@ -414,7 +414,7 @@ def gsm_bs(context, scenario):
     # Extract modem's identification and keep it in a global variable for further use.
     # Only 1 modem is expected per test.
     context.modem_str = nmci.ctx.find_modem(context)
-    context.cext.set_title(" - " + context.modem_str, append=True)
+    context.embed.set_title(" - " + context.modem_str, append=True)
 
     if not os.path.isfile("/tmp/usb_hub"):
         context.process.run_stdout("sh prepare/initialize_modem.sh", timeout=600)
@@ -438,7 +438,7 @@ def gsm_as(context, scenario):
         prefix="~~~~~~~~~~~~~~~~~~~~~~~~~~ MM LOG ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~",
         journal_args="-o cat",
     )
-    context.cext.embed_data("MM", data)
+    nmci.embed.embed_data("MM", data)
     # Extract modem model.
     # Example: 'USB ID 1c9e:9603 Zoom 4595' -> 'Zoom 4595'
     regex = r"USB ID (\w{4}:\w{4}) (.*)"
@@ -452,7 +452,7 @@ def gsm_as(context, scenario):
     modem_info = nmci.ctx.get_modem_info(context)
     if modem_info:
         print("embed modem_info")
-        context.cext.embed_data(cap, modem_info)
+        nmci.embed.embed_data(cap, modem_info)
 
 
 _register_tag("gsm", gsm_bs, gsm_as)
@@ -1064,7 +1064,7 @@ def netservice_as(context, scenario):
         prefix="~~~~~~~~~~~~~~~~~~~~~~~~~~ NETWORK SRV LOG ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~",
         journal_args="-o cat",
     )
-    context.cext.embed_data("NETSRV", data)
+    nmci.embed.embed_data("NETSRV", data)
 
 
 _register_tag("netservice", netservice_bs, netservice_as)
@@ -1116,7 +1116,11 @@ def simwifi_bs(context, scenario):
 def simwifi_as(context, scenario):
     if context.IS_NMTUI:
         print("deleting all wifi connections")
-        conns = nmci.process.nmcli("-t -f UUID,TYPE con show").strip().split("\n")
+        conns = (
+            nmci.process.nmcli("-t -f UUID,TYPE con show", do_embed=False)
+            .strip()
+            .split("\n")
+        )
         WIRELESS = ":802-11-wireless"
         del_conns = [c.replace(WIRELESS, "") for c in conns if c.endswith(WIRELESS)]
         if del_conns:
@@ -1426,7 +1430,7 @@ def dracut_bs(context, scenario):
         shell=True,
         timeout=600,
     )
-    context.cext.embed_file_if_exists(
+    nmci.embed.embed_file_if_exists(
         "Dracut setup",
         "/tmp/dracut_setup.log",
     )
@@ -1437,7 +1441,7 @@ def dracut_bs(context, scenario):
             "{ time test_clean; } &> /tmp/dracut_teardown.log",
             shell=True,
         )
-        context.cext.embed_file_if_exists(
+        nmci.embed.embed_file_if_exists(
             "Dracut teardown",
             "/tmp/dracut_teardown.log",
         )
@@ -1455,13 +1459,13 @@ def dracut_as(context, scenario):
         ignore_stderr=True,
     )
     # do not embed DHCP directly, cache output for "no free leases" check
-    # context.cext.embed_service_log("DHCP", syslog_identifier="dhcpd")
+    # nmci.embed.embed_service_log("DHCP", syslog_identifier="dhcpd")
     dhcpd_log = nmci.misc.journal_show(
         syslog_identifier="dhcpd", cursor=context.log_cursor
     )
-    context.cext.embed_data("DHCP", dhcpd_log)
-    context.cext.embed_service_log("RA", syslog_identifier="radvd")
-    context.cext.embed_service_log("NFS", syslog_identifier="rpc.mountd")
+    nmci.embed.embed_data("DHCP", dhcpd_log)
+    nmci.embed.embed_service_log("RA", syslog_identifier="radvd")
+    nmci.embed.embed_service_log("NFS", syslog_identifier="rpc.mountd")
     context.process.run_stdout(
         "cd contrib/dracut; . ./setup.sh; after_test", shell=True
     )
@@ -1471,7 +1475,7 @@ def dracut_as(context, scenario):
         try:
             shutil.copy2(file_name, remote_file_name)
         except Exception:
-            context.cext.embed_data("Exception in dracut_bs", traceback.format_exc())
+            nmci.embed.embed_data("Exception in dracut_bs", traceback.format_exc())
     # assert when everything is embedded
     assert "no free leases" not in dhcpd_log, "DHCPD leases exhausted"
 
@@ -1567,7 +1571,7 @@ def attach_hostapd_log_as(context, scenario):
                 )
         else:
             data += "\ndid not find any nm-hostapd service!"
-        context.cext.embed_data("HOSTAPD", data)
+        nmci.embed.embed_data("HOSTAPD", data)
 
 
 _register_tag("attach_hostapd_log", None, attach_hostapd_log_as)
@@ -1582,7 +1586,7 @@ def attach_wpa_supplicant_log_as(context, scenario):
             cursor=context.log_cursor_before_tags,
             prefix="~~~~~~~~~~~~~~~~~~~~~~~~~~ WPA_SUPPLICANT LOG ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~",
         )
-        context.cext.embed_data("WPA_SUP", data)
+        nmci.embed.embed_data("WPA_SUP", data)
 
 
 _register_tag("attach_wpa_supplicant_log", None, attach_wpa_supplicant_log_as)
@@ -1803,7 +1807,7 @@ _register_tag(
     "runonce",
     runonce_bs,
     runonce_as,
-    priority=nmci.ctx.Cleanup.PRIORITY_NM_SERVICE_START - 1,
+    priority=nmci.cleanup.Cleanup.PRIORITY_NM_SERVICE_START - 1,
 )
 
 
@@ -1869,11 +1873,11 @@ def openvswitch_as(context, scenario):
     data1 = nmci.util.file_get_content_simple("/var/log/openvswitch/ovsdb-server.log")
     if data1:
         print("Attaching OVSDB log")
-        context.cext.embed_data("OVSDB", data1)
+        nmci.embed.embed_data("OVSDB", data1)
     data2 = nmci.util.file_get_content_simple("/var/log/openvswitch/ovs-vswitchd.log")
     if data2:
         print("Attaching OVSDemon log")
-        context.cext.embed_data("OVSDemon", data2)
+        nmci.embed.embed_data("OVSDemon", data2)
 
     context.process.run("ovs-vsctl del-br ovsbr0", ignore_stderr=True)
     context.process.run("ovs-vsctl del-br ovs-br0", ignore_stderr=True)
@@ -2024,8 +2028,8 @@ _register_tag("pppoe", pppoe_bs, pppoe_as)
 
 
 def del_test1112_veths_bs(context, scenario):
-    context.cext.cleanup_add_iface("test11")
-    context.cext.cleanup_add_udev_rule("/etc/udev/rules.d/99-veths.rules")
+    nmci.cleanup.cleanup_add_iface("test11")
+    nmci.cleanup.cleanup_add_udev_rule("/etc/udev/rules.d/99-veths.rules")
     rule = 'ENV{ID_NET_DRIVER}=="veth", ENV{INTERFACE}=="test11|test12", ENV{NM_UNMANAGED}="0"'
     nmci.util.file_set_content("/etc/udev/rules.d/99-veths.rules", [rule])
     nmci.ctx.update_udevadm(context)
@@ -2109,7 +2113,7 @@ def nmstate_upstream_setup_bs(context, scenario):
 def nmstate_upstream_setup_as(context, scenario):
     # nmstate restarts NM few times during tests
     context.nm_restarted = True
-    nmci.ctx.restart_NM_service(context)
+    nmci.nmutil.restart_NM_service(context)
 
     context.process.run_stdout(
         "nmcli con del linux-br0 dhcpcli dhcpsrv brtest0 bond99 eth1.101 eth1.102 || true",
@@ -2186,7 +2190,7 @@ def nmstate_upstream_setup_as(context, scenario):
     nmstate = nmci.util.file_get_content_simple("/tmp/nmstate.txt")
     if nmstate:
         print("Attaching nmstate log")
-        context.cext.embed_data("NMSTATE", nmstate)
+        nmci.embed.embed_data("NMSTATE", nmstate)
 
 
 _register_tag(
@@ -2286,7 +2290,7 @@ def no_config_server_as(context, scenario):
                     f"sudo mv -f {config_file}.off {config_file}"
                 )
         nmci.ctx.reload_NM_service(context)
-    conns = nmci.process.nmcli("-t -f UUID,NAME c").strip().split("\n")
+    conns = nmci.process.nmcli("-t -f UUID,NAME c", do_embed=False).strip().split("\n")
     # UUID has fixed length, 36 characters
     uuids = [c[:36] for c in conns if c and "testeth" not in c]
     if uuids:
@@ -2332,7 +2336,7 @@ def tcpdump_as(context, scenario):
         traffic = nmci.util.file_get_content_simple("/tmp/network-traffic.log")
     else:
         traffic = "WARNING: 20M size exceeded in /tmp/network-traffic.log, skipping"
-    context.cext.embed_data("TRAFFIC", traffic, fail_only=True)
+    nmci.embed.embed_data("TRAFFIC", traffic, fail_only=True)
 
     context.process.run("pkill -9 tcpdump")
 
@@ -2525,7 +2529,7 @@ def allow_veth_connections_as(context, scenario):
     )
     nmci.ctx.update_udevadm(context)
     nmci.ctx.reload_NM_service(context)
-    devs = nmci.process.nmcli("-t -f DEVICE c s -a")
+    devs = nmci.process.nmcli("-t -f DEVICE c s -a", do_embed=False)
     for dev in devs.strip().split("\n"):
         if dev and dev != "eth0":
             context.process.nmcli(f"device disconnect {dev}")
@@ -2665,7 +2669,7 @@ _register_tag("modprobe_cfg_remove", None, modprobe_cfg_remove_as)
 
 def kill_dnsmasq_vlan_as(context, scenario):
     log_file = "/tmp/dnsmasq.log"
-    if context.cext.embed_file_if_exists("dnsmasq.log", log_file, fail_only=True):
+    if nmci.embed.embed_file_if_exists("dnsmasq.log", log_file, fail_only=True):
         os.remove(log_file)
     context.process.run_stdout("pkill -F /tmp/dnsmasq_vlan.pid")
 
@@ -2675,7 +2679,7 @@ _register_tag("kill_dnsmasq_vlan", None, kill_dnsmasq_vlan_as)
 
 def kill_dnsmasq_ip4_as(context, scenario):
     log_file = "/tmp/dnsmasq.log"
-    if context.cext.embed_file_if_exists("dnsmasq.log", log_file, fail_only=True):
+    if nmci.embed.embed_file_if_exists("dnsmasq.log", log_file, fail_only=True):
         os.remove(log_file)
     context.process.run_stdout("pkill -F /tmp/dnsmasq_ip4.pid")
 
@@ -2685,7 +2689,7 @@ _register_tag("kill_dnsmasq_ip4", None, kill_dnsmasq_ip4_as)
 
 def kill_dnsmasq_ip6_as(context, scenario):
     log_file = "/tmp/dnsmasq.log"
-    if context.cext.embed_file_if_exists("dnsmasq.log", log_file, fail_only=True):
+    if nmci.embed.embed_file_if_exists("dnsmasq.log", log_file, fail_only=True):
         os.remove(log_file)
     context.process.run_stdout("pkill -F /tmp/dnsmasq_ip6.pid")
 
@@ -2717,7 +2721,7 @@ _register_tag("peers_ns", None, peers_ns_as)
 
 def tshark_as(context, scenario):
     log_file = "/tmp/tshark.log"
-    if context.cext.embed_file_if_exists("tshark.log", log_file, fail_only=True):
+    if nmci.embed.embed_file_if_exists("tshark.log", log_file, fail_only=True):
         os.remove(log_file)
     context.process.run("pkill tshark", ignore_stderr=True)
     context.process.run_stdout("rm -rf /etc/dhcp/dhclient-eth*.conf", shell=True)
@@ -3032,7 +3036,7 @@ def radius_bs(context, scenario):
 
 def radius_as(context, scenario):
     if scenario.status == "failed" or nmci.util.DEBUG:
-        context.cext.embed_service_log("RADIUS", syslog_identifier="radiusd")
+        nmci.embed.embed_service_log("RADIUS", syslog_identifier="radiusd")
     context.process.systemctl("stop nm-radiusd.service")
 
 
@@ -3056,11 +3060,11 @@ def tag8021x_doc_procedure_bs(context, scenario):
 def tag8021x_doc_procedure_as(context, scenario):
     context.process.systemctl("stop 802-1x-tr-mgmt hostapd")
     if scenario.status == "failed" or nmci.util.DEBUG:
-        context.cext.embed_service_log("HOSTAPD", syslog_identifier="hostapd")
-        context.cext.embed_service_log(
+        nmci.embed.embed_service_log("HOSTAPD", syslog_identifier="hostapd")
+        nmci.embed.embed_service_log(
             "802.1X access control", syslog_identifier="802-1x-tr-mgmt"
         )
-        context.cext.embed_file_if_exists(
+        nmci.embed.embed_file_if_exists(
             "WPA_SUP from access control test",
             "/tmp/nmci-wpa_supplicant-standalone",
         )
@@ -3105,7 +3109,7 @@ _register_tag("slow_dnsmasq", slow_dnsmasq_bs, slow_dnsmasq_as)
 
 
 def cleanup_as(context, scenario):
-    context.cext.process_cleanup()
+    nmci.cleanup.process_cleanup()
 
 
 _register_tag("cleanup", None, cleanup_as)

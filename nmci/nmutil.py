@@ -15,7 +15,9 @@ class _NMUtil:
 
     def nm_pid(self):
         pid = 0
-        service_pid = process.systemctl("show -pMainPID NetworkManager.service")
+        service_pid = process.systemctl(
+            "show -pMainPID NetworkManager.service", do_embed=False
+        )
         if service_pid.returncode == 0:
             pid = int(service_pid.stdout.split("=")[-1])
         if not pid:

@@ -28,7 +28,7 @@ def before_all(context):
 
     context.no_step = True
 
-    nmci.ctx.setup(context)
+    nmci.cext.setup(context)
 
     def _additional_sleep(seconds):
         if context.IS_NMTUI:
@@ -57,11 +57,11 @@ def _before_scenario(context, scenario):
         context.before_scenario_step_el, "small", {"class": "step_duration"}
     )
     embed_el = ET.SubElement(context.before_scenario_step_el, "div")
-    context.cext._html_formatter.actual["act_step_embed_span"] = embed_el
+    nmci.embed._html_formatter.actual["act_step_embed_span"] = embed_el
 
     # set important context attributes
-    assert not context.cext._cleanup_lst
-    context.cext.scenario_skipped = False
+    assert not nmci.cleanup._cleanup_lst
+    assert not context.cext.scenario_skipped
     context.step_level = 0
     context.nm_restarted = False
     context.nm_pid = nmci.nmutil.nm_pid()
@@ -137,7 +137,7 @@ def _before_scenario(context, scenario):
 
     context.log_cursor = nmci.misc.journal_get_cursor()
 
-    context.cext.process_pexpect_spawn()
+    nmci.pexpect.process_pexpect_spawn()
 
     duration = time.time() - time_begin
     status = "failed" if excepts else "passed"
@@ -147,14 +147,14 @@ def _before_scenario(context, scenario):
     nmci.ctx.check_crash(context, "crash outside steps (before scenario)")
 
     if context.cext.scenario_skipped:
-        context.cext._html_formatter.scenario(scenario)
+        nmci.embed._html_formatter.scenario(scenario)
         context.before_scenario_step_el.set("class", "step skipped")
 
     if excepts:
         # reset skipped flag, so we do not skip fail
         context.cext.scenario_skipped = False
         context.before_scenario_step_el.set("class", "step failed")
-        context.cext.embed_data(
+        nmci.embed.embed_data(
             "Exception in before scenario tags",
             "\n\n".join(excepts),
         )
@@ -176,7 +176,7 @@ def after_step(context, step):
         step.status = Status.skipped
         step.error_message = None
 
-    context.cext.process_pexpect_spawn()
+    nmci.pexpect.process_pexpect_spawn()
 
     if context.IS_NMTUI:
         """Teardown after each step.
@@ -230,10 +230,10 @@ def _after_scenario(context, scenario):
         context.after_scenario_step_el, "small", {"class": "step_duration"}
     )
     embed_el = ET.SubElement(context.after_scenario_step_el, "div")
-    context.cext._html_formatter.actual["act_step_embed_span"] = embed_el
+    nmci.embed._html_formatter.actual["act_step_embed_span"] = embed_el
 
-    nmci.misc.html_report_tag_links(context.cext._html_formatter.scenario_el)
-    nmci.misc.html_report_file_links(context.cext._html_formatter.scenario_el)
+    nmci.misc.html_report_tag_links(nmci.embed._html_formatter.scenario_el)
+    nmci.misc.html_report_file_links(nmci.embed._html_formatter.scenario_el)
 
     skipped = context.cext.scenario_skipped
 
@@ -247,7 +247,7 @@ def _after_scenario(context, scenario):
 
     if context.IS_NMTUI:
         if os.path.isfile("/tmp/tui-screen.log"):
-            context.cext.embed_data(
+            nmci.embed.embed_data(
                 "TUI",
                 nmci.util.file_get_content_simple("/tmp/tui-screen.log"),
             )
@@ -266,11 +266,11 @@ def _after_scenario(context, scenario):
     if scenario.status == "failed" or nmci.util.DEBUG:
         nmci.ctx.dump_status(context, "After Scenario", fail_only=True)
 
-    context.cext.process_pexpect_spawn()
+    nmci.pexpect.process_pexpect_spawn()
 
     excepts = []
 
-    for ex in context.cext.process_cleanup():
+    for ex in nmci.cleanup.process_cleanup():
         if not isinstance(ex, nmci.misc.SkipTestException):
             excepts.append(
                 "".join(traceback.format_exception(ex, ex, ex.__traceback__))
@@ -279,7 +279,7 @@ def _after_scenario(context, scenario):
     nmci.ctx.check_crash(context, "crash outside steps (after_scenario tags)")
 
     # check for crash reports and embed them
-    # sets context.cext.coredump_reported if crash found
+    # sets nmci.embed.coredump_reported if crash found
     nmci.ctx.check_coredump(context)
     nmci.ctx.check_faf(context)
 
@@ -299,7 +299,7 @@ def _after_scenario(context, scenario):
             prefix="~~~~~~~~~~~~~~~~~~~~~~~~~~ NM LOG ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~",
             journal_args="-o cat",
         )
-        context.cext.embed_data("NM", log)
+        nmci.embed.embed_data("NM", log)
 
     if context.crashed_step:
         print("\n\n" + ("!" * 80))
@@ -308,10 +308,10 @@ def _after_scenario(context, scenario):
         )
         print("!!  %-74s !!" % ("CRASHING STEP: " + context.crashed_step))
         print(("!" * 80) + "\n\n")
-        context.cext.embed_data("CRASHED_STEP_NAME", context.crashed_step)
-        if not context.cext.coredump_reported:
+        nmci.embed.embed_data("CRASHED_STEP_NAME", context.crashed_step)
+        if not nmci.embed.coredump_reported:
             msg = "!!! no crash report detected, but NM PID changed !!!"
-            context.cext.embed_data("NO_COREDUMP/NO_FAF", msg)
+            nmci.embed.embed_data("NO_COREDUMP/NO_FAF", msg)
         nmci.ctx.after_crash_reset(context)
 
     if scenario_fail:
@@ -319,7 +319,7 @@ def _after_scenario(context, scenario):
 
     # process embeds as last thing before asserts
     try:
-        context.cext.process_embeds(scenario_fail)
+        nmci.embed.process_embeds(scenario_fail)
     except Exception:
         excepts.append(traceback.format_exc())
 
@@ -331,13 +331,11 @@ def _after_scenario(context, scenario):
         # reset skip flag, so we do not skip fail
         context.cext.scenario_skipped = False
     if excepts:
-        context.cext.embed_data(
-            "Exception in after scenario tags", "\n\n".join(excepts)
-        )
+        nmci.embed.embed_data("Exception in after scenario tags", "\n\n".join(excepts))
 
     # add Before/After scenario steps to HTML
-    context.cext._html_formatter.steps.insert(0, context.before_scenario_step_el)
-    context.cext._html_formatter.steps.append(context.after_scenario_step_el)
+    nmci.embed._html_formatter.steps.insert(0, context.before_scenario_step_el)
+    nmci.embed._html_formatter.steps.append(context.after_scenario_step_el)
 
     duration = time.time() - time_begin
     status = "failed" if excepts else "passed"
@@ -346,7 +344,7 @@ def _after_scenario(context, scenario):
     duration_el.text = f"({duration:.3f}s)"
 
     # we need to keep state "passed" here, as '@crash' test is expected to fail
-    if "crash" in scenario.effective_tags and not context.cext.coredump_reported:
+    if "crash" in scenario.effective_tags and not nmci.embed.coredump_reported:
         print("No crashdump found")
         return
 
@@ -366,7 +364,7 @@ def after_tag(context, tag):
 
 
 def after_all(context):
-    if getattr(context.cext, "scenario_skipped", False):
+    if context.cext.scenario_skipped:
         for f in context._runner.formatters:
             f.close()
         sys.exit(77)

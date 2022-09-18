@@ -14,7 +14,10 @@ from . import ip
 from . import misc
 from . import util
 from . import process
-from . import ctx
+from . import cext
+from . import embed
+from . import cleanup
+from . import pexpect
 
 
 def rnd_bool():
@@ -1397,13 +1400,13 @@ def test_context_set_up_commands():
     context = create_test_context()
 
     def _assert_embed(context, pattern):
-        assert len(context.cext._to_embed) == 1
-        embed = context.cext._to_embed[0]
-        context.cext._to_embed.clear()
-        assert isinstance(embed, ctx.EmbedData)
-        assert embed.fail_only == True
-        assert embed._caption.startswith("Command `")
-        assert re.search(pattern, embed._data)
+        assert len(embed._to_embed) == 1
+        embed_data = embed._to_embed[0]
+        embed._to_embed.clear()
+        assert isinstance(embed_data, embed.EmbedData)
+        assert embed_data.fail_only == True
+        assert embed_data._caption.startswith("Command `")
+        assert re.search(pattern, embed_data._data)
 
     context.process.run_stdout("true")
     _assert_embed(context, "true")
@@ -1608,25 +1611,25 @@ def test_context_cleanup():
 
     context = create_test_context()
 
-    context.cext.cleanup_add_iface("eth0")
+    nmci.cleanup.cleanup_add_iface("eth0")
 
     assert [c.name for c in context.cext._cleanup_lst] == ["iface-reset-eth0"]
 
-    context.cext.cleanup_add_iface("eth1")
+    nmci.cleanup.cleanup_add_iface("eth1")
 
     assert [c.name for c in context.cext._cleanup_lst] == [
         "iface-reset-eth1",
         "iface-reset-eth0",
     ]
 
-    context.cext.cleanup_add_iface("eth0")
+    nmci.cleanup.cleanup_add_iface("eth0")
 
     assert [c.name for c in context.cext._cleanup_lst] == [
         "iface-reset-eth0",
         "iface-reset-eth1",
     ]
 
-    context.cext.cleanup_add(lambda cext: None, name="foo")
+    nmci.cleanup.cleanup_add(lambda cext: None, name="foo")
 
     assert [c.name for c in context.cext._cleanup_lst] == [
         "foo",
@@ -1634,8 +1637,8 @@ def test_context_cleanup():
         "iface-reset-eth1",
     ]
 
-    context.cext._cleanup_add(
-        ctx.Cleanup(name="foo", callback=lambda cext: None, priority=50)
+    cleanup._cleanup_add(
+        cleanup.Cleanup(name="foo", callback=lambda: None, priority=50)
     )
 
     assert [c.name for c in context.cext._cleanup_lst] == [
@@ -1645,7 +1648,7 @@ def test_context_cleanup():
         "foo",
     ]
 
-    context.cext.cleanup_add(
+    nmci.cleanup.cleanup_add(
         name="bar", unique_tag=(1,), callback=lambda cext: None, priority=49
     )
 
@@ -1657,7 +1660,7 @@ def test_context_cleanup():
         "foo",
     ]
 
-    context.cext.cleanup_add(
+    nmci.cleanup.cleanup_add(
         name="bar", unique_tag=(1,), callback=lambda cext: None, priority=19
     )
 
@@ -1682,7 +1685,7 @@ def test_context_cleanup():
 
     assert context.cext._cleanup_lst == []
 
-    context.cext.cleanup_add(
+    nmci.cleanup.cleanup_add(
         name="bar", unique_tag=(1,), callback=lambda cext: 1 / 0, priority=19
     )
 

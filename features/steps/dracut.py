@@ -46,19 +46,19 @@ def embed_dracut_logs(context):
 
     context.dracut_vm_state = get_dracut_vm_state(mount=False)
 
-    context.cext.embed_file_if_exists(
+    nmci.embed.embed_file_if_exists(
         "Dracut boot",
         "/tmp/dracut_boot.log",
     )
     if not context.dracut_vm_state.startswith("NO"):
-        context.cext.embed_service_log(
+        nmci.embed.embed_service_log(
             "Dracut Test",
             syslog_identifier="test-init",
             journal_args=REMOTE_JOURNAL,
             fail_only=False,
         )
-        # context.cext.embed_service_log("Dracut NM", service="NetworkManager", journal_args=REMOTE_JOURNAL, fail_only=True)
-        context.cext.embed_service_log(
+        # nmci.embed.embed_service_log("Dracut NM", service="NetworkManager", journal_args=REMOTE_JOURNAL, fail_only=True)
+        nmci.embed.embed_service_log(
             "Dracut Journal", journal_args=REMOTE_JOURNAL, fail_only=False
         )
 
@@ -92,14 +92,14 @@ def check_core_dumps(context):
                 + get_backtrace(context, REMOTE_CRASH_DIR + filename)
                 + "\n\n"
             )
-            context.cext.embed_file_if_exists(
+            nmci.embed.embed_file_if_exists(
                 "Dracut Crash Dump",
                 REMOTE_CRASH_DIR + filename,
                 as_base64=True,
             )
 
     if backtraces:
-        context.cext.embed_data("Dracut Backtraces", backtraces)
+        nmci.embed.embed_data("Dracut Backtraces", backtraces)
 
     assert sleep_crash == getattr(
         context, "dracut_crash_test", False

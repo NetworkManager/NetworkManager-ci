@@ -260,4 +260,4 @@ def doc_step(context, name):
         link = f"{link}/{rh_ver}/html-single/configuring_and_managing_networking/index"
         link = f"{link}#{chapters[name]}"
         links.append((link, f"RHEL {rh_ver}"))
-    context.cext.embed_link("Links", links)
+    nmci.embed.embed_link("Links", links)

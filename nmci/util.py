@@ -4,6 +4,8 @@ import re
 import sys
 import time
 
+from nmci import embed
+
 
 class _Timeout:
     def __init__(self, timeout):
@@ -301,7 +303,7 @@ class _Util:
             file_name, encoding=encoding, errors="replace"
         ).data
 
-    def file_set_content(self, file_name, data="", context_hook=None):
+    def file_set_content(self, file_name, data=""):
         if isinstance(data, str):
             data = data.encode("utf-8")
         elif isinstance(data, bytes):
@@ -310,8 +312,15 @@ class _Util:
             # append [""] to add "\n" after last line, note the number of added "\n" is len(data)
             data = b"\n".join((self.str_to_bytes(line) for line in list(data) + [""]))
 
-        if context_hook:
-            context_hook("file_set_content", file_name, data)
+        try:
+            data_str = self.bytes_to_str(data)
+            nmci.embed.embed_data(
+                f"write {file_name}",
+                data_str,
+                fail_only=True,
+            )
+        except UnicodeDecodeError:
+            pass
 
         with open(file_name, "wb") as f:
             f.write(data)

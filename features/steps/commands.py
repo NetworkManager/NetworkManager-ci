@@ -523,12 +523,12 @@ def check_pattern_not_visible_with_tab_after_command(context, pattern, command):
 
 @step(u'Run child "{command}"')
 def run_child_process(context, command):
-    context.cext.pexpect_service(command, shell=True, label=True)
+    nmci.pexpect.pexpect_service(command, shell=True, label=True)
 
 
 @step(u'Run child "{command}" without shell')
 def run_child_process_no_shell(context, command):
-    context.cext.pexpect_service(command, label=True)
+    nmci.pexpect.pexpect_service(command, label=True)
 
 
 @step(u'Start following journal')
@@ -687,7 +687,7 @@ def check_no_coredump(context, seconds):
             if "max core file size" in limit.lower():
                 # there should be 2 "unlimited" columns
                 if "unlimited" not in limit.replace("unlimited", "", 1):
-                    context.cext.embed_data("Core Limits", limit)
+                    nmci.embed.embed_data("Core Limits", limit)
                     # exit cleanly, test is marked @xfail
                     return
 
@@ -698,7 +698,7 @@ def check_no_coredump(context, seconds):
     timeout = nmci.util.start_timeout(seconds)
     while timeout.loop_sleep(0.5):
         nmci.ctx.check_coredump(context)
-        assert not context.cext.coredump_reported, "Coredump found"
+        assert not nmci.embed.coredump_reported, "Coredump found"
 
 
 @step('Check "{family}" address list "{expected}" on device "{ifname}"')
@@ -737,7 +737,7 @@ def load_nftables(context, ns=None, ruleset=None):
     if ruleset is None:
         ruleset = context.text
 
-    context.cext.cleanup_add_nft(ns)
+    nmci.cleanup.cleanup_add_nft(ns)
     if ns is None:
         nsprefix = ""
         nft = nftables.Nftables()
@@ -756,11 +756,11 @@ def load_nftables(context, ns=None, ruleset=None):
     context.process.run(f"{nsprefix}nft -f {file}")
     nft_status.append(f"\nnftables ruleset{f' in namespace {ns}' if ns else ''} after this step:")
     nft_status.append(nft.cmd("list ruleset")[1])
-    context.cext.embed_data("State of nftables", "\n".join(nft_status), fail_only=True)
+    nmci.embed.embed_data("State of nftables", "\n".join(nft_status), fail_only=True)
     os.remove(file)
 
 
 @step(u'Cleanup nftables')
 @step(u'Cleanup nftables in namespace "{ns}"')
 def flush_nftables(context, ns=None):
-    context.cext.cleanup_add_nft(ns)
+    nmci.cleanup.cleanup_add_nft(ns)

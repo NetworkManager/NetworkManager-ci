@@ -4,6 +4,7 @@ import re
 import subprocess
 
 from nmci import util
+from nmci import embed
 
 RunResult = collections.namedtuple("RunResult", ["returncode", "stdout", "stderr"])
 
@@ -11,6 +12,19 @@ RunResult = collections.namedtuple("RunResult", ["returncode", "stdout", "stderr
 IGNORE_RETURNCODE_ALL = object()
 
 SHELL_AUTO = object()
+
+
+def context_hook(event, *a):
+    if event == "result":
+        (argv, shell, returncode, stdout, stderr, do_embed) = a
+        if do_embed:
+            embed.embed_run(
+                argv,
+                shell,
+                returncode,
+                stdout,
+                stderr,
+            )
 
 
 class WithShell:
@@ -80,6 +94,8 @@ class PopenCollect:
         return self.returncode
 
     def read_and_wait(self, timeout=None):
+        from nmci import util
+
         xtimeout = util.start_timeout(timeout)
         while True:
             c = self.read_and_poll()
@@ -109,13 +125,14 @@ def Popen(
     env_extra=None,
     stdout=subprocess.PIPE,
     stderr=subprocess.PIPE,
-    context_hook=None,
+    context_hook=context_hook,
+    do_embed=True,
 ):
 
     argv, argv_real, shell, env = _run_prepare_args(argv, shell, env, env_extra)
 
     if context_hook is not None:
-        context_hook("popen-call", argv_real, shell)
+        context_hook("popen-call", argv_real, shell, do_embed)
 
     proc = subprocess.Popen(
         argv_real,
@@ -143,12 +160,12 @@ def _run(
     stdout,
     stderr,
     context_hook,
+    do_embed,
 ):
-
     argv, argv_real, shell, env = _run_prepare_args(argv, shell, env, env_extra)
 
     if context_hook is not None:
-        context_hook("call", argv_real, shell, timeout)
+        context_hook("call", argv_real, shell, timeout, do_embed)
 
     proc = subprocess.run(
         argv_real,
@@ -168,7 +185,9 @@ def _run(
         r_stderr = b""
 
     if context_hook is not None:
-        context_hook("result", argv_real, shell, returncode, r_stdout, r_stderr)
+        context_hook(
+            "result", argv_real, shell, returncode, r_stdout, r_stderr, do_embed
+        )
 
     # Depending on ignore_returncode we accept non-zero output. But
     # even then we want to fail for return codes that indicate a crash
@@ -243,7 +262,8 @@ def run(
     ignore_stderr=False,
     stdout=subprocess.PIPE,
     stderr=subprocess.PIPE,
-    context_hook=None,
+    context_hook=context_hook,
+    do_embed=True,
 ):
     return _run(
         argv,
@@ -258,6 +278,7 @@ def run(
         stdout=stdout,
         stderr=stderr,
         context_hook=context_hook,
+        do_embed=do_embed,
     )
 
 
@@ -273,7 +294,8 @@ def run_stdout(
     ignore_returncode=False,
     ignore_stderr=False,
     stderr=subprocess.PIPE,
-    context_hook=None,
+    context_hook=context_hook,
+    do_embed=True,
 ):
     return _run(
         argv,
@@ -288,6 +310,7 @@ def run_stdout(
         stdout=subprocess.PIPE,
         stderr=stderr,
         context_hook=context_hook,
+        do_embed=do_embed,
     ).stdout
 
 
@@ -302,7 +325,8 @@ def run_code(
     env_extra=None,
     ignore_returncode=True,
     ignore_stderr=False,
-    context_hook=None,
+    context_hook=context_hook,
+    do_embed=True,
 ):
     return _run(
         argv,
@@ -317,6 +341,7 @@ def run_code(
         stdout=subprocess.PIPE,
         stderr=subprocess.PIPE,
         context_hook=context_hook,
+        do_embed=do_embed,
     ).returncode
 
 
@@ -333,7 +358,8 @@ def run_search_stdout(
     ignore_stderr=False,
     stderr=subprocess.PIPE,
     pattern_flags=re.DOTALL | re.MULTILINE,
-    context_hook=None,
+    context_hook=context_hook,
+    do_embed=True,
 ):
     # autodetect based on the pattern
     if isinstance(pattern, bytes):
@@ -355,6 +381,7 @@ def run_search_stdout(
         stdout=subprocess.PIPE,
         stderr=stderr,
         context_hook=context_hook,
+        do_embed=do_embed,
     )
     return re.search(pattern, result.stdout, flags=pattern_flags)
 
@@ -369,7 +396,8 @@ def nmcli(
     env_extra=None,
     ignore_returncode=False,
     ignore_stderr=False,
-    context_hook=None,
+    context_hook=context_hook,
+    do_embed=True,
 ):
     if isinstance(argv, str):
         argv = f"nmcli {argv}"
@@ -389,6 +417,7 @@ def nmcli(
         stdout=subprocess.PIPE,
         stderr=subprocess.PIPE,
         context_hook=context_hook,
+        do_embed=do_embed,
     ).stdout
 
 
@@ -402,7 +431,8 @@ def nmcli_force(
     env_extra=None,
     ignore_returncode=True,
     ignore_stderr=True,
-    context_hook=None,
+    context_hook=context_hook,
+    do_embed=True,
 ):
     if isinstance(argv, str):
         argv = f"nmcli {argv}"
@@ -422,6 +452,7 @@ def nmcli_force(
         stdout=subprocess.PIPE,
         stderr=subprocess.PIPE,
         context_hook=context_hook,
+        do_embed=do_embed,
     )
 
 
@@ -435,7 +466,8 @@ def systemctl(
     env_extra=None,
     ignore_returncode=True,
     ignore_stderr=True,
-    context_hook=None,
+    context_hook=context_hook,
+    do_embed=True,
 ):
     if isinstance(argv, str):
         argv = f"systemctl {argv}"
@@ -455,4 +487,5 @@ def systemctl(
         stdout=subprocess.PIPE,
         stderr=subprocess.PIPE,
         context_hook=context_hook,
+        do_embed=do_embed,
     )
