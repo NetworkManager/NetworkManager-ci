@@ -1,53 +1,55 @@
 import time
 
-from nmci import dbus
-from nmci import process
-from nmci import util
-from nmci import cext
-from nmci import cleanup
+import nmci.dbus
+import nmci.process
+import nmci.util
+import nmci.cext
+import nmci.cleanup
 
 
 class _NMUtil:
     def get_metered(self):
-        return dbus.get_property(
+        return nmci.dbus.get_property(
             bus_name="org.freedesktop.NetworkManager",
             object_path="/org/freedesktop/NetworkManager",
             interface_name="org.freedesktop.NetworkManager",
             property_name="Metered",
-            reply_type=dbus.REPLY_TYPE_U,
+            reply_type=nmci.dbus.REPLY_TYPE_U,
         )
 
     def nm_pid(self):
         pid = 0
-        service_pid = process.systemctl(
+        service_pid = nmci.process.systemctl(
             "show -pMainPID NetworkManager.service", do_embed=False
         )
         if service_pid.returncode == 0:
             pid = int(service_pid.stdout.split("=")[-1])
         if not pid:
-            pgrep_pid = process.run("pgrep NetworkManager")
+            pgrep_pid = nmci.process.run("pgrep NetworkManager")
             if pgrep_pid.returncode == 0:
                 pid = int(pgrep_pid.stdout)
         return pid
 
     def wait_for_nm_pid(self, seconds=10):
-        timeout = util.start_timeout(seconds)
+        timeout = nmci.util.start_timeout(seconds)
         while timeout.loop_sleep(0.3):
             pid = self.nm_pid()
             if pid:
                 return pid
-        raise util.ExpectedException(f"NetworkManager not running in {seconds} seconds")
+        raise nmci.util.ExpectedException(
+            f"NetworkManager not running in {seconds} seconds"
+        )
 
     def nm_size_kb(self):
         pid = self.nm_pid()
         if not pid:
-            raise util.ExpectedException(
+            raise nmci.util.ExpectedException(
                 "unable to get mem usage, NetworkManager is not running!"
             )
         try:
-            smaps = util.file_get_content(f"/proc/{pid}/smaps")
+            smaps = nmci.util.file_get_content(f"/proc/{pid}/smaps")
         except Exception as e:
-            raise util.ExpectedException(
+            raise nmci.util.ExpectedException(
                 f"unable to get mem usage for NetworkManager with pid {pid}: {e}"
             )
         memsize = 0
@@ -60,32 +62,32 @@ class _NMUtil:
 
     def reload_NM_connections(self):
         print("reload NM connections")
-        process.nmcli("con reload")
+        nmci.process.nmcli("con reload")
 
     def reload_NM_service(self):
         print("reload NM service")
         time.sleep(0.5)
-        process.run_stdout("pkill -HUP NetworkManager")
+        nmci.process.run_stdout("pkill -HUP NetworkManager")
         time.sleep(1)
 
     def restart_NM_service(self, reset=True, timeout=10):
         print("restart NM service")
         if reset:
-            process.systemctl("reset-failed NetworkManager.service")
-        r = process.systemctl("restart NetworkManager.service", timeout=timeout)
-        cext.context.nm_pid = self.wait_for_nm_pid(10)
+            nmci.process.systemctl("reset-failed NetworkManager.service")
+        r = nmci.process.systemctl("restart NetworkManager.service", timeout=timeout)
+        nmci.cext.context.nm_pid = self.wait_for_nm_pid(10)
         return r.returncode == 0
 
     def start_NM_service(self, pid_wait=True, timeout=10):
         print("start NM service")
-        r = process.systemctl("start NetworkManager.service", timeout=timeout)
+        r = nmci.process.systemctl("start NetworkManager.service", timeout=timeout)
         if pid_wait:
-            cext.context.nm_pid = self.wait_for_nm_pid(10)
+            nmci.cext.context.nm_pid = self.wait_for_nm_pid(10)
         return r.returncode == 0
 
     def stop_NM_service(self):
         print("stop NM service")
-        cleanup.cleanup_add_NM_service(operation="start")
-        r = process.systemctl("stop NetworkManager.service")
-        cext.context.nm_pid = 0
+        nmci.cleanup.cleanup_add_NM_service(operation="start")
+        r = nmci.process.systemctl("stop NetworkManager.service")
+        nmci.cext.context.nm_pid = 0
         return r.returncode == 0

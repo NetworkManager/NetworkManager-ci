@@ -5,7 +5,7 @@ import configparser
 from behave import step
 
 import commands
-import nmci.ctx
+import nmci
 
 
 @step('Append lines to file "{name}"')

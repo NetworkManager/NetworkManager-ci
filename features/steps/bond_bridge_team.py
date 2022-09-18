@@ -1,6 +1,7 @@
 import pexpect
 import time
 from behave import step
+from nmci.util import NM
 
 
 @step(u'Check bond "{bond}" in proc')
@@ -97,7 +98,6 @@ def create_delete_bridges(context):
 def settle(context):
     # This is a temporary measure until we have a proper API
     # and a nmcli command to actually settle with platform
-    from gi.repository import NM
     client = NM.Client.new(None)
 
     while True:
@@ -151,10 +151,6 @@ def team_is_up(context, team):
 
 @step(u'Check that "{cap}" capability is loaded')
 def check_cap_loaded(context, cap):
-    import gi
-    gi.require_version('NM', '1.0')
-    from gi.repository import NM
-
     nmc = NM.Client.new()
     cap_id = getattr(NM.Capability, cap)
     caps = nmc.get_capabilities()

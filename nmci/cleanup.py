@@ -2,7 +2,7 @@ import os
 import time
 import re
 
-from nmci import cext
+import nmci.cext
 
 
 class Cleanup:
@@ -84,13 +84,13 @@ class CleanupConnection(Cleanup):
         )
 
     def _do_cleanup(self):
-        from nmci import process
+        import nmci.process
 
         if self.qualifier is not None:
             args = [self.qualifier, self.con_name]
         else:
             args = [self.con_name]
-        process.nmcli_force(["connection", "delete"] + args)
+        nmci.process.nmcli_force(["connection", "delete"] + args)
 
 
 class CleanupIface(Cleanup):
@@ -121,15 +121,16 @@ class CleanupIface(Cleanup):
         )
 
     def _do_cleanup(self):
-        from nmci import ctx, process
+        import nmci.ctx
+        import nmci.process
 
         if self.op == "reset":
-            ctx.reset_hwaddr_nmcli(cext.context, self.iface)
+            nmci.ctx.reset_hwaddr_nmcli(nmci.cext.context, self.iface)
             if self.iface != "eth0":
-                process.run(["ip", "addr", "flush", self.iface])
+                nmci.process.run(["ip", "addr", "flush", self.iface])
             return
         if self.op == "delete":
-            process.nmcli_force(["device", "delete", self.iface])
+            nmci.process.nmcli_force(["device", "delete", self.iface])
             return
         raise Exception(f'Unexpected cleanup op "{self.op}"')
 
@@ -151,12 +152,13 @@ class CleanupNamespace(Cleanup):
         )
 
     def _do_cleanup(self):
-        from nmci import ctx, process
+        import nmci.ctx
+        import nmci.process
 
         if self.teardown:
-            ctx.teardown_testveth(cext.context, self.namespace)
+            nmci.ctx.teardown_testveth(nmci.cext.context, self.namespace)
 
-        process.run(
+        nmci.process.run(
             ["ip", "netns", "del", self.namespace],
             ignore_stderr=True,
         )
@@ -178,14 +180,14 @@ class CleanupNft(Cleanup):
         )
 
     def _do_cleanup(self):
-        from nmci import process
+        import nmci.process
 
         cmd = ["nft", "flush", "ruleset"]
         if self.namespace is not None:
             if not os.path.isdir(f"/var/run/netns/{self.namespace}"):
                 return
             cmd = ["ip", "netns", "exec", self.namespace] + cmd
-        process.run(cmd)
+        nmci.process.run(cmd)
 
 
 class CleanupUdevUpdate(Cleanup):
@@ -200,9 +202,9 @@ class CleanupUdevUpdate(Cleanup):
         )
 
     def _do_cleanup(self):
-        from nmci import ctx
+        import nmci.ctx
 
-        ctx.update_udevadm(cext.context)
+        nmci.ctx.update_udevadm(nmci.cext.context)
 
 
 class CleanupUdevRule(Cleanup):
@@ -246,15 +248,15 @@ class CleanupNMService(Cleanup):
         )
 
     def _do_cleanup(self):
-        from nmci import nmutil
+        import nmci.nmutil
 
         if self._operation == "start":
-            r = nmutil.start_NM_service()
+            r = nmci.nmutil.start_NM_service()
         elif self._operation == "restart":
-            r = nmutil.restart_NM_service()
+            r = nmci.nmutil.restart_NM_service()
         else:
             assert self._operation == "reload"
-            r = nmutil.reload_NM_service()
+            r = nmci.nmutil.reload_NM_service()
         assert r
 
 
@@ -330,9 +332,9 @@ class _Cleanup:
 
     def process_cleanup(self):
         ex = []
-        from nmci import util
+        import nmci.util
 
-        for cleanup_action in util.consume_list(self._cleanup_lst):
+        for cleanup_action in nmci.util.consume_list(self._cleanup_lst):
             try:
                 cleanup_action.do_cleanup()
             except Exception as e:
