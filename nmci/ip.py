@@ -1,8 +1,8 @@
 import re
 import socket
 
-from nmci import process
-from nmci import util
+import nmci.process
+import nmci.util
 
 
 class _IP:
@@ -38,7 +38,7 @@ class _IP:
         self.addr_family_check(addr_family)
 
     def ipaddr_norm(self, s, addr_family=None):
-        s = util.bytes_to_str(s)
+        s = nmci.util.bytes_to_str(s)
         addr_family = self.addr_family_norm(addr_family)
         if addr_family is not None:
             a = socket.inet_pton(addr_family, s)
@@ -55,7 +55,7 @@ class _IP:
 
     def ipaddr_plen_norm(self, s, addr_family=None):
         addr_family = self.addr_family_norm(addr_family)
-        s = util.bytes_to_str(s)
+        s = nmci.util.bytes_to_str(s)
         s0 = s
         m = re.match("^(.*)/(.*)", s)
         if m:
@@ -85,7 +85,7 @@ class _IP:
         # - '' yields []
         if mac_str is None:
             return mac_str
-        mac_str = util.bytes_to_str(mac_str)
+        mac_str = nmci.util.bytes_to_str(mac_str)
         i = 0
         b = []
         for c in mac_str:
@@ -140,7 +140,7 @@ class _IP:
 
         assert binary is None or binary is True or binary is False
 
-        out = process.run_stdout(["ip", "-d", "address", "show"], as_bytes=True)
+        out = nmci.process.run_stdout(["ip", "-d", "address", "show"], as_bytes=True)
 
         result = []
 
@@ -166,7 +166,7 @@ class _IP:
                 raise Exception("Unexpected line in ip link output: %s" % (line))
 
             ifindex = int(m.group(1))
-            ifname = util.binary_to_str(m.group(2), binary)
+            ifname = nmci.util.binary_to_str(m.group(2), binary)
 
             assert ifindex not in ifindexes
             ifindexes[ifindex] = ifname
@@ -190,7 +190,7 @@ class _IP:
                     line,
                 )
                 if m:
-                    atype = util.bytes_to_str(m.group(1))
+                    atype = nmci.util.bytes_to_str(m.group(1))
                     if atype == "link/ether":
                         addr = self.mac_norm(m.group(2))
                         plen = None
@@ -233,7 +233,8 @@ class _IP:
             result = [
                 a
                 for a in result
-                if util.str_to_bytes(a["ifname"]) == util.str_to_bytes(select_ifname)
+                if nmci.util.str_to_bytes(a["ifname"])
+                == nmci.util.str_to_bytes(select_ifname)
             ]
 
         return result
@@ -255,7 +256,7 @@ class _IP:
 
         if wait_for_address is not None:
             err = None
-            timeout = util.start_timeout(wait_for_address)
+            timeout = nmci.util.start_timeout(wait_for_address)
             while timeout.loop_sleep(0.1):
                 try:
                     return self.address_expect(
@@ -287,7 +288,7 @@ class _IP:
         ]
 
         try:
-            util.compare_strv_list(
+            nmci.util.compare_strv_list(
                 expected=expected,
                 strv=s_addrs,
                 match_mode=match_mode,
@@ -309,7 +310,7 @@ class _IP:
 
         assert binary is None or binary is True or binary is False
 
-        out = process.run_stdout(["ip", "-d", "link", "show"], as_bytes=True)
+        out = nmci.process.run_stdout(["ip", "-d", "link", "show"], as_bytes=True)
 
         result = []
 
@@ -335,7 +336,7 @@ class _IP:
                 raise Exception("Unexpected line in ip link output: %s" % (line))
 
             ip_data["ifindex"] = int(m.group(1))
-            ip_data["ifname"] = util.binary_to_str(m.group(2), binary)
+            ip_data["ifname"] = nmci.util.binary_to_str(m.group(2), binary)
 
             g = m.group(4)
             g = [s.decode() for s in g.split(b",")]
@@ -407,13 +408,13 @@ class _IP:
 
         data = result[0]
 
-        data["ifname"] = util.binary_to_str(data["ifname"], binary)
+        data["ifname"] = nmci.util.binary_to_str(data["ifname"], binary)
 
         return data
 
     def link_show(self, ifname=None, *, timeout=None, **kwargs):
 
-        xtimeout = util.start_timeout(timeout)
+        xtimeout = nmci.util.start_timeout(timeout)
         while xtimeout.loop_sleep(0.08):
             try:
                 return self._link_show(ifname=ifname, **kwargs)
@@ -438,7 +439,9 @@ class _IP:
                 arg = "up"
             else:
                 arg = "down"
-            process.run_stdout(["ip", "link", "set", li["ifname"], arg], as_bytes=True)
+            nmci.process.run_stdout(
+                ["ip", "link", "set", li["ifname"], arg], as_bytes=True
+            )
 
     def link_delete(self, ifname=None, *, ifindex=None, accept_nodev=False):
 
@@ -455,7 +458,7 @@ class _IP:
             ifname = li["ifname"]
 
         try:
-            process.run_stdout(["ip", "link", "delete", ifname], as_bytes=True)
+            nmci.process.run_stdout(["ip", "link", "delete", ifname], as_bytes=True)
         except Exception:
             if accept_nodev:
                 if ifindex is not None:
@@ -469,7 +472,7 @@ class _IP:
 
     def netns_list(self, with_binary=False):
 
-        out = process.run_stdout("ip netns list", as_bytes=True)
+        out = nmci.process.run_stdout("ip netns list", as_bytes=True)
 
         if not out:
             return []
@@ -492,7 +495,7 @@ class _IP:
         #
         # The result is a list of string or byte, depending on whether
         # the name can be decoded as utf-8.
-        v = [util.binary_to_str(b) for b in out.split(b"\n")]
+        v = [nmci.util.binary_to_str(b) for b in out.split(b"\n")]
 
         if not with_binary:
             v = [x for x in v if not isinstance(x, bytes)]

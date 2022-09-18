@@ -4,9 +4,7 @@ import shlex
 import time
 from behave import step
 
-import nmci.ip
-import nmci.util
-import nmci.ctx
+import nmci
 
 def manage_veth_device(context, device):
     rule_file = f"/etc/udev/rules.d/88-veth-{device}.rules"

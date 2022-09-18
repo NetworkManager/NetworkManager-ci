@@ -6,11 +6,11 @@ import yaml
 import json
 import xml.etree.ElementTree as ET
 
-from nmci import git
-from nmci import ip
-from nmci import sdresolved
-from nmci import util
-from nmci import process
+import nmci.git
+import nmci.ip
+import nmci.sdresolved
+import nmci.util
+import nmci.process
 
 
 class _Misc:
@@ -33,7 +33,7 @@ class _Misc:
         feature_dir = ""
 
         if feature[0] != "/":
-            feature_dir = util.base_dir("features", "scenarios")
+            feature_dir = nmci.util.base_dir("features", "scenarios")
 
         if not feature.endswith(".feature"):
             feature = feature + ".feature"
@@ -343,7 +343,7 @@ class _Misc:
             with open("/tmp/nm_version_override") as f:
                 current_version_str = f.read()
         else:
-            current_version_str = process.run_stdout(["NetworkManager", "-V"])
+            current_version_str = nmci.process.run_stdout(["NetworkManager", "-V"])
 
         v = self.nm_version_parse(current_version_str)
         self._nm_version_detect_cached = v
@@ -356,7 +356,7 @@ class _Misc:
 
         distro_version = [
             int(x)
-            for x in process.run_stdout(
+            for x in nmci.process.run_stdout(
                 [
                     "sed",
                     "s/.*release *//;s/ .*//;s/Beta//;s/Alpha//",
@@ -654,7 +654,7 @@ class _Misc:
             for i in self.get_mapper_tests(self.get_mapper_obj(), feature)
             if i["testname"] == test_name
         ][0]
-        return f"{util.base_dir('features', 'scenarios')}/{mapper_feature}.feature"
+        return f"{nmci.util.base_dir('features', 'scenarios')}/{mapper_feature}.feature"
 
     def test_version_check(self, test_name, feature="*"):
         # this checks for tests with given tag and returns all tags of the first test satisfying all conditions
@@ -694,8 +694,8 @@ class _Misc:
         return (feature_file, test_name, list(result))
 
     def nmlog_parse_dnsmasq(self, ifname):
-        s = process.run_stdout(
-            [util.util_dir("helpers/nmlog-parse-dnsmasq.sh"), ifname], timeout=20
+        s = nmci.process.run_stdout(
+            [nmci.util.util_dir("helpers/nmlog-parse-dnsmasq.sh"), ifname], timeout=20
         )
         import json
 
@@ -706,14 +706,14 @@ class _Misc:
         if ifindex is None and ifname is None:
             raise ValueError("Missing argument, either ifindex or ifname must be given")
 
-        ifdata = ip.link_show(ifindex=ifindex, ifname=ifname)
+        ifdata = nmci.ip.link_show(ifindex=ifindex, ifname=ifname)
 
         if dns_plugin == "dnsmasq":
             info = self.nmlog_parse_dnsmasq(ifdata["ifname"])
             info["default_route"] = any((s == "." for s in info["domains"]))
             info["domains"] = [(s, "routing") for s in info["domains"]]
         elif dns_plugin == "systemd-resolved":
-            info = sdresolved.link_get_all(ifdata["ifindex"])
+            info = nmci.sdresolved.link_get_all(ifdata["ifindex"])
             pass
         else:
             raise ValueError(f'Invalid dns_plugin "{dns_plugin}"')
@@ -726,8 +726,8 @@ class _Misc:
 
         tags_el = scenario_el.find(".//span[@class='tag']")
         try:
-            git_url = git.config_get_origin_url()
-            git_commit = git.call_rev_parse("HEAD")
+            git_url = nmci.git.config_get_origin_url()
+            git_commit = nmci.git.call_rev_parse("HEAD")
         except Exception:
             git_url = None
             git_commit = None
@@ -765,8 +765,8 @@ class _Misc:
 
     def html_report_file_links(self, scenario_el):
         try:
-            git_url = git.config_get_origin_url()
-            git_commit = git.call_rev_parse("HEAD")
+            git_url = nmci.git.config_get_origin_url()
+            git_commit = nmci.git.call_rev_parse("HEAD")
         except Exception:
             return
         url_base = f"{git_url}/-/tree/{git_commit}/"
@@ -792,7 +792,7 @@ class _Misc:
                 file_el.text = ""
 
     def journal_get_cursor(self):
-        m = process.run_search_stdout(
+        m = nmci.process.run_search_stdout(
             "journalctl --lines=0 --quiet --show-cursor --system",
             "^-- cursor: +([^ ].*[^ ]) *\n$",
         )
@@ -825,7 +825,7 @@ class _Misc:
             if isinstance(syslog_identifier, str) or isinstance(
                 syslog_identifier, bytes
             ):
-                syslog_identifier = ["-t", util.bytes_to_str(syslog_identifier)]
+                syslog_identifier = ["-t", nmci.util.bytes_to_str(syslog_identifier)]
             else:
                 syslog_identifier = (["-t", s] for s in syslog_identifier)
                 syslog_identifier = [c for pair in syslog_identifier for c in pair]
@@ -833,7 +833,7 @@ class _Misc:
             syslog_identifier = []
 
         if cursor:
-            cursor = ["--cursor=" + util.bytes_to_str(cursor)]
+            cursor = ["--cursor=" + nmci.util.bytes_to_str(cursor)]
         else:
             cursor = []
 
@@ -856,8 +856,8 @@ class _Misc:
 
         import tempfile
 
-        with tempfile.TemporaryFile(dir=util.tmp_dir()) as f_out:
-            process.run(
+        with tempfile.TemporaryFile(dir=nmci.util.tmp_dir()) as f_out:
+            nmci.process.run(
                 ["journalctl", "--all", "--no-pager"]
                 + service
                 + syslog_identifier
@@ -871,7 +871,7 @@ class _Misc:
 
             f_out.seek(0)
 
-            d = util.fd_get_content(
+            d = nmci.util.fd_get_content(
                 f_out, max_size=max_size, warn_max_size=warn_max_size
             ).data
 
@@ -880,15 +880,15 @@ class _Misc:
 
         if prefix is not None:
             if as_bytes:
-                d = util.str_to_bytes(prefix) + b"\n" + d
+                d = nmci.util.str_to_bytes(prefix) + b"\n" + d
             else:
-                d = util.bytes_to_str(prefix) + "\n" + d
+                d = nmci.util.bytes_to_str(prefix) + "\n" + d
 
         if suffix is not None:
             if as_bytes:
-                d = d + b"\n" + util.str_to_bytes(suffix)
+                d = d + b"\n" + nmci.util.str_to_bytes(suffix)
             else:
-                d = d + "\n" + util.bytes_to_str(suffix)
+                d = d + "\n" + nmci.util.bytes_to_str(suffix)
 
         return d
 
@@ -896,7 +896,7 @@ class _Misc:
     COREDUMP_TYPE_ABRT = "abrt"
 
     def _coredump_reported_file(self):
-        return util.tmp_dir("reported_crashes")
+        return nmci.util.tmp_dir("reported_crashes")
 
     def coredump_is_reported(self, dump_id):
         filename = self._coredump_reported_file()

@@ -145,11 +145,11 @@ class _Embed:
         self._embed_args(html_el, "text/plain", message, main_caption)
 
     def process_embeds(self, scenario_fail):
-        from nmci import util
+        import nmci.util
 
         combines_dict = {}
         self._to_embed.sort(key=lambda e: e._embed_context.count)
-        for entry in util.consume_list(self._to_embed):
+        for entry in nmci.util.consume_list(self._to_embed):
             combine_tag = entry.combine_tag
             if combine_tag is None:
                 self._embed_one(scenario_fail, entry)
@@ -171,7 +171,7 @@ class _Embed:
 
     def embed_dump(self, caption, dump_id, *, data=None, links=None):
         print("Attaching %s, %s" % (caption, dump_id))
-        from nmci import misc
+        import nmci.misc
 
         assert (data is None) + (links is None) == 1
         if data is not None:
@@ -179,7 +179,7 @@ class _Embed:
         else:
             self.embed_link(caption, links)
         self.coredump_reported = True
-        misc.coredump_report(dump_id)
+        nmci.misc.coredump_report(dump_id)
 
     def embed_run(
         self,
@@ -191,16 +191,16 @@ class _Embed:
         fail_only=True,
         embed_context=None,
     ):
-        from nmci import util
+        import nmci.util
 
         if stdout is not None:
             try:
-                stdout = util.bytes_to_str(stdout)
+                stdout = nmci.util.bytes_to_str(stdout)
             except UnicodeDecodeError:
                 pass
         if stderr is not None:
             try:
-                stderr = util.bytes_to_str(stderr)
+                stderr = nmci.util.bytes_to_str(stderr)
             except UnicodeDecodeError:
                 pass
 
@@ -220,10 +220,10 @@ class _Embed:
             title = argv
         else:
             import shlex
-            from nmci import util
+            import nmci.util
 
             title = " ".join(
-                shlex.quote(util.bytes_to_str(a, errors="replace")) for a in argv
+                shlex.quote(nmci.util.bytes_to_str(a, errors="replace")) for a in argv
             )
         if len(argv) < 30:
             title = f"Command `{title}`"
@@ -248,7 +248,7 @@ class _Embed:
         fail_only=False,
     ):
         print("embedding " + descr + " logs")
-        from nmci import misc
+        import nmci.misc
 
         if cursor is None:
             import nmci
@@ -256,7 +256,7 @@ class _Embed:
             cursor = nmci.cext.context.log_cursor
         self.embed_data(
             descr,
-            misc.journal_show(
+            nmci.misc.journal_show(
                 service=service,
                 syslog_identifier=syslog_identifier,
                 journal_args=journal_args,
@@ -272,7 +272,7 @@ class _Embed:
         as_base64=False,
         fail_only=False,
     ):
-        from nmci import util
+        import nmci.util
 
         if not os.path.isfile(fname):
             print("Warning: File " + repr(fname) + " not found")
@@ -284,13 +284,13 @@ class _Embed:
         print("embeding " + caption + " log (" + fname + ")")
 
         if not as_base64:
-            data = util.file_get_content_simple(fname)
+            data = nmci.util.file_get_content_simple(fname)
             self.embed_data(caption, data, fail_only=fail_only)
             return True
 
         import base64
 
-        data = util.file_get_content_simple(fname, as_bytes=True)
+        data = nmci.util.file_get_content_simple(fname, as_bytes=True)
         data_base64 = base64.b64encode(data)
         data_encoded = data_base64.decode("utf-8").replace("\n", "")
         data = "data:application/octet-stream;base64," + data_encoded

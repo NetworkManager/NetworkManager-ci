@@ -1,4 +1,4 @@
-from nmci import util
+import nmci.util
 
 
 class _DBus:
@@ -7,7 +7,7 @@ class _DBus:
 
     def bus_get(self, bus_type=None, cancellable=None):
 
-        Gio = util.Gio
+        Gio = nmci.util.Gio
 
         if bus_type is None:
             bus_type = Gio.BusType.SYSTEM
@@ -29,7 +29,7 @@ class _DBus:
     ):
 
         if flags is None:
-            flags = util.Gio.DBusCallFlags.NONE
+            flags = nmci.util.Gio.DBusCallFlags.NONE
 
         if timeout_msec is None:
             timeout_msec = 5000
@@ -42,7 +42,7 @@ class _DBus:
             interface_name,
             method_name,
             parameters,
-            util.gvariant_type(reply_type),
+            nmci.util.gvariant_type(reply_type),
             flags,
             timeout_msec,
             cancellable,
@@ -103,7 +103,7 @@ class _DBus:
             )
             return v.get_uint32()
 
-        GLib = util.GLib
+        GLib = nmci.util.GLib
 
         variant = GLib.Variant.new_tuple(
             GLib.Variant.new_string(interface_name),
@@ -128,7 +128,7 @@ class _DBus:
 
         if reply_type is not None:
 
-            rt = util.gvariant_type(reply_type)
+            rt = nmci.util.gvariant_type(reply_type)
             if not v.is_of_type(rt):
                 raise Exception(
                     'Property %s.%s on %s, %s expected type "%s" but got %s'

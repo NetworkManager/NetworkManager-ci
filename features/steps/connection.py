@@ -2,7 +2,7 @@ import pexpect
 import time
 from behave import step
 
-import nmci.ctx
+import nmci
 
 
 @step(u'Add a connection named "{name}" for device "{ifname}" to "{vpn}" VPN')

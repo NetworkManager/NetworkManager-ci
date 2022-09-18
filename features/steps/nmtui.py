@@ -4,7 +4,7 @@ import re
 import time
 from behave import step
 
-import nmci.ctx
+import nmci
 
 OUTPUT = '/tmp/nmtui.out'
 TERM_TYPE = 'vt102'

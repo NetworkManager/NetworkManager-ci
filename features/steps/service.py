@@ -1,7 +1,7 @@
 import time
 from behave import step
 
-import nmci.ctx
+import nmci
 
 
 @step(u'Reboot')

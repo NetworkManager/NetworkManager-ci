@@ -2,7 +2,6 @@ import os
 import pexpect
 from behave import step
 
-import nmci.ctx
 import nmci
 
 

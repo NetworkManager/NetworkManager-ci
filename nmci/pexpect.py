@@ -1,9 +1,9 @@
 import pexpect
 
-from nmci import embed
-from nmci import util
-from nmci import process
-from nmci import cleanup
+import nmci.embed
+import nmci.util
+import nmci.process
+import nmci.cleanup
 
 
 class PexpectData:
@@ -33,18 +33,18 @@ class _PExpect:
         # this sets proc status if killed, if exception, something very wrong happened
         if proc.expect([pexpect.EOF, pexpect.TIMEOUT], timeout=0.2) == 1:
             failed = True
-            embed.embed_data("DEBUG: ps aufx", process.run_stdout("ps aufx"))
+            nmci.embed.embed_data("DEBUG: ps aufx", nmci.process.run_stdout("ps aufx"))
         if not status:
             status = proc.status
         # TODO: make the tests capable of this change
         # if not failed:
         #     failed = status != 0
-        stdout = util.file_get_content_simple(data.logfile.name)
+        stdout = nmci.util.file_get_content_simple(data.logfile.name)
         data.logfile.close()
 
         argv = "pexpect:" + proc.name
 
-        embed.embed_run(
+        nmci.embed.embed_run(
             argv,
             True,
             status,
@@ -85,7 +85,7 @@ class _PExpect:
         if logfile is None:
             import tempfile
 
-            logfile = tempfile.NamedTemporaryFile(dir=util.tmp_dir(), mode="w")
+            logfile = tempfile.NamedTemporaryFile(dir=nmci.util.tmp_dir(), mode="w")
 
         if shell:
             if args:
@@ -135,7 +135,7 @@ class _PExpect:
             shell=shell,
         )
 
-        data = PexpectData(False, proc, logfile, embed.get_embed_context(), label)
+        data = PexpectData(False, proc, logfile, nmci.embed.get_embed_context(), label)
 
         # These get killed at the end of the step by process_pexpect_spawn().
         self._pexpect_spawn_lst.append(data)
@@ -154,7 +154,7 @@ class _PExpect:
         codec_errors="strict",
         shell=False,
         label=None,
-        cleanup_priority=cleanup.Cleanup.PRIORITY_PEXPECT_SERVICE,
+        cleanup_priority=nmci.cleanup.Cleanup.PRIORITY_PEXPECT_SERVICE,
     ):
         proc, logfile = self._pexpect_start(
             command=command,
@@ -169,16 +169,16 @@ class _PExpect:
             shell=shell,
         )
 
-        data = PexpectData(True, proc, logfile, embed.get_embed_context(), label)
+        data = PexpectData(True, proc, logfile, nmci.embed.get_embed_context(), label)
 
         self._pexpect_service_lst.append(data)
 
         # These get reaped during the cleanup at the end of the scenario.
 
-        cleanup.cleanup_add(
+        nmci.cleanup.cleanup_add(
             callback=lambda: self._pexpect_service_cleanup(data),
             name=f"pexpect {proc.name}",
-            unique_tag=cleanup.Cleanup.UNIQ_TAG_DISTINCT,
+            unique_tag=nmci.cleanup.Cleanup.UNIQ_TAG_DISTINCT,
             priority=cleanup_priority,
         )
 
@@ -188,7 +188,7 @@ class _PExpect:
 
         argv_failed = None
 
-        for data in util.consume_list(self._pexpect_spawn_lst):
+        for data in nmci.util.consume_list(self._pexpect_spawn_lst):
             (
                 p_failed,
                 argv,

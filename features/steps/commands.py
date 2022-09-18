@@ -4,13 +4,9 @@ import pexpect
 import re
 import time
 import operator
-import subprocess
 from behave import step
 
 import nmci
-import nmci.misc
-import nmci.nmutil
-
 
 @step(u'Autocomplete "{cmd}" in bash and execute')
 def autocomplete_command(context, cmd):

@@ -4,7 +4,7 @@ import re
 import sys
 import time
 
-from nmci import embed
+import nmci.embed
 
 
 class _Timeout:

@@ -1,5 +1,7 @@
 from behave import step
 
+import nmci
+
 chapters = {
     "Network interface device naming hierarchy": "network-interface-device-naming-hierarchy_consistent-network-interface-device-naming",
     "How the network device renaming works": "how-the-network-device-naming-works_consistent-network-interface-device-naming",

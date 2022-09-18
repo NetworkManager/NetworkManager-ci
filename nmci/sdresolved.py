@@ -1,5 +1,5 @@
-from nmci import util
-from nmci import dbus
+import nmci.util
+import nmci.dbus
 
 
 class _SDResolved:
@@ -12,9 +12,9 @@ class _SDResolved:
             # In that case, we return it unmodified.
             return ifindex
 
-        GLib = util.GLib
+        GLib = nmci.util.GLib
 
-        v = dbus.call(
+        v = nmci.dbus.call(
             bus_name="org.freedesktop.resolve1",
             object_path="/org/freedesktop/resolve1",
             interface_name="org.freedesktop.resolve1.Manager",
@@ -28,7 +28,7 @@ class _SDResolved:
 
         object_path = self.get_link(ifindex)
 
-        v = dbus.get_property(
+        v = nmci.dbus.get_property(
             bus_name="org.freedesktop.resolve1",
             object_path=object_path,
             interface_name="org.freedesktop.resolve1.Link",
@@ -45,7 +45,7 @@ class _SDResolved:
 
         object_path = self.get_link(ifindex)
 
-        v = dbus.get_property(
+        v = nmci.dbus.get_property(
             bus_name="org.freedesktop.resolve1",
             object_path=object_path,
             interface_name="org.freedesktop.resolve1.Link",
@@ -72,7 +72,7 @@ class _SDResolved:
         object_path = self.get_link(ifindex)
 
         try:
-            v = dbus.get_property(
+            v = nmci.dbus.get_property(
                 bus_name="org.freedesktop.resolve1",
                 object_path=object_path,
                 interface_name="org.freedesktop.resolve1.Link",
@@ -81,9 +81,9 @@ class _SDResolved:
             )
         except Exception as e:
             if (
-                isinstance(e, util.GLib.Error)
+                isinstance(e, nmci.util.GLib.Error)
                 and e.domain == "g-dbus-error-quark"
-                and e.code == util.Gio.DBusError.UNKNOWN_PROPERTY
+                and e.code == nmci.util.Gio.DBusError.UNKNOWN_PROPERTY
             ):
                 # DefaultRoute property was only added in v240. We accept the missing API
                 # and return None.
