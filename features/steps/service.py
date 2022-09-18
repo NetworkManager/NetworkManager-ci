@@ -7,7 +7,7 @@ import nmci.ctx
 @step(u'Reboot')
 def reboot(context):
     context.nm_restarted = True
-    assert nmci.ctx.stop_NM_service(context)
+    assert nmci.nmutil.stop_NM_service()
     for x in range(1, 11):
         context.command_code("sudo ip link set dev eth%d down" % int(x))
         context.command_code("sudo ip addr flush dev eth%d" % int(x))
@@ -43,26 +43,26 @@ def reboot(context):
     context.command_code("rm -rf /var/run/NetworkManager")
 
     time.sleep(1)
-    assert nmci.ctx.restart_NM_service(context, reset=False, timeout=10), "NM restart failed"
+    assert nmci.nmutil.restart_NM_service(reset=False, timeout=10), "NM restart failed"
     time.sleep(2)
 
 
 @step(u'Start NM')
 def start_NM(context):
     context.nm_restarted = True
-    assert nmci.ctx.start_NM_service(context), "NM start failed"
+    assert nmci.nmutil.start_NM_service(), "NM start failed"
 
 
 @step(u'Start NM without PID wait')
 def start_NM_no_pid(context):
     context.nm_restarted = True
-    assert nmci.ctx.start_NM_service(context, pid_wait=False, timeout=10), "NM start failed"
+    assert nmci.nmutil.start_NM_service(pid_wait=False, timeout=10), "NM start failed"
 
 
 @step(u'Restart NM')
 def restart_NM(context):
     context.nm_restarted = True
-    assert nmci.ctx.restart_NM_service(context, reset=False), "NM restart failed"
+    assert nmci.nmutil.restart_NM_service(reset=False), "NM restart failed"
     # For stability reasons 1 is not enough, please do not lower this
     time.sleep(2)
 
@@ -87,13 +87,13 @@ def kill_NM(context, signal=""):
 @step(u'Stop NM')
 def stop_NM(context):
     context.nm_restarted = True
-    assert nmci.ctx.stop_NM_service(context), "NM stop failed"
+    assert nmci.nmutil.stop_NM_service(), "NM stop failed"
 
 
 @step(u'Stop NM and clean "{device}"')
 def stop_NM_and_clean(context, device):
     context.nm_restarted = True
-    assert nmci.ctx.stop_NM_service(context), "NM stop failed"
+    assert nmci.nmutil.stop_NM_service(), "NM stop failed"
     assert context.command_code("sudo ip addr flush dev %s" % (device)) == 0
     assert context.command_code("sudo ip link set %s down" % (device)) == 0
 

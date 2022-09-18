@@ -243,7 +243,7 @@ def _after_scenario(context, scenario):
             context, "crash outside steps (last step before after_scenario)"
         )
         # print("Starting NM as it was found stopped")
-        # nmci.ctx.restart_NM_service(context)
+        # nmci.nmutil.restart_NM_service()
 
     if context.IS_NMTUI:
         if os.path.isfile("/tmp/tui-screen.log"):

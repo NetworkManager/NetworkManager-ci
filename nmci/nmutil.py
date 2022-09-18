@@ -1,6 +1,10 @@
+import time
+
 from nmci import dbus
 from nmci import process
 from nmci import util
+from nmci import cext
+from nmci import cleanup
 
 
 class _NMUtil:
@@ -53,3 +57,35 @@ class _NMUtil:
                 continue
             memsize += int(fields[1])
         return memsize
+
+    def reload_NM_connections(self):
+        print("reload NM connections")
+        process.nmcli("con reload")
+
+    def reload_NM_service(self):
+        print("reload NM service")
+        time.sleep(0.5)
+        process.run_stdout("pkill -HUP NetworkManager")
+        time.sleep(1)
+
+    def restart_NM_service(self, reset=True, timeout=10):
+        print("restart NM service")
+        if reset:
+            process.systemctl("reset-failed NetworkManager.service")
+        r = process.systemctl("restart NetworkManager.service", timeout=timeout)
+        cext.context.nm_pid = self.wait_for_nm_pid(10)
+        return r.returncode == 0
+
+    def start_NM_service(self, pid_wait=True, timeout=10):
+        print("start NM service")
+        r = process.systemctl("start NetworkManager.service", timeout=timeout)
+        if pid_wait:
+            cext.context.nm_pid = self.wait_for_nm_pid(10)
+        return r.returncode == 0
+
+    def stop_NM_service(self):
+        print("stop NM service")
+        cleanup.cleanup_add_NM_service(operation="start")
+        r = process.systemctl("stop NetworkManager.service")
+        cext.context.nm_pid = 0
+        return r.returncode == 0
