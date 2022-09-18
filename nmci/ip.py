@@ -357,7 +357,12 @@ class _IP:
         return result
 
     def _link_show(
-        self, ifindex=None, ifname=None, flags=None, binary=None, allow_missing=False
+        self,
+        ifname=None,
+        ifindex=None,
+        flags=None,
+        binary=None,
+        allow_missing=False,
     ):
 
         if ifindex is None and ifname is None:
@@ -411,12 +416,12 @@ class _IP:
 
         return data
 
-    def link_show(self, timeout=None, **kwargs):
+    def link_show(self, ifname=None, *, timeout=None, **kwargs):
 
         xtimeout = util.start_timeout(timeout)
         while xtimeout.loop_sleep(0.08):
             try:
-                return self._link_show(**kwargs)
+                return self._link_show(ifname=ifname, **kwargs)
             except:
                 if xtimeout.is_none():
                     raise
@@ -426,10 +431,10 @@ class _IP:
             f"Requested interface not found or not ready within timeout (args={kwargs})"
         )
 
-    def link_show_maybe(self, allow_missing=True, **kwargs):
-        return self.link_show(allow_missing=allow_missing, **kwargs)
+    def link_show_maybe(self, ifname=None, *, allow_missing=True, **kwargs):
+        return self.link_show(ifname=ifname, allow_missing=allow_missing, **kwargs)
 
-    def link_set(self, ifindex=None, ifname=None, up=None, wait_for_device=None):
+    def link_set(self, ifname=None, *, ifindex=None, up=None, wait_for_device=None):
 
         li = self.link_show(ifindex=ifindex, ifname=ifname, timeout=wait_for_device)
 
@@ -438,12 +443,16 @@ class _IP:
                 arg = "up"
             else:
                 arg = "down"
-            process.run_stdout(["ip", "link", "set", li["ifname"], arg])
+            process.run_stdout(["ip", "link", "set", li["ifname"], arg], as_bytes=True)
 
     def link_delete(self, ifname=None, *, ifindex=None, accept_nodev=False):
 
         if ifname is None or ifindex is not None:
-            li = self.link_show(ifindex=ifindex)
+            li = self.link_show_maybe(ifindex=ifindex)
+            if li is None:
+                if accept_nodev:
+                    return
+                raise Exception(f"Interface with ifindex {ifindex} not found")
             if ifname is not None and ifname != li["ifname"]:
                 raise Exception(
                     f"Failure deleting interface because interface with ifindex {ifindex} is called \"{li['ifname']}\" and not \"{ifname}\""
@@ -451,17 +460,14 @@ class _IP:
             ifname = li["ifname"]
 
         try:
-            process.run_stdout(["ip", "link", "delete", ifname])
+            process.run_stdout(["ip", "link", "delete", ifname], as_bytes=True)
         except:
             if accept_nodev:
-                try:
-                    if ifindex is not None:
-                        if not self.link_show(ifindex=ifindex):
-                            return
-                    elif not self.link_show(ifname=ifname):
+                if ifindex is not None:
+                    if self.link_show_maybe(ifindex=ifindex) is None:
                         return
-                except:
-                    pass
+                elif self.link_show_maybe(ifname=ifname) is None:
+                    return
             # The interface either still exists, or the caller requested a failure
             # trying to delete a non-existing interface.
             raise
