@@ -21,7 +21,7 @@ def append_to_file(context, name, line=None):
 def append_to_ifcfg(context, line, name):
     cmd = 'sudo echo "%s" >> /etc/sysconfig/network-scripts/ifcfg-%s' % (line, name)
     context.command_code(cmd)
-    context.cext.cleanup_add_connection(name)
+    nmci.cleanup.cleanup_add_connection(name)
 
 
 @step(u'Check file "{file1}" is contained in file "{file2}"')
@@ -39,8 +39,8 @@ def check_file_is_identical(context, file1, file2):
     if filecmp.cmp(file1, file2):
         return
 
-    context.cext.embed_data(file1, nmci.util.file_get_content_simple(file1))
-    context.cext.embed_data(file2, nmci.util.file_get_content_simple(file2))
+    nmci.embed.embed_data(file1, nmci.util.file_get_content_simple(file1))
+    nmci.embed.embed_data(file2, nmci.util.file_get_content_simple(file2))
     assert False, f"Files '{file1}' and '{file2}' differ"
 
 
@@ -191,8 +191,8 @@ def create_network_profile_file(context, file):
         if re.match(r'(id|name)=', line):
             name = line.split('=')[1]
             if name:
-                context.cext.cleanup_add_connection(name)
+                nmci.cleanup.cleanup_add_connection(name)
         elif re.match(r'(DEVICE|interface-name)=', line):
             iface = line.split('=')[1]
             if iface:
-                context.cext.cleanup_add_iface(iface)
+                nmci.cleanup.cleanup_add_iface(iface)

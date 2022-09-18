@@ -12,7 +12,7 @@ def add_vpnc_connection_for_iface(context, name, ifname, vpn):
     time.sleep(1)
     assert r != 0, 'Got an Error while adding %s connection %s for device %s\n%s%s' % (vpn, name, ifname, cli.after, cli.buffer)
 
-    context.cext.cleanup_add_connection(name)
+    nmci.cleanup.cleanup_add_connection(name)
 
 
 @step(u'Add "{typ}" connection with options')
@@ -34,9 +34,9 @@ def add_new_connection(context, typ, name=None, ifname=None, options=None):
         'Got an Error while creating connection of type %s with options %s\n%s%s' % (typ, options, cli.after, cli.buffer)
 
     if name is not None:
-        context.cext.cleanup_add_connection(name)
+        nmci.cleanup.cleanup_add_connection(name)
     if ifname is not None:
-        context.cext.cleanup_add_iface(ifname)
+        nmci.cleanup.cleanup_add_iface(ifname)
 
 
 @step(u'Add infiniband port named "{name}" for device "{ifname}" with parent "{parent}" and p-key "{pkey}"')
@@ -64,8 +64,8 @@ def open_slave_connection(context, master, device, name):
         r = cli.expect(['Error', pexpect.EOF])
 
     assert r == 1, 'Got an Error while adding slave connection %s on device %s for master %s\n%s%s' % (name, device, master, cli.after, cli.buffer)
-    context.cext.cleanup_add_connection(name)
-    context.cext.cleanup_add_iface(device)
+    nmci.cleanup.cleanup_add_connection(name)
+    nmci.cleanup.cleanup_add_iface(device)
 
 
 @step(u'Bring "{action}" connection "{name}"')
@@ -230,7 +230,7 @@ def add_connection(context, name, uuid, flags="TO_DISK"):
     con2.add_setting(s_con)
 
     result = {}
-    context.cext.cleanup_add_connection(name)
+    nmci.cleanup.cleanup_add_connection(name)
 
     def _add_connection2_cb(cl, async_result, user_data):
         try:
@@ -278,7 +278,7 @@ def clone_connection(context, con_src, con_dst, flags="TO_DISK"):
 
     assert 'error' not in result, \
         'add connection %s failed: %s' % (con_dst, result['error'])
-    context.cext.cleanup_add_connection(con_dst)
+    nmci.cleanup.cleanup_add_connection(con_dst)
 
 
 @step(u'Update connection "{con_name}" changing options "{options}" using libnm')
@@ -396,6 +396,6 @@ def add_bridges_vlans_range(context, begin, end, ifname):
 @step(u'Cleanup connection "{connection}"')
 @step(u'Cleanup connection "{connection}" and device "{device}"')
 def cleanup_connection(context, connection, device=None):
-    context.cext.cleanup_add_connection(connection)
+    nmci.cleanup.cleanup_add_connection(connection)
     if device is not None:
         context.execute_steps(f'* Cleanup device "{device}"')
