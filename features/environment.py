@@ -5,6 +5,7 @@ import time
 import signal
 import traceback
 
+from behave.model_core import Status
 import xml.etree.ElementTree as ET
 
 import nmci
@@ -117,6 +118,8 @@ def _before_scenario(context, scenario):
     ):
         try:
             nmci.tags.skip_restarts_bs(context, scenario)
+        except nmci.misc.SkipTestException:
+            pass
         except Exception as e:
             excepts.append(str(e))
 
@@ -128,6 +131,8 @@ def _before_scenario(context, scenario):
             continue
         try:
             tag.before_scenario(context, scenario)
+        except nmci.misc.SkipTestException:
+            pass
         except Exception:
             excepts.append(traceback.format_exc())
 
@@ -169,6 +174,12 @@ def before_step(context, step):
 def after_step(context, step):
     context.no_step = False
     context.step_level -= 1
+
+    if isinstance(step.exception, nmci.misc.SkipTestException):
+        step.exception = None
+        step.exc_traceback = None
+        step.status = Status.skipped
+        step.error_message = None
 
     context.cext.process_pexpect_spawn()
 
@@ -265,7 +276,8 @@ def _after_scenario(context, scenario):
     excepts = []
 
     for ex in context.cext.process_cleanup():
-        excepts.append("".join(traceback.format_exception(ex, ex, ex.__traceback__)))
+        if not isinstance(ex, nmci.misc.SkipTestException):
+            excepts.append("".join(traceback.format_exception(ex, ex, ex.__traceback__)))
 
     nmci.ctx.check_crash(context, "crash outside steps (after_scenario tags)")
 

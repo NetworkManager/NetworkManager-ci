@@ -818,6 +818,7 @@ class _CExt:
             self.embed_data("Skip message", msg)
         self.context.scenario.skip(msg)
         self.scenario_skipped = True
+        raise nmci.misc.SkipTestException(msg)
 
 
 class _ContextUtil:
