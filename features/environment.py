@@ -277,7 +277,9 @@ def _after_scenario(context, scenario):
 
     for ex in context.cext.process_cleanup():
         if not isinstance(ex, nmci.misc.SkipTestException):
-            excepts.append("".join(traceback.format_exception(ex, ex, ex.__traceback__)))
+            excepts.append(
+                "".join(traceback.format_exception(ex, ex, ex.__traceback__))
+            )
 
     nmci.ctx.check_crash(context, "crash outside steps (after_scenario tags)")
 
