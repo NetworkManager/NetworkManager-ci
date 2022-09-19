@@ -7,8 +7,7 @@ import sys
 #
 # the order of imports is important because of dependencies
 
-# obsolete will be replaced by nmci.process
-from nmci.run import *
+import nmci.run as run
 
 # CEXT
 from nmci.cext import _CExt

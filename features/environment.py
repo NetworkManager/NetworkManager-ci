@@ -68,15 +68,21 @@ def _before_scenario(context, scenario):
     context.crashed_step = False
     context.log_cursor = ""
     context.log_cursor_before_tags = nmci.misc.journal_get_cursor()
-    context.arch = nmci.command_output("uname -p").strip()
+    context.arch = nmci.process.run_stdout("uname -p", process_hook=None).strip()
     context.IS_NMTUI = "nmtui" in scenario.effective_tags
-    context.rh_release = nmci.command_output("cat /etc/redhat-release")
+    with open("/etc/redhat-release") as release_f:
+        context.rh_release = release_f.read()
     release_i = context.rh_release.find("release ")
     if release_i >= 0:
         context.rh_release_num = float(context.rh_release[release_i:].split(" ")[1])
     else:
         context.rh_release_num = 0
-    context.hypervisor = nmci.run("systemd-detect-virt")[0].strip()
+    context.hypervisor = nmci.process.run_stdout(
+        "systemd-detect-virt",
+        ignore_returncode=True,
+        ignore_stderr=True,
+        process_hook=None,
+    ).strip()
 
     os.environ["TERM"] = "dumb"
 
@@ -84,7 +90,7 @@ def _before_scenario(context, scenario):
     nmci.ctx.dump_status(context, "Before Scenario", fail_only=False)
 
     if context.IS_NMTUI:
-        nmci.run("sudo pkill nmtui")
+        nmci.process.run_code("sudo pkill nmtui", ignore_stderr=True)
         context.screen_logs = []
     else:
         if not os.path.isfile("/tmp/nm_wifi_configured") and not os.path.isfile(
@@ -252,7 +258,7 @@ def _after_scenario(context, scenario):
                 nmci.util.file_get_content_simple("/tmp/tui-screen.log"),
             )
         # Stop TUI
-        nmci.run("sudo killall nmtui &> /dev/null")
+        nmci.process.run_code("sudo killall nmtui &> /dev/null", ignore_stderr=True)
         if os.path.isfile("/tmp/nmtui.out"):
             os.remove("/tmp/nmtui.out")
 

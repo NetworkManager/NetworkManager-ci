@@ -46,7 +46,7 @@ def set_openvpn_connection(context, cert, key, ca, gateway, name):
 
 @step(u'Use user "{user}" with password "{password}" and group "{group}" with secret "{secret}" for gateway "{gateway}" on Libreswan connection "{name}"')
 def set_libreswan_connection(context, user, password, group, secret, gateway, name):
-    if nmci.command_code("rpm -qa | grep -q libreswan-4") == 0 and 'release 8' not in context.rh_release:
+    if nmci.process.run_search_stdout("rpm -qa", "libreswan-4") is not None and 'release 8' not in context.rh_release:
         username_option = "leftusername"
     else:
         username_option = "leftxauthusername"
@@ -149,7 +149,7 @@ def connect_to_vpn(context, vpn, password, secret=None, time_out=None):
     if secret is not None:
         time.sleep(1)
         cli.sendline(secret)
-    if nmci.command_code("systemctl -q is-active polkit") == 0:
+    if nmci.process.systemctl("-q is-active polkit").returncode == 0:
         r = cli.expect(['Error', pexpect.TIMEOUT, pexpect.EOF])
         assert r != 0, 'Got an Error while connecting to network %s\n%s%s' % (vpn, cli.after, cli.buffer)
         assert r != 1, 'nmcli vpn connect ... timed out (180s)'

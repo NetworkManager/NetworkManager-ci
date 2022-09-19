@@ -266,7 +266,6 @@ class _Process:
                     )
                 )
 
-
         return RunResult(returncode, r_stdout, r_stderr)
 
     def run(

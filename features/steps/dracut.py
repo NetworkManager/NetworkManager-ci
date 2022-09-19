@@ -1,9 +1,8 @@
 import os
-import pexpect
 from behave import step
 
 import nmci
-
+from nmci import pexpect
 
 REMOTE_ROOT_DIR = "/var/dracut_test/nfs/client/"
 REMOTE_JOURNAL_DIR = "/var/dracut_test/client_log/"
@@ -18,7 +17,8 @@ def get_dracut_vm_state(mount=True):
     cmd.append("cat $TESTDIR/client_log/var/log/vm_state")
     if mount:
         cmd.append("umount $DEV_LOG")
-    return nmci.run("; ".join(cmd))[0].strip("\n")
+    command = nmci.process.WithShell("; ".join(cmd))
+    return nmci.process.run_stdout(command, process_hook=None).strip("\n")
 
 
 def handle_timeout(proc, timeout):

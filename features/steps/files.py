@@ -184,7 +184,7 @@ def check_ifcfg(context, file):
 def create_network_profile_file(context, file):
     with open(file, "w") as f:
         f.write(context.text)
-    assert nmci.command_code("chmod 600 " + file) == 0, "Unable to set permissions on '%s'" % file
+    assert nmci.process.run_code(["chmod", "600", file]) == 0, f"Unable to set permissions on '{file}'"
     nmci.nmutil.reload_NM_connections()
 
     for line in context.text.split("\n"):
