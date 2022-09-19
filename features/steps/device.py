@@ -699,8 +699,8 @@ def add_device(context, typ, name, namespace="", options=""):
     # (such as @bond_slaves_ordering_by_ifindex) rely on this; but it's
     # not guarranteed and doesn't happen when the device is moved across
     # namespaces and got a lower ifindex in the old namespace.
-    links = json.loads(nmci.command_output("ip -j link"))
-    links = links + json.loads(nmci.command_output(f"ip {namespace} -j link"))
+    links = json.loads(nmci.process.run_stdout("ip -j link", process_hook=None))
+    links = links + json.loads(nmci.process.run_stdout(f"ip {namespace} -j link", process_hook=None))
     for link in links:
         if link["ifindex"] > context.ifindex:
             context.ifindex = link["ifindex"]
@@ -709,8 +709,9 @@ def add_device(context, typ, name, namespace="", options=""):
     # result of previous link add is visible. Bump by two, because a veth
     # pair might be created.
     context.ifindex = context.ifindex + 2
-
-    assert context.command_code(f"ip {namespace} link add index {context.ifindex} {name} type {typ} {options}", shell=True) == 0
+    cmd = nmci.process.WithShell(f"ip {namespace} link add index {context.ifindex} {name} type {typ} {options}")
+    # TODO: get rid of ignore_stderr, fix vlan_interface_recognition
+    context.process.run_stdout(cmd, ignore_stderr=True)
 
 
 @step(u'Add namespace "{name}"')
