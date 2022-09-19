@@ -2081,7 +2081,7 @@ def nmstate_upstream_setup_bs(context, scenario):
     context.process.run_stdout("echo 0 > /proc/sys/net/ipv6/conf/default/use_tempaddr")
 
     # Clone default profile but just ipv4 only"
-    active_con = context.prcess.nmcli("-g NAME con show -a").strip()
+    active_con = context.process.nmcli("-g NAME con show -a").strip()
     context.process.nmcli(["con", "clone", active_con, "nmstate"])
     context.process.nmcli(
         "con modify nmstate ipv6.method disabled ipv6.addresses '' ipv6.gateway ''"

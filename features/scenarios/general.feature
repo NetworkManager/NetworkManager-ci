@@ -1834,7 +1834,7 @@ Feature: nmcli - general
 
     @rhbz1819587
     @ver+=1.25.90 @rhelver+=8 @skip_in_centos
-     @checkpoint_remove @load_netdevsim
+    @checkpoint_remove @load_netdevsim
     @snapshot_rollback_sriov
     Scenario: NM - general - sriov
     * Snapshot "create" for "all" with timeout "10"
@@ -1850,6 +1850,7 @@ Feature: nmcli - general
 
 
     @ver+=1.26.0
+    @temporary_skip
     @rhelver+=8 @fedoraver+=31 @skip_in_centos
     @ifcfg-rh @nmstate_upstream_setup @permissive
     @nmstate_upstream
