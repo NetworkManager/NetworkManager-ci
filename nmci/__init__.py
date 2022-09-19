@@ -32,14 +32,17 @@ cleanup = nmci.cleanup._Cleanup()
 sys.modules[f"{__name__}.cleanup"] = cleanup
 
 # UTIL
-import nmci.util as util
+from nmci.util import _Util
 
-util = util._Util()
+util = _Util()
 sys.modules[f"{__name__}.util"] = util
 
 # PROCESS
 # should be made class, to have imports uniform
-import nmci.process as process
+from nmci.process import _Process
+
+process = _Process()
+sys.modules[f"{__name__}.process"] = process
 
 # PEXPECT
 from nmci.pexpect import _PExpect
