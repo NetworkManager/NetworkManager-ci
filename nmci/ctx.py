@@ -1434,7 +1434,9 @@ def after_crash_reset(context):
     stop_NM_service(context)
 
     print("Remove all links except eth*")
-    allowed_links = [b"lo"] + [f"eth{i}".encode("utf-8") for i in range(0, 11)]
+    allowed_links = (
+        [b"lo"] + [b"wwan0"] + [f"eth{i}".encode("utf-8") for i in range(0, 11)]
+    )
     for link in nmci.ip.link_show_all(binary=True):
         if link["ifname"] in allowed_links or link["ifname"].startswith(b"orig-"):
             continue
