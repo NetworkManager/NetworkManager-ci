@@ -2062,7 +2062,7 @@ def nmstate_upstream_setup_bs(context, scenario):
     # Skip on deployments where we do not have veths
     if not os.path.isfile("/tmp/nm_veth_configured"):
         context.cext.skip("Skipping as no vethsetup")
-
+        return
     # Prepare nmstate and skip if unsuccesful
     if (
         context.process.run_code(
@@ -2071,6 +2071,7 @@ def nmstate_upstream_setup_bs(context, scenario):
         != 0
     ):
         context.cext.skip("ERROR: Skipping as prepare failed")
+        return
 
     # Rename eth1/2 to ethX/Y as these are used by test
     context.process.run_stdout("ip link set dev eth1 down")
@@ -2089,21 +2090,24 @@ def nmstate_upstream_setup_bs(context, scenario):
     )
     context.process.nmcli("con up nmstate")
 
-    # Move orig config file to /tmp
+    # Move orig config file to /tmp in case we have vethsetup
     context.process.run_stdout(
-        "mv /etc/NetworkManager/conf.d/99-unmanage-orig.conf /tmp"
+        "mv /etc/NetworkManager/conf.d/99-unmanage-orig.conf /tmp || true",
+        ignore_stderr=True,
+        shell=True,
     )
 
     # Remove connectivity packages if present
     context.process.run_stdout(
-        "dnf -y remove NetworkManager-config-connectivity-fedora NetworkManager-config-connectivity-redhat",
+        "dnf -y remove NetworkManager-config-connectivity-fedora NetworkManager-config-connectivity-redhat || true",
+        ignore_stderr=True,
         timeout=120,
     )
     nmci.ctx.manage_veths(context)
 
     if (
         context.process.systemctl("is-active openvswitch").returncode != 0
-        or "ERR" in context.process.systemctl("status ovs-vswitchd.service").sdtout
+        or "ERR" in context.process.systemctl("status ovs-vswitchd.service").stdout
     ):
         print("restarting OVS service")
         context.process.run_stdout("systemctl restart openvswitch")
@@ -2113,25 +2117,50 @@ def nmstate_upstream_setup_bs(context, scenario):
 def nmstate_upstream_setup_as(context, scenario):
     # nmstate restarts NM few times during tests
     context.nm_restarted = True
+    nmci.ctx.restart_NM_service(context)
 
-    context.process.nmcli(
-        "con del linux-br0 dhcpcli dhcpsrv brtest0 bond99 eth1.101 eth1.102"
+    context.process.run_stdout(
+        "nmcli con del linux-br0 dhcpcli dhcpsrv brtest0 bond99 eth1.101 eth1.102 || true",
+        ignore_stderr=True,
+        shell=True,
     )
-    context.process.nmcli(
-        "con del eth0 eth1 eth2 eth3 eth4 eth5 eth6 eth7 eth8 eth9 eth10"
+    context.process.run_stdout(
+        "nmcli con del eth0 eth1 eth2 eth3 eth4 eth5 eth6 eth7 eth8 eth9 eth10 || true",
+        ignore_stderr=True,
+        shell=True,
     )
-
-    context.process.nmcli("device delete dhcpsrv")
-    context.process.nmcli("device delete dhcpcli")
-    context.process.nmcli("device delete bond99")
-
-    context.process.run_stdout("ovs-vsctl del-br ovsbr0")
-
+    context.process.run_stdout(
+        "nmcli device delete dhcpsrv || true",
+        ignore_stderr=True,
+        shell=True,
+    )
+    context.process.run_stdout(
+        "nmcli device delete dhcpcli || true",
+        ignore_stderr=True,
+        shell=True,
+    )
+    context.process.run_stdout(
+        "nmcli device delete bond99 || true",
+        ignore_stderr=True,
+        shell=True,
+    )
+    context.process.run_stdout(
+        "ovs-vsctl del-br ovsbr0 || true",
+        ignore_stderr=True,
+        shell=True,
+    )
     # in case of fail we need to kill this
     context.process.systemctl("stop dnsmasq")
-    context.process.run_stdout("pkill -f 'dnsmasq.*/etc/dnsmasq.d/nmstate.conf'")
-    context.process.run_stdout("rm -rf /etc/dnsmasq.d/nmstate.conf")
-
+    # context.process.run_stdout(
+    #     "pkill -f 'dnsmasq.*/etc/dnsmasq.d/nmstate.conf' || true",
+    #     ignore_stderr=True,
+    #     shell=True,
+    # )
+    context.process.run_stdout(
+        "rm -rf /etc/dnsmasq.d/nmstate.conf || true",
+        ignore_stderr=True,
+        shell=True,
+    )
     # Rename devices back to eth1/eth2
     context.process.run_stdout("ip link del eth1")
     context.process.run_stdout("ip link set dev eth01 down")
@@ -2142,13 +2171,17 @@ def nmstate_upstream_setup_as(context, scenario):
     context.process.run_stdout("ip link set dev eth02 down")
     context.process.run_stdout("ip link set name eth2 eth02")
     context.process.run_stdout("ip link set dev eth2 up")
-
-    # remove profiles
-    context.process.nmcli("con del nmstate eth01 eth02 eth1peer eth2peer")
-
+    # Remove profiles
+    context.process.run_stdout(
+        "con del nmstate eth01 eth02 eth1peer eth2peer || true",
+        ignore_stderr=True,
+        shell=True,
+    )
     # Move orig config file to back
     context.process.run_stdout(
-        "mv /tmp/99-unmanage-orig.conf /etc/NetworkManager/conf.d/"
+        "mv /tmp/99-unmanage-orig.conf /etc/NetworkManager/conf.d/ || true",
+        ignore_stderr=True,
+        shell=True,
     )
 
     # restore testethX
