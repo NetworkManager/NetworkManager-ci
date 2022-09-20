@@ -789,7 +789,7 @@ Feature: nmcli - vlan
     @rhbz1066705
     @vxlan_interface_recognition
     Scenario: NM - vxlan - interface support
-    * Create "vxlan" device named "dummy0" with options "id 42 group 239.1.1.1 dev eth7"
+    * Create "vxlan" device named "dummy0" with options "id 42 group 239.1.1.1 dev eth7 dstport 0"
     When "unmanaged" is visible with command "nmcli device show dummy0" in "5" seconds
     * Execute "ip link set dev dummy0 up"
     * Execute "ip addr add fd00::666/8 dev dummy0"
