@@ -1851,6 +1851,7 @@ Feature: nmcli - general
 
     @ver+=1.26.0
     @rhelver+=8 @fedoraver+=31 @skip_in_centos
+    @xfail
     @nmstate_upstream_setup @permissive
     @nmstate_upstream
     Scenario: NM - general - nmstate
