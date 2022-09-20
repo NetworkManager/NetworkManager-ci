@@ -10,8 +10,8 @@ echo "creating $NUM_NS namespaces..."
 systemctl stop NetworkManager
 
 # mask the Dispatcher as well.
-systemctl mask NetworkManager-dispatcher
-systemctl stop NetworkManager-dispatcher
+systemctl mask NetworkManager-dispatcher 2>&1
+systemctl stop NetworkManager-dispatcher 2>&1
 
 # cleanup from previous run
 pkill dhcpd

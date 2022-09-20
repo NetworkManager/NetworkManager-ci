@@ -1597,12 +1597,7 @@ _register_tag("attach_wpa_supplicant_log", None, attach_wpa_supplicant_log_as)
 
 
 def performance_bs(context, scenario):
-    # Set machine perf to max
-    context.process.systemctl("start tuned")
-    context.process.run("tuned-adm profile throughput-performance", ignore_stderr=True)
-    context.process.systemctl("stop tuned")
-    context.process.systemctl("stop openvswitch")
-    # Set some speed factor
+    # Set the speed factor
     context.machine_speed_factor = 1
     hostname = context.process.run_stdout("hostname").strip()
     if "ci.centos" in hostname:
@@ -1617,11 +1612,17 @@ def performance_bs(context, scenario):
         context.machine_speed_factor = 1.5
     elif hostname.startswith("wsfd-netdev"):
         context.cext.skip("wsfd-netdev: we are unpredictable here, skipping")
+        return
     else:
         print(f"Unmatched: {hostname}: keeping default")
     if "fedora" in context.rh_release.lower():
         print("Fedora: multiply factor by 1.5")
         context.machine_speed_factor *= 1.5
+    # Set machine perf to max
+    context.process.systemctl("start tuned")
+    context.process.run("tuned-adm profile throughput-performance", ignore_stderr=True)
+    context.process.systemctl("stop tuned")
+    context.process.systemctl("stop openvswitch")
 
 
 def performance_as(context, scenario):
