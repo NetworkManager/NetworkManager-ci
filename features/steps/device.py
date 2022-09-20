@@ -710,8 +710,7 @@ def add_device(context, typ, name, namespace="", options=""):
     # pair might be created.
     context.ifindex = context.ifindex + 2
     cmd = nmci.process.WithShell(f"ip {namespace} link add index {context.ifindex} {name} type {typ} {options}")
-    # TODO: get rid of ignore_stderr, fix vlan_interface_recognition
-    context.process.run_stdout(cmd, ignore_stderr=True)
+    context.process.run_stdout(cmd)
 
 
 @step(u'Add namespace "{name}"')
