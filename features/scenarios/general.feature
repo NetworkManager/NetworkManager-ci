@@ -12,7 +12,7 @@ Feature: nmcli - general
     * Execute "nmcli --version"
 
 
-    @xfail @crash
+    @xfail @crash @skip_in_centos
     @crashing_NM_binary
     Scenario: Dummy scenario that is supposed to test crash embeding
     * Execute "sysctl kernel.core_pattern"

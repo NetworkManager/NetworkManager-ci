@@ -11,7 +11,6 @@ import json
 import base64
 import time
 
-
 from multiprocessing import Process, Pipe
 from cico_gitlab_trigger import GitlabTrigger
 
@@ -20,14 +19,44 @@ MACHINES_NUM = 2
 MACHINES_MIN_THRESHOLD = 1000
 
 
-class Machine:
-    def __init__(self, id, release, runner):
+class Run():
+    def _run(
+        self,
+        cmd,
+        shell=True,
+        check=True,
+        capture_output=True,
+        encoding="utf-8",
+        verbose=False,
+        *a,
+        **kw,
+    ):
+        if capture_output:
+            kw["stdout"] = subprocess.PIPE
+            kw["stderr"] = subprocess.PIPE
+        rc = subprocess.run(
+            cmd,
+            *a,
+            shell=shell,
+            check=check,
+            encoding=encoding,
+            **kw,
+        )
+        logging.debug(f"executed '{cmd}': returned {rc.returncode}")
+        if verbose:
+            if rc.stdout:
+                logging.debug(f"STDOUT:\n'{rc.stdout}")
+            if rc.stderr:
+                logging.debug(f"STDERR:\n'{rc.stderr}")
+        return rc
+
+
+class Machine(Run):
+    def __init__(self, id, release, name):
         self.release = release
         self.release_num = release.split("-")[0]
         self.id = id
-        self.runner = runner
-
-        self.machine_list = "../machines"
+        self.name = name
         self.results = f"../results_m{self.id}/"
         self._run(f"mkdir -p {self.results}")
         self.rpms_dir = "../rpms/"
@@ -54,66 +83,11 @@ class Machine:
             "*-devel*",
         ]
 
-        self._get()
         self._pipe = None
         self._proc = None
         self._last_cmd_ret = None
 
         self.cmd_async(self._setup)
-
-    def _get(self):
-        returncode = 1
-        retry_count = 0
-        while returncode != 0:
-            cico_run = self._run(
-                f"cico --debug node get -f value -c hostname -c comment --release {self.release}",
-                check=False,
-            )
-            returncode = cico_run.returncode
-            if retry_count >= 180:
-                self.runner._abort(f"Unable to reserve a machine '{self.id}' in 180 minutes")
-            if returncode != 0:
-                time.sleep(60)
-                retry_count += 1
-        cico_out = cico_run.stdout.strip("\n").split(" ")
-        self.name = cico_out[0].strip(" \t") + ".ci.centos.org"
-        self.ssid = cico_out[1].strip(" \t")
-        with open(self.machine_list, "a") as mf:
-            mf.write(f"{self.id}:{self.name}:{self.ssid}\n")
-
-    def done(self):
-        if self.cmd_is_active():
-            self.cmd_terminate()
-        self._run(f"cico node done {self.ssid}")
-        with open(self.machine_list) as mf:
-            machines = mf.readlines()
-        with open(self.machine_list, "w") as mf:
-            for machine in machines:
-                if not machine.startswith(f"{self.id}:"):
-                    mf.write(machine)
-
-    def _run(
-        self,
-        cmd,
-        shell=True,
-        check=True,
-        capture_output=True,
-        encoding="utf-8",
-        verbose=False,
-        *a,
-        **kw,
-    ):
-        if capture_output:
-            kw["stdout"] = subprocess.PIPE
-            kw["stderr"] = subprocess.PIPE
-        rc = subprocess.run(cmd, *a, shell=shell, check=check, encoding=encoding, **kw)
-        logging.debug(f"executed '{cmd}': returned {rc.returncode}")
-        if verbose:
-            if rc.stdout:
-                logging.debug(f"STDOUT:\n'{rc.stdout}")
-            if rc.stderr:
-                logging.debug(f"STDERR:\n'{rc.stderr}")
-        return rc
 
     def ssh(self, cmd, check=True, verbose=False):
         return self._run(
@@ -217,9 +191,10 @@ class Machine:
         self._wait_for_machine()
         self.ssh(f"mkdir -p {self.results_internal}")
         # enable repos
-        self.ssh(
-            f"dnf -y install https://dl.fedoraproject.org/pub/epel/epel{{,-next}}-release-latest-{self.release_num}.noarch.rpm"
-        )
+        dnf_install = "dnf -y install https://dl.fedoraproject.org/pub/epel/"
+        dnf_package = f"epel{{,-next}}-release-latest-{self.release_num}.noarch.rpm"
+        dnf = dnf_install + dnf_package
+        self.ssh(dnf)
         # For some reason names can differ, so enable both powertools
         self.ssh("yum install -y \\'dnf-command\\(config-manager\\)\\'")
         self.ssh("yum config-manager --set-enabled PowerTools", check=False)
@@ -229,12 +204,13 @@ class Machine:
         self.ssh("yum -y copr enable nmstate/nm-build-deps")
         # install NM packages
         self.ssh(
-            "yum -y install crda NetworkManager-team \
-                        NetworkManager-ppp NetworkManager-wifi \
-                        NetworkManager-adsl NetworkManager-ovs \
-                        NetworkManager-tui NetworkManager-wwan \
-                        NetworkManager-bluetooth NetworkManager-libnm-devel \
-                        --skip-broken"
+            "yum -y install crda wget bash-completion \
+                    NetworkManager-team \
+                    NetworkManager-ppp NetworkManager-wifi \
+                    NetworkManager-adsl NetworkManager-ovs \
+                    NetworkManager-tui NetworkManager-wwan \
+                    NetworkManager-bluetooth NetworkManager-libnm-devel \
+                    --skip-broken"
         )
         return True
 
@@ -261,18 +237,15 @@ class Machine:
 
         # el8 workarounds
         if self.release_num.startswith("8"):
-            self.ssh(
-                "yum -y install https://vbenes.fedorapeople.org/NM/libndp_rhbz1933041/libndp-1.7-5.el8.x86_64.rpm https://vbenes.fedorapeople.org/NM/libndp_rhbz1933041/libndp-devel-1.7-5.el8.x86_64.rpm"
-            )
             self.ssh("yum -y install crda make")
 
         # remove NM packages
         self.ssh("rpm -ea --nodeps \\$\\(rpm -qa \\| grep NetworkManager\\)")
 
         logging.debug(f"Building from refspec id {refspec} of repo '{repo}'")
-        self.scp_to("run/centos-ci/scripts/build.sh", "build.sh")
+        self.scp_to("run/centos-ci/scripts/build.sh", "/tmp/build.sh")
         ret = self.ssh(
-            f"BUILD_REPO={repo} sh ./build.sh {refspec} {mr} &> {self.artifact_dir}/build.log",
+            f"BUILD_REPO={repo} sh /tmp/build.sh {refspec} {mr} &> {self.artifact_dir}/build.log",
             check=False,
         )
         if ret.returncode != 0:
@@ -339,10 +312,11 @@ class Machine:
         tests = " ".join(tests)
         # command after redirection operators ('|', '>', '&&') execute on jenkins machine,
         # unless escaped as "echo \\> file', so runtest.log and journal are saved to jenkins directly
-        ret = self.ssh(
-            f"cd NetworkManager-ci\\; MACHINE_ID={self.id} bash -x run/centos-ci/scripts/runtest.sh {tests} &> {self.runtest_log}",
-            check=False,
+        cmd = (
+            f"cd NetworkManager-ci\\; MACHINE_ID={self.id} "
+            f"bash -x run/centos-ci/scripts/runtest.sh {tests} &> {self.runtest_log}"
         )
+        ret = self.ssh(cmd, check=False)
         self.ssh(
             f"journalctl -b --no-pager -o short-monotonic --all \\| bzip2 --best > ../journal.m{self.id}.log.bz2"
         )
@@ -460,10 +434,10 @@ class Mapper:
         times = {}
         tests = {}
         all = (
-            "all" in features
-            or "*" in features
-            or "covering" in features
-            or "tests" in features
+            "all" in features or
+            "*" in features or
+            "covering" in features or
+            "tests" in features
         )
         all_tests = "tests" in features and ("all" in features[1] or "*" in features[1])
         for test in self.mapper["testmapper"]["default"]:
@@ -515,10 +489,14 @@ class Mapper:
         return times, tests
 
 
-class Runner:
+class Runner(Run):
+    DUFFY_AUTH = " --auth-name networkmanager --auth-key $CICO_API_KEY "
+    DUFFY = ("duffy client --url https://duffy.ci.centos.org/api/v1") + DUFFY_AUTH
+
     def __init__(self):
         self.mapper = Mapper()
         self.machines = []
+        self.machine_list = "../machines"
         self.build_machine = None
         self.copr_repo_file = "../nm_copr_repo"
         self.phase = ""
@@ -538,10 +516,11 @@ class Runner:
             if msg:
                 self._gitlab_message += "\n\nReason: " + msg
             self._post_results()
-        if self.build_machine:
-            self.build_machine.cmd_terminate()
-        for m in self.machines:
-            m.cmd_terminate()
+        # if self.build_machine:
+        #     self.build_machine.cmd_terminate()
+        # for m in self.machines:
+        #     m.cmd_terminate()
+        # self.done()
         logging.debug("Aborting job (exitting with 2).")
         if msg:
             logging.debug(f"Reason: {msg}")
@@ -625,8 +604,12 @@ class Runner:
                 self.exit_code = 1
                 m.status = "TIMEOUT"
                 undef_str = ",  Missing: {undef}"
-            m._gitlab_message = f"**M{m.id} {m.status}**: Passed: {m.passed}, Failed: {m.failed}, Skipped: {m.skipped}{undef_str}"
-
+            msg = (
+                f"**M{m.id} {m.status}**: "
+                f"Passed: {m.passed}, Failed: {m.failed}, "
+                f"Skipped: {m.skipped}{undef_str}"
+            )
+            m._gitlab_message = msg
             if len(lines) >= 4:
                 for t in lines[3].split(" "):
                     if t:
@@ -716,14 +699,14 @@ class Runner:
         root = ET.ElementTree()
         testsuite = ET.Element("testsuite", tests=str(len(passed) + len(failed)))
         for test in passed:
-            name = test[test.find("_Test") + 10 :]
+            name = test[test.find("_Test") + 10:]
             testcase = ET.Element("testcase", classname="tests", name=name)
             system_out = ET.Element("system-out")
             system_out.text = f"LOG:\n{self.build_url}/artifact/{test}.html"
             testcase.append(system_out)
             testsuite.append(testcase)
         for test in failed:
-            name = test[test.find("_Test") + 10 :]
+            name = test[test.find("_Test") + 10:]
             html_fails.append(name)
             testcase = ET.Element("testcase", classname="tests", name=name)
             failure = ET.Element("failure")
@@ -856,7 +839,7 @@ class Runner:
         build_machine = []
         if self.build_machine is not None:
             build_machine.append(self.build_machine)
-        running_machines = list(self.machines) + build_machine
+        running_machines = list(self.machines)  # + build_machine
         while len(running_machines):
             for m in running_machines:
                 if m.cmd_is_active():
@@ -870,6 +853,48 @@ class Runner:
                         logging.debug(f"Failed {self.phase} on machine {m.id}.")
             time.sleep(5)
 
+    def _get_nodes(self, number):
+        nodes = []
+        if self.release == "9-stream":
+            self.pool = "virt-ec2-t2-centos-9s-x86_64"
+        elif self.release == "8-stream":
+            self.pool = "virt-ec2-t2-centos-8s-x86_64"
+        else:
+            self.pool = None
+
+        retry_count = 0
+        reserve_cmd = (
+            f"{self.DUFFY}"
+            f" request-session pool={self.pool},quantity={number}"
+        )
+        while True:
+            duffy = self._run(
+                reserve_cmd,
+                check=False,
+            )
+            content = duffy.stdout.strip()
+            logging.debug(f"machine content {content}")
+            data = json.loads(content)
+            if retry_count >= 180:
+                self._abort(f"Unable to reserve a machine '{self.id}' in 180 minutes")
+            if "error" in data.keys():
+                time.sleep(60)
+                retry_count += 1
+            if "session" in data.keys():
+                break
+
+        for i in range(number):
+            nodes.append(data["session"]["nodes"][i]["data"]["provision"]["public_hostname"])
+
+        # We use this to return all machines
+        session_id = data["session"]["id"]
+
+        return session_id, nodes
+
+    def done(self):
+        return_cmd = self.DUFFY + f" retire-session {self.session_id}"
+        self._run(return_cmd)
+
     def create_machines(self):
         self.phase = "create"
         if self.gitlab:
@@ -880,12 +905,20 @@ class Runner:
             f"tests distributed to {len(self.tests)} machines: {[len(x) for x in self.tests]}"
         )
         machines_num = len(self.tests)
+
+        self.session_id, node = self._get_nodes(machines_num)
+
         for i in range(machines_num):
-            m = Machine(i, self.release, self)
+            m = Machine(i, self.release, node[i])
             self.machines.append(m)
+            with open(self.machine_list, "a") as ml:
+                ml.write(f"{m.id}:{m.name}\n")
+
+        with open("../session_id", "a") as sid:
+            sid.write(f"{self.session_id}\n")
 
         if not self.copr_repo:
-            self.build_machine = Machine("builder", self.release, self)
+            self.build_machine = self.machines[0]
 
     def prepare_machines(self):
         self.phase = "prepare"
@@ -909,14 +942,11 @@ class Runner:
             for m in self.machines:
                 m.copr_repo_file = self.copr_repo_file
         else:
-            self.build_machine.build_async(self.refspec, self.mr, self.repo)
+            self.build_machine.build(self.refspec, self.mr, self.repo)
 
     def install_NM_on_machines(self):
         if self.exit_code != 0:
             sys.exit(1)
-        # if we are here, build_machine succeeded, no longer needed
-        if self.build_machine is not None:
-            self.build_machine.done()
         self.phase = "install NM"
         src = "rpms"
         if self.copr_repo:
@@ -971,8 +1001,8 @@ def main():
     runner.parse_args()
     runner.create_machines()
     runner.wait_for_machines(abort_on_fail=True)
-    runner.prepare_machines()
     runner.build()
+    runner.prepare_machines()
     runner.wait_for_machines(abort_on_fail=True)
     runner.install_NM_on_machines()
     runner.wait_for_machines(abort_on_fail=True)
