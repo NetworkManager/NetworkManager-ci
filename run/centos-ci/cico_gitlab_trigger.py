@@ -10,7 +10,7 @@ import re
 
 from pprint import pprint
 
-default_os = ["8-stream", "9-stream"]
+default_os = ["9-stream"]
 ##next_os = 'RHEL8.4'
 # next_branch_base = 'rhel-8'
 
