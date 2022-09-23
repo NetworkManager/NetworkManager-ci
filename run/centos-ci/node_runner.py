@@ -19,46 +19,44 @@ MACHINES_NUM = 2
 MACHINES_MIN_THRESHOLD = 1000
 
 
-class Run():
-    def _run(
-        self,
+def run(
+    cmd,
+    shell=True,
+    check=True,
+    capture_output=True,
+    encoding="utf-8",
+    verbose=False,
+    *a,
+    **kw,
+):
+    if capture_output:
+        kw["stdout"] = subprocess.PIPE
+        kw["stderr"] = subprocess.PIPE
+    rc = subprocess.run(
         cmd,
-        shell=True,
-        check=True,
-        capture_output=True,
-        encoding="utf-8",
-        verbose=False,
         *a,
+        shell=shell,
+        check=check,
+        encoding=encoding,
         **kw,
-    ):
-        if capture_output:
-            kw["stdout"] = subprocess.PIPE
-            kw["stderr"] = subprocess.PIPE
-        rc = subprocess.run(
-            cmd,
-            *a,
-            shell=shell,
-            check=check,
-            encoding=encoding,
-            **kw,
-        )
-        logging.debug(f"executed '{cmd}': returned {rc.returncode}")
-        if verbose:
-            if rc.stdout:
-                logging.debug(f"STDOUT:\n'{rc.stdout}")
-            if rc.stderr:
-                logging.debug(f"STDERR:\n'{rc.stderr}")
-        return rc
+    )
+    logging.debug(f"executed '{cmd}': returned {rc.returncode}")
+    if verbose:
+        if rc.stdout:
+            logging.debug(f"STDOUT:\n'{rc.stdout}")
+        if rc.stderr:
+            logging.debug(f"STDERR:\n'{rc.stderr}")
+    return rc
 
 
-class Machine(Run):
+class Machine():
     def __init__(self, id, release, name):
         self.release = release
         self.release_num = release.split("-")[0]
         self.id = id
         self.name = name
         self.results = f"../results_m{self.id}/"
-        self._run(f"mkdir -p {self.results}")
+        run(f"mkdir -p {self.results}")
         self.rpms_dir = "../rpms/"
         self.results_internal = "/tmp/results/"
         self.build_dir = "/root/nm-build/"
@@ -67,6 +65,7 @@ class Machine(Run):
         self.rpms_build_dir = (
             f"{self.build_dir}/NetworkManager/contrib/fedora/rpm/*/RPMS/*/"
         )
+
         self.copr_repo_file_internal = "/etc/yum.repos.d/nm-copr.repo"
         self.ssh_options = " ".join(
             [
@@ -90,7 +89,7 @@ class Machine(Run):
         self.cmd_async(self._setup)
 
     def ssh(self, cmd, check=True, verbose=False):
-        return self._run(
+        return run(
             f"ssh {self.ssh_options} root@{self.name} {cmd}",
             check=check,
             verbose=verbose,
@@ -103,7 +102,7 @@ class Machine(Run):
         return self._scp(f"root@{self.name}:{what}", where, check=check)
 
     def _scp(self, what, where, check=True):
-        return self._run(f"scp -v {self.ssh_options} -r {what} {where}", check=check)
+        return run(f"scp -v {self.ssh_options} -r {what} {where}", check=check)
 
     def cmd_async(self, cmd, *args):
         self._last_cmd_ret = None
@@ -112,14 +111,14 @@ class Machine(Run):
         self._proc.start()
 
     def _cmd_wrap_async(self, cmd, *args):
-        def _run(ret):
+        def run(ret):
             try:
                 rc = cmd(*args)
                 ret.send(rc)
             except Exception as e:
                 ret.send(e)
 
-        return _run
+        return run
 
     def cmd_wait(self):
         if self._proc is not None:
@@ -233,7 +232,7 @@ class Machine(Run):
         self.cmd_async(self.prepare)
 
     def build(self, refspec, mr="custom", repo=""):
-        self._run("mkdir -p ../rpms/")
+        run("mkdir -p ../rpms/")
 
         # el8 workarounds
         if self.release_num.startswith("8"):
@@ -489,7 +488,7 @@ class Mapper:
         return times, tests
 
 
-class Runner(Run):
+class Runner():
     DUFFY_AUTH = " --auth-name networkmanager --auth-key $CICO_API_KEY "
     DUFFY = ("duffy client --url https://duffy.ci.centos.org/api/v1") + DUFFY_AUTH
 
@@ -868,7 +867,7 @@ class Runner(Run):
             f" request-session pool={self.pool},quantity={number}"
         )
         while True:
-            duffy = self._run(
+            duffy = run(
                 reserve_cmd,
                 check=False,
             )
@@ -893,7 +892,7 @@ class Runner(Run):
 
     def done(self):
         return_cmd = self.DUFFY + f" retire-session {self.session_id}"
-        self._run(return_cmd)
+        run(return_cmd)
 
     def create_machines(self):
         self.phase = "create"
@@ -965,8 +964,8 @@ class Runner(Run):
 
     def merge_machines_results(self):
         for m in self.machines:
-            # m._run is short for subprocess.run()
-            m._run(f"mv {m.results}/*.html {self.results_common}")
+            # run is short for subprocess.run()
+            run(f"mv {m.results}/*.html {self.results_common}")
 
         for m in self.machines:
             with open(m.runtest_log, errors="ignore") as f:

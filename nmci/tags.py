@@ -226,6 +226,7 @@ def crash_as(context, scenario):
         context.process.systemctl("start abrt-oops.service")
         context.process.systemctl("start abrt-vmcore.service")
 
+
 _register_tag("crash", crash_bs, crash_as)
 
 
