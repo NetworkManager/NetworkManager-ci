@@ -824,6 +824,8 @@ testmapper:
         feature: ipv6
     - ipv6_set_addr-gen_mode_global_config:
         feature: ipv6
+    - ipv6_stable_privacy_dad:
+        feature: ipv6
     - nmcli_general_correct_profile_activated_after_restart:
         feature: general
         tags: gate

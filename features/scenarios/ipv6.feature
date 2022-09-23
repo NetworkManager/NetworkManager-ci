@@ -2359,3 +2359,30 @@
     * Bring "up" connection "con_ipv6"
     Then "default" is visible with command "nmcli -g ipv6.addr-gen-mode con show con_ipv6"
     And "fe80::ecaa:bbff:fecc:ddee/64" is visible with command "ip a show dev testX6" in "10" seconds
+
+
+    @rhbz2082685
+    @ver+=1.41.2
+    @ipv6_stable_privacy_dad
+    Scenario: nmcli - ipv6 - check that DAD is performed for stable-privacy SLAAC addresses
+    * Prepare simulated test "testX6" device
+    * Add "ethernet" connection named "con_ipv6" for device "testX6" with options
+          """
+          ipv4.method disabled
+          ipv6.method auto
+          ipv6.may-fail no
+          """
+    * Bring "up" connection "con_ipv6"
+    Then "2620:dead:beaf:.*/64" is visible with command "ip a show dev testX6"
+    * Note the output of "ip -6 a s testX6 | grep dynamic | grep "/64" | grep -o '[a-f0-9:]*/64'" as value "ipv6_1"
+    # Now that we know the stable-privacy address generated, set it also in the namespace
+    # and reactivate to cause a collision; then check that NM generates a different address
+    * Execute "ip -6 a s testX6 | grep dynamic | grep "/64" | grep -o '[a-f0-9:]*/64' > /tmp/ipv6addr.txt"
+    * Bring "down" connection "con_ipv6"
+    * Execute "ip -n testX6_ns address add dev testX6p $(cat /tmp/ipv6addr.txt)"
+    * Execute "sleep 5"
+    * Bring "up" connection "con_ipv6"
+    Then "2620:dead:beaf:.*/64" is visible with command "ip a show dev testX6"
+    * Note the output of "ip -6 a s testX6 | grep dynamic | grep "/64" | grep -o '[a-f0-9:]*/64'" as value "ipv6_2"
+    Then Check noted values "ipv6_1" and "ipv6_2" are not the same
+
