@@ -1408,21 +1408,23 @@
 
     @rhbz1551958
     @ver+=1.10
-    @eth0 @restart_if_needed
+    @restart_if_needed
     @restart_L2_only_lacp
     Scenario: nmcli - team - reboot L2 lacp
+    Given Prepare simulated test "testXT1" device
     * Add "team" connection named "team0" for device "nm-team" with options
           """
           config '{"runner": {"name": "lacp"}, "link_watch": {"name": "ethtool"}}'
           ipv4.method disable
           ipv6.method ignore
           """
-    * Add "ethernet" connection named "team0.0" for device "eth0" with options "master nm-team"
-    And Check slave "eth0" in team "nm-team" is "up"
+    * Add "ethernet" connection named "team0.0" for device "testXT1" with options "master nm-team"
+    When Bring "up" connection "team0.0"
+    And Check slave "testXT1" in team "nm-team" is "up"
     * Restart NM
     Then "\"kernel_team_mode_name\": \"loadbalance\"" is visible with command "sudo teamdctl nm-team state dump"
      And "\"runner_name\": \"lacp\"" is visible with command "sudo teamdctl nm-team state dump"
-     And Check slave "eth0" in team "nm-team" is "up"
+     And Check slave "testXT1" in team "nm-team" is "up"
      And "Exactly" "1" lines with pattern "team0\s+" are visible with command "nmcli device"
 
 
