@@ -358,7 +358,7 @@ def process_request(data, content):
         elif data["object_attributes"]["action"] == "unapproved":
             print("UNAPPROVED packet, ignoring")
         elif data["object_attributes"]["action"] in ["update", "approved"]:
-            if gt.title.startswith("WIP"):
+            if gt.wip or gt.title.startswith("WIP"):
                 print("This is WIP Merge Request - not proceeding")
             elif (
                 gt.request_type == "merge_request"
