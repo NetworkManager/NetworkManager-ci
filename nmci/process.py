@@ -3,33 +3,14 @@ import os
 import re
 import subprocess
 
-from nmci import util
-from nmci import embed
-
-
 RunResult = collections.namedtuple("RunResult", ["returncode", "stdout", "stderr"])
 
 IGNORE_RETURNCODE_ALL = object()
 
 SHELL_AUTO = object()
 
-
-class ProcessHook:
-    def __init__(self):
-        self.actions = {}
-
-    def add_action(self, name, callback):
-        assert name not in self.actions
-        self.actions[name] = callback
-
-    def _do_action(self, name, *a):
-        if name not in self.actions:
-            return
-        self.actions[name](*a)
-
-
-process_hook_embed_result = ProcessHook()
-process_hook_embed_result.add_action("result", lambda *a: embed.embed_run(*a))
+import nmci.util
+import nmci.embed
 
 
 class WithShell:
@@ -66,9 +47,7 @@ class PopenCollect:
         return self.returncode
 
     def read_and_wait(self, timeout=None):
-        from nmci import util
-
-        xtimeout = util.start_timeout(timeout)
+        xtimeout = nmci.util.start_timeout(timeout)
         while True:
             c = self.read_and_poll()
             if c is not None:
@@ -90,7 +69,6 @@ class PopenCollect:
 
 class _Process:
     def __init__(self):
-        self.ProcessHook = ProcessHook
         self.WithShell = WithShell
         self.PopenCollect = PopenCollect
         self.RunResult = RunResult
@@ -134,20 +112,16 @@ class _Process:
         argv,
         *,
         shell=SHELL_AUTO,
-        cwd=util.BASE_DIR,
+        cwd=nmci.util.BASE_DIR,
         env=None,
         env_extra=None,
         stdout=subprocess.PIPE,
         stderr=subprocess.PIPE,
-        process_hook=process_hook_embed_result,
     ):
 
         argv, argv_real, shell, env = self._run_prepare_args(
             argv, shell, env, env_extra
         )
-
-        if process_hook is not None:
-            process_hook._do_action("popen-call", argv_real, shell)
 
         proc = subprocess.Popen(
             argv_real,
@@ -174,14 +148,11 @@ class _Process:
         ignore_returncode,
         stdout,
         stderr,
-        process_hook,
+        do_embed,
     ):
         argv, argv_real, shell, env = self._run_prepare_args(
             argv, shell, env, env_extra
         )
-
-        if process_hook is not None:
-            process_hook._do_action("call", argv_real, shell, timeout)
 
         proc = subprocess.run(
             argv_real,
@@ -200,10 +171,8 @@ class _Process:
         if r_stderr is None:
             r_stderr = b""
 
-        if process_hook is not None:
-            process_hook._do_action(
-                "result", argv_real, shell, returncode, r_stdout, r_stderr
-            )
+        if do_embed:
+            nmci.embed.embed_run(argv_real, shell, returncode, r_stdout, r_stderr)
 
         # Depending on ignore_returncode we accept non-zero output. But
         # even then we want to fail for return codes that indicate a crash
@@ -220,7 +189,7 @@ class _Process:
                 "`%s` returned exit code %s\nSTDOUT:\n%s\nSTDERR:\n%s"
                 % (
                     " ".join(
-                        [util.bytes_to_str(s, errors="replace") for s in argv_real]
+                        [nmci.util.bytes_to_str(s, errors="replace") for s in argv_real]
                     ),
                     returncode,
                     r_stdout.decode("utf-8", errors="replace"),
@@ -234,7 +203,7 @@ class _Process:
                 "`%s` printed something on stderr\nSTDERR:\n%s"
                 % (
                     " ".join(
-                        [util.bytes_to_str(s, errors="replace") for s in argv_real]
+                        [nmci.util.bytes_to_str(s, errors="replace") for s in argv_real]
                     ),
                     r_stderr.decode("utf-8", errors="replace"),
                 )
@@ -248,7 +217,10 @@ class _Process:
                     "`%s` printed non-utf-8 to stdout\nSTDOUT:\n%s"
                     % (
                         " ".join(
-                            [util.bytes_to_str(s, errors="replace") for s in argv_real]
+                            [
+                                nmci.util.bytes_to_str(s, errors="replace")
+                                for s in argv_real
+                            ]
                         ),
                         r_stdout.decode("utf-8", errors="replace"),
                     )
@@ -260,7 +232,10 @@ class _Process:
                     "`%s` printed non-utf-8 to stderr\nSTDERR:\n%s"
                     % (
                         " ".join(
-                            [util.bytes_to_str(s, errors="replace") for s in argv_real]
+                            [
+                                nmci.util.bytes_to_str(s, errors="replace")
+                                for s in argv_real
+                            ]
                         ),
                         r_stderr.decode("utf-8", errors="replace"),
                     )
@@ -275,14 +250,14 @@ class _Process:
         shell=SHELL_AUTO,
         as_bytes=False,
         timeout=5,
-        cwd=util.BASE_DIR,
+        cwd=nmci.util.BASE_DIR,
         env=None,
         env_extra=None,
         ignore_returncode=True,
         ignore_stderr=False,
         stdout=subprocess.PIPE,
         stderr=subprocess.PIPE,
-        process_hook=process_hook_embed_result,
+        do_embed=True,
     ):
         return self._run(
             argv,
@@ -296,7 +271,7 @@ class _Process:
             ignore_returncode=ignore_returncode,
             stdout=stdout,
             stderr=stderr,
-            process_hook=process_hook,
+            do_embed=do_embed,
         )
 
     def run_stdout(
@@ -306,13 +281,13 @@ class _Process:
         shell=SHELL_AUTO,
         as_bytes=False,
         timeout=5,
-        cwd=util.BASE_DIR,
+        cwd=nmci.util.BASE_DIR,
         env=None,
         env_extra=None,
         ignore_returncode=False,
         ignore_stderr=False,
         stderr=subprocess.PIPE,
-        process_hook=process_hook_embed_result,
+        do_embed=True,
     ):
         return self._run(
             argv,
@@ -326,7 +301,7 @@ class _Process:
             ignore_returncode=ignore_returncode,
             stdout=subprocess.PIPE,
             stderr=stderr,
-            process_hook=process_hook,
+            do_embed=do_embed,
         ).stdout
 
     def run_code(
@@ -336,12 +311,12 @@ class _Process:
         shell=SHELL_AUTO,
         as_bytes=False,
         timeout=5,
-        cwd=util.BASE_DIR,
+        cwd=nmci.util.BASE_DIR,
         env=None,
         env_extra=None,
         ignore_returncode=True,
         ignore_stderr=False,
-        process_hook=process_hook_embed_result,
+        do_embed=True,
     ):
         return self._run(
             argv,
@@ -355,7 +330,7 @@ class _Process:
             ignore_returncode=ignore_returncode,
             stdout=subprocess.PIPE,
             stderr=subprocess.PIPE,
-            process_hook=process_hook,
+            do_embed=do_embed,
         ).returncode
 
     def run_search_stdout(
@@ -365,14 +340,14 @@ class _Process:
         *,
         shell=SHELL_AUTO,
         timeout=5,
-        cwd=util.BASE_DIR,
+        cwd=nmci.util.BASE_DIR,
         env=None,
         env_extra=None,
         ignore_returncode=False,
         ignore_stderr=False,
         stderr=subprocess.PIPE,
         pattern_flags=re.DOTALL | re.MULTILINE,
-        process_hook=process_hook_embed_result,
+        do_embed=True,
     ):
         # autodetect based on the pattern
         if isinstance(pattern, bytes):
@@ -393,7 +368,7 @@ class _Process:
             ignore_returncode=ignore_returncode,
             stdout=subprocess.PIPE,
             stderr=stderr,
-            process_hook=process_hook,
+            do_embed=do_embed,
         )
         return re.search(pattern, result.stdout, flags=pattern_flags)
 
@@ -403,12 +378,12 @@ class _Process:
         *,
         as_bytes=False,
         timeout=60,
-        cwd=util.BASE_DIR,
+        cwd=nmci.util.BASE_DIR,
         env=None,
         env_extra=None,
         ignore_returncode=False,
         ignore_stderr=False,
-        process_hook=process_hook_embed_result,
+        do_embed=True,
     ):
         if isinstance(argv, str):
             argv = f"nmcli {argv}"
@@ -427,7 +402,7 @@ class _Process:
             ignore_returncode=ignore_returncode,
             stdout=subprocess.PIPE,
             stderr=subprocess.PIPE,
-            process_hook=process_hook,
+            do_embed=do_embed,
         ).stdout
 
     def nmcli_force(
@@ -436,12 +411,12 @@ class _Process:
         *,
         as_bytes=False,
         timeout=60,
-        cwd=util.BASE_DIR,
+        cwd=nmci.util.BASE_DIR,
         env=None,
         env_extra=None,
         ignore_returncode=True,
         ignore_stderr=True,
-        process_hook=process_hook_embed_result,
+        do_embed=True,
     ):
         if isinstance(argv, str):
             argv = f"nmcli {argv}"
@@ -460,7 +435,7 @@ class _Process:
             ignore_returncode=ignore_returncode,
             stdout=subprocess.PIPE,
             stderr=subprocess.PIPE,
-            process_hook=process_hook,
+            do_embed=do_embed,
         )
 
     def systemctl(
@@ -469,12 +444,12 @@ class _Process:
         *,
         as_bytes=False,
         timeout=60,
-        cwd=util.BASE_DIR,
+        cwd=nmci.util.BASE_DIR,
         env=None,
         env_extra=None,
         ignore_returncode=True,
         ignore_stderr=True,
-        process_hook=process_hook_embed_result,
+        do_embed=True,
     ):
         if isinstance(argv, str):
             argv = f"systemctl {argv}"
@@ -493,5 +468,5 @@ class _Process:
             ignore_returncode=ignore_returncode,
             stdout=subprocess.PIPE,
             stderr=subprocess.PIPE,
-            process_hook=process_hook,
+            do_embed=do_embed,
         )

@@ -699,8 +699,8 @@ def add_device(context, typ, name, namespace="", options=""):
     # (such as @bond_slaves_ordering_by_ifindex) rely on this; but it's
     # not guarranteed and doesn't happen when the device is moved across
     # namespaces and got a lower ifindex in the old namespace.
-    links = json.loads(nmci.process.run_stdout("ip -j link", process_hook=None))
-    links = links + json.loads(nmci.process.run_stdout(f"ip {namespace} -j link", process_hook=None))
+    links = json.loads(nmci.process.run_stdout("ip -j link", do_embed=False))
+    links = links + json.loads(nmci.process.run_stdout(f"ip {namespace} -j link", do_embed=False))
     for link in links:
         if link["ifindex"] > context.ifindex:
             context.ifindex = link["ifindex"]

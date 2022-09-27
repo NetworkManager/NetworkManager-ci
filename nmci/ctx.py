@@ -135,7 +135,7 @@ def dump_status(context, when, fail_only=False):
             os.path.isfile("/etc/systemd/system/NetworkManager.service")
             and nmci.process.run_code(
                 "grep -q valgrind /etc/systemd/system/NetworkManager.service",
-                process_hook=None,
+                do_embed=False,
             )
             == 0
         ):
@@ -143,7 +143,7 @@ def dump_status(context, when, fail_only=False):
                 "LOGNAME=root HOSTNAME=localhost gdb /usr/sbin/NetworkManager "
                 " -ex 'target remote | vgdb' -ex 'monitor leak_check summary' -batch",
                 shell=True,
-                process_hook=None,
+                do_embed=False,
             )
             msg += result.stdout
         nmci.embed.embed_data("Memory use " + when, msg)
@@ -200,7 +200,7 @@ def check_coredump(context):
                             stderr=subprocess.STDOUT,
                             ignore_stderr=True,
                             timeout=120,
-                            process_hook=None,
+                            do_embed=False,
                         )
                     except Exception as ex:
                         e = ex
@@ -219,7 +219,7 @@ def check_coredump(context):
                             stderr=subprocess.STDOUT,
                             ignore_stderr=True,
                             timeout=120,
-                            process_hook=None,
+                            do_embed=False,
                         )
                     except Exception as ex:
                         e = ex
@@ -388,12 +388,12 @@ def reinitialize_devices():
         nmci.process.run_stdout(
             "for i in $(ls /sys/bus/usb/devices/usb*/authorized); do echo 0 > $i; done",
             shell=True,
-            process_hook=None,
+            do_embed=False,
         )
         nmci.process.run_stdout(
             "for i in $(ls /sys/bus/usb/devices/usb*/authorized); do echo 1 > $i; done",
             shell=True,
-            process_hook=None,
+            do_embed=False,
         )
         nmci.process.systemctl("restart ModemManager", do_embed=False)
         timer = 80
