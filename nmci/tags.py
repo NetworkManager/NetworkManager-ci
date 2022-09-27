@@ -2060,6 +2060,7 @@ def nmstate_upstream_setup_bs(context, scenario):
         context.cext.skip("Skipping as no vethsetup")
         return
     # Prepare nmstate and skip if unsuccesful
+    nmci.ctx.wait_for_testeth0(context)
     if (
         context.process.run_code(
             "sh prepare/nmstate.sh", timeout=600, ignore_stderr=True
@@ -2148,11 +2149,11 @@ def nmstate_upstream_setup_as(context, scenario):
     )
     # in case of fail we need to kill this
     context.process.systemctl("stop dnsmasq")
-    # context.process.run_stdout(
-    #     "pkill -f 'dnsmasq.*/etc/dnsmasq.d/nmstate.conf' || true",
-    #     ignore_stderr=True,
-    #     shell=True,
-    # )
+    context.process.run_stdout(
+        "pkill -f 'dnsmasq.\*/etc/dnsmasq.d/nmstate.conf' || true",
+        ignore_stderr=True,
+        shell=True,
+    )
     context.process.run_stdout(
         "rm -rf /etc/dnsmasq.d/nmstate.conf || true",
         ignore_stderr=True,
