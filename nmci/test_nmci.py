@@ -9,15 +9,7 @@ import sys
 import tempfile
 import time
 
-from . import git
-from . import ip
-from . import misc
-from . import util
-from . import process
-from . import cext
-from . import embed
-from . import cleanup
-from . import pexpect
+import nmci
 
 
 def rnd_bool():
@@ -58,11 +50,11 @@ class Stub:
 
     @staticmethod
     def misc_nm_version_detect(version):
-        return Stub(misc, "_nm_version_detect_cached", version)
+        return Stub(nmci.misc, "_nm_version_detect_cached", version)
 
     @staticmethod
     def misc_distro_detect(version):
-        return Stub(misc, "_distro_detect_cached", version)
+        return Stub(nmci.misc, "_distro_detect_cached", version)
 
 
 ###############################################################################
@@ -92,7 +84,10 @@ def create_test_context():
 
     context = ContextTest()
 
-    ctx.setup(context)
+    nmci.cext.setup(context)
+
+    nmci.embed._to_embed = []
+    nmci.cleanup._cleanup_lst = []
 
     return context
 
@@ -103,32 +98,32 @@ def create_test_context():
 def test_stub1():
 
     v = ("fedora", [35])
-    assert not hasattr(misc, "_distro_detect_cached")
+    assert not hasattr(nmci.misc, "_distro_detect_cached")
     with Stub.misc_distro_detect(v):
-        assert misc._distro_detect_cached is v
-        assert misc.distro_detect() is v
-    assert not hasattr(misc, "_distro_detect_cached")
+        assert nmci.misc._distro_detect_cached is v
+        assert nmci.misc.distro_detect() is v
+    assert not hasattr(nmci.misc, "_distro_detect_cached")
 
     v = ("upstream", [1, 39, 3, 30276])
-    assert not hasattr(misc, "_nm_version_detect_cached")
+    assert not hasattr(nmci.misc, "_nm_version_detect_cached")
     with Stub.misc_nm_version_detect(v):
-        assert misc._nm_version_detect_cached is v
-        assert misc.nm_version_detect() is v
-    assert not hasattr(misc, "_nm_version_detect_cached")
+        assert nmci.misc._nm_version_detect_cached is v
+        assert nmci.misc.nm_version_detect() is v
+    assert not hasattr(nmci.misc, "_nm_version_detect_cached")
 
 
 @Stub.misc_distro_detect(("fedora", [35]))
 def test_stub2():
     v = ("fedora", [35])
-    assert misc._distro_detect_cached == v
-    assert misc.distro_detect() == v
+    assert nmci.misc._distro_detect_cached == v
+    assert nmci.misc.distro_detect() == v
 
 
 @Stub.misc_nm_version_detect(("upstream", [1, 39, 3, 30276]))
 def test_stub3():
     v = ("upstream", [1, 39, 3, 30276])
-    assert misc._nm_version_detect_cached == v
-    assert misc.nm_version_detect() == v
+    assert nmci.misc._nm_version_detect_cached == v
+    assert nmci.misc.nm_version_detect() == v
 
 
 ###############################################################################
@@ -136,49 +131,49 @@ def test_stub3():
 
 def test_util_compare_strv_list():
 
-    util.compare_strv_list([], [])
+    nmci.util.compare_strv_list([], [])
 
-    with pytest.raises(ValueError) as e:
-        util.compare_strv_list(["a"], [])
+    with pytest.raises(ValueError):
+        nmci.util.compare_strv_list(["a"], [])
 
-    util.compare_strv_list(["a"], ["a"], ignore_order=True)
+    nmci.util.compare_strv_list(["a"], ["a"], ignore_order=True)
 
-    util.compare_strv_list(["a"], ["a"])
-    util.compare_strv_list(["a"], ["a", "b"])
-    with pytest.raises(ValueError) as e:
-        util.compare_strv_list(["a"], ["a", "b"], ignore_extra_strv=False)
+    nmci.util.compare_strv_list(["a"], ["a"])
+    nmci.util.compare_strv_list(["a"], ["a", "b"])
+    with pytest.raises(ValueError):
+        nmci.util.compare_strv_list(["a"], ["a", "b"], ignore_extra_strv=False)
 
-    util.compare_strv_list(["a", "b"], ["a", "b"])
-    util.compare_strv_list(["a", "b"], ["b", "a"])
-    with pytest.raises(ValueError) as e:
-        util.compare_strv_list(["a", "b"], ["b", "a"], ignore_order=False)
+    nmci.util.compare_strv_list(["a", "b"], ["a", "b"])
+    nmci.util.compare_strv_list(["a", "b"], ["b", "a"])
+    with pytest.raises(ValueError):
+        nmci.util.compare_strv_list(["a", "b"], ["b", "a"], ignore_order=False)
 
-    util.compare_strv_list(["/^a", "/b"], ["a", "ab"])
-    with pytest.raises(ValueError) as e:
-        util.compare_strv_list(["/^a", "b"], ["a", "ab"], match_mode="plain")
+    nmci.util.compare_strv_list(["/^a", "/b"], ["a", "ab"])
+    with pytest.raises(ValueError):
+        nmci.util.compare_strv_list(["/^a", "b"], ["a", "ab"], match_mode="plain")
 
-    util.compare_strv_list(
+    nmci.util.compare_strv_list(
         ["b", "."], ["a", "b"], match_mode="regex", ignore_order=True
     )
-    with pytest.raises(ValueError) as e:
-        util.compare_strv_list(
+    with pytest.raises(ValueError):
+        nmci.util.compare_strv_list(
             ["b", "."], ["a", "b"], match_mode="regex", ignore_order=False
         )
 
-    util.compare_strv_list(
+    nmci.util.compare_strv_list(
         ["b", "[ac]", "[ac]"], ["a", "b", "c"], match_mode="regex", ignore_order=True
     )
-    with pytest.raises(ValueError) as e:
-        util.compare_strv_list(
+    with pytest.raises(ValueError):
+        nmci.util.compare_strv_list(
             ["b", "[ac]", "[ac]"],
             ["a", "b", "c"],
             match_mode="regex",
             ignore_order=False,
         )
 
-    util.compare_strv_list(["?a"], [], ignore_order=True)
-    util.compare_strv_list(["?a"], ["a"], ignore_order=True)
-    util.compare_strv_list(["?/a", "aa"], ["aa", ""])
+    nmci.util.compare_strv_list(["?a"], [], ignore_order=True)
+    nmci.util.compare_strv_list(["?a"], ["a"], ignore_order=True)
+    nmci.util.compare_strv_list(["?/a", "aa"], ["aa", ""])
 
 
 def test_util_compare_strv_list_rnd():
@@ -215,7 +210,7 @@ def test_util_compare_strv_list_rnd():
                 e = f"[{e[0]}a]"
             expected_regex.append(e)
 
-        util.compare_strv_list(
+        nmci.util.compare_strv_list(
             expected=expected,
             strv=strv,
             match_mode=rnd_match_mode(),
@@ -223,7 +218,7 @@ def test_util_compare_strv_list_rnd():
             ignore_order=(not has_same_order or rnd_bool()),
         )
 
-        util.compare_strv_list(
+        nmci.util.compare_strv_list(
             expected=expected_regex,
             strv=strv,
             match_mode="regex",
@@ -232,8 +227,8 @@ def test_util_compare_strv_list_rnd():
         )
 
         if has_extra_strv:
-            with pytest.raises(ValueError) as e:
-                util.compare_strv_list(
+            with pytest.raises(ValueError):
+                nmci.util.compare_strv_list(
                     expected=expected,
                     strv=strv,
                     match_mode=rnd_match_mode(),
@@ -241,7 +236,7 @@ def test_util_compare_strv_list_rnd():
                     ignore_order=True,
                 )
         if has_same_order:
-            util.compare_strv_list(
+            nmci.util.compare_strv_list(
                 expected=expected,
                 strv=strv,
                 match_mode=rnd_match_mode(),
@@ -252,7 +247,7 @@ def test_util_compare_strv_list_rnd():
 
 def test_misc_test_version_tag_eval():
     def _ver_eval(ver_tags, version):
-        r = misc.test_version_tag_eval(ver_tags, version)
+        r = nmci.misc.test_version_tag_eval(ver_tags, version)
         assert r is True or r is False
 
         def _invert_op(op):
@@ -267,7 +262,7 @@ def test_misc_test_version_tag_eval():
 
         ver_tags_invert = [(_invert_op(op), ver) for op, ver in ver_tags]
 
-        r2 = misc.test_version_tag_eval(ver_tags_invert, version)
+        r2 = nmci.misc.test_version_tag_eval(ver_tags_invert, version)
         assert r2 is True or r2 is False
         if r == r2:
             pytest.fail(
@@ -645,7 +640,7 @@ def test_misc_test_version_tag_eval():
 
 def test_misc_nm_version_parse():
     def _assert(version, expect_stream, expect_version):
-        (stream, version) = misc.nm_version_parse(version)
+        (stream, version) = nmci.misc.nm_version_parse(version)
         assert expect_stream == stream
         assert expect_version == version
 
@@ -662,14 +657,14 @@ def test_misc_nm_version_parse():
 
 def test_misc_test_version_tag_parse_ver():
     def _assert(version_tag, expect_stream, expect_op, expect_version):
-        (stream, op, version) = misc.test_version_tag_parse_ver(version_tag)
+        (stream, op, version) = nmci.misc.test_version_tag_parse_ver(version_tag)
         assert expect_stream == stream
         assert expect_op == op
         assert expect_version == version
 
     def _assert_inval(version_tag):
         with pytest.raises(ValueError):
-            misc.test_version_tag_parse_ver(version_tag)
+            nmci.misc.test_version_tag_parse_ver(version_tag)
 
     _assert("ver+=1", [], "+=", [1])
     _assert("ver/rhel+=1", ["rhel"], "+=", [1])
@@ -682,10 +677,10 @@ def test_misc_test_version_tag_parse_ver():
 
 def test_misc_test_version_tag_filter_for_stream():
     def _assert(nm_stream, version_tags, expected_tags):
-        tags2 = [misc.test_version_tag_parse_ver(v) for v in version_tags]
-        tags3 = misc.test_version_tag_filter_for_stream(tags2, nm_stream)
+        tags2 = [nmci.misc.test_version_tag_parse_ver(v) for v in version_tags]
+        tags3 = nmci.misc.test_version_tag_filter_for_stream(tags2, nm_stream)
 
-        exp2 = [misc.test_version_tag_parse(e, "") for e in expected_tags]
+        exp2 = [nmci.misc.test_version_tag_parse(e, "") for e in expected_tags]
         assert tags3 == exp2
 
     _assert("rhel-8", ["ver+5"], ["+5"])
@@ -698,13 +693,13 @@ def test_feature_tags():
 
     from . import tags
 
-    mapper = misc.get_mapper_obj()
-    mapper_tests = misc.get_mapper_tests(mapper)
+    mapper = nmci.misc.get_mapper_obj()
+    mapper_tests = nmci.misc.get_mapper_tests(mapper)
     mapper_tests = [test["testname"] for test in mapper_tests]
 
     unique_tags = set()
     tag_registry_used = set()
-    all_test_tags = misc.test_load_tags_from_features("*")
+    all_test_tags = nmci.misc.test_load_tags_from_features("*")
 
     def check_ver(tag):
         for ver_prefix, ver_len in [
@@ -715,11 +710,11 @@ def test_feature_tags():
             if not tag.startswith(ver_prefix):
                 continue
             if ver_prefix == "ver":
-                stream, op, ver = misc.test_version_tag_parse_ver(tag)
+                stream, op, ver = nmci.misc.test_version_tag_parse_ver(tag)
                 assert type(stream) is list
             else:
                 stream = None
-                op, ver = misc.test_version_tag_parse(tag, ver_prefix)
+                op, ver = nmci.misc.test_version_tag_parse(tag, ver_prefix)
             assert type(op) is str
             assert type(ver) is list
             assert op in ["+", "+=", "-", "-="]
@@ -773,7 +768,7 @@ def test_feature_tags():
         return tag in mapper_tests
 
     assert check_ver("ver+=1.3")
-    assert ([], "+=", [1, 3]) == misc.test_version_tag_parse_ver("ver+=1.03")
+    assert ([], "+=", [1, 3]) == nmci.misc.test_version_tag_parse_ver("ver+=1.03")
     with pytest.raises(AssertionError):
         assert check_ver("ver+=1.03")
 
@@ -785,7 +780,7 @@ def test_feature_tags():
             assert type(tag) is str
             assert tag
             assert re.match("^[-a-z_.A-Z0-9+=/]+$", tag)
-            assert re.match("^[" + misc.TEST_NAME_VALID_CHAR_SET + "]+$", tag)
+            assert re.match("^[" + nmci.misc.TEST_NAME_VALID_CHAR_SET + "]+$", tag)
             assert (
                 test_tags.count(tag) == 1
             ), f'tag "{tag}" is not unique in {test_tags}'
@@ -820,8 +815,8 @@ def test_mapper_feature_file():
     """
     Check that feature defined in mapper coresponds to .feature file name
     """
-    mapper = misc.get_mapper_obj()
-    mapper_tests = misc.get_mapper_tests(mapper)
+    mapper = nmci.misc.get_mapper_obj()
+    mapper_tests = nmci.misc.get_mapper_tests(mapper)
 
     feature_tests = {}
 
@@ -831,7 +826,7 @@ def test_mapper_feature_file():
         if feature is None:
             continue
         if feature not in feature_tests:
-            feature_tags = misc.test_load_tags_from_features(feature)
+            feature_tags = nmci.misc.test_load_tags_from_features(feature)
             feature_tests[feature] = feature_tags
         else:
             feature_tags = feature_tests[feature]
@@ -849,8 +844,8 @@ def test_scen_uniqueness_in_mapper():
       * tagged with just one mapper feature
       * found in just one feature file
     """
-    mapper_tests = misc.get_mapper_tests(misc.get_mapper_obj())
-    feature_files = frozenset(misc.test_get_feature_files())
+    mapper_tests = nmci.misc.get_mapper_tests(nmci.misc.get_mapper_obj())
+    feature_files = frozenset(nmci.misc.test_get_feature_files())
 
     # convert mapper_tests to:
     # {'test1': ['feature_a'], 'test2': ['feature_b']}
@@ -878,7 +873,7 @@ def test_scen_uniqueness_in_mapper():
         )
 
     # test uniqueness in feature files
-    path_tmpl = (f"{util.base_dir('features', 'scenarios')}/", ".feature")
+    path_tmpl = (f"{nmci.util.base_dir('features', 'scenarios')}/", ".feature")
     for i in tests_dict:
         correct_feature = tests_dict[i].pop()
         filtered_files = feature_files.difference(correct_feature.join(path_tmpl))
@@ -902,8 +897,8 @@ def test_last_scen_tag_is_test_tag_and_correctly_tagged():
         commented out that have to be enabled manually)
       * does not end with suffix "_timeout"
     """
-    mapper_tests = misc.get_mapper_tests(misc.get_mapper_obj())
-    feature_files = frozenset(misc.test_get_feature_files())
+    mapper_tests = nmci.misc.get_mapper_tests(nmci.misc.get_mapper_obj())
+    feature_files = frozenset(nmci.misc.test_get_feature_files())
 
     # do this before mapper_tests conversion
     featureless_tests = set(i["testname"] for i in mapper_tests if "feature" not in i)
@@ -949,82 +944,88 @@ def test_last_scen_tag_is_test_tag_and_correctly_tagged():
 def test_file_set_content(tmp_path):
     fn = tmp_path / "test-file-set-content"
 
-    util.file_set_content(fn)
+    nmci.util.file_set_content(fn)
     with open(fn, "rb") as f:
         assert b"" == f.read()
     os.remove(fn)
 
-    util.file_set_content(fn, [])
+    nmci.util.file_set_content(fn, [])
     with open(fn, "rb") as f:
         assert b"" == f.read()
     os.remove(fn)
 
-    util.file_set_content(fn, ["Test"])
+    nmci.util.file_set_content(fn, ["Test"])
     with open(fn, "rb") as f:
         assert b"Test\n" == f.read()
 
-    assert (b"Test\n", True) == util.file_get_content(fn, encoding=None)
-    assert util.FileGetContentResult("Test\n", True) == util.file_get_content(fn)
-    assert ("Tes", False) == util.file_get_content(fn, max_size=3, warn_max_size=False)
+    assert (b"Test\n", True) == nmci.util.file_get_content(fn, encoding=None)
+    assert nmci.util.FileGetContentResult("Test\n", True) == nmci.util.file_get_content(
+        fn
+    )
+    assert ("Tes", False) == nmci.util.file_get_content(
+        fn, max_size=3, warn_max_size=False
+    )
     assert (
         "Tes\n\nWARNING: size limit reached after reading 3 of 5 bytes. Output is truncated",
         False,
-    ) == util.file_get_content(fn, max_size=3)
-    assert ("Test", False) == util.file_get_content(fn, max_size=4, warn_max_size=False)
-    assert ("Test\n", True) == util.file_get_content(fn, max_size=5)
+    ) == nmci.util.file_get_content(fn, max_size=3)
+    assert ("Test", False) == nmci.util.file_get_content(
+        fn, max_size=4, warn_max_size=False
+    )
+    assert ("Test\n", True) == nmci.util.file_get_content(fn, max_size=5)
 
-    d = util.file_get_content(fn, max_size=6, warn_max_size=False)
+    d = nmci.util.file_get_content(fn, max_size=6, warn_max_size=False)
     assert "Test\n" == d.data
-    assert True == d.full_file
+    assert d.full_file is True
 
-    util.file_set_content(fn, [])
+    nmci.util.file_set_content(fn, [])
     with open(fn, "rb") as f:
         assert b"" == f.read()
 
-    util.file_set_content(fn, [""])
+    nmci.util.file_set_content(fn, [""])
     with open(fn, "rb") as f:
         assert b"\n" == f.read()
 
-    util.file_set_content(fn, [b"bin_data:", b"\x01\xF2\x03\x04"])
+    nmci.util.file_set_content(fn, [b"bin_data:", b"\x01\xF2\x03\x04"])
     with open(fn, "rb") as f:
         assert b"bin_data:\n\x01\xF2\x03\x04\n" == f.read()
 
-    assert (b"bin_data:\n\x01\xF2\x03\x04\n", True) == util.file_get_content(
+    assert (b"bin_data:\n\x01\xF2\x03\x04\n", True) == nmci.util.file_get_content(
         fn, encoding=None
     )
 
-    assert (b"bin_data:\n\x01\xF2", False) == util.file_get_content(
+    assert (b"bin_data:\n\x01\xF2", False) == nmci.util.file_get_content(
         fn, encoding=None, max_size=12, warn_max_size=False
     )
 
-    assert (b"bin_data:\n\x01\xF2\x03", False) == util.file_get_content(
+    assert (b"bin_data:\n\x01\xF2\x03", False) == nmci.util.file_get_content(
         fn, encoding=None, max_size=13, warn_max_size=False
     )
 
     with pytest.raises(UnicodeDecodeError):
-        assert ("bin_data:\n\x01�\x03\x04\n", True) == util.file_get_content(fn)
+        assert ("bin_data:\n\x01�\x03\x04\n", True) == nmci.util.file_get_content(fn)
 
     with pytest.raises(UnicodeDecodeError):
-        assert ("bin_data:\n\x01�\x03\x04\n", True) == util.file_get_content(
+        assert ("bin_data:\n\x01�\x03\x04\n", True) == nmci.util.file_get_content(
             fn, errors="strict"
         )
 
-    assert ("bin_data:\n\x01�\x03\x04\n", True) == util.file_get_content(
+    assert ("bin_data:\n\x01�\x03\x04\n", True) == nmci.util.file_get_content(
         fn, errors="replace"
     )
-    assert ("bin_data:\n\x01", False) == util.file_get_content(
+    assert ("bin_data:\n\x01", False) == nmci.util.file_get_content(
         fn, errors="replace", max_size=11, warn_max_size=False
     )
-    assert ("bin_data:\n\x01�", False) == util.file_get_content(
+    assert ("bin_data:\n\x01�", False) == nmci.util.file_get_content(
         fn, errors="replace", max_size=12, warn_max_size=False
     )
-    assert ("bin_data:\n\x01�\x03", False) == util.file_get_content(
+    assert ("bin_data:\n\x01�\x03", False) == nmci.util.file_get_content(
         fn, errors="replace", max_size=13, warn_max_size=False
     )
 
     os.remove(fn)
 
-    util.file_set_content(fn, ("line1", "line2"))
+    nmci.util.file_set_content(fn, ("line1", "line2"))
     with open(fn, "r") as f:
         assert "line1\nline2\n" == f.read()
     os.remove(fn)
@@ -1035,12 +1036,12 @@ def test_file_set_content(tmp_path):
             yield prefix + str(i)
             i += 1
 
-    util.file_set_content(fn, line_range("line:", 3))
+    nmci.util.file_set_content(fn, line_range("line:", 3))
     with open(fn, "r") as f:
         assert "line:0\nline:1\nline:2\n" == f.read()
     os.remove(fn)
 
-    util.file_set_content(fn, "this message\n should not be modified")
+    nmci.util.file_set_content(fn, "this message\n should not be modified")
     with open(fn, "r") as f:
         assert "this message\n should not be modified" == f.read()
     os.remove(fn)
@@ -1048,61 +1049,65 @@ def test_file_set_content(tmp_path):
 
 def test_process_run():
 
-    assert process.run(["true"]).returncode == 0
-    assert process.run(["true"])[0] == 0
-    assert process.run("false")[0] == 1
+    assert nmci.process.run(["true"]).returncode == 0
+    assert nmci.process.run(["true"])[0] == 0
+    assert nmci.process.run("false")[0] == 1
 
-    assert process.run("echo hello", shell=True).stdout == "hello\n"
-    assert process.run(["echo hallo"], shell=True, as_bytes=True).stdout == b"hallo\n"
+    assert nmci.process.run("echo hello", shell=True).stdout == "hello\n"
+    assert (
+        nmci.process.run(["echo hallo"], shell=True, as_bytes=True).stdout == b"hallo\n"
+    )
 
-    assert process.run_stdout(["true"]) == ""
-    assert process.run_stdout("echo hallo") == "hallo\n"
+    assert nmci.process.run_stdout(["true"]) == ""
+    assert nmci.process.run_stdout("echo hallo") == "hallo\n"
 
     try:
-        process.run("which true")
+        nmci.process.run("which true")
         has_which = True
     except Exception:
         has_which = False
 
     if has_which:
-        assert process.run("which bogusafsdf", ignore_stderr=True).returncode != 0
-        assert process.run("which true").returncode == 0
+        assert nmci.process.run("which bogusafsdf", ignore_stderr=True).returncode != 0
+        assert nmci.process.run("which true").returncode == 0
 
-        assert process.run(["which", "true"]).returncode == 0
-        assert process.run(["which", b"true"]).returncode == 0
-        assert process.run([b"which", "true"]).returncode == 0
-        assert process.run([b"which", b"true"]).returncode == 0
+        assert nmci.process.run(["which", "true"]).returncode == 0
+        assert nmci.process.run(["which", b"true"]).returncode == 0
+        assert nmci.process.run([b"which", "true"]).returncode == 0
+        assert nmci.process.run([b"which", b"true"]).returncode == 0
 
-    assert process.run(["sh", "-c", "echo -n hallo"]) == process.RunResult(
+    assert nmci.process.run(["sh", "-c", "echo -n hallo"]) == nmci.process.RunResult(
         0, "hallo", ""
     )
 
-    assert process.run(["sh", "-c", b"echo -n hallo"]) == process.RunResult(
+    assert nmci.process.run(["sh", "-c", b"echo -n hallo"]) == nmci.process.RunResult(
         0, "hallo", ""
     )
 
-    assert process.run(
+    assert nmci.process.run(
         ["sh", b"-c", b"echo -n hallo"], as_bytes=True
-    ) == process.RunResult(0, b"hallo", b"")
+    ) == nmci.process.RunResult(0, b"hallo", b"")
 
-    r = process.run(
+    r = nmci.process.run(
         ["sh", b"-c", b"echo -n hallo; echo -n hello2 >&2"],
         as_bytes=True,
         ignore_stderr=True,
     )
-    assert r == process.RunResult(0, b"hallo", b"hello2")
+    assert r == nmci.process.RunResult(0, b"hallo", b"hello2")
 
     with pytest.raises(Exception):
-        process.run(["sh", b"-c", b"echo -n hallo; echo -n hello2 >&2"], as_bytes=True)
+        nmci.process.run(
+            ["sh", b"-c", b"echo -n hallo; echo -n hello2 >&2"], as_bytes=True
+        )
 
-    r = process.run(
+    r = nmci.process.run(
         ["sh", b"-c", b"echo -n hallo; echo -n hello2 >&2; exit 5"],
         as_bytes=True,
         ignore_stderr=True,
     )
-    assert r == process.RunResult(5, b"hallo", b"hello2")
+    assert r == nmci.process.RunResult(5, b"hallo", b"hello2")
 
-    r = process.run(
+    r = nmci.process.run(
         [
             "sh",
             b"-c",
@@ -1111,10 +1116,10 @@ def test_process_run():
         as_bytes=True,
         ignore_stderr=True,
     )
-    assert r == process.RunResult(5, b"hallo", b"h\x1b[2Jnonutf\xccfcello2")
+    assert r == nmci.process.RunResult(5, b"hallo", b"h\x1b[2Jnonutf\xccfcello2")
 
     with pytest.raises(Exception):
-        process.run(
+        nmci.process.run(
             [
                 "sh",
                 b"-c",
@@ -1123,56 +1128,62 @@ def test_process_run():
             ignore_stderr=True,
         )
 
-    r = process.run(
-        "kill -9 $$", shell=True, ignore_returncode=process.IGNORE_RETURNCODE_ALL
+    r = nmci.process.run(
+        "kill -9 $$", shell=True, ignore_returncode=nmci.process.IGNORE_RETURNCODE_ALL
     )
-    assert r == process.RunResult(-9, "", "")
+    assert r == nmci.process.RunResult(-9, "", "")
 
     with pytest.raises(Exception):
-        process.run("kill -9 $$'", shell=True, ignore_returncode=True)
+        nmci.process.run("kill -9 $$'", shell=True, ignore_returncode=True)
 
-    assert process.run("exit 15", shell=True, ignore_returncode=True).returncode == 15
+    assert (
+        nmci.process.run("exit 15", shell=True, ignore_returncode=True).returncode == 15
+    )
     with pytest.raises(Exception):
-        process.run("exit 15", shell=True, ignore_returncode=False)
+        nmci.process.run("exit 15", shell=True, ignore_returncode=False)
 
     with pytest.raises(Exception):
-        process.run_stdout("exit 15", shell=True)
+        nmci.process.run_stdout("exit 15", shell=True)
 
-    r = process.run(
+    r = nmci.process.run(
         "echo -n xstderr >&2 ; echo -n xstdout; exit 77", shell=True, ignore_stderr=True
     )
     assert r == (77, "xstdout", "xstderr")
 
-    assert process.run_search_stdout("echo hallo", "hallo")
-    assert process.run_search_stdout("echo hallo", b"hallo")
-    assert not process.run_search_stdout("echo Hallo", b"hallo")
-    assert process.run_search_stdout("echo -e 'Hallo\nworld'", "Hallo.*world")
-    assert not process.run_search_stdout(
+    assert nmci.process.run_search_stdout("echo hallo", "hallo")
+    assert nmci.process.run_search_stdout("echo hallo", b"hallo")
+    assert not nmci.process.run_search_stdout("echo Hallo", b"hallo")
+    assert nmci.process.run_search_stdout("echo -e 'Hallo\nworld'", "Hallo.*world")
+    assert not nmci.process.run_search_stdout(
         "echo -e 'Hallo\nworld'", "Hallo.*world", pattern_flags=0
     )
-    assert process.run_search_stdout("echo Hallo", b"hallo", pattern_flags=re.I)
+    assert nmci.process.run_search_stdout("echo Hallo", b"hallo", pattern_flags=re.I)
 
-    assert process.run_search_stdout("echo hallo", re.compile(b"h"), pattern_flags=0)
-    assert process.run_search_stdout("echo hallo", re.compile("h"), pattern_flags=0)
-    assert process.run_search_stdout("echo", re.compile("^"), pattern_flags=0)
+    assert nmci.process.run_search_stdout(
+        "echo hallo", re.compile(b"h"), pattern_flags=0
+    )
+    assert nmci.process.run_search_stdout(
+        "echo hallo", re.compile("h"), pattern_flags=0
+    )
+    assert nmci.process.run_search_stdout("echo", re.compile("^"), pattern_flags=0)
 
-    m = process.run_search_stdout(
+    m = nmci.process.run_search_stdout(
         "echo -n hallo", re.compile("^h(all.)$"), pattern_flags=0
     )
     assert m
     assert m.group(1) == "allo"
 
-    m = process.run_search_stdout(
+    m = nmci.process.run_search_stdout(
         "echo -n hallo", re.compile(b"^h(all.)$"), pattern_flags=0
     )
     assert m
     assert m.group(1) == b"allo"
 
-    assert not process.run_search_stdout(
+    assert not nmci.process.run_search_stdout(
         "echo Hallo >&2", b"hallo", shell=True, ignore_stderr=True, pattern_flags=re.I
     )
 
-    assert process.run_search_stdout(
+    assert nmci.process.run_search_stdout(
         "echo stderr >&2; echo hallo",
         b"hall[o]",
         shell=True,
@@ -1181,56 +1192,56 @@ def test_process_run():
     )
 
     with pytest.raises(Exception):
-        assert process.run_search_stdout(
+        assert nmci.process.run_search_stdout(
             "echo Hallo >&2", b"hallo", shell=True, pattern_flags=re.I
         )
 
-    assert os.getcwd() + "\n" == process.run_stdout("pwd", cwd=None)
+    assert os.getcwd() + "\n" == nmci.process.run_stdout("pwd", cwd=None)
 
-    assert os.getcwd() + "\n" == process.run_stdout("pwd", shell=True, cwd=None)
+    assert os.getcwd() + "\n" == nmci.process.run_stdout("pwd", shell=True, cwd=None)
 
-    assert util.base_dir() + "\n" == process.run_stdout("pwd")
+    assert nmci.util.base_dir() + "\n" == nmci.process.run_stdout("pwd")
 
-    assert util.base_dir() + "\n" == process.run_stdout("pwd", shell=True)
+    assert nmci.util.base_dir() + "\n" == nmci.process.run_stdout("pwd", shell=True)
 
-    d = util.base_dir("nmci")
-    assert d + "\n" == process.run_stdout("pwd", shell=True, cwd=d)
+    d = nmci.util.base_dir("nmci")
+    assert d + "\n" == nmci.process.run_stdout("pwd", shell=True, cwd=d)
 
-    d = util.base_dir("nmci/helpers")
-    assert d + "\n" == process.run_stdout("pwd", cwd=d)
+    d = nmci.util.base_dir("nmci/helpers")
+    assert d + "\n" == nmci.process.run_stdout("pwd", cwd=d)
 
     os.environ["NMCI_TEST_XXX1"] = "global"
 
-    assert f"foo//{os.environ.get('NMCI_TEST_XXX1')}" == process.run_stdout(
+    assert f"foo//{os.environ.get('NMCI_TEST_XXX1')}" == nmci.process.run_stdout(
         'echo -n "$HI//$NMCI_TEST_XXX1"', shell=True, env_extra={"HI": "foo"}
     )
 
-    assert "foo//" == process.run_stdout(
+    assert "foo//" == nmci.process.run_stdout(
         'echo -n "$HI//$NMCI_TEST_XXX1"', shell=True, env={"HI": "foo"}
     )
 
-    assert "foo2//" == process.run_stdout(
+    assert "foo2//" == nmci.process.run_stdout(
         'echo -n "$HI//$NMCI_TEST_XXX1"',
         shell=True,
         env={"HI": "foo"},
         env_extra={"HI": "foo2"},
     )
 
-    with tempfile.TemporaryFile(dir=util.tmp_dir()) as f_out:
-        r = process.run("echo -n hello-out", stdout=f_out)
-        assert r == process.RunResult(0, "", "")
+    with tempfile.TemporaryFile(dir=nmci.util.tmp_dir()) as f_out:
+        r = nmci.process.run("echo -n hello-out", stdout=f_out)
+        assert r == nmci.process.RunResult(0, "", "")
         f_out.seek(0)
         assert b"hello-out" == f_out.read()
 
-    with tempfile.TemporaryFile(dir=util.tmp_dir()) as f_out:
-        with tempfile.TemporaryFile(dir=util.tmp_dir()) as f_err:
-            r = process.run(
+    with tempfile.TemporaryFile(dir=nmci.util.tmp_dir()) as f_out:
+        with tempfile.TemporaryFile(dir=nmci.util.tmp_dir()) as f_err:
+            r = nmci.process.run(
                 "echo -n hello-out; echo -n hello-err >&2",
                 shell=True,
                 stdout=f_out,
                 stderr=f_err,
             )
-            assert r == process.RunResult(0, "", "")
+            assert r == nmci.process.RunResult(0, "", "")
 
             f_out.seek(0)
             assert b"hello-out" == f_out.read()
@@ -1238,15 +1249,15 @@ def test_process_run():
             f_err.seek(0)
             assert b"hello-err" == f_err.read()
 
-    with tempfile.TemporaryFile(dir=util.tmp_dir()) as f_out:
-        with tempfile.TemporaryFile(dir=util.tmp_dir()) as f_err:
-            r = process.run(
+    with tempfile.TemporaryFile(dir=nmci.util.tmp_dir()) as f_out:
+        with tempfile.TemporaryFile(dir=nmci.util.tmp_dir()) as f_err:
+            r = nmci.process.run(
                 "echo -n hello-out; echo -n hello-err >&2",
                 shell=True,
                 stdout=f_out,
                 stderr=subprocess.STDOUT,
             )
-            assert r == process.RunResult(0, "", "")
+            assert r == nmci.process.RunResult(0, "", "")
 
             f_out.seek(0)
             assert b"hello-outhello-err" == f_out.read()
@@ -1258,27 +1269,27 @@ def test_process_run():
 def test_git_call_ref_parse():
 
     try:
-        process.run_stdout(["git", "rev-parse", "HEAD"])
-    except:
+        nmci.process.run_stdout(["git", "rev-parse", "HEAD"])
+    except Exception:
         pytest.skip("not a suitable git repo")
 
-    assert re.match("^[0-9a-f]{40}$", git.call_rev_parse("HEAD"))
+    assert re.match("^[0-9a-f]{40}$", nmci.git.call_rev_parse("HEAD"))
 
 
 def test_git_config_get_origin_url():
     try:
-        process.run_stdout(["git", "config", "--get", "remote.origin.url"])
-    except:
+        nmci.process.run_stdout(["git", "config", "--get", "remote.origin.url"])
+    except Exception:
         pytest.skip('not a suitable git repo (as no "remote.origin.url")')
 
-    assert git.config_get_origin_url().startswith("https://")
+    assert nmci.git.config_get_origin_url().startswith("https://")
 
 
 def test_ip_link_show_all():
 
-    l0 = ip.link_show_all(binary=None)
+    l0 = nmci.ip.link_show_all(binary=None)
 
-    stdout = process.run("ip link show", as_bytes=True).stdout
+    stdout = nmci.process.run("ip link show", as_bytes=True).stdout
     try:
         stdout.decode("utf-8", errors="strict")
         has_binary = False
@@ -1288,32 +1299,34 @@ def test_ip_link_show_all():
         has_binary = True
 
     def _normalize(i):
-        return (i["ifindex"], util.str_to_bytes(i["ifname"]), i["flags"])
+        return (i["ifindex"], nmci.util.str_to_bytes(i["ifname"]), i["flags"])
 
-    assert [_normalize(i) for i in l0] == [_normalize(i) for i in ip.link_show_all()]
     assert [_normalize(i) for i in l0] == [
-        _normalize(i) for i in ip.link_show_all(binary=None)
+        _normalize(i) for i in nmci.ip.link_show_all()
     ]
     assert [_normalize(i) for i in l0] == [
-        _normalize(i) for i in ip.link_show_all(binary=True)
+        _normalize(i) for i in nmci.ip.link_show_all(binary=None)
+    ]
+    assert [_normalize(i) for i in l0] == [
+        _normalize(i) for i in nmci.ip.link_show_all(binary=True)
     ]
 
     if not has_binary:
         assert [_normalize(i) for i in l0] == [
-            _normalize(i) for i in ip.link_show_all(binary=False)
+            _normalize(i) for i in nmci.ip.link_show_all(binary=False)
         ]
     else:
         with pytest.raises(UnicodeDecodeError):
-            ip.link_show_all(binary=False)
+            nmci.ip.link_show_all(binary=False)
 
-    l = ip.link_show(ifname="lo", binary=None)
-    assert l["ifname"] == "lo"
+    lo = nmci.ip.link_show(ifname="lo", binary=None)
+    assert lo["ifname"] == "lo"
 
-    l = ip.link_show(ifname="lo", binary=False)
-    assert l["ifname"] == "lo"
+    lo = nmci.ip.link_show(ifname="lo", binary=False)
+    assert lo["ifname"] == "lo"
 
-    l = ip.link_show(ifname="lo", binary=True)
-    assert l["ifname"] == b"lo"
+    lo = nmci.ip.link_show(ifname="lo", binary=True)
+    assert lo["ifname"] == b"lo"
 
     if has_binary:
         pytest.skip(
@@ -1322,7 +1335,7 @@ def test_ip_link_show_all():
 
 
 def test_ip_address_show():
-    addrs = ip.address_show()
+    addrs = nmci.ip.address_show()
 
     if not any(
         [
@@ -1334,21 +1347,25 @@ def test_ip_address_show():
             'The systems seems to have no IP addresses and/or "lo" interface. Skip address tests.'
         )
 
-    ip.address_expect(expected=["127.0.0.1"], ifindex=1, addrs=addrs)
+    nmci.ip.address_expect(expected=["127.0.0.1"], ifindex=1, addrs=addrs)
     with pytest.raises(ValueError):
-        ip.address_expect(
+        nmci.ip.address_expect(
             expected=["127.0.0.1"], ifindex=1, with_plen=True, addrs=addrs
         )
 
-    ip.address_expect(expected=["127.0.0.1/8"], ifindex=1, with_plen=True, addrs=addrs)
+    nmci.ip.address_expect(
+        expected=["127.0.0.1/8"], ifindex=1, with_plen=True, addrs=addrs
+    )
     with pytest.raises(ValueError):
-        ip.address_expect(expected=["127.0.0.1/8"], ifindex=1, addrs=addrs)
+        nmci.ip.address_expect(expected=["127.0.0.1/8"], ifindex=1, addrs=addrs)
 
-    ip.address_expect(
+    nmci.ip.address_expect(
         expected=["127.0.0.1/8"], ifindex=1, with_plen=True, wait_for_address=0.1
     )
     with pytest.raises(ValueError):
-        ip.address_expect(expected=["127.0.0.1/8"], ifindex=1, wait_for_address=0.1)
+        nmci.ip.address_expect(
+            expected=["127.0.0.1/8"], ifindex=1, wait_for_address=0.1
+        )
 
 
 def test_clock_boottime():
@@ -1358,38 +1375,38 @@ def test_clock_boottime():
     except AttributeError:
         assert sys.version_info[:2] < (3, 7)
     else:
-        assert c == util.CLOCK_BOOTTIME
+        assert c == nmci.util.CLOCK_BOOTTIME
 
-    t = time.clock_gettime(util.CLOCK_BOOTTIME)
+    t = time.clock_gettime(nmci.util.CLOCK_BOOTTIME)
     assert type(t) is float
     assert t > 0
 
 
 def test_test_tags_select():
 
-    t = misc.test_tags_select(
+    t = nmci.misc.test_tags_select(
         [["ver+=1.4", "ver-=1.20", "foo1"], ["ver+1.21", "foo2"]],
         ("upstream", [1, 5, 0]),
         ("fedora", [34]),
     )
     assert t == ["ver+=1.4", "ver-=1.20", "foo1"]
 
-    t = misc.test_tags_select(
+    t = nmci.misc.test_tags_select(
         [["ver+=1.4", "foo1", "fedoraver-33"], ["ver+1.4", "fedoraver+=33", "foo2"]],
         ("upstream", [1, 5, 0]),
         ("fedora", [34]),
     )
     assert t == ["ver+1.4", "fedoraver+=33", "foo2"]
 
-    with pytest.raises(misc.InvalidTagsException) as e:
-        misc.test_tags_select(
+    with pytest.raises(nmci.misc.InvalidTagsException):
+        nmci.misc.test_tags_select(
             [["ver+=1.4", "ver-=1.30", "foo1"], ["ver+=1.21", "foo2"]],
             ("upstream", [1, 21, 0]),
             ("fedora", [34]),
         )
 
-    with pytest.raises(misc.SkipTestException) as e:
-        misc.test_tags_select(
+    with pytest.raises(nmci.misc.SkipTestException):
+        nmci.misc.test_tags_select(
             [["ver+=1.4", "ver-=1.20", "foo1"], ["ver+1.21", "foo2"]],
             ("upstream", [1, 2, 0]),
             ("fedora", [34]),
@@ -1400,11 +1417,11 @@ def test_context_set_up_commands():
     context = create_test_context()
 
     def _assert_embed(context, pattern):
-        assert len(embed._to_embed) == 1
-        embed_data = embed._to_embed[0]
-        embed._to_embed.clear()
-        assert isinstance(embed_data, embed.EmbedData)
-        assert embed_data.fail_only == True
+        assert len(nmci.embed._to_embed) == 1
+        embed_data = nmci.embed._to_embed[0]
+        nmci.embed._to_embed.clear()
+        assert isinstance(embed_data, nmci.embed.EmbedData)
+        assert embed_data.fail_only is True
         assert embed_data._caption.startswith("Command `")
         assert re.search(pattern, embed_data._data)
 
@@ -1414,14 +1431,14 @@ def test_context_set_up_commands():
     context.process.run("false")
     _assert_embed(context, "false")
 
-    with pytest.raises(Exception) as e:
+    with pytest.raises(Exception):
         context.process.run_stdout("false")
     _assert_embed(context, "false")
 
     context.process.run("echo")
     _assert_embed(context, "echo")
 
-    with pytest.raises(Exception) as e:
+    with pytest.raises(Exception):
         context.process.run("echo out; echo err 1>&2; false", shell=True)
     _assert_embed(context, "echo out")
 
@@ -1436,50 +1453,56 @@ def test_context_set_up_commands():
 
 def test_process_run_shell_auto():
 
-    with pytest.raises(Exception) as e:
-        process.run("date|grep .")
+    with pytest.raises(Exception):
+        nmci.process.run("date|grep .")
 
-    with pytest.raises(Exception) as e:
-        process.run("date|grep .", shell=False)
+    with pytest.raises(Exception):
+        nmci.process.run("date|grep .", shell=False)
 
     assert (
-        "20" in process.run("date|grep .", env_extra={"LANG": "C"}, shell=True).stdout
+        "20"
+        in nmci.process.run("date|grep .", env_extra={"LANG": "C"}, shell=True).stdout
     )
 
     assert (
         "20"
-        in process.run(process.WithShell("date|grep ."), env_extra={"LANG": "C"}).stdout
+        in nmci.process.run(
+            nmci.process.WithShell("date|grep ."), env_extra={"LANG": "C"}
+        ).stdout
     )
 
-    assert "$SHELL" == process.run("echo -n $SHELL", shell=False).stdout
-    assert "$SHELL" == process.run("echo -n $SHELL", shell=process.SHELL_AUTO).stdout
-    assert "$SHELL" == process.run("echo -n $SHELL").stdout
-    assert "$SHELL" != process.run("echo -n $SHELL", shell=True).stdout
-    assert "$SHELL" != process.run(process.WithShell("echo -n $SHELL")).stdout
+    assert "$SHELL" == nmci.process.run("echo -n $SHELL", shell=False).stdout
+    assert (
+        "$SHELL"
+        == nmci.process.run("echo -n $SHELL", shell=nmci.process.SHELL_AUTO).stdout
+    )
+    assert "$SHELL" == nmci.process.run("echo -n $SHELL").stdout
+    assert "$SHELL" != nmci.process.run("echo -n $SHELL", shell=True).stdout
+    assert "$SHELL" != nmci.process.run(nmci.process.WithShell("echo -n $SHELL")).stdout
 
 
 def test_process_popen():
 
-    proc = process.Popen("echo -n hallo").proc
+    proc = nmci.process.Popen("echo -n hallo").proc
     proc.wait()
     assert proc.stdout.read() == b"hallo"
 
-    proc = process.Popen("echo -n $SHELL").proc
+    proc = nmci.process.Popen("echo -n $SHELL").proc
     proc.wait()
     assert proc.stdout.read() == b"$SHELL"
 
-    proc = process.Popen(process.WithShell("echo -n $SHELL")).proc
+    proc = nmci.process.Popen(nmci.process.WithShell("echo -n $SHELL")).proc
     proc.wait()
     assert proc.stdout.read() != b"$SHELL"
 
-    pc = process.Popen("echo -n hello")
+    pc = nmci.process.Popen("echo -n hello")
     while pc.read_and_poll() is None:
         time.sleep(0.05)
     assert pc.returncode == 0
     assert pc.stdout == b"hello"
     assert pc.stderr == b""
 
-    pc = process.Popen(process.WithShell("echo -n foo; echo -n hello 1>&2"))
+    pc = nmci.process.Popen(nmci.process.WithShell("echo -n foo; echo -n hello 1>&2"))
     pc.read_and_wait()
     assert pc.returncode == 0
     assert pc.stdout == b"foo"
@@ -1493,27 +1516,27 @@ def test_ip_link_add_nonutf8():
 
     ifname = b"\xCB[2Jnonutf\xCCf\\c"
 
-    if not ip.link_show_maybe(ifname=ifname):
-        process.run_stdout(["ip", "link", "add", "name", ifname, "type", "dummy"])
+    if not nmci.ip.link_show_maybe(ifname=ifname):
+        nmci.process.run_stdout(["ip", "link", "add", "name", ifname, "type", "dummy"])
 
         # udev might rename the interface, try to workaround the race.
         time.sleep(0.1)
 
-        if not ip.link_show_maybe(ifname=ifname):
+        if not nmci.ip.link_show_maybe(ifname=ifname):
             # hm. Did udev rename the interface and replace non-UTF-8 chars
             # with "_"?
             ifname = "_[2Jnonutf_f\\c"
-            assert ip.link_show(ifname=ifname)
+            assert nmci.ip.link_show(ifname=ifname)
 
-    ip.link_delete(ifname)
+    nmci.ip.link_delete(ifname)
 
 
 @Stub.misc_distro_detect(("fedora", [35]))
 @Stub.misc_nm_version_detect(("upstream", [1, 39, 3, 30276]))
 def test_misc_version_control():
 
-    assert misc.test_version_check(test_name="@pass", feature="general",) == (
-        util.base_dir("features/scenarios/general.feature"),
+    assert nmci.misc.test_version_check(test_name="@pass", feature="general",) == (
+        nmci.util.base_dir("features/scenarios/general.feature"),
         "pass",
         ["pass"],
     )
@@ -1522,8 +1545,8 @@ def test_misc_version_control():
         ("rhel-8-6", [1, 36, 0, 4]),
     ]:
         with Stub.misc_nm_version_detect((stream, version)):
-            assert misc.test_version_check(test_name="ipv6_check_addr_order") == (
-                util.base_dir("features/scenarios/ipv6.feature"),
+            assert nmci.misc.test_version_check(test_name="ipv6_check_addr_order") == (
+                nmci.util.base_dir("features/scenarios/ipv6.feature"),
                 "ipv6_check_addr_order",
                 [
                     "rhbz1995372",
@@ -1539,8 +1562,8 @@ def test_misc_version_control():
         ("upstream", [1, 39, 1, 30276]),
     ]:
         with Stub.misc_nm_version_detect((stream, version)):
-            assert misc.test_version_check(test_name="ipv6_check_addr_order") == (
-                util.base_dir("features/scenarios/ipv6.feature"),
+            assert nmci.misc.test_version_check(test_name="ipv6_check_addr_order") == (
+                nmci.util.base_dir("features/scenarios/ipv6.feature"),
                 "ipv6_check_addr_order",
                 [
                     "rhbz1995372",
@@ -1553,95 +1576,93 @@ def test_misc_version_control():
                 ],
             )
 
-    with pytest.raises(Exception) as e:
-        misc.test_version_check(
+    with pytest.raises(Exception):
+        nmci.misc.test_version_check(
             test_name="no-exist",
-            feature=util.base_dir("features/scenarios/general.feature"),
+            feature=nmci.util.base_dir("features/scenarios/general.feature"),
         )
 
 
 def test_misc_test_find_feature_file():
 
-    assert misc.test_find_feature_file("pass") == util.base_dir(
+    assert nmci.misc.test_find_feature_file("pass") == nmci.util.base_dir(
         "features/scenarios/general.feature"
     )
-    assert misc.test_find_feature_file("pass", "general") == util.base_dir(
+    assert nmci.misc.test_find_feature_file("pass", "general") == nmci.util.base_dir(
         "features/scenarios/general.feature"
     )
-    with pytest.raises(Exception) as e:
-        misc.test_find_feature_file("no-exist")
+    with pytest.raises(Exception):
+        nmci.misc.test_find_feature_file("no-exist")
 
 
 def test_ctx_pexpect():
 
-    import pexpect
-
     context = create_test_context()
 
     p = context.pexpect_spawn("true")
-    assert p.expect(["Error", pexpect.TIMEOUT, pexpect.EOF]) == 2
+    assert p.expect(["Error", nmci.pexpect.TIMEOUT, nmci.pexpect.EOF]) == 2
 
     p = context.pexpect_spawn("echo helloworld", shell=True)
-    assert p.expect(["world", pexpect.TIMEOUT, pexpect.EOF]) == 0
+    assert p.expect(["world", nmci.pexpect.TIMEOUT, nmci.pexpect.EOF]) == 0
 
     p = context.pexpect_service("echo foobar")
-    assert p.expect(["xxx", "foobar", pexpect.TIMEOUT, pexpect.EOF]) == 1
+    assert p.expect(["xxx", "foobar", nmci.pexpect.TIMEOUT, nmci.pexpect.EOF]) == 1
 
-    context.cext.process_pexpect_spawn()
+    nmci.pexpect.process_pexpect_spawn()
 
-    context.cext.process_embeds(True)
+    nmci.embed.process_embeds(True)
 
 
 def test_util_consume_list():
 
     lst = []
-    assert list(util.consume_list(lst)) == []
+    assert list(nmci.util.consume_list(lst)) == []
     assert lst == []
 
     lst = [1]
-    assert list(util.consume_list(lst)) == [1]
+    assert list(nmci.util.consume_list(lst)) == [1]
     assert lst == []
 
     lst = [1, "b"]
-    assert list(util.consume_list(lst)) == [1, "b"]
+    assert list(nmci.util.consume_list(lst)) == [1, "b"]
     assert lst == []
 
 
 def test_context_cleanup():
 
-    context = create_test_context()
+    create_test_context()
 
     nmci.cleanup.cleanup_add_iface("eth0")
 
-    assert [c.name for c in context.cext._cleanup_lst] == ["iface-reset-eth0"]
+    assert [c.name for c in nmci.cleanup._cleanup_lst] == ["iface-reset-eth0"]
 
     nmci.cleanup.cleanup_add_iface("eth1")
 
-    assert [c.name for c in context.cext._cleanup_lst] == [
+    assert [c.name for c in nmci.cleanup._cleanup_lst] == [
         "iface-reset-eth1",
         "iface-reset-eth0",
     ]
 
     nmci.cleanup.cleanup_add_iface("eth0")
 
-    assert [c.name for c in context.cext._cleanup_lst] == [
+    assert [c.name for c in nmci.cleanup._cleanup_lst] == [
         "iface-reset-eth0",
         "iface-reset-eth1",
     ]
 
-    nmci.cleanup.cleanup_add(lambda cext: None, name="foo")
+    nmci.cleanup.cleanup_add(lambda: None, name="foo")
 
-    assert [c.name for c in context.cext._cleanup_lst] == [
+    assert [c.name for c in nmci.cleanup._cleanup_lst] == [
         "foo",
         "iface-reset-eth0",
         "iface-reset-eth1",
     ]
 
-    cleanup._cleanup_add(
-        cleanup.Cleanup(name="foo", callback=lambda: None, priority=50)
+    nmci.cleanup._cleanup_add(
+        nmci.cleanup.Cleanup(name="foo", callback=lambda: None, priority=50)
     )
 
-    assert [c.name for c in context.cext._cleanup_lst] == [
+    assert [c.name for c in nmci.cleanup._cleanup_lst] == [
         "foo",
         "iface-reset-eth0",
         "iface-reset-eth1",
@@ -1649,10 +1670,10 @@ def test_context_cleanup():
     ]
 
     nmci.cleanup.cleanup_add(
-        name="bar", unique_tag=(1,), callback=lambda cext: None, priority=49
+        name="bar", unique_tag=(1,), callback=lambda: None, priority=49
     )
 
-    assert [c.name for c in context.cext._cleanup_lst] == [
+    assert [c.name for c in nmci.cleanup._cleanup_lst] == [
         "foo",
         "iface-reset-eth0",
         "iface-reset-eth1",
@@ -1661,10 +1682,10 @@ def test_context_cleanup():
     ]
 
     nmci.cleanup.cleanup_add(
-        name="bar", unique_tag=(1,), callback=lambda cext: None, priority=19
+        name="bar", unique_tag=(1,), callback=lambda: None, priority=19
     )
 
-    assert [c.name for c in context.cext._cleanup_lst] == [
+    assert [c.name for c in nmci.cleanup._cleanup_lst] == [
         "foo",
         "bar",
         "iface-reset-eth0",
@@ -1672,24 +1693,24 @@ def test_context_cleanup():
         "foo",
     ]
 
-    del context.cext._cleanup_lst[2:4]
+    del nmci.cleanup._cleanup_lst[2:4]
 
-    assert [c.name for c in context.cext._cleanup_lst] == [
+    assert [c.name for c in nmci.cleanup._cleanup_lst] == [
         "foo",
         "bar",
         "foo",
     ]
 
-    for ex in context.cext.process_cleanup():
+    for ex in nmci.cleanup.process_cleanup():
         assert ex is None
 
-    assert context.cext._cleanup_lst == []
+    assert nmci.cleanup._cleanup_lst == []
 
     nmci.cleanup.cleanup_add(
-        name="bar", unique_tag=(1,), callback=lambda cext: 1 / 0, priority=19
+        name="bar", unique_tag=(1,), callback=lambda: 1 / 0, priority=19
     )
 
-    for ex in context.cext.process_cleanup():
+    for ex in nmci.cleanup.process_cleanup():
         import traceback
 
         assert type(ex) is ZeroDivisionError
@@ -1698,41 +1719,41 @@ def test_context_cleanup():
 
 def test_util_start_timeout():
 
-    t = util.start_timeout(None)
+    t = nmci.util.start_timeout(None)
     assert not t.expired()
     assert t.is_none()
 
-    t = util.start_timeout(0)
+    t = nmci.util.start_timeout(0)
     assert t.expired()
     assert not t.is_none()
 
-    t = util.start_timeout(0.0)
+    t = nmci.util.start_timeout(0.0)
     assert t.expired()
     assert not t.is_none()
 
-    t = util.start_timeout(-1)
+    t = nmci.util.start_timeout(-1)
     assert t.expired()
     assert not t.is_none()
 
-    t = util.start_timeout("100000")
+    t = nmci.util.start_timeout("100000")
     assert not t.expired()
 
-    t = util.start_timeout(100000.1)
+    t = nmci.util.start_timeout(100000.1)
     assert not t.expired()
 
-    t = util.start_timeout("0.05")
+    t = nmci.util.start_timeout("0.05")
     while not t.expired():
         time.sleep(0.01)
     assert t.expired()
 
-    l = 0
-    t = util.start_timeout(0)
+    loop = 0
+    t = nmci.util.start_timeout(0)
     while t.loop_sleep(1):
-        assert l == 0
-        l += 1
-    assert l == 1
+        assert loop == 0
+        loop += 1
+    assert loop == 1
 
-    t = util.start_timeout(0)
+    t = nmci.util.start_timeout(0)
     while t.sleep(1):
         assert False
 
@@ -1745,10 +1766,10 @@ def test_black_code_fromatting():
         pytest.skip("skip formatting test with python-black (NMCI_NO_BLACK=1)")
 
     files = [
-        util.base_dir("contrib/gui/steps.py"),
-        util.base_dir("features/environment.py"),
-        util.base_dir("nmci"),
-        util.base_dir("nmci/helpers/version_control.py"),
+        nmci.util.base_dir("contrib/gui/steps.py"),
+        nmci.util.base_dir("features/environment.py"),
+        nmci.util.base_dir("nmci"),
+        nmci.util.base_dir("nmci/helpers/version_control.py"),
     ]
 
     exclude = [
