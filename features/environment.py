@@ -9,11 +9,6 @@ from behave.model_core import Status
 import xml.etree.ElementTree as ET
 
 import nmci
-import nmci.ctx
-import nmci.misc
-import nmci.nmutil
-import nmci.tags
-import nmci.util
 
 TIMER = 0.5
 

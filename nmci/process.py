@@ -2,11 +2,8 @@ import collections
 import os
 import re
 import subprocess
-import sys
-import time
 
-from . import util
-
+from nmci import util
 
 RunResult = collections.namedtuple("RunResult", ["returncode", "stdout", "stderr"])
 

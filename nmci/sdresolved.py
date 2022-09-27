@@ -1,7 +1,5 @@
-import sys
-
-from . import util
-from . import dbus
+from nmci import util
+from nmci import dbus
 
 
 class _SDResolved:
@@ -101,6 +99,3 @@ class _SDResolved:
             "domains": self.link_get_domains(ifindex),
             "default_route": self.link_get_default_route(ifindex),
         }
-
-
-sys.modules[__name__] = _SDResolved()

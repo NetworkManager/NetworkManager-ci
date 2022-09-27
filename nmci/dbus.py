@@ -1,6 +1,4 @@
-import sys
-
-from . import util
+from nmci import util
 
 
 class _DBus:
@@ -29,8 +27,6 @@ class _DBus:
         bus_type=None,
         cancellable=None,
     ):
-
-        GLib = util.GLib
 
         if flags is None:
             flags = util.Gio.DBusCallFlags.NONE
@@ -147,6 +143,3 @@ class _DBus:
                 )
 
         return v
-
-
-sys.modules[__name__] = _DBus()

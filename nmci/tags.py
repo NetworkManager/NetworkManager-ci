@@ -7,14 +7,6 @@ import re
 import shutil
 import traceback
 
-import nmci.ip
-import nmci.ctx
-import nmci.misc
-import nmci.util
-
-TAG_FILE = "/tmp/nmci_tag_registry"
-compiled_tags = False
-
 
 class Tag:
     def __init__(
@@ -67,7 +59,7 @@ class Tag:
         t_start = time.monotonic()
         try:
             self._after_scenario(context, scenario, **self.args)
-        except:
+        except Exception:
             print(f"  @{self.tag_name} ... failed in {time.monotonic() - t_start:.3f}s")
             raise
         print(f"  @{self.tag_name} ... passed in {time.monotonic() - t_start:.3f}s")
