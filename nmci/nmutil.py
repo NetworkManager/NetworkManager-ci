@@ -1,9 +1,6 @@
-import sys
-import time
-
-from . import dbus
-from . import process
-from . import util
+from nmci import dbus
+from nmci import process
+from nmci import util
 
 
 class _NMUtil:
@@ -39,7 +36,7 @@ class _NMUtil:
         pid = self.nm_pid()
         if not pid:
             raise util.ExpectedException(
-                f"unable to get mem usage, NetworkManager is not running!"
+                "unable to get mem usage, NetworkManager is not running!"
             )
         try:
             smaps = util.file_get_content(f"/proc/{pid}/smaps")
@@ -54,6 +51,3 @@ class _NMUtil:
                 continue
             memsize += int(fields[1])
         return memsize
-
-
-sys.modules[__name__] = _NMUtil()

@@ -1,6 +1,5 @@
 import fcntl
 import glob
-import nmci
 import os
 import pexpect
 import re
@@ -10,11 +9,13 @@ import collections
 import time
 import xml.etree.ElementTree as ET
 
-from . import misc
-from . import nmutil
-from . import process
-from . import util
+from nmci import ip
+from nmci import misc
+from nmci import nmutil
+from nmci import process
+from nmci import util
 
+from .run import run
 
 ###############################################################################
 
@@ -82,7 +83,7 @@ class Cleanup:
 
     def _do_cleanup(self, cext):
         if self._callback is None:
-            raise NotImplemented("cleanup not implemented")
+            raise NotImplementedError("cleanup not implemented")
         self._callback(cext)
 
 
@@ -134,7 +135,7 @@ class CleanupIface(Cleanup):
 
     def _do_cleanup(self, cext):
         if self.op == "reset":
-            nmci.ctx.reset_hwaddr_nmcli(cext.context, self.iface)
+            reset_hwaddr_nmcli(cext.context, self.iface)
             if self.iface != "eth0":
                 cext.context.process.run(["ip", "addr", "flush", self.iface])
             return
@@ -206,7 +207,7 @@ class CleanupUdevUpdate(Cleanup):
         )
 
     def _do_cleanup(self, cext):
-        nmci.ctx.update_udevadm(cext.context)
+        update_udevadm(cext.context)
 
 
 class CleanupUdevRule(Cleanup):
@@ -317,8 +318,8 @@ class EmbedLink(Embed):
 
 
 class _CExt:
-    def __init__(self, context):
-        self.context = context
+    def __init__(self):
+        self.context = None
 
         self._pexpect_spawn_lst = []
         self._pexpect_service_lst = []
@@ -329,6 +330,8 @@ class _CExt:
 
         self.coredump_reported = False
 
+    def set_context(self, context):
+        self.context = context
         # setup formatter embed and set_title
         if hasattr(context, "_runner"):
             for formatter in context._runner.formatters:
@@ -573,7 +576,7 @@ class _CExt:
         # this sets proc status if killed, if exception, something very wrong happened
         if proc.expect([pexpect.EOF, pexpect.TIMEOUT], timeout=0.2) == 1:
             failed = True
-            self.embed_data("DEBUG: ps aufx", nmci.process.run_stdout("ps aufx"))
+            self.embed_data("DEBUG: ps aufx", process.run_stdout("ps aufx"))
         if not status:
             status = proc.status
         # TODO: make the tests capable of this change
@@ -829,7 +832,7 @@ class _ContextUtil:
         if event == "file_set_content":
             (file_name, data) = a
             try:
-                data = nmci.util.bytes_to_str(data)
+                data = util.bytes_to_str(data)
             except UnicodeDecodeError:
                 pass
 
@@ -880,12 +883,12 @@ class _ContextProcess:
         return process.systemctl(*a, context_hook=self.context_hook, **kw)
 
 
-def setup(context):
+def setup(context, cext):
 
     assert not hasattr(context, "embed")
     assert not hasattr(context, "cext")
 
-    cext = _CExt(context)
+    cext.set_context(context)
 
     context.process = _ContextProcess(cext)
     context.util = _ContextUtil(cext)
@@ -907,7 +910,7 @@ def setup(context):
 
         shell = _shell(command, *a, **kw)
 
-        out, err, code = nmci.run(command, *a, **kw)
+        out, err, code = run(command, *a, **kw)
         cext.embed_run(
             command,
             shell,
@@ -975,7 +978,7 @@ def stripped(x):
 
 
 def dump_status(context, when, fail_only=False):
-    nm_running = nmci.process.systemctl("status NetworkManager").returncode == 0
+    nm_running = process.systemctl("status NetworkManager").returncode == 0
 
     cmds = [
         'date "+%Y%m%d-%H%M%S.%N"',
@@ -1009,13 +1012,13 @@ def dump_status(context, when, fail_only=False):
             "ip netns exec vethsetup nft list ruleset",
         ]
 
-    named_nss = nmci.ip.netns_list()
+    named_nss = ip.netns_list()
 
     # vethsetup is handled separately
     named_nss = [n for n in named_nss if n != "vethsetup"]
 
     if len(named_nss) > 0:
-        add_to_heading = f"\nStatus of other named network namespaces:\n"
+        add_to_heading = "\nStatus of other named network namespaces:\n"
         for ns in sorted(named_nss):
             heading = f"{add_to_heading}\nnetwork namespace {ns}:"
             if len(add_to_heading) > 0:
@@ -1064,12 +1067,12 @@ def dump_status(context, when, fail_only=False):
             msg = f"Daemon memory consumption: {kb} KiB\n"
         if (
             os.path.isfile("/etc/systemd/system/NetworkManager.service")
-            and nmci.process.run_code(
+            and process.run_code(
                 "grep -q valgrind /etc/systemd/system/NetworkManager.service"
             )
             == 0
         ):
-            result = nmci.process.run(
+            result = process.run(
                 "LOGNAME=root HOSTNAME=localhost gdb /usr/sbin/NetworkManager "
                 " -ex 'target remote | vgdb' -ex 'monitor leak_check summary' -batch",
                 shell=True,
@@ -1088,9 +1091,9 @@ def check_crash(context, crashed_step):
     pid_refresh_count = getattr(context, "nm_pid_refresh_count", 0)
     if pid_refresh_count > 0:
         context.pid_refresh_count = pid_refresh_count - 1
-        context.nm_pid = nmci.nmutil.nm_pid()
+        context.nm_pid = nmutil.nm_pid()
     elif not context.crashed_step:
-        new_pid = nmci.nmutil.nm_pid()
+        new_pid = nmutil.nm_pid()
         if new_pid != context.nm_pid:
             print(
                 "NM Crashed as new PID %s is not old PID %s" % (new_pid, context.nm_pid)
@@ -1117,11 +1120,11 @@ def check_coredump(context):
         if not misc.coredump_is_reported(dump_dir):
             # 'coredumpctl debug' not available in RHEL7
             if "Maipo" in context.rh_release:
-                timeout = nmci.util.start_timeout(60)
+                timeout = util.start_timeout(60)
                 while timeout.loop_sleep(5):
                     e = False
                     try:
-                        dump = nmci.process.run_stdout(
+                        dump = process.run_stdout(
                             f"echo backtrace | coredumpctl -q -batch gdb {pid}",
                             shell=True,
                             stderr=subprocess.STDOUT,
@@ -1135,11 +1138,11 @@ def check_coredump(context):
                 if e:
                     raise e
             else:
-                timeout = nmci.util.start_timeout(60)
+                timeout = util.start_timeout(60)
                 while timeout.loop_sleep(5):
                     e = False
                     try:
-                        dump = nmci.process.run_stdout(
+                        dump = process.run_stdout(
                             f"echo backtrace | coredumpctl debug {pid}",
                             shell=True,
                             stderr=subprocess.STDOUT,
@@ -1293,28 +1296,28 @@ def reset_usb_devices():
 
 
 def reinitialize_devices():
-    if nmci.process.systemctl("is-active ModemManager").returncode != 0:
-        nmci.process.systemctl("restart ModemManager")
+    if process.systemctl("is-active ModemManager").returncode != 0:
+        process.systemctl("restart ModemManager")
         timer = 40
-        while "gsm" not in nmci.process.nmcli("device"):
+        while "gsm" not in process.nmcli("device"):
             time.sleep(1)
             timer -= 1
             if timer == 0:
                 break
-    if "gsm" not in nmci.process.nmcli("device"):
+    if "gsm" not in process.nmcli("device"):
         print("reinitialize devices")
         reset_usb_devices()
-        nmci.process.run_stdout(
+        process.run_stdout(
             "for i in $(ls /sys/bus/usb/devices/usb*/authorized); do echo 0 > $i; done",
             shell=True,
         )
-        nmci.process.run_stdout(
+        process.run_stdout(
             "for i in $(ls /sys/bus/usb/devices/usb*/authorized); do echo 1 > $i; done",
             shell=True,
         )
-        nmci.process.systemctl("restart ModemManager")
+        process.systemctl("restart ModemManager")
         timer = 80
-        while "gsm" not in nmci.process.nmcli("device"):
+        while "gsm" not in process.nmcli("device"):
             time.sleep(1)
             timer -= 1
             if timer == 0:
@@ -1371,7 +1374,7 @@ def setup_openvpn(context, tags):
             # 'ifconfig-ipv6-pool 2001:db8:666:dead::/64',
             'push "route-ipv6 2001:db8:666:dead::/64 2001:db8:666:dead::1"',
         ]
-    nmci.util.file_set_content("/etc/openvpn/trest-server.conf", conf)
+    util.file_set_content("/etc/openvpn/trest-server.conf", conf)
     time.sleep(1)
     ovpn_proc = context.pexpect_service("sudo openvpn /etc/openvpn/trest-server.conf")
     res = ovpn_proc.expect(
@@ -1418,13 +1421,13 @@ def update_udevadm(context):
 def manage_veths(context):
     if not os.path.isfile("/tmp/nm_veth_configured"):
         rule = 'ENV{ID_NET_DRIVER}=="veth", ENV{INTERFACE}=="eth[0-9]|eth[0-9]*[0-9]", ENV{NM_UNMANAGED}="0"'
-        nmci.util.file_set_content("/etc/udev/rules.d/88-veths-eth.rules", [rule])
-        nmci.ctx.update_udevadm(context)
+        util.file_set_content("/etc/udev/rules.d/88-veths-eth.rules", [rule])
+        update_udevadm(context)
 
 
 def unmanage_veths(context):
     context.process.run_stdout("rm -f /etc/udev/rules.d/88-veths-*.rules")
-    nmci.ctx.update_udevadm(context)
+    update_udevadm(context)
 
 
 def after_crash_reset(context):
@@ -1437,7 +1440,7 @@ def after_crash_reset(context):
     allowed_links = (
         [b"lo"] + [b"wwan0"] + [f"eth{i}".encode("utf-8") for i in range(0, 11)]
     )
-    for link in nmci.ip.link_show_all(binary=True):
+    for link in ip.link_show_all(binary=True):
         if link["ifname"] in allowed_links or link["ifname"].startswith(b"orig-"):
             continue
         context.process.run_stdout(
@@ -1514,7 +1517,7 @@ def check_vethsetup(context):
     context.process.run_stdout(
         "sh prepare/vethsetup.sh check", ignore_stderr=True, timeout=60
     )
-    context.nm_pid = nmci.nmutil.nm_pid()
+    context.nm_pid = nmutil.nm_pid()
 
 
 def teardown_libreswan(context):
@@ -1664,7 +1667,7 @@ def setup_pkcs11(context):
     re_token = re.compile(r"(?m)Label:[\s]*nmci[\s]*$")
     re_nmclient = re.compile(r"(?m)label:[\s]*nmclient$")
 
-    nmci.util.file_set_content(
+    util.file_set_content(
         "/tmp/pkcs11_passwd-file",
         ["802-1x.identity:test", "802-1x.private-key-password:1234"],
     )
@@ -1744,7 +1747,7 @@ def teardown_hostapd_wireless(context):
         ignore_stderr=True,
         timeout=15,
     )
-    context.NM_pid = nmci.nmutil.nm_pid()
+    context.NM_pid = nmutil.nm_pid()
 
 
 def teardown_hostapd(context):
@@ -1956,3 +1959,6 @@ def get_modem_info(context):
         return f"MODEM INFO\n{modem_info}\nSIM CARD INFO\n{sim_info}"
     else:
         return modem_info
+
+
+cext = _CExt()

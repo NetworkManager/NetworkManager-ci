@@ -1,6 +1,4 @@
-import sys
-
-from . import process
+from nmci import process
 
 
 class _Git:
@@ -19,6 +17,3 @@ class _Git:
         if r.startswith("git@"):
             r = r.replace(":", "/").replace("git@", "https://")
         return r
-
-
-sys.modules[__name__] = _Git()

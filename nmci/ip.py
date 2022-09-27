@@ -1,11 +1,8 @@
 import re
 import socket
-import subprocess
-import sys
-import time
 
-from . import process
-from . import util
+from nmci import process
+from nmci import util
 
 
 class _IP:
@@ -163,8 +160,6 @@ class _IP:
             i += 1
 
             # currently we only parse a subset of the parameters
-
-            link_data = {}
 
             m = re.match(rb"^([0-9]+): *([^:@]+)(@[^:]*)?: <([^>]*)>", line)
             if not m:
@@ -422,7 +417,7 @@ class _IP:
         while xtimeout.loop_sleep(0.08):
             try:
                 return self._link_show(ifname=ifname, **kwargs)
-            except:
+            except Exception:
                 if xtimeout.is_none():
                     raise
                 pass
@@ -461,7 +456,7 @@ class _IP:
 
         try:
             process.run_stdout(["ip", "link", "delete", ifname], as_bytes=True)
-        except:
+        except Exception:
             if accept_nodev:
                 if ifindex is not None:
                     if self.link_show_maybe(ifindex=ifindex) is None:
@@ -503,6 +498,3 @@ class _IP:
             v = [x for x in v if not isinstance(x, bytes)]
 
         return v
-
-
-sys.modules[__name__] = _IP()

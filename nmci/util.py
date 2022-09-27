@@ -1,7 +1,6 @@
 import collections
 import os
 import re
-import subprocess
 import sys
 import time
 
@@ -112,7 +111,6 @@ class _Util:
 
         m = getattr(self, "_GLib", None)
         if m is None:
-            import gi
             from gi.repository import GLib
 
             m = GLib
@@ -123,7 +121,6 @@ class _Util:
     def Gio(self):
         m = getattr(self, "_Gio", None)
         if m is None:
-            import gi
             from gi.repository import Gio
 
             m = Gio
@@ -459,6 +456,3 @@ class _Util:
             )
 
         return True
-
-
-sys.modules[__name__] = _Util()

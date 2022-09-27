@@ -2,17 +2,15 @@ import glob
 import os
 import re
 import subprocess
-import sys
 import yaml
 import json
-
 import xml.etree.ElementTree as ET
 
-from . import git
-from . import ip
-from . import sdresolved
-from . import util
-from . import process
+from nmci import git
+from nmci import ip
+from nmci import sdresolved
+from nmci import util
+from nmci import process
 
 
 class _Misc:
@@ -718,7 +716,7 @@ class _Misc:
             info = sdresolved.link_get_all(ifdata["ifindex"])
             pass
         else:
-            raise ValueError('Invalid dns_plugin "%"' % (dns_plugin))
+            raise ValueError(f'Invalid dns_plugin "{dns_plugin}"')
 
         info["dns_plugin"] = dns_plugin
         return info
@@ -730,7 +728,7 @@ class _Misc:
         try:
             git_url = git.config_get_origin_url()
             git_commit = git.call_rev_parse("HEAD")
-        except:
+        except Exception:
             git_url = None
             git_commit = None
         if tags_el is not None:
@@ -769,7 +767,7 @@ class _Misc:
         try:
             git_url = git.config_get_origin_url()
             git_commit = git.call_rev_parse("HEAD")
-        except:
+        except Exception:
             return
         url_base = f"{git_url}/-/tree/{git_commit}/"
         file_els = [scenario_el.find(".//span[@class='scenario_file']")]
@@ -922,6 +920,3 @@ class _Misc:
         else:
             assert False, f"Invalid dump_type {dump_type}"
         return glob.glob(g)
-
-
-sys.modules[__name__] = _Misc()
