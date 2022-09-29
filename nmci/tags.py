@@ -2106,14 +2106,15 @@ def nmstate_upstream_setup_bs(context, scenario):
         or "ERR" in context.process.systemctl("status ovs-vswitchd.service").stdout
     ):
         print("restarting OVS service")
-        context.process.run_stdout("systemctl restart openvswitch")
-        nmci.nmutil.restart_NM_service()
+        context.process.systemctl("restart openvswitch")
+        nmci.nmutil.restart_NM_service(context)
 
 
 def nmstate_upstream_setup_as(context, scenario):
     # nmstate restarts NM few times during tests
     context.nm_restarted = True
     nmci.nmutil.restart_NM_service(context)
+    context.process.systemctl("restart openvswitch")
 
     context.process.run_stdout(
         "nmcli con del linux-br0 dhcpcli dhcpsrv brtest0 bond99 eth1.101 eth1.102 || true",
