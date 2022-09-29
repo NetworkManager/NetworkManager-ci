@@ -1850,7 +1850,24 @@ Feature: nmcli - general
 
 
     @ver+=1.26.0
-    @rhelver+=8 @fedoraver+=31 @skip_in_centos
+    @ver-1.41.2
+    @rhelver+=8 @fedoraver+=31
+    @nmstate_upstream_setup @permissive
+    @nmstate_upstream
+    Scenario: NM - general - nmstate
+    * Execute "ip link add eth1 type veth peer name eth1peer && ip link set dev eth1peer up"
+    * Execute "ip link add eth2 type veth peer name eth2peer && ip link set dev eth2peer up"
+    # Run only tier1 tests, NM is restarted during those tests
+    * NM is restarted within next "1" steps
+    * Execute "cd nmstate && pytest -vv -m 'tier1' -k 'not veth_test and not test_add_remove_team_with_port and not test_create_team_iface_with_port and not test_gen_conf_ovs_same_name' --log-level=DEBUG 2>&1 | tee /tmp/nmstate.txt"
+    Then "PASSED" is visible with command "grep ' PASS' /tmp/nmstate.txt"
+    Then "100%" is visible with command "grep '100%' /tmp/nmstate.txt"
+    Then "FAILED" is not visible with command "grep ' FAILED' /tmp/nmstate.txt"
+    Then "ERROR" is not visible with command "grep ' ERROR' /tmp/nmstate.txt"
+
+
+    @ver+=1.41.2
+    @rhelver+=8 @fedoraver+=31
     @nmstate_upstream_setup @permissive
     @nmstate_upstream
     Scenario: NM - general - nmstate
