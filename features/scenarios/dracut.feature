@@ -9,7 +9,8 @@ Feature: NM: dracut
 
 
     @rhelver+=8.3 @fedoraver+=32
-    @dracut @long @not_on_ppc64le
+    @not_on_ppc64le
+    @dracut @long
     @dracut_setup
     Scenario: NM - dracut - setup test environment
     * Execute "[ -f /tmp/dracut_setup_done ]"
@@ -22,7 +23,8 @@ Feature: NM: dracut
 
     @rhbz1710935
     @rhelver+=8.3 @fedoraver+=32
-    @dracut @long @not_on_ppc64le
+    @not_on_ppc64le @skip_in_centos
+    @dracut @long
     @dracut_NM_NFS_root_dhcp
     Scenario: NM - dracut - NM module - NFSv3 root=dhcp
     * Run dracut test
@@ -59,7 +61,8 @@ Feature: NM: dracut
     @ver/rhel/9+=1.39.11
     @ver+=1.39
     @rhelver+=8.3 @fedoraver+=32
-    @not_on_ppc64le @dracut @long
+    @not_on_ppc64le
+    @dracut @long
     @dracut_NM_NFS_root_dhcp_nm_debug
     Scenario: NM - dracut - NM module - NFSv3 root=dhcp
     * Remove "/etc/NetworkManager/conf.d/99-test.conf" from dracut NFS root
@@ -95,7 +98,8 @@ Feature: NM: dracut
 
     @rhelver+=8.3 @fedoraver+=32
     @ver+=1.25
-    @dracut @long @not_on_ppc64le
+    @not_on_ppc64le @skip_in_centos
+    @dracut @long
     @dracut_NM_NFS_root_dhcp_ip_dhcp_neednet
     Scenario: NM - dracut - NM module - NFSv3 root=dhcp ip=dhcp neednet
     * Run dracut test
@@ -129,7 +133,8 @@ Feature: NM: dracut
 
     @rhelver+=8.3 @fedoraver+=32
     @ver+=1.25
-    @dracut @long @not_on_ppc64le
+    @not_on_ppc64le @skip_in_centos
+    @dracut @long
     @dracut_NM_NFS_root_dhcp_ip_dhcp_peerdns0
     Scenario: NM - dracut - NM module - NFSv3 root=dhcp ip=dhcp rd.peerdns=0
     * Run dracut test
@@ -165,7 +170,8 @@ Feature: NM: dracut
     @rhbz1872299
     @ver+=1.25
     @rhelver+=8.3 @fedoraver+=32
-    @dracut @long @not_on_ppc64le
+    @not_on_ppc64le @skip_in_centos
+    @dracut @long
     @dracut_NM_NFS_root_dhcp_vendor_class
     Scenario: NM - dracut - NM module - NFSv3 root=nfs rd.net.dhcp.vendor-class
     * Run dracut test
@@ -200,7 +206,8 @@ Feature: NM: dracut
 
     @rhelver+=8.3 @fedoraver+=32
     @ver+=1.25.0
-    @dracut @long @not_on_ppc64le
+    @not_on_ppc64le @skip_in_centos
+    @dracut @long
     @dracut_NM_NFS_root_nfs_ip_dhcp_mtu
     Scenario: NM - dracut - NM module - NFSv3 root=nfs ip=IFNAME:AUTOCONF:MTU
     * Run dracut test
@@ -236,7 +243,8 @@ Feature: NM: dracut
 
     @rhelver+=8.3 @fedoraver+=32
     @ver+=1.25.0
-    @dracut @long @not_on_ppc64le
+    @not_on_ppc64le @skip_in_centos
+    @dracut @long
     @dracut_NM_NFS_root_nfs_ip_dhcp_mtu_cloned_mac
     Scenario: NM - dracut - NM module - NFSv3 root=nfs ip=IFNAME:AUTOCONF:MTU:CMAC
     * Run dracut test
@@ -275,7 +283,8 @@ Feature: NM: dracut
       @rhbz1900260
       @rhelver+=8.4 @fedoraver+=32
       @ver+=1.26.0
-      @dracut @long @not_on_ppc64le
+      @not_on_ppc64le @skip_in_centos
+      @dracut @long
       @dracut_NM_NFS_root_nfs_ip_dhcp_hostname
       Scenario: NM - dracut - NM module - NFSv3 root=nfs ip=::::HOSTNAME::dhcp
       * Run dracut test
@@ -309,7 +318,8 @@ Feature: NM: dracut
 
     @rhelver+=8.3 @fedoraver+=32
     @ver+=1.25.0
-    @dracut @long @not_on_ppc64le
+    @not_on_ppc64le @skip_in_centos
+    @dracut @long
     @dracut_NM_NFS_root_nfs_ip_dhcp_rd_routes
     Scenario: NM - dracut - NM module - NFSv3 root=nfs ip=IFNAME:dhcp rd.route
     * Run dracut test
@@ -351,7 +361,8 @@ Feature: NM: dracut
     @rhbz1961666
     @rhelver+=8.3 @fedoraver+=32
     @ver+=1.32
-    @dracut @long @not_on_ppc64le
+    @not_on_ppc64le @skip_in_centos
+    @dracut @long
     @dracut_NM_NFS_root_nfs_ip_dhcp_dhcp6_slow_ip4
     Scenario: NM - dracut - NM module - NFSv3 root=nfs ip=dhcp,dhcp6 with slow IPv4 DHCP
     * Run dracut test
@@ -387,7 +398,8 @@ Feature: NM: dracut
     @rhbz1961666
     @rhelver+=8.3 @fedoraver+=32
     @ver+=1.36
-    @dracut @long @not_on_ppc64le
+    @not_on_ppc64le @skip_in_centos
+    @dracut @long
     @dracut_NM_NFS_root_nfs_ip_dhcp_dhcp6_slow_ip6
     Scenario: NM - dracut - NM module - NFSv3 root=nfs ip=dhcp,dhcp6 with slow IPv6 DHCP
     * Run dracut test
@@ -422,7 +434,8 @@ Feature: NM: dracut
     @rhbz1961666
     @rhelver+=8.3 @fedoraver+=32
     @ver+=1.32
-    @dracut @long @not_on_ppc64le
+    @not_on_ppc64le @skip_in_centos
+    @dracut @long
     @dracut_NM_NFS_root_nfs_ip_dhcp_dhcp6_with_ip46_and_ip6_nic
     Scenario: NM - dracut - NM module - NFSv3 root=nfs ip=dhcp,dhcp6 with IPv4+IPv6 NIC and IPv6 only NIC
     * Run dracut test
@@ -468,7 +481,8 @@ Feature: NM: dracut
     @rhbz1961666
     @rhelver+=8.3 @fedoraver+=32
     @ver+=1.32
-    @dracut @long @not_on_ppc64le
+    @not_on_ppc64le @skip_in_centos
+    @dracut @long
     @dracut_NM_NFS_root_nfs_ip_dhcp_dhcp6_with_slow_ip46_and_ip6_nic
     Scenario: NM - dracut - NM module - NFSv3 root=nfs ip=dhcp,dhcp6 with slow IPv4+IPv6 NIC and IPv6 only NIC
     * Run dracut test
@@ -515,7 +529,8 @@ Feature: NM: dracut
     @rhbz1961666
     @rhelver+=8.3 @fedoraver+=32
     @ver+=1.36
-    @dracut @long @not_on_ppc64le
+    @not_on_ppc64le @skip_in_centos
+    @dracut @long
     @dracut_NM_NFS_root_nfs_ip_dhcp_dhcp6_with_slow_ip64_and_ip6_nic
     Scenario: NM - dracut - NM module - NFSv3 root=nfs ip=dhcp,dhcp6 with IPv4 + slow IPv6 NIC and IPv6 only NIC
     * Run dracut test
@@ -559,7 +574,8 @@ Feature: NM: dracut
 
     @rhelver+=8.3 @fedoraver+=32
     @ver+=1.25
-    @dracut @long @not_on_ppc64le
+    @not_on_ppc64le @skip_in_centos
+    @dracut @long
     @dracut_NM_NFS_root_nfs_ip_manual_dhcp
     Scenario: NM - dracut - NM module - NFSv3 root=nfs ip=IP:::NETMASK::MAC:dhcp
     * Run dracut test
@@ -599,7 +615,8 @@ Feature: NM: dracut
     @rhbz1883958
     @rhelver+=8.3 @fedoraver+=32
     @ver+=1.29
-    @dracut @long @not_on_ppc64le
+    @not_on_ppc64le
+    @dracut @long
     @dracut_NM_NFS_root_nfs_ip_manual
     Scenario: NM - dracut - NM module - NFSv3 root=nfs ip=manual
     * Run dracut test
@@ -628,7 +645,8 @@ Feature: NM: dracut
     @rhbz1879795
     @rhelver+=8.4 @fedoraver+=32
     @ver+=1.29.0
-    @dracut @long @not_on_ppc64le
+    @not_on_ppc64le @skip_in_centos
+    @dracut @long
     @dracut_NM_NFS_root_nfs_ip_manual_gateway_hostname_mac
     Scenario: NM - dracut - NM module - NFSv3 root=nfs ip=IP::GW:NETMASK:HOSTNAME:MAC:none
     * Run dracut test
@@ -660,7 +678,8 @@ Feature: NM: dracut
 
     @rhelver+=8.3 @fedoraver+=32
     @ver+=1.29.0
-    @dracut @long @not_on_ppc64le
+    @not_on_ppc64le @skip_in_centos
+    @dracut @long
     @dracut_NM_NFS_root_nfs_ip_manual_mtu
     Scenario: NM - dracut - NM module - NFSv3 root=nfs ip=IP:::NETMASK::IFNAME:none:MTU
     * Run dracut test
@@ -690,7 +709,8 @@ Feature: NM: dracut
 
     @rhelver+=8.3 @fedoraver+=32
     @ver+=1.29.0
-    @dracut @long @not_on_ppc64le
+    @not_on_ppc64le @skip_in_centos
+    @dracut @long
     @dracut_NM_NFS_root_nfs_ip_manual_mtu_cloned_mac
     Scenario: NM - dracut - NM module - NFSv3 root=nfs ip=IP:::NETMASK::IFNAME:none:MTU:CMAC
     * Run dracut test
@@ -722,7 +742,8 @@ Feature: NM: dracut
 
     @rhelver+=8.3 @fedoraver+=32
     @ver+=1.29.0
-    @dracut @long @not_on_ppc64le
+    @not_on_ppc64le @skip_in_centos
+    @dracut @long
     @dracut_NM_NFS_root_nfs_ip_manual_dns1
     Scenario: NM - dracut - NM module - NFSv3 root=nfs ip=IP:::NETMASK::IFNAME:none:DNS1
     * Run dracut test
@@ -751,7 +772,8 @@ Feature: NM: dracut
 
     @rhelver+=8.3 @fedoraver+=32
     @ver+=1.29.0
-    @dracut @long @not_on_ppc64le
+    @not_on_ppc64le @skip_in_centos
+    @dracut @long
     @dracut_NM_NFS_root_nfs_ip_manual_dns2
     Scenario: NM - dracut - NM module - NFSv3 root=nfs ip=IP:::NETMASK::IFNAME:none:DNS1:DNS2
     * Run dracut test
@@ -780,7 +802,8 @@ Feature: NM: dracut
 
     @rhelver+=8.3 @fedoraver+=32
     @ver+=1.29.0
-    @dracut @long @not_on_ppc64le
+    @not_on_ppc64le @skip_in_centos
+    @dracut
     @dracut_NM_NFS_root_nfs_ip_manual_dns3
     Scenario: NM - dracut - NM module - NFSv3 root=nfs ip=IP:::NETMASK::IFNAME:none:DNS1:DNS2 nameserver
     * Run dracut test
@@ -809,7 +832,8 @@ Feature: NM: dracut
 
     @rhelver+=8.3 @fedoraver+=32
     @ver+=1.29.0
-    @dracut @long @not_on_ppc64le
+    @not_on_ppc64le @skip_in_centos
+    @dracut @long
     @dracut_NM_NFS_root_nfs_ip_manual_custom_ifname
     Scenario: NM - dracut - NM module - NFSv3 root=nfs ip=manual ifname=nfs
     * Run dracut test
@@ -838,9 +862,10 @@ Feature: NM: dracut
 
 
     @rhbz1883958
-    @ver+=1.29
     @rhelver+=8.3 @fedoraver+=32
-    @dracut @long @not_on_ppc64le
+    @ver+=1.29
+    @not_on_ppc64le @skip_in_centos
+    @dracut @long
     @dracut_NM_NFS_root_nfs_ip_off
     Scenario: NM - dracut - NM module - NFSv3 root=nfs ip=off
     * Run dracut test
@@ -873,9 +898,10 @@ Feature: NM: dracut
 
 
     @rhbz1934122
-    @ver+=1.32
     @rhelver+=8.3 @fedoraver+=32
-    @dracut @dracut_remote_NFS_clean @long @not_on_ppc64le
+    @ver+=1.32
+    @not_on_ppc64le @skip_in_centos
+    @dracut @dracut_remote_NFS_clean @long
     @dracut_NM_NFS_remote_rootfs_connection
     Scenario: NM - dracut - NM module - NM uses connection defined in remote root with ip=eth*:dhcp
     * Execute ". contrib/dracut/setup.sh; cp contrib/dracut/conf/rhbz1934122_NM.conf $TESTDIR/nfs/client/etc/NetworkManager/conf.d/50-persist-conn.conf"
@@ -944,7 +970,8 @@ Feature: NM: dracut
       @rhbz1934122
       @ver+=1.32
       @rhelver+=8.3 @fedoraver+=32
-      @dracut @dracut_remote_NFS_clean @long @not_on_ppc64le
+      @not_on_ppc64le @skip_in_centos
+      @dracut @dracut_remote_NFS_clean @long
       @dracut_NM_NFS_remote_rootfs_connection_var2
       Scenario: NM - dracut - NM module - NM uses connection defined in remote root with ip=dhcp
       * Execute ". contrib/dracut/setup.sh; cp contrib/dracut/conf/rhbz1934122_NM.conf $TESTDIR/nfs/client/etc/NetworkManager/conf.d/50-persist-conn.conf"
@@ -1004,7 +1031,8 @@ Feature: NM: dracut
 
     @rhbz1854323
     @rhelver+=8.3 @fedoraver+=32
-    @dracut @long @not_on_ppc64le
+    @not_on_ppc64le @skip_in_centos
+    @dracut @long
     @dracut_NM_NFS_root_nfs_ip_auto6
     Scenario: NM - dracut - NM module - NFSv3 root=nfs ip=auto6
     * Run dracut test
@@ -1031,7 +1059,8 @@ Feature: NM: dracut
     @rhbz1854323
     @rhelver+=8.3 @fedoraver+=32
     @ver+=1.25
-    @dracut @long @not_on_ppc64le
+    @not_on_ppc64le @skip_in_centos
+    @dracut @long
     @dracut_NM_NFS_root_nfs_ip_dhcp6
     Scenario: NM - dracut - NM module - NFSv3 root=nfs ip=dhcp6
     * Run dracut test
@@ -1058,7 +1087,8 @@ Feature: NM: dracut
     @rhbz1879795
     @rhelver+=8.4 @fedoraver+=32
     @ver+=1.25.0
-    @dracut @long @not_on_ppc64le
+    @not_on_ppc64le @skip_in_centos
+    @dracut @long
     @dracut_NM_NFS_root_nfs_ip_manual6_gateway_hostname_mac
     Scenario: NM - dracut - NM module - NFSv3 root=nfs ip=IP6:GW::NETMASK:HOSTNAME:MAC
     * Run dracut test
@@ -1089,7 +1119,8 @@ Feature: NM: dracut
     @rhbz1840989
     @ver+=1.25
     @rhelver+=8.3 @fedoraver+=32
-    @dracut @long @not_on_ppc64le
+    @not_on_ppc64le @skip_in_centos
+    @dracut @long
     @dracut_NM_NFS_root_nfs_ipv6_disable
     Scenario: NM - dracut - NM module - NFSv3 root=nfs ipv6.disable
     * Run dracut test
@@ -1125,7 +1156,8 @@ Feature: NM: dracut
 
 
     @rhelver+=8.3 @fedoraver+=32
-    @dracut @long @not_on_ppc64le
+    @not_on_ppc64le @skip_in_centos
+    @dracut @long
     @dracut_NM_iSCSI_netroot_dhcp
     Scenario: NM - dracut - NM module - iSCSI netroot=dhcp
     * Run dracut test
@@ -1155,7 +1187,8 @@ Feature: NM: dracut
 
     @rhelver+=8.3 @fedoraver+=32
     @ver+=1.25
-    @dracut @long @not_on_ppc64le
+    @not_on_ppc64le @skip_in_centos
+    @dracut @long
     @dracut_NM_iSCSI_netroot_dhcp_ip_dhcp
     Scenario: NM - dracut - NM module - iSCSI netroot=dhcp ip=eth0:dhcp
     * Run dracut test
@@ -1188,7 +1221,8 @@ Feature: NM: dracut
 
     @rhelver+=8.3 @fedoraver+=32
     @ver+=1.36.0
-    @dracut @long @x86_64_only
+    @x86_64_only @skip_in_centos
+    @dracut @long
     @dracut_NM_iSCSI_ibft_table
     Scenario: NM - dracut - NM module - iSCSI ibft.table
     * Run dracut test
@@ -1222,7 +1256,8 @@ Feature: NM: dracut
 
     @rhelver+=8.3 @fedoraver+=32
     @ver+=1.29
-    @dracut @long @not_on_ppc64le
+    @not_on_ppc64le @skip_in_centos
+    @dracut @long
     @dracut_NM_iSCSI_multiple_targets
     Scenario: NM - dracut - NM module - iSCSI 2 targets in RAID0
     * Run dracut test
@@ -1280,7 +1315,8 @@ Feature: NM: dracut
     @rhbz1627820
     @rhelver+=8.3 @fedoraver+=32
     @ver+=1.25
-    @dracut @long @not_on_ppc64le
+    @not_on_ppc64le
+    @dracut @long
     @dracut_NM_bridge_eth0
     Scenario: NM - dracut - NM module - bridge over eth0
     * Run dracut test
@@ -1319,7 +1355,8 @@ Feature: NM: dracut
 
     @rhelver+=8.3 @fedoraver+=32
     @ver+=1.29
-    @dracut @long @not_on_ppc64le
+    @not_on_ppc64le @skip_in_centos
+    @dracut @long
     @dracut_NM_bridge_custom_name_2_ifaces
     Scenario: NM - dracut - NM module - custom bridge name over 2 ifaces
     * Run dracut test
@@ -1364,7 +1401,8 @@ Feature: NM: dracut
 
 
     @rhelver+=8.3 @fedoraver+=32
-    @dracut @long @not_on_ppc64le
+    @not_on_ppc64le
+    @dracut @long
     @dracut_NM_bond_over_2_ifaces_rr
     Scenario: NM - dracut - NM module - bond over 2 ifaces balance-rr
     * Run dracut test
@@ -1451,7 +1489,8 @@ Feature: NM: dracut
 
     @rhelver+=8.3 @fedoraver+=32
     @ver-=1.24
-    @dracut @long @not_on_ppc64le
+    @not_on_ppc64le
+    @dracut @long
     @dracut_NM_vlan_over_nic
     Scenario: NM - dracut - NM module - VLAN over single NIC
     * Run dracut test
@@ -1482,7 +1521,8 @@ Feature: NM: dracut
 
     @rhelver+=8.3 @fedoraver+=32
     @ver+=1.25
-    @dracut @long @not_on_ppc64le
+    @not_on_ppc64le
+    @dracut @long
     @dracut_NM_vlan_over_nic
     Scenario: NM - dracut - NM module - VLAN over single NIC
     * Run dracut test
@@ -1516,7 +1556,8 @@ Feature: NM: dracut
 
     @rhelver+=8.3 @fedoraver+=32
     @ver-=1.24
-    @dracut @long @not_on_ppc64le
+    @not_on_ppc64le @skip_in_centos
+    @dracut @long
     @dracut_NM_vlan_mutliple_over_nic
     Scenario: NM - dracut - NM module - multiple VLANs over single NIC
     * Run dracut test
@@ -1562,7 +1603,8 @@ Feature: NM: dracut
 
     @rhelver+=8.3 @fedoraver+=32
     @ver+=1.25
-    @dracut @long @not_on_ppc64le
+    @not_on_ppc64le @skip_in_centos
+    @dracut @long
     @dracut_NM_vlan_mutliple_over_nic
     Scenario: NM - dracut - NM module - multiple VLANs over single NIC
     * Run dracut test
@@ -1612,7 +1654,8 @@ Feature: NM: dracut
     @rhbz1879003
     @rhelver+=8.3 @fedoraver+=32
     @ver+=1.27
-    @dracut @long @not_on_ppc64le
+    @not_on_ppc64le @skip_in_centos
+    @dracut @long
     @dracut_NM_vlan_over_bridge
     Scenario: NM - dracut - NM module - VLAN over bridge
     * Run dracut test
@@ -1648,7 +1691,8 @@ Feature: NM: dracut
 
     @rhelver+=8.3 @fedoraver+=32
     @ver-=1.24
-    @dracut @long @not_on_ppc64le
+    @not_on_ppc64le @skip_in_centos
+    @dracut @long
     @dracut_NM_vlan_over_bond
     Scenario: NM - dracut - NM module - VLAN over bond
     * Run dracut test
@@ -1696,7 +1740,8 @@ Feature: NM: dracut
 
     @rhelver+=8.3 @fedoraver+=32
     @ver+=1.25
-    @dracut @long @not_on_ppc64le
+    @not_on_ppc64le @skip_in_centos
+    @dracut @long
     @dracut_NM_vlan_over_bond
     Scenario: NM - dracut - NM module - VLAN over bond
     * Run dracut test
@@ -1734,7 +1779,8 @@ Feature: NM: dracut
 
     @rhelver+=8.3 @fedoraver+=32
     @ver+=1.27
-    @temporary_skip @dracut @long @not_on_ppc64le
+    @not_on_ppc64le @skip_in_centos
+    @temporary_skip @dracut @long
     @dracut_NM_vlan_over_team_no_boot
     Scenario: NM - dracut - NM module - VLAN over team boot over other iface (team not stable)
     * Run dracut test
@@ -1796,7 +1842,8 @@ Feature: NM: dracut
 
 
     @rhelver+=8.3 @rhelver-=8.99 @fedoraver-=0
-    @dracut @long @x86_64_only
+    @x86_64_only @skip_in_centos
+    @dracut @long
     @dracut_legacy_iSCSI_ibft_table
     Scenario: NM - dracut - legacy module - iSCSI ibft table
     * Run dracut test
