@@ -640,9 +640,7 @@ def test_misc_test_version_tag_eval():
 
 def test_misc_nm_version_parse():
     def _assert(version, expect_stream, expect_version):
-        (stream, version) = nmci.misc.nm_version_parse(version)
-        assert expect_stream == stream
-        assert expect_version == version
+        assert (expect_stream, expect_version) == nmci.misc.nm_version_parse(version)
 
     _assert("1.31.1-28009.copr.067893f8d3.fc33", "upstream", [1, 31, 1, 28009])
     _assert("1.26.0-12.el8_3", "rhel-8-3", [1, 26, 0, 12])
@@ -653,6 +651,11 @@ def test_misc_nm_version_parse():
     _assert("1.26.6-1.fc33", "fedora-33", [1, 26, 6, 1])
     _assert("1.26.6-0.2.fc33", "fedora-33", [1, 26, 6, 0, 2])
     _assert("1.31.2-28040.11545c0ca0.el8", "upstream", [1, 31, 2, 28040])
+    _assert("1.36.0-9.rh1000000.1.el8_6", "rhel-8-6", [1, 36, 0, 9])
+    _assert("1.36.0-9.rh1000000.1.el8", "rhel-8", [1, 36, 0, 9])
+    _assert("1.31.2-28040.11545c0ca0.el8", "upstream", [1, 31, 2, 28040])
+    _assert("1.36.0-9.19.rh1000000.1.el8", "rhel-8", [1, 36, 0, 9, 19])
+    _assert("1.36.0-10009.19.rh1000000.1.el8", "upstream", [1, 36, 0, 10009, 19])
 
 
 def test_misc_test_version_tag_parse_ver():

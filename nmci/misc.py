@@ -196,50 +196,40 @@ class _Misc:
         # that are not actually "rhel-8" stream, must have a unique version tag.
         # Like for example copr builds of upstream have.
 
-        m = re.match(
-            r"^([0-9]+)\.([0-9]+)\.([0-9]+)-([0-9]+)\.(fc|el)([0-9]+)(_([0-9]+))?$",
-            version,
-        )
-        if m and int(m.group(4)) < 1000:
-            if m.group(5) == "el":
-                s = "rhel"
-            else:
-                s = "fedora"
-            if m.group(7):
-                stream = "%s-%s-%s" % (s, int(m.group(6)), int(m.group(8)))
-            else:
-                stream = "%s-%s" % (s, int(m.group(6)))
-            return (stream, [int(m.group(x)) for x in range(1, 5)])
-
-        m = re.match(
-            r"^([0-9]+)\.([0-9]+)\.([0-9]+)-([0-9]+)\.([0-9]+)\.(fc|el)([0-9]+)(_([0-9]+))?$",
-            version,
-        )
-        if m and int(m.group(4)) < 1000:
-            if m.group(6) == "el":
-                s = "rhel"
-            else:
-                s = "fedora"
-            if m.group(8):
-                stream = "%s-%s-%s" % (s, int(m.group(7)), int(m.group(9)))
-            else:
-                stream = "%s-%s" % (s, int(m.group(7)))
-            return (stream, [int(m.group(x)) for x in range(1, 6)])
-
-        m = re.match(
-            r"^([0-9]+)\.([0-9]+)\.([0-9]+)-([0-9]+)\.[a-z0-9]+\.(el|fc)[0-9]+$",
-            version,
-        )
-        if m and int(m.group(4)) >= 1000:
-            return ("upstream", [int(m.group(x)) for x in range(1, 5)])
-
-        m = re.match(r"^([0-9]+)\.([0-9]+)\.([0-9]+)-([0-9]+)\.copr.*$", version)
-        if m and int(m.group(4)) >= 1000:
-            return ("upstream", [int(m.group(x)) for x in range(1, 5)])
-
-        m = re.match(r"^([0-9]+)\.([0-9]+)\.([0-9]+)-.*$", version)
+        m = re.match(r"^(.*)\.((el|fc)([0-9]+)(_([0-9]+))?)$", version)
         if m:
-            return ("unknown", [int(m.group(x)) for x in range(1, 4)])
+            if m.group(3) == "el":
+                d = "rhel"
+            else:
+                d = "fedora"
+            pkg_suffix = {
+                "full": m.group(2),
+                "dist": d,
+                "dist_1": m.group(4),
+                "dist_2": m.group(6),
+            }
+            version_base = m.group(1)
+        else:
+            pkg_suffix = None
+            version_base = version
+
+        m = re.match(
+            r"^([0-9]+\.[0-9]+\.[0-9]+([-.][0-9]+(\.[0-9]+)*)?)([-.].+)??$",
+            version_base,
+        )
+        if m:
+            v = [int(x) for x in m.group(1).replace("-", ".").split(".")]
+            if len(v) < 4:
+                stream = "unknown"
+            elif v[3] > 1000:
+                stream = "upstream"
+            elif pkg_suffix:
+                stream = f"{pkg_suffix['dist']}-{pkg_suffix['dist_1']}"
+                if pkg_suffix["dist_2"]:
+                    stream = f"{stream}-{pkg_suffix['dist_2']}"
+            else:
+                stream = "unknown"
+            return (stream, v)
 
         raise ValueError('cannot parse version "%s"' % (version))
 
