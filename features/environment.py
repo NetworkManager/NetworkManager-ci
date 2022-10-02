@@ -10,6 +10,8 @@ import xml.etree.ElementTree as ET
 
 import nmci
 
+from features.steps.nmtui import get_cursored_screen, log_tui_screen
+
 TIMER = 0.5
 
 # the order of these steps is as follows
@@ -195,9 +197,9 @@ def after_step(context, step):
         # do not append step.name if no substeps called
         if context.screen_logs or context.step_level > 0:
             context.screen_logs.append(step.name)
-        context.screen_logs += nmci.ctx.get_cursored_screen(context.screen)
+        context.screen_logs += get_cursored_screen(context.screen)
         if context.step_level == 0:
-            nmci.ctx.log_tui_screen(context, context.screen_logs)
+            log_tui_screen(context, context.screen_logs)
             context.screen_logs = []
 
         if step.status == "failed":

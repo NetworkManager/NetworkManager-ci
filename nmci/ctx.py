@@ -9,38 +9,6 @@ import time
 import nmci
 
 
-def get_cursored_screen(screen):
-    myscreen_display = [line for line in screen.display]
-    lst = [item for item in myscreen_display[screen.cursor.y]]
-    lst[screen.cursor.x] = "\u2588"
-    myscreen_display[screen.cursor.y] = "".join(lst)
-    return myscreen_display
-
-
-def get_screen_string(screen):
-    screen_string = "\n".join(screen.display)
-    return screen_string
-
-
-def print_screen(screen):
-    cursored_screen = get_cursored_screen(screen)
-    for i in range(len(cursored_screen)):
-        print(cursored_screen[i])
-
-
-def print_screen_wo_cursor(screen):
-    for i in range(len(screen.display)):
-        print(screen.display[i])
-
-
-def log_tui_screen(context, screen, caption="TUI"):
-    nmci.embed.embed_data(caption, "\n".join(screen))
-
-
-def stripped(x):
-    return "".join([i for i in x if 31 < ord(i) < 127])
-
-
 def dump_status(context, when, fail_only=False):
     nm_running = (
         nmci.process.systemctl("status NetworkManager", do_embed=False).returncode == 0
