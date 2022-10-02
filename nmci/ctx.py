@@ -692,7 +692,9 @@ def teardown_racoon(context):
 def reset_hwaddr_nmcli(context, ifname):
     if not os.path.isfile("/tmp/nm_veth_configured"):
         hwaddr = nmci.process.run_stdout(f"ethtool -P {ifname}").split()[2]
-        nmci.process.run_stdout(f"ip link set {ifname} address {hwaddr}")
+        if not hwaddr == "not":
+            # "Permanent address: not set" means there's no permanent address
+            nmci.process.run_stdout(f"ip link set {ifname} address {hwaddr}")
     nmci.process.run_stdout(f"ip link set {ifname} up")
 
 
