@@ -152,7 +152,7 @@ def _before_scenario(context, scenario):
     print(f"before_scenario ... {status} in {duration:.3f}s")
     duration_el.text = f"({duration:.3f}s)"
 
-    nmci.ctx.check_crash(context, "crash outside steps (before scenario)")
+    nmci.crash.check_crash(context, "crash outside steps (before scenario)")
 
     if context.cext.scenario_skipped:
         nmci.embed._html_formatter.scenario(scenario)
@@ -215,7 +215,7 @@ def after_step(context, step):
         if os.path.isfile("/tmp/nm_skip_restarts"):
             time.sleep(0.4)
 
-    nmci.ctx.check_crash(context, step.name)
+    nmci.crash.check_crash(context, step.name)
 
 
 # print exception traceback
@@ -247,7 +247,7 @@ def _after_scenario(context, scenario):
 
     nm_pid_after = nmci.nmutil.nm_pid()
     if not nm_pid_after:
-        nmci.ctx.check_crash(
+        nmci.crash.check_crash(
             context, "crash outside steps (last step before after_scenario)"
         )
         # print("Starting NM as it was found stopped")
@@ -284,12 +284,12 @@ def _after_scenario(context, scenario):
                 "".join(traceback.format_exception(ex, ex, ex.__traceback__))
             )
 
-    nmci.ctx.check_crash(context, "crash outside steps (after_scenario tags)")
+    nmci.crash.check_crash(context, "crash outside steps (after_scenario tags)")
 
     # check for crash reports and embed them
     # sets nmci.embed.coredump_reported if crash found
-    nmci.ctx.check_coredump(context)
-    nmci.ctx.check_faf(context)
+    nmci.crash.check_coredump(context)
+    nmci.crash.check_faf(context)
 
     scenario_fail = (
         scenario.status == "failed"
@@ -320,7 +320,7 @@ def _after_scenario(context, scenario):
         if not nmci.embed.coredump_reported:
             msg = "!!! no crash report detected, but NM PID changed !!!"
             nmci.embed.embed_data("NO_COREDUMP/NO_FAF", msg)
-        nmci.ctx.after_crash_reset(context)
+        nmci.crash.after_crash_reset(context)
 
     if scenario_fail:
         nmci.ctx.dump_status(context, "After Clean", fail_only=False)

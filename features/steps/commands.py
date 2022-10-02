@@ -694,7 +694,7 @@ def check_no_coredump(context, seconds):
     # check if coredump is found
     timeout = nmci.util.start_timeout(seconds)
     while timeout.loop_sleep(0.5):
-        nmci.ctx.check_coredump(context)
+        nmci.crash.check_coredump(context)
         assert not nmci.embed.coredump_reported, "Coredump found"
 
 
