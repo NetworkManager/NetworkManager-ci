@@ -800,9 +800,3 @@ def wait_for_testeth0(context):
             assert False, "Testeth0 cannot be upped..this is wrong"
         testeth0 = nmci.process.nmcli("con show testeth0")
     print(" ** we do have IPv4 complete")
-
-
-def reset_hwaddr_nmtui(context, ifname):
-    # This can fail in case we don't have device
-    hwaddr = nmci.process.run_stdout(f"ethtool -P {ifname}").split()[2]
-    nmci.process.run_stdout(f"ip link set {ifname} address {hwaddr}")
