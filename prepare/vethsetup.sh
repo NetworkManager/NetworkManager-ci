@@ -43,6 +43,7 @@ function setup_veth_env ()
     # If different than default connection is up after compilation bring it down and restart service
     for i in $(nmcli -t -f DEVICE connection); do
         nmcli device disconnect $i
+        systemctl stop NetworkManager
         rm -rf /var/run/NetworkManager*
     done
     sleep 2
@@ -78,6 +79,10 @@ function setup_veth_env ()
             exit 1
         fi
     done
+
+    # List profiles
+    nmcli -f All c
+
     # Make sure the active ethernet device is eth0
     if ! [ "x$DEV" == "xeth0" ]; then
         sleep 1
