@@ -726,18 +726,18 @@ Feature: nmcli - bridge
     @eth4_disconnect @cleanup @restart_if_needed
     @bridge_detect_initrd_device
     Scenario: NM - bridge - nm detects initrd bridge
-    * Add "bridge" connection named "bridge0" for device "bridge0" with options "bridge.stp no"
-    * Add "ethernet" connection named "bridge-slave-eth4" for device "eth4" with options "master bridge0"
-    * "." is visible with command "nmcli -g IP4.ADDRESS  c s bridge0" in "45" seconds
+    * Add "bridge" connection named "bridge-br0" for device "br0" with options "bridge.stp no"
+    * Add "ethernet" connection named "bridge-slave-eth4" for device "eth4" with options "master bridge-br0"
+    * "." is visible with command "nmcli -g IP4.ADDRESS  c s bridge-br0" in "45" seconds
     * Stop NM
-    * Execute "ip link set bridge0 type bridge forward_delay 0"
+    * Execute "ip link set br0 type bridge forward_delay 0"
     * Execute "ip link set eth4 type bridge_slave cost 4"
     * Wait for "2" seconds
     * Reboot
     * Start NM
     * Wait for "2" seconds
     Then "Exactly" "1" lines with pattern "^bridge-slave-eth4" are visible with command "nmcli connection"
-     And "Exactly" "1" lines with pattern "^bridge0" are visible with command "nmcli connection"
+     And "Exactly" "1" lines with pattern "^bridge-br0" are visible with command "nmcli connection"
      And "\neth4" is not visible with command "nmcli connection show"
 
 
