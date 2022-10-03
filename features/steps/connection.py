@@ -60,11 +60,12 @@ def modify_connection_with_noted(context, connection, prop, index="noted-value")
 def open_slave_connection(context, master, device, name):
     if master.find("team") != -1:
         cli = context.pexpect_spawn('nmcli connection add type team-slave ifname %s con-name %s master %s' % (device, name, master))
-        r = cli.expect(['Error', pexpect.EOF])
-    if master.find("bond") != -1:
+    elif master.find("bond") != -1:
         cli = context.pexpect_spawn('nmcli connection add type bond-slave ifname %s con-name %s master %s' % (device, name, master))
-        r = cli.expect(['Error', pexpect.EOF])
+    else:
+        raise ValueError("could not guess connection type")
 
+    r = cli.expect(['Error', pexpect.EOF])
     assert r == 1, 'Got an Error while adding slave connection %s on device %s for master %s\n%s%s' % (name, device, master, cli.after, cli.buffer)
     nmci.cleanup.cleanup_add_connection(name)
     nmci.cleanup.cleanup_add_iface(device)
