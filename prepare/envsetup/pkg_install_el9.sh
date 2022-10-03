@@ -44,9 +44,9 @@ install_el9_packages () {
     else
         cp -f  contrib/ovs/ovs-rhel9.repo /etc/yum.repos.d/ovs.repo
         yum -y install openvswitch2.17*
-        systemctl restart openvswitch
     fi
-
+    systemctl restart openvswitch
+    ovs-vsctl init
 
     # Install vpn dependencies
     dnf -4 -y install \

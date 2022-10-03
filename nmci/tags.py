@@ -2102,14 +2102,6 @@ def nmstate_upstream_setup_bs(context, scenario):
     )
     nmci.ctx.manage_veths(context)
 
-    if (
-        context.process.systemctl("is-active openvswitch").returncode != 0
-        or "ERR" in context.process.systemctl("status ovs-vswitchd.service").stdout
-    ):
-        print("restarting OVS service")
-        context.process.systemctl("restart openvswitch")
-        nmci.nmutil.restart_NM_service(context)
-
 
 def nmstate_upstream_setup_as(context, scenario):
     # nmstate restarts NM few times during tests
