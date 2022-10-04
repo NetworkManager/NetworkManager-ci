@@ -30,8 +30,11 @@ fi
 
 [[ $(uname -p) = "ppc64le" ]] && ARGS+=(-M cap-nested-hv=on,cap-cfpc=broken,cap-sbbc=broken,cap-ibs=broken,cap-ccf-assist=off,cap-hpt-max-page-size=4194304)
 
+CPUS = "2"
+[[ $(nproc) -gt 4 ]] && CPUS="$(($(nproc)-2))"
+
 # Provide rng device sourcing the hosts /dev/urandom and other standard parameters
-ARGS+=(-smp 2 -m $RAM -nodefaults -vga none -display none -no-reboot -device virtio-rng)
+ARGS+=(-smp $CPUS -m $RAM -nodefaults -vga none -display none -no-reboot -device virtio-rng)
 
 if [ -f $TESTDIR/qemu.pid ] ; then
   echo "Warning, pidfile exists!"
