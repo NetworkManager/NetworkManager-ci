@@ -84,14 +84,16 @@ install_el9_packages () {
         NetworkManager-config-connectivity-fedora NetworkManager-config-connectivity-redhat
 
     # Install kernel-modules-internal for mac80211_hwsim
-    VER=$(rpm -q --queryformat '%{VERSION}' kernel)
-    REL=$(rpm -q --queryformat '%{RELEASE}' kernel)
+    # in case we have more kernels take the first (as we do no reboot)
+    VER=$(rpm -q --queryformat '[%{VERSION}\n]' kernel |head -n 1)
+    REL=$(rpm -q --queryformat '[%{RELEASE}\n]' kernel |head -n 1)
     if grep Red /etc/redhat-release; then
         dnf -4 -y install \
             $BREW/rhel-9/packages/kernel/$VER/$REL/$(arch)/kernel-modules-internal-$VER-$REL.$(arch).rpm
     else
         dnf -4 -y install \
-            https://kojihub.stream.centos.org/kojifiles/packages/kernel/$VER/$REL/$(arch)/kernel-modules-internal-$VER-$REL.$(arch).rpm
+            $KHUB/kernel/$VER/$REL/$(arch)/kernel-modules-internal-$VER-$REL.$(arch).rpm \
+            $KHUB/kernel/$VER/$REL/$(arch)/kernel-devel-$VER-$REL.$(arch).rpm
     fi
 
     # We still need pptp and pptpd in epel to be packaged
