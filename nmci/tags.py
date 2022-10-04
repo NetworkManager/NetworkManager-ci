@@ -258,6 +258,14 @@ def not_on_veth_bs(context, scenario):
 _register_tag("not_on_veth", not_on_veth_bs, None)
 
 
+def not_when_no_veths_bs(context, scenario):
+    if not os.path.isfile("/tmp/nm_veth_configured"):
+        context.cext.skip("skipping on veth")
+
+
+_register_tag("not_when_no_veths", not_when_no_veths_bs, None)
+
+
 def regenerate_veth_as(context, scenario):
     if os.path.isfile("/tmp/nm_veth_configured"):
         nmci.ctx.check_vethsetup(context)
@@ -2055,10 +2063,6 @@ _register_tag("nmstate", nmstate_bs, nmstate_as)
 
 
 def nmstate_upstream_setup_bs(context, scenario):
-    # Skip on deployments where we do not have veths
-    if not os.path.isfile("/tmp/nm_veth_configured"):
-        context.cext.skip("Skipping as no vethsetup")
-        return
     # Prepare nmstate and skip if unsuccesful
     nmci.ctx.wait_for_testeth0(context)
     if (

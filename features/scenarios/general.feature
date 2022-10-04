@@ -1,4 +1,5 @@
 Feature: nmcli - general
+
     # Please do use tags as follows:
     # @bugzilla_link (rhbz123456)
     # @version_control (ver+=1.10,rhelver-=8,fedoraver+30,[not_with_]rhel_pkg,[not_with_]fedora_pkg) - see version_control.py
@@ -1851,6 +1852,7 @@ Feature: nmcli - general
     @ver+=1.26.0
     @ver-1.41.2
     @rhelver+=8 @fedoraver+=31
+    @not_when_no_veths
     @nmstate_upstream_setup @permissive
     @nmstate_upstream
     Scenario: NM - general - nmstate
@@ -1867,6 +1869,7 @@ Feature: nmcli - general
 
     @ver+=1.41.2
     @rhelver+=8 @fedoraver+=31
+    @not_when_no_veths
     @nmstate_upstream_setup @permissive
     @nmstate_upstream
     Scenario: NM - general - nmstate
