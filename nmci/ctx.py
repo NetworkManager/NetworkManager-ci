@@ -258,13 +258,6 @@ def teardown_testveth(context, ns):
     nmci.nmutil.reload_NM_service()
 
 
-def get_ethernet_devices(context):
-    devs = nmci.process.nmcli("-g DEVICE,TYPE dev").strip().split("\n")
-    ETHERNET = ":ethernet"
-    eths = [d.replace(ETHERNET, "") for d in devs if d.endswith(ETHERNET)]
-    return eths
-
-
 def setup_strongswan(context):
     RC = nmci.process.run_code(
         "sh prepare/strongswan.sh", ignore_stderr=True, timeout=60

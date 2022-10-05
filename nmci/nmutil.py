@@ -17,6 +17,12 @@ class _NMUtil:
             reply_type=nmci.dbus.REPLY_TYPE_U,
         )
 
+    def get_ethernet_devices(self):
+        devs = nmci.process.nmcli("-g DEVICE,TYPE dev").strip().split("\n")
+        ETHERNET = ":ethernet"
+        eths = [d.replace(ETHERNET, "") for d in devs if d.endswith(ETHERNET)]
+        return eths
+
     def nm_pid(self):
         pid = 0
         service_pid = nmci.process.systemctl(

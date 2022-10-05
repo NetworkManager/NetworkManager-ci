@@ -467,13 +467,13 @@ _register_tag("gsm", gsm_bs, gsm_as)
 
 
 def unmanage_eth_bs(context, scenario):
-    links = nmci.ctx.get_ethernet_devices(context)
+    links = nmci.nmutil.get_ethernet_devices()
     for link in links:
         context.process.nmcli(f"dev set {link} managed no")
 
 
 def unmanage_eth_as(context, scenario):
-    links = nmci.ctx.get_ethernet_devices(context)
+    links = nmci.nmutil.get_ethernet_devices()
     for link in links:
         context.process.nmcli(f"dev set {link} managed yes")
 
