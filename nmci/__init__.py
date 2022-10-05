@@ -87,5 +87,6 @@ sys.modules[f"{__name__}.nmutil"] = nmutil
 
 import nmci.ctx as ctx
 import nmci.gsm as gsm
+import nmci.prepare as prepare
 import nmci.crash as crash
 import nmci.tags as tags

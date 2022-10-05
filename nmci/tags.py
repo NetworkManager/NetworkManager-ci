@@ -1089,21 +1089,21 @@ def tag8021x_bs(context, scenario):
                 timeout=120,
                 ignore_stderr=True,
             )
-        nmci.ctx.setup_hostapd(context)
+        nmci.prepare.setup_hostapd(context)
 
 
 _register_tag("8021x", tag8021x_bs)
 
 
 def tag8021x_as(context, scenario):
-    nmci.ctx.teardown_hostapd(context)
+    nmci.prepare.teardown_hostapd(context)
 
 
 _register_tag("8021x_teardown", None, tag8021x_as)
 
 
 def pkcs11_bs(context, scenario):
-    nmci.ctx.setup_pkcs11(context)
+    nmci.prepare.setup_pkcs11(context)
     context.process.run_stdout("p11-kit list-modules")
     context.process.run_stdout("softhsm2-util --show-slots")
     context.process.run_stdout(
@@ -1118,7 +1118,7 @@ def simwifi_bs(context, scenario):
     if context.arch != "x86_64":
         context.cext.skip("Skipping as not on x86_64")
     args = ["namespace"]
-    nmci.ctx.setup_hostapd_wireless(context, args)
+    nmci.prepare.setup_hostapd_wireless(context, args)
 
 
 def simwifi_as(context, scenario):
@@ -1193,7 +1193,7 @@ def simwifi_p2p_bs(context, scenario):
         == 0
     ):
         print(" ** need to remove previous setup")
-        nmci.ctx.teardown_hostapd_wireless(context)
+        nmci.prepare.teardown_hostapd_wireless(context)
 
     context.process.run_stdout("modprobe -r mac80211_hwsim")
     time.sleep(1)
@@ -1250,7 +1250,7 @@ _register_tag("simwifi_p2p", simwifi_p2p_bs, simwifi_p2p_as)
 
 
 def simwifi_teardown_bs(context, scenario):
-    nmci.ctx.teardown_hostapd_wireless(context)
+    nmci.prepare.teardown_hostapd_wireless(context)
     nmci.ctx.wait_for_testeth0(context)
     # no need to skip teardown
     # context.cext.skip("simwifi teardown skip")
@@ -1279,12 +1279,12 @@ def vpnc_bs(context, scenario):
             ignore_stderr=True,
         )
         nmci.nmutil.restart_NM_service()
-    nmci.ctx.setup_racoon(context, mode="aggressive", dh_group=2)
+    nmci.prepare.setup_racoon(context, mode="aggressive", dh_group=2)
 
 
 def vpnc_as(context, scenario):
     context.process.nmcli_force("connection delete vpnc")
-    nmci.ctx.teardown_racoon(context)
+    nmci.prepare.teardown_racoon(context)
 
 
 _register_tag("vpnc", vpnc_bs, vpnc_as)
@@ -1345,13 +1345,13 @@ def libreswan_bs(context, scenario):
         mode = "ikev2"
     if "main" in scenario.tags:
         mode = "main"
-    nmci.ctx.setup_libreswan(context, mode, dh_group=14)
+    nmci.prepare.setup_libreswan(context, mode, dh_group=14)
 
 
 def libreswan_as(context, scenario):
     context.process.nmcli_force("connection down libreswan")
     context.process.nmcli_force("connection delete libreswan")
-    nmci.ctx.teardown_libreswan(context)
+    nmci.prepare.teardown_libreswan(context)
     nmci.ctx.wait_for_testeth0(context)
 
 
@@ -1364,7 +1364,7 @@ def openvpn_bs(context, scenario):
     if context.arch == "s390x":
         nmci.ctx.wait_for_testeth0(context)
         context.cext.skip("Skipping on s390x")
-    context.ovpn_proc = nmci.ctx.setup_openvpn(context, scenario.tags)
+    context.ovpn_proc = nmci.prepare.setup_openvpn(context, scenario.tags)
 
 
 def openvpn_as(context, scenario):
@@ -1385,14 +1385,14 @@ def strongswan_bs(context, scenario):
         if context.arch == "s390x":
             context.cext.skip("Skipping on RHEL7 on s390x")
     nmci.ctx.wait_for_testeth0(context)
-    nmci.ctx.setup_strongswan(context)
+    nmci.prepare.setup_strongswan(context)
 
 
 def strongswan_as(context, scenario):
     # context.process.run_stdout("ip route del default via 172.31.70.1")
     context.process.nmcli_force("connection down strongswan")
     context.process.nmcli_force("connection delete strongswan")
-    nmci.ctx.teardown_strongswan(context)
+    nmci.prepare.teardown_strongswan(context)
     nmci.ctx.wait_for_testeth0(context)
 
 
