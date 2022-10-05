@@ -85,13 +85,15 @@
     @openvpn
     @openvpn_set_mtu
     Scenario: nmcli - openvpn - set mtu
+    * Note the output of "nmcli -t --mode tabular --fields GENERAL.MTU device show eth0" as value "eth0_mtu1"
     * Add a connection named "openvpn" for device "\*" to "openvpn" VPN
     * Use certificate "sample-keys/client.crt" with key "sample-keys/client.key" and authority "sample-keys/ca.crt" for gateway "127.0.0.1" on OpenVPN connection "openvpn"
     * Bring "up" connection "openvpn"
+    * Note the output of "nmcli -t --mode tabular --fields GENERAL.MTU device show eth0" as value "eth0_mtu2"
     Then "VPN.VPN-STATE:.*VPN connected" is visible with command "nmcli c show openvpn"
     Then "IP4.ADDRESS.*172.31.70.*/32" is visible with command "nmcli c show openvpn"
     Then "1400" is visible with command "ip a s tun1"
-    Then "1500" is visible with command "ip a s eth0"
+    Then Check noted values "eth0_mtu1" and "eth0_mtu2" are the same
 
 
     @firewall @openvpn
