@@ -1,4 +1,4 @@
-from behave import step
+from behave import step  # pylint: disable=no-name-in-module
 
 import nmci
 

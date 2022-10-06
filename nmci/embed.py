@@ -11,6 +11,9 @@ class Embed:
     def __init__(self, fail_only=False, combine_tag=None):
         self.fail_only = fail_only
         self.combine_tag = combine_tag
+        self._data = None
+        self._mime_type = None
+        self._caption = None
 
     def evalDoEmbedArgs(self):
         return (self._mime_type, self._data or "NO DATA", self._caption)

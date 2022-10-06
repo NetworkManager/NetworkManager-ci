@@ -1,7 +1,7 @@
 import json
 import pexpect
 import time
-from behave import step, given
+from behave import step, given  # pylint: disable=no-name-in-module
 
 import nmci.misc
 from nmci.util import NM
@@ -14,7 +14,7 @@ def do_device_stuff(context, action, what):
 
 @step(u'Add a secondary address to device "{device}" within the same subnet')
 def add_secondary_addr_same_subnet(context, device):
-    from netaddr import IPNetwork
+    from netaddr import IPNetwork  # pylint: disable=no-name-in-module
     primary_ipn = IPNetwork(context.command_output("ip -4 a s %s | awk '/inet .*dynamic/ {print $2}'" % device))
     if str(primary_ipn.ip).split('.')[2] == str(primary_ipn.ip+1).split('.')[2]:
         secondary_ip = primary_ipn.ip+1
@@ -103,8 +103,8 @@ def compare_devices(context):
     #
     # Lubomir Rintel <lrintel@redhat.com>
 
-    from gi.repository import NM
-    from pyroute2 import IPRoute
+    from gi.repository import NM  # pylint: disable=import-error
+    from pyroute2 import IPRoute  # pylint: disable=import-error
 
     def nm_devices():
         """

@@ -2,7 +2,7 @@ import os
 import pyte
 import re
 import time
-from behave import step
+from behave import step  # pylint: disable=no-name-in-module
 
 import nmci
 

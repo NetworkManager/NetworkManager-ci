@@ -2,7 +2,7 @@ import os
 import time
 import re
 import configparser
-from behave import step
+from behave import step  # pylint: disable=no-name-in-module
 
 import commands
 import nmci

@@ -1,6 +1,6 @@
 import pexpect
 import time
-from behave import step
+from behave import step  # pylint: disable=no-name-in-module
 from nmci.util import NM
 
 

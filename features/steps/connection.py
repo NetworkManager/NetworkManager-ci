@@ -1,6 +1,7 @@
 import pexpect
 import time
-from behave import step
+from behave import step  # pylint: disable=no-name-in-module
+
 
 import nmci
 
@@ -43,7 +44,7 @@ def add_new_connection(context, typ, name=None, ifname=None, options=None):
 def add_port(context, name, ifname, parent, pkey):
     cli = context.pexpect_spawn('nmcli connection add type infiniband con-name %s ifname %s parent %s p-key %s' % (name, ifname, parent, pkey))
     r = cli.expect(['Error', pexpect.EOF])
-    assert r == 1, 'Got an Error while adding %s connection %s for device %s\n%s%s' % (name, ifname, cli.after, cli.buffer)
+    assert r == 1, 'Got an Error while adding %s connection %s for device %s\n%s' % (name, ifname, cli.after, cli.buffer)
     time.sleep(1)
 
 

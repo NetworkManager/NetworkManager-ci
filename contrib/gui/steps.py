@@ -12,7 +12,7 @@
 # !!! WARNING !!! do not use context.cext instead of context.embed here,
 #                 as it is not available in GUI projects!
 
-from behave import step
+from behave import step  # pylint: disable=no-name-in-module
 from qecore.step_matcher import use_step_matcher
 import subprocess
 import os
