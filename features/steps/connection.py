@@ -172,7 +172,7 @@ def modify_connection(context, name, options):
 
 @step(u'Wait for testeth0')
 def wait_for_eth0(context):
-    nmci.lib.wait_for_testeth0(context)
+    nmci.ctx.wait_for_testeth0(context)
 
 @step(u'Reload connections')
 def reload_connections(context):
