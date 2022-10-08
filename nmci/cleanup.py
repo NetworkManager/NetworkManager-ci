@@ -256,7 +256,8 @@ class CleanupNMService(Cleanup):
             r = nmci.nmutil.restart_NM_service()
         else:
             assert self._operation == "reload"
-            r = nmci.nmutil.reload_NM_service()
+            nmci.nmutil.reload_NM_service()
+            r = True
         assert r
 
 
