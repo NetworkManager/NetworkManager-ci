@@ -147,3 +147,39 @@ Feature: NM: dispatcher
     * Restart NM in background
     # If NM hangs this will be never shown
     When "deactivating" is not visible with command "systemctl status NetworkManager" in "10" seconds
+
+
+    @rhbz2100456
+    @ver+=1.42
+    @disp
+    @dispatcher_interface_stuck_in_check_ip_state
+    Scenario: nmcli - ipv6 - interface doesn't end up in check-ip-state
+    * Write dispatcher "50-dhcp-dns.sh" file with params
+          """
+          if [ "$1" != eth10 ] || [ "$2" != dhcp4-change ]; then
+             exit 0
+          fi
+
+          cp /run/NetworkManager/no-stub-resolv.conf /tmp/nmci/my-resolv.conf
+          """
+    * Add "ethernet" connection named "con_ipv6" for device "eth10"
+    When Bring up connection "con_ipv6" ignoring error
+    Then "10.16.1.1" is visible with command "cat /tmp/nmci/my-resolv.conf"
+
+
+    @rhbz2100456
+    @ver+=1.42
+    @disp
+    @dispatcher_interface_stuck_in_check_ip_state_v6only
+    Scenario: nmcli - ipv6 - interface doesn't end up in check-ip-state
+    * Write dispatcher "50-dhcp-dns.sh" file with params
+          """
+          if [ "$1" != eth10 ] || [ "$2" != dhcp4-change ]; then
+             exit 0
+          fi
+
+          cp /run/NetworkManager/no-stub-resolv.conf /tmp/nmci/my-resolv.conf
+          """
+    * Add "ethernet" connection named "con_ipv6" for device "eth10" with options "ipv4.method disabled"
+    When Bring up connection "con_ipv6" ignoring error
+    Then "nameserver 2620:52" is visible with command "cat /tmp/nmci/my-resolv.conf"
