@@ -147,3 +147,30 @@ Feature: NM: dispatcher
     * Restart NM in background
     # If NM hangs this will be never shown
     When "deactivating" is not visible with command "systemctl status NetworkManager" in "10" seconds
+
+
+    @rhbz2100456
+    @ver+=1.41.3
+    @ver/rhel/8+=1.36.0.9
+    @kill_dnsmasq_ip4 @kill_dnsmasq_ip6
+    @disp
+    @dispatcher_interface_stuck_in_check_ip_state
+    Scenario: nmcli - interface doesn't end up stuck in check-ip-state
+    * Write dispatcher "00-dhcp-dns.sh" file with params
+          """
+          if [ "$1" != testXd ] || [ "$2" != dhcp4-change ]; then
+              # failure with exit code 77 will indicate no-op in NM log
+              exit 77
+          fi
+
+          cp /run/NetworkManager/no-stub-resolv.conf /tmp/nmci-no-stub-resolv.conf || exit $?
+          """
+    * Prepare simulated test "testXd" device without DHCP
+    * Execute "ip -n testXd_ns a add 192.168.123.1/24 dev testXdp"
+    * Execute "ip -n testXd_ns a add 2620:add:bad:cab::1/64 dev testXdp"
+    * Add "ethernet" connection named "testX" for device "testXd"
+    * Run child "ip netns exec testXd_ns dnsmasq --log-facility=/tmp/dnsmasq_ip4.log --pid-file=/tmp/dnsmasq_ip4.pid --conf-file=/dev/null --no-hosts --bind-dynamic --listen-address=192.168.123.1 --dhcp-range=192.168.123.50,192.168.123.250,2m --dhcp-option=6,192.168.123.1" without shell
+    * Bring up connection "testX"
+    * Run child "ip netns exec testXd_ns dnsmasq --log-facility=/tmp/dnsmasq_ip6.log --pid-file=/tmp/dnsmasq_ip6.pid --conf-file=/dev/null --no-hosts --bind-dynamic --listen-address=2620:add:bad:cab::1 --enable-ra --dhcp-range=2620:add:bad:cab::,slaac" without shell
+    * "/tmp/dnsmasq_ip6.pid" is file
+    Then "nameserver 2620:add:bad:cab" is visible with command "cat /tmp/nmci-no-stub-resolv.conf"
