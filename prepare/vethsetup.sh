@@ -81,7 +81,7 @@ function setup_veth_env ()
     done
 
     # List profiles
-    nmcli -f All c
+    PAGER= nmcli -f All c
 
     # Make sure the active ethernet device is eth0
     if ! [ "x$DEV" == "xeth0" ]; then
