@@ -42,8 +42,10 @@ nmcli_con_inactive() {
 
 
 nmcli_con_num() {
-  local num
+  local lo num
   num=$(nmcli -g UUID con show | wc -l)
+  lo=$(nmcli -g DEVICE con show | grep -w lo)
+  [[ "$lo" != "lo" ]] || ((num=num-1))
   [[ "$num" == "$1" ]] || die "number of NM connections: $num, expected $1"
   echo "[OK] number of NM connections: $1"
 }
