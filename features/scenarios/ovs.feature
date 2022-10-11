@@ -109,6 +109,7 @@ Feature: nmcli - ovs
      And "fe80::" is visible with command "ip a s iface0"
      And "default via 192.168.100.1 dev iface0 proto dhcp( src 192.168.10[0-3].[0-9]+)? metric 800" is visible with command "ip r"
 
+
     @rhbz2049103
     @ver+=1.41.1
     @openvswitch
@@ -124,14 +125,25 @@ Feature: nmcli - ovs
           """
     * Add "ovs-interface" connection named "ovs-iface0" for device "iface0" with options "conn.master port0 ovs-interface.ofport-request 10"
     When "activated" is visible with command "nmcli -g GENERAL.STATE con show ovs-iface0" in "40" seconds
-    Then "Bridge [\"]?ovsbridge0[\"]?" is visible with command "ovs-vsctl show"
+    When "Bridge [\"]?ovsbridge0[\"]?" is visible with command "ovs-vsctl show"
      And "Port [\"]?port1[\"]?\s+Interface [\"]?eth2[\"]?\s+type: system" is visible with command "ovs-vsctl show"
      And "Port [\"]?port0[\"]?\s+Interface [\"]?iface0[\"]?\s+type: internal" is visible with command "ovs-vsctl show"
      And "master ovs-system" is visible with command "ip a s eth2"
      And "192.168.10[0-3].*\/2[2-4]" is visible with command "ip a s iface0"
-     And "ofport_request      : 10" is visible with command "ovs-vsctl list interface"
+     And "ofport_request\s+: 10" is visible with command "ovs-vsctl list interface"
      And "fe80::" is visible with command "ip a s iface0"
      And "default via 192.168.100.1 dev iface0 proto dhcp( src 192.168.10[0-3].[0-9]+)? metric 800" is visible with command "ip r"
+    * Reboot
+    When "activated" is visible with command "nmcli -g GENERAL.STATE con show ovs-iface0" in "40" seconds
+    When "Bridge [\"]?ovsbridge0[\"]?" is visible with command "ovs-vsctl show"
+     And "Port [\"]?port1[\"]?\s+Interface [\"]?eth2[\"]?\s+type: system" is visible with command "ovs-vsctl show"
+     And "Port [\"]?port0[\"]?\s+Interface [\"]?iface0[\"]?\s+type: internal" is visible with command "ovs-vsctl show"
+     And "master ovs-system" is visible with command "ip a s eth2"
+     And "192.168.10[0-3].*\/2[2-4]" is visible with command "ip a s iface0"
+     And "ofport_request\s+: 10" is visible with command "ovs-vsctl list interface"
+     And "fe80::" is visible with command "ip a s iface0"
+     And "default via 192.168.100.1 dev iface0 proto dhcp( src 192.168.10[0-3].[0-9]+)? metric 800" is visible with command "ip r"
+
 
     @rhbz1540218
     @ver+=1.10
