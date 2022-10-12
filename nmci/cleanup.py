@@ -121,11 +121,11 @@ class CleanupIface(Cleanup):
         )
 
     def _do_cleanup(self):
-        import nmci.ctx
+        import nmci.veth
         import nmci.process
 
         if self.op == "reset":
-            nmci.ctx.reset_hwaddr_nmcli(nmci.cext.context, self.iface)
+            nmci.veth.reset_hwaddr_nmcli(self.iface)
             if self.iface != "eth0":
                 nmci.process.run(["ip", "addr", "flush", self.iface])
             return
@@ -152,11 +152,11 @@ class CleanupNamespace(Cleanup):
         )
 
     def _do_cleanup(self):
-        import nmci.ctx
+        import nmci.veth
         import nmci.process
 
         if self.teardown:
-            nmci.ctx.teardown_testveth(nmci.cext.context, self.namespace)
+            nmci.veth.teardown_testveth(self.namespace)
 
         nmci.process.run(
             ["ip", "netns", "del", self.namespace],

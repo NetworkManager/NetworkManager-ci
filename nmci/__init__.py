@@ -85,7 +85,12 @@ from nmci.nmutil import _NMUtil
 nmutil = _NMUtil()
 sys.modules[f"{__name__}.nmutil"] = nmutil
 
-import nmci.ctx as ctx
+# VETH
+from nmci.veth import _Veth
+
+veth = _Veth()
+sys.modules[f"{__name__}.veth"] = veth
+
 import nmci.gsm as gsm
 import nmci.prepare as prepare
 import nmci.crash as crash

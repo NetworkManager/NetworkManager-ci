@@ -270,10 +270,10 @@ def after_crash_reset(context):
                 print("NM still not up!")
 
     print("Wait for testeth0")
-    nmci.ctx.wait_for_testeth0(context)
+    nmci.veth.wait_for_testeth0()
 
     if os.path.isfile("/tmp/nm_veth_configured"):
-        nmci.ctx.check_vethsetup(context)
+        nmci.veth.check_vethsetup()
     else:
         print("Up eth1-10 links")
         for link in range(1, 11):

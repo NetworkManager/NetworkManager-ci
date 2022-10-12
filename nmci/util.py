@@ -342,10 +342,11 @@ class _Util:
             ignore_stderr=True,
         )
         time.sleep(0.8)
-    
+
     def dump_status(self, when, fail_only=False):
         nm_running = (
-            nmci.process.systemctl("status NetworkManager", do_embed=False).returncode == 0
+            nmci.process.systemctl("status NetworkManager", do_embed=False).returncode
+            == 0
         )
 
         cmds = [
@@ -369,7 +370,9 @@ class _Util:
                 nmci.process.WithShell("ps aux | grep -w '[d]hclient'"),
             ]
 
-        headings = {len(cmds): "\nVeth setup network namespace and DHCP server state:\n"}
+        headings = {
+            len(cmds): "\nVeth setup network namespace and DHCP server state:\n"
+        }
 
         if nm_running and os.path.isfile("/tmp/nm_veth_configured"):
             cmds += [

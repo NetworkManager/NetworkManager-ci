@@ -380,7 +380,7 @@ parts of the code. They are primarily in
     in [`prepare/envsetup`](/prepare/envsetup) directory. Adding more of them for other distros
     should be straightforward
   * other scripts in [`prepare`](/prepare) and some tag implementations in [`tags.py`](/nmci/tags.py) (and few cases in
-    [`ctx.py`](/nmci/ctx.py)) use hardwired `rpm`/`yum`/`dnf` invocations. These would need to be generalized
+    [`prepare.py`](/nmci/prepare.py)) use hardwired `rpm`/`yum`/`dnf` invocations. These would need to be generalized
     or where suitable, package instalation moved to `envsetup`
   * version detection code in [`nmci/misc.py`](/nmci/misc.py). Analogous may be needed for finer-grained decisions
     of what scenarios should run on given system

@@ -7,7 +7,7 @@ import re
 import nmci.process
 import nmci.embed
 import nmci.util
-import nmci.ctx
+import nmci.veth
 
 
 def setup_libreswan(context, mode, dh_group, phase1_al="aes", phase2_al=None):
@@ -97,7 +97,7 @@ def teardown_strongswan(context):
 
 
 def setup_racoon(context, mode, dh_group, phase1_al="aes", phase2_al=None):
-    nmci.ctx.wait_for_testeth0(context)
+    nmci.veth.wait_for_testeth0()
     if context.arch == "s390x":
         nmci.process.run_stdout(
             f"[ -x /usr/sbin/racoon ] || yum -y install https://vbenes.fedorapeople.org/NM/ipsec-tools-0.8.2-1.el7.{context.arch}.rpm",
@@ -136,7 +136,7 @@ def teardown_racoon(context):
 
 
 def setup_hostapd(context):
-    nmci.ctx.wait_for_testeth0(context)
+    nmci.veth.wait_for_testeth0()
     if context.arch != "s390x":
         # Install under RHEL7 only
         if "Maipo" in context.rh_release:
@@ -168,7 +168,7 @@ def setup_hostapd(context):
 
 def teardown_hostapd(context):
     nmci.process.run_stdout("sh prepare/hostapd_wired.sh teardown", ignore_stderr=True)
-    nmci.ctx.wait_for_testeth0(context)
+    nmci.veth.wait_for_testeth0()
 
 
 def setup_pkcs11(context):
@@ -235,7 +235,7 @@ def wifi_rescan(context):
 
 
 def setup_hostapd_wireless(context, args=None):
-    nmci.ctx.wait_for_testeth0(context)
+    nmci.veth.wait_for_testeth0()
     if context.arch != "s390x":
         # Install under RHEL7 only
         if "Maipo" in context.rh_release:
