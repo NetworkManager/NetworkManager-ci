@@ -89,7 +89,7 @@ def _before_scenario(context, scenario):
     os.environ["TERM"] = "dumb"
 
     # dump status before the test preparation starts
-    nmci.ctx.dump_status(context, "Before Scenario", fail_only=False)
+    nmci.util.dump_status("Before Scenario", fail_only=False)
 
     if context.IS_NMTUI:
         nmci.process.run_code("sudo pkill nmtui", ignore_stderr=True)
@@ -272,7 +272,7 @@ def _after_scenario(context, scenario):
     )
 
     if scenario.status == "failed" or nmci.util.DEBUG:
-        nmci.ctx.dump_status(context, "After Scenario", fail_only=True)
+        nmci.util.dump_status("After Scenario", fail_only=True)
 
     nmci.pexpect.process_pexpect_spawn()
 
@@ -323,7 +323,7 @@ def _after_scenario(context, scenario):
         nmci.crash.after_crash_reset(context)
 
     if scenario_fail:
-        nmci.ctx.dump_status(context, "After Clean", fail_only=False)
+        nmci.util.dump_status("After Clean", fail_only=False)
 
     # process embeds as last thing before asserts
     try:
