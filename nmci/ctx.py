@@ -134,32 +134,16 @@ def restore_connections(context):
     restore_testeth0(context)
 
 
-def update_udevadm(context):
-    # Just wait a bit to have all files correctly written
-    time.sleep(0.2)
-    nmci.process.run_stdout(
-        "udevadm control --reload-rules",
-        timeout=15,
-        ignore_stderr=True,
-    )
-    nmci.process.run_stdout(
-        "udevadm settle --timeout=5",
-        timeout=15,
-        ignore_stderr=True,
-    )
-    time.sleep(0.8)
-
-
 def manage_veths(context):
     if not os.path.isfile("/tmp/nm_veth_configured"):
         rule = 'ENV{ID_NET_DRIVER}=="veth", ENV{INTERFACE}=="eth[0-9]|eth[0-9]*[0-9]", ENV{NM_UNMANAGED}="0"'
         nmci.util.file_set_content("/etc/udev/rules.d/88-veths-eth.rules", [rule])
-        update_udevadm(context)
+        nmci.util.update_udevadm()
 
 
 def unmanage_veths(context):
     nmci.process.run_stdout("rm -f /etc/udev/rules.d/88-veths-*.rules")
-    update_udevadm(context)
+    nmci.util.update_udevadm()
 
 
 def check_vethsetup(context):

@@ -325,6 +325,24 @@ class _Util:
         with open(file_name, "wb") as f:
             f.write(data)
 
+
+    def update_udevadm(self):
+        # Just wait a bit to have all files correctly written
+        import nmci.process
+        time.sleep(0.2)
+        nmci.process.run_stdout(
+            "udevadm control --reload-rules",
+            timeout=15,
+            ignore_stderr=True,
+        )
+        nmci.process.run_stdout(
+            "udevadm settle --timeout=5",
+            timeout=15,
+            ignore_stderr=True,
+        )
+        time.sleep(0.8)
+
+
     def gvariant_type(self, s):
 
         if s is None:

@@ -202,9 +202,9 @@ class CleanupUdevUpdate(Cleanup):
         )
 
     def _do_cleanup(self):
-        import nmci.ctx
+        import nmci.util
 
-        nmci.ctx.update_udevadm(nmci.cext.context)
+        nmci.util.update_udevadm()
 
 
 class CleanupUdevRule(Cleanup):

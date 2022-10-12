@@ -11,7 +11,7 @@ def manage_veth_device(context, device):
     if not os.path.isfile(rule_file):
         rule = 'ENV{ID_NET_DRIVER}=="veth", ENV{INTERFACE}=="%s*", ENV{NM_UNMANAGED}="0"' %device
         nmci.util.file_set_content(rule_file, [rule])
-        nmci.ctx.update_udevadm(context)
+        nmci.util.update_udevadm()
         nmci.cleanup.cleanup_add_udev_rule(rule_file)
 
 @step('Create PBR files for profile "{profile}" and "{dev}" device in table "{table}"')

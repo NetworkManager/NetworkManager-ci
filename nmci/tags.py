@@ -2040,7 +2040,7 @@ def del_test1112_veths_bs(context, scenario):
     nmci.cleanup.cleanup_add_udev_rule("/etc/udev/rules.d/99-veths.rules")
     rule = 'ENV{ID_NET_DRIVER}=="veth", ENV{INTERFACE}=="test11|test12", ENV{NM_UNMANAGED}="0"'
     nmci.util.file_set_content("/etc/udev/rules.d/99-veths.rules", [rule])
-    nmci.ctx.update_udevadm(context)
+    nmci.util.update_udevadm()
 
 
 _register_tag("del_test1112_veths", del_test1112_veths_bs)
@@ -2502,7 +2502,7 @@ _register_tag("adsl", None, adsl_as)
 def allow_veth_connections_bs(context, scenario):
     rule = 'ENV{ID_NET_DRIVER}=="veth", ENV{INTERFACE}=="veth*", ENV{NM_UNMANAGED}="0"'
     nmci.util.file_set_content("/etc/udev/rules.d/99-veths.rules", [rule])
-    nmci.ctx.update_udevadm(context)
+    nmci.util.update_udevadm()
     context.process.run_stdout("rm -rf /var/lib/NetworkManager/no-auto-default.state")
     nmci.util.file_set_content(
         "/etc/NetworkManager/conf.d/99-unmanaged.conf",
@@ -2534,7 +2534,7 @@ def allow_veth_connections_as(context, scenario):
     context.process.run_stdout(
         "sudo rm -rf /etc/NetworkManager/conf.d/99-unmanaged.conf"
     )
-    nmci.ctx.update_udevadm(context)
+    nmci.util.update_udevadm()
     nmci.nmutil.reload_NM_service()
     devs = nmci.process.nmcli("-t -f DEVICE c s -a", do_embed=False)
     for dev in devs.strip().split("\n"):
@@ -2863,7 +2863,7 @@ def non_utf_device_bs(context, scenario):
         context.process.run_stdout(
             "ln -s /dev/null /etc/udev/rules.d/80-net-setup-link.rules"
         )
-        nmci.ctx.update_udevadm(context)
+        nmci.util.update_udevadm()
     context.process.run_stdout(
         ["ip", "link", "add", "name", b"\xca[2Jnonutf\xccf\\c", "type", "dummy"]
     )
@@ -2873,7 +2873,7 @@ def non_utf_device_as(context, scenario):
     context.process.run_stdout(["ip", "link", "del", b"\xca[2Jnonutf\xccf\\c"])
     if os.path.isfile("/usr/lib/udev/rules.d/80-net-setup-link.rules"):
         context.process.run_stdout("rm -f /etc/udev/rules.d/80-net-setup-link.rules")
-        nmci.ctx.update_udevadm(context)
+        nmci.util.update_udevadm()
 
 
 _register_tag("non_utf_device", non_utf_device_bs, non_utf_device_as)
