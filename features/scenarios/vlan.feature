@@ -961,3 +961,20 @@ Feature: nmcli - vlan
     * Modify connection "vlan" changing options "802-3-ethernet.accept-all-mac-addresses false"
     * Bring "up" connection "vlan"
     Then "PROMISC" is not visible with command "ip link show dev eth7.80"
+
+
+    @rhbz2110307
+    @ver+=1.40 @rhelver+=8 @fedoraver+=36
+    @add_vlan_on_an_unmanaged_interface
+    Scenario: NM - vlan - add vlan on an unmanaged interface
+    * Execute "ip link add test_nic1 type veth peer name test_nic1peer"
+    * Execute "ip link set test_nic1 up"
+    * Execute "ip link set test_nic1peer up"
+    * Execute "nmcli device set test_nic1peer managed off"
+    * Execute "nmcli device set test_nic1 managed off"
+    * Add "vlan" connection named "vlan1" for device "vlan1" with options
+          """
+          vlan.parent test_nic1 vlan.id 100
+          connection.autoconnect no
+          ip4 1.2.3.4/24
+          """

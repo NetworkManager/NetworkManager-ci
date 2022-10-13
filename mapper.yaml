@@ -1208,6 +1208,8 @@ testmapper:
         feature: vlan
     - vlan_accept_all_mac_addresses_external_device:
         feature: vlan
+    - add_vlan_on_an_unmanaged_interface:
+        feature: vlan
     - vrf_one_address_two_devices:
         feature: vrf
         tags: gate
