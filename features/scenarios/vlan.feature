@@ -61,7 +61,7 @@ Feature: nmcli - vlan
           ipv6.addresses 1::1/64
           """
     * Wait for "3" seconds
-    * Run child "dnsmasq --log-facility=/tmp/dnsmasq.log --dhcp-range=10.1.0.10,10.1.0.15,2m --pid-file=/tmp/dnsmasq_vlan.pid --dhcp-range=1::100,1::fff,slaac,64,2m --enable-ra --interface=vethbr.100 --bind-interfaces"
+    * Run child "dnsmasq --log-facility=/tmp/dnsmasq_vlan.log --dhcp-range=10.1.0.10,10.1.0.15,2m --pid-file=/tmp/dnsmasq_vlan.pid --dhcp-range=1::100,1::fff,slaac,64,2m --enable-ra --interface=vethbr.100 --bind-interfaces"
     * Add "vlan" connection named "tc2" with options "dev test1 id 100"
     * Execute "ip add add 1::666/128 dev test1"
     * Wait for "5" seconds
