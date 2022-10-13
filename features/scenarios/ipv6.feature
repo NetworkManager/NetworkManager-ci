@@ -1177,7 +1177,7 @@
     * Add "ethernet" connection named "tc26" for device "test11" with options "autoconnect no mtu 1100 ip6 fd01::1/64"
     * Bring "up" connection "tc26"
     When "test11:connected:tc26" is visible with command "nmcli -t -f DEVICE,STATE,CONNECTION device" in "45" seconds
-    * Execute "/usr/sbin/dnsmasq --log-facility=/tmp/dnsmasq.log --pid-file=/tmp/dnsmasq_ip6.pid --no-resolv --bind-interfaces -i test11 --enable-ra --dhcp-range=::1,::400,constructor:test11,ra-only,64,15s"
+    * Execute "/usr/sbin/dnsmasq --log-facility=/tmp/dnsmasq_ip6.log --pid-file=/tmp/dnsmasq_ip6.pid --no-resolv --bind-interfaces -i test11 --enable-ra --dhcp-range=::1,::400,constructor:test11,ra-only,64,15s"
     * Bring "up" connection "tc16"
     Then "1280" is visible with command "sysctl net.ipv6.conf.test10.mtu" in "45" seconds
 
@@ -1673,7 +1673,7 @@
           }
         }
         """
-    * Run child "ip netns exec dhcp_ns dnsmasq --log-facility=/tmp/dnsmasq.log --log-dhcp --log-queries=extra --pid-file=/tmp/dnsmasq_ip6.pid --interface=dhcp --conf-file=/dev/null --leasefile-ro --no-hosts --dhcp-range=2620:dead:beaf::,static,ra-only --dhcp-host=id:00:11:22,[::1234:5678],static" without shell
+    * Run child "ip netns exec dhcp_ns dnsmasq --log-facility=/tmp/dnsmasq_ip6.log --log-dhcp --log-queries=extra --pid-file=/tmp/dnsmasq_ip6.pid --interface=dhcp --conf-file=/dev/null --leasefile-ro --no-hosts --dhcp-range=2620:dead:beaf::,static,ra-only --dhcp-host=id:00:11:22,[::1234:5678],static" without shell
     * Run child "ip netns exec testX6_ns tshark -n -l -i br0 'icmp6 or port 547 or port 546' > /tmp/tshark.log"
     * Execute "ip link set testX6 up"
     ### uncomment following steps to verify that address is assigned correctly in absence of duplicate address
@@ -1685,7 +1685,7 @@
     * Bring up connection "con_ipv6" ignoring error
     Then "2620:dead:beaf[:0-9a-f]+1234:5678" is not visible with command "ip a show testX6"
     # check that NM was offered a ::1234:5678 address by dnsmasq
-    And "option:\s*5\s*iaaddr\s*2620:dead:beaf::1234:5678" is visible with command "cat /tmp/dnsmasq.log"
+    And "option:\s*5\s*iaaddr\s*2620:dead:beaf::1234:5678" is visible with command "cat /tmp/dnsmasq_ip6.log"
     # This is up to discussion - interface ends up with SLAAC or RA-derived address but it
     # won't be reachable by expected DNS name because it failed to get expected DHCP address
     And Check if "con_ipv6" is not active connection
@@ -1719,7 +1719,7 @@
     * Execute "ip -n dhcp_ns link set dhcp up ; ip -n dhcp_ns addr add 2620:dead:beaf::1/64 dev dhcp"
     * Execute "for if in testX6p dhcpp dupp; do ip -n testX6_ns link set $if master br0 ; done"
     * Execute "for if in testX6p dhcpp dupp br0 ; do ip -n testX6_ns link set $if up ; done"
-    * Run child "ip netns exec dhcp_ns dnsmasq --log-facility=/tmp/dnsmasq.log --log-dhcp --log-queries=extra --pid-file=/tmp/dnsmasq_ip6.pid --interface=dhcp --conf-file=/dev/null --no-hosts --enable-ra --dhcp-range=2620:dead:beaf::,slaac" without shell
+    * Run child "ip netns exec dhcp_ns dnsmasq --log-facility=/tmp/dnsmasq_ip6.log --log-dhcp --log-queries=extra --pid-file=/tmp/dnsmasq_ip6.pid --interface=dhcp --conf-file=/dev/null --no-hosts --enable-ra --dhcp-range=2620:dead:beaf::,slaac" without shell
     * Run child "ip netns exec testX6_ns tshark -n -l -i br0 'icmp6 or port 547 or port 546' > /tmp/tshark.log"
     * Execute "ip link set testX6 up"
     ### uncomment following steps to verify that address is assigned correctly in absence of duplicate address
