@@ -3037,3 +3037,24 @@ Feature: nmcli - general
     * Execute "sudo nmcli general hostname ''"
     * Path "/etc/hostname" does not exist
     * "example.org" is not visible with command "hostname" in "10" seconds
+
+
+    @rhbz2110307
+    @ver+=1.41.3
+    @macsec_managed_macsec_from_unmanaged_parent
+    Scenario: NM - general - MACsec managed from an unmanaged parent
+    * Prepare MACsec PSK environment with CAK "00112233445566778899001122334455" and CKN "5544332211009988776655443322110055443322110099887766554433221100"
+    * Execute "nmcli device set macsec_veth managed off"
+    * Add "macsec" connection named "test-macsec" for device "macsec0" with options
+          """
+          autoconnect yes
+          macsec.parent macsec_veth
+          macsec.mode psk
+          macsec.mka-cak 00112233445566778899001122334455
+          macsec.mka-ckn 5544332211009988776655443322110055443322110099887766554433221100
+          """
+    * Execute "ip link set macsec_veth up"
+    * Bring up connection "test-macsec"
+    Then Ping "172.16.10.1" "10" times
+    * Reboot
+    Then "activated" is visible with command "nmcli -g GENERAL.STATE con show macsec0" in "45" seconds
