@@ -3037,3 +3037,9 @@ Feature: nmcli - general
     * Execute "sudo nmcli general hostname ''"
     * Path "/etc/hostname" does not exist
     * "example.org" is not visible with command "hostname" in "10" seconds
+
+
+    @rhbz2110307
+    @ver+=1.40 @rhelver+=8 @fedoraver+=36
+    @managed_macsec_from_unmanaged_parent
+    Scenario: NM - general - MACsec managed from an unmanaged parent
