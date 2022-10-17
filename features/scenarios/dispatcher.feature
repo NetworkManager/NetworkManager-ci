@@ -147,3 +147,36 @@ Feature: NM: dispatcher
     * Restart NM in background
     # If NM hangs this will be never shown
     When "deactivating" is not visible with command "systemctl status NetworkManager" in "10" seconds
+
+
+    @rhbz2100456
+    @ver+=1.41.3
+    @ver/rhel/8+=1.36.0.9
+    @kill_dnsmasq_ip4 @kill_dnsmasq_ip6
+    @tshark
+    @disp
+    @dispatcher_interface_stuck_in_check_ip_state
+    Scenario: nmcli - interface doesn't end up stuck in check-ip-state
+    * Execute "rm -f /tmp/nmci-no-stub-resolv.conf"
+    * Write dispatcher "00-dhcp-dns.sh" file with params
+          """
+          if [ "$1" != testX6 ] || [ "$2" != dhcp4-change ]; then
+              # failure with exit code 77 will indicate no-op in NM log
+              exit 77
+          fi
+
+          cp /run/NetworkManager/no-stub-resolv.conf /tmp/nmci-no-stub-resolv.conf || exit $?
+          """
+    * Prepare simulated test "testX6" device with a bridged peer with bridge options "mcast_snooping 0" and veths to namespaces "v4, v6"
+    * Execute "ip -n v4 a add 192.168.99.1/24 dev veth0"
+    * Execute "ip -n v6 a add 2620:dead:beaf::1/64 dev veth0"
+    * Run child "ip netns exec v4 dnsmasq --log-facility=/tmp/dnsmasq_ip4.log --pid-file=/tmp/dnsmasq_ip4.pid --conf-file=/dev/null --no-hosts --dhcp-range=192.168.99.50,192.168.99.250,2m --dhcp-option=6,192.168.99.1" without shell
+    #* Run child "ip netns exec v6 dnsmasq --log-facility=/tmp/dnsmasq_ip6.log --pid-file=/tmp/dnsmasq_ip6.pid --conf-file=/dev/null --no-hosts --enable-ra --dhcp-range=::,constructor:veth0,slaac,64,2m --dhcp-option=option6:dns-server,[2620:dead:beaf::1]"" without shell
+    * Run child "ip netns exec testX6_ns tshark -n -l -i br0 'icmp6 or port 67 or port 68 or port 546 or port 547' > /tmp/tshark.log"
+    * Execute "tc -n testX6_ns qdisc add dev v4 root netem delay 1900ms"
+    * Execute "tc -n v4 qdisc add dev veth0 root netem delay 1900ms"
+    * Add "ethernet" connection named "con_ipv6" for device "testX6"
+    * Bring up connection "con_ipv6" ignoring error
+    * "192.168.99" is visible with command "ip a show testX6" in "10" seconds
+    * "/tmp/nmci-no-stub-resolv.conf" is file in "10" seconds
+    Then "nameserver 192.168.99.1" is visible with command "cat /tmp/nmci-no-stub-resolv.conf"

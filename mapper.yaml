@@ -1922,6 +1922,8 @@ testmapper:
         feature: dispatcher
     - dispatcher_restart:
         feature: dispatcher
+    - dispatcher_interface_stuck_in_check_ip_state:
+        feature: dispatcher
     - add_adsl_connection_novice_mode:
         feature: adsl
     - add_adsl_connection:
@@ -2533,6 +2535,12 @@ testmapper:
     - resolv_conf_do_not_overwrite_symlink:
         feature: dns
     - resolv_conf_dns_priority:
+        feature: dns
+    - dns_openshift_dualstack_slow_v4:
+        feature: dns
+    - dns_openshift_dualstack_slow_v6:
+        feature: dns
+    - dns_openshift_v6_only_slow_v6:
         feature: dns
     - dns_dnsmasq_dnssec_opts:
         feature: dns

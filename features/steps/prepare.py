@@ -396,7 +396,6 @@ def prepare_simdev(context, device):
     nmci.cleanup.cleanup_add_namespace(f"{device}_ns2")
 
 
-
 @step(u'Prepare simulated veth device "{device}" without carrier')
 def prepare_simdev_no_carrier(context, device):
     manage_veth_device(context, device)
@@ -422,6 +421,47 @@ def prepare_simdev_no_carrier(context, device):
                                             --bind-interfaces".format(device=device, ipv4=ipv4, ipv6=ipv6))
     context.command_code("ip netns exec {device}_ns ip link set {device} netns 1".format(device=device))
     nmci.cleanup.cleanup_add_namespace(f"{device}_ns")
+
+
+@step('Prepare simulated test "{device}" device with a bridged peer')
+@step('Prepare simulated test "{device}" device with a bridged peer with bridge options "{bropts}"')
+@step('Prepare simulated test "{device}" device with a bridged peer and veths to namespaces "{namespaces}"')
+@step('Prepare simulated test "{device}" device with a bridged peer with bridge options "{bropts}" and veths to namespaces "{namespaces}"')
+def prepare_bridged(context, device, bropts="", namespaces=None):
+    """
+    `namespaces` expects comma-separated list of extra namespaces
+
+    Topology created:
+
+    No NS:      +- br0 in {device}_ns --+
+                |                       |
+    {device} ---- {device}p     {ns1} ----- veth0 in {ns1}
+                |               {ns2} ----- veth0 in {ns2}
+                |               ...   ----- ...
+                |               {ns_n} ---- veth0 in {ns_n}
+                |                       |
+                +-----------------------+
+    """
+    nmci.cleanup.cleanup_add_namespace(f"{device}_ns")
+    nmci.process.run_stdout(f"ip netns add {device}_ns")
+    nmci.process.run_stdout(f"ip l add {device} type veth peer name {device}p netns {device}_ns")
+    nmci.process.run_stdout(f"ip l set {device} up")
+    nmci.process.run_stdout(f"ip -n {device}_ns l add br0 type bridge {bropts}")
+    nmci.process.run_stdout(f"ip -n {device}_ns l set {device}p master br0")
+    nmci.process.run_stdout(f"ip -n {device}_ns l set {device}p up")
+    nmci.process.run_stdout(f"ip -n {device}_ns l set br0 up")
+    if not namespaces:
+        # no more namespaces and veths to create
+        return
+    namespaces = [ns.strip() for ns in namespaces.split(",")]
+    for ns in namespaces:
+        ns
+        nmci.cleanup.cleanup_add_namespace(ns)
+        nmci.process.run_stdout(f"ip netns add {ns}")
+        nmci.process.run_stdout(f"ip -n {ns} l add veth0 type veth peer name {ns} netns {device}_ns")
+        nmci.process.run_stdout(f"ip -n {ns} l set veth0 up")
+        nmci.process.run_stdout(f"ip -n {device}_ns l set {ns} master br0")
+        nmci.process.run_stdout(f"ip -n {device}_ns l set {ns} up")
 
 
 @step(u'Start pppoe server with "{name}" and IP "{ip}" on device "{dev}"')
