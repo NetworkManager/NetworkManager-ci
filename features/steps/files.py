@@ -124,7 +124,7 @@ def write_dispatcher_file(context, path, params=None):
             os.makedirs(dir)
     else:
         disp_file = '/etc/NetworkManager/dispatcher.d/%s' % path
-    if not params and len(context.text) > 0:
+    if not params and bool(context.text):
         params = context.text
     f = open(disp_file, 'w')
     f.write('#!/bin/bash\n')
