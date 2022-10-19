@@ -1210,6 +1210,8 @@ testmapper:
         feature: vlan
     - vlan_add_vlan_on_an_unmanaged_interface:
         feature: vlan
+    - vlan_create_macvlan_on_an_unmanaged_interface:
+        feature: vlan
     - vrf_one_address_two_devices:
         feature: vrf
         tags: gate
@@ -1835,7 +1837,7 @@ testmapper:
         feature: general
     - nmcli_remove_static_hostname:
         feature: general
-    - managed_macsec_from_unmanaged_parent:
+    - macsec_managed_macsec_from_unmanaged_parent:
         feature: general
     - openvswitch_capability:
         feature: ovs

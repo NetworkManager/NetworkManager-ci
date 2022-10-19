@@ -3041,6 +3041,7 @@ Feature: nmcli - general
 
     @rhbz2110307
     @ver+=1.41.3
+    @macsec @not_on_aarch64_but_pegas @long
     @macsec_managed_macsec_from_unmanaged_parent
     Scenario: NM - general - MACsec managed from an unmanaged parent
     * Prepare MACsec PSK environment with CAK "00112233445566778899001122334455" and CKN "5544332211009988776655443322110055443322110099887766554433221100"
@@ -3056,5 +3057,4 @@ Feature: nmcli - general
     * Execute "ip link set macsec_veth up"
     * Bring up connection "test-macsec"
     Then Ping "172.16.10.1" "10" times
-    * Reboot
-    Then "activated" is visible with command "nmcli -g GENERAL.STATE con show macsec0" in "45" seconds
+    Then "activated" is visible with command "nmcli -g GENERAL.STATE con show test-macsec" in "45" seconds

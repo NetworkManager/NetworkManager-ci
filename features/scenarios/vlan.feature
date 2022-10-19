@@ -978,3 +978,17 @@ Feature: nmcli - vlan
           connection.autoconnect no
           ip4 1.2.3.4/24
           """
+
+
+    @rhbz2110307
+    @ver+=1.41.3
+    @restart_if_needed
+    @vlan_create_macvlan_on_an_unmanaged_interface
+    Scenario: nmcli - vlan - create macvlan on vlan
+    * Create "veth" device named "test_nic1" with options "peer name test_nic1peer"
+    * Execute "nmcli device set test_nic1peer managed off"
+    * Execute "nmcli device set test_nic1 managed off"
+    * Execute "ip link set test_nic1 up"
+    * Execute "ip link set test_nic1peer up"
+    * Add "macvlan" connection named "vlan1" for device "mvl1" with options "mode bridge macvlan.parent test1_nicpeer"
+    * Restart NM
