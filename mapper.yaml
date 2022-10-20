@@ -2216,6 +2216,10 @@ testmapper:
     - simwifi_p2p_connect:
         feature: wifi_hwsim
         tags: hostapd
+    - simwifi_setting_bogus_values:
+        feature: wifi_hwsim
+    - simwifi_set_channel:
+        feature: wifi_hwsim
     - simwifi_p2p_client_connect:
         feature: wifi_hwsim
         tags: hostapd
@@ -2246,6 +2250,9 @@ testmapper:
     - simwifi_wep_peap_gtc:
         feature: wifi_hwsim
         tags: hostapd
+    - simwifi_wpa1psk_no_profile:
+        feature: wifi_hwsim
+        tags: gate libnl3 wpa_supplicant   
     - simwifi_wpa2psk_profile:
         feature: wifi_hwsim
         tags: gate libnl3 wpa_supplicant
@@ -2314,9 +2321,29 @@ testmapper:
         tags: hostapd
     - nmclient_get_wireless_hw_property:
         feature: wifi_hwsim
-    - wifi_dbus_bitrate_property_name:
+    - simwifi_dbus_bitrate_property_name:
         feature: wifi_hwsim
     - simwifi_do_not_block_autoconnect:
+        feature: wifi_hwsim
+    - simwifi_novice_mode_add_default_connection:
+        feature: wifi_hwsim
+    - simwifi_novice_mode_add_connection_bogus_ip:
+        feature: wifi_hwsim
+    - simwifi_novice_mode_add_connection_with_options:
+        feature: wifi_hwsim
+    - simwifi_novice_mode_add_connection_ip_setup:
+        feature: wifi_hwsim
+    - simwifi_mac_address_blacklist:
+        feature: wifi_hwsim
+    - simwifi_remove_connection_while_up:
+        feature: wifi_hwsim
+    - simwifi_wpa2_psk_unmatching_proto:
+        feature: wifi_hwsim
+    - simwifi_set_mac_address:
+        feature: wifi_hwsim
+    - simwifi_wpa2_ask_passwd:
+        feature: wifi_hwsim
+    - simwifi_set_existing_bssid:
         feature: wifi_hwsim
     - nmcli_simwifi_teardown:
         feature: wifi_hwsim
@@ -2329,7 +2356,27 @@ testmapper:
         tags: gate
     - simwifi_nmcli_radio:
         feature: wifi_hwsim
+    - simwifi_wifisec_validity:
+        feature: wifi_hwsim
+    - simwifi_wifisec_keymgmt_wrong_values:
+        feature: wifi_hwsim
+    - simwifi_wifisec_authalg_wrong_values:
+        feature: wifi_hwsim
+    - simwifi_set_hidden_property_values:
+        feature: wifi_hwsim
+    - simwifi_set_txpower:
+        feature: wifi_hwsim
+    - simwifi_set_rate:
+        feature: wifi_hwsim
+    - simwifi_describe:
+        feature: wifi_hwsim
+    - simwifi_wifisec_describe:
+        feature: wifi_hwsim
+    - simwifi_set_nonexistent_bssid:
+        feature: wifi_hwsim
     - simwifi_migrate_to_keyfile:
+        feature: wifi_hwsim
+    - simwifi_dbus_invalid_cert_input:
         feature: wifi_hwsim
     - policy_based_routing_doc_procedure:
         feature: doc_procedures
@@ -2959,42 +3006,23 @@ testmapper:
         tags: jimtcl libmbim libqmi ModemManager usb_modeswitch-data usb_modeswitch mobile-broadband-provider-info
 
   NetworkManager-wifi:
-    - nmcli_wifi_connect_to_wpa2_psk_network_without_profile:
+    - nmcli_wifi_wpa1_peap_mschapv2:
         feature: wifi
-    - nmcli_wifisec_configure_and_connect_wpa1peap_profile:
+    - nmcli_wifi_wpa1_tls:
         feature: wifi
-    - nmcli_wifisec_configure_and_connect_wpa1tls_profile:
+    - nmcli_wifi_wpa1_ttls_mschapv2:
         feature: wifi
-    - nmcli_wifi_connect_to_wpa1_psk_network_without_profile:
+    - nmcli_wifi_wpa2_peap_mschapv2:
         feature: wifi
-    - nmcli_wifisec_configure_and_connect_wpa1ttls_profile:
+    - nmcli_wifi_wpa2_tls:
         feature: wifi
-    - nmcli_wifi_connect_to_open_network_without_profile:
+    - nmcli_wifi_wpa2_ttls_mschapv2:
         feature: wifi
-    - nmcli_wifisec_configure_and_connect_wpa2peap_profile:
+    - nmcli_wifi_wpa3_peap_mschapv2:
         feature: wifi
-    - nmcli_wifi_connect_to_wep_hexkey_network_without_profile:
+    - nmcli_wifi_wpa3_tls:
         feature: wifi
-    - nmcli_wifisec_configure_and_connect_wpa2tls_profile:
-        feature: wifi
-    - nmcli_wifi_connect_to_wep_asciikey_network_without_profile:
-        feature: wifi
-    - nmcli_wifisec_configure_and_connect_wpa2ttls_profile:
-        feature: wifi
-    - nmcli_wifi_connect_to_wep_phrase_network_without_profile:
-        feature: wifi
-    # Not working in the lab
-    # - nmcli_wifisec_configure_and_connect_wep_leap_profile:
-    #     feature: wifi
-    - nmcli_wifi_create_a_new_connection_for_an_open_network:
-        feature: wifi
-    - nmcli_wifisec_configure_and_connect_weptls_profile:
-        feature: wifi
-    - nmcli_wifi_connection_up_for_an_open_network:
-        feature: wifi
-    - nmcli_wifisec_configure_and_connect_wepttls_profile:
-        feature: wifi
-    - nmcli_wifi_connection_down_for_an_open_network:
+    - nmcli_wifi_wpa3_ttls_mschapv2:
         feature: wifi
     - nmcli_wifi_infrastructure_mode_setting:
         feature: wifi
@@ -3006,143 +3034,35 @@ testmapper:
         feature: wifi
     - nmcli_wifi_right_band_80211a:
         feature: wifi
-    - nmcli_wifi_different_than_networks_band:
-        feature: wifi
-    - nmcli_wifi_setting_bogus_band:
-        feature: wifi
-    - nmcli_wifi_setting_wrong_ssid_over_32_bytes:
-        feature: wifi
-    - nmcli_wifi_set_channel:
-        feature: wifi
-    - nmcli_wifi_set_channel_under_7:
-        feature: wifi
-    - nmcli_wifi_set_channel_13_and_14_bz_999999:
-        feature: wifi
-    - nmcli_wifi_set_wrong_channel:
-        feature: wifi
-    - nmcli_wifi_set_bogus_channel:
-        feature: wifi
-    - nmcli_wifi_set_nonexistent_bssid:
-        feature: wifi
-    - nmcli_wifi_set_bogus_bssid:
-        feature: wifi
-    - nmcli_wifi_set_existing_bssid:
-        feature: wifi
-    - nmcli_wifi_check_rate_configuration:
-        feature: wifi
-    - nmcli_wifi_check_txpower_configuration:
-        feature: wifi
-    - nmcli_wifi_set_bogus_txpower:
-        feature: wifi
-    - nmcli_wifi_set_bogus_rate:
-        feature: wifi
-    - nmcli_wifi_set_matching_mac_adress:
-        feature: wifi
-    - nmcli_wifi_set_nonexistent_mac_adress:
-        feature: wifi
-    - nmcli_wifi_set_bogus_mac_adress:
-        feature: wifi
-    - nmcli_wifi_set_mac_adress_in_dashed_format_bz_1002553:
-        feature: wifi
-    - nmcli_wifi_mac_spoofing_if_hw_supported:
-        feature: wifi
-    - nmcli_wifi_mac_adress_blacklist:
-        feature: wifi
-    - nmcli_wifi_set_mtu:
-        feature: wifi
-    - nmcli_wifi_seen_bssids:
-        feature: wifi
-    - nmcli_wifi_set_and_connect_to_a_hidden_network:
-        feature: wifi
-    - nmcli_wifi_set_proper_hidden_property_values:
-        feature: wifi
-    - nmcli_wifi_set_bogus_hidden_property_values:
-        feature: wifi
-    - nmcli_wifi_80211wireless_describe_all:
-        feature: wifi
-    - nmcli_wifi_describe_separately:
-        feature: wifi
-    - nmcli_wifisec_80211wirelesssecurity_describe_all:
-        feature: wifi
-    - nmcli_wifisec_describe_separately:
-        feature: wifi
-    - nmcli_wifisec_configure_and_connect_wpa2psk_profile:
-        feature: wifi
-    - nmcli_wifisec_configure_and_connect_wpa1psk_profile:
-        feature: wifi
-    - nmcli_wifisec_configure_and_connect_wep_hex_key_profile:
-        feature: wifi
-    - nmcli_wifisec_configure_and_connect_wep_ascii_key_profile:
-        feature: wifi
-    - nmcli_wifisec_configure_and_connect_wep_phrase_profile:
-        feature: wifi
-    - nmcli_wifi_remove_connection_while_up:
-        feature: wifi
-    - nmcli_wifi_remove_connection_while_down:
-        feature: wifi
-    - nmcli_wifisec_keymgmt_wrong_values:
-        feature: wifi
-    - nmcli_wifisec_weptxkeyidx_nondefault_wep_key:
-        feature: wifi
-    - nmcli_wifisec_weptxkeyidx_bogus_key_id:
-        feature: wifi
-    - nmcli_wifisec_authalg_wep_open_key:
-        feature: wifi
-    - nmcli_wifisec_authalg_wep_shared_key:
-        feature: wifi
-    - nmcli_wifisec_authalg_bogus_values_and_leap_with_wrong_keymgmt:
-        feature: wifi
-    - nmcli_wifisec_proto_rsn:
-        feature: wifi
-    - nmcli_wifisec_proto_wpa:
-        feature: wifi
-    - nmcli_wifisec_unmatching_proto:
-        feature: wifi
-    - nmcli_wifisec_pairwise_ccmp:
-        feature: wifi
-    # - nmcli_wifisec_pairwise_tkip:
-    #     feature: wifi
-    - nmcli_wifisec_unmatching_pairwise:
-        feature: wifi
-    - nmcli_wifisec_group_ccmp:
-        feature: wifi
-    # - nmcli_wifisec_group_tkip:
-    #     feature: wifi
-    - nmcli_wifisec_unmatching_group:
-        feature: wifi
-    - nmcli_wifisec_set_all_wep_keys:
-        feature: wifi
-    - nmcli_wifisec_wepkeytype_autodetection_passphrase:
-        feature: wifi
-    - nmcli_wifisec_psk_validity:
-        feature: wifi
-    - nmcli_wifisec_invalid_psk_save_no_delay:
-        feature: wifi
-    - nmcli_wifi_add_default_connection_in_novice_nmcli_a_mode:
-        feature: wifi
-    - nmcli_wifi_add_connection_in_novice_nmcli_a_mode_specifying_options:
-        feature: wifi
-    - nmcli_wifi_add_connection_in_novice_nmcli_a_mode_specifying_ip_setup:
-        feature: wifi
-    - nmcli_wifi_add_connection_in_novice_nmcli_a_mode_with_bogus_ip:
+    - nmcli_wifi_mac_spoofing:
         feature: wifi
     - nmcli_wifi_disable_radio:
         feature: wifi
     - nmcli_wifi_enable_radio:
         feature: wifi
-    - nmcli_wifi_keep_secrets_after_modification:
+    - nmcli_wifi_set_mtu:
         feature: wifi
-    - nmcli_wifi_wpa_ask_passwd:
+    - nmcli_wifi_seen_bssids:
         feature: wifi
-    - nmcli_wifi_add_certificate_as_blob:
+    - nmcli_wifi_wpa2hidden_psk:
+        feature: wifi
+    - nmcli_wifi_wpa2_psk:
+        feature: wifi
+    - nmcli_wifi_wpa3_psk:
+        feature: wifi
+    - nmcli_wifi_wpa1_psk:
+        feature: wifi
+    - nmcli_wifi_pairwise_ccmp:
+        feature: wifi
+    - nmcli_wifi_unmatching_pairwise:
+        feature: wifi
+    - nmcli_wifi_group_ccmp:
+        feature: wifi
+    - nmcli_wifi_unmatching_group:
         feature: wifi
     - nmcli_wifi_add_certificate_as_blob_saved:
         feature: wifi
-    - nmcli_wifi_dbus_invalid_cert_input:
-        feature: wifi
     - nmcli_wifi_indicate_wifi_band_caps:
-        feature: wifi
-    - nmcli_wifi_do_not_show_device_in_list:
         feature: wifi
     - nmtui_wifi_see_all_networks:
         feature: nmtui_wifi

@@ -1991,11 +1991,11 @@ def wireless_certs_bs(context, scenario):
     context.process.run_stdout("mkdir -p /tmp/certs")
     if not os.path.isfile("/tmp/certs/eaptest_ca_cert.pem"):
         context.process.run_stdout(
-            "wget http://wlan-lab.eng.bos.redhat.com/certs/eaptest_ca_cert.pem -q -O /tmp/certs/eaptest_ca_cert.pem"
+            "wget http://hpe-dl380pgen9-02.wlan.rhts.eng.bos.redhat.com/ca.pem -q -O /tmp/certs/eaptest_ca_cert.pem"
         )
     if not os.path.isfile("/tmp/certs/client.pem"):
         context.process.run_stdout(
-            "wget http://wlan-lab.eng.bos.redhat.com/certs/client.pem -q -O /tmp/certs/client.pem"
+            "wget http://hpe-dl380pgen9-02.wlan.rhts.eng.bos.redhat.com/client.pem -q -O /tmp/certs/client.pem"
         )
 
 
