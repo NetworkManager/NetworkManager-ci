@@ -3159,6 +3159,8 @@ testmapper:
         feature: infiniband
     - inf_mtu:
         feature: infiniband
+    - inf_reload:
+        feature: infiniband
 
   NetworkManager-dcb:
     - nmcli_ethernet_wol_from_file_to_default:
