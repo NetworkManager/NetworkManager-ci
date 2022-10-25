@@ -17,6 +17,7 @@ def reboot(context):
 
     context.command_code("ip link del nm-bond")
     context.command_code("ip link del nm-team")
+    context.command_code("ip link del nm-bridge")
     context.command_code("ip link del team7")
     context.command_code("ip link del bridge7")
     context.command_code("ip link del bond-bridge")

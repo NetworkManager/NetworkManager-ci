@@ -1,4 +1,4 @@
- Feature: nmcli: vrf
+Feature: nmcli: vrf
 
     # Please do use tags as follows:
     # @bugzilla_link (rhbz123456)
@@ -272,39 +272,90 @@
     When "broadcast 192.0.2.255 dev eth4 proto kernel scope link src 192.0.2.1" is visible with command "ip r show table 1002"
 
 
-    #@rhbz1773908
-    #@ver+=1.25 @rhelver+=8
-    #@vrf_external
-    #Scenario: nmcli - vrf - external setup
-    #* Execute "ip link add dev vrf0 type vrf table 1001"
-    #* Execute "ip link set dev vrf0 up"
-    #* Execute "ip link set dev eth1 master vrf0"
-    #* Execute "ip link set dev eth1 up"
-    #* Execute "ip addr add dev eth1 192.0.2.1/24"
 
-    #* Execute "ip link add dev vrf1 type vrf table 1002"
-    #* Execute "ip link set dev vrf1 up"
-    #* Execute "ip link set dev eth4 master vrf1"
-    #* Execute "ip link set dev eth4 up"
-    #* Execute "ip addr add dev eth4 192.0.2.1/24"
-
-    #When "eth1\:ethernet\:connected\:vrf.eth1" is visible with command "nmcli -t device" in "25" seconds
-    #When "eth4\:ethernet\:connected\:vrf.eth4" is visible with command "nmcli -t device"
-    #When "vrf0\:vrf\:connected\:vrf0" is visible with command "nmcli -t device"
-    #When "vrf1\:vrf\:connected\:vrf1" is visible with command "nmcli -t device"
-
-    #When "eth1|eth4" is not visible with command "ip r"
-
-    #When "192.0.2.1" is visible with command "ip a s eth1"
-    # Obsolete by https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=94c821c74bf5fe0c25e09df5334a16f98608db90
-    # #When "broadcast 192.0.2.0 dev eth1 proto kernel scope link src 192.0.2.1" is visible with command "ip r show table 1001"
-    #When "192.0.2.0\/24 dev eth1 proto kernel scope link src 192.0.2.1 metric 1" is visible with command "ip r show table 1001"
-    #When "local 192.0.2.1 dev eth1 proto kernel scope host src 192.0.2.1" is visible with command "ip r show table 1001"
-    #When "broadcast 192.0.2.255 dev eth1 proto kernel scope link src 192.0.2.1" is visible with command "ip r show table 1001"
-
-    #When "192.0.2.1" is visible with command "ip a s eth4"
-    # Obsolete by https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=94c821c74bf5fe0c25e09df5334a16f98608db90
-    # #When "broadcast 192.0.2.0 dev eth4 proto kernel scope link src 192.0.2.1" is visible with command "ip r show table 1002"
-    #When "192.0.2.0\/24 dev eth4 proto kernel scope link src 192.0.2.1 metric 1" is visible with command "ip r show table 1002"
-    #When "local 192.0.2.1 dev eth4 proto kernel scope host src 192.0.2.1" is visible with command "ip r show table 1002"
-    #When "broadcast 192.0.2.255 dev eth4 proto kernel scope link src 192.0.2.1" is visible with command "ip r show table 1002"
+    @rhbz2094878
+    @ver+=1.41.3 @rhelver+=8
+    @vrf_various_ports
+    Scenario: nmcli - vrf - restart persistence
+    * Add "vrf" connection named "vrf0" for device "vrf0" with options
+          """
+          table 1001
+          ipv4.method manual
+          ipv4.addresses 5.5.5.1/24
+          ipv6.method manual
+          ipv6.addresses 5::1/64
+          """
+    * Add "bond" connection named "vrf0.bond0" for device "nm-bond" with options
+          """
+          master vrf0
+          ipv4.method manual
+          ipv4.address 1.1.1.1/24
+          ipv6.method manual
+          ipv6.address 1::1/64
+          """
+    * Add "bridge" connection named "vrf0.br0" for device "nm-bridge" with options
+          """
+          master vrf0
+          ipv4.method manual
+          ipv4.address 3.3.3.1/24
+          ipv6.method manual
+          ipv6.address 3::1/64
+          """
+    * Add "vlan" connection named "vrf0.vlan0" with options
+          """
+          master vrf0
+          dev nm-bond
+          id 4000
+          ipv4.method manual
+          ipv4.address 4.4.4.1/24
+          ipv6.method manual
+          ipv6.address 4::1/64
+          """
+    * Add "ethernet" connection named "vrf0.bond0.eth4" for device "eth4" with options
+          """
+          master nm-bond
+          """
+    * Add "ethernet" connection named "vrf0.br0.eth5" for device "eth5" with options
+          """
+          master nm-bridge
+          """
+    * Bring "up" connection "vrf0"
+    * Bring "up" connection "vrf0.bond0"
+    * Bring "up" connection "vrf0.br0"
+    * Bring "up" connection "vrf0.vlan0"
+    * Bring "up" connection "vrf0.br0.eth5"
+    * Bring "up" connection "vrf0.bond0.eth4"
+    # These commented lines are not the same under CentOS so commented out, these are set by the kernel anyway.
+    # When "broadcast 1.1.1.0 dev nm-bond proto kernel scope link src 1.1.1.1" is visible with command "ip r show table 1001"
+    When "1.1.1.0/24 dev nm-bond proto kernel scope link src 1.1.1.1 metric 300" is visible with command "ip r show table 1001"
+    When "local 1.1.1.1 dev nm-bond proto kernel scope host src 1.1.1.1" is visible with command "ip r show table 1001"
+    When "broadcast 1.1.1.255 dev nm-bond proto kernel scope link src 1.1.1.1" is visible with command "ip r show table 1001"
+    # When "broadcast 3.3.3.0 dev nm-bridge proto kernel scope link src 3.3.3.1" is visible with command "ip r show table 1001"
+    When "3.3.3.0/24 dev nm-bridge proto kernel scope link src 3.3.3.1 metric 425" is visible with command "ip r show table 1001"
+    When "local 3.3.3.1 dev nm-bridge proto kernel scope host src 3.3.3.1" is visible with command "ip r show table 1001"
+    When "broadcast 3.3.3.255 dev nm-bridge proto kernel scope link src 3.3.3.1" is visible with command "ip r show table 1001"
+    # When "broadcast 4.4.4.0 dev nm-bond.4000 proto kernel scope link src 4.4.4.1" is visible with command "ip r show table 1001"
+    When "4.4.4.0/24 dev nm-bond.4000 proto kernel scope link src 4.4.4.1 metric 400" is visible with command "ip r show table 1001"
+    When "local 4.4.4.1 dev nm-bond.4000 proto kernel scope host src 4.4.4.1" is visible with command "ip r show table 1001"
+    When "broadcast 4.4.4.255 dev nm-bond.4000 proto kernel scope link src 4.4.4.1" is visible with command "ip r show table 1001"
+    # When "broadcast 5.5.5.0 dev vrf0 proto kernel scope link src 5.5.5.1" is visible with command "ip r show table 1001"
+    When "5.5.5.0/24 dev vrf0 proto kernel scope link src 5.5.5.1 metric 470" is visible with command "ip r show table 1001"
+    When "local 5.5.5.1 dev vrf0 proto kernel scope host src 5.5.5.1" is visible with command "ip r show table 1001"
+    When "broadcast 5.5.5.255 dev vrf0 proto kernel scope link src 5.5.5.1" is visible with command "ip r show table 1001"
+    * Reboot
+    # Then "broadcast 1.1.1.0 dev nm-bond proto kernel scope link src 1.1.1.1" is visible with command "ip r show table 1001"
+    Then "1.1.1.0/24 dev nm-bond proto kernel scope link src 1.1.1.1 metric 300" is visible with command "ip r show table 1001"
+    Then "local 1.1.1.1 dev nm-bond proto kernel scope host src 1.1.1.1" is visible with command "ip r show table 1001"
+    Then "broadcast 1.1.1.255 dev nm-bond proto kernel scope link src 1.1.1.1" is visible with command "ip r show table 1001"
+    # Then "broadcast 3.3.3.0 dev nm-bridge proto kernel scope link src 3.3.3.1" is visible with command "ip r show table 1001"
+    Then "3.3.3.0/24 dev nm-bridge proto kernel scope link src 3.3.3.1 metric 425" is visible with command "ip r show table 1001"
+    Then "local 3.3.3.1 dev nm-bridge proto kernel scope host src 3.3.3.1" is visible with command "ip r show table 1001"
+    Then "broadcast 3.3.3.255 dev nm-bridge proto kernel scope link src 3.3.3.1" is visible with command "ip r show table 1001"
+    # Then "broadcast 4.4.4.0 dev nm-bond.4000 proto kernel scope link src 4.4.4.1" is visible with command "ip r show table 1001"
+    Then "4.4.4.0/24 dev nm-bond.4000 proto kernel scope link src 4.4.4.1 metric 400" is visible with command "ip r show table 1001"
+    Then "local 4.4.4.1 dev nm-bond.4000 proto kernel scope host src 4.4.4.1" is visible with command "ip r show table 1001"
+    Then "broadcast 4.4.4.255 dev nm-bond.4000 proto kernel scope link src 4.4.4.1" is visible with command "ip r show table 1001"
+    # Then "broadcast 5.5.5.0 dev vrf0 proto kernel scope link src 5.5.5.1" is visible with command "ip r show table 1001"
+    Then "5.5.5.0/24 dev vrf0 proto kernel scope link src 5.5.5.1 metric 470" is visible with command "ip r show table 1001"
+    Then "local 5.5.5.1 dev vrf0 proto kernel scope host src 5.5.5.1" is visible with command "ip r show table 1001"
+    Then "broadcast 5.5.5.255 dev vrf0 proto kernel scope link src 5.5.5.1" is visible with command "ip r show table 1001"
