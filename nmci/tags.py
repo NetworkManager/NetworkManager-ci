@@ -2675,22 +2675,32 @@ _register_tag("modprobe_cfg_remove", None, modprobe_cfg_remove_as)
 
 
 def kill_dnsmasq_from_pid_file(pid_file):
+    def finished(pid):
+        try:
+            os.kill(pid, 0)
+        except OSError:
+            # process with this PID doesn't exist (any more)
+            return True
+        return False
+
+    def try_kill(pid, signal):
+        try:
+            os.kill(pid, signal)
+        except ProcessLookupError:
+            pass
+
     if os.path.isfile(pid_file):
         try:
             pid = int(nmci.util.file_get_content_simple(pid_file))
         except FileNotFoundError:
             return
-        os.kill(pid, 15)
+        try_kill(pid, 15)
         time.sleep(0.2)
-        still_running = True
-        try:
-            os.kill(pid, 0)
-        except OSError:
-            # process with this PID doesn't exist (any more)
-            return
-
-        time.sleep(5)
-        os.kill(pid, 9)
+        for i in range(5):
+            if finished(pid):
+                return
+            time.sleep(1)
+        try_kill(pid, 9)
 
 
 def kill_dnsmasq_vlan_as(context, scenario):
