@@ -359,6 +359,10 @@ testmapper:
         feature: bridge
     - bridge_delete_connection_while_up:
         feature: bridge
+    - bridge_new_lower_mac_port_unchanged_ip_addresses_v4:
+        feature: bridge
+    - bridge_new_lower_mac_port_unchanged_ip_addresses_v6:
+        feature: bridge
     - bridge_add_slave:
         feature: bridge
     - bridge_remove_slave:

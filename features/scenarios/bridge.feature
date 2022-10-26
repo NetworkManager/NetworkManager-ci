@@ -301,6 +301,59 @@ Feature: nmcli - bridge
     Then "ether 02:02:02:02:02:02" is visible with command "ip a s br12"
 
 
+    @rhbz2124443
+    @ver+=1.41.3
+    @ver/rhel/8+=1.40.0.2
+    @bridge_new_lower_mac_port_unchanged_ip_addresses_v4
+    Scenario: nmcli - bridge - mac and IP addresses are kept after attaching of port with lower MAC
+    * Add "bridge" connection named "brX" for device "brX" with options
+          """
+          bridge.stp off
+          ipv4.may-fail no
+          ipv6.method disabled
+          """
+    * Add "ethernet" connection named "testX" for device "testX"
+    * Note the value of property "connection.uuid" of connection "brX"
+    * Modify connection "testX" property "master" to noted value
+    * Bring up connection "brX"
+    * Prepare simulated test "testX" device with "30" leasetime
+    * "(connected)" is visible with command "nmcli device show brX" in "10" seconds
+    * Execute "ip a"
+    * Note the output of "ip a show brX | grep ' inet ' | sed -e 's/^.*inet \([^ ]\+\) .*$/\1/'"
+    * Create "veth" device named "veth0p" with options "peer name veth0 address 00:00:00:00:00:01"
+    When Execute "ip link set veth0 master brX"
+    * Wait for "10" seconds
+    Then Noted value is visible with command "ip -4 a show brX"
+
+
+    @rhbz2124443
+    @ver+=1.41.3
+    @ver/rhel/8+=1.40.0.2
+    @bridge_new_lower_mac_port_unchanged_ip_addresses_v6
+    Scenario: nmcli - bridge - mac and IP addresses are kept after attaching of port with lower MAC
+    * Add "bridge" connection named "brX" for device "brX" with options
+          """
+          bridge.stp off
+          ipv4.method disabled
+          ipv6.may-fail no ipv6.dhcp-duid llt
+          """
+    * Add "ethernet" connection named "testX" for device "testX"
+    * Note the value of property "connection.uuid" of connection "brX"
+    * Modify connection "testX" property "master" to noted value
+    * Bring up connection "brX"
+    * Prepare simulated test "testX" device with "30" leasetime
+    * "(connected)" is visible with command "nmcli device show brX" in "10" seconds
+    * Execute "ip a"
+    * Note the output of "ip a show brX scope global | grep ' inet6 ' | head -n1 | sed -e 's/^.*inet6 \([^ ]\+\) .*$/\1/'" as value "ipv6_1"
+    * Note the output of "ip a show brX scope global | grep ' inet6 ' | tail -n1 | sed -e 's/^.*inet6 \([^ ]\+\) .*$/\1/'" as value "ipv6_2"
+    * Create "veth" device named "veth0p" with options "peer name veth0 address 00:00:00:00:00:01"
+    When Execute "ip link set veth0 master brX"
+    # v6 "lease" is 120 s despite shorter setting
+    * Wait for "140" seconds
+    Then Noted value "ipv6_1" is visible with command "ip -6 a show dev brX scope global"
+    Then Noted value "ipv6_2" is visible with command "ip -6 a show dev brX scope global"
+
+
     @ifcfg-rh
     @bridge_add_slave
     Scenario: nmcli - bridge - add slave
