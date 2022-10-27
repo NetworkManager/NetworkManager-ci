@@ -166,10 +166,13 @@ def is_not_readable(context, user, name):
         'Connection %s is readable even if it should not be %s' % name
 
 
-@step(u'Modify connection "{name}" changing options "{options}"')
-def modify_connection(context, name, options):
-    out = context.command_output("nmcli connection modify %s %s" % (name, options))
-    assert 'Error' not in out, 'Got an Error while modifying %s options %s\n%s' % (name, options, out)
+@step('Modify connection "{name}" changing options "{options}"')
+@step('Modify connection "{name}" changing options')
+def modify_connection(context, name, options=None):
+    if options is None:
+        options = context.text.replace("\n", " ") if context.text is not None else " "
+    out = context.command_output(f"nmcli connection modify {name} {options}")
+    assert "Error" not in out, f"Got an Error while modifying {name} options {options}\n{out}"
 
 @step(u'Wait for testeth0')
 def wait_for_eth0(context):
