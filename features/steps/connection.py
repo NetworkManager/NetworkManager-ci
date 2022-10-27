@@ -49,8 +49,9 @@ def add_port(context, name, ifname, parent, pkey):
 
 
 @step(u'Modify connection "{connection}" property "{prop}" to noted value')
-def modify_connection_with_noted(context, connection, prop):
-    cli = context.pexpect_spawn('nmcli connection modify %s %s %s' % (connection, prop, context.noted['noted-value']))
+@step(u'Modify connection "{connection}" property "{prop}" to noted value "{index}"')
+def modify_connection_with_noted(context, connection, prop, index="noted-value"):
+    cli = context.pexpect_spawn(f'nmcli connection modify {connection} {prop} {context.noted[index]}')
     r = cli.expect(['Error', pexpect.EOF])
     assert r == 1, 'Got an Error while changing %s property for connection %s to %s\n%s%s' % (prop, connection, context.noted['noted-value'], cli.after, cli.buffer)
 
@@ -403,3 +404,11 @@ def cleanup_connection(context, connection, device=None):
     nmci.cleanup.cleanup_add_connection(connection)
     if device is not None:
         context.execute_steps(f'* Cleanup device "{device}"')
+
+
+@step('Note the value of property "{prop}" of connection "{con}"')
+@step('Note the value of property "{prop}" of connection "{con}" as noted value "{index}"')
+def note_gotten_value(context, prop, con, index="noted-value"):
+    if not hasattr(context, "noted"):
+        context.noted = {}
+    context.noted[index] = nmci.process.run_stdout(f"nmcli -g {prop} c s {con}")
