@@ -42,7 +42,15 @@ def activate_connection():
     print("Done activating")
 
 
-before_cons = nmclient.get_active_connections()
+def get_active_connections(nmclient):
+    return [
+        ac
+        for ac in nmclient.get_active_connections()
+        if not (ac.get_state_flags() & NM.ActivationStateFlags.EXTERNAL)
+    ]
+
+
+before_cons = get_active_connections(nmclient)
 
 print("Active connections before: %d" % (len(before_cons)))
 print()
@@ -67,7 +75,7 @@ print("Activating connection %s..." % connection_name)
 
 activate_connection()
 
-after_cons = nmclient.get_active_connections()
+after_cons = get_active_connections(nmclient)
 
 loop = 2
 
