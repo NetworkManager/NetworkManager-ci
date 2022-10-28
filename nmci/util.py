@@ -352,6 +352,7 @@ class _Util:
         cmds = [
             'date "+%Y%m%d-%H%M%S.%N"',
             "NetworkManager --version",
+            "ps aux",
             "ip addr",
             "ip -4 route",
             "ip -6 route",
