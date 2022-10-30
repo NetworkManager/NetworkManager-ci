@@ -1049,7 +1049,7 @@ Feature: nmcli - wifi
     Then "\*\s+open" is visible with command "nmcli -f IN-USE,SSID device wifi list"
 
 
-    @ver+=1.6.0
+    @ver+=1.40
     @simwifi
     @simwifi_novice_mode_add_connection_ip_setup
     Scenario: simwifi - add connection in novice (nmcli -a) mode specifying IP setup
@@ -1085,6 +1085,7 @@ Feature: nmcli - wifi
     Then "10.1.1.5" is visible with command "ip a" in "30" seconds
 
 
+    @ver+=1.40
     @simwifi
     @simwifi_novice_mode_add_connection_bogus_ip
     Scenario: simwifi - add connection in novice (nmcli -a) mode with bogus IP
@@ -1113,6 +1114,7 @@ Feature: nmcli - wifi
     Then Error appeared in editor
 
 
+    @ver+=1.40
     @simwifi
     @simwifi_novice_mode_add_default_connection
     Scenario: simwifi - add default connection in novice (nmcli -a) mode
@@ -1130,7 +1132,7 @@ Feature: nmcli - wifi
     Then "open" is visible with command "iw dev wlan0 link" in "30" seconds
 
 
-    @ver+=1.8
+    @ver+=1.40
     @simwifi
     @simwifi_novice_mode_add_connection_with_options
     Scenario: simwifi - add connection in novice (nmcli -a) mode specifying options
