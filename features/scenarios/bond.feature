@@ -368,27 +368,63 @@
 
     @rhbz1949127
     @ver+=1.33
+    @ver-1.40.2
     @bond_add_slaves_with_queue-id
     Scenario: nmcli - bond - add slaves
-     * Add "bond" connection named "bond0" for device "nm-bond" with options
+    * Add "bond" connection named "bond0" for device "nm-bond" with options
            """
            ipv4.addresses 1.2.3.4/24 ipv4.method manual
            """
-     * Add "ethernet" connection named "bond0.0" for device "eth1" with options
+    * Add "ethernet" connection named "bond0.0" for device "eth1" with options
            """
            master nm-bond queue-id 2
            """
-     * Add "ethernet" connection named "bond0.1" for device "eth4" with options
+    * Add "ethernet" connection named "bond0.1" for device "eth4" with options
            """
            master nm-bond queue-id 4
            """
-     When "activated" is visible with command "nmcli -g GENERAL.STATE con show bond0" in "40" seconds
-      Then Check slave "eth1" in bond "nm-bond" in proc
-       And "2" is visible with command "nmcli -f bond-port.queue-id con show bond0.0"
-       And "Slave queue ID: 2" is visible with command "cat /proc/net/bonding/nm-bond | sed -n '/eth1/,/^$/p'"
-      Then Check slave "eth4" in bond "nm-bond" in proc
-       And "Slave queue ID: 4" is visible with command "cat /proc/net/bonding/nm-bond | sed -n '/eth4/,/^$/p'"
-       And "4" is visible with command "nmcli -f bond-port.queue-id con show bond0.1"
+    When "activated" is visible with command "nmcli -g GENERAL.STATE con show bond0" in "40" seconds
+    Then Check slave "eth1" in bond "nm-bond" in proc
+     And "2" is visible with command "nmcli -f bond-port.queue-id con show bond0.0"
+     And "Slave queue ID: 2" is visible with command "cat /proc/net/bonding/nm-bond | sed -n '/eth1/,/^$/p'"
+    Then Check slave "eth4" in bond "nm-bond" in proc
+     And "Slave queue ID: 4" is visible with command "cat /proc/net/bonding/nm-bond | sed -n '/eth4/,/^$/p'"
+     And "4" is visible with command "nmcli -f bond-port.queue-id con show bond0.1"
+
+
+    @rhbz1949127 @rhbz2126262
+    @ver+=1.40.2
+    @bond_add_slaves_with_queue-id
+    Scenario: nmcli - bond - add slaves
+    * Add "bond" connection named "bond0" for device "nm-bond" with options
+           """
+           ipv4.addresses 1.2.3.4/24 ipv4.method manual
+           """
+    * Add "ethernet" connection named "bond0.0" for device "eth1" with options
+           """
+           master nm-bond queue-id 2
+           """
+    * Add "ethernet" connection named "bond0.1" for device "eth4" with options
+           """
+           master nm-bond queue-id 4
+           """
+    When "activated" is visible with command "nmcli -g GENERAL.STATE con show bond0" in "40" seconds
+    When Check slave "eth1" in bond "nm-bond" in proc
+     And "2" is visible with command "nmcli -f bond-port.queue-id con show bond0.0"
+     And "Slave queue ID: 2" is visible with command "cat /proc/net/bonding/nm-bond | sed -n '/eth1/,/^$/p'"
+    When Check slave "eth4" in bond "nm-bond" in proc
+     And "Slave queue ID: 4" is visible with command "cat /proc/net/bonding/nm-bond | sed -n '/eth4/,/^$/p'"
+     And "4" is visible with command "nmcli -f bond-port.queue-id con show bond0.1"
+    * Modify connection "bond0.0" changing options "connection.master '' connection.slave-type ''"
+    * Bring "up" connection "bond0.0"
+    When "activated" is visible with command "nmcli -g GENERAL.STATE con show bond0" in "40" seconds
+    Then Check slave "eth1" not in bond "nm-bond" in proc
+     And "2" is not visible with command "nmcli -f bond-port.queue-id con show bond0.0"
+     And "Slave queue ID: 2" is not visible with command "cat /proc/net/bonding/nm-bond | sed -n '/eth1/,/^$/p'"
+    Then Check slave "eth4" in bond "nm-bond" in proc
+     And "Slave queue ID: 4" is visible with command "cat /proc/net/bonding/nm-bond | sed -n '/eth4/,/^$/p'"
+     And "4" is visible with command "nmcli -f bond-port.queue-id con show bond0.1"
+    Then "activated" is visible with command "nmcli -g GENERAL.STATE con show bond0.0" in "40" seconds
 
 
     @rhbz1057494
