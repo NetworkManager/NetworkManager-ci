@@ -58,4 +58,4 @@ END {
 }
 EOF
 
-journalctl -u NetworkManager --since "$SINCE" | awk "$AWK_PROGRAM"
+journalctl -u NetworkManager --since "$SINCE" 2>/dev/null | awk "$AWK_PROGRAM"
