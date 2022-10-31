@@ -2528,6 +2528,8 @@ testmapper:
         feature: dns
     - resolv_conf_do_not_overwrite_symlink:
         feature: dns
+    - resolv_conf_dns_priority:
+        feature: dns
     - dns_dnsmasq_dnssec_opts:
         feature: dns
     - dns_resolved_dnssec_opts:

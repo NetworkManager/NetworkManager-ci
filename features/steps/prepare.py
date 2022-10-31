@@ -234,6 +234,7 @@ def prepare_dhcpd_simdev(context, device, server_id):
     nmci.cleanup.cleanup_add_namespace(f"{device}_ns")
 
 
+@step(u'Prepare simulated test "{device}" device with "{ipv4}" ipv4 and "{ipv6}" ipv6 dhcp address prefix and "{lease_time}" leasetime and daemon options "{daemon_options}"')
 @step(u'Prepare simulated test "{device}" device with "{ipv4}" ipv4 and "{ipv6}" ipv6 dhcp address prefix and dhcp option "{option}"')
 @step(u'Prepare simulated test "{device}" device with "{ipv4}" ipv4 and "{ipv6}" ipv6 dhcp address prefix')
 @step(u'Prepare simulated test "{device}" device with "{ipv4}" ipv4 and daemon options "{daemon_options}"')
@@ -251,7 +252,6 @@ def prepare_simdev(context, device, lease_time="2m", ipv4=None, ipv6=None, optio
     if daemon_options is None:
         daemon_options = ""
 
-
     context.execute_steps(f'* Add namespace "{device}_ns"')
     context.execute_steps(f'* Create "veth" device named "{device}" in namespace "{device}_ns" with options "peer name {device}p"')
     context.command_code("ip netns exec {device}_ns sysctl net.ipv6.conf.{device}.disable_ipv6=0".format(device=device))
@@ -259,8 +259,10 @@ def prepare_simdev(context, device, lease_time="2m", ipv4=None, ipv6=None, optio
     context.command_code("ip netns exec {device}_ns sysctl net.ipv6.conf.{device}.autoconf=1".format(device=device))
     context.command_code("ip netns exec {device}_ns ip link set lo up".format(device=device))
     context.command_code("ip netns exec {device}_ns ip link set {device}p up".format(device=device))
-    context.command_code("ip netns exec {device}_ns ip addr add {ip}.1/24 dev {device}p".format(device=device, ip=ipv4))
-    context.command_code("ip netns exec {device}_ns ip -6 addr add {ip}::1/64 dev {device}p".format(device=device, ip=ipv6))
+    if ipv4.lower() != "none":
+        context.command_code("ip netns exec {device}_ns ip addr add {ip}.1/24 dev {device}p".format(device=device, ip=ipv4))
+    if ipv6.lower() != "none":
+        context.command_code("ip netns exec {device}_ns ip -6 addr add {ip}::1/64 dev {device}p".format(device=device, ip=ipv6))
     context.command_code("echo '127.0.0.1   localhost localhost.localdomain localhost4 localhost4.localdomain4' > /etc/hosts")
     context.command_code("echo '::1         localhost localhost.localdomain localhost6 localhost6.localdomain6' >> /etc/hosts")
     context.command_code("echo '192.168.99.10 ip-192-168-99-10' >> /etc/hosts")
@@ -282,8 +284,9 @@ def prepare_simdev(context, device, lease_time="2m", ipv4=None, ipv6=None, optio
                                 --dhcp-leasefile=/tmp/{device}_ns.lease \
                                 {option} \
                                 {daemon_options}".format(device=device, option=option, daemon_options=daemon_options)
-    dnsmasq_command += " --dhcp-range={ipv4}.10,{ipv4}.15,{lease_time} ".format(lease_time=lease_time, ipv4=ipv4)
-    if lease_time != 'infinite':
+    if ipv4.lower() != "none":
+        dnsmasq_command += " --dhcp-range={ipv4}.10,{ipv4}.15,{lease_time} ".format(lease_time=lease_time, ipv4=ipv4)
+    if ipv6.lower() != "none" and lease_time != 'infinite':
         dnsmasq_command += " --dhcp-range={ipv6}::100,{ipv6}::fff,slaac,64,{lease_time} \
                              --enable-ra".format(lease_time=lease_time, ipv6=ipv6)
 

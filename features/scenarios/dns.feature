@@ -1133,7 +1133,7 @@ Feature: nmcli - dns
     @not_with_systemd_resolved
     @remove_custom_cfg @restore_resolvconf @eth8_disconnect @restart_if_needed
     @resolv_conf_dangling_symlink
-    Scenario: NM - general - follow resolv.conf when dangling symlink
+    Scenario: NM - dns - follow resolv.conf when dangling symlink
     * Add "ethernet" connection named "con_dns" for device "eth8" with options
           """
           ipv4.method manual
@@ -1165,7 +1165,7 @@ Feature: nmcli - dns
     @not_with_systemd_resolved
     @restore_resolvconf @restart_if_needed
     @resolv_conf_do_not_overwrite_symlink
-    Scenario: NM - general - do not overwrite dns symlink
+    Scenario: NM - dns - do not overwrite dns symlink
     * Add "ethernet" connection named "con_dns" for device "eth8" with options
           """
           ipv4.method manual
@@ -1182,3 +1182,26 @@ Feature: nmcli - dns
     * Wait for "2" seconds
     Then "/etc/resolv.conf" is symlink with destination "/tmp/no-resolv.conf"
     Then "nameserver 1.2.3.4" is visible with command "cat /tmp/no-resolv.conf"
+
+
+    @rhbz2134563
+    @ver+=1.41.3
+    @ver+=1.40.1
+    @ver+=1.38.5
+    @ver+=1.36.9
+    @not_with_systemd_resolved
+    @eth0 @restore_resolvconf @restart_if_needed
+    @resolv_conf_dns_priority
+    Scenario: NM - dns - sort servers in resolv.conf by priority
+    * Prepare simulated test "testD1" device with "192.168.99" ipv4 and "none" ipv6 dhcp address prefix and "60s" leasetime and daemon options " "
+    * Prepare simulated test "testD2" device with "192.168.100" ipv4 and "2620:dead:beef" ipv6 dhcp address prefix and "1800s" leasetime and daemon options "--dhcp-option=6,9.9.9.9"
+    * Add "ethernet" connection named "con_dns1" for device "testD1" with options
+          """
+          ipv4.dns 8.8.8.8 ipv4.dns-search example.com
+          ipv4.ignore-auto-dns yes ipv4.dns-priority 40
+          ipv6.dns 2001::1 ipv6.ignore-auto-dns yes ipv6.dns-priority 41
+          """
+    * Add "ethernet" connection named "con_dns2" for device "testD2" with options "ipv4.route-metric 50"
+    When Nameserver "9.9.9.9" is set in "50" seconds
+    # Order is wrong after 58s, does not relate to lease time, even when changed leasetime to 20s, the order is wrong in 58s
+    Then "BEGIN\r\nnameserver 8.8.8.8\r\nnameserver 2001::1\r\nnameserver 9.9.9.9" is visible with command "echo BEGIN; grep -v -e search -e '^#' /etc/resolv.conf" for full "70" seconds
