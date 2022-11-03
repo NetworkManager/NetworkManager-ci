@@ -89,7 +89,7 @@ install_el9_packages () {
     REL=$(rpm -q --queryformat '[%{RELEASE}\n]' kernel |head -n 1)
     if grep Red /etc/redhat-release; then
         dnf -4 -y install \
-            $BREW/rhel-9/packages/kernel/$VER/$REL/$(arch)/kernel-modules-internal-$VER-$REL.$(arch).rpm
+            $BREW/rhel-9/packages/kernel/$VER/$REL/$(arch)/kernel-modules-internal-$VER-$REL.$(arch).rpm \
             $BREW/rhel-9/packages/kernel/$VER/$REL/$(arch)/kernel-modules-extra-$VER-$REL.$(arch).rpm
     else
         dnf -4 -y install \
