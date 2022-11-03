@@ -865,6 +865,7 @@ class _Misc:
                 + short
                 + journal_args,
                 ignore_returncode=False,
+                ignore_stderr=True,
                 stdout=f_out,
                 timeout=180,
             )
