@@ -344,18 +344,18 @@ Feature: nmcli: vrf
     When "broadcast 5.5.5.255 dev vrf0 proto kernel scope link src 5.5.5.1" is visible with command "ip r show table 1001"
     * Reboot
     # Then "broadcast 1.1.1.0 dev nm-bond proto kernel scope link src 1.1.1.1" is visible with command "ip r show table 1001"
-    Then "1.1.1.0/24 dev nm-bond proto kernel scope link src 1.1.1.1 metric 300" is visible with command "ip r show table 1001"
-    Then "local 1.1.1.1 dev nm-bond proto kernel scope host src 1.1.1.1" is visible with command "ip r show table 1001"
-    Then "broadcast 1.1.1.255 dev nm-bond proto kernel scope link src 1.1.1.1" is visible with command "ip r show table 1001"
+    Then "1.1.1.0/24 dev nm-bond proto kernel scope link src 1.1.1.1 metric 300" is visible with command "ip r show table 1001" in "5" seconds
+    Then "local 1.1.1.1 dev nm-bond proto kernel scope host src 1.1.1.1" is visible with command "ip r show table 1001" in "5" seconds
+    Then "broadcast 1.1.1.255 dev nm-bond proto kernel scope link src 1.1.1.1" is visible with command "ip r show table 1001" in "5" seconds
     # Then "broadcast 3.3.3.0 dev nm-bridge proto kernel scope link src 3.3.3.1" is visible with command "ip r show table 1001"
-    Then "3.3.3.0/24 dev nm-bridge proto kernel scope link src 3.3.3.1 metric 425" is visible with command "ip r show table 1001"
-    Then "local 3.3.3.1 dev nm-bridge proto kernel scope host src 3.3.3.1" is visible with command "ip r show table 1001"
-    Then "broadcast 3.3.3.255 dev nm-bridge proto kernel scope link src 3.3.3.1" is visible with command "ip r show table 1001"
+    Then "3.3.3.0/24 dev nm-bridge proto kernel scope link src 3.3.3.1 metric 425" is visible with command "ip r show table 1001" in "5" seconds
+    Then "local 3.3.3.1 dev nm-bridge proto kernel scope host src 3.3.3.1" is visible with command "ip r show table 1001" in "5" seconds
+    Then "broadcast 3.3.3.255 dev nm-bridge proto kernel scope link src 3.3.3.1" is visible with command "ip r show table 1001" in "5" seconds
     # Then "broadcast 4.4.4.0 dev nm-bond.4000 proto kernel scope link src 4.4.4.1" is visible with command "ip r show table 1001"
-    Then "4.4.4.0/24 dev nm-bond.4000 proto kernel scope link src 4.4.4.1 metric 400" is visible with command "ip r show table 1001"
-    Then "local 4.4.4.1 dev nm-bond.4000 proto kernel scope host src 4.4.4.1" is visible with command "ip r show table 1001"
-    Then "broadcast 4.4.4.255 dev nm-bond.4000 proto kernel scope link src 4.4.4.1" is visible with command "ip r show table 1001"
+    Then "4.4.4.0/24 dev nm-bond.4000 proto kernel scope link src 4.4.4.1 metric 400" is visible with command "ip r show table 1001" in "5" seconds
+    Then "local 4.4.4.1 dev nm-bond.4000 proto kernel scope host src 4.4.4.1" is visible with command "ip r show table 1001" in "5" seconds
+    Then "broadcast 4.4.4.255 dev nm-bond.4000 proto kernel scope link src 4.4.4.1" is visible with command "ip r show table 1001" in "5" seconds
     # Then "broadcast 5.5.5.0 dev vrf0 proto kernel scope link src 5.5.5.1" is visible with command "ip r show table 1001"
-    Then "5.5.5.0/24 dev vrf0 proto kernel scope link src 5.5.5.1 metric 470" is visible with command "ip r show table 1001"
-    Then "local 5.5.5.1 dev vrf0 proto kernel scope host src 5.5.5.1" is visible with command "ip r show table 1001"
-    Then "broadcast 5.5.5.255 dev vrf0 proto kernel scope link src 5.5.5.1" is visible with command "ip r show table 1001"
+    Then "5.5.5.0/24 dev vrf0 proto kernel scope link src 5.5.5.1 metric 470" is visible with command "ip r show table 1001" in "5" seconds
+    Then "local 5.5.5.1 dev vrf0 proto kernel scope host src 5.5.5.1" is visible with command "ip r show table 1001" in "5" seconds
+    Then "broadcast 5.5.5.255 dev vrf0 proto kernel scope link src 5.5.5.1" is visible with command "ip r show table 1001" in "5" seconds
