@@ -151,13 +151,13 @@
     @sriov_con_drv_bond_with_config
     Scenario: nmcli - sriov - drv - bond with VF and ethernet reboot persistence
     * Prepare "99-sriov.conf" config for "p4p1" device with "1" VFs
-    When "p4p1_0" is visible with command "nmcli device" in "5" seconds
     * Add "bond" connection named "sriov_bond0" for device "bond0" with options
           """
           ipv4.method manual
           ipv4.address 1.2.3.4/24
           bond.options 'mode=active-backup,primary=p4p1_0,miimon=100,fail_over_mac=2'
           """
+    When "p4p1_0" is visible with command "nmcli device" in "5" seconds
     * Add slave connection for master "bond0" on device "p4p1_0" named "sriov_bond0.0"
     * Add slave connection for master "bond0" on device "em3" named "sriov_bond0.1"
     When "Bonding Mode: fault-tolerance \(active-backup\) \(fail_over_mac follow\)\s+Primary Slave: p4p1_0 \(primary_reselect always\)\s+Currently Active Slave: p4p1_0" is visible with command "cat /proc/net/bonding/bond0"
