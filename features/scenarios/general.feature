@@ -1853,7 +1853,7 @@ Feature: nmcli - general
     @ver-1.41.2
     @rhelver+=8 @fedoraver+=31
     @not_when_no_veths
-    @nmstate_upstream_setup @permissive
+    @regenerate_veth @nmstate_upstream_setup @permissive
     @nmstate_upstream
     Scenario: NM - general - nmstate
     * Execute "ip link add eth1 type veth peer name eth1peer && ip link set dev eth1peer up"
@@ -1870,7 +1870,7 @@ Feature: nmcli - general
     @ver+=1.41.2
     @rhelver+=8 @fedoraver+=31
     @not_when_no_veths
-    @nmstate_upstream_setup @permissive
+    @regenerate_veth @nmstate_upstream_setup @permissive
     @nmstate_upstream
     Scenario: NM - general - nmstate
     * Execute "ip link add eth1 type veth peer name eth1peer && ip link set dev eth1peer up"
