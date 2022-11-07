@@ -2674,3 +2674,26 @@
     Then "dummy0:connected:dummy0a" is visible with command "nmcli -t -f DEVICE,STATE,CONNECTION device"
     * Bring up connection "bond0b"
     Then "bond0:connected:bond0b" is visible with command "nmcli -t -f DEVICE,STATE,CONNECTION device" for full "5" seconds
+
+    
+    @rhbz2128216
+    # Currently, RHEL9.1 kernel version is too old (once updated - change @rhelver-=0 to @rhelver+=9.X)
+    @fedoraver+=36 @rhelver-=0
+    @ver+=1.41.3
+    @skip_in_centos
+    @bond_set_balance_slb_options
+    Scenario: bond - create bond with "balance-slb" bonding mode (multi chassis link aggregation (MLAG)
+     * Add "bond" connection named "bond0" for device "nm-bond" with options
+           """
+           autoconnect no
+           bond.options mode=balance-xor,balance-slb=1,xmit_hash_policy=5
+           ipv4.method manual ipv4.addresses 172.16.1.2/24
+           """
+     * Add "ethernet" connection named "bond0.1" for device "eth4" with options "master nm-bond autoconnect no"
+     * Add "ethernet" connection named "bond0.0" for device "eth7" with options "master nm-bond autoconnect no"
+     * Bring "up" connection "bond0.1"
+     * Bring "up" connection "bond0.0"
+     * Bring "up" connection "bond0"
+     When "nm-bond:connected:bond0" is visible with command "nmcli -t -f DEVICE,STATE,CONNECTION device" in "40" seconds
+     And "vlan+srmac" is visible with command "cat /sys/class/net/nm-bond/bonding/xmit_hash_policy"
+     And "balance-xor" is visible with command "cat /sys/class/net/nm-bond/bonding/mode"
