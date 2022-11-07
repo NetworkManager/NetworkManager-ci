@@ -2302,15 +2302,10 @@ def tcpdump_as(context, scenario):
 _register_tag("tcpdump", tcpdump_bs, tcpdump_as)
 
 
-def wifi_bs(context, scenario):
-    if context.IS_NMTUI:
-        nmci.veth.wifi_rescan()
-
-
 def wifi_as(context, scenario):
     if context.IS_NMTUI:
         context.process.nmcli_force(
-            "connection delete id wifi wifi1 qe-open qe-wpa1-psk qe-wpa2-psk qe-wep"
+            "connection delete id wifi wifi1 qe-open qe-wpa1-psk qe-wpa2-psk qe-wpa3-psk qe-wep"
         )
         # context.process.run_stdout("sudo service NetworkManager restart") # debug restart to overcome the nmcli d w l flickering
     else:
@@ -2319,7 +2314,7 @@ def wifi_as(context, scenario):
             "con del wifi qe-open qe-wep qe-wep-psk qe-wep-enterprise qe-wep-enterprise-cisco"
         )
         context.process.nmcli_force(
-            "con del qe-wpa1-psk qe-wpa2-psk qe-wpa1-enterprise qe-wpa2-enterprise qe-hidden-wpa2-psk"
+            "con del qe-wpa1-psk qe-wpa2-psk qe-wpa3-psk qe-wpa1-enterprise qe-wpa2-enterprise qe-hidden-wpa2-psk"
         )
         context.process.nmcli_force("con del qe-adhoc qe-ap wifi-wlan0")
         if "novice" in scenario.tags:
@@ -2328,15 +2323,8 @@ def wifi_as(context, scenario):
             context.process.nmcli_force("con del wifi-wlan0")
 
 
-_register_tag("wifi", wifi_bs, wifi_as)
+_register_tag("wifi", None, wifi_as)
 _register_tag("novice")
-
-
-def rescan_as(context, scenario):
-    nmci.veth.wifi_rescan()
-
-
-_register_tag("rescan", None, rescan_as)
 
 
 def no_connections_bs(context, scenario):

@@ -2926,10 +2926,6 @@ testmapper:
         feature: nmtui_wifi_hwsim
     - nmtui_simwifi_connect_to_wpa3psk_network:
         feature: nmtui_wifi_hwsim
-    - nmtui_simwifi_connect_to_wep_hexkey_network:
-        feature: nmtui_wifi_hwsim
-    - nmtui_simwifi_connect_to_wep_asciikey_network:
-        feature: nmtui_wifi_hwsim
     - nmtui_simwifi_add_default_connection_open_network:
         feature: nmtui_wifi_hwsim
     - nmtui_simwifi_fixed_device_present:
@@ -2962,6 +2958,14 @@ testmapper:
         feature: nmtui_wifi_hwsim
     - nmtui_simwifi_mac_spoofing:
         feature: nmtui_wifi_hwsim
+    - nmtui_simwifi_connect_to_wep_hexkey_network:
+        feature: nmtui_wifi_hwsim
+    - nmtui_simwifi_connect_to_wep_asciikey_network:
+        feature: nmtui_wifi_hwsim
+    - nmtui_simwifi_wep_hexkey_connection:
+        feature: nmtui_wifi_hwsim
+    - nmtui_simwifi_wep_ascii_connection:
+        feature: nmtui_wifi_hwsim
     - nmtui_simwifi_bogus_spoofing_address:
         feature: nmtui_wifi_hwsim
     - nmtui_simwifi_mtu:
@@ -2971,10 +2975,6 @@ testmapper:
     - nmtui_simwifi_wpa2_connection:
         feature: nmtui_wifi_hwsim
     - nmtui_simwifi_wpa3_connection:
-        feature: nmtui_wifi_hwsim
-    - nmtui_simwifi_wep_hexkey_connection:
-        feature: nmtui_wifi_hwsim
-    - nmtui_simwifi_wep_ascii_connection:
         feature: nmtui_wifi_hwsim
     - nmtui_simwifi_show_password:
         feature: nmtui_wifi_hwsim
@@ -3088,63 +3088,17 @@ testmapper:
         feature: nmtui_wifi
     - nmtui_wifi_connect_to_wpa2psk_network:
         feature: nmtui_wifi
-    - nmtui_wifi_connect_to_wep_hexkey_network:
-        feature: nmtui_wifi
-    - nmtui_wifi_connect_to_wep_asciikey_network:
-        feature: nmtui_wifi
-    - nmtui_wifi_connect_to_wep_phrase_network:
+    - nmtui_wifi_connect_to_wpa3psk_network:
         feature: nmtui_wifi
     - nmtui_wifi_add_default_connection_open_network:
         feature: nmtui_wifi
-    - nmtui_wifi_fixed_device_present:
-        feature: nmtui_wifi
-    - nmtui_wifi_fixed_device_invalid:
-        feature: nmtui_wifi
-    - nmtui_wifi_autoconnect_off:
-        feature: nmtui_wifi
-    - nmtui_wifi_activate_wo_autoconnect:
-        feature: nmtui_wifi
-    - nmtui_wifi_activate_with_autoconnect:
-        feature: nmtui_wifi
-    - nmtui_wifi_delete_connection_up:
-        feature: nmtui_wifi
-    - nmtui_wifi_delete_connection_down:
-        feature: nmtui_wifi
-    - nmtui_wifi_adhoc_network:
-        feature: nmtui_wifi
     - nmtui_wifi_ap:
-        feature: nmtui_wifi
-    - nmtui_wifi_wrong_ssid:
-        feature: nmtui_wifi
-    - nmtui_wifi_no_ssid:
-        feature: nmtui_wifi
-    - nmtui_wifi_set_existing_bssid:
-        feature: nmtui_wifi
-    - nmtui_wifi_set_nonexisting_bssid:
-        feature: nmtui_wifi
-    - nmtui_wifi_bogus_bssid:
-        feature: nmtui_wifi
-    - nmtui_wifi_mac_spoofing:
-        feature: nmtui_wifi
-    - nmtui_wifi_bogus_spoofing_address:
-        feature: nmtui_wifi
-    - nmtui_wifi_mtu:
         feature: nmtui_wifi
     - nmtui_wifi_wpa1_connection:
         feature: nmtui_wifi
     - nmtui_wifi_wpa2_connection:
         feature: nmtui_wifi
-    - nmtui_wifi_wep_hexkey_connection:
-        feature: nmtui_wifi
-    - nmtui_wifi_wep_ascii_connection:
-        feature: nmtui_wifi
-    - nmtui_wifi_wep_passphrase_connection:
-        feature: nmtui_wifi
-    # - nmtui_wifi_leap_connection:
-    #     feature: nmtui_wifi
-    - nmtui_wifi_show_password:
-        feature: nmtui_wifi
-    - nmtui_wifi_connect_to_network_after_dismissal:
+    - nmtui_wifi_wpa3_connection:
         feature: nmtui_wifi
 
 

@@ -40,7 +40,7 @@ Feature: nmcli - wifi
     Then "type IBSS" is visible with command "iw dev wlan0 info" in "30" seconds
 
 
-    @rescan @wifi
+    @wifi
     @nmcli_wifi_ap
     Scenario: nmcli - wifi - ap open network
     Given Flag "NM_802_11_DEVICE_CAP_AP" is set in WirelessCapabilites

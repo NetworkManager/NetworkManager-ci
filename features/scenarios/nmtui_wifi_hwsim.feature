@@ -36,15 +36,15 @@ Feature: WIFI TUI tests
 
 
     @fedoraver+=32
-    @ifcfg-rh @simwifi @attach_hostapd_log @attach_wpa_supplicant_log
+    @simwifi @attach_hostapd_log @attach_wpa_supplicant_log
     @nmtui_simwifi_connect_to_open_network
     Scenario: nmtui - wifi_hwsim - connect to open network straight
     * Start nmtui
     * Choose to "Activate a connection" from main screen
     * Select connection "open" in the list
     * Choose to "<Activate>" a connection
-    Then "ESSID=(\"open\"|open)" is visible with command "cat /etc/sysconfig/network-scripts/ifcfg-open"
-    Then "TYPE=Wireless" is visible with command "cat /etc/sysconfig/network-scripts/ifcfg-open"
+    Then "open" is visible with command "nmcli -g 802-11-wireless.ssid con show open"
+    Then "wireless" is visible with command "nmcli -g connection.type con show open"
     Then "inet 10." is visible with command "ip a s wlan0" in "30" seconds
 
 
@@ -127,7 +127,7 @@ Feature: WIFI TUI tests
 
 
     @fedoraver-=34 @rhelver-=8
-    @ifcfg-rh @simwifi @attach_hostapd_log @attach_wpa_supplicant_log
+    @simwifi @attach_hostapd_log @attach_wpa_supplicant_log
     @nmtui_simwifi_connect_to_wep_hexkey_network
     Scenario: nmtui - wifi_hwsim - connect to WEP hex-key network straight
     Given "wep-2" is visible with command "nmcli dev wifi list" in "60" seconds
@@ -139,8 +139,8 @@ Feature: WIFI TUI tests
     * ".*Authentication required.*" is visible on screen
     * Set current field to "74657374696E67313233343536"
     * Press "ENTER" key
-    Then "ESSID=(\"wep-2\"|wep-2)" is visible with command "cat /etc/sysconfig/network-scripts/ifcfg-wep-2"
-    Then "TYPE=Wireless" is visible with command "cat /etc/sysconfig/network-scripts/ifcfg-wep-2"
+    Then "wep-2" is visible with command "nmcli -g 802-11-wireless.ssid con show wep-2"
+    Then "wireless" is visible with command "nmcli -g connection.type con show wep-2"
     Then "inet 10." is visible with command "ip a s wlan0" in "30" seconds
 
 
@@ -161,15 +161,14 @@ Feature: WIFI TUI tests
 
 
     @fedoraver+=32
-    @ifcfg-rh @simwifi @attach_hostapd_log @attach_wpa_supplicant_log
+    @simwifi @attach_hostapd_log @attach_wpa_supplicant_log
     @nmtui_simwifi_add_default_connection_open_network
     Scenario: nmtui - wifi_hwsim - add default connection open network
     * Prepare new connection of type "Wi-Fi" named "wifi"
     * Set "SSID" field to "open"
     * Confirm the connection settings
-    Then "ESSID=(\"open\"|open)" is visible with command "cat /etc/sysconfig/network-scripts/ifcfg-wifi"
-    Then "DEVICE" is not visible with command "cat /etc/sysconfig/network-scripts/ifcfg-wifi"
-    Then "TYPE=Wireless" is visible with command "cat /etc/sysconfig/network-scripts/ifcfg-wifi"
+    Then "open" is visible with command "nmcli -g 802-11-wireless.ssid con show wifi"
+    Then "wireless" is visible with command "nmcli -g connection.type con show wifi"
     Then "inet 10." is visible with command "ip a s wlan0" in "30" seconds
 
 
@@ -204,7 +203,7 @@ Feature: WIFI TUI tests
     * Set "SSID" field to "open"
     * Ensure "Automatically connect" is not checked
     * Confirm the connection settings
-    Then "no" is visible with command "nmcli -g connection.autoconnect con show id wifi1"
+    Then "no" is visible with command "nmcli -g connection.autoconnect con show wifi"
     Then "wlan0\s+wifi\s+disconnected" is visible with command "nmcli device"
 
 
@@ -218,7 +217,7 @@ Feature: WIFI TUI tests
     * Ensure "Automatically connect" is not checked
     * Confirm the connection settings
     * "wifi1" is visible with command "nmcli connection"
-    Then "no" is visible with command "nmcli -g connection.autoconnect con show id wifi1"
+    Then "no" is visible with command "nmcli -g connection.autoconnect con show wifi1"
     * "wifi1" is not visible with command "nmcli device"
     * Come back to main screen
     * "open" is visible with command "nmcli dev wifi list" in "60" seconds
@@ -391,7 +390,7 @@ Feature: WIFI TUI tests
 
 
     @fedoraver+=32
-    @ifcfg-rh @simwifi @attach_hostapd_log @attach_wpa_supplicant_log
+    @simwifi @attach_hostapd_log @attach_wpa_supplicant_log
     @nmtui_simwifi_set_existing_bssid
     Scenario: nmtui - wifi_hwsim - set existing bssid
     * Prepare new connection of type "Wi-Fi" named "wifi1"
@@ -400,12 +399,12 @@ Feature: WIFI TUI tests
     * Note the output of "nmcli -g bssid,ssid dev wifi list | grep ':multiopen$' | head -n1 | sed 's/\\//g;s/:multiopen//g'"
     * Set "BSSID" field to "<noted>"
     * Confirm the connection settings
-    Then Noted value is visible with command "cat /etc/sysconfig/network-scripts/ifcfg-wifi1"
+    Then Noted value is visible with command "nmcli -g 802-11-wireless.bssid con show wifi1"
     Then Noted value is visible with command "iw dev wlan0 link | tr 'a-z' 'A-Z'" in "30" seconds
 
 
     @fedoraver+=32
-    @ifcfg-rh @simwifi @attach_hostapd_log @attach_wpa_supplicant_log
+    @simwifi @attach_hostapd_log @attach_wpa_supplicant_log
     @nmtui_simwifi_set_nonexisting_bssid
     Scenario: nmtui - wifi_hwsim - set nonexisting bssid
     * Prepare new connection of type "Wi-Fi" named "wifi1"
@@ -415,7 +414,7 @@ Feature: WIFI TUI tests
     * Confirm the connection settings
     * Wait for "5" seconds
     Then "wlan0\s+wifi\s+disconnected" is visible with command "nmcli device"
-    Then "BSSID=AA:AA:BB:BB:CC:CC" is visible with command "cat /etc/sysconfig/network-scripts/ifcfg-wifi1"
+    Then "AA\\:AA\\:BB\\:BB\\:CC\\:CC" is visible with command "nmcli -g 802-11-wireless.bssid con show wifi1"
     Then "open" is not visible with command "iw dev wlan0 info"
 
 
@@ -473,7 +472,7 @@ Feature: WIFI TUI tests
 
 
     @fedoraver+=32
-    @ifcfg-rh @simwifi @attach_hostapd_log @attach_wpa_supplicant_log
+    @simwifi @attach_hostapd_log @attach_wpa_supplicant_log
     @nmtui_simwifi_mtu
     Scenario: nmtui - wifi_hwsim - mtu
     * Prepare new connection of type "Wi-Fi" named "wifi1"
@@ -482,7 +481,7 @@ Feature: WIFI TUI tests
     * Set "MTU" field to "512"
     * Ensure "Automatically connect" is not checked
     * Confirm the connection settings
-    Then "MTU=512" is visible with command "cat /etc/sysconfig/network-scripts/ifcfg-wifi1"
+    Then "512" is visible with command "nmcli -g 802-11-wireless.mtu con show wifi1"
 
 
     @fedoraver+=32
