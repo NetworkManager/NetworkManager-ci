@@ -77,7 +77,6 @@ class Machine():
         )
 
         self.rpm_exclude_list = [
-            "*-dispatcher-routing-rules-*",
             "*-connectivity-*",
             "*-devel*",
         ]
