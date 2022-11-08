@@ -2522,6 +2522,7 @@ Feature: nmcli - general
     @ifup_ifdown_scripts_new_conn_from_ifcfg
     Scenario: NM - general - test ifup (ifdown) loads new connection from ifcfg file of same name automagically
     Given "con_general" is not visible with command "nmcli c show"
+    * Cleanup connection "con_general"
     * Execute """echo -e 'NAME=con_general\nTYPE=Ethernet\nDEVICE=eth8\nBOOTPROTO=static\nIPADDR=1.2.3.4\nPREFIX=24\nIPV6=no\nONBOOT=no' >> /etc/sysconfig/network-scripts/ifcfg-con_general"""
     * Execute "/usr/sbin/ifup con_general"
     When "connected" is visible with command "nmcli -f GENERAL.STATE device show eth8" in "5" seconds
