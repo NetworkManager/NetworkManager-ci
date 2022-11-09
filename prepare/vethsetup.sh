@@ -41,7 +41,11 @@ function setup_veth_env ()
     fi
 
     # If different than default connection is up after compilation bring it down and restart service
-    for i in $(nmcli -t -f DEVICE connection); do
+    for i in $( \
+        LANG=C nmcli -g CON-UUID,STATE,DEVICE device \
+         | sed -n 's/^[^:]\+://p' \
+         | grep -v '^connected (externally)' \
+         | sed -n 's/^[^:]\+://p' ) ; do
         nmcli device disconnect $i
         systemctl stop NetworkManager
         systemctl kill NetworkManager
