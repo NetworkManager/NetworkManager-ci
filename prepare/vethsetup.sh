@@ -44,6 +44,7 @@ function setup_veth_env ()
     for i in $(nmcli -t -f DEVICE connection); do
         nmcli device disconnect $i
         systemctl stop NetworkManager
+        systemctl kill NetworkManager
         rm -rf /var/run/NetworkManager*
     done
     sleep 2
