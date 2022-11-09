@@ -219,6 +219,9 @@ def after_step(context, step):
         nmci.crash.check_crash(context, step.name)
         nmci.embed.after_step()
 
+    if step.name.startswith("Prepare "):
+        nmci.util.dump_status("After this step", fail_only=True)
+
 
 # print exception traceback
 def after_scenario(context, scenario):
