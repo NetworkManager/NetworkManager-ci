@@ -2697,3 +2697,30 @@
      When "nm-bond:connected:bond0" is visible with command "nmcli -t -f DEVICE,STATE,CONNECTION device" in "40" seconds
      And "vlan+srmac" is visible with command "cat /sys/class/net/nm-bond/bonding/xmit_hash_policy"
      And "balance-xor" is visible with command "cat /sys/class/net/nm-bond/bonding/mode"
+
+
+     @rhbz2107647
+     @ver+=1.39.11
+     @bond_vlan_filtering_unmanaged_bridge
+     Scenario: bond - do not modify unmanaged bridge associated with managed bond
+     * Create "veth" device named "test-bond0-1-0" with options "peer name test-bond0-1-1"
+     * Create "veth" device named "test-bond0-2-0" with options "peer name test-bond0-2-1"
+     * Create "veth" device named "test-br0-v0" with options "peer name test-br0-v1"
+     * Create "bridge" device named "test-br0" with options "vlan_filtering 1"
+     * Execute "ip link set test-br0 up"
+     Then "vlan_filtering 1" is visible with command "ip -d link show test-br0" in "15" seconds
+     * Execute "ip link set test-br0-v0 master test-br0"
+     * Execute "ip link set test-br0-v0 up"
+     * Execute "ip link set test-br0-v1 up"
+     * Add "bond" connection named "test-bond0" for device "test-bond0" with options
+       """
+       master test-br0
+       bond.options "mode=2,xmit_hash_policy=vlan+srcmac"
+       slave-type bridge
+       """
+      * Add "ethernet" connection named "test-bond0-1-0" for device "test-bond0-1-0" with options "master test-bond0"
+      * Add "ethernet" connection named "test-bond0-2-0" for device "test-bond0-2-0" with options "master test-bond0"
+      * Bring "up" connection "test-bond0-1-0"
+      * Bring "up" connection "test-bond0-2-0"
+      * Bring "up" connection "test-bond0"
+      Then "vlan_filtering 1" is visible with command "ip -d link show test-br0" in "15" seconds
