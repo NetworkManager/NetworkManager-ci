@@ -2123,7 +2123,7 @@ def nmstate_upstream_setup_as(context, scenario):
     # in case of fail we need to kill this
     context.process.systemctl("stop dnsmasq")
     context.process.run_stdout(
-        "pkill -f 'dnsmasq.\*/etc/dnsmasq.d/nmstate.conf' || true",
+        "pkill -f 'dnsmasq.\\*/etc/dnsmasq.d/nmstate.conf' || true",
         ignore_stderr=True,
         shell=True,
     )
