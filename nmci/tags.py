@@ -544,18 +544,6 @@ def disp_bs(context, scenario):
 
 
 def disp_as(context, scenario):
-    context.process.run_stdout(
-        "rm -rf /etc/NetworkManager/dispatcher.d/*-disp", shell=True
-    )
-    context.process.run_stdout(
-        "rm -rf /usr/lib/NetworkManager/dispatcher.d/*-disp", shell=True
-    )
-    context.process.run_stdout(
-        "rm -rf /etc/NetworkManager/dispatcher.d/pre-up.d/98-disp"
-    )
-    context.process.run_stdout(
-        "rm -rf /etc/NetworkManager/dispatcher.d/pre-down.d/97-disp"
-    )
     # context.process.run_stdout("rm -rf /tmp/dispatcher.txt")
     context.process.nmcli_force("con down testeth1")
     context.process.nmcli_force("con down testeth2")

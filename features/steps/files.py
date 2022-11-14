@@ -124,6 +124,9 @@ def write_dispatcher_file(context, path, params=None):
         os.makedirs(dir_name)
     if not params and bool(context.text):
         params = context.text
+
+    nmci.cleanup.cleanup_file(path)
+
     with open(path, "w") as f:
         f.write("#!/bin/bash\n")
         if params:
