@@ -123,16 +123,16 @@ def write_dispatcher_file(context, path, params=None):
         if not os.path.exists(dir):
             os.makedirs(dir)
     else:
-        disp_file = '/etc/NetworkManager/dispatcher.d/%s' % path
+        disp_file = "/etc/NetworkManager/dispatcher.d/%s" % path
     if not params and bool(context.text):
         params = context.text
-    f = open(disp_file, 'w')
-    f.write('#!/bin/bash\n')
+    f = open(disp_file, "w")
+    f.write("#!/bin/bash\n")
     if params:
         f.write(params)
-    f.write('\necho $2 >> /tmp/dispatcher.txt\n')
+    f.write("\necho $2 >> /tmp/dispatcher.txt\n")
     f.close()
-    context.command_code('chmod +x %s' % disp_file)
+    context.command_code("chmod +x %s" % disp_file)
     context.command_code("> /tmp/dispatcher.txt")
     time.sleep(8)
 
